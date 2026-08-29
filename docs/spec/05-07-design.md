@@ -303,7 +303,7 @@ src/
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付けと、全画面表示（`FR-051` / `FR-052` / `FR-071`） |
-| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`） |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。上下の関係を負うのは `UF-71` である |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
@@ -312,7 +312,7 @@ src/
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。順序は 表 T-035 の `AG-11`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） |
-| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` |
+| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38`。⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは本ユニットである** —— `Opened File Name` を `File Saved At` の上に置く。⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と本ユニットのどちらが正かが読めなくなる |
 
 ⚠️ **`semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。** 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。**外を読むだけのメンバと外へ書くメンバが同じ入口に並ぶのは、表 T-065 のインターフェース 1 本が両方を持つときである。**
 

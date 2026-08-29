@@ -105,6 +105,7 @@ import {
 } from '../../entity/document-model/edit-history/edit-history'
 import {
   scheduleViolations,
+  taskByUid,
   textOfDay,
   type CalendarDay,
   type Project,
@@ -1535,6 +1536,11 @@ interface SessionHeld {
   readonly pointerRestedMs: number
   /** EZ-2's other half -- what IF-9 answered for that point. */
   readonly iconUnderPointer: IconId | null
+  /**
+   * EZ-6's other half -- the Task table T-023d claims that point for, or
+   * `null` for a point it claims for anything else.
+   */
+  readonly taskUnderPointer: Task | null
   /** FR-053 -- where GR-19's drag left the palette, `null` while nobody has. */
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
@@ -1604,6 +1610,7 @@ function sessionOf(
     pointer,
     pointerRestedMs,
     iconUnderPointer,
+    taskUnderPointer,
     commandPaletteDraggedTo,
     isMilestoneListOpen,
     isPaletteMinimised,
@@ -1649,6 +1656,11 @@ function sessionOf(
     // requirement takes it back out again.
     pointerRestedMs,
     iconUnderPointer,
+    // EZ-6 of table T-040 -- the same two halves, and the place half is table
+    // T-023d's own order rather than a second hit test (MUST NOT): it is what
+    // `itemAtPointer` (PI-7) answered for this very point, handed on rather
+    // than asked for again (R7.4).
+    taskUnderPointer,
     // FR-053: where the drag left it, or the `Row Area`'s corner while nobody
     // has dragged it. ⭐ Handed in rather than decided here -- it is a current
     // value and LY-5 of table T-060 leaves those with the loop, which is the
@@ -2772,6 +2784,17 @@ export function frameLoop(
   // ⛔ NOT A SECOND HIT TEST. `grabAtPointer` is asked once per happening and
   // its one answer is what both IN-2's shape and FR-048's judgement read.
   let grabUnderPointer: Grabbed | null = null
+  // Whether the frame last painted put an explanation up (U-53).
+  //
+  // ⭐ WHY THE LOOP HAS TO REMEMBER IT. EZ-6 of table T-040 (MUST) takes the
+  // explanation over a Task away 「ポインタが動いたら」, and a move that stays
+  // on the same entry and the same row of table T-023d changes neither of the
+  // two answers FR-048's exemption compares -- so nothing owed a frame and the
+  // explanation stood on. ⛔ The wait beginning again is not enough by itself:
+  // it is read INSIDE a frame, and no frame was being asked for.
+  // ⚠️ WHAT WAS DRAWN AND NOT WHAT IS DUE. It says only that the last painted
+  // frame carried one, which is exactly what a move might now have to erase.
+  let isTooltipStanding = false
   // FT-4 of table T-078 -- when the rest EZ-2 of table T-040 waits on began,
   // read off the monotonic clock R3.6 requires for an elapsed time, or `null`
   // while the pointer has never yet been reported to stand anywhere.
@@ -3301,7 +3324,7 @@ export function frameLoop(
     // ⛔ AFTER the schedule, because the parts outside it are drawn OVER the
     // drawing area -- the note under table T-023a limits that table's decision
     // order to the schedule for exactly this reason.
-    screen.surface.showScreenView(
+    const screenView =
       screenViewFromRegions(
         regions,
         document.schedule,
@@ -3321,6 +3344,18 @@ export function frameLoop(
           // page as it stands (`readScreenPartAt` says so), and a second read
           // inside the frame would be a second moment for one drawing.
           iconUnderPointer: partUnderPointer?.entry ?? null,
+          // ⭐ EZ-6's PLACE CONDITION, AND THE SAME ANSWER `grabUnderPointer`
+          // ALREADY IS. That row (MUST) sends 「どのタスクの上か」 to table
+          // T-023d's order of priority and (MUST NOT) forbids raising another
+          // hit test for it -- and `grabAtPointer` is where that table is
+          // walked, once per happening (R7.4). ⛔ A reading of its own here
+          // would be the second answer that MUST NOT names.
+          // ⚠️ `held.document` AND NOT THE PREVIEW: a drag in flight has no
+          // pointer at rest, and the frozen copy is what CS-1 draws from.
+          taskUnderPointer:
+            grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
+              ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
+              : null,
           commandPaletteDraggedTo,
           isMilestoneListOpen,
           isPaletteMinimised,
@@ -3340,8 +3375,12 @@ export function frameLoop(
           confirmation: asking?.question ?? null,
           notices: raisedNotices,
         }),
-      ),
-    )
+      )
+    // ⭐ READ OFF THE VERY DESCRIPTION THAT WENT OUT, for the reason `drawnSvg`
+    // is held in a binding above: a second opinion about what was drawn is the
+    // one thing this record must never be.
+    isTooltipStanding = screenView.tooltips.length > 0
+    screen.surface.showScreenView(screenView)
   }
 
   /** @purity non-pure */
@@ -3731,6 +3770,11 @@ export function frameLoop(
           pointer: null,
           pointerRestedMs: 0,
           iconUnderPointer: null,
+          // ⚠️ AND NO TASK UNDER IT, for the same reason: EZ-6 of table T-040
+          // waits on a pointer resting over a bar, and an export has neither
+          // the pointer nor the moment. EP-15 of table T-076 keeps the
+          // explanation out of the picture in as many words.
+          taskUnderPointer: null,
           commandPaletteDraggedTo: null,
           // ⚠️ Closed here whatever the reader left it at, for the reason the
           // corner above is at none: EP-12 of table T-076 keeps this session's
@@ -5510,6 +5554,20 @@ export function frameLoop(
     //    (Chapter 5.3, under table T-065). ⚠️ With no `ScreenWiring` there are
     //    no parts at all, so both sides are null and this one is false.
     if (!isSameScreenPart(partUnderPointer, partBefore)) return true
+    // 4a. ⭐ AND AN EXPLANATION THAT IS STANDING, which is the other half of
+    //    the same exemption. EZ-6 of table T-040 (MUST) has the explanation
+    //    over a Task go away 「ポインタが動いたら」, and EZ-2's goes with its
+    //    trigger by IN-3 of table T-028 -- so a move while one is up CHANGES
+    //    what is drawn, and asking for a frame is not what FR-048 forbids.
+    //    ⛔ Without this the wait simply began again and nothing repainted: the
+    //    explanation stayed on the screen until some other happening came, and
+    //    a person moving inside one bar was told it had not gone away.
+    //    ⚠️ ASKED OF THE LAST FRAME AND NOT OF THE WAIT. `pointerRestedMs` is
+    //    read inside `runFrame`; what is owed here is a repaint of what the
+    //    LAST one put up, and that is the only thing this flag records. ⭐ It
+    //    settles false on that repaint, so a move over an empty screen goes on
+    //    owing nothing.
+    if (isTooltipStanding) return true
     // 5. ⭐ AND THE SAME QUESTION ASKED OF THE SCHEDULE ITSELF, which is where
     //    FR-043's grab slop and FR-013's marker are drawn -- two of that same
     //    list. ⛔ IF-9 CANNOT ANSWER FOR THEM: the schedule goes up whole over

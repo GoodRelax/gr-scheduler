@@ -1848,6 +1848,11 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
  */
 function anchorKey(anchor: TooltipAnchor): string {
   if (anchor.kind === 'icon') return `icon ${anchor.icon}`
+  // ⚠️ EZ-6's Task is drawn into the schedule's picture, which goes up over
+  // IF-1 -- so this key never finds an element here, and the description
+  // carries the point instead (`Tooltip.at`). It is still built, because it is
+  // what tells one Task's explanation from another's between frames.
+  if (anchor.kind === 'task') return `task ${anchor.taskUid}`
   if (anchor.kind === 'rowTitle') return `rowTitle ${anchor.groupId}`
   return `scrollbar ${anchor.axis}`
 }
@@ -4062,12 +4067,23 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    *
    * @purity semi-pure-b
    */
-  function anchorFor(key: string): HTMLElement | undefined {
+  function anchorFor(key: string, anchor: TooltipAnchor): HTMLElement | undefined {
     for (const held of anchorsByPart.values()) {
       const found = held.get(key)
       if (found !== undefined) return found
     }
-    return undefined
+    // ⭐ AND THEN THE TREE ITSELF, BY THE ROW ID. EZ-2 of table T-040 (MUST)
+    // reaches every row of table T-109 and (MUST NOT) lets one go quiet because
+    // of the surface it stands on -- and the entrances drawn per ROW and per
+    // PERSON (IC-58 .. IC-60, IC-77, IC-82, IC-63 ..) are built where no
+    // `anchors` map is threaded, so the maps above hold none of them and the
+    // explanation landed in the top-left corner. Measured on the shipped page.
+    // ⭐ NOT A SECOND JOIN: `data-icon` carries the very row id `anchorKey`
+    // is built out of, which is what the head of this file calls the join.
+    // ⚠️ THE FIRST ONE DRAWN. FR-029 (MUST NOT) forbids one entrance to stand
+    // in two places, so a row with two nodes is a fault where it is HELD.
+    if (anchor.kind !== 'icon') return undefined
+    return root.querySelector<HTMLElement>(`[data-icon="${anchor.icon}"]`) ?? undefined
   }
 
   /**
@@ -4166,12 +4182,41 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       ? `${tip.text} ${tip.assignment}`
       : tip.text
 
+    // ⭐ THE POINT THE DESCRIPTION CARRIES WINS, AND ONLY EZ-6's Task CARRIES
+    // ONE. That explanation is anchored to a bar drawn into the schedule's own
+    // picture, which goes up whole over IF-1 -- so there is no element of this
+    // surface's to stand against, and `anchorFor` below would put it in the
+    // top-left corner. ⚠️ Read rather than measured, for the reason the icons
+    // are: the side that drew the bar is the side that can say where it is.
+    // @provisional PD-391
+    if (tip.at !== undefined) {
+      // STOP -- ⚠️ IN-3 of table T-028 GRANTS EVERY TOOLTIP 「ポインタを乗せ
+      // られること」, AND THIS ONE REFUSES THE POINTER. Measured on the shipped
+      // page: standing at the point the pointer rests on, the box becomes the
+      // element under that pointer, `readScreenPartAt` answers `Tooltip` for it,
+      // and `grabAtPointer` turns away every point the screen surface answered
+      // for -- so the bar underneath went unreachable and the explanation, once
+      // taken away by a move, never came back.
+      // ⭐ EZ-6 IS THE ROW THAT SETTLES IT for this raiser: 「ポインタが動いたら
+      // 消すこと（MUST）」 means the very move that would carry the pointer onto
+      // this box is the move that takes the box away, so the hovering IN-3
+      // grants cannot be reached here whatever this line says. ⛔ The other two
+      // raisers keep it: they stand against an element of their own, away from
+      // the point, and this branch is not theirs.
+      // ⚠️ REPORTED, NOT SETTLED HERE -- see PD-391.
+      drawn.setAttribute(
+        'style',
+        tooltipStyle() + `pointer-events:none;left:${tip.at.x}px;top:${tip.at.y}px;`,
+      )
+      return drawn
+    }
+
     // Placed against the very element that carries the anchor -- the entry that
     // was drawn for EZ-2's icon, the row FR-085 cut, or the lane FR-037's hint
     // belongs to. ⚠️ Read from the live tree rather than from a rectangle in the
     // description, because `ScreenView` carries no rectangle for an entry: that
     // is the same absence `ScreenSession.iconUnderPointer` records.
-    const anchored = anchorFor(key)
+    const anchored = anchorFor(key, tip.anchor)
     if (anchored === undefined) {
       drawn.setAttribute('style', tooltipStyle() + 'left:0;top:0;')
       return drawn

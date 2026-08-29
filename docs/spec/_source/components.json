@@ -39,12 +39,6 @@
    "remark": "implements FileStore / FR-060"
   },
   {
-   "name": "LocalStorageDocumentStore",
-   "shape": "component",
-   "description": "Stores and restores the autosaved document.",
-   "remark": "implements DocumentStore / FR-026"
-  },
-  {
    "name": "BrowserClipboard",
    "shape": "component",
    "description": "Writes to the clipboard.",
@@ -91,12 +85,6 @@
    "shape": "component",
    "description": "Opens and overwrites the document file. Declares FileStore.",
    "remark": "FR-060 / T-024"
-  },
-  {
-   "name": "AutosaveGateway",
-   "shape": "component",
-   "description": "Saves at the idle boundary and offers recovery. Declares DocumentStore.",
-   "remark": "FR-026 / FR-061"
   },
   {
    "name": "ClipboardGateway",
@@ -277,12 +265,6 @@
    "label": "implements FileStore"
   },
   {
-   "source": "LocalStorageDocumentStore",
-   "target": "AutosaveGateway",
-   "arrow": "realization",
-   "label": "implements DocumentStore"
-  },
-  {
    "source": "BrowserClipboard",
    "target": "ClipboardGateway",
    "arrow": "realization",
@@ -330,13 +312,6 @@
    "description": "asks for an intake"
   },
   {
-   "source": "AutosaveGateway",
-   "target": "ApplyDocumentChange",
-   "arrow": "dependency",
-   "label": "restore",
-   "description": "asks for a restore"
-  },
-  {
    "source": "ImageExporter",
    "target": "SvgRenderer",
    "arrow": "dependency",
@@ -349,13 +324,6 @@
    "arrow": "dependency",
    "label": "format",
    "description": "gets the exchange format"
-  },
-  {
-   "source": "AutosaveGateway",
-   "target": "DocumentCodec",
-   "arrow": "dependency",
-   "label": "string to store",
-   "description": "gets the string to store"
   },
   {
    "source": "ClipboardGateway",
@@ -688,13 +656,6 @@
   },
   {
    "source": "SingleHtmlShell",
-   "target": "AutosaveGateway",
-   "arrow": "dependency",
-   "label": "idle boundary",
-   "description": "saves at the idle boundary and offers recovery"
-  },
-  {
-   "source": "SingleHtmlShell",
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
@@ -939,7 +900,6 @@
      "DocumentCodec",
      "ImageExporter",
      "FileGateway",
-     "AutosaveGateway",
      "ClipboardGateway",
      "ScreenRenderer"
     ]
@@ -956,7 +916,6 @@
      "DomSvgSurface",
      "DomInputSource",
      "FileSystemAccessFileStore",
-     "LocalStorageDocumentStore",
      "BrowserClipboard",
      "CanvasRasterizer",
      "DomScreenSurface"
@@ -1006,14 +965,12 @@
    "label": "Intake and output",
    "nodes": [
     "FileGateway",
-    "AutosaveGateway",
     "ClipboardGateway",
     "ImageExporter",
     "SvgRenderer",
     "DocumentCodec",
     "ScreenRenderer",
     "FileSystemAccessFileStore",
-    "LocalStorageDocumentStore",
     "BrowserClipboard",
     "CanvasRasterizer",
     "ImportDocument",

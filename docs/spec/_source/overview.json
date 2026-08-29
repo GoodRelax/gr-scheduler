@@ -38,12 +38,6 @@
    "remark": "implements FileStore / FR-060"
   },
   {
-   "name": "LocalStorageDocumentStore",
-   "shape": "component",
-   "description": "Stores and restores the autosaved document.",
-   "remark": "implements DocumentStore / FR-026"
-  },
-  {
    "name": "BrowserClipboard",
    "shape": "component",
    "description": "Writes to the clipboard.",
@@ -90,12 +84,6 @@
    "shape": "component",
    "description": "Opens and overwrites the document file. Declares FileStore.",
    "remark": "FR-060 / T-024"
-  },
-  {
-   "name": "AutosaveGateway",
-   "shape": "component",
-   "description": "Saves at the idle boundary and offers recovery. Declares DocumentStore.",
-   "remark": "FR-026 / FR-061"
   },
   {
    "name": "ClipboardGateway",
@@ -262,14 +250,14 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 7 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage"
+   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage"
   },
   {
    "source": "framework",
    "target": "adapter",
    "arrow": "dependency",
    "label": "drives / implements",
-   "description": "backed by 16 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> AutosaveGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway; SingleHtmlShell -> ScreenRenderer; DomScreenSurface -> ScreenRenderer"
+   "description": "backed by 14 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway; SingleHtmlShell -> ScreenRenderer; DomScreenSurface -> ScreenRenderer"
   },
   {
    "source": "framework",
@@ -385,7 +373,6 @@
      "DocumentCodec",
      "ImageExporter",
      "FileGateway",
-     "AutosaveGateway",
      "ClipboardGateway",
      "ScreenRenderer"
     ]
@@ -402,7 +389,6 @@
      "DomSvgSurface",
      "DomInputSource",
      "FileSystemAccessFileStore",
-     "LocalStorageDocumentStore",
      "BrowserClipboard",
      "CanvasRasterizer",
      "DomScreenSurface"

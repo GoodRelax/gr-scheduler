@@ -1718,6 +1718,55 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     )
   })
 
+  it('⭐ GIVEN forty things would go WHEN the question is drawn THEN BOTH answers are still there, still live, and still reachable (NT-7 MUST)', () => {
+    // ⭐ THE TWO MUSTs OF NT-7 READ TOGETHER, which neither case above does on
+    // its own: 「何が起きるかを示したうえで、続けるか取りやめるかを選ばせること
+    // (MUST)」 and 「消えるもの・解かれるものがあるときは、その名前を挙げること
+    // (MUST)」. The choosing case above is drawn with NO names, and the
+    // twelve-name case asks only that the names arrive -- so a surface that let
+    // a long list crowd IC-69 / IC-70 out, disable them, or stop answering for
+    // them would pass both and still leave the person unable to answer.
+    // ⛔ CD-2 of table T-050 makes such a list ordinary, not extreme: deleting a
+    // row takes 「その行に載っているすべての `Task`」 and every descendant row
+    // with it.
+    const many = Array.from({ length: 40 }, (_unused, index) => named(`task number ${index}`))
+
+    const built = drawn(asking(questionRow(3), many))
+    const part = confirmationPartOf(built)
+
+    expect(entryRowsIn(part), 'both answers stand, in the roster order').toEqual(ENTRY_ROWS)
+
+    ENTRY_ROWS.forEach((row, index) => {
+      const node = entryNodeFor(part, row)
+      expect(isShown(node), `${row} is on the screen beside forty names`).toBe(true)
+      expect(node.disabled, `${row} may not be disabled`).toBe(false)
+      expect(node.hasAttribute('disabled'), `${row} may not be disabled`).toBe(false)
+      expect(node.getAttribute('aria-disabled'), `${row} may not be disabled`).not.toBe('true')
+      expect(ask(built, midOfEntry(index))?.entry, `${row} can still be chosen`).toBe(row)
+    })
+  })
+
+  it('⭐ GIVEN forty things would go WHEN the question is drawn THEN every name is there WHOLE -- the list is not cut short and no name is cut (FR-032 MUST NOT)', () => {
+    // FR-032 (MUST NOT): 「件数だけを示してはならない」, and NT-7 (MUST): 「その
+    // 名前を挙げること」. ⛔ A list that stopped at some number, or that showed a
+    // shortened name, would be showing a count of the rest by another road.
+    // ⚠️ The names below are deliberately long enough that a surface which cut
+    // them would be caught: each is read back as the WHOLE string.
+    const many = Array.from({ length: 40 }, (_unused, index) =>
+      named(`foundation work on the north elevation, phase ${index}`),
+    )
+
+    const part = confirmationPartOf(drawn(asking(questionRow(3), many)))
+
+    for (const item of many) {
+      const name = item.name ?? ''
+      expect(
+        nodesReadingExactly(part, name).length,
+        `"${name}" is on the screen whole`,
+      ).toBeGreaterThanOrEqual(1)
+    }
+  })
+
   it('GIVEN a question that takes nothing with it WHEN it is drawn THEN it still stands with both answers (table T-227 DI-4)', () => {
     // ⚠️ DI-4 owes no names at all. An empty list is a
     // real answer, so dropping the surface for having no names would silence the

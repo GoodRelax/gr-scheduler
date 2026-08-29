@@ -56,7 +56,7 @@
 import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
+import type { Exception, Schedule, Task, WeekDay } from '../../entity/document-model/schedule/schedule'
 import type {
   DualCursorSide,
   ScreenState,
@@ -1530,6 +1530,26 @@ export interface Tooltip {
    * the side that filled it.
    */
   readonly assignment: string | null
+  /**
+   * Where this explanation stands, for an anchor the screen surface DREW
+   * NOTHING FOR. EZ-6 of table T-040 puts one on a `Task`, and a Task is drawn
+   * into the schedule's own picture across IF-1 -- so the side that places
+   * this description has no element of its own to put it against, the way it
+   * has for an icon (EZ-2) and for a lane (FR-037).
+   *
+   * ⛔ ABSENT ON THOSE TWO, NOT `null` ON THEM. They are anchored to an element
+   * that was drawn, and a point beside it would be a second answer to where
+   * they stand -- the very thing `ScreenSession.iconUnderPointer`'s note
+   * refuses. This member is present only where no element can be found.
+   *
+   * ⚠️ NO ROW GIVES THE PLACE. Searched: FR-092 (table T-040, EZ-6), table
+   * T-028 (IN-3), table T-076 (EP-15), table T-206. EP-15 says only that the
+   * explanation is raised by the pointer having stopped; where it is then
+   * drawn is settled nowhere, so the pointer's own point is used and marked.
+   *
+   * @provisional PD-391
+   */
+  readonly at?: { readonly x: number; readonly y: number }
 }
 
 /**
@@ -1542,6 +1562,16 @@ export interface Tooltip {
 export type TooltipAnchor =
   /** EZ-2 of table T-040 (MUST): the explanation of an icon, after `iconHintDelayMs` (S-124). */
   | { readonly kind: 'icon'; readonly icon: IconId }
+  /**
+   * EZ-6 of table T-040 (MUST): the name of the `Task` the pointer has rested
+   * on for `iconHintDelayMs` (S-124), and its two dates.
+   *
+   * ⛔ WHICH Task IS NOT DECIDED HERE (MUST NOT). EZ-6 sends that question to
+   * table T-023d's order of priority and forbids a second hit test, so the
+   * answer arrives as `ScreenSession.taskUnderPointer` from the side that
+   * already walks that table.
+   */
+  | { readonly kind: 'task'; readonly taskUid: number }
   /** FR-085 (MUST): the whole of a row name that was cut. */
   | { readonly kind: 'rowTitle'; readonly groupId: string }
   /** FR-037: the faster way of doing the same thing, shown while the pointer rests on a scrollbar and taken away when it leaves. ⛔ Never shown all the time (MUST NOT). */
@@ -1695,6 +1725,26 @@ export interface ScreenSession {
    * @provisional PD-141
    */
   readonly iconUnderPointer: IconId | null
+  /**
+   * EZ-6 of table T-040 (MUST): the `Task` the pointer is resting ON, or
+   * `null` while it rests on none. The name and the two dates EZ-6 shows are
+   * THAT Task's.
+   *
+   * ⭐ WHY THE ANSWER COMES FROM THE SHELL, AND WHY IT IS THE WHOLE `Task`.
+   * EZ-6 (MUST) sends 「どのタスクの上か」 to table T-023d's order of priority
+   * and (MUST NOT) forbids raising a second hit test -- and the one walk of
+   * that table is `itemAtPointer` (PI-7), read against a `ScheduleGeometry`
+   * this component may not reach. So the side that already asks it is the one
+   * side that may answer, exactly as `iconUnderPointer` above. ⚠️ The Task
+   * itself and not its `uid`: this component is handed no `Schedule` in the
+   * unit that builds the tooltips, and a lookup here would need one.
+   *
+   * ⚠️ OPTIONAL, WHICH THE MEMBERS ABOVE ARE NOT. A description that does not
+   * carry it is one from a side that has not been taught to answer yet, and it
+   * reads the same as a pointer resting on no Task -- ⛔ never as a Task whose
+   * explanation may be invented here.
+   */
+  readonly taskUnderPointer?: Task | null
   /** Where the person dragged the palette to (FR-053). See `CommandPalette.at`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   /**

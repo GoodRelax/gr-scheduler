@@ -1778,6 +1778,17 @@
    }
   },
   {
+   "rowId": "RS-26",
+   "text": {
+    "ja": "起動時に渡されたファイルを読めなかったので、開いていません",
+    "en": "The file handed at start-up could not be read, so it was not opened"
+   },
+   "nextStep": {
+    "ja": "そのファイルを選び直して開いてください",
+    "en": "Choose that file again and open it"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

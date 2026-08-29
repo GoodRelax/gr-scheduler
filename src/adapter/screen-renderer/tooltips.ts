@@ -34,6 +34,24 @@
 //              the wait, `iconUnderPointer` (PD-141) for which entry is under
 //              the pointer. ⚠️ The place is READ and not measured -- no entry
 //              carries a rectangle, so the side that drew them answers.
+//   task       EZ-6 of table T-040 states the SAME two conditions and (MUST)
+//              the same wait as EZ-2 -- 「別の待ち時間を持ってはならない
+//              （MUST NOT）」 -- so the time half is the one binding below.
+//              ⛔ ITS PLACE HALF IS TABLE T-023d's ORDER, and EZ-6 (MUST NOT)
+//              forbids raising a second hit test for it, so the place is READ
+//              from `ScreenSession.taskUnderPointer` for the same reason the
+//              icon's is: the one walk of that table is `itemAtPointer` (PI-7)
+//              over a geometry this component is not handed.
+//
+// ⭐ EZ-2 REACHES EVERY ROW OF TABLE T-109, WHICHEVER SURFACE IT STANDS ON
+// (MUST), and 「載る面によって説明を出さない行があってはならない（MUST NOT）」.
+// ⛔ THIS FILE USED TO WALK THE THREE ROSTERS `ScreenView` carries entries in --
+// the `App Header`, the `Command Palette` and the open surface -- and explain
+// only an entry it found there. Measured: the dictionary holds a `hint` for all
+// 78 rows, and 19 of them stand on the `Row Title Panel`, the `Resource Roster`
+// and the `Properties Panel`, which carry no `CommandItem` -- so those 19 were
+// silent whatever the pointer did. The explanation is keyed by the ROW, so the
+// row the pointer rests on is looked up directly and no roster is walked.
 //
 // ⛔ NOTHING RAISES `TooltipAnchor`'s `rowTitle` CASE ANY MORE. FR-085 (MUST
 // NOT) forbids explaining a cut row name at all: UF-63 ends the cut in an
@@ -59,9 +77,13 @@
 // and `TooltipAnchor` carries no case for it. Nothing is invented for it here.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  dayOf,
+  textOfDay,
+  type Task,
+} from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type {
-  CommandItem,
   DisplayLanguage,
   ScreenSession,
   ScreenView,
@@ -171,10 +193,87 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
   return press === undefined || press === '' ? null : press
 }
 
-function entryHint(command: CommandItem, language: DisplayLanguage): string {
-  const word = HINTS_BY_ROW.get(command.icon)?.hint[language]
-  if (word === undefined) return command.label
-  return word === '' ? command.label : word
+/**
+ * The explanation EZ-2 shows for one row of table T-109, in the display
+ * language.
+ *
+ * ⛔ THE STAND-IN IS THE ROW'S OWN LABEL AND THEN THE ROW ID, and neither is
+ * the empty string: FR-029 (MUST) makes an entry that cannot be used give its
+ * REASON here rather than going quiet, and an empty tooltip is the silence that
+ * requirement exists to prevent. ⚠️ The label comes from the dictionary and no
+ * longer from a `CommandItem`: EZ-2 (MUST) reaches every row of table T-109,
+ * and 19 of them stand where no `CommandItem` is drawn at all.
+ * ⚠️ `hint` is a SECOND word and not a spelling of `label` -- `CommandItem.label`
+ * says so in as many words.
+ *
+ * ⛔ THE FALLBACKS ARE WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing.
+ * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
+ * with the row id -- the stand-in `assignmentText` gives its reason for. It
+ * cannot happen while `npm run gen:check` passes.
+ *
+ * @purity pure
+ */
+function iconHint(icon: IconId, language: DisplayLanguage): string {
+  const held = HINTS_BY_ROW.get(icon)
+  if (held === undefined) return icon
+  if (held.hint[language] !== '') return held.hint[language]
+  return held.label[language] === '' ? icon : held.label[language]
+}
+
+/**
+ * ⚠️ `textOfDay` writes the exchange partner's own type -- a day and a time
+ * joined by this letter (EX-7 of table T-033) -- and EZ-6 (MUST) asks for the
+ * day alone. Cutting there is how the panel spells a date column as well, so
+ * neither file mints a date format.
+ */
+const DAY_TIME_SEPARATOR = 'T'
+
+/**
+ * One of EZ-6's two dates, as that row (MUST) spells it: `YYYY-MM-DD`, never a
+ * month written as a word.
+ *
+ * ⭐ `dayOf` is the one place the reading of a stored date column lives and
+ * `textOfDay` the one place its spelling does (FR-054, MUST / MUST NOT: the
+ * lexical date part, no zone converted), so this file mints nothing.
+ * ⚠️ A column that holds no date leaves the EMPTY STRING, which is EZ-6's
+ * 「値を持たない項目は、その場所を空けること（MUST）」.
+ *
+ * @purity pure
+ */
+function dateText(stored: string | null): string {
+  const day = dayOf(stored)
+  if (day === null) return ''
+  return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
+}
+
+/**
+ * What EZ-6 of table T-040 (MUST) shows over a `Task`: its name, then `start`
+ * and `finish` in that order.
+ *
+ * ⛔ THE NAME IS NOT CUT (MUST). FR-002 cuts the label drawn on the bar and
+ * says in as many words that this explanation is the only way the whole of it
+ * can be read -- so nothing here shortens it.
+ * ⭐ THE DATES ARE JOINED BY `/`, which is the row's own separator
+ * (「開始・終了の順に `/` で並べること（MUST）」), and neither the mark nor a
+ * digit is a word, so FR-038's dictionary holds none of this (the row says so).
+ *
+ * ⚠️ THE NAME IS JOINED TO THEM BY A SPACE, AND THAT IS NOT STATED. EZ-6 fixes
+ * the separator BETWEEN THE TWO DATES and no other. A space is what this build
+ * already puts between the two halves of an icon's explanation, on the ground
+ * that 「a separator with meaning would be a word」 -- so the same nothing is
+ * used here rather than a second mark. ⛔ Nothing is trimmed away: EZ-6 (MUST)
+ * has an item with no value leave its place empty, and collapsing the joins
+ * would move the dates into the name's place.
+ *
+ * @provisional PD-390
+ * @purity pure
+ */
+function taskHint(task: Task): string {
+  const name = task.name ?? ''
+  return `${name} ${dateText(task.start)} / ${dateText(task.finish)}`
 }
 
 /**
@@ -185,7 +284,7 @@ function entryHint(command: CommandItem, language: DisplayLanguage): string {
  * `FASTER_SCROLL_ASSIGNMENT_ROWS` gives -- it is what this file printed before
  * the dictionary was wired, and ⚠️ rule 03 section 1 forbids re-typing what
  * table T-023's assignment column says as firmly as it forbids inventing a word
- * for it. The fallback is written as `=== ''` for the reason `entryHint` gives.
+ * for it. The fallback is written as `=== ''` for the reason `iconHint` gives.
  *
  * @purity pure
  */
@@ -211,41 +310,12 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
 }
 
 /**
- * Every entry a person can press that the eight parts hold, in the order
- * `ScreenView` prints them.
- *
- * ⚠️ Three of the eight are read and five are not: `PropertyField`, `Notice` and
- * `DialogueMessage` carry no icon, and UF-61's parts are lanes and bands rather
- * than entries. ⭐ Duplicates are not folded out -- FR-029 (MUST NOT) forbids
- * the same entry to stand in two places at once, so a repeated icon would be a
- * fault in the part that holds it and not something to paper over here.
- *
- * @purity pure
- */
-function commandsOnScreen(shown: Omit<ScreenView, 'tooltips'>): readonly CommandItem[] {
-  const palette = shown.commandPalette
-  const modal = shown.openModal
-  return [
-    ...shown.appHeaderItems.commands,
-    // ⭐ THE PALETTE'S BAND CARRIES AN ENTRANCE OF ITS OWN, AND IT IS NOT IN A
-    // GROUP. Table T-109 gives IC-75 no 群 -- FR-053 (MUST) puts the minimise
-    // toggle on the grab band -- so reading `groups` alone would leave the one
-    // entrance a person always sees without the explanation EZ-2 of table T-040
-    // (MUST) owes it. ⚠️ Offered in BOTH states: the toggle is drawn while the
-    // palette stands minimised, which is exactly when its explanation matters
-    // most, because nothing else is on the screen to say what it does.
-    ...(palette === null ? [] : [...palette.groups.flatMap((group) => group.commands), palette.minimise]),
-    ...(modal === null ? [] : modal.commands),
-  ]
-}
-
-/**
  * The explanations to show against this frame's parts.
  *
- * ⭐ The order is `TooltipAnchor`'s own: icons, then scrollbars. Rule 03 keeps a
- * printed order rather than re-sorting it. ⚠️ The `rowTitle` case stands between
- * them in that union and is skipped rather than re-ordered around -- see the
- * head of this file for why nothing raises it.
+ * ⭐ The order is `TooltipAnchor`'s own: icons, then tasks, then scrollbars.
+ * Rule 03 keeps a printed order rather than re-sorting it. ⚠️ The `rowTitle`
+ * case stands among them in that union and is skipped rather than re-ordered
+ * around -- see the head of this file for why nothing raises it.
  *
  * @purity pure
  */
@@ -261,7 +331,10 @@ export function tooltipsFromScreenView(
   // Searched: FR-092 (table T-040), `_assets/tbl-settings.md`, table T-206.
   // ⭐ The endpoint is included, which is what rule 03's min/max convention
   // means and is the shorter of the two waits a reader could be asked for.
-  const isIconHintDue = pointer !== null && session.pointerRestedMs >= settings.iconHintDelayMs
+  // ⭐ ONE BINDING FOR BOTH RAISERS. EZ-6 (MUST) takes the same wait as EZ-2
+  // and (MUST NOT) forbids one of its own, on the ground that 「同じ『止めて
+  // 待つ』が場所によって違う速さになると、効いていないと読まれる」.
+  const isHintDue = pointer !== null && session.pointerRestedMs >= settings.iconHintDelayMs
 
   const tooltips: Tooltip[] = []
 
@@ -292,20 +365,49 @@ export function tooltipsFromScreenView(
   // nothing reads as a fault.
   //
   // ⭐ Both of EZ-2's conditions belong to the session rather than to any one
-  // entry, so they are met once and the walk only has to name the entry.
-  const iconWithHintDue = isIconHintDue ? session.iconUnderPointer : null
-
-  for (const command of commandsOnScreen(shown)) {
-    if (command.icon !== iconWithHintDue) continue
+  // entry, so they are met once and what is left is to look the row up.
+  //
+  // ⛔ NO ROSTER IS WALKED, WHICH IS THE WHOLE OF EZ-2's SECOND MUST NOT.
+  // 「対象は…表 T-109 の全行とすること（MUST）。載る面によって説明を出さない行が
+  // あってはならない（MUST NOT）」. The row the pointer rests on already IS a row
+  // of that table -- `readScreenPartAt` reads it off the entry that was drawn --
+  // so an entry that carries it need not be found a second time. ⚠️ That the
+  // row is ON THE SCREEN follows from the pointer resting on it, not from a
+  // roster: nothing that was not drawn can be rested on.
+  const iconWithHintDue = isHintDue ? session.iconUnderPointer : null
+  if (iconWithHintDue !== null) {
     tooltips.push({
-      anchor: { kind: 'icon', icon: command.icon },
-      text: entryHint(command, session.language),
+      anchor: { kind: 'icon', icon: iconWithHintDue },
+      text: iconHint(iconWithHintDue, session.language),
       // EZ-2 (MUST): 「説明の後ろに、その行の割当も出すこと」.
-      assignment: entryAssignment(command.icon, session.language),
+      assignment: entryAssignment(iconWithHintDue, session.language),
     })
   }
 
   if (pointer === null) return tooltips
+
+  // EZ-6 of table T-040 (MUST): the Task the pointer has rested on says its
+  // name and its two dates, and 「ポインタが動いたら消すこと（MUST）」 -- which
+  // is the wait beginning again, so it is the same one condition read once.
+  //
+  // ⛔ WHICH Task IS NOT DECIDED HERE (MUST NOT): the row sends that to table
+  // T-023d's order and forbids a second hit test, so `taskUnderPointer` is the
+  // answer of the one side that walks it.
+  // ⚠️ A DESCRIPTION THAT DOES NOT CARRY THE MEMBER reads as a pointer on no
+  // Task -- see its declaration.
+  const task = isHintDue ? (session.taskUnderPointer ?? null) : null
+  if (task !== null) {
+    tooltips.push({
+      anchor: { kind: 'task', taskUid: task.uid },
+      text: taskHint(task),
+      // ⚠️ EZ-6 asks for a name and two dates and for nothing else. The
+      // assignment is EZ-2's own MUST, and table T-023's rows assign gestures
+      // rather than rows of table T-109, so there is nothing to put here.
+      assignment: null,
+      // @provisional PD-391 -- see `Tooltip.at`.
+      at: pointer,
+    })
+  }
 
   // ⚠️ Every lane the pointer is in answers, and no priority is invented for the
   // corner where two lanes could meet: MK-9a demands a priority for grab targets

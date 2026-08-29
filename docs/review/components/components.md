@@ -9,7 +9,6 @@
 | framework | DomSvgSurface | Puts the SVG string on screen. | implements SvgSurface |
 | framework | DomInputSource | Delivers pointer and keyboard events. | implements InputSource |
 | framework | FileSystemAccessFileStore | Reads and writes files and keeps the handle. | implements FileStore / FR-060 |
-| framework | LocalStorageDocumentStore | Stores and restores the autosaved document. | implements DocumentStore / FR-026 |
 | framework | BrowserClipboard | Writes to the clipboard. | implements Clipboard / FR-033 |
 | framework | CanvasRasterizer | Turns SVG into a raster image. | implements Rasterizer / FR-025 |
 | adapter | AgentApiEndpoint | Installs Agent API. Not exposed by default. Eighteen flat members. | FR-028 / FR-065 / T-035 |
@@ -18,7 +17,6 @@
 | adapter | DocumentCodec | Converts between the document and JSON or MSPDI. | FR-024 / FR-021 / FR-056 / FR-057 |
 | adapter | ImageExporter | Produces the image output. Declares Rasterizer. | FR-025 |
 | adapter | FileGateway | Opens and overwrites the document file. Declares FileStore. | FR-060 / T-024 |
-| adapter | AutosaveGateway | Saves at the idle boundary and offers recovery. Declares DocumentStore. | FR-026 / FR-061 |
 | adapter | ClipboardGateway | Sends the document or the picture out. Declares Clipboard. | FR-033 / FR-068 |
 | usecase | ApplyDocumentChange | The only write path. Checks the stamp, applies all or nothing, records history, advances the revision, notifies. | MS-1 / FR-028 / AG-2 / AG-3 / FR-031 / FR-063 |
 | usecase | EditDocument | One pure operation per aggregate: task, group, dependency, annotation, resource, calendar, project, settings. | T-027 |
@@ -53,7 +51,6 @@
 | realization | DomSvgSurface | SvgRenderer | implements SvgSurface |  |  |
 | realization | DomInputSource | InputCommandTranslator | implements InputSource |  |  |
 | realization | FileSystemAccessFileStore | FileGateway | implements FileStore |  |  |
-| realization | LocalStorageDocumentStore | AutosaveGateway | implements DocumentStore |  |  |
 | realization | BrowserClipboard | ClipboardGateway | implements Clipboard |  |  |
 | realization | CanvasRasterizer | ImageExporter | implements Rasterizer |  |  |
 | dependency | InputCommandTranslator | ApplyDocumentChange | one operation | hands over one operation |  |
@@ -61,10 +58,8 @@
 | dependency | AgentApiEndpoint | NotifyChangeWatchers | watch / unwatch | starts and stops watching |  |
 | dependency | AgentApiEndpoint | PostDialogueMessage | utterance | hands over an utterance |  |
 | dependency | FileGateway | ApplyDocumentChange | intake | asks for an intake |  |
-| dependency | AutosaveGateway | ApplyDocumentChange | restore | asks for a restore |  |
 | dependency | ImageExporter | SvgRenderer | SVG string | takes the SVG string |  |
 | dependency | FileGateway | DocumentCodec | format | gets the exchange format |  |
-| dependency | AutosaveGateway | DocumentCodec | string to store | gets the string to store |  |
 | dependency | ClipboardGateway | DocumentCodec | text out | gets the text to send out |  |
 | dependency | ClipboardGateway | ImageExporter | image out | gets the raster image to send out |  |
 | dependency | InputCommandTranslator | ItemHitArea | item under pointer | asks which item is under the pointer |  |
@@ -112,7 +107,6 @@
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
 | dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |
 | dependency | SingleHtmlShell | FileGateway | open / save | opens and saves the document file for a person |  |
-| dependency | SingleHtmlShell | AutosaveGateway | idle boundary | saves at the idle boundary and offers recovery |  |
 | dependency | SingleHtmlShell | ImageExporter | image out | writes the image out for a person |  |
 | dependency | SingleHtmlShell | ClipboardGateway | clipboard out | sends the document or the picture to the clipboard for a person |  |
 | dependency | DocumentCodec | Document | whole document | reads and writes the document root as a whole (FR-024) |  |
