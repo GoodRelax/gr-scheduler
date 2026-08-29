@@ -389,7 +389,10 @@ function rowTitleSvg(
 ): string {
   if (title.label === null || title.label === '') return ''
   const fontSizePx = rowTitleFontPx(title.depth, settings)
-  const x = (panel.x + title.depth * settings.rowTitleIndent) * ratio
+  // ⭐ THE INDENT `RowTitle` CARRIES, not the product worked out again here.
+  // It is the same number FR-085 subtracted before cutting the name, and it
+  // is what the screen draws (CR-290) -- the three used to be three sums.
+  const x = (panel.x + title.indentPx) * ratio
   const y = (title.box.y + fontSizePx) * ratio
   return textSvg(x, y, fontSizePx * ratio, title.label)
 }
