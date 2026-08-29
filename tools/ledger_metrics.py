@@ -1,7 +1,8 @@
 """Fill the metrics block at the head of the defect ledger.
 
-    python tools/ledger_metrics.py            # rewrite the block
-    python tools/ledger_metrics.py --check    # fail if it is out of date
+    python tools/ledger_metrics.py --start    # AT THE HEAD OF A ROUND: snapshot now
+    python tools/ledger_metrics.py            # rewrite the latest row and the delta
+    python tools/ledger_metrics.py --check    # fail if the counts are out of date
 
 WHY THIS IS GENERATED. A count written by hand goes stale, and this round
 watched it happen three times in other places -- a roster that stopped at an
@@ -9,14 +10,22 @@ old row id, a palette list that stopped at 34, a version-history sentence that
 still said 78. The ledger's own totals are the last place that should be
 trusted to a human's arithmetic.
 
-WHAT IS *NOT* GENERATED. The 「セッション開始時」 row. Only the session that
-starts knows what it started from, so it writes that line once, by hand, at
-the head of its round -- and everything else here is derived from it and from
-the table below. A session that forgets leaves yesterday's baseline standing,
-which is visible rather than silent.
+THE BASELINE IS MEASURED TOO, and `--start` is what takes it. An earlier draft
+had the session write that row by hand; the user refused it, and rightly --
+the number is measurable, and a measurable number written by hand is the very
+fault this file exists to stop. A round runs `--start` once at its head and
+nothing else touches that row.
+
+⚠️ IT CARRIES A TIME AND NOT A DATE. More than one round runs in a day, and
+two baselines stamped with the same date cannot be told apart.
+
+⛔ `--check` COMPARES THE COUNTS AND NOT THE STAMP. The latest row's time moves
+whenever the block is reprinted, and a check that failed on the clock would be
+a check nobody could keep green.
 
 Run with PYTHONIOENCODING=utf-8.
 """
+import datetime
 import io
 import os
 import re
@@ -54,13 +63,18 @@ def counts(text):
 
 
 def parse_start(block):
-    """The 「セッション開始時」 line the session wrote by hand."""
+    """The baseline row, as `--start` last took it."""
     for line in block.split('\n'):
         if line.startswith('| セッション開始時'):
             cells = [c.strip() for c in line.split('|')]
             when = cells[1].replace('セッション開始時', '').strip()
             return when, [c for c in cells[2:-1]]
     return None, None
+
+
+def stamp():
+    """Now, to the minute. ⚠️ A date alone cannot tell two rounds of one day apart."""
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
 
 def signed(n):
@@ -96,8 +110,9 @@ def block_of(when, start_cells, rows, seen, today):
         '| 最新 %s | ' % today + ' | '.join(str(n) for n in now) + ' |',
         '| ⭐ 差分 | ' + ' | '.join(diff) + ' |',
         '',
-        '⚠️ **「セッション開始時」の行だけは、巡を始めた者が手で書く。**'
-        '⛔ 始めた者にしか分からない。書き忘れると前日の値が残る —— **黙って消えるよりよい。**',
+        '⚠️ **巡の頭で `python tools/ledger_metrics.py --start` を 1 度走らせる。**'
+        '⛔ **手で書かない** —— 測れる数を手で書けば必ず腐る。'
+        '⚠️ **時刻まで持つ** —— 1 日に複数の巡が走るので、日付だけでは見分けられない。',
         '',
         END,
     ]
@@ -120,11 +135,22 @@ def main():
     if when is None:
         raise SystemExit('%s: the block has no 「セッション開始時」 line' % REL)
 
-    today = re.search(r'最新 ([0-9-]+)', old)
-    today = today.group(1) if today else when
-    if '--today' in sys.argv:
-        today = sys.argv[sys.argv.index('--today') + 1]
+    held = re.search(r'最新 ([0-9: -]+?) \|', old)
+    held = held.group(1).strip() if held else when
 
+    if '--start' in sys.argv:
+        # ⭐ The baseline IS this measurement. Both rows carry it, so the delta
+        # opens at zero and every later run is measured against a real reading.
+        now = stamp()
+        fresh = block_of(now, [str(rows)] + [str(seen.get(k, 0)) for k in LADDER],
+                         rows, seen, now)
+        io.open(LEDGER, 'w', encoding='utf-8', newline='\n').write(
+            text[:i] + fresh + text[j + len(END):])
+        print('baseline taken at %s (%d rows)' % (now, rows))
+        return 0
+
+    # ⛔ `--check` KEEPS THE STAMP THAT IS THERE, so only the counts are held.
+    today = held if '--check' in sys.argv else stamp()
     fresh = block_of(when, start_cells, rows, seen, today)
     if '--check' in sys.argv:
         if old != fresh:
