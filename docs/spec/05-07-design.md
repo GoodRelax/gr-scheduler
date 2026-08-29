@@ -347,11 +347,11 @@ src/
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。表 T-024 の `IO-6` と `FR-033`） |
 | PI-25 | `Framework` | `SingleHtmlShell` | **他のコンポーネントから呼ばれるメンバを持たない。** Vite の入口である。`SnapshotSource` と `AppShellSource` の実装を、宣言したコンポーネントへ渡す |
-| PI-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 1 つ |
-| PI-27 | `Framework` | `DomInputSource` | `InputSource` の実装 1 つ |
-| PI-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 1 つ |
+| PI-26 | `Framework` | `DomSvgSurface` | `domSvgSurface`（`SvgSurface` の実装 1 つを返す） |
+| PI-27 | `Framework` | `DomInputSource` | `domInputSource`（`InputSource` の実装 1 つを返す） |
+| PI-28 | `Framework` | `FileSystemAccessFileStore` | `fileSystemAccessFileStore`（`FileStore` の実装 1 つを返す） |
 | PI-30 | `Framework` | `BrowserClipboard` | `browserClipboard`（`Clipboard` の実装 1 つを返す） |
-| PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
+| PI-31 | `Framework` | `CanvasRasterizer` | `canvasRasterizer`（`Rasterizer` の実装 1 つを返す） |
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。刻印とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
 | PI-34 | `documentModel` | `Document` | `Document`（型。5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |

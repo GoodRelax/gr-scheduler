@@ -6,11 +6,11 @@
 //
 // WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec/ for every row
-// quoted below, the shipped artifact
+// quoted below, and of `src/` only the published signatures of `frameLoop`,
+// `layoutFromSchedule`, `groupDepthLimit`, `regionsFromScreen`, `dayOf` and
+// `commandFromInput`. The shipped artifact
 // `src/framework/single-html-shell/startup-template.json` (which FR-027 makes
-// a document and not code), and of `src/` only the published signatures of
-// `frameLoop`, `layoutFromSchedule`, `groupDepthLimit`, `regionsFromScreen`,
-// `dayOf` and `commandFromInput`.
+// a document and not code) is read here as bytes, the way any GRS JSON is.
 //
 // ⭐ WHY THIS FILE EXISTS BESIDE THE FOUR `fr-055-*` FILES AND `uf-47-48`.
 // Those four drive fixtures this repository builds by hand, and `uf-47-48`
@@ -32,10 +32,25 @@
 //   T-226    TP-8 -- 「行の深さと WBS の深さ」 are 「同じ 5 段に揃える」 in the
 //            template. The number is read out of the cell at run time.
 //   T-024a   OP-10 -- 「表示位置が `null`、または指す行が存在しないとき」 the
-//            zoom and the place come from FR-055's fit (MUST). By its own
-//            terms it does NOT run when the stored place is a place.
+//            zoom and the place come from FR-055's fit (MUST), ⛔ EXCEPT for a
+//            document opened from BT-4: 「表 T-034 の `BT-4`（起動テンプレート）
+//            から開いた文書には働かせてはならない（MUST NOT）」, and then
+//            「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）——
+//            倍率は文書が持つものをそのまま使う」, with 「日も行 ID も新しく
+//            持たせてはならない（MUST NOT）—— どちらも文書から導ける」.
+//   T-034    BT-4 -- 「初期表示用のテンプレート（`FR-027`）」, the third seat of
+//            the boot order, and the one OP-10 excludes by name.
 //   T-051    HF-8 -- 「起動のときは働かせてはならない（MUST NOT。表 T-024a の
 //            `OP-10`）」.
+//   T-068    LC-9 -- 「行を木の順に並べ、帯高と縦位置を決める」, and the rule
+//            after that table: 「行を並べる順は木の順とすること（MUST）...
+//            深さの順に並べてはならない（MUST NOT）—— ... 行が画面に収まり
+//            きらないとき、上端に来るのが根ばかりになり、木を持つ文書が階層の
+//            無い一覧に見える」.
+//   T-077    BO-3 / BO-4 -- the boot reads the zoom and the place from the
+//            display group, and 「`OP-10` に当たるときは、この 2 つを `BO-4` が
+//            決める」.
+//   T-201    S-1 `pxPerDayAt1x`, and T-203 S-75 `zoomX` -- the width of one day.
 //   T-203    S-77 `scrollDate` / S-78 `scrollGroupId` -- the stored place, and
 //            what a `null` in either means.
 //   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
@@ -46,16 +61,13 @@
 //   FR-094   the floor under the plan height, which is why a smaller `zoomY`
 //            below it removes rows instead of shrinking them.
 //
-// ⛔ THE ONE THING NO ROW STATES, and it is the head of this file's subject.
-// ⛔ NOTHING IN docs/spec REQUIRES THE SHIPPED TEMPLATE TO CARRY A STORED
-// PLACE. S-77 and S-78 default to `null`, OP-10 reads that `null` as 「人がまだ
-// 場所を決めていない」 and accommodates it by name, and table T-226 says nothing
-// about `documentSettings` at all. So the two cases under
-// 「the stored place the shipped template ships」 below are driven by the
-// ruling recorded for D-77 in docs/development-records/defects.md and NOT by a
-// requirement -- they are marked as such where they stand, and the row that
-// would have to exist is named there. Every OTHER case in this file is derived
-// from a quoted row and holds whichever way that ruling lands.
+// ⭐ THE HEAD OF THIS FILE'S SUBJECT. The shipped template stores NO place --
+// OP-10's own MUST NOT forbids giving it one -- and yet the first frame must
+// still show the document's hierarchy. Two rows together make that so: OP-10's
+// exclusion keeps the fit off the boot (the fit answers depth 1 on a document
+// this large, which section 4 measures), and LC-9's tree order puts a row's
+// children directly under it, so the first screenful is not seven roots. Every
+// case below is derived from a quoted row.
 
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
@@ -193,10 +205,28 @@ const SCREEN: ScreenEnvironment = {
 
 const REGIONS: ScreenRegions = regionsFromScreen(SCREEN, SETTINGS)
 
-/** What BO-5 of table T-077 put up, taken once -- the document has 1000 Tasks. */
+/**
+ * What BO-5 of table T-077 put up, taken once -- the document has 1000 Tasks.
+ *
+ * ⭐ `startedFromTemplate` is BT-4 of table T-034 being told to the boot. OP-10
+ * excludes 「表 T-034 の `BT-4`（起動テンプレート）から開いた文書」 and nothing
+ * else, so the boot cannot obey that MUST NOT without being told which seat of
+ * table T-034 the document came from. ⚠️ It is the ONE thing this file says
+ * about the shell's shape, and it is what BT-1 / BT-2 -- for which OP-10 is in
+ * full force -- would leave unset.
+ */
 const bootFrame = (() => {
   const painted: string[] = []
-  const loop = frameLoop({ showSvg: (one: string) => painted.push(one) }, template(), SCREEN)
+  const loop = frameLoop(
+    { showSvg: (one: string) => painted.push(one) },
+    template(),
+    SCREEN,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    true,
+  )
   const values = loop.current()
   if (values === null) throw new Error('BO-1 settled no size, so no frame was drawn')
   return { values, held: loop.document(), painted }
@@ -207,6 +237,50 @@ const deepestDrawn = (layout: ScheduleLayout): number =>
 
 const drawnDepths = (layout: ScheduleLayout): number[] =>
   [...new Set(layout.rows.map((row) => row.depth))].sort((a, b) => a - b)
+
+/**
+ * 「その文書が覆う最初の日」, derived rather than stored -- which is what
+ * OP-10's 「日も行 ID も新しく持たせてはならない（MUST NOT）—— どちらも文書から
+ * 導ける」 says it must be.
+ *
+ * ⛔ The column names are not invented here: they are the date columns
+ * `_assets/fig-erd-detail.md` gives `Task` (`start` / `finish` / `actualStart`
+ * / `actualFinish` / `resume`), and 5.4's calendar makes a day the unit.
+ */
+const TASK_DATE_COLUMNS = ['start', 'finish', 'actualStart', 'actualFinish', 'resume'] as const
+
+const firstDayCovered = (): string => {
+  const days: string[] = []
+  for (const task of TASKS) {
+    for (const column of TASK_DATE_COLUMNS) {
+      const value = task[column]
+      if (typeof value === 'string' && dayOf(value) !== null) days.push(value)
+    }
+  }
+  expect(days.length, 'the template covers days at all').toBeGreaterThan(0)
+  return days.reduce((earliest, one) => (one < earliest ? one : earliest))
+}
+
+/**
+ * 「行の木の先頭」 -- the first row of LC-9's tree order, which is the root the
+ * `AT-55` ascent puts first. ⛔ Not `GROUPS[0]`: the artifact's array order is
+ * not a row of any table.
+ */
+const headOfRowTree = (): unknown => {
+  const roots = GROUPS.filter((row) => row['parentId'] === null || row['parentId'] === undefined)
+  expect(roots.length, 'TP-4 makes the top level a forest, so it has at least one root').toBeGreaterThan(0)
+  const first = roots.reduce((earliest, one) =>
+    (one['order'] as number) < (earliest['order'] as number) ? one : earliest,
+  )
+  return first['id']
+}
+
+/** The rows whose band meets the Row Area -- what a person sees on frame one. */
+const rowsInFirstScreenful = (layout: ScheduleLayout) =>
+  layout.rows.filter(
+    (row) =>
+      row.y < REGIONS.rowArea.y + REGIONS.rowArea.height && row.y + row.height > REGIONS.rowArea.y,
+  )
 
 // ---------------------------------------------------------------------------
 // One press of the entrance SK-18 of table T-036 names, built the way
@@ -310,35 +384,36 @@ describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
 })
 
 // ---------------------------------------------------------------------------
-// 2. The stored place the shipped template ships.
+// 2. The place the shipped template does NOT ship, and why that is the rule.
 //
-// ⛔ THESE TWO CASES REST ON A RULING, NOT ON A REQUIREMENT. No row of
-// docs/spec requires the template to carry a place: S-77 and S-78 default to
-// `null`, and OP-10 reads that `null` as 「人がまだ場所を決めていない」 and sends
-// it to FR-055 -- which is a rule for it, not a complaint about it. The ruling
-// is D-77 in docs/development-records/defects.md.
-//
-// ⭐ THE ROW THAT WOULD HAVE TO EXIST: table T-226 needs a row of its own --
-// beside TP-1..TP-8, which today describe only the schedule -- saying that the
-// template ships a stored view position, i.e. an `S-77` naming a day the
-// document draws on and an `S-78` naming one of its own `TaskGroup.id`s, and
-// saying why the template may speak for a person who has not chosen yet.
-// Until it exists the two cases below assert the ruling and nothing more.
+// ⭐ OP-10 forbids giving the template one: 「日も行 ID も新しく持たせては
+// ならない（MUST NOT）—— どちらも文書から導ける」. So `S-77` and `S-78` stand at
+// the `null` table T-203 gives them, the first half AND the second half of
+// OP-10's condition are both met, and the row would fire -- except that the
+// same row excludes a BT-4 document by name. ⚠️ THE EXCLUSION IS WHAT ACTS,
+// not a place the artifact carries.
 // ---------------------------------------------------------------------------
 
-describe('the stored place the shipped template ships (D-77 ruling, no row yet)', () => {
-  it('names a day, so the first half of OP-10 condition is not met at startup', () => {
-    // OP-10: 「表示位置が `null`、または指す行が存在しないとき」. S-77 holds the
-    // day the left edge points at.
-    expect(SETTINGS.scrollDate).not.toBeNull()
-    expect(dayOf(SETTINGS.scrollDate), 'S-77 holds a day, not free text').not.toBeNull()
+describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
+  it('ships no day, because OP-10 forbids giving it one', () => {
+    // 「日も行 ID も新しく持たせてはならない（MUST NOT）」. S-77's own default in
+    // table T-203 is `null`, and 「`null` は「人がまだ場所を決めていない」を表す」
+    // -- which the template, that nobody has ever opened, is.
+    expect(SETTINGS.scrollDate).toBeNull()
   })
 
-  it('names a row the document holds, so the second half is not met either', () => {
-    // OP-10's other condition, 「指す行が存在しない」. S-78: 「表示の上端が指す
-    // 行。⚠️ 整数ではない」 -- a `TaskGroup.id`.
-    expect(SETTINGS.scrollGroupId).not.toBeNull()
-    expect(GROUPS.map((row) => row['id'])).toContain(SETTINGS.scrollGroupId)
+  it('ships no row id either, for the same MUST NOT', () => {
+    // S-78: 「表示の上端が指す行。⚠️ 整数ではない」 -- a `TaskGroup.id`, and the
+    // template names none.
+    expect(SETTINGS.scrollGroupId).toBeNull()
+  })
+
+  it('so both halves of OP-10 condition are met, and only the BT-4 exclusion keeps the fit off', () => {
+    // ⭐ The premise of section 3. 「表示位置が `null`、または指す行が存在しない
+    // とき」 is satisfied here, so without 「表 T-034 の `BT-4`（起動テンプレート）
+    // から開いた文書には働かせてはならない（MUST NOT）」 every boot would land on
+    // FR-055's fit -- and section 4 measures what that fit answers.
+    expect(SETTINGS.scrollDate === null || SETTINGS.scrollGroupId === null).toBe(true)
   })
 })
 
@@ -348,13 +423,55 @@ describe('the stored place the shipped template ships (D-77 ruling, no row yet)'
 
 describe('FR-018 -- the depths the first frame of the shipped template draws', () => {
   it('draws rows deeper than the first level', () => {
-    // ⭐ THE WHOLE POINT. OP-10 hands the view to FR-055 only while the stored
-    // place is `null` or dangling; section 2 says it is neither, so BO-3 of
-    // table T-077 -- 「見せ方の群から倍率と表示位置を読む」 -- reads the stored
-    // `zoomY`, and FR-018 draws every depth that `zoomY` admits.
+    // ⭐ THE WHOLE POINT. OP-10 does not hand a BT-4 document to FR-055:
+    // 「起動テンプレートから開いた文書には働かせてはならない（MUST NOT）」, and
+    // 「倍率は文書が持つものをそのまま使う」. So the `zoomY` in force is the one
+    // BO-3 of table T-077 read out of the display group, and FR-018 draws every
+    // depth that `zoomY` admits.
     // ⚠️ Section 1 has already ruled out HR-1a and HR-6 as the reason a row is
     // missing, so what is left is the level of detail.
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
+  })
+
+  it('starts at the head of the row tree, drawn from the top of the Row Area', () => {
+    // OP-10: 「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）」. The
+    // head of the tree is the root LC-9's order reaches first, and 「から描く」
+    // puts it at the top edge -- not scrolled past.
+    const first = bootFrame.values.layout.rows[0]
+    expect(first, 'the boot drew rows at all').toBeDefined()
+    expect(first?.groupId).toBe(headOfRowTree())
+    expect(first?.y).toBe(REGIONS.rowArea.y)
+  })
+
+  it('⭐ puts a row deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
+    // ⭐ THE USER-VISIBLE CLAIM, and the reason LC-9 got its rule. The prose
+    // after table T-068: 「深さの順に並べてはならない（MUST NOT）—— 同じ深さの行
+    // が塊になり、親とその配下が画面の離れた場所に出る。行が画面に収まりきらない
+    // とき、上端に来るのが根ばかりになり、木を持つ文書が階層の無い一覧に見える」.
+    // TP-5 makes this document 100 rows, so it does NOT fit -- which is exactly
+    // the condition that prose names.
+    const drawn = bootFrame.values.layout
+    expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Row Area').toBeGreaterThan(
+      REGIONS.rowArea.height,
+    )
+
+    const seen = rowsInFirstScreenful(drawn)
+    expect(seen.length, 'the Row Area is not empty').toBeGreaterThan(0)
+    expect(
+      seen.reduce((deepest, row) => Math.max(deepest, row.depth), 0),
+      'the first screenful is not seven roots',
+    ).toBeGreaterThan(1)
+  })
+
+  it('⭐ and a parent stands directly above its own child there, which is what 「木の順」 means', () => {
+    // 「親の行の直下にその配下を置き」. Measured on the rows a person actually
+    // sees, so a tree order that only holds far down the document would fail.
+    const seen = rowsInFirstScreenful(bootFrame.values.layout)
+    const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
+    const pairs = seen.filter(
+      (row, index) => index > 0 && parentOf.get(row.groupId) === seen[index - 1]?.groupId,
+    )
+    expect(pairs.length, 'no child follows its own parent in the first screenful').toBeGreaterThan(0)
   })
 
   it('draws exactly the depths the ladder admits at the stored zoomY, and none deeper', () => {
@@ -370,11 +487,14 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(drawnDepths(bootFrame.values.layout)).toEqual(owed)
   })
 
-  it('draws the left edge at the day S-77 stores, and one day at the width S-75 gives it', () => {
-    // The horizontal half of the same claim. FR-017 makes one day
-    // `pxPerDayAt1x` times `zoomX`; a fit would have replaced both this and the
-    // origin day, which is what `uf-47-48.test.ts` measures on the null branch.
-    expect(bootFrame.values.layout.originDay).toEqual(dayOf(SETTINGS.scrollDate))
+  it('draws the left edge at the first day the document covers, and one day at the width S-1 x S-75 gives it', () => {
+    // The horizontal half of the same claim. OP-10: 「その文書が覆う最初の日 ...
+    // から描くこと（MUST）—— 倍率は文書が持つものをそのまま使う」, so the origin
+    // is derived from the schedule (S-77 is `null`, section 2) and the width of
+    // one day is still S-1 `pxPerDayAt1x` times S-75 `zoomX`.
+    // ⛔ A fit would have replaced BOTH, which is what `uf-47-48.test.ts`
+    // measures on the branch where OP-10 does run.
+    expect(bootFrame.values.layout.originDay).toEqual(dayOf(firstDayCovered()))
     expect(bootFrame.values.layout.pxPerDay).toBe(SETTINGS.pxPerDayAt1x * SETTINGS.zoomX)
   })
 
@@ -396,8 +516,9 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
 
 // ---------------------------------------------------------------------------
 // 4. FR-055 is still there, and still answers the first level for this
-//    document -- so the deeper picture above is the STORED place's doing and
-//    not the fit's.
+//    document -- which is precisely what OP-10's BT-4 exclusion exists to keep
+//    off the boot: 「その規模では収まる段が 1 つしか無く、階層を持つ文書が
+//    「階層の無い文書」として初回に現れる」.
 // ---------------------------------------------------------------------------
 
 describe('FR-055 -- one press still answers the first level on this document', () => {
@@ -433,10 +554,11 @@ describe('FR-055 -- one press still answers the first level on this document', (
     // says nothing about how much of the Row Area the answer uses.
   })
 
-  it('so the fit and the stored place are two different pictures, which is why the place is what shows the depth', () => {
-    // ⭐ The contrast D-77 turns on. Nothing here asks the fit to change: it is
-    // answering FR-055 correctly on a document table T-226 deliberately makes
-    // larger than the MC-7 scale GL-002 is judged at.
+  it('so the fit and the BT-4 boot are two different pictures, which is why the exclusion is what shows the depth', () => {
+    // ⭐ The contrast OP-10's exclusion turns on, measured. Nothing here asks
+    // the fit to change: it is answering FR-055 correctly on a document table
+    // T-226 deliberately makes larger than the MC-7 scale GL-002 is judged at
+    // -- 「本テンプレートは表 T-025 の `MC-7` より行が多い」.
     const write = fitWrite(SETTINGS)
     const afterFit = layoutFromSchedule(
       SCHEDULE,

@@ -54,11 +54,9 @@ DocumentSettings | SettingsBoundToken
 
 DocumentStamp | ChangeLogEntry
 
-DomInputSource | domInputSource
 
 DomScreenSurface | domScreenSurface
 
-DomSvgSurface | domSvgSurface
 
 EditDocument | DocumentCommand
 EditDocument | NOT_STORED_ZOOM_BOUNDS
@@ -89,7 +87,6 @@ FileSystemAccessFileStore | DropSurface
 FileSystemAccessFileStore | FileSystemAccessEnvironment
 FileSystemAccessFileStore | OpenFilePicker
 FileSystemAccessFileStore | SaveFilePicker
-FileSystemAccessFileStore | fileSystemAccessFileStore
 
 ImageExporter | ExportScene
 ImageExporter | RasterFaultReason
