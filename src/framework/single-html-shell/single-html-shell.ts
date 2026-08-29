@@ -306,19 +306,21 @@ type StartupNoticeCode = ReturnType<typeof chooseStartupDocument>['notices'][num
  * ⭐ A CENSUS THE COMPILER KEEPS, the move `frame-loop.ts` makes for every other
  * reason it raises: a code added on UF-23's side is a compile error here rather
  * than a startup that decides in silence.
- * ⛔ TWO OF THE THREE FALL TO `RS-15`, and that is the row FR-076 provides for
+ * ⛔ ONE OF THE THREE FALLS TO `RS-15`, and that is the row FR-076 provides for
  * exactly this -- 「行の無い理由に落ち先を与えるのが `RS-15` である」. Table T-233
- * holds nothing for 「入れ口が 1 つでない」 and nothing for a file handed at
- * startup that could not be read: RS-4 and RS-11 .. RS-13 belong to OP-12's
- * dispatch of table T-024a, which BT-2 has not been through. ⚠️ A row of that
- * table for either is what is owed.
- * ⭐ THE THIRD IS A ROW OF ITS OWN: RS-25 is 「読んだ `GRS JSON` の列が、決めら
- * れた形に合わない」, which is what BT-1's container holds.
+ * holds nothing for 「入れ口が 1 つでない」: RS-4 and RS-11 .. RS-13 belong to
+ * OP-12's dispatch of table T-024a, which BT-2 has not been through. ⚠️ A row
+ * of that table for it is what is owed.
+ * ⭐ THE OTHER TWO ARE ROWS OF THEIR OWN: RS-25 is 「読んだ `GRS JSON` の列が、
+ * 決められた形に合わない」, which is what BT-1's container holds, and RS-26 is
+ * 「起動時に渡された文書が読めなかった」 (table T-024a's `OP-14`), which is what
+ * BT-2's own read failure holds -- CR-299 gave it table T-024a's `OP-14` and
+ * table T-233's `RS-26` so it would stop falling to `RS-15`.
  */
 const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeReason>> = {
   embeddedUnreadable: 'RS-25',
   embeddedEntryCountNotOne: 'RS-15',
-  handedUnreadable: 'RS-15',
+  handedUnreadable: 'RS-26',
 }
 
 /**

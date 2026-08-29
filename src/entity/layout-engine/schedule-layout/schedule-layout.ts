@@ -654,9 +654,21 @@ export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
  * to be squared up against a real screen. Until that happens each stays where
  * its own row put it.
  *
- * ⛔ FD-5 gives a fade only to SH-1 and SH-2, and the columns are null for
- * every other shape, so nothing here tests the kind for that -- a shape with no
- * fade days answers zero on both ends by arithmetic.
+ * ⛔ FD-5 IS APPLIED HERE AND NOT ASSUMED: 「適用する形状 | 矩形と矢羽根のみ
+ * （表 T-012 の SH-1 / SH-2）」. The note that stood here said the two columns
+ * are null on every other shape and that nothing therefore had to test the
+ * kind. ⛔ THAT WAS FALSE. Nothing keeps them off SH-3 / SH-4 / SH-5 -- the
+ * columns belong to `Task` and not to the shape, FR-023's import test (FD-7)
+ * and IV-12 speak of the days against the DURATION and never of the shape, and
+ * a shape may be changed after the days are set. Measured on the shipped page
+ * with `fadeInDays: 20` at 6px a day: the name label of an arrow (SH-3) and of
+ * an endpointSpan (SH-4) moved 120px, and a milestone's (SH-5) turned over
+ * from NL-1 to NL-3 -- while `ScheduleGeometry` drew no fade on any of the
+ * three, so the room was taken away for a mark that was never there.
+ *
+ * ⭐ The paragraph after table T-013 opens with 「フェードを持つ形状では」, and
+ * FD-5 is what says which shapes those are -- so the three without one are left
+ * with the room they had.
  *
  * @purity pure
  */
@@ -664,6 +676,7 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
   readonly fadeIn: number
   readonly fadeOut: number
 } {
+  if (kind !== 'rectangle' && kind !== 'chevron') return { fadeIn: 0, fadeOut: 0 }
   const asPixels = (days: number | null): number => Math.max(0, (days ?? 0) * pxPerDay)
   const rawIn = asPixels(task.fadeInDays)
   const rawOut = asPixels(task.fadeOutDays)

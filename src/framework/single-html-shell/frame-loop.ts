@@ -327,7 +327,10 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  * ⚠️ `RS-15` IS AMONG THEM, and it is the one place in this file that raises it
  * -- see `NoticeReason` for what that row is and why nothing else uses it.
  */
-export type StartupNoticeReason = Extract<NoticeReason, 'RS-15' | 'RS-17' | 'RS-21' | 'RS-25'>
+export type StartupNoticeReason = Extract<
+  NoticeReason,
+  'RS-15' | 'RS-17' | 'RS-21' | 'RS-25' | 'RS-26'
+>
 
 export interface FrameLoop {
   /**
@@ -934,6 +937,7 @@ type NoticeReason =
   | 'RS-21'
   | 'RS-23'
   | 'RS-25'
+  | 'RS-26'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -970,6 +974,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-21': 'NT-1',
   'RS-23': 'NT-3a',
   'RS-25': 'NT-1',
+  'RS-26': 'NT-1',
 }
 
 /**
