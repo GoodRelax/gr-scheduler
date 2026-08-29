@@ -1450,7 +1450,23 @@ const STYLE = {
   // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
   // answer (IF-9) never sees this surface, the press falls through to the
   // schedule underneath, and NT-7's two answers cannot be pressed at all.
-  confirmation: STOPPING_BOX,
+  // ⛔⛔ THE COLUMN IS WHAT KEEPS NT-7's CHOICE REACHABLE (MUST), and it was
+  // measured rather than preferred (D-134). `STOPPING_BOX` caps the box at 92%
+  // of the screen and lets the whole of it scroll -- so with FR-032's names
+  // filling 7050px of content the two answers sat at y = 7054 on a screen 1080
+  // tall, outside the box and outside the window, and no pointer could reach
+  // 「続ける」 at all. Laying the box out as a column, with the names in a
+  // region that scrolls and the answers in one that does not, is what puts them
+  // back on the screen whatever the list's length. ⛔ NO NEW SIZE IS INVENTED:
+  // every length here is still `STOPPING_BOX`'s, and the specification holds no
+  // row that gives this surface one (searched: table T-206's S- rows, table
+  // T-212, table T-103, FR-032, NT-7).
+  confirmation: STOPPING_BOX + 'display:flex;flex-direction:column;',
+  // The half of the surface that MAY scroll: what would happen, in words, and
+  // FR-032's names. ⛔ `min-height:0` is not decoration -- without it a flex
+  // child refuses to shrink below its content and the region grows the box
+  // instead of scrolling inside it, which is the very thing being fixed.
+  confirmationNames: 'flex:1 1 auto;min-height:0;overflow:auto;',
   // NT-7 (MUST): the names of what would go, one element each.
   confirmationItem: 'display:block;line-height:1.6;',
   // FR-032's mark (PD-175), held off the name it follows. ⛔ Nothing but the gap
@@ -1458,8 +1474,11 @@ const STYLE = {
   // colour or a border from being what does.
   confirmationMark: 'margin-left:0.5em;',
   // The two answers, held apart from the names above them so that the choice
-  // does not read as one more thing that would go.
-  confirmationAnswers: 'display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
+  // does not read as one more thing that would go. ⛔ `flex:0 0 auto` is what
+  // keeps them out of the scrolling region beside `confirmationNames` -- see the
+  // note on `confirmation` for what happened while they were inside it.
+  confirmationAnswers:
+    'flex:0 0 auto;display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
   dialogueField:
     'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
     `width:24em;height:14em;padding:0.5em;background:${PAINT.ground};color:${PAINT.ink};` +
@@ -3715,7 +3734,18 @@ function confirmationElement(
     answers.append(entry)
   }
 
-  drawn.replaceChildren(text, ...items, answers)
+  // ⛔⛔ THE WORDS AND THE NAMES SCROLL; THE TWO ANSWERS DO NOT (D-134). NT-7
+  // (MUST) has the person choose between going on and calling it off, and a
+  // choice that has been pushed off the bottom of the screen is no choice --
+  // measured on the shipped build 2026-08-30: deleting one row named 9,341
+  // characters' worth of `Task`, and IC-69 stood at y = 7054 on a screen 1080
+  // tall. ⚠️ NOTHING IS TAKEN OUT OF THE SURFACE and no name is capped: FR-032
+  // (MUST NOT) forbids a count in their place, so the list stays whole and it is
+  // the BOX that is laid out to hold it. ⭐ `Confirmation` still carries the
+  // `data-role`, so what a point on this surface answers is unchanged.
+  const names = made(host, 'div', STYLE.confirmationNames)
+  names.replaceChildren(text, ...items)
+  drawn.replaceChildren(names, answers)
   return drawn
 }
 
@@ -3952,6 +3982,34 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     tooltipLayer,
   )
   wiring.mount.append(root)
+
+  // STOP -- ⛔⛔ THE NAMES PAST THE FIRST SCREENFUL CANNOT BE BROUGHT INTO VIEW,
+  // AND NOTHING THIS UNIT MAY DO REACHES IT. FR-032 (MUST) has the names of what
+  // would go SHOWN, and with 300 of them the region above scrolls -- but neither
+  // the wheel nor the scrollbar moves it (measured 2026-08-30 on the shipped
+  // build: forty turns moved `scrollTop` by 0, and a drag down the scrollbar
+  // moved it by 0). Both are stopped by `preventDefault`, which the input seam
+  // calls because `isWheelHere` (PD-12) reads the pointer against the SCHEDULE's
+  // regions and cannot know a surface floats above them, and because a press
+  // anywhere carries an assignment.
+  // ⛔ MK-10 IS NOT WHAT ASKS FOR THAT. Verbatim, its subject is 「**本ツールが
+  // 割り当てた**修飾キーの付いた入力」 -- both its MUST (stop the browser's
+  // default screen-wide) and its MUST NOT (do not stop a combination the tool
+  // did not assign) speak only of inputs that CARRY A MODIFIER. A plain wheel
+  // carries none, so no row asks for the environment's own scrolling to be taken
+  // away here.
+  // ⛔ AND THE TWO REPAIRS OPEN TO IT ARE BOTH SHUT. A listener on this layer
+  // that stopped the turn from reaching the window is refused by uf-71's 「listens
+  // only where IF-9 gives it something to notice」 (every listener must sit
+  // inside the `Dialogue Field` or the `Properties Panel`), and one on the host
+  // by the same file's 「asks the host for one listener and no more」. The other
+  // seam -- letting `isWheelHere` answer false while a `Confirmation` stands --
+  // needs a member of `InputContext` that only the shell can fill, and
+  // `frame-loop.ts` is another body's this round.
+  // ⭐ WHAT IS FIXED HERE IS NT-7's OWN MUST: the two answers no longer ride
+  // inside the scrolling region, so 「続ける」 can be reached and pressed however
+  // long the list is. ⚠️ PD-380 RECORDS THE REST AND NOTHING HERE IMPLEMENTS IT
+  // -- the row is class F (wait for a ruling), so no provisional mark is claimed.
 
   let lastKeys: Readonly<Record<string, string>> = {}
   // ⛔ HELD SO THAT THE ATTRIBUTE IS WRITTEN ONLY WHEN IT MOVED. Every happening
@@ -4210,6 +4268,26 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       tooltips: described(view.tooltips),
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
+    /**
+     * What was actually PUT ON THE SCREEN this frame, which is what the next
+     * frame compares against.
+     *
+     * ⛔⛔ NOT `keys`, AND THE DIFFERENCE IS A DEFECT THAT WAS MEASURED (D-133).
+     * One part -- the `Properties Panel` -- may decline to redraw on a frame
+     * whose description DID change, because a control of it is held and a
+     * rebuild would take the characters and the caret with it. Recording the
+     * description it declined to draw made the next frame answer `changed`
+     * false, so the panel went on showing the description from BEFORE the
+     * settling for as long as the person kept the field -- and after they let
+     * it go as well, because by then nothing had changed any more.
+     * ⇒ 完了率 stayed at its pre-Enter reading while the document held the new
+     * one (measured 2026-08-30: the panel said 91, the document said 7).
+     * ⭐ A part that skipped keeps its LAST DRAWN description, so the very next
+     * frame that may draw it sees a difference and draws it. NFR-010 asks for
+     * a redraw that follows what changed, and what changed is measured against
+     * what is on the screen rather than against what was offered to it.
+     */
+    const drawnKeys: Record<string, string> = { ...keys }
 
     // FR-038 (MUST): one language for the WHOLE screen -- and this is the half
     // of that the dictionary cannot reach. Every control table T-016's 入力の型
@@ -4303,7 +4381,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // that is why the test stands out here rather than inside: it EMPTIES the
       // map, and a frame that leaves the drawn header alone would then have
       // thrown away the anchor of an entry still on the screen.
-      if (!isFieldHeld) {
+      if (isFieldHeld) {
+        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
+        // See `drawnKeys`: putting `keys` here is what left the panel showing a
+        // reading the document no longer held, for good.
+        drawnKeys.propertiesPanel = lastKeys.propertiesPanel ?? ''
+      } else {
         fillPropertiesPanel(
           host,
           propertiesPanel,
@@ -4362,7 +4445,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       tooltipLayer.replaceChildren(...view.tooltips.map((one) => tooltipElement(one)))
     }
 
-    lastKeys = keys
+    lastKeys = drawnKeys
     // BO-1 of table T-077 (MUST): 「寸法が確定するまで 1 枚も描かない」. Nothing
     // has been SHOWN until here -- the header was mounted so that FR-051 could
     // measure it, and the root was kept out of sight until a description
