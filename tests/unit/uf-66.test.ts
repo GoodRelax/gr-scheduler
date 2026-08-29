@@ -211,6 +211,7 @@ const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
   themeHue: THEME_HUE,
   isMilestoneListOpen: false,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

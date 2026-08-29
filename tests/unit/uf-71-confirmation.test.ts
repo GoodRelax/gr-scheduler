@@ -1228,6 +1228,7 @@ const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   themeHue: THEME.hue,
   isMilestoneListOpen: false,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: null,

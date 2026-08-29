@@ -404,6 +404,7 @@ const SESSION: ScreenSession = {
   themeHue: SCHEDULE.project.themeHue,
   isMilestoneListOpen: false,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: 'selection',

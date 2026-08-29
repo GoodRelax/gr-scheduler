@@ -1523,6 +1523,12 @@ interface SessionHeld {
   readonly isMilestoneListOpen: boolean
   /** S-200 of table T-206 -- whether FR-053's palette stands minimised. */
   readonly isPaletteMinimised: boolean
+  /**
+   * Table T-029a -- which of `dualCursor`'s two dates (S-65) follows the
+   * pointer, or `null` while the mode is not up. The user's ruling of
+   * 2026-08-26 puts it on `ScreenSession`; see the member there.
+   */
+  readonly dualCursorFollowing: DualCursorSide | null
   /** FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by AT-51. */
   readonly selectedGroupIds: readonly string[]
   /** FR-099 (MUST) -- who is chosen in the `Resource Roster`, by AT-85. */
@@ -1581,6 +1587,7 @@ function sessionOf(
     commandPaletteDraggedTo,
     isMilestoneListOpen,
     isPaletteMinimised,
+    dualCursorFollowing,
     selectedGroupIds,
     selectedResourceUids,
     propertiesShowing,
@@ -1644,6 +1651,15 @@ function sessionOf(
     // STATE FROM S-99e, which says whether it is shown at all -- FR-053 keeps
     // that one's entrance outside the palette and this one's on it (IC-75).
     isPaletteMinimised,
+    // Table T-029a: which of the two dates is following the pointer, `null`
+    // while the mode is not up. ⭐ THE USER'S RULING OF 2026-08-26 NAMES THIS
+    // TYPE, and it is handed over for the reason the two above are -- the mode
+    // is a current value of one reading, so LY-5 of table T-060 leaves it with
+    // the loop and this is how the loop hands it on. ⛔ NOT A KEY OF
+    // `documentSettings`: the same ruling forbids a third one there, because
+    // FR-021 round-trips those and DC-8 (MUST NOT) keeps the following side out
+    // of an export altogether.
+    dualCursorFollowing,
     // FR-085 (MUST) and FR-099 (MUST): the two sets of chosen things that are
     // NOT the drawing area's selection -- SL-1 of table T-023c leaves rows out
     // of that one and admits no resource at all, so `Selection` (PI-32) can hold
@@ -2727,11 +2743,17 @@ export function frameLoop(
   // pair it needs. `commandFromDualCursorEntry` is where that press is answered
   // and `carryOutAction` below is what moves this.
   //
-  // ⛔ NOT A MEMBER OF `ScreenSession`, although that is where the ruling puts
-  // the FACT. `_source/components.json` gives ScreenRenderer no edge to
-  // ScheduleGeometry, and no unit of that component draws either line: the two
-  // lines and the mark are SvgRenderer's (EP-6, DC-8), which is reached through
-  // `svgFromSchedule`'s own parameter instead. Reported.
+  // ⭐ IT IS A MEMBER OF `ScreenSession` NOW, which is where the ruling puts it.
+  // ⚠️ WHAT STOOD HERE DECLINED TO PUT IT THERE, on the ground that no unit of
+  // ScreenRenderer could read it -- that component has no edge to
+  // ScheduleGeometry and draws neither line, since the two lines and DC-8's
+  // mark are SvgRenderer's (EP-6, DC-8), reached through `svgFromSchedule`'s own
+  // `follow` parameter. ⛔ THE GROUND WAS TRUE AND THE CONCLUSION WAS NOT: UF-65
+  // is handed the whole of `ScreenSession` already, so the fact ARRIVES where a
+  // row of the specification could use it, and a ruling about where a value
+  // LIVES is not answered by counting today's readers. This `let` is the store
+  // the loop writes into, exactly as `isMilestoneListOpen` and the rest are, and
+  // `sessionOf` is what hands it on.
   let dualCursorFollowing: DualCursorSide | null = null
   // FR-066 -- the conversation, which is NOT in the document (that MUST NOT)
   // and is therefore a current value LY-5 of table T-060 leaves here.
@@ -3008,6 +3030,10 @@ export function frameLoop(
           commandPaletteDraggedTo,
           isMilestoneListOpen,
           isPaletteMinimised,
+          // Table T-029a's mode, as it stands this frame -- the same value the
+          // `follow` argument below is built from, read from the one place that
+          // holds it.
+          dualCursorFollowing,
           selectedGroupIds,
           selectedResourceUids,
           // ⭐ FR-072's answer AS THIS FRAME STANDS, which is what that member's
@@ -3420,6 +3446,12 @@ export function frameLoop(
           // not open: EP-12 of table T-076 keeps this session's state out of
           // it, and a minimised palette is this session's doing.
           isPaletteMinimised: false,
+          // ⛔ NOBODY IS FOLLOWING IN A PICTURE THAT IS BEING WRITTEN OUT, and
+          // DC-8 states that in as many words: 「この印を書き出しに出しては
+          // ならない（MUST NOT）」, on EP-12's ground that which side follows is
+          // operation state. ⭐ EP-6 still draws the two lines themselves --
+          // they come from `dualCursor` (S-65), which the document holds.
+          dualCursorFollowing: null,
           selectedGroupIds: [],
           selectedResourceUids: [],
           propertiesShowing: null,
@@ -5637,3 +5669,5 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
   'S-205': 8,
 }
 // </generated>
+
+

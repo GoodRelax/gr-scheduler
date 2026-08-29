@@ -312,6 +312,7 @@ const SESSION: ScreenSession = {
   // every entry of the palette wants them all present.
   isMilestoneListOpen: true,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

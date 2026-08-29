@@ -4698,7 +4698,11 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                RC-13 of table T-026 reserves to the user. ⚠️ Until it
 //                exists, EP-6 of table T-076 goes on drawing the two lines
 //                into every export with no way to take them away, which is
-//                the very consequence DC-7 names.
+//                the very consequence DC-7 names. ⭐ RAISED AS PD-345, with
+//                what the ruling has to settle; ⚠️ table T-036 was measured
+//                too and holds no keystroke either -- SK-20 puts the status
+//                line's clearing on IC-44, and the Dual Cursor has no such
+//                row. DC-3's day count is beside it as PD-344.
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
 // table T-203, table T-206, table T-234, table T-037, table T-026, table

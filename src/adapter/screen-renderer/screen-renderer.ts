@@ -57,7 +57,10 @@ import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
-import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
+import type {
+  DualCursorSide,
+  ScreenState,
+} from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   ScreenRect,
@@ -1702,6 +1705,36 @@ export interface ScreenSession {
    * anything, so IN-4 of table T-028 gains no level.
    */
   readonly isPaletteMinimised: boolean
+  /**
+   * Which of `dualCursor`'s two dates (S-65) is following the pointer, or
+   * `null` while table T-029a's mode is not up.
+   *
+   * ⭐ HERE BY THE USER'S RULING OF 2026-08-26, and the ruling names this type.
+   * ⛔ IT IS NOT A THIRD KEY OF `documentSettings`, which is the other half of
+   * the same ruling: FR-021 round-trips those keys, and which side is following
+   * is a passing state of one reading -- DC-8 (MUST NOT) keeps its very mark out
+   * of an export, and EP-12 of table T-076 is the row that says why.
+   *
+   * ⭐ `null` MEANS "NOT IN THE MODE", so the mode is this one value and cannot
+   * disagree with itself. DC-1 starts a side following the moment the mode is
+   * entered and DC-2 always hands the following over, so "in the mode with
+   * nobody following" is a state table T-029a leaves nowhere to be in.
+   *
+   * ⛔ NO UNIT OF THIS COMPONENT READS IT YET, AND THAT IS THE SPECIFICATION'S
+   * DOING RATHER THAN AN OVERSIGHT. Searched for a row that would have one of
+   * the nine draw the mode: table T-109 (IC-45's row names the entrance and no
+   * pressed state), FR-053 (which settles how an ARMED entrance is told apart
+   * and forbids drawing it pressed), FR-029, table T-023b, table T-202 and table
+   * T-206. None asks for it. The two lines themselves and DC-8's mark are
+   * SvgRenderer's, drawn from `svgFromSchedule`'s own `follow` parameter, and
+   * `_source/components.json` gives this component no edge to ScheduleGeometry.
+   * ⚠️ WHAT USED TO STAND IN THE SHELL SAID THE MEMBER WOULD BE READ BY NOBODY
+   * AND SO DECLINED TO ADD IT. Half of that is measured true -- no unit reads it
+   * today -- and the conclusion still does not follow: UF-65 is already handed
+   * this whole type, so the fact now ARRIVES where a row could use it, which is
+   * what the ruling asked for. Reported rather than answered here.
+   */
+  readonly dualCursorFollowing: DualCursorSide | null
   /**
    * FR-085 (MUST): the rows selected in the `Row Title Panel`, by
    * `TaskGroup.id` (AT-51). FR-042 reads the same set -- the row whose band

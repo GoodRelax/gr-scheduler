@@ -392,6 +392,7 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   // condition owns that second case.
   isMilestoneListOpen: true,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

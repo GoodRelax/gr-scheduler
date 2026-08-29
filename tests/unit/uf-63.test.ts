@@ -149,6 +149,7 @@ const SESSION: ScreenSession = {
   themeHue: THEME_HUE,
   isMilestoneListOpen: false,
   isPaletteMinimised: false,
+  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
