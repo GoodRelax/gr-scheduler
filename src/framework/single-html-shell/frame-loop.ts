@@ -1895,6 +1895,7 @@ function viewSettings(
   stored: DocumentSettings,
   regions: ScreenRegions,
   fromTemplate: boolean,
+  runDay: string,
 ): DocumentSettings {
   const groupIds = new Set(held.schedule.taskGroups.map((one) => one.id))
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
@@ -1931,9 +1932,25 @@ function viewSettings(
     .filter((one): one is string => one !== null)
     .sort()
   const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
+  // ⭐⭐ WHERE A DOCUMENT WITH NOTHING DRAWN OPENS IS FR-055's OWN SENTENCE, and
+  // it names two days and no third: 「描くものが 1 つも無い文書では、倍率を等倍に
+  // 戻し、表示位置を `scrollDate` に合わせること（MUST）。`scrollDate` が `null`
+  // のときは実行日に合わせてよい（MAY）」.
+  // ⛔ `Project.startDate` (AT-12) STOOD HERE AND IS NOT ONE OF THEM. No row of
+  // FR-055 names that column and table T-038 draws nothing from it, so moving a
+  // document's start date moved the first frame of a document it draws nothing
+  // in -- found by the body that only reads the specification, which left its
+  // case red rather than writing the tree's answer down as the expectation.
+  // ⚠️ THE RUN DAY IS ALLOWED HERE AND NOWHERE ELSE, which that sentence says
+  // in as many words -- 「実行日を使うのはこの場合だけであり、`WY-2` の判定はその
+  // 文書を対象にしない」 -- because otherwise one JSON would draw a different
+  // picture on every day it was opened.
+  // ⛔ IT STILL CANNOT BE NULL. S-77 pins the time axis and a layout cannot be
+  // measured until it is pinned to some day; `dateAtX` answers null while none
+  // is set, and the fit would then hand back the null it was given for ever.
   const pinned: DocumentSettings = {
     ...stored,
-    scrollDate: covered[0] ?? held.schedule.project.startDate,
+    scrollDate: covered[0] ?? stored.scrollDate ?? runDay,
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
   }
 
@@ -3401,7 +3418,7 @@ export function frameLoop(
     // moves with it cannot. ⭐ The layout below still reads the preview: the
     // layout IS the picture, and the axis is what it is drawn against.
     const settings = viewSettings(held.document, withPanelShown, regions,
-                                  fromStartupTemplate)
+                                  fromStartupTemplate, readToday())
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
@@ -3831,7 +3848,7 @@ export function frameLoop(
     // doing. That exception exists so a person's FIRST SCREEN is not a flat
     // list; a picture written out is not a first screen, and FR-055's fit is
     // what EP-2 and WY-3 measure an export against.
-    const settings = viewSettings(document, withPanelsClosed, regions, false)
+    const settings = viewSettings(document, withPanelsClosed, regions, false, readToday())
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer

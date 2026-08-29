@@ -1580,18 +1580,40 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
   // `S-176` と `S-177` が持つ（MUST）」
 
   /**
+   * 「その行が占める送り」 -- the length `S-176` measures its fraction against:
+   * 「その行の帯の高さと、その下の隙間を合わせた長さ。次の行の上端までの距離で
+   * あり、最後の行は自身の帯」.
+   *
+   * ⛔ NOT THE BAND. `S-176` forbids that in as many words -- 帯の高さに対する比
+   * にしてはならない（MUST NOT）—— because 帯と帯は接していない: a fraction of
+   * the band cannot name a top edge standing in the gap, which is exactly the
+   * 「錠の上にしか着地できない形」 表 T-023d forbids.
+   *
+   * ⭐ READ OFF THE LAYOUT, never a constant: the 送り is the distance between
+   * two things the picture already places, so nothing here has to know what the
+   * gap is made of or how big it is.
+   */
+  const pitchOf = (groupId: string): number => {
+    const at = LAYOUT.rows.findIndex((one) => one.groupId === groupId)
+    const here = LAYOUT.rows[at]
+    if (at < 0 || here === undefined) throw new Error(`no row ${groupId} in the layout`)
+    const next = LAYOUT.rows[at + 1]
+    return next === undefined ? here.height : next.y - here.y
+  }
+
+  /**
    * Where the top edge of the `Row Area` sits, in the schedule's own pixels,
    * for a written position.
    *
    * ⭐ Read off the layout the shell built, never computed from a setting: the
-   * anchor names a row and the fraction is 「その行自身の高さに対する比」
-   * (`S-176`), so the two together are one distance only once the row's own
-   * height is known. ⚠️ Distances between rows are the same whichever row the
-   * band is anchored to, so ONE layout answers for both readings.
+   * anchor names a row and the fraction is 「その行が占める送りに対する比」
+   * (`S-176`), so the two together are one distance only once that 送り is
+   * known. ⚠️ Distances between rows are the same whichever row the band is
+   * anchored to, so ONE layout answers for both readings.
    */
   const topEdgeOf = (position: Record<string, unknown>): number => {
-    const row = rowOf(String(position['scrollGroupId']))
-    return row.y + Number(position['scrollGroupOffset']) * row.height
+    const id = String(position['scrollGroupId'])
+    return rowOf(id).y + Number(position['scrollGroupOffset']) * pitchOf(id)
   }
 
   /** The same, along the time axis: 「横の軸の `S-176` である」(`S-177`). */
@@ -1628,6 +1650,12 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     const dy = Math.round(row.height / 3)
     expect(dy, 'the case only means a drag SHORTER than one row').toBeLessThan(row.height)
     expect(dy, 'and a drag that really is a drag').toBeGreaterThan(0)
+    // ⛔ THE PREMISE THE MUST NOT RESTS ON: 「帯と帯は接していない」(`S-176`).
+    // If the two touched, a fraction of the band and a fraction of the 送り
+    // would be the same number and this case could not tell them apart.
+    expect(pitchOf('g1'), 'S-176: 帯と帯は接していない —— 送りは帯より長い').toBeGreaterThan(
+      row.height,
+    )
 
     // Dragging the pointer UP carries the schedule up with it (等倍), which is
     // the direction there is room in: the view starts at the first row.

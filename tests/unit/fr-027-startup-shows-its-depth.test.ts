@@ -37,7 +37,11 @@
 //            から開いた文書には働かせてはならない（MUST NOT）」, and then
 //            「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）——
 //            倍率は文書が持つものをそのまま使う」, with 「日も行 ID も新しく
-//            持たせてはならない（MUST NOT）—— どちらも文書から導ける」.
+//            持たせてはならない（MUST NOT）—— どちらも文書から導ける」, and
+//            since 2026-08-29 the definition itself (MUST): 「「その文書が覆う
+//            最初の日」とは、その文書の `Task` が持つ `start` と `actualStart`
+//            のうち最も早い日のことである」 —— which is what
+//            `TASK_DATE_COLUMNS` below now counts, and only that.
 //   T-034    BT-4 -- 「初期表示用のテンプレート（`FR-027`）」, the third seat of
 //            the boot order, and the one OP-10 excludes by name.
 //   T-051    HF-8 -- 「起動のときは働かせてはならない（MUST NOT。表 T-024a の
@@ -243,11 +247,17 @@ const drawnDepths = (layout: ScheduleLayout): number[] =>
  * OP-10's 「日も行 ID も新しく持たせてはならない（MUST NOT）—— どちらも文書から
  * 導ける」 says it must be.
  *
- * ⛔ The column names are not invented here: they are the date columns
- * `_assets/fig-erd-detail.md` gives `Task` (`start` / `finish` / `actualStart`
- * / `actualFinish` / `resume`), and 5.4's calendar makes a day the unit.
+ * ⭐ TWO COLUMNS, AND THE ROW NAMES BOTH OF THEM. OP-10 (MUST, 利用者の裁定
+ * 2026-08-29): 「「その文書が覆う最初の日」とは、その文書の `Task` が持つ `start`
+ * と `actualStart` のうち最も早い日のことである」.
+ * ⛔ THIS USED TO READ FIVE -- every date column `_assets/fig-erd-detail.md`
+ * gives `Task` (`finish` / `actualFinish` / `resume` as well). That was a guess
+ * made before the row said anything, and it went on passing because the shipped
+ * template answers the same day either way; on a document whose `finish` or
+ * `resume` stood before every `start`, it would have agreed with a tree
+ * counting columns the row excludes.
  */
-const TASK_DATE_COLUMNS = ['start', 'finish', 'actualStart', 'actualFinish', 'resume'] as const
+const TASK_DATE_COLUMNS = ['start', 'actualStart'] as const
 
 const firstDayCovered = (): string => {
   const days: string[] = []

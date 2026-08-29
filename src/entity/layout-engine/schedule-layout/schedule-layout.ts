@@ -1300,7 +1300,18 @@ function scrollOffsetOf(
   const landedAt = Math.min(rows.length - 1, Math.max(0, anchoredAt + carriedRows))
   const row = rows[landedAt]
   if (row === undefined) return 0
-  return row.y + (held - carriedRows) * row.height - rowAreaY
+  // ⭐⭐ THE SLAB AND NOT THE BAND. S-176 is a fraction of the length the row
+  // OCCUPIES -- its band plus the gap below it -- because table T-023d forbids
+  // a pan that can land only on rows (MUST NOT), and two bands do not touch.
+  // ⛔ THE WRITING SIDE USES THE SAME LENGTH: `rowAnchorAt` in
+  // `input-command-translator.ts` makes this pair out of a pixel, and the two
+  // are one bijection. A denominator written differently in one of them would
+  // draw the picture somewhere the other never named.
+  // ⚠️ The last row's slab is its own band -- there is nothing below it to
+  // reach to.
+  const below = rows[landedAt + 1]
+  const slab = below === undefined ? row.height : below.y - row.y
+  return row.y + (held - carriedRows) * slab - rowAreaY
 }
 
 /**

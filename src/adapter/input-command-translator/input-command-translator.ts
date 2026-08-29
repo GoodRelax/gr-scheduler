@@ -373,11 +373,16 @@ export interface InputContext {
    * reason: half of the answer is `screenState.surface`, which this side can
    * read, and half is the question the shell holds -- LY-5 of table T-060
    * leaves a current value there and NT-7's question is one. ⛔ A reader here
-   * cannot see it at all, which is why MK-14 was inert until this member
+   * cannot see it at all, which is why that rule was inert until this member
    * existed.
-   * ⚠️ ONE TRUTH VALUE AND NOT WHICH SURFACE. MK-14 names no surface in
+   * ⚠️ ONE TRUTH VALUE AND NOT WHICH SURFACE. The rule names no surface in
    * particular -- it asks only whether one stands -- and naming them here
    * would be a second census against table T-103's.
+   * ⛔ IT IS A CLOSING RULE AND NOT A ROW, and calling it `MK-14` (as two
+   * lines here did until 2026-08-29) names something table T-023 does not
+   * hold: the manuscript says in as many words why it is not a row --
+   * 「行ではなく結びの規則としたのは、これが操作ではないからである」 -- because
+   * that table's rows are printed into FR-036's help as things a person can DO.
    */
   readonly isSurfaceStanding: boolean
   /**
@@ -1195,15 +1200,30 @@ function rowAnchorAt(
   const at = rowIndexAtTopEdge(rows, y)
   if (at === null) return held
   const row = rows[at]
-  if (row === undefined || row.height <= 0) return held
+  const below = rows[at + 1]
+  // ⭐⭐ THE SLAB AND NOT THE BAND, and table T-023d is what requires it: ⛔
+  // 「錠の上にしか着地できない形にしてはならない（MUST NOT）」. Two bands do not
+  // touch -- measured 2026-08-29 on the shipped template, every pitch is the
+  // band's height plus 8px -- so a fraction of the BAND cannot name a top edge
+  // standing in that 8px, and every such edge was snapped forward to the next
+  // row. ⛔ MEASURED: a Ctrl drag swept 2px at a time moved the picture
+  // one-for-one until a boundary and then jumped 8px extra in one step, which
+  // is 「パンは等倍とすること（MUST）」 broken by exactly the gap.
+  // ⚠️ THE LAST ROW'S SLAB IS ITS OWN BAND, because there is nothing below for
+  // it to reach to -- the stack ends there, and so does what a fraction of it
+  // could mean.
+  // ⛔ THE READING SIDE MUST USE THE SAME LENGTH. `scrollOffsetOf` in
+  // `schedule-layout.ts` turns this pair back into pixels; the two are one
+  // bijection and a denominator written differently in one of them would put
+  // the picture somewhere this never named.
+  if (row === undefined) return held
+  const slab = below === undefined ? row.height : below.y - row.y
+  if (slab <= 0) return held
   const into = y - row.y
-  if (into >= row.height) {
-    const below = rows[at + 1]
-    // ⚠️ The last row's slab ends at its own band, so a gap always has a row
-    // below it and this is never the whole answer for the foot of the stack.
-    if (below !== undefined) return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
+  if (into >= slab && below !== undefined) {
+    return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
   }
-  return { scrollGroupId: row.groupId, scrollGroupOffset: unitFraction(into / row.height) }
+  return { scrollGroupId: row.groupId, scrollGroupOffset: unitFraction(into / slab) }
 }
 
 /**

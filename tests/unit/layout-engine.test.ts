@@ -429,32 +429,60 @@ describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
     return first.y
   }
 
-  it('S-176 moves the picture by LESS than a whole row, and by that fraction of the row itself', () => {
-    // 「表示の上端が、`scrollGroupId` が指す行のどこにあるか。その行自身の高さに
-    // 対する比であり、px ではない」-- so half a row of offset moves the stack by
-    // half of THAT row's height, and nothing about a whole row is involved.
+  /**
+   * 「その行が占める送り」 -- the length `S-176` measures its fraction against:
+   * 「その行の帯の高さと、その下の隙間を合わせた長さ。次の行の上端までの距離で
+   * あり、最後の行は自身の帯」.
+   *
+   * ⛔ NOT THE BAND. `S-176` forbids that in as many words -- 帯の高さに対する比
+   * にしてはならない（MUST NOT）—— because 帯と帯は接していない: a fraction of
+   * the band cannot name a top edge standing in the gap, which is the very
+   * 「錠の上にしか着地できない形」 表 T-023d refuses.
+   *
+   * ⭐ READ OFF THE PICTURE: the 送り is the distance between two rows the
+   * layout has already placed, so no case here has to know what the gap is.
+   */
+  const pitchOf = (part: Record<string, unknown>): number => {
+    const rows = drawn(part).rows
+    const first = rows[0]
+    if (first === undefined) throw new Error('the stack drew no row')
+    const next = rows[1]
+    return next === undefined ? first.height : next.y - first.y
+  }
+
+  it("S-176 moves the picture by LESS than one row's 送り, and by that fraction of the 送り", () => {
+    // 「表示の上端が、`scrollGroupId` が指す行のどこにあるか。その行が占める送り
+    // （その行の帯の高さと、その下の隙間を合わせた長さ。次の行の上端までの距離で
+    // あり、最後の行は自身の帯）に対する比であり、px ではない」-- so half a 送り
+    // of offset moves the stack by half of THAT 送り.
     const row = drawn({}).rows[0]
     if (row === undefined) throw new Error('the stack drew no row')
+    const pitch = pitchOf({})
+    // ⛔ THE PREMISE THE MUST NOT RESTS ON: 「帯と帯は接していない」. If the two
+    // touched, the band and the 送り would be one number and this case could
+    // not tell the old reading from the new one.
+    expect(pitch, 'S-176: 帯と帯は接していない —— 送りは帯より長い').toBeGreaterThan(row.height)
 
     const moved = topOf({}) - topOf({ scrollGroupOffset: 0.5 })
 
     expect(moved, '端数は動かす').toBeGreaterThan(0)
-    expect(moved, '1 行より短い移動').toBeLessThan(row.height)
-    expect(moved, '行自身の高さに対する比').toBeCloseTo(row.height / 2, 6)
+    expect(moved, '1 行の送りより短い移動').toBeLessThan(pitch)
+    expect(moved, 'その行が占める送りに対する比').toBeCloseTo(pitch / 2, 6)
+    expect(moved, '⛔ 帯の高さに対する比にしてはならない（MUST NOT）').not.toBeCloseTo(
+      row.height / 2,
+      6,
+    )
   })
 
-  it('S-176 is a RATIO, so the same fraction moves further once the row is taller', () => {
+  it('S-176 is a RATIO of the 送り, so the same fraction moves further once that 送り is longer', () => {
     // ⛔ The half FR-080's MUST NOT is about: a px count would move the picture
     // the same distance at either zoom and point somewhere else on the schedule.
     const taller = { zoomY: 3, scrollGroupOffset: 0.5 }
-    const tallRow = drawn({ zoomY: 3 }).rows[0]
-    const plainRow = drawn({}).rows[0]
-    if (tallRow === undefined || plainRow === undefined) throw new Error('the stack drew no row')
-    expect(tallRow.height, 'the case only means a row that really grew').toBeGreaterThan(
-      plainRow.height,
-    )
+    const tallPitch = pitchOf({ zoomY: 3 })
+    const plainPitch = pitchOf({})
+    expect(tallPitch, 'the case only means a 送り that really grew').toBeGreaterThan(plainPitch)
 
-    expect(topOf({ zoomY: 3 }) - topOf(taller)).toBeCloseTo(tallRow.height / 2, 6)
+    expect(topOf({ zoomY: 3 }) - topOf(taller)).toBeCloseTo(tallPitch / 2, 6)
   })
 
   it('S-177 moves the picture by LESS than a whole day, and by that fraction of the day itself', () => {
