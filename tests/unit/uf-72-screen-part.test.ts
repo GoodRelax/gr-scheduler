@@ -4901,11 +4901,13 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 //   こと（MUST）**」, with ⛔ 「**`HF-6` の対象ではない** —— **ポインタが乗って
 //   いるあいだだけでは、抱えている行を探して回ることになる**」.
 //
-// ⚠️ WHAT IS NOT ASSERTED. The BAND'S THICKNESS: no row of 表 T-206 states one,
-// and `HF-15` asks only for 「帯を 1 本ずつ」. The GROUND'S COLOUR under the held
-// row: `HF-15` (MUST) asks for a ground and names no colour, and no row of
-// 表 T-236 does either -- ⛔ so a case that fixed one would be inventing it. What
-// IS read is which EDGES carry a band, which is the half the manuscript states.
+// ⭐ THE BAND'S THICKNESS IS STATED SINCE 2026-08-31 and is read below: `S-213`
+// of 表 T-206, which `HF-15` and `HF-18` BOTH name -- 「行の辺に引く 1 本の帯」 is
+// one thing and holds one number. ⛔ Until that day neither band had a source
+// and this unit carried two invented ones, 2px and 3px.
+// ⚠️ WHAT IS STILL NOT ASSERTED. The GROUND'S COLOUR under the held row:
+// `HF-15` (MUST) asks for a ground and names no colour, and no row of 表 T-236
+// does either -- ⛔ so a case that fixed one would be inventing it.
 // ===========================================================================
 
 /** The two colours 表 T-236 gives HF-15's bands, read out of the table. */
@@ -4954,6 +4956,32 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
     expect(hf15).toContain('`S-151`（上下）と `S-152`（左右）')
     for (const row of ['S-151', 'S-152']) {
       expect(themeColoursOf(row).filter((one) => one !== ''), `表 T-236 ${row}`).toHaveLength(2)
+    }
+    // ⭐ AND THE THICKNESS, which the row states since 2026-08-31.
+    expect(hf15).toContain('太さは 表 T-206 の `S-213` とすること（MUST）')
+  })
+
+  it('⭐ MUST GIVEN an axis is live WHEN the bands are read THEN both are S-213 thick (HF-15: 太さは 表 T-206 の `S-213`)', () => {
+    // ⭐ ONE NUMBER FOR BOTH BANDS, which `S-213` states: HF-15's live axis and
+    // HF-18's holding mark are 「行の辺に引く 1 本の帯」.
+    // ⛔ THEY WERE 2px AND 3px, both invented in the drawing unit.
+    const stated = specTable('T-206').rows.find((one) => one.id === 'S-213')
+    if (stated === undefined) throw new Error('表 T-206 no longer holds S-213')
+    const number = /\d+(?:\.\d+)?/.exec(stated.by['既定'] ?? '')
+    if (number === null) throw new Error('S-213 states no number in its 既定 column')
+    const wanted = Number(number[0])
+    for (const axis of ['position', 'depth'] as const) {
+      const built = drawn(rowHeldOn(axis))
+      const edges = [...bordersOf(theRowOf(built)).entries()]
+      expect(edges.length, `no band was drawn on the ${axis} axis`).toBe(2)
+      for (const [edge, written] of edges) {
+        const found = /(-?\d+(?:\.\d+)?)px/.exec(written)
+        expect(found, `the ${edge} band states no thickness: ${written}`).not.toBeNull()
+        expect(
+          Number((found as RegExpExecArray)[1]),
+          `HF-15 (MUST): the ${edge} band is not S-213 thick: ${written}`,
+        ).toBe(wanted)
+      }
     }
   })
 
@@ -5041,10 +5069,19 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
  * named by. ⭐ A LEAF whose whole text is a number is the one reading of that
  * which a build cannot pass by accident -- a row's name is not a bare number.
  */
+/**
+ * The counts a row shows, each without the mark HF-18 (MUST) puts in front of
+ * it: 「数の前に、畳み込みを表す印を 1 つ置くこと。印は下向きの三角（`▾` U+25BE）」.
+ *
+ * ⛔ THE MARK IS REQUIRED AND NOT MERELY TOLERATED. A node whose text is the
+ * bare number does not match, so an implementation that drops the mark is red
+ * here rather than passing on the digits alone.
+ */
 const numberMarksOf = (row: FakeElement): string[] =>
   descendants(row)
-    .filter((one) => one.children.length === 0 && /^\d+$/.test(one.textContent.trim()))
-    .map((one) => one.textContent.trim())
+    .filter((one) => one.children.length === 0
+      && /^\u25be\s\d+$/.test(one.textContent.trim()))
+    .map((one) => one.textContent.trim().replace(/^\u25be\s/, ''))
 
 describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is drawn, and not only under a pointer', () => {
   it('GIVEN the specification is re-read WHEN HF-18 is looked up THEN it still asks for the count, the mark and the colour, and still says HF-6 does not reach it (Chapter 1.9)', () => {
@@ -5052,6 +5089,12 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
 
     expect(hf18).toContain(T_051_HF18_THE_COUNT)
     expect(hf18).toContain('その行自身にも印を付けること（MUST）')
+    // ⭐ THE SHAPE THE SAMPLE SETTLED (2026-08-31): where the number stands and
+    // what stands in front of it. ⛔ Before that day HF-18 stated neither, and
+    // the implementation invented both -- the count was drawn over the second
+    // character of the row's name.
+    expect(hf18).toContain('置く先は行の右端とすること（MUST）')
+    expect(hf18).toContain('数の前に、畳み込みを表す印を 1 つ置くこと（MUST）')
     expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
     expect(hf18).toContain('`HF-6` の対象ではない')
     expect(themeColoursOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
@@ -5109,8 +5152,10 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
     expect(numberMarksOf(row), 'the count was not drawn, so there is nothing to ask about').toEqual([
       '7',
     ])
+    // ⭐ THE MARK AND THE NUMBER ARE ONE NODE (HF-18, MUST): the count is drawn
+    // 「数の前に、畳み込みを表す印を 1 つ置く」, so the text to look for carries both.
     const mark = descendants(row).find(
-      (one) => one.children.length === 0 && one.textContent.trim() === '7',
+      (one) => one.children.length === 0 && one.textContent.trim() === '▾ 7',
     )
     expect(
       hiddenWhileResting(sheetRulesOf(built.root()), mark as FakeElement),

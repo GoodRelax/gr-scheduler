@@ -1167,6 +1167,12 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
+    # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138 and
+    # S-141 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
+    # marked with -- HF-15's live axis and HF-18's holding mark -- and the
+    # settings row itself states that those two bands are one number.
+    'NOT_STORED_ROW_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ FR-036's help, whose share of the screen and whose column count are
     # both the drawing side's to apply: the share is of the window, which is
     # the environment's own measure, and the columns are a layout. ⛔ Not
@@ -1814,6 +1820,7 @@ TARGETS = [
     # through `SCREEN_COLOURS`. A thickness has no reader left.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2

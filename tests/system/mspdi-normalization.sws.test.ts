@@ -84,8 +84,17 @@ const T025: SpecTable = specTable('T-025')
 /** The row of table T-024 that `SWS-6` is about. */
 const FORMAT_ROW = 'IO-1'
 
-/** The row of table T-109 that is the one entry `FR-096` allows for writing out. */
-const EXPORT_ENTRY_ROW = 'IC-3'
+/**
+ * The row of table T-109 that is the one entry `FR-096` allows for writing out.
+ *
+ * ⛔ IT NAMED `IC-3` UNTIL 2026-08-31, AND THAT IS A DIFFERENT ENTRANCE. Table
+ * T-109 gives `IC-2` 「書き出す形式を選ぶ」 with `FR-096`（表 T-036 の `SK-12`）
+ * beside it, and `IC-3` 「画像をクリップボードへコピーする」 with `FR-025` -- which
+ * opens no surface at all, so this case waited five seconds for an `Export
+ * Chooser` that the pressed entrance never puts up. ⚠️ Measured on the shipped
+ * build: pressing IC-3 raises 「操作を終えられませんでした」 instead.
+ */
+const EXPORT_ENTRY_ROW = 'IC-2'
 
 /** The row of table T-103 that names the surface that entry opens. */
 const CHOOSER_ROW = 'U-54'

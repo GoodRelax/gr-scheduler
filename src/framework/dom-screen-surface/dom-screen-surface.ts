@@ -2727,26 +2727,25 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
 const FOLDED_ROW_COUNT_MARK = 'data-folded-rows'
 
 /**
- * How thick HF-15's band is drawn, in pixels.
+ * How thick a band drawn on a row's edge is -- `S-213` of table T-206, in
+ * pixels.
  *
- * ⛔ THE SPECIFICATION HOLDS NO ROW FOR IT. HF-15 (MUST) asks for 「帯を 1 本ずつ」
- * and names the two colours; table T-206 states no thickness for it, and no
- * other row does either. ⚠️ Named here rather than left as a bare 2 so that the
- * declarations below read as what they are, the same bargain
- * `PANEL_CORNER_BORDER_PX` takes -- and 2px rather than 1 because 「帯」 is asked
- * for and a hairline is the tool's own rule (S-149), not a band.
- */
-/**
- * How wide the bar HF-18 (MUST) draws on a holding row's left edge is.
+ * ⭐⭐ ONE NUMBER FOR BOTH BANDS, which is what that row states in as many
+ * words: HF-15's live axis and HF-18's holding mark are both 「行の辺に引く 1 本
+ * の帯」 and have no reason to differ.
+ * ⛔ THEY DID DIFFER UNTIL 2026-08-31 -- 2px for the axis and 3px for the
+ * holding mark, both invented here because no row of the specification held
+ * either. The sample draws both at 3.
+ * ⛔ A FUNCTION AND NOT A CONSTANT, for the reason `rowControlRightEm`'s note
+ * gives: the generated block that declares `NOT_STORED_ROW_BAND_SIZES` stands
+ * at the foot of this file, and a module-level `const` would read it inside its
+ * own temporal dead zone.
  *
- * ⛔ NO ROW OF THE SPECIFICATION HOLDS IT. `S-138` is the glyph box and `S-141`
- * the gap around it; the manuscript asks for 「帯を 1 本」 and states no
- * thickness, the same gap `ROW_GRAB_BAND_PX` above carries. Searched: HF-18,
- * HF-6, table T-206, table T-236, FR-085.
+ * @purity pure
  */
-const ROW_HOLDS_BAND_PX = 3
-
-const ROW_GRAB_BAND_PX = 2
+function rowBandPx(): number {
+  return NOT_STORED_ROW_BAND_SIZES['S-213']
+}
 
 /**
  * How a row that HF-15's grab is holding is drawn: a ground under it, and one
@@ -2773,7 +2772,7 @@ const ROW_GRAB_BAND_PX = 2
  */
 function rowGrabbedStyle(axis: 'position' | 'depth'): string {
   const paint = axis === 'position' ? PAINT.grabAxisPosition : PAINT.grabAxisDepth
-  const band = `${ROW_GRAB_BAND_PX}px solid ${paint}`
+  const band = `${rowBandPx()}px solid ${paint}`
   return (
     `background:${PAINT.rule};` +
     (axis === 'position'
@@ -2808,18 +2807,44 @@ function foldedRowCountStyle(rightPx: string): string {
   // knocked out of it, which is what that MUST NOT names.
   // ⭐ THE INK IS S-153 AND THE GROUND IS THE ROW'S OWN, so the count reads as
   // an aside rather than as a badge.
+  //
+  // ⚠️ `rightPx` IS AN `em` OFFSET AND THIS ELEMENT SETS ITS OWN `font-size`,
+  // so the two resolve together: a step counted here is three quarters of a
+  // step on the row. ⛔ THAT IS WHY THE COUNT MUST STAND AT STEP 0 and nowhere
+  // else -- at the edge, three quarters of 0.25em is 1px out and invisible,
+  // while at step 7 it was 37px out and over the row's name.
   return (
     'position:absolute;top:0;pointer-events:none;' +
     rightPx +
     `min-width:${side}px;height:${side}px;line-height:${side}px;` +
-    'text-align:center;font-size:0.75em;' +
+    'text-align:center;font-size:0.75em;white-space:nowrap;' +
     `color:${PAINT.caution};`
   )
 }
 
 /**
+ * The mark HF-18 (MUST) puts before the number: U+25BE BLACK DOWN-POINTING
+ * SMALL TRIANGLE, and one space after it.
+ *
+ * ⛔ NOT A DISPLAY WORD, for the reason `TRUNCATION_MARK` of `row-title-panel`
+ * carries: FR-038 holds one dictionary per language and this mark is the same
+ * one character in every one of them.
+ * ⛔ AND NOT A GLYPH OF FIGURE F-019 (MUST NOT, HF-18's neighbour HF-15 states
+ * the same for the grab mark): that figure holds the shapes of ENTRANCES, and
+ * nothing about this count is pressed.
+ * ⚠️ Written as a code point rather than typed, which is what rule 03 section 5
+ * asks of a string the program prints.
+ */
+const FOLD_COUNT_MARK = '\u25be\u0020'
+
+/**
  * The head's count, put back on the element that was built with the panel --
  * HF-12 (MUST): 「そのときは、頭にいま何行を畳み込んでいるかを示すこと」.
+ *
+ * ⚠️ THE SAME SHAPE THE ROWS USE -- the mark and the number -- and HF-12 states
+ * no shape at all. The sample writes a phrase there instead (「・N 行を畳み込み
+ * 中」), which its own panel is wide enough for and S-79's 170px is not.
+ * @provisional PD-415
  *
  * ⛔ WRITTEN ON EVERY FRAME AND NOT ONCE, exactly as `markPanelCornerEntry` is
  * and for the same reason: the head's furniture is built with the panel and
@@ -2832,7 +2857,7 @@ function foldedRowCountStyle(rightPx: string): string {
  */
 function markFoldedRowCount(mark: HTMLElement, count: number, rightPx: string): void {
   mark.setAttribute(FOLDED_ROW_COUNT_MARK, String(count))
-  mark.textContent = String(count)
+  mark.textContent = FOLD_COUNT_MARK + String(count)
   mark.setAttribute('style', count > 0 ? foldedRowCountStyle(rightPx) : STYLE.hidden)
 }
 
@@ -2845,7 +2870,7 @@ function foldedRowCountElement(host: Document, count: number, rightPx: string): 
   const mark = made(host, 'span', foldedRowCountStyle(rightPx))
   mark.setAttribute(FOLDED_ROW_COUNT_MARK, String(count))
   mark.setAttribute('aria-hidden', 'true')
-  mark.textContent = String(count)
+  mark.textContent = FOLD_COUNT_MARK + String(count)
   return mark
 }
 
@@ -2979,6 +3004,11 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
       (title.heldOnAxis == null ? '' : rowGrabbedStyle(title.heldOnAxis)),
   )
   if (title.heldOnAxis != null) row.setAttribute('data-held-axis', title.heldOnAxis)
+  // ⚠️ A PINNED ROW TAKES NO GROUND OF ITS OWN. FR-098 (MUST) asks that the
+  // pinned rows be readable 「行を一覧しただけで」 and says the rule is HF-6's --
+  // which is the pin's own always-drawn fill (EN-3, S-151), and that is what is
+  // drawn here. The sample tints the whole row as well.
+  // @provisional PD-414
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedRow)
   row.setAttribute('data-group-id', title.groupId)
   row.setAttribute('data-depth', String(title.depth))
@@ -3296,11 +3326,17 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // HF-18 (MUST): 「配下に畳み込んでいる行があるとき、その行数を行に示すこと」, and
   // 「その行自身にも印を付けること」.
   //
-  // ⭐ ONE STEP OUTSIDE THE LEFTMOST CONTROL, so that the band HF-6 lays under
-  // the controls (which reaches from IC-59's step to the row's right edge) does
-  // not cover it while a pointer is on the row. ⛔ THAT BAND MUST NOT COVER IT:
-  // this count is not subject to HF-6 (MUST NOT), and a mark that vanished the
-  // moment the hand arrived would be exactly what that MUST NOT is about.
+  // ⭐⭐ AT THE ROW'S RIGHT END, WHICH HF-18 (MUST) STATES: 「置く先は行の右端と
+  // すること」, 「`HF-4` が操作子を留めるのと同じ端である」 -- so it reads the same
+  // step the pin does rather than a step of its own.
+  // ⛔ IT STOOD SEVEN STEPS IN UNTIL 2026-08-31, which put it over the row's
+  // NAME: measured at x=46 on a 170-wide panel, on the second character of
+  // 「Mobile Client」. ⚠️ The note that stood here said the place was chosen so
+  // HF-6's ground would not cover the count -- it did cover it anyway, and
+  // `elementFromPoint` answered `BUTTON IC-90`. ⭐ HF-18 (MUST NOT) keeps the
+  // count out of HF-6's HOVER RULE -- it is drawn whether or not a pointer is
+  // on the row -- and says nothing about being over-drawn while one is, which
+  // is what the sample does too.
   // ⚠️ NOTHING IS DRAWN FOR A COUNT OF ZERO -- 「畳み込んでいる行があるとき」 is the
   // condition, and a row holding none has nothing to show.
   // ⛔ IT TAKES NO ROOM (FR-085, MUST NOT): out of the flow like the controls,
@@ -3311,7 +3347,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
       foldedRowCountElement(
         host,
         foldedRows,
-        rowControlRight(ROW_CONTROL_STEPS.close + 1),
+        rowControlRight(ROW_CONTROL_STEPS.pin),
       ),
     )
     // ⭐ AND THE ROW ITSELF IS MARKED. HF-18 (MUST): 「その行自身にも印を付ける
@@ -3322,7 +3358,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     row.setAttribute(
       'style',
       (row.getAttribute('style') ?? '') +
-        `box-shadow:inset ${ROW_HOLDS_BAND_PX}px 0 0 0 ${PAINT.caution};`,
+        `box-shadow:inset ${rowBandPx()}px 0 0 0 ${PAINT.caution};`,
     )
   }
   return row
@@ -6632,6 +6668,28 @@ export const NOT_STORED_ICON_SIZES: {
 } = {
   'S-138': 16,
   'S-141': 4,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_ROW_BAND_SIZES: {
+  /** S-213, in px */
+  readonly 'S-213': number
+} = {
+  'S-213': 3,
 }
 
 /**

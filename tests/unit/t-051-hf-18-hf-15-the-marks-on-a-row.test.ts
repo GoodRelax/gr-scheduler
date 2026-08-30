@@ -326,12 +326,19 @@ function grabStripOf(row: FakeElement): FakeElement {
  */
 function countNodeOf(row: FakeElement, count: number): FakeElement | null {
   const found = selfAndDescendants(row).filter(
-    (one) => one !== row && one.children.length === 0 && /^\s*\d+\s*$/.test(one.textContent),
+    (one) => one !== row && one.children.length === 0
+      && /^\s*\u25be?\s*\d+\s*$/.test(one.textContent),
   )
   expect(found.length, `at most one number is shown on a row: ${whatWasDrawn(row)}`).toBeLessThan(2)
   const first = found[0]
   if (first === undefined) return null
-  expect(first.textContent.trim(), 'the word the row shows is the count').toBe(String(count))
+  // ⭐ THE MARK IS PART OF WHAT THE ROW ASKS FOR (MUST, 2026-08-31): 「数の前に、
+  // 畳み込みを表す印を 1 つ置くこと。印は下向きの三角（`▾` U+25BE）とすること」.
+  // ⛔ The search above accepts a bare number so that dropping the mark fails
+  // HERE, with the text in the message, rather than reporting that no count was
+  // drawn at all.
+  expect(first.textContent.trim(), 'the word the row shows is the mark and the count')
+    .toBe(`\u25be ${count}`)
   return first
 }
 
@@ -420,6 +427,25 @@ describe('the manuscripts still say what these cases read', () => {
     expect(HF_18).toContain('地を塗った札にしてはならない（MUST NOT）')
   })
 
+  it('⛔ HF-18 still names the place and the mark (the ruling of 2026-08-31)', () => {
+    expect(HF_18).toContain('置く先は行の右端とすること（MUST）')
+    expect(HF_18).toContain('`HF-4` が操作子を留めるのと同じ端である')
+    expect(HF_18).toContain('名前の途中に置いてはならない（MUST NOT）')
+    expect(HF_18).toContain('数の前に、畳み込みを表す印を 1 つ置くこと（MUST）')
+    expect(HF_18).toContain('印は下向きの三角（`▾` U+25BE）とすること（MUST）')
+  })
+
+  it('⛔ HF-18 and HF-15 still read ONE thickness for their two bands', () => {
+    expect(HF_18).toContain('太さは `_assets/tbl-settings.md` の 表 T-206 の `S-213` とすること（MUST）')
+    expect(HF_15).toContain('太さは 表 T-206 の `S-213` とすること（MUST）')
+    expect(t206('S-213')).toBeGreaterThan(0)
+  })
+
+  it('⛔ HF-15 still names the glyph the grab mark is drawn with', () => {
+    expect(HF_15).toContain('印は縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること（MUST）')
+    expect(HF_15).toContain('図 F-019 の図形にしてはならない（MUST NOT）')
+  })
+
   it('⛔ HF-18 still marks the row itself with a band on its left edge, in S-153', () => {
     expect(HF_18).toContain('その行自身にも印を付けること（MUST）')
     expect(HF_18).toContain('印は行の左の辺に帯を 1 本引くこと（MUST）')
@@ -495,6 +521,51 @@ describe('HF-18 -- the count is a word beside the name, and never a painted badg
       ).toBe(true)
     })
 
+    it(`stands the count at the row's right end, where HF-4 pins the controls (${preference})`, () => {
+      // 「⭐⭐ **置く先は行の右端とすること（MUST）** —— **`HF-4` が操作子を留めるの
+      // と同じ端である。**」 ⛔ 「**名前の途中に置いてはならない（MUST NOT）**」.
+      // ⚠️ THE OFFSET IS COMPARED AND NOT MEASURED IN PIXELS: both are written
+      // in `em`, and what the row asks for is that the two name the SAME edge --
+      // a number of pixels would be this file inventing one.
+      const built = drawn(HOLDING(), preference)
+      const [row] = rowsOf(built, 1)
+      const count = countNodeOf(row as FakeElement, 3)
+      expect(count).not.toBeNull()
+
+      const outermost = selfAndDescendants(row as FakeElement)
+        .filter((one) => one.getAttribute('data-icon') !== null)
+        .map((one) => styleMap(one).get('right'))
+        .filter((written): written is string => written !== undefined)
+      expect(outermost.length, `the row drew no control to take an edge from: ${
+        whatWasDrawn(row as FakeElement)}`).toBeGreaterThan(0)
+
+      const nearest = (written: string): number => {
+        const found = /(-?\d+(?:\.\d+)?)/.exec(written)
+        return found === null ? Number.NaN : Number(found[1])
+      }
+      const edge = Math.min(...outermost.map(nearest))
+      expect(
+        nearest(styleMap(count as FakeElement).get('right') ?? ''),
+        `HF-18 (MUST): the count does not stand at the edge the controls are pinned to: ${
+          whatWasDrawn(count as FakeElement)}`,
+      ).toBe(edge)
+    })
+
+    it(`puts the mark HF-18 names in front of the number (${preference})`, () => {
+      // 「⭐ **数の前に、畳み込みを表す印を 1 つ置くこと（MUST）。印は下向きの三角
+      // （`▾` U+25BE）とすること（MUST）**」 —— ⛔ 「**裸の数字にしてはならない
+      // （MUST NOT）**」.
+      const built = drawn(HOLDING(), preference)
+      const [row] = rowsOf(built, 1)
+      const count = countNodeOf(row as FakeElement, 3)
+      expect(count).not.toBeNull()
+
+      expect(
+        (count as FakeElement).textContent.trim().startsWith('\u25be'),
+        `HF-18 (MUST NOT): the count is a bare number: ${whatWasDrawn(count as FakeElement)}`,
+      ).toBe(true)
+    })
+
     it(`shows no count on a row that is holding nothing (${preference})`, () => {
       // ⭐ THE PAIR, WITHOUT WHICH THE TWO ABOVE WOULD PASS ON A ROW THAT ALWAYS
       // SHOWS A NUMBER. HF-18 asks for one 「配下に畳み込んでいる行があるとき」.
@@ -549,6 +620,29 @@ describe('HF-18 -- the row that is holding rows folded is marked on its left edg
       ).not.toBe(CAUTION())
     })
 
+    it(`draws the band at S-213, the one thickness both bands read (${preference})`, () => {
+      // 「**太さは `_assets/tbl-settings.md` の 表 T-206 の `S-213` とすること
+      // （MUST）**」 —— ⭐ that row states in as many words that HF-15's live axis
+      // and this mark are 「行の辺に引く 1 本の帯」 and hold ONE number.
+      // ⛔ THEY HELD TWO UNTIL 2026-08-31: 2px for the axis and 3px here, both
+      // invented in the drawing unit because no row of the specification held
+      // either.
+      const built = drawn(viewOf([rowTitle({ groupId: 'RowAlpha', foldedRowCount: 3 })]), preference)
+      const [row] = rowsOf(built, 1)
+      const painted = declarationsPainting(built, row as FakeElement, CAUTION())
+      const band = painted.find(([property, value]) => isLeftEdgeBand(property, value))
+      expect(band, `HF-18 (MUST): no band to measure: ${whatWasDrawn(row as FakeElement)}`)
+        .not.toBeUndefined()
+
+      const written = (band as readonly [string, string])[1]
+      const first = /(-?\d+(?:\.\d+)?)px/.exec(written)
+      expect(first, `the band states no thickness: ${written}`).not.toBeNull()
+      expect(
+        Number((first as RegExpExecArray)[1]),
+        `HF-18 (MUST): the band is not S-213 thick: ${written}`,
+      ).toBe(t206('S-213'))
+    })
+
     it(`leaves a row that is holding nothing unmarked (${preference})`, () => {
       // ⭐ THE PAIR. 「**数だけでは、どの行が抱えているかを目で追うのに読む必要が
       // ある**」 is a reason for marking the rows that ARE holding, so a mark on
@@ -587,6 +681,21 @@ describe('HF-15 -- the grab strip is a mark, and its band is not painted', () =>
         strip.textContent.trim() !== '' || strip.children.length > 0,
         `HF-15 (MUST): the strip draws no mark at all: ${whatWasDrawn(strip)}`,
       ).toBe(true)
+    })
+
+    it(`draws the strip's mark with the glyph HF-15 names (${preference})`, () => {
+      // 「⭐ **印は縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること
+      // （MUST）**」 —— ⛔ 「**図 F-019 の図形にしてはならない（MUST NOT）**」, so
+      // what the strip shows is TEXT and not a shape: 「同図が持つのは入口の図形
+      // であり、掴み代は押す入口ではなく、掴める場所を指す印である」.
+      const built = drawn(ONE_ROW(), preference)
+      const [row] = rowsOf(built, 1)
+      const strip = grabStripOf(row as FakeElement)
+
+      expect(
+        strip.textContent.trim(),
+        `HF-15 (MUST): the strip's mark is not the glyph the row names: ${whatWasDrawn(strip)}`,
+      ).toBe('⋮⋮')
     })
 
     it(`paints no ground on the strip (${preference})`, () => {

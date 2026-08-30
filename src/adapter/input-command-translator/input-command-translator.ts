@@ -5522,6 +5522,14 @@ function commandFromRowGrab(
  * moment the fold above it comes off. ⚠️ HR-4 says 「配下をすべて畳む」 and
  * names no exception.
  *
+ * ⛔⛔ THE ROW ITSELF IS NOT WRITTEN, WHICH LEAVES ITS DIRECT CHILDREN DRAWN --
+ * one level shallower than the sample. Measured 2026-08-31: pressing IC-77 on
+ * 「Mobile Client」 left 「Phone App」 and 「Tablet App」 standing, where the sample
+ * leaves 「Mobile Client」 alone. HF-11 (MUST NOT) 「その行自身を畳んではならない」
+ * is what this obeys, and HR-2 (「本行と HR-4 は同じ動作の範囲違い」) and HF-1
+ * (「HR-4 を 1 度押せば同じ絵になる」) are what it contradicts.
+ * @provisional PD-413
+ *
  * @purity pure
  */
 function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly DocumentCommand[] {
