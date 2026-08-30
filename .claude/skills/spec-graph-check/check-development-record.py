@@ -72,10 +72,13 @@ def main():
     for name in sorted(os.listdir(RECORDS)):
         # ⚠️ Not every file here is a wave record. The index, the
         # pending-decision list and the defect ledger live beside them: the
-        # first answers to nothing, the second to check 25, and the third is
-        # keyed by the user's report rather than by a folder of units.
+        # first answers to nothing, the second to check 25, the third is
+        # keyed by the user's report rather than by a folder of units,
+        # and the fourth is the handing over itself.
+        # ⭐ handoff.md is the fourth: it is what one round hands the next, and
+        # it answers to the whole tree rather than to a folder of units.
         if not name.endswith('.md') or name in (
-            'README.md', 'pending-decisions.md', 'defects.md'
+            'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md'
         ):
             continue
         path = os.path.join(RECORDS, name)
