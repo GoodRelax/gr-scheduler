@@ -219,7 +219,15 @@ echo "===== 20  the generated entity types still match erd.json ====="
 PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
 
 echo ""
-echo "===== 27  the seven other generated artifacts still match their manuscripts ====="
+# ⛔⛔ SEVEN OF ELEVEN UNTIL 2026-08-30, AND THE FOUR THAT WERE MISSING COST A
+# ROUND. `help-roster.json` had drifted from table T-023d, six contract cases
+# were red because of it, and the handoff read them as a missing feature --
+# `npm run gen:check` had been saying so all along and this suite had not.
+# ⭐ THE RULE THIS RESTORES: every target of `npm run gen:check` is a gate here.
+# ⚠️ Four are still checked in their own sections above -- 16 (settings and the
+# two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types) --
+# so the eleven below plus those five are the sixteen `gen:check` runs.
+echo "===== 27  the eleven other generated artifacts still match their manuscripts ====="
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || fail=1
@@ -227,6 +235,10 @@ PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_display_words.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_mspdi_custom_fields.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || fail=1
+PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || fail=1
 
 echo ""
 echo "===== 28  the ledger against what has been SEEN in the app ====="
