@@ -2890,18 +2890,27 @@ function foldedRowCountElement(host: Document, count: number, rightPx: string): 
  */
 function rowGrabStripStyle(): string {
   const width = NOT_STORED_ICON_SIZES['S-138']
-  // ⭐ A SMALL MARK IN THE MIDDLE OF THE STRIP, NOT A PAINTED BAND. HF-15 (MUST)
-  // draws the strip 「掴めることを表す小さな印として」 and (MUST NOT) refuses to
-  // paint its ground -- 「行の高さいっぱいに地を塗ると、日程より掴み代が目立つ」.
-  // ⛔ IT WAS A FILLED SLAB UNTIL 2026-08-30: `S-138` wide, the row's full
-  // height, painted in S-149. The user read it as an area with no meaning.
-  // ⭐ THE WIDTH IS STILL `S-138`, which is what the row's own MUST fixes and
-  // what a hand has to aim at -- only the paint went.
+  // ⭐ A SMALL MARK, NOT A PAINTED BAND. HF-15 (MUST) draws the strip 「掴める
+  // ことを表す小さな印として」 and (MUST NOT) refuses to paint its ground --
+  // 「行の高さいっぱいに地を塗ると、日程より掴み代が目立つ」.
+  //
+  // ⭐⭐ AND IT STANDS IN THE ROW'S OWN FLOW, JUST BEFORE THE NAME. GR-20
+  // (MUST): 「行の左端とは、その行の字下げの後ろである。掴み代は行の名前の直前
+  // に立ち、段の字下げとともに動くこと」, and (MUST NOT): 「パネルの左端に揃えて
+  // はならない —— 揃えると、どの段の行を掴んでいるのかが掴み代から読めない」.
+  // ⛔ IT WAS `position:absolute;left:0` UNTIL 2026-08-30, so every row's strip
+  // stood at the panel's edge whatever its depth.
+  //
+  // ⭐ THE HEIGHT IS ONE LINE, WHICH IS THE NAME'S. HF-15 (MUST) puts the mark
+  // 「行の名前と同じ高さに」 and (MUST NOT) spreads it over the row's box --
+  // 「行の高さは `FR-042` で行ごとに違い、広げると印が名前の行から離れていく」.
+  // ⛔ IT WAS `top:0;bottom:0` and centred in a box measured at 64 to 148px.
+  //
+  // ⚠️ THE WIDTH IS STILL `S-138` -- what GR-20 fixes and what a hand aims at.
   return (
-    'position:absolute;left:0;top:0;bottom:0;' +
-    `width:${width}px;cursor:grab;pointer-events:auto;` +
-    'display:flex;align-items:center;justify-content:center;' +
-    `color:${PAINT.rule};font-size:0.75em;line-height:1;user-select:none;`
+    `flex:none;width:${width}px;cursor:grab;pointer-events:auto;` +
+    'text-align:center;' +
+    `color:${PAINT.rule};font-size:0.75em;user-select:none;`
   )
 }
 
@@ -3002,13 +3011,13 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   if (!title.isPinned) {
     const grab = made(host, 'div', rowGrabStripStyle())
     grab.setAttribute(ROW_GRAB_STRIP_MARK, 'true')
-    // ⭐ THE MARK ITSELF. Two columns of dots is what the working sample draws
-    // and what HF-15 (MUST) asks for as 「掴めることを表す小さな印」; it carries
-    // no row of table T-109 and no glyph of figure F-019, because GR-20 is a
-    // grab area and not an entrance. ⚠️ `aria-hidden`: it is decoration on a
-    // box that already takes the pointer.
-    grab.textContent = '⠇⠇'
-    grab.setAttribute('aria-hidden', 'true')
+    // ⭐ THE MARK ITSELF -- two vertical ellipses, which is what the working
+    // sample draws and what HF-15 (MUST) asks for as 「掴めることを表す小さな
+    // 印」. ⛔ It carries no row of table T-109 and no glyph of figure F-019,
+    // because GR-20 is a grab area and not an entrance.
+    // ⚠️ `aria-hidden`: it is decoration on a box that already takes the
+    // pointer.
+    grab.textContent = '⋮⋮'
     grab.setAttribute('aria-hidden', 'true')
     row.append(grab)
   }
