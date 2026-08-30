@@ -1667,16 +1667,59 @@ const STYLE = {
   // stand in: they are drawn in the order the description carries, which is
   // table T-024's own.
   formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
-  notices: 'position:absolute;left:50%;transform:translateX(-50%);max-width:60%;',
+  // NT-9 of table T-037 (MUST, 利用者の指示 2026-08-31): 「箱の幅は中身に合わせて
+  // 変えること」, so the LAYER takes the whole window and only centres what stands
+  // on it -- the width of a telling is then its own contents'.
+  //
+  // ⛔ `left:50%` WITH A TRANSFORM IS GONE, AND THAT IS A MUST NOT RATHER THAN
+  // TIDYING. A box placed absolutely and offset to the middle shrinks to fit the
+  // space LEFT of it, which is half the window -- so the words wrapped at a
+  // percentage of the screen even with no `max-width` written at all, and NT-9
+  // forbids capping by a percentage of the screen (MUST NOT).
+  // ⛔ AND `max-width:60%` IS GONE FOR THE SAME ROW, IN AS MANY WORDS: 「頭打ちに
+  // すると語が折り返し、`NT-8` の入口が語の下へ落ちて 1 行に収まらない」.
+  // ⚠️ NOTHING TAKES ITS PLACE. The one wrap NT-9 allows is 「画面の幅に収まら
+  // ないとき」, and a flex item's own limit is the line it stands on -- so the
+  // wrapping point is MEASURED off the window and not chosen here.
+  //
+  // ⛔ `pointer-events:none` IS NOT DECORATION, and it was not needed while the
+  // layer was half a screen wide: a full-width layer would otherwise take every
+  // press in the band it covers, and the schedule under it could not be reached.
+  // ⭐ The tellings put it back on themselves (`notice` below), which is the
+  // same bargain `STYLE.layer` and the confirmation already keep.
+  notices:
+    'position:absolute;left:0;right:0;pointer-events:none;' +
+    'display:flex;flex-direction:column;align-items:center;',
+  // NT-9 (MUST): 「通知が示すものと `NT-8` の入口を、1 行に並べること」 -- the
+  // words, NT-3's count, NT-3a's next steps and the entrance are laid in a row
+  // rather than stacked. ⚠️ `flex-wrap` is the one allowance the row makes, and
+  // it is the whole of it: with the window too narrow the line breaks, which is
+  // what keeps NT-8's entrance on the screen and pressable.
   notice:
     `box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:${PAINT.ground};` +
-    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
-  // NT-8's entrance, held under the words it puts away so that it does not read
-  // as one more thing being said -- the placement `confirmationAnswers` below
-  // gives NT-7's two answers, for the same reason. ⚠️ ONLY THE GAP IS DECLARED:
-  // the frame is `entryStyle`'s, so this entrance stands like every other one
-  // and no second look is invented for it.
-  noticeDismiss: 'margin-top:0.5em;',
+    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;` +
+    'display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',
+  // NT-8's entrance, on the SAME line as everything the telling says (NT-9,
+  // MUST). ⛔ THE `margin-top:0.5em` THAT STOOD HERE IS GONE: it held the
+  // entrance under the words, which is exactly the placement NT-9 names as the
+  // harm. ⚠️ What separates it from the words is the box's own `gap` above, so
+  // no second size is invented here.
+  // ⛔ `flex:none` KEEPS THE WORD WHOLE. A flex item may be shrunk below the
+  // width of its contents, and an entrance whose word has been squeezed out
+  // cannot be read -- NT-8 (MUST) has the person put the telling away, which
+  // needs the way out to be legible as well as reachable.
+  // ⚠️ THE FRAME IS STILL `entryStyle`'s, so this entrance stands like every
+  // other one and no second look is invented for it.
+  noticeDismiss: 'flex:none;',
+  // NT-3a's next step, which stands on the telling's one line (NT-9, MUST).
+  //
+  // ⛔ IT WAS `STYLE.fieldName` UNTIL NT-9, AND THAT ROW IS WHY IT NO LONGER IS.
+  // That declaration carries `min-width:9em` for the panel's own labels, and a
+  // fixed width inside the box is exactly what NT-9 (MUST NOT) refuses -- a
+  // three-letter step would have held 9em of the box open. ⭐ What is kept is
+  // the only part that was ever this line's: the quiet colour, so the step reads
+  // as what can be done rather than as more of what happened.
+  noticeNextStep: `color:${PAINT.quiet};`,
   // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
   // answer (IF-9) never sees this surface, the press falls through to the
   // schedule underneath, and NT-7's two answers cannot be pressed at all.
@@ -3054,11 +3097,12 @@ function foldedRowCountElement(host: Document, count: number, rightPx: string): 
  * requirement is written against 「普段は罫の色」, and moving S-149 out of here
  * would take the contrast the MUST is built on with it.
  * ⚠️ `cursor:grab` and not `move`: what the strip offers is being HELD, the
- * distinction `paletteGrabBand` already draws. ⛔ IT IS NOT CHANGED WHILE HELD.
- * The sample draws `grabbing` there, but HF-15 states only the colour and no row
- * of the specification names a second shape -- and FR-029's own reason for
- * drawing states applies here too: an invented one could not be held against
- * anything. Searched: HF-15, GR-20, table T-023d, table T-028 (IN-2).
+ * distinction `paletteGrabBand` already draws.
+ * ⭐⭐ AND IT BECOMES `grabbing` WHILE HELD, which HF-15 (MUST) states since
+ * 2026-08-31: 「あわせて、掴み代の上のポインタの形を『掴んでいる』ものに変える
+ * こと」 —— 「掴める場所と、いま掴んでいる場所は、同じ形では区別できない」.
+ * ⛔ THE ROW STATED ONLY THE COLOUR UNTIL THEN, so this was left at `grab` and
+ * the difference was reported rather than invented.
  *
  * @purity pure
  */
@@ -3082,7 +3126,7 @@ function rowGrabStripStyle(isHeld: boolean): string {
   //
   // ⚠️ THE WIDTH IS STILL `S-138` -- what GR-20 fixes and what a hand aims at.
   return (
-    `flex:none;width:${width}px;cursor:grab;pointer-events:auto;` +
+    `flex:none;width:${width}px;cursor:${isHeld ? 'grabbing' : 'grab'};pointer-events:auto;` +
     'text-align:center;' +
     `color:${isHeld ? PAINT.heldRow : PAINT.rule};font-size:0.75em;user-select:none;`
   )
@@ -4899,7 +4943,9 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
   if (notice.affectedCount !== null) {
     // NT-3: how many things a destructive result reaches. Drawn right after the
     // words it qualifies, and before NT-3a's next steps, so it is read as part
-    // of what happened rather than as one of the things to do.
+    // of what happened rather than as one of the things to do. ⭐ ON THE SAME
+    // LINE AS THEM, which NT-9 (MUST) requires: 「別の行へ落とすと、1 つの通知が
+    // 何行にもなり、2 つ立ったときにどこまでが 1 つなのかが読めない」.
     //
     // ⛔ THE NUMBER STANDS ALONE, WITH NO WORD BESIDE IT. FR-038 (MUST) asks
     // for the display language and no table holds a word to say what the count
@@ -4913,15 +4959,19 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
     drawn.setAttribute('data-affected-count', String(notice.affectedCount))
   }
   // NT-3a (MUST NOT): a failure told without what can be done next is forbidden.
+  // ⚠️ ON THE TELLING'S ONE LINE (NT-9, MUST) -- see `STYLE.noticeNextStep` for
+  // why this is no longer drawn with the panel's own label declaration.
   for (const step of notice.nextSteps) {
-    const line = made(host, 'div', STYLE.fieldName)
+    const line = made(host, 'div', STYLE.noticeNextStep)
     line.textContent = step
     drawn.append(line)
   }
   // NT-8 (MUST): the person can put this telling away where it stands. Drawn
-  // LAST, under everything the telling says, because it is what is done about
-  // the telling rather than part of it -- the place `confirmationElement` gives
-  // NT-7's two answers.
+  // LAST, which is now the END OF THE ONE LINE and no longer under the words:
+  // NT-9 (MUST) puts the entrance and everything the telling says on a single
+  // line. ⭐ Last all the same, because it is what is DONE about the telling
+  // rather than part of it -- the order `confirmationElement` gives NT-7's two
+  // answers.
   //
   // ⛔ A WORD IS THE BODY, AND NO SHAPE IS DRAWN. `fillEntry` is not called and
   // no `data-icon` is set: table T-109 is the whole of the icons (FR-029, MUST)
@@ -5734,6 +5784,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * @purity non-pure
    */
   function showScreenView(view: ScreenView): void {
+    // NT-8 of table T-037 (MUST): the listeners on this unit's own fields have
+    // to decline `Enter` and `Esc` while a telling stands, and they can see only
+    // what this unit was handed. ⛔ Written on EVERY description and not only on
+    // a changed one: the flag is a fact about now, and the redraw below is
+    // skipped wherever nothing moved.
+    isNoticeShowing = view.notices.length > 0
     const keys: Record<string, string> = {
       frame: described(view.frame),
       appHeaderItems: described(view.appHeaderItems),
@@ -6144,6 +6200,44 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    */
   let isFieldHeld = false
   /**
+   * Whether anything told to the person is standing, as this unit last drew it.
+   *
+   * ⭐⭐ WHY THIS UNIT HAS TO KNOW AT ALL. NT-8 of table T-037 (MUST) has a press
+   * of `Enter` or `Esc` put a telling away 「`Enter` と `Esc` のどの階層よりも先に」
+   * -- and the very next rung of BOTH ladders is the in-place edit, which is
+   * spent HERE and not in the shell: the three listeners below run before
+   * `DomInputSource`'s, because they hang on the panel and its listener hangs on
+   * the window. ⛔ Without this flag a telling standing over a field being typed
+   * in would be put away AND the edit settled (or cancelled) on the one press --
+   * two levels for one press, which IN-4 forbids (1 階層, MUST) and which NT-8
+   * forbids by naming its own level the first.
+   *
+   * ⚠️ READ OFF THE DESCRIPTION AND NEVER OFF THE TREE. `ScreenView.notices` is
+   * what the shell raised, and it is the same list the shell shortens; counting
+   * the nodes drawn would be this unit asking the host what it had itself put
+   * there. ⛔ `false` UNTIL THE FIRST DESCRIPTION ARRIVES, which is the safe
+   * direction: nothing has been told yet, so nothing is owed the press.
+   */
+  let isNoticeShowing = false
+  /**
+   * NT-8 (MUST): whether the standing telling takes this press before any
+   * listener of this unit may.
+   *
+   * ⭐ ONE PLACE FOR THE ONE RULE, read by all three of the listeners below --
+   * the panel's `Esc`, the panel's `Enter` and the new row's field, which
+   * answers both keys. ⛔ Written per listener it would be three chances to
+   * forget it, the very reason `commandFromKey` reads IN-5a once.
+   * ⚠️ THIS UNIT DOES NOT PUT THE TELLING AWAY. It only declines the press, so
+   * that the shell -- which holds the tellings (LY-5 of table T-060) -- reaches
+   * the same happening with the ladders' first level still unspent.
+   *
+   * @purity semi-pure-b
+   */
+  function isPressTakenByStandingNotice(key: unknown): boolean {
+    if (!isNoticeShowing) return false
+    return key === HOST_ENTER || key === HOST_ESCAPE_KEY
+  }
+  /**
    * The control the person is typing in, or `null` while none is held -- what
    * `hasUnsettledTextEntry` answers from, and what an `Esc` puts back.
    *
@@ -6243,6 +6337,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const held = heldTextControl
     if (held === null) return
     if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+    // NT-8 (MUST): the standing telling has this press first, and IN-4's rung
+    // for the edit is the one under it -- `isPressTakenByStandingNotice` says
+    // why the answer has to be given on this side.
+    if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
     if (isHeldTextTakenBack) {
       // Nothing stands unsettled any more, so this press is not the edit's.
       // ⚠️ Guarded rather than assumed: table T-075 leaves this unit runnable
@@ -6315,6 +6413,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (key.key !== HOST_ENTER || key.isComposing === true) return
     if (key.ctrlKey === true || key.altKey === true) return
     if (key.metaKey === true || key.shiftKey === true) return
+    // NT-8 (MUST): the standing telling has this press first, and SK-19's stage
+    // for the settling is the one under it.
+    if (isPressTakenByStandingNotice(HOST_ENTER)) return
     const commit = fieldCommitOf(event.target)
     if (commit === null) return
     // ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN, the same rule IN-6's listener
@@ -6569,6 +6670,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   newRowNameEntry.addEventListener('keydown', (event: Event) => {
     if (newRowNaming === null) return
     const key = event as Partial<KeyboardEvent>
+    // NT-8 (MUST): the standing telling has both of these presses first -- this
+    // one field answers `Enter` and `Esc` alike, so the one question covers
+    // both rungs at once.
+    if (isPressTakenByStandingNotice(key.key)) return
     if (key.key === HOST_ESCAPE_KEY) {
       // IN-4's FIRST level: the characters go back to what the edit started
       // from, which HF-14 makes the empty name. ⭐ The field is NOT let go on

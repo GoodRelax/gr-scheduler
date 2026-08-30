@@ -1666,7 +1666,24 @@ describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打�
     return added[0] as FakeElement
   }
 
+  /**
+   * The panel drawn with NOTHING TOLD, which is what `SK-19`'s naming needs.
+   *
+   * ⛔⛔ `RICH_VIEW` CARRIES A TELLING, AND SINCE 2026-08-31 THAT CHANGES WHICH
+   * RUNG `Enter` REACHES. `NT-8` of table T-037 (MUST) puts the newest telling
+   * away 「`Enter` と `Esc` のどの階層よりも先に」, so with one standing the press
+   * takes the telling and settles no name at all. ⭐ That is held by its own
+   * case below; these ones are about the naming, so they draw an empty
+   * `notices`.
+   */
   const drawnPanel = (): { built: Stage; parentGroupId: string } => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView({ ...RICH_VIEW, notices: [] })
+    return { built, parentGroupId: RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? '' }
+  }
+
+  /** The same panel WITH one telling standing, for `NT-8`'s own case. */
+  const drawnPanelTelling = (): { built: Stage; parentGroupId: string } => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
     return { built, parentGroupId: RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? '' }
@@ -1720,6 +1737,22 @@ describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打�
     expect(built.settledRowNames).toEqual([{ parentGroupId, name: '' }])
   })
 
+  it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
+    // 「⛔⛔ **この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）**」
+    // ——「**階層は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持ち、どちらも本行を
+    // 先頭に置く**」. ⭐ The user's own words: 「タスク名の確定の Enter より、
+    // エラーメッセージの消去を優先しろ」.
+    // ⚠️ ONE RUNG PER PRESS, which is what `IN-4` has always asked of `Esc`: the
+    // SECOND press is what settles the name.
+    const { built, parentGroupId } = drawnPanelTelling()
+    const field = openedField(built, parentGroupId)
+
+    field.value = 'NewRowNameHere'
+    keyPress(field, 'Enter')
+
+    expect(built.settledRowNames, 'the name was settled while a telling stood').toEqual([])
+  })
+
   it('GIVEN the specification is re-read WHEN HF-14 and SK-19 are looked up THEN they still ask for an empty name typed in place, settled with Enter', () => {
     const hf14 = specTable('T-051').rows.find((one) => one.id === 'HF-14')
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
@@ -1733,6 +1766,8 @@ describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打�
     // ⭐ 行名 is this field by name, and `Enter` is the key the row gives it.
     expect(sk19?.cells.join(' ')).toContain('行名')
     expect(sk19?.cells.join(' ')).toContain('Enter')
+    // ⭐ AND THE TELLING STANDS AHEAD OF IT SINCE 2026-08-31.
+    expect(sk19?.cells.join(' ')).toContain('出ている通知があるときは、それを 1 つ消すこと（MUST）')
   })
 })
 

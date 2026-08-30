@@ -33,9 +33,14 @@ export type Armed =
  * ⛔ NOT EVERY SURFACE IS HELD HERE, AND S-99g'S DEFINITION IS WHY THAT IS NOT
  * A CONTRADICTION. U-55 `Confirmation` of table T-103 is a surface by that same
  * definition, and the Framework holds it beside this value rather than in it --
- * `EscapeContext` below says why, and `escapeTarget` gives it the first level
- * of IN-4 all the same. ⚠️ So a reader who finds a surface Esc reaches and this
- * value does not name has not found a defect.
+ * `EscapeContext` below says why, and `escapeTarget` gives it the surface's own
+ * level of IN-4 all the same. ⚠️ So a reader who finds a surface Esc reaches and
+ * this value does not name has not found a defect.
+ * ⛔ S-99g STILL SPELLS THAT LEVEL 「`Esc` の第 1 階層」 AND IN-4 NO LONGER DOES.
+ * The ladder gained 出ている通知 at its head on 2026-08-31, so the surface's rung
+ * is IN-4's third and S-99g's wording is one revision behind. ⚠️ Reported and
+ * not resolved here: what the setting DEFINES -- a thing opened over the screen
+ * that Esc closes -- is unchanged, and only the ordinal moved.
  */
 export type OpenSurface = string | null
 
@@ -87,25 +92,25 @@ export function screenStateWithFullScreen(state: ScreenState, on: boolean): Scre
 /**
  * What one press of Esc takes.
  *
- * ⚠️ SEVEN MEMBERS, SIX LEVELS, ONE LEVEL WITH NO MEMBER AND ONE MEMBER WITH NO
- * LEVEL. IN-4 of table T-028 fixes six, of which this value carries five: two of
- * the members below are that ladder's SECOND level (開いている面), and
+ * ⚠️ EIGHT MEMBERS, SEVEN LEVELS, ONE LEVEL WITH NO MEMBER AND ONE MEMBER WITH
+ * NO LEVEL. IN-4 of table T-028 fixes seven, of which this value carries six:
+ * two of the members below are that ladder's THIRD level (開いている面), and
  * `escapeTarget` says why there are two of them and why they are answered in
  * this order.
- * ⛔ THE NOTE THAT STOOD HERE WAS FALSE and is recorded as such: it said 「FIVE
- * MEMBERS, FOUR LEVELS」 and named the first level as the shared one. The value
- * already had six members when that was written, IN-4 already fixed six levels,
- * and the shared level is the second and not the first.
+ * ⭐ `'notice'` IS THE HEAD OF THE LADDER SINCE 2026-08-31 (利用者の指示), and
+ * NT-8 of table T-037 (MUST) is the row that puts it there. ⚠️ SO THE COUNTS
+ * ABOVE MOVED BY ONE: what was the first level (確定していないその場の編集) is
+ * now the second, and the shared level is the third rather than the second.
  * ⛔ `'propertiesPanel'` IS THE MEMBER WITH NO LEVEL OF ITS OWN. Table T-109
  * puts the panel on this ladder and IN-4 gives it no rung, so the rung is chosen
  * where the answer is given rather than claimed here.
  * ⛔ IN-4's LAST LEVEL -- 出ている説明 -- HAS NO MEMBER HERE. Nothing in this
- * build spends an `Esc` on a raised telling: NT-8 of table T-037 is answered on
- * a pointer release instead, which the shell states where it answers it.
+ * build spends an `Esc` on the explanation IN-3 asks to be dismissible.
  * Reported rather than invented, because a member added here would be a level
  * every caller then had to spend and no caller can.
  */
 export type EscapeTarget =
+  | 'notice'
   | 'textEntry'
   | 'confirmation'
   | 'surface'
@@ -139,9 +144,29 @@ export type DualCursorSide = 'date1' | 'date2'
  */
 export interface EscapeContext {
   /**
-   * IN-4's FIRST level -- text being typed in place that has not been settled.
+   * IN-4's FIRST level -- whether anything told to the person is still standing
+   * (FR-076, table T-037).
    *
-   * ⭐ THE INNERMOST THING ON SCREEN, WHICH IS WHY IT LEADS. Without it an `Esc`
+   * ⭐ A QUESTION AND NOT THE TELLINGS THEMSELVES. NT-8 (MUST) has the newest of
+   * them put away, and WHICH one that is cannot be answered from here: the list
+   * is a current value the Framework holds (LY-5 of table T-060), the same
+   * reason the three members below are questions rather than values.
+   *
+   * ⚠️ OPTIONAL, AND ABSENT READS AS 「立っていない」, for the reason
+   * `isConfirmationStanding` gives below -- the `EscapeContext` literals already
+   * written go on compiling. ⛔ THAT IS THE DIRECTION NT-8 (MUST NOT) REQUIRES:
+   * 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費しては
+   * ならない」, so a caller that cannot see the tellings falls through to the
+   * rung below rather than swallowing the press.
+   */
+  readonly isNoticeStanding?: boolean
+  /**
+   * IN-4's SECOND level -- text being typed in place that has not been settled.
+   *
+   * ⭐ THE INNERMOST THING ON SCREEN, WHICH IS WHY IT LEADS EVERYTHING DRAWN.
+   * ⚠️ ONE ROW NOW STANDS AHEAD OF IT, and it is not a drawn thing being closed:
+   * NT-8 (MUST) puts the reading-and-clearing of a telling before every level of
+   * this ladder. Without this level an `Esc`
    * pressed while typing over an open surface would close the surface and take
    * the half-typed characters with it, and the reader would have no way at all
    * to abandon an edit -- table T-233's `RS-8` already prints
@@ -208,7 +233,8 @@ export interface EscapeContext {
 /**
  * What the next Esc consumes, or null when it consumes nothing.
  *
- * IN-4 fixes the order -- the unsettled in-place edit, then the open surface,
+ * IN-4 fixes the order -- the standing telling, then the unsettled in-place
+ * edit, then the open surface,
  * then the gesture in flight, then what is armed, then the Dual Cursor mode --
  * and the two answers that share its 開いている面 are the standing question and
  * the surface S-99g holds, in that order. The `Properties Panel` is answered
@@ -217,10 +243,10 @@ export interface EscapeContext {
  * with nothing to consume the key MUST reach the browser, because leaving full
  * screen is the browser's own behaviour and would otherwise be unreachable.
  *
- * ⭐ THE `Confirmation` IS THAT FIRST LEVEL AND NOT A FIFTH ONE. U-55 of table
- * T-103 calls it a surface, and S-99g of table T-206 defines a surface as what
- * the first level of IN-4 closes -- so the level is already IN the ladder and
- * nothing is added to it here.
+ * ⭐ THE `Confirmation` IS THE 開いている面 LEVEL AND NOT A LEVEL OF ITS OWN.
+ * U-55 of table T-103 calls it a surface, and S-99g of table T-206 defines a
+ * surface as what IN-4 closes when it reaches that rung -- so the level is
+ * already IN the ladder and nothing is added to it here.
  * ⚠️ ANSWERED BEFORE `state.surface` BECAUSE TWO SURFACES CAN STAND AT ONCE IN
  * THIS BUILD, WHICH THE SPECIFICATION DOES NOT CONTEMPLATE: S-99g holds exactly
  * one, and the question is raised outside it, so IN-4 orders no two surfaces
@@ -231,7 +257,16 @@ export interface EscapeContext {
  * @purity pure
  */
 export function escapeTarget(state: ScreenState, context: EscapeContext): EscapeTarget | null {
-  // IN-4's first level (利用者の裁定 2026-08-27). ⛔ AHEAD OF THE CONFIRMATION
+  // IN-4's first level (利用者の指示 2026-08-31). ⛔ AHEAD OF EVERY OTHER RUNG,
+  // WHICH IS NT-8 OF TABLE T-037 (MUST) AND NOT A PREFERENCE: 「この消去を、
+  // `Enter` と `Esc` のどの階層よりも先に行うこと」. ⚠️ Two reasons the row gives:
+  // a telling left standing cannot be told apart from the next one, and reading
+  // and clearing what was told comes before anything else.
+  // ⛔ `=== true` AND NOT A TRUTHY TEST, the reading the optional members take:
+  // absent is 「立っていない」, so a caller that cannot see the tellings falls
+  // through to the rung below instead of swallowing the press (NT-8, MUST NOT).
+  if (context.isNoticeStanding === true) return 'notice'
+  // IN-4's second level (利用者の裁定 2026-08-27). ⛔ AHEAD OF THE CONFIRMATION
   // TOO: a question is raised OVER the screen, and a reader typing when one
   // arrives still owns the characters they were putting in.
   if (context.isTextEntryUnsettled) return 'textEntry'

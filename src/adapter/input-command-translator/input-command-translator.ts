@@ -496,6 +496,27 @@ export interface InputContext {
    */
   readonly isPropertiesPanelShowing?: boolean
   /**
+   * Whether anything raised by FR-076 is still standing on the screen, or
+   * `undefined` where the caller carried no answer.
+   *
+   * ⭐ WHAT IT IS FOR, AND IT IS TWO ROWS AT ONCE. NT-8 of table T-037 (MUST)
+   * has `Enter` and `Esc` both put one telling away, and (MUST) puts that
+   * ahead of every level of both ladders -- SK-19's first stage and IN-4's
+   * first level. Both are decided in this file, so both need the answer.
+   * ⛔ THE TELLINGS THEMSELVES DO NOT COME. Which one is 「いちばん新しいもの」 is
+   * the holder's to say: the list is a current value LY-5 of table T-060 leaves
+   * with the Framework, and a copy carried here would be a second roster.
+   *
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS 「立っていない」, for the reason
+   * `isPropertiesPanelShowing` above gives -- the `InputContext` literals
+   * already written go on compiling. ⭐ THAT IS THE DIRECTION NT-8 (MUST NOT)
+   * REQUIRES: 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費
+   * してはならない」, so a forgotten answer costs a dismissal and never takes a
+   * press away from the rung below -- the properties panel still closes and a
+   * task name still settles.
+   */
+  readonly isNoticeStanding?: boolean
+  /**
    * The `TaskGroup.id` of every row the last frame actually DREW -- the same
    * set `ScreenSession.rowBoxes` carries, which is `ScheduleLayout.rows` cut to
    * the `Row Area` with the rows the cut empties dropped.
@@ -844,6 +865,24 @@ export type InputAction =
   | { readonly kind: 'copyPictureToClipboard' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
+  /**
+   * SK-19's FIRST stage and IN-4's FIRST level, which are one row: NT-8 of
+   * table T-037 (MUST) has `Enter` and `Esc` both put away one standing telling
+   * (利用者の指示 2026-08-31).
+   *
+   * ⭐ THE KEY IS NOT CARRIED, AND NEITHER IS WHICH TELLING. NT-8 fixes both
+   * without asking: either key does it, and the one put away is 「いちばん新しい
+   * もの」. So this kind holds nothing -- what is left to decide is which entry
+   * of the list is the newest, and that list is a current value the Framework
+   * holds (LY-5 of table T-060), which is also why the tellings are not in the
+   * document and cannot be a `changeDocument`.
+   *
+   * ⛔ RAISED FOR `Enter` ALONE, AND THAT IS NOT AN OMISSION. `Esc` reaches the
+   * same act through `escapeTarget`'s `'notice'` rung, which the shell spends
+   * beside the other levels it holds -- one act, two triggers, and never two
+   * acts: an `Esc` that answered BOTH would take two tellings off for one press.
+   */
+  | { readonly kind: 'dismissNotice' }
   /**
    * FR-029 (MUST): the entrance that was pressed has nothing it can do now, so
    * the reason is told, in 表 T-037's manner `NT-1`.
@@ -3361,6 +3400,17 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // of this happening settled anything (`didSettleFieldEntry`) -- so a second
   // kind here would be this unit answering a question it cannot see.
   if (plain && key === KEY.enter) {
+    // ⭐⭐ SK-19's FIRST STAGE, WHICH IS NEW AT THE HEAD OF THE ROW
+    // (利用者の指示 2026-08-31): 「出ている通知があるときは、それを 1 つ消すこと
+    // （MUST）」, and the manner is NT-8 of table T-037.
+    // ⛔ BEFORE THE SETTLING AND BEFORE THE PANEL, WHICH IS THE WHOLE POINT.
+    // NT-8 (MUST) puts this ahead of every level of both ladders, so a press
+    // that finds a telling standing does not also settle the field under it --
+    // that would be two stages for one press.
+    // ⛔ AND ONLY WHILE ONE STANDS (MUST NOT): with nothing to put away the
+    // press falls through to the two stages below, or `Enter` could never
+    // settle a name again.
+    if (context.isNoticeStanding === true) return acted({ kind: 'dismissNotice' })
     if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
     return context.isPropertiesPanelShowing === true
       ? acted({ kind: 'settleTextEntry' })
@@ -4667,12 +4717,21 @@ function commandFromRowEntry(
   // out of the picture is THIS row and everything under it (HR-6, MUST NOT), so
   // the closing rule under table T-051 always counts at least one.
   // ⭐ `RowExpander.canClose` reads the same one line on the drawing side.
-  // ⭐ THE HIDING FIRST, THEN THE FOLD OF WHAT IT TOOK AWAY (HR-6, MUST).
-  // ⛔ `foldsRowAndBelow` IS NOT REUSED HERE: that member writes the pressed row
-  // too, which is HR-4's job and not this one's.
+  // ⭐ THE HIDING FIRST, THEN THE FOLD OF WHAT IT TOOK AWAY (HR-6, MUST):
+  // 「あわせて、その行と、その配下を畳んだ状態にすること」.
+  // ⛔⛔ THE PRESSED ROW IS FOLDED TOO, AND THAT IS THE WHOLE POINT. HR-6 states
+  // the consequence in the next breath -- 「戻るのはこの行だけになる」 -- and it
+  // only follows if this row's own fold is written: the way back is the parent's
+  // IC-90, which clears this row's hiding and, by HR-7 (MUST NOT), touches no
+  // fold below the direct children. With only the DESCENDANTS folded the row
+  // returns un-folded and its children come with it, which is two rows.
+  // ⚠️ Measured on the sample: hide 「Phone App」, open the parent one level, and
+  // Phone App comes back alone with its two children still away.
+  // ⛔ THE ROW READ 「その行の配下を」 FOR PART OF 2026-08-31 and its two sentences
+  // could not both hold; a body reading only the manuscript found it.
   return changed([
     { kind: 'setTaskGroupHidden', groupId: rowGroupId, hidden: true },
-    ...foldsUnderRow(context.document.schedule, rowGroupId),
+    ...foldsRowAndBelow(context.document.schedule, rowGroupId),
   ])
 }
 
@@ -5604,29 +5663,6 @@ function commandFromRowGrab(
  *
  * @purity pure
  */
-/**
- * One `setTaskGroupCollapsed` per row UNDER `rowId` that is not folded -- what
- * HR-6 (MUST) folds when it hides a row: 「あわせて、その行の配下を畳んだ状態に
- * すること」.
- *
- * ⛔ THE ROW ITSELF IS NOT WRITTEN, which is the whole difference from
- * `foldsRowAndBelow` below. A hidden row is not drawn, so it has no fold anyone
- * can read; what the fold is for is the way back, where the parent's IC-90
- * returns this row and HR-7 (MUST NOT) leaves the folds under it alone.
- *
- * @purity pure
- */
-function foldsUnderRow(schedule: Schedule, rowId: string): readonly DocumentCommand[] {
-  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
-  const commands: DocumentCommand[] = []
-  for (const row of schedule.taskGroups) {
-    if (row.isCollapsed === true) continue
-    if (!isRowUnder(parentOf, row.parentId, rowId)) continue
-    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
-  }
-  return commands
-}
-
 function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentCommand[] {
   const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
   const commands: DocumentCommand[] = []
@@ -6870,8 +6906,9 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  * What Esc consumes, in the levels IN-4 fixes.
  *
  * ⭐ The order is NOT re-implemented: `escapeTarget` (PI-36) owns it, and this
- * only supplies the two things it cannot see -- a gesture in flight and the
- * Dual Cursor mode -- both of which are the shell's current values (LY-5).
+ * only supplies the three things it cannot see -- a telling still standing, a
+ * gesture in flight and the Dual Cursor mode -- all three of which are the
+ * shell's current values (LY-5) that reached this side on `InputContext`.
  *
  * ⛔ TWO OF `EscapeContext`'s LEVELS ARE LEFT UNSET, and that is the value's own
  * rule rather than an omission: a standing `Confirmation` and the
@@ -6884,7 +6921,15 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  */
 function escapeContextOf(context: InputContext): EscapeContext {
   return {
-    // IN-4's first level (利用者の裁定 2026-08-27). ⭐ THIS CALLER CAN SEE IT,
+    // IN-4's first level (利用者の指示 2026-08-31). ⭐ THIS CALLER CAN SEE IT,
+    // the same way it sees the level below: `InputContext` carries the question
+    // because SK-19's first stage already needed it, so the level is REPORTED
+    // rather than left for the holder to reckon. ⚠️ Reporting it does not spend
+    // it -- `screenStateFromInput` answers 'notice' with the state untouched,
+    // exactly as it does for the gesture and the Dual Cursor mode, and the
+    // shell is the one party that can take a telling off the list (LY-5).
+    isNoticeStanding: context.isNoticeStanding === true,
+    // IN-4's second level (利用者の裁定 2026-08-27). ⭐ THIS CALLER CAN SEE IT,
     // unlike `isConfirmationStanding` -- the state is a member of `InputContext`
     // because IN-5a already needed it, so the level is reported rather than left
     // for the holder to reckon.
@@ -7009,13 +7054,15 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
         // ⚠️ UN-11 keeps this out of the undo record, which is the other half
         // of why it lives in `ScreenState` and not in the document.
         return screenStateWithArmed(state, { kind: 'none' })
+      case 'notice':
       case 'gesture':
       case 'dualCursorMode':
       case 'confirmation':
       case 'propertiesPanel':
       case null:
       default:
-        // ⛔ NONE OF THOSE FOUR LEVELS IS IN THIS VALUE. A gesture in flight,
+        // ⛔ NONE OF THOSE FIVE LEVELS IS IN THIS VALUE. A standing telling, a
+        // gesture in flight,
         // the Dual Cursor mode, a standing `Confirmation` and the
         // `Properties Panel` are all current values the Framework holds (LY-5),
         // which is why `EscapeContext` exists at all -- the shell drops the
@@ -7023,6 +7070,13 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
         // when `escapeTarget` names its level.
         // Answering with the state unchanged is not "nothing happened": the
         // level WAS consumed, by a holder this function cannot reach.
+        //
+        // ⚠️ `'notice'` DOES ARRIVE HERE, unlike the two below it:
+        // `escapeContextOf` reports that level because `InputContext` carries
+        // the question. ⛔ AND THE ANSWER IS STILL THE STATE UNTOUCHED, which is
+        // what keeps IN-4 at 1 階層 per press -- taking the telling off is the
+        // shell's (LY-5), and disarming here as well would spend a second level
+        // on the press that put a telling away.
         //
         // ⚠️ `'confirmation'` AND `'propertiesPanel'` CANNOT ARRIVE HERE TODAY,
         // and both are listed rather than left to `default:` because each is one

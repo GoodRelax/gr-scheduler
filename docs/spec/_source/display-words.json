@@ -1545,12 +1545,12 @@
   {
    "rowId": "RS-30",
    "text": {
-    "ja": "この行は畳まれておらず、隠れている子もありません",
-    "en": "This row is not folded and has no hidden child"
+    "ja": "この行の直下に、画面へ戻せる子がありません",
+    "en": "No child of this row is out of the picture to bring back"
    },
    "nextStep": {
-    "ja": "配下を畳むか、行を隠してから、もう一度押してください",
-    "en": "Fold what is under this row, or hide a row, then press again"
+    "ja": "配下を畳むか、直下の行を隠してから、もう一度押してください",
+    "en": "Fold what is under this row, or hide one of its children, then press again"
    }
   },
   {

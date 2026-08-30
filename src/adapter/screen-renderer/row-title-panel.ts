@@ -115,6 +115,14 @@ interface PanelIndex {
    */
   readonly groupIdsWithHiddenChild: ReadonlySet<string>
   /**
+   * Rows that have a direct child the picture does not hold --
+   * `HF-13`'s whole arming test.
+   *
+   * ⭐ Counted on the drawn side, which `FR-029` (MUST) requires:
+   * 「その対象を、画面に描かれている側で数えること」.
+   */
+  readonly groupIdsWithAChildOutOfThePicture: ReadonlySet<string>
+  /**
    * How many rows each row is holding folded away -- HF-18's count (MUST), and
    * `foldedRowCountAtLevelZero` below is the same number for the panel's head
    * (HF-12).
@@ -642,13 +650,16 @@ function rowTitleOf(
     // ⛔ `groupIdsWithFoldedChildToOpen` STOOD HERE and asked about the CHILDREN's
     // folds, which is the reading HR-7 retired: 「孫より下の畳みに触れてはならない
     // （MUST NOT）」, so what comes off is this row's own AT-56.
-    // ⚠️ A FOLDED ROW WITH NO CHILD AT ALL IS ARMED AND REVEALS NOTHING, which is
-    // the one place the closing rule under table T-051 is answered short. ⛔ The
-    // narrower reading cannot be taken: the telling would then open 「その行は
-    // 畳まれておらず」 on a folded row, and FR-029 (MUST NOT) forbids a reason that
-    // does not fit.
-    canOpenOneLevel:
-      group.isCollapsed === true || index.groupIdsWithHiddenChild.has(group.id),
+    // ⛔⛔ AND A ROW WITH NO CHILD AT ALL IS SPENT, WHATEVER ITS OWN FOLD SAYS.
+    // Taking the fold off a childless row draws no row, and FR-029 (MUST) counts
+    // an entrance's targets 「画面に描かれている側で」 -- the closing rule under
+    // table T-051 says the same in its own words.
+    // ⚠️ MEASURED AGAINST THE SAMPLE, 2026-08-31: five childless rows drew this
+    // entrance armed here and faint there, across three of nineteen scripted
+    // presses. ⭐ `RS-30` was reworded with this, so the telling still fits.
+    // ⭐ ONE SENTENCE: armed exactly when this row has a DIRECT CHILD that the
+    // picture does not hold.
+    canOpenOneLevel: index.groupIdsWithAChildOutOfThePicture.has(group.id),
     // HF-14 (MUST), which names HR-8: a row is added under this one.
     //
     // ⭐ SPENT ONLY AT THE CAP. Adding a row always changes the document, so
@@ -719,6 +730,9 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
 function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
   const groupIdsWithHiddenChild = new Set<string>()
+  // ⭐ HF-13's ONE TEST: has this row a direct child the picture does not hold?
+  // Filled after the picture is known, below.
+  const groupIdsWithAChildOutOfThePicture = new Set<string>()
   // ⭐ THE CHILDREN OF EACH ROW, AND OF 段 0 UNDER THE KEY `null`. HR-2 (MUST)
   // makes the head level 0, so its children are exactly the rows with no parent
   // -- one map answers both, and the count below walks it once.
@@ -744,6 +758,19 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   for (const placed of session.rowBoxes) {
     if (boxByGroupId.has(placed.groupId)) continue
     boxByGroupId.set(placed.groupId, placed.box)
+  }
+
+  // ⭐⭐ HF-13's TARGETS, COUNTED ON THE DRAWN SIDE (FR-029, MUST). A direct
+  // child is out of the picture when this row's own fold keeps it out, when
+  // HR-6 hid it, or when the display amount dropped it -- and any one of those
+  // is a row the press would put back.
+  // ⛔ A ROW WITH NO CHILD AT ALL IS NOT HERE, which is the whole repair: its
+  // fold has nothing to reveal.
+  for (const [parentId, children] of childrenByParentId) {
+    if (parentId === null) continue
+    if (children.some((child) => !boxByGroupId.has(child.id))) {
+      groupIdsWithAChildOutOfThePicture.add(parentId)
+    }
   }
 
   // HF-11's reach: the rows whose own fold would take a drawn row out of the
@@ -861,6 +888,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     groupsById,
     groupIdsWithDrawnChildren,
     groupIdsWithHiddenChild,
+    groupIdsWithAChildOutOfThePicture,
     boxByGroupId,
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,

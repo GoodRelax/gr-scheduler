@@ -2244,8 +2244,9 @@ function hasEndedGesture(input: HumanInput): boolean {
  * (MUST). ⚠️ The caller reads this BEFORE that member runs, because the level
  * this answers may be one the caller consumes itself, and then that member must
  * not be asked to move the state at all.
- * ⭐ THE OTHER FOUR LEVELS ARE THE SHELL'S, because all four are current values
- * the Framework holds (LY-5 of table T-060): the press in flight, the Dual
+ * ⭐ THE OTHER FIVE LEVELS ARE THE SHELL'S, because all five are current values
+ * the Framework holds (LY-5 of table T-060): the tellings this file raises
+ * (FR-076), the press in flight, the Dual
  * Cursor mode, the `Confirmation` (U-55) this file raises, and the
  * `Properties Panel` whose contents this file decides (FR-072).
  * `screen-state.ts` says so where `EscapeContext` is declared, and that is the
@@ -2265,7 +2266,12 @@ function escapeLevelOf(
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
-    // IN-4's first level (利用者の裁定 2026-08-27). ⚠️ The same value IN-5a
+    // IN-4's first level (利用者の指示 2026-08-31). ⚠️ Read off the context and
+    // not off `raisedNotices` directly: `collectInputContext` already put the
+    // answer there for SK-19's first stage, and one reading is what both rows
+    // are owed (R7.4).
+    isNoticeStanding: context.isNoticeStanding === true,
+    // IN-4's second level (利用者の裁定 2026-08-27). ⚠️ The same value IN-5a
     // already reads off this context -- one question, not a second reckoning.
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
@@ -3074,13 +3080,20 @@ export function frameLoop(
   // prints in the one generated dictionary, which ScreenRenderer holds and this
   // file does not.
   //
-  // STOP -- ⛔ NOTHING TAKES ONE OFF AGAIN. NT-2 governs a telling that goes away
+  // ⭐ THREE THINGS TAKE ONE OFF AGAIN, AND ALL THREE ARE NT-8's (MUST): a press
+  // on the entrance that row requires, an `Enter` (SK-19's first stage) and an
+  // `Esc` (IN-4's first level). `dismissNewestNotice` and `noticesWithout` are
+  // the whole of the shortening. ⛔ THE STOP THAT STOOD HERE SAID NOTHING DID,
+  // and it is recorded as superseded rather than deleted: it was written before
+  // NT-8 had an entrance, and it named 表 T-109 for the entrance -- which is
+  // still right, because NT-8's way out is a WORD and has no row of that table.
+  //
+  // STOP -- ⛔ NO DEADLINE IS COUNTED HERE. NT-2 governs a telling that goes away
   // with time, and the clock it would need is FT-4 of table T-078 -- which this
-  // build now reads for the icon hint alone (`beginPointerRest`) and for
-  // neither of that row's other two counts, so ⛔ NO DEADLINE IS COUNTED HERE;
-  // table T-109 places no entry that dismisses one either. ⚠️ So a telling
-  // stands for the rest of the session, which is the half of NT-2 that is kept
-  // -- it does not go before it has been read.
+  // build reads for the icon hint alone (`beginPointerRest`) and for neither of
+  // that row's other two counts. ⚠️ So a telling nobody puts away stands for the
+  // rest of the session, which is the half of NT-2 that is kept -- it does not
+  // go before it has been read.
   let raisedNotices: readonly RaisedNotice[] = []
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
   // of, until IC-69 or IC-70 answers it.
@@ -4061,6 +4074,51 @@ export function frameLoop(
   }
 
   /**
+   * Put away the telling one entrance or one key names -- NT-8 of table T-037
+   * (MUST), and the ONE place a telling ever leaves `raisedNotices`.
+   *
+   * ⭐ ONE ACT, THREE TRIGGERS. The entrance NT-8 draws is pressed (IN-1, on the
+   * release), an `Enter` arrives on SK-19's first stage, or an `Esc` arrives on
+   * IN-4's first level. ⛔ A second filter written beside any of them would be
+   * the same rule in two places (rule 03 section 1), and the three would part
+   * company the first time the key's shape moved.
+   *
+   * ⚠️ THE KEY AND NOT AN INDEX. `Notice.dismissKey` names the telling by its
+   * manner and its reason, so a list that has grown or shrunk between the frame
+   * drawn and the press cannot put away a different telling than the one that
+   * was named.
+   *
+   * @purity pure
+   */
+  function noticesWithout(answered: string): readonly RaisedNotice[] {
+    return raisedNotices.filter((one) => dismissKeyOf(one) !== answered)
+  }
+
+  /**
+   * NT-8 (MUST): 「通知が 2 つ以上立っているときは、いちばん新しいものから消す
+   * こと」 -- the answer for a key, which names no telling of its own.
+   *
+   * ⭐ THE LAST OF THE LIST IS THE NEWEST, because `raiseNotice` appends and
+   * `noticesFromSession` (UF-67) shows them 「in the order they were raised」.
+   * ⛔ NO CLOCK IS READ AND NO NUMBER IS MINTED: the order of the list IS the
+   * order they arrived in, which is the same fact `dismissKeyOf` refuses to
+   * replace with an index.
+   *
+   * ⛔ NOTHING IS PUT AWAY WHEN NOTHING STANDS, which NT-8 (MUST NOT) requires:
+   * the caller has already read `isNoticeStanding`, and answering here as well
+   * is what keeps a press that reached this line by any other road from
+   * shortening an empty list.
+   *
+   * @purity non-pure
+   */
+  function dismissNewestNotice(): void {
+    const newest = raisedNotices[raisedNotices.length - 1]
+    if (newest === undefined) return
+    raisedNotices = noticesWithout(dismissKeyOf(newest))
+    ask()
+  }
+
+  /**
    * One file operation's fault, RAISED (FR-076), or let go where table T-233
    * owes it nothing. ⚠️ Raised and not told: telling is UF-67's half of the seam,
    * and this side hands over a row.
@@ -4815,6 +4873,15 @@ export function frameLoop(
       // raised again. ⭐ The tests written from the specification are what
       // watch this line; the compiler no longer can.
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
+      // ⭐ NT-8 of table T-037 (MUST), which SK-19's FIRST stage and IN-4's
+      // FIRST level both read: 「出ている通知があるときは、それを 1 つ消すこと」.
+      // ⛔ ASKED OF `raisedNotices` AND NOT OF THE DRAWN SCREEN. This list IS
+      // what a telling stands on (LY-5 of table T-060 leaves it here), and the
+      // description the renderer builds from it is rebuilt every frame -- so
+      // the holder is the one party that can answer whether anything is left.
+      // ⚠️ A COUNT AND NEVER THE LIST: `InputContext.isNoticeStanding` says why
+      // -- which telling is the newest is answered where it is put away.
+      isNoticeStanding: raisedNotices.length > 0,
       // ⭐⭐ THE PICTURE, off the very cut the renderer is handed. FR-029 (MUST)
       // counts a spent entrance's targets 「画面に描かれている側で」 and (MUST)
       // has that press tell its reason, so the side that DRAWS an entrance
@@ -5893,6 +5960,20 @@ export function frameLoop(
         })
         return
       }
+      case 'dismissNotice':
+        // SK-19's FIRST STAGE (利用者の指示 2026-08-31), whose manner is NT-8 of
+        // table T-037 (MUST): 「出ている通知があるときは、それを 1 つ消すこと」.
+        //
+        // ⭐ THE SAME ACT AN `Esc` AND A PRESS ON THE ENTRANCE REACH, and it is
+        // written once -- `dismissNewestNotice` is the one place a telling
+        // leaves `raisedNotices`, which LY-5 of table T-060 leaves with this
+        // layer alone.
+        // ⛔ NOTHING ELSE IS SPENT ON THIS PRESS. NT-8 (MUST) puts this ahead of
+        // every level of both ladders, and the translator kept the two stages
+        // below it off the press by answering this kind instead of
+        // `settleTextEntry` -- so the field under the telling is untouched.
+        dismissNewestNotice()
+        return
       case 'settleTextEntry': {
         // ⛔ SK-19's FIRST STAGE IS NOT OWED HERE, AND THAT IS NOT A STOP.
         // 「その場の編集を確定する」 has ALREADY HAPPENED by the time this runs:
@@ -6546,13 +6627,11 @@ export function frameLoop(
       // state the translator holds, and `UF-67` raises into this very list.
       // ⛔ ON THE RELEASE, WHICH IS IN-1 OF TABLE T-028 -- a pointer operation
       // is settled when the button comes up, never when it goes down.
-      // ⚠️ THE KEY AND NOT AN INDEX. `Notice.dismissKey` names the telling by
-      // its manner and its reason, so a list that has grown or shrunk between
-      // the frame drawn and the press cannot put away a different telling than
-      // the one under the pointer.
+      // ⚠️ THE KEY AND NOT AN INDEX -- `noticesWithout` says why, and it is the
+      // one place a telling leaves the list, shared with the two keys NT-8
+      // (MUST) gives the same power to.
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
-        const answered = partUnderPointer.noticeDismissKey
-        raisedNotices = raisedNotices.filter((one) => dismissKeyOf(one) !== answered)
+        raisedNotices = noticesWithout(partUnderPointer.noticeDismissKey)
         ask()
         recordLine('done', 'spent=noticeDismiss frame=yes')
         return
@@ -6588,7 +6667,21 @@ export function frameLoop(
     screenState = isEscapeSpentHere ? screenState : screenStateFromInput(input, context)
     const translated = commandFromInput(input, context)
 
-    // IN-4's FIRST level, spent on the surface U-55 names.
+    // IN-4's FIRST level, spent on the telling NT-8 of table T-037 puts away
+    // (利用者の指示 2026-08-31).
+    //
+    // ⭐ SPENT HERE BECAUSE `raisedNotices` IS HELD HERE, the same division the
+    // question and the panel below already stand in: `escapeTarget` (PI-36)
+    // names the level and this side carries it out (LY-5 of table T-060).
+    // ⛔ AHEAD OF THE FOUR SPENDS BELOW, which is the row's own ordering -- and
+    // it costs nothing that they are written in the same block, because
+    // `escapeLevel` is ONE value: a press that is 'notice' is not also
+    // 'confirmation'.
+    // ⚠️ `screenStateFromInput` WAS STILL ASKED FOR THIS PRESS and answered with
+    // the state untouched, which is why no level is spent twice -- that member
+    // lists 'notice' among the levels it leaves alone.
+    if (escapeLevel === 'notice') dismissNewestNotice()
+    // IN-4's level for the surface U-55 names, spent.
     //
     // ⭐ WHAT AN ABANDONED QUESTION DOES TO THE WRITE IS NOT INVENTED HERE, IT
     // IS WHAT IS LEFT once NT-7 of table T-037 has been read: that row gives

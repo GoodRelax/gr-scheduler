@@ -733,10 +733,15 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
     expect(isHidden(built, BETA), 'HR-6 (MUST): the pressed row was not hidden').toBe(true)
     expect(isHidden(built, GAMMA), 'the child was hidden as well as the row').toBe(false)
     expect(isHidden(built, DELTA), 'the grandchild was hidden as well as the row').toBe(false)
-    // ⛔ AND IT IS NOT A FOLD. `HR-6` and `HR-1a` are two states of one row and
-    // the manuscript keeps them apart -- 「⚠️ **畳みと違い、グループ LOD と同じ絵に
-    // なることを求めない**」.
-    expect(isFolded(built, BETA), 'the hide wrote AT-56 instead of AT-57').toBe(false)
+    // ⭐⭐ AND THE PRESSED ROW IS FOLDED AS WELL AS HIDDEN, which `HR-6` (MUST)
+    // states since 2026-08-31: 「**あわせて、その行と、その配下を畳んだ状態にする
+    // こと**」. ⛔ 「**配下だけを畳んで、その行自身を畳まずに隠してはならない
+    // （MUST NOT）**」 —— 「**それでは戻したときに直下の子が付いてきて、戻るのが
+    // 1 行にならない**」.
+    // ⚠️ THE TWO COLUMNS SAY DIFFERENT THINGS ABOUT THE SAME ROW: `AT-57` takes
+    // this row out of the picture, `AT-56` keeps its children out when it comes
+    // back through the parent's 「1 階層開く」.
+    expect(isFolded(built, BETA), 'HR-6 (MUST): the hidden row was not folded').toBe(true)
   })
 
   it('⛔ MUST: HF-3 folds every row under the row it hid (HR-6)', () => {

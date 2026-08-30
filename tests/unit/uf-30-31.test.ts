@@ -2685,20 +2685,27 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // ない（MUST NOT）** —— **戻した瞬間に配下が一度に開き、`HR-1a` が退けた「畳む
     // 前の形を覚えて戻す」と同じ絵になる**」.
     // ⚠️ THIS CASE ASSERTED `[]` FOR THESE UNTIL THAT DAY.
-    expect(rowsFolded(answer, true)).toEqual(['n1a', 'n1a1'])
+    expect(rowsFolded(answer, true)).toEqual(['n1', 'n1a', 'n1a1'])
     // ⛔ AND NEVER IN THE OTHER DIRECTION: the hide only ever puts 畳み ON.
     expect(rowsFolded(answer, false)).toEqual([])
 
-    // ⛔ THE PRESSED ROW IS NOT ITSELF FOLDED. The row writes 「その行の配下を」,
-    // and `HR-4` (MUST NOT) 「**その行自身を隠してはならない** —— 隠すのは `HR-6`
-    // である」 is the mirror of it: one press writes one of the two columns on
-    // the row it was pressed on, and the other column only below.
-    expect(rowsFolded(answer, true)).not.toContain('n1')
+    // ⭐⭐ THE PRESSED ROW IS FOLDED TOO, which is what makes 「戻るのはこの行
+    // だけになる」 true. `HR-6` (MUST) since 2026-08-31: 「**あわせて、その行と、
+    // その配下を畳んだ状態にすること**」, and (MUST NOT) 「**配下だけを畳んで、
+    // その行自身を畳まずに隠してはならない**」.
+    // ⚠️ THIS CASE ASSERTED THE OPPOSITE FOR PART OF THAT DAY, because the row
+    // read 「その行の配下を」 and its own next sentence could not then hold.
+    expect(rowsFolded(answer, true)).toContain('n1')
 
     // ⛔ NOTHING OUTSIDE THE PRESSED ROW'S SUBTREE IS TOUCHED. The second root
     // is under no part of `n1`.
+    // ⚠️ `n1` IS NAMED TWICE, AND BY TWO DIFFERENT COMMANDS: `HR-6` writes both
+    // of that row's columns, `AT-57` to take it out of the picture and `AT-56`
+    // so that only it comes back. What this case holds is the REACH, so the
+    // names are read as a set.
     const named = commandsOf(answer).map((one) => (one as unknown as { groupId?: string }).groupId)
-    expect(named).toEqual(['n1', 'n1a', 'n1a1'])
+    expect([...new Set(named)]).toEqual(['n1', 'n1a', 'n1a1'])
+    expect(named.filter((one) => one === 'n1')).toHaveLength(2)
 
     // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-3 hides one row
     // and HF-2 opens the whole depth, so the counts must differ too -- and it
