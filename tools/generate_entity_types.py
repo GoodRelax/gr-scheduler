@@ -1229,7 +1229,17 @@ NOT_STORED_TARGETS = {
     # one constant per consuming SUBJECT, and the two do not even arrive the
     # same way -- S-96 is handed in and S-208 is read where it stands, which
     # is what the paragraph above each says.
-    'NOT_STORED_ROW_GRAB_SIZES': (['S-208'], SETTLED_WHERE_IT_STANDS),
+    # ⭐ S-212 JOINS S-208 BECAUSE THEY ARE ONE SUBJECT: both are HF-15's grab,
+    # both are read by the member that answers where the held row is DRAWN, and
+    # neither is a length the document keeps. S-208 says when the axis is
+    # settled and S-212 says how far the row still follows the axis that was
+    # refused -- 「拒まれた向きへの追従は途中で止めること（MUST）—— 止める割合は
+    # ... `S-212`」.
+    # ⛔ S-211 IS NOT WITH THEM AND CANNOT BE. That row states a STATE (段 0 が
+    # 畳まれているか) whose value cell is 「畳まれていない」, not a machine value,
+    # so it has no literal to emit; its own note puts it beside S-99g, and the
+    # shell holds it the way it holds that one.
+    'NOT_STORED_ROW_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
 

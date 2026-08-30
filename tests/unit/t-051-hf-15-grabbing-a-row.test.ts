@@ -1347,3 +1347,206 @@ describe('GR-20 -- the strip is what the drag is taken on, and nothing else on t
     expect(built.loop.document(), 'a press off the strip moved the row').toEqual(before)
   })
 })
+
+// ===========================================================================
+// ⭐⭐ THE TWO MUSTS 利用者の裁定 2026-08-30 ADDED TO `HF-15`, AND NEITHER HAD A
+// CASE UNTIL NOW.
+//
+//   THE AXIS MARK 「⭐⭐ **いまどちらの軸が生きているかを、掴んでいる行に描くこと
+//     （MUST）** —— **上下の軸が生きているときは行の左右の辺に、左右の軸が生きて
+//     いるときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236
+//     の `S-151`（上下）と `S-152`（左右）とする。**⛔ **描かないと、動かせない向き
+//     へ引いたときに壊れた操作子と見分けがつかない** —— **押しても何も起きない入口
+//     と同じ見え方になる**」
+//   THE RESISTED FOLLOW 「⭐⭐ **拒まれた向きへの追従は途中で止めること（MUST）**
+//     —— **止める割合は … `S-212` が持つ。**⛔ **拒んだうえに行をポインタへ付いて
+//     行かせてはならない（MUST NOT）** —— **手応えが返らないと、木から離れて滑って
+//     いくだけに見える**」, with `S-212` 「⭐ **掛ける相手は、その軸の 1 歩ぶんで
+//     ある** —— **左右なら 表 T-201 の `S-37`、上下ならその行が占める送りである**」
+//
+// ⛔ WHAT IS READ HERE AND WHAT IS NOT. This file drives the frame loop and reads
+// the DESCRIPTION it hands the surface, so what these cases can see is
+// `RowTitle.heldOnAxis` -- which axis the held row is to be drawn marked with --
+// and the BOX the held row is described in. ⚠️ The bands themselves, their two
+// colours and the ground under the held row are DRAWN, and are held in
+// tests/unit/uf-72-screen-part.test.ts; ⛔ nothing here asserts a pixel of paint.
+// ===========================================================================
+
+/** 表 T-206 `S-212` -- 拒まれた向きへ掴んだ行が追従する割合. */
+const S_212_RESISTED_RATIO = settingOf('T-206', 'S-212', '既定')
+
+/** Which axis the panel says each drawn row is held on, keyed by row. */
+function heldAxes(built: Stage): Map<string, unknown> {
+  const panel = built.screen.last().rowTitlePanel
+  const found = new Map<string, unknown>()
+  for (const title of [...panel.pinnedTitles, ...panel.titles] as any[]) {
+    if (title.heldOnAxis != null) found.set(title.groupId as string, title.heldOnAxis)
+  }
+  return found
+}
+
+describe('HF-15 (MUST) -- いまどちらの軸が生きているかを、掴んでいる行に描くこと', () => {
+  it('表 T-051 still asks for the mark, the bands, the ground and the always-drawn strip, and 表 T-236 still holds the two colours', () => {
+    const hf15 = saysOf('T-051', 'HF-15')
+    for (const clause of [
+      'いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）',
+      '上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）',
+      '色は 表 T-236 の `S-151`（上下）と `S-152`（左右）とする',
+      '掴んでいる行には地を敷くこと（MUST）',
+      '拒まれた向きへの追従は途中で止めること（MUST）',
+      '拒んだうえに行をポインタへ付いて行かせてはならない（MUST NOT）',
+      '掴み代は常に描くこと（MUST）',
+      '`HF-6`（操作子はポインタが乗っているあいだだけ）の対象ではない',
+    ]) {
+      expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
+    }
+    for (const row of ['S-151', 'S-152']) {
+      expect(rowOf('T-236', row).id, `表 T-236 no longer holds ${row}`).toBe(row)
+    }
+    // ⭐ AND THE RATIO IS A REAL FRACTION, which S-212 states as two MUST NOTs:
+    // 「⛔ **0 にしてはならない** …⛔ **1 にしてはならない**」.
+    expect(S_212_RESISTED_RATIO).toBeGreaterThan(0)
+    expect(S_212_RESISTED_RATIO).toBeLessThan(1)
+  })
+
+  it('⭐ MUST: while the DEPTH axis is live, the held row is marked with that axis and no other row is marked at all', () => {
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    expect(heldAxes(built).size, 'a row was marked before the axis had settled').toBe(0)
+
+    built.send(pointer('move', at.x + PAST, at.y))
+    const marked = heldAxes(built)
+
+    expect([...marked.keys()], 'the mark is not on the row that is held').toEqual([A2])
+    expect(marked.get(A2), 'a sideways grab was not marked as the depth axis').toBe('depth')
+
+    built.send(pointer('up', at.x + PAST, at.y))
+    expect(heldAxes(built).size, 'the mark outlived the hand').toBe(0)
+  })
+
+  it('⭐ MUST: while the POSITION axis is live, the held row carries the OTHER axis', () => {
+    // ⛔ THE TWO ARE TOLD APART OR THE MARK SAYS NOTHING: 「描かないと、動かせない
+    // 向きへ引いたときに壊れた操作子と見分けがつかない」.
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x, at.y + PAST))
+    const marked = heldAxes(built)
+
+    expect([...marked.keys()]).toEqual([A2])
+    expect(marked.get(A2), 'a downward grab was not marked as the position axis').toBe('position')
+
+    built.send(pointer('up', at.x, at.y + PAST))
+    expect(heldAxes(built).size, 'the mark outlived the hand').toBe(0)
+  })
+
+  it('⛔ a press that never settles an axis marks nothing, so the mark is the AXIS and not the press', () => {
+    // 「掴んでから最初に閾値を超えた向きで軸が決まり」 -- below `S-208` there is no
+    // live axis, and a mark drawn then would name one that does not exist.
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x + S_208_AXIS_SETTLES_AT - 1, at.y))
+
+    expect(heldAxes(built).size).toBe(0)
+    built.send(pointer('up', at.x + S_208_AXIS_SETTLES_AT - 1, at.y))
+  })
+
+  it('⛔ a press on the row’s NAME marks nothing, however far it travels (GR-20: the strip is what the drag is taken on)', () => {
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+
+    built.aimAtTheName(A2)
+    built.send(pointer('down', at.x + 60, at.y))
+    built.send(pointer('move', at.x + 60, at.y + PAST * 4))
+
+    expect(heldAxes(built).size).toBe(0)
+    built.send(pointer('up', at.x + 60, at.y + PAST * 4))
+  })
+})
+
+describe('HF-15 (MUST) -- 拒まれた向きへの追従は途中で止めること（S-212）', () => {
+  it('⭐⭐ MUST: with the POSITION axis live, a sideways pull moves the row S-212 of ONE S-37 and no further', () => {
+    // ⭐ 「掛ける相手は、その軸の 1 歩ぶんである —— 左右なら 表 T-201 の `S-37`」.
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+    const resting = titleOf(built, A2).box.x as number
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x, at.y + PAST))
+
+    built.send(pointer('move', at.x + S_37_INDENT * 4, at.y + PAST))
+    const pulled = (titleOf(built, A2).box.x as number) - resting
+    built.send(pointer('move', at.x + S_37_INDENT * 8, at.y + PAST))
+    const pulledFurther = (titleOf(built, A2).box.x as number) - resting
+
+    built.send(pointer('up', at.x + S_37_INDENT * 8, at.y + PAST))
+
+    // ⛔ MUST NOT: 「拒んだうえに行をポインタへ付いて行かせてはならない」.
+    expect(pulled, 'the row followed the whole way into the refused direction').toBeLessThan(
+      S_37_INDENT * 4,
+    )
+    // ⭐ MUST: 「途中で止めること」 -- and 「0 にしてはならない」, or the hand gets
+    // no answer at all and 「掴めていないのか拒まれているのか」 cannot be read.
+    expect(pulled, 'the row did not move at all, so the hand got no answer').toBeGreaterThan(0)
+    // ⭐ AND THE AMOUNT IS THE ONE S-212 STATES, on one step of THIS axis.
+    expect(
+      Math.abs(pulled - S_212_RESISTED_RATIO * S_37_INDENT),
+      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one S-37 (${S_37_INDENT}px)`,
+    ).toBeLessThanOrEqual(1)
+    // ⛔ AND IT STOPS: twice the pull is not twice the follow.
+    expect(pulledFurther, 'the row went on sliding with the hand').toBe(pulled)
+  })
+
+  it('⭐ MUST: with the DEPTH axis live, a downward pull moves the row part of one row’s advance and stops', () => {
+    // ⭐ 「上下ならその行が占める送りである」 -- the row's own band is that advance,
+    // and the loop is what placed it.
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+    const advance = bandOf(built.loop, A2).height
+    const resting = titleOf(built, A2).box.y as number
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x + PAST, at.y))
+
+    built.send(pointer('move', at.x + PAST, at.y + advance * 4))
+    const pulled = (titleOf(built, A2).box.y as number) - resting
+    built.send(pointer('move', at.x + PAST, at.y + advance * 8))
+    const pulledFurther = (titleOf(built, A2).box.y as number) - resting
+
+    built.send(pointer('up', at.x + PAST, at.y + advance * 8))
+
+    expect(pulled, 'the row followed the whole way into the refused direction').toBeLessThan(
+      advance * 4,
+    )
+    expect(pulled, 'the row did not move at all, so the hand got no answer').toBeGreaterThan(0)
+    expect(
+      Math.abs(pulled - S_212_RESISTED_RATIO * advance),
+      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one advance (${advance}px)`,
+    ).toBeLessThanOrEqual(1)
+    expect(pulledFurther, 'the row went on sliding with the hand').toBe(pulled)
+  })
+
+  it('⛔ MUST NOT: the resisted follow is a PICTURE and writes nothing (表 T-023d: 掴んでいるあいだ値を文書へ書いてはならない)', () => {
+    const built = stage()
+    const at = stripPoint(built.loop, A2)
+    const before = structuredClone(built.loop.document())
+
+    built.aimAtTheStrip(A2)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x, at.y + PAST))
+    built.send(pointer('move', at.x + S_37_INDENT * 4, at.y + PAST))
+
+    expect(built.loop.document()).toEqual(before)
+    built.send(pointer('up', at.x + S_37_INDENT * 4, at.y + PAST))
+  })
+})

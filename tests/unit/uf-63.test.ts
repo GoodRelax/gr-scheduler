@@ -661,7 +661,14 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // could never raise one of them, which is the 「引き金が消える」 FR-029 names.
     expect(parentTitle([], ['p']).expander).toEqual({
       canOpen: false,
-      canClose: false,
+      // ⭐⭐ ARMED, AND THIS IS THE HALF THE RULING OF 2026-08-30 MOVED. `HF-3`
+      // no longer folds the row -- 「**隠す操作子は、その行を隠すこと（MUST）**
+      // —— 表 T-015 の `HR-6` である」 -- and this row IS drawn, so hiding it
+      // takes one row off the screen. The closing paragraph's test is 「その操作
+      // で、描かれる行が 1 行も増減しないとき」, and here it does: by one, itself.
+      // ⛔ THE OLD READING WAS `false` BECAUSE `HF-3` WAS `HR-5` (fold myself),
+      // which a childless row could not do anything visible with.
+      canClose: true,
       canCloseBelow: false,
     })
   })
@@ -704,19 +711,23 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // the zoom to overwrite what the person said, so the zoom never wrote AT-56
     // -- and HR-3, which is all HF-2 does, would open nothing here.
     //
-    // ⛔ AND THE CLOSING SIDE IS SPENT IN THE SAME BREATH, WHICH IS WHAT CR-309
-    // REVERSED. Folding this row would hide nothing, because the zoom is already
-    // drawing nothing under it: 「その操作で、描かれる行が 1 行も増減しないときは、
-    // 対象が 1 つも無いものとして扱うこと（MUST）」. ⚠️ HF-7 is untouched by that
-    // -- the fold this control would write still outranks the zoom the moment
-    // the zoom draws those rows again; the control simply has no picture to move
-    // while they are hidden.
+    // ⛔ THE CLOSING-BELOW SIDE IS SPENT IN THE SAME BREATH, WHICH IS WHAT
+    // CR-309 REVERSED. Folding what is under this row would hide nothing,
+    // because the zoom is already drawing nothing there: 「その操作で、描かれる行
+    // が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）」.
+    // ⚠️ HF-7 is untouched by that -- the fold this control would write still
+    // outranks the zoom the moment the zoom draws those rows again; the control
+    // simply has no picture to move while they are hidden.
+    // ⭐ THE HIDE IS ARMED WHATEVER THE ZOOM IS DOING, because `HF-3` is now
+    // 表 T-015 の `HR-6` (「行を隠す」) and this row is on the screen. ⛔ Reading
+    // it as spent here would be reading the zoom's picture for a rule that is
+    // about THIS row, which is drawn.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
         ['p'],
       ).expander,
-    ).toEqual({ canOpen: false, canClose: false, canCloseBelow: false })
+    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: false })
   })
 
   it('offers the pair at once -- HF-1 is a pair, not one control in two states', () => {
@@ -763,19 +774,25 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     })
   })
 
-  it('spends all three controls on a row that folded ITSELF (HF-3, HF-10)', () => {
-    // HF-3 pairs the two plainly: 「畳んだ行は、1 つ上の行の開く操作子が開く」 --
-    // a row's own opening control reaches 配下 and never the row. HF-10 exists
+  it('spends the two opening-and-folding controls on a row that folded ITSELF, and keeps the hide (HF-3, HF-10)', () => {
+    // A row's own opening control reaches 配下 and never the row. HF-10 exists
     // ONLY because of that: 「最上位の行が自分を畳むと、それを開く操作子がどこにも
     // 無くなる」, which is false the moment a row's own control opens itself.
     //
-    // So a folded row with nothing folded under it has neither of the pair
-    // armed, and HF-10's control at the top of the panel is the way back.
+    // So a folded row with nothing folded under it has neither the opener nor
+    // the fold-below armed, and HF-10's control at the top of the panel is the
+    // way back.
+    //
+    // ⭐⭐ THE HIDE IS STILL ARMED, AND THAT IS THE 2026-08-30 RULING. `HF-3` is
+    // 表 T-015 の `HR-6` -- 「**隠す操作子は、その行を隠すこと（MUST）**」 -- and a
+    // row that folded itself is still ON the screen, so hiding it takes it off.
+    // ⛔ 「その行は既に畳まれている」 stopped being a reason this control could
+    // give the day it stopped folding.
     expect(
       parentTitle([kid('c1', { isCollapsed: false })], ['p'], { isCollapsed: true }).expander,
     ).toEqual({
       canOpen: false,
-      canClose: false,
+      canClose: true,
       // ⛔ SPENT, AND THIS IS THE READING CR-309 REVERSED. HR-4 would write AT-56
       // on `c1`, which HR-1a is already not DRAWING -- and the closing rule
       // forbids counting it: 「描かれていない行の畳みを数えてはならない（MUST
@@ -786,16 +803,21 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
   })
 
   it('does not arm the opening control for a hidden child (HR-6)', () => {
-    // HR-6 brings a hidden row back through the parent's hidden group tab, not
-    // through the expander. A hidden row is not drawn, so the closing rule keeps
-    // every control off it: counting it would arm one that moves no picture.
+    // ⚠️ THE WAY BACK MOVED ON 2026-08-30 AND THIS CASE'S SUBJECT DID NOT.
+    // `HR-6` used to send a hidden row back through a 非表示グループタブ; it now
+    // reads 「**隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること
+    // （MUST）**」 -- 表 T-051 の `HF-13`, which `RowTitle.canOpenOneLevel`
+    // carries and `RowExpander` does not. ⛔ So a hidden child still arms none of
+    // the three read here: it is not drawn, and the closing rule forbids
+    // counting it -- 「描かれていない行の畳みを数えてはならない（MUST NOT）」.
+    // ⭐ `canClose` is the row `p`'s OWN hide, and `p` is drawn.
     expect(
       parentTitle(
         [kid('c1', { isHidden: true, isCollapsed: true }), under('c1', 'g1')],
         ['p'],
         { isCollapsed: false },
       ).expander,
-    ).toEqual({ canOpen: false, canClose: false, canCloseBelow: false })
+    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: false })
   })
 
   it('arms it for the same child once the shell draws it', () => {
@@ -987,15 +1009,23 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
     // that followed the controls would cut one and the same name in two places.
     // A row with an expander, a leaf row and a pinned leaf all sit at depth 1
     // here, so the expander's presence and the pin's state both move.
+    // ⚠️ THE VARYING CONDITION HAD TO BE DEEPENED ON 2026-08-30. It used to be
+    // 「a row with a child」 against 「a row with none」, and that stopped varying
+    // the day `HF-3` became 表 T-015 の `HR-6` (「行を隠す」): every DRAWN row can
+    // be hidden, so `canClose` is now true on both and a childless row's
+    // expander reads exactly like a parent-of-a-leaf's. ⭐ A GRANDCHILD is what
+    // still varies one of the three -- `HF-11` folds `kid`, which is showing
+    // `grandKid`, so that fold really does take a row off the screen.
     const groups = [
       groupOf({ id: 'withKid', label: LONG }),
       groupOf({ id: 'kid', parentId: 'withKid', label: 'k' }),
+      groupOf({ id: 'grandKid', parentId: 'kid', label: 'g' }),
       groupOf({ id: 'leaf', label: LONG }),
       groupOf({ id: 'pinnedLeaf', label: LONG }),
     ]
     const panel = panelOf(
       scheduleOf(groups),
-      drawn('withKid', 'kid', 'leaf', 'pinnedLeaf'),
+      drawn('withKid', 'kid', 'grandKid', 'leaf', 'pinnedLeaf'),
       panelWith({ pinnedGroupIds: ['pinnedLeaf'] }),
     )
 
@@ -1413,6 +1443,244 @@ describe('UF-63 -- FR-085 (c): choosing rows disturbs nothing else', () => {
   it('answers the same value for the same chosen set', () => {
     expect(panelOf(scene, chose(session, 'g2', 'g4'), settings)).toEqual(
       panelOf(scene, chose(session, 'g2', 'g4'), settings),
+    )
+  })
+})
+
+// ===========================================================================
+// THE TWO COUNTS, AND 段 0 -- 表 T-051 の `HF-12` / `HF-16` / `HF-18`, ruled on
+// 2026-08-30.
+//
+// ⭐⭐ WHY THE PANEL NEEDED A LEVEL OF ITS OWN. `HR-2` of 表 T-015 (MUST) folds
+// 「最も浅い段の行」 as well, and says why no row's own column can carry that:
+// 「**行の畳みが隠すのはその配下であり、最も浅い段の行は親を持たないので誰にも
+// 隠されない**」 ⇒ 「**段 0 そのものが畳まれてはじめて、行が 1 つも描かれない状態に
+// なりうる**」. `S-211` of 表 T-206 holds it, and 「⛔ **保存しない** —— `S-99g` と
+// 同じ立場であり、画面の状態であって日程の内容ではない」 -- so it arrives on the
+// session and never on a `TaskGroup`.
+//
+// ⭐ AND THAT IS WHAT MAKES BOTH COUNTS MUSTS:
+//   `HF-12` 「⭐ **そのときは、頭にいま何行を畳み込んでいるかを示すこと（MUST）**
+//           —— ⛔ **示さないと、行が消えたのか畳まれたのかが読めない**」
+//   `HF-18` 「**配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）**
+//           …⭐ **`HF-12` が段 0 について定めるものを、行について定めたもの**」
+//
+// ⛔ WHAT IS NOT ASSERTED HERE: how either count is DRAWN. `RowTitle` and
+// `RowTitlePanel` carry numbers; the mark, its colour (表 T-236 の `S-153`) and
+// its exemption from `HF-6` are the drawing side's and are held in
+// tests/unit/uf-72-screen-part.test.ts.
+// ===========================================================================
+
+/** The sentences of 表 T-051 and 表 T-015 these cases are driven by. */
+const T_051_HF12_THE_HEAD_COUNT = '頭にいま何行を畳み込んでいるかを示すこと（MUST）'
+const T_051_HF18_THE_ROW_COUNT =
+  '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
+const T_015_HR2_MAY_EMPTY_THE_PANEL = '押すと行が 1 つも描かれない状態になりうる'
+const T_015_HR6_BACK_THROUGH_THE_PARENT =
+  '隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること（MUST）'
+const T_015_HR6_BACK_THROUGH_LEVEL_ZERO =
+  '親を持たない最上位の行は、段 0 の同じ操作子で戻せること（MUST）'
+
+/** A row, its two children and one grandchild -- three rows under `p`. */
+const FAMILY = (part: Record<string, unknown> = {}): readonly TaskGroup[] => [
+  groupOf({ id: 'p', label: 'parent', ...part }),
+  groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1 }),
+  groupOf({ id: 'c2', parentId: 'p', label: 'c2', order: 2 }),
+  groupOf({ id: 'g1', parentId: 'c1', label: 'g1', order: 3 }),
+]
+
+describe('UF-63 -- 表 T-051 HF-18 (MUST): how many rows a row is holding folded', () => {
+  it('⛔ the manuscript still asks a row to show what it holds folded', () => {
+    const hf18 = specTable('T-051').rows.find((one) => one.id === 'HF-18')
+    expect(hf18, '表 T-051 no longer holds HF-18').toBeDefined()
+    const says = (hf18?.cells ?? []).join(' ')
+    expect(says).toContain(T_051_HF18_THE_ROW_COUNT)
+    // ⭐ AND THAT IT IS THE SAME NUMBER HF-12 ASKS FOR ONE LEVEL UP, which is
+    // what lets the two cases below be read side by side.
+    expect(says).toContain('`HF-12` が段 0 について定めるものを、行について定めたもの')
+  })
+
+  it('⭐ MUST: a folded row shows every row it is holding away, however deep (配下)', () => {
+    // ⛔ 配下 IS THE WHOLE SUBTREE AND NOT THE DIRECT CHILDREN. `HR-1a` (MUST)
+    // 「畳んだ行の配下は、それ自身も畳まれた状態とすること」 and (MUST NOT)
+    // 「畳んだ `TaskGroup` の配下の行 … を描いてはならない」 ⇒ folding `p` takes
+    // `c1`, `c2` AND `g1` off the screen, and 「その行数」 is the number of rows
+    // it is holding away.
+    const panel = panelOf(scheduleOf(FAMILY({ isCollapsed: true })), drawn('p'))
+
+    expect(titleOf(panel, 'p').foldedRowCount).toBe(3)
+  })
+
+  it('⛔ a row holding nothing folded shows no count (HF-18 shows one 「配下に畳み込んでいる行があるとき」)', () => {
+    const panel = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
+
+    // ⚠️ ZERO AND ABSENT ARE ONE ANSWER HERE. HF-18 asks for a count only when
+    // there is something to count, and the member is optional -- so what this
+    // case forbids is a POSITIVE count on a row that is holding nothing.
+    for (const row of ['p', 'c1', 'c2', 'g1']) {
+      expect(titleOf(panel, row).foldedRowCount ?? 0, `${row} claims to hold rows folded`).toBe(0)
+    }
+  })
+
+  it('⭐ the count is the FOLD’s and not the roster’s: a drawn subtree holds nothing', () => {
+    // ⛔ WITHOUT THIS, A UNIT THAT ANSWERED 「how many descendants have I」 WOULD
+    // PASS THE CASE ABOVE. `c1` is folded over exactly one row; `q`, whose child
+    // is drawn, is holding none although it has one.
+    //
+    // ⚠️ ONE THING HF-18 DOES NOT DECIDE, AND SO IS NOT ASSERTED: whether an
+    // ANCESTOR of a folded row counts what that row is holding. 「**配下に畳み
+    // 込んでいる行があるとき、その行数を行に示すこと（MUST）**」 reads both ways --
+    // the rows THIS row's own fold is holding away, or every row folded away
+    // anywhere below it -- and the row's reason (「どの行が抱えているかを目で追う」)
+    // settles neither. ⛔ So `p` is left out of this case rather than pinned to
+    // one reading; the fixture is built so both readings answer alike for the
+    // two rows that ARE read. See the report.
+    const panel = panelOf(
+      scheduleOf([
+        groupOf({ id: 'p', label: 'parent' }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, isCollapsed: true }),
+        groupOf({ id: 'g1', parentId: 'c1', label: 'g1', order: 2 }),
+        groupOf({ id: 'q', label: 'q', order: 3 }),
+        groupOf({ id: 'q1', parentId: 'q', label: 'q1', order: 4 }),
+      ]),
+      drawn('p', 'c1', 'q', 'q1'),
+    )
+
+    expect(titleOf(panel, 'c1').foldedRowCount).toBe(1)
+    expect(titleOf(panel, 'q').foldedRowCount ?? 0, 'a drawn child was counted as folded').toBe(0)
+  })
+})
+
+describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can empty, and the head says how many', () => {
+  it('⛔ the manuscript still folds 段 0, still admits an empty panel, and still asks the head for a count', () => {
+    const hf12 = (specTable('T-051').rows.find((one) => one.id === 'HF-12')?.cells ?? []).join(' ')
+    const hr2 = (specTable('T-015').rows.find((one) => one.id === 'HR-2')?.cells ?? []).join(' ')
+
+    expect(hf12).toContain(T_051_HF12_THE_HEAD_COUNT)
+    expect(hf12).toContain('最も浅い段の行も畳むこと（MUST）')
+    expect(hr2).toContain('最も浅い段の行も畳むこと（MUST）')
+    expect(hr2).toContain(T_015_HR2_MAY_EMPTY_THE_PANEL)
+    // ⭐ AND S-211 IS WHERE THE STATE LIVES, which is why these cases put it on
+    // the session and never on a row.
+    expect(hr2).toContain('`S-211`')
+    const s211 = (specTable('T-206').rows.find((one) => one.id === 'S-211')?.cells ?? []).join(' ')
+    expect(s211).toContain('段 0（行見出しパネルの頭）が畳まれているか')
+    expect(s211).toContain('保存しない')
+  })
+
+  it('⭐⭐ MUST: with 段 0 folded the panel describes NO row at all (HR-2: 押すと行が 1 つも描かれない状態になりうる)', () => {
+    const panel = panelOf(
+      scheduleOf(FAMILY()),
+      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+    )
+
+    expect(panel.titles, 'a row was described although 段 0 is folded').toEqual([])
+    expect(panel.pinnedTitles, 'a pinned row was described although 段 0 is folded').toEqual([])
+  })
+
+  it('⭐⭐ MUST: and the head says how many rows it is holding (HF-12: 示さないと、行が消えたのか畳まれたのかが読めない)', () => {
+    const panel = panelOf(
+      scheduleOf(FAMILY()),
+      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+    )
+
+    // ⛔ FOUR, NOT ONE. 段 0's fold holds the shallowest row away and `HR-1a`
+    // holds everything under it away with it, so the whole document is what the
+    // head is holding -- and 「行が消えたのか畳まれたのか」 is exactly the question
+    // a reader of an empty panel asks.
+    expect(panel.foldedRowCount).toBe(4)
+  })
+
+  it('⛔ the pair that makes the count a test: with 段 0 open and nothing folded the head holds nothing', () => {
+    const panel = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
+
+    expect(panel.foldedRowCount ?? 0, 'the head claims to hold rows folded').toBe(0)
+    expect(idsOf(panel.titles)).toEqual(['p', 'c1', 'c2', 'g1'])
+  })
+
+  it('⭐ MUST: with 段 0 folded, the head’s 「すべて畳む」 has nothing left to do (HF-12 reads S-211)', () => {
+    const folded = panelOf(
+      scheduleOf(FAMILY()),
+      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+    )
+    const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
+
+    expect(folded.canCloseEveryRow, 'a folded 段 0 can be folded again').toBe(false)
+    // ⭐ The pair: with the head open there is always 段 0 itself left to fold.
+    expect(open.canCloseEveryRow, 'an open panel has nothing to fold').toBe(true)
+  })
+})
+
+describe('UF-63 -- 表 T-015 HR-6 (MUST): the way back from a hide is an opening control', () => {
+  it('⛔ the manuscript still sends a hidden row back through HF-13, and a top-level one through HF-16', () => {
+    const hr6 = (specTable('T-015').rows.find((one) => one.id === 'HR-6')?.cells ?? []).join(' ')
+
+    expect(hr6).toContain(T_015_HR6_BACK_THROUGH_THE_PARENT)
+    expect(hr6).toContain(T_015_HR6_BACK_THROUGH_LEVEL_ZERO)
+    // ⛔⛔ AND IT FORBIDS THE PLACE THE OLD READING SENT IT TO: 「**戻すための専用
+    // の面や札を設けてはならない（MUST NOT）**」 —— ⚠️ 「**2026-08-30 まで、戻す先は
+    // 非表示グループタブであった** —— **そのタブは実装に 1 つも無く、入口の無い
+    // 戻り道であった**」.
+    expect(hr6).toContain('戻すための専用の面や札を設けてはならない（MUST NOT）')
+    expect(hr6).toContain('表 T-051 の `HF-13` である')
+    expect(hr6).toContain('同表の `HF-16` である')
+  })
+
+  it('⭐ MUST: a row whose child is HIDDEN arms its own 「配下を 1 階層開く」 (HR-6 through HF-13)', () => {
+    // ⛔ `RowExpander` CARRIES NO FLAG FOR THIS ONE. `HF-13`'s entrance is a row
+    // of its own (「`HF-2`（配下をすべて開く）とは別の入口とすること（MUST）」), and
+    // `RowTitle.canOpenOneLevel` is what says whether it has work.
+    const panel = panelOf(
+      scheduleOf([
+        groupOf({ id: 'p', label: 'parent' }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, isHidden: true }),
+      ]),
+      drawn('p'),
+    )
+
+    expect(titleOf(panel, 'p').canOpenOneLevel, 'the hidden child has no way back').toBe(true)
+  })
+
+  it('⛔ the pair: with nothing hidden and nothing folded under it, the same control is spent', () => {
+    const panel = panelOf(
+      scheduleOf([
+        groupOf({ id: 'p', label: 'parent' }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1 }),
+      ]),
+      drawn('p', 'c1'),
+    )
+
+    expect(titleOf(panel, 'p').canOpenOneLevel ?? false).toBe(false)
+  })
+
+  it('⭐⭐ MUST: a hidden TOP-LEVEL row arms the head’s own 「1 階層開く」 (HR-6 through HF-16)', () => {
+    // 「**親を持たない最上位の行は、段 0 の同じ操作子で戻せること（MUST）** ——
+    // 同表の `HF-16` である。`FR-085` が最上位の行を許しているためである」. ⛔ A row
+    // with no parent has no parent's control to come back through, so without
+    // this the hide would be a one-way door.
+    const panel = panelOf(
+      scheduleOf([
+        groupOf({ id: 'r1', label: 'r1', isHidden: true }),
+        groupOf({ id: 'r2', label: 'r2', order: 1 }),
+      ]),
+      drawn('r2'),
+    )
+
+    expect(panel.canOpenLevelZero, 'the hidden top-level row has no way back').toBe(true)
+  })
+
+  it('⭐ MUST: a folded 段 0 arms the same head control (HR-2: HR-7 を頭で押せば最も浅い段が戻る)', () => {
+    const folded = panelOf(
+      scheduleOf(FAMILY()),
+      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+    )
+    const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
+
+    expect(folded.canOpenLevelZero, 'the folded head has no way back').toBe(true)
+    // ⛔ The pair: with the head open and nothing hidden at the shallowest
+    // level, the head's one-level open has nothing to do.
+    expect(open.canOpenLevelZero ?? false, 'the head control is armed with nothing to open').toBe(
+      false,
     )
   })
 })

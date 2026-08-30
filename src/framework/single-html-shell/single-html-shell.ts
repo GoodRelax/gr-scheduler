@@ -633,7 +633,7 @@ function boot(): void {
    * ⚠️ Filled while the factory below runs, the same moment
    * `focusPropertyFieldHeld` is.
    */
-  let openNewRowNameHeld: ((parentGroupId: string) => void) | null = null
+  let openNewRowNameHeld: ((parentGroupId: string | null) => void) | null = null
   /**
    * What the LOOP handed over for the same row -- where a settled name is to be
    * taken -- or `null` until it has.
@@ -645,7 +645,11 @@ function boot(): void {
    * field is opened by a press, and no press is answered until the loop is
    * running.
    */
-  let newRowNameSettledHeld: ((parentGroupId: string, name: string) => void) | null = null
+  // ⚠️ `parentGroupId` MAY BE `null`, which is 段 0 -- HF-17's IC-93 adds a row
+  // at the shallowest level, and such a row has no parent (AT-52).
+  let newRowNameSettledHeld:
+    | ((parentGroupId: string | null, name: string) => void)
+    | null = null
 
   const screenSurface = domScreenSurface({
     host: document,

@@ -369,8 +369,45 @@ export interface RowTitlePanel {
    * ⛔ NOT `canOpenEveryRow` INVERTED, for the reason `RowExpander` gives about
    * its own pair: a document whose rows are partly folded leaves BOTH entrances
    * with something to do, and one with no rows at all leaves NEITHER.
+   *
+   * ⚠️ IT NOW READS S-211 AS WELL. HR-2 of table T-015 (MUST) has this entrance
+   * fold 段 0 itself, so it is spent only where level 0 is ALREADY folded --
+   * with the head folded there is no row in the picture to fold, and with it
+   * open there is always the head left to fold.
    */
   readonly canCloseEveryRow?: boolean
+  /**
+   * Whether IC-92 -- HF-16 of table T-051, HR-7 of table T-015 read at level 0
+   * -- has anything left to do: the head is folded (S-211 of table T-206), or a
+   * row of the shallowest level is hidden and would come back.
+   *
+   * ⭐ TWO THINGS ONE PRESS DOES, and both come from the rows that name it.
+   * HR-2 (MUST): 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」; HR-6
+   * (MUST): 「親を持たない最上位の行は、段 0 の同じ操作子で戻せること」 -- so the
+   * head's one-level-open is the way back from BOTH the head's fold and the
+   * hiding of a row that has no parent to open it.
+   * ⛔ IT IS NOT `canOpenEveryRow` NARROWED. HF-16 (MUST NOT): 「`HF-10`（すべて
+   * 開く）に兼ねさせてはならない」, for HF-13's reason -- 「押すたびに違う量が開く
+   * 入口は、何が起きるかを押す前に読めない」.
+   *
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, the same bargain the two above take.
+   */
+  readonly canOpenLevelZero?: boolean
+  /**
+   * HF-12 of table T-051 (MUST): 「そのときは、頭にいま何行を畳み込んでいるかを
+   * 示すこと」 -- how many rows the head is holding folded away right now.
+   *
+   * ⭐ WHY IT EXISTS, in that row's own words: 「示さないと、行が消えたのか
+   * 畳まれたのかが読めない」. With 段 0 folded the panel can stand empty, and an
+   * empty panel and a document with no rows look exactly alike without this.
+   * ⛔ NOT SUBJECT TO HF-6 (MUST): the count is not a control and is not drawn
+   * only while the pointer is on a row -- HF-18 states that exemption for the
+   * row's own count and this is the same number one level up.
+   * ⚠️ ZERO IS 「nothing is folded away」 and is not drawn as a count; the
+   * drawing side decides that, and `undefined` is a description that did not
+   * answer.
+   */
+  readonly foldedRowCount?: number
 }
 
 export interface RowTitle {
@@ -543,6 +580,46 @@ export interface RowTitle {
    * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel` above.
    */
   readonly canAddChildRow?: boolean
+  /**
+   * HF-18 of table T-051 (MUST): 「配下に畳み込んでいる行があるとき、その行数を
+   * 行に示すこと」 -- how many rows this one is holding folded away.
+   *
+   * ⭐ THE SAME NUMBER `RowTitlePanel.foldedRowCount` HOLDS FOR 段 0, and HF-18
+   * says so: 「`HF-12` が段 0 について定めるものを、行について定めたもの」.
+   * ⭐ THE ROW IS ALSO MARKED, which that row makes a second MUST -- 「数だけでは、
+   * どの行が抱えているかを目で追うのに読む必要がある」 -- and the colour is S-153
+   * of table T-236, 「注意であって不良ではない」. ⛔ Both are the drawing side's
+   * to lay out; what crosses here is the count, and a count above zero IS the
+   * row that carries the mark.
+   * ⛔ NOT SUBJECT TO HF-6 (MUST NOT): 「ポインタが乗っているあいだだけでは、
+   * 抱えている行を探して回ることになる」.
+   *
+   * ⚠️ A ROW HR-6 HID IS NOT ONE OF THEM. HF-18 counts 「畳み込んでいる」 rows,
+   * and hiding is the other operation -- a hidden row is not folded away by
+   * this row, it was put away by itself.
+   *
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel` above.
+   */
+  readonly foldedRowCount?: number
+  /**
+   * Which axis GR-20's grab has settled on while THIS row is the one held, or
+   * `null`/absent on every row that is not held.
+   *
+   * ⭐ WHAT IT IS FOR, IN HF-15's OWN WORDS (MUST): 「いまどちらの軸が生きて
+   * いるかを、掴んでいる行に描くこと —— 上下の軸が生きているときは行の左右の辺
+   * に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと」, in
+   * S-151 (上下) and S-152 (左右) of table T-236. ⭐ The same row also has a
+   * ground laid under the held row (MUST), and this is what says which row that
+   * is -- 「どれを持っているかが読めなくなる」.
+   * ⛔ WHY IT IS DRAWN AT ALL: 「描かないと、動かせない向きへ引いたときに壊れた
+   * 操作子と見分けがつかない」 -- FR-029's RATIONALE, read on a drag.
+   *
+   * ⚠️ SPELLED OUT RATHER THAN IMPORTED. `RowGrabAxis` is the translator's name
+   * and Chapter 5.3 keeps this component out of that one; the two spellings are
+   * the same two words, and the seam that carries them (`ScreenSession
+   * .rowGrabbedAt`) is where they meet.
+   */
+  readonly heldOnAxis?: 'position' | 'depth' | null
   /** U-48 `Row Pin` (FR-098). Its control sits on every row, and the same one lets go. */
   readonly isPinned: boolean
   /**
@@ -561,19 +638,32 @@ export interface RowTitle {
  */
 
 /**
- * HF-1 of table T-051: every row that has something under it carries an opening
- * control, a control that closes the row itself, and one that closes everything
- * under it. ⚠️ They are not one control in three states: HF-2 opens the whole
- * subtree (HR-3 of table T-015), HF-3 folds the row ITSELF (HR-5) and HF-11
- * folds the subtree (HR-4), so any of the three can be spent while the others
- * are not.
+ * HF-1 of table T-051: every row carries a control that HIDES it, one that
+ * opens everything under it, and one that closes everything under it. ⚠️ They
+ * are not one control in three states: HF-2 opens the whole subtree (HR-3 of
+ * table T-015), HF-3 hides the row ITSELF (HR-6) and HF-11 folds the subtree
+ * (HR-4), so any of the three can be spent while the others are not.
  * ⚠️ The third arrived with the ruling of 2026-08-30 (CR-294); until then HR-4
  * had no entrance at all.
+ *
+ * ⛔⛔ HF-3 WAS HR-5 (「自分を畳む」) UNTIL 2026-08-30 AND IS NOW HR-6 (「隠す」).
+ * That row states the change itself -- 「本行は 2026-08-30 まで `HR-5` であった
+ * —— 利用者の裁定で `HR-6` が受け取った」 -- and HF-1 records why HR-5 keeps no
+ * entrance: 「`HR-4` を 1 度押せば同じ絵になることを実測しており（版 1.67）」.
  */
 export interface RowExpander {
   /** HF-2: a row somewhere below this one is folded. */
   readonly canOpen: boolean
-  /** HF-3: this row is not folded, and something under it is in the picture. */
+  /**
+   * HF-3: this row can be hidden, which is HR-6 of table T-015.
+   *
+   * ⭐ TRUE ON EVERY ROW THE PANEL DRAWS, and that is not a member left
+   * unfilled. Hiding a drawn row takes that row -- and everything under it --
+   * out of the picture (HR-6, MUST NOT), so the closing rule under table T-051
+   * 「その操作の前後で描かれる行の差」 is at least one on any row that is drawn.
+   * ⛔ THE OLD READING (「this row is not folded, and something under it is in
+   * the picture」) WAS HR-5's and is gone with it.
+   */
   readonly canClose: boolean
   /**
    * HF-11: a row somewhere below this one is not folded.
@@ -1971,6 +2061,26 @@ export interface ScreenSession {
     readonly groupId: string
     readonly depth: number
     /**
+     * Which axis HF-15 (MUST) settled on -- 「掴んでから最初に閾値を超えた向きで
+     * 軸が決まり、離すまで変わらないこと」 -- so that the held row can be drawn
+     * with the band that says which one is live. See `RowTitle.heldOnAxis`.
+     */
+    readonly axis: 'position' | 'depth'
+    /**
+     * How far the row still follows the hand on the axis that was REFUSED, in
+     * pixels, signed the way the hand went.
+     *
+     * ⭐ HF-15 (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める割合は
+     * ... `S-212`」, and (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせては
+     * ならない —— 手応えが返らないと、木から離れて滑っていくだけに見える」. So the
+     * row moves a little that way and no further: the hand is answered, and the
+     * refusal is still legible.
+     * ⛔ THE RATIO IS NOT APPLIED HERE. S-212 multiplies 「その軸の 1 歩ぶん」 and
+     * the translator is where both the ratio and the step stand; this member is
+     * the product, in the pixels the panel draws in.
+     */
+    readonly resistedPx: number
+    /**
      * Where the row is drawn while it is held on the position axis -- the top
      * of the place the hand stands at -- or `null` while the grab is the depth
      * axis's and the row keeps the y the layout gave it.
@@ -1986,6 +2096,24 @@ export interface ScreenSession {
      */
     readonly atY: number | null
   } | null
+  /**
+   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+   *
+   * ⭐⭐ WHY LEVEL 0 HAS A STATE OF ITS OWN. HR-2 of table T-015 (MUST) folds
+   * 「最も浅い段の行」 as well, and says why no row's own column can carry it:
+   * 「行の畳みが隠すのはその配下であり、最も浅い段の行は親を持たないので誰にも
+   * 隠されない」 -- so 段 0 itself has to be foldable for 「押すと行が 1 つも
+   * 描かれない状態」 to exist at all. ⛔ AT-56 AND AT-57 ARE NOT MOVED FOR IT
+   * (MUST NOT), because a column either way changes the shape of the saved
+   * document.
+   * ⛔ NOT SAVED, which S-211 states outright -- 「`S-99g` と同じ立場であり、
+   * 画面の状態であって日程の内容ではない」 -- so the shell holds it and it is
+   * lost with the page. ⭐ Two roads back, and that row names both: HF-16 (IC-92,
+   * one level) and HF-10 (IC-74, everything).
+   *
+   * ⚠️ OPTIONAL, and absent reads as NOT folded, which is that row's default.
+   */
+  readonly isLevelZeroFolded?: boolean
   /**
    * Which of `dualCursor`'s two dates (S-65) is following the pointer, or
    * `null` while table T-029a's mode is not up.

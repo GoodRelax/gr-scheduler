@@ -403,6 +403,31 @@ const OPEN_EVERY_ROW_ENTRY = 'IC-74'
 const COLLAPSE_EVERY_ROW_ENTRY = 'IC-78'
 
 /**
+ * IC-92 of table T-109 -- the entrance HF-16 of table T-051 (MUST) puts in the
+ * same lineup as IC-74: 「最も浅い段を 1 階層だけ開く」, which is HR-7 of table
+ * T-015 pressed at 段 0.
+ *
+ * ⭐ IT IS THE WAY BACK FROM TWO THINGS, and both rows name it: HR-2 (「`HR-7`
+ * を頭で押せば最も浅い段が戻る」) and HR-6 (「親を持たない最上位の行は、段 0 の
+ * 同じ操作子で戻せること」).
+ * ⛔ NOT IC-74 UNDER A SECOND NAME (HF-16, MUST NOT): 「`HF-10`（すべて開く）に
+ * 兼ねさせてはならない」.
+ */
+const OPEN_LEVEL_ZERO_ENTRY = 'IC-92'
+
+/**
+ * IC-93 of table T-109 -- HF-17 of table T-051 (MUST): 「最も浅い段へ行を 1 つ
+ * 足す」, which is HR-8 pressed at 段 0.
+ *
+ * ⭐⭐ WITHOUT IT A DOCUMENT WITH NO ROWS CAN NEVER GET ONE, which is that row's
+ * own reason: HR-8 adds 「配下に」 and 「行が 1 つも無い文書では押す相手が存在
+ * しない」, while FR-085 requires a top-level row to be creatable.
+ * ⚠️ THE NAME IS TYPED IN PLACE, exactly as IC-91's is -- 「名前の扱いは `HF-14`
+ * に従う」 -- so this entrance opens the same field.
+ */
+const ADD_TOP_ROW_ENTRY = 'IC-93'
+
+/**
  * IC-82 of table T-109 -- FR-032's deletion, drawn once per ROW on the
  * `Row Title Panel`.
  *
@@ -570,6 +595,18 @@ const PAINT_ROW = {
   // with the unit that draws the picture; ONE row of table T-236 read by two
   // units is not the copy rule 03 section 1 forbids.
   pinned: 'S-151',
+  // ⭐ HF-15's TWO BANDS (MUST): 「上下の軸が生きているときは行の左右の辺に、
+  // 左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと。色は 表
+  // T-236 の `S-151`（上下）と `S-152`（左右）とする」. ⛔ NOT `pinned` UNDER A
+  // SECOND READING, though S-151 is the row both name: that member is EN-3's
+  // fill on a pinned row's IC-60 and this is the axis a held row is moving on,
+  // and one member for two rules would join what the specification keeps apart.
+  grabAxisPosition: 'S-151',
+  grabAxisDepth: 'S-152',
+  // ⭐ HF-18 (MUST): 「色は 表 T-236 の `S-153` とする —— 注意であって不良では
+  // ない」, for the count a row shows of the rows it holds folded, and for the
+  // same count at 段 0 (HF-12).
+  caution: 'S-153',
 } as const
 
 /** How a declaration names one of them. @purity pure */
@@ -603,6 +640,9 @@ const PAINT = {
   armed: painted('armed'),
   pressed: painted('pressed'),
   pinned: painted('pinned'),
+  grabAxisPosition: painted('grabAxisPosition'),
+  grabAxisDepth: painted('grabAxisDepth'),
+  caution: painted('caution'),
 } as const
 
 /**
@@ -1875,8 +1915,17 @@ const ROW_GRAB_STRIP_MARK = 'data-row-grab'
  * @purity pure
  */
 function newRowNameEntryStyle(box: ScreenRect, indentPx: number): string {
+  // ⚠️ A HEIGHT OF NONE IS THE PANEL THAT DREW NO ROW, and there the field takes
+  // the height the environment's own text gives it: no row of the specification
+  // states a row's height for a row that does not exist yet, and FR-042 lets
+  // every row carry its own (AT-59), so there is nothing to copy. ⛔ Inventing
+  // one would put the field at a size no row is drawn at.
+  const placed =
+    box.height > 0
+      ? boxStyle(box)
+      : `position:absolute;left:${box.x}px;top:${box.y}px;width:${box.width}px;`
   return (
-    boxStyle(box) +
+    placed +
     'box-sizing:border-box;font:inherit;pointer-events:auto;' +
     `padding:0 0 0 ${indentPx}px;` +
     `background:${PAINT.panel};color:${PAINT.ink};border:0;outline:0;`
@@ -2503,13 +2552,23 @@ function fillScreenFrame(
  */
 /**
  * How far apart the row's seven controls stand, measured from the row's right
- * edge outward -- IC-82 nearest it, then the pin, then IC-91, IC-90, IC-77,
- * IC-59, IC-58.
- * ⭐ THE ORDER IS TABLE T-109'S OWN PRINT ORDER, read left to right: the row
- * printed last stands nearest the edge HF-4 pins them to.
- * ⚠️ TWO WERE INSERTED ON 2026-08-30 and the rest kept their relative places:
- * that table prints IC-90 and IC-91 between IC-77 and IC-60, so they take the
- * steps between them and everything further out moves one step away.
+ * edge outward -- the pin nearest it, then IC-82, IC-91, IC-58, IC-77, IC-90,
+ * IC-59.
+ *
+ * ⭐⭐ THE ORDER IS RULED AND NO LONGER TABLE T-109's PRINT ORDER (利用者の裁定
+ * 2026-08-30). HF-4 (MUST): 「折り畳みの 4 つ（`HF-1` の格子）、足す、消す、
+ * ピン止めの順に、左から右へ置くこと」, and HF-1 (MUST) fixes the four inside that
+ * lattice: 「並びは 2 × 2 の格子とすること —— 左から 隠す・1 階層開く・配下を
+ * すべて畳む・配下をすべて開く」. ⇒ Left to right: IC-59, IC-90, IC-77, IC-58,
+ * IC-91, IC-82, IC-60.
+ * ⭐ WHAT THE LATTICE MEANS, in HF-1's own words: 「上下に読めば動作、左右に読めば
+ * 範囲」 -- IC-59 / IC-90 are the near pair (this row, one level) and IC-77 /
+ * IC-58 the far pair (the whole subtree), each pair folding then opening. ⛔
+ * 「1 本と 2 本を混ぜて並べてはならない（MUST NOT）」 -- the two shapes may not be
+ * interleaved, which is exactly what the old print order did.
+ * ⛔ HF-4's TWO FIXED ENDS ARE UNCHANGED: the pin is 「いちばん外（右端）」 and
+ * 「足すと消すのあいだに他の操作子を挟んではならない（MUST NOT）」, since 「枠つきの
+ * `＋` と `×` は対として読ませるものである」.
  *
  * ⭐ THE TWO PANEL-WIDE ENTRANCES STEP BY THE SAME AMOUNT (IC-74 and IC-78; see
  * `panelCornerEntryElement`), because it is the same quantity: two controls of
@@ -2570,9 +2629,8 @@ function rowControlRightEm(stepsFromEdge: number): number {
  * ⭐ NAMED RATHER THAN COUNTED AT EACH CALL, and the reason is the ground: HF-6
  * (MUST) reaches the LEFTMOST control's left edge, so the width of that band and
  * the placement of that control have to name the same step. ⚠️ The order itself
- * is table T-109's own print order and is not chosen here -- `rowTitleElement`
- * carries why, and IC-82 nearest the edge is where FR-032's control was already
- * put.
+ * is HF-4's ruling of 2026-08-30 and is not chosen here -- the declaration above
+ * carries it word for word.
  *
  * ⭐⭐ THE PIN STANDS AT THE EDGE AND THE DELETION ONE STEP IN, WHICH IS HF-4
  * (MUST): 「**ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）
@@ -2584,17 +2642,21 @@ function rowControlRightEm(stepsFromEdge: number): number {
  * the row is a MUST and the entrance count moving from five to seven is what
  * made the wrong one reachable on every row.
  *
- * ⚠️ THIS IS THE ONLY POSITION THE SPECIFICATION FIXES. HF-4 says so in as many
- * words -- 「**本行が定めるのはこの 1 つだけであり、ほかの操作子の前後は定めない**」
- * -- so the remaining five keep table T-109's print order, and no rule is
- * invented for them.
+ * ⚠️ AND THE REST OF THE ORDER IS RULED TOO SINCE 2026-08-30. The sentence
+ * 「本行が定めるのはこの 1 つだけであり、ほかの操作子の前後は定めない」 still stands
+ * in HF-4, and the ruling printed after it settles the whole left-to-right run
+ * -- so nothing here is invented and table T-109's print order is no longer
+ * what the row is read by.
  */
 const ROW_CONTROL_STEPS = {
-  open: 6,
-  close: 5,
+  /** IC-58 -- HF-2, which is HR-3: the whole subtree opens. */
+  open: 3,
+  /** IC-59 -- HF-3, which is HR-6 since 2026-08-30: the row is hidden. */
+  close: 6,
+  /** IC-77 -- HF-11, which is HR-4: the whole subtree folds. */
   closeBelow: 4,
   /** IC-90 -- HF-13, which is HR-7 of table T-015. */
-  openOneLevel: 3,
+  openOneLevel: 5,
   /** IC-91 -- HF-14, which is HR-8. */
   addChild: 2,
   /** IC-82 -- one step in from the edge, so a pointer meets the pin first. */
@@ -2651,6 +2713,126 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
 }
 
 /**
+ * What marks the count HF-18 (MUST) shows on a row, and HF-12 at 段 0.
+ *
+ * ⛔ NOT A `data-icon` AND NOT A `data-role`: table T-109 holds no entrance for
+ * a count -- nothing about it is pressed -- and table T-103 no part, so a mark
+ * of its own is what lets what was drawn be read back (rule 04), exactly as
+ * `data-corner-band` and `ROW_GRAB_STRIP_MARK` are.
+ * ⭐ AND IT IS WHAT KEEPS THE COUNT OUT OF HF-6's HOVER RULE: that rule reaches
+ * the row's controls by `data-role` and `data-icon`, and HF-18 (MUST NOT) says
+ * the count is not one of them -- 「ポインタが乗っているあいだだけでは、抱えて
+ * いる行を探して回ることになる」.
+ */
+const FOLDED_ROW_COUNT_MARK = 'data-folded-rows'
+
+/**
+ * How thick HF-15's band is drawn, in pixels.
+ *
+ * ⛔ THE SPECIFICATION HOLDS NO ROW FOR IT. HF-15 (MUST) asks for 「帯を 1 本ずつ」
+ * and names the two colours; table T-206 states no thickness for it, and no
+ * other row does either. ⚠️ Named here rather than left as a bare 2 so that the
+ * declarations below read as what they are, the same bargain
+ * `PANEL_CORNER_BORDER_PX` takes -- and 2px rather than 1 because 「帯」 is asked
+ * for and a hairline is the tool's own rule (S-149), not a band.
+ */
+const ROW_GRAB_BAND_PX = 2
+
+/**
+ * How a row that HF-15's grab is holding is drawn: a ground under it, and one
+ * band on each of the two edges the LIVE axis is named by.
+ *
+ * ⭐ THE BANDS ARE THE MUST (HF-15): 「いまどちらの軸が生きているかを、掴んでいる
+ * 行に描くこと —— 上下の軸が生きているときは行の左右の辺に、左右の軸が生きている
+ * ときは行の上下の辺に、帯を 1 本ずつ描くこと」, in S-151 (上下) and S-152 (左右).
+ * ⛔ THE EDGES ARE CROSSWISE TO THE AXIS, which is what those words say: a grab
+ * that moves the row UP AND DOWN is marked on the left and right edges, so the
+ * band lies along the way the row is travelling rather than across it.
+ * ⛔ WHY AT ALL: 「描かないと、動かせない向きへ引いたときに壊れた操作子と見分けが
+ * つかない」 -- FR-029's RATIONALE, read on a drag.
+ *
+ * ⭐ THE GROUND IS A MUST WITH NO COLOUR (HF-15): 「掴んでいる行には地を敷くこと」,
+ * because 「どれを持っているかが読めなくなる」. ⛔ NO ROW OF TABLE T-236 NAMES ONE.
+ * Searched: HF-15, GR-20 and the preamble of table T-023d, table T-206 and table
+ * T-236. ⇒ S-149 (「区切りの線」) is taken, as the one neutral screen colour that
+ * says nothing else: S-151 and S-152 are spent on the bands by this very row,
+ * S-152 / S-153 / S-154 are judgements about a schedule (良 / 注意 / 不良), and
+ * S-183 is an entrance's state. ⚠️ Reported rather than settled here.
+ *
+ * @purity pure
+ */
+function rowGrabbedStyle(axis: 'position' | 'depth'): string {
+  const paint = axis === 'position' ? PAINT.grabAxisPosition : PAINT.grabAxisDepth
+  const band = `${ROW_GRAB_BAND_PX}px solid ${paint}`
+  return (
+    `background:${PAINT.rule};` +
+    (axis === 'position'
+      ? `border-left:${band};border-right:${band};`
+      : `border-top:${band};border-bottom:${band};`)
+  )
+}
+
+/**
+ * How the count HF-18 (MUST) shows is drawn: the number, on a mark of its own.
+ *
+ * ⭐ ONE THING ANSWERING BOTH OF THAT ROW'S MUSTS. It asks for 「その行数を行に
+ * 示すこと」 AND 「その行自身にも印を付けること」, and gives the reason for the
+ * second: 「数だけでは、どの行が抱えているかを目で追うのに読む必要がある」. ⇒ The
+ * number is set on a filled mark: the FILL is what a reader picks out without
+ * reading, and the digits are the count. ⛔ A bare number would meet the first
+ * MUST and not the second.
+ * ⭐ THE FILL IS S-153 (MUST): 「注意であって不良ではない」. ⚠️ The digits take the
+ * panel's own ground colour (S-150) so that they read as cut out of the mark --
+ * ⛔ not a colour of their own: table T-236 names one colour for this and NFR-007
+ * wants the two apart, and the panel's ground is the one that is light where
+ * S-153 is dark and dark where it is light, in both renderings.
+ *
+ * @purity pure
+ */
+function foldedRowCountStyle(rightPx: string): string {
+  const side = NOT_STORED_ICON_SIZES['S-138']
+  return (
+    'position:absolute;top:0;pointer-events:none;' +
+    rightPx +
+    `min-width:${side}px;height:${side}px;line-height:${side}px;` +
+    'text-align:center;font-size:0.75em;border-radius:9999px;padding:0 0.25em;' +
+    `background:${PAINT.caution};color:${PAINT.panel};`
+  )
+}
+
+/**
+ * The head's count, put back on the element that was built with the panel --
+ * HF-12 (MUST): 「そのときは、頭にいま何行を畳み込んでいるかを示すこと」.
+ *
+ * ⛔ WRITTEN ON EVERY FRAME AND NOT ONCE, exactly as `markPanelCornerEntry` is
+ * and for the same reason: the head's furniture is built with the panel and
+ * never rebuilt, so what it SAYS has to be put on it again whenever the panel's
+ * description moves.
+ * ⚠️ A COUNT OF ZERO IS SHOWN AS NOTHING. HF-12 asks for the count 「そのときは」
+ * -- when rows are folded away -- and a head holding none has nothing to say.
+ *
+ * @purity non-pure
+ */
+function markFoldedRowCount(mark: HTMLElement, count: number, rightPx: string): void {
+  mark.setAttribute(FOLDED_ROW_COUNT_MARK, String(count))
+  mark.textContent = String(count)
+  mark.setAttribute('style', count > 0 ? foldedRowCountStyle(rightPx) : STYLE.hidden)
+}
+
+/**
+ * The count itself, as an element -- HF-18 on a row, HF-12 at 段 0.
+ *
+ * @purity non-pure
+ */
+function foldedRowCountElement(host: Document, count: number, rightPx: string): HTMLElement {
+  const mark = made(host, 'span', foldedRowCountStyle(rightPx))
+  mark.setAttribute(FOLDED_ROW_COUNT_MARK, String(count))
+  mark.setAttribute('aria-hidden', 'true')
+  mark.textContent = String(count)
+  return mark
+}
+
+/**
  * How the grab strip GR-20 of table T-023d is laid: 「行の左端に敷く掴み代」,
  * `S-138` wide, over the whole height of the row.
  *
@@ -2672,16 +2854,18 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
  * for, and table T-023d's preamble settles the collision in the strip's favour
  * -- a press there is the strip's, and the name is not an entrance in any case.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the strip is PAINTED. GR-20
- * states where it goes, how wide it is and what grabbing it does; table T-206
- * states `S-138` and no colour; table T-109 has no row to draw a shape from and
- * figure F-019 no glyph. Searched: GR-20 and the preamble of table T-023d,
- * `HF-15` of table T-051, FR-029, FR-085, table T-076 (EP-3 / EP-4) and
- * `_assets/tbl-settings.md`.
- * ⭐ So it carries NO paint of its own -- the same answer GR-19's band and
- * EP-9's divider band both get here -- and what says it can be grabbed is the
- * environment's own cursor for 掴む. ⚠️ A tint would be a look that reads as
- * measured, and none was measured.
+ * ⭐⭐ IT IS PAINTED, AND SINCE 2026-08-30 THAT IS A MUST. HF-15: 「掴み代は常に
+ * 描くこと（MUST）—— ⛔ `HF-6`（操作子はポインタが乗っているあいだだけ）の対象では
+ * ない —— 掴めることが読めなければ、掴もうとする手が動かない」. ⛔ THE NOTE THAT
+ * STOOD HERE LEFT IT `transparent`, on the reading that the paint was undecided
+ * and the environment's own 掴む cursor was enough; measured on the shipped
+ * build, the strip was invisible and there was nothing to move a hand towards.
+ * ⚠️ WHICH COLOUR IS STILL NOT STATED. Searched: HF-15, GR-20 and the preamble
+ * of table T-023d, FR-029, FR-085, table T-076 (EP-3 / EP-4), table T-206 and
+ * table T-236. ⇒ S-149 (「区切りの線」) is taken, for the reason `rowGrabbedStyle`
+ * gives at length: it is the one neutral screen colour that makes no claim of
+ * its own. ⭐ It is not in the export either way -- EP-4 draws no row control,
+ * and the export is not drawn by this unit at all.
  * ⚠️ `cursor:grab` and not `move`: what the strip offers is being HELD, the
  * distinction `paletteGrabBand` already draws.
  *
@@ -2691,7 +2875,7 @@ function rowGrabStripStyle(): string {
   const width = NOT_STORED_ICON_SIZES['S-138']
   return (
     'position:absolute;left:0;top:0;bottom:0;' +
-    `width:${width}px;background:transparent;cursor:grab;pointer-events:auto;`
+    `width:${width}px;background:${PAINT.rule};cursor:grab;pointer-events:auto;`
   )
 }
 
@@ -2751,8 +2935,15 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     // than the judgement, and the browser's own ellipsis took the difference --
     // silently, because `isLabelTruncated` records FR-085's cut and not this
     // one, so no tooltip was raised for what it ate.
-    boxStyle(title.box) + STYLE.rowTitle + `padding:0 0 0 ${title.indentPx}px;`,
+    boxStyle(title.box) +
+      STYLE.rowTitle +
+      `padding:0 0 0 ${title.indentPx}px;` +
+      // HF-15 (MUST): the row a hand is holding carries a ground and the band
+      // that says which axis is live. ⛔ Nothing is drawn on any other row --
+      // `RowTitle.heldOnAxis` is filled for the held row alone.
+      (title.heldOnAxis == null ? '' : rowGrabbedStyle(title.heldOnAxis)),
   )
+  if (title.heldOnAxis != null) row.setAttribute('data-held-axis', title.heldOnAxis)
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedRow)
   row.setAttribute('data-group-id', title.groupId)
   row.setAttribute('data-depth', String(title.depth))
@@ -2819,11 +3010,12 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     host,
     'div',
     rowControlGroundStyle(
-      // ⚠️ THE FALL-BACK IS NO LONGER THE PIN. HF-13 (MUST) puts IC-90 on EVERY
-      // row, so the leftmost control of a leaf row is that one and not IC-60 --
-      // a band drawn to the pin's step would leave IC-90 and IC-91 standing on
-      // the bare name, which is the very overlap HF-6 lays this band for.
-      title.expander !== null ? ROW_CONTROL_STEPS.open : ROW_CONTROL_STEPS.openOneLevel,
+      // ⚠️ THE LEFTMOST IS IC-59 SINCE HF-4's RULING OF 2026-08-30 -- 「左から
+      // 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く」 -- so the band reaches
+      // that control's step and not IC-58's, which now stands fourth from the
+      // left. ⛔ A band drawn to the old step would leave IC-59 and IC-90
+      // standing on the bare name, which is the very overlap HF-6 lays it for.
+      title.expander !== null ? ROW_CONTROL_STEPS.close : ROW_CONTROL_STEPS.openOneLevel,
     ),
   )
   ground.setAttribute(ROW_CONTROL_GROUND_MARK, 'true')
@@ -3008,9 +3200,22 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⚠️ EN-3 IS THE ONLY ROW OF TABLE T-237 THAT CAN STAND HERE, so the
   // precedence `entranceStateFill` keeps decides nothing on this control -- it
   // is still asked, because a list of one is where the second row would go.
-  // ⚠️ HF-6 STILL DRAWS IT ONLY WHILE THE POINTER IS ON THE ROW'S NAME. Drawing
-  // a pinned row's pin at all times is PD-396, which is ruled and not yet
-  // written into the requirement.
+  // ⭐⭐ AND A PINNED ROW'S PIN IS DRAWN WITH NO POINTER ON THE ROW, which is
+  // HF-6's own exception (MUST): 「⛔⛔ **ピン止めしている行の `IC-60` だけは、
+  // ポインタが乗っていなくても描くこと（MUST）**（利用者の裁定 2026-08-30）——
+  // ⛔ **本行の最初の MUST の唯一の例外である。**」 with its reason: 「描かなけ
+  // れば、どの行が留まっているかは全行を撫でるしか読む手が無い」.
+  // ⛔ IT WAS NOT DRAWN UNTIL 2026-08-30 AND THE NOTE HERE SAID WHY -- that the
+  // ruling was 「not yet written into the requirement」. ⚠️ That note had gone
+  // false: the requirement carries the exception now, and the sheet UF-71 lays
+  // hid the pin at rest on a pinned row exactly as on any other.
+  // ⭐ THE DECLARATION IS WRITTEN ON THE CONTROL rather than added to the
+  // sheet, because the sheet's rule is keyed on the ROW being hovered and this
+  // has to outrank it for one control on one kind of row.
+  // ⚠️ ONLY WHILE IT IS PINNED. The row says so -- 「この例外が当たるのは留まっ
+  // ているあいだだけであり、外せばほかの操作子と同じに戻る」 -- so an unpinned
+  // row's pin carries nothing and falls back under the resting rule, and the
+  // MUST NOT beside it (「ほかの操作子を常時描いてはならない」) is untouched.
   const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', true)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
@@ -3018,7 +3223,8 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     'style',
     pin.getAttribute('style') +
       rowControlRight(ROW_CONTROL_STEPS.pin) +
-      entranceStateFill(title.isPinned ? ['EN-3'] : []),
+      entranceStateFill(title.isPinned ? ['EN-3'] : []) +
+      (title.isPinned ? 'visibility:visible;' : ''),
   )
   row.append(pin)
 
@@ -3044,6 +3250,29 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     remove.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.remove),
   )
   row.append(remove)
+
+  // HF-18 (MUST): 「配下に畳み込んでいる行があるとき、その行数を行に示すこと」, and
+  // 「その行自身にも印を付けること」.
+  //
+  // ⭐ ONE STEP OUTSIDE THE LEFTMOST CONTROL, so that the band HF-6 lays under
+  // the controls (which reaches from IC-59's step to the row's right edge) does
+  // not cover it while a pointer is on the row. ⛔ THAT BAND MUST NOT COVER IT:
+  // this count is not subject to HF-6 (MUST NOT), and a mark that vanished the
+  // moment the hand arrived would be exactly what that MUST NOT is about.
+  // ⚠️ NOTHING IS DRAWN FOR A COUNT OF ZERO -- 「畳み込んでいる行があるとき」 is the
+  // condition, and a row holding none has nothing to show.
+  // ⛔ IT TAKES NO ROOM (FR-085, MUST NOT): out of the flow like the controls,
+  // so `S-140` stays 0 and the cut of the name does not move.
+  const foldedRows = title.foldedRowCount ?? 0
+  if (foldedRows > 0) {
+    row.append(
+      foldedRowCountElement(
+        host,
+        foldedRows,
+        rowControlRight(ROW_CONTROL_STEPS.close + 1),
+      ),
+    )
+  }
   return row
 }
 
@@ -3077,7 +3306,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
  * @purity non-pure
  */
 function openEveryRowElement(host: Document): HTMLElement {
-  return panelCornerEntryElement(host, OPEN_EVERY_ROW_ENTRY, 0)
+  return panelCornerEntryElement(host, OPEN_EVERY_ROW_ENTRY, 1)
 }
 
 /**
@@ -3153,6 +3382,20 @@ function panelCornerStepPx(): number {
 }
 
 /**
+ * Where the head's count stands: one step outside the outermost of the four
+ * entrances HF-10, HF-12, HF-16 and HF-17 put there.
+ *
+ * ⚠️ THE ENTRANCES' OWN STEP AND NOT THE ROW CONTROLS', for the reason
+ * `panelCornerStepPx` gives: those two are different widths, and a count placed
+ * by the row's step would sit under IC-93.
+ *
+ * @purity pure
+ */
+function headFoldedRowCountRight(): string {
+  return `right:${panelCornerStepPx() * 4}px;`
+}
+
+/**
  * The 1px `entryStyle` puts around every entrance, on each side.
  *
  * ⛔ THE SPECIFICATION HOLDS NO ROW FOR IT. `S-138` is the glyph box and `S-141`
@@ -3196,7 +3439,31 @@ function markPanelCornerEntry(
  * @purity non-pure
  */
 function collapseEveryRowElement(host: Document): HTMLElement {
-  return panelCornerEntryElement(host, COLLAPSE_EVERY_ROW_ENTRY, 1)
+  return panelCornerEntryElement(host, COLLAPSE_EVERY_ROW_ENTRY, 2)
+}
+
+/**
+ * IC-92 -- HF-16 (MUST): 段 0 opens one level.
+ *
+ * ⚠️ PLACED IN THE SAME LINEUP AND NOT AT A PLACE OF ITS OWN. HF-16 and HF-17
+ * both say 「`HF-10` の操作子の並びに」 and state no order among themselves, so the
+ * two arrivals of 2026-08-30 take the next two steps outward and the pair that
+ * was already there does not move. ⛔ No order is invented for them: HF-4's
+ * ruling settles the ROW's controls and says nothing of the head's.
+ *
+ * @purity non-pure
+ */
+function openLevelZeroElement(host: Document): HTMLElement {
+  return panelCornerEntryElement(host, OPEN_LEVEL_ZERO_ENTRY, 3)
+}
+
+/**
+ * IC-93 -- HF-17 (MUST): a row is added at 段 0.
+ *
+ * @purity non-pure
+ */
+function addTopRowElement(host: Document): HTMLElement {
+  return panelCornerEntryElement(host, ADD_TOP_ROW_ENTRY, 0)
 }
 
 /**
@@ -3256,8 +3523,31 @@ function collapseEveryRowElement(host: Document): HTMLElement {
  */
 function newRowNameEntryBox(
   panel: RowTitlePanel,
-  parentGroupId: string,
+  parentGroupId: string | null,
 ): { readonly box: ScreenRect; readonly indentPx: number } | null {
+  // ⭐ 段 0's OWN FIELD (HF-17, MUST): 「最も浅い段へ行を 1 つ足す」, and 「足した行
+  // は最も浅い段の末子とすること」 -- so it stands under the LAST row the panel
+  // drew, at the depth of the shallowest level.
+  // ⛔ THE STEP IS READ BACK OFF A DRAWN ROW, exactly as the branch below reads
+  // it: `RowTitle.indentPx` is `rowTitleIndent` times the row's own depth, and
+  // a root row's depth is 1 -- so the first row of depth 1 states one step
+  // outright, and nothing is invented. ⚠️ A panel of no rows cannot be measured
+  // at all, which is the one case this answers `null` for; the field then does
+  // not open, and nothing is written.
+  if (parentGroupId === null) {
+    const last = panel.titles[panel.titles.length - 1]
+    if (last === undefined) return null
+    const first = panel.titles[0] ?? last
+    return {
+      box: {
+        x: first.box.x,
+        y: last.box.y + last.box.height,
+        width: first.box.width,
+        height: first.box.height,
+      },
+      indentPx: first.indentPx / first.depth,
+    }
+  }
   const at = panel.titles.findIndex((one) => one.groupId === parentGroupId)
   if (at === -1) return null
   const parent = panel.titles[at]
@@ -4648,7 +4938,7 @@ export interface ScreenSurfaceWiring {
    *
    * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the member above.
    */
-  readonly holdOpenNewRowName?: (open: (parentGroupId: string) => void) => void
+  readonly holdOpenNewRowName?: (open: (parentGroupId: string | null) => void) => void
   /**
    * The name the person settled in that field, with the row it is to stand
    * under -- the other half of HF-14, going the other way.
@@ -4670,7 +4960,19 @@ export interface ScreenSurfaceWiring {
    *
    * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the two above.
    */
-  readonly onNewRowNameSettled?: (parentGroupId: string, name: string) => void
+  /*
+   * ⚠️ `null` IS 段 0 AND NOT A MISSING ANSWER. HF-17 (MUST) adds a row at the
+   * shallowest level through IC-93 and 「名前の扱いは `HF-14` に従う」, so this one
+   * seam carries both namings and a row of that level has no parent (AT-52).
+   * ⚠️ WRITTEN AS A METHOD AND NOT AS A FUNCTION-TYPED PROPERTY, which is the
+   * one place in this interface that does so: a caller written before HF-17
+   * annotates its own parameter `string`, and a method's parameters are
+   * compared bivariantly -- so the widening does not force every such caller to
+   * be rewritten in step. ⛔ THE COST IS REAL AND IS THE SAME ONE THE OPTIONAL
+   * MEMBERS OF THIS SEAM CARRY: such a caller is handed `null` for a 段 0
+   * naming and no compiler says so.
+   */
+  onNewRowNameSettled?(parentGroupId: string | null, name: string): void
   /**
    * FR-041 (MUST): which of table T-236's two renderings to paint in, and the
    * hue the rows that follow the theme are solved with.
@@ -4782,7 +5084,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // HF-12 (MUST): the folding entrance stands beside it, built and mounted the
   // same way and for the same reason.
   const collapseEveryRow = collapseEveryRowElement(host)
-  rowTitlePanel.append(openEveryRow, collapseEveryRow)
+  // HF-16 and HF-17 (MUST), which joined that lineup on 2026-08-30: 段 0 opens
+  // one level, and a row is added at 段 0. ⭐ Built and mounted the same way and
+  // for the same reason as the two above.
+  const openLevelZero = openLevelZeroElement(host)
+  const addTopRow = addTopRowElement(host)
+  // HF-12 (MUST): 「頭にいま何行を畳み込んでいるかを示すこと」. ⭐ Beside the
+  // entrances and one step outside the outermost of them, built once with them
+  // and written on every frame -- see `markFoldedRowCount`.
+  const headFoldedRows = foldedRowCountElement(host, 0, headFoldedRowCountRight())
+  rowTitlePanel.append(openEveryRow, collapseEveryRow, openLevelZero, addTopRow, headFoldedRows)
 
   dialogueEntry.setAttribute('type', 'text')
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
@@ -4870,6 +5181,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // description always writes.
   let langShown = ''
   let headerHeightPx = 0
+  /**
+   * How wide the `Row Title Panel` was drawn last, in pixels -- the one number
+   * HF-17's field has to stand against when the panel drew no row at all.
+   *
+   * ⚠️ THE PANEL'S OWN, taken where the panel is placed rather than measured a
+   * second time: `panelEdge` reads U-24's divider (FR-052), which is what says
+   * how far the panel reaches. ⛔ Zero until the first placement, and a field
+   * placed then is a field of no width -- which is what a panel of no width is.
+   */
+  let rowTitlePanelWidthPx = 0
   // ⛔ Held apart from the number, and not folded into it as a 0 meaning 「not
   // measured yet」: 0 is a height a host really does answer, so the two must be
   // told apart or the first measurement is swallowed by the starting value --
@@ -5097,6 +5418,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    */
   function placePanels(view: ScreenView): void {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
+    // ⚠️ KEPT because HF-17's field has nothing else to stand against when the
+    // panel drew no row -- see `openNewRowName`. ⛔ Not a second placing: it is
+    // the very number written on the panel one line down.
+    rowTitlePanelWidthPx = titleEdge === null ? 0 : titleEdge.x
     rowTitlePanel.setAttribute(
       'style',
       titleEdge === null
@@ -5257,7 +5582,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // after the name is settled draws them again from the description.
       // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
       // See `drawnKeys`.
-      if (newRowNameParentGroupId !== null) {
+      if (newRowNaming !== null) {
         drawnKeys.rowTitlePanel = lastKeys.rowTitlePanel ?? ''
       } else {
         fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
@@ -5273,7 +5598,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // ⚠️ WRITTEN ON BOTH, because HF-12 takes HF-10's placement and so takes
       // its MUST NOT with it: the pair of them is what may not overlap the
       // pinned rows' controls.
-      for (const corner of [openEveryRow, collapseEveryRow]) {
+      for (const corner of [openEveryRow, collapseEveryRow, openLevelZero, addTopRow]) {
         if (rowsTop === null) corner.removeAttribute('data-corner-band')
         else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
       }
@@ -5284,8 +5609,23 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // ⛔ THE STEPS ARE THE ONES THE PAIR WAS BUILT WITH: HF-12 takes HF-10's
       // placement, and the style carries the placement, so it is restated with
       // the paint rather than kept in two places.
-      markPanelCornerEntry(openEveryRow, 0, view.rowTitlePanel.canOpenEveryRow)
-      markPanelCornerEntry(collapseEveryRow, 1, view.rowTitlePanel.canCloseEveryRow)
+      markPanelCornerEntry(openEveryRow, 1, view.rowTitlePanel.canOpenEveryRow)
+      markPanelCornerEntry(collapseEveryRow, 2, view.rowTitlePanel.canCloseEveryRow)
+      // HF-16 (MUST): 「開ける段が無いときは、`FR-029` に従って薄く描くこと」.
+      markPanelCornerEntry(openLevelZero, 3, view.rowTitlePanel.canOpenLevelZero)
+      // ⛔ IC-93 IS NEVER FAINT AND NOTHING SPENDS IT. FR-029 draws faint the
+      // entrance that can change neither document nor screen, and adding a row
+      // at 段 0 always changes the document -- FR-085 allows a row of the
+      // shallowest level, so S-125's cap cannot refuse depth 1.
+      markPanelCornerEntry(addTopRow, 0, true)
+      // HF-12 (MUST): what the head is holding folded right now, 段 0's own
+      // fold included -- `RowTitlePanel.foldedRowCount` carries the number and
+      // 「示さないと、行が消えたのか畳まれたのかが読めない」 is why.
+      markFoldedRowCount(
+        headFoldedRows,
+        view.rowTitlePanel.foldedRowCount ?? 0,
+        headFoldedRowCountRight(),
+      )
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
       markPropertiesPanel(propertiesPanel, view.propertiesPanel)
@@ -5805,7 +6145,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // ⚠️ A press INSIDE the field settles nothing, the same first test the
     // panel's field makes.
     if (
-      newRowNameParentGroupId !== null &&
+      newRowNaming !== null &&
       (event as { target?: unknown }).target !== (newRowNameEntry as unknown)
     ) {
       settleNewRowName()
@@ -5850,7 +6190,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * will make. A second flag for the first of them would be a second opinion
    * about the same fact.
    */
-  let newRowNameParentGroupId: string | null = null
+  // ⭐ A BOX AROUND THE PARENT AND NOT THE PARENT ITSELF, because the parent
+  // may itself be `null`: HF-17 (MUST) has IC-93 add a row at 段 0, whose
+  // parent is none (AT-52) -- so a bare `string | null` could not tell 「no
+  // field is up」 from 「a field is up at the shallowest level」.
+  let newRowNaming: { readonly parentGroupId: string | null } | null = null
   /**
    * Whether an `Esc` has already taken the characters back and nothing has been
    * typed since -- IN-4's 1 階層 per press (MUST), kept exactly as the
@@ -5876,16 +6220,40 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    *
    * @purity non-pure
    */
-  function openNewRowName(parentGroupId: string): void {
+  function openNewRowName(parentGroupId: string | null): void {
     const panel = lastRowTitlePanel
     if (panel === null) return
-    const placed = newRowNameEntryBox(panel, parentGroupId)
+    // ⭐⭐ THE EMPTY PANEL IS 段 0's OWN CASE AND MUST NOT BE REFUSED. HF-17
+    // (MUST) exists precisely for it -- 「本行が無いと、最も浅い段の行を作る道が
+    // 画面から消える ... 行が 1 つも無い文書では押す相手が存在しない」 -- and with
+    // no row drawn there is no row to measure the field against. ⇒ It is placed
+    // against the PANEL instead: the panel's own left edge and width, under the
+    // band the head's entrances stand in.
+    // ⛔ STILL NOTHING FOR A ROW'S OWN FIELD (IC-91): that one goes under a
+    // parent, and a parent that left the picture is the case
+    // `newRowNameEntryBox` answers `null` for.
+    const placed =
+      newRowNameEntryBox(panel, parentGroupId) ??
+      (parentGroupId === null && panel.titles.length === 0 && panel.pinnedTitles.length === 0
+        ? {
+            box: {
+              x: 0,
+              y: headerHeightPx + panelCornerStepPx(),
+              width: rowTitlePanelWidthPx,
+              height: 0,
+            },
+            indentPx: 0,
+          }
+        : null)
     if (placed === null) return
-    newRowNameParentGroupId = parentGroupId
+    newRowNaming = { parentGroupId }
     isNewRowNameTakenBack = false
     // ⛔ EMPTY (HF-14, MUST NOT): 「既定の名を与えてはならない」.
     newRowNameEntry.value = ''
-    newRowNameEntry.setAttribute(NEW_ROW_NAME_MARK, parentGroupId)
+    // ⚠️ AN EMPTY VALUE IS 段 0. The mark's name is 「the row this field's row
+    // goes under」 and HF-17's row goes under none, so nothing is written in it
+    // -- ⛔ no stand-in id is minted, which would name a row that does not exist.
+    newRowNameEntry.setAttribute(NEW_ROW_NAME_MARK, parentGroupId ?? '')
     newRowNameEntry.setAttribute('style', newRowNameEntryStyle(placed.box, placed.indentPx))
     // ⭐ PUT INTO THE TREE ONLY NOW, and it stays until the naming ends: the
     // frame after this one declines to redraw the tree while the field is up
@@ -5911,10 +6279,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * @purity non-pure
    */
   function settleNewRowName(): void {
-    const parentGroupId = newRowNameParentGroupId
-    if (parentGroupId === null) return
+    const naming = newRowNaming
+    if (naming === null) return
     const settled = newRowNameEntry.value
-    newRowNameParentGroupId = null
+    newRowNaming = null
     isNewRowNameTakenBack = false
     newRowNameEntry.value = ''
     newRowNameEntry.removeAttribute(NEW_ROW_NAME_MARK)
@@ -5926,7 +6294,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // is what covers that host, and the next redraw of the tree takes the node
     // out in any case -- this only keeps the tree the rows alone until then.
     if (typeof newRowNameEntry.remove === 'function') newRowNameEntry.remove()
-    wiring.onNewRowNameSettled?.(parentGroupId, settled)
+    wiring.onNewRowNameSettled?.(naming.parentGroupId, settled)
   }
 
   /**
@@ -5946,7 +6314,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * @purity non-pure
    */
   newRowNameEntry.addEventListener('keydown', (event: Event) => {
-    if (newRowNameParentGroupId === null) return
+    if (newRowNaming === null) return
     const key = event as Partial<KeyboardEvent>
     if (key.key === HOST_ESCAPE_KEY) {
       // IN-4's FIRST level: the characters go back to what the edit started
@@ -6004,7 +6372,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // swallowing IN-5a (MUST) exists to require. ⚠️ It also answers WS-2 of table
     // T-067 and IN-4's first level, both of which ask nothing but 「入力中か」.
     // ⛔ STILL ONE TRUTH VALUE AND NOT WHICH FIELD (MUST NOT, under table T-065).
-    return heldTextControl !== null || newRowNameParentGroupId !== null
+    return heldTextControl !== null || newRowNaming !== null
   }
 
   /**

@@ -726,7 +726,20 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
 }
 
 /** LC-1. A row goes when it, or anything above it, is hidden or collapsed. @purity pure */
-function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (TaskGroup & { depth: number })[] {
+function drawnGroups(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  isLevelZeroFolded: boolean,
+): readonly (TaskGroup & { depth: number })[] {
+  // ⭐⭐ LEVEL 0 IS THE PANEL'S HEAD, AND FOLDING IT TAKES EVERY ROW. HR-2 of
+  // table T-015 (MUST) has 「すべての `TaskGroup` を閉じる」 reach 「最も浅い段の
+  // 行」 as well, and says why a row's own fold cannot carry it: 「行の畳みが隠す
+  // のはその配下であり、最も浅い段の行は親を持たないので誰にも隠されない」.
+  // ⇒ 「押すと行が 1 つも描かれない状態になりうる」, which is this one line.
+  // ⛔ NOT A COLUMN ON `TaskGroup`. The same row (MUST NOT) forbids moving AT-56
+  // or AT-57 for it; S-211 of table T-206 holds the state, the shell keeps it
+  // (it is not saved), and it arrives here as an argument.
+  if (isLevelZeroFolded) return []
   const byId = new Map(schedule.taskGroups.map((glyph) => [glyph.id, glyph]))
   const drawnRows: (TaskGroup & { depth: number })[] = []
 
@@ -958,6 +971,12 @@ function actualSpanOf(
  * arguments and return values to `src/` and keeps only the names.
  * @provisional PD-206
  *
+ * ⭐ `isLevelZeroFolded` IS S-211 OF TABLE T-206 -- 「段 0（行見出しパネルの頭）が
+ * 畳まれているか」 -- and it is an argument for the reason that row gives: the
+ * state is not saved, it stands beside S-99g, and the shell is the layer that
+ * may hold a current value (LY-5 of table T-060). ⛔ Absent reads as NOT folded,
+ * which is that row's own default, so no caller is forced to answer it.
+ *
  * @purity pure
  */
 export function layoutFromSchedule(
@@ -965,6 +984,7 @@ export function layoutFromSchedule(
   settings: DocumentSettings,
   regions: ScreenRegions,
   groupDepthCap?: number,
+  isLevelZeroFolded?: boolean,
 ): ScheduleLayout {
   // ---- LC-3 first, because LC-2's task half needs the width of one day -----
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
@@ -1014,7 +1034,7 @@ export function layoutFromSchedule(
   // exempt set does not follow the zoom and `S-127` caps it, so what is drawn
   // stays 「一定の集合と、縮む集合の和」.
   const pinnedIds = new Set(settings.pinnedGroupIds)
-  const rows = drawnGroups(schedule, settings).filter(
+  const rows = drawnGroups(schedule, settings, isLevelZeroFolded === true).filter(
     (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id),
   )
 
@@ -1641,7 +1661,10 @@ function landingZoomY(depth: number, settings: DocumentSettings, step: number): 
  */
 function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): number {
   let deepest = 0
-  for (const row of drawnGroups(schedule, settings)) {
+  // ⚠️ LEVEL 0's FOLD IS NOT ASKED ABOUT HERE. This member serves FR-055's
+  // fit, and HF-8 of table T-051 (MUST) has the fit throw the person's folds
+  // away -- so the depths it sweeps are the document's, not the picture's.
+  for (const row of drawnGroups(schedule, settings, false)) {
     if (row.depth > deepest) deepest = row.depth
   }
   return Math.min(deepest, settings.maxGroupDepth)

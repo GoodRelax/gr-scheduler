@@ -489,7 +489,7 @@ export interface ScreenWiring {
    * and no compiler will say so. ⭐ The tests written from the specification are
    * what watch it.
    */
-  readonly openNewRowName?: (parentGroupId: string) => void
+  readonly openNewRowName?: (parentGroupId: string | null) => void
   /**
    * The other half of HF-14, going the other way: hear the name the person
    * settled in that field, with the row it is to stand under.
@@ -508,7 +508,11 @@ export interface ScreenWiring {
    *
    * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the member above.
    */
-  readonly holdNewRowNameSettled?: (settle: (parentGroupId: string, name: string) => void) => void
+  // ⚠️ `null` IS 段 0 -- HF-17's IC-93 names a row of the shallowest level, and
+  // such a row has no parent (AT-52).
+  readonly holdNewRowNameSettled?: (
+    settle: (parentGroupId: string | null, name: string) => void,
+  ) => void
 }
 
 /**
@@ -1811,8 +1815,16 @@ interface SessionHeld {
   readonly rowGrabbedAt: {
     readonly groupId: string
     readonly depth: number
+    readonly axis: 'position' | 'depth'
+    readonly resistedPx: number
     readonly atY: number | null
   } | null
+  /**
+   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」, which
+   * HR-2 of table T-015 (MUST) makes 「押すと行が 1 つも描かれない状態」 possible.
+   * ⛔ Not saved (that row: 「`S-99g` と同じ立場」), so it is lost with the page.
+   */
+  readonly isLevelZeroFolded: boolean
   /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
   readonly isMilestoneListOpen: boolean
   /** S-200 of table T-206 -- whether FR-053's palette stands minimised. */
@@ -1883,6 +1895,7 @@ function sessionOf(
     taskUnderPointer,
     commandPaletteDraggedTo,
     rowGrabbedAt,
+    isLevelZeroFolded,
     isMilestoneListOpen,
     isPaletteMinimised,
     isRecordingInteractions,
@@ -1942,6 +1955,9 @@ function sessionOf(
     // on rather than decided here, for the reason the corner above is: it is a
     // current value and LY-5 of table T-060 leaves those with the loop.
     rowGrabbedAt,
+    // S-211 of table T-206 -- 段 0's own fold, handed on for the reason above:
+    // that row keeps it out of the saved document and LY-5 leaves it here.
+    isLevelZeroFolded,
     // FR-041 (MUST): the theme has to CROSS to the side that paints. S-72 is
     // the reader's light/dark and S-73 is the document's hue -- the number
     // table T-236 writes as `H` wherever a colour follows the theme.
@@ -2907,8 +2923,23 @@ export function frameLoop(
   let rowGrabbedAt: {
     readonly groupId: string
     readonly depth: number
+    readonly axis: 'position' | 'depth'
+    readonly resistedPx: number
     readonly atY: number | null
   } | null = null
+  // S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+  //
+  // ⭐⭐ WHY IT IS HELD HERE. HR-2 of table T-015 (MUST) folds 「最も浅い段の行」
+  // as well as every `TaskGroup`, and says why no column of a row can carry it:
+  // 「行の畳みが隠すのはその配下であり、最も浅い段の行は親を持たないので誰にも
+  // 隠されない」 -- and (MUST NOT) refuses to move AT-56 or AT-57 for it, because
+  // a column either way changes the shape of the saved document.
+  // ⛔ STARTS OPEN, which is S-211's own default (「畳まれていない」), and is NOT
+  // written to `localStorage`: that row puts it beside S-99g, 「画面の状態であって
+  // 日程の内容ではない」.
+  // ⭐ TWO ROADS BACK, both of which `carryOutAction` takes: HF-16's IC-92 and
+  // HF-10's IC-74.
+  let isLevelZeroFolded = false
   // S-142 of table T-206 -- whether FR-053's milestone glyph list is open.
   //
   // ⛔ STARTS CLOSED, which is that row's own default: FR-053 keeps the eight
@@ -3642,7 +3673,19 @@ export function frameLoop(
     // layout IS the picture, and the axis is what it is drawn against.
     const settings = viewSettings(held.document, withPanelShown, regions,
                                   fromStartupTemplate, readToday())
-    const layout = layoutFromSchedule(document.schedule, settings, regions)
+    // ⭐ S-211 REACHES THE LAYOUT AND NOT ONLY THE PANEL. HR-2 of table T-015
+    // (MUST) has a folded 段 0 draw no row at all, and which rows are drawn is
+    // LC-1's answer -- so the fold is handed to the layout, and the panel, the
+    // geometry and `drawnRowBoxes` all follow the one picture.
+    // ⛔ NOT `undefined` FOR THE CAP: that argument is FR-055's alone (see
+    // `layoutFromSchedule`), and only the fit may pass one.
+    const layout = layoutFromSchedule(
+      document.schedule,
+      settings,
+      regions,
+      undefined,
+      isLevelZeroFolded,
+    )
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
     // Task alone, and `itemAtPointer` can only be as narrow as the geometry it
@@ -3744,6 +3787,8 @@ export function frameLoop(
               : null,
           commandPaletteDraggedTo,
           rowGrabbedAt,
+          // S-211 of table T-206 -- 段 0's own fold, as this frame stands.
+          isLevelZeroFolded,
           isMilestoneListOpen,
           isPaletteMinimised,
           isRecordingInteractions,
@@ -3795,7 +3840,7 @@ export function frameLoop(
     // because the parent left the picture -- no name is ever settled, and the
     // next press on IC-91 replaces what this one left standing.
     if (newRowNameFieldWantedUnder !== null) {
-      const under = newRowNameFieldWantedUnder
+      const under = newRowNameFieldWantedUnder.parentGroupId
       newRowNameFieldWantedUnder = null
       screen.openNewRowName?.(under)
     }
@@ -4202,6 +4247,11 @@ export function frameLoop(
           // `TaskGroup.parentId` puts it -- which is what it is, the follow
           // being a picture and never a write (table T-023d, MUST NOT).
           rowGrabbedAt: null,
+          // ⛔ 段 0 IS NEVER FOLDED IN A PICTURE THAT IS WRITTEN OUT, on the
+          // ground the held row above is at none: EP-12 of table T-076 keeps
+          // this session's state out of it, and S-211 is as much this session's
+          // as a dragged palette is. ⚠️ EP-3 draws the panel of a DOCUMENT.
+          isLevelZeroFolded: false,
           // ⚠️ Closed here whatever the reader left it at, for the reason the
           // corner above is at none: EP-12 of table T-076 keeps this session's
           // state out of the picture, and S-142 is as much this session's as the
@@ -4694,7 +4744,11 @@ export function frameLoop(
    * the screen, so asking for it while the frame is still being decided would
    * place it against the frame before.
    */
-  let newRowNameFieldWantedUnder: string | null = null
+  // ⭐ A BOX AROUND THE ANSWER AND NOT THE ANSWER ITSELF, because the answer
+  // may itself be `null`: HF-17 (MUST) adds a row at 段 0, whose parent IS none,
+  // so a bare `string | null` could not tell 「no field is owed」 from 「a field
+  // is owed at the shallowest level」.
+  let newRowNameFieldWantedUnder: { readonly parentGroupId: string | null } | null = null
 
   /**
    * Whether the happening being carried out now arrived with an in-place edit
@@ -4784,6 +4838,12 @@ export function frameLoop(
       // is read off these boxes rather than off any 刻み. ⛔ Optional and
       // silently forgettable, the same bargain the line above keeps.
       drawnRowBoxes,
+      // S-211 of table T-206. ⭐ THE PRESS SIDE NEEDS IT BECAUSE THE PICTURE
+      // CANNOT SAY IT: a panel drawing no row is a folded head (HR-2) or a
+      // document with no rows, and IC-74 / IC-78 owe different answers to the
+      // two. ⛔ Optional and silently forgettable, the same bargain the two
+      // lines above keep -- absent reads as NOT folded, S-211's own default.
+      isLevelZeroFolded,
       // table T-023's closing rule -- whether a surface stands over the schedule.
       // ⭐ BOTH HALVES, and the shell is the only place that can see both:
       // `ScreenState.surface` is the open surface and `asking` is NT-7's
@@ -5946,7 +6006,7 @@ export function frameLoop(
           // left standing and spent at the paint -- the same bargain
           // `nameFieldWanted` takes, and its note says why at length.
           namingNewRow = action.target
-          newRowNameFieldWantedUnder = action.target.parentGroupId
+          newRowNameFieldWantedUnder = { parentGroupId: action.target.parentGroupId }
           return
         }
         if (action.target.kind === 'taskName') {
@@ -6053,7 +6113,16 @@ export function frameLoop(
         // costs nothing: `rowGrabAxisAt` answers what already stands the moment
         // it stands, so every answer after the first is the same value.
         if (pressed !== null) pressed = { ...pressed, rowGrabAxis: action.axis }
-        rowGrabbedAt = { groupId: action.groupId, depth: action.atDepth, atY: action.atY }
+        rowGrabbedAt = {
+          groupId: action.groupId,
+          depth: action.atDepth,
+          // HF-15 (MUST): 「いまどちらの軸が生きているかを、掴んでいる行に描く
+          // こと」, and 「拒まれた向きへの追従は途中で止めること」 -- both are
+          // pictures, so both travel to the panel and neither is written.
+          axis: action.axis,
+          resistedPx: action.resistedPx,
+          atY: action.atY,
+        }
         return
       }
       case 'chooseRow': {
@@ -6144,6 +6213,21 @@ export function frameLoop(
         // it answers to.
         dualCursorFollowing = action.following
         if (action.placed !== null) writeDocument([action.placed], frame)
+        return
+      case 'setLevelZeroFolded':
+        // HR-2 of table T-015 (MUST) at the head of the panel: 段 0's own fold
+        // moves, and the rows that go with the same press are written.
+        //
+        // ⭐ THE SCREEN FIRST AND THE DOCUMENT AFTER, and the order does not
+        // matter to either: S-211 is not in the document (that row: 「保存し
+        // ない」), so no undo step carries it and no write can disagree with it.
+        // ⛔ ONE BUNDLE FOR THE WRITES (FR-031, MUST): one gesture is one undo
+        // step, and `writeDocument` refuses an empty one on its own account --
+        // a press that only moves the head writes nothing at all.
+        // ⚠️ NO QUESTION IS OWED. `confirmationOwedBy` asks about deletions
+        // (FR-032) and nothing here deletes.
+        isLevelZeroFolded = action.isFolded
+        if (action.writes.length > 0) writeDocument(action.writes, frame)
         return
       case 'toggleAgentApi':
         // IC-20 -- FR-065. ⭐ ONE ENTRANCE BOTH WAYS, which that row words
@@ -6737,7 +6821,10 @@ export function frameLoop(
   }
 
   /**
-   * HF-14's other half: the person settled the name of the row IC-91 asked for.
+   * HF-14's other half: the person settled the name of the row IC-91 asked for
+   * -- or IC-93, where HF-17 (MUST) adds one at 段 0 and 「名前の扱いは `HF-14` に
+   * 従う」. ⚠️ `null` IS THAT LEVEL, not a missing answer: a row of the shallowest
+   * level is one whose `parentId` is none (AT-52).
    *
    * ⛔⛔ THE EMPTY NAME STANDS NO ROW UP (HF-14, MUST): 「名前が空のまま確定され
    * たときは、その行を立てないこと」 -- 「空の名は `FR-085` の打ち切りも `FR-052`
@@ -6763,7 +6850,7 @@ export function frameLoop(
    *
    * @purity non-pure
    */
-  function settleNewRowName(parentGroupId: string, name: string): void {
+  function settleNewRowName(parentGroupId: string | null, name: string): void {
     const planned = namingNewRow
     namingNewRow = null
     if (planned === null || planned.parentGroupId !== parentGroupId) return

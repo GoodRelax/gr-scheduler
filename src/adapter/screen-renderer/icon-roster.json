@@ -735,7 +735,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "その行自身を畳む",
+   "entryTo": "この行を隠す",
    "authority": "表 T-051 の `HF-3`",
    "arms": null,
    "armsShape": null
@@ -957,6 +957,28 @@
    "group": null,
    "entryTo": "すべての行を畳む",
    "authority": "表 T-051 の `HF-12`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-92",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "最も浅い段を 1 階層だけ開く",
+   "authority": "表 T-051 の `HF-16`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-93",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "最も浅い段へ行を 1 つ足す",
+   "authority": "表 T-051 の `HF-17`",
    "arms": null,
    "armsShape": null
   },

@@ -178,6 +178,53 @@ interface PanelIndex {
    */
   readonly groupIdsWithFoldedChildToOpen: ReadonlySet<string>
   /**
+   * The rows with at least one DIRECT child HR-6 hides -- the rows whose own
+   * one-level-open control (IC-90) would put a row back into the picture by
+   * UNHIDING it rather than by unfolding anything.
+   *
+   * ⭐⭐ HR-6 (MUST) NAMES THAT CONTROL AS THE WAY BACK: 「隠した行は、親の行の
+   * 「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の `HF-13` である」, and
+   * (MUST NOT) forbids a surface of its own for it: 「戻すための専用の面や札を
+   * 設けてはならない —— `HR-2` が頭を段 0 と定めた以上、隠すことは親へ 1 歩
+   * 畳み込むことであり、戻すのは親を 1 階層開くことである」.
+   * ⚠️ 2026-08-30 まで the way back was 非表示グループタブ (U-29), 「そのタブは
+   * 実装に 1 つも無く、入口の無い戻り道であった」 -- U-29 is gone from the
+   * manuscript with that ruling.
+   *
+   * ⛔ THE PARENT MUST BE UNFOLDED FOR IT TO COUNT, and that is asked where this
+   * set is read: unhiding a child of a FOLDED row draws nothing, because HR-1a
+   * keeps a folded row's descendants out of the picture whatever AT-57 says.
+   */
+  readonly groupIdsWithHiddenChild: ReadonlySet<string>
+  /**
+   * How many rows each row is holding folded away -- HF-18's count (MUST), and
+   * `foldedRowCountAtLevelZero` below is the same number for the panel's head
+   * (HF-12).
+   *
+   * ⭐ WHAT IS COUNTED: a row under this one that the picture does not hold
+   * because a fold stands between them. ⛔ A ROW HR-6 HID IS NOT COUNTED, nor
+   * is anything under it: HF-18 counts 「畳み込んでいる」 rows, and hiding is the
+   * other operation -- HR-6 puts the row away by itself and the parent's
+   * one-level-open is what brings it back.
+   * ⚠️ THE DISPLAY AMOUNT (FR-018) IS NOT TOLD APART FROM A FOLD HERE, for the
+   * reason `groupIdsWithUnhiddenChildren` gives: ScheduleLayout settles that and
+   * Chapter 5.3 keeps this component away from it, so a row the zoom dropped is
+   * counted as folded away. @provisional PD-319
+   */
+  /**
+   * ⚠️ HF-18's 「配下に畳み込んでいる行があるとき、その行数」 READS TWO WAYS:
+   * the rows THIS row's own fold holds away, or every row folded away anywhere
+   * below it. ⭐ The second is taken, so that a row counts what the head counts
+   * at 段 0 (HF-12) and the two are one arithmetic rather than two.
+   * ⚠️ Measured: an OPEN parent of a folded child reports 1.
+   * @provisional PD-412
+   */
+  readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
+  /** HF-12's count (MUST): what the head is holding folded, 段 0 included. */
+  readonly foldedRowCountAtLevelZero: number
+  /** The rows of the shallowest level -- 段 0's own children, in document order. */
+  readonly rootGroups: readonly TaskGroup[]
+  /**
    * ⚠️ A map rather than a search of `Schedule.tasks` per row: this runs every
    * frame, and rule 05 of docs/development-rules/04-verification.md refuses a
    * linear scan on that path. A row whose name is its own never reads it.
@@ -492,7 +539,16 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   // row does have something under it.
   return {
     canOpen: index.groupIdsWithCollapsedBelow.has(group.id),
-    canClose: group.isCollapsed !== true && index.groupIdsWithDrawnChildren.has(group.id),
+    // HF-3 (MUST) IS NOW HR-6: 「隠す操作子は、その行を隠すこと —— 表 T-015 の
+    // `HR-6` である」（利用者の裁定 2026-08-30）. ⭐ ALWAYS ARMED ON A DRAWN ROW:
+    // HR-6 (MUST NOT) refuses to draw a hidden row or anything under it, so the
+    // press always takes at least this row out of the picture and the closing
+    // rule under table T-051 always counts one.
+    // ⛔ THE ROW'S OWN FOLD IS NOT ASKED ABOUT ANY MORE. That was HR-5's test,
+    // and HF-1 records that HR-5 keeps no entrance at all now.
+    // ⚠️ IT IS NOT NARROWED BY `groupIdsWithDrawnChildren` EITHER: a leaf row
+    // hides itself, which changes the picture by exactly one row.
+    canClose: index.boxByGroupId.has(group.id),
     // HF-11 folds everything BELOW the row and not the row, so this half is
     // spent exactly where no DRAWN row under this one is left unfolded -- the
     // mirror of `canOpen`, narrowed by the picture in the same place.
@@ -533,6 +589,18 @@ function rowNameOf(group: TaskGroup, index: PanelIndex): string | null {
   return index.taskNameByUid.get(group.derivedFromTaskUid) ?? null
 }
 
+/**
+ * What HF-15's grab has made of the row it is holding, or `null` on every row
+ * that is not held -- the depth it is drawn at, the place it has been carried
+ * to, the axis that is live, and how far it still follows the refused axis.
+ */
+interface HeldRow {
+  readonly depth: number
+  readonly atY: number | null
+  readonly axis: 'position' | 'depth'
+  readonly resistedPx: number
+}
+
 /** @purity pure */
 function rowTitleOf(
   group: TaskGroup,
@@ -541,8 +609,7 @@ function rowTitleOf(
   index: PanelIndex,
   settings: DocumentSettings,
   chosenGroupIds: ReadonlySet<string>,
-  heldAtDepth: number | null,
-  heldAtY: number | null,
+  held: HeldRow | null,
 ): RowTitle {
   // HF-15 of table T-051 (MUST): 「握っているあいだ、行をポインタに追従させる
   // こと」, and the step of that follow is 「段送りの刻みは 表 T-201 の `S-37` と
@@ -560,7 +627,7 @@ function rowTitleOf(
   // rather than being chosen here: that requirement subtracts 「その行の深さぶん
   // のインデント」 before cutting, and while the row is held the depth it is
   // drawn at is that depth.
-  const depth = heldAtDepth ?? rowDepth(group, index.groupsById, settings)
+  const depth = held?.depth ?? rowDepth(group, index.groupsById, settings)
   // ⚠️ Resolved once because two answers below need it, and a row whose name is
   // `null` still owes it: the width a name is judged against follows the size
   // the name WOULD be drawn at, not anything the name itself carries.
@@ -588,7 +655,15 @@ function rowTitleOf(
     // ⛔ `null` IS NOT ZERO: zero is the top of the `Row Area`, and `null` is a
     // grab on the depth axis, which 「段を変えてはならない」 read the other way
     // round leaves standing where the layout put it.
-    box: heldAtY === null ? box : { ...box, y: heldAtY },
+    // ⭐ AND THE REFUSED AXIS MOVES IT A LITTLE FURTHER (HF-15, MUST):
+    // 「拒まれた向きへの追従は途中で止めること —— 止める割合は ... `S-212`」, with
+    // (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせてはならない」. ⛔ The
+    // amount is not decided here: `ScreenSession.rowGrabbedAt.resistedPx` is
+    // already S-212 times one step of the axis that was refused, and this only
+    // says which way that step lies -- the refused axis is the OTHER one, so a
+    // grab that moves the row's place is resisted sideways and a grab that moves
+    // its depth is resisted up and down.
+    box: heldBox(box, held),
     // The very product `availableLabelWidthPx` subtracts, so the indent drawn
     // and the indent the name was cut against cannot be two numbers.
     indentPx: depth * settings.rowTitleIndent,
@@ -622,7 +697,16 @@ function rowTitleOf(
     // lets one control be both. A row can leave one with work and the other
     // without -- see the
     // member's own declaration for the whole of that difference.
-    canOpenOneLevel: index.groupIdsWithFoldedChildToOpen.has(group.id),
+    // ⭐⭐ AND SINCE 2026-08-30 IT IS ALSO HR-6's WAY BACK. That row (MUST):
+    // 「隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の
+    // `HF-13` である」. ⇒ A row with a hidden direct child has this entrance
+    // armed even where nothing under it is folded, because the press draws that
+    // child again. ⛔ ONLY WHILE THIS ROW IS OPEN: HR-1a keeps a folded row's
+    // descendants out of the picture whatever AT-57 says, so unhiding under a
+    // folded row moves no drawn row and the closing rule counts it as no target.
+    canOpenOneLevel:
+      index.groupIdsWithFoldedChildToOpen.has(group.id) ||
+      (group.isCollapsed !== true && index.groupIdsWithHiddenChild.has(group.id)),
     // HF-14 (MUST), which names HR-8: a row is added under this one.
     //
     // ⭐ SPENT ONLY AT THE CAP. Adding a row always changes the document, so
@@ -650,7 +734,37 @@ function rowTitleOf(
     //
     // @provisional PD-142
     isSelected: chosenGroupIds.has(group.id),
+    // HF-18 (MUST): 「配下に畳み込んでいる行があるとき、その行数を行に示すこと」.
+    // ⛔ Answered on every row, zero included -- 「配下に畳み込んでいる行がある
+    // とき」 is a question about the number, and the drawing side is where a
+    // count of zero becomes nothing drawn.
+    foldedRowCount: index.foldedRowCountByGroupId.get(group.id) ?? 0,
+    // HF-15 (MUST): 「いまどちらの軸が生きているかを、掴んでいる行に描くこと」.
+    heldOnAxis: held === null ? null : held.axis,
   }
+}
+
+/**
+ * Where a held row is DRAWN: at the place the hand has carried it to on the
+ * live axis, and a little way along the axis that was refused.
+ *
+ * ⛔ A PICTURE AND NEVER A WRITE, which table T-023d states as a MUST NOT --
+ * 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵であって編集ではない」.
+ * ⚠️ `atY` IS `null` ON THE DEPTH AXIS, where 「上下は ... 段を変えてはならない」
+ * read the other way round leaves the row at the y the layout gave it.
+ *
+ * @purity pure
+ */
+function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
+  if (held === null) return box
+  const y = held.atY ?? box.y
+  // ⭐ THE REFUSED AXIS IS THE ONE THE GRAB DID NOT SETTLE ON. A grab on the
+  // position axis refuses sideways travel (「段を変えてはならない」) and a grab
+  // on the depth axis refuses up and down, so the resistance is drawn on the
+  // other axis from the follow.
+  return held.axis === 'position'
+    ? { ...box, x: box.x + held.resistedPx, y }
+    : { ...box, y: y + held.resistedPx }
 }
 
 /**
@@ -664,10 +778,19 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
   const groupIdsWithChildren = new Set<string>()
   const groupIdsWithUnhiddenChildren = new Set<string>()
+  const groupIdsWithHiddenChild = new Set<string>()
+  // ⭐ THE CHILDREN OF EACH ROW, AND OF 段 0 UNDER THE KEY `null`. HR-2 (MUST)
+  // makes the head level 0, so its children are exactly the rows with no parent
+  // -- one map answers both, and the count below walks it once.
+  const childrenByParentId = new Map<string | null, TaskGroup[]>()
   for (const group of schedule.taskGroups) {
     groupsById.set(group.id, group)
+    const siblings = childrenByParentId.get(group.parentId)
+    if (siblings === undefined) childrenByParentId.set(group.parentId, [group])
+    else siblings.push(group)
     if (group.parentId === null) continue
     groupIdsWithChildren.add(group.parentId)
+    if (group.isHidden === true) groupIdsWithHiddenChild.add(group.parentId)
     // ⚠️ The child's OWN `isHidden` and not its ancestors'. A row under a
     // hidden one is unreachable from a drawn parent anyway, since HR-6 keeps
     // the whole subtree out; the one thing this answers is whether unfolding
@@ -764,15 +887,77 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     taskNameByUid.set(task.uid, task.name)
   }
 
+  // HF-18's count and HF-12's, taken in ONE walk down from 段 0.
+  //
+  // ⭐ TWO NUMBERS PER ROW AND ONE PASS FOR BOTH (NFR-013 refuses O(n^2)):
+  // `subtreeSize` is how many rows a row and its descendants add once nothing
+  // of it is drawn, and `folded` is how many rows this row is holding folded
+  // right now -- a drawn child contributes its own `folded`, an undrawn one
+  // contributes its whole subtree, because everything under a row the picture
+  // does not hold is out of the picture too (HR-1a).
+  // ⛔ A HIDDEN ROW IS SKIPPED WITH ITS SUBTREE: HF-18 counts folds, and HR-6's
+  // hiding is the operation the parent's one-level-open undoes instead.
+  // ⚠️ `visited` IS THE RING GUARD, the same one the two climbs above keep:
+  // `schedule.ts` REPORTS a `parentId` ring (IV-18) rather than refusing the
+  // document, so this walk is handed one.
+  const foldedRowCountByGroupId = new Map<string, number>()
+  const subtreeSizeByGroupId = new Map<string, number>()
+  // ⭐ THE ROWS DEEPEST FIRST, so that a row's own two numbers are already
+  // answered when its parent asks for them -- one post-order walk down from
+  // 段 0, and the sums below then read straight off the two maps.
+  const orderedDeepestFirst: TaskGroup[] = []
+  const visited = new Set<string>()
+  const walkDeepestFirst = (parentId: string | null): void => {
+    for (const child of childrenByParentId.get(parentId) ?? []) {
+      if (visited.has(child.id)) continue
+      visited.add(child.id)
+      walkDeepestFirst(child.id)
+      orderedDeepestFirst.push(child)
+    }
+  }
+  walkDeepestFirst(null)
+  for (const group of orderedDeepestFirst) {
+    let subtreeSize = 1
+    let folded = 0
+    for (const child of childrenByParentId.get(group.id) ?? []) {
+      if (child.isHidden === true) continue
+      const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
+      subtreeSize += childSubtree
+      folded += boxByGroupId.has(child.id)
+        ? (foldedRowCountByGroupId.get(child.id) ?? 0)
+        : childSubtree
+    }
+    subtreeSizeByGroupId.set(group.id, subtreeSize)
+    foldedRowCountByGroupId.set(group.id, folded)
+  }
+
+  const rootGroups = childrenByParentId.get(null) ?? []
+  // HF-12 (MUST): 「頭にいま何行を畳み込んでいるか」. ⭐ 段 0 answers exactly as a
+  // row does, which is what HR-2 means by 「頭に置いた入口が段 0 のそれである」 --
+  // and while the head itself is folded every unhidden row is folded away by it.
+  let foldedRowCountAtLevelZero = 0
+  for (const root of rootGroups) {
+    if (root.isHidden === true) continue
+    const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
+    foldedRowCountAtLevelZero +=
+      session.isLevelZeroFolded === true || !boxByGroupId.has(root.id)
+        ? subtreeSize
+        : (foldedRowCountByGroupId.get(root.id) ?? 0)
+  }
+
   return {
     groupsById,
     groupIdsWithChildren,
     groupIdsWithUnhiddenChildren,
     groupIdsWithDrawnChildren,
+    groupIdsWithHiddenChild,
     boxByGroupId,
     groupIdsWithCollapsedBelow,
     groupIdsWithUnfoldedBelow,
     groupIdsWithFoldedChildToOpen,
+    foldedRowCountByGroupId,
+    foldedRowCountAtLevelZero,
+    rootGroups,
     taskNameByUid,
   }
 }
@@ -820,19 +1005,23 @@ export function rowTitlePanelFromSchedule(
   // ⛔ NEVER READ FOR A PINNED ROW, and nothing here has to test for it: GR-20
   // (MUST NOT) has the drawing side lay no strip on one, so no pinned row can be
   // held in the first place.
-  const heldGroupId = session.rowGrabbedAt?.groupId ?? null
-  const heldAtDepth = session.rowGrabbedAt?.depth ?? null
-  const heldAtY = session.rowGrabbedAt?.atY ?? null
-  const heldDepthOf = (groupId: string): number | null =>
-    groupId === heldGroupId ? heldAtDepth : null
-  const heldYOf = (groupId: string): number | null => (groupId === heldGroupId ? heldAtY : null)
+  const grabbed = session.rowGrabbedAt ?? null
+  const heldOf = (groupId: string): HeldRow | null =>
+    grabbed === null || grabbed.groupId !== groupId
+      ? null
+      : {
+          depth: grabbed.depth,
+          atY: grabbed.atY,
+          axis: grabbed.axis,
+          resistedPx: grabbed.resistedPx,
+        }
 
   const pinnedTitles: RowTitle[] = []
   for (const groupId of pinnedGroupIds) {
     const group = index.groupsById.get(groupId)
     const box = index.boxByGroupId.get(groupId)
     if (group === undefined || box === undefined) continue
-    pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds, null, null))
+    pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds, null))
   }
 
   const describedGroupIds = new Set(pinnedGroupIds)
@@ -850,16 +1039,23 @@ export function rowTitlePanelFromSchedule(
         index,
         settings,
         chosenGroupIds,
-        heldDepthOf(group.id),
-        heldYOf(group.id),
+        heldOf(group.id),
       ),
     )
   }
 
-  // ⛔⛔ NOTHING IS CLAIMED ABOUT THE TWO PANEL-WIDE ENTRANCES WHERE THIS PANEL
-  // DESCRIBES NO ROW. See the members' own declarations for why, and for what a
-  // reader draws when they are absent.
-  if (pinnedTitles.length === 0 && titles.length === 0) return { pinnedTitles, titles }
+  // ⛔⛔ NOTHING IS CLAIMED ABOUT THE PANEL-WIDE ENTRANCES WHERE THIS PANEL
+  // DESCRIBES NO ROW *AND* 段 0 IS NOT FOLDED. See the members' own declarations
+  // for why, and for what a reader draws when they are absent.
+  // ⭐⭐ A FOLDED HEAD IS THE ONE EMPTY PANEL THAT DOES CLAIM. HR-2 (MUST) makes
+  // 「行が 1 つも描かれない状態」 the very thing S-211 holds, and HF-12 (MUST) has
+  // the head say how many rows it is holding then -- so an empty panel whose head
+  // is folded still answers, and only an empty panel with an OPEN head is the
+  // picture with nothing in it that nothing can be claimed about.
+  const isLevelZeroFolded = session.isLevelZeroFolded === true
+  if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroFolded) {
+    return { pinnedTitles, titles }
+  }
 
   return {
     pinnedTitles,
@@ -877,18 +1073,29 @@ export function rowTitlePanelFromSchedule(
     // が 1 つも無いものとして扱うこと（MUST）」. A drawn folded row with nothing
     // to reveal opens onto the same picture, and a drawn unfolded row with no
     // drawn child hides nothing when it folds -- so neither is a reason to arm.
-    canOpenEveryRow: schedule.taskGroups.some(
-      (row) =>
-        row.isCollapsed === true &&
-        index.boxByGroupId.has(row.id) &&
-        index.groupIdsWithUnhiddenChildren.has(row.id),
-    ),
-    canCloseEveryRow: schedule.taskGroups.some(
-      (row) =>
-        row.isCollapsed !== true &&
-        index.boxByGroupId.has(row.id) &&
-        index.groupIdsWithDrawnChildren.has(row.id),
-    ),
+    // ⭐ AND 段 0's OWN FOLD IS ONE OF THE THINGS IT OPENS (HR-1, S-211): that
+    // row names HF-10 as one of the two roads back from a folded head.
+    canOpenEveryRow:
+      (isLevelZeroFolded && index.rootGroups.length > 0) ||
+      schedule.taskGroups.some(
+        (row) =>
+          row.isCollapsed === true &&
+          index.boxByGroupId.has(row.id) &&
+          index.groupIdsWithUnhiddenChildren.has(row.id),
+      ),
+    // ⭐ HR-2 NOW FOLDS 段 0 TOO, so this entrance is spent exactly where the
+    // head is already folded: with it open there is always the head left to
+    // fold, and with it folded there is no row in the picture at all.
+    canCloseEveryRow: !isLevelZeroFolded && (pinnedTitles.length > 0 || titles.length > 0),
+    // HF-16 (MUST): 段 0 opens one level. ⭐ TWO WAYS IT CAN HAVE WORK -- the
+    // head is folded and the shallowest level would come back (HR-2), or a row
+    // of that level is hidden and this is the only control that can restore it
+    // (HR-6, since such a row has no parent whose control could).
+    canOpenLevelZero: isLevelZeroFolded
+      ? index.rootGroups.length > 0
+      : index.rootGroups.some((row) => row.isHidden === true),
+    // HF-12 (MUST): 「頭にいま何行を畳み込んでいるかを示すこと」.
+    foldedRowCount: index.foldedRowCountAtLevelZero,
   }
 }
 

@@ -265,6 +265,51 @@ function partName(row: string): string {
 /** 表 T-109 — the roster of entrances, read out of the .md at load time. */
 const T_109 = specTable('T-109')
 
+/** 表 T-051 — the rules that place those entrances, read out of the .md too. */
+const T_051 = specTable('T-051')
+
+/**
+ * The rows of 表 T-051 that place a control at the PANEL'S HEAD rather than on
+ * each row, found by what those rows say about themselves.
+ *
+ * ⛔⛔ DERIVED AND NEVER LISTED, BECAUSE A LIST HERE HAS ALREADY GONE STALE
+ * ONCE. This file used to strike out `HF-10` and `HF-12` by a regular
+ * expression written over their ids; on 2026-08-30 the head gained `HF-16`
+ * (最も浅い段を 1 階層だけ開く) and `HF-17` (最も浅い段へ行を 1 つ足す), and every
+ * case driven by 「the entries on a row」 silently began asserting that two head
+ * controls stand on every row -- which is what turned twenty-one of them red.
+ *
+ * ⭐ WHAT THE MANUSCRIPT ITSELF SAYS, and therefore what is matched:
+ *   `HF-10` 「**行見出しパネルの最上部の右寄せに**、すべての行を開く操作子を 1 つ
+ *           置くこと（MUST）」 -- the only row that names the place outright.
+ *   `HF-12` 「**`HF-10` の操作子の隣に**、すべての行を畳む操作子を 1 つ置くこと
+ *           （MUST）」
+ *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ開く操作子を
+ *           1 つ置くこと（MUST）」
+ *   `HF-17` 「**`HF-10` の操作子の並びに**、最も浅い段へ行を 1 つ足す操作子を
+ *           1 つ置くこと（MUST）」
+ * ⇒ a head row is one that either names 行見出しパネルの最上部 itself, or places
+ * itself against `HF-10` の操作子. A row placed on 「各行に」 / 「行ごとに 1 つ」
+ * says neither. ⛔ A fifth head control added tomorrow will have to say one of
+ * those two things to be placed at all, and this reading picks it up unaided.
+ */
+const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
+  .filter((one) => {
+    const says = one.cells.join(' ')
+    return says.includes('行見出しパネルの最上部') || says.includes('`HF-10` の操作子')
+  })
+  .map((one) => one.id)
+
+if (T_051_AT_THE_HEAD.length === 0) {
+  throw new Error('表 T-051 no longer places a single control at the panel’s head')
+}
+
+/** Whether a 正 cell of 表 T-109 names one of the rows above. */
+const isHeadRule = (authority: string): boolean =>
+  T_051_AT_THE_HEAD.some((rule) =>
+    new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
+  )
+
 /**
  * Every entry 表 T-109 puts on the `Row Title Panel`, IN THE ORDER THE TABLE
  * PRINTS THEM, and never a list typed into this file.
@@ -285,20 +330,36 @@ const T_109 = specTable('T-109')
  * end the row, not where each one is; the one placement the manuscript does fix
  * has a case of its own.
  */
+/** Every entry 表 T-109 puts on the `Row Title Panel`, head and rows alike. */
+const T_109_ON_THE_PANEL = T_109.rows.filter(
+  (one) => bare(one.by['面'] ?? '') === partName('U-22'),
+)
+
 const T_109_ON_THE_ROW = T_109.rows
   .filter((one) => bare(one.by['面'] ?? '') === partName('U-22'))
-  // ⛔ THE PANEL'S HEAD IS NOT A ROW. 表 T-109 puts nine entries on the `Row
-  // Title Panel`, and two of them stand at the top of the PANEL rather than on
-  // each row: 表 T-051 の `HF-10` 「**行見出しパネルの最上部の右端に、すべての行
-  // を開く操作子を 1 つ置くこと（MUST）**」 and `HF-12` 「**`HF-10` の操作子の隣
-  // に、すべての行を畳む操作子を 1 つ置くこと（MUST）**」. ⭐ They are told apart
-  // by the rows of 表 T-051 that own them and never by their icon ids, so a
-  // renumbering of the roster cannot quietly move one of them onto a row.
-  .filter((one) => !/(^|[^0-9A-Za-z-])HF-1[02]([^0-9-]|$)/.test(one.by['正'] ?? ''))
+  // ⛔ THE PANEL'S HEAD IS NOT A ROW, and which rows stand there is read out of
+  // 表 T-051 rather than written here -- see `T_051_AT_THE_HEAD` above for why
+  // the list that used to stand in this line could not be kept true.
+  .filter((one) => !isHeadRule(one.by['正'] ?? ''))
   .map((one) => ({ row: one.id, surface: partName('U-22') }))
 
 if (T_109_ON_THE_ROW.length === 0) {
   throw new Error('表 T-109 no longer puts a single entry on the Row Title Panel')
+}
+
+/**
+ * Every entry 表 T-109 puts at the panel's HEAD, in the table's printing order.
+ *
+ * ⭐ THE COMPLEMENT OF THE ROSTER ABOVE, taken from the same two tables, so a
+ * row cannot be counted twice or dropped by both.
+ */
+const T_109_AT_THE_HEAD = T_109.rows
+  .filter((one) => bare(one.by['面'] ?? '') === partName('U-22'))
+  .filter((one) => isHeadRule(one.by['正'] ?? ''))
+  .map((one) => ({ row: one.id, rule: one.by['正'] ?? '' }))
+
+if (T_109_AT_THE_HEAD.length === 0) {
+  throw new Error('表 T-109 no longer puts a single entry at the Row Title Panel’s head')
 }
 
 /**
@@ -312,53 +373,109 @@ if (T_109_ON_THE_ROW.length === 0) {
  * ⚠️ `\b` on both ends is what keeps `HF-1` from matching `HF-11`.
  */
 function entranceForRule(rule: string): string {
-  const found = T_109_ON_THE_ROW.filter((one) => {
-    const owner = T_109.rows.find((held) => held.id === one.row)?.by['正'] ?? ''
-    return new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(owner)
-  })
+  const found = T_109_ON_THE_PANEL.filter((one) =>
+    new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
+  )
   const first = found[0]
   if (found.length !== 1 || first === undefined) {
     throw new Error(
-      `表 T-109 gives 表 T-051 の ${rule} ${found.length} entrances on the Row Title Panel, not one`,
+      `表 T-109 gives ${rule} ${found.length} entrances on the Row Title Panel, not one`,
     )
   }
-  return first.row
+  return first.id
 }
 
 /**
  * The two entries of 表 T-109 that the `Row Expander` (U-47) is made of, each
  * with the row of 表 T-051 that is its 正.
  *
- * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:503-504:
- *   | IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` |
- *   | IC-59 | `Row Title Panel` | — | その行自身を畳む    | 表 T-051 の `HF-3` |
- * ⛔ The pair is TWO rows of the roster and not one row in two states, which is
- * exactly what U-47 says out loud: 「開く側と閉じる側の 2 つで 1 組」.
+ * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
+ *   | IC-59 | `Row Title Panel` | — | この行を隠す              | 表 T-051 の `HF-3`  |
+ *   | IC-90 | `Row Title Panel` | — | 行の配下を 1 階層だけ開く | 表 T-051 の `HF-13` |
+ *   | IC-77 | `Row Title Panel` | — | 行の配下をすべて畳む      | 表 T-051 の `HF-11` |
+ *   | IC-58 | `Row Title Panel` | — | 行の配下をすべて開く      | 表 T-051 の `HF-2`  |
+ * ⛔ They are FOUR rows of the roster and not one row in four states.
  *
- * ⚠️ WHAT THE TWO MEAN WAS SWAPPED ON 2026-08-25 (利用者の裁定, recorded in
- * HF-2's own cell). The opening side used to open ONE level and the closing side
- * used to close the WHOLE subtree, which left 「閉じる操作子が畳むものと対に
- * ならず、畳んだものを開く組み合わせが存在しなかった」. ⛔ It is the MEANING
- * that moved and not the roster: there are still two rows, and this unit still
- * owes them nothing but telling a press on one from a press on the other.
+ * ⚠️ THE COUNT IS `HF-1`'s AND MOVED TWICE. 表 T-103's `U-47` holds no count of
+ * its own -- 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」 -- and
+ * on 2026-08-30 `HF-1` was rewritten to 「**隠す操作子と、配下を 1 階層開く操作子
+ * と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ**」. ⇒ FOUR,
+ * and the order below is the one that row states outright: 「⭐⭐ **並びは 2 × 2
+ * の格子とすること（MUST）** —— **左から 隠す・1 階層開く・配下をすべて畳む・
+ * 配下をすべて開く**」.
+ *
+ * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
+ * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
+ * (その行自身を畳む); it is now `HR-6` -- 「**隠す操作子は、その行を隠すこと
+ * （MUST）**」 -- and `HR-5` stays in 表 T-015 with no entrance at all. ⛔ It is
+ * the MEANING that moved and not the roster row: this unit still owes them
+ * nothing but telling a press on one from a press on another.
  */
 const T_109_ROW_EXPANDER = [
-  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
+  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'この行を隠す', side: 'hiding' },
   {
-    row: entranceForRule('HF-3'),
-    rule: 'HF-3',
-    gist: 'その行自身を畳む',
-    side: 'closing',
+    row: entranceForRule('HF-13'),
+    rule: 'HF-13',
+    gist: '行の配下を 1 階層だけ開く',
+    side: 'openingOneLevel',
   },
-  // ⭐ The third since the ruling of 2026-08-30 (CR-294): HF-11 of table T-051
-  // gave HR-4 of table T-015 its first entrance.
   {
     row: entranceForRule('HF-11'),
     rule: 'HF-11',
     gist: '行の配下をすべて畳む',
     side: 'closingBelow',
   },
+  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
 ]
+
+/**
+ * 表 T-051 `HF-1` — the three sentences that settle how many folding controls a
+ * row carries and in what order, copied verbatim.
+ */
+const T_051_HF1_FOUR_CONTROLS =
+  '隠す操作子と、配下を 1 階層開く操作子と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ'
+const T_051_HF1_IS_A_LATTICE = '並びは 2 × 2 の格子とすること（MUST）'
+const T_051_HF1_LEFT_TO_RIGHT = '左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く'
+
+/** 表 T-051 `HF-4` — the whole left-to-right run of a row, ruled 2026-08-30. */
+const T_051_HF4_THE_WHOLE_RUN =
+  '折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止めの順に、左から右へ置くこと（MUST）'
+
+/** 表 T-051 `HF-10` — the run at the panel's head, ruled the same day. */
+const T_051_HF10_THE_HEAD_RUN =
+  '頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの順とすること（MUST）'
+
+/** 表 T-051 `HF-15` — the four MUSTs of that row that reach a drawing unit. */
+const T_051_HF15_THE_AXIS_MARK =
+  'いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）'
+const T_051_HF15_THE_BANDS =
+  '上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）'
+const T_051_HF15_THE_GROUND = '掴んでいる行には地を敷くこと（MUST）'
+const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '掴み代は常に描くこと（MUST）'
+
+/** 表 T-051 `HF-18` — the count a row shows for what it holds folded. */
+const T_051_HF18_THE_COUNT =
+  '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
+
+/**
+ * `HF-1`'s lattice, LEFT TO RIGHT, each place with the row of 表 T-051 that owns
+ * the control standing there.
+ *
+ * ⭐ THE ORDER IS THE ONE SENTENCE, and the word beside each rule is the word
+ * that sentence uses for it -- so the premise case below can read the sentence
+ * and fail the moment the manuscript re-orders the lattice, instead of this
+ * list quietly outliving the ruling that made it.
+ * ⚠️ The pairing of word to rule is prose in the manuscript and cannot be
+ * machine-joined: 「隠す」 is `HF-3` because that row is the one that hides,
+ * 「1 階層開く」 is `HF-13`, 「配下をすべて畳む」 is `HF-11` and 「配下をすべて
+ * 開く」 is `HF-2`, each in those rows' own words.
+ */
+const T_051_HF1_LATTICE = [
+  { rule: 'HF-3', word: '隠す' },
+  { rule: 'HF-13', word: '1 階層開く' },
+  { rule: 'HF-11', word: '配下をすべて畳む' },
+  { rule: 'HF-2', word: '配下をすべて開く' },
+] as const
 
 /**
  * 表 T-051 — the rules the pair above answers to, copied from
@@ -370,11 +487,18 @@ const T_109_ROW_EXPANDER = [
  * hang two different effects on.
  */
 const T_051_EXPANDER = [
-  // ⚠️ THREE PER ROW SINCE 2026-08-30 (CR-294): HF-11 gave HR-4 of table T-015
-  // its first entrance, and HF-1 counts it with the other two.
-  { row: 'HF-1', gist: '配下をすべて閉じる操作子を 1 つずつ' },
+  // ⚠️ FOUR PER ROW SINCE 2026-08-30: `HF-1` was rewritten to name the hide, the
+  // one-level open, the fold-all-below and the open-all-below, and to arrange
+  // them in a lattice. ⛔ The gist below is the four-control sentence itself, so
+  // a table that went back to three cannot leave this file green.
+  { row: 'HF-1', gist: T_051_HF1_FOUR_CONTROLS },
+  { row: 'HF-1', gist: T_051_HF1_IS_A_LATTICE },
   { row: 'HF-2', gist: '開く操作子は、その行の配下をすべて開くこと（MUST）' },
-  { row: 'HF-3', gist: '閉じる操作子は、その行自身を畳むこと（MUST）' },
+  // ⛔ `HF-3` IS NO LONGER 「その行自身を畳む」. 利用者の裁定 2026-08-30 gave it
+  // 表 T-015 の `HR-6` instead: 「**隠す操作子は、その行を隠すこと（MUST）**」.
+  { row: 'HF-3', gist: '隠す操作子は、その行を隠すこと（MUST）' },
+  { row: 'HF-11', gist: '配下をすべて閉じる操作子は、その行の配下をすべて畳むこと（MUST）' },
+  { row: 'HF-13', gist: '1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）' },
 ] as const
 
 /**
@@ -474,7 +598,18 @@ class FakeElement {
   }
 
   getAttribute(name: string): string | null {
-    if (name === 'style') return inlineStyle(this)
+    // ⛔⛔ THE TRAILING `;` IS THE BROWSER'S AND WAS MISSING HERE. A real
+    // `getAttribute('style')` hands back the SERIALISED declaration block, and
+    // every browser ends that block with a semicolon; `inlineStyle` below joins
+    // the declarations with one and stops. ⚠️ THE UNIT READS ITS OWN STYLE BACK
+    // AND APPENDS TO IT -- `open.getAttribute('style') + rowControlRight(...)`
+    // -- so without the semicolon the fake glued two declarations into one
+    // (`cursor:pointerright:4em`) and the inset silently vanished. That is the
+    // fake deciding a rule of the browser's, which R6.3 forbids it.
+    if (name === 'style') {
+      const css = inlineStyle(this)
+      return css === '' ? css : `${css};`
+    }
     return this.attributes.get(name) ?? null
   }
 
@@ -1543,12 +1678,17 @@ describe('the specification still says what these cases copy', () => {
         one.rule,
       )
     }
-    // ⛔ The two are DIFFERENT rows of the roster. If they were ever merged the
-    // cases below would be asking for an entry the specification does not name.
-    expect(new Set(T_109_ROW_EXPANDER.map((one) => one.row)).size).toBe(3)
+    // ⛔ The four are DIFFERENT rows of the roster. If any two were ever merged
+    // the cases below would be asking for an entry the specification does not
+    // name. ⭐ The count is `HF-1`'s, so it is READ from that row and not typed:
+    // the lattice sentence names four controls, and 表 T-109 gives each one an
+    // entrance of its own.
+    expect(new Set(T_109_ROW_EXPANDER.map((one) => one.row)).size).toBe(
+      T_051_HF1_LATTICE.length,
+    )
   })
 
-  it('表 T-051 still asks for the three controls per row (HF-1 .. HF-3)', () => {
+  it('表 T-051 HF-1 still asks for FOUR folding controls per row, in a 2 x 2 lattice', () => {
     const rows = specTable('T-051').rows
     for (const one of T_051_EXPANDER) {
       const row = rows.find((held) => held.id === one.row)
@@ -2245,6 +2385,9 @@ const EXPANDER_AT: Readonly<Record<string, { readonly x: number; readonly y: num
   'IC-58': AT.rowExpanderOpen,
   'IC-59': AT.rowExpanderClose,
   'IC-77': AT.rowExpanderCloseBelow,
+  // ⭐ `HF-13`'s entrance joined `HF-1`'s count on 2026-08-30, so it joins the
+  // points too; its box was already laid out for the cases below it.
+  'IC-90': AT.rowOpenOneLevel,
 }
 
 /** The rows of 表 T-109 that 表 T-051 の `HF-1` puts on every row, sorted. */
@@ -2305,9 +2448,11 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     )
 
     const icons = expanderIcons(built)
-    // ⭐ THREE PER ROW SINCE CR-294 (HF-1 counts IC-58, IC-59 and IC-77), on
-    // each of the two rows.
-    expect(icons).toHaveLength(6)
+    // ⭐ FOUR PER ROW SINCE 2026-08-30 (`HF-1`'s lattice counts the hide, the
+    // one-level open, the fold-all-below and the open-all-below), on each of
+    // the two rows. ⛔ The count is read from the roster, never typed: a fifth
+    // control added to `HF-1` moves this number on its own.
+    expect(icons).toHaveLength(T_109_ROW_EXPANDER.length * 2)
     // ⛔ U-46 lifts a pinned row out of the scrolling list, but it is still a row
     // OF the panel, and HF-1 says 各行 without an exception for it.
     for (const one of T_109_ROW_EXPANDER) {
@@ -3894,7 +4039,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     expect(hoverDeclaration(elsewhere, node, 'visibility')).toBeNull()
   })
 
-  it('GIVEN a PINNED row WHEN its controls are read THEN the same pair of rules reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82', () => {
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same pair of rules reaches them, THE PIN EXCEPTED (FR-098 draws the pinned rows too)', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3911,7 +4056,15 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     )
     const rules = sheetRulesOf(built.root())
 
-    for (const one of T_109_ON_THE_ROW) {
+    // ⛔⛔ `IC-60` IS LEFT OUT, AND THE RULING OF 2026-08-30 IS WHY. `HF-6` now
+    // carries an exception in as many words: 「⛔⛔ **ピン止めしている行の
+    // `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）** —— ⛔ **本行の
+    // 最初の MUST の唯一の例外である。****描かなければ、どの行が留まっているかは
+    // 全行を撫でるしか読む手が無い。**」 ⇒ asserting the pin hidden here would be
+    // asserting the reading that ruling replaced. ⭐ The exception has a case of
+    // its own below, and the MUST NOT beside it -- 「⛔ **ほかの操作子を常時描いて
+    // はならない（MUST NOT）**」 -- is what the loop here still holds.
+    for (const one of T_109_ON_THE_ROW.filter((held) => held.row !== 'IC-60')) {
       const node = entryFor(built.root(), one.row)
       const hiding = hiddenWhileResting(rules, node)
       expect(hiding, `${one.row} on a pinned row is drawn with nothing pointing at it`).not.toBeNull()
@@ -3921,6 +4074,74 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
         `${one.row} on a pinned row has no rule keyed on a pointer`,
       ).not.toBeNull()
     }
+  })
+
+  it('⛔⛔ MUST GIVEN a PINNED row WHEN its IC-60 is read THEN it is drawn with NO pointer on the row (表 T-051 HF-6: ピン止めしている行の IC-60 だけは、ポインタが乗っていなくても描くこと)', () => {
+    // ⭐ THE RULING'S OWN REASON: 「**描かなければ、どの行が留まっているかは全行を
+    // 撫でるしか読む手が無い。**」 ⚠️ 「**この例外が当たるのは留まっているあいだ
+    // だけであり、外せばほかの操作子と同じに戻る。**」
+    //
+    // ⭐ HOW 「drawn at rest」 IS READ. The sheet may still hide every control of
+    // the row -- what this case asks is whether the PIN of a PINNED row comes
+    // back with nothing pointing at it, which a declaration ON THE CONTROL does
+    // (an inline declaration outranks the sheet). So: either no resting rule
+    // reaches it, or the control itself states the property back to a drawn
+    // value.
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+          titles: [],
+        },
+      }),
+    )
+    const rules = sheetRulesOf(built.root())
+    const pin = entryFor(built.root(), 'IC-60')
+    const hiding = hiddenWhileResting(rules, pin)
+    const declaredBack =
+      hiding === null
+        ? true
+        : (styleMap(pin).get(hiding.property) ?? '').trim().toLowerCase() !== '' &&
+          (styleMap(pin).get(hiding.property) ?? '').trim().toLowerCase() !== hiding.hidden
+
+    expect(
+      declaredBack,
+      `a pinned row's IC-60 is not drawn until a pointer arrives: the sheet hides it with ` +
+        `${hiding?.property ?? '(nothing)'}:${hiding?.hidden ?? ''} and the control itself says ` +
+        `${inlineStyle(pin)}`,
+    ).toBe(true)
+  })
+
+  it('⛔ MUST NOT GIVEN an UNPINNED row WHEN its IC-60 is read THEN it is hidden at rest like the others (HF-6: ほかの操作子を常時描いてはならない)', () => {
+    // ⭐ THE PAIR THAT MAKES THE CASE ABOVE A TEST, and a MUST NOT of its own:
+    // 「**この例外が当たるのは留まっているあいだだけであり、外せばほかの操作子と
+    // 同じに戻る。**」
+    const built = drawn(oneLiveRow())
+    const rules = sheetRulesOf(built.root())
+    const pin = entryFor(built.root(), 'IC-60')
+    const hiding = hiddenWhileResting(rules, pin)
+
+    expect(hiding, 'an unpinned row draws its pin at all times').not.toBeNull()
+    expect(
+      (styleMap(pin).get((hiding as Hiding).property) ?? '').trim(),
+      `an unpinned row's pin declares itself back into the picture: ${inlineStyle(pin)}`,
+    ).toBe('')
+  })
+
+  it('GIVEN the specification is re-read WHEN HF-6 is looked up THEN the pin’s exception is still there, and still the only one (Chapter 1.9)', () => {
+    const hf6 = (specTable('T-051').rows.find((one) => one.id === 'HF-6')?.cells ?? []).join(' ')
+
+    expect(hf6).toContain(
+      'ピン止めしている行の `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）',
+    )
+    expect(hf6).toContain('本行の最初の MUST の唯一の例外である')
+    expect(hf6).toContain('ほかの操作子を常時描いてはならない（MUST NOT）')
   })
 
   it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN no rule of it draws these controls on its own (BO-1 of 表 T-077, the empty case)', () => {
@@ -4345,5 +4566,555 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
     expect(says).toContain('ピン止めしている行は掴めないこと（MUST NOT）')
     expect(says).toContain('掴めば行を動かす')
     expect(S_138_STRIP_WIDTH, 'S-138 no longer states a width').toBeGreaterThan(0)
+  })
+})
+
+// ===========================================================================
+// THE ORDER THE CONTROLS STAND IN -- 表 T-051 の `HF-1`, `HF-4` AND `HF-10`.
+//
+// ⭐⭐ WHY THIS BLOCK EXISTS AT ALL. Until 2026-08-30 the manuscript declined to
+// fix the order: `HF-4` said 「⚠️ **本行が定めるのはこの 1 つだけであり、ほかの
+// 操作子の前後は定めない**」 and the blocks above say so in as many words. Three
+// rulings on that day settled every place:
+//   `HF-1`  ⭐⭐ 「**並びは 2 × 2 の格子とすること（MUST）** —— **左から 隠す・
+//           1 階層開く・配下をすべて畳む・配下をすべて開く**」, with ⛔ 「**1 本と
+//           2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば動作、
+//           左右に読めば範囲、という格子が崩れる**」
+//   `HF-4`  ⭐⭐ 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止めの順に、
+//           左から右へ置くこと（MUST）**」, with ⛔ 「**足すと消すのあいだに他の
+//           操作子を挟んではならない（MUST NOT）**」 and 「**ピン止めの操作子
+//           （表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）**」
+//   `HF-10` ⭐⭐ 「**頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの
+//           順とすること（MUST）**」
+//
+// ⛔ WHAT IS READ, AND WHY IT IS NOT THE CHILD ORDER. Nothing in docs/spec fixes
+// how a row is built, and a control placed out of flow sits where its own inset
+// puts it whatever its place among the siblings. So `leftToRight` below ranks by
+// the inset the unit declared -- `left` ascending, or `right` descending -- and
+// falls back to document order only when NO control declares either, which is
+// the in-flow line where document order IS left to right. ⚠️ A run placed two
+// ways at once is ranked by neither and fails loudly rather than quietly.
+// ===========================================================================
+
+/** The number and unit a length declaration states, or `null` for anything else. */
+function lengthOf(value: string | undefined): { readonly n: number; readonly unit: string } | null {
+  const found = /^(-?\d+(?:\.\d+)?)(px|em|rem)$/.exec((value ?? '').trim())
+  return found === null ? null : { n: Number(found[1]), unit: found[2] as string }
+}
+
+const iconOf = (node: FakeElement): string => node.getAttribute('data-icon') ?? '(unmarked)'
+
+/**
+ * The rows of 表 T-109 these nodes carry, in the order a reader meets them from
+ * the LEFT.
+ */
+function leftToRight(nodes: readonly FakeElement[]): string[] {
+  const how = new Set<string>()
+  const ranked = nodes.map((node, index) => {
+    const declared = styleMap(node)
+    const left = lengthOf(declared.get('left'))
+    const right = lengthOf(declared.get('right'))
+    if (left !== null) {
+      how.add(`left:${left.unit}`)
+      return { icon: iconOf(node), key: left.n, index }
+    }
+    if (right !== null) {
+      how.add(`right:${right.unit}`)
+      return { icon: iconOf(node), key: -right.n, index }
+    }
+    how.add('in flow')
+    return { icon: iconOf(node), key: 0, index }
+  })
+  if (how.size > 1) {
+    throw new Error(
+      `these controls are placed in ${how.size} different ways (${[...how].join(', ')}), ` +
+        'so no reading of them says which stands to the left of which',
+    )
+  }
+  return ranked
+    .slice()
+    .sort((a, b) => a.key - b.key || a.index - b.index)
+    .map((one) => one.icon)
+}
+
+/** `HF-1`'s four, left to right, as rows of 表 T-109. */
+const HF1_LEFT_TO_RIGHT = T_051_HF1_LATTICE.map((one) => entranceForRule(one.rule))
+
+/**
+ * `HF-4`'s whole run, left to right, as rows of 表 T-109.
+ *
+ * ⚠️ 足す IS FOUND THROUGH ITS RULE and 消す / ピン止め through the rows `HF-4`
+ * NAMES ITSELF -- that row writes 「削除（`IC-82`）」 and 「ピン止めの操作子（表
+ * T-109 の `IC-60`）」 in as many words, so the two ids are the manuscript's own
+ * and the premise case below holds them to it.
+ */
+const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, entranceForRule('HF-14'), 'IC-82', 'IC-60']
+
+/** `HF-10`'s head run, left to right: 1 階層開く・すべて畳む・すべて開く・足す. */
+const HF10_LEFT_TO_RIGHT = [
+  entranceForRule('HF-16'),
+  entranceForRule('HF-12'),
+  entranceForRule('HF-10'),
+  entranceForRule('HF-17'),
+]
+
+/** Every node on the page carrying one of these rows of 表 T-109. */
+const nodesFor = (built: Stage, rows: readonly string[]): FakeElement[] =>
+  selfAndDescendants(built.root()).filter((one) => rows.includes(iconOf(one)))
+
+
+describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a 2 x 2 lattice', () => {
+  it('GIVEN the specification is re-read WHEN HF-1 is looked up THEN it still names four controls, still calls the arrangement a lattice, and still orders them (Chapter 1.9)', () => {
+    const hf1 = specTable('T-051').rows.find((one) => one.id === 'HF-1')
+    expect(hf1, '表 T-051 no longer holds HF-1').toBeDefined()
+    const says = (hf1?.cells ?? []).join(' ')
+
+    expect(says).toContain(T_051_HF1_FOUR_CONTROLS)
+    expect(says).toContain(T_051_HF1_IS_A_LATTICE)
+    expect(says).toContain(T_051_HF1_LEFT_TO_RIGHT)
+    // ⛔ THE MUST NOT THAT MAKES THE LATTICE A LATTICE.
+    expect(says).toContain('1 本と 2 本を混ぜて並べてはならない（MUST NOT）')
+
+    // ⭐ AND THE ORDER THIS FILE DRIVES BY IS THAT SENTENCE'S OWN. Each word of
+    // it is looked for after the one before, so a manuscript that re-ordered the
+    // lattice fails here instead of leaving the case below asserting the old one.
+    let at = says.indexOf(T_051_HF1_LEFT_TO_RIGHT)
+    expect(at, 'HF-1 no longer states the left-to-right order').toBeGreaterThanOrEqual(0)
+    for (const one of T_051_HF1_LATTICE) {
+      const next = says.indexOf(one.word, at)
+      expect(next, `HF-1 no longer names 「${one.word}」 where this file expects it`).toBeGreaterThan(
+        -1,
+      )
+      at = next + one.word.length
+    }
+    // ⭐ FOUR ENTRANCES FOR FOUR CONTROLS, none of them the same row twice.
+    expect(new Set(HF1_LEFT_TO_RIGHT).size).toBe(4)
+  })
+
+  it('⭐ GIVEN a row is drawn WHEN its four folding controls are read from the left THEN they stand in HF-1’s order (MUST: 左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く)', () => {
+    const built = drawn(oneLiveRow())
+
+    expect(leftToRight(nodesFor(built, HF1_LEFT_TO_RIGHT))).toEqual(HF1_LEFT_TO_RIGHT)
+  })
+
+  it('⛔ MUST NOT GIVEN a row is drawn WHEN the whole run is read THEN the single bars stand together and the double bars stand together (HF-1: 1 本と 2 本を混ぜて並べてはならない)', () => {
+    // 「上下に読めば動作、左右に読めば範囲」 -- 隠す and 1 階層開く are the single
+    // bars (表 T-026 の `RC-13`: 向きが動作、本数が範囲) and 配下をすべて畳む /
+    // 配下をすべて開く the double ones. A lattice is broken exactly when one
+    // column's pair is split by the other's.
+    const built = drawn(oneLiveRow())
+    const run = leftToRight(controlsOf(theRowOf(built)))
+
+    const singles = [entranceForRule('HF-3'), entranceForRule('HF-13')]
+    const doubles = [entranceForRule('HF-11'), entranceForRule('HF-2')]
+    for (const [what, pair] of [
+      ['the single bars', singles],
+      ['the double bars', doubles],
+    ] as const) {
+      const places = pair.map((row) => run.indexOf(row))
+      expect(places, `${what} are not both on the row: ${run.join(' ')}`).not.toContain(-1)
+      expect(
+        Math.abs((places[0] as number) - (places[1] as number)),
+        `${what} are not next to each other: ${run.join(' ')}`,
+      ).toBe(1)
+    }
+  })
+
+  it('⛔ GIVEN a run built by hand in the WRONG order WHEN it is read through `leftToRight` THEN the reading catches it -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
+    const built = drawn(oneLiveRow())
+    const make = (icon: string, css: string): FakeElement => {
+      const node = new FakeElement('button', built.world)
+      node.setAttribute('data-icon', icon)
+      node.setAttribute('style', css)
+      return node
+    }
+
+    // Right-anchored: the LARGER inset is further left.
+    expect(leftToRight([make('IC-58', 'right:0em'), make('IC-59', 'right:4em')])).toEqual([
+      'IC-59',
+      'IC-58',
+    ])
+    // Left-anchored: the smaller inset is further left.
+    expect(leftToRight([make('IC-58', 'left:4em'), make('IC-59', 'left:0em')])).toEqual([
+      'IC-59',
+      'IC-58',
+    ])
+    // In flow: document order, and the order handed in is the document's.
+    expect(leftToRight([make('IC-58', ''), make('IC-59', '')])).toEqual(['IC-58', 'IC-59'])
+    // ⛔ And a run placed two ways at once is refused rather than ranked.
+    expect(() => leftToRight([make('IC-58', 'left:0em'), make('IC-59', 'right:0em')])).toThrow()
+  })
+})
+
+describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () => {
+  it('GIVEN the specification is re-read WHEN HF-4 is looked up THEN it still states the run, still names IC-82 and IC-60, and still forbids anything between 足す and 消す (Chapter 1.9)', () => {
+    const hf4 = specTable('T-051').rows.find((one) => one.id === 'HF-4')
+    const says = (hf4?.cells ?? []).join(' ')
+
+    expect(says).toContain(T_051_HF4_THE_WHOLE_RUN)
+    expect(says).toContain('足すと消すのあいだに他の操作子を挟んではならない（MUST NOT）')
+    expect(says).toContain(
+      'ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）',
+    )
+
+    // ⛔ AND THE RUN IS THE WHOLE ROSTER, so nothing on the row is left unplaced.
+    expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
+  })
+
+  it('⭐ GIVEN a row is drawn WHEN every control on it is read from the left THEN the seven stand in HF-4’s order (MUST: 折り畳みの 4 つ、足す、消す、ピン止めの順に、左から右へ)', () => {
+    const built = drawn(oneLiveRow())
+
+    expect(leftToRight(controlsOf(theRowOf(built)))).toEqual(HF4_LEFT_TO_RIGHT)
+  })
+
+  it('⭐ GIVEN a PINNED row WHEN its controls are read from the left THEN the same run stands there (FR-098 draws the pinned rows too)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+          titles: [],
+        },
+      }),
+    )
+
+    expect(leftToRight(controlsOf(theRowOf(built)))).toEqual(HF4_LEFT_TO_RIGHT)
+  })
+
+  it('⭐ MUST GIVEN a row is drawn WHEN the outermost control is read THEN it is the pin, and the deletion is the one step inside it (HF-4: ピン止めを並びのいちばん外へ)', () => {
+    // ⛔ THE TWO REASONS ARE HF-4's OWN: 「**削除（`IC-82`）がいちばん外に在ると、
+    // 右から流し込んだポインタが最初に触るのが削除になる**」 and 「**押す頻度は
+    // ピンのほうが高く、削除は一度きりである**」.
+    const run = leftToRight(controlsOf(theRowOf(drawn(oneLiveRow()))))
+
+    expect(run[run.length - 1], `the outermost control is not the pin: ${run.join(' ')}`).toBe(
+      'IC-60',
+    )
+    expect(run[run.length - 2], `the deletion is not one step in: ${run.join(' ')}`).toBe('IC-82')
+  })
+
+  it('⛔ MUST NOT GIVEN a row is drawn WHEN 足す and 消す are found in the run THEN they are next to each other (HF-4: 枠つきの ＋ と × は対として読ませるもの)', () => {
+    const run = leftToRight(controlsOf(theRowOf(drawn(oneLiveRow()))))
+    const add = run.indexOf(entranceForRule('HF-14'))
+    const remove = run.indexOf('IC-82')
+
+    expect(add, `足す is not on the row: ${run.join(' ')}`).toBeGreaterThanOrEqual(0)
+    expect(remove, `消す is not on the row: ${run.join(' ')}`).toBeGreaterThanOrEqual(0)
+    expect(remove - add, `something stands between 足す and 消す: ${run.join(' ')}`).toBe(1)
+  })
+})
+
+describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right', () => {
+  it('GIVEN the specification is re-read WHEN HF-10 is looked up THEN it still states the head run and still refuses the outermost place to すべて開く (Chapter 1.9)', () => {
+    const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
+
+    expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
+    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて開く」, which that row says
+    // itself: 「**本行の「すべて開く」を並びのいちばん外へ置いてはならない
+    // （MUST NOT）** —— **頭も行も、折り畳みの外に立つのは行を増やす入口である**」.
+    expect(hf10).toContain('本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）')
+
+    expect([...HF10_LEFT_TO_RIGHT].sort()).toEqual(
+      [...T_109_AT_THE_HEAD.map((one) => one.row)].sort(),
+    )
+    // ⭐ AND NOT ONE OF THEM IS ALSO A ROW CONTROL.
+    for (const row of HF10_LEFT_TO_RIGHT) {
+      expect(
+        T_109_ON_THE_ROW.map((one) => one.row),
+        `${row} is on a row as well`,
+      ).not.toContain(row)
+    }
+  })
+
+  it('⭐ GIVEN the panel is drawn WHEN the head’s controls are read from the left THEN they stand in HF-10’s order (MUST: 1 階層開く・すべて畳む・すべて開く・足す)', () => {
+    const built = drawn(oneLiveRow())
+
+    expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT))).toEqual(HF10_LEFT_TO_RIGHT)
+  })
+
+  it('⭐ GIVEN a panel of TWO rows WHEN the head’s controls are counted THEN each is drawn ONCE for the whole panel, not once per row (HF-10 / HF-12 / HF-16 / HF-17: 1 つ置くこと)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+        },
+      }),
+    )
+
+    for (const one of T_109_AT_THE_HEAD) {
+      expect(
+        nodesFor(built, [one.row]).length,
+        `${one.row} was drawn more than once for the panel`,
+      ).toBe(1)
+    }
+    // ⭐ The pair that makes the count a test: a ROW control IS drawn twice here.
+    expect(nodesFor(built, [entranceForRule('HF-3')]).length).toBe(2)
+  })
+
+  it('⭐⭐ GIVEN a panel with NO rows at all WHEN the head is read THEN all four are still drawn (HF-17: 行が 1 つも無い文書では押す相手が存在しない)', () => {
+    // ⛔ WITHOUT THIS, `HF-17`'s own reason is unreachable: 「**本行が無いと、最も
+    // 浅い段の行を作る道が画面から消える** —— `FR-085` は最上位の行を作れることを
+    // 求めており、`HR-8` は足す先を配下と定めるので、**行が 1 つも無い文書では押す
+    // 相手が存在しない**」. A head drawn only beside a row would leave an empty
+    // document with no way to gain one.
+    const built = drawn(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
+
+    expect(rowsOf(built)).toEqual([])
+    for (const one of T_109_AT_THE_HEAD) {
+      expect(nodesFor(built, [one.row]).length, `${one.row} left with the last row`).toBe(1)
+    }
+    expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT))).toEqual(HF10_LEFT_TO_RIGHT)
+  })
+})
+
+// ===========================================================================
+// 表 T-051 HF-15 AND HF-18 -- WHAT IS DRAWN THAT IS NOT AN ENTRANCE.
+//
+// ⭐ THREE MUSTS OF `HF-15` REACH THIS UNIT, and all three are about drawing:
+//   ⭐⭐ 「**いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）** ——
+//      **上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の
+//      上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236 の `S-151`
+//      （上下）と `S-152`（左右）とする。**」
+//   ⭐ 「**掴んでいる行には地を敷くこと（MUST）** —— **どれを持っているかが読め
+//      なくなる。**」
+//   ⭐ 「**掴み代は常に描くこと（MUST）** —— ⛔ **`HF-6`（操作子はポインタが乗って
+//      いるあいだだけ）の対象ではない** —— **掴めることが読めなければ、掴もうと
+//      する手が動かない。**」
+// ⭐ AND ONE OF `HF-18`: 「**配下に畳み込んでいる行があるとき、その行数を行に示す
+//   こと（MUST）**」, with ⛔ 「**`HF-6` の対象ではない** —— **ポインタが乗って
+//   いるあいだだけでは、抱えている行を探して回ることになる**」.
+//
+// ⚠️ WHAT IS NOT ASSERTED. The BAND'S THICKNESS: no row of 表 T-206 states one,
+// and `HF-15` asks only for 「帯を 1 本ずつ」. The GROUND'S COLOUR under the held
+// row: `HF-15` (MUST) asks for a ground and names no colour, and no row of
+// 表 T-236 does either -- ⛔ so a case that fixed one would be inventing it. What
+// IS read is which EDGES carry a band, which is the half the manuscript states.
+// ===========================================================================
+
+/** The two colours 表 T-236 gives HF-15's bands, read out of the table. */
+const themeColoursOf = (row: string): readonly string[] => {
+  const found = specTable('T-236').rows.find((one) => one.id === row)
+  if (found === undefined) throw new Error(`表 T-236 no longer holds ${row}`)
+  return ['明るいテーマ', '暗いテーマ'].map((column) => bare(found.by[column] ?? ''))
+}
+
+/** The border declarations this node states, by the edge each one is on. */
+function bordersOf(element: FakeElement): Map<string, string> {
+  const declared = styleMap(element)
+  const found = new Map<string, string>()
+  for (const edge of ['top', 'right', 'bottom', 'left']) {
+    const value = (declared.get(`border-${edge}`) ?? '').trim()
+    if (value !== '' && !/(^|\s)(0|none)(\s|$)/.test(value)) found.set(edge, value)
+  }
+  return found
+}
+
+/** One row, drawn as the one HF-15's grab is holding on the given axis. */
+const rowHeldOn = (axis: 'position' | 'depth' | null): ScreenView =>
+  viewWith({
+    rowTitlePanel: {
+      pinnedTitles: [],
+      titles: [
+        rowTitle({
+          groupId: 'g-1',
+          label: 'RowOne',
+          heldOnAxis: axis,
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
+        }),
+      ],
+    },
+  })
+
+describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live', () => {
+  it('GIVEN the specification is re-read WHEN HF-15 is looked up THEN it still asks for the bands, the ground and the always-drawn strip (Chapter 1.9)', () => {
+    const hf15 = (specTable('T-051').rows.find((one) => one.id === 'HF-15')?.cells ?? []).join(' ')
+
+    expect(hf15).toContain(T_051_HF15_THE_AXIS_MARK)
+    expect(hf15).toContain(T_051_HF15_THE_BANDS)
+    expect(hf15).toContain(T_051_HF15_THE_GROUND)
+    expect(hf15).toContain(T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN)
+    // ⭐ The two colours are named by row, and 表 T-236 still holds both.
+    expect(hf15).toContain('`S-151`（上下）と `S-152`（左右）')
+    for (const row of ['S-151', 'S-152']) {
+      expect(themeColoursOf(row).filter((one) => one !== ''), `表 T-236 ${row}`).toHaveLength(2)
+    }
+  })
+
+  it('⭐ MUST GIVEN the position axis is live WHEN the held row is read THEN a band lies on its LEFT and RIGHT edges and on neither other (HF-15: 上下の軸が生きているときは行の左右の辺に)', () => {
+    // ⛔ CROSSWISE IS WHAT THE ROW SAYS: a grab that moves the row UP AND DOWN
+    // is marked on the left and right edges.
+    const row = theRowOf(drawn(rowHeldOn('position')))
+
+    expect([...bordersOf(row).keys()].sort(), `the held row's edges: ${inlineStyle(row)}`).toEqual([
+      'left',
+      'right',
+    ])
+  })
+
+  it('⭐ MUST GIVEN the depth axis is live WHEN the held row is read THEN a band lies on its TOP and BOTTOM edges and on neither other (HF-15: 左右の軸が生きているときは行の上下の辺に)', () => {
+    const row = theRowOf(drawn(rowHeldOn('depth')))
+
+    expect([...bordersOf(row).keys()].sort(), `the held row's edges: ${inlineStyle(row)}`).toEqual([
+      'bottom',
+      'top',
+    ])
+  })
+
+  it('⭐ GIVEN the two axes WHEN the bands are compared THEN they are NOT painted alike (HF-15: 色は S-151（上下）と S-152（左右）)', () => {
+    // ⚠️ WHICH INK IS WHICH IS NOT READ HERE -- 表 T-236 states each colour twice
+    // (one per theme) and this unit resolves the theme, so a case that fixed the
+    // string would be asserting the theme and not the rule. ⛔ What the rule
+    // decides, and what is read, is that the two axes are told APART by colour:
+    // one row, two colours, and 「どちらの軸が生きているか」 unreadable if they
+    // were the same.
+    const onPosition = [...bordersOf(theRowOf(drawn(rowHeldOn('position')))).values()]
+    const onDepth = [...bordersOf(theRowOf(drawn(rowHeldOn('depth')))).values()]
+
+    expect(onPosition, 'the position axis drew no band').not.toHaveLength(0)
+    expect(onDepth, 'the depth axis drew no band').not.toHaveLength(0)
+    expect(new Set(onPosition).size, 'the two bands of one axis differ').toBe(1)
+    expect(new Set(onDepth).size, 'the two bands of one axis differ').toBe(1)
+    expect(onPosition[0], 'the two axes are drawn in one and the same colour').not.toBe(onDepth[0])
+  })
+
+  it('⭐ MUST GIVEN a row is held WHEN it is compared with the same row unheld THEN it is given a ground of its own (HF-15: 掴んでいる行には地を敷くこと)', () => {
+    const held = theRowOf(drawn(rowHeldOn('position')))
+    const free = theRowOf(drawn(rowHeldOn(null)))
+
+    const groundOf = (row: FakeElement): string =>
+      (styleMap(row).get('background') ?? styleMap(row).get('background-color') ?? '').trim()
+
+    expect(groundOf(held), `the held row has no ground: ${inlineStyle(held)}`).not.toBe('')
+    expect(groundOf(held), 'the held row is painted like every other row').not.toBe(groundOf(free))
+  })
+
+  it('⛔ GIVEN NO row is held WHEN the row is read THEN it carries neither band nor axis mark (HF-15: the mark says WHICH row is held)', () => {
+    const row = theRowOf(drawn(rowHeldOn(null)))
+
+    expect([...bordersOf(row).keys()], `an unheld row carries a band: ${inlineStyle(row)}`).toEqual(
+      [],
+    )
+  })
+
+  it('⭐⭐ MUST GIVEN the panel is drawn with nothing held WHEN GR-20’s strip is read THEN NO resting rule hides it, though the row controls beside it are hidden (HF-15: 掴み代は常に描くこと、HF-6 の対象ではない)', () => {
+    const built = drawn(oneLiveRow())
+    const rules = sheetRulesOf(built.root())
+    const strip = stripsOf(theRowOf(built))[0]
+
+    expect(strip, 'GR-20 laid no strip, so there is nothing to ask about').toBeDefined()
+    // ⭐ THE PAIR THAT MAKES THIS A TEST: a control IS hidden while resting, so a
+    // sheet that hid nothing at all would pass the line below without meaning it.
+    expect(
+      hiddenWhileResting(rules, entryFor(built.root(), entranceForRule('HF-3'))),
+      'no control is hidden while resting, so this case proves nothing',
+    ).not.toBeNull()
+    expect(
+      hiddenWhileResting(rules, strip as FakeElement),
+      `the grab strip is hidden until a pointer arrives: ${inlineStyle(strip as FakeElement)}`,
+    ).toBeNull()
+  })
+})
+
+/**
+ * The marks a row carries that show nothing but a number.
+ *
+ * ⛔ FOUND BY WHAT THE MANUSCRIPT SAYS IT IS, not by an attribute name: `HF-18`
+ * (MUST) asks for 「その行数を行に示すこと」 and 「その行自身にも印を付けること」,
+ * and neither 表 T-103 nor 表 T-109 gives the mark a part or an entrance to be
+ * named by. ⭐ A LEAF whose whole text is a number is the one reading of that
+ * which a build cannot pass by accident -- a row's name is not a bare number.
+ */
+const numberMarksOf = (row: FakeElement): string[] =>
+  descendants(row)
+    .filter((one) => one.children.length === 0 && /^\d+$/.test(one.textContent.trim()))
+    .map((one) => one.textContent.trim())
+
+describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is drawn, and not only under a pointer', () => {
+  it('GIVEN the specification is re-read WHEN HF-18 is looked up THEN it still asks for the count, the mark and the colour, and still says HF-6 does not reach it (Chapter 1.9)', () => {
+    const hf18 = (specTable('T-051').rows.find((one) => one.id === 'HF-18')?.cells ?? []).join(' ')
+
+    expect(hf18).toContain(T_051_HF18_THE_COUNT)
+    expect(hf18).toContain('その行自身にも印を付けること（MUST）')
+    expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
+    expect(hf18).toContain('`HF-6` の対象ではない')
+    expect(themeColoursOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
+  })
+
+  it('⭐ MUST GIVEN a row that holds three rows folded WHEN it is read THEN the count is drawn on it (HF-18: その行数を行に示すこと)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              label: 'RowOne',
+              foldedRowCount: 3,
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+        },
+      }),
+    )
+
+    expect(
+      numberMarksOf(theRowOf(built)),
+      `the row does not show what it holds folded: ${serialize(theRowOf(built))}`,
+    ).toEqual(['3'])
+  })
+
+  it('⛔ GIVEN a row that holds NOTHING folded WHEN it is read THEN no count is drawn (HF-18 shows one 「配下に畳み込んでいる行があるとき」)', () => {
+    const built = drawn(oneLiveRow())
+
+    expect(
+      numberMarksOf(theRowOf(built)),
+      'a row with nothing folded was given a count',
+    ).toEqual([])
+  })
+
+  it('⭐⭐ MUST GIVEN the count is drawn WHEN the sheet is read THEN no resting rule hides it (HF-18: HF-6 の対象ではない)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              label: 'RowOne',
+              foldedRowCount: 7,
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
+            }),
+          ],
+        },
+      }),
+    )
+    const row = theRowOf(built)
+    expect(numberMarksOf(row), 'the count was not drawn, so there is nothing to ask about').toEqual([
+      '7',
+    ])
+    const mark = descendants(row).find(
+      (one) => one.children.length === 0 && one.textContent.trim() === '7',
+    )
+    expect(
+      hiddenWhileResting(sheetRulesOf(built.root()), mark as FakeElement),
+      'the count is drawn only while a pointer is on the row -- 抱えている行を探して回ることになる',
+    ).toBeNull()
   })
 })

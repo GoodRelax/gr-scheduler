@@ -955,6 +955,28 @@
    }
   },
   {
+   "rowId": "IC-92",
+   "label": {
+    "ja": "最も浅い段を 1 階層開く",
+    "en": "Open One Level"
+   },
+   "hint": {
+    "ja": "最も浅い段の行だけを戻す。その配下は畳まったままにする",
+    "en": "Bring back only the shallowest rows, leaving what is under them folded"
+   }
+  },
+  {
+   "rowId": "IC-93",
+   "label": {
+    "ja": "最も浅い段に足す",
+    "en": "Add Top Row"
+   },
+   "hint": {
+    "ja": "最も浅い段に行を 1 つ足す。名前はその場で打つ",
+    "en": "Add one row at the shallowest level, and type its name there"
+   }
+  },
+  {
    "rowId": "IC-76",
    "label": {
     "ja": "操作の記録",

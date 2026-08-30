@@ -43,7 +43,8 @@
 //              説明するポップアップを出せ」）
 //   表 T-233   RS-28 「配下に、開ける行が 1 つも無い」（正: 表 T-051 の `HF-2`）
 //              RS-29 「配下に、畳める行が 1 つも無い」（`HF-11`）
-//              RS-30 「その行は既に畳まれている」（`HF-3`）
+//              RS-30 「その行は既に畳まれている」（`HF-3`）⛔ NO LONGER REACHABLE:
+//                    `HF-3` stopped folding on 2026-08-30 -- see the list below
 //              RS-31 「畳まれた行が 1 つも無い」（`HF-10`）
 //              RS-32 「開いている行が 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
@@ -87,8 +88,8 @@
 // ---------------------------------------------------------------------------
 //   1. WHICH ROW OF 表 T-233 BELONGS TO AN ENTRANCE THE TABLE DOES NOT NAME.
 //      表 T-233 has a 場面 column and no 入口 column, so the pairing is prose.
-//      The ten pairs below are the ten the 場面 states outright, and each one is
-//      held to the manuscript by `sameRule` -- the 正 of the entrance's row of
+//      The pairs below are the ones whose 場面 the table states outright, and
+//      each one is held to the manuscript by `sameRule` -- the 正 of the entrance's row of
 //      表 T-109 and the 正 of the reason's row of 表 T-233 must name the SAME
 //      rule. ⛔ A pair the manuscript stops agreeing about fails there rather
 //      than passing quietly.
@@ -483,7 +484,9 @@ function press(built: Stage): void {
 }
 
 // ---------------------------------------------------------------------------
-// The ten situations 表 T-233 states outright, one per row it gained
+// The situations 表 T-233 states outright and a press can reach.
+// ⚠️ NINE, NOT TEN: `RS-30` lost its 場面 on 2026-08-30 -- see the note in the
+// list below, at the place its pair used to stand.
 // ---------------------------------------------------------------------------
 
 interface Spent {
@@ -497,6 +500,17 @@ interface Spent {
   readonly onRow: string | null
   /** The 場面 of that row of 表 T-233, in this fixture's own terms. */
   readonly because: string
+  /**
+   * Presses that put the SCREEN into the state this row's 場面 describes, run
+   * before the one that is measured.
+   *
+   * ⭐⭐ WHY A PRESS AND NOT A FIXTURE. Some of these 場面 are screen states and
+   * not document ones, and the manuscript says so: `S-211` of 表 T-206 (段 0 が
+   * 畳まれているか) carries 「⛔ **保存しない** —— `S-99g` と同じ立場であり、画面
+   * の状態であって日程の内容ではない」. ⇒ there is no column of the document to
+   * set, and the only way in is the entrance that writes it.
+   */
+  readonly primedBy?: readonly { readonly entry: string; readonly onRow: string | null }[]
 }
 
 const SPENT: readonly Spent[] = [
@@ -515,13 +529,18 @@ const SPENT: readonly Spent[] = [
     because:
       'the only row under BETA is the leaf GAMMA, and folding a leaf takes no drawn row away',
   },
-  {
-    icon: 'IC-59',
-    reason: 'RS-30',
-    fixture: { folded: [ALPHA] },
-    onRow: ALPHA,
-    because: 'ALPHA is folded already, so HF-3 has nothing left to fold',
-  },
+  // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND IS GONE, AND THE MANUSCRIPT IS WHY.
+  // 表 T-233's `RS-30` reads 「その行は既に畳まれている」 with 正 表 T-051 の
+  // `HF-3`; on 2026-08-30 利用者の裁定 rewrote that row to 「**隠す操作子は、その
+  // 行を隠すこと（MUST）** —— 表 T-015 の `HR-6` である」. ⇒ the control no longer
+  // folds anything, so 「既に畳まれている」 cannot be its situation, and the row
+  // it stands on is by definition DRAWN -- so hiding it always takes one row off
+  // the screen and the closing rule under 表 T-051 never calls it spent.
+  // ⛔ THE FIXTURE THAT USED TO STAND HERE (`{ folded: [ALPHA] }`, pressing
+  // `IC-59` on ALPHA) now raises NOTHING, because the press acts. Leaving it
+  // would be asserting the reading the ruling replaced.
+  // ⚠️ `RS-30` IS THEREFORE A ROW OF 表 T-233 WITH NO REACHABLE 場面. That is the
+  // manuscript's to settle, not this file's -- see the report.
   {
     icon: 'IC-74',
     reason: 'RS-31',
@@ -532,9 +551,17 @@ const SPENT: readonly Spent[] = [
   {
     icon: 'IC-78',
     reason: 'RS-32',
-    fixture: { folded: [ALPHA] },
+    fixture: {},
     onRow: null,
-    because: 'ALPHA is folded and its two descendants are not drawn, so no drawn row is open',
+    // ⛔⛔ ONE FOLD OF EVERY ROW IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
+    // 表 T-015's `HR-2` IS WHY: 「⛔⛔ **最も浅い段の行も畳むこと（MUST）** ——
+    // ⭐ **パネルの頭は最も浅い段のさらに上、すなわち段 0 として扱う**」, and
+    // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
+    // fold, and the press acts. ⭐ The 場面 「開いている行が 1 つも無い」 is
+    // reached only once 段 0 itself is down, which is the state a first press
+    // on this same entrance leaves behind.
+    primedBy: [{ entry: 'IC-78', onRow: null }],
+    because: 'a first press folded 段 0 itself, so no drawn row and no level is left open',
   },
   {
     icon: 'IC-8',
@@ -573,11 +600,20 @@ const SPENT: readonly Spent[] = [
   },
 ]
 
+/** Aim one entrance of one row -- or of a surface, where the row is null. */
+function aim(built: Stage, entry: string, onRow: string | null): void {
+  if (onRow === null) built.aimAtEntry(surfaceOf(entry), entry)
+  else built.aimAt(entry, onRow)
+}
+
 /** Aim one of those situations and press it. */
 function pressed(one: Spent, language: DisplayLanguage = 'ja'): Stage {
   const built = stage(one.fixture, language)
-  if (one.onRow === null) built.aimAtEntry(surfaceOf(one.icon), one.icon)
-  else built.aimAt(one.icon, one.onRow)
+  for (const first of one.primedBy ?? []) {
+    aim(built, first.entry, first.onRow)
+    press(built)
+  }
+  aim(built, one.icon, one.onRow)
   press(built)
   return built
 }
@@ -666,7 +702,7 @@ describe('the manuscript still says what these cases read', () => {
 // ===========================================================================
 
 describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matches it', () => {
-  it('⛔ MUST: every one of the ten raises exactly one telling', () => {
+  it('⛔ MUST: every one of them raises exactly one telling', () => {
     // 「押されたときに限り、行えない理由を通知すること（MUST）」
     const silent: string[] = []
     for (const one of SPENT) {

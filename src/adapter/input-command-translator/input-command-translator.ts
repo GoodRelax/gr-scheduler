@@ -555,6 +555,23 @@ export interface InputContext {
    * specification are what watch it.
    */
   readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  /**
+   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+   *
+   * ⭐ WHY THIS SIDE NEEDS IT. HR-2 of table T-015 (MUST) folds 段 0 with
+   * everything else, so IC-78 is spent exactly where the head is already folded
+   * and IC-74 has work whenever it is -- neither of which the document says. ⛔
+   * NOT DERIVABLE FROM `drawnRowGroupIds`: a panel drawing no row may be a
+   * folded head or a document with no rows, and the two owe different answers.
+   *
+   * ⛔ NOT A DOCUMENT SETTING AND IT MAY NOT BECOME ONE. That row keeps it out
+   * of the saved document (「`S-99g` と同じ立場」) and HR-2 (MUST NOT) refuses to
+   * move AT-56 or AT-57 for it, so the shell holds it and hands it here.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, for the reason the two members
+   * above give: absent reads as NOT folded, which is S-211's own default.
+   */
+  readonly isLevelZeroFolded?: boolean
 }
 
 // ----------------------------------------------------------------- answer ---
@@ -625,8 +642,16 @@ export type InPlaceTarget =
    */
   | {
       readonly kind: 'newRowName'
-      /** The row the new one is added UNDER -- `TaskGroup.id` (AT-51). */
-      readonly parentGroupId: string
+      /**
+       * The row the new one is added UNDER -- `TaskGroup.id` (AT-51) -- or
+       * `null` for 段 0, the panel's head.
+       *
+       * ⭐ `null` IS HF-17 (MUST): 「最も浅い段へ行を 1 つ足す」, pressed on IC-93.
+       * HR-2 makes the head level 0 and a row of the shallowest level is one
+       * whose `parentId` is null (AT-52), so the two spellings are the same
+       * thing and no second name is minted for it.
+       */
+      readonly parentGroupId: string | null
       /** The identifier the new row takes, minted by the caller (`newGroupId`). */
       readonly newGroupId: string
       /** AT-55, one past the last sibling -- HF-14's 末子 (MUST). */
@@ -766,6 +791,30 @@ export type InputAction =
   | {
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
+    }
+  /**
+   * S-211 of table T-206 moves, and the writes that go with the same press.
+   *
+   * ⭐⭐ WHY ONE ACTION CARRIES BOTH. HR-2 of table T-015 (MUST) has 「すべて
+   * 畳む」 fold every `TaskGroup` AND 段 0, and the two live in different places
+   * -- AT-56 is the document's and S-211 is the screen's, which that row (MUST
+   * NOT) refuses to change by adding a column. So one press owes one write and
+   * one screen change, and splitting it in two would let a frame stand with the
+   * rows folded and the head open, or the other way about. ⚠️ The precedent is
+   * `setDualCursor`, which carries a following side and an optional write for
+   * exactly the same reason.
+   *
+   * ⭐ THREE ENTRANCES REACH IT: IC-78 folds the head (HF-12), IC-74 opens it
+   * with everything else (HF-10), and IC-92 opens the head alone (HF-16) --
+   * S-211's own note names the last two as 「戻す道は 2 つある」.
+   * ⚠️ `writes` MAY BE EMPTY, and then the press changes the screen alone: the
+   * head's fold takes no row of the document with it when every row is already
+   * folded.
+   */
+  | {
+      readonly kind: 'setLevelZeroFolded'
+      readonly isFolded: boolean
+      readonly writes: readonly DocumentCommand[]
     }
   /** SK-6. */
   | { readonly kind: 'undoEdit' }
@@ -940,6 +989,19 @@ export type InputAction =
        * other way round.
        */
       readonly atY: number | null
+      /**
+       * How far the row still follows the hand on the axis that was REFUSED, in
+       * pixels, signed the way the hand went.
+       *
+       * ⭐ HF-15 (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める割合は
+       * ... `S-212`」, with (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせて
+       * はならない —— 手応えが返らないと、木から離れて滑っていくだけに見える」. So
+       * the answer is neither 0 nor the hand's whole travel: it is the travel
+       * held to S-212 of one step of that axis.
+       * ⭐ WHAT ONE STEP IS, IN S-212's OWN WORDS: 「掛ける相手は、その軸の 1 歩
+       * ぶんである —— 左右なら 表 T-201 の `S-37`、上下ならその行が占める送り」.
+       */
+      readonly resistedPx: number
     }
   /**
    * FR-085 (MUST): a row was chosen in the `Row Title Panel`, so
@@ -2318,6 +2380,30 @@ const ENTRY = {
    * the whole-view; this one makes them.
    */
   rowExpanderCloseAll: 'IC-78',
+  /**
+   * IC-92 -- HF-16 of table T-051, which is HR-7 of table T-015 pressed at
+   * 段 0: 「最も浅い段を 1 階層だけ開く」.
+   *
+   * ⭐ TWO ROWS NAME IT AS THE WAY BACK. HR-2 (MUST) folds 段 0 itself and says
+   * 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」; HR-6 (MUST) sends
+   * a hidden row with no parent here -- 「親を持たない最上位の行は、段 0 の同じ
+   * 操作子で戻せること」.
+   * ⛔ NOT IC-74 UNDER A SECOND NAME (HF-16, MUST NOT): 「`HF-10`（すべて開く）に
+   * 兼ねさせてはならない」, for HF-13's reason -- an entrance that opens a
+   * different amount each press cannot be read before it is pressed.
+   */
+  rowExpanderOpenLevelZero: 'IC-92',
+  /**
+   * IC-93 -- HF-17 of table T-051, which is HR-8 of table T-015 pressed at
+   * 段 0: 「最も浅い段へ行を 1 つ足す」.
+   *
+   * ⭐⭐ WITHOUT IT THE SHALLOWEST LEVEL CANNOT BE MADE AT ALL, which is that
+   * row's own reason: HR-8 adds 「配下に」 and 「行が 1 つも無い文書では押す相手が
+   * 存在しない」, while FR-085 requires a top-level row to be creatable.
+   * ⚠️ THE NAME IS TYPED IN PLACE, exactly as HF-14 has it for a row -- HF-17
+   * says so: 「名前の扱いは `HF-14` に従う」.
+   */
+  rowAddTopRow: 'IC-93',
   /**
    * IC-60 -- FR-098. U-48 `Row Pin` of table T-103.
    *
@@ -3913,15 +3999,25 @@ function commandFromEntry(
       // nothing left to reveal opens onto the same frame, so it is no target.
       // ⚠️ The roster test is kept as the fallback for a caller that carried no
       // picture -- see `InputContext.drawnRowGroupIds`.
+      // ⭐⭐ AND 段 0's OWN FOLD IS ONE OF THE THINGS IT OPENS. S-211 of table
+      // T-206 names 「戻す道は 2 つある —— 表 T-051 の `HF-16`（段 0 を 1 階層
+      // 開く）と `HF-10`（すべて開く）」, so this press clears the head as well
+      // as every row -- and with the head folded it is never spent, whatever
+      // the rows say, because clearing it alone brings the picture back.
       if (
         !(
-          wouldMoveARow(context, null, 'open') ??
-          context.document.schedule.taskGroups.some((row) => row.isCollapsed === true)
+          context.isLevelZeroFolded === true ||
+          (wouldMoveARow(context, null, 'open') ??
+            context.document.schedule.taskGroups.some((row) => row.isCollapsed === true))
         )
       ) {
         return nothingToDo('noFoldedRowAtAll')
       }
-      return changed([{ kind: 'expandAllTaskGroups' }])
+      return acted({
+        kind: 'setLevelZeroFolded',
+        isFolded: false,
+        writes: [{ kind: 'expandAllTaskGroups' }],
+      })
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
       // FR-034, drawn faint by `isEntryUsable` (UF-65) 「揃える相手の `Task` が
@@ -3985,10 +4081,66 @@ function commandFromEntry(
       // drawn from, so the faint entrance and the telling agree.
       // ⛔⛔ AND THE COUNT IS THE PICTURE'S (CR-309), the same as IC-77's: a
       // drawn unfolded row with no drawn child hides nothing when it folds.
-      if (wouldMoveARow(context, null, 'fold') === false) {
-        return nothingToDo('noUnfoldedRowAtAll')
+      // ⭐⭐ AND IT FOLDS 段 0 ITSELF (HR-2, MUST): 「最も浅い段の行も畳むこと」,
+      // 「パネルの頭は最も浅い段のさらに上、すなわち段 0 として扱う」 -- 「押すと
+      // 行が 1 つも描かれない状態になりうる」. ⛔ The rows' own folds cannot carry
+      // that, and HR-2 says why: 「行の畳みが隠すのはその配下であり、最も浅い段の
+      // 行は親を持たないので誰にも隠されない」. ⇒ S-211 moves with the bundle.
+      // ⛔ SO IT IS SPENT ONLY WHERE THE HEAD IS ALREADY FOLDED. With the head
+      // open there is always the head left to fold, and with it folded the
+      // picture holds no row at all -- which is the reading
+      // `RowTitlePanel.canCloseEveryRow` is drawn from.
+      if (context.isLevelZeroFolded === true) return nothingToDo('noUnfoldedRowAtAll')
+      return acted({
+        kind: 'setLevelZeroFolded',
+        isFolded: true,
+        writes: foldsEveryRow(context.document.schedule),
+      })
+    case ENTRY.rowExpanderOpenLevelZero: {
+      // IC-92 -- HF-16 of table T-051 (MUST), which is HR-7 of table T-015
+      // pressed at 段 0: 「最も浅い段を 1 階層だけ開く」.
+      //
+      // ⭐ TWO THINGS, AND BOTH ARE NAMED BY THE ROWS THAT SEND WORK HERE.
+      // HR-2 (MUST): 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」 --
+      // so S-211 comes off. HR-6 (MUST): 「親を持たない最上位の行は、段 0 の同じ
+      // 操作子で戻せること」 -- so the hidden rows of that level come back too,
+      // which is the very thing `opensDirectChildrenOfRow` does for a row.
+      // ⛔ THE SHALLOWEST ROWS ARE NOT UNFOLDED BY IT. HR-2 has them come back
+      // 「畳まれた」 -- 「最も浅い段が戻る」 is one level and no more, which is what
+      // parts HF-16 from HF-10 (MUST NOT: 「兼ねさせてはならない」).
+      // ⛔ AND THE FOLD IS NOT WRITTEN ON ANY ROW. 段 0 is not a `TaskGroup`;
+      // HR-2 (MUST NOT) refuses to move AT-56 or AT-57 for it.
+      const unhidden = opensLevelZeroHiddenRows(context.document.schedule)
+      if (context.isLevelZeroFolded !== true && unhidden.length === 0) {
+        // ⛔ THE SITUATION IS `null` FOR THE REASON IC-90's BRANCH GIVES: 表
+        // T-233's RS-28 is HF-2's 「配下に、開ける行が 1 つも無い」 and would be
+        // untrue here, and no other row of that table fits 段 0 at all.
+        return nothingToDo(null)
       }
-      return foldsOrNothing(foldsEveryRow(context.document.schedule), 'noUnfoldedRowAtAll')
+      return acted({ kind: 'setLevelZeroFolded', isFolded: false, writes: unhidden })
+    }
+    case ENTRY.rowAddTopRow:
+      // IC-93 -- HF-17 of table T-051 (MUST), which is HR-8 pressed at 段 0:
+      // 「最も浅い段へ行を 1 つ足す」.
+      //
+      // ⭐ THE SAME NAMING AS IC-91, which HF-17 asks for in as many words:
+      // 「名前の扱いは `HF-14` に従う」 -- the row is stood up with no name, the
+      // person types it where it will stand, and an empty name stands no row up.
+      // ⭐ `parentGroupId: null` IS 段 0, and HF-17 (MUST) makes the new row
+      // 「最も浅い段の末子」 -- which is `orderPastLastChild` over the rows that
+      // have no parent.
+      // ⛔ NEVER SPENT. FR-085 allows a row at the shallowest level, so the
+      // depth cap (S-125) cannot refuse depth 1 -- and this entrance is the one
+      // road to a first row in a document that has none.
+      return acted({
+        kind: 'editInPlace',
+        target: {
+          kind: 'newRowName',
+          parentGroupId: null,
+          newGroupId: context.newGroupId,
+          order: orderPastLastChild(context.document.schedule, null),
+        },
+      })
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -4326,6 +4478,15 @@ function commandFromRowEntry(
     // ⚠️ `RowExpander` CARRIES NO FLAG FOR THIS ONE -- `RowTitle.canOpenOneLevel`
     // does, because HF-13 draws its control on every row and HF-1's three are
     // drawn only where something stands below.
+    // ⭐⭐ AND SINCE 2026-08-30 IT IS ALSO HR-6's WAY BACK. That row (MUST):
+    // 「隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の
+    // `HF-13` である」, and (MUST NOT) 「戻すための専用の面や札を設けてはならない」
+    // -- 「隠すことは親へ 1 歩畳み込むことであり、戻すのは親を 1 階層開くこと
+    // である」. ⇒ The bundle below carries the unhiding as well as the opening,
+    // in ONE write, because FR-031 (MUST) makes one gesture one undo step.
+    // ⚠️ 2026-08-30 まで the way back was 非表示グループタブ (U-29), 「そのタブは
+    // 実装に 1 つも無く、入口の無い戻り道であった」; U-29 is gone from the
+    // manuscript with that ruling and nothing in `src/` may bring it back.
     if (wouldMoveARow(context, rowGroupId, 'openOneLevel') === false) {
       // ⛔ THE SITUATION IS `null`, AND THAT IS MEASURED RATHER THAN CHOSEN.
       // 表 T-233 holds RS-28 for 「配下に、開ける行が 1 つも無い」 and gives HF-2
@@ -4392,17 +4553,31 @@ function commandFromRowEntry(
     )
   }
 
-  // IC-59 -- HF-3 (MUST), which names HR-5 of table T-015: THIS row folds, and
-  // nothing below it is written.
-  // ⛔ THE SUBTREE IS NOT FOLDED. Folding the descendants as well is HR-4,
-  // which IC-77 above now carries (HF-11) -- so widening this one would give
-  // that operation two entrances, which FR-029 refuses.
+  // IC-59 -- HF-3 (MUST), which names HR-6 of table T-015 since the ruling of
+  // 2026-08-30: THIS row is HIDDEN, and nothing below it is written.
+  //
+  // ⛔⛔ IT WAS HR-5 (「自分を畳む」) UNTIL THAT RULING. HF-3 records the change
+  // itself -- 「本行は 2026-08-30 まで `HR-5` であった —— 利用者の裁定で `HR-6` が
+  // 受け取った」 -- and HF-1 records why HR-5 keeps no entrance now: 「`HR-4` を
+  // 1 度押せば同じ絵になることを実測しており（版 1.67）」.
+  // ⭐ THE WAY BACK IS THE PARENT'S IC-90 (HR-6, MUST): 「隠した行は、親の行の
+  // 「配下を 1 階層開く」操作子で戻せること」, and 「親を持たない最上位の行は、
+  // 段 0 の同じ操作子で戻せること」 -- IC-92. ⛔ So this is no longer a one-way
+  // door, which is why CR-294 had left the sixth operation without an entrance.
+  // ⛔ THE SUBTREE IS NOT WRITTEN. HR-6 (MUST NOT) refuses to DRAW a hidden
+  // row's descendants, which needs no column of theirs -- and writing one would
+  // leave them hidden after the parent came back.
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-  // ⚠️ Already folded, or gone: no write. `changed` says why an empty bundle is
+  // ⚠️ Gone, or already hidden: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
   // ⭐ AND FR-029 (MUST) HAS THE REASON TOLD instead of the press being
-  // swallowed.
-  if (row === undefined || row.isCollapsed === true) return nothingToDo('rowAlreadyFolded')
+  // swallowed. ⚠️ NEITHER CASE CAN BE PRESSED IN PRACTICE: HR-6 (MUST NOT) draws
+  // no hidden row, so no control of one is reachable -- the test is what keeps a
+  // stale picture from writing a row that has gone.
+  // ⛔ THE SITUATION IS `null`: 表 T-233's RS-30 says 「その行は既に畳まれている」,
+  // which is a fold and not a hiding, and FR-029 (MUST NOT) forbids telling a
+  // reader a row of that table that does not fit.
+  if (row === undefined || row.isHidden === true) return nothingToDo(null)
   // ⭐⭐ AND SO IS THE OTHER HALF OF `RowExpander.canClose`, WHICH THIS SIDE
   // COULD NOT SEE UNTIL `drawnRowGroupIds` ARRIVED. A row whose every child is
   // out of the picture -- HR-6 hid them, or the display amount dropped them --
@@ -4417,9 +4592,19 @@ function commandFromRowEntry(
   // table fits, which is the one case FR-029 leaves to `RS-27`.
   // ⚠️ A ROW WITH NO CHILD AT ALL CANNOT REACH HERE -- `expanderOf` gives it no
   // control to press (HF-1).
-  // @provisional PD-319
-  if (wouldMoveARow(context, rowGroupId, 'foldThisRow') === false) return nothingToDo(null)
-  return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: true }])
+  // ⭐⭐ AND IT IS ALWAYS ARMED ON A DRAWN ROW, WHICH HIDING MADE TRUE. What
+  // this control takes out of the picture is THIS row and everything under it
+  // (HR-6, MUST NOT), so the closing rule under table T-051 always counts at
+  // least one -- where folding the row itself could move nothing, hiding it
+  // cannot. ⛔ THE `foldThisRow` TEST THAT STOOD HERE WAS HR-5's and is gone
+  // with it; `RowExpander.canClose` reads the same one line on the drawing side.
+  //
+  // ⚠️ WHICH LEAVES RS-30 OF TABLE T-233 WITH NO PRESS THAT CAN RAISE IT.
+  // Its own 正 is HF-3, and HF-3 stopped folding on 2026-08-30; a reason no
+  // press can carry is, to a reader, a reason that does not exist. ⛔ NOT
+  // DECIDED HERE -- the row is either given a new 場面 or dropped, and both
+  // are the manuscript's to do. @provisional PD-411
+  return changed([{ kind: 'setTaskGroupHidden', groupId: rowGroupId, hidden: true }])
 }
 
 /**
@@ -4507,15 +4692,42 @@ function opensUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
  */
 function opensDirectChildrenOfRow(
   schedule: Schedule,
-  parentGroupId: string,
+  parentGroupId: string | null,
 ): readonly DocumentCommand[] {
   const commands: DocumentCommand[] = []
   for (const row of schedule.taskGroups) {
     if (row.parentId !== parentGroupId) continue
+    // ⭐⭐ HR-6's WAY BACK, WRITTEN IN THE SAME BUNDLE (MUST): 「隠した行は、親の
+    // 行の「配下を 1 階層開く」操作子で戻せること」, and for a row with no parent
+    // 「段 0 の同じ操作子で戻せること」 -- which is this member called with `null`.
+    // ⛔ THE HIDING IS TAKEN OFF THE CHILD AND NOT OFF ITS SUBTREE: HR-6 hides a
+    // row 「配下の行」 and all, so the descendants carry no `isHidden` of their
+    // own to undo -- and one that DOES was hidden by its own press.
+    if (row.isHidden === true) {
+      commands.push({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false })
+    }
     if (row.isCollapsed !== true) continue
     commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
   }
   return commands
+}
+
+/**
+ * One `setTaskGroupHidden` per row of the shallowest level that HR-6 hid --
+ * the half of HF-16's press that brings such a row back.
+ *
+ * ⭐ HR-6 (MUST): 「親を持たない最上位の行は、段 0 の同じ操作子で戻せること」.
+ * A row with no parent has no parent's IC-90 to open it, and that row (MUST
+ * NOT) refuses a surface of its own for the undoing -- so this is the one road.
+ * ⚠️ THE ROWS' OWN FOLDS ARE NOT TOUCHED, which parts HF-16 from HF-10: HR-2
+ * has 「最も浅い段が戻る」 and no more.
+ *
+ * @purity pure
+ */
+function opensLevelZeroHiddenRows(schedule: Schedule): readonly DocumentCommand[] {
+  return schedule.taskGroups
+    .filter((row) => row.parentId === null && row.isHidden === true)
+    .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
 }
 
 /**
@@ -4539,7 +4751,7 @@ function opensDirectChildrenOfRow(
  *
  * @purity pure
  */
-function orderPastLastChild(schedule: Schedule, parentGroupId: string): number {
+function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): number {
   let lastOrder: number | null = null
   for (const row of schedule.taskGroups) {
     if (row.parentId !== parentGroupId) continue
@@ -5108,13 +5320,64 @@ function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedIn
       // 「段を変えてはならない」 -- the row is drawn at the depth it already has.
       atDepth: rowGrabDepthOfHeld(context, groupId),
       atY: found.place.atY,
+      // The refused axis on this grab is sideways, and one step of it is S-37.
+      resistedPx: rowGrabResistedPx(
+        input.x - press.at.x,
+        context.document.documentSettings.rowTitleIndent,
+      ),
     })
   }
   const step = rowGrabLandingOf(context, groupId, rowGrabDepthSteps(context, input, press))
   if (step === null) return UNASSIGNED
   // 「上下は ... 段を変えてはならない」 read the other way round: a grab on the
   // depth axis is drawn where the row already stands vertically.
-  return acted({ kind: 'followRowGrab', groupId, axis, atDepth: step.landing.depth, atY: null })
+  return acted({
+    kind: 'followRowGrab',
+    groupId,
+    axis,
+    atDepth: step.landing.depth,
+    atY: null,
+    // The refused axis on this grab is up and down, and one step of it is
+    // 「その行が占める送り」 -- the height the picture gave this row.
+    resistedPx: rowGrabResistedPx(input.y - press.at.y, rowGrabRowHeightOf(context, groupId)),
+  })
+}
+
+/**
+ * HF-15's resistance (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める
+ * 割合は ... `S-212`」.
+ *
+ * ⭐ THE HAND IS ANSWERED AND THEN STOPPED. A refusal that moved the row not at
+ * all would leave 「掴めていないのか拒まれているのか」 unreadable (S-212's own
+ * note), and one that let it follow all the way is the MUST NOT beside it --
+ * 「木から離れて滑っていくだけに見える」. ⇒ The travel, held to S-212 of one step.
+ * ⛔ THE RATIO IS NOT TYPED HERE: it stands in the generated block at the foot
+ * of this file, because rule 03 section 1 forbids a value of the manuscript
+ * being written into `src/` by hand.
+ * ⚠️ THE SIGN IS THE HAND'S, so the row leans the way the person is pulling.
+ *
+ * @purity pure
+ */
+function rowGrabResistedPx(travelPx: number, stepPx: number): number {
+  const furthest = Math.abs(stepPx) * NOT_STORED_ROW_GRAB_SIZES['S-212']
+  return Math.max(-furthest, Math.min(furthest, travelPx))
+}
+
+/**
+ * 「その行が占める送り」 -- the height the picture gave the held row, which is one
+ * step of the axis a depth grab refuses.
+ *
+ * ⛔ READ OFF THE DRAWN BOXES AND NOT FROM A SETTING. FR-042 lets every row
+ * carry its own height (AT-59), so there is no one number to read -- the same
+ * reason `InputContext.drawnRowBoxes` exists at all.
+ * ⚠️ ZERO WHERE THE CALLER HANDED NO PICTURE, which stops the row leaning at
+ * all rather than leaning by an invented amount.
+ *
+ * @purity pure
+ */
+function rowGrabRowHeightOf(context: InputContext, heldGroupId: string): number {
+  const placed = (context.drawnRowBoxes ?? []).find((one) => one.groupId === heldGroupId)
+  return placed === undefined ? 0 : placed.box.height
 }
 
 /**
@@ -5286,7 +5549,7 @@ function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
 function wouldMoveARow(
   context: InputContext,
   ancestorId: string | null,
-  operation: 'open' | 'fold' | 'foldThisRow' | 'openOneLevel',
+  operation: 'open' | 'fold' | 'openOneLevel',
 ): boolean | null {
   const drawnIds = context.drawnRowGroupIds
   if (drawnIds === undefined) return null
@@ -5302,24 +5565,34 @@ function wouldMoveARow(
     if (row.isHidden !== true) withUnhiddenChild.add(row.parentId)
   }
 
-  // HF-3 (HR-5) is the one operation that reaches the row ITSELF and nothing
-  // below it, so it is answered without the walk: what it takes away is exactly
-  // the drawn children of that one row.
-  if (operation === 'foldThisRow') {
-    return ancestorId !== null && withDrawnChild.has(ancestorId)
+  // ⛔ `foldThisRow` STOOD HERE AND IS GONE. It was HF-3 while that row was
+  // HR-5 (「自分を畳む」); the ruling of 2026-08-30 gave HF-3 to HR-6 (「隠す」),
+  // and hiding a DRAWN row always takes that row out of the picture -- so there
+  // is nothing left for this member to weigh. `RowExpander.canClose` says the
+  // same on the drawing side.
+
+  // HF-13 (HR-7) reaches the DIRECT children alone, so it is answered without
+  // the walk below -- and it is the one operation that can put a row into the
+  // picture by UNHIDING rather than by unfolding (HR-6, MUST).
+  if (operation === 'openOneLevel') {
+    const parent = schedule.taskGroups.find((one) => one.id === ancestorId)
+    // ⛔ NOTHING OPENS UNDER A ROW THAT IS NOT IN THE PICTURE, or under one
+    // that is folded: HR-1a keeps a folded row's descendants out whatever else
+    // is written on them, so neither an unfold nor an unhide moves a drawn row.
+    if (parent === undefined || parent.isCollapsed === true) return false
+    if (ancestorId === null || !drawn.has(ancestorId)) return false
+    for (const row of schedule.taskGroups) {
+      if (row.parentId !== ancestorId) continue
+      // HR-6's way back -- the child is drawn again by this very press.
+      if (row.isHidden === true) return true
+      if (!drawn.has(row.id)) continue
+      if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
+    }
+    return false
   }
 
   for (const row of schedule.taskGroups) {
     if (!drawn.has(row.id)) continue
-    // HF-13 (HR-7) reaches the DIRECT children alone, so the row is asked for
-    // its own parent rather than climbed from. ⚠️ Answered before the climb
-    // below rather than inside it: `isRowUnder` would let a grandchild through,
-    // and a grandchild is the very row HR-7 (MUST) leaves folded.
-    if (operation === 'openOneLevel') {
-      if (row.parentId !== ancestorId) continue
-      if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
-      continue
-    }
     if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
     if (operation === 'open') {
       if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
@@ -6816,7 +7089,10 @@ export const NOT_STORED_ZOOM_STEP: {
 export const NOT_STORED_ROW_GRAB_SIZES: {
   /** S-208, in px */
   readonly 'S-208': number
+  /** S-212 */
+  readonly 'S-212': number
 } = {
   'S-208': 6,
+  'S-212': 0.4,
 }
 // </generated>
