@@ -1441,6 +1441,13 @@
    }
   },
   {
+   "rowId": "GR-20",
+   "text": {
+    "ja": "行の掴み代。上下に動かすと位置が、左右に動かすと段が変わる",
+    "en": "A row’s grip -- drag it up or down to move it, sideways to change its level"
+   }
+  },
+  {
    "rowId": "GR-16",
    "text": {
     "ja": "基準日線。左右に動かすと基準日が変わる",
@@ -1962,6 +1969,50 @@
    "nextStep": {
     "ja": "Agent API を入れてから、もう一度押してください",
     "en": "Turn the Agent API on first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-36",
+   "text": {
+    "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせません",
+    "en": "There is no row directly above this one to become a child of"
+   },
+   "nextStep": {
+    "ja": "一つ上へ動かしてから、もう一度お試しください",
+    "en": "Move it up one place first, then try again"
+   }
+  },
+  {
+   "rowId": "RS-37",
+   "text": {
+    "ja": "いちばん浅い段に居るので、これ以上浅い段へは動かせません",
+    "en": "This row is already at the shallowest level"
+   },
+   "nextStep": {
+    "ja": "上下に動かすことはできます",
+    "en": "You can still move it up or down"
+   }
+  },
+  {
+   "rowId": "RS-38",
+   "text": {
+    "ja": "段の上限に達しているので、これ以上深い段へは動かせません",
+    "en": "The level limit has been reached, so this cannot go any deeper"
+   },
+   "nextStep": {
+    "ja": "上限は文書の設定で変えられます",
+    "en": "The limit can be changed in the document settings"
+   }
+  },
+  {
+   "rowId": "RS-39",
+   "text": {
+    "ja": "その向きに置ける場所が無いので、これ以上動かせません",
+    "en": "There is nowhere further in that direction to put this row"
+   },
+   "nextStep": {
+    "ja": "逆の向きへは動かせます",
+    "en": "It can still be moved the other way"
    }
   },
   {
