@@ -4112,9 +4112,18 @@ export function frameLoop(
    * @purity non-pure
    */
   function dismissNewestNotice(): void {
-    const newest = raisedNotices[raisedNotices.length - 1]
-    if (newest === undefined) return
-    raisedNotices = noticesWithout(dismissKeyOf(newest))
+    if (raisedNotices.length === 0) return
+    // ⛔⛔ ONE TELLING, NOT EVERY TELLING THAT SHARES ITS KEY. `dismissKeyOf`
+    // names a telling by its manner and its reason, so two failures of the same
+    // kind carry the same key -- and filtering by it put BOTH away on one press.
+    // ⚠️ Measured 2026-08-31: two tellings raised by the same entrance, one
+    // `Esc`, zero left. NT-8 (MUST) asks for 「いちばん新しいものから消すこと」,
+    // which is one.
+    // ⭐ THE KEY IS STILL RIGHT FOR THE POINTER PATH: a press names the telling
+    // it was drawn under, and that name has to survive the frames between the
+    // draw and the release. A key press names none, so the list's own end is
+    // what 「いちばん新しい」 means and no name is needed.
+    raisedNotices = raisedNotices.slice(0, -1)
     ask()
   }
 
