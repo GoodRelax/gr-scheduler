@@ -979,22 +979,8 @@ DRAWN_FOR_THE_SCREEN_ALONE = [
     ' * same picture whatever this value is.',
 ]
 
-# ⛔ THE SAME THIRD SEAM AGAIN, AND A THIRD GROUND. S-185 is read by the unit
-# that draws with it, as S-138 and S-180 are -- but neither of their closing
-# sentences fits. The entrance is absent from an export because EP-1 and EP-4
-# draw no entrance at all; what makes S-185 the reader's own is that FR-053
-# (MUST) states the rim to tell an ARMED entrance apart, and what is armed
-# lives in ScreenState (CP-36), which table T-203 keeps out of the document.
-DRAWN_FOR_THE_ARMED_ENTRANCE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: what the rim reports is what',
-    ' * `ScreenState` has armed (CP-36 and table T-023b), and that value is',
-    ' * itself outside the document -- so a thickness that told it apart',
-    ' * could not be inside one either.',
-]
-
 # ⛔ THE SAME THIRD SEAM, AND A FOURTH GROUND. S-143 is read by the unit that
-# draws with it, as S-138 and S-185 are -- ⚠️ but the closing sentence of the
+# draws with it, as S-138 is -- ⚠️ but the closing sentence of the
 # entrance rows does NOT fit. EP-1 and EP-4 of table T-076 keep an ENTRANCE out
 # of an exported picture, and this row is no entrance: its own note in table
 # T-206 says the rule is a line rather than a word and not a shape either, so
@@ -1022,7 +1008,7 @@ DRAWN_INSIDE_THE_COMMAND_PALETTE = [
 ]
 
 # ⛔ A FIFTH GROUND, AND THE ONLY ONE WHOSE PICTURE LEAVES THE TOOL. S-194 is
-# read by the unit that draws with it, as S-138, S-180 and S-185 are -- but all
+# read by the unit that draws with it, as S-138 and S-180 are -- but all
 # three of their closing sentences say some form of "the export does not show
 # this", and EP-6 of table T-076 puts the Dual Cursor's two lines INTO the
 # exported picture. What table T-206 records here is narrower: the document
@@ -1040,7 +1026,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = [
 # ⛔ A SIXTH GROUND, AND THE SECOND WHOSE PICTURE LEAVES THE TOOL. S-196 is the
 # gap the name label of a line-only shape is lifted by (the label column of table
 # T-012), and it is read by the unit that lays the label out. ⛔ The ground of
-# S-138, S-180 and S-185 does NOT fit: all three close with some form of "the
+# S-138 and S-180 does NOT fit: both close with some form of "the
 # export does not show this", and EP-5 of table T-076 draws the Row Area's
 # contents -- the name label among them -- INTO the exported picture. ⚠️ Nor is
 # S-194's sentence right: that one turns on the document keeping the two DATES,
@@ -1147,12 +1133,6 @@ NOT_STORED_TARGETS = {
     # folded into the line above -- one constant per consuming SUBJECT.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204'],
                               DRAWN_WITH_WHERE_IT_STANDS),
-    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
-    # dom-screen-surface.ts: one constant per consuming SUBJECT, the same split
-    # the selection frame and the dummy are given below. S-138 and S-141 are the
-    # box every entrance keeps around its shape, drawn the same whatever is
-    # armed; S-185 is the rim that tells ONE entrance from the others (FR-053).
-    'NOT_STORED_ARMED_ENTRY_SIZES': (['S-185'], DRAWN_FOR_THE_ARMED_ENTRANCE),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, which is the split the notes around
@@ -1751,15 +1731,17 @@ TARGETS = [
     # ⭐ The colours, split by who paints what. The chrome and `color-scheme`
     # are the surface's alone (FR-041); the schedule's own colours belong to
     # whoever draws the picture.
-    # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though all three land here: one
+    # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though both land here: one
     # constant per consuming SUBJECT. S-138 and S-141 are the box every
-    # entrance keeps, S-185 is the rim that tells ONE entrance from the others,
-    # and S-143 is the line between two GROUPS of them -- a decoration nothing
-    # can point at, arm or be reported for.
+    # entrance keeps, and S-143 is the line between two GROUPS of them -- a
+    # decoration nothing can point at, arm or be reported for.
+    # ⚠️ S-185 STOOD HERE UNTIL CR-311 AND ITS ROW IS GONE. FR-053 drew the
+    # armed entrance with a RIM until 2026-08-30; the ruling of that day made it
+    # a FILL, whose two colours are rows of table T-236 and reach this unit
+    # through `SCREEN_COLOURS`. A thickness has no reader left.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ARMED_ENTRY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),

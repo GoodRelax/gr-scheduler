@@ -148,8 +148,16 @@ def main():
     if '--start' in sys.argv:
         # ⭐ The baseline IS this measurement. Both rows carry it, so the delta
         # opens at zero and every later run is measured against a real reading.
+        # ⛔ THE FIRST CELL IS 残件 AND WAS MISSING UNTIL 2026-08-30. The ruling of
+        # that day put 残件 in front of 総件数; this line still built one cell fewer
+        # than `block_of` counts, so the length guard there took every cell to
+        # — and the round opened with NO baseline at all -- silently, because a
+        # row of dashes is what a first-ever run looks like too.
         now = stamp()
-        fresh = block_of(now, [str(rows)] + [str(seen.get(k, 0)) for k in LADDER],
+        left = rows - sum(seen.get(s, 0) for s in DONE)
+        fresh = block_of(now,
+                         [str(left), str(rows)]
+                         + [str(seen.get(k, 0)) for k in LADDER],
                          rows, seen, now)
         io.open(LEDGER, 'w', encoding='utf-8', newline='\n').write(
             text[:i] + fresh + text[j + len(END):])

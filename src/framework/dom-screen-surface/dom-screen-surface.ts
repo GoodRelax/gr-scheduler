@@ -5530,8 +5530,8 @@ export const NOT_STORED_ICON_SIZES: {
   /** S-141, in px */
   readonly 'S-141': number
 } = {
-  'S-138': 12,
-  'S-141': 6,
+  'S-138': 16,
+  'S-141': 4,
 }
 
 /**
@@ -5563,27 +5563,6 @@ export const NOT_STORED_HELP_SIZES: {
   'S-202': 3,
   'S-203': 0.80,
   'S-204': 0.875,
-}
-
-/**
- * The values table T-206 states that this unit needs, by row ID.
- *
- * ⭐ Table T-206 holds what the document does NOT store, so these
- * are not document settings and are not in SETTINGS_DEFAULTS. They
- * are reached by row ID because most rows of that table have no key
- * column -- the row ID is the specification's own name for them.
- *
- * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
- * setting and may not become one: what the rim reports is what
- * `ScreenState` has armed (CP-36 and table T-023b), and that value is
- * itself outside the document -- so a thickness that told it apart
- * could not be inside one either.
- */
-export const NOT_STORED_ARMED_ENTRY_SIZES: {
-  /** S-185, in px */
-  readonly 'S-185': number
-} = {
-  'S-185': 2,
 }
 
 /**
