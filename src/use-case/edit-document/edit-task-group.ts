@@ -4,10 +4,10 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The eleven commands table T-108 puts in the `TaskGroup` group: CM-26 to
-// CM-35, and CM-72.
+// The twelve commands table T-108 puts in the `TaskGroup` group: CM-26 to
+// CM-35, CM-72, and CM-73.
 //
-// ⚠️ All eleven write a `TaskGroup` column, which is schedule-group data, so each
+// ⚠️ All twelve write a `TaskGroup` column, which is schedule-group data, so each
 // of them rebuilds `document.schedule` and FR-063 moves the schedule instant for it.
 // A command that asks for the value already held rebuilds NOTHING and returns
 // the document untouched -- document-change-plan.ts reads the schedule
@@ -50,7 +50,7 @@ import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
-/** CM-26 to CM-35 and CM-72 of table T-108. */
+/** CM-26 to CM-35, CM-72 and CM-73 of table T-108. */
 export type TaskGroupCommand =
   | {
       readonly kind: 'createTaskGroup'
@@ -94,6 +94,30 @@ export type TaskGroupCommand =
       readonly parentId: string | null
       /** Every child of that parent, in the order asked for (HM-8). */
       readonly orderedIds: readonly string[]
+    }
+  /**
+   * CM-73 -- where HF-15's drag lands a row.
+   *
+   * ⭐ ONE COMMAND FOR BOTH AXES, and that is why it is 組 ⭐ in table T-108:
+   * HF-15 fixes the axis for the length of one grab, but a single drag writes
+   * `parentId` and `order` together whichever axis it took -- an up-or-down
+   * step crosses into another parent 「ある群の末子の次は次の群の長子の位置で
+   * あり、親をまたぐ」, and a left-or-right step lands the row among new
+   * siblings. ⛔ TWO COMMANDS WOULD BE TWO UNDO STEPS for one gesture, which
+   * FR-031 (MUST) forbids.
+   *
+   * ⛔ NOT `reorderTaskGroupSiblings` WIDENED. That command's own refusal says
+   * a list bringing in a row from another parent 「does not describe an order
+   * of this parent's children」, and its authority HM-8 is about siblings; one
+   * row of table T-108 meaning two things is what R3.4 refuses.
+   */
+  | {
+      readonly kind: 'moveTaskGroup'
+      readonly groupId: string
+      /** Where it lands. Null is the top level, which FR-085 allows. */
+      readonly parentId: string | null
+      /** AT-55, the place among its new siblings, counted from 0. */
+      readonly order: number
     }
   /**
    * CM-72 -- HF-8's half of one fit press.
@@ -688,6 +712,81 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       // in the WBS (HM-10), and the two axes are deliberately independent
       // (HM-3). Nothing here writes `wbsOrder`.
       return edited(withSchedule(document, { taskGroups: ordered }))
+    }
+
+    case 'moveTaskGroup': {
+      const moved = byId.get(command.groupId)
+      if (moved === undefined) {
+        return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
+      }
+      const refusals: Refusal[] = []
+      const parent = command.parentId === null ? null : byId.get(command.parentId)
+      if (command.parentId !== null && parent === undefined) {
+        refusals.push(reject('CM-73', 'FR-005', `no such parent row: ${command.parentId}`))
+      }
+      // ⭐ THE SUBTREE IS READ ONCE and answers both HM-4 and HM-3a: it holds
+      // the rows that may not be the new parent, and the height that decides
+      // whether the move fits under `S-125`.
+      const carried = subtreeOf(groups, command.groupId)
+      if (carried === null) {
+        return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
+      }
+      // HM-4 (MUST NOT): a row may not be moved under itself or its own
+      // descendant -- 「循環になる」.
+      if (command.parentId !== null && carried.rows.some((one) => one.id === command.parentId)) {
+        refusals.push(
+          reject('CM-73', 'HM-4', 'a row may not be moved under itself or its own descendant'),
+        )
+      }
+      // HM-3a (MUST NOT): the subtree is measured AT ITS DEEPEST POINT AFTER
+      // the move -- 「部分木は移動後の最深部で測る」. A move to the top level
+      // puts the row at depth 1, so the parent's depth is 0 there.
+      const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
+      if (under + carried.height > settings.maxGroupDepth) {
+        refusals.push(
+          reject(
+            'CM-73',
+            'HM-3a',
+            `the move would reach depth ${under + carried.height}, ` +
+              `past S-125's ${settings.maxGroupDepth}`,
+          ),
+        )
+      }
+      if (refusals.length > 0) return refused(refusals)
+
+      // ⛔ THE ROW IS NOT REBUILT. HM-5 (MUST NOT) -- 「行の器を作り直しては
+      // ならない。更新するのは親だけとする」 -- so the only columns written
+      // are `parentId` and `order`, and the label, colour, height, collapse,
+      // hidden state and pin all come through untouched.
+      // ⭐ THE SUBTREE COMES ALONG FOR FREE. HF-15 (MUST) has the row move
+      // 「その行の配下ごと」, and every descendant names its own parent, so
+      // nothing below the moved row is written at all.
+      const landing = Math.max(0, Math.trunc(command.order))
+      const stays = groups.filter(
+        (one) => one.id !== command.groupId && one.parentId === command.parentId,
+      )
+      const placed = [...stays.slice(0, landing), moved, ...stays.slice(landing)]
+      const rank = new Map(placed.map((one, at) => [one.id, at]))
+      // ⚠️ THE ROW IT LEFT IS RENUMBERED TOO. AT-55 is 「同じ親の下での並び」,
+      // and a gap left behind would leave two parents' children numbered by
+      // different rules -- the same reason the reorder above writes the rank
+      // rather than the old value.
+      const left = groups.filter(
+        (one) => one.id !== command.groupId && one.parentId === moved.parentId,
+      )
+      const leftRank = new Map(left.map((one, at) => [one.id, at]))
+      const next = groups.map((one) => {
+        if (one.id === command.groupId) {
+          const at = rank.get(one.id) ?? landing
+          return one.parentId === command.parentId && one.order === at
+            ? one
+            : { ...one, parentId: command.parentId, order: at }
+        }
+        const place = rank.get(one.id) ?? leftRank.get(one.id)
+        return place === undefined || place === one.order ? one : { ...one, order: place }
+      })
+      if (next.every((one, at) => one === groups[at])) return edited(document)
+      return edited(withSchedule(document, { taskGroups: next }))
     }
 
     case 'expandAllTaskGroups': {

@@ -312,8 +312,17 @@ const T_051_EXPANDER = [
   { row: 'HF-3', gist: '閉じる操作子は、その行自身を畳むこと（MUST）' },
 ] as const
 
-/** 表 T-103's U-47 — one part, three controls (CR-294). */
-const T_103_U47_TWO_CONTROLS = '3 つで 1 組'
+/**
+ * 表 T-103's U-47 — the part, and WHO holds how many controls it has.
+ *
+ * ⛔ IT USED TO CARRY THE COUNT ITSELF -- 「開く側と、その行を閉じる側と、配下
+ * をすべて閉じる側の 3 つで 1 組」 -- and 表 T-051's `HF-1` enumerated the same
+ * three. ⚠️ Two places, one number: when `HF-13` and `HF-14` made it five, the
+ * copy in U-47 was the one that went stale. ⭐ The count now lives only at its
+ * owner, and this case is what keeps it from coming back.
+ */
+const T_103_U47_POINTS_AT_ITS_OWNER = '表 T-051 の `HF-1`'
+const T_103_U47_HOLDS_NO_COUNT = /\d+\s*つで\s*1\s*組/
 
 /** 表 T-023a's own note, which the 面 table under it belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA =
@@ -1460,9 +1469,16 @@ describe('the specification still says what these cases copy', () => {
     }
   })
 
-  it('表 T-103 U-47 still calls the Row Expander one part made of three controls', () => {
+  it('表 T-103 U-47 names the row that holds the count, and holds no count itself', () => {
     const row = specTable('T-103').rows.find((one) => one.id === 'U-47')
-    expect(row?.cells.join(' ')).toContain(T_103_U47_TWO_CONTROLS)
+    const cells = row?.cells.join(' ') ?? ''
+    expect(cells, 'U-47 no longer points at the row that owns its layout').toContain(
+      T_103_U47_POINTS_AT_ITS_OWNER,
+    )
+    expect(
+      T_103_U47_HOLDS_NO_COUNT.test(cells),
+      'U-47 states a count again -- 表 T-051 の `HF-1` owns it, and a number in two places drifts',
+    ).toBe(false)
   })
 
   it('U-23 still requires an entrance to be named by the Row Title Panel (MUST)', () => {

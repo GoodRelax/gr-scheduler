@@ -746,6 +746,28 @@
    }
   },
   {
+   "rowId": "IC-90",
+   "label": {
+    "ja": "1 階層だけ開く",
+    "en": "Open One Level"
+   },
+   "hint": {
+    "ja": "この行の直下の子だけを開く。孫より下は畳んだままにする",
+    "en": "Open only this row's own children, leaving deeper rows folded"
+   }
+  },
+  {
+   "rowId": "IC-91",
+   "label": {
+    "ja": "配下に足す",
+    "en": "Add Below"
+   },
+   "hint": {
+    "ja": "この行の配下に行を 1 つ足す。名前はその場で打つ",
+    "en": "Add one row below this one, and type its name there"
+   }
+  },
+  {
    "rowId": "IC-60",
    "label": {
     "ja": "ピン止め",

@@ -22,10 +22,10 @@
 // calendars.
 //
 // ⭐ The eight files are exactly table T-108's eleven groups, folded onto the
-// aggregates that own them, and the counts add up to its 72 commands:
+// aggregates that own them, and the counts add up to its 73 commands:
 //
 //     edit-task.ts             `Task` 14 + `TaskVisual` 6      = 20
-//     edit-task-group.ts       `TaskGroup` 11                  = 11
+//     edit-task-group.ts       `TaskGroup` 12                  = 12
 //     edit-dependency.ts       `Dependency` 3                  =  3
 //     edit-annotation.ts       `CommentBox` 6 + `HighlightBox` 4 = 10
 //     edit-resource.ts         `Resource` 4 + `Assignment` 2   =  6
@@ -41,7 +41,7 @@
 // for WS-3, and LR-3 forbids a cycle inside a layer.
 //
 // ✅ COMPLETE: all eight aggregates are written, and `DocumentCommand` is the
-// full 72 commands of table T-108 -- 20 + 11 + 3 + 10 + 6 + 1 + 5 + 16. The
+// full 73 commands of table T-108 -- 20 + 12 + 3 + 10 + 6 + 1 + 5 + 16. The
 // count is not a claim made in prose: `ROUTE_TABLE` below is annotated
 // `Record<DocumentCommand['kind'], AggregateEdit>`, so a row of table T-108
 // that no aggregate lists is a missing property the compiler NAMES, and a
@@ -242,7 +242,7 @@ const TASK_KINDS = [
   'setTaskVisualNamePlacement',
 ] as const satisfies readonly TaskCommand['kind'][]
 
-/** CM-26 to CM-35, and CM-72 -- half of one fit press (FR-031). */
+/** CM-26 to CM-35, CM-72 -- half of one fit press (FR-031) -- and CM-73. */
 const TASK_GROUP_KINDS = [
   'createTaskGroup',
   'deleteTaskGroup',
@@ -255,6 +255,7 @@ const TASK_GROUP_KINDS = [
   'setTaskGroupHidden',
   'reorderTaskGroupSiblings',
   'expandAllTaskGroups',
+  'moveTaskGroup',
 ] as const satisfies readonly TaskGroupCommand['kind'][]
 
 /** CM-36 to CM-38. */
@@ -324,7 +325,7 @@ const SETTINGS_KINDS = [
  * Which aggregate owns a command, resolved from `kind` alone.
  *
  * ⭐ The annotation is the census. `Record<DocumentCommand['kind'], ...>`
- * demands a property for every one of table T-108's 72 rows, so an aggregate
+ * demands a property for every one of table T-108's 73 rows, so an aggregate
  * whose list forgets one of its own commands does not build, and the compiler
  * says which name is missing. That is the whole reason the routing is a table
  * derived from eight lists rather than a chain of branches.
@@ -355,7 +356,7 @@ const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
 /**
  * The same table, keyed by any string.
  *
- * ⚠️ `ROUTE_TABLE` is typed by the 72 kinds, so reading it never admits a
+ * ⚠️ `ROUTE_TABLE` is typed by the 73 kinds, so reading it never admits a
  * miss. A command can still arrive from outside TypeScript -- AG-8's Agent API
  * hands one over as data -- and that miss must be VISIBLE. The map answers
  * `undefined`, which the dispatch below turns into a refusal.

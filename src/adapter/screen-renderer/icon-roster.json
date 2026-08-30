@@ -752,6 +752,28 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-90",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行の配下を 1 階層だけ開く",
+   "authority": "表 T-051 の `HF-13`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-91",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行の配下に行を 1 つ足す",
+   "authority": "表 T-051 の `HF-14`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-60",
    "surfaces": [
     "Row Title Panel"
