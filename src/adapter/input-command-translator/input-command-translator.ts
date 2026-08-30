@@ -529,6 +529,36 @@ export type InPlaceTarget =
    * this file's, as CR-146 leaves it: no row of the specification settles one.
    */
   | { readonly kind: 'assignee'; readonly uid: number }
+  /**
+   * HF-14 of table T-051 (IC-91) -- a row is being added under `parentGroupId`,
+   * and the person is naming it where it will stand.
+   *
+   * ⭐⭐ WHY THE PRESS PLANS NO COMMAND AT ALL. HF-14 (MUST) has the row stood
+   * up with an empty name and typed in place, (MUST NOT) forbids giving it a
+   * default name -- 「改名の入口が表 T-109 に 1 つも無い」ので、既定の名で立てる
+   * と直せない行ができる -- and (MUST) refuses to stand the row up at all when
+   * the name is settled empty: 「名前が空のまま確定されたときは、その行を立てない
+   * こと」. ⇒ A `createTaskGroup` planned on the press would be all three of
+   * those broken at once, and CM-26 would refuse it in any case: FR-058 (MUST
+   * NOT) has that command reject a row carrying neither a name nor a derivation
+   * source. So this target carries everything the write needs EXCEPT the name,
+   * and the side that collects the characters supplies that one thing.
+   *
+   * ⭐ THE THREE VALUES ARE DECIDED HERE BECAUSE THEY ARE RULES, not because
+   * they are convenient: `parentGroupId` is HR-8's 「足す先は配下」, `order` is
+   * HF-14's 末子 (MUST), and `newGroupId` is `InputContext`'s minted identifier,
+   * which this layer is handed for exactly this reason (AT-51 is a UUID and
+   * minting one is not a pure act).
+   */
+  | {
+      readonly kind: 'newRowName'
+      /** The row the new one is added UNDER -- `TaskGroup.id` (AT-51). */
+      readonly parentGroupId: string
+      /** The identifier the new row takes, minted by the caller (`newGroupId`). */
+      readonly newGroupId: string
+      /** AT-55, one past the last sibling -- HF-14's 末子 (MUST). */
+      readonly order: number
+    }
 
 // STOP -- ⛔ ONE OF MK-13's FOUR ENTRANCES CANNOT BE REACHED, and not because
 // it was left out here. 「行見出し」 is in the Row Title Panel, which the note
@@ -545,6 +575,14 @@ export type InPlaceTarget =
 // used to give for it has expired. FR-097 owns that entrance and wiring it to
 // CM-48 is its own piece of work; the kind is left out until that work is
 // asked for, for the same YAGNI reason and not for the old one.
+//
+// ⚠️ `newRowName` ABOVE IS NOT THAT MISSING ENTRANCE. This STOP is about
+// RENAMING a row that already stands, which MK-13 reaches by a double click on
+// the 行見出し and which still has no `Hit` to arrive on; `newRowName` is
+// HF-14's naming of a row that does NOT yet exist, and it arrives on a press on
+// IC-91, which `readScreenPartAt` answers for. ⛔ So the vocabulary that kind
+// declares IS produced, and the two must not be folded together: one writes
+// CM-34 against a row, the other CM-26 to make one.
 
 /**
  * CM-60, which is the one road into `dualCursor` (S-65).
@@ -982,12 +1020,16 @@ function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput 
  * A fold or an open that reaches some rows, or FR-029's telling where it reaches
  * none.
  *
- * ⭐ ONE PLACE FOR THE FOUR ENTRANCES OF TABLE T-015 THAT WORK ON A SET OF ROWS
- * -- IC-58 and IC-77 per row, IC-74 and IC-78 for the panel. Each of them is
- * drawn faint on exactly the reading that this set came out empty, so the test
- * is written once rather than four times (R2.7).
- * ⚠️ THE SITUATION STILL COMES FROM THE CALLER, because the four are four rows
+ * ⭐ ONE PLACE FOR THE FIVE ENTRANCES OF TABLE T-015 THAT WORK ON A SET OF ROWS
+ * -- IC-58, IC-77 and IC-90 per row, IC-74 and IC-78 for the panel. Each of them
+ * is drawn faint on exactly the reading that this set came out empty, so the
+ * test is written once rather than five times (R2.7).
+ * ⚠️ THE SITUATION STILL COMES FROM THE CALLER, because the five are five rows
  * of 表 T-233 and not one: an empty open is not an empty fold.
+ * ⛔ AND ONE OF THE FIVE HAS NO ROW OF THAT TABLE AT ALL, which is why `null` is
+ * admitted here as well as by `nothingToDo`: HF-13's situation (「開ける直下の子
+ * が 1 つも無い」) is not among 表 T-233's rows, and RS-28 -- 「配下に、開ける行が
+ * 1 つも無い」, HF-2's -- would be untrue on a row whose grandchild is folded.
  * ⛔ NOT FOLDED INTO `changed`. That member answers `CONSUMED_ELSEWHERE` for an
  * empty bundle and has callers that are not entrances at all -- a key press
  * that deletes nothing is not an entrance with nothing to do, and FR-029 speaks
@@ -997,7 +1039,7 @@ function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput 
  */
 function foldsOrNothing(
   commands: readonly DocumentCommand[],
-  situation: SpentEntranceSituation,
+  situation: SpentEntranceSituation | null,
 ): TranslatedInput {
   return commands.length === 0 ? nothingToDo(situation) : changed(commands)
 }
@@ -2072,6 +2114,32 @@ const ENTRY = {
    * control doing both would be the second entrance to one of them.
    */
   rowExpanderCloseBelow: 'IC-77',
+  /**
+   * IC-90 -- HF-13 of table T-051, which is HR-7 of table T-015: the row's
+   * DIRECT children open, and 「孫より下は畳んだまま」.
+   *
+   * ⛔⛔ A SEPARATE ENTRANCE FROM IC-58 AND NOT A SECOND READING OF IT. HF-13
+   * (MUST) says so and (MUST NOT) forbids one control being both: 「押すたびに
+   * 違う量が開く入口は、何が起きるかを押す前に読めない」. ⚠️ THE OPERATION WAS
+   * REJECTED ONCE, on 2026-08-25, and HF-2 keeps that history: the reason then
+   * was that nothing paired with the closing control, and HR-3 is that pair now
+   * -- so the ruling of 2026-08-30 restored it.
+   */
+  rowExpanderOpenOneLevel: 'IC-90',
+  /**
+   * IC-91 -- HF-14 of table T-051, which is HR-8 of table T-015: one row is
+   * added UNDER the row this control was drawn on.
+   *
+   * ⭐ UNDER AND NOT BESIDE (MUST): 「足す先は配下とすること」, and 「同じ段へ
+   * 置きたいときは、足したあと動かす」 (HF-15). ⛔ NOT `rowDelete` WEARING A
+   * PLUS: the shape is a framed `＋` precisely so that it is not IC-74's bare
+   * one, and the two entrances write two different rows of table T-108.
+   * ⚠️ THE PRESS WRITES NOTHING BY ITSELF -- see `commandFromRowEntry`, which
+   * answers it with an in-place edit rather than a command, because HF-14
+   * (MUST NOT) forbids a default name and CM-26 refuses a row that has neither
+   * a name nor a derivation source.
+   */
+  rowAddChild: 'IC-91',
   /**
    * IC-74 -- HF-10 of table T-051, which is HR-1 of table T-015: every row in
    * the document opens.
@@ -3644,6 +3712,8 @@ function commandFromEntry(
     case ENTRY.rowExpanderOpen:
     case ENTRY.rowExpanderClose:
     case ENTRY.rowExpanderCloseBelow:
+    case ENTRY.rowExpanderOpenOneLevel:
+    case ENTRY.rowAddChild:
     case ENTRY.rowPin:
     case ENTRY.rowDelete:
       return commandFromRowEntry(entry, on.rowGroupId, context)
@@ -3964,9 +4034,11 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
 }
 
 /**
- * The five entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
- * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`, and IC-82, which table
- * T-103 names no part for at all (see `ENTRY.rowDelete`).
+ * The seven entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
+ * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`, and IC-82, IC-90 and IC-91,
+ * which table T-103 names no part for at all (see `ENTRY.rowDelete`).
+ * ⚠️ THE COUNT ROSE BY TWO ON 2026-08-30: HF-13 gave HR-7 an entrance of its
+ * own (IC-90) and HF-14 gave HR-8 one (IC-91).
  *
  * ⭐ WHICH ROW IS `ScreenPart.rowGroupId`, AND IT COULD COME FROM NOWHERE ELSE.
  * HF-1 of table T-051 and FR-098 (MUST) each draw their control once per row,
@@ -3977,10 +4049,11 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
  * T-066 freezes the gesture's screen at the press, so a panel scrolled since
  * must not move the answer to another row.
  *
- * ⛔ FIVE OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE, AND TWO OF THE
- * FIVE ARE NOT HERE. HF-2 is HR-3, HF-3 is HR-5 and HF-11 is HR-4, all three
- * drawn per row; HF-10 is HR-1 and HF-12 is HR-2, each drawn ONCE at the top of
- * the panel, so `commandFromEntry` answers those two directly.
+ * ⛔ SEVEN OF TABLE T-015's EIGHT OPERATIONS HAVE AN ENTRANCE, AND TWO OF THE
+ * SEVEN ARE NOT HERE. HF-2 is HR-3, HF-3 is HR-5, HF-11 is HR-4, HF-13 is HR-7
+ * and HF-14 is HR-8, all five drawn per row; HF-10 is HR-1 and HF-12 is HR-2,
+ * each drawn ONCE at the top of the panel, so `commandFromEntry` answers those
+ * two directly.
  * ⛔ HR-6 (hiding a row) STILL HAS NO ENTRANCE, and this file may not invent
  * one: that row requires in the same breath that a hidden row be brought back
  * through the parent's `Hidden Group Tab` (U-29, MUST), and nothing in `src/`
@@ -4062,6 +4135,70 @@ function commandFromRowEntry(
       foldsUnderRow(context.document.schedule, rowGroupId),
       'noUnfoldedRowBelow',
     )
+  }
+
+  if (entry === ENTRY.rowExpanderOpenOneLevel) {
+    // IC-90 -- HF-13 (MUST), which names HR-7 of table T-015: 「選択した
+    // `TaskGroup` の直下の子だけを開き、孫より下は畳んだままにすること」.
+    //
+    // ⛔ ONE HOP, WHICH IS THE WHOLE OF WHY THIS IS NOT IC-58. HF-13 (MUST NOT)
+    // refuses to let one entrance be both: 「押すたびに違う量が開く入口は、何が
+    // 起きるかを押す前に読めない」. So the bundle below writes the row's DIRECT
+    // children and nothing deeper, and a grandchild left folded stays folded --
+    // which is what makes a second press open the next level.
+    // ⛔ THE ROW ITSELF IS NOT OPENED, for the reason IC-58's branch gives: a
+    // row that folded itself is opened by the control of the row one above it,
+    // and reaching its own row here would give HF-3's pair two entrances.
+    // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every
+    // child that opens opens in the same write.
+    // ⛔⛔ THE PICTURE DECIDES WHETHER IT IS SPENT, in the words the closing rule
+    // under table T-051 uses for HF-13 by name: a folded child with nothing to
+    // reveal opens onto the same frame, so it is 「対象が 1 つも無い」.
+    // ⚠️ `RowExpander` CARRIES NO FLAG FOR THIS ONE -- `RowTitle.canOpenOneLevel`
+    // does, because HF-13 draws its control on every row and HF-1's three are
+    // drawn only where something stands below.
+    if (wouldMoveARow(context, rowGroupId, 'openOneLevel') === false) {
+      // ⛔ THE SITUATION IS `null`, AND THAT IS MEASURED RATHER THAN CHOSEN.
+      // 表 T-233 holds RS-28 for 「配下に、開ける行が 1 つも無い」 and gives HF-2
+      // as its authority; this press is HF-13's, whose subject is 直下の子 alone,
+      // and a row whose GRANDCHILD is folded would be told 「配下に開ける行が無い」
+      // while IC-58 beside it still has work. ⇒ Carrying RS-28 here would tell
+      // the reader something untrue, which FR-029's MUST NOT is about the
+      // opposite of; no other row of that table fits either, so the fallback
+      // RS-27 stands. ⚠️ REPORTED AS A GAP IN 表 T-233 rather than closed here:
+      // adding a row to that table is the specification's to do (FR-029).
+      return nothingToDo(null)
+    }
+    return foldsOrNothing(opensDirectChildrenOfRow(context.document.schedule, rowGroupId), null)
+  }
+
+  if (entry === ENTRY.rowAddChild) {
+    // IC-91 -- HF-14 (MUST), which names HR-8 of table T-015: one row is added
+    // UNDER this one, as its LAST child, with an empty name typed in place.
+    //
+    // ⭐⭐ NO COMMAND IS PLANNED HERE, and `InPlaceTarget`'s `newRowName` carries
+    // the whole of why: the name does not exist yet, HF-14 (MUST NOT) forbids
+    // inventing one, and CM-26 refuses a row that carries neither a name nor a
+    // derivation source (FR-058, MUST NOT). So the press asks for the naming and
+    // the write follows the settling.
+    // ⛔ THE DEPTH CAP IS NOT TESTED HERE. HR-8 (MUST NOT): 「深さの上限の扱いは
+    // `FR-085` が持つ ... ここでは繰り返さない」, and `createTaskGroup` refuses a
+    // parent already at `maxGroupDepth` on its own account -- a second test on
+    // this side would be the same rule in two places (R2.7).
+    // ⚠️ `RowTitle.canAddChildRow` IS THE DRAWING SIDE'S ANSWER TO THE SAME CAP,
+    // which FR-029 requires of the pair: the entrance is drawn faint where the
+    // write would be refused. ⛔ It is not read back here, because this side is
+    // handed no `RowTitle` -- what it is handed is the document, and the row
+    // above says which side may test what.
+    return acted({
+      kind: 'editInPlace',
+      target: {
+        kind: 'newRowName',
+        parentGroupId: rowGroupId,
+        newGroupId: context.newGroupId,
+        order: orderPastLastChild(context.document.schedule, rowGroupId),
+      },
+    })
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
@@ -4179,6 +4316,70 @@ function opensUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
 }
 
 /**
+ * One `setTaskGroupCollapsed` per DIRECT CHILD of `parentGroupId` that is
+ * folded, in the order the document prints them -- HR-7 of table T-015, which
+ * HF-13 names.
+ *
+ * ⛔ ONE HOP AND NOT A SUBTREE, WHICH IS THE WHOLE DIFFERENCE FROM
+ * `opensUnderRow`. HR-7 (MUST) leaves 「孫より下は畳んだまま」, so nothing climbs
+ * here: a row belongs to this bundle exactly when its own `parentId` (AT-52) is
+ * the row that was pressed. ⭐ That is also why no ring guard is needed, unlike
+ * `isRowUnder` -- there is no climb to spin in.
+ *
+ * ⚠️ The rows that are already open are left out rather than written again, the
+ * same bargain `opensUnderRow` keeps: CM-33 answers an unchanged fold by
+ * returning the document untouched, so writing them would cost an undo step for
+ * children that are already open.
+ * ⛔ A HIDDEN CHILD IS STILL WRITTEN. HR-6 keeps such a row out of the picture
+ * whatever its own fold says, and HR-7 names no exception -- the same reading
+ * `foldsUnderRow` records for the rows under a folded one.
+ *
+ * @purity pure
+ */
+function opensDirectChildrenOfRow(
+  schedule: Schedule,
+  parentGroupId: string,
+): readonly DocumentCommand[] {
+  const commands: DocumentCommand[] = []
+  for (const row of schedule.taskGroups) {
+    if (row.parentId !== parentGroupId) continue
+    if (row.isCollapsed !== true) continue
+    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
+  }
+  return commands
+}
+
+/**
+ * The place a new row takes among `parentGroupId`'s children -- one past the
+ * last of them, which is HF-14's 末子 (MUST).
+ *
+ * ⭐ WHY THE LAST AND NOT THE FIRST, in the row's own words: 「長子にすると既存の
+ * 並びが押し下がる」, and 「位置は足したあとに動かせる（`HF-15`）ので、並びを毎回
+ * ずらす害のほうが大きい」.
+ *
+ * ⛔ ONE PAST THE LARGEST `order` AND NOT THE COUNT OF THE CHILDREN. AT-55 is a
+ * place among the siblings and nothing promises that a parent's children hold
+ * 0, 1, 2 ... without a gap -- a row deleted out of the middle leaves one -- so
+ * counting them would hand the new row a place a sibling already holds.
+ * ⚠️ A parent with no children at all starts at 0, which is the first place.
+ *
+ * ⛔ CM-26 IS STILL THE ONE THAT DECIDES NOTHING HERE. Its own declaration
+ * records that where a new row lands among its siblings is not settled anywhere
+ * and that the caller passes the value in; HF-14 is the row that settles it, so
+ * this is that row carried out on the side that plans the write.
+ *
+ * @purity pure
+ */
+function orderPastLastChild(schedule: Schedule, parentGroupId: string): number {
+  let lastOrder: number | null = null
+  for (const row of schedule.taskGroups) {
+    if (row.parentId !== parentGroupId) continue
+    if (lastOrder === null || row.order > lastOrder) lastOrder = row.order
+  }
+  return lastOrder === null ? 0 : lastOrder + 1
+}
+
+/**
  * One `setTaskGroupCollapsed` per row under `ancestorId` that is not folded, in
  * the order the document prints them -- HR-4 of table T-015, which HF-11 names.
  *
@@ -4225,6 +4426,12 @@ function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
  * `isRowUnder` draws, since it climbs from a row's PARENT.
  * ⚠️ `foldThisRow` IS THE THIRD REACH AND NOT A THIRD RULE: HR-5 folds the
  * named row alone, so the count is that row's own drawn children.
+ * ⚠️ `openOneLevel` IS THE FOURTH, AND IT IS NOT A RULE EITHER: HR-7 opens the
+ * DIRECT children alone, so the count runs over the rows whose `parentId` is
+ * the named one instead of over everything under it. ⭐ The two tests each such
+ * child must pass are the very two `open` makes -- drawn, folded, and with a
+ * child of its own that HR-6 does not hide -- so the narrowing is the reach and
+ * not a second reading.
  *
  * ⛔ HR-6 IS READ HERE AND FR-018 IS NOT. A hidden row stays hidden however the
  * folds above it move (MUST NOT), so it can never be the row an open reveals;
@@ -4241,7 +4448,7 @@ function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
 function wouldMoveARow(
   context: InputContext,
   ancestorId: string | null,
-  operation: 'open' | 'fold' | 'foldThisRow',
+  operation: 'open' | 'fold' | 'foldThisRow' | 'openOneLevel',
 ): boolean | null {
   const drawnIds = context.drawnRowGroupIds
   if (drawnIds === undefined) return null
@@ -4266,6 +4473,15 @@ function wouldMoveARow(
 
   for (const row of schedule.taskGroups) {
     if (!drawn.has(row.id)) continue
+    // HF-13 (HR-7) reaches the DIRECT children alone, so the row is asked for
+    // its own parent rather than climbed from. ⚠️ Answered before the climb
+    // below rather than inside it: `isRowUnder` would let a grandchild through,
+    // and a grandchild is the very row HR-7 (MUST) leaves folded.
+    if (operation === 'openOneLevel') {
+      if (row.parentId !== ancestorId) continue
+      if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
+      continue
+    }
     if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
     if (operation === 'open') {
       if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true

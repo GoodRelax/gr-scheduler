@@ -626,6 +626,27 @@ function boot(): void {
    */
   let focusPropertyFieldHeld: ((row: string) => void) | null = null
 
+  /**
+   * What the screen surface handed over for HF-14, or `null` until it has --
+   * the way to open an empty name field where a new row will stand.
+   *
+   * ⚠️ Filled while the factory below runs, the same moment
+   * `focusPropertyFieldHeld` is.
+   */
+  let openNewRowNameHeld: ((parentGroupId: string) => void) | null = null
+  /**
+   * What the LOOP handed over for the same row -- where a settled name is to be
+   * taken -- or `null` until it has.
+   *
+   * ⛔ HELD RATHER THAN PASSED STRAIGHT THROUGH, because the two sides are built
+   * in the wrong order for that: the surface is made before the loop, and its
+   * wiring has to name a destination that does not exist yet. ⚠️ A settling that
+   * arrives before the loop is built reaches nobody, which cannot happen -- the
+   * field is opened by a press, and no press is answered until the loop is
+   * running.
+   */
+  let newRowNameSettledHeld: ((parentGroupId: string, name: string) => void) | null = null
+
   const screenSurface = domScreenSurface({
     host: document,
     mount: screenParts,
@@ -653,6 +674,21 @@ function boot(): void {
     /** @purity non-pure */
     holdFocusPropertyField: (focus) => {
       focusPropertyFieldHeld = focus
+    },
+    // HF-14 of table T-051 (MUST): the field the person types the new row's name
+    // in is the surface's, so the surface hands over the way to open it and this
+    // holds the handle for the loop. ⛔ It does not travel on IF-9 either, for
+    // the reason the member above gives.
+    /** @purity non-pure */
+    holdOpenNewRowName: (open) => {
+      openNewRowNameHeld = open
+    },
+    // The other direction: what was settled goes to the loop, which is the one
+    // party that may write the document. ⚠️ Read through the binding rather than
+    // captured, because the loop is built after this factory returns.
+    /** @purity non-pure */
+    onNewRowNameSettled: (parentGroupId, name) => {
+      newRowNameSettledHeld?.(parentGroupId, name)
     },
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
@@ -797,6 +833,17 @@ function boot(): void {
       // would say so -- see `ScreenWiring.focusPropertyField`.
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
+      // HF-14's two halves, joined here for the reason the bindings above give:
+      // the surface is built before the loop, so neither side can name the other
+      // directly. ⚠️ BOTH MEMBERS ARE OPTIONAL ON BOTH SIDES, so a dropped line
+      // here would leave IC-91 opening no field, or a settled name reaching
+      // nobody, and nothing would say so.
+      /** @purity non-pure */
+      openNewRowName: (parentGroupId) => openNewRowNameHeld?.(parentGroupId),
+      /** @purity non-pure */
+      holdNewRowNameSettled: (settle) => {
+        newRowNameSettledHeld = settle
+      },
     },
     fileStore,
     showPointerShape,

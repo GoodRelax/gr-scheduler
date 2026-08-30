@@ -996,14 +996,32 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
   })
 
   it('draws the same geometry whether or not the parts it leaves out are there', async () => {
-    // ⭐ This IS the MUST NOT: the room of the scrollbars, the expanders, the
+    // ⭐ This IS the MUST NOT: the room of the scrollbars, the row's controls, the
     // properties panel and the palette is the screen's own, so taking them out
     // of `ScreenView` may not move one drawn rectangle.
+    //
+    // ⚠️ THE ROW'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
+    // Until 2026-08-30 this line read `expander: null`, and that is a state the
+    // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各行」,
+    // so `RowTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
+    // DOES NAME is whether each control is armed or spent -- `FR-029` (MUST)
+    // draws a spent one 薄く, a different drawing of the same control -- together
+    // with whether the row is pinned, which `HF-6` (MUST) draws when the others
+    // are not drawn at all. ⛔ AND THE RULE UNDER TEST IS UNTOUCHED, because
+    // `FR-085` (MUST NOT) already says the room may not follow any of it:
+    // 「**確保する場所を、操作子を描くかどうかで変えてはならない（MUST NOT）**」,
+    // and 表 T-076 の `EP-4` draws none of them in the export in any case.
     const withEverything = await exportedOf(TALL_SCENE)
     const bare = await exportedOf(
       sceneOf(
         viewOf(
-          TALL_ROWS.map((row) => ({ ...row, expander: null, isPinned: false })),
+          TALL_ROWS.map((row) => ({
+            ...row,
+            expander: { canOpen: false, canClose: false, canCloseBelow: false },
+            canOpenOneLevel: false,
+            canAddChildRow: false,
+            isPinned: false,
+          })),
           {
             frame: { isFullScreen: false, dividers: DIVIDERS, scrollbars: [] },
             propertiesPanel: null,

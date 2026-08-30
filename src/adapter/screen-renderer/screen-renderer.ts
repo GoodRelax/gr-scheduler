@@ -466,8 +466,83 @@ export interface RowTitle {
    * there.
    */
   readonly isLabelTruncated: boolean
-  /** U-47 `Row Expander`. `null` where nothing sits under the row. */
-  readonly expander: RowExpander | null
+  /**
+   * U-47 `Row Expander` -- the three controls HF-1 of table T-051 (MUST) puts
+   * on 各行, every one of them, always.
+   *
+   * ⛔⛔ IT WAS `RowExpander | null` UNTIL 2026-08-30, AND THE NULL WAS THIS
+   * SEAM'S OWN INVENTION. 「expander」 is not a word the manuscript uses for a
+   * member at all -- `docs/spec` names only the PART, `U-47` -- and no row
+   * anywhere spells 「この行には操作子が無い」. What the manuscript says instead:
+   * HF-1 places the three on 各行 with no exception; the closing paragraph under
+   * table T-051 (MUST) reads an empty target as 「対象が 1 つも無いもの」, which
+   * is a STATE OF THE THREE and not their absence; FR-029 (MUST) then draws that
+   * state faint and (MUST NOT) forbids disabling it, because the press is what
+   * raises `RS-28` / `RS-29` / `RS-30` of table T-233; and FR-085 (MUST NOT)
+   * refuses to change the room kept for them 「操作子を描くかどうかで」.
+   *
+   * ⭐ THE NULL COST A LIVE DEFECT (台帳 D-161): a leaf row in the shipped app
+   * drew no IC-58, IC-59 or IC-77 at all, so `RS-28` -- whose whole situation IS
+   * that row -- could never be told to anybody. ⭐ Non-nullable puts HF-1's
+   * 各行 into the type, where it cannot be forgotten a second time.
+   */
+  readonly expander: RowExpander
+  /**
+   * Whether IC-90 -- HF-13 of table T-051, HR-7 of table T-015 -- has anything
+   * left to do on this row: one of its DIRECT children is folded over something
+   * a press would put into the picture.
+   *
+   * ⛔⛔ NOT A FOURTH MEMBER OF `RowExpander`, AND THE REASON IS THE ROW IT
+   * COMES FROM. Those three are HF-1's and are written by HF-2 / HF-3 / HF-11;
+   * this one is HF-13's, which (MUST) makes it a separate entrance from HF-2
+   * and (MUST NOT) lets one control be both. ⚠️ A leaf row carries BOTH -- the
+   * three with none armed, and this one false -- since 2026-08-30, when the
+   * null that used to stand in for a leaf was taken out of this seam.
+   *
+   * ⭐ ONE LEVEL AND NOT THE SUBTREE, which is the whole of why HF-13 (MUST) is
+   * a separate entrance from HF-2 and (MUST NOT) lets one control be both:
+   * 「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」. So this is
+   * not `RowExpander.canOpen` narrowed -- the two answer different questions and
+   * a row can leave one with work and the other without.
+   *
+   * ⛔ THE DIRECT CHILD MUST ITSELF MOVE A ROW. The closing rule under table
+   * T-051 (MUST) names HF-13 among the entrances that count 「いま描かれている
+   * 行」 and finishes 「その操作で、描かれる行が 1 行も増減しないときは、対象が
+   * 1 つも無いものとして扱うこと」 -- so a folded child with nothing under it to
+   * reveal is no reason to arm, exactly as `RowExpander.canOpen` reads its own
+   * rows.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, the same bargain
+   * `RowTitlePanel.canOpenEveryRow` takes and for the same reason: the
+   * `RowTitle` literals already written go on compiling. ⚠️ ABSENT IS NOT
+   * 「使えない」 -- a reader draws the entrance as usable when it is missing,
+   * because a false claim of faint is the worse error.
+   */
+  readonly canOpenOneLevel?: boolean
+  /**
+   * Whether IC-91 -- HF-14 of table T-051, HR-8 of table T-015 -- can add a row
+   * under this one: the row is not already at the depth `maxGroupDepth` (S-125)
+   * allows.
+   *
+   * ⭐ THE ONLY THING THAT SPENDS IT. FR-029 (MUST) draws an entrance faint
+   * 「押しても、いま文書にも画面にも何も変えられないとき」, and adding a row
+   * always changes the DOCUMENT -- so this entrance is spent only where the
+   * write itself is refused. FR-085 (MUST NOT) is the one such refusal:
+   * 「上限に達している親の下に作らせてはならない」, which `createTaskGroup`
+   * already answers on its own account. ⛔ HR-8 (MUST NOT) forbids restating the
+   * cap itself here -- 「深さの上限の扱いは `FR-085` が持つ ... ここでは繰り返さ
+   * ない」 -- so what is read is that requirement's own value and no second rule.
+   *
+   * ⚠️ A FOLDED ROW STILL ARMS IT. The row added under a folded parent is not
+   * drawn (HR-1a), but the document changed, and FR-029 spends an entrance only
+   * where NEITHER moved. ⛔ So the closing rule under table T-051 does not reach
+   * this one: that rule names HF-2 / HF-3 / HF-10 / HF-11 / HF-12 / HF-13 and
+   * not HF-14, because those six move rows in and out of the picture and this
+   * one makes a row.
+   *
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel` above.
+   */
+  readonly canAddChildRow?: boolean
   /** U-48 `Row Pin` (FR-098). Its control sits on every row, and the same one lets go. */
   readonly isPinned: boolean
   /**

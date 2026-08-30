@@ -174,26 +174,23 @@ const T_109_ARMING = [
 ] as const
 
 /**
- * Entries of 表 T-109 drawn somewhere OTHER than the palette, with the surface
- * its 面 column gives them.
+ * Entries of 表 T-109 drawn somewhere OTHER than the palette or the row, with
+ * the surface its 面 column gives them.
  *
- * ⚠️ IC-58 .. IC-60 sit on the `Row Title Panel` (U-22) and not on the `Row
- * Title Tree` (U-23), which is what U-23's MUST is about.
+ * ⛔⛔ THE `Row Title Panel` ENTRIES USED TO BE COPIED HERE BY HAND, and the
+ * copy is what went stale on 2026-08-30: `HF-13` and `HF-14` gave 表 T-109 two
+ * more rows on that surface (`IC-90` / `IC-91`), and six cases went on asking
+ * for 「表 T-109's five entries」 by a list typed into this file. ⭐ That roster
+ * is now READ OUT OF THE TABLE at load time (`T_109_ON_THE_ROW` below), so the
+ * next entrance the specification puts on a row arrives here on its own.
+ * ⚠️ WHAT IS LEFT HERE is the `App Header`, which no case reads as an ordered
+ * roster -- these four are the ones the header fixture below draws.
  */
 const T_109_ELSEWHERE = [
   { row: 'IC-5', surface: 'App Header' },
   { row: 'IC-7', surface: 'App Header' },
   { row: 'IC-12', surface: 'App Header' },
   { row: 'IC-13', surface: 'App Header' },
-  { row: 'IC-58', surface: 'Row Title Panel' },
-  { row: 'IC-59', surface: 'Row Title Panel' },
-  // ⭐ IC-77 -- HF-11's control, the third of U-47 since 2026-08-30 (CR-294).
-  // Printed after IC-59 in table T-109 and drawn in that order.
-  { row: 'IC-77', surface: 'Row Title Panel' },
-  { row: 'IC-60', surface: 'Row Title Panel' },
-  // ⭐ IC-82 -- FR-032's deletion, the fifth entrance table T-109 draws once
-  // per row (CR-296). Printed after IC-60 and drawn in that order.
-  { row: 'IC-82', surface: 'Row Title Panel' },
 ] as const
 
 /**
@@ -265,6 +262,69 @@ function partName(row: string): string {
   return found.name
 }
 
+/** 表 T-109 — the roster of entrances, read out of the .md at load time. */
+const T_109 = specTable('T-109')
+
+/**
+ * Every entry 表 T-109 puts on the `Row Title Panel`, IN THE ORDER THE TABLE
+ * PRINTS THEM, and never a list typed into this file.
+ *
+ * ⭐⭐ WHY IT IS READ AND NOT COPIED. Chapter 1.9 (:275) asks a test of a
+ * requirement that points at a table to be driven by a fixed copy of that table,
+ * and 「fixed copy」 is taken literally here: made at read time, from the file.
+ * ⛔ The hand-written copy that stood in `T_109_ELSEWHERE` said FIVE, and six
+ * cases asserted five by name; on 2026-08-30 the specification made it seven
+ * (`IC-90` for `HF-13`, `IC-91` for `HF-14`) and every one of those cases was
+ * asserting a roster the manuscript no longer holds.
+ *
+ * ⚠️ THE ORDER IS THE TABLE'S PRINTING ORDER AND NOT A PLACEMENT RULE. 表 T-051
+ * の `HF-4` fixes the position of exactly ONE control -- 「ピン止めの操作子（表
+ * T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）」 -- and says
+ * in as many words 「本行が定めるのはこの 1 つだけであり、ほかの操作子の前後は
+ * 定めない」. So what the cases below read out of this order is WHICH entrances
+ * end the row, not where each one is; the one placement the manuscript does fix
+ * has a case of its own.
+ */
+const T_109_ON_THE_ROW = T_109.rows
+  .filter((one) => bare(one.by['面'] ?? '') === partName('U-22'))
+  // ⛔ THE PANEL'S HEAD IS NOT A ROW. 表 T-109 puts nine entries on the `Row
+  // Title Panel`, and two of them stand at the top of the PANEL rather than on
+  // each row: 表 T-051 の `HF-10` 「**行見出しパネルの最上部の右端に、すべての行
+  // を開く操作子を 1 つ置くこと（MUST）**」 and `HF-12` 「**`HF-10` の操作子の隣
+  // に、すべての行を畳む操作子を 1 つ置くこと（MUST）**」. ⭐ They are told apart
+  // by the rows of 表 T-051 that own them and never by their icon ids, so a
+  // renumbering of the roster cannot quietly move one of them onto a row.
+  .filter((one) => !/(^|[^0-9A-Za-z-])HF-1[02]([^0-9-]|$)/.test(one.by['正'] ?? ''))
+  .map((one) => ({ row: one.id, surface: partName('U-22') }))
+
+if (T_109_ON_THE_ROW.length === 0) {
+  throw new Error('表 T-109 no longer puts a single entry on the Row Title Panel')
+}
+
+/**
+ * The entry 表 T-109 gives one row of 表 T-051, found through the table's own 正
+ * column.
+ *
+ * ⭐ THE JOIN IS THE SPECIFICATION'S OWN. 表 T-109's 正 column names the row that
+ * owns each entrance -- 「表 T-051 の `HF-2`」 for `IC-58` and so on -- so a case
+ * that means 「HF-13's control」 can say so and be told which icon that is,
+ * instead of typing `IC-90` and going quiet the day the roster is renumbered.
+ * ⚠️ `\b` on both ends is what keeps `HF-1` from matching `HF-11`.
+ */
+function entranceForRule(rule: string): string {
+  const found = T_109_ON_THE_ROW.filter((one) => {
+    const owner = T_109.rows.find((held) => held.id === one.row)?.by['正'] ?? ''
+    return new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(owner)
+  })
+  const first = found[0]
+  if (found.length !== 1 || first === undefined) {
+    throw new Error(
+      `表 T-109 gives 表 T-051 の ${rule} ${found.length} entrances on the Row Title Panel, not one`,
+    )
+  }
+  return first.row
+}
+
 /**
  * The two entries of 表 T-109 that the `Row Expander` (U-47) is made of, each
  * with the row of 表 T-051 that is its 正.
@@ -283,17 +343,22 @@ function partName(row: string): string {
  * owes them nothing but telling a press on one from a press on the other.
  */
 const T_109_ROW_EXPANDER = [
-  { row: 'IC-58', rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
+  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
   {
-    row: 'IC-59',
+    row: entranceForRule('HF-3'),
     rule: 'HF-3',
     gist: 'その行自身を畳む',
     side: 'closing',
   },
   // ⭐ The third since the ruling of 2026-08-30 (CR-294): HF-11 of table T-051
   // gave HR-4 of table T-015 its first entrance.
-  { row: 'IC-77', rule: 'HF-11', gist: '行の配下をすべて畳む', side: 'closingBelow' },
-] as const
+  {
+    row: entranceForRule('HF-11'),
+    rule: 'HF-11',
+    gist: '行の配下をすべて畳む',
+    side: 'closingBelow',
+  },
+]
 
 /**
  * 表 T-051 — the rules the pair above answers to, copied from
@@ -1155,6 +1220,12 @@ const LAYOUT = new Map<string, ScreenRect>([
   // ⛔ These boxes are this file's own; nothing in docs/spec fixes an entry's
   // geometry -- that is the very reason IF-9 needs `readScreenPartAt` -- so only
   // their EDGES are asserted, and only against R3.4.
+  // ⭐ AND TWO MORE ON 2026-08-30 (CR-318): `HF-13` gave `HR-7` an entrance of
+  // its own and `HF-14` gave `HR-8` one, so the row carries five of these before
+  // the pin. They are laid to the LEFT of the three above rather than between
+  // them, so that every edge an existing case resolves stays where it was.
+  [`icon:${entranceForRule('HF-13')}`, rect(52, 60, 16, 16)],
+  [`icon:${entranceForRule('HF-14')}`, rect(68, 60, 16, 16)],
   ['icon:IC-58', rect(84, 60, 16, 16)],
   ['icon:IC-59', rect(100, 60, 16, 16)],
   ['icon:IC-77', rect(116, 60, 16, 16)],
@@ -1204,6 +1275,17 @@ const AT = {
   rowExpanderOpen: { x: 92, y: 64 },
   rowExpanderClose: { x: 108, y: 64 },
   rowExpanderCloseBelow: { x: 124, y: 64 },
+  /**
+   * `HF-13`'s entrance, laid one box further left again.
+   *
+   * ⭐ ITS OWN POINT, WHICH IS THE WHOLE CLAIM. `HF-13` (MUST) 「`HF-2`（配下を
+   * すべて開く）とは別の入口とすること（MUST）。同じ入口に兼ねさせてはならない
+   * （MUST NOT）」 -- so a press here and a press on `rowExpanderOpen` have to
+   * come back with two different rows of 表 T-109.
+   */
+  rowOpenOneLevel: { x: 60, y: 64 },
+  /** `HF-14`'s entrance, beside it. */
+  rowAddChild: { x: 76, y: 64 },
   /** The strip of bare `Row Title Panel` between IC-77's right edge and the pin. */
   rowExpanderGap: { x: 136, y: 64 },
   rowTreeNoEntry: { x: 80, y: 400 },
@@ -1257,7 +1339,13 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   label: patch.groupId,
   wholeLabel: patch.groupId,
   isLabelTruncated: false,
-  expander: null,
+  // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
+  // read `null` until 2026-08-30, when `RowTitle.expander` stopped being
+  // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+  // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
+  // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
+  // absence. ⚠️ The neutral fixture is therefore the three with none armed.
+  expander: { canOpen: false, canClose: false, canCloseBelow: false },
   isPinned: false,
   isSelected: false,
   ...patch,
@@ -2122,8 +2210,21 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
 // have no way to be obeyed downstream.
 // ===========================================================================
 
+/**
+ * What a row with nothing under it carries.
+ *
+ * ⭐⭐ IT IS NOT `null`, AND ON 2026-08-30 IT STOPPED BEING ABLE TO BE. 表 T-051
+ * の `HF-1` places the three on 「**各行**」 with no exception, and the closing
+ * paragraph under that table says what a row with nothing to fold carries
+ * instead: 「⛔ **その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも
+ * 無いものとして扱うこと（MUST）**」 -- a STATE of the three, which `FR-029`
+ * (MUST) then draws 薄く. ⇒ `RowTitle.expander` is no longer nullable, so the
+ * cases that used to spell this `null` spell it here.
+ */
+const NOTHING_TO_FOLD: RowExpander = { canOpen: false, canClose: false, canCloseBelow: false }
+
 /** A panel holding exactly one row, with the expander this case wants. */
-const withExpander = (expander: RowExpander | null): ScreenView =>
+const withExpander = (expander: RowExpander): ScreenView =>
   viewWith({
     rowTitlePanel: {
       pinnedTitles: [],
@@ -2146,13 +2247,32 @@ const EXPANDER_AT: Readonly<Record<string, { readonly x: number; readonly y: num
   'IC-77': AT.rowExpanderCloseBelow,
 }
 
-const expanderControls = (built: Stage): FakeElement[] => byRole(built.root(), 'Row Expander')
+/** The rows of 表 T-109 that 表 T-051 の `HF-1` puts on every row, sorted. */
+const EXPANDER_ROWS = T_109_ROW_EXPANDER.map((one) => one.row).sort()
+
+/**
+ * Every control the panel drew that carries one of `HF-1`'s three rows.
+ *
+ * ⛔⛔ FOUND BY `data-icon` AND NO LONGER BY `data-role="Row Expander"`, and the
+ * change is a reading of the specification rather than a convenience. 表 T-103's
+ * `U-47` says 「行の折り畳みの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
+ * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- 「開く操作子と、
+ * その行自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ」. `IC-90`
+ * comes from `HF-13` and `IC-91` from `HF-14`, neither of which `HF-1` counts.
+ * ⚠️ WHETHER THOSE TWO ARE PART OF `U-47` IS NOT DECIDED ANYWHERE: `U-47` points
+ * its count at `HF-1` (three), while A-appendix.md's entry for version 1.72 says
+ * the count it dropped was 「入口が 5 つになる直前であった」 (five). ⛔ So no
+ * case here may turn on `data-role`, in either direction. `data-icon` carries the
+ * row of 表 T-109, which IS decided, and that is what these read.
+ */
+const expanderControls = (built: Stage): FakeElement[] =>
+  selfAndDescendants(built.root()).filter((one) => {
+    const icon = one.getAttribute('data-icon')
+    return icon !== null && EXPANDER_ROWS.includes(icon)
+  })
 
 const expanderIcons = (built: Stage): string[] =>
   expanderControls(built).map((one) => one.getAttribute('data-icon') ?? '(unmarked)')
-
-/** The roster's two rows, as a plain sorted list of ids. */
-const EXPANDER_ROWS = T_109_ROW_EXPANDER.map((one) => one.row as string).sort()
 
 describe('表 T-051 HF-1 -- one opening control and one closing control per row', () => {
   it('GIVEN a row whose description carries an expander WHEN the panel is drawn THEN the row holds one IC-58 and one IC-59 (HF-1, U-47)', () => {
@@ -2210,19 +2330,303 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     },
   )
 
-  it('GIVEN a row with no expander in its description WHEN the panel is drawn THEN neither control is drawn (RowTitle.expander is null where nothing sits under the row)', () => {
-    const built = drawn(withExpander(null))
+  it('⭐ GIVEN a row with NOTHING under it WHEN the panel is drawn THEN HF-13 and HF-14 still place their entrances on it (「行ごとに 1 つ置くこと（MUST）」)', () => {
+    const built = drawn(withExpander(NOTHING_TO_FOLD))
+    const row = theRowOf(built)
+    const drew = controlsOf(row).map((one) => one.getAttribute('data-icon'))
 
-    // ⚠️ HF-1 is about a ROW THAT HAS SOMETHING UNDER IT -- that is what makes
-    // `expander` nullable at the seam at all. Which rows get one is decided
-    // where the description is built, not here.
-    expect(expanderControls(built)).toHaveLength(0)
+    // ⭐ THE CASE THAT USED TO STAND HERE SAID 「neither control is drawn」 AND
+    // WAS READING THE SEAM, NOT THE MANUSCRIPT. `RowTitle.expander` was nullable
+    // then, and this file took that to mean a row with nothing under it carries
+    // no per-row entrance at all. ✅ THE SEAM HAS SINCE BEEN CORRECTED (2026-08-30,
+    // 台帳 D-161): the member is not nullable, and a row with nothing to fold
+    // carries the three with none armed (`NOTHING_TO_FOLD`). 表 T-051 decided it,
+    // twice over:
+    //
+    //   `HF-13` (docs/spec/01-04-requirements.md):
+    //     「**1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）**」
+    //     「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
+    //       こと（MUST）**」
+    //   `HF-14`:
+    //     「**配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）**」
+    //
+    // ⭐ 「開ける直下の子が 1 つも無いとき」 IS THIS ROW, and the rule for it is
+    // 薄く描く -- faint, not absent. A row with nothing under it is the case the
+    // MUST was written for, so it is the case that must draw them.
+    // ⚠️ HF-14 is not spent by a childless row at all: the closing paragraph
+    // under 表 T-051 names 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` /
+    // `HF-13`」 as the entrances that count 「いま描かれている行」 and does NOT
+    // name `HF-14` -- adding a row is not an operation that reveals one.
+    expect(drew, `${entranceForRule('HF-13')} left a row with nothing under it`).toContain(
+      entranceForRule('HF-13'),
+    )
+    expect(drew, `${entranceForRule('HF-14')} left a row with nothing under it`).toContain(
+      entranceForRule('HF-14'),
+    )
   })
+
+  // ⛔⛔ A CASE STOOD HERE AND WAS DELETED ON 2026-08-30, NOT WEAKENED. It read
+  // 「GIVEN a row with NOTHING under it … THEN HF-1's three stand on it as well,
+  // faint」 and was RED: it built `withExpander(null)`, and the surface drew
+  // nothing for a null. ✅ THE FINDING WAS ACCEPTED AND FIXED AT BOTH ENDS --
+  // `expanderOf` now answers the three with none armed for a childless row, and
+  // `RowTitle.expander` is no longer nullable -- so the state it was about can
+  // only be spelled as `NOTHING_TO_FOLD` now. ⭐ SPELLED THAT WAY IT IS LETTER FOR
+  // LETTER the last row of `EXPANDER_STATES` above, whose `it.each` already
+  // asserts that all three stand for `canOpen:false / canClose:false /
+  // canCloseBelow:false`. ⛔ NOTHING IS LOST: that case is where this claim lives.
 
   it('GIVEN a panel with no rows at all WHEN it is drawn THEN no expander control exists anywhere (empty)', () => {
     const built = drawn(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
 
     expect(expanderControls(built)).toHaveLength(0)
+  })
+})
+
+// ===========================================================================
+// 表 T-051 HF-13 / HF-14 -- the two entrances the row grew on 2026-08-30.
+//
+// ⭐ WHAT THE SPECIFICATION SAYS, VERBATIM (docs/spec/01-04-requirements.md,
+// 表 T-051):
+//
+//   `HF-13`: 「**1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）**」 ——
+//     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて開く）とは別の入口と
+//     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
+//     「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」。
+//     ⛔ 「**開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
+//     （MUST）。**」⭐ 「**入口は 表 T-109 の `IC-90` である**」
+//   `HF-14`: 「**配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）**」 ——
+//     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
+//
+// ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
+// 表 T-015's `HR-7` 「**直下の子だけ**を開き、**孫より下は畳んだままにすること
+// （MUST）**」 and `HF-14`'s 「**足した行は末子とすること（MUST）**」 and
+// 「**名前が空のまま確定されたときは、その行を立てないこと（MUST）**」 are all
+// rules about what is WRITTEN when the entrance is pressed. This unit draws and
+// answers points; the press is planned in the translator and carried out three
+// layers away. What it owes is that the entrance EXISTS, once per row, that it
+// can be told from `HF-2`'s, and that a press on it lands.
+// ===========================================================================
+
+/** `HF-13`'s entrance and `HF-2`'s, each looked up through 表 T-109's 正 column. */
+const IC_OPEN_ONE_LEVEL = entranceForRule('HF-13')
+const IC_OPEN_ALL_BELOW = entranceForRule('HF-2')
+const IC_ADD_CHILD = entranceForRule('HF-14')
+
+/** Two plain rows, so 「行ごとに 1 つ」 can be counted rather than assumed. */
+const twoRows = (patch: Partial<RowTitle> = {}): ScreenView =>
+  viewWith({
+    rowTitlePanel: {
+      pinnedTitles: [],
+      titles: [
+        rowTitle({
+          groupId: 'g-1',
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
+          ...patch,
+        }),
+        rowTitle({
+          groupId: 'g-2',
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
+          ...patch,
+        }),
+      ],
+    },
+  })
+
+/** Every node carrying one row of 表 T-109, wherever it is. */
+const everyEntry = (built: Stage, icon: string): FakeElement[] =>
+  selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-icon') === icon)
+
+describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 つ (MUST)', () => {
+  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_OPEN_ONE_LEVEL} (「行ごとに 1 つ置くこと（MUST）」)`, () => {
+    const built = drawn(twoRows())
+
+    expect(everyEntry(built, IC_OPEN_ONE_LEVEL)).toHaveLength(2)
+    for (const row of rowsOf(built)) {
+      expect(
+        controlsOf(row).filter((one) => one.getAttribute('data-icon') === IC_OPEN_ONE_LEVEL),
+        `row ${row.getAttribute('data-group-id')} does not carry exactly one ${IC_OPEN_ONE_LEVEL}`,
+      ).toHaveLength(1)
+    }
+  })
+
+  it(`⭐ GIVEN the row is drawn WHEN ${IC_OPEN_ONE_LEVEL} and ${IC_OPEN_ALL_BELOW} are compared THEN they are TWO controls and not one (「別の入口とすること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）」)`, () => {
+    const built = drawn(oneLiveRow())
+    const oneLevel = everyEntry(built, IC_OPEN_ONE_LEVEL)
+    const allBelow = everyEntry(built, IC_OPEN_ALL_BELOW)
+
+    // ⛔ THE MUST NOT IS THE POINT: one control that opened one level on some
+    // presses and the whole subtree on others is exactly 「押すたびに違う量が
+    // 開く入口」. Two nodes is the only shape that cannot do that.
+    expect(oneLevel).toHaveLength(1)
+    expect(allBelow).toHaveLength(1)
+    expect(oneLevel[0], 'HF-13 and HF-2 are the same node').not.toBe(allBelow[0])
+  })
+
+  it(`⭐ GIVEN both entrances are drawn WHEN each is pressed THEN IF-9 answers a DIFFERENT row of 表 T-109 (${IC_OPEN_ONE_LEVEL} / ${IC_OPEN_ALL_BELOW})`, () => {
+    const built = drawn(oneLiveRow())
+
+    // 表 T-065 IF-9 (MUST): 「点がどの入口の上かは、その入口を描いた側が答える
+    // こと」. ⛔ If both points came back with the same row, the shell would have
+    // ONE place to hang two different amounts of opening on -- which is the
+    // reading HF-13's MUST NOT forbids, arriving one seam later.
+    expect(ask(built, AT.rowOpenOneLevel.x, AT.rowOpenOneLevel.y)).toEqual({
+      part: partName('U-22'),
+      entry: IC_OPEN_ONE_LEVEL,
+      format: null,
+      rowGroupId: 'g-1',
+      resourceUid: null,
+      dividerPanel: null,
+      noticeDismissKey: null,
+    })
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBe(IC_OPEN_ALL_BELOW)
+  })
+
+  it(`⛔ GIVEN a row with no direct child to open WHEN it is drawn THEN ${IC_OPEN_ONE_LEVEL} is drawn FAINT and not taken away (「開ける直下の子が 1 つも無いときは、FR-029 に従って薄く描くこと（MUST）」)`, () => {
+    const armed = drawn(twoRows({ canOpenOneLevel: true }))
+    const spent = drawn(twoRows({ canOpenOneLevel: false }))
+    const armedOne = everyEntry(armed, IC_OPEN_ONE_LEVEL)[0] as FakeElement
+    const spentOne = everyEntry(spent, IC_OPEN_ONE_LEVEL)[0] as FakeElement
+
+    // ⭐ 薄く描く IS A DRAWING AND NOT AN ABSENCE. FR-029: 「その入口を押しても、
+    // いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと
+    // （MUST）」, and its RATIONALE says why the alternative is worse:
+    // 「押しても絵が動かない入口は、故障した入口と見分けられない」.
+    expect(spentOne, `${IC_OPEN_ONE_LEVEL} went away when it had nothing to open`).toBeDefined()
+    // ⭐ AND IT IS DRAWN DIFFERENTLY, which is what 薄く means: some declaration
+    // has to part the two, or 薄く描く drew nothing.
+    expect(
+      differingProperties(armedOne, spentOne),
+      `${IC_OPEN_ONE_LEVEL} is drawn identically whether or not it has a child to open`,
+    ).not.toEqual([])
+  })
+
+  it(`⛔ GIVEN ${IC_OPEN_ONE_LEVEL} is faint WHEN the press it must still take is looked for THEN it is not disabled in the host's sense and IF-9 still answers it (FR-029 MUST NOT)`, () => {
+    const built = drawn(twoRows({ canOpenOneLevel: false }))
+    const spentOne = everyEntry(built, IC_OPEN_ONE_LEVEL)[0] as FakeElement
+
+    // ⛔ FR-029: 「**薄く描いた入口を、宿主の意味で無効にしてはならない
+    // （MUST NOT）** —— 無効にすると押下そのものが届かず、下の理由を告げる引き金
+    // が消える。**押されたときに限り、行えない理由を通知すること（MUST）**」.
+    // ⭐ 表 T-233's `RS-28`「配下に、開ける行が 1 つも無い」 is the reason waiting
+    // on that press, and a `disabled` attribute is what would swallow it.
+    expect(
+      spentOne.hasAttribute('disabled'),
+      `${IC_OPEN_ONE_LEVEL} is disabled in the host's sense, so the press RS-28 waits on never lands`,
+    ).toBe(false)
+    expect(ask(built, AT.rowOpenOneLevel.x, AT.rowOpenOneLevel.y)?.entry).toBe(IC_OPEN_ONE_LEVEL)
+  })
+
+  it(`⭐ GIVEN a spent ${IC_OPEN_ONE_LEVEL} and a spent entrance on ANOTHER surface WHEN the two are read THEN both are faint in the same colour (FR-029: 載る面によって薄くしない入口があってはならない (MUST NOT))`, () => {
+    const built = drawn(twoRows({ canOpenOneLevel: false }))
+    const onTheRow = everyEntry(built, IC_OPEN_ONE_LEVEL)[0] as FakeElement
+    // IC-5 stands in the header fixture with `isEnabled: false` -- the same
+    // 「押しても何も変えられない」 state, one surface over.
+    const onTheHeader = entryFor(built.root(), 'IC-5')
+
+    // ⭐ FR-029 (MUST): 「薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149`
+    // の色で示すこと」, and then 「⚠️ 本規則は 表 T-109 の全行に当たる …
+    // ⛔ 載る面によって薄くしない入口があってはならない（MUST NOT）」. ⚠️ WHAT THE
+    // COLOUR RESOLVES TO IS NOT ASKED HERE -- tests/unit/fr-029-in-effect-is-
+    // filled-not-rimmed.test.ts holds it against 表 T-236. What is asked is that
+    // the row is not given a faintness of its own.
+    expect(
+      styleMap(onTheRow).get('color'),
+      'the row control and the header entrance are faint in different colours',
+    ).toBe(styleMap(onTheHeader).get('color'))
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-13 is looked up THEN it still asks for a separate entrance, one per row, faint when spent', () => {
+    const hf13 = specTable('T-051').rows.find((one) => one.id === 'HF-13')
+    expect(hf13, '表 T-051 no longer holds HF-13').toBeDefined()
+    const cells = hf13?.cells.join(' ') ?? ''
+    expect(cells).toContain('1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）')
+    expect(cells).toContain('同じ入口に兼ねさせてはならない（MUST NOT）')
+    expect(cells).toContain('開ける直下の子が 1 つも無いときは')
+    // ⭐ The join this file leans on: HF-13 names its own entrance, and
+    // `entranceForRule` finds the same row from the other side of 表 T-109.
+    expect(cells).toContain(`\`${IC_OPEN_ONE_LEVEL}\``)
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-015 HR-7 is looked up THEN it still opens the DIRECT children only', () => {
+    // ⚠️ NOT THIS UNIT'S TO CARRY OUT -- see the note above this describe. It is
+    // read here so that the entrance drawn above cannot quietly become HF-2's
+    // twin: the day HR-7 stops meaning 「直下の子だけ」, HF-13's separateness has
+    // no reason left and these cases have to be re-read.
+    const hr7 = specTable('T-015').rows.find((one) => one.id === 'HR-7')
+    expect(hr7, '表 T-015 no longer holds HR-7').toBeDefined()
+    expect(hr7?.cells.join(' ')).toContain('孫より下は畳んだままにすること（MUST）')
+  })
+})
+
+describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 つ (MUST)', () => {
+  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_ADD_CHILD} (「行ごとに 1 つ置くこと（MUST）」)`, () => {
+    const built = drawn(twoRows())
+
+    expect(everyEntry(built, IC_ADD_CHILD)).toHaveLength(2)
+    for (const row of rowsOf(built)) {
+      expect(
+        controlsOf(row).filter((one) => one.getAttribute('data-icon') === IC_ADD_CHILD),
+        `row ${row.getAttribute('data-group-id')} does not carry exactly one ${IC_ADD_CHILD}`,
+      ).toHaveLength(1)
+    }
+  })
+
+  it(`⭐ GIVEN ${IC_ADD_CHILD} is drawn WHEN it is pressed THEN IF-9 answers it WITH the row it stands on (表 T-065 IF-9 MUST)`, () => {
+    const built = drawn(oneLiveRow())
+
+    // ⭐ `rowGroupId` IS THE WHOLE OF WHAT MAKES THE PRESS ACTIONABLE. HR-8 of
+    // 表 T-015 (MUST): 「**選択した `TaskGroup` の配下に行を 1 つ足す。**⭐ **足す
+    // 先は配下とすること（MUST）**」 -- so an answer that named the entrance and
+    // not the row would leave the shell knowing what was pressed and not under
+    // what.
+    expect(ask(built, AT.rowAddChild.x, AT.rowAddChild.y)).toEqual({
+      part: partName('U-22'),
+      entry: IC_ADD_CHILD,
+      format: null,
+      rowGroupId: 'g-1',
+      resourceUid: null,
+      dividerPanel: null,
+      noticeDismissKey: null,
+    })
+  })
+
+  it(`GIVEN a row with nothing under it WHEN it is drawn THEN ${IC_ADD_CHILD} stands on it armed (a childless row is exactly the row a child is added to)`, () => {
+    const armed = drawn(withExpander(NOTHING_TO_FOLD))
+    const alsoArmed = drawn(oneLiveRow())
+    const onLeaf = everyEntry(armed, IC_ADD_CHILD)[0] as FakeElement
+    const onParent = everyEntry(alsoArmed, IC_ADD_CHILD)[0] as FakeElement
+
+    // ⚠️ THE CLOSING PARAGRAPH UNDER 表 T-051 DOES NOT REACH HF-14. It names
+    // 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13`」 as the
+    // entrances that count 「いま描かれている行」 and finishes 「その操作で、
+    // 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと
+    // （MUST）」. ⛔ HF-14 is absent from that list, and adding a row always
+    // increases the rows -- so nothing about having no children spends it.
+    expect(onLeaf).toBeDefined()
+    expect(
+      differingProperties(onLeaf, onParent),
+      `${IC_ADD_CHILD} is drawn differently on a row that has no children`,
+    ).toEqual([])
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-14 is looked up THEN it still asks for one per row, an empty name typed in place, and no default', () => {
+    const hf14 = specTable('T-051').rows.find((one) => one.id === 'HF-14')
+    expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
+    const cells = hf14?.cells.join(' ') ?? ''
+    expect(cells).toContain('配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）')
+    expect(cells).toContain('足した行は末子とすること（MUST）')
+    expect(cells).toContain('名前は空で立て、その場で打たせること（MUST）')
+    expect(cells).toContain('既定の名を与えてはならない（MUST NOT）')
+    expect(cells).toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
+    expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-015 HR-8 is looked up THEN it still adds UNDER the row and not beside it', () => {
+    // ⚠️ NOT THIS UNIT'S TO CARRY OUT -- read for the reason HR-7 is read above.
+    const hr8 = specTable('T-015').rows.find((one) => one.id === 'HR-8')
+    expect(hr8, '表 T-015 no longer holds HR-8').toBeDefined()
+    expect(hr8?.cells.join(' ')).toContain('足す先は配下とすること（MUST）')
   })
 })
 
@@ -2366,33 +2770,36 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
     })
   })
 
-  it('GIVEN a row with no expander WHEN the place the controls would stand is pressed THEN the panel answers with entry null (null path)', () => {
-    const built = drawn(withExpander(null))
+  // ⛔⛔ A CASE STOOD HERE AND WAS DELETED ON 2026-08-30, NOT WEAKENED. It read
+  // 「GIVEN a row with no expander … THEN the panel answers with entry null (null
+  // path)」, and 「a row with no expander」 is a description `RowTitle.expander` can
+  // no longer spell (表 T-051 の `HF-1`, 「各行に… 1 つずつ置く」). ⭐ BOTH HALVES
+  // OF WHAT IT ASSERTED LIVE ON, and neither is this file's only copy:
+  //   ・ 「面の上・入口の外」 answering `entry: null` while still naming the row is
+  //     「GIVEN IC-77 ends at x 132 WHEN the strip beyond it is pressed」 above,
+  //     which presses two such points on the same row.
+  //   ・ A control that can do nothing still answering its own row of 表 T-109 --
+  //     `FR-029`'s 「薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）」
+  //     -- is 「GIVEN both sides are spent WHEN either is pressed」 below.
 
-    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)).toEqual({
-      part: 'Row Title Panel',
-      entry: null,
-      format: null,
-      // ⚠️ THE ROW KEY IS NONE HERE BECAUSE OF THIS FILE'S OWN GEOMETRY, not
-      // because a row without an expander stops being a row: `laidOut` gives a
-      // node the union of the children it PLACED, and with no expander drawn
-      // the row reaches no further left than its pin. ⛔ A browser would spread
-      // the row across the panel and answer it; what the case pins is that the
-      // key follows the node the point landed on and is not widened to the part.
-      rowGroupId: null,
-      resourceUid: null,
-      dividerPanel: null,
-      noticeDismissKey: null,
-    })
-  })
-
-  it('GIVEN the expander was drawn and the next frame drops it WHEN the same point is pressed THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
+  it('GIVEN the expander was drawn and the next frame drops the ROW WHEN the same point is pressed THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
-    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBe('IC-58')
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBe(
+      entranceForRule('HF-2'),
+    )
 
-    surfaceOf(built).showScreenView(withExpander(null))
+    // ⚠️ THE SECOND FRAME USED TO BE `withExpander(null)`, ON THE READING THAT A
+    // ROW WITH NOTHING UNDER IT CARRIES NO CONTROL. 表 T-051 の `HF-13` (MUST)
+    // and `FR-029` (MUST) say otherwise -- see the two cases above -- so a null
+    // expander is no longer a frame in which the entrance goes away, and a case
+    // built on it would be asking for the very absence the manuscript forbids.
+    // ⭐ THE CLAIM IS UNCHANGED AND IS NOW MADE WITH THE FRAME THAT REALLY DOES
+    // TAKE THE CONTROL AWAY: a panel with no rows at all. 表 T-065's IF-9 has
+    // 「点がどの入口の上かは、その入口を描いた側が答えること（MUST）」, and a
+    // side that answered from the frame BEFORE would name an entry nobody can see.
+    surfaceOf(built).showScreenView(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
 
-    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBeNull()
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry ?? null).toBeNull()
     expect(expanderControls(built)).toHaveLength(0)
   })
 
@@ -2448,9 +2855,6 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
 //                   外せること（MUST）」
 //   FR-029          RATIONALE 「無反応だと故障に見える」
 // ===========================================================================
-
-/** The four rows of 表 T-109 the `Row Title Panel` holds, with the part IF-9 must name. */
-const T_109_ON_THE_ROW = T_109_ELSEWHERE.filter((one) => one.surface === 'Row Title Panel')
 
 /** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md:1311. */
 const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
@@ -2697,16 +3101,30 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
     }
   })
 
-  it('GIVEN a row with no expander in its description WHEN the panel is read THEN the pin is still there with a box and no expander is (FR-098 does not depend on HF-1) -- IC-60 alone', () => {
-    const built = drawn(withExpander(null))
+  it('⭐ GIVEN a row with NOTHING TO FOLD WHEN the panel is read THEN every entry of 表 T-109 is on it exactly once and each has a box (FR-098 「各行に 1 つ」, HF-1 「各行に」, FR-029 薄く描く)', () => {
+    const built = drawn(withExpander(NOTHING_TO_FOLD))
 
+    // ⛔⛔ THIS CASE USED TO READ 「the pin is still there with a box and NO
+    // EXPANDER IS」 and asserted `IC-58` / `IC-59` were absent. That half was a
+    // reading of the seam, not of the manuscript, and the seam has since been
+    // corrected: 表 T-051 の `HF-1` places the three on 「**各行**」 and `FR-029`
+    // (MUST) draws a control that can do nothing 薄く rather than taking it away
+    // -- 「**載る面によって薄くしない入口があってはならない（MUST NOT）**」.
+    // ⭐ WHAT THE CASE WAS FOR SURVIVES AND IS WIDENED: `FR-098`'s pin does not
+    // depend on the folding controls, and now none of the seven depends on any
+    // other. ⚠️ The armed row is covered by the `it.each` at the head of this
+    // describe; a row where every folding control is SPENT is covered nowhere
+    // else, and a spent control with no box is a control no press can reach.
     const held = rowControlsOf(built)
-    expect(held.get('IC-58')).toHaveLength(0)
-    expect(held.get('IC-59')).toHaveLength(0)
-    const pins = held.get('IC-60') ?? []
-    expect(pins, 'FR-098 puts one Row Pin on EVERY row').toHaveLength(1)
-    for (const node of pins) {
-      expect(intrinsicExtent(node).heightSources).not.toHaveLength(0)
+    for (const one of T_109_ON_THE_ROW) {
+      const drew = held.get(one.row) ?? []
+      expect(drew, `${one.row} is not on a row with nothing to fold exactly once`).toHaveLength(1)
+      for (const node of drew) {
+        expect(
+          intrinsicExtent(node).heightSources,
+          `${one.row} has nothing that gives it a height: ${inlineStyle(node)}`,
+        ).not.toHaveLength(0)
+      }
     }
   })
 
@@ -3024,7 +3442,7 @@ const controlStyles = (built: Stage): Record<string, string> =>
 
 describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever the name is', () => {
   it.each(ROW_NAMES)(
-    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the five entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82',
+    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN every entry 表 T-109 puts on the Row Title Panel is among its LAST children and the name beside them is what takes the free space (表 T-051 HF-4 MUST)',
     ({ label }) => {
       const built = drawn(rowNamed(label))
       const row = theRowOf(built)
@@ -3035,11 +3453,18 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       // readings together are the rule, and no one of them is it alone.
       expect(styleMap(row).get('display'), 'the row is not a flex line').toBe('flex')
 
+      // ⚠️ THE SET, NOT THE ORDER. 表 T-051 の `HF-4` fixes one position only --
+      // 「ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に
+      // 置くこと（MUST）」 -- and then says 「⚠️ **本行が定めるのはこの 1 つだけ
+      // であり、ほかの操作子の前後は定めない**」. So a case that pinned the whole
+      // sequence would be asserting a rule the manuscript expressly declines to
+      // make; that one placement has its own case below. What HF-4 DOES decide
+      // here is that they end the row whatever the name is.
       const tail = row.children.slice(-T_109_ON_THE_ROW.length)
       expect(
-        tail.map((one) => one.getAttribute('data-icon')),
-        `the row does not end with 表 T-109's five entries: ${serialize(row)}`,
-      ).toEqual(T_109_ON_THE_ROW.map((one) => one.row))
+        [...tail.map((one) => one.getAttribute('data-icon'))].sort(),
+        `the row does not end with 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
+      ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
 
       const name = nameCellOf(row)
       expect(name, 'the row has no cell for its name at all').not.toBeNull()
@@ -3074,24 +3499,37 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     ).toEqual([])
   })
 
-  it('GIVEN a row with no expander in its description WHEN it is read THEN the `Row Pin` alone ends the row and the name still grows (FR-098 「各行に 1 つ」, 表 T-051 HF-4) -- IC-60 and IC-82', () => {
-    const built = drawn(withExpander(null))
+  it('⭐ GIVEN a row with NOTHING under it WHEN it is read THEN the SAME roster still ends the row (表 T-051 HF-1 「各行に」, HF-13 / HF-14 「行ごとに 1 つ」, FR-029 薄く描く)', () => {
+    const built = drawn(withExpander(NOTHING_TO_FOLD))
     const row = theRowOf(built)
 
-    // ⚠️ The boundary where the trio is a single control: FR-098 puts the pin on
-    // every row whether or not HF-1's pair is there, so the right edge has to
-    // hold with one control on it as well as with three.
-    expect(controlsOf(row).map((one) => one.getAttribute('data-icon'))).toEqual([
-      'IC-60',
-      'IC-82',
-    ])
-    expect(row.children[row.children.length - 1]?.getAttribute('data-icon')).toBe('IC-82')
+    // ✅ THIS CASE WAS RED FOR ONE ROUND AND IS NOW GREEN, and what moved was the
+    // product, not the expectation (04-verification.md §1). It was written
+    // against `withExpander(null)` and failed because the surface drew nothing
+    // for a null; `expanderOf` now answers the three with none armed for a
+    // childless row, and `RowTitle.expander` is no longer nullable, so the row
+    // this case is about spells itself `NOTHING_TO_FOLD`. ⛔ NOT ONE EXPECTED
+    // VALUE BELOW WAS TOUCHED. The case that stood here
+    // asserted 「the `Row Pin` alone ends the row」 with a typed list of two.
+    //
+    // ⭐ EVERY ROW HAS THE SAME CONTROLS, AND HF-4 IS WHY IT MATTERS HERE:
+    // 「**行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること
+    // （MUST）**」, whose reason is 「名前ごとに位置が変わると狙えない」. ⛔ A
+    // roster that shrinks on a childless row moves every remaining control under
+    // a different part of the pointer's travel -- the very complaint HF-4 was
+    // written about, one row down instead of one name across. `FR-085` says the
+    // same thing about the space: 「**確保する場所を、操作子を描くかどうかで
+    // 変えてはならない（MUST NOT）**」.
+    expect(
+      [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
+      'a childless row ends with a different set of controls than a row with children',
+    ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
     const cell = nameCellOf(row)
     expect(cell).not.toBeNull()
     expect(flexGrowOf(cell as FakeElement)).toBeGreaterThanOrEqual(1)
   })
 
-  it('GIVEN a PINNED row WHEN it is read THEN its controls end the row the same way (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82', () => {
+  it('GIVEN a PINNED row WHEN it is read THEN its controls end the row the same way (FR-098 draws the pinned rows too)', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3110,13 +3548,14 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const row = theRowOf(built)
 
     expect(styleMap(row).get('display')).toBe('flex')
-    expect(row.children.slice(-5).map((one) => one.getAttribute('data-icon'))).toEqual([
-      'IC-58',
-      'IC-59',
-      'IC-77',
-      'IC-60',
-      'IC-82',
-    ])
+    expect(
+      [
+        ...row.children
+          .slice(-T_109_ON_THE_ROW.length)
+          .map((one) => one.getAttribute('data-icon')),
+      ].sort(),
+      `a pinned row does not end with 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
+    ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
     expect(flexGrowOf(nameCellOf(row) as FakeElement)).toBeGreaterThanOrEqual(1)
   })
 

@@ -155,6 +155,29 @@ interface PanelIndex {
    */
   readonly groupIdsWithUnfoldedBelow: ReadonlySet<string>
   /**
+   * The rows with at least one DRAWN DIRECT CHILD that is folded AND that would
+   * reveal something -- the exact set on which HF-13's control (IC-90) still
+   * changes the picture, since HR-7 of table T-015 reaches 「直下の子だけ」 and
+   * leaves 「孫より下は畳んだまま」.
+   *
+   * ⛔ ONE HOP AND NOT THE SUBTREE, which is the whole difference between this
+   * set and `groupIdsWithCollapsedBelow`. A row whose child is open and whose
+   * GRANDCHILD is folded leaves HF-2 with work and HF-13 with none -- pressing
+   * IC-90 there would open nothing, and HF-13 (MUST) has it drawn faint:
+   * 「開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと」.
+   *
+   * ⛔ THE CHILD MUST BE DRAWN AND MUST HAVE SOMETHING TO REVEAL, the same two
+   * narrowings `groupIdsWithCollapsedBelow` carries and for the same words: the
+   * closing rule under table T-051 (MUST) names HF-13 among the entrances that
+   * count 「いま描かれている行」, and 「その操作で、描かれる行が 1 行も増減しない
+   * ときは、対象が 1 つも無いものとして扱うこと」.
+   *
+   * ⚠️ ONE PASS, LIKE THE TWO ABOVE. The parent is reached from the child's own
+   * `parentId`, so no row is asked for its children and NFR-013's refusal of an
+   * O(n^2) algorithm is kept without a climb.
+   */
+  readonly groupIdsWithFoldedChildToOpen: ReadonlySet<string>
+  /**
    * ⚠️ A map rather than a search of `Schedule.tasks` per row: this runs every
    * frame, and rule 05 of docs/development-rules/04-verification.md refuses a
    * linear scan on that path. A row whose name is its own never reads it.
@@ -227,11 +250,14 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * the folding shapes split across three metaphors, and the count changing
  * between 2 and 5 on neighbouring rows.
  *
- * @provisional PD-399 -- and nothing here ADDS a row. UN-14 lists the addition
- * of a TaskGroup among the actions undo covers, and not one of table T-109's
- * 85 icons performs it. The user ruled on 2026-08-30 that the entrance is a
- * `+` paired with IC-82's `×` and that it adds a CHILD; where the child
- * lands and what it is named are still open.
+ * ⛔ PD-399 STOOD HERE AND IS SETTLED. It read 「nothing here ADDS a row ... not
+ * one of table T-109's 85 icons performs it」, which was measured true; the
+ * ruling of 2026-08-30 became HR-8 of table T-015 and HF-14 of table T-051, and
+ * table T-109 now holds IC-91 for it. ⭐ The two questions that row left open
+ * are answered by HF-14 itself: the child lands as the LAST child (末子) and it
+ * is named by the person, with no default name allowed (MUST NOT).
+ * ⚠️ WHERE IT LANDS IS NOT THIS UNIT'S ANSWER -- `canAddChildRow` below says
+ * only whether the entrance has anything left to do.
  *
  * @provisional PD-400 -- and nothing here REORDERS one either. Table T-023d is
  * the full count of what can be grabbed and holds no row for a row of this
@@ -442,11 +468,22 @@ function rowDepth(
  *
  * @purity pure
  */
-function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander | null {
-  // HF-1 places the pair on a row that has something under it, and a row with
-  // no children at all carries neither half.
-  if (!index.groupIdsWithChildren.has(group.id)) return null
-
+function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
+  // ⭐⭐ EVERY ROW CARRIES THE THREE, AND A CHILDLESS ONE CARRIES THEM WITH NO
+  // HALF ARMED. HF-1 (MUST) says 「行見出しパネルの各行に、開く操作子と、その行
+  // 自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ置く」 -- 各行, with
+  // no exception -- and FR-029 (MUST) has a spent entrance drawn 薄く rather
+  // than taken away, adding 「載る面によって薄くしない入口があってはならない
+  // (MUST NOT)」.
+  //
+  // ⛔⛔ IT USED TO ANSWER `null` FOR A ROW WITH NO CHILDREN, and that was
+  // measured wrong on 2026-08-30: a leaf row in the shipped app drew no IC-58,
+  // IC-59 or IC-77 at all. ⭐ THE DECIDING EVIDENCE IS 表 T-233: `RS-28`
+  // 「配下に、開ける行が 1 つも無い」 is that row's own situation, and a control
+  // that is not drawn can never be pressed, so that reason could never be told
+  // to anyone. FR-029 makes the telling a MUST and (MUST NOT) forbids
+  // disabling the entrance for the same reason -- the press is the trigger.
+  //
   // ⭐ THE PICTURE NARROWS ALL THREE, each where its own answer is built:
   // `groupIdsWithCollapsedBelow` and `groupIdsWithUnfoldedBelow` are marked
   // from the DRAWN rows alone, and the closing half asks for a child this frame
@@ -545,6 +582,27 @@ function rowTitleOf(
     // reached the cut at all was not.
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,
     expander: expanderOf(group, index),
+    // HF-13 (MUST), which names HR-7 of table T-015: 「直下の子だけ」 opens.
+    //
+    // ⭐ ANSWERED BESIDE `expander` AND NOT INSIDE IT, because the two answer
+    // different questions: HF-2 opens the whole subtree and HF-13 opens one
+    // level, and HF-13 (MUST) makes them separate entrances and (MUST NOT)
+    // lets one control be both. A row can leave one with work and the other
+    // without -- see the
+    // member's own declaration for the whole of that difference.
+    canOpenOneLevel: index.groupIdsWithFoldedChildToOpen.has(group.id),
+    // HF-14 (MUST), which names HR-8: a row is added under this one.
+    //
+    // ⭐ SPENT ONLY AT THE CAP. Adding a row always changes the document, so
+    // FR-029's 「いま文書にも画面にも何も変えられない」 is reached in exactly one
+    // place -- FR-085 (MUST NOT) refuses to create under a parent already at
+    // `maxGroupDepth` (S-125), which is the very test `createTaskGroup` makes
+    // before it writes. ⛔ HR-8 (MUST NOT) forbids restating the cap, so the
+    // comparison below reads FR-085's own value and states no rule of its own.
+    // ⚠️ `depth` IS ALREADY CLAMPED TO THAT VALUE by `rowDepth`, which stops
+    // climbing at it -- so a document that broke FR-004 answers `false` here
+    // rather than arming an entrance the write side would refuse.
+    canAddChildRow: depth < settings.maxGroupDepth,
     isPinned,
     // FR-085 (MUST): rows are chosen in this panel, and the set is
     // `ScreenSession.selectedGroupIds` (PD-142).
@@ -599,10 +657,19 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   // picture. ⚠️ A second pass and not the one above, because a child may be
   // printed before its parent and the map has to be whole first.
   const groupIdsWithDrawnChildren = new Set<string>()
+  // HF-13's reach, marked in the same pass and from the same rows: a parent is
+  // in it when one of the children THIS FRAME DREW is folded over a child of
+  // its own that HR-6 does not hide. ⚠️ `groupIdsWithUnhiddenChildren` is whole
+  // by now -- it was built in the first pass above -- so the child's own answer
+  // can be asked here rather than in a third walk.
+  const groupIdsWithFoldedChildToOpen = new Set<string>()
   for (const group of schedule.taskGroups) {
     if (group.parentId === null) continue
     if (!boxByGroupId.has(group.id)) continue
     groupIdsWithDrawnChildren.add(group.parentId)
+    if (group.isCollapsed !== true) continue
+    if (!groupIdsWithUnhiddenChildren.has(group.id)) continue
+    groupIdsWithFoldedChildToOpen.add(group.parentId)
   }
 
   // HF-2's reach, marked upward from the folded rows instead of walked downward
@@ -673,6 +740,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     boxByGroupId,
     groupIdsWithCollapsedBelow,
     groupIdsWithUnfoldedBelow,
+    groupIdsWithFoldedChildToOpen,
     taskNameByUid,
   }
 }

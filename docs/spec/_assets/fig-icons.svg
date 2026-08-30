@@ -322,12 +322,12 @@
   </g>
   <text class="lbl" x="208" y="222">IC-54</text>
   <g transform="translate(232 188)">
-    <path class="s" d="M9 4.5 L16.5 12 L9 19.5"/>
+    <path class="s" d="M5.5 11.5 L12 18 L18.5 11.5"/>
+    <path class="s" d="M5.5 5 L12 11.5 L18.5 5"/>
   </g>
   <text class="lbl" x="244" y="222">IC-58</text>
   <g transform="translate(268 188)">
-    <path class="s" d="M5.5 12.5 L12 6 L18.5 12.5"/>
-    <path class="s" d="M5.5 19 L12 12.5 L18.5 19"/>
+    <path class="s" d="M5.5 15 L12 8.5 L18.5 15"/>
   </g>
   <text class="lbl" x="280" y="222">IC-59</text>
   <g transform="translate(304 188)">
@@ -425,8 +425,8 @@
   </g>
   <text class="lbl" x="352" y="266">IC-73</text>
   <g transform="translate(376 232)">
-    <path class="s" d="M4 12 H20"/>
-    <path class="s" d="M12 4 V20"/>
+    <path class="s" d="M5.5 11.5 L12 18 L18.5 11.5"/>
+    <path class="s" d="M5.5 5 L12 11.5 L18.5 5"/>
   </g>
   <text class="lbl" x="388" y="266">IC-74</text>
   <g transform="translate(412 232)">
@@ -443,12 +443,13 @@
   </g>
   <text class="lbl" x="424" y="266">IC-76</text>
   <g transform="translate(16 276)">
-    <path class="s" d="M15 4.5 L7.5 12 L15 19.5"/>
+    <path class="s" d="M5.5 12.5 L12 6 L18.5 12.5"/>
+    <path class="s" d="M5.5 19 L12 12.5 L18.5 19"/>
   </g>
   <text class="lbl" x="28" y="310">IC-77</text>
   <g transform="translate(52 276)">
-    <path class="s" d="M3.5 16.5 L7.5 9.5 L11.5 16.5"/>
-    <path class="s" d="M12.5 16.5 L16.5 9.5 L20.5 16.5"/>
+    <path class="s" d="M5.5 12.5 L12 6 L18.5 12.5"/>
+    <path class="s" d="M5.5 19 L12 12.5 L18.5 19"/>
   </g>
   <text class="lbl" x="64" y="310">IC-78</text>
   <g transform="translate(88 276)">

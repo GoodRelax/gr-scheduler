@@ -637,8 +637,33 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     )
   })
 
-  it('gives no expander to a row nothing sits under', () => {
-    expect(parentTitle([], ['p']).expander).toBeNull()
+  it('⭐ gives a row nothing sits under the same three controls, with none of them armed (HF-1 「各行に」, FR-029 薄く描く)', () => {
+    // ⛔⛔ THIS CASE USED TO READ 「gives no expander to a row nothing sits
+    // under」 AND ASSERT `null`. That was a reading of the seam and not of the
+    // manuscript, and 表 T-051 decides against it three times over:
+    //
+    //   `HF-1`: 「行見出しパネルの**各行**に、開く操作子と、その行自身を
+    //     閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ置く。」
+    //     —— 各行, with no exception carved for a childless one.
+    //   `FR-029`: 「**その入口を押しても、いま文書にも画面にも何も変えられない
+    //     ときは、その入口を薄く描くこと（MUST）。**」 and 「⚠️ **本規則は
+    //     …表 T-109 の全行に当たる** —— 行の操作子もパレットもヘッダーも
+    //     同じである。**載る面によって薄くしない入口があってはならない（MUST NOT）。**」
+    //   The closing paragraph under 表 T-051: 「⛔ **その操作で、描かれる行が
+    //     1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）**」
+    //     —— 対象が 1 つも無い is a STATE OF THE THREE, which FR-029 then
+    //     draws faint. It is not an absence of them.
+    //
+    // ⭐ AND 表 T-233 IS WHAT MAKES THE DIFFERENCE VISIBLE: `RS-28`「配下に、開ける
+    // 行が 1 つも無い」(正: `HF-2`), `RS-29`「配下に、畳める行が 1 つも無い」
+    // (`HF-11`) and `RS-30`「その行は既に畳まれている」(`HF-3`) are the reasons a
+    // press on each spent control tells. ⛔ A row that carried no control at all
+    // could never raise one of them, which is the 「引き金が消える」 FR-029 names.
+    expect(parentTitle([], ['p']).expander).toEqual({
+      canOpen: false,
+      canClose: false,
+      canCloseBelow: false,
+    })
   })
 
   it('offers only the closing control while nothing under the row is folded', () => {
@@ -957,7 +982,7 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
     expect(title.isLabelTruncated).toBe(false)
   })
 
-  it('MUST NOT change the room kept for the controls with whether they are drawn', () => {
+  it('MUST NOT change the room kept for the controls with whether they are drawn (FR-085)', () => {
     // FR-085: the export draws no row control (EP-4 of table T-076), so a room
     // that followed the controls would cut one and the same name in two places.
     // A row with an expander, a leaf row and a pinned leaf all sit at depth 1
@@ -974,10 +999,37 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
       panelWith({ pinnedGroupIds: ['pinnedLeaf'] }),
     )
 
-    expect(titleOf(panel, 'withKid').expander).not.toBeNull()
-    expect(titleOf(panel, 'leaf').expander).toBeNull()
-    expect(titleOf(panel, 'leaf').label).toBe(titleOf(panel, 'withKid').label)
-    expect(titleOf(panel, 'pinnedLeaf').label).toBe(titleOf(panel, 'withKid').label)
+    // ⭐⭐ WHAT MAKES THE DRAWING DIFFER, NOW THAT EVERY ROW CARRIES THE SAME
+    // SEVEN. This case used to vary 「a row that HAS an expander」 against 「a row
+    // that has NONE」, and that second row is a state 表 T-051 の `HF-1` does not
+    // admit (「各行に… 1 つずつ置く」). ⛔ The rule under test is unchanged and
+    // is FR-085's: 「**確保する場所を、操作子を描くかどうかで変えてはならない
+    // （MUST NOT）」, whose reason is that the export draws none of them (表 T-076
+    // の `EP-4`) and 「変えると画面と書き出しで打ち切りの位置が食い違う」.
+    // ⭐ SO THE VARYING CONDITION IS NOW THE TWO THE MANUSCRIPT ITSELF NAMES AS
+    // CHANGING WHAT IS DRAWN: whether a control is armed or spent -- FR-029
+    // (MUST) draws a spent one 薄く, which is a different drawing of the same
+    // control -- and whether the row is pinned, since HF-6 (MUST) draws a pinned
+    // row's `IC-60` 「ポインタが乗っていなくても」 when the others are not drawn at all.
+    // ⛔ IF THE THREE ROWS EVER STOP DIFFERING, this case has lost its variable and
+    // proves nothing -- so the difference is asserted before the sameness is.
+    const withKid = titleOf(panel, 'withKid')
+    const leaf = titleOf(panel, 'leaf')
+    const pinnedLeaf = titleOf(panel, 'pinnedLeaf')
+
+    expect(
+      withKid.expander,
+      'the two rows are drawn alike, so this case no longer varies what is drawn',
+    ).not.toEqual(leaf.expander)
+    expect(pinnedLeaf.isPinned, 'the pinned row is not pinned, so HF-6 draws it like the rest').toBe(
+      true,
+    )
+    expect(leaf.isPinned).toBe(false)
+
+    // ⭐ AND THE ROOM DID NOT MOVE: one and the same name is cut at one and the
+    // same place on all three.
+    expect(leaf.label).toBe(withKid.label)
+    expect(pinnedLeaf.label).toBe(withKid.label)
   })
 
   it('does not follow `fontScale` (S-70), which FR-039 carries to S-3 and S-2', () => {

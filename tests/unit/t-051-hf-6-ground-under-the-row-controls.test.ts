@@ -852,7 +852,13 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   label: patch.groupId,
   wholeLabel: patch.groupId,
   isLabelTruncated: false,
-  expander: null,
+  // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
+  // read `null` until 2026-08-30, when `RowTitle.expander` stopped being
+  // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+  // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
+  // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
+  // absence. ⚠️ The neutral fixture is therefore the three with none armed.
+  expander: { canOpen: false, canClose: false, canCloseBelow: false },
   isPinned: false,
   isSelected: false,
   ...patch,
@@ -863,6 +869,16 @@ const EVERY_CONTROL: RowExpander = { canOpen: true, canClose: true, canCloseBelo
 
 /** FR-029's own situation: an entrance with nothing to open. */
 const NOTHING_TO_OPEN: RowExpander = { canOpen: false, canClose: true, canCloseBelow: true }
+
+/**
+ * A row with nothing to fold at all.
+ *
+ * ⭐ THE STATE THAT REPLACED `null` ON 2026-08-30. 表 T-051 の `HF-1` places the
+ * three on 「**各行**」, and the closing paragraph under that table gives what a
+ * row with no work carries: 「⛔ **その操作で、描かれる行が 1 行も増減しないとき
+ * は、対象が 1 つも無いものとして扱うこと（MUST）**」 -- which `FR-029` draws 薄く.
+ */
+const NOTHING_TO_FOLD: RowExpander = { canOpen: false, canClose: false, canCloseBelow: false }
 
 const paletteWith = (commands: readonly CommandItem[]): CommandPalette =>
   ({
@@ -1087,6 +1103,40 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
       reachesTheRowsRightEdge(band, ROW_BOX.width),
       `HF-6 (MUST): 行の右端まで (${ROW_BOX.width}px): ${serialize(band)}`,
     ).toBe(true)
+  })
+
+  it('⭐ MUST: it reaches the SAME leftmost control whether the row has anything to fold or not (HF-6 「いちばん左の操作子の左端から」, FR-085 MUST NOT)', () => {
+    // ⭐⭐ THE GAP THIS FILLS, AND WHY IT OPENED ON 2026-08-30. Every other case
+    // here draws `EVERY_CONTROL`, so the band's LEFT edge had only ever been read
+    // on a row whose controls are all armed. ⛔ The unit chose that edge with
+    // `title.expander !== null ? …open : …openOneLevel` -- a row without an
+    // expander started its band three steps in. `RowTitle.expander` is no longer
+    // nullable (表 T-051 の `HF-1`, 「**各行**に… 1 つずつ置く」), so every row
+    // now carries the same seven and the band has one left edge for all of them.
+    //
+    // ⛔ THE TWO RULES THAT SAY IT MAY NOT MOVE:
+    //   `HF-6` (MUST): 「**敷く範囲は、いちばん左の操作子の左端から行の右端までとし、
+    //     縦はその行の高さとすること（MUST）**」 -- and `FR-029` draws a spent
+    //     control rather than removing it, so 「いちばん左の操作子」 is the same
+    //     control on every row.
+    //   `FR-085` (MUST NOT): 「**確保する場所を、操作子を描くかどうかで変えては
+    //     ならない（MUST NOT）**」.
+    const armed = drawn(oneRow(EVERY_CONTROL))
+    const spent = drawn(oneRow(NOTHING_TO_FOLD))
+    const armedBand = bandsIn(armed, rowElement(armed))[0]
+    const spentBand = bandsIn(spent, rowElement(spent))[0]
+    if (armedBand === undefined || spentBand === undefined) {
+      throw new Error('a row was drawn without a ground')
+    }
+
+    expect(
+      reachesTheRowsRightEdge(spentBand, ROW_BOX.width),
+      `HF-6 (MUST): 行の右端まで (${ROW_BOX.width}px): ${serialize(spentBand)}`,
+    ).toBe(true)
+    expect(
+      inlineStyle(spentBand),
+      'the ground starts at a different control when the row has nothing to fold',
+    ).toBe(inlineStyle(armedBand))
   })
 
   it('⭐ two rows are two grounds -- the band belongs to a row and not to the panel', () => {

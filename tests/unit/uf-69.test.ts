@@ -251,7 +251,13 @@ const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
     // from the flag the case asked for rather than being stated twice.
     wholeLabel: label === null ? null : isLabelTruncated ? `${label}, and the rest of it` : label,
     isLabelTruncated,
-    expander: null,
+    // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
+    // read `null` until 2026-08-30, when `RowTitle.expander` stopped being
+    // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+    // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
+    // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
+    // absence. ⚠️ The neutral fixture is therefore the three with none armed.
+    expander: { canOpen: false, canClose: false, canCloseBelow: false },
     isPinned: false,
     isSelected: false,
     ...part,
