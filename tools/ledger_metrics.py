@@ -41,8 +41,8 @@ END = '<!-- ledger-metrics: end -->'
 # The order the ladder is walked in, which is the order 「ステータスの定義」
 # prints them. A status the table gains and this list does not is reported
 # rather than dropped.
-LADDER = ['未検討', '追加裁定待ち', '仕様確定', '実装待ち', '実装中',
-          'テスト中', 'テスト待ち', 'テスト完了', '取下げ']
+LADDER = ['未検討', '追加裁定待ち', '仕様確定', '仕様書反映済み', '実装待ち',
+          '実装中', 'テスト中', 'テスト待ち', 'テスト完了', '取下げ']
 
 # ⛔ THE TWO THAT COUNT AS FINISHED. Everything else is 残件, and 残件 going down
 # is what progress means from 2026-08-30 (利用者の裁定).

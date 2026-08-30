@@ -23,7 +23,8 @@ WHAT IT DOES:
     by name, and FAILS if that count is higher than the baseline beside this
     file. The baseline may go DOWN freely; it may only go up deliberately.
   - FAILS on a row that claims a verification date while standing at a status
-    that cannot have one (未検討 / 追加裁定待ち / 仕様確定), which is a
+    that cannot have one (未検討 / 追加裁定待ち / 仕様確定 / 仕様書反映済み),
+    which is a
     contradiction rather than a debt.
 
 ⚠️ IT DOES NOT FAIL ON THE DEBT ITSELF. 23 rows carry it today; a gate that
@@ -47,7 +48,7 @@ DONE = '`テスト完了`'
 NOT_SEEN = '⛔ 未'
 # Statuses at which a row cannot honestly carry a verification date: nothing has
 # been built yet for anyone to have looked at.
-TOO_EARLY = ('`未検討`', '`追加裁定待ち`', '`仕様確定`')
+TOO_EARLY = ('`未検討`', '`追加裁定待ち`', '`仕様確定`', '`仕様書反映済み`')
 SEEN_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 
 
