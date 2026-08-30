@@ -209,6 +209,18 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
 }
 
 /**
+ * @provisional PD-396 -- HF-6 draws the pin only while the pointer is on the
+ * row, so which rows are pinned can only be found by sweeping every one of
+ * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
+ * needs an exception to HF-6, and the colour question rides on it.
+ *
+ * @provisional PD-397 -- and the whole set of row controls is up for
+ * re-organising. ⭐ Measured from the user's own FR-102 record: forty seconds
+ * of hovering across all seven, three presses. ⛔ THE PRESSES ALL WORKED --
+ * what fails is reading them.
+ */
+
+/**
  * The width FR-085 leaves the name: `rowTitlePanelWidth` (S-79) less the indent
  * for the row's depth (`rowTitleIndent`, S-37) less the room the row's controls
  * keep -- U-47 `Row Expander` and U-48 `Row Pin`, whose amount FR-085 puts at
@@ -740,5 +752,7 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   'S-140': 0,
 }
 // </generated>
+
+
 
 
