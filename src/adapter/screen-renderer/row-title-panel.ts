@@ -214,6 +214,12 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
  *
+ * @provisional PD-398 -- and how an entrance says it is ON is settled the
+ * wrong way in the specification itself: S-183's row is named 「構えている入口
+ * の縁の色」 and FR-053 names it for the rim, so every faithful implementation
+ * has drawn a rim. ⭐ The user asked for the icon itself to be filled, in the
+ * ledger's D-71, on 2026-08-27.
+ *
  * @provisional PD-397 -- and the whole set of row controls is up for
  * re-organising. ⭐ Measured from the user's own FR-102 record: forty seconds
  * of hovering across all seven, three presses. ⛔ THE PRESSES ALL WORKED --
@@ -752,6 +758,8 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   'S-140': 0,
 }
 // </generated>
+
+
 
 
 

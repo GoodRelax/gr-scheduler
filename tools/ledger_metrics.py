@@ -44,6 +44,10 @@ END = '<!-- ledger-metrics: end -->'
 LADDER = ['未検討', '追加裁定待ち', '仕様確定', '実装待ち', '実装中',
           'テスト中', 'テスト待ち', 'テスト完了', '取下げ']
 
+# ⛔ THE TWO THAT COUNT AS FINISHED. Everything else is 残件, and 残件 going down
+# is what progress means from 2026-08-30 (利用者の裁定).
+DONE = ['テスト完了', '取下げ']
+
 
 def counts(text):
     """How many rows stand at each status, and how many rows there are."""
@@ -85,9 +89,12 @@ def block_of(when, start_cells, rows, seen, today):
     order = [s for s in LADDER if s in seen or (start_cells and any(start_cells))]
     order = [s for s in LADDER if seen.get(s, 0) > 0] if start_cells is None else \
         [s for s in LADDER]
-    head = '| | 総件数 | ' + ' | '.join(order) + ' |'
-    rule = '| --- | --: | ' + ' | '.join(['--:'] * len(order)) + ' |'
-    now = [rows] + [seen.get(s, 0) for s in order]
+    head = '| | 残件 | 総件数 | ' + ' | '.join(order) + ' |'
+    rule = '| --- | --: | --: | ' + ' | '.join(['--:'] * len(order)) + ' |'
+    # ⭐ 残件 IS THE PROGRESS MEASURE (利用者の裁定 2026-08-30): everything that
+    # has not reached テスト完了 or 取下げ. ⚠️ It is derived, never counted by
+    # hand -- the whole reason this file exists.
+    now = [rows - sum(seen.get(s, 0) for s in DONE), rows]         + [seen.get(s, 0) for s in order]
     if start_cells is None or len(start_cells) != len(now):
         start = ['—'] * len(now)
         diff = ['—'] * len(now)
