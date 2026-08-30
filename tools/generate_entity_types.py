@@ -1173,6 +1173,19 @@ NOT_STORED_TARGETS = {
     # marked with -- HF-15's live axis and HF-18's holding mark -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_ROW_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE EITHER, though it lands in the same
+    # file: S-213 is a BAND drawn on a row's edge and these two are how faint a
+    # GROUND laid under something is, which is the subject S-214's own row
+    # names (「状態を地で薄く示すときの濃さ」).
+    # ⭐ AND THE TWO ARE ONE SUBJECT, which is why they share a constant where
+    # S-213 could not join them. S-215's own note says it exists to be READ
+    # AGAINST S-214 -- 「`S-214` より濃い値を別に持つ … 同じ濃さでは見分けられ
+    # ない」 -- so the pair is a single scale of state grounds with two steps on
+    # it, and three requirements read it: FR-029 (the entrance under the
+    # pointer) and FR-098 (the pinned row) take S-214, and HF-15 of table T-051
+    # (the row a hand is holding) takes S-215.
+    'NOT_STORED_STATE_GROUND_PERCENTS': (['S-214', 'S-215'],
+                                         DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ FR-036's help, whose share of the screen and whose column count are
     # both the drawing side's to apply: the share is of the window, which is
     # the environment's own measure, and the columns are a layout. ⛔ Not
@@ -1818,9 +1831,15 @@ TARGETS = [
     # armed entrance with a RIM until 2026-08-30; the ruling of that day made it
     # a FILL, whose two colours are rows of table T-236 and reach this unit
     # through `SCREEN_COLOURS`. A thickness has no reader left.
+    # ⭐ S-214 AND S-215 COME BESIDE THE COLOURS AND NOT AMONG THEM. Table T-236
+    # states WHICH colour a state's ground takes and table T-206 states HOW
+    # FAINT it is laid, so the two halves arrive on the two roads their own
+    # tables put them on -- ⛔ a percentage written into a colour row, or a
+    # colour written into a settings row, would be one decision in two places.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2

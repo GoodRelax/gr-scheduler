@@ -26,34 +26,47 @@
 ⭐ **いま原稿から生成されている定数**（増えたらここに足す）:
 
 ```
-COLUMN_DEFAULTS                 列の既定値（表 T-058 が刷る）
-NOT_STORED_SIZES                掴み代・当たり判定（表 T-206）
-NOT_STORED_LIMITS               取り消しの段数と上限（表 T-206）
-NOT_STORED_PANEL_DIVIDER_SIZES  `Panel Divider` の掴み帯（表 T-206 の `S-134`）
-DEFAULT_CALENDAR_VALUES         既定の暦（表 T-209）
-DATE_COLUMNS                    日付列の全数（表 T-058）
-SETTINGS_DEFAULTS               見せ方の群の既定値
-SETTINGS_BOUNDS                 その下限・上限
-SETTINGS_DERIVED                他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
-NOT_STORED_ZOOM_STEP            1 ノッチの倍率（表 T-206 の `S-96`）
-NOT_STORED_DUMMY_SIZES          実績のダミーを描く幅（`S-180`）
-NOT_STORED_PROPERTY_FIELD_SIZES プロパティパネルの欄の寸法（`S-186` 〜 `S-193`）
-NOT_STORED_DUAL_CURSOR_SIZES    2 連カーソルの線の太さ（`S-194`）
-COLUMN_SHAPES                   列の入力の形・選択肢・下限上限（`erd.json`）
-NOT_STORED_ZOOM_BOUNDS          倍率の下限・上限（`S-97` / `S-98`）
-NOT_STORED_COMMAND_PALETTE_SIZES  `Command Palette` の掴み帯（`S-135a`）
-NOT_STORED_PALETTE_GROUP_RULE_SIZES パレットの群の境目の線（`S-143`）
-NOT_STORED_PROPERTIES_PANEL_SIZES `Properties Panel` が開く幅（`S-171`）
-NOT_STORED_ROW_CONTROL_SIZES    行の操作子の大きさ（`S-140`）
-NOT_STORED_ICON_SIZES           アイコンの箱と隔たり（`S-138` / `S-141`）
-NOT_STORED_SELECTION_SIZES      選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
-NOT_STORED_REPEAT_TIMES         長押しの待ちと刻み（`S-172` / `S-173`）
-SCREEN_COLOURS                  画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
-SCHEDULE_COLOURS                日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
-ENTITY_ROWS                     実体の行（`erd.json`）
+COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
+COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
+DATE_COLUMNS                         日付列の全数（表 T-058）
+DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
+ENTITY_ROWS                          実体の行（`erd.json`）
+NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
+NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
+NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
+NOT_STORED_GUIDE_CURSOR_SIZES        案内カーソルの 2 本の隔たり（`S-209`）
+NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
+NOT_STORED_ICON_SIZES                アイコンの箱と隔たり（`S-138` / `S-141`）
+NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
+NOT_STORED_LABEL_SIZES               ラベルの幅の係数（`S-196`）
+NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）
+NOT_STORED_PALETTE_GROUP_RULE_SIZES  パレットの群の境目の線（`S-143`）
+NOT_STORED_PANEL_DIVIDER_SIZES       `Panel Divider` の掴み帯（`S-134`）
+NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`）
+NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
+NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
+NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
+NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
+NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
+NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
+NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
+NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
+NOT_STORED_SIZES                     掴み代・当たり判定（`S-90` 〜 `S-93` / `S-137`）
+NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-214` / `S-215`）
+NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
+NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
+SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
+SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
+SETTINGS_BOUNDS                      その下限・上限
+SETTINGS_DEFAULTS                    見せ方の群の既定値
+SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
 ```
 
-⚠️ **この一覧は 2026-08-26 に 2 度直した。**
+⚠️⚠️ **この一覧は 3 度直した。**⛔⛔ **手で保つのをやめる潮時である。**
+⭐ **2026-08-31 の実測**: 木は生成された `export const` を **34 本**持ち、一覧は **25 本**しか名指していなかった。⇒ **34 本を機械で数え直して置き換えた。**
+⛔ **次に足す者へ**: **この一覧に検査が無い。**`.claude/skills/spec-graph-check/` に 1 本足すのが本筋である —— **数え方は下に書いてあるとおり 1 行で書ける。**
+
+⚠️ **2026-08-26 の 2 度**
 ⛔ **1 度目は 9 本、2 度目は 5 本足りなかった** —— 2 度目のうち 4 本は同じ日のうちに増えたもので、1 本は 1 度目に足した行の説明が隣の行の写しになっていた誤りである。
 ⭐ **数え方**: `src/` の生成された `export const` を全部拾う。
 ⛔ **この一覧が 1 日に 2 度ずれたこと自体が、下の 1 文の証拠である。**機械が見ていないので、増やした者が足し忘れれば誰も気づかない —— **気づいたのは、仕様だけを読む体が数えたときだった。**

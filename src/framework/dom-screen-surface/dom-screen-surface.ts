@@ -220,7 +220,7 @@
 // where the pointer is, and a `style` attribute can state neither: HF-6's
 // 「その行の名前にポインタが乗っているあいだだけ描く」 and FR-053's
 // 「ポインタが乗っていないあいだは薄く透明に描く」. So the unit hangs ONE `style`
-// element off its own root (`HOVER_CSS`), scoped by the root's `data-unit`.
+// element off its own root (`hoverCss`), scoped by the root's `data-unit`.
 // ⛔ It is built from constants and never from a description, it paints nothing
 // itself, and nothing else in this file is placed or painted by a sheet.
 //   - ⭐ `:hover` IS THE PART UNDER THE POINTER, WHICH IS WHAT FR-053 (MUST)
@@ -274,7 +274,7 @@ import iconGlyphs from '../../adapter/screen-renderer/icon-glyphs.json'
 
 /**
  * This unit's own row of table T-075, which the root carries and which scopes
- * `HOVER_CSS` to the tree this unit built.
+ * `hoverCss` to the tree this unit built.
  *
  * ⚠️ Not a name for a part: table T-103 has no row for the whole screen.
  */
@@ -595,6 +595,24 @@ const PAINT_ROW = {
   // with the unit that draws the picture; ONE row of table T-236 read by two
   // units is not the copy rule 03 section 1 forbids.
   pinned: 'S-151',
+  // ⭐ FR-029 (MUST), ADDED 2026-08-31: 「構えている入口にポインタが乗っている
+  // あいだ、その入口の下に地を敷くこと（MUST）—— 色は 表 T-236 の `S-147`」.
+  // ⛔ NOT `ink` UNDER A SECOND READING, though S-147 is the row both name.
+  // That member is 主たる文字 -- what every word and every shape on this surface
+  // is written in -- and this is a GROUND laid under one entrance while a
+  // pointer rests on it. ⚠️ The two would move together today and there is no
+  // rule saying they must: joining them would make the day either one changes
+  // a day the other changes in silence, which is what the notes on `pinned` and
+  // `grabAxisPosition` below already refuse for S-151.
+  hoveredEntrance: 'S-147',
+  // ⭐ FR-098 (MUST), ADDED THE SAME DAY: 「留めた行そのものにも地を敷くこと
+  // （MUST）—— 色は 表 T-236 の `S-151`」, because 「入口の塗りだけでは、留めた行が
+  // 先頭へ上げられたのか、もともと先頭に在るのかを読めない」.
+  // ⛔ NOT `pinned`, WHICH IS THE VERY DISTINCTION THAT REQUIREMENT DRAWS. That
+  // member is EN-3's fill on the pinned row's IC-60 -- one control -- and this
+  // is the ground under the whole row; FR-098 states them as two rules and says
+  // in as many words that the first is not enough on its own.
+  pinnedRow: 'S-151',
   // ⭐ HF-15's TWO BANDS (MUST): 「上下の軸が生きているときは行の左右の辺に、
   // 左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと。色は 表
   // T-236 の `S-151`（上下）と `S-152`（左右）とする」. ⛔ NOT `pinned` UNDER A
@@ -603,6 +621,20 @@ const PAINT_ROW = {
   // and one member for two rules would join what the specification keeps apart.
   grabAxisPosition: 'S-151',
   grabAxisDepth: 'S-152',
+  // ⭐ HF-15's OTHER TWO MUSTS ABOUT THE ROW A HAND IS HOLDING, both added
+  // 2026-08-31 and both S-151: 「掴んでいる行には地を敷くこと（MUST）。色は 表
+  // T-236 の `S-151`」 and 「握っているあいだ、掴み代の印を 表 T-236 の `S-151`
+  // で描くこと（MUST）」.
+  // ⭐ ONE MEMBER FOR THE TWO, unlike every other pair kept apart here: they are
+  // not two rules that happen to share a row but ONE state -- 「いま手が持って
+  // いる行」 -- drawn in two places by two sentences of the same row, and the
+  // second gives that as its reason (「色が変わること自体が『いま掴んでいる』の
+  // 印になる」). ⛔ Splitting them would let the ground and the mark be recoloured
+  // apart, and the mark would then no longer be saying what the ground says.
+  // ⛔ NOT `grabAxisPosition`, though S-151 is the row it names too: that one is
+  // the band saying WHICH AXIS is live and it has a sibling in S-152, so a row
+  // held on the depth axis draws that band in green while these two stay S-151.
+  heldRow: 'S-151',
   // ⭐ HF-18 (MUST): 「色は 表 T-236 の `S-153` とする —— 注意であって不良では
   // ない」, for the count a row shows of the rows it holds folded, and for the
   // same count at 段 0 (HF-12).
@@ -621,14 +653,25 @@ function painted(name: keyof typeof PAINT_ROW): string {
  * (`ButtonFace` / `ButtonText`). ⛔ With the fallbacks gone the two pairs are
  * the same string, and rule 03 section 1 forbids one concept two names.
  *
- * ⭐ THE LAST THREE ARE TABLE T-237'S, and they joined for one reason: that
- * table gives a state of an entrance a FILL, and a fill is a colour this unit
- * has to hold. `armed` came on 2026-08-26 (then as a rim), `pressed` on
- * 2026-08-28 and `pinned` with CR-311 on 2026-08-30. Each reads a row like the
- * rest, so `themeStyle` repaints all three in both renderings without a second
- * path. ⚠️ Two of them resolve to one colour today (S-183 stands on EN-1, EN-2
- * and EN-4); they are kept apart because table T-237 keeps them apart, and
+ * ⭐ `armed`, `pressed` AND `pinned` ARE TABLE T-237'S, and they joined for one
+ * reason: that table gives a state of an entrance a FILL, and a fill is a colour
+ * this unit has to hold. `armed` came on 2026-08-26 (then as a rim), `pressed`
+ * on 2026-08-28 and `pinned` with CR-311 on 2026-08-30. Each reads a row like
+ * the rest, so `themeStyle` repaints all three in both renderings without a
+ * second path. ⚠️ Two of them resolve to one colour today (S-183 stands on EN-1,
+ * EN-2 and EN-4); they are kept apart because table T-237 keeps them apart, and
  * `entranceStateFill` is what reads the order between them.
+ *
+ * ⭐ `hoveredEntrance`, `pinnedRow` AND `heldRow` ARE THE GROUNDS, added
+ * 2026-08-31 with the rules that ask for them (FR-029, FR-098 and HF-15 of table
+ * T-051). ⛔ A GROUND IS NOT A FILL, which is why they are not folded into the
+ * three above: a fill REPLACES an entrance's paint and knocks its shape out in
+ * S-146, and a ground is laid UNDER something and left to show through at the
+ * depth table T-206 states (`stateGround`). ⚠️ FOUR MEMBERS RESOLVE TO S-151
+ * TODAY -- `pinned`, `pinnedRow`, `grabAxisPosition` and `heldRow` -- and each
+ * one's note says which rule made its own join. ⛔ None of them may borrow
+ * another's: table T-236 holding one row for four drawings is not licence to
+ * hold one member for four rules.
  */
 const PAINT = {
   ground: painted('ground'),
@@ -640,10 +683,43 @@ const PAINT = {
   armed: painted('armed'),
   pressed: painted('pressed'),
   pinned: painted('pinned'),
+  hoveredEntrance: painted('hoveredEntrance'),
+  pinnedRow: painted('pinnedRow'),
   grabAxisPosition: painted('grabAxisPosition'),
   grabAxisDepth: painted('grabAxisDepth'),
+  heldRow: painted('heldRow'),
   caution: painted('caution'),
 } as const
+
+/**
+ * A colour of table T-236, laid as the GROUND that shows a state, at the depth
+ * table T-206 states for it.
+ *
+ * ⭐ WHY ONE FUNCTION FOR ALL THREE. FR-029, FR-098 and HF-15 of table T-051 all
+ * ask for 「地を敷くこと」 in a colour of table T-236 「濃さ」 a row of table
+ * T-206, and S-215's own note says it exists to be read against S-214 -- so the
+ * three are one scale with two steps on it, and ⛔ the mixing is written once
+ * rather than three times (rule 03 section 4, DRY).
+ *
+ * ⭐ `color-mix` AND NOT AN `opacity`, WHICH IS THE DIFFERENCE THE RULES ASK FOR.
+ * `opacity` fades the box AND everything drawn inside it, so a row's name and
+ * its controls would go faint with its ground; a translucent colour fades the
+ * ground alone. ⚠️ It is also what makes 「薄く描いた入口」 (FR-029's faint state,
+ * an INK colour) tellable from these, which are grounds.
+ *
+ * ⭐ MIXED WITH `transparent` AND NOT WITH THE PANEL'S OWN GROUND, so what is
+ * behind shows through at the stated depth wherever the ground is laid. ⛔ Mixing
+ * against S-150 would bake in an assumption about what is underneath, and the
+ * entrance's ground (FR-029) is laid on four different surfaces.
+ *
+ * ⛔ A FUNCTION AND NOT A `const`, for the reason `rowBandPx` gives: the depths
+ * arrive in the generated block at the foot of this file.
+ *
+ * @purity pure
+ */
+function stateGround(paint: string, depthRow: 'S-214' | 'S-215'): string {
+  return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthRow]}%, transparent)`
+}
 
 /**
  * The room one entrance keeps around the shape it holds.
@@ -1996,13 +2072,71 @@ const PALETTE_FAINT_CSS =
   `{opacity:${PALETTE_FAINTNESS};}`
 
 /**
+ * FR-029 (MUST): 「構えている入口にポインタが乗っているあいだ、その入口の下に地を
+ * 敷くこと」, in S-147 at the depth of S-214.
+ *
+ * ⭐ A RULE AND NOT AN INLINE DECLARATION, for the reason `ROW_CONTROL_SHOWN_CSS`
+ * is one: an inline declaration cannot state anything about where the pointer is,
+ * and the requirement is 「乗っているあいだ」 -- 「ポインタが離れれば消える」.
+ *
+ * ⛔ `button[data-icon]` IS THE SELECTOR, AND BOTH HALVES ARE MEASURED. Every
+ * entrance this unit draws is a `button` carrying its row of table T-109 --
+ * `commandEntry`, `rowControlElement`, `panelCornerEntryElement` and
+ * `rosterSelectionEntry` are all four of them -- and the one `data-icon` that is
+ * NOT a button is IC-53's grab band, which table T-109 states is 「ボタンではない」
+ * and which is a place to take hold of rather than an entrance standing ready.
+ * ⚠️ It also settles the nesting: IC-75 is drawn INSIDE that band, `:hover`
+ * matches an ancestor, and a rule keyed on `[data-icon]` alone would tint the
+ * whole band whenever the pointer reached the entry inside it.
+ *
+ * ⛔ THE FAINT ENTRANCE IS EXCLUDED, AND THAT IS THE MUST NOT OF THE SAME
+ * PARAGRAPH: 「薄く描いた入口には敷いてはならない」 -- 「押せない入口が手応えを
+ * 返すと、押せるものと見分けがつかなくなる」. `aria-disabled` is how that state is
+ * written, because FR-029 (MUST NOT) forbids the host's own `disabled`
+ * (`entryFaintStyle` says why at length), so it is also the only thing there is
+ * to test.
+ *
+ * ⛔ AND SO IS EVERY ENTRANCE TABLE T-237 HAS FILLED. FR-029 (MUST) fills the
+ * entrance that is in effect and knocks its shape out in S-146, and a ground laid
+ * over that fill would take the fill away -- the state that says 「いま効いて
+ * いる」 would be lost for as long as a pointer rested on it. ⚠️ The three
+ * attributes are the ones `commandEntry` and the pin write beside the fill
+ * `entranceStateFill` paints, so the two agree by construction. ⭐ The sample
+ * settles it the same way (`.e.fill:hover` keeps the fill).
+ *
+ * ⛔ `!important`, WHICH IS THE ONE PLACE THIS UNIT NEEDS IT. Every entrance's
+ * ground is written as an inline declaration (`entryStyle`'s S-150,
+ * `STYLE.rowControl`'s `transparent`), because there is no `.css` file under
+ * `src/` for one to live in -- and an inline declaration outranks a rule of any
+ * specificity. ⚠️ `ROW_CONTROL_SHOWN_CSS` and `PALETTE_FAINT_CSS` need none
+ * because nothing writes `visibility` or `opacity` inline.
+ *
+ * @purity pure
+ */
+function entranceHoverGroundCss(): string {
+  return (
+    `[data-unit="${UNIT_ROW}"] button[data-icon]:not([aria-disabled="true"])` +
+    ':not([data-armed="true"]):not([data-pressed="true"]):not([data-pinned="true"])' +
+    `:hover{background:${stateGround(PAINT.hoveredEntrance, 'S-214')} !important;}`
+  )
+}
+
+/**
  * Everything this unit states as a rule rather than as an inline declaration --
- * two requirements about where the pointer is, and nothing else.
+ * three requirements about where the pointer is, and nothing else.
  *
  * ⛔ BUILT FROM CONSTANTS AND NEVER FROM A DESCRIPTION, so the sheet is written
- * once and never rewritten: neither rule depends on what is on the screen.
+ * once and never rewritten: no rule in it depends on what is on the screen.
+ *
+ * ⛔ A FUNCTION AND NOT A `const` SINCE 2026-08-31, for the reason `rowBandPx`
+ * gives: FR-029's ground reads its depth out of the generated block at the foot
+ * of this file, which a `const` evaluated above it cannot see.
+ *
+ * @purity pure
  */
-const HOVER_CSS = ROW_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS
+function hoverCss(): string {
+  return ROW_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss()
+}
 
 /**
  * The namespace a shape has to be made in.
@@ -2760,13 +2894,18 @@ function rowBandPx(): number {
  * ⛔ WHY AT ALL: 「描かないと、動かせない向きへ引いたときに壊れた操作子と見分けが
  * つかない」 -- FR-029's RATIONALE, read on a drag.
  *
- * ⭐ THE GROUND IS A MUST WITH NO COLOUR (HF-15): 「掴んでいる行には地を敷くこと」,
- * because 「どれを持っているかが読めなくなる」. ⛔ NO ROW OF TABLE T-236 NAMES ONE.
- * Searched: HF-15, GR-20 and the preamble of table T-023d, table T-206 and table
- * T-236. ⇒ S-149 (「区切りの線」) is taken, as the one neutral screen colour that
- * says nothing else: S-151 and S-152 are spent on the bands by this very row,
- * S-152 / S-153 / S-154 are judgements about a schedule (良 / 注意 / 不良), and
- * S-183 is an entrance's state. ⚠️ Reported rather than settled here.
+ * ⭐ THE GROUND HAS A COLOUR AND A DEPTH SINCE 2026-08-31 (HF-15, MUST):
+ * 「掴んでいる行には地を敷くこと（MUST）。色は 表 T-236 の `S-151`、濃さは 表 T-206
+ * の `S-215` とすること（MUST）」, because 「どれを持っているかが読めなくなる」.
+ * ⛔ IT WAS FLAT S-149 UNTIL THAT DAY, and the note that stood here recorded why:
+ * the MUST had no colour, so the rule colour was taken as the one neutral screen
+ * paint that claims nothing. ⭐ The requirement now names the row, so nothing is
+ * chosen here at all.
+ * ⛔ THE DEPTH IS S-215 AND NOT S-214, which is that row's whole reason for
+ * existing: 「留まっているだけの行といま手が持っている行が同じ画面に並ぶので、同じ
+ * 濃さでは見分けられない」 -- FR-098's pinned row takes the fainter one.
+ * ⚠️ THE GROUND IS S-151 WHICHEVER AXIS IS LIVE. Only the BANDS answer to the
+ * axis (S-151 / S-152), so `PAINT.heldRow` is read outside the branch below.
  *
  * @purity pure
  */
@@ -2774,7 +2913,7 @@ function rowGrabbedStyle(axis: 'position' | 'depth'): string {
   const paint = axis === 'position' ? PAINT.grabAxisPosition : PAINT.grabAxisDepth
   const band = `${rowBandPx()}px solid ${paint}`
   return (
-    `background:${PAINT.rule};` +
+    `background:${stateGround(PAINT.heldRow, 'S-215')};` +
     (axis === 'position'
       ? `border-left:${band};border-right:${band};`
       : `border-top:${band};border-bottom:${band};`)
@@ -2902,18 +3041,28 @@ function foldedRowCountElement(host: Document, count: number, rightPx: string): 
  * STOOD HERE LEFT IT `transparent`, on the reading that the paint was undecided
  * and the environment's own 掴む cursor was enough; measured on the shipped
  * build, the strip was invisible and there was nothing to move a hand towards.
- * ⚠️ WHICH COLOUR IS STILL NOT STATED. Searched: HF-15, GR-20 and the preamble
- * of table T-023d, FR-029, FR-085, table T-076 (EP-3 / EP-4), table T-206 and
- * table T-236. ⇒ S-149 (「区切りの線」) is taken, for the reason `rowGrabbedStyle`
- * gives at length: it is the one neutral screen colour that makes no claim of
- * its own. ⭐ It is not in the export either way -- EP-4 draws no row control,
- * and the export is not drawn by this unit at all.
+ * ⚠️ ITS RESTING COLOUR IS STILL NOT STATED. Searched: HF-15, GR-20 and the
+ * preamble of table T-023d, FR-029, FR-085, table T-076 (EP-3 / EP-4), table
+ * T-206 and table T-236. ⇒ S-149 (「区切りの線」) is taken: it is the one neutral
+ * screen colour that makes no claim of its own. ⭐ It is not in the export either
+ * way -- EP-4 draws no row control, and the export is not drawn by this unit at
+ * all.
+ * ⭐⭐ ITS HELD COLOUR IS STATED, SINCE 2026-08-31 (HF-15, MUST): 「握っている
+ * あいだ、掴み代の印を 表 T-236 の `S-151` で描くこと（MUST）」, and the row gives
+ * the reason: 「掴み代は普段は罫の色で描かれるので、色が変わること自体が『いま掴んで
+ * いる』の印になる」. ⛔ SO THE RESTING COLOUR IS LOAD-BEARING AFTER ALL -- the
+ * requirement is written against 「普段は罫の色」, and moving S-149 out of here
+ * would take the contrast the MUST is built on with it.
  * ⚠️ `cursor:grab` and not `move`: what the strip offers is being HELD, the
- * distinction `paletteGrabBand` already draws.
+ * distinction `paletteGrabBand` already draws. ⛔ IT IS NOT CHANGED WHILE HELD.
+ * The sample draws `grabbing` there, but HF-15 states only the colour and no row
+ * of the specification names a second shape -- and FR-029's own reason for
+ * drawing states applies here too: an invented one could not be held against
+ * anything. Searched: HF-15, GR-20, table T-023d, table T-028 (IN-2).
  *
  * @purity pure
  */
-function rowGrabStripStyle(): string {
+function rowGrabStripStyle(isHeld: boolean): string {
   const width = NOT_STORED_ICON_SIZES['S-138']
   // ⭐ A SMALL MARK, NOT A PAINTED BAND. HF-15 (MUST) draws the strip 「掴める
   // ことを表す小さな印として」 and (MUST NOT) refuses to paint its ground --
@@ -2935,7 +3084,7 @@ function rowGrabStripStyle(): string {
   return (
     `flex:none;width:${width}px;cursor:grab;pointer-events:auto;` +
     'text-align:center;' +
-    `color:${PAINT.rule};font-size:0.75em;user-select:none;`
+    `color:${isHeld ? PAINT.heldRow : PAINT.rule};font-size:0.75em;user-select:none;`
   )
 }
 
@@ -2998,17 +3147,30 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     boxStyle(title.box) +
       STYLE.rowTitle +
       `padding:0 0 0 ${title.indentPx}px;` +
+      // FR-098 (MUST), added 2026-08-31: 「留めた行そのものにも地を敷くこと
+      // （MUST）。色は 表 T-236 の `S-151`、濃さは 表 T-206 の `S-214`」, because
+      // 「入口の塗りだけでは、留めた行が先頭へ上げられたのか、もともと先頭に在るの
+      // かを読めない」. ⛔ PD-414 IS CLOSED BY THAT SENTENCE -- the note that
+      // stood here recorded a pinned row taking no ground of its own, on the
+      // reading that FR-098 sent the whole rule to HF-6 (the pin's own EN-3
+      // fill); the requirement now asks for both, and says why one is not
+      // enough.
+      // ⛔ `title.isPinned` AND NOT THE `isPinned` ARGUMENT, for the reason the
+      // grab strip below gives: the argument says which LIST is being built and
+      // the row's own state is what FR-098 speaks of.
+      (title.isPinned ? `background:${stateGround(PAINT.pinnedRow, 'S-214')};` : '') +
       // HF-15 (MUST): the row a hand is holding carries a ground and the band
       // that says which axis is live. ⛔ Nothing is drawn on any other row --
       // `RowTitle.heldOnAxis` is filled for the held row alone.
+      // ⚠️ AFTER THE PINNED GROUND AND NOT BEFORE IT. The two cannot stand at
+      // once today (GR-20 draws no grab strip on a pinned row, so a pinned row
+      // cannot be held), and the later declaration is the one that would win if
+      // they ever did -- which is the right way round: S-215 is the deeper of
+      // the two because 「いま手が持っている行」 has to be told from a row that is
+      // merely pinned.
       (title.heldOnAxis == null ? '' : rowGrabbedStyle(title.heldOnAxis)),
   )
   if (title.heldOnAxis != null) row.setAttribute('data-held-axis', title.heldOnAxis)
-  // ⚠️ A PINNED ROW TAKES NO GROUND OF ITS OWN. FR-098 (MUST) asks that the
-  // pinned rows be readable 「行を一覧しただけで」 and says the rule is HF-6's --
-  // which is the pin's own always-drawn fill (EN-3, S-151), and that is what is
-  // drawn here. The sample tints the whole row as well.
-  // @provisional PD-414
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedRow)
   row.setAttribute('data-group-id', title.groupId)
   row.setAttribute('data-depth', String(title.depth))
@@ -3039,7 +3201,10 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // the translator that answers the press cannot see it; drawing no strip is
   // what makes the point unreachable, which is what 「掴めない」 says.
   if (!title.isPinned) {
-    const grab = made(host, 'div', rowGrabStripStyle())
+    // HF-15 (MUST): 「握っているあいだ、掴み代の印を 表 T-236 の `S-151` で描く
+    // こと」. ⭐ `heldOnAxis` IS THE SAME ANSWER THE GROUND ABOVE READ, so the
+    // row and its mark can never disagree about whether it is being held.
+    const grab = made(host, 'div', rowGrabStripStyle(title.heldOnAxis != null))
     grab.setAttribute(ROW_GRAB_STRIP_MARK, 'true')
     // ⭐ THE MARK ITSELF -- two vertical ellipses, which is what the working
     // sample draws and what HF-15 (MUST) asks for as 「掴めることを表す小さな
@@ -5131,7 +5296,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const root = made(host, 'div', STYLE.root + themeStyle(readTheme()))
   // ⚠️ Not a name for a part: table T-103 has no row for the whole screen, so
   // the root carries the unit's own row of table T-075 instead of a minted one.
-  // ⭐ It is also what scopes `HOVER_CSS` to this tree.
+  // ⭐ It is also what scopes `hoverCss` to this tree.
   root.setAttribute('data-unit', UNIT_ROW)
 
   // HF-6's 「乗っているあいだだけ描く」 and the faint half of FR-053, neither of
@@ -5139,7 +5304,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // with the tree this unit built, and it is never rewritten: neither rule
   // depends on any description.
   const hoverSheet = host.createElement('style')
-  hoverSheet.textContent = HOVER_CSS
+  hoverSheet.textContent = hoverCss()
 
   const frameLayer = made(host, 'div', STYLE.layer)
   const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
@@ -6690,6 +6855,31 @@ export const NOT_STORED_ROW_BAND_SIZES: {
   readonly 'S-213': number
 } = {
   'S-213': 3,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_STATE_GROUND_PERCENTS: {
+  /** S-214, in % */
+  readonly 'S-214': number
+  /** S-215, in % */
+  readonly 'S-215': number
+} = {
+  'S-214': 9,
+  'S-215': 12,
 }
 
 /**
