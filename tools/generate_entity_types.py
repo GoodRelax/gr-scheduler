@@ -1234,15 +1234,21 @@ NEWLINE = chr(10)
 COLOUR_TARGETS = {
     # The chrome: the ground, the ink, the panels, the shadow. Only this unit
     # can paint them, and only this unit can set `color-scheme` (FR-041).
-    # ⛔ S-151 (selection), S-168 and S-169 (the ink and halo of a label ON A
-    # BAR) were here and are not the chrome's: this unit draws no bar, so they
-    # went to a unit that could never use them. Measured by the agent that owns
-    # the drawing side.
+    # ⛔ S-168 AND S-169 (the ink and halo of a label ON A BAR) were here and
+    # are not the chrome's: this unit draws no bar, so they went to a unit that
+    # could never use them. Measured by the agent that owns the drawing side.
     # ⭐ S-183 STANDS WHERE TABLE T-236 PRINTS IT -- right after S-152, whose
     # pair it takes. The row's own note says the green is the one the table
-    # already holds for 「いま効いている」, and FR-053 (MUST) has this unit draw
-    # the armed entrance's rim with it, so it is the chrome's after all.
-    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150',
+    # already holds for 「いま効いている」, and FR-029's table T-237 has this unit
+    # FILL the armed entrance with it (EN-1), so it is the chrome's after all.
+    # ⭐ S-151 CAME BACK ON 2026-08-30 AND IS THE CHROME'S TOO, by the same
+    # reading: EN-3 of table T-237 fills a PINNED row's `Row Pin` with it and
+    # HF-6 of table T-051 (MUST) points at that row. The pin is a row control
+    # this unit draws, not a bar, so the row now has a reader on this side as
+    # well as on the drawing side (where SL-8's selection frame keeps it).
+    # ⛔ Not a second copy -- ONE row of table T-236 read by two units, which is
+    # what S-146 / S-147 / S-149 already do below.
+    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151',
                        'S-152', 'S-183', 'S-153', 'S-154', 'S-170'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives

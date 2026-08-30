@@ -466,23 +466,26 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
  * draws -- no part of it reports a SCHEDULE'S state, and NT-1 (MUST NOT)
  * forbids colour alone from carrying a meaning.
  * ⚠️ WHAT USED TO STAND HERE SAID NOTHING ON THIS SIDE REPORTS A STATE IN
- * COLOUR AT ALL, and S-183 made that false: FR-053 (MUST) has the armed
- * entrance drawn apart from the others and names S-183 for its rim. ⛔ It is
- * not the counter-example NT-1 refuses either -- the same requirement (MUST
- * NOT) forbids colour ALONE and states S-185 for the rim's thickness, which is
- * why `entryArmedRim` writes a width beside the colour and never the colour by
- * itself. ⚠️ S-183 borrows S-152's pair and is still its own row, so the count
- * above did not change.
- * ⚠️ AND `pressed` DOES REPORT A STATE IN COLOUR AND NOTHING ELSE, which is the
- * one place on this side where that is so. It is not the case NT-1 refuses
- * either -- that row is about input being turned away -- and no requirement
- * states a second half for it the way FR-053 states S-185 for the rim.
- * `entryPressedInk` carries what was searched and under what mark.
+ * COLOUR AT ALL, and S-183 made that false: table T-237 of FR-029 gives the
+ * armed entrance a FILL of S-183 (EN-1) and FR-053 (MUST) points at that row.
+ * ⛔ It is not the counter-example NT-1 refuses either, and the ground is now
+ * the requirement's own: FR-029 has the glyph knocked out in S-146 while the
+ * box behind it is filled, so 「塗ると地と図形の明暗が入れ替わるので、色の差を
+ * 読めない人にも反転として読める」 -- the second signal is the REVERSAL, not a
+ * thickness. ⚠️ S-183 borrows S-152's pair and is still its own row, so the
+ * count above did not change.
+ * ⚠️ `pressed` AND `pinned` REPORT A STATE THE SAME WAY, and by the same
+ * paragraph of the same requirement: table T-237 holds four rows, they take the
+ * one shape `entranceStateFill` draws, and only the colour differs between them
+ * (「形は 1 つ、意味は色」).
  *
  * ⚠️ AN EARLIER NOTE HERE COUNTED SIX AND PUT S-151, S-168 AND S-169 AMONG
- * THEM. It was wrong, and the generated block at the foot of this file is what
- * refutes it: nine rows stand there and none of those three is one of them --
- * `tools/generate_entity_types.py` routes all three to SvgRenderer instead.
+ * THEM, AND WAS REFUTED AGAINST THE GENERATED BLOCK -- at the time none of the
+ * three stood in it. ⭐ S-151 STANDS IN IT AGAIN SINCE CR-311, and not because
+ * the old note was right: EN-3 of table T-237 fills a PINNED row's `Row Pin`
+ * with that row and HF-6 of table T-051 (MUST) sends the pin there, so a part
+ * this unit draws reads it now. S-168 and S-169 still have no reader here --
+ * `tools/generate_entity_types.py` routes both to SvgRenderer.
  * ⛔ Counted against that block, not assumed.
  *
  * ⚠️ S-170 IS A COLOUR AND NOT A SHADOW. Table T-236 gives 「浮いた層の影」 its
@@ -509,30 +512,37 @@ const PAINT_ROW = {
   panel: 'S-150',
   shadow: 'S-170',
   // ⭐ NOT A JUDGEMENT MADE HERE, WHICH IS WHAT PARTS IT FROM THE SIX ABOVE.
-  // Table T-236 names S-183 「構えている入口の縁の色」 and FR-053 (MUST) says in
-  // as many words that the armed entrance's colour IS S-183 -- so the row and
-  // the part it paints are joined by the specification, not by this file.
+  // Table T-236 names S-183 「構えている入口の塗りの色」 and EN-1 of table T-237
+  // fills the armed entrance with it, which FR-053 (MUST) points at -- so the
+  // row and the part it paints are joined by the specification, not by this
+  // file. ⚠️ THAT ROW'S NAME SAID 「縁の色」 UNTIL 2026-08-30 and every faithful
+  // implementation drew a rim; CR-311 renamed the row and the requirement, and
+  // nothing here may say 「縁」 again.
   armed: 'S-183',
-  // ⛔ THE ROW THIS READS IS NOT THE ROW THE SPECIFICATION WOULD NAME, BECAUSE
-  // NO ROW NAMES ONE. FR-072 (MUST) has which of the panel's two contents is up
-  // shown 「入口の押下状態で」 and FR-049 makes a toggle of every boolean row of
-  // table T-202, so an entrance that is ON is a state the requirements state has
-  // to be readable -- and table T-236 holds no colour for it. Its two greens are
-  // spoken for: S-152 is 良 / 順調, which reports a SCHEDULE's state and not an
-  // entrance's, and S-183 is the ARMED entrance's rim. ⭐ S-183 is read because
-  // it is the only row of that table that is about an entrance at all, and its
-  // own note says the table already holds green as the colour meaning "in
-  // effect"; ⛔ the pair it carries is S-152's, so a ruling either way repaints
-  // nothing. PD-340 names the row that must exist and what it must say.
-  // ⚠️ IT IS NOT THE ARMED MEMBER UNDER A SECOND NAME. What FR-053 has S-183
-  // paint is a RIM on the one entrance an arm stands against; this is the INK of
-  // every entrance whose own feature is on, and the two are drawn by two
-  // declarations that never meet on one entry (`arms` is null for every toggling
-  // row of table T-109). ⛔ Reading `PAINT.armed` here instead would join two
-  // facts the specification joins nowhere, and no mark would be left to remove.
-  //
-  // @provisional PD-340
+  // ⭐ THE ROW IS THE SPECIFICATION'S NOW, WHICH IS WHAT CHANGED. This member
+  // used to be a borrowed colour under `@provisional PD-340`, because FR-072
+  // (MUST) had the panel's contents shown 「入口の押下状態で」 and FR-049 made a
+  // toggle of every boolean row of table T-202 while table T-236 held no colour
+  // for either. ⭐ Table T-237 is that row's home: EN-2 (the entrance's own
+  // feature is ON) and EN-4 (the properties panel is showing it) both state
+  // S-183, and FR-072 (MUST) sends its pressed state to EN-4 by name. ⛔ SO THE
+  // MARK IS GONE -- what PD-340 asked for exists, and a mark left standing would
+  // claim an open question that has been answered.
+  // ⚠️ IT IS NOT THE ARMED MEMBER UNDER A SECOND NAME, even though the two rows
+  // resolve to one colour. EN-1 and EN-2 are two rows of table T-237 with two
+  // meanings and a stated precedence between them, and `entranceStateFill` is
+  // where that precedence is kept; folding them into one member would throw the
+  // order away the day either colour moves.
   pressed: 'S-183',
+  // ⭐ EN-3 OF TABLE T-237, AND IT REACHES THIS UNIT THROUGH HF-6 OF TABLE
+  // T-051 (MUST): 「ピン止めしている行の `IC-60` は、`FR-029` の 表 T-237 の
+  // `EN-3` に従って塗ること」. ⛔ Not the per-control ground the same row's MUST
+  // NOT forbids -- that row says so itself: 「地は上の 1 枚（`S-150`）のままで
+  // あり、`EN-3` の塗りはその地の上に載る状態の印である」.
+  // ⚠️ S-151 IS 「強調の色」 (selection and the current position) and is shared
+  // with the unit that draws the picture; ONE row of table T-236 read by two
+  // units is not the copy rule 03 section 1 forbids.
+  pinned: 'S-151',
 } as const
 
 /** How a declaration names one of them. @purity pure */
@@ -541,17 +551,20 @@ function painted(name: keyof typeof PAINT_ROW): string {
 }
 
 /**
- * ⚠️ SIX OF THESE ARE NOT EIGHT. An entrance's ground and an entrance's word
+ * ⚠️ SIX OF THESE ARE NOT NINE. An entrance's ground and an entrance's word
  * used to stand as members of their own, because table T-236 has one 地 and one
  * 文字の色 while the system colours had a separate pair for a button
  * (`ButtonFace` / `ButtonText`). ⛔ With the fallbacks gone the two pairs are
  * the same string, and rule 03 section 1 forbids one concept two names.
  *
- * ⭐ `armed` IS THE SEVENTH AND JOINED THEM ON 2026-08-26, when FR-053 (MUST)
- * gave the armed entrance a rim of its own. It reads a row like the rest, so
- * `themeStyle` repaints it in both renderings without a second path.
- * ⚠️ `pressed` IS THE EIGHTH AND IS THE ONE WHOSE ROW IS BORROWED -- its member
- * of `PAINT_ROW` says which row, why, and under what mark.
+ * ⭐ THE LAST THREE ARE TABLE T-237'S, and they joined for one reason: that
+ * table gives a state of an entrance a FILL, and a fill is a colour this unit
+ * has to hold. `armed` came on 2026-08-26 (then as a rim), `pressed` on
+ * 2026-08-28 and `pinned` with CR-311 on 2026-08-30. Each reads a row like the
+ * rest, so `themeStyle` repaints all three in both renderings without a second
+ * path. ⚠️ Two of them resolve to one colour today (S-183 stands on EN-1, EN-2
+ * and EN-4); they are kept apart because table T-237 keeps them apart, and
+ * `entranceStateFill` is what reads the order between them.
  */
 const PAINT = {
   ground: painted('ground'),
@@ -562,6 +575,7 @@ const PAINT = {
   shadow: painted('shadow'),
   armed: painted('armed'),
   pressed: painted('pressed'),
+  pinned: painted('pinned'),
 } as const
 
 /**
@@ -954,8 +968,9 @@ function entryStyle(): string {
  * read as a usable entrance (CR-307). S-149 is the same table's rule colour,
  * chosen to be present without asserting itself, and it is what the requirement
  * now points at.
- * ⚠️ SO THE RIM AND THE SHAPE ARE ONE COLOUR HERE, where `entryStyle` has them
- * two. That follows from the row FR-029 names and is not a second decision.
+ * ⚠️ SO THE FRAME AND THE SHAPE ARE ONE COLOUR HERE, where `entryStyle` has
+ * them two. ⛔ 「枠」 and never 「縁」: what CR-311 retired is the ARM's rim, and
+ * this is the entrance's own border, which every entrance has always had. That follows from the row FR-029 names and is not a second decision.
  *
  * ⛔ `aria-disabled` AND NOT `disabled` is what `commandEntry` writes beside
  * this: a disabled control leaves the accessibility tree and stops taking the
@@ -973,96 +988,98 @@ function entryFaintStyle(): string {
 }
 
 /**
- * What FR-053 (MUST) draws on the entrance that is ARMED, so that it can be
- * told from the entrances that are not.
+ * The four states of an entrance table T-237 of FR-029 gives a FILL, in that
+ * table's own order, with the colour each row states.
  *
- * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS. `data-pressed` and
- * `data-armed` are written beside every entry for the shell to read back, and
- * there is no `.css` file anywhere under `src/` for a selector to live in --
- * every rule this unit draws is an inline declaration. So a state that is only
- * an attribute is a state nobody can see.
+ * ⭐ THE ORDER IS THE TABLE'S AND IS LOAD-BEARING. That table closes with 「1 つ
+ * の入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）」, so this list is
+ * read from the top and the first row that stands wins. ⛔ Written as an ordered
+ * list and never as an object read with `Object.keys`: the precedence would then
+ * be a property of how the host enumerates keys rather than of what the table
+ * prints.
+ * ⚠️ THE SAME TABLE (MUST NOT) REFUSES TO SAY THE ROWS CANNOT MEET -- 「同時に
+ * 当たることはない」とは書かない -- so nothing here may take a pair for
+ * impossible and skip the comparison.
  *
- * ⛔ TWO DECLARATIONS AND NEVER ONE. FR-053 (MUST NOT) forbids showing it 「色
- * だけで」 -- the ground it gives is that the difference in colour is not
- * readable by everyone -- so the thickness carries it as well, and the two
- * values are the specification's own: S-183 is the colour and S-185 the width.
- * ⚠️ Dropping either one leaves a rule that is stated as a MUST unmet, not a
- * rim that is merely plainer.
- *
- * ⛔ THE LONGHANDS AND NOT THE `border` SHORTHAND, so that the style stays the
- * frame `entryStyle` made and only what FR-053 states is taken over. The
- * shorthand would re-state `solid` here, and no row anywhere says a rim is
- * solid -- that is `entryStyle`'s own choice and belongs to it alone.
- *
- * ⛔ AND NEVER `aria-pressed`, WHICH IS THE SAME MUST NOT IN THE OTHER TREE.
- * `commandEntry` writes that from `isPressed` and from nothing else: table
- * T-109 says of IC-54 「ボタンではない」, and an arm announced as a pressed
- * toggle is exactly the 「押されている形」 the requirement refuses.
- *
- * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle` gives:
- * it reads the generated block at the foot of this file, which a `const`
- * evaluated above it cannot.
- *
- * ⚠️ THE ENTRANCE GROWS BY THE 1px THE RIM GAINED, and nothing states a
- * compensation. S-185 is a thickness and table T-206 holds no second row to
- * take it back out of the box, so an entrance measures 2px wider and taller
- * while it is armed; FR-053 (MUST) has the palette's size follow its contents,
- * so the palette follows it. ⛔ Not corrected by a number invented here, which
- * is what rule 03 section 1 forbids.
- *
- * @provisional PD-290
- * @purity pure
+ * ⭐ TWO ROWS RESOLVE TO ONE COLOUR TODAY (EN-1, EN-2 and EN-4 all state S-183)
+ * AND ARE STILL FOUR ROWS. The table's own note says why: 「`S-183` が 3 行に
+ * 立つのは、いずれも「いま効いている」を意味するからである」 -- one meaning, three
+ * places it can arise, and a colour that may move for one of them alone.
  */
-function entryArmedRim(): string {
-  return (
-    `border-width:${NOT_STORED_ARMED_ENTRY_SIZES['S-185']}px;` +
-    `border-color:${PAINT.armed};`
-  )
-}
+const ENTRANCE_STATE_FILL = [
+  ['EN-1', PAINT.armed],
+  ['EN-2', PAINT.pressed],
+  ['EN-3', PAINT.pinned],
+  ['EN-4', PAINT.pressed],
+] as const
+
+/** One row id of table T-237. */
+type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 
 /**
- * What an entrance whose own feature is ON is drawn with, so that being on can
- * be read off the screen.
+ * What FR-029 (MUST) draws on an entrance that is IN EFFECT, so that it can be
+ * told from the entrances that are not.
  *
- * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS, and it is the same
- * hole `entryArmedRim` was made for: `data-pressed` has been written on every
- * entry for the shell to read back, and nothing ever turned it into a colour --
- * so FR-072's 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 and every
- * toggle FR-049 makes of table T-202's boolean rows had a state that only a
- * program could see.
+ * ⭐ A FILL AND NEVER A RIM, WHICH IS THE WHOLE OF THIS FUNCTION. FR-029 (MUST):
+ * 「図形を描く箱を塗りつぶし、図形そのものを 表 T-236 の `S-146`（地の色）で抜く
+ * こと」, and the same sentence (MUST NOT) 「縁の色や太さで示してはならない」.
+ * ⚠️ UNTIL 2026-08-30 THIS FILE DREW A RIM AND WAS RIGHT TO: table T-236 named
+ * S-183 「構えている入口の縁の色」 and FR-053 named the rim, so three rounds of a
+ * faithful implementation drew one. CR-311 moved the specification, S-185 (the
+ * rim's thickness) has no row any more, and ⛔ nothing here may argue for a
+ * width again.
  *
- * ⭐ THE INK AND NOT A GROUND, A FRAME OR A MARK BESIDE IT, and that is what
- * makes the WHOLE shape take the colour rather than something around it:
- * `fillEntry` says figure F-019 paints `currentColor` and chooses no colour of
- * its own, so one declaration on the entrance colours the glyph it holds. ⛔ A
- * second look was not invented alongside it -- NFR-007 carries WCAG 2.1's 1.4.3
- * and 1.4.11 and no rule about colour being the only visual means, and FR-053's
- * 「色だけで示してはならない（MUST NOT）」 is stated of the ARMED entrance alone
- * and names S-185 as the second half; no row states a second half for this one.
- * ⚠️ `aria-pressed` is what carries it in the other tree, and `commandEntry`
- * has always written it.
+ * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS. `data-armed`,
+ * `data-pressed` and `data-pinned` are written beside every entry for the shell
+ * to read back, and there is no `.css` file anywhere under `src/` for a selector
+ * to live in -- every rule this unit draws is an inline declaration. So a state
+ * that is only an attribute is a state nobody can see. ⚠️ `data-pinned` is the
+ * one that went unpainted longest: it was written on IC-60 and read by nothing.
+ *
+ * ⭐ THE KNOCK-OUT COLOUR IS S-146 AND NOT WHITE, and that is stated rather than
+ * chosen: FR-029 (MUST NOT) 「抜き色に白を使ってはならない」 because the dark
+ * rendering's fill is a LIGHT green (`#6fc98d`), on which white does not stand.
+ * ⭐ `PAINT.ground` is that row, so both renderings separate themselves.
+ * ⚠️ ONE DECLARATION COLOURS THE WHOLE GLYPH: figure F-019 paints
+ * `currentColor` and chooses no colour of its own (`fillEntry`), so `color:`
+ * here is what knocks the shape out of the box `background:` filled.
+ *
+ * ⛔ NOT A CASE OF SHOWING A STATE 「色だけで」. FR-029 answers that itself --
+ * 「塗ると地と図形の明暗が入れ替わるので、色の差を読めない人にも反転として読める」
+ * -- so the second signal is the REVERSAL of ground and shape and no width is
+ * needed beside the colour. ⚠️ `aria-pressed` carries it in the other tree, and
+ * `commandEntry` has always written it; ⛔ never on the ARMED entry, which table
+ * T-109 says of IC-54 「ボタンではない」 and FR-053 (MUST NOT) refuses to draw
+ * 「押されている形」.
  *
  * ⛔ APPENDED ONLY TO AN ENTRANCE THAT CAN BE USED, AND THE ORDER IS THE RULE.
- * FR-029 (MUST) draws faint the entrance that cannot be used, and
- * `entryFaintStyle` is that -- an entry can be both at once (S-59 at
- * `'plan-only'` leaves IC-8 on and unusable, and S-59 at `'actual-only'` does
- * the same to IC-9, which is where this was measured), and painting
- * the ink over the faint one would leave that MUST unmet to show a state no row
- * asks to be shown. ⚠️ So an entrance that is on and unusable reports only that
- * it cannot be used, which is the reading that breaks nothing.
+ * FR-029 (MUST) draws faint the entrance that cannot be used and closes the fill
+ * paragraph with 「上の薄く描く入口には当ててはならない（MUST NOT）」 -- 「効いて
+ * いて、かついま何も変えられない入口が濃くなると、薄さの意味が消える」. An entry
+ * can be both at once (S-59 at `'plan-only'` leaves IC-8 on and unusable, and
+ * S-59 at `'actual-only'` does the same to IC-9, which is where this was
+ * measured), so an entrance that is in effect and unusable reports only that it
+ * cannot be used. ⚠️ THAT NOW REACHES THE ARMED ENTRY TOO: while the rim was a
+ * rule of FR-053 alone it was drawn on the faint entry as well, and the MUST NOT
+ * that governs the fill is FR-029's and reaches every row of table T-237.
+ * ⛔ The caller decides it, not this function -- `commandEntry` never offers a
+ * row for an entrance it drew faint.
  *
- * ⚠️ A FUNCTION FOR A DIFFERENT REASON THAN ITS TWO NEIGHBOURS. Theirs is that
- * they read the generated block at the foot of this file and a `const` above it
- * cannot; this one reads nothing that is not already in hand, and could stand in
- * `STYLE`. ⭐ It stands here because the three states one entrance can be in --
- * faint, armed, on -- are read against each other, and a reader who has to look
- * in two places for them will take the split for a difference in kind.
+ * ⭐ ONE SHAPE FOR ALL FOUR ROWS, WHICH IS THE RULING'S OWN WORDS: 「形は 1 つ、
+ * 意味は色」. ⛔ So there is no second function beside this one -- the two that
+ * used to stand here (`entryArmedRim` and `entryPressedInk`) drew two different
+ * pictures for what table T-237 now says is one.
  *
- * @provisional PD-340
+ * ⚠️ AN EMPTY STRING WHEN NO ROW STANDS, so a caller may append the answer
+ * unconditionally and no combination needs a style of its own.
+ *
  * @purity pure
  */
-function entryPressedInk(): string {
-  return `color:${PAINT.pressed};`
+function entranceStateFill(standing: readonly EntranceStateRow[]): string {
+  for (const [rowId, colour] of ENTRANCE_STATE_FILL) {
+    if (standing.includes(rowId)) return `background:${colour};color:${PAINT.ground};`
+  }
+  return ''
 }
 
 /**
@@ -1093,7 +1110,7 @@ function entryPressedInk(): string {
  * that was measured. ⭐ The 6px that replaced it is measured -- it is the same
  * number the sides already had.
  *
- * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryArmedRim`
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle`
  * gives: it reads the generated block at the foot of this file, which a `const`
  * evaluated above it cannot.
  *
@@ -1294,6 +1311,18 @@ const STYLE = {
   // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
   // centres its own content reads as exactly that to anyone holding the drawn
   // control against that row.
+  // ⭐ AND NO BOX IS STATED FOR THE FILL EN-3 OF TABLE T-237 PUTS ON THE PIN
+  // EITHER, WHICH WAS MEASURED RATHER THAN ASSUMED. A stated box was written
+  // and taken out again: HF-5 (MUST NOT) 「中央で揃えてはならない。上端から
+  // 下げてはならない」 refuses every declaration that would give this control a
+  // box of its own without moving the shape inside it -- a centring, a
+  // `margin-top`, a `padding-top`, a `top`. ⛔ So the fill takes the box the
+  // control already has, and that box is not left to chance: measured on the
+  // shipped build of 2026-08-30 it is 20 x 24px, which is S-138 (16) with
+  // `ROW_CONTROL_PAD_EM` on each side and the line box the shape's own 16px
+  // makes -- a filled icon, not a band across the row. ⚠️ A height written
+  // here would be one the specification never printed and, on a row set larger
+  // (S-36 / S-38 by depth), one the shape would hang out of.
   // ⛔ OUT OF THE FLOW, AND THAT IS THE POINT. These three are drawn only while
   // the pointer is on the row's name (HF-6), and S-140 of table T-206 -- the
   // room FR-085 subtracts before cutting that name -- is 0px. Left in the flex
@@ -1334,9 +1363,9 @@ const STYLE = {
   // for what the shipped build measured and why the requirement moved.
   //
   // ⭐ APPENDED AND NEVER A SECOND WHOLE DECLARATION, the move `commandEntry`
-  // makes with `entryArmedRim` and `entryPressedInk`: whether a control can act
-  // is one fact about it, and a declaration per combination would be four where
-  // one and an override do.
+  // makes with `entranceStateFill`: whether a control can act is one fact about
+  // it, and a declaration per combination would be four where one and an
+  // override do.
   // ⛔ NOTHING HERE DISABLES IT. FR-029 (MUST NOT) forbids the faint entrance to
   // be disabled in the host's own sense, because a disabled control stops taking
   // the press -- and the press is the one trigger that (MUST) tells the person
@@ -2151,19 +2180,35 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
  * @purity non-pure
  */
 function commandEntry(host: Document, item: CommandItem): HTMLElement {
-  // ⭐ THE RIM IS APPENDED AND NEVER A THIRD WHOLE STYLE. FR-053's rim and
-  // FR-029's faint state are two different facts about one entrance -- an
-  // entry can be armed whether or not it can be used now -- so a style per
-  // combination would be four where two and an override do.
-  // ⭐ AND THE INK IS APPENDED THE SAME WAY, for the same reason one turn
-  // further: being on is a third fact about one entrance, so the combinations
-  // are eight where two frames and two overrides do. `entryPressedInk` says why
-  // it is withheld from the faint one and why the ink is what carries it.
-  // ⛔ Written as three flat steps and never as one nested condition, which
-  // rule 03 section 4 of docs/development-rules refuses.
+  // ⭐ THE FILL IS APPENDED AND NEVER A THIRD WHOLE STYLE. Table T-237's states
+  // and FR-029's faint state are different facts about one entrance -- an entry
+  // can be armed whether or not it can be used now -- so a style per
+  // combination would be eight where two and one override do.
+  //
+  // ⭐ WHICH ROWS OF TABLE T-237 STAND IS DECIDED HERE; WHICH ONE WINS IS NOT.
+  // That order is the table's own (「上の行が勝つ」) and `entranceStateFill`
+  // keeps it once, so no caller may reach a different answer by testing the
+  // flags in a different order.
+  // ⛔ NEITHER ROW IS OFFERED FOR AN ENTRANCE DRAWN FAINT. FR-029 (MUST NOT):
+  // 「上の薄く描く入口には当ててはならない」 -- an entrance that is in effect and
+  // can change nothing reports only that it can change nothing.
+  // ⚠️ THAT NOW REACHES THE ARMED ENTRY AS WELL. While the rim was FR-053's own
+  // rule it was drawn on the faint entry too; the fill is FR-029's, and that
+  // requirement's MUST NOT governs every row of the table.
+  // ⚠️ `isPressed` IS OFFERED AS EN-2 AND COULD BE EN-4. FR-049 makes a toggle
+  // of every boolean row of table T-202 (EN-2) and FR-072 shows the properties
+  // panel's state on IC-17 (EN-4), and both cross this seam as the one flag
+  // `CommandItem.isPressed` -- the description never says which. ⛔ Nothing is
+  // invented to tell them apart: the two rows state the SAME colour, and the
+  // only row between them (EN-3) falls on a row control that is never a
+  // `CommandItem` at all, so the drawing is the same either way.
+  // ⛔ Written as flat steps and never as one nested condition, which rule 03
+  // section 4 of docs/development-rules refuses.
   const base = item.isEnabled ? entryStyle() : entryFaintStyle()
-  const inked = item.isEnabled && item.isPressed ? base + entryPressedInk() : base
-  const entry = made(host, 'button', item.isArmed ? inked + entryArmedRim() : inked)
+  const standing: EntranceStateRow[] = []
+  if (item.isEnabled && item.isArmed) standing.push('EN-1')
+  if (item.isEnabled && item.isPressed) standing.push('EN-2')
+  const entry = made(host, 'button', base + entranceStateFill(standing))
   entry.setAttribute('type', 'button')
   // The join table T-109 admits, and what PD-141 has the shell read back.
   entry.setAttribute('data-icon', item.icon)
@@ -2710,10 +2755,32 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // 変えられない」, and FR-098 (MUST) has this one control both pin the row and
   // let it go -- so on a row that is drawn it always has the other of the two
   // left to do. ⛔ Nothing carries a flag for it because nothing spends it.
+  //
+  // ⭐ AND IT IS THE ONE ROW CONTROL THAT IS PAINTED FOR ITS STATE. HF-6 of
+  // table T-051 (MUST): 「ピン止めしている行の `IC-60` は、`FR-029` の 表 T-237
+  // の `EN-3` に従って塗ること」. ⛔ `data-pinned` HAS BEEN WRITTEN HERE SINCE
+  // THE CONTROL EXISTED AND NOTHING PAINTED IT -- an attribute paints nothing,
+  // which is the same hole `data-pressed` sat in until 2026-08-28.
+  // ⛔ IT IS NOT THE PER-CONTROL GROUND THAT ROW'S MUST NOT FORBIDS, and the
+  // row says so itself: 「地は上の 1 枚（`S-150`）のままであり、`EN-3` の塗りは
+  // その地の上に載る状態の印である」 -- `rowControlGroundStyle` still lays the one
+  // band behind all five, and this rides on it. ⭐ The row adds why no crumb of
+  // the name can show through: 「状態の印は 1 つの操作子にしか立たない」.
+  // ⚠️ EN-3 IS THE ONLY ROW OF TABLE T-237 THAT CAN STAND HERE, so the
+  // precedence `entranceStateFill` keeps decides nothing on this control -- it
+  // is still asked, because a list of one is where the second row would go.
+  // ⚠️ HF-6 STILL DRAWS IT ONLY WHILE THE POINTER IS ON THE ROW'S NAME. Drawing
+  // a pinned row's pin at all times is PD-396, which is ruled and not yet
+  // written into the requirement.
   const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', true)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
-  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.pin))
+  pin.setAttribute(
+    'style',
+    pin.getAttribute('style') +
+      rowControlRight(ROW_CONTROL_STEPS.pin) +
+      entranceStateFill(title.isPinned ? ['EN-3'] : []),
+  )
   row.append(pin)
 
   // IC-82 -- FR-032's deletion, on every row and answering for the row it is
@@ -2806,7 +2873,7 @@ function panelCornerEntryElement(host: Document, icon: string, stepsFromEdge: nu
  * faint 「載る面によって」 -- so the panel's own entrances take the very
  * declarations the header's and the palette's take. ⚠️ The row controls reach
  * the same paint by a different road (`STYLE.rowControlFaintInk` over
- * `STYLE.rowControl`), because those carry no rim to begin with.
+ * `STYLE.rowControl`), because those carry no frame to begin with.
  *
  * @purity pure
  */
@@ -5670,6 +5737,8 @@ export const SCREEN_COLOURS: {
   'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   /* S-150 */
   'S-150': { light: 'hsl(H 20% 97%)', dark: 'hsl(H 14% 13%)', followsHue: true },
+  /* S-151 */
+  'S-151': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-152 */
   'S-152': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   /* S-183 */
@@ -5682,5 +5751,3 @@ export const SCREEN_COLOURS: {
   'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
 }
 // </generated>
-
-

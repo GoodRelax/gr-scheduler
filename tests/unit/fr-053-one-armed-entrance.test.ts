@@ -3,8 +3,17 @@
 //
 // Unit under test: UF-65 of table T-075 (`command-palette.ts`, component CP-37
 // of table T-062, published as PI-37 of table T-064). It is the unit that fills
-// `CommandItem.isArmed`, which is the member the drawing side paints S-183 and
-// S-185 onto.
+// `CommandItem.isArmed`, which is the member the drawing side reads to fill the
+// glyph's box with `S-183` -- 表 T-237's `EN-1`.
+//
+// ⚠️ REWRITTEN BY CR-311 (2026-08-30). The head of this file used to quote
+// FR-053 as stating a rim (`S-183` の色、`S-185` の太さ). ⛔ The specification
+// no longer says that: FR-053 now hands the whole question to 表 T-237, `S-183`
+// is 「構えている入口の**塗り**の色」, and `S-185` (the rim's thickness) has been
+// retired with its seat left vacant. ⭐ NO CASE IN THIS FILE MOVED: every one of
+// them is about WHICH entrance `CommandItem.isArmed` stands on, and that is the
+// same question it always was. How the drawing side says it is held by
+// tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
 // in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
@@ -17,8 +26,12 @@
 //   FR-053   ⛔ 「いま構えている入口を、構えていない入口と見分けられるように描く
 //            こと（MUST）」 —— 「構えは持続する（表 T-023b）ので、何を構えている
 //            か読めないと、置くつもりのないものが置かれる。」
-//            ⭐ 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ。」色は
-//            `S-183`、縁の太さは `S-185` とすること（MUST）。
+//            ⭐ 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ。」
+//            「見分けさせ方は `FR-029` の 表 T-237 の `EN-1` に従うこと（MUST）」
+//            —— 「同表が塗りの色（`S-183`）を持ち、`FR-029` が塗りと抜き色の規則そ
+//            のものを持つ。」⚠️ 「3 巡にわたって縁が描かれたのは、本要求と `S-183`
+//            の行の名前がそう述べていたからである」 —— 「禁じるのは `FR-029` の側
+//            であり、ここでは繰り返さない。」
 //            ⛔ 「押されている形にしてはならない（MUST NOT）」 —— 表 T-109 の
 //            `IC-54` が「ボタンではない」と明記している。
 //   T-023b   構え。AR-1 (なし、既定) から AR-6 まで。「構えの各値は排他であり、
