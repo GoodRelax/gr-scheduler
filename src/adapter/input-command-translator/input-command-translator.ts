@@ -131,6 +131,7 @@ import {
   type CalendarDay,
   type Schedule,
   type Task,
+  type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
 import {
   selectionOfAll,
@@ -196,6 +197,22 @@ export type {
  * id is the only join to it, the way `ENTRY` below joins table T-109.
  */
 export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
+
+/**
+ * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST):
+ * 「軸を 1 本に固定すること。掴んでから最初に閾値を超えた向きで軸が決まり、離す
+ * まで変わらないこと」.
+ *
+ * ⭐ TWO NAMES AND NOT `x` / `y`, because the row names the two by what they
+ * CHANGE and not by which way the hand went: 「上下は位置を変え、段を変えては
+ * ならない（MUST NOT）」 and 「左右は段を変えること（MUST）」. A pair of axis
+ * names would leave the reader to remember which way round that is.
+ *
+ * ⛔ WHY IT IS FIXED AT ALL, in the row's own words: 「軸を固定しないと、1 画素
+ * ごとに『動かすのか、親を変えるのか』を道具が推し量ることになり、境目で答えが
+ * 反転する」.
+ */
+export type RowGrabAxis = 'position' | 'depth'
 
 /**
  * The press a gesture began with, as the Framework recorded it.
@@ -307,6 +324,32 @@ export interface PointerPress {
    * move and send the palette running by the sum.
    */
   readonly followedTo?: { readonly x: number; readonly y: number }
+  /**
+   * Which axis GR-20's grab settled on, or `null` while it has settled on none.
+   *
+   * ⭐ WHY IT CANNOT BE WORKED OUT HERE, WHICH IS THE WHOLE REASON THE MEMBER
+   * EXISTS. HF-15 (MUST) settles the axis at 「最初に閾値を超えた向き」 -- the
+   * FIRST travel past `S-208` -- and holds it 「離すまで」. UF-30 is `pure` in
+   * table T-075, so these functions see the press and the happening now in hand
+   * and nothing between them: a drag that went 10px right and then 100px down
+   * is the depth axis by that rule and the position axis by its total, and no
+   * reading of two points can tell the two apart. LY-5 of table T-060 leaves a
+   * current value with the Framework, so the party that APPLIED the follow is
+   * the party that remembers.
+   * ⭐ It is the same bargain `followedTo` above strikes, and it is kept the
+   * same way: `rowGrabFollow` answers the axis it settled, and the caller that
+   * applies that answer writes it back here.
+   *
+   * ⚠️ ABSENT MEANS THE CALLER DOES NOT FOLLOW, exactly as it does one member
+   * up: nothing is reported on a move, and the release reads the axis off the
+   * whole travel from the press. ⛔ Never a silent `'position'` -- a caller that
+   * forgot the member would then move rows on the one axis this build cannot
+   * draw.
+   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS, with `null`, because the member
+   * is a statement about the CALLER rather than about the gesture -- the reading
+   * `followedTo` records for itself.
+   */
+  readonly rowGrabAxis?: RowGrabAxis | null
 }
 
 /**
@@ -482,6 +525,36 @@ export interface InputContext {
    * the very array it hands the renderer.
    */
   readonly drawnRowGroupIds?: readonly string[]
+  /**
+   * The same rows, with the boxes the panel draws them in -- what HF-15's up
+   * and down walk needs and the ids alone cannot carry.
+   *
+   * ⭐⭐ WHY A BOX AND NOT A DISTANCE. HF-15 (MUST) has up and down 「その段に
+   * 置ける場所を描く順にたどる」 -- a rule about the ORDER OF THE PLACES, not
+   * about how far a hand travels for one. ⛔ A 刻み would be the wrong shape
+   * as well as an invention: FR-042 lets every row carry its own height (64,
+   * 96, 101, 108 and 148px stand on one measured screen), so one distance
+   * would drift against the drawn rows after two or three places -- the very
+   * harm the note beside the 段送り clause records for the other axis. ⇒ Which
+   * place the hand stands at is read off the boxes, and no constant is needed.
+   *
+   * ⛔ THE ARRAY IS NOT REBUILT HERE, which is the rule `drawnRowGroupIds`
+   * above states for itself: the cut lives in the shell beside the one place
+   * the panel is handed it, and `frame-loop.ts` fills both members from ONE
+   * call of `drawnRowBoxesOf` -- the same call that fills
+   * `ScreenSession.rowBoxes`, which is where `RowTitle.box` comes from. ⇒ The
+   * boxes read here are the boxes the person is looking at.
+   * ⚠️ SO THE TWO MEMBERS ARE ONE ARRAY, and `drawnRowGroupIds` is its ids. It
+   * is kept because the readers that only want membership already read it, and
+   * narrowing this member to them would make every one of them carry a `map`.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, exactly as the member above
+   * is: a caller that does not hand the picture over gets no up-and-down move
+   * at all -- `rowGrabPlacesInDrawingOrder` answers an empty walk, the release
+   * writes nothing, and no compiler will say so. ⭐ The tests written from the
+   * specification are what watch it.
+   */
+  readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
 }
 
 // ----------------------------------------------------------------- answer ---
@@ -629,6 +702,35 @@ export type SpentEntranceSituation =
   | 'onlyOneOfPlanAndActualShown'
   /** FR-034 (IC-37 / IC-38): no `Task` is chosen to line the others up with. */
   | 'noTaskChosenToAlignWith'
+  /**
+   * HF-15 (GR-20): the held row has no sibling immediately above it, so there
+   * is no row for it to become the last child of.
+   *
+   * ⭐ THE ROW'S OWN CONSEQUENCE: 「右へ 1 歩はすぐ上の兄弟の末子になること
+   * （MUST）」 ⇒ 「すぐ上に兄弟が無い行は右へ動かせない」.
+   */
+  | 'noSiblingAboveToNestUnder'
+  /** HF-15: the held row is already at the shallowest level, so it cannot go left. */
+  | 'rowIsAtTheShallowestLevel'
+  /**
+   * HF-15: a step to the right would carry the row's subtree past the depth cap.
+   *
+   * ⛔ THE CAP IS `FR-085`'s AND IS NOT RESTATED -- HF-15 says so: 「深さの上限を
+   * 超える右移動を受け付けてはならない（MUST NOT）—— 上限は `FR-085` が持つ」.
+   * What this side owes is the ROW OF TABLE T-233 the press is told with, which
+   * CM-73's own refusal cannot carry: that command answers a `Refusal` naming
+   * HM-3a, and FR-029 (MUST NOT) forbids the fallback where a row fits.
+   */
+  | 'groupDepthLimitReached'
+  /**
+   * HF-15 (GR-20): the held row already stands at the end of the walk of places
+   * at its own depth, in the direction the hand went.
+   *
+   * ⛔ THE ENDS OF THE WALK AND NEVER A SHORT DRAG. A hand that has not
+   * travelled as far as the next place has not run out of places -- see
+   * `rowGrabPositionOf`.
+   */
+  | 'noPlaceLeftInThatDirection'
 
 /**
  * What one happening is assigned to.
@@ -785,6 +887,59 @@ export type InputAction =
   | {
       readonly kind: 'moveCommandPalette'
       readonly by: { readonly dx: number; readonly dy: number }
+    }
+  /**
+   * GR-20 of table T-023d -- the strip on a row's left edge is being held, so
+   * HF-15's row follows the pointer and the axis it settled on is reported.
+   *
+   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE, for two reasons that
+   * both make it a MUST. HF-15: 「握っているあいだ、行をポインタに追従させる
+   * こと（MUST）」 -- a picture, so it is reported per move the way FR-053's
+   * palette is; and the axis 「離すまで変わらない（MUST）」, which no pure
+   * function can promise on its own (see `PointerPress.rowGrabAxis`).
+   *
+   * ⛔⛔ NOT A DOCUMENT CHANGE, AND THAT IS A MUST NOT. Table T-023d: 「掴んで
+   * いるあいだ値を文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵で
+   * あって編集ではない」. The write is CM-73 and it is planned on the RELEASE,
+   * in `commandFromRowGrab`.
+   *
+   * ⚠️ A DEPTH AND NOT A TRAVEL, which is where it parts from
+   * `moveCommandPalette`. That one answers a distance because the corner it
+   * moves is a pair of screen numbers nobody else holds; a row's place on this
+   * axis is its DEPTH, and the pixels it is drawn in are `RowTitle.indentPx` --
+   * 「段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）」, and that
+   * product is already what the panel indents by. ⛔⛔ Answering pixels here
+   * would be the second holder of the step HF-15 forbids in as many words:
+   * 「刻みを別に持ってはならない（MUST NOT）」 -- measured wrong at 刻み 26px
+   * against 段送り 16px, where a 64px drag moved the row 22px.
+   *
+   * ⚠️ THE DEPTH IS THE ROW'S OWN WHILE THE AXIS IS `position`, so a caller
+   * that draws by it draws no sideways movement on that axis -- which is what
+   * 「上下は ... 段を変えてはならない（MUST NOT）」 asks for.
+   */
+  | {
+      readonly kind: 'followRowGrab'
+      /** `TaskGroup.id` (AT-51) of the row being held. */
+      readonly groupId: string
+      /** The axis this grab settled on, which does not change again. */
+      readonly axis: RowGrabAxis
+      /** The depth the row is to be DRAWN at while held. Depth 1 is a root row. */
+      readonly atDepth: number
+      /**
+       * Where the row is to be DRAWN while held on the position axis -- the
+       * boundary of the place the hand stands at -- or `null` on the depth
+       * axis, where the row keeps the y the picture gave it.
+       *
+       * ⭐ A PLACE'S BOUNDARY AND NOT THE POINTER'S y. HF-15 (MUST) has up and
+       * down 「その段に置ける場所を描く順にたどる」, so what the row follows the
+       * hand ONTO is a place; drawn at the place's own edge, the picture says
+       * where the row lands rather than where the finger is.
+       * ⛔ `null` IS NOT ZERO. Zero is the top of the `Row Area`; `null` is
+       * 「this axis does not move the row vertically」, which is the MUST NOT on
+       * the other axis (「上下は位置を変え、段を変えてはならない」) read the
+       * other way round.
+       */
+      readonly atY: number | null
     }
   /**
    * FR-085 (MUST): a row was chosen in the `Row Title Panel`, so
@@ -3343,8 +3498,13 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // the two cannot both answer anyway: a pan's press is on nothing the surface
   // drew and the palette's is on its own band.
   if (input.phase === 'move') {
+    // ⭐ THREE GESTURES FOLLOW NOW. None of the three can answer for another:
+    // PD-1's pan is a press on nothing the surface drew, FR-053's palette is a
+    // press on its own band, and HF-15's row is a press on GR-20's strip.
     const panning = panFollow(input, context)
-    return panning === UNASSIGNED ? paletteFollow(input, context) : panning
+    if (panning !== UNASSIGNED) return panning
+    const palette = paletteFollow(input, context)
+    return palette === UNASSIGNED ? rowGrabFollow(input, context) : palette
   }
   // IN-1a: the pointer was lost outside the window, so the drag ends as an
   // abort (MUST) -- nothing is written. ⭐ Saying so is what keeps AG-9 from
@@ -3549,6 +3709,15 @@ function commandFromEntry(
   // has no row in table T-109, so `entry` is null on the band and the press
   // would otherwise fall through as "on a part, on no entry" and write nothing.
   if (on.dividerPanel !== null) return commandFromPanelDivider(on.dividerPanel, release, press, context)
+  // ⭐ BEFORE THE ROW ITSELF, AND FOR THE REASON THE BAND ABOVE IS. GR-20's
+  // strip carries no row of table T-109 -- that table holds no entrance for a
+  // grab strip -- so `entry` is null on it and the press would otherwise fall
+  // through to FR-085's choosing of the row it lies on. ⇒ The row would be
+  // chosen and never moved, which is HF-15's whole MUST.
+  // ⚠️ A press that never settled an axis still ends in that choosing;
+  // `commandFromRowGrab` is where the two are parted.
+  const grabbed = grabbedRowGroupId(press)
+  if (grabbed !== null) return commandFromRowGrab(release, press, context, grabbed)
   if (on.entry === null) {
     // FR-085 (MUST): the row itself was pressed rather than one of the three
     // controls table T-051 and FR-098 draw on it.
@@ -4377,6 +4546,675 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string): number {
     if (lastOrder === null || row.order > lastOrder) lastOrder = row.order
   }
   return lastOrder === null ? 0 : lastOrder + 1
+}
+
+// ------------------------------------------ GR-20 / HF-15: a row is grabbed ---
+//
+// ⭐ WHAT TRAVELS THIS ROAD, END TO END. GR-20 of table T-023d lays a strip
+// `S-138` wide along each row's left edge and says grabbing it moves the row
+// (表 T-051 の `HF-15`); `dom-screen-surface.ts` draws that strip and answers
+// `ScreenPart.isRowGrabStrip` for a point on it; the press arrives here with
+// that member and with `rowGroupId`; the axis is settled once and remembered on
+// the press; and the release plans CM-73, which is the one row of table T-108
+// that changes a row's parent and its place among its new siblings.
+//
+// ⛔ NOTHING IS WRITTEN WHILE THE STRIP IS HELD (MUST NOT). Table T-023d:
+// 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵であって編集ではない」.
+// `rowGrabFollow` answers a picture and `commandFromRowGrab` answers the write.
+//
+// ⛔⛔ THE PINNED ROW IS REFUSED ON THE DRAWING SIDE AND NOT HERE, and that is
+// not an omission. GR-20 (MUST NOT): 「ピン止めしている行は掴めないこと」, and
+// the pin is `ScreenSession`'s -- S-126 of table T-203 keeps it out of the
+// document, so no member of `InputContext` carries it and this file could not
+// test it if it wanted to. The surface draws no strip on a pinned row, so
+// `isRowGrabStrip` is never true for one and this road is never entered.
+//
+// ⭐⭐ THE TWO AXES ARE MEASURED IN DIFFERENT KINDS OF THING, AND HF-15 SAYS SO
+// ITSELF. The depth axis has a 刻み -- 「段送りの刻みは 表 T-201 の `S-37` と同じ
+// とすること（MUST）」 -- because a level IS a fixed indent. The position axis
+// has none, and needs none: 「上下は位置を変え、段を変えてはならない（MUST NOT）
+// —— その段に置ける場所を描く順にたどること（MUST）」 is a rule about the ORDER
+// OF THE PLACES. ⛔ A distance would in fact be the WRONG shape here, and the
+// reason is FR-042: every row carries its own height (64, 96, 101, 108 and 148px
+// stand on one measured screen), so a single 刻み would drift against the drawn
+// rows after two or three places -- which is the harm the note beside the 段送り
+// clause records for the other axis. ⇒ Which place the hand stands at is read
+// off `InputContext.drawnRowBoxes`, the very array the panel drew from, and no
+// constant is invented.
+
+/**
+ * A row's children in the order the picture draws them -- AT-55 (「同じ親の下で
+ * の並び」), which `inTreeOrder` in schedule-layout.ts sorts a drawn row's
+ * siblings by.
+ *
+ * ⚠️ THE HELD ROW IS LEFT OUT, because every question asked of this list is
+ * asked about where that row would GO: 「すぐ上の兄弟」 is a row it is not, and
+ * `CM-73`'s `order` is a place among the rows that STAY (its own implementation
+ * takes the siblings less the moved row and inserts at that index).
+ *
+ * ⚠️ THE TREE'S ORDER AND NOT THE PICTURE'S. GR-20 names the difference itself
+ * -- a grab at a lifted position would touch 「木の順ではなく描く順」 -- so a
+ * sibling HR-6 hid, or one the display amount dropped, is still the sibling
+ * immediately above.
+ *
+ * ⚠️ SORTED BY AT-55, WHICH IS WHAT `inTreeOrder` DRAWS BY -- and CM-73 reads
+ * the index back off the siblings in the order the DOCUMENT prints them. The
+ * two agree on every document `edit-task-group.ts` has written, because each of
+ * its writes renumbers the whole sibling list from that same printed order; they
+ * would part on a document whose `order` column disagrees with its own row
+ * order, and this side follows the PICTURE, because 「すぐ上の兄弟」 is what a
+ * person can see. ⛔ Not fixed from here: how CM-73 reads its own argument is
+ * that command's business.
+ *
+ * @purity pure
+ */
+function rowGrabSiblings(
+  rows: readonly TaskGroup[],
+  parentId: string | null,
+  heldGroupId: string,
+): readonly TaskGroup[] {
+  return rows
+    .filter((one) => one.id !== heldGroupId && one.parentId === parentId)
+    .sort((a, b) => a.order - b.order)
+}
+
+/**
+ * How deep a row sits, counting a root row as 1 -- the count `S-125` bounds and
+ * the one `RowPlacement.depth` carries for a DRAWN row.
+ *
+ * ⚠️ WALKED HERE RATHER THAN READ OFF THE LAYOUT, and the reason is the same one
+ * `rowGrabSiblings` gives: `context.layout.rows` holds the rows the picture
+ * drew, and the sibling a step to the right nests under may be hidden (HR-6) or
+ * dropped by the display amount (FR-018) while still being that sibling.
+ * ⚠️ A `parentId` cycle already breaks IV-5; the step count stops the walk
+ * rather than letting a pure function hang on a broken document -- the same
+ * guard `depthOf` keeps in `edit-task-group.ts`.
+ *
+ * @purity pure
+ */
+function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
+  let depth = 1
+  let foundAt = row.parentId
+  for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
+    const parent = byId.get(foundAt)
+    if (parent === undefined) break
+    depth += 1
+    foundAt = parent.parentId
+  }
+  return depth
+}
+
+/**
+ * How many levels a row and everything under it take -- 1 for a row with no
+ * child, which is the height HM-3a measures 「移動後の最深部で」.
+ *
+ * ⭐ WHY THIS SIDE MEASURES IT AT ALL, when CM-73 measures it again before it
+ * writes. FR-029 (MUST) has a press told 「押された入口の場面に当たる 表 T-233 の
+ * 行」 and (MUST NOT) forbids the fallback where a row fits; `RS-38` is that row
+ * for the cap, and a refused CM-73 carries a `Refusal` naming HM-3a instead. So
+ * what is decided here is which of the two answers the press gets, and the
+ * write is still checked on the far side.
+ *
+ * @purity pure
+ */
+function rowGrabSubtreeHeight(rows: readonly TaskGroup[], rootId: string): number {
+  let height = 0
+  let level: readonly string[] = [rootId]
+  const seen = new Set<string>()
+  while (level.length > 0) {
+    height += 1
+    for (const id of level) seen.add(id)
+    const above = level
+    // `seen` is what stops a `parentId` cycle (IV-5 broken) from looping.
+    level = rows
+      .filter((one) => !seen.has(one.id) && one.parentId !== null && above.includes(one.parentId))
+      .map((one) => one.id)
+  }
+  return height
+}
+
+/** Where a held row would land: the parent it takes, its place among its new
+ * siblings (the index CM-73 reads), and the depth it is drawn at. */
+interface RowGrabLanding {
+  readonly parentId: string | null
+  readonly order: number
+  readonly depth: number
+}
+
+/**
+ * Where a grab of `steps` levels lands, and the reason it stopped short.
+ *
+ * ⭐ THE LANDING IS ALWAYS ANSWERED, refusal or not, because two different
+ * things need it: the write wants the steps that WERE legal, and the picture
+ * wants the depth the row is to be drawn at -- 「動かせないときは、行を動かさず
+ * に理由を告げること（MUST）」 has the picture stop where the row stops.
+ */
+interface RowGrabStep {
+  readonly landing: RowGrabLanding
+  /** The row of table T-233 the press owes, or `null` where every step was taken. */
+  readonly situation: SpentEntranceSituation | null
+}
+
+/**
+ * HF-15's two sideways rules, applied one level at a time: 「右へ 1 歩はすぐ上の
+ * 兄弟の末子になること、左へ 1 歩は親の次の兄弟になること（MUST）」.
+ *
+ * ⭐ ONE LEVEL AT A TIME AND NOT A JUMP OF `steps`, because each level is a
+ * different question of a different tree: the second step to the right nests
+ * under the last child of the row the first step nested under. ⛔ A single
+ * arithmetic on the depth would answer neither rule.
+ *
+ * ⚠️ THE SIBLINGS THAT STOOD BEHIND IT ARE LEFT WHERE THEY WERE, which HF-15
+ * (MUST) asks for in as many words -- 「左へ出たとき、後ろに居た兄弟は元の親に
+ * 残すこと」 -- and nothing here has to do anything to keep it: only the held
+ * row's `parentId` is answered, every other row names its own parent, and CM-73
+ * (HM-5, MUST NOT) writes nothing but the parent and the order.
+ * ⭐ THE ROW'S OWN SUBTREE COMES WITH IT for the same reason, which HF-15 also
+ * requires (MUST): its descendants name IT as their parent and are not written.
+ *
+ * ⛔ `null` WHERE THE DOCUMENT HOLDS NO SUCH ROW. Nothing is invented for a
+ * grab whose row has gone; the caller falls back on FR-085's choosing.
+ *
+ * @purity pure
+ */
+function rowGrabLandingOf(
+  context: InputContext,
+  heldGroupId: string,
+  steps: number,
+): RowGrabStep | null {
+  const rows = context.document.schedule.taskGroups
+  const byId = new Map(rows.map((one) => [one.id, one]))
+  const held = byId.get(heldGroupId)
+  if (held === undefined) return null
+
+  const cap = context.document.documentSettings.maxGroupDepth
+  const height = rowGrabSubtreeHeight(rows, heldGroupId)
+  const startSiblings = rows
+    .filter((one) => one.parentId === held.parentId)
+    .sort((a, b) => a.order - b.order)
+  // ⚠️ THE PLACE AMONG THE SIBLINGS AND NOT THE `order` COLUMN. CM-73 reads its
+  // `order` as an index into the siblings that stay, so a document whose rows
+  // are numbered 0, 2, 7 must still answer 0, 1, 2 here.
+  const startOrder = Math.max(
+    0,
+    startSiblings.findIndex((one) => one.id === heldGroupId),
+  )
+  let landing: RowGrabLanding = {
+    parentId: held.parentId,
+    order: startOrder,
+    depth: rowGrabDepthOf(byId, held),
+  }
+
+  const taken = Math.abs(steps)
+  const deeper = steps > 0
+  for (let step = 0; step < taken; step++) {
+    if (deeper) {
+      const siblings = rowGrabSiblings(rows, landing.parentId, heldGroupId)
+      // 「すぐ上の兄弟」 -- the row standing one place before this one. ⇒ HF-15's
+      // own consequence: 「すぐ上に兄弟が無い行は右へ動かせない」.
+      const above = siblings[landing.order - 1]
+      if (above === undefined) return { landing, situation: 'noSiblingAboveToNestUnder' }
+      // FR-085's cap, measured HM-3a's way -- at the subtree's deepest point
+      // AFTER the move. The row would sit one below `above`, and its own deepest
+      // descendant `height - 1` below that.
+      if (rowGrabDepthOf(byId, above) + height > cap) {
+        return { landing, situation: 'groupDepthLimitReached' }
+      }
+      landing = {
+        parentId: above.id,
+        // 「末子」 -- one past the last child that stays. ⚠️ The COUNT and not
+        // `orderPastLastChild`'s largest-plus-one: CM-73 reads an index.
+        order: rowGrabSiblings(rows, above.id, heldGroupId).length,
+        depth: landing.depth + 1,
+      }
+      continue
+    }
+    // 「左へ 1 歩は親の次の兄弟になること」.
+    if (landing.parentId === null) return { landing, situation: 'rowIsAtTheShallowestLevel' }
+    const parent = byId.get(landing.parentId)
+    // A parent the document does not hold breaks IV-5; the walk stops rather
+    // than inventing a place for the row.
+    if (parent === undefined) return { landing, situation: null }
+    const uncles = rowGrabSiblings(rows, parent.parentId, heldGroupId)
+    landing = {
+      parentId: parent.parentId,
+      order: uncles.findIndex((one) => one.id === parent.id) + 1,
+      depth: Math.max(1, landing.depth - 1),
+    }
+  }
+  return { landing, situation: null }
+}
+
+/**
+ * One place HF-15's up-and-down walk may put the held row at -- 「その段に置ける
+ * 場所」, which is a parent and a rank among the rows that stay.
+ */
+interface RowGrabPlace {
+  readonly parentId: string | null
+  /** AT-55's rank among the siblings that stay -- the index CM-73 reads. */
+  readonly order: number
+  /**
+   * Where the boundary this place IS stands in the picture now drawn.
+   *
+   * ⭐ A BOUNDARY AND NOT A ROW: the top edge of the row this place would put
+   * the held row in front of, or the bottom edge of the last row it would put
+   * it after. ⛔ Never a distance from anywhere -- see the paragraph at the
+   * head of this section for why the position axis has no 刻み.
+   */
+  readonly atY: number
+  /** Whether this is the place the row already holds. */
+  readonly isOwn: boolean
+}
+
+/**
+ * Every place at the held row's own depth, in the order the picture draws them
+ * -- HF-15 (MUST): 「その段に置ける場所を描く順にたどること」.
+ *
+ * ⭐ THE WALK CROSSES PARENTS, which the row states as its own consequence:
+ * 「ある群の末子の次は次の群の長子の位置であり、親をまたぐ」. That is exactly what
+ * one pass over the drawn rows produces -- each group's places come out where
+ * the group is drawn, and the next group's follow.
+ *
+ * ⛔⛔ A PLACE INSIDE A FOLDED GROUP IS NOT AMONG THEM (MUST NOT): 「畳まれた群の
+ * 中の場所を選んではならない —— 動かした行が消えることになり、効かない操作子と
+ * 見分けがつかない」. ⭐ MOST OF THAT FALLS OUT OF THE PICTURE ITSELF: a folded
+ * group's children are not drawn, so they are not among `drawnRowBoxes` and no
+ * place before or after one can be raised. ⚠️ ONE CASE DOES NOT, and is tested
+ * for: a folded group with no drawn child would otherwise be offered as an
+ * empty parent, so `isCollapsed` is read for that one bucket.
+ *
+ * ⚠️ THE HELD ROW'S OWN PLACE IS IN THE WALK, and it has to be: it is the place
+ * the row is at, and both ends of the walk are read against it -- the row a
+ * person has dragged nowhere has moved to it, and `RS-39` is told against its
+ * rank rather than against a distance.
+ * ⛔ THE HELD ROW'S DESCENDANTS ARE NOT, and nothing has to exclude them: they
+ * are deeper than the held row by definition, and this walk reads the rows at
+ * ITS depth and the parents one above.
+ *
+ * ⚠️ TWO CONSECUTIVE PLACES THAT ARE THE SAME LANDING ARE ONE PLACE. With the
+ * held row taken out of its parent, the place before the row that followed it
+ * IS where it already stands, so the pair would otherwise be two places a
+ * person can drag between and never move. ⭐ The FIRST anchor is the one kept,
+ * which is what leaves a row nobody has dragged sitting at its own place.
+ *
+ * ⚠️ AN EMPTY WALK IS WHAT A CALLER THAT HANDED NO PICTURE GETS -- see
+ * `InputContext.drawnRowBoxes`. Nothing is guessed from the document instead:
+ * 「描く順」 is a fact about a picture, and the roster does not hold one.
+ *
+ * @purity pure
+ */
+function rowGrabPlacesInDrawingOrder(
+  context: InputContext,
+  heldGroupId: string,
+): readonly RowGrabPlace[] {
+  const drawn = context.drawnRowBoxes
+  if (drawn === undefined) return []
+  const rows = context.document.schedule.taskGroups
+  const byId = new Map(rows.map((one) => [one.id, one]))
+  const held = byId.get(heldGroupId)
+  if (held === undefined) return []
+  const depth = rowGrabDepthOf(byId, held)
+  // Which rows have a child in the picture -- what parts a group whose places
+  // the walk below raises from one that owes an empty parent's single place.
+  const parentsWithADrawnChild = new Set<string>()
+  for (const entry of drawn) {
+    const parentId = byId.get(entry.groupId)?.parentId
+    if (parentId !== undefined && parentId !== null) parentsWithADrawnChild.add(parentId)
+  }
+
+  // AT-55's rank among the siblings that STAY -- what CM-73 reads, and what the
+  // held row's own place is too. ⚠️ Counted rather than looked up, because the
+  // held row is not among the rows that stay and a lookup would answer -1 for
+  // the one row this walk cannot do without.
+  const placeOrderOf = (row: TaskGroup): number => {
+    const among = rows
+      .filter((one) => one.parentId === row.parentId)
+      .sort((a, b) => a.order - b.order)
+    const at = among.findIndex((one) => one.id === row.id)
+    if (at < 0) return 0
+    return among.slice(0, at).filter((one) => one.id !== heldGroupId).length
+  }
+
+  const places: RowGrabPlace[] = []
+  // ⚠️ Two consecutive places that are the same landing are one place; this is
+  // where that is kept, and the FIRST anchor is the one that survives.
+  const put = (place: RowGrabPlace): void => {
+    const last = places[places.length - 1]
+    if (last !== undefined && last.parentId === place.parentId && last.order === place.order) return
+    places.push(place)
+  }
+
+  // The group whose children the walk is inside, and where its last drawn child
+  // ended -- 「その群の末子の次」, which is a place of its own.
+  let runParentId: string | null | undefined = undefined
+  let runOrderAfter = 0
+  let runBottom = 0
+  const closeRun = (): void => {
+    if (runParentId === undefined) return
+    put({ parentId: runParentId, order: runOrderAfter, atY: runBottom, isOwn: false })
+    runParentId = undefined
+  }
+
+  for (const entry of drawn) {
+    const row = byId.get(entry.groupId)
+    if (row === undefined) continue
+    const rowDepth = rowGrabDepthOf(byId, row)
+    // Deeper than the held row: inside a place-bearing row's own subtree, which
+    // neither opens nor closes a group at this depth.
+    if (rowDepth > depth) continue
+    if (rowDepth === depth) {
+      // 「親をまたぐ」 -- the previous group's last place is raised before the
+      // next group's first one.
+      if (runParentId !== undefined && runParentId !== row.parentId) closeRun()
+      const order = placeOrderOf(row)
+      const isOwn = row.id === heldGroupId
+      put({ parentId: row.parentId, order, atY: entry.box.y, isOwn })
+      runParentId = row.parentId
+      // ⛔ ONE PAST THIS ROW, EXCEPT WHERE THIS ROW IS THE HELD ONE. With the
+      // held row taken out of its parent, 「after it」 and 「before it」 are the
+      // same insertion point, so counting past it would raise a second place a
+      // person could drag to and never move -- and, at the foot of the walk,
+      // would hide the end that `RS-39` is told against.
+      runOrderAfter = isOwn ? order : order + 1
+      runBottom = entry.box.y + entry.box.height
+      continue
+    }
+    // Shallower: the walk has left the group it was inside.
+    closeRun()
+    // ⛔ A GROUP WITH NO DRAWN CHILD STILL HAS ONE PLACE -- its first child's --
+    // and it is raised where the group is drawn, which is what 「描く順」 asks.
+    // ⛔⛔ NOT WHEN IT IS FOLDED (MUST NOT): a row dropped into a folded group
+    // 「消えることになり、効かない操作子と見分けがつかない」. ⚠️ This is the one
+    // bucket where that has to be tested -- everywhere else the picture has
+    // already left the folded group's children out.
+    if (
+      depth > 1 &&
+      rowDepth === depth - 1 &&
+      row.isCollapsed !== true &&
+      !parentsWithADrawnChild.has(row.id)
+    ) {
+      put({ parentId: row.id, order: 0, atY: entry.box.y + entry.box.height, isOwn: false })
+    }
+  }
+  closeRun()
+  return places
+}
+
+/**
+ * Which place the hand stands at, and the reason there is none in that
+ * direction.
+ *
+ * ⭐ THE ROW'S OWN TOP, CARRIED BY THE TRAVEL. The place chosen is the one whose
+ * boundary the row's top edge has been carried nearest to -- 「握っているあいだ、
+ * 行をポインタに追従させること（MUST）」 read on this axis. ⛔ NOT the pointer's
+ * bare y: a person grabs a row somewhere inside it, and reading the raw point
+ * would jump the row to another place the instant it was touched.
+ *
+ * ⭐ NEAREST, AND ON A TIE THE ROW'S OWN. The boundaries come out of the walk in
+ * increasing y, so nearest is a rise and fall the hand can feel; the tie is
+ * settled for the row's own place so that a hand that has moved nothing moves
+ * nothing.
+ *
+ * ⛔ `RS-39` IS TOLD AGAINST THE ENDS OF THE WALK AND NEVER AGAINST A DISTANCE:
+ * 「その向きに置ける場所が無いので、これ以上動かせない」 is true when the row
+ * already holds the first place and the hand went up, or the last and it went
+ * down. ⚠️ A hand that simply has not travelled far enough is NOT that: it is a
+ * gesture that moved nothing, and telling it a reason would say a working
+ * gesture is dead.
+ *
+ * @purity pure
+ */
+function rowGrabPositionOf(
+  context: InputContext,
+  heldGroupId: string,
+  travelY: number,
+): { readonly place: RowGrabPlace; readonly situation: SpentEntranceSituation | null } | null {
+  const drawn = context.drawnRowBoxes
+  if (drawn === undefined) return null
+  const heldBox = drawn.find((one) => one.groupId === heldGroupId)?.box
+  if (heldBox === undefined) return null
+  const places = rowGrabPlacesInDrawingOrder(context, heldGroupId)
+  const ownAt = places.findIndex((one) => one.isOwn)
+  if (ownAt < 0) return null
+  const own = places[ownAt]
+  if (own === undefined) return null
+  // ⛔ THE END OF THE WALK IN THE DIRECTION THE HAND WENT. ⚠️ A walk of ONE place
+  // is both ends at once, which is a document whose row has nowhere at its depth
+  // to go -- and that is exactly what RS-39 says.
+  if (travelY < 0 && ownAt === 0) return { place: own, situation: 'noPlaceLeftInThatDirection' }
+  if (travelY > 0 && ownAt === places.length - 1) {
+    return { place: own, situation: 'noPlaceLeftInThatDirection' }
+  }
+  const carriedTo = heldBox.y + travelY
+  let best = own
+  for (const place of places) {
+    const reach = Math.abs(place.atY - carriedTo)
+    const standing = Math.abs(best.atY - carriedTo)
+    if (reach < standing || (reach === standing && place.isOwn)) best = place
+  }
+  return { place: best, situation: null }
+}
+
+/**
+ * How many levels the hand has asked for -- the travel across, cut into steps
+ * of `rowTitleIndent`.
+ *
+ * ⭐⭐ `S-37` AND NOTHING ELSE, WHICH IS THE HEART OF HF-15's SECOND MUST:
+ * 「段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）」, and 「刻みを
+ * 別に持ってはならない（MUST NOT）」 with the measurement that settled it --
+ * 「刻み 26px・段送り 16px のときポインタ 64px に対し行は 22px しか動かず、
+ * 1 段ごとに離れていった。揃えるとずれは 0px である」. ⛔ So the number is read
+ * off `DocumentSettings.rowTitleIndent`, which is the very value the panel
+ * indents by and FR-085 cuts a name against -- there is no second copy to drift.
+ *
+ * ⛔ CUT TOWARDS ZERO AND NOT ROUNDED. A full step of travel is what buys a
+ * step of depth, so the row stands still until the hand has moved as far as the
+ * row is about to; rounding would move the row half a step before the hand.
+ *
+ * ⚠️ AN INDENT OF ZERO BUYS NO STEPS. Table T-201 lets `S-37` be 0, and a
+ * document that sets it there has no width for a step to be measured in -- the
+ * grab then moves nothing rather than every row at once.
+ *
+ * @purity pure
+ */
+function rowGrabDepthSteps(context: InputContext, at: PointerInput, press: PointerPress): number {
+  const indent = context.document.documentSettings.rowTitleIndent
+  if (!(indent > 0)) return 0
+  return Math.trunc((at.x - press.at.x) / indent)
+}
+
+/**
+ * Which axis this grab has settled on, or `null` while it has settled on none
+ * -- HF-15 (MUST): 「掴んでから最初に閾値を超えた向きで軸が決まり、離すまで
+ * 変わらないこと」.
+ *
+ * ⭐ WHAT STANDS WINS. Once the caller has written an axis back onto the press,
+ * this answers that and never looks at the pointer again -- which is the whole
+ * of 「離すまで変わらない」.
+ *
+ * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE: it stands in the generated
+ * block at the foot of this file, because rule 03 section 1 forbids a value of
+ * the manuscript being written into `src/` by hand. Its own note says why it may
+ * not be 0 -- 「1 画素の震えで軸が決まってしまう」.
+ *
+ * ⚠️ A TRAVEL EQUAL ON BOTH AXES SETTLES NOTHING, and that is measured rather
+ * than chosen: the row names 「最初に閾値を超えた向き」, and a hand that passed
+ * the distance on both axes in one move passed it on neither first. Nothing here
+ * invents a winner; the next move that is not exactly diagonal settles it.
+ *
+ * @purity pure
+ */
+function rowGrabAxisAt(at: PointerInput, press: PointerPress): RowGrabAxis | null {
+  const settled = press.rowGrabAxis
+  if (settled !== null && settled !== undefined) return settled
+  const across = Math.abs(at.x - press.at.x)
+  const down = Math.abs(at.y - press.at.y)
+  const threshold = NOT_STORED_ROW_GRAB_SIZES['S-208']
+  if (across <= threshold && down <= threshold) return null
+  if (across === down) return null
+  return across > down ? 'depth' : 'position'
+}
+
+/**
+ * Whether this press was taken on GR-20's strip -- the one road HF-15's drag
+ * has in.
+ *
+ * ⚠️ BOTH MEMBERS OR NEITHER. The strip carries no key of its own (the row it
+ * sits in does), so a press that says it is on a strip and names no row is a
+ * press this side cannot act on -- and `chooseRow` cannot act on it either.
+ *
+ * @purity pure
+ */
+function grabbedRowGroupId(press: PointerPress): string | null {
+  const on = press.on
+  if (on === null || on.isRowGrabStrip !== true) return null
+  return on.rowGroupId
+}
+
+/**
+ * HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」.
+ *
+ * ⛔ A PICTURE AND NOT AN EDIT, which table T-023d states of every row of it
+ * (MUST NOT): 「掴んでいるあいだ値を文書へ書いてはならない」. What the caller
+ * does with this is draw; the write waits for the release (IN-1 of table T-028).
+ *
+ * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `rowGrabAxis`, the same
+ * refusal `paletteFollow` and `panFollow` both make: a caller that does not
+ * record the axis it was handed cannot keep 「離すまで変わらない」, and this side
+ * would settle the axis afresh on every move.
+ *
+ * @purity pure
+ */
+function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedInput {
+  const press = context.pressed
+  if (press === null) return UNASSIGNED
+  const groupId = grabbedRowGroupId(press)
+  if (groupId === null) return UNASSIGNED
+  if (press.rowGrabAxis === undefined) return UNASSIGNED
+  const axis = rowGrabAxisAt(input, press)
+  if (axis === null) return UNASSIGNED
+  // ⚠️ ONE AXIS MOVES THE PICTURE AND THE OTHER LEAVES IT WHERE IT IS, which is
+  // 「軸を 1 本に固定すること（MUST）」 drawn: 「上下は位置を変え、段を変えては
+  // ならない（MUST NOT）」 and 「左右は段を変えること（MUST）」.
+  if (axis === 'position') {
+    const found = rowGrabPositionOf(context, groupId, input.y - press.at.y)
+    // ⚠️ NOTHING IS DRAWN DIFFERENTLY WHERE THE CALLER HANDED NO PICTURE. The
+    // walk is a fact about the drawn rows, and there is no second source for it.
+    if (found === null) return UNASSIGNED
+    return acted({
+      kind: 'followRowGrab',
+      groupId,
+      axis,
+      // 「段を変えてはならない」 -- the row is drawn at the depth it already has.
+      atDepth: rowGrabDepthOfHeld(context, groupId),
+      atY: found.place.atY,
+    })
+  }
+  const step = rowGrabLandingOf(context, groupId, rowGrabDepthSteps(context, input, press))
+  if (step === null) return UNASSIGNED
+  // 「上下は ... 段を変えてはならない」 read the other way round: a grab on the
+  // depth axis is drawn where the row already stands vertically.
+  return acted({ kind: 'followRowGrab', groupId, axis, atDepth: step.landing.depth, atY: null })
+}
+
+/**
+ * The held row's own depth, for the axis that may not change it.
+ *
+ * @purity pure
+ */
+function rowGrabDepthOfHeld(context: InputContext, heldGroupId: string): number {
+  const rows = context.document.schedule.taskGroups
+  const byId = new Map(rows.map((one) => [one.id, one]))
+  const held = byId.get(heldGroupId)
+  return held === undefined ? 1 : rowGrabDepthOf(byId, held)
+}
+
+/**
+ * What a release on GR-20's strip is assigned to -- HF-15's move, or the reason
+ * it could not be made.
+ *
+ * ⭐ SETTLED ON THE RELEASE, which is IN-1 of table T-028 and the rule table
+ * T-023d states for the whole of itself.
+ *
+ * ⭐ A PRESS THAT NEVER SETTLED AN AXIS IS FR-085's CHOOSING. The strip lies
+ * over the row's own left edge, and a hand that pressed and let go without
+ * travelling `S-208` has made no grab at all -- HF-15 speaks only of a held row.
+ * ⛔ The alternative, swallowing it, would leave a strip-wide stripe down the
+ * panel where a row cannot be chosen.
+ *
+ * ⚠️ THE LEGAL STEPS ARE WRITTEN AND THE REFUSAL IS NOT ALSO TOLD. A drag that
+ * asked for three steps to the right and could take one has moved: 「動かせない
+ * ときは、行を動かさずに理由を告げること（MUST）」 is about a row that could not
+ * move, and this one did. ⛔ One happening carries one answer in any case --
+ * `InputAction` is a single kind -- so a telling here would cost the move.
+ *
+ * @purity pure
+ */
+function commandFromRowGrab(
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+  heldGroupId: string,
+): TranslatedInput {
+  const axis = rowGrabAxisAt(release, press)
+  if (axis === null) {
+    return acted({
+      kind: 'chooseRow',
+      groupId: heldGroupId,
+      // The press's keys, which is CS-2 of table T-066 -- see `commandFromEntry`.
+      isExtending: press.at.modifiers.shift,
+    })
+  }
+  const held = context.document.schedule.taskGroups.find((one) => one.id === heldGroupId)
+  if (axis === 'position') {
+    // 「上下は位置を変え、段を変えてはならない（MUST NOT）—— その段に置ける場所を
+    // 描く順にたどること（MUST）」.
+    const found = rowGrabPositionOf(context, heldGroupId, release.y - press.at.y)
+    if (found === null) return CONSUMED_ELSEWHERE
+    if (found.situation !== null) return nothingToDo(found.situation)
+    // The hand did not reach the next place, so nothing moved -- and nothing is
+    // told, because a place in that direction does exist. ⚠️ `changed` says why
+    // an unmoved write is not one: WS-4 would push an undo step for a gesture
+    // that moved nothing.
+    if (found.place.isOwn) return CONSUMED_ELSEWHERE
+    return changed([
+      {
+        kind: 'moveTaskGroup',
+        groupId: heldGroupId,
+        parentId: found.place.parentId,
+        order: found.place.order,
+      },
+    ])
+  }
+  const steps = rowGrabDepthSteps(context, release, press)
+  if (steps === 0) return CONSUMED_ELSEWHERE
+  const step = rowGrabLandingOf(context, heldGroupId, steps)
+  if (step === null) return CONSUMED_ELSEWHERE
+  const landing = step.landing
+  if (held !== undefined && held.parentId === landing.parentId) {
+    // Every step was refused, so the row stands where it stood and FR-029
+    // (MUST) has the reason told -- the manner is table T-037's NT-1 and the
+    // row is table T-233's. ⚠️ Answered by the PARENT and not by the step
+    // count: a landing that is the row's own place is a write CM-73 would
+    // answer with the document unchanged, and WS-4 would still push an undo
+    // step for a gesture that moved nothing.
+    // ⛔ Every step of this axis changes the parent -- a step right takes the
+    // sibling above and a step left takes the grandparent -- so an unchanged
+    // parent is exactly "nothing was taken".
+    return step.situation === null ? CONSUMED_ELSEWHERE : nothingToDo(step.situation)
+  }
+  // CM-73 -- the one row of table T-108 that changes a row's parent, and the
+  // one HF-15's drag was raised for. ⛔ NOT `reorderTaskGroupSiblings` (CM-35):
+  // that command refuses a list that brings in a row from another parent, and
+  // its own declaration says so.
+  return changed([
+    {
+      kind: 'moveTaskGroup',
+      groupId: heldGroupId,
+      parentId: landing.parentId,
+      order: landing.order,
+    },
+  ])
 }
 
 /**
@@ -5957,5 +6795,28 @@ export const NOT_STORED_ZOOM_STEP: {
   readonly 'S-96': number
 } = {
   'S-96': 1.1,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the decision is
+ * its own to make: HF-15 of table T-051 (MUST) settles the axis of a
+ * grab at the first travel past this distance and holds it until the
+ * release, and no member of `InputContext` carries a distance for a
+ * caller to hand in. ⛔ It is not a document setting and must not
+ * become one: table T-206 is where the specification records that the
+ * document does not keep it, and it stands on S-138's ground.
+ */
+export const NOT_STORED_ROW_GRAB_SIZES: {
+  /** S-208, in px */
+  readonly 'S-208': number
+} = {
+  'S-208': 6,
 }
 // </generated>

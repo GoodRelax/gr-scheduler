@@ -1104,6 +1104,24 @@ KEPT_WHERE_IT_STANDS = [
     ' * and must not become one -- FR-102 (MUST NOT) keeps the record out of',
     ' * the document, and table T-206 is where the specification says so.',
 ]
+# ⛔ A SIXTH SEAM: no door AND no caller, because the DECISION is the reading
+# unit's own. S-208 is the distance HF-15 of table T-051 settles a grab's axis
+# at -- 「掴んでから最初に閾値を超えた向きで軸が決まり、離すまで変わらない
+# （MUST）」 -- and the unit that settles it is InputCommandTranslator. ⛔ The
+# zoom trio's seam does NOT fit, although both land in that file: S-53 arrives
+# as an argument because the SHELL applies the zoom and has to pass the step
+# it stepped by, and nothing outside this unit applies an axis. ⛔ Nor does any
+# drawing ground fit -- those close on what an exported picture does not show,
+# and a threshold appears in no picture at all.
+SETTLED_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the decision is',
+    ' * its own to make: HF-15 of table T-051 (MUST) settles the axis of a',
+    ' * grab at the first travel past this distance and holds it until the',
+    ' * release, and no member of `InputContext` carries a distance for a',
+    ' * caller to hand in. ⛔ It is not a document setting and must not',
+    ' * become one: table T-206 is where the specification records that the',
+    " * document does not keep it, and it stands on S-138's ground.",
+]
 # ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
 # a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
 # zoom trio is stated once, among the drawing settings, and table T-206 records
@@ -1207,6 +1225,11 @@ NOT_STORED_TARGETS = {
     # are how long a held entrance waits.
     'NOT_STORED_INTERACTION_RECORD_LIMITS': (['S-207'], KEPT_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in the translator:
+    # one constant per consuming SUBJECT, and the two do not even arrive the
+    # same way -- S-96 is handed in and S-208 is read where it stands, which
+    # is what the paragraph above each says.
+    'NOT_STORED_ROW_GRAB_SIZES': (['S-208'], SETTLED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
 
@@ -1758,8 +1781,12 @@ TARGETS = [
     # `InputContext.zoomStep` is read by the translator, `SettingsLimits`
     # zoomMin / zoomMax by the edit path. ⛔ One shared constant would hand each
     # unit a value belonging to the other.
+    # ⭐ And HF-15's threshold beside it, in a constant of its own: S-208 is the
+    # distance a grab's axis is settled at, and this unit is the one that
+    # settles it. ⛔ Not folded into the zoom step -- see NOT_STORED_TARGETS.
     (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP'),
+     lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_GRAB_SIZES'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),

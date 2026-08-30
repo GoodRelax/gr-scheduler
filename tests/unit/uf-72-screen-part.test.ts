@@ -4185,3 +4185,165 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     }
   })
 })
+
+// ===========================================================================
+// GR-20 OF 表 T-023d -- THE GRAB STRIP THE ROW DRAG IS TAKEN ON.
+//
+// ⭐ WHY THIS BLOCK IS HERE. 表 T-023d GR-20: 「行見出しパネルの行 | **行の左端
+// に敷く掴み代**（幅は `_assets/tbl-settings.md` の 表 T-206 の `S-138`）|
+// 掴めば行を動かす（表 T-051 の `HF-15`）。⛔ **ピン止めしている行は掴めない
+// こと（MUST NOT）** —— `FR-098` が留めた行をパネルの先頭へ上げるので、**上げ
+// られた位置で掴むと、木の順ではなく描く順を触ることになる。**⚠️ **実測で、
+// 留めた行を引くと画面は 1px も動かないまま親を 2 つまたいだ**」.
+//
+// The side that DREW the panel is the side that knows a row was lifted (表 T-065
+// IF-9, MUST), so both halves of that row are answered here: the strip is laid,
+// and it is not laid on a pinned row.
+//
+// ⚠️ THE HARNESS CANNOT MEASURE A PIXEL -- the note above `intrinsicExtent`
+// says why, and it applies unchanged here: `laidOut` answers from `LAYOUT`,
+// which is keyed by `data-icon` and `data-role`, and 表 T-109 holds no row for a
+// grab strip so it can carry neither. ⭐ WHAT IS CHECKED INSTEAD is the
+// declaration a browser would read to get the pixel, exactly as the IC-58 block
+// does.
+//
+// ⛔ THE STRIP IS FOUND BY WHAT THE MANUSCRIPT SAYS IT IS, NOT BY AN ATTRIBUTE
+// NAME. GR-20 gives it two properties and no others: it is `S-138` wide and it
+// lies along the row's LEFT edge. `stripsOf` below looks for exactly that, so a
+// build that marked it differently still passes and a build that laid no strip
+// still fails. ⚠️ Entries are excluded first, because `S-138` is also 「入口の
+// 図形を描く箱の一辺」 -- the same number -- and a control that took it would
+// otherwise be read as a strip.
+//
+// ⛔ WHAT IS NOT ASSERTED: how the strip is PAINTED. GR-20 gives it no ink, and
+// 表 T-026's RC-13 makes a new figure the user's ruling.
+// ===========================================================================
+
+/** 表 T-206 `S-138` -- the width GR-20 lays the strip at. Read, never copied. */
+const S_138_STRIP_WIDTH = (() => {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-138')
+  if (row === undefined) throw new Error('表 T-206 no longer holds S-138')
+  const found = /\d+(?:\.\d+)?/.exec(row.by['既定'] ?? '')
+  if (found === null) throw new Error('S-138 states no number in its 既定 column')
+  return Number(found[0])
+})()
+
+/**
+ * The width this node fixes for itself, in px, or `null` where nothing does.
+ *
+ * ⭐ THE CSS BOX MODEL AND NOT AN OPINION OF THIS FILE'S: a box has a fixed
+ * extent on an axis when `width`, `min-width` or its `flex-basis` gives it one.
+ */
+function fixedWidthPx(element: FakeElement): number | null {
+  const declared = styleMap(element)
+  const candidates = [
+    declared.get('width'),
+    declared.get('min-width'),
+    flexBasisOf(element),
+    declared.get('flex-basis'),
+  ]
+  for (const one of candidates) {
+    const found = /^(\d+(?:\.\d+)?)px$/i.exec((one ?? '').trim())
+    if (found !== null) return Number(found[1])
+  }
+  return null
+}
+
+/**
+ * The children of a row that answer GR-20's description: `S-138` wide, and
+ * carrying no entry of 表 T-109.
+ */
+const stripsOf = (row: FakeElement): FakeElement[] =>
+  row.children.filter(
+    (one) => !one.hasAttribute('data-icon') && fixedWidthPx(one) === S_138_STRIP_WIDTH,
+  )
+
+/** One ordinary row and one pinned row, drawn in the same panel. */
+const PANEL_WITH_A_PIN = (): ScreenView =>
+  viewWith({
+    rowTitlePanel: {
+      pinnedTitles: [
+        rowTitle({
+          groupId: 'g-pinned',
+          isPinned: true,
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
+        }),
+      ],
+      titles: [
+        rowTitle({
+          groupId: 'g-free',
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
+        }),
+      ],
+    },
+  })
+
+const rowWithGroupId = (built: Stage, groupId: string): FakeElement => {
+  const found = rowsOf(built).find((one) => one.getAttribute('data-group-id') === groupId)
+  if (found === undefined) throw new Error(`the panel drew no row ${groupId}`)
+  return found
+}
+
+describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138）', () => {
+  it.each(DEPTHS)(
+    '⭐ GIVEN an ordinary row at depth %i WHEN it is read THEN it carries ONE strip of S-138 and that strip is the FIRST thing in the row (GR-20 「行の左端に敷く掴み代」)',
+    (depth) => {
+      const built = drawn(rowNamed('RowOne', depth))
+      const row = theRowOf(built)
+      const strips = stripsOf(row)
+
+      expect(
+        strips.length,
+        `GR-20's strip is not on the row, or there is more than one of it: ${serialize(row)}`,
+      ).toBe(1)
+      // 「行の左端に敷く」 -- the LEFT edge of the row, so nothing of the row
+      // stands before it. ⚠️ The depth cases are here because FR-085 indents a
+      // deep row: an indent that pushed the strip in would put the grab
+      // somewhere different on every row, which is the complaint HF-4 was
+      // written about one axis over.
+      expect(
+        row.children.indexOf(strips[0] as FakeElement),
+        `the strip does not lie along the row's left edge: ${serialize(row)}`,
+      ).toBe(0)
+    },
+  )
+
+  it('⭐ GIVEN a row drawn at depth 1 and the same row at the deepest S-125 allows WHEN the two strips are compared THEN not one declaration differs (GR-20 gives the strip one width and no other)', () => {
+    const shallow = drawn(rowNamed('RowOne', 1))
+    const deep = drawn(rowNamed('RowOne', DEPTHS[DEPTHS.length - 1] ?? 1))
+
+    const one = stripsOf(theRowOf(shallow))[0]
+    const other = stripsOf(theRowOf(deep))[0]
+    expect(one, 'the shallow row has no strip').toBeDefined()
+    expect(other, 'the deep row has no strip').toBeDefined()
+    expect(
+      differingProperties(one as FakeElement, other as FakeElement),
+      'the depth reached the grab strip',
+    ).toEqual([])
+  })
+
+  it('⛔ MUST NOT GIVEN a PINNED row WHEN it is read THEN it carries NO strip at all (GR-20: ピン止めしている行は掴めないこと)', () => {
+    // ⚠️ 「実測で、留めた行を引くと画面は 1px も動かないまま親を 2 つまたいだ」.
+    const built = drawn(PANEL_WITH_A_PIN())
+
+    expect(
+      stripsOf(rowWithGroupId(built, 'g-free')).length,
+      'the premise fails: the ordinary row beside the pinned one has no strip either',
+    ).toBe(1)
+    expect(
+      stripsOf(rowWithGroupId(built, 'g-pinned')).length,
+      `a pinned row was given a grab strip: ${serialize(rowWithGroupId(built, 'g-pinned'))}`,
+    ).toBe(0)
+  })
+
+  it('GIVEN the specification is re-read WHEN GR-20 is looked up THEN it still lays the strip on the left edge at S-138 and still refuses a pinned row (Chapter 1.9)', () => {
+    const gr20 = specTable('T-023d').rows.find((one) => one.id === 'GR-20')
+    expect(gr20, '表 T-023d no longer holds GR-20').toBeDefined()
+    const says = (gr20?.cells ?? []).join(' ')
+    expect(says).toContain('行の左端に敷く掴み代')
+    expect(says).toContain('`S-138`')
+    expect(says).toContain('ピン止めしている行は掴めないこと（MUST NOT）')
+    expect(says).toContain('掴めば行を動かす')
+    expect(S_138_STRIP_WIDTH, 'S-138 no longer states a width').toBeGreaterThan(0)
+  })
+})

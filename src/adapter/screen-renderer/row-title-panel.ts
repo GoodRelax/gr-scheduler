@@ -541,8 +541,26 @@ function rowTitleOf(
   index: PanelIndex,
   settings: DocumentSettings,
   chosenGroupIds: ReadonlySet<string>,
+  heldAtDepth: number | null,
+  heldAtY: number | null,
 ): RowTitle {
-  const depth = rowDepth(group, index.groupsById, settings)
+  // HF-15 of table T-051 (MUST): 「握っているあいだ、行をポインタに追従させる
+  // こと」, and the step of that follow is 「段送りの刻みは 表 T-201 の `S-37` と
+  // 同じとすること（MUST）」 -- which is the very product this unit indents by.
+  //
+  // ⭐⭐ THE DEPTH IS DRAWN AND NOT WRITTEN. Table T-023d (MUST NOT) forbids the
+  // document to be written while the strip is held -- 「追従は絵であって編集では
+  // ない」 -- so `TaskGroup.parentId` still says where the row IS, and this says
+  // where the hand has carried it. The write follows the release (CM-73).
+  // ⛔ NOT A SECOND SOURCE OF THE STEP. Nothing here holds a number: the depth
+  // arrives on `ScreenSession.rowGrabbedAt` and is multiplied by
+  // `rowTitleIndent` exactly as the row's own depth is, so the row moves one
+  // `S-37` per level and the drift HF-15 measured is 0.
+  // ⚠️ THE NAME IS CUT AT THE DEPTH IT IS DRAWN AT, which follows from FR-085
+  // rather than being chosen here: that requirement subtracts 「その行の深さぶん
+  // のインデント」 before cutting, and while the row is held the depth it is
+  // drawn at is that depth.
+  const depth = heldAtDepth ?? rowDepth(group, index.groupsById, settings)
   // ⚠️ Resolved once because two answers below need it, and a row whose name is
   // `null` still owes it: the width a name is judged against follows the size
   // the name WOULD be drawn at, not anything the name itself carries.
@@ -556,7 +574,21 @@ function rowTitleOf(
   return {
     groupId: group.id,
     depth,
-    box,
+    // HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」, read on
+    // the axis that changes the row's PLACE -- so the row is drawn at the edge
+    // of the place the hand stands at (「その段に置ける場所を描く順にたどる」).
+    //
+    // ⛔⛔ DRAWN AND NOT WRITTEN, which table T-023d states as a MUST NOT:
+    // 「掴んでいるあいだ値を文書へ書いてはならない —— 追従は絵であって編集では
+    // ない」. `TaskGroup.order` still says where the row IS; this says where the
+    // hand has carried it, and the release settles CM-73.
+    // ⚠️ THE OTHER ROWS DO NOT MOVE OUT OF ITS WAY. No row opens a gap for a
+    // held row and none draws a mark for the place -- table T-103 gives no part
+    // and table T-109 no entrance -- so nothing of the sort is invented here.
+    // ⛔ `null` IS NOT ZERO: zero is the top of the `Row Area`, and `null` is a
+    // grab on the depth axis, which 「段を変えてはならない」 read the other way
+    // round leaves standing where the layout put it.
+    box: heldAtY === null ? box : { ...box, y: heldAtY },
     // The very product `availableLabelWidthPx` subtracts, so the indent drawn
     // and the indent the name was cut against cannot be two numbers.
     indentPx: depth * settings.rowTitleIndent,
@@ -782,12 +814,25 @@ export function rowTitlePanelFromSchedule(
   // Built once for the whole panel rather than per row -- see `isSelected`.
   const chosenGroupIds: ReadonlySet<string> = new Set(session.selectedGroupIds)
 
+  // HF-15's follow, or `null` while no row is held. ⛔ ONE ROW AT MOST: a
+  // gesture is one press (CS-2 of table T-066), and `ScreenSession.rowGrabbedAt`
+  // carries that one.
+  // ⛔ NEVER READ FOR A PINNED ROW, and nothing here has to test for it: GR-20
+  // (MUST NOT) has the drawing side lay no strip on one, so no pinned row can be
+  // held in the first place.
+  const heldGroupId = session.rowGrabbedAt?.groupId ?? null
+  const heldAtDepth = session.rowGrabbedAt?.depth ?? null
+  const heldAtY = session.rowGrabbedAt?.atY ?? null
+  const heldDepthOf = (groupId: string): number | null =>
+    groupId === heldGroupId ? heldAtDepth : null
+  const heldYOf = (groupId: string): number | null => (groupId === heldGroupId ? heldAtY : null)
+
   const pinnedTitles: RowTitle[] = []
   for (const groupId of pinnedGroupIds) {
     const group = index.groupsById.get(groupId)
     const box = index.boxByGroupId.get(groupId)
     if (group === undefined || box === undefined) continue
-    pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds))
+    pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds, null, null))
   }
 
   const describedGroupIds = new Set(pinnedGroupIds)
@@ -797,7 +842,18 @@ export function rowTitlePanelFromSchedule(
     const group = index.groupsById.get(placed.groupId)
     if (group === undefined) continue
     describedGroupIds.add(placed.groupId)
-    titles.push(rowTitleOf(group, placed.box, false, index, settings, chosenGroupIds))
+    titles.push(
+      rowTitleOf(
+        group,
+        placed.box,
+        false,
+        index,
+        settings,
+        chosenGroupIds,
+        heldDepthOf(group.id),
+        heldYOf(group.id),
+      ),
+    )
   }
 
   // ⛔⛔ NOTHING IS CLAIMED ABOUT THE TWO PANEL-WIDE ENTRANCES WHERE THIS PANEL

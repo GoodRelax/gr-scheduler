@@ -1843,6 +1843,27 @@ const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground'
 const NEW_ROW_NAME_MARK = 'data-new-row-under'
 
 /**
+ * What marks the grab strip GR-20 of table T-023d lays along a row's left edge.
+ *
+ * ⛔ NOT A `data-icon`, AND THAT IS MEASURED RATHER THAN CHOSEN. Table T-109
+ * holds no row for a grab strip -- it is no entrance, it carries no shape of
+ * figure F-019, and nothing about it is pressed -- so writing one here would
+ * answer `readScreenPartAt` with a row of that table that does not exist. ⭐ The
+ * exact precedent is `data-panel`: U-24 `Panel Divider` is not in table T-109
+ * either, and the band FR-052's drag is taken on is marked and read back the
+ * same way. ⚠️ `ScreenPart.isRowGrabStrip` is the member this arrives on.
+ *
+ * ⛔ NOT A `data-role` EITHER. Table T-103 gives U-47 to the expander and U-48
+ * to the pin and holds no part for a strip, and U-23 (MUST) has the panel name
+ * an operation drawn on it -- so the walk takes the role from the row's panel,
+ * exactly as it does for IC-91 and IC-82.
+ * ⛔ AND NOT `data-group-id`. The row this strip sits in already carries the
+ * key, and the walk takes the innermost one on its way up -- a copy here would
+ * state one row's key in two places.
+ */
+const ROW_GRAB_STRIP_MARK = 'data-row-grab'
+
+/**
  * How HF-14's name field is drawn: on the grid the rows are drawn on, set in one
  * step deeper than its parent, and taking the ordinary ink of the panel.
  *
@@ -2630,6 +2651,51 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
 }
 
 /**
+ * How the grab strip GR-20 of table T-023d is laid: 「行の左端に敷く掴み代」,
+ * `S-138` wide, over the whole height of the row.
+ *
+ * ⭐ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason
+ * `rowControlGroundStyle` above is one: the width is `S-138`, which arrives in
+ * the generated block at the foot of this file, and a `STYLE` member would read
+ * that constant while the module was still evaluating.
+ *
+ * ⭐ THE WHOLE HEIGHT OF THE ROW AND NOT THE HEIGHT OF A GLYPH BOX. GR-20 says
+ * the strip is laid 「行の左端に」 and gives a WIDTH alone -- so the other axis
+ * is the row's, which `top:0;bottom:0` is. ⛔ Taking `S-138` on both axes would
+ * be a square in the row's corner, and a person dragging the lower half of a
+ * tall row (FR-042 lets a row be as tall as its lanes need) would miss it.
+ *
+ * ⛔ IT TAKES NO ROOM. Out of the flow, exactly as the controls and their ground
+ * are, so FR-085's cut of the name is not moved by a pixel and the indent
+ * `RowTitle.indentPx` states is the indent drawn. ⚠️ It therefore LIES OVER the
+ * first `S-138` of the name on a root row; that is what 「行の左端に敷く」 asks
+ * for, and table T-023d's preamble settles the collision in the strip's favour
+ * -- a press there is the strip's, and the name is not an entrance in any case.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the strip is PAINTED. GR-20
+ * states where it goes, how wide it is and what grabbing it does; table T-206
+ * states `S-138` and no colour; table T-109 has no row to draw a shape from and
+ * figure F-019 no glyph. Searched: GR-20 and the preamble of table T-023d,
+ * `HF-15` of table T-051, FR-029, FR-085, table T-076 (EP-3 / EP-4) and
+ * `_assets/tbl-settings.md`.
+ * ⭐ So it carries NO paint of its own -- the same answer GR-19's band and
+ * EP-9's divider band both get here -- and what says it can be grabbed is the
+ * environment's own cursor for 掴む. ⚠️ A tint would be a look that reads as
+ * measured, and none was measured.
+ * ⚠️ `cursor:grab` and not `move`: what the strip offers is being HELD, the
+ * distinction `paletteGrabBand` already draws.
+ *
+ * @purity pure
+ */
+function rowGrabStripStyle(): string {
+  const width = NOT_STORED_ICON_SIZES['S-138']
+  return (
+    'position:absolute;left:0;top:0;bottom:0;' +
+    `width:${width}px;background:transparent;cursor:grab;pointer-events:auto;`
+  )
+}
+
+/**
  * @purity non-pure
  */
 function rowControlElement(
@@ -2697,6 +2763,31 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // what raises it.
   row.setAttribute('data-truncated', String(title.isLabelTruncated))
   if (title.isSelected) row.setAttribute('aria-selected', 'true')
+
+  // GR-20 of table T-023d: 「行の左端に敷く掴み代」, which HF-15 of table T-051
+  // (MUST) has a person grab to move the row.
+  //
+  // ⛔⛔ NOT ON A PINNED ROW, AND THAT IS A MUST NOT. GR-20: 「ピン止めしている
+  // 行は掴めないこと（MUST NOT）」 -- FR-098 (MUST) lifts a pinned row out of the
+  // scrolling list and holds it at the head of the panel, so 「上げられた位置で
+  // 掴むと、木の順ではなく描く順を触ることになる」. ⭐ THE ONE TEST COVERS BOTH
+  // COPIES because there is only ever one: FR-098 (MUST NOT) forbids the same
+  // row to be drawn at its natural place as well, so a row whose `isPinned` is
+  // true is drawn in the band and nowhere else.
+  // ⛔ `isPinned` OF THE ROW AND NOT THE `isPinned` ARGUMENT. That argument says
+  // which LIST this element is being built for, and the row's own state is what
+  // GR-20 speaks of -- reading the argument would leave the strip on a pinned
+  // row that some later reading drew in the scrolling list.
+  // ⭐ THE REFUSAL IS THE DRAWING SIDE'S AND COULD BE NOWHERE ELSE. The pin is
+  // `ScreenSession`'s (S-126 of table T-203 keeps it out of the document), so
+  // the translator that answers the press cannot see it; drawing no strip is
+  // what makes the point unreachable, which is what 「掴めない」 says.
+  if (!title.isPinned) {
+    const grab = made(host, 'div', rowGrabStripStyle())
+    grab.setAttribute(ROW_GRAB_STRIP_MARK, 'true')
+    grab.setAttribute('aria-hidden', 'true')
+    row.append(grab)
+  }
 
   const label = made(host, 'span', STYLE.rowLabel)
   // ⛔ `null` is a row FR-058 leaves with no name at all -- a document that
@@ -5993,6 +6084,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let panel: string | null = null
     let part: string | null = null
     let dismissKey: string | null = null
+    // GR-20 of table T-023d. ⛔ A TRUTH VALUE AND NOT A KEY: the strip carries
+    // no `data-group-id` of its own, because the row it sits in already does
+    // and the walk takes the innermost one.
+    let onGrabStrip = false
     // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`,
     // `data-panel` and `data-notice`, and the OUTERMOST `data-role`: an entry
     // sits inside its part, and table T-109's surface column names the
@@ -6020,6 +6115,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // table T-109, because its entrance is a word (CR-259).
       const told = node.getAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE)
       if (told !== null && dismissKey === null) dismissKey = told
+      // GR-20 of table T-023d: the grab strip HF-15's drag is taken on. ⚠️ Read
+      // on this same walk and not by a second query, for the reason the note
+      // above gives -- a second query would ask a screen that had moved.
+      if (node.getAttribute(ROW_GRAB_STRIP_MARK) !== null) onGrabStrip = true
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -6045,6 +6144,17 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       rowGroupId: group,
       resourceUid: uid === null ? null : Number(uid),
       dividerPanel: panel === null ? null : (panel as ScreenPart['dividerPanel']),
+      // GR-20 of table T-023d.
+      // ⛔ NEVER TRUE ON A PINNED ROW, and nothing here has to test for that:
+      // GR-20 (MUST NOT) is kept by `rowTitleElement`, which draws no strip on
+      // one, so there is no marked element for this walk to find.
+      // ⚠️ THE KEY IS PUT ON THE ANSWER ONLY WHERE THE POINT IS ON A STRIP. The
+      // member is optional and its own declaration fixes absent as `false`, so
+      // the two spellings are one answer -- and a reader that compares whole
+      // answers is left unchanged for every point that is on no strip. ⛔ It is
+      // not a third state: nothing may read the absence as anything but "not on
+      // a strip".
+      ...(onGrabStrip ? { isRowGrabStrip: true } : {}),
       noticeDismissKey: dismissKey,
     }
   }

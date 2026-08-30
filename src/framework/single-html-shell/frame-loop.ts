@@ -1116,6 +1116,10 @@ type NoticeReason =
   | 'RS-33'
   | 'RS-34'
   | 'RS-35'
+  | 'RS-36'
+  | 'RS-37'
+  | 'RS-38'
+  | 'RS-39'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1162,6 +1166,10 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-33': 'NT-1',
   'RS-34': 'NT-1',
   'RS-35': 'NT-1',
+  'RS-36': 'NT-1',
+  'RS-37': 'NT-1',
+  'RS-38': 'NT-1',
+  'RS-39': 'NT-1',
 }
 
 /**
@@ -1326,6 +1334,13 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   noUnfoldedRowAtAll: 'RS-32',
   onlyOneOfPlanAndActualShown: 'RS-33',
   noTaskChosenToAlignWith: 'RS-34',
+  // HF-15 of table T-051, whose four refusals table T-233 gained on 2026-08-30.
+  // ⭐ The first three are the depth axis's and the fourth is the position
+  // axis's -- the ends of the walk of places 「その段に置ける場所を描く順に」.
+  noSiblingAboveToNestUnder: 'RS-36',
+  rowIsAtTheShallowestLevel: 'RS-37',
+  groupDepthLimitReached: 'RS-38',
+  noPlaceLeftInThatDirection: 'RS-39',
 }
 
 /**
@@ -1789,6 +1804,15 @@ interface SessionHeld {
   readonly taskUnderPointer: Task | null
   /** FR-053 -- where GR-19's drag left the palette, `null` while nobody has. */
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
+  /**
+   * HF-15 of table T-051 -- the row GR-20's strip is held by and the depth the
+   * picture draws it at, or `null` while no row is held.
+   */
+  readonly rowGrabbedAt: {
+    readonly groupId: string
+    readonly depth: number
+    readonly atY: number | null
+  } | null
   /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
   readonly isMilestoneListOpen: boolean
   /** S-200 of table T-206 -- whether FR-053's palette stands minimised. */
@@ -1858,6 +1882,7 @@ function sessionOf(
     iconUnderPointer,
     taskUnderPointer,
     commandPaletteDraggedTo,
+    rowGrabbedAt,
     isMilestoneListOpen,
     isPaletteMinimised,
     isRecordingInteractions,
@@ -1913,6 +1938,10 @@ function sessionOf(
     // same reason `notices` and `confirmation` below are handed in.
     // ⛔ `paletteCornerOf` carries what is missing and what is settled.
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
+    // HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」. ⭐ Handed
+    // on rather than decided here, for the reason the corner above is: it is a
+    // current value and LY-5 of table T-060 leaves those with the loop.
+    rowGrabbedAt,
     // FR-041 (MUST): the theme has to CROSS to the side that paints. S-72 is
     // the reader's light/dark and S-73 is the document's hue -- the number
     // table T-236 writes as `H` wherever a colour follows the theme.
@@ -2862,6 +2891,24 @@ export function frameLoop(
   // no row of table T-203 or table T-206 holds the corner itself
   // (`paletteCornerOf` says so), let alone where a drag began.
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
+  // HF-15 of table T-051 -- the row GR-20's strip is being held by, and the
+  // depth the picture draws it at, or `null` while no row is held.
+  //
+  // ⭐ THE PICTURE AND NOTHING ELSE. That row (MUST) has the held row follow the
+  // pointer, and table T-023d (MUST NOT) forbids the document to be written
+  // while it is held -- 「追従は絵であって編集ではない」 -- so this is a value the
+  // frame is DRAWN with and `writeDocument` never sees it. The write is CM-73
+  // and it is planned on the release (IN-1 of table T-028).
+  // ⛔ NOT A MEMBER OF ANYTHING SAVED, and it must not become one: no row of
+  // table T-203 or table T-206 holds it, and a grab does not outlive the hand.
+  // ⚠️ Dropped on the same three happenings a press is -- the release, IN-1a's
+  // lost pointer and IN-1's `Esc` -- because a picture kept past the gesture
+  // would draw a row at a depth nobody is holding it at.
+  let rowGrabbedAt: {
+    readonly groupId: string
+    readonly depth: number
+    readonly atY: number | null
+  } | null = null
   // S-142 of table T-206 -- whether FR-053's milestone glyph list is open.
   //
   // ⛔ STARTS CLOSED, which is that row's own default: FR-053 keeps the eight
@@ -3696,6 +3743,7 @@ export function frameLoop(
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
               : null,
           commandPaletteDraggedTo,
+          rowGrabbedAt,
           isMilestoneListOpen,
           isPaletteMinimised,
           isRecordingInteractions,
@@ -4146,6 +4194,14 @@ export function frameLoop(
           // explanation out of the picture in as many words.
           taskUnderPointer: null,
           commandPaletteDraggedTo: null,
+          // ⛔ NO ROW IS BEING HELD IN A PICTURE THAT IS BEING WRITTEN OUT, on
+          // the same ground the corner above is at none: EP-12 of table T-076
+          // keeps this session's state out of it, and a hand on GR-20's strip is
+          // as much this session's as a dragged palette is. ⚠️ EP-3 draws the
+          // panel of a DOCUMENT, so the row is written out at the depth
+          // `TaskGroup.parentId` puts it -- which is what it is, the follow
+          // being a picture and never a write (table T-023d, MUST NOT).
+          rowGrabbedAt: null,
           // ⚠️ Closed here whatever the reader left it at, for the reason the
           // corner above is at none: EP-12 of table T-076 keeps this session's
           // state out of the picture, and S-142 is as much this session's as the
@@ -4448,7 +4504,13 @@ export function frameLoop(
     // ⚠️ THE ONE PART OF THE PRESS CS-2 DOES NOT FREEZE, and that member says
     // why -- the other four are the moment of the press, this one is how far
     // the picture has been carried since.
-    return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y } }
+    // HF-15 (MUST) -- this shell REMEMBERS the axis, so the member that says so
+    // starts at 「まだ決まっていない」. ⭐ Its own note gives the rule: the axis
+    // is settled at the first travel past `S-208` and 「離すまで変わらない」, and
+    // no pure function reading two points could keep that promise.
+    // ⛔ FILLED FOR EVERY PRESS AND NOT ONLY THE STRIP'S, the reading
+    // `followedTo` above records: the member is a statement about the CALLER.
+    return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y }, rowGrabAxis: null }
   }
 
   /**
@@ -4658,6 +4720,11 @@ export function frameLoop(
    * @purity semi-pure-b
    */
   function collectInputContext(frame: FrameValues): InputContext {
+    // ⭐ THE CUT, MADE ONCE. Two members of the context are this array and its
+    // ids, and `ScreenSession.rowBoxes` is the same call again a few lines
+    // away -- CS-1 of table T-066 froze the frame, so one reading is what both
+    // members are owed (R7.4).
+    const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
     return {
       // ADR-001's three, computed once at the head of this frame and handed
       // out rather than measured again.
@@ -4705,7 +4772,18 @@ export function frameLoop(
       // `isPropertiesPanelShowing` above is -- the press side then falls back on
       // the roster, which is the wider arming it had before. ⭐ Only the tests
       // written from the specification watch this line.
-      drawnRowGroupIds: drawnRowBoxesOf(frame.layout, frame.regions).map((one) => one.groupId),
+      // ⭐ ONE CALL FOR BOTH MEMBERS, AND IT IS THE CALL THAT DREW THEM. Line
+      // for line the same expression fills `ScreenSession.rowBoxes`, which is
+      // where `RowTitle.box` comes from -- so the boxes HF-15's walk compares
+      // the pointer against are the boxes the person is looking at. ⛔ Asked
+      // twice, the two answers would be about two frames.
+      drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
+      // ⭐⭐ THE PICTURE'S GEOMETRY, which HF-15's up-and-down walk (MUST) needs
+      // and the ids alone cannot carry: 「その段に置ける場所を描く順にたどる」 is
+      // a rule about the ORDER of the places, and which place a hand stands at
+      // is read off these boxes rather than off any 刻み. ⛔ Optional and
+      // silently forgettable, the same bargain the line above keeps.
+      drawnRowBoxes,
       // table T-023's closing rule -- whether a surface stands over the schedule.
       // ⭐ BOTH HALVES, and the shell is the only place that can see both:
       // `ScreenState.surface` is the open surface and `asking` is NT-7's
@@ -5956,6 +6034,28 @@ export function frameLoop(
         }
         return
       }
+      case 'followRowGrab': {
+        // HF-15 of table T-051 (MUST): 「握っているあいだ、行をポインタに追従
+        // させること」, and 「軸を 1 本に固定すること ... 離すまで変わらないこと」.
+        //
+        // ⭐⭐ TWO THINGS ARE KEPT HERE AND NEITHER COULD BE KEPT ANYWHERE ELSE.
+        // The AXIS goes back onto the press, because UF-30 is `pure` and cannot
+        // remember which way the hand first went past `S-208` -- the party that
+        // APPLIED the answer is the party that knows, which is the same bargain
+        // `followedTo` strikes one case up. The DEPTH is held for the frame,
+        // because the panel draws a row at `depth x rowTitleIndent` and the
+        // follow is that product with a different depth in it.
+        // ⛔ NOTHING IS WRITTEN TO THE DOCUMENT, which table T-023d states as a
+        // MUST NOT: 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵で
+        // あって編集ではない」. `writeDocument` is not on this road at all, so no
+        // step of the undo history is pushed for a row that has not landed.
+        // ⚠️ THE AXIS IS WRITTEN EVERY TIME AND NOT ONLY THE FIRST, and that
+        // costs nothing: `rowGrabAxisAt` answers what already stands the moment
+        // it stands, so every answer after the first is the same value.
+        if (pressed !== null) pressed = { ...pressed, rowGrabAxis: action.axis }
+        rowGrabbedAt = { groupId: action.groupId, depth: action.atDepth, atY: action.atY }
+        return
+      }
       case 'chooseRow': {
         // FR-085 (MUST): a row of the `Row Title Panel` was chosen. ⭐ WRITTEN
         // HERE AND NOWHERE ELSE, the same road `moveCommandPalette` takes and
@@ -6481,6 +6581,11 @@ export function frameLoop(
     // a corner kept past the gesture would be spent by the NEXT `Esc`, which is
     // a level IN-4 of table T-028 does not give it.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') commandPaletteCornerAtPress = null
+    // HF-15's picture, dropped with the press it belongs to. ⭐ NOTHING IS PUT
+    // BACK, which is where it parts from the palette's corner above: the grab
+    // never wrote anything (table T-023d, MUST NOT), so an interrupted one has
+    // only a picture to drop and the row is already drawn where it stands.
+    if (hasEndedGesture(input) || escapeLevel === 'gesture') rowGrabbedAt = null
 
     // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself, and
     // FR-096's format beside them, both read off the press this release settled

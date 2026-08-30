@@ -1939,6 +1939,54 @@ export interface ScreenSession {
    */
   readonly isRecordingInteractions?: boolean
   /**
+   * The row GR-20's strip is being held by and the depth it is to be DRAWN at
+   * while held, or `null` while no row is held.
+   *
+   * ⭐ WHAT IT IS FOR, IN HF-15's OWN WORDS: 「握っているあいだ、行をポインタに
+   * 追従させること（MUST）。段送りの刻みは 表 T-201 の `S-37` と同じとすること
+   * （MUST）」. A row's place on that axis IS its depth, and the panel already
+   * draws a depth as `depth x rowTitleIndent` (`RowTitle.indentPx`) -- so the
+   * follow is this one number and the pixels are the ones the panel was
+   * indenting by all along.
+   * ⛔⛔ NOT A TRAVEL IN PIXELS, WHICH IS A MUST NOT: 「刻みを別に持ってはならない」
+   * -- measured wrong at 刻み 26px against 段送り 16px, where a 64px drag moved
+   * the row 22px and 「1 段ごとに離れていった」.
+   *
+   * ⛔ A PICTURE AND NEVER A WRITE. Table T-023d (MUST NOT): 「掴んでいるあいだ
+   * 値を文書へ書いてはならない ... 追従は絵であって編集ではない」, so this member
+   * is what a held row LOOKS like and `TaskGroup.parentId` is untouched until
+   * the release settles CM-73 (IN-1 of table T-028).
+   *
+   * ⭐ HELD BY THE SHELL, for the reason `commandPaletteAt` gives: it is a
+   * current value and LY-5 of table T-060 leaves those with the Framework. No
+   * row of table T-203 or T-206 keeps it, and none should -- the grab does not
+   * outlive the hand.
+   *
+   * ⚠️ OPTIONAL, and absent reads exactly as `null`: no row is held. A session
+   * assembled by a side that does not follow -- `exportScene`'s among them --
+   * has no held row to report, and EP-3 of table T-076 draws the panel of a
+   * document rather than of a gesture.
+   */
+  readonly rowGrabbedAt?: {
+    readonly groupId: string
+    readonly depth: number
+    /**
+     * Where the row is drawn while it is held on the position axis -- the top
+     * of the place the hand stands at -- or `null` while the grab is the depth
+     * axis's and the row keeps the y the layout gave it.
+     *
+     * ⭐ A PLACE'S OWN EDGE. HF-15 (MUST) has up and down 「その段に置ける
+     * 場所を描く順にたどる」, so the row follows the hand ONTO a place; drawn at
+     * that place's edge, the picture says where it lands.
+     * ⛔ NOT A GAP OPENED FOR IT, AND NOT A MARK BESIDE IT. No row of table
+     * T-103 gives a part for a place-to-land and no row of table T-109 an
+     * entrance, so nothing of the sort is invented -- the held row is simply
+     * drawn there. Searched: HF-15, GR-20 and the preamble of table T-023d,
+     * FR-085, FR-029, tables T-103, T-109 and T-221.
+     */
+    readonly atY: number | null
+  } | null
+  /**
    * Which of `dualCursor`'s two dates (S-65) is following the pointer, or
    * `null` while table T-029a's mode is not up.
    *

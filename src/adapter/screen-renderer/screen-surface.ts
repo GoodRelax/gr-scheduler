@@ -172,6 +172,46 @@ export interface ScreenPart {
    */
   readonly dividerPanel: PanelDivider['panel'] | null
   /**
+   * Whether the point is on the grab strip GR-20 of table T-023d lays along a
+   * row's left edge -- the strip HF-15's drag is taken on.
+   *
+   * ⛔ WITHOUT IT, HF-15's DRAG HAS NO ROAD IN, which is exactly the absence
+   * `dividerPanel` above records for FR-052. GR-20 has no row of table T-109 --
+   * that table holds no entrance for a grab strip -- so `entry` is `null` on it,
+   * and a press on the strip would otherwise fall through as "on a row, on no
+   * entry", which is FR-085's choosing of that row. ⇒ The row would be selected
+   * and never moved.
+   *
+   * ⭐ A MEMBER OF ITS OWN AND NOT A SPELLING OF `entry`, for the reason
+   * `format`, `rowGroupId` and `dividerPanel` all give: these are different
+   * questions about one point, and one member carrying two of them leaves the
+   * reading side unable to say which it was handed.
+   *
+   * ⭐ A TRUTH VALUE AND NOT A KEY, WHICH IS WHERE IT PARTS FROM `dividerPanel`.
+   * That member has to say WHICH band because `setPanelWidths` takes both widths
+   * at once; this one has nothing left to say -- `rowGroupId` already answers
+   * WHICH row the strip belongs to, and a copy of the key here would state one
+   * row's key in two places.
+   *
+   * ⛔ `false` ON A PINNED ROW, AND THAT IS A MUST NOT RATHER THAN AN OMISSION.
+   * GR-20: 「ピン止めしている行は掴めないこと（MUST NOT）」 -- FR-098 lifts a
+   * pinned row to the head of the panel, so 「上げられた位置で掴むと、木の順では
+   * なく描く順を触ることになる」. The side that DREW the panel is the side that
+   * knows a row was lifted, so it draws no strip there and this answers `false`.
+   *
+   * ⚠️ `false` WHEREVER THE POINT IS NOT ON A STRIP, the row's own name and its
+   * controls included. It does not stand in for "this panel draws no rows".
+   *
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS `false`. It is declared optional so that
+   * the `ScreenPart` literals already written go on compiling; a description
+   * that does not carry it comes from a side that has not been taught to answer
+   * yet, and the reading side treats that as "not on a strip". ⭐ THAT IS THE
+   * SAFE DIRECTION and not merely the convenient one: a missing answer costs a
+   * drag HF-15 would have allowed, and the press still chooses the row (FR-085),
+   * where a wrongly TRUE answer would move a row nobody grabbed.
+   */
+  readonly isRowGrabStrip?: boolean
+  /**
    * The telling a press would put away -- `Notice.dismissKey` -- or `null`
    * where the point is on no such entrance.
    *
