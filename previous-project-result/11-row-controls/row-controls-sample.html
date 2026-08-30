@@ -1,0 +1,730 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<title>行の操作子 —— 実働サンプル</title>
+<style>
+:root{--bg:#fff;--ink:#16181d;--quiet:#5b6572;--rule:#d9dde2;--panel:#f6f7f9;
+      --pin:hsl(214 59% 32%);--warn:#a3253c;--ok:#1f7a3d;--noteBg:#fffaf0;--note:#8a6d1f}
+@media(prefers-color-scheme:dark){:root{--bg:hsl(214 12% 9%);--ink:#e6e9ee;--quiet:#98a2b0;
+  --rule:#343a42;--panel:hsl(214 12% 14%);--pin:hsl(214 62% 68%);--warn:#f08a9e;--ok:#6fc98d;
+  --noteBg:hsl(45 18% 14%);--note:#e0c46a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);padding:26px 32px 80px;
+     font:15px/1.7 "Segoe UI","Yu Gothic UI",system-ui,sans-serif}
+h1{font-size:24px;margin:0 0 4px}
+.sub{color:var(--quiet);font-size:13.5px;margin:0 0 14px}
+.wrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.opts{border:1px solid var(--rule);border-radius:7px;padding:12px 15px;width:300px;background:var(--panel);flex:none}
+.opt{margin:0 0 13px}
+.opt b{display:block;font-size:13.5px;margin-bottom:3px}
+.opt label{display:block;font-size:13.5px;line-height:1.8;cursor:pointer}
+.opt input{margin-right:6px}
+.opt .why{color:var(--quiet);font-size:12.5px;display:block;margin-left:20px;line-height:1.5}
+.col{flex:none;width:344px}
+.panel{border:1px solid var(--rule);border-radius:7px;overflow:hidden;background:var(--bg);user-select:none}
+.phead{display:flex;align-items:center;gap:3px;padding:5px 6px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.phead .lbl{flex:1;font-size:12px;color:var(--quiet)}
+.rows{position:relative}
+.row{position:relative;display:flex;align-items:center;height:34px;
+     border-bottom:1px solid var(--rule);padding-right:5px}
+.row.pinnedTop{background:color-mix(in srgb,var(--pin) 9%,transparent)}
+.row.holds{box-shadow:inset 3px 0 0 0 color-mix(in srgb,var(--note) 70%,transparent)}
+.row .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}
+.row .cnt{font-size:11px;color:var(--note);margin-right:6px;white-space:nowrap}
+.row .ctl{position:absolute;right:5px;top:5px;display:none;gap:2px;background:var(--panel);border-radius:3px;padding:0 2px}
+.row:hover .ctl{display:flex}
+.row .rest{position:absolute;right:7px;top:5px;display:flex;gap:2px}
+.row:hover .rest{visibility:hidden}
+.row.dragging{background:color-mix(in srgb,var(--pin) 12%,transparent)}
+/* ⭐ WHICH AXIS IS LIVE HAS TO BE DRAWN. Without it a sideways pull that cannot
+   act looks like a broken control -- the D-146..D-150 complaint exactly. */
+.row.axisV{box-shadow:inset 3px 0 0 0 var(--pin), inset -3px 0 0 0 var(--pin)}
+.row.axisH{box-shadow:inset 0 3px 0 0 var(--ok), inset 0 -3px 0 0 var(--ok)}
+.row.dragging .grip{cursor:grabbing;color:var(--pin)}
+.e{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
+   border:none;background:transparent;color:var(--ink);cursor:pointer;border-radius:4px;padding:0}
+.e:hover{background:color-mix(in srgb,var(--ink) 9%,transparent)}
+.e.faint{color:var(--rule);cursor:default}
+.e.faint:hover{background:transparent}
+.e.fill{background:var(--pin);color:var(--bg)}
+.e.fill:hover{background:var(--pin)}
+.grip{width:12px;flex:none;color:var(--rule);cursor:grab;font-size:11px;text-align:center;
+      touch-action:none;user-select:none}
+.newname{flex:1;font:inherit;font-size:14.5px;background:var(--bg);color:var(--ink);
+         border:1px solid var(--pin);border-radius:3px;padding:1px 5px;min-width:0}
+.meter{font-size:12.5px;color:var(--quiet);margin:7px 2px 0;line-height:1.6}
+.meter b{color:var(--ink)} .meter .over{color:var(--warn);font-weight:700}
+.log{border:1px solid var(--rule);border-radius:7px;padding:10px 13px;width:350px;background:var(--panel);
+     font-size:12.5px;line-height:1.55;max-height:470px;overflow:auto;flex:none}
+.log div{border-bottom:1px dotted var(--rule);padding:3px 0}
+.log .k{color:var(--pin);font-weight:600}
+.note{background:var(--noteBg);border-left:4px solid var(--note);padding:11px 15px;margin:14px 0;font-size:14px}
+code{background:var(--panel);padding:1px 5px;border-radius:3px;font-size:12.5px}
+button.plain{font:inherit;font-size:13px;padding:3px 10px;border:1px solid var(--rule);
+             border-radius:5px;background:var(--bg);color:var(--ink);cursor:pointer}
+</style></head><body>
+
+<h1>行の操作子 —— 実働サンプル</h1>
+<p class="sub">⭐ <b>1 本の <code>∨</code> を足しました。梯子が 2 × 2 の格子になります。</b><br>
+黄色い縦線と <code>▾ N</code> が「畳み込みを抱えている行」の目印です。左の設定で 2 本の置き方を切り替えられます。</p>
+
+<table style="border-collapse:collapse;font-size:14px;margin:0 0 16px">
+<tr><th style="border:1px solid var(--rule);padding:6px 12px;background:var(--panel)"></th>
+    <th style="border:1px solid var(--rule);padding:6px 12px;background:var(--panel)">1 歩（1 本）</th>
+    <th style="border:1px solid var(--rule);padding:6px 12px;background:var(--panel)">全部（2 本）</th></tr>
+<tr><th style="border:1px solid var(--rule);padding:6px 12px;background:var(--panel);text-align:left">畳む <code>∧</code></th>
+    <td style="border:1px solid var(--rule);padding:6px 12px"><b>この行を隠す</b><br><span class="sub">親へ 1 歩畳み込む（<code>HR-6</code>）</span></td>
+    <td style="border:1px solid var(--rule);padding:6px 12px"><b>配下をすべて畳む</b><br><span class="sub"><code>HR-4</code></span></td></tr>
+<tr><th style="border:1px solid var(--rule);padding:6px 12px;background:var(--panel);text-align:left">開く <code>∨</code></th>
+    <td style="border:1px solid var(--rule);padding:6px 12px"><b>配下を 1 階層開く</b><br><span class="sub">⭐ 今回足したもの。孫は畳まったまま</span></td>
+    <td style="border:1px solid var(--rule);padding:6px 12px"><b>配下をすべて開く</b><br><span class="sub"><code>HR-3</code>。畳み込みも戻す</span></td></tr>
+</table>
+
+<div class="wrap">
+  <div class="opts">
+    <div class="opt"><b>畳み込みの見せ方</b>
+      <label><input type="checkbox" id="showCount" checked> 抱えている件数を行に出す
+        <span class="why">⛔ 外すと、隠した行がどこへ行ったか読めなくなります。お試しください</span></label>
+    </div>
+    <div class="opt"><b>⛔ 頭の <code>∧∧</code> は L1 も畳むか</b>
+      <label><input type="radio" name="headfold" value="same" checked> L1 も畳む（各行と同じロジック）
+        <span class="why">⭐ 頭が本当に L0 になる。パネルは空になり、頭の <code>∨</code> で L1 が戻る</span></label>
+      <label><input type="radio" name="headfold" value="keep"> L1 は残す（いまの <code>HR-2</code>）
+        <span class="why">⛔ 頭だけ 1 階層ずれる。押したあと頭の <code>∨</code> が薄いままになります</span></label>
+    </div>
+    <div class="opt"><b>2 本（配下すべて）の置き方</b>
+      <label><input type="radio" name="two" value="split" checked> <code>∧∧</code> と <code>∨∨</code> を分けて 2 つ置く
+        <span class="why">1 歩と全部が <b>2 × 2 の格子</b>で読める。⛔ 操作子が 1 つ増える</span></label>
+      <label><input type="radio" name="two" value="toggle"> 1 つのトグルにする
+        <span class="why">押すたび畳む／開くが入れ替わる。⭐ 場所は節約できる</span></label>
+    </div>
+    <div class="opt"><b>図形</b>
+      <label><input type="radio" name="glyph" value="new" checked> 提案の 1 家族
+        <span class="why">向き＝動作、本数＝範囲。1 本＝自分／2 本＝配下</span></label>
+      <label><input type="radio" name="glyph" value="old"> いまの図形
+        <span class="why">&gt; と &lt; と ⌃⌃ と ∧∧ と ＋</span></label>
+    </div>
+    <div class="opt"><b>畳めない行の操作子</b>
+      <label><input type="radio" name="faint" value="draw" checked> 薄く描く</label>
+      <label><input type="radio" name="faint" value="hide"> 描かない
+        <span class="why">いまの実装。員数が行ごとに揺れる</span></label>
+    </div>
+    <div class="opt"><b>並べ替えの手（PD-400）</b>
+      <label><input type="radio" name="move" value="drag" checked> ドラッグ（軸を 1 本に固定）
+        <span class="why">左端の <code>⋮⋮</code> を掴む。<b>先に動いた向きで軸が決まり、離すまで変わりません。</b><br>
+        <b>上下</b>＝位置を変える（<b>親をまたぎます。段は変わりません</b>）／<b>左右</b>＝段を変える。<br>
+        どちらも<b>配下ごと</b>動きます</span></label>
+      <label><input type="radio" name="move" value="arrows"> ↑ ↓ を 2 つ足す
+        <span class="why">⛔ 下の占有を見てください。パネルに入りません</span></label>
+      <label><input type="radio" name="move" value="none"> 置かない</label>
+    </div>
+    <div class="opt"><b>足した行はどこへ（PD-399）</b>
+      <label><input type="radio" name="where" value="last" checked> 末子</label>
+      <label><input type="radio" name="where" value="first"> 長子</label>
+    </div>
+    <div class="opt"><b>足した行の名前（PD-399）</b>
+      <label><input type="radio" name="naming" value="ask" checked> 空で立てて打たせる
+        <span class="why">Enter で確定、Esc で取りやめ</span></label>
+      <label><input type="radio" name="naming" value="default"> 既定の名（「新しい行」）</label>
+    </div>
+    <div class="opt"><b>ピン止め</b>
+      <label><input type="checkbox" id="pinTop" checked> 留めた行を先頭へ上げる（<code>FR-098</code>）</label>
+    </div>
+    <button class="plain" id="reset">はじめの状態へ戻す</button>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <div class="phead" id="phead"></div>
+      <div class="rows" id="rows"></div>
+    </div>
+    <div class="meter" id="meter"></div>
+    <div class="meter" style="margin-top:12px"><b>内部の状態</b>（<code>●</code>＝開いている／<code>✕</code>＝畳まれている）<br>
+      <span style="font-size:12px">⭐ <b>畳む操作は必ず配下ごと書き換えます</b> ——
+      畳まれた親の下に <code>●</code> が残らないことを、ここで確かめられます。</span>
+      <pre id="state" style="font:12px/1.5 Consolas,monospace;background:var(--panel);
+        border:1px solid var(--rule);border-radius:5px;padding:8px 10px;margin:6px 0 0;
+        white-space:pre;overflow:auto;max-height:260px"></pre></div>
+  </div>
+
+  <div class="log"><b>何が起きたか</b><div id="logbody"></div></div>
+</div>
+
+<div class="note"><b>⭐ 一本化して、消えたものと残るもの。</b><br>
+<b>消えた</b>: 目のアイコン（新設しかけたもの）／<code>U-29</code> <code>Hidden Group Tab</code>（戻す先が親の <code>∨∨</code> になったので、
+<b>読む者が居なくなります</b> —— 今日 <code>S-185</code> を廃止したのと同じ形です）。<br>
+<b>1 つになった</b>: <code>HR-3</code>（配下を全部開く）／<code>HR-4</code>（配下を全部畳む）は <b><code>∧∧</code> <code>∨∨</code> の 1 つのトグル</b>へ。
+<code>HR-6</code>（非表示）は <b>1 本の <code>∧</code></b> へ。<br>
+⛔ <b>失うものが 1 つあります —— <code>HR-5</code>「この行自身を畳む」の一押しです。</b>
+1 本の <code>∧</code> が「隠す」になったので、<b>「自分は残して子だけ畳む」を一押しで行う手が無くなります</b>
+（子を 1 つずつ <code>∧</code> で隠せば同じ絵にはなります）。<b>これでよいか、裁定をお願いします。</b></div>
+
+<div class="note"><b>⛔ もう 1 つ、仕様の側で決めていただく必要が出ます。</b><br>
+<code>HR-6</code>（非表示）は「<b>隠した状態を文書に保存すること（MUST）</b>」と定め、
+<code>HR-1a</code>（畳み）は画面の使い方であって文書の中身ではありません。
+⇒ <b>2 つを 1 つの操作にすると、「この状態は保存するのかしないのか」を 1 つに決めることになります。</b><br>
+⭐ 保存する側に寄せると、書き出して読み直しても畳みが再現します（<code>WY-1</code>）。
+⛔ 保存しない側に寄せると、<code>HR-6</code> の MUST が落ちます。</div>
+
+<script>
+const P=(d)=>'<path d="'+d+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+const BOX='<rect x="4" y="4" width="16" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>'
+const SVG=(i)=>'<svg width="16" height="16" viewBox="0.8 1.5 22.2 21" aria-hidden="true">'+i+'</svg>'
+const NEW={
+  selfUp:   SVG(P('M5.5 15.5 L12 9 L18.5 15.5')),
+  selfDown: SVG(P('M5.5 9 L12 15.5 L18.5 9')),
+  subUp:    SVG(P('M5.5 12.5 L12 6 L18.5 12.5')+P('M5.5 19 L12 12.5 L18.5 19')),
+  subDown:  SVG(P('M5.5 6 L12 12.5 L18.5 6')+P('M5.5 12.5 L12 19 L18.5 12.5')),
+}
+// ⚠️ THE SHIPPED FAMILY HAS NO SHAPE FOR 「開くを 1 階層」 -- that operation does
+// not exist today -- so `selfDown` borrows IC-58 and is MARKED as borrowed. ⛔ It
+// used to be byte-identical to `subDown`, which drew two different controls with
+// one picture and misrepresented the very confusion this option exists to show.
+const OLD={
+  selfUp:   SVG(P('M5.5 12.5 L12 6 L18.5 12.5')+P('M5.5 19 L12 12.5 L18.5 19')),   // IC-59
+  selfDown: SVG(P('M9 4.5 L16.5 12 L9 19.5')+P('M4 6 V18')),                        // IC-58 + a bar: no such icon
+  subUp:    SVG(P('M15 4.5 L7.5 12 L15 19.5')),                                     // IC-77
+  subDown:  SVG(P('M9 4.5 L16.5 12 L9 19.5')),                                      // IC-58
+  headUp:   SVG(P('M3.5 16.5 L7.5 9.5 L11.5 16.5')+P('M12.5 16.5 L16.5 9.5 L20.5 16.5')), // IC-78
+  headDown: SVG(P('M4 12 H20')+P('M12 4 V20')),                                     // IC-74
+}
+const FIX={
+  add: SVG(BOX+P('M12 8.5 V15.5')+P('M8.5 12 H15.5')),
+  del: SVG(BOX+P('M9 9 L15 15')+P('M15 9 L9 15')),
+  pin: SVG(P('M8.5 4 H15.5')+P('M10 4 V10.5 L7.5 14 H16.5 L14 10.5 V4')+P('M12 14 V20.5')),
+  up:  SVG(P('M12 19 V6')+P('M6.5 11.5 L12 6 L17.5 11.5')),
+  down:SVG(P('M12 5 V18')+P('M6.5 12.5 L12 18 L17.5 12.5')),
+}
+const fam=()=>document.querySelector('input[name=glyph]:checked').value==='new'?NEW:OLD
+const opt=(n)=>document.querySelector('input[name='+n+']:checked').value
+
+let nextId=1
+// ⭐ ONE state per row: `folded` -- this row is folded into its parent and not drawn.
+//    There is no separate `collapsed` any more. That IS the simplification.
+const node=(name,kids)=>({id:'g'+(nextId++),name,kids:kids||[],folded:false,pinned:false})
+const seed=()=>{nextId=1;return[
+  node('Whole Product',[node('Phase Bars'),node('Phase Gates')]),
+  node('Mobile Client',[node('Phone App',[node('Phone Sign In'),node('Phone Home Screen')]),node('Tablet App')]),
+  node('Back Office',[node('Billing'),node('Reporting')]),
+]}
+let tree=seed()
+const walk=(l,fn,d,p)=>l.forEach((n,i)=>{fn(n,d||0,p||null,l,i);walk(n.kids,fn,(d||0)+1,n)})
+const findParent=(id)=>{let h=null;walk(tree,(n,d,p,l,i)=>{if(n.id===id)h={node:n,list:l,index:i,parent:p,depth:d}});return h}
+const hasKids=(n)=>n.kids.length>0
+const inside=(h,id)=>h.kids.some(k=>k.id===id||inside(k,id))
+// how many rows are folded away underneath (directly or deeper)
+const foldedBelow=(n)=>n.kids.reduce((s,k)=>s+(k.folded?1+countAll(k):foldedBelow(k)),0)
+const countAll=(n)=>n.kids.reduce((s,k)=>s+1+countAll(k),0)
+const foldedBelowList=(l)=>l.reduce((s,k)=>s+(k.folded?1+countAll(k):foldedBelow(k)),0)
+// anything left to fold below? (a drawn descendant that itself has drawn children)
+const canFold=(l)=>l.some(k=>!k.folded)
+// ⭐ ONE STEP DOWN: only the direct children come back; grandchildren stay folded.
+const canOpenOne=(l)=>l.some(k=>k.folded)
+const openOne=(l)=>l.forEach(k=>{k.folded=false})
+// ⭐ WHAT THE HEAD'S ∧∧ DOES. `same` treats L0 exactly as a row treats itself --
+// every descendant folds, L1 included -- so the head's ∨ then has something to
+// open, the way a row's does. `keep` is the old, one-level-off behaviour.
+const headFold=()=>opt('headfold')==='same'
+  ? foldChildren(tree)
+  : tree.forEach(k=>foldChildren(k.kids))
+// ⛔ EVERY DESCENDANT, NOT JUST THE DIRECT CHILDREN. Measured 2026-08-30: folding
+// only one level made 「配下を 1 階層開く」 reveal the grandchildren as well,
+// because they had never been folded -- they were merely invisible under a
+// folded parent. The two controls only read as a ladder if 「すべて畳む」 really
+// does mean every level.
+const foldChildren=(l)=>l.forEach(k=>{k.folded=true;foldChildren(k.kids)})
+const unfoldAll=(l)=>l.forEach(k=>{k.folded=false;unfoldAll(k.kids)})
+
+const logEl=document.getElementById('logbody');let logN=0
+function say(w,d){logN++;const e=document.createElement('div')
+  e.innerHTML='<span class="k">'+logN+'.</span> '+w+(d?' <span style="color:var(--quiet)">— '+d+'</span>':'');logEl.prepend(e)}
+
+// ⛔ A ROW'S NAME IS TEXT. `draw()` builds markup by concatenation, so a name
+// typed as `<b>x</b>` was parsed as markup rather than shown.
+const esc=(t)=>String(t).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+const btn=(g,tip,faint,cls,act,id)=>'<button class="e '+(faint?'faint ':'')+(cls||'')+'" title="'+tip+'"'
+  // ⚠️ `aria-disabled` AND NOT `disabled`, so the press still reaches the
+  // handler and the reason can be told (FR-029 MUST NOT). ⛔ But a dead control
+  // is taken out of the tab order, or a keyboard reaches every one of them.
+  +(faint?' aria-disabled="true" tabindex="-1"':'')+(act?' data-act="'+act+'"':'')+(id?' data-id="'+id+'"':'')+'>'+g+'</button>'
+
+let editing=null
+
+function draw(){
+  const G=fam(), showFaint=opt('faint')==='draw', move=opt('move')
+  const pinTop=document.getElementById('pinTop').checked
+  const withCount=document.getElementById('showCount').checked
+
+  // ---- panel head = L0 : the same pair a row carries, plus [+] -----------
+  const rootHolds=foldedBelowList(tree)
+  // ⛔ THE HEAD IS L0, SO IT MUST READ ITS OWN CHILDREN THE WAY A ROW READS ITS
+  // OWN. `keep` is the old behaviour kept only so the two can be compared: it
+  // folds the GRANDCHILDREN of L0 and leaves L1 standing, which is one level
+  // off from what a row's ∧∧ does -- and that is why the head's ∨ then sits
+  // faint with everything below it folded.
+  const headSame=opt('headfold')==='same'
+  const rootCanFold=headSame?canFold(tree):tree.some(k=>canFold(k.kids))
+  const headSplit=opt('two')==='split'
+  const headOne=canOpenOne(tree)
+  document.getElementById('phead').innerHTML=
+      '<span class="lbl">パネルの頭（＝ L0）'+(withCount&&rootHolds?' ・'+rootHolds+' 行を畳み込み中':'')+'</span>'
+    + btn(G.selfDown, headOne?'L1 を 1 階層開く':'開くものが無い',!headOne,'','headOne')
+    + (headSplit
+        ? btn(G.subUp,'すべての行を畳む',!rootCanFold,'','headFoldAll')
+          + btn(G.subDown,'すべての行を開く',!rootHolds,'','headOpenAll')
+        : btn(rootCanFold?G.subUp:G.subDown,
+              rootCanFold?'すべての行を畳む':'すべての行を開く（畳み込みも戻す）',
+              !rootHolds&&!rootCanFold,'','allToggle'))
+    + btn(FIX.add,'L1 の行を足す（L0 の配下）',false,'','addRoot')
+
+  // ---- rows ------------------------------------------------------------
+  const drawn=[]
+  const visit=(l,d)=>l.forEach(n=>{if(n.folded)return;drawn.push({n,depth:d});visit(n.kids,d+1)})
+  visit(tree,0)
+  const pinned=pinTop?drawn.filter(r=>r.n.pinned):[]
+  const rest=pinTop?drawn.filter(r=>!r.n.pinned):drawn
+
+  document.getElementById('rows').innerHTML=pinned.concat(rest).map(({n,depth})=>{
+    const holds=foldedBelow(n)
+    const canSub=hasKids(n)
+    const needExpand=holds>0
+    const oneLeft=canOpenOne(n.kids)
+    const split=opt('two')==='split'
+    const parts=[]
+    parts.push(btn(G.selfUp,'この行を隠す（親へ 1 歩畳み込む）',false,'','hideSelf',n.id))
+    if(canSub||showFaint) parts.push(btn(G.selfDown,
+      oneLeft?'配下を 1 階層開く':'開くものが無い',!oneLeft,'','openOne',n.id))
+    if(split){
+      if(canSub||showFaint) parts.push(btn(G.subUp,canSub?'配下をすべて畳む':'配下が無い',
+        !canSub||!canFold(n.kids),'','foldAll',n.id))
+      if(canSub||showFaint) parts.push(btn(G.subDown,canSub?'配下をすべて開く':'配下が無い',
+        !canSub||!needExpand,'','openAll',n.id))
+    } else if(canSub||showFaint){
+      // ⛔ ONE HIDDEN LEAF USED TO DISABLE FOLDING EVERYWHERE ABOVE IT. The
+      // toggle chose its direction on 「anything folded below?」, so hiding a
+      // single grandchild left every ancestor and the head stuck on 「open」 with
+      // no press that folds. It now asks whether anything is still DRAWN below.
+      const canStillFold=canFold(n.kids)
+      const showOpen=!canStillFold&&needExpand
+      parts.push(btn(showOpen?G.subDown:G.subUp,
+        canSub?(showOpen?'配下をすべて開く（畳み込みも戻す）':'配下をすべて畳む'):'配下が無い',
+        !canSub,'','sub',n.id))}
+    if(move==='arrows'){
+      // ⛔ THE ARROWS WERE COUNTING SIBLINGS THAT ARE NOT DRAWN. Measured: with
+      // a sibling hidden, the arrow stood live, said it had moved the row, and
+      // the drawn order did not change -- 38 such presses in an 1800-press
+      // sweep. They now read the same slot list the drag does.
+      const near=(by)=>{const h=findParent(n.id); if(!h) return false
+        const sl=slotsWithRank(h.depth)
+        let at=sl.findIndex(x=>x.list===h.list&&x.index===h.index)
+        if(at<0) return false
+        return at+by>=0&&at+by<sl.length}
+      parts.push(btn(FIX.up,near(-1)?'1 つ上へ':'いちばん上である',!near(-1),'','up',n.id))
+      parts.push(btn(FIX.down,near(1)?'1 つ下へ':'いちばん下である',!near(1),'','down',n.id))}
+    parts.push(btn(FIX.add,'配下に行を足す',false,'','add',n.id))
+    parts.push(btn(FIX.del,'この行を消す',false,'','del',n.id))
+    parts.push(btn(FIX.pin,n.pinned?'ピン止め中（もう一度で外す）':'ピン止め',false,n.pinned?'fill':'','pin',n.id))
+
+    const restStrip=n.pinned?'<span class="rest">'+btn(FIX.pin,'ピン止め中',false,'fill','pin',n.id)+'</span>':''
+    const grip=move==='drag'?'<span class="grip" data-id="'+n.id+'" title="掴んで動かす">⋮⋮</span>':''
+    const body=editing===n.id
+      ? '<input class="newname" data-id="'+n.id+'" placeholder="行の名前を打って Enter" />'
+      : '<span class="nm">'+esc(n.name)+'</span>'
+    const badge=(withCount&&holds)?'<span class="cnt">▾ '+holds+'</span>':''
+    return '<div class="row'+(pinTop&&n.pinned?' pinnedTop':'')+(holds?' holds':'')+'" data-id="'+n.id+'"'
+      + ' style="padding-left:'+(6+depth*16)+'px">'+grip+body+badge+restStrip
+      + '<span class="ctl">'+parts.join('')+'</span></div>'
+  }).join('')
+
+  const box=document.querySelector('.newname'); if(box) box.focus()
+
+  const per=20,gap=2
+  const one=document.querySelector('.row .ctl')
+  const count=one?one.querySelectorAll('.e').length:0
+  // ⛔ count===0 GAVE -2px AND -1%. An empty panel has no strip, not a
+  // negative one.
+  const px=count?count*per+(count-1)*gap:0, pct=Math.round(px/170*100)
+  // ⭐ THE STATE ITSELF, ON SCREEN. The model is one flag per row -- `folded`,
+  // meaning 「this row is not drawn inside its parent」 -- and a row under a
+  // folded parent must itself read ✕. A ● beneath a ✕ would be exactly the
+  // stale value that made 「1 階層開く」 open every level.
+  const dump=[]
+  const go=(l,d)=>l.forEach(n=>{dump.push('  '.repeat(d)+(n.folded?'✕':'●')+' '+(n.name||'(名前待ち)'));go(n.kids,d+1)})
+  go(tree,0)
+  const stale=[]
+  const chk=(l,under)=>l.forEach(n=>{if(under&&!n.folded)stale.push(n.name);chk(n.kids,under||n.folded)})
+  chk(tree,false)
+  document.getElementById('state').textContent=
+    dump.join('\n')+'\n\n'+(stale.length
+      ? '⛔ 畳まれた親の下に「開いている」行が '+stale.length+' 件残っています: '+stale.join(', ')
+      : '✅ 畳まれた親の下に「開いている」行は 0 件です')
+
+  document.getElementById('meter').innerHTML=
+    '出荷ビルドの実寸に直すと —— 操作子 <b>'+count+' 個</b>、占有 <b>'+px+'px</b> / パネル 170px ＝ '
+    +(pct>60?'<span class="over">'+pct+'%</span>':'<b>'+pct+'%</b>')+'（いまの実装は 5 個で 96px・56% —— ⚠️ あちらの操作子は 16px 幅・間隔 4px であり、'+'上の式（20px・2px）とは物差しが違う。同じ式で測るなら 108px・64% である）'
+}
+
+function addUnder(list,host){
+  // ⛔ THE DEPTH CAP APPLIES HERE TOO, AND DID NOT. FR-085 (MUST NOT): 「上限に
+  // 達している親の下に作らせてはならない」. Measured: pressing `+` down a chain
+  // reached level 9 while the drag refused at 5 -- the same limit enforced on
+  // one entrance and ignored on the other.
+  if(host){
+    const at=findParent(host.id)
+    if(at&&at.depth+2>MAX_DEPTH)
+      return say('⛔ ここには足せない','深さの上限（S-125 ＝ '+MAX_DEPTH+' 段）を超える')
+  }
+  // ⛔ ONE ROW AT A TIME MAY BE UNNAMED. Leaving the first one behind produced
+  // rows with an empty name and no way to rename them.
+  if(editing!==null){
+    const open=findParent(editing)
+    if(open&&open.node.name===''){open.list.splice(open.index,1)
+      say('打ちかけの行を取り下げた','名前が空のまま別の行を立てたので')}
+    editing=null
+  }
+  // ⛔ AND A DEFAULT NAME IS MADE UNIQUE. Two presses gave two rows both called
+  // 「新しい行」, and every log line and tooltip then named them the same.
+  let name=''
+  if(opt('naming')==='default'){
+    const taken=new Set(); const go=(l)=>l.forEach(n=>{taken.add(n.name);go(n.kids)}); go(tree)
+    name='新しい行'; let k=2; while(taken.has(name)) name='新しい行 '+(k++)
+  }
+  const child=node(name)
+  if(opt('where')==='first') list.unshift(child); else list.push(child)
+  if(host){host.kids.forEach(k=>{if(k===child)k.folded=false})}
+  const where=host?('「'+host.name+'」の配下'):'L1（いちばん上の段）'
+  if(opt('naming')==='ask'){editing=child.id;draw();say(where+'に行を立てた','名前を打つのを待っている。Esc で取りやめ')}
+  else{draw();say(where+'に「新しい行」を足した',(opt('where')==='first'?'長子':'末子')+'として')}
+}
+
+document.body.addEventListener('click',(ev)=>{
+  const b=ev.target.closest('button'); if(!b) return
+  if(b.id==='reset'){tree=seed();editing=null;draw();say('はじめの状態へ戻した');return}
+  const act=b.dataset.act,id=b.dataset.id; if(!act) return
+  if(b.getAttribute('aria-disabled')==='true'){say('押したが何も起きない','効かない入口である');return}
+  if(act==='allToggle'){
+    // ⛔ THE SAME TEST THE ROW USES. Asking 「is anything folded below?」 stuck the
+    // head on 「open」 the moment one leaf anywhere was hidden.
+    if(canFold(tree)){headFold();draw();say('すべべての行を畳んだ'.replace('すべべ','すべ'),'L0 の配下をすべて')}
+    else{unfoldAll(tree);draw();say('すべての行を開いた','畳み込まれていた行も戻った —— 各行の 2 本と同じ操作である')}
+    return}
+  if(act==='headOne'){const back=tree.filter(k=>k.folded).length;openOne(tree);draw()
+    say('L1 を 1 階層開いた',back+' 行が戻った。孫は畳まったままである');return}
+  if(act==='headFoldAll'){const same=opt('headfold')==='same'; headFold(); draw()
+    // ⛔ IT SAID 「すべての行を畳んだ」 IN BOTH MODES, and in `keep` mode
+    // three rows stayed on screen. A line that describes what did not happen is
+    // the defect this project keeps meeting.
+    say(same?'すべての行を畳んだ':'L2 より下をすべて畳んだ',
+        same?'L0 の配下をすべて（L1 も含む）':'⚠️ L1 は残るので、頭の ∨ には開くものが無い');return}
+  if(act==='headOpenAll'){unfoldAll(tree);draw()
+    say('すべての行を開いた','畳み込まれていた行も戻った');return}
+  if(act==='addRoot'){addUnder(tree,null);return}
+  if(!id) return
+  const hit=findParent(id),n=hit.node
+  // ⛔ THE WHOLE SUBTREE, NOT JUST THIS NODE. Measured 2026-08-30 on the user's
+  // report: folding only `n` left every descendant standing at 「開いている」,
+  // invisible merely because their ancestor was. Restoring the ancestor then
+  // handed all of them back at once, so 「1 階層開く」 opened every level.
+  // ⭐ THE RULE THIS ESTABLISHES: every folding action writes its ENTIRE
+  // subtree, so no row can carry a stale 「開いている」 under a folded parent.
+  // ⛔ THE PIN SURVIVES BEING HIDDEN. FR-098 (MUST NOT): a pinned row may stop
+  // being drawn only because an ancestor is folded or hidden -- and CD-2 drops
+  // the pin only when the ROW IS DELETED. Clearing it here threw the pin away
+  // silently, so restoring the row brought it back unpinned.
+  if(act==='hideSelf'){n.folded=true;foldChildren(n.kids);draw()
+    const who=hit.parent?('「'+hit.parent.name+'」'):'パネルの頭（L0）'
+    say('「'+n.name+'」を隠した','親へ畳み込んだ。'+who+'の ∨∨ で戻る')}
+  if(act==='openOne'){const back=n.kids.filter(k=>k.folded).length;openOne(n.kids);draw()
+    say('「'+n.name+'」の配下を 1 階層開いた',back+' 行が戻った。孫は畳まったままである')}
+  if(act==='foldAll'){foldChildren(n.kids);draw()
+    say('「'+n.name+'」の配下をすべて畳んだ',countAll(n)+' 行が畳み込まれた')}
+  if(act==='openAll'){unfoldAll(n.kids);draw()
+    say('「'+n.name+'」の配下をすべて開いた','孫もひ孫も戻った')}
+  if(act==='sub'){
+    if(canFold(n.kids)){foldChildren(n.kids);draw()
+      say('「'+n.name+'」の配下をすべて畳んだ',countAll(n)+' 行が畳み込まれた')}
+    else{unfoldAll(n.kids);draw()
+      say('「'+n.name+'」の配下をすべて開いた','畳み込まれていた行も戻った')}}
+  if(act==='add'){addUnder(n.kids,n)}
+  if(act==='del'){const c=1+countAll(n);hit.list.splice(hit.index,1);draw()
+    say('「'+n.name+'」を消した',c+' 行が消えた（配下ごと。CD-2）')}
+  if(act==='pin'){n.pinned=!n.pinned;draw()
+    say('「'+n.name+'」を'+(n.pinned?'留めた':'外した'),n.pinned?'ピンは S-151 で塗られ、ポインタを外しても残る':'')}
+  if(act==='up'||act==='down'){const to=hit.index+(act==='up'?-1:1)
+    if(to<0||to>=hit.list.length) return
+    hit.list.splice(hit.index,1);hit.list.splice(to,0,n);draw()
+    say('「'+n.name+'」を 1 つ'+(act==='up'?'上':'下')+'へ動かした','兄弟のあいだだけ')}
+})
+
+document.body.addEventListener('keydown',(ev)=>{
+  const box=ev.target.closest('.newname'); if(!box) return
+  const hit=findParent(box.dataset.id)
+  if(ev.key==='Enter'){const name=box.value.trim()
+    if(name===''){hit.list.splice(hit.index,1);editing=null;draw()
+      say('名前が空だったので取り下げた','⛔ 空の名は FR-085 の打ち切りが掴めない')}
+    else{hit.node.name=name;editing=null;draw();say('「'+name+'」を足した')}}
+  if(ev.key==='Escape'){hit.list.splice(hit.index,1);editing=null;draw();say('取りやめた')}
+})
+
+// ============================================================== dragging ====
+// ⭐ ONE AXIS, DECIDED ONCE (利用者の裁定 2026-08-30). The first movement past
+// AXIS_LOCK_PX decides whether this drag changes POSITION (up/down, among the
+// same parent's children) or DEPTH (left/right), and it does not change again
+// until the pointer is released. ⛔ A free 2D drag has to guess "move or
+// re-parent" at every pixel and flips near the boundary; that guess is what
+// this removes.
+// ⚠️ AXIS_LOCK_PX AND INDENT_STEP_PX ARE THIS FILE'S, NOT THE SPECIFICATION'S.
+// No row of table T-206 holds either; PD-400 records that a settings row is
+// needed. `S-93` is the nearest thing in kind (a grab tolerance).
+const AXIS_LOCK_PX=6
+// ⛔ THIS MUST BE THE DRAWN INDENT, AND IT WAS NOT. It stood at 26 while a row
+// is drawn at `6 + depth * ROW_INDENT_PX`, so the pointer travelled 26px for
+// every 16px the row moved and fell 10px further behind at each level -- which
+// is exactly the 「追従が悪い」 that was reported. One step of the pointer is
+// now one step of the row.
+const ROW_INDENT_PX=16
+const INDENT_STEP_PX=ROW_INDENT_PX
+const ROW_HEIGHT_PX=34
+const MAX_DEPTH=5            // S-125 maxGroupDepth, default 5
+let drag=null                // {id, x0, y0, axis:null|'v'|'h', steps}
+
+const depthOf=(id)=>findParent(id).depth
+const deepest=(n)=>n.kids.length?1+Math.max(...n.kids.map(deepest)):0
+
+/** The row just above this one among its own siblings -- indent's only anchor. */
+function priorSibling(id){const h=findParent(id);return h.index>0?h.list[h.index-1]:null}
+
+/** Right one step: become the last child of the DRAWN sibling immediately above. */
+function indent(id){
+  const h=findParent(id); if(!h) return {ok:false,why:'その行はもう無い'}
+  const prior=priorSibling(id)
+  if(prior===null) return {ok:false,why:'いちばん上の行なので、子になれる相手が居ない'}
+  // ⛔ NEVER UN-FOLD THE HOST. It used to write `prior.folded=false`, so a
+  // SIDEWAYS gesture silently undid a fold the person had asked for -- measured:
+  // hiding a row and then indenting its next sibling put the hidden row back on
+  // screen, with nothing in the log saying so. A folded row is not a place the
+  // moved row could be seen to land, so this is refused instead.
+  if(prior.folded) return {ok:false,why:'すぐ上の行は畳まれているので、その中へは入れられない'}
+  if(h.depth+1+deepest(h.node)+1>MAX_DEPTH)
+    return {ok:false,why:'深さの上限（S-125 ＝ '+MAX_DEPTH+' 段）を超える'}
+  h.list.splice(h.index,1); prior.kids.push(h.node)
+  return {ok:true,why:'「'+prior.name+'」の末子になった。配下 '+countAll(h.node)+' 行も一緒に動いた'}
+}
+/** Left one step: become the next sibling of my own parent. */
+function outdent(id){
+  const h=findParent(id); if(!h) return {ok:false,why:'その行はもう無い'}
+  if(h.parent===null) return {ok:false,why:'すでにいちばん浅い段である'}
+  const up=findParent(h.parent.id); if(!up) return {ok:false,why:'その行はもう無い'}
+  h.list.splice(h.index,1)
+  up.list.splice(up.index+1,0,h.node)
+  return {ok:true,why:'「'+h.parent.name+'」の次の兄弟になった。配下 '+countAll(h.node)+' 行も一緒に動いた'
+    +'。⚠️ 後ろに居た兄弟は元の親に残した'}
+}
+/**
+ * Every place a row of depth `want` could sit, in reading order.
+ *
+ * ⭐ THIS IS WHAT LETS A ROW CROSS ITS PARENT. A slot is an insertion point in
+ * SOME parent's child list, so the slots at one depth run straight through the
+ * whole tree -- the last child position of one group is followed by the first
+ * child position of the next. Stepping from one to the next changes the PARENT
+ * while leaving the DEPTH alone, which is exactly what 「上下＝位置、左右＝階層」
+ * asks for.
+ * ⛔ FOLDED ROWS ARE SKIPPED. A slot inside a folded group is a place the row
+ * would vanish into, and a move that makes the moved row disappear reads as a
+ * broken control.
+ */
+function slotsAt(want){
+  const out=[]
+  const go=(list,depth)=>{
+    for(let i=0;i<list.length;i++){
+      const n=list[i]
+      if(n.folded) continue
+      if(depth===want) out.push({list,index:i})
+      go(n.kids,depth+1)
+    }
+    if(depth===want) out.push({list,index:list.length})
+  }
+  go(tree,0)
+  return out
+}
+
+/**
+ * The slots at one depth, each with the number of DRAWN rows that precede it.
+ * ⭐ That count is what turns a slot into a y on screen, and a y is what the
+ * pointer can be compared against directly.
+ */
+function slotsWithRank(want){
+  const out=[]; let n=0
+  const go=(list,depth)=>{
+    for(let i=0;i<list.length;i++){
+      const k=list[i]
+      if(k.folded) continue
+      if(depth===want) out.push({list,index:i,rank:n})
+      n++
+      go(k.kids,depth+1)
+    }
+    if(depth===want) out.push({list,index:list.length,rank:n})
+  }
+  go(tree,0)
+  return out
+}
+
+/**
+ * Put the row at whichever slot of its own depth the pointer is nearest.
+ *
+ * ⛔⛔ THIS REPLACES A LOOP THAT OSCILLATED. The loop measured where the row had
+ * landed and stepped again while the pointer was past it -- but a step that
+ * crosses a parent carries the row over that group's heading as well, measured
+ * at 102px where a row is 34px tall. Neither side of such a step satisfies
+ * 「within half a row」, so it stepped down, then up, then down, until a guard
+ * stopped it: 783 tree rewrites for 34 pointer moves, all but 5 of them undone
+ * immediately.
+ * ⭐ ASKING WHICH SLOT THE POINTER IS OVER CANNOT OSCILLATE, because it is an
+ * answer rather than a correction. At most one move happens per pointer move.
+ */
+function placeAtPointer(id,pointerY,panelTopY){
+  const h=findParent(id), moving=h.node, depth=h.depth
+  const from={list:h.list,index:h.index}
+  h.list.splice(h.index,1)                    // carry it, so no slot inside its
+                                              // own subtree can be chosen
+  const slots=slotsWithRank(depth)
+  if(slots.length===0){h.list.splice(h.index,0,moving);return {ok:false,why:'置ける場所が無い'}}
+  const wantY=pointerY-panelTopY
+  let best=slots[0], bestGap=Infinity
+  for(const s of slots){
+    const gap=Math.abs(s.rank*ROW_HEIGHT_PX-wantY)
+    if(gap<bestGap){bestGap=gap;best=s}
+  }
+  if(best.list===from.list&&best.index===from.index){
+    h.list.splice(h.index,0,moving)
+    return {ok:false,why:null}                // already there; say nothing
+  }
+  const crossed=best.list!==from.list
+  best.list.splice(best.index,0,moving)
+  const host=findParent(id).parent
+  return {ok:true,crossed,why:(crossed
+      ? '⭐ 親をまたいだ —— '+(host?'「'+host.name+'」':'いちばん浅い段')+'の中へ入った'
+      : '同じ親の中で位置が変わった')
+    +'。段は '+depth+' のまま、配下 '+countAll(moving)+' 行も一緒に動いた'}
+}
+
+/** Up/down one step, for the arrow buttons. ⛔ Drawn rows only -- an invisible
+ *  sibling is not a place a press can be seen to have acted on. */
+function shift(id,by){
+  const h=findParent(id); if(!h) return {ok:false,why:'その行はもう無い'}
+  const moving=h.node, depth=h.depth, from={list:h.list,index:h.index}
+  h.list.splice(h.index,1)
+  const slots=slotsWithRank(depth)
+  let at=slots.findIndex(s=>s.list===from.list&&s.index===from.index)
+  if(at<0) at=slots.findIndex(s=>s.list===from.list)
+  const to=at+by
+  if(at<0||to<0||to>=slots.length){
+    h.list.splice(h.index,0,moving)
+    return {ok:false,why:by<0?'いちばん上の位置である':'いちばん下の位置である'}
+  }
+  const s=slots[to]
+  const crossed=s.list!==from.list
+  s.list.splice(s.index,0,moving)
+  const host=findParent(id).parent
+  return {ok:true,why:(crossed
+      ? '⭐ 親をまたいだ —— '+(host?'「'+host.name+'」':'いちばん浅い段')+'の中へ入った'
+      : '同じ親の中で 1 つ'+(by<0?'上':'下')+'へ')
+    +'。段は '+depth+' のまま、配下 '+countAll(moving)+' 行も一緒に動いた'}
+}
+
+document.body.addEventListener('pointerdown',(ev)=>{
+  const g=ev.target.closest('.grip'); if(!g||opt('move')!=='drag') return
+  // ⛔ A PINNED ROW IS NOT DRAGGABLE, AND THE REASON IS MEASURED. FR-098 lifts a
+  // pinned row to the head of the panel, so what is drawn is a DISPLAY order
+  // while the drag acts on the TREE. Dragging one moved it across two parents
+  // while the screen showed +0px -- an invisible edit. PD-400 ⑤ recommends
+  // refusing the grab, and this is that.
+  if(findParent(g.dataset.id)?.node.pinned){
+    say('⛔ ピン止めした行は掴めない','留めた行はパネルの先頭へ上げて描かれるので、'
+      +'掴んで動かすと木の順ではなく表示の順を触ることになる。外してから動かす')
+    return
+  }
+  ev.preventDefault()
+  // ⭐ WHERE INSIDE THE ROW IT WAS GRABBED. The vertical axis holds that same
+  // point under the pointer, so the row does not jump to its centre on the
+  // first move.
+  const grabbed=g.closest('.row').getBoundingClientRect()
+  drag={id:g.dataset.id,x0:ev.clientX,y0:ev.clientY,axis:null,steps:0,pid:ev.pointerId,
+        grabDy:ev.clientY-grabbed.top}
+  // ⛔ NOT ON THE GRIP. `draw()` replaces the rows' markup, so the grip that
+  // took the capture is destroyed on the first step and the capture goes with
+  // it. The panel survives every redraw.
+  document.querySelector('.panel').setPointerCapture(ev.pointerId)
+  document.querySelector('.row[data-id="'+drag.id+'"]')?.classList.add('dragging')
+})
+document.body.addEventListener('pointermove',(ev)=>{
+  if(!drag) return
+  // ⛔ THE DRAG ENDS IF ITS GROUND IS TAKEN AWAY. Measured: switching 並べ替えの手
+  // to 置かない mid-drag removed every grip and yet 61 further log lines were
+  // written and the tree kept changing, because this handler never re-read the
+  // setting. Same if the row itself was deleted while held.
+  if(opt('move')!=='drag'||!findParent(drag.id)){ endDrag(); return }
+  const dx=ev.clientX-drag.x0, dy=ev.clientY-drag.y0
+  if(drag.axis===null){
+    if(Math.abs(dx)<AXIS_LOCK_PX&&Math.abs(dy)<AXIS_LOCK_PX) return
+    drag.axis=Math.abs(dx)>Math.abs(dy)?'h':'v'
+    say('軸が'+(drag.axis==='h'?'<b>左右（段）</b>':'<b>上下（位置）</b>')+'に決まった',
+        '離すまでもう一方は効かない')
+  }
+  // ⛔ A REFUSAL IS SAID ONCE PER DRAG, NOT ONCE PER POINTER MOVE. Measured: a
+  // pull past the end wrote the same 「動かせない」 line five times in one drag,
+  // which buries what actually happened.
+  const refuse=(w)=>{ if(drag.said!==w){drag.said=w; say('⛔ ここから先へは動かせない',w)} }
+  const did=(w,why)=>{ drag.said=null; say(w,why); draw() }
+  let blocked=false
+  if(drag.axis==='h'){
+    // ⭐ ROUND, NOT TRUNC. `trunc` held the row still for a whole step's width
+    // before it moved at all; rounding turns the step at the half-way point,
+    // which is what the vertical axis already did.
+    const want=Math.round(dx/INDENT_STEP_PX)
+    while(drag.steps<want){const r=indent(drag.id); if(!r.ok){refuse(r.why);blocked=true;break}
+      drag.steps++; did('段を 1 つ深くした',r.why)}
+    while(drag.steps>want){const r=outdent(drag.id); if(!r.ok){refuse(r.why);blocked=true;break}
+      drag.steps--; did('段を 1 つ浅くした',r.why)}
+  } else {
+    // ⭐ ONE ANSWER, NOT A CORRECTION LOOP. See `placeAtPointer`.
+    const rowsTop=document.getElementById('rows').getBoundingClientRect().top
+    const r=placeAtPointer(drag.id,ev.clientY-drag.grabDy,rowsTop)
+    if(r.ok) did('位置を動かした',r.why)
+    else if(r.why){refuse(r.why);blocked=true}
+  }
+  // ⭐ THE ROW FOLLOWS THE POINTER BETWEEN STEPS, NOT ONLY AT THEM. Without
+  // this the row stood still for half a step and then jumped, which reads as
+  // the pointer having got away from it. The offset is what the pointer has
+  // moved LESS what the steps already took up, so the two stay together.
+  // ⛔ CLAMPED WHEN A STEP IS REFUSED, so a pull that cannot act shows
+  // resistance instead of sliding the row away from the tree.
+  const live=document.querySelector('.row[data-id="'+drag.id+'"]')
+  if(live){
+    live.classList.add('dragging',drag.axis==='h'?'axisH':'axisV')
+    live.style.zIndex='2'
+    let over
+    if(drag.axis==='h'){
+      over=dx-drag.steps*INDENT_STEP_PX
+      if(blocked) over=Math.max(-INDENT_STEP_PX*0.4,Math.min(INDENT_STEP_PX*0.4,over))
+      live.style.transform='translateX('+over+'px)'
+    } else {
+      live.style.transform=''
+      const q=live.getBoundingClientRect()
+      over=ev.clientY-(q.top+drag.grabDy)
+      if(blocked) over=Math.max(-q.height*0.4,Math.min(q.height*0.4,over))
+      live.style.transform='translateY('+over+'px)'
+    }
+  }
+})
+const endDrag=()=>{ if(!drag) return
+  document.querySelector('.panel')?.releasePointerCapture?.(drag.pid)
+  document.querySelectorAll('.row').forEach(r=>{
+    r.classList.remove('dragging','axisH','axisV'); r.style.transform=''; r.style.zIndex='' })
+  drag=null; draw() }
+document.body.addEventListener('pointerup',endDrag)
+document.body.addEventListener('pointercancel',endDrag)
+
+document.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{editing=null;draw()}))
+draw()
+say('はじめの状態','行にポインタを乗せると操作子が出ます')
+</script>
+</body></html>

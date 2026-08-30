@@ -238,6 +238,24 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * panel, so a drag would need a row of its own; two arrows would need two more
  * controls and could not change depth at all.
  *
+ * @provisional PD-402 -- and nothing here HIDES a row either, which is the
+ * third such hole. HR-6 states the hiding, AT-57 holds `TaskGroup.isHidden`,
+ * U-29 names the tab that brings one back and UN-14 counts the change among
+ * what undo covers -- and AT-57's own note says the entrance HR-6 has is the
+ * one that RESTORES. ⭐ The user's answer on 2026-08-30 was to give that job to
+ * the single chevron, which retires the tab along with it.
+ *
+ * @provisional PD-403 -- and how the folded state is HELD is not settled. ⛔
+ * Measured in the prototype that day: folding a row without folding its subtree
+ * left every descendant reading 「開いている」, invisible only because an
+ * ancestor was, so restoring the ancestor opened every level at once. The
+ * invariant proposed is that a folded row's descendants are folded too.
+ *
+ * @provisional PD-404 -- and whether the panel head's 「すべて畳む」 folds L1
+ * with everything else. Table T-015 pairs HR-1/HR-3 and HR-2/HR-4 by SCOPE, so
+ * the head is level 0; folding L1 too makes its four entrances read exactly as
+ * a row's, at the cost of a panel that can stand empty.
+ *
  * @provisional PD-401 -- and the folding shapes do not read as one family.
  * Table T-015 already pairs them by SCOPE (HR-1/HR-3, HR-2/HR-4), so the panel
  * head is level 0; figure F-019 draws that pair as `+` and `>`, which share
