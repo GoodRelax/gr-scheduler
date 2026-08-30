@@ -4008,15 +4008,30 @@ function commandFromEntry(
         !(
           context.isLevelZeroFolded === true ||
           (wouldMoveARow(context, null, 'open') ??
-            context.document.schedule.taskGroups.some((row) => row.isCollapsed === true))
+            // ⛔ THE FALLBACK COUNTS A HIDDEN ROW TOO, and until 2026-08-31 it
+            // did not. HR-1 (MUST) brings back what HR-6 hid, so a document
+            // whose only closed rows are hidden ones has work for this press --
+            // and a caller that carried no picture was told there was none.
+            context.document.schedule.taskGroups.some(
+              (row) => row.isCollapsed === true || row.isHidden === true,
+            ))
         )
       ) {
         return nothingToDo('noFoldedRowAtAll')
       }
+      // ⭐⭐ AND IT UNDOES THE HIDING TOO, AT EVERY DEPTH. HR-1 (MUST) since
+      // 2026-08-31: 「`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと —— 本行
+      // は `HR-3` の段 0 である」.
+      // ⛔ CM-72 CANNOT ANSWER IT. Its row in table T-108 opens folded rows and
+      // says nothing about `isHidden`; the unhiding is a bundle of CM-34 beside
+      // it, and one bundle is one undo step (FR-031).
+      // ⛔⛔ WITHOUT THIS A TOP-LEVEL ROW COULD BE HIDDEN AND NEVER BROUGHT
+      // BACK. HR-6 names 段 0's control as the ONLY way back for a row with no
+      // parent, so the entrance that owes it was the one entrance not doing it.
       return acted({
         kind: 'setLevelZeroFolded',
         isFolded: false,
-        writes: [{ kind: 'expandAllTaskGroups' }],
+        writes: [{ kind: 'expandAllTaskGroups' }, ...unhidesEveryRow(context.document.schedule)],
       })
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
@@ -4662,8 +4677,20 @@ function opensUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
   const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
   const commands: DocumentCommand[] = []
   for (const row of schedule.taskGroups) {
-    if (row.isCollapsed !== true) continue
     if (!isRowUnder(parentOf, row.parentId, ancestorId)) continue
+    // ⭐⭐ HR-6's WAY BACK AT THIS RANGE TOO (MUST). HR-3 since 2026-08-31:
+    // 「`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと（MUST）」, and
+    // (MUST NOT) 「畳みだけを解いて隠しを残してはならない」.
+    // ⛔ IT UNDID ONLY THE FOLD UNTIL THEN, and the user measured the result:
+    // a row hidden with the single up chevron came back through the parent's
+    // ONE-level open and did NOT come back through the parent's ALL-below open
+    // -- the wider range restoring less than the narrower one.
+    // ⭐ THE TWO ARE ONE OPERATION AT TWO RANGES, which is what the family says:
+    // one bar is the direct children, two bars is everything below.
+    if (row.isHidden === true) {
+      commands.push({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false })
+    }
+    if (row.isCollapsed !== true) continue
     commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
   }
   return commands
@@ -5592,8 +5619,17 @@ function wouldMoveARow(
   }
 
   for (const row of schedule.taskGroups) {
-    if (!drawn.has(row.id)) continue
     if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
+    // ⭐⭐ A HIDDEN ROW COUNTS FOR AN OPENING, AND IT CANNOT BE ASKED OF THE
+    // PICTURE. HR-3 (MUST) since 2026-08-31 has 「配下をすべて開く」 bring back
+    // 「`HR-6` が隠した行も、配下のどこにあろうとも」 -- and HR-6 (MUST NOT) is
+    // exactly what keeps such a row out of the picture, so the `drawn` test
+    // below would refuse every one of them.
+    // ⛔ MEASURED BEFORE THIS: a row hidden with the single up chevron came back
+    // through the parent's ONE-level open and not through the parent's
+    // ALL-below open -- the wider range doing less than the narrower one.
+    if (operation === 'open' && row.isHidden === true) return true
+    if (!drawn.has(row.id)) continue
     if (operation === 'open') {
       if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
       continue
@@ -5601,6 +5637,24 @@ function wouldMoveARow(
     if (row.isCollapsed !== true && withDrawnChild.has(row.id)) return true
   }
   return false
+}
+
+/**
+ * One `setTaskGroupHidden` per row of the document that HR-6 hid -- the half of
+ * HF-10's press that HR-1 (MUST) added on 2026-08-31.
+ *
+ * ⭐ EVERY DEPTH AND NOT ONLY THE SHALLOWEST, which is what parts this from
+ * `unhidesShallowestRows`: that member serves HF-16, whose range is 「最も浅い段
+ * が戻る」 (HR-2), and this one serves HR-1, whose range is every row.
+ * ⚠️ A ROW THAT IS NOT HIDDEN IS NOT WRITTEN, so a document with none adds
+ * nothing to the bundle and the press stays the one write CM-72 already was.
+ *
+ * @purity pure
+ */
+function unhidesEveryRow(schedule: Schedule): readonly DocumentCommand[] {
+  return schedule.taskGroups
+    .filter((row) => row.isHidden === true)
+    .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
 }
 
 /**

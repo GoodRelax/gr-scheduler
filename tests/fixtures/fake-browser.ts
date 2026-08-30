@@ -78,7 +78,19 @@ export class FakeElement {
   }
 
   getAttribute(name: string): string | null {
-    if (name === 'style') return inlineStyle(this)
+    // ⭐ THE DECLARATION BLOCK COMES BACK TERMINATED, THE WAY A BROWSER HANDS IT
+    // BACK (R6.3: the fake answers the way a browser does and in no other way).
+    // ⛔ WITHOUT THE CLOSING `;` THIS FAKE CORRUPTED EVERY READ-MODIFY-WRITE the
+    // unit makes -- `element.setAttribute('style', element.getAttribute('style')
+    // + more)` glued the last property of the block to the first of the addition
+    // (`cursor:pointer` + `right:4em` came back as `cursor:pointerright:4em`), so
+    // a case that read one of those properties back read a value no browser
+    // would ever produce. ⚠️ `inlineStyle` itself is left as it was: it is a
+    // reader for a failure message, not the host's answer.
+    if (name === 'style') {
+      const written = inlineStyle(this)
+      return written === '' ? '' : `${written};`
+    }
     return this.attributes.get(name) ?? null
   }
 

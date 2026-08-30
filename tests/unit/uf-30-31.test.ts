@@ -2934,3 +2934,186 @@ describe('HR-2 / HF-12 of tables T-015 and T-051 -- 段 0 folds, and the panel c
     )
   })
 })
+
+// ---------------------------------------------------------------------------
+// THE WIDER RANGES OF THE SAME WAY BACK -- 表 T-015 の `HR-3` と `HR-1`
+// (利用者の裁定 2026-08-31)
+//
+// ⭐⭐ THE RULING, IN THE THREE ROWS THAT CARRY IT:
+//
+//   `HR-3`（子を全展開）「⭐⭐ **`HR-6` が隠した行も、配下のどこにあろうともすべて
+//   戻すこと（MUST）**（利用者の裁定 2026-08-31）—— **隠すことは親へ 1 歩畳み込む
+//   ことであり、「配下をすべて開く」はその畳みも解く。**⛔ **畳みだけを解いて隠しを
+//   残してはならない（MUST NOT）**」
+//
+//   `HR-1`（全展開）「⭐ **`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと
+//   （MUST）** —— **本行は `HR-3` の段 0 である**（`HR-2`）」
+//
+//   `HR-6`（非表示）「⭐⭐ **「配下をすべて開く」操作子でも戻せること（MUST）**
+//   （利用者の裁定 2026-08-31）—— 同表の `HF-2` であり、**違いは範囲だけである**
+//   —— **1 本は直下の子だけ、2 本は配下のすべて。**」
+//
+// ⛔⛔ WHAT WAS MEASURED BEFORE THE RULING, in HR-3's own words: 「**実測で、隠した
+// 行が `HR-7`（1 階層）では戻るのに `HR-3`（すべて）では戻らないという、範囲が広い
+// ほうが少なく戻る状態になった。**」 The cases above hold the narrow door; these hold
+// the wide one, and the LAST of them is the pairing itself -- 「違いは範囲だけ」 is a
+// claim about two entrances at once and cannot be tested on either alone.
+// ---------------------------------------------------------------------------
+
+/**
+ * A chain three deep beside a second root, with the fold and the hide set per
+ * row, so that a press can be asked to undo BOTH.
+ *
+ * ⚠️ SHAPED LIKE `wayBackScheduleOf` AND NOT REUSING IT, because that one fixes
+ * `isCollapsed: false` on every row and 「畳みだけを解いて隠しを残してはならない」
+ * needs a row that carries both states at once.
+ */
+const wideOpenScheduleOf = (
+  hidden: readonly string[],
+  collapsed: readonly string[] = [],
+): Schedule =>
+  scheduleOf({
+    tasks: [TASK_1],
+    taskGroups: WAY_BACK_ROWS.map((one) => ({
+      id: one.id,
+      parentId: one.parentId,
+      label: one.id,
+      derivedFromTaskUid: null,
+      order: one.order,
+      isCollapsed: collapsed.includes(one.id),
+      isHidden: hidden.includes(one.id) ? true : null,
+      color: null,
+      height: null,
+    })),
+    taskGroupMembers: [{ groupId: 'w1a1', taskUid: 1 }],
+  })
+
+function wideOpenContextOf(
+  hidden: readonly string[],
+  collapsed: readonly string[] = [],
+): InputContext {
+  const schedule = wideOpenScheduleOf(hidden, collapsed)
+  const settings = nestedSettingsOf([])
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(schedule, settings, regions)
+  return contextOf({
+    document: documentOf(schedule, settings),
+    layout,
+    geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
+    regions,
+  })
+}
+
+/**
+ * Every write one press asks for, whichever kind of action carries it.
+ *
+ * ⛔ WHICH KIND CARRIES WHICH IS THE SEAM'S AND NOT THE MANUSCRIPT'S -- the same
+ * reason `allWritesOf` gives above -- so this reads both roads rather than
+ * naming one, and a case below is red only when the WRITE is missing.
+ */
+const everyWriteOf = (answer: TranslatedInput): readonly DocumentCommand[] => [
+  ...commandsOf(answer),
+  ...allWritesOf(answer),
+]
+
+/** The rows one press asks to be unhidden, on either road. */
+const broughtBackBy = (answer: TranslatedInput): readonly string[] =>
+  everyWriteOf(answer)
+    .filter((one): one is HideCommand => one.kind === 'setTaskGroupHidden')
+    .filter((one) => one.hidden === false)
+    .map((one) => one.groupId)
+
+/** The rows one press asks to be unfolded, on either road. */
+const unfoldedBy = (answer: TranslatedInput): readonly string[] =>
+  everyWriteOf(answer)
+    .filter((one): one is FoldCommand => one.kind === 'setTaskGroupCollapsed')
+    .filter((one) => one.collapsed === false)
+    .map((one) => one.groupId)
+
+describe('HR-3 / HR-1 of table T-015 -- 「配下をすべて開く」 undoes the hide as well (裁定 2026-08-31)', () => {
+  it('⛔ the manuscript still asks the wide ranges to bring a hidden row back', () => {
+    const says = (id: string): string =>
+      (specTable('T-015').rows.find((one) => one.id === id)?.cells ?? []).join(' ')
+
+    expect(says('HR-3')).toContain(
+      '`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと（MUST）',
+    )
+    expect(says('HR-3')).toContain('畳みだけを解いて隠しを残してはならない（MUST NOT）')
+    expect(says('HR-1')).toContain('`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと（MUST）')
+    expect(says('HR-6')).toContain('「配下をすべて開く」操作子でも戻せること（MUST）')
+    // ⭐ AND THE PAIRING THE LAST CASE OF THIS BLOCK IS FOR.
+    expect(says('HR-6')).toContain('1 本は直下の子だけ、2 本は配下のすべて')
+  })
+
+  it('⭐⭐ MUST: 「配下をすべて開く」 on the parent brings a hidden CHILD back (HR-3 through HF-2)', () => {
+    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a']))
+
+    expect(
+      broughtBackBy(answer),
+      `the hidden child did not come back: ${JSON.stringify(kindsOf(answer))}`,
+    ).toContain('w1a')
+    // ⛔ AND NOTHING OUTSIDE THE 配下. `w2` is a second root and is not below `w1`.
+    expect(broughtBackBy(answer)).not.toContain('w2')
+  })
+
+  it('⭐⭐ MUST: 「配下のどこにあろうとも」 -- a hidden GRANDCHILD comes back too', () => {
+    // ⭐ THE WORDS THAT MAKE THIS A SECOND CASE AND NOT A REPEAT: 「配下のどこに
+    // あろうとも」. `w1a1` is two levels under the pressed row, and `HR-3` reaches
+    // 「選択した `TaskGroup` の配下」 entire.
+    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a1']))
+
+    expect(
+      broughtBackBy(answer),
+      `the hidden grandchild did not come back: ${JSON.stringify(kindsOf(answer))}`,
+    ).toContain('w1a1')
+  })
+
+  it('⛔ MUST NOT: 「畳みだけを解いて隠しを残してはならない」 -- one press does both', () => {
+    // `w1a` is FOLDED over `w1a1`, and `w1a1` is HIDDEN. ⛔ A press that wrote the
+    // unfold alone would leave `w1a1` off the screen although the row it was
+    // folded under is now open -- which is the state the MUST NOT names.
+    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a1'], ['w1a']))
+
+    expect(unfoldedBy(answer), 'the fold was not undone').toContain('w1a')
+    expect(
+      broughtBackBy(answer),
+      'HR-3 (MUST NOT): the fold was undone and the hide was left standing',
+    ).toContain('w1a1')
+  })
+
+  it('⭐⭐ MUST: 段 0 -- 「すべて展開」 brings back every hidden row, a TOP-LEVEL one included (HR-1)', () => {
+    // 「**本行は `HR-3` の段 0 である**」, and `HR-6` (MUST) gives a row with no
+    // parent 段 0 as its way back. ⛔ So the head's opener reaches `w2`, which no
+    // row's own opener can reach.
+    const answer = pressPanelEntry('IC-74', null, wideOpenContextOf(['w2', 'w1a1']))
+
+    expect(
+      broughtBackBy(answer),
+      `HR-1 (MUST): a hidden row was left hidden: ${JSON.stringify(kindsOf(answer))}`,
+    ).toEqual(expect.arrayContaining(['w2', 'w1a1']))
+  })
+
+  it('⭐ MUST: 「違いは範囲だけである」 -- one bar reaches the direct children, two bars everything below', () => {
+    // ⭐ THE PAIRING ITSELF, WHICH NEITHER ENTRANCE CAN BE ASKED ABOUT ALONE.
+    // `HR-6`: 「同表の `HF-2` であり、**違いは範囲だけである** —— **1 本は直下の子
+    // だけ、2 本は配下のすべて。**」 With the hidden row two levels down and the
+    // press on `w1`:
+    //   the ONE-level opener (HF-13 / IC-90) does not reach it -- `HR-7` (MUST)
+    //   「**直下の子だけ**を開き、**孫より下は畳んだままにすること**」, and `HR-6`
+    //   sends a hidden row back through ITS OWN PARENT's control, which is `w1a`;
+    //   the ALL-below opener (HF-2 / IC-58) does.
+    // ⛔ WITHOUT THIS CASE THE FOUR ABOVE WOULD ALL PASS ON A UNIT THAT MADE THE
+    // TWO ENTRANCES ONE, which `HF-13` (MUST NOT) forbids: 「同じ入口に兼ねさせて
+    // はならない」.
+    const context = wideOpenContextOf(['w1a1'])
+
+    expect(
+      broughtBackBy(pressPanelEntry('IC-90', 'w1', context)),
+      'HR-7 (MUST): the one-level opener reached past the direct children',
+    ).not.toContain('w1a1')
+    expect(
+      broughtBackBy(pressPanelEntry('IC-58', 'w1', context)),
+      'HR-3 (MUST): the all-below opener did not reach the grandchild',
+    ).toContain('w1a1')
+  })
+})

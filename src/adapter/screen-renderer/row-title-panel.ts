@@ -136,6 +136,11 @@ interface PanelIndex {
    */
   readonly groupIdsWithCollapsedBelow: ReadonlySet<string>
   /**
+   * The rows with a row HR-6 hid somewhere below them -- the other half of
+   * what HF-2's control still has to do. See where it is built.
+   */
+  readonly groupIdsWithHiddenBelow: ReadonlySet<string>
+  /**
    * The rows with at least one DRAWN row below them that is NOT folded AND
    * THAT WOULD HIDE SOMETHING IF IT FOLDED -- the exact set on which HF-11's
    * control still changes something, since HR-4 of table T-015 reaches
@@ -538,7 +543,9 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   // the pair with neither half armed -- HF-1 still places the pair, since the
   // row does have something under it.
   return {
-    canOpen: index.groupIdsWithCollapsedBelow.has(group.id),
+    canOpen:
+      index.groupIdsWithCollapsedBelow.has(group.id) ||
+      index.groupIdsWithHiddenBelow.has(group.id),
     // HF-3 (MUST) IS NOW HR-6: 「隠す操作子は、その行を隠すこと —— 表 T-015 の
     // `HR-6` である」（利用者の裁定 2026-08-30）. ⭐ ALWAYS ARMED ON A DRAWN ROW:
     // HR-6 (MUST NOT) refuses to draw a hidden row or anything under it, so the
@@ -877,6 +884,27 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     }
   }
 
+  // ⭐⭐ AND THE ROWS WITH A HIDDEN ROW SOMEWHERE BELOW THEM. HR-3 (MUST) since
+  // 2026-08-31: 「`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと」, so
+  // HF-2's control has something to do wherever one stands under it.
+  // ⛔ THE WALK ABOVE CANNOT ANSWER THIS. It climbs only from rows the picture
+  // HOLDS, and a hidden row is precisely one the picture does not hold -- so a
+  // row whose only buried descendant was hidden rather than folded armed
+  // nothing, and the user measured the result: the single down chevron brought
+  // a hidden row back and the double down chevron did not.
+  // ⚠️ A SET OF ITS OWN AND NOT AN ADDITION TO THE ONE ABOVE, whose name says
+  // 「畳まれた」; the two are OR-ed where HF-2's control is armed.
+  const groupIdsWithHiddenBelow = new Set<string>()
+  for (const group of schedule.taskGroups) {
+    if (group.isHidden !== true) continue
+    let hiddenAncestorId = group.parentId
+    while (hiddenAncestorId !== null && !groupIdsWithHiddenBelow.has(hiddenAncestorId)) {
+      groupIdsWithHiddenBelow.add(hiddenAncestorId)
+      const ancestor = groupsById.get(hiddenAncestorId)
+      hiddenAncestorId = ancestor === undefined ? null : ancestor.parentId
+    }
+  }
+
   // The names FR-058 lends to the rows that were given none. AT-24 makes `uid`
   // the key of ET-2, so the last writer of a repeated one cannot be preferred to
   // the first without inventing a rule; `boxByGroupId` above keeps the first for
@@ -971,6 +999,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     groupIdsWithHiddenChild,
     boxByGroupId,
     groupIdsWithCollapsedBelow,
+    groupIdsWithHiddenBelow,
     groupIdsWithUnfoldedBelow,
     groupIdsWithFoldedChildToOpen,
     foldedRowCountByGroupId,
