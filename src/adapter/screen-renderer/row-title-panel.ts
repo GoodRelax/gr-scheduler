@@ -80,34 +80,6 @@ import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './scre
 interface PanelIndex {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
   /**
-   * The rows that are somebody's parent -- the rows HF-1 gives the pair of
-   * controls to, since it places them on a row that has something under it.
-   *
-   * ⚠️ A SET AND NOT THE CHILDREN THEMSELVES. The one thing a child is asked
-   * is whether HR-6 hides it, and the set below carries that answer already, so
-   * keeping an array per parent would build, every frame, a roster no one
-   * reads.
-   */
-  readonly groupIdsWithChildren: ReadonlySet<string>
-  /**
-   * The rows with at least one child HR-6 does not hide -- the rows whose own
-   * fold, taken off, would put a row into the picture that is not in it now.
-   *
-   * ⭐⭐ WHY AT-57 IS READ AGAIN AFTER CR-307 RETIRED IT HERE. What that change
-   * retired was reading the hiding to decide whether a row IS drawn -- the
-   * drawn rows answer that already. This asks a different question: whether a
-   * row that is NOT drawn WOULD be, once the fold above it came off. HR-6
-   * (MUST NOT) is the one answer to it that lives in the document, because a
-   * hidden row stays hidden however the folds above it move.
-   * ⛔ THE DISPLAY AMOUNT (FR-018) IS NOT ANSWERED HERE AND CANNOT BE. Whether
-   * the group level of detail would keep the revealed row is ScheduleLayout's
-   * judgement, and Chapter 5.3 lets this component nowhere near it -- so a row
-   * whose every child the zoom would drop still arms the opening control. That
-   * is the one case left where the closing rule under table T-051 is answered
-   * short. @provisional PD-319
-   */
-  readonly groupIdsWithUnhiddenChildren: ReadonlySet<string>
-  /**
    * The rows with at least one child THIS FRAME DREW -- the rows whose own fold
    * still takes something out of the picture, which is the only thing HF-3's
    * closing control does.
@@ -120,68 +92,6 @@ interface PanelIndex {
    */
   readonly groupIdsWithDrawnChildren: ReadonlySet<string>
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
-  /**
-   * The rows with at least one DRAWN folded row (AT-56) somewhere under them
-   * THAT WOULD REVEAL SOMETHING -- the exact set on which HF-2's opening
-   * control still changes the picture, since HR-3 of table T-015 reaches
-   * everything below a row and not the row.
-   *
-   * ⛔ A FOLDED ROW WITH NOTHING TO REVEAL IS NOT ONE OF THEM (CR-309). The
-   * closing rule under table T-051 (MUST) counts 「その操作の前後で描かれる行の
-   * 差」, so a folded row whose children are all hidden -- or which has no
-   * children at all -- opens onto the same picture and is no reason to arm.
-   *
-   * ⚠️ Marked once for the frame rather than climbed per row: this runs every
-   * frame, and NFR-013 (MUST NOT) refuses an O(n^2) algorithm outright.
-   */
-  readonly groupIdsWithCollapsedBelow: ReadonlySet<string>
-  /**
-   * The rows with a row HR-6 hid somewhere below them -- the other half of
-   * what HF-2's control still has to do. See where it is built.
-   */
-  readonly groupIdsWithHiddenBelow: ReadonlySet<string>
-  /**
-   * The rows with at least one DRAWN row below them that is NOT folded AND
-   * THAT WOULD HIDE SOMETHING IF IT FOLDED -- the exact set on which HF-11's
-   * control still changes something, since HR-4 of table T-015 reaches
-   * everything below a row and not the row.
-   *
-   * ⛔⛔ THIS IS THE VERY CASE CR-309 WAS OPENED FOR, measured on the shipped
-   * build: a row whose children are all leaves had this control armed, and a
-   * press folded every one of those leaves and left the frame byte-identical
-   * -- folding a row with nothing under it takes no row out of the picture.
-   * ⭐ So a row below counts only when the picture holds a child of ITS own.
-   *
-   * ⛔ NOT THE COMPLEMENT OF `groupIdsWithCollapsedBelow`. A subtree can hold a
-   * folded row and an unfolded one at once, and then both sets carry the
-   * ancestor -- which is right: HF-2 has something left to open and HF-11
-   * something left to fold.
-   * ⚠️ Marked in the same one pass and for the same reason (NFR-013).
-   */
-  readonly groupIdsWithUnfoldedBelow: ReadonlySet<string>
-  /**
-   * The rows with at least one DRAWN DIRECT CHILD that is folded AND that would
-   * reveal something -- the exact set on which HF-13's control (IC-90) still
-   * changes the picture, since HR-7 of table T-015 reaches 「直下の子だけ」 and
-   * leaves 「孫より下は畳んだまま」.
-   *
-   * ⛔ ONE HOP AND NOT THE SUBTREE, which is the whole difference between this
-   * set and `groupIdsWithCollapsedBelow`. A row whose child is open and whose
-   * GRANDCHILD is folded leaves HF-2 with work and HF-13 with none -- pressing
-   * IC-90 there would open nothing, and HF-13 (MUST) has it drawn faint:
-   * 「開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと」.
-   *
-   * ⛔ THE CHILD MUST BE DRAWN AND MUST HAVE SOMETHING TO REVEAL, the same two
-   * narrowings `groupIdsWithCollapsedBelow` carries and for the same words: the
-   * closing rule under table T-051 (MUST) names HF-13 among the entrances that
-   * count 「いま描かれている行」, and 「その操作で、描かれる行が 1 行も増減しない
-   * ときは、対象が 1 つも無いものとして扱うこと」.
-   *
-   * ⚠️ ONE PASS, LIKE THE TWO ABOVE. The parent is reached from the child's own
-   * `parentId`, so no row is asked for its children and NFR-013's refusal of an
-   * O(n^2) algorithm is kept without a climb.
-   */
-  readonly groupIdsWithFoldedChildToOpen: ReadonlySet<string>
   /**
    * The rows with at least one DIRECT child HR-6 hides -- the rows whose own
    * one-level-open control (IC-90) would put a row back into the picture by
@@ -196,9 +106,12 @@ interface PanelIndex {
    * 実装に 1 つも無く、入口の無い戻り道であった」 -- U-29 is gone from the
    * manuscript with that ruling.
    *
-   * ⛔ THE PARENT MUST BE UNFOLDED FOR IT TO COUNT, and that is asked where this
-   * set is read: unhiding a child of a FOLDED row draws nothing, because HR-1a
-   * keeps a folded row's descendants out of the picture whatever AT-57 says.
+   * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) since
+   * 2026-08-31 takes THIS row's fold off in the same press, so a folded parent
+   * with a hidden child draws both again -- and RS-30 of table T-233 words the
+   * spent 場面 as the two halves together, 「その行は畳まれておらず、隠れている子
+   * も無い」. ⛔ The narrowing that stood here refused a folded parent, which was
+   * right while the press wrote the CHILDREN's folds and is wrong now.
    */
   readonly groupIdsWithHiddenChild: ReadonlySet<string>
   /**
@@ -211,10 +124,9 @@ interface PanelIndex {
    * is anything under it: HF-18 counts 「畳み込んでいる」 rows, and hiding is the
    * other operation -- HR-6 puts the row away by itself and the parent's
    * one-level-open is what brings it back.
-   * ⚠️ THE DISPLAY AMOUNT (FR-018) IS NOT TOLD APART FROM A FOLD HERE, for the
-   * reason `groupIdsWithUnhiddenChildren` gives: ScheduleLayout settles that and
-   * Chapter 5.3 keeps this component away from it, so a row the zoom dropped is
-   * counted as folded away. @provisional PD-319
+   * ⚠️ THE DISPLAY AMOUNT (FR-018) IS NOT TOLD APART FROM A FOLD HERE:
+   * ScheduleLayout settles that and Chapter 5.3 keeps this component away from
+   * it, so a row the zoom dropped is counted as folded away. @provisional PD-319
    */
   /**
    * ⚠️ HF-18's 「配下に畳み込んでいる行があるとき、その行数」 READS TWO WAYS:
@@ -467,31 +379,30 @@ function rowDepth(
 // ⚠️ AT-57 IS STILL READ IN `src/`, on the side that decides what is drawn.
 
 /**
- * HF-1 of table T-051: a row with something under it carries an opening control
- * AND a closing one. ⚠️ They are not one control in two states -- HF-2 opens the
- * row's WHOLE subtree (HR-3 of table T-015) and HF-3 collapses the row ITSELF
- * (HR-5) -- so the two are judged apart and one can be spent while the other is
- * not.
+ * HF-1 of table T-051: every row carries the four folding controls, of which
+ * three are described here (HF-13's is `RowTitle.canOpenOneLevel`).
+ *
+ * ⭐⭐ EACH OF THE FOUR WRITES THE PRESSED ROW'S OWN STATE, which is the
+ * paragraph that closes table T-051 (MUST) since 2026-08-31: 「折り畳みの 4 つの
+ * 操作子は、どれも押した行そのものの状態を書き換える」, and (MUST NOT) 「押した行
+ * の状態を書き換えずに、その配下の状態だけを書き換えてはならない」. ⇒ Every half
+ * below is a question about THIS row, and the subtree walks that used to answer
+ * them are gone with the ranges they served.
  *
  * ⭐ ALL THREE HALVES ANSWER WHAT THEIR OPERATION WOULD CHANGE IN THE PICTURE,
  * which is what FR-029 (MUST) asks of every entrance and what the closing rule
- * under table T-051 (MUST) states for these five controls by name. `canClose`
- * is HF-3 folding THIS row, so it is spent where AT-56 already says the row is
- * folded AND where the fold would take no drawn row away. `canOpen` is HF-2
- * unfolding every row UNDER this one and not the row itself, so it is spent
- * where no DRAWN row under this one is folded. `canCloseBelow` is HF-11's
- * mirror of that.
+ * under table T-051 (MUST) states for these controls by name. `canClose` is
+ * HF-3 hiding THIS row, which always takes at least this row away -- HF-3
+ * (MUST): 「描かれている行はいつでも隠せるので、本操作子を薄く描く場面は無い」.
+ * `canCloseBelow` is HF-11 folding THIS row (HR-4), so it is spent where the
+ * picture holds no child of it to take away. `canOpen` is HF-2 opening this row
+ * and its whole subtree (HR-3), so it is spent where nothing at or below it is
+ * folded or hidden -- and HF-2 words that as HF-18's own number.
  *
- * ⛔⛔ AND A ROW BELOW ONLY COUNTS WHEN THE OPERATION WOULD MOVE IT (CR-309).
- * The closing rule under table T-051 (MUST) finishes 「その操作で、描かれる行が
- * 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」 and says what to
- * count: 「配下の行の数ではなく、その操作の前後で描かれる行の差」. ⛔ THE NOTE
- * THAT STOOD HERE STOPPED AT 「描かれている行」, which is a narrower question,
- * and the user's own case survived it: `Whole Product` holds two drawn leaves,
- * so IC-77 was armed, and the press folded two rows that hide nothing while
- * the frame stayed byte-identical (CR-309 §1(a), measured on the shipped
- * build). ⭐ The difference is one hop: the row below must itself have a child
- * the operation would move.
+ * ⛔⛔ AND THE COUNT IS THE DIFFERENCE IN THE PICTURE, NOT THE ROWS BELOW
+ * (CR-309). The closing rule (MUST) finishes 「その操作で、描かれる行が 1 行も
+ * 増減しないときは、対象が 1 つも無いものとして扱うこと」 and says what to count:
+ * 「配下の行の数ではなく、その操作の前後で描かれる行の差」.
  *
  * ⛔ A ROW THE PICTURE DOES NOT HOLD IS COUNTED ON NO HALF (MUST NOT). HR-1a of
  * table T-015 refuses to draw a folded row's descendants and HR-6 refuses to
@@ -536,16 +447,25 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   // to anyone. FR-029 makes the telling a MUST and (MUST NOT) forbids
   // disabling the entrance for the same reason -- the press is the trigger.
   //
-  // ⭐ THE PICTURE NARROWS ALL THREE, each where its own answer is built:
-  // `groupIdsWithCollapsedBelow` and `groupIdsWithUnfoldedBelow` are marked
-  // from the DRAWN rows alone, and the closing half asks for a child this frame
-  // drew. ⚠️ A row none of whose children the picture holds therefore carries
-  // the pair with neither half armed -- HF-1 still places the pair, since the
-  // row does have something under it.
+  // ⭐ THE PICTURE NARROWS THE FOLDING HALF, which is the one that takes rows
+  // away: `groupIdsWithDrawnChildren` is marked from the rows this frame drew.
+  // ⚠️ A row none of whose children the picture holds therefore carries the
+  // control unarmed -- HF-1 still places it, since HF-1 places all four on 各行.
   return {
-    canOpen:
-      index.groupIdsWithCollapsedBelow.has(group.id) ||
-      index.groupIdsWithHiddenBelow.has(group.id),
+    // HF-2 (MUST) TIES THIS HALF TO THE NUMBER HF-18 SHOWS: 「その行が抱えている
+    // 畳み込みが 0 のときは、`FR-029` に従って薄く描くこと —— その数を示すのが
+    // `HF-18` であり、示す数と構えの条件は同じ 1 つである」.
+    // ⭐ THE ROW'S OWN FOLD IS INSIDE THAT NUMBER, which is what HR-3 needs since
+    // 2026-08-31: it opens 「選択した `TaskGroup` と、その配下のすべて」, so a
+    // folded row with a child of its own arms this half by holding that child
+    // away. ⛔ `groupIdsWithCollapsedBelow` STOOD HERE AND COULD NOT SEE IT --
+    // that set was about the rows BELOW, which is the range HR-3 left behind.
+    // ⭐⭐ AND THE HIDING IS INSIDE THAT NUMBER TOO, which is what keeps 「示す数
+    // と構えの条件は同じ 1 つ」 true: HR-3 (MUST NOT) 「畳みだけを解いて隠しを残し
+    // てはならない」, so a row put away by HF-3 comes back with this press and has
+    // to be one of the rows the number counts. ⛔ A SECOND TEST BESIDE THE NUMBER
+    // STOOD HERE and broke that MUST -- the entrance armed while the row showed 0.
+    canOpen: (index.foldedRowCountByGroupId.get(group.id) ?? 0) > 0,
     // HF-3 (MUST) IS NOW HR-6: 「隠す操作子は、その行を隠すこと —— 表 T-015 の
     // `HR-6` である」（利用者の裁定 2026-08-30）. ⭐ ALWAYS ARMED ON A DRAWN ROW:
     // HR-6 (MUST NOT) refuses to draw a hidden row or anything under it, so the
@@ -556,10 +476,17 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
     // ⚠️ IT IS NOT NARROWED BY `groupIdsWithDrawnChildren` EITHER: a leaf row
     // hides itself, which changes the picture by exactly one row.
     canClose: index.boxByGroupId.has(group.id),
-    // HF-11 folds everything BELOW the row and not the row, so this half is
-    // spent exactly where no DRAWN row under this one is left unfolded -- the
-    // mirror of `canOpen`, narrowed by the picture in the same place.
-    canCloseBelow: index.groupIdsWithUnfoldedBelow.has(group.id),
+    // HF-11 (MUST) NAMES HR-4, WHICH SINCE 2026-08-31 FOLDS THE ROW ITSELF:
+    // 「選択した `TaskGroup` を畳むこと」 ⇒ 「その直下の子から下が描かれなくなる」.
+    // ⭐ SO THE QUESTION IS ONE HOP AND NOT A SUBTREE WALK: the press takes this
+    // row's DRAWN children out of the picture, and where the picture holds none
+    // it takes nothing -- the closing rule under table T-051 (MUST), 「その操作の
+    // 前後で描かれる行の差」.
+    // ⛔ `groupIdsWithUnfoldedBelow` STOOD HERE and asked whether some row BELOW
+    // was still unfolded, which was HR-4's range until that ruling. A row whose
+    // own children were leaves answered `false` there and answers `true` here,
+    // because folding it now hides those leaves.
+    canCloseBelow: index.groupIdsWithDrawnChildren.has(group.id),
   }
 }
 
@@ -707,13 +634,21 @@ function rowTitleOf(
     // ⭐⭐ AND SINCE 2026-08-30 IT IS ALSO HR-6's WAY BACK. That row (MUST):
     // 「隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の
     // `HF-13` である」. ⇒ A row with a hidden direct child has this entrance
-    // armed even where nothing under it is folded, because the press draws that
-    // child again. ⛔ ONLY WHILE THIS ROW IS OPEN: HR-1a keeps a folded row's
-    // descendants out of the picture whatever AT-57 says, so unhiding under a
-    // folded row moves no drawn row and the closing rule counts it as no target.
+    // armed even where nothing is folded, because the press draws that child
+    // again.
+    // ⭐⭐ THE TWO HALVES ARE RS-30 OF TABLE T-233 READ BACKWARDS. That row words
+    // HF-13's spent 場面 「その行は畳まれておらず、隠れている子も無い」, so the
+    // entrance is armed exactly when this row IS folded or hides a direct child.
+    // ⛔ `groupIdsWithFoldedChildToOpen` STOOD HERE and asked about the CHILDREN's
+    // folds, which is the reading HR-7 retired: 「孫より下の畳みに触れてはならない
+    // （MUST NOT）」, so what comes off is this row's own AT-56.
+    // ⚠️ A FOLDED ROW WITH NO CHILD AT ALL IS ARMED AND REVEALS NOTHING, which is
+    // the one place the closing rule under table T-051 is answered short. ⛔ The
+    // narrower reading cannot be taken: the telling would then open 「その行は
+    // 畳まれておらず」 on a folded row, and FR-029 (MUST NOT) forbids a reason that
+    // does not fit.
     canOpenOneLevel:
-      index.groupIdsWithFoldedChildToOpen.has(group.id) ||
-      (group.isCollapsed !== true && index.groupIdsWithHiddenChild.has(group.id)),
+      group.isCollapsed === true || index.groupIdsWithHiddenChild.has(group.id),
     // HF-14 (MUST), which names HR-8: a row is added under this one.
     //
     // ⭐ SPENT ONLY AT THE CAP. Adding a row always changes the document, so
@@ -783,8 +718,6 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
  */
 function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
-  const groupIdsWithChildren = new Set<string>()
-  const groupIdsWithUnhiddenChildren = new Set<string>()
   const groupIdsWithHiddenChild = new Set<string>()
   // ⭐ THE CHILDREN OF EACH ROW, AND OF 段 0 UNDER THE KEY `null`. HR-2 (MUST)
   // makes the head level 0, so its children are exactly the rows with no parent
@@ -796,13 +729,11 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     if (siblings === undefined) childrenByParentId.set(group.parentId, [group])
     else siblings.push(group)
     if (group.parentId === null) continue
-    groupIdsWithChildren.add(group.parentId)
-    if (group.isHidden === true) groupIdsWithHiddenChild.add(group.parentId)
     // ⚠️ The child's OWN `isHidden` and not its ancestors'. A row under a
     // hidden one is unreachable from a drawn parent anyway, since HR-6 keeps
-    // the whole subtree out; the one thing this answers is whether unfolding
-    // the parent would put THIS child into the picture.
-    if (group.isHidden !== true) groupIdsWithUnhiddenChildren.add(group.parentId)
+    // the whole subtree out; the one thing this answers is whether the parent's
+    // one-level-open would put THIS child into the picture (HR-7).
+    if (group.isHidden === true) groupIdsWithHiddenChild.add(group.parentId)
   }
 
   // ⭐ THE PICTURE, BUILT BEFORE ANY OF THE THREE ANSWERS THAT READ IT. A row is
@@ -815,94 +746,22 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     boxByGroupId.set(placed.groupId, placed.box)
   }
 
-  // HF-3's reach: the rows whose own fold would take a drawn row out of the
-  // picture. ⚠️ A second pass and not the one above, because a child may be
-  // printed before its parent and the map has to be whole first.
+  // HF-11's reach: the rows whose own fold would take a drawn row out of the
+  // picture, since HR-4 (MUST) since 2026-08-31 folds THE PRESSED ROW and 「その
+  // 直下の子から下が描かれなくなる」. ⚠️ A second pass and not the one above,
+  // because a child may be printed before its parent and the map has to be whole
+  // first.
+  //
+  // ⛔ TWO CLIMBS STOOD HERE AND ARE GONE WITH THE RANGE THEY ANSWERED. They
+  // marked, for every row, whether a row BELOW it was folded or unfolded -- which
+  // was HF-2's and HF-11's question while those two reached only below a row.
+  // ⭐ HR-3 and HR-4 now write the pressed row, so both answers are one hop:
+  // HF-11 asks this set, and HF-2 asks HF-18's own number.
   const groupIdsWithDrawnChildren = new Set<string>()
-  // HF-13's reach, marked in the same pass and from the same rows: a parent is
-  // in it when one of the children THIS FRAME DREW is folded over a child of
-  // its own that HR-6 does not hide. ⚠️ `groupIdsWithUnhiddenChildren` is whole
-  // by now -- it was built in the first pass above -- so the child's own answer
-  // can be asked here rather than in a third walk.
-  const groupIdsWithFoldedChildToOpen = new Set<string>()
   for (const group of schedule.taskGroups) {
     if (group.parentId === null) continue
     if (!boxByGroupId.has(group.id)) continue
     groupIdsWithDrawnChildren.add(group.parentId)
-    if (group.isCollapsed !== true) continue
-    if (!groupIdsWithUnhiddenChildren.has(group.id)) continue
-    groupIdsWithFoldedChildToOpen.add(group.parentId)
-  }
-
-  // HF-2's reach, marked upward from the folded rows instead of walked downward
-  // from each row: one pass over the document answers every row, where a walk
-  // per row would be quadratic in the number of rows, and NFR-013 (MUST NOT)
-  // refuses an O(n^2) algorithm outright.
-  //
-  // ⛔ THE SAME TEST IS THE MEMO AND THE RING GUARD. Stopping at a row already
-  // marked is safe because that row's own ancestors were marked when it was, and
-  // it is what keeps a ringed `parentId` from spinning here inside a frame --
-  // `schedule.ts` REPORTS such a ring (IV-18) rather than refusing the document,
-  // so this unit is handed one. The write side's own climb guards the same way.
-  const groupIdsWithCollapsedBelow = new Set<string>()
-  const groupIdsWithUnfoldedBelow = new Set<string>()
-  for (const group of schedule.taskGroups) {
-    // ⛔ THE ONE TEST BOTH WALKS BEGIN WITH (MUST NOT): a row the picture does
-    // not hold carries a fold nobody can see undone, so neither walk climbs
-    // from it. ⚠️ The climb above such a row is not lost with it -- HR-1a and
-    // HR-6 both leave out a whole subtree, so an ancestor that IS drawn is
-    // never reachable only through a row that is not.
-    if (!boxByGroupId.has(group.id)) continue
-    // HF-11's reach, marked upward from the rows that are NOT folded -- the
-    // mirror of the walk below, sharing its one pass and its ring guard.
-    if (group.isCollapsed !== true) {
-      // ⛔ CR-309: a row that would hide nothing is no seed. Folding it takes
-      // no row out of the picture, so an ancestor marked from it would arm a
-      // control whose press draws the same frame again.
-      if (!groupIdsWithDrawnChildren.has(group.id)) continue
-      let unfoldedAncestorId = group.parentId
-      while (
-        unfoldedAncestorId !== null &&
-        !groupIdsWithUnfoldedBelow.has(unfoldedAncestorId)
-      ) {
-        groupIdsWithUnfoldedBelow.add(unfoldedAncestorId)
-        const ancestor = groupsById.get(unfoldedAncestorId)
-        unfoldedAncestorId = ancestor === undefined ? null : ancestor.parentId
-      }
-      continue
-    }
-    // ⛔ CR-309, the mirror of the test above: a folded row that would reveal
-    // nothing is no seed either. HR-6 is what makes an existing child fail to
-    // arrive, which is why the set below is the unhidden children and not
-    // `groupIdsWithChildren`.
-    if (!groupIdsWithUnhiddenChildren.has(group.id)) continue
-    let ancestorId = group.parentId
-    while (ancestorId !== null && !groupIdsWithCollapsedBelow.has(ancestorId)) {
-      groupIdsWithCollapsedBelow.add(ancestorId)
-      const ancestor = groupsById.get(ancestorId)
-      ancestorId = ancestor === undefined ? null : ancestor.parentId
-    }
-  }
-
-  // ⭐⭐ AND THE ROWS WITH A HIDDEN ROW SOMEWHERE BELOW THEM. HR-3 (MUST) since
-  // 2026-08-31: 「`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと」, so
-  // HF-2's control has something to do wherever one stands under it.
-  // ⛔ THE WALK ABOVE CANNOT ANSWER THIS. It climbs only from rows the picture
-  // HOLDS, and a hidden row is precisely one the picture does not hold -- so a
-  // row whose only buried descendant was hidden rather than folded armed
-  // nothing, and the user measured the result: the single down chevron brought
-  // a hidden row back and the double down chevron did not.
-  // ⚠️ A SET OF ITS OWN AND NOT AN ADDITION TO THE ONE ABOVE, whose name says
-  // 「畳まれた」; the two are OR-ed where HF-2's control is armed.
-  const groupIdsWithHiddenBelow = new Set<string>()
-  for (const group of schedule.taskGroups) {
-    if (group.isHidden !== true) continue
-    let hiddenAncestorId = group.parentId
-    while (hiddenAncestorId !== null && !groupIdsWithHiddenBelow.has(hiddenAncestorId)) {
-      groupIdsWithHiddenBelow.add(hiddenAncestorId)
-      const ancestor = groupsById.get(hiddenAncestorId)
-      hiddenAncestorId = ancestor === undefined ? null : ancestor.parentId
-    }
   }
 
   // The names FR-058 lends to the rows that were given none. AT-24 makes `uid`
@@ -919,12 +778,19 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   //
   // ⭐ TWO NUMBERS PER ROW AND ONE PASS FOR BOTH (NFR-013 refuses O(n^2)):
   // `subtreeSize` is how many rows a row and its descendants add once nothing
-  // of it is drawn, and `folded` is how many rows this row is holding folded
-  // right now -- a drawn child contributes its own `folded`, an undrawn one
-  // contributes its whole subtree, because everything under a row the picture
-  // does not hold is out of the picture too (HR-1a).
-  // ⛔ A HIDDEN ROW IS SKIPPED WITH ITS SUBTREE: HF-18 counts folds, and HR-6's
-  // hiding is the operation the parent's one-level-open undoes instead.
+  // of it is drawn, and `folded` is how many rows this row is holding away
+  // right now -- a child that is neither folded away nor hidden contributes its
+  // own `folded`, and one that is contributes its whole subtree, because
+  // everything under a row the picture does not hold is out of the picture too
+  // (HR-1a).
+  // ⭐⭐ A HIDDEN ROW COUNTS, WITH ITS SUBTREE. HF-3 calls the hiding 「1 本の
+  // 上向きで親へ畳み込み」, so the parent IS 「畳み込んでいる」 it -- and HF-2
+  // (MUST) makes this number and that entrance's arming 「同じ 1 つ」 while HR-3
+  // (MUST NOT) has the same press bring the hidden rows back: 「畳みだけを解いて
+  // 隠しを残してはならない」. ⛔ SKIPPING THEM CAME APART FROM BOTH: a row whose
+  // only buried descendant was hidden showed 0 and armed its opener anyway.
+  // ⚠️ THE DISPLAY AMOUNT IS STILL NEVER COUNTED (HF-18, MUST NOT) -- what is
+  // read here is AT-56 and AT-57, never `boxByGroupId`.
   // ⚠️ `visited` IS THE RING GUARD, the same one the two climbs above keep:
   // `schedule.ts` REPORTS a `parentId` ring (IV-18) rather than refusing the
   // document, so this walk is handed one.
@@ -948,23 +814,24 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     let subtreeSize = 1
     let folded = 0
     for (const child of childrenByParentId.get(group.id) ?? []) {
-      if (child.isHidden === true) continue
       const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
-      // ⛔⛔ WHAT IS COUNTED IS THE PERSON'S FOLD AND NEVER THE PICTURE. HF-18
+      // ⛔⛔ WHAT IS COUNTED IS THE PERSON'S DOING AND NEVER THE PICTURE. HF-18
       // (MUST) counts 「人が畳んだ分だけ」 and (MUST NOT) refuses to count what
       // the display amount dropped -- 「畳んでいない行に数が出ると、人は自分が
-      // 畳んだ覚えの無いものを探すことになる」.
+      // 畳んだ覚えの無いものを探すことになる」. ⭐ Both a fold (AT-56) and a
+      // hiding (AT-57) are the person's doing; FR-018's drop is not, and is not
+      // read here.
       // ⛔ IT READ `boxByGroupId` UNTIL 2026-08-30, i.e. "was this child drawn",
       // and FR-018's group level of detail drops rows for its own reasons: an
       // OPEN row whose children the zoom had dropped reported them as folded
       // away. ⭐ Measured by the user on the shipped build -- a row nobody had
       // folded carried a count.
-      // ⭐ `isCollapsed` IS THE FOLD, and it is this row's own: a collapsed row
-      // holds its whole subtree away, an open one holds whatever its children
-      // hold.
+      // ⭐ THE TWO WAYS A CHILD IS HELD AWAY: this row's own fold holds every
+      // child's whole subtree, and the child's own hiding holds that one's --
+      // otherwise the child holds away whatever it holds away.
       folded +=
-        group.isCollapsed === true
+        group.isCollapsed === true || child.isHidden === true
           ? childSubtree
           : (foldedRowCountByGroupId.get(child.id) ?? 0)
     }
@@ -975,33 +842,26 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const rootGroups = childrenByParentId.get(null) ?? []
   // HF-12 (MUST): 「頭にいま何行を畳み込んでいるか」. ⭐ 段 0 answers exactly as a
   // row does, which is what HR-2 means by 「頭に置いた入口が段 0 のそれである」 --
-  // and while the head itself is folded every unhidden row is folded away by it.
+  // and while the head itself is folded every row is folded away by it.
   let foldedRowCountAtLevelZero = 0
   for (const root of rootGroups) {
-    if (root.isHidden === true) continue
     const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
     // ⛔ THE SAME RULE THE ROWS TAKE: what 段 0 holds away is what its own fold
-    // holds away, never what FR-018's display amount dropped. ⚠️ `!boxByGroupId
-    // .has(root.id)` stood here until 2026-08-30 and made the head report the
-    // rows the zoom had left out -- 92 of 100 on the startup document, none of
-    // which anybody had folded.
+    // and the rows' own hidings hold away, never what FR-018's display amount
+    // dropped. ⚠️ `!boxByGroupId.has(root.id)` stood here until 2026-08-30 and
+    // made the head report the rows the zoom had left out -- 92 of 100 on the
+    // startup document, none of which anybody had folded.
     foldedRowCountAtLevelZero +=
-      session.isLevelZeroFolded === true
+      session.isLevelZeroFolded === true || root.isHidden === true
         ? subtreeSize
         : (foldedRowCountByGroupId.get(root.id) ?? 0)
   }
 
   return {
     groupsById,
-    groupIdsWithChildren,
-    groupIdsWithUnhiddenChildren,
     groupIdsWithDrawnChildren,
     groupIdsWithHiddenChild,
     boxByGroupId,
-    groupIdsWithCollapsedBelow,
-    groupIdsWithHiddenBelow,
-    groupIdsWithUnfoldedBelow,
-    groupIdsWithFoldedChildToOpen,
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,
     rootGroups,
@@ -1122,18 +982,21 @@ export function rowTitlePanelFromSchedule(
     // drawn child hides nothing when it folds -- so neither is a reason to arm.
     // ⭐ AND 段 0's OWN FOLD IS ONE OF THE THINGS IT OPENS (HR-1, S-211): that
     // row names HF-10 as one of the two roads back from a folded head.
-    canOpenEveryRow:
-      (isLevelZeroFolded && index.rootGroups.length > 0) ||
-      schedule.taskGroups.some(
-        (row) =>
-          row.isCollapsed === true &&
-          index.boxByGroupId.has(row.id) &&
-          index.groupIdsWithUnhiddenChildren.has(row.id),
-      ),
-    // ⭐ HR-2 NOW FOLDS 段 0 TOO, so this entrance is spent exactly where the
-    // head is already folded: with it open there is always the head left to
-    // fold, and with it folded there is no row in the picture at all.
-    canCloseEveryRow: !isLevelZeroFolded && (pinnedTitles.length > 0 || titles.length > 0),
+    // ⭐⭐ 段 0 ANSWERS EXACTLY AS A ROW DOES (HR-2, MUST: 「その入口は各行の入口と
+    // 同じ論理で働くこと」), so this reads the head's own HF-12 number the way
+    // `expanderOf` reads HF-18's -- a folded head reports every row it is holding
+    // away, and an open head reports what the rows below it hold.
+    // ⛔ AND THE HIDING IS INSIDE THAT NUMBER, at every depth: HR-1 (MUST) since
+    // 2026-08-31 brings back 「`HR-6` が隠した行もすべて」, and the number counts a
+    // row put away either way -- the same one reading `expanderOf`'s `canOpen`
+    // takes, and for the same MUST.
+    canOpenEveryRow: index.foldedRowCountAtLevelZero > 0,
+    // ⭐ HR-2 NOW FOLDS 段 0 TOO, so this entrance is spent where the head is
+    // already folded -- and, 段 0 being a row's reach one level up, where the
+    // picture holds no row of the shallowest level for the head to fold away
+    // (HR-4 through HF-12, and the closing rule under table T-051).
+    canCloseEveryRow:
+      !isLevelZeroFolded && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),
     // HF-16 (MUST): 段 0 opens one level. ⭐ TWO WAYS IT CAN HAVE WORK -- the
     // head is folded and the shallowest level would come back (HR-2), or a row
     // of that level is hidden and this is the only control that can restore it

@@ -1246,6 +1246,13 @@
     "ja": "告げた通知を消すとき",
     "en": "When a told notification is dismissed"
    }
+  },
+  {
+   "rowId": "NT-9",
+   "manner": {
+    "ja": "通知の箱の幅",
+    "en": "How wide the box of a notification is"
+   }
   }
  ],
  "reasons": [

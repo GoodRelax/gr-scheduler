@@ -1333,7 +1333,7 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
 > = {
   noFoldedRowBelow: 'RS-28',
   noUnfoldedRowBelow: 'RS-29',
-  rowAlreadyFolded: 'RS-30',
+  rowIsOpenWithNoHiddenChild: 'RS-30',
   noFoldedRowAtAll: 'RS-31',
   noUnfoldedRowAtAll: 'RS-32',
   onlyOneOfPlanAndActualShown: 'RS-33',

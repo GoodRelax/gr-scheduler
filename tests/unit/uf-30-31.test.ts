@@ -2623,9 +2623,10 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     expect(kindsOf(pressPanelEntry('IC-59', 'n1', shut))).toEqual(['setTaskGroupHidden'])
   })
 
-  it('HF-2: the opening side opens the WHOLE subtree -- HR-3 of table T-015', () => {
-    // HF-2 (MUST): 「開く操作子は、その行の配下をすべて開くこと」—— 表 T-015 の
-    // `HR-3`（「選択した `TaskGroup` の配下をすべて開く」）である。
+  it('HF-2: the opening side opens the pressed row AND its WHOLE subtree -- HR-3 of table T-015', () => {
+    // HF-2 (MUST): 「**開く操作子の職務は 表 T-015 の `HR-3` である（MUST）**」，
+    // `HR-3`: 「**選択した `TaskGroup` と、その配下のすべてから、畳みと隠しを取り
+    // 除くこと（MUST）**」。
     // ⚠️ 「1 段だけ開く」 was the rule until 2026-08-25; HF-2 itself records
     // that it was retired because nothing then re-opened what HF-3 folded.
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
@@ -2634,11 +2635,15 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // 配下 is every row under it, however deep -- not one level.
     expect(rowsFolded(answer, false)).toContain('n1a')
     expect(rowsFolded(answer, false)).toContain('n1a1')
-    // ⛔ THE PRESSED ROW IS NOT ITSELF OPENED. HF-3 says the pair plainly:
-    // 「畳んだ行は、1 つ上の行の開く操作子が開く」, and HF-10 exists only
-    // because 「最上位の行が自分を畳むと、それを開く操作子がどこにも無くなる」
-    // -- which is false if a row's own opening control reaches itself.
-    expect(rowsFolded(answer, false)).not.toContain('n1')
+    // ⛔⛔ REVERSED BY 利用者の指示 2026-08-31「サンプルと同じ動作にしろ」. This
+    // line read `not.toContain('n1')` and cited a sentence of `HF-3` that the
+    // same rewrite removed. `HR-3` now says the opposite outright: 「⭐⭐ **その行
+    // 自身の畳みも解くこと（MUST）** —— **`HR-4` が畳むのはその行自身なので、解く
+    // 側が同じ行を解かなければ対にならない。**」 ⇒ `HF-11` (which is now `HR-4`)
+    // folds the pressed row, so the opener must open the pressed row or the two
+    // are not a pair. ⚠️ `HF-10` still exists for the reason it always did: a
+    // row's opener reaches its own subtree, never 段 0 above it.
+    expect(rowsFolded(answer, false)).toContain('n1')
     // A second root is under no part of the pressed row.
     expect(rowsFolded(answer, false)).not.toContain('n2')
     expect(rowsFolded(answer, false)).not.toContain('n2a')

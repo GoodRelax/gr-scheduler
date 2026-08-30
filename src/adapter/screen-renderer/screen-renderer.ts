@@ -371,9 +371,11 @@ export interface RowTitlePanel {
    * with something to do, and one with no rows at all leaves NEITHER.
    *
    * ⚠️ IT NOW READS S-211 AS WELL. HR-2 of table T-015 (MUST) has this entrance
-   * fold 段 0 itself, so it is spent only where level 0 is ALREADY folded --
-   * with the head folded there is no row in the picture to fold, and with it
-   * open there is always the head left to fold.
+   * fold 段 0 itself, so it is spent where level 0 is ALREADY folded -- and,
+   * 段 0 answering exactly as a row does (「その入口は各行の入口と同じ論理で働く
+   * こと」), where the picture holds no row of the shallowest level for the head
+   * to take away. ⭐ That second half is `RowExpander.canCloseBelow` read one
+   * level up.
    */
   readonly canCloseEveryRow?: boolean
   /**
@@ -526,8 +528,9 @@ export interface RowTitle {
   readonly expander: RowExpander
   /**
    * Whether IC-90 -- HF-13 of table T-051, HR-7 of table T-015 -- has anything
-   * left to do on this row: one of its DIRECT children is folded over something
-   * a press would put into the picture.
+   * left to do on this row: THIS row is folded, or one of its DIRECT children is
+   * hidden. ⭐ Table T-233's RS-30 words the spent 場面 as the negation of those
+   * two, 「その行は畳まれておらず、隠れている子も無い」.
    *
    * ⛔⛔ NOT A FOURTH MEMBER OF `RowExpander`, AND THE REASON IS THE ROW IT
    * COMES FROM. Those three are HF-1's and are written by HF-2 / HF-3 / HF-11;
@@ -542,12 +545,14 @@ export interface RowTitle {
    * not `RowExpander.canOpen` narrowed -- the two answer different questions and
    * a row can leave one with work and the other without.
    *
-   * ⛔ THE DIRECT CHILD MUST ITSELF MOVE A ROW. The closing rule under table
-   * T-051 (MUST) names HF-13 among the entrances that count 「いま描かれている
-   * 行」 and finishes 「その操作で、描かれる行が 1 行も増減しないときは、対象が
-   * 1 つも無いものとして扱うこと」 -- so a folded child with nothing under it to
-   * reveal is no reason to arm, exactly as `RowExpander.canOpen` reads its own
-   * rows.
+   * ⛔ IT IS THE ROW'S OWN FOLD THAT COMES OFF, NOT ITS CHILDREN'S. HR-7 (MUST)
+   * since 2026-08-31: 「選択した `TaskGroup` の畳みだけを解くこと」, and (MUST
+   * NOT) 「孫より下の畳みに触れてはならない」 -- HR-1a has already left every
+   * descendant folded, so one fold taken off reveals exactly one level.
+   * ⚠️ A FOLDED ROW WITH NO CHILD AT ALL IS STILL ARMED, and that is RS-30's
+   * doing rather than a choice: the narrower reading would have the telling say
+   * 「その行は畳まれておらず」 of a folded row, which FR-029 (MUST NOT) forbids.
+   * ⛔ It is the one place the closing rule under table T-051 is answered short.
    *
    * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, the same bargain
    * `RowTitlePanel.canOpenEveryRow` takes and for the same reason: the
@@ -652,7 +657,15 @@ export interface RowTitle {
  * entrance: 「`HR-4` を 1 度押せば同じ絵になることを実測しており（版 1.67）」.
  */
 export interface RowExpander {
-  /** HF-2: a row somewhere below this one is folded. */
+  /**
+   * HF-2: this row is holding something folded away, or a row below it is
+   * hidden -- HR-3 of table T-015 reaches 「選択した `TaskGroup` と、その配下の
+   * すべて」 since 2026-08-31, so the row's OWN fold counts.
+   *
+   * ⭐ HF-2 (MUST) TIES IT TO HF-18's NUMBER: 「その行が抱えている畳み込みが 0 の
+   * ときは ... 薄く描くこと —— その数を示すのが `HF-18` であり、示す数と構えの
+   * 条件は同じ 1 つである」.
+   */
   readonly canOpen: boolean
   /**
    * HF-3: this row can be hidden, which is HR-6 of table T-015.
@@ -666,11 +679,15 @@ export interface RowExpander {
    */
   readonly canClose: boolean
   /**
-   * HF-11: a row somewhere below this one is not folded.
+   * HF-11: the picture holds a child of this row, so folding THIS row (HR-4)
+   * would take one away.
    *
-   * ⛔ NOT THE INVERSE OF `canOpen`. That one asks whether a folded row stands
-   * below and this one whether an unfolded row does, and a subtree can hold
-   * both -- so on most rows the two are true together.
+   * ⛔ ONE HOP AND NOT A SUBTREE SINCE 2026-08-31. HR-4 (MUST) 「選択した
+   * `TaskGroup` を畳むこと」 ⇒ 「その直下の子から下が描かれなくなる」, so the
+   * question is this row's own children and not the folds of the rows below.
+   * ⛔ NOT THE INVERSE OF `canOpen`. That one asks whether anything is folded
+   * away at or below this row, and a row can hold a folded descendant and a
+   * drawn child at once -- so on most rows the two are true together.
    */
   readonly canCloseBelow: boolean
 }
