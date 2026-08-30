@@ -1044,6 +1044,28 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
     " * and never the gap the shape's own kind implies.",
 ]
 
+# ⛔ A SEVENTH GROUND, AND THE ONE WHOSE PICTURE HAS NOWHERE TO STAND. S-209
+# is the distance between the two lines of CU-3's 縦 2 本, read by the unit
+# that draws them. ⛔ The ground of S-138 and S-180 does NOT fit: those close
+# on EP-1 / EP-4, which keep an ENTRANCE out of an export, and on EP-14, which
+# keeps the dummy out -- and a cursor is neither. ⚠️ Nor is S-194's sentence
+# right: that one turns on the picture LEAVING the tool, and EP-6 of table
+# T-076 draws the `Status Line` and the `Dual Cursor` while keeping the
+# `Guide Cursor` OUT. ⭐ The reason EP-6 gives is this row's own, and no other
+# row of table T-206 stands on it: 「書き出した時点のポインタの位置に意味が
+# 無い」 -- a line that follows a hand has nowhere to stand in a picture no
+# hand is over.
+DRAWN_UNDER_THE_HAND_ALONE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: table T-206 is where the',
+    ' * specification records that the document does not keep it. ⭐ What',
+    ' * keeps it out of an exported picture is EP-6 of table T-076, which',
+    ' * draws the `Status Line` and the `Dual Cursor` and NOT the',
+    ' * `Guide Cursor` -- 「書き出した時点のポインタの位置に意味が無い」 --',
+    ' * so a reader handed this document sees the same picture whatever',
+    ' * this value is.',
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -1143,6 +1165,14 @@ NOT_STORED_TARGETS = {
     # stands in one place: it is the multiplier SL-8 states, and DC-8 reaches
     # it by naming that row rather than restating the number.
     'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
+    # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
+    # two 「縦 2 本」 are different things -- CU-2 measures and the document
+    # keeps its two dates, CU-3 follows the hand and keeps none -- and EP-6 of
+    # table T-076 puts one in an exported picture and the other out of it. One
+    # shared constant would say the two arrive on the same ground, and the
+    # paragraph above each is what says the ground.
+    'NOT_STORED_GUIDE_CURSOR_SIZES': (['S-209'], DRAWN_UNDER_THE_HAND_ALONE),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
     # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
@@ -1764,10 +1794,16 @@ TARGETS = [
     # are drawn by this unit and by no other, and S-194 is the only row that
     # gives them a width -- S-178 is the multiplier DC-8 borrows from SL-8 and
     # stands with the selection's rows, where SL-8 put it.
+    # ⭐ And the guide cursor's own gap, in a fourth constant: CU-3's 縦 2 本 is
+    # drawn by this unit and by no other, and S-209 is the only row that states
+    # how far apart its two lines stand. ⛔ Not folded into the Dual Cursor's --
+    # FR-048 (MUST) keeps the two pairs apart, and EP-6 of table T-076 draws
+    # one into an exported picture and not the other.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_GUIDE_CURSOR_SIZES') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The width the properties panel opens to, which only the shell can put

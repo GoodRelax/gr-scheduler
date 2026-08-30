@@ -906,12 +906,15 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     expect(taskOf(built.loop, FADED_UID)).toEqual(settled)
   })
 
-  // @provisional PD-394 -- this case is RED ON PURPOSE. Table T-023d's closing
-  // rule says both 「ポインタの下の日から求めること（MUST）」(a truncation) and
-  // 「いずれも 1 日単位に四捨五入する」(a rounding), and the two disagree on the
-  // sliver either side of a boundary. ⛔ The case takes the second sentence and
-  // does NOT loosen: a clause that decides nothing is not how the rest of the
-  // manuscript is written. One of the two has to go, and that is the user's.
+  // ⭐ THIS CASE WAS RED ON PURPOSE UNTIL THE RULING OF 2026-08-30 (CR-314).
+  // Table T-023d's closing rule used to say both 「ポインタの下の日から求める
+  // こと（MUST）」(a truncation) and 「いずれも 1 日単位に四捨五入する」(a
+  // rounding), and the two disagreed on the sliver either side of a boundary.
+  // ⛔ The case took the second sentence and did NOT loosen: a clause that
+  // decides nothing is not how the rest of the manuscript is written. ⭐ The
+  // user settled it the same way -- the arithmetic stood and the day became a
+  // POSITION -- so nothing below moved and the case went green on the fix.
+  // ⚠️ The assertions are untouched; only this note is.
   it('⛔ MUST: rounds to whole days -- both sides of one day boundary settle on the SAME day', () => {
     // 「`GR-1` は `start` からの日数、`GR-2` は `end` までの日数とし、いずれも
     //   1 日単位に四捨五入する。」

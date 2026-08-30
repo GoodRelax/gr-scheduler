@@ -1676,16 +1676,25 @@ export function svgFromSchedule(
       } else if (settings.guideCursorMode === 'single-vertical') {
         // 縦 1 本.
         linkParts.push(vertical(pointer.x))
+      } else if (settings.guideCursorMode === 'double-vertical') {
+        // ⛔ 縦 2 本 DREW NOTHING UNTIL NOW, AND ONE HALF OF THAT NOTE WAS
+        // WRONG. It said two undecided values were stacked here -- the gap AND
+        // a mark telling this pair from CU-2's -- which is rule 06's class H.
+        // ⭐ MEASURED: the second is already answered, a dozen lines above.
+        // The guide cursor is drawn in `themed('S-148')` at width 1 while the
+        // Dual Cursor takes S-195 and S-194, so the two pairs are already told
+        // apart on screen, which is exactly what FR-048's closing MUST asks:
+        // 「同じ見た目なので、どちらが出ているかを画面上で区別できるように
+        // すること（MUST）」. ⇒ Exactly ONE value was undecided, the gap, and a
+        // row now states it with a recommended value -- rule 06's class C, so
+        // this is drawn and marked rather than left blank. @provisional PD-343
+        const gap = NOT_STORED_GUIDE_CURSOR_SIZES['S-209']
+        // ⭐ The pointer stands BETWEEN the two, not on one of them: CU-3 calls
+        // the mode a 補助線 that follows the pointer, and a pair hung off one
+        // side would put the hand outside what it is guiding.
+        linkParts.push(vertical(pointer.x - gap / 2))
+        linkParts.push(vertical(pointer.x + gap / 2))
       }
-      // ⛔ 縦 2 本 DRAWS NOTHING, AND THAT IS THE SPECIFICATION'S ANSWER TODAY.
-      // Two lines need a distance between them and NO ROW STATES ONE -- not
-      // table T-029, not table T-202, not tables T-206 or T-236. Worse, FR-048
-      // closes with a MUST that cannot be met without a second invented value:
-      // 「同じ見た目なので、どちらが出ているかを画面上で区別できるようにする
-      // こと（MUST）」 -- CU-2's pair and this one look alike, and nothing says
-      // how they are told apart. Inventing a gap AND a distinguishing mark is
-      // two undecided values stacked, which rule 06's class H forbids outright.
-      // @provisional PD-343
     }
   }
 
@@ -1914,6 +1923,30 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
 }
 
 /**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⭐ What
+ * keeps it out of an exported picture is EP-6 of table T-076, which
+ * draws the `Status Line` and the `Dual Cursor` and NOT the
+ * `Guide Cursor` -- 「書き出した時点のポインタの位置に意味が無い」 --
+ * so a reader handed this document sees the same picture whatever
+ * this value is.
+ */
+export const NOT_STORED_GUIDE_CURSOR_SIZES: {
+  /** S-209, in px */
+  readonly 'S-209': number
+} = {
+  'S-209': 8,
+}
+
+/**
  * The colours of table T-236, by row ID, in both renderings.
  *
  * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST
@@ -1978,5 +2011,3 @@ export const SCHEDULE_COLOURS: {
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
 }
 // </generated>
-
-

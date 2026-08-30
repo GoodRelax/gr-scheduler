@@ -351,7 +351,16 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
  * unit is handed a `Selection` at all: SL-7b of table T-023c (MUST NOT) forbids
  * alignment on a selection that carries no order, and FR-034 lines the others
  * up against the last task that was picked -- so an ordered selection holding
- * at least one task is what both of them need.
+ * at least TWO tasks is what both of them need.
+ *
+ * ⛔⛔ TWO AND NOT ONE, SINCE 2026-08-30. A single task IS the last one picked,
+ * so it is its own anchor and there is nothing to line up: 表 T-233's `RS-34`
+ * names that 場面 in as many words -- 「揃える相手の `Task` が選ばれていない」.
+ * ⚠️ Measured with `some`: the entrance was drawn dark, the press was taken, and
+ * neither the document nor a notice moved -- which FR-029 (MUST) forbids either
+ * way round. ⭐ THE SAME READING IS MADE IN `input-command-translator.ts`, and
+ * it has to be: the entrance a person sees faint must be the entrance that
+ * tells them why.
  * ⚠️ Every other entry stays usable. FR-083's SP-1 to SP-4 give the shape
  * entries a meaning with a selection and without one, and what the remaining
  * entries turn on and off lives in `DocumentSettings`, which the fixed
@@ -361,7 +370,9 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
  */
 function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
   if (!row.authority.includes(ALIGN_REQUIREMENT)) return true
-  return selection.ordered && selection.items.some((item) => item.kind === 'task')
+  return (
+    selection.ordered && selection.items.filter((item) => item.kind === 'task').length >= 2
+  )
 }
 
 /**

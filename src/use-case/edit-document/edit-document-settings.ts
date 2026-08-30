@@ -67,7 +67,23 @@ export interface SettingsLimits {
   readonly rowAreaWidthWithoutPanels: number
 }
 
-/** The eight boolean rows of table T-202 -- the ones FR-049 calls toggles. */
+/**
+ * The NINE boolean rows of table T-202 -- the ones FR-049 calls toggles.
+ *
+ * ⚠️ EIGHT UNTIL 2026-08-30, AND THAT WAS A DRIFT AND NOT A RULE. `S-144`
+ * (`watermarkVisible`) joined table T-202 on 2026-08-25 and this union was
+ * never widened, so `setElementVisible` had no value to carry for it -- 台帳
+ * D-147. ⛔ NO GENERATOR BRINGS THE NAME: `tools/generate_entity_types.py` does
+ * not list this file among its targets, so the union is written by hand here
+ * and only a hand keeps it level with the table.
+ *
+ * ⛔ NAMING THE ROW IS NOT THE SAME AS OPENING THE ENTRANCE. `IC-41` still
+ * cannot be pressed, and the reason is FR-020's own: 「非表示にするには透かし
+ * 解除パスワードを求め、SHA-256 のハッシュ比較で照合する」, and no surface in
+ * this build asks a person for a password -- table T-103 has no row for one and
+ * table T-234's preamble forbids putting a question it does not hold. ⚠️ A plain
+ * toggle would take the watermark away unasked, which is that MUST itself.
+ */
 export type VisibleElement =
   | 'assigneeVisible'
   | 'percentCompleteVisible'
@@ -77,6 +93,7 @@ export type VisibleElement =
   | 'dateGridLinesVisible'
   | 'groupGridLinesVisible'
   | 'baselineVisible'
+  | 'watermarkVisible'
 
 /** CM-56 to CM-71 of table T-108. */
 export type DocumentSettingsCommand =

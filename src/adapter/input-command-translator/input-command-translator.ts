@@ -3697,16 +3697,35 @@ function commandFromEntry(
       // every branch above keeps: a drawn screen is as old as the last paint
       // (FR-048 lets one be skipped) and `context` is the copy CS-1 of table
       // T-066 froze at the head of this frame.
-      // ⛔ AND THE USABLE CASE IS STILL ANSWERED WITH NOTHING -- table T-108
-      // holds no command for the alignment, which the STOP at the foot of this
-      // file records. ⚠️ `CONSUMED_ELSEWHERE` and not the telling: an entrance
-      // that CAN be used must not be told it cannot (FR-029), and MK-10 keeps
-      // the browser out from under the press either way.
+      // ⭐⭐ THE USABLE CASE IS NOW WRITTEN, AS A BUNDLE OF CM-11. Table T-108
+      // holds no command called "align", and none is minted: `GR-12` below
+      // already moves a whole selection by emitting one `setTaskPlanDates` per
+      // Task, and CR-294 recorded the same reading for the folds 「表 T-108 は
+      // 動かしていない —— 全畳みも配下の全畳みも `CM-33` の束で書ける（1 つの
+      // 束は取り消しの 1 段である）」. ⛔ A command of its own would write with a
+      // second name what CM-11 already writes, which R3.4 refuses.
+      // ⚠️ Until 2026-08-30 this branch answered the usable press with
+      // `CONSUMED_ELSEWHERE` and the entrance moved no bar by 1px (台帳 D-146).
+      //
+      // ⭐ THE ANCHOR IS THE LAST TASK PICKED. FR-034 (MUST) lines the rest up
+      // 「最後に選んだタスクの日付へ」, and SL-7b keeps `items` in the order they
+      // were picked, oldest first -- so the anchor is the LAST `task` of that
+      // list and is never written itself.
+      // ⛔ READ OFF `Selection` AND NOT OFF THE DRAWN PALETTE, for the reason
+      // the faint reading above already gives.
+      //
+      // ⛔⛔ TWO TASKS AND NOT ONE. A single chosen Task IS the last one picked,
+      // so it is its own anchor and there is nothing to line up -- and 表 T-233's
+      // `RS-34` names that 場面 in as many words, 「揃える相手の `Task` が選ばれて
+      // いない」. ⚠️ Measured on 2026-08-30 with `some` in place of this count:
+      // the press answered with neither a write nor a reason, which FR-029
+      // (MUST) forbids either way round. ⭐ `isEntryUsable` (UF-65) counts the
+      // same two.
       if (
         context.selection.ordered &&
-        context.selection.items.some((one) => one.kind === 'task')
+        context.selection.items.filter((one) => one.kind === 'task').length >= 2
       ) {
-        return CONSUMED_ELSEWHERE
+        return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')
     case ENTRY.rowExpanderCloseAll:
@@ -4449,19 +4468,30 @@ function commandFromGrab(
     case 'GR-1':
     case 'GR-2': {
       // Table T-023d, the closing rule three paragraphs under the table (MUST):
-      // the days of GR-1 and GR-2 are taken FROM THE DAY UNDER THE POINTER --
+      // the days of GR-1 and GR-2 are taken FROM THE POINTER'S POSITION --
       // GR-1 the days from `start`, GR-2 the days back from the plan's end --
-      // rounded to whole days, and the result cut down by FD-6 of table T-012a
-      // (MUST).
+      // 「いずれも 1 日単位に四捨五入する」, and the result cut down by FD-6 of
+      // table T-012a (MUST).
       //
-      // ⭐ THE DAY IS ASKED FOR THE ONE WAY THIS FILE ALREADY ASKS. `dayAtX` is
-      // the same road GR-3 / GR-4 below and GR-5 / GR-6 after them take, and it
-      // floors to the day DRAWN at that x -- so the count between two days is a
-      // whole number before anything rounds it, and the rounding that row asks
-      // for has nothing left to round. ⚠️ NO SECOND ROAD IS OPENED: the closing
-      // rule says the grab point IS a day on the time axis (which is also why
-      // it forbids a drag threshold), so a pixel distance divided by `pxPerDay`
-      // would be a second, disagreeing answer to the same question.
+      // ⭐⭐ THE POSITION AND NOT THE DAY IT STANDS IN. The rule said 「ポインタ
+      // の下の日から求めること」 until version 1.68, and that reading floored:
+      // the count between two whole days is already whole, so 四捨五入 had
+      // nothing left to round and the sentence decided nothing. ⛔ A clause that
+      // decides nothing is not how the rest of the manuscript is written, so the
+      // ruling of 2026-08-30 kept the arithmetic and moved the day to a
+      // position. ⚠️ Measured before the change: a sliver short of a boundary
+      // settled a whole day earlier than a sliver past it.
+      //
+      // ⭐ THE FRACTION IS READ THE ONE WAY THIS FILE ALREADY READS IT.
+      // `dayAnchorAt` above measures how far into a day an x stands as
+      // `unitFraction((x - xFromDay(layout, day)) / pxPerDay)`, off the same two
+      // published converters, so `x -> day` and `day -> x` cannot drift apart.
+      // ⛔ NO SECOND ROAD IS OPENED: the whole part still comes from `dayAtX`,
+      // which is the road GR-3 / GR-4 below and GR-5 / GR-6 after them take.
+      //
+      // ⚠️ STILL NO THRESHOLD. The closing rule forbids one (MUST NOT), and
+      // nothing here has one: the position is read on the release, whatever
+      // distance the pointer covered.
       //
       // ⚠️ SL-7a (MUST) as for GR-3 / GR-4: a corner drag is about the one Task
       // grabbed, whatever else is selected.
@@ -4476,10 +4506,16 @@ function commandFromGrab(
       if (task === null || start === null || finish === null || day === null) {
         return CONSUMED_ELSEWHERE
       }
+      // Where the pointer stands on the time axis, as a day and a fraction of
+      // one. ⚠️ A layout with no width per day cannot answer, and `dayAtX` has
+      // already refused above in that case.
+      const atPointer =
+        serialOfDay(day) +
+        unitFraction((release.x - xFromDay(context.layout, day)) / context.layout.pxPerDay)
       const pulled =
         hit.grab === 'GR-1'
-          ? serialOfDay(day) - serialOfDay(start)
-          : serialOfDay(finish) - serialOfDay(day)
+          ? Math.round(atPointer - serialOfDay(start))
+          : Math.round(serialOfDay(finish) - atPointer)
       const days = clampedFadeDays(task, hit.grab, pulled, serialOfDay(finish) - serialOfDay(start))
       return changed([
         hit.grab === 'GR-1'
@@ -4691,6 +4727,58 @@ function commandFromGrab(
       // table T-206, `edit-task.ts`, `edit-annotation.ts`.
       return CONSUMED_ELSEWHERE
   }
+}
+
+/**
+ * FR-034's alignment, as a bundle of CM-11.
+ *
+ * ⭐ 「作成者が整列を求めたとき、`GRS` は、選ばれたタスクの開始日または終了日を、
+ * **最後に選んだタスクの日付へ**揃えること」 -- so the anchor is the LAST `task`
+ * of `Selection.items`, which SL-7b keeps in the order they were picked, oldest
+ * first. ⛔ The anchor is never written: it is already where it is being lined
+ * up with, and a write for it would be an undo step that moved nothing.
+ *
+ * ⭐⭐ THE WHOLE TASK MOVES, KEEPING ITS DURATION. `FR-034` names ONE end and
+ * says nothing about the other, and CM-11 refuses a finish before its start
+ * (IV-10, `edit-task.ts`), so a rule that wrote one end alone would refuse
+ * whenever the anchor's day crossed the other end. ⚠️ A shift can never be
+ * refused on that ground, and it is the same arithmetic `GR-12` already uses to
+ * carry a whole selection. ⛔ THE SPECIFICATION DOES NOT DECIDE THIS -- no row
+ * of `FR-034` or of table T-108 says whether the other end follows or holds
+ * still.
+ * @provisional PD-406
+ *
+ * ⚠️ A Task with no `start` or no `finish` is passed over rather than half
+ * written: CM-11 puts both, and FR-012 has no meaning for one alone.
+ *
+ * @purity pure
+ */
+function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
+  const chosen = context.selection.items.filter((one) => one.kind === 'task')
+  const anchorRef = chosen[chosen.length - 1]
+  if (anchorRef === undefined || anchorRef.kind !== 'task') return []
+  const anchor = taskByUid(context.document.schedule, anchorRef.uid)
+  const anchorDay = anchor === null ? null : dayOf(byStart ? anchor.start : anchor.finish)
+  if (anchorDay === null) return []
+
+  const commands: DocumentCommand[] = []
+  for (const one of chosen) {
+    if (one.kind !== 'task' || one.uid === anchorRef.uid) continue
+    const task = taskByUid(context.document.schedule, one.uid)
+    if (task === null) continue
+    const start = dayOf(task.start)
+    const finish = dayOf(task.finish)
+    if (start === null || finish === null) continue
+    const shift = serialOfDay(anchorDay) - serialOfDay(byStart ? start : finish)
+    if (shift === 0) continue
+    commands.push({
+      kind: 'setTaskPlanDates',
+      uid: one.uid,
+      start: textOfDay(dayShifted(start, shift)),
+      finish: textOfDay(dayShifted(finish, shift)),
+    })
+  }
+  return commands
 }
 
 /**
@@ -5525,7 +5613,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 9 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+// ⛔ 7 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
+// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all):
 //
 //   IC-18        FR-066's dialogue field, 「出す・しまう」. ⚠️ ITS SPENT PRESS IS
 //                TOLD SINCE 2026-08-30, and not from here: `frame-loop.ts`
@@ -5542,13 +5631,15 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                beside this row until `ScreenSession` grew the members FR-072
 //                and FR-065 need; this is the one of the three still without a
 //                place to land.
-//   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
-//                so there is nothing to plan even with the press in hand.
-//                ⚠️ BOTH NOW HAVE A BRANCH ALL THE SAME (`ENTRY.alignStart` /
-//                `ENTRY.alignFinish`), and it plans nothing: it answers the
-//                OTHER half of FR-029, telling a press why the entrance the
-//                palette drew faint could not act. The usable press still
-//                falls through to `CONSUMED_ELSEWHERE`, which is this STOP.
+//   [WRITTEN 2026-08-30, 台帳 D-146] IC-37 / IC-38 stood here and no longer do.
+//                ⛔⛔ THE SECOND HALF OF THE OLD NOTE WAS FALSE. It read 「table
+//                T-108 holds NO command for it, so there is nothing to plan even
+//                with the press in hand」; the first half is true and the second
+//                does not follow. `GR-12` in this very file already carries a
+//                whole selection by emitting one CM-11 per Task, and CR-294
+//                recorded the same reading for the folds. ⚠️ Measured before the
+//                fix: two Tasks chosen, `IC-37` armed, and not one bar moved by
+//                1px. ⭐ `alignWrites` now plans the bundle.
 //   IC-41        ⭐ IT NOW HAS SOMEWHERE TO WRITE AND STILL CANNOT BE PRESSED.
 //                `watermarkVisible` is a boolean row of table T-202, so FR-049's
 //                toggle rule covers it and `commandFromVisibleElementEntry` is
@@ -5565,22 +5656,20 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                turned the row round both ways would let the watermark be put
 //                back unasked -- which is right -- and taken away unasked, which
 //                is the MUST. A toggle cannot tell the two apart.
-//                ⛔ `VisibleElement` does not name `watermarkVisible`.
-//                `edit-document-settings.ts` still calls them the eight boolean
-//                rows of table T-202 and lists eight, and that table now holds
-//                nine (S-144, added 2026-08-25) -- so `setElementVisible` has no
-//                value to carry even once the password has a road.
-//                ⚠️ NO GENERATOR WILL BRING THE NINTH NAME, AND THAT WAS
-//                MEASURED: `npm run gen:check` passes 13 of 13, and
-//                `edit-document-settings.ts` is not one of the targets
-//                `tools/generate_entity_types.py` lists -- the union is
-//                HAND-WRITTEN there, so only a hand adds the row. ⭐ The
-//                generated side already has it: `DocumentSettings` carries
-//                `watermarkVisible` from `_source/settings.json`. ⚠️ NOT
-//                WORKED AROUND HERE: the type is derived from the command on
-//                purpose (see `VisibleElement` above), and re-declaring the
-//                ninth name in this file would be the drift that deriving
-//                exists to stop.
+//                ⭐ `VisibleElement` NOW NAMES `watermarkVisible` (2026-08-30,
+//                台帳 D-147). It listed eight while table T-202 held nine
+//                (S-144, added 2026-08-25), so `setElementVisible` had no value
+//                to carry at all; `edit-document-settings.ts` has the ninth.
+//                ⚠️ NO GENERATOR BROUGHT IT, AND THAT WAS MEASURED:
+//                `npm run gen:check` passes and `edit-document-settings.ts` is
+//                not one of the targets `tools/generate_entity_types.py` lists
+//                -- the union is HAND-WRITTEN there, so only a hand adds a row.
+//                ⛔ THE ENTRANCE IS STILL SHUT ALL THE SAME, and naming the row
+//                did not open it: what stops it is the password above, not the
+//                place to write. ⚠️ NOT WORKED AROUND HERE either: the type is
+//                derived from the command on purpose (see `VisibleElement`
+//                above), and re-declaring the ninth name in this file would be
+//                the drift that deriving exists to stop.
 //   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
 //                six still unanswered. ⚠️ Its five neighbours are answered above:
 //                they move `ScreenSession.selectedResourceUids` (PD-143), which

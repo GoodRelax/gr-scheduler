@@ -842,20 +842,6 @@ const ESCAPE_KEY = 'Esc'
 const GUIDE_CURSOR_NONE = 'none'
 
 /**
- * The mode CU-3 names but nothing draws: 縦 2 本.
- *
- * ⛔ IT COUNTS AS "NO LINE FOLLOWS THE POINTER", and that is not a second
- * opinion about the mode -- it is what the picture actually holds. No row
- * states the distance between the two lines, so SvgRenderer draws neither, and
- * FR-048's MUST NOT is written on what is drawn in as many words: 「判定は
- * ポインタではなく描く内容に置くこと」. A frame spent on a move that changes no
- * pixel is exactly the 60-per-second NFR-010 exists to stop.
- * ⭐ THIS LINE DISAPPEARS THE DAY THE MODE IS DRAWN, and the mark says so.
- * @provisional PD-343
- */
-const GUIDE_CURSOR_DRAWS_NOTHING = 'double-vertical'
-
-/**
  * ED-1 of table T-229 -- the word a write made from the screen names itself by.
  *
  * ⭐ The specification's word, not this file's: table T-229 reserves it for
@@ -6053,12 +6039,14 @@ export function frameLoop(
     //    cursor (`S-66` of table T-202) and the side of the `Dual Cursor` that
     //    DC-1 of table T-029a has following it -- and while that mode is up,
     //    one side always is.
-    // ⚠️ 縦 2 本 IS EXCLUDED HERE TOO, and for this test's own reason rather
-    //    than a second one: no row states where its two lines stand, so nothing
-    //    is drawn for it, so nothing follows the pointer. See
-    //    `GUIDE_CURSOR_DRAWS_NOTHING`. @provisional PD-343
+    // ⭐ 縦 2 本 IS NO LONGER EXCLUDED. It was, while nothing drew it: no row
+    //    stated the distance between its two lines, so the picture held
+    //    nothing that followed the pointer and a frame would have changed no
+    //    pixel. S-209 of table T-206 now states that distance and SvgRenderer
+    //    draws the pair, so 「なし」 is once more the only mode that follows
+    //    nothing -- which is what this test reads.
     const guideMode = before.document.documentSettings.guideCursorMode
-    if (guideMode !== GUIDE_CURSOR_NONE && guideMode !== GUIDE_CURSOR_DRAWS_NOTHING) return true
+    if (guideMode !== GUIDE_CURSOR_NONE) return true
     if (dualCursorFollowing !== null) return true
     // 3. What this happening actually changed, compared and not assumed.
     //    ⭐ The context IS the snapshot of what was held before the three
@@ -6734,5 +6722,3 @@ export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   'S-207': 2000,
 }
 // </generated>
-
-
