@@ -233,6 +233,10 @@ echo "===== 28  the ledger against what has been SEEN in the app ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-live-verification.py || fail=1
 
 echo ""
+echo "===== 29  the ledger against WHERE THE SPECIFICATION SAYS IT ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-decided-spec.py || fail=1
+
+echo ""
 echo "===== 26b table T-064 and src/ hold each other, both directions ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || fail=1
 

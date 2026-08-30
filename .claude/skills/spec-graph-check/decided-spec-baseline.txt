@@ -1,0 +1,10 @@
+94
+# ⛔ Rows past 仕様書反映済み that name no place in the specification.
+#
+# ⚠️ THE CONVENTION STARTED ON 2026-08-30, AND THE LEDGER WAS ALREADY 154 ROWS
+# OLD. These 94 are the rows that were written before 対応方針・決定仕様 was
+# asked to carry the chapter, the requirement UID or table row id, and the
+# wording. ⭐ The number coming down is the work; it going up is a row that
+# passed 仕様書反映済み without saying where the specification says it.
+#
+# ⛔ RAISE THIS ONLY TO TAKE THE DEBT ON DELIBERATELY, and say why in the commit.
