@@ -528,8 +528,8 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
   if (drawn.plan.form !== 'outline') {
     throw new Error(`Task ${uid} is drawn as a ${drawn.plan.form}, which has no body to grab`)
   }
-  const xs = drawn.plan.points.map((p) => p.x)
-  const ys = drawn.plan.points.map((p) => p.y)
+  const xs = drawn.plan.points.map((onePoint) => onePoint.x)
+  const ys = drawn.plan.points.map((onePoint) => onePoint.y)
   return {
     x: (Math.min(...xs) + Math.max(...xs)) / 2,
     y: (Math.min(...ys) + Math.max(...ys)) / 2,
@@ -541,7 +541,7 @@ function planWidth(loop: ReturnType<typeof frameLoop>, uid: number): number {
   const values = loop.current()!
   const drawn = values.geometry.tasks.find((one) => one.taskUid === uid)!
   if (drawn.plan === null || drawn.plan.form !== 'outline') throw new Error('no bar body')
-  const xs = drawn.plan.points.map((p) => p.x)
+  const xs = drawn.plan.points.map((onePoint) => onePoint.x)
   return Math.max(...xs) - Math.min(...xs)
 }
 

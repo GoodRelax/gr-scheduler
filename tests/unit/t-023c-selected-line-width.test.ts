@@ -344,7 +344,7 @@ const attribute = (element: string, name: string): string | null => {
 
 /** The elements that carry paint, in the order they are painted. */
 const paintedOf = (svg: string): readonly Element[] =>
-  elementsOf(svg).filter((e) => e.tag !== 'svg')
+  elementsOf(svg).filter((drawn) => drawn.tag !== 'svg')
 
 /**
  * One element, with anything a SECOND drawing of the same picture may spell
@@ -365,17 +365,17 @@ const strokeWidthOf = (element: Element): number => {
 
 /** A frame is a `rect` carrying the dash 表 T-206 gives the outline half. */
 const framesIn = (elements: readonly Element[]): readonly Element[] =>
-  elements.filter((e) => e.tag === 'rect' && attribute(e.text, 'stroke-dasharray') !== null)
+  elements.filter((drawn) => drawn.tag === 'rect' && attribute(drawn.text, 'stroke-dasharray') !== null)
 
 /** The elements one picture has that the other does not. */
 const onlyIn = (picture: string, other: string): readonly Element[] => {
   const there = paintedOf(other).map(settledText)
-  return paintedOf(picture).filter((e) => !there.includes(settledText(e)))
+  return paintedOf(picture).filter((drawn) => !there.includes(settledText(drawn)))
 }
 
 /** The one polyline a scene with no 基準日 draws: the 依存線. */
 const dependencyIn = (svg: string): Element => {
-  const found = paintedOf(svg).filter((e) => e.tag === 'polyline')
+  const found = paintedOf(svg).filter((drawn) => drawn.tag === 'polyline')
   if (found.length !== 1) {
     throw new Error(`the scene should draw exactly one polyline, it drew ${found.length}`)
   }
@@ -396,12 +396,12 @@ const statusLineIn = (picture: Drawn): Element => {
   const near = (element: Element, name: string, value: number): boolean =>
     Math.abs(Number(attribute(element.text, name)) - value) < 0.01
   const at = paintedOf(picture.svg).filter(
-    (e) =>
-      e.tag === 'line' &&
-      near(e, 'x1', placed.x) &&
-      near(e, 'x2', placed.x) &&
-      near(e, 'y1', placed.top) &&
-      near(e, 'y2', placed.bottom),
+    (drawn) =>
+      drawn.tag === 'line' &&
+      near(drawn, 'x1', placed.x) &&
+      near(drawn, 'x2', placed.x) &&
+      near(drawn, 'y1', placed.top) &&
+      near(drawn, 'y2', placed.bottom),
   )
   if (at.length !== 1) {
     throw new Error(`expected one line at x=${placed.x} running the Row Area, found ${at.length}`)
@@ -587,7 +587,7 @@ describe('T-029a DC-8 -- 追従している側を SL-8 と同じやり方で示�
   const cursorLinesOf = (how: How = {}): readonly Element[] => {
     const withOne = drawn(sceneOf(), { ...how, settings: how.settings ?? WITH_CURSOR }).svg
     const without = drawn(sceneOf(), { settings: WITHOUT_CURSOR, picture: how.picture }).svg
-    const added = onlyIn(withOne, without).filter((e) => e.tag === 'line')
+    const added = onlyIn(withOne, without).filter((drawn) => drawn.tag === 'line')
     if (added.length !== 2) {
       throw new Error(`EP-6 draws two cursor lines; this picture added ${added.length}`)
     }
@@ -622,8 +622,8 @@ describe('T-029a DC-8 -- 追従している側を SL-8 と同じやり方で示�
       const follow: DualCursorFollow = { side, x: side === 'date1' ? at.date1X : at.date2X }
       const lines = cursorLinesOf({ follow })
 
-      const following = lines.filter((e) => sideOf(e, at) === side)
-      const standing = lines.filter((e) => sideOf(e, at) !== side)
+      const following = lines.filter((drawn) => sideOf(drawn, at) === side)
+      const standing = lines.filter((drawn) => sideOf(drawn, at) !== side)
       expect(following.length, '追従している側は 1 本').toBe(1)
       expect(standing.length, 'もう一方も 1 本').toBe(1)
       expect(strokeWidthOf(following[0] as Element), 'S-194 x S-178').toBeCloseTo(

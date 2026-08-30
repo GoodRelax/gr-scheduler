@@ -615,7 +615,7 @@ const assembledOf = (result: SvgExport, scene: ExportScene): Assembled => {
   const withoutPicture = parts.join('')
   const clipHit = CLIP_BLOCK.exec(withoutPicture)
   const clipRects =
-    clipHit === null ? [] : elementsOf(clipHit[2] ?? '').filter((e) => e.tag === 'rect')
+    clipHit === null ? [] : elementsOf(clipHit[2] ?? '').filter((drawn) => drawn.tag === 'rect')
   const body = clipHit === null ? withoutPicture : withoutPicture.replace(CLIP_BLOCK, '')
   const own = elementsOf(body)
   const screenWidth = scene.regions.scheduleCanvas.x + scene.regions.scheduleCanvas.width
@@ -625,14 +625,14 @@ const assembledOf = (result: SvgExport, scene: ExportScene): Assembled => {
     ratio: scene.settings.exportCanvas.width / screenWidth,
     pictureCount: parts.length - 1,
     own,
-    rects: own.filter((e) => e.tag === 'rect'),
+    rects: own.filter((drawn) => drawn.tag === 'rect'),
     texts: textsOf(body),
     clip: clipRects[0] !== undefined && clipRects.length === 1 ? rectOf(clipRects[0]) : null,
     root: own[0] ?? { tag: 'nothing was assembled', attrs: {} },
     // ⭐ `scale(a)` and not `scale(a,b)`: FR-080 (MUST NOT) forbids one ratio
     // per axis, and the received picture is the one thing that cannot carry the
     // ratio in its own numbers, so the transform is where it has to show.
-    pictureScales: [...result.svg.matchAll(/scale\(([^)]*)\)/g)].map((m) => (m[1] ?? '').trim()),
+    pictureScales: [...result.svg.matchAll(/scale\(([^)]*)\)/g)].map((oneMatch) => (oneMatch[1] ?? '').trim()),
   }
 }
 
@@ -685,7 +685,7 @@ const deeplyFrozenCopy = (scene: ExportScene): ExportScene => {
 }
 
 const hasRect = (assembled: Assembled, screenRect: ScreenRect): boolean =>
-  assembled.rects.some((e) => sameRect(rectOf(e), scaledRect(screenRect, assembled.ratio)))
+  assembled.rects.some((drawn) => sameRect(rectOf(drawn), scaledRect(screenRect, assembled.ratio)))
 
 const saysAnyOf = (assembled: Assembled, words: readonly string[]): boolean =>
   words.some((word) => assembled.result.svg.includes(word))
@@ -739,8 +739,8 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
 
   it('multiplies the SAME ratio into both axes (MUST NOT: one per axis)', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    const band = assembled.rects.find((e) =>
-      near(num(e.attrs, 'width'), REGIONS.appHeader.width * RATIO),
+    const band = assembled.rects.find((drawn) =>
+      near(num(drawn.attrs, 'width'), REGIONS.appHeader.width * RATIO),
     )
     expect(band, 'EP-1: the App Header band is drawn').toBeDefined()
     const drawn = rectOf(band as Drawn)
@@ -769,7 +769,7 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     const screenWidth = REGIONS.scheduleCanvas.x + REGIONS.scheduleCanvas.width
     expect(screenWidth).toBe(SCREEN.width)
     expect(assembled.ratio).toBeCloseTo(SETTINGS.exportCanvas.width / screenWidth, 6)
-    const band = assembled.rects.find((e) => near(rectOf(e).x, 0) && near(rectOf(e).y, 0))
+    const band = assembled.rects.find((drawn) => near(rectOf(drawn).x, 0) && near(rectOf(drawn).y, 0))
     expect(band, 'the band starts at the screen origin').toBeDefined()
     expect(num((band as Drawn).attrs, 'width')).toBeCloseTo(SETTINGS.exportCanvas.width, 1)
   })
@@ -835,99 +835,99 @@ const T_076_ROWS: readonly {
     id: 'EP-1',
     part: 'App Header (U-31): the band and the Document Title (U-27) only',
     expectation: 'partly',
-    holds: (a) =>
-      hasRect(a, a.scene.regions.appHeader) &&
-      a.texts.some((t) => t.content === DOCUMENT_TITLE) &&
-      !a.result.svg.includes(HEADER_COMMAND_LABEL) &&
-      !a.result.svg.includes(AUTOSAVE_AT),
+    holds: (assembledSvg) =>
+      hasRect(assembledSvg, assembledSvg.scene.regions.appHeader) &&
+      assembledSvg.texts.some((drawnText) => drawnText.content === DOCUMENT_TITLE) &&
+      !assembledSvg.result.svg.includes(HEADER_COMMAND_LABEL) &&
+      !assembledSvg.result.svg.includes(AUTOSAVE_AT),
   },
   {
     id: 'EP-2',
     part: 'Time Ruler (U-19)',
     expectation: 'arrives',
-    holds: (a) => a.pictureCount === 1 && !hasRect(a, a.scene.regions.timeRuler),
+    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && !hasRect(assembledSvg, assembledSvg.scene.regions.timeRuler),
   },
   {
     id: 'EP-3',
     part: 'Row Title Panel (U-22) and Row Title Tree (U-23)',
     expectation: 'draw',
-    holds: (a) =>
-      hasRect(a, a.scene.regions.rowTitlePanel) &&
-      TALL_KEPT.every((id) => a.texts.some((t) => t.content === `name of ${id}`)),
+    holds: (assembledSvg) =>
+      hasRect(assembledSvg, assembledSvg.scene.regions.rowTitlePanel) &&
+      TALL_KEPT.every((id) => assembledSvg.texts.some((drawnText) => drawnText.content === `name of ${id}`)),
   },
   {
     id: 'EP-4',
     part: 'Row Expander (U-47) / Row Pin (U-48) / Hidden Group Tab (U-29)',
     expectation: 'no',
-    holds: (a) => nothingBeyondTheAccounted(a),
+    holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-5',
     part: "Row Area's contents (U-1 .. U-46)",
     expectation: 'arrives',
-    holds: (a) => a.pictureCount === 1 && !hasRect(a, a.scene.regions.rowArea),
+    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && !hasRect(assembledSvg, assembledSvg.scene.regions.rowArea),
   },
   {
     id: 'EP-6',
     part: 'Cursors (U-10): Status Line and Dual Cursor yes, Guide Cursor no',
     expectation: 'arrives',
-    holds: (a) => a.pictureCount === 1 && nothingBeyondTheAccounted(a),
+    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-7',
     part: 'Watermark (U-20), inside the Row Area only',
     expectation: 'arrives',
-    holds: (a) => a.pictureCount === 1 && nothingBeyondTheAccounted(a),
+    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-8',
     part: 'Properties Panel (U-25)',
     expectation: 'no',
-    holds: (a) =>
-      !hasRect(a, a.scene.regions.propertiesPanel) &&
-      !a.result.svg.includes(PROPERTY_FIELD_TEXT),
+    holds: (assembledSvg) =>
+      !hasRect(assembledSvg, assembledSvg.scene.regions.propertiesPanel) &&
+      !assembledSvg.result.svg.includes(PROPERTY_FIELD_TEXT),
   },
   {
     id: 'EP-9',
     part: 'Panel Divider (U-24): the line, not the control',
     expectation: 'partly',
-    holds: (a) =>
-      a.scene.screenView.frame.dividers.every((d) => hasRect(a, d.line)) &&
-      a.scene.screenView.frame.dividers.every((d) => !hasRect(a, d.band)),
+    holds: (assembledSvg) =>
+      assembledSvg.scene.screenView.frame.dividers.every((oneDivider) => hasRect(assembledSvg, oneDivider.line)) &&
+      assembledSvg.scene.screenView.frame.dividers.every((oneDivider) => !hasRect(assembledSvg, oneDivider.band)),
   },
   {
     id: 'EP-10',
     part: 'Scrollbars (U-21)',
     expectation: 'no',
-    holds: (a) =>
-      a.scene.screenView.frame.scrollbars.every(
-        (b) => !hasRect(a, b.track) && !hasRect(a, b.thumb),
+    holds: (assembledSvg) =>
+      assembledSvg.scene.screenView.frame.scrollbars.every(
+        (oneBar) => !hasRect(assembledSvg, oneBar.track) && !hasRect(assembledSvg, oneBar.thumb),
       ),
   },
   {
     id: 'EP-11',
     part: 'Command Palette (U-26) / modals (U-30) / Dialogue Field (U-44) / Resource Roster (U-49)',
     expectation: 'no',
-    holds: (a) =>
-      !saysAnyOf(a, [PALETTE_GROUP_NAME, PALETTE_ARMED_TEXT, MODAL_HEADING, DIALOGUE_TEXT]),
+    holds: (assembledSvg) =>
+      !saysAnyOf(assembledSvg, [PALETTE_GROUP_NAME, PALETTE_ARMED_TEXT, MODAL_HEADING, DIALOGUE_TEXT]),
   },
   {
     id: 'EP-12',
     part: 'Pointer (U-42) / ArmedShape (U-38) / Selection (U-39) / Marquee (U-40) / Grab (U-43)',
     expectation: 'no',
-    holds: (a) => nothingBeyondTheAccounted(a),
+    holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-13',
     part: 'Schedule Canvas (U-32) / Canvas Overlays (U-33) -- the containers themselves',
     expectation: 'no',
-    holds: (a) => !hasRect(a, a.scene.regions.scheduleCanvas),
+    holds: (assembledSvg) => !hasRect(assembledSvg, assembledSvg.scene.regions.scheduleCanvas),
   },
   {
     id: 'EP-14',
     part: 'Actual Operation Dummy (U-52)',
     expectation: 'no',
-    holds: (a) => nothingBeyondTheAccounted(a),
+    holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
 ]
 
@@ -990,7 +990,7 @@ describe('table T-076 -- which UI parts reach the picture', () => {
 describe('FR-080 -- a part left out leaves a gap, it does not move its neighbours', () => {
   it('keeps the App Header band at its screen height (MUST NOT: squeeze it)', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    const band = assembled.rects.find((e) => near(rectOf(e).y, 0))
+    const band = assembled.rects.find((drawn) => near(rectOf(drawn).y, 0))
     expect(band).toBeDefined()
     expect(rectOf(band as Drawn).height).toBeCloseTo(REGIONS.appHeader.height * RATIO, 1)
   })
@@ -1036,8 +1036,8 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
     )
     const geometry = (a: Assembled): string =>
       a.rects
-        .map((e) => rectOf(e))
-        .map((r) => [r.x, r.y, r.width, r.height].map((v) => v.toFixed(2)).join(','))
+        .map((drawn) => rectOf(drawn))
+        .map((oneRect) => [oneRect.x, oneRect.y, oneRect.width, oneRect.height].map((oneValue) => oneValue.toFixed(2)).join(','))
         .sort()
         .join(' | ')
     expect(geometry(bare)).toBe(geometry(withEverything))
@@ -1064,7 +1064,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
       ),
     )
     const titleOf = (a: Assembled): DrawnText | undefined =>
-      a.texts.find((t) => t.content === DOCUMENT_TITLE)
+      a.texts.find((drawnText) => drawnText.content === DOCUMENT_TITLE)
     const before = titleOf(withItems)
     const after = titleOf(withoutItems)
     expect(before, 'EP-1 draws the Document Title').toBeDefined()
@@ -1081,7 +1081,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
 
   it('stands the Document Title inside the band it belongs to', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    const title = assembled.texts.find((t) => t.content === DOCUMENT_TITLE)
+    const title = assembled.texts.find((drawnText) => drawnText.content === DOCUMENT_TITLE)
     expect(title).toBeDefined()
     const band = scaledRect(REGIONS.appHeader, RATIO)
     const x = num((title as DrawnText).attrs, 'x')
@@ -1102,8 +1102,8 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     // EP-3 (MUST NOT): no width of the export's own. One would put FR-085's
     // truncation in a different place than the screen puts it.
     const assembled = await exportedOf(TALL_SCENE)
-    const panel = assembled.rects.find((e) =>
-      near(num(e.attrs, 'height'), REGIONS.rowTitlePanel.height * RATIO),
+    const panel = assembled.rects.find((drawn) =>
+      near(num(drawn.attrs, 'height'), REGIONS.rowTitlePanel.height * RATIO),
     )
     expect(panel).toBeDefined()
     expect(rectOf(panel as Drawn).width).toBeCloseTo(SETTINGS.rowTitlePanelWidth * RATIO, 1)
@@ -1121,7 +1121,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
         ]),
       ),
     )
-    expect(assembled.texts.map((t) => t.content)).toContain(cut)
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain(cut)
   })
 
   it('puts each name inside its own row\'s band, in the rows\' own order (SC-1)', async () => {
@@ -1134,7 +1134,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     // case below, which asserts only what holds under any such rule.
     const assembled = await exportedOf(TALL_SCENE)
     const yOf = (id: string): number => {
-      const found = assembled.texts.find((t) => t.content === `name of ${id}`)
+      const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'y')
     }
@@ -1159,7 +1159,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     const assembled = await exportedOf(TALL_SCENE)
     const yOf = (id: string): number =>
       num(
-        (assembled.texts.find((t) => t.content === `name of ${id}`) as DrawnText).attrs,
+        (assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`) as DrawnText).attrs,
         'y',
       )
     const boxOf = (id: string): ScreenRect =>
@@ -1173,7 +1173,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     // FR-085 takes the row's depth worth of it off the usable width.
     const assembled = await exportedOf(TALL_SCENE)
     const xOf = (id: string): number => {
-      const found = assembled.texts.find((t) => t.content === `name of ${id}`)
+      const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'x')
     }
@@ -1190,7 +1190,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     // SETTINGS_DEFAULTS, so a change in the manuscript lands here.
     const assembled = await exportedOf(TALL_SCENE)
     const sizeOf = (id: string): number => {
-      const found = assembled.texts.find((t) => t.content === `name of ${id}`)
+      const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'font-size')
     }
@@ -1214,7 +1214,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     const assembled = await exportedOf(
       sceneOf(viewOf(TALL_ROWS, {}, [{ ...pinned, isPinned: true }])),
     )
-    expect(assembled.texts.map((t) => t.content)).toContain('a pinned row name')
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('a pinned row name')
   })
 })
 
@@ -1227,10 +1227,10 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
     const assembled = await exportedOf(TALL_SCENE)
     expect([...assembled.result.droppedGroupIds].sort()).toEqual([...TALL_DROPPED].sort())
     for (const id of TALL_KEPT) {
-      expect(assembled.texts.map((t) => t.content), id).toContain(`name of ${id}`)
+      expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
     }
     for (const id of TALL_DROPPED) {
-      expect(assembled.texts.map((t) => t.content), id).not.toContain(`name of ${id}`)
+      expect(assembled.texts.map((drawnText) => drawnText.content), id).not.toContain(`name of ${id}`)
     }
   })
 
@@ -1277,7 +1277,7 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
       ),
     )
     const bandWidth = (a: Assembled): number =>
-      Math.max(...a.rects.map((e) => num(e.attrs, 'width')))
+      Math.max(...a.rects.map((drawn) => num(drawn.attrs, 'width')))
     expect(tall.result.droppedGroupIds.length).toBeGreaterThan(0)
     expect(short.result.droppedGroupIds).toEqual([])
     expect(bandWidth(short)).toBeCloseTo(bandWidth(tall), 6)
@@ -1316,7 +1316,7 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
     ]
     const assembled = await exportedOf(sceneOf(viewOf(rows)))
     expect(assembled.result.droppedGroupIds).toEqual(['e2'])
-    expect(assembled.texts.map((t) => t.content)).toContain('name of e1')
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of e1')
   })
 
   it('drops every row when the very first one already straddles the edge', async () => {
@@ -1326,7 +1326,7 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
     ]
     const assembled = await exportedOf(sceneOf(viewOf(rows)))
     expect(assembled.result.droppedGroupIds).toEqual(['a1', 'a2'])
-    expect(assembled.texts.some((t) => t.content.startsWith('name of'))).toBe(false)
+    expect(assembled.texts.some((drawnText) => drawnText.content.startsWith('name of'))).toBe(false)
     expect((assembled.clip as ScreenRect).y + (assembled.clip as ScreenRect).height).toBeCloseTo(
       100 * RATIO,
       1,
@@ -1486,7 +1486,7 @@ describe('boundaries', () => {
     const assembled = await exportedOf(sceneOf(viewOf([])))
     expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.result.svg).toContain(PICTURE)
-    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel is still drawn').toBe(true)
   })
 
@@ -1497,7 +1497,7 @@ describe('boundaries', () => {
       ),
     )
     expect(assembled.result.droppedGroupIds).toEqual([])
-    expect(assembled.texts.map((t) => t.content)).toContain('name of only')
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
   it('writes no text for a row whose label is null', async () => {
@@ -1508,7 +1508,7 @@ describe('boundaries', () => {
         ]),
       ),
     )
-    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(assembled.result.droppedGroupIds).toEqual([])
   })
 
@@ -1522,7 +1522,7 @@ describe('boundaries', () => {
         }),
       ),
     )
-    expect(assembled.texts.map((t) => t.content)).toEqual(
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(
       TALL_KEPT.map((id) => `name of ${id}`),
     )
     expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
@@ -1678,10 +1678,10 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
     const assembled = svgOnlyOf(TALL_SCENE)
     expect(assembled.result.droppedGroupIds).toEqual(TALL_DROPPED)
     for (const id of TALL_KEPT) {
-      expect(assembled.texts.map((t) => t.content), id).toContain(`name of ${id}`)
+      expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
     }
     for (const id of TALL_DROPPED) {
-      expect(assembled.texts.map((t) => t.content), id).not.toContain(`name of ${id}`)
+      expect(assembled.texts.map((drawnText) => drawnText.content), id).not.toContain(`name of ${id}`)
     }
     expect(assembled.clip, 'the fit clip of FR-025').not.toBeNull()
     expect((assembled.clip as ScreenRect).y + (assembled.clip as ScreenRect).height).toBeCloseTo(
@@ -1759,7 +1759,7 @@ describe('boundaries of the SVG route', () => {
     const assembled = svgOnlyOf(sceneOf(viewOf([])))
     expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.result.svg).toContain(PICTURE)
-    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
     expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel').toBe(true)
   })
@@ -1771,7 +1771,7 @@ describe('boundaries of the SVG route', () => {
       ),
     )
     expect(assembled.result.droppedGroupIds).toEqual([])
-    expect(assembled.texts.map((t) => t.content)).toContain('name of only')
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
   it('GIVEN a row whose label is null WHEN exportSvg runs THEN no name is written for it', () => {
@@ -1782,7 +1782,7 @@ describe('boundaries of the SVG route', () => {
         ]),
       ),
     )
-    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(assembled.result.droppedGroupIds).toEqual([])
   })
 
@@ -1790,7 +1790,7 @@ describe('boundaries of the SVG route', () => {
     const assembled = svgOnlyOf(
       sceneOf(viewOf(TALL_ROWS, { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null } })),
     )
-    expect(assembled.texts.map((t) => t.content)).toEqual(TALL_KEPT.map((id) => `name of ${id}`))
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(TALL_KEPT.map((id) => `name of ${id}`))
     expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
   })
 

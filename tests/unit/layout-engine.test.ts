@@ -293,7 +293,7 @@ const oneRow = (tasks: readonly Task[], group: Record<string, unknown> = {}): Sc
   scheduleOf({
     tasks,
     taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null, ...group }],
-    taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    taskGroupMembers: tasks.map((drawnText) => ({ groupId: 'g1', taskUid: drawnText.uid })),
   })
 
 /** A task starting on `from` and running `days`. At zoomX 1 one day is 6px. */
@@ -562,7 +562,7 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
 
   it('HR-1a drops what a collapsed row holds, without re-parenting it', () => {
     const layout = layoutFromSchedule(hierarchy({ isCollapsed: true }), LAYOUT_SETTINGS, REGIONS)
-    expect(layout.rows.map((r) => r.groupId)).toEqual(['g1'])
+    expect(layout.rows.map((oneRect) => oneRect.groupId)).toEqual(['g1'])
     // The task sat on g2, so it must not reappear on g1.
     expect(layout.placements).toHaveLength(0)
   })
@@ -582,7 +582,7 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((p) => p.taskUid)).toEqual([1])
+    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
   })
 
   it('FR-018 draws a zero-duration Task at every zoom, because its width is not a duration', () => {
@@ -594,7 +594,7 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
     const schedule = oneRow([spanning(1, '2026-01-01', 0), spanning(2, '2026-02-01', 30)])
     for (const zoomX of [1, 0.5, 0.1, 0.02]) {
       const layout = layoutFromSchedule(schedule, settingsOf({ ...LAYOUT_SETTINGS, zoomX }), REGIONS)
-      expect(layout.placements.map((p) => p.taskUid)).toContain(1)
+      expect(layout.placements.map((onePoint) => onePoint.taskUid)).toContain(1)
     }
   })
 
@@ -606,7 +606,7 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((p) => p.taskUid)).toEqual([1])
+    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
   })
 
   it('never draws more as the zoom falls, which is FR-018 without an argument', () => {
@@ -626,7 +626,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((p) => p.stack)).toEqual([0, 0])
+    expect(layout.placements.map((onePoint) => onePoint.stack)).toEqual([0, 0])
     expect(layout.rows[0]!.stackCount).toBe(1)
   })
 
@@ -636,7 +636,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((p) => p.stack)).toEqual([0, 1])
+    expect(layout.placements.map((onePoint) => onePoint.stack)).toEqual([0, 1])
   })
 
   it('ST-2 orders by start, then by the later finish, then by uid', () => {
@@ -645,7 +645,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((p) => p.taskUid)).toEqual([3, 9])
+    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([3, 9])
   })
 
   it('LF-2 puts stackGap between the lanes and not after the last one', () => {
@@ -673,7 +673,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     const down = layoutFromSchedule(overlapping, LAYOUT_SETTINGS, REGIONS)
     expect(down.rows[0]!.height).toBe(82)
     expect(down.rows[0]!.stackTops).toEqual([top, top + 28 + 12])
-    expect(down.placements.map((p) => p.y)).toEqual([top, top + 40])
+    expect(down.placements.map((onePoint) => onePoint.y)).toEqual([top, top + 40])
 
     const up = layoutFromSchedule(
       overlapping,
@@ -681,11 +681,11 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       REGIONS,
     )
     // ST-2 and ST-3 do not read the direction: every Task keeps its lane.
-    expect(up.placements.map((p) => p.stack)).toEqual(down.placements.map((p) => p.stack))
+    expect(up.placements.map((onePoint) => onePoint.stack)).toEqual(down.placements.map((onePoint) => onePoint.stack))
     expect(up.rows[0]!.height).toBe(82)
     // Lane 0 is now the lowest, and lane 1 -- the taller -- takes the top.
     expect(up.rows[0]!.stackTops).toEqual([top + 42 + 12, top])
-    expect(up.placements.map((p) => p.y)).toEqual([top + 54, top])
+    expect(up.placements.map((onePoint) => onePoint.y)).toEqual([top + 54, top])
   })
 
   it('LF-3 advances the next row by the band height and rowGap', () => {
@@ -907,7 +907,7 @@ const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, un
   scheduleOf({
     tasks,
     taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
-    taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    taskGroupMembers: tasks.map((drawnText) => ({ groupId: 'g1', taskUid: drawnText.uid })),
     taskVisuals: visuals,
   })
 
@@ -922,7 +922,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     expect(geometry.tasks).toHaveLength(1)
     const points = outlinePoints(geometry.tasks[0]!.plan)
     expect(points).toHaveLength(4)
-    const xs = points.map((p) => p.x)
+    const xs = points.map((onePoint) => onePoint.x)
     expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(xOf(10), 6)
     expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(42, 6)
   })
@@ -931,7 +931,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const geometry = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]))
     const points = outlinePoints(geometry.tasks[0]!.plan)
     expect(points).toHaveLength(4)
-    expect(new Set(points.map((p) => p.x))).toEqual(new Set([xOf(0), xOf(20)]))
+    expect(new Set(points.map((onePoint) => onePoint.x))).toEqual(new Set([xOf(0), xOf(20)]))
   })
 
   it('FD-6 lets fadeIn win and cuts fadeOut to what is left', () => {
@@ -951,7 +951,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     ])
     const points = outlinePoints(geometryOf(schedule).tasks[0]!.actual)
     // With no fade the trapezoid is a rectangle: two distinct x, not three.
-    expect(new Set(points.map((p) => p.x)).size).toBe(2)
+    expect(new Set(points.map((onePoint) => onePoint.x)).size).toBe(2)
   })
 
   it('LF-6 derives the actual chevron notch from the plan and does not clamp it twice', () => {
@@ -960,8 +960,8 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
       [{ taskUid: 1, shapeKind: 'chevron' }],
     )
     const geometry = geometryOf(schedule)
-    const planX = outlinePoints(geometry.tasks[0]!.plan).map((p) => p.x)
-    const actualX = outlinePoints(geometry.tasks[0]!.actual).map((p) => p.x)
+    const planX = outlinePoints(geometry.tasks[0]!.plan).map((onePoint) => onePoint.x)
+    const actualX = outlinePoints(geometry.tasks[0]!.actual).map((onePoint) => onePoint.x)
     // The plan notch is min(120 x 0.35, 28 x 0.45) = 12.6. The actual's is that
     // times actualOfPlan -- NOT min(its own width x 0.35, ...), which would be
     // smaller and would tilt the two slopes apart.
@@ -976,7 +976,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
         [{ taskUid: 1, shapeKind: kind }],
       )
     const inside = geometryOf(build('rectangle')).tasks[0]!
-    const actualTop = Math.min(...outlinePoints(inside.actual).map((p) => p.y))
+    const actualTop = Math.min(...outlinePoints(inside.actual).map((onePoint) => onePoint.y))
     expect(actualTop).toBeCloseTo(REGIONS.rowArea.y + (28 - 28 * 0.73) / 2, 6)
 
     const below = geometryOf(build('arrow')).tasks[0]!
@@ -1226,7 +1226,7 @@ describe('ScheduleGeometry (PI-6) -- FR-014 and LF-12', () => {
       project: { calendarUid: null, statusDate },
       tasks,
       taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
-      taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+      taskGroupMembers: tasks.map((drawnText) => ({ groupId: 'g1', taskUid: drawnText.uid })),
     })
 
   it('runs one unbroken line, one vertex per lane, from above the first row to below the last', () => {

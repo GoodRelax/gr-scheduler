@@ -191,7 +191,7 @@ function fadeOutlinePoints(): Map<number, { readonly x: string; readonly y: stri
   for (const line of text.slice(at + 1)) {
     if (line.startsWith('**表 ') || line.startsWith('#')) break
     if (!line.trim().startsWith('|')) continue
-    const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
+    const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((oneCell) => oneCell.trim())
     const first = cells[0] ?? ''
     if (!/^\d+$/.test(first)) continue
     points.set(Number(first), { x: cells[1] ?? '', y: cells[2] ?? '' })

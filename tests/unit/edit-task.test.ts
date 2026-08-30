@@ -184,7 +184,7 @@ const documentOf = (schedule: Record<string, unknown> = {}): Document =>
 /** The document an accepted edit answers with; fails the case when it refused. */
 const accepted = (result: EditResult): Document => {
   expect(result.ok).toBe(true)
-  if (!result.ok) throw new Error(result.refusals.map((r) => `${r.rule}: ${r.what}`).join('; '))
+  if (!result.ok) throw new Error(result.refusals.map((oneRect) => `${oneRect.rule}: ${oneRect.what}`).join('; '))
   return result.document
 }
 
@@ -272,7 +272,7 @@ describe('EditDocument (PI-9) -- CM-6 createTask', () => {
     const next = accepted(run(before, drawnOn('g1')))
     const created = createdIn(next)
     expect(rowOf(next, created.uid)).toBe('g1')
-    expect(next.schedule.taskGroupMembers.filter((m) => m.taskUid === created.uid)).toHaveLength(1)
+    expect(next.schedule.taskGroupMembers.filter((oneMatch) => oneMatch.taskUid === created.uid)).toHaveLength(1)
   })
 
   it('FR-001 creates the row when none is there and derives its name from the task', () => {
@@ -339,9 +339,9 @@ describe('EditDocument (PI-9) -- CM-7 deleteTask', () => {
 
   it('CD-1 takes the TaskVisual, the TaskOrigin and the TaskGroupMember of each', () => {
     const next = accepted(run(before, { kind: 'deleteTask', uid: 1 }))
-    expect(next.schedule.taskVisuals.map((v) => v.taskUid)).toEqual([3])
+    expect(next.schedule.taskVisuals.map((oneValue) => oneValue.taskUid)).toEqual([3])
     expect(next.schedule.taskOrigins.map((o) => o.taskUid)).toEqual([3])
-    expect(next.schedule.taskGroupMembers.map((m) => m.taskUid)).toEqual([3])
+    expect(next.schedule.taskGroupMembers.map((oneMatch) => oneMatch.taskUid)).toEqual([3])
   })
 
   it('CD-1 takes the dependencies at either end and the assignments pointing at it', () => {
@@ -350,7 +350,7 @@ describe('EditDocument (PI-9) -- CM-7 deleteTask', () => {
     // named 2 cannot stay -- it would point at a task the document no longer has.
     expect(taskIn(next, 3).dependencies).toEqual([])
     // CD-5's counterpart: the resource itself is untouched, only the assignment.
-    expect(next.schedule.assignments.map((a) => a.uid)).toEqual([101])
+    expect(next.schedule.assignments.map((assembledSvg) => assembledSvg.uid)).toEqual([101])
     expect(next.schedule.resources).toHaveLength(1)
   })
 
@@ -517,7 +517,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
     expect(rowOf(next, child.uid)).toBe('g1')
     expect(visualIn(next, root.uid).fillColor).toBe('blue')
     expect(visualIn(next, child.uid)).toBeDefined()
-    expect(next.schedule.assignments.filter((a) => a.taskUid === root.uid)).toHaveLength(1)
+    expect(next.schedule.assignments.filter((assembledSvg) => assembledSvg.taskUid === root.uid)).toHaveLength(1)
   })
 
   it('DU-1 must not copy the TaskOrigin', () => {
@@ -533,7 +533,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
     // copied is the one to 1, and inside the copy it names the copy of 1.
     const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
     const { root, child } = pasted(next)
-    expect(child.dependencies.map((d) => d.predecessorUid)).toEqual([root.uid])
+    expect(child.dependencies.map((oneDivider) => oneDivider.predecessorUid)).toEqual([root.uid])
   })
 })
 

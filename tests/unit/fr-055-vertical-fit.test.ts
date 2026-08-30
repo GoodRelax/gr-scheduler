@@ -125,7 +125,7 @@ const oneRow = (tasks: readonly Task[]): Schedule =>
   scheduleOf({
     tasks,
     taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
-    taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    taskGroupMembers: tasks.map((drawnText) => ({ groupId: 'g1', taskUid: drawnText.uid })),
   })
 
 // ---------------------------------------------------------------------------

@@ -573,7 +573,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
 
     const pane = host()
     const values = frameLoop(pane.surface, late, SCREEN).current()!
-    const placement = values.layout.placements.find((p) => p.taskUid === 1)!
+    const placement = values.layout.placements.find((onePoint) => onePoint.taskUid === 1)!
     const rowArea = values.regions.rowArea
     const actualEnd = placement.actualX! + placement.actualWidth
 
@@ -673,7 +673,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     const pane = host()
     const loop = frameLoop(pane.surface, document, SCREEN)
 
-    expect(rowsOf(loop.document()).map((r) => r.isCollapsed)).toEqual([true, false])
+    expect(rowsOf(loop.document()).map((oneRect) => oneRect.isCollapsed)).toEqual([true, false])
   })
 
   it('and draws the picture that collapse means -- the row under it stays undrawn', () => {
@@ -685,9 +685,9 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     const withCollapse = frameLoop(pane.surface, collapsed(), SCREEN).current()!
     const withoutCollapse = frameLoop(pane.surface, twoRowDocument(), SCREEN).current()!
 
-    expect(withoutCollapse.layout.rows.map((r) => r.groupId)).toEqual([ALPHA, BETA])
-    expect(withCollapse.layout.rows.map((r) => r.groupId)).toEqual([ALPHA])
-    expect(withCollapse.layout.placements.map((p) => p.taskUid)).toEqual([1])
+    expect(withoutCollapse.layout.rows.map((oneRect) => oneRect.groupId)).toEqual([ALPHA, BETA])
+    expect(withCollapse.layout.rows.map((oneRect) => oneRect.groupId)).toEqual([ALPHA])
+    expect(withCollapse.layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
   })
 })
 
@@ -810,11 +810,11 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     expect(after.layout.originX).toBe(after.regions.rowArea.x)
     expect(after.layout.contentWidth).not.toBe(before.layout.contentWidth)
     // ...and the geometry was cut from THAT layout.
-    const drawnFirst = after.geometry.tasks.find((t) => t.taskUid === 1)!
-    const placedFirst = after.layout.placements.find((p) => p.taskUid === 1)!
+    const drawnFirst = after.geometry.tasks.find((drawnText) => drawnText.taskUid === 1)!
+    const placedFirst = after.layout.placements.find((onePoint) => onePoint.taskUid === 1)!
     expect(drawnFirst.plan).not.toBeNull()
     const outline = drawnFirst.plan as { form: 'outline'; points: readonly { x: number }[] }
-    expect(Math.min(...outline.points.map((p) => p.x))).toBeCloseTo(placedFirst.x, 6)
+    expect(Math.min(...outline.points.map((onePoint) => onePoint.x))).toBeCloseTo(placedFirst.x, 6)
   })
 
   it('CA-2: two triggers before the frame head are still one calculation', () => {

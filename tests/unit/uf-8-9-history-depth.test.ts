@@ -431,7 +431,7 @@ describe('FR-031 / S-94 -- 段数の上限は、実際の書き込みを通し�
     expect(back.undone).toBe(true)
     // The last write named the task `edit S_94 + 3`; undoing it must land on the
     // one before, never on the template's own name.
-    const undoneTo = back.next.document.schedule.tasks.find((t) => t.uid === FIRST_TASK_UID)
+    const undoneTo = back.next.document.schedule.tasks.find((drawnText) => drawnText.uid === FIRST_TASK_UID)
     expect(undoneTo?.name).toBe(`edit ${S_94 + 2}`)
   })
 })
@@ -511,7 +511,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
   // and the 対象 half of their behaviour is owed a home (D-102).
   it('UN-16 names two requirements, and table T-108 gives them two commands', () => {
     expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052'])
-    expect(UN_16_COMMANDS.map((c) => c.commandRow)).toEqual(['CM-67', 'CM-70'])
+    expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67', 'CM-70'])
   })
 
   describe('UN-16 対象外 -- 見る場所の割り付けと出力の設定', () => {

@@ -186,7 +186,7 @@ const oneRow = (tasks: readonly Task[], rest: Record<string, unknown> = {}): Sch
   scheduleOf({
     tasks,
     taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
-    taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    taskGroupMembers: tasks.map((drawnText) => ({ groupId: 'g1', taskUid: drawnText.uid })),
     ...rest,
   })
 
@@ -255,7 +255,7 @@ const coloursOf = (svg: string): readonly string[] => {
 
 /** The elements that carry a colour, in the order they are painted. */
 const paintedOf = (svg: string): readonly Element[] =>
-  elementsOf(svg).filter((e) => e.tag !== 'svg')
+  elementsOf(svg).filter((drawn) => drawn.tag !== 'svg')
 
 /**
  * The elements the picture draws 薄く, by the offset `elementsOf` gives them --
@@ -304,7 +304,7 @@ const rgbOf = (colour: string): Rgb => {
   const hex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(colour.trim())
   if (hex !== null) {
     const body = hex[1] as string
-    const wide = body.length === 3 ? body.replace(/./g, (c) => c + c) : body
+    const wide = body.length === 3 ? body.replace(/./g, (oneCell) => oneCell + oneCell) : body
     return {
       r: parseInt(wide.slice(0, 2), 16) / 255,
       g: parseInt(wide.slice(2, 4), 16) / 255,
@@ -388,7 +388,7 @@ const scene = (part: Record<string, unknown> = {}): Schedule =>
 /** The horizontal span a bar covers, read from the vertices it is drawn with. */
 const spanOf = (bar: Element): { readonly from: number; readonly to: number } => {
   const points = (attribute(bar.text, 'points') as string).trim().split(/\s+/)
-  const xs = points.map((p) => Number((p.split(',')[0] as string)))
+  const xs = points.map((onePoint) => Number((onePoint.split(',')[0] as string)))
   return { from: Math.min(...xs), to: Math.max(...xs) }
 }
 
@@ -433,7 +433,7 @@ const spanOf = (bar: Element): { readonly from: number; readonly to: number } =>
  */
 const themeBars = (svg: string): { plan: string; actual: string } => {
   const faint = faintlyDrawn(svg)
-  const bars = paintedOf(svg).filter((e) => e.tag === 'polygon' && !faint.has(e.at))
+  const bars = paintedOf(svg).filter((drawn) => drawn.tag === 'polygon' && !faint.has(drawn.at))
   const spans = bars.map(spanOf)
   const nested: { readonly plan: Element; readonly actual: Element }[] = []
   for (let outer = 0; outer < bars.length; outer += 1) {
@@ -510,7 +510,7 @@ describe('UF-32 -- FR-007: 作成者が指定した線色・塗り色', () => {
     const svg = drawn(
       scene({ taskVisuals: [visualOf(2, { fillColor: '#c62828', strokeColor: '#1b5e20' })] }),
     )
-    const chosen = paintedOf(svg).find((e) => attribute(e.text, 'fill') === '#c62828')
+    const chosen = paintedOf(svg).find((drawn) => attribute(drawn.text, 'fill') === '#c62828')
     expect(chosen, 'the chosen 塗り色 reaches the picture').toBeDefined()
     expect(attribute((chosen as Element).text, 'stroke')).toBe('#1b5e20')
   })
@@ -518,7 +518,7 @@ describe('UF-32 -- FR-007: 作成者が指定した線色・塗り色', () => {
   it('takes 線色 and 塗り色 one at a time, leaving the other on the theme', () => {
     // FR-007: 「個別に指定できるようにすること」。
     const svg = drawn(scene({ taskVisuals: [visualOf(2, { strokeColor: '#1b5e20' })] }))
-    const chosen = paintedOf(svg).find((e) => attribute(e.text, 'stroke') === '#1b5e20')
+    const chosen = paintedOf(svg).find((drawn) => attribute(drawn.text, 'stroke') === '#1b5e20')
     expect(chosen, 'a 線色 on its own reaches the picture').toBeDefined()
     const fill = attribute((chosen as Element).text, 'fill') as string
     expect(fill).not.toBe('#1b5e20')
@@ -656,9 +656,9 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
         }),
         showing,
       )
-      const polylines = paintedOf(svg).filter((e) => e.tag === 'polyline')
+      const polylines = paintedOf(svg).filter((drawn) => drawn.tag === 'polyline')
       expect(polylines.length, 'both the 依存線 and the イナズマ線 are drawn').toBe(2)
-      return polylines.map((e) => attribute(e.text, 'stroke') as string)
+      return polylines.map((drawn) => attribute(drawn.text, 'stroke') as string)
     }
     const at214 = strokesAt(214)
     const at30 = strokesAt(30)
@@ -713,7 +713,7 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
   const WITHOUT_LINKS = settingsOf({ ...SHOWN, dependencyVisible: false })
 
   const polylinesOf = (svg: string): readonly Element[] =>
-    paintedOf(svg).filter((e) => e.tag === 'polyline')
+    paintedOf(svg).filter((drawn) => drawn.tag === 'polyline')
 
   /**
    * ⛔ THE TWO ARE TOLD APART BY 表 T-202, NOT BY GD-6. GD-6 is what is being
@@ -726,7 +726,7 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
   const withLinks = (): { links: readonly Element[]; guides: readonly Element[] } => {
     const guides = polylinesOf(drawn(APART_SCENE, WITHOUT_LINKS))
     const all = polylinesOf(drawn(APART_SCENE, SHOWN))
-    const links = all.filter((e) => !guides.some((g) => g.text === e.text))
+    const links = all.filter((drawn) => !guides.some((oneGroup) => oneGroup.text === drawn.text))
     return { links, guides }
   }
 
@@ -748,7 +748,7 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
     const svg = drawn(APART_SCENE, SHOWN)
     const id = /url\(#([^)]+)\)/.exec((links[0] as Element).text)?.[1] as string
     expect(svg, 'the arrowhead is defined').toContain(`id="${id}"`)
-    expect(elementsOf(svg).some((e) => e.tag === 'marker')).toBe(true)
+    expect(elementsOf(svg).some((drawn) => drawn.tag === 'marker')).toBe(true)
   })
 
   it('GD-6 (MUST): the 補助線 carries none', () => {
@@ -765,10 +765,10 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
     const readAt = (zoomX: number): readonly string[] => {
       const at = settingsOf({ ...SHOWN, zoomX })
       return polylinesOf(drawn(APART_SCENE, at))
-        .filter((e) => attribute(e.text, 'stroke-dasharray') !== null)
+        .filter((drawn) => attribute(drawn.text, 'stroke-dasharray') !== null)
         .map(
-          (e) =>
-            `${attribute(e.text, 'stroke-width') ?? ''}|${attribute(e.text, 'stroke-dasharray') ?? ''}`,
+          (drawn) =>
+            `${attribute(drawn.text, 'stroke-width') ?? ''}|${attribute(drawn.text, 'stroke-dasharray') ?? ''}`,
         )
     }
     const near = readAt(1)
@@ -809,7 +809,7 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
    */
   const boxStroke = (svg: string): string => {
     const stroked = paintedOf(svg).filter(
-      (e) => e.tag === 'rect' && attribute(e.text, 'stroke') !== null,
+      (drawn) => drawn.tag === 'rect' && attribute(drawn.text, 'stroke') !== null,
     )
     expect(stroked.length, 'exactly one stroked rect -- the HighlightBox').toBe(1)
     return attribute((stroked[0] as Element).text, 'stroke') as string
@@ -825,7 +825,7 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
     expect(at30, 'テーマの色相に追随しない').toBe(at214)
     const svg = withBox(214, null)
     const link = attribute(
-      (paintedOf(svg).find((e) => e.tag === 'polyline') as Element).text,
+      (paintedOf(svg).find((drawn) => drawn.tag === 'polyline') as Element).text,
       'stroke',
     ) as string
     expect(at214, '依存線から離した色').not.toBe(link)
@@ -847,14 +847,14 @@ describe('UF-32 -- FR-030 / SL-8: 色だけで伝えない', () => {
     expect(picked, 'selecting changes the picture').not.toBe(plain)
 
     const added = paintedOf(picked).filter(
-      (e) => !paintedOf(plain).some((p) => p.text === e.text),
+      (drawn) => !paintedOf(plain).some((onePoint) => onePoint.text === drawn.text),
     )
     expect(added.length, 'something is drawn for the selection').toBeGreaterThan(0)
     // 色以外の手掛かり: at least one of the added marks differs from the
     // unselected picture by something other than a colour value.
-    const nonColour = added.some((e) => {
-      const dash = attribute(e.text, 'stroke-dasharray')
-      const width = attribute(e.text, 'stroke-width')
+    const nonColour = added.some((drawn) => {
+      const dash = attribute(drawn.text, 'stroke-dasharray')
+      const width = attribute(drawn.text, 'stroke-width')
       return dash !== null || (width !== null && Number(width) > SETTINGS.planStroke)
     })
     expect(nonColour, '形状・線の太さ・記号のいずれかで区別されている').toBe(true)
@@ -931,12 +931,12 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
   /** The elements a selection ADDS to the picture. */
   const addedBy = (ref: Ref, settings: DocumentSettings = SETTINGS): readonly Element[] => {
     const plain = paintedOf(pictureOf(null, settings)).map(settledText)
-    return paintedOf(pictureOf(ref, settings)).filter((e) => !plain.includes(settledText(e)))
+    return paintedOf(pictureOf(ref, settings)).filter((drawn) => !plain.includes(settledText(drawn)))
   }
 
   /** A frame is a `rect` carrying the dash 表 T-206 gives the sign. */
   const framesIn = (elements: readonly Element[]): readonly Element[] =>
-    elements.filter((e) => e.tag === 'rect' && attribute(e.text, 'stroke-dasharray') !== null)
+    elements.filter((drawn) => drawn.tag === 'rect' && attribute(drawn.text, 'stroke-dasharray') !== null)
 
   const strokeWidthOf = (element: Element): number => Number(attribute(element.text, 'stroke-width'))
 
@@ -1005,7 +1005,7 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
     {
       what: '依存線',
       ref: { kind: 'dependency', successorUid: 2, ordinal: 0 },
-      find: (svg) => paintedOf(svg).find((e) => e.tag === 'polyline') as Element,
+      find: (svg) => paintedOf(svg).find((drawn) => drawn.tag === 'polyline') as Element,
     },
     {
       what: '基準日線',
@@ -1017,7 +1017,7 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
       find: (svg) => {
         const heightOf = (e: Element): number =>
           Math.abs(Number(attribute(e.text, 'y2')) - Number(attribute(e.text, 'y1')))
-        const lines = paintedOf(svg).filter((e) => e.tag === 'line')
+        const lines = paintedOf(svg).filter((drawn) => drawn.tag === 'line')
         return lines.reduce((tallest, e) => (heightOf(e) > heightOf(tallest) ? e : tallest))
       },
     },
@@ -1071,12 +1071,12 @@ describe('UF-32 -- 表 T-020: 重ね順（背面から前面へ）', () => {
     // SVG IS the stacking order, so ZO-4 must come after ZO-1 and ZO-2.
     const svg = drawn(scene())
     const painted = paintedOf(svg)
-    const dependency = painted.findIndex((e) => e.tag === 'polyline')
-    const bars = painted.filter((e) => e.tag === 'polygon')
+    const dependency = painted.findIndex((drawn) => drawn.tag === 'polyline')
+    const bars = painted.filter((drawn) => drawn.tag === 'polygon')
     expect(dependency, 'the 依存線 is drawn').toBeGreaterThanOrEqual(0)
     expect(bars.length, 'both bars are drawn').toBeGreaterThanOrEqual(2)
 
-    const order = (row: string): number => T_020.find((r) => r.row === row)?.order as number
+    const order = (row: string): number => T_020.find((oneRect) => oneRect.row === row)?.order as number
     expect(order('ZO-4')).toBeGreaterThan(order('ZO-1'))
     expect(order('ZO-4')).toBeGreaterThan(order('ZO-2'))
     for (const bar of bars.slice(0, 2)) {
@@ -1106,15 +1106,15 @@ describe('UF-32 -- 表 T-076 の EP-5: `Row Area` の中身を描く', () => {
       }),
     )
     expect(T_076_EP5).toContain('Task Bars (U-2)')
-    expect(paintedOf(svg).filter((e) => e.tag === 'polygon').length).toBeGreaterThanOrEqual(2)
-    expect(paintedOf(svg).filter((e) => e.tag === 'polyline').length).toBeGreaterThanOrEqual(1)
-    expect(paintedOf(svg).filter((e) => e.tag === 'rect').length).toBeGreaterThanOrEqual(1)
+    expect(paintedOf(svg).filter((drawn) => drawn.tag === 'polygon').length).toBeGreaterThanOrEqual(2)
+    expect(paintedOf(svg).filter((drawn) => drawn.tag === 'polyline').length).toBeGreaterThanOrEqual(1)
+    expect(paintedOf(svg).filter((drawn) => drawn.tag === 'rect').length).toBeGreaterThanOrEqual(1)
   })
 
   it('follows 表 T-202 for each of them: dependencyVisible off takes the line away', () => {
     // 表 T-076 の EP-5: 「個々を描くかどうかは表 T-202 の表示の切り替えに従う」
     const off = drawn(scene(), settingsOf({ ...SETTINGS, dependencyVisible: false }))
-    expect(paintedOf(off).filter((e) => e.tag === 'polyline')).toHaveLength(0)
+    expect(paintedOf(off).filter((drawn) => drawn.tag === 'polyline')).toHaveLength(0)
   })
 
   it('draws the Progress Marker, and follows 表 T-202 for it', () => {
@@ -1167,7 +1167,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** The figures the picture draws 薄く, whatever kind of element they are. */
   const faintFiguresOf = (svg: string): readonly Element[] => {
     const faint = faintlyDrawn(svg)
-    return paintedOf(svg).filter((e) => faint.has(e.at))
+    return paintedOf(svg).filter((drawn) => faint.has(drawn.at))
   }
 
   it('draws the not-started marker AND both 掴みシロ at S-131, and nothing else faint', () => {
@@ -1191,7 +1191,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     // 掴みシロを**2 つ**（マイルストーンは例外とする）、実績の開始点と終了点と
     // して**薄く**タスクの上に示し」 -- two of them, and drawn 薄く.
     const faint = faintFiguresOf(svg)
-    const dummies = faint.filter((e) => e.tag === 'polygon')
+    const dummies = faint.filter((drawn) => drawn.tag === 'polygon')
     expect(dummies, 'FR-043 (MUST): 未着手 owes 掴みシロ を 2 つ').toHaveLength(2)
     for (const one of dummies) {
       const span = spanOf(one)
@@ -1208,14 +1208,14 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     // ASSERTED -- 表 T-021 prints `( · )` and no row of docs/spec says whether a
     // ring and a point are one element or two.
     expect(
-      faint.filter((e) => e.tag !== 'polygon' && e.tag !== 'g').length,
+      faint.filter((drawn) => drawn.tag !== 'polygon' && drawn.tag !== 'g').length,
       'FR-013 (MUST): the 未着手 marker is drawn 薄く too',
     ).toBeGreaterThan(0)
 
     // ⛔ AND THE 予定バー IS NOT AMONG THEM. FR-013 names the marker and the
     // ダミー and nothing else, so the one bar of this scene is at full 濃さ.
     const bars = paintedOf(svg).filter(
-      (e) => e.tag === 'polygon' && !dummies.some((one) => one.at === e.at),
+      (drawn) => drawn.tag === 'polygon' && !dummies.some((one) => one.at === drawn.at),
     )
     expect(bars, 'the 予定バー is drawn at full 濃さ').toHaveLength(1)
   })
@@ -1246,7 +1246,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     const svg = drawn(late)
     expect(new Set(faintnessOf(svg)), 'the only 濃さ stated is `S-131`').toEqual(new Set([S_131]))
     expect(
-      faintFiguresOf(svg).filter((e) => e.tag === 'polygon'),
+      faintFiguresOf(svg).filter((drawn) => drawn.tag === 'polygon'),
       'FR-043 (MUST): a late Task that has not started still shows its two 掴みシロ',
     ).toHaveLength(2)
 
@@ -1254,7 +1254,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     // its figures is 薄く -- and no `line` of the picture is, which is the same
     // claim made against every figure that is not a bar or a 掴みシロ.
     expect(
-      faintFiguresOf(svg).filter((e) => e.tag !== 'polygon' && e.tag !== 'g'),
+      faintFiguresOf(svg).filter((drawn) => drawn.tag !== 'polygon' && drawn.tag !== 'g'),
       'FR-013: 遅れの `(!)` は薄くしない',
     ).toEqual([])
   })
@@ -1396,11 +1396,11 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
     }
     const painted = paintedOf(drawn(scheduleOf({})))
     const rowBands = painted.filter(
-      (e) => e.tag === 'rect' && !(onTheBand(e, 'y', band.y) && onTheBand(e, 'height', band.height)),
+      (drawn) => drawn.tag === 'rect' && !(onTheBand(drawn, 'y', band.y) && onTheBand(drawn, 'height', band.height)),
     )
     expect(rowBands, 'no 行の帯').toHaveLength(0)
-    expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
-    expect(painted.filter((e) => e.tag === 'polyline'), 'no 依存線').toHaveLength(0)
+    expect(painted.filter((drawn) => drawn.tag === 'polygon'), 'no バー').toHaveLength(0)
+    expect(painted.filter((drawn) => drawn.tag === 'polyline'), 'no 依存線').toHaveLength(0)
     expect(painted.length, '表 T-076 EP-2: the Time Ruler is drawn all the same').toBeGreaterThan(0)
   })
 
@@ -1414,11 +1414,11 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
     // carrying date text of its own -- is not mistaken for a 名称ラベル.
     const bare = paintedOf(drawn(scheduleOf({})))
     const painted = paintedOf(drawn(oneRow([]))).filter(
-      (e) => !bare.some((b) => b.text === e.text),
+      (drawn) => !bare.some((oneBar) => oneBar.text === drawn.text),
     )
     expect(painted.length, 'the row itself is drawn').toBeGreaterThan(0)
-    expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
-    expect(painted.filter((e) => e.tag === 'text'), 'no 名称ラベル').toHaveLength(0)
-    expect(painted.filter((e) => e.tag === 'polyline'), 'no 依存線').toHaveLength(0)
+    expect(painted.filter((drawn) => drawn.tag === 'polygon'), 'no バー').toHaveLength(0)
+    expect(painted.filter((drawn) => drawn.tag === 'text'), 'no 名称ラベル').toHaveLength(0)
+    expect(painted.filter((drawn) => drawn.tag === 'polyline'), 'no 依存線').toHaveLength(0)
   })
 })

@@ -376,8 +376,8 @@ function planCentre(loop: FrameLoop, uid: number): { x: number; y: number } {
   if (drawn.plan.form !== 'outline') {
     throw new Error(`Task ${uid} is drawn as a ${drawn.plan.form}, which has no body to grab`)
   }
-  const xs = drawn.plan.points.map((p) => p.x)
-  const ys = drawn.plan.points.map((p) => p.y)
+  const xs = drawn.plan.points.map((onePoint) => onePoint.x)
+  const ys = drawn.plan.points.map((onePoint) => onePoint.y)
   return {
     x: (Math.min(...xs) + Math.max(...xs)) / 2,
     y: (Math.min(...ys) + Math.max(...ys)) / 2,

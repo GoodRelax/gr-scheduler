@@ -555,7 +555,7 @@ const attribute = (element: string, name: string): string | null => {
 
 /** The elements that carry paint, in the order they are painted. */
 const paintedOf = (svg: string): readonly Element[] =>
-  elementsOf(svg).filter((e) => e.tag !== 'svg')
+  elementsOf(svg).filter((drawn) => drawn.tag !== 'svg')
 
 /**
  * One element, with anything a SECOND drawing of the same picture may spell
@@ -568,12 +568,12 @@ const settledText = (element: Element): string =>
 /** The elements this picture has that the other does not. */
 const onlyIn = (picture: string, other: string): readonly Element[] => {
   const there = paintedOf(other).map(settledText)
-  return paintedOf(picture).filter((e) => !there.includes(settledText(e)))
+  return paintedOf(picture).filter((drawn) => !there.includes(settledText(drawn)))
 }
 
 /** A dashed rectangle -- the shape both `SL-3` and `SL-8` draw. */
 const dashedRectsIn = (elements: readonly Element[]): readonly Element[] =>
-  elements.filter((e) => e.tag === 'rect' && attribute(e.text, 'stroke-dasharray') !== null)
+  elements.filter((drawn) => drawn.tag === 'rect' && attribute(drawn.text, 'stroke-dasharray') !== null)
 
 const numberAttribute = (element: Element, name: string): number => {
   const stated = attribute(element.text, name)

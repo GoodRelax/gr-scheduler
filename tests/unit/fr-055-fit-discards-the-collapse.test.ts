@@ -176,7 +176,7 @@ const scheduleOf = (
     }),
   )
   const children = PARENT_IDS.flatMap((id, index) =>
-    [0, 1].map((n) => groupOf({ id: `${id}-c${n}`, parentId: id, order: index * 2 + n })),
+    [0, 1].map((oneNode) => groupOf({ id: `${id}-c${oneNode}`, parentId: id, order: index * 2 + oneNode })),
   )
 
   // uid 1..3 on the roots, 10.. on the children.
@@ -186,7 +186,7 @@ const scheduleOf = (
   // dropped and the cases below would then be about an empty measurement.
   const rootTasks = PARENT_IDS.map((_id, index) => spanning(index + 1, '2026-01-05', 20))
   const childTasks = PARENT_IDS.flatMap((_id, index) =>
-    [0, 1].map((n) => spanning(10 + index * 2 + n, '2026-05-01', 45)),
+    [0, 1].map((oneNode) => spanning(10 + index * 2 + oneNode, '2026-05-01', 45)),
   )
 
   return {
@@ -205,7 +205,7 @@ const scheduleOf = (
     taskGroupMembers: [
       ...PARENT_IDS.map((id, index) => ({ groupId: id, taskUid: index + 1 })),
       ...PARENT_IDS.flatMap((id, index) =>
-        [0, 1].map((n) => ({ groupId: `${id}-c${n}`, taskUid: 10 + index * 2 + n })),
+        [0, 1].map((oneNode) => ({ groupId: `${id}-c${oneNode}`, taskUid: 10 + index * 2 + oneNode })),
       ),
     ],
     taskVisuals: [],

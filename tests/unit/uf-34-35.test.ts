@@ -494,9 +494,9 @@ describe('FR-024 -- every key of the presentation group is written', () => {
   // exactly what may not be refused, and the case below says so on its own.
   it('writes a settings key whose value is `false` or `0` rather than dropping it', () => {
     const zeroed: Group = { ...templateSettings }
-    const falseKeys = Object.keys(zeroed).filter((k) => typeof zeroed[k] === 'boolean')
+    const falseKeys = Object.keys(zeroed).filter((oneKey) => typeof zeroed[oneKey] === 'boolean')
     const numberKeys = Object.keys(zeroed).filter(
-      (k) => typeof zeroed[k] === 'number' && !SETTINGS_ENUM_KEYS.includes(k),
+      (oneKey) => typeof zeroed[oneKey] === 'number' && !SETTINGS_ENUM_KEYS.includes(oneKey),
     )
     expect(falseKeys.length, 'the presentation group has a boolean').toBeGreaterThan(0)
     expect(numberKeys.length, 'the presentation group has a number').toBeGreaterThan(0)
@@ -539,7 +539,7 @@ describe('FR-024 -- every key of the presentation group is written', () => {
   it('writes a null column of the schedule-data group key and all (MUST NOT drop it)', () => {
     const document = accepted(TEMPLATE_TEXT)
     const before = (TEMPLATE['schedule'] as Group)['tasks'] as Group[]
-    const nullColumns = Object.keys(before[0] ?? {}).filter((k) => before[0]?.[k] === null)
+    const nullColumns = Object.keys(before[0] ?? {}).filter((oneKey) => before[0]?.[oneKey] === null)
     expect(nullColumns.length, 'the template has a task with null columns').toBeGreaterThan(0)
 
     const written = JSON.parse(jsonFromDocument(document)) as Root

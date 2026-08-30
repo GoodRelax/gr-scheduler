@@ -136,7 +136,7 @@ describe('DialogueLog (PI-33)', () => {
     let log = emptyDialogueLog()
     log = logWithMessage(log, settle('human', 'wait'))
     log = logWithMessage(log, settle('agent', 'why'))
-    expect(log.messages.map((m) => m.sequence)).toEqual([1, 2])
+    expect(log.messages.map((oneMatch) => oneMatch.sequence)).toEqual([1, 2])
     expect(latestSequence(log)).toBe(2)
   })
 
@@ -146,8 +146,8 @@ describe('DialogueLog (PI-33)', () => {
     log = logWithMessage(log, settle('agent', 'two'))
     log = logWithMessage(log, settle('human', 'three'))
 
-    expect(messagesSince(log, 0, 'agent').map((m) => m.text)).toEqual(['one', 'three'])
-    expect(messagesSince(log, 2, 'agent').map((m) => m.text)).toEqual(['three'])
+    expect(messagesSince(log, 0, 'agent').map((oneMatch) => oneMatch.text)).toEqual(['one', 'three'])
+    expect(messagesSince(log, 2, 'agent').map((oneMatch) => oneMatch.text)).toEqual(['three'])
     expect(messagesSince(log, 3, 'agent')).toEqual([])
   })
 

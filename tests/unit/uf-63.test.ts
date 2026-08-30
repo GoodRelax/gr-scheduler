@@ -224,11 +224,11 @@ const panelOf = (
   selection = emptySelection(),
 ): RowTitlePanel => rowTitlePanelFromSchedule(schedule, settings, selection, session)
 
-const idsOf = (titles: readonly RowTitle[]): readonly string[] => titles.map((t) => t.groupId)
+const idsOf = (titles: readonly RowTitle[]): readonly string[] => titles.map((drawnText) => drawnText.groupId)
 
 /** The one title for a row, from whichever of the two lists holds it. */
 const titleOf = (panel: RowTitlePanel, groupId: string): RowTitle => {
-  const found = [...panel.pinnedTitles, ...panel.titles].filter((t) => t.groupId === groupId)
+  const found = [...panel.pinnedTitles, ...panel.titles].filter((drawnText) => drawnText.groupId === groupId)
   expect(found.length, `exactly one title for ${groupId}`).toBe(1)
   return found[0] as RowTitle
 }
@@ -510,7 +510,7 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
   it('counts the `parentId` chain', () => {
     const panel = chainPanel(3, 'a')
 
-    expect([1, 2, 3].map((d) => titleOf(panel, `g${d}`).depth)).toEqual([1, 2, 3])
+    expect([1, 2, 3].map((oneDivider) => titleOf(panel, `g${oneDivider}`).depth)).toEqual([1, 2, 3])
   })
 
   it('stops at `maxGroupDepth`, which S-125 holds', () => {
@@ -518,7 +518,7 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
     // "Depth 1 is a root row. FR-004 caps it at `maxGroupDepth` (S-125)".
     const panel = chainPanel(5, 'a', panelWith({ maxGroupDepth: 3 }))
 
-    expect([1, 2, 3, 4, 5].map((d) => titleOf(panel, `g${d}`).depth)).toEqual([1, 2, 3, 3, 3])
+    expect([1, 2, 3, 4, 5].map((oneDivider) => titleOf(panel, `g${oneDivider}`).depth)).toEqual([1, 2, 3, 3, 3])
   })
 
   it('follows the cap when it moves, rather than holding a number of its own', () => {
@@ -1167,7 +1167,7 @@ describe('UF-63 -- FR-085 (a): the drawing area does not select a row', () => {
 
     const panel = chainPanelWithSelection(3, picked)
 
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, false, false])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([false, false, false])
   })
 
   it('answers the same panel whatever the drawing area holds selected', () => {
@@ -1326,19 +1326,19 @@ describe('UF-63 -- FR-085 (b): the rows a person chose', () => {
   it('chooses SEVERAL rows at once (FR-085, MUST)', () => {
     const panel = panelOf(schedule, chose(session, 'g1', 'g3'))
 
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([true, false, true])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([true, false, true])
   })
 
   it('chooses every drawn row when every one of them was named', () => {
     const panel = panelOf(schedule, chose(session, 'g1', 'g2', 'g3'))
 
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([true, true, true])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([true, true, true])
   })
 
   it('clears the set: an empty `selectedGroupIds` chooses no row (FR-085)', () => {
     const panel = panelOf(schedule, chose(session))
 
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, false, false])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([false, false, false])
   })
 
   it('does not follow the order the ids arrived in', () => {
@@ -1366,7 +1366,7 @@ describe('UF-63 -- FR-085 (b): the rows a person chose', () => {
     const panel = panelOf(schedule, chose(session, 'g9', 'g2'))
 
     expect(idsOf(panel.titles)).toEqual(['g1', 'g2', 'g3'])
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true, false])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([false, true, false])
   })
 
   it('describes a row once when the set happens to hold its id twice', () => {
@@ -1375,7 +1375,7 @@ describe('UF-63 -- FR-085 (b): the rows a person chose', () => {
     const panel = panelOf(schedule, chose(session, 'g2', 'g2'))
 
     expect(idsOf(panel.titles)).toEqual(['g1', 'g2', 'g3'])
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true, false])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([false, true, false])
   })
 
   it('says chosen with a boolean, not with something merely truthy', () => {
@@ -1415,9 +1415,9 @@ describe('UF-63 -- FR-098 with FR-085: a pinned row is chosen the same way', () 
   it('chooses a pinned row and an unpinned one together', () => {
     const panel = panelOf(schedule, chose(session, 'g2', 'g3'), pinned)
 
-    expect(panel.pinnedTitles.map((t) => t.isSelected)).toEqual([true])
+    expect(panel.pinnedTitles.map((drawnText) => drawnText.isSelected)).toEqual([true])
     expect(idsOf(panel.titles)).toEqual(['g1', 'g3'])
-    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true])
+    expect(panel.titles.map((drawnText) => drawnText.isSelected)).toEqual([false, true])
   })
 
   it('still draws the chosen pinned row once (FR-098, MUST NOT draw it twice)', () => {

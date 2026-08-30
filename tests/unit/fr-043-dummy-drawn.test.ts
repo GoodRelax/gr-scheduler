@@ -182,9 +182,9 @@ const EVERY_DAY_WORKED = {
   ordinal: 0,
   carry: {},
   carryElements: [],
-  weekDays: [1, 2, 3, 4, 5, 6, 7].map((n) => ({
-    ordinal: n,
-    dayType: n,
+  weekDays: [1, 2, 3, 4, 5, 6, 7].map((oneNode) => ({
+    ordinal: oneNode,
+    dayType: oneNode,
     dayWorking: true,
     carry: {},
     carryElements: [],
@@ -563,10 +563,10 @@ const unionOf = (figures: readonly Figure[]): Box => {
   const boxes = figures.map((one) => one.box).filter((one): one is Box => one !== null)
   if (boxes.length === 0) throw new Error('nothing is drawn here')
   return {
-    x0: Math.min(...boxes.map((b) => b.x0)),
-    y0: Math.min(...boxes.map((b) => b.y0)),
-    x1: Math.max(...boxes.map((b) => b.x1)),
-    y1: Math.max(...boxes.map((b) => b.y1)),
+    x0: Math.min(...boxes.map((oneBar) => oneBar.x0)),
+    y0: Math.min(...boxes.map((oneBar) => oneBar.y0)),
+    x1: Math.max(...boxes.map((oneBar) => oneBar.x1)),
+    y1: Math.max(...boxes.map((oneBar) => oneBar.y1)),
   }
 }
 

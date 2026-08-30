@@ -398,7 +398,7 @@ const rgbOf = (colour: string): Rgb => {
   const hex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(colour.trim())
   if (hex !== null) {
     const body = hex[1] as string
-    const wide = body.length === 3 ? body.replace(/./g, (c) => c + c) : body
+    const wide = body.length === 3 ? body.replace(/./g, (oneCell) => oneCell + oneCell) : body
     return {
       r: parseInt(wide.slice(0, 2), 16) / 255,
       g: parseInt(wide.slice(2, 4), 16) / 255,

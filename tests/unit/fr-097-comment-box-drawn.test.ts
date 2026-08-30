@@ -249,9 +249,9 @@ const EVERY_DAY_WORKED = {
   ordinal: 0,
   carry: {},
   carryElements: [],
-  weekDays: [1, 2, 3, 4, 5, 6, 7].map((n) => ({
-    ordinal: n,
-    dayType: n,
+  weekDays: [1, 2, 3, 4, 5, 6, 7].map((oneNode) => ({
+    ordinal: oneNode,
+    dayType: oneNode,
     dayWorking: true,
     carry: {},
     carryElements: [],
@@ -508,8 +508,8 @@ const rgbOf = (colour: string): readonly [number, number, number] => {
   const hex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(colour.trim())
   if (hex !== null) {
     const body = hex[1] ?? ''
-    const wide = body.length === 3 ? [...body].map((c) => c + c).join('') : body
-    return [0, 2, 4].map((i) => Number.parseInt(wide.slice(i, i + 2), 16) / 255) as unknown as [
+    const wide = body.length === 3 ? [...body].map((oneCell) => oneCell + oneCell).join('') : body
+    return [0, 2, 4].map((oneIndex) => Number.parseInt(wide.slice(oneIndex, oneIndex + 2), 16) / 255) as unknown as [
       number,
       number,
       number,

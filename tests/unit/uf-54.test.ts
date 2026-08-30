@@ -1060,7 +1060,7 @@ describe('table T-037 -- what the notice is given to say', () => {
 
   it('names something in `what` for every way a host can refuse (NT-3a)', async () => {
     for (const { why, script } of EVERY_REFUSAL) {
-      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((r) => r.settled), why)
+      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled), why)
       expect(typeof fault.what, why).toBe('string')
       expect(fault.what.trim().length, `${why}: a notice that says only that it failed is forbidden`)
         .toBeGreaterThan(0)
@@ -1077,7 +1077,7 @@ describe('table T-037 -- what the notice is given to say', () => {
       { decode: { rejects: namedError('EncodingError', shouted) } },
       { drawImage: { throws: namedError('InvalidStateError', shouted) } },
     ] as const) {
-      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((r) => r.settled), shouted)
+      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled), shouted)
       expect(ASCII_ONLY.test(fault.what), fault.what).toBe(true)
       expect(fault.what).not.toContain(shouted)
     }
@@ -1099,7 +1099,7 @@ const NOT_A_PICTURE: readonly { readonly why: string; readonly svg: string }[] =
 describe('the boundaries of what may arrive', () => {
   it('refuses what is not a picture, as a value, naming something', async () => {
     for (const { why, svg } of NOT_A_PICTURE) {
-      const fault = faultOf(await raster({}, svg, SIZE_AT_SCALE_1).then((r) => r.settled), why)
+      const fault = faultOf(await raster({}, svg, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled), why)
       expect(RASTER_FAULT_REASONS, why).toContain(fault.reason)
       expect(fault.what.length, why).toBeGreaterThan(0)
     }
@@ -1235,7 +1235,7 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
   it('walks the whole mapping', async () => {
     expect(new Set(PD_130_MAPPING.map((one) => one.reason)).size).toBe(3)
     for (const { why, script, reason } of PD_130_MAPPING) {
-      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((r) => r.settled), why)
+      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled), why)
       expect(fault.reason, why).toBe(reason)
     }
   })
@@ -1259,7 +1259,7 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
     // NT-3a: `tooLarge` would send the person to the smaller value of S-82,
     // which cannot help a browser that paints nothing at all.
     const fault = faultOf(
-      await raster({ contextFor: () => null }, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((r) => r.settled),
+      await raster({ contextFor: () => null }, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled),
       'no context at any size',
     )
     expect(fault.reason).toBe('unsupported')
@@ -1271,7 +1271,7 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
       { why: 'the blob would not read', script: { arrayBuffer: { rejects: new Error('x') } } },
       { why: 'decoding failed', script: { decode: { rejects: new Error('x') } } },
     ]) {
-      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((r) => r.settled), why)
+      const fault = faultOf(await raster(script, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled), why)
       expect(fault.reason, why).toBe('rasterFailed')
     }
   })

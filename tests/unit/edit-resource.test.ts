@@ -154,7 +154,7 @@ const accept = (document: Document, command: ResourceCommand): Document => {
   const result = editResource(document, command)
   expect(result.ok).toBe(true)
   if (!result.ok) {
-    throw new Error(result.refusals.map((r) => `${r.command}/${r.rule}: ${r.what}`).join(' | '))
+    throw new Error(result.refusals.map((oneRect) => `${oneRect.command}/${oneRect.rule}: ${oneRect.what}`).join(' | '))
   }
   return result.document
 }
@@ -283,7 +283,7 @@ describe('EditDocument (UF-15) -- 担当者を作る、就ける、解く（FR-0
     // 「参照されなくなった担当者を自動で消してはならない（MUST NOT）」-- else the
     // name has to be typed again every time a 割当 is redone. FR-099 is the
     // deliberate entrance for getting rid of it.
-    expect(next.schedule.resources.map((r) => r.name)).toEqual(['a'])
+    expect(next.schedule.resources.map((oneRect) => oneRect.name)).toEqual(['a'])
   })
 })
 
