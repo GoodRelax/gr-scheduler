@@ -214,16 +214,34 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
  *
- * @provisional PD-398 -- and how an entrance says it is ON is settled the
- * wrong way in the specification itself: S-183's row is named 「構えている入口
- * の縁の色」 and FR-053 names it for the rim, so every faithful implementation
- * has drawn a rim. ⭐ The user asked for the icon itself to be filled, in the
- * ledger's D-71, on 2026-08-27.
+ * ⚠️ PD-398 STOOD HERE AND IS SETTLED. CR-311 made an entrance in effect say
+ * so by a FILL rather than a rim, and table T-237 of FR-029 now holds which
+ * colour each of the four states takes. Nothing on this side is provisional
+ * for it any more.
  *
- * @provisional PD-397 -- and the whole set of row controls is up for
+ * @provisional PD-397 -- the whole set of row controls is up for
  * re-organising. ⭐ Measured from the user's own FR-102 record: forty seconds
  * of hovering across all seven, three presses. ⛔ THE PRESSES ALL WORKED --
- * what fails is reading them.
+ * what fails is reading them. ⭐ Four discrepancies were named on 2026-08-30:
+ * one shape carrying two meanings, the head's order reversed against the row's,
+ * the folding shapes split across three metaphors, and the count changing
+ * between 2 and 5 on neighbouring rows.
+ *
+ * @provisional PD-399 -- and nothing here ADDS a row. UN-14 lists the addition
+ * of a TaskGroup among the actions undo covers, and not one of table T-109's
+ * 85 icons performs it. The user ruled on 2026-08-30 that the entrance is a
+ * `+` paired with IC-82's `×` and that it adds a CHILD; where the child
+ * lands and what it is named are still open.
+ *
+ * @provisional PD-400 -- and nothing here REORDERS one either. Table T-023d is
+ * the full count of what can be grabbed and holds no row for a row of this
+ * panel, so a drag would need a row of its own; two arrows would need two more
+ * controls and could not change depth at all.
+ *
+ * @provisional PD-401 -- and the folding shapes do not read as one family.
+ * Table T-015 already pairs them by SCOPE (HR-1/HR-3, HR-2/HR-4), so the panel
+ * head is level 0; figure F-019 draws that pair as `+` and `>`, which share
+ * nothing. ⛔ The shapes are the user's ruling to make, not this file's.
  */
 
 /**
@@ -758,9 +776,3 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   'S-140': 0,
 }
 // </generated>
-
-
-
-
-
-
