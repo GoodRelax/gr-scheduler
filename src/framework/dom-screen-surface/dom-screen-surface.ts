@@ -2736,6 +2736,16 @@ const FOLDED_ROW_COUNT_MARK = 'data-folded-rows'
  * `PANEL_CORNER_BORDER_PX` takes -- and 2px rather than 1 because 「帯」 is asked
  * for and a hairline is the tool's own rule (S-149), not a band.
  */
+/**
+ * How wide the bar HF-18 (MUST) draws on a holding row's left edge is.
+ *
+ * ⛔ NO ROW OF THE SPECIFICATION HOLDS IT. `S-138` is the glyph box and `S-141`
+ * the gap around it; the manuscript asks for 「帯を 1 本」 and states no
+ * thickness, the same gap `ROW_GRAB_BAND_PX` above carries. Searched: HF-18,
+ * HF-6, table T-206, table T-236, FR-085.
+ */
+const ROW_HOLDS_BAND_PX = 3
+
 const ROW_GRAB_BAND_PX = 2
 
 /**
@@ -2791,12 +2801,19 @@ function rowGrabbedStyle(axis: 'position' | 'depth'): string {
  */
 function foldedRowCountStyle(rightPx: string): string {
   const side = NOT_STORED_ICON_SIZES['S-138']
+  // ⭐ A WORD BESIDE THE NAME, NOT A PAINTED TAB. HF-18 (MUST) puts the number
+  // 「行の名前の隣に語として」 and (MUST NOT) refuses a painted tab -- 「行の名前
+  // より目立つと、何の行かを読む前に数が目に入る」.
+  // ⛔ IT WAS A FILLED PILL UNTIL 2026-08-30 -- an S-153 ground with the digits
+  // knocked out of it, which is what that MUST NOT names.
+  // ⭐ THE INK IS S-153 AND THE GROUND IS THE ROW'S OWN, so the count reads as
+  // an aside rather than as a badge.
   return (
     'position:absolute;top:0;pointer-events:none;' +
     rightPx +
     `min-width:${side}px;height:${side}px;line-height:${side}px;` +
-    'text-align:center;font-size:0.75em;border-radius:9999px;padding:0 0.25em;' +
-    `background:${PAINT.caution};color:${PAINT.panel};`
+    'text-align:center;font-size:0.75em;' +
+    `color:${PAINT.caution};`
   )
 }
 
@@ -2873,9 +2890,18 @@ function foldedRowCountElement(host: Document, count: number, rightPx: string): 
  */
 function rowGrabStripStyle(): string {
   const width = NOT_STORED_ICON_SIZES['S-138']
+  // ⭐ A SMALL MARK IN THE MIDDLE OF THE STRIP, NOT A PAINTED BAND. HF-15 (MUST)
+  // draws the strip 「掴めることを表す小さな印として」 and (MUST NOT) refuses to
+  // paint its ground -- 「行の高さいっぱいに地を塗ると、日程より掴み代が目立つ」.
+  // ⛔ IT WAS A FILLED SLAB UNTIL 2026-08-30: `S-138` wide, the row's full
+  // height, painted in S-149. The user read it as an area with no meaning.
+  // ⭐ THE WIDTH IS STILL `S-138`, which is what the row's own MUST fixes and
+  // what a hand has to aim at -- only the paint went.
   return (
     'position:absolute;left:0;top:0;bottom:0;' +
-    `width:${width}px;background:${PAINT.rule};cursor:grab;pointer-events:auto;`
+    `width:${width}px;cursor:grab;pointer-events:auto;` +
+    'display:flex;align-items:center;justify-content:center;' +
+    `color:${PAINT.rule};font-size:0.75em;line-height:1;user-select:none;`
   )
 }
 
@@ -2976,6 +3002,13 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   if (!title.isPinned) {
     const grab = made(host, 'div', rowGrabStripStyle())
     grab.setAttribute(ROW_GRAB_STRIP_MARK, 'true')
+    // ⭐ THE MARK ITSELF. Two columns of dots is what the working sample draws
+    // and what HF-15 (MUST) asks for as 「掴めることを表す小さな印」; it carries
+    // no row of table T-109 and no glyph of figure F-019, because GR-20 is a
+    // grab area and not an entrance. ⚠️ `aria-hidden`: it is decoration on a
+    // box that already takes the pointer.
+    grab.textContent = '⠇⠇'
+    grab.setAttribute('aria-hidden', 'true')
     grab.setAttribute('aria-hidden', 'true')
     row.append(grab)
   }
@@ -3271,6 +3304,16 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
         foldedRows,
         rowControlRight(ROW_CONTROL_STEPS.close + 1),
       ),
+    )
+    // ⭐ AND THE ROW ITSELF IS MARKED. HF-18 (MUST): 「その行自身にも印を付ける
+    // こと。印は行の左の辺に帯を 1 本引くこと」, in S-153 like the count, so a
+    // reader picks the holding rows out without reading any digit.
+    // ⛔ AN INSET SHADOW AND NOT A BORDER: a border would take room, and FR-085
+    // (MUST NOT) refuses to change the room the name is cut against.
+    row.setAttribute(
+      'style',
+      (row.getAttribute('style') ?? '') +
+        `box-shadow:inset ${ROW_HOLDS_BAND_PX}px 0 0 0 ${PAINT.caution};`,
     )
   }
   return row

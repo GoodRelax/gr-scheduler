@@ -923,9 +923,22 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
       if (child.isHidden === true) continue
       const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
-      folded += boxByGroupId.has(child.id)
-        ? (foldedRowCountByGroupId.get(child.id) ?? 0)
-        : childSubtree
+      // ⛔⛔ WHAT IS COUNTED IS THE PERSON'S FOLD AND NEVER THE PICTURE. HF-18
+      // (MUST) counts 「人が畳んだ分だけ」 and (MUST NOT) refuses to count what
+      // the display amount dropped -- 「畳んでいない行に数が出ると、人は自分が
+      // 畳んだ覚えの無いものを探すことになる」.
+      // ⛔ IT READ `boxByGroupId` UNTIL 2026-08-30, i.e. "was this child drawn",
+      // and FR-018's group level of detail drops rows for its own reasons: an
+      // OPEN row whose children the zoom had dropped reported them as folded
+      // away. ⭐ Measured by the user on the shipped build -- a row nobody had
+      // folded carried a count.
+      // ⭐ `isCollapsed` IS THE FOLD, and it is this row's own: a collapsed row
+      // holds its whole subtree away, an open one holds whatever its children
+      // hold.
+      folded +=
+        group.isCollapsed === true
+          ? childSubtree
+          : (foldedRowCountByGroupId.get(child.id) ?? 0)
     }
     subtreeSizeByGroupId.set(group.id, subtreeSize)
     foldedRowCountByGroupId.set(group.id, folded)
@@ -939,8 +952,13 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   for (const root of rootGroups) {
     if (root.isHidden === true) continue
     const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
+    // ⛔ THE SAME RULE THE ROWS TAKE: what 段 0 holds away is what its own fold
+    // holds away, never what FR-018's display amount dropped. ⚠️ `!boxByGroupId
+    // .has(root.id)` stood here until 2026-08-30 and made the head report the
+    // rows the zoom had left out -- 92 of 100 on the startup document, none of
+    // which anybody had folded.
     foldedRowCountAtLevelZero +=
-      session.isLevelZeroFolded === true || !boxByGroupId.has(root.id)
+      session.isLevelZeroFolded === true
         ? subtreeSize
         : (foldedRowCountByGroupId.get(root.id) ?? 0)
   }
