@@ -43,8 +43,13 @@
 //              説明するポップアップを出せ」）
 //   表 T-233   RS-28 「配下に、開ける行が 1 つも無い」（正: 表 T-051 の `HF-2`）
 //              RS-29 「配下に、畳める行が 1 つも無い」（`HF-11`）
-//              RS-30 「その行は既に畳まれている」（`HF-3`）⛔ NO LONGER REACHABLE:
-//                    `HF-3` stopped folding on 2026-08-30 -- see the list below
+//              RS-30 「その行は畳まれておらず、隠れている子も無い」（`HF-13`）
+//                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
+//                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
+//                    行は既に畳まれている」, which stopped being reachable when
+//                    `HF-3` became `HR-6`. ⭐ It is now `HF-13`'s spent 場面 --
+//                    the negation of `HR-7`'s two ways of having work -- and the
+//                    roster below carries it again, on `IC-90`.
 //              RS-31 「畳まれた行が 1 つも無い」（`HF-10`）
 //              RS-32 「開いている行が 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
@@ -58,12 +63,20 @@
 //   表 T-037 NT-1 「入力を受け付けないとき | どの項目が、なぜ誤りかを文字で示すこと
 //              （MUST）。訂正の手がかりを添えること。色や枠だけで示してはならない
 //              （MUST NOT）」
-//   表 T-051 の結び ⛔ 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` が対象と
-//              するのは、いま描かれている行である（MUST）。描かれていない行の畳みを
-//              数えてはならない（MUST NOT）」／⛔ 「その操作で、描かれる行が 1 行も
-//              増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）」
+//   表 T-051 の結び ⛔ 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13` /
+//              `HF-16` が対象とするのは、いま描かれている行である（MUST）。描かれて
+//              いない行の畳みを数えてはならない（MUST NOT）」／⛔ 「その操作で、描か
+//              れる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと
+//              （MUST）」
 //              -- ⭐ THAT CLOSING RULE IS WHAT MAKES EACH FIXTURE BELOW SPENT.
-//   表 T-109   IC-58 / IC-77 / IC-59 / IC-74 / IC-78 / IC-8 / IC-9 / IC-37 /
+//   表 T-015   HR-3（`HF-2`）／HR-4（`HF-11`）／HR-6（`HF-3`）／HR-7（`HF-13`）,
+//              rewritten on 2026-08-31（利用者の指示「サンプルと同じ動作にしろ」）
+//              so that each of the four writes the row it was pressed on. ⛔ IT
+//              IS WHAT MOVED TWO FIXTURES BELOW: `HR-4` folds the PRESSED row,
+//              so `IC-77` is spent only where that row draws no child of its
+//              own, and `HR-7` clears the PRESSED row's fold, so `IC-90` is
+//              spent only where that row is open and hides no direct child.
+//   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-8 / IC-9 / IC-37 /
 //              IC-38 / IC-18 -- the entrances pressed, and the 面 each is on.
 //
 // ---------------------------------------------------------------------------
@@ -485,8 +498,9 @@ function press(built: Stage): void {
 
 // ---------------------------------------------------------------------------
 // The situations 表 T-233 states outright and a press can reach.
-// ⚠️ NINE, NOT TEN: `RS-30` lost its 場面 on 2026-08-30 -- see the note in the
-// list below, at the place its pair used to stand.
+// ⭐ TEN AGAIN SINCE 2026-08-31: `RS-30` lost its 場面 when `HF-3` stopped
+// folding on 2026-08-30, and the rewrite of the folding family gave it back to
+// `HF-13` -- see the pair below, at the place its old one used to stand.
 // ---------------------------------------------------------------------------
 
 interface Spent {
@@ -525,22 +539,37 @@ const SPENT: readonly Spent[] = [
     icon: 'IC-77',
     reason: 'RS-29',
     fixture: {},
-    onRow: BETA,
-    because:
-      'the only row under BETA is the leaf GAMMA, and folding a leaf takes no drawn row away',
+    // ⛔⛔ THIS PRESS MOVED FROM BETA TO GAMMA ON 2026-08-31（利用者の指示「サンプル
+    // と同じ動作にしろ」）. `HF-11` was 「その行の配下をすべて畳む」, under which
+    // BETA -- whose only descendant is the leaf GAMMA -- had nothing to fold; it
+    // is now 表 T-015 の `HR-4`, 「**選択した `TaskGroup` を畳むこと（MUST）**」 ⇒
+    // 「**その直下の子から下が描かれなくなる**」, so a press on BETA takes GAMMA
+    // off the screen and ACTS. ⭐ The leaf is what is left spent.
+    onRow: GAMMA,
+    because: 'GAMMA is a drawn leaf, so folding it takes no drawn row away',
   },
-  // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND IS GONE, AND THE MANUSCRIPT IS WHY.
-  // 表 T-233's `RS-30` reads 「その行は既に畳まれている」 with 正 表 T-051 の
-  // `HF-3`; on 2026-08-30 利用者の裁定 rewrote that row to 「**隠す操作子は、その
-  // 行を隠すこと（MUST）** —— 表 T-015 の `HR-6` である」. ⇒ the control no longer
-  // folds anything, so 「既に畳まれている」 cannot be its situation, and the row
-  // it stands on is by definition DRAWN -- so hiding it always takes one row off
-  // the screen and the closing rule under 表 T-051 never calls it spent.
-  // ⛔ THE FIXTURE THAT USED TO STAND HERE (`{ folded: [ALPHA] }`, pressing
-  // `IC-59` on ALPHA) now raises NOTHING, because the press acts. Leaving it
-  // would be asserting the reading the ruling replaced.
-  // ⚠️ `RS-30` IS THEREFORE A ROW OF 表 T-233 WITH NO REACHABLE 場面. That is the
-  // manuscript's to settle, not this file's -- see the report.
+  {
+    // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND `IC-90` HAS TAKEN ITS PLACE.
+    // 表 T-233's `RS-30` read 「その行は既に畳まれている」 with 正 表 T-051 の
+    // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
+    // (hide), so 「既に畳まれている」 stopped being its situation and the row it
+    // stands on is by definition DRAWN -- hiding it always takes one row off the
+    // screen, and `HF-3` says so: 「⭐ **描かれている行はいつでも隠せるので、本操作
+    // 子を薄く描く場面は無い**」.
+    // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13` AND WAS REWORDED 「その行は畳まれ
+    // ておらず、隠れている子も無い」 -- the negation of `HR-7`'s two ways of having
+    // work: 「**選択した `TaskGroup` の畳みだけを解くこと（MUST）**」 and 「⭐ **直下
+    // の子が `HR-6` で隠されているときは、その隠しも解くこと（MUST）**」. `HF-13`
+    // states the spent side itself: 「⛔ **開ける直下の子が 1 つも無いときは、
+    // `FR-029` に従って薄く描くこと（MUST）**」.
+    // ⇒ an untouched document, where ALPHA is open and hides no child, is that
+    // 場面 exactly.
+    icon: 'IC-90',
+    reason: 'RS-30',
+    fixture: {},
+    onRow: ALPHA,
+    because: 'ALPHA is not folded and hides no direct child, so HR-7 has nothing to open',
+  },
   {
     icon: 'IC-74',
     reason: 'RS-31',

@@ -2603,15 +2603,24 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
       commandsOf(pressPanelEntry('IC-59', 'n1', open)),
     )
 
-    // ⛔⛔ THE TWO NO LONGER LIE ON ONE AXIS AT ALL, WHICH IS THE RULING OF
-    // 2026-08-30. `HF-3` reads 「**隠す操作子は、その行を隠すこと（MUST）** ——
-    // 表 T-015 の `HR-6` である」, so the closing side writes no fold in either
-    // direction and the opening side writes nothing else. ⇒ neither can ever be
-    // read as the other's state.
+    // ⛔⛔ THE TWO POINT IN OPPOSITE DIRECTIONS AND ONLY ONE OF THEM WRITES THE
+    // HIDING COLUMN, which is what keeps them off one axis. ⚠️ THE CASE USED TO
+    // SAY THE CLOSING SIDE WROTE NO FOLD AT ALL, and 利用者の指示 2026-08-31
+    // 「サンプルと同じ動作にしろ」 gave `HR-6` a second MUST: 「**あわせて、その行
+    // の配下を畳んだ状態にすること（MUST）**」／⛔ 「**配下をそのままにして隠して
+    // はならない（MUST NOT）**」.
+    // ⭐ SO THE DIVIDING LINE IS THE DIRECTION, NOT THE PRESENCE, OF A FOLD:
+    // `HR-3` only 取り除く (`collapsed: false`) and `HR-6` only 畳んだ状態にする
+    // (`collapsed: true`). ⇒ neither can ever be read as the other's state.
     const shut = panelContextOf({ n1: true, n1a: true })
     for (const context of [open, shut]) {
       expect(rowsFolded(pressPanelEntry('IC-58', 'n1', context), true)).toEqual([])
-      expect(foldsOf(pressPanelEntry('IC-59', 'n1', context))).toEqual([])
+      expect(rowsFolded(pressPanelEntry('IC-59', 'n1', context), false)).toEqual([])
+      // ⛔ AND THE HIDING COLUMN IS THE HIDE'S ALONE. `HR-4` (MUST NOT) 「**その
+      // 行自身を隠してはならない** —— 隠すのは `HR-6` である」, and `HR-3` takes
+      // hiding OFF rather than putting it on.
+      expect(kindsOf(pressPanelEntry('IC-58', 'n1', context))).not.toContain('setTaskGroupHidden')
+      expect(kindsOf(pressPanelEntry('IC-59', 'n1', context))).toContain('setTaskGroupHidden')
     }
 
     // ONE MAY BE SPENT WHILE THE OTHER IS NOT. On a subtree already open the
@@ -2619,8 +2628,12 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // because the row it takes off the screen is itself.
     expect(rowsFolded(pressPanelEntry('IC-58', 'n1', open), false)).toEqual([])
     expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(0)
-    expect(kindsOf(pressPanelEntry('IC-59', 'n1', open))).toEqual(['setTaskGroupHidden'])
-    expect(kindsOf(pressPanelEntry('IC-59', 'n1', shut))).toEqual(['setTaskGroupHidden'])
+    expect(oneCommand(pressPanelEntry('IC-59', 'n1', open), 'setTaskGroupHidden')['groupId']).toBe(
+      'n1',
+    )
+    expect(oneCommand(pressPanelEntry('IC-59', 'n1', shut), 'setTaskGroupHidden')['groupId']).toBe(
+      'n1',
+    )
   })
 
   it('HF-2: the opening side opens the pressed row AND its WHOLE subtree -- HR-3 of table T-015', () => {
@@ -2649,33 +2662,46 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     expect(rowsFolded(answer, false)).not.toContain('n2a')
   })
 
-  it('HF-3: the hiding side HIDES THIS row alone and folds nothing -- HR-6 of table T-015', () => {
-    // ⛔⛔ HF-3 (MUST), as 利用者の裁定 2026-08-30 rewrote it: 「**隠す操作子は、
-    // その行を隠すこと（MUST）** —— 表 T-015 の `HR-6` である」. ⚠️ It was `HR-5`
-    // (その行自身を畳む) until that day, and `HR-5` stays in 表 T-015 with no
-    // entrance: 「**`HR-5` は表に残る** —— **入口を持たないだけであり、`HR-4` を
-    // 1 度押せば同じ絵になる**」.
+  it('HF-3: the hiding side HIDES THIS row and FOLDS its 配下 -- HR-6 of table T-015', () => {
+    // ⛔⛔ HF-3 (MUST): 「**隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）**」
+    // （利用者の裁定 2026-08-30）. ⚠️ It was `HR-5` (その行自身を畳む) until that
+    // day, and `HR-5` stays in 表 T-015 with no entrance: 「**`HR-5` は表に残る**
+    // —— **入口を持たないだけであり、`HR-4` を 1 度押せば同じ絵になる**」.
     const open = panelContextOf()
     const answer = pressPanelEntry('IC-59', 'n1', open)
 
-    // ⛔ NOT A FOLD OF ANY KIND. A press that folded would satisfy the old
-    // reading and this one at once, and the two are different states of the
-    // document: `HR-6` (MUST) 「隠した状態を文書に保存すること」.
-    expect(kindsOf(answer)).toEqual(['setTaskGroupHidden'])
+    // ⭐ THE HIDING COLUMN NAMES THE PRESSED ROW AND NOTHING ELSE. `HR-6`:
+    // 「**隠した行の配下の行と、その行に載っている `Task` を描いてはならない
+    // （MUST NOT）**」 is a rule about what is DRAWN under a hidden row, exactly
+    // as `HR-1a` is for a folded one -- so one write of `AT-57` is the whole of
+    // it, and 「**隠した状態を文書に保存すること（MUST）**」 is why it is a write.
     const hidden = oneCommand(answer, 'setTaskGroupHidden')
     expect(hidden['groupId']).toBe('n1')
     expect(hidden['hidden']).toBe(true)
 
-    // ⛔ THE SUBTREE IS NOT HIDDEN ROW BY ROW. HR-6 (MUST NOT) 「隠した行の配下の
-    // 行と、その行に載っている `Task` を描いてはならない」 is a rule about what is
-    // DRAWN under a hidden row, exactly as HR-1a is for a folded one -- so one
-    // write is the whole of it and a second row named here would be a second
-    // state to keep in step.
-    const named = commandsOf(answer).map((one) => (one as unknown as { groupId?: string }).groupId)
-    expect(named).toEqual(['n1'])
+    // ⛔⛔ AND THE 配下 IS FOLDED IN THE SAME PRESS, which is the MUST 利用者の指示
+    // 2026-08-31「サンプルと同じ動作にしろ」 added: 「**あわせて、その行の配下を
+    // 畳んだ状態にすること（MUST）**」／⛔ 「**配下をそのままにして隠してはなら
+    // ない（MUST NOT）** —— **戻した瞬間に配下が一度に開き、`HR-1a` が退けた「畳む
+    // 前の形を覚えて戻す」と同じ絵になる**」.
+    // ⚠️ THIS CASE ASSERTED `[]` FOR THESE UNTIL THAT DAY.
+    expect(rowsFolded(answer, true)).toEqual(['n1a', 'n1a1'])
+    // ⛔ AND NEVER IN THE OTHER DIRECTION: the hide only ever puts 畳み ON.
+    expect(rowsFolded(answer, false)).toEqual([])
 
-    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-3 names one row
-    // and HF-2 names the whole depth, so the counts must differ too -- and it
+    // ⛔ THE PRESSED ROW IS NOT ITSELF FOLDED. The row writes 「その行の配下を」,
+    // and `HR-4` (MUST NOT) 「**その行自身を隠してはならない** —— 隠すのは `HR-6`
+    // である」 is the mirror of it: one press writes one of the two columns on
+    // the row it was pressed on, and the other column only below.
+    expect(rowsFolded(answer, true)).not.toContain('n1')
+
+    // ⛔ NOTHING OUTSIDE THE PRESSED ROW'S SUBTREE IS TOUCHED. The second root
+    // is under no part of `n1`.
+    const named = commandsOf(answer).map((one) => (one as unknown as { groupId?: string }).groupId)
+    expect(named).toEqual(['n1', 'n1a', 'n1a1'])
+
+    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-3 hides one row
+    // and HF-2 opens the whole depth, so the counts must differ too -- and it
     // is now the OPENING side that carries the larger list.
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
     expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(1)

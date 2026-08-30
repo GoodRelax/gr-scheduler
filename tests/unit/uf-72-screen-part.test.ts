@@ -493,12 +493,24 @@ const T_051_EXPANDER = [
   // a table that went back to three cannot leave this file green.
   { row: 'HF-1', gist: T_051_HF1_FOUR_CONTROLS },
   { row: 'HF-1', gist: T_051_HF1_IS_A_LATTICE },
-  { row: 'HF-2', gist: '開く操作子は、その行の配下をすべて開くこと（MUST）' },
+  // ⛔⛔ THE THREE JOB SENTENCES WERE REWRITTEN ON 2026-08-31 (利用者の指示
+  // 「サンプルと同じ動作にしろ」), AND EACH ONE NOW DELEGATES RATHER THAN
+  // RESTATES. `HF-2` says so in as many words: 「⛔ **その効果を本表に書き写して
+  // はならない（MUST NOT）** —— **同じ MUST が 2 か所に載ると、必ず離れていく**」.
+  // ⭐ SO THE GIST READ HERE IS THE DELEGATION ITSELF, and the effect each one
+  // delegates to is read from 表 T-015 by the rows below it.
+  { row: 'HF-2', gist: '開く操作子の職務は 表 T-015 の `HR-3` である（MUST）' },
   // ⛔ `HF-3` IS NO LONGER 「その行自身を畳む」. 利用者の裁定 2026-08-30 gave it
-  // 表 T-015 の `HR-6` instead: 「**隠す操作子は、その行を隠すこと（MUST）**」.
-  { row: 'HF-3', gist: '隠す操作子は、その行を隠すこと（MUST）' },
-  { row: 'HF-11', gist: '配下をすべて閉じる操作子は、その行の配下をすべて畳むこと（MUST）' },
+  // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
+  { row: 'HF-3', gist: '隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）' },
+  // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED ROW ITSELF. The row records
+  // what the old wording cost: 「**2026-08-31 まで、本行は「その行自身を畳んでは
+  // ならない」と定めていた**」.
+  { row: 'HF-11', gist: '配下をすべて閉じる操作子は、表 T-015 の `HR-4` を行うこと（MUST）' },
   { row: 'HF-13', gist: '1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）' },
+  // ⭐ AND `HF-13`'s JOB SENTENCE, which is the one the case below leans on: the
+  // one-level entrance is 表 T-015 の `HR-7` and nothing else.
+  { row: 'HF-13', gist: 'その職務は 表 T-015 の `HR-7` である（MUST）' },
 ] as const
 
 /**
@@ -2698,9 +2710,20 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 �
     // read here so that the entrance drawn above cannot quietly become HF-2's
     // twin: the day HR-7 stops meaning 「直下の子だけ」, HF-13's separateness has
     // no reason left and these cases have to be re-read.
+    //
+    // ⛔⛔ THE SENTENCE THIS CASE READ WAS REPLACED ON 2026-08-31 (利用者の指示
+    // 「サンプルと同じ動作にしろ」). It used to read 「孫より下は畳んだままにする
+    // こと（MUST）」, which said what the row leaves alone. `HR-7` now says what
+    // the press WRITES -- 「**選択した `TaskGroup` の畳みだけを解くこと（MUST）**」
+    // -- and states the same 「直下の子だけ」 twice over: once as the picture that
+    // follows, and once as a MUST NOT. ⭐ Both are read, so a manuscript that
+    // dropped either one cannot leave this file green.
     const hr7 = specTable('T-015').rows.find((one) => one.id === 'HR-7')
     expect(hr7, '表 T-015 no longer holds HR-7').toBeDefined()
-    expect(hr7?.cells.join(' ')).toContain('孫より下は畳んだままにすること（MUST）')
+    const cells = hr7?.cells.join(' ') ?? ''
+    expect(cells).toContain('選択した `TaskGroup` の畳みだけを解くこと（MUST）')
+    expect(cells).toContain('直下の子が描かれ、孫より下は畳まれたままになる')
+    expect(cells).toContain('孫より下の畳みに触れてはならない（MUST NOT）')
   })
 })
 

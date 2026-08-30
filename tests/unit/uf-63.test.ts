@@ -655,10 +655,14 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     //     draws faint. It is not an absence of them.
     //
     // ⭐ AND 表 T-233 IS WHAT MAKES THE DIFFERENCE VISIBLE: `RS-28`「配下に、開ける
-    // 行が 1 つも無い」(正: `HF-2`), `RS-29`「配下に、畳める行が 1 つも無い」
-    // (`HF-11`) and `RS-30`「その行は既に畳まれている」(`HF-3`) are the reasons a
-    // press on each spent control tells. ⛔ A row that carried no control at all
-    // could never raise one of them, which is the 「引き金が消える」 FR-029 names.
+    // 行が 1 つも無い」(正: `HF-2`) and `RS-29`「配下に、畳める行が 1 つも無い」
+    // (`HF-11`) are the reasons a press on each spent control tells. ⛔ A row
+    // that carried no control at all could never raise one of them, which is the
+    // 「引き金が消える」 FR-029 names.
+    // ⚠️ `RS-30` IS NOT ONE OF THEM ANY MORE. Its 正 moved to `HF-13` on
+    // 2026-08-31 and it now reads 「その行は畳まれておらず、隠れている子も無い」 --
+    // the one-level opener, which `RowTitle.canOpenOneLevel` carries and this
+    // member does not.
     expect(parentTitle([], ['p']).expander).toEqual({
       canOpen: false,
       // ⭐⭐ ARMED, AND THIS IS THE HALF THE RULING OF 2026-08-30 MOVED. `HF-3`
@@ -673,10 +677,22 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     })
   })
 
-  it('offers only the closing control while nothing under the row is folded', () => {
-    // HF-3 folds THIS row, and its two children are drawn, so the picture loses
-    // two rows -- armed. HF-2 opens 配下, and nothing under this row carries a
-    // fold, so it has no work.
+  it('spends only the opening control while nothing under the row is folded', () => {
+    // ⛔⛔ THE CLOSING-BELOW HALF OF THIS CASE READ `false` AND THE REWRITE OF
+    // 2026-08-31 REVERSED IT (利用者の指示「サンプルと同じ動作にしろ」). What it
+    // was written against was `HR-4` as 「配下をすべて閉じる」, under which folding
+    // `c1` and `c2` -- two drawn leaves -- moved no row. `HR-4` now folds the
+    // PRESSED row: 「**選択した `TaskGroup` を畳むこと（MUST）**」 —— ⇒ 「**その
+    // 直下の子から下が描かれなくなる**」, and the row records the defect the old
+    // reading was: 「⚠️ **実測で、押しても直下の子が描かれたまま残り、見本では
+    // 消えた**」.
+    // ⭐ SO THE QUESTION IS THIS ROW'S OWN DRAWN CHILDREN, and `p` has two.
+    // Pressing HF-11 on `p` takes `c1` and `c2` off the picture, which is the
+    // 「その操作の前後で描かれる行の差」 the closing rule under 表 T-051 counts.
+    //
+    // ⭐ HF-2 IS STILL SPENT: `HR-3` clears fold and hiding from `p` and its
+    // 配下, and `p` is open, neither child is folded, and none is hidden -- so
+    // 「その行が抱えている畳み込みが 0 のとき」 (HF-2) holds.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
@@ -685,17 +701,17 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: true,
-      // ⛔ SPENT, THOUGH TWO UNFOLDED ROWS SIT UNDER THIS ONE. HF-11 folds `c1`
-      // and `c2`, and neither of them is showing anything: 「畳む相手が描かれて
-      // いても、その相手が配下を持たなければ、畳んで隠れる行は 1 つも無い」.
-      canCloseBelow: false,
+      canCloseBelow: true,
     })
   })
 
   it('arms the closing-below control only where a fold would take a row off the screen', () => {
-    // ⭐ THE PAIR THAT MAKES THE CASE ABOVE A TEST. One grandchild is all it
-    // takes: folding `c1` hides `g1`, so the picture shrinks and HF-11 has work.
-    // ⛔ WITHOUT THIS, A UNIT THAT ANSWERED `false` ALWAYS WOULD PASS.
+    // ⭐ `HR-4` (MUST) folds `p` ITSELF, so the row that leaves the picture is
+    // `p`'s direct child `c1`, and `g1` under it goes with it (`HR-1a`).
+    // ⛔ WITHOUT A PAIR THAT ANSWERS `false`, A UNIT THAT ALWAYS SAID `true`
+    // WOULD PASS. The three that give it are the childless row at the head of
+    // this describe, the row the display amount emptied (HF-7), and the row that
+    // is folded already -- each of them draws no child of its own.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), under('c1', 'g1')],
@@ -730,10 +746,19 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     ).toEqual({ canOpen: false, canClose: true, canCloseBelow: false })
   })
 
-  it('offers the pair at once -- HF-1 is a pair, not one control in two states', () => {
-    // HF-2 opens 配下 and HF-3 folds this row alone, so one of the pair can be
-    // spent while the other is not: `c1` is drawn and carries a fold over `g1`
-    // for the opening side, and `p` shows `c1` for the closing side.
+  it('offers all three at once -- HF-1 is a lattice, not one control in three states', () => {
+    // HF-2 is `HR-3` (fold and hiding off `p` and its 配下), HF-3 is `HR-6` (hide
+    // `p`) and HF-11 is `HR-4` (fold `p`): three different writes on one row, so
+    // any of them can be spent while the others are not.
+    // ⭐ HERE ALL THREE HAVE WORK -- `c1` is drawn and carries a fold over `g1`
+    // for the opener, `p` is drawn for the hide, and `c1` is `p`'s drawn child
+    // for the fold.
+    //
+    // ⛔⛔ `canCloseBelow` READ `false` UNTIL THE REWRITE OF 2026-08-31, on the
+    // retired reading that HF-11 folded the rows BELOW `p` and so had only the
+    // already-folded `c1` to write. `HR-4` (MUST) is now 「**選択した `TaskGroup`
+    // を畳むこと**」 —— ⇒ 「**その直下の子から下が描かれなくなる**」, and `c1` is
+    // exactly that direct child.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: true }), under('c1', 'g1')],
@@ -743,9 +768,7 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
-      // ⛔ SPENT: HF-11 would fold `c1`, which is folded already, and `g1` is not
-      // drawn at all -- 「描かれていない行の畳みを数えてはならない（MUST NOT）」.
-      canCloseBelow: false,
+      canCloseBelow: true,
     })
   })
 
@@ -774,30 +797,32 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     })
   })
 
-  it('spends the two opening-and-folding controls on a row that folded ITSELF, and keeps the hide (HF-3, HF-10)', () => {
-    // A row's own opening control reaches 配下 and never the row. HF-10 exists
-    // ONLY because of that: 「最上位の行が自分を畳むと、それを開く操作子がどこにも
-    // 無くなる」, which is false the moment a row's own control opens itself.
+  it('ARMS the opener on a row that is folded ITSELF, spends the fold, and keeps the hide (HF-2, HF-11, HF-3)', () => {
+    // ⛔⛔ `canOpen` READ `false` HERE UNTIL THE REWRITE OF 2026-08-31 (利用者の
+    // 指示「サンプルと同じ動作にしろ」), on the reading that a row's own opener
+    // reached 配下 and never the row. `HR-3` (MUST) now says the opposite in as
+    // many words: 「**選択した `TaskGroup` と、その配下のすべてから、畳みと隠しを
+    // 取り除くこと（MUST）**」／「⭐⭐ **その行自身の畳みも解くこと（MUST）** ——
+    // **`HR-4` が畳むのはその行自身なので、解く側が同じ行を解かなければ対になら
+    // ない**」. ⇒ pressing HF-2 on `p` takes `p`'s own fold off and `c1` comes
+    // back, so the 「その操作の前後で描かれる行の差」 is one and not none.
+    // ⚠️ HF-10 still exists for the reason it always did -- a row's opener
+    // reaches its own subtree and never 段 0 above it (`HF-10`).
     //
-    // So a folded row with nothing folded under it has neither the opener nor
-    // the fold-below armed, and HF-10's control at the top of the panel is the
-    // way back.
+    // ⛔ THE FOLD IS SPENT: `HR-4` folds `p`, which is folded already, and
+    // `HR-1a` is drawing no child of `p` for the press to take away --
+    // 「⛔ **描かれていない行の畳みを数えてはならない（MUST NOT）** —— そこに残る
+    // 状態を数えると、押しても絵の動かない操作子が構えることになる」.
     //
     // ⭐⭐ THE HIDE IS STILL ARMED, AND THAT IS THE 2026-08-30 RULING. `HF-3` is
-    // 表 T-015 の `HR-6` -- 「**隠す操作子は、その行を隠すこと（MUST）**」 -- and a
-    // row that folded itself is still ON the screen, so hiding it takes it off.
-    // ⛔ 「その行は既に畳まれている」 stopped being a reason this control could
-    // give the day it stopped folding.
+    // 表 T-015 の `HR-6` -- 「**隠す操作子の職務は 表 T-015 の `HR-6` である
+    // （MUST）**」 -- and a row that folded itself is still ON the screen, so
+    // hiding it takes it off.
     expect(
       parentTitle([kid('c1', { isCollapsed: false })], ['p'], { isCollapsed: true }).expander,
     ).toEqual({
-      canOpen: false,
+      canOpen: true,
       canClose: true,
-      // ⛔ SPENT, AND THIS IS THE READING CR-309 REVERSED. HR-4 would write AT-56
-      // on `c1`, which HR-1a is already not DRAWING -- and the closing rule
-      // forbids counting it: 「描かれていない行の畳みを数えてはならない（MUST
-      // NOT）—— そこに残る状態を数えると、押しても絵の動かない操作子が構えることに
-      // なる」.
       canCloseBelow: false,
     })
   })
@@ -862,26 +887,35 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
-      // ⛔ Still spent: `c1` is folded already and `g1` is not drawn.
-      canCloseBelow: false,
+      // ⭐ AND THE FOLD MOVED WITH THE DRAWN SET, which is what makes this the
+      // pair of the case above rather than a copy of it: `c1` is `p`'s direct
+      // child and it is now IN the picture, so `HR-4` on `p` takes it away
+      // (「**その直下の子から下が描かれなくなる**」). ⛔ It read `false` while
+      // HF-11 meant 「配下をすべて畳む」 and `c1` was folded already.
+      canCloseBelow: true,
     })
   })
 
-  it('spends the closing-below control when a hidden sibling is the only one left out, and ARMS the opening one', () => {
-    // ⛔⛔ THE OPENING HALF OF THIS CASE ALSO READ `false` UNTIL 2026-08-31. Same
-    // ruling as the case above: HR-3 (MUST) 「`HR-6` が隠した行も、配下のどこにあろ
-    // うともすべて戻すこと」, so `c2` -- hidden, and a row of `p`'s 配下 -- is work
-    // for `p`'s HF-2, and the press moves one row into the picture.
+  it('arms all three where a hidden sibling is the only row left out', () => {
+    // ⛔⛔ THE OPENING HALF OF THIS CASE READ `false` UNTIL 2026-08-31. HR-3
+    // (MUST): 「`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと」, so
+    // `c2` -- hidden, and a row of `p`'s 配下 -- is work for `p`'s HF-2, and the
+    // press moves one row into the picture.
+    //
+    // ⛔⛔ AND THE CLOSING-BELOW HALF READ `false` ON THE RETIRED READING TOO,
+    // which asked whether the rows UNDER `p` had anything to fold: `c1` is a
+    // drawn leaf, so folding it moved nothing. `HR-4` (MUST) folds `p` itself
+    // since 2026-08-31, and `c1` is `p`'s drawn direct child -- so the press
+    // does take a row off the screen after all.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isHidden: true, isCollapsed: false })],
         ['p', 'c1'],
       ).expander,
-      // HF-3 still hides `p`, so the closing control has work. ⛔ HF-11 does
-      // not: the one unhidden sibling is a drawn leaf, and folding it moves no
-      // row -- 「その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも
-      // 無いものとして扱うこと（MUST）」.
-    ).toEqual({ canOpen: true, canClose: true, canCloseBelow: false })
+      // ⭐ HF-3 hides `p`, which is drawn, so that one is armed on its own
+      // account -- 「描かれている行はいつでも隠せるので、本操作子を薄く描く場面は
+      // 無い」 (`HF-3`).
+    ).toEqual({ canOpen: true, canClose: true, canCloseBelow: true })
   })
 
   it('⛔ the manuscript still sends a hidden row back through HF-2 as well as HF-13', () => {
