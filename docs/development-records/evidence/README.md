@@ -34,6 +34,7 @@
 | `d110-marquee-as-shipped.png` | D-110 | 措置後、実際に握っているところ |
 | `d134-confirmation-names.png` | D-134 | 消える `Task` の名前が 9,341 文字あり、下端で切れている確認の面 |
 | `d137-divider-grab-band.png` | D-137 | 境目の 8px の掴み帯（赤く塗ってある）。⛔ **「ポインタが何も答えない」が誤測だった**ことがこれで分かった |
+| `d170-pinned-row-over-the-scrolled-rows.png` | D-170 | ⛔⛔ **ピン止めした行の帯に、別の行のバーが載っている** —— **`Whole Product` を留めてホイールで 4 ノッチ送ったところ。**⭐ **パネルは `Whole Product` / `Phone Sign In` を並べているのに、帯は `Deliver the whole product` / `Phone App workstream` / `Phone Sign In` を並べる** —— **1 段ずれている** |
 
 ---
 
