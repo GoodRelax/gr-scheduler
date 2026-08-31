@@ -946,15 +946,18 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 /**
  * IC-18 -- FR-066's dialogue field.
  *
- * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT AND FOR NOTHING ELSE. What a press
- * on it should DO is still unwritable and `input-command-translator.ts` records
- * why at length: nothing in `src/` holds the field's own switch, so the only
- * thing that decides whether the field is drawn is whether the `Agent API` is
- * on. ⭐ What IS answerable is the other half -- `commandStateOf` (UF-62) draws
- * this entrance faint while the API is off, and FR-029 (MUST) has a press on a
- * faint entrance told why. ⚠️ THAT SWITCH IS THIS FILE'S: `isAgentApiEnabled`
- * is a current value LY-5 of table T-060 leaves with the Framework, which is
- * why the telling could not be raised from the translator with the other nine.
+ * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT, AND SINCE 2026-08-31 (D-149) NOT
+ * FOR THE OTHER HALF ANY MORE. The other half -- what a press on it DOES while
+ * the `Agent API` is on -- is answered by `input-command-translator.ts` now
+ * that `ScreenSession.isDialogueFieldVisible` (S-99i) gives the field its own
+ * switch; that action reaches `carryOutAction` as `toggleDialogueFieldVisible`
+ * and this file is not asked about it. ⭐ WHAT STAYS HERE is the half that
+ * cannot move: `commandStateOf` (UF-62) draws this entrance faint while the
+ * API is off, and FR-029 (MUST) has a press on a faint entrance told why.
+ * ⚠️ THAT SWITCH IS THIS FILE'S: `isAgentApiEnabled` is a current value LY-5 of
+ * table T-060 leaves with the Framework, which is why the telling could not be
+ * raised from the translator with the other nine -- `InputContext` carries no
+ * member for it.
  */
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 
@@ -1795,6 +1798,8 @@ interface SessionHeld {
   readonly fileSavedAt: string | null
   /** FR-065. */
   readonly isAgentApiEnabled: boolean
+  /** FR-066 / S-99i of table T-206 -- IC-18's own switch, apart from the one above. */
+  readonly isDialogueFieldVisible: boolean
   /** U-42 `Pointer`, or `null` while it is outside the window. */
   readonly pointer: { readonly x: number; readonly y: number } | null
   /** FT-4 of table T-078, for EZ-2's wait. */
@@ -1889,6 +1894,7 @@ function sessionOf(
     openedFileName,
     fileSavedAt,
     isAgentApiEnabled,
+    isDialogueFieldVisible,
     pointer,
     pointerRestedMs,
     iconUnderPointer,
@@ -1928,6 +1934,11 @@ function sessionOf(
     // the history forward, so what was opened for one document is not still in
     // force for the next.
     isAgentApiEnabled,
+    // FR-066 / S-99i: IC-18's own switch, apart from the one above (D-149).
+    // ⛔ NOT REMEMBERED PER DOCUMENT EITHER, for the same reason the STOP above
+    // gives -- S-99i names an identifier the same way S-99b does and this build
+    // derives none, so `BROWSER_STORED_KEY` stays unwritten for this row too.
+    isDialogueFieldVisible,
     pointer,
     // EZ-2 of table T-040 -- the two halves of its condition, both measured by
     // the loop and neither of them decidable here.
@@ -3060,6 +3071,14 @@ export function frameLoop(
   // listener is all there is to be; `watchAgentApiEnabling` says the same from
   // the far side.
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
+  // FR-066 -- S-99i of table T-206, IC-18's own switch (D-149). ⭐ STARTS
+  // `true`, which is that row's own default (「表示」). ⛔ A SEPARATE VALUE FROM
+  // `isAgentApiEnabled` JUST ABOVE, and S-99i (MUST NOT) says so in as many
+  // words: one is the capability, this is what the reader chose to see. ⚠️
+  // Carried exactly the way `isAgentApiEnabled` is -- not written to
+  // `localStorage`, and not remembered per document, because S-99i keeps this
+  // in the environment and not in `Schedule`.
+  let isDialogueFieldVisible = true
   // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
   // what startup settled on -- S-99 if the store had it, the host otherwise --
   // and this carries what the person has chosen since.
@@ -3779,6 +3798,7 @@ export function frameLoop(
           openedFileName,
           fileSavedAt,
           isAgentApiEnabled,
+          isDialogueFieldVisible,
           pointer: pointerAt,
           pointerRestedMs,
           // ⭐ THE ANSWER THE SURFACE ALREADY GAVE, taken from where
@@ -4297,6 +4317,11 @@ export function frameLoop(
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
+          // ⚠️ Fresh for the same reason `isAgentApiEnabled` just above is:
+          // EP-12 of table T-076 keeps this session's state out of the picture,
+          // and with the API answered off here the field is absent regardless
+          // (`dialogue-field.ts` requires both), so this value cannot show.
+          isDialogueFieldVisible: false,
           pointer: null,
           pointerRestedMs: 0,
           iconUnderPointer: null,
@@ -5717,8 +5742,9 @@ export function frameLoop(
       // `isAgentApiEnabled` below, so the entrance a person sees faint is the
       // entrance that explains itself.
       // ⛔ NOT SPENT WHILE THE API IS ON. There is nothing to tell then, and
-      // answering `true` would swallow a press this loop has no answer for --
-      // the entrance's own operation is still unwritten (see the constant).
+      // answering `true` would swallow the press: `false` here lets it fall
+      // through to `carryOutAction`, which now has `toggleDialogueFieldVisible`
+      // (S-99i, D-149) to spend it on instead.
       if (isAgentApiEnabled) return false
       raiseNotice(DIALOGUE_FIELD_UNAVAILABLE_REASON, null)
       return true
@@ -6334,6 +6360,21 @@ export function frameLoop(
         // に示すこと」. ⛔ Raised on the way OFF only -- that sentence is about
         // what disabling does not do, and NT-5 keeps the press itself accepted.
         if (!isAgentApiEnabled) raiseNotice(HANDED_REFERENCE_STANDS_REASON, null)
+        return
+      case 'toggleDialogueFieldVisible':
+        // IC-18 -- FR-066 / S-99i (D-149). ⭐ ONE ENTRANCE BOTH WAYS, the same
+        // shape `toggleAgentApi` just above has and for the same reason: table
+        // T-109 words IC-18 「表示する・非表示にする」 on the one entrance.
+        // @provisional PD-419 -- turning the API off does NOT put S-99i back
+        // to its default; what the reader chose to see is remembered, so
+        // enabling the API again restores it. Table T-206 states the default
+        // and says nothing about a capability going away and coming back. ⛔ REACHED ONLY
+        // WHILE THE API IS ON: `answerSettledEntry` spends the press itself
+        // with RS-35's reason while it is off, before this is ever asked.
+        // ⛔ NOTHING ELSE FOLLOWS. Unlike `toggleAgentApi`, FR-065's 「既に渡した
+        // 参照」 note is about the `Agent API` itself and has no counterpart for
+        // a field the reader merely put out of sight.
+        isDialogueFieldVisible = !isDialogueFieldVisible
         return
     }
   }

@@ -99,9 +99,60 @@ const SCRIPT = [
   ['row', 'Phase Bars', 'openOne'],
   ['row', 'Back Office', 'foldAll'],
   ['row', 'Back Office', 'openOne'],
+  // ⭐ PINNING, WHICH THE FOLD FAMILY ABOVE NEVER TOUCHES. FR-098 lifts a
+  // pinned row out of the scrolling flow to the top, so every reading below
+  // moves: `rows` because the order changes, `pinned` because the set does.
+  // ⛔ The sample lifts only while its `pinTop` box is ticked, and it is
+  // ticked by default -- do not untick it, or the two stop being comparable.
+  ['row', 'Back Office', 'pin'],
+  ['row', 'Mobile Client', 'pin'],
+  // ⭐ A PINNED ROW MUST SURVIVE THE FOLD FAMILY (FR-098: only a folded or a
+  // hidden ancestor may stop it being drawn).
+  ['head', 'headFoldAll'],
+  ['head', 'headOpenAll'],
+  // ⭐ THE SAME ENTRANCE TAKES THE PIN OFF AGAIN (FR-098 puts both on one).
+  ['row', 'Mobile Client', 'pin'],
+  ['row', 'Back Office', 'pin'],
 ]
 
 const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${step[2]}`
+
+/**
+ * Readings where the sample and GRS are MEANT to differ, and why.
+ *
+ * ⛔⛔ THE SAMPLE IS NOT THE AUTHORITY -- the specification is. The sample is a
+ * design reference the user approved for look and behaviour, and where a
+ * requirement decides something the sample got another way, the requirement
+ * wins. ⚠️ Without this list a justified difference prints as ⛔ for ever, and
+ * the obvious way to make the number go up is to break the requirement.
+ *
+ * ⭐ Measured 2026-09-01: pinning `Back Office` then `Mobile Client` gives
+ *    the sample ["Mobile Client","Back Office"] -- its document order
+ *    GRS        ["Back Office","Mobile Client"] -- the order they were fixed
+ * FR-098 (MUST NOT) 「ピン止めした行どうしに優劣を設けてはならない —— 固定した
+ * 順に上から並べる」, so GRS is right and the sample keeps tree order.
+ * `S-126` is an array for exactly this reason.
+ */
+const KNOWN_DIVERGENCES = [
+  {
+    reading: 'rows  ',
+    why: 'FR-098: pinned rows stack in the order they were fixed, not tree order',
+  },
+  {
+    reading: 'pinned',
+    why: 'FR-098: pinned rows stack in the order they were fixed, not tree order',
+  },
+]
+
+/** Is this an ordering difference the specification has already settled? */
+const isKnown = (what, onlySample, onlyApp) =>
+  onlySample.length === 0 &&
+  onlyApp.length === 0 &&
+  KNOWN_DIVERGENCES.some((one) => one.reading === what)
+
+const whyKnown = (what) =>
+  KNOWN_DIVERGENCES.find((one) => one.reading === what)?.why ?? ''
+
 
 async function run() {
   console.log('building the sample’s board in GRS through the UI ...')
@@ -118,12 +169,18 @@ async function run() {
 
   let diverged = 0
   for (const step of SCRIPT) {
-    if (step[0] === 'head') {
-      await sample.pressHead(step[1])
-      await app.pressHead(step[1])
-    } else {
-      await sample.pressRow(step[1], step[2])
-      await app.pressRow(step[1], step[2])
+    // ⛔⛔ A PRESS THAT LANDS ON NOTHING IS A FAILURE, NOT A PASS. Both sides
+    // return false when the entrance is not there, and until this was checked
+    // an unpressable step compared two UNCHANGED boards and printed ✅ -- the
+    // step tested nothing and said it agreed.
+    const landed = step[0] === 'head'
+      ? [await sample.pressHead(step[1]), await app.pressHead(step[1])]
+      : [await sample.pressRow(step[1], step[2]), await app.pressRow(step[1], step[2])]
+    if (landed[0] === false || landed[1] === false) {
+      diverged += 1
+      console.log(`⛔ ${say(step)} -- could not be pressed `
+        + `(sample: ${landed[0]}, GRS: ${landed[1]})`)
+      continue
     }
     // ⭐ THREE READINGS, NOT ONE. The drawn rows say what happened; the counts
     // say what each row is holding away (HF-18); the arming says which
@@ -139,17 +196,45 @@ async function run() {
       ['rows  ', await sample.rows(), await app.rows()],
       ['counts', sorted(await sample.counts()), sorted(await app.counts())],
       ['arming', sorted(await sample.faint()), sorted(await app.faint())],
+      // ⭐ COMPARED IN ORDER. FR-098 says pinned rows are stacked in the order
+      // they were fixed, so the order IS the rule being checked.
+      ['pinned', await sample.pinned(), await app.pinned()],
     ]
-    const wrong = readings
+    let wrong = readings
       .filter(([, left, right]) => JSON.stringify(left) !== JSON.stringify(right))
       .map(([what, left, right]) => [
         what,
         left.filter((one) => !right.includes(one)),
         right.filter((one) => !left.includes(one)),
+        left,
+        right,
       ])
-    if (wrong.length > 0) diverged += 1
-    console.log(`${wrong.length === 0 ? '✅' : '⛔'} ${say(step)}`)
+    // ⭐ A DIFFERENCE THE SPECIFICATION HAS ALREADY SETTLED IS NOT A FAILURE,
+    // but it is never silent either -- it prints its reason every run.
+    const unexplained = wrong.filter(([what, onlySample, onlyApp]) =>
+      !isKnown(what, onlySample, onlyApp))
+    if (unexplained.length > 0) diverged += 1
+    const mark = unexplained.length > 0 ? '⛔' : (wrong.length > 0 ? '⚠️ ' : '✅')
+    console.log(`${mark} ${say(step)}`)
     for (const [what, onlySample, onlyApp] of wrong) {
+      if (isKnown(what, onlySample, onlyApp)) {
+        console.log(`    ${what} differs as the specification says it should`
+          + ` -- ${whyKnown(what)}`)
+      }
+    }
+    wrong = unexplained
+    for (const [what, onlySample, onlyApp, left, right] of wrong) {
+      // ⛔⛔ AN EMPTY PAIR OF "only in" LISTS IS NOT "NO DIFFERENCE". It means
+      // the two hold the SAME items in a DIFFERENT ORDER, and for `rows` and
+      // `pinned` the order IS the rule -- FR-098 stacks pinned rows in the
+      // order they were fixed. ⭐ Measured: without this, two real order
+      // divergences printed as ⛔ with four empty lists and said nothing.
+      if (onlySample.length === 0 && onlyApp.length === 0) {
+        console.log(`    ${what} same items, DIFFERENT ORDER`)
+        console.log(`    ${what} the sample:`, JSON.stringify(left))
+        console.log(`    ${what} GRS       :`, JSON.stringify(right))
+        continue
+      }
       console.log(`    ${what} only in the sample:`, JSON.stringify(onlySample))
       console.log(`    ${what} only in GRS       :`, JSON.stringify(onlyApp))
     }

@@ -1905,6 +1905,21 @@ export interface ScreenSession {
    */
   readonly isAgentApiEnabled: boolean
   /**
+   * S-99i of table T-206 (FR-066) -- whether the reader has put the `Dialogue
+   * Field` (U-44) away while the `Agent API` stays on.
+   *
+   * ⭐ A SEPARATE VALUE FROM `isAgentApiEnabled`, and S-99i (⛔ MUST NOT) says so
+   * in as many words: 「1 つの値で兼ねてはならない —— あちらは能力であり、本行は見え方
+   * である」. `dialogue-field.ts` reads both -- the field is up only while the
+   * API is on AND this stays true -- and IC-18 (table T-109) moves only this
+   * one; IC-20 moves only `isAgentApiEnabled`, above.
+   *
+   * ⭐ DEFAULT `true`, which is S-99i's own default (「表示」). ⚠️ Not in the
+   * document, the same as `isAgentApiEnabled` just above and for the same
+   * reason: table T-206 keeps this in the environment, not in `Schedule`.
+   */
+  readonly isDialogueFieldVisible: boolean
+  /**
    * U-42 `Pointer`, or `null` while it is outside the window. Read by FR-037's
    * hint and by EZ-2's wait (table T-040).
    *
@@ -2324,6 +2339,7 @@ export interface ScreenSession {
 //   UF-65  command-palette.ts
 //     export function commandPaletteFromScreenState(
 //       state: ScreenState,
+//       settings: DocumentSettings,
 //       selection: Selection,
 //       session: ScreenSession,
 //     ): CommandPalette | null
@@ -2334,6 +2350,11 @@ export interface ScreenSession {
 //     which PART the pointer is on, and the only side that can say is the one
 //     that drew the parts (IF-9's fourth member). So `CommandPalette` carries a
 //     corner and no extent, and this unit never asks where the pointer is.
+//     ⭐ `settings` WAS ADDED 2026-08-31, BY THE USER'S RULING (「提案通り」), so
+//     that table T-237's `EN-2` could be answered for the seven toggles of
+//     table T-202 FR-049 makes of it -- see `SETTINGS_KEY_BY_ROW` in
+//     command-palette.ts for the join and why it cannot be shared with
+//     `input-command-translator.ts`'s own copy of it.
 //
 //   UF-66  open-modals.ts
 //     export function openModalFromScreenState(
@@ -2409,7 +2430,7 @@ export function screenViewFromRegions(
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
     rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),
     propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session),
-    commandPalette: commandPaletteFromScreenState(state, selection, session),
+    commandPalette: commandPaletteFromScreenState(state, settings, selection, session),
     openModal: openModalFromScreenState(state, schedule, session),
     notices: noticesFromSession(session),
     confirmation: confirmationFromSession(session),

@@ -45,7 +45,10 @@
 //   FR-072   which of the two the properties panel is showing is told by the
 //            pressed state (MUST)
 //   FR-065   while the `Agent API` is on, that it is on is shown (MUST)
-//   FR-066   the dialogue field is up only while the `Agent API` is on
+//   FR-066   the dialogue field is up while the `Agent API` is on AND the
+//            reader has not hidden it (MUST), and the two facts may not share
+//            one value (MUST NOT). ⚠️ The second condition arrived with the
+//            ruling of 2026-08-31; `S-99i` of table T-206 holds it
 //   T-075    the UF-62 row: `pure`, and the four things it names -- the
 //            `Document Title` (FR-035), the `Opened File Name` and the
 //            `File Saved At` (FR-101), the `Agent API` being on (FR-065) and
@@ -320,6 +323,7 @@ const SESSION: ScreenSession = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
+  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -745,14 +749,56 @@ describe('UF-62 IC-20: the Agent API (FR-065, MUST)', () => {
   })
 })
 
+// ⛔⛔ THE CASE THAT STOOD HERE PINNED DEFECT D-149, AND HAS BEEN REWRITTEN.
+//
+// It read 「follows the Agent API, which is the only condition FR-066 states for
+// the field」 and asserted `entry.isPressed === isAgentApiEnabled`. That WAS a
+// correct reading of FR-066 when this file was written -- the requirement then
+// stated one condition -- and it is exactly the wiring D-149 measured on
+// 2026-08-30: 「`IC-20` を押すと `IC-18` の `data-pressed` が立つ」.
+//
+// ⭐ The ruling of 2026-08-31 gave the field's visibility a value of its own
+// (`S-99i` of 表 T-206, 既定 「表示」) and a paint row of its own (`EN-5` of
+// 表 T-237, 「その入口が表示・非表示を切り替えるものを、いま表示している」), and FR-066
+// now states a SECOND condition -- 「⭐ 閲覧者がその欄を非表示にしているあいだは表示
+// しないこと（MUST）」 -- with 「⛔ `Agent API` の有効・無効（`FR-065`）と 1 つの値で
+// 兼ねてはならない（MUST NOT）」 beside it. ⛔ So the old title is no longer true of
+// the requirement, and the old assertion is now what it forbids.
+//
+// ⚠️ ONLY THE ONE ENTRY THIS FILE OWNS IS KEPT. The four states the two values
+// stand in, the field itself (UF-68) and the default of `S-99i` are walked by
+// tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts.
 describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
-  it('follows the Agent API, which is the only condition FR-066 states for the field', () => {
+  it('presses while the field is up -- the API on AND the reader not hiding it', () => {
+    // FR-066's two conditions, and 表 T-237 の `EN-5` is what the press means:
+    // 「いま表示している」. ⛔ The API alone no longer presses it -- that is the
+    // MUST NOT.
+    for (const isAgentApiEnabled of [true, false]) {
+      for (const isDialogueFieldVisible of [true, false]) {
+        const entry = commandFor(
+          itemsOf(
+            UNNAMED,
+            SETTINGS,
+            STATE,
+            sessionWith({ isAgentApiEnabled, isDialogueFieldVisible }),
+          ),
+          IC_DIALOGUE_FIELD,
+        )
+        expect(entry.isPressed, `${isAgentApiEnabled}/${isDialogueFieldVisible}`).toBe(
+          isAgentApiEnabled && isDialogueFieldVisible,
+        )
+      }
+    }
+  })
+
+  it('is faint exactly while the Agent API is off (FR-066 ⚠️, through FR-029)', () => {
+    // 「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」 -- the half of D-149 that
+    // never broke, and the one FR-066 still ties to the capability alone.
     for (const isAgentApiEnabled of [true, false]) {
       const entry = commandFor(
         itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled })),
         IC_DIALOGUE_FIELD,
       )
-      expect(entry.isPressed).toBe(isAgentApiEnabled)
       expect(entry.isEnabled).toBe(isAgentApiEnabled)
     }
   })

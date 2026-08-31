@@ -246,18 +246,29 @@ function commandStateOf(
       // FR-066 puts the field up only while the `Agent API` is on, so with the
       // API off there is nothing for this entry to show or hide -- and turning
       // the API on belongs to the entry below, which FR-029 (MUST NOT) forbids
-      // this one to duplicate.
-      // STOP -- ⚠️ NOTHING HOLDS THE FIELD'S OWN STATE: whether the field has
-      // been put away while the `Agent API` is still on. Table T-206 has a row
-      // for the palette (S-99e), one for full screen (S-99f) and one for the
-      // open surface (S-99g), and none for the dialogue field; `ScreenState`
-      // carries those same three and no more. Searched: FR-066, FR-065, S-99b,
-      // `_assets/tbl-settings.md` (table T-206), `ScreenState` and
-      // `ScreenSession`. ⭐ So the pressed state is read off the only condition
-      // anything states for the field being up -- the same condition UF-68
-      // returns `null` on -- because reporting the entry off while the field is
-      // on the screen would be a plain untruth.
-      return { isEnabled: session.isAgentApiEnabled, isPressed: session.isAgentApiEnabled }
+      // this one to duplicate. `isEnabled` stays tied to `isAgentApiEnabled`,
+      // and while it is off FR-066 (⚠️) has this entry drawn faint and RS-35 of
+      // table T-233 is the reason a press on it is told (`frame-loop.ts`).
+      //
+      // ⭐ `isPressed` IS NOW ITS OWN VALUE (D-149, EN-5 of table T-237), since
+      // `ScreenSession` gained `isDialogueFieldVisible` for S-99i. ⛔ NOT
+      // `isAgentApiEnabled` ANY MORE: that was the defect -- IC-20 turning the
+      // API on made this entry read as pressed although IC-18 had never been
+      // touched, and IC-18 had no working "hide" half at all. S-99i (MUST NOT)
+      // keeps the two values apart: one is the capability, the other is what
+      // the reader chose to see, and `dialogue-field.ts` reads both.
+      // ⛔ BOTH, NOT THE VISIBILITY ALONE. EN-5 of table T-237 is worded
+      // 「いま表示している」 -- present tense, what the screen is actually
+      // doing -- and while the API is off `dialogue-field.ts` describes no
+      // field whatever S-99i holds. FR-029 (MUST NOT) also forbids filling
+      // an entrance that is drawn faint, and this one is faint exactly then,
+      // so reading S-99i alone would draw it faint AND filled at once.
+      // ⚠️ S-99i is NOT cleared when the API goes off -- it is remembered,
+      // so turning the API back on restores what the reader last chose.
+      return {
+        isEnabled: session.isAgentApiEnabled,
+        isPressed: session.isAgentApiEnabled && session.isDialogueFieldVisible,
+      }
 
     case AGENT_API_ENTRY:
       // FR-065 (MUST) requires that the API's being on be readable on the

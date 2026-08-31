@@ -120,6 +120,7 @@
 // ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
 // MUST FR-085 puts on whichever side does judge one does not reach this file.
 
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
@@ -376,34 +377,80 @@ function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
 }
 
 /**
+ * The seven `Command Palette` rows FR-049 (MUST) turns into toggles over a
+ * boolean row of table T-202, keyed by row id and pointing at the
+ * `DocumentSettings` member table T-202 names for that row.
+ *
+ * ⛔ THIS JOIN ALREADY EXISTS ONCE, in `input-command-translator.ts` as
+ * `VISIBLE_ELEMENT_BY_ENTRY` -- same row ids, same settings keys, built for the
+ * opposite direction (a press turning a setting, where this one is a setting
+ * painting a press). ⛔ IT CANNOT BE SHARED. That map is an internal unit of a
+ * different Adapter component (InputCommandTranslator), and Chapter 5.3 with
+ * LR-2/LR-3 of table T-061 forbids reaching into another component's internals
+ * -- `input-command-translator.ts` itself records being refused by check 26b
+ * for importing the settings type this same join needs, which is exactly the
+ * fence that also blocks importing the map. ⚠️ SO THE DUPLICATION IS REAL AND
+ * NOT AN OVERSIGHT: a row added to, removed from, or re-spelled in one map has
+ * to be carried BY HAND into the other, and nothing here checks that it was.
+ * ⛔ IC-4 -> `baselineVisible` is NOT repeated here: that entry lives on the App
+ * Header (UF-62), not the Command Palette, and is answered there already.
+ * ⛔ IC-45 to IC-49 are NOT toggles and are not in this map either -- FR-049
+ * (MUST NOT) refuses to treat a many-valued row as one, and S-65 / S-66 are
+ * those.
+ */
+const SETTINGS_KEY_BY_ROW: Readonly<Record<string, keyof DocumentSettings>> = {
+  'IC-39': 'progressLineVisible',
+  'IC-40': 'progressMarkerVisible',
+  'IC-42': 'dateGridLinesVisible',
+  'IC-43': 'groupGridLinesVisible',
+  'IC-79': 'assigneeVisible',
+  'IC-80': 'percentCompleteVisible',
+  'IC-81': 'dependencyVisible',
+}
+
+/**
+ * Whether one row's own boolean setting of table T-202 is ON, or `false` for
+ * a row this component does not join to one (see `SETTINGS_KEY_BY_ROW`).
+ *
+ * @purity pure
+ */
+function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boolean {
+  const key = SETTINGS_KEY_BY_ROW[row.rowId]
+  if (key === undefined) return false
+  return settings[key] === true
+}
+
+/**
  * One row of table T-109 as it stands in the palette.
  *
- * ⛔ `isPressed` IS FALSE FOR EVERY ENTRY, AND THAT IS A GAP RATHER THAN AN
- * ANSWER. What the toggling entries reflect is the drawing settings of table
- * T-202, which live in `DocumentSettings` -- not an argument of this unit.
- * ⛔⛔ AND THE GAP IS NOW VISIBLE, WHICH IT WAS NOT BEFORE 2026-08-28.
- * `dom-screen-surface.ts` had never drawn `isPressed` at all, so a false one
- * looked the same as a true one; it paints the entrance now, and every palette
- * entrance that IS on goes on being drawn off. ⚠️ Counted against table T-109
- * and the setting each of its rows names, FOUR are certain -- IC-39 / IC-40 /
- * IC-42 / IC-43, whose settings are the boolean rows of table T-202 that FR-049
- * (MUST) makes toggles of. ⛔ IC-45 to IC-49 are NOT counted with them: the same
- * requirement (MUST NOT) refuses to treat a many-valued row or a row that holds
- * a value as a toggle, and S-65 and S-66 are those. ⚠️ Whether an exclusive
+ * ⭐ `isPressed` NOW READS TWO SOURCES, JOINED BY THE ROW. Table T-237's `EN-2`
+ * says an entrance is filled when its own toggle is ON, and FR-049 makes the
+ * seven rows of `SETTINGS_KEY_BY_ROW` exactly those toggles -- so this member
+ * reads `DocumentSettings` for those seven and `ScreenSession` for IC-76, and
+ * neither reading masks the other because no row is named by both.
+ * ⛔ IC-45 to IC-49 are counted with neither: FR-049 (MUST NOT) refuses to
+ * treat a many-valued row (S-65 / S-66) as a toggle, so both readings answer
+ * `false` for them and this member does not either.
+ * @provisional PD-417 -- an exclusive choice does NOT draw its own entrance
+ * on here, because table T-237 holds no row meaning "this is the one now
+ * chosen" and FR-029 (MUST) binds every fill to that table. ⛔ THE HEADER
+ * DISAGREES: it draws S-59's pair on its own reading, so the same kind of
+ * fact is drawn two ways. One of the two has to give.
+ * ⚠️ Whether an exclusive
  * value draws its own entrance on is not settled anywhere and is not settled
  * here either -- the header does it for S-59's pair (IC-8 / IC-9) on its own
- * reading. ⛔ The first of the four is the entrance the reader named on
- * 2026-08-27.
- * ⭐ NOTHING HERE CAN CLOSE IT. The "nine unit contracts" section of
- * `screen-renderer.ts` fixes UF-65 at three arguments and none of them reaches
- * `DocumentSettings`, so the fact is not merely unread -- it never arrives.
- * ⛔ That contract is not this file's to widen: the head of this file says in
- * as many words that the signature is fixed there and not owned here.
+ * reading.
+ * ⭐ THIS COULD NOT BE ANSWERED BEFORE 2026-08-31 BECAUSE THE ARGUMENT DID NOT
+ * ARRIVE. The "nine unit contracts" section of `screen-renderer.ts` fixed
+ * UF-65 at three arguments and none of them reached `DocumentSettings` -- the
+ * user's ruling of 2026-08-31 (「提案通り」) is what widened that contract to
+ * four and let this unit read table T-202 at all.
  * ⚠️ WHAT USED TO STAND HERE PUT THE ARMING ENTRIES IN THE SAME SENTENCE, and
  * that half went false on 2026-08-26: table T-109 grew a 構え column, so the
  * entry no longer has to be recognised by its row id, and `isArmed` below is
  * where the join lands. ⛔ `isPressed` did NOT become the place for it --
- * FR-053 (MUST NOT) forbids the armed entrance to be drawn as pressed.
+ * FR-053 (MUST NOT) forbids the armed entrance to be drawn as pressed, which
+ * is why arming is never folded into this member.
  *
  * @purity pure
  */
@@ -413,6 +460,7 @@ function commandItemFor(
   language: DisplayLanguage,
   armed: ArmedEntry,
   isRecording: boolean,
+  settings: DocumentSettings,
 ): CommandItem {
   return {
     icon: row.rowId,
@@ -421,7 +469,11 @@ function commandItemFor(
     // IC-76 is the entrance that turns it -- so the entrance is what says so.
     // ⛔ ONE ROW AND NOT A LOOKUP: S-206 is the only state of table T-206
     // this unit is handed, so a table keyed by row id would hold one entry.
-    isPressed: row.rowId === INTERACTION_RECORD_ROW && isRecording,
+    // FR-049 / T-237 EN-2 (MUST): the seven toggles of `SETTINGS_KEY_BY_ROW`
+    // are filled when their own setting is ON -- the two conditions never
+    // overlap, since IC-76 is not a key of that map.
+    isPressed:
+      (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isSettingsToggleOn(row, settings),
     // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」,
     // and (MUST) the armed entrance is told apart from the ones that are not.
     // ⛔ THE COLUMN ALONE IS NOT THAT JOIN, which is why the second half is
@@ -498,6 +550,7 @@ function paletteGroups(
   isMilestoneListOpen: boolean,
   armed: ArmedEntry,
   isRecording: boolean,
+  settings: DocumentSettings,
 ): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
@@ -523,7 +576,7 @@ function paletteGroups(
     if (opened === undefined) groups.push(group)
 
     if (isMilestoneGlyphEntry(row) && !isMilestoneListOpen) continue
-    group.commands.push(commandItemFor(row, selection, language, armed, isRecording))
+    group.commands.push(commandItemFor(row, selection, language, armed, isRecording, settings))
   }
 
   return groups
@@ -671,10 +724,18 @@ function isRecordingInteractions(session: ScreenSession): boolean {
  * which one wins, and no requirement states one. EP-11 of table T-076 reads the
  * closed palette the same way when the picture is exported.
  *
+ * ⭐ `settings` ARRIVES AS OF THE USER'S RULING OF 2026-08-31 (「提案通り」),
+ * WIDENING THE CONTRACT `screen-renderer.ts` FIXES FROM THREE ARGUMENTS TO
+ * FOUR. Table T-237's `EN-2` has an entrance filled when its own toggle of
+ * table T-202 is ON, and `commandItemFor` is where that reading is made --
+ * this unit only has to forward the value it is now handed, the way UF-62 to
+ * UF-64 already do for their own settings-reading members.
+ *
  * @purity pure
  */
 export function commandPaletteFromScreenState(
   state: ScreenState,
+  settings: DocumentSettings,
   selection: Selection,
   session: ScreenSession,
 ): CommandPalette | null {
@@ -716,6 +777,10 @@ export function commandPaletteFromScreenState(
       // session's own value rather than as `false` so that the two calls read
       // the same, and `commandItemFor` is the one place that names the row.
       isRecordingInteractions(session),
+      // IC-75 is not a key of `SETTINGS_KEY_BY_ROW` either, so this reads as
+      // false whatever `settings` holds -- passed through for the same reason
+      // the line above is: one place names the row, not two readings of it.
+      settings,
     ),
     isMinimised: session.isPaletteMinimised,
     // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND NOTHING ELSE. FR-053 (MUST) keeps
@@ -733,6 +798,7 @@ export function commandPaletteFromScreenState(
           session.isMilestoneListOpen,
           armedEntry(state.armed),
           isRecordingInteractions(session),
+          settings,
         ),
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row

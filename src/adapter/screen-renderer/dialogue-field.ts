@@ -15,6 +15,12 @@
 // flag is not in the document: FR-065 remembers the choice per document, but
 // S-99b of table T-206 keeps that record in the environment, so it reaches this
 // unit as `ScreenSession.isAgentApiEnabled` rather than through `Schedule`.
+// ⭐⭐ A SECOND FLAG SINCE 2026-08-31 (D-149). FR-066 also has a MUST of its own
+// -- the reader may put the field away with IC-18 while the API stays on -- and
+// S-99i of table T-206 (MUST NOT) keeps that choice out of `isAgentApiEnabled`,
+// because one is a capability and the other is what is shown. It reaches this
+// unit the same way, as `ScreenSession.isDialogueFieldVisible`, and both must
+// hold for the field to be drawn.
 //
 // ⭐ WHY THE ORDER IS MADE HERE rather than taken as the array came. AG-11 of
 // table T-035 makes the log count in an order of its own, and FR-063 is the
@@ -51,7 +57,8 @@ import type { DialogueField, ScreenSession } from './screen-renderer'
 
 /**
  * The `Dialogue Field` (U-44) for this frame, or `null` while the `Agent API`
- * is off (FR-066).
+ * is off, or while the reader has put the field away with IC-18 (FR-066,
+ * S-99i).
  *
  * The settled utterances are carried oldest first, ordered by
  * `DialogueMessage.sequence` (AG-11). Every one the log holds goes across --
@@ -63,7 +70,13 @@ export function dialogueFieldFromLog(
   log: DialogueLog,
   session: ScreenSession,
 ): DialogueField | null {
-  if (!session.isAgentApiEnabled) return null
+  // FR-066 (⭐ MUST since 2026-08-31): the field is up while the `Agent API` is
+  // on AND the reader has not put it away with IC-18. ⛔ TWO CONDITIONS AND NOT
+  // ONE: S-99i of table T-206 (MUST NOT) forbids folding them into a single
+  // value, because one is a capability and the other is what the reader chose
+  // to see -- `session.isDialogueFieldVisible` carries the second half, and
+  // `app-header-items.ts` reads the same pair for IC-18's own drawn state.
+  if (!session.isAgentApiEnabled || !session.isDialogueFieldVisible) return null
 
   // STOP -- ⚠️ NOT DECIDED BY THE SPECIFICATION: how many utterances the field
   // shows at once. FR-066 states only that the field is put up, AG-11 states

@@ -15,7 +15,7 @@
     "en": "Command Palette"
    },
    "hint": {
-    "ja": "コマンドパレットを出す。もう一度押すとしまう",
+    "ja": "コマンドパレットを表示する。もう一度押すと非表示にする",
     "en": "Show the Command Palette; press again to hide it"
    }
   },
@@ -59,7 +59,7 @@
     "en": "Baseline"
    },
    "hint": {
-    "ja": "変更前の予定を重ねて出す。もう一度押すとしまう",
+    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする",
     "en": "Overlay the baseline; press again to hide it"
    }
   },
@@ -92,7 +92,7 @@
     "en": "Plan Bar"
    },
    "hint": {
-    "ja": "予定バーを出す。もう一度押すとしまう。予定と実績の両方をしまうことはできない",
+    "ja": "予定バーを表示する。もう一度押すと非表示にする。予定と実績の両方を非表示にすることはできない",
     "en": "Show the Plan Bar; press again to hide it — plan and actual cannot both be hidden"
    }
   },
@@ -103,7 +103,7 @@
     "en": "Actual Bar"
    },
    "hint": {
-    "ja": "実績バーを出す。もう一度押すとしまう。予定と実績の両方をしまうことはできない",
+    "ja": "実績バーを表示する。もう一度押すと非表示にする。予定と実績の両方を非表示にすることはできない",
     "en": "Show the Actual Bar; press again to hide it — plan and actual cannot both be hidden"
    }
   },
@@ -191,7 +191,7 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに出す",
+    "ja": "文書の描画設定をプロパティパネルに表示する",
     "en": "Show the document's drawing settings in the Properties Panel"
    }
   },
@@ -202,7 +202,7 @@
     "en": "Dialogue Field"
    },
    "hint": {
-    "ja": "AI との対話欄を出す。もう一度押すとしまう",
+    "ja": "AI との対話欄を表示する。もう一度押すと非表示にする",
     "en": "Show the Dialogue Field for talking with the AI; press again to hide it"
    }
   },
@@ -510,7 +510,7 @@
     "en": "Progress Line"
    },
    "hint": {
-    "ja": "イナズマ線を出す。もう一度押すとしまう",
+    "ja": "イナズマ線を表示する。もう一度押すと非表示にする",
     "en": "Show the Progress Line; press again to hide it"
    }
   },
@@ -521,7 +521,7 @@
     "en": "Progress Marker"
    },
    "hint": {
-    "ja": "進捗マーカーと再開アイコンを出す。もう一度押すとしまう",
+    "ja": "進捗マーカーと再開アイコンを表示する。もう一度押すと非表示にする",
     "en": "Show the Progress Marker and the Resume Icon; press again to hide them"
    }
   },
@@ -532,7 +532,7 @@
     "en": "Watermark"
    },
    "hint": {
-    "ja": "透かしをしまう。透かし解除パスワードを求める",
+    "ja": "透かしを非表示にする。透かし解除パスワードを求める",
     "en": "Hide the Watermark; the watermark unlock password is asked for"
    }
   },
@@ -543,7 +543,7 @@
     "en": "Date Grid Lines"
    },
    "hint": {
-    "ja": "日付罫線を出す。もう一度押すとしまう",
+    "ja": "日付罫線を表示する。もう一度押すと非表示にする",
     "en": "Show the Date Grid Lines; press again to hide them"
    }
   },
@@ -554,7 +554,7 @@
     "en": "Group Grid Lines"
    },
    "hint": {
-    "ja": "グループ罫線を出す。もう一度押すとしまう",
+    "ja": "グループ罫線を表示する。もう一度押すと非表示にする",
     "en": "Show the Group Grid Lines; press again to hide them"
    }
   },
@@ -565,7 +565,7 @@
     "en": "Assignee Label"
    },
    "hint": {
-    "ja": "担当ラベルを出す。もう一度押すとしまう",
+    "ja": "担当ラベルを表示する。もう一度押すと非表示にする",
     "en": "Show the Assignee Label; press again to hide it"
    }
   },
@@ -576,7 +576,7 @@
     "en": "Percent Complete Label"
    },
    "hint": {
-    "ja": "完了率ラベルを出す。もう一度押すとしまう",
+    "ja": "完了率ラベルを表示する。もう一度押すと非表示にする",
     "en": "Show the Percent Complete Label; press again to hide it"
    }
   },
@@ -587,7 +587,7 @@
     "en": "Dependency Lines"
    },
    "hint": {
-    "ja": "依存線を出す。もう一度押すとしまう",
+    "ja": "依存線を表示する。もう一度押すと非表示にする",
     "en": "Show the Dependency Lines; press again to hide them"
    }
   },
@@ -807,7 +807,7 @@
     "en": "Resource Roster"
    },
    "hint": {
-    "ja": "文書が持つ担当者の一覧を出す",
+    "ja": "文書が持つ担当者の一覧を表示する",
     "en": "Show the list of resources the document holds"
    }
   },
@@ -2199,7 +2199,7 @@
   {
    "rowId": "SK-14",
    "text": {
-    "ja": "コマンドパレットを出す / しまう",
+    "ja": "コマンドパレットを表示する / 非表示にする",
     "en": "Show or hide the Command Palette"
    }
   },

@@ -15,7 +15,7 @@
     "App Header"
    ],
    "group": "パレット",
-   "entryTo": "コマンドパレットを出す・しまう（`S-99e`）。⭐ **本行だけが独自の群を持つのは、`App Header` の左端に置くためである**（利用者の指示 2026-08-27「一番左に移動しろ。ファイル読み書きの左だ」）—— ⛔ **並びを決めるのは本表の `群` の欄だけであり**（同表の前文）、**既存の群に入れたまま先頭へ動かすと群がとびとびになり、その欄の役目が壊れる。**⚠️ **群の名は画面に刷らない**（同前文の MUST NOT）ので、辞書の語は増えない",
+   "entryTo": "コマンドパレットを表示する・非表示にする（`S-99e`）。⭐ **本行だけが独自の群を持つのは、`App Header` の左端に置くためである**（利用者の指示 2026-08-27「一番左に移動しろ。ファイル読み書きの左だ」）—— ⛔ **並びを決めるのは本表の `群` の欄だけであり**（同表の前文）、**既存の群に入れたまま先頭へ動かすと群がとびとびになり、その欄の役目が壊れる。**⚠️ **群の名は画面に刷らない**（同前文の MUST NOT）ので、辞書の語は増えない",
    "authority": "`FR-053`",
    "arms": null,
    "armsShape": null
@@ -59,7 +59,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "変更前の予定の重ねを出す・しまう（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
+   "entryTo": "変更前の予定の重ねを表示する・非表示にする（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
    "authority": "`FR-049`（`FR-015`）",
    "arms": null,
    "armsShape": null
@@ -92,7 +92,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "予定を出す・しまう（`S-59` の 3 値のうち）",
+   "entryTo": "予定を表示する・非表示にする（`S-59` の 3 値のうち）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -103,7 +103,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "実績を出す・しまう（同上）",
+   "entryTo": "実績を表示する・非表示にする（同上）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -191,7 +191,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに出す",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する",
    "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
@@ -202,7 +202,7 @@
     "App Header"
    ],
    "group": "AI",
-   "entryTo": "AI との対話欄を出す・しまう",
+   "entryTo": "AI との対話欄を表示する・非表示にする",
    "authority": "`FR-066`",
    "arms": null,
    "armsShape": null
@@ -510,7 +510,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "イナズマ線を出す・しまう（`S-64`）",
+   "entryTo": "イナズマ線を表示する・非表示にする（`S-64`）",
    "authority": "`FR-049`（`FR-014`）",
    "arms": null,
    "armsShape": null
@@ -521,7 +521,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "進捗マーカーを出す・しまう（`S-63`）",
+   "entryTo": "進捗マーカーを表示する・非表示にする（`S-63`）",
    "authority": "`FR-049`（`FR-013`）",
    "arms": null,
    "armsShape": null
@@ -532,7 +532,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "透かしをしまう（解除パスワードを求める）",
+   "entryTo": "透かしを非表示にする（解除パスワードを求める）",
    "authority": "`FR-020`",
    "arms": null,
    "armsShape": null
@@ -543,7 +543,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "日付罫線を出す・しまう（`S-67`）",
+   "entryTo": "日付罫線を表示する・非表示にする（`S-67`）",
    "authority": "`FR-049`（`FR-089`）",
    "arms": null,
    "armsShape": null
@@ -554,7 +554,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "グループ罫線を出す・しまう（`S-68`）",
+   "entryTo": "グループ罫線を表示する・非表示にする（`S-68`）",
    "authority": "`FR-049`（`FR-042`）",
    "arms": null,
    "armsShape": null
@@ -565,7 +565,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当ラベルを出す・しまう（`S-60`）",
+   "entryTo": "担当ラベルを表示する・非表示にする（`S-60`）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -576,7 +576,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "完了率ラベルを出す・しまう（`S-61`）",
+   "entryTo": "完了率ラベルを表示する・非表示にする（`S-61`）",
    "authority": "`FR-049`（`FR-090`）",
    "arms": null,
    "armsShape": null
@@ -587,7 +587,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "依存線を出す・しまう（`S-62`）。⚠️ **隠しているあいだも、依存線を選ぶ・ラグを編集する・削除する経路は別の面に残る** —— 規則と理由は `FR-049` が持つ",
+   "entryTo": "依存線を表示する・非表示にする（`S-62`）。⚠️ **隠しているあいだも、依存線を選ぶ・ラグを編集する・削除する経路は別の面に残る** —— 規則と理由は `FR-049` が持つ",
    "authority": "`FR-049`（`FR-009`）",
    "arms": null,
    "armsShape": null
@@ -812,7 +812,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当者の名簿を出す",
+   "entryTo": "担当者の名簿を表示する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null

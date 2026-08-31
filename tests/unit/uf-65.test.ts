@@ -108,10 +108,19 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
 // ⭐ The reader every table-driven case in tests/ shares: it takes its copy of a
 // numbered table from the .md at read time, so a row added to the manuscript
 // reaches this file instead of leaving a hand-written list behind.
 import { bare, specTable } from '../contract/spec-table'
+
+// UF-65 reads the drawing settings of table T-202 to answer table T-237's
+// EN-2, so a case has to hand it a whole `DocumentSettings`. The defaults are
+// generated from the manuscript, so this is not a hand-written copy.
+const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -430,6 +439,7 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
+  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -496,7 +506,7 @@ const describedWith = (
   session: ScreenSession = sessionOf(),
   state: ScreenState = SHOWN,
 ): CommandPalette => {
-  const palette = commandPaletteFromScreenState(state, selection, session)
+  const palette = commandPaletteFromScreenState(state, SETTINGS, selection, session)
   expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
   return palette as CommandPalette
 }
@@ -523,12 +533,12 @@ const deepFreeze = <T>(value: T): T => {
 
 describe('UF-65 -- S-99e: described only while the palette is showing', () => {
   it('describes nothing while S-99e says it is hidden', () => {
-    expect(commandPaletteFromScreenState(HIDDEN, emptySelection(), sessionOf())).toBeNull()
+    expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, emptySelection(), sessionOf())).toBeNull()
   })
 
   it('describes one by default, because S-99e defaults to showing', () => {
     // `emptyScreenState` is where that default lives; nothing here repeats it.
-    expect(commandPaletteFromScreenState(emptyScreenState(), emptySelection(), sessionOf())).not.toBeNull()
+    expect(commandPaletteFromScreenState(emptyScreenState(), SETTINGS, emptySelection(), sessionOf())).not.toBeNull()
   })
 
   it('spells hidden one way only, which EP-11 of table T-076 also exports', () => {
@@ -536,7 +546,7 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
     // carrying no entry would be a second spelling of hidden, and nothing says
     // which of the two wins. A shown palette always carries entries.
     for (const { what, selection } of SELECTIONS) {
-      expect(commandPaletteFromScreenState(HIDDEN, selection, sessionOf()), what).toBeNull()
+      expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, selection, sessionOf()), what).toBeNull()
       expect(entriesOf(describedWith(selection)).length, what).toBeGreaterThan(0)
     }
   })
@@ -547,7 +557,7 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
     for (const { row, armed } of T_023b) {
       const state = screenStateWithArmed(HIDDEN, armed)
       const session = sessionOf({ pointer: { x: 5, y: 5 }, commandPaletteAt: { x: 0, y: 0 } })
-      expect(commandPaletteFromScreenState(state, pickedInTurn(TASK_A), session), row).toBeNull()
+      expect(commandPaletteFromScreenState(state, SETTINGS, pickedInTurn(TASK_A), session), row).toBeNull()
     }
   })
 })
@@ -971,7 +981,7 @@ describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
     const session = deepFreeze(sessionOf({ pointer: { x: 4, y: 4 } }))
     const before = JSON.stringify([state, selection, session])
 
-    commandPaletteFromScreenState(state, selection, session)
+    commandPaletteFromScreenState(state, SETTINGS, selection, session)
 
     expect(JSON.stringify([state, selection, session])).toBe(before)
   })
@@ -979,8 +989,8 @@ describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
   it('answers the same for the same inputs', () => {
     for (const { what, selection } of SELECTIONS) {
       const session = sessionOf({ commandPaletteAt: { x: 7, y: 8 }, pointer: { x: 7, y: 8 } })
-      const first = commandPaletteFromScreenState(SHOWN, selection, session)
-      const second = commandPaletteFromScreenState(SHOWN, selection, session)
+      const first = commandPaletteFromScreenState(SHOWN, SETTINGS, selection, session)
+      const second = commandPaletteFromScreenState(SHOWN, SETTINGS, selection, session)
       expect(second, what).toEqual(first)
     }
   })

@@ -19,6 +19,11 @@
 // in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
 // tests/unit/.
 //
+// UF-65 reads the drawing settings of table T-202 to answer table T-237's
+// EN-2, so a case has to hand it a whole `DocumentSettings`. The defaults are
+// generated from the manuscript, so this is not a hand-written copy.
+const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
+
 // ---------------------------------------------------------------------------
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
@@ -107,6 +112,10 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a row that moves in the specification
 // moves here too instead of going stale.
@@ -281,6 +290,7 @@ const SESSION: ScreenSession = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
+  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -305,6 +315,7 @@ const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
 function describedWith(armed: Armed): CommandPalette {
   const palette = commandPaletteFromScreenState(
     screenStateWithArmed(SHOWN, armed),
+    SETTINGS,
     emptySelection(),
     SESSION,
   )

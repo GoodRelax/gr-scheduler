@@ -64,10 +64,19 @@ async function openSample(browser) {
       return found
     },
     pressHead: async (act) => {
-      await tab.evaluate((which) =>
-        document.querySelector(`#phead button[data-act="${which}"]`)?.click(), act)
+      const found = await tab.evaluate((which) => {
+        const button = document.querySelector(`#phead button[data-act="${which}"]`)
+        if (button == null) return false
+        button.click()
+        return true
+      }, act)
       await tab.waitForTimeout(150)
+      return found
     },
+    // Which rows are held at the top, in the order they are held there.
+    pinned: () => tab.evaluate(() =>
+      [...document.querySelectorAll('.row.pinnedTop')]
+        .map((row) => row.querySelector('.nm')?.textContent ?? '')),
     reset: async () => { await tab.click('#reset'); await tab.waitForTimeout(150) },
   }
 }
@@ -154,6 +163,14 @@ async function openApp(browser) {
 
   return {
     tab, rows, topOf, hover, away, pressEntry,
+    // Which rows are held at the top, in the order they are held there.
+    //
+    // The shell writes `data-pinned` on every row, so this reads the same fact
+    // the sample's `pinnedTop` class carries -- and it reads DOM order, which
+    // is what FR-098 lifts.
+    pinned: () => tab.evaluate(() =>
+      [...document.querySelectorAll('[data-depth][data-pinned="true"]')]
+        .map((row) => (row.querySelector('span')?.textContent ?? '').trim())),
     counts: () => tab.evaluate(() =>
       [...document.querySelectorAll('[data-depth]')]
         .filter((row) => row.querySelector('[data-folded-rows]') !== null)

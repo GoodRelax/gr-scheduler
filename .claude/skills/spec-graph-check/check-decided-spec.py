@@ -42,9 +42,19 @@ NOT_SPEC = ('D', 'PD', 'CR')
 NUMBERED = re.compile(r'`([A-Z]{1,3})-(\d+[a-z]?)`')
 TABLE = re.compile(r'表 T-\d+|図 F-\d+|Chapter \d')
 
+# ⭐ A ROW WHOSE FIX IS NOT IN docs/spec CAN STILL SAY WHERE IT LANDED.
+# ⚠️ Added 2026-08-31 for the first row that met this honestly: D-168's fix is
+# a list in docs/development-rules and a check beside it, and the specification
+# is not touched by one character. Without this the row had three bad choices --
+# keep a status it had outgrown, claim a place it does not occupy, or push the
+# debt count up by one. ⛔ THE DEMAND IS NOT WEAKENED: the cell must still name
+# a FILE, so a row that says nothing still fails. What changes is only that the
+# place may lie outside docs/spec.
+ELSEWHERE = re.compile(r'`?docs/[A-Za-z0-9_./-]+\.md`?')
+
 
 def names_a_place(cell):
-    if TABLE.search(cell):
+    if TABLE.search(cell) or ELSEWHERE.search(cell):
         return True
     return any(prefix not in NOT_SPEC for prefix, _ in NUMBERED.findall(cell))
 

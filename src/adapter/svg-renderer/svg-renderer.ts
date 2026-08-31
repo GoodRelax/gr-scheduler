@@ -1219,6 +1219,24 @@ export function svgFromSchedule(
   const markerParts: string[] = []
   const linkParts: string[] = []
   const labelParts: string[] = []
+  // D-170 / FR-098's new sentence: 「スクロールする行を帯の下へ潜らせては
+  // ならない」 reaches every figure a Task draws, not only its row's ground --
+  // so each of the five arrays above (which the loop below fills, in document
+  // order, for EVERY Task regardless of which row it stands on) gets a twin
+  // that catches a PINNED Task's fragments instead. ⛔ The twins are drawn
+  // UNCLIPPED, because a pinned Task's own row already stands inside the band
+  // (LF-14) -- only the ones left in the plain arrays are wrapped in the
+  // clip-path minted below, and only when something is actually pinned.
+  const planPartsPinned: string[] = []
+  const guidePartsPinned: string[] = []
+  const actualPartsPinned: string[] = []
+  const markerPartsPinned: string[] = []
+  const labelPartsPinned: string[] = []
+  // GD-6's arrowhead is table T-020a's ZO-4, drawn per dependency in the loop
+  // below the task loop -- and a dependency between two rows is exactly as
+  // capable of crossing into the band as a bar is, so it gets the same split.
+  const depLinkParts: string[] = []
+  const depLinkPartsPinned: string[] = []
   // ⛔ TABLE T-020 HAS NO ROW FOR AN ANNOTATION, so where a comment box sits
   // among the six is decided here rather than read. It goes OVER ZO-5's name
   // labels: NFR-007 makes 4.5:1 a MUST for the comment box's own text, and a
@@ -1275,6 +1293,20 @@ export function svgFromSchedule(
   // to. ⚠️ `scrollAreaY` is optional and reads as the area's top where no row is
   // pinned, which is the one ceiling every row had before a band existed.
   const scrollTop = layout.scrollAreaY ?? area.y
+  // D-170: which rows are pinned, so a Task's figures (not only its row's
+  // ground, cut per-row just below) can be asked the same question. Keyed by
+  // `groupId` because that is what `TaskPlacement` (`placedOf` above) carries
+  // and `RowPlacement.groupId` is the same identifier.
+  // ⛔ NOT GATED ON `scrollAreaY` ALONE. `pinnedBandOf` in schedule-layout.ts
+  // hands back a number there whether or not any row is pinned (S-127's band
+  // is simply zero rows tall), so a document with nothing pinned would still
+  // read a defined `scrollAreaY` -- and clipping on that alone would wrap
+  // every document's figures in a no-op clip-path, changing the bytes
+  // `npm run parity` compares even where nothing moved.
+  const pinnedGroupIds = new Set(
+    layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId),
+  )
+  const hasPinnedRows = pinnedGroupIds.size > 0
   for (const [position, row] of layout.rows.entries()) {
     const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
@@ -1350,6 +1382,13 @@ export function svgFromSchedule(
 
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
+    // D-170: which bucket this Task's figures go into. `placedOf` maps a
+    // `taskUid` to its `TaskPlacement`, which carries the `groupId` of the
+    // row it stands on -- the same identifier `pinnedGroupIds` above was
+    // built from. ⚠️ Read once here and reused below (at the label and the
+    // outside-label loop) rather than a second lookup of the same map.
+    const placed = placedOf.get(task.taskUid)
+    const isPinnedTask = placed !== undefined && pinnedGroupIds.has(placed.groupId)
     const plan = paintOf(
       visual?.strokeColor ?? null,
       visual?.fillColor ?? null,
@@ -1366,19 +1405,23 @@ export function svgFromSchedule(
       monochrome,
       settings.planStroke,
     )
-    if (task.plan !== null) planParts.push(barSvg(task.plan, plan))
+    if (task.plan !== null) {
+      ;(isPinnedTask ? planPartsPinned : planParts).push(barSvg(task.plan, plan))
+    }
     for (const guide of task.guides) {
       // S-105: the guide takes the ACTUAL bar's colour, because it is the line
       // that leaves the actual bar. ⛔ No key of its own -- FR-041 forbids
       // storing a derived colour, and a second constant would be one.
-      guideParts.push(
+      ;(isPinnedTask ? guidePartsPinned : guideParts).push(
         `<polyline points="${pointsOf(guide)}" fill="none" stroke="${actual.stroke}"` +
           ` stroke-width="${rounded(settings.planActualGuideWeight)}"` +
           ` stroke-dasharray="${rounded(settings.planActualGuidePattern.on)}` +
           ` ${rounded(settings.planActualGuidePattern.off)}"/>`,
       )
     }
-    if (task.actual !== null) actualParts.push(barSvg(task.actual, actual))
+    if (task.actual !== null) {
+      ;(isPinnedTask ? actualPartsPinned : actualParts).push(barSvg(task.actual, actual))
+    }
     // FR-043 (MUST): two faint grab handles on a Task not started, one on a
     // milestone. ⛔ EP-14 of table T-076 keeps them out of the exported
     // picture, and this is the only place that can obey it -- the geometry may
@@ -1433,7 +1476,9 @@ export function svgFromSchedule(
       )
         ? 1
         : settings.dummyOpacity
-      actualParts.push(`<g opacity="${rounded(faintness)}">${marks}</g>`)
+      ;(isPinnedTask ? actualPartsPinned : actualParts).push(
+        `<g opacity="${rounded(faintness)}">${marks}</g>`,
+      )
     }
     if (selected.has(task.taskUid)) {
       // SL-8 (MUST): the frame goes on the Task's bounding rectangle, so all
@@ -1478,7 +1523,7 @@ export function svgFromSchedule(
       // the progress marker, so that is the row asked about; `markerSvg` still
       // decides WHICH symbol the faintness reaches, and a marker that is not
       // PM-1a was never faint for this to undo. @provisional PD-351
-      markerParts.push(
+      ;(isPinnedTask ? markerPartsPinned : markerParts).push(
         markerSvg(
           task.marker,
           themed('S-161'),
@@ -1487,9 +1532,8 @@ export function svgFromSchedule(
         ),
       )
     }
-    const placed = placedOf.get(task.taskUid)
     if (task.label !== null && placed !== undefined && placed.label !== '') {
-      labelParts.push(
+      ;(isPinnedTask ? labelPartsPinned : labelParts).push(
         labelSvg(
           task.label,
           placed.label,
@@ -1520,7 +1564,7 @@ export function svgFromSchedule(
         [task.percentLabel, placed.percentLabel],
       ] as const) {
         if (box === null || text === '') continue
-        labelParts.push(
+        ;(isPinnedTask ? labelPartsPinned : labelParts).push(
           labelSvg(box, text, placed.labelFontSize, settings, themed('S-168'), themed('S-169'), 0),
         )
       }
@@ -1539,6 +1583,27 @@ export function svgFromSchedule(
   )}`
   const defsParts: string[] = []
 
+  // D-170 / FR-098's new ⛔⛔: 「スクロールする行を帯の下へ潜らせてはならない」
+  // reaches a Task's bar, label, marker and dependency line, not only the row's
+  // own ground -- `bandParts` above already cuts the ground per row, but the
+  // task loop draws every Task's figures into ONE array apiece, so the cut
+  // there has to be a single clip-path rather than a per-row top/bottom pair.
+  // ⭐ THE SAME RECTANGLE `S-78` ALREADY POINTS AT: `x = area.x`, `y = scrollTop`
+  // (the scrolling remainder's own top, computed above for the band loop),
+  // `width = area.width`, `height = areaBottom - scrollTop`. ⛔ No new value is
+  // minted here -- table T-203's `S-78` already names this rectangle's top.
+  const scrollClipId = `grs-scroll-clip-${pictureId(
+    `${rounded(area.x)}x${rounded(scrollTop)}|${rounded(area.width)}x${rounded(
+      areaBottom - scrollTop,
+    )}`,
+  )}`
+  if (hasPinnedRows) {
+    defsParts.push(
+      `<clipPath id="${scrollClipId}"><rect x="${rounded(area.x)}" y="${rounded(scrollTop)}"` +
+        ` width="${rounded(area.width)}" height="${rounded(areaBottom - scrollTop)}"/></clipPath>`,
+    )
+  }
+
   // ⛔ GD-6 of table T-020a (MUST) asks for the head here and NOT on the guide
   // above: 「依存線は実線で矢じりを持ち、補助線は点線で矢じりを持たない」.
   for (const link of geometry.dependencies) {
@@ -1554,7 +1619,26 @@ export function svgFromSchedule(
       settings.dependencyWidth,
       selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
     )
-    linkParts.push(
+    // D-170: a dependency line is pinned only when BOTH ends are -- one drawn
+    // between a pinned Task and a scrolling one still has a scrolling end,
+    // which can carry it above `scrollTop` exactly the way a bar can, so it
+    // needs the clip. `points` already carries each end's CURRENT position
+    // (the band's shift for a pinned Task, the scroll offset for the other),
+    // so clipping the polyline as one piece only trims the stretch that has
+    // scrolled into the band -- it does not have to be cut at the join.
+    // @provisional PD-416 -- an endpoint clipped clear off the top is NOT
+    // treated as RT-4a's 「描かれていない」, so the line stays and is cut.
+    // ⛔ No row decides that yet: RT-4a drops a line whose endpoint is not
+    // drawn and RT-6 keeps one whose endpoint is pinned, and a row cut away
+    // by the scroll is neither. Dropping it would make dependencies blink in
+    // and out on a small scroll, so the line is kept.
+    const predecessorPlaced = placedOf.get(link.predecessorUid)
+    const successorPlaced = placedOf.get(link.successorUid)
+    const predecessorPinned =
+      predecessorPlaced !== undefined && pinnedGroupIds.has(predecessorPlaced.groupId)
+    const successorPinned =
+      successorPlaced !== undefined && pinnedGroupIds.has(successorPlaced.groupId)
+    ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
       `<polyline points="${pointsOf(link.points)}" fill="none"` +
         ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
         ` marker-end="url(#${arrowId})"/>`,
@@ -1762,15 +1846,41 @@ export function svgFromSchedule(
     }
   }
 
+  // D-170: the band-crossing figures, clipped to the scrolling remainder
+  // (`S-78`'s own rectangle, minted above as `scrollClipId`) -- and left
+  // unwrapped whenever nothing is pinned, so an unpinned document's markup is
+  // untouched by this whole change (`hasPinnedRows` is false, the pinned
+  // arrays are empty, and every one of these four groups reduces to exactly
+  // the array it always was).
+  const scrollingBars = [...planParts, ...guideParts, ...actualParts, ...markerParts].join('')
+  const clippedBars = hasPinnedRows
+    ? [`<g clip-path="url(#${scrollClipId})">${scrollingBars}</g>`]
+    : [scrollingBars]
+  const clippedDepLinks = hasPinnedRows
+    ? [`<g clip-path="url(#${scrollClipId})">${depLinkParts.join('')}</g>`]
+    : depLinkParts
+  const clippedLabels = hasPinnedRows
+    ? [`<g clip-path="url(#${scrollClipId})">${labelParts.join('')}</g>`]
+    : labelParts
+
   const parts = [
     ...defsParts,
     ...bandParts,
-    ...planParts,
-    ...guideParts,
-    ...actualParts,
-    ...markerParts,
+    // ⭐ PINNED FIRST, UNCLIPPED. A pinned Task's figures already stand inside
+    // the band (LF-14), so there is nothing for a clip to trim -- and the two
+    // groups never occupy the same pixels (a scrolling row starts one
+    // `rowGap` below the band, per `scrollAreaY`), so which comes first
+    // between them changes no pixel either way.
+    ...planPartsPinned,
+    ...guidePartsPinned,
+    ...actualPartsPinned,
+    ...markerPartsPinned,
+    ...clippedBars,
+    ...depLinkPartsPinned,
+    ...clippedDepLinks,
     ...linkParts,
-    ...labelParts,
+    ...labelPartsPinned,
+    ...clippedLabels,
     ...annotationParts,
     ...selectionParts,
     ...handleParts,

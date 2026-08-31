@@ -301,6 +301,7 @@ const SESSION: ScreenSession = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
+  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -336,7 +337,7 @@ const headerOf = (state: ScreenState = SHOWN, session: ScreenSession = SESSION):
   appHeaderItemsFromDocument(SCHEDULE, SETTINGS, state, session)
 
 const paletteOf = (state: ScreenState = SHOWN, session: ScreenSession = SESSION): CommandPalette => {
-  const described = commandPaletteFromScreenState(state, emptySelection(), session)
+  const described = commandPaletteFromScreenState(state, SETTINGS, emptySelection(), session)
   if (described === null) throw new Error('S-99e says it is showing, so one is described')
   return described
 }

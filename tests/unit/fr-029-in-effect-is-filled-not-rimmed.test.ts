@@ -66,6 +66,10 @@
 // its word) and `EN-2` / `EN-4` through `isPressed` (FR-072 says 「押下状態」 in
 // as many words). ⭐ THIS COSTS THE CASES NOTHING: 表 T-237 gives all three the
 // same colour, so no case here has to tell `EN-2` from `EN-4`.
+// ⚠️ `EN-5` JOINED THEM WITH DEFECT D-149 (利用者の裁定 2026-08-31) and is the
+// same picture again -- `isPressed`, `S-183`. It reaches no PALETTE entrance,
+// so the count above is unchanged: the entrances it stands on (`IC-18`, and
+// `IC-7` by the row's own words) are both `App Header` rows of 表 T-109.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -132,57 +136,27 @@ interface PaintRow {
 }
 
 /**
- * 表 T-237, parsed here rather than through `tests/contract/spec-table.ts`.
+ * 表 T-237, through `tests/contract/spec-table.ts` -- the reader Chapter 1.9
+ * (:275) asks a test about a table to be driven by.
  *
- * ⛔⛔ REPORTED, NOT PAPERED OVER -- THIS IS A DEFECT IN THE TABLE. Chapter 1.9
- * (:274) makes the first column of a numbered table the row ID, and every other
- * table in the specification writes it BARE: `HF-6`, `NT-1`, `RS-1`, `S-146`.
- * 表 T-237 writes its four ids inside code spans (`EN-1` with backticks), so
- * `specTable('T-237')` matches no row at all and throws 「no rows with a row
- * ID」. ⚠️ That reader is the one Chapter 1.9 (:275) asks a test about a table to
- * be driven by, so as the table stands NO test can be driven by 表 T-237
- * through it. ⭐ The parser below strips the code span so that the cases can
- * run; it is not a fix, and the backticks should come off the four ids.
+ * ⭐ THIS FILE USED TO PARSE THE TABLE BY HAND, AND SAID WHY: 表 T-237 wrote its
+ * row ids inside code spans (`` `EN-1` ``) while Chapter 1.9 (:274) makes the
+ * first column a bare row ID, so `specTable('T-237')` matched no row and threw
+ * 「no rows with a row ID」. ⚠️ The backticks have since come off all five ids,
+ * so the ordinary reader works and the private parser is gone. The column names
+ * are still checked below, because `specTable` does not check them and a table
+ * that renamed a column would otherwise hand every case an empty string.
  */
 const T_237_ROWS: readonly PaintRow[] = ((): readonly PaintRow[] => {
-  const lines = CHAPTER_1_4.split('\n')
-  const at = lines.findIndex((line) => line.startsWith('**表 T-237 —'))
-  if (at < 0) throw new Error('the specification has no 表 T-237')
-  const cellsOf = (line: string): string[] =>
-    line
-      .trim()
-      .replace(/^\|/, '')
-      .replace(/\|$/, '')
-      .split('|')
-      .map((one) => one.trim())
-
-  let headings: string[] = []
-  const rows: PaintRow[] = []
-  for (const line of lines.slice(at + 1)) {
-    if (line.startsWith('**表 ') || line.startsWith('#')) break
-    if (!line.trim().startsWith('|')) continue
-    if (/^\|[\s:|-]+\|$/.test(line.trim())) continue
-    const cells = cellsOf(line)
-    if (headings.length === 0) {
-      headings = cells
-      for (const column of [STATE_COLUMN, FILL_COLUMN, OWNER_COLUMN]) {
-        if (!headings.includes(column)) {
-          throw new Error(`表 T-237 no longer has a ${column} column: ${headings.join(' | ')}`)
-        }
-      }
-      continue
+  const table = specTable('T-237')
+  for (const column of [STATE_COLUMN, FILL_COLUMN, OWNER_COLUMN]) {
+    if (!table.headings.includes(column)) {
+      throw new Error(`表 T-237 no longer has a ${column} column: ${table.headings.join(' | ')}`)
     }
-    if (cells.length !== headings.length) continue
-    const id = bare(cells[0] ?? '')
-    if (!/^EN-\d+$/.test(id)) continue
-    const by: Record<string, string> = {}
-    headings.forEach((heading, index) => {
-      by[heading] = cells[index] ?? ''
-    })
-    rows.push({ id, by })
   }
-  if (rows.length === 0) throw new Error('表 T-237 has no rows this file can read')
-  return rows
+  return table.rows
+    .filter((row) => /^EN-\d+$/.test(row.id))
+    .map((row) => ({ id: row.id, by: row.by }))
 })()
 
 /** One row of 表 T-237. */
@@ -381,7 +355,13 @@ describe('the manuscripts still say what these cases read', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
     // CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not
     // verified until it has been broken on purpose and seen to fail.
-    expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4'])
+    // ⚠️ `EN-5` ARRIVED WITH DEFECT D-149 (利用者の裁定 2026-08-31): 「その入口が
+    // 表示・非表示を切り替えるものを、いま表示している（表 T-206）」, in `S-183`. It
+    // reaches the screen through `isPressed`, the same member `EN-2` and `EN-4`
+    // use, so the cases below cover its picture without knowing it by name;
+    // which entrances stand in it is
+    // tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts's.
+    expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5'])
     for (const preference of THEMES) {
       expect(t236('S-146', preference).length).toBeGreaterThan(0)
       expect(t236('S-183', preference).length).toBeGreaterThan(0)
@@ -402,6 +382,7 @@ describe('the manuscripts still say what these cases read', () => {
     expect(fillRowOf('EN-2')).toBe('S-183')
     expect(fillRowOf('EN-3')).toBe('S-151')
     expect(fillRowOf('EN-4')).toBe('S-183')
+    expect(fillRowOf('EN-5')).toBe('S-183')
   })
 
   it('⭐ 表 T-237 still hands each row to the requirement these cases drive it through', () => {

@@ -932,8 +932,13 @@ export type InputAction =
    * value LY-5 of table T-060 leaves with the Framework -- no member of
    * `InputContext` carries it. `frame-loop.ts` tells that one in
    * `answerSettledEntry`, beside the six other entries it spends for itself.
-   * ⛔ IT IS STILL NOT AN ENTRANCE THIS FILE CAN WRITE: the STOP at the foot of
-   * this file stands, because nothing holds the field's own switch.
+   * ⛔ STILL NOT AN ENTRANCE THIS `tellEntryHasNothingToDo` CAN ANSWER, for that
+   * one reason alone (⚠️ NOT because nothing holds the field's own switch any
+   * more -- S-99i of table T-206 gave it one, `ScreenSession.isDialogueFieldVisible`,
+   * and `commandFromEntry`'s `ENTRY.dialogueFieldVisible` case answers the
+   * PRESS with `toggleDialogueFieldVisible` since 2026-08-31, D-149). The two
+   * halves of one entrance stay split across the same seam `isAgentApiEnabled`
+   * already splits IC-20 and IC-17 across.
    */
   | {
       readonly kind: 'tellEntryHasNothingToDo'
@@ -1136,6 +1141,23 @@ export type InputAction =
    * ない」 -- so table T-108 has no row for it and there is nothing to plan.
    */
   | { readonly kind: 'toggleAgentApi' }
+  /**
+   * IC-18 -- FR-066 / S-99i, so `ScreenSession.isDialogueFieldVisible` turns
+   * round.
+   *
+   * ⭐ WRITABLE SINCE 2026-08-31 (D-149, 台帳). The STOP that stood here said
+   * this entrance could not be answered because nothing held the field's own
+   * switch and `isAgentApiEnabled` was the only thing that decided whether the
+   * field was drawn -- so a second way to take it away would have duplicated
+   * FR-029's (MUST NOT). S-99i of table T-206 now gives the field its own
+   * switch, so this is that switch turning and nothing else's: IC-20 still
+   * turns `isAgentApiEnabled` alone, on the entry above.
+   *
+   * ⛔ NOT A DOCUMENT CHANGE, for the same reason `toggleAgentApi` above is
+   * not: S-99i keeps the record OUT of the document (「見え方」 is the reader's,
+   * not the schedule's), so table T-108 has no row for it either.
+   */
+  | { readonly kind: 'toggleDialogueFieldVisible' }
   /**
    * IC-50 -- FR-053 (MUST) keeps the milestone glyph entrances off the palette
    * until the list is opened, so `ScreenSession.isMilestoneListOpen` moves.
@@ -2258,6 +2280,18 @@ const ENTRY = {
    * 「有効にする・無効にする」 and what FR-029 (MUST NOT) leaves as the only shape.
    */
   agentApi: 'IC-20',
+  /**
+   * IC-18 -- FR-066, S-99i of table T-206.
+   *
+   * ⭐ WRITABLE SINCE 2026-08-31 (D-149): S-99i gave the field its own switch,
+   * `ScreenSession.isDialogueFieldVisible`, so this entrance now turns THAT
+   * value and not `isAgentApiEnabled` (which stays IC-20's alone, above).
+   * ⚠️ The faint-and-tell half of this entrance -- FR-029's reason while the
+   * `Agent API` is off -- is still `frame-loop.ts`'s: `isAgentApiEnabled` is
+   * not a member of `InputContext`, so this file cannot judge whether the
+   * entry was drawn faint when the press arrives.
+   */
+  dialogueFieldVisible: 'IC-18',
   /** IC-19 -- FR-068. U-30 `AI Export Modal` of table T-103. */
   aiExportModal: 'IC-19',
   /** IC-22 -- FR-036. SK-13. */
@@ -2555,6 +2589,11 @@ const ENTRY = {
  * The rows with no entrance are left alone rather than given one, the way
  * `commandFromRowEntry` leaves table T-015's entrance-less operations alone.
  *
+ * @provisional PD-418 -- IC-41 reads two ways and this map takes neither.
+ * Table T-202 carries `watermarkVisible` as a boolean and names IC-41 its
+ * entrance, which FR-049 would make a toggle; table T-109 gives IC-41 to
+ * FR-020 and words it one way only, asking for a password. Nothing picks
+ * one, so the row stays out until the reader rules on D-147.
  * ⚠️ ONE ROW OF TABLE T-109 IS MISSING FROM THIS MAP AND IS NOT AN OVERSIGHT:
  * IC-41 draws an entrance for `watermarkVisible`, and the STOP note at the foot
  * of this file says what stands between the press and the write.
@@ -4231,6 +4270,13 @@ function commandFromEntry(
       // FR-065 -- S-99b keeps the record out of the document, so this changes
       // nothing the document holds.
       return acted({ kind: 'toggleAgentApi' })
+    case ENTRY.dialogueFieldVisible:
+      // FR-066 / S-99i -- S-99i keeps the record out of the document, the same
+      // as S-99b just above, so this changes nothing the document holds either.
+      // ⛔ REACHED WHILE THE `Agent API` IS ON ONLY: `frame-loop.ts`'s
+      // `answerSettledEntry` spends the press itself (with RS-35's reason)
+      // while the API is off, before `carryOutAction` ever reads this action.
+      return acted({ kind: 'toggleDialogueFieldVisible' })
     case ENTRY.rosterChooseAll:
     case ENTRY.rosterClearChosen:
     case ENTRY.rosterChooseUnreferenced:
@@ -7133,7 +7179,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // per ROW, which `ScreenPart.rowGroupId` made reachable.
 // ⭐ ④ WAS ADDED WHEN THE SHELL BEGAN TO HOLD WHAT THEY MOVE: an entry is
 // answered when its whole effect is one value of `ScreenSession` that no table
-// keeps -- IC-17's panel subject, IC-20's `Agent API` record, and the five of
+// keeps -- IC-17's panel subject, IC-20's `Agent API` record, IC-18's dialogue
+// field visibility (S-99i, since 2026-08-31), and the five of
 // U-49 that move who is chosen there. Each answers with an `InputAction` of its
 // own kind rather than a `DocumentCommand`, which is the shape `moveCommandPalette`
 // already had and for the same reason: table T-108 has no row, so
@@ -7174,24 +7221,25 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 7 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
-// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all):
+// ⛔ 6 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
+// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all, and
+// 7 until 2026-08-31, when IC-18 joined them):
 //
-//   IC-18        FR-066's dialogue field, 「出す・しまう」. ⚠️ ITS SPENT PRESS IS
-//                TOLD SINCE 2026-08-30, and not from here: `frame-loop.ts`
-//                answers it in `answerSettledEntry`, where the `Agent API`'s
-//                switch is actually held. ⛔ THE ENTRANCE ITSELF IS STILL
-//                UNWRITABLE, for the reason that follows -- NOTHING HOLDS THAT
-//                SWITCH: `ScreenState` has no member for it, `ScreenSession` has
-//                none, and table T-203 and table T-206 hold no key. ⚠️ What
-//                decides whether the field is drawn today is
-//                `ScreenSession.isAgentApiEnabled` -- `dialogue-field.ts` puts
-//                the field up only while the `Agent API` is on -- so an entry
-//                answered here would be a SECOND way to take the same field
-//                away, which FR-029 (MUST NOT) refuses. ⚠️ IC-17 and IC-20 stood
-//                beside this row until `ScreenSession` grew the members FR-072
-//                and FR-065 need; this is the one of the three still without a
-//                place to land.
+//   [WRITTEN 2026-08-31, D-149 of the defect ledger] IC-18 stood here and no
+//                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED
+//                AROUND. It said NOTHING HELD THE FIELD'S OWN SWITCH, so an
+//                entry answered here would be a SECOND way to take the SAME
+//                field away (`isAgentApiEnabled`) -- which FR-029 (MUST NOT)
+//                forbids. S-99i of table T-206 now gives the field its own
+//                switch, `ScreenSession.isDialogueFieldVisible`, so this entry
+//                turns THAT one and IC-20 still turns `isAgentApiEnabled`
+//                alone -- two switches, not one taken twice. ⭐ IC-17 and IC-20
+//                already stood in ④'s list above for the same shape; IC-18
+//                now stands there with them. ⚠️ THE FAINT-AND-TELL HALF STAYS
+//                WHERE IT WAS: `frame-loop.ts`'s `answerSettledEntry` still
+//                answers the press with RS-35's reason while the `Agent API`
+//                is off, for the reason `commandFromEntry`'s own case says --
+//                `isAgentApiEnabled` is not a member of `InputContext`.
 //   [WRITTEN 2026-08-30, 台帳 D-146] IC-37 / IC-38 stood here and no longer do.
 //                ⛔⛔ THE SECOND HALF OF THE OLD NOTE WAS FALSE. It read 「table
 //                T-108 holds NO command for it, so there is nothing to plan even

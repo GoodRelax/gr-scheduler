@@ -255,6 +255,7 @@ const SESSION: ScreenSession = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
+  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
