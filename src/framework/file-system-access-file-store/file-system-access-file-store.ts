@@ -169,8 +169,31 @@ export type OpenFilePicker = (options: {
   readonly multiple: false
 }) => Promise<readonly FileHandle[]>
 
+/**
+ * One kind of file a save chooser may hold the person to.
+ *
+ * ⭐ The shape the host's own chooser takes: a media type, and the extensions
+ * that stand for it. ⛔ NO `description`. That field is printed in the host's
+ * dialog, and a word written here would be the second store of translated
+ * strings FR-038 forbids (MUST NOT) -- the host names the kind from the media
+ * type instead, in its own language, which is a language this file does not
+ * know.
+ */
+export interface SaveFileType {
+  readonly accept: Readonly<Record<string, readonly string[]>>
+}
+
+/**
+ * ⚠️ The two members after the name are what FR-096's MUST turns on -- see
+ * `saveFileTypesFor`. They are optional because a form whose extension this
+ * file cannot name a media type for is offered without them, and a chooser
+ * given an empty `types` beside `excludeAcceptAllOption` is one some hosts
+ * refuse outright.
+ */
 export type SaveFilePicker = (options: {
   readonly suggestedName: string
+  readonly types?: readonly SaveFileType[]
+  readonly excludeAcceptAllOption?: boolean
 }) => Promise<FileHandle>
 
 /**
@@ -193,6 +216,69 @@ export interface FileSystemAccessEnvironment {
 // R7.7's order: everything down to `firstDroppedFile` is `pure`, the three
 // readers after it are not, and the factory at the bottom is where the state
 // lives.
+
+/**
+ * The media type each extension table T-024 gives a file row stands for.
+ *
+ * ⭐⭐ THIS IS THE PLACE FR-096 NAMES, AND IT IS NAMED IN THE REQUIREMENT
+ * ITSELF. That requirement has the written file's name end in the chosen row's
+ * extension (MUST) and has the host be told 「その拡張子の形式である」 where
+ * there is a way to tell it (MUST); it then forbids any table of the
+ * specification carrying the media type that telling needs (MUST NOT) and sends
+ * the value to the Framework layer, which is this file's layer. ⛔ So a column
+ * for it may not be added to table T-024, and no inner layer may hold it.
+ *
+ * ⭐ WHY IT IS NOT A VALUE OF THE PRODUCT. Every spelling here is registered
+ * with IANA and none of them is this tool's to choose: `application/json` is
+ * RFC 8259's, `application/xml` is RFC 7303's, `image/svg+xml` is the SVG
+ * recommendation's, `image/png` is RFC 2083's and `text/html` is RFC 2854's.
+ * They are the host's manners, and a host that stopped recognising one would
+ * not thereby change anything the specification says.
+ *
+ * ⛔ KEYED ON THE EXTENSION AND NOT ON A FORM. `SaveFileForm` is FileGateway's
+ * roster and does not reach this layer, and table T-024 already fixes the
+ * extension as the one join between a row and a file name -- so the extension
+ * that arrives on the write is what is looked up, and a row whose extension
+ * moves needs nothing changed here.
+ * ⚠️ An extension with no entry is not an error: the chooser is opened without
+ * a type, exactly as it was before, and the suggestion is then the whole of
+ * what is asked for. ⛔ Nothing is invented in its place -- a guessed media
+ * type would have the host enforce an extension nothing chose.
+ */
+const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
+  '.json': 'application/json',
+  '.xml': 'application/xml',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.html': 'text/html',
+}
+
+/**
+ * What the chooser is told the file is, or `undefined` where nothing can be
+ * told.
+ *
+ * ⭐⭐ THIS IS THE WHOLE OF D-172. Measured 2026-09-01: the suggested name
+ * arrived at the chooser already correct -- `{"suggestedName":"Three-Year
+ * Product Plan.json"}` -- and the file still landed without its extension,
+ * because a chooser given no `types` treats the tail of the name as decoration
+ * and enforces nothing. FR-096's 「保証すること（MUST）」 is not kept by
+ * suggesting; it is kept by telling the host what kind of file this is, and
+ * this is that telling.
+ *
+ * ⛔ `excludeAcceptAllOption` RIDES WITH THE TYPE AND IS NOT A SEPARATE
+ * CHOICE. Left off, the host keeps an 「all files」 entry that puts the person
+ * back where they started -- a name saved with no extension -- and the MUST
+ * would hold for every path but one. ⚠️ It is set only where a type is
+ * actually known: a chooser told to exclude everything and offered nothing is
+ * a chooser with no kind at all.
+ *
+ * @purity pure
+ */
+function saveFileTypesFor(extension: string): readonly SaveFileType[] | undefined {
+  const mediaType = MEDIA_TYPE_OF_EXTENSION[extension]
+  if (mediaType === undefined) return undefined
+  return [{ accept: { [mediaType]: [extension] } }]
+}
 
 /** @purity pure */
 function fault(reason: FileStoreFaultReason, what: string): FileStoreFault {
@@ -846,7 +932,23 @@ export function fileSystemAccessFileStore(
       try {
         let handle: FileHandle
         try {
-          handle = await picker({ suggestedName: write.suggestedFileName })
+          // ⭐ FR-096 (MUST): the name is a suggestion, and the KIND is not.
+          // `saveFileTypesFor` is where that requirement's 「宿主に伝える手立て」
+          // lands and why the media type lives in this layer.
+          // ⚠️ THE TWO MEMBERS ARE LEFT OFF ENTIRELY where the extension names
+          // no media type, rather than passed as `undefined`: a chooser reading
+          // its own options sees the shape it had before, which is what keeps
+          // that path the one this store has always taken.
+          const types = saveFileTypesFor(write.extension)
+          handle = await picker(
+            types === undefined
+              ? { suggestedName: write.suggestedFileName }
+              : {
+                  suggestedName: write.suggestedFileName,
+                  types,
+                  excludeAcceptAllOption: true,
+                },
+          )
         } catch (thrown) {
           if (isDismissal(thrown)) {
             return { ok: false, fault: fault('cancelled', whyOf(thrown)) }

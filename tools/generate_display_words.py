@@ -163,6 +163,22 @@ CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 # ⚠️ These are KEYS, not words.
 FILE_STATUS = ('neverSaved',)
 
+# The name a row settles on when it has none of its own. FR-032 (MUST) has a
+# row whose derivation source is being deleted settle its name before the Task
+# goes, and (MUST NOT) forbids refusing the deletion because that source never
+# had a name -- which is the ordinary case, since FR-001 draws a nameless Task
+# and derives the new row's name from it. The requirement states the rule and
+# says in as many words that the WORD is this dictionary's and is not spelled
+# there.
+# ⛔ HELD HERE RATHER THAN READ FROM A TABLE, the same move as FILE_STATUS above
+# and for the same reason: no table holds it as a row, and Chapter 6.2 forbids a
+# table whose only column would be the word itself.
+# ⚠️ ONE KEY AND NOT ONE PER ENTRANCE. `row` is the default name of a ROW, not
+# of "a row CM-7 settled" -- FR-032's settle and the row a document with no rows
+# raises want the same word, and two keys would let them drift apart.
+# ⚠️ These are KEYS, not words.
+DEFAULT_NAMES = ('row',)
+
 # The seven weekdays the fourth ruler tier prints beside the day number
 # (FR-017, MUST). ⛔ HELD HERE RATHER THAN READ FROM A TABLE, and Chapter 6.2
 # is why: it forbids a table whose only column would be the word itself, and a
@@ -293,6 +309,7 @@ def roster():
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
         'fileStatus': list(FILE_STATUS),
+        'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -335,6 +352,7 @@ SHAPE = {
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
     'fileStatus': ('state', ('text',)),
+    'defaultNames': ('use', ('text',)),
     # ⛔ TWO WORDS PER ROW. `text` is the 動作 column's -- what the gesture
     # does -- and `press` is the gesture itself, which FR-036 (MUST) puts in
     # this dictionary because 「ホイール」 needs translating where `Ctrl+S`
@@ -416,8 +434,8 @@ def build(doc):
     for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
                     'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                    'confirmationMarks', 'fileStatus', 'exportFormats',
-                    'assignments', 'arms', 'weekdays'):
+                    'confirmationMarks', 'fileStatus', 'defaultNames',
+                    'exportFormats', 'assignments', 'arms', 'weekdays'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -451,8 +469,8 @@ def main():
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                         'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                        'confirmationMarks', 'fileStatus', 'exportFormats',
-                        'assignments', 'arms'):
+                        'confirmationMarks', 'fileStatus', 'defaultNames',
+                        'exportFormats', 'assignments', 'arms'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),
                    ', '.join(str(e[SHAPE[section][0]]) for e in doc[section])))

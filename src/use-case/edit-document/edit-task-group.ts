@@ -49,6 +49,47 @@ import type {
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
+import displayWords from '../../adapter/screen-renderer/display-words.json'
+
+/**
+ * The name a row settles on when it has none of its own (FR-032, MUST).
+ *
+ * ⭐ WHERE THE WORD COMES FROM. FR-032 (MUST) settles the name of a row whose
+ * derivation source is about to be deleted, and (MUST NOT) forbids refusing the
+ * deletion because that source never carried one -- 「語は `FR-038` の辞書が持ち、
+ * ここに綴らない」. So the word is READ and never typed here: Chapter 6.2 (MUST)
+ * gives the words exactly ONE destination in `src/`, and `display-words.json`
+ * beside `screen-renderer.ts` is it -- `_source/display-words.json` generated in.
+ * ⛔ A second copy of the word, in this file or in any table, is what that MUST
+ * forbids, so this is a read of the one destination rather than a constant of
+ * this layer's own.
+ *
+ * ⚠️ A JSON IMPORT IS DATA AND NOT A REACH INTO A COMPONENT. LR-1 of table
+ * T-061 orders the layers by the UNITS they hold, and `check_layer_rules.py`
+ * reads a `.json` specifier as data rather than as a unit ("Chapter 5.3 does
+ * not govern those"). Nothing is called across this edge and no type of the
+ * outer layer is named by it.
+ *
+ * ⛔ THE ENGLISH CELL, AND THAT IS A DECISION RATHER THAN AN OVERSIGHT. FR-038
+ * (MUST NOT) keeps the display language out of the document -- 「表示言語は文書に
+ * 保存しない」 -- so this aggregate has no reader's language to read, and what it
+ * writes is not a printed word but a `TaskGroup.label`, which the file carries
+ * and the exchange partner receives long after that screen is gone.
+ * `startupDisplayLanguage` in the shell answers `en` for a host that is neither
+ * of the two FR-038 admits; this is the same question with the same answer.
+ * ⚠️ The Japanese cell of that entry is written and unread HERE. If the reader's
+ * language is ever to reach this settle, it has to arrive as a VALUE -- the way
+ * `rulerWeekdayWords` reaches the picture, asked for where the language is held
+ * -- which is a command field, and therefore a change request rather than an
+ * implementation choice.
+ *
+ * ⚠️ The empty stand-in cannot be reached while `npm run gen:check` passes: the
+ * generator builds its roster every run and refuses to write on a mismatch. It
+ * guards the run where someone edited the generated file by hand.
+ */
+const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
+export const DEFAULT_ROW_NAME: string =
+  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 
 /** CM-26 to CM-35, CM-72 and CM-73 of table T-108. */
 export type TaskGroupCommand =
@@ -311,7 +352,6 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       // を確定させ、`derivedFromTaskUid` を空にすること（MUST）". Only rows that
       // SURVIVE need it -- and they exist, because CD-1 reaches Tasks that sit
       // on other rows.
-      const stranded: string[] = []
       const kept: TaskGroup[] = []
       for (const row of groups) {
         if (doomedRows.has(row.id)) continue
@@ -321,27 +361,16 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         }
         // FR-058 shows the derived name only when none was given, so a row that
         // already carries a `label` settles on the one it is showing.
-        const settled = row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? null
-        if (settled === null) {
-          stranded.push(row.id)
-          continue
-        }
+        // ⭐ AND THE DEFAULT NAME WHEN NEITHER IS THERE. FR-032 (MUST) settles
+        // it 「既定の名前」 when the derivation source has no name of its own,
+        // and (MUST NOT) forbids refusing the deletion for want of one. ⛔ THIS
+        // BRANCH USED TO REFUSE, and that refusal is the whole of D-171: a row
+        // FR-001 raised on empty space derives from a Task FR-001 left nameless,
+        // so the ordinary case walked straight into it, WS-3 of table T-067
+        // threw the bundle away, and nothing the author drew could be deleted.
+        const settled =
+          row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? DEFAULT_ROW_NAME
         kept.push({ ...row, label: settled, derivedFromTaskUid: null })
-      }
-      if (stranded.length > 0) {
-        // ⛔ GAP. FR-032 forbids BOTH outcomes here and decides neither: the
-        // row may not keep a `derivedFromTaskUid` that points at a Task which
-        // is going, and it may not be left with no name and no source (AT-54).
-        // When the Task it derives from has no name (AT-27 admits null), there
-        // is no name to settle on. Refusing is the only move that invents no
-        // rule.
-        return refused([
-          reject(
-            'CM-27',
-            'FR-032',
-            `the name of ${stranded.join(', ')} cannot be settled: the Task it derives from has no name`,
-          ),
-        ])
       }
 
       const survivors = schedule.tasks

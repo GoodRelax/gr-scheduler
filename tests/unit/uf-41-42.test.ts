@@ -83,16 +83,34 @@ import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-sett
  * stand in the position FR-060 overwrites.
  */
 const T_024_FILE_ROWS = [
-  { id: 'IO-1', form: 'mspdi', comesIn: true },
-  { id: 'IO-2', form: 'grsJson', comesIn: true },
-  { id: 'IO-3', form: 'svg', comesIn: false },
-  { id: 'IO-4', form: 'png', comesIn: false },
-  { id: 'IO-7', form: 'singleHtml', comesIn: false },
+  { id: 'IO-1', form: 'mspdi', comesIn: true, extension: '.xml' },
+  { id: 'IO-2', form: 'grsJson', comesIn: true, extension: '.json' },
+  { id: 'IO-3', form: 'svg', comesIn: false, extension: '.svg' },
+  { id: 'IO-4', form: 'png', comesIn: false, extension: '.png' },
+  { id: 'IO-7', form: 'singleHtml', comesIn: false, extension: '.html' },
 ] as const satisfies readonly {
   readonly id: string
   readonly form: SaveFileForm
   readonly comesIn: boolean
+  readonly extension: string
 }[]
+
+/**
+ * The extension column of the same five rows, which CR-230 filled for all five
+ * and FR-096 now leans on: 「⛔⛔ **書き換えられるのは名前であって、拡張子ではな
+ * い。書き出した先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）**」.
+ * ⚠️ THE ROW ORDER ABOVE IS THIS FILE'S OWN and says nothing about the order the
+ * export chooser offers the formats in -- that order is table T-024's own row
+ * order (FR-096, MUST) and is pinned in tests/unit/uf-47-48-choosers.test.ts,
+ * which reads the manuscript.
+ *
+ * @purity pure
+ */
+const extensionOfForm = (form: SaveFileForm): string => {
+  const row = T_024_FILE_ROWS.find((one) => one.form === form)
+  if (row === undefined) throw new Error(`table T-024 has no file row for the form ${form}`)
+  return row.extension
+}
 
 /**
  * Table T-024, the two rows that reach no file. IO-6 answers to IF-5, so it may
@@ -278,6 +296,9 @@ const chosenRequest = (
   content,
   form,
   suggestedFileName,
+  // FR-096 (MUST): the extension of the row the chosen form stands on, which
+  // the host is told so that the written name cannot lose it.
+  extension: extensionOfForm(form),
   identity: { projectName: null, projectId: null, fileName: null },
   projectIdentityFromText: () => null,
   confirmOverwrite: () => Promise.resolve(true),
@@ -561,6 +582,43 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
     const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
     expect(write.bytes).toEqual(bytesOf([0x41]))
     expect(write.suggestedFileName).toBe('suggested.json')
+  })
+
+  it('hands the store the extension of the chosen row, for every row that is a file (FR-096)', async () => {
+    // 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した先の名前
+    //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
+    //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
+    //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
+    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
+    //   使うこと（MUST）。**」（`FR-096`）
+    //
+    // ⭐ THIS SIDE OF THE SEAM CAN ONLY HAND THE VALUE DOWN. The host is told by
+    // the Framework unit (UF-51), which is where FR-096 puts the media type; what
+    // this component owes is that the extension of the row the person chose
+    // reaches IF-3 at all, and that it is the CHOSEN row's and not one form's for
+    // all five.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a gateway that drops `extension` on the way
+    // through, or that answers one extension for every form. Demonstrated by
+    // breaking this file's own reader -- `extensionOfForm` was made to answer
+    // `'.json'` for every row, and the case failed on IO-1 with `.json` against
+    // the `.xml` the request carried.
+    for (const row of T_024_FILE_ROWS) {
+      const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
+      await saved(stand.store, chosenRequest(row.form, { text: 'A' }, `plan${row.extension}`))
+      const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
+      expect(
+        write.extension,
+        `FR-096 (MUST): table T-024 row ${row.id} was chosen and the store was told ` +
+          `${JSON.stringify(write.extension)}`,
+      ).toBe(row.extension)
+      // ⚠️ AND THE TWO STILL AGREE. The suggested name is a suggestion the
+      // person may overrule; the extension is not. A build that computed the
+      // extension by cutting the suggested name apart would pass the line above
+      // and fail FR-096's MUST the moment the name is overruled, so the two
+      // members are asserted to be two values rather than one read twice.
+      expect(write.suggestedFileName.endsWith(write.extension)).toBe(true)
+    }
   })
 
   it('hands the suggested name over untouched, empty one included', async () => {
@@ -1225,11 +1283,15 @@ function chosenSaveOf(
 ): ChosenSave {
   const textsRead: string[] = []
   let asked = 0
+  const form = overrides.form ?? 'grsJson'
   const request: ChosenFileSaveRequest = {
     destination: 'chosenFile',
     content: overrides.content ?? { text: '{"schemaVersion":"2026-08-18"}' },
-    form: overrides.form ?? 'grsJson',
+    form,
     suggestedFileName: overrides.suggestedFileName ?? 'plan-a.json',
+    // FR-096 (MUST): read off the chosen form's row, never typed beside the
+    // suggested name -- the two are one value said twice if they drift.
+    extension: extensionOfForm(form),
     identity,
     projectIdentityFromText: (text: string): ProjectIdentity | null => {
       textsRead.push(text)

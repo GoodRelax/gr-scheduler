@@ -217,11 +217,20 @@ import {
   type ProjectIdentity,
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
-// ⭐ The type only. What an export IS belongs to PI-21 (CP-21), and this file
-// hands that component the four values it says a scene is made of -- ADR-001
-// has the side that computes a frame do the computing, and none of the four can
-// be measured from inside an Adapter.
-import type { ExportScene } from '../../adapter/image-exporter/image-exporter'
+// ⭐ `exportPng` AND the types. What an export IS belongs to PI-21 (CP-21), and
+// this file hands that component the four values it says a scene is made of --
+// ADR-001 has the side that computes a frame do the computing, and none of the
+// four can be measured from inside an Adapter.
+// ⭐ THE FUNCTION IS CALLED FROM HERE BECAUSE IO-4 OF TABLE T-024 IS A FILE,
+// and the road to a file is this loop's: `exportHeldDocumentToFile` already
+// walks it for the two text forms, and FR-096 (MUST NOT) forbids a second
+// entrance being built for the picture.
+import {
+  exportPng,
+  type ExportScene,
+  type RasterFaultReason,
+  type Rasterizer,
+} from '../../adapter/image-exporter/image-exporter'
 import {
   commandFromFieldCommit,
   commandFromInput,
@@ -330,8 +339,9 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  * at the moment it decides. ⛔ Nothing is queued here instead: the caller keeps
  * what it has to say until it has a loop, which is the only order table T-077
  * admits.
- * ⚠️ `RS-15` IS AMONG THEM, and it is the one place in this file that raises it
- * -- see `NoticeReason` for what that row is and why nothing else uses it.
+ * ⚠️ `RS-15` IS AMONG THEM, and this is one of the four places in this file
+ * that raise it -- see `NoticeReason` for what that row is, which four reach
+ * it, and why a fifth may not.
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
@@ -1082,14 +1092,18 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
  * supplied one would be the second store of translated strings FR-038 forbids
  * (MUST NOT).
  *
- * ⚠️ `RS-15` IS HERE FOR ONE RAISER AND NO OTHER. FR-076 says in as many words
- * that it is 「行の無い理由に落ち先を与える」 row, and BT-1's second failure is
- * the first reason in this file that has no row of its own: FR-067 (MUST) makes
- * 「入れ口が 1 つでない」 a thing to be told, and table T-233 holds nothing for
- * it. ⛔ Every other reason below is a row of its own, and handing RS-15 over
- * for one of those would say something untrue about the reason at hand. ⚠️ It
- * is also where the DICTIONARY lands when it is asked for a key it does not
+ * ⚠️ `RS-15` IS HERE FOR THE REASONS THE TABLE HOLDS NO ROW FOR, AND FOR NO
+ * OTHER. FR-076 says in as many words that it is 「行の無い理由に落ち先を与え
+ * る」 row. ⛔ Every other reason below is a row of its own, and handing RS-15
+ * over for one of those would say something untrue about the reason at hand;
+ * it is also where the DICTIONARY lands when it is asked for a key it does not
  * hold, which is why a raiser may not reach for it out of convenience.
+ * ⚠️ FOUR RAISERS REACH IT, and each one names the row that is owed in its
+ * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」), a clipboard
+ * write that would not go through, a form of table T-024 this build cannot yet
+ * write (`UNWRITTEN_FORM_REASON`) and a rastering that failed
+ * (`NOTICE_REASON_OF_RASTER_FAULT`, three next steps in one). ⛔ A fifth
+ * raiser is a fifth reason to write those rows, not a fifth use of this one.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1255,6 +1269,71 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
  * read out of table T-233, not here.
  */
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
+
+/**
+ * The row of table T-233 carried when FR-096's chooser offers a form this
+ * build cannot write, and the reader picks it.
+ *
+ * ⭐⭐ THIS IS D-173's HALF THAT IS NOT A WRITER. Measured 2026-09-01: three
+ * of the five forms table T-024 offers returned nothing and the press returned
+ * with nothing said, which FR-029 (MUST) forbids -- 「押されたときに限り、行え
+ * ない理由を通知すること」. `png` is now written; `svg` and `singleHtml` are
+ * not, and this is what they say instead of nothing.
+ *
+ * ⛔ `RS-15` AND NOT A ROW OF ITS OWN, BECAUSE THE TABLE HOLDS NONE. FR-076
+ * states that RS-15 is 「行の無い理由に落ち先を与える」 row and forbids carrying
+ * a reason table T-233 does not hold (MUST NOT); no row of that table says 「こ
+ * の形式は、この版では書き出せない」, and composing one here would be the second
+ * store of translated strings FR-038 forbids.
+ * ⚠️ ITS WORDS ARE NOT THE RIGHT ONES AND THAT IS THE COST OF THE FALLBACK.
+ * RS-15 reads 「操作を終えられませんでした」 with 「もう一度行ってください」 as
+ * its next step, and trying again will not help until the writer exists. ⭐ A
+ * row of table T-233 for a form the build cannot yet write -- with a next step
+ * that names another form -- is what is owed, and it is a change request, not a
+ * line of this file.
+ * ⛔ AND NOT `RS-27`. FR-029 lands a press with nothing to act on there, and
+ * this press HAS something to act on: the document is there and the form was
+ * chosen; what is missing is in `src/`, not on the screen.
+ */
+const UNWRITTEN_FORM_REASON: NoticeReason = 'RS-15'
+
+/**
+ * The row of table T-233 each way a rastering can fail carries.
+ *
+ * ⭐ A census the compiler keeps: a reason added to `RasterFaultReason` is a
+ * compile error here rather than a picture that fails and tells nobody.
+ * ⛔ ALL THREE LAND ON `RS-15`, AND THAT IS THE TABLE'S DOING RATHER THAN THIS
+ * FILE'S. `rasterizer.ts` says in as many words why there are three reasons and
+ * not one -- 「these three do not share a next step」 -- and table T-233 holds no
+ * row for any of them: `RS-3` is written for a FILE that could not be written
+ * (its 正 is LM-14) and would tell a reader to choose another destination, which
+ * is not the way out of a canvas that refused. ⚠️ So three rows are owed, one
+ * per next step: the SVG (IO-3) for `unsupported`, the smaller of `S-82`'s
+ * values for `tooLarge`, and trying again for `rasterFailed`.
+ */
+const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
+  unsupported: 'RS-15',
+  tooLarge: 'RS-15',
+  rasterFailed: 'RS-15',
+}
+
+/**
+ * The row of table T-233 carried when `.png` is chosen and this host hands
+ * `single-html-shell.ts` no `rasterizer` at all -- Node, or any other host
+ * without a canvas to paint from.
+ *
+ * ⭐ `RS-3` AND NOT A NEW ROW, BECAUSE THIS IS LM-14's SITUATION AGAIN: table
+ * T-004's `LM-14` already names "an attempted write this environment cannot
+ * perform" and table T-233 already carries that as `RS-3` (its 正 is `NT-3a`)
+ * for `NOTICE_REASON_OF_FILE_FAULT.unavailable` above. A missing rasterizer is
+ * that same absence one seam earlier -- the write never gets bytes to write --
+ * so it is told with the words already in the dictionary rather than a new
+ * sentence composed here (FR-038, MUST NOT).
+ * ⚠️ NOT ONE OF `NOTICE_REASON_OF_RASTER_FAULT` ABOVE. Those three are a
+ * canvas that tried and failed in one of three ways; this is no canvas being
+ * offered to try at all, which is a different situation from all three.
+ */
+const NO_RASTERIZER_REASON: NoticeReason = 'RS-3'
 
 /**
  * The row of table T-233 FR-088's refusal carries -- a calendar that works no
@@ -1669,19 +1748,26 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
  * makes the whole of what a telling may carry. ⚠️ A row for them is what is
  * owed; nothing here may compose the sentence in its place (FR-038, MUST NOT).
  *
- * STOP -- ⛔ THREE OF THE FIVE FORMS CANNOT BE WRITTEN IN THIS BUILD, each for
- * its own reason, and none of them is a rasteriser this file could supply:
- *   `png` -- nothing implements `Rasterizer`. PI-21 publishes no member that
- *     answers with a painted picture, so there is nothing to hand a store.
- *   `svg` -- `exportSvg` (PI-21) IS written and `exportScene` below is the
- *     argument it takes, so the picture can be assembled. What is missing is
- *     FR-025's telling of how many `TaskGroup`s and `Task`s went undrawn (MUST):
- *     `SvgExport` answers with the rows it dropped, and table T-233 holds no row
- *     that telling could be carried on.
- *   `singleHtml` -- `exportEmbeddedHtml` takes an `AppShellSource`, and nothing
- *     in `src/` implements that seam or hands one to this loop.
- * ⚠️ Answering `null` writes nothing, which is the absence of the behaviour and
- * not the behaviour.
+ * ⛔ THREE OF THE FIVE FORMS ARE NOT TEXT AND ANSWER `null` HERE, and the three
+ * nulls no longer mean one thing. `exportPictureContent` below is what each of
+ * them reaches, and it is where their standing is now recorded:
+ *   `png` -- ⭐ WRITTEN. `canvasRasterizer` (CP-31) implements `Rasterizer`
+ *     and the shell hands one in, so the road ends in bytes rather than in
+ *     characters -- which is the whole reason this function cannot answer for
+ *     it. ⚠️ THE STOP THAT STOOD HERE SAID NOTHING IMPLEMENTED `Rasterizer`;
+ *     measured 2026-09-01, that file has implemented it all along and nothing
+ *     in `src/` had ever imported it.
+ *   `svg` -- STOP, and the reason has NARROWED rather than gone. `exportSvg`
+ *     (PI-21) is written and `exportScene` below is its argument, so the picture
+ *     can be assembled; what is missing is FR-025's telling of how many
+ *     `TaskGroup`s and `Task`s went undrawn (MUST). ⚠️ Table T-233 now HOLDS a
+ *     row for that telling -- `RS-22`, written against FR-025 -- and what is
+ *     still undecided is which of the two numbers `RaisedNotice.affectedCount`
+ *     carries, since that member is one number and the requirement names two.
+ *   `singleHtml` -- STOP. `exportEmbeddedHtml` takes an `AppShellSource`, and
+ *     nothing in `src/` implements that seam or hands one to this loop.
+ * ⚠️ THE TWO THAT STAY UNWRITTEN NO LONGER DO IT IN SILENCE. FR-029 (MUST) has
+ * a press that cannot act say why, and `UNWRITTEN_FORM_REASON` is what it says.
  *
  * @purity pure
  */
@@ -2856,6 +2942,11 @@ export function startupDisplayLanguage(): DisplayLanguage {
  * for it. ⚠️ Optional on the same terms as `screen` -- the loop runs for the
  * paths that touch no file, and the entries that would touch one answer with
  * nothing when there is none.
+ * ⭐ `rasterizer` IS IF-6's IMPLEMENTATION (CP-31), on the same terms as the
+ * two above. ⛔ LAST OF THE LIST AND NOT BESIDE `clipboard`, WHICH IS WHERE IT
+ * BELONGS BY KIND: every position before it is one a test already passes by
+ * order, and moving one would change what those calls mean without changing a
+ * line of them. ⚠️ A named bag for the eight is what is owed here.
  *
  * @purity non-pure
  */
@@ -2868,6 +2959,7 @@ export function frameLoop(
   showPointerShape?: ShowPointerShape,
   clipboard?: Clipboard,
   startedFromTemplate?: boolean,
+  rasterizer?: Rasterizer,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -5553,7 +5645,7 @@ export function frameLoop(
     const openedFile = await store.readOpenedFileState()
     const saving: DocumentFileSaving =
       openedFile.kind === 'none'
-        ? await saveDocumentFile(store, chosenFileSave(text, project, SAVE_FORM))
+        ? await saveDocumentFile(store, chosenFileSave({ text }, project, SAVE_FORM))
         : await saveDocumentFile(store, {
             destination: 'openedFile',
             content: { text },
@@ -5620,18 +5712,100 @@ export function frameLoop(
     if (form === null) return
     // CS-4: collected at the moment the operation begins, and not read again.
     const written = held.document
-    // ⛔ THE THREE FORMS THIS BUILD CANNOT WRITE STOP HERE. `exportedText` names
-    // what each of them is missing.
+    // ⭐ TWO ROADS TO ONE WRITE, TOLD APART BY WHETHER THE FORM IS TEXT. The
+    // two that are answer here; the three that are not go to
+    // `exportPictureContent`, which either paints the picture or says why it
+    // could not (FR-029, MUST).
+    // ⚠️ CS-4 IS KEPT ACROSS THE SECOND ROAD: `exportPictureContent` reads the
+    // held document -- through `exportScene` -- before ITS first await, so the
+    // picture and the bytes below are of the same document `written` is.
     const text = exportedText(form, written)
-    if (text === null) return
+    const content = text === null ? await exportPictureContent(form) : { text }
+    // ⛔ A `null` HAS ALREADY BEEN TOLD, or is one of the two absences that
+    // reach nobody -- see `exportPictureContent`. Nothing is raised a second
+    // time here.
+    if (content === null) return
 
     const saving = await saveDocumentFile(
       store,
-      chosenFileSave(text, written.schedule.project, form),
+      chosenFileSave(content, written.schedule.project, form),
     )
     if (saving.ok) return
     // FR-076 (MUST): the same raising SK-11's road makes, over the same seam.
     raiseFileFault(saving.fault)
+  }
+
+  /**
+   * The bytes of one of the three forms that are not text, or `null` where
+   * there are none to write.
+   *
+   * ⭐⭐ IO-4 OF TABLE T-024 IS WRITTEN HERE, AND IT IS THE HALF OF D-173 THAT
+   * COULD BE CLOSED. Measured 2026-09-01: `svg`, `png` and `singleHtml` were
+   * all offered on FR-096's chooser and all three returned without writing and
+   * without telling. The reader's ruling was to wire the picture this round and
+   * leave the other two, so `png` now goes out as bytes -- the road
+   * `SaveFileContent`'s second arm has always admitted -- and the other two say
+   * why instead of doing nothing (FR-029, MUST).
+   *
+   * ⛔ THE SCENE IS READ BEFORE THE FIRST AWAIT, which is CS-4 of table T-066
+   * reaching across two functions: `exportScene` reads the held document, and
+   * reading it after the rastering had begun would paint one document and write
+   * another.
+   *
+   * ⚠️ ONE ABSENCE REACHES NOBODY, and that is the shape the roads beside this
+   * one already take rather than a choice made here. `scene === null` is the
+   * same case as no store and no clipboard -- 「doing nothing then is the
+   * absence of the behaviour and not the behaviour」. An unsettled environment
+   * is BO-1 not having measured a size yet, and there is no picture to paint
+   * before there is a screen to paint it from.
+   * ⛔ NO RASTERIZER HANDED IN NO LONGER REACHES NOBODY. Measured 2026-09-01:
+   * `single-html-shell.ts` hands one in at wiring time, but a host with no
+   * canvas at all -- Node among them -- hands none, and the press used to
+   * return `null` here in silence, which is exactly FR-029's (MUST) forbidden
+   * shape. `NO_RASTERIZER_REASON` (`RS-3`) is now raised before the early
+   * return.
+   *
+   * ⚠️ THE ANSWER IS SPELLED `ChosenFileSaveRequest['content']` AND NOT
+   * `SaveFileContent`. Table T-064 is the full count of what FileGateway
+   * publishes and it names no row for the second spelling, so importing that
+   * name would be a name crossing a folder the table does not admit -- the
+   * request type it belongs to IS published, and reading the member off it says
+   * the same thing without adding a crossing.
+   *
+   * ⚠️ FR-025's TELLING IS NOT MADE HERE, and that is a STOP rather than a
+   * choice: `ImageExport.droppedGroupIds` names the `TaskGroup`s that went
+   * undrawn, table T-233's `RS-22` is the row that telling would ride on, and
+   * what is undecided is which of FR-025's two numbers `affectedCount` carries
+   * -- that member is one number and the requirement (MUST) names 「`TaskGroup`
+   * と `Task`」. ⛔ Nothing here may pick one and print it as the other.
+   *
+   * @purity non-pure
+   */
+  async function exportPictureContent(
+    form: SaveFileForm,
+  ): Promise<ChosenFileSaveRequest['content'] | null> {
+    if (form !== 'png') {
+      // FR-029 (MUST): the press said nothing at all until 2026-09-01.
+      raiseNotice(UNWRITTEN_FORM_REASON, null)
+      return null
+    }
+    const seam = rasterizer
+    if (seam === undefined) {
+      // FR-029 (MUST): this host supplies no rasterizer, so the write can
+      // never begin -- table T-233's RS-3, LM-14's row for an environment
+      // that cannot perform the write at all.
+      raiseNotice(NO_RASTERIZER_REASON, null)
+      return null
+    }
+    const scene = exportScene()
+    if (scene === null) return null
+    const painted = await exportPng(seam, scene)
+    if (!painted.png.ok) {
+      // FR-076 (MUST): a failure is told, carrying a row of table T-233.
+      raiseNotice(NOTICE_REASON_OF_RASTER_FAULT[painted.png.fault.reason], null)
+      return null
+    }
+    return { bytes: painted.png.pngBytes }
   }
 
   /**
@@ -5652,15 +5826,23 @@ export function frameLoop(
    * @purity pure
    */
   function chosenFileSave(
-    text: string,
+    content: ChosenFileSaveRequest['content'],
     project: Project,
     form: SaveFileForm,
   ): ChosenFileSaveRequest {
     return {
       destination: 'chosenFile',
-      content: { text },
+      content,
       form,
       suggestedFileName: suggestedFileNameOf(project, form),
+      // ⭐⭐ THE SECOND HALF OF FR-096's MUST, and the whole of D-172.
+      // Measured 2026-09-01: the name above already arrived at the chooser with
+      // its extension on it, and the file still landed without one -- a chooser
+      // told no KIND enforces nothing. ⛔ The same value the name ends in, sent
+      // apart from it: what the far side does with it is the Framework layer's,
+      // which that requirement fixes, and nothing on this road may name a media
+      // type.
+      extension: extensionOfForm(form),
       identity: { fileName: null, projectName: project.name, projectId: project.id },
       projectIdentityFromText,
       confirmOverwrite: askToWriteOverDestination,

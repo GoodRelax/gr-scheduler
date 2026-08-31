@@ -1,0 +1,30 @@
+61
+# ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
+# (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
+# also shows the block is over -- a settled phrase in the same cell, a
+# ステータス of テスト中/テスト待ち/テスト完了, or a 実物確認 that starts ✅.
+#
+# ⚠️ MEASURED 2026-09-01, FIRST RUN OF THIS CHECK. 180 rows have the full
+# 11-cell shape; 68 of them carry a still-blocked phrase somewhere in cell 5,
+# and 61 of those 68 also carry an unblocking signal in the same row. Only 7
+# rows are genuinely still open. This is the append-only failure the check
+# exists to name: an opening 未定/裁定 clause is not deleted when the ruling
+# lands, so most rows that were ever blocked still read that way today.
+#
+# ⭐ The number coming down is the work -- and per the check's own docstring,
+# coming down here means REWORDING a row once its status is confirmed decided
+# (so the stale opening no longer sits beside the settled text), not deleting
+# evidence. A row going up is a NEW row written with a stale opening that
+# outlives its own ruling.
+#
+# ⚠️ SOME OF THESE 61 ARE THE HONEST EXCEPTION THE CHECK CANNOT TELL APART:
+# "the first question was ruled, a second one is now open" in the same cell
+# reads identically to append-only staleness under a plain substring match.
+# D-04 is one of these -- the width question closed at 決着 → S-180, and a
+# separate, later opacity question opened its own 仕様に行が無い further down
+# the same cell. It stays in this baseline rather than being special-cased.
+#
+# D-131 is a confirmed true past-positive kept honest by the ledger itself:
+# its cell now says outright it was one of "5 行" the 2026-09-01 review found
+# reading as blocked, right next to the still-present 仕様に行が無い /
+# 利用者の裁定が要る text that makes it match here too.

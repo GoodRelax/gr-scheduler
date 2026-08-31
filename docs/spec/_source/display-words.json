@@ -1164,7 +1164,7 @@
   {
    "name": "Export Chooser",
    "heading": {
-    "ja": "書き出し",
+    "ja": "ファイルに保存",
     "en": "Export Chooser"
    }
   },
@@ -1751,7 +1751,23 @@
    }
   }
  ],
+ "defaultNames": [
+  {
+   "use": "row",
+   "text": {
+    "ja": "No name",
+    "en": "No name"
+   }
+  }
+ ],
  "exportFormats": [
+  {
+   "rowId": "IO-2",
+   "name": {
+    "ja": "GRS JSON",
+    "en": "GRS JSON"
+   }
+  },
   {
    "rowId": "IO-1",
    "name": {
@@ -1760,10 +1776,10 @@
    }
   },
   {
-   "rowId": "IO-2",
+   "rowId": "IO-7",
    "name": {
-    "ja": "GRS JSON",
-    "en": "GRS JSON"
+    "ja": "単一 HTML",
+    "en": "Single HTML"
    }
   },
   {
@@ -1778,13 +1794,6 @@
    "name": {
     "ja": "PNG 画像",
     "en": "PNG image"
-   }
-  },
-  {
-   "rowId": "IO-7",
-   "name": {
-    "ja": "単一 HTML",
-    "en": "Single HTML"
    }
   }
  ],

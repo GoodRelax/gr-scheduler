@@ -1436,6 +1436,51 @@ describe('FR-096 -- the Export Chooser', () => {
     }
   })
 
+  it('FR-096 (MUST): the surface offers them in the order table T-024 prints its rows', () => {
+    // 「⭐ **選択面が形式を並べる順は、表 T-024 の行の並びとすること（MUST）**
+    //   （利用者の指示 2026-09-01）—— ⛔ **順を本要求に書き写してはならない（MUST
+    //   NOT）** —— **拡張子と同じ理由であり、正は同表ただ 1 か所である。**⚠️ **行
+    //   ID の順ではない** —— **同表の行は行 ID の順に並んでいない。**」
+    //
+    // ⭐ READ OUT OF THE MANUSCRIPT, NOT TYPED. The order the person asked for
+    // is `.json .xml .html .svg .png`, and the manuscript is where it now
+    // stands; typing it here would be the second place it lived, which is what
+    // the MUST NOT above forbids the requirement itself from doing. ⚠️ The
+    // literal order IS pinned once, in the guard describe at the foot of this
+    // file, so that a reorder of the table fails loudly rather than being
+    // followed in silence by this case.
+    //
+    // ⭐ THE MEMBER IS STILL NOT NAMED. No row of the specification says which
+    // member of the description carries the formats -- the case above says so at
+    // length -- so the order is read as the order the row IDs first appear in
+    // the description, which is the same currency that case already uses.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a surface that prints the formats in row
+    // ID order (`IO-1 IO-2 IO-3 IO-4 IO-7`), which is exactly what the ⚠️ above
+    // warns is not the rule. ⭐ Demonstrated by sorting the expectation into row
+    // ID order, which is that surface seen from here: the case failed on the
+    // sequence and every other case in this file stayed green.
+    const offered = fileBearingOutDirectionRows()
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+
+    const described = JSON.stringify(screen.last().openModal)
+    const at = (id: string): number => {
+      const found = described.indexOf(id)
+      if (found < 0) throw new Error(`the ${EXPORT_CHOOSER} names no way to choose ${id}`)
+      return found
+    }
+    expect(
+      [...offered].sort((one, other) => at(one) - at(other)),
+      `FR-096 (MUST): the ${EXPORT_CHOOSER} does not offer the formats in table T-024's order`,
+    ).toEqual(offered)
+  })
+
   it('FR-096 (MUST NOT): IO-6 is not on the surface, because FR-025 carries it directly', () => {
     // 「⛔ **`IO-6`（クリップボード）を本要求の選択面に出してはならない（MUST
     //   NOT）** —— **ファイルとして出ないので名を付ける先が無く**、その経路は
@@ -1594,12 +1639,20 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // name follows whichever format was chosen and not whichever one SK-11
     // writes.
     //
-    // ⛔ TWO OF THE FIVE FILE-BEARING ROWS CANNOT BE DRIVEN HERE. `ImageExporter`
-    // (PI-21) is a stub in this build, so nothing is handed to the store for the
-    // two picture rows, and there is no proposed name to read. ⛔ No rasteriser
-    // is invented to reach them and no expectation is softened -- the rows are
-    // named below, and the case fails if the roster stops carrying one of them
-    // so that this exclusion cannot outlive the stub silently.
+    // ⛔ THREE OF THE FIVE FILE-BEARING ROWS HAND THE STORE NOTHING HERE, so
+    // there is no proposed name to read for them, and they are named rather
+    // than counted. ⚠️ THE REASON IS NO LONGER ONE REASON (measured 2026-09-01,
+    // and each of the three was driven through this file's own loop to see it):
+    //   IO-3 `.svg` and IO-7 単一 `.html` -- nothing is written and a notice IS
+    //        raised, which is the state D-173 left them in.
+    //   IO-4 `.png` -- nothing is written AND nothing is said. The picture is
+    //        drawn by a rasteriser the host supplies, and this file's loop runs
+    //        in `node`, where there is none. ⛔ No rasteriser is invented to
+    //        reach it: inventing a host would be testing the invention.
+    // ⭐ The case below fails if the roster stops carrying one of them, so this
+    // exclusion cannot outlive the state that earns it.
+    // ⇒ What each of the three DOES answer a press with is asserted in
+    // `FR-029 / D-173 -- a format that cannot be written says so` below.
     const cannotBeWritten = ['IO-3', 'IO-4', 'IO-7']
     for (const id of cannotBeWritten) {
       expect(
@@ -1662,6 +1715,197 @@ describe('FR-096 -- the name the chooser proposes', () => {
         `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId} with no document name`,
       ).toBe(format.extension)
     }
+  })
+
+  it('FR-096 (MUST): the chosen row’s extension travels beside the name, so the name cannot lose it', async () => {
+    // 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した先の名前
+    //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
+    //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
+    //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
+    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
+    //   使うこと（MUST）。**」（`FR-096`。D-172）
+    //
+    // ⭐ WHY THE PROPOSED NAME IS NOT ENOUGH, AND WHY THIS CASE IS SEPARATE FROM
+    // THE TWO ABOVE. Those two read `suggestedFileName` and were green through
+    // the whole of D-172: the name was always right. What was missing was a
+    // second value beside it, saying WHICH form the file is, so that the host
+    // holds the saved name to that form instead of treating the extension as
+    // decoration. ⚠️ THE PERSON MAY OVERRULE THE NAME AND MAY NOT OVERRULE THE
+    // EXTENSION, so the two cannot be one value: a build that cut the extension
+    // off the suggested name would satisfy nothing the moment the name changes.
+    // ⇒ What the host is then told is UF-51's business, and
+    // tests/unit/uf-51.test.ts asserts it; what THIS loop owes is that the
+    // chosen row's extension is handed down at all, and that it is the chosen
+    // row's rather than one row's for all five.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a loop that hands the store a name and
+    // nothing else -- the build D-172 was raised against. ⭐ Demonstrated by
+    // making this file's stand-in store drop `extension` off every write it
+    // records, which is that build seen from IF-3's far side: the case failed
+    // with 「expected undefined to be '.json'」 on the first row, and the two
+    // cases above that read only `suggestedFileName` stayed green -- which is
+    // the whole argument for this case existing.
+    const drivable = EXCHANGE_FORMATS.filter(
+      (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+    )
+    expect(drivable.length).toBeGreaterThan(1)
+
+    for (const format of drivable) {
+      const pane = host()
+      const screen = screenPane()
+      const files = fileStore()
+      const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+      loop.receiveInput(SK_12)
+      pane.runAnimationFrames()
+      takeFormat(loop, screen, format.rowId)
+      await settle()
+      pane.runAnimationFrames()
+
+      const write = files.written[0]
+      expect(write, `table T-024 row ${format.rowId} handed the store nothing`).toBeDefined()
+      expect(
+        (write as unknown as { extension?: unknown }).extension,
+        `FR-096 (MUST): the store was not told which form table T-024 row ${format.rowId} is`,
+      ).toBe(format.extension)
+      // ⚠️ AND THE TWO STILL AGREE. The name is a proposal, the extension is
+      // not, and this is the one moment they are both this row's.
+      expect(write?.suggestedFileName.endsWith(format.extension as string)).toBe(true)
+    }
+  })
+})
+
+// ===========================================================================
+// FR-029 / D-173 -- a format that cannot be written says so
+// ===========================================================================
+//
+// 「**押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の
+//   表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表
+//   T-233 の行とすること（MUST）。**」（`FR-029`）—— and its RATIONALE's first
+// sentence, 「**無反応だと故障に見える。**」
+//
+// ⚠️ WHAT FR-029 LITERALLY GOVERNS IS AN ENTRANCE of 表 T-109, and a format on
+// the `Export Chooser` is not one -- FR-096 (MUST NOT) forbids an entrance per
+// format, which is why `takeFormat` presses a row of 表 T-024 through
+// `ScreenPart.format` rather than an entry. ⛔ SO THE ROW-BY-ROW PAIRING FR-029
+// STATES IS NOT ASSERTED HERE. What is asserted is the part of it that does not
+// depend on the press being an entrance: a press that cannot act does not
+// answer with silence, and whatever it does answer with is a row of 表 T-233
+// told in the words FR-038's dictionary holds for it (表 T-233 の結び, MUST /
+// MUST NOT).
+describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
+  /**
+   * Press one format on the export chooser and answer with what happened.
+   *
+   * @purity non-pure
+   */
+  const press = async (
+    rowId: string,
+  ): Promise<{ readonly written: number; readonly view: ScreenView }> => {
+    const pane = host()
+    const screen = screenPane('ja')
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+    takeFormat(loop, screen, rowId)
+    await settle()
+    pane.runAnimationFrames()
+    return { written: files.written.length, view: screen.last() }
+  }
+
+  it('a press on an offered format either writes or says why -- never neither', async () => {
+    // ⭐ THE WHOLE OF D-173 SAID AS ONE RULE. 「⛔⛔ **書き出しの 5 形式のうち 3
+    //   つは、押しても何も保存されない** …… **ファイルも通知も 0 件で戻る。**」
+    // ⚠️ 「**選択面には 5 つとも並んでおり、押せる** —— 「効かない入口」ではなく
+    //   「効いたように見えて何も起きない入口」である。」 FR-029's RATIONALE names
+    // that outcome in its first sentence: a press that changes nothing and says
+    // nothing is indistinguishable from a broken one.
+    //
+    // ⛔ EVERY ROW THE SURFACE OFFERS IS WALKED, and the set is read out of the
+    // manuscript rather than listed -- FR-096 (MUST) makes what is offered the
+    // file-bearing out-direction rows of 表 T-024, so a row added there is
+    // walked here the day it is added.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: the build of 2026-09-01 07:54, in which
+    // `.html`, `.svg` and `.png` all returned nothing and told nobody.
+    //
+    // ⛔⛔ AND IT IS RED TODAY, ON `IO-4` ALONE (measured 2026-09-01). `.svg`
+    // and 単一 `.html` now answer a press with a notice; `.png` writes nothing
+    // and says nothing. ⚠️ D-173's own record says the picture itself works --
+    // 「⭐ **同日のうちに `.png` が配線され、実測で 256,367 バイトの本物の PNG が
+    // 書き出せている**」 -- so what is red is the case where the host supplies no
+    // rasteriser, which is this file's `node` and is also any host that has
+    // none. ⛔ THE CASE IS LEFT RED RATHER THAN NARROWED: 表 T-233 already holds
+    // the row for it -- RS-3 「書き込みを試みたが、この環境では行えなかった」,
+    // whose 正 is LM-14 of 表 T-004 -- so nothing has to be invented to say it,
+    // and narrowing the walk to the rows that happen to pass would put the hole
+    // back where D-173 found it.
+    for (const rowId of fileBearingOutDirectionRows()) {
+      const { written, view } = await press(rowId)
+      expect(
+        `${written} written, ${view.notices.length} told`,
+        `FR-029 (MUST): table T-024 row ${rowId} is offered on the ${EXPORT_CHOOSER}, and ` +
+          'pressing it wrote nothing and said nothing -- which is the outcome D-173 names',
+      ).not.toBe('0 written, 0 told')
+    }
+  })
+
+  it('what it says is a row of table T-233, in the words FR-038 holds for that row', async () => {
+    // 「⭐ **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運
+    //   んではならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は
+    //   行 ID で引く。」（表 T-233 の結び）
+    //
+    // ⭐ HOW A ROW IS PINNED FROM THIS SIDE. `Notice` carries the manner and the
+    // WORDS, never the reason, so the join is taken from the dictionary end --
+    // the same road every case in this file's FR-076 describe takes.
+    //
+    // ⛔⛔ WHAT IS DELIBERATELY *NOT* ASSERTED: WHICH row. 表 T-233 has no row
+    // whose 場面 is 「この build ではその形式を書けない」. Measured, the notice
+    // that arrives carries `RS-15`, which is that table's landing place for a
+    // reason it has no row for -- 「⚠️ **行の無い理由に落ち先を与えるのが `RS-15`
+    // である**」 -- and whose next step reads 「もう一度行ってください」, which is
+    // not a step a person can take: pressing `.svg` again writes nothing again.
+    // ⛔ A case asserting the words a proper row OUGHT to carry would be minting
+    // specification wording, so this one asserts only that SOME row of 表 T-233
+    // is carried, told in that row's own words in the display language. ⇒ The
+    // missing row is reported as a gap, not written here.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a notice whose text is composed at the
+    // point it is raised rather than looked up by a row ID, which is what
+    // 表 T-233's closing MUST NOT forbids. ⭐ Demonstrated by dropping one row
+    // from the reading of FR-038's dictionary here: the case failed naming the
+    // row and the words that arrived, which is how a text with no row behind it
+    // would read.
+    const known = REASON_WORDS.map((one) => one.text.ja)
+    let told = 0
+    for (const rowId of fileBearingOutDirectionRows()) {
+      const { written, view } = await press(rowId)
+      if (written > 0) continue
+      for (const notice of view.notices) {
+        told += 1
+        expect(
+          known,
+          `FR-076 (MUST): table T-024 row ${rowId} was refused with words FR-038's dictionary ` +
+            `does not hold: ${JSON.stringify(notice.text)}`,
+        ).toContain(notice.text)
+        expect(
+          T_233.rows.map((row) => row.id).length,
+          'table T-233 is empty, so nothing above can be a row of it',
+        ).toBeGreaterThan(0)
+        // NT-3a / NT-1 both make the manner a row of table T-037, and 表 T-233
+        // is where each reason's manner stands.
+        expect(
+          T_037.rows.map((row) => row.id),
+          `the manner ${JSON.stringify(notice.manner)} is not a row of table T-037`,
+        ).toContain(notice.manner)
+      }
+    }
+    expect(
+      told,
+      'no format of table T-024 refused a press, so this case walked nothing (rule 04, §2)',
+    ).toBeGreaterThan(0)
   })
 })
 
@@ -1953,11 +2197,29 @@ describe('FR-076 -- a notice raised while a document is written out', () => {
 // ===========================================================================
 
 describe('the tables are read by position, so the positions are pinned', () => {
-  it('table T-024 prints format, direction and extension in that order', () => {
+  it('table T-024 prints format, direction and extension in that order, and its rows in FR-096 order', () => {
     expect(T_024.headings.length).toBe(7)
-    expect(outDirectionRows()).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-7', 'IO-6'])
-    expect(extensionOf('IO-1')).toBe('.xml')
-    expect(extensionOf('IO-2')).toBe('.json')
+    // ⭐⭐ THE ROW ORDER IS PINNED BECAUSE IT IS NOW A REQUIREMENT, and this is
+    // the one file that may pin it. 「⭐ **選択面が形式を並べる順は、表 T-024 の
+    //   行の並びとすること（MUST）**（利用者の指示 2026-09-01）—— ⛔ **順を本要求
+    //   に書き写してはならない（MUST NOT）** …… ⚠️ **行 ID の順ではない** ——
+    //   **同表の行は行 ID の順に並んでいない。**」
+    // ⛔ SO A REORDER OF THE MANUSCRIPT HAS TO FAIL HERE, LOUDLY. The order is
+    // what the person asked for -- the save list reading `.json .xml .html .svg
+    // .png` -- and the table is the only place it is written. A future edit
+    // that moves a row moves the save list with it, and the two cases in
+    // `FR-096 -- the name the chooser proposes` that drive the surface would go
+    // on passing, because they read the same table. This is where it is caught.
+    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-6'])
+    // ⭐ And the same order said in extensions, which is how the person stated
+    // it -- read out of the table rather than typed beside the row IDs above.
+    expect(fileBearingOutDirectionRows().map((id) => extensionOf(id))).toEqual([
+      '.json',
+      '.xml',
+      '.html',
+      '.svg',
+      '.png',
+    ])
   })
 
   it('table T-103 prints the settled English name first', () => {

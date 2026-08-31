@@ -207,6 +207,31 @@ export interface ChosenFileWrite {
   /** What to put in the chooser. The person may overrule it. */
   readonly suggestedFileName: string
   /**
+   * The extension table T-024 gives the row being written, dot and all.
+   *
+   * ⭐⭐ CARRIED BESIDE THE NAME AND NOT CUT OUT OF IT. FR-096 (MUST) has the
+   * written file's name END in the chosen row's extension and (MUST) has the
+   * host told that the file is of that kind where there is a way to tell it --
+   * and the second of those is not a question about a name at all. ⛔ The store
+   * may not recover it by splitting the suggestion at its last dot: a document
+   * named 「v1.2 計画」 has a dot of its own, and a form the roster has lost the
+   * row for suggests a bare name, where the split would answer with the whole
+   * of it.
+   *
+   * ⛔ THE VALUE IS NOT MADE HERE AND NOT MADE IN THE STORE EITHER. Table T-024
+   * is the extension's one place (FR-096, MUST NOT); `frame-loop.ts` reads it
+   * out of the generated roster and hands it down this seam.
+   * ⚠️ An empty string is admitted and means the roster no longer carries the
+   * row -- the same answer `suggestedFileName` degrades to, and the store then
+   * opens a chooser with no kind rather than inventing one.
+   *
+   * ⚠️ WHAT THE HOST DOES WITH IT is the store's business and stays there:
+   * FR-096 forbids the media type that telling needs from appearing in any
+   * table of the specification (MUST NOT) and puts it in the Framework layer,
+   * so no name of one may cross this seam.
+   */
+  readonly extension: string
+  /**
    * Whether the file just written becomes the one FR-060 overwrites from now
    * on. ⛔ The store does not work this out: which of table T-024's forms can
    * stand in that position is the near side's business, and `file-gateway.ts`

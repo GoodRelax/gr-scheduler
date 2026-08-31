@@ -7,14 +7,19 @@
  },
  "formats": [
   {
+   "rowId": "IO-2",
+   "extension": ".json",
+   "firstCharacter": "{"
+  },
+  {
    "rowId": "IO-1",
    "extension": ".xml",
    "firstCharacter": "<"
   },
   {
-   "rowId": "IO-2",
-   "extension": ".json",
-   "firstCharacter": "{"
+   "rowId": "IO-7",
+   "extension": ".html",
+   "firstCharacter": null
   },
   {
    "rowId": "IO-3",
@@ -24,11 +29,6 @@
   {
    "rowId": "IO-4",
    "extension": ".png",
-   "firstCharacter": null
-  },
-  {
-   "rowId": "IO-7",
-   "extension": ".html",
    "firstCharacter": null
   },
   {

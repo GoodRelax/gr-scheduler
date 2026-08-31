@@ -1,4 +1,4 @@
-94
+93
 # ⛔ Rows past 仕様書反映済み that name no place in the specification.
 #
 # ⚠️ THE CONVENTION STARTED ON 2026-08-30, AND THE LEDGER WAS ALREADY 154 ROWS
@@ -8,3 +8,8 @@
 # passed 仕様書反映済み without saying where the specification says it.
 #
 # ⛔ RAISE THIS ONLY TO TAKE THE DEBT ON DELIBERATELY, and say why in the commit.
+#
+# 2026-09-01: 94 -> 93. D-131 named its place (表 T-028 の IN-6). Its cell
+# had said only 「仕様に行が無い。利用者の裁定が要る」 while the ruling and the
+# row both existed -- the cell is written append-only, so an opening 「未定」
+# outlives the ruling that overturns it. Five rows read as blocked that way.

@@ -86,6 +86,14 @@
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import { NOT_STORED_SCROLLBAR_SIZES } from './frame-loop'
 import { browserClipboard } from '../browser-clipboard/browser-clipboard'
+// ⭐ CP-31, THE ONE IMPLEMENTATION OF `Rasterizer` (IF-6), and this is its first
+// caller. ⛔ It has been written since the unit was filled in and nothing in
+// `src/` imported it, which is why IO-4 of table T-024 was offered on FR-096's
+// chooser and wrote nothing (D-173, measured 2026-09-01). ⚠️ Framework reaching
+// Framework, through the folder's public entry: LR-1 of table T-061 forbids an
+// outward arrow, not a sideways one, and this file is the one that may hand the
+// loop a host.
+import { canvasRasterizer } from '../canvas-rasterizer/canvas-rasterizer'
 import type { Document } from '../../entity/document-model/document/document'
 // ⭐ THE ENTRY ITSELF, because this file CALLS it: PI-17 of table T-064
 // publishes `installAgentApi`, and UF-47 of table T-075 gives 「公開点を置くこと」
@@ -860,6 +868,13 @@ function boot(): void {
     // OP-10 of table T-024a (MUST NOT). ⭐ `chosen.row` is BO-2's own answer,
     // narrowed here to the one bit that row asks about.
     chosen.row === 'BT-4',
+    // IF-6 (CP-31). ⭐ ITS FIRST CALLER, for the reason CP-30's line above
+    // gives: the unit was written and nothing reached it, so IO-4 of table
+    // T-024 stood on FR-096's chooser and wrote nothing.
+    // ⚠️ The document and nothing wider: `canvasRasterizer` calls
+    // `createElement` on it and nothing else, which is what lets that unit be
+    // tested where there is no browser.
+    canvasRasterizer(document),
   )
   loop = running
 

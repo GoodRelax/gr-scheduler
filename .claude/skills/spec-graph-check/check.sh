@@ -19,6 +19,12 @@
 #   11     dup-check.py against the known-duplication baseline
 #   30     the generated `export const` of src/ against the list that
 #          names them in docs/development-rules/03-implementation.md
+#   31     check-stale-blocked.py : a defects.md row whose 対応方針・決定仕様
+#          cell still contains 未定 / 利用者の裁定が要る / 裁定を待つ /
+#          仕様に行が無い while the SAME row also shows a ruling, a testing
+#          status, or a ✅ 実物確認 -- the cell is written append-only, so the
+#          opening clause outlives the ruling that overturns it. Held against
+#          a baseline the same way check 29 is
 #   16     erd_json_to_md.py --check : the two generated data-model documents
 #          still match erd.json, which is what catches a hand edit to a file
 #          whose banner says never to edit it
@@ -257,6 +263,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-me
 echo ""
 echo "===== 30  the generated constants against the list that names them ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py || fail=1
+
+echo ""
+echo "===== 31  a row that still reads blocked while the row says it is settled ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="

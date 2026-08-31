@@ -220,7 +220,17 @@ describe('table T-024: the values OP-12 compares against', () => {
     // 受け付ける 2 行だけである」. Holding both columns still selects the same
     // two rows only because no row holds the first character alone, which the
     // case below asserts.
-    expect(READABLE.map((row) => row.id)).toEqual(['IO-1', 'IO-2'])
+    //
+    // ⭐ WHICH TWO ROWS, NOT IN WHICH ORDER. OP-12 asks whether an extension
+    // and a first character land on ONE row; nothing in that judgement is
+    // sequential, and the two rows are a set. ⛔ This was `toEqual(['IO-1',
+    // 'IO-2'])` until 2026-09-01 and went red on a reorder of the manuscript
+    // that changed nothing OP-12 can see: FR-096 (MUST) now makes table T-024's
+    // row order the order the save list offers its formats in, and the rows
+    // were moved to read `.json .xml .html .svg .png`. That order is pinned
+    // where it is a requirement -- tests/unit/uf-47-48-choosers.test.ts -- and
+    // sorting here keeps this case answering only to its own rule.
+    expect([...READABLE.map((row) => row.id)].sort()).toEqual(['IO-1', 'IO-2'])
   })
 
   it('the table is read -> every row carrying both columns is a row whose direction includes intake', () => {

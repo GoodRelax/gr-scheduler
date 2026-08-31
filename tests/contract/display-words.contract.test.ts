@@ -65,7 +65,7 @@
 // is `screenViewFromRegions`, the published entry of table T-064's PI-37 -- not
 // one unit's function.
 //
-// SIX THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for first:
+// SEVEN THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for first:
 //
 //   1. WHAT THE STAND-IN SAYS while an entry is empty. CR-194 section 0 item ⑧
 //      settled "empty means keep printing what it printed before" WITHOUT
@@ -146,6 +146,21 @@
 //      test, which can name the band; asking it here would be asking this file
 //      to disprove the scope it declared. ⭐ WHAT IS ASSERTED INSTEAD is the
 //      roster: the seven, in AT-17's order, each with a word in each language.
+//   7. WHETHER `defaultNames` ARRIVES ON A FRAME (D-171, 2026-09-01). ⛔ It is
+//      the ONE section whose word the screen never prints AS A WORD: FR-032
+//      (MUST) 「行の名前を既定の名前に確定させること」 WRITES it into
+//      `TaskGroup.label`, so from that moment it is document data, and FR-038
+//      states in as many words that 行名 is not translated. ⇒ Asking a frame
+//      to print it in the reader's language would assert the opposite of what
+//      the two requirements say, and the only way to raise such a frame would
+//      be to write the word into this file's own schedule first -- a case
+//      finding its own input. ⭐ Stronger than 2 and 3 and of a kind with 6:
+//      there the member could not be named but the surface could still be
+//      raised; here no frame could carry it however the road were wired. ⚠️ The
+//      dictionary is still the right home for it -- FR-032 says so by name --
+//      and the block above the `drop` sets out the reasoning in full, with the
+//      one question docs/spec does not answer: WHICH of the two languages is
+//      written into the document when a row is settled.
 //
 // ⭐ Every one of those is recorded by `DROPPED` below rather than passed over,
 // and the acceptance group holds the dictionary against the two lists together:
@@ -281,6 +296,19 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
   // forbids the 形式 column of that table being carried to the screen.
   fileStatus: 'state',
+  // ⭐ THE SECTION D-171 RAISED. `FR-032` (MUST) settles the name of a row whose
+  // derivation source is about to go, and 2026-09-01 added the case the reader
+  // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を
+  // 既定の名前に確定させること（MUST）。名前が無いことを理由に削除を拒んでは
+  // ならない（MUST NOT）** —— ⭐ **語は `FR-038` の辞書が持ち、ここに綴らない。**」
+  // ⇒ the requirement sends the word here BY NAME, which is why this section is
+  // a section and not a literal in a unit.
+  // ⚠️ KEYED BY WHAT THE DEFAULT IS FOR (`use`), because no table numbers it:
+  // FR-032 names one use -- the row -- and Chapter 6.2 (MUST NOT) forbids
+  // raising a table whose rows state no rule, which a one-row table of default
+  // names would be. ⛔ THIS IS THE ONE SECTION WHOSE WORD IS NOT PRINTED BY A
+  // FRAME; see omission 7 of the head comment and the `drop` below it.
+  defaultNames: 'use',
   exportFormats: 'rowId',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
@@ -1119,6 +1147,58 @@ for (const section of ['fileStatus', 'exportFormats']) {
         'whole of what PI-37 hands out instead',
     )
   }
+}
+
+// -- defaultNames: the one word the dictionary holds that no frame prints,
+//    because FR-032 makes it DOCUMENT DATA rather than screen text (D-171)
+
+// ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
+// FR-032 (MUST) does not put this word on the screen; it puts it in the
+// document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を既定の名前
+// に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.label`
+// (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
+// is written it is the row's name, indistinguishable from a name a person
+// typed: the screen shows it the way it shows every other 行名.
+//
+// ⛔ AND FR-038 SAYS IN AS MANY WORDS THAT A 行名 IS NOT TRANSLATED: 「**タスク名
+// と行名、および表 T-016 の項目名は翻訳の対象ではない**」. ⇒ The arrival claim
+// the acceptance case makes -- "asked for in `ja` a frame prints the `ja` word,
+// and asked for in `en` it does not" -- is the OPPOSITE of what this word owes.
+// A view that answered 「名前なし」 to a `ja` reader and "No name" to an `en`
+// reader, for one and the same document, would be translating a row name, which
+// that sentence excludes. The document keeps whichever word was settled into
+// it, and every reader sees that one.
+//
+// ⛔ NOR COULD A FRAME BE RAISED THAT WOULD PRINT IT HONESTLY. To put the word
+// on the screen this file would first have to write it into `SCHEDULE` as a
+// `TaskGroup.label` itself -- and then the case would be finding its own input,
+// which is the trap the stand-ins in `ASKING` and `TELLING` are spelt in ASCII
+// to avoid. ⭐ So this omission is of the STRONGEST kind, the kind omission 6
+// makes for the weekdays: not "the member is one this file may not name" (those
+// six sections are still held by the whole-view reading), but "no frame this
+// file can build could print it, however the road were wired".
+//
+// ⭐ THE WORD IS STILL RIGHTLY IN THE DICTIONARY, and this file must not be read
+// as saying otherwise. FR-032 sends it here BY NAME -- 「⭐ **語は `FR-038` の辞書
+// が持ち、ここに綴らない。**」 -- because the alternative is a Japanese and an
+// English string spelt into a unit or into a requirement, which FR-038 (MUST
+// NOT) forbids. ⚠️ Being kept in the dictionary and being printed by a frame are
+// two different claims, and only the second is this file's.
+//
+// ⚠️ WHAT IS NOT SETTLED, recorded rather than asserted: FR-038 gives the
+// dictionary two languages and the document can hold only ONE settled label, and
+// no row of docs/spec says which of the two is written when a row is settled --
+// FR-038 keeps the reader's language out of the document (MUST NOT) and FR-032
+// names no language at all. ⛔ That is a question for the specification, not a
+// gap this file may close by asserting one of the two.
+for (const entry of GENERATED['defaultNames'] ?? []) {
+  drop(
+    'defaultNames',
+    keyOf('defaultNames', entry),
+    'FR-032 (MUST) settles it into TaskGroup.label, so it is document data and not screen text -- and ' +
+      'FR-038 says a 行名 is not translated, so no frame this file can raise prints it in the reader s ' +
+      'language; a frame that did would be printing a label this file had put in the document itself',
+  )
 }
 
 // -- weekdays: the fourth ruler tier, which PI-37 does not hand out at all

@@ -275,6 +275,21 @@ export interface ChosenFileSaveRequest {
   readonly form: SaveFileForm
   readonly suggestedFileName: string
   /**
+   * The extension table T-024 gives `form`, dot and all -- what the name above
+   * ends in, carried apart from it.
+   *
+   * ⭐ FR-096 (MUST) asks for two different things and this is the second: the
+   * name is SUGGESTED, and the file's KIND is told to the host so that what
+   * lands there ends in that extension whatever the person types. ⛔ Not
+   * derived from `form` on this side: table T-024's extension column is the one
+   * place that pairing lives (MUST NOT), and it reaches `src/` through
+   * `tools/generate_exchange_formats.py`, which this component does not read.
+   * ⚠️ Nothing here compares the two: a suggestion that did not end in this
+   * extension would still be the person's to overrule, and the guarantee is the
+   * host's to keep once it has been told the kind.
+   */
+  readonly extension: string
+  /**
    * DI-1: the identity of the document being written, as it stands now.
    *
    * ⛔ Given rather than worked out here. This component does not know what a
@@ -620,6 +635,12 @@ export async function saveDocumentFile(
     const write: ChosenFileWrite = {
       bytes,
       suggestedFileName: request.suggestedFileName,
+      // FR-096's second MUST: the store tells the host the kind, and the kind
+      // travels as the extension because table T-024 is where a row and an
+      // extension are paired. ⛔ Carried straight through -- nothing on this
+      // side may read a media type out of it (that value's place is the
+      // Framework layer, which the same requirement fixes).
+      extension: request.extension,
       // ⛔ Not in docs/spec: whether the file just written becomes the one
       // later overwrite-saves land on. FR-060's reasoning is the ground for
       // saying yes -- it wants the round trip to close on one file, and gives

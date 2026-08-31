@@ -310,6 +310,11 @@ const chosenSave = (
   content: { text: fields.text },
   form: fields.form,
   suggestedFileName: fields.identity.fileName ?? 'untitled',
+  // FR-096 (MUST): 「書き出した先の名前が、選んだ行の拡張子で終わることを保証す
+  // ること」, and 「⛔ 拡張子を本要求に書き写してはならない（MUST NOT）—— 正は
+  // 表 T-024 ただ 1 か所である」. So the extension the request carries is read
+  // out of the row this form stands on, never typed here.
+  extension: extensionOfForm(fields.form),
   identity: fields.identity,
   projectIdentityFromText: (text) => {
     record.identityReads.push(text)
@@ -831,6 +836,24 @@ const FORM_OF_ROW: Readonly<Record<string, SaveFileForm>> = {
   'IO-7': 'singleHtml',
 }
 
+/**
+ * The extension table T-024 gives the row this form stands on.
+ *
+ * ⭐ READ, NEVER TYPED. FR-096 (MUST NOT) keeps every extension in table T-024
+ * and nowhere else, so a stand-in request that spelt one here would be the
+ * second place the value lived. A form whose row carries no extension -- table
+ * T-024 writes an em dash for a destination that is not a file -- has nothing
+ * to end a name with, and answering the empty string says exactly that.
+ *
+ * ⚠️ Declared as a function, not a const, so that `chosenSave` above may reach
+ * it: it is called from inside a case, long after `FORM_OF_ROW` is built.
+ */
+function extensionOfForm(form: SaveFileForm): string {
+  const row = T024.rows.find((one) => FORM_OF_ROW[one.id] === form)
+  if (row === undefined) throw new Error(`table T-024 has no row for the form ${form}`)
+  return /`([^`]+)`/.exec(row.by['拡張子'] ?? '')?.[1] ?? ''
+}
+
 const saveForms = T024.rows
   .filter((row) => FORM_OF_ROW[row.id] !== undefined)
   .map((row) => ({
@@ -842,11 +865,40 @@ const saveForms = T024.rows
 
 describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
   it('table T-024 still names all five forms this seam can write', () => {
-    expect(saveForms.map((one) => one.id)).toEqual(['IO-1', 'IO-2', 'IO-3', 'IO-4', 'IO-7'])
+    // ⭐ A SET, NOT A SEQUENCE. What this case is for is that the five forms
+    // this seam can be handed are still five rows of table T-024 -- FR-060 asks
+    // which of them the direction column lets back IN, and that question has no
+    // order in it. ⛔ The order of the rows was pinned here until 2026-09-01 and
+    // it broke the moment the manuscript's own order changed for a reason that
+    // has nothing to do with this seam: FR-096 (MUST) now makes the table's row
+    // order the order the save list offers the formats in. That order is a
+    // requirement and it IS pinned -- in tests/unit/uf-47-48-choosers.test.ts,
+    // where the surface FR-096 speaks of is driven. Pinning it a second time
+    // here would only make a reorder fail twice, once where it matters and once
+    // where it does not.
+    expect([...saveForms.map((one) => one.id)].sort()).toEqual([
+      'IO-1',
+      'IO-2',
+      'IO-3',
+      'IO-4',
+      'IO-7',
+    ])
     expect(saveForms.filter((one) => one.comesIn).map((one) => one.form).sort()).toEqual([
       'grsJson',
       'mspdi',
     ])
+    // ⭐ AND EVERY ONE OF THEM CARRIES AN EXTENSION. 「⭐ **拡張子の欄は、ファイル
+    // として出る行がすべて持つ** —— `FR-096` が提案する名の正が本表だからである」.
+    // `extensionOfForm` answers the empty string where the row carries none, so
+    // this fails if the column is emptied on a row a file is written to -- and
+    // with it the stand-in requests every case in this file builds.
+    for (const one of saveForms) {
+      expect(
+        extensionOfForm(one.form),
+        `table T-024 row ${one.id} gives the form ${one.form} no extension, so FR-096 has ` +
+          'nothing to hold the written name to',
+      ).not.toBe('')
+    }
   })
 
   it.each(saveForms)(

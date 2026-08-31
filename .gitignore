@@ -69,3 +69,7 @@ Thumbs.db
 npm-debug.log*
 scratch/
 tmp/
+
+# Documents saved out of the running app. These are the reader's own
+# schedules, not the project's -- and this repository is public.
+sample-schedule/

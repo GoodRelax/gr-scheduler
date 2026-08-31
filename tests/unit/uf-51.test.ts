@@ -63,6 +63,9 @@
 // record -- which calls, in which order, with which arguments -- rather than
 // merely on what came back.
 
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import type {
@@ -111,6 +114,76 @@ const T_024_FORMS = [
   { row: 'IO-1', fileName: 'plan.xml', bytes: MSPDI_BYTES },
   { row: 'IO-2', fileName: 'plan.json', bytes: GRS_JSON_BYTES },
 ] as const
+
+/**
+ * 表 T-024 の拡張子の欄 -- the five rows that come out as a FILE.
+ *
+ * ⭐ CR-230 (2026-08-23) filled this column for all five; before it only IO-1
+ * and IO-2 carried one, which is why FR-096 could not propose a name for four
+ * of the six ways out. FR-096 now leans on it twice: the name it proposes ends
+ * in it, and 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した
+ * 先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）**」.
+ *
+ * ⚠️ THE ORDER HERE IS THE MANUSCRIPT'S, and since 2026-09-01 that order is
+ * itself a requirement -- FR-096 (MUST) has the save list offer the formats in
+ * table T-024's row order, which reads `.json .xml .html .svg .png`. ⛔ Nothing
+ * in THIS file turns on the order; the surface that does is driven in
+ * tests/unit/uf-47-48-choosers.test.ts, which reads the table at run time.
+ */
+const T_024_EXTENSIONS = ['.json', '.xml', '.html', '.svg', '.png'] as const
+
+/**
+ * An extension no row of 表 T-024 carries.
+ *
+ * ⭐ WHAT IT IS FOR. FR-096 asks the host to be told 「その拡張子の形式である」
+ * where there is a way to tell it, and 「⛔ **その伝え方が要する媒体型を、本書の
+ * どの表にも持たせてはならない（MUST NOT）** …… ⇒ **持ち場は
+ * `05-07-design.md` の Framework 層とすること（MUST）**」. A media type is
+ * therefore known for some extensions and not for others, and the two paths
+ * out of that are different options objects. This is the value that takes the
+ * second path, and it is checked against the roster above so that it cannot
+ * quietly become a real one.
+ */
+const AN_EXTENSION_NO_ROW_CARRIES = '.zzz'
+
+/** The `accept` maps of every type an options object offered the host. */
+const acceptMapsOf = (options: Record<string, unknown>): readonly Record<string, unknown>[] =>
+  (Array.isArray(options['types']) ? (options['types'] as unknown[]) : [])
+    .filter((one): one is Record<string, unknown> => typeof one === 'object' && one !== null)
+    .map((one) => (one['accept'] ?? {}) as Record<string, unknown>)
+
+/**
+ * Every extension the options object named to the host, flattened.
+ *
+ * @purity pure
+ */
+const extensionsNamedTo = (options: Record<string, unknown>): readonly string[] =>
+  acceptMapsOf(options).flatMap((accept) =>
+    Object.values(accept).flatMap((value) => (Array.isArray(value) ? (value as string[]) : [])),
+  )
+
+/**
+ * Every media type the options object named to the host.
+ *
+ * @purity pure
+ */
+const mediaTypesNamedTo = (options: Record<string, unknown>): readonly string[] =>
+  acceptMapsOf(options).flatMap((accept) => Object.keys(accept))
+
+/**
+ * Whether docs/spec writes this string down anywhere.
+ *
+ * ⭐ FR-096's MUST NOT, measured: 「⛔ **その伝え方が要する媒体型を、本書のどの表
+ * にも持たせてはならない（MUST NOT）** …… ⇒ **持ち場は `05-07-design.md` の
+ * Framework 層とすること（MUST）**」. The whole of docs/spec is read rather than
+ * one table, because the prohibition is about the book and not about a table.
+ *
+ * @purity non-pure
+ */
+const specificationHolds = (value: string): boolean =>
+  readdirSync(join(process.cwd(), 'docs', 'spec'), { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
+    .some((entry) => readFileSync(join(entry.parentPath, entry.name), 'utf8').includes(value))
 
 /**
  * 表 T-024a の OP-2 -- 「ファイル選択、およびドラッグ＆ドロップ」, and 「入口は
@@ -910,23 +983,127 @@ describe('writeChosenFile -- a file the person points at', () => {
   // the stand-in here simply says yes, and the cases below assert what the store
   // did rather than what it was told.
   const request = (
-    over: Partial<{ suggestedFileName: string; shouldBecomeOpenedFile: boolean }>,
+    over: Partial<{ suggestedFileName: string; extension: string; shouldBecomeOpenedFile: boolean }>,
   ): ChosenFileWrite => ({
     bytes: GRS_JSON_BYTES,
     suggestedFileName: over.suggestedFileName ?? 'plan.json',
+    // ⚠️ THE DEFAULT IS THE ONE NO ROW CARRIES, deliberately. Most cases in
+    // this describe are about the write and not about the chooser, and an
+    // extension the Framework knows a media type for would put a `types` entry
+    // into every options object they never look at. The two cases that ARE
+    // about the options say which path they are on.
+    extension: over.extension ?? AN_EXTENSION_NO_ROW_CARRIES,
     shouldBecomeOpenedFile: over.shouldBecomeOpenedFile ?? true,
     askToWriteOver: () => Promise.resolve(true),
   })
 
-  it('hands the chooser the suggested name, and nothing else', async () => {
+  it('hands the chooser the suggested name alone, where no media type is known for the extension', async () => {
+    // ⛔ THIS IS NOT THE WHOLE OF WHAT THE CHOOSER IS HANDED, and until
+    // 2026-09-01 this case said it was. It read 「hands the chooser the
+    // suggested name, and nothing else」 and was green only because the request
+    // it built carried no extension at all, so the store could find no media
+    // type to name. D-172 is what that hid: a save chooser told nothing but a
+    // name lets the person save `plan` where `plan.json` was proposed, and
+    // FR-096 (MUST) now forbids that outcome outright -- 「書き出した先の名前が、
+    // 選んだ行の拡張子で終わることを保証すること（MUST）」.
+    //
+    // ⭐ WHAT IS LEFT TRUE, AND SAID AS SUCH: an extension the Framework knows
+    // no media type for has nothing to tell the host, and FR-096's MUST is
+    // conditional in as many words -- 「⭐ **宿主に「その拡張子の形式である」こと
+    // を伝える手立てがあるなら、それを使うこと（MUST）**」. Where there is no
+    // means, the name is all there is to hand over.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a store that invents a media type for an
+    // extension it does not know -- `application/octet-stream`, say -- which
+    // would name the wrong format to the host and hold the name to it.
+    expect(
+      T_024_EXTENSIONS as readonly string[],
+      'the extension this case leans on being unknown is now a row of table T-024',
+    ).not.toContain(AN_EXTENSION_NO_ROW_CARRIES)
+
     const chosen = fileHandle({ name: 'plan.json' })
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
     )
-    await store.writeChosenFile(request({ suggestedFileName: 'schedule.json' }))
+    await store.writeChosenFile(
+      request({
+        suggestedFileName: `schedule${AN_EXTENSION_NO_ROW_CARRIES}`,
+        extension: AN_EXTENSION_NO_ROW_CARRIES,
+      }),
+    )
     expect(saveCalls).toHaveLength(1)
     expect(Object.keys(saveCalls[0] as object)).toEqual(['suggestedName'])
-    expect(saveCalls[0]).toEqual({ suggestedName: 'schedule.json' })
+    expect(saveCalls[0]).toEqual({ suggestedName: `schedule${AN_EXTENSION_NO_ROW_CARRIES}` })
+  })
+
+  it('FR-096 (MUST): the chooser is told the extension as a type, for every row of table T-024', async () => {
+    // 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した先の名前
+    //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
+    //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
+    //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
+    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
+    //   使うこと（MUST）。**」（`FR-096`）
+    //
+    // ⭐ THIS IS THE FIX FOR D-172, AND NOTHING ELSE ASSERTED IT. The proposed
+    // name was already right; what was missing was the second thing the host is
+    // handed, which is what makes the host hold the saved name to the extension.
+    // A case that only reads `suggestedName` cannot tell the two builds apart.
+    //
+    // ⛔ WHAT IS NOT ASSERTED, AND WHY: WHICH media type each extension is given.
+    // 「⛔ **その伝え方が要する媒体型を、本書のどの表にも持たせてはならない（MUST
+    //   NOT）** —— **媒体型は外の規格が決めている値であり、宿主の作法であって製品
+    //   の値ではない。**」 There is no manuscript row to drive that from, so
+    // asserting a spelling here would be minting the value this file is
+    // forbidden to hold. What IS asserted is the join the MUST turns on: the
+    // extension of the chosen row is named to the host, on a type of its own.
+    //
+    // ⛔ WHAT WOULD MAKE THIS GO RED: a store that hands over `suggestedName`
+    // alone -- which is the build D-172 was raised against. Demonstrated by
+    // making this file's own stand-in chooser record `{ suggestedName }` and
+    // drop everything else, which is that build seen from the host's side: the
+    // case failed with 「expected [ 'suggestedName' ] to include 'types' 」 and
+    // the other 86 cases in this file stayed green, so it is this case and not
+    // the file that holds the fix.
+    // ⚠️ ONE BREAK THAT DOES *NOT* SHOW IT UP, recorded so that nobody mistakes
+    // it for a second guard: reading the extension off the SUGGESTED NAME's tail
+    // instead of the accept lists leaves every case here green, because the two
+    // agree in this build. That is why the case reads the accept lists.
+    for (const extension of T_024_EXTENSIONS) {
+      saveCalls.length = 0
+      const chosen = fileHandle({ name: `plan${extension}` })
+      const store = fileSystemAccessFileStore(
+        browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
+      )
+      await store.writeChosenFile(request({ suggestedFileName: `plan${extension}`, extension }))
+
+      expect(saveCalls, extension).toHaveLength(1)
+      const options = saveCalls[0] as Record<string, unknown>
+      expect(options['suggestedName'], extension).toBe(`plan${extension}`)
+      expect(
+        Object.keys(options),
+        `FR-096 (MUST): the chooser was told ${extension} only as part of a name, which is the ` +
+          'build D-172 was raised against',
+      ).toContain('types')
+      expect(
+        extensionsNamedTo(options),
+        `FR-096 (MUST): the host was not told that ${extension} is what this file is`,
+      ).toContain(extension)
+      // ⚠️ ONE TYPE, NOT A LIST. The person chose one row of table T-024, so
+      // offering the host several is offering to write a form nobody chose.
+      expect(extensionsNamedTo(options), extension).toEqual([extension])
+      // ⛔ AND THE MEDIA TYPE IS NOT A VALUE THE MANUSCRIPT HOLDS. That is
+      // FR-096's MUST NOT said as a measurement rather than as a comment: a
+      // build that answered this by adding a column to table T-024 would put
+      // the media type into docs/spec and fail here.
+      for (const mediaType of mediaTypesNamedTo(options)) {
+        expect(mediaType, extension).toMatch(/^[a-z]+\/[-+.a-z0-9]+$/)
+        expect(
+          specificationHolds(mediaType),
+          `FR-096 (MUST NOT): ${mediaType} is written into docs/spec, and 「その伝え方が要する` +
+            '媒体型を、本書のどの表にも持たせてはならない（MUST NOT）」',
+        ).toBe(false)
+      }
+    }
   })
 
   it('writes then closes, and reports the file the person actually chose', async () => {
@@ -1074,6 +1251,9 @@ describe('writeChosenFile -- a file the person points at', () => {
       write: {
         bytes: GRS_JSON_BYTES,
         suggestedFileName: 'plan.json',
+        // Table T-024 row IO-2 -- the extension the name above ends in, which
+        // FR-096 (MUST) has the host told so that it cannot be lost.
+        extension: '.json',
         shouldBecomeOpenedFile: true,
         askToWriteOver: (destination) => {
           asked.push(destination)
@@ -1196,6 +1376,9 @@ describe('where the API is absent -- CN-2 / LM-14', () => {
     const writing = await store.writeChosenFile({
       bytes: GRS_JSON_BYTES,
       suggestedFileName: 'plan.json',
+      // Table T-024 row IO-2 -- the extension the name above ends in, which
+      // FR-096 (MUST) has the host told so that it cannot be lost.
+      extension: '.json',
       shouldBecomeOpenedFile: true,
       askToWriteOver: () => Promise.resolve(true),
     })
@@ -1562,6 +1745,9 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
       store.writeChosenFile({
         bytes: GRS_JSON_BYTES,
         suggestedFileName: 'plan.json',
+        // Table T-024 row IO-2 -- the extension the name above ends in, which
+        // FR-096 (MUST) has the host told so that it cannot be lost.
+        extension: '.json',
         shouldBecomeOpenedFile: true,
         askToWriteOver: () => Promise.resolve(true),
       }),

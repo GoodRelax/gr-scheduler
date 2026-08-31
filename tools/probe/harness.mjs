@@ -342,7 +342,8 @@ export async function shapes({ fill = null, minWidth = 4, minHeight = 4, within 
         tag: shape.tag,
         x: Math.round(shape.box.x), y: Math.round(shape.box.y),
         w: Math.round(shape.box.width), h: Math.round(shape.box.height),
-        mid: { x: Math.round(o.r.x + o.r.width / 2), y: Math.round(o.r.y + o.r.height / 2) },
+        mid: { x: Math.round(shape.box.x + shape.box.width / 2),
+               y: Math.round(shape.box.y + shape.box.height / 2) },
       }))
       .sort((a, b) => a.y - b.y || a.x - b.x)
   }, [fill, minWidth, minHeight, within])
@@ -364,11 +365,13 @@ export async function signatureAt(x, y, radius = 30) {
       if (box.width < 4) continue
       if (Math.abs(box.x + box.width / 2 - px) > r) continue
       if (Math.abs(box.y + box.height / 2 - py) > r) continue
-      if (n.tagName === 'path') {
-        return `path/${((n.getAttribute('d') ?? '').match(/M/g) ?? []).length}sub`
+      if (drawn.tagName === 'path') {
+        return `path/${((drawn.getAttribute('d') ?? '').match(/M/g) ?? []).length}sub`
       }
-      if (n.tagName === 'rect') return `rect/${Math.round(box.width)}x${Math.round(box.height)}`
-      return `poly/${(n.getAttribute('points') ?? '').trim().split(/\s+/).length}pt`
+      if (drawn.tagName === 'rect') {
+        return `rect/${Math.round(box.width)}x${Math.round(box.height)}`
+      }
+      return `poly/${(drawn.getAttribute('points') ?? '').trim().split(/\s+/).length}pt`
     }
     return 'none'
   }, [x, y, radius])

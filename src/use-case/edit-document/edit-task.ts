@@ -43,6 +43,11 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
+// FR-032 (MUST) settles a derived row's name before its source Task goes, and
+// the WORD is FR-038's dictionary's -- never one typed here. The read itself,
+// and why the English cell is the one taken, is documented where the constant
+// is raised.
+import { DEFAULT_ROW_NAME } from './edit-task-group'
 
 /** The five shapes of table T-012 (AT-100). */
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
@@ -550,17 +555,18 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         // FR-058: 器の名前を指定しなかった行は、その行の導出元となったタスクの
         // 名前を表示すること（MUST）-- so the name to settle is `label` when the
         // row has one and the source task's name when it does not.
+        // ⭐ AND THE DEFAULT NAME WHEN NEITHER IS THERE. FR-032 (MUST):
+        // 「導出元の `Task` が名前を持たないときは、行の名前を既定の名前に確定
+        // させること」, and (MUST NOT): 「名前が無いことを理由に削除を拒んでは
+        // ならない」. ⛔ THIS BRANCH USED TO REFUSE ON `IV-8`, and that refusal
+        // is the whole of D-171: FR-001 draws a nameless Task on empty space and
+        // makes the new row derive its name from it, so EVERY task drawn that
+        // way walked into the refusal, WS-3 of table T-067 threw the bundle away,
+        // and no drawn task could be deleted at all. ⚠️ The row still comes out
+        // whole -- a real `label` and a null `derivedFromTaskUid` -- which is
+        // what IV-8 and AT-54 ask for.
         const source = taskByUid(schedule, group.derivedFromTaskUid)
-        const settled = group.label ?? source?.name ?? null
-        if (settled === null) {
-          // ⛔ MISSING: the specification does not say what the settled name is
-          // when the derivation source has no name of its own. Refusing rather
-          // than choosing one, because writing the row's `label` back as null
-          // leaves exactly the row IV-8 and FR-032 forbid.
-          return refused([
-            reject('CM-7', 'IV-8', `row ${group.id} derives its name from uid ${group.derivedFromTaskUid}, which has none`),
-          ])
-        }
+        const settled = group.label ?? source?.name ?? DEFAULT_ROW_NAME
         taskGroups.push({ ...group, label: settled, derivedFromTaskUid: null })
       }
 
