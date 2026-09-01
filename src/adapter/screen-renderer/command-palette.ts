@@ -844,11 +844,13 @@ export function commandPaletteFromScreenState(
       settings,
     ),
     isMinimised: session.isPaletteMinimised,
-    // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND NOTHING ELSE. FR-053 (MUST) keeps
-    // the grab band and the armed reading through it -- without the first the
-    // palette could never be moved again (GR-19), and without the second the
-    // same requirement's 「いま構えているものが画面上で読めること」 would hold
-    // everywhere except here. ⚠️ An empty list is not how this side says
+    // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND THE ARMED READING. FR-053 (MUST)
+    // keeps the grab band through it -- without it the palette could never be
+    // moved again (GR-19) -- and that requirement now says (MUST) that the band
+    // is ALL a minimised palette shows: the user's 2026-09-01 ruling
+    // 「コマンドパレットを最小化した時は、コマンドパレットの掴みどころ `::` と
+    // `-` の部分 だけを表示しろ」 overrode the 2026-08-28 one that had kept the
+    // armed reading here as well. ⚠️ An empty list is not how this side says
     // "hidden": `null` is (see this function's own note), and minimised is a
     // shape of being shown.
     groups: session.isPaletteMinimised
@@ -864,7 +866,12 @@ export function commandPaletteFromScreenState(
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
     // id, which that table's closing rule forbids the screen to carry.
-    armedText: armedWord(state.armed, session.language),
+    // ⛔ EXCEPT WHILE MINIMISED, which is the one exception that requirement
+    // names (user's ruling 2026-09-01). `null` rather than an empty word: the
+    // drawing side must lay nothing out there at all.
+    armedText: session.isPaletteMinimised
+      ? null
+      : armedWord(state.armed, session.language),
   }
 }
 

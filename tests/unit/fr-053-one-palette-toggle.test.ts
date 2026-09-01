@@ -479,7 +479,11 @@ describe("UF-65 -- table T-023b (MUST NOT): the arm's row id is not what is read
     for (const language of S_99_LANGUAGES) {
       for (const { row, armed } of EVERY_ARM) {
         const palette = paletteOf(screenStateWithArmed(SHOWN, armed), sessionWith({ language }))
-        const said = palette.armedText
+        // ⛔ NULL IS THE MINIMISED READING (FR-053, ruling 2026-09-01) and this
+        // palette is not minimised, so `?? ''` cannot hide a real word here --
+        // it turns the one impossible state into the empty reading the next
+        // line already fails on.
+        const said = palette.armedText ?? ''
 
         expect(said.length, `FR-053 (MUST): ${language} / ${row} reads nothing`).toBeGreaterThan(0)
         expect(
@@ -502,7 +506,8 @@ describe("UF-65 -- table T-023b (MUST NOT): the arm's row id is not what is read
     for (const language of S_99_LANGUAGES) {
       const palette = paletteOf(SHOWN, sessionWith({ language }))
       const printable = [
-        palette.armedText,
+        // Same fold as above: not minimised here, so this is always the word.
+        palette.armedText ?? '',
         ...palette.groups.map((group) => group.name),
         ...palette.groups.flatMap((group) => group.commands).map((entry) => entry.label),
       ]

@@ -1,8 +1,8 @@
-61
+60
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a
-# ステータス of テスト中/テスト待ち/テスト完了, or a 実物確認 that starts ✅.
+# ステータス of 試験待ち/実測待ち/実測済, or a 実物確認 that starts ✅.
 #
 # ⚠️ MEASURED 2026-09-01, FIRST RUN OF THIS CHECK. 180 rows have the full
 # 11-cell shape; 68 of them carry a still-blocked phrase somewhere in cell 5,
@@ -28,3 +28,26 @@
 # its cell now says outright it was one of "5 行" the 2026-09-01 review found
 # reading as blocked, right next to the still-present 仕様に行が無い /
 # 利用者の裁定が要る text that makes it match here too.
+
+# ⭐ 2026-09-01 の状態の付け替え —— この検査の数は付け替えでは 1 も動いていない。
+# 利用者の裁定で 10 状態が 8 状態になり、`テスト中` と `テスト待ち` は `試験待ち`
+# へ、`テスト完了` は `実測待ち` と `実測済` へ移った。この検査が「決定が要る
+# はずがない」と見る状態は、その 3 つ（`試験待ち` / `実測待ち` / `実測済`）に
+# 名前を替えただけで、**拾う行の集合は同じ 161 行のままである。**
+#
+# ⛔ 61 -> 62。⚠️ **この +1 は付け替えではない。** 付け替えの前後で測って
+# 確かめた —— 直前のコミットの台帳では 61、付け替え前の作業ツリーの台帳では
+# すでに 62 だった。増えたのは **D-129** の 1 行で、この巡の先の作業で
+# ステータスが試験の段まで進んだ結果、欄の頭に残ったままの
+# 「⛔ 未定。⚠️ 図形は 表 T-026 の `RC-13` により利用者の裁定が要る」が
+# 追記された決着の文と並んだためである —— この検査がまさに名指すために在る
+# 追記型の腐りそのものである。
+# ⭐ **借りを取り込んだのであって、直したのではない。** D-129 の欄を書き直せば
+# 62 は 61 へ戻る。
+#
+# 2026-09-01: 62 -> 60. D-128 and D-129 both opened with 「未定。図形は RC-13 に
+# より利用者の裁定が要る」 while figure F-019 already held all 89 shapes and the
+# table already held all 89 rows -- the ruling was never outstanding. The front
+# session had asked the user to rule on shapes that were already drawn, on the
+# strength of those two cells. This is exactly the rot this check exists to name,
+# and it caught its own author.

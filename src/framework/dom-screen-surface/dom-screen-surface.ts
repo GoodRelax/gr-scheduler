@@ -1605,6 +1605,17 @@ const STYLE = {
   paletteMinimise:
     'position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;' +
     'cursor:pointer;pointer-events:auto;',
+  // ⛔ THE SAME TOGGLE, IN THE FLOW, FOR THE MINIMISED PALETTE. FR-053 (MUST)
+  // shows the band ALONE while minimised, so there are no entries left to give
+  // the palette a width -- and an out-of-flow toggle then hangs off the edge of
+  // a band only IC-53 wide, which is measured: it landed at x=161 on a palette
+  // whose left edge was x=170, to the LEFT of the mark the requirement puts it
+  // to the right of. ⭐ In the flow, the band measures IC-53 + IC-75 and the
+  // palette's width follows its contents, which is the same requirement's rule
+  // for the size.
+  paletteMinimiseInFlow:
+    'position:relative;display:flex;align-items:center;' +
+    'cursor:pointer;pointer-events:auto;',
   // Where the palette's own room went, so that the band above can reach its
   // edges. ⛔ NOT A PART: table T-103 has no row for it and it carries no
   // `data-role`, so `readScreenPartAt` walks straight past it to the palette --
@@ -4485,7 +4496,15 @@ function grabBandElement(
   // band has never had -- the note above records that gap for IC-53, and this
   // row does not share it.
   const toggle = commandEntry(host, minimise)
-  toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimise)
+  toggle.setAttribute(
+    'style',
+    toggle.getAttribute('style') +
+      // ⭐ WHICH OF THE TWO PLACINGS depends on whether anything else gives the
+      // palette a width. Minimised, nothing does (FR-053, MUST: the band alone),
+      // so the toggle rides in the flow beside IC-53; shown, the entries set the
+      // width and the toggle is taken out of the flow to keep IC-53 centred.
+      (isMinimised ? STYLE.paletteMinimiseInFlow : STYLE.paletteMinimise),
+  )
   // ⭐ THE STATE IS SAID AND NOT ONLY DRAWN. Table T-109 gives IC-75 one shape
   // for both states (「同じ入口で戻す」), so a reader who cannot see it has
   // nothing to tell the two apart by unless the pressed state is written.
@@ -4581,9 +4600,13 @@ function paletteElement(
     box.append(commands)
     laid.push(box)
   }
-  // FR-053 (MUST): what is armed has to be readable on the screen.
-  const armed = made(host, 'div', STYLE.armedText)
-  armed.textContent = palette.armedText
+  // FR-053 (MUST): what is armed has to be readable on the screen -- ⛔ except
+  // while the palette is minimised, where `armedText` is null and the same
+  // requirement (MUST) shows the grab band alone. ⚠️ NOT AN EMPTY BOX EITHER:
+  // the reading is left out of the list entirely, so nothing is laid out for it.
+  const armed =
+    palette.armedText === null ? null : made(host, 'div', STYLE.armedText)
+  if (armed !== null) armed.textContent = palette.armedText
 
   // GR-19 of table T-023d, FIRST because the band is the palette's top edge and
   // FIRST because that row stands first in its table -- see `grabBandElement`.
@@ -4605,8 +4628,17 @@ function paletteElement(
 
   // The room that used to be the palette's own padding, one box further in, so
   // that the band above reaches the palette's edges (`STYLE.paletteContents`).
+  //
+  // ⛔ NOT MADE AT ALL WHILE MINIMISED. FR-053 (MUST) has the band be the whole
+  // of what a minimised palette shows -- 「最小化しているあいだに出すのは掴み帯
+  // だけとし、ほかは何も出さないこと」 -- and an empty box still carries the
+  // padding this declaration holds, which is measured height under the band.
+  if (palette.isMinimised) {
+    drawn.replaceChildren(band)
+    return drawn
+  }
   const contents = made(host, 'div', STYLE.paletteContents)
-  contents.replaceChildren(...laid, armed)
+  contents.replaceChildren(...laid, ...(armed === null ? [] : [armed]))
 
   drawn.replaceChildren(band, contents)
   return drawn

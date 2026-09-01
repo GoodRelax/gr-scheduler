@@ -1037,6 +1037,16 @@ const CONFIRMATION_MANNER = 'NT-7'
 const TASK_NAME_FIELD_ROW = 'PR-1'
 
 /**
+ * The row MK-13's 行見出し entry names as the field a double click on a row's
+ * name puts the person into -- `AT-53`, `TaskGroup.label`, which FR-042 (MUST)
+ * puts on the panel since the user's ruling of 2026-09-01.
+ *
+ * ⛔ SPELLED HERE FOR THE REASON THE ROW ABOVE IS: the row id is the join, and
+ * `ScreenSurface.focusPropertyField` takes one by design.
+ */
+const ROW_NAME_FIELD_ROW = 'AT-53'
+
+/**
  * The rows of table T-234 this file can ask on, spelled as that table spells
  * them.
  *
@@ -3950,9 +3960,10 @@ export function frameLoop(
     // ⚠️ THIS IS ONE OF THE TWO PLACES A DROPPED HAND-OFF PASSES QUIETLY: no
     // compiler will say that this line went missing, or that the surface has no
     // such member. ⭐ The tests written from the specification are what watch it.
-    if (nameFieldWanted) {
-      nameFieldWanted = false
-      screen.focusPropertyField?.(TASK_NAME_FIELD_ROW)
+    if (nameFieldWantedRow !== null) {
+      const wanted = nameFieldWantedRow
+      nameFieldWantedRow = null
+      screen.focusPropertyField?.(wanted)
     }
     // ⭐ HF-14's OWN HALF, SPENT IN THE SAME PLACE AND FOR THE SAME REASON. The
     // press on IC-91 is answered while this frame is still being decided, and
@@ -4883,17 +4894,20 @@ export function frameLoop(
   let isSettlingFieldCommit = false
 
   /**
-   * Whether MK-13 has asked for the name field and the frame that draws it has
-   * not been painted yet.
+   * WHICH name field MK-13 has asked for -- a row of the panel -- or `null`
+   * while nothing is waiting.
    *
    * ⭐ A REQUEST HELD ACROSS ONE FRAME, and it has to be: the press is answered
    * while this frame is still being decided, and the control MK-13 names does
    * not exist until the description has gone out over IF-9. `showFrame` spends
    * it on the far side of that one line.
-   * ⛔ NOT A QUEUE. A second double click before the paint asks for the same
-   * one field, so the flag says 「頼まれている」 and nothing more.
+   * ⛔ NOT A QUEUE. A second double click before the paint asks for one field,
+   * and the later ask replaces the earlier one.
+   * ⚠️ A ROW AND NO LONGER A FLAG. MK-13 has TWO destinations since the user's
+   * ruling of 2026-09-01 -- PR-1 for a task's name and AT-53 for a row's -- and
+   * a boolean could only ever spend the one that was written at the paint.
    */
-  let nameFieldWanted = false
+  let nameFieldWantedRow: string | null = null
 
   /**
    * The row HF-14 is about to make, held from the press on IC-91 until the
@@ -6333,7 +6347,27 @@ export function frameLoop(
           // exist until the description this press asks for has been DRAWN, and
           // the drawing is the frame's, not this happening's. So the request is
           // left standing and spent at the paint -- see `nameFieldWanted`.
-          nameFieldWanted = true
+          nameFieldWantedRow = TASK_NAME_FIELD_ROW
+          return
+        }
+        if (action.target.kind === 'rowName') {
+          // MK-13's 行見出し entry (MUST), as FR-085 states it since the user's
+          // ruling of 2026-09-01: 「行の名前を変える経路は、行見出しパネルでその
+          // 名前をダブルクリックすること（表 T-023 の `MK-13`）とし、`GRS` はプロ
+          // パティパネルを出し、名前の欄（`AT-53`）を編集できる状態にして焦点を
+          // 置き、既にある文字をすべて選んだ状態にすること」.
+          // ⭐ THE SAME TWO LINES AS THE TASK ABOVE, which is the ruling's own
+          // word for it -- 「(タスク名編集モードと同様の動作)」. ⛔ The panel goes
+          // up through the one function that is FR-072's entrance, so no third
+          // entrance is made (FR-029, MUST NOT).
+          // ⛔ NOTHING IS WRITTEN AND NOTHING IS CHOSEN HERE. The first click of
+          // the double click already chose the row (FR-085), and the name is
+          // written by the field's own commit, not by this press.
+          // ⚠️ THE `Enter` THAT CLOSES THE PANEL IS NOT HERE EITHER: SK-19 of
+          // table T-036 already puts the panel away on an `Enter` raised with no
+          // unsettled edit standing, and FR-085 (MUST NOT) forbids restating it.
+          showPropertiesOfChoice()
+          nameFieldWantedRow = ROW_NAME_FIELD_ROW
           return
         }
         // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR SK-9, NOR FOR MK-13's 担当

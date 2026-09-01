@@ -705,7 +705,12 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
     // otherwise AR-4's "whatever is hit becomes an endpoint" happens unannounced.
     for (const { row, armed } of T_023b) {
       const palette = describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed))
-      expect(palette.armedText.length, `FR-053 (MUST): ${row}`).toBeGreaterThan(0)
+      // ⛔ NULL IS THE MINIMISED READING AND NOTHING ELSE (FR-053, ruling
+      // 2026-09-01). `sessionOf()` is not minimised, so a null here is the MUST
+      // broken in the state it still governs -- asked before the length so the
+      // failure names which of the two went wrong.
+      expect(palette.armedText, `FR-053 (MUST): ${row} reads null while shown`).not.toBeNull()
+      expect(palette.armedText?.length ?? 0, `FR-053 (MUST): ${row}`).toBeGreaterThan(0)
     }
   })
 

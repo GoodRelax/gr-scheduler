@@ -1064,11 +1064,13 @@ export interface CommandPalette {
    * way a press on any entry does. ⛔ It is NOT in `groups` and cannot be:
    * table T-109 gives it no 群, and `groups` prints the table's groups.
    *
-   * ⚠️ IT IS DRAWN IN BOTH STATES. FR-053 (MUST) keeps the grab band and the
-   * armed reading while the palette is minimised -- without the first it could
-   * never be moved again (GR-19), and without the second the requirement's own
-   * 「いま構えているものが画面上で読めること」 would hold everywhere except
-   * here. What minimising withdraws is `groups`.
+   * ⚠️ IT IS DRAWN IN BOTH STATES. FR-053 (MUST) keeps the grab band while the
+   * palette is minimised -- without it the palette could never be moved again
+   * (GR-19) -- and the band carries IC-53 and this entrance.
+   * ⛔ THE ARMED READING IS NOT KEPT ANY MORE. The 2026-08-28 ruling that held
+   * both was overridden on 2026-09-01: 「コマンドパレットを最小化した時は、コ
+   * マンドパレットの掴みどころ `::` と `-` の部分 だけを表示しろ」. What
+   * minimising withdraws is `groups` AND `armedText`.
    */
   readonly minimise: CommandItem
   /**
@@ -1092,8 +1094,15 @@ export interface CommandPalette {
    * ⚠️ WHAT USED TO STAND HERE ALSO SAID IC-61 HAS NO FIGURE DRAWN YET. That
    * became false when RC-13's icons were raised: `icon-glyphs.json` draws that
    * row like every other one.
+   *
+   * ⛔ `null` IS THE ONE STATE THAT READS NOTHING, AND IT IS ONLY THE MINIMISED
+   * ONE. FR-053 excepts a minimised palette from that MUST since the user's
+   * 2026-09-01 ruling, so this is `null` exactly when `isMinimised` is true and
+   * a word in every other state. ⚠️ NOT AN EMPTY STRING: an empty reading is a
+   * hole the drawing side would still lay out a box for, and the requirement's
+   * MUST NOT is that nothing but the band is drawn there.
    */
-  readonly armedText: string
+  readonly armedText: string | null
 }
 
 export interface PaletteGroup {

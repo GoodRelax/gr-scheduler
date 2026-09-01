@@ -1107,7 +1107,10 @@ for (const entry of GENERATED['arms'] ?? []) {
       ...PALETTE_SHOWN,
       state: screenStateWithArmed(PALETTE_SHOWN.state, armed),
     },
-    read: (view) => view.commandPalette?.armedText,
+    // ⚠️ `?? undefined` FOLDS THE ONE NULL STATE INTO "no reading at all", and
+    // it cannot arise here: `PALETTE_SHOWN` is not minimised, and FR-053 makes
+    // minimised the only state whose `armedText` is null (ruling 2026-09-01).
+    read: (view) => view.commandPalette?.armedText ?? undefined,
   })
 }
 

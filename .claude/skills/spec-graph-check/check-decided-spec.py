@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 29 -- a row past 仕様書反映済み names where the specification says it.
+"""Check 29 -- a row at or past 実装待ち names where the specification says it.
 
 ⛔ WHY THIS EXISTS. Until 2026-08-30 the ledger could not tell 「裁定が下りた」
 from 「仕様書に書いた」: one status carried both, so a change request that was
@@ -9,11 +9,21 @@ UID or table row id, and the wording.
 
 ⭐ THIS CHECK IS THE RUNG BELOW THE RULE. A rule is only followed once a
 machine looks at it; the same shape already works as check 28, which counts
-rows that reached テスト完了 without anyone opening the app.
+rows that claim a measurement without carrying one.
 
-⚠️ IT HOLDS A DEBT, IT DOES NOT DEMAND ZERO. The convention starts today and
-the ledger is 154 rows old, so the count is held against a baseline and fails
-only when it RISES. Bringing it down is the work; letting it grow is not.
+⚠️ THE NAMES CHANGED ON 2026-09-01; THE DEMAND DID NOT. The ten states became
+eight, and 仕様書反映済み -- 「変更要求が仕様書へ入った」 -- was folded into
+`実装待ち`, which the new table defines as 「仕様書に在る。まだコードに無い」.
+That is the same claim, so `実装待ち` is now the FIRST state that has to name a
+place rather than the one just after it. The rest of the fold is mechanical:
+実装中 also became `実装待ち`, テスト中 and テスト待ち became `試験待ち`, and
+テスト完了 became `実測済` or `実測待ち` depending on whether the shipped build
+had been pressed.
+
+⚠️ IT HOLDS A DEBT, IT DOES NOT DEMAND ZERO. The convention started on
+2026-08-30 and the ledger was already 154 rows old, so the count is held
+against a baseline and fails only when it RISES. Bringing it down is the work;
+letting it grow is not.
 
     python .claude/skills/spec-graph-check/check-decided-spec.py
 
@@ -30,10 +40,13 @@ LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'decided-spec-baseline.txt')
 REL = 'docs/development-records/defects.md'
 
-# ⭐ The statuses that stand AFTER 仕様書反映済み on the ladder. A row here says
-# the specification is settled and written, so it must be able to say where.
+# ⭐ The statuses that say the specification is settled AND WRITTEN, so the row
+# must be able to say where. `実装待ち` opens the list because it is where
+# 仕様書反映済み landed in the 2026-09-01 fold: 「仕様書に在る。まだコードに無い」.
 # ⚠️ 取下げ is not among them: a withdrawn row owes the specification nothing.
-NEEDS_SPEC = ('実装待ち', '実装中', 'テスト中', 'テスト待ち', 'テスト完了')
+# ⚠️ 未検討 / 裁定待ち / 仕様待ち are not among them either: none of the three
+# claims the specification has been written yet.
+NEEDS_SPEC = ('実装待ち', '試験待ち', '実測待ち', '実測済')
 
 # ⛔ WHAT A SPEC MANAGEMENT NUMBER IS -- and what only looks like one. `D-` is
 # this ledger's own id, `PD-` the pending-decision list's, `CR-` a change
@@ -80,13 +93,13 @@ def main():
 
     count = len(missing)
     if held is None:
-        print('NOTE     %s: %d row(s) past 仕様書反映済み name no place in the '
+        print('NOTE     %s: %d row(s) at or past 実装待ち name no place in the '
               'specification; no baseline held yet' % (REL, count))
         return 0
     if count > held:
         fresh = ' '.join(missing[:12]) + (' …' if len(missing) > 12 else '')
-        print('FAIL     %s: rows past 仕様書反映済み with no place named in the '
-              'specification went %d -> %d. ⛔ A row may not pass 仕様書反映済み '
+        print('FAIL     %s: rows at or past 実装待ち with no place named in the '
+              'specification went %d -> %d. ⛔ A row may not reach 実装待ち '
               'without writing the chapter, the requirement UID or table row id, '
               'and the wording into 対応方針・決定仕様. Raise the number in '
               '.claude/skills/spec-graph-check/decided-spec-baseline.txt only to '
@@ -94,10 +107,10 @@ def main():
               '         %s' % (REL, held, count, fresh))
         return 1
     if count < held:
-        print('OK       %s: %d row(s) past 仕様書反映済み still name no place '
+        print('OK       %s: %d row(s) at or past 実装待ち still name no place '
               '(was %d) -- ⭐ lower the baseline to hold the ground' % (REL, count, held))
         return 0
-    print('OK       %s: %d row(s) past 仕様書反映済み name no place, which is the '
+    print('OK       %s: %d row(s) at or past 実装待ち name no place, which is the '
           'baseline' % (REL, count))
     return 0
 

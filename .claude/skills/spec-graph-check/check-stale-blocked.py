@@ -31,9 +31,12 @@ WHAT COUNTS AS A HIT. Both of these true in the SAME row:
   2. Something in the SAME row says the block is over. Any of:
        - cell 5 ALSO contains a settled phrase: 裁定を受けた, 裁定が下りた,
          裁定は下りて, 決着, 仕様書へ入れた, or 書いた先は;
-       - or cell 6 (ステータス, backticks stripped) is テスト中 / テスト待ち /
-         テスト完了 -- reaching a testing state cannot happen while a ruling
-         is genuinely outstanding, since there is nothing decided to build;
+       - or cell 6 (ステータス, backticks stripped) is 試験待ち / 実測待ち /
+         実測済 -- a row cannot be waiting on its automated tests, waiting to
+         be pressed in the shipped build, or already measured, while a ruling
+         is genuinely outstanding, since there would be nothing decided to
+         build. ⭐ These are the 2026-09-01 names of what were テスト中 /
+         テスト待ち / テスト完了, and they pick out the same rows;
        - or cell 9 (実物確認) begins with ✅ -- somebody already looked at the
          working thing, which cannot happen before it was decided what to
          build.
@@ -81,7 +84,11 @@ SETTLED_IN_CELL = (u'裁定を受けた', u'裁定が下りた', u'裁定は下�
                     u'仕様書へ入れた', u'書いた先は')
 
 # ⭐ A status this far along could not have been reached without a decision.
-TESTING_STATUSES = (u'テスト中', u'テスト待ち', u'テスト完了')
+# ⚠ Renamed 2026-09-01 with the eight-state ledger: テスト中 and テスト待ち
+# both became 試験待ち, and テスト完了 split into 実測待ち (green tests, the
+# shipped build not pressed yet) and 実測済 (pressed and measured). All three
+# say the code exists, so all three still say a ruling cannot be outstanding.
+TESTING_STATUSES = (u'試験待ち', u'実測待ち', u'実測済')
 
 SEEN_MARK = u'✅'  # the ✅ that opens 実物確認 once someone has looked
 

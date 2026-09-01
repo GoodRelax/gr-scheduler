@@ -41,12 +41,74 @@ END = '<!-- ledger-metrics: end -->'
 # The order the ladder is walked in, which is the order 「ステータスの定義」
 # prints them. A status the table gains and this list does not is reported
 # rather than dropped.
-LADDER = ['未検討', '追加裁定待ち', '仕様確定', '仕様書反映済み', '実装待ち',
-          '実装中', 'テスト中', 'テスト待ち', 'テスト完了', '取下げ']
+#
+# ⭐ THE EIGHT STATES OF 2026-09-01 (利用者の裁定). Every non-terminal state is
+# named for WHAT IT IS WAITING ON, so the name says who acts next. The ten they
+# replaced mixed two axes -- how far the work had got, and who was holding it --
+# and the second axis rotted: measured, テスト中 (20 rows) and テスト待ち
+# (20 rows) meant the same thing in practice, and テスト待ち was not even in the
+# definitions table until 2026-09-01. ⛔ テスト完了 also carried two claims at
+# once -- "the automated tests are green" and "somebody opened the shipped build
+# and measured it" -- which are not the same claim. 実測待ち and 実測済 are those
+# two claims, held apart.
+LADDER = ['未検討', '裁定待ち', '仕様待ち', '実装待ち',
+          '試験待ち', '実測待ち', '実測済', '取下げ']
 
 # ⛔ THE TWO THAT COUNT AS FINISHED. Everything else is 残件, and 残件 going down
-# is what progress means from 2026-08-30 (利用者の裁定).
-DONE = ['テスト完了', '取下げ']
+# is what progress means from 2026-08-30 (利用者の裁定). ⚠️ 実測済 takes the seat
+# テスト完了 held: a row is finished when it has been MEASURED in the shipped
+# build, not when its automated tests went green.
+DONE = ['実測済', '取下げ']
+
+# ⚠️ THE TEN NAMES THE LEDGER USED UNTIL 2026-09-01, in the order they were
+# printed in, and where each one lands now. This exists for ONE reason: a
+# baseline row taken under the old names has twelve cells while the new header
+# has ten, and without folding one onto the other the length guard in
+# `block_of` would take every cell to — and the round would silently lose the
+# progress it had already measured. That exact failure happened once before,
+# on 2026-08-30, when 残件 was added in front of 総件数.
+#
+# ⛔ テスト完了 FOLDS ENTIRELY INTO 実測済, and that is a measured fact rather than
+# a guess: check 28 (check-live-verification.py) has held the count of finished
+# rows carrying no measurement at a baseline of 0 since 2026-08-30, and it fails
+# the moment that count rises. A baseline taken after that date therefore cannot
+# hold a テスト完了 row that still owed a look at the real thing.
+OLD_LADDER = ['未検討', '追加裁定待ち', '仕様確定', '仕様書反映済み', '実装待ち',
+              '実装中', 'テスト中', 'テスト待ち', 'テスト完了', '取下げ']
+RENAMED = {
+    '未検討': '未検討',
+    '追加裁定待ち': '裁定待ち',
+    '仕様確定': '仕様待ち',
+    '仕様書反映済み': '実装待ち',
+    '実装待ち': '実装待ち',
+    '実装中': '実装待ち',
+    'テスト中': '試験待ち',
+    'テスト待ち': '試験待ち',
+    'テスト完了': '実測済',
+    '取下げ': '取下げ',
+}
+
+
+def migrate(start_cells):
+    """An old twelve-cell baseline row, re-expressed under the eight names.
+
+    ⭐ 残件 AND 総件数 KEEP THEIR VALUES: 残件 is everything that has not reached
+    the two finished states, and the two finished states map onto the two
+    finished states. Only the columns between them are folded.
+
+    ⚠️ It returns the row untouched when the row is not the old shape, so this
+    is a no-op from the first baseline taken under the new names onward.
+    """
+    if start_cells is None or len(start_cells) != 2 + len(OLD_LADDER):
+        return start_cells
+    try:
+        numbers = [int(c) for c in start_cells]
+    except ValueError:
+        return start_cells                # a row of dashes; nothing to fold
+    folded = dict((name, 0) for name in LADDER)
+    for name, count in zip(OLD_LADDER, numbers[2:]):
+        folded[RENAMED[name]] += count
+    return [str(numbers[0]), str(numbers[1])] + [str(folded[n]) for n in LADDER]
 
 
 def counts(text):
@@ -72,7 +134,9 @@ def parse_start(block):
         if line.startswith('| セッション開始時'):
             cells = [c.strip() for c in line.split('|')]
             when = cells[1].replace('セッション開始時', '').strip()
-            return when, [c for c in cells[2:-1]]
+            # ⭐ A baseline taken under the ten old names is folded onto the
+            # eight, so a round that opened before 2026-09-01 keeps its delta.
+            return when, migrate([c for c in cells[2:-1]])
     return None, None
 
 
@@ -86,13 +150,16 @@ def signed(n):
 
 
 def block_of(when, start_cells, rows, seen, today):
-    order = [s for s in LADDER if s in seen or (start_cells and any(start_cells))]
-    order = [s for s in LADDER if seen.get(s, 0) > 0] if start_cells is None else \
-        [s for s in LADDER]
+    # ⛔ EVERY RUNG OF THE LADDER IS A COLUMN, empty or not. A column that
+    # appeared only when a row stood on it would change the header's width from
+    # one run to the next, and the baseline row printed under it would stop
+    # lining up with the header it was measured against.
+    order = [s for s in LADDER if seen.get(s, 0) > 0] if start_cells is None \
+        else list(LADDER)
     head = '| | 残件 | 総件数 | ' + ' | '.join(order) + ' |'
     rule = '| --- | --: | --: | ' + ' | '.join(['--:'] * len(order)) + ' |'
     # ⭐ 残件 IS THE PROGRESS MEASURE (利用者の裁定 2026-08-30): everything that
-    # has not reached テスト完了 or 取下げ. ⚠️ It is derived, never counted by
+    # has not reached 実測済 or 取下げ. ⚠️ It is derived, never counted by
     # hand -- the whole reason this file exists.
     now = [rows - sum(seen.get(s, 0) for s in DONE), rows]         + [seen.get(s, 0) for s in order]
     if start_cells is None or len(start_cells) != len(now):

@@ -678,12 +678,29 @@ export type InPlaceTarget =
       /** AT-55, one past the last sibling -- HF-14's 末子 (MUST). */
       readonly order: number
     }
+  /**
+   * MK-13's 行見出し entry -- a double click on a row's NAME in the
+   * `Row Title Panel`, which FR-085 (MUST) makes the one path to renaming a row
+   * that already stands (user's ruling 2026-09-01): 「タスクグループ名をダブル
+   * クリックしたら、プロパティパネルを開き、タスクグループ名編集モードとせよ」.
+   *
+   * ⭐ THE SAME SHAPE AS `taskName`, WHICH IS THE RULING'S OWN WORD FOR IT --
+   * 「(タスク名編集モードと同様の動作)」. The destination is the panel's name
+   * field again; only the row of that panel differs, AT-53 against PR-1, and
+   * which row a field is is the shell's join to make.
+   *
+   * ⛔ THE ROW IS CARRIED AND NOT READ BACK OFF THE SELECTION. The first click
+   * of the double click chose the row, but FR-085 lets several be chosen at
+   * once -- so which one was double clicked is a fact only this press holds.
+   */
+  | { readonly kind: 'rowName'; readonly groupId: string }
 
-// STOP -- ⛔ ONE OF MK-13's FOUR ENTRANCES CANNOT BE REACHED, and not because
-// it was left out here. 「行見出し」 is in the Row Title Panel, which the note
-// under table T-023a puts outside this decision order altogether (FR-085 owns
-// it). Adding a kind for it here would declare a vocabulary nothing can
-// produce, which is the guess R4's YAGNI forbids.
+// ⚠️ WHAT USED TO STAND HERE WAS A STOP SAYING 「行見出し」 COULD NOT BE REACHED,
+// on the ground that the Row Title Panel lies outside table T-023a's decision
+// order. That ground was true and is not the whole of it: a press the SURFACE
+// claimed arrives with `ScreenPart.rowGroupId`, which is the very road
+// `commandFromEntry` already takes to FR-085's choosing of a row. The kind
+// above is produced from there, so the vocabulary it declares is reachable.
 //
 // ⚠️ 「担当ラベル」 IS NO LONGER ONE OF THEM. ScheduleGeometry places the label
 // and `item-hit-area.ts` gives GR-11 its row, so a `Hit` can name it and AS-1
@@ -695,13 +712,11 @@ export type InPlaceTarget =
 // CM-48 is its own piece of work; the kind is left out until that work is
 // asked for, for the same YAGNI reason and not for the old one.
 //
-// ⚠️ `newRowName` ABOVE IS NOT THAT MISSING ENTRANCE. This STOP is about
-// RENAMING a row that already stands, which MK-13 reaches by a double click on
-// the 行見出し and which still has no `Hit` to arrive on; `newRowName` is
-// HF-14's naming of a row that does NOT yet exist, and it arrives on a press on
-// IC-91, which `readScreenPartAt` answers for. ⛔ So the vocabulary that kind
-// declares IS produced, and the two must not be folded together: one writes
-// CM-34 against a row, the other CM-26 to make one.
+// ⛔ `newRowName` AND `rowName` ARE TWO KINDS AND MUST NOT BE FOLDED TOGETHER.
+// `rowName` RENAMES a row that already stands, which MK-13 reaches by a double
+// click on the 行見出し; `newRowName` is HF-14's naming of a row that does NOT
+// yet exist, and it arrives on a press on IC-91. One writes CM-34 against a
+// row, the other CM-26 to make one.
 
 /**
  * CM-60, which is the one road into `dualCursor` (S-65).
@@ -3128,6 +3143,17 @@ function commandFromGroupColumn(
   text: string,
 ): readonly DocumentCommand[] {
   switch (column) {
+    case 'label': {
+      // AT-53, the row's name, which FR-042 (MUST) puts on the panel since the
+      // user's ruling of 2026-09-01 and FR-085 makes MK-13's double click open.
+      // ⭐ CM-34's own command, not a new one: `setTaskGroupLabel` is the write
+      // FR-085 already had for renaming a row that stands.
+      // ⚠️ AN EMPTIED FIELD IS `null` AND NOT `''`, which is the spelling AT-53
+      // gives 「名前が無い」 -- and the use case refuses it for a row that has no
+      // derivation source either (AT-54, FR-058's MUST NOT), so a name cleared
+      // off a row that needs one is turned back there rather than here.
+      return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
+    }
     case 'color': {
       const color = settledText(text)
       return color === null
@@ -3915,6 +3941,19 @@ function commandFromEntry(
     // surface writes the key on a row of the `Row Title Panel` and on a roster
     // line, and a roster line carries `entry` as well.
     if (on.rowGroupId !== null) {
+      // MK-13's 行見出し entry (MUST), as FR-085 states it since the user's
+      // ruling of 2026-09-01: a DOUBLE click on the row's name opens the
+      // `Properties Panel` at the name field (AT-53), focused, with the text
+      // already there all selected.
+      // ⛔ NOTHING IS CHOSEN HERE, and for the same reason `taskName` chooses
+      // nothing: the FIRST click of the double click already ran the branch
+      // below and moved the chosen rows, so the panel turns to what was
+      // pressed. ⚠️ `clickCount` is the framework's count -- telling a double
+      // click from two single ones is a question about elapsed time that LY-5
+      // of table T-060 leaves the outermost layer.
+      if (press.at.clickCount >= 2) {
+        return acted({ kind: 'editInPlace', target: { kind: 'rowName', groupId: on.rowGroupId } })
+      }
       return acted({
         kind: 'chooseRow',
         groupId: on.rowGroupId,

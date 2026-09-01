@@ -239,7 +239,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'resumeScaleInvalid': 0.7,
   'rowGap': 8,
   'rowTitleFont': 13,
-  'rowTitleIndent': 12,
+  'rowTitleIndent': 16,
   'rowTitlePanelWidth': 170,
   'rowTitleTopScale': 1.3,
   'rulerFont': 14,

@@ -2575,6 +2575,69 @@ describe('FR-038 -- the words are carried, and the language is readable before t
   })
 })
 
+describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing else', () => {
+  // ⭐ THE USER'S RULING OF 2026-09-01: 「コマンドパレットを最小化した時は、コマン
+  // ドパレットの掴みどころ `::` と `-` の部分 だけを表示しろ」 -- it overrode the
+  // 2026-08-28 ruling that had also kept the armed reading on a minimised
+  // palette. FR-053 now says 「最小化しているあいだに出すのは掴み帯だけとし、ほか
+  // は何も出さないこと（MUST）」 and (MUST NOT) that the armed reading is not
+  // drawn there.
+  //
+  // ⛔ WHAT THIS UNIT OWES AND WHAT IT DOES NOT. UF-65 decides that a minimised
+  // palette carries no `armedText` -- that is the adapter's answer and
+  // tests/unit/fr-053-minimised-shows-the-band-alone.test.ts holds it. What THIS
+  // unit owes is that a description carrying no reading draws no box for one:
+  // an empty word laid out is still something on the screen beside the band.
+
+  const minimised = (armedText: string | null): ScreenView =>
+    viewWith({
+      commandPalette: { ...PALETTE, isMinimised: true, groups: [], armedText },
+    })
+
+  it('⭐ prints no word at all when the description carries none', () => {
+    // GOES RED IF: the reading comes back as an empty box, or the entries are
+    // drawn again while minimised. ⚠️ The word compared against is the one the
+    // NOT-minimised fixture carries, so this case cannot pass by the fixture
+    // going silent.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(minimised(null))
+
+    const palette = oneByRole(built.root(), 'Command Palette')
+    expect(shownText(palette), 'the band alone, with no word beside it').toBe('')
+    expect(byRole(palette, 'Palette Groups')).toHaveLength(0)
+    expect(byRole(palette, 'Palette Commands')).toHaveLength(0)
+  })
+
+  it('⛔ still draws the band, so the palette can be moved again (GR-19)', () => {
+    // ⚠️ THE HALF OF THE 2026-08-28 RULING THAT SURVIVED. FR-053 keeps the band
+    // 「⛔ 帯を消すと最小化したパレットを動かせなくなる」, and IC-75 rides on it in
+    // both states.
+    // GOES RED IF: the drawing side reads "show only the grab area" as "show
+    // less", and takes the band's own marks with the word.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(minimised(null))
+
+    const palette = oneByRole(built.root(), 'Command Palette')
+    const marks = selfAndDescendants(palette)
+      .map((one) => one.getAttribute('data-icon'))
+      .filter((one): one is string => one !== null)
+    expect(marks, 'IC-53 (掴みどころ) and IC-75 (最小化) are what the band carries')
+      .toEqual(expect.arrayContaining(['IC-53', 'IC-75']))
+  })
+
+  it('⭐ prints the word again as soon as the description carries one', () => {
+    // ⚠️ THE CONTROL CASE. Without it a unit that never printed `armedText` at
+    // all would pass the first case, and FR-053 still makes the reading a MUST
+    // everywhere but the minimised state.
+    // GOES RED IF: the null branch is written as "never draw the reading".
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(viewWith({ commandPalette: PALETTE }))
+
+    const palette = oneByRole(built.root(), 'Command Palette')
+    expect(shownText(palette)).toContain(PALETTE.armedText)
+  })
+})
+
 describe('FR-023 -- nothing that arrived from a document becomes markup', () => {
   const HOSTILE = '<img src=x onerror="boom">'
 

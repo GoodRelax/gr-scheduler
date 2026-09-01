@@ -1113,14 +1113,23 @@ function fieldsOfItem(
 type TaskGroup = Schedule['taskGroups'][number]
 
 /**
- * FR-042's two items, each named by its row of table T-058 for the reason
- * `PropertyField.row` gives: table T-016 is the `Task` table and holds neither.
+ * FR-042's items, each named by its row of table T-058 for the reason
+ * `PropertyField.row` gives: table T-016 is the `Task` table and holds none of
+ * them.
  *
- * ⚠️ The row's NAME is deliberately absent. FR-042 says in as many words that
- * the name is not handled here, and FR-029 leaves the `Row Title Panel` of
- * FR-085 as its one entry.
+ * ⭐ THE ROW'S NAME (AT-53) IS THE FIRST OF THEM SINCE 2026-09-01. FR-042 said
+ * until then, in as many words, that the name was not handled here; the user's
+ * ruling of that date overrode it -- 「タスクグループ名をダブルクリックしたら、
+ * プロパティパネルを開き、タスクグループ名編集モードとせよ」 -- and the
+ * requirement now (MUST) puts the name on this panel.
+ * ⚠️ WHAT DID NOT CHANGE IS THE ENTRANCE. FR-042 still leaves the `Row Title
+ * Panel` of FR-085 as the one way in; what moved is where the editing happens.
+ * ⭐ FIRST IN THE LIST because the panel prints in this order and FR-072's
+ * RATIONALE puts the most frequently touched item at the top -- the same place
+ * PR-1 takes among a `Task`'s.
  */
 const GROUP_ITEMS: readonly { readonly row: string; readonly column: keyof TaskGroup }[] = [
+  { row: 'AT-53', column: 'label' },
   { row: 'AT-58', column: 'color' },
   { row: 'AT-59', column: 'height' },
 ]

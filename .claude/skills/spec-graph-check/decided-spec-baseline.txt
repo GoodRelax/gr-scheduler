@@ -1,5 +1,7 @@
 93
-# ⛔ Rows past 仕様書反映済み that name no place in the specification.
+# ⛔ Rows at or past `実装待ち` that name no place in the specification.
+# (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
+# see the note at the foot of this file.)
 #
 # ⚠️ THE CONVENTION STARTED ON 2026-08-30, AND THE LEDGER WAS ALREADY 154 ROWS
 # OLD. These 94 are the rows that were written before 対応方針・決定仕様 was
@@ -13,3 +15,13 @@
 # had said only 「仕様に行が無い。利用者の裁定が要る」 while the ruling and the
 # row both existed -- the cell is written append-only, so an opening 「未定」
 # outlives the ruling that overturns it. Five rows read as blocked that way.
+#
+# ⭐ 2026-09-01 の状態の付け替え —— 数は動いていない。名前だけが動いた。
+# 利用者の裁定で 10 状態が 8 状態になり、`仕様書反映済み`（変更要求が仕様書へ
+# 入った）は `実装待ち`（仕様書に在る。まだコードに無い）へ畳まれた。同じ主張で
+# あるから、この検査が見る状態は `実装待ち` / `試験待ち` / `実測待ち` / `実測済`
+# の 4 つになり、見る行は 164 行から 165 行へ 1 行だけ増えた —— 増えたのは
+# `仕様書反映済み` にいた D-156 の 1 行である。⭐ **D-156 は書いた先を名乗って
+# いるので、場所を名乗らない行の数は 93 のまま動かない。**
+# ⚠️ だからこの 93 は、仕事が進んだ結果ではなく、**状態の名前が変わっても同じ
+# 借りがそこに在ることを測り直した数**である。
