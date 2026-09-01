@@ -1149,7 +1149,14 @@ NOT_STORED_TARGETS = {
     # DRAWN_INSIDE_THE_COMMAND_PALETTE. ⚠️ While the two shared a constant,
     # S-143 stood in a file that could not draw with it and that the drawing
     # side may not import.
-    'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a'], READ_WHERE_IT_STANDS),
+    # ⭐ S-216 JOINS S-135a RATHER THAN OPENING A CONSTANT OF ITS OWN, and
+    # the subject is the same one: both are values UF-65 reads where it stands
+    # to build ONE description of ONE surface, and neither crosses a contract.
+    # S-135a is the band's height, S-216 is how many milestone glyph entrances
+    # stay out of the fold FR-053 (MUST) puts the rest behind. ⚠️ A count in a
+    # constant named SIZES is not new: NOT_STORED_HELP_SIZES holds S-202, the
+    # number of help columns, beside a share of the window.
+    'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a', 'S-216'], READ_WHERE_IT_STANDS),
     'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
                                             DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),

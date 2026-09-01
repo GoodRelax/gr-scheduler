@@ -453,6 +453,17 @@
    }
   },
   {
+   "rowId": "IC-61",
+   "label": {
+    "ja": "依存線",
+    "en": "Dependency Line"
+   },
+   "hint": {
+    "ja": "依存線を構える。タスクからタスクへ引く",
+    "en": "Arm a Dependency Line; draw it from one task to another"
+   }
+  },
+  {
    "rowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
@@ -783,17 +794,6 @@
    }
   },
   {
-   "rowId": "IC-61",
-   "label": {
-    "ja": "依存線",
-    "en": "Dependency Line"
-   },
-   "hint": {
-    "ja": "依存線を構える。タスクからタスクへ引く",
-    "en": "Arm a Dependency Line; draw it from one task to another"
-   }
-  },
-  {
    "rowId": "IC-62",
    "label": {
     "ja": "名簿",
@@ -1104,7 +1104,7 @@
    }
   },
   {
-   "firstRow": "IC-37",
+   "firstRow": "IC-61",
    "name": {
     "ja": "揃える",
     "en": "Align"

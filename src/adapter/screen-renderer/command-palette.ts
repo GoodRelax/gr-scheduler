@@ -82,11 +82,14 @@
 // the boundary FR-053 (MUST) asks for is drawn and no row of table T-206
 // arrives here that this unit does not use.
 //
-// ⛔ THE EIGHT MILESTONE SHAPES ARE NOT OFFERED UNTIL THE LIST IS OPEN
-// (FR-053, MUST). `ScreenSession.isMilestoneListOpen` is that state, which
-// S-142 of table T-206 records the document does not keep and the shell holds.
-// ⚠️ Folding them changes WHICH ENTRIES a group holds and never which groups
-// there are or what a group is called -- see `paletteGroups`.
+// ⛔ THE MILESTONE SHAPES PAST THE FIRST S-216 ARE NOT OFFERED UNTIL THE LIST
+// IS OPEN (FR-053, MUST). `ScreenSession.isMilestoneListOpen` is that state,
+// which S-142 of table T-206 records the document does not keep and the shell
+// holds. ⚠️ WHAT USED TO STAND HERE SAID ALL EIGHT WAITED FOR IT, and the user
+// ruled otherwise on 2026-09-01: the ones SH-5 of table T-012 prints first in
+// its area order stand whatever the list is doing, and S-216 of table T-206 is
+// how many. ⚠️ Folding them changes WHICH ENTRIES a group holds and never which
+// groups there are or what a group is called -- see `paletteGroups`.
 //
 // ⛔ TWO OF ITS `Command Palette` ROWS ARE NOT ENTRIES. Table T-109 says so in
 // its own entry column -- one row shows that the palette can be dragged
@@ -202,11 +205,15 @@ const INTERACTION_RECORD_ROW: IconId = 'IC-76'
  * that owns the milestone glyph entrances FR-053 folds away.
  *
  * ⭐ THE JOIN IS THAT COLUMN, for the reason `ALIGN_REQUIREMENT` gives: it is
- * the table's own statement of which requirement owns an entry, so a ninth
- * shape added to SH-5 of table T-012 and to table T-109 folds with the eight
- * without this file being touched. ⛔ Eight row ids typed here would go stale in
- * silence, and `input-command-translator.ts` already carries a list of exactly
- * those eight for a purpose this unit does not share (what each one arms).
+ * the table's own statement of which requirement owns an entry, so a shape
+ * added to SH-5 of table T-012 and to table T-109 arrives with the rest without
+ * this file being touched -- at the END of the order, which is where a folded
+ * one belongs. ⛔ Row ids typed here would go stale in silence, and
+ * `input-command-translator.ts` already carries a list of them for a purpose
+ * this unit does not share (what each one arms).
+ * ⚠️ THE COUNT USED TO BE EIGHT AND IS FIFTEEN. Seven marks joined SH-5 on
+ * 2026-08-29, and the seven have no area order (FR-078), so they cannot be
+ * among the ones the fold spares.
  */
 const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 
@@ -495,18 +502,55 @@ function commandItemFor(
 }
 
 /**
- * One of the eight milestone shapes FR-053 (MUST) keeps off the palette until
- * the list is open -- IC-27 to IC-34 as table T-109 stands, reached by the
- * requirement that owns them rather than by their row ids.
+ * One of the milestone shapes FR-078 owns -- IC-27 to IC-34 and IC-83 to IC-89
+ * as table T-109 stands, reached by the requirement that owns them rather than
+ * by their row ids.
  *
- * ⚠️ The two rows that WORK the list carry the same requirement and are not
- * shapes, which is the whole of what `MILESTONE_LIST_CONTROL_ROWS` subtracts.
+ * ⚠️ The row that WORKS the list carries the same requirement and is not a
+ * shape, which is the whole of what `MILESTONE_LIST_CONTROL_ROWS` subtracts.
+ *
+ * ⚠️ WHAT USED TO STAND HERE SAID FR-053 KEPT ALL OF THEM OFF THE PALETTE UNTIL
+ * THE LIST WAS OPEN, AND SAID EIGHT. Both halves went false on 2026-09-01: the
+ * table carries fifteen, and the requirement now keeps only the ones past the
+ * first S-216 of them off (the user's ruling 「マイルストーンは ○〜☆ までを
+ * デフォルトでコマンドパレットに表示せよ」). `isFoldedMilestoneGlyph` is where
+ * that boundary is read; this member only says which rows it applies to.
  *
  * @purity pure
  */
 function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
   if (!row.authority.includes(MILESTONE_GLYPH_REQUIREMENT)) return false
   return !MILESTONE_LIST_CONTROL_ROWS.includes(row.rowId)
+}
+
+/**
+ * Whether the milestone glyph entrance met `met`th folds away while the list is
+ * closed -- FR-053 (MUST) keeps the first S-216 of them on the palette always
+ * and puts the rest behind the one entrance that opens the list.
+ *
+ * ⭐ COUNTED RATHER THAN NAMED, AND THE COUNT IS THE SPECIFICATION'S. S-216 of
+ * table T-206 states how many stay, and the requirement says which they are by
+ * pointing at the order SH-5 of table T-012 prints them in -- 「面積順に並べる
+ * はじめから」. So neither a row id nor a glyph spelling is written here: this
+ * unit walks the roster in table T-109's own order, the way `paletteGroups`
+ * already walks it for the groups, and takes the first S-216 glyph entrances it
+ * meets.
+ * ⛔ THE ONE THING THAT COULD GO WRONG IN SILENCE IS THAT THE TWO ORDERS PART.
+ * Table T-109 prints its glyph rows in SH-5's order today and no sentence of
+ * the specification requires it to -- 表 T-012's own note (MUST NOT) warns
+ * against leaning on two lists being printed alike. ⭐ So it is a test that
+ * holds them together, reading both manuscripts, rather than a comparison here:
+ * a join written here would have to name the six glyphs, which is the copy
+ * rule 03 section 1 forbids and which the requirement (MUST NOT) refuses too.
+ *
+ * ⭐ Read where the generated block stands, at the foot of this file, rather
+ * than into a module constant above it -- that would read it before it is
+ * assigned, the reason `grabBandHeight` gives.
+ *
+ * @purity pure
+ */
+function isFoldedMilestoneGlyph(met: number): boolean {
+  return met > NOT_STORED_COMMAND_PALETTE_SIZES['S-216']
 }
 
 /**
@@ -558,6 +602,13 @@ function paletteGroups(
     readonly commands: CommandItem[]
   }[] = []
 
+  // How many milestone glyph entrances the walk has met, which is the whole of
+  // what `isFoldedMilestoneGlyph` is asked about. ⭐ Counted over the roster in
+  // table T-109's own order and never over the entries that survive the fold:
+  // the boundary FR-053 states is a place in that order, so it has to be
+  // counted where the order is, not after some of it has been dropped.
+  let milestoneGlyphsMet = 0
+
   for (const row of iconRoster.icons) {
     if (!row.surfaces.includes(COMMAND_PALETTE)) continue
     if (NOT_BUTTON_ROWS.includes(row.rowId)) continue
@@ -575,7 +626,16 @@ function paletteGroups(
     const group = opened ?? { cell, firstRow: row.rowId, commands: [] }
     if (opened === undefined) groups.push(group)
 
-    if (isMilestoneGlyphEntry(row) && !isMilestoneListOpen) continue
+    // FR-053 (MUST) since 2026-09-01: the first S-216 glyph entrances stand
+    // whatever the list is doing, and only the ones past them wait for it.
+    // ⛔ THE COUNT MOVES ON EVERY GLYPH ROW, INCLUDING THE FOLDED ONES AND
+    // INCLUDING WHILE THE LIST IS OPEN. It is a position in table T-109's order,
+    // not a tally of what was drawn -- counting only the drawn ones would let
+    // the sixth entrance fold once the list had been opened and closed.
+    if (isMilestoneGlyphEntry(row)) {
+      milestoneGlyphsMet += 1
+      if (isFoldedMilestoneGlyph(milestoneGlyphsMet) && !isMilestoneListOpen) continue
+    }
     group.commands.push(commandItemFor(row, selection, language, armed, isRecording, settings))
   }
 
@@ -760,8 +820,9 @@ export function commandPaletteFromScreenState(
     // generated block stands, at the foot of this file, rather than into a
     // module constant above it -- that would read it before it is assigned.
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
-    // FR-053 (MUST): the eight milestone shapes stay out until the list is
-    // open. S-142 of table T-206 is the state, and the shell holds it.
+    // FR-053 (MUST): the milestone shapes past the first S-216 stay out until
+    // the list is open. S-142 of table T-206 is the state, and the shell holds
+    // it. ⚠️ Not all of them since 2026-09-01 -- `isFoldedMilestoneGlyph`.
     // ⭐ The armed ROW AND SHAPE go down with them, not the words: FR-053
     // (MUST) also has the armed ENTRANCE told apart from the others, and the
     // roster's `arms` and `armsShape` fields are what each entry is compared
@@ -828,7 +889,10 @@ export function commandPaletteFromScreenState(
 export const NOT_STORED_COMMAND_PALETTE_SIZES: {
   /** S-135a, in px */
   readonly 'S-135a': number
+  /** S-216 */
+  readonly 'S-216': number
 } = {
   'S-135a': 24,
+  'S-216': 6,
 }
 // </generated>

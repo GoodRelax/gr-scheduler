@@ -6896,7 +6896,26 @@ export function frameLoop(
     // ⚠️ ONE LINE FOR BOTH, because the reason is one reason: IN-4 allows 1 階層
     // per press (MUST), and a level spent here may not be spent again there.
     const isEscapeSpentHere = escapeLevel === 'confirmation' || escapeLevel === 'propertiesPanel'
+    const wasPaletteShown = screenState.paletteShown
     screenState = isEscapeSpentHere ? screenState : screenStateFromInput(input, context)
+    // FR-053 (MUST, 利用者の裁定 2026-09-01「ヘッダーでコマンドパレットを再表示
+    // した時、コマンドパレットは標準サイズで表示しろ」): when S-99e goes from
+    // hidden to shown, S-200 goes back to not minimised.
+    //
+    // ⭐ READ AS A CHANGE OF S-99e AND NOT AS A PRESS ON ONE ENTRANCE. The
+    // requirement says 「`S-99e` が非表示から表示へ変わったとき」, and two
+    // entrances move that row -- IC-7 of table T-109 and SK-14 of table T-036 --
+    // so answering the press would need the two written twice and could answer
+    // them differently. ⛔ NOT IN `answerSettledEntry` for the same reason: the
+    // key never reaches it.
+    // ⭐ WHY HERE AND NOT IN THE TRANSLATOR. S-99e rides on `ScreenState`, which
+    // that side owns, and S-200 is a current value LY-5 of table T-060 leaves
+    // with this layer -- this line is the one place both are in reach.
+    // ⛔ ONE DIRECTION ONLY. Hiding the palette leaves S-200 alone: FR-053 keeps
+    // the two states apart in as many words (「非表示（`S-99e`）とは別の状態で
+    // ある」), and clearing it on the way out would be a second rule nobody
+    // stated.
+    if (!wasPaletteShown && screenState.paletteShown) isPaletteMinimised = false
     const translated = commandFromInput(input, context)
 
     // IN-4's FIRST level, spent on the telling NT-8 of table T-037 puts away

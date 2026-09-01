@@ -721,6 +721,13 @@
   },
   {
    "table": "T-109",
+   "row": "IC-61",
+   "keys": null,
+   "icon": "IC-61",
+   "drives": []
+  },
+  {
+   "table": "T-109",
    "row": "IC-35",
    "keys": null,
    "icon": "IC-35",
@@ -871,13 +878,6 @@
    "row": "IC-54",
    "keys": null,
    "icon": "IC-54",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-61",
-   "keys": null,
-   "icon": "IC-61",
    "drives": []
   },
   {

@@ -461,11 +461,22 @@
    "armsShape": "beerMug"
   },
   {
+   "rowId": "IC-61",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "揃える",
+   "entryTo": "依存線を構える（表 T-023b の `AR-4`）。⭐ **本行から `IC-38` までが 1 つの群である**（利用者の裁定 2026-09-01「依存線、コメントボックス、ハイライトボックスは次の行に移せ。順番は 依存線、コメントボックス、ハイライトボックス、開始日揃え、終了日揃え とせよ」）—— ⛔ **並びを決めるのは本表の `群` の欄だけであり**（同表の前文）、**行を動かすのではなく群を書き換える。**⚠️ **群の語は `揃える` のままである** —— 画面には刷らない（同前文の MUST NOT）が、ヘルプ（`FR-036`）は入口を語で並べるので、5 行を 1 語でどう呼ぶかは裁定を要する",
+   "authority": "`FR-009`",
+   "arms": "AR-4",
+   "armsShape": null
+  },
+  {
    "rowId": "IC-35",
    "surfaces": [
     "Command Palette"
    ],
-   "group": "置く",
+   "group": "揃える",
    "entryTo": "コメントボックスを構える（表 T-023b の `AR-5`）",
    "authority": "`FR-019`",
    "arms": "AR-5",
@@ -476,7 +487,7 @@
    "surfaces": [
     "Command Palette"
    ],
-   "group": "置く",
+   "group": "揃える",
    "entryTo": "ハイライトボックスを構える（`AR-6`）",
    "authority": "`FR-019`",
    "arms": "AR-6",
@@ -793,17 +804,6 @@
    "entryTo": "行を削除する。⭐ **消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ**（示す文は 表 T-234 の `QN-1`）",
    "authority": "`FR-032`",
    "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-61",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "置く",
-   "entryTo": "依存線を構える（表 T-023b の `AR-4`）",
-   "authority": "`FR-009`",
-   "arms": "AR-4",
    "armsShape": null
   },
   {
