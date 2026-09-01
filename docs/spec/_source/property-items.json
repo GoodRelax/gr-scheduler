@@ -260,6 +260,54 @@
    "mspdi": {
     "ja": "`Task/OutlineLevel` へ導出"
    }
+  },
+  {
+   "id": "PR-18",
+   "columns": [
+    "label"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行の名前。⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-19",
+   "columns": [
+    "color"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行の帯の色。`null` ＝ テーマから解く"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-20",
+   "columns": [
+    "height"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "倍率 1 のときの論理の高さ。`null` ＝ 自動"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
   }
  ]
 }

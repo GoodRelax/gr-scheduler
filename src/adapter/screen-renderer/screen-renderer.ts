@@ -729,10 +729,16 @@ export interface PropertiesPanel {
    * The items of the subject `showing` names, or the drawing settings.
    *
    * ⚠️ THREE ROSTERS, NOT TWO. FR-006 gives table T-016's items for a selected
-   * `Task`; FR-042 gives a selected ROW its band colour (AT-58) and its height
-   * (AT-59), which table T-016 does not hold because that table is the `Task`
-   * one; and the settings side is table T-104's keys. All three are `showing:
-   * 'selection'` except the last -- FR-072 knows only two panels.
+   * `Task`; FR-042 gives a selected ROW its name (AT-53), its band colour
+   * (AT-58) and its height (AT-59); and the settings side is table T-104's keys.
+   * All three are `showing: 'selection'` except the last -- FR-072 knows only
+   * two panels.
+   *
+   * ⭐ THE FIRST TWO ARE NOW BOTH TABLE T-016's. That table gained a 対象 column
+   * on 2026-09-02 (CR-325) and rows PR-18 .. PR-20 for a row's three, so FR-006
+   * (MUST) prints only the rows whose 対象 matches what is selected and (MUST
+   * NOT) forbids the others -- which is what keeps a row's `height` off a task's
+   * panel now that one table holds both.
    */
   readonly fields: readonly PropertyField[]
   /**
@@ -758,15 +764,28 @@ export interface PropertyField {
    * `AT-58` / `AT-59` of table T-058 (a row's colour and height, FR-042), or
    * `K-n` of table T-104 (the settings).
    *
-   * ⚠️ FR-042's two are named by their COLUMN rather than by a `PR-n`, because
-   * table T-016 has no row for either and rule 03 forbids minting one here.
+   * ⚠️ FR-042's THREE NAME THEIR ATTRIBUTE ROW AND NOT THEIR `PR-n`, though
+   * table T-016 has held a row for each since 2026-09-02 (CR-325). That table's
+   * own note for PR-18 settles it -- 「実体は `fig-erd-detail.md` の `AT-53` で
+   * ある —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに
+   * 出す項目のほうである」 -- and FR-085 (MUST) calls the field 「名前の欄
+   * （`AT-53`）」 where it says the double click focuses it. ⛔ The shell asks for
+   * a field BY THE ROW IT DECLARES (IF-9), so declaring the `PR-n` would put
+   * that entrance's target out of reach.
+   * ⚠️ THE `PR-n` IS STILL THE JOIN TO EVERYTHING ELSE about the item -- its
+   * shown name, its print order, its 対象 and its read-only mark are all keyed
+   * by it. Only what the FIELD declares is the attribute row.
    */
   readonly row: string
   /**
-   * Table T-016's own item name.
+   * The name table T-016's row shows, which FR-038 (MUST NOT) keeps in the
+   * dictionary under that row's id and NOT in the table.
    *
-   * ⚠️ FR-038 does NOT translate these (nor the task and row names), and table
-   * T-016 says why it keeps them in English.
+   * ⚠️ IT IS TRANSLATED, and the note that used to stand here said the opposite.
+   * Table T-016 required 「項目名は英語表記とすること」 until CR-278 moved the
+   * shown name into the dictionary; FR-038 (MUST) then puts every printed word
+   * in the reader's own language. ⛔ Task names and row names are still the
+   * document's own and are never translated.
    */
   readonly name: string
   /** The value written out for the screen. */
@@ -1615,20 +1634,23 @@ export interface RaisedConfirmation {
  * U-55 `Confirmation` of table T-103 -- the raised question WITH the surface it
  * stands on (UF-67).
  *
- * ⭐ THE TWO ANSWERS ARE THE ROSTER'S, NOT THE ASKER'S. The preamble above table
- * T-109 fixes its 面 column as table T-103's settled names, so which entries
- * stand on this surface is that table's answer and UF-67 reads it out of
- * `icon-roster.json`. ⛔ That is why this type is not what a caller raises:
- * `ScreenSession.confirmation` takes `RaisedConfirmation`, and the entries are
- * added on the way to the screen.
+ * ⭐ THE TWO ANSWERS ARE THE DICTIONARY'S, NOT THE ASKER'S. NT-7 (MUST) makes
+ * them WORD BUTTONS and names where the words come from -- the `confirmation`
+ * section of FR-038's dictionary -- so UF-67 reads them there and this type is
+ * not what a caller raises: `ScreenSession.confirmation` takes
+ * `RaisedConfirmation`, and the answers are added on the way to the screen.
+ * ⛔ NEITHER ANSWER HAS A ROW OF TABLE T-109 (MUST NOT, NT-7): that table and
+ * figure F-019 hold the entrances that are SHAPES, and a word button has no
+ * shape. ⚠️ IC-69 and IC-70 stood here until 2026-09-02 (CR-327) and the roster
+ * no longer holds them -- so nothing on this surface is a `CommandItem`.
  *
  * ⛔ NT-8's ENTRANCE MAY NOT STAND HERE (MUST NOT), which is why this type does
  * not extend `Notice` and carries neither `dismissText` nor `dismissKey`. That
  * row lets a person put a TELLING away; this surface asks a question, and a
- * third way out of it would be an answer that is neither of `entries` -- the
+ * third way out of it would be an answer that is neither of `answers` -- the
  * two NT-7 (MUST) makes the whole of the choice. ⚠️ The reading `Esc` gives is
  * not a third one either: IN-4 of table T-028 spends it as calling the question
- * off, which is IC-70's answer arriving by another road.
+ * off, which is the cancelling answer arriving by another road.
  */
 export interface Confirmation extends RaisedConfirmation {
   /**
@@ -1663,13 +1685,17 @@ export interface Confirmation extends RaisedConfirmation {
    */
   readonly text: string
   /**
-   * IC-69 and IC-70 of table T-109, in that table's own print order.
+   * NT-7's two answers as WORD BUTTONS (MUST), in the print order the
+   * `confirmation` section of FR-038's dictionary holds them in.
    *
    * ⭐ NT-7 (MUST) makes choosing between the two the whole of this surface, so
-   * neither can be spent and neither is a toggle: `isEnabled` is true and
-   * `isPressed` is false on both.
+   * neither can be spent and neither is a toggle -- which is why nothing here
+   * carries `isEnabled`, `isPressed` or `isArmed`: a `CommandItem` says which of
+   * those states an entrance is in, and on this surface there is only one.
+   * ⛔ AND NOT A `CommandItem` FOR A SECOND REASON: that type is keyed by a row
+   * of table T-109, and NT-7 (MUST NOT) refuses these answers a row there.
    */
-  readonly entries: readonly CommandItem[]
+  readonly answers: readonly ConfirmationAnswer[]
   /**
    * What an item whose `isShownOnAnotherRow` is true is marked WITH, in the
    * display language (FR-038), or the empty string while the dictionary holds
@@ -1711,6 +1737,36 @@ export interface ConfirmationItem {
    * tasks an unassignment reaches, and rows have nothing to do with it.
    */
   readonly isShownOnAnotherRow: boolean
+}
+
+/**
+ * One of NT-7's two answers -- a word button, and never a shape (MUST NOT).
+ *
+ * ⭐ THE ROW OF THE DICTIONARY IS THE JOIN, the way a row of table T-109 was
+ * while these two were entrances: `answer` is the key the `confirmation` section
+ * of FR-038's dictionary spells, `text` is what that section holds for the
+ * display language in force, and nothing else names them.
+ */
+export interface ConfirmationAnswer {
+  /**
+   * Which of NT-7's two this is, spelled the way the `confirmation` section of
+   * `display-words.json` spells it (`proceed` / `cancel`).
+   *
+   * ⛔ NOT A WORD OF THE SCREEN and never drawn: it is the join, carried so that
+   * the side which spends a press can say WHICH answer was given. ⚠️ The word
+   * the person reads is `text`, and FR-038 (MUST) keeps that the dictionary's.
+   */
+  readonly answer: string
+  /**
+   * The word on the button, in the display language (FR-038) -- or the empty
+   * string while the dictionary holds no word for the row (PD-160).
+   *
+   * ⭐ SPELLED THE SAME IN EVERY DISPLAY LANGUAGE, which NT-7 (MUST) states and
+   * (MUST NOT) forbids translating: 「頭文字が下の打鍵を指さなくなる」. ⛔ So the
+   * first character of this word is not decoration -- it is what names the key
+   * that answers, and the drawing side is what draws it bold (NT-7, MUST).
+   */
+  readonly text: string
 }
 
 // ------------------------------------------------------------ UF-68 ---------
@@ -2272,9 +2328,9 @@ export interface ScreenSession {
    * question that is waiting is exactly that. ⛔ Nothing in table T-203 or table
    * T-206 holds it either, so it does not travel in `ScreenState`.
    *
-   * ⛔ THE RAISED HALF ONLY. The two answers are table T-109's (IC-69 / IC-70)
-   * and UF-67 reads them out of the roster, so a shell that had to name them
-   * here would be settling the placement that table already settles.
+   * ⛔ THE RAISED HALF ONLY. The two answers are the dictionary's word buttons
+   * (NT-7, MUST) and UF-67 reads them out of it, so a shell that had to name
+   * them here would be the second store of translated strings FR-038 forbids.
    *
    * ⚠️ TWO OF THE THREE ASKING SITES RAISE ONE. See the STOP note in
    * `notices.ts` for the third.

@@ -1,4 +1,4 @@
-93
+90
 # ⛔ Rows at or past `実装待ち` that name no place in the specification.
 # (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
 # see the note at the foot of this file.)
@@ -25,3 +25,14 @@
 # いるので、場所を名乗らない行の数は 93 のまま動かない。**
 # ⚠️ だからこの 93 は、仕事が進んだ結果ではなく、**状態の名前が変わっても同じ
 # 借りがそこに在ることを測り直した数**である。
+#
+# 2026-09-02: 93 -> 92. D-43 named its place (表 T-023 の MK-13,
+# docs/spec/01-04-requirements.md:2324). The row had carried a 期待値 that the
+# specification overturned on 2026-08-30 and again on 2026-09-01, and four
+# rounds read it as an open question because the cell never said where the
+# answer already stood.
+#
+# 2026-09-02: 92 -> 90. Two more rows named their place as the round wrote the
+# specification for the rulings that were already down: D-174 (table T-037,
+# NT-7) and D-175 (the invariant under table T-050). Both had stood at
+# 仕様待ち for a day with the ruling recorded verbatim and nothing written.

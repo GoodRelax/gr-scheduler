@@ -76,14 +76,15 @@
 //      specification did constrain; CR-272 removed the heading rather than the
 //      constraint, and group 2 now asks the opposite of the same place.
 //   2. THE `notices`, `reasons`, `questions`, `confirmation` AND
-//      `confirmationMarks` SECTIONS, and IC-69 / IC-70 with them. Their places are UF-67's
+//      `confirmationMarks` SECTIONS. Their places are UF-67's
 //      (`notices.ts`), which is not one of the five units this file may look
 //      at. ⭐ THAT IS NOT THE SAME AS LEAVING THEM UNCHECKED: a word cannot be
 //      held against a member this file may not name, but it CAN be held against
 //      the whole of what `screenViewFromRegions` (PI-37) hands out -- which is
 //      how the acceptance group reaches `confirmationMarks` (FR-032, MUST), the
-//      two answers of `confirmation`, the words of the entries table T-109
-//      stands on U-55, and now every row of `reasons`: FR-076 (MUST) makes a
+//      two answers of `confirmation` -- which since CR-327 are the WHOLE of what
+//      stands on U-55, table T-109 standing nothing there any more -- and now
+//      every row of `reasons`: FR-076 (MUST) makes a
 //      telling carry a row of table T-233 and the dictionary answers for it, so
 //      this file raises one telling per row of that table and asks whether the
 //      words arrive. ⚠️ That claim was impossible while the dictionary held no
@@ -494,10 +495,14 @@ const T103 = specTable('T-103')
 const U_55_CONFIRMATION = bare(T103.rows.find((row) => row.id === 'U-55')?.cells[0] ?? '')
 
 /**
- * The rows table T-109 stands on U-55 -- IC-69 and IC-70, the two answers NT-7
- * of table T-037 asks for. ⚠️ Their words have no NAMED place here (UF-67 owns
- * the member), but the acceptance group's frame raises that surface, so they
- * ARE held to the arrival claim.
+ * The rows table T-109 stands on U-55.
+ *
+ * ⛔⛔ EMPTY, AND THAT IS NT-7's OWN MUST NOT (CR-327): 「答えの入口に 表 T-109
+ * の行を与えてはならない（MUST NOT）」 -- that table and figure F-019 hold the
+ * entrances that are SHAPES, and NT-7's two answers are word buttons. ⚠️ It held
+ * IC-69 and IC-70 until 2026-09-02, and their words were then the `icons`
+ * section's; the words of the two answers are now the `confirmation` section's
+ * alone, which is what the case below holds the manuscript to.
  */
 const ON_U_55: readonly string[] = T109.rows
   .filter((row) => surfacesOf(row.id).includes(U_55_CONFIRMATION))
@@ -978,16 +983,89 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
 const propertyFieldName = (view: ScreenView, rowId: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
 
+/**
+ * Table T-016's own 対象 column (CR-325, 2026-09-02) and the column it names.
+ *
+ * ⛔ FR-006 (MUST) prints only the rows whose 対象 matches what is selected and
+ * (MUST NOT) forbids printing the others -- so a `TaskGroup` row's word cannot
+ * be asked for on a frame that holds only a task, and the frame below is why
+ * these three entries are not simply dropped as reaching nowhere.
+ */
+const T016 = specTable('T-016')
+const APPLIES_TO_COLUMN = '対象'
+const GRS_COLUMN = '列（`GRS JSON`）'
+const ON_A_ROW = 'TaskGroup'
+
+/**
+ * The row a field of the panel DECLARES for one row of table T-016.
+ *
+ * ⛔ THE TWO ARE NOT THE SAME FOR A `TaskGroup` ROW, and the specification is
+ * what says so. Table T-016's own note for PR-18 reads 「実体は
+ * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
+ * であり、本行はその値をパネルに出す項目のほうである」, and FR-085 (MUST) calls
+ * the field 「名前の欄（`AT-53`）」 when it says where the double click puts the
+ * focus. ⭐ So the field names the ATTRIBUTE row while the dictionary, the print
+ * order and the 対象 are all keyed by the `PR-n` -- and this reads the join out
+ * of table T-058 rather than typing the three row ids out here.
+ */
+const ENTITY_COLUMN = 'エンティティ'
+const COLUMN_COLUMN = '列'
+const T058 = specTable('T-058')
+
+const declaredRowOf = (rowId: string): string => {
+  const item = T016.rows.find((row) => row.id === rowId)
+  if (item === undefined) return rowId
+  if (bare(item.by[APPLIES_TO_COLUMN] ?? '') !== ON_A_ROW) return rowId
+  const column = bare(item.by[GRS_COLUMN] ?? '')
+  const attribute = T058.rows.find(
+    (row) => bare(row.by[ENTITY_COLUMN] ?? '') === ON_A_ROW && bare(row.by[COLUMN_COLUMN] ?? '') === column,
+  )
+  if (attribute === undefined) {
+    throw new Error(`table T-058 has no row for ${ON_A_ROW}.${column}, which table T-016 ${rowId} edits`)
+  }
+  return attribute.id
+}
+
+/**
+ * A row picked in the `Row Title Panel`, which is what FR-042 (MUST) and FR-006's
+ * 対象 rule put table T-016's `TaskGroup` rows on the panel for.
+ */
+const THE_ROW = '11111111-1111-4111-8111-111111111111'
+
+const SCHEDULE_WITH_A_ROW = {
+  ...SCHEDULE,
+  taskGroups: [
+    {
+      id: THE_ROW,
+      parentId: null,
+      label: 'a row',
+      derivedFromTaskUid: null,
+      order: 0,
+      isCollapsed: false,
+      isHidden: false,
+      color: null,
+      height: null,
+    },
+  ],
+} as unknown as Schedule
+
+const ROW_PICKED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_ROW,
+  session: sessionWith({ propertiesShowing: 'selection', selectedGroupIds: [THE_ROW] }),
+})
+
 for (const entry of GENERATED['properties'] ?? []) {
   const rowId = keyOf('properties', entry)
+  const isOnARow = bare(T016.rows.find((row) => row.id === rowId)?.by[APPLIES_TO_COLUMN] ?? '') === ON_A_ROW
+  const declared = declaredRowOf(rowId)
   place({
     section: 'properties',
     key: rowId,
     field: 'label',
     unit: 'UF-67',
     what: `the name the properties panel shows for ${rowId}`,
-    frame: PANEL_STATES['selection'] as Frame,
-    read: (view) => propertyFieldName(view, rowId),
+    frame: (isOnARow ? ROW_PICKED : PANEL_STATES['selection']) as Frame,
+    read: (view) => propertyFieldName(view, declared),
   })
 }
 
@@ -1627,6 +1705,18 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     expect((GENERATED['icons'] ?? []).map((entry) => keyOf('icons', entry))).toEqual(
       T109.rows.map((row) => row.id),
     )
+  })
+
+  it('⛔ NT-7 (MUST NOT) gives its two answers no row of table T-109 -> that table is filtered on its surface column -> it stands nothing at all on U-55, and the confirmation section holds the two words instead', () => {
+    // ⛔ THE MUST NOT ITSELF: 「答えの入口に 表 T-109 の行を与えてはならない
+    // （MUST NOT）」. ⚠️ Driven off the manuscript and not off a list written
+    // here: the day a row of that table names U-55 again, this case goes red
+    // before anything downstream has to.
+    expect(ON_U_55, `table T-109 stands ${ON_U_55.join(' / ')} on ${U_55_CONFIRMATION}`).toEqual([])
+    // ⭐ AND THE WORDS HAVE SOMEWHERE ELSE TO BE: NT-7 (MUST) sends them to the
+    // `confirmation` section of this very dictionary, which is what makes the
+    // line above a move rather than a loss.
+    expect((GENERATED['confirmation'] ?? []).length).toBeGreaterThan(0)
   })
 
   it('FR-017 (MUST) gives the weekday a 段 of its own -> AT-17 s cell and the roster are read -> the seven stand in AT-17 s order, each with a word in each language', () => {

@@ -15,10 +15,20 @@ await page().mouse.move(1000, 700)
 await key('Control+a')
 await page().waitForTimeout(200)
 await key('Delete')
-const asked = await until(async () => (await count('[data-icon="IC-69"]')) === 1,
+// ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON, from 2026-09-02 (NT-7 of table
+// T-037). It carries `data-confirmation-answer` and no `data-icon`, so `IC-69`
+// and `IC-70` were retired from table T-109 and figure F-019. `press()` only
+// knows `data-icon`, so the button is reached with a real pointer at its centre.
+const PROCEED = '[data-confirmation-answer="proceed"]'
+const asked = await until(async () => (await count(PROCEED)) === 1,
   'the confirmation stands', { timeout: 3000 }).catch(() => false)
 console.log('confirmation asked:', asked !== false)
-if (asked !== false) await press('IC-69')
+if (asked !== false) {
+  const box = await (await page().$(PROCEED)).boundingBox()
+  await page().mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page().mouse.down()
+  await page().mouse.up()
+}
 await page().waitForTimeout(500)
 console.log('polygons left     :', await count('svg polygon'))
 console.log('notices before arming:', JSON.stringify(await notices()))

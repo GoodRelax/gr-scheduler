@@ -55,6 +55,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'live-verification-baseline.txt')
 REL_LEDGER = 'docs/development-records/defects.md'
+
+# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
+# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
+# `fixed-defects.md`.
+#
+# THIS CHECK READS BOTH, AND THE HARVESTED FILE IS THE ONE IT IS ABOUT. Every
+# row it counts -- a finished row that nobody opened the app to look at -- goes
+# to the harvested file the moment it is finished. A check that read only
+# `defects.md` would therefore find nothing left to fault and print ALL GREEN
+# for ever, while the debt it exists to hold sat one file away.
+HARVEST = os.path.join(ROOT, 'docs', 'development-records', 'fixed-defects.md')
+REL_HARVEST = 'docs/development-records/fixed-defects.md'
 REL_BASELINE = '.claude/skills/spec-graph-check/live-verification-baseline.txt'
 
 DONE = '`実測済`'
@@ -75,17 +87,20 @@ def say(message):
 
 
 def rows():
-    """Every defect row, as (id, status, seen)."""
+    """Every defect row of BOTH files, as (id, status, seen)."""
     found = []
-    for line in io.open(LEDGER, encoding='utf-8'):
-        if not line.startswith('| D-'):
+    for path, rel in ((LEDGER, REL_LEDGER), (HARVEST, REL_HARVEST)):
+        if not os.path.exists(path):
             continue
-        cells = [c.strip() for c in line.split('|')]
-        if len(cells) < 11:
-            say('PROBLEM  %s: row %s has %d cells; the 実物確認 column is missing'
-                % (REL_LEDGER, cells[1], len(cells) - 2))
-            sys.exit(1)
-        found.append((cells[1], cells[6], cells[9]))
+        for line in io.open(path, encoding='utf-8'):
+            if not line.startswith('| D-'):
+                continue
+            cells = [c.strip() for c in line.split('|')]
+            if len(cells) < 11:
+                say('PROBLEM  %s: row %s has %d cells; the 実物確認 column is '
+                    'missing' % (rel, cells[1], len(cells) - 2))
+                sys.exit(1)
+            found.append((cells[1], cells[6], cells[9]))
     return found
 
 

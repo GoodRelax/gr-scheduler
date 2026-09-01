@@ -77,8 +77,12 @@ def main():
         # and the fourth is the handing over itself.
         # ⭐ handoff.md is the fourth: it is what one round hands the next, and
         # it answers to the whole tree rather than to a folder of units.
+        # ⭐ fixed-defects.md is the fifth, added 2026-09-02: it is the defect
+        # ledger's own second half, holding the rows that reached 実測済 or
+        # 取下げ, and it is keyed the same way the ledger is.
         if not name.endswith('.md') or name in (
-            'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md'
+            'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
+            'fixed-defects.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

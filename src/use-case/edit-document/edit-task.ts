@@ -28,6 +28,7 @@ import {
   compareDays,
   dateFromWorkingDays,
   dayOf,
+  nextWorkingDay,
   planActualState,
   taskByUid,
   textOfDay,
@@ -816,32 +817,52 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       if (planActualState(task) !== 'notStarted') {
         return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
       }
-      // 掴んで置く値は、実績開始日 ＝ 予定の開始日 (MUST), so a task with no
-      // planned start has nothing to copy. FR-012 forbids showing such a task
-      // at all, which is why this is a refusal and not a second rule.
-      if (dayOf(task.start) === null) {
-        return refused([reject('CM-14', 'FR-043', 'the task has no planned start to copy')])
+      // 掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日 (MUST), so a task
+      // with no planned start has no day to count from. FR-012 forbids showing
+      // such a task at all, which is why this is a refusal and not a second rule.
+      const planStart = dayOf(task.start)
+      if (planStart === null) {
+        // ⚠️ THE WORDING AVOIDS "count from" ON PURPOSE: `check_layer_rules.py`
+        // counts a `from` followed straight by a quote as an import specifier,
+        // and a message ending in one makes this file read as short of an edge.
+        return refused([reject('CM-14', 'FR-043', 'the task has no planned start')])
       }
       // ⭐ Three columns at once, and the same three whichever handle was
       // grabbed: どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
       // `resumeValid`（`true`）を置くこと（MUST）。開始点を掴んだときは終了点を
-      // その既定の位置で、終了点を掴んだときは開始点を予定の開始日で確定させる
-      // こと（MUST）-- neither end is ever left undecided, so neither end is a
-      // parameter here.
-      //
-      // ⚠️ The planned start is copied as text rather than rebuilt through
-      // `textOfDay`: the requirement says 実績開始日 ＝ 予定の開始日, and copying
-      // makes the two columns name the same day whatever form that day arrived
-      // in -- GRS reads the lexical date part and no time (FR-054).
+      // その既定の位置で、終了点を掴んだときは開始点を予定の開始日の翌稼働日で
+      // 確定させること（MUST）-- neither end is ever left undecided, so neither
+      // end is a parameter here.
       const visual = visualOf(schedule, task.uid)
+      const isDrawnAsMilestone = isMilestone(task, visual)
       // S-129 by default; S-130 for a milestone, which 実績バーを持たない (点なの
       // で長さを持たない) and so takes a duration of zero.
-      const duration = isMilestone(task, visual)
+      const duration = isDrawnAsMilestone
         ? settings.milestoneActualDuration
         : settings.actualInitialDuration
+      // ⛔ NOT THE PLAN START ITSELF, which FR-043 forbids outright (MUST NOT,
+      // 利用者の指示 2026-08-27): GR-3 of table T-023d already stands on that
+      // day, and two grab-holds on one point cannot be told apart. The day is
+      // 予定の開始日の翌稼働日, read through the calendar (FR-054) by the very
+      // member PI-1 publishes for this rule -- ⛔ NOT
+      // `dateFromWorkingDays(start, 1)`, whose half-open end bound lands on a
+      // day nobody works. ⭐ THE VALUE NOW MATCHES THE PICTURE: `dummiesOf`
+      // draws GR-9 on that same day, and only the write was missing.
+      //
+      // ⭐ A MILESTONE KEEPS THE PLAN DAY. FR-043 makes it 例外 and sends its
+      // 「位置と当たり判定」 to GR-18, whose place is 「未着手のマイルストーンの
+      // 図形の上」 -- the plan day itself. The MUST NOT above names GR-3 for its
+      // reason, and `item-hit-area.ts` gives a milestone no GR-3 to collide
+      // with (a point has no end to resize), so nothing stands on that day for
+      // the actual start to be mistaken for.
+      //
+      // ⚠️ THE MILESTONE'S DAY IS COPIED AS TEXT rather than rebuilt through
+      // `textOfDay`: the two columns then name the same day whatever form it
+      // arrived in -- GRS reads the lexical date part and no time (FR-054). The
+      // other arm names a DIFFERENT day, so it is written as GRS spells one.
       const begun: Task = {
         ...task,
-        actualStart: task.start,
+        actualStart: isDrawnAsMilestone ? task.start : textOfDay(nextWorkingDay(within, planStart)),
         actualDuration: duration,
         resumeValid: true,
       }

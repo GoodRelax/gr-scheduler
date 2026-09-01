@@ -192,6 +192,20 @@ const SHOWN_NAME: Readonly<Record<string, { readonly ja: string; readonly en: st
 const INPUT_KIND_COLUMN = '入力の型'
 
 /**
+ * The heading of the column added on 2026-09-02 (CR-325), and the value that
+ * puts a row on a selected TASK's panel.
+ *
+ * ⛔ FR-006 (MUST): 「いま選ばれているものと同じ「対象」を持つ行だけを出すこと」,
+ * and (MUST NOT) 「対象の違う行を出してはならない」. ⚠️ THE CASES BELOW DRIVE A
+ * SELECTED TASK, so the roster they hold the panel against is the `Task` half --
+ * holding it against the whole table would be asserting the very thing that
+ * MUST NOT forbids.
+ */
+const APPLIES_TO_COLUMN = '対象'
+const ON_A_TASK = 'Task'
+const ON_A_ROW = 'TaskGroup'
+
+/**
  * FR-006 (MUST): 「同表が読み取り専用と記した項目を除いて」編集できること.
  * The MARK is looked for wherever the row writes it, so moving it from the
  * remark column into 入力の型 -- which is what happened on 2026-08-26 -- does
@@ -207,8 +221,16 @@ const T_016 = specTable('T-016').rows.map((row) => {
         `${JSON.stringify(specTable('T-016').headings)}`,
     )
   }
+  const appliesToCell = row.by[APPLIES_TO_COLUMN]
+  if (appliesToCell === undefined) {
+    throw new Error(
+      `table T-016 has no ${JSON.stringify(APPLIES_TO_COLUMN)} column; its headings are ` +
+        `${JSON.stringify(specTable('T-016').headings)}`,
+    )
+  }
   return {
     row: row.id,
+    appliesTo: appliesToCell.replace(/`/g, '').trim(),
     // ⚠️ The table's OWN ' / ' between the several columns of one row is kept;
     // only the manuscript's code spans come off.
     // The COLUMN, kept for the cases that name a field by what it edits.
@@ -223,6 +245,33 @@ const T_016 = specTable('T-016').rows.map((row) => {
       .filter((one) => one.length > 0),
   }
 })
+
+/**
+ * The half of table T-016 a selected `Task` puts up, in the table's own order.
+ *
+ * ⚠️ The whole table is kept above, and the cases that say what the panel does
+ * NOT show go on using it: a dependency's panel and a comment box's may not
+ * carry a `TaskGroup` row either.
+ */
+const T_016_ON_A_TASK = T_016.filter((item) => item.appliesTo === ON_A_TASK)
+
+/**
+ * Table T-016's 入力の型 column against the members of `PropertyControlKind`.
+ *
+ * ⭐ THE WORDS ARE THE TABLE'S AND THE SPELLINGS ARE THE DECLARATION'S:
+ * `PropertyControlKind` in `screen-renderer.ts` names that very column as what
+ * it is and gives each of its seven members the table's word in a comment. A
+ * tester may read a published type (rule 04 section 1).
+ */
+const KIND_OF_INPUT: Readonly<Record<string, PropertyControlKind>> = {
+  文字: 'text',
+  複数行: 'multiline',
+  日付: 'date',
+  数値: 'number',
+  真偽: 'boolean',
+  選択: 'choice',
+  色: 'color',
+}
 
 /** FR-009 (MUST): kind, lag and BOTH ends. Table T-016 carries no such row. */
 const DEPENDENCY_ITEMS = ['lag', 'linkType', 'predecessorUid', 'successorUid'] as const
@@ -576,7 +625,7 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     // compared sets would let the panel put the most-touched value last and stay
     // green, which is the very thing that MUST NOT forbids.
     const fields = fieldsOfTask()
-    expect(fields.map((field) => field.row)).toEqual(T_016.map((item) => item.row))
+    expect(fields.map((field) => field.row)).toEqual(T_016_ON_A_TASK.map((item) => item.row))
   })
 
   it('carries the name the dictionary holds for each row, not the column', () => {
@@ -585,7 +634,7 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     // and the file keeps its own column names, so a row may be shown as
     // 「fade in/out days」 while `fadeInDays` and `fadeOutDays` are untouched.
     const fields = fieldsOfTask()
-    expect(fields.map((field) => field.name)).toEqual(T_016.map((item) => item.name))
+    expect(fields.map((field) => field.name)).toEqual(T_016_ON_A_TASK.map((item) => item.name))
   })
 
   it('⛔ MUST NOT show a GRS JSON column name where the two differ', () => {
@@ -595,7 +644,7 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     // ⚠️ Where the two agree this says nothing -- most rows show their own
     // column name and always did.
     const fields = fieldsOfTask()
-    const differing = T_016.filter((item) => item.name !== item.columns)
+    const differing = T_016_ON_A_TASK.filter((item) => item.name !== item.columns)
     expect(differing.length, 'the manuscript parts no name from its column').toBeGreaterThan(0)
     for (const item of differing) {
       expect(fieldAt(fields, item.row).name, item.row).not.toBe(item.columns)
@@ -615,14 +664,16 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     )
     const inJapanese = panelOf(oneTaskSchedule({ name: 'alpha' }))
     expect(inEnglish.fields.map((field) => field.name)).toEqual(
-      T_016.map((item) => item.nameInEnglish),
+      T_016_ON_A_TASK.map((item) => item.nameInEnglish),
     )
-    expect(inJapanese.fields.map((field) => field.name)).toEqual(T_016.map((item) => item.name))
+    expect(inJapanese.fields.map((field) => field.name)).toEqual(
+      T_016_ON_A_TASK.map((item) => item.name),
+    )
   })
 
   it('MUST let every item be edited but the ones the table marks read-only', () => {
     const fields = fieldsOfTask()
-    for (const item of T_016) {
+    for (const item of T_016_ON_A_TASK) {
       expect(fieldAt(fields, item.row).isEditable, `${item.row} ${item.name}`).toBe(!item.readOnly)
     }
   })
@@ -667,18 +718,8 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     // PR-16 is the panel saying the assignee cannot be edited on it, which is
     // what AS-5 forbids. `isEditable` being true does not repair that: the case
     // above already asserts the mark, and the mark is not a control.
-    const KIND_OF: Readonly<Record<string, PropertyControlKind>> = {
-      文字: 'text',
-      複数行: 'multiline',
-      日付: 'date',
-      数値: 'number',
-      真偽: 'boolean',
-      選択: 'choice',
-      色: 'color',
-    }
-
     const kindOf = (row: string, word: string): PropertyControlKind => {
-      const kind = KIND_OF[word]
+      const kind = KIND_OF_INPUT[word]
       if (kind === undefined) {
         throw new Error(
           `table T-016 row ${row} writes 入力の型 ${JSON.stringify(word)}, which ` +
@@ -691,7 +732,7 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     // ⭐ One comparison over every row rather than one per row, so a run names
     // ALL the items whose form does not follow the column instead of the first.
     const fields = fieldsOfTask()
-    const editable = T_016.filter((item) => !item.readOnly)
+    const editable = T_016_ON_A_TASK.filter((item) => !item.readOnly)
     const wanted = editable.map((item) => ({
       row: item.row,
       kinds: item.inputKinds.map((word) => kindOf(item.row, word)),
@@ -819,7 +860,9 @@ describe('table T-016 -- every item actually reaches the screen', () => {
     // item and the milestone truth value (2026-08-27) -- and a title that
     // states the answer is a second copy of the table on top of the fixture.
     const sorted = (rows: readonly string[]): string[] => [...rows].sort()
-    expect(sorted(APART.map((one) => one.row))).toEqual(sorted(T_016.map((item) => item.row)))
+    expect(sorted(APART.map((one) => one.row))).toEqual(
+      sorted(T_016_ON_A_TASK.map((item) => item.row)),
+    )
     for (const one of APART) {
       expect(textAt(one.row, ...one.a), one.row).not.toBe(textAt(one.row, ...one.b))
     }
@@ -827,7 +870,7 @@ describe('table T-016 -- every item actually reaches the screen', () => {
 
   it('shows every row of the table even for a task holding nothing at all', () => {
     const fields = fieldsOfTask()
-    expect(fields.length).toBe(T_016.length)
+    expect(fields.length).toBe(T_016_ON_A_TASK.length)
   })
 })
 
@@ -1038,7 +1081,114 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
   it('shows table T-016\'s items for a task even while every toggle is off', () => {
     const hidden = settingsOf({ assigneeVisible: false, percentCompleteVisible: false })
     const panel = panelOf(oneTaskSchedule(), holding(TASK_REF), SESSION, hidden)
-    expect(panel.fields.map((field) => field.row)).toEqual(T_016.map((item) => item.row))
+    expect(panel.fields.map((field) => field.row)).toEqual(
+      T_016_ON_A_TASK.map((item) => item.row),
+    )
+  })
+})
+
+describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected", () => {
+  // ⛔ THE RULE, VERBATIM (the user's ruling of 2026-09-02, CR-325):
+  // 「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）。対象の違う
+  // 行を出してはならない（MUST NOT）」, with 「同じ対象の行どうしの相対順は変わら
+  // ない —— 絞るだけであって、並べ替えではない」.
+  //
+  // ⭐ WHY IT EXISTS, in the ruling's own words: 「同表の並びは印刷順そのものなので、
+  // 対象を見ないと `TaskGroup` の `height` が `Task` のパネルにも出る」.
+
+  /** The other value of the 対象 column, and the rows that carry it. */
+  const T_016_ON_A_ROW = T_016.filter((item) => item.appliesTo === ON_A_ROW)
+
+  /**
+   * The row of table T-058 a `TaskGroup` item's field DECLARES.
+   *
+   * ⭐ Table T-016's note for PR-18 says which of the two names the field --
+   * 「実体は `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指す
+   * のはそちら」 -- and FR-085 (MUST) calls it 「名前の欄（`AT-53`）」. ⛔ Read out
+   * of the table rather than typed, for the reason `T_016` itself is.
+   */
+  const T_058 = specTable('T-058')
+  const attributeRowOf = (column: string): string => {
+    const found = T_058.rows.find(
+      (row) => bare(row.by['エンティティ'] ?? '') === ON_A_ROW && bare(row.by['列'] ?? '') === column,
+    )
+    if (found === undefined) throw new Error(`table T-058 has no row for ${ON_A_ROW}.${column}`)
+    return found.id
+  }
+
+  const THE_ROW = '11111111-1111-4111-8111-111111111111'
+
+  const withARow = (part: Record<string, unknown> = {}): Schedule =>
+    scheduleOf({
+      tasks: [taskOf({ uid: THE_TASK, name: 'alpha' })],
+      taskVisuals: [visualOf({ taskUid: THE_TASK })],
+      taskGroups: [
+        {
+          id: THE_ROW,
+          parentId: null,
+          label: 'a row',
+          derivedFromTaskUid: null,
+          order: 0,
+          isCollapsed: false,
+          isHidden: false,
+          color: null,
+          height: null,
+          ...part,
+        },
+      ],
+    })
+
+  const rowPanel = (part: Record<string, unknown> = {}, language: 'ja' | 'en' = 'ja'): PropertiesPanel =>
+    panelOf(withARow(part), emptySelection(), sessionWith({ selectedGroupIds: [THE_ROW], language }))
+
+  it('⭐ the manuscript really parts the two, so the cases below are not vacuous', () => {
+    // ⛔ WITHOUT THIS, A 対象 COLUMN THAT STOPPED PARSING WOULD MAKE EVERY CASE
+    // HERE AGREE WITH ANYTHING (rule 04 section 2).
+    expect(T_016_ON_A_TASK.length, '対象 = Task').toBeGreaterThan(0)
+    expect(T_016_ON_A_ROW.length, '対象 = TaskGroup').toBeGreaterThan(0)
+    expect(T_016_ON_A_TASK.length + T_016_ON_A_ROW.length).toBe(T_016.length)
+  })
+
+  it("⛔ MUST NOT put a `TaskGroup` row on a selected task's panel", () => {
+    // GOES RED IF: the roster stops being filtered -- which is the state the
+    // ruling names, the row s `height` standing on a task s panel.
+    const rows = fieldsOfTask().map((field) => field.row)
+    for (const item of T_016_ON_A_ROW) {
+      expect(rows, item.row).not.toContain(item.row)
+      expect(rows, `${item.row} ${item.columns}`).not.toContain(attributeRowOf(item.columns))
+    }
+  })
+
+  it("⛔ MUST NOT put a `Task` row on a picked row's panel", () => {
+    // GOES RED IF: the `TaskGroup` half stops being filtered and a task s
+    // `notes` is offered against a row that has none.
+    const rows = rowPanel().fields.map((field) => field.row)
+    for (const item of T_016_ON_A_TASK) expect(rows, item.row).not.toContain(item.row)
+  })
+
+  it("⭐ MUST put every `TaskGroup` row on a picked row's panel, in the table's order", () => {
+    const rows = rowPanel().fields.map((field) => field.row)
+    expect(rows).toEqual(T_016_ON_A_ROW.map((item) => attributeRowOf(item.columns)))
+  })
+
+  it('⭐ carries the name the dictionary holds, not the GRS JSON column (D-185)', () => {
+    // ⛔ THE USER S REPORT OF 2026-09-01: the shipped panel drew `label` /
+    // `color` / `height` -- the column names themselves -- where FR-038 (MUST)
+    // puts the shown name in the dictionary under table T-016 s row id.
+    // GOES RED IF: the panel goes back to naming a field by its column.
+    const inJapanese = rowPanel().fields.map((field) => field.name)
+    expect(inJapanese).toEqual(T_016_ON_A_ROW.map((item) => item.name))
+    for (const item of T_016_ON_A_ROW) {
+      expect(inJapanese, `${item.row} shows its column`).not.toContain(item.columns)
+    }
+    const inEnglish = rowPanel({}, 'en').fields.map((field) => field.name)
+    expect(inEnglish).toEqual(T_016_ON_A_ROW.map((item) => item.nameInEnglish))
+  })
+
+  it('⭐ gives each of them the form its 入力の型 column names', () => {
+    const fields = rowPanel().fields
+    const wanted = T_016_ON_A_ROW.map((item) => item.inputKinds.map((word) => KIND_OF_INPUT[word]))
+    expect(fields.map((field) => field.controls.map((one) => one.kind))).toEqual(wanted)
   })
 })
 

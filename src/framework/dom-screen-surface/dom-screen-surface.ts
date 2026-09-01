@@ -294,8 +294,8 @@ const UNIT_ROW = 'UF-71'
  * ⭐ Tooltips used to be the second. Table T-103 settled `Tooltip` (U-53) on
  * 2026-08-21, so the layer now carries the glossary's own spelling and rule 03
  * of docs/development-rules is satisfied where it was not. `Confirmation`
- * (U-55) arrived already named, and is the spelling table T-109 joins IC-69 and
- * IC-70 to it by.
+ * (U-55) arrived already named, and is the spelling `ScreenPart.part` answers
+ * a point on that surface with.
  */
 const ROLE = {
   appHeader: 'App Header',
@@ -489,16 +489,31 @@ const OPEN_ONE_LEVEL_ENTRY = 'IC-90'
  * a thing of the person's document or of the frame; this names one telling in
  * `ScreenView.notices`, which is neither.
  *
- * ⚠️ THE WALK IN `readScreenPartAt` DOES NOT YET CARRY IT ACROSS, and it cannot
- * from inside this unit: `ScreenPart` is declared in
- * `src/adapter/screen-renderer/screen-surface.ts` and has a member for each of
- * the five attributes the walk reads. ⛔ So this is drawn and answerable, and
- * the loop is closed by two files that are not this one -- that declaration
- * gains the sixth member, and `src/framework/single-html-shell/frame-loop.ts`
- * spends it by taking the named notices off `raisedNotices`, which is the list
- * its own STOP note records as one nothing shortens.
+ * ⚠️ THE LOOP IS CLOSED BY TWO FILES THAT ARE NOT THIS ONE, because it cannot be
+ * closed from inside this unit: `ScreenPart` is declared in
+ * `src/adapter/screen-renderer/screen-surface.ts` and has a member per attribute
+ * the walk in `readScreenPartAt` reads, and
+ * `src/framework/single-html-shell/frame-loop.ts` spends it by taking the named
+ * telling off `raisedNotices`.
  */
 const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
+
+/**
+ * Which of NT-7's two answers a word button gives -- `ConfirmationAnswer.answer`.
+ *
+ * ⛔ NOT `data-icon`, FOR THE REASON THE ATTRIBUTE ABOVE IS NOT EITHER, and here
+ * the requirement says it outright: NT-7 (MUST NOT) refuses these two answers a
+ * row of table T-109, 「同表と 図 F-019 が持つのは図形の入口であり、語のボタンは
+ * 図形を持たない」. So an answer is not a row of that table and cannot travel as
+ * one.
+ * ⛔ NOR IS THE WORD ITSELF WHAT TRAVELS. `Yes` and `No` are what the person
+ * READS (FR-038), and a reading side keyed on them would be keyed on the
+ * dictionary; the key the manuscript spells is what joins the two sides.
+ *
+ * ⚠️ The loop is closed the same way the telling's is: `ScreenPart` gains a
+ * member, and `frame-loop.ts` settles the raiser's promise with it.
+ */
+const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
 // -------------------------------------------------------------- the paint ---
 
@@ -1763,6 +1778,18 @@ const STYLE = {
   // note on `confirmation` for what happened while they were inside it.
   confirmationAnswers:
     'flex:0 0 auto;display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
+  // One of NT-7's two answers. ⛔ `flex:none` KEEPS THE WORD WHOLE, the reason
+  // `noticeDismiss` above carries it: a flex item may be shrunk below the width
+  // of its contents, and an answer whose word has been squeezed out cannot be
+  // read -- NT-7 (MUST) has the person CHOOSE between the two.
+  confirmationAnswer: 'flex:none;',
+  // NT-7 (MUST): 「頭の 1 文字（`Y` と `N`）を太字にすること」. ⛔ THE WEIGHT IS
+  // THE WHOLE OF WHAT IS DECLARED -- the row asks for bold and nothing else, and
+  // a colour or a size here would be a second signifier nobody stated.
+  // ⚠️ `font-weight` AND NOT A `<strong>` LEFT TO THE BROWSER: `entryStyle`
+  // declares `font:inherit` on the button, which resets the weight a host
+  // stylesheet would have given the element -- so the bold has to be said.
+  confirmationAnswerInitial: 'font-weight:bold;',
   dialogueField:
     'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
     `width:24em;height:14em;padding:0.5em;background:${PAINT.ground};color:${PAINT.ink};` +
@@ -4960,8 +4987,8 @@ function modalElement(
  * one row of table T-037 that asks this unit for an ENTRANCE rather than for
  * something said. ⛔ It is drawn on the telling and never on the question:
  * `confirmationElement` below builds no such entrance, because NT-8 (MUST NOT)
- * forbids one there -- a question is answered by IC-69 or IC-70, and a third way
- * out would be 「どちらでもない」.
+ * forbids one there -- a question is answered by one of NT-7's two word buttons,
+ * and a third way out would be 「どちらでもない」.
  *
  * @purity non-pure
  */
@@ -5028,6 +5055,60 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
 }
 
 /**
+ * One of NT-7's two answers as a WORD BUTTON (MUST), with its first character
+ * drawn bold (MUST).
+ *
+ * ⭐ WHY THE WORD IS SPLIT AT ALL, AND WHY IT IS SPLIT HERE. NT-7 gives the
+ * reason in its own row: 「打鍵で答えられることを、ボタン自身に名乗らせるため
+ * である」 -- the bold head IS the affordance for the `y` / `n` press. ⛔ The
+ * splitting is this side's because it is a matter of drawing: UF-67 reads the
+ * one word FR-038's dictionary holds, and a dictionary that held a word in two
+ * pieces would be holding a decision about how it looks.
+ *
+ * ⛔ TWO ELEMENTS AND NOT A JOINED STRING, so that no reader can be handed the
+ * word with the weight lost. ⚠️ The rest may be empty -- a one-character word is
+ * all head -- and an empty element draws nothing, which is the right answer for
+ * a word that has no tail.
+ *
+ * ⛔ AND NOTHING IS PRINTED IN THE PLACE OF A WORD THE DICTIONARY DOES NOT HOLD
+ * (PD-160). `answer` is the join and never a word of the screen: printing it
+ * would put on the screen a string FR-038 (MUST) does not hold, the same in both
+ * display languages. ⚠️ The frame `entryStyle` gives keeps the answer pressable
+ * meanwhile, which is what `noticeElement` relies on for the same case.
+ *
+ * ⚠️ THE TYPE IS REACHED THROUGH `Confirmation` AND NOT IMPORTED BY NAME.
+ * `ScreenRenderer` declares `ConfirmationAnswer`, but table T-064 -- which calls
+ * itself the full count of the names callable from outside a component -- does
+ * not publish it, and adding a row to that table is the specification's
+ * decision and not this file's. ⭐ What crosses here is the one name that
+ * already does: the description this unit is handed.
+ *
+ * @purity non-pure
+ */
+function confirmationAnswerElement(
+  host: Document,
+  answer: Confirmation['answers'][number],
+): HTMLElement {
+  const drawn = made(host, 'button', entryStyle() + STYLE.confirmationAnswer)
+  drawn.setAttribute('type', 'button')
+  // WHICH of the two a press here gives, and the whole of what this unit reports
+  // about it: `CONFIRMATION_ANSWER_ATTRIBUTE` says why it is on an attribute of
+  // its own and which file closes the loop.
+  drawn.setAttribute(CONFIRMATION_ANSWER_ATTRIBUTE, answer.answer)
+  // ⛔ NO `aria-label` IS WRITTEN, where `commandEntry` has to write one: the
+  // body of that entrance is a figure F-019 shape and carries no text, while
+  // this one IS the word -- the two spans below give it its accessible name.
+  // ⚠️ A label written here would be the same string carried twice, and the
+  // copy would be the one that stopped following the dictionary.
+  const initial = made(host, 'span', STYLE.confirmationAnswerInitial)
+  initial.textContent = answer.text.slice(0, 1)
+  const rest = made(host, 'span', '')
+  rest.textContent = answer.text.slice(1)
+  drawn.append(initial, rest)
+  return drawn
+}
+
+/**
  * U-55 `Confirmation` (UF-67), the question NT-7 of table T-037 puts before
  * something goes ahead.
  *
@@ -5050,19 +5131,25 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
  * decision. The word itself is UF-67's, read out of the one dictionary FR-038
  * names, so nothing here writes one in either language.
  *
+ * ⭐⭐ THE TWO ANSWERS ARE WORD BUTTONS AND CARRY NO SHAPE (NT-7, MUST). Each is
+ * the one word UF-67 read out of FR-038's dictionary, with its FIRST CHARACTER
+ * DRAWN BOLD (MUST) -- 「打鍵で答えられることを、ボタン自身に名乗らせる
+ * ためである」. ⛔ `fillEntry` IS NOT CALLED AND NO `data-icon` IS SET, the
+ * same bargain `noticeElement` keeps for NT-8's `OK`: NT-7 (MUST NOT) refuses
+ * these two a row of table T-109, so there is no figure F-019 shape to draw and
+ * minting one would be RC-13 of table T-026's decision rather than this unit's.
+ * ⚠️ WHICH CHARACTER IS BOLD IS NOT A CHOICE MADE HERE EITHER -- NT-7 names the
+ * head of the word, and the word arrives whole.
+ *
  * ⛔ AND NT-8's ENTRANCE IS NOT DRAWN HERE (MUST NOT). `noticeElement` above puts
  * one on every telling; this surface gets none, because it asks for an answer
- * and the two `entries` are the whole of it. ⚠️ `Confirmation` carries neither
+ * and the two `answers` are the whole of it. ⚠️ `Confirmation` carries neither
  * `dismissText` nor `dismissKey`, so there is nothing here to draw one from --
  * the type is where that MUST NOT is kept, and this is only where it shows.
  *
  * @purity non-pure
  */
-function confirmationElement(
-  host: Document,
-  confirmation: Confirmation,
-  anchors: Map<string, HTMLElement>,
-): HTMLElement {
+function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement {
   const drawn = part(host, 'div', ROLE.confirmation, STYLE.confirmation)
   // ⚠️ `alertdialog` and not `dialog`: it is the one this description matches --
   // a question that stops the reading until it is answered.
@@ -5097,21 +5184,25 @@ function confirmationElement(
     return line
   })
 
-  // IC-69 and IC-70 of table T-109, in that table's own order, which UF-67 read
-  // out of the generated roster. ⛔ Neither is spent and neither is a toggle:
-  // NT-7 makes the choice between the two the whole of this surface.
+  // NT-7's two answers (MUST), in the order UF-67 read them out of FR-038's
+  // dictionary. ⛔ Neither is spent and neither is a toggle: NT-7 makes the
+  // choice between the two the whole of this surface.
+  //
+  // ⛔ NO TOOLTIP ANCHOR IS SET FOR EITHER, and that is not an omission: table
+  // T-029a hangs a tooltip on a row of table T-109, and NT-7 (MUST NOT) refuses
+  // these two such a row -- so there is nothing for `anchorKey` to key one by.
+  // ⚠️ The word IS the label, which is what a tooltip on an entrance would have
+  // been for.
   const answers = made(host, 'div', STYLE.confirmationAnswers)
-  for (const item of confirmation.entries) {
-    const entry = commandEntry(host, item)
-    anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
-    answers.append(entry)
+  for (const answer of confirmation.answers) {
+    answers.append(confirmationAnswerElement(host, answer))
   }
 
   // ⛔⛔ THE WORDS AND THE NAMES SCROLL; THE TWO ANSWERS DO NOT (D-134). NT-7
   // (MUST) has the person choose between going on and calling it off, and a
   // choice that has been pushed off the bottom of the screen is no choice --
   // measured on the shipped build 2026-08-30: deleting one row named 9,341
-  // characters' worth of `Task`, and IC-69 stood at y = 7054 on a screen 1080
+  // characters' worth of `Task`, and the first answer stood at y = 7054 on a screen 1080
   // tall. ⚠️ NOTHING IS TAKEN OUT OF THE SURFACE and no name is capped: FR-032
   // (MUST NOT) forbids a count in their place, so the list stays whole and it is
   // the BOX that is laid out to hold it. ⭐ `Confirmation` still carries the
@@ -6018,9 +6109,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('confirmation')) {
       const asked = view.confirmation
-      const anchors = anchorsOf('confirmation')
+      // ⛔ NO ANCHOR MAP IS ASKED FOR, and that is not an omission: table T-029a
+      // hangs a tooltip on a row of table T-109, and NT-7 (MUST NOT) refuses this
+      // surface's two answers such a row -- so nothing drawn here can be keyed
+      // by one. ⚠️ It was asked for until 2026-09-02, while the two answers were
+      // IC-69 and IC-70.
       confirmationLayer.replaceChildren(
-        ...(asked === null ? [] : [confirmationElement(host, asked, anchors)]),
+        ...(asked === null ? [] : [confirmationElement(host, asked)]),
       )
     }
     if (changed('dialogueField')) {
@@ -6842,12 +6937,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let panel: string | null = null
     let part: string | null = null
     let dismissKey: string | null = null
+    let answer: string | null = null
     // GR-20 of table T-023d. ⛔ A TRUTH VALUE AND NOT A KEY: the strip carries
     // no `data-group-id` of its own, because the row it sits in already does
     // and the walk takes the innermost one.
     let onGrabStrip = false
     // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`,
-    // `data-panel` and `data-notice`, and the OUTERMOST `data-role`: an entry
+    // `data-panel`, `data-notice` and `data-confirmation-answer`, and the
+    // OUTERMOST `data-role`: an entry
     // sits inside its part, and table T-109's surface column names the
     // containing surface rather than the grouping inside it (U-34 / U-35). So
     // the six are each taken once and the role keeps being replaced on the way
@@ -6873,6 +6970,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // table T-109, because its entrance is a word (CR-259).
       const told = node.getAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE)
       if (told !== null && dismissKey === null) dismissKey = told
+      // NT-7 of table T-037: which of the two answers this word button gives.
+      // ⛔ Read back here and not as an entry, for the reason the line above is
+      // read back here -- NT-7 (MUST NOT) refuses these two a row of table
+      // T-109, so answering one as an `IconId` would name a row that does not
+      // exist.
+      const given = node.getAttribute(CONFIRMATION_ANSWER_ATTRIBUTE)
+      if (given !== null && answer === null) answer = given
       // GR-20 of table T-023d: the grab strip HF-15's drag is taken on. ⚠️ Read
       // on this same walk and not by a second query, for the reason the note
       // above gives -- a second query would ask a screen that had moved.
@@ -6914,6 +7018,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // a strip".
       ...(onGrabStrip ? { isRowGrabStrip: true } : {}),
       noticeDismissKey: dismissKey,
+      // NT-7 of table T-037, carried the way GR-20's answer above is: the
+      // member is optional and its own declaration fixes absent as 「on neither
+      // answer」, so a reader that compares whole answers is left unchanged for
+      // every point that is on neither.
+      ...(answer === null ? {} : { confirmationAnswer: answer }),
     }
   }
 

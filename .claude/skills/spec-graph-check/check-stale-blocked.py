@@ -72,6 +72,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'stale-blocked-baseline.txt')
 REL = 'docs/development-records/defects.md'
+
+# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
+# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
+# `fixed-defects.md`.
+#
+# THIS CHECK READS BOTH, AND THE HARVESTED FILE HOLDS MOST OF WHAT IT FAULTS.
+# A cell that opens 「未定」 and closes with the ruling is the failure this check
+# is named for, and a row only reaches 実測済 by having been ruled on -- so the
+# rotten openings travel with the harvest. Reading one file would take the
+# count to nearly nothing and print it as ground won.
+HARVEST = os.path.join(ROOT, 'docs', 'development-records', 'fixed-defects.md')
+REL_HARVEST = 'docs/development-records/fixed-defects.md'
 REL_BASELINE = '.claude/skills/spec-graph-check/stale-blocked-baseline.txt'
 
 # ⛔ Phrases that mean "this cell is waiting on a ruling or a spec row that
@@ -141,8 +153,13 @@ def read_baseline():
 
 
 def main():
-    ledger_path = sys.argv[1] if len(sys.argv) > 1 else LEDGER
-    hits = find_stale(ledger_path)
+    if len(sys.argv) > 1:
+        paths = sys.argv[1:]              # a caller naming one file explicitly
+    else:
+        paths = [p for p in (LEDGER, HARVEST) if os.path.exists(p)]
+    hits = []
+    for path in paths:
+        hits.extend(find_stale(path))
     count = len(hits)
     held = read_baseline()
 

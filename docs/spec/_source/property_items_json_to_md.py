@@ -72,6 +72,18 @@ def kinds_cell(item):
     return kinds + READ_ONLY_SUFFIX if item.get('isReadOnly') else kinds
 
 
+def applies_to_cell(item):
+    """Which selection the row belongs to.
+
+    ⭐ IT IS A COLUMN AND NOT A NOTE. The array's order IS the print order
+    FR-006 (MUST) requires, so every row of the manuscript reaches the panel;
+    without a machine-readable answer to 「whose panel」 a TaskGroup's height
+    would be drawn on a Task's. ⚠️ Absent means `Task`, which is what every row
+    of this table was until 2026-09-02 (CR-325).
+    """
+    return item.get('appliesTo', 'Task')
+
+
 def build(doc):
     """The document, as it is written out."""
     out = [
@@ -85,7 +97,12 @@ def build(doc):
         ' 本書はそれを `_source/property_items_json_to_md.py` が印字したものである。',
         '> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。',
         '',
-        '**規則は `FR-006` が持つ。本書は全数と、各行の列・入力の型・備考・交換相手の対応を印字する。**',
+        '**規則は `FR-006` が持つ。本書は全数と、各行の列・入力の型・対象・備考・交換相手の対応を印字する。**',
+        '',
+        '⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** ——'
+        ' `FR-006` が「いま選ばれているものと同じ対象を持つ行だけを出すこと（MUST）」と定める。'
+        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が'
+        '`Task` のパネルにも出る**（利用者の裁定 2026-09-02）。',
         '',
         '⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は言語ごとの辞書 1 つに持つ」'
         'と定めるので、表示名は `_source/display-words.json` の `properties` 節が同じ行 ID で持つ。'
@@ -96,14 +113,15 @@ def build(doc):
         '',
         '**表 T-016 — プロパティ項目**',
         '',
-        '| 行 ID | 列（`GRS JSON`）| 入力の型 | 備考 | MSPDI |',
-        '| --- | --- | --- | --- | --- |',
+        '| 行 ID | 列（`GRS JSON`）| 入力の型 | 対象 | 備考 | MSPDI |',
+        '| --- | --- | --- | --- | --- | --- |',
     ]
     for item in doc['items']:
-        out.append('| %s | %s | %s | %s | %s |' % (
+        out.append('| %s | %s | %s | `%s` | %s | %s |' % (
             item['id'],
             columns_cell(item),
             kinds_cell(item),
+            applies_to_cell(item),
             prose(item['note']),
             prose(item['mspdi']),
         ))

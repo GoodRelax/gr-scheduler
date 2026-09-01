@@ -6,8 +6,9 @@
 
 Table T-016 is the whole of the items the properties panel draws (FR-006), and
 since CR-278 its manuscript is docs/spec/_source/property-items.json. UF-67
-needs each row's GRS JSON columns, the input kind of each column, and whether
-the row is read-only -- and it may not type them out. Rule 03 of
+needs each row's GRS JSON columns, the input kind of each column, whether the
+row is read-only, and which selection the row belongs to (the table's 対象
+column, CR-325) -- and it may not type them out. Rule 03 of
 docs/development-rules forbids re-typing a value the specification holds, and
 properties-panel.ts carried exactly such a copy until this script existed: the
 roster of rows, their columns, and the read-only list were all hand-written
@@ -25,6 +26,16 @@ WHAT THIS SCRIPT DOES NOT CARRY, AND WHY:
     DATE_COLUMNS, which src/ already reads.
   - WHICH ENTITY HOLDS A COLUMN (`heldBy`). That is not table T-016's to say --
     erd.json holds it -- and properties-panel.ts keeps its own reading of it.
+    ⚠️ The 対象 column carried below is NOT that answer: it says which SELECTION
+    a row belongs to, and a row of 対象 `Task` may still be held by `Task`, by
+    `TaskVisual` or (PR-16) by an `Assignment`.
+
+WHAT `appliesTo` IS, AND WHY IT IS WRITTEN OUT FOR EVERY ROW:
+
+  FR-006 (MUST) prints only the rows whose 対象 matches what is selected and
+  (MUST NOT) forbids printing the others. The manuscript leaves the field ABSENT
+  where the answer is `Task`, that having been every row until 2026-09-02 -- so
+  the default is resolved HERE, once, rather than by each reader in src/.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -40,6 +51,11 @@ OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'property-items.js
 REL_OUT = 'src/adapter/screen-renderer/property-items.json'
 REL_SELF = 'tools/generate_property_items.py'
 REL_SRC = 'docs/spec/_source/property-items.json'
+
+# The 対象 a row that names none belongs to. FR-006's own default: every row of
+# table T-016 was a `Task` row until the 対象 column was added on 2026-09-02,
+# and the manuscript's schema says so in as many words.
+DEFAULT_APPLIES_TO = 'Task'
 
 BANNER = (
     'GENERATED from %s by %s -- do not edit by hand. '
@@ -59,6 +75,7 @@ def build():
             'columns': list(item['columns']),
             'inputKinds': list(item['inputKinds']),
             'isReadOnly': bool(item.get('isReadOnly', False)),
+            'appliesTo': item.get('appliesTo', DEFAULT_APPLIES_TO),
         }
         items.append(one)
     return {'$comment': BANNER, 'items': items}

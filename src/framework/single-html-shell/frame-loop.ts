@@ -912,9 +912,12 @@ const EDITED_BY_SCREEN = 'user'
  * what a press on them writes is a current value, and LY-5 of table T-060
  * leaves those with the Framework alone. IC-21 chooses the display language
  * (S-99); IC-50 opens and folds FR-053's milestone glyph list (S-142);
- * IC-69 and IC-70 are NT-7's two answers; IC-71 .. IC-73 are OP-3's
+ * IC-71 .. IC-73 are OP-3's
  * three, and what each of them settles is a whole-document replacement the
- * Framework is the only layer that may hold. ⛔ None of them is a
+ * Framework is the only layer that may hold. ⚠️ NT-7's two answers stood in
+ * this list until 2026-09-02; they are word buttons now (CR-327) and have no
+ * row of table T-109 at all, so they are spent by the two constants further
+ * down rather than by a row id. ⛔ None of them is a
  * `DocumentCommand`, so there is no road through table T-108 for any of them.
  * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
  */
@@ -951,8 +954,55 @@ const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
  * IF-2 and draws in `runFrame`, so nowhere else is in a position to keep it.
  */
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
-const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
-const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
+/**
+ * NT-7's answer that goes on, spelled the way the `confirmation` section of
+ * FR-038's dictionary spells it.
+ *
+ * ⭐ A KEY OF THE MANUSCRIPT AND NOT A ROW OF A TABLE. NT-7 (MUST) makes the two
+ * answers word buttons and (MUST NOT) refuses them a row of table T-109, so what
+ * crosses IF-9 for them is `ScreenPart.confirmationAnswer` -- the same shape
+ * NT-8's `noticeDismissKey` already had, and for the same reason.
+ * ⛔ THE WORD IS NOT WHAT IS COMPARED. `Yes` and `No` are what the person reads
+ * (FR-038), and a comparison against them here would put a second copy of the
+ * dictionary in this file; the key is the join, which is what it is for.
+ * ⚠️ Only one of the two is spelled: an answer that is not this one is the
+ * other, and NT-7 (MUST) makes the choice between the two the whole of the
+ * surface -- a third spelling here would be a third answer.
+ */
+const CONFIRMATION_PROCEED_ANSWER = 'proceed'
+
+/**
+ * NT-7 (MUST, 利用者の指示 2026-09-01): 「`y` と `n` の打鍵でも答えられること」
+ * -- the two keys, spelled the way `keyOf` in `dom-input-source.ts` reports a
+ * single character (upper case, the spelling table T-036 prints).
+ *
+ * ⭐⭐ AND THEY ARE THE HEADS OF THE TWO WORDS, WHICH IS THE WHOLE POINT. NT-7
+ * has the first letter of each answer drawn bold 「打鍵で答えられることを、
+ * ボタン自身に名乗らせるためである」 and (MUST NOT) forbids translating `Yes` /
+ * `No` 「頭文字が下の打鍵を指さなくなる」 -- so the bold head and the key are
+ * one fact stated twice by the row itself, not two facts this file joined.
+ * ⚠️ WRITTEN HERE RATHER THAN DERIVED FROM THE WORD, because the word is
+ * FR-038's and this layer may not read the dictionary (the words live in
+ * `ScreenRenderer`): what this file copies is NT-7's own row, which is what
+ * every other key in this build is copied from (table T-036, `KEY` in
+ * `input-command-translator.ts`).
+ */
+const CONFIRMATION_PROCEED_KEY = 'Y'
+const CONFIRMATION_CANCEL_KEY = 'N'
+
+/**
+ * Whether this key is one of NT-7's two answers.
+ *
+ * ⛔ ASKED IN ONE PLACE so that the two readers cannot disagree: `receiveInput`
+ * spends the press, and `isBrowserDefaultStopped` has to answer MK-10 for the
+ * same press BEFORE the watcher hears it. ⚠️ A key the tool takes and leaves the
+ * browser its default for is exactly what that row (MUST NOT) forbids.
+ *
+ * @purity pure
+ */
+function isConfirmationAnswerKey(key: string): boolean {
+  return key === CONFIRMATION_PROCEED_KEY || key === CONFIRMATION_CANCEL_KEY
+}
 /**
  * IC-18 -- FR-066's dialogue field.
  *
@@ -2541,6 +2591,27 @@ function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId
 }
 
 /**
+ * Which of NT-7's two answers this happening settled on, or null for one that
+ * settled on neither.
+ *
+ * ⭐ THE RELEASE, AND FROM THE PRESS, read exactly as `entrySettledOnRelease`
+ * above reads its own member and for the same reasons: IN-1 of table T-028
+ * settles a pointer operation on the release (MUST) and CS-2 of table T-066
+ * makes the press its moment.
+ * ⚠️ `undefined` AND `null` ARE ONE ANSWER HERE. `ScreenPart` declares the
+ * member optional so that a description written before it existed goes on
+ * compiling, and its own declaration fixes absent as 「on neither answer」.
+ *
+ * @purity pure
+ */
+function answerSettledOnRelease(input: HumanInput, context: InputContext): string | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  const press = context.pressed
+  if (press === null || press.on === null) return null
+  return press.on.confirmationAnswer ?? null
+}
+
+/**
  * Which part of the screen this happening settled ON, or null for one that
  * settled on none.
  *
@@ -3217,7 +3288,7 @@ export function frameLoop(
   // go before it has been read.
   let raisedNotices: readonly RaisedNotice[] = []
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
-  // of, until IC-69 or IC-70 answers it.
+  // of, until one of that row's two word buttons answers it.
   //
   // ⭐ CS-4's DISCIPLINE, NOT ITS LANDING. Table T-066 wrote that row for a
   // file operation and its landing clause names `replaceDocument`, which is
@@ -3226,27 +3297,32 @@ export function frameLoop(
   // answer is awaited, so the writes below are the ones the question was asked
   // about and not a later document's.
   // ⭐ `Esc` REACHES IT, AND NOT BY WAY OF S-99g. U-55 of table T-103 settles
-  // the name and table T-109 prints it in the surface column of IC-69 and
-  // IC-70, so S-99g's own definition of a surface -- what the first level of
-  // IN-4 (table T-028) closes -- covers it. `escapeTarget` spends that level on
+  // the name of this surface, so S-99g's own definition of a surface -- what
+  // the first level of IN-4 (table T-028) closes -- covers it. ⚠️ Table T-109
+  // used to print that name in its surface column as well, and since CR-327 it
+  // does not: NT-7 (MUST NOT) refuses the two answers a row there. ⛔ THAT DOES
+  // NOT MOVE THE LADDER -- what IN-4 closes is the SURFACE, which table T-103
+  // names, and NT-7's own row still puts its two keys 「表 T-028 の `IN-4` と
+  // 表 T-036 の `SK-19` の階層より先」, which says in as many words that the
+  // question stands inside those ladders. `escapeTarget` spends that level on
   // the question because `escapeLevelOf` tells it one stands: the ladder lives
   // in `screen-state.ts` and the question lives here, which is the same split
   // the press in flight and the Dual Cursor mode already take.
   // ⛔ NOT MOVED INTO `ScreenState.surface`, AND THE REASON IS MEASURED RATHER
   // THAN DEFERRED. `openModalFromScreenState` (UF-66) turns ANY name standing
-  // in S-99g into a modal, and table T-109 places IC-69 and IC-70 on the
-  // `Confirmation` surface -- so a name there would raise a SECOND dialog
-  // carrying a second copy of NT-7's two answers, over the one
-  // `confirmationFromSession` already draws from `ScreenSession.confirmation`.
+  // in S-99g into a modal -- so a name there would raise a SECOND dialog over
+  // the one `confirmationFromSession` already draws from
+  // `ScreenSession.confirmation`, and that second one would carry neither of
+  // NT-7's two answers, because those are word buttons this surface draws and
+  // not entries table T-109 places.
   // ⚠️ `display-words.json` holds a heading for five surfaces and not for this
   // one, so that second dialog would also be headless.
   //
   // ⭐ WHAT THE ANSWER DOES IS CARRIED WITH THE QUESTION, and is not a second
   // field the answering side has to know how to read. Three requirements raise
   // one now -- FR-032's delete, DI-4 of table T-227 and OP-4 of table T-024a --
-  // and NT-7 gives all three the same two answers (IC-69 / IC-70), so
-  // `answerSettledEntry` spends the entry and this settles what the entry
-  // meant. ⛔ A union of payloads would put the deciding in the answering side,
+  // and NT-7 gives all three the same two answers, so `receiveInput` spends the
+  // word button and this settles what the answer meant. ⛔ A union of payloads would put the deciding in the answering side,
   // and FR-031 (MUST NOT) keeps the places that may ask from growing: each
   // raiser stating its own landing is what makes a new one impossible to add by
   // accident.
@@ -4251,6 +4327,34 @@ export function frameLoop(
   }
 
   /**
+   * NT-7 of table T-037 (MUST): 「続けるか取りやめるかを選ばせること」 -- the
+   * standing question, ANSWERED, and the ONE place an answer ever settles the
+   * raiser's promise. Returns whether there was a question to answer.
+   *
+   * ⭐ ONE ACT, TWO TRIGGERS, the shape `dismissNewestNotice` above already has:
+   * one of the two word buttons is pressed (IN-1, on the release), or `y` / `n`
+   * arrives. ⛔ A second settling written beside either would be the same rule in
+   * two places (rule 03 section 1), and the two would part company the first
+   * time what an answer DOES moved.
+   * ⚠️ `Esc` IS NOT A THIRD TRIGGER FROM HERE. IN-4 of table T-028 spends its
+   * own level on the question and settles it there, because that road also has a
+   * level to account for; see the `escapeLevel === 'confirmation'` line.
+   *
+   * ⛔ THE QUESTION IS CLEARED BEFORE THE ANSWER IS CARRIED OUT, not after:
+   * `carryOutAction` refuses to start anything while a question stands, and what
+   * follows is the answer to this one rather than a new request.
+   *
+   * @purity non-pure
+   */
+  function answerConfirmation(isProceeding: boolean, frame: FrameValues): boolean {
+    const asked = asking
+    if (asked === null) return false
+    asking = null
+    asked.settle(isProceeding, frame)
+    return true
+  }
+
+  /**
    * One file operation's fault, RAISED (FR-076), or let go where table T-233
    * owes it nothing. ⚠️ Raised and not told: telling is UF-67's half of the seam,
    * and this side hands over a row.
@@ -5247,9 +5351,9 @@ export function frameLoop(
    * DI-4 of table T-227 (MUST): the overwrite question, put up and waited on.
    *
    * ⭐ NT-7's TWO ANSWERS AND NOTHING ELSE: `Confirmation` (U-55 of table
-   * T-103) stands on IC-69 and IC-70 and holds no third entry, which is exactly
-   * what this row needs and exactly what OP-3 could not use -- OP-3's three
-   * have a surface of their own now (U-56).
+   * T-103) carries that row's two word buttons and no third answer, which is
+   * exactly what this row needs and exactly what OP-3 could not use -- OP-3's
+   * three have a surface of their own now (U-56).
    *
    * ⭐ THE LIST OF WHAT WOULD GO IS EMPTY, AND THAT IS AN ANSWER. DI-4 states
    * in as many words that the duty to name what disappears is not on this row,
@@ -5870,20 +5974,23 @@ export function frameLoop(
    * @purity non-pure
    */
   /**
-   * The six entries of table T-109 this loop answers for, on the release that
+   * The entries of table T-109 this loop answers for, on the release that
    * settled on one. Returns whether the entry was spent here.
    *
    * ⭐ THE SHELL'S OWN, BECAUSE NONE OF THEM IS A `DocumentCommand`. IC-21
-   * chooses the display language (S-99), IC-69 / IC-70 are NT-7's two answers,
-   * and IC-71 .. IC-73 are OP-3's three; table T-108 has no row for any of the
-   * six, and LY-5 of table T-060 leaves a current value with this layer.
+   * chooses the display language (S-99) and IC-71 .. IC-73 are OP-3's three;
+   * table T-108 has no row for any of them, and LY-5 of table T-060 leaves a
+   * current value with this layer.
    *
-   * ⚠️ IC-69 writes what was HELD, not what the document says now: CS-4's
-   * discipline is that the answer lands on the operation that was begun.
+   * ⚠️ NT-7's TWO ANSWERS WERE AMONG THEM UNTIL 2026-09-02 (CR-327). They are
+   * word buttons now and (MUST NOT) have no row of table T-109, so they are
+   * spent in `receiveInput` off `ScreenPart.confirmationAnswer` -- and CS-4's
+   * discipline still holds there: the answer lands on the operation that was
+   * begun, not on what the document says now.
    *
    * @purity non-pure
    */
-  function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues): boolean {
+  function answerSettledEntry(entry: IconId, surface: string | null): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
       // D-61 of the defect ledger (利用者の指摘 2026-08-27): 「`[x]` と `[ESC]`
       // のどちらでも非表示にできるべき」. This is the `[x]` half; IN-4's level
@@ -5954,16 +6061,6 @@ export function frameLoop(
       // reverses whatever stands. ⛔ It was written from the ENTRY while there
       // were two rows, each saying which way it went.
       isMilestoneListOpen = !isMilestoneListOpen
-      return true
-    }
-    if (entry === CONFIRMATION_PROCEED_ENTRY || entry === CONFIRMATION_CANCEL_ENTRY) {
-      const asked = asking
-      if (asked === null) return false
-      // ⛔ Cleared BEFORE the answer is carried out, not after: `carryOutAction`
-      // refuses to start anything while a question stands, and what follows is
-      // the answer to this one rather than a new request.
-      asking = null
-      asked.settle(entry === CONFIRMATION_PROCEED_ENTRY, frame)
       return true
     }
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
@@ -6904,6 +7001,35 @@ export function frameLoop(
       }
     }
 
+    // NT-7 of table T-037 (MUST, 利用者の指示 2026-09-01): 「`y` と `n` の打鍵で
+    // も答えられること」, and 「問いが立っているあいだ、この 2 つのキーをほかの
+    // 何にも渡してはならないこと（MUST NOT）」.
+    //
+    // ⭐⭐ WHERE IT STANDS IS THE ROW'S OWN ORDERING, and that is the whole reason
+    // it is written here rather than beside the other keys: 「順位は `NT-8` の
+    // 消去の次、表 T-028 の `IN-4` と 表 T-036 の `SK-19` の階層より先とする
+    // （MUST）」. NT-8's dismissal is above (the release just spent, and the two
+    // keys that reach it further down); `escapeLevelOf` reads IN-4's ladder and
+    // `commandFromInput` reads table T-036's, and BOTH are below this line.
+    // ⛔ NOT A SECOND KEY-DISPATCH PATH. The three members run once, on the line
+    // below, and this returns before them rather than beside them -- the shape
+    // NT-8's own pointer road already has.
+    //
+    // ⛔⛔ THE MODIFIERS ARE NOT READ, AND THAT IS THE MUST NOT. The row bars
+    // 「この 2 つのキー」 from reaching anything else while a question stands, and
+    // it says KEYS rather than combinations -- so a `Ctrl` + `Y` raised over a
+    // standing question answers it instead of redoing an edit (SK-7 of table
+    // T-036). ⚠️ THAT IS A PRICE AND IT IS THE ROW'S: leaving the combination to
+    // SK-7 would hand one of the two keys to something else, which is the one
+    // thing the MUST NOT names. ⭐ Nothing outside a standing question moves --
+    // the guard is `asking !== null`.
+    if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) {
+      answerConfirmation(input.key === CONFIRMATION_PROCEED_KEY, frame)
+      ask()
+      recordLine('done', `spent=confirmation=${input.key} frame=yes`)
+      return
+    }
+
     // ⭐ R7.4: collected first, then processed. ONE context is built and the
     // same value goes to all three members -- rebuilding it between them would
     // read the clock again (`semi-pure-b`), and the three would then be
@@ -6973,18 +7099,14 @@ export function frameLoop(
     // the person 「続けるか取りやめるかを選ばせること」 (MUST), so 続ける is
     // something a person CHOOSES, and a press that chose neither cannot be read
     // as having chosen it. ⛔ The write therefore does not land, which is the
-    // landing IC-70 already produces -- and the alternative would be a delete
+    // landing the cancelling answer already produces -- and the alternative would be a delete
     // carried out on a press that asked for the question to go away.
     // ⚠️ NO ROW SAYS 「`Esc` は取りやめると同じ」 IN AS MANY WORDS. It is the one
     // of NT-7's two answers this press can be, and nothing further is read into
     // it; a ruling that says otherwise moves the `false` below and no more.
     // ⛔ Cleared BEFORE the landing runs, the same order `answerSettledEntry`
     // keeps and for the same reason.
-    if (escapeLevel === 'confirmation' && asking !== null) {
-      const abandoned = asking
-      asking = null
-      abandoned.settle(false, frame)
-    }
+    if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     // IN-4's rung for the surface U-25 names, spent.
     //
     // ⭐ THAT THE PANEL IS ON THIS LADDER IS THE MANUSCRIPT'S OWN JOIN: table
@@ -7059,10 +7181,26 @@ export function frameLoop(
     // entry per format, which is why `ScreenPart` reports the two separately.
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
+    // NT-7 of table T-037 (MUST): 「続けるか取りやめるかを選ばせること」,
+    // answered on one of that row's two word buttons.
+    //
+    // ⭐ BESIDE THE ENTRY AND THE FORMAT, because it is the same kind of answer:
+    // a press this loop spends itself rather than an edit. ⛔ It is no longer
+    // `answerSettledEntry`'s, and the move is the requirement's -- NT-7
+    // (MUST NOT) refuses these two a row of table T-109, so there is no entry
+    // for that member to be asked about and `ScreenPart.confirmationAnswer` is
+    // what crosses IF-9 instead.
+    // ⚠️ NEVER MORE THAN ONE OF THE THREE. A press lands on a row of table
+    // T-109, on a row of table T-024, or on one of NT-7's two answers -- the
+    // surface draws each in a place of its own, which is why `ScreenPart`
+    // reports the three separately.
+    const settledAnswer = answerSettledOnRelease(input, context)
     const spent =
       (settledEntry !== null &&
-        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
-      (settledFormat !== null && answerSettledFormat(settledFormat))
+        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context))) ||
+      (settledFormat !== null && answerSettledFormat(settledFormat)) ||
+      (settledAnswer !== null &&
+        answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)
 
     // PD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」.
@@ -7312,6 +7450,12 @@ export function frameLoop(
       // is consumed (MUST), and FR-071's way out is the browser's own behaviour.
       const level = escapeLevelOf(input, context, asking !== null, isPropertiesPanelOnScreen())
       if (level === 'confirmation' || level === 'propertiesPanel') return true
+      // NT-7 of table T-037 (MUST NOT): 「問いが立っているあいだ、この 2 つの
+      // キーをほかの何にも渡してはならない」 -- the browser included, which is
+      // what MK-10 of table T-023 asks this member. ⛔ `commandFromInput` below
+      // cannot see the question (`InputContext` carries no member for it), so
+      // this is asked separately for the same reason the two levels above are.
+      if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,

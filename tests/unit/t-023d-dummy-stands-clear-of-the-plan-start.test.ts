@@ -16,48 +16,30 @@
 // TS-6, tests/unit/.
 //
 // ---------------------------------------------------------------------------
-// ⛔ THE ROW THE FIRST THREE CASES NEED HAS NOT MOVED YET. REPORTED, NOT GUESSED
+// ⭐ THE ROWS THIS FILE ASKED FOR HAVE SINCE MOVED. WHAT IS LEFT IS RECORDED
 // ---------------------------------------------------------------------------
 //
-// As this file is written, table T-023d still reads
+// When this file was written, table T-023d still stood GR-9 on 「予定の開始日」
+// -- exactly where GR-3 stands -- and this header reported that as a defect of
+// the SPECIFICATION as much as of the tree. The rows have since moved:
 //
-//   GR-9   場所: 「未着手のタスクの上、予定の開始日」
-//   GR-17  場所: 「未着手のタスクの上、`S-129` ぶん進んだ稼働日」
+//   T-023d GR-9    「未着手のタスクの上、**予定の開始日の翌稼働日**に 1 日ぶん
+//                  （暦に従う。`FR-054`）。⭐ 予定の開始日そのものには置かない
+//                  —— そこは `GR-3` が持つ」
+//   T-023d GR-17   「`GR-9` の日から `S-129` ぶん進んだ稼働日」
+//   FR-043         「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日 …
+//                  （MUST）」 and ⛔ 「予定の開始日そのものに置いてはならない
+//                  （MUST NOT）」（利用者の指示 2026-08-27）
 //
-// and FR-043 still reads 「終了点の掴みシロは、予定の開始日から `S-129` ぶん
-// 進んだ稼働日に置くこと（MUST）」. Under those three sentences the dummy's
-// LEFT end stands on the plan's own start day -- exactly where GR-3 stands --
-// and since GR-3 is printed ABOVE GR-9 (「上の行ほど優先すること（MUST）」) a
-// press there can never reach GR-9. That is the defect the user reported, and
-// it is a defect of the SPECIFICATION as much as of the tree.
+// ⭐ THE OFFSET IS A WORKING DAY AND THE MANUSCRIPT NOW SAYS SO (「暦に従う。
+// `FR-054`」), which is what the fixture was built on a Friday to tell apart --
+// `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are three days apart
+// there, and the cases below name both readings in their failure messages.
 //
-// ⛔ SO THE FIRST THREE CASES BELOW ARE RED FOR TWO REASONS AT ONCE, and this
-// note is the report rule 03 asks for instead of an invented value. What the
-// rows must say, in the two places that carry the picture:
-//
-//   T-023d GR-9    場所 must become the working day AFTER the plan's start day
-//                  -- one day along, counted through the document's calendar
-//                  (`FR-054`), NOT one calendar day along. FR-043 already gives
-//                  the reason for its sibling handle: 「暦日で進めると非稼働日
-//                  に置くことになる」, and a start handle standing on a Sunday
-//                  is the same fault.
-//   T-023d GR-17   場所 must become `S-129` working days past GR-9's day, so
-//                  that the pair still spans what FR-043 places and the dummy
-//                  is still one `S-129` long.
-//   FR-043 :2015   the sentence that fixes the end handle must be re-based on
-//                  GR-9's day rather than on the plan's start day, or the two
-//                  handles land on the same day whenever `S-129` is 1.
-//   T-023d         a closing warning that GR-3 must not swallow GR-9 -- the
-//                  table has the same warning for GR-9 against GR-12 already
-//                  (「`GR-9` はタスク全体ではなく `S-93` の大きさに限ること
-//                  （MUST）」), and this is the mirror of it one row up.
-//
-// ⛔ WHAT NO ROW SETTLES, AND SO IS ASSERTED THE WAY FR-043 ALREADY COUNTS.
-// Nothing printed today says whether the offset is one CALENDAR day or one
-// WORKING day. The fixture is built on a Friday precisely so the two answers
-// are three days apart, and the case that asserts it names both readings in its
-// failure message. ⚠️ If the ruling comes back "calendar day", this file is what
-// has to change -- not silently, but at the one constant `WORKED_DAY_AFTER`.
+// ⚠️ THE WRITE FOLLOWED THE PICTURE ONLY ON 2026-09-02 (ledger D-182). Until
+// then `edit-task.ts` still put the actual start on the plan's own start day
+// while the geometry drew the handle a working day along, so the actual bar
+// came out one working day LEFT of the handle that placed it.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
@@ -78,10 +60,11 @@
 //           table: 「`GR-9` はタスク全体ではなく `S-93` の大きさに限ること
 //           （MUST）—— タスクの上を丸ごと占めると、未着手のタスクで `GR-12` に
 //           手が届かなくなる」
-//   FR-043  「掴んで置く値は、実績開始日 ＝ 予定の開始日、実績期間
+//   FR-043  「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日、実績期間
 //           （`actualDuration`）＝ `S-129`、`resumeValid` ＝ `true` とすること
-//           （MUST）」 and its milestone exception, 「ダミーは点として 1 つだけ
-//           出し、実績期間は `S-130` とすること（MUST）」
+//           （MUST）」, its ⛔ 「予定の開始日そのものに置いてはならない
+//           （MUST NOT）」, and its milestone exception, 「ダミーは点として 1 つ
+//           だけ出し、実績期間は `S-130` とすること（MUST）」
 //   FR-054  the one document calendar every day count goes through
 //   T-209   S-106 「稼働する曜日 | 月・火・水・木・金」, S-107 「例外日 | 無し」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
@@ -123,8 +106,8 @@
 //     （MUST）」. It lives in the shell's frame loop, not in these three units,
 //     and asking it needs the whole `frameLoop` stage. ⭐ It matters to D-56 and
 //     is reported as unwritten: the held picture must be the actual FR-043
-//     PLACES (which starts on the plan's start day), not the dummy's own day --
-//     the value does not move when the picture does.
+//     PLACES, which since the 2026-08-27 ruling starts on 予定の開始日の翌稼働日
+//     -- the day GR-9 itself is drawn on.
 //
 // ⚠️ WHAT WAS READ OF `src/`, STATED HONESTLY RATHER THAN CLAIMED AWAY. Head
 // comments and exported declarations: `DummyGeometry` / `TaskGeometry` /
@@ -790,34 +773,58 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 })
 
 // ===========================================================================
-// FR-043: the picture moved and the VALUE did not
+// FR-043: the VALUE stands where the picture does
 // ===========================================================================
 
-describe('FR-043 (MUST): grabbing GR-9 places the plan start, S-129 and resumeValid', () => {
-  it('places the actual start ON the plan start, though the dummy stands a day along', () => {
+describe('FR-043 (MUST): grabbing GR-9 places the working day after the plan start, S-129 and resumeValid', () => {
+  it('places the actual start on the working day after the plan start, where the dummy stands', () => {
     // ⭐ THE ASSERTION D-56 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 予定の
-    // 開始日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid` ＝ `true`
-    // とすること（MUST）」 -- the day the HANDLE is drawn on is not the day the
-    // VALUE takes. Moving the picture must leave all three columns alone.
+    // 開始日の翌稼働日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid`
+    // ＝ `true` とすること（MUST）」, and beside it ⛔ 「予定の開始日そのものに
+    // 置いてはならない（MUST NOT）—— そこには予定の開始点（表 T-023d の
+    // `GR-3`）が既に立っており、同じ点に 2 つの掴みシロが重なると…掴み分けら
+    // れない」. So the day the HANDLE is drawn on IS the day the VALUE takes,
+    // and the plan's own start day is the one answer the rule forbids.
+    // ⚠️ 翌稼働日 is counted through the calendar (FR-054), which is why
+    // `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are separate
+    // constants and the fixture starts on a Friday.
     const task = taskIn(run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST }), UNDER_TEST)
-    expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 予定の開始日').toEqual(
-      dayNamed(PLAN_START),
+    expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 予定の開始日の翌稼働日').toEqual(
+      dayNamed(WORKED_DAY_AFTER_START),
     )
-    expect(dayOf(task.actualStart)).not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
+    expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): 予定の開始日そのものに置いてはならない')
+      .not.toEqual(dayNamed(PLAN_START))
+    expect(dayOf(task.actualStart), 'FR-054: 暦日で進めると非稼働日に置くことになる')
+      .not.toEqual(dayNamed(CALENDAR_DAY_AFTER_START))
     expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
     expect(task.resumeValid).toBe(true)
   })
 
   it('places the same three values from GR-17, because one end is never decided alone', () => {
     // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
-    // を予定の開始日で確定させること（MUST）—— 片端だけが決まった状態を作らな
-    // い」. Both handles route to one placement, so the document cannot tell
-    // which was grabbed -- and neither can this case, which is the point.
+    // を予定の開始日の翌稼働日で確定させること（MUST）—— 片端だけが決まった状態
+    // を作らない」. Both handles route to one placement, so the document cannot
+    // tell which was grabbed -- and neither can this case, which is the point.
     const built = draw(notStarted())
     expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
     const after = taskIn(run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST }), UNDER_TEST)
-    expect(dayOf(after.actualStart)).toEqual(dayNamed(PLAN_START))
+    expect(dayOf(after.actualStart)).toEqual(dayNamed(WORKED_DAY_AFTER_START))
     expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+  })
+
+  it('starts the actual bar where GR-9 is DRAWN, so the value and the picture name one day', () => {
+    // ⭐ THE HALF THAT WAS MISSING UNTIL 2026-09-02, and the reason D-182 was
+    // reported: the geometry already drew GR-9 on 翌稼働日 while the write put
+    // the actual on the plan's own start day, so the actual bar came out a
+    // working day to the LEFT of the handle that placed it. Asked as one
+    // question -- the day the picture uses and the day the value takes are the
+    // same day -- rather than as two numbers that could drift apart.
+    const drawnBefore = draw(notStarted())
+    const handleX = dummyNamed(taskDrawn(drawnBefore), 'GR-9').at.x
+    const begun = run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST })
+    const actualStart = taskIn(begun, UNDER_TEST).actualStart
+    expect(actualStart).not.toBeNull()
+    expect(xOfDay(drawnBefore, actualStart as string)).toBe(handleX)
   })
 
   it('draws no dummy at all once an actual is recorded (FR-043 shows them while not started)', () => {

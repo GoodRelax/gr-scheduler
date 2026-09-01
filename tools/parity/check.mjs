@@ -34,8 +34,14 @@ async function emptyTheApp() {
     if (top === null) return true
     await app.hover(top)
     await app.pressEntry(top, 'IC-82')
-    // FR-046 asks before a deletion that cannot be undone
-    const asked = await app.tab.$('[data-icon="IC-69"]')
+    // FR-046 asks before a deletion that cannot be undone.
+    // ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON, from 2026-09-02 (NT-7 of
+    // table T-037, the user's instruction of 2026-09-01). It carries
+    // `data-confirmation-answer` and deliberately no `data-icon`: table T-109
+    // and figure F-019 hold GLYPH entrances, and a word button has no glyph, so
+    // `IC-69` and `IC-70` were retired. Selecting on `data-icon` here found
+    // nothing and waved every confirmation through in silence.
+    const asked = await app.tab.$('[data-confirmation-answer="proceed"]')
     if (asked !== null) {
       const box = await asked.boundingBox()
       await app.tab.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
@@ -182,13 +188,17 @@ const whyKnown = (what) =>
  * path stays exactly as it was: an entrance that is not there is a failure.
  * Nothing here is allowed to soften it.
  *
- * ⚠️ EMPTY TODAY, AND MEASURED SO. The four defects pressed out of the shipped
- * build on 2026-09-01 are none of them askable on THIS board:
+ * ⚠️ EMPTY TODAY, AND MEASURED SO. The defects pressed out of the shipped build
+ * are none of them askable on THIS board:
  *
  *   D-06   a comment box cannot be placed at all -- needs the schedule canvas
  *   D-147  the watermark entrance is inert     -- this sample has no watermark
- *   D-181  a bar's left grip swaps its lane    -- this sample has no task bars
- *   D-182  a bar's dummy ignores where it is dropped -- likewise
+ *   D-182  a bar's dummy ignores where it is dropped -- this sample has no bars
+ *
+ * ⛔ D-181 WAS A FOURTH AND IS NOT ANY MORE. Measured 2026-09-02: it was never a
+ * defect. The row bands do not move; two LANES inside one band trade, which is
+ * table T-014's ST-2 ordering and ST-3's greedy pass doing what they say, and
+ * Ctrl+Y reproduces the trade with no pointer in it.
  *
  * ⭐ `previous-project-result/11-row-controls/row-controls-sample.html` is a
  * ROW CONTROLS sample: it has rows, and nothing else. All four are pinned in

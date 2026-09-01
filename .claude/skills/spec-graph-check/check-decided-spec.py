@@ -40,6 +40,17 @@ LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'decided-spec-baseline.txt')
 REL = 'docs/development-records/defects.md'
 
+# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
+# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
+# `fixed-defects.md`.
+#
+# THIS CHECK READS BOTH. The debt it holds -- a row past 実装待ち that never said
+# WHERE the specification says it -- belongs mostly to old rows, and old rows
+# are exactly the ones the harvest carries away. Reading one file would drop
+# the count by the number of rows that were finished and read as ground won.
+HARVEST = os.path.join(ROOT, 'docs', 'development-records', 'fixed-defects.md')
+REL_HARVEST = 'docs/development-records/fixed-defects.md'
+
 # ⭐ The statuses that say the specification is settled AND WRITTEN, so the row
 # must be able to say where. `実装待ち` opens the list because it is where
 # 仕様書反映済み landed in the 2026-09-01 fold: 「仕様書に在る。まだコードに無い」.
@@ -73,18 +84,20 @@ def names_a_place(cell):
 
 
 def main():
-    text = io.open(LEDGER, encoding='utf-8').read()
     missing = []
-    for line in text.split('\n'):
-        if not line.startswith('| D-'):
+    for path in (LEDGER, HARVEST):
+        if not os.path.exists(path):
             continue
-        cells = line.split('|')
-        if len(cells) != 11:
-            continue                      # the metrics block guards the shape
-        row_id = cells[1].strip()
-        decided, status = cells[5], cells[6].strip().strip('`')
-        if status in NEEDS_SPEC and not names_a_place(decided):
-            missing.append(row_id)
+        for line in io.open(path, encoding='utf-8').read().splitlines():
+            if not line.startswith('| D-'):
+                continue
+            cells = line.split('|')
+            if len(cells) != 11:
+                continue                  # the metrics block guards the shape
+            row_id = cells[1].strip()
+            decided, status = cells[5], cells[6].strip().strip('`')
+            if status in NEEDS_SPEC and not names_a_place(decided):
+                missing.append(row_id)
 
     try:
         held = int(io.open(BASELINE, encoding='utf-8').read().split('\n')[0].strip())

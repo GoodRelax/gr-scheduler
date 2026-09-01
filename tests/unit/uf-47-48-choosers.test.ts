@@ -28,7 +28,10 @@
 //   OP-4  of table T-024a: replacing asks before it discards (MUST) and may not
 //         discard in silence (MUST NOT); joining is exempt in as many words.
 //   U-55  of table T-103 and NT-7 of table T-037: the surface that question
-//         stands on, and IC-69 / IC-70 of table T-109, its two answers.
+//         stands on, and that row's two WORD BUTTONS, its two answers (MUST).
+//         ⚠️ They were IC-69 / IC-70 of table T-109 until CR-327, which took
+//         both rows out of that table -- NT-7 (MUST NOT) refuses a word button
+//         a row there.
 //   OP-9  of table T-024a: what goes into the overlay frame is only what the
 //         current document has a `UID` for (MUST).
 //   RD-3 / RD-4 of table T-230: where each answer lands, and what becomes of
@@ -304,11 +307,32 @@ interface ReasonWords {
   readonly nextStep: Readonly<Record<DisplayLanguage, string>>
 }
 
-const REASON_WORDS: readonly ReasonWords[] = (
-  JSON.parse(
-    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-  ) as { reasons: ReasonWords[] }
-).reasons
+const MANUSCRIPT_WORDS = JSON.parse(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+) as {
+  reasons: ReasonWords[]
+  confirmation: { answer: string; text: Readonly<Record<DisplayLanguage, string>> }[]
+}
+
+const REASON_WORDS: readonly ReasonWords[] = MANUSCRIPT_WORDS.reasons
+
+/**
+ * NT-7's two answers, read out of the manuscript's own `confirmation` section
+ * in its own print order.
+ *
+ * ⭐ THE SECTION IS WHERE NT-7 (MUST) SENDS THEM: 「`FR-038` の辞書の
+ * `confirmation` の語を、どの表示言語でも `Yes` / `No` と紴ること（MUST）」.
+ * ⛔ So the answers are NOT read out of table T-109 any more, and may not be:
+ * that row (MUST NOT) refuses them a row there.
+ */
+const CONFIRMATION_ANSWERS: readonly string[] = MANUSCRIPT_WORDS.confirmation.map(
+  (one) => one.answer,
+)
+
+/** The key the manuscript spells for going on, copied (rule 03 section 1). */
+const PROCEED_ANSWER = 'proceed'
+/** The key the manuscript spells for calling it off, copied. */
+const CANCEL_ANSWER = 'cancel'
 
 /**
  * The words FR-038's dictionary holds for one row of table T-233.
@@ -777,12 +801,22 @@ function takeFormat(loop: FrameLoop, screen: ScreenPane, format: string): void {
 }
 
 /**
- * Answer the question NT-7 put up, with one of table T-109's two entries.
+ * Answer the question NT-7 put up, on one of that row's two word buttons.
+ *
+ * ⛔ NOT `takeEntry`. NT-7 (MUST NOT) refuses these two answers a row of table
+ * T-109, so what a press on one reports is `ScreenPart.confirmationAnswer` and
+ * never `ScreenPart.entry` -- a case that pressed an entry here would be
+ * pressing a row the manuscript no longer holds.
+ * ⚠️ CS-2 of table T-066 settles the gesture on what was drawn AT THE PRESS,
+ * which is why the surface is told before the button goes down.
  *
  * @purity non-pure
  */
-function answerQuestion(loop: FrameLoop, screen: ScreenPane, entry: string): void {
-  takeEntry(loop, screen, CONFIRMATION, entry)
+function answerQuestion(loop: FrameLoop, screen: ScreenPane, answer: string): void {
+  screen.drawAt({ part: CONFIRMATION, entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, confirmationAnswer: answer })
+  loop.receiveInput(pointer('down', 500, 300))
+  loop.receiveInput(pointer('up', 500, 300))
+  screen.drawAt(null)
 }
 
 /**
@@ -929,7 +963,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
     pane.runAnimationFrames()
-    answerQuestion(loop, screen, 'IC-69')
+    answerQuestion(loop, screen, PROCEED_ANSWER)
     await settle()
     pane.runAnimationFrames()
 
@@ -960,7 +994,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     await settle()
     pane.runAnimationFrames()
     // OP-4 (MUST) -- the replacement is owed a question before it discards.
-    answerQuestion(loop, screen, 'IC-69')
+    answerQuestion(loop, screen, PROCEED_ANSWER)
     await settle()
     pane.runAnimationFrames()
 
@@ -1141,7 +1175,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
 //   確認は要らない**」
 //
 // U-55 of table T-103 names the surface it stands on and NT-7 of table T-037 is
-// how it is put; IC-69 and IC-70 of table T-109 are its two answers.
+// how it is put; that row's two word buttons are its two answers.
 
 describe('OP-4 -- replacing asks before it discards', () => {
   it('U-55 / NT-7: choosing IC-71 puts the question up and discards nothing yet', async () => {
@@ -1168,11 +1202,11 @@ describe('OP-4 -- replacing asks before it discards', () => {
     expect(titleOf(loop.document())).toBe('Here')
   })
 
-  it('IC-69 / IC-70: the question carries the two entries table T-109 places on U-55', async () => {
-    // 「本表がアイコンの全数である」 -- which entries stand on `Confirmation` is
-    // table T-109's answer, read out of it in its own print order.
-    const placed = entriesOn(CONFIRMATION)
-    expect(placed, 'table T-109 places nothing on the surface U-55 names').not.toEqual([])
+  it('NT-7 (MUST): the question carries the two word buttons the confirmation section of FR-038 s dictionary holds', async () => {
+    // 「`FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No`
+    // と紴ること（MUST）」 -- which two answers stand on `Confirmation` is that
+    // section's answer, read out of the manuscript in its own print order.
+    expect(CONFIRMATION_ANSWERS, 'the manuscript holds no confirmation section').not.toEqual([])
 
     const pane = host()
     const screen = screenPane()
@@ -1185,19 +1219,22 @@ describe('OP-4 -- replacing asks before it discards', () => {
     pane.runAnimationFrames()
 
     const question = screen.last().confirmation
-    expect(question?.entries.map((entry) => entry.icon)).toEqual(placed)
-    // NT-7 (MUST) makes choosing between the two the whole of the surface, so
-    // neither may be spent or held down.
-    for (const entry of question?.entries ?? []) {
-      expect(entry.isEnabled, `${entry.icon} is drawn faint`).toBe(true)
-      expect(entry.isPressed, `${entry.icon} is drawn as held down`).toBe(false)
+    expect(question?.answers.map((one) => one.answer)).toEqual(CONFIRMATION_ANSWERS)
+    // ⛔ NT-7 (MUST NOT): 「答えの入口に 表 T-109 の行を与えてはならない」.
+    // The description carries no member that could hold one, which this reads
+    // back from the value rather than from the type.
+    for (const one of question?.answers ?? []) {
+      expect(one, one.answer).not.toHaveProperty('icon')
+      // ⭐ And each carries the word the manuscript holds for its own key.
+      expect(one.text, one.answer).toBe(
+        MANUSCRIPT_WORDS.confirmation.find((cell) => cell.answer === one.answer)?.text['ja'],
+      )
     }
   })
 
-  it('IC-70: calling the question off leaves the current document exactly as it was', async () => {
-    // 「IC-70 | `Confirmation` | — | 問いに「取りやめる」と答える | 表 T-037 の
-    //   `NT-7`」, and NT-7 (MUST) is what makes calling it off one of the two
-    // answers: 「続けるか取りやめるかを選ばせること（MUST）」. ⛔ The MUST NOT
+  it('the cancelling answer leaves the current document exactly as it was', async () => {
+    // NT-7 (MUST) is what makes calling it off one of the two answers:
+    // 「続けるか取りやめるかを選ばせること（MUST）」. ⛔ The MUST NOT
     // OP-4 states is about discarding in silence; discarding after being told
     // "no" is the same discarding.
     const pane = host()
@@ -1209,7 +1246,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
     pane.runAnimationFrames()
-    answerQuestion(loop, screen, 'IC-70')
+    answerQuestion(loop, screen, CANCEL_ANSWER)
     await settle()
     pane.runAnimationFrames()
 
@@ -1276,6 +1313,196 @@ describe('OP-4 -- replacing asks before it discards', () => {
 //   が終わって問いが立つときのフレームは 表 T-078 の `FT-1` である** —— その押下
 //   の、遅れて来た残りだからである。 ⭐ **凍らせるのではない** —— 待っているあい
 //   だに寸法が変われば `FT-3` が走る（`NFR-011`）。」
+
+// ===========================================================================
+// NT-7 (MUST) -- `y` and `n` answer the question, and while it stands they
+// reach nothing else (MUST NOT).
+// ===========================================================================
+//
+// ⭐⭐ THE ROW ITSELF, quoted so that these cases are driven by it:
+//     「`y` と `n` の打鍵でも答えられること（MUST）。⛔ 問いが立っているあいだ、
+//     この 2 つのキーをほかの何にも渡してはならない（MUST NOT）—— 順位は `NT-8`
+//     の消去の次、表 T-028 の `IN-4` と 表 T-036 の `SK-19` の階層より先とする
+//     （MUST）」
+
+/**
+ * The key one answer is given on -- the HEAD of the word NT-7 (MUST) bolds.
+ *
+ * ⭐ DERIVED AND NOT SPELT, which is the row's own reasoning: 「頭の 1 文字
+ * （`Y` と `N`）を太字にすること（MUST）—— 打鍵で答えられることを、ボタン自身に
+ * 名乗らせるためである」, and 「訳してはならない（MUST NOT）—— 頭文字が下の打鍵を
+ * 指さなくなる」. So the head letter and the key are one fact, and a test that
+ * spelt the key separately would be holding the code to a second copy of it.
+ * ⚠️ Upper case is how a single character reaches `KeyInput.key` -- table T-036
+ * prints `P` and `F`, and `keyOf` above produces the same.
+ */
+function answerKeyFor(answer: string): KeyInput {
+  const word = MANUSCRIPT_WORDS.confirmation.find((one) => one.answer === answer)?.text['ja'] ?? ''
+  if (word === '') throw new Error(`FR-038: the manuscript holds no word for the answer ${answer}`)
+  return {
+    kind: 'key',
+    key: word.slice(0, 1).toUpperCase(),
+    modifiers: NO_MODIFIERS,
+  }
+}
+
+/** SK-7 -- redoing, whose assignment table T-036 gives as `Ctrl` + `Y`. */
+const SK_7 = keyOf('SK-7')
+
+/** SK-20's write, read back -- the currency the control case below undoes and redoes. */
+const statusDateOf = (document: Document): string | null =>
+  ((document as any).schedule.project as { statusDate: string | null }).statusDate
+
+/**
+ * Stand at the moment OP-4's question is up, with one undoable step behind it.
+ *
+ * ⭐ SK-20 is the currency: UN-13 of table T-027 makes it an undoable step
+ * either way round, and the loop publishes neither its history nor its session.
+ *
+ * @purity non-pure
+ */
+async function standAtTheQuestion(): Promise<{
+  readonly pane: Host
+  readonly screen: ScreenPane
+  readonly loop: FrameLoop
+}> {
+  const pane = host()
+  const screen = screenPane()
+  const files = fileStore()
+  const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+  await openAFile(loop, pane, files)
+  takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
+  await settle()
+  pane.runAnimationFrames()
+  expect(screen.last().confirmation, 'OP-4 (MUST): no question stands to answer').not.toBeNull()
+
+  return { pane, screen, loop }
+}
+
+describe('table T-037 NT-7 (MUST) -- the question is answered from the keyboard', () => {
+  it('GIVEN table T-037 WHEN NT-7 is read THEN it still puts the two keys ahead of IN-4 and SK-19 and gives them to nothing else', () => {
+    // ⛔ THE FIXED COPY THE CASES BELOW ARE DRIVEN BY. If the manuscript takes
+    // one of these sentences back, this case says so before the cases below
+    // start holding the code to a rule nobody states any more.
+    const manner = cellOf(T_037, 'NT-7', 1)
+    expect(manner).toContain('`y` と `n` の打鍵でも答えられること（MUST）')
+    expect(manner).toContain(
+      '問いが立っているあいだ、この 2 つのキーをほかの何にも渡してはならない（MUST NOT）',
+    )
+    expect(manner).toContain(
+      '順位は `NT-8` の消去の次、表 T-028 の `IN-4` と 表 T-036 の `SK-19` の階層より先とする（MUST）',
+    )
+    // ⭐ AND THE KEYS ARE THE HEADS OF THE TWO WORDS, which is what lets this
+    // file derive them rather than spell them.
+    expect(manner).toContain('頭の 1 文字（`Y` と `N`）を太字にすること（MUST）')
+  })
+
+  it('GIVEN a question stands WHEN the key of the going-on answer is pressed THEN the question is answered as though that word button had been pressed', async () => {
+    const { pane, screen, loop } = await standAtTheQuestion()
+
+    loop.receiveInput(answerKeyFor(PROCEED_ANSWER))
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(uidsOf(loop.document()), 'the replacement never landed').toEqual([11, 12])
+    expect(titleOf(loop.document())).toBe('There')
+    expect(screen.last().confirmation, 'the question was answered and is still standing').toBeNull()
+  })
+
+  it('GIVEN a question stands WHEN the key of the calling-off answer is pressed THEN the current document is left exactly as it was', async () => {
+    const { pane, screen, loop } = await standAtTheQuestion()
+
+    loop.receiveInput(answerKeyFor(CANCEL_ANSWER))
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(uidsOf(loop.document())).toEqual([1, 2])
+    expect(titleOf(loop.document())).toBe('Here')
+    expect(screen.last().confirmation, 'the question was answered and is still standing').toBeNull()
+  })
+
+  it('⛔ GIVEN a question stands WHEN the going-on key arrives with `Ctrl` held THEN it still answers the question and SK-7 does not redo (MUST NOT)', async () => {
+    // ⛔ 「問いが立っているあいだ、この 2 つのキーをほかの何にも渡してはならない
+    // （MUST NOT）」. ⚠️ The row says KEYS and not combinations, and SK-7 of table
+    // T-036 assigns `Ctrl` + `Y` to redoing -- so this is the one press where
+    // the MUST NOT has teeth, and letting SK-7 have it would be handing one of
+    // the two keys to something else.
+    expect(SK_7.key, 'SK-7 no longer shares a key with an answer').toBe(
+      answerKeyFor(PROCEED_ANSWER).key,
+    )
+    const { pane, screen, loop } = await standAtTheQuestion()
+
+    loop.receiveInput(SK_7)
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(screen.last().confirmation, 'the press reached the question').toBeNull()
+    expect(uidsOf(loop.document()), 'the going-on answer was given').toEqual([11, 12])
+  })
+
+  it('⭐ GIVEN NO question stands WHEN the same key arrives THEN nothing of the question is spent -- the guard is the standing question and not the key', async () => {
+    // ⭐ THE CONTROL FOR THE CASE ABOVE (04-verification §2). The MUST NOT is
+    // bounded by 「問いが立っているあいだ」, so a build that swallowed the two
+    // keys always would pass every case above and take SK-7 away for good.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+    // SK-20 puts one undoable step on the history and SK-6 takes it back, so
+    // the redo below has something to redo. ⚠️ SK-20 TURNS the line either way
+    // round (UN-13 of table T-027), so what is compared is the value BEFORE and
+    // AFTER rather than a value written down here.
+    const before = statusDateOf(loop.document())
+    loop.receiveInput(SK_20)
+    pane.runAnimationFrames()
+    const written = statusDateOf(loop.document())
+    expect(written, 'SK-20 moved nothing, so there is no step to undo').not.toBe(before)
+    loop.receiveInput(SK_6)
+    pane.runAnimationFrames()
+    expect(statusDateOf(loop.document()), 'SK-6 undid nothing, so SK-7 has nothing to redo').toBe(
+      before,
+    )
+
+    loop.receiveInput(SK_7)
+    pane.runAnimationFrames()
+
+    expect(statusDateOf(loop.document()), 'SK-7 was swallowed with no question standing').toBe(
+      written,
+    )
+  })
+
+  it('⛔ GIVEN a question stands WHEN MK-10 is asked about the two keys THEN the tool declares them its own, and does not while none stands', () => {
+    // MK-10 of table T-023 (MUST NOT): a happening the tool did not assign is
+    // left to the browser. ⭐ A key the question SPENDS is one the tool
+    // assigned, so leaving the browser its default would be the tool taking the
+    // press and letting the page act on it as well.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+    pane.runAnimationFrames()
+
+    // ⭐ MEASURED WITH NO QUESTION FIRST, so the two readings below differ for
+    // the reason the row gives and not because the member always answers true.
+    const beforeAnyQuestion = CONFIRMATION_ANSWERS.map((answer) =>
+      loop.isBrowserDefaultStopped(answerKeyFor(answer)),
+    )
+    expect(beforeAnyQuestion, 'the keys were taken with no question standing').toEqual([
+      false,
+      false,
+    ])
+  })
+
+  it('⛔ GIVEN a question stands WHEN MK-10 is asked about the two keys THEN the tool declares both its own', async () => {
+    const { loop } = await standAtTheQuestion()
+
+    expect(CONFIRMATION_ANSWERS.map((answer) => loop.isBrowserDefaultStopped(answerKeyFor(answer)))).toEqual([
+      true,
+      true,
+    ])
+  })
+})
 
 describe('CS-4 -- what the screen does while the person is being waited on', () => {
   it('CS-4 (MUST NOT): nothing on the screen says the tool is waiting', async () => {
@@ -2244,9 +2471,13 @@ describe('the tables are read by position, so the positions are pinned', () => {
     expect(cellOf(T_109, 'IC-1', T_109_AUTHORITY)).toContain('`FR-087`')
     expect(entriesOn(OPEN_CHOOSER)).toEqual(['IC-52', 'IC-71', 'IC-72', 'IC-73'])
     expect(entriesOn(EXPORT_CHOOSER)).toEqual(['IC-52'])
-    // ⚠️ NO IC-52 ON `Confirmation`: NT-7 (MUST) makes the two answers the whole
-    // of the surface, and calling the question off IS one of them.
-    expect(entriesOn(CONFIRMATION)).toEqual(['IC-69', 'IC-70'])
+    // ⛔⛔ NOTHING AT ALL ON `Confirmation`, which is NT-7's own MUST NOT since
+    // CR-327: 「答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）」.
+    // ⚠️ NOT EVEN IC-52. NT-7 (MUST) makes the two answers the whole of the
+    // surface, and calling the question off IS one of them.
+    expect(entriesOn(CONFIRMATION)).toEqual([])
+    // ⭐ AND THE TWO WORDS ARE WHERE THAT ROW SENDS THEM INSTEAD.
+    expect(CONFIRMATION_ANSWERS).toEqual([PROCEED_ANSWER, CANCEL_ANSWER])
   })
 
   it('table T-233 prints the manner second, and every row of it has words to be told in', () => {

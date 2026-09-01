@@ -42,10 +42,13 @@
 // and this component is where it lives -- so everything printed is READ out of
 // it: what each row of table T-037 is CALLED keyed by that row, the text and the
 // next step of each row of table T-233 keyed by that row, the sentence of each
-// row of table T-234 keyed by that row, the two answers of
-// NT-7 keyed by their row of table T-109, FR-032's mark and NT-8's entrance by
-// the manuscript's own key (FR-038 (MUST NOT) keeps the words out of every
-// requirement and every table, so neither has a row to be keyed by).
+// row of table T-234 keyed by that row, and NT-7's two answers, FR-032's mark
+// and NT-8's entrance by the manuscript's own key (FR-038 (MUST NOT) keeps the
+// words out of every requirement and every table, so none of the three has a
+// row to be keyed by).
+// ⚠️ NT-7's TWO WERE KEYED BY A ROW OF TABLE T-109 UNTIL 2026-09-02. CR-327 made
+// them word buttons and took IC-69 / IC-70 out of that table, so they are now
+// read out of the `confirmation` section like NT-8's `OK` beside them.
 //
 // ⭐ EVERYTHING A RAISER HANDS OVER IS A ROW, AND EVERY ROW IS READ. The
 // manner is a row of table T-037; FR-076 (MUST) makes the reason a row of table
@@ -61,11 +64,11 @@
 // document, and table T-234 says in as many words that they are not in the
 // dictionary.
 //
-// ⭐ BOTH MEMBERS ARE COMPOSED. The preamble above table T-109 fixes its 面
-// column as table T-103's settled names, so which entries stand on U-55
-// `Confirmation` is that table's answer and not the asker's; and FR-038 puts
-// the words on this side of the seam rather than the raiser's. So each of the
-// two exported functions WIDENS what it is given.
+// ⭐ BOTH MEMBERS ARE COMPOSED. NT-7 (MUST) makes the two answers on U-55
+// `Confirmation` word buttons whose words the `confirmation` section of FR-038's
+// dictionary holds, so which two stand there is that section's answer and not
+// the asker's; and FR-038 puts the words on this side of the seam rather than
+// the raiser's. So each of the two exported functions WIDENS what it is given.
 //
 // ⭐ WHAT THE SHELL HANDS OVER, per notice: the row of table T-037 it is
 // following and the row of table T-233 that is its reason. Nothing else is
@@ -83,15 +86,13 @@
 // fourth says that one of the three sites that must ask still does not.
 
 import type {
-  CommandItem,
   Confirmation,
+  ConfirmationAnswer,
   DisplayLanguage,
-  IconId,
   Notice,
   RaisedNotice,
   ScreenSession,
 } from './screen-renderer'
-import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
 
 /**
@@ -102,54 +103,41 @@ import displayWords from './display-words.json'
 const STARTUP_PENDING_MANNER = 'NT-4'
 
 /**
- * U-55 of table T-103, the surface NT-7 puts a question on.
+ * NT-7's two answers, in the print order the `confirmation` section of
+ * `display-words.json` holds them in, keyed by the key that section spells.
  *
- * ⭐ A settled name copied spelling and all (rule 03 section 1), and the same
- * spelling `icon-roster.json` carries in its 面 column -- which is what makes it
- * the join, not a label. ⛔ Nothing here mints a name for a surface.
+ * ⭐ ONE PASS OVER THE GENERATED DICTIONARY rather than a list written here, so
+ * the order the manuscript prints the two in is the order they are shown in,
+ * without this file knowing what that order is (rule 03 section 1). ⛔ Read
+ * once, at load, because a description is built every frame and rule 05 of
+ * docs/development-rules forbids a scan on that path (NFR-013).
+ *
+ * ⛔ THE ROSTER IS NOT READ FOR THEM ANY MORE, AND MAY NOT BE. NT-7 (MUST NOT)
+ * refuses these two a row of table T-109 -- 「同表と 図 F-019 が持つのは図形の
+ * 入口であり、語のボタンは図形を持たない」 -- and CR-327 took IC-69 and IC-70 out
+ * of that table, so a filter on its 面 column now answers with nothing at all.
+ * ⚠️ This is the same shape `DISMISS_BY_ANSWER` below already had: NT-8's
+ * entrance is a word too, and it has been keyed on the manuscript's own key
+ * since CR-259.
+ *
+ * ⚠️ Reading `displayWords` does not make this unit `semi-pure-a`: it is a
+ * module constant compiled into the program, not external state read while
+ * running. Table T-075 fixes UF-67 as `pure`.
  */
-const CONFIRMATION_SURFACE = 'Confirmation'
-
-/**
- * The entries table T-109 places on U-55, in that table's own print order.
- *
- * ⭐ ONE PASS OVER THE GENERATED ROSTER rather than a list written here, so the
- * print order of table T-109 is the order of the two without this file knowing
- * what that order is, and a row moved in the specification moves here (rule 03
- * section 1). FR-029 makes both the roster and the placement follow that table
- * (MUST). ⛔ Read once, at load, because a description is built every frame and
- * rule 05 of docs/development-rules forbids a scan on that path (NFR-013).
- *
- * ⚠️ Reading `iconRoster` does not make this unit `semi-pure-a`: it is a module
- * constant compiled into the program, not external state read while running.
- * Table T-075 fixes UF-67 as `pure`.
- */
-const CONFIRMATION_ANSWER_ROWS: readonly IconId[] = iconRoster.icons
-  .filter((row) => row.surfaces.includes(CONFIRMATION_SURFACE))
-  .map((row) => row.rowId)
-
-/**
- * The words of table T-109's rows, keyed by the row id -- the same map
- * `open-modals.ts` and `app-header-items.ts` build, from the same dictionary.
- *
- * ⚠️ THE `confirmation` SECTION OF THAT DICTIONARY IS NOT READ. It keys the two
- * answers on `proceed` and `cancel`, and nothing in the specification joins
- * those two keys to IC-69 and IC-70 -- table T-109's 何の入口か column is prose,
- * and the row id is the only join it admits. ⛔ Writing that mapping out here
- * would be the copy rule 03 section 1 forbids, so the entries are labelled the
- * way every other entry on the screen is.
- */
-const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+const CONFIRMATION_BY_ANSWER = new Map(
+  displayWords.confirmation.map((entry) => [entry.answer, entry]),
+)
 
 /**
  * The words of table T-037's rows, keyed by the row id.
  *
  * ⭐ THE ROW ID IS THE JOIN, which is what makes this section readable at all:
  * `Notice.manner` and `RaisedConfirmation.manner` already carry a row of table
- * T-037, so nothing has to be minted or matched by hand to ask on it. ⚠️ That is
- * exactly what the `confirmation` section above lacks.
+ * T-037, so nothing has to be minted or matched by hand to ask on it. ⚠️ The
+ * `confirmation` section above has no row to be keyed by and is keyed on the
+ * manuscript's own key instead, which is why the two are built differently.
  *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * ⭐ A `Map` rather than a scan, for the reason `CONFIRMATION_BY_ANSWER` is one: a
  * description is built every frame and rule 05 of docs/development-rules forbids
  * a linear search on that path (NFR-013).
  */
@@ -163,7 +151,7 @@ const MANNERS_BY_ROW = new Map(displayWords.notices.map((entry) => [entry.rowId,
  * asked on a row exactly as the manner is -- and neither the situation the row
  * names nor the words it holds are repeated in this file.
  *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * ⭐ A `Map` rather than a scan, for the reason `CONFIRMATION_BY_ANSWER` is one: a
  * description is built every frame and rule 05 of docs/development-rules forbids
  * a linear search on that path (NFR-013).
  */
@@ -182,7 +170,7 @@ const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId,
  * next step because NT-3a asks for the second; table T-234 gives a question one
  * sentence, and the names of what would go ride on `items` instead.
  *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * ⭐ A `Map` rather than a scan, for the reason `CONFIRMATION_BY_ANSWER` is one: a
  * description is built every frame and rule 05 of docs/development-rules
  * forbids a linear search on that path (NFR-013).
  */
@@ -235,7 +223,7 @@ const SHOWN_ON_ANOTHER_ROW = 'shownOnAnotherRow'
 /**
  * The words of the `confirmationMarks` section, keyed by the mark.
  *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * ⭐ A `Map` rather than a scan, for the reason `CONFIRMATION_BY_ANSWER` is one: a
  * description is built every frame and rule 05 of docs/development-rules
  * forbids a linear search on that path (NFR-013).
  */
@@ -258,7 +246,7 @@ const NOTICE_DISMISS_ANSWER = 'dismiss'
 /**
  * The words of the `noticeDismiss` section, keyed by the answer.
  *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * ⭐ A `Map` rather than a scan, for the reason `CONFIRMATION_BY_ANSWER` is one: a
  * description is built every frame and rule 05 of docs/development-rules
  * forbids a linear search on that path (NFR-013).
  */
@@ -289,7 +277,12 @@ const DISMISS_KEY_NOTICE_SEPARATOR = '+'
 const NO_WORDS = ''
 
 /**
- * The accessible name of one answer, in the display language (FR-038).
+ * The word on one of NT-7's two answers, in the display language (FR-038).
+ *
+ * ⭐ NT-7 (MUST) has it spelled `Yes` / `No` in EVERY display language and
+ * (MUST NOT) forbids translating it, so both cells of the row hold the same
+ * word -- and the language is still asked for rather than assumed, because the
+ * requirement that fixes the spelling is the manuscript's and not this file's.
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
  * reason `open-modals.ts` gives at the same line: those read "the dictionary
@@ -298,8 +291,8 @@ const NO_WORDS = ''
  *
  * @purity pure
  */
-function answerLabel(icon: IconId, language: DisplayLanguage): string {
-  const word = WORDS_BY_ROW.get(icon)?.label[language]
+function answerText(answer: string, language: DisplayLanguage): string {
+  const word = CONFIRMATION_BY_ANSWER.get(answer)?.text[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
 }
@@ -314,7 +307,7 @@ function answerLabel(icon: IconId, language: DisplayLanguage): string {
  * section keyed on table T-233's rows.
  *
  * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
- * for the reason `answerLabel` gives above. ⚠️ A row the dictionary does not hold
+ * for the reason `answerText` gives above. ⚠️ A row the dictionary does not hold
  * at all is a second condition, answered separately although with the same
  * stand-in: it cannot happen while `npm run gen:check` passes, because the
  * generator builds its roster from table T-037 every run, so what is guarded is
@@ -333,7 +326,7 @@ function mannerText(manner: string, language: DisplayLanguage): string {
  * where it holds no word there.
  *
  * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
- * for the reason `answerLabel` gives above: a row the dictionary does not hold
+ * for the reason `answerText` gives above: a row the dictionary does not hold
  * at all and a cell it holds empty are different things, and PD-160 is precisely
  * that difference. ⚠️ Neither can happen while `npm run gen:check` passes -- the
  * generator builds its roster from table T-233 every run and every cell of it is
@@ -426,7 +419,7 @@ function questionText(question: string, language: DisplayLanguage): string {
  * a new one the user's decision.
  *
  * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
- * for the reason `answerLabel` gives just above: those read "the dictionary
+ * for the reason `answerText` gives just above: those read "the dictionary
  * holds no word yet" and "the word is the empty string" as one thing, and
  * PD-160 is precisely the difference. ⚠️ No substitute is invented for the empty
  * case -- U-55 is a surface of words and there is nothing else here to say.
@@ -455,7 +448,7 @@ function shownOnAnotherRowMark(language: DisplayLanguage): string {
  * settled and the lookup is not repeated down the list (NFR-013).
  *
  * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
- * for the reason `answerLabel` gives above. ⚠️ Neither branch can be reached
+ * for the reason `answerText` gives above. ⚠️ Neither branch can be reached
  * while `npm run gen:check` passes: the generator writes this section from the
  * manuscript, and NT-8 (MUST) fills both language cells with the same spelling.
  *
@@ -486,26 +479,28 @@ export function dismissKeyOf(raised: RaisedNotice): string {
 }
 
 /**
- * IC-69 and IC-70 as the surface shows them.
+ * NT-7's two answers as the surface shows them -- word buttons (MUST), in the
+ * order the dictionary prints them in.
  *
  * ⭐ NEITHER CAN BE SPENT AND NEITHER IS A TOGGLE. NT-7 (MUST) makes choosing
  * between going on and calling it off the whole of this surface, so there is no
  * state in which one of the two may not be pressed -- FR-029's faint-and-
- * explained state never applies -- and neither stays down: a toggle is one entry
- * with two states, and this is two entries with one choice.
+ * explained state never applies -- and neither stays down: a toggle is one
+ * entrance with two states, and this is two answers with one choice. ⛔ THAT IS
+ * WHY NEITHER IS A `CommandItem` any more: that type exists to say which of
+ * those states an entrance is in, and it is keyed by a row of table T-109 --
+ * a row NT-7 (MUST NOT) refuses these two.
+ *
+ * ⛔ THE FIRST LETTER IS NOT SEPARATED HERE. NT-7 (MUST) has it drawn bold, and
+ * which part of a word is drawn how is the drawing side's -- this unit reads
+ * the word whole, the way it reads every other word on the screen.
  *
  * @purity pure
  */
-function confirmationAnswers(language: DisplayLanguage): readonly CommandItem[] {
-  return CONFIRMATION_ANSWER_ROWS.map((icon) => ({
-    icon,
-    isEnabled: true,
-    isPressed: false,
-    // ⛔ NOT A GAP: the 構え column of table T-109 -- which FR-053 makes the
-    // authority for which entrance is which arm -- holds an em dash for both
-    // of these rows. An answer to a question arms nothing.
-    isArmed: false,
-    label: answerLabel(icon, language),
+function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] {
+  return [...CONFIRMATION_BY_ANSWER.keys()].map((answer) => ({
+    answer,
+    text: answerText(answer, language),
   }))
 }
 
@@ -697,20 +692,21 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * ⭐ THE SENTENCE IS COMPOSED, and it stopped being carried when table T-234
  * was written: FR-076 (MUST) makes what a question shows a row of that table,
  * so NT-7's 「何が起きるかを示す」 is now READ here out of the one dictionary
- * FR-038 names -- the move `mannerText`, `entries` and `shownOnAnotherRowMark`
+ * FR-038 names -- the move `mannerText`, `answers` and `shownOnAnotherRowMark`
  * were already making.
  *
- * ⭐ THE TWO ANSWERS ARE COMPOSED, AND SO IS FR-032's MARK. The preamble above
- * table T-109 fixes its 面 column as table T-103's settled names, so which
- * entries stand on U-55 is that table's answer -- read out of the generated
- * roster, never asked of the raiser and never written out here. The mark joins
- * them for the same reason: WHICH items wear it is the raiser's to know
+ * ⭐ THE TWO ANSWERS ARE COMPOSED, AND SO IS FR-032's MARK. NT-7 (MUST) makes
+ * the two word buttons and names the `confirmation` section of FR-038's
+ * dictionary as where their words come from, so which two stand on U-55 is that
+ * section's answer -- read out of the generated dictionary, never asked of the
+ * raiser and never written out here. The mark joins them for the same reason:
+ * WHICH items wear it is the raiser's to know
  * (`ConfirmationItem.isShownOnAnotherRow`), and what it is CALLED is the
  * dictionary's (PD-175). ⛔ Neither is a word this file writes.
  *
  * ⛔ AND NO ENTRANCE TO PUT IT AWAY, which NT-8 states as a MUST NOT. A telling
  * is read past and this one waits for an answer, so a third way out would be an
- * answer that is neither of `entries` -- 「どちらでもない」 in that row's own
+ * answer that is neither of `answers` -- 「どちらでもない」 in that row's own
  * words. ⚠️ That is why `Confirmation` carries neither of the two members
  * `toldNotice` fills for NT-8: the type has them absent, and this is the one
  * place that could have added them.
@@ -736,7 +732,7 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  *
  * STOP -- ⛔ ONE OF THE THREE ASKING SITES STILL DOES NOT ASK. Two of them do
  * now: `frame-loop.ts` puts FR-032's row deletion and DI-4 of table T-227 into
- * `ScreenSession.confirmation` and spends the answer on IC-69 / IC-70, so the
+ * `ScreenSession.confirmation` and spends the two word buttons, so the
  * surface below is described and seen. FR-099's unassignment is the one left:
  * table T-109 does place IC-66 on U-49, so there IS an entrance to press, and
  * what is missing is the same thing `frame-loop.ts` supplies for the other two
@@ -767,7 +763,7 @@ export function confirmationFromSession(session: ScreenSession): Confirmation | 
     // section is keyed on exactly that -- so this is the same move `mannerText`
     // above makes and the same one `Notice.text` makes for a reason.
     text: questionText(raised.question, session.language),
-    entries: confirmationAnswers(session.language),
+    answers: confirmationAnswers(session.language),
     // Carried whether or not any item wears it: the surface is drawn from this
     // one value, and reading the dictionary per item would be the same lookup
     // repeated (NFR-013).

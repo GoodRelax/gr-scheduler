@@ -76,6 +76,14 @@
       "description": "Whether the panel refuses to edit this row. Absent means editable, which is what FR-006's STATEMENT makes the default.",
       "type": "boolean"
      },
+     "appliesTo": {
+      "description": "Which selection this row belongs to. FR-006 (MUST) makes the panel print only the rows whose appliesTo matches what is selected, and forbids printing the others -- without it a TaskGroup's height would be drawn on a Task's panel, because the array's order IS the print order and every row in it would be printed. Absent means Task, which is what every row of table T-016 was until 2026-09-02.",
+      "type": "string",
+      "enum": [
+       "Task",
+       "TaskGroup"
+      ]
+     },
      "note": {
       "$ref": "#/$defs/prose"
      },

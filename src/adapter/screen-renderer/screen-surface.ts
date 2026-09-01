@@ -224,9 +224,29 @@ export interface ScreenPart {
    * so answering it as an `IconId` would name a row that does not exist.
    *
    * ⚠️ `null` ON EVERY OTHER PART, a confirmation included -- NT-8 (MUST NOT)
-   * keeps the way out off `NT-7`, whose two answers are pressed as entries.
+   * keeps the way out off `NT-7`, whose two answers travel on the member below.
    */
   readonly noticeDismissKey: string | null
+  /**
+   * Which of NT-7's two answers a press would give --
+   * `ConfirmationAnswer.answer` -- and absent where the point is on neither.
+   *
+   * ⛔ A MEMBER OF ITS OWN AND NOT A SPELLING OF `entry`, for the reason
+   * `noticeDismissKey` above gives and with the same requirement behind it:
+   * NT-7 (MUST NOT) refuses these two answers a row of table T-109, so
+   * answering one as an `IconId` would name a row that does not exist.
+   * ⚠️ It DID travel as one until 2026-09-02, while table T-109 still held
+   * IC-69 and IC-70 (CR-327).
+   *
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS 「on neither answer」, the same bargain
+   * `isRowGrabStrip` above keeps and for the same reason: a `ScreenPart` literal
+   * written before this member existed goes on compiling, and a description that
+   * does not carry it comes from a side that has not been taught to answer yet.
+   * ⭐ THAT IS THE SAFE DIRECTION and not merely the convenient one -- a missing
+   * answer costs a press the person has to make again, where a wrongly filled
+   * one would settle a question nobody answered.
+   */
+  readonly confirmationAnswer?: string
 }
 
 /**

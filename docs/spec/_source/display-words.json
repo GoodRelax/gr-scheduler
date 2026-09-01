@@ -878,28 +878,6 @@
    }
   },
   {
-   "rowId": "IC-69",
-   "label": {
-    "ja": "続ける",
-    "en": "Proceed"
-   },
-   "hint": {
-    "ja": "問いに続けると答える",
-    "en": "Answer the question by going ahead"
-   }
-  },
-  {
-   "rowId": "IC-70",
-   "label": {
-    "ja": "取りやめる",
-    "en": "Cancel"
-   },
-   "hint": {
-    "ja": "問いに取りやめると答える",
-    "en": "Answer the question by calling it off"
-   }
-  },
-  {
    "rowId": "IC-71",
    "label": {
     "ja": "置き換える",
@@ -1100,6 +1078,27 @@
     "ja": "WBS の親",
     "en": "wbsParentUid"
    }
+  },
+  {
+   "rowId": "PR-18",
+   "label": {
+    "ja": "名称",
+    "en": "label"
+   }
+  },
+  {
+   "rowId": "PR-19",
+   "label": {
+    "ja": "色",
+    "en": "color"
+   }
+  },
+  {
+   "rowId": "PR-20",
+   "label": {
+    "ja": "高さ",
+    "en": "height"
+   }
   }
  ],
  "paletteGroups": [
@@ -1165,7 +1164,7 @@
    "name": "Export Chooser",
    "heading": {
     "ja": "ファイルに保存",
-    "en": "Export Chooser"
+    "en": "Save to File"
    }
   },
   {
@@ -1653,6 +1652,28 @@
    }
   },
   {
+   "rowId": "RS-40",
+   "text": {
+    "ja": "この形式は、このビルドではまだ書けません",
+    "en": "This build cannot write this format yet"
+   },
+   "nextStep": {
+    "ja": "別の形式を選んでください",
+    "en": "Choose another format"
+   }
+  },
+  {
+   "rowId": "RS-41",
+   "text": {
+    "ja": "透かし解除パスワードが合いません",
+    "en": "That is not the watermark unlock password"
+   },
+   "nextStep": {
+    "ja": "もう一度入れてください",
+    "en": "Try entering it again"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -1668,43 +1689,50 @@
   {
    "rowId": "QN-1",
    "text": {
-    "ja": "この行と、行に載っているタスクを削除します。取り消しで戻せません",
-    "en": "This row and the tasks on it will be deleted, and undo will not bring them back"
+    "ja": "この行と、行に載っているタスクを削除しますか？ 取り消しでは戻せません",
+    "en": "Delete this row and the tasks on it? Undo will not bring them back"
    }
   },
   {
    "rowId": "QN-2",
    "text": {
-    "ja": "このタスクと、その配下のタスクを削除します。取り消しで戻せません",
-    "en": "This task and the tasks under it will be deleted, and undo will not bring them back"
+    "ja": "このタスクと、その配下のタスクを削除しますか？ 取り消しでは戻せません",
+    "en": "Delete this task and the tasks under it? Undo will not bring them back"
    }
   },
   {
    "rowId": "QN-3",
    "text": {
-    "ja": "この担当者を削除すると、下のタスクの割り当てが外れます",
-    "en": "Deleting this resource unassigns it from the tasks below"
+    "ja": "この担当者を削除しますか？ 下のタスクの割り当てが外れます",
+    "en": "Delete this resource? It will be unassigned from the tasks below"
    }
   },
   {
    "rowId": "QN-4",
    "text": {
-    "ja": "開いたときと同じ文書ではありません。上書きすると、その間の変更が失われます",
-    "en": "This is not the document that was opened; overwriting it loses the changes made since"
+    "ja": "開いたときと同じ文書ではありません。上書きしますか？ その間の変更が失われます",
+    "en": "This is not the document that was opened. Overwrite it? The changes made since will be lost"
    }
   },
   {
    "rowId": "QN-5",
    "text": {
-    "ja": "保存していない編集があります。置き換えると失われます",
-    "en": "There are unsaved edits, and replacing the document loses them"
+    "ja": "保存していない編集があります。置き換えますか？ 失われます",
+    "en": "There are unsaved edits. Replace the document? They will be lost"
+   }
+  },
+  {
+   "rowId": "QN-9",
+   "text": {
+    "ja": "透かしを消すには、透かし解除パスワードが要ります",
+    "en": "Hiding the watermark needs the watermark unlock password"
    }
   },
   {
    "rowId": "QN-8",
    "text": {
-    "ja": "この操作を続けると、取り消しで戻せない変更が起きます",
-    "en": "Going on makes a change that undo cannot bring back"
+    "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
+    "en": "Go on? This makes a change that undo cannot bring back"
    }
   }
  ],
@@ -1712,15 +1740,15 @@
   {
    "answer": "proceed",
    "text": {
-    "ja": "続ける",
-    "en": "Proceed"
+    "ja": "Yes",
+    "en": "Yes"
    }
   },
   {
    "answer": "cancel",
    "text": {
-    "ja": "取りやめる",
-    "en": "Cancel"
+    "ja": "No",
+    "en": "No"
    }
   }
  ],

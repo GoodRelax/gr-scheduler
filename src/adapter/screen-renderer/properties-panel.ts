@@ -24,8 +24,15 @@
 // ⭐ THE SUBJECT HAS TWO HALVES, because a row is picked apart from everything
 // else: SL-1 of table T-023c leaves `TaskGroup` out of the drawing area's
 // selection and FR-085 gives rows their own set. `PropertiesSubject` is that
-// pair, and FR-042 (MUST) puts the picked row's colour and height on this same
-// panel -- both halves are described, and both are `showing: 'selection'`.
+// pair, and FR-042 (MUST) puts the picked row's name, colour and height on this
+// same panel -- both halves are described, and both are `showing: 'selection'`.
+//
+// ⛔ AND EACH HALF PRINTS ONLY ITS OWN ROWS OF TABLE T-016. That table gained a
+// 対象 column on 2026-09-02 (CR-325) and FR-006 (MUST) prints only the rows
+// whose 対象 matches what is selected, forbidding the others (MUST NOT) -- the
+// ruling's own reason being that the table's ORDER is the print order, so a
+// panel that did not look at 対象 would put a row's `height` on a task's panel.
+// ⭐ `TASK_ITEMS` and `GROUP_ITEMS` are that split, made once from the roster.
 //
 // ⭐ A FIELD PER ROW OF TABLE T-016, NOT PER COLUMN. Four rows hold several
 // columns, and the table writes their item names into ONE cell with " / "
@@ -336,24 +343,57 @@ function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
  * One row of table T-016. `columns` carries the names the row's item-name cell
  * holds, and `heldBy` says where their values live -- PR-16 is the only row
  * whose substance is not a column, which that table states in as many words.
+ *
+ * ⭐ `appliesTo` IS THAT TABLE'S 対象 COLUMN, read off the generated roster.
+ * FR-006 (MUST) prints only the rows whose 対象 matches what is selected, so it
+ * is what tells a row of the `Task` panel from a row of the picked row's.
  */
-type PropertyItem =
-  | { readonly row: string; readonly heldBy: 'task'; readonly columns: readonly (keyof Task)[] }
-  | { readonly row: string; readonly heldBy: 'taskVisual'; readonly columns: readonly (keyof TaskVisual)[] }
-  | { readonly row: string; readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
+type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
+  | { readonly heldBy: 'task'; readonly columns: readonly (keyof Task)[] }
+  | { readonly heldBy: 'taskVisual'; readonly columns: readonly (keyof TaskVisual)[] }
+  | { readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
+  | { readonly heldBy: 'taskGroup'; readonly columns: readonly (keyof TaskGroup)[] }
+)
 
 /**
- * Where each row's values live.
+ * A row a selected `Task` puts up, and a row a selected `TaskGroup` puts up.
  *
- * ⛔ THE ONE FACT ABOUT A ROW THAT TABLE T-016 DOES NOT STATE, which is why it
- * is the only thing left written out here. `erd.json` says which entity holds a
- * column, and PR-16 is the row whose substance is not a column at all -- table
+ * ⭐ The 対象 and the holder move together, so narrowing on either narrows the
+ * columns: a `Task`'s row is held by one of the three `Task`-side holders and a
+ * row's row by the row itself. ⛔ That is what keeps `textOfItem` from having to
+ * answer for a `TaskGroup` column against a `Task` it was never given.
+ */
+type TaskPropertyItem = Extract<PropertyItem, { heldBy: 'task' | 'taskVisual' | 'assignment' }>
+type GroupPropertyItem = Extract<PropertyItem, { heldBy: 'taskGroup' }>
+
+/**
+ * The two values table T-016's 対象 column takes, spelled as that table spells
+ * them -- a settled name copied spelling and all (rule 03 section 1).
+ */
+type AppliesTo = 'Task' | 'TaskGroup'
+
+const APPLIES_TO_TASK: AppliesTo = 'Task'
+const APPLIES_TO_TASK_GROUP: AppliesTo = 'TaskGroup'
+
+/**
+ * Where the values of a row whose 対象 is `Task` live.
+ *
+ * ⛔ THE ONE FACT ABOUT SUCH A ROW THAT TABLE T-016 DOES NOT STATE, which is why
+ * it is the only thing left written out here. `erd.json` says which entity holds
+ * a column, and PR-16 is the row whose substance is not a column at all -- table
  * T-016's own note says the item is an `Assignment` and that the name shown is
  * derived from the assignment. ⚠️ Keyed by row id, the only join that table
  * admits, so a row added to the manuscript arrives below and fails HERE by
  * name rather than being drawn against the wrong entity.
+ *
+ * ⛔ THE `TaskGroup` ROWS ARE NOT HERE, AND LEAVING THEM OUT IS THE POINT. Their
+ * 対象 already answers the question this map answers: a row's items are that
+ * row's own columns, so `PR-18` .. `PR-20` would be this file re-typing the
+ * value the manuscript holds, which rule 03 section 1 forbids. ⚠️ The three
+ * arms above are all `Task`-side, and no value of 対象 could tell them apart --
+ * which is why the `Task` side still needs a map and the row side does not.
  */
-const HELD_BY: Readonly<Record<string, PropertyItem['heldBy']>> = {
+const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-1': 'task',
   'PR-2': 'task',
   'PR-3': 'task',
@@ -370,6 +410,25 @@ const HELD_BY: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-15': 'task',
   'PR-16': 'assignment',
   'PR-17': 'taskVisual',
+}
+
+/**
+ * Which entity holds one row's values.
+ *
+ * ⛔ THE GUARD IS KEPT AND IS NOT WEAKENED. A row of 対象 `Task` that nobody has
+ * placed still stops the panel here by name rather than being drawn against the
+ * wrong entity -- ⚠️ what changed on 2026-09-02 is that a row of 対象
+ * `TaskGroup` no longer needs placing, its 対象 being the answer.
+ *
+ * @purity pure
+ */
+function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
+  if (appliesTo === APPLIES_TO_TASK_GROUP) return 'taskGroup'
+  const heldBy = HELD_BY_ON_A_TASK[row]
+  if (heldBy === undefined) {
+    throw new Error(`table T-016 holds ${row}, and nothing says which entity holds its value`)
+  }
+  return heldBy
 }
 
 /**
@@ -393,12 +452,38 @@ const HELD_BY: Readonly<Record<string, PropertyItem['heldBy']>> = {
  * one dictionary, so a row's name is looked up by row id -- see `itemName`.
  */
 const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
-  const heldBy = HELD_BY[item.rowId]
-  if (heldBy === undefined) {
-    throw new Error(`table T-016 holds ${item.rowId}, and nothing says which entity holds its value`)
-  }
-  return { row: item.rowId, heldBy, columns: item.columns } as PropertyItem
+  const appliesTo = item.appliesTo as AppliesTo
+  return {
+    row: item.rowId,
+    appliesTo,
+    heldBy: heldByOf(item.rowId, appliesTo),
+    columns: item.columns,
+  } as PropertyItem
 })
+
+/**
+ * The rows a selected `Task` puts up, and the rows a selected row puts up, each
+ * in table T-016's own printed order.
+ *
+ * ⛔ FR-006 (MUST): 「いま選ばれているものと同じ「対象」を持つ行だけを出すこと」,
+ * and (MUST NOT) 「対象の違う行を出してはならない」 (the user's ruling of
+ * 2026-09-02). ⛔ Without this split the printed order alone would put a row's
+ * `height` on a task's panel, which is the reason that ruling gives.
+ * ⭐ FILTERED AND NEVER SORTED: the same requirement (MUST) keeps the printed
+ * order and says in as many words that the relative order of two rows of one
+ * 対象 does not change.
+ *
+ * ⭐ SPLIT ONCE RATHER THAN PER FRAME: a description is built every frame and
+ * rule 05 forbids a walk on that path that could have been made beforehand
+ * (NFR-013), which is the reason `ENTRY_WORDS_BY_ROW` above is a `Map`.
+ */
+const TASK_ITEMS: readonly TaskPropertyItem[] = PROPERTY_ITEMS.filter(
+  (item): item is TaskPropertyItem => item.appliesTo === APPLIES_TO_TASK,
+)
+
+const GROUP_ITEMS: readonly GroupPropertyItem[] = PROPERTY_ITEMS.filter(
+  (item): item is GroupPropertyItem => item.appliesTo === APPLIES_TO_TASK_GROUP,
+)
 
 /**
  * The rows table T-016 marks read-only.
@@ -911,7 +996,7 @@ function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number)
 function controlsOfItem(
   schedule: Schedule,
   task: Task,
-  item: PropertyItem,
+  item: TaskPropertyItem,
   labelCoef: number,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row)) return []
@@ -940,7 +1025,7 @@ function textOfItem(
   schedule: Schedule,
   task: Task,
   visual: TaskVisual | null,
-  item: PropertyItem,
+  item: TaskPropertyItem,
 ): string {
   switch (item.heldBy) {
     case 'task':
@@ -964,7 +1049,7 @@ function taskFields(
 ): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
-  return PROPERTY_ITEMS.map((item) => ({
+  return TASK_ITEMS.map((item) => ({
     row: item.row,
     name: itemName(item.row, language),
     text: textOfItem(schedule, task, visual, item),
@@ -1113,59 +1198,105 @@ function fieldsOfItem(
 type TaskGroup = Schedule['taskGroups'][number]
 
 /**
- * FR-042's items, each named by its row of table T-058 for the reason
- * `PropertyField.row` gives: table T-016 is the `Task` table and holds none of
- * them.
+ * The row of table T-058 that HOLDS each of the columns table T-016's
+ * `TaskGroup` rows edit -- which is what `PropertyField.row` carries for them.
  *
- * ⭐ THE ROW'S NAME (AT-53) IS THE FIRST OF THEM SINCE 2026-09-01. FR-042 said
- * until then, in as many words, that the name was not handled here; the user's
- * ruling of that date overrode it -- 「タスクグループ名をダブルクリックしたら、
- * プロパティパネルを開き、タスクグループ名編集モードとせよ」 -- and the
- * requirement now (MUST) puts the name on this panel.
- * ⚠️ WHAT DID NOT CHANGE IS THE ENTRANCE. FR-042 still leaves the `Row Title
- * Panel` of FR-085 as the one way in; what moved is where the editing happens.
- * ⭐ FIRST IN THE LIST because the panel prints in this order and FR-072's
- * RATIONALE puts the most frequently touched item at the top -- the same place
- * PR-1 takes among a `Task`'s.
+ * ⛔ TWO TABLES NAME THESE ITEMS, AND EACH FIELD CAN DECLARE ONLY ONE. Table
+ * T-016 gained `PR-18` .. `PR-20` on 2026-09-02 (CR-325) and its note for
+ * `PR-18` settles which of the two the field names: 「実体は
+ * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
+ * であり、本行はその値をパネルに出す項目のほうである」. ⭐ `MK-13` is the double
+ * click FR-085 (MUST) makes the one route to renaming a row, and IF-9 has the
+ * shell ask for the field BY THE ROW IT DECLARES -- so a field declaring
+ * `PR-18` would be a field that entrance could no longer find.
+ * ⚠️ THE ITEM'S OWN ROW IS STILL THE JOIN TO EVERYTHING ELSE: the shown name,
+ * the print order, the 対象 and the read-only mark all arrive under the `PR-n`,
+ * and only what the field DECLARES is the attribute row.
+ *
+ * ⚠️ Keyed by column rather than by row id, because it is the column the ERD has
+ * a row for; a column with no entry stops the panel by name below.
  */
-const GROUP_ITEMS: readonly { readonly row: string; readonly column: keyof TaskGroup }[] = [
-  { row: 'AT-53', column: 'label' },
-  { row: 'AT-58', column: 'color' },
-  { row: 'AT-59', column: 'height' },
-]
+const ATTRIBUTE_ROW_BY_GROUP_COLUMN: Readonly<Record<string, string>> = {
+  label: 'AT-53',
+  color: 'AT-58',
+  height: 'AT-59',
+}
 
 /**
- * The colour and height of the row FR-042 (MUST) puts on this panel, both
- * editable because the same requirement (MUST) asks for them to be edited here.
+ * The row one item of table T-016 declares, for the `TaskGroup` half.
  *
- * ⚠️ A row that specifies neither writes neither: AT-58's `null` means the band
- * colour is resolved from the theme and AT-59's means the height follows the
- * number of stacked bars, and writing the resolved answer in would offer the
- * reader a derived value to edit.
+ * ⚠️ THE FIRST COLUMN'S, WHERE AN ITEM HOLDS SEVERAL. A field carries ONE row
+ * and an item may carry several columns (`PR-3` does on the `Task` side), while
+ * table T-058 has a row per column -- so the two cannot correspond one for one.
+ * ⭐ Every `TaskGroup` item holds exactly one column today, so this stands in
+ * for nothing; it is written rather than assumed because the manuscript is free
+ * to add an item that does not.
  *
  * @purity pure
  */
-function groupFields(schedule: Schedule, group: TaskGroup, labelCoef: number): readonly PropertyField[] {
+function declaredRowOf(item: GroupPropertyItem): string {
+  const [first] = item.columns
+  const row = first === undefined ? undefined : ATTRIBUTE_ROW_BY_GROUP_COLUMN[first]
+  if (row === undefined) {
+    throw new Error(
+      `table T-016 holds ${item.row}, and no row of table T-058 is named for what it edits`,
+    )
+  }
+  return row
+}
+
+/**
+ * The rows of table T-016 whose 対象 is `TaskGroup`, which is FR-042's name,
+ * colour and height -- all editable, because that requirement (MUST) asks for
+ * them to be edited here and the table marks none of them read-only.
+ *
+ * ⭐ THE NAMES COME FROM THE DICTIONARY SINCE 2026-09-02, and that is the defect
+ * the user reported on 2026-09-01 (D-185): this panel drew `label` / `color` /
+ * `height` -- the `GRS JSON` column names themselves -- where FR-038 (MUST) puts
+ * the shown name in the dictionary under the row id. ⛔ It could not do
+ * otherwise until CR-325, because table T-016 held no row for any of the three
+ * and the dictionary is keyed by that table's row ids.
+ *
+ * ⭐ THE ROSTER, THE ORDER AND THE READ-ONLY MARK ARE THE TABLE'S. `PR-18`
+ * stands first for the reason FR-072's RATIONALE gives -- the most frequently
+ * touched item goes at the top -- and that is the manuscript's order, not a
+ * choice made here.
+ *
+ * ⚠️ A row that specifies neither colour nor height writes neither: `AT-58`'s
+ * `null` means the band colour is resolved from the theme and `AT-59`'s means
+ * the height follows the number of stacked bars, and writing the resolved
+ * answer in would offer the reader a derived value to edit.
+ *
+ * @purity pure
+ */
+function groupFields(
+  schedule: Schedule,
+  group: TaskGroup,
+  labelCoef: number,
+  language: DisplayLanguage,
+): readonly PropertyField[] {
   return GROUP_ITEMS.map((item) => ({
-    row: item.row,
-    name: item.column,
-    text: textOfValue(group[item.column]),
-    isEditable: true,
-    controls: [
-      controlOf(
-        schedule,
-        { holder: 'taskGroup', groupId: group.id, column: item.column },
-        'TaskGroup',
-        item.column,
-        textOfValue(group[item.column]),
-        // ⚠️ A row has no task uid, and `null` says so rather than a stand-in
-        // number: the one candidate roster built from a uid is `PR-15`'s, which
-        // is a `Task` item, and AT-51 is a UUID -- there is no number a row
-        // could be named by.
-        null,
-        labelCoef,
-      ),
-    ],
+    row: declaredRowOf(item),
+    name: itemName(item.row, language),
+    text: item.columns.map((column) => textOfValue(group[column])).join(PART_SEPARATOR),
+    isEditable: !READ_ONLY_ROWS.includes(item.row),
+    controls: READ_ONLY_ROWS.includes(item.row)
+      ? []
+      : item.columns.map((column) =>
+          controlOf(
+            schedule,
+            { holder: 'taskGroup', groupId: group.id, column },
+            'TaskGroup',
+            column,
+            textOfValue(group[column]),
+            // ⚠️ A row has no task uid, and `null` says so rather than a
+            // stand-in number: the one candidate roster built from a uid is
+            // `PR-15`'s, which is a `Task` item, and AT-51 is a UUID -- there is
+            // no number a row could be named by.
+            null,
+            labelCoef,
+          ),
+        ),
   }))
 }
 
@@ -1221,7 +1352,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(schedule, group, labelCoef)]
+  return [...itemFields, ...groupFields(schedule, group, labelCoef, language)]
 }
 
 // ---------------------------------------------------------- the settings ----

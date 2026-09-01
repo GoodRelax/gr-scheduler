@@ -1,4 +1,4 @@
-60
+59
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a
@@ -51,3 +51,12 @@
 # session had asked the user to rule on shapes that were already drawn, on the
 # strength of those two cells. This is exactly the rot this check exists to name,
 # and it caught its own author.
+#
+# 2026-09-02: 60 -> 59. Three cells were rewritten at the HEAD so that a reader
+# of the opening is not told the row is blocked when its own end records the
+# ruling: D-72, D-135 and D-148. All three had been settled on 2026-08-30 and
+# still opened with 未定. ⚠️ The count is now taken across BOTH files of the
+# ledger -- defects.md and fixed-defects.md -- because the harvest of this day
+# moved 85 finished rows out of the first, and most rotten openings travel with
+# a finished row. A check reading one file would have printed a large fall as
+# ground won.

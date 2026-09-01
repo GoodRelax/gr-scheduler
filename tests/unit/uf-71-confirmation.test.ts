@@ -1,11 +1,18 @@
-// Unit tests for the `Confirmation` surface -- U-55 of table T-103 -- and for the
-// two entries table T-109 puts on it: the row that answers the question with
-// "proceed", and the row that answers it with "cancel".
+// Unit tests for the `Confirmation` surface -- U-55 of table T-103 -- and for
+// NT-7's two WORD BUTTONS: the answer that goes on, and the answer that calls
+// it off.
+//
+// ⚠️ THEY WERE TWO ROWS OF TABLE T-109 UNTIL CR-327 (2026-09-02). That change
+// made them word buttons, and NT-7 now (MUST NOT) refuses them a row there:
+// 「答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）—— 同表と 図 F-019
+// が持つのは図形の入口であり、語のボタンは図形を持たない」. ⛔ The fixed copy of
+// that table is kept and ASSERTED rather than deleted: the first case below
+// reads its 面 column and goes red if any row names U-55 again.
 //
 // Two units meet here and both are exercised through their own published names:
 //   UF-67  src/adapter/screen-renderer/notices.ts        `confirmationFromSession`
-//          -- the composing half. It WIDENS what was raised, because which
-//          entries stand on U-55 is table T-109's answer and not the asker's.
+//          -- the composing half. It WIDENS what was raised, because the words
+//          of the two answers are FR-038's dictionary's and not the asker's.
 //   UF-71  src/framework/dom-screen-surface/dom-screen-surface.ts
 //          -- the drawing half (CP-38 of table T-062, PI-38 of table T-064), the one
 //          implementation of `ScreenSurface` (IF-9 of table T-065).
@@ -27,12 +34,13 @@
 //
 // The rules these cases answer to:
 //   table T-103 U-55  `Confirmation` -- the surface that asks whether to go on.
-//                  The manner of asking is NT-7 of table T-037; the two-choice
-//                  entrances are IC-69 / IC-70 of table T-109.
+//                  The manner of asking is NT-7 of table T-037; the two answers
+//                  are that row's word buttons, whose words the `confirmation`
+//                  section of FR-038's dictionary holds.
 //                  ⚠️ It is NOT a `Notice`: a notice asks for no answer
 //   table T-109    the whole of the icons (FR-029). Its surface column holds
-//                  table T-103's settled names, and IC-69 / IC-70 are the two
-//                  rows it prints against `Confirmation`, in that order
+//                  table T-103's settled names, and since CR-327 it prints NO
+//                  row at all against `Confirmation`
 //   table T-037 NT-7  (MUST) what is about to happen is shown, and then going on
 //                  or calling it off is CHOSEN. (MUST) Where something goes or
 //                  is released, its NAME is given. A count may not stand in for
@@ -59,10 +67,10 @@
 //                  area and holds no `ScreenRegions` rectangle, so a non-null
 //                  answer over it is what stops a press from becoming PD-5's
 //                  marquee underneath
-//   table T-065 IF-9  the seam answers which UI part (table T-103) and which
-//                  entry (table T-109) a point on the screen is on, with the
-//                  MUST under that table: the side that DREW an entry is the
-//                  side that answers where it is
+//   table T-065 IF-9  the seam answers which UI part (table T-103) a point on
+//                  the screen is on, and -- on this surface -- WHICH of NT-7's
+//                  two answers, with the MUST under that table: the side that
+//                  DREW an entrance is the side that answers where it is
 //   FR-029         what cannot be used is drawn faint and gives its reason
 //                  rather than going quiet -- quoted here only to say that on
 //                  THIS surface nothing may be spent at all
@@ -76,22 +84,24 @@
 //   R7.3 / LY-5    the browser ARRIVES; nothing here is reached for globally
 //
 // ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
-// be driven by a fixed copy of that table. This file takes that one step
-// further for table T-109: the roster it walks is `icon-roster.json`, which is
-// GENERATED from that table by tools/generate_icon_roster.py, FILTERED on the
-// surface column. Nothing below names IC-69 or IC-70 as an expectation -- the two
-// row ids come out of the roster, and a separate case checks the roster against
-// the .md so that neither can fall behind the other.
+// be driven by a fixed copy of that table. Two copies are held here:
+//   - table T-109, through the generated `icon-roster.json`, FILTERED on the
+//     surface column. ⛔ It is asserted EMPTY -- that is NT-7's MUST NOT -- and
+//     a separate case checks the roster against the .md so that neither can
+//     fall behind the other.
+//   - the `confirmation` section of `docs/spec/_source/display-words.json`,
+//     which is where NT-7 (MUST) sends the two answers' words. The two keys and
+//     their order come out of it; nothing below writes a word of either.
 //
 // ⚠️ FIVE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
 // them:
-//   - the WORDS on the two entries. FR-038 (MUST) makes `display-words.json` the
-//     one store of translated strings, and which word an entry of table T-109
-//     carries is UF-67's to read -- tests/unit/uf-67.test.ts holds it. ⚠️ TWO
-//     WORDS ARE NOW ASSERTED HERE, and both are READ out of that file rather
-//     than written: the sentence NT-7 (MUST) shows, which FR-076 (MUST) makes a
-//     row of table T-234 so that the drawn surface can be held to the row that
-//     was RAISED, and FR-032's mark below.
+//   - what the two words ARE. FR-038 (MUST) makes `display-words.json` the one
+//     store of translated strings, and this file may not settle a word -- so
+//     every word it uses is READ out of the manuscript. ⚠️ WHAT IS ASSERTED
+//     HERE is that the word which was read reaches the screen WHOLE, that its
+//     first character is drawn bold (NT-7 MUST), and -- for the sentence NT-7
+//     (MUST) shows and FR-032's mark -- that the row that was RAISED is the row
+//     the drawn surface carries.
 //   - ⚠️ NO LONGER ON THIS LIST: whether a PERSON can READ that a thing which
 //     goes is drawn on another row. FR-032 (MUST) asks for the fact to be SHOWN,
 //     its reason being "it is not visible on that row on the screen", so the
@@ -101,16 +111,16 @@
 //     having settled the medium as a WORD, so the case below reads that word and
 //     asks whether it is on the surface -- and asks that nothing wears it where
 //     the flag is not set.
-//   - which of the two answers stands FIRST on the screen. table T-109 has a print
-//     order and this file holds the entries to it, but nothing says the drawn
-//     surface may not lay them out right-to-left; what is asserted is the order
-//     of the DESCRIPTION and of the DOM the description produced.
+//   - which of the two answers stands FIRST on the screen. The dictionary has a
+//     print order and this file holds the answers to it, but nothing says the
+//     drawn surface may not lay them out right-to-left; what is asserted is the
+//     order of the DESCRIPTION and of the DOM the description produced.
 //   - what is drawn for an item whose `name` is `null`. `Task.name` (AT-27) is
 //     optional, so a nameless task has to survive the list rather than be
 //     dropped (uf-67 covers that on the composing side), but NT-7 asks for a
 //     NAME and there is none to draw.
-//   - the geometry of the surface or of its two entries. Nothing in docs/spec
-//     fixes an entry's rectangle -- that is the very reason IF-9 needs
+//   - the geometry of the surface or of its two answers. Nothing in docs/spec
+//     fixes an entrance's rectangle -- that is the very reason IF-9 needs
 //     `readScreenPartAt` -- so the boxes below are this file's own, and NOTHING
 //     is asserted about where they end. ⛔ Two cases here used to press an
 //     entry's edges and demand R3.4's half-open answer; they measured this
@@ -285,13 +295,53 @@ const ROSTER: Roster = JSON.parse(
   ),
 ) as Roster
 
-/** table T-109 filtered on its surface column: the entries that stand on U-55. */
+/**
+ * table T-109 filtered on its surface column: the entries that stand on U-55.
+ *
+ * ⛔⛔ EMPTY SINCE CR-327, AND THAT IS NT-7's OWN MUST NOT. Kept and asserted
+ * rather than deleted -- a row that named U-55 again would be the manuscript
+ * coming back on itself, and the first case below is where that is caught.
+ */
 const ON_THE_CONFIRMATION: readonly RosterIcon[] = ROSTER.icons.filter((one) =>
   one.surfaces.includes(CONFIRMATION),
 )
 
 /** Their row ids, in the roster's order -- which is table T-109's print order. */
 const ENTRY_ROWS: readonly string[] = ON_THE_CONFIRMATION.map((one) => one.rowId)
+
+/**
+ * The `confirmation` section of `docs/spec/_source/display-words.json` -- where
+ * NT-7 (MUST) sends the words of its two answers.
+ *
+ * ⭐ THE MANUSCRIPT AND NOT THE GENERATED COPY, so that a word which never made
+ * the crossing is caught here rather than agreed with. ⛔ Neither key nor word
+ * is written down in this file: both come out of this section.
+ */
+const MANUSCRIPT_ANSWERS: readonly { readonly answer: string; readonly text: Record<string, string> }[] =
+  (
+    JSON.parse(
+      readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+    ) as {
+      confirmation: { answer: string; text: Record<string, string> }[]
+    }
+  ).confirmation
+
+/** Their keys, in the section's own print order. */
+const ANSWER_KEYS: readonly string[] = MANUSCRIPT_ANSWERS.map((one) => one.answer)
+
+/**
+ * The word one answer carries in the display language these cases are drawn in.
+ *
+ * ⭐ READ, NEVER WRITTEN: FR-038 (MUST) keeps every printed word in the one
+ * dictionary, and a test that spelt one would be a second store of them.
+ */
+function answerWordFor(answer: string): string {
+  const held = MANUSCRIPT_ANSWERS.find((one) => one.answer === answer)?.text[LANGUAGE]
+  if (held === undefined || held === '') {
+    throw new Error(`FR-038: the manuscript holds no ${LANGUAGE} word for the answer ${answer}`)
+  }
+  return held
+}
 
 /**
  * NT-7 of table T-037, sentence by sentence. Quoted in the specification's own
@@ -301,6 +351,19 @@ const NT_7_SHOW_AND_CHOOSE = '何が起きるかを示したうえで、続け�
 const NT_7_BY_NAME = 'その名前を挙げること（MUST）'
 const NT_7_COUNT_IS_NO_SUBSTITUTE = '件数は名前の代わりにできない'
 const NT_7_ONLY_WHERE_ASKED = '問うてよいのは、要求が確認を求めると定めた場面だけとすること（MUST）'
+/** The sentence CR-327 added: the answers are words, not shapes. */
+const NT_7_WORD_BUTTONS = '答えの入口は、図形ではなく語のボタンとすること（MUST）'
+/** ⛔ And where those words come from, spelt the same in every display language. */
+const NT_7_SAME_IN_EVERY_LANGUAGE =
+  '`FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No` と綴ること（MUST）'
+/** ⛔ The MUST NOT that takes the two off table T-109. */
+const NT_7_NO_ROW_OF_T_109 = '答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）'
+/** ⭐ The head letter, and why it is drawn bold. */
+const NT_7_BOLD_HEAD = '頭の 1 文字（`Y` と `N`）を太字にすること（MUST）'
+/** ⭐ The two keys, and the order they are spent in. */
+const NT_7_ANSWERED_BY_KEY = '`y` と `n` の打鍵でも答えられること（MUST）'
+const NT_7_KEYS_GO_NOWHERE_ELSE =
+  '問いが立っているあいだ、この 2 つのキーをほかの何にも渡してはならない（MUST NOT）'
 
 /** FR-032's two halves that reach the screen. */
 const FR_032_NAMES_NOT_A_COUNT = '件数だけを示してはならない（MUST NOT）'
@@ -732,6 +795,11 @@ const ZERO: ScreenRect = { x: 0, y: 0, width: 0, height: 0 }
 const layoutKey = (element: FakeElement): string | null => {
   const icon = element.attributes.get('data-icon')
   if (icon !== undefined) return `icon:${icon}`
+  // NT-7's two answers, which carry no `data-icon` (MUST NOT) and so need a key
+  // of their own here, exactly as they need a member of their own on
+  // `ScreenPart`.
+  const answer = element.attributes.get('data-confirmation-answer')
+  if (answer !== undefined) return `answer:${answer}`
   const role = element.attributes.get('data-role')
   if (role !== undefined) return `role:${role}`
   return null
@@ -1008,9 +1076,20 @@ const entryNodesIn = (element: FakeElement): FakeElement[] =>
 const entryRowsIn = (element: FakeElement): string[] =>
   entryNodesIn(element).map((one) => one.getAttribute('data-icon') ?? '')
 
-function entryNodeFor(element: FakeElement, row: string): FakeElement {
-  const found = entryNodesIn(element).filter((one) => one.getAttribute('data-icon') === row)
-  expect(found, `${row} is drawn once on the ${CONFIRMATION}`).toHaveLength(1)
+/** Every node carrying one of NT-7's two answers, in document order. */
+const answerNodesIn = (element: FakeElement): FakeElement[] =>
+  selfAndDescendants(element).filter(
+    (one) => one.getAttribute('data-confirmation-answer') !== null,
+  )
+
+const answerKeysIn = (element: FakeElement): string[] =>
+  answerNodesIn(element).map((one) => one.getAttribute('data-confirmation-answer') ?? '')
+
+function answerNodeFor(element: FakeElement, answer: string): FakeElement {
+  const found = answerNodesIn(element).filter(
+    (one) => one.getAttribute('data-confirmation-answer') === answer,
+  )
+  expect(found, `${answer} is drawn once on the ${CONFIRMATION}`).toHaveLength(1)
   const first = found[0]
   if (first === undefined) throw new Error('unreachable')
   return first
@@ -1114,35 +1193,35 @@ const HEADER_HEIGHT = 40
  * below is the FAKE BROWSER's arithmetic, and no case may turn it into a claim
  * about the unit; what the edge cases ask is what the unit did with the host's
  * answer.
- * The two entries are laid apart on purpose, so that a strip of bare
- * `Confirmation` lies between them, so "on the surface, off every entry" can be
- * told from "on an entry" without leaving the surface.
+ * The two answers are laid apart on purpose, so that a strip of bare
+ * `Confirmation` lies between them, so "on the surface, off every answer" can be
+ * told from "on an answer" without leaving the surface.
  */
 const CONFIRMATION_BOX = rect(300, 250, 400, 200)
-const ENTRY_BOXES: readonly ScreenRect[] = [rect(330, 380, 120, 32), rect(470, 380, 120, 32)]
+const ANSWER_BOXES: readonly ScreenRect[] = [rect(330, 380, 120, 32), rect(470, 380, 120, 32)]
+
+const boxOfAnswer = (index: number): ScreenRect =>
+  ANSWER_BOXES[index] ?? rect(330 + index * 140, 380, 120, 32)
 
 const LAYOUT = new Map<string, ScreenRect>([
   ['role:App Header', rect(0, 0, WINDOW.width, HEADER_HEIGHT)],
   [`role:${CONFIRMATION}`, CONFIRMATION_BOX],
-  ...ENTRY_ROWS.map(
-    (row, index): [string, ScreenRect] => [
-      `icon:${row}`,
-      ENTRY_BOXES[index] ?? rect(330 + index * 140, 380, 120, 32),
-    ],
+  ...ANSWER_KEYS.map(
+    (answer, index): [string, ScreenRect] => [`answer:${answer}`, boxOfAnswer(index)],
   ),
 ])
 
-/** The middle of the box the entry in this position of the roster was given. */
-function midOfEntry(index: number): { readonly x: number; readonly y: number } {
-  const box = ENTRY_BOXES[index] ?? rect(330 + index * 140, 380, 120, 32)
+/** The middle of the box the answer in this position of the dictionary was given. */
+function midOfAnswer(index: number): { readonly x: number; readonly y: number } {
+  const box = boxOfAnswer(index)
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
 }
 
 const AT = {
-  /** Inside the surface, above both entries -- on the surface, off every entry. */
+  /** Inside the surface, above both answers -- on the surface, off every answer. */
   surfaceOnly: { x: 620, y: 300 },
-  /** The bare strip between the two entries, still inside the surface. */
-  betweenTheEntries: { x: 460, y: 396 },
+  /** The bare strip between the two answers, still inside the surface. */
+  betweenTheAnswers: { x: 460, y: 396 },
   /** Where the schedule is exposed: outside the header and outside the surface. */
   scheduleExposed: { x: 100, y: 300 },
 } as const
@@ -1322,18 +1401,23 @@ describe('the specification still says what these cases copy', () => {
     expect(specText('_assets', 'tbl-glossary.md')).toContain(T_109_PREAMBLE_SURFACE_COLUMN)
   })
 
-  it('GIVEN table T-109 WHEN it is filtered on its surface column THEN the roster and the table name the same rows in the same order', () => {
+  it('⛔ GIVEN table T-109 WHEN it is filtered on its surface column THEN it prints NO row against Confirmation (NT-7 MUST NOT)', () => {
     const fromTheTable = specTable('T-109')
       // The heading of the surface column, in the table's own language.
       .rows.filter((one) => bare(one.by['面'] ?? one.cells[0] ?? '') === CONFIRMATION)
       .map((one) => one.id)
 
-    expect(fromTheTable, `table T-109 no longer prints rows against ${CONFIRMATION}`).not.toHaveLength(
-      0,
-    )
-    // ⭐ The generated roster is what the unit reads and what drives every case
-    // below; this is the one place the two are held against each other.
+    // ⛔ THE MUST NOT ITSELF, quoted in the row's own words above.
+    expect(
+      fromTheTable,
+      `table T-109 prints ${fromTheTable.join(' / ')} against ${CONFIRMATION}, which NT-7 forbids`,
+    ).toEqual([])
+    // ⭐ The generated roster is what the drawing side reads; this is the one
+    // place the two are held against each other, so neither can fall behind.
     expect(ENTRY_ROWS).toEqual(fromTheTable)
+    // ⭐ AND THE ANSWERS HAVE SOMEWHERE ELSE TO BE, which is what makes the two
+    // lines above a move rather than a loss.
+    expect(ANSWER_KEYS.length, 'NT-7 asks for TWO answers').toBe(2)
   })
 
   it('GIVEN the roster WHEN its column names are read THEN the column filtered on is the surface column of table T-109', () => {
@@ -1341,15 +1425,20 @@ describe('the specification still says what these cases copy', () => {
     expect(ROSTER.columns['rowId']).toBe('行 ID')
   })
 
-  it('GIVEN table T-109 WHEN the two rows on this surface are read THEN one answers "proceed" and the other "cancel"', () => {
-    // ⛔ Not an expectation about WHICH row is which -- the roster's order is
-    // the table's. This only holds NT-7's two answers against the two entries.
-    const cells = ON_THE_CONFIRMATION.map((one) => one.entryTo)
-    expect(cells.some((cell) => cell.includes('続ける'))).toBe(true)
-    expect(cells.some((cell) => cell.includes('取りやめる'))).toBe(true)
-    for (const one of ON_THE_CONFIRMATION) {
-      expect(one.authority, `${one.rowId} left NT-7`).toContain(ASKING)
+  it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds one word per answer, spelt the same in every display language (NT-7 MUST)', () => {
+    // ⛔ 「どの表示言語でも `Yes` / `No` と綴ること（MUST）。訳してはならない
+    // （MUST NOT）—— 頭文字が下の打鍵を指さなくなる」. ⭐ The reason is the whole
+    // point, so the head letter is asserted beside the word.
+    // ⚠️ READ AND NEVER SPELT HERE: this file may not settle a word (FR-038).
+    for (const held of MANUSCRIPT_ANSWERS) {
+      const spellings = new Set(Object.values(held.text))
+      expect(spellings.size, `${held.answer} is spelt differently by language`).toBe(1)
+      const word = answerWordFor(held.answer)
+      expect(word.length, `${held.answer} has no word to draw a head letter from`).toBeGreaterThan(0)
     }
+    // ⭐ AND THE TWO HEADS DIFFER, which is what lets one key name one answer.
+    const heads = ANSWER_KEYS.map((answer) => answerWordFor(answer).slice(0, 1))
+    expect(new Set(heads).size, 'the two answers share a head letter').toBe(heads.length)
   })
 
   it('GIVEN table T-037 WHEN NT-7 is read THEN it still asks for what happens to be shown and for the choice to be made', () => {
@@ -1358,6 +1447,21 @@ describe('the specification still says what these cases copy', () => {
     expect(manner).toContain(NT_7_BY_NAME)
     expect(manner).toContain(NT_7_COUNT_IS_NO_SUBSTITUTE)
     expect(manner).toContain(NT_7_ONLY_WHERE_ASKED)
+  })
+
+  it('GIVEN table T-037 WHEN NT-7 is read THEN it still makes the two answers WORD BUTTONS, bolds their head letter, and refuses them a row of table T-109', () => {
+    // ⭐ THE FIXED COPY OF WHAT CR-327 ADDED. Every case below that draws a word
+    // button, or asserts a bold head, or asks that no `data-icon` is written,
+    // is driven by one of these five sentences -- so if the manuscript takes one
+    // back, this case says so before the drawing cases start disagreeing with
+    // a specification nobody has read.
+    const manner = specTable('T-037').rows.find((one) => one.id === ASKING)?.cells.join(' ') ?? ''
+    expect(manner).toContain(NT_7_WORD_BUTTONS)
+    expect(manner).toContain(NT_7_SAME_IN_EVERY_LANGUAGE)
+    expect(manner).toContain(NT_7_NO_ROW_OF_T_109)
+    expect(manner).toContain(NT_7_BOLD_HEAD)
+    expect(manner).toContain(NT_7_ANSWERED_BY_KEY)
+    expect(manner).toContain(NT_7_KEYS_GO_NOWHERE_ELSE)
   })
 
   it('GIVEN FR-032 WHEN its confirmation sentence is read THEN a count still may not stand in for the names', () => {
@@ -1390,7 +1494,6 @@ describe('the specification still says what these cases copy', () => {
     const supply = row?.cells[row.cells.length - 1] ?? ''
     expect(supply).toContain('画面上の点')
     expect(supply).toContain('T-103')
-    expect(supply).toContain('T-109')
     expect(specText('05-07-design.md')).toContain(T_065_THE_SIDE_THAT_DREW_IT)
   })
 
@@ -1422,25 +1525,25 @@ describe('the specification still says what these cases copy', () => {
 })
 
 // ===========================================================================
-// 1. UF-67 -- the two entries are the roster's, not the asker's.
+// 1. UF-67 -- the two answers are the dictionary's, not the asker's.
 // ===========================================================================
 
-describe('table T-109 filtered on its surface column -- what stands on the surface', () => {
-  it('GIVEN the roster WHEN it is filtered on the settled name of U-55 THEN exactly the rows table T-109 prints there come back', () => {
-    // ⛔ The two row ids are never written down in this file. If table T-109 ever
-    // prints a third entry against this surface, this case starts describing it
-    // and every case below starts driving it.
-    expect(ENTRY_ROWS.length).toBeGreaterThanOrEqual(2)
-    expect(new Set(ENTRY_ROWS).size).toBe(ENTRY_ROWS.length)
+describe('NT-7 -- the two word buttons that stand on the surface', () => {
+  it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds two distinct answers', () => {
+    // ⛔ Neither key is written down in this file. If the manuscript ever prints
+    // a third answer, this case starts describing it and every case below
+    // starts driving it.
+    expect(ANSWER_KEYS.length).toBeGreaterThanOrEqual(2)
+    expect(new Set(ANSWER_KEYS).size).toBe(ANSWER_KEYS.length)
   })
 
-  it('GIVEN a question was raised WHEN it is composed THEN it carries every entry the roster puts on the surface, in the roster order', () => {
+  it('GIVEN a question was raised WHEN it is composed THEN it carries every answer the dictionary holds, in that dictionary order', () => {
     const shown = composed(raise(questionRow(0)))
 
-    expect(shown.entries.map((entry) => entry.icon)).toEqual(ENTRY_ROWS)
+    expect(shown.answers.map((one) => one.answer)).toEqual(ANSWER_KEYS)
   })
 
-  it('GIVEN a question was raised WHEN it is composed THEN the raised half survives beside the entries the roster added', () => {
+  it('GIVEN a question was raised WHEN it is composed THEN the raised half survives beside the answers the dictionary added', () => {
     const raised = raise(questionRow(1), [named('foundation work')])
 
     const shown = composed(raised)
@@ -1458,11 +1561,11 @@ describe('table T-109 filtered on its surface column -- what stands on the surfa
     expect(confirmationFromSession(sessionAsking(null))).toBeNull()
   })
 
-  it('GIVEN each place a requirement asks WHEN each is composed THEN the same two entries stand on all of them (FR-031 MUST NOT: the places are not enumerated)', () => {
+  it('GIVEN each place a requirement asks WHEN each is composed THEN the same two answers stand on all of them (FR-031 MUST NOT: the places are not enumerated)', () => {
     for (const site of ASKING_SITES) {
       const shown = composed(raise(site.question, site.items))
 
-      expect(shown.entries.map((entry) => entry.icon), site.by).toEqual(ENTRY_ROWS)
+      expect(shown.answers.map((one) => one.answer), site.by).toEqual(ANSWER_KEYS)
     }
   })
 })
@@ -1472,31 +1575,31 @@ describe('table T-109 filtered on its surface column -- what stands on the surfa
 // ===========================================================================
 
 describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () => {
-  it('GIVEN a question was raised WHEN it is composed THEN neither entry is spent -- both can be chosen', () => {
-    // ⭐ Choosing between the two IS this surface -- U-55 calls IC-69 / IC-70
-    // its two-choice entrances -- so an
-    // entry that cannot be used would leave the person unable to answer at all.
-    // FR-029's faint-and-explained entry belongs where an operation is
-    // unavailable; here neither ever is.
+  it('⛔ GIVEN a question was raised WHEN it is composed THEN neither answer carries a row of table T-109 or an entrance state (NT-7 MUST NOT)', () => {
+    // ⛔ 「答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）」, read back
+    // from the VALUE: a unit that went on composing `CommandItem`s would answer
+    // with `icon`, `isEnabled`, `isPressed` and `isArmed`.
+    // ⭐ The three states are named beside the row id because they are the same
+    // claim from the other end: choosing between the two IS this surface, so an
+    // answer that could not be pressed would leave the person unable to answer
+    // at all -- and there is no state for one of them to be in.
     const shown = composed(raise(questionRow(0)))
 
-    for (const entry of shown.entries) {
-      expect(entry.isEnabled, `${entry.icon} may not be spent`).toBe(true)
+    expect(shown.answers.length).toBe(ANSWER_KEYS.length)
+    for (const one of shown.answers) {
+      expect(one, one.answer).not.toHaveProperty('icon')
+      expect(one, one.answer).not.toHaveProperty('isEnabled')
+      expect(one, one.answer).not.toHaveProperty('isPressed')
+      expect(one, one.answer).not.toHaveProperty('isArmed')
+      expect(Object.keys(one).sort(), one.answer).toEqual(['answer', 'text'])
     }
   })
 
-  it('GIVEN a question was raised WHEN it is composed THEN neither entry is a toggle that is on', () => {
-    // ⚠️ table T-109 spells a toggle as "and leaves by the same entrance"
-    // (IC-11, IC-67, IC-68).
-    // Neither row on this surface says it: each ANSWERS a question once.
-    for (const one of ON_THE_CONFIRMATION) {
-      expect(one.entryTo, `${one.rowId} is not written as a toggle`).not.toContain('同じ入口で')
-    }
-
+  it('GIVEN a question was raised WHEN it is composed THEN each answer carries the word the manuscript holds for its own key (FR-038 MUST)', () => {
     const shown = composed(raise(questionRow(2)))
 
-    for (const entry of shown.entries) {
-      expect(entry.isPressed, `${entry.icon} is not a state that is on`).toBe(false)
+    for (const one of shown.answers) {
+      expect(one.text, one.answer).toBe(answerWordFor(one.answer))
     }
   })
 
@@ -1516,47 +1619,85 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
     }
   })
 
-  it('GIVEN a question stands WHEN the screen is drawn THEN every entry of the roster is drawn on that surface, in the roster order', () => {
+  it('GIVEN a question stands WHEN the screen is drawn THEN every answer the dictionary holds is drawn on that surface, in the dictionary order', () => {
     const built = drawn(asking(questionRow(1)))
 
-    expect(entryRowsIn(confirmationPartOf(built))).toEqual(ENTRY_ROWS)
+    expect(answerKeysIn(confirmationPartOf(built))).toEqual(ANSWER_KEYS)
   })
 
-  it('GIVEN a question stands WHEN the drawn entries are read THEN each is shown, none is disabled, and each can be chosen', () => {
-    // ⭐ "the choice is made" read as what a person can do: the entry is on the
-    // screen,
-    // nothing takes it out of the tree, and a press on it reaches THAT row.
-    // ⚠️ The last of the three is the one with teeth -- a spent entry is still
-    // drawn and still pointable (FR-029), so the DOM's silence about `disabled`
-    // proves nothing on its own. See the control case below.
+  it('⛔ GIVEN a question stands WHEN the drawn answers are read THEN none carries a row of table T-109 (NT-7 MUST NOT)', () => {
+    // ⛔ 「同表と 図 F-019 が持つのは図形の入口であり、語のボタンは図形を持たない」
+    // -- so nothing on this surface may wear a `data-icon`, which is the join
+    // `commandEntry` writes for a row of that table.
+    const part = confirmationPartOf(drawn(asking(questionRow(1))))
+
+    expect(entryRowsIn(part), 'a word button was drawn as an entry of table T-109').toEqual([])
+  })
+
+  it('GIVEN a question stands WHEN the drawn answers are read THEN each is shown, none is disabled, and each can be chosen', () => {
+    // ⭐ "the choice is made" read as what a person can do: the answer is on the
+    // screen, nothing takes it out of the tree, and a press on it reaches THAT
+    // answer.
+    // ⚠️ The last of the three is the one with teeth -- a disabled control is
+    // still drawn, so the DOM's silence about `disabled` proves nothing on its
+    // own. See the control case below.
     const built = drawn(asking(questionRow(2)))
     const part = confirmationPartOf(built)
 
-    ENTRY_ROWS.forEach((row, index) => {
-      const node = entryNodeFor(part, row)
-      expect(isShown(node), `${row} is on the screen`).toBe(true)
-      expect(node.disabled, `${row} may not be disabled`).toBe(false)
-      expect(node.hasAttribute('disabled'), `${row} may not be disabled`).toBe(false)
-      expect(node.getAttribute('aria-disabled'), `${row} may not be disabled`).not.toBe('true')
-      expect(ask(built, midOfEntry(index))?.entry, `${row} can be chosen`).toBe(row)
+    ANSWER_KEYS.forEach((answer, index) => {
+      const node = answerNodeFor(part, answer)
+      expect(isShown(node), `${answer} is on the screen`).toBe(true)
+      expect(node.disabled, `${answer} may not be disabled`).toBe(false)
+      expect(node.hasAttribute('disabled'), `${answer} may not be disabled`).toBe(false)
+      expect(node.getAttribute('aria-disabled'), `${answer} may not be disabled`).not.toBe('true')
+      expect(
+        ask(built, midOfAnswer(index))?.confirmationAnswer,
+        `${answer} can be chosen`,
+      ).toBe(answer)
     })
   })
 
-  it('⛔ GIVEN the same two answers drawn once live and once spent WHEN the two surfaces are compared THEN they differ -- so the case above is not a green that proves nothing (04-verification §2)', () => {
-    // ⚠️ A description no requirement allows -- NT-7 has neither answer spent --
-    // built here only to show that the surface DOES carry `isEnabled` to the
-    // screen. Without this, "neither is disabled" could hold of a surface that
-    // never says anything about it either way.
+  it('⭐ GIVEN a question stands WHEN each answer is read THEN it carries the whole word, with its FIRST character drawn bold (NT-7 MUST)', () => {
+    // ⭐ 「頭の 1 文字（`Y` と `N`）を太字にすること（MUST）—— 打鍵で答えられる
+    // ことを、ボタン自身に名乗らせるためである」.
+    // ⛔ THE WORD IS NOT SPELT HERE: it is read out of the manuscript, so a
+    // change to the dictionary moves this case with it.
+    // ⚠️ THE WHOLE WORD IS ASKED FOR BESIDE THE HEAD, because a surface that
+    // drew ONLY the bold head would satisfy a head-alone claim and leave the
+    // person reading 「Y」 where NT-7 asks for 「Yes」.
+    const part = confirmationPartOf(drawn(asking(questionRow(2))))
+
+    for (const answer of ANSWER_KEYS) {
+      const word = answerWordFor(answer)
+      const node = answerNodeFor(part, answer)
+
+      expect(shownText(node), `${answer} shows its whole word`).toBe(word)
+
+      const bold = selfAndDescendants(node).filter((one) =>
+        (one.getAttribute('style') ?? '').replace(/\s+/g, '').includes('font-weight:bold'),
+      )
+      expect(bold.length, `${answer} draws no bold head`).toBe(1)
+      expect(shownText(bold[0] as FakeElement), `${answer} bolds more or less than its head`).toBe(
+        word.slice(0, 1),
+      )
+    }
+  })
+
+  it('⛔ GIVEN two answers whose words differ WHEN the two surfaces are compared THEN they differ -- so the case above is not a green that proves nothing (04-verification §2)', () => {
+    // ⚠️ A description no requirement allows -- NT-7 fixes the two words -- built
+    // here only to show that the surface DOES carry `ConfirmationAnswer.text` to
+    // the screen. Without this, "the whole word is shown" could hold of a
+    // surface that wrote a constant.
     const live = composed(raise(questionRow(2)))
-    const spent: Confirmation = {
+    const renamed: Confirmation = {
       ...live,
-      entries: live.entries.map((entry) => ({ ...entry, isEnabled: false })),
+      answers: live.answers.map((one) => ({ ...one, text: `${one.answer}Word` })),
     }
 
     const asLive = serialize(confirmationPartOf(drawn(viewWith({ confirmation: live }))))
-    const asSpent = serialize(confirmationPartOf(drawn(viewWith({ confirmation: spent }))))
+    const asRenamed = serialize(confirmationPartOf(drawn(viewWith({ confirmation: renamed }))))
 
-    expect(asSpent).not.toBe(asLive)
+    expect(asRenamed).not.toBe(asLive)
   })
 
   it('GIVEN each place a requirement asks WHEN the screen is drawn THEN the surface stands with both answers on it every time', () => {
@@ -1565,7 +1706,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
       const part = confirmationPartOf(built)
 
       expect(shownText(part), site.by).toContain(sentenceFor(site.question))
-      expect(entryRowsIn(part), site.by).toEqual(ENTRY_ROWS)
+      expect(answerKeysIn(part), site.by).toEqual(ANSWER_KEYS)
     }
   })
 
@@ -1576,7 +1717,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
     const built = drawn(viewWith({ confirmation: null }))
 
     expect(byRole(built.root(), CONFIRMATION)).toHaveLength(0)
-    expect(entryRowsIn(built.root()).filter((row) => ENTRY_ROWS.includes(row))).toEqual([])
+    expect(answerKeysIn(built.root())).toEqual([])
   })
 })
 
@@ -1725,7 +1866,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // (MUST)」 and 「消えるもの・解かれるものがあるときは、その名前を挙げること
     // (MUST)」. The choosing case above is drawn with NO names, and the
     // twelve-name case asks only that the names arrive -- so a surface that let
-    // a long list crowd IC-69 / IC-70 out, disable them, or stop answering for
+    // a long list crowd the two answers out, disable them, or stop answering for
     // them would pass both and still leave the person unable to answer.
     // ⛔ CD-2 of table T-050 makes such a list ordinary, not extreme: deleting a
     // row takes 「その行に載っているすべての `Task`」 and every descendant row
@@ -1735,15 +1876,18 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     const built = drawn(asking(questionRow(3), many))
     const part = confirmationPartOf(built)
 
-    expect(entryRowsIn(part), 'both answers stand, in the roster order').toEqual(ENTRY_ROWS)
+    expect(answerKeysIn(part), 'both answers stand, in the dictionary order').toEqual(ANSWER_KEYS)
 
-    ENTRY_ROWS.forEach((row, index) => {
-      const node = entryNodeFor(part, row)
-      expect(isShown(node), `${row} is on the screen beside forty names`).toBe(true)
-      expect(node.disabled, `${row} may not be disabled`).toBe(false)
-      expect(node.hasAttribute('disabled'), `${row} may not be disabled`).toBe(false)
-      expect(node.getAttribute('aria-disabled'), `${row} may not be disabled`).not.toBe('true')
-      expect(ask(built, midOfEntry(index))?.entry, `${row} can still be chosen`).toBe(row)
+    ANSWER_KEYS.forEach((answer, index) => {
+      const node = answerNodeFor(part, answer)
+      expect(isShown(node), `${answer} is on the screen beside forty names`).toBe(true)
+      expect(node.disabled, `${answer} may not be disabled`).toBe(false)
+      expect(node.hasAttribute('disabled'), `${answer} may not be disabled`).toBe(false)
+      expect(node.getAttribute('aria-disabled'), `${answer} may not be disabled`).not.toBe('true')
+      expect(
+        ask(built, midOfAnswer(index))?.confirmationAnswer,
+        `${answer} can still be chosen`,
+      ).toBe(answer)
     })
   })
 
@@ -1778,7 +1922,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     const part = confirmationPartOf(built)
 
     expect(shownText(part)).toContain(sentenceFor(question))
-    expect(entryRowsIn(part)).toEqual(ENTRY_ROWS)
+    expect(answerKeysIn(part)).toEqual(ANSWER_KEYS)
   })
 })
 
@@ -1812,7 +1956,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
   it('GIVEN the confirmation stands WHEN the bare strip between the two answers is pressed THEN the surface is still named', () => {
     const built = drawn(asking(questionRow(0)))
 
-    expect(ask(built, AT.betweenTheEntries)).toEqual({
+    expect(ask(built, AT.betweenTheAnswers)).toEqual({
       part: CONFIRMATION,
       entry: null,
       format: null,
@@ -1837,17 +1981,19 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
 })
 
 // ===========================================================================
-// 5. table T-065 IF-9 -- the point names the surface and the row that was pressed.
+// 5. table T-065 IF-9 -- the point names the surface and the answer that was pressed.
 // ===========================================================================
 
-describe('table T-065 IF-9 -- which UI part and which entry the point is on', () => {
-  it('GIVEN both answers are drawn WHEN each is pressed THEN the part is the settled name of U-55 and the entry is that row of table T-109', () => {
+describe('table T-065 IF-9 -- which UI part and which answer the point is on', () => {
+  it('GIVEN both answers are drawn WHEN each is pressed THEN the part is the settled name of U-55 and the answer is that key of the dictionary', () => {
     const built = drawn(asking(questionRow(1)))
 
-    ENTRY_ROWS.forEach((row, index) => {
-      expect(ask(built, midOfEntry(index)), row).toEqual({
+    ANSWER_KEYS.forEach((answer, index) => {
+      expect(ask(built, midOfAnswer(index)), answer).toEqual({
         part: CONFIRMATION,
-        entry: row,
+        // ⛔ NT-7 (MUST NOT) refuses these two a row of table T-109, so the
+        // member that carries one is empty and the answer travels on its own.
+        entry: null,
         format: null,
         // ⛔ The two answers are the question's own and are keyed by nothing
         // else: what the telling carries is already in the description, so
@@ -1856,29 +2002,34 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
+        confirmationAnswer: answer,
       })
     })
   })
 
-  it('GIVEN both answers are drawn WHEN each is pressed THEN neither answers with the other row', () => {
-    // ⭐ table T-109 gives the surface TWO rows and not one row in two states, so a
-    // shell hanging "proceed" and "cancel" on one entry has nothing to
+  it('GIVEN both answers are drawn WHEN each is pressed THEN neither answers with the other key', () => {
+    // ⭐ NT-7 gives the surface TWO answers and not one answer in two states, so
+    // a shell hanging "proceed" and "cancel" on one entrance has nothing to
     // tell them apart by.
     const built = drawn(asking(questionRow(1)))
 
-    const answered = ENTRY_ROWS.map((_unused, index) => ask(built, midOfEntry(index))?.entry ?? null)
+    const answered = ANSWER_KEYS.map(
+      (_unused, index) => ask(built, midOfAnswer(index))?.confirmationAnswer ?? null,
+    )
 
-    expect(answered).toEqual(ENTRY_ROWS)
-    expect(new Set(answered).size).toBe(ENTRY_ROWS.length)
+    expect(answered).toEqual(ANSWER_KEYS)
+    expect(new Set(answered).size).toBe(ANSWER_KEYS.length)
   })
 
   it('GIVEN both answers are drawn WHEN what was answered is held against the tree THEN the unit answers only what it itself drew (the MUST under table T-065)', () => {
     const built = drawn(asking(questionRow(1)))
     const part = confirmationPartOf(built)
 
-    const answered = ENTRY_ROWS.map((_unused, index) => ask(built, midOfEntry(index))?.entry ?? null)
+    const answered = ANSWER_KEYS.map(
+      (_unused, index) => ask(built, midOfAnswer(index))?.confirmationAnswer ?? null,
+    )
 
-    expect(answered).toEqual(entryRowsIn(part))
+    expect(answered).toEqual(answerKeysIn(part))
   })
 
   it('GIVEN a point on an entry edge WHEN the unit is asked what is on it THEN it hands that very point to the host and measures no box of its own', () => {
@@ -1897,8 +2048,8 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // exactly as it was given, and nothing on this path measures a box -- which
     // is what leaves the edge to the party R3.4 actually binds.
     const built = drawn(asking(questionRow(1)))
-    const box = ENTRY_BOXES[0]
-    if (box === undefined) throw new Error('the roster placed no entry')
+    const box = ANSWER_BOXES[0]
+    if (box === undefined) throw new Error('this file placed no answer')
 
     for (const point of edgesOf(box)) {
       const askedBefore = built.world.pointQueries.length
@@ -1926,14 +2077,14 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // a unit that walked up to the wrong node, that widened a bare strip into an
     // entry, or that hit-tested with a rectangle of its own goes red.
     const built = drawn(asking(questionRow(1)))
-    const box = ENTRY_BOXES[0]
-    if (box === undefined) throw new Error('the roster placed no entry')
+    const box = ANSWER_BOXES[0]
+    if (box === undefined) throw new Error('this file placed no answer')
 
     const points = [
-      ...ENTRY_ROWS.map((_unused, index) => midOfEntry(index)),
+      ...ANSWER_KEYS.map((_unused, index) => midOfAnswer(index)),
       ...edgesOf(box),
       AT.surfaceOnly,
-      AT.betweenTheEntries,
+      AT.betweenTheAnswers,
     ]
 
     for (const point of points) {
@@ -1941,11 +2092,13 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
       const where = `${point.x},${point.y}`
       expect(landedOn, `${where}: the host landed on nothing at all`).not.toBeNull()
       const inside = confirmationPartOf(built).contains(landedOn as FakeElement)
-      const entry = (landedOn as FakeElement).closest('[data-icon]')
+      const pressed = (landedOn as FakeElement).closest('[data-confirmation-answer]')
 
       const answer = ask(built, point)
 
-      expect(answer?.entry ?? null, where).toBe(entry?.getAttribute('data-icon') ?? null)
+      expect(answer?.confirmationAnswer ?? null, where).toBe(
+        pressed?.getAttribute('data-confirmation-answer') ?? null,
+      )
       expect(answer?.part ?? null, where).toBe(inside ? CONFIRMATION : null)
     }
   })
@@ -1953,7 +2106,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
   it('GIVEN the answer is read WHEN it is inspected THEN it carries every member `ScreenPart` declares and nothing else', () => {
     const built = drawn(asking(questionRow(1)))
 
-    const answer = ask(built, midOfEntry(0))
+    const answer = ask(built, midOfAnswer(0))
 
     expect(answer).not.toBeNull()
     // ⛔ THE ROSTER IS WRITTEN DOWN AND NOT DERIVED. `ScreenPart` is a type and
@@ -1962,6 +2115,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // answer being checked would agree with any answer at all. ⚠️ Each name is
     // one the seam declares in src/adapter/screen-renderer/screen-surface.ts.
     expect(Object.keys(answer ?? {}).sort()).toEqual([
+      'confirmationAnswer',
       'dividerPanel',
       'entry',
       'format',
@@ -1975,24 +2129,24 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
   it('GIVEN the question is taken away WHEN the same point is pressed again THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
     const built = wire()
     surfaceOf(built).showScreenView(asking(questionRow(0)))
-    expect(ask(built, midOfEntry(0))?.part).toBe(CONFIRMATION)
+    expect(ask(built, midOfAnswer(0))?.part).toBe(CONFIRMATION)
 
     surfaceOf(built).showScreenView(viewWith({ confirmation: null }))
 
-    expect(ask(built, midOfEntry(0))).toBeNull()
+    expect(ask(built, midOfAnswer(0))).toBeNull()
   })
 
   it('GIVEN nothing has been drawn yet WHEN a point on the surface is asked about THEN nothing is on it (BO-1 of table T-077)', () => {
     const built = wire()
 
-    expect(ask(built, midOfEntry(0))).toBeNull()
+    expect(ask(built, midOfAnswer(0))).toBeNull()
   })
 
   it('GIVEN a point is asked about WHEN the tree is compared before and after THEN nothing was written (reading a point is not a redraw)', () => {
     const built = drawn(asking(questionRow(1)))
     const before = serialize(built.root())
 
-    ask(built, midOfEntry(0))
+    ask(built, midOfAnswer(0))
     ask(built, AT.surfaceOnly)
 
     expect(serialize(built.root())).toBe(before)

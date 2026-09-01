@@ -320,9 +320,9 @@ export interface ChosenFileSaveRequest {
    * document. NT-7 of table T-037 is the manner, and FR-031 (MUST NOT) is why
    * it is not asked more widely than that.
    *
-   * ⚠️ WHERE THE ANSWER COMES FROM IS SETTLED AND NOBODY ASKS YET. Table T-109
-   * places IC-69 and IC-70 on U-55 `Confirmation`, so a press on either arrives
-   * as `ScreenPart.entry` (IF-9); what is missing is the RAISER -- nothing puts
+   * ⚠️ WHERE THE ANSWER COMES FROM IS SETTLED AND NOBODY ASKS YET. NT-7 puts
+   * two word buttons on U-55 `Confirmation` (MUST), so a press on either arrives
+   * as `ScreenPart.confirmationAnswer` (IF-9); what is missing is the RAISER -- nothing puts
    * a question into `ScreenSession.confirmation`, which the STOP note in
    * `adapter/screen-renderer/notices.ts` records. This field states only that an
    * answer is owed, which NT-7 does fix (MUST): what happens is shown, and going

@@ -779,10 +779,15 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
       taskVisuals: [visualOf({ taskUid: 1, ...visual })],
     })
 
-  it('FR-043 places the plan start, S-129 worked days and resumeValid true', () => {
+  it('FR-043 places the working day after the plan start, S-129 worked days and resumeValid true', () => {
     // MUST, and all three at once: "one end decided on its own" is the state
     // FR-043 exists to prevent. S-129 is 1 because a job that takes one day is
     // still entered as one day.
+    // ⛔ 「実績開始日 ＝ 予定の開始日の翌稼働日」, and beside it 「予定の開始日
+    // そのものに置いてはならない（MUST NOT）」 -- GR-3 of table T-023d already
+    // stands on that day. jan(5) 2026 is a Monday, so the next WORKING day is
+    // jan(6) and no weekend is crossed here; the calendar reading is the
+    // subject of tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts.
     const next = accepted(
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
@@ -790,7 +795,8 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
       }),
     )
     const task = taskIn(next, 1)
-    expect(task.actualStart).toBe(jan(5))
+    expect(task.actualStart).toBe(jan(6))
+    expect(task.actualStart).not.toBe(jan(5))
     expect(task.actualDuration).toBe(1)
     expect(task.resumeValid).toBe(true)
     // PA-2's other columns stay empty, so the task reads as in progress.

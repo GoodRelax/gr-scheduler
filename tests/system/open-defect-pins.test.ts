@@ -4,7 +4,16 @@
 //
 //   D-06   a comment box cannot be placed at all
 //   D-147  the entrance that hides the watermark is inert
-//   D-181  grabbing a bar's left edge swaps its whole lane
+//   ⛔ D-181 WAS PINNED HERE AND IS NOT ANY MORE. Measured 2026-09-02: it was
+//     never a defect. The row bands do not move -- read before, during and
+//     after the grab, all eight stand at the same y and the same height. What
+//     exchanges is two LANES INSIDE one band, which is table T-014's ST-2
+//     ordering 「start 昇順 -> finish 降順」 and ST-3's greedy pass doing exactly
+//     what they say once the grabbed bar's start crosses a day. One Ctrl+Z puts
+//     it back and one Ctrl+Y swaps it again -- a road with no pointer on it, so
+//     the exchange belongs to the document and not to the holding of the grab.
+//     ⚠️ A case asserting the bands DO hold still is worth writing from the
+//     specification; it is not this file's job, because nothing here is open.
 //   D-182  a bar's dummy ignores where it is dropped
 //
 // WHY THEY ARE HERE AND NOT IN `npm run parity`. That harness holds the
@@ -85,12 +94,6 @@ const D147: Pin = {
     'changes nothing on the screen and raises no notice',
 }
 
-const D181: Pin = {
-  ledger: 'D-181',
-  wrong:
-    "grabbing a bar's left edge drops its row one band and swaps it with the " +
-    'neighbouring lane, taking every shape in both lanes with it',
-}
 
 const D182: Pin = {
   ledger: 'D-182',
@@ -99,7 +102,7 @@ const D182: Pin = {
     'so the drop position changes nothing',
 }
 
-const PINNED: readonly Pin[] = [D06, D147, D181, D182]
+const PINNED: readonly Pin[] = [D06, D147, D182]
 
 /**
  * Say, on the run's own output, which ledger row this case is holding.
@@ -325,118 +328,8 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
   )
 }
 
-/**
- * Where every piece of text in the drawing stands, keyed by what it says.
- *
- * ⭐ Keyed by the words and not by position, because the question D-181 asks is
- * whether a named row STAYED where it was.
- *
- * @purity semi-pure-b
- */
-async function textLanes(page: Page): Promise<Record<string, number[]>> {
-  return page.evaluate(
-    /** @purity semi-pure-b */
-    (canvas: string) => {
-      const svg = document.querySelector(canvas)
-      const lanes: Record<string, number[]> = {}
-      if (svg === null) return lanes
-      for (const element of Array.from(svg.querySelectorAll('text'))) {
-        const box = element.getBoundingClientRect()
-        if (box.width < 1) continue
-        const words = (element.textContent ?? '').trim()
-        if (words === '') continue
-        const middle = Math.round(box.y + box.height / 2)
-        const already = lanes[words] ?? []
-        if (!already.includes(middle)) already.push(middle)
-        lanes[words] = already
-      }
-      return lanes
-    },
-    CANVAS,
-  )
-}
 
-/**
- * The leftmost bar of a row that has more than one lane, and its row band.
- *
- * ⛔ A ROW WITH MORE THAN ONE LANE, and that is the whole reason this is not
- * simply "the leftmost bar". What D-181 is accused of is trading one lane for
- * its NEIGHBOUR; a row that holds a single lane has no neighbour to trade
- * with, so the case would pass there for a reason that has nothing to do with
- * the defect being fixed.
- *
- * ⛔ A BAR WHOSE LEFT EDGE IS REALLY ON SCREEN. A bar that begins under the row
- * title panel has no left edge to grab, and the grab would land on the panel.
- *
- * @purity semi-pure-b
- */
-async function leftmostBarOfAMultiLaneRow(
-  page: Page,
-): Promise<{ bar: Box; band: Box; lanes: number } | null> {
-  return page.evaluate(
-    /** @purity semi-pure-b */
-    (asked: { canvas: string; panel: string }) => {
-      const svg = document.querySelector(asked.canvas)
-      const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
-      if (svg === null || panel === undefined) return null
-      const width = window.innerWidth
-      const height = window.innerHeight
-      /** @purity pure */
-      const told = (box: DOMRect) => ({
-        x: Math.round(box.x),
-        y: Math.round(box.y),
-        width: Math.round(box.width),
-        height: Math.round(box.height),
-      })
-      const onScreen = (box: DOMRect): boolean =>
-        box.x > panel.right + 4 &&
-        box.y >= 60 &&
-        box.x + box.width <= width - 4 &&
-        box.y + box.height <= height - 4
-      // ⚠️ A plan bar, not the actual bar drawn inside it. Table T-012 lays the
-      // actual over the plan and draws it shorter, so a height window keeps the
-      // outer one without this file knowing either number.
-      const bars = Array.from(svg.querySelectorAll('polygon'))
-        .map((one) => one.getBoundingClientRect())
-        .filter((box) => onScreen(box) && box.width >= 24 && box.height >= 24 && box.height <= 40)
-      const bands = Array.from(svg.querySelectorAll('rect'))
-        .map((one) => one.getBoundingClientRect())
-        .filter((box) => box.width > 200 && box.height > 30 && box.y >= 60 && box.y + box.height <= height - 4)
-        .sort((one, two) => two.height - one.height)
-      for (const band of bands) {
-        const mine = bars.filter(
-          (box) => box.y >= band.y - 2 && box.y + box.height <= band.y + band.height + 2,
-        )
-        const lanes: number[] = []
-        for (const box of mine) if (!lanes.some((y) => Math.abs(y - box.y) < 20)) lanes.push(box.y)
-        if (lanes.length < 2) continue
-        const leftmost = mine.slice().sort((one, two) => one.x - two.x)[0]
-        if (leftmost === undefined) continue
-        return { bar: told(leftmost), band: told(band), lanes: lanes.length }
-      }
-      return null
-    },
-    { canvas: CANVAS, panel: PANEL },
-  )
-}
 
-/** Every bar's left edge and width, as one comparable string. @purity semi-pure-b */
-async function barGeometry(page: Page): Promise<string> {
-  return page.evaluate(
-    /** @purity semi-pure-b */
-    (canvas: string) => {
-      const svg = document.querySelector(canvas)
-      if (svg === null) return ''
-      return Array.from(svg.querySelectorAll('polygon'))
-        .map((one) => one.getBoundingClientRect())
-        .filter((box) => box.width >= 24 && box.height >= 24 && box.height <= 40)
-        .map((box) => `${Math.round(box.x)}:${Math.round(box.width)}`)
-        .sort()
-        .join(' ')
-    },
-    CANVAS,
-  )
-}
 
 /** A faint pair of grab-holds, and where each half of it stands. */
 interface FaintHold extends Box {
@@ -658,99 +551,6 @@ test('D-06: with the comment box entrance armed, a press and a drag on empty can
 })
 
 // ---------------------------------------------------------------------------
-// D-181 -- grabbing a bar's left edge swaps its whole lane
-// ---------------------------------------------------------------------------
-
-/**
- * Grab the left edge of the leftmost bar of a multi-lane row and hold it.
- *
- * ⭐ The button is left DOWN. Both cases below read the screen mid-gesture,
- * because that is when D-181 shows: one press of undo puts it back.
- *
- * @purity non-pure
- */
-async function holdTheLeftEdge(
-  page: Page,
-): Promise<{ bar: Box; lanes: number; before: Record<string, number[]>; beforeBars: string }> {
-  const chosen = await leftmostBarOfAMultiLaneRow(page)
-  expect(chosen, 'no row with more than one lane has a bar whose left edge is on screen').not.toBeNull()
-  if (chosen === null) throw new Error('unreachable')
-  const before = await textLanes(page)
-  const beforeBars = await barGeometry(page)
-  const grabX = chosen.bar.x + 2
-  const grabY = chosen.bar.y + chosen.bar.height / 2
-  await page.mouse.move(grabX, grabY)
-  await page.waitForTimeout(250)
-  await page.mouse.down()
-  await page.mouse.move(grabX - 24, grabY, { steps: 6 })
-  await page.waitForTimeout(400)
-  return { bar: chosen.bar, lanes: chosen.lanes, before, beforeBars }
-}
-
-// GOES RED IF: the grab stops landing on the bar's left edge -- the bar moved,
-// the grab band moved, or the pointer this file drives stopped reaching the
-// canvas. It says nothing about D-181; it proves the gesture the pinned case
-// makes is one the product feels.
-test("control for D-181: the left edge of the leftmost bar is a grab the product answers", async ({
-  baseURL,
-}) => {
-  test.setTimeout(180_000)
-  const app = await openTheApp(baseURL)
-  const held = await holdTheLeftEdge(app.page)
-  const duringBars = await barGeometry(app.page)
-  await app.page.mouse.up()
-  await app.page.waitForTimeout(400)
-  expect(
-    held.lanes,
-    'the row chosen has only one lane, so it has no neighbour to swap with and the pin below ' +
-      'would prove nothing',
-  ).toBeGreaterThan(1)
-  expect(
-    duringBars,
-    'the pointer went down on the bar left edge and moved 24px, and not one bar changed its left ' +
-      'edge or its width -- the grab landed on nothing',
-  ).not.toBe(held.beforeBars)
-  await app.close()
-})
-
-// GOES RED IF: D-181 is fixed -- the grab resizes the bar and leaves every row
-// where it stood. Today the row drops one band the instant the pointer moves
-// and trades places with its neighbour, and every label in both lanes moves
-// with it. Measured 2026-09-01 and again here: 12 labels take a vertical
-// position they did not hold a moment earlier.
-test("D-181: grabbing a bar's left edge moves no row to another band", async ({ baseURL }) => {
-  test.fail()
-  test.setTimeout(180_000)
-  announce(D181, "grabbing the leftmost bar's left edge")
-  const app = await openTheApp(baseURL)
-  const held = await holdTheLeftEdge(app.page)
-  const during = await textLanes(app.page)
-
-  // ⭐ ASKED AS "took a position it did not have", not as "the two readings are
-  // equal". A resize legitimately redraws: the grabbed bar's own label slides
-  // sideways, a copy of it is drawn while the pointer is down, and a label can
-  // drop out when its shape narrows. None of those puts a label at a NEW
-  // height. Trading lanes does, which is the whole of what is being asked.
-  const strayed: string[] = []
-  for (const [words, wasAt] of Object.entries(held.before)) {
-    const nowAt = during[words]
-    if (nowAt === undefined) continue
-    const fresh = nowAt.filter((y) => !wasAt.includes(y))
-    if (fresh.length > 0) strayed.push(`${words}: ${JSON.stringify(wasAt)} -> ${JSON.stringify(nowAt)}`)
-  }
-  await app.page.mouse.up()
-  await app.page.waitForTimeout(400)
-  try {
-    expect(
-      strayed,
-      `the bar at x=${held.bar.x} was grabbed by its left edge and moved 24px, and rows changed band`,
-    ).toEqual([])
-  } finally {
-    await app.close()
-  }
-})
-
-// ---------------------------------------------------------------------------
 // D-182 -- a bar's dummy ignores where it is dropped
 // ---------------------------------------------------------------------------
 
@@ -888,14 +688,25 @@ test('control for D-182: dropping the dummy of an unstarted task writes an actua
   await app.close()
 })
 
-// GOES RED IF: D-182 is fixed. Two things are asked, and today both fail:
+// GOES RED IF: D-182 is fixed. Two things are asked:
 //   * FR-043 (MUST NOT) forbids the actual start being put on the plan start
 //     itself, because the plan start point (GR-3) already stands there and the
-//     two would stop being tellable apart. It is put exactly there.
+//     two would stop being tellable apart. ✅ FIXED 2026-09-02: `edit-task.ts`
+//     now writes 予定の開始日の翌稼働日, the day GR-9 is drawn on. Measured on
+//     the shipped build with one day 6px wide: the actual bar came out at
+//     x=248 (the plan start) before and comes out at x=254 after, while a
+//     milestone keeps the plan day, which is where GR-18 stands.
 //   * dragging the hold three steps along and eight steps along must not write
-//     the same thing. Measured at +0, +3 and +8: the same thing every time.
+//     the same thing. Measured at +0, +3 and +8: the same thing every time, and
+//     STILL the same after that fix. ⛔ OPEN, AND REPORTED RATHER THAN GUESSED:
+//     FR-043 (MUST) fixes all three values whichever handle was grabbed, while
+//     table T-023d's closing rule speaks of 「掴んだ端点を置いた日」 for these
+//     very dummies -- the two cannot both be obeyed, and CM-14 is published, so
+//     the ruling is the user's. See the note in `input-command-translator.ts`.
 // ⭐ BOTH ARE COLLECTED AND ASSERTED TOGETHER, so that the day one of them is
-// fixed the run still shows the other rather than stopping at the first.
+// fixed the run still shows the other rather than stopping at the first -- and
+// that is exactly what has happened, so this case is still red and still
+// `test.fail()`.
 test('D-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
   test.fail()
   test.setTimeout(240_000)

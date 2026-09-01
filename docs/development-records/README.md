@@ -29,7 +29,14 @@ docs/development-records/
   W4-adapter.md      Adapter の 31 ユニット
   W5-framework.md    Framework の 9 ユニット
   pending-decisions.md  裁定待ちの一覧（検査 25 が印と突き合わせる）
+  defects.md         不具合・改善要望の台帳（開いている行）
+  fixed-defects.md   同・決着した行（`実測済` と `取下げ`）
+  handoff.md         次の巡への引継ぎ。⛔ 番号を増やさず、毎巡この 1 ファイルを書き換える
 ```
+
+⛔⛔ **`defects.md` と `fixed-defects.md` は 1 つの台帳の 2 つの半分である。**
+**道具（`tools/ledger_metrics.py`）と 検査 28 / 29 / 31 は両方を読む。**
+⛔ **片方しか読まない道具を足すな** —— **刈り取ったぶんだけ空を測り、全部緑になる。**
 
 **各ファイルは 3 節だけを持つ:**
 

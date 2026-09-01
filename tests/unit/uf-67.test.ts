@@ -92,8 +92,8 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 import type {
-  CommandItem,
   Confirmation,
+  ConfirmationAnswer,
   ConfirmationItem,
   DisplayLanguage,
   Notice,
@@ -140,6 +140,8 @@ const DICTIONARY = readJson('display-words.json') as {
   readonly questions: readonly { readonly rowId: string; readonly text: Words }[]
   /** NT-8 (MUST): what the entrance that puts a telling away is CALLED. */
   readonly noticeDismiss: readonly { readonly answer: string; readonly text: Words }[]
+  /** NT-7 (MUST): the two word buttons a question is answered on. */
+  readonly confirmation: readonly { readonly answer: string; readonly text: Words }[]
   readonly confirmationMarks: readonly { readonly mark: string; readonly text: Words }[]
 }
 
@@ -852,26 +854,26 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 // ⭐ WHAT MOVED, AND IN WHICH DIRECTION. These cases were written when a
 // question reached the screen exactly as it had been raised, and they asserted
 // deep equality against the raised value itself. Version 0.88 of the
-// specification (CR-211, A-appendix.md:116) settled the two answers:
-// 「確認の 2 択に入口を与えた —— 表 T-103 に `U-55`（`Confirmation`）、表 T-109
-// に `IC-69` / `IC-70`、図 F-019 に図形 2 つ」, and table T-109 now prints
+// specification (CR-211) then gave the two answers ENTRANCES -- `IC-69` and
+// `IC-70` of table T-109 -- and CR-327 (2026-09-02) took both rows away again:
+// NT-7 now reads
 //
-//     | IC-69 | `Confirmation` | — | 問いに「続ける」と答える | 表 T-037 の `NT-7` |
-//     | IC-70 | `Confirmation` | — | 問いに「取りやめる」と答える | 表 T-037 の `NT-7` |
+//     ⭐⭐ 答えの入口は、図形ではなく語のボタンとすること（MUST）——
+//     `FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No`
+//     と綴ること（MUST）。⛔ 答えの入口に 表 T-109 の行を与えてはならない
+//     （MUST NOT）
 //
-// The preamble of section 8 of `_assets/tbl-glossary.md` makes that second
-// column the placement -- 「`面` の欄は 表 T-103 の確定名である。新しい面の名を
-// 作らない」-- so WHICH entries stand on the `Confirmation` surface is the
-// roster's answer and not the asker's. What reaches the screen is therefore
-// wider than what was raised.
+// -- so WHICH two answers stand on the `Confirmation` surface is now the
+// `confirmation` section's answer and not the asker's, and not table T-109's
+// either. What reaches the screen is still wider than what was raised.
 //
 // ⛔ THAT IS THE MANUSCRIPT MOVING, NOT THESE EXPECTATIONS BEING BENT TO THE
 // CODE. Nothing below was relaxed: every case still demands that the raised
-// half comes back WHOLE and UNTOUCHED. What changed is that the expected value
-// is now "what was raised, PLUS the entries table T-109 places on that surface,
-// in that table's print order" -- and the entries are read out of the roster,
-// never typed here, so an entry added to or taken off U-55 in the manuscript
-// moves these cases with it instead of leaving them agreeing with stale code.
+// half comes back WHOLE and UNTOUCHED, and the MUST NOT is asserted rather than
+// quietly dropped -- the first case below reads table T-109's own 面 column and
+// fails if any row names U-55 again. What changed is that the expected value is
+// now "what was raised, PLUS the two word buttons the dictionary holds, in its
+// print order" -- read out of that dictionary, never typed here.
 //
 // ⚠️ HONEST NOTE ON WHAT WAS SEEN. `notices.ts` was not opened at all. What was
 // read is `screen-renderer.ts` -- the file table T-064 makes the contract -- for
@@ -883,11 +885,12 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 //
 // The rules these cases answer to:
 //   表 T-109  its preamble makes the 面 column table T-103's settled names, and
-//             IC-69 / IC-70 are the two rows it places on `Confirmation`
+//             since CR-327 it places NOTHING on `Confirmation` -- NT-7
+//             (MUST NOT) refuses its two answers a row there
 //   FR-029   「アイコンの名簿と置き場は…表 T-109 に…従うこと（MUST）」, and
 //             (MUST) what cannot be used is drawn faint with its reason
-//   U-55     表 T-103: 「続けてよいかを問う面。…2 択の入口は表 T-109 の `IC-69`
-//             / `IC-70` が持つ」
+//   U-55     表 T-103: 「続けてよいかを問う面。…2 択の入口の語は
+//             `FR-038` の辞書の `confirmation` が持つ」
 //   FR-038   「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」--
 //             so an entry's word is the dictionary's, keyed by its row id, and
 //             「対象は `ja` と `en` の 2 言語とする」. ⚠️ Every word in that
@@ -967,8 +970,12 @@ const ROSTER = (readJson('icon-roster.json') as {
 }).icons
 
 /**
- * 表 T-109's rows whose 面 column places them on U-55, in the table's own print
- * order -- which the roster preserves, being generated row by row.
+ * 表 T-109's rows whose 面 column places them on U-55.
+ *
+ * ⛔⛔ EMPTY SINCE CR-327, AND THAT IS NT-7's OWN MUST NOT: 「答えの入口に
+ * 表 T-109 の行を与えてはならない（MUST NOT）」. ⚠️ Kept and asserted rather
+ * than deleted: a row that named U-55 again would be the manuscript coming
+ * back on itself, and this is where that is caught.
  */
 const T_109_ON_CONFIRMATION = ROSTER.filter((icon) =>
   icon.surfaces.includes(U_55_CONFIRMATION),
@@ -985,12 +992,6 @@ const T_109_ON_CONFIRMATION_IN_MANUSCRIPT = specTable('T-109')
   .map((row) => row.id)
 
 /**
- * The `icons` section of that same dictionary, keyed by the row of 表 T-109 --
- * where FR-038 (MUST) puts the word an entry of a surface prints.
- */
-const DISPLAY_WORDS = DICTIONARY.icons
-
-/**
  * FR-032 (MUST) marks the `Task`s that go with the row but are DRAWN on another
  * one -- HM-10 of table T-015a is what puts them there. The user ruled the
  * medium is a WORD (RC-13 keeps shapes to the user), so it lives in the same
@@ -1000,12 +1001,6 @@ const markFor = (mark: string, language: DisplayLanguage): string => {
   const word = DICTIONARY.confirmationMarks.find((one) => one.mark === mark)
   expect(word, `FR-032: the dictionary has no mark for ${mark}`).toBeDefined()
   return (word as { readonly text: Words }).text[language]
-}
-
-const labelOf = (rowId: string, language: DisplayLanguage): string => {
-  const word = DISPLAY_WORDS.find((one) => one.rowId === rowId)
-  expect(word, `FR-038: the dictionary has no row for ${rowId}`).toBeDefined()
-  return (word as { readonly label: Words }).label[language]
 }
 
 /**
@@ -1074,37 +1069,45 @@ const dismissTextFor = (language: DisplayLanguage): string => {
 }
 
 /**
- * The entries 表 T-109 places on U-55, as `CommandItem`s, in that table's order.
+ * NT-7's two answers, keyed the way the `confirmation` section of FR-038's
+ * dictionary keys them, in that section's own print order.
  *
- * ⭐ `isEnabled` is true on both. NT-7 (MUST) 「続けるか取りやめるかを選ばせる
- * こと」-- choosing between the two IS this surface, so neither can be spent;
- * FR-029 (MUST) reserves the faint drawing for what cannot be used, and nothing
- * makes either of these unusable.
- * ⭐ `isPressed` is false on both. It says a TOGGLE IS ON, which 表 T-109 marks
- * with 「出す・しまう」 in its 何の入口か column (IC-4, IC-7, IC-8 ...). These two
- * read 「問いに「続ける」と答える」/「問いに「取りやめる」と答える」-- an answer
- * given once, with no off.
- * ⭐ `label` is the dictionary's word for that row in the display language,
- * which is where FR-038 (MUST) puts every word the screen prints.
+ * ⭐ THE SECTION IS WHERE NT-7 (MUST) SENDS THEM: 「`FR-038` の辞書の
+ * `confirmation` の語を、どの表示言語でも `Yes` / `No` と綴ること（MUST）」,
+ * so the keys and the order are read out of it rather than typed here.
  */
-const entriesOnConfirmation = (language: DisplayLanguage): readonly CommandItem[] =>
-  T_109_ON_CONFIRMATION.map((rowId) => ({
-    icon: rowId,
-    isEnabled: true,
-    isPressed: false,
-    // FR-053: the entrance is not armed. ⛔ A separate member from `isPressed`,
-    // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
-    // bars the pressed form -- so an arm may not travel on the toggle.
-    isArmed: false,
-    label: labelOf(rowId, language),
-  }))
+const CONFIRMATION_ANSWERS: readonly string[] = DICTIONARY.confirmation.map((one) => one.answer)
+
+/**
+ * The word FR-038's dictionary holds for one of NT-7's two answers.
+ *
+ * ⭐ READ, NEVER WRITTEN, the move `mannerTextFor` and `questionTextFor` make.
+ */
+const answerTextFor = (answer: string, language: DisplayLanguage): string => {
+  const word = DICTIONARY.confirmation.find((one) => one.answer === answer)
+  expect(word, `FR-038: the dictionary has no confirmation answer ${answer}`).toBeDefined()
+  return (word as { readonly text: Words }).text[language]
+}
+
+/**
+ * NT-7's two answers as the screen owes them -- word buttons, in the
+ * dictionary's order.
+ *
+ * ⛔ NO `isEnabled`, `isPressed` OR `isArmed`, AND NO `icon`. Those four are
+ * `CommandItem`'s, which is keyed by a row of 表 T-109 -- and NT-7 (MUST NOT)
+ * refuses these two such a row. ⭐ The states they carried said nothing here
+ * anyway: choosing between the two IS this surface (MUST), so there is no state
+ * in which one may not be pressed and neither stays down.
+ */
+const answersOnConfirmation = (language: DisplayLanguage): readonly ConfirmationAnswer[] =>
+  CONFIRMATION_ANSWERS.map((answer) => ({ answer, text: answerTextFor(answer, language) }))
 
 /**
  * The raised half -- what an asker can know: WHICH question this is, as a row of
  * 表 T-234, and what would go.
  *
- * ⛔ It carries no entries: the two answers are 表 T-109's, so an asker naming
- * them would be writing the roster's answer. ⛔ AND IT CARRIES NO SENTENCE: the
+ * ⛔ It carries no answers: the two are the dictionary's, so an asker naming
+ * them would be the second store of translated strings FR-038 forbids. ⛔ AND IT CARRIES NO SENTENCE: the
  * row is the join, FR-038 (MUST) keeps the words on the far side of this seam,
  * and an asker that supplied one would be the second store of translated strings
  * the same requirement forbids (MUST NOT) -- the very move
@@ -1118,7 +1121,7 @@ const confirmationOf = (
 
 /**
  * What the screen owes for a question that was raised: what was raised, plus
- * the entries 表 T-109 places on the surface it stands on, in that order.
+ * NT-7's two word buttons, in the dictionary's own order.
  */
 const shownFor = (
   raised: RaisedConfirmation,
@@ -1136,7 +1139,7 @@ const shownFor = (
   // carried: NT-7 (MUST) has what is about to happen shown, and FR-038 (MUST) puts
   // that sentence in the one store of translated strings.
   text: questionTextFor(raised.question, language),
-  entries: entriesOnConfirmation(language),
+  answers: answersOnConfirmation(language),
   shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
 })
 
@@ -1178,13 +1181,13 @@ const markForRow = (rowId: string, language: DisplayLanguage): string =>
 
 /**
  * A mark keyed the way the `confirmation` section of that same dictionary is
- * keyed -- by the ANSWER (`proceed` / `cancel`), not by a row of 表 T-109.
+ * keyed -- by the ANSWER (`proceed` / `cancel`).
  *
- * ⚠️ A DECOY, and why laying one is fair: the preamble above 表 T-109 says
- * 「繋ぎ目は行 ID `IC-nn` だけである」, and nothing in docs/spec joins the words
- * `proceed` / `cancel` to a row of that table. An entry that came back wearing
- * one of these was joined by something the specification has not settled, and
- * the case below says so rather than passing.
+ * ⭐ THE REAL JOIN SINCE CR-327, and the decoy is now the other way round:
+ * NT-7 (MUST) sends the two words to this very section, and (MUST NOT) refuses
+ * the answers a row of 表 T-109 -- so a word that came back wearing
+ * `markForRow` above would have been joined by a table that no longer holds
+ * either of them.
  */
 const markForAnswer = (answer: string, language: DisplayLanguage): string =>
   `<${language}/${answer}/text>`
@@ -1665,54 +1668,61 @@ describe('UF-67 -- FR-076 and 表 T-234: the sentence a question shows is READ, 
   })
 })
 
-describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation` surface', () => {
-  it('GIVEN the manuscript of table T-109 WHEN the generated roster is read THEN both place the same entries on U-55, in the same order', () => {
-    // ⛔ WHY THIS CASE EXISTS. The roster the cases below are driven by is the
-    // file the unit reads, so agreement with it alone could not tell drift from
-    // agreement. This one holds it against `_assets/tbl-glossary.md` itself,
-    // whose section 8 preamble says 「`面` の欄は 表 T-103 の確定名である」-- the
-    // column that decides the placement.
+describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers with', () => {
+  it('⛔ GIVEN the manuscript of table T-109 WHEN its 面 column is read THEN it places nothing at all on U-55 (NT-7 MUST NOT)', () => {
+    // ⛔ THE MUST NOT ITSELF: 「答えの入口に 表 T-109 の行を与えてはならない
+    // （MUST NOT）—— 同表と 図 F-019 が持つのは図形の入口であり、語のボタンは
+    // 図形を持たない」.
+    // ⭐ BOTH SIDES ARE ASKED, which is why this case is not one assertion: the
+    // roster is the file the unit reads and `_assets/tbl-glossary.md` is the
+    // manuscript, so agreement with the roster alone could not tell drift from
+    // agreement.
+    expect(T_109_ON_CONFIRMATION_IN_MANUSCRIPT).toEqual([])
     expect(T_109_ON_CONFIRMATION).toEqual(T_109_ON_CONFIRMATION_IN_MANUSCRIPT)
-    expect(
-      T_109_ON_CONFIRMATION.length,
-      'U-55 of 表 T-103: 「2 択の入口は表 T-109 の `IC-69` / `IC-70` が持つ」',
-    ).toBeGreaterThan(0)
+    // ⭐ AND THE WORDS HAVE SOMEWHERE ELSE TO BE, which is what makes the two
+    // lines above a move rather than a loss: NT-7 (MUST) sends them to the
+    // `confirmation` section of FR-038's dictionary.
+    expect(CONFIRMATION_ANSWERS.length, 'NT-7 asks for TWO answers').toBe(2)
   })
 
-  it('GIVEN a question raised with no entries of its own WHEN it is shown THEN it carries the entries table T-109 places on U-55, in that table order', () => {
-    // The asker cannot know them: 表 T-109 decides which entries stand on a
-    // surface, so composing them onto the raised half is the unit's work.
+  it('GIVEN a question raised with no answers of its own WHEN it is shown THEN it carries the two the dictionary holds, in that dictionary order', () => {
+    // The asker cannot know them: NT-7 (MUST) makes the words the dictionary's,
+    // so composing them onto the raised half is the unit's work.
     const asked = confirmationOf(questionRow(4), [])
 
     const shown = confirmationFromSession(sessionAsking(asked)) as Confirmation
 
-    expect(shown.entries.map((entry) => entry.icon)).toEqual(T_109_ON_CONFIRMATION)
+    expect(shown.answers.map((one) => one.answer)).toEqual(CONFIRMATION_ANSWERS)
   })
 
-  it('GIVEN the entries of that surface WHEN they are shown THEN each can be pressed and none is a toggle that is on', () => {
-    // NT-7 (MUST): 「続けるか取りやめるかを選ばせること」-- an answer that could
-    // not be given would leave the question unanswerable, and FR-029 (MUST)
-    // keeps the faint drawing for what cannot be used. 表 T-109 marks a toggle
-    // with 「出す・しまう」; these two are answers, given once, with no off.
+  it('⛔ GIVEN the two answers WHEN they are shown THEN neither carries a row of table T-109 or an entrance state (NT-7 MUST NOT)', () => {
+    // ⛔ 「答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）」, read
+    // back from the VALUE and not from the type: a unit that went on composing
+    // `CommandItem`s would answer with `icon`, `isEnabled`, `isPressed` and
+    // `isArmed`, and this names each of the four.
+    // ⭐ The three states are named beside the row id because they are the same
+    // claim from the other end: NT-7 (MUST) makes choosing between the two the
+    // whole of the surface, so there is no state for one of them to be in.
     const shown = confirmationFromSession(
       sessionAsking(confirmationOf(questionRow(0), [])),
     ) as Confirmation
 
-    for (const entry of shown.entries) {
-      expect(entry.isEnabled, `FR-029: ${entry.icon}`).toBe(true)
-      expect(entry.isPressed, `${entry.icon} is not a toggle`).toBe(false)
+    expect(shown.answers.length).toBe(CONFIRMATION_ANSWERS.length)
+    for (const one of shown.answers) {
+      expect(one, one.answer).not.toHaveProperty('icon')
+      expect(one, one.answer).not.toHaveProperty('isEnabled')
+      expect(one, one.answer).not.toHaveProperty('isPressed')
+      expect(one, one.answer).not.toHaveProperty('isArmed')
+      expect(Object.keys(one).sort(), one.answer).toEqual(['answer', 'text'])
     }
   })
 
-  it('GIVEN the dictionary on disk WHEN the entries are shown THEN each carries the word it holds for that row and language, whatever it is', () => {
+  it('GIVEN the dictionary on disk WHEN the two answers are shown THEN each carries the word it holds for that answer and language, whatever it is', () => {
     // FR-038 (MUST): 「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと」.
-    // ⚠️ WHAT THIS CASE CAN AND CANNOT CATCH. It reads the generated dictionary,
-    // which is also where the unit reads -- so it can tell a word that went
-    // astray on the way, but it cannot tell a word READ from a word MINTED, and
-    // it went vacuous whenever a cell was empty (PD-160). It is kept because it
-    // is the only case that watches the REAL file. The two cases that follow are
-    // the ones that tell reading from minting: they hand the unit a dictionary
-    // this file built.
+    // ⚠️ WHAT THIS CASE CAN AND CANNOT CATCH is unchanged by CR-327: it reads
+    // the generated dictionary, which is also where the unit reads -- so it can
+    // tell a word that went astray on the way, but not a word READ from a word
+    // MINTED. The two cases below are the ones that tell those apart.
     for (const language of LANGUAGES) {
       const session: ScreenSession = {
         ...sessionAsking(confirmationOf(questionRow(2), [])),
@@ -1721,71 +1731,109 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
 
       const shown = confirmationFromSession(session) as Confirmation
 
-      expect(shown.entries, language).toEqual(entriesOnConfirmation(language))
+      expect(shown.answers, language).toEqual(answersOnConfirmation(language))
     }
   })
 
-  it('GIVEN a dictionary that holds a distinct word for every row and language WHEN the entries are shown THEN each word is the one that dictionary holds, keyed by its row (FR-038)', async () => {
+  it('⛔ GIVEN the dictionary on disk WHEN the two words are read THEN both are spelt the same in every display language (NT-7 MUST, MUST NOT translate)', () => {
+    // ⛔ 「どの表示言語でも `Yes` / `No` と綴ること（MUST）。訳してはならない
+    // （MUST NOT）—— 頭文字が下の打鍵を指さなくなる」. ⭐ The reason is the whole
+    // point of the rule, so the head letter is asserted beside the word: a
+    // translated answer is one whose first character stops naming its key.
+    // ⚠️ READ AND NEVER SPELT HERE. This file may not settle a word (FR-038,
+    // MUST NOT), so what it asserts is that the two languages agree and that the
+    // agreement reaches the screen -- not what the two letters are.
+    for (const answer of CONFIRMATION_ANSWERS) {
+      const inJapanese = answerTextFor(answer, 'ja')
+      const inEnglish = answerTextFor(answer, 'en')
+      expect(inJapanese, `${answer} is translated`).toBe(inEnglish)
+      expect(inJapanese.length, `${answer} has no word to draw a head letter from`).toBeGreaterThan(
+        0,
+      )
+    }
+    // ⭐ AND THE TWO HEAD LETTERS DIFFER, which is what lets one key name one
+    // answer: two answers sharing a head would leave a press unable to say which
+    // it was.
+    const heads = CONFIRMATION_ANSWERS.map((answer) => answerTextFor(answer, 'ja').slice(0, 1))
+    expect(new Set(heads).size, 'the two answers share a head letter').toBe(heads.length)
+
+    // ⭐ AND WHAT THE SCREEN SHOWS IS THE SAME IN BOTH LANGUAGES, which is the
+    // half a dictionary reading alone cannot show.
+    const wordsIn = (language: DisplayLanguage): readonly string[] =>
+      (
+        confirmationFromSession({
+          ...sessionAsking(confirmationOf(questionRow(1), [])),
+          language,
+        }) as Confirmation
+      ).answers.map((one) => one.text)
+    expect(wordsIn('ja')).toEqual(wordsIn('en'))
+  })
+
+  it('GIVEN a dictionary that holds a distinct word for every answer and language WHEN the two are shown THEN each word is the one that dictionary holds, keyed by its own answer (FR-038)', async () => {
     // FR-038 (MUST): 「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと」--
-    // so the word an entry carries is READ, from that one place, and the join is
-    // 表 T-109's row id (its preamble: 「繋ぎ目は行 ID `IC-nn` だけである」).
-    // ⭐ Every word below differs by row AND by language, so a unit that keyed by
-    // the wrong row, never looked at `ScreenSession.language`, read the
-    // `confirmation` section's `proceed` / `cancel` instead, or wrote a word of
-    // its own, answers with something this case can name.
+    // so the word an answer carries is READ, from that one place, and the join
+    // is the key NT-7 names: the `confirmation` section's own `answer`.
+    // ⭐ Every word below differs by answer AND by language, so a unit that keyed
+    // by the wrong answer, never looked at `ScreenSession.language`, read the
+    // `icons` section's labels instead, or wrote a word of its own, answers with
+    // something this case can name.
     const byLanguage = new Map<DisplayLanguage, readonly string[]>()
 
     for (const language of LANGUAGES) {
       const shown = await shownWithMarkedDictionary(language)
 
       expect(
-        shown.entries.map((entry) => entry.label),
+        shown.answers.map((one) => one.text),
         language,
-      ).toEqual(T_109_ON_CONFIRMATION.map((rowId) => markForRow(rowId, language)))
+      ).toEqual(CONFIRMATION_ANSWERS.map((answer) => markForAnswer(answer, language)))
       byLanguage.set(
         language,
-        shown.entries.map((entry) => entry.label),
+        shown.answers.map((one) => one.text),
       )
     }
 
     // FR-038: 「利用者が表示言語を選んだとき…その言語で示すこと」-- the two
     // display languages may not come back as one and the same word.
+    // ⚠️ ASKED OF THE MARKED DICTIONARY AND NOT OF THE REAL ONE, which is the
+    // difference CR-327 makes: NT-7 (MUST) has the real words spelt the same in
+    // both, so the claim that survives is that the unit READS the language --
+    // and only a dictionary whose two cells differ can show that.
     expect(byLanguage.get('ja')).not.toEqual(byLanguage.get('en'))
   })
 
-  it('GIVEN the entries 表 T-109 places on this surface WHEN their words are read THEN each carries the word that dictionary holds for ITS OWN row, and no two of them share one (FR-038)', async () => {
+  it('GIVEN the two answers WHEN their words are read THEN each carries the word that dictionary holds for ITS OWN answer, and no two of them share one (FR-038)', async () => {
     // ⭐ THIS IS WHERE THE TWO ANSWERS THEMSELVES ARE COVERED. The case above
-    // walks the roster in order, so a unit that handed both entries the FIRST
-    // row's word would still have to be caught by something; here each entry is
-    // looked up by the row IT carries, so a swap or a shared word is named.
-    // ⛔ The row ids are not written here either -- `entry.icon` is the row the
-    // entry says it is, and the dictionary is asked for that row.
+    // walks the section in order, so a unit that handed both the FIRST answer's
+    // word would still have to be caught by something; here each is looked up by
+    // the key IT carries, so a swap or a shared word is named.
+    // ⛔ The keys are not written here either -- `one.answer` is the key the
+    // answer says it is, and the dictionary is asked for that key.
     const shown = await shownWithMarkedDictionary('ja')
 
-    expect(shown.entries.length, 'U-55: 「2 択の入口は表 T-109 の 2 行が持つ」').toBeGreaterThan(1)
-    for (const entry of shown.entries) {
-      expect(entry.label, entry.icon).toBe(markForRow(entry.icon, 'ja'))
+    expect(shown.answers.length, 'NT-7: 続けるか取りやめるかを選ばせること').toBeGreaterThan(1)
+    for (const one of shown.answers) {
+      expect(one.text, one.answer).toBe(markForAnswer(one.answer, 'ja'))
     }
     expect(
-      new Set(shown.entries.map((entry) => entry.label)).size,
+      new Set(shown.answers.map((one) => one.text)).size,
       '2 つの答えが同じ語を着て出てはならない',
-    ).toBe(shown.entries.length)
+    ).toBe(shown.answers.length)
   })
 
-  it('GIVEN a question is shown WHEN the raised half is looked at again THEN the entries were added on the way, not to what the asker holds', () => {
+  it('GIVEN a question is shown WHEN the raised half is looked at again THEN the answers were added on the way, not to what the asker holds', () => {
     // ⛔ `ScreenSession.confirmation` is the RAISED half. Widening it in place
-    // would let a caller settle a placement 表 T-109 settles.
+    // would let a caller settle words FR-038 (MUST) keeps in one dictionary.
     const asked = confirmationOf(questionRow(5), [])
     const session = sessionAsking(asked)
 
-    expect((confirmationFromSession(session) as Confirmation).entries.length).toBeGreaterThan(0)
-    expect(session.confirmation).not.toHaveProperty('entries')
-    expect(asked).not.toHaveProperty('entries')
+    expect((confirmationFromSession(session) as Confirmation).answers.length).toBeGreaterThan(0)
+    expect(session.confirmation).not.toHaveProperty('answers')
+    expect(asked).not.toHaveProperty('answers')
   })
 
-  it('GIVEN no question was raised WHEN the member is filled THEN there is no surface, and so no entries to place on one', () => {
-    // 表 T-109 places the two entries on U-55; U-55 is the surface a question
-    // stands on, and NT-7 admits none where nothing was asked.
+  it('GIVEN no question was raised WHEN the member is filled THEN there is no surface, and so no answers to place on one', () => {
+    // NT-7 puts the two answers on U-55; U-55 is the surface a question stands
+    // on, and NT-7 admits none where nothing was asked.
     expect(confirmationFromSession(sessionAsking(null))).toBeNull()
   })
 })

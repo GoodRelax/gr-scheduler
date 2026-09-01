@@ -60,7 +60,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            21, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            24, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -68,8 +68,13 @@ EXEMPT = {
                 'FR-006 (MUST) reads the token to choose the control, so a '
                 'translation of it would be a second spelling nothing maps '
                 'back. ⚠️ The `note` and `mspdi` cells of the same row ARE '
-                'prose and are dictionaries, which is why this count is 21 '
-                'and not 53.'),
+                'prose and are dictionaries, which is why this count is not '
+                '53. ⭐ 21 -> 24 on 2026-09-02: table T-016 gained PR-18 / '
+                'PR-19 / PR-20 for a TaskGroup\'s label, colour and height '
+                '(the user\'s ruling of that day), one token each and all '
+                'three drawn from the same closed enum. The count rises '
+                'because the table has three more rows, not because the '
+                'exemption widened.'),
     },
 }
 

@@ -6224,6 +6224,28 @@ function commandFromGrab(
       // actual about to be placed to be DRAWN while one of the three is held
       // (MUST). That picture is the renderer's, from the press it can see --
       // IN-1 keeps a move from carrying an action.
+      //
+      // ⛔⛔ TWO ROWS DISAGREE ABOUT WHETHER THE DROPPED DAY IS READ AT ALL, and
+      // the disagreement is REPORTED here rather than settled (rule 03 section
+      // 1). Measured on the shipped build 2026-09-02, ledger D-182: dragging
+      // the hold three steps and eight steps writes the same actual both times,
+      // because no day leaves this arm.
+      //   FR-043 (MUST)   「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働
+      //                   日、実績期間 ＝ `S-129`、`resumeValid` ＝ `true` と
+      //                   すること」 -- the three values are FIXED, so a drop
+      //                   position has nowhere to go. This is what the arm
+      //                   above does, and `edit-task.ts` writes those values.
+      //   T-023d closing  ⛔ 「掴んだ端点を置いた日を、稼働日へ寄せてはならない
+      //                   （MUST NOT）」 with ⚠️ 「`FR-043` がダミーを稼働日に
+      //                   「置く」と定めているのは描く位置の話であり、落とす先
+      //                   の話ではない」 -- which names a 落とす先 for the very
+      //                   dummies FR-043 draws, and so says a dropped day IS
+      //                   stored for them.
+      // ⛔ NOT GUESSED EITHER WAY. Reading the drop would give CM-14 a day and a
+      // handle, and CM-14 is published (PI-9 of table T-064, CM-14 of table
+      // T-108) -- so it is a change to the specification and not a choice this
+      // unit may make. Searched: FR-043, table T-023d (GR-9 / GR-17 / GR-18 and
+      // its closing rules), table T-028 IN-1, table T-108 CM-14, `edit-task.ts`.
       return changed([{ kind: 'beginTaskActual', uid }])
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days
@@ -6860,7 +6882,7 @@ function fitCommand(context: InputContext): DocumentCommand {
  * is deleted, with the names of what will vanish shown -- and the question IS
  * raised: `confirmationOwedBy` in `frame-loop.ts` reads this very bundle before
  * it is written, fills `ScreenSession.confirmation`, and holds the writes until
- * IC-69 or IC-70 answers. ⭐ WHY THE TEST IS THERE AND NOT HERE: NT-7 asks about
+ * one of NT-7's two word buttons answers. ⭐ WHY THE TEST IS THERE AND NOT HERE: NT-7 asks about
  * what is going to happen, so it has to be asked of the WHOLE action -- a
  * gesture can owe two writes (`InputAction.writes`) and a person answering once
  * per bundle is not what 「続けるか取りやめるかを選ばせること」 means. ⚠️ So a
@@ -7238,21 +7260,18 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
 // CM-59 and CM-63, and all four are now written above.
 //
-// ⭐ 6 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the six is a
+// ⭐ 4 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the four is a
 // `DocumentCommand`, and LY-5 of table T-060 leaves a current value with the
 // Framework, so `frame-loop.ts` spends them in `answerSettledEntry`:
+// ⚠️ IT WAS 6 UNTIL 2026-09-02. NT-7's two answers stood here as IC-69 / IC-70;
+// CR-327 made them word buttons and (MUST NOT) took their rows out of table
+// T-109, so they are no longer rows of it to be answered for at all.
 //
 //   IC-21        FR-038's display language (S-99). ⚠️ It looks like one of ④'s
 //                rows and differs in ONE way, which is why it is spent there
 //                rather than answered here: S-99 is written back to
 //                `localStorage`, so the press is an ACT and not only a value,
 //                and LR-6 keeps the browser out of this layer.
-//   IC-69 / IC-70  NT-7's two answers, on U-55 `Confirmation`. ⭐ THE QUESTION
-//                IS RAISED: three places fill `ScreenSession.confirmation` --
-//                DI-4's overwrite, OP-4's discard, and FR-032's delete through
-//                `confirmationOwedBy`. A press on either arrives as
-//                `ScreenPart.entry` (IF-9) and settles the raiser's own promise,
-//                which is why what the choice DOES stays with the raiser.
 //   IC-71 .. IC-73  OP-3's three answers, on U-56 `Open Chooser`.
 //                `OPEN_CHOICE_OF_ENTRY` in the same file maps each row to its
 //                `OpenChoice` and closes the surface with the answer.
@@ -7296,8 +7315,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                ⛔ FR-020 asks for the unlock password before the watermark may
 //                be hidden and matches it as a SHA-256, and nothing carries a
 //                password back from a person: table T-037 has no row for asking
-//                for one (NT-7 asks only for the two answers IC-69 and IC-70
-//                carry), `ScreenPart`
+//                for one (NT-7 asks only for its own two answers), `ScreenPart`
 //                (IF-9) reports an entry and never what was typed into one, and
 //                `frame-loop.ts` records at S-99c that nothing asks for it.
 //                ⚠️ It is only the HIDING half that FR-020 gates, so a rule that
