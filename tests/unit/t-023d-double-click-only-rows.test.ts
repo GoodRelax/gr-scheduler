@@ -406,6 +406,7 @@ const BASE: InputContext = {
   today: TODAY,
   newGroupId: NEW_GROUP_ID,
   newCommentBoxId: 'comment-box-minted-outside',
+  newHighlightBoxId: 'highlight-box-minted-outside',
 }
 
 const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE, ...part })

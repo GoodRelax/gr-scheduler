@@ -1455,8 +1455,18 @@ const STYLE = {
   // top. ⛔ That is not a choice made freely: nothing on IF-9 carries how tall
   // the name is drawn or where in the band it sits, so a set-down measured from
   // a name held in the middle is a length this side cannot state at all.
+  // ⛔ NO `gap` HERE SINCE CR-336, AND NOT BECAUSE THE ROW HAS NONE. The one
+  // gap this row lays is the one between GR-20's grab strip and the name, and
+  // it is S-218 of table T-206 -- a value that arrives in the generated block at
+  // the foot of this file, which this object is evaluated before. It stands in
+  // `rowTitleElement`, for the reason `entryStyle` gives at length.
+  // ⚠️ IT WAS `gap:0.25em`, WHICH WAS THE SAME 4px AT THE DEFAULT TEXT SIZE AND
+  // THE ONLY HOME THAT VALUE HAD. FR-085 (MUST) now subtracts it before cutting
+  // the name (CR-336), so the drawn gap and the subtracted gap have to be one
+  // number -- ⛔ in `em` the drawn one grew with the reader's text size (FR-039)
+  // while the subtracted one did not, and the difference came out of the name.
   rowTitle:
-    'box-sizing:border-box;display:flex;align-items:flex-start;gap:0.25em;' +
+    'box-sizing:border-box;display:flex;align-items:flex-start;' +
     `overflow:hidden;white-space:nowrap;background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
   // HF-4 of table T-051 (MUST): the controls keep the panel's right edge
@@ -1524,8 +1534,14 @@ const STYLE = {
     // steps between them, which is the very drawing the ruling of 2026-08-30
     // threw out. The one ground the row (MUST) lays instead is
     // `rowControlGroundStyle`, and it is a box of its own behind all five.
+    // ⭐ `pointer-events:auto` AND NOT INHERITANCE, since CR-336. The four
+    // folding controls stand inside HF-1's lattice, and that box takes no
+    // pointer of its own (`rowFoldingGridStyle` says why), so a control that
+    // merely inherited the row's `auto` would inherit the lattice's `none`
+    // instead and stop being pressable.
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
-    `border:none;padding:0 ${ROW_CONTROL_PAD_EM}em;cursor:pointer;`,
+    `border:none;padding:0 ${ROW_CONTROL_PAD_EM}em;cursor:pointer;` +
+    'pointer-events:auto;',
   // FR-029 (MUST), as that requirement now reads: an entrance that can change
   // nothing right now is drawn faint, in table T-236's S-149 -- which is
   // `PAINT.rule`, the same colour `entryFaintStyle` takes for the entrances
@@ -1622,27 +1638,38 @@ const STYLE = {
   // ⚠️ `cursor:grab` and not `move`: what the band offers is being HELD, which
   // is the state that keyword names -- the same distinction `col-resize` makes
   // for the band FR-052 has a person drag.
+  //
+  // ⛔ `justify-content:flex-end` IS FR-053 ITSELF AND NOT A LOOK: 「掴み帯の
+  // 右端に、掴めることを示す 表 T-109 の `IC-53` を置き、その右に最小化の入口
+  // （同表の `IC-75`）を置くこと（MUST）」. The band's two marks are laid in the
+  // flow in that order, so ending the flow at the right edge is what puts the
+  // mark at 右端 with the toggle beyond it. ⚠️ `center` stood here until
+  // 2026-09-02 and was measured wrong: on the shipped build the mark landed at
+  // x=334 on a band running 171..513, which is its middle (ledger D-68).
+  // ⛔ NO GAP AND NO PADDING IS WRITTEN BESIDE IT. No row states how far apart
+  // the two marks stand or what room the band keeps at its edge -- searched:
+  // FR-053, FR-029, GR-19 and the preamble of 表 T-023d, 表 T-109, 表 T-206
+  // (`S-135a`, whose own note says it states the height alone) and
+  // `_assets/tbl-settings.md`. So the two are laid flush and nothing is minted.
   paletteGrabBand:
-    'display:flex;align-items:center;justify-content:center;' +
+    'display:flex;align-items:center;justify-content:flex-end;' +
     'cursor:grab;pointer-events:auto;position:relative;',
-  // ⛔ THE TOGGLE SITS AT THE BAND'S RIGHT END AND THE GRAB MARK STAYS CENTRED.
-  // FR-053 (MUST) puts IC-53 on the band with the minimise entrance to ITS
-  // right; taking the toggle out of the flow is what keeps IC-53 centred on the
-  // band rather than pushed off-centre by the toggle's own width.
+  // ⛔ THE TOGGLE RIDES IN THE FLOW, AFTER IC-53, IN BOTH STATES. FR-053 (MUST)
+  // puts IC-53 at the band's right end and the minimise entrance to ITS right,
+  // and the flow above ends at that edge -- so the pair reads mark-then-toggle
+  // and the toggle needs nothing of its own to be placed by.
+  // ⚠️ AN OUT-OF-FLOW TOGGLE (`position:absolute;right:0`) STOOD HERE UNTIL
+  // 2026-09-02 AND BROKE BOTH STATES. Shown, it pinned itself to the right edge
+  // and left IC-53 centred, which is what FR-053 forbids; minimised, nothing
+  // else gave the palette a width, so it hung off a band only IC-53 wide --
+  // measured at x=161 on a palette whose left edge was x=170, to the LEFT of
+  // the mark the requirement puts it to the right of.
+  // ⭐ In the flow, the minimised band measures IC-53 + IC-75 and the palette's
+  // width follows its contents, which is the same requirement's rule for the
+  // size.
   // ⚠️ `cursor:pointer` and not the band's `grab`: this one is pressed, not
   // dragged, and the band's own cursor would say the wrong thing about it.
   paletteMinimise:
-    'position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;' +
-    'cursor:pointer;pointer-events:auto;',
-  // ⛔ THE SAME TOGGLE, IN THE FLOW, FOR THE MINIMISED PALETTE. FR-053 (MUST)
-  // shows the band ALONE while minimised, so there are no entries left to give
-  // the palette a width -- and an out-of-flow toggle then hangs off the edge of
-  // a band only IC-53 wide, which is measured: it landed at x=161 on a palette
-  // whose left edge was x=170, to the LEFT of the mark the requirement puts it
-  // to the right of. ⭐ In the flow, the band measures IC-53 + IC-75 and the
-  // palette's width follows its contents, which is the same requirement's rule
-  // for the size.
-  paletteMinimiseInFlow:
     'position:relative;display:flex;align-items:center;' +
     'cursor:pointer;pointer-events:auto;',
   // Where the palette's own room went, so that the band above can reach its
@@ -2046,6 +2073,18 @@ export function pageGroundStyle(theme: ScreenTheme): string {
  * any table.
  */
 const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground'
+
+/**
+ * What marks the 2 x 2 lattice HF-1 of table T-051 (MUST) arranges the four
+ * folding controls in.
+ *
+ * ⛔ NOT A `data-role` AND NOT A `data-icon`, for the reason the ground above
+ * carries none: table T-103 holds no part for it and table T-109 no entrance --
+ * it is an arrangement of four entrances and not a fifth one, and it takes no
+ * pointer at all. ⭐ A mark of its own is what lets the arrangement HF-1 (MUST)
+ * states be read back off the drawn page and held against that row (rule 04).
+ */
+const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 
 /**
  * What marks HF-14's name field for the row that does not exist yet, and which
@@ -2888,21 +2927,77 @@ function rowControlRightEm(stepsFromEdge: number): number {
  * what the row is read by.
  */
 const ROW_CONTROL_STEPS = {
-  /** IC-58 -- HF-2, which is HR-3: the whole subtree opens. */
-  open: 3,
-  /** IC-59 -- HF-3, which is HR-6 since 2026-08-30: the row is hidden. */
-  close: 6,
-  /** IC-77 -- HF-11, which is HR-4: the whole subtree folds. */
-  closeBelow: 4,
-  /** IC-90 -- HF-13, which is HR-7 of table T-015. */
-  openOneLevel: 5,
   /** IC-91 -- HF-14, which is HR-8. */
   addChild: 2,
   /** IC-82 -- one step in from the edge, so a pointer meets the pin first. */
   remove: 1,
   /** IC-60 -- the outermost, which HF-4 (MUST) fixes. */
   pin: 0,
+  /**
+   * The RIGHT-HAND column of HF-1's lattice, which is where the four folding
+   * controls start counting from the edge.
+   *
+   * ⭐⭐ THE LATTICE TAKES TWO STEPS AND NOT FOUR, WHICH IS THE WHOLE OF WHAT
+   * CR-336 CHANGED HERE. HF-1 (MUST) 「並びは 2 × 2 の格子とすること」 -- so the
+   * four stand two wide and two deep, and the row's controls reach 5 steps in
+   * from the edge instead of 7. ⛔ THEY STOOD IN ONE LINE UNTIL 2026-09-02, and
+   * what that cost was measured on the shipped build at 1920x1080: the run
+   * reached x=26 and covered the grab strip GR-20 lays at 16 / 32 / 48px, so 6
+   * of the 8 rows answered a press on their strip with IC-59 (the row
+   * disappears) or IC-90 (a level opens). HF-6 (MUST NOT, 利用者の裁定
+   * 2026-09-02): 「操作子は、行の掴み代を覆ってはならない」.
+   * ⚠️ THE LATTICE DOES NOT CLEAR EVERY DEPTH AT THE PANEL'S DEFAULT WIDTH, and
+   * the ruling says what happens then rather than leaving it here: 「幅が足り
+   * ないときは、読む人がパネルを広げる」 (FR-052, whose width is S-79). ⛔ What
+   * to shrink instead is undecided BY THE SAME RULING (「あとは実際に使って再度
+   * 判断する」), so nothing here shrinks anything.
+   */
+  foldingGrid: 3,
 } as const
+
+/**
+ * Where in HF-1's 2 x 2 lattice each of the four folding controls stands.
+ *
+ * ⭐⭐ THE LATTICE IS HF-1's OWN AND IS READ OFF ITS TWO SENTENCES. 「並びは
+ * 2 × 2 の格子とすること（MUST）—— 左から 隠す・1 階層開く・配下をすべて畳む・
+ * 配下をすべて開く」 and 「上下に読めば動作、左右に読めば範囲」. ⇒ Reading the
+ * four in the order printed, a column at a time from the left, is the only
+ * filling of the lattice under which those two sentences are both true:
+ *
+ *     column 1 (範囲 = this row / one level)   column 2 (範囲 = すべて)
+ *   row 1 (動作 = 畳む)  IC-59 隠す              IC-77 配下をすべて畳む
+ *   row 2 (動作 = 開く)  IC-90 1 階層開く        IC-58 配下をすべて開く
+ *
+ * ⛔ FILLING IT ROW BY ROW INSTEAD PUTS 隠す BESIDE 1 階層開く, which reads 動作
+ * across and 範囲 down -- the other way round from what the row states.
+ * ⚠️ The pairing was already written down before the lattice was built: the
+ * declaration above this one calls IC-59 / IC-90 the near pair and IC-77 /
+ * IC-58 the far pair, 「each pair folding then opening」.
+ *
+ * ⛔ STATED PER CONTROL AND NOT LEFT TO THE ORDER THEY ARE APPENDED IN, which
+ * is HF-6's MUST NOT of 2026-09-02: 「段の深さによって、操作子の並び・員数・
+ * 振る舞いを変えてはならない」. A lattice filled by DOM order would move the
+ * remaining controls into the empty cells on any row that drew fewer.
+ */
+const ROW_FOLDING_CELLS = {
+  /** IC-59 -- HF-3, which is HR-6 since 2026-08-30: the row is hidden. */
+  close: { column: 1, row: 1 },
+  /** IC-77 -- HF-11, which is HR-4: the whole subtree folds. */
+  closeBelow: { column: 2, row: 1 },
+  /** IC-90 -- HF-13, which is HR-7 of table T-015. */
+  openOneLevel: { column: 1, row: 2 },
+  /** IC-58 -- HF-2, which is HR-3: the whole subtree opens. */
+  open: { column: 2, row: 2 },
+} as const
+
+/**
+ * The step from the row's right edge that the LEFTMOST control reaches.
+ *
+ * ⭐ ONE NAME FOR IT, read by the lattice that stands there and by the ground
+ * HF-6 (MUST) lays 「いちばん左の操作子の左端から行の右端まで」 -- the same term
+ * the declaration of `rowControlRightEm` refuses to write twice.
+ */
+const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
 
 /**
  * The one ground HF-6 of table T-051 (MUST) lays under the row's controls while
@@ -2939,16 +3034,93 @@ const ROW_CONTROL_STEPS = {
  * @purity pure
  */
 function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
-  const side = NOT_STORED_ICON_SIZES['S-138']
   // The leftmost control's LEFT edge, measured from the row's right edge: where
   // that control's right edge stands, plus its own width -- its shape (S-138)
-  // with `ROW_CONTROL_PAD_EM` on either side of it.
-  const reach = rowControlRightEm(leftmostStepsFromEdge) + ROW_CONTROL_PAD_EM * 2
+  // with `ROW_CONTROL_PAD_EM` on either side of it, which is
+  // `rowControlWidthCss`.
+  const reach = rowControlRightEm(leftmostStepsFromEdge)
   return (
     'position:absolute;top:0;bottom:0;right:0;' +
-    `width:calc(${reach}em + ${side}px);` +
+    `width:calc(${reach}em + ${rowControlWidthCss()});` +
     `background:${PAINT.panel};pointer-events:none;`
   )
+}
+
+/**
+ * The width of ONE control, measured the way the ground above measures it: the
+ * shape's box (S-138) with `ROW_CONTROL_PAD_EM` on either side of it.
+ *
+ * ⭐ NAMED BECAUSE IT IS NOW READ TWICE. The ground reaches the leftmost
+ * control's left edge and HF-1's lattice gives each of its two columns the same
+ * width -- ⛔ and a second spelling of it would drift the day PD-348 is ruled
+ * on, which is the drift `rowControlRightEm` was named to stop.
+ *
+ * @purity pure
+ */
+function rowControlWidthCss(): string {
+  return `calc(${ROW_CONTROL_PAD_EM * 2}em + ${NOT_STORED_ICON_SIZES['S-138']}px)`
+}
+
+/**
+ * HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」.
+ *
+ * ⭐⭐ A BOX THAT HOLDS THE FOUR, AND NOT FOUR OFFSETS WORKED OUT HERE. The
+ * second rank of the lattice stands one control's HEIGHT below the first, and
+ * no row of the specification states that height -- it is the line box the
+ * shape's own 16px makes, which the reader's text size moves (FR-039). ⛔ So it
+ * is not written down: a grid track measures it from the control that stands in
+ * it, and this file invents no number.
+ *
+ * ⭐ THE COLUMNS ARE STATED, and they are the width one control already has
+ * (`rowControlWidthCss`). ⛔ Left to `auto` they would collapse on any row that
+ * drew fewer than four, and moving the survivors is exactly what HF-6 (MUST
+ * NOT) forbids since 2026-09-02: 「段の深さによって、操作子の並び・員数・振る舞い
+ * を変えてはならない」.
+ *
+ * ⭐ NO `top`, WHICH IS HF-5 (MUST NOT) AGAIN. The lattice keeps the static
+ * position its parent gives it -- the row's content top, which is the name's
+ * top -- exactly as each control did while they stood in one line, and the
+ * second rank is below the first because a grid row is.
+ * ⛔⛔ AND THAT IS WHY THE LATTICE IS A BOX AT ALL, rather than four controls
+ * placed one below another. HF-5 (MUST NOT) 「上端から下げてはならない」 forbids
+ * the set-down on the CONTROL -- a `top`, a `margin-top`, a `padding-top` --
+ * and HF-1 (MUST) asks for a second rank, which is a set-down. ⇒ The two rows
+ * can only both hold if what is set down is the RANK and not the control: every
+ * control still carries no offset of its own, and the lattice as a whole still
+ * begins at the name's top. ⚠️ `align-items:flex-start` says the same thing of
+ * the lattice's own items that the row says of its own (`STYLE.rowTitle`), so
+ * the first rank is level with the name's top edge and not stretched to a track.
+ *
+ * ⛔ IT TAKES NO POINTER OF ITS OWN. The box spans both columns and both ranks,
+ * so a press in the space between two controls would answer with a box the
+ * description never carried -- the same bargain `rowControlGroundStyle` keeps,
+ * and the reason `STYLE.rowControl` states `pointer-events:auto` for the
+ * controls inside it.
+ * ⛔ AND IT TAKES NO ROOM. Out of the flow like the controls it holds, so S-140
+ * stays the 0 that FR-085 subtracts and the name's box does not move.
+ *
+ * @purity pure
+ */
+function rowFoldingGridStyle(): string {
+  const columnWidth = rowControlWidthCss()
+  return (
+    'position:absolute;display:grid;align-items:flex-start;' +
+    `grid-template-columns:${columnWidth} ${columnWidth};` +
+    `right:${rowControlRightEm(ROW_CONTROL_STEPS.foldingGrid)}em;` +
+    'pointer-events:none;'
+  )
+}
+
+/**
+ * Which cell of the lattice one control stands in.
+ *
+ * @purity pure
+ */
+function rowFoldingCellStyle(cell: { readonly column: number; readonly row: number }): string {
+  // ⛔ `position:static` UNDOES `STYLE.rowControl`'s `absolute` AND NOTHING
+  // ELSE. A control in the lattice is placed by the grid; one taken out of the
+  // grid's flow would stack all four in the first cell.
+  return `position:static;grid-column:${cell.column};grid-row:${cell.row};`
 }
 
 /**
@@ -3250,8 +3422,17 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     // than the judgement, and the browser's own ellipsis took the difference --
     // silently, because `isLabelTruncated` records FR-085's cut and not this
     // one, so no tooltip was raised for what it ate.
+    // ⚠️ AND THE SAME WAS TRUE OF THE GRAB STRIP UNTIL CR-336: GR-20's strip
+    // and the gap after it stand in this flex row and took 20px more of the
+    // name's box than the judgement had taken off. FR-085 now subtracts both
+    // (S-138 and S-218), and the gap below is the second of them.
     boxStyle(title.box) +
       STYLE.rowTitle +
+      // The one gap this row lays: S-218 of table T-206, 「行の掴み代と行の名前
+      // のあいだ」, which is the term FR-085 (MUST) subtracts as 「その隔たり」.
+      // ⭐ IN PIXELS, WHICH IS WHAT THAT ROW STATES, so the gap drawn and the
+      // gap subtracted are one number at any text size.
+      `gap:${NOT_STORED_ROW_GRAB_STRIP_SIZES['S-218']}px;` +
       `padding:0 0 0 ${title.indentPx}px;` +
       // FR-098 (MUST), added 2026-08-31: 「留めた行そのものにも地を敷くこと
       // （MUST）。色は 表 T-236 の `S-151`、濃さは 表 T-206 の `S-214`」, because
@@ -3352,14 +3533,13 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   const ground = made(
     host,
     'div',
-    rowControlGroundStyle(
-      // ⚠️ THE LEFTMOST IS IC-59 SINCE HF-4's RULING OF 2026-08-30 -- 「左から
-      // 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く」 -- so the band reaches
-      // that control's step and not IC-58's, which now stands fourth from the
-      // left. ⛔ A band drawn to the old step would leave IC-59 and IC-90
-      // standing on the bare name, which is the very overlap HF-6 lays it for.
-      title.expander !== null ? ROW_CONTROL_STEPS.close : ROW_CONTROL_STEPS.openOneLevel,
-    ),
+    // ⚠️ THE LEFTMOST IS HF-1's LATTICE SINCE CR-336, and it is one step for
+    // every row rather than a step that follows what was drawn: both columns of
+    // the lattice are stated widths, so the leftmost edge stands in the same
+    // place whether four folding controls are drawn there or one. ⛔ The
+    // reading it replaces asked 「IC-59 or IC-90?」, and those two now share a
+    // column -- the question had one answer left.
+    rowControlGroundStyle(ROW_CONTROL_LEFTMOST_STEP),
   )
   ground.setAttribute(ROW_CONTROL_GROUND_MARK, 'true')
   ground.setAttribute('aria-hidden', 'true')
@@ -3416,24 +3596,35 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // `aria-disabled` and never `disabled`, which FR-029 (MUST NOT) now states as
   // a rule -- a disabled control takes no press, and the press is the one moment
   // the reason is told.
+  // HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」. ⭐ THE FOUR
+  // FOLDING CONTROLS GO INSIDE THIS BOX AND THE OTHER THREE DO NOT, which is
+  // HF-4's own division: 「折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止め
+  // の順に、左から右へ置くこと」 -- the lattice is one item in that run.
+  // ⚠️ APPENDED BEFORE THE THREE, so the row's children keep the order HF-4
+  // reads left to right, and after the ground, so the ground stays under them.
+  const foldingGrid = made(host, 'div', rowFoldingGridStyle())
+  foldingGrid.setAttribute(ROW_FOLDING_GRID_MARK, 'true')
+  row.append(foldingGrid)
+
   if (title.expander !== null) {
     const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.expander.canOpen)
     open.setAttribute('data-can-open', String(title.expander.canOpen))
-    // ⚠️ Placed from the RIGHT, because that is the edge HF-4 pins them to and
-    // they no longer sit in the flex flow that used to do it.
+    // ⚠️ Placed by the CELL it stands in since CR-336, and no longer by a step
+    // from the right edge: HF-1's lattice is what HF-4 pins to that edge now,
+    // and these four are placed inside it.
     open.setAttribute(
       'style',
-      open.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.open),
+      open.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.open),
     )
-    row.append(open)
+    foldingGrid.append(open)
 
     const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.expander.canClose)
     close.setAttribute('data-can-close', String(title.expander.canClose))
     close.setAttribute(
       'style',
-      close.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.close),
+      close.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.close),
     )
-    row.append(close)
+    foldingGrid.append(close)
 
     // IC-77 -- HF-11 (MUST): the row's 配下 folds, and the row itself does not
     // (MUST NOT). ⭐ The third control HF-1 counts since the ruling of
@@ -3449,9 +3640,9 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
     closeBelow.setAttribute(
       'style',
-      closeBelow.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.closeBelow),
+      closeBelow.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.closeBelow),
     )
-    row.append(closeBelow)
+    foldingGrid.append(closeBelow)
   }
 
   // IC-90 -- HF-13 (MUST), which names HR-7 of table T-015: the row's DIRECT
@@ -3478,11 +3669,15 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     title.canOpenOneLevel ?? true,
   )
   openOneLevel.setAttribute('data-can-open-one-level', String(title.canOpenOneLevel ?? true))
+  // ⭐ IN HF-1's LATTICE THOUGH IT IS DRAWN OUTSIDE THAT BLOCK. The lattice is
+  // 「隠す・1 階層開く・配下をすべて畳む・配下をすべて開く」 and this is the second
+  // of the four; where it is APPENDED from is the leaf question above, and where
+  // it STANDS is the cell.
   openOneLevel.setAttribute(
     'style',
-    openOneLevel.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.openOneLevel),
+    openOneLevel.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.openOneLevel),
   )
-  row.append(openOneLevel)
+  foldingGrid.append(openOneLevel)
 
   // IC-91 -- HF-14 (MUST), which names HR-8: 「配下に行を足す操作子を、行ごとに
   // 1 つ置くこと」.
@@ -4507,8 +4702,13 @@ function fillPropertiesPanel(
  *     an icon rather than with a word and makes figure F-019 the one authority
  *     for it (MUST NOT for a third party's set), and that figure draws IC-53.
  *     It arrives through `fillEntry`, the same road every other shape takes, and
- *     is centred because a band is wider than a shape and no row says where in
- *     it the shape stands.
+ *     stands at the band's RIGHT END, which FR-053 (MUST) states in as many
+ *     words -- 「掴み帯の右端に ... `IC-53` を置き」. ⚠️ It was centred until
+ *     2026-09-02, on the reading that no row said where in the band it stood;
+ *     CR-273 wrote that row on 2026-08-28 and this side had not caught up
+ *     (ledger D-68). ⛔ HOW FAR IN FROM THE EDGE IS STILL UNSTATED, and nothing
+ *     is written for it: `STYLE.paletteGrabBand` records where that was
+ *     searched for.
  *   - THE CURSOR (`STYLE.paletteGrabBand`), which is the environment's own way
  *     of saying 掴める and the same road the other draggable band takes.
  *   - ⛔ AND NOTHING ELSE: the STOP note on that style says what the
@@ -4547,15 +4747,12 @@ function grabBandElement(
   // band has never had -- the note above records that gap for IC-53, and this
   // row does not share it.
   const toggle = commandEntry(host, minimise)
-  toggle.setAttribute(
-    'style',
-    toggle.getAttribute('style') +
-      // ⭐ WHICH OF THE TWO PLACINGS depends on whether anything else gives the
-      // palette a width. Minimised, nothing does (FR-053, MUST: the band alone),
-      // so the toggle rides in the flow beside IC-53; shown, the entries set the
-      // width and the toggle is taken out of the flow to keep IC-53 centred.
-      (isMinimised ? STYLE.paletteMinimiseInFlow : STYLE.paletteMinimise),
-  )
+  // ⭐ ONE PLACING FOR BOTH STATES, WHICH IS ALL FR-053 STATES. The requirement
+  // says where the two marks go once and carves out no exception for the
+  // minimised palette -- that state's own sentence says they 「載ったままで
+  // ある」 -- so a second placing here would be a rule this unit had minted, and
+  // the two would drift the moment one of them was touched.
+  toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimise)
   // ⭐ THE STATE IS SAID AND NOT ONLY DRAWN. Table T-109 gives IC-75 one shape
   // for both states (「同じ入口で戻す」), so a reader who cannot see it has
   // nothing to tell the two apart by unless the pressed state is written.
@@ -7425,6 +7622,28 @@ export const NOT_STORED_ICON_SIZES: {
 } = {
   'S-138': 16,
   'S-141': 4,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_ROW_GRAB_STRIP_SIZES: {
+  /** S-218, in px */
+  readonly 'S-218': number
+} = {
+  'S-218': 4,
 }
 
 /**

@@ -105,6 +105,20 @@ export const SAMPLE_TREE = [
   ['Back Office', [['Billing', []], ['Reporting', []]]],
 ]
 
+/**
+ * How far one drag on the `Panel Divider` widens the `Row Title Panel`.
+ *
+ * ⭐ A STEP AND NOT A COMPUTED WIDTH. FR-085 cuts the name against a formula
+ * whose terms are settings values, and working the answer out here would copy
+ * that formula into a tool -- the day a term changes, the copy would keep
+ * cutting at the old place and say the names were whole. So this drags and
+ * MEASURES, one step at a time, until the product itself reports nothing cut.
+ */
+const WIDEN_STEP_PX = 60
+
+/** How many drags `showWholeNames` will make before it gives up. */
+const WIDEN_TRIES = 8
+
 async function openApp(browser) {
   const tab = await browser.newPage({ viewport: WINDOW })
   await tab.goto(APP)
@@ -117,6 +131,77 @@ async function openApp(browser) {
 
   const panelRight = () => tab.evaluate(() =>
     Math.round(document.querySelector('[data-role="Row Title Panel"]').getBoundingClientRect().right))
+
+  // ⛔⛔ THE NAMES THE PRODUCT CUT, AND WHY THIS TOOL MAY NOT READ ONE.
+  //
+  // FR-085 (MUST) cuts a row's name to the width the `Row Title Panel` leaves
+  // it and closes it with `…`. From CR-336 the formula also subtracts the grab
+  // strip GR-20 (`S-138`) and the gap after it (`S-218`), so at 1400x2000 a
+  // depth-3 row gets 102px and 「Phone Home Screen」 genuinely does not fit --
+  // the drawn word is 「Phone Home Sc…」. The sample cuts nothing, so `rows()`
+  // on the two sides could never agree again.
+  //
+  // ⛔ AND IT MUST NOT BE MADE TO AGREE BY COMPARING LESS. Prefix matching,
+  // stripping the mark, comparing lengths -- every one of them makes a CUT name
+  // and a DIFFERENT name read alike, which is the one thing the board gate
+  // exists to catch. A tree built under the wrong parent would then pass.
+  //
+  // ⭐ SO THE READER DOES WHAT THE SPECIFICATION SAYS A READER DOES. FR-085
+  // ends 「全文を見たい者はパネルを広げる（`FR-052`）」 and HF-15 of table T-051
+  // repeats it for the grab strip (利用者の裁定 2026-09-02): 「幅が足りないとき
+  // は、読む人がパネルを広げる（`FR-052`）」. FR-052 widens the panel by a drag
+  // on U-24 `Panel Divider`, and that is the whole of what happens below --
+  // a real pointer on the real band, no member added to the product, no
+  // specification rule invented.
+  //
+  // ⭐ WHICH ROWS WERE CUT IS THE PRODUCT'S OWN ANSWER, not this tool's guess:
+  // `data-truncated` is written on every row from `RowTitle.isLabelTruncated`,
+  // which FR-085 needs anyway for the tooltip that shows the whole name.
+  const cutRows = () => tab.evaluate(() =>
+    [...document.querySelectorAll('[data-depth][data-truncated="true"]')]
+      .map((row) => (row.querySelector('span')?.textContent ?? '').trim()))
+
+  /**
+   * One drag on U-24 `Panel Divider`, rightwards -- FR-052.
+   *
+   * ⭐ THE BAND AND NOT THE LINE. `fillScreenFrame` draws a band that takes the
+   * pointer and a hairline that does not, and the band is the one marked
+   * `data-panel`. ⛔ THE TRAVEL IS WHAT COUNTS, not where the press landed:
+   * `commandFromPanelDivider` moves the boundary by the difference between the
+   * two points, so a press anywhere across the band widens by the same amount.
+   */
+  const widenRowTitlePanel = async (byPx) => {
+    const band = await tab.evaluate(() => {
+      const one = document.querySelector('[data-role="Panel Divider"][data-panel="rowTitlePanel"]')
+      if (one === null) return null
+      const box = one.getBoundingClientRect()
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    })
+    if (band === null) return false
+    await tab.mouse.move(band.x, band.y)
+    await tab.mouse.down()
+    await tab.mouse.move(band.x + byPx, band.y, { steps: 8 })
+    await tab.mouse.up()
+    await tab.waitForTimeout(260)
+    return true
+  }
+
+  /**
+   * Widen the panel until the product says it is cutting no name, so that the
+   * word `rows()` reads IS the row's whole name.
+   *
+   * ⚠️ IT CAN FAIL, AND THEN IT SAYS SO. `S-79` is bounded by 「`Row Area` の幅
+   * > 0」 (FR-052) and `edit-document-settings.ts` holds that bound, so a drag
+   * past it moves nothing. Returning `false` is how a caller learns that the
+   * names it is about to read are NOT whole -- ⛔ it must not read them anyway.
+   */
+  const showWholeNames = async () => {
+    for (let tries = 0; tries < WIDEN_TRIES; tries += 1) {
+      if ((await cutRows()).length === 0) return true
+      if ((await widenRowTitlePanel(WIDEN_STEP_PX)) === false) return false
+    }
+    return (await cutRows()).length === 0
+  }
 
   const topOf = (name) => tab.evaluate((wanted) => {
     const row = [...document.querySelectorAll('[data-depth]')]
@@ -162,7 +247,7 @@ async function openApp(browser) {
   }
 
   return {
-    tab, rows, topOf, hover, away, pressEntry,
+    tab, rows, topOf, hover, away, pressEntry, cutRows, showWholeNames,
     // Which rows are held at the top, in the order they are held there.
     //
     // The shell writes `data-pinned` on every row, so this reads the same fact

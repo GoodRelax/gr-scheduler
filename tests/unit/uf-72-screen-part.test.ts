@@ -3499,19 +3499,41 @@ function theRowOf(built: Stage): FakeElement {
   return first
 }
 
-/** The children of a row that carry an entry of 表 T-109, in the order they were appended. */
+/**
+ * Every entry of 表 T-109 the row carries, WHEREVER IT SITS, in document order.
+ *
+ * ⭐⭐ NOT `row.children` ANY MORE (CR-336). 表 T-051 の `HF-1` (MUST) now reads
+ * 「⭐⭐ **並びは 2 × 2 の格子とすること（MUST）**」, and a lattice is something
+ * the four folding controls stand INSIDE: they need not be children of the row
+ * at all. ⛔ NOTHING IN docs/spec FIXES HOW DEEP A CONTROL IS NESTED -- 表 T-103
+ * の `U-47` writes 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」
+ * and `HF-1` gives an arrangement, not a tree -- so this reads the whole subtree
+ * and asserts nothing whatever about nesting.
+ */
 const controlsOf = (row: FakeElement): FakeElement[] =>
-  row.children.filter((one) => one.hasAttribute('data-icon'))
+  selfAndDescendants(row).filter((one) => one !== row && one.hasAttribute('data-icon'))
+
+/** Whether this node is, or holds anywhere below it, an entry of 表 T-109. */
+const holdsAControl = (node: FakeElement): boolean =>
+  selfAndDescendants(node).some((one) => one.hasAttribute('data-icon'))
 
 /**
- * The cell the row's name is in: the last child standing BEFORE the first
- * control. ⭐ It is found by position rather than by a role, because HF-4 is
- * about what stands between the name and the right edge, and nothing in the
- * specification names that cell.
+ * The children of a row through which its controls reach it: each is a control
+ * itself or the container one stands in (`HF-1`'s lattice being such a
+ * container). ⭐ It is these, not the controls, that `HF-4` lines up against the
+ * panel's right edge, because it is these that stand in the row's own line.
+ */
+const controlHostsOf = (row: FakeElement): FakeElement[] => row.children.filter(holdsAControl)
+
+/**
+ * The cell the row's name is in: the last child standing BEFORE the first child
+ * that brings a control with it. ⭐ It is found by position rather than by a
+ * role, because HF-4 is about what stands between the name and the right edge,
+ * and nothing in the specification names that cell.
  */
 function nameCellOf(row: FakeElement): FakeElement | null {
-  const firstControl = row.children.findIndex((one) => one.hasAttribute('data-icon'))
-  const before = firstControl < 0 ? row.children : row.children.slice(0, firstControl)
+  const firstHost = row.children.findIndex(holdsAControl)
+  const before = firstHost < 0 ? row.children : row.children.slice(0, firstHost)
   return before[before.length - 1] ?? null
 }
 
@@ -3608,6 +3630,30 @@ const controlStyles = (built: Stage): Record<string, string> =>
     T_109_ON_THE_ROW.map((one) => [one.row, inlineStyle(entryFor(built.root(), one.row))]),
   )
 
+/**
+ * 表 T-051 `HF-4` (MUST): 「行の名前の長さにかかわらず、操作子を行見出しパネルの
+ * 右端に揃えること」 -- so everything that brings a control stands together at the
+ * END of the row's line, with nothing of the row's own after it.
+ *
+ * ⛔ THE NESTING IS NOT ASSERTED, only the place in the line. Since CR-336 the
+ * four folding controls arrive inside `HF-1`'s lattice, and how many boxes deep
+ * that is has no row anywhere in docs/spec.
+ */
+function expectTheControlsEndTheRow(row: FakeElement): void {
+  const hosts = controlHostsOf(row)
+  expect(hosts.length, `nothing on the row brings a control: ${serialize(row)}`).toBeGreaterThan(0)
+
+  const places = hosts.map((one) => row.children.indexOf(one))
+  expect(
+    places[places.length - 1],
+    `something of the row's own stands after its controls: ${serialize(row)}`,
+  ).toBe(row.children.length - 1)
+  expect(
+    places,
+    `the controls do not stand together at the end of the row: ${serialize(row)}`,
+  ).toEqual(places.map((_unused, index) => row.children.length - places.length + index))
+}
+
 describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever the name is', () => {
   it.each(ROW_NAMES)(
     '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN every entry 表 T-109 puts on the Row Title Panel is among its LAST children and the name beside them is what takes the free space (表 T-051 HF-4 MUST)',
@@ -3621,18 +3667,21 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       // readings together are the rule, and no one of them is it alone.
       expect(styleMap(row).get('display'), 'the row is not a flex line').toBe('flex')
 
-      // ⚠️ THE SET, NOT THE ORDER. 表 T-051 の `HF-4` fixes one position only --
-      // 「ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に
-      // 置くこと（MUST）」 -- and then says 「⚠️ **本行が定めるのはこの 1 つだけ
-      // であり、ほかの操作子の前後は定めない**」. So a case that pinned the whole
-      // sequence would be asserting a rule the manuscript expressly declines to
-      // make; that one placement has its own case below. What HF-4 DOES decide
-      // here is that they end the row whatever the name is.
-      const tail = row.children.slice(-T_109_ON_THE_ROW.length)
+      // ⚠️ THE SET, NOT THE ORDER. The whole run's order is `HF-4`'s own and has
+      // its own cases far below; what `HF-4` decides HERE is that the controls
+      // END the row whatever the name is.
+      //
+      // ⭐⭐ READ THROUGH THE HOSTS SINCE CR-336. `HF-1` (MUST) now says 「**並びは
+      // 2 × 2 の格子とすること（MUST）**」, so the four folding controls reach the
+      // row through the lattice they stand in and are no longer among its
+      // children. ⛔ The claim is unchanged -- every entry 表 T-109 puts on a row
+      // is at the row's tail, with the name ahead of them taking the free space
+      // -- and it is now asserted of whatever children BRING those entries.
       expect(
-        [...tail.map((one) => one.getAttribute('data-icon'))].sort(),
-        `the row does not end with 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
+        [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
+        `the row does not carry 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
       ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
+      expectTheControlsEndTheRow(row)
 
       const name = nameCellOf(row)
       expect(name, 'the row has no cell for its name at all').not.toBeNull()
@@ -3715,15 +3764,16 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     )
     const row = theRowOf(built)
 
+    // ⭐⭐ READ THROUGH THE HOSTS SINCE CR-336, for `HF-1`'s lattice: see
+    // `expectTheControlsEndTheRow`. ⛔ U-46 lifts a pinned row out of the
+    // scrolling list, but it is a row OF the panel and `HF-4` says 行の名前の
+    // 長さにかかわらず without an exception for it.
     expect(styleMap(row).get('display')).toBe('flex')
     expect(
-      [
-        ...row.children
-          .slice(-T_109_ON_THE_ROW.length)
-          .map((one) => one.getAttribute('data-icon')),
-      ].sort(),
-      `a pinned row does not end with 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
+      [...controlsOf(row).map((one) => one.getAttribute('data-icon'))].sort(),
+      `a pinned row does not carry 表 T-109's entries for the Row Title Panel: ${serialize(row)}`,
     ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
+    expectTheControlsEndTheRow(row)
     expect(flexGrowOf(nameCellOf(row) as FakeElement)).toBeGreaterThanOrEqual(1)
   })
 
@@ -4632,6 +4682,18 @@ const iconOf = (node: FakeElement): string => node.getAttribute('data-icon') ?? 
  * the LEFT.
  */
 function leftToRight(nodes: readonly FakeElement[]): string[] {
+  return leftToRightBy(nodes, iconOf)
+}
+
+/**
+ * The same reading, but naming each node however the caller wants -- so a run
+ * that carries `HF-1`'s lattice can call that one box by the lattice's name
+ * instead of by an entry it does not itself hold.
+ */
+function leftToRightBy(
+  nodes: readonly FakeElement[],
+  nameOf: (node: FakeElement) => string,
+): string[] {
   const how = new Set<string>()
   const ranked = nodes.map((node, index) => {
     const declared = styleMap(node)
@@ -4639,14 +4701,14 @@ function leftToRight(nodes: readonly FakeElement[]): string[] {
     const right = lengthOf(declared.get('right'))
     if (left !== null) {
       how.add(`left:${left.unit}`)
-      return { icon: iconOf(node), key: left.n, index }
+      return { icon: nameOf(node), key: left.n, index }
     }
     if (right !== null) {
       how.add(`right:${right.unit}`)
-      return { icon: iconOf(node), key: -right.n, index }
+      return { icon: nameOf(node), key: -right.n, index }
     }
     how.add('in flow')
-    return { icon: iconOf(node), key: 0, index }
+    return { icon: nameOf(node), key: 0, index }
   })
   if (how.size > 1) {
     throw new Error(
@@ -4685,6 +4747,151 @@ const HF10_LEFT_TO_RIGHT = [
 const nodesFor = (built: Stage, rows: readonly string[]): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => rows.includes(iconOf(one)))
 
+// ---------------------------------------------------------------------------
+// READING A LATTICE (CR-336).
+//
+// ⭐⭐ 表 T-051 の `HF-1` (MUST): 「**並びは 2 × 2 の格子とすること（MUST）**」.
+// A lattice is a place on TWO axes, so a control's stand cannot be read off one
+// ordering the way a single line's can.
+//
+// ⛔ WHAT DECIDES A CONTROL'S PLACE IS NOT WRITTEN ANYWHERE IN docs/spec, exactly
+// as it was not for the single line: 表 T-103 の `U-47` says 「員数と置き方は
+// 表 T-051 の `HF-1` が持ち、本行は持たない」 and `HF-1` gives an arrangement and
+// no mechanism. So this reads whichever ONE the unit declared -- the grid lines
+// of a CSS grid, or an inset on each axis -- and refuses a run placed two ways
+// at once rather than ranking it by neither.
+//
+// ⛔⛔ WHAT IS NOT READ, AND IS A FINDING RATHER THAN A GUESS: HOW FAR APART THE
+// TWO RANKS OR THE TWO COLUMNS STAND. No row of docs/spec states a gap for the
+// lattice -- `HF-6` says in as many words 「⛔ **操作子どうしの間隔をここに書いて
+// はならない（MUST NOT）** —— **その量を持つ行はどこにも無く、まだ裁定を受けて
+// いない**」 -- so only the ORDER of the places is asserted, never a distance.
+// ---------------------------------------------------------------------------
+
+/** The first integer a `grid-column` / `grid-row` declaration states, or `null`. */
+function gridLineOf(value: string | undefined): number | null {
+  const found = /^(-?\d+)\s*(?:\/|$)/.exec((value ?? '').trim())
+  return found === null ? null : Number(found[1])
+}
+
+/**
+ * Where one control stands, as a key that grows RIGHTWARD and one that grows
+ * DOWNWARD, with the reading that produced them so a mixed run can be refused.
+ */
+function placeOf(node: FakeElement): {
+  readonly x: number
+  readonly y: number
+  readonly how: string
+} {
+  const declared = styleMap(node)
+  const column = gridLineOf(declared.get('grid-column'))
+  const rank = gridLineOf(declared.get('grid-row'))
+  if (column !== null && rank !== null) return { x: column, y: rank, how: 'grid line' }
+
+  const left = lengthOf(declared.get('left'))
+  const right = lengthOf(declared.get('right'))
+  const top = lengthOf(declared.get('top'))
+  const bottom = lengthOf(declared.get('bottom'))
+  const x = left !== null ? left.n : right !== null ? -right.n : null
+  const y = top !== null ? top.n : bottom !== null ? -bottom.n : null
+  if (x !== null && y !== null) {
+    return {
+      x,
+      y,
+      how: `inset ${left !== null ? 'left' : 'right'}/${top !== null ? 'top' : 'bottom'}`,
+    }
+  }
+  throw new Error(
+    `this control states no place on two axes, so no reading of it says where it stands ` +
+      `in HF-1's lattice: ${inlineStyle(node)}`,
+  )
+}
+
+/** The distinct keys of an axis, in the order a reader meets them. */
+const axisOf = (keys: readonly number[]): number[] => [...new Set(keys)].sort((a, b) => a - b)
+
+/**
+ * The lattice these controls stand in: `[column][rank]` holding the row of
+ * 表 T-109 that stands there, columns read left to right and ranks top to bottom.
+ */
+function latticeOf(nodes: readonly FakeElement[]): string[][] {
+  const placed = nodes.map((node) => ({ icon: iconOf(node), ...placeOf(node) }))
+  const how = new Set(placed.map((one) => one.how))
+  if (how.size > 1) {
+    throw new Error(
+      `these controls are placed in ${how.size} different ways (${[...how].join(', ')}), ` +
+        'so no reading of them says where each stands in the lattice',
+    )
+  }
+
+  const columns = axisOf(placed.map((one) => one.x))
+  const ranks = axisOf(placed.map((one) => one.y))
+  return columns.map((column) =>
+    ranks.map((rank) => {
+      const here = placed.filter((one) => one.x === column && one.y === rank)
+      if (here.length !== 1) {
+        throw new Error(
+          `${here.length} controls stand at column ${column} rank ${rank} of the lattice, not one`,
+        )
+      }
+      return (here[0] as { readonly icon: string }).icon
+    }),
+  )
+}
+
+/**
+ * What `HF-4` calls 「折り畳みの 4 つ（`HF-1` の格子）」 -- the four read as ONE
+ * member of the row's run, because that is how `HF-4` counts them.
+ */
+const HF1_LATTICE = 'HF-1 の格子'
+
+/**
+ * The row's run, left to right, as `HF-4` reads it: the lattice as one member,
+ * then whatever else the row carries.
+ *
+ * ⭐ EACH CHILD IS NAMED BY WHAT IT BRINGS. A child that brings the folding
+ * controls -- however many of them, and however deep -- is 「`HF-1` の格子」; a
+ * child that brings one other entry is that entry. ⛔ A child that mixed the two
+ * would leave the run unreadable and is refused rather than guessed at.
+ */
+function runOf(row: FakeElement): string[] {
+  const nameOf = (host: FakeElement): string => {
+    const icons = selfAndDescendants(host)
+      .filter((one) => one.hasAttribute('data-icon'))
+      .map(iconOf)
+    const folding = icons.filter((one) => HF1_LEFT_TO_RIGHT.includes(one))
+    if (folding.length === 0) {
+      if (icons.length !== 1) {
+        throw new Error(`one box of the row's run brings ${icons.length} entries: ${icons.join(' ')}`)
+      }
+      return icons[0] as string
+    }
+    if (folding.length !== icons.length) {
+      throw new Error(
+        `one box of the row's run mixes HF-1's lattice with other entries: ${icons.join(' ')}`,
+      )
+    }
+    return HF1_LATTICE
+  }
+
+  const read = leftToRightBy(controlHostsOf(row), nameOf)
+  // ⭐ The lattice is ONE member of the run even where the unit hangs its four
+  // controls on the row itself: consecutive lattice boxes read as the one
+  // lattice, and four that were NOT consecutive stay two members and fail.
+  return read.filter((one, index) => one !== HF1_LATTICE || read[index - 1] !== HF1_LATTICE)
+}
+
+/**
+ * `HF-4`'s run as a reader meets it, left to right, since CR-336 made the
+ * folding four a lattice: 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、
+ * ピン止めの順に、左から右へ置くこと（MUST）**」.
+ *
+ * ⭐ FOUR MEMBERS, NOT SEVEN -- that sentence counts the lattice as one thing and
+ * names three after it. The seven ENTRIES are `HF4_LEFT_TO_RIGHT` above, and the
+ * premise case holds the two to each other.
+ */
+const HF4_RUN = [HF1_LATTICE, entranceForRule('HF-14'), 'IC-82', 'IC-60']
+
 
 describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a 2 x 2 lattice', () => {
   it('GIVEN the specification is re-read WHEN HF-1 is looked up THEN it still names four controls, still calls the arrangement a lattice, and still orders them (Chapter 1.9)', () => {
@@ -4714,19 +4921,46 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     expect(new Set(HF1_LEFT_TO_RIGHT).size).toBe(4)
   })
 
-  it('⭐ GIVEN a row is drawn WHEN its four folding controls are read from the left THEN they stand in HF-1’s order (MUST: 左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く)', () => {
+  it('⭐ GIVEN a row is drawn WHEN its four folding controls are read as a lattice THEN the left column then the right gives HF-1’s order (MUST: 左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く)', () => {
+    // ⭐⭐ 表 T-051 `HF-1` (MUST), the whole of what is asserted here:
+    //   「⭐⭐ **並びは 2 × 2 の格子とすること（MUST）**（利用者の裁定 2026-08-30）
+    //    —— **左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く**。
+    //    ⛔ **1 本と 2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば
+    //    動作、左右に読めば範囲、という格子が崩れる。**」
+    //
+    // ⭐ WHY 「左から」 IS READ DOWN EACH COLUMN AND NOT ALONG EACH RANK. The
+    // sentence after it settles which: 「**上下に読めば動作、左右に読めば範囲**」.
+    // 隠す and 1 階層開く act on ONE step, 配下をすべて畳む and 配下をすべて開く on
+    // ALL of it, so those two pairs are the 範囲 and must be told apart LEFT to
+    // RIGHT -- one pair per column. 隠す / 配下をすべて畳む fold and 1 階層開く /
+    // 配下をすべて開く open, so those pairs are the 動作 and are told apart TOP to
+    // BOTTOM -- one per rank. Read that way 「左から」 names the left column's two
+    // first, and the MUST NOT holds: the 1 本 pair (表 T-026 の `RC-13`: 向きが
+    // 動作、本数が範囲) is one column and the 2 本 pair the other, never mixed.
+    // ⛔ Read along the ranks instead, the 範囲 would separate top from bottom and
+    // that sentence would be false.
     const built = drawn(oneLiveRow())
+    const lattice = latticeOf(nodesFor(built, HF1_LEFT_TO_RIGHT))
 
-    expect(leftToRight(nodesFor(built, HF1_LEFT_TO_RIGHT))).toEqual(HF1_LEFT_TO_RIGHT)
+    // 2 × 2: two columns, two ranks, one control in each of the four places.
+    expect(lattice.length, `HF-1's four do not stand in two columns: ${lattice.join(' | ')}`).toBe(2)
+    for (const column of lattice) {
+      expect(column.length, `a column of the lattice is not two deep: ${column.join(' ')}`).toBe(2)
+    }
+    // ⛔ AND THE ORDER IS HF-1's SENTENCE, left column downward then right column
+    // downward.
+    expect(lattice.flat()).toEqual(HF1_LEFT_TO_RIGHT)
   })
 
-  it('⛔ MUST NOT GIVEN a row is drawn WHEN the whole run is read THEN the single bars stand together and the double bars stand together (HF-1: 1 本と 2 本を混ぜて並べてはならない)', () => {
+  it('⛔ MUST NOT GIVEN a row is drawn WHEN the lattice is read THEN the single bars share one column and the double bars the other (HF-1: 1 本と 2 本を混ぜて並べてはならない)', () => {
     // 「上下に読めば動作、左右に読めば範囲」 -- 隠す and 1 階層開く are the single
     // bars (表 T-026 の `RC-13`: 向きが動作、本数が範囲) and 配下をすべて畳む /
-    // 配下をすべて開く the double ones. A lattice is broken exactly when one
-    // column's pair is split by the other's.
+    // 配下をすべて開く the double ones. ⛔ The lattice is broken exactly when a
+    // column holds one of each, which is what 「1 本と 2 本を混ぜて並べては
+    // ならない」 forbids -- and it is broken outright by a single line, where
+    // there is no second rank for 動作 to be read down at all.
     const built = drawn(oneLiveRow())
-    const run = leftToRight(controlsOf(theRowOf(built)))
+    const lattice = latticeOf(nodesFor(built, HF1_LEFT_TO_RIGHT))
 
     const singles = [entranceForRule('HF-3'), entranceForRule('HF-13')]
     const doubles = [entranceForRule('HF-11'), entranceForRule('HF-2')]
@@ -4734,13 +4968,15 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
       ['the single bars', singles],
       ['the double bars', doubles],
     ] as const) {
-      const places = pair.map((row) => run.indexOf(row))
-      expect(places, `${what} are not both on the row: ${run.join(' ')}`).not.toContain(-1)
+      const columns = lattice.filter((column) => pair.some((row) => column.includes(row)))
+      expect(columns.length, `${what} are not both on the row: ${lattice.join(' | ')}`).toBe(1)
       expect(
-        Math.abs((places[0] as number) - (places[1] as number)),
-        `${what} are not next to each other: ${run.join(' ')}`,
-      ).toBe(1)
+        [...(columns[0] as string[])].sort(),
+        `${what} do not have a column to themselves: ${lattice.join(' | ')}`,
+      ).toEqual([...pair].sort())
     }
+    // ⛔ 「並びは 2 × 2 の格子」 -- and never one line of four.
+    expect(lattice.length, `HF-1's four stand in one line: ${lattice.join(' | ')}`).toBe(2)
   })
 
   it('⛔ GIVEN a run built by hand in the WRONG order WHEN it is read through `leftToRight` THEN the reading catches it -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
@@ -4767,6 +5003,51 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     // ⛔ And a run placed two ways at once is refused rather than ranked.
     expect(() => leftToRight([make('IC-58', 'left:0em'), make('IC-59', 'right:0em')])).toThrow()
   })
+
+  it('⛔ GIVEN a lattice built by hand in the WRONG order WHEN it is read through `latticeOf` THEN the reading catches it -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
+    const built = drawn(oneLiveRow())
+    const make = (icon: string, css: string): FakeElement => {
+      const node = new FakeElement('button', built.world)
+      node.setAttribute('data-icon', icon)
+      node.setAttribute('style', css)
+      return node
+    }
+
+    // Grid lines: the smaller column is further left, the smaller rank higher.
+    expect(
+      latticeOf([
+        make('IC-58', 'grid-column:2;grid-row:2'),
+        make('IC-59', 'grid-column:1;grid-row:1'),
+        make('IC-77', 'grid-column:2;grid-row:1'),
+        make('IC-90', 'grid-column:1;grid-row:2'),
+      ]),
+    ).toEqual([
+      ['IC-59', 'IC-90'],
+      ['IC-77', 'IC-58'],
+    ])
+    // Insets: right counts backwards, top forwards.
+    expect(
+      latticeOf([
+        make('IC-58', 'right:0em;top:1em'),
+        make('IC-59', 'right:2em;top:0em'),
+        make('IC-77', 'right:0em;top:0em'),
+        make('IC-90', 'right:2em;top:1em'),
+      ]),
+    ).toEqual([
+      ['IC-59', 'IC-90'],
+      ['IC-77', 'IC-58'],
+    ])
+    // ⛔ A lattice placed two ways at once is refused rather than ranked.
+    expect(() =>
+      latticeOf([make('IC-58', 'grid-column:1;grid-row:1'), make('IC-59', 'left:0em;top:0em')]),
+    ).toThrow()
+    // ⛔ So is one that states no place on two axes at all.
+    expect(() => latticeOf([make('IC-58', 'right:0em')])).toThrow()
+    // ⛔ And so are two controls standing in the same place.
+    expect(() =>
+      latticeOf([make('IC-58', 'grid-column:1;grid-row:1'), make('IC-59', 'grid-column:1;grid-row:1')]),
+    ).toThrow()
+  })
 })
 
 describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () => {
@@ -4784,11 +5065,39 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
     expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
   })
 
-  it('⭐ GIVEN a row is drawn WHEN every control on it is read from the left THEN the seven stand in HF-4’s order (MUST: 折り畳みの 4 つ、足す、消す、ピン止めの順に、左から右へ)', () => {
+  it('⭐ GIVEN a row is drawn WHEN its run is read from the left THEN the lattice, 足す, 消す and ピン止め stand in HF-4’s order (MUST: 折り畳みの 4 つ（HF-1 の格子）、足す、消す、ピン止めの順に、左から右へ)', () => {
+    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、
+    // ピン止めの順に、左から右へ置くこと（MUST）**」. ⭐ THE SENTENCE COUNTS THE
+    // FOUR AS ONE MEMBER -- 「（`HF-1` の格子）」 -- so the run this reads has four
+    // members and not seven, and where the four stand WITHIN the lattice is
+    // `HF-1`'s business and has its own cases above.
     const built = drawn(oneLiveRow())
 
-    expect(leftToRight(controlsOf(theRowOf(built)))).toEqual(HF4_LEFT_TO_RIGHT)
+    expect(runOf(theRowOf(built))).toEqual(HF4_RUN)
   })
+
+  it.each(DEPTHS)(
+    '⛔ MUST NOT GIVEN the same row at depth %i WHEN its run is read THEN the arrangement and the number are the ones every other depth got (HF-15: 段の深さによって、操作子の並び・員数・振る舞いを変えてはならない)',
+    (depth) => {
+      // ⛔⛔ 表 T-051 `HF-15` (MUST NOT, 利用者の裁定 2026-09-02): 「**段の深さに
+      // よって、操作子の並び・員数・振る舞いを変えてはならない（MUST NOT）**
+      // （同裁定「階層が深くても動作は同じにせよ」）—— **同じ印が段によって違う
+      // 結果を出すと、読む人はどの段で何が起きるかを覚えるほかなくなる。**」
+      // ⭐ 並び is the run, 員数 the count; 振る舞い is what a press does and is
+      // not this unit's to answer.
+      const row = theRowOf(drawn(rowNamed('RowOne', depth)))
+
+      expect(runOf(row), `depth ${depth} was given a different run`).toEqual(HF4_RUN)
+      expect(
+        [...controlsOf(row).map(iconOf)].sort(),
+        `depth ${depth} was given a different number of controls`,
+      ).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
+      expect(
+        latticeOf(controlsOf(row).filter((one) => HF1_LEFT_TO_RIGHT.includes(iconOf(one)))).flat(),
+        `depth ${depth} was given a different lattice`,
+      ).toEqual(HF1_LEFT_TO_RIGHT)
+    },
+  )
 
   it('⭐ GIVEN a PINNED row WHEN its controls are read from the left THEN the same run stands there (FR-098 draws the pinned rows too)', () => {
     const built = drawn(
@@ -4806,14 +5115,14 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
       }),
     )
 
-    expect(leftToRight(controlsOf(theRowOf(built)))).toEqual(HF4_LEFT_TO_RIGHT)
+    expect(runOf(theRowOf(built))).toEqual(HF4_RUN)
   })
 
   it('⭐ MUST GIVEN a row is drawn WHEN the outermost control is read THEN it is the pin, and the deletion is the one step inside it (HF-4: ピン止めを並びのいちばん外へ)', () => {
     // ⛔ THE TWO REASONS ARE HF-4's OWN: 「**削除（`IC-82`）がいちばん外に在ると、
     // 右から流し込んだポインタが最初に触るのが削除になる**」 and 「**押す頻度は
     // ピンのほうが高く、削除は一度きりである**」.
-    const run = leftToRight(controlsOf(theRowOf(drawn(oneLiveRow()))))
+    const run = runOf(theRowOf(drawn(oneLiveRow())))
 
     expect(run[run.length - 1], `the outermost control is not the pin: ${run.join(' ')}`).toBe(
       'IC-60',
@@ -4822,7 +5131,7 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
   })
 
   it('⛔ MUST NOT GIVEN a row is drawn WHEN 足す and 消す are found in the run THEN they are next to each other (HF-4: 枠つきの ＋ と × は対として読ませるもの)', () => {
-    const run = leftToRight(controlsOf(theRowOf(drawn(oneLiveRow()))))
+    const run = runOf(theRowOf(drawn(oneLiveRow())))
     const add = run.indexOf(entranceForRule('HF-14'))
     const remove = run.indexOf('IC-82')
 

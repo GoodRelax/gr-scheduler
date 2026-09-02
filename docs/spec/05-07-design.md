@@ -107,7 +107,7 @@ graph RL
 | CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。`InputSource` を宣言する | `FR-016` / `FR-070` |
 | CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。`SvgSurface` を宣言する | `FR-080` |
 | CP-20 | `Adapter` | `DocumentCodec` | `GRS JSON`・`MSPDI`・単一 `.html` を文書と相互変換する。`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
-| CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。**表 T-076 が「描く」と定めた UI パーツを組み立て、縦に収まらない `TaskGroup` を落とす。** `Rasterizer` を宣言する | `FR-025` / `FR-080` |
+| CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。**表 T-076 が「描く」と定めた UI パーツを組み立てる。⛔ 縦に収まらないときは、絵を返さずに拒む**（`FR-025`、利用者の裁定 2026-09-02）—— **2026-09-02 まで「収まらない `TaskGroup` を落とす」と書いていた。** `Rasterizer` を宣言する | `FR-025` / `FR-080` |
 | CP-22 | `Adapter` | `FileGateway` | ファイルの読み書き。`FileStore` を宣言する | `FR-060` / 表 T-024 |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
 | CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**起動の順序は 表 T-077、フレームを起こす契機の観測は 表 T-078 に従う。** **現在値を保持する。** **フレームの先頭で画面の矩形とレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / `NFR-011` / 5.6 の ADR-001 |
@@ -343,7 +343,7 @@ src/
 | PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`）／ `SpentEntranceSituation`（型。押された入口が何を持たないのかを名乗る。⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。規則は 表 T-024a の `OP-12`） |
-| PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。落とす規則は `FR-080`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
+| PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。⛔ 高さの天井に収まらないときは絵を返さず、拒みを返す —— 規則は `FR-025`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。表 T-024 の `IO-6` と `FR-033`） |
 | PI-25 | `Framework` | `SingleHtmlShell` | **他のコンポーネントから呼ばれるメンバを持たない。** Vite の入口である。`SnapshotSource` と `AppShellSource` の実装を、宣言したコンポーネントへ渡す |

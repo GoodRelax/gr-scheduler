@@ -432,6 +432,7 @@ const BASE: InputContext = {
   today: TODAY,
   newGroupId: 'row-minted-outside',
   newCommentBoxId: 'comment-box-minted-outside',
+  newHighlightBoxId: 'highlight-box-minted-outside',
 }
 
 const contextOf = (schedule: Schedule = SCHEDULE): InputContext => ({

@@ -48,19 +48,26 @@
 //   table T-064 PI-24 the whole of what this component publishes
 //
 // ⛔ NOT CHECKABLE ON THE GATEWAY ITSELF, and deliberately not asserted of it:
-// the output size (S-81 of table T-204), the TaskGroup-wise clipping, and
+// the output size (S-81 of table T-204), the height ceiling (S-217), and
 // whether FR-020's watermark question was put to the person on this route --
-// FR-025 (:3132 and :3134) requires all three, and LM-8 is why the last one
-// reaches an outbound route. They belong where the picture is made; this unit
-// is handed a finished string and cannot tell whether any of them were applied.
+// FR-025 requires all three, and LM-8 is why the last one reaches an outbound
+// route. They belong where the picture is made; this unit is handed a finished
+// string and cannot tell whether any of them were applied.
 //
 // ⭐ SECOND PASS (CR-196). The first two of those three ARE checkable now, one
 // step upstream: PI-21 publishes `exportSvg`, and the manuscript's picture edge
 // for this component was corrected from SvgRenderer to ImageExporter. The last
 // block of this file therefore assembles a picture through PI-21's own entry
 // and sends THAT down the route, so that "the picture that comes out is the
-// same" (FR-025 :3145) is judged rather than assumed. ⚠️ The watermark question
+// same" (FR-025) is judged rather than assumed. ⚠️ The watermark question
 // stays unreachable from here for the reason above.
+//
+// ⭐⭐ THIRD PASS (CR-337, 2026-09-02). FR-025 (MUST) now refuses to write a
+// picture that will not fit under S-217 -- 「伸ばしても `S-217` に収まらない
+// ときは、画像を書き出さないこと（MUST）。一部だけを描いてはならない
+// （MUST NOT）」 -- and 「止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`（PNG）・
+// `IO-6`（クリップボード）である」 puts THIS route inside that MUST. The last
+// case of this file is where IO-6 answers for it.
 
 import { describe, expect, it } from 'vitest'
 
@@ -81,7 +88,7 @@ import {
   type ExportScene,
   type Rasterizer,
 } from '../../src/adapter/image-exporter/image-exporter'
-import type { RowTitle, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -659,6 +666,36 @@ const EXPORT_SCENE: ExportScene = {
   settings: EXPORT_SETTINGS,
 }
 
+/**
+ * The same scene on a screen of another height.
+ *
+ * ⭐ FR-080 takes the ratio off S-81's WIDTH over the screen's width, so the
+ * width is left alone and only the height moves; the picture is then the
+ * screen's height times that ratio, which is what S-217 is compared against.
+ * ⛔ No number here is typed: S-81 and S-217 both arrive through
+ * `EXPORT_SETTINGS`, which `npm run gen` writes out of the manuscript.
+ */
+const sceneOfScreenHeight = (screenHeight: number): ExportScene => {
+  const canvasHeight = screenHeight - EXPORT_SCREEN.appHeaderHeight
+  const withHeight = (rect: ScreenRegions['rowArea']): ScreenRegions['rowArea'] => ({
+    ...rect,
+    height: canvasHeight,
+  })
+  return {
+    ...EXPORT_SCENE,
+    regions: {
+      ...EXPORT_REGIONS,
+      scheduleCanvas: withHeight(EXPORT_REGIONS.scheduleCanvas),
+      rowTitlePanel: withHeight(EXPORT_REGIONS.rowTitlePanel),
+      propertiesPanel: withHeight(EXPORT_REGIONS.propertiesPanel),
+      rowArea: {
+        ...EXPORT_REGIONS.rowArea,
+        height: canvasHeight - EXPORT_SETTINGS.rulerHeight - EXPORT_SETTINGS.canvasPadding,
+      },
+    },
+  }
+}
+
 /** The `width`/`height` of the outermost element of a picture, as numbers. */
 const rootSizeOf = (svg: string): { readonly width: number; readonly height: number } => {
   const root = /<svg((?:[^<>"]|"[^"]*")*)>/.exec(svg)?.[1] ?? ''
@@ -672,9 +709,25 @@ const STILL_RASTERIZER: Rasterizer = {
   rasterizePng: () => Promise.resolve({ ok: true, pngBytes: Uint8Array.from([0x89, 0x50]) }),
 }
 
+/**
+ * `exportSvg`/`exportPng` no longer answer with a picture unconditionally --
+ * CR-337 (2026-09-02) has FR-025 refuse the whole thing past S-217's ceiling.
+ * Every fixture in this `describe` is nowhere near that ceiling, so a refusal
+ * here is a fixture bug, not the MUST NOT this file is silent about.
+ *
+ * ⭐ ONE HELPER, USED BY EVERY CASE THAT ASSUMED A PICTURE BEFORE CR-337.
+ * Unwrapping inline at each call site would be the same three lines repeated.
+ */
+const fitOrThrow = <T extends { readonly ok: boolean }>(result: T): Extract<T, { readonly ok: true }> => {
+  if (!result.ok) {
+    throw new Error('CR-337: exportSvg/exportPng refused a picture this fixture expected to fit (S-217)')
+  }
+  return result as Extract<T, { readonly ok: true }>
+}
+
 describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () => {
   it('GIVEN the picture ImageExporter assembled WHEN it leaves by the clipboard THEN the seam is handed that very string (IO-6, FR-025 :3145)', async () => {
-    const assembled = exportSvg(EXPORT_SCENE)
+    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
     await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
@@ -688,7 +741,7 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
   it('GIVEN IO-6 payload WHEN its root is read THEN it is exportCanvas wide and tall, as IO-3 is (S-81 of table T-204)', async () => {
     // FR-025 (MUST NOT): the output size is fixed at S-81 and never chosen at
     // each export -- and this route "only skips the download dialogue".
-    const assembled = exportSvg(EXPORT_SCENE)
+    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
     await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
@@ -705,8 +758,8 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
   })
 
   it('GIVEN one state WHEN IO-3, IO-4 and IO-6 each take their picture THEN all three carry one drawing (WY-2 of table T-041)', async () => {
-    const assembled = exportSvg(EXPORT_SCENE)
-    const both = await exportPng(STILL_RASTERIZER, EXPORT_SCENE)
+    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
+    const both = fitOrThrow(await exportPng(STILL_RASTERIZER, EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
     await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
@@ -718,45 +771,50 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
     expect(sent === undefined ? '' : stringOf(sent)).toBe(both.svg)
   })
 
-  it('GIVEN a picture that FR-025 cut down WHEN it leaves by the clipboard THEN the gateway neither restores nor re-cuts it', async () => {
-    // ⚠️ What was dropped travels beside the picture, not inside it: FR-025
-    // (MUST) has the count told to a person, and `ClipboardContent` carries no
-    // field for it -- so this unit can only be shown not to touch the string.
-    const tall: ExportScene = {
-      ...EXPORT_SCENE,
-      screenView: {
-        ...EXPORT_VIEW,
-        rowTitlePanel: {
-          pinnedTitles: [],
-          titles: [
-            {
-              ...(EXPORT_VIEW.rowTitlePanel.titles[0] as RowTitle),
-              groupId: 'below',
-              box: { x: 0, y: 900, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
-              label: 'a row FR-025 drops',
-            },
-          ],
-        },
-      },
+  // ⛔⛔ THE CASE THAT STOOD HERE WAS DELETED, NOT REWRITTEN (CR-337). It was
+  // 「GIVEN a picture that FR-025 cut down WHEN it leaves by the clipboard THEN
+  // the gateway neither restores nor re-cuts it」, and its whole premise was
+  // `droppedGroupIds` -- a picture FR-025 had cut a `TaskGroup` off the bottom
+  // of. FR-025 now reads 「書き出さないと決めた以上、落とす規則は無くなった」,
+  // so no such picture can exist to be sent, restored or re-cut. The case below
+  // is what IO-6 owes the rule instead.
+  it('GIVEN a scene too tall for S-217 WHEN IO-6 is taken THEN nothing reaches the clipboard (FR-025 MUST, CR-337)', async () => {
+    // ⭐⭐ THE RULE, VERBATIM (FR-025): 「伸ばしても `S-217` に収まらないときは、
+    // 画像を書き出さないこと（MUST）。一部だけを描いてはならない（MUST NOT）」,
+    // and 「止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`
+    // （クリップボード）である」. ⚠️ IO-6 carries IO-3's own picture
+    // (CR-196's edge), so the route has nothing to send once IO-3 is refused --
+    // and this case walks the route both ways to show the difference is the
+    // ceiling and nothing else.
+    // GOES RED IF: `exportSvg` answers a picture for the tall scene, which
+    // would put a silently-cut drawing on somebody's clipboard.
+    const ratio = EXPORT_SETTINGS.exportCanvas.width / EXPORT_SCREEN.width
+    const overCeiling = EXPORT_SETTINGS.exportCanvasHeightCap / ratio + 1
+    expect(overCeiling * ratio, 'the fixture is past S-217').toBeGreaterThan(
+      EXPORT_SETTINGS.exportCanvasHeightCap,
+    )
+
+    const sentFor = async (screenHeight: number): Promise<readonly ClipboardContent[]> => {
+      const { clipboard, received } = answeringClipboard({ ok: true })
+      const answer = exportSvg(sceneOfScreenHeight(screenHeight))
+      // ⛔ THE ROUTE ITSELF: there is a picture to send, or there is not.
+      if (answer.ok) await writeClipboard(clipboard, { kind: 'picture', svg: answer.svg })
+      return received
     }
-    const assembled = exportSvg(tall)
-    expect(assembled.droppedGroupIds).toEqual(['below'])
 
-    const { clipboard, received } = answeringClipboard({ ok: true })
-    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
-
-    const sent = received[0]
-    expect(sent === undefined ? '' : stringOf(sent)).toBe(assembled.svg)
-    expect(assembled.svg).not.toContain('a row FR-025 drops')
+    expect(await sentFor(overCeiling), 'nothing may go out for a scene that will not fit').toHaveLength(0)
+    // The other side of the edge, so that the emptiness above is the ceiling's
+    // doing and not the fixture's.
+    expect(await sentFor(EXPORT_SCREEN.height), 'a scene that fits still goes out').toHaveLength(1)
   })
 
   it('GIVEN the clipboard refuses WHEN an assembled picture is sent THEN the refusal is a value and the picture is untouched (FR-028)', async () => {
-    const assembled = exportSvg(EXPORT_SCENE)
+    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
     for (const fault of CLIPBOARD_FAULTS) {
       const { clipboard } = answeringClipboard({ ok: false, fault })
       const writing = await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
       expect(writing, fault).toEqual({ ok: false, fault })
     }
-    expect(exportSvg(EXPORT_SCENE).svg).toBe(assembled.svg)
+    expect(fitOrThrow(exportSvg(EXPORT_SCENE)).svg).toBe(assembled.svg)
   })
 })

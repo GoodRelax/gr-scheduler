@@ -117,7 +117,7 @@ type DocumentStamp = Document['documentStamp']
  *
  * ⭐ The first five are the rows that already refuse on the write path, and
  * they keep the names `PlanRefusal` gives them so that the two cannot part
- * company. The last three are this component's own, and each says which member
+ * company. The last four are this component's own, and each says which member
  * raises it.
  */
 export type AgentRefusalReason =
@@ -135,6 +135,15 @@ export type AgentRefusalReason =
   | 'unknownTask'
   /** AM-13 and AM-16: no frame has been computed yet (BO-1, NFR-011). */
   | 'notDrawnYet'
+  /**
+   * AM-13: `ImageExporter.exportSvg` refused the picture -- FR-025 with S-217
+   * (CR-337, 2026-09-02): grown to the ceiling, it still would not fit, and
+   * FR-025 (MUST NOT) forbids drawing a part of it. The row a person reading
+   * this member's picture through GRS itself would be told, `RS-43` of table
+   * T-233, is not repeated here: this union is `AgentRefusal`'s own
+   * classification (AG-9a), and the Agent API composes no words at all.
+   */
+  | 'tooTall'
   /**
    * ⛔ NOT A CATEGORY THE SPECIFICATION STATES. It exists because FR-028
    * forbids throwing (MUST NOT) and six members of table T-107 have nothing to
@@ -850,13 +859,31 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // ⭐ THE PICTURE IS PI-21's, AND THIS IS THE WHOLE OF THE WIRING D5b
       // ASKED FOR. CR-196 gave PI-21 the member that assembles one, and every
       // route that sends the screen out ends there -- so the ratio, table
-      // T-076's parts and FR-025's cut are applied where they are stated, and
-      // this row neither repeats nor re-decides any of them. ⛔ Nothing about
-      // the scene is chosen here either: FR-080's base environment closes two
-      // panels, empties the selection and takes the pointer away, and all three
-      // are judgements about a frame -- ADR-001 leaves a frame to the side that
-      // computes one, which is why the scene arrives over IF-7 whole.
-      return { ok: true, value: ImageExporter.exportSvg(scene).svg }
+      // T-076's parts and FR-025's ceiling are applied where they are stated,
+      // and this row neither repeats nor re-decides any of them. ⛔ Nothing
+      // about the scene is chosen here either: FR-080's base environment closes
+      // two panels, empties the selection and takes the pointer away, and all
+      // three are judgements about a frame -- ADR-001 leaves a frame to the
+      // side that computes one, which is why the scene arrives over IF-7 whole.
+      const picture = ImageExporter.exportSvg(scene)
+      // ⭐ THE SAME REFUSAL IO-3, IO-4 AND IO-6 ANSWER WITH (FR-025, CR-337):
+      // grown to S-217's ceiling, the picture still does not fit, and PI-21
+      // (MUST NOT) forbids drawing part of one. AM-13 is one more route to the
+      // one assembly, so it is refused here rather than handed a picture the
+      // requirement says may not exist.
+      if (!picture.ok) {
+        return {
+          ok: false,
+          refusal: agentRefusal(
+            'AM-13',
+            'tooTall',
+            snapshot,
+            'FR-025 with S-217: grown to the ceiling, the picture still does not fit (MUST NOT draw part of one)',
+            [],
+          ),
+        }
+      }
+      return { ok: true, value: picture.svg }
     },
 
     /** @purity semi-pure-b */

@@ -1,4 +1,4 @@
-59
+49
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a

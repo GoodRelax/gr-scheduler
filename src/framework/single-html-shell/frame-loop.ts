@@ -1432,6 +1432,27 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
 /**
+ * The row of table T-233 FR-025 raises when the picture will not fit S-217's
+ * ceiling even grown to it (CR-337, the reader's ruling of 2026-09-02
+ * 「1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」).
+ *
+ * ⭐ ONE ROW FOR BOTH SIDES OF THE SAME REFUSAL. `ImageExporter.exportSvg` and
+ * `exportPng` answer `{ ok: false, fault: { reason: 'tooTall' } }` before
+ * either the picture is drawn or the rasterizer is asked, and this is the row
+ * that answer is told with -- the same one `NOTICE_REASON_OF_RASTER_FAULT`
+ * gives `tooLarge` below, because both are 「伸ばしても描ける大きさを超えた」
+ * from where a person reads it: geometry refused it here, or the machine
+ * refused it there, and either way the next step is the same (fold rows, or
+ * narrow the period).
+ * ⚠️ IT REACHES IO-3, IO-4 AND IO-6 ALIKE (FR-025, MUST), because all three
+ * are `ImageExporter`'s one assembly (PI-21): `exportPictureContent` raises it
+ * for IO-3 and IO-4, and `copyPictureToClipboard`'s handler raises it for IO-6.
+ * ⛔ NOTHING IS WRITTEN WHEN IT IS RAISED (MUST NOT): the callers below return
+ * before any file content is produced and before the clipboard is touched.
+ */
+const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
+
+/**
  * ⛔ `RS-40` HAS NO RAISER IN THIS BUILD, AND THAT IS THE ROW DOING ITS JOB.
  * It reads 「この形式は、このビルドではまだ書けない」 against 表 T-024, and
  * `UNWRITTEN_FORM_REASON` stood here until CR-333's round carried it for the
@@ -1464,6 +1485,11 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
  * the reader can act on: fold rows, or narrow the period.
  * ⚠️ ALL THREE LANDED ON `RS-15` UNTIL CR-333, which FR-076 reserves for
  * reasons the table holds no row for; the table holds two now.
+ * ⭐ SINCE CR-337, `RS-43` HAS A SECOND RAISER BESIDE THIS CENSUS:
+ * `HEIGHT_CEILING_REASON` above, for the picture that never reached a
+ * rasterizer at all because `exportSvg` itself refused it. Both name the same
+ * row on purpose -- table T-233 gives the reader one sentence for "too many
+ * rows to draw at this size", however the refusal was reached.
  */
 const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
@@ -1731,6 +1757,20 @@ const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 /** OP-13 of table T-024a -- SK-21 reads the file already open. */
 const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
+
+/**
+ * OP-13 of table T-024a (MUST) -- the one of OP-3's three a re-read is settled
+ * as: 「`OP-3` の 3 択は問わず、置き換えに定めること（MUST）—— 読み直しは同じ文書
+ * の読み直しであって、合流でも重ねでもない」.
+ *
+ * ⛔ Named rather than asked, which is the other half of the same row: 「選ばせる
+ * 面を開かずに、同じファイルをもう一度読むこと（MUST）」. So this constant is what
+ * stands in `askHowToOpen`'s place on that road, and U-56 never opens.
+ * ⚠️ It is the same value IC-71 of table T-109 carries, and the entry roster is
+ * still what maps that entry -- this is OP-13's own answer, not a second copy of
+ * the mapping.
+ */
+const OPEN_CHOICE_OF_REOPEN: OpenChoice = 'replace'
 
 /**
  * What SK-11 of table T-036 writes, whatever the document was opened from.
@@ -5501,6 +5541,10 @@ export function frameLoop(
       // box is actually placed, so an unused one costs nothing -- the same
       // bargain the line above states.
       newCommentBoxId: crypto.randomUUID(),
+      // AT-116 is a UUID as well, and AR-6 of table T-023b is what spends it.
+      // Same bargain again: minted per context, read only where a highlight
+      // box is actually placed.
+      newHighlightBoxId: crypto.randomUUID(),
     }
   }
 
@@ -5935,7 +5979,17 @@ export function frameLoop(
       return
     }
 
-    const choice = await askHowToOpen()
+    // ⭐ OP-13 of table T-024a (MUST): 「選ばせる面を開かずに、同じファイルをもう
+    // 一度読むこと」 and 「`OP-3` の 3 択は問わず、置き換えに定めること」. The route
+    // is the whole of what tells this read apart, and it is an argument to this
+    // function -- so the answer is settled HERE rather than asked, and U-56
+    // never goes up. ⛔ The row gives its own reason for the MUST: a surface on
+    // every re-read would make `Ctrl` + `R` the same thing as 「開く」.
+    // ⚠️ OP-4 BELOW STILL RUNS. That row is not skipped with the question --
+    // OP-13 says in as many words 「`OP-4` の確認は掛かること（MUST）」, and a
+    // settled `'replace'` reaches it exactly as a chosen one does.
+    const choice =
+      route === OPEN_ROUTE_REOPEN ? OPEN_CHOICE_OF_REOPEN : await askHowToOpen()
     // ⛔ OP-3 (MUST NOT): nothing is chosen here. A question that went away
     // unanswered leaves the read where it was, and an abandoned open changes
     // no document -- which is the only outcome that does not decide for the
@@ -6053,6 +6107,32 @@ export function frameLoop(
     // 注意を伝えるとき」, and with nothing left undrawn there is no caution.
     const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
     if (notDrawn > 0) raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
+  }
+
+  /**
+   * OP-13 of table T-024a (MUST) -- SK-21's road, and the one clause of that row
+   * which has to be settled BEFORE the file is read.
+   *
+   * ⭐ 「開いているファイルが無いときは何もしないこと（MUST）—— 読み直す相手が無
+   * い」. IF-3's `readOpenedFileState` is the only thing that answers whether
+   * there IS one; the seam documents itself as 「asked, never remembered」
+   * because FR-060 has the permission going missing between runs, so the answer
+   * is taken here at the moment of the press rather than kept.
+   * ⚠️ `permissionLost` is NOT 「無い」. That file is still the file the document
+   * is open from -- it has a name and FR-060 keeps it as the overwrite target --
+   * so it goes down the read road, exactly as `saveHeldDocumentToFile` sends it
+   * down the overwrite road, and the store is what asks for the permission back.
+   * ⛔ NOTHING IS TOLD WHEN THERE IS NOTHING TO RE-READ. The row says 「何もしな
+   * いこと」, and a telling is not nothing -- so this road stops without raising
+   * one, which is the difference between it and letting the store answer
+   * `noOpenedFile`.
+   *
+   * @purity non-pure
+   */
+  async function reopenDocumentIntoHold(store: FileStore): Promise<void> {
+    const openedFile = await store.readOpenedFileState()
+    if (openedFile.kind === 'none') return
+    await openDocumentIntoHold(store, OPEN_ROUTE_REOPEN)
   }
 
   /**
@@ -6227,14 +6307,14 @@ export function frameLoop(
    * request type it belongs to IS published, and reading the member off it says
    * the same thing without adding a crossing.
    *
-   * STOP -- ⚠️ FR-025's TELLING IS STILL NOT MADE, and it is unchanged by the
-   * two writers added here: `SvgExport.droppedGroupIds` names the `TaskGroup`s
-   * that went undrawn, table T-233's `RS-22` is the row that telling would ride
-   * on, and what is undecided is which of FR-025's two numbers `affectedCount`
-   * carries -- that member is one number and the requirement (MUST) names
-   * 「`TaskGroup` と `Task`」. ⛔ Nothing here may pick one and print it as the
-   * other. ⭐ CR-333 made it a rarer telling rather than a settled one: the
-   * picture now grows to S-217 before anything is dropped at all.
+   * ⭐ FR-025's TELLING IS NOW MADE, AND D-201 IS WHY IT NEEDED NO SECOND
+   * NUMBER (CR-337, closing the STOP this comment used to carry). `RS-22`
+   * ("落とした件数を 2 つ運べない") is retired rather than answered: FR-025 no
+   * longer drops a `TaskGroup` at all, so there is no count left for
+   * `RaisedNotice.affectedCount` to carry and no picture cut down the page.
+   * Past `S-217` there is no picture, and `HEIGHT_CEILING_REASON` (`RS-43`) is
+   * the one row that tells a person so -- raised below for `svg` and inside
+   * `rasteredContent` for `png`.
    *
    * @purity non-pure
    */
@@ -6258,7 +6338,15 @@ export function frameLoop(
         // IO-3 is the picture itself, and it is the same picture IO-4 is
         // painted from -- WY-2 of table T-041 judges the two to be one drawing,
         // and a second assembly is how they would come to differ.
-        if (form === 'svg') return { text: exportSvg(scene).svg }
+        if (form === 'svg') {
+          const picture = exportSvg(scene)
+          if (!picture.ok) {
+            // FR-025 (MUST), CR-337: refused before anything was drawn.
+            raiseNotice(HEIGHT_CEILING_REASON, null)
+            return null
+          }
+          return { text: picture.svg }
+        }
         return await rasteredContent(scene)
       }
     }
@@ -6279,6 +6367,12 @@ export function frameLoop(
       return null
     }
     const painted = await exportPng(seam, scene)
+    if (!painted.ok) {
+      // FR-025 (MUST), CR-337: the picture itself did not fit S-217's ceiling,
+      // so the rasterizer was never asked.
+      raiseNotice(HEIGHT_CEILING_REASON, null)
+      return null
+    }
     if (!painted.png.ok) {
       // FR-076 (MUST): a failure is told, carrying a row of table T-233.
       raiseNotice(NOTICE_REASON_OF_RASTER_FAULT[painted.png.fault.reason], null)
@@ -6648,6 +6742,16 @@ export function frameLoop(
         // what `ClipboardContent.picture` states in as many words.
         const scene = exportScene()
         if (scene === null) return
+        // FR-025 (MUST), CR-337: IO-6 is one of the three routes the ceiling
+        // reaches (IO-3, IO-4, IO-6) -- `exportSvg` is asked here for the same
+        // geometry an IO-3/IO-4 export would refuse on, and refused before the
+        // clipboard is ever written to. ⚠️ Not read for `.svg`: that member is
+        // not what this route sends (see the note above), only whether FR-025
+        // lets this picture out at all.
+        if (!exportSvg(scene).ok) {
+          raiseNotice(HEIGHT_CEILING_REASON, null)
+          return
+        }
         // ⚠️ NOT AWAITED, for the reason the file roads give: CS-4 of table
         // T-066 collected the document before the first await, and the rest
         // of this happening is settled before the write returns.
@@ -6677,7 +6781,7 @@ export function frameLoop(
         // ⭐ OP-4 (MUST) IS KEPT BY GOING DOWN THIS ROAD AND NO OTHER: the
         // confirmation before unsaved edits are thrown away belongs to the
         // open, and OP-13 says the reload is a replace like any other.
-        void openDocumentIntoHold(store, OPEN_ROUTE_REOPEN).finally(() => {
+        void reopenDocumentIntoHold(store).finally(() => {
           isFileOperationWaiting = false
         })
         return

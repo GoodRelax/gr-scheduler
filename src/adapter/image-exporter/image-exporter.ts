@@ -10,11 +10,13 @@
 // member obeys stays with the requirement that states it.
 //
 // ⭐ WHAT THE COMPONENT IS FOR. CP-21 in one line: assemble the UI parts table
-// T-076 says to draw, drop the `TaskGroup`s that do not fit down the page, and
-// declare `Rasterizer`. FR-080 fixes the picture -- the whole screen GRS
-// occupies, shrunk by `exportCanvas`'s width divided by the screen's width, the
-// SAME ratio on both axes (MUST NOT: two ratios) -- and FR-025 fixes what
-// becomes of what will not fit.
+// T-076 says to draw, refuse the whole picture when it will not fit down the
+// page, and declare `Rasterizer`. FR-080 fixes the picture -- the whole screen
+// GRS occupies, shrunk by `exportCanvas`'s width divided by the screen's
+// width, the SAME ratio on both axes (MUST NOT: two ratios) -- and FR-025
+// fixes what becomes of what will not fit: nothing is drawn at all (CR-337,
+// 2026-09-02), where until then the `TaskGroup`s that did not fit were dropped
+// down the page.
 //
 // ⭐ EVERY ROUTE THAT SENDS THE SCREEN OUT IS ASSEMBLED HERE, AND NOWHERE
 // ELSE. WY-2 of table T-041 judges the SVG and the PNG of one state to be the
@@ -139,14 +141,30 @@ export interface ExportScene {
 }
 
 /**
- * The assembled picture, and what FR-025 kept out of it.
+ * Why `exportSvg` (and therefore `exportPng`) answers with no picture at all.
  *
- * ⭐ Two fields rather than one string, because FR-025 (MUST) has an export
- * tell a person what went undrawn, and that is as true of the route that ends
- * in an SVG as of the one that ends in a PNG.
+ * ⭐ ONE REASON, BECAUSE FR-025 NOW ADMITS ONLY ONE. Grown to `S-81`'s width and
+ * however tall the screen wants, the picture either fits inside `S-217`'s
+ * ceiling or it does not; there is no second way this component refuses one
+ * (CR-337, the reader's ruling of 2026-09-02 「1600x4096 のサイズに収まらなかっ
+ * たエラーにして、png, svg の出力を止めろ」). ⚠️ The row of table T-233 this
+ * reads as is `RS-43` -- `frame-loop.ts` is where that mapping is made, not
+ * here: this folder answers in a classification (AG-8's own shape), never in
+ * the words NT-1 and NT-3a compose.
  */
-export interface SvgExport {
-  /** IO-3's output: `exportCanvas` wide, `exportCanvas` tall, and what the rasterizer is given. */
+export interface ImageExportFault {
+  readonly reason: 'tooTall'
+}
+
+/**
+ * The picture itself, once FR-025 has decided one may be drawn.
+ *
+ * ⭐ Two fields rather than one string, because `exportPng` paints from the
+ * height this settled on (see `heightPx`) and a second arithmetic on the far
+ * side is how the raster and the picture would come to be different sizes.
+ */
+interface SvgPicture {
+  /** IO-3's output: `exportCanvas` wide, and as tall as `heightPx`. */
   readonly svg: string
   /**
    * The height FR-025 grew the picture to.
@@ -161,42 +179,43 @@ export interface SvgExport {
    * the picture would come to be different sizes.
    */
   readonly heightPx: number
-  /**
-   * The `TaskGroup`s FR-025 kept out, top-most first.
-   *
-   * ⭐ Ids, not counts. FR-025 (MUST) has the export tell a person how many
-   * `TaskGroup`s AND how many `Task`s went undrawn; this component knows which
-   * rows it dropped and has no edge to `Schedule`, so it answers with the rows
-   * and the count of `Task`s is taken by the side that holds the document.
-   * ⚠️ Empty is the ordinary case: FR-025 also fixes that a picture shorter
-   * than S-81 leaves the remainder blank (MUST) rather than filling it.
-   */
-  readonly droppedGroupIds: readonly string[]
 }
+
+/**
+ * What `exportSvg` answers with: the picture FR-080 shrinks and table T-076
+ * assembles, or the one reason CR-337 lets it refuse to draw at all.
+ *
+ * ⭐ A DISCRIMINATED UNION, AND NOT A THIRD "PARTIAL" SHAPE. FR-025 (MUST NOT)
+ * forbids drawing part of a picture, so there is no member here for a dropped
+ * row or a cut height any more -- either the whole screen is in the picture, or
+ * there is no picture. ⛔ Until CR-337 this carried `droppedGroupIds`, the rows
+ * FR-025 cut from the bottom; that rule is gone (2026-09-02) and so is the
+ * field it existed for. D-201 ("落とした件数を 2 つ運べない") closes for the
+ * same reason: nothing is dropped, so there is no count left to carry.
+ */
+export type SvgExport =
+  | ({ readonly ok: true } & SvgPicture)
+  | { readonly ok: false; readonly fault: ImageExportFault }
 
 /**
  * What one export produced.
  *
- * ⭐ The SVG is always here and the PNG may not be, because the two fail
- * differently: assembling the picture is arithmetic over values and cannot
- * fail, while painting it needs a machine. IO-3 (SVG) and IO-4 (PNG) are two
- * rows of table T-024 and FR-025 sends the export to both, so `exportPng`
- * answering with both is one operation and not two: a second assembly would be
- * the way the two outputs come to differ.
+ * ⭐ The SVG and the PNG fail differently, and this type keeps the two apart.
+ * `ok: false` at the top is FR-025's own refusal (CR-337): the picture does not
+ * fit `S-217` and neither IO-3 nor IO-4 has anything to show, so the rasterizer
+ * is never even asked. ⚠️ `ok: true` with `png.ok: false` is the OTHER failure,
+ * `RasterFault` (IF-6): the picture exists and only painting it did not
+ * succeed -- AG-8 of table T-035 is the next step NT-3a owes a person then,
+ * with IO-3 (`svg`) left as the way out.
  *
- * ⭐ It extends `SvgExport` rather than restating it, so that the string a
- * caller of `exportSvg` receives and the one the rasterizer is handed cannot
- * become two different shapes -- WY-2 of table T-041 compares exactly those two
- * against each other.
- *
- * ⚠️ It is also the next step NT-3a (MUST) owes a person when
- * `RasterFaultReason` is `unsupported`: the picture they asked for exists, and
- * only the raster of it does not.
+ * ⭐ The success branch carries `SvgPicture` rather than restating it, so that
+ * the string a caller of `exportSvg` receives and the one the rasterizer is
+ * handed cannot become two different shapes -- WY-2 of table T-041 compares
+ * exactly those two against each other.
  */
-export interface ImageExport extends SvgExport {
-  /** IO-4's output, or the reason there is none. AG-8 of table T-035. */
-  readonly png: Rastering
-}
+export type ImageExport =
+  | ({ readonly ok: true } & SvgPicture & { readonly png: Rastering })
+  | { readonly ok: false; readonly fault: ImageExportFault }
 
 /**
  * The ground and the ink the export paints EP-1's band, EP-3's panel and their
@@ -428,7 +447,7 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
 
 /**
  * The whole picture: FR-080's shrunken screen with table T-076's parts on it,
- * cut down the page by FR-025.
+ * or no picture at all once FR-025's ceiling is passed (CR-337).
  *
  * ⭐ THE ONE PLACE A PICTURE THAT GOES OUT IS ASSEMBLED, and the reason it is
  * published rather than kept inside `exportPng`: WY-2 of table T-041 judges the
@@ -437,7 +456,8 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
  * (:3136) says the same of the clipboard route -- only the download dialogue is
  * missing from it, not any part of the picture. Every route that sends the
  * screen out therefore ends here: AM-13 of table T-107, IO-6 of table T-024
- * through CP-24, and IO-3 through the shell.
+ * through CP-24, and IO-3 through the shell -- and the refusal below reaches
+ * all three the same way, by reaching every one of them.
  *
  * ⚠️ The name is table T-064's (PI-21) and table T-107's (AM-13), so the
  * parts-of-speech rule that would make a `pure` query a noun phrase does not
@@ -455,7 +475,7 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
  * screen's.
  *
  * ⭐⭐ THE HEIGHT GROWS DOWNWARD TO A CEILING (CR-333, the reader's ruling of
- * 2026-09-02 「収まらない場合は縦の 900 を延ばせ」). FR-025 (MUST) now fixes the
+ * 2026-09-02 「収まらない場合は縦の 900 を延ばせ」). FR-025 (MUST) fixes the
  * WIDTH at S-81's and has the height grow until the picture fits -- S-81's
  * height is the floor rather than the ceiling -- and lets it grow no further
  * than S-217 (`exportCanvasHeightCap`, MUST). ⚠️ A picture shorter than S-81's
@@ -464,14 +484,16 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
  * ⚠️ The ceiling is not a taste: the picture grows with the screen, and a
  * screen tall enough to reach 28,000px is where a machine stops painting.
  *
- * ⭐ THE CUT, WHICH NOW HAPPENS ONLY AT THE CEILING. FR-025 (MUST) drops, from
- * the bottom, the `TaskGroup` that straddles the lower edge and every
- * `TaskGroup` below it, and forbids cutting one in the middle (MUST NOT) or
- * changing the ratio to make it fit (MUST NOT). The rows' own bands are the
- * boundaries the cut may land on, so the clip is set to the top of the first
- * dropped row. ⚠️ A `TaskGroup` already cut off at the TOP of the screen stays
- * cut as the screen has it (MUST): the clip has no upper edge, so nothing here
- * touches it.
+ * ⭐⭐ PAST THE CEILING, NOTHING IS DRAWN AT ALL (CR-337, the reader's ruling of
+ * 2026-09-02 「1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力
+ * を止めろ」). ⛔ UNTIL 2026-09-02 THE PICTURE WAS STILL DRAWN, cut down the page
+ * by dropping, from the bottom, the `TaskGroup` that straddled the lower edge
+ * and every `TaskGroup` below it -- FR-025 now forbids drawing any part of a
+ * picture that does not fit (MUST NOT), so that rule and the row it needed
+ * (`SvgExport.droppedGroupIds`) are both gone: there is nothing left to cut a
+ * clip around, because there is no picture. ⚠️ A `TaskGroup` already cut off at
+ * the TOP of the screen still stays cut as the screen has it (MUST) -- that is
+ * the screen's own doing, not a fit this function judges.
  *
  * ⚠️ The received picture is the one thing NOT multiplied through: it is an
  * opaque string, so it goes inside a scaling group. Its own root carries the
@@ -487,26 +509,19 @@ export function exportSvg(scene: ExportScene): SvgExport {
   // ⭐ The whole screen, measured the way the width above is measured, so the
   // two axes cannot disagree about where the screen ends.
   const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
-  // FR-025 (MUST): S-81's height is the floor, the shrunken screen is what the
-  // picture grows to, and S-217 is the ceiling.
-  const height = Math.min(
-    Math.max(settings.exportCanvas.height, screenHeight * ratio),
-    settings.exportCanvasHeightCap,
-  )
-  // How much of the screen, in the screen's own units, the grown canvas holds.
-  const fitHeight = height / ratio
+  // FR-025 (MUST): S-81's height is the floor and the shrunken screen is what
+  // the picture wants to grow to.
+  const wantedHeight = Math.max(settings.exportCanvas.height, screenHeight * ratio)
+  // FR-025 (MUST, CR-337): past S-217 there is no picture, not a shorter one.
+  if (wantedHeight > settings.exportCanvasHeightCap) {
+    return { ok: false, fault: { reason: 'tooTall' } }
+  }
+  const height = wantedHeight
 
   const titles = screenView.rowTitlePanel.titles
-  const firstDroppedAt = titles.findIndex((title) => title.box.y + title.box.height > fitHeight)
-  const kept = firstDroppedAt === -1 ? titles : titles.slice(0, firstDroppedAt)
-  const dropped = firstDroppedAt === -1 ? [] : titles.slice(firstDroppedAt)
-  const firstDropped = dropped[0]
-  const cutY = firstDropped === undefined ? fitHeight : Math.min(fitHeight, firstDropped.box.y)
-
   const panel = regions.rowTitlePanel
   // ⚠️ FR-098 lifts the pinned rows out of the scrolling list and holds them at
-  // the top, so the bottom edge does not reach them and the cut above does not
-  // count them.
+  // the top; both groups are drawn in full now that nothing is dropped.
   const pinned = screenView.rowTitlePanel.pinnedTitles
   // ⭐ Painted over the received picture, in this order: the band and the panel
   // cover what the `Row Area` did not clip, and the divider line closes the
@@ -515,22 +530,27 @@ export function exportSvg(scene: ExportScene): SvgExport {
     appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, ratio) +
     rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
     pinned.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
-    kept.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
+    titles.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
     dividerLinesSvg(screenView, ratio)
 
   const width = settings.exportCanvas.width
+  // ⭐ THE CLIP STAYS, although nothing is dropped any more: it bounds the
+  // received picture (an opaque string this function does not measure) to the
+  // canvas FR-080 fixed, which is what keeps a screen shorter than the ratio
+  // implies from ever painting past `height`. ⚠️ NOT FR-025's cut -- that rule
+  // is gone (CR-337) -- this is the ordinary edge of the canvas itself.
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}">` +
     `<defs><clipPath id="${FIT_CLIP_ID}">` +
-    `<rect x="0" y="0" width="${rounded(width)}" height="${rounded(cutY * ratio)}"/>` +
+    `<rect x="0" y="0" width="${rounded(width)}" height="${rounded(height)}"/>` +
     '</clipPath></defs>' +
     `<g clip-path="url(#${FIT_CLIP_ID})">` +
     `<g transform="scale(${ratioText(ratio)})">${scene.svg}</g>` +
     drawnHere +
     '</g></svg>'
 
-  return { svg, heightPx: height, droppedGroupIds: dropped.map((title) => title.groupId) }
+  return { ok: true, svg, heightPx: height }
 }
 
 /**
@@ -542,6 +562,12 @@ export function exportSvg(scene: ExportScene): SvgExport {
  * rejected promise back into one, so it does, and every caller may rely on it.
  * ⚠️ Trusting the seam's own promise instead would leave a requirement's
  * guarantee in a file this component does not own.
+ *
+ * ⭐ THE FIRST FAILURE IS `exportSvg`'s OWN (CR-337). When the picture does not
+ * fit `S-217`, there is nothing to paint and no seam is asked at all -- IO-4 is
+ * refused on exactly the geometry that would have refused IO-3, without ever
+ * reaching `Rasterizer`. ⚠️ The SECOND failure is `RasterFault` (IF-6): the
+ * picture exists and only painting it did not succeed.
  *
  * ⭐ The pixel size is the picture's own size multiplied by S-82 (MUST: the
  * scale is chosen from S-82's values; MUST NOT: the size is not chosen at each
@@ -560,6 +586,7 @@ export async function exportPng(
   scene: ExportScene,
 ): Promise<ImageExport> {
   const picture = exportSvg(scene)
+  if (!picture.ok) return picture
   const scale = scene.settings.exportPngScale
   // ⭐ THE PICTURE'S OWN HEIGHT, NOT S-81's. FR-025 (MUST) grows the height to
   // fit and stops at S-217, so the raster is painted at what `exportSvg`

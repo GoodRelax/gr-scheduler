@@ -961,6 +961,25 @@ DRAWN_WITH_WHERE_IT_STANDS = [
     ' * T-076), so a reader handed this document sees the same picture',
     ' * whatever this value is.',
 ]
+# ⛔ A SEAM OF ITS OWN, AND THE ONE GROUND ABOVE DOES NOT FIT. S-138 and S-218
+# are the room GR-20's grab strip keeps beside the row's name, and FR-085 (MUST)
+# subtracts both of them before cutting that name -- so what they settle is
+# WHERE THE NAME IS CUT, and EP-3 of table T-076 draws the panel into the
+# exported picture. ⇒ The closing sentence of DRAWN_WITH_WHERE_IT_STANDS ("the
+# reader sees the same picture whatever this value is") would be false here, and
+# FR-085 says so itself: 「書き出し専用の幅を設けてはならない」.
+SUBTRACTED_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the arithmetic',
+    ' * is its own: FR-085 (MUST) cuts the row name at what is left of the',
+    ' * panel once the indent, the room the row controls keep and the room',
+    ' * GR-20 of table T-023d keeps are taken off, and nothing on IF-9',
+    ' * carries a length for a caller to hand in. ⛔ Neither row is a',
+    ' * document setting and neither may become one: table T-206 is where',
+    ' * the specification records that the document does not keep them.',
+    ' * ⭐ The cut they settle IS in the exported picture (EP-3 of table',
+    " * T-076), which is why FR-085 (MUST NOT) refuses an export width of",
+    ' * its own -- so these are not values a screen may hold alone.',
+]
 
 # ⛔ THE SAME THIRD SEAM, WITH A DIFFERENT GROUND. S-180 is read by the unit
 # that draws with it, exactly as S-138 and S-140 are -- but the sentence that
@@ -1173,7 +1192,27 @@ NOT_STORED_TARGETS = {
     # hand each unit the other's value.
     'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in row-title-panel.ts
+    # and both are terms of the same subtraction: one constant per consuming
+    # SUBJECT, and the subject differs. S-140 is the room the row CONTROLS keep
+    # (HF-6 of table T-051 lays them over the name, so it is 0); S-138 and S-218
+    # are the room the GRAB STRIP keeps, and HF-15 states outright that the
+    # strip is 「押す入口ではなく、掴める場所を指す印」 -- not a control at all.
+    # ⛔ S-218 IS NOT S-141, although both are 4px: S-141 is the gap between a
+    # shape and its entrance FRAME (FR-029), and table T-206's own row for S-218
+    # refuses that reading in as many words.
+    'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
+                                       SUBTRACTED_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⭐ THE SAME GAP, ON THE SIDE THAT DRAWS IT. S-218 stands twice because two
+    # units read it and neither may import the other (Chapter 5.3): the Adapter
+    # SUBTRACTS it before cutting the name and this unit LAYS it between the
+    # strip and the name. ⛔ Two hand-typed 4s would be the copied value rule 03
+    # section 1 forbids; two readings of one generated row are not -- what the
+    # rule forbids is a value with two homes, and its home is table T-206.
+    # ⛔ NOT FOLDED INTO NOT_STORED_ICON_SIZES: that constant is an ENTRANCE's
+    # shape (S-138's box and S-141's inner gap), and GR-20 is no entrance.
+    'NOT_STORED_ROW_GRAB_STRIP_SIZES': (['S-218'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138 and
     # S-141 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
@@ -1880,8 +1919,15 @@ TARGETS = [
     # room the row controls keep, and what it is subtracted from is the row's
     # own name width, which only this side knows -- `DocumentSettings` does not
     # cross IF-9.
+    # ⭐ And GR-20's room beside it, in a constant of its own: FR-085 (MUST)
+    # subtracts 「行の掴み代（表 T-023d の `GR-20`）に確保した場所（… `S-138`）と
+    # その隔たり（同表の `S-218`）」 from the same panel width, and until CR-336
+    # neither row reached this side at all -- the strip took 20px of the name's
+    # box that the arithmetic never took off, so the cut was judged on a width
+    # the name never had and the browser's own ellipsis ate the difference.
     (os.path.join(ADAPTER, 'screen-renderer', 'row-title-panel.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_GRAB_ROOM_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The only generated region that lands in Framework, for the reason the
     # note on FRAMEWORK above gives: FR-029 (MUST) makes one box the authority
@@ -1918,6 +1964,7 @@ TARGETS = [
     # colour written into a settings row, would be one decision in two places.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_GRAB_STRIP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2

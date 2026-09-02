@@ -465,6 +465,7 @@ const BASE: InputContext = {
   today: TODAY,
   newGroupId: NEW_GROUP_ID,
   newCommentBoxId: 'comment-box-minted-outside',
+  newHighlightBoxId: 'highlight-box-minted-outside',
 }
 
 const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE, ...part })
@@ -1777,6 +1778,75 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
 // 表 T-023b -- what may be armed, and FR-001's creation
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// CR-338's two values: the distance that tells a press from a drag, and the
+// tier the ruler is ruling. ⛔ NEITHER FIGURE IS TYPED HERE.
+// ---------------------------------------------------------------------------
+
+/**
+ * `S-208` -- 「掴んだ行の軸が決まる距離（表 T-051 の `HF-15`）と、図形を置くとき
+ * に押しと引きを分ける距離（`FR-001` / `FR-019`）」, read out of 表 T-206 of
+ * `_assets/tbl-settings.md` at run time.
+ *
+ * ⛔ IT IS NOT IN `DocumentSettings`: 表 T-206 is 「保存しないもの」, so no
+ * generated constant carries it and the manuscript is the only place to read it.
+ */
+const S_208_PRESS_OR_DRAG = (() => {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-208')
+  if (row === undefined) throw new Error('表 T-206 no longer holds S-208')
+  const found = /-?\d+(?:\.\d+)?/.exec(row.by['既定'] ?? '')
+  if (found === null) throw new Error('S-208 states no distance in its 既定 column')
+  return Number(found[0])
+})()
+
+/** A day serial back as the text a date column is spelled with. */
+const dayTextOf = (serial: number): string =>
+  new Date(serial * MS_PER_DAY).toISOString().slice(0, 10)
+
+/**
+ * One unit of the finest tier a ruler at this px/day is ruling, in days.
+ *
+ * FR-001 (MUST): 「段は `_assets/tbl-settings.md` の 表 T-205 の `S-83` /
+ * `S-84` / `S-85` が px/日 で切り替える（26 以上で 日、4.3〜26 で 週、1.4〜4.3 で
+ * 月、1.4 未満で 年）」.
+ *
+ * ⛔⛔ THE MONTH AND THE YEAR ARE REFUSED RATHER THAN GUESSED AT. Nothing in
+ * docs/spec says which day 「1 単位」 lands on when the day pressed has no
+ * counterpart a month or a year on -- the 31st, or the 29th of February -- so a
+ * case driven at those tiers would be asserting a rule this file had made up.
+ */
+function unitInDaysOf(pxPerDay: number): number {
+  const flat = SETTINGS as unknown as Record<string, number>
+  if (pxPerDay >= (flat['rulerTierPxPerDayDay'] as number)) return 1
+  if (pxPerDay >= (flat['rulerTierPxPerDayWeek'] as number)) return 7
+  throw new Error(
+    `at ${pxPerDay}px a day the ruler is ruling months or years, and no row of docs/spec ` +
+      'says what one unit of those is when the day pressed has no counterpart',
+  )
+}
+
+const ONE_UNIT_IN_DAYS = unitInDaysOf(LAYOUT.pxPerDay)
+
+/** The same fixture zoomed until the ruler rules DAYS (`S-85`: 26 以上で 日). */
+const AT_THE_DAY_TIER = (() => {
+  const settings = settingsOf({ ...(SETTINGS as unknown as Record<string, unknown>), zoomX: 8 })
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(SCHEDULE, settings, regions)
+  const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection())
+  const rowOfIt = (groupId: string) => {
+    const row = layout.rows.find((one) => one.groupId === groupId)
+    if (row === undefined) throw new Error(`no row ${groupId} in the zoomed layout`)
+    return row
+  }
+  return {
+    layout,
+    context: { layout, regions, geometry } as Partial<InputContext>,
+    xOfDay: (text: string): number =>
+      layout.originX + (serialOf(text) - ORIGIN_SERIAL) * layout.pxPerDay,
+    midYOfRow: (groupId: string): number => rowOfIt(groupId).y + rowOfIt(groupId).height / 2,
+  }
+})()
+
 describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
   const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
 
@@ -1827,27 +1897,154 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     expect(oneCommand(answer, 'createTask')['groupId']).toBe('g3')
   })
 
-  it('FR-001 (MUST): a click, not a drag, makes start and finish the same day', () => {
-    const at = xOfDay('2026-01-04')
+  // =========================================================================
+  // CR-338 -- WHAT A PRESS ON EMPTY GROUND MAKES.
+  //
+  // ⛔⛔ THE CLAUSE THESE CASES USED TO ASSERT IS WITHDRAWN. FR-001 says so
+  // itself (docs/spec/01-04-requirements.md:943): 「⛔⛔ **2026-09-02 まで
+  // 「ドラッグせずにクリックしたとき、および期間が 1 日に満たないドラッグのとき
+  // は、開始日と終了日が同じタスクを作ること（MUST）」と定めていた** —— **同じ
+  // 手つきが 2 つの意味を持ち、形が要る入力を自分で言っていなかった。**」
+  //
+  // ⭐⭐ WHAT STANDS IN ITS PLACE, in the same STATEMENT (利用者の裁定 2026-09-02):
+  //   「⭐⭐ **`_assets/tbl-settings.md` の 表 T-206 の `S-208` を超えて動いた
+  //    ときをドラッグとし、超えないときをクリックとすること（MUST）** —— **同じ
+  //    手の動きに同じ値を使い、行の掴みと別に持たない。**」
+  //   「⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、
+  //    引いた期間のタスクを作ること（MUST）。**」
+  //   「⭐⭐ **クリックしたときは、押した日を起点に、いま目盛が刻んでいる最も
+  //    細かい段の 1 単位ぶんのタスクを作ること（MUST）** …… **段は …… 表 T-205 の
+  //    `S-83` / `S-84` / `S-85` が px/日 で切り替える**（26 以上で 日、4.3〜26 で
+  //    週、1.4〜4.3 で 月、1.4 未満で 年）。⚠️ **上限は置かない** —— **見えている
+  //    マス目 1 つ分であり、画面と一致する。**」
+  //
+  // ⛔ WHAT IS NOT ASSERTED, AND IS A FINDING RATHER THAN A GUESS: WHAT ONE UNIT
+  // OF THE MONTH OR THE YEAR TIER IS. Neither FR-001 nor any row of docs/spec
+  // says what 「1 単位」 lands on when the pressed day has no counterpart a month
+  // on -- the 31st of a month, or the 29th of February. `unitInDaysOf` below
+  // therefore REFUSES those two tiers instead of choosing a rule, and every case
+  // here is driven at a zoom that rules days or weeks, where one unit is a whole
+  // number of days for every day of the calendar.
+  // =========================================================================
+
+  it('⭐ FR-001 (MUST): a click makes ONE unit of the tier the ruler is ruling, starting at the day pressed', () => {
+    // ⭐ THE FIXTURE'S TIER IS READ, NEVER ASSUMED: `unitInDaysOf` puts
+    // `LAYOUT.pxPerDay` against S-83 / S-84 / S-85, which is what FR-001 says
+    // decides the tier. ⛔ And the SPAN one unit makes is not spelled out here
+    // either -- FR-001 states the dragged span in its own sentence, so the click
+    // is held to the task a drag of exactly one unit makes, and no convention
+    // about which end `finish` names is invented in this file.
     const y = midYOfRow('g3')
-    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-      screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
-    })
-    const made = oneCommand(answer, 'createTask')
-    expect(made['start']).toBe(made['finish'])
+    const pressedDay = '2026-01-04'
+    const oneUnitOn = dayTextOf(serialOf(pressedDay) + ONE_UNIT_IN_DAYS)
+
+    const clicked = oneCommand(
+      gestureAction(
+        pointerOf('down', xOfDay(pressedDay), y),
+        pointerOf('up', xOfDay(pressedDay), y),
+        null,
+        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+      ),
+      'createTask',
+    )
+    const draggedOneUnit = oneCommand(
+      gestureAction(
+        pointerOf('down', xOfDay(pressedDay), y),
+        pointerOf('up', xOfDay(oneUnitOn), y),
+        null,
+        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+      ),
+      'createTask',
+    )
+
+    // 「押した日を起点に」.
+    expect(String(clicked['start']).slice(0, 10)).toBe(pressedDay)
+    // 「…… 最も細かい段の 1 単位ぶんのタスクを作ること（MUST）」.
+    expect(clicked['start']).toBe(draggedOneUnit['start'])
+    expect(clicked['finish']).toBe(draggedOneUnit['finish'])
+    // ⛔ AND THE WITHDRAWN CLAUSE IS NOT QUIETLY STILL TRUE. At this zoom the
+    // ruler is ruling weeks, so one unit is seven days and a click that still
+    // made 「開始日と終了日が同じタスク」 would be the old rule surviving its own
+    // withdrawal. ⚠️ The guard is written as the unit rather than as 7 so that a
+    // fixture moved into the day band fails loudly instead of asserting nothing.
+    expect(ONE_UNIT_IN_DAYS, 'this case is being driven at the day tier').toBeGreaterThan(1)
+    expect(clicked['finish']).not.toBe(clicked['start'])
   })
 
-  it('FR-001 (MUST): a drag shorter than one day makes start and finish the same day', () => {
-    const at = xOfDay('2026-01-04')
-    const y = midYOfRow('g3')
-    const answer = gestureAction(
-      pointerOf('down', at, y),
-      pointerOf('up', at + LAYOUT.pxPerDay / 3, y),
-      null,
-      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+  it('⭐ FR-001 (MUST): at a zoom that rules DAYS, that one unit is one day', () => {
+    // ⭐ THE SAME MUST, AT THE OTHER TIER THIS FILE CAN REACH WITHOUT A CALENDAR
+    // QUESTION: 「26 以上で 日」, so one unit is one day and the task the click
+    // makes is the one a drag across a single day column makes.
+    const flat = SETTINGS as unknown as Record<string, number>
+    expect(
+      AT_THE_DAY_TIER.layout.pxPerDay,
+      'the zoomed fixture no longer rules days',
+    ).toBeGreaterThanOrEqual(flat['rulerTierPxPerDayDay'] as number)
+
+    const y = AT_THE_DAY_TIER.midYOfRow('g3')
+    const at = AT_THE_DAY_TIER.xOfDay('2026-01-04')
+    const clicked = oneCommand(
+      gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+        ...AT_THE_DAY_TIER.context,
+        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+      }),
+      'createTask',
     )
-    const made = oneCommand(answer, 'createTask')
-    expect(made['start']).toBe(made['finish'])
+    const draggedOneDay = oneCommand(
+      gestureAction(
+        pointerOf('down', at, y),
+        pointerOf('up', AT_THE_DAY_TIER.xOfDay('2026-01-04') + 1, y),
+        null,
+        {
+          ...AT_THE_DAY_TIER.context,
+          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        },
+      ),
+      'createTask',
+    )
+
+    expect(String(clicked['start']).slice(0, 10)).toBe('2026-01-04')
+    expect(clicked['start']).toBe(draggedOneDay['start'])
+    expect(clicked['finish']).toBe(draggedOneDay['finish'])
+  })
+
+  it('⭐ FR-001 (MUST): S-208, and nothing else, is where a press stops being a click and becomes a drag', () => {
+    // 「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとする
+    // こと（MUST）」 -- 超えて is STRICTLY beyond, so a movement of exactly S-208
+    // is still a click. ⭐ THE CASE THAT USED TO STAND HERE MEASURED THE MOVEMENT
+    // IN DAYS (「a drag shorter than one day」); CR-338 withdrew that reading, and
+    // the boundary is a distance in px that knows nothing of the calendar.
+    const y = midYOfRow('g3')
+    const at = xOfDay('2026-01-04')
+    const madeBy = (dx: number): Readonly<Record<string, unknown>> =>
+      oneCommand(
+        gestureAction(pointerOf('down', at, y), pointerOf('up', at + dx, y), null, {
+          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        }),
+        'createTask',
+      )
+
+    const clicked = madeBy(0)
+    // ⭐ ON THE LINE IS STILL A CLICK, and this fixture makes the reading sharp:
+    // one day is S-208 px wide here, so a movement of exactly S-208 lands in the
+    // NEXT day's column and STILL makes the click's task, from the day pressed.
+    expect(LAYOUT.pxPerDay, 'the fixture no longer draws a day at S-208 px').toBe(
+      S_208_PRESS_OR_DRAG,
+    )
+    expect(madeBy(S_208_PRESS_OR_DRAG)['start']).toBe(clicked['start'])
+    expect(madeBy(S_208_PRESS_OR_DRAG)['finish']).toBe(clicked['finish'])
+
+    // ⛔ ONE PIXEL BEYOND IT IS A DRAG, and 「引いた期間のタスクを作ること（MUST）」
+    // gives the dragged span instead of the tier's unit.
+    const justBeyond = madeBy(S_208_PRESS_OR_DRAG + 1)
+    expect(String(justBeyond['start']).slice(0, 10)).toBe('2026-01-04')
+    expect(String(justBeyond['finish']).slice(0, 10)).toBe('2026-01-05')
+    expect(justBeyond['finish']).not.toBe(clicked['finish'])
+
+    const dragged = madeBy(2 * S_208_PRESS_OR_DRAG)
+    expect(String(dragged['start']).slice(0, 10)).toBe('2026-01-04')
+    expect(String(dragged['finish']).slice(0, 10)).toBe('2026-01-06')
+    expect(dragged['finish']).not.toBe(clicked['finish'])
   })
 
   it('FR-001 (MUST): a drag on no row at all names the row that has to be made', () => {

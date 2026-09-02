@@ -263,15 +263,14 @@ const whyKnown = (what) =>
  * path stays exactly as it was: an entrance that is not there is a failure.
  * Nothing here is allowed to soften it.
  *
- * ⚠️ EMPTY TODAY, AND MEASURED SO. The one defect still pressed out of the
- * shipped build cannot be asked of THIS board:
+ * ⚠️ EMPTY TODAY, AND MEASURED SO. All four of the defects the user pressed out
+ * of the shipped build on 2026-09-01 have since been closed:
  *
- *   D-147  the watermark entrance is inert -- this sample has no watermark
- *
- * ⭐ THE OTHER THREE CLOSED ON 2026-09-02 and are named here so nobody re-adds
- * them from an older note:
  *   D-06   a comment box could not be placed. One seam was missing: the armed
  *          comment-box entrance planned no command at all. Fixed and measured.
+ *   D-147  the watermark entrance was inert -- `ENTRY` had no key for IC-41, so
+ *          the press reached every member and changed nothing. FR-020 now
+ *          raises U-60 `Watermark Unlock` and the press writes the setting.
  *   D-181  never a defect. The row bands do not move; two LANES inside one band
  *          trade, which is table T-014's ST-2 ordering and ST-3's greedy pass
  *          doing what they say, and Ctrl+Y reproduces the trade with no pointer
@@ -279,10 +278,16 @@ const whyKnown = (what) =>
  *   D-182  a bar's dummy ignored where it was dropped. FR-043 now says the
  *          dropped day is the actual start, and the code writes it.
  *
- * ⭐ `previous-project-result/11-row-controls/row-controls-sample.html` is a
- * ROW CONTROLS sample: it has rows, and nothing else. All four are pinned in
- * `tests/system/open-defect-pins.test.ts` instead, against the running
- * application, where the questions can actually be asked.
+ * ⛔ SO THEY ARE NOT PINNED ANYWHERE ANY MORE. `PINNED` in
+ * `tests/system/open-defect-pins.test.ts` is the empty list, and its own last
+ * case is what says so out loud. ⚠️ This note used to claim the four were
+ * pinned there; it was true when it was written and rotted when they closed.
+ *
+ * ⭐ WHAT REMAINS TRUE IS THE REASON THIS BOARD EXCUSES NOTHING.
+ * `previous-project-result/11-row-controls/row-controls-sample.html` is a ROW
+ * CONTROLS sample: it has rows, and nothing else -- no task bars, no schedule
+ * canvas to place a box on, no watermark. An open defect about any of those is
+ * not a question this harness can ask, whoever is holding it.
  *
  * ⭐ THE MECHANISM IS STILL EXERCISED ON EVERY RUN -- `theMechanismWorks`
  * below drives it over a pretend entry -- so that an empty list cannot quietly
@@ -402,10 +407,13 @@ function sayTheDefects(when) {
   console.log(`⛔⛔ KNOWN DEFECTS -- moves excused because THE PRODUCT IS BROKEN (${when})`)
   if (KNOWN_DEFECTS.length === 0) {
     console.log('    none: no move on THIS board is excused by an open defect.')
-    console.log('    ⚠️  That is not a claim that the product has none. The four')
-    console.log('    pressed out of the shipped build on 2026-09-01 -- D-06, D-147,')
-    console.log('    D-181, D-182 -- cannot be asked of a ROW CONTROLS sample, and')
-    console.log('    are pinned in tests/system/open-defect-pins.test.ts instead.')
+    console.log('    ⚠️  That is not a claim that the product has none. It says only')
+    console.log('    that no OPEN row of docs/development-records/defects.md is a')
+    console.log('    question a ROW CONTROLS sample can be asked -- it has rows and')
+    console.log('    nothing else: no task bars, no canvas, no watermark.')
+    console.log('    ⭐ The four pressed out of the shipped build on 2026-09-01 --')
+    console.log('    D-06, D-147, D-181, D-182 -- are all closed, and PINNED in')
+    console.log('    tests/system/open-defect-pins.test.ts is now the empty list.')
   }
   for (const one of KNOWN_DEFECTS) {
     console.log(`    ⛔⛔ ${one.ledger}  ${one.move}  [${one.reading}]`)
@@ -424,6 +432,27 @@ async function run() {
 
   console.log('building the sample’s board in GRS through the UI ...')
   await buildTheBoard()
+
+  // ⛔⛔ THE PANEL IS WIDENED BEFORE ONE NAME IS READ, AND IT IS NOT A
+  // CONVENIENCE. FR-085 (MUST) cuts a name that does not fit the width the
+  // `Row Title Panel` leaves it, and since CR-336 the formula subtracts the
+  // grab strip and its gap as well, so at this window 「Phone Home Screen」 at
+  // depth 2 is drawn 「Phone Home Sc…」. ⭐ FR-085's own last clause says what
+  // to do about it -- 「全文を見たい者はパネルを広げる（`FR-052`）」 -- and
+  // HF-15 of table T-051 repeats it (利用者の裁定 2026-09-02). So the harness
+  // widens the panel by dragging U-24 `Panel Divider`, which is a reader's
+  // move and not a change to the product.
+  // ⛔ THE COMPARISON ITSELF IS NOT LOOSENED BY ONE CHARACTER. Both sides are
+  // still `depth:whole name`, compared whole and in order -- a cut name and a
+  // different name must never read alike, because telling them apart is the
+  // only thing this gate does.
+  if ((await app.showWholeNames()) !== true) {
+    console.log('⛔ THE ROW NAMES ARE STILL BEING CUT AFTER WIDENING THE PANEL '
+      + '-- nothing after this is comparable')
+    console.log('   still cut:', JSON.stringify(await app.cutRows()))
+    return 1
+  }
+
   const built = await app.rows()
   const seeded = await sample.rows()
   console.log('sample seed :', JSON.stringify(seeded))

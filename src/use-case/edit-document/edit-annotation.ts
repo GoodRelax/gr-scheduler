@@ -178,11 +178,24 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
   if (!hasGroup(document, range.bottomGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no row with id ${range.bottomGroupId} (RL-20)`))
   }
-  // ⛔ NOT DECIDED: whether the left edge may lie after the right one, and
-  // whether the top row may lie below the bottom one. IV-10 puts that rule on
-  // a `Task`'s `start` / `finish` and table T-220 carries no row for a
-  // highlight box's span, so neither refusing nor swapping them is decided.
-  // Nothing is done here rather than choosing one quietly.
+  // ⛔⛔ THE DIRECTION IS NOT REFUSED HERE, AND THAT IS NOW SETTLED (FR-019,
+  // MUST NOT, 利用者の裁定 2026-09-02): 「引いた向きは、離した時点で正規化する
+  // こと」 and 「拒んではならない —— ドラッグに向きは無く、人は右上から左下へも
+  // 引く」. AR-6's road normalises the four columns before CM-52 is ever asked
+  // for -- `commandFromArmed` in `input-command-translator.ts` is where that
+  // happens -- so a backwards range never arrives from the screen at all.
+  //
+  // ⛔ WHAT IS STILL MISSING, AND IT IS REPORTED RATHER THAN GUESSED: the same
+  // clause sends the OTHER roads elsewhere -- 「打ち込みや取り込みから来た値は本
+  // 段の対象ではない —— そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ
+  // 扱いで拒む」 -- and 表 T-220 carries no row for a highlight box's span. IV-10
+  // is stated for a `Task`'s `start` / `finish` alone, and that table is driven
+  // by `scheduleViolations` (PI-1) rather than by this member. So there is
+  // nothing to refuse AGAINST here without writing an invariant the table does
+  // not hold. ⚠️ Nor does any road into CM-52 / CM-54 exist today other than
+  // AR-6's: no importer and no field writes a highlight range.
+  // Searched: FR-019, table T-220 (05-07-design.md), table T-108 CM-52 / CM-54,
+  // `_assets/fig-erd-detail.md` AT-116..AT-122.
   return found
 }
 

@@ -33,19 +33,23 @@
 //               rectangle times the ratio IS the rectangle in the export
 //   table T-076  EP-1 .. EP-14, which part of the screen reaches the picture
 //   FR-025      the output size is never asked for (MUST NOT); the width is
-//               fixed at S-81's (MUST) and the height grows until the
-//               picture fits (MUST), as far as S-217 and no further (MUST);
-//               the PNG's pixels are that size times S-82; what will not fit
-//               UNDER S-217 goes from the bottom by whole `TaskGroup`s
-//               (MUST), never cut through one (MUST NOT), never by changing
-//               the ratio (MUST NOT); a picture shorter than S-81 leaves the
-//               rest blank (MUST) and no row is added to fill it (MUST NOT);
-//               a `TaskGroup` already cut at the TOP of the screen stays cut
-//               (MUST); what went undrawn is reported (MUST)
-//   CR-333      the reader's ruling of 2026-09-02 that grew the height. Its
-//               cases are gathered in the last describe of this file;
-//               everything before it runs with the ceiling lowered to S-81's
-//               own height, which is what `AT_CEILING` is for
+//               fixed at S-81's (MUST) and the height grows until the picture
+//               fits (MUST), as far as S-217 and no further (MUST); the PNG's
+//               pixels are that size times S-82; the ratio is never changed to
+//               make the picture fit (MUST NOT); a picture shorter than S-81
+//               leaves the rest blank (MUST) and no row is added to fill it
+//               (MUST NOT); and -- CR-337 -- a picture that will not fit UNDER
+//               S-217 even once grown is NOT WRITTEN AT ALL (MUST), no part of
+//               it may be drawn (MUST NOT), and a reason is told (MUST)
+//   CR-337      the reader's ruling of 2026-09-02: 「その場合は、1600x4096 の
+//               サイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
+//               ⛔ EVERY ASSERTION ABOUT WHICH `TaskGroup`s WERE KEPT AND WHICH
+//               WERE DROPPED WAS DELETED FROM THIS FILE, not translated: the
+//               rule they measured is withdrawn, and FR-025 now says in as many
+//               words 「書き出さないと決めた以上、落とす規則は無くなった」. The
+//               `AT_CEILING` fixture went with them -- it existed only to make
+//               the drop happen at S-81's height, and at the shipped ceiling
+//               (S-217) every scene in this file fits
 //   table T-024  IO-3 (SVG) and IO-4 (PNG) are two outputs of ONE operation
 //   table T-035  AG-8: a failed image comes back as a value
 //   FR-028      nothing is thrown across this boundary (MUST NOT)
@@ -66,6 +70,7 @@ import {
   exportPng,
   exportSvg,
   type ExportScene,
+  type ImageExport,
   type SvgExport,
   type RasterFault,
   type RasterFaultReason,
@@ -126,27 +131,34 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
 const SETTINGS = settingsOf()
 
 /**
- * The same settings with S-217's ceiling lowered to S-81's own height.
+ * The half of each answer that carries a picture.
  *
- * ⭐⭐ CR-333 MADE THIS FIXTURE NECESSARY, and it is what keeps every case
- * below measuring the rule it was written for. FR-025 now (MUST) fixes the
- * WIDTH at S-81's and grows the HEIGHT until the picture fits, dropping
- * `TaskGroup`s only where the growth would pass `exportCanvasHeightCap`
- * (S-217). The screen below is 1000 x 800 and the ratio is 1.6, so the picture
- * wants to be 1280 tall -- far under the shipped 4096 -- and nothing is ever
- * dropped from it.
- * ⛔ THE CEILING IS LOWERED RATHER THAN THE SCREEN MADE TALLER, because
- * lowering it changes ONE number and leaves every other expectation in this
- * file standing at the value the specification put it at: at a ceiling of 900
- * the picture may not grow at all, which is precisely the state FR-025
- * described before CR-333 and still describes at the ceiling.
- * ⭐ The growth itself is measured in `tests/unit/fr-025-height-grows-to-the-
- * ceiling.test.ts`, against the shipped S-217.
+ * ⭐⭐ CR-337 MADE THESE NECESSARY. FR-025 reads 「伸ばしても `S-217` に収まらな
+ * いときは、画像を書き出さないこと（MUST）。一部だけを描いてはならない（MUST
+ * NOT）」, so neither entry answers with a picture unconditionally any more: the
+ * answer is either a picture or a refusal. Every case that is ABOUT the picture
+ * unwraps through `fitOrThrow`, and the refusal itself is measured on its own,
+ * in the last two describes of this file.
  */
-const atCeiling = (part: Record<string, unknown> = {}): DocumentSettings =>
-  settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvas.height, ...part })
+type Picture = Extract<SvgExport, { readonly ok: true }>
+type PictureAndPng = Extract<ImageExport, { readonly ok: true }>
 
-const AT_CEILING = atCeiling()
+/**
+ * ⛔ NOT A SOFTENING OF THE RULE. Every scene this helper is used on is one the
+ * ceiling is nowhere near -- a screen 800 tall shrinks to 1280 against S-217's
+ * 4096 -- so a refusal here is a fixture that drifted, and it has to stop the
+ * case rather than be quietly asserted around.
+ */
+const fitOrThrow = <T extends { readonly ok: boolean }>(
+  answer: T,
+): Extract<T, { readonly ok: true }> => {
+  if (!answer.ok) {
+    throw new Error(
+      'FR-025 refused a picture this fixture is far under S-217 for -- the fixture, not the rule',
+    )
+  }
+  return answer as Extract<T, { readonly ok: true }>
+}
 
 // ---------------------------------------------------------------------------
 // The screen this component is handed. ⭐ Built here from FR-051's and
@@ -621,7 +633,7 @@ const scaledRect = (rect: ScreenRect, ratio: number): ScreenRect => ({
 
 /** One finished export, with the scene it was made from, ready to be read. */
 interface Assembled {
-  readonly result: SvgExport
+  readonly result: Picture
   readonly scene: ExportScene
   readonly ratio: number
   /** How many times the picture that ARRIVED appears, verbatim. */
@@ -630,7 +642,12 @@ interface Assembled {
   readonly own: readonly Drawn[]
   readonly rects: readonly Drawn[]
   readonly texts: readonly DrawnText[]
-  /** The `clipPath` FR-025's fit is expressed with, or `null` if there is none. */
+  /**
+   * A `clipPath` the picture is drawn under, or `null` if there is none.
+   * ⛔ NOTHING ASSERTS ITS SHAPE ANY MORE: it was FR-025's fit clip, and CR-337
+   * withdrew the fit. It is still parsed out so that a rectangle inside a
+   * `clipPath` is not counted among the rectangles the component drew.
+   */
   readonly clip: ScreenRect | null
   readonly root: Drawn
   /** The single scale factor the received picture is placed under. */
@@ -639,7 +656,7 @@ interface Assembled {
 
 const CLIP_BLOCK = /<clipPath((?:[^<>"]|"[^"]*")*)>([\s\S]*?)<\/clipPath>/
 
-const assembledOf = (result: SvgExport, scene: ExportScene): Assembled => {
+const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
   const parts = result.svg.split(scene.svg)
   const withoutPicture = parts.join('')
   const clipHit = CLIP_BLOCK.exec(withoutPicture)
@@ -673,17 +690,24 @@ const sceneOf = (
   svg: PICTURE,
   regions,
   screenView: view,
-  // ⚠️ `AT_CEILING` and not `SETTINGS`: see the note at that constant. Every
-  // case that overrides this member has to keep the lowered ceiling, which
-  // `atCeiling` is for.
-  settings: AT_CEILING,
+  // ⚠️ THE SHIPPED CEILING, since CR-337. There is no lowered-ceiling fixture
+  // any more: at S-217's own 4096 this bench's screen makes a picture 1280
+  // tall, which fits, and the scenes that do NOT fit are built on purpose in
+  // the last two describes.
+  settings: SETTINGS,
   ...part,
 })
 
 const exportedOf = async (scene: ExportScene): Promise<Assembled> => {
   const { rasterizer } = watchedRasterizer()
-  return assembledOf(await exportPng(rasterizer, scene), scene)
+  return assembledOf(fitOrThrow(await exportPng(rasterizer, scene)), scene)
 }
+
+/** `exportPng`'s answer, unwrapped to the half that carries a picture. */
+const pngOf = async (
+  rasterizer: Rasterizer,
+  scene: ExportScene,
+): Promise<PictureAndPng> => fitOrThrow(await exportPng(rasterizer, scene))
 
 /**
  * The same reading, taken off IO-3's own entry.
@@ -692,7 +716,8 @@ const exportedOf = async (scene: ExportScene): Promise<Assembled> => {
  * judges the SVG and the PNG of one state to be the same drawing -- so every
  * reading `exportedOf` supports has to hold of this one too.
  */
-const svgOnlyOf = (scene: ExportScene): Assembled => assembledOf(exportSvg(scene), scene)
+const svgOnlyOf = (scene: ExportScene): Assembled =>
+  assembledOf(fitOrThrow(exportSvg(scene)), scene)
 
 /**
  * A copy of a scene with every object in it frozen.
@@ -723,18 +748,29 @@ const saysAnyOf = (assembled: Assembled, words: readonly string[]): boolean =>
   words.some((word) => assembled.result.svg.includes(word))
 
 // ---------------------------------------------------------------------------
-// The rows, and where they fall against S-81's bottom edge.
+// The rows.
 //
 // ⭐ FR-025 measures the fit against the SCREEN: the shrunk picture is the
-// whole screen times the ratio, so it passes `exportCanvas`'s height exactly
-// where the screen passes `exportCanvas.height / ratio`. Every y below is
-// stated as a fraction of that limit so that no number here is a guess.
+// whole screen times the ratio, so the picture's height is the screen's height
+// times that ratio, floored at S-81's height and refused above S-217.
+// ⛔ THE `DRAWN_ROW_IDS` / `TALL_DROPPED` / `TALL_CUT_AT` SPLIT WAS DELETED HERE.
+// It named which of these six rows FR-025 used to drop off the bottom of a
+// 900-tall frame. CR-337 withdrew that rule outright -- 「書き出さないと決めた
+// 以上、落とす規則は無くなった」 -- so there is nothing left for the split to
+// mean, and every one of the six now reaches the picture.
 // ---------------------------------------------------------------------------
 
 const RATIO = SETTINGS.exportCanvas.width / SCREEN.width
-const FIT_LIMIT = SETTINGS.exportCanvas.height / RATIO
 
-/** Four rows well above the limit, then one that straddles it, then one below. */
+/**
+ * The height the picture of `SCREEN` grows to: the screen times the ratio,
+ * never below S-81's own height (「`S-81` の高さに満たないときは、余りを空白のま
+ * まとすること（MUST）」). ⛔ Derived, never typed: S-81 and the screen are the
+ * only two numbers it may be made of.
+ */
+const GROWN_HEIGHT = Math.max(SETTINGS.exportCanvas.height, SCREEN.height * RATIO)
+
+/** Six rows, spread down a screen 800 tall. Every one of them is drawn. */
 const TALL_ROWS: readonly RowTitle[] = [
   rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
   rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
@@ -743,10 +779,7 @@ const TALL_ROWS: readonly RowTitle[] = [
   rowOf('g5', 2, { x: 0, y: 500, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
   rowOf('g6', 2, { x: 0, y: 600, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
 ]
-const TALL_KEPT = ['g1', 'g2', 'g3', 'g4']
-const TALL_DROPPED = ['g5', 'g6']
-/** The top of the first dropped row -- where FR-025 (MUST NOT) puts the cut. */
-const TALL_CUT_AT = 500
+const DRAWN_ROW_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
 
 const TALL_SCENE = sceneOf(viewOf(TALL_ROWS))
 
@@ -755,17 +788,19 @@ const TALL_SCENE = sceneOf(viewOf(TALL_ROWS))
 // ---------------------------------------------------------------------------
 
 describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
-  it('sizes the output at S-81 and starts it at the screen\'s own origin', async () => {
+  it('sizes the output at S-81\'s width and starts it at the screen\'s own origin', async () => {
     const assembled = await exportedOf(TALL_SCENE)
-    // IO-3 of table T-024 names S-81 of table T-204 as the output's size.
+    // FR-025 (MUST): 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
+    // るところまで伸ばすこと（MUST）」 -- so the width is S-81's and the height
+    // is the grown one.
     expect(assembled.root.tag).toBe('svg')
     expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
-    expect(num(assembled.root.attrs, 'height')).toBe(SETTINGS.exportCanvas.height)
+    expect(num(assembled.root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
     // FR-080 (MUST NOT): no margin is added at the edge, because a margin
     // would take the ratio off S-81's width over the screen's width. The box
-    // starts at the origin and is exactly S-81, so nothing was inset.
+    // starts at the origin, so nothing was inset.
     expect(assembled.root.attrs['viewBox']).toBe(
-      `0 0 ${SETTINGS.exportCanvas.width} ${SETTINGS.exportCanvas.height}`,
+      `0 0 ${SETTINGS.exportCanvas.width} ${GROWN_HEIGHT}`,
     )
   })
 
@@ -810,7 +845,7 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     // ⭐ Rule 04, section 2: the acceptance test of a value that travels from
     // manuscript is "change one value and the test fails". Halving S-81's width
     // has to halve the ratio, and with it every rectangle drawn.
-    const narrow = atCeiling({
+    const narrow = settingsOf({
       exportCanvas: {
         width: SETTINGS.exportCanvas.width / 2,
         height: SETTINGS.exportCanvas.height,
@@ -885,7 +920,7 @@ const T_076_ROWS: readonly {
     expectation: 'draw',
     holds: (assembledSvg) =>
       hasRect(assembledSvg, assembledSvg.scene.regions.rowTitlePanel) &&
-      TALL_KEPT.every((id) => assembledSvg.texts.some((drawnText) => drawnText.content === `name of ${id}`)),
+      DRAWN_ROW_IDS.every((id) => assembledSvg.texts.some((drawnText) => drawnText.content === `name of ${id}`)),
   },
   {
     id: 'EP-4',
@@ -977,11 +1012,11 @@ const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const bandAndPanel = 2
   const expectedRects = bandAndPanel + view.frame.dividers.length
   const rows = [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles]
-  const keptWithLabel = rows.filter(
-    (row) => row.label !== null && !assembled.result.droppedGroupIds.includes(row.groupId),
-  )
+  // ⛔ NO `droppedGroupIds` TERM ANY MORE (CR-337): a picture that is written
+  // holds every row, and one that is not written is not read at all.
+  const withLabel = rows.filter((row) => row.label !== null)
   const expectedTexts =
-    keptWithLabel.length +
+    withLabel.length +
     (view.appHeaderItems.documentTitle !== null && view.appHeaderItems.documentTitle !== ''
       ? 1
       : 0)
@@ -1172,12 +1207,12 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     }
     const boxOf = (id: string): ScreenRect =>
       (TALL_ROWS.find((row) => row.groupId === id) as RowTitle).box
-    for (const id of TALL_KEPT) {
+    for (const id of DRAWN_ROW_IDS) {
       const band = scaledRect(boxOf(id), RATIO)
       expect(yOf(id), id).toBeGreaterThan(band.y)
       expect(yOf(id), id).toBeLessThanOrEqual(band.y + band.height)
     }
-    const drawnOrder = TALL_KEPT.map((id) => yOf(id))
+    const drawnOrder = DRAWN_ROW_IDS.map((id) => yOf(id))
     expect(drawnOrder, 'the names run down the panel in the rows\' order').toEqual(
       [...drawnOrder].sort((left, right) => left - right),
     )
@@ -1251,44 +1286,29 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
 })
 
 // ---------------------------------------------------------------------------
-// FR-025 -- what will not fit down the page
+// FR-025 -- the frame the picture is written into
+//
+// ⛔⛔ FOUR CASES WERE DELETED FROM THIS DESCRIBE, NOT REWRITTEN (CR-337,
+// 2026-09-02). They were 「drops the row that straddles S-81's bottom edge and
+// every row below it」, 「reports the dropped rows top-most first」, 「cuts at
+// the TOP of the first dropped row」 and 「leaves the fit clip open at the
+// top」. All four measured 「超えた分を下端側から `TaskGroup` 単位で落とす」,
+// which FR-025 no longer says -- 「書き出さないと決めた以上、落とす規則は無く
+// なった」. A test whose premise is withdrawn has nothing to become.
+// ⚠️ Two more went with them further down: 「keeps a row whose bottom lands
+// exactly on the edge, and drops the next」 and 「drops every row when the very
+// first one already straddles the edge」.
 // ---------------------------------------------------------------------------
 
-describe('FR-025 -- the fit, and what is dropped to get it', () => {
-  it('drops the row that straddles S-81\'s bottom edge and every row below it', async () => {
+describe('FR-025 -- the frame the picture is written into', () => {
+  it('writes every row of the scene, dropping none of them (CR-337)', async () => {
+    // ⭐ FR-025 (MUST NOT): 「一部だけを描いてはならない」. A written picture is
+    // a whole one, so every row of the scene is in it.
+    // GOES RED IF: any row is left out of a picture that was written at all.
     const assembled = await exportedOf(TALL_SCENE)
-    expect([...assembled.result.droppedGroupIds].sort()).toEqual([...TALL_DROPPED].sort())
-    for (const id of TALL_KEPT) {
+    for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
     }
-    for (const id of TALL_DROPPED) {
-      expect(assembled.texts.map((drawnText) => drawnText.content), id).not.toContain(`name of ${id}`)
-    }
-  })
-
-  it('reports the dropped rows top-most first', async () => {
-    const assembled = await exportedOf(TALL_SCENE)
-    expect(assembled.result.droppedGroupIds).toEqual(TALL_DROPPED)
-  })
-
-  it('cuts at the TOP of the first dropped row (MUST NOT: through a TaskGroup)', async () => {
-    // FR-025 (MUST NOT): a `TaskGroup` is never cut through the middle, so the
-    // cut lands on the top edge of the first row that will not fit.
-    const assembled = await exportedOf(TALL_SCENE)
-    expect(assembled.clip, 'one fit clip rectangle').not.toBeNull()
-    const clip = assembled.clip as ScreenRect
-    expect(clip.y + clip.height).toBeCloseTo(TALL_CUT_AT * RATIO, 1)
-  })
-
-  it('leaves the fit clip open at the top (MUST: a row already cut stays cut)', async () => {
-    // FR-025 (MUST): a `TaskGroup` already cut off at the TOP of the screen
-    // stays cut as the screen has it -- that cut is the screen's, not this
-    // rule's. So the fit clip has no upper edge of its own.
-    const assembled = await exportedOf(TALL_SCENE)
-    const clip = assembled.clip as ScreenRect
-    expect(clip.y).toBeLessThanOrEqual(0)
-    expect(clip.x).toBeLessThanOrEqual(0)
-    expect(clip.x + clip.width).toBeGreaterThanOrEqual(SETTINGS.exportCanvas.width)
   })
 
   it('never changes the ratio to make the picture fit (MUST NOT)', async () => {
@@ -1310,8 +1330,10 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
     )
     const bandWidth = (a: Assembled): number =>
       Math.max(...a.rects.map((drawn) => num(drawn.attrs, 'width')))
-    expect(tall.result.droppedGroupIds.length).toBeGreaterThan(0)
-    expect(short.result.droppedGroupIds).toEqual([])
+    // ⭐ The two screens are the same width and different heights, and FR-080
+    // takes the ratio off the WIDTH alone -- so the taller one may not be
+    // squeezed to make it fit.
+    expect(tall.result.heightPx).toBeGreaterThan(short.result.heightPx)
     expect(bandWidth(short)).toBeCloseTo(bandWidth(tall), 6)
   })
 
@@ -1329,7 +1351,7 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
     )
     const screenBottom = shortScreen.height * RATIO
     expect(screenBottom).toBeLessThan(SETTINGS.exportCanvas.height)
-    expect(assembled.result.droppedGroupIds).toEqual([])
+    expect(assembled.result.heightPx).toBe(SETTINGS.exportCanvas.height)
     for (const element of assembled.rects) {
       const rect = rectOf(element)
       expect(rect.y + rect.height, JSON.stringify(rect)).toBeLessThanOrEqual(
@@ -1337,32 +1359,6 @@ describe('FR-025 -- the fit, and what is dropped to get it', () => {
       )
     }
     expect(assembled.texts).toHaveLength(rows.length + 1)
-  })
-
-  it('keeps a row whose bottom lands exactly on the edge, and drops the next', async () => {
-    // ⭐ The cap. FR-025 drops the `TaskGroup` that STRADDLES S-81's bottom
-    // edge -- and a row whose bottom IS the edge does not straddle it.
-    const rows = [
-      rowOf('e1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: FIT_LIMIT - 100 }),
-      rowOf('e2', 1, { x: 0, y: FIT_LIMIT, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
-    ]
-    const assembled = await exportedOf(sceneOf(viewOf(rows)))
-    expect(assembled.result.droppedGroupIds).toEqual(['e2'])
-    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of e1')
-  })
-
-  it('drops every row when the very first one already straddles the edge', async () => {
-    const rows = [
-      rowOf('a1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 600 }),
-      rowOf('a2', 1, { x: 0, y: 700, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
-    ]
-    const assembled = await exportedOf(sceneOf(viewOf(rows)))
-    expect(assembled.result.droppedGroupIds).toEqual(['a1', 'a2'])
-    expect(assembled.texts.some((drawnText) => drawnText.content.startsWith('name of'))).toBe(false)
-    expect((assembled.clip as ScreenRect).y + (assembled.clip as ScreenRect).height).toBeCloseTo(
-      100 * RATIO,
-      1,
-    )
   })
 
   it('fixes the output size at S-81 and takes no size argument (MUST NOT: ask)', () => {
@@ -1381,32 +1377,32 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
   it('hands the rasterizer the very string it gives back as IO-3', async () => {
     // ⭐ A second assembly would be the way the two outputs come to differ.
     const { rasterizer, calls } = watchedRasterizer()
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     expect(calls).toHaveLength(1)
     expect(calls[0]?.svg).toBe(result.svg)
   })
 
   it('asks for S-81 times S-82 pixels (one case walks both values of S-82)', async () => {
     for (const scale of T_204_S82) {
-      const settings = atCeiling({ exportPngScale: scale })
+      const settings = settingsOf({ exportPngScale: scale })
       const { rasterizer, calls } = watchedRasterizer()
       const scene = sceneOf(viewOf(TALL_ROWS), { settings })
-      const result = await exportPng(rasterizer, scene)
+      const result = await pngOf(rasterizer, scene)
       expect(calls[0]?.sizePx, `S-82 = ${scale}`).toEqual({
         widthPx: SETTINGS.exportCanvas.width * scale,
-        heightPx: SETTINGS.exportCanvas.height * scale,
+        heightPx: GROWN_HEIGHT * scale,
       })
-      // ⚠️ The SVG itself stays `exportCanvas`-sized: S-82 multiplies the
+      // ⚠️ The SVG itself stays at the picture's own size: S-82 multiplies the
       // PIXELS, not the picture (RasterSizePx says so in as many words).
       const root = assembledOf(result, scene).root
       expect(num(root.attrs, 'width'), `S-82 = ${scale}`).toBe(SETTINGS.exportCanvas.width)
-      expect(num(root.attrs, 'height'), `S-82 = ${scale}`).toBe(SETTINGS.exportCanvas.height)
+      expect(num(root.attrs, 'height'), `S-82 = ${scale}`).toBeCloseTo(GROWN_HEIGHT, 6)
     }
   })
 
   it('gives back the bytes the seam answered with, untouched', async () => {
     const { rasterizer } = watchedRasterizer({ ok: true, pngBytes: PNG_BYTES })
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     expect(result.png).toEqual({ ok: true, pngBytes: PNG_BYTES })
   })
 
@@ -1426,14 +1422,14 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
     for (const { reason, nextStep } of T_037_REASONS) {
       const fault: RasterFault = { reason, what: `the item that failed: ${reason}` }
       const { rasterizer } = watchedRasterizer({ ok: false, fault })
-      const result = await exportPng(rasterizer, TALL_SCENE)
+      const result = await pngOf(rasterizer, TALL_SCENE)
       expect(result.png, `${reason} -- ${nextStep}`).toEqual({ ok: false, fault })
     }
   })
 
   it('turns a rejecting seam into a value, for every reason', async () => {
     for (const { why, reason } of EVERY_REASON) {
-      const result = await exportPng(rejectingRasterizer(reason), TALL_SCENE)
+      const result = await pngOf(rejectingRasterizer(reason), TALL_SCENE)
       expect(result.png.ok, why).toBe(false)
       if (result.png.ok) continue
       expect(result.png.fault.reason, why).toBe('rasterFailed')
@@ -1442,7 +1438,7 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
 
   it('turns a seam that throws before returning into a value too', async () => {
     for (const { why, reason } of EVERY_REASON) {
-      const result = await exportPng(throwingRasterizer(reason), TALL_SCENE)
+      const result = await pngOf(throwingRasterizer(reason), TALL_SCENE)
       expect(result.png.ok, why).toBe(false)
     }
   })
@@ -1454,19 +1450,19 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
     }
   })
 
-  it('still gives back IO-3\'s SVG and the dropped rows when the PNG fails', async () => {
-    // ⭐ Assembling the picture is arithmetic over values and cannot fail; only
-    // painting it needs a machine. That is also the next step NT-3a owes a
-    // person when the reason is `unsupported`.
+  it('still gives back IO-3\'s SVG when the PNG fails', async () => {
+    // ⭐ Assembling the picture is arithmetic over values and cannot fail once
+    // it fits; only painting it needs a machine. That is also the next step
+    // NT-3a owes a person when the reason is `unsupported`.
+    // ⛔ THE `droppedGroupIds` HALF OF THIS CASE WAS DELETED (CR-337).
     const { rasterizer } = watchedRasterizer({
       ok: false,
       fault: { reason: 'unsupported', what: 'no canvas in this host' },
     })
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     expect(result.png.ok).toBe(false)
     expect(result.svg).toContain('<svg')
     expect(result.svg).toContain(PICTURE)
-    expect(result.droppedGroupIds).toEqual(TALL_DROPPED)
   })
 })
 
@@ -1478,7 +1474,7 @@ describe('table T-037 -- what the notice is composed from', () => {
     // so what it owes the notice is the reason and the detail, both intact.
     const what = 'the 1600x900 canvas at scale 2 exceeds this machine'
     const { rasterizer } = watchedRasterizer({ ok: false, fault: { reason: 'tooLarge', what } })
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     expect(result.png.ok).toBe(false)
     if (result.png.ok) return
     expect(result.png.fault.what).toBe(what)
@@ -1489,7 +1485,7 @@ describe('table T-037 -- what the notice is composed from', () => {
     const answered: RasterFaultReason[] = []
     for (const { reason } of T_037_REASONS) {
       const { rasterizer } = watchedRasterizer({ ok: false, fault: { reason, what: 'detail' } })
-      const result = await exportPng(rasterizer, TALL_SCENE)
+      const result = await pngOf(rasterizer, TALL_SCENE)
       if (!result.png.ok) answered.push(result.png.fault.reason)
     }
     expect(answered).toEqual(T_037_REASONS.map((row) => row.reason))
@@ -1502,7 +1498,7 @@ describe('table T-037 -- what the notice is composed from', () => {
       ok: false,
       fault: { reason: 'rasterFailed', what: 'detail' },
     })
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     if (result.png.ok) return
     expect(Object.keys(result.png.fault).sort()).toEqual(['reason', 'what'])
     expect(Object.keys(result.png).sort()).toEqual(['fault', 'ok'])
@@ -1516,7 +1512,6 @@ describe('table T-037 -- what the notice is composed from', () => {
 describe('boundaries', () => {
   it('answers for a screen with no rows at all', async () => {
     const assembled = await exportedOf(sceneOf(viewOf([])))
-    expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel is still drawn').toBe(true)
@@ -1528,7 +1523,6 @@ describe('boundaries', () => {
         viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 })]),
       ),
     )
-    expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
@@ -1541,7 +1535,6 @@ describe('boundaries', () => {
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
-    expect(assembled.result.droppedGroupIds).toEqual([])
   })
 
   it('writes no title when the document has none (`documentTitle` is null)', async () => {
@@ -1555,7 +1548,7 @@ describe('boundaries', () => {
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(
-      TALL_KEPT.map((id) => `name of ${id}`),
+      DRAWN_ROW_IDS.map((id) => `name of ${id}`),
     )
     expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
   })
@@ -1569,9 +1562,8 @@ describe('boundaries', () => {
 
   it('answers for an empty picture string without losing anything else', async () => {
     const { rasterizer } = watchedRasterizer()
-    const result = await exportPng(rasterizer, sceneOf(viewOf(TALL_ROWS), { svg: '' }))
+    const result = await pngOf(rasterizer, sceneOf(viewOf(TALL_ROWS), { svg: '' }))
     expect(result.svg).toContain('<svg')
-    expect(result.droppedGroupIds).toEqual(TALL_DROPPED)
     expect(result.png).toEqual({ ok: true, pngBytes: PNG_BYTES })
   })
 
@@ -1675,51 +1667,47 @@ describe('IF-6 -- the seam goes one way, so there is no round trip to test', () 
 describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041)', () => {
   it('GIVEN one scene WHEN both entries run THEN the SVG route and the PNG route answer the same string (WY-2)', async () => {
     const { rasterizer } = watchedRasterizer()
-    const svgOnly = exportSvg(TALL_SCENE)
-    const both = await exportPng(rasterizer, TALL_SCENE)
+    const svgOnly = fitOrThrow(exportSvg(TALL_SCENE))
+    const both = await pngOf(rasterizer, TALL_SCENE)
     // ⛔ Not "equal after normalisation" but the SAME string: FR-080 admits
     // normalisation because two DRAWERS spell a picture differently, and there
     // is only one drawer here. A difference of any kind would be a second
     // assembly, which is the thing CR-196 closed.
     expect(svgOnly.svg).toBe(both.svg)
-    expect(svgOnly.droppedGroupIds).toEqual(both.droppedGroupIds)
+    expect(svgOnly.heightPx).toBe(both.heightPx)
   })
 
   it('GIVEN one scene WHEN exportPng runs THEN the rasterizer is painted from exportSvg own string (IO-4 from IO-3)', async () => {
     const { rasterizer, calls } = watchedRasterizer()
     await exportPng(rasterizer, TALL_SCENE)
     expect(calls).toHaveLength(1)
-    expect(calls[0]?.svg).toBe(exportSvg(TALL_SCENE).svg)
+    expect(calls[0]?.svg).toBe(fitOrThrow(exportSvg(TALL_SCENE)).svg)
   })
 
-  it('GIVEN a scene WHEN exportSvg runs THEN the output is exportCanvas wide and tall (IO-3 of table T-024, S-81)', () => {
+  it('GIVEN a scene WHEN exportSvg runs THEN the output is S-81 wide and as tall as the picture grew (IO-3 of table T-024, S-81)', () => {
     // Table T-024 IO-3: "SVG / write only / the screen's output / the output
-    // size is S-81 of table T-204."
+    // size is S-81 of table T-204." FR-025 (MUST) fixes only the WIDTH there.
     const assembled = svgOnlyOf(TALL_SCENE)
     expect(assembled.root.tag).toBe('svg')
     expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
-    expect(num(assembled.root.attrs, 'height')).toBe(SETTINGS.exportCanvas.height)
+    expect(num(assembled.root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
     expect(assembled.root.attrs['viewBox']).toBe(
-      `0 0 ${SETTINGS.exportCanvas.width} ${SETTINGS.exportCanvas.height}`,
+      `0 0 ${SETTINGS.exportCanvas.width} ${GROWN_HEIGHT}`,
     )
   })
 
-  it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it drops the same TaskGroups the PNG route drops (FR-025)', () => {
+  it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it writes every row, as the PNG route does (FR-025, CR-337)', () => {
     // ⭐ THE DEFECT CR-196 CLOSED, as a case: before the entry existed the SVG
-    // route went through neither table T-076's assembly nor FR-025's cut.
+    // route went through table T-076's assembly at all.
+    // ⛔ WHAT THIS CASE USED TO SAY WAS 「it drops the same TaskGroups the PNG
+    // route drops」, with the fit clip measured beside it. CR-337 withdrew the
+    // drop, so there is no longer a cut for the two routes to agree on -- what
+    // they agree on now is that both write the whole scene.
+    // GOES RED IF: the SVG route leaves a row out that the PNG route draws.
     const assembled = svgOnlyOf(TALL_SCENE)
-    expect(assembled.result.droppedGroupIds).toEqual(TALL_DROPPED)
-    for (const id of TALL_KEPT) {
+    for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
     }
-    for (const id of TALL_DROPPED) {
-      expect(assembled.texts.map((drawnText) => drawnText.content), id).not.toContain(`name of ${id}`)
-    }
-    expect(assembled.clip, 'the fit clip of FR-025').not.toBeNull()
-    expect((assembled.clip as ScreenRect).y + (assembled.clip as ScreenRect).height).toBeCloseTo(
-      TALL_CUT_AT * RATIO,
-      1,
-    )
   })
 
   it('GIVEN the fixed copy of table T-076 WHEN exportSvg assembles the picture THEN all fourteen rows hold', () => {
@@ -1738,14 +1726,14 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
     // picture. A pure entry may not read a clock, a random or a counter --
     // CS-1 of table T-066 (design :448) says in as many words that reading the
     // clock in the frame would break WY-2.
-    expect(exportSvg(TALL_SCENE).svg).toBe(exportSvg(TALL_SCENE).svg)
+    expect(fitOrThrow(exportSvg(TALL_SCENE)).svg).toBe(fitOrThrow(exportSvg(TALL_SCENE)).svg)
     expect(exportSvg(sceneOf(viewOf([])))).toEqual(exportSvg(sceneOf(viewOf([]))))
   })
 
   it('GIVEN a scene frozen through and through WHEN exportSvg runs THEN it writes into none of it (@purity pure)', () => {
     const frozen = deeplyFrozenCopy(TALL_SCENE)
     const before = JSON.stringify(frozen)
-    const answer = exportSvg(frozen)
+    const answer = fitOrThrow(exportSvg(frozen))
     expect(answer.svg).toContain('<svg')
     expect(JSON.stringify(frozen), 'the scene came back as it went in').toBe(before)
   })
@@ -1765,10 +1753,9 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
       ok: false,
       fault: { reason: 'unsupported', what: 'no canvas in this host' },
     })
-    const result = await exportPng(rasterizer, TALL_SCENE)
+    const result = await pngOf(rasterizer, TALL_SCENE)
     expect(result.png.ok).toBe(false)
-    expect(result.svg).toBe(exportSvg(TALL_SCENE).svg)
-    expect(result.droppedGroupIds).toEqual(exportSvg(TALL_SCENE).droppedGroupIds)
+    expect(result.svg).toBe(fitOrThrow(exportSvg(TALL_SCENE)).svg)
   })
 })
 
@@ -1787,22 +1774,20 @@ describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', (
 // ---------------------------------------------------------------------------
 
 describe('boundaries of the SVG route', () => {
-  it('GIVEN a screen with no rows at all WHEN exportSvg runs THEN it drops nothing and still draws EP-1 and EP-3', () => {
+  it('GIVEN a screen with no rows at all WHEN exportSvg runs THEN it still draws EP-1 and EP-3', () => {
     const assembled = svgOnlyOf(sceneOf(viewOf([])))
-    expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
     expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel').toBe(true)
   })
 
-  it('GIVEN exactly one row WHEN exportSvg runs THEN its name is written and nothing is dropped', () => {
+  it('GIVEN exactly one row WHEN exportSvg runs THEN its name is written', () => {
     const assembled = svgOnlyOf(
       sceneOf(
         viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 })]),
       ),
     )
-    expect(assembled.result.droppedGroupIds).toEqual([])
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
@@ -1815,66 +1800,50 @@ describe('boundaries of the SVG route', () => {
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
-    expect(assembled.result.droppedGroupIds).toEqual([])
   })
 
   it('GIVEN a document with no title WHEN exportSvg runs THEN nothing is written in its place (FR-035 speaks of the tab)', () => {
     const assembled = svgOnlyOf(
       sceneOf(viewOf(TALL_ROWS, { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null } })),
     )
-    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(TALL_KEPT.map((id) => `name of ${id}`))
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(DRAWN_ROW_IDS.map((id) => `name of ${id}`))
     expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
   })
 
-  it('GIVEN an empty picture string WHEN exportSvg runs THEN the S-81 frame and the cut still come back', () => {
-    const answer = exportSvg(sceneOf(viewOf(TALL_ROWS), { svg: '' }))
+  it('GIVEN an empty picture string WHEN exportSvg runs THEN the frame still comes back', () => {
+    const answer = fitOrThrow(exportSvg(sceneOf(viewOf(TALL_ROWS), { svg: '' })))
     expect(answer.svg).toContain('<svg')
-    expect(answer.droppedGroupIds).toEqual(TALL_DROPPED)
+    expect(answer.heightPx).toBeCloseTo(GROWN_HEIGHT, 6)
   })
 
-  it('GIVEN a row whose bottom lands exactly on S-81 edge WHEN exportSvg runs THEN it is kept and the next is dropped', () => {
-    // FR-025 (MUST) drops the `TaskGroup` that STRADDLES the lower edge; a row
-    // whose bottom IS the edge does not straddle it.
-    const rows = [
-      rowOf('e1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: FIT_LIMIT - 100 }),
-      rowOf('e2', 1, { x: 0, y: FIT_LIMIT, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
-    ]
-    const answer = exportSvg(sceneOf(viewOf(rows)))
-    expect(answer.droppedGroupIds).toEqual(['e2'])
-  })
-
-  it('GIVEN the very first row already straddles the edge WHEN exportSvg runs THEN every row is reported dropped', () => {
-    const rows = [
-      rowOf('a1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 600 }),
-      rowOf('a2', 1, { x: 0, y: 700, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
-    ]
-    const answer = exportSvg(sceneOf(viewOf(rows)))
-    expect(answer.droppedGroupIds).toEqual(['a1', 'a2'])
-  })
+  // ⛔⛔ TWO CASES WERE DELETED HERE (CR-337), NOT REWRITTEN. They were 「GIVEN a
+  // row whose bottom lands exactly on S-81 edge ... it is kept and the next is
+  // dropped」 and 「GIVEN the very first row already straddles the edge ... every
+  // row is reported dropped」. Both asked which `TaskGroup`s survived a cut at
+  // S-81's lower edge. FR-025 no longer cuts: 「一部だけを描いてはならない
+  // （MUST NOT）」, and the edge that decides anything now is S-217's, which the
+  // last describe of this file measures.
 })
 
 // ===========================================================================
-// FR-025 (CR-333) -- the picture grows downward to a ceiling
+// FR-025 -- the picture grows downward to a ceiling, and stops being written
+// past it (CR-333, then CR-337)
 // ===========================================================================
 //
-// ⭐⭐ THE READER'S RULING OF 2026-09-02, VERBATIM: 「倍率の問題は出ない。見えて
-// る範囲を 1600x900 に出力が原則だろ？収まらない場合は縦の 900 を延ばせ」 and
-// 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」.
+// ⭐⭐ THE READER'S RULINGS OF 2026-09-02, VERBATIM: 「倍率の問題は出ない。見えて
+// る範囲を 1600x900 に出力が原則だろ？収まらない場合は縦の 900 を延ばせ」,
+// 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」 and
+// 「その場合は、1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
 //
 // ⭐ FR-025 now reads 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
-// るところまで伸ばすこと（MUST）」, 「伸ばしてよいのはその `S-217` までとするこ
-// と（MUST）」 and 「`S-217` を超えるときに限り、超えた分を下端側から `TaskGroup`
-// 単位で落とすこと（MUST）」. S-81's height is the FLOOR -- 「縮めた絵の高さが
-// `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）」 -- and
-// S-217 (`exportCanvasHeightCap`) is the ceiling.
-//
-// ⚠️ EVERY CASE BELOW USES THE SHIPPED CEILING, unlike the rest of this file:
-// `AT_CEILING` exists so the older cases keep measuring the drop, and these are
-// the ones that measure the growth the drop now happens beyond.
+// るところまで伸ばすこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとするこ
+// と（MUST）」. S-81's height is the FLOOR -- 「縮めた絵の高さが `S-81` の高さに満た
+// ないときは、余りを空白のままとすること（MUST）」 -- and S-217
+// (`exportCanvasHeightCap`) is the ceiling.
 describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
 
-  /** The picture, read off IO-3's own entry, for a screen of this height. */
+  /** The answer, off IO-3's own entry, for a screen of this height. */
   const grownFor = (
     height: number,
     rows: readonly RowTitle[] = TALL_ROWS,
@@ -1889,9 +1858,8 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // The screen is 1000 wide, so the ratio is S-81's width over 1000. A screen
     // 800 tall is 800 x that ratio once shrunk, and the picture is that tall.
     // GOES RED IF: the height goes back to being read off `exportCanvas`.
-    const picture = grownFor(800)
-    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
-    expect(picture.heightPx).toBeCloseTo(800 * ratio, 6)
+    const picture = fitOrThrow(grownFor(800))
+    expect(picture.heightPx).toBeCloseTo(800 * RATIO, 6)
     expect(picture.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
     const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
     expect(num((root as Drawn).attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
@@ -1904,8 +1872,8 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   it('keeps the width at S-81\'s, whatever the height does (MUST)', () => {
     // FR-080 takes the ratio off S-81's WIDTH over the screen's width, and
     // FR-025 (MUST) fixes the width at S-81's -- so no height may move it.
-    for (const height of [200, 800, 3000]) {
-      const picture = grownFor(height)
+    for (const height of [200, 800, 2000]) {
+      const picture = fitOrThrow(grownFor(height))
       const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
       expect(num((root as Drawn).attrs, 'width'), `screen ${height} tall`).toBe(
         SETTINGS.exportCanvas.width,
@@ -1919,57 +1887,37 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // the drawing, so S-81's height is a floor.
     // ⚠️ Only the rows that fit ON a screen 400 tall: a row drawn below the
     // screen's own bottom edge is not a case about the picture's height.
-    const picture = grownFor(400, TALL_ROWS.slice(0, 3))
-    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
-    expect(400 * ratio).toBeLessThan(SETTINGS.exportCanvas.height)
+    const picture = fitOrThrow(grownFor(400, TALL_ROWS.slice(0, 3)))
+    expect(400 * RATIO).toBeLessThan(SETTINGS.exportCanvas.height)
     expect(picture.heightPx).toBe(SETTINGS.exportCanvas.height)
-    expect(picture.droppedGroupIds).toEqual([])
   })
 
-  it('drops nothing at all while the picture still fits under the ceiling (MUST)', () => {
-    // ⛔ THIS IS WHAT CR-333 CHANGED. The same rows on the same screen used to
-    // lose `g5` and `g6` off the bottom, because the frame stopped at S-81's
-    // height. Now the frame grows past them.
-    const picture = grownFor(800)
-    expect(picture.droppedGroupIds).toEqual([])
+  it('writes the whole scene while the picture still fits under the ceiling (MUST)', () => {
+    // ⛔ THIS IS WHAT CR-333 CHANGED AND CR-337 SETTLED. The same rows on the
+    // same screen used to lose `g5` and `g6` off the bottom, because the frame
+    // stopped at S-81's height. Now the frame grows past them, and no row is
+    // ever lost from a picture that is written at all.
+    // GOES RED IF: the frame stops growing at S-81's height again.
+    const answer = grownFor(800)
+    expect(answer.ok).toBe(true)
+    const picture = fitOrThrow(answer)
     expect(picture.heightPx).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
-  })
-
-  it('stops at S-217 and drops whole TaskGroups from the bottom beyond it (MUST NOT: cut one)', () => {
-    // A screen 3000 tall wants a picture 4800 tall, which is past the ceiling.
-    // The rows below are 500 apart, so the one that straddles the ceiling --
-    // `c6`, at the screen's own 2500 -- and everything under it goes.
-    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
-    const fitLimit = SETTINGS.exportCanvasHeightCap / ratio
-    const rows: readonly RowTitle[] = [0, 500, 1000, 1500, 2000, 2500].map((y, at) =>
-      rowOf(`c${at + 1}`, 1, { x: 0, y, width: SETTINGS.rowTitlePanelWidth, height: 500 }),
-    )
-    expect(3000 * ratio, 'the case is only about a screen that passes the ceiling').toBeGreaterThan(
-      SETTINGS.exportCanvasHeightCap,
-    )
-    const picture = grownFor(3000, rows)
-    expect(picture.heightPx).toBe(SETTINGS.exportCanvasHeightCap)
-    expect(picture.droppedGroupIds).toEqual(['c6'])
-    // ⛔ The cut lands on the row's own top edge, never inside it (MUST NOT).
-    const assembled = assembledOf(
-      picture,
-      sceneOf(viewOf(rows), { settings: SETTINGS }, regionsOf(screenOf(3000))),
-    )
-    expect(assembled.clip).not.toBeNull()
-    expect((assembled.clip as ScreenRect).height).toBeCloseTo(2500 * ratio, 6)
-    expect(2500).toBeLessThan(fitLimit)
+    for (const id of DRAWN_ROW_IDS) {
+      expect(picture.svg, id).toContain(`name of ${id}`)
+    }
   })
 
   it('follows S-217 when the manuscript moves it (rule 04, section 2)', () => {
     // ⭐ The acceptance test of a value that travels from the manuscript is
-    // 「change one value and the test fails」. Halving the ceiling has to halve
-    // where the picture stops.
-    const halved = settingsOf({
-      exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2,
-    })
-    expect(grownFor(3000, TALL_ROWS, halved).heightPx).toBe(
-      SETTINGS.exportCanvasHeightCap / 2,
-    )
+    // 「change one value and the test fails」. A screen that fits under the
+    // shipped ceiling has to stop fitting once the ceiling is halved.
+    // GOES RED IF: the ceiling is read from anywhere but the settings.
+    const halved = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2 })
+    const tallScreen = Math.ceil(SETTINGS.exportCanvasHeightCap / RATIO) - 1
+    expect(tallScreen * RATIO).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
+    expect(tallScreen * RATIO).toBeGreaterThan(SETTINGS.exportCanvasHeightCap / 2)
+    expect(grownFor(tallScreen, TALL_ROWS).ok, 'under the shipped ceiling').toBe(true)
+    expect(grownFor(tallScreen, TALL_ROWS, halved).ok, 'over the halved one').toBe(false)
   })
 
   it('asks the rasterizer for the GROWN height times S-82 (MUST)', async () => {
@@ -1978,12 +1926,208 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // onto a picture 1280 tall.
     const { rasterizer, calls } = watchedRasterizer()
     const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS }, regionsOf(screenOf(800)))
-    const result = await exportPng(rasterizer, scene)
+    const result = await pngOf(rasterizer, scene)
     expect(calls).toHaveLength(1)
     expect(calls[0]?.sizePx).toEqual({
       widthPx: SETTINGS.exportCanvas.width * SETTINGS.exportPngScale,
       heightPx: result.heightPx * SETTINGS.exportPngScale,
     })
     expect(result.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
+  })
+})
+
+// ===========================================================================
+// FR-025 (CR-337) -- a picture that does not fit is not written at all
+// ===========================================================================
+//
+// ⭐⭐ THE RULE, VERBATIM (`docs/spec/01-04-requirements.md`, FR-025):
+// 「伸ばしても `S-217` に収まらないときは、画像を書き出さないこと（MUST）。
+// 一部だけを描いてはならない（MUST NOT）」 and 「理由を告げること（MUST）。
+// 理由は 表 T-233 の `RS-43` とすること（MUST）」, scoped by 「止めるのは 表 T-024
+// の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`（クリップボード）である —— `IO-1` /
+// `IO-2` / `IO-7` は絵ではないので、高さの天井に当たらない」.
+//
+// ⚠️ WHAT THIS UNIT CAN AND CANNOT SAY ABOUT `RS-43`. Table T-233 is a table of
+// REASONS A TELLING CARRIES, and the telling is composed where the display
+// language is known (FR-038) -- not here. So what these cases hold this unit to
+// is the half it owns: it refuses, it hands back no picture at all, and it
+// carries ONE reason for every scene that is too tall, so that the row can be
+// chosen from it downstream. ⛔ The row id `RS-43` itself is asserted where the
+// notice is worded, in `tests/unit/uf-47-48-choosers.test.ts`.
+describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () => {
+  const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
+
+  const answerFor = (height: number, settings: DocumentSettings = SETTINGS): ExportScene =>
+    sceneOf(viewOf(TALL_ROWS), { settings }, regionsOf(screenOf(height), settings))
+
+  /**
+   * The screen whose shrunk picture is EXACTLY S-217 tall, and the first one
+   * past it. ⛔ Both are derived from S-81's width and S-217, never typed: the
+   * ratio is S-81's width over the screen's width (FR-080), so the picture
+   * reaches the ceiling where the screen reaches `S-217 / ratio`.
+   */
+  const SCREEN_AT_CEILING = SETTINGS.exportCanvasHeightCap / RATIO
+  const SCREEN_OVER_CEILING = SCREEN_AT_CEILING + 1
+
+  it('refuses IO-3 and writes nothing when the grown picture passes S-217 (MUST NOT: draw part of it)', () => {
+    // GOES RED IF: `exportSvg` answers with a picture -- whole or cut -- for a
+    // scene whose growth passes the ceiling.
+    expect(SCREEN_OVER_CEILING * RATIO, 'the fixture is past the ceiling').toBeGreaterThan(
+      SETTINGS.exportCanvasHeightCap,
+    )
+    const answer = exportSvg(answerFor(SCREEN_OVER_CEILING))
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
+    // 「画像を書き出さないこと（MUST）」: there is no picture on the answer at
+    // all, not an empty one and not a cut one.
+    expect(Object.keys(answer).includes('svg'), 'no picture came back').toBe(false)
+    expect(Object.keys(answer).includes('heightPx'), 'no size came back').toBe(false)
+  })
+
+  it('refuses IO-4 too, and never paints the seam (MUST NOT: draw part of it)', async () => {
+    // ⛔ IO-4 is made FROM IO-3 (WY-2 of table T-041), so a refused SVG can
+    // leave no PNG behind. Painting the seam at all would mean bytes existed.
+    // GOES RED IF: the rasterizer is called for a scene that is refused.
+    const { rasterizer, calls } = watchedRasterizer()
+    const answer = await exportPng(rasterizer, answerFor(SCREEN_OVER_CEILING))
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
+    expect(Object.keys(answer).includes('png'), 'no bytes came back').toBe(false)
+    expect(Object.keys(answer).includes('svg'), 'no picture came back').toBe(false)
+    expect(calls, 'the seam was never asked to paint').toHaveLength(0)
+  })
+
+  it('tells a reason, and the same one for every scene that is too tall (MUST: table T-233 RS-43)', () => {
+    // FR-025 (MUST): 「理由を告げること（MUST）。理由は 表 T-233 の `RS-43`
+    // とすること（MUST）」. Table T-233 holds ONE row for this, so this unit
+    // may hand its caller only one classification for it, whatever the shape of
+    // the scene that overflowed.
+    // GOES RED IF: a refusal comes back with no reason on it, or two too-tall
+    // scenes are classified apart -- either would leave the caller unable to
+    // choose RS-43 and only RS-43.
+    const refusals = [SCREEN_OVER_CEILING, SCREEN_OVER_CEILING * 2, SCREEN_OVER_CEILING * 10].map(
+      (height) => exportSvg(answerFor(height)),
+    )
+    const reasons = new Set<string>()
+    for (const answer of refusals) {
+      expect(answer.ok, 'every one of these screens passes the ceiling').toBe(false)
+      if (answer.ok) continue
+      expect(typeof answer.fault.reason).toBe('string')
+      expect(answer.fault.reason.length).toBeGreaterThan(0)
+      reasons.add(answer.fault.reason)
+    }
+    expect(reasons.size, 'one reason, so one row of table T-233').toBe(1)
+  })
+
+  it('answers a picture, not a refusal, while the growth stays inside S-217 (MUST)', () => {
+    // The other side of the same edge. FR-025 (MUST): 「高さは、絵が収まるとこ
+    // ろまで伸ばすこと」 -- so a scene that fits is written in full.
+    // GOES RED IF: the refusal reaches scenes that fit.
+    const answer = exportSvg(answerFor(SCREEN_AT_CEILING - 1))
+    expect(answer.ok).toBe(true)
+    if (!answer.ok) return
+    expect(answer.heightPx).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
+    for (const id of DRAWN_ROW_IDS) {
+      expect(answer.svg, id).toContain(`name of ${id}`)
+    }
+  })
+
+  it('writes the picture whose grown height is EXACTLY S-217 (MUST: 伸ばしてよいのはその S-217 まで)', () => {
+    // ⭐ THE EDGE ITSELF. FR-025 states the ceiling twice and inclusively both
+    // times: 「伸ばしてよいのはその `S-217` までとすること（MUST）」 --
+    // 「まで」 includes its bound -- and the refusal is worded 「伸ばしても `S-217`
+    // に収まらないとき」, and a picture of exactly S-217 does fit in S-217.
+    // ⚠️ The specification states no comparison operator anywhere, so this case
+    // rests on those two words. If a reader means the edge to be refused, this
+    // is the case to overturn.
+    // GOES RED IF: the ceiling is compared with `>=` instead of `>`.
+    expect(SCREEN_AT_CEILING * RATIO).toBe(SETTINGS.exportCanvasHeightCap)
+    const answer = exportSvg(answerFor(SCREEN_AT_CEILING))
+    expect(answer.ok).toBe(true)
+    if (!answer.ok) return
+    expect(answer.heightPx).toBe(SETTINGS.exportCanvasHeightCap)
+  })
+
+  it('refuses on the SAME scene through both entries (WY-2 of table T-041)', async () => {
+    // ⛔ IO-3 and IO-4 are two outputs of ONE assembly, so one of them may not
+    // refuse while the other writes.
+    // GOES RED IF: either entry keeps its own ceiling.
+    const { rasterizer } = watchedRasterizer()
+    for (const height of [SCREEN_AT_CEILING, SCREEN_OVER_CEILING]) {
+      const scene = answerFor(height)
+      const bySvg = exportSvg(scene)
+      const byPng = await exportPng(rasterizer, scene)
+      expect(byPng.ok, `screen ${height} tall`).toBe(bySvg.ok)
+    }
+  })
+
+  it('follows the ceiling the settings hold, not a number of its own (rule 03)', () => {
+    // ⭐ Rule 04, section 2: a value that travels from the manuscript is proved
+    // by moving it. A screen that is written at the shipped S-217 has to be
+    // refused once S-217 is halved, and written once it is doubled.
+    // ⛔ `exportCanvasHeightCap` and `exportCanvas` are read from
+    // SETTINGS_DEFAULTS, which `npm run gen` writes out of the manuscript --
+    // no number in this file is typed from the table.
+    // GOES RED IF: the ceiling is a literal in the unit.
+    const scene = (settings: DocumentSettings): ExportScene =>
+      sceneOf(
+        viewOf(TALL_ROWS),
+        { settings },
+        regionsOf(screenOf(SCREEN_AT_CEILING), settings),
+      )
+    const halved = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2 })
+    const doubled = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap * 2 })
+    expect(exportSvg(scene(halved)).ok, 'halved ceiling').toBe(false)
+    expect(exportSvg(scene(doubled)).ok, 'doubled ceiling').toBe(true)
+  })
+})
+
+// ===========================================================================
+// FR-025 (CR-337) -- how far the refusal reaches, by table T-024
+// ===========================================================================
+
+/**
+ * A fixed copy of the rows of table T-024 that FR-025 names, with the column
+ * the requirement adds to them: 「止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`
+ * （PNG）・`IO-6`（クリップボード）である —— `IO-1` / `IO-2` / `IO-7` は絵で
+ * はないので、高さの天井に当たらない」.
+ */
+const T_024_CEILING_SCOPE = [
+  { id: 'IO-1', form: 'MSPDI XML', isPicture: false },
+  { id: 'IO-2', form: 'GRS JSON', isPicture: false },
+  { id: 'IO-3', form: 'SVG', isPicture: true },
+  { id: 'IO-4', form: 'PNG', isPicture: true },
+  { id: 'IO-6', form: 'clipboard', isPicture: true },
+  { id: 'IO-7', form: 'single .html', isPicture: false },
+] as const
+
+describe('table T-024 -- which routes the height ceiling reaches', () => {
+  it('names three picture rows and three that are not pictures (one case walks the copy)', () => {
+    // GOES RED IF: the copy stops matching FR-025's own list of three.
+    expect(T_024_CEILING_SCOPE.filter((row) => row.isPicture).map((row) => row.id)).toEqual([
+      'IO-3',
+      'IO-4',
+      'IO-6',
+    ])
+    expect(T_024_CEILING_SCOPE.filter((row) => !row.isPicture).map((row) => row.id)).toEqual([
+      'IO-1',
+      'IO-2',
+      'IO-7',
+    ])
+  })
+
+  it('makes the picture for all three picture rows here, and no non-picture route at all', () => {
+    // ⭐ THIS IS THE WHOLE OF THE SCOPE THIS UNIT CAN BE HELD TO. `exportSvg`
+    // is IO-3's own output and the string IO-6 sends (FR-025: 「`IO-6` の入口は
+    // 表 T-109 の `IC-3`」, and the picture is the same one, FR-080);
+    // `exportPng` is IO-4. ⛔ IO-1, IO-2 and IO-7 have no entry on this
+    // component -- table T-064 gives PI-21 two names and these are they -- so
+    // there is nothing here for the ceiling to reach them through, and nothing
+    // here that could stop them.
+    // ⚠️ THAT IO-1 / IO-2 / IO-7 STILL WRITE FOR A TOO-TALL SCENE IS NOT
+    // MEASURABLE IN THIS FILE. It is measurable where those three are pressed,
+    // which is `tests/unit/uf-47-48-choosers.test.ts`.
+    // GOES RED IF: a third runtime name appears on this component.
+    expect(Object.keys(imageExporter).sort()).toEqual(['exportPng', 'exportSvg'])
   })
 })

@@ -45,13 +45,15 @@
 //           moved with the tier would drag the rows with it -- the cycle
 //           FR-017 names.
 //
-// ⛔ NOT ASSERTED -- HOW A TIER WITH FEWER THAN THREE 段 SPENDS THE HEIGHT.
-// FR-017 says only that the arrangement inside changes; `S-2`'s remark gives
-// three 段 for tier 4 alone. Nothing states whether tier 1 (year by itself)
-// draws one tall 段, one short 段 with the rest left empty, or three. A case
-// demanding any of those would be this file inventing the rule, so the last
-// case below asserts only what both sources do state: never more than three,
-// and never more 段 at a coarser tier than at a finer one.
+// ⭐ HOW A TIER WITH FEWER THAN THREE 段 SPENDS THE HEIGHT IS ASSERTED NOW, and
+// this note used to say it was not. FR-017 (MUST, 決めた 2026-08-27) settled it
+// -- 「段が 3 つに満たない段階では、帯の高さを段の数で等分すること（MUST）」 with
+// ⛔「余りをどこかへ寄せてはならない（MUST NOT）」-- and the last describe of this
+// file is that rule. ⚠️ It was written against defect D-92, which is the row
+// that asked for the ruling in the first place.
+//   `S-179`（`rulerLabelBottomPad`）is what makes it readable off the picture:
+// with `S-136` it pins a baseline's offset inside its own 段, so two baselines
+// stand exactly one 段 apart whatever the 段 is tall.
 //
 // ⚠️ THE EXACT TIE IS NOT ASSERTED. FR-017's comparison is "greater than or
 // equal", so a px/day landing exactly on a threshold belongs to the finer tier.
@@ -87,6 +89,15 @@ const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
 
 /** `S-136`（`rulerLabelPad`）-- the pad `S-2` counts three of. */
 const RULER_LABEL_PAD = SETTINGS_DEFAULTS['rulerLabelPad'] as number
+
+/**
+ * `S-179`（`rulerLabelBottomPad`）——「目盛ラベルの下側の余白（縦）」, with ⛔
+ *「帯の高さ（`S-2`）はこれを含まない —— 段の高さは `rulerFont` と `rulerLabelPad`
+ * のままで、この余白は文字の箱の中から取る」. Read beside `S-136`, which is the
+ * pad ABOVE the label, it pins where a baseline sits INSIDE its 段 -- and that
+ * offset is what lets the case below read a 段's height off two baselines.
+ */
+const RULER_LABEL_BOTTOM_PAD = SETTINGS_DEFAULTS['rulerLabelBottomPad'] as number
 
 /** `S-1`（`pxPerDayAt1x`）-- FR-017: one day is this multiplied by `zoomX`. */
 const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
@@ -602,11 +613,13 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
     // it was. FR-017 (MUST, 利用者の裁定 2026-08-27) now states what each 段
     // prints and folds 年 ＋ 月 into one of them wherever both are shown, which
     // fixes a count for every tier and not only for the fourth.
-    // ⛔ IT IS STILL NOT ASSERTED HERE. This file's axis is the text size, and
-    // the count does not move with it; the counts belong to the band's own file
-    // (`uf-32-ruler-band.test.ts`), which asserts them at one text size. What
-    // this case keeps is the relation between tiers, which is FR-017's
-    // monotonicity and is nobody else's.
+    // ⚠️ THE COUNT PER TIER IS STILL NOT ASSERTED HERE. This file's axis is the
+    // text size, and the count does not move with it; the counts belong to the
+    // band's own file (`uf-32-ruler-band.test.ts`), which asserts them at one
+    // text size. What this case keeps is the relation between tiers, which is
+    // FR-017's monotonicity and is nobody else's.
+    // ⭐ WHAT THE BAND DOES WITH THE HEIGHT once a tier stands in fewer than
+    // three 段 IS asserted, in the last describe of this file (D-92).
     for (const scale of FONT_SCALES) {
       let previous = 0
       for (const sample of TIER_SAMPLE) {
@@ -618,6 +631,117 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
           previous,
         )
         previous = segments
+      }
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// D-92 -- how a tier standing in FEWER THAN THREE 段 spends the band's height.
+//
+// ⭐ THE RULE EXISTS NOW, and it is FR-017's own (MUST, 決めた 2026-08-27):
+//   「⭐ **段が 3 つに満たない段階では、帯の高さを段の数で等分すること（MUST）**
+//     —— **`S-2` は段階 4 の 3 段ぶんで帯の高さを決めており、段階 1 と 2 は 1 段、
+//     段階 3 は 2 段で立つ。**⛔ **余りをどこかへ寄せてはならない（MUST NOT）**
+//     —— 寄せ先を決めると、その数がどこにも根拠を持たない。⭐ **等分は数を 1 つも
+//     発明しない。**」
+//
+// ⭐ HOW A 段's HEIGHT IS READ OFF THE PICTURE. Nothing draws a 段's box, so the
+// height is read from the baselines: `S-136`（the pad ABOVE a label）and `S-179`
+// （「目盛ラベルの下側の余白（縦）」, taken 「文字の箱の中から」）put a baseline
+// `rulerLabelPad` + `rulerFont` - `rulerLabelBottomPad` below the top edge of
+// ITS OWN 段, and that offset names no 段 height -- so two baselines are exactly
+// one 段 apart, whatever the 段 is tall.
+//
+// ⛔ WHAT DISCRIMINATES, AND WHAT CANNOT. 段階 3 stands in two 段: dividing the
+// band equally puts its second baseline `S-2` ÷ 2 below its first, where a band
+// that kept 段階 4's 段 height and left the remainder somewhere would put it
+// `S-2` ÷ 3 below. ⚠️ 段階 1 and 2 stand in ONE 段, and one 段 opens on the
+// band's top edge under every arrangement -- so those two carry the case
+// without being able to fail it, and the premise below says so out loud rather
+// than letting the sweep look wider than it is.
+// ---------------------------------------------------------------------------
+
+/** The offset `S-136` and `S-179` pin between them, inside whatever 段 a label sits in. */
+const baselineIntoIts段 = (rulerFont: number): number =>
+  RULER_LABEL_PAD + rulerFont - RULER_LABEL_BOTTOM_PAD
+
+describe('FR-017 (MUST) -- a tier standing in fewer than three 段 divides the band equally', () => {
+  it('has a tier that stands in two 段, or the rule below is asked of nothing', () => {
+    // ⛔ WITHOUT THIS THE CASE BELOW COULD PASS ON ONE-段 TIERS ALONE, which
+    // cannot tell an equal division from any other (see the note above).
+    // FR-017:「段階 1 と 2 は 1 段、段階 3 は 2 段で立つ」.
+    for (const scale of FONT_SCALES) {
+      const counts = TIER_SAMPLE.map(
+        (sample) =>
+          baselinesOf(
+            drawn(settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)),
+            bandOf(settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)),
+          ).length,
+      )
+      expect(
+        counts.filter((count) => count > 1 && count < MOST_SEGMENTS).length,
+        `${scale.name}: one tier stands in two 段, counts were ${counts.join(' / ')}`,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  it('⛔ MUST: divides the band by the number of 段 the tier stands in', () => {
+    // FR-017:「段が 3 つに満たない段階では、帯の高さを段の数で等分すること
+    // （MUST）」. ⭐ The divisor is READ FROM THE PICTURE -- how many 段 the tier
+    // stands in -- rather than named per tier here, so this case states only the
+    // division and leaves the counts to `uf-32-ruler-band.test.ts`, which owns
+    // them.
+    for (const scale of FONT_SCALES) {
+      for (const sample of TIER_SAMPLE) {
+        const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
+        const band = bandOf(settings)
+        const where = `${scale.name} / ${sample.name}`
+        const baselines = baselinesOf(drawn(settings), band)
+        expect(baselines.length, `${where}: the band carries labels`).toBeGreaterThan(0)
+        const 段Height = band.height / baselines.length
+        for (let at = 0; at < baselines.length; at += 1) {
+          expect(
+            (baselines[at] as number) - band.y,
+            `${where}: 段 ${at + 1} opens ${at} equal 段 below the band's top edge`,
+          ).toBeCloseTo(at * 段Height + baselineIntoIts段(scale.font), 2)
+        }
+      }
+    }
+  })
+
+  it("⛔ MUST NOT: pushes no remainder to the band's head or its foot", () => {
+    // FR-017:「⛔ **余りをどこかへ寄せてはならない（MUST NOT）**」. Equal division
+    // leaves NO remainder, so the two arrangements the rule refuses are the two
+    // that keep 段階 4's 段 height (`S-2` ÷ 3) and spend what is left at one end:
+    // top-aligned, where the first baseline is right but the spacing is `S-2` ÷ 3
+    // rather than `S-2` ÷ N; and bottom-aligned, where the last 段 closes on the
+    // band's foot. ⭐ Both are refused by measuring the SPACING, which is a 段's
+    // height however the 段 are placed.
+    const spent = MOST_SEGMENTS
+    for (const scale of FONT_SCALES) {
+      for (const sample of TIER_SAMPLE) {
+        const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
+        const band = bandOf(settings)
+        const where = `${scale.name} / ${sample.name}`
+        const baselines = baselinesOf(drawn(settings), band)
+        if (baselines.length < 2) continue
+        const equal = band.height / baselines.length
+        for (let at = 1; at < baselines.length; at += 1) {
+          expect(
+            (baselines[at] as number) - (baselines[at - 1] as number),
+            `${where}: 段 ${at + 1} is one EQUAL 段 below 段 ${at}`,
+          ).toBeCloseTo(equal, 2)
+        }
+        if (baselines.length < spent) {
+          // ⭐ The arrangement the MUST NOT names, stated as the number it would
+          // have produced. ⚠️ Asserted only where the two differ -- at 段階 4
+          // they are the same number and the claim would be empty.
+          expect(
+            (baselines[1] as number) - (baselines[0] as number),
+            `${where}: not 段階 4's 段 height with the rest left over`,
+          ).not.toBeCloseTo(band.height / spent, 2)
+        }
       }
     }
   })

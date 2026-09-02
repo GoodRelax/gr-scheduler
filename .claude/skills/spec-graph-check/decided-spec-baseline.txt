@@ -1,4 +1,4 @@
-89
+82
 # ⛔ Rows at or past `実装待ち` that name no place in the specification.
 # (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
 # see the note at the foot of this file.)

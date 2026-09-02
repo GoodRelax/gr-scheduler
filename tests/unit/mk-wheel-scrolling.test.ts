@@ -284,6 +284,7 @@ function frameOf(settings: DocumentSettings = SETTINGS): InputContext {
     today: TODAY,
     newGroupId: 'row-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
+    newHighlightBoxId: 'highlight-box-minted-outside',
   }
 }
 

@@ -48,7 +48,9 @@ NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
+NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
+NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（`S-90` 〜 `S-93` / `S-137`）

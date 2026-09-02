@@ -481,6 +481,16 @@ export interface InputContext {
    */
   readonly newCommentBoxId: string
   /**
+   * The identifier to give the `HighlightBox` that AR-6 of table T-023b places.
+   *
+   * ⛔ Minted outside for the same reason `newCommentBoxId` is: AT-116 is a
+   * UUID, so naming one is not a pure act, and `createHighlightBox` (CM-52)
+   * declares its `id` as a value it is handed rather than one it makes.
+   * ⛔ NOT OPTIONAL, and for the reason the line above states: a placement that
+   * reaches the document with no identifier reaches it not at all.
+   */
+  readonly newHighlightBoxId: string
+  /**
    * S-99h of table T-206 -- 「プロパティパネルを出しているか」 -- or `undefined`
    * where the caller carried no answer.
    *
@@ -1622,6 +1632,87 @@ function dayFromSerial(serial: number): CalendarDay {
 /** @purity pure */
 function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
+}
+
+/** How many days a calendar month holds. @purity pure */
+function daysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
+}
+
+/**
+ * The same day of the month, some months on.
+ *
+ * ⚠️ THE CLAMP HAS NO ROW AND IS REPORTED. A month later than the 31st is a day
+ * no calendar holds, and neither FR-001 nor table T-205 says which way it goes.
+ * The last day of the target month is taken, so that 「1 単位」 never overshoots
+ * INTO a second month; rolling over (which `Date.UTC` would do on its own) makes
+ * a click at the month step place a task longer than the step it names.
+ *
+ * @purity pure
+ */
+function dayPlusMonths(day: CalendarDay, months: number): CalendarDay {
+  const zeroBased = day.year * 12 + (day.month - 1) + months
+  const year = Math.floor(zeroBased / 12)
+  const month = zeroBased - year * 12 + 1
+  return { year, month, day: Math.min(day.day, daysInMonth(year, month)) }
+}
+
+/**
+ * FR-001 (MUST, 利用者の裁定 2026-09-02): the day a click's task finishes on --
+ * 「押した日を起点に、いま目盛が刻んでいる最も細かい段の 1 単位ぶんのタスク」.
+ *
+ * ⭐ THE STEP IS `layout.tier` AND IS NOT WORKED OUT HERE. FR-001 names 表 T-205
+ * の `S-83` / `S-84` / `S-85` as what switches it by px/day, and `rulerTierOf`
+ * (PI-5) is the one member that reads those three -- so the unit a click places
+ * is the unit the band under the pointer is drawing, at every zoom, with no
+ * second arithmetic to drift from it.
+ * ⚠️ THERE IS NO CAP (同裁定): 「上限は置かない —— 見えているマス目 1 つ分であり、
+ * 画面と一致する」. A click at the year step legitimately makes a task a year long.
+ *
+ * ⭐ WHY THE FINISH IS THE DAY AFTER THE UNIT rather than its last day: the plan
+ * bar runs from `start` to `finish` EXCLUDING the finish day (`spanWidthOf` in
+ * `schedule-layout.ts` states that convention), so 「見えているマス目 1 つ分」 --
+ * 「画面と一致する」 -- is a finish one whole unit past the start. ⛔ THAT IS WHY
+ * THE OLD RULE IS GONE: 「開始日と終了日が同じタスク」 drew no cell at all, only
+ * `S-49`'s minimum width.
+ *
+ * @purity pure
+ */
+function dayOneTierUnitOn(day: CalendarDay, tier: ScheduleLayout['tier']): CalendarDay {
+  switch (tier) {
+    case 'yearMonthDayWeekday':
+      return dayShifted(day, 1)
+    case 'yearMonthWeek':
+      // LF-1 of table T-221 gives the week step seven days, and `tickStrideOf`
+      // answers with the same seven; a week is seven days by definition and is
+      // not a setting (that member says so where it names DAYS_PER_WEEK).
+      return dayShifted(day, 7)
+    case 'yearMonth':
+      return dayPlusMonths(day, 1)
+    case 'year':
+      return dayPlusMonths(day, 12)
+  }
+}
+
+/**
+ * FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02): whether the hand DRAGGED --
+ * 「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとすること」.
+ *
+ * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE, for the reason
+ * `rowGrabAxisAt` states above: it stands in the generated block at the foot of
+ * this file. ⭐ IT IS THE SAME ROW HF-15's grab reads, and that is the point of
+ * the ruling -- 「同じ手の動きに同じ値を使う」 -- so a second constant here would
+ * be exactly the drift the row's own note forbids.
+ *
+ * ⚠️ READ PER AXIS, the way `rowGrabAxisAt` reads it, and not as a diagonal
+ * distance: the row is one distance, and measuring it two ways in one file gives
+ * the same hand two answers depending on which entrance it reached.
+ *
+ * @purity pure
+ */
+function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
+  const threshold = NOT_STORED_ROW_GRAB_SIZES['S-208']
+  return Math.abs(at.x - press.at.x) > threshold || Math.abs(at.y - press.at.y) > threshold
 }
 
 /**
@@ -6675,6 +6766,10 @@ function commandFromArmed(
   const groupId = row === null ? context.newGroupId : row.groupId
   const early = compareDay(from, to) <= 0 ? from : to
   const late = compareDay(from, to) <= 0 ? to : from
+  // FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02): 「`S-208` を超えて動いたとき
+  // をドラッグとし、超えないときをクリックとすること」. One reading for all three
+  // armings below, so the boundary cannot sit in two places.
+  const dragged = hasDraggedPastThreshold(press, release)
 
   if (armed.kind === 'taskShape' || armed.kind === 'milestoneShape') {
     const named = armed.kind === 'taskShape' ? armed.shapeKind : 'milestone'
@@ -6684,14 +6779,38 @@ function commandFromArmed(
     // one; writing it into the document would put a value the column refuses
     // where the schema expects one of five.
     if (shapeKind === null) return CONSUMED_ELSEWHERE
+    // ⭐ THE THREE ROADS FR-001 NOW HAS, and each names both of its dates here
+    // rather than one branch patching another's answer.
+    //
+    // ⛔⛔ A MILESTONE IS PLACED BY THE PRESS ALONE (MUST, 利用者の裁定
+    // 2026-09-02): 「マイルストーンは押すだけで置くこと。引いても、押した点に置く
+    // こと」 -- 「マイルストーンは長さを持たないので、引いた長さに意味が無い」.
+    // ⛔ AND A DRAG IS NOT A REASON TO REFUSE (MUST NOT): 「引いたことを理由に
+    // 拒んではならない —— バーの癖でつい引く」. So `dragged` is not consulted on
+    // this road at all; both dates are the pressed day, exactly as table T-012's
+    // SH-5 (a point) wants.
+    //
+    // ⭐ A BAR DRAGGED MAKES THE SPAN THAT WAS DRAWN (MUST): 「バーの形状（表
+    // T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを
+    // 作ること」.
+    //
+    // ⭐⭐ A BAR CLICKED MAKES ONE UNIT OF THE STEP THE BAND IS DRAWING (MUST):
+    // 「クリックしたときは、押した日を起点に、いま目盛が刻んでいる最も細かい段の
+    // 1 単位ぶんのタスクを作ること」 -- `dayOneTierUnitOn` holds the reading and
+    // the reason the finish lands one whole unit on.
+    const isMilestone = shapeKind === 'milestone'
+    const start = isMilestone || !dragged ? from : early
+    const finish = isMilestone
+      ? from
+      : dragged
+        ? late
+        : dayOneTierUnitOn(from, context.layout.tier)
     const commands: DocumentCommand[] = [
       {
         kind: 'createTask',
         shapeKind,
-        // ⚠️ A milestone is one day: table T-012's SH-5 is a point, so the two
-        // dates are the same one and the drag's length says nothing.
-        start: textOfDay(shapeKind === 'milestone' ? from : early),
-        finish: textOfDay(shapeKind === 'milestone' ? from : late),
+        start: textOfDay(start),
+        finish: textOfDay(finish),
         groupId,
       },
     ]
@@ -6777,36 +6896,57 @@ function commandFromArmed(
   }
 
   if (armed.kind === 'highlightBox') {
+    // ⛔⛔ DRAG ONLY (FR-019, MUST / MUST NOT, 利用者の裁定 2026-09-02):
+    // 「ハイライトボックスはクリックで置かない。ドラッグのみ」 -- 「押した 1 点は
+    // その範囲を言えない」. ⭐ The boundary is `S-208`, which the requirement
+    // names as 「`FR-001` が図形を置くときに使うのと同じ値」.
+    // ⛔ AND THE CLICK IS NOT TOLD A REASON. FR-029 puts a reason on a PRESS,
+    // and this is a click -- a press AND a release -- which cannot be told from
+    // a drag begun and given up. ⚠️ `CONSUMED_ELSEWHERE` and not `UNASSIGNED`:
+    // the press was on the Row Area with AR-6 armed, so the browser's own
+    // default stays off it (MK-10) even though nothing is written.
+    if (!dragged) return CONSUMED_ELSEWHERE
+
     // ⭐ THE HALF FR-019's RULING DID CLOSE, and it closes for AR-6 exactly as
     // it does for AR-5 one branch above: that requirement speaks of 「コメント
     // ボックスまたはハイライトボックス」 and its 2026-09-02 clause of 「注記」,
     // so a press whose row is missing is refused with RS-44 here too rather
     // than passing in silence (FR-029, MUST).
-    // ⛔ READ AT THE PRESS, LIKE EVERY OTHER ROW THIS MEMBER TAKES. Table T-023a
-    // is 「ポインタを押したときの判定順序」 and PD-4 is a row of it.
-    if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
+    // ⚠️ BOTH ENDS ARE ASKED, because a range names TWO rows: AT-119 and AT-120
+    // are the 上端 and 下端, and 「指す `TaskGroup` が無い縦位置で置こうとしたとき」
+    // is true of either end standing below the last drawn row. ⛔ Minting a row
+    // for the missing end is forbidden by name in the same clause (「行を 1 つ
+    // 作って載せてはならない」), so the refusal is the only answer left.
+    const releaseRow = rowAtY(context.layout, release.y)
+    if (row === null || releaseRow === null) return nothingToDo('noRowToPutTheAnnotationOn')
 
-    // STOP -- ⛔ AR-6 STILL CANNOT BE CREATED, AND THE RULING OF 2026-09-02 IS
-    // NOT THE ROW THAT WOULD LET IT. `createHighlightBox` (CM-52) wants a
-    // `HighlightRange` of four columns -- AT-117 / AT-118 (the 左端 and 右端
-    // days) and AT-119 / AT-120 (the 上端 and 下端 rows) -- and TWO questions
-    // about that range have no row anywhere:
-    //   ① a drag that begins and ends on the same row names one row for both
-    //      edges. FR-001 needed a sentence of its own to say what a drag of no
-    //      length makes (「開始日と終了日が同じタスクを作ること」); FR-019 has
-    //      no counterpart, so the degenerate range is undecided rather than
-    //      allowed.
-    //   ② whether the left edge may lie after the right one, and the top row
-    //      below the bottom one -- so whether an upward or leftward drag is
-    //      refused, or swapped into order. IV-10 of table T-220 puts that rule
-    //      on a `Task`'s `start` / `finish` and that table carries no row for a
-    //      highlight box's span. ⚠️ `rangeRefusals` in `edit-annotation.ts`
-    //      states the same gap from the writing side, and neither refuses nor
-    //      swaps for that reason.
-    // ⇒ Reported and not decided here. Searched: FR-019, UC-008 手順 3-4 and
-    // 拡張 4a, table T-108 CM-52, table T-220, `_assets/fig-erd-detail.md`
-    // AT-116..AT-122.
-    return CONSUMED_ELSEWHERE
+    // ⭐⭐ THE DIRECTION IS NORMALISED ON THE RELEASE (MUST, 同裁定): 「引いた向き
+    // は、離した時点で正規化すること —— `startDate` が `endDate` より後のとき、
+    // および `topGroupId` が `bottomGroupId` より下のときは、入れ替えて持つこと」.
+    // ⛔ 「拒んではならない」 —— 「ドラッグに向きは無く、人は右上から左下へも引く」.
+    // ⚠️ SO THE SWAP LIVES HERE AND NOT IN `edit-annotation.ts`: the same clause
+    // sends values 「打ち込みや取り込みから来た」 to IV-10's treatment instead, and
+    // those roads carry no direction to normalise.
+    // ⭐ `early` / `late` above are that swap for the two days, read the same way
+    // FR-001's own drag reads them one branch up.
+    // ⭐ WHICH ROW IS 上: the one drawn higher. `RowPlacement.y` is where the row
+    // was actually drawn, so a pinned row lifted by FR-098 is ordered by where it
+    // stands rather than by where its tree puts it.
+    const isPressAbove = row.y <= releaseRow.y
+    const top = isPressAbove ? row : releaseRow
+    const bottom = isPressAbove ? releaseRow : row
+    return changed([
+      {
+        kind: 'createHighlightBox',
+        id: context.newHighlightBoxId,
+        range: {
+          startDate: textOfDay(early),
+          endDate: textOfDay(late),
+          topGroupId: top.groupId,
+          bottomGroupId: bottom.groupId,
+        },
+      },
+    ])
   }
 
   return CONSUMED_ELSEWHERE

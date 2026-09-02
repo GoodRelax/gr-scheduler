@@ -487,6 +487,7 @@ const BASE_CONTEXT = (schedule: Schedule): InputContext => {
     today: TODAY,
     newGroupId: 'row-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
+    newHighlightBoxId: 'highlight-box-minted-outside',
   }
 }
 

@@ -273,6 +273,7 @@ const frameOf = (schedule: Schedule): Frame => {
       today: '2026-03-01T00:00:00',
       newGroupId: 'row-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
+      newHighlightBoxId: 'highlight-box-minted-outside',
     },
   }
 }

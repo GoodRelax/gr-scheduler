@@ -128,7 +128,18 @@ export type ChangePlan =
  * ⭐ The presentation-group commands that ARE undoable are the multi-valued
  * ones -- UN-13 holds them because FR-049 limits UN-7's "toggles" to the rows
  * whose type is boolean. So `setElementVisible` is the one presentation
- * command that leaves no step, along with the three UN-16 names.
+ * command that leaves no step, along with the two UN-16 names.
+ *
+ * ⛔ `pinTaskGroup` (CM-68) AND `unpinTaskGroup` (CM-69) ARE NOT AMONG THEM,
+ * and their absence is a ruling rather than an omission. UN-16 named pinning
+ * until 2026-08-27; that put it against IV-3 of table T-220, because a pin
+ * carried across an undo can name a `TaskGroup` the undo removed. UN-14 holds
+ * pinning now (利用者の裁定 2026-08-27), so the two commands each push one step
+ * -- the cost UN-14 spells out in as many words -- and an undo rewinds S-126
+ * with everything else in the snapshot. ⭐ That is what keeps IV-3 without a
+ * single sweep rule: a snapshot's pins can only name rows that existed when it
+ * was taken. `columnsOutsideHistory` below states the other half of the same
+ * ruling, and the two MUST agree.
  *
  * @purity pure
  */
@@ -139,8 +150,6 @@ function isUndoable(command: DocumentCommand): boolean {
       return false
     // UN-16: where you look and what you export, not what the schedule says.
     case 'setPanelWidths':
-    case 'pinTaskGroup':
-    case 'unpinTaskGroup':
     case 'setExportPngScale':
       return false
     // UN-8: the zoom and the position. ⭐ `fitScheduleToScreen` IS here now.

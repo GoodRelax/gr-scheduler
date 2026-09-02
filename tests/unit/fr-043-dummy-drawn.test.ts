@@ -1100,10 +1100,17 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
   if (screen === undefined || scene === null || frame === null) {
     throw new Error('BO-1 has settled no size, so there is no picture to compare')
   }
+  // CR-337: `exportSvg` now answers `{ ok: false }` past S-217's ceiling; this
+  // fixture's screen is nowhere near it, so a refusal here is a fixture bug,
+  // not FR-025's own MUST NOT.
+  const whole = exportSvg(scene)
+  if (!whole.ok) {
+    throw new Error('exportSvg refused a picture this fixture expected to fit (FR-025, S-217)')
+  }
   return {
     screen,
     exportInner: scene.svg,
-    exportWhole: exportSvg(scene).svg,
+    exportWhole: whole.svg,
     geometry: frame.geometry,
     ratio: scene.settings.exportCanvas.width / SCREEN.width,
   }

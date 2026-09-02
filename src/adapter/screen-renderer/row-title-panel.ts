@@ -264,7 +264,28 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * The width FR-085 leaves the name: `rowTitlePanelWidth` (S-79) less the indent
  * for the row's depth (`rowTitleIndent`, S-37) less the room the row's controls
  * keep -- U-47 `Row Expander` and U-48 `Row Pin`, whose amount FR-085 puts at
- * S-140 of table T-206.
+ * S-140 of table T-206 -- less the room the row's grab strip keeps.
+ *
+ * ⭐⭐ THE GRAB STRIP'S TERM IS FR-085's OWN, ADDED 2026-09-02 (利用者の裁定):
+ * 「…行の掴み代（表 T-023d の `GR-20`）に確保した場所（… 表 T-206 の `S-138`）と
+ * その隔たり（同表の `S-218`）を引いた残りとすること（MUST）」. ⛔ UNTIL CR-336
+ * THIS SUBTRACTION HAD THREE TERMS AND THE DRAWN ROW HAD FOUR. GR-20 stands in
+ * the row's own flow, just before the name (HF-15 of table T-051 draws it
+ * ALWAYS, so it is never absent), and it took S-138 + S-218 of the name's box
+ * that this arithmetic never took off -- measured on the shipped build of
+ * 2026-09-02 at 1920x1080, the box was 134 / 118 / 102px at depths 1 / 2 / 3
+ * while this function answered 154 / 138 / 122. ⇒ The cut was judged on 20px
+ * the name never had, and the browser's own `text-overflow` ate the difference
+ * in silence -- silently, because `isLabelTruncated` records THIS cut and not
+ * that one, so no row was reported as cut when only the browser had cut it.
+ * ⚠️ The gap is subtracted as well as the strip, and that is the ruling's own
+ * word 「その隔たり」: the strip is a flex item with the name after it, so the
+ * room it takes from the name is its width AND the gap that follows it.
+ *
+ * ⛔ NOT S-141, THOUGH BOTH ARE 4px. Table T-206's row for S-218 refuses that
+ * reading itself: S-141 is the gap between a shape and its entrance FRAME
+ * (FR-029), and HF-15 states that the grab strip is 「押す入口ではなく、掴める
+ * 場所を指す印」 -- no entrance, hence no frame.
  *
  * ⛔ THE ROOM DOES NOT FOLLOW WHETHER THE CONTROLS ARE DRAWN (FR-085, MUST
  * NOT). The export draws none of them (EP-4 of table T-076) and HF-6 of table
@@ -286,8 +307,14 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  */
 function availableLabelWidthPx(depth: number, settings: DocumentSettings): number {
   const roomForControlsPx = NOT_STORED_ROW_CONTROL_SIZES['S-140']
+  // GR-20's strip and the gap after it, which FR-085 (MUST) names row by row.
+  const roomForGrabStripPx =
+    NOT_STORED_ROW_GRAB_ROOM_SIZES['S-138'] + NOT_STORED_ROW_GRAB_ROOM_SIZES['S-218']
   const available =
-    settings.rowTitlePanelWidth - depth * settings.rowTitleIndent - roomForControlsPx
+    settings.rowTitlePanelWidth -
+    depth * settings.rowTitleIndent -
+    roomForControlsPx -
+    roomForGrabStripPx
   return Math.max(0, available)
 }
 
@@ -1061,5 +1088,34 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   readonly 'S-140': number
 } = {
   'S-140': 0,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the arithmetic
+ * is its own: FR-085 (MUST) cuts the row name at what is left of the
+ * panel once the indent, the room the row controls keep and the room
+ * GR-20 of table T-023d keeps are taken off, and nothing on IF-9
+ * carries a length for a caller to hand in. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them.
+ * ⭐ The cut they settle IS in the exported picture (EP-3 of table
+ * T-076), which is why FR-085 (MUST NOT) refuses an export width of
+ * its own -- so these are not values a screen may hold alone.
+ */
+export const NOT_STORED_ROW_GRAB_ROOM_SIZES: {
+  /** S-138, in px */
+  readonly 'S-138': number
+  /** S-218, in px */
+  readonly 'S-218': number
+} = {
+  'S-138': 16,
+  'S-218': 4,
 }
 // </generated>
