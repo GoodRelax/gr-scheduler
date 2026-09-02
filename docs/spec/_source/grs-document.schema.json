@@ -135,6 +135,7 @@
     "dualCursor",
     "dummyOpacity",
     "exportCanvas",
+    "exportCanvasHeightCap",
     "exportPngScale",
     "fadeHandleHalfPx",
     "fadeHandleStrokePx",
@@ -351,6 +352,9 @@
        "type": "integer"
       }
      }
+    },
+    "exportCanvasHeightCap": {
+     "type": "number"
     },
     "exportPngScale": {
      "enum": [

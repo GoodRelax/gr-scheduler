@@ -1,4 +1,4 @@
-90
+89
 # ⛔ Rows at or past `実装待ち` that name no place in the specification.
 # (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
 # see the note at the foot of this file.)
@@ -36,3 +36,6 @@
 # specification for the rulings that were already down: D-174 (table T-037,
 # NT-7) and D-175 (the invariant under table T-050). Both had stood at
 # 仕様待ち for a day with the ruling recorded verbatim and nothing written.
+#
+# 2026-09-02: 90 -> 89. D-193 named its place as the round wrote the five
+# rulings of that afternoon (FR-019, plus table T-233 RS-44).

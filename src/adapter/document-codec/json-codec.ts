@@ -954,6 +954,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             },
           },
         },
+        exportCanvasHeightCap: {
+          type: ['number'],
+        },
         exportPngScale: {
           enum: [1, 2],
         },

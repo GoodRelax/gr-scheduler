@@ -2088,6 +2088,39 @@
    }
   },
   {
+   "rowId": "RS-42",
+   "text": {
+    "ja": "原因の分からない誤りが起きました",
+    "en": "Something went wrong and the cause is not known"
+   },
+   "nextStep": {
+    "ja": "記録を始めてから、もう一度お試しください。記録は止めると写されます",
+    "en": "Start the recording, try once more, and stop it to copy the record"
+   }
+  },
+  {
+   "rowId": "RS-43",
+   "text": {
+    "ja": "行が多すぎて、この大きさでは描けません",
+    "en": "There are too many rows to draw at this size"
+   },
+   "nextStep": {
+    "ja": "行を畳むか、期間を絞ってから書き出してください",
+    "en": "Fold some rows or narrow the period, then export again"
+   }
+  },
+  {
+   "rowId": "RS-44",
+   "text": {
+    "ja": "そこには注記を置く行がありません",
+    "en": "There is no row there to put the annotation on"
+   },
+   "nextStep": {
+    "ja": "行の上で置いてください",
+    "en": "Place it over a row"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
