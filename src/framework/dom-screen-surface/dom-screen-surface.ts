@@ -3062,14 +3062,42 @@ function rowControlWidthCss(): string {
 }
 
 /**
+ * The height of ONE row control, in pixels -- `S-138` with `S-141` above the
+ * shape and `S-141` below it, which is how FR-029 composes an entrance.
+ *
+ * ⭐⭐ A CONSTANT AND NOT THE LINE BOX (利用者の裁定 2026-09-03, CR-342). Until
+ * that ruling this height was whatever line box the host's base font made, and
+ * on the shipped build that came to the same 24px -- ⛔ so the two readings
+ * could not be told apart by the number. They are told apart by the reader's
+ * text size: S-138's own note (MUST NOT) says 「閲覧者の文字サイズに追随させない
+ * —— 大きくしたい人はブラウザの表示倍率で変える」, and a line box follows it.
+ * ⭐ The same sentence states the answer outright: 「入口の外形は 26 × 24px の
+ * まま動かない」, and 16 + 4 × 2 is that 24.
+ * ⚠️ HF-5 (MUST) draws every row control 「行の名前の文字サイズにかかわらず …
+ * 同じ大きさで」, so this is the height of all seven and not of the four in the
+ * lattice alone.
+ * ⛔ A FUNCTION AND NOT A CONSTANT, for the reason `rowBandPx`'s note gives:
+ * the generated block stands at the foot of this file.
+ *
+ * @purity pure
+ */
+function rowControlHeightPx(): number {
+  return NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2
+}
+
+/**
  * HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」.
  *
  * ⭐⭐ A BOX THAT HOLDS THE FOUR, AND NOT FOUR OFFSETS WORKED OUT HERE. The
  * second rank of the lattice stands one control's HEIGHT below the first, and
- * no row of the specification states that height -- it is the line box the
- * shape's own 16px makes, which the reader's text size moves (FR-039). ⛔ So it
- * is not written down: a grid track measures it from the control that stands in
- * it, and this file invents no number.
+ * that height is `rowControlHeightPx` -- `S-138` with `S-141` on either side of
+ * it, which is what FR-029 composes an entrance out of.
+ * ⛔⛔ THE RANKS ARE STATED AND NO LONGER LEFT TO THE CONTENT (利用者の裁定
+ * 2026-09-03, CR-342). A track sized by what stands in it measures the host's
+ * own line box, and that follows the reader's text size -- which S-138's note
+ * (MUST NOT) refuses: 「閲覧者の文字サイズに追随させない」. ⚠️ The two readings
+ * both come to 24px on the shipped build, so the drift could not be seen in the
+ * number; it can be seen the moment a reader changes their text size.
  *
  * ⭐ THE COLUMNS ARE STATED, and they are the width one control already has
  * (`rowControlWidthCss`). ⛔ Left to `auto` they would collapse on any row that
@@ -3103,9 +3131,14 @@ function rowControlWidthCss(): string {
  */
 function rowFoldingGridStyle(): string {
   const columnWidth = rowControlWidthCss()
+  // HF-1 (MUST): 「2 × 2 の格子」 -- two ranks, each one control tall, so the
+  // lattice takes exactly twice `rowControlHeightPx` however tall the host
+  // would have laid a line out.
+  const rankHeight = `${rowControlHeightPx()}px`
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
     `grid-template-columns:${columnWidth} ${columnWidth};` +
+    `grid-template-rows:${rankHeight} ${rankHeight};` +
     `right:${rowControlRightEm(ROW_CONTROL_STEPS.foldingGrid)}em;` +
     'pointer-events:none;'
   )
@@ -3376,6 +3409,15 @@ function rowControlElement(
   canAct: boolean,
 ): HTMLElement {
   // FR-029 (MUST): faint while there is nothing this control could change.
+  // ⛔ NO `height` IS DECLARED HERE, AND THAT IS DELIBERATE (CR-342). The
+  // ruling of 2026-09-03 fixes the LATTICE at two ranks of `rowControlHeightPx`
+  // (`rowFoldingGridStyle`), which is what LF-3 reads; declaring the same height
+  // on the control itself would give an EMPTY control a height, and the case
+  // 「a node carrying the SAME declarations but nothing inside … measures wide
+  // and NOT high」 of tests/unit/uf-72-screen-part.test.ts is what keeps the 4 x 0
+  // finding catchable (04-verification.md section 2). ⚠️ Reported rather than
+  // taken: 表 T-051's HF-5 says the controls are all one size and no row says
+  // whether that size is the control's own box or the rank it stands in.
   const style = canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk
   // ⛔ `null` IS A CONTROL TABLE T-103 NAMES NO PART FOR, and it is not an
   // omission: IC-82 and IC-91 make and unmake a row rather than folding one, so
@@ -5604,6 +5646,23 @@ export interface ScreenSurfaceWiring {
    */
   readonly onAppHeaderHeightPx: (heightPx: number) => void
   /**
+   * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height 「その行の
+   * 操作子（表 T-051 の `HF-1` の格子）が縦に取る」, which that row makes a floor
+   * under every row's band.
+   *
+   * ⛔ MEASURED AND NEVER STATED, WHICH IS HF-19's OWN (MUST NOT): 「数は本行に
+   * 書かない —— 操作子の高さは字形（`S-138`）に余白を足したもので、読む人の文字
+   * サイズが動かす（`FR-039`）」. This unit is where the lattice is built, so it
+   * is the one side that can answer without inventing a number.
+   * ⛔ ON THE WIRING AND NOT ON IF-9, for the reason `onAppHeaderHeightPx` above
+   * gives: that seam's cell in table T-065 names five supplies and every one of
+   * them is a question.
+   * ⚠️ Called only when the measurement CHANGED, and never before a row has been
+   * drawn -- there is no lattice to measure until then, and a caller that has
+   * not been told yet has the floor it always had (nothing).
+   */
+  readonly onRowControlsHeightPx?: (heightPx: number) => void
+  /**
    * MK-13's second half, handed to the caller once, before this factory returns
    * -- a way to put the person into the control this surface drew for one row of
    * table T-016: focus it, and leave every character already in it selected.
@@ -5959,6 +6018,21 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // told apart or the first measurement is swallowed by the starting value --
   // which is the number FR-051 (MUST NOT) refuses to let anyone hold.
   let isHeaderHeightSettled = false
+  /**
+   * The tallest HF-1 lattice this unit has drawn, in pixels -- LF-3's second
+   * floor, held so that it is reported only when it moved.
+   *
+   * ⭐ THE TALLEST AND NOT THE FIRST, which HF-5 (MUST) makes a distinction
+   * without a difference on every ordinary row -- 「行の名前の文字サイズにかか
+   * わらず、操作子を同じ大きさで描くこと」 -- and a safe reading where a row draws
+   * fewer than four: a lattice with an empty rank is shorter than the rule's
+   * 「格子が縦に取る高さ」, and taking the tallest keeps every band clear of the
+   * next one's controls.
+   * ⛔ NEVER RESET DOWNWARD BY A PANEL THAT DREW NO ROW. A folded 段 0 (HR-2)
+   * draws no lattice at all, and letting the floor fall to 0 there would make
+   * the bands jump the moment the head was opened again.
+   */
+  let rowControlsHeightPx = 0
   let settled: Settlement | null = null
   let isFieldUp = false
   /**
@@ -6046,6 +6120,33 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     headerHeightPx = measured
     onAppHeaderHeightPx(measured)
     return true
+  }
+
+  /**
+   * LF-3 of table T-221 (MUST): the height HF-1's lattice takes vertically,
+   * which that row makes a floor under the row's band.
+   *
+   * ⭐ MEASURED OFF THE LATTICE ITSELF and never worked out from its parts:
+   * HF-19 (MUST NOT) keeps the number out of the manuscript because 「読む人の
+   * 文字サイズが動かす」, and the box the browser laid out is the only honest
+   * answer to that.
+   * ⚠️ MEASURABLE EVEN WHILE THE CONTROLS ARE NOT SHOWN. HF-6 draws them 「その
+   * 行の名前にポインタが乗っているあいだだけ」 and `ROW_CONTROL_SHOWN_CSS` does
+   * that with `visibility`, which leaves the boxes laid out -- so the answer
+   * does not depend on where the pointer is.
+   * ⚠️ Reported only when it CHANGED, so that the caller's own FT-3 path is not
+   * told about a frame that moved nothing.
+   *
+   * @purity non-pure
+   */
+  function reportRowControlsHeight(): void {
+    let tallest = rowControlsHeightPx
+    for (const lattice of rowTitleTree.querySelectorAll(`[${ROW_FOLDING_GRID_MARK}]`)) {
+      tallest = Math.max(tallest, lattice.getBoundingClientRect().height)
+    }
+    if (tallest === rowControlsHeightPx) return
+    rowControlsHeightPx = tallest
+    wiring.onRowControlsHeightPx?.(tallest)
   }
 
   /**
@@ -6356,6 +6457,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       } else {
         fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
         lastRowTitlePanel = view.rowTitlePanel
+        // ⛔ HERE AND NOT AT BO-1, BECAUSE THERE IS NOTHING TO MEASURE UNTIL A
+        // ROW HAS BEEN DRAWN. LF-3's floor is the lattice's own box, and the
+        // lattice is built per row -- so this is the first moment the answer
+        // exists. ⚠️ The frame that measures it was laid out without it; the
+        // caller's FT-3 path draws the next one with it, which is the bargain
+        // `onAppHeaderHeightPx` already makes for the header's height.
+        reportRowControlsHeight()
       }
       // HF-10 (MUST NOT): the entrance may not overlap the pinned rows' controls,
       // and the band above the topmost row is where it does not. ⚠️ Recorded and

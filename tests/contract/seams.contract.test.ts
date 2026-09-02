@@ -73,8 +73,15 @@ const seams = T065.rows.map((row) => ({
 describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   // ⚠️ CR-280 retired the autosave, and `DocumentStore` -- the seam
   // `LocalStorageDocumentStore` implemented -- went with it: table T-065 fell
-  // from nine rows to eight. Chapter 5.3's prose still says 「層をまたぐ 9 本」
-  // while the table it points at holds eight, and the table is the 全数.
+  // from nine rows to eight.
+  // ⭐ CR-288 CARRIED THE PROSE OVER, ALMOST. Recounted 2026-09-03: Chapter 5.3
+  // now says 「層をまたぐ 8 本だけは…」, 「層をまたぐ 8 本を 表 T-065 に示す」,
+  // 「⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない**」 and
+  // 「⚠️ **この 8 ファイルもユニットである**」 with eight UF ids listed. ⛔ ONE
+  // SENTENCE STILL SAYS NINE -- the note under table T-075: 「⚠️ **層をまたぐ
+  // インターフェースの 9 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性
+  // を持たない（`—`）。**」 That is a leftover of CR-280 inside docs/spec and not
+  // something a test may repair; it is reported rather than asserted here.
   it('has the eight rows table T-065 holds', () => {
     expect(seams).toHaveLength(8)
     expect(seams.every((s) => s.name && s.declaredBy && s.implementedBy)).toBe(true)

@@ -668,6 +668,35 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       taskOrigins: [{ ...ORIGIN, lastSeenImportSeq: PROJECT.importSeq + 1 }],
     }),
 
+  // A highlight box drawn backwards in time. Table T-220's IV-19 (CR-341,
+  // ledger row D-211): 「ハイライトボックスの `startDate` が `endDate` より後で
+  // ないこと、および `topGroupId` が `bottomGroupId` より下でないこと」, 対象 「その
+  // 4 列」, 種別 「組合せ」 -- read off the table, never typed here.
+  //
+  // ⭐ THE ROW NAMES TWO CONDITIONS AND THIS CASE BREAKS ONE. The other half is
+  // in REVERSED below, as a probe, for the same reason IV-1 and IV-2 have
+  // sweeps: a case that broke only the dates proves only the dates.
+  //
+  // ⚠️ THE TWO GROUP IDS ARE LEFT SOUND HERE and both name rows the document
+  // holds, so IV-2 is not raised alongside; the dates are inside table T-214,
+  // so IV-14 is not either. ⛔ The row's own note says a value that came from a
+  // drag is not its material -- 「`FR-019` が離した時点で正規化すると定めており、
+  // 正規化された値は本行を必ず満たす」 -- and 「打ち込みと取り込みから来た値には
+  // 効かせること（MUST）」 is the half this seam is on: `scheduleViolations` judges
+  // a document, which is where a typed or imported value has arrived.
+  'IV-19': () =>
+    withSchedule({
+      highlightBoxes: [
+        {
+          ...HIGHLIGHT_BOX_ONE,
+          startDate: TASK_A.finish,
+          endDate: TASK_A.start,
+          topGroupId: GROUP_ONE_ID,
+          bottomGroupId: GROUP_TWO_ID,
+        },
+      ],
+    }),
+
   // A setting whose upper bound names another setting, put above it. S-41 and
   // S-42 name each other, so the pair below breaks whichever way the bound is
   // read -- inclusive or not.
@@ -862,6 +891,33 @@ const OFF_BOUND: Readonly<Record<string, () => DocumentUnderTest>> = {
   'markerSize': () => withSettings({ markerSize: settingNumber('fontMin') - 1 }),
 }
 
+/**
+ * The OTHER half of IV-19 -- the two group columns, put the wrong way up.
+ *
+ * ⭐ IV-19 states two conditions over four columns and the case in BREACH breaks
+ * the date pair. This one breaks the row pair, so an answer that judged only
+ * the dates -- the half a reader thinks of first -- fails here.
+ *
+ * ⚠️ WHICH OF TWO ROWS IS 「下」 IS THE TREE'S ORDER AND NOT A NUMBER OF THIS
+ * FILE'S. GROUP_TWO is GROUP_ONE's child, so the panel draws GROUP_ONE first
+ * and GROUP_TWO under it; naming GROUP_TWO as the top and GROUP_ONE as the
+ * bottom is 「`topGroupId` が `bottomGroupId` より下」 exactly.
+ */
+const REVERSED: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'HighlightBox.topGroupId': () =>
+    withSchedule({
+      highlightBoxes: [
+        {
+          ...HIGHLIGHT_BOX_ONE,
+          startDate: TASK_A.start,
+          endDate: TASK_A.finish,
+          topGroupId: GROUP_TWO_ID,
+          bottomGroupId: GROUP_ONE_ID,
+        },
+      ],
+    }),
+}
+
 /** Every probe, with the row of table T-220 each one must draw. @purity pure */
 const probesOf = (
   row: string,
@@ -873,6 +929,7 @@ const PROBES: readonly Probe[] = [
   ...probesOf('IV-1', REPEATED),
   ...probesOf('IV-2', DANGLING),
   ...probesOf('IV-16', OFF_BOUND),
+  ...probesOf('IV-19', REVERSED),
 ]
 
 // ---------------------------------------------------------------------------

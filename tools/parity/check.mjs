@@ -6,8 +6,17 @@
 // (IC-82 + the confirmation FR-046 raises) and stands the sample's tree up
 // (IC-93 for a shallowest row, IC-91 for a child, then the entry HF-14 opens).
 //
-// ⛔ THE WINDOW IS TALL ON PURPOSE. A row is 64..148px (FR-042), so a 1080-high
-// window draws about eight and a row below the fold cannot be pressed.
+// ⛔ THE WINDOW IS TALL ON PURPOSE. A row is as tall as its tiers make it
+// (`ST-9`, and `LF-2` for the arithmetic), which on the shipped build's own
+// document measures 22..188px, so a 1080-high window draws only the first few
+// and a row below the fold cannot be pressed.
+//
+// ⚠️ THIS COMMENT USED TO SAY 「64..148px (FR-042)」 AND THAT WAS NOT IN THE
+// SPECIFICATION. `FR-042` states one thing about the number a row carries --
+// 「指定した高さは下限として扱うこと（MUST）」 -- and no range at all. The
+// invented range hid D-225 for a round: a row holding no `Task` is 22..28px,
+// which is smaller than the 48px lattice of `HF-1` standing on it, and a
+// reader who believed the floor was 64 would not look for that case.
 import { chromium, openSample, openApp, SAMPLE_TREE } from './sample-and-app.mjs'
 
 const browser = await chromium.launch()

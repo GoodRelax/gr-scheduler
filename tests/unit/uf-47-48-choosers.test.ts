@@ -2864,21 +2864,52 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
       }
     })
 
-    it(`⭐ an application that cannot read itself is told, not silent (${language})`, async () => {
-      // LM-14 of table T-004 is the environment: opened straight off the disk,
-      // an application cannot always read its own source. `app-shell-source.ts`
-      // declares ONE failure for that reason -- 「there is one next step here
-      // whatever went wrong」 -- and the reader's ruling of 2026-09-02 makes
-      // that next step FR-102's recording, which is RS-42.
-      // GOES RED IF: the press returns in silence, which FR-029 (MUST) forbids.
-      const words = wordsFor('RS-42')
+    it(`⭐ an application that cannot read itself is told RS-45's own words (${language})`, async () => {
+      // ⛔⛔ THIS CASE EXPECTED `RS-42` UNTIL 2026-09-03 AND THE SPECIFICATION
+      // MOVED UNDER IT. CR-340 (利用者の裁定 2026-09-03, ledger row D-202) gave
+      // this one situation a seat of its own in 表 T-233:
+      //
+      //   「| RS-45 | **この画面を動かす本体が、このファイルの中に見つからない** |
+      //    `NT-3a` | `FR-102` |」（docs/spec/01-04-requirements.md, 表 T-233）
+      //
+      // and said in as many words which of the three faults gets it:
+      //   「⭐ **`RS-45` に席を与える根拠**（`CR-333` の基準）—— **原因が分かって
+      //    おり**（埋め込みの外殻が取り出せない）、**読む人が次に採れる手がある**
+      //    …… ⛔ **`EmbeddedHtmlFault` の残り 2 つは `RS-42` のままとする**（利用者の
+      //    裁定 2026-09-03）—— **原因が分からず、読む人に採れる手が違わない。**」
+      //
+      // ⇒ LM-14 of 表 T-004 is still the environment -- opened straight off the
+      // disk, an application cannot always read its own source -- but 「原因の
+      // 分からない失敗」 is no longer a true thing to tell a reader about it.
+      // GOES RED IF: the press returns in silence (FR-029 MUST forbids it), or
+      // the `appShellUnavailable` arm is still filed under RS-42.
+      const words = wordsFor('RS-45')
       const { written, view } = await pressWithSeams(
         'IO-7',
         { appShell: unreadableAppShell() },
         language,
       )
       expect(written).toHaveLength(0)
-      expect(view.notices.map((notice) => notice.text)).toContain(words.text[language])
+      const texts = view.notices.map((notice) => notice.text)
+      expect(texts, '表 T-233 の `RS-45`').toContain(words.text[language])
+      // ⛔ 「当たる行があるのに落ち先を運んではならない（MUST NOT）」 -- FR-029. The
+      // two rows this could still be wrongly filed under are named, so a fix
+      // that merely renamed a constant does not pass.
+      expect(texts, 'RS-42 is the OTHER two faults, not this one').not.toContain(
+        wordsFor('RS-42').text[language],
+      )
+      expect(texts, 'RS-15 is for a reason 表 T-233 holds no row for').not.toContain(
+        wordsFor('RS-15').text[language],
+      )
+      for (const notice of view.notices) {
+        if (notice.text !== words.text[language]) continue
+        // 表 T-233 writes RS-45 against `NT-3a`, read here and never typed.
+        expect(notice.manner).toBe(mannerFor('RS-45'))
+        expect(
+          notice.nextSteps,
+          'NT-3a (MUST): 次に取れる手段を添えること -- 「配られた元のファイルを開き直してください」',
+        ).toContain(words.nextStep[language])
+      }
     })
   }
 
@@ -2894,6 +2925,235 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
       expect(view.notices.map((notice) => notice.text), `${rowId} said nothing`).toContain(
         words.text['ja'],
       )
+    }
+  })
+})
+
+// ===========================================================================
+// FR-025 -- a picture too tall to draw is refused with `RS-43`, and the roads
+// that are not pictures still write (ledger row D-220)
+// ===========================================================================
+//
+// ⛔ WHAT WAS UNCOVERED. The block above maps `RasterFaultReason` -- what the
+// HOST's canvas answers back -- onto RS-42 and RS-43. GRS's OWN refusal is a
+// different thing and stood in no case at all: FR-025 (MUST) decides, before any
+// canvas is asked and on the SVG road where there is no canvas, that the drawing
+// does not fit.
+//
+//   「⭐⭐ **幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで
+//     伸ばすこと（MUST）** …… ⛔ **伸ばしてよいのはその `S-217` までとすること
+//     （MUST）。** ⛔⛔ **伸ばしても `S-217` に収まらないときは、画像を書き出さない
+//     こと（MUST）。一部だけを描いてはならない（MUST NOT）**（利用者の裁定
+//     2026-09-02「1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力
+//     を止めろ」）—— **黙って下が切れた絵は、受け取った人には完成品に見える。**
+//     …… ⭐ **理由を告げること（MUST）。理由は 表 T-233 の `RS-43` とすること
+//     （MUST）。**⚠️ **止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`
+//     （クリップボード）である** —— **`IO-1` / `IO-2` / `IO-7` は絵ではないので、
+//     高さの天井に当たらない。**」
+//
+// ⭐ THE SECOND HALF IS THE ONE THAT COSTS. A refusal that swept the whole
+// chooser would take the document's own format down with the picture, and a
+// reader whose plan is too tall to PICTURE could then not SAVE it either.
+//
+// ⚠️ HOW A PICTURE IS MADE TOO TALL, AND WHY IT IS NOT DONE WITH ROWS. FR-080
+// (MUST) fixes the drawing as 「`GRS` が占める画面の全体を、`exportCanvas` の幅 ÷
+// 画面の幅 の比で縮めた絵」, so the exported height is the SCREEN's height times
+// that ratio and does not grow with the document -- measured 2026-09-03: 50 rows
+// and 1600 rows both come out 1600 x 1120 on the 1000 x 700 screen the rest of
+// this file uses. ⇒ The height ceiling is crossed by the SCREEN's shape, and the
+// two screens below differ in nothing else, so what the pair measures is the
+// ceiling and not the document.
+//
+// ⛔ `S-81` AND `S-217` ARE READ, NEVER TYPED: both live in 表 T-204, and the
+// two screens are solved from them so that a ruling that moves either moves
+// these cases with it.
+describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-43', () => {
+  /** The one number a settings row prints in its 既定 column. */
+  const settingNumbers = (rowId: string): readonly number[] => {
+    const found = specTable('T-204').rows.find((one) => one.id === rowId)
+    if (found === undefined) throw new Error(`表 T-204 no longer holds ${rowId}`)
+    const cell = found.by['既定'] ?? ''
+    const numbers = [...cell.matchAll(/\d+(?:\.\d+)?/g)].map((hit) => Number(hit[0]))
+    if (numbers.length === 0) throw new Error(`${rowId} states no number in its 既定 column`)
+    return numbers
+  }
+
+  /** `S-81` 「`exportCanvas`」 -- 「`1600 × 900`」, width first. */
+  const CANVAS_WIDTH = settingNumbers('S-81')[0] as number
+  /** `S-217` 「`exportCanvasHeightCap`」 -- 「書き出す絵の高さの上限」. */
+  const HEIGHT_CAP = settingNumbers('S-217')[0] as number
+
+  /**
+   * A screen whose picture comes out `times` the ceiling.
+   *
+   * FR-080: exported height = screen height x (`S-81` の幅 ÷ 画面の幅). Fixing
+   * the width at a quarter of the canvas makes that ratio 4, so the height is
+   * solved from the ceiling rather than chosen.
+   */
+  const screenWhosePictureIs = (times: number): FrameEnvironment => {
+    const width = CANVAS_WIDTH / 4
+    return {
+      width,
+      height: Math.round((HEIGHT_CAP * times) / (CANVAS_WIDTH / width)),
+      appHeaderHeight: SCREEN.appHeaderHeight,
+      scrollbarThickness: SCREEN.scrollbarThickness,
+    }
+  }
+
+  /** Its picture is 4096 x 0.875 tall -- inside the ceiling. */
+  const SCREEN_THAT_FITS = screenWhosePictureIs(0.875)
+  /** Its picture is 4096 x 1.25 tall -- over it, and no stretch can reach. */
+  const SCREEN_TOO_TALL = screenWhosePictureIs(1.25)
+
+  interface Exported {
+    readonly written: readonly ChosenFileWrite[]
+    readonly view: ScreenView
+  }
+
+  /**
+   * Take one row of table T-024 on the export chooser, on the screen handed in
+   * rather than on the one the rest of this file uses.
+   *
+   * @purity non-pure
+   */
+  const exportOn = async (
+    environment: FrameEnvironment,
+    rowId: string,
+    seams: { rasterizer?: Rasterizer; appShell?: AppShellSource } = {},
+    language: DisplayLanguage = 'ja',
+  ): Promise<Exported> => {
+    const pane = host()
+    const screen = screenPane(language)
+    const files = fileStore()
+    const loop = frameLoop(
+      pane.surface,
+      here('Plan of record'),
+      environment,
+      screen.wiring,
+      files.store,
+      undefined,
+      undefined,
+      undefined,
+      seams.rasterizer,
+      seams.appShell,
+    )
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+    takeFormat(loop, screen, rowId)
+    await settle()
+    pane.runAnimationFrames()
+    return { written: files.written, view: screen.last() }
+  }
+
+  /** IF-6, answering with bytes -- so a PNG refusal cannot be the canvas's. */
+  const willingRasterizer = (): Rasterizer => ({
+    rasterizePng: async (_svg: string, sizePx: RasterSizePx): Promise<Rastering> => ({
+      ok: true,
+      pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47, sizePx.heightPx % 251]),
+    }),
+  })
+
+  /** IF-8, answering with an application -- so IO-7 cannot fail for want of one. */
+  const willingAppShell = (): AppShellSource => ({
+    readAppShell: async (): Promise<AppShellReading> => ({
+      ok: true,
+      appShell: {
+        html: '<!DOCTYPE html><html><body>GRS</body></html>',
+        embeddedDocumentElementId: 'embedded-document',
+      },
+    }),
+  })
+
+  const heightOf = (write: ChosenFileWrite | undefined): number => {
+    const text = write === undefined ? '' : new TextDecoder().decode(write.bytes)
+    const found = /<svg\b[^>]*\bheight="(\d+(?:\.\d+)?)"/.exec(text)
+    if (found === null) throw new Error('the write is not an SVG with a height')
+    return Number(found[1])
+  }
+
+  it('⭐ the premise: under the ceiling the SAME press writes the picture', async () => {
+    // ⛔ Without this, every case below could be passing because the export road
+    // is broken rather than because the drawing is too tall. ⭐ And the height it
+    // writes is read back, so the pair below is known to straddle `S-217` rather
+    // than merely to differ.
+    const { written } = await exportOn(SCREEN_THAT_FITS, 'IO-3')
+    expect(written, 'FR-096: a picture inside the ceiling is written').toHaveLength(1)
+    const height = heightOf(written[0])
+    expect(height, `FR-025: the picture is ${height}px, inside the ${HEIGHT_CAP}px ceiling`).toBeLessThanOrEqual(
+      HEIGHT_CAP,
+    )
+    expect(
+      SCREEN_TOO_TALL.height / SCREEN_THAT_FITS.height,
+      'the two screens differ only in height',
+    ).toBeGreaterThan(1)
+    expect(SCREEN_TOO_TALL.width).toBe(SCREEN_THAT_FITS.width)
+  })
+
+  for (const language of ['ja', 'en'] as const) {
+    it(`⛔ IO-3: the SVG is not written, and the reason is RS-43 (${language})`, async () => {
+      // 「伸ばしても `S-217` に収まらないときは、画像を書き出さないこと（MUST）。
+      // 一部だけを描いてはならない（MUST NOT）」 and 「理由は 表 T-233 の `RS-43`
+      // とすること（MUST）」.
+      // GOES RED IF: a clipped picture is written anyway -- the state the
+      // requirement records for itself until 2026-09-02 -- or the refusal is
+      // silent, or it lands on RS-15, FR-076's place for a reason with no row.
+      const words = wordsFor('RS-43')
+      const { written, view } = await exportOn(SCREEN_TOO_TALL, 'IO-3', {}, language)
+
+      expect(written, 'FR-025 (MUST NOT): 「一部だけを描いてはならない」 -- a picture was written').toHaveLength(0)
+      const texts = view.notices.map((notice) => notice.text)
+      expect(texts, 'FR-025 (MUST): 「理由は 表 T-233 の `RS-43` とすること」').toContain(words.text[language])
+      expect(texts, 'FR-076 (MUST NOT): RS-15 is for a reason with no row').not.toContain(
+        wordsFor('RS-15').text[language],
+      )
+      for (const notice of view.notices) {
+        if (notice.text !== words.text[language]) continue
+        expect(notice.manner).toBe(mannerFor('RS-43'))
+        expect(
+          notice.nextSteps,
+          'NT-3a (MUST): a failure is told with what can be done next',
+        ).toContain(words.nextStep[language])
+      }
+    })
+  }
+
+  it('⛔ IO-4: the PNG is refused too, and the refusal is not the canvas`s', async () => {
+    // 「止めるのは 表 T-024 の `IO-3`（SVG）・`IO-4`（PNG）・`IO-6`（クリップ
+    // ボード）である」. ⭐ The rasterizer handed in WOULD have painted, so what is
+    // measured here is GRS's own refusal and not `RasterFaultReason.tooLarge`
+    // wearing RS-43's words -- the block above already drives that other road.
+    // GOES RED IF: the ceiling is only judged on the SVG road.
+    const words = wordsFor('RS-43')
+    const { written, view } = await exportOn(SCREEN_TOO_TALL, 'IO-4', {
+      rasterizer: willingRasterizer(),
+    })
+
+    expect(written, 'FR-025 (MUST): the PNG road writes nothing either').toHaveLength(0)
+    expect(view.notices.map((notice) => notice.text)).toContain(words.text['ja'])
+  })
+
+  it('⛔ IO-2 / IO-1 / IO-7 are not pictures, so the same screen still writes them', async () => {
+    // 「⚠️ **止めるのは …… `IO-3`・`IO-4`・`IO-6` である** —— **`IO-1` / `IO-2` /
+    // `IO-7` は絵ではないので、高さの天井に当たらない。**」
+    // ⭐ THE HALF THAT COSTS MOST: a plan too tall to picture must still be
+    // saveable and still be handed on, or the ceiling takes the document with it.
+    // GOES RED IF: the refusal is raised for the whole chooser rather than for
+    // the picture rows -- which is the shape of D-173's defect turned inside out.
+    const rs43 = wordsFor('RS-43')
+
+    for (const rowId of ['IO-2', 'IO-1', 'IO-7']) {
+      const extension = extensionOf(rowId)
+      const { written, view } = await exportOn(
+        SCREEN_TOO_TALL,
+        rowId,
+        rowId === 'IO-7' ? { appShell: willingAppShell() } : {},
+      )
+      expect(written, `${rowId} is not a picture, so no height ceiling applies to it`).toHaveLength(1)
+      expect(written[0]?.extension, `table T-024 gives ${rowId} its extension`).toBe(extension)
+      expect(
+        view.notices.map((notice) => notice.text),
+        `${rowId} was told RS-43, which belongs to the picture rows`,
+      ).not.toContain(rs43.text['ja'])
     }
   })
 })

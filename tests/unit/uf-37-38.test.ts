@@ -67,6 +67,7 @@ import {
   type EmbeddedHtmlFaultReason,
 } from '../../src/adapter/document-codec/embedded-html-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
+import { bare, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 // ---------------------------------------------------------------------------
@@ -90,12 +91,19 @@ const T_024 = [
 /**
  * table T-034 -- the order startup decides the first document in. BT-1 is the
  * embedded document, and it is the only rank this writer feeds.
+ *
+ * ⚠️ THREE ROWS, NOT FOUR, SINCE CR-280. The table's own closing note says what
+ * happened: 「⚠️ **行 ID は席の番号であり、詰めない** —— BT-3 は自動保存された文
+ * 書の席で、CR-280 で退いた。」 So the row ID BT-3 is gone while BT-4 keeps its
+ * name -- and the 順 column DID close up, which is the half a copy keyed by row
+ * ID loses: BT-4 stands at rank 3. ⛔ This copy carried the retired row and the
+ * old rank until 2026-09-03; the case below now holds it against the table at
+ * read time so it cannot fall behind again in silence.
  */
 const T_034 = [
   { row: 'BT-1', rank: 1, isFedByThisUnit: true },
   { row: 'BT-2', rank: 2, isFedByThisUnit: false },
-  { row: 'BT-3', rank: 3, isFedByThisUnit: false },
-  { row: 'BT-4', rank: 4, isFedByThisUnit: false },
+  { row: 'BT-4', rank: 3, isFedByThisUnit: false },
 ] as const
 
 /** table T-052, DR-1 to DR-4 -- the five keys of the document root, and no sixth. */
@@ -357,11 +365,25 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   // ⛔ A walk over an empty roster passes without asserting anything.
   it('carries the row counts of table T-024, table T-034 and table T-052', () => {
     expect(T_024).toHaveLength(7)
-    expect(T_034).toHaveLength(4)
+    expect(T_034).toHaveLength(3)
     expect(T_052_ROOT).toHaveLength(5)
     expect(T_052_DR2).toHaveLength(12)
     expect(new Set(T_052_ROOT).size).toBe(5)
     expect(new Set(T_052_DR2).size).toBe(12)
+  })
+
+  // ⛔ WHY THIS ONE READS THE MANUSCRIPT INSTEAD OF TRUSTING THE COPY. A hand
+  // copy of a table is what Chapter 1.9 (:275) asks for, and a hand copy is also
+  // what falls behind: this one still held BT-3 and put BT-4 at rank 4 for the
+  // five days after CR-280 retired the autosave, and every case that walked it
+  // stayed green while doing so. So the copy is held against 表 T-034 itself,
+  // row for row and rank for rank.
+  it('⭐ holds that copy of table T-034 against the table, ID and 順 both', () => {
+    const table = specTable('T-034')
+    expect(table.rows.map((row) => row.id)).toEqual(T_034.map((rank) => rank.row))
+    expect(table.rows.map((row) => bare(row.by['順'] ?? ''))).toEqual(
+      T_034.map((rank) => String(rank.rank)),
+    )
   })
 
   it('carries the id rosters PD-71 draws the line between', () => {

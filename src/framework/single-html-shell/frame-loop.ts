@@ -285,6 +285,23 @@ export interface FrameEnvironment {
   readonly height: number
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
+  /**
+   * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height HF-1's
+   * lattice of row controls takes, which that row makes a floor under every
+   * row's band.
+   *
+   * ⛔ MEASURED LIKE THE HEADER'S HEIGHT AND FOR THE SAME KIND OF REASON: HF-19
+   * (MUST NOT) keeps the number out of the manuscript -- 「操作子の高さは字形
+   * （`S-138`）に余白を足したもので、読む人の文字サイズが動かす（`FR-039`）」 --
+   * so the side that drew the lattice answers it and the layout is handed the
+   * answer. ⚠️ It is NOT part of `ScreenEnvironment`: `regionsFromScreen` cuts
+   * rectangles out of the window and this settles no rectangle.
+   * ⚠️ ABSENT UNTIL THE FIRST PANEL HAS BEEN DRAWN -- there is no lattice to
+   * measure before that -- and absent is the floor every band had before the
+   * ruling, which is why the member is optional rather than a 0 anyone has to
+   * type.
+   */
+  readonly rowControlsHeightPx?: number
 }
 
 /** What one frame computed, kept together so nothing recomputes it. */
@@ -1087,21 +1104,6 @@ const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
  */
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
-/**
- * IC-41 of table T-109 -- FR-020's ONE entrance to the watermark, which carries
- * BOTH directions since 2026-09-02 (利用者の裁定, CR-335).
- *
- * ⛔ ONE ENTRANCE AND NOT TWO (MUST NOT), which FR-020 sends to FR-029: 「同じ
- * 機能の入口を増やさない」. ⭐ The precedent the requirement names is IC-75
- * beside it -- one entrance carrying minimise AND restore -- and that row is
- * answered a few lines below this one, in the same member, for the same reason.
- * ⚠️ IT IS STILL NOT A SYMMETRIC TOGGLE (MUST NOT). What that row refuses is
- * treating the two directions ALIKE, 「切り替えは 2 つの向きを見分けられないの
- * で、消す側の門をすり抜ける」; the gate stands on the hiding side alone, and
- * telling the direction apart before acting is what it asks for.
- */
-const WATERMARK_ENTRY: IconId = 'IC-41'
-
 /** U-25 of table T-103, spelled as that table spells it. */
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
@@ -1293,6 +1295,8 @@ type NoticeReason =
   | 'RS-42'
   | 'RS-43'
   | 'RS-44'
+  | 'RS-45'
+  | 'RS-46'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1352,6 +1356,12 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // 所ではなかった」. ⚠️ The three rows above it are `NT-3a` because a raster or
   // a record DID fail, which is the line the two manners are drawn along.
   'RS-44': 'NT-1',
+  // The two rows table T-233 gained on 2026-09-03 (CR-340), both `NT-3a` in the
+  // table's own manner column. ⭐ `RS-45` is a failure of ours -- the shell could
+  // not find the body that runs it -- and `RS-46` is FR-085's cap, which the
+  // table settles as a telling rather than a refusal of an input.
+  'RS-45': 'NT-3a',
+  'RS-46': 'NT-3a',
 }
 
 /**
@@ -1518,14 +1528,19 @@ type EmbeddedHtmlFaultReason = Exclude<
  *
  * ⭐ A census the compiler keeps, on the same terms as the rastering above: a
  * reason added to `EmbeddedHtmlFaultReason` is a compile error here.
- * ⛔ ALL THREE ARE `RS-42`, AND THAT IS THE READER'S RULING RATHER THAN A
- * SHORTAGE OF ROWS. None of the three is a thing a person did or can undo --
- * the application could not read its own source, or the source it read carries
- * a container this build cannot aim at -- so 「原因の分からない失敗」 is what
- * the situation IS from the side that is told about it, and the next step is
- * FR-102's recording. ⚠️ `app-shell-source.ts` reaches the same place from the
- * other side: it declares ONE failure without a reason enum because 「there is
- * one next step here whatever went wrong」.
+ * ⭐⭐ ONE OF THE THREE HAS A ROW OF ITS OWN SINCE 2026-09-03 (利用者の裁定):
+ * table T-233 gained `RS-45` -- 「この画面を動かす本体が、このファイルの中に
+ * 見つからない」, whose 正 is FR-102 -- and only `appShellUnavailable` is sent to
+ * it. It meets the test CR-333 set for giving a reason a seat: the cause is
+ * known (the embedded shell could not be read back) and the reader has a next
+ * step (open the file they were given again rather than one off the disk).
+ * ⛔ THE OTHER TWO STAY ON `RS-42`, BY THE SAME RULING. Neither has a cause the
+ * reader can be told nor a different step to take -- the source read carries a
+ * container this build cannot aim at -- so 「原因の分からない失敗」 is what the
+ * situation IS from the side that is told about it.
+ * ⚠️ `app-shell-source.ts` reaches the same place from the other side: it
+ * declares ONE failure without a reason enum because 「there is one next step
+ * here whatever went wrong」.
  * ⛔ NOT `RS-40`. That row says this build cannot write the form, and since
  * CR-333's round it can -- saying so would be untrue of every host where the
  * write works.
@@ -1533,7 +1548,7 @@ type EmbeddedHtmlFaultReason = Exclude<
 const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
   Record<EmbeddedHtmlFaultReason, NoticeReason>
 > = {
-  appShellUnavailable: 'RS-42',
+  appShellUnavailable: 'RS-45',
   unusableElementId: 'RS-42',
   moreThanOneEntry: 'RS-42',
 }
@@ -1661,6 +1676,10 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   // `RS-15` note above forbids reaching for that row where a row of its own
   // exists.
   noRowToPutTheAnnotationOn: 'RS-44',
+  // HF-14's refusal, whose row table T-233 gained on 2026-09-03 (CR-340).
+  // ⛔ NOT `RS-38` BESIDE IT, WHICH THE RULING SEPARATES BY NAME: 「あちらは
+  // `HF-15` の移動のためであり、足す押しには真でない」.
+  rowIsAtTheDeepestLevel: 'RS-46',
 }
 
 /**
@@ -2456,6 +2475,7 @@ function viewSettings(
   regions: ScreenRegions,
   fromTemplate: boolean,
   runDay: string,
+  rowControlsHeightPx: number | undefined,
 ): DocumentSettings {
   const groupIds = new Set(held.schedule.taskGroups.map((one) => one.id))
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
@@ -2538,11 +2558,20 @@ function viewSettings(
   // forbids HF-8 here in as many words (MUST NOT), because throwing the
   // collapses away on every open would lose the state HR-6 has the document
   // save for WY-1. ⭐ The press path does discard them, in `fitCommand`.
-  const fitted = fitZoom(held.schedule, pinned, regions, {
-    step: NOT_STORED_ZOOM_STEP['S-96'],
-    min: NOT_STORED_ZOOM_BOUNDS['S-97'],
-    max: NOT_STORED_ZOOM_BOUNDS['S-98'],
-  })
+  const fitted = fitZoom(
+    held.schedule,
+    pinned,
+    regions,
+    {
+      step: NOT_STORED_ZOOM_STEP['S-96'],
+      min: NOT_STORED_ZOOM_BOUNDS['S-97'],
+      max: NOT_STORED_ZOOM_BOUNDS['S-98'],
+    },
+    // ⛔ THE FIT MEASURES THE BANDS THE FRAME WILL DRAW. LF-3's row-control floor
+    // makes a row taller, so a fit run without it seats a depth that does not
+    // fit once the floor is applied.
+    rowControlsHeightPx,
+  )
   return {
     ...pinned,
     zoomX: fitted.zoomX,
@@ -4154,7 +4183,8 @@ export function frameLoop(
     // moves with it cannot. ⭐ The layout below still reads the preview: the
     // layout IS the picture, and the axis is what it is drawn against.
     const settings = viewSettings(held.document, withPanelShown, regions,
-                                  fromStartupTemplate, readToday())
+                                  fromStartupTemplate, readToday(),
+                                  environment.rowControlsHeightPx)
     // ⭐ S-211 REACHES THE LAYOUT AND NOT ONLY THE PANEL. HR-2 of table T-015
     // (MUST) has a folded 段 0 draw no row at all, and which rows are drawn is
     // LC-1's answer -- so the fold is handed to the layout, and the panel, the
@@ -4167,6 +4197,9 @@ export function frameLoop(
       regions,
       undefined,
       isLevelZeroFolded,
+      // LF-3's second floor (MUST): 「その行の操作子（表 T-051 の `HF-1` の格子）
+      // が縦に取る高さも下回らない」, measured by the surface that drew it.
+      environment.rowControlsHeightPx,
     )
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
@@ -4328,6 +4361,35 @@ export function frameLoop(
       newRowNameFieldWantedUnder = null
       screen.openNewRowName?.(under)
     }
+  }
+
+  /**
+   * The far side of a wait CS-4 of table T-066 governs -- the guard comes off
+   * and the frame FT-1 of table T-078 owes is asked for.
+   *
+   * ⭐⭐ THE FRAME IS UNCONDITIONAL, AND THAT IS THE ROW READ AS IT IS WRITTEN.
+   * FT-1 covers 「人の入力（ポインタとキー）。その入力の、待ち（表 T-066 の
+   * `CS-4`）をまたいだ続きを含む」 with no condition attached, and its own note
+   * says 「待ちをまたいだ続きを起こすのはシェル自身である」 -- so every
+   * operation that spans the wait owes a frame on the way back, whether or not
+   * it ends with a question.
+   * ⛔ 台帳 D-218 WAS THE FRAME BEING ASKED FOR ONLY WHEN A QUESTION WENT UP:
+   * `raiseNotice` and the three `ask` functions each asked for their own, and a
+   * save that SUCCEEDED asked for none -- so SK-11 of table T-036 wrote the
+   * file and set `openedFileName` and `fileSavedAt` (FR-101), and not one pixel
+   * changed until the person's next input. ⚠️ That is FR-101's RATIONALE
+   * verbatim -- 「画素が 1 つも変わらない」 -- read back as a defect.
+   * ⚠️ THE PROSE UNDER TABLE T-066 IS NOT THE ROW. `05-07-design.md` explains
+   * FT-1 with the case where a question goes up; the row itself is unconditional
+   * and an example does not narrow what it illustrates.
+   * ⭐ `ask` COALESCES, so a road that already raised a telling still paints
+   * once.
+   *
+   * @purity non-pure
+   */
+  function endFileOperationWait(): void {
+    isFileOperationWaiting = false
+    if (settled(environment)) ask()
   }
 
   /** @purity non-pure */
@@ -4811,8 +4873,17 @@ export function frameLoop(
     // doing. That exception exists so a person's FIRST SCREEN is not a flat
     // list; a picture written out is not a first screen, and FR-055's fit is
     // what EP-2 and WY-3 measure an export against.
-    const settings = viewSettings(document, withPanelsClosed, regions, false, readToday())
-    const layout = layoutFromSchedule(document.schedule, settings, regions)
+    const settings = viewSettings(
+      document, withPanelsClosed, regions, false, readToday(), environment.rowControlsHeightPx,
+    )
+    // ⭐ LF-3's ROW-CONTROL FLOOR IS CARRIED INTO THE EXPORT TOO, though EP-4 of
+    // table T-076 draws no row control in one. The floor is a rule of the BAND
+    // (表 T-221) and not of the drawing, and a picture written out with shorter
+    // bands than the screen shows would part the two -- which is the very thing
+    // S-140's own note keeps true of FR-085's cut.
+    const layout = layoutFromSchedule(
+      document.schedule, settings, regions, undefined, undefined, environment.rowControlsHeightPx,
+    )
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
     // that an export does not have -- so the picture is rendered with none of
@@ -5462,6 +5533,15 @@ export function frameLoop(
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
+      // LF-3's row-control floor (MUST), measured by the surface that drew the
+      // lattice -- FR-055's fit runs the layout again and has to run it with the
+      // same floor the frame was drawn with.
+      // ⚠️ SPREAD RATHER THAN WRITTEN AS `undefined`: both members are optional
+      // and `exactOptionalPropertyTypes` parts 「absent」 from 「present and
+      // undefined」, which is the same care `confirmationAnswer` takes.
+      ...(environment.rowControlsHeightPx === undefined
+        ? {}
+        : { rowControlsHeightPx: environment.rowControlsHeightPx }),
       pressed,
       // ⭐ ASKED OF THE SIDE THAT DREW THE FIELDS, which is what IF-9 of table
       // T-065 was widened for (利用者の裁定 2026-08-30). It stood pinned at
@@ -6507,33 +6587,6 @@ export function frameLoop(
       isPaletteMinimised = !isPaletteMinimised
       return true
     }
-    if (entry === WATERMARK_ENTRY) {
-      // FR-020 (MUST, 利用者の裁定 2026-09-02): 「同じ入口（表 T-109 の `IC-41`）
-      // が両方向を担うこと …… 透かしが出ているときは押すと面が立ち、消えていると
-      // きは押すと問わずに戻す」 -- the same shape IC-75 above takes, and the
-      // precedent that requirement names for it.
-      //
-      // ⛔ THE HIDING DIRECTION IS NOT SPENT HERE, AND THAT IS THE GATE. FR-020
-      // (MUST) turns S-144 off 「合ったときにだけ」, so the press may only raise
-      // U-60 -- `screenStateFromEntry` has already done that for this happening
-      // -- and `matchWatermarkUnlock` is what lands the write once the digest
-      // has answered. ⭐ `false` leaves that raised surface standing and lets
-      // the press fall through exactly as it did before this arm existed.
-      if (screenState.watermarkVisible) return false
-      // ⭐⭐ 「透かしを出し直す側は問わないこと（MUST）」. The gate stands on the
-      // hiding side alone, so the way back writes S-144 and asks nothing.
-      // ⛔ THE SURFACE IS TAKEN BACK DOWN IN THE SAME BREATH, and no frame
-      // stands between: `screenStateFromInput` and this member answer the SAME
-      // happening, and the paint `ask` schedules comes after both -- so U-60 is
-      // never drawn and no question is put, which is the MUST.
-      // ⚠️ THE HONEST HOME FOR THE SPLIT IS `screenStateFromEntry`, whose arm
-      // raises U-60 for both directions; this round could not edit that file,
-      // and the direction is told apart here instead. ⛔ Reported rather than
-      // left unsaid: two members would then have to move together if either
-      // direction changed.
-      screenState = screenStateWithWatermark(screenStateWithSurface(screenState, null), true)
-      return true
-    }
     if (entry === INTERACTION_RECORD_ENTRY) {
       // S-206 of table T-206, turned the way S-200 and S-142 are: table T-109's
       // IC-76 says the same entrance stops it, so the press reverses whatever
@@ -6641,9 +6694,7 @@ export function frameLoop(
     // this file would be the reason FR-076 (MUST NOT) bars from outside that
     // table. ⚠️ Not the same question as LM-14 of table T-004, which is a write
     // the environment could not perform and already has RS-3.
-    void exportHeldDocumentToFile(store, format).finally(() => {
-      isFileOperationWaiting = false
-    })
+    void exportHeldDocumentToFile(store, format).finally(endFileOperationWait)
     return true
   }
 
@@ -6726,9 +6777,7 @@ export function frameLoop(
         // starting a second one.
         // ⛔ WAITING ON PD-187, the second of the three: see the note on the
         // export path above for what is undecided.
-        void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(() => {
-          isFileOperationWaiting = false
-        })
+        void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(endFileOperationWait)
         return
       }
       case 'copyPictureToClipboard': {
@@ -6781,9 +6830,7 @@ export function frameLoop(
         // ⭐ OP-4 (MUST) IS KEPT BY GOING DOWN THIS ROAD AND NO OTHER: the
         // confirmation before unsaved edits are thrown away belongs to the
         // open, and OP-13 says the reload is a replace like any other.
-        void reopenDocumentIntoHold(store).finally(() => {
-          isFileOperationWaiting = false
-        })
+        void reopenDocumentIntoHold(store).finally(endFileOperationWait)
         return
       }
       case 'saveDocumentFile': {
@@ -6802,9 +6849,7 @@ export function frameLoop(
         // above is what keeps the next press from starting a second one.
         // ⛔ WAITING ON PD-187, the third of the three: see the note on the
         // export path above for what is undecided.
-        void saveHeldDocumentToFile(store).finally(() => {
-          isFileOperationWaiting = false
-        })
+        void saveHeldDocumentToFile(store).finally(endFileOperationWait)
         return
       }
       case 'dismissNotice':
@@ -7994,7 +8039,12 @@ export function frameLoop(
         next.width === environment.width &&
         next.height === environment.height &&
         next.appHeaderHeight === environment.appHeaderHeight &&
-        next.scrollbarThickness === environment.scrollbarThickness
+        next.scrollbarThickness === environment.scrollbarThickness &&
+        // ⭐ COUNTED AS A SIZE CHANGE, which is what it is: LF-3's floor moves
+        // every row's band, so a frame that kept the old one would draw the
+        // picture the ruling of 2026-09-03 refuses. The measurement reaches this
+        // member only when the surface said it MOVED (FT-3).
+        next.rowControlsHeightPx === environment.rowControlsHeightPx
       if (same) return
       const wasSettled = settled(environment)
       environment = next

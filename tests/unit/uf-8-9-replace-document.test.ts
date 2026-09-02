@@ -602,16 +602,19 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
 // 4. 表 T-230 itself, before anything is driven by it.
 //    「本表の …… が、まるごと差し替える呼び手の全数である。」
 //
-// ⛔ THE COUNT IN THAT SENTENCE IS NOT ASSERTED, AND THE ROW IDS ARE. The
-// manuscript still spells 「本表の 6 つ」 in its prose while the table prints
-// five rows -- CR-280 took RD-5 「自動保存からの復帰」 out with the mechanism it
-// named and left the sentence behind. A case driven by the prose would be
-// asserting a number the table itself contradicts, so the rows are what is read.
+// ⭐ THE COUNT IN THAT SENTENCE AGREES WITH THE TABLE AGAIN (recounted
+// 2026-09-03). CR-280 took RD-5 「自動保存からの復帰」 out with the mechanism it
+// named and left the sentence saying 「本表の 6 つ」 over a five-row table;
+// CR-288 corrected it, and it now reads 「**本表の 5 つが、まるごと差し替える呼び
+// 手の全数である。**」 So both are read below: the row IDs, and the number the
+// closing sentence claims for them.
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 -- the whole set of callers, before any of them is driven', () => {
   it('GIVEN the manuscript WHEN its rows are read THEN this file drives every one', () => {
     expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6'])
+    // 「本表の 5 つが …… 全数である」 -- the prose and the table say one number.
+    expect(ROWS).toHaveLength(5)
     for (const instants of INSTANT_FLAVOURS) {
       for (const row of ROWS) expect(() => driveOf(row, instants), `${row} / ${instants}`).not.toThrow()
     }

@@ -1453,6 +1453,49 @@ function nestingOf<TKey, TRow>(
 }
 
 /**
+ * The place every row takes in the document's own order, top to bottom: a
+ * preorder walk of `parentId`, siblings by AT-55's `order`.
+ *
+ * ⭐ WHAT 「下」 MEANS TO IV-19, AND THE ONLY THING THIS ANSWERS. It is a rank
+ * and not a `y`: a document at rest has no picture, and the row an invariant
+ * calls lower is the one that stands later in this walk.
+ * ⛔ NOT LC-1's WALK, WHICH ORDERS A DIFFERENT SET. That one puts the rows the
+ * picture DREW in order and drops what HR-6 hid or HR-1a folded away; a row
+ * left out of the picture still holds its place between its siblings in the
+ * document, so an invariant measured on the drawn set would answer differently
+ * on two screens showing the same file.
+ * ⚠️ A row whose parent is missing is a root here, and a row a `parentId` ring
+ * makes unreachable is appended rather than dropped -- IV-2 and IV-18 are the
+ * rows that report those two, and this walk is not a second place they are
+ * judged. Every row therefore has a rank, so IV-19 never has to say 「no order」.
+ *
+ * @purity pure
+ */
+function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+  const childrenOf = new Map<string | null, TaskGroup[]>()
+  const holds = new Set(groups.map((group) => group.id))
+  for (const group of groups) {
+    const parent = group.parentId !== null && holds.has(group.parentId) ? group.parentId : null
+    const siblings = childrenOf.get(parent)
+    if (siblings === undefined) childrenOf.set(parent, [group])
+    else siblings.push(group)
+  }
+  for (const siblings of childrenOf.values()) siblings.sort((a, b) => a.order - b.order)
+
+  const rankById = new Map<string, number>()
+  const walk = (parent: string | null): void => {
+    for (const group of childrenOf.get(parent) ?? []) {
+      if (rankById.has(group.id)) continue
+      rankById.set(group.id, rankById.size)
+      walk(group.id)
+    }
+  }
+  walk(null)
+  for (const group of groups) if (!rankById.has(group.id)) rankById.set(group.id, rankById.size)
+  return rankById
+}
+
+/**
  * Every date column of one row that IV-14 turns down.
  *
  * ⚠️ It ANSWERS with the breaches rather than writing into an array it was
@@ -2194,6 +2237,52 @@ const INVARIANTS: readonly Invariant[] = [
           ? null : boundValueOf(bound.maxExpression, settings)
         if (ceiling !== null && value > ceiling) {
           found.push({ at, what: `${key} is ${value}, over the ceiling its own row states (${ceiling})` })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-19',
+    kind: 'combination',
+    /**
+     * ⭐ IV-10's SHAPE OVER FOUR COLUMNS, which is what the row says of itself:
+     * 「`IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める」.
+     * Both ends of each pair have to be readable before there is an order to
+     * check, so a box holding `null` -- or a day IV-14 already reports -- is not
+     * this row's.
+     *
+     * ⛔ A DRAGGED BOX CANNOT REACH HERE AND THE ROW SAYS SO: 「ドラッグから来た
+     * 値は本行の対象ではない —— `FR-019` が離した時点で正規化すると定めており、
+     * 正規化された値は本行を必ず満たす」. What this row is for is the other two
+     * roads -- 「打ち込みと取り込みから来た値には効かせること（MUST）」 -- and
+     * those carry no direction to normalise.
+     *
+     * ⭐ 「下」 IS THE ORDER THE ROWS STAND IN, which is the document's own tree
+     * and not the picture's: a row hidden by HR-6 or dropped by FR-018 still
+     * holds a place between its siblings, and an invariant of a document at rest
+     * cannot be measured against a screen. `taskGroupRankById` is that walk.
+     * ⚠️ A pair naming a row the document does not hold is IV-2's (the foreign
+     * key) and is left alone here: an order cannot be read off a row that is not
+     * there, and reporting it twice would put every dangling identifier under
+     * this row too.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      const rankById = taskGroupRankById(schedule.taskGroups)
+      for (const [index, box] of schedule.highlightBoxes.entries()) {
+        const at = `/schedule/highlightBoxes/${index}`
+        const from = dayOf(box.startDate)
+        const to = dayOf(box.endDate)
+        if (from !== null && to !== null && compareDays(to, from) < 0) {
+          found.push({ at, what: `HighlightBox ${box.id} ends before it starts` })
+        }
+        const top = box.topGroupId === null ? undefined : rankById.get(box.topGroupId)
+        const bottom = box.bottomGroupId === null ? undefined : rankById.get(box.bottomGroupId)
+        if (top !== undefined && bottom !== undefined && top > bottom) {
+          found.push({ at, what: `HighlightBox ${box.id} has its top row below its bottom row` })
         }
       }
       return found

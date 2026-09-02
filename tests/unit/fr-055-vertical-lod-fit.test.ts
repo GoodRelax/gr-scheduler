@@ -87,6 +87,7 @@ import {
   type InputModifiers,
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Settings and screen. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -160,6 +161,38 @@ const thresholdOf = (depth: number): number => BASE * Math.pow(RATIO, depth - 2)
  */
 const FLOOR_BINDS_BELOW =
   settingNumber('actualMin') / settingNumber('actualOfPlan') / settingNumber('basePlanHeight')
+
+/** The plan height FR-094 pins a lane at, once the zoom is under that floor. */
+const PINNED_PLAN_HEIGHT = settingNumber('actualMin') / settingNumber('actualOfPlan')
+
+/**
+ * The px figure one row of 表 T-206 prints in its 既定 column.
+ *
+ * ⛔ Not taken from `SETTINGS_DEFAULTS`: `S-138` and `S-141` describe the screen
+ * tool, and 表 T-206 says of both 「保存しない」, so the document's settings are
+ * not where they live.
+ */
+const settingsTablePx = (id: string): number => {
+  const row = specTable('T-206').rows.find((one) => one.id === id)
+  if (row === undefined) throw new Error(`table T-206 has no row ${id}`)
+  const found = /-?\d+(?:\.\d+)?/.exec(row.by['既定'] ?? '')
+  if (found === null) throw new Error(`table T-206 row ${id} states no number in 既定`)
+  return Number(found[0])
+}
+
+/**
+ * 表 T-221 の `LF-3` / 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03): the
+ * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
+ *
+ * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
+ * … 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである」. So it is
+ * composed: `FR-029` (MUST) draws the glyph in a box of `S-138` a side and keeps
+ * at least `S-141` between that box and the entrance's frame on each side, and
+ * `HF-1` (MUST) stacks four of those 「2 × 2 の格子」.
+ * ⚠️ A CONSTANT, not a function of the zoom: `HF-19` 「⛔⛔ **この床を閲覧者の文字
+ * サイズに追随させてはならない（MUST NOT）**」.
+ */
+const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-141') * 2) * 2
 
 /**
  * The smallest zoom that draws depth `d`, which is what FR-055's ⛔ measures
@@ -397,20 +430,31 @@ function depthTheFitOwes(shape: TreeShape, regions: ScreenRegions = REGIONS): nu
 // be chosen rather than guessed: LF-2 gives a row holding one `Task` at one
 // lane the plan height, FR-094 pins that at `actualMin` ÷ `actualOfPlan`
 // (S-6 ÷ S-5) once the zoom is under the floor, and LF-3 adds `rowGap` (S-12)
-// between rows. So `n` rows take `n × h + (n − 1) × rowGap`, and on the Row Area
-// this file's ENV yields that stops fitting a little short of twenty rows.
+// between rows. So `n` rows take `n × h + (n − 1) × rowGap`.
+//
+// ⭐⭐ AND `h` IS NO LONGER THE PLAN HEIGHT (利用者の裁定 2026-09-03, CR-339 +
+// CR-342). 表 T-221 の `LF-3` now reads 「**帯高は矩形が縦に取る高さを下回らず、かつ、
+// その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」, and
+// 表 T-051 の `HF-19` says the same from the controls' side as a MUST NOT. That
+// second floor is `CONTROL_LATTICE_FLOOR` below, composed out of 表 T-206, and
+// it stands ABOVE the pinned plan height -- so `h` is the lattice for every
+// rung whose zoom leaves the plan under FR-094's floor.
+// ⇒ the shapes below were re-chosen when the floor landed: on this file's ENV
+// the Row Area now stops fitting a little past ten rows, where it used to reach
+// nearly twenty. ⛔ The ANSWERS each fixture is named for did not change; only
+// the number of rows it takes to produce them.
 // ⭐ The case `the fixtures really do exercise all three answers` is the guard:
 // re-rule any of those settings, or the screen, and it fails rather than
 // letting the cases below go quietly vacuous.
 
 /** Six rows across three depths -- the whole document fits. */
 const ALL_THREE_DEPTHS_FIT: TreeShape = { roots: 2, depths: 3, fanOut: 1 }
-/** Depth 2 is fifteen rows and fits; depth 3 is sixty-three and does not. */
-const DEPTH_2_FITS: TreeShape = { roots: 3, depths: 3, fanOut: 4 }
-/** Same answer on eighteen rows, so the depth-2 extent differs from the above. */
-const DEPTH_2_FITS_WIDER: TreeShape = { roots: 3, depths: 3, fanOut: 5 }
-/** Depth 1 fits with room to spare; depth 2 is six times as many rows. */
-const DEPTH_1_FITS: TreeShape = { roots: 6, depths: 2, fanOut: 5 }
+/** Depth 2 is eight rows and fits; depth 3 is twenty-six and does not. */
+const DEPTH_2_FITS: TreeShape = { roots: 2, depths: 3, fanOut: 3 }
+/** Same answer on nine rows, so the depth-2 extent differs from the above. */
+const DEPTH_2_FITS_WIDER: TreeShape = { roots: 3, depths: 3, fanOut: 2 }
+/** Depth 1 fits in under half the Row Area; depth 2 is four times as many rows. */
+const DEPTH_1_FITS: TreeShape = { roots: 5, depths: 2, fanOut: 3 }
 /** Same, so the depth-1 extent differs while the chosen depth does not. */
 const DEPTH_1_FITS_TALLER: TreeShape = { roots: 10, depths: 2, fanOut: 5 }
 /** Not even depth 1 fits -- FR-055's 「深さ 1 でも収まらないとき」. */
@@ -443,6 +487,26 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
     // ...and depth 4 is the first rung above it, which is exactly the case the
     // T-068 rule sends to pass 2. No fixture in this file reaches it.
     expect(thresholdOf(4)).toBeGreaterThan(FLOOR_BINDS_BELOW)
+  })
+
+  it('⭐ and LF-3 puts the CONTROLS under the band, above the plan height FR-094 pins', () => {
+    // 表 T-221 の `LF-3` (MUST, 利用者の裁定 2026-09-03): 「**帯高は矩形が縦に取る
+    // 高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
+    // 高さも下回らない**」, and 表 T-051 の `HF-19` states the same as a MUST NOT.
+    // ⛔ THIS IS WHAT SIZES EVERY FIXTURE IN THIS FILE. If the lattice ever
+    // stopped outrunning the pinned plan height, the row counts chosen above
+    // would be the wrong ones and the answers they are named for would move.
+    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(PINNED_PLAN_HEIGHT)
+    // ...and the manuscript still says both halves of it.
+    const says = (table: string, id: string): string => {
+      const row = specTable(table).rows.find((one) => one.id === id)
+      if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
+      return row.cells.join(' ')
+    }
+    expect(says('T-221', 'LF-3')).toContain(
+      '帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない',
+    )
+    expect(says('T-051', 'HF-19')).toContain('行の帯がそれを下回ってはならない（MUST NOT）')
   })
 
   it('draws the same picture at both ends of a rung, which is why one measurement suffices', () => {

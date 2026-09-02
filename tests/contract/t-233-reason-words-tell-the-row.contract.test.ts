@@ -130,7 +130,14 @@ const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
 
 /**
  * The first 16 hex characters of the SHA-256 of
- * `場面 \0 ja \0 en \0 nextStep.ja \0 nextStep.en`.
+ * `場面 ja en nextStep.ja nextStep.en`, joined with one space.
+ *
+ * ⚠️ THE HEADING USED TO SAY THE FIVE WERE JOINED WITH A NUL, and `fingerprintOf`
+ * below has always joined them with a space. The comment was corrected rather
+ * than the code (2026-09-03): changing the separator would re-key all 44 rows
+ * without a single pair having been re-read, which is exactly the paste-in this
+ * file exists to forbid. ⛔ A space is the weaker separator -- text moved across
+ * a field boundary keeps the same hash -- and that is a real, if small, hole.
  *
  * ⭐ A fingerprint and not the words themselves: FR-038 (MUST NOT) admits ONE
  * store of printed words, and a second copy of them in a test file is a second
@@ -178,6 +185,30 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-42': 'e814cb5729c9deef',
   'RS-43': '1033e6a435341a3e',
   'RS-44': '5aeba9325454b1ad',
+  // ---------------------------------------------------------------------
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows D-202 and
+  // D-206). ⛔ The fingerprints below were NOT pasted in from a failure
+  // message: the 場面 and the three fields of the dictionary were read side by
+  // side first, and this note records what that reading found.
+  //
+  // `RS-45` -- 場面 「この画面を動かす本体が、このファイルの中に見つからない」;
+  //   ja 「この画面を動かす本体が、このファイルの中に見つかりません」 is the same
+  //   sentence in the polite form, en 「The body that runs this screen is not
+  //   inside this file」 says the same thing, and the 作法 column writes the row
+  //   against `NT-3a`, whose next step 「配られた元のファイルを開き直してくださ
+  //   い」 / 「Open the file you were given again」 is a step the reader can
+  //   actually take when the shell was opened straight off the disk (表 T-004 の
+  //   `LM-14`). ⇒ the words tell the scene.
+  // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja 「これ以上深い段には行を
+  //   足せません」 is again the same sentence, en 「A row cannot be added any
+  //   deeper than this」 says the same, and the next step 「もっと浅い行に足して
+  //   ください」 / 「Add it to a shallower row」 is the one `FR-085`'s cap leaves
+  //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
+  //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
+  //   CR-340 was written to keep. ⇒ the words tell the scene.
+  // ---------------------------------------------------------------------
+  'RS-45': '24f4818e5043cdb9',
+  'RS-46': '1dc2be62612383ad',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

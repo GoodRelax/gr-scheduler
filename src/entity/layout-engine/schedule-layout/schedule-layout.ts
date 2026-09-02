@@ -958,6 +958,46 @@ function actualSpanOf(
 }
 
 /**
+ * How many ranks of controls stand on one row -- HF-1 of table T-051 (MUST):
+ * 「並びは 2 × 2 の格子とすること」.
+ *
+ * ⛔ NOT GENERATED, AND NOT A COPIED VALUE EITHER. Rule 03 section 1 forbids a
+ * value the manuscript HOLDS to be typed again; this count is stated in HF-1's
+ * own sentence and in no row of table T-206, so there is nothing to generate it
+ * from. ⭐ It is named here, beside the sentence it is read from, rather than
+ * left as a bare 2 inside an expression.
+ */
+const ROW_CONTROL_LATTICE_RANKS = 2
+
+/**
+ * LF-3 of table T-221 (MUST) and HF-19 of table T-051 (MUST NOT): the least a
+ * row's band may be, because HF-1's lattice of controls stands on it.
+ *
+ * ⭐⭐ THIS LAYER HOLDS IT (利用者の裁定 2026-09-03, CR-342). Until that ruling
+ * the floor reached this unit only as an argument, measured by the side that
+ * drew the lattice -- so a caller that passed nothing dropped HF-19's MUST NOT
+ * in silence, and every row of the parity board came out at 22px against a 48px
+ * lattice. ⇒ A rule that only holds when a caller remembers is not a rule.
+ * ⛔ THE NUMBER IS NOT WRITTEN HERE: `rowControlOuterHeightPx` is generated out
+ * of S-138 and S-141 of table T-206, which is what FR-029 composes one
+ * entrance's outer height from, and HF-1's lattice is `ROW_CONTROL_LATTICE_RANKS`
+ * of them stacked.
+ * ⚠️ A LOWER BOUND AND NOT THE LATTICE'S FIGURE. HF-6 of table T-051 (MUST NOT)
+ * refuses to state the gap between two controls -- 「その量を持つ行はどこにも
+ * 無く、まだ裁定を受けていない」 -- so a drawn lattice may be taller than this and
+ * never shorter, which is why a measured height may raise the band.
+ *
+ * ⛔ A FUNCTION AND NOT A `const`: the generated block stands at the foot of
+ * this file, and a module-level constant would read it inside its own temporal
+ * dead zone.
+ *
+ * @purity pure
+ */
+function rowControlLatticeFloorPx(): number {
+  return NOT_STORED_ROW_CONTROL_OUTER_SIZES.rowControlOuterHeightPx * ROW_CONTROL_LATTICE_RANKS
+}
+
+/**
  * Runs LC-1 to LC-9 of table T-068, in that order, once.
  *
  * ⛔ `groupDepthCap` EXISTS FOR FR-055 ALONE, and nothing else may pass it.
@@ -977,6 +1017,20 @@ function actualSpanOf(
  * may hold a current value (LY-5 of table T-060). ⛔ Absent reads as NOT folded,
  * which is that row's own default, so no caller is forced to answer it.
  *
+ * ⭐⭐ `rowControlsHeightPx` IS A MEASURED LATTICE, AND IT IS NO LONGER WHAT
+ * PUTS LF-3's SECOND FLOOR UNDER THE BAND. That row (MUST, 利用者の裁定
+ * 2026-09-03) has the band 「その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
+ * 高さも下回らない」, and the ruling of 2026-09-03 (CR-342) gives this layer the
+ * floor of its own: `rowControlLatticeFloorPx` derives it from S-138 and S-141,
+ * so a caller that hands in nothing still gets a band HF-19 (MUST NOT) allows.
+ * ⭐ WHAT AN ARGUMENT IS STILL FOR: the drawn lattice may be TALLER than the
+ * two rows compose -- HF-6 (MUST NOT) leaves the gap between two controls
+ * unstated -- so a measurement taken where the lattice is drawn is passed in
+ * and RAISES the band. ⛔ It may not lower it: HF-19 (MUST NOT) states 「格子の
+ * 側を縮めて合わせてはならない」, so a measurement below the floor is a lattice
+ * drawn wrong and not a shorter floor, and the band would take the fault with
+ * it. ⚠️ Absent reads as no measurement, which is the floor above and no more.
+ *
  * @purity pure
  */
 export function layoutFromSchedule(
@@ -985,6 +1039,7 @@ export function layoutFromSchedule(
   regions: ScreenRegions,
   groupDepthCap?: number,
   isLevelZeroFolded?: boolean,
+  rowControlsHeightPx?: number,
 ): ScheduleLayout {
   // ---- LC-3 first, because LC-2's task half needs the width of one day -----
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
@@ -1224,7 +1279,21 @@ export function layoutFromSchedule(
     const stacked = laneHeights.reduce((sum, h) => sum + h + settings.stackGap, 0)
     const packed = Math.max(0, stacked - settings.stackGap)
     // FR-042 reads a stated height as a floor, never as a cap.
-    const height = Math.max(packed, emptyLane, row.height ?? 0)
+    // ⭐⭐ AND LF-3 CARRIES A SECOND FLOOR SINCE 2026-09-03 (MUST): 「帯高は矩形が
+    // 縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が
+    // 縦に取る高さも下回らない」. ⛔ Without it the lattice's lower rank stands on
+    // the NEXT row's band and takes that row's presses -- HF-19 (MUST NOT) states
+    // the consequence, and it was measured: a row holding no `Task` came out
+    // 22..28px against a 48px lattice, and its own IC-90 and IC-58 answered for
+    // the row below.
+    // ⛔ THE BAND GIVES WAY AND NEVER THE LATTICE (HF-19, MUST NOT): 「格子の側を
+    // 縮めて合わせてはならない」, because HF-5 (MUST) draws every control the same
+    // size 「行の名前の文字サイズにかかわらず」.
+    // ⭐⭐ AND THE FLOOR IS THIS UNIT'S OWN SINCE CR-342, not the caller's to
+    // remember: `rowControlLatticeFloorPx` composes it out of S-138 and S-141,
+    // and a measured lattice can only RAISE it -- see the note on the argument.
+    const latticeFloor = Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0)
+    const height = Math.max(packed, emptyLane, row.height ?? 0, latticeFloor)
 
     // ---- LC-9, ST-5: stackDirection (S-58) picks which end lane 0 sits at --
     // ⚠️ ST-5 settles that the direction is one choice for the whole document
@@ -1737,11 +1806,19 @@ export function fitZoom(
   settings: DocumentSettings,
   regions: ScreenRegions,
   zoom: NotStoredZoom,
+  rowControlsHeightPx?: number,
 ): FitToScreen {
   const floorZoomY = zoomYAtPlanHeightFloor(settings)
   const deepest = deepestDrawnDepth(schedule, settings)
+  // ⛔ THE SAME FLOOR THE PICTURE WILL BE DRAWN WITH, and it is carried rather
+  // than left out: the fit measures 「描くものが `Row Area` に収まる」 against
+  // these very runs, so a run without LF-3's row-control floor would measure
+  // bands shorter than the ones the frame then draws and seat a depth that does
+  // not fit.
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
-    layoutFromSchedule(schedule, { ...settings, zoomX, zoomY }, regions, cap)
+    layoutFromSchedule(
+      schedule, { ...settings, zoomX, zoomY }, regions, cap, undefined, rowControlsHeightPx,
+    )
 
   // ---- (a) the horizontal, measured once at unity --------------------------
   const atUnity = runAt(1, floorZoomY, deepest)
@@ -1835,3 +1912,36 @@ export function fitZoom(
       chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * A value table T-206 states across more than one row, summed once
+ * here so that no unit adds it up for itself.
+ *
+ * ⭐ The member is NAMED rather than keyed by a row ID, which every
+ * other generated block of table T-206 is: no single row holds this
+ * number, so no row ID would be an honest name for it.
+ *
+ * ⚠️ This unit holds the sum rather than being handed it because the
+ * rule is its own to keep: LF-3 of table T-221 (MUST) makes the
+ * lattice's height a floor under the band this unit decides, and
+ * HF-19 of table T-051 (MUST NOT) lets no band fall below it. A rule
+ * that only holds when a caller remembers to pass something is not a
+ * rule. ⭐ A measured lattice is still taken where one arrives -- it
+ * is what shows the drawn lattice leaving the two rows below -- and
+ * it can only ever RAISE the band, never lower it past this floor.
+ * ⛔ Neither term is a document setting and neither may become one:
+ * table T-206 is where the specification records that the document
+ * does not keep them, and the note on S-138 keeps the size off the
+ * reader's own text size (FR-039) as well.
+ */
+export const NOT_STORED_ROW_CONTROL_OUTER_SIZES: {
+  /** S-138 + S-141 x 2, in px */
+  readonly rowControlOuterHeightPx: number
+} = {
+  rowControlOuterHeightPx: 24,
+}
+// </generated>

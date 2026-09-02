@@ -1707,6 +1707,28 @@
    }
   },
   {
+   "rowId": "RS-45",
+   "text": {
+    "ja": "この画面を動かす本体が、このファイルの中に見つかりません",
+    "en": "The body that runs this screen is not inside this file"
+   },
+   "nextStep": {
+    "ja": "配られた元のファイルを開き直してください",
+    "en": "Open the file you were given again"
+   }
+  },
+  {
+   "rowId": "RS-46",
+   "text": {
+    "ja": "これ以上深い段には行を足せません",
+    "en": "A row cannot be added any deeper than this"
+   },
+   "nextStep": {
+    "ja": "もっと浅い行に足してください",
+    "en": "Add it to a shallower row"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

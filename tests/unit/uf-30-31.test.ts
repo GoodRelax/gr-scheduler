@@ -1277,9 +1277,18 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
   // bench could not see the running application's `MK-1` break -- the next
   // case is the one that can, and this one is kept because it pins the answer
   // for a schedule whose rows are small.
+  // ⚠️ CORRECTED AGAIN 2026-09-03. The list below opened at a typed `36`, which
+  // was the pitch of this fixture when a one-lane band was the rectangle alone.
+  // 表 T-221 の `LF-3` and 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03) put
+  // a second floor under every band -- 「**帯高は矩形が縦に取る高さを下回らず、かつ、
+  // その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」 -- so
+  // the pitch grew and 36 stopped being 「longer than one row」.
+  // ⭐ THE SMALLEST DISTANCE THIS CASE MEANS IS THE PITCH ITSELF, so it is now
+  // asked for by name. ⛔ Not re-typed: neither row states a figure (「数は本行に
+  // 書かない」), and the guard below still fails if the pitch outgrows 100px.
   it('MK-1: every turn longer than one row moves the row at the top', () => {
     const pitch = rowOf('g2').y - rowOf('g1').y
-    for (const px of [36, 100, 120, 200, 250, 300]) {
+    for (const px of [pitch, 100, 120, 200, 250, 300]) {
       expect(px, 'the case only means distances longer than one row').toBeGreaterThanOrEqual(pitch)
       const moved = oneCommand(commandFromInput(wheelDown(px), contextOf()), 'setScrollPosition')
       expect(moved['scrollGroupId'], `${px}px`).not.toBe(SETTINGS.scrollGroupId)
@@ -2006,6 +2015,130 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     expect(String(clicked['start']).slice(0, 10)).toBe('2026-01-04')
     expect(clicked['start']).toBe(draggedOneDay['start'])
     expect(clicked['finish']).toBe(draggedOneDay['finish'])
+  })
+
+  // =========================================================================
+  // CR-341 (ledger row D-210) -- THE CALENDAR QUESTION THE BLOCK ABOVE REFUSED
+  // TO GUESS AT IS NOW ANSWERED BY docs/spec, so it is asserted rather than
+  // filed as a hole. FR-001's STATEMENT, verbatim (利用者に問わずに決めた
+  // 2026-09-03, and the rule the ruling of 2026-09-02 needed to be complete):
+  //
+  //   ⛔⛔ 「**1 単位を足した先が暦に無い日になるときは、その月の末日とすること
+  //    （MUST）**」 —— 「**月の段で 1 月 31 日を押すと、1 か月後はどの暦にも無い。**」
+  //   ⛔ 「**翌月へこぼしてはならない（MUST NOT）**」 —— 「**こぼすと、押したマス目
+  //    より 1 つ多い期間になり、直前の「見えているマス目 1 つ分であり、画面と一致
+  //    する」を破る。**」
+  //   ⚠️ 「**年の段でも同じことが起きる**（2 月 29 日の 1 年後）—— **同じ規則で足りる。**」
+  // =========================================================================
+
+  /**
+   * The same fixture zoomed until the ruler rules MONTHS.
+   *
+   * ⭐ THE BAND IS READ, NEVER TYPED. FR-001 states the switch -- 「26 以上で 日、
+   * 4.3〜26 で 週、1.4〜4.3 で 月、1.4 未満で 年」 -- and 表 T-205's `S-83` /
+   * `S-84` / `S-85` hold those figures, so the zoom is aimed at the middle of
+   * the month band as the settings themselves state it. ⛔ The case below then
+   * asserts the fixture really landed there; a zoom that missed fails loudly
+   * instead of asserting the week tier's answer under a month tier's name.
+   */
+  const AT_THE_MONTH_TIER = (() => {
+    const flat = SETTINGS as unknown as Record<string, number>
+    const floor = flat['rulerTierPxPerDayMonth'] as number
+    const ceiling = flat['rulerTierPxPerDayWeek'] as number
+    const aimedAt = (floor + ceiling) / 2
+    const zoomX = (SETTINGS.zoomX * aimedAt) / LAYOUT.pxPerDay
+    const settings = settingsOf({ ...(SETTINGS as unknown as Record<string, unknown>), zoomX })
+    const regions = regionsFromScreen(ENV, settings)
+    const layout = layoutFromSchedule(SCHEDULE, settings, regions)
+    const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection())
+    const rowOfIt = (groupId: string) => {
+      const row = layout.rows.find((one) => one.groupId === groupId)
+      if (row === undefined) throw new Error(`no row ${groupId} in the month-tier layout`)
+      return row
+    }
+    return {
+      layout,
+      floor,
+      ceiling,
+      context: { layout, regions, geometry } as Partial<InputContext>,
+      /** The middle of the column a day is drawn in -- at ~3px a day, an edge is not a safe aim. */
+      midXOfDay: (text: string): number =>
+        layout.originX + (serialOf(text) - ORIGIN_SERIAL + 0.5) * layout.pxPerDay,
+      midYOfRow: (groupId: string): number => rowOfIt(groupId).y + rowOfIt(groupId).height / 2,
+    }
+  })()
+
+  it('⭐⭐ FR-001 (MUST): at the MONTH tier, one unit from the 31st is the last day of the month it lands in', () => {
+    // ⭐ THE DAY PRESSED IS THE ONE FR-001 ITSELF NAMES: 「月の段で 1 月 31 日を押す
+    // と、1 か月後はどの暦にも無い」. February 2026 has 28 days, so 「その月の末日」
+    // is the 28th -- and 「翌月へこぼしてはならない（MUST NOT）」 rules out the 3rd
+    // of March, which is where a plain 31-days-on or a rolled-over month lands.
+    expect(
+      AT_THE_MONTH_TIER.layout.pxPerDay,
+      'the zoomed fixture is not ruling months',
+    ).toBeGreaterThanOrEqual(AT_THE_MONTH_TIER.floor)
+    expect(AT_THE_MONTH_TIER.layout.pxPerDay).toBeLessThan(AT_THE_MONTH_TIER.ceiling)
+
+    const y = AT_THE_MONTH_TIER.midYOfRow('g3')
+    const pressedDay = '2026-01-31'
+    const lastDayOfTheMonthItLandsIn = '2026-02-28'
+    const at = AT_THE_MONTH_TIER.midXOfDay(pressedDay)
+
+    const clicked = oneCommand(
+      gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+        ...AT_THE_MONTH_TIER.context,
+        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+      }),
+      'createTask',
+    )
+
+    // 「押した日を起点に」.
+    expect(String(clicked['start']).slice(0, 10)).toBe(pressedDay)
+    // ⛔ 「翌月へこぼしてはならない（MUST NOT）」 -- the half that is checkable
+    // without knowing which end `finish` names: whatever it is, it is in
+    // February.
+    expect(
+      String(clicked['finish']).slice(0, 7),
+      'FR-001 (MUST NOT): one unit from the 31st of January spilled past February',
+    ).toBe('2026-02')
+    // ⭐ 「その月の末日とすること（MUST）」.
+    expect(String(clicked['finish']).slice(0, 10)).toBe(lastDayOfTheMonthItLandsIn)
+
+    // ⭐ AND THE SPAN IS STILL THE ONE A DRAG OF THAT LENGTH MAKES, so no
+    // convention about which end `finish` names is invented in this file --
+    // the same technique the two cases above use.
+    const draggedThere = oneCommand(
+      gestureAction(
+        pointerOf('down', at, y),
+        pointerOf('up', AT_THE_MONTH_TIER.midXOfDay(lastDayOfTheMonthItLandsIn), y),
+        null,
+        {
+          ...AT_THE_MONTH_TIER.context,
+          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        },
+      ),
+      'createTask',
+    )
+    expect(clicked['start']).toBe(draggedThere['start'])
+    expect(clicked['finish']).toBe(draggedThere['finish'])
+  })
+
+  it('⭐ FR-001 (MUST): at the MONTH tier, a day that HAS a counterpart keeps it', () => {
+    // ⛔ WITHOUT THIS, AN ANSWER THAT CLAMPED EVERY MONTH-TIER CLICK TO THE END
+    // OF THE FOLLOWING MONTH WOULD PASS THE CASE ABOVE. 「1 単位を足した先が暦に
+    // 無い日になるときは」 is a condition, not a rule for every day: the 15th of
+    // January has a counterpart a month on, and the clamp must leave it alone.
+    const y = AT_THE_MONTH_TIER.midYOfRow('g3')
+    const at = AT_THE_MONTH_TIER.midXOfDay('2026-01-15')
+    const clicked = oneCommand(
+      gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+        ...AT_THE_MONTH_TIER.context,
+        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+      }),
+      'createTask',
+    )
+    expect(String(clicked['start']).slice(0, 10)).toBe('2026-01-15')
+    expect(String(clicked['finish']).slice(0, 10)).toBe('2026-02-15')
   })
 
   it('⭐ FR-001 (MUST): S-208, and nothing else, is where a press stops being a click and becomes a drag', () => {

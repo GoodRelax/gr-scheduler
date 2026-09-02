@@ -2397,6 +2397,168 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     expect(three).not.toContain('2em')
   })
 
+  // -------------------------------------------------------------------------
+  // D-116 -- the room the row's name is ACTUALLY given
+  //
+  // ⛔ THE DEFECT THESE CASES STAND IN FOR. Measured on the shipped build of
+  // 2026-08-30: the row's three controls sat in the row's own flow with
+  // `visibility:hidden`, holding 48 of a 170px panel, while `S-140` of 表 T-206
+  // -- 「行の操作子に確保する場所（`FR-085`）」-- states 0px. So `FR-085` cut the
+  // name against 158px and the browser was handed 90, and the difference went
+  // into the browser's own ellipsis, which `isLabelTruncated` cannot record.
+  //
+  // THE TWO MUSTs THAT SETTLE IT:
+  //   表 T-051 `HF-6`  ⭐「**操作子は、行の名前の上へ重ねて描くこと（MUST）** ——
+  //     確保する場所は 0 だからである（`S-140`）」, and ⛔「**描かないあいだも、
+  //     確保する場所を変えてはならない（MUST NOT）** —— 規則と理由は `FR-085` が
+  //     持つ」
+  //   `FR-085`         「使える幅は、`rowTitlePanelWidth` から、その行の深さぶん
+  //     のインデント（`S-37`）と、行の操作子…に確保した場所と、**行の掴み代
+  //     （表 T-023d の `GR-20`）に確保した場所（`S-138`）とその隔たり（`S-218`）**
+  //     を引いた残りとすること（MUST）」
+  //
+  // ⇒ Of the four terms, exactly three may show up as room taken beside the
+  // name: the indent, the grab strip and its gap. The controls' term is 0, so a
+  // control that stands in the row's flow takes room the sum does not know about
+  // -- which is the defect, stated as something a case can see.
+  //
+  // ⚠️ WHAT THESE CASES DO NOT ASSERT. A fake DOM lays nothing out, so the 90 vs
+  // 158 that was measured in the browser cannot be measured here; what is asked
+  // is which elements are IN the flow and what the flow spends. The pixels are
+  // tests/system's.
+  // -------------------------------------------------------------------------
+
+  /** `S-218` -- 「行の掴み代と行の名前のあいだ（表 T-023d の `GR-20`）」. */
+  const s218 = (): number => {
+    const row = specTable('T-206').rows.find((one) => one.id === 'S-218')
+    if (row === undefined) throw new Error('表 T-206 no longer holds S-218')
+    const found = /(\d+(?:\.\d+)?)\s*px/.exec(row.by['既定'] ?? '')
+    if (found === null) throw new Error('S-218 states no px value in its 既定 column')
+    return Number(found[1])
+  }
+
+  /** `S-140` -- 「行の操作子に確保する場所（`FR-085`）」. */
+  const s140 = (): number => {
+    const row = specTable('T-206').rows.find((one) => one.id === 'S-140')
+    if (row === undefined) throw new Error('表 T-206 no longer holds S-140')
+    const found = /(\d+(?:\.\d+)?)\s*px/.exec(row.by['既定'] ?? '')
+    if (found === null) throw new Error('S-140 states no px value in its 既定 column')
+    return Number(found[1])
+  }
+
+  /** The one row the panel drew, and its direct children. */
+  const drawnRow = (title: RowTitle): { row: FakeElement; children: FakeElement[] } => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(
+      viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
+    )
+    const tree = oneByRole(built.root(), 'Row Title Tree')
+    const row = tree.children[0]
+    if (row === undefined) throw new Error('the panel drew no row')
+    return { row, children: [...row.children] }
+  }
+
+  /** A child that is taken out of the flow takes no room from the name. */
+  const isOutOfFlow = (element: FakeElement): boolean =>
+    styleOf(element).includes('position:absolute')
+
+  it('⛔ D-116 / HF-6 (MUST): every row control is laid OVER the name, not beside it', () => {
+    // 「⭐ **操作子は、行の名前の上へ重ねて描くこと（MUST）** —— 確保する場所は 0
+    // だからである」, with `S-140` read out of 表 T-206 to hold that 0 to the
+    // manuscript rather than to this comment.
+    // GOES RED IF: a control goes back into the row's flow, which is what took
+    // 48px of a 170px panel away from the name on 2026-08-30.
+    expect(s140(), '表 T-206 の `S-140`: 行の操作子に確保する場所').toBe(0)
+
+    const { children } = drawnRow(
+      rowTitle({
+        groupId: 'g-1',
+        label: 'RowAlpha',
+        box: rect(0, 137, 170, 29),
+        expander: { canOpen: true, canClose: true, canCloseBelow: true },
+      }),
+    )
+    const inFlow = children.filter((child) => !isOutOfFlow(child))
+    // The grab strip (`GR-20`) and the name itself, and nothing else.
+    // ⚠️ NOT A PINNED ROW: 表 T-023d の `GR-20` (MUST NOT) says a pinned row
+    // cannot be grabbed —— 「⛔ **ピン止めしている行は掴めないこと（MUST NOT）**」
+    // —— so it draws no strip and this count would be one for a reason that has
+    // nothing to do with the controls.
+    expect(
+      inFlow.length,
+      `表 T-051 の \`HF-6\`: ${inFlow.map(styleOf).join(' / ')} stand in the row's flow`,
+    ).toBe(2)
+  })
+
+  it('⛔ FR-085 (MUST): what the flow spends beside the name is the indent, `S-138` and `S-218`', () => {
+    // 「その行の深さぶんのインデント（`S-37`）と …… **行の掴み代（`GR-20`）に確保
+    // した場所（`S-138`）とその隔たり（`S-218`）**を引いた残り」. ⭐ Three terms,
+    // three numbers on the row, all read from the manuscript.
+    // GOES RED IF: the strip stops being `S-138` wide, the gap stops being
+    // `S-218`, or the indent stops being the `indentPx` the description carries.
+    const depth = 3
+    const { row, children } = drawnRow(
+      rowTitle({ groupId: 'g-3', label: 'RowAtThree', depth, box: rect(0, 70, 170, 29) }),
+    )
+    // ⚠️ THE RAW STYLE, not `styleOf`: that helper strips every space, and the
+    // padding this case reads is a four-value shorthand whose spaces are what
+    // says WHICH side the indent is on.
+    const style = inlineStyle(row)
+
+    // 「その行の深さぶんのインデント」 -- and `RowTitle.indentPx` is that product.
+    expect(style, 'FR-085: the row is set in by its own `indentPx`').toContain(
+      `padding:0 0 0 ${depth * ROW_TITLE_INDENT}px`,
+    )
+    // 「その隔たり（`S-218`）」 -- the space between the strip and the name.
+    expect(style, 'FR-085: `S-218` stands between the grab strip and the name').toContain(
+      `gap:${s218()}px`,
+    )
+
+    // 「行の掴み代（表 T-023d の `GR-20`）に確保した場所（`S-138`）」. `HF-15`
+    // (MUST) draws it always -- 「⛔ **`HF-6` の対象ではない**」 -- so it is the
+    // one thing that may stand in the flow ahead of the name.
+    const inFlow = children.filter((child) => !isOutOfFlow(child))
+    const strip = inFlow[0]
+    expect(strip, 'the row drew nothing in its flow').toBeDefined()
+    expect(styleOf(strip as FakeElement), '表 T-023d の `GR-20`: 幅は `S-138`').toContain(
+      `width:${S_138.px}px`,
+    )
+  })
+
+  it('⛔ HF-6 (MUST NOT): the room does not change with whether the controls can act', () => {
+    // 「⛔ **描かないあいだも、確保する場所を変えてはならない（MUST NOT）** ——
+    // 規則と理由は `FR-085` が持つ」, and `S-140` の備考: 「⚠️ **打ち切りの位置が
+    // 動かないことが、この規則の目的である**」.
+    // ⭐ Two rows that differ ONLY in what their controls can do: the row's own
+    // box and the name's box have to come out the same, or the cut moves with
+    // the state of the controls.
+    // GOES RED IF: the row reserves room per control, or the name's flex share
+    // is written from the control count.
+    const shape = { groupId: 'g-1', label: 'RowAlpha', box: rect(0, 137, 170, 29) } as const
+    const quiet = drawnRow(
+      rowTitle({ ...shape, expander: { canOpen: false, canClose: false, canCloseBelow: false } }),
+    )
+    // ⚠️ `isPinned` IS HELD EQUAL ON BOTH SIDES. `FR-098` gives a pinned row a
+    // ground of its own, which is a colour and not room; letting it vary here
+    // would make this case about that instead.
+    const busy = drawnRow(
+      rowTitle({ ...shape, expander: { canOpen: true, canClose: true, canCloseBelow: true } }),
+    )
+
+    expect(styleOf(busy.row), 'FR-085 (MUST NOT): the row itself changed size').toBe(
+      styleOf(quiet.row),
+    )
+
+    const nameOf = (one: { children: FakeElement[] }): string => {
+      const found = one.children.filter((child) => !isOutOfFlow(child))[1]
+      if (found === undefined) throw new Error('the row drew no name in its flow')
+      return styleOf(found)
+    }
+    expect(nameOf(busy), 'FR-085 (MUST NOT): the name was given a different share').toBe(
+      nameOf(quiet),
+    )
+  })
+
   it('SC-5: the Properties Panel scrolls its own contents and is slaved to nothing', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)

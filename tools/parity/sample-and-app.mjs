@@ -5,8 +5,15 @@
 // the sample's, so this empties it and stands the sample's tree up through the
 // UI -- IC-82 to delete, IC-93 / IC-91 to add, and the entry HF-14 opens to name.
 //
-// ⛔ THE WINDOW IS TALL ON PURPOSE. Rows are 64..148px (FR-042), so a 1080-high
-// window draws about eight of them and a row below the fold cannot be pressed.
+// ⛔ THE WINDOW IS TALL ON PURPOSE. A row is as tall as its tiers make it
+// (`ST-9`, with the arithmetic in `LF-2`), measured at 22..188px on the shipped
+// build's own document, so a 1080-high window draws only the first few of them
+// and a row below the fold cannot be pressed.
+//
+// ⚠️ THIS COMMENT USED TO SAY 「64..148px (FR-042)」, a range that is nowhere in
+// the specification -- see the note in `check.mjs`. The board this file builds
+// is made of rows carrying no `Task` at all, which is exactly the 22..28px case
+// the invented floor denied.
 //
 // ⭐ WHY THIS LIVES IN tools/ AND NOT IN scratch/. scratch/ is gitignored, so a
 // harness left there is gone by the next session -- and this one is the only

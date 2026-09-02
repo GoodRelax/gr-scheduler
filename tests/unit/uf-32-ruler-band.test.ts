@@ -31,6 +31,9 @@
 //   表 T-201  `S-2` / `S-3` / `S-136`, and the closing paragraph:「文字の大きさ
 //            は段階によらず `rulerFont`」
 //   表 T-205  `S-83` 〜 `S-85`, the three thresholds FR-017 judges the 段階 on
+//   表 T-221  `LF-1`「目盛の刻みの間隔」-- 「年の段は 1 年、年と月の段は 1 か月、
+//            週の段は 7 日、日の段と曜日の段は 1 日」, with ⛔「これ以外の間隔を
+//            採ってはならない（MUST NOT）」(ledger row D-91)
 //   表 T-076  `EP-2`（`Time Ruler` は 描く ——「日付が読めないと日程表として
 //            成り立たない」）
 //   表 T-031  `SC-2`（タイムルーラー ——「横は本体と連動する。縦には流れない」）
@@ -75,6 +78,7 @@ import {
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { SCHEDULE_COLOURS, svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The values, solved from the manuscript rather than typed in.
@@ -795,6 +799,137 @@ describe('UF-32 -- FR-038: the display language reaches the 曜日 and nothing e
         `${tier.name}: 言語に依る出力は無い`,
       ).toBe(drawn(EMPTY, settings, ONE_LANGUAGE))
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-221 の `LF-1` -- the 刻み of the 曜日の段 (ledger row D-91)
+//
+// ⛔ THE HOLE THIS CLOSES. CR-268 gave the 曜日 a 段 of its own and ruled that
+// `LF-1` would not move -- 「刻みの間隔は段の組み方と別である」 -- which left the
+// one row that names EVERY interval without an entry for the new 段, while its
+// own closing rule reads 「⛔ **これ以外の間隔を採ってはならない（MUST NOT）**」.
+// The row was mended on 2026-08-27 and now reads:
+//
+//   「段階ごとに固定とし、**年の段は 1 年、年と月の段は 1 か月、週の段は 7 日、
+//     日の段と曜日の段は 1 日**に 1 つ刻む。⭐ **日の段と曜日の段が同じ間隔なの
+//     は、同じ軸を 2 段に割ったものだからである**（`FR-017`。利用者の裁定
+//     2026-08-27）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。**」
+//
+// ⭐ WHY THE TWO 段 ARE MEASURED AGAINST EACH OTHER AND NOT ONLY AGAINST A
+// NUMBER. The reason the row gives is a relation, not a figure: the 曜日 under a
+// 日 has to be THAT day's. A weekday row drawn every second day would keep a
+// plausible-looking picture and break exactly that, so the cases below assert
+// both halves -- one day between neighbours, and the same count as the 日の段.
+//
+// ⚠️ ONLY 段階 4 HAS A 曜日の段 (FR-017), so that is the one 段階 these read; the
+// coarser three are already held to carrying no weekday at all by the FR-038
+// block above.
+// ---------------------------------------------------------------------------
+
+/** One 目盛ラベル with the place it was drawn at, not only its baseline. */
+interface PlacedLabel {
+  readonly x: number
+  readonly baseline: number
+  readonly text: string
+}
+
+const placedLabelsOf = (svg: string, band: ScreenRect): readonly PlacedLabel[] => {
+  const out: PlacedLabel[] = []
+  const scan = /<text\b([^>]*)>([\s\S]*?)<\/text>/g
+  let hit: RegExpExecArray | null = scan.exec(svg)
+  while (hit !== null) {
+    const open = `<text${hit[1] as string}>`
+    const x = numberAt(open, 'x')
+    const y = numberAt(open, 'y')
+    if (x !== null && y !== null && y >= band.y && y <= band.y + band.height) {
+      out.push({ x, baseline: Math.round(y * 100) / 100, text: (hit[2] as string).trim() })
+    }
+    hit = scan.exec(svg)
+  }
+  return out
+}
+
+/** The labels of one 段, left to right. */
+const rowAt = (labels: readonly PlacedLabel[], baseline: number): readonly PlacedLabel[] =>
+  labels.filter((label) => label.baseline === baseline).sort((one, other) => one.x - other.x)
+
+/** The distances between neighbouring 目盛, in the order they are drawn. */
+const gapsOf = (row: readonly PlacedLabel[]): readonly number[] =>
+  row.slice(1).map((label, at) => label.x - (row[at] as PlacedLabel).x)
+
+/** The band at 段階 4, drawn with this file's own seven weekday words. */
+const fourthTier = (): {
+  readonly pxPerDay: number
+  readonly day: readonly PlacedLabel[]
+  readonly weekday: readonly PlacedLabel[]
+} => {
+  const settings = settingsOf({ ...SETTINGS, zoomX: FOURTH_TIER.zoomX })
+  const band = bandOf(settings)
+  const labels = placedLabelsOf(drawn(EMPTY, settings, ONE_LANGUAGE), band)
+  const words = new Set(ONE_LANGUAGE)
+
+  const weekdayBaselines = new Set(
+    labels.filter((label) => words.has(label.text)).map((label) => label.baseline),
+  )
+  expect(weekdayBaselines.size, 'FR-017 (MUST): 曜日は 1 段を持つ').toBe(1)
+  const weekdayBaseline = [...weekdayBaselines][0] as number
+
+  // 「日の段は日の数字」 -- a bare number, which the 年と月の段's `YYYY-MM` is not.
+  const dayBaselines = new Set(
+    labels
+      .filter((label) => label.baseline !== weekdayBaseline && /^[0-9]+$/.test(label.text))
+      .map((label) => label.baseline),
+  )
+  expect(dayBaselines.size, 'FR-017 (MUST): 日の段は 1 段である').toBe(1)
+
+  return {
+    // FR-017 (MUST): 「1 日あたりの表示幅は、表 T-201 の `S-1` に `zoomX` を掛け
+    // た値とすること」. Solved, never typed in.
+    pxPerDay: PX_PER_DAY_AT_1X * FOURTH_TIER.zoomX,
+    day: rowAt(labels, [...dayBaselines][0] as number),
+    weekday: rowAt(labels, weekdayBaseline),
+  }
+}
+
+describe('UF-32 -- 表 T-221 の `LF-1`: the 曜日の段 keeps the 日の段の刻み', () => {
+  it('⭐ still names the 曜日の段 in the row that holds every interval', () => {
+    // ⛔ The quote the cases below rest on, read out of the manuscript rather
+    // than trusted to this comment. D-91 was raised because this very row had
+    // no entry for the 曜日の段 while closing with a MUST NOT over 「これ以外の
+    // 間隔」; a row that loses it again must not leave these cases green.
+    const lf1 = specTable('T-221').rows.find((row) => row.id === 'LF-1')
+    if (lf1 === undefined) throw new Error('表 T-221 no longer has row LF-1')
+    const formula = lf1.by['算式'] ?? ''
+    expect(formula, '表 T-221 の `LF-1`: 日の段と曜日の段は 1 日').toContain(
+      '日の段と曜日の段は 1 日',
+    )
+    expect(formula, '表 T-221 の `LF-1` の閉じの MUST NOT').toContain('これ以外の間隔を採っては')
+  })
+
+  it('⛔ puts one day between neighbouring 曜日, and no other interval', () => {
+    // 「日の段と曜日の段は 1 日に 1 つ刻む」 and 「⛔ **これ以外の間隔を採っては
+    // ならない（MUST NOT）**」. GOES RED IF the weekday row is thinned: every gap
+    // then reads 2 × pxPerDay or more.
+    const { pxPerDay, weekday } = fourthTier()
+    expect(weekday.length, '曜日の段に目盛が 2 つ以上ある').toBeGreaterThan(1)
+    for (const [at, gap] of gapsOf(weekday).entries()) {
+      expect(gap, `表 T-221 の \`LF-1\`: 曜日の段の刻み ${at + 1}`).toBeCloseTo(pxPerDay, 6)
+    }
+  })
+
+  it('⛔ gives the 日の段 that same one day, so the two 段 stay in step', () => {
+    // 「⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからで
+    // ある** —— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。**」
+    // ⭐ The relation, not a second figure: as many 曜日 as 日, gap for gap.
+    const { pxPerDay, day, weekday } = fourthTier()
+    for (const [at, gap] of gapsOf(day).entries()) {
+      expect(gap, `表 T-221 の \`LF-1\`: 日の段の刻み ${at + 1}`).toBeCloseTo(pxPerDay, 6)
+    }
+    expect(
+      weekday.length,
+      '表 T-221 の `LF-1`: 日の段と曜日の段は同じ間隔なので、目盛の数も同じである',
+    ).toBe(day.length)
   })
 })
 

@@ -47,6 +47,7 @@ NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所�
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
+NOT_STORED_ROW_CONTROL_OUTER_SIZES   行の操作子 1 つの外形の高さ（`S-138` ＋ `S-141` × 2）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
 NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）

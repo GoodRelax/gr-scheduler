@@ -72,6 +72,80 @@ LADDER = ['未検討', '裁定待ち', '仕様待ち', '実装待ち',
 # build, not when its automated tests went green.
 DONE = ['実測済', '取下げ']
 
+# ⭐ THE FIVE BUNDLES OF 2026-09-03 (利用者の裁定). 残件 reads as one number, and
+# one number cannot tell "still needs a decision" apart from "still needs code."
+# On this round that blur made 26 rows waiting on 裁定待ち / 仕様待ち -- spec
+# holes, not defects -- read as 26 defects that never go down no matter how
+# much code gets fixed. ⛔ EACH LADDER STATUS LANDS IN EXACTLY ONE BUNDLE below
+# (checked at import time), so the five bundles partition the same 8 states the
+# table above already counts -- this is a second view of that count, not a
+# second count.
+#
+# ⚠️ 決着 is INTENTIONALLY the odd one out among the five: it names DONE (the
+# same two states as the ladder table's own finished set) rather than a stage
+# of open work, because a bundle table that dropped finished rows silently
+# could not be checked against 総件数 the way `--check` needs to.
+BUNDLES = [
+    ('未仕分け', ['未検討']),
+    ('仕様の穴', ['裁定待ち', '仕様待ち']),
+    ('製品の仕事', ['実装待ち', '試験待ち']),
+    ('検証の借り', ['実測待ち']),
+    ('決着', ['実測済', '取下げ']),
+]
+
+_BUNDLED_STATUSES = [status for _, statuses in BUNDLES for status in statuses]
+if sorted(_BUNDLED_STATUSES) != sorted(LADDER):
+    # ⛔ A LADDER STATUS THAT NO BUNDLE CLAIMS WOULD VANISH from the bundle
+    # table's total while still counting in the table above it -- the two
+    # tables would disagree about how many rows exist. Fail loudly at import
+    # instead of printing a bundle table that undercounts.
+    raise SystemExit('BUNDLES does not partition LADDER: bundled=%r ladder=%r'
+                      % (sorted(_BUNDLED_STATUSES), sorted(LADDER)))
+
+
+def bundle_counts(status_counts):
+    """Fold a {status: count} mapping (LADDER keys) into the five bundle counts,
+    in BUNDLES order. ⭐ Used for both the current counts and a folded baseline
+    row, so the two are comparable cell for cell."""
+    return [sum(status_counts.get(status, 0) for status in statuses)
+            for _, statuses in BUNDLES]
+
+
+# ⚠️ A ROW OF ITS OWN PATH-LIKE WORDS, not a claim about what the code actually
+# imports -- this reads the ledger's prose, which can lag or overstate reality
+# same as any other free-text cell. It exists as a rough OVERLAPPING gauge
+# (`道具・試験の借り`, 利用者の裁定 2026-09-03), not a sixth bundle: a row in it
+# may also stand inside 製品の仕事 or 仕様の穴 above.
+PATH_TOKEN = re.compile(r'\b(tools|tests|src)/[\w./-]+')
+
+
+def tool_test_debt(*named_texts):
+    """How many OPEN rows (status not in DONE) name a tools/ or tests/ path
+    anywhere in the row and name no src/ path anywhere in the row.
+
+    ⭐ HOW IT COUNTS, so the number can be checked by reading this function: it
+    scans each open row's raw Markdown line (every cell, unsplit) for tokens
+    matching PATH_TOKEN, and counts the row if that gives it a `tools/` or
+    `tests/` token and no `src/` token. It takes BOTH files of the ledger, the
+    same as `counts()`, so a row harvested into fixed-defects.md before it
+    finished (there is no such row today, but nothing stops one) is still
+    read.
+    """
+    debt = 0
+    for rel, text in named_texts:
+        for line in text.splitlines():
+            if not line.startswith('| D-'):
+                continue
+            cells = line.split('|')
+            status = cells[6].strip().strip('`')
+            if status in DONE:
+                continue
+            prefixes = set(match.group(1) for match in PATH_TOKEN.finditer(line))
+            if ('tools' in prefixes or 'tests' in prefixes) \
+                    and 'src' not in prefixes:
+                debt += 1
+    return debt
+
 # ⚠️ THE TEN NAMES THE LEDGER USED UNTIL 2026-09-01, in the order they were
 # printed in, and where each one lands now. This exists for ONE reason: a
 # baseline row taken under the old names has twelve cells while the new header
@@ -174,7 +248,7 @@ def signed(n):
     return '±0' if n == 0 else ('+%d' % n if n > 0 else str(n))
 
 
-def block_of(when, start_cells, rows, seen, today):
+def block_of(when, start_cells, rows, seen, today, debt):
     # ⛔ EVERY RUNG OF THE LADDER IS A COLUMN, empty or not. A column that
     # appeared only when a row stood on it would change the header's width from
     # one run to the next, and the baseline row printed under it would stop
@@ -187,6 +261,7 @@ def block_of(when, start_cells, rows, seen, today):
     # has not reached 実測済 or 取下げ. ⚠️ It is derived, never counted by
     # hand -- the whole reason this file exists.
     now = [rows - sum(seen.get(s, 0) for s in DONE), rows]         + [seen.get(s, 0) for s in order]
+    start_by_status = None                # None until a numeric baseline parses
     if start_cells is None or len(start_cells) != len(now):
         start = ['—'] * len(now)
         diff = ['—'] * len(now)
@@ -195,9 +270,32 @@ def block_of(when, start_cells, rows, seen, today):
             start_n = [int(c) for c in start_cells]
             diff = [signed(a - b) for a, b in zip(now, start_n)]
             start = [str(n) for n in start_n]
+            # ⭐ `order` IS `LADDER` HERE (this branch only runs when
+            # start_cells is not None, which is the same guard `order`
+            # itself used above), so zipping the two lines up the baseline's
+            # per-status cells with their status names.
+            start_by_status = dict(zip(order, start_n[2:]))
         except ValueError:
             start = list(start_cells)
             diff = ['—'] * len(now)
+
+    # ⭐ 束ねた数 (利用者の裁定 2026-09-03): the SAME eight-state counts above,
+    # read through BUNDLES instead of LADDER. ⛔ IT DOES NOT RECOUNT ANYTHING --
+    # `bundle_counts` only sums cells of `seen` / `start_by_status`, so a
+    # bundle number can never disagree with the ladder table it is folded
+    # from except by an arithmetic bug in `bundle_counts` itself.
+    bundle_now = bundle_counts(seen)
+    if start_by_status is None:
+        bundle_start = ['—'] * len(BUNDLES)
+        bundle_diff = ['—'] * len(BUNDLES)
+    else:
+        bundle_start_n = bundle_counts(start_by_status)
+        bundle_diff = [signed(a - b) for a, b in zip(bundle_now, bundle_start_n)]
+        bundle_start = [str(n) for n in bundle_start_n]
+    bundle_names = [name for name, _ in BUNDLES]
+    bundle_head = '| | ' + ' | '.join(bundle_names) + ' |'
+    bundle_rule = '| --- | ' + ' | '.join(['--:'] * len(bundle_names)) + ' |'
+
     lines = [
         BEGIN,
         '',
@@ -219,6 +317,26 @@ def block_of(when, start_cells, rows, seen, today):
         '**片方だけを数えれば、仕事を終えた行の数ぶん総件数が減り、'
         '何もしていない巡が前進に見える。**',
         '',
+        '### ⭐ 束ねた数（8 状態を 5 束へ。同じく `tools/ledger_metrics.py` が刷る）',
+        '',
+        '⭐ **なぜ割るか** —— 上の表を 1 つの「残件」で読むと、`裁定待ち` と `仕様待ち`'
+        '（まだ仕様に行が無い・裁定が無い）が `実装待ち` と `試験待ち`（コードの仕事）と'
+        '同じ 1 つの数に混ざり、**減らない仕様の穴が、減らない不具合に見える。**',
+        '',
+        bundle_head,
+        bundle_rule,
+        '| セッション開始時 %s | ' % when + ' | '.join(bundle_start) + ' |',
+        '| 最新 %s | ' % today + ' | '.join(str(n) for n in bundle_now) + ' |',
+        '| ⭐ 差分 | ' + ' | '.join(bundle_diff) + ' |',
+        '',
+        '⛔ **「不具合」と呼んでよいのは `製品の仕事` だけである。** `仕様の穴` は仕様を'
+        '書く仕事、`検証の借り` は押しに行く仕事であって、どちらもコードの欠陥ではない。',
+        '',
+        '⚠️ **`道具・試験の借り`（重なりを許す目安。上の 5 束とは重なる。分割ではない）: '
+        '%d 件** —— 開いている行（`決着` でない行）のうち、行の全文（全セル）が正規表現 '
+        '`\\b(tools|tests|src)/[\\w./-]+` で拾える語のうち `tools/` か `tests/` で始まる'
+        '語を 1 つ以上持ち、`src/` で始まる語を 1 つも持たない行の数。' % debt,
+        '',
         END,
     ]
     return '\n'.join(lines)
@@ -232,6 +350,7 @@ def main():
     unknown = sorted(s for s in seen if s not in LADDER)
     if unknown:
         raise SystemExit('%s: status not on the ladder: %s' % (REL, unknown))
+    debt = tool_test_debt((REL, text), (REL_HARVEST, harvested))
 
     i, j = text.find(BEGIN), text.find(END)
     if i < 0 or j < 0:
@@ -258,7 +377,7 @@ def main():
         fresh = block_of(now,
                          [str(left), str(rows)]
                          + [str(seen.get(k, 0)) for k in LADDER],
-                         rows, seen, now)
+                         rows, seen, now, debt)
         io.open(LEDGER, 'w', encoding='utf-8', newline='\n').write(
             text[:i] + fresh + text[j + len(END):])
         print('baseline taken at %s (%d rows)' % (now, rows))
@@ -266,7 +385,7 @@ def main():
 
     # ⛔ `--check` KEEPS THE STAMP THAT IS THERE, so only the counts are held.
     today = held if '--check' in sys.argv else stamp()
-    fresh = block_of(when, start_cells, rows, seen, today)
+    fresh = block_of(when, start_cells, rows, seen, today, debt)
     if '--check' in sys.argv:
         if old != fresh:
             print('DRIFTED  %s: the metrics block no longer matches the table '

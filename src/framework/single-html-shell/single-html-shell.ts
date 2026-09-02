@@ -608,12 +608,17 @@ function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
  *
  * @purity semi-pure-b
  */
-function environmentOf(appHeaderHeight: number, scrollbarThickness: number): FrameEnvironment {
+function environmentOf(
+  appHeaderHeight: number,
+  scrollbarThickness: number,
+  rowControlsHeightPx: number,
+): FrameEnvironment {
   return {
     width: window.innerWidth,
     height: window.innerHeight,
     appHeaderHeight,
     scrollbarThickness,
+    rowControlsHeightPx,
   }
 }
 
@@ -637,9 +642,15 @@ function boot(): void {
   // ---- BO-1 ---------------------------------------------------------------
   const scrollbarThickness = measuredScrollbarThickness()
   let appHeaderHeightPx = 0
+  // LF-3 of table T-221 (MUST): the floor HF-1's lattice puts under a row's
+  // band. ⛔ NOT MEASURED AT BO-1 LIKE THE THICKNESS ABOVE, because no row has
+  // been drawn yet -- the surface answers it after the first panel, the way it
+  // answers the header's height, and 0 until then is the floor every band had
+  // before the ruling.
+  let rowControlsHeightPx = 0
   let loop: FrameLoop | null = null
   const nowEnvironment = (): FrameEnvironment =>
-    environmentOf(appHeaderHeightPx, scrollbarThickness)
+    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx)
 
   // ⭐ BT-4 IS READ HERE, ABOVE BO-2, AND THAT IS NOT BO-2 HAPPENING EARLY.
   // Table T-077's BO-2 is the CHOOSING, and that still stands below; this only
@@ -815,6 +826,17 @@ function boot(): void {
     /** @purity non-pure */
     onNewRowNameSettled: (parentGroupId, name) => {
       newRowNameSettledHeld?.(parentGroupId, name)
+    },
+    // LF-3's row-control floor, taken the way the header's height is and for the
+    // same reason: HF-19 (MUST NOT) keeps the number out of the manuscript, so
+    // the side that drew the lattice is the only one that can answer it.
+    /** @purity non-pure */
+    onRowControlsHeightPx: (heightPx) => {
+      rowControlsHeightPx = heightPx
+      // FT-3 of table T-078, exactly as below: the number is recorded and the
+      // deciding is left to the shell's own resize path, which is the one place
+      // that judges whether anything CHANGED.
+      loop?.resize(nowEnvironment())
     },
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {

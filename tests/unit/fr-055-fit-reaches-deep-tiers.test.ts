@@ -48,6 +48,12 @@
 //   * WHICH OF THE TWO PASSES ANSWERED. The rule after table T-068 fixes the
 //     number of runs, not an observable; FR-055 fixes the answer. Only the
 //     answer is asserted.
+//     ⭐ THE LAST THREE BLOCKS OF THIS FILE NARROW THAT (ledger row D-24,
+//     2026-09-03). They still count no runs -- what they measure is what the
+//     passes leave behind: that the ordinary layout cannot fit at all, that a
+//     tier the FLOOR measurement admits is refused anyway (which only a second
+//     measurement can do), and that the retreat never goes past one tier (which
+//     a third would).
 //   * THE LANDING ZOOM WHEN THE CHOSEN TIER IS 1. FR-055's MUST NOT is a LOWER
 //     bound and depth 1 has no rung, FR-018 keeping it out of the ladder's
 //     domain. Bounded here from above (under the depth-2 rung) and from below
@@ -83,6 +89,7 @@ import {
   type InputModifiers,
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Settings and screens. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -171,6 +178,37 @@ const thresholdOf = (depth: number): number => BASE * Math.pow(RATIO, depth - 2)
  */
 const FLOOR_BINDS_BELOW =
   settingNumber('actualMin') / settingNumber('actualOfPlan') / settingNumber('basePlanHeight')
+
+/** The plan height FR-094 pins a lane at, once the zoom is under that floor. */
+const PINNED_PLAN_HEIGHT = settingNumber('actualMin') / settingNumber('actualOfPlan')
+
+/**
+ * The px figure one row of 表 T-206 prints in its default column.
+ *
+ * ⛔ Not read off SETTINGS_DEFAULTS: 表 T-206 says of both rows below that the
+ * document does not keep them, so they are screen tooling and not settings.
+ */
+const settingsTablePx = (id: string): number => {
+  const row = specTable('T-206').rows.find((one) => one.id === id)
+  if (row === undefined) throw new Error(`table T-206 has no row ${id}`)
+  const found = /-?\d+(?:\.\d+)?/.exec(row.by['既定'] ?? '')
+  if (found === null) throw new Error(`table T-206 row ${id} states no number in its default`)
+  return Number(found[0])
+}
+
+/**
+ * 表 T-221 の `LF-3` / 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03): the
+ * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
+ *
+ * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
+ * … 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである」. So it is
+ * composed here: `FR-029` (MUST) draws the glyph in a box of `S-138` a side and
+ * keeps at least `S-141` between that box and the entrance's frame on each side,
+ * and `HF-1` (MUST) stacks four of those 「2 × 2 の格子」.
+ * ⚠️ A CONSTANT: `HF-19` 「⛔⛔ **この床を閲覧者の文字サイズに追随させてはならない
+ * （MUST NOT）**」, so it does not climb with the tier the way the rungs do.
+ */
+const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-141') * 2) * 2
 
 /**
  * The smallest `zoomY` that draws a given depth, which is what FR-055's MUST
@@ -443,14 +481,24 @@ function depthTheFitOwes(
 // `rowGap` (S-12) between rows. So the extent of n rows at a tier's own rung is
 // arithmetic, and it grows with the tier twice over: more rows AND a taller
 // rung. That is why a document can fit at tier 4 and overflow at tier 5.
+//
+// ⭐⭐ AND SINCE 2026-09-03 A SECOND FLOOR STANDS UNDER EVERY BAND (CR-339 +
+// CR-342). 表 T-221 の `LF-3`: 「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の
+// 操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」, restated as a
+// MUST NOT by 表 T-051 の `HF-19`. `CONTROL_LATTICE_FLOOR` below composes it out
+// of 表 T-206, and it stands above the plan height at every rung whose zoom is
+// under FR-094's floor -- so a row at tiers 1 to 4 is the LATTICE tall, and only
+// tier 5's rung lifts the plan height clear of it.
+// ⇒ the sizes below were re-chosen when that floor landed. ⛔ The ANSWERS each
+// fixture is named for did not move; the row counts that produce them did.
 // ---------------------------------------------------------------------------
 
 /** One chain of five rows -- every tier fits, so the deepest one wins. */
 const FIVE_DEEP_CHAIN: TreeShape = { roots: 1, depths: 5, fanOut: 1 }
 /** Two chains: ten rows at tier 5 overflow, eight rows at tier 4 fit. */
 const FOUR_IS_DEEPEST: TreeShape = { roots: 2, depths: 5, fanOut: 1 }
-/** Five chains: tier 4 overflows too, and tier 3 is back under the floor. */
-const THREE_IS_DEEPEST: TreeShape = { roots: 5, depths: 5, fanOut: 1 }
+/** Three chains: twelve rows at tier 4 overflow, nine rows at tier 3 fit. */
+const THREE_IS_DEEPEST: TreeShape = { roots: 3, depths: 5, fanOut: 1 }
 /** Forty chains -- forty root rows alone overrun the Row Area. */
 const NOTHING_FITS: TreeShape = { roots: 40, depths: 5, fanOut: 1 }
 
@@ -501,6 +549,31 @@ describe('the premises -- tiers 4 and 5 exist, stand above FR-094 floor, and are
       expect(deepestDrawnDepth(drawn), `depth ${depth} at its own rung`).toBe(depth)
       expect(drawn.rows).toHaveLength(rowsDownTo(FIVE_DEEP_CHAIN, depth))
     }
+  })
+
+  it('⭐ and LF-3 puts the CONTROLS under every band the low tiers draw', () => {
+    // 表 T-221 の `LF-3` (MUST, 利用者の裁定 2026-09-03): 「**帯高は矩形が縦に取る
+    // 高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
+    // 高さも下回らない**」, restated as a MUST NOT by 表 T-051 の `HF-19`.
+    // ⛔ THIS IS WHAT SIZES EVERY FIXTURE ABOVE. Tiers 1 to 4 draw a row the
+    // LATTICE tall, because the lattice outruns the plan height at any rung
+    // under FR-094's floor and at tier 4's rung as well; only tier 5's rung
+    // lifts the plan clear of it, which is what makes tier 5 the tier a
+    // document overflows at.
+    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(PINNED_PLAN_HEIGHT)
+    const planAt = (depth: number): number => settingNumber('basePlanHeight') * thresholdOf(depth)
+    expect(planAt(4)).toBeLessThan(CONTROL_LATTICE_FLOOR)
+    expect(planAt(5)).toBeGreaterThan(CONTROL_LATTICE_FLOOR)
+    // ...and the manuscript still says both halves of the rule.
+    const says = (table: string, id: string): string => {
+      const row = specTable(table).rows.find((one) => one.id === id)
+      if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
+      return row.cells.join(' ')
+    }
+    expect(says('T-221', 'LF-3')).toContain(
+      '帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない',
+    )
+    expect(says('T-051', 'HF-19')).toContain('行の帯がそれを下回ってはならない（MUST NOT）')
   })
 
   it('the fixtures really exercise the answers 5, 4, 3 and 1', () => {
@@ -706,5 +779,169 @@ describe('FR-055 / FR-018 -- the fit follows S-125 rather than a tier number of 
     const schedule = scheduleOf(shape)
     expect(depthTheFitOwes(shape)).toBe(3)
     expect(deepestDrawnDepth(drawnAfterFit(schedule))).toBe(3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// The rule printed after table T-068 -- the two passes, and the third that is
+// forbidden (ledger row D-24)
+//
+//   「⭐ **全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる。**」
+//   | 1 | 人が畳んだ状態をすべて捨て…**帯の高さが `FR-094` の床に達する倍率で、
+//       その文書が持つすべての深さを通して** `LC-1` 〜 `LC-9` を走らせ…⭐ **その床
+//       より下では絵が倍率に依らないので、1 回測れば床の内側に収まる段の縦幅は算術
+//       で出る** |
+//   | — | **採った段が床の内側の倍率で描けるなら、それで決まる** |
+//   | 2 | **採った段が床より上の倍率を要するときだけ**もう 1 度通し、その倍率での
+//       実寸を見て、**収まらなければ 1 つ浅い段へ退く** |
+//   「**3 回目を走らせてはならない（MUST NOT）** —— 反復が終わる保証が無く、**表示
+//     量が行き来すると振動する。**」
+//
+// ⛔ THE HEAD OF THIS FILE SAYS 「WHICH OF THE TWO PASSES ANSWERED」 IS NOT
+// ASSERTED, and that stays true: no case below counts runs. What they measure is
+// what the passes leave BEHIND, which the rule does make observable:
+//
+//   (a) 「だけ」 -- the ordinary road runs the order once. A second pass is what
+//       fitting IS, so the ordinary layout cannot know how tall the Row Area is;
+//       if it ran one, its answer would move when the Row Area's height moved.
+//   (b) 「2 回目」 -- pass 1 measures at the floor, where the drawing does not
+//       move with `zoomY`, so a tier whose rows fit AT THE FLOOR is a tier pass 1
+//       admits. A fit that then refuses such a tier has measured it again
+//       somewhere else, and pass 2 is the only place the rule allows.
+//   (c) 「3 回目を走らせてはならない」 -- pass 2 may retreat 「1 つ浅い段へ」, once.
+//       So the tier answered can never be more than one tier shallower than the
+//       one pass 1 admits. A walk that kept retreating until something fitted
+//       would break that bound on the shapes below, and would be the iteration
+//       the MUST NOT forbids.
+//
+// ⭐ WHAT PASS 1 ADMITS IS RECONSTRUCTED, NOT GUESSED. `FLOOR_BINDS_BELOW` is
+// the zoom under which FR-094 pins the plan height, so every row is the same
+// height there whatever the tier; a FLAT document of `rowsDownTo(shape, d)` rows
+// laid out under that floor therefore has exactly the extent tier `d` has at the
+// floor -- which is the arithmetic the pass-1 row says can be done from one
+// measurement (「1 回測れば床の内側に収まる段の縦幅は算術で出る」).
+// ---------------------------------------------------------------------------
+
+/** `LC-1` .. `LC-9` under FR-094's floor, where the drawing does not move. */
+const UNDER_THE_FLOOR = settingsOf({ ...SETTINGS, zoomY: FLOOR_BINDS_BELOW / 2 })
+
+/** The extent tier `depth` of a shape has when it is drawn at the floor. */
+const floorExtentOf = (shape: TreeShape, depth: number): number =>
+  layoutFromSchedule(
+    scheduleOf({ roots: rowsDownTo(shape, depth), depths: 1, fanOut: 1 }),
+    UNDER_THE_FLOOR,
+    REGIONS,
+  ).contentHeight
+
+/** The deepest tier pass 1's floor measurement admits; 0 when none of them fits. */
+const floorAdmits = (shape: TreeShape): number => {
+  for (let depth = Math.min(shape.depths, MAX_GROUP_DEPTH); depth >= 1; depth--) {
+    if (floorExtentOf(shape, depth) <= REGIONS.rowArea.height) return depth
+  }
+  return 0
+}
+
+describe('T-068 -- only the fit runs the order more than once', () => {
+  it('⛔ the ordinary layout cannot fit: its answer does not move with the Row Area height', () => {
+    // 「⭐ **全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる。**」 and the
+    // closing MUST of the table itself: 「上から順に 1 度だけ通ること（MUST）。後の
+    // 段の結果を前の段へ戻してはならない（MUST NOT）」.
+    // ⭐ Fitting means choosing the display amount against the room there is
+    // (FR-055), so a layout that chose would read `rowArea.height`. Doubling the
+    // screen must leave the drawing where it was.
+    // GOES RED IF: `layoutFromSchedule` starts fitting on its own -- the deeper
+    // shapes below would then draw a different number of rows on the tall screen.
+    for (const [name, shape] of EVERY_SHAPE) {
+      const schedule = scheduleOf(shape)
+      const short = layoutFromSchedule(schedule, SETTINGS, REGIONS)
+      const tall = layoutFromSchedule(schedule, SETTINGS, REGIONS_TALL)
+      expect(tall.contentHeight, `${name}: the extent followed the Row Area`).toBeCloseTo(
+        short.contentHeight,
+        6,
+      )
+      expect(deepestDrawnDepth(tall), `${name}: the tier followed the Row Area`).toBe(
+        deepestDrawnDepth(short),
+      )
+    }
+  })
+})
+
+describe('T-068 pass 2 -- the tier the floor admits and the fit refuses', () => {
+  it('⭐ the premise: the floor measurement really does admit the deepest tier here', () => {
+    // ⛔ Without this the case below would only be saying "the fit answered 4",
+    // which this file already says elsewhere. What makes it pass 2's is that
+    // pass 1 had no reason to refuse tier 5.
+    const deepest = Math.min(FOUR_IS_DEEPEST.depths, MAX_GROUP_DEPTH)
+    expect(floorExtentOf(FOUR_IS_DEEPEST, deepest)).toBeLessThanOrEqual(REGIONS.rowArea.height)
+    expect(floorAdmits(FOUR_IS_DEEPEST)).toBe(deepest)
+    // And its rung stands above the floor, which is the condition the rule puts
+    // on pass 2 running at all: 「採った段が床より上の倍率を要するときだけ」.
+    expect(drawingZoomOf(deepest)).toBeGreaterThan(FLOOR_BINDS_BELOW)
+  })
+
+  it('⛔ refuses that tier all the same, which only a second measurement can do', () => {
+    // 「2 | **採った段が床より上の倍率を要するときだけ**もう 1 度通し、その倍率での
+    // 実寸を見て、**収まらなければ 1 つ浅い段へ退く**」.
+    // GOES RED IF: the fit answers from the floor measurement alone -- it would
+    // then keep tier 5, whose rows fit at the floor and overflow at their rung,
+    // and write a picture that does not fit. That is the state D-24 records
+    // (「`frame-loop.ts` は 1 回走らせて無条件に採る」).
+    const deepest = Math.min(FOUR_IS_DEEPEST.depths, MAX_GROUP_DEPTH)
+    const drawn = drawnAfterFit(scheduleOf(FOUR_IS_DEEPEST))
+    expect(deepestDrawnDepth(drawn), '表 T-068 の 2 回目が走っていない').toBe(deepest - 1)
+    // ⭐ And the drawing it landed on does fit, which is what the second
+    // measurement bought.
+    expect(drawn.contentHeight).toBeLessThanOrEqual(REGIONS.rowArea.height)
+  })
+})
+
+describe('T-068 (MUST NOT) -- and no third run', () => {
+  it('⛔ retreats at most ONE tier from the one the floor measurement admits', () => {
+    // 「**3 回目を走らせてはならない（MUST NOT）** —— 反復が終わる保証が無く、表示量
+    // が行き来すると振動する。」 Pass 2 retreats 「1 つ浅い段へ」 and stops, so the
+    // gap between what pass 1 admits and what is drawn is at most one -- and
+    // FR-055 floors the whole thing at depth 1 (「収まらない軸にスクロールを残す
+    // ことは `FR-055` が既に定めている」).
+    // GOES RED IF: the fit walks the tiers down until one fits. On the shape
+    // whose tier 4 also overflows, such a walk would land two tiers below what
+    // the floor admits, which is a third run of the order.
+    for (const [name, shape] of EVERY_SHAPE) {
+      const admitted = floorAdmits(shape)
+      const answered = deepestDrawnDepth(drawnAfterFit(scheduleOf(shape)))
+      expect(answered, `${name}: 表 T-068 の 3 回目が走っている`).toBeGreaterThanOrEqual(
+        Math.max(1, admitted - 1),
+      )
+      expect(answered, `${name}: the fit drew deeper than the floor admits`).toBeLessThanOrEqual(
+        Math.max(1, admitted),
+      )
+    }
+  })
+
+  it('⛔ so one press is already the end of it: pressing again moves nothing', () => {
+    // The MUST NOT's own reason, stated as what a reader would see:
+    // 「表示量が行き来すると振動する」. ⭐ The measurement D-24 records for the
+    // naive second pass was 1.0 → 0.4291 → 0.7322 → 0.3785 → …, a sequence that
+    // never settles; what stops it is that there is no third run.
+    // GOES RED IF: the fit becomes an iteration -- the second press then answers
+    // something other than the first.
+    for (const [name, shape] of EVERY_SHAPE) {
+      const schedule = scheduleOf(shape)
+      const once = fitWrite(schedule, SETTINGS, REGIONS)
+      const settled = settingsAfterFit(once)
+      const twice = fitWrite(schedule, settled, REGIONS)
+      expect(twice['zoomY'], `${name}: the vertical went on moving`).toBeCloseTo(
+        once['zoomY'] as number,
+        6,
+      )
+      // ⚠️ THE VERTICAL ONLY. This file's head keeps every horizontal figure
+      // out (FR-055 settles that axis by another rule), and the `CM-71` write
+      // does not carry `zoomX` under that name at all -- measured 2026-09-03.
+      expect(
+        deepestDrawnDepth(
+          layoutFromSchedule(schedule, settingsAfterFit(twice, settled), REGIONS),
+        ),
+        `${name}: the tier moved on the second press`,
+      ).toBe(deepestDrawnDepth(layoutFromSchedule(schedule, settled, REGIONS)))
+    }
   })
 })

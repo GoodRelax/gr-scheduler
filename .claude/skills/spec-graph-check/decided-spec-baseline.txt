@@ -1,4 +1,4 @@
-82
+79
 # ⛔ Rows at or past `実装待ち` that name no place in the specification.
 # (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
 # see the note at the foot of this file.)
@@ -39,3 +39,10 @@
 #
 # 2026-09-02: 90 -> 89. D-193 named its place as the round wrote the five
 # rulings of that afternoon (FR-019, plus table T-233 RS-44).
+#
+# 2026-09-03: 82 -> 79. Three rows reached a place to name in one round --
+# D-202 and D-217 gained a ruling and now say where it goes (table T-233 and
+# the S-210 remark), and D-225 was written with its place already in it.
+# ⭐ The fall came from ASKING, not from writing prose: seven rows that read
+# as blocked turned out not to be blocked at all, and the two that really were
+# took one question each.

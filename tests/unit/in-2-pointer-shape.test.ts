@@ -63,9 +63,12 @@
 //   T-023d GR-9 / GR-17  the two dummies FR-043 draws 「未着手のタスクの上」,
 //             both ranked above GR-12 -- which is why the bar Task below is
 //             STARTED.
-//   T-023d GR-18  「未着手のマイルストーンのダミー | 未着手のマイルストーンの
-//             図形の上（当たり判定は `S-93`）| 掴めば `actualStart` を置く」,
-//             ranked ABOVE GR-12. See the last describe, left red on purpose.
+//   T-023d GR-18  「未着手のマイルストーンのダミー | **予定の開始日の翌稼働日**
+//             （暦に従う。`FR-054`。当たり判定の大きさは `S-93`）… ⭐⭐ **`GR-9`
+//             と同じ場所である**」 -- it is ranked ABOVE GR-12 but no longer
+//             stands ON the figure, which the row says of itself: 「⛔⛔
+//             **2026-09-02 まで「未着手のマイルストーンの図形の上」と定めていた**」
+//             (D-192). See the last describe.
 //   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
 //             いるタスクにだけ出すこと（MUST）」 for GR-1 / GR-2 -- the fixture
 //             below keeps all four out of the way, and premises measure that.
@@ -1035,28 +1038,33 @@ describe('T-028 IN-2 names five places and no more', () => {
 })
 
 // ===========================================================================
-// (h) ⛔ LEFT RED ON PURPOSE -- 未着手のマイルストーンの図形
+// (h) 未着手のマイルストーンの図形
 // ===========================================================================
 //
-// ⛔ TWO ROWS DISAGREE HERE, AND THE CASE IS JUDGED ON IN-2 BECAUSE IN-2 IS
-// WHAT THIS FILE IS ABOUT.
+// ⭐ THE TWO ROWS AGREE NOW, AND THIS SECTION RECORDS WHICH SENTENCE MOVED.
 //
 //   T-028 IN-2 (利用者の裁定 2026-08-27): 「タスクの本体とマイルストーンの図形の
 //   上は掴めることの合図」 -- with no exception for a milestone nobody has
 //   started -- and its reason: 「⛔ 掴めるものの上で形が変わらないと、選べるのか
 //   どうかを押してみるまで確かめられない」.
 //
-//   T-023d GR-18: 「未着手のマイルストーンのダミー | 未着手のマイルストーンの図形
-//   の上（当たり判定は `S-93`）| 掴めば `actualStart` を置く」 -- and that table
-//   orders 「上の行ほど優先すること（MUST）」 with GR-18 ABOVE GR-12. So on a
-//   milestone nobody has started, the row that claims the point is GR-18, and
-//   IN-2 gives GR-18 no shape of its own.
+//   T-023d GR-18 no longer claims that point. Its 場所 column now reads
+//   「**予定の開始日の翌稼働日**（暦に従う。`FR-054`。当たり判定の大きさは
+//   `_assets/tbl-settings.md` の `S-93`）。⭐⭐ **`GR-9` と同じ場所である**（利用
+//   者の裁定 2026-09-02「マイルストーンは中心が配置する場所。ただし、実績のダミー
+//   は翌日」）」, and the row states the change against itself: 「⛔⛔ **2026-09-02
+//   まで「未着手のマイルストーンの図形の上」と定めていた** —— **ダミーが図形に重
+//   なると、掴む所が図形の一部に見える。**」
 //
-// ⚠️ GR-18 IS STILL A GRAB: its 操作 column begins 掴めば. So IN-2's reason
-// applies to it in full -- the figure IS grabbable there, and a pointer that
-// does not change cannot say so. ⛔ NOT TUNED TO WHATEVER THE BUILD ANSWERS: to
-// close this the other way, IN-2 needs a clause excepting the not-started
-// milestone, and that is 利用者の裁定 and not this file's to write.
+// ⇒ On the figure itself the claiming row is now GR-12 (予定バー本体), whose 操作
+// column is 「予定の平行移動（`FR-011`）と、縦に動かしたときの行の載せ替え」 -- a
+// grab, so IN-2's 合図 is owed there with no exception to write. ⚠️ The row that
+// DID need an exception is the one that stopped standing there.
+//
+// ⛔ NOT TUNED TO WHATEVER THE BUILD ANSWERS: both cases below are judged on
+// IN-2, which is what this file is about, and the second one holds the figure to
+// the SAME shape as an ordinary bar body -- IN-2 gives 「タスクの本体とマイルス
+// トーンの図形」 one meaning, not two.
 
 describe('T-028 IN-2 on a milestone that has not been started', () => {
   it('answers a shape on its figure at all', () => {
@@ -1071,7 +1079,7 @@ describe('T-028 IN-2 on a milestone that has not been started', () => {
     const built = stage()
     expect(
       shapeAt(built, newMilestone(built.loop)),
-      'T-028 IN-2 gives 「タスクの本体とマイルストーンの図形」 one meaning, and 表 T-023d GR-18 is still 掴めば',
+      'T-028 IN-2 gives 「タスクの本体とマイルストーンの図形」 one meaning, and 表 T-023d GR-12 claims that point',
     ).toBe(shapeAt(built, barBody(built.loop)))
   })
 })

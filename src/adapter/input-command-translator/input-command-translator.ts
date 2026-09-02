@@ -114,6 +114,7 @@ import {
   screenStateWithFullScreen,
   screenStateWithPalette,
   screenStateWithSurface,
+  screenStateWithWatermark,
   type Armed,
   type DualCursorSide,
   type EscapeContext,
@@ -390,6 +391,21 @@ export interface InputContext {
    */
   readonly zoomMin: number
   readonly zoomMax: number
+  /**
+   * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height HF-1's
+   * lattice of row controls takes, which that row makes a floor under a row's
+   * band.
+   *
+   * ⛔ NOT A NUMBER WRITTEN HERE, for the reason `zoomStep` above gives and one
+   * of its own: HF-19 (MUST NOT) keeps the number out of the manuscript --
+   * 「操作子の高さは字形（`S-138`）に余白を足したもので、読む人の文字サイズが
+   * 動かす（`FR-039`）」 -- so it is measured where the lattice is drawn and
+   * travels as a value.
+   * ⚠️ Wanted by FR-055's fit alone, which measures the bands the frame is about
+   * to draw; absent reads as no floor, which is what a caller drawing no row
+   * control has.
+   */
+  readonly rowControlsHeightPx?: number
   /**
    * The gesture in flight, or null while none is.
    *
@@ -840,6 +856,19 @@ export type SpentEntranceSituation =
    * owes the same telling a pressed entrance does.
    */
   | 'noRowToPutTheAnnotationOn'
+  /**
+   * HF-14 (IC-91): this row already stands at FR-085's depth cap, so no child
+   * row can be added under it.
+   *
+   * ⭐ THE NAME IS RS-46's OWN 場面 -- 「これ以上深い段には行を足せない」, whose
+   * 正 is FR-085 -- and it reads as the mirror of `rowIsAtTheShallowestLevel`
+   * above, which is the other end of the same axis.
+   * ⛔ NOT `groupDepthLimitReached`, WHICH THE RULING OF 2026-09-03 SEPARATES BY
+   * NAME: that situation is HF-15's move, its row is `RS-38` (「動かせない」), and
+   * 「あちらは `HF-15` の移動のためであり、足す押しには真でない」. Two 場面 that
+   * both end at the cap are still two 場面, and 表 T-233 is keyed on 場面.
+   */
+  | 'rowIsAtTheDeepestLevel'
 
 /**
  * What one happening is assigned to.
@@ -1642,11 +1671,18 @@ function daysInMonth(year: number, month: number): number {
 /**
  * The same day of the month, some months on.
  *
- * ⚠️ THE CLAMP HAS NO ROW AND IS REPORTED. A month later than the 31st is a day
- * no calendar holds, and neither FR-001 nor table T-205 says which way it goes.
- * The last day of the target month is taken, so that 「1 単位」 never overshoots
- * INTO a second month; rolling over (which `Date.UTC` would do on its own) makes
- * a click at the month step place a task longer than the step it names.
+ * ⭐⭐ THE CLAMP IS FR-001's OWN SINCE 2026-09-03 (MUST): 「1 単位を足した先が暦に
+ * 無い日になるときは、その月の末日とすること」 -- 「月の段で 1 月 31 日を押すと、
+ * 1 か月後はどの暦にも無い」. ⛔ 「翌月へこぼしてはならない（MUST NOT）」, which
+ * is what `Date.UTC` would do on its own, 「こぼすと、押したマス目より 1 つ多い
+ * 期間になり」 the same requirement's 「見えているマス目 1 つ分であり、画面と一致
+ * する」 is broken.
+ * ⚠️ THE YEAR STEP IS THE SAME RULE (同要求): 「年の段でも同じことが起きる（2 月
+ * 29 日の 1 年後）—— 同じ規則で足りる」, which is why `dayOneTierUnitOn` reaches
+ * this one member for both steps rather than a second arithmetic.
+ * ⛔ THE NOTE THAT STOOD HERE SAID 「THE CLAMP HAS NO ROW AND IS REPORTED」. It
+ * was true when written and the manuscript has since answered it; the reading
+ * the code already took is the one the ruling settled on.
  *
  * @purity pure
  */
@@ -4861,15 +4897,27 @@ function commandFromRowEntry(
     // inventing one, and CM-26 refuses a row that carries neither a name nor a
     // derivation source (FR-058, MUST NOT). So the press asks for the naming and
     // the write follows the settling.
-    // ⛔ THE DEPTH CAP IS NOT TESTED HERE. HR-8 (MUST NOT): 「深さの上限の扱いは
-    // `FR-085` が持つ ... ここでは繰り返さない」, and `createTaskGroup` refuses a
-    // parent already at `maxGroupDepth` on its own account -- a second test on
-    // this side would be the same rule in two places (R2.7).
-    // ⚠️ `RowTitle.canAddChildRow` IS THE DRAWING SIDE'S ANSWER TO THE SAME CAP,
-    // which FR-029 requires of the pair: the entrance is drawn faint where the
-    // write would be refused. ⛔ It is not read back here, because this side is
-    // handed no `RowTitle` -- what it is handed is the document, and the row
-    // above says which side may test what.
+    // ⛔⛔ THE FAINT ENTRANCE IS TOLD ITS REASON AND OPENS NO FIELD, WHICH HF-14
+    // GAINED ON 2026-09-03 (MUST): 「薄いまま押されたときは、打ち込み口を出さずに
+    // 理由を告げること。理由は 表 T-233 の `RS-46` とすること」 -- 「打ち込ませて
+    // から捨てると、直前の『名前が空のまま確定された』と見分けがつかない」.
+    // ⚠️ THE NOTE THAT STOOD HERE SAID THE CAP WAS NOT TESTED ON THIS SIDE, on
+    // HR-8's 「深さの上限の扱いは `FR-085` が持つ」. That still holds of the WRITE
+    // -- `createTaskGroup` refuses the parent on its own account and no rule is
+    // restated here -- but the PRESS now owes a telling, and FR-029 (MUST) puts
+    // that telling on the side that measured the 場面.
+    // ⭐ THE SAME COMPARISON THE DRAWING SIDE MAKES, so the faint entrance and
+    // the refused press cannot come apart: `RowTitle.canAddChildRow` reads
+    // 「depth < maxGroupDepth」 off FR-085's own value, and this reads the depth
+    // of the same row out of the document.
+    // ⛔ MEASURED ON THE DOCUMENT AND NOT ON `context.layout.rows`, for the
+    // reason `rowDepthOfGroup` gives: a row's depth is a fact of the tree, and
+    // the picture holds only the rows it drew.
+    if (
+      rowDepthOfGroup(context, rowGroupId) >= context.document.documentSettings.maxGroupDepth
+    ) {
+      return nothingToDo('rowIsAtTheDeepestLevel')
+    }
     return acted({
       kind: 'editInPlace',
       target: {
@@ -5722,7 +5770,7 @@ function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedIn
       groupId,
       axis,
       // 「段を変えてはならない」 -- the row is drawn at the depth it already has.
-      atDepth: rowGrabDepthOfHeld(context, groupId),
+      atDepth: rowDepthOfGroup(context, groupId),
       atY: found.place.atY,
       // The refused axis on this grab is sideways, and one step of it is S-37.
       resistedPx: rowGrabResistedPx(
@@ -5785,15 +5833,24 @@ function rowGrabRowHeightOf(context: InputContext, heldGroupId: string): number 
 }
 
 /**
- * The held row's own depth, for the axis that may not change it.
+ * How deep one row of the document sits, counting a root row as 1.
+ *
+ * ⭐ TWO READERS, WHICH IS WHY IT IS NOT NAMED AFTER EITHER: HF-15's grab draws
+ * the held row at the depth that axis may not change, and HF-14's press asks
+ * whether the row already stands at FR-085's cap.
+ * ⛔ THE DOCUMENT AND NOT `context.layout.rows`, the same answer `rowGrabDepthOf`
+ * gives: the picture holds only the rows it drew, and a row hidden by HR-6 or
+ * dropped by FR-018 has the depth it always had.
+ * ⚠️ A row the document does not hold reads as a root, so a press on an entrance
+ * whose row has gone is not refused for a depth nobody can see.
  *
  * @purity pure
  */
-function rowGrabDepthOfHeld(context: InputContext, heldGroupId: string): number {
+function rowDepthOfGroup(context: InputContext, groupId: string): number {
   const rows = context.document.schedule.taskGroups
   const byId = new Map(rows.map((one) => [one.id, one]))
-  const held = byId.get(heldGroupId)
-  return held === undefined ? 1 : rowGrabDepthOf(byId, held)
+  const found = byId.get(groupId)
+  return found === undefined ? 1 : rowGrabDepthOf(byId, found)
 }
 
 /**
@@ -7134,6 +7191,9 @@ function fitCommand(context: InputContext): DocumentCommand {
     settings,
     context.regions,
     { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
+    // LF-3's row-control floor, so the fit measures the bands the frame will
+    // draw rather than shorter ones.
+    context.rowControlsHeightPx,
   )
   return {
     kind: 'fitScheduleToScreen',
@@ -7389,25 +7449,22 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // state untouched -- so the DOM did not change by one byte and FR-029
     // (MUST) went unkept as well, for want of anything to say.
     //
-    // ⛔⛔ STOP -- THE WAY BACK IS MEASURED HERE AND NOT WRITTEN, AND THE ROW
-    // THAT IS MISSING IS TABLE T-064's. Putting the watermark back means
-    // writing `S-144` into `ScreenState`, whose only writer is
-    // `screenStateWithWatermark` in `entity/document-model/screen-state`; that
-    // name has to cross a component folder to be called from here, and Chapter
-    // 5.3 (MUST NOT) lets nothing cross that table does not publish. `PI-36`
-    // names `emptyScreenState`, `screenStateWithArmed`, `screenStateWithSurface`
-    // (S-99g), `screenStateWithPalette` (S-99e), `screenStateWithFullScreen`
-    // (S-99f) and `escapeTarget` -- and no member for S-144, which CR-335 did
-    // not reach. ⚠️ Check 26b measures exactly this and refuses the import.
-    // ⇒ Reported rather than smuggled: an object literal written here instead of
-    // the call would put a second writer of the same value in a second
-    // component, which is rule 03 section 1, and would hide the gap from the
-    // one check that can see it.
-    // ⭐ THE HIDING HALF IS BLOCKED BY THE SAME MISSING ROW, and by one more of
-    // its own -- see the note under `matchWatermarkUnlock` in `frame-loop.ts`,
-    // which still plans `setElementVisible` for a row that left table T-202.
+    // ⭐⭐ BOTH DIRECTIONS ARE TOLD APART HERE, AND HERE ONLY. `PI-36` of table
+    // T-064 publishes `screenStateWithWatermark` (S-144) since 2026-09-02 --
+    // added for exactly this, because the row moved from table T-202 to table
+    // T-206 and the screen's own value has to be writable from the side that
+    // reads the press. ⚠️ 台帳 D-204 was this split standing in `frame-loop.ts`
+    // instead: the shell put the watermark back in the same happening this
+    // member raised the surface in, so two members had to move together for one
+    // direction to change.
+    // ⚠️ 台帳 D-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
+    // arrived, `on.entry` said `IC-41`, and every member answered with the
+    // state untouched -- so the DOM did not change by one byte and FR-029
+    // (MUST) went unkept as well, for want of anything to say.
     case ENTRY.watermark:
-      return screenStateWithSurface(state, WATERMARK_UNLOCK)
+      return state.watermarkVisible
+        ? screenStateWithSurface(state, WATERMARK_UNLOCK)
+        : screenStateWithWatermark(state, true)
     // IC-2 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
     // and U-54 is the name table T-103 settled for what it opens.
     // ⚠️ IC-3 is NOT this any more: FR-025 gives the clipboard its own

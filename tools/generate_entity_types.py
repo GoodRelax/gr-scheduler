@@ -1541,6 +1541,113 @@ def not_stored_block(name):
     return '\n'.join(out)
 
 
+# ---- a value table T-206 states in two rows and nothing may add up by hand --
+#
+# ⛔ NOT `not_stored_block`'s SHAPE, AND THE DIFFERENCE IS THE POINT. That one
+# carries ROWS, keyed by the row ID, because the row ID is the specification's
+# own name for the value. This one carries a SUM, and the sum has a name of its
+# own in the specification's prose while no single row holds it -- so a key of
+# "S-138" would be a lie about which row answers for the number, and a hand-
+# typed 24 in any unit would be the copied value rule 03 section 1 forbids.
+#
+# ⭐ ONE MEMBER PER CONSTANT AND A NAME RATHER THAN A ROW ID, for that reason.
+# ⚠️ The terms carry a MULTIPLIER because a gap stated once is taken twice: an
+# entrance has S-141 above the shape and S-141 below it, and 「S-141 x 2」 is
+# how FR-029 composes the entrance rather than a second row saying 8.
+DERIVED_TARGETS = {
+    # ⭐⭐ LF-3 OF TABLE T-221 (MUST) AND HF-19 OF TABLE T-051 (MUST NOT): a
+    # row's band is never shorter than the lattice HF-1 (MUST) draws on it --
+    # 「並びは 2 x 2 の格子とすること」 -- and HF-19 forbids meeting that by
+    # shrinking the lattice instead. ⇒ The floor is two of these, stacked, and
+    # the layer that decides a band is the layer that has to hold it.
+    # ⛔ IT REACHED THE LAYOUT ONLY AS AN ARGUMENT UNTIL 2026-09-03, measured
+    # off a drawn lattice by the side that drew it, so a caller that passed
+    # nothing dropped a MUST NOT in silence. The ruling of that day (CR-342)
+    # gives the layout engine the floor of its own and keeps the measurement as
+    # what may raise it.
+    # ⚠️ THE SUM IS THE SPECIFICATION'S OWN, not an arithmetic invented here:
+    # the note on S-138 states the answer in as many words -- 「`S-141` を 6 から
+    # 4 へ同時に下げるので、入口の外形は 26 x 24px のまま動かない」 -- and 16 + 4
+    # x 2 is the 24 of that sentence.
+    'NOT_STORED_ROW_CONTROL_OUTER_SIZES': (
+        'rowControlOuterHeightPx',
+        [('S-138', 1), ('S-141', 2)],
+        [' * ⚠️ This unit holds the sum rather than being handed it because the',
+         ' * rule is its own to keep: LF-3 of table T-221 (MUST) makes the',
+         " * lattice's height a floor under the band this unit decides, and",
+         ' * HF-19 of table T-051 (MUST NOT) lets no band fall below it. A rule',
+         ' * that only holds when a caller remembers to pass something is not a',
+         ' * rule. ⭐ A measured lattice is still taken where one arrives -- it',
+         ' * is what shows the drawn lattice leaving the two rows below -- and',
+         ' * it can only ever RAISE the band, never lower it past this floor.',
+         ' * ⛔ Neither term is a document setting and neither may become one:',
+         ' * table T-206 is where the specification records that the document',
+         ' * does not keep them, and the note on S-138 keeps the size off the',
+         " * reader's own text size (FR-039) as well."],
+    ),
+}
+
+
+def derived_block(name):
+    """One value that table T-206 states across more than one row.
+
+    ⛔ The sum is worked out HERE and nowhere else. Every unit that needs it
+    reads this constant, so the day either term moves the answer moves with it
+    -- which a value typed into a unit cannot do (rule 03 section 1).
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-206']
+    if not block:
+        raise SystemExit('settings.json holds no table T-206')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    member, terms, seam = DERIVED_TARGETS[name]
+    total = 0.0
+    spelled = []
+    unit = None
+    for row_id, times in terms:
+        if row_id not in by_id:
+            raise SystemExit('table T-206 has no row %s' % row_id)
+        raw = by_id[row_id].get('default') or {}
+        stated = raw.get('num')
+        if stated is None:
+            raise SystemExit(
+                'table T-206 row %s holds no number in its default cell, so '
+                '%s cannot be generated.' % (row_id, name))
+        # ⛔ The units have to agree or the sum means nothing -- the very
+        # failure CR-173 closed for S-113, where a boundary moved in silence
+        # because nothing said what it was measured in.
+        suffix = (raw.get('suffix') or '').strip()
+        if unit is None:
+            unit = suffix
+        elif suffix != unit:
+            raise SystemExit(
+                'table T-206 states %s in %s and another term of %s in %s, and '
+                'two units cannot be added.' % (row_id, suffix or '(none)',
+                                                name, unit or '(none)'))
+        total += float(stated) * times
+        spelled.append(row_id if times == 1 else '%s x %d' % (row_id, times))
+    literal = '%d' % int(total) if float(total).is_integer() else repr(total)
+    note = ' + '.join(spelled)
+    if unit:
+        note += ', in %s' % unit
+    out = ['/**',
+           ' * A value table T-206 states across more than one row, summed once',
+           ' * here so that no unit adds it up for itself.',
+           ' *',
+           ' * ⭐ The member is NAMED rather than keyed by a row ID, which every',
+           ' * other generated block of table T-206 is: no single row holds this',
+           " * number, so no row ID would be an honest name for it.",
+           ' *'] + list(seam) + [
+           ' */',
+           'export const %s: {' % name,
+           '  /** %s */' % note,
+           '  readonly %s: number' % member,
+           '} = {',
+           '  %s: %s,' % (member, literal),
+           '}']
+    return '\n'.join(out)
+
+
 # ---- table T-207: what the watermark bakes into the artifact ---------------
 #
 # ⛔ NOT `not_stored_block`'s TABLE, AND NOT ITS SHAPE. That one reads table
@@ -1904,6 +2011,18 @@ TARGETS = [
     # The label column of table T-012 is what chooses whether the gap applies.
     (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
      lambda _erd: not_stored_block('NOT_STORED_LABEL_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐⭐ LF-3's SECOND FLOOR, IN THE UNIT THAT DECIDES THE BAND. Table T-221's
+    # LF-3 (MUST) and table T-051's HF-19 (MUST NOT) hold a row's band at or
+    # above HF-1's 2 x 2 lattice, and this is the unit that settles a band --
+    # so the floor stands here rather than arriving from whoever remembered to
+    # measure one. ⛔ NOT `NOT_STORED_ICON_SIZES` MOVED HERE: that constant is
+    # the box `dom-screen-surface.ts` DRAWS an entrance in, and Chapter 5.3
+    # keeps a Framework file out of the Entity layer's reach anyway -- what
+    # crosses is the number, generated twice from the one manuscript, which is
+    # the same bargain S-218 already stands on in two units.
+    (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
+     lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),

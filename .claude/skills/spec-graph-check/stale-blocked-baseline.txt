@@ -1,4 +1,4 @@
-49
+46
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a
@@ -60,3 +60,14 @@
 # moved 85 finished rows out of the first, and most rotten openings travel with
 # a finished row. A check reading one file would have printed a large fall as
 # ground won.
+#
+# 2026-09-03: 49 -> 46. Three heads rewritten: D-27, D-49, D-116, all of them
+# in defects.md. ⚠️ MEASURED THE SAME DAY, AND IT CHANGES WHAT THIS NUMBER IS
+# WORTH: of the 49, only 3 stood in defects.md and 46 stood in fixed-defects.md.
+# A rotten opening on a FINISHED row costs a later round nothing -- nobody
+# re-asks a question that is closed -- while a rotten opening on an OPEN row
+# makes the next round raise a ruling that has already been given. ⛔ So do not
+# take this total as a target. The number to drive to zero is the count in
+# defects.md alone; the harvest's 46 are history, and rewriting them buys
+# nothing. ⭐ The count is still taken across both files, because a row that is
+# harvested must not make the total fall as if ground had been won.
