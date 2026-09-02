@@ -523,6 +523,28 @@ export interface ScreenWiring {
   readonly holdNewRowNameSettled?: (
     settle: (parentGroupId: string | null, name: string) => void,
   ) => void
+  /**
+   * FR-020 (MUST) -- a way to read what stands in the masked field U-60
+   * `Watermark Unlock` draws, at the moment one of that surface's two answers
+   * is given.
+   *
+   * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT, exactly as the three members above
+   * are and for the reason `screen-surface.ts` records: the IF-9 cell of table
+   * T-065 names five supplies. ⚠️ `readFieldCommit` is not the road either --
+   * that member carries a value settled in the `Properties Panel`, keyed by a
+   * row of table T-016, and this answer settles no column at all.
+   *
+   * ⛔ ASKED ONCE, WHEN AN ANSWER ARRIVES, AND NEVER HELD. FR-020 (MUST NOT)
+   * keeps the raw password out of code, out of the model and out of what goes
+   * out, so this loop hashes what comes back and lets it go.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30), the
+   * same bargain the three above take. ⭐ The cost falls on the safe side of
+   * FR-020's gate: a caller that never fills it can never match a password, so
+   * the watermark is never hidden -- and that requirement's gate stands on the
+   * hiding side alone.
+   */
+  readonly readWatermarkUnlockAnswer?: () => string
 }
 
 /**
@@ -1055,6 +1077,37 @@ const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
 /**
+ * U-60 of table T-103, spelled as that table spells it -- the surface FR-020
+ * (MUST) raises before the watermark may be hidden.
+ *
+ * ⭐ THE NAME IS THE JOIN AND IT IS THE ONE S-99g CARRIES, which is why this
+ * loop can tell one of NT-7's two word buttons pressed HERE from the same two
+ * pressed on U-55: `ScreenState.surface` says which surface stands, and the two
+ * cannot stand at once -- S-99g holds exactly one name.
+ * ⚠️ SPELLED IN THREE UNITS AND THAT IS NOT A COPY OF A RULE: it is a value of
+ * the specification's own glossary, and `input-command-translator.ts` (which
+ * raises it) and `open-modals.ts` (which describes it) each name it for the
+ * work they do. ⛔ None of the three may spell it differently -- and none can,
+ * because a mis-spelling raises a surface nothing describes.
+ */
+const WATERMARK_UNLOCK_SURFACE = 'Watermark Unlock'
+
+/**
+ * The row of table T-233 carried when the watermark unlock password does not
+ * match (FR-020, MUST).
+ *
+ * ⛔ NOT `RS-15`. That row is FR-076's landing place for a reason the table has
+ * none for, and carrying it while a row exists is what that requirement forbids
+ * (MUST NOT) -- it would also print 「もう一度行ってください」 as the next step,
+ * which is D-186's own lie in every case but this one.
+ * ⭐ HERE THAT STEP IS TRUE, WHICH IS WHY THE ROW EXISTS: FR-020 (MUST NOT)
+ * puts no cap on the tries -- 「透かしはアクセス制御ではなく証跡であり、回数を
+ * 絞ると守っているように見せることになる」 -- so trying again is exactly what a
+ * person can do next, and `RS-41` says so.
+ */
+const WATERMARK_UNLOCK_MISMATCH_REASON: NoticeReason = 'RS-41'
+
+/**
  * The entrances a held press repeats on -- FR-018 (MUST).
  *
  * ⛔ FOUR AND NOT SIX, WHICH IS THE REQUIREMENT'S OWN LIMIT (MUST):
@@ -1204,6 +1257,7 @@ type NoticeReason =
   | 'RS-38'
   | 'RS-39'
   | 'RS-40'
+  | 'RS-41'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1255,6 +1309,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-38': 'NT-1',
   'RS-39': 'NT-1',
   'RS-40': 'NT-3a',
+  'RS-41': 'NT-3a',
 }
 
 /**
@@ -2983,6 +3038,94 @@ function writeBrowserStored(row: BrowserStoredRow, value: string): void {
 }
 
 /**
+ * How many bits one hexadecimal digit spells, and the mask that takes them.
+ *
+ * ⛔ NOT A VALUE OF THE SPECIFICATION AND NOT ONE THIS FILE CHOSE. They are what
+ * "hexadecimal" means, and S-101 states the digest in it.
+ */
+const HEX_DIGIT_BITS = 4
+const HEX_DIGIT_MASK = 0xf
+/** The sixteen digits, in the case table T-207 prints S-101 in. */
+const HEX_DIGITS = '0123456789abcdef'
+
+/**
+ * One byte as the two hexadecimal digits S-101 is spelled in.
+ *
+ * ⛔ NOT `toString(16).padStart(2, '0')`. That reads a base out of a number and
+ * a width out of a second one, and the two have to agree; this spells the two
+ * digits the row itself is written in and cannot disagree with anything.
+ * ⚠️ LOWER CASE, WHICH IS HOW TABLE T-207 PRINTS S-101 -- and the comparison is
+ * exact, so a digest written the other way would never match.
+ * ⚠️ A BYTE IS ALWAYS IN RANGE HERE: the only caller walks a `Uint8Array`, so
+ * both lookups land, and the empty string a lookup outside the alphabet would
+ * give is unreachable rather than guarded against.
+ *
+ * @purity pure
+ */
+function hexOfByte(value: number): string {
+  const high = HEX_DIGITS[(value >> HEX_DIGIT_BITS) & HEX_DIGIT_MASK] ?? ''
+  const low = HEX_DIGITS[value & HEX_DIGIT_MASK] ?? ''
+  return high + low
+}
+
+/**
+ * The SHA-256 of what a person typed, spelled the way table T-207 spells S-101
+ * -- or `null` where this environment offers no such digest.
+ *
+ * ⭐ THE ENVIRONMENT'S OWN DIGEST AND NOT ONE WRITTEN HERE. FR-020 (MUST) makes
+ * the matching a SHA-256 comparison, and a hash written in this file would be a
+ * second implementation of a published algorithm with nothing holding it to the
+ * published one. ⚠️ It is reached only from this layer: LR-6 keeps the browser
+ * out of every other, which is why the comparing lives in the shell at all.
+ * ⭐ IT WORKS OVER `file://`, WHICH WAS MEASURED AND NOT ASSUMED (2026-09-02):
+ * `crypto.subtle` needs a secure context, and CN-1 (a single `.html`, no server)
+ * means the page is usually opened as a file -- Chromium reports such a page
+ * secure, and the digest of S-100 came back equal to S-101.
+ *
+ * ⛔ `null` RATHER THAN A THROW, WHICH IS FR-028 (MUST NOT): an environment
+ * without the digest is one where the watermark cannot be hidden, and the caller
+ * tells the person why instead of the page stopping.
+ * ⛔ NOTHING OF THE ANSWER IS KEPT. The text is hashed and let go -- FR-020
+ * (MUST NOT) keeps the raw password out of code, out of the model and out of
+ * what goes out.
+ *
+ * @purity semi-pure-b
+ */
+async function sha256HexOf(text: string): Promise<string | null> {
+  const digester = globalThis.crypto?.subtle
+  if (digester === undefined) return null
+  try {
+    const digest = await digester.digest('SHA-256', new TextEncoder().encode(text))
+    let spelled = ''
+    for (const byte of new Uint8Array(digest)) spelled += hexOfByte(byte)
+    return spelled
+  } catch {
+    return null
+  }
+}
+
+/**
+ * The digest FR-020 matches an answer against -- the one the author set (S-99c
+ * of table T-206) where there is one, and otherwise the default table T-207
+ * states (S-101).
+ *
+ * ⭐ THE ORDER IS S-99c's OWN: 「設定されていなければ表 T-207 の既定値を使う」.
+ * ⛔ NEITHER VALUE IS TYPED HERE. S-101 arrives as `WATERMARK_UNLOCK_DIGEST`,
+ * generated from the manuscript by `tools/generate_entity_types.py`, and S-99c
+ * is read out of the store LM-14 puts it in -- so a digest moved in the
+ * specification moves here without a hand.
+ * ⚠️ A STORED ROW OF NOTHING IS NO ROW. A store that answers with the empty
+ * string has nothing set, and reading it as a digest would make the empty
+ * password the one that opens the gate.
+ *
+ * @purity semi-pure-b
+ */
+function watermarkUnlockDigest(): string {
+  const set = readBrowserStored('S-99c')
+  return set === null || set === '' ? WATERMARK_UNLOCK_DIGEST['S-101'] : set
+}
+
+/**
  * FR-038 (MUST): 「起動したときは前回選ばれた言語で開き、それを読み出せないとき
  * はブラウザの言語設定に従うこと」 -- both halves, in that order.
  *
@@ -4360,6 +4503,94 @@ export function frameLoop(
   }
 
   /**
+   * FR-020 (MUST): the answer given on U-60 `Watermark Unlock`, spent. Returns
+   * whether that surface was standing to answer.
+   *
+   * ⭐ BESIDE `answerConfirmation` AND NOT INSIDE IT, and the reason is the
+   * requirement's. Both surfaces carry NT-7's two word buttons -- FR-020 sends
+   * U-60's manner to 「表 T-037 の `NT-7` が語のボタンについて定めるもの」 -- so
+   * the two answers arrive on the same member of `ScreenPart`, and what parts
+   * them is WHICH surface stands. ⛔ They cannot both stand: S-99g holds one
+   * name, and `ScreenSession.confirmation` is raised OVER whatever that name is.
+   * ⚠️ ASKED FIRST FOR THAT REASON, in `receiveInput`: a question raised while
+   * this surface was up would be answered by the press meant for the surface.
+   *
+   * ⛔ THE CANCELLING ANSWER HIDES NOTHING (FR-020, MUST NOT): 「閉じたときに
+   * 透かしを消してはならない —— 答えないことは「消さない」である」. So it closes
+   * the surface and writes not one command, which is what the first level of
+   * `Esc` does on the same surface by another road.
+   *
+   * ⭐ THE PROCEEDING ANSWER SETTLES NOTHING BY ITSELF. FR-020 (MUST) turns
+   * `watermarkVisible` false 「合ったときにだけ」, and whether it matched is a
+   * SHA-256 comparison the environment answers asynchronously -- so the surface
+   * stays up until the digest comes back, and `matchWatermarkUnlock` is what
+   * lands either outcome.
+   *
+   * @purity non-pure
+   */
+  function answerWatermarkUnlock(isProceeding: boolean, frame: FrameValues): boolean {
+    if (screenState.surface !== WATERMARK_UNLOCK_SURFACE) return false
+    if (!isProceeding) {
+      screenState = screenStateWithSurface(screenState, null)
+      ask()
+      return true
+    }
+    // ⛔ READ HERE AND HANDED STRAIGHT ON. FR-020 (MUST NOT) keeps the raw
+    // password out of code, model and output, so nothing in this loop holds it:
+    // it is read at the moment of the press and hashed in the call below.
+    // ⚠️ The empty string is what a wiring that never carried the reader
+    // answers, and what an empty field answers; neither can match a SHA-256.
+    const answer = screen?.readWatermarkUnlockAnswer?.() ?? ''
+    // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the file
+    // paths take, and for the reason CS-4 of table T-066 gives: the operation
+    // spans frames. ⛔ NO GUARD LIKE `isFileOperationWaiting` IS KEPT: FR-020
+    // (MUST NOT) puts no cap on the tries, and a second press while the first
+    // digest is still running is a person trying again -- the two land the same
+    // way, and the second cannot take a question away from the first because
+    // this surface asks none.
+    void matchWatermarkUnlock(answer, frame)
+    return true
+  }
+
+  /**
+   * FR-020 (MUST): the answer, matched against the digest, and whichever of the
+   * two things that requirement asks for.
+   *
+   * ⛔ ON A MATCH ONLY (MUST): 「合ったときにだけ ...  `watermarkVisible` を偽に
+   * すること」. ⭐ And the surface goes with it -- it has been answered, which is
+   * the same reading `answerSettledFormat` takes for U-54.
+   * ⛔ ON A MISMATCH THE SURFACE STAYS UP (MUST): 「合わなかったときは、面を閉じず
+   * に理由を告げること」 -- the reason being RS-41 of table T-233. ⚠️ WHAT WAS
+   * TYPED IS LEFT WHERE IT IS, which is the other half of the same paragraph:
+   * (MUST NOT) 「試せる回数に上限を置いてはならない」, so the person corrects what
+   * they typed rather than starting again.
+   *
+   * ⚠️ AN ENVIRONMENT WITH NO DIGEST FALLS TO THE MISMATCH, and that is the safe
+   * direction rather than a reading of any row: FR-020's gate stands on the
+   * hiding side alone, so an environment that cannot match leaves the watermark
+   * where it is and says why. ⛔ Table T-233 holds no row for 「この環境は
+   * SHA-256 を持たない」, and one invented here is what FR-076 (MUST NOT) bars.
+   *
+   * @purity non-pure
+   */
+  async function matchWatermarkUnlock(answer: string, frame: FrameValues): Promise<void> {
+    const given = await sha256HexOf(answer)
+    if (given === null || given !== watermarkUnlockDigest()) {
+      raiseNotice(WATERMARK_UNLOCK_MISMATCH_REASON, null)
+      return
+    }
+    screenState = screenStateWithSurface(screenState, null)
+    // ⚠️ THE NEWEST FRAME'S VALUES WHERE THERE IS ONE, and the answering
+    // frame's otherwise: the digest spans frames, so the limits the write is
+    // measured against are the ones in force when it lands.
+    writeDocument(
+      [{ kind: 'setElementVisible', element: 'watermarkVisible', visible: false }],
+      values ?? frame,
+    )
+    ask()
+  }
+
+  /**
    * One file operation's fault, RAISED (FR-076), or let go where table T-233
    * owes it nothing. ⚠️ Raised and not told: telling is UF-67's half of the seam,
    * and this side hands over a row.
@@ -5172,6 +5403,11 @@ export function frameLoop(
       // minted per context and therefore twice per happening; it is read only
       // where FR-001 has to make a row, so an unused one costs nothing.
       newGroupId: crypto.randomUUID(),
+      // AT-110 is a UUID as well, and AR-5 of table T-023b is what spends it.
+      // ⚠️ Minted per context beside the row's, and read only where a comment
+      // box is actually placed, so an unused one costs nothing -- the same
+      // bargain the line above states.
+      newCommentBoxId: crypto.randomUUID(),
     }
   }
 
@@ -7204,6 +7440,12 @@ export function frameLoop(
       (settledEntry !== null &&
         answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context))) ||
       (settledFormat !== null && answerSettledFormat(settledFormat)) ||
+      // FR-020 (MUST): U-60 `Watermark Unlock` carries NT-7's two word buttons
+      // too, so an answer has to be offered to that surface FIRST -- it answers
+      // `false` unless it is the surface standing, and a question raised over it
+      // would otherwise take the press meant for it.
+      (settledAnswer !== null &&
+        answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)
@@ -7511,7 +7753,7 @@ export function frameLoop(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/_source/settings.json (tables T-206 and T-207)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /**
  * The values table T-206 states that this unit needs, by row ID.
@@ -7603,5 +7845,31 @@ export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   readonly 'S-207': number
 } = {
   'S-207': 2000,
+}
+
+/**
+ * The values table T-207 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-207 holds what is BAKED INTO THE ARTIFACT and not kept
+ * in the document, so these are not document settings and are not
+ * in SETTINGS_DEFAULTS. They are reached by row ID because the
+ * table has no key column -- the row ID is the specification's own
+ * name for them.
+ *
+ * ⛔ THE RAW PASSWORD IS NOT HERE AND MAY NOT BE. FR-020 (MUST NOT)
+ * forbids it in code, in the model and in what goes out, and S-100 --
+ * the row that states it -- says the artifact takes only the digest.
+ * ⚠️ Which is also why this constant cannot be checked by hashing the
+ * password here: there would have to be a password here to hash.
+ *
+ * ⭐ WHAT IT IS COMPARED AGAINST IS NOT ALWAYS THIS. S-99c of table
+ * T-206 holds a digest the author set, in `localStorage`; this one is
+ * what FR-020 falls back to while no such row is kept.
+ */
+export const WATERMARK_UNLOCK_DIGEST: {
+  /** S-101 */
+  readonly 'S-101': string
+} = {
+  'S-101': 'e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134',
 }
 // </generated>

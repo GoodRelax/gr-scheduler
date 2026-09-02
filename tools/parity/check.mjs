@@ -17,16 +17,46 @@ const app = await openApp(browser)
 // ------------------------------------------------------- build the board ----
 
 /**
- * Take the document down to nothing, one press at a time.
+ * Take the document down to the ONE row it must always hold, one press at a time.
  *
  * ⛔ THE FIRST DRAWN ROW, WHATEVER ITS DEPTH -- not the first ROOT. HF-9 lets
  * the panel scroll, so a row above the viewport is not in the tree at all and
  * a loop that waits for a root to appear stops with rows still standing.
  * ⭐ Deleting any row takes its subtree with it (CD-2), so first-drawn is
  * enough: the document empties whatever order they are reached in.
+ *
+ * ⛔⛔ IT CANNOT REACH ZERO, AND MUST NOT TRY. From 2026-09-02 the paragraph
+ * under table T-050 (MUST) has the document always hold at least one
+ * `TaskGroup`: 「ある操作の結果として行が 0 になるときは、その操作の一部として、
+ * 深さ `L1` の行を 1 つ作ること（MUST）」, named from the dictionary's
+ * `defaultNames`/`row`. A loop that waited for no row at all threw
+ * 「the document would not empty」 after 200 presses -- which is the product
+ * obeying its specification, not a fault.
+ *
+ * ⛔⛔ SO IT STOPS AT A FIXED POINT, NOT AT A COUNT. "Stop when one row is
+ * drawn" was tried and measured wrong: the drawn set is a SCROLLED WINDOW, and
+ * the loop stopped with 「Quality And Release」 -- a row of the SAMPLE, 148px
+ * tall because it carries tasks -- still standing. The board was then built
+ * beside it, and the next `pressRow` could not find its own parent.
+ * ⭐ The row the invariant makes is the one row a delete cannot remove: press
+ * IC-82 on it and a row with the SAME identifier is there again. So the loop
+ * presses until a press stops changing the set of `data-group-id` on screen,
+ * which hard-codes no identifier and no word.
  */
+/** The rows on screen right now, as identifiers -- the loop's fixed point. */
+async function drawnRowIds() {
+  return app.tab.evaluate(() =>
+    [...document.querySelectorAll('[data-depth]')].map((row) => row.getAttribute('data-group-id')))
+}
+
 async function emptyTheApp() {
+  let before = null
   for (let guard = 0; guard < 200; guard += 1) {
+    const ids = await drawnRowIds()
+    // ⛔ The fixed point: one row on screen AND the press before it changed
+    // nothing. Only the invariant's row survives its own deletion.
+    if (ids.length <= 1 && before !== null && before.join() === ids.join()) return true
+    before = ids
     const top = await app.tab.evaluate(() => {
       const row = document.querySelector('[data-depth]')
       return row === null ? null : Math.round(row.getBoundingClientRect().y)
@@ -61,8 +91,35 @@ async function nameIt(name) {
   await app.tab.waitForTimeout(320)
 }
 
+/**
+ * Stand the sample's tree up beside the one row the document must keep, then
+ * take that row away last.
+ *
+ * ⛔⛔ "THE PARENT VANISHES" WAS A MISREADING, AND IT IS WRITTEN DOWN HERE SO
+ * NOBODY MEASURES IT AGAIN. With a row left standing, naming a newly added row
+ * leaves `app.rows()` answering with the CHILD ALONE -- but `app.rows()` reads
+ * `[data-depth]`, which is the DRAWN WINDOW and not the document. Measured
+ * 2026-09-02: a wheel-up over the panel brought every row straight back
+ * (「Quality And Release」@85, 「Whole Product」@241, 「Phase Bars」@277) and the
+ * next press then landed. NOTHING IS EVER LOST.
+ * ⚠️ What IS real is that the view parks below the content after that write, so
+ * the panel builds DOM for a row whose ancestors are above its top edge. ⭐ It
+ * reproduces with the T-050 invariant REVERTED (rebuilt from HEAD and measured),
+ * so it predates that work and belongs in its own ledger row -- it needs a tall
+ * leftover row and is invisible once `emptyTheApp` reaches its fixed point.
+ *
+ * ⚠️ THE LEFTOVER IS MATCHED BY THE WORD ON SCREEN, which FR-085 may have cut
+ * with a `…`. That is what `pressRow` compares against, so a cut name still
+ * resolves -- but it is why the name is read here rather than assumed.
+ */
+async function theOnlyRowsName() {
+  const drawn = await app.rows()
+  return drawn.length === 0 ? null : drawn[0].split(':').slice(1).join(':')
+}
+
 async function buildTheBoard() {
   await emptyTheApp()
+  const leftover = await theOnlyRowsName()
   // ⛔ EVERY PRESS IS CHECKED. A row below the fold is not in the tree (HF-9),
   // so `pressRow` can find nothing and return quietly -- and the next `nameIt`
   // would then type into whatever field happened to be open, which is how two
@@ -81,6 +138,24 @@ async function buildTheBoard() {
     }
   }
   await stand(null, SAMPLE_TREE)
+
+  // ⭐ NOW the leftover can go: the document holds the sample's rows, so taking
+  // it away cannot drive the count to zero and cannot raise the invariant again.
+  if (leftover !== null) {
+    const gone = await app.pressRow(leftover, 'del')
+    if (gone === false) {
+      throw new Error(`could not delete the leftover row ${JSON.stringify(leftover)} `
+        + `-- drawn: ${JSON.stringify(await app.rows())}`)
+    }
+    const asked = await app.tab.$('[data-confirmation-answer="proceed"]')
+    if (asked !== null) {
+      const box = await asked.boundingBox()
+      await app.tab.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      await app.tab.mouse.down(); await app.tab.mouse.up()
+      await app.tab.waitForTimeout(350)
+    }
+    await app.away()
+  }
 }
 
 // ------------------------------------------------------------- the diff ----
@@ -188,17 +263,21 @@ const whyKnown = (what) =>
  * path stays exactly as it was: an entrance that is not there is a failure.
  * Nothing here is allowed to soften it.
  *
- * ⚠️ EMPTY TODAY, AND MEASURED SO. The defects pressed out of the shipped build
- * are none of them askable on THIS board:
+ * ⚠️ EMPTY TODAY, AND MEASURED SO. The one defect still pressed out of the
+ * shipped build cannot be asked of THIS board:
  *
- *   D-06   a comment box cannot be placed at all -- needs the schedule canvas
- *   D-147  the watermark entrance is inert     -- this sample has no watermark
- *   D-182  a bar's dummy ignores where it is dropped -- this sample has no bars
+ *   D-147  the watermark entrance is inert -- this sample has no watermark
  *
- * ⛔ D-181 WAS A FOURTH AND IS NOT ANY MORE. Measured 2026-09-02: it was never a
- * defect. The row bands do not move; two LANES inside one band trade, which is
- * table T-014's ST-2 ordering and ST-3's greedy pass doing what they say, and
- * Ctrl+Y reproduces the trade with no pointer in it.
+ * ⭐ THE OTHER THREE CLOSED ON 2026-09-02 and are named here so nobody re-adds
+ * them from an older note:
+ *   D-06   a comment box could not be placed. One seam was missing: the armed
+ *          comment-box entrance planned no command at all. Fixed and measured.
+ *   D-181  never a defect. The row bands do not move; two LANES inside one band
+ *          trade, which is table T-014's ST-2 ordering and ST-3's greedy pass
+ *          doing what they say, and Ctrl+Y reproduces the trade with no pointer
+ *          in it -- so it belongs to the document, not to holding the grab.
+ *   D-182  a bar's dummy ignored where it was dropped. FR-043 now says the
+ *          dropped day is the actual start, and the code writes it.
  *
  * ⭐ `previous-project-result/11-row-controls/row-controls-sample.html` is a
  * ROW CONTROLS sample: it has rows, and nothing else. All four are pinned in

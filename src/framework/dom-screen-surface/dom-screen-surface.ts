@@ -515,6 +515,20 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
  */
 const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
+/**
+ * The masked field U-60 `Watermark Unlock` asks the password into (FR-020).
+ *
+ * ⛔ NOTHING IN THE SPECIFICATION SAYS HOW A FIELD IS MARKED IN THE PAGE. Table
+ * T-006a fixes `data-role` for a PART and this unit writes `data-icon` for an
+ * entry of table T-109; neither reaches a control. ⭐ It is marked all the same,
+ * for the read-back rule 04 asks for after anything that draws -- and ⛔ it is
+ * NOT what the field is found by inside this unit: `modalElement` hands the
+ * control over as it makes it, so no decision rests on this attribute.
+ * ⛔ AND IT CARRIES NO VALUE OF THE ANSWER. What is typed is the one thing
+ * FR-020 (MUST NOT) keeps out of code, model and output.
+ */
+const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
+
 // -------------------------------------------------------------- the paint ---
 
 /**
@@ -1790,6 +1804,16 @@ const STYLE = {
   // declares `font:inherit` on the button, which resets the weight a host
   // stylesheet would have given the element -- so the bold has to be said.
   confirmationAnswerInitial: 'font-weight:bold;',
+  // FR-020 (MUST): 「答えは打ち込む文字とし、伏せて描くこと」. ⛔ THE MASKING
+  // ITSELF IS NOT HERE -- it is the field's own `type`, which is what a browser
+  // masks by; this declares only that the field fills the box it stands in, so
+  // that a long password is not typed into a slot two characters wide.
+  // ⚠️ `font:inherit` FOR THE REASON `entryStyle` DECLARES IT: a host gives an
+  // input a font of its own, and the surface's own text would then be one size
+  // and the field another.
+  watermarkUnlockEntry:
+    `display:block;box-sizing:border-box;width:100%;margin:0.5em 0;font:inherit;` +
+    `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`,
   dialogueField:
     'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
     `width:24em;height:14em;padding:0.5em;background:${PAINT.ground};color:${PAINT.ink};` +
@@ -4733,11 +4757,26 @@ function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement 
  *
  * @purity non-pure
  */
+/**
+ * A surface, drawn, together with the one control on it that a person types
+ * into and that this unit has to be able to read back.
+ *
+ * ⭐ RETURNED RATHER THAN LOOKED UP AGAIN. The field is made here, so the
+ * moment it exists is the cheapest moment to hand it over -- and searching the
+ * built tree for it afterwards would make an attribute load-bearing, which is
+ * the bargain `TYPED_CONTROLS` already refuses for the panel's own controls.
+ * ⚠️ `null` ON EVERY SURFACE BUT U-60: only FR-020's asks for typed characters.
+ */
+interface DrawnModal {
+  readonly element: HTMLElement
+  readonly watermarkUnlockEntry: TextEntryControl | null
+}
+
 function modalElement(
   host: Document,
   modal: OpenModal,
   anchors: Map<string, HTMLElement>,
-): HTMLElement {
+): DrawnModal {
   // FR-036 (MUST) gives the help a share of the screen that no other surface
   // is given, so the box it opens in is the modal's plus that share.
   const drawn = part(
@@ -4760,6 +4799,9 @@ function modalElement(
     header.append(entry)
   }
   const body: HTMLElement[] = []
+  // U-60's masked field, filled in by the branch that draws it and left `null`
+  // by every other surface.
+  let watermarkUnlockEntry: TextEntryControl | null = null
 
   if ('entries' in modal) {
     // FR-038 (MUST): which language is on NOW, readable before the toggle is
@@ -4964,8 +5006,61 @@ function modalElement(
     }
   }
 
+  if ('question' in modal) {
+    // U-60 `Watermark Unlock` of table T-103 -- FR-020's gate on the HIDING of
+    // the watermark, and on that side alone (MUST NOT: 「対称な切り替えにしては
+    // ならない」).
+    //
+    // ⭐ WHAT NT-7 DEFINES ABOUT WORD BUTTONS IS WHAT IS FOLLOWED, which is what
+    // FR-020 sends here for: the two answers are words and not shapes (MUST
+    // NOT), and the head of each is drawn bold -- `confirmationAnswerElement`
+    // below is the one place that decides both, so this surface and U-55 cannot
+    // drift apart. ⛔ NOTHING HERE MINTS A SHAPE: FR-020 (MUST NOT) refuses
+    // these two a row of table T-109, so there is no figure F-019 entry to draw.
+    const question = made(host, 'div', '')
+    question.textContent = modal.question
+
+    // FR-020 (MUST): 「答えは打ち込む文字とし、伏せて描くこと」 -- 「証跡の面で
+    // あっても、打っている文字が肩越しに読めてよい理由は無い」.
+    //
+    // ⛔ THE HOST'S OWN MASKING AND NOT A DRAWING OF THIS UNIT'S. A field typed
+    // as a password is masked by the browser, which is what keeps the characters
+    // off the screen while they are still being typed; a mask this unit painted
+    // would leave the real characters in the DOM under it.
+    // ⛔ AND NOTHING REMEMBERS WHAT IS TYPED. FR-020 (MUST NOT) keeps the raw
+    // password out of code, model and output, so the characters live in this
+    // control and nowhere else -- `readWatermarkUnlockAnswer` reads them at the
+    // moment an answer is given and no copy is kept.
+    const answerEntry = host.createElement('input')
+    answerEntry.setAttribute('type', 'password')
+    answerEntry.setAttribute('style', STYLE.watermarkUnlockEntry)
+    // ⚠️ The question IS the label -- there is one field on this surface and
+    // FR-038 (MUST) keeps every word the dictionary's, so no second string is
+    // written here for a reader that cannot see the sentence above it.
+    answerEntry.setAttribute('aria-label', modal.question)
+    // ⛔ NOT DECIDED BY THE SPECIFICATION: how the field is marked in the page.
+    // Table T-006a fixes `data-role` and the surface writes `data-icon` for an
+    // entry, and neither reaches a field. ⭐ Marked all the same, because the
+    // read-back rule 04 asks for after anything that draws has to be able to
+    // find it, and because nothing else on this surface is an input.
+    answerEntry.setAttribute(WATERMARK_UNLOCK_ENTRY_ATTRIBUTE, 'true')
+    watermarkUnlockEntry = answerEntry
+
+    // ⛔ NO ENTRANCE TO PUT THIS SURFACE AWAY IS DRAWN, and that is table
+    // T-109's answer rather than an omission: no row of it names U-60, and
+    // FR-029 (MUST) makes that table the whole of the icons. The way out is the
+    // first level of `Esc` (IN-4), which FR-020 (MUST) names -- and ⛔ closing
+    // it that way may not hide the watermark (MUST NOT), which is kept by this
+    // surface reporting a press and never a write.
+    const answers = made(host, 'div', STYLE.confirmationAnswers)
+    for (const answer of modal.answers) {
+      answers.append(confirmationAnswerElement(host, answer))
+    }
+    body.push(question, answerEntry, answers)
+  }
+
   drawn.replaceChildren(header, ...body)
-  return drawn
+  return { element: drawn, watermarkUnlockEntry }
 }
 
 /**
@@ -5400,6 +5495,36 @@ export interface ScreenSurfaceWiring {
    */
   onNewRowNameSettled?(parentGroupId: string | null, name: string): void
   /**
+   * FR-020's 「打ち込む文字」, handed to the caller once, before this factory
+   * returns -- a way to read what stands in the masked field U-60 `Watermark
+   * Unlock` draws, at the moment one of that surface's two answers is given.
+   *
+   * ⛔⛔ ON THE WIRING AND NOT ON IF-9, the same bargain `holdFocusPropertyField`
+   * above sets out: the IF-9 cell of table T-065 names FIVE supplies, and a
+   * sixth member would be that seam claiming a duty the specification did not
+   * give it. ⚠️ `readFieldCommit` is not the road either -- that member is the
+   * `Properties Panel`'s settled value, and FR-020's answer settles nothing and
+   * writes no column.
+   *
+   * ⭐ PULLED AND NOT PUSHED, which is what keeps FR-020's MUST NOT. The
+   * characters are not carried anywhere until an answer is given; a push would
+   * mean this unit handing the raw password out on every keystroke, and the raw
+   * password may not be kept in code, in the model or in what goes out.
+   * ⛔ READING IT DOES NOT TAKE IT: FR-020 (MUST NOT) puts no cap on the number
+   * of tries, so a mismatch leaves the surface standing with the characters
+   * where they were and the person may correct them.
+   *
+   * ⚠️ THE EMPTY STRING IS WHAT AN ABSENT FIELD ANSWERS, and it is also what an
+   * empty field answers. ⛔ The two are not told apart, and nothing needs them
+   * to be: neither can match a SHA-256 the specification states.
+   *
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the members above. ⭐ The
+   * cost is that a caller which never asks for it can never match a password,
+   * so the watermark can never be hidden -- which is the safe direction of the
+   * two (FR-020's gate stands on the hiding side alone).
+   */
+  readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
+  /**
    * FR-041 (MUST): which of table T-236's two renderings to paint in, and the
    * hue the rows that follow the theme are solved with.
    *
@@ -5495,6 +5620,21 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const newRowNameEntry = host.createElement('input')
   const appHeader = part(host, 'div', ROLE.appHeader, STYLE.appHeader)
   const modalLayer = made(host, 'div', STYLE.layer)
+  /**
+   * FR-020 (MUST): the masked field U-60 asks the watermark unlock password
+   * into, while that surface stands -- `null` while it does not.
+   *
+   * ⛔ NOT BUILT WITH THE TREE, WHERE `dialogueEntry` AND `newRowNameEntry` ARE.
+   * Those two live as long as the page because what they hold must survive a
+   * redraw of the surface around them; this one must NOT -- FR-020 (MUST NOT)
+   * keeps the raw password out of code, model and output, so the characters
+   * exist only while the surface asking for them is up, and go with it.
+   * ⚠️ Held as `TextEntryControl` and not as an `HTMLInputElement`, the shape
+   * the panel's own controls are held in: table T-075 leaves this unit runnable
+   * against a host that lays nothing out, and such a host need not give its
+   * elements a `blur`.
+   */
+  let watermarkUnlockEntry: TextEntryControl | null = null
   const noticeLayer = part(host, 'div', ROLE.notices, STYLE.layer)
   // ⛔ NOT itself a part: the `data-role` U-55 answers to is written on the
   // surface this layer holds, so that a point on the layer's own emptiness is
@@ -6102,7 +6242,23 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (changed('openModal')) {
       const modal = view.openModal
       const anchors = anchorsOf('openModal')
-      modalLayer.replaceChildren(...(modal === null ? [] : [modalElement(host, modal, anchors)]))
+      const drawnModal = modal === null ? null : modalElement(host, modal, anchors)
+      modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
+      // FR-020: the field U-60 asks the password into, kept for as long as the
+      // surface that drew it stands.
+      // ⛔ REPLACED WHENEVER THE SURFACE IS REDRAWN, and never held past it: the
+      // control above has just been thrown away, so a reference kept over would
+      // answer with the characters typed into a field nobody can see any more.
+      // ⚠️ WHICH IS ALSO WHY THE PERSON'S CHARACTERS SURVIVE A FRAME: this
+      // branch runs only when the DESCRIPTION of the surface changed, and U-60's
+      // is the same sentence and the same two words for as long as it is up.
+      watermarkUnlockEntry = drawnModal === null ? null : drawnModal.watermarkUnlockEntry
+      // ⛔ ONLY WHERE THERE IS A FIELD, so this unit registers nothing at all
+      // while U-60 is closed -- see `watchWatermarkUnlock` for why the listeners
+      // may not live anywhere else.
+      if (drawnModal !== null && drawnModal.watermarkUnlockEntry !== null) {
+        watchWatermarkUnlock(drawnModal.element)
+      }
     }
     if (changed('notices')) {
       noticeLayer.replaceChildren(...view.notices.map((one) => noticeElement(host, one)))
@@ -6617,8 +6773,40 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     host.addEventListener('pointerdown', settleOnPressOutside)
   }
 
+  /**
+   * IN-6 of table T-028 (MUST) reaches U-60's masked field as well: a press
+   * OUTSIDE it ends the typing that stands in it.
+   *
+   * ⛔⛔ AND THERE IS NOTHING TO SETTLE, WHICH IS THE WHOLE DIFFERENCE. The two
+   * fields below settle a VALUE -- a property or a row's name -- and this one
+   * settles nothing: FR-020 (MUST NOT) keeps the raw password out of the model,
+   * so no column is written and no commit is built. What the press ends is the
+   * STATE 「入力中」 (AG-9 of table T-035), and ending it is what this does.
+   * ⛔⛔ WITHOUT IT THE MATCHING PASSWORD WAS REFUSED, AND THAT WAS MEASURED
+   * (2026-09-02): WS-2 of table T-067 turns away a write while text entry is
+   * unsettled, so pressing `Yes` with the caret still in the field left the
+   * digest matching and `watermarkVisible` unchanged -- the telling said
+   * 「その場の編集が確定していないので、この変更は適用できません」, which is RS-8
+   * answering for a field the person had just finished with.
+   * ⚠️ THE CHARACTERS ARE LEFT WHERE THEY ARE. FR-020 (MUST NOT) puts no cap on
+   * the tries, so a mismatch has to leave what was typed for the person to
+   * correct -- this ends the HOLD and never the contents.
+   *
+   * @purity non-pure
+   */
+  function releaseWatermarkUnlockOnPressOutside(event: Event): void {
+    const field = watermarkUnlockEntry
+    if (field === null || !isWatermarkUnlockHeld) return
+    if ((event as { target?: unknown }).target === (field as unknown)) return
+    // ⚠️ Guarded rather than assumed, the reason every other call to it gives.
+    if (typeof field.blur === 'function') field.blur()
+    isWatermarkUnlockHeld = false
+    isWatermarkUnlockTakenBack = false
+  }
+
   /** @purity non-pure */
   function settleOnPressOutside(event: Event): void {
+    releaseWatermarkUnlockOnPressOutside(event)
     // IN-6 of table T-028 (MUST) reaches HF-14's field as well: a press outside
     // it settles what stands in it. ⛔ Answered BEFORE the properties panel's
     // own field below and not inside it -- the two fields are held by two
@@ -6849,6 +7037,155 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    *
    * @purity semi-pure-b
    */
+  /**
+   * FR-020: what stands in U-60's masked field right now, or the empty string
+   * while that surface is not up.
+   *
+   * ⭐ READ AT THE MOMENT IT IS ASKED FOR AND NEVER REMEMBERED. FR-020
+   * (MUST NOT) keeps the raw password out of code, out of the model and out of
+   * what goes out, so the characters live in the control and nowhere else, and
+   * this hands them over once, to the one caller that hashes them.
+   * ⛔ ASKING DOES NOT TAKE THEM, where `readFieldCommit` beside it does: the
+   * same requirement (MUST NOT) puts no cap on the tries, so a mismatch has to
+   * leave what was typed where the person can correct it.
+   *
+   * @purity semi-pure-b
+   */
+  function readWatermarkUnlockAnswer(): string {
+    return watermarkUnlockEntry === null ? '' : watermarkUnlockEntry.value
+  }
+
+  /**
+   * Whether the person has hold of U-60's masked field (FR-020).
+   *
+   * ⛔⛔ WHY IT COUNTS AS 「まだ確定していない文字入力」 AT ALL. IN-5a of table
+   * T-028 (MUST NOT) makes single-character keys inert while text is being
+   * typed, and this surface asks for a PASSWORD. Table T-036 assigns a great
+   * many single letters, and the default of `S-100` alone carries six of them.
+   * Left out, the person typing the password would open the palette, fit the
+   * schedule and turn the status line as they went.
+   * ⛔ THE VALUE IS NOT SPELLED HERE, and may not be: FR-020 (MUST NOT) keeps
+   * the raw unlock password out of code, model and output. `S-100` of table
+   * T-207 is where it is stated; only its SHA-256 (`S-101`) reaches `src/`, and
+   * a generator brings it.
+   * ⚠️ IT IS NOT AN 「その場の編集」 AND WRITES NOTHING, which is what the two
+   * flags together are for: IN-4's second rung is spent on the characters and
+   * the rung under it -- 開いている面, which FR-020 (MUST) names for this
+   * surface -- is reached on the press after, exactly as the panel's field
+   * behaves.
+   * ⛔ AND IT IS THE FOCUS AND NOT THE CONTENTS. A flag raised only once a
+   * character had landed would leave the FIRST keystroke to table T-036: a
+   * `keydown` is answered before the host has put the character in.
+   */
+  let isWatermarkUnlockHeld = false
+  /**
+   * Whether the characters in that field have been taken back by an `Esc` and
+   * nothing has been typed since -- the same flag, and the same dance, that
+   * `isHeldTextTakenBack` keeps for the panel's own control.
+   */
+  let isWatermarkUnlockTakenBack = false
+  /**
+   * Everything U-60 `Watermark Unlock` has to be listened to for, hung on the
+   * SURFACE this unit just drew (FR-020).
+   *
+   * ⛔⛔ ON THE SURFACE AND NOT ON THE LAYER THAT HOLDS IT, WHICH IS A RULE AND
+   * NOT A PREFERENCE. FT-1 of table T-078 has the human input reach the shell
+   * through IF-2 and its note forbids widening that supply, so a listener this
+   * unit keeps outside the parts it serves would be a second source of input --
+   * `Properties Panel` and `Dialogue Field` are where the others hang, and the
+   * layer is a bare box table T-103 names nothing for. ⭐ U-60 IS such a part,
+   * and the listeners live and die with the surface: nothing at all is
+   * registered while it is closed.
+   * ⚠️ RE-HUNG ON EVERY REDRAW OF THE SURFACE, and nothing leaks by it: the
+   * element they hang on has just been made and the one before it has been
+   * thrown away with its listeners.
+   *
+   * ⛔ NOTHING HERE REPORTS TO THE SHELL AND NOTHING RAISES A FRAME. What they
+   * move is this unit's own answer to `hasUnsettledTextEntry`, and what
+   * `Esc` takes back is the field's own contents -- the same bargain the
+   * panel's three listeners already keep.
+   *
+   * @purity non-pure
+   */
+  function watchWatermarkUnlock(surface: HTMLElement): void {
+    // ⛔⛔ THE FIELD IS FOCUSED BY THIS UNIT AND NOT BY THE BROWSER, AND THAT WAS
+    // MEASURED (2026-09-02). MK-10 of table T-023 (MUST) has this tool stop the
+    // browser's own behaviour for a press it assigned, and `pointerAssignment`
+    // answers 「this tool's」 for every press that lands on something this
+    // surface drew -- so `DomInputSource` calls `preventDefault` on the
+    // `pointerdown`, and a prevented `pointerdown` gives no focus. ⇒ Clicking
+    // U-60's field left it unfocused and every character typed went nowhere.
+    //
+    // ⭐ SO THE SIDE THAT DREW THE FIELD PUTS THE PERSON IN IT, which is the
+    // same bargain `focusPropertyField` already keeps for MK-13's control: only
+    // this side can, and only this side knows the press landed on a control
+    // rather than on the surface around it. ⚠️ This listener runs BEFORE
+    // `DomInputSource`'s -- it hangs on a node and that one hangs on the window
+    // -- so the focus is placed and the press is still reported and still
+    // stopped.
+    // ⛔ NOTHING ELSE IS DONE WITH THE PRESS. It is not consumed and no default
+    // is stopped here (MK-10's answer is
+    // `TranslatedInput.isBrowserDefaultStopped`, and a second opinion raised
+    // here would put the decision in two places).
+    surface.addEventListener('pointerdown', (event: Event) => {
+      const field = watermarkUnlockEntry
+      if (field === null) return
+      if ((event as { target?: unknown }).target !== (field as unknown)) return
+      // ⚠️ Guarded rather than assumed, the reason the `Esc` listener gives:
+      // table T-075 leaves this unit runnable against a host that lays nothing
+      // out, and such a host need not give its elements a `focus`.
+      if (typeof field.focus === 'function') field.focus()
+    })
+    surface.addEventListener('focusin', (event: Event) => {
+      isWatermarkUnlockHeld =
+        watermarkUnlockEntry !== null &&
+        (event as { target?: unknown }).target === (watermarkUnlockEntry as unknown)
+      isWatermarkUnlockTakenBack = false
+    })
+    surface.addEventListener('focusout', () => {
+      isWatermarkUnlockHeld = false
+      isWatermarkUnlockTakenBack = false
+    })
+    // ⚠️ `input` AND NOT `change`, for the reason the panel's own listener
+    // gives: this is the person putting characters in again after a
+    // cancellation, which makes the entry unsettled once more.
+    surface.addEventListener('input', () => {
+      isWatermarkUnlockTakenBack = false
+    })
+    // IN-4's second rung, spent where the characters are.
+    //
+    // ⛔ 取り消したときは、編集を始める前の値へ戻すこと（MUST）-- and for this
+    // field that value is the empty string every time: FR-020 (MUST NOT) keeps
+    // the raw password out of everything, so nothing was ever carried in and
+    // there is nothing else to go back to.
+    // ⛔ THE CONTROL IS NOT LET GO ON THAT PRESS, which is measured rather than
+    // preferred and is why the panel's own listener says the same: this listener
+    // runs BEFORE the shell's, so a flag cleared here is the value the shell
+    // reads, and the ladder would take the SURFACE away on the very press that
+    // cleared the field -- two levels for one press, which IN-4 forbids
+    // (1 階層, MUST).
+    surface.addEventListener('keydown', (event: Event) => {
+      const held = watermarkUnlockEntry
+      if (held === null || !isWatermarkUnlockHeld) return
+      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      // NT-8 (MUST): a standing telling has this press before any rung below it.
+      if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
+      if (isWatermarkUnlockTakenBack) {
+        // Nothing stands unsettled any more, so this press is not the field's --
+        // let the control go, and the next `Esc` reaches the surface's own rung.
+        // ⚠️ Guarded rather than assumed, the reason the panel's listener
+        // gives: a host that lays nothing out need not give its elements a
+        // `blur`.
+        if (typeof held.blur === 'function') held.blur()
+        isWatermarkUnlockHeld = false
+        isWatermarkUnlockTakenBack = false
+        return
+      }
+      held.value = ''
+      isWatermarkUnlockTakenBack = true
+    })
+  }
+
   function hasUnsettledTextEntry(): boolean {
     // ⭐⭐ HF-14's FIELD COUNTS, AND IN-5a IS WHY. That row names the five things
     // typed in place -- 名称・担当者名・行名・文書名・注記の本文 -- and a row's
@@ -6857,7 +7194,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // swallowing IN-5a (MUST) exists to require. ⚠️ It also answers WS-2 of table
     // T-067 and IN-4's first level, both of which ask nothing but 「入力中か」.
     // ⛔ STILL ONE TRUTH VALUE AND NOT WHICH FIELD (MUST NOT, under table T-065).
-    return heldTextControl !== null || newRowNaming !== null
+    // ⭐⭐ U-60's MASKED FIELD COUNTS SINCE 2026-09-02, AND IN-5a IS AGAIN WHY:
+    // FR-020 (MUST) makes the watermark unlock answer 「打ち込む文字」, and the
+    // password the specification itself states carries six characters table
+    // T-036 assigns -- see `isWatermarkUnlockHeld` for what was measured.
+    return heldTextControl !== null || newRowNaming !== null || isWatermarkUnlockHeld
   }
 
   /**
@@ -7039,6 +7380,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // panel holds no row for the field to be placed against until the first
   // `showScreenView`.
   wiring.holdOpenNewRowName?.(openNewRowName)
+
+  // FR-020's 「打ち込む文字」, handed over the same way and at the same moment,
+  // and under the same caution: nothing has been drawn yet, so U-60 holds no
+  // field until a `showScreenView` puts that surface up.
+  wiring.holdReadWatermarkUnlockAnswer?.(readWatermarkUnlockAnswer)
 
   return {
     showScreenView,

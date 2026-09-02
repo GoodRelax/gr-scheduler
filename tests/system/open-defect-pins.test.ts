@@ -2,8 +2,35 @@
 // the user pressed out of the shipped build on 2026-09-01, every one of which
 // passed all 5570 automated tests on its way through.
 //
-//   D-06   a comment box cannot be placed at all
-//   D-147  the entrance that hides the watermark is inert
+//   ⛔ D-147 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//     held it is an ordinary assertion now: `ENTRY` in the input command
+//     translator had no key for `IC-41`, so the press reached every member and
+//     every member answered with the screen untouched -- 0 bytes of DOM and 0
+//     tellings. FR-020 (MUST, 利用者の裁定 2026-08-31 / CR-329) now has that
+//     press raise U-60 `Watermark Unlock` of table T-103, whose question is QN-9
+//     of table T-234 and whose two answers are NT-7's word buttons.
+//     ⚠️ WHAT THE CASE ASSERTS IS STILL FR-029's MUST and not the watermark
+//     itself: 「押されたときに限り、行えない理由を通知すること」, which is what
+//     「nothing changed AND nothing was said」 breaks. ⛔ THE WATERMARK'S OWN INK
+//     IS NOT DRAWN AT ALL in this build -- measured 2026-09-02, zero elements
+//     before and after -- so no case here can watch it disappear, and that gap
+//     belongs to FR-020's drawing half rather than to this row.
+//   ⛔ D-06 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//     held it is an ordinary assertion now: AR-5 of table T-023b reached no
+//     branch of `commandFromArmed`, so an armed comment box entrance planned no
+//     command at all. `InputContext` now carries `newCommentBoxId` beside
+//     `newGroupId` -- AT-110 is a UUID, so the identifier is minted by the shell
+//     -- and the press plans CM-46 against the day and the row it stands on.
+//     ⚠️ THE CASE PRESSES SOMEWHERE ELSE THAN IT DID, and the reason is the
+//     specification and not the fix. FR-019 (MUST) holds a comment box's
+//     position 「日付と行の識別子で」; ground BELOW the last row, which is where
+//     this file used to press, points at no row, and no requirement says what a
+//     box placed there anchors to. FR-001's answer for a Task (make a row) may
+//     not be borrowed: it makes that Task the new row's 導出元, and a row made
+//     for an annotation would have neither a name nor one, which AT-54 and
+//     FR-058 forbid. ⇒ The pair presses on empty ground a drawn row COVERS,
+//     which is the ground the specification decides. Off-the-rows placement is
+//     reported as a missing row, not tested here.
 //   ⛔ D-181 WAS PINNED HERE AND IS NOT ANY MORE. Measured 2026-09-02: it was
 //     never a defect. The row bands do not move -- read before, during and
 //     after the grab, all eight stand at the same y and the same height. What
@@ -86,37 +113,20 @@ interface Pin {
   readonly wrong: string
 }
 
-const D06: Pin = {
-  ledger: 'D-06',
-  wrong:
-    'the comment box entrance arms, the canvas answers the pointer, and a press ' +
-    'and a drag on empty canvas draw nothing and raise no notice',
-}
-
-const D147: Pin = {
-  ledger: 'D-147',
-  wrong:
-    'the entrance that hides the watermark is drawn enabled, and pressing it ' +
-    'changes nothing on the screen and raises no notice',
-}
-
-
-const PINNED: readonly Pin[] = [D06, D147]
-
 /**
- * Say, on the run's own output, which ledger row this case is holding.
- *
- * ⭐ Printed rather than only annotated. A pinned case is GREEN today, so it
- * scrolls past in the summary with everything else; the one thing that must
- * not be missable is that the suite is green because a defect is open.
- *
- * @purity non-pure
+ * ⛔ EMPTY, AND THAT IS THE POINT OF THE LAST CASE IN THIS FILE. Every row this
+ * file once pinned has been fixed, so nothing here is expected to fail any more
+ * -- and the ledger check below is what says so out loud rather than leaving an
+ * empty list to read as 「nobody wrote the pins」.
  */
-function announce(pin: Pin, what: string): void {
-  // eslint-disable-next-line no-console
-  console.log(`\n[OPEN DEFECT ${pin.ledger}] ${what}\n    ${pin.wrong}`)
-  test.info().annotations.push({ type: 'open defect', description: `${pin.ledger}: ${pin.wrong}` })
-}
+const PINNED: readonly Pin[] = []
+
+// ⛔ THE ANNOUNCER WENT WITH THE LAST PIN (2026-09-02). It printed 「this suite
+// is green because a defect is open」 on the run's own output for every
+// `test.fail()` case; with `PINNED` empty there is no such case to announce,
+// and a function nothing calls is one the compiler refuses. ⭐ What it did is
+// written out here rather than kept as dead code: the next pin brings it back
+// with the case it belongs to.
 
 // ---------------------------------------------------------------------------
 // The screen, read out of the specification at read time
@@ -191,6 +201,8 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
  * as it should.
  */
 const CANVAS = '[data-role="Schedule Canvas"] svg'
+/** The same part, without its drawing -- the element IN-2's shape is set on. */
+const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const NOTICES = '[data-role="Notification Area"]'
 const PANEL = '[data-role="Row Title Panel"]'
 
@@ -233,6 +245,41 @@ async function censusOf(page: Page): Promise<{ shapes: string; notice: string }>
       }
     },
     { canvas: CANVAS, notices: NOTICES },
+  )
+}
+
+/**
+ * The same question asked of the WHOLE screen: which parts the surface is
+ * drawing, and whatever the notification area is saying.
+ *
+ * ⛔⛔ WIDER THAN `censusOf` ON PURPOSE, AND THE WIDTH IS THE LEDGER'S OWN
+ * WORDING. D-147 read 「pressing it changes nothing on the screen」, and the
+ * drawing inside the `Schedule Canvas` is not the whole screen: a surface opened
+ * OVER it (S-99g) leaves every shape in the canvas exactly where it was. ⚠️ The
+ * case that pinned that row asked `censusOf` and would have gone on failing
+ * after the fix, for measuring the wrong half of the screen.
+ *
+ * ⭐ THE PARTS AND NOT THE MARKUP, which is the same bargain `censusOf` keeps:
+ * what the row accused the product of is doing NOTHING, and a list of the parts
+ * on screen answers that without knowing what the right something looks like.
+ * ⚠️ Sorted, so that the order the surface happens to build them in is not what
+ * the comparison turns on.
+ *
+ * @purity semi-pure-b
+ */
+async function screenCensusOf(page: Page): Promise<{ parts: string; notice: string }> {
+  return page.evaluate(
+    /** @purity semi-pure-b */
+    (notices: string) => {
+      const named = Array.from(document.querySelectorAll('[data-role]'))
+        .map((one) => one.getAttribute('data-role') ?? '')
+        .sort((one, two) => (one < two ? -1 : 1))
+      return {
+        parts: named.join(' '),
+        notice: (document.querySelector(notices)?.textContent ?? '').trim(),
+      }
+    },
+    NOTICES,
   )
 }
 
@@ -330,6 +377,86 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
 
 
 
+/** How far along the row the second half of each D-06 gesture reaches. */
+const REACH_PX = 160
+
+/**
+ * The shape the application is showing at a point -- IN-2 of table T-028, read
+ * off the `Schedule Canvas` after moving a real pointer there.
+ *
+ * @purity non-pure
+ */
+async function cursorAt(page: Page, x: number, y: number): Promise<string> {
+  await page.mouse.move(x, y)
+  return page.evaluate(
+    /** @purity semi-pure-b */
+    (canvas: string) => {
+      const surface = document.querySelector(canvas)
+      return surface instanceof HTMLElement ? surface.style.cursor : ''
+    },
+    // ⛔ THE PART ITSELF, NOT `CANVAS`. That one reaches the DRAWING inside
+    // the part, and IN-2's shape is carried by the part -- an SVG element has no
+    // `style.cursor` this read can see, and asking it answers the empty string
+    // at every point on the screen.
+    CANVAS_PART,
+  )
+}
+
+/**
+ * A point on empty ground that one of the DRAWN ROWS covers, with room along
+ * the row for the rest of the gesture.
+ *
+ * ⛔ A DIFFERENT QUESTION FROM `emptyCanvasPoint`, which walks up from the
+ * bottom of the window and so lands on the ground BELOW the last row. FR-019
+ * (MUST) holds a comment box's position by a date and a ROW identifier, and
+ * ground no row covers is ground the specification decides no placement for --
+ * see the head note.
+ *
+ * ⛔ AND A DIFFERENT TEST OF EMPTINESS, because `elementFromPoint` cannot answer
+ * this one: inside a row the topmost thing at any point is the row's own band,
+ * so that reading is never the drawing itself and calling it "something is
+ * drawn here" would rule out every point on every row. ⭐ THE APPLICATION IS
+ * ASKED INSTEAD: PD-5 gives ground that hit nothing the plain arrow, so the
+ * shape the canvas is showing IS the product's own answer to "is anything here",
+ * and it is read with nothing armed so that no arming can colour it.
+ *
+ * ⭐ THE ROWS ARE THE PAGE'S OWN ANSWER TOO: the panel marks each drawn row with
+ * `data-depth`, and the band it reports stands at the same y and height as the
+ * row the canvas draws beside it.
+ *
+ * @purity non-pure
+ */
+async function emptyPointOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
+  const ground = await page.evaluate(
+    /** @purity semi-pure-b */
+    (asked: { panel: string; reach: number }) => {
+      const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
+      if (panel === undefined) return null
+      const middles: number[] = []
+      for (const row of Array.from(document.querySelectorAll('[data-depth]'))) {
+        const band = row.getBoundingClientRect()
+        const middle = Math.round(band.y + band.height / 2)
+        if (middle >= 120 && middle <= window.innerHeight - 40) middles.push(middle)
+      }
+      return {
+        left: Math.round(panel.right + 80),
+        right: window.innerWidth - 200 - asked.reach,
+        middles,
+      }
+    },
+    { panel: PANEL, reach: REACH_PX },
+  )
+  if (ground === null) return null
+  for (const y of ground.middles) {
+    for (let x = ground.left; x <= ground.right; x += 24) {
+      if ((await cursorAt(page, x, y)) !== 'default') continue
+      if ((await cursorAt(page, x + REACH_PX, y)) !== 'default') continue
+      return { x, y }
+    }
+  }
+  return null
+}
+
 /** A faint pair of grab-holds, and where each half of it stands. */
 interface FaintHold extends Box {
   /** The left edge of each half, in the order they are drawn. */
@@ -406,13 +533,13 @@ const HIDE_WATERMARK = 'IC-41'
 const DATE_RULES = 'IC-42'
 
 // ---------------------------------------------------------------------------
-// D-147 -- the entrance that hides the watermark is inert
+// D-147 -- the entrance that hides the watermark is inert (FIXED 2026-09-02)
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the neighbouring entrance stops answering a press -- either the
 // entrance moved, or the pointer this file drives stopped reaching the palette.
-// It has nothing to say about D-147 itself; it is here so that the pinned case
-// below cannot pass by failing to press anything.
+// It has nothing to say about D-147 itself; it is here so that the case below
+// cannot pass by failing to press anything.
 test('control for D-147: a neighbouring entrance of the same palette group answers a press', async ({
   baseURL,
 }) => {
@@ -424,35 +551,41 @@ test('control for D-147: a neighbouring entrance of the same palette group answe
   expect(
     after.shapes,
     `pressing ${DATE_RULES} left the drawing untouched, so this file is not reaching the palette ` +
-      'at all and the pin on D-147 below would be worthless',
+      'at all and the case on D-147 below would be worthless',
   ).not.toBe(before.shapes)
   await app.close()
 })
 
-// GOES RED IF: D-147 is fixed. Playwright then reports "expected to fail, but
-// passed" and this entry has to be taken out. Nothing else makes it pass: the
-// press either changes what is on the screen or the notification area says why
-// it cannot, and today it does neither.
+// GOES RED IF: the entrance that hides the watermark stops answering a press --
+// which is what D-147 was, and it is what happens again if `ENTRY` in the input
+// command translator loses its key for `IC-41`, if `screenStateFromEntry` stops
+// raising U-60, or if UF-66 stops describing that surface.
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-147.
+// Measured on the shipped build: the drawing was byte for byte identical after
+// the press and the notification area was empty, with the entrance reporting
+// `data-enabled=true`.
+// ⛔ WHAT IS ASSERTED IS FR-029's MUST AND NOT THE WATERMARK. That requirement
+// asks a press that cannot act to say why; FR-020 answers it here by raising a
+// surface instead, so 「the screen changed OR something was said」 is the whole
+// of what this case knows -- and it is the same sentence the pinned case
+// carried, so nothing was loosened to make it pass.
 test('D-147: pressing the entrance that hides the watermark either does something or says why not', async ({
   baseURL,
 }) => {
-  test.fail()
   test.setTimeout(180_000)
-  announce(D147, 'pressing the watermark entrance')
   const app = await openTheApp(baseURL)
-  const before = await censusOf(app.page)
+  const before = await screenCensusOf(app.page)
   expect(await pressEntrance(app.page, HIDE_WATERMARK), `${HIDE_WATERMARK} is not on the screen`).toBe(
     true,
   )
-  const after = await censusOf(app.page)
-  const answered = after.shapes !== before.shapes || after.notice !== before.notice
+  const after = await screenCensusOf(app.page)
   try {
     // FR-029 (MUST): an entrance that is pressed and cannot act must tell the
     // author why. So "nothing changed AND nothing was said" is the one answer
     // the specification does not allow, whatever the watermark itself does.
     expect(
-      answered,
-      `${HIDE_WATERMARK} was pressed: the drawing is unchanged (${after.shapes}) and the ` +
+      after.parts !== before.parts || after.notice !== before.notice,
+      `${HIDE_WATERMARK} was pressed: the parts on screen are unchanged (${after.parts}) and the ` +
         'notification area is empty',
     ).toBe(true)
   } finally {
@@ -461,21 +594,20 @@ test('D-147: pressing the entrance that hides the watermark either does somethin
 })
 
 // ---------------------------------------------------------------------------
-// D-06 -- a comment box cannot be placed at all
+// D-06 -- a comment box cannot be placed at all (FIXED 2026-09-02)
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the canvas stops answering an armed entrance at all, or the spot
-// this file drags on stops being empty ground. It says nothing about D-06; it
-// proves that the point, the arming and the drag below are a gesture the
-// product does respond to.
+// this file presses on stops being empty ground. It says nothing about the
+// comment box; it proves that the point, the arming and the gesture below are
+// ones the product does respond to.
 test('control for D-06: with the rectangle entrance armed, the same drag on the same spot draws', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
-  await scrollToTheGround(app.page)
-  const spot = await emptyCanvasPoint(app.page)
-  expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
+  const spot = await emptyPointOnADrawnRow(app.page)
+  expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 
   expect(await pressEntrance(app.page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(
@@ -486,64 +618,67 @@ test('control for D-06: with the rectangle entrance armed, the same drag on the 
   const before = await censusOf(app.page)
   await app.page.mouse.move(spot.x, spot.y)
   await app.page.mouse.down()
-  await app.page.mouse.move(spot.x + 160, spot.y, { steps: 10 })
+  await app.page.mouse.move(spot.x + REACH_PX, spot.y, { steps: 10 })
   await app.page.mouse.up()
   await app.page.waitForTimeout(900)
   const after = await censusOf(app.page)
   expect(
     after.shapes,
-    'an armed entrance and a drag on empty canvas drew nothing, so the probe the pin on D-06 ' +
-      'below uses reaches nothing',
+    'an armed entrance and a drag on empty canvas drew nothing, so the case on D-06 below ' +
+      'reaches nothing',
   ).not.toBe(before.shapes)
   await app.close()
 })
 
-// GOES RED IF: D-06 is fixed -- a comment box is drawn where the drag was made,
-// or the product says why it cannot place one. Today the census is byte for
-// byte identical after both a press and a drag, and the notification area stays
-// empty, while the entrance itself reports `data-armed=true`.
-test('D-06: with the comment box entrance armed, a press and a drag on empty canvas place one', async ({
+// GOES RED IF: an armed comment box entrance stops planning CM-46 -- which is
+// what D-06 was, and it is what happens again if `newCommentBoxId` stops
+// reaching `commandFromArmed`, if AR-5 falls back out of that member, or if the
+// identifier stops being minted afresh per happening (the second press would
+// then be refused by IV-1 and draw nothing).
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-06.
+// Measured on the shipped build: the census was byte for byte identical after
+// both a press and a drag, with the entrance reporting `data-armed=true`.
+test('D-06: with the comment box entrance armed, a press on empty canvas places one', async ({
   baseURL,
 }) => {
-  test.fail()
   test.setTimeout(180_000)
-  announce(D06, 'placing a comment box on empty canvas')
   const app = await openTheApp(baseURL)
-  await scrollToTheGround(app.page)
-  const spot = await emptyCanvasPoint(app.page)
-  expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
+  const spot = await emptyPointOnADrawnRow(app.page)
+  expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 
   expect(await pressEntrance(app.page, COMMENT_BOX), `${COMMENT_BOX} is not on the screen`).toBe(true)
-  // ⚠️ The arming is asserted BEFORE the gesture on purpose. It is the half of
-  // D-06 that already works, and a pinned case that failed here would be
-  // pinning something else entirely.
   expect(await armingOf(app.page, COMMENT_BOX), `${COMMENT_BOX} did not arm`).toBe('true')
 
   const before = await censusOf(app.page)
   await app.page.mouse.move(spot.x, spot.y)
   await app.page.mouse.down()
   await app.page.mouse.up()
-  await app.page.waitForTimeout(700)
+  await app.page.waitForTimeout(900)
   const pressed = await censusOf(app.page)
+  expect(
+    pressed.shapes,
+    `${COMMENT_BOX} armed, then pressed at (${spot.x}, ${spot.y}): the drawing is unchanged ` +
+      `(${before.shapes})`,
+  ).not.toBe(before.shapes)
 
-  await app.page.mouse.move(spot.x, spot.y)
+  // ⭐ A SECOND ONE, AND THE ARMING IS NOT PRESSED AGAIN. Table T-023b's closing
+  // rule keeps an arming standing (MUST), so a second press owes a second box --
+  // and it owes a second IDENTIFIER, which is the half no single placement can
+  // show. ⛔ Off the first box, not on it: a press that hits one is PD-3's and
+  // not PD-4's.
+  await app.page.mouse.move(spot.x + REACH_PX, spot.y)
   await app.page.mouse.down()
-  await app.page.mouse.move(spot.x + 160, spot.y + 60, { steps: 10 })
   await app.page.mouse.up()
   await app.page.waitForTimeout(900)
-  const dragged = await censusOf(app.page)
-
-  const answered =
-    pressed.shapes !== before.shapes ||
-    dragged.shapes !== before.shapes ||
-    dragged.notice !== before.notice
+  const twice = await censusOf(app.page)
   try {
     expect(
-      answered,
-      `${COMMENT_BOX} armed, then pressed and dragged at (${spot.x}, ${spot.y}): the drawing is ` +
-        `unchanged (${before.shapes}) and the notification area is empty`,
-    ).toBe(true)
+      twice.shapes,
+      `${COMMENT_BOX} stayed armed and was pressed a second time at ` +
+        `(${spot.x + REACH_PX}, ${spot.y}): ` +
+        `the drawing is unchanged (${pressed.shapes})`,
+    ).not.toBe(pressed.shapes)
   } finally {
     await app.close()
   }

@@ -1418,6 +1418,41 @@ export type OpenModal =
        */
       readonly weekStartDay: number | null
     })
+  // U-60 `Watermark Unlock` of table T-103 -- the surface FR-020 (MUST) raises
+  // before the watermark may be hidden.
+  //
+  // ⭐ A SURFACE AND NOT A `Confirmation`. U-55's answer is one of NT-7's two
+  // and nothing else; this one is a password, and U-60's own row says so --
+  // 「答えが 2 択ではなく、打ち込む文字である」. ⛔ So it is a name S-99g holds
+  // (FR-020, MUST), which is what puts it on IN-4's surface rung.
+  // ⚠️ THE GATE STANDS ON THE HIDING SIDE ALONE (FR-020, MUST NOT): putting the
+  // watermark back is never asked, and a symmetric toggle 「切り替えは 2 つの
+  // 向きを見分けられないので、消す側の門をすり抜ける」.
+  | (OpenSurface & {
+      readonly surface: 'Watermark Unlock'
+      /**
+       * QN-9 of table T-234 (MUST), in the display language (FR-038) -- or the
+       * empty string while the dictionary holds no word for the row (PD-160).
+       *
+       * ⭐ THE SHOWN HALF OF A ROW, exactly as `Confirmation.text` is: FR-076
+       * (MUST) makes what a question shows a row of that table and (MUST NOT)
+       * bars a question it does not hold, so the sentence is READ out of the
+       * one dictionary FR-038 names and nothing mints one.
+       */
+      readonly question: string
+      /**
+       * The two answers, as WORD BUTTONS (MUST) -- FR-020 sends their manner to
+       * 「表 T-037 の `NT-7` が語のボタンについて定めるもの」, so they are the
+       * very two `Confirmation.answers` carries and are read out of the same
+       * `confirmation` section of FR-038's dictionary.
+       *
+       * ⛔ NEITHER HAS A ROW OF TABLE T-109 (MUST NOT, FR-020 and NT-7 alike):
+       * that table and figure F-019 hold the entrances that are SHAPES, and a
+       * word button has no shape. ⚠️ Which is why they are not `commands`, the
+       * member every other surface answers a press on.
+       */
+      readonly answers: readonly ConfirmationAnswer[]
+    })
   // Any other name S-99g carries. ⛔ Nothing beyond the three members every
   // surface has: with no settled name for FR-074's surface or FR-088's, a caller
   // that spelled either differently cannot be told from the other.

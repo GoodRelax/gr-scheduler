@@ -468,6 +468,19 @@ export interface InputContext {
    */
   readonly newGroupId: string
   /**
+   * The identifier to give the `CommentBox` that AR-5 of table T-023b places.
+   *
+   * ⛔ Minted outside for the same reason `newGroupId` is: AT-110 is a UUID, so
+   * naming one is not a pure act, and `createCommentBox` (CM-46) declares its
+   * `id` as a value it is handed rather than one it makes.
+   * ⛔ NOT OPTIONAL, and that is deliberate. `isPropertiesPanelShowing` below is
+   * optional and says what that costs -- a caller which forgets it is never
+   * told. Forgetting THIS one is the whole of ledger row D-06: a placement that
+   * reaches the document with no identifier reaches it not at all, and silence
+   * is exactly the symptom that took two measured rounds to name.
+   */
+  readonly newCommentBoxId: string
+  /**
    * S-99h of table T-206 -- 「プロパティパネルを出しているか」 -- or `undefined`
    * where the caller carried no answer.
    *
@@ -1519,6 +1532,18 @@ const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
 /**
+ * U-60 of table T-103 -- the surface FR-020 (MUST) raises before the watermark
+ * may be hidden (利用者の裁定 2026-08-31).
+ *
+ * ⭐ Copied spelling and all, the same join the four above take: it is what
+ * `ScreenState.surface` (S-99g) carries and what `open-modals.ts` keys its own
+ * branch on. ⚠️ FR-020 (MUST) names S-99g for it in as many words, which is what
+ * puts it on IN-4's surface rung -- and ⛔ (MUST NOT) closing it there may not
+ * hide the watermark, which is kept by this side writing no command at all.
+ */
+const WATERMARK_UNLOCK = 'Watermark Unlock'
+
+/**
  * U-25 of table T-103 -- the surface `ScreenState` does NOT hold.
  *
  * ⛔ NOT A SIXTH NAME FOR `ScreenState.surface`, and it must never be put
@@ -2329,6 +2354,31 @@ const ENTRY = {
   assigneeVisible: 'IC-79',
   percentCompleteVisible: 'IC-80',
   dependencyVisible: 'IC-81',
+  /**
+   * IC-41 -- FR-020's way to HIDE the watermark, and the entrance that raises
+   * U-60 `Watermark Unlock` (利用者の裁定 2026-08-31, CR-329).
+   *
+   * ⛔⛔ NOT ONE OF FR-049's TOGGLES, ALTHOUGH `watermarkVisible` IS A BOOLEAN
+   * ROW OF TABLE T-202. FR-020 (MUST NOT) forbids the symmetric reading in as
+   * many words -- 「対称な切り替えにしてはならない …… 切り替えは 2 つの向きを
+   * 見分けられないので、消す側の門をすり抜ける」 -- because the gate stands on
+   * the HIDING side alone and putting the watermark back is never asked (MUST).
+   * ⇒ It is absent from `VISIBLE_ELEMENT_BY_ENTRY` on purpose, and that map's
+   * own note says so.
+   * ⭐ THE PRESS WRITES NOTHING AT ALL. What it does is raise a surface, which
+   * is `screenStateFromEntry`'s member and S-99g's value -- so this entry falls
+   * through `commandFromEntry` to `commandFromArmingEntry`, which answers
+   * `CONSUMED_ELSEWHERE`: still this tool's press (MK-10), and no edit.
+   *
+   * @provisional PD-418 -- ⛔ THE HALF THAT RULING DID NOT REACH. CR-329 settled
+   * what a PRESS on this row does; PD-418 also asks whether EN-2 of table T-237
+   * (「機能が ON なら塗る」) paints this entrance while `watermarkVisible` is
+   * true, because table T-202 names IC-41 as that row's entrance while table
+   * T-109 words IC-41 one way only. ⭐ Nothing here paints anything -- the
+   * pressed state is UF-65's -- and no reading of EN-2 is taken: the row stays
+   * open, and the entrance is drawn as the palette drew it before.
+   */
+  hideWatermark: 'IC-41',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
   /**
@@ -2604,14 +2654,13 @@ const ENTRY = {
  * The rows with no entrance are left alone rather than given one, the way
  * `commandFromRowEntry` leaves table T-015's entrance-less operations alone.
  *
- * @provisional PD-418 -- IC-41 reads two ways and this map takes neither.
- * Table T-202 carries `watermarkVisible` as a boolean and names IC-41 its
- * entrance, which FR-049 would make a toggle; table T-109 gives IC-41 to
- * FR-020 and words it one way only, asking for a password. Nothing picks
- * one, so the row stays out until the reader rules on D-147.
- * ⚠️ ONE ROW OF TABLE T-109 IS MISSING FROM THIS MAP AND IS NOT AN OVERSIGHT:
- * IC-41 draws an entrance for `watermarkVisible`, and the STOP note at the foot
- * of this file says what stands between the press and the write.
+ * ⛔⛔ IC-41 IS OUT OF THIS MAP BY A RULING AND NO LONGER BY A DOUBT
+ * (利用者の裁定 2026-08-31, CR-329; PD-418 stood here until then). FR-020 now
+ * (MUST NOT) refuses it the symmetric reading outright -- 「対称な切り替えにして
+ * はならない …… 切り替えは 2 つの向きを見分けられないので、消す側の門をすり抜け
+ * る」 -- and (MUST) has the press raise U-60 `Watermark Unlock` instead, which
+ * `screenStateFromEntry` answers. ⇒ The row is not a toggle and may not become
+ * one; `ENTRY.hideWatermark` carries the whole of what it is.
  *
  * ⚠️ IC-4 IS ON THE HEADER AND THE REST ON THE PALETTE, which is why they are
  * one map and not two: what a press does is the same rule for all of them, and
@@ -6660,16 +6709,50 @@ function commandFromArmed(
     return changed(commands)
   }
 
-  // STOP -- ⛔ AR-5 AND AR-6 CANNOT BE WRITTEN, AND `nextIssuedUid` DOES NOT
-  // REACH THEM. `createCommentBox` and `createHighlightBox` (CM-46 / CM-52)
-  // each need an `id` this component cannot mint -- AT-110 and AT-116 are
-  // UUIDs, not uids drawn from `Project.uidHighWaterMark`, so nothing in the
-  // document says what the next one will be. That is the same reason
-  // `createTask` is handed its `groupId`, and `InputContext` carries one such
-  // identifier, for FR-001's row. Their anchors also want a shape
-  // (`AnnotationAnchor`, `HighlightRange`) whose fields FR-019 states in terms
-  // of a date and a row, which a drag would have to be read into. Searched:
-  // FR-019, table T-108 CM-46 / CM-52, `edit-annotation.ts`.
+  if (armed.kind === 'commentBox') {
+    // AR-5 of table T-023b -- 「その位置にコメントボックスを置く」, and FR-019
+    // holds that position 「日付と行の識別子で」.
+    //
+    // ⭐ WHICH POSITION 「その位置」 IS: the PRESS. Table T-023a is titled 「ポイ
+    // ンタを押したときの判定順序」 and PD-4 is a row of it, so the point that
+    // decided a placement was owed is the point the placement stands at. ⛔ Not
+    // the release, and a comment box has no second end for one to name: FR-097
+    // sizes the body from its own text, so the length of the drag says nothing.
+    // ⭐ The same end FR-001 reads for its row, one branch above.
+    //
+    // ⛔ STOP -- NOTHING PLACES A BOX WHERE THE PRESS POINTS AT NO ROW, and the
+    // specification decides no answer for it. PD-4 does say 構えているものを作る
+    // on ground that hit nothing, and ground below the last row is such ground.
+    // But FR-019 (MUST) holds the position by a ROW IDENTIFIER, RL-18 of
+    // `_assets/fig-erd-detail.md` points `anchorGroupId` at a `TaskGroup`, and
+    // `commentGeometry` draws no box whose row the layout does not hold -- so a
+    // box placed with no row would be a value in the document with nothing on
+    // the screen to reach it by. ⛔ FR-001's own answer to this situation
+    // (「指す `TaskGroup` が無いときは行を 1 つ作って」) IS NOT AVAILABLE HERE and
+    // must not be borrowed: that MUST is stated for the Task it also places, and
+    // it goes on to make that Task the new row's 導出元 -- a row made for an
+    // annotation would carry neither a name nor a 導出元, which AT-54 and FR-058
+    // forbid outright. ⇒ MISSING ROW: FR-019 states no counterpart, and table
+    // T-233 holds no reason for a placement refused this way either. Reported
+    // rather than decided here.
+    if (row === null) return CONSUMED_ELSEWHERE
+    return changed([
+      {
+        kind: 'createCommentBox',
+        id: context.newCommentBoxId,
+        anchor: { date: textOfDay(from), groupId: row.groupId },
+      },
+    ])
+  }
+
+  // STOP -- ⛔ AR-6 CANNOT BE WRITTEN. `createHighlightBox` (CM-52) wants a
+  // `HighlightRange` of four columns -- two days and two ROW identifiers -- and
+  // a drag that begins and ends on the same row names one row for both edges,
+  // which no row of the specification says is what UC-008 extension 4a asks
+  // for. ⚠️ `rangeRefusals` in `edit-annotation.ts` states the other half of the
+  // same gap: whether the left edge may lie after the right one, and the top row
+  // below the bottom one, is decided nowhere. Searched: FR-019, UC-008,
+  // table T-108 CM-52, table T-220.
   return CONSUMED_ELSEWHERE
 }
 
@@ -7086,6 +7169,22 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
       return screenStateWithSurface(state, AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return screenStateWithSurface(state, RESOURCE_ROSTER)
+    // IC-41 -- FR-020 (MUST): 「透かしを消す入口（表 T-109 の `IC-41`）が押された
+    // とき、透かし解除の面（…… 表 T-103 の `U-60`）を立てること」.
+    //
+    // ⛔⛔ THIS IS THE WHOLE OF WHAT THE PRESS DOES ON THIS SIDE, AND THAT IS
+    // THE REQUIREMENT AND NOT A SHORTCUT. The same requirement (MUST) turns
+    // `watermarkVisible` false 「合ったときにだけ」 -- only on a match -- and the
+    // match is a SHA-256 comparison against something a person typed, which no
+    // pure member can either read or compute (LR-6, and CS-1 of table T-066).
+    // ⇒ The write belongs to the side that asked, and `frame-loop.ts` carries
+    // it.
+    // ⚠️ 台帳 D-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
+    // arrived, `on.entry` said `IC-41`, and every member answered with the
+    // state untouched -- so the DOM did not change by one byte and FR-029
+    // (MUST) went unkept as well, for want of anything to say.
+    case ENTRY.hideWatermark:
+      return screenStateWithSurface(state, WATERMARK_UNLOCK)
     // IC-2 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
     // and U-54 is the name table T-103 settled for what it opens.
     // ⚠️ IC-3 is NOT this any more: FR-025 gives the clipboard its own
@@ -7278,9 +7377,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 6 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
-// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all, and
-// 7 until 2026-08-31, when IC-18 joined them):
+// ⛔ 5 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
+// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all, 7
+// until 2026-08-31, when IC-18 joined them, and 6 until 2026-09-02, when
+// CR-329 gave IC-41 a surface to raise):
 //
 //   [WRITTEN 2026-08-31, D-149 of the defect ledger] IC-18 stood here and no
 //                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED
@@ -7306,35 +7406,22 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                recorded the same reading for the folds. ⚠️ Measured before the
 //                fix: two Tasks chosen, `IC-37` armed, and not one bar moved by
 //                1px. ⭐ `alignWrites` now plans the bundle.
-//   IC-41        ⭐ IT NOW HAS SOMEWHERE TO WRITE AND STILL CANNOT BE PRESSED.
-//                `watermarkVisible` is a boolean row of table T-202, so FR-049's
-//                toggle rule covers it and `commandFromVisibleElementEntry` is
-//                the shape it wants. TWO things stand in the way, and neither is
-//                this file's to move:
-//                ⛔ FR-020 asks for the unlock password before the watermark may
-//                be hidden and matches it as a SHA-256, and nothing carries a
-//                password back from a person: table T-037 has no row for asking
-//                for one (NT-7 asks only for its own two answers), `ScreenPart`
-//                (IF-9) reports an entry and never what was typed into one, and
-//                `frame-loop.ts` records at S-99c that nothing asks for it.
-//                ⚠️ It is only the HIDING half that FR-020 gates, so a rule that
-//                turned the row round both ways would let the watermark be put
-//                back unasked -- which is right -- and taken away unasked, which
-//                is the MUST. A toggle cannot tell the two apart.
-//                ⭐ `VisibleElement` NOW NAMES `watermarkVisible` (2026-08-30,
-//                台帳 D-147). It listed eight while table T-202 held nine
-//                (S-144, added 2026-08-25), so `setElementVisible` had no value
-//                to carry at all; `edit-document-settings.ts` has the ninth.
-//                ⚠️ NO GENERATOR BROUGHT IT, AND THAT WAS MEASURED:
-//                `npm run gen:check` passes and `edit-document-settings.ts` is
-//                not one of the targets `tools/generate_entity_types.py` lists
-//                -- the union is HAND-WRITTEN there, so only a hand adds a row.
-//                ⛔ THE ENTRANCE IS STILL SHUT ALL THE SAME, and naming the row
-//                did not open it: what stops it is the password above, not the
-//                place to write. ⚠️ NOT WORKED AROUND HERE either: the type is
-//                derived from the command on purpose (see `VisibleElement`
-//                above), and re-declaring the ninth name in this file would be
-//                the drift that deriving exists to stop.
+//   [WRITTEN 2026-09-02, 台帳 D-147] IC-41 stood here and no longer does.
+//                ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED AROUND. It said
+//                nothing carries a password back from a person -- table T-037
+//                has no row for asking for one, and `ScreenPart` (IF-9) reports
+//                an entry and never what was typed into one. ⭐ FR-020 (MUST)
+//                now raises U-60 `Watermark Unlock` of table T-103 instead
+//                (利用者の裁定 2026-08-31, CR-329), whose question is QN-9 of
+//                table T-234 and whose two answers are NT-7's word buttons --
+//                so the asking is a SURFACE, which S-99g holds and
+//                `screenStateFromEntry` raises. ⛔ AND STILL NOT A TOGGLE: the
+//                same requirement (MUST NOT) refuses the symmetric reading in
+//                as many words, because the gate stands on the hiding side
+//                alone. ⚠️ WHAT THIS FILE ANSWERS IS THE PRESS AND NOTHING
+//                MORE. The SHA-256 comparison and the write that follows a
+//                match are `frame-loop.ts`'s: a pure member can neither read a
+//                field nor hash one (LR-6, and CS-1 of table T-066).
 //   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
 //                six still unanswered. ⚠️ Its five neighbours are answered above:
 //                they move `ScreenSession.selectedResourceUids` (PD-143), which

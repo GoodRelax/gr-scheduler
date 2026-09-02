@@ -642,6 +642,17 @@ function boot(): void {
    * `focusPropertyFieldHeld` is.
    */
   let openNewRowNameHeld: ((parentGroupId: string | null) => void) | null = null
+
+  /**
+   * What the screen surface handed over for FR-020, or `null` until it has --
+   * the way to read what stands in U-60's masked field.
+   *
+   * ⚠️ Filled while the factory below runs, the same moment the two above are.
+   * ⛔ THE ANSWER ITSELF IS NEVER HELD HERE. This is the way to ASK for it, and
+   * FR-020 (MUST NOT) keeps the raw password out of code, model and output --
+   * the characters live in the control the surface drew and nowhere else.
+   */
+  let readWatermarkUnlockAnswerHeld: (() => string) | null = null
   /**
    * What the LOOP handed over for the same row -- where a settled name is to be
    * taken -- or `null` until it has.
@@ -694,6 +705,14 @@ function boot(): void {
     /** @purity non-pure */
     holdOpenNewRowName: (open) => {
       openNewRowNameHeld = open
+    },
+    // FR-020 (MUST): the masked field U-60 asks the watermark unlock password
+    // into is the surface's, so the surface hands over the way to read it and
+    // this holds the handle for the loop. ⛔ It does not travel on IF-9 either,
+    // for the reason the two members above give.
+    /** @purity non-pure */
+    holdReadWatermarkUnlockAnswer: (read) => {
+      readWatermarkUnlockAnswerHeld = read
     },
     // The other direction: what was settled goes to the loop, which is the one
     // party that may write the document. ⚠️ Read through the binding rather than
@@ -856,6 +875,13 @@ function boot(): void {
       holdNewRowNameSettled: (settle) => {
         newRowNameSettledHeld = settle
       },
+      // FR-020's 「打ち込む文字」, joined here for the reason the bindings above
+      // give: the surface is built before the loop, so neither side can name the
+      // other directly. ⚠️ THE MEMBER IS OPTIONAL ON BOTH SIDES, so a dropped
+      // line here would leave every answer reading as the empty string -- which
+      // never matches, so the watermark would simply never be hidden.
+      /** @purity semi-pure-b */
+      readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
     },
     fileStore,
     showPointerShape,

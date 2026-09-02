@@ -495,9 +495,17 @@ export function dismissKeyOf(raised: RaisedNotice): string {
  * which part of a word is drawn how is the drawing side's -- this unit reads
  * the word whole, the way it reads every other word on the screen.
  *
+ * ⭐⭐ EXPORTED SINCE 2026-09-02, AND READ BY ONE OTHER UNIT OF THIS COMPONENT.
+ * FR-020 (MUST) gives U-60 `Watermark Unlock` two answers and sends their
+ * manner to 「表 T-037 の `NT-7` が語のボタンについて定めるもの」 -- so they are
+ * these two, read out of this same section. ⛔ UF-66 does not build its own:
+ * two readings of one section would be one decision in two places (R2.7), and
+ * the first thing to part company would be the print ORDER, which this file
+ * takes off the dictionary rather than choosing.
+ *
  * @purity pure
  */
-function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] {
+export function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] {
   return [...CONFIRMATION_BY_ANSWER.keys()].map((answer) => ({
     answer,
     text: answerText(answer, language),

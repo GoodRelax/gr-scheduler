@@ -431,6 +431,7 @@ const BASE: InputContext = {
   dualCursorFollowing: null,
   today: TODAY,
   newGroupId: 'row-minted-outside',
+  newCommentBoxId: 'comment-box-minted-outside',
 }
 
 const contextOf = (schedule: Schedule = SCHEDULE): InputContext => ({

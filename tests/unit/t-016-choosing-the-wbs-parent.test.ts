@@ -486,6 +486,7 @@ const BASE_CONTEXT = (schedule: Schedule): InputContext => {
     dualCursorFollowing: null,
     today: TODAY,
     newGroupId: 'row-minted-outside',
+    newCommentBoxId: 'comment-box-minted-outside',
   }
 }
 

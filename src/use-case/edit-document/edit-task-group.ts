@@ -339,9 +339,20 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         return refused([reject('CM-27', 'FR-032', `no such row: ${command.groupId}`)])
       }
       // CD-2 of table T-050: the rows below go with it, and so does every Task
-      // on any of them, each of those cascading CD-1. Deleting every row is a
-      // reachable state, and FR-001 says so ("`FR-032` は行を 1 つも無い状態に
-      // できる"), so nothing here keeps the last row alive.
+      // on any of them, each of those cascading CD-1.
+      //
+      // ⛔ NOTHING HERE KEEPS THE LAST ROW ALIVE, and that is now a MUST NOT of
+      // its own: the invariant printed under table T-050 (利用者の指示
+      // 2026-09-01) says 「最後の 1 行の削除を拒んではならない」 -- refusing
+      // would take away the only way to delete the Tasks that row carries.
+      // ⭐ The document not being EMPTY afterwards is a different rule, and it
+      // does not live here. Table T-050 (MUST NOT) 「経路ごとに書き写しては
+      // ならない」 -- a delete, an import, OP-3's replace and a redo can all
+      // take the count to zero, so the rule sits where all four meet, which is
+      // `document-change-plan.ts` (WS-3 of table T-067).
+      // ⚠️ FR-001 still reads 「`FR-032` は行を 1 つも無い状態にできる」, which
+      // the invariant has made stale. That sentence is the manuscript's to
+      // move; it is reported, not edited from here.
       const doomedRows = new Set(doomed.rows.map((one) => one.id))
       const seeds = schedule.taskGroupMembers
         .filter((member) => doomedRows.has(member.groupId))

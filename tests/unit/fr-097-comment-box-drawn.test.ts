@@ -68,19 +68,22 @@
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
 //   * ⛔ THE SIZE OF A BOX WITH NO BODY -- still not stated, though its FLOOR now
-//     is. FR-097 gained 「本文が空、または `null` のときも、全角 1 文字ぶんの幅
-//     と 1 行ぶんの高さを下回ってはならない（MUST NOT）」, which reaches both the
-//     emptied body and the never-typed one (AT-112 being nullable) and is the
+//     is. FR-097 carries 「本文が空、または `null` のときも、幅と高さのどちらも
+//     表 T-215 の文字の大きさを下回ってはならない（MUST NOT）」, which reaches both
+//     the emptied body and the never-typed one (AT-112 being nullable) and is the
 //     subject of the last three cases in this file. ⛔ IT IS A FLOOR AND NOT A
 //     SIZE -- the clause says so itself -- so no case states what either box
 //     actually measures, and no row bounds them from above.
-//   * ⚠️ 「全角 1 文字ぶん」 AND 「表 T-215 の文字の大きさ」 ARE NOT ALWAYS THE
-//     SAME NUMBER, though FR-097's ⚠️ equates them. `S-30`'s own note reads
-//     「全角 1 文字 = フォント × 2 × 係数」, so the two coincide only while
-//     `labelCoef` is 0.5. `S-30` admits 0.3 to 1, and a document at 1 makes 全角
-//     1 文字 twice table T-215's size. ⛔ The floor below is read from T-215,
-//     because that is the value the clause names outright; nothing here varies
-//     `labelCoef` to force the question.
+//   * ⛔⛔ 「全角 1 文字ぶん」 IS NOT THE WORDING, AND MAY NOT BE. This file quoted
+//     an earlier form of the clause until 2026-09-02 -- 「全角 1 文字ぶんの幅と
+//     1 行ぶんの高さ」 -- which the manuscript no longer carries and which the row
+//     now FORBIDS in as many words: ⛔「「全角 1 文字ぶん」とは書かない（MUST NOT）」.
+//     ⚠️ The reason the row gives is that the two are not always one number:
+//     `S-30`'s note reads 「全角 1 文字 = フォント × 2 × 係数」, so they coincide
+//     only while `labelCoef` is 0.5, and `S-30` admits 0.3 to 1. ⭐ THE ASSERTIONS
+//     WERE ALWAYS RIGHT -- they read the floor from table T-215, which is the value
+//     the clause names outright; only this prose had gone stale. Nothing here
+//     varies `labelCoef` to force the question.
 //   * ⛔ THE PAINT ORDER. Table T-020 runs ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5
 //     -- plan bar, guide, actual bar, progress marker, dependency, name label
 //     -- AND NOT ONE ROW NAMES AN ANNOTATION. A comment box floats over the
@@ -947,14 +950,15 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 //
 // The clause FR-097's STATEMENT carries after the newline sentence:
 //
-//   ⛔ **本文が空、または `null` のときも、全角 1 文字ぶんの幅と 1 行ぶんの高さ
-//   を下回ってはならない（MUST NOT）** —— `FR-093` の概算は単位数が 0 なら 0 を
+//   ⛔ **本文が空、または `null` のときも、幅と高さのどちらも
+//   表 T-215 の文字の大きさを下回ってはならない（MUST NOT）** —— `FR-093` の概算は単位数が 0 なら 0 を
 //   返すので、**余白だけの箱になり、置いた本人にも掴めず消せもしない。**
 //   ⚠️ **`null` を含めるのは、`CM-46` が作る箱がすべてその状態だからである**
 //   —— 含めないと、最も普通の場合に大きさを述べた行が 1 つも無いことになる。
 //   ⛔ **下限であって大きさではない** —— 本文を持つ箱は概算のままとし、下限を
 //   全部の箱に掛けてはならない（MUST NOT）。⚠️ **新しい値は要らない** ——
-//   全角 1 文字ぶんは表 T-215 の文字の大きさそのものである。
+//   表 T-215 の文字の大きさをそのまま使う。
+//   ⛔ **「全角 1 文字ぶん」とは書かない（MUST NOT）。**
 //
 // ⭐ THREE THINGS THE SENTENCE SETTLES. The three cases below are those three.
 //
@@ -971,14 +975,14 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 //      it was not, by finding a body-bearing box legitimately BELOW the floor
 //      that is still exactly FR-093's estimate.
 //
-// ⭐ WHAT 「全角 1 文字ぶん」 IS. The clause settles its own value: 「全角 1 文字
-// ぶんは表 T-215 の文字の大きさそのものである」. ⛔ So the floor below is read
-// from table T-215 and is NOT recomputed through FR-093. ⚠️ Those are the same
-// number only while `labelCoef` is at its default -- see the gap note at the head
-// of this file.
+// ⭐ WHAT THE FLOOR IS. The clause names it outright: 表 T-215 の文字の大きさ.
+// ⛔ So the floor below is read from table T-215 and is NOT recomputed through
+// FR-093. ⛔⛔ AND IT IS NOT CALLED 「全角 1 文字ぶん」 -- the row forbids that
+// wording (MUST NOT), because the two are one number only while `labelCoef` is at
+// its default. See the gap note at the head of this file.
 //
 // ⛔ WHAT THE SENTENCE STILL DOES NOT SETTLE, and why no case states it: whether
-// 「全角 1 文字ぶんの幅」 is measured on the TEXT, with S-181 then added outside
+// the floor is measured on the TEXT, with S-181 then added outside
 // it, or on the BOX ITSELF. The two readings differ by `PAD * 2` and both satisfy
 // 「下回ってはならない」, so the cases below pass under either and name neither.
 // ⚠️ Nor does any row bound these two states from ABOVE, so no case can.
@@ -992,7 +996,7 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 describe('FR-097 -- a box with no body does not fall below its floor', () => {
   const SCALES = ['S', 'M', 'L'] as const
 
-  /** 「全角 1 文字ぶんは表 T-215 の文字の大きさそのものである」. */
+  /** 「表 T-215 の文字の大きさを下回ってはならない（MUST NOT）」. */
   const floorOf = (fontScale: (typeof SCALES)[number]): number => FONT_SIZE_OF[fontScale]
 
   it.each(SCALES)('at fontScale %s an emptied body keeps one 全角 and one line', (fontScale) => {
@@ -1014,7 +1018,8 @@ describe('FR-097 -- a box with no body does not fall below its floor', () => {
     // 'a' is one 半角 unit, so FR-093's estimate is half a 全角 -- legitimately
     // under the floor. Had the floor been laid on every box, this would have
     // been lifted to it. ⭐ Compared against the SMALLER of the two readings of
-    // 「全角 1 文字ぶんの幅」, so the case holds under both.
+    // where the floor is measured (on the text, or on the box), so the case
+    // holds under both.
     const box = boxOf(drawBody('a'))
     expect(box.body.width).toBe(estimatedWidth('a', FONT_SIZE_OF.M) + PAD * 2)
     expect(box.body.width).toBeLessThan(FONT_SIZE_OF.M)

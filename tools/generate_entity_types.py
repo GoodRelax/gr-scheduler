@@ -1502,6 +1502,79 @@ def not_stored_block(name):
     return '\n'.join(out)
 
 
+# ---- table T-207: what the watermark bakes into the artifact ---------------
+#
+# ⛔ NOT `not_stored_block`'s TABLE, AND NOT ITS SHAPE. That one reads table
+# T-206, whose rows carry a `default` cell; table T-207 carries a `value` cell
+# and says of itself 「成果物に埋め込む定数。文書には保存しない」. ⭐ So the two
+# are generated apart rather than one being widened to admit the other's cell
+# name -- a row of T-206 with no default and a row of T-207 with no value are
+# different faults, and one function could no longer say which it had met.
+#
+# ⛔ ONE ROW OF THE TABLE IS CARRIED, AND THE OTHERS DELIBERATELY ARE NOT.
+# S-100 is the default watermark unlock PASSWORD in the clear, and FR-020
+# (MUST NOT) forbids the raw password to be kept in code, in the model or in
+# what goes out -- that row's own note says 「成果物へ入るのは下の SHA-256 だけ
+# である」. S-102 (`watermarkOpacity`) is a number the drawing side would want
+# and nothing in `src/` draws the watermark yet, so generating it would be a
+# constant with no reader.
+WATERMARK_TARGETS = {
+    'WATERMARK_UNLOCK_DIGEST': (['S-101'], [
+        ' * ⛔ THE RAW PASSWORD IS NOT HERE AND MAY NOT BE. FR-020 (MUST NOT)',
+        ' * forbids it in code, in the model and in what goes out, and S-100 --',
+        ' * the row that states it -- says the artifact takes only the digest.',
+        ' * ⚠️ Which is also why this constant cannot be checked by hashing the',
+        ' * password here: there would have to be a password here to hash.',
+        ' *',
+        ' * ⭐ WHAT IT IS COMPARED AGAINST IS NOT ALWAYS THIS. S-99c of table',
+        ' * T-206 holds a digest the author set, in `localStorage`; this one is',
+        ' * what FR-020 falls back to while no such row is kept.',
+    ]),
+}
+
+
+def watermark_block(name):
+    """The rows of table T-207 one unit needs, by row ID."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-207']
+    if not block:
+        raise SystemExit('settings.json holds no table T-207')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    rows, seam = WATERMARK_TARGETS[name]
+    got = []
+    for row_id in rows:
+        if row_id not in by_id:
+            raise SystemExit('table T-207 has no row %s' % row_id)
+        raw = by_id[row_id].get('value')
+        # ⛔ The published table prints the value in backticks, which are the
+        # manuscript's markup and not part of the value. A cell that is not a
+        # plain string is an error at the call site rather than a silent one.
+        if not isinstance(raw, str):
+            raise SystemExit(
+                'table T-207 row %s holds no plain value, so %s cannot be '
+                'generated.' % (row_id, name))
+        got.append((row_id, raw.strip().strip('`')))
+    out = ['/**',
+           ' * The values table T-207 states that this unit needs, by row ID.',
+           ' *',
+           ' * ⭐ Table T-207 holds what is BAKED INTO THE ARTIFACT and not kept',
+           ' * in the document, so these are not document settings and are not',
+           ' * in SETTINGS_DEFAULTS. They are reached by row ID because the',
+           ' * table has no key column -- the row ID is the specification\'s own',
+           ' * name for them.',
+           ' *'] + list(seam) + [
+           ' */',
+           'export const %s: {' % name]
+    for row_id, _value in got:
+        out.append('  /** %s */' % row_id)
+        out.append("  readonly '%s': string" % row_id)
+    out.append('} = {')
+    for row_id, value in got:
+        out.append("  '%s': '%s'," % (row_id, value))
+    out.append('}')
+    return '\n'.join(out)
+
+
 DEFAULTS_NOTE = [
     '/**',
     ' * The default settings.json states for each key.',
@@ -1891,8 +1964,14 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
+     # ⭐ FR-020's digest, in the one unit that compares against it: the answer
+     # is read off a field this layer drew and hashed with the browser's own
+     # SHA-256, which LR-6 keeps out of every other layer. ⛔ Not folded into
+     # the three above -- they are rows of table T-206 and this is a row of
+     # table T-207, and the two tables say different things about their rows.
+     + watermark_block('WATERMARK_UNLOCK_DIGEST'),
+     ['docs/spec/_source/settings.json (tables T-206 and T-207)']),
     # ⭐ FR-006's room, resolved on the side that can resolve it. S-199 is a
     # MULTIPLE of the control's own font size rather than a px, so what it is
     # multiplied by is not known here -- what IS known here is `labelCoef`

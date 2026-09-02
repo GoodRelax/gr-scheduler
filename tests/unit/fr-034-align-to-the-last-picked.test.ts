@@ -328,6 +328,7 @@ const BASE: InputContext = {
   dualCursorFollowing: null,
   today: '2026-02-15T00:00:00',
   newGroupId: 'row-minted-outside',
+  newCommentBoxId: 'comment-box-minted-outside',
 }
 
 const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE, ...part })

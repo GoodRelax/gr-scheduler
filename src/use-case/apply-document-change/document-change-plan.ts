@@ -40,6 +40,7 @@ import {
   type EditHistory,
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
+import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import {
   editDocument,
   type DocumentCommand,
@@ -54,6 +55,11 @@ import {
 import { importDocument, type ImportRefusal, type ImportRequest } from '../import-document/import-document'
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
+// The one destination Chapter 6.2 gives the display words. ⚠️ A JSON import is
+// DATA, not a reach into ScreenRenderer: `check_layer_rules.py` reads a `.json`
+// specifier as data, and `edit-task-group.ts` already takes the same word from
+// the same file for the same requirement.
+import displayWords from '../../adapter/screen-renderer/display-words.json'
 
 /** What WS-2 judges. All three are the caller's knowledge of the moment. */
 export interface WriteMoment {
@@ -320,6 +326,101 @@ function stepSizeBytes(document: Document): number {
   return utf8Length(JSON.stringify(document))
 }
 
+// ---------------------------------------------------------------------------
+// The invariant printed under table T-050, written ONCE.
+// ---------------------------------------------------------------------------
+
+/**
+ * The name the row of the invariant takes.
+ *
+ * ⭐ READ, NEVER TYPED. Table T-050 (MUST) says the name is 「`FR-038` の辞書の
+ * `defaultNames` の `row` の語」 and (MUST NOT) forbids minting a second word,
+ * so the word is taken from the ONE destination Chapter 6.2 gives the words.
+ *
+ * ⚠️ THE SAME READ IS WRITTEN IN `edit-task-group.ts`, AND THAT IS NOT A COPY
+ * OF THE WORD -- both read the one dictionary, and neither spells it. A shared
+ * constant is what a reader would reach for, and it cannot be had: a name that
+ * left EditDocument's folder for this one would be a crossing table T-064 does
+ * not publish, and a file of its own would be a unit table T-075 does not list.
+ * ⛔ So the duplication is the LOOKUP and never the word. If the dictionary
+ * moves the word, both sites move with it, which is what the MUST NOT is for.
+ *
+ * ⚠️ The English cell, for the reason `edit-task-group.ts` gives at length:
+ * FR-038 (MUST NOT) keeps the display language out of the document, and what is
+ * written here is a `TaskGroup.label` that the file carries to an exchange
+ * partner -- not a printed word. Table T-050 settles the reading anyway
+ * (利用者の裁定 2026-09-01): the word is spelled the same in Japanese.
+ */
+const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
+const DEFAULT_ROW_NAME: string =
+  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
+
+/**
+ * The identifier the row of the invariant takes.
+ *
+ * ⛔ NO ROW OF THE SPECIFICATION SAYS WHERE IT COMES FROM, and this file is not
+ * inventing one -- it is picking the only value that cannot be wrong. Every
+ * OTHER row is created by CM-26, whose identifier arrives as a value because
+ * `TaskGroup.id` is a UUID (AT-51) and LY-5 leaves the outside to the Framework
+ * (`InputContext.newGroupId`). This row is created by an invariant that no
+ * caller asked for, so there is no caller to bring one, and WS-1 to WS-5 are
+ * `pure`: nothing here may reach a generator.
+ *
+ * ⭐ A CONSTANT IS SAFE HERE, and provably, which is why it is a constant
+ * rather than a derivation: the invariant fires only when the document holds
+ * ZERO rows, so IV-1 (the identifiers are unique across the array) is satisfied
+ * by ANY value, and two rows carrying this one can never stand side by side.
+ * A merge that meets it on both sides (FR-023) already folds equal identifiers
+ * together, so no dangling `TaskGroupMember` is left either.
+ * ⚠️ IT IS STILL A VALUE NOBODY RULED ON. Overturning it costs this constant
+ * and the cases that name it; nothing is stored anywhere that reads it back.
+ */
+const EMPTY_DOCUMENT_TASK_GROUP_ID = '00000000-0000-4000-8000-000000000001'
+
+/**
+ * The document, holding the `TaskGroup` table T-050 requires it to have.
+ *
+ * ⭐⭐ THE INVARIANT, AND IT IS WRITTEN HERE ONCE BECAUSE THIS FILE IS WHERE
+ * EVERY ROAD MEETS. Table T-050 (MUST NOT) forbids transcribing it per road --
+ * 「経路ごとに書き写してはならない」 -- and names four that can take the count
+ * to zero: a delete (FR-032), an import (FR-023), OP-3's replace, and a redo.
+ * All four arrive at WS-3 of table T-067, and the two roads through WS-3 are
+ * `planDocumentChange` and `planDocumentReplacement`, both below.
+ *
+ * ⭐ THE ROW STANDS AT `L1` BY DERIVATION, not by assignment: FR-004 derives the
+ * depth from the parent, so a row with `parentId: null` cannot stand anywhere
+ * else. `order` is 0 because there is no other row to stand after.
+ * ⭐ The four remaining columns start absent, exactly as CM-26 leaves them.
+ * `label` is filled and `derivedFromTaskUid` is not, which is the pairing AT-54
+ * and FR-058 require of every row.
+ *
+ * ⛔ NOTHING IS REFUSED HERE. Table T-050 (MUST NOT): 「最後の 1 行の削除を拒ん
+ * ではならない」 -- the delete lands, and being empty afterwards is what this
+ * answers. And the count FR-032 asks about is settled before the write reaches
+ * WS-3, so the row this makes is not added to it (MUST NOT).
+ *
+ * ⚠️ THE SAME REFERENCE COMES BACK when the document already holds a row, and
+ * that is a MUST rather than a nicety: WS-6 replaces ONE reference, and RD-1's
+ * `undone: false` hands the very pair it was given straight back.
+ *
+ * @purity pure
+ */
+function documentHoldingOneRow(document: Document): Document {
+  if (document.schedule.taskGroups.length > 0) return document
+  const row: TaskGroup = {
+    id: EMPTY_DOCUMENT_TASK_GROUP_ID,
+    parentId: null,
+    label: DEFAULT_ROW_NAME,
+    derivedFromTaskUid: null,
+    order: 0,
+    isCollapsed: null,
+    isHidden: null,
+    color: null,
+    height: null,
+  }
+  return { ...document, schedule: { ...document.schedule, taskGroups: [row] } }
+}
+
 /**
  * Whether a write moved the schedule-data group -- WS-5's own question.
  *
@@ -409,6 +510,14 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }
 
+  // ⭐ The invariant of table T-050, as PART OF THIS WRITE. It stands here and
+  // not in the aggregate that emptied the document because the MUST NOT under
+  // that table forbids one copy per road -- and it stands BEFORE WS-4 and WS-5
+  // because both are answers about the document this write settles on: the
+  // step WS-4 pushes holds the document as it stood BEFORE the write either
+  // way, which is what makes ONE press of undo give the deleted rows back.
+  const settled = documentHoldingOneRow(held)
+
   // ---- WS-4: one step of history --------------------------------------
   // AG-10: a call table T-027 excludes runs and is simply not recorded. A
   // bundle earns a step when ANY of its commands does.
@@ -429,10 +538,13 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // rather than being worked out again from the stamp by whoever notifies
   // (R2.7). ⚠️ The replacement road has rows where WS-5 makes no judgement at
   // all, which is why table T-230 gives WS-7 its own way to reach the flag.
-  const hasMovedSchedule = hasMovedScheduleGroup(input.document, held)
+  // ⚠️ Judged on the SETTLED document, so that a write which ends by making the
+  // row moves the schedule instant: a `TaskGroup` is schedule-group data, and
+  // FR-063 moves that instant for a write that touched the group.
+  const hasMovedSchedule = hasMovedScheduleGroup(input.document, settled)
   const document: Document = {
-    ...held,
-    documentStamp: advancedStamp(held.documentStamp, input.editedBy, input.updatedUtc, {
+    ...settled,
+    documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedUtc, {
       hasMovedSchedule,
     }),
   }
@@ -546,9 +658,23 @@ function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolea
   return outgoing.documentStamp.scheduleUpdatedUtc !== incoming.documentStamp.scheduleUpdatedUtc
 }
 
-/** @purity pure */
+/**
+ * ⭐ THE ONE GATE OF THE WHOLE-DOCUMENT ROAD, which is why the invariant of
+ * table T-050 is applied here: all five rows of table T-230 leave through this
+ * function, so the rule is read once for an undo, a redo, both imports and the
+ * document a startup brings.
+ *
+ * ⚠️ `next` COMES BACK UNTOUCHED when it already holds a row, references and
+ * all -- RD-1 and RD-2 hand the very pair they were given back when nothing
+ * moved, and WS-6 replaces ONE reference (MUST).
+ *
+ * @purity pure
+ */
 function replacementSettled(held: HeldDocument, next: HeldDocument): ReplacementPlan {
-  return { ok: true, next, hasMovedSchedule: hasMovedScheduleBetween(held.document, next.document) }
+  const settled = documentHoldingOneRow(next.document)
+  const pair: HeldDocument =
+    settled === next.document ? next : { document: settled, history: next.history }
+  return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }
 }
 
 /** @purity pure */

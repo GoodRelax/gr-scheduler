@@ -83,6 +83,13 @@ import type {
   RosterResource,
   ScreenSession,
 } from './screen-renderer'
+// ⭐ NT-7's two word buttons, read where UF-67 already reads them. FR-020
+// (MUST) gives U-60 the same two and sends their manner to that row, so this
+// unit asks the unit that owns the reading rather than building a second one
+// (R2.7). ⚠️ AN EDGE BETWEEN TWO UNITS OF THE ONE COMPONENT, which crosses no
+// boundary table T-061 draws: both are ScreenRenderer's, and `screen-renderer.ts`
+// already imports each of them.
+import { confirmationAnswers } from './notices'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -134,6 +141,42 @@ const RESOURCE_ROSTER = 'Resource Roster'
  * `icon-roster.json` carries in its surface column for IC-52.
  */
 const EXPORT_CHOOSER = 'Export Chooser'
+
+/**
+ * U-60 of table T-103, the surface FR-020 (MUST) raises before the watermark
+ * may be hidden.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), and the literal
+ * `OpenModal` discriminates its own member on. Keyed on because this surface
+ * carries a payload no other does -- the question and the two word buttons.
+ * ⚠️ TABLE T-109 PLACES NOTHING ON IT, which is not an omission: FR-020
+ * (MUST NOT) refuses the two answers a row there, and no row of that table
+ * names this surface -- so `commandsOnSurface` answers with nothing and the way
+ * out is the first level of `Esc` alone (IN-4 of table T-028).
+ */
+const WATERMARK_UNLOCK = 'Watermark Unlock'
+
+/**
+ * The row of table T-234 FR-020 (MUST) makes U-60's question.
+ *
+ * ⛔ A ROW ID AND NEVER A SENTENCE, the join `RaisedConfirmation.question`
+ * already takes: FR-076 (MUST) makes what a question shows a row of that table,
+ * and the words are the dictionary's (FR-038, MUST NOT).
+ */
+const WATERMARK_UNLOCK_QUESTION = 'QN-9'
+
+/**
+ * The words of table T-234's rows, keyed by the row id.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built for every frame, and rule 05 of docs/development-rules
+ * forbids a linear search on that path (NFR-013).
+ * ⚠️ UF-67 keeps a map of the same section for the questions IT shows. ⛔ THAT
+ * IS NOT THE SAME DECISION TWICE: the sentence is read once per surface, and
+ * the two surfaces are different -- what would be a duplicate is a second
+ * ROSTER of the rows, and neither unit holds one.
+ */
+const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
 
 /**
  * FR-096 (MUST): the formats the `Export Chooser` offers, each with the word
@@ -295,6 +338,28 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
     keys: entry.keys,
     icon: entry.icon as IconId | null,
   }))
+}
+
+/**
+ * What one row of table T-234 says, in the display language (FR-038), or the
+ * stand-in while the dictionary holds no word for it (PD-160).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
+ * reason `entryLabel` gives above: those read 「the dictionary holds no word
+ * yet」 and 「the word is the empty string」 as one thing, and PD-160 is
+ * precisely the difference.
+ * ⛔ AND NEVER THE ROW ID IN ITS PLACE. Printing it would put on the screen a
+ * string FR-038 (MUST) does not hold, the same in both display languages.
+ * ⚠️ NO FALL-BACK ROW IS TAKEN HERE, where `notices.ts` takes QN-8: this unit
+ * reads ONE row that FR-020 names, so a row the dictionary cannot answer for is
+ * a generated file edited by hand and not a question with no row of its own.
+ *
+ * @purity pure
+ */
+function questionTextOf(row: string, language: DisplayLanguage): string {
+  const word = QUESTIONS_BY_ROW.get(row)?.text[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
 }
 
 /**
@@ -578,6 +643,36 @@ export function openModalFromScreenState(
       heading,
       commands,
       formats: exportFormatChoices(session.language),
+    }
+  }
+
+  // FR-020 (MUST): the question QN-9 of table T-234 shows, and the two word
+  // buttons that answer it -- 「答えの入口は 2 つとし、語のボタンとすること」.
+  //
+  // ⛔ WHAT IS TYPED IS NOT HERE, AND MAY NOT BE. The answer is 「打ち込む文字」
+  // drawn masked (MUST), which is the half-typed contents of a field -- the same
+  // thing AG-11 keeps out of `DialogueField`, and LY-5 of table T-060 leaves a
+  // current value with the Framework. ⭐ So what crosses is that there IS such a
+  // field to draw, which this member being present says.
+  // ⛔ AND NEITHER IS THE DIGEST. FR-020 (MUST NOT) keeps the raw password out
+  // of code, model and output, and a description is what goes into an export
+  // (table T-076) -- so the comparing is the shell's and nothing about it
+  // reaches this side.
+  // ⚠️ `heading` IS EMPTY TODAY AND THAT IS PD-160 AND NOT A FAULT. Table T-103
+  // names U-60 and the `surfaces` section of the dictionary holds no heading for
+  // it, exactly as it holds none for U-55 -- ⛔ and one written here would be
+  // the second store of translated words FR-038 forbids (MUST NOT).
+  if (surface === WATERMARK_UNLOCK) {
+    return {
+      surface: WATERMARK_UNLOCK,
+      heading,
+      // ⚠️ EMPTY, AND THAT IS TABLE T-109's ANSWER RATHER THAN A GAP: no row of
+      // it names this surface, so `commandsOnSurface` finds none. The way out
+      // is IN-4's first level (FR-020, MUST), and ⛔ closing it may not hide the
+      // watermark (MUST NOT) -- which is kept by this side writing nothing.
+      commands,
+      question: questionTextOf(WATERMARK_UNLOCK_QUESTION, session.language),
+      answers: confirmationAnswers(session.language),
     }
   }
 

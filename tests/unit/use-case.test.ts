@@ -61,7 +61,15 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     schemaVersion: '1',
     schedule: {
       project: { title: 'A', statusDate: null, themeHue: 214, startDate: null },
-      taskGroups: [],
+      // ⛔ NOT AN EMPTY ARRAY, and the change is the manuscript's: table T-050
+      // (MUST) since 2026-09-01 reads 「文書は、`TaskGroup` を必ず 1 つ以上持つ
+      // こと」. A fixture with none is a document the specification does not
+      // admit, and a write against one is not the write the case is about --
+      // the WS-5 case below asked whether a PRESENTATION-ONLY write moves the
+      // schedule instant, and against an empty document the write also has to
+      // make the missing row, which is a schedule-group change.
+      taskGroups: [{ id: 'g0', parentId: null, label: 'row 1', derivedFromTaskUid: null,
+                     order: 0, isCollapsed: null, isHidden: null, color: null, height: null }],
       tasks: [],
       ...((part.schedule as Record<string, unknown>) ?? {}),
     },
