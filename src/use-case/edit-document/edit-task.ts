@@ -28,7 +28,6 @@ import {
   compareDays,
   dateFromWorkingDays,
   dayOf,
-  nextWorkingDay,
   planActualState,
   taskByUid,
   textOfDay,
@@ -124,7 +123,25 @@ export type TaskCommand =
       readonly uid: number
       readonly place: PlanActualPlacement
     }
-  | { readonly kind: 'beginTaskActual'; readonly uid: number }
+  | {
+      readonly kind: 'beginTaskActual'
+      readonly uid: number
+      /**
+       * FR-043's 掴みシロを離した日 (MUST, 利用者の裁定 2026-09-02): the day the
+       * hand let the grab-hold go on, which is what the actual starts on.
+       *
+       * ⛔ NOT MOVED TO A WORKING DAY. The closing rule of table T-023d forbids
+       * it outright (MUST NOT) -- people work on days off, and moving it would
+       * store a day other than the one the hand chose.
+       *
+       * ⛔ AND NOT THE DAY THE DUMMY IS DRAWN ON. FR-043 (MUST NOT) forbids
+       * reading its two rules as one: 予定の開始日の翌稼働日 says where the
+       * dummy STANDS before it is grabbed, not what is written when it is let
+       * go. Reading them as one is what made a drop of +3 and a drop of +8
+       * write the same day (ledger D-182).
+       */
+      readonly droppedDay: string
+    }
   | { readonly kind: 'cycleTaskPlanActualState'; readonly uid: number }
   | { readonly kind: 'setTaskFadeInDays'; readonly uid: number; readonly days: number | null }
   | { readonly kind: 'setTaskFadeOutDays'; readonly uid: number; readonly days: number | null }
@@ -817,22 +834,12 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       if (planActualState(task) !== 'notStarted') {
         return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
       }
-      // 掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日 (MUST), so a task
-      // with no planned start has no day to count from. FR-012 forbids showing
-      // such a task at all, which is why this is a refusal and not a second rule.
-      const planStart = dayOf(task.start)
-      if (planStart === null) {
-        // ⚠️ THE WORDING AVOIDS "count from" ON PURPOSE: `check_layer_rules.py`
-        // counts a `from` followed straight by a quote as an import specifier,
-        // and a message ending in one makes this file read as short of an edge.
-        return refused([reject('CM-14', 'FR-043', 'the task has no planned start')])
-      }
       // ⭐ Three columns at once, and the same three whichever handle was
       // grabbed: どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
       // `resumeValid`（`true`）を置くこと（MUST）。開始点を掴んだときは終了点を
-      // その既定の位置で、終了点を掴んだときは開始点を予定の開始日の翌稼働日で
-      // 確定させること（MUST）-- neither end is ever left undecided, so neither
-      // end is a parameter here.
+      // その既定の位置で、終了点を掴んだときは開始点を … 確定させること（MUST）
+      // -- neither end is left undecided, so only the DAY the hand chose comes
+      // in from outside, and it comes in once for both handles.
       const visual = visualOf(schedule, task.uid)
       const isDrawnAsMilestone = isMilestone(task, visual)
       // S-129 by default; S-130 for a milestone, which 実績バーを持たない (点なの
@@ -840,29 +847,47 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const duration = isDrawnAsMilestone
         ? settings.milestoneActualDuration
         : settings.actualInitialDuration
-      // ⛔ NOT THE PLAN START ITSELF, which FR-043 forbids outright (MUST NOT,
-      // 利用者の指示 2026-08-27): GR-3 of table T-023d already stands on that
-      // day, and two grab-holds on one point cannot be told apart. The day is
-      // 予定の開始日の翌稼働日, read through the calendar (FR-054) by the very
-      // member PI-1 publishes for this rule -- ⛔ NOT
-      // `dateFromWorkingDays(start, 1)`, whose half-open end bound lands on a
-      // day nobody works. ⭐ THE VALUE NOW MATCHES THE PICTURE: `dummiesOf`
-      // draws GR-9 on that same day, and only the write was missing.
+      // ⭐ THE DAY THE HAND LET GO ON, AND NOTHING DERIVED FROM THE PLAN
+      // (FR-043 MUST, 利用者の裁定 2026-09-02): 実績開始日 ＝ 掴みシロを離した日.
+      // ⛔ IT IS NOT MOVED TO A WORKING DAY -- table T-023d's closing rule
+      // (MUST NOT) -- and it is NOT 予定の開始日の翌稼働日, which the same
+      // requirement now states as the rule for WHERE THE DUMMY IS DRAWN and
+      // forbids being read as one rule with this one (MUST NOT). Reading them
+      // as one is what wrote the same day for a drop 3 days along and 8 days
+      // along (ledger D-182, measured on the shipped build 2026-09-02).
+      // ⚠️ IV-14 still bounds it, the way every other stored date is bounded.
+      const dropped = checkDay(settings, command.droppedDay)
+      if (!dropped.ok) {
+        return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
+      }
       //
-      // ⭐ A MILESTONE KEEPS THE PLAN DAY. FR-043 makes it 例外 and sends its
-      // 「位置と当たり判定」 to GR-18, whose place is 「未着手のマイルストーンの
-      // 図形の上」 -- the plan day itself. The MUST NOT above names GR-3 for its
-      // reason, and `item-hit-area.ts` gives a milestone no GR-3 to collide
-      // with (a point has no end to resize), so nothing stands on that day for
-      // the actual start to be mistaken for.
+      // ⭐ A MILESTONE KEEPS THE PLAN DAY, and FR-043 is what makes it 例外: it
+      // sends the milestone's 「位置と当たり判定」 to GR-18, whose place is
+      // 「未着手のマイルストーンの図形の上」 -- the plan day itself -- while
+      // GR-9's place is a day along from it. ⚠️ Measured on the shipped build
+      // 2026-09-02: a milestone wrote the plan day at +3 and at +8 alike, and
+      // that is the answer its own row asks for. The ledger note claiming a
+      // milestone honoured the drop was false.
       //
       // ⚠️ THE MILESTONE'S DAY IS COPIED AS TEXT rather than rebuilt through
       // `textOfDay`: the two columns then name the same day whatever form it
       // arrived in -- GRS reads the lexical date part and no time (FR-054). The
-      // other arm names a DIFFERENT day, so it is written as GRS spells one.
+      // other arm names a day GRS itself chose, so it is spelled as GRS spells
+      // one.
+      //
+      // ⛔ A MILESTONE WITHOUT A PLANNED START HAS NO DAY TO KEEP, so it is
+      // refused rather than written empty -- an empty `actualStart` leaves the
+      // task 未着手 (PS-1 of table T-019a) and the edit would report success
+      // while changing nothing. ⚠️ THE WORDING AVOIDS "count from" ON PURPOSE:
+      // `check_layer_rules.py` counts a `from` followed straight by a quote as
+      // an import specifier, and a message ending in one makes this file read
+      // as short of an edge.
+      if (isDrawnAsMilestone && task.start === null) {
+        return refused([reject('CM-14', 'FR-043', 'the milestone has no planned start')])
+      }
       const begun: Task = {
         ...task,
-        actualStart: isDrawnAsMilestone ? task.start : textOfDay(nextWorkingDay(within, planStart)),
+        actualStart: isDrawnAsMilestone ? task.start : textOfDay(dropped.day),
         actualDuration: duration,
         resumeValid: true,
       }

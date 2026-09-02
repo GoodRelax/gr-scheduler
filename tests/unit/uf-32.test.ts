@@ -1161,8 +1161,27 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** S-131. 濃さの値 FR-013 names, printed from the manuscript by `npm run gen`. */
   const S_131 = SETTINGS_DEFAULTS['dummyOpacity'] as number
 
-  /** S-180 -- 「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` / `GR-18`）」. */
-  const S_180 = NOT_STORED_DUMMY_SIZES['S-180']
+  /**
+   * S-180 -- ⛔ THE UPPER BOUND ON THE DRAWN WIDTH, NEVER THE WIDTH ITSELF.
+   *
+   * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
+   * 表 T-206 の `S-180` の小さい方とすること」, ⛔ (MUST NOT): 「`S-180` を幅そ
+   * のものとしてはならない」（利用者の裁定 2026-09-02）. The name says which of
+   * the two it is, so that no case here can quietly read it as the width again.
+   */
+  const DUMMY_WIDTH_UPPER_BOUND = NOT_STORED_DUMMY_SIZES['S-180']
+
+  /** S-1. FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
+  const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
+
+  /** S-129. 表 T-023d の GR-17 は 「`GR-9` の日から `S-129` ぶん進んだ稼働日」. */
+  const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
+
+  const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
+
+  /** FR-043's 「1 日ぶんと `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
+  const drawnWidthAt = (zoomX: number): number =>
+    Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
 
   /** The figures the picture draws 薄く, whatever kind of element they are. */
   const faintFiguresOf = (svg: string): readonly Element[] => {
@@ -1170,55 +1189,102 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     return paintedOf(svg).filter((drawn) => faint.has(drawn.at))
   }
 
-  it('draws the not-started marker AND both 掴みシロ at S-131, and nothing else faint', () => {
-    // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く
-    // 描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
-    // `S-131`」。表 T-021 の `PM-1a` is the 未着手 symbol.
-    //
-    // ⛔ THAT SENTENCE NAMES TWO THINGS, AND THIS CASE USED TO ASK FOR ONE. It
-    // read 「薄さで進行中と区別してはならない（MUST NOT）」 as a licence to
-    // demand a single 濃さ in the whole picture; that MUST NOT is about the
-    // MARKER's five symbols -- 「形が意味を担う」（`FR-030`）, 表 T-021 -- and
-    // says nothing about how many figures may be drawn 薄く. ⚠️ The old reading
-    // was green only for as long as nothing drew the ダミー.
-    const svg = drawn(oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]))
-    expect(
-      new Set(faintnessOf(svg)),
-      'every 濃さ the picture states is `S-131`, and it states no other',
-    ).toEqual(new Set([S_131]))
+  /**
+   * ⭐ TWO MAGNIFICATIONS, ONE ON EACH SIDE OF `S-180`. FR-043 asks for the
+   * SMALLER of two numbers, so a case run at one magnification proves half the
+   * rule: at 6px a day the DAY is smaller, at 24px a day `S-180` is.
+   */
+  const NARROW_DAY_ZOOM = 1
+  const WIDE_DAY_ZOOM = 4
 
-    // FR-043 (MUST): 「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める
-    // 掴みシロを**2 つ**（マイルストーンは例外とする）、実績の開始点と終了点と
-    // して**薄く**タスクの上に示し」 -- two of them, and drawn 薄く.
-    const faint = faintFiguresOf(svg)
-    const dummies = faint.filter((drawn) => drawn.tag === 'polygon')
-    expect(dummies, 'FR-043 (MUST): 未着手 owes 掴みシロ を 2 つ').toHaveLength(2)
-    for (const one of dummies) {
-      const span = spanOf(one)
-      // S-180: 「実績のダミーを描く幅…12px」。⛔ 「**`S-93` とは別の値である**
-      // —— あちらは読む人の当たり判定であって、環境が大きく取ってよい」.
-      expect(span.to - span.from, 'the ダミー is drawn at the width `S-180` states').toBeCloseTo(
-        S_180,
-        6,
-      )
-    }
-
-    // 表 T-021 の `PM-1a` (`( · )`) is the 未着手 marker, and FR-013 draws it
-    // 薄く beside the 掴みシロ. ⚠️ HOW MANY FIGURES THE SYMBOL TAKES IS NOT
-    // ASSERTED -- 表 T-021 prints `( · )` and no row of docs/spec says whether a
-    // ring and a point are one element or two.
-    expect(
-      faint.filter((drawn) => drawn.tag !== 'polygon' && drawn.tag !== 'g').length,
-      'FR-013 (MUST): the 未着手 marker is drawn 薄く too',
-    ).toBeGreaterThan(0)
-
-    // ⛔ AND THE 予定バー IS NOT AMONG THEM. FR-013 names the marker and the
-    // ダミー and nothing else, so the one bar of this scene is at full 濃さ.
-    const bars = paintedOf(svg).filter(
-      (drawn) => drawn.tag === 'polygon' && !dummies.some((one) => one.at === drawn.at),
-    )
-    expect(bars, 'the 予定バー is drawn at full 濃さ').toHaveLength(1)
+  it('⭐ the two magnifications below really do fall on opposite sides of S-180', () => {
+    // ⛔ Without this the pair could drift onto the same side of 「小さい方」 and
+    // the file would read as if it had proved both halves.
+    expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
+    expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(DUMMY_WIDTH_UPPER_BOUND)
+    expect(drawnWidthAt(NARROW_DAY_ZOOM)).toBeCloseTo(dayWidthAt(NARROW_DAY_ZOOM), 6)
+    expect(drawnWidthAt(WIDE_DAY_ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
   })
+
+  for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
+    const days = `${dayWidthAt(zoomX)}px/day`
+
+    it(`draws the not-started marker AND both 掴みシロ at S-131 at ${days}, and nothing else faint`, () => {
+      // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く
+      // 描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
+      // `S-131`」。表 T-021 の `PM-1a` is the 未着手 symbol.
+      //
+      // ⛔ THAT SENTENCE NAMES TWO THINGS, AND THIS CASE USED TO ASK FOR ONE. It
+      // read 「薄さで進行中と区別してはならない（MUST NOT）」 as a licence to
+      // demand a single 濃さ in the whole picture; that MUST NOT is about the
+      // MARKER's five symbols -- 「形が意味を担う」（`FR-030`）, 表 T-021 -- and
+      // says nothing about how many figures may be drawn 薄く.
+      //
+      // ⭐ 2026-01-05 IS A MONDAY, so 「予定の開始日の翌稼働日」 and the day
+      // `S-129` further on are the Tuesday and the Wednesday: the default
+      // calendar's weekend (表 T-209) never falls between them, and one worked
+      // day is one column of the axis.
+      const svg = drawn(
+        oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]),
+        settingsOf({ ...SETTINGS, zoomX }),
+      )
+      expect(
+        new Set(faintnessOf(svg)),
+        'every 濃さ the picture states is `S-131`, and it states no other',
+      ).toEqual(new Set([S_131]))
+
+      // FR-043 (MUST): 「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める
+      // 掴みシロを**2 つ**（マイルストーンは例外とする）、実績の開始点と終了点と
+      // して**薄く**タスクの上に示し」 -- two of them, and drawn 薄く.
+      const faint = faintFiguresOf(svg)
+      const dummies = faint
+        .filter((drawn) => drawn.tag === 'polygon')
+        .sort((one, other) => spanOf(one).from - spanOf(other).from)
+      expect(dummies, 'FR-043 (MUST): 未着手 owes 掴みシロ を 2 つ').toHaveLength(2)
+
+      // ⛔ AND THE 予定バー IS NOT AMONG THEM. FR-013 names the marker and the
+      // ダミー and nothing else, so the one bar of this scene is at full 濃さ.
+      const bars = paintedOf(svg).filter(
+        (drawn) => drawn.tag === 'polygon' && !dummies.some((one) => one.at === drawn.at),
+      )
+      expect(bars, 'the 予定バー is drawn at full 濃さ').toHaveLength(1)
+
+      // ⭐ WHERE THE INK BEGINS AND HOW WIDE IT RUNS (FR-043, 利用者の裁定
+      // 2026-09-02): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
+      // こと（MUST）。日の列の左端に揃えること（MUST）」.
+      //
+      // ⭐ The day column is counted in DAYS from the 予定バー's own left edge:
+      // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, GR-9 stands
+      // 「予定の開始日の翌稼働日」 and GR-17 「`GR-9` の日から `S-129` ぶん進んだ
+      // 稼働日」, and FR-017 makes one day `S-1` × `zoomX` wide. ⛔ Nothing here
+      // is a number read off a run.
+      const dayWidth = dayWidthAt(zoomX)
+      const planLeft = spanOf(bars[0] as Element).from
+      const expected = [planLeft + dayWidth, planLeft + (1 + S_129) * dayWidth]
+      for (const [i, one] of dummies.entries()) {
+        const span = spanOf(one)
+        expect(
+          span.to - span.from,
+          `the ダミー is drawn 「1 日ぶんと S-180 の小さい方」 at ${days}`,
+        ).toBeCloseTo(drawnWidthAt(zoomX), 6)
+        // ⛔ 「`S-93` とは別の値である —— あちらは読む人の当たり判定であって、
+        // 環境が大きく取ってよい」. Nothing here measures S-93.
+        expect(
+          span.from,
+          `the ダミー begins at its day column's left edge at ${days}`,
+        ).toBeCloseTo(expected[i] as number, 6)
+      }
+
+      // 表 T-021 の `PM-1a` (`( · )`) is the 未着手 marker, and FR-013 draws it
+      // 薄く beside the 掴みシロ. ⚠️ HOW MANY FIGURES THE SYMBOL TAKES IS NOT
+      // ASSERTED -- 表 T-021 prints `( · )` and no row of docs/spec says whether a
+      // ring and a point are one element or two.
+      expect(
+        faint.filter((drawn) => drawn.tag !== 'polygon' && drawn.tag !== 'g').length,
+        'FR-013 (MUST): the 未着手 marker is drawn 薄く too',
+      ).toBeGreaterThan(0)
+    })
+  }
 
   it('does not thin a Task that is under way', () => {
     // FR-013 names 未着手 and no other state; 表 T-021 の `PM-1` is 進行中.

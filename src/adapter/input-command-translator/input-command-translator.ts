@@ -6201,12 +6201,13 @@ function commandFromGrab(
     }
     case 'GR-9':
     case 'GR-17':
-    case 'GR-18':
-      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND IT TAKES NO
-      // DAY. FR-043 (MUST) places the same three columns whichever handle was
-      // grabbed and fixes whichever end was not, so neither end can be a
-      // parameter; CM-14 already reads the shape to choose between S-129 and
-      // S-130, so GR-18 needs no separate answer here.
+    case 'GR-18': {
+      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND ONE DAY IN
+      // IT. FR-043 (MUST) places the same three columns whichever handle was
+      // grabbed and fixes whichever end was not, so no END is a parameter --
+      // what the drag decides is the DAY, 実績開始日 ＝ 掴みシロを離した日
+      // (利用者の裁定 2026-09-02). CM-14 reads the shape to choose between
+      // S-129 and S-130, so GR-18 still needs no separate answer here.
       //
       // ⭐ THE RELEASE IS THE ONLY PHASE THAT REACHES THIS FUNCTION, which is
       // what table T-023d's grab means: the table's closing rule sends the
@@ -6225,28 +6226,25 @@ function commandFromGrab(
       // (MUST). That picture is the renderer's, from the press it can see --
       // IN-1 keeps a move from carrying an action.
       //
-      // ⛔⛔ TWO ROWS DISAGREE ABOUT WHETHER THE DROPPED DAY IS READ AT ALL, and
-      // the disagreement is REPORTED here rather than settled (rule 03 section
-      // 1). Measured on the shipped build 2026-09-02, ledger D-182: dragging
-      // the hold three steps and eight steps writes the same actual both times,
-      // because no day leaves this arm.
-      //   FR-043 (MUST)   「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働
-      //                   日、実績期間 ＝ `S-129`、`resumeValid` ＝ `true` と
-      //                   すること」 -- the three values are FIXED, so a drop
-      //                   position has nowhere to go. This is what the arm
-      //                   above does, and `edit-task.ts` writes those values.
-      //   T-023d closing  ⛔ 「掴んだ端点を置いた日を、稼働日へ寄せてはならない
-      //                   （MUST NOT）」 with ⚠️ 「`FR-043` がダミーを稼働日に
-      //                   「置く」と定めているのは描く位置の話であり、落とす先
-      //                   の話ではない」 -- which names a 落とす先 for the very
-      //                   dummies FR-043 draws, and so says a dropped day IS
-      //                   stored for them.
-      // ⛔ NOT GUESSED EITHER WAY. Reading the drop would give CM-14 a day and a
-      // handle, and CM-14 is published (PI-9 of table T-064, CM-14 of table
-      // T-108) -- so it is a change to the specification and not a choice this
-      // unit may make. Searched: FR-043, table T-023d (GR-9 / GR-17 / GR-18 and
-      // its closing rules), table T-028 IN-1, table T-108 CM-14, `edit-task.ts`.
-      return changed([{ kind: 'beginTaskActual', uid }])
+      // ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE, the same reading the
+      // GR-8 arm below takes of the same sentence: table T-023d's closing rule
+      // forbids it outright (MUST NOT), and its own note says that FR-043's
+      // 稼働日 is 「描く位置の話であり、落とす先の話ではない」.
+      //
+      // ⛔⛔ AND IT IS NOT THE DAY THE DUMMY STANDS ON. FR-043 (MUST NOT) now
+      // forbids its two rules being read as one: 予定の開始日の翌稼働日 places
+      // the dummy BEFORE it is grabbed, and reading that as the value made
+      // every drop write the same day. ⚠️ Measured on the shipped build
+      // 2026-09-02, ledger D-182: the hold carried 3 steps and 8 steps wrote
+      // the actual at the same x both times, because no day left this arm.
+      //
+      // ⚠️ `null` where the pointer came down on no day at all -- the same arm
+      // the GR-5 / GR-6 / GR-8 releases take. ⛔ Still this tool's press: MK-10
+      // keeps the browser out from under a grab it took.
+      const dropped = dayAtX(context.layout, release.x)
+      if (dropped === null) return CONSUMED_ELSEWHERE
+      return changed([{ kind: 'beginTaskActual', uid, droppedDay: textOfDay(dropped) }])
+    }
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days
       // and, when it went up or down, changes the row it is drawn on.
@@ -6353,8 +6351,9 @@ function commandFromGrab(
       // said the phase was unstated, but table T-023d's closing rule already
       // sends these three to table T-028's IN-1; and it quoted a GR-9 clause
       // that CR-198 had already narrowed to forbidding a CYCLE rather than the
-      // press. FR-043's MUST leaves neither end a parameter, so one CM-14
-      // answers all three. See the case above.
+      // press. FR-043's MUST leaves neither END a parameter, so one CM-14
+      // answers all three -- and since 利用者の裁定 2026-09-02 that one command
+      // carries the DAY the hold was let go on. See the case above.
       // ⚠️ GR-5 AND GR-6 WERE ON THIS LIST AND ARE NOT ANY MORE. What held them
       // was named as the counting and a ruling about a drop onto a non-working
       // day; `workingDaysBetween` and `workingCalendarOf` are published by

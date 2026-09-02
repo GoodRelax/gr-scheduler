@@ -132,8 +132,8 @@ const KEY_DRIVERS = [
   { row: 'SK-13', icons: ['IC-22'] },
   { row: 'SK-14', icons: ['IC-7'] },
   { row: 'SK-15', icons: ['IC-11'] },
-  { row: 'SK-16', icons: ['IC-12', 'IC-13'] },
-  { row: 'SK-16a', icons: ['IC-14', 'IC-15'] },
+  { row: 'SK-16', icons: ['IC-13', 'IC-12'] },
+  { row: 'SK-16a', icons: ['IC-15', 'IC-14'] },
   { row: 'SK-18', icons: ['IC-10'] },
   { row: 'SK-20', icons: ['IC-44'] },
 ] as const

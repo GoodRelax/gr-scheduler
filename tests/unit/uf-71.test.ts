@@ -2608,6 +2608,30 @@ describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing e
     expect(byRole(palette, 'Palette Commands')).toHaveLength(0)
   })
 
+  it('⛔ draws the band and no second box beside it', () => {
+    // 「最小化しているあいだに出すのは掴み帯だけとし、ほかは何も出さないこと
+    //   （MUST）」 -- 「ほか」 is anything at all, and an EMPTY box is something:
+    // it carries its own room, which is measured height under the band.
+    //
+    // ⛔ WHY THE CASE ABOVE IS NOT ENOUGH. That one reads the WORDS and the
+    // group roles, and an empty contents box carries neither -- so a drawing
+    // side that laid one out anyway passed it in silence. Measured on the
+    // shipped build of 2026-09-02: the minimised palette is 44x26 with one
+    // child; with the empty box drawn it is 44x42 with two, which is 16px of
+    // nothing under a band the user asked to be alone.
+    // GOES RED IF: a second child is appended to a minimised palette.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(minimised(null))
+
+    const palette = oneByRole(built.root(), 'Command Palette')
+    expect(palette.children, 'the band, and nothing beside it').toHaveLength(1)
+    const band = palette.children[0] as FakeElement
+    expect(
+      selfAndDescendants(band).map((one) => one.getAttribute('data-icon')),
+      'and the one child IS the band -- IC-53 is drawn on it',
+    ).toContain('IC-53')
+  })
+
   it('⛔ still draws the band, so the palette can be moved again (GR-19)', () => {
     // ⚠️ THE HALF OF THE 2026-08-28 RULING THAT SURVIVED. FR-053 keeps the band
     // 「⛔ 帯を消すと最小化したパレットを動かせなくなる」, and IC-75 rides on it in

@@ -160,8 +160,24 @@ en  This build cannot write this format yet
     次の一歩: Choose another format
 ```
 
-⛔ **実装の落ち先を替える（`frame-loop.ts:1325` の `unsupported` を `RS-40` へ）。**
-⚠️ **`tooLarge` と `rasterFailed` は本要求の対象ではない** —— **別の場面であり、行の要否は別に測る。**
+⛔ **実装の落ち先を替える。**⚠️⚠️ **本節は 2026-09-02 に訂正した。当初「`frame-loop.ts:1325` の
+`unsupported`」と書いたが、それは別の道である。**
+
+```
+替える先   UNWRITTEN_FORM_REASON        .svg と 単一 .html が通る道
+           （書き出す本文を作る者が src/ に居ない）
+           ⇒ RS-15 から RS-40 へ
+
+⛔ 替えない  NOTICE_REASON_OF_RASTER_FAULT の unsupported / tooLarge / rasterFailed
+           （.png を描く canvas が拒んだ道。RasterFaultReason.unsupported は
+             「この環境ではそもそも描けない」であり、形式の話ではない）
+           ⇒ 3 つとも RS-15 のまま。3 つに 3 つの行が要る（別件）
+```
+
+⭐ **実装した体が、指示の字面ではなく意図に従い、そのうえで食い違いを申告した。**
+⛔ **字面どおりに替えていたら、`.svg` は同じ嘘を告げ続けていた。**
+⚠️ **`tooLarge` と `rasterFailed`、および raster の `unsupported` は本要求の対象ではない** ——
+**`rasterizer.ts` が「この 3 つは次の一歩を共有しない」と述べており、行は 3 つ要る。別に測る。**
 
 ---
 

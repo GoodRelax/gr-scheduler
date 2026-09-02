@@ -273,6 +273,26 @@ function cornersAround(centre: Point, width: number, height: number): Path {
 }
 
 /**
+ * The centre of a rectangle whose LEFT EDGE stands on this point, so that a
+ * mark aligned to an edge can still be stated -- and hit -- as a centred one.
+ *
+ * ⭐ FR-043 (MUST) asks the dummy's ink to be 「日の列の左端に揃える」, and the
+ * point the geometry carries IS that edge (`xFromDay`). ⛔ The alignment is
+ * NOT written as `+ width / 2` at the two places that need it: the drawn
+ * corners and the question of whether the hand is on that drawing have to
+ * describe the SAME rectangle, and two spellings of one offset part company.
+ *
+ * ⚠️ The vertical is untouched. FR-043 settles the horizontal alone and sends
+ * the height to the actual bar's band (`DummyGeometry.height`), which stays
+ * centred on the point the way every other mark in this file is.
+ *
+ * @purity pure
+ */
+function centreFromLeftEdge(leftEdge: Point, width: number): Point {
+  return { x: leftEdge.x + width / 2, y: leftEdge.y }
+}
+
+/**
  * SL-8 of table T-023c (MUST), the FRAMED half: a dashed rectangle on the
  * target's BOUNDING RECTANGLE.
  *
@@ -1431,9 +1451,10 @@ export function svgFromSchedule(
     if (picture === 'screen' && task.dummies.length > 0) {
       // ⭐ ONE GROUP RATHER THAN AN OPACITY PER SHAPE, for the reason
       // `markerSvg`'s note already records: two translucent shapes composite to
-      // a third value where they meet, and at a low zoom S-129 can be narrower
-      // than S-180, so GR-9 and GR-17 do overlap. S-131 would stop being the
-      // degree of anything.
+      // a third value where they meet, and GR-9 and GR-17 do meet. Below
+      // S-180's width in a day, the two marks are a day wide and a day apart
+      // and stand edge to edge, so their strokes -- which straddle the shared
+      // edge -- overlap on it. S-131 would stop being the degree of anything.
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
       // storing a derived one, so there is no second formula and no key here.
@@ -1444,11 +1465,30 @@ export function svgFromSchedule(
       // shape. @provisional PD-208
       // ⛔ `drawnWidth`, never `dummyWidth`: `item-hit-area.ts` spells S-93's
       // HIT width that way, and S-180's own note is that the two differ.
-      const drawnWidth = NOT_STORED_DUMMY_SIZES['S-180']
+      // ⭐ FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと 表 T-206 の `S-180` の
+      // 小さい方とすること」. ⛔ S-180 IS THE UPPER BOUND AND NOT THE WIDTH
+      // (MUST NOT) -- it is a fixed px and a day is not, so at the zoom FR-055
+      // opens a whole document at, one mark covered two day columns and the day
+      // it pointed at was not the day it stood on. Capping it keeps the mark
+      // from fattening to a whole day where the day is the wider of the two.
+      // ⛔ NO FLOOR IS INVENTED HERE: no row gives one, and a day's width is
+      // `layout.pxPerDay` whatever the zoom has made of it.
+      // ⚠️ S-180 IS STILL READ FROM THE GENERATED BLOCK, never typed in, and
+      // the day comes from the layout because S-180 is DRAWN_FOR_THE_SCREEN_
+      // ALONE -- the entity may not read it, so the two meet here and nowhere
+      // else.
+      const drawnWidth = Math.min(layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
       const marks = task.dummies
         .map((one) =>
           barSvg(
-            { form: 'outline', points: cornersAround(one.at, drawnWidth, one.height) },
+            {
+              form: 'outline',
+              points: cornersAround(
+                centreFromLeftEdge(one.at, drawnWidth),
+                drawnWidth,
+                one.height,
+              ),
+            },
             actual,
           ),
         )
@@ -1471,8 +1511,13 @@ export function svgFromSchedule(
       // GR-9 / GR-17 in table T-023d, so below S-90's reach in a day's width
       // the answer `handOn` gives is the plan's end and this MUST went unmet at
       // every magnification a whole document is read at. @provisional PD-360
+      // ⚠️ THE SAME RECTANGLE THE MARK WAS DRAWN AS, edge and all: FR-043's
+      // alignment moved the ink, and a hand tested against the old centred box
+      // would darken a mark it is not on. ⛔ This is NOT the grab band -- those
+      // are table T-023d's and S-93's, and FR-043's own MUST NOT keeps them out
+      // of the drawing rule.
       const faintness = task.dummies.some((one) =>
-        handInside(one.at, drawnWidth, one.height),
+        handInside(centreFromLeftEdge(one.at, drawnWidth), drawnWidth, one.height),
       )
         ? 1
         : settings.dummyOpacity

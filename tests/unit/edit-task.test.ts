@@ -779,24 +779,27 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
       taskVisuals: [visualOf({ taskUid: 1, ...visual })],
     })
 
-  it('FR-043 places the working day after the plan start, S-129 worked days and resumeValid true', () => {
+  it('FR-043 places the day the hold was let go on, S-129 worked days and resumeValid true', () => {
     // MUST, and all three at once: "one end decided on its own" is the state
     // FR-043 exists to prevent. S-129 is 1 because a job that takes one day is
     // still entered as one day.
-    // ⛔ 「実績開始日 ＝ 予定の開始日の翌稼働日」, and beside it 「予定の開始日
-    // そのものに置いてはならない（MUST NOT）」 -- GR-3 of table T-023d already
-    // stands on that day. jan(5) 2026 is a Monday, so the next WORKING day is
-    // jan(6) and no weekend is crossed here; the calendar reading is the
+    // ⛔ 「実績開始日 ＝ 掴みシロを離した日」 (利用者の裁定 2026-09-02), and the
+    // same requirement forbids that being read as one rule with 「ダミーを描く
+    // 位置は、予定の開始日の翌稼働日」 (MUST NOT). jan(5) 2026 is a Monday, so
+    // the day the dummy STANDS on is jan(6) -- and the day let go of here is
+    // neither that nor the plan start itself. Where the dummy stands is the
     // subject of tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts.
     const next = accepted(
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
         uid: 1,
+        droppedDay: jan(8),
       }),
     )
     const task = taskIn(next, 1)
-    expect(task.actualStart).toBe(jan(6))
+    expect(task.actualStart).toBe(jan(8))
     expect(task.actualStart).not.toBe(jan(5))
+    expect(task.actualStart).not.toBe(jan(6))
     expect(task.actualDuration).toBe(1)
     expect(task.resumeValid).toBe(true)
     // PA-2's other columns stay empty, so the task reads as in progress.
@@ -806,10 +809,13 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
   it('FR-043 gives a milestone S-130 instead, because a point has no length', () => {
     // MUST: a milestone carries no actual bar (GR-15), so the dummy is a single
     // point and S-130 is 0 -- a fixed value chosen to satisfy PA-2 .. PA-5.
+    // ⭐ AND IT KEEPS THE PLAN DAY. FR-043 makes the milestone 例外 and sends
+    // its 「位置と当たり判定」 to GR-18, whose place is the figure itself, so
+    // the day let go of is not what is written for this shape.
     const next = accepted(
       run(
         notStarted({ start: jan(12), finish: jan(12), milestone: true }, { shapeKind: 'milestone' }),
-        { kind: 'beginTaskActual', uid: 1 },
+        { kind: 'beginTaskActual', uid: 1, droppedDay: jan(15) },
       ),
     )
     const task = taskIn(next, 1)

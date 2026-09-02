@@ -14,7 +14,13 @@
 //     the exchange belongs to the document and not to the holding of the grab.
 //     ⚠️ A case asserting the bands DO hold still is worth writing from the
 //     specification; it is not this file's job, because nothing here is open.
-//   D-182  a bar's dummy ignores where it is dropped
+//   ⛔ D-182 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//     held it is an ordinary assertion now: the user's ruling of 2026-09-02
+//     settled the two rows that disagreed (CR-328), FR-043 now writes 掴みシロ
+//     を離した日 rather than a day derived from the plan, and `edit-task.ts`
+//     and `input-command-translator.ts` carry the dropped day between them.
+//     ⭐ Its control stays where it was: the pinned case is gone, the thing
+//     that proves the pointer reaches the hold at all is still worth running.
 //
 // WHY THEY ARE HERE AND NOT IN `npm run parity`. That harness holds the
 // application against
@@ -95,14 +101,7 @@ const D147: Pin = {
 }
 
 
-const D182: Pin = {
-  ledger: 'D-182',
-  wrong:
-    "a bar's actual-start dummy writes the plan start wherever it is dropped, " +
-    'so the drop position changes nothing',
-}
-
-const PINNED: readonly Pin[] = [D06, D147, D182]
+const PINNED: readonly Pin[] = [D06, D147]
 
 /**
  * Say, on the run's own output, which ledger row this case is holding.
@@ -688,29 +687,24 @@ test('control for D-182: dropping the dummy of an unstarted task writes an actua
   await app.close()
 })
 
-// GOES RED IF: D-182 is fixed. Two things are asked:
+// GOES RED IF: the drop position stops being read, or the actual start goes
+// back to the plan start. Two things are asked:
 //   * FR-043 (MUST NOT) forbids the actual start being put on the plan start
 //     itself, because the plan start point (GR-3) already stands there and the
-//     two would stop being tellable apart. ✅ FIXED 2026-09-02: `edit-task.ts`
-//     now writes 予定の開始日の翌稼働日, the day GR-9 is drawn on. Measured on
-//     the shipped build with one day 6px wide: the actual bar came out at
-//     x=248 (the plan start) before and comes out at x=254 after, while a
-//     milestone keeps the plan day, which is where GR-18 stands.
+//     two would stop being tellable apart.
 //   * dragging the hold three steps along and eight steps along must not write
-//     the same thing. Measured at +0, +3 and +8: the same thing every time, and
-//     STILL the same after that fix. ⛔ OPEN, AND REPORTED RATHER THAN GUESSED:
-//     FR-043 (MUST) fixes all three values whichever handle was grabbed, while
-//     table T-023d's closing rule speaks of 「掴んだ端点を置いた日」 for these
-//     very dummies -- the two cannot both be obeyed, and CM-14 is published, so
-//     the ruling is the user's. See the note in `input-command-translator.ts`.
-// ⭐ BOTH ARE COLLECTED AND ASSERTED TOGETHER, so that the day one of them is
-// fixed the run still shows the other rather than stopping at the first -- and
-// that is exactly what has happened, so this case is still red and still
-// `test.fail()`.
+//     the same thing. 「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日」
+//     (MUST, 利用者の裁定 2026-09-02), and ⛔ the same requirement forbids that
+//     being read as one rule with 「ダミーを描く位置は、予定の開始日の翌稼働
+//     日」 (MUST NOT) -- reading them as one is exactly what made both drops
+//     write the same day.
+// ⭐ BOTH ARE COLLECTED AND ASSERTED TOGETHER, so that a run shows both rather
+// than stopping at the first.
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-182.
+// Measured on the shipped build with one day 6px wide: +3 steps and +8 steps
+// both put the actual at x=254 before, and put it at two different x's after.
 test('D-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
-  test.fail()
   test.setTimeout(240_000)
-  announce(D182, "dropping a bar's actual-start dummy")
   const near = await openTheApp(baseURL)
   const short = await dropTheDummy(near.page, 3)
   await near.close()

@@ -2088,16 +2088,12 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
     // WORDS, never the reason, so the join is taken from the dictionary end --
     // the same road every case in this file's FR-076 describe takes.
     //
-    // ⛔⛔ WHAT IS DELIBERATELY *NOT* ASSERTED: WHICH row. 表 T-233 has no row
-    // whose 場面 is 「この build ではその形式を書けない」. Measured, the notice
-    // that arrives carries `RS-15`, which is that table's landing place for a
-    // reason it has no row for -- 「⚠️ **行の無い理由に落ち先を与えるのが `RS-15`
-    // である**」 -- and whose next step reads 「もう一度行ってください」, which is
-    // not a step a person can take: pressing `.svg` again writes nothing again.
-    // ⛔ A case asserting the words a proper row OUGHT to carry would be minting
-    // specification wording, so this one asserts only that SOME row of 表 T-233
-    // is carried, told in that row's own words in the display language. ⇒ The
-    // missing row is reported as a gap, not written here.
+    // ⚠️ WHICH row is not asserted HERE, and no longer because the table has
+    // none: CR-325 wrote `RS-40` 「この形式は、このビルドではまだ書けない」 for
+    // exactly this 場面, and the describe below pins it. ⭐ This case stays the
+    // wide one -- ANY row of 表 T-233, told in that row's own words -- so that a
+    // format refused for some OTHER reason (`RS-3`, an environment with no
+    // rasteriser) is still walked rather than excluded.
     //
     // ⛔ WHAT WOULD MAKE THIS GO RED: a notice whose text is composed at the
     // point it is raised rather than looked up by a row ID, which is what
@@ -2134,6 +2130,109 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
       'no format of table T-024 refused a press, so this case walked nothing (rule 04, §2)',
     ).toBeGreaterThan(0)
   })
+})
+
+// ===========================================================================
+// FR-076 / RS-40 -- a form this build cannot write says THAT, not the fallback
+// ===========================================================================
+//
+// 「RS-40 | **この形式は、このビルドではまだ書けない** | `NT-3a` | 表 T-024」
+//
+// ⛔ AND THE CLOSING RULE THAT MAKES IT COMPULSORY. 表 T-233's closing sentence
+// reads 「⭐ **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を
+// 運んではならない（MUST NOT）**」 and 「⚠️ **行の無い理由に落ち先を与えるのが
+// `RS-15` である**」 -- so `RS-15` is the landing place for a reason the table
+// has NO row for, and a reason the table now HOLDS a row for may not land there.
+//
+// ⚠️ THE DEFECT THESE CASES ANSWER TO IS D-186. Measured on the shipped build of
+// 2026-09-02, before this: choosing `.svg` or 単一 `.html` on the export chooser
+// told 「操作を終えられませんでした」 with 「もう一度行ってください。続くときは、
+// 直前の操作を控えてください」 -- `RS-15`'s words, whose next step cannot be
+// taken, since pressing the same format again writes nothing again.
+//
+// ⛔ WHICH FORMATS ARE UNWRITTEN IS NOT TYPED HERE, and may not be: 表 T-024
+// offers five and says nothing about which of them `src/` has a writer for --
+// that is a fact of the build and not of the specification. So the walk asks
+// only that NO refused format lands on `RS-15`, and that the words of `RS-40`
+// reach the screen at least once. ⚠️ A format refused for a DIFFERENT situation
+// keeps its own row: `RS-3` is what a host with no rasteriser answers `.png`
+// with, and this walk leaves that alone.
+describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', () => {
+  /**
+   * Press one format on the export chooser in one display language.
+   *
+   * @purity non-pure
+   */
+  const pressIn = async (
+    rowId: string,
+    language: DisplayLanguage,
+  ): Promise<{ readonly written: number; readonly view: ScreenView }> => {
+    const pane = host()
+    const screen = screenPane(language)
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+    takeFormat(loop, screen, rowId)
+    await settle()
+    pane.runAnimationFrames()
+    return { written: files.written.length, view: screen.last() }
+  }
+
+  for (const language of ['ja', 'en'] as const) {
+    it(`⛔ no refused format lands on RS-15 while a row exists (${language})`, async () => {
+      // ⚠️ THE MUST NOT, MEASURED FROM THE DICTIONARY END. `Notice` carries the
+      // words and never the row, so the row is pinned by asking whether the
+      // words that arrived are the ones FR-038's dictionary holds for `RS-15`.
+      // GOES RED IF: an unwritable format is answered with the landing place
+      // again -- which is the state the build was in on 2026-09-02.
+      const fallbackWords = wordsFor('RS-15')
+      for (const rowId of fileBearingOutDirectionRows()) {
+        const { written, view } = await pressIn(rowId, language)
+        if (written > 0) continue
+        for (const notice of view.notices) {
+          expect(
+            notice.text,
+            `FR-076 (MUST NOT): table T-024 row ${rowId} was refused with RS-15, the landing ` +
+              'place for a reason table T-233 holds no row for -- and RS-40 is that row',
+          ).not.toBe(fallbackWords.text[language])
+        }
+      }
+    })
+
+    it(`⭐ the form this build cannot write is told in RS-40's own words (${language})`, async () => {
+      // 「RS-40 | この形式は、このビルドではまだ書けない | `NT-3a` | 表 T-024」,
+      // and NT-3a (MUST NOT) forbids telling of a failure with no next step --
+      // which for this row is 「別の形式を選んでください」 / 'Choose another
+      // format', the one step that can actually be taken.
+      // GOES RED IF: no offered format carries the row at all (it went back to
+      // RS-15, or the row stopped reaching the raiser).
+      const words = wordsFor('RS-40')
+      const carried: string[] = []
+      for (const rowId of fileBearingOutDirectionRows()) {
+        const { written, view } = await pressIn(rowId, language)
+        if (written > 0) continue
+        for (const notice of view.notices) {
+          if (notice.text !== words.text[language]) continue
+          carried.push(rowId)
+          expect(
+            notice.manner,
+            `table T-233 makes RS-40's manner ${mannerFor('RS-40')}`,
+          ).toBe(mannerFor('RS-40'))
+          expect(
+            notice.nextSteps,
+            'NT-3a (MUST NOT): told it failed with nothing to do next',
+          ).toContain(words.nextStep[language])
+        }
+      }
+      expect(
+        carried.length,
+        'FR-029 (MUST): no format of table T-024 was refused with RS-40, so this case walked ' +
+          'nothing (rule 04, §2)',
+      ).toBeGreaterThan(0)
+    })
+  }
 })
 
 // ===========================================================================

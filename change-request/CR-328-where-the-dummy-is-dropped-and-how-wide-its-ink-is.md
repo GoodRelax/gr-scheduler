@@ -138,8 +138,31 @@ induced.py（FR-043 T-023d GR-9 GR-17 GR-18 GR-3 S-180 S-129）
 
 ```
 src/use-case/edit-document/edit-task.ts   CM-14 に「離した日」を渡す
-                                          ⛔ CM-14 は公開メンバ（表 T-064 の PI-9）なので、
-                                             引数が増える。表 T-108 の CM-14 も見ること
 src/adapter/input-command-translator/     GR-9 / GR-17 の腕が、離した日を運ぶ
-src/entity/layout-engine/schedule-geometry/  ダミーを描く幅
+src/adapter/svg-renderer/svg-renderer.ts  ダミーを描く幅
 ```
+
+⚠️⚠️ **本節は 2026-09-02 に 2 か所訂正した。どちらも実装した体が実測で覆したものである。**
+
+**① 描く幅は レイアウトエンジンに無い。**⛔ **当初「`src/entity/layout-engine/schedule-geometry/`」
+と書いたが誤りである。**
+
+```
+svg-renderer.ts:1447   const drawnWidth = NOT_STORED_DUMMY_SIZES['S-180']
+svg-renderer.ts:1451   cornersAround(one.at, drawnWidth, one.height)   ← 点を中心に置く
+generate_entity_types.py:965  S-180 は DRAWN_FOR_THE_SCREEN_ALONE であり、
+                              実体は読めない
+```
+
+⭐ **幾何の側は直す所が無い** —— **`DummyGeometry.at.x` は既に `xFromDay(...)`、
+すなわち日の列の左端である。**⛔ **中心に置いているのが `cornersAround` であり、
+そこが 1 か所の直しどころである。**
+⚠️ **実測（6px/日）: 掴み代の 2 つは `{x:248,w:12}` と `{x:254,w:12}`** ——
+**`GR-9` は自分の日の左端（254）を中心にしており、インクは 248..260、
+すなわち予定開始の列と自分の列にまたがる。**
+
+**② 表 T-108 は動かない。**⛔ **当初「`CM-14` は公開メンバなので 表 T-108 の行も見ること」
+と書いたが、同表に引数の欄は無い**（行 ID / 群 / 確定名 / 組 / 何を担うか / 正）。
+⭐ **`PI-9` が公開するのは `editDocument` / `Refusal` / `SettingsLimits` であり、
+命令ごとの形ではない。`DocumentCommand` は `PI-8` で、その項を綴る表は無い。**
+⇒ **この変更が仕様に負う借りは無い。**

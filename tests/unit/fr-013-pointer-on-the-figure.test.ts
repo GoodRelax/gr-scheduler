@@ -5,27 +5,20 @@
 // node in the specification. Table T-218 of Chapter 7 gives them their place:
 // TS-6, tests/unit/.
 //
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (04-verification section 1). The
-// SVG readers (`elementsOf`, `attribute`, `faintlyDrawn`) and the fixture are
-// COPIED FROM tests/unit/uf-32.test.ts, which drives the same renderer.
+// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (04-verification section 1).
 //
 // ⭐ WHY THIS FILE EXISTS. tests/unit/uf-32.test.ts asserts that the two
-// 掴みシロ and the 未着手 marker are drawn at S-131, and
-// tests/unit/fr-043-dummy-drawn.test.ts records the other half as a gap in as
-// many words: 「FR-013's hover half -- 「ポインタが乗っているあいだだけ濃くする
-// こと（MUST）」. PI-19 … publishes `svgFromSchedule` over six arguments and none
-// of them is a pointer, so there is nothing to hover」. ⛔ THAT IS NOW OUT OF
-// DATE: the renderer takes a `pointer`. So the MUST can be measured, and this
-// file measures it.
+// 掴みシロ and the 未着手 marker are drawn at S-131; this file asserts the other
+// half of the same MUST -- that the one under the pointer stops being faint.
 //
 // THE LINES THIS FILE RESTS ON
 //
-//   FR-013 (docs/spec/01-04-requirements.md:2073, MUST)
+//   FR-013 (docs/spec/01-04-requirements.md, MUST)
 //     「**未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、ポインタが
 //      乗っているあいだだけ濃くすること（MUST）** —— 作法は表 T-051 の `HF-6` と
 //      同じである。濃さの値は `S-131`。」
 //
-//   T-051 HF-6 (docs/spec/01-04-requirements.md:1321, MUST)
+//   T-051 HF-6 (MUST)
 //     「**操作子は、その行の名前にポインタが乗っているあいだだけ描くこと
 //      (MUST)**」
 //
@@ -38,18 +31,42 @@
 //   drawing. So the cases below hand the renderer a pointer and NO won grab row
 //   at all, and still require the figure under the pointer to leave S-131.
 //
-//   T-023d GR-9 / GR-17 (docs/spec/01-04-requirements.md) -- where the two
-//   dummies of a not-started `Task` stand; T-206 S-180 -- 12px, the width they
-//   are drawn at; T-206 S-90 -- 6px, the plan endpoints' grab slop, which at a
-//   low zoom covers both of them.
+//   ⭐⭐ WHERE THE POINTER IS PUT, AND WHY IT IS NOT READ OFF THE INK
+//   (利用者の裁定 2026-09-02, carried into FR-043)
+//
+//     FR-043 (MUST) 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
+//     こと。日の列の左端に揃えること」, ⛔ (MUST NOT)「当たり判定は本段の対象では
+//     ない」. So the DRAWING now moves with the magnification while the HIT area
+//     does not, and a pointer taken from the ink would be measuring the drawing
+//     against itself.
+//
+//     ⭐ So every pointer below is computed from the specification instead:
+//       T-206 S-93   the dummies' 当たり判定, 「30 × 20px」, which is what
+//                    「乗っている」 has to be judged inside;
+//       T-023d GR-3  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
+//                    start day's column begins;
+//       FR-043 / T-023d GR-9   GR-9 stands one working day right of it, and
+//       T-023d GR-17           GR-17 `S-129` working days right of GR-9;
+//       FR-017 (MUST) 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」.
+//     The point put under the pointer is inside GR-9's own day column AND
+//     within half of S-93 of that column's left edge, so it is covered by the
+//     hit box wherever on the day the environment centres those 30px -- and it
+//     is inside the ink under FR-043's new width as well. ⭐ A case below
+//     asserts that containment rather than assuming it.
+//
+//   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」, which at
+//   a low magnification covers both dummies; the second describe below is built
+//   on that overlap.
 //
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
 //   * HOW DARK 濃く IS. FR-013 fixes the FAINT value (S-131) and no row anywhere
 //     fixes the other one, so every case below asks only that the figure under
 //     the pointer has LEFT S-131 -- never what it arrived at.
-//   * THE MARGIN AROUND A FIGURE. 「乗っている」 is a place and no row widens it,
-//     so every pointer below is put at the CENTRE of the figure it means.
+//   * WHERE S-93's 30 × 20px IS CENTRED. T-206 gives the hit box a SIZE and
+//     T-023d gives GR-9 a DAY; no row says which pixel of the day the box is
+//     centred on. ⭐ So no case below asserts the edge of a hit box: they assert
+//     only that the point they use is one every reading covers.
 //   * ⛔⛔ THE 未着手 MARKER'S HALF OF THE SAME MUST. FR-013 names 「未着手の
 //     マーカーと、実績入力のダミー」 together, but MEASURED, a pointer put on the
 //     marker's own ring (表 T-021's PM-1a) leaves it at S-131 when no won grab
@@ -64,6 +81,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { specTable } from '../contract/spec-table'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -79,16 +97,57 @@ import {
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 
 // ---------------------------------------------------------------------------
-// The fixture
+// The rows, read out of the manuscript at run time (Chapter 1.9, :275)
 // ---------------------------------------------------------------------------
 
-const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
-  ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
+const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
+  const found = specTable(tableId).rows.find((row) => row.id === rowId)
+  if (found === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
+  return found.by
+}
+
+const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
+
+const S_93 = rowOf('T-206', 'S-93')
+const S_180 = rowOf('T-206', 'S-180')
+const S_90 = rowOf('T-206', 'S-90')
+
+/** The first number of a cell, which is the one the row leads with. */
+const leadingNumberOf = (cell: string | undefined, row: string): number => {
+  const [first] = numbersOf(cell ?? '')
+  if (first === undefined || first <= 0) throw new Error(`row ${row} states no size: ${cell}`)
+  return first
+}
+
+/** `S-93` -- 「実績のダミーの当たり判定 … 30 × 20px」. The width is the first. */
+const DUMMY_HIT_WIDTH = leadingNumberOf(S_93['既定'], 'S-93')
+/** `S-180` -- ⛔ FR-043's UPPER BOUND on the drawn width, never the width itself. */
+const DUMMY_WIDTH_UPPER_BOUND = leadingNumberOf(S_180['既定'], 'S-180')
+/** `S-90` -- 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」. */
+const PLAN_ENDPOINT_SLOP = leadingNumberOf(S_90['既定'], 'S-90')
 
 const FLAT = SETTINGS_DEFAULTS as unknown as Record<string, number>
 
 /** S-131 -- 「濃さの値」 FR-013 names, printed from the manuscript by `npm run gen`. */
 const S_131 = FLAT['dummyOpacity'] as number
+/** S-1 -- 1 日あたりの表示幅 at `zoomX` = 1 (FR-017). */
+const PX_PER_DAY_AT_1X = FLAT['pxPerDayAt1x'] as number
+/** S-129 -- how many worked days GR-17 stands right of GR-9 (T-023d). */
+const ACTUAL_INITIAL_DURATION = FLAT['actualInitialDuration'] as number
+
+/** FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
+const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
+
+/** FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方」. */
+const drawnWidthAt = (zoomX: number): number =>
+  Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
+
+// ---------------------------------------------------------------------------
+// The fixture
+// ---------------------------------------------------------------------------
+
+const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
+  ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = {
   width: 1000,
@@ -153,6 +212,11 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
  * 「`Task` が未着手であるあいだ」, and table T-021's PM-1a is the 未着手 marker --
  * so a task with an actual bar would leave this file with nothing faint to
  * point at.
+ *
+ * ⭐ 2026-02-02 IS A MONDAY, so GR-9 (「予定の開始日の翌稼働日」) and GR-17 (a
+ * further `S-129` worked days on) fall on the Tuesday and the Wednesday: the
+ * default calendar's weekend (表 T-209) never comes between them, and one
+ * worked day is one column of the axis.
  */
 const IDLE = scheduleOf({
   tasks: [taskOf({ uid: 1, start: '2026-02-02', finish: '2026-02-22', name: 'idle' })],
@@ -188,6 +252,49 @@ const drawn = (settings: DocumentSettings, pointer: Point): string => {
     undefined,
     pointer,
   )
+}
+
+/**
+ * Where the plan bar's left edge is -- T-023d GR-3, 「予定の開始点 | 予定バーの
+ * 左端」, which is where the plan start day's column begins.
+ *
+ * ⭐ Taken from the layout rather than from the ink: a stroke straddles an edge,
+ * and this file counts DAYS from that pixel.
+ */
+const planStartOf = (settings: DocumentSettings): number => {
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(IDLE, settings, regions)
+  const placed = layout.placements[0]
+  if (placed === undefined) throw new Error('FR-018 dropped the task: there is nothing to point at')
+  return placed.x
+}
+
+interface Probe {
+  readonly grab: string
+  /** Where the day column of that dummy begins (FR-043's 「日の列の左端」). */
+  readonly dayLeft: number
+  /** The point handed to the renderer as the pointer's x. */
+  readonly x: number
+}
+
+/**
+ * The two places FR-043 and table T-023d put a not-started `Task`'s dummies,
+ * and the point inside each that this file points at.
+ *
+ * ⛔ NOT READ OFF THE PICTURE. Every number here comes from the specification:
+ * the plan bar's left edge (GR-3), one day (FR-017's `S-1` × `zoomX`), `S-129`
+ * (T-023d GR-17), and FR-043's drawn width.
+ */
+const probesAt = (zoomX: number): readonly Probe[] => {
+  const left = planStartOf(settingsAt(zoomX))
+  const dayWidth = dayWidthAt(zoomX)
+  const inside = drawnWidthAt(zoomX) / 2
+  const gr9 = left + dayWidth
+  const gr17 = gr9 + ACTUAL_INITIAL_DURATION * dayWidth
+  return [
+    { grab: 'GR-9', dayLeft: gr9, x: gr9 + inside },
+    { grab: 'GR-17', dayLeft: gr17, x: gr17 + inside },
+  ]
 }
 
 // ---------------------------------------------------------------------------
@@ -251,30 +358,39 @@ const faintlyDrawn = (svg: string): ReadonlySet<number> => {
 const faintnessOf = (svg: string): readonly number[] =>
   [...svg.matchAll(/\sopacity="([^"]*)"/g)].map((hit) => Number(hit[1]))
 
-interface Box {
+interface Ink {
   readonly points: string
-  readonly x: number
+  readonly x0: number
+  readonly x1: number
   readonly y: number
 }
 
-/** The centre of a polygon, from the `points` it was drawn with. */
-const centreOf = (points: string): Box => {
+const inkOfPoints = (points: string): Ink => {
   const pairs = points.trim().split(/\s+/).map((one) => one.split(','))
   const xs = pairs.map((pair) => Number(pair[0]))
   const ys = pairs.map((pair) => Number(pair[1]))
   return {
     points,
-    x: (Math.min(...xs) + Math.max(...xs)) / 2,
+    x0: Math.min(...xs),
+    x1: Math.max(...xs),
     y: (Math.min(...ys) + Math.max(...ys)) / 2,
   }
 }
 
-/** The two 掴みシロ of the scene: the polygons the resting picture draws 薄く. */
-const dummiesOf = (svg: string): readonly Box[] => {
+/** The 掴みシロ of the scene: the polygons the resting picture draws 薄く. */
+const dummiesOf = (svg: string): readonly Ink[] => {
   const faint = faintlyDrawn(svg)
   return elementsOf(svg)
     .filter((one) => one.tag === 'polygon' && faint.has(one.at))
-    .map((one) => centreOf(attribute(one.text, 'points') as string))
+    .map((one) => inkOfPoints(attribute(one.text, 'points') as string))
+    .sort((one, other) => one.x0 - other.x0)
+}
+
+/** The one faintly drawn polygon the point falls in, named by the row it serves. */
+const dummyUnder = (svg: string, probe: Probe): Ink => {
+  const found = dummiesOf(svg).filter((one) => one.x0 <= probe.x && probe.x <= one.x1)
+  expect(found.length, `exactly one 掴みシロ is drawn under ${probe.grab}'s point`).toBe(1)
+  return found[0] as Ink
 }
 
 /**
@@ -293,10 +409,10 @@ const markerFiguresOf = (svg: string): readonly string[] => {
 }
 
 /** Whether the picture still draws THAT polygon -- matched by its own points -- 薄く. */
-const isStillFaint = (svg: string, box: Box): boolean => {
+const isStillFaint = (svg: string, ink: Ink): boolean => {
   const faint = faintlyDrawn(svg)
   const found = elementsOf(svg).filter(
-    (one) => one.tag === 'polygon' && attribute(one.text, 'points') === box.points,
+    (one) => one.tag === 'polygon' && attribute(one.text, 'points') === ink.points,
   )
   expect(found.length, 'the same polygon is still drawn, and drawn once').toBe(1)
   return faint.has((found[0] as Element).at)
@@ -305,7 +421,23 @@ const isStillFaint = (svg: string, box: Box): boolean => {
 // ---------------------------------------------------------------------------
 
 describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
-  const SETTINGS = settingsAt(1)
+  // ⭐ A MAGNIFICATION AT WHICH `S-180` IS THE SMALLER OF FR-043'S TWO NUMBERS
+  // (`S-1` × 2.5 = 15px a day, against S-180's 12). The second describe runs at
+  // one where the DAY is the smaller, so between them the file exercises both
+  // sides of 「1 日ぶんと `S-180` の小さい方」 -- and the point put under the
+  // pointer is a different distance from the day's left edge in each.
+  const ZOOM = 2.5
+  const SETTINGS = settingsAt(ZOOM)
+
+  it('S-93 is still the row that says how big the dummies are to point at', () => {
+    // ⚠️ A GUARD, NOT THE CLAIM. FR-043 (MUST NOT) 「当たり判定は本段の対象では
+    // ない」 sent the hit area back to table T-023d and T-206, and this file
+    // takes it from there rather than from the ink it is judging.
+    expect(S_93['値']).toContain('GR-9')
+    expect(S_93['値']).toContain('GR-17')
+    expect(S_93['値']).toContain('当たり判定')
+    expect(DUMMY_HIT_WIDTH).toBeGreaterThan(0)
+  })
 
   it('draws a scene the cases below can be read from', () => {
     // ⚠️ 04-verification section 2. FR-043 (MUST) owes 掴みシロ を 2 つ, and
@@ -317,13 +449,47 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     expect(new Set(faintnessOf(resting))).toEqual(new Set([S_131]))
   })
 
+  it('⭐ every point this file uses is one S-93 covers, and is on the ink', () => {
+    // ⛔ THE CASE THAT MAKES THE OTHERS MEAN SOMETHING. FR-043 aligns the ink to
+    // 「日の列の左端」 and bounds its width by 「1 日ぶんと `S-180` の小さい方」,
+    // while ⛔ 「当たり判定は本段の対象ではない」 leaves the 30px of S-93 where
+    // they were. A point that had drifted out of the hit box would make every
+    // case below a claim about something else.
+    const resting = drawn(SETTINGS, null)
+    for (const probe of probesAt(ZOOM)) {
+      // Inside the day the row gives it (T-023d), so the hit box covers it
+      // wherever on that day the environment centres its 30px.
+      expect(probe.x, `${probe.grab} is right of its day`).toBeGreaterThanOrEqual(probe.dayLeft)
+      expect(probe.x, `${probe.grab} is inside its day`).toBeLessThanOrEqual(
+        probe.dayLeft + dayWidthAt(ZOOM),
+      )
+      expect(
+        Math.abs(probe.x - probe.dayLeft),
+        `${probe.grab} is within S-93 of its day`,
+      ).toBeLessThanOrEqual(DUMMY_HIT_WIDTH / 2)
+      // And on the ink FR-043 now draws, which begins at that same pixel.
+      const ink = dummyUnder(resting, probe)
+      expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
+        probe.dayLeft,
+        2,
+      )
+      expect(ink.x1 - ink.x0, `${probe.grab}'s ink is min(1 day, S-180) wide`).toBeCloseTo(
+        drawnWidthAt(ZOOM),
+        2,
+      )
+      // ⭐ AND THIS IS THE `S-180` SIDE OF 「小さい方」 -- the day is wider here.
+      expect(drawnWidthAt(ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
+    }
+  })
+
   it('⭐ leaves S-131 for the dummy the pointer is on (MUST)', () => {
     const resting = drawn(SETTINGS, null)
-    const dummy = dummiesOf(resting)[0] as Box
+    const probe = probesAt(ZOOM)[0] as Probe
+    const ink = dummyUnder(resting, probe)
 
-    expect(isStillFaint(resting, dummy), 'faint while nothing points at it').toBe(true)
+    expect(isStillFaint(resting, ink), 'faint while nothing points at it').toBe(true)
     expect(
-      isStillFaint(drawn(SETTINGS, { x: dummy.x, y: dummy.y }), dummy),
+      isStillFaint(drawn(SETTINGS, { x: probe.x, y: ink.y }), ink),
       'FR-013 (MUST): ポインタが乗っているあいだだけ濃くする',
     ).toBe(false)
   })
@@ -335,42 +501,41 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     //
     // ⚠️ WHAT IS *NOT* CLAIMED HERE, because no row settles it: whether the
     // OTHER 掴みシロ of the same `Task` stays faint. Measured, it does not --
-    // the two are drawn inside one faint group and rise together. FR-013 says
-    // 「ポインタが乗っているあいだだけ」 of a pair it names as one thing, and no
-    // row of docs/spec divides a `Task`'s two 掴みシロ for this purpose, so the
-    // case is reported rather than asserted either way.
+    // the two are drawn inside one faint group and rise together.
     const resting = drawn(SETTINGS, null)
-    const dummy = dummiesOf(resting)[0] as Box
+    const probe = probesAt(ZOOM)[0] as Probe
+    const ink = dummyUnder(resting, probe)
 
     const restingMarker = markerFiguresOf(resting)
     expect(restingMarker.length, '表 T-021 PM-1a is drawn 薄く while nothing points').toBeGreaterThan(
       0,
     )
 
-    const pointed = drawn(SETTINGS, { x: dummy.x, y: dummy.y })
+    const pointed = drawn(SETTINGS, { x: probe.x, y: ink.y })
 
     expect(markerFiguresOf(pointed), 'the marker is still drawn at S-131').toEqual(restingMarker)
   })
 
   it('⛔ a pointer somewhere else on the screen changes nothing', () => {
     const resting = drawn(SETTINGS, null)
-    const dummy = dummiesOf(resting)[0] as Box
+    const probe = probesAt(ZOOM)[0] as Probe
+    const ink = dummyUnder(resting, probe)
 
     // A point well clear of the task, still inside the drawing.
-    const away = drawn(SETTINGS, { x: dummy.x, y: dummy.y + 200 })
+    const away = drawn(SETTINGS, { x: probe.x, y: ink.y + 200 })
 
-    expect(isStillFaint(away, dummy)).toBe(true)
+    expect(isStillFaint(away, ink)).toBe(true)
     expect(new Set(faintnessOf(away))).toEqual(new Set([S_131]))
   })
 
   it('⭐ each of the two answers to its own place, one case walking both', () => {
     const resting = drawn(SETTINGS, null)
-    const both = dummiesOf(resting)
 
-    for (const dummy of both) {
+    for (const probe of probesAt(ZOOM)) {
+      const ink = dummyUnder(resting, probe)
       expect(
-        isStillFaint(drawn(SETTINGS, { x: dummy.x, y: dummy.y }), dummy),
-        `the dummy at ${dummy.x},${dummy.y}`,
+        isStillFaint(drawn(SETTINGS, { x: probe.x, y: ink.y }), ink),
+        `${probe.grab} at ${probe.x},${ink.y}`,
       ).toBe(false)
     }
   })
@@ -378,13 +543,14 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
 
 describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
   // ⭐ THE ZOOM THAT USED TO BREAK IT. S-90 gives the plan endpoints a 6px grab
-  // slop and S-180 draws a dummy 12px wide, so once one day is narrow enough the
-  // two dummies of a task stand INSIDE the slop of GR-3 / GR-4. A drawing that
-  // asked which grab row had won would find the plan endpoint there and leave
-  // the dummy faint -- at exactly the magnifications a whole document is read
-  // at. ⚠️ FR-018's S-86 still has to admit the task, so the zoom is chosen to
-  // keep the shape wide enough to be drawn at all.
-  const LOW = settingsAt(0.25)
+  // slop, so once one day is narrow enough the two dummies of a task stand
+  // INSIDE the slop of GR-3 / GR-4. A drawing that asked which grab row had won
+  // would find the plan endpoint there and leave the dummy faint -- at exactly
+  // the magnifications a whole document is read at. ⚠️ FR-018's S-86 still has
+  // to admit the task, so the zoom is chosen to keep the shape wide enough to
+  // be drawn at all.
+  const ZOOM = 0.25
+  const LOW = settingsAt(ZOOM)
 
   it('draws the task at this zoom, or the case below would be asking about nothing', () => {
     const resting = drawn(LOW, null)
@@ -394,29 +560,49 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
   it('⭐ still leaves S-131 for the dummy under the pointer, with no won grab row handed over', () => {
     const resting = drawn(LOW, null)
 
-    for (const dummy of dummiesOf(resting)) {
+    for (const probe of probesAt(ZOOM)) {
+      const ink = dummyUnder(resting, probe)
       expect(
-        isStillFaint(drawn(LOW, { x: dummy.x, y: dummy.y }), dummy),
-        `the dummy at ${dummy.x},${dummy.y} at a low zoom`,
+        isStillFaint(drawn(LOW, { x: probe.x, y: ink.y }), ink),
+        `${probe.grab} at ${probe.x},${ink.y} at a low zoom`,
       ).toBe(false)
     }
   })
 
   it('⛔ and the dummies really do stand inside the plan endpoints\' slop at this zoom', () => {
     // ⚠️ Without this the case above would be green at any zoom at all, and the
-    // condition it means to reproduce would never have been built.
-    const layout = layoutFromSchedule(IDLE, LOW, regionsFromScreen(ENV, LOW))
-    const placed = layout.placements[0]
-    expect(placed, 'the task is drawn').toBeDefined()
-
-    const slop = 6 // S-90 -- 「予定の端点の掴み代 … 端点の左右に 6px」
-    for (const dummy of dummiesOf(drawn(LOW, null))) {
-      const toStart = Math.abs(dummy.x - (placed?.x as number))
-      const toFinish = Math.abs(dummy.x - ((placed?.x as number) + (placed?.width as number)))
+    // condition it means to reproduce would never have been built. ⭐ S-90 is
+    // read from the manuscript, not typed: 「端点の左右に 6px」.
+    const left = planStartOf(LOW)
+    const right = left + ((): number => {
+      const placed = layoutFromSchedule(IDLE, LOW, regionsFromScreen(ENV, LOW)).placements[0]
+      if (placed === undefined) throw new Error('the task is not drawn')
+      return placed.width
+    })()
+    for (const probe of probesAt(ZOOM)) {
+      const toStart = Math.abs(probe.dayLeft - left)
+      const toFinish = Math.abs(probe.dayLeft - right)
       expect(
         Math.min(toStart, toFinish),
-        'the dummy stands within S-90 of a plan endpoint',
-      ).toBeLessThanOrEqual(slop)
+        `${probe.grab} stands within S-90 of a plan endpoint`,
+      ).toBeLessThanOrEqual(PLAN_ENDPOINT_SLOP)
+    }
+  })
+
+  it('⭐ and one day really is the smaller of FR-043 s two numbers here', () => {
+    // ⛔ THE OTHER SIDE OF THE WIDTH RULE. At this magnification a day is
+    // narrower than `S-180`, so the ink is a day wide; the describe above runs
+    // at a magnification where it is not. A file that only ever ran one of the
+    // two would prove half of 「小さい方」.
+    expect(dayWidthAt(ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
+    const resting = drawn(LOW, null)
+    for (const probe of probesAt(ZOOM)) {
+      const ink = dummyUnder(resting, probe)
+      expect(ink.x1 - ink.x0, `${probe.grab}'s ink`).toBeCloseTo(dayWidthAt(ZOOM), 2)
+      expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
+        probe.dayLeft,
+        2,
+      )
     }
   })
 })

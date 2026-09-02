@@ -27,19 +27,24 @@
 //                  （暦に従う。`FR-054`）。⭐ 予定の開始日そのものには置かない
 //                  —— そこは `GR-3` が持つ」
 //   T-023d GR-17   「`GR-9` の日から `S-129` ぶん進んだ稼働日」
-//   FR-043         「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日 …
+//   FR-043         「ダミーを描く位置は、予定の開始日の翌稼働日とすること
 //                  （MUST）」 and ⛔ 「予定の開始日そのものに置いてはならない
 //                  （MUST NOT）」（利用者の指示 2026-08-27）
+//   FR-043         「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日 …
+//                  （MUST）」（利用者の裁定 2026-09-02）and ⛔ 「この 2 つを
+//                  同じ規則として読んではならない（MUST NOT）」
 //
 // ⭐ THE OFFSET IS A WORKING DAY AND THE MANUSCRIPT NOW SAYS SO (「暦に従う。
 // `FR-054`」), which is what the fixture was built on a Friday to tell apart --
 // `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are three days apart
 // there, and the cases below name both readings in their failure messages.
 //
-// ⚠️ THE WRITE FOLLOWED THE PICTURE ONLY ON 2026-09-02 (ledger D-182). Until
-// then `edit-task.ts` still put the actual start on the plan's own start day
-// while the geometry drew the handle a working day along, so the actual bar
-// came out one working day LEFT of the handle that placed it.
+// ⛔⛔ THE PICTURE AND THE VALUE ARE TWO RULES, AND FR-043 FORBIDS READING THEM
+// AS ONE (MUST NOT, 利用者の裁定 2026-09-02). 予定の開始日の翌稼働日 places the
+// dummy BEFORE it is grabbed; what is written when it is let go is 掴みシロを
+// 離した日. ⚠️ Reading them as one is ledger D-182: measured on the shipped
+// build 2026-09-02, a hold carried 3 days along and one carried 8 days along
+// wrote the same day, so pulling the hold meant nothing.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
@@ -300,6 +305,17 @@ const WORKED_DAY_AFTER_START = workedDaysAfter(PLAN_START, 1)
 
 /** The reading FR-043 rejects for the other handle: 「暦日で進めると非稼働日に置く」. */
 const CALENDAR_DAY_AFTER_START = dayAfter(PLAN_START)
+
+/**
+ * Where the hand let the grab-hold go -- FR-043's 掴みシロを離した日.
+ *
+ * ⛔ A SATURDAY ON PURPOSE, and it is the same day the DRAWING rule rejects.
+ * The closing rule of table T-023d forbids the dropped day being moved to a
+ * working one (MUST NOT) -- 「休日に働くことがあり、寄せると人が置いた日と違う
+ * 日が入る」 -- so a case that lets go here cannot pass while it is moved, and
+ * cannot pass while the day the dummy STANDS on is written instead.
+ */
+const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 
 /** GR-17: `S-129` worked days past GR-9's day, so the dummy is still that long. */
 const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
@@ -776,55 +792,65 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 // FR-043: the VALUE stands where the picture does
 // ===========================================================================
 
-describe('FR-043 (MUST): grabbing GR-9 places the working day after the plan start, S-129 and resumeValid', () => {
-  it('places the actual start on the working day after the plan start, where the dummy stands', () => {
-    // ⭐ THE ASSERTION D-56 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 予定の
-    // 開始日の翌稼働日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid`
-    // ＝ `true` とすること（MUST）」, and beside it ⛔ 「予定の開始日そのものに
-    // 置いてはならない（MUST NOT）—— そこには予定の開始点（表 T-023d の
-    // `GR-3`）が既に立っており、同じ点に 2 つの掴みシロが重なると…掴み分けら
-    // れない」. So the day the HANDLE is drawn on IS the day the VALUE takes,
-    // and the plan's own start day is the one answer the rule forbids.
-    // ⚠️ 翌稼働日 is counted through the calendar (FR-054), which is why
-    // `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are separate
-    // constants and the fixture starts on a Friday.
-    const task = taskIn(run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST }), UNDER_TEST)
-    expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 予定の開始日の翌稼働日').toEqual(
-      dayNamed(WORKED_DAY_AFTER_START),
+describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 and resumeValid', () => {
+  it('places the actual start on the day the hold was let go on, unmoved', () => {
+    // ⭐ THE ASSERTION D-182 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 掴みシロ
+    // を離した日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid` ＝
+    // `true` とすること（MUST）」（利用者の裁定 2026-09-02）, with ⛔ 「離した日
+    // を稼働日へ寄せてはならない（MUST NOT）」 under table T-023d and ⛔ 「この
+    // 2 つを同じ規則として読んではならない（MUST NOT）」 beside it.
+    // ⚠️ `DROPPED_DAY` IS A SATURDAY, so the two readings the rule forbids are
+    // each a different day from the answer: moving it to a working day gives
+    // `WORKED_DAY_AFTER_START`, and reading the drawing rule as the value gives
+    // the same. Neither can pass here.
+    const task = taskIn(
+      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      UNDER_TEST,
     )
+    expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日').toEqual(
+      dayNamed(DROPPED_DAY),
+    )
+    expect(dayOf(task.actualStart), 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
+      .not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
     expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): 予定の開始日そのものに置いてはならない')
       .not.toEqual(dayNamed(PLAN_START))
-    expect(dayOf(task.actualStart), 'FR-054: 暦日で進めると非稼働日に置くことになる')
-      .not.toEqual(dayNamed(CALENDAR_DAY_AFTER_START))
     expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
     expect(task.resumeValid).toBe(true)
   })
 
   it('places the same three values from GR-17, because one end is never decided alone', () => {
     // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
-    // を予定の開始日の翌稼働日で確定させること（MUST）—— 片端だけが決まった状態
-    // を作らない」. Both handles route to one placement, so the document cannot
-    // tell which was grabbed -- and neither can this case, which is the point.
+    // を … 確定させること（MUST）—— 片端だけが決まった状態を作らない」. Both
+    // handles route to one placement, so the document cannot tell which was
+    // grabbed -- and neither can this case, which is the point.
     const built = draw(notStarted())
     expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
-    const after = taskIn(run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST }), UNDER_TEST)
-    expect(dayOf(after.actualStart)).toEqual(dayNamed(WORKED_DAY_AFTER_START))
+    const after = taskIn(
+      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      UNDER_TEST,
+    )
+    expect(dayOf(after.actualStart)).toEqual(dayNamed(DROPPED_DAY))
     expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
   })
 
-  it('starts the actual bar where GR-9 is DRAWN, so the value and the picture name one day', () => {
-    // ⭐ THE HALF THAT WAS MISSING UNTIL 2026-09-02, and the reason D-182 was
-    // reported: the geometry already drew GR-9 on 翌稼働日 while the write put
-    // the actual on the plan's own start day, so the actual bar came out a
-    // working day to the LEFT of the handle that placed it. Asked as one
-    // question -- the day the picture uses and the day the value takes are the
-    // same day -- rather than as two numbers that could drift apart.
+  it('starts the actual bar where the hand let go, NOT where GR-9 is drawn', () => {
+    // ⛔⛔ THE TWO RULES ARE SEPARATE AND THIS IS WHERE THAT IS ASKED. Until
+    // 2026-09-02 the write took the day GR-9 is DRAWN on, so the actual bar came
+    // out in the same place wherever the hold was let go (ledger D-182). FR-043
+    // now forbids that reading outright (MUST NOT). Asked as a comparison of
+    // two x's rather than of two dates: the bar is drawn where the hand was, and
+    // the handle it came from is somewhere else.
     const drawnBefore = draw(notStarted())
     const handleX = dummyNamed(taskDrawn(drawnBefore), 'GR-9').at.x
-    const begun = run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST })
+    const begun = run(notStarted(), {
+      kind: 'beginTaskActual',
+      uid: UNDER_TEST,
+      droppedDay: stored(DROPPED_DAY),
+    })
     const actualStart = taskIn(begun, UNDER_TEST).actualStart
     expect(actualStart).not.toBeNull()
-    expect(xOfDay(drawnBefore, actualStart as string)).toBe(handleX)
+    expect(xOfDay(drawnBefore, actualStart as string)).toBe(xOfDay(drawnBefore, DROPPED_DAY))
+    expect(xOfDay(drawnBefore, actualStart as string)).not.toBe(handleX)
   })
 
   it('draws no dummy at all once an actual is recorded (FR-043 shows them while not started)', () => {
@@ -864,7 +890,13 @@ describe('table T-023d GR-18: a milestone keeps its one dummy on its figure', ()
   })
 
   it('places S-130 instead of S-129, because a point has no length (MUST)', () => {
-    const task = taskIn(run(milestone(), { kind: 'beginTaskActual', uid: UNDER_TEST }), UNDER_TEST)
+    // ⭐ AND IT KEEPS THE FIGURE'S OWN DAY, whatever day the hand let go on:
+    // FR-043 makes the milestone 例外 and sends its 「位置と当たり判定」 to
+    // GR-18, whose place is 「未着手のマイルストーンの図形の上」.
+    const task = taskIn(
+      run(milestone(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      UNDER_TEST,
+    )
     expect(dayOf(task.actualStart)).toEqual(dayNamed(MILESTONE_DAY))
     expect(task.actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
     expect(task.resumeValid).toBe(true)

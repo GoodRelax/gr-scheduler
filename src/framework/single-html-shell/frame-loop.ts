@@ -1158,12 +1158,14 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
  * over for one of those would say something untrue about the reason at hand;
  * it is also where the DICTIONARY lands when it is asked for a key it does not
  * hold, which is why a raiser may not reach for it out of convenience.
- * ⚠️ FOUR RAISERS REACH IT, and each one names the row that is owed in its
+ * ⚠️ THREE RAISERS REACH IT, and each one names the row that is owed in its
  * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」), a clipboard
- * write that would not go through, a form of table T-024 this build cannot yet
- * write (`UNWRITTEN_FORM_REASON`) and a rastering that failed
- * (`NOTICE_REASON_OF_RASTER_FAULT`, three next steps in one). ⛔ A fifth
- * raiser is a fifth reason to write those rows, not a fifth use of this one.
+ * write that would not go through, and a rastering that failed
+ * (`NOTICE_REASON_OF_RASTER_FAULT`, three next steps in one). ⛔ A fourth
+ * raiser is a fourth reason to write those rows, not a fourth use of this one.
+ * ⭐ THERE WERE FOUR UNTIL CR-325. A form of table T-024 this build cannot yet
+ * write now has a row of its own -- `RS-40` -- and `UNWRITTEN_FORM_REASON`
+ * carries it.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1201,6 +1203,7 @@ type NoticeReason =
   | 'RS-37'
   | 'RS-38'
   | 'RS-39'
+  | 'RS-40'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1251,6 +1254,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-37': 'NT-1',
   'RS-38': 'NT-1',
   'RS-39': 'NT-1',
+  'RS-40': 'NT-3a',
 }
 
 /**
@@ -1340,22 +1344,23 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
  * ない理由を通知すること」. `png` is now written; `svg` and `singleHtml` are
  * not, and this is what they say instead of nothing.
  *
- * ⛔ `RS-15` AND NOT A ROW OF ITS OWN, BECAUSE THE TABLE HOLDS NONE. FR-076
- * states that RS-15 is 「行の無い理由に落ち先を与える」 row and forbids carrying
- * a reason table T-233 does not hold (MUST NOT); no row of that table says 「こ
- * の形式は、この版では書き出せない」, and composing one here would be the second
- * store of translated strings FR-038 forbids.
- * ⚠️ ITS WORDS ARE NOT THE RIGHT ONES AND THAT IS THE COST OF THE FALLBACK.
- * RS-15 reads 「操作を終えられませんでした」 with 「もう一度行ってください」 as
- * its next step, and trying again will not help until the writer exists. ⭐ A
- * row of table T-233 for a form the build cannot yet write -- with a next step
- * that names another form -- is what is owed, and it is a change request, not a
- * line of this file.
+ * ⭐⭐ `RS-40` SINCE CR-325, AND THE ROW IS THIS SITUATION'S OWN. Table T-233
+ * now reads 「この形式は、このビルドではまだ書けない」 against 表 T-024, with
+ * `NT-3a` for its manner, and FR-038's dictionary holds its next step 「別の形
+ * 式を選んでください」 -- the step a person can actually take.
+ * ⛔ NOT `RS-15` ANY MORE. That row is FR-076's 「行の無い理由に落ち先を与える」
+ * landing place, and carrying it while a row exists is what that requirement
+ * forbids (MUST NOT). ⚠️ It also read 「操作を終えられませんでした」 with 「もう
+ * 一度行ってください」 as its next step, which was a lie: pressing `.svg` again
+ * writes nothing again, however many times it is pressed (the ledger's D-186).
+ * ⚠️ THE ROW OUTLIVES D-173. CR-325 keeps it after the `.svg` and single-`.html`
+ * writers are built, as the landing place for the next form that is offered
+ * before it can be written.
  * ⛔ AND NOT `RS-27`. FR-029 lands a press with nothing to act on there, and
  * this press HAS something to act on: the document is there and the form was
  * chosen; what is missing is in `src/`, not on the screen.
  */
-const UNWRITTEN_FORM_REASON: NoticeReason = 'RS-15'
+const UNWRITTEN_FORM_REASON: NoticeReason = 'RS-40'
 
 /**
  * The row of table T-233 each way a rastering can fail carries.
