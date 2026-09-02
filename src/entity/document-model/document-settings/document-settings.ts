@@ -149,7 +149,6 @@ export interface DocumentSettings {
   readonly thinStrokeMin: number
   readonly thinStrokeOfPlan: number
   readonly truncateUnits: number
-  readonly watermarkVisible: boolean
   readonly zoomX: number
   readonly zoomY: number
 }
@@ -274,7 +273,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'thinStrokeMin': 1.2,
   'thinStrokeOfPlan': 0.20,
   'truncateUnits': 48,
-  'watermarkVisible': true,
   'zoomX': 1,
   'zoomY': 1,
 }

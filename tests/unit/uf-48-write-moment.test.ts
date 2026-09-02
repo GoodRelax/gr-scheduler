@@ -878,11 +878,21 @@ const DEFAULT_OF = new Map(
 )
 
 /**
- * The nine keys table T-202 gives a boolean type, spelled out.
+ * The eight keys table T-202 gives a boolean type, spelled out.
  *
- * ⚠️ `watermarkVisible` is `S-144`, the row table T-202 gained on 2026-08-25.
- * Its entrance is `IC-41` of table T-109, and it is a boolean like the other
- * eight, so `FR-049`'s MUST reaches it: this list is the copy that says so.
+ * ⛔⛔ `watermarkVisible` (`S-144`) IS NOT ONE OF THEM, AND THAT IS THE POINT.
+ * It joined table T-202 on 2026-08-25 and LEFT IT on 2026-09-02 for table T-206
+ * (保存しないもの), by the user's ruling. Two things follow, and this list is the
+ * copy that says both:
+ *   ⭐ `FR-049`'s MUST no longer reaches it. That requirement names 「表 T-202 の
+ *     うち型が真偽である行」, so a row that leaves the table leaves the toggle --
+ *     which is wanted, because `FR-020` puts a password gate on hiding the
+ *     watermark and a plain toggle would walk straight past it.
+ *   ⭐ It is no longer written into the document. `FR-020`'s STATEMENT forbids
+ *     saving a watermark setting, and until that day it sat in the GRS JSON
+ *     schema's `documentSettings` all the same.
+ * ⚠️ So a future edit that puts it back here is not a bookkeeping slip: it would
+ * hand the gate's own subject to `FR-049` and to the saved document at once.
  */
 const EXPECTED_BOOLEAN_KEYS = [
   'assigneeVisible',
@@ -893,7 +903,6 @@ const EXPECTED_BOOLEAN_KEYS = [
   'dateGridLinesVisible',
   'groupGridLinesVisible',
   'baselineVisible',
-  'watermarkVisible',
 ]
 
 /** S-59's three values, read out of its type cell. */
@@ -1201,14 +1210,16 @@ describe('the tables these twelve entrances are driven by', () => {
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
-  it('table T-202 gives exactly nine of its fourteen rows a boolean type', () => {
+  it('table T-202 gives exactly eight of its thirteen rows a boolean type', () => {
     // FR-049 (MUST): the set the requirement names is this one, so a row added
     // or retyped upstream has to reach this file. `S-144` (`watermarkVisible`)
-    // is the row that arrived on 2026-08-25, taking the booleans 8 -> 9 and the
-    // table 13 -> 14; the five that are not booleans are S-58, S-59, S-65,
-    // S-66 and S-70.
+    // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
+    // and LEFT on 2026-09-02 for table T-206, taking both back down -- see the
+    // note over EXPECTED_BOOLEAN_KEYS for why that is the point rather than an
+    // accident. The five that are not booleans are S-58, S-59, S-65, S-66 and
+    // S-70.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(14)
+    expect(T_202_KEYS.length).toBe(13)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {
