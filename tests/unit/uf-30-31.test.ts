@@ -141,11 +141,17 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * ときだけである。」 So this roster needs no case of its own for those two rows.
  * WHICH row a plain press lands on is `itemAtPointer`'s answer (UF-7), not this
  * unit's; the cases for it are in `t-023d-double-click-only-rows.test.ts`.
+ *
+ * ⛔ AND IT HAD GONE STALE. `GR-20`（行見出しパネルの行）joined the table on
+ * 2026-08-30 and never reached this copy, so the walk below stepped over a row
+ * of the specification while a hand-written count went on saying 19. A case
+ * beneath the roster now compares it with the printed order at run time, so the
+ * copy Chapter 1.9 (:275) asks for cannot fall behind the table again.
  */
 const T_023D = [
   'GR-19',
   'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-9', 'GR-17',
-  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-16',
+  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-20', 'GR-16',
 ] as const
 
 /** 表 T-028 -- the input manners (FR-040). */
@@ -384,6 +390,27 @@ const RICH_SCHEDULE = scheduleOf({
   ],
 })
 
+/**
+ * The same schedule with the Task under test drawn as a MILESTONE.
+ *
+ * ⭐ FR-043 (MUST NOT, 利用者の裁定 2026-09-02): 「位置は例外ではない …… ダミーは
+ * **形状を問わず**予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. Until
+ * that day a milestone kept its figure's own day whatever day the hand let go
+ * on, so 「形状を問わず」 has to be asked of a real milestone -- a release on
+ * GR-18 over a rectangle would pass under either reading.
+ */
+const MILESTONE_SCHEDULE = scheduleOf({
+  ...(SCHEDULE as unknown as Record<string, unknown>),
+  tasks: [
+    taskOf({
+      ...(TASK_1 as unknown as Record<string, unknown>),
+      finish: '2026-01-05',
+      milestone: true,
+    }),
+    TASK_2,
+  ],
+})
+
 /** ADR-001 has the shell compute these once a frame and hand them round. */
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
@@ -391,6 +418,15 @@ const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySe
 
 const RICH_LAYOUT = layoutFromSchedule(RICH_SCHEDULE, SETTINGS, REGIONS)
 const RICH_GEOMETRY = geometryFromLayout(RICH_SCHEDULE, SETTINGS, RICH_LAYOUT, REGIONS, emptySelection())
+
+const MILESTONE_LAYOUT = layoutFromSchedule(MILESTONE_SCHEDULE, SETTINGS, REGIONS)
+const MILESTONE_GEOMETRY = geometryFromLayout(
+  MILESTONE_SCHEDULE,
+  SETTINGS,
+  MILESTONE_LAYOUT,
+  REGIONS,
+  emptySelection(),
+)
 
 const documentOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): Document =>
   ({
@@ -625,16 +661,25 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_023B).toHaveLength(6)
     expect(T_023).toHaveLength(14)
     expect(T_023C).toHaveLength(10)
-    expect(T_023D).toHaveLength(19)
+    expect(T_023D).toHaveLength(20)
     expect(T_028).toHaveLength(8)
     expect(T_036).toHaveLength(22)
     expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
-    expect(new Set(T_023D).size).toBe(19)
+    expect(new Set(T_023D).size).toBe(20)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     expect(SL_1_KINDS).toHaveLength(5)
     expect(IN_4_LEVELS).toHaveLength(4)
     expect(T_027_HERE).toHaveLength(4)
+  })
+
+  it('copies 表 T-023d in the order the manuscript still prints it (MUST)', () => {
+    // 「上の行ほど優先すること（MUST）」. ⚠️ The roster above is the fixed copy
+    // Chapter 1.9 (:275) asks a table-driven test to be built on; this case is
+    // what keeps the copy honest. ⛔ It had already drifted once: GR-20 joined
+    // the table on 2026-08-30 and the copy went on saying 19 rows, so a row of
+    // the specification was never walked and nothing said so.
+    expect([...T_023D]).toEqual(specTable('T-023d').rows.map((row) => row.id))
   })
 
   it('draws a schedule the coordinates can be read from', () => {
@@ -2189,6 +2234,41 @@ describe('表 T-023d -- what a grab does', () => {
       // partner's own type), so the comparison is of the day, not the text.
       expect(String(asked['droppedDay']).slice(0, 10), row).toBe(releasedOn)
     }
+  })
+
+  it('⛔ GR-18 (FR-043, MUST NOT): a MILESTONE is no exception -- the released day travels too', () => {
+    // ⛔⛔ FR-043 (利用者の裁定 2026-09-02): 「⚠️ マイルストーンの例外は 2 つだけ
+    // である …… ⛔⛔ **位置は例外ではない（MUST NOT）** …… ダミーは形状を問わず
+    // 予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. Until CR-332 a
+    // milestone wrote its figure's own day whatever day the hand let go on, so
+    // this case asks the release of a Task that really is one -- the row above
+    // presses GR-18 over a rectangle, where both readings agree.
+    // ⛔ WHAT IS NOT CLAIMED HERE: `S-130`. This unit answers WHICH command a
+    // release asks for; the actual period the command places is the use case's,
+    // and t-023d-dummy-stands-clear-of-the-plan-start.test.ts holds it.
+    const milestoneFrame: Partial<InputContext> = {
+      document: documentOf(MILESTONE_SCHEDULE),
+      layout: MILESTONE_LAYOUT,
+      geometry: MILESTONE_GEOMETRY,
+    }
+    // ⚠️ A PREMISE: the day axis is the same one `xOfDay` reads, so the day the
+    // pointer is let go on is the day this case names.
+    expect(MILESTONE_LAYOUT.originX).toBeCloseTo(LAYOUT.originX, 6)
+    expect(MILESTONE_LAYOUT.pxPerDay).toBeCloseTo(LAYOUT.pxPerDay, 6)
+
+    const releasedOn = '2026-01-13'
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
+      pointerOf('up', xOfDay(releasedOn), midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-18'),
+      milestoneFrame,
+    )
+    const commands = commandsOf(answer)
+    expect(commands).toHaveLength(1)
+    const asked = commands[0] as Record<string, unknown>
+    expect(asked['kind']).toBe('beginTaskActual')
+    expect(asked['uid']).toBe(1)
+    expect(String(asked['droppedDay']).slice(0, 10)).toBe(releasedOn)
   })
 
   // FINDING (left failing). The unit answers nothing for GR-1 and GR-2, and

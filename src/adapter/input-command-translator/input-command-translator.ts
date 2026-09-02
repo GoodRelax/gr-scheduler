@@ -368,7 +368,7 @@ export interface InputContext {
   readonly layout: ScheduleLayout
   readonly geometry: ScheduleGeometry
   readonly regions: ScreenRegions
-  /** S-99e / S-99f / S-99g and what is armed (table T-023b). */
+  /** S-99e / S-99f / S-99g / S-144 and what is armed (table T-023b). */
   readonly screenState: ScreenState
   /** UN-9 keeps this out of the document, so it travels beside it. */
   readonly selection: Selection
@@ -815,6 +815,21 @@ export type SpentEntranceSituation =
    * `rowGrabPositionOf`.
    */
   | 'noPlaceLeftInThatDirection'
+  /**
+   * FR-019 (AR-5 / AR-6): the vertical position an annotation was to be placed
+   * at points at no `TaskGroup`, so there is no row identifier to hold its
+   * position by.
+   *
+   * ⭐ THE NAME IS RS-44's OWN 場面 -- 「注記を置こうとした所に、指す行が無い」
+   * -- and that row's 正 is FR-019, which gained the ruling this member serves
+   * on 2026-09-02: 「指す `TaskGroup` が無い縦位置で注記を置こうとしたときは、
+   * 作らずに理由を告げること（MUST）」.
+   * ⛔ NOT AN ENTRANCE OF TABLE T-109 LIKE THE TEN ABOVE, AND THAT IS THE ROW'S
+   * DOING. FR-029 is the 作法 FR-019 names, and 表 T-233 is keyed on 場面 rather
+   * than on entrances -- so a press on the schedule with a palette arm standing
+   * owes the same telling a pressed entrance does.
+   */
+  | 'noRowToPutTheAnnotationOn'
 
 /**
  * What one happening is assigned to.
@@ -1539,7 +1554,10 @@ const EXPORT_CHOOSER = 'Export Chooser'
  * `ScreenState.surface` (S-99g) carries and what `open-modals.ts` keys its own
  * branch on. ⚠️ FR-020 (MUST) names S-99g for it in as many words, which is what
  * puts it on IN-4's surface rung -- and ⛔ (MUST NOT) closing it there may not
- * hide the watermark, which is kept by this side writing no command at all.
+ * hide the watermark, which is kept by this side leaving S-144 alone.
+ * ⛔ RAISED ON ONE OF IC-41's TWO DIRECTIONS ONLY, which is FR-020's gate
+ * standing on the hiding side alone: `screenStateFromEntry` reads S-144 first
+ * and puts the watermark back without this surface when it is already hidden.
  */
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
@@ -2355,30 +2373,39 @@ const ENTRY = {
   percentCompleteVisible: 'IC-80',
   dependencyVisible: 'IC-81',
   /**
-   * IC-41 -- FR-020's way to HIDE the watermark, and the entrance that raises
-   * U-60 `Watermark Unlock` (利用者の裁定 2026-08-31, CR-329).
+   * IC-41 -- FR-020's ONE entrance to the watermark, which since 2026-09-02
+   * (利用者の裁定, CR-335) carries both directions: showing, a press raises
+   * U-60 `Watermark Unlock`; hidden, a press puts the watermark back and asks
+   * nothing.
    *
-   * ⛔⛔ NOT ONE OF FR-049's TOGGLES, ALTHOUGH `watermarkVisible` IS A BOOLEAN
-   * ROW OF TABLE T-202. FR-020 (MUST NOT) forbids the symmetric reading in as
-   * many words -- 「対称な切り替えにしてはならない …… 切り替えは 2 つの向きを
-   * 見分けられないので、消す側の門をすり抜ける」 -- because the gate stands on
-   * the HIDING side alone and putting the watermark back is never asked (MUST).
-   * ⇒ It is absent from `VISIBLE_ELEMENT_BY_ENTRY` on purpose, and that map's
-   * own note says so.
-   * ⭐ THE PRESS WRITES NOTHING AT ALL. What it does is raise a surface, which
-   * is `screenStateFromEntry`'s member and S-99g's value -- so this entry falls
-   * through `commandFromEntry` to `commandFromArmingEntry`, which answers
+   * ⛔⛔ NOT ONE OF FR-049's TOGGLES, AND NOT BECAUSE OF THE DIRECTIONS. FR-049
+   * takes the boolean rows of table T-202 and `watermarkVisible` (S-144) is not
+   * one of them any more -- the row moved to table T-206 that same day -- so it
+   * is absent from `VISIBLE_ELEMENT_BY_ENTRY` by the table it stands in, and
+   * that map's own note says so.
+   * ⛔ 「対称な切り替えにしてはならない（MUST NOT）」 IS STILL THE ROW, AND THIS
+   * KEEPS IT. What FR-020 forbids is treating the two directions ALIKE, which a
+   * toggle does -- 「切り替えは 2 つの向きを見分けられないので、消す側の門をすり
+   * 抜ける」. Here the gate stands on the hiding side alone and the way back is
+   * ungated, so the two directions are told apart. ⭐ One entrance doing both is
+   * required by the same requirement (MUST), because FR-029 (MUST NOT) forbids
+   * a second entrance for one function -- IC-75's minimise-and-restore is the
+   * precedent the row names.
+   * ⭐ THE PRESS WRITES NO DOCUMENT COMMAND EITHER WAY. Both directions are
+   * `screenStateFromEntry`'s answer, so this entry falls through
+   * `commandFromEntry` to `commandFromArmingEntry`, which answers
    * `CONSUMED_ELSEWHERE`: still this tool's press (MK-10), and no edit.
+   * ⛔ ONLY THE HIDING DIRECTION IS WRITTEN TODAY. The STOP at
+   * `screenStateFromEntry`'s arm for this entry names the row that is missing.
    *
    * @provisional PD-418 -- ⛔ THE HALF THAT RULING DID NOT REACH. CR-329 settled
    * what a PRESS on this row does; PD-418 also asks whether EN-2 of table T-237
-   * (「機能が ON なら塗る」) paints this entrance while `watermarkVisible` is
-   * true, because table T-202 names IC-41 as that row's entrance while table
-   * T-109 words IC-41 one way only. ⭐ Nothing here paints anything -- the
-   * pressed state is UF-65's -- and no reading of EN-2 is taken: the row stays
-   * open, and the entrance is drawn as the palette drew it before.
+   * (「機能が ON なら塗る」) paints this entrance while the watermark is showing.
+   * ⭐ Nothing here paints anything -- the pressed state is UF-65's -- and no
+   * reading of EN-2 is taken: the row stays open, and the entrance is drawn as
+   * the palette drew it before.
    */
-  hideWatermark: 'IC-41',
+  watermark: 'IC-41',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
   /**
@@ -2649,18 +2676,20 @@ const ENTRY = {
  * the rows of table T-202 whose type is boolean and (MUST NOT) forbids
  * treating every row of that table as one; `VisibleElement` is what those rows are called, and
  * table T-109 draws an entrance for only some of them. ⛔ NO COUNT IS WRITTEN
- * HERE: FR-049 states none, table T-202 has grown a boolean row since this note
- * first named a number, and the number went stale in the same breath.
+ * HERE: FR-049 states none, table T-202 has gained and lost a boolean row since
+ * this note first named a number, and the number went stale in the same breath.
  * The rows with no entrance are left alone rather than given one, the way
  * `commandFromRowEntry` leaves table T-015's entrance-less operations alone.
  *
- * ⛔⛔ IC-41 IS OUT OF THIS MAP BY A RULING AND NO LONGER BY A DOUBT
- * (利用者の裁定 2026-08-31, CR-329; PD-418 stood here until then). FR-020 now
- * (MUST NOT) refuses it the symmetric reading outright -- 「対称な切り替えにして
- * はならない …… 切り替えは 2 つの向きを見分けられないので、消す側の門をすり抜け
- * る」 -- and (MUST) has the press raise U-60 `Watermark Unlock` instead, which
- * `screenStateFromEntry` answers. ⇒ The row is not a toggle and may not become
- * one; `ENTRY.hideWatermark` carries the whole of what it is.
+ * ⛔⛔ IC-41 IS OUT OF THIS MAP, AND SINCE 2026-09-02 THE PLAINEST REASON IS
+ * THAT ITS ROW LEFT TABLE T-202 (利用者の裁定, CR-335): `S-144` stands in table
+ * T-206 now, so FR-049 -- which reads that FIRST table -- cannot reach it at
+ * all. ⭐ The older reason still holds and is the one that matters if the row
+ * ever moves back: FR-020 (MUST NOT) refuses it the symmetric reading outright
+ * -- 「対称な切り替えにしてはならない …… 切り替えは 2 つの向きを見分けられない
+ * ので、消す側の門をすり抜ける」 -- because a toggle cannot tell the gated
+ * direction from the ungated one. ⇒ The row is not a toggle and may not become
+ * one; `ENTRY.watermark` carries the whole of what it is.
  *
  * ⚠️ IC-4 IS ON THE HEADER AND THE REST ON THE PALETTE, which is why they are
  * one map and not two: what a press does is the same rule for all of them, and
@@ -6720,22 +6749,24 @@ function commandFromArmed(
     // sizes the body from its own text, so the length of the drag says nothing.
     // ⭐ The same end FR-001 reads for its row, one branch above.
     //
-    // ⛔ STOP -- NOTHING PLACES A BOX WHERE THE PRESS POINTS AT NO ROW, and the
-    // specification decides no answer for it. PD-4 does say 構えているものを作る
-    // on ground that hit nothing, and ground below the last row is such ground.
-    // But FR-019 (MUST) holds the position by a ROW IDENTIFIER, RL-18 of
-    // `_assets/fig-erd-detail.md` points `anchorGroupId` at a `TaskGroup`, and
-    // `commentGeometry` draws no box whose row the layout does not hold -- so a
-    // box placed with no row would be a value in the document with nothing on
-    // the screen to reach it by. ⛔ FR-001's own answer to this situation
-    // (「指す `TaskGroup` が無いときは行を 1 つ作って」) IS NOT AVAILABLE HERE and
-    // must not be borrowed: that MUST is stated for the Task it also places, and
-    // it goes on to make that Task the new row's 導出元 -- a row made for an
-    // annotation would carry neither a name nor a 導出元, which AT-54 and FR-058
-    // forbid outright. ⇒ MISSING ROW: FR-019 states no counterpart, and table
-    // T-233 holds no reason for a placement refused this way either. Reported
-    // rather than decided here.
-    if (row === null) return CONSUMED_ELSEWHERE
+    // ⛔⛔ NO ROW UNDER THE PRESS: REFUSED, AND TOLD WHY (FR-019, MUST, 利用者の
+    // 裁定 2026-09-02). 「指す `TaskGroup` が無い縦位置で注記を置こうとしたとき
+    // は、作らずに理由を告げること」, 「作法は `FR-029` に従い、理由は 表 T-233 の
+    // `RS-44` とする」.
+    // ⛔ SILENCE IS THE OTHER MUST NOT: 「黙って作らずに済ませてはならない」 --
+    // FR-029 requires the reason 「押されたときに限り」, and a press that does
+    // nothing and says nothing cannot be told from a broken entrance. ⚠️ That is
+    // what stood here until this ruling: `CONSUMED_ELSEWHERE`, which keeps the
+    // browser out from under the press and carries no reason to anyone.
+    // ⛔⛔ MINTING A ROW IS FORBIDDEN BY NAME: 「行を 1 つ作って載せてはならない」.
+    // FR-001's own answer to this situation (「指す `TaskGroup` が無いときは行を
+    // 1 つ作って」) may NOT be borrowed -- that MUST is stated for the `Task` it
+    // also places, and it goes on to make that Task the new row's 導出元; a row
+    // minted for an annotation would carry neither a name nor a 導出元, which
+    // AT-54 of `_assets/fig-erd-detail.md` and FR-058 forbid outright.
+    // ⭐ WHY THE TWO DIFFER IS THE REQUIREMENT'S OWN WORDS: 「`Task` は自分が新し
+    // い行の導出元になれるが、注記はなれない」.
+    if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
     return changed([
       {
         kind: 'createCommentBox',
@@ -6745,14 +6776,39 @@ function commandFromArmed(
     ])
   }
 
-  // STOP -- ⛔ AR-6 CANNOT BE WRITTEN. `createHighlightBox` (CM-52) wants a
-  // `HighlightRange` of four columns -- two days and two ROW identifiers -- and
-  // a drag that begins and ends on the same row names one row for both edges,
-  // which no row of the specification says is what UC-008 extension 4a asks
-  // for. ⚠️ `rangeRefusals` in `edit-annotation.ts` states the other half of the
-  // same gap: whether the left edge may lie after the right one, and the top row
-  // below the bottom one, is decided nowhere. Searched: FR-019, UC-008,
-  // table T-108 CM-52, table T-220.
+  if (armed.kind === 'highlightBox') {
+    // ⭐ THE HALF FR-019's RULING DID CLOSE, and it closes for AR-6 exactly as
+    // it does for AR-5 one branch above: that requirement speaks of 「コメント
+    // ボックスまたはハイライトボックス」 and its 2026-09-02 clause of 「注記」,
+    // so a press whose row is missing is refused with RS-44 here too rather
+    // than passing in silence (FR-029, MUST).
+    // ⛔ READ AT THE PRESS, LIKE EVERY OTHER ROW THIS MEMBER TAKES. Table T-023a
+    // is 「ポインタを押したときの判定順序」 and PD-4 is a row of it.
+    if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
+
+    // STOP -- ⛔ AR-6 STILL CANNOT BE CREATED, AND THE RULING OF 2026-09-02 IS
+    // NOT THE ROW THAT WOULD LET IT. `createHighlightBox` (CM-52) wants a
+    // `HighlightRange` of four columns -- AT-117 / AT-118 (the 左端 and 右端
+    // days) and AT-119 / AT-120 (the 上端 and 下端 rows) -- and TWO questions
+    // about that range have no row anywhere:
+    //   ① a drag that begins and ends on the same row names one row for both
+    //      edges. FR-001 needed a sentence of its own to say what a drag of no
+    //      length makes (「開始日と終了日が同じタスクを作ること」); FR-019 has
+    //      no counterpart, so the degenerate range is undecided rather than
+    //      allowed.
+    //   ② whether the left edge may lie after the right one, and the top row
+    //      below the bottom one -- so whether an upward or leftward drag is
+    //      refused, or swapped into order. IV-10 of table T-220 puts that rule
+    //      on a `Task`'s `start` / `finish` and that table carries no row for a
+    //      highlight box's span. ⚠️ `rangeRefusals` in `edit-annotation.ts`
+    //      states the same gap from the writing side, and neither refuses nor
+    //      swaps for that reason.
+    // ⇒ Reported and not decided here. Searched: FR-019, UC-008 手順 3-4 and
+    // 拡張 4a, table T-108 CM-52, table T-220, `_assets/fig-erd-detail.md`
+    // AT-116..AT-122.
+    return CONSUMED_ELSEWHERE
+  }
+
   return CONSUMED_ELSEWHERE
 }
 
@@ -7170,20 +7226,47 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     case ENTRY.resourceRoster:
       return screenStateWithSurface(state, RESOURCE_ROSTER)
     // IC-41 -- FR-020 (MUST): 「透かしを消す入口（表 T-109 の `IC-41`）が押された
-    // とき、透かし解除の面（…… 表 T-103 の `U-60`）を立てること」.
+    // とき、透かし解除の面（…… 表 T-103 の `U-60`）を立てること」, and (MUST)
+    // 「同じ入口が両方向を担うこと …… 出ているときは押すと面が立ち、消えていると
+    // きは押すと問わずに戻す」 (利用者の裁定 2026-09-02, CR-335).
     //
-    // ⛔⛔ THIS IS THE WHOLE OF WHAT THE PRESS DOES ON THIS SIDE, AND THAT IS
-    // THE REQUIREMENT AND NOT A SHORTCUT. The same requirement (MUST) turns
-    // `watermarkVisible` false 「合ったときにだけ」 -- only on a match -- and the
-    // match is a SHA-256 comparison against something a person typed, which no
-    // pure member can either read or compute (LR-6, and CS-1 of table T-066).
-    // ⇒ The write belongs to the side that asked, and `frame-loop.ts` carries
-    // it.
+    // ⛔ THE GATE STANDS ON THE HIDING SIDE ALONE, WHICH IS WHY THE TWO ARMS
+    // ARE NOT ONE. 「透かしを出し直す側は問わないこと（MUST）」 -- so the way
+    // back is to write S-144 and ask nothing, while the way out writes nothing
+    // and only raises the surface. ⚠️ THAT IS NOT THE SYMMETRIC TOGGLE FR-020
+    // (MUST NOT) forbids: what that row refuses is treating both directions
+    // ALIKE, 「切り替えは 2 つの向きを見分けられないので、消す側の門をすり抜け
+    // る」, and telling the direction apart before acting is what it asks for.
+    //
+    // ⛔⛔ THE HIDING HALF IS NOT COMPLETED HERE, AND THAT IS THE REQUIREMENT
+    // AND NOT A SHORTCUT. The same requirement (MUST) turns the watermark off
+    // 「合ったときにだけ」 -- only on a match -- and the match is a SHA-256
+    // comparison against something a person typed, which no pure member can
+    // either read or compute (LR-6, and CS-1 of table T-066). ⇒ That write
+    // belongs to the side that asked, and `frame-loop.ts` carries it.
     // ⚠️ 台帳 D-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
     // arrived, `on.entry` said `IC-41`, and every member answered with the
     // state untouched -- so the DOM did not change by one byte and FR-029
     // (MUST) went unkept as well, for want of anything to say.
-    case ENTRY.hideWatermark:
+    //
+    // ⛔⛔ STOP -- THE WAY BACK IS MEASURED HERE AND NOT WRITTEN, AND THE ROW
+    // THAT IS MISSING IS TABLE T-064's. Putting the watermark back means
+    // writing `S-144` into `ScreenState`, whose only writer is
+    // `screenStateWithWatermark` in `entity/document-model/screen-state`; that
+    // name has to cross a component folder to be called from here, and Chapter
+    // 5.3 (MUST NOT) lets nothing cross that table does not publish. `PI-36`
+    // names `emptyScreenState`, `screenStateWithArmed`, `screenStateWithSurface`
+    // (S-99g), `screenStateWithPalette` (S-99e), `screenStateWithFullScreen`
+    // (S-99f) and `escapeTarget` -- and no member for S-144, which CR-335 did
+    // not reach. ⚠️ Check 26b measures exactly this and refuses the import.
+    // ⇒ Reported rather than smuggled: an object literal written here instead of
+    // the call would put a second writer of the same value in a second
+    // component, which is rule 03 section 1, and would hide the gap from the
+    // one check that can see it.
+    // ⭐ THE HIDING HALF IS BLOCKED BY THE SAME MISSING ROW, and by one more of
+    // its own -- see the note under `matchWatermarkUnlock` in `frame-loop.ts`,
+    // which still plans `setElementVisible` for a row that left table T-202.
+    case ENTRY.watermark:
       return screenStateWithSurface(state, WATERMARK_UNLOCK)
     // IC-2 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
     // and U-54 is the name table T-103 settled for what it opens.

@@ -861,33 +861,19 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
       }
       //
-      // ⭐ A MILESTONE KEEPS THE PLAN DAY, and FR-043 is what makes it 例外: it
-      // sends the milestone's 「位置と当たり判定」 to GR-18, whose place is
-      // 「未着手のマイルストーンの図形の上」 -- the plan day itself -- while
-      // GR-9's place is a day along from it. ⚠️ Measured on the shipped build
-      // 2026-09-02: a milestone wrote the plan day at +3 and at +8 alike, and
-      // that is the answer its own row asks for. The ledger note claiming a
-      // milestone honoured the drop was false.
-      //
-      // ⚠️ THE MILESTONE'S DAY IS COPIED AS TEXT rather than rebuilt through
-      // `textOfDay`: the two columns then name the same day whatever form it
-      // arrived in -- GRS reads the lexical date part and no time (FR-054). The
-      // other arm names a day GRS itself chose, so it is spelled as GRS spells
-      // one.
-      //
-      // ⛔ A MILESTONE WITHOUT A PLANNED START HAS NO DAY TO KEEP, so it is
-      // refused rather than written empty -- an empty `actualStart` leaves the
-      // task 未着手 (PS-1 of table T-019a) and the edit would report success
-      // while changing nothing. ⚠️ THE WORDING AVOIDS "count from" ON PURPOSE:
-      // `check_layer_rules.py` counts a `from` followed straight by a quote as
-      // an import specifier, and a message ending in one makes this file read
-      // as short of an edge.
-      if (isDrawnAsMilestone && task.start === null) {
-        return refused([reject('CM-14', 'FR-043', 'the milestone has no planned start')])
-      }
+      // ⛔ THE SHAPE DOES NOT CHANGE THE DAY (FR-043 MUST NOT, 利用者の裁定
+      // 2026-09-02): 「ダミーは形状を問わず予定の開始日の翌稼働日に立ち、離した日
+      // が実績開始になる」. ⚠️ A milestone used to keep the plan day here, and the
+      // ground for it was that GR-18 stood 「未着手のマイルストーンの図形の上」 --
+      // ON the figure, where there is no GR-3 to be told apart from. GR-18 has
+      // since been moved to GR-9's own place, so the ground is gone and the
+      // milestone writes what the hand chose like every other shape.
+      // ⭐ WHAT STAYS AN EXCEPTION IS THE SPAN ALONE (`duration` above, S-130),
+      // and the ONE point FR-043 draws in place of a pair -- neither of which
+      // is a day.
       const begun: Task = {
         ...task,
-        actualStart: isDrawnAsMilestone ? task.start : textOfDay(dropped.day),
+        actualStart: textOfDay(dropped.day),
         actualDuration: duration,
         resumeValid: true,
       }

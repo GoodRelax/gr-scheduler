@@ -34,6 +34,29 @@
 //                  （MUST）」（利用者の裁定 2026-09-02）and ⛔ 「この 2 つを
 //                  同じ規則として読んではならない（MUST NOT）」
 //
+// ---------------------------------------------------------------------------
+// ⭐ 2026-09-02: THE DUMMY LEFT THE MILESTONE'S FIGURE (CR-332)
+// ---------------------------------------------------------------------------
+//
+// Table T-023d's GR-18 read 「未着手のマイルストーンの図形の上」 until that day.
+// It now reads 「**予定の開始日の翌稼働日**（暦に従う。`FR-054`）。⭐⭐ `GR-9` と
+// 同じ場所である」（利用者の裁定「マイルストーンは中心が配置する場所。ただし、
+// 実績のダミーは翌日」）, and FR-043 adds ⛔⛔ 「位置は例外ではない（MUST NOT）
+// …… ダミーは形状を問わず予定の開始日の翌稼働日に立ち、離した日が実績開始に
+// なる」.
+//
+// ⭐ THE FIGURE DID NOT MOVE. 表 T-221 の `LF-10` still centres the shape on
+// 「`start` の位置」, and FR-043 says so in as many words: 「動いたのはダミーで
+// あって図形ではない」. So the two are now at DIFFERENT x, and the milestone
+// cases below assert exactly that -- a milestone whose dummy still stands on its
+// figure is the state the ruling took away.
+//
+// ⛔ AND THE DROPPED DAY IS NO LONGER A MILESTONE EXCEPTION. A case added to
+// this file on the morning of 2026-09-02 asserted 「マイルストーンは落とした日を
+// 無視する」 -- the branch `D-182` put in on the reasoning that the dummy stood on
+// the figure and had no `GR-3` to collide with. CR-332 withdrew that reasoning
+// with the place it rested on. What is left is the two claims FR-043 now names.
+//
 // ⭐ THE OFFSET IS A WORKING DAY AND THE MANUSCRIPT NOW SAYS SO (「暦に従う。
 // `FR-054`」), which is what the fixture was built on a Friday to tell apart --
 // `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are three days apart
@@ -65,11 +88,16 @@
 //           table: 「`GR-9` はタスク全体ではなく `S-93` の大きさに限ること
 //           （MUST）—— タスクの上を丸ごと占めると、未着手のタスクで `GR-12` に
 //           手が届かなくなる」
-//   FR-043  「掴んで置く値は、実績開始日 ＝ 予定の開始日の翌稼働日、実績期間
+//   FR-043  「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日、実績期間
 //           （`actualDuration`）＝ `S-129`、`resumeValid` ＝ `true` とすること
-//           （MUST）」, its ⛔ 「予定の開始日そのものに置いてはならない
-//           （MUST NOT）」, and its milestone exception, 「ダミーは点として 1 つ
-//           だけ出し、実績期間は `S-130` とすること（MUST）」
+//           （MUST）」（利用者の裁定 2026-09-02）, its ⛔ 「予定の開始日そのもの
+//           に置いてはならない（MUST NOT）」 -- which is written of the DRAWING --
+//           and its milestone exception, which since 2026-09-02 is TWO claims
+//           and no more: 「ダミーは点として 1 つだけ出すこと（MUST）。実績期間は
+//           `S-130` とすること（MUST）」, with ⛔⛔ 「位置は例外ではない
+//           （MUST NOT）」 beside them
+//   T-221   LF-10, which centres a milestone's FIGURE on 「`start` の位置」 --
+//           the row that did NOT move on 2026-09-02
 //   FR-054  the one document calendar every day count goes through
 //   T-209   S-106 「稼働する曜日 | 月・火・水・木・金」, S-107 「例外日 | 無し」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
@@ -94,6 +122,13 @@
 //   * The drawn width of the dummy (`S-180`) and its opacity (`S-131`).
 //     tests/unit/fr-043-dummy-drawn.test.ts owns both, and nothing here repeats
 //     a case of that file.
+//   * WHERE THE HIT BOX BEGINS -- 「その日の列の左端を起点に、右へ `S-93` の幅で
+//     取ること（MUST）」 and ⛔ 「起点を中心にしてはならない（MUST NOT）」, the
+//     closing rule table T-023d gained on 2026-09-02.
+//     tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts owns it. The
+//     cases below press a dummy at its own point and ask WHICH row answers;
+//     they say nothing about how far the box reaches, and the zoom here is
+//     chosen for D-56 rather than for that rule.
 //   * ⛔ THE ONE-DAY PLAN, where the fix trades one swallowing for another.
 //     A plan whose `start` and `finish` are the same day is drawn at `S-49`'s
 //     floor (`minShapeWidth`, 6px) whatever the zoom, so its RIGHT end -- GR-4,
@@ -232,15 +267,24 @@ const PX_PER_DAY_AT_1X = settingNumber('pxPerDayAt1x')
 const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
 
 /**
- * `zoomX` (`S-75`), chosen so that ONE DAY is wider than `S-90`.
+ * `zoomX` (`S-75`), chosen so that ONE DAY is wider than `S-90` AND than `S-93`.
  *
  * ⭐ WHY THE ZOOM HAS TO BE STATED. At the default `zoomX` of 1 a day is
  * exactly `S-1` = `S-90` px, and the two grab points a day apart would still be
  * within one another's allowance -- the case would then be judged on the zoom
- * rather than on where the dummy stands. A premise below re-derives the width
- * from the layout itself instead of trusting this number.
+ * rather than on where the dummy stands.
+ *
+ * ⚠️ AND WHY IT MOVED ON 2026-09-02 (CR-332). Table T-023d now takes the hit box
+ * 「その日の列の左端を起点に、右へ … `S-93` の幅で」, so GR-9's box runs `S-93`
+ * to the RIGHT and reaches GR-17's own day whenever a day is no wider than
+ * `S-93`. At the zoom this file used before, a day was exactly `S-93` wide and
+ * GR-17's anchor fell on GR-9's far edge -- where 「上の行ほど優先すること
+ * （MUST）」 gives the press to GR-9. ⛔ THAT IS THE TABLE WORKING, NOT A DEFECT,
+ * but it made the cases below turn on the zoom instead of on the rule. A
+ * premise re-derives both widths from the layout rather than trusting this
+ * number.
  */
-const ZOOM_X = 5
+const ZOOM_X = 6
 
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
@@ -320,8 +364,29 @@ const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 /** GR-17: `S-129` worked days past GR-9's day, so the dummy is still that long. */
 const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
 
-/** A milestone that has not been started -- table T-023d's GR-18. */
+/**
+ * A milestone that has not been started -- table T-023d's GR-18.
+ *
+ * ⭐ A FRIDAY, for the same reason `PLAN_START` is one: since 2026-09-02 GR-18
+ * stands 「予定の開始日の翌稼働日」 as well, so the working-day answer (Monday)
+ * and the calendar-day answer (Saturday) have to be different days here too.
+ */
 const MILESTONE_DAY = '2026-01-09'
+
+/** Where GR-18 stands: 「予定の開始日の翌稼働日」, the same rule GR-9 follows. */
+const WORKED_DAY_AFTER_MILESTONE = workedDaysAfter(MILESTONE_DAY, 1)
+
+/**
+ * Where the hand let a milestone's dummy go -- ⛔ A SATURDAY ON PURPOSE.
+ *
+ * FR-043 (MUST NOT): 「位置は例外ではない …… ダミーは形状を問わず予定の開始日の
+ * 翌稼働日に立ち、離した日が実績開始になる」. This day is none of the three
+ * answers the rule refuses: it is not the figure's own day (`MILESTONE_DAY`),
+ * not the day GR-18 is drawn on (`WORKED_DAY_AFTER_MILESTONE`), and it is not a
+ * working day, so a write that moved it to one would land on the second of
+ * those. ⛔ 「離した日を稼働日へ寄せてはならない（MUST NOT）」（表 T-023d）.
+ */
+const MILESTONE_DROPPED_DAY = dayAfter(MILESTONE_DAY)
 
 const dayNamed = (iso: string): CalendarDay => {
   const day = dayOf(iso)
@@ -638,7 +703,7 @@ describe('the fixture stands where these cases think it does', () => {
     ).toBeGreaterThan(SLOP.dummyWidth)
   })
 
-  it('draws one day wider than S-90, so a day apart is more than an allowance apart', () => {
+  it('draws one day wider than S-90 and than S-93, so each grab point stands alone', () => {
     // FR-017 makes one day `pxPerDayAt1x` times `zoomX` (S-1 and S-75). ⭐ The
     // width is re-derived from the layout rather than trusted from ZOOM_X.
     const { layout } = draw(notStarted())
@@ -647,6 +712,11 @@ describe('the fixture stands where these cases think it does', () => {
       layout.pxPerDay,
       'S-90 reaches this far to either side of GR-3, so one day must be wider than it',
     ).toBeGreaterThan(PLAN_ENDPOINT_SLOP)
+    expect(
+      layout.pxPerDay,
+      'the hit box runs S-93 rightwards from the day column (表 T-023d, 2026-09-02), ' +
+        'so a day must be wider than S-93 or GR-9 would swallow GR-17\'s own point',
+    ).toBeGreaterThan(SLOP.dummyWidth)
   })
 
   it('prints GR-3 above GR-9, GR-9 above GR-17, and all three above GR-12 (MUST)', () => {
@@ -780,9 +850,14 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
   it('leaves the dummy no wider than S-93, so GR-12 begins again just past it', () => {
     // The same warning, measured. A point one whole S-93 to the right of GR-17
     // is past both dummies' allowances, and nothing above GR-12 stands there.
+    // ⚠️ A HAIR PAST THE EDGE, NOT ON IT. Since 2026-09-02 the box runs from the
+    // day column 「右へ `S-93` の幅で」, so `at.x + S-93` IS the far edge -- and
+    // whether a press exactly on an edge falls in or out is a rounding question
+    // no row of docs/spec answers. ⛔ Where the edge IS is asserted in
+    // tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts.
     const built = drawn()
     const end = dummyNamed(taskDrawn(built), 'GR-17')
-    const past = grabAt(built, end.at.x + SLOP.dummyWidth, end.at.y)
+    const past = grabAt(built, end.at.x + SLOP.dummyWidth + 0.5, end.at.y)
     expect(past).not.toBe('GR-9')
     expect(past).not.toBe('GR-17')
   })
@@ -864,42 +939,139 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
 })
 
 // ===========================================================================
-// FR-043's milestone exception, and table T-023d's GR-18 -- unchanged
+// ⛔ FR-043's milestone exception -- TWO claims since 2026-09-02, and no more
 // ===========================================================================
 
-describe('table T-023d GR-18: a milestone keeps its one dummy on its figure', () => {
-  it('draws exactly one dummy, and it is GR-18', () => {
-    // FR-043's milestone exception: 「ダミーは点として 1 つだけ出し、実績期間は
-    // `S-130` とすること（MUST）」.
+describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on GR-9\'s day', () => {
+  it('draws exactly one dummy, and it is GR-18 (exception ①)', () => {
+    // FR-043's first surviving exception: 「実績バーを持たないので（表 T-023d の
+    // `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）」. ⭐ THIS ONE IS A
+    // REAL EXCEPTION -- a milestone has no actual bar, so it cannot have two
+    // ends -- and the ruling of 2026-09-02 left it standing.
     expect(taskDrawn(draw(milestone())).dummies.map((one) => one.grab)).toEqual(['GR-18'])
   })
 
-  it('stands it ON the figure, so no day offset reaches it', () => {
-    // 「未着手のマイルストーンの図形の上」. ⭐ GR-18 has no competitor: a
-    // milestone has no plan ENDS for GR-3 or GR-4 to claim (LF-10 draws a figure
-    // centred on the day), so nothing about D-56 moves this row.
+  it('stands GR-18 on the working day AFTER the plan start, exactly where GR-9 stands', () => {
+    // ⛔ RED WHILE THE DUMMY IS STILL ON THE FIGURE. Table T-023d GR-18 since
+    // 2026-09-02: 「**予定の開始日の翌稼働日**（暦に従う。`FR-054`）。⭐⭐ `GR-9`
+    // と同じ場所である」（利用者の裁定「マイルストーンは中心が配置する場所。
+    // ただし、実績のダミーは翌日」）. The day is named both ways in the message
+    // so a calendar-day reading is told apart from a working-day one.
     const built = draw(milestone())
-    const task = taskDrawn(built)
-    const figure = boxOfBar(task.plan)
-    const dummy = dummyNamed(task, 'GR-18')
-    expect(dummy.at.x).toBeGreaterThanOrEqual(figure.x0)
-    expect(dummy.at.x).toBeLessThanOrEqual(figure.x1)
-    expect(dummy.at.y).toBeGreaterThanOrEqual(figure.y0)
-    expect(dummy.at.y).toBeLessThanOrEqual(figure.y1)
+    const dummy = dummyNamed(taskDrawn(built), 'GR-18')
+    expect(
+      dummy.at.x,
+      `GR-18 must stand on ${WORKED_DAY_AFTER_MILESTONE} (the working day after ` +
+        `${MILESTONE_DAY}), not on ${MILESTONE_DAY} and not on ${dayAfter(MILESTONE_DAY)}`,
+    ).toBeCloseTo(xOfDay(built, WORKED_DAY_AFTER_MILESTONE), 6)
     expect(grabOn(built, dummy)).toBe('GR-18')
   })
 
-  it('places S-130 instead of S-129, because a point has no length (MUST)', () => {
-    // ⭐ AND IT KEEPS THE FIGURE'S OWN DAY, whatever day the hand let go on:
-    // FR-043 makes the milestone 例外 and sends its 「位置と当たり判定」 to
-    // GR-18, whose place is 「未着手のマイルストーンの図形の上」.
+  it('follows the same rule GR-9 does, day for day, on the same plan start', () => {
+    // ⭐ 「`GR-9` と同じ場所である」 stated as the equality it is, rather than as
+    // two separate day computations that could drift apart. A rectangle Task
+    // and a milestone that start on the SAME day must put their dummies at the
+    // same x -- which is what 「形状を問わず」 means (FR-043).
+    const shapeAt = (schedule: Schedule, grab: 'GR-9' | 'GR-18'): number =>
+      dummyNamed(taskDrawn(draw(schedule)), grab).at.x
+    const asARectangle = notStarted({
+      start: stored(MILESTONE_DAY),
+      finish: stored(PLAN_FINISH),
+    })
+    expect(shapeAt(milestone(), 'GR-18')).toBeCloseTo(shapeAt(asARectangle, 'GR-9'), 6)
+  })
+
+  it('leaves the FIGURE on the plan day while the dummy stands a day along', () => {
+    // ⭐ 「図形そのものは `start` の位置に中央で置かれたままである（表 T-221 の
+    // `LF-10`）—— 動いたのはダミーであって図形ではない」（FR-043）. ⛔ Asked as
+    // the separation the ruling is FOR: 「ダミーが図形に重なると、掴む所が図形の
+    // 一部に見える」（表 T-023d GR-18）.
+    // ⚠️ STATED IN DAY COLUMNS, NOT IN PIXELS. LF-10 says 「`start` の位置を中心
+    // に置く」 and no row says whether that pixel is the column's left edge or
+    // its middle, so a case that fixed the figure's centre to one of the two
+    // would be inventing the ruling. What both readings agree on is the COLUMN,
+    // and the column is what has to differ from the dummy's.
+    const built = draw(milestone())
+    const task = taskDrawn(built)
+    const figure = boxOfBar(task.plan)
+    const dayWidth = built.layout.pxPerDay
+    const figureDayLeft = xOfDay(built, MILESTONE_DAY)
+    const centre = (figure.x0 + figure.x1) / 2
+    expect(centre, 'LF-10 centres the figure in the plan start day\'s own column').toBeGreaterThanOrEqual(
+      figureDayLeft,
+    )
+    expect(centre).toBeLessThanOrEqual(figureDayLeft + dayWidth)
+    // ⛔ And the dummy is NOT in that column -- it is a working day along.
+    const dummy = dummyNamed(task, 'GR-18')
+    expect(
+      dummy.at.x,
+      'GR-18 must have left the figure\'s day column (表 T-023d, 利用者の裁定 2026-09-02)',
+    ).toBeGreaterThanOrEqual(figureDayLeft + dayWidth)
+  })
+
+  it('places S-130 instead of S-129, because a point has no length (exception ②)', () => {
+    // FR-043's second surviving exception: 「実績期間は `S-130` とすること
+    // （MUST）」.
     const task = taskIn(
-      run(milestone(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      run(milestone(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        droppedDay: stored(MILESTONE_DROPPED_DAY),
+      }),
       UNDER_TEST,
     )
-    expect(dayOf(task.actualStart)).toEqual(dayNamed(MILESTONE_DAY))
     expect(task.actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
     expect(task.resumeValid).toBe(true)
+  })
+
+  it('⛔ writes the day the hand let go on -- the POSITION is not an exception (MUST NOT)', () => {
+    // ⛔⛔ THIS IS THE CASE THAT REPLACES THIS MORNING'S. FR-043 (MUST NOT):
+    // 「位置は例外ではない …… ダミーは形状を問わず予定の開始日の翌稼働日に立ち、
+    // 離した日が実績開始になる」（利用者の裁定 2026-09-02）. Until CR-332 the
+    // milestone kept the figure's own day whatever day the hand released on;
+    // ⛔ 「その根拠は『図形の上に在り、ぶつかる `GR-3` が無いから』であり、
+    // ダミーが図形を離れた以上、成り立たない」.
+    // ⚠️ `MILESTONE_DROPPED_DAY` IS A SATURDAY, so all three readings the rule
+    // refuses answer a different day from this one.
+    const task = taskIn(
+      run(milestone(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        droppedDay: stored(MILESTONE_DROPPED_DAY),
+      }),
+      UNDER_TEST,
+    )
+    expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日').toEqual(
+      dayNamed(MILESTONE_DROPPED_DAY),
+    )
+    expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): 位置は例外ではない')
+      .not.toEqual(dayNamed(MILESTONE_DAY))
+    expect(dayOf(task.actualStart), 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
+      .not.toEqual(dayNamed(WORKED_DAY_AFTER_MILESTONE))
+  })
+
+  it('answers a different day for a different release, so pulling the hold means something', () => {
+    // ⚠️ LEDGER D-182, MEASURED ON A MILESTONE. 「実測（2026-09-02、出荷ビルド）:
+    // 同じに読んだ実装は ＋3 歩でも ＋8 歩でも同じ日を書いており、掴んで引く意味
+    // が消えていた」. A branch that answers the figure's day passes every
+    // single-release case that happens to release there; two releases do not.
+    const startedOn = (iso: string): CalendarDay | null =>
+      dayOf(
+        taskIn(
+          run(milestone(), {
+            kind: 'beginTaskActual',
+            uid: UNDER_TEST,
+            droppedDay: stored(iso),
+          }),
+          UNDER_TEST,
+        ).actualStart,
+      )
+    const threeAlong = workedDaysAfter(MILESTONE_DAY, 3)
+    const eightAlong = workedDaysAfter(MILESTONE_DAY, 8)
+    expect(threeAlong).not.toBe(eightAlong)
+    expect(startedOn(threeAlong)).toEqual(dayNamed(threeAlong))
+    expect(startedOn(eightAlong)).toEqual(dayNamed(eightAlong))
+    expect(startedOn(threeAlong)).not.toEqual(startedOn(eightAlong))
   })
 })
 

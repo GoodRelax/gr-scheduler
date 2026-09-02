@@ -694,10 +694,14 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
     await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
 
     const sent = received[0]
-    expect(rootSizeOf(sent === undefined ? '' : stringOf(sent))).toEqual({
-      width: EXPORT_SETTINGS.exportCanvas.width,
-      height: EXPORT_SETTINGS.exportCanvas.height,
-    })
+    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
+    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
+    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
+    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    const size = rootSizeOf(sent === undefined ? '' : stringOf(sent))
+    expect(size.width).toBe(EXPORT_SETTINGS.exportCanvas.width)
+    expect(size.height).toBeGreaterThanOrEqual(EXPORT_SETTINGS.exportCanvas.height)
+    expect(size.height).toBeLessThanOrEqual(EXPORT_SETTINGS.exportCanvasHeightCap)
   })
 
   it('GIVEN one state WHEN IO-3, IO-4 and IO-6 each take their picture THEN all three carry one drawing (WY-2 of table T-041)', async () => {

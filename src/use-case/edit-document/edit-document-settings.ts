@@ -68,21 +68,22 @@ export interface SettingsLimits {
 }
 
 /**
- * The NINE boolean rows of table T-202 -- the ones FR-049 calls toggles.
+ * The EIGHT boolean rows of table T-202 -- the ones FR-049 calls toggles.
  *
- * ⚠️ EIGHT UNTIL 2026-08-30, AND THAT WAS A DRIFT AND NOT A RULE. `S-144`
- * (`watermarkVisible`) joined table T-202 on 2026-08-25 and this union was
- * never widened, so `setElementVisible` had no value to carry for it -- 台帳
- * D-147. ⛔ NO GENERATOR BRINGS THE NAME: `tools/generate_entity_types.py` does
- * not list this file among its targets, so the union is written by hand here
- * and only a hand keeps it level with the table.
+ * ⛔ NO GENERATOR BRINGS THE NAMES: `tools/generate_entity_types.py` does not
+ * list this file among its targets, so the union is written by hand here and
+ * only a hand keeps it level with the table.
  *
- * ⛔ NAMING THE ROW IS NOT THE SAME AS OPENING THE ENTRANCE. `IC-41` still
- * cannot be pressed, and the reason is FR-020's own: 「非表示にするには透かし
- * 解除パスワードを求め、SHA-256 のハッシュ比較で照合する」, and no surface in
- * this build asks a person for a password -- table T-103 has no row for one and
- * table T-234's preamble forbids putting a question it does not hold. ⚠️ A plain
- * toggle would take the watermark away unasked, which is that MUST itself.
+ * ⛔⛔ `watermarkVisible` (`S-144`) IS NOT ONE OF THEM AND MAY NOT BE PUT BACK.
+ * The row joined table T-202 on 2026-08-25 and LEFT it for table T-206 on
+ * 2026-09-02 (利用者の裁定, CR-335), because FR-020's STATEMENT has always read
+ * 「透かしの設定を文書に保存してはならない（MUST NOT）」. ⚠️ Every member of
+ * this union is written into `DocumentSettings` by CM-58, so a member for a row
+ * table T-202 no longer holds would be that MUST NOT itself -- and the key is
+ * not in the generated `DocumentSettings` any more, so the write would put a
+ * column the schema does not have into the saved group.
+ * ⭐ WHERE THE ROW WENT INSTEAD: `ScreenState.watermarkVisible`, beside S-99e,
+ * which is the value the screen uses and the document does not keep.
  */
 export type VisibleElement =
   | 'assigneeVisible'
@@ -93,7 +94,6 @@ export type VisibleElement =
   | 'dateGridLinesVisible'
   | 'groupGridLinesVisible'
   | 'baselineVisible'
-  | 'watermarkVisible'
 
 /** CM-56 to CM-71 of table T-108. */
 export type DocumentSettingsCommand =

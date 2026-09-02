@@ -1076,6 +1076,20 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
  * calendar days would land on a day nobody works. GR-17 is
  * `actualInitialDuration` along FROM GR-9's day, not from the plan's.
  *
+ * ⛔ GR-18 STANDS ON THAT SAME DAY, NOT ON THE MILESTONE'S FIGURE. Table
+ * T-023d gives it 「予定の開始日の翌稼働日」, 「`GR-9` と同じ場所である」, and
+ * FR-043 (MUST NOT) says in as many words that the POSITION is not one of the
+ * milestone's exceptions. ⭐ The figure itself has not moved -- LF-10 of table
+ * T-221 still centres it on `start` -- so what parts here is the handle from
+ * the shape, which is what keeps 「掴む所」 from reading as part of the figure.
+ * ⚠️ TWO EXCEPTIONS REMAIN AND BOTH ARE ELSEWHERE: a milestone shows ONE point
+ * rather than a pair (below), and its actual span is S-130 (`edit-task.ts`).
+ *
+ * ⚠️ A milestone WITHOUT a planned start now draws no dummy either, for the
+ * same reason a bar without one draws none: the row names a day counted from
+ * `start`, and there is no such day. FR-013 (MUST NOT) keeps such a Task off
+ * the screen in the first place.
+ *
  * ⚠️ `actualHeight` is HANDED IN, the way `guidesOf` is handed the same value:
  * the actual bar's band is one expression and `taskGeometryOf` has already
  * solved it. Recomputing it here would put it in two places.
@@ -1085,16 +1099,19 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
   if (placed.actualX !== null) return []
-  const middle = placed.y + placed.planHeight / 2
-  if (placed.actualPlacement === 'sideways') {
-    return [{ grab: 'GR-18', at: point(placed.x + placed.width / 2, middle), height: actualHeight }]
-  }
   const start = dayOf(task.start)
   if (start === null) return []
+  const middle = placed.y + placed.planHeight / 2
   const from = nextWorkingDay(inputs.within, start)
+  const fromX = xFromDay(inputs.layout, from)
+  // GR-15: a milestone holds no actual BAR, so there is no second end for
+  // GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
+  if (placed.actualPlacement === 'sideways') {
+    return [{ grab: 'GR-18', at: point(fromX, middle), height: actualHeight }]
+  }
   const end = dateFromWorkingDays(inputs.within, from, inputs.settings.actualInitialDuration)
   return [
-    { grab: 'GR-9', at: point(xFromDay(inputs.layout, from), middle), height: actualHeight },
+    { grab: 'GR-9', at: point(fromX, middle), height: actualHeight },
     { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), height: actualHeight },
   ]
 }
@@ -1733,5 +1750,3 @@ export const NOT_STORED_LABEL_SIZES: {
   'S-196': 2,
 }
 // </generated>
-
-

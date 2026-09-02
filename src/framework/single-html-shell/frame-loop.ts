@@ -92,6 +92,7 @@ import {
   escapeTarget,
   screenStateWithPalette,
   screenStateWithSurface,
+  screenStateWithWatermark,
   type DualCursorSide,
   type EscapeTarget,
   type ScreenState,
@@ -187,12 +188,19 @@ import {
 // ⛔ NOTHING IS INSTALLED HERE. Placing the public point is UF-47's (table
 // T-075), and `single-html-shell.ts` does it; this file supplies the values.
 import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
+// ⭐ `exportEmbeddedHtml` AND `AppShellSource` JOIN THE FIVE. IO-7 of table
+// T-024 is a file, so the road to it is this loop's for the reason IO-4's is
+// (see `exportPng` below), and UT-5 of table T-063 keeps the single .html in a
+// codec of its own -- so this file supplies the seam and calls the writer, and
+// assembles nothing itself.
 import {
   documentFromJson,
   documentFromMspdi,
+  exportEmbeddedHtml,
   formatFromFile,
   jsonFromDocument,
   mspdiFromDocument,
+  type AppShellSource,
   type ExchangeFormat,
   type FormatMismatch,
 } from '../../adapter/document-codec/document-codec'
@@ -227,6 +235,7 @@ import {
 // entrance being built for the picture.
 import {
   exportPng,
+  exportSvg,
   type ExportScene,
   type RasterFaultReason,
   type Rasterizer,
@@ -637,10 +646,11 @@ type GrabbedArea = Grabbed['grab']
  * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names five
  * cases and no more, of which only two are a row of this table -- the two bars'
  * ends, and the task body together with a milestone's figure. The fade handles,
- * the progress marker, the resume icon, the two dummies that stand on a task's
- * days, the labels, a dependency line, the boxes, the status line and the
- * palette band are all pressable and IN-2 gives none of them a shape. ⚠️ A
- * shape invented for one of them would be this build writing a requirement.
+ * the progress marker, the resume icon, the three dummies that stand on the
+ * working day after a plan start, the labels, a dependency line, the boxes, the
+ * status line and the palette band are all pressable and IN-2 gives none of them
+ * a shape. ⚠️ A shape invented for one of them would be this build writing a
+ * requirement.
  */
 const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
   // IN-2:「予定バーと実績バーの端点の上は横方向の伸縮の合図」.
@@ -653,12 +663,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
   'GR-12': 'grab',
   'GR-15': 'grab',
-  // ⚠️ GR-18 STANDS ON A MILESTONE'S FIGURE TOO, which is why it is not among
-  // the nulls with the other two dummies: its place cell is the figure of a
-  // milestone nobody has started -- the very place IN-2 names -- and its
-  // operation cell is a grab. GR-9 and GR-17 stand on a plan bar's days
-  // instead, and IN-2 names no shape there.
-  'GR-18': 'grab',
   'GR-1': null,
   'GR-2': null,
   'GR-7': null,
@@ -673,6 +677,16 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-14': null,
   'GR-16': null,
   'GR-17': null,
+  // ⚠️ GR-18 IS ONE OF THE THREE DUMMIES AND NOT A MILESTONE'S FIGURE, WHICH IS
+  // A CHANGE OF 2026-09-02 (台帳 D-200). Table T-023d used to place it 「未着手
+  // のマイルストーンの図形の上」, and this row carried `grab` on that ground;
+  // the row now places it 「予定の開始日の翌稼働日」 -- 「`GR-9` と同じ場所であ
+  // る」 in the table's own words. ⛔ IN-2 of table T-028 gives the grab hand to
+  // 「タスクの本体とマイルストーンの図形の上」 and names no dummy, which is
+  // exactly why GR-9 and GR-17 are null; GR-18 left the figure, so IN-2 no
+  // longer reaches it. ⭐ IN-2's own sentence is unchanged -- only what it
+  // reaches moved.
+  'GR-18': null,
 }
 
 /**
@@ -1073,6 +1087,21 @@ const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
  */
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
+/**
+ * IC-41 of table T-109 -- FR-020's ONE entrance to the watermark, which carries
+ * BOTH directions since 2026-09-02 (利用者の裁定, CR-335).
+ *
+ * ⛔ ONE ENTRANCE AND NOT TWO (MUST NOT), which FR-020 sends to FR-029: 「同じ
+ * 機能の入口を増やさない」. ⭐ The precedent the requirement names is IC-75
+ * beside it -- one entrance carrying minimise AND restore -- and that row is
+ * answered a few lines below this one, in the same member, for the same reason.
+ * ⚠️ IT IS STILL NOT A SYMMETRIC TOGGLE (MUST NOT). What that row refuses is
+ * treating the two directions ALIKE, 「切り替えは 2 つの向きを見分けられないの
+ * で、消す側の門をすり抜ける」; the gate stands on the hiding side alone, and
+ * telling the direction apart before acting is what it asks for.
+ */
+const WATERMARK_ENTRY: IconId = 'IC-41'
+
 /** U-25 of table T-103, spelled as that table spells it. */
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
@@ -1211,14 +1240,17 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
  * over for one of those would say something untrue about the reason at hand;
  * it is also where the DICTIONARY lands when it is asked for a key it does not
  * hold, which is why a raiser may not reach for it out of convenience.
- * ⚠️ THREE RAISERS REACH IT, and each one names the row that is owed in its
- * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」), a clipboard
- * write that would not go through, and a rastering that failed
- * (`NOTICE_REASON_OF_RASTER_FAULT`, three next steps in one). ⛔ A fourth
- * raiser is a fourth reason to write those rows, not a fourth use of this one.
+ * ⚠️ TWO RAISERS REACH IT, and each one names the row that is owed in its
+ * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」) and a clipboard
+ * write that would not go through. ⛔ A third raiser is a third reason to write
+ * those rows, not a third use of this one.
+ * ⭐ THERE WERE THREE UNTIL CR-333. A rastering that failed used to land here
+ * with all three of its reasons at once; table T-233 now holds `RS-42` and
+ * `RS-43` for them, and `NOTICE_REASON_OF_RASTER_FAULT` is where the two are
+ * told apart.
  * ⭐ THERE WERE FOUR UNTIL CR-325. A form of table T-024 this build cannot yet
- * write now has a row of its own -- `RS-40` -- and `UNWRITTEN_FORM_REASON`
- * carries it.
+ * write got a row of its own then -- `RS-40` -- and no form of this build
+ * reaches it any more; the note where its constant stood says why it is kept.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1258,6 +1290,9 @@ type NoticeReason =
   | 'RS-39'
   | 'RS-40'
   | 'RS-41'
+  | 'RS-42'
+  | 'RS-43'
+  | 'RS-44'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1310,6 +1345,13 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-39': 'NT-1',
   'RS-40': 'NT-3a',
   'RS-41': 'NT-3a',
+  'RS-42': 'NT-3a',
+  'RS-43': 'NT-3a',
+  // ⛔ `NT-1` AND NOT `NT-3a`, WHICH IS CR-334's OWN READING OF TABLE T-233:
+  // the person's input was not accepted, and nothing of ours failed -- 「置ける
+  // 所ではなかった」. ⚠️ The three rows above it are `NT-3a` because a raster or
+  // a record DID fail, which is the line the two manners are drawn along.
+  'RS-44': 'NT-1',
 }
 
 /**
@@ -1390,70 +1432,107 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
 /**
- * The row of table T-233 carried when FR-096's chooser offers a form this
- * build cannot write, and the reader picks it.
- *
- * ⭐⭐ THIS IS D-173's HALF THAT IS NOT A WRITER. Measured 2026-09-01: three
- * of the five forms table T-024 offers returned nothing and the press returned
- * with nothing said, which FR-029 (MUST) forbids -- 「押されたときに限り、行え
- * ない理由を通知すること」. `png` is now written; `svg` and `singleHtml` are
- * not, and this is what they say instead of nothing.
- *
- * ⭐⭐ `RS-40` SINCE CR-325, AND THE ROW IS THIS SITUATION'S OWN. Table T-233
- * now reads 「この形式は、このビルドではまだ書けない」 against 表 T-024, with
- * `NT-3a` for its manner, and FR-038's dictionary holds its next step 「別の形
- * 式を選んでください」 -- the step a person can actually take.
- * ⛔ NOT `RS-15` ANY MORE. That row is FR-076's 「行の無い理由に落ち先を与える」
- * landing place, and carrying it while a row exists is what that requirement
- * forbids (MUST NOT). ⚠️ It also read 「操作を終えられませんでした」 with 「もう
- * 一度行ってください」 as its next step, which was a lie: pressing `.svg` again
- * writes nothing again, however many times it is pressed (the ledger's D-186).
- * ⚠️ THE ROW OUTLIVES D-173. CR-325 keeps it after the `.svg` and single-`.html`
- * writers are built, as the landing place for the next form that is offered
- * before it can be written.
- * ⛔ AND NOT `RS-27`. FR-029 lands a press with nothing to act on there, and
- * this press HAS something to act on: the document is there and the form was
- * chosen; what is missing is in `src/`, not on the screen.
+ * ⛔ `RS-40` HAS NO RAISER IN THIS BUILD, AND THAT IS THE ROW DOING ITS JOB.
+ * It reads 「この形式は、このビルドではまだ書けない」 against 表 T-024, and
+ * `UNWRITTEN_FORM_REASON` stood here until CR-333's round carried it for the
+ * two forms that were offered and written nothing -- `.svg` and the single
+ * `.html`. Both are written now (`exportPictureContent`), so the constant went
+ * with them rather than being kept pointing at nothing.
+ * ⚠️ THE ROW ITSELF STAYS, which is what CR-325 wrote it for: the landing
+ * place for the NEXT form table T-024 offers before this build can write it.
+ * ⭐ Reinstating it is one line at the press that cannot act -- the row is
+ * still in `NoticeReason` above and the dictionary still holds its words.
  */
-const UNWRITTEN_FORM_REASON: NoticeReason = 'RS-40'
 
 /**
  * The row of table T-233 each way a rastering can fail carries.
  *
  * ⭐ A census the compiler keeps: a reason added to `RasterFaultReason` is a
  * compile error here rather than a picture that fails and tells nobody.
- * ⛔ ALL THREE LAND ON `RS-15`, AND THAT IS THE TABLE'S DOING RATHER THAN THIS
- * FILE'S. `rasterizer.ts` says in as many words why there are three reasons and
- * not one -- 「these three do not share a next step」 -- and table T-233 holds no
- * row for any of them: `RS-3` is written for a FILE that could not be written
- * (its 正 is LM-14) and would tell a reader to choose another destination, which
- * is not the way out of a canvas that refused. ⚠️ So three rows are owed, one
- * per next step: the SVG (IO-3) for `unsupported`, the smaller of `S-82`'s
- * values for `tooLarge`, and trying again for `rasterFailed`.
+ *
+ * ⭐⭐ TWO ROWS FOR THREE REASONS SINCE CR-333, AND THE SPLIT IS THE READER'S
+ * OWN. Their ruling of 2026-09-02 is 「それ以外は、エラーが出ないようにすべき
+ * だし、エラーが出た場合は原因不明のエラーが発生しました。デバッグボタンを押し
+ * て再度実行してログを取って... って話にすればいいだろ？」 -- so a failure a
+ * person cannot name is told as one, and the next step is the recording FR-102
+ * already has (`IC-76`). `RS-42` is that row and `unsupported` and
+ * `rasterFailed` are both it: neither has a next step of its own that a reader
+ * could take, and offering one that does not exist is what NT-3a forbids.
+ * ⛔ `tooLarge` IS NOT ONE OF THEM. Its cause IS known -- FR-025 grew the
+ * picture to S-217 and the machine still would not paint it -- so `RS-43`
+ * (「伸ばしても描ける大きさを超えた」) carries it, and its next step is the one
+ * the reader can act on: fold rows, or narrow the period.
+ * ⚠️ ALL THREE LANDED ON `RS-15` UNTIL CR-333, which FR-076 reserves for
+ * reasons the table holds no row for; the table holds two now.
  */
 const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
-  unsupported: 'RS-15',
-  tooLarge: 'RS-15',
-  rasterFailed: 'RS-15',
+  unsupported: 'RS-42',
+  tooLarge: 'RS-43',
+  rasterFailed: 'RS-42',
 }
 
 /**
- * The row of table T-233 carried when `.png` is chosen and this host hands
- * `single-html-shell.ts` no `rasterizer` at all -- Node, or any other host
- * without a canvas to paint from.
+ * Why a single .html could not be assembled, read off the one member table
+ * T-064's PI-20 publishes for it.
+ *
+ * ⚠️ THE NAME IS DERIVED RATHER THAN IMPORTED. That row is the full count of
+ * what DocumentCodec may be asked for and it names `exportEmbeddedHtml` but not
+ * `EmbeddedHtmlFaultReason`, so importing the name would be a crossing the table
+ * does not admit (check 26b). ⭐ Nothing is weakened by it: a reason added to
+ * that union is still a compile error in the census below.
+ */
+type EmbeddedHtmlFaultReason = Exclude<
+  Awaited<ReturnType<typeof exportEmbeddedHtml>>,
+  { readonly ok: true }
+>['fault']['reason']
+
+/**
+ * The row of table T-233 each way a single .html can fail to be assembled
+ * carries.
+ *
+ * ⭐ A census the compiler keeps, on the same terms as the rastering above: a
+ * reason added to `EmbeddedHtmlFaultReason` is a compile error here.
+ * ⛔ ALL THREE ARE `RS-42`, AND THAT IS THE READER'S RULING RATHER THAN A
+ * SHORTAGE OF ROWS. None of the three is a thing a person did or can undo --
+ * the application could not read its own source, or the source it read carries
+ * a container this build cannot aim at -- so 「原因の分からない失敗」 is what
+ * the situation IS from the side that is told about it, and the next step is
+ * FR-102's recording. ⚠️ `app-shell-source.ts` reaches the same place from the
+ * other side: it declares ONE failure without a reason enum because 「there is
+ * one next step here whatever went wrong」.
+ * ⛔ NOT `RS-40`. That row says this build cannot write the form, and since
+ * CR-333's round it can -- saying so would be untrue of every host where the
+ * write works.
+ */
+const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
+  Record<EmbeddedHtmlFaultReason, NoticeReason>
+> = {
+  appShellUnavailable: 'RS-42',
+  unusableElementId: 'RS-42',
+  moreThanOneEntry: 'RS-42',
+}
+
+/**
+ * The row of table T-233 carried when a chosen form needs a seam this host
+ * handed `single-html-shell.ts` nothing for -- `.png` with no `rasterizer`
+ * (IF-6) and the single `.html` with no `AppShellSource` (IF-8). Node is one
+ * such host, and so is any browser without a canvas to paint from.
  *
  * ⭐ `RS-3` AND NOT A NEW ROW, BECAUSE THIS IS LM-14's SITUATION AGAIN: table
  * T-004's `LM-14` already names "an attempted write this environment cannot
  * perform" and table T-233 already carries that as `RS-3` (its 正 is `NT-3a`)
- * for `NOTICE_REASON_OF_FILE_FAULT.unavailable` above. A missing rasterizer is
- * that same absence one seam earlier -- the write never gets bytes to write --
- * so it is told with the words already in the dictionary rather than a new
- * sentence composed here (FR-038, MUST NOT).
- * ⚠️ NOT ONE OF `NOTICE_REASON_OF_RASTER_FAULT` ABOVE. Those three are a
- * canvas that tried and failed in one of three ways; this is no canvas being
- * offered to try at all, which is a different situation from all three.
+ * for `NOTICE_REASON_OF_FILE_FAULT.unavailable` above. A missing seam is that
+ * same absence one step earlier -- the write never gets bytes to write -- so it
+ * is told with the words already in the dictionary rather than a new sentence
+ * composed here (FR-038, MUST NOT).
+ * ⚠️ NOT ONE OF THE TWO CENSUSES ABOVE. Those name a seam that tried and
+ * failed; this is no seam being offered to try at all, which is a different
+ * situation from every one of them.
+ * ⭐ ONE CONSTANT FOR BOTH SEAMS, NOT TWO WITH ONE VALUE (R2.7): the fact
+ * stated here is 「this host cannot perform the write at all」, and which seam
+ * was missing is not something the reader is told.
  */
-const NO_RASTERIZER_REASON: NoticeReason = 'RS-3'
+const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 
 /**
  * The row of table T-233 FR-088's refusal carries -- a calendar that works no
@@ -1547,6 +1626,15 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   rowIsAtTheShallowestLevel: 'RS-37',
   groupDepthLimitReached: 'RS-38',
   noPlaceLeftInThatDirection: 'RS-39',
+  // FR-019's refusal, whose row table T-233 gained on 2026-09-02 (CR-334).
+  // ⭐ THE ONE SITUATION HERE THAT IS NOT A PRESSED ENTRANCE, and the situation
+  // union says why: 表 T-233 is keyed on 場面, so a press on the schedule with
+  // AR-5 or AR-6 armed owes the same telling a spent entrance does.
+  // ⛔ UNTIL THIS LINE THE LOOKUP ANSWERED `undefined` AND THE READER WAS TOLD
+  // `RS-15`, which is a lie about a press that CAN never act there -- and the
+  // `RS-15` note above forbids reaching for that row where a row of its own
+  // exists.
+  noRowToPutTheAnnotationOn: 'RS-44',
 }
 
 /**
@@ -1868,26 +1956,20 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
  * makes the whole of what a telling may carry. ⚠️ A row for them is what is
  * owed; nothing here may compose the sentence in its place (FR-038, MUST NOT).
  *
- * ⛔ THREE OF THE FIVE FORMS ARE NOT TEXT AND ANSWER `null` HERE, and the three
- * nulls no longer mean one thing. `exportPictureContent` below is what each of
- * them reaches, and it is where their standing is now recorded:
- *   `png` -- ⭐ WRITTEN. `canvasRasterizer` (CP-31) implements `Rasterizer`
- *     and the shell hands one in, so the road ends in bytes rather than in
- *     characters -- which is the whole reason this function cannot answer for
- *     it. ⚠️ THE STOP THAT STOOD HERE SAID NOTHING IMPLEMENTED `Rasterizer`;
- *     measured 2026-09-01, that file has implemented it all along and nothing
- *     in `src/` had ever imported it.
- *   `svg` -- STOP, and the reason has NARROWED rather than gone. `exportSvg`
- *     (PI-21) is written and `exportScene` below is its argument, so the picture
- *     can be assembled; what is missing is FR-025's telling of how many
- *     `TaskGroup`s and `Task`s went undrawn (MUST). ⚠️ Table T-233 now HOLDS a
- *     row for that telling -- `RS-22`, written against FR-025 -- and what is
- *     still undecided is which of the two numbers `RaisedNotice.affectedCount`
- *     carries, since that member is one number and the requirement names two.
- *   `singleHtml` -- STOP. `exportEmbeddedHtml` takes an `AppShellSource`, and
- *     nothing in `src/` implements that seam or hands one to this loop.
- * ⚠️ THE TWO THAT STAY UNWRITTEN NO LONGER DO IT IN SILENCE. FR-029 (MUST) has
- * a press that cannot act say why, and `UNWRITTEN_FORM_REASON` is what it says.
+ * ⛔ THREE OF THE FIVE FORMS ARE NOT ANSWERED HERE, and the reason is the same
+ * for all three: none of them can be made out of the document alone.
+ * `exportPictureContent` below is what each of them reaches, and all three are
+ * written there now:
+ *   `png` -- the road ends in bytes rather than characters, which is the whole
+ *     reason this function cannot answer for it.
+ *   `svg` -- the picture is `exportSvg`'s (PI-21) and needs the frame, which
+ *     this function is not handed.
+ *   `singleHtml` -- the file is `exportEmbeddedHtml`'s (PI-20) and needs the
+ *     application's own HTML, which only the shell can read (IF-8).
+ * ⚠️ THE `null` IS NO LONGER A REFUSAL. Until CR-333's round, two of the three
+ * were not written at all and the press said so through
+ * `UNWRITTEN_FORM_REASON`; that row is kept for the next form offered before it
+ * can be written, and no form of this build reaches it.
  *
  * @purity pure
  */
@@ -3171,11 +3253,12 @@ export function startupDisplayLanguage(): DisplayLanguage {
  * for it. ⚠️ Optional on the same terms as `screen` -- the loop runs for the
  * paths that touch no file, and the entries that would touch one answer with
  * nothing when there is none.
- * ⭐ `rasterizer` IS IF-6's IMPLEMENTATION (CP-31), on the same terms as the
- * two above. ⛔ LAST OF THE LIST AND NOT BESIDE `clipboard`, WHICH IS WHERE IT
- * BELONGS BY KIND: every position before it is one a test already passes by
- * order, and moving one would change what those calls mean without changing a
- * line of them. ⚠️ A named bag for the eight is what is owed here.
+ * ⭐ `rasterizer` IS IF-6's IMPLEMENTATION (CP-31) and `appShell` IS IF-8's
+ * (UF-47), on the same terms as the two above. ⛔ LAST OF THE LIST AND NOT
+ * BESIDE `clipboard`, WHICH IS WHERE THEY BELONG BY KIND: every position before
+ * them is one a test already passes by order, and moving one would change what
+ * those calls mean without changing a line of them. ⚠️ A named bag for the nine
+ * is what is owed here, and each one added makes it owed more.
  *
  * @purity non-pure
  */
@@ -3189,6 +3272,7 @@ export function frameLoop(
   clipboard?: Clipboard,
   startedFromTemplate?: boolean,
   rasterizer?: Rasterizer,
+  appShell?: AppShellSource,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -4528,7 +4612,7 @@ export function frameLoop(
    *
    * @purity non-pure
    */
-  function answerWatermarkUnlock(isProceeding: boolean, frame: FrameValues): boolean {
+  function answerWatermarkUnlock(isProceeding: boolean): boolean {
     if (screenState.surface !== WATERMARK_UNLOCK_SURFACE) return false
     if (!isProceeding) {
       screenState = screenStateWithSurface(screenState, null)
@@ -4548,7 +4632,7 @@ export function frameLoop(
     // digest is still running is a person trying again -- the two land the same
     // way, and the second cannot take a question away from the first because
     // this surface asks none.
-    void matchWatermarkUnlock(answer, frame)
+    void matchWatermarkUnlock(answer)
     return true
   }
 
@@ -4559,6 +4643,17 @@ export function frameLoop(
    * ⛔ ON A MATCH ONLY (MUST): 「合ったときにだけ ...  `watermarkVisible` を偽に
    * すること」. ⭐ And the surface goes with it -- it has been answered, which is
    * the same reading `answerSettledFormat` takes for U-54.
+   * ⛔⛔ WRITTEN INTO `ScreenState` AND NOT INTO THE DOCUMENT (MUST NOT), which
+   * is CR-335's whole point: S-144 left table T-202 for table T-206 on
+   * 2026-09-02, and FR-020 forbids saving it in as many words -- 「保存すると、
+   * パスワードを知る 1 人が、下流の全員ぶんの証跡を恒久的に外せる」. ⚠️ So this
+   * hiding does not enter the undo history either, and that is right rather
+   * than a loss: UN-9 keeps screen state out of it, and a hiding an `undo`
+   * could rewind would be the gate FR-020 stands on the hiding side being
+   * stepped around backwards.
+   * ⭐ `screenStateWithWatermark` IS THE ONE WRITER (PI-36 of table T-064, named
+   * there 2026-09-02); an object literal spread here would be a second writer of
+   * the same value in a second component (rule 03 section 1).
    * ⛔ ON A MISMATCH THE SURFACE STAYS UP (MUST): 「合わなかったときは、面を閉じず
    * に理由を告げること」 -- the reason being RS-41 of table T-233. ⚠️ WHAT WAS
    * TYPED IS LEFT WHERE IT IS, which is the other half of the same paragraph:
@@ -4573,20 +4668,18 @@ export function frameLoop(
    *
    * @purity non-pure
    */
-  async function matchWatermarkUnlock(answer: string, frame: FrameValues): Promise<void> {
+  async function matchWatermarkUnlock(answer: string): Promise<void> {
     const given = await sha256HexOf(answer)
     if (given === null || given !== watermarkUnlockDigest()) {
       raiseNotice(WATERMARK_UNLOCK_MISMATCH_REASON, null)
       return
     }
-    screenState = screenStateWithSurface(screenState, null)
-    // ⚠️ THE NEWEST FRAME'S VALUES WHERE THERE IS ONE, and the answering
-    // frame's otherwise: the digest spans frames, so the limits the write is
-    // measured against are the ones in force when it lands.
-    writeDocument(
-      [{ kind: 'setElementVisible', element: 'watermarkVisible', visible: false }],
-      values ?? frame,
-    )
+    // ⚠️ NO FRAME IS READ FOR THIS, WHICH IS WHAT THE MOVE OUT OF THE DOCUMENT
+    // TOOK AWAY. A document write is measured against the limits in force when
+    // it lands, and the digest spans frames -- so this used to need the newest
+    // frame's values. S-144 is screen state, `writeDocument` is not on this
+    // road any more, and there is nothing left for a frame to be read for.
+    screenState = screenStateWithWatermark(screenStateWithSurface(screenState, null), false)
     ask()
   }
 
@@ -6079,7 +6172,7 @@ export function frameLoop(
     // held document -- through `exportScene` -- before ITS first await, so the
     // picture and the bytes below are of the same document `written` is.
     const text = exportedText(form, written)
-    const content = text === null ? await exportPictureContent(form) : { text }
+    const content = text === null ? await exportPictureContent(form, written) : { text }
     // ⛔ A `null` HAS ALREADY BEEN TOLD, or is one of the two absences that
     // reach nobody -- see `exportPictureContent`. Nothing is raised a second
     // time here.
@@ -6095,21 +6188,25 @@ export function frameLoop(
   }
 
   /**
-   * The bytes of one of the three forms that are not text, or `null` where
-   * there are none to write.
+   * The content of one of the three forms `exportedText` cannot answer for, or
+   * `null` where there is none to write.
    *
-   * ⭐⭐ IO-4 OF TABLE T-024 IS WRITTEN HERE, AND IT IS THE HALF OF D-173 THAT
-   * COULD BE CLOSED. Measured 2026-09-01: `svg`, `png` and `singleHtml` were
-   * all offered on FR-096's chooser and all three returned without writing and
-   * without telling. The reader's ruling was to wire the picture this round and
-   * leave the other two, so `png` now goes out as bytes -- the road
-   * `SaveFileContent`'s second arm has always admitted -- and the other two say
-   * why instead of doing nothing (FR-029, MUST).
+   * ⭐⭐ ALL THREE ARE WRITTEN HERE SINCE CR-333's ROUND, AND THAT IS THE WHOLE
+   * OF D-173. Measured 2026-09-01: `svg`, `png` and `singleHtml` were all
+   * offered on FR-096's chooser and all three returned without writing and
+   * without telling. `png` was wired that day; the reader's ruling for the
+   * other two was 「次回ですべて作る。並行で実装できるだろ？」, and this is
+   * where the three roads meet: IO-3 goes out as the picture `exportSvg`
+   * (PI-21) assembles, IO-4 as the bytes `Rasterizer` (IF-6) paints from that
+   * same picture, and IO-7 as the file `exportEmbeddedHtml` (PI-20) makes from
+   * the application's own HTML (IF-8).
    *
-   * ⛔ THE SCENE IS READ BEFORE THE FIRST AWAIT, which is CS-4 of table T-066
-   * reaching across two functions: `exportScene` reads the held document, and
-   * reading it after the rastering had begun would paint one document and write
-   * another.
+   * ⛔ THE DOCUMENT IS HANDED IN RATHER THAN READ AGAIN, which is CS-4 of table
+   * T-066 reaching across two functions: the caller took it before its first
+   * await, and a second read here would write a document the person has since
+   * changed. ⚠️ `exportScene` reads the held document too, and it is called
+   * before this function's first await for the same reason -- reading it after
+   * a rastering had begun would paint one document and write another.
    *
    * ⚠️ ONE ABSENCE REACHES NOBODY, and that is the shape the roads beside this
    * one already take rather than a choice made here. `scene === null` is the
@@ -6117,12 +6214,11 @@ export function frameLoop(
    * absence of the behaviour and not the behaviour」. An unsettled environment
    * is BO-1 not having measured a size yet, and there is no picture to paint
    * before there is a screen to paint it from.
-   * ⛔ NO RASTERIZER HANDED IN NO LONGER REACHES NOBODY. Measured 2026-09-01:
-   * `single-html-shell.ts` hands one in at wiring time, but a host with no
-   * canvas at all -- Node among them -- hands none, and the press used to
-   * return `null` here in silence, which is exactly FR-029's (MUST) forbidden
-   * shape. `NO_RASTERIZER_REASON` (`RS-3`) is now raised before the early
-   * return.
+   * ⛔ A MISSING SEAM DOES NOT REACH NOBODY. `single-html-shell.ts` hands both
+   * seams in at wiring time, but a host with no canvas and no source of its own
+   * HTML -- Node among them -- hands neither, and a press that returned `null`
+   * in silence is exactly FR-029's (MUST) forbidden shape. `SEAM_ABSENT_REASON`
+   * (`RS-3`) is raised before each of those early returns.
    *
    * ⚠️ THE ANSWER IS SPELLED `ChosenFileSaveRequest['content']` AND NOT
    * `SaveFileContent`. Table T-064 is the full count of what FileGateway
@@ -6131,33 +6227,57 @@ export function frameLoop(
    * request type it belongs to IS published, and reading the member off it says
    * the same thing without adding a crossing.
    *
-   * ⚠️ FR-025's TELLING IS NOT MADE HERE, and that is a STOP rather than a
-   * choice: `ImageExport.droppedGroupIds` names the `TaskGroup`s that went
-   * undrawn, table T-233's `RS-22` is the row that telling would ride on, and
-   * what is undecided is which of FR-025's two numbers `affectedCount` carries
-   * -- that member is one number and the requirement (MUST) names 「`TaskGroup`
-   * と `Task`」. ⛔ Nothing here may pick one and print it as the other.
+   * STOP -- ⚠️ FR-025's TELLING IS STILL NOT MADE, and it is unchanged by the
+   * two writers added here: `SvgExport.droppedGroupIds` names the `TaskGroup`s
+   * that went undrawn, table T-233's `RS-22` is the row that telling would ride
+   * on, and what is undecided is which of FR-025's two numbers `affectedCount`
+   * carries -- that member is one number and the requirement (MUST) names
+   * 「`TaskGroup` と `Task`」. ⛔ Nothing here may pick one and print it as the
+   * other. ⭐ CR-333 made it a rarer telling rather than a settled one: the
+   * picture now grows to S-217 before anything is dropped at all.
    *
    * @purity non-pure
    */
   async function exportPictureContent(
     form: SaveFileForm,
+    written: Document,
   ): Promise<ChosenFileSaveRequest['content'] | null> {
-    if (form !== 'png') {
-      // FR-029 (MUST): the press said nothing at all until 2026-09-01.
-      raiseNotice(UNWRITTEN_FORM_REASON, null)
-      return null
+    switch (form) {
+      case 'grsJson':
+      case 'mspdi':
+        // ⛔ Not reachable: `exportedText` answers for both, and this function
+        // is called only where it answered `null`. Named rather than left to a
+        // default so that a form added to `SaveFileForm` is a compile error.
+        return null
+      case 'singleHtml':
+        return await embeddedHtmlContent(written)
+      case 'svg':
+      case 'png': {
+        const scene = exportScene()
+        if (scene === null) return null
+        // IO-3 is the picture itself, and it is the same picture IO-4 is
+        // painted from -- WY-2 of table T-041 judges the two to be one drawing,
+        // and a second assembly is how they would come to differ.
+        if (form === 'svg') return { text: exportSvg(scene).svg }
+        return await rasteredContent(scene)
+      }
     }
+  }
+
+  /**
+   * IO-4 of table T-024 -- the picture painted, or `null` once the reason has
+   * been told.
+   *
+   * @purity non-pure
+   */
+  async function rasteredContent(
+    scene: ExportScene,
+  ): Promise<ChosenFileSaveRequest['content'] | null> {
     const seam = rasterizer
     if (seam === undefined) {
-      // FR-029 (MUST): this host supplies no rasterizer, so the write can
-      // never begin -- table T-233's RS-3, LM-14's row for an environment
-      // that cannot perform the write at all.
-      raiseNotice(NO_RASTERIZER_REASON, null)
+      raiseNotice(SEAM_ABSENT_REASON, null)
       return null
     }
-    const scene = exportScene()
-    if (scene === null) return null
     const painted = await exportPng(seam, scene)
     if (!painted.png.ok) {
       // FR-076 (MUST): a failure is told, carrying a row of table T-233.
@@ -6165,6 +6285,33 @@ export function frameLoop(
       return null
     }
     return { bytes: painted.png.pngBytes }
+  }
+
+  /**
+   * IO-7 of table T-024 -- the application and this document as one file, or
+   * `null` once the reason has been told.
+   *
+   * ⛔ THE ASSEMBLY IS NOT DONE HERE. UT-5 of table T-063 keeps the single
+   * .html in a codec of its own, and FR-067's 「入れ口が 1 つ」 rule lives with
+   * that codec; all this does is hand it the seam and the document.
+   *
+   * @purity non-pure
+   */
+  async function embeddedHtmlContent(
+    written: Document,
+  ): Promise<ChosenFileSaveRequest['content'] | null> {
+    const seam = appShell
+    if (seam === undefined) {
+      raiseNotice(SEAM_ABSENT_REASON, null)
+      return null
+    }
+    const made = await exportEmbeddedHtml(seam, written)
+    if (!made.ok) {
+      // FR-076 (MUST): a failure is told, carrying a row of table T-233.
+      raiseNotice(NOTICE_REASON_OF_EMBEDDED_HTML_FAULT[made.fault.reason], null)
+      return null
+    }
+    return { text: made.html }
   }
 
   /**
@@ -6264,6 +6411,33 @@ export function frameLoop(
       // FR-053 (MUST) keeps outside the palette -- this one rides on the band,
       // and a palette that is not shown has no band to press.
       isPaletteMinimised = !isPaletteMinimised
+      return true
+    }
+    if (entry === WATERMARK_ENTRY) {
+      // FR-020 (MUST, 利用者の裁定 2026-09-02): 「同じ入口（表 T-109 の `IC-41`）
+      // が両方向を担うこと …… 透かしが出ているときは押すと面が立ち、消えていると
+      // きは押すと問わずに戻す」 -- the same shape IC-75 above takes, and the
+      // precedent that requirement names for it.
+      //
+      // ⛔ THE HIDING DIRECTION IS NOT SPENT HERE, AND THAT IS THE GATE. FR-020
+      // (MUST) turns S-144 off 「合ったときにだけ」, so the press may only raise
+      // U-60 -- `screenStateFromEntry` has already done that for this happening
+      // -- and `matchWatermarkUnlock` is what lands the write once the digest
+      // has answered. ⭐ `false` leaves that raised surface standing and lets
+      // the press fall through exactly as it did before this arm existed.
+      if (screenState.watermarkVisible) return false
+      // ⭐⭐ 「透かしを出し直す側は問わないこと（MUST）」. The gate stands on the
+      // hiding side alone, so the way back writes S-144 and asks nothing.
+      // ⛔ THE SURFACE IS TAKEN BACK DOWN IN THE SAME BREATH, and no frame
+      // stands between: `screenStateFromInput` and this member answer the SAME
+      // happening, and the paint `ask` schedules comes after both -- so U-60 is
+      // never drawn and no question is put, which is the MUST.
+      // ⚠️ THE HONEST HOME FOR THE SPLIT IS `screenStateFromEntry`, whose arm
+      // raises U-60 for both directions; this round could not edit that file,
+      // and the direction is told apart here instead. ⛔ Reported rather than
+      // left unsaid: two members would then have to move together if either
+      // direction changed.
+      screenState = screenStateWithWatermark(screenStateWithSurface(screenState, null), true)
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
@@ -7445,7 +7619,7 @@ export function frameLoop(
       // `false` unless it is the surface standing, and a question raised over it
       // would otherwise take the press meant for it.
       (settledAnswer !== null &&
-        answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame)) ||
+        answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)

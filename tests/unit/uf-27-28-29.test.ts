@@ -1575,7 +1575,16 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
     const canvas = one.document.documentSettings.exportCanvas
 
     expect(T_024_IO_3.sizeRow).toBe('S-81')
-    expect(rootSizeOf(svg)).toEqual({ width: canvas.width, height: canvas.height })
+    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
+    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
+    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
+    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    const size = rootSizeOf(svg)
+    expect(size.width).toBe(canvas.width)
+    expect(size.height).toBeGreaterThanOrEqual(canvas.height)
+    expect(size.height).toBeLessThanOrEqual(
+      one.document.documentSettings.exportCanvasHeightCap,
+    )
   })
 
   it('GIVEN a settled frame WHEN AM-13 answers THEN what comes back is one SVG document, not a fragment', () => {
@@ -1602,7 +1611,16 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
     const canvas = one.document.documentSettings.exportCanvas
-    expect(rootSizeOf(answer.value)).toEqual({ width: canvas.width, height: canvas.height })
+    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
+    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
+    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
+    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    const size = rootSizeOf(answer.value)
+    expect(size.width).toBe(canvas.width)
+    expect(size.height).toBeGreaterThanOrEqual(canvas.height)
+    expect(size.height).toBeLessThanOrEqual(
+      one.document.documentSettings.exportCanvasHeightCap,
+    )
   })
 
   it('GIVEN no frame has settled WHEN AM-13 answers THEN the refusal is a value naming its own row (FR-028, AG-9a)', () => {

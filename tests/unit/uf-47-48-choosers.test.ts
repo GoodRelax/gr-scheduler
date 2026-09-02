@@ -76,6 +76,16 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import type {
+  AppShellReading,
+  AppShellSource,
+} from '../../src/adapter/document-codec/document-codec'
+import type {
+  RasterFaultReason,
+  RasterSizePx,
+  Rastering,
+  Rasterizer,
+} from '../../src/adapter/image-exporter/image-exporter'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import {
@@ -2201,34 +2211,52 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
       }
     })
 
-    it(`⭐ the form this build cannot write is told in RS-40's own words (${language})`, async () => {
-      // 「RS-40 | この形式は、このビルドではまだ書けない | `NT-3a` | 表 T-024」,
-      // and NT-3a (MUST NOT) forbids telling of a failure with no next step --
-      // which for this row is 「別の形式を選んでください」 / 'Choose another
-      // format', the one step that can actually be taken.
-      // GOES RED IF: no offered format carries the row at all (it went back to
-      // RS-15, or the row stopped reaching the raiser).
-      const words = wordsFor('RS-40')
+    it(`⭐ every refused format is told in the OWN words of the row it carries (${language})`, async () => {
+      // ⛔⛔ THE CASE THIS REPLACED ASSERTED A FACT OF THE BUILD AND NOT OF THE
+      // SPECIFICATION. It walked for `RS-40`'s words -- 「この形式は、このビルド
+      // ではまだ書けない」 -- and required at least one offered format to
+      // carry them, which held only while `.svg` and 単一 `.html` had no writer.
+      // Both are written since CR-333's round, so that walk now walks nothing,
+      // and the note at the head of this block already says which formats are
+      // unwritten 「is not typed here, and may not be」.
+      //
+      // ⭐ WHAT IS ASSERTED INSTEAD IS THE RULE ITSELF, and it is stronger: for
+      // EVERY offered format that wrote nothing, the words on the screen are
+      // one row of table T-233, that row is not `RS-15`, and the manner and the
+      // next step are the ones the table and FR-038's dictionary pair with it.
+      // GOES RED IF: a refusal is worded with something no row holds, or is
+      // given a manner or a next step from another row.
       const carried: string[] = []
       for (const rowId of fileBearingOutDirectionRows()) {
         const { written, view } = await pressIn(rowId, language)
         if (written > 0) continue
         for (const notice of view.notices) {
-          if (notice.text !== words.text[language]) continue
-          carried.push(rowId)
+          const row = REASON_WORDS.find((one) => one.text[language] === notice.text)
+          expect(
+            row,
+            `FR-076 (MUST NOT): table T-024 row ${rowId} was refused in words FR-038's ` +
+              `dictionary holds for no row of table T-233 -- ${JSON.stringify(notice.text)}`,
+          ).toBeDefined()
+          if (row === undefined) continue
+          expect(
+            row.rowId,
+            `FR-076: table T-024 row ${rowId} landed on RS-15, the place kept for a reason ` +
+              'table T-233 holds no row for',
+          ).not.toBe('RS-15')
+          carried.push(row.rowId)
           expect(
             notice.manner,
-            `table T-233 makes RS-40's manner ${mannerFor('RS-40')}`,
-          ).toBe(mannerFor('RS-40'))
+            `table T-233 makes ${row.rowId}'s manner ${mannerFor(row.rowId)}`,
+          ).toBe(mannerFor(row.rowId))
           expect(
             notice.nextSteps,
             'NT-3a (MUST NOT): told it failed with nothing to do next',
-          ).toContain(words.nextStep[language])
+          ).toContain(row.nextStep[language])
         }
       }
       expect(
         carried.length,
-        'FR-029 (MUST): no format of table T-024 was refused with RS-40, so this case walked ' +
+        'FR-029 (MUST): no format of table T-024 refused a press, so this case walked ' +
           'nothing (rule 04, §2)',
       ).toBeGreaterThan(0)
     })
@@ -2657,5 +2685,215 @@ describe('the tables are read by position, so the positions are pinned', () => {
     //   問う前に通すこと（MUST）**」 -- recorded so that a manuscript that moves
     // the order reaches this file.
     expect(rowOf(T_024A, 'OP-5').cells.join(' ')).toContain('`OP-3`')
+  })
+})
+
+// ===========================================================================
+// Table T-024 -- every form the chooser offers is written, and the three
+// pictures say WHY when they cannot be
+// ===========================================================================
+//
+// ⛔⛔ THE DEFECT THESE CASES ANSWER TO IS D-173. Measured on the shipped build
+// of 2026-09-01: `.html`, `.svg` and `.png` were all offered on FR-096's
+// chooser, and pressing any of them wrote no file and said nothing. FR-096
+// (MUST) has GRS 「選ばれた形式の規約に従って書き出すこと」 for every row of
+// table T-024 that goes out as a file, and FR-029 (MUST) has a press that
+// cannot act say why.
+//
+// ⭐ THE TWO SEAMS ARE WHAT DECIDES WHICH OF THE TWO HAPPENS. IF-6
+// (`Rasterizer`) paints IO-4 and IF-8 (`AppShellSource`) supplies the
+// application's own HTML for IO-7; a host that hands neither can write neither,
+// and that is LM-14's environment rather than a defect.
+describe('table T-024 / FR-096 -- the three picture forms are written', () => {
+  /** IF-6, answering with bytes a case can recognise. */
+  const paintingRasterizer = (): Rasterizer => ({
+    rasterizePng: async (_svg: string, sizePx: RasterSizePx): Promise<Rastering> => ({
+      ok: true,
+      pngBytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47, sizePx.heightPx % 251]),
+    }),
+  })
+
+  /** IF-6, refusing in one of `RasterFaultReason`'s three ways. */
+  const refusingRasterizer = (reason: RasterFaultReason): Rasterizer => ({
+    rasterizePng: async (): Promise<Rastering> => ({
+      ok: false,
+      fault: { reason, what: 'the case asked the canvas to refuse' },
+    }),
+  })
+
+  const APP_SHELL_HTML = '<!DOCTYPE html>\n<html><head></head><body>GRS</body></html>\n'
+
+  /** IF-8, answering with an application a case can recognise. */
+  const readableAppShell = (): AppShellSource => ({
+    readAppShell: async (): Promise<AppShellReading> => ({
+      ok: true,
+      appShell: { html: APP_SHELL_HTML, embeddedDocumentElementId: 'embedded-document' },
+    }),
+  })
+
+  /** IF-8, in the environment LM-14 names: the application cannot read itself. */
+  const unreadableAppShell = (): AppShellSource => ({
+    readAppShell: async (): Promise<AppShellReading> => ({
+      ok: false,
+      what: 'the case asked the application not to read itself',
+    }),
+  })
+
+  interface Pressed {
+    readonly written: readonly ChosenFileWrite[]
+    readonly view: ScreenView
+  }
+
+  /**
+   * Press one row of table T-024 on the export chooser, with the seams a case
+   * chooses to hand in.
+   *
+   * @purity non-pure
+   */
+  const pressWithSeams = async (
+    rowId: string,
+    seams: { rasterizer?: Rasterizer; appShell?: AppShellSource } = {},
+    language: DisplayLanguage = 'ja',
+  ): Promise<Pressed> => {
+    const pane = host()
+    const screen = screenPane(language)
+    const files = fileStore()
+    const loop = frameLoop(
+      pane.surface,
+      here('Plan of record'),
+      SCREEN,
+      screen.wiring,
+      files.store,
+      undefined,
+      undefined,
+      undefined,
+      seams.rasterizer,
+      seams.appShell,
+    )
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+    takeFormat(loop, screen, rowId)
+    await settle()
+    pane.runAnimationFrames()
+    return { written: files.written, view: screen.last() }
+  }
+
+  /** What one write put on the disk, as characters. */
+  const textOf = (write: ChosenFileWrite | undefined): string =>
+    write === undefined ? '' : new TextDecoder().decode(write.bytes)
+
+  it('⭐ IO-3 writes the picture PI-21 assembled (D-173: it wrote nothing)', async () => {
+    // FR-096 (MUST): 「選ばれた形式の規約に従って書き出すこと」, and IO-3's
+    // convention is an SVG document. WY-2 of table T-041 makes it the same
+    // drawing IO-4 is painted from, which is why the root is the export's.
+    // GOES RED IF: the `svg` arm of `exportPictureContent` stops assembling --
+    // the press then writes nothing, as it did on 2026-09-01.
+    const { written } = await pressWithSeams('IO-3')
+    expect(written, 'FR-029 (MUST): the press wrote nothing and said nothing').toHaveLength(1)
+    const text = textOf(written[0])
+    expect(text.startsWith('<svg')).toBe(true)
+    expect(text.trimEnd().endsWith('</svg>')).toBe(true)
+    expect(written[0]?.extension, 'FR-096 (MUST): table T-024 gives IO-3 its extension').toBe(
+      '.svg',
+    )
+  })
+
+  it('⭐ IO-7 writes the application with this document inside it (FR-067)', async () => {
+    // FR-067: 「アプリと 1 つの文書を 1 ファイルに」. The container is the one
+    // BT-1 of table T-034 reads back, so a file this writes can be opened again.
+    // GOES RED IF: the `singleHtml` arm stops calling the codec, or the shell's
+    // side of IF-8 stops being handed in.
+    const { written } = await pressWithSeams('IO-7', { appShell: readableAppShell() })
+    expect(written, 'FR-029 (MUST): the press wrote nothing and said nothing').toHaveLength(1)
+    const text = textOf(written[0])
+    expect(text.startsWith('<!DOCTYPE html>')).toBe(true)
+    expect(text, 'the application itself is in the file').toContain('<body>GRS')
+    expect(text, 'BT-1 reads the document out of this container').toContain(
+      '<script type="application/json" id="embedded-document">',
+    )
+    expect(text, 'FR-024: the document inside it is GRS JSON').toContain('"schemaVersion"')
+    expect(written[0]?.extension).toBe('.html')
+  })
+
+  it('⭐ IO-4 writes the bytes IF-6 painted, at the size the picture asks for', async () => {
+    // FR-025 (MUST): the pixels are the picture's size times S-82. The fake
+    // above folds the height it was asked for into its last byte, so a route
+    // that asked for a different size answers with a different file.
+    const { written } = await pressWithSeams('IO-4', { rasterizer: paintingRasterizer() })
+    expect(written).toHaveLength(1)
+    expect([...(written[0]?.bytes ?? [])].slice(0, 4)).toEqual([0x89, 0x50, 0x4e, 0x47])
+    expect(written[0]?.extension).toBe('.png')
+  })
+
+  for (const language of ['ja', 'en'] as const) {
+    it(`⭐ a canvas that refuses is told in RS-42's or RS-43's own words (${language})`, async () => {
+      // ⭐⭐ CR-333 SPLIT THE THREE. Table T-233 now holds 「RS-42 | 原因の分から
+      // ない失敗 | NT-3a | FR-102」 and 「RS-43 | 伸ばしても描ける大きさを超えた |
+      // NT-3a | FR-025」. `tooLarge` is the one whose cause is known and whose
+      // next step a reader can take, so it is RS-43; the other two are RS-42.
+      // GOES RED IF: any of the three goes back to RS-15, FR-076's landing
+      // place for a reason table T-233 holds no row for -- which is where all
+      // three stood until 2026-09-02.
+      const owed: Readonly<Record<RasterFaultReason, string>> = {
+        unsupported: 'RS-42',
+        tooLarge: 'RS-43',
+        rasterFailed: 'RS-42',
+      }
+      for (const reason of Object.keys(owed) as readonly RasterFaultReason[]) {
+        const rowId = owed[reason]
+        const words = wordsFor(rowId)
+        const { written, view } = await pressWithSeams(
+          'IO-4',
+          { rasterizer: refusingRasterizer(reason) },
+          language,
+        )
+        expect(written, `${reason}: nothing may be written when the canvas refused`).toHaveLength(0)
+        const texts = view.notices.map((notice) => notice.text)
+        expect(texts, `${reason} is owed table T-233 row ${rowId}`).toContain(words.text[language])
+        expect(texts, 'FR-076 (MUST NOT): RS-15 is for a reason with no row').not.toContain(
+          wordsFor('RS-15').text[language],
+        )
+        for (const notice of view.notices) {
+          if (notice.text !== words.text[language]) continue
+          expect(notice.manner).toBe(mannerFor(rowId))
+          expect(
+            notice.nextSteps,
+            'NT-3a (MUST): a failure is told with what can be done next',
+          ).toContain(words.nextStep[language])
+        }
+      }
+    })
+
+    it(`⭐ an application that cannot read itself is told, not silent (${language})`, async () => {
+      // LM-14 of table T-004 is the environment: opened straight off the disk,
+      // an application cannot always read its own source. `app-shell-source.ts`
+      // declares ONE failure for that reason -- 「there is one next step here
+      // whatever went wrong」 -- and the reader's ruling of 2026-09-02 makes
+      // that next step FR-102's recording, which is RS-42.
+      // GOES RED IF: the press returns in silence, which FR-029 (MUST) forbids.
+      const words = wordsFor('RS-42')
+      const { written, view } = await pressWithSeams(
+        'IO-7',
+        { appShell: unreadableAppShell() },
+        language,
+      )
+      expect(written).toHaveLength(0)
+      expect(view.notices.map((notice) => notice.text)).toContain(words.text[language])
+    })
+  }
+
+  it('⛔ a host that hands neither seam refuses both, and says so (LM-14 / RS-3)', async () => {
+    // FR-029 (MUST): the press cannot act, so it says why. RS-3 is table
+    // T-233's row for 「書き込みを試みたが、この環境では行えなかった」, whose 正
+    // is LM-14 -- the same row a host with no save chooser answers with.
+    // GOES RED IF: a missing seam returns `null` in silence again.
+    const words = wordsFor('RS-3')
+    for (const rowId of ['IO-4', 'IO-7']) {
+      const { written, view } = await pressWithSeams(rowId)
+      expect(written, `${rowId} wrote a file with no seam to make it from`).toHaveLength(0)
+      expect(view.notices.map((notice) => notice.text), `${rowId} said nothing`).toContain(
+        words.text['ja'],
+      )
+    }
   })
 })

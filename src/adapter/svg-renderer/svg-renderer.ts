@@ -254,10 +254,13 @@ function cornersOfBar(bar: BarGeometry): Path {
 /**
  * The four corners of a rectangle CENTRED on one point.
  *
- * ⭐ Centred rather than anchored at a corner because that is where the point
- * already stands for its reader: `item-hit-area.ts` centres S-93's box on the
- * same point (`isNearPoint` with half of each side), so the drawn mark and the
- * target it belongs to share a middle whatever the two sizes are.
+ * ⚠️ ITS ONE CALLER HANDS IT A MIDDLE IT WORKED OUT, never a day's edge:
+ * `centreFromLeftEdge` turns FR-043's aligned point into the middle of the
+ * mark. ⛔ The note that stood here said the hit box was centred on the same
+ * point and that the two therefore shared a middle. That is no longer so --
+ * table T-023d anchors GR-9 / GR-17 / GR-18 at the day column's LEFT EDGE
+ * (MUST) and forbids centring them (MUST NOT) -- and the two now share that
+ * EDGE instead, which is the thing FR-043 asks the drawing to align to.
  *
  * @purity pure
  */

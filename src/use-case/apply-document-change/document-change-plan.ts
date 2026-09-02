@@ -200,12 +200,14 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
     // `planActualDisplay` (S-59), `guideCursorMode` (S-66) and `fontScale`
     // (S-70) are absent by ruling and not by omission.
-    // ⭐ `watermarkVisible` (S-144) IS THE NINTH BOOLEAN ROW AND IS KEPT LIKE
-    // THE REST. UN-7 rules on the row, not on who writes it: `VisibleElement`
-    // not naming it says which COMMAND can move it, and reading that as "so
-    // UN-7 does not reach it" was this file's own inference rather than
-    // anything a row states. It is a display toggle, so an undo of an unrelated
-    // edit must not rewind it.
+    // ⛔⛔ `watermarkVisible` (S-144) IS NOT AMONG THEM SINCE 2026-09-02, and
+    // its absence is a ruling rather than an omission (利用者の裁定, CR-335):
+    // the row LEFT table T-202 for table T-206 that day, so UN-7 -- which rules
+    // on 表 T-202 の真偽の行 -- no longer reaches it, and there is no column of
+    // `DocumentSettings` left to keep. ⭐ Nothing is owed here in its place:
+    // the value is `ScreenState.watermarkVisible` now, and the history holds
+    // the DOCUMENT, so a value the document does not carry cannot be rewound
+    // by an undo in the first place.
     assigneeVisible: current.assigneeVisible,
     percentCompleteVisible: current.percentCompleteVisible,
     dependencyVisible: current.dependencyVisible,
@@ -214,7 +216,6 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     dateGridLinesVisible: current.dateGridLinesVisible,
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
-    watermarkVisible: current.watermarkVisible,
 
     // UN-16 -- where you look and what you export. `setPanelWidths` (CM-67)
     // writes the pair, `setExportPngScale` (CM-70) writes the scale.

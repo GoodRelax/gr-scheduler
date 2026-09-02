@@ -7,9 +7,10 @@
 //
 // The values the screen uses that the document does NOT keep: what is armed
 // (table T-023b), whether the palette is showing (S-99e), whether the view is
-// full screen (S-99f) and which surface is open (S-99g). U-51 of the glossary
-// forbids calling this "the screen's state" in prose, because table T-203 and
-// the K-67..K-72 rows already use that name for values that ARE saved.
+// full screen (S-99f), which surface is open (S-99g) and whether the watermark
+// is drawn (S-144). U-51 of the glossary forbids calling this "the screen's
+// state" in prose, because table T-203 and the K-67..K-72 rows already use that
+// name for values that ARE saved.
 //
 // Held as one immutable value and replaced whole (LY-1), so this file publishes
 // no setter -- every function returns a new state.
@@ -53,6 +54,21 @@ export interface ScreenState {
   readonly fullScreen: boolean
   /** S-99g. Its default is that none is open. */
   readonly surface: OpenSurface
+  /**
+   * S-144 of table T-206 -- whether FR-020's watermark is drawn. Its default is
+   * 出す.
+   *
+   * ⛔⛔ NOT A DOCUMENT SETTING, AND MAY NOT BECOME ONE. FR-020's STATEMENT
+   * (MUST NOT): 「透かしの設定を文書に保存してはならない」, and the row sat in
+   * table T-202 -- the saved side -- until 2026-09-02 (利用者の裁定, CR-335).
+   * ⚠️ WHY SAVING IT IS THE DEFECT AND NOT A CONVENIENCE: what the watermark
+   * shows is who had the schedule on screen and when, so it is remade every
+   * time a document is opened and is not a property OF the document. Burnt into
+   * the file, one person who knows the unlock password takes the trace away
+   * from everyone downstream, permanently; held here, hiding it lasts only as
+   * long as the screen it was hidden on.
+   */
+  readonly watermarkVisible: boolean
 }
 
 const NONE: Armed = { kind: 'none' }
@@ -62,6 +78,11 @@ const EMPTY: ScreenState = {
   paletteShown: true,
   fullScreen: false,
   surface: null,
+  // S-144's 既定値 is 出す. ⭐ THE SAFE DIRECTION IS ALSO THE ROW'S: a state
+  // that comes up showing can only be taken away by the password FR-020 asks
+  // for, while a state that came up hidden would take the trace off every
+  // document opened in a fresh screen without anyone asking.
+  watermarkVisible: true,
 }
 
 /** @purity pure */
@@ -87,6 +108,34 @@ export function screenStateWithPalette(state: ScreenState, shown: boolean): Scre
 /** @purity pure */
 export function screenStateWithFullScreen(state: ScreenState, on: boolean): ScreenState {
   return { ...state, fullScreen: on }
+}
+
+/**
+ * S-144 -- put the watermark on the screen, or take it off it.
+ *
+ * ⛔ THE GATE IS NOT HERE AND MAY NOT BE. FR-020 (MUST) asks the watermark
+ * unlock password on the HIDING side only, and the match is a SHA-256
+ * comparison against typed characters, which no pure member can compute
+ * (LR-6). ⭐ So this file holds the value and the side that asked holds the
+ * question -- the same split `screenStateWithFullScreen` takes, where the
+ * browser is asked elsewhere and the flag lives here.
+ *
+ * ⛔⛔ NOTHING CALLS IT YET, AND THE ROW THAT IS MISSING IS TABLE T-064's.
+ * Both sides that owe a write to S-144 stand in other component folders -- the
+ * way back is `screenStateFromEntry` in `InputCommandTranslator` and the way
+ * out is `matchWatermarkUnlock` in the shell -- and Chapter 5.3 (MUST NOT) lets
+ * no name cross that table does not publish. `PI-36` was not widened when
+ * CR-335 moved S-144 out of the document, so this member cannot be called from
+ * either side until that cell names it. ⚠️ Check 26b measures exactly that and
+ * refuses the import; the call site in the translator carries the same STOP.
+ * ⭐ IT IS WRITTEN AND NOT DEFERRED because the value it writes is this
+ * component's, and a caller that spread the state itself would put a second
+ * writer of one value in a second component (rule 03 section 1).
+ *
+ * @purity pure
+ */
+export function screenStateWithWatermark(state: ScreenState, visible: boolean): ScreenState {
+  return { ...state, watermarkVisible: visible }
 }
 
 /**

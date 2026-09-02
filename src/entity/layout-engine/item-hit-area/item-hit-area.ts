@@ -468,13 +468,43 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
   return Math.abs(x - edge) <= slop.actualEndpoint
 }
 
-/** @purity pure */
+/**
+ * GR-9 / GR-17 / GR-18, anchored where table T-023d's closing rule anchors
+ * them: 「その日の列の左端を起点に、右へ `S-93` の幅で取ること」 (MUST), and
+ * ⛔ 「起点を中心にしてはならない」 (MUST NOT).
+ *
+ * ⭐ THE POINT THE GEOMETRY CARRIES IS THAT LEFT EDGE (`xFromDay`), so the box
+ * runs rightwards from it and the drawn ink starts on the same pixel --
+ * `svg-renderer.ts` builds the mark from the same edge, which is what FR-043's
+ * 「日の列の左端に揃える」 asks of the drawing.
+ *
+ * ⛔ CENTRING IS WHAT THE RULE FORBIDS, and the reason is measured: half of
+ * S-93's width is 2.5 days at 6px a day, so a centred box reaches back over
+ * the plan's own start point -- the very thing FR-043 moved this handle a day
+ * along to keep separate. Where GR-3 stands above it the reach is merely
+ * hidden rather than harmless (measured on the shipped build at 6px a day: 3px
+ * of it stuck out to the left of GR-3's own band), and GR-18 has no GR-3 above
+ * it at all.
+ *
+ * ⚠️ THE VERTICAL STAYS CENTRED. The rule settles the horizontal alone, and
+ * the point sits on the middle of the actual band, so S-93's height is spread
+ * about it the way it always was.
+ *
+ * ⚠️ GR-9's own note: the box is S-93 and NOT the whole Task, or a Task not
+ * started would have no middle left for GR-12 to move.
+ *
+ * @purity pure
+ */
 function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: number, y: number,
                    slop: PointerSlop): boolean {
-  const point = dummyAt(task, grab)
-  // GR-9's own note: the dummy is S-93 in size and NOT the whole Task, or a
-  // Task not started would have no middle left for GR-12 to move.
-  return point !== null && isNearPoint(x, y, point, slop.dummyWidth / 2, slop.dummyHeight / 2)
+  const leftEdge = dummyAt(task, grab)
+  if (leftEdge === null) return false
+  return isInsideBoxInclusive(x, y, {
+    x: leftEdge.x,
+    y: leftEdge.y - slop.dummyHeight / 2,
+    width: slop.dummyWidth,
+    height: slop.dummyHeight,
+  })
 }
 
 /**

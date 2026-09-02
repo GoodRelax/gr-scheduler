@@ -1874,8 +1874,8 @@
     "en": "Some tasks did not fit, so they are not drawn"
    },
    "nextStep": {
-    "ja": "倍率を上げるか、出力の大きさを変えると描かれます",
-    "en": "Raise the zoom or change the output size and they will be drawn"
+    "ja": "行を畳むか、期間を絞ってから書き出してください",
+    "en": "Fold some rows or narrow the period, then export again"
    }
   },
   {

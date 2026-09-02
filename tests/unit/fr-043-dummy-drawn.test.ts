@@ -67,14 +67,20 @@
 //
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
-//   * ⛔ GR-18'S LEFT EDGE. FR-043's alignment MUST names 「日の列の左端」, but
-//     the milestone paragraph immediately after hands 「位置と当たり判定」 to
-//     table T-023d's GR-18, whose place is 「未着手のマイルストーンの図形の上」 --
-//     and LF-10 of table T-221 CENTRES that shape on 「`start` の位置」. So the
-//     two readings put GR-18's ink half a shape apart and no row decides between
-//     them. ⭐ THE WIDTH IS ASSERTED FOR GR-18 (S-180's row names GR-18, and
-//     FR-043's width MUST is written of 「ダミー」 with no exception); the LEFT
-//     EDGE IS NOT.
+//   * ⭐⭐ GR-18'S LEFT EDGE IS NOW ASSERTED. THE GAP THIS NOTE RECORDED IS
+//     CLOSED (CR-332, 利用者の裁定 2026-09-02). Until that day the milestone
+//     paragraph of FR-043 handed 「位置と当たり判定」 to table T-023d's GR-18,
+//     whose place was 「未着手のマイルストーンの図形の上」, while FR-043's own
+//     alignment MUST said 「日の列の左端」 and LF-10 of table T-221 centres the
+//     shape on 「`start` の位置」 -- two readings half a shape apart, with no row
+//     between them. So this file asserted GR-18's WIDTH and refused its LEFT
+//     EDGE. ⛔ FR-043 now reads 「位置は例外ではない（MUST NOT）…… ダミーは形状
+//     を問わず予定の開始日の翌稼働日に立ち」 and table T-023d's GR-18 reads
+//     「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ場所である」, so one day
+//     along from the plan start is the answer for every shape and the alignment
+//     MUST reaches GR-18 with nothing left to decide.
+//     ⚠️ LF-10 DID NOT MOVE: 「図形そのものは `start` の位置に中央で置かれた
+//     ままである …… 動いたのはダミーであって図形ではない」（FR-043）.
 //   * GR-18's vertical. A milestone has no actual bar (table T-023d, GR-15),
 //     so S-180's 「縦の広がりは実績バーの帯に従う」 reaches GR-9 and GR-17 and
 //     stops. Nothing here claims a height for GR-18.
@@ -129,6 +135,7 @@ const GR_3 = rowOf('T-023d', 'GR-3')
 const GR_7 = rowOf('T-023d', 'GR-7')
 const GR_9 = rowOf('T-023d', 'GR-9')
 const GR_17 = rowOf('T-023d', 'GR-17')
+const GR_18 = rowOf('T-023d', 'GR-18')
 const NS_3 = rowOf('T-231', 'NS-3')
 
 /** Every number a cell writes, in the order it writes them. */
@@ -719,6 +726,48 @@ const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: s
 }
 
 /**
+ * Where GR-18's ink must begin: the left edge of the day column one working day
+ * past the milestone's own day.
+ *
+ * ⭐ THE SPECIFICATION'S ARITHMETIC, composed the same way `inkExpectedOf` does
+ * it for GR-9. The ruler Task of `milestoneSchedule` starts on the milestone's
+ * own day, so its plan bar's left edge is where that day's column begins
+ * (T-023d GR-3); the document's calendar works every day, so 「翌稼働日」 is the
+ * next day; and one day is `S-1` × `zoomX` (FR-017).
+ */
+const gr18ColumnLeftOf = (fresh: Drawn, zoomX: number): number =>
+  planBoxOf(fresh, 2).x0 + dayWidthAt(zoomX)
+
+/**
+ * The ink of a not-started milestone's ONE dummy (table T-023d's GR-18).
+ *
+ * ⭐ SELECTED WITHOUT USING AN x, so a case may measure one. What the fresh
+ * picture draws and the started twin does not is the dummy and the not-started
+ * marker (PM-1a and PM-1 are different figures), and the marker is named by its
+ * own centre rather than by a place this file computed -- GR-7 puts it
+ * 「マイルストーンのときは図形の外側」, which is not a pixel any row fixes.
+ *
+ * ⛔ Throws when there is no ink at all, so a case cannot pass over a picture
+ * that draws no dummy anywhere.
+ */
+const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
+  const marker = geometryOf(fresh, UNDER_TEST).marker
+  if (marker === null) {
+    throw new Error('FR-013 drew no not-started marker, so the dummy cannot be told from it')
+  }
+  const isTheMarker = (box: Box): boolean =>
+    sameOnGrid((box.x0 + box.x1) / 2, marker.centre.x) &&
+    sameOnGrid((box.y0 + box.y1) / 2, marker.centre.y)
+  const found = onlyIn(fresh.svg, started.svg).filter(
+    (one) => one.box !== null && !isTheMarker(one.box),
+  )
+  if (found.length === 0) {
+    throw new Error('the picture draws nothing at GR-18 for a milestone nobody has started')
+  }
+  return found
+}
+
+/**
  * The dummy ink of a not-started rectangle Task: what the fresh picture draws
  * and the started twin does not, standing in the actual bar's own band.
  *
@@ -819,6 +868,14 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     expect(GR_3['場所']).toContain('予定バーの左端')
     expect(GR_9['場所']).toContain('予定の開始日の翌稼働日')
     expect(GR_17['場所']).toContain('S-129')
+    // ⭐ CR-332: GR-18 stands where GR-9 stands, so the alignment MUST reaches
+    // it. If this row went back to 「図形の上」 the milestone cases below would
+    // be the wrong ones to be writing.
+    // ⚠️ The cell still SPEAKS of 「未着手のマイルストーンの図形の上」, in the
+    // ⛔⛔ note that records what the row said until 2026-09-02, so this guard
+    // asks for the standing rule and not for the absence of the history.
+    expect(GR_18['場所']).toContain('予定の開始日の翌稼働日')
+    expect(GR_18['場所']).toContain('`GR-9` と同じ場所である')
     expect(DUMMY_WIDTH_UPPER_BOUND).toBeGreaterThan(0)
   })
 
@@ -963,31 +1020,45 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   })
 
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
-    it(`GR-18 (MUST): a milestone not started draws one dummy, min(1 day, S-180) wide at ${dayWidthAt(zoomX)}px/day`, () => {
-      // FR-043: 「⚠️ マイルストーンは例外である —— 実績バーを持たないので（表
-      // T-023d の `GR-15`）、ダミーは点として 1 つだけ出し、実績期間は `S-130` と
-      // すること（MUST）」. The width MUST above is written of 「ダミー」 with no
-      // exception, and S-180's row names GR-18 among the three it bounds.
-      // ⛔ NO VERTICAL AND NO LEFT EDGE ARE ASSERTED -- see the header: a
-      // milestone has no actual bar, and 「位置」 for GR-18 is 「図形の上」 while
-      // LF-10 centres that shape on the day.
+    const days = `${dayWidthAt(zoomX)}px/day`
+
+    it(`GR-18 (MUST): a milestone not started draws one dummy, min(1 day, S-180) wide at ${days}`, () => {
+      // FR-043: 「⚠️ マイルストーンの例外は 2 つだけである —— 実績バーを持たない
+      // ので（表 T-023d の `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）。
+      // 実績期間は `S-130` とすること（MUST）」. The width MUST is written of
+      // 「ダミー」 with no exception, and S-180's row names GR-18 among the three
+      // it bounds.
+      // ⛔ NO VERTICAL IS ASSERTED -- a milestone has no actual bar, so S-180's
+      // 「縦の広がりは実績バーの帯に従う」 reaches GR-9 and GR-17 and stops.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const dummies = geometryOf(fresh, UNDER_TEST).dummies
       expect(dummies.map((one) => one.grab)).toEqual(['GR-18'])
-      // The ruler Task starts on the milestone's own day, so its bar's left
-      // edge is where that day's column begins (T-023d GR-3).
-      const dayLeft = planBoxOf(fresh, 2).x0
-      const width = drawnWidthAt(zoomX)
-      // Probed inside the day's own column, which is where the ink must be
-      // whichever of the two readings of GR-18's 位置 turns out to be right:
-      // 「日の列の左端に揃え」 puts it at `dayLeft`, 「図形の上」 puts it around
-      // the shape's centre, and the shape is centred on the same day.
-      const drawnFigures = drawnAt(fresh.svg, started.svg, dayLeft + width / 2)
-      expect(drawnFigures.length, 'nothing is drawn at GR-18').toBeGreaterThan(0)
-      const box = unionOf(drawnFigures)
-      expect(onGrid(box.x1 - box.x0)).toBeCloseTo(onGrid(width), 2)
+      const box = unionOf(gr18InkOf(fresh, started))
+      expect(onGrid(box.x1 - box.x0)).toBeCloseTo(onGrid(drawnWidthAt(zoomX)), 2)
     })
+
+    it(`⭐ GR-18 (MUST) begins at the day column AFTER the milestone's own day at ${days}`, () => {
+      // ⛔ RED WHILE THE DUMMY STANDS ON THE FIGURE. CR-332 (利用者の裁定
+      // 2026-09-02) settled the reading this file used to refuse:
+      //   表 T-023d GR-18  「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ
+      //                    場所である」
+      //   FR-043           「日の列の左端に揃えること（MUST）」 and ⛔⛔ 「位置は
+      //                    例外ではない（MUST NOT）—— ダミーは形状を問わず予定の
+      //                    開始日の翌稼働日に立ち」
+      // ⭐ The arithmetic is the specification's: the ruler Task's plan bar begins
+      // at the milestone's own day column (T-023d GR-3), this document's calendar
+      // works every day so 「翌稼働日」 is the next day, and one day is `S-1` ×
+      // `zoomX` (FR-017).
+      const fresh = draw(milestoneSchedule(), zoomX)
+      const started = draw(startedMilestoneSchedule(), zoomX)
+      const box = unionOf(gr18InkOf(fresh, started))
+      expect(onGrid(box.x0), `GR-18 left edge at ${days}`).toBeCloseTo(
+        onGrid(gr18ColumnLeftOf(fresh, zoomX)),
+        2,
+      )
+    })
+
   }
 
 })

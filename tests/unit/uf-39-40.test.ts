@@ -32,14 +32,20 @@
 //   table T-041  WY-3: for every part table T-076 draws, the screen's bounding
 //               rectangle times the ratio IS the rectangle in the export
 //   table T-076  EP-1 .. EP-14, which part of the screen reaches the picture
-//   FR-025      the output size is fixed at S-81 and never asked for (MUST
-//               NOT); the PNG's pixels are S-81 times S-82; what will not fit
-//               goes from the bottom by whole `TaskGroup`s (MUST), never cut
-//               through one (MUST NOT), never by changing the ratio (MUST
-//               NOT); a picture shorter than S-81 leaves the rest blank (MUST)
-//               and no row is added to fill it (MUST NOT); a `TaskGroup`
-//               already cut at the TOP of the screen stays cut (MUST); what
-//               went undrawn is reported (MUST)
+//   FR-025      the output size is never asked for (MUST NOT); the width is
+//               fixed at S-81's (MUST) and the height grows until the
+//               picture fits (MUST), as far as S-217 and no further (MUST);
+//               the PNG's pixels are that size times S-82; what will not fit
+//               UNDER S-217 goes from the bottom by whole `TaskGroup`s
+//               (MUST), never cut through one (MUST NOT), never by changing
+//               the ratio (MUST NOT); a picture shorter than S-81 leaves the
+//               rest blank (MUST) and no row is added to fill it (MUST NOT);
+//               a `TaskGroup` already cut at the TOP of the screen stays cut
+//               (MUST); what went undrawn is reported (MUST)
+//   CR-333      the reader's ruling of 2026-09-02 that grew the height. Its
+//               cases are gathered in the last describe of this file;
+//               everything before it runs with the ceiling lowered to S-81's
+//               own height, which is what `AT_CEILING` is for
 //   table T-024  IO-3 (SVG) and IO-4 (PNG) are two outputs of ONE operation
 //   table T-035  AG-8: a failed image comes back as a value
 //   FR-028      nothing is thrown across this boundary (MUST NOT)
@@ -118,6 +124,29 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({ ...SETTINGS_BASE, ...part }) as unknown as DocumentSettings
 
 const SETTINGS = settingsOf()
+
+/**
+ * The same settings with S-217's ceiling lowered to S-81's own height.
+ *
+ * ⭐⭐ CR-333 MADE THIS FIXTURE NECESSARY, and it is what keeps every case
+ * below measuring the rule it was written for. FR-025 now (MUST) fixes the
+ * WIDTH at S-81's and grows the HEIGHT until the picture fits, dropping
+ * `TaskGroup`s only where the growth would pass `exportCanvasHeightCap`
+ * (S-217). The screen below is 1000 x 800 and the ratio is 1.6, so the picture
+ * wants to be 1280 tall -- far under the shipped 4096 -- and nothing is ever
+ * dropped from it.
+ * ⛔ THE CEILING IS LOWERED RATHER THAN THE SCREEN MADE TALLER, because
+ * lowering it changes ONE number and leaves every other expectation in this
+ * file standing at the value the specification put it at: at a ceiling of 900
+ * the picture may not grow at all, which is precisely the state FR-025
+ * described before CR-333 and still describes at the ceiling.
+ * ⭐ The growth itself is measured in `tests/unit/fr-025-height-grows-to-the-
+ * ceiling.test.ts`, against the shipped S-217.
+ */
+const atCeiling = (part: Record<string, unknown> = {}): DocumentSettings =>
+  settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvas.height, ...part })
+
+const AT_CEILING = atCeiling()
 
 // ---------------------------------------------------------------------------
 // The screen this component is handed. ⭐ Built here from FR-051's and
@@ -644,7 +673,10 @@ const sceneOf = (
   svg: PICTURE,
   regions,
   screenView: view,
-  settings: SETTINGS,
+  // ⚠️ `AT_CEILING` and not `SETTINGS`: see the note at that constant. Every
+  // case that overrides this member has to keep the lowered ceiling, which
+  // `atCeiling` is for.
+  settings: AT_CEILING,
   ...part,
 })
 
@@ -778,7 +810,7 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     // ⭐ Rule 04, section 2: the acceptance test of a value that travels from
     // manuscript is "change one value and the test fails". Halving S-81's width
     // has to halve the ratio, and with it every rectangle drawn.
-    const narrow = settingsOf({
+    const narrow = atCeiling({
       exportCanvas: {
         width: SETTINGS.exportCanvas.width / 2,
         height: SETTINGS.exportCanvas.height,
@@ -1356,7 +1388,7 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
 
   it('asks for S-81 times S-82 pixels (one case walks both values of S-82)', async () => {
     for (const scale of T_204_S82) {
-      const settings = settingsOf({ exportPngScale: scale })
+      const settings = atCeiling({ exportPngScale: scale })
       const { rasterizer, calls } = watchedRasterizer()
       const scene = sceneOf(viewOf(TALL_ROWS), { settings })
       const result = await exportPng(rasterizer, scene)
@@ -1818,5 +1850,140 @@ describe('boundaries of the SVG route', () => {
     ]
     const answer = exportSvg(sceneOf(viewOf(rows)))
     expect(answer.droppedGroupIds).toEqual(['a1', 'a2'])
+  })
+})
+
+// ===========================================================================
+// FR-025 (CR-333) -- the picture grows downward to a ceiling
+// ===========================================================================
+//
+// ⭐⭐ THE READER'S RULING OF 2026-09-02, VERBATIM: 「倍率の問題は出ない。見えて
+// る範囲を 1600x900 に出力が原則だろ？収まらない場合は縦の 900 を延ばせ」 and
+// 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」.
+//
+// ⭐ FR-025 now reads 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
+// るところまで伸ばすこと（MUST）」, 「伸ばしてよいのはその `S-217` までとするこ
+// と（MUST）」 and 「`S-217` を超えるときに限り、超えた分を下端側から `TaskGroup`
+// 単位で落とすこと（MUST）」. S-81's height is the FLOOR -- 「縮めた絵の高さが
+// `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）」 -- and
+// S-217 (`exportCanvasHeightCap`) is the ceiling.
+//
+// ⚠️ EVERY CASE BELOW USES THE SHIPPED CEILING, unlike the rest of this file:
+// `AT_CEILING` exists so the older cases keep measuring the drop, and these are
+// the ones that measure the growth the drop now happens beyond.
+describe('FR-025 -- the height grows to fit and stops at S-217', () => {
+  const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
+
+  /** The picture, read off IO-3's own entry, for a screen of this height. */
+  const grownFor = (
+    height: number,
+    rows: readonly RowTitle[] = TALL_ROWS,
+    settings: DocumentSettings = SETTINGS,
+  ): SvgExport => {
+    const screen = screenOf(height)
+    const regions = regionsOf(screen, settings)
+    return exportSvg(sceneOf(viewOf(rows), { settings }, regions))
+  }
+
+  it('grows the height to the shrunken screen when that is taller than S-81 (MUST)', () => {
+    // The screen is 1000 wide, so the ratio is S-81's width over 1000. A screen
+    // 800 tall is 800 x that ratio once shrunk, and the picture is that tall.
+    // GOES RED IF: the height goes back to being read off `exportCanvas`.
+    const picture = grownFor(800)
+    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
+    expect(picture.heightPx).toBeCloseTo(800 * ratio, 6)
+    expect(picture.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
+    const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
+    expect(num((root as Drawn).attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num((root as Drawn).attrs, 'height')).toBeCloseTo(picture.heightPx, 6)
+    expect((root as Drawn).attrs['viewBox']).toBe(
+      `0 0 ${SETTINGS.exportCanvas.width} ${picture.heightPx}`,
+    )
+  })
+
+  it('keeps the width at S-81\'s, whatever the height does (MUST)', () => {
+    // FR-080 takes the ratio off S-81's WIDTH over the screen's width, and
+    // FR-025 (MUST) fixes the width at S-81's -- so no height may move it.
+    for (const height of [200, 800, 3000]) {
+      const picture = grownFor(height)
+      const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
+      expect(num((root as Drawn).attrs, 'width'), `screen ${height} tall`).toBe(
+        SETTINGS.exportCanvas.width,
+      )
+    }
+  })
+
+  it('never falls below S-81\'s height, and leaves the remainder blank (MUST NOT: fill it)', () => {
+    // A screen 400 tall shrinks to well under S-81's height. FR-025 (MUST)
+    // leaves the rest of the picture blank rather than shrinking the frame to
+    // the drawing, so S-81's height is a floor.
+    // ⚠️ Only the rows that fit ON a screen 400 tall: a row drawn below the
+    // screen's own bottom edge is not a case about the picture's height.
+    const picture = grownFor(400, TALL_ROWS.slice(0, 3))
+    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
+    expect(400 * ratio).toBeLessThan(SETTINGS.exportCanvas.height)
+    expect(picture.heightPx).toBe(SETTINGS.exportCanvas.height)
+    expect(picture.droppedGroupIds).toEqual([])
+  })
+
+  it('drops nothing at all while the picture still fits under the ceiling (MUST)', () => {
+    // ⛔ THIS IS WHAT CR-333 CHANGED. The same rows on the same screen used to
+    // lose `g5` and `g6` off the bottom, because the frame stopped at S-81's
+    // height. Now the frame grows past them.
+    const picture = grownFor(800)
+    expect(picture.droppedGroupIds).toEqual([])
+    expect(picture.heightPx).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
+  })
+
+  it('stops at S-217 and drops whole TaskGroups from the bottom beyond it (MUST NOT: cut one)', () => {
+    // A screen 3000 tall wants a picture 4800 tall, which is past the ceiling.
+    // The rows below are 500 apart, so the one that straddles the ceiling --
+    // `c6`, at the screen's own 2500 -- and everything under it goes.
+    const ratio = SETTINGS.exportCanvas.width / SCREEN.width
+    const fitLimit = SETTINGS.exportCanvasHeightCap / ratio
+    const rows: readonly RowTitle[] = [0, 500, 1000, 1500, 2000, 2500].map((y, at) =>
+      rowOf(`c${at + 1}`, 1, { x: 0, y, width: SETTINGS.rowTitlePanelWidth, height: 500 }),
+    )
+    expect(3000 * ratio, 'the case is only about a screen that passes the ceiling').toBeGreaterThan(
+      SETTINGS.exportCanvasHeightCap,
+    )
+    const picture = grownFor(3000, rows)
+    expect(picture.heightPx).toBe(SETTINGS.exportCanvasHeightCap)
+    expect(picture.droppedGroupIds).toEqual(['c6'])
+    // ⛔ The cut lands on the row's own top edge, never inside it (MUST NOT).
+    const assembled = assembledOf(
+      picture,
+      sceneOf(viewOf(rows), { settings: SETTINGS }, regionsOf(screenOf(3000))),
+    )
+    expect(assembled.clip).not.toBeNull()
+    expect((assembled.clip as ScreenRect).height).toBeCloseTo(2500 * ratio, 6)
+    expect(2500).toBeLessThan(fitLimit)
+  })
+
+  it('follows S-217 when the manuscript moves it (rule 04, section 2)', () => {
+    // ⭐ The acceptance test of a value that travels from the manuscript is
+    // 「change one value and the test fails」. Halving the ceiling has to halve
+    // where the picture stops.
+    const halved = settingsOf({
+      exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2,
+    })
+    expect(grownFor(3000, TALL_ROWS, halved).heightPx).toBe(
+      SETTINGS.exportCanvasHeightCap / 2,
+    )
+  })
+
+  it('asks the rasterizer for the GROWN height times S-82 (MUST)', async () => {
+    // FR-025 (MUST): the pixels are the picture's size times S-82. ⛔ A route
+    // that read `exportCanvas.height` again here would paint a 900-unit window
+    // onto a picture 1280 tall.
+    const { rasterizer, calls } = watchedRasterizer()
+    const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS }, regionsOf(screenOf(800)))
+    const result = await exportPng(rasterizer, scene)
+    expect(calls).toHaveLength(1)
+    expect(calls[0]?.sizePx).toEqual({
+      widthPx: SETTINGS.exportCanvas.width * SETTINGS.exportPngScale,
+      heightPx: result.heightPx * SETTINGS.exportPngScale,
+    })
+    expect(result.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
   })
 })

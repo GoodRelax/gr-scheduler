@@ -149,6 +149,19 @@ export interface SvgExport {
   /** IO-3's output: `exportCanvas` wide, `exportCanvas` tall, and what the rasterizer is given. */
   readonly svg: string
   /**
+   * The height FR-025 grew the picture to.
+   *
+   * ⭐ `S-81`'s height at the least and `S-217`'s ceiling at the most. FR-025
+   * (MUST) fixes the WIDTH at `S-81`'s and lets the height grow until the
+   * picture fits, so the width is still the settings' own value and needs no
+   * member -- this is the one of the two that varies (the reader's ruling of
+   * 2026-09-02, 「収まらない場合は縦の 900 を延ばせ」).
+   * ⛔ Published rather than worked out again by the caller: `exportPng` paints
+   * at this height times `S-82`, and a second arithmetic is how the raster and
+   * the picture would come to be different sizes.
+   */
+  readonly heightPx: number
+  /**
    * The `TaskGroup`s FR-025 kept out, top-most first.
    *
    * ⭐ Ids, not counts. FR-025 (MUST) has the export tell a person how many
@@ -441,13 +454,24 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
  * (MUST NOT) -- either one would take the ratio away from S-81's width over the
  * screen's.
  *
- * ⭐ THE CUT. FR-025 (MUST) drops, from the bottom, the `TaskGroup` that
- * straddles S-81's lower edge and every `TaskGroup` below it, and forbids
- * cutting one in the middle (MUST NOT) or changing the ratio to make it fit
- * (MUST NOT). The rows' own bands are the boundaries the cut may land on, so
- * the clip is set to the top of the first dropped row. ⚠️ A `TaskGroup`
- * already cut off at the TOP of the screen stays cut as the screen has it
- * (MUST): the clip has no upper edge, so nothing here touches it.
+ * ⭐⭐ THE HEIGHT GROWS DOWNWARD TO A CEILING (CR-333, the reader's ruling of
+ * 2026-09-02 「収まらない場合は縦の 900 を延ばせ」). FR-025 (MUST) now fixes the
+ * WIDTH at S-81's and has the height grow until the picture fits -- S-81's
+ * height is the floor rather than the ceiling -- and lets it grow no further
+ * than S-217 (`exportCanvasHeightCap`, MUST). ⚠️ A picture shorter than S-81's
+ * height still leaves the rest blank (MUST) and no row is added to fill it
+ * (MUST NOT), which is why the floor is a floor and not simply the fit.
+ * ⚠️ The ceiling is not a taste: the picture grows with the screen, and a
+ * screen tall enough to reach 28,000px is where a machine stops painting.
+ *
+ * ⭐ THE CUT, WHICH NOW HAPPENS ONLY AT THE CEILING. FR-025 (MUST) drops, from
+ * the bottom, the `TaskGroup` that straddles the lower edge and every
+ * `TaskGroup` below it, and forbids cutting one in the middle (MUST NOT) or
+ * changing the ratio to make it fit (MUST NOT). The rows' own bands are the
+ * boundaries the cut may land on, so the clip is set to the top of the first
+ * dropped row. ⚠️ A `TaskGroup` already cut off at the TOP of the screen stays
+ * cut as the screen has it (MUST): the clip has no upper edge, so nothing here
+ * touches it.
  *
  * ⚠️ The received picture is the one thing NOT multiplied through: it is an
  * opaque string, so it goes inside a scaling group. Its own root carries the
@@ -460,8 +484,17 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
   const screenWidth = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const ratio = settings.exportCanvas.width / screenWidth
-  // How much of the screen, in the screen's own units, the canvas can hold.
-  const fitHeight = settings.exportCanvas.height / ratio
+  // ⭐ The whole screen, measured the way the width above is measured, so the
+  // two axes cannot disagree about where the screen ends.
+  const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
+  // FR-025 (MUST): S-81's height is the floor, the shrunken screen is what the
+  // picture grows to, and S-217 is the ceiling.
+  const height = Math.min(
+    Math.max(settings.exportCanvas.height, screenHeight * ratio),
+    settings.exportCanvasHeightCap,
+  )
+  // How much of the screen, in the screen's own units, the grown canvas holds.
+  const fitHeight = height / ratio
 
   const titles = screenView.rowTitlePanel.titles
   const firstDroppedAt = titles.findIndex((title) => title.box.y + title.box.height > fitHeight)
@@ -486,7 +519,6 @@ export function exportSvg(scene: ExportScene): SvgExport {
     dividerLinesSvg(screenView, ratio)
 
   const width = settings.exportCanvas.width
-  const height = settings.exportCanvas.height
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}">` +
@@ -498,7 +530,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     drawnHere +
     '</g></svg>'
 
-  return { svg, droppedGroupIds: dropped.map((title) => title.groupId) }
+  return { svg, heightPx: height, droppedGroupIds: dropped.map((title) => title.groupId) }
 }
 
 /**
@@ -511,10 +543,12 @@ export function exportSvg(scene: ExportScene): SvgExport {
  * ⚠️ Trusting the seam's own promise instead would leave a requirement's
  * guarantee in a file this component does not own.
  *
- * ⭐ The pixel size is S-81 multiplied by S-82 (MUST: the scale is chosen from
- * S-82's values; MUST NOT: the size is not chosen at each export). Both values
- * come from the document, so the same JSON gives the same output -- which is
- * the reason FR-025's RATIONALE gives for saving them at all.
+ * ⭐ The pixel size is the picture's own size multiplied by S-82 (MUST: the
+ * scale is chosen from S-82's values; MUST NOT: the size is not chosen at each
+ * export). The width is S-81's and the height is the one `exportSvg` grew to
+ * within S-217 (CR-333). Both settings come from the document, so the same
+ * JSON in the same screen gives the same output -- which is the reason
+ * FR-025's RATIONALE gives for saving them at all.
  *
  * ⚠️ The seam comes first because it is what the shell supplies once at wiring
  * time, while the scene is what differs from call to call.
@@ -527,9 +561,13 @@ export async function exportPng(
 ): Promise<ImageExport> {
   const picture = exportSvg(scene)
   const scale = scene.settings.exportPngScale
+  // ⭐ THE PICTURE'S OWN HEIGHT, NOT S-81's. FR-025 (MUST) grows the height to
+  // fit and stops at S-217, so the raster is painted at what `exportSvg`
+  // actually drew -- reading the setting again here would paint a 900-unit
+  // window onto a picture that is taller than that (CR-333).
   const sizePx = {
     widthPx: scene.settings.exportCanvas.width * scale,
-    heightPx: scene.settings.exportCanvas.height * scale,
+    heightPx: picture.heightPx * scale,
   }
   try {
     return { ...picture, png: await rasterizer.rasterizePng(picture.svg, sizePx) }

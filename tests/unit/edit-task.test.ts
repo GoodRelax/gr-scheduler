@@ -29,6 +29,39 @@ import {
   type PlanActualPlacement,
   type TaskCommand,
 } from '../../src/use-case/edit-document/edit-document'
+import { bare, specTable } from '../contract/spec-table'
+
+// ---------------------------------------------------------------------------
+// The settings this file spends, read out of the manuscript rather than copied
+// ---------------------------------------------------------------------------
+
+/**
+ * One numbered setting's 既定値, taken from 表 T-201 of
+ * `docs/spec/_assets/tbl-settings.md` at run time.
+ *
+ * ⭐ Chapter 1.9 (:275) asks a test that verifies a requirement pointing at a
+ * table to be driven by data copied from that table; taking the copy at read
+ * time is what keeps it from falling behind the row. ⚠️ A cell that stopped
+ * being a plain number throws here, naming the row, rather than reaching an
+ * expectation as `NaN` and leaving a case green.
+ */
+const settingDefault = (rowId: string): number => {
+  const row = specTable('T-201').rows.find((one) => one.id === rowId)
+  if (row === undefined) throw new Error(`table T-201 has no row ${rowId}`)
+  const cell = row.by['既定値']
+  if (cell === undefined) {
+    throw new Error(`table T-201 has no 既定値 column; it has ${Object.keys(row.by).join(', ')}`)
+  }
+  const value = Number(bare(cell))
+  if (!Number.isFinite(value)) throw new Error(`${rowId}'s 既定値 is ${cell}, not a number`)
+  return value
+}
+
+/** `S-129` — 「掴みシロを掴んだときに置く実績期間」, in worked days (`FR-043`). */
+const ACTUAL_INITIAL_DURATION = settingDefault('S-129')
+
+/** `S-130` — a milestone is a point, so it carries this length instead. */
+const MILESTONE_ACTUAL_DURATION = settingDefault('S-130')
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -158,8 +191,8 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
 const SETTINGS = {
   importMinDate: '1970-01-01', // S-119
   importMaxDate: '2200-12-31', // S-120
-  actualInitialDuration: 1, // S-129
-  milestoneActualDuration: 0, // S-130
+  actualInitialDuration: ACTUAL_INITIAL_DURATION, // S-129
+  milestoneActualDuration: MILESTONE_ACTUAL_DURATION, // S-130
   maxGroupDepth: 5, // S-125
   stackSafetyCap: 255, // S-89
 } as unknown as DocumentSettings
@@ -800,27 +833,57 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     expect(task.actualStart).toBe(jan(8))
     expect(task.actualStart).not.toBe(jan(5))
     expect(task.actualStart).not.toBe(jan(6))
-    expect(task.actualDuration).toBe(1)
+    expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
     expect(task.resumeValid).toBe(true)
     // PA-2's other columns stay empty, so the task reads as in progress.
     expect(planActualState(task)).toBe('inProgress')
   })
 
-  it('FR-043 gives a milestone S-130 instead, because a point has no length', () => {
-    // MUST: a milestone carries no actual bar (GR-15), so the dummy is a single
-    // point and S-130 is 0 -- a fixed value chosen to satisfy PA-2 .. PA-5.
-    // ⭐ AND IT KEEPS THE PLAN DAY. FR-043 makes the milestone 例外 and sends
-    // its 「位置と当たり判定」 to GR-18, whose place is the figure itself, so
-    // the day let go of is not what is written for this shape.
+  it('FR-043 gives a milestone S-130 for its length and still writes the day let go of', () => {
+    // ⭐ THE LENGTH IS AN EXCEPTION AND THE DAY IS NOT. FR-043 (MUST):
+    // 「マイルストーンの例外は 2 つだけである —— 実績バーを持たないので（表
+    // T-023d の `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）。実績期間は
+    // `S-130` とすること（MUST）」, and then ⛔⛔ 「位置は例外ではない（MUST
+    // NOT）」（利用者の裁定 2026-09-02「マイルストーンは中心が配置する場所。
+    // ただし、実績のダミーは翌日」）—— 「ダミーは形状を問わず予定の開始日の翌
+    // 稼働日に立ち、離した日が実績開始になる」.
+    //
+    // ⛔ WHAT THIS CASE USED TO ASSERT AND WHY IT NO LONGER DOES. Until CR-332
+    // FR-043 sent the milestone's 「位置と当たり判定」 to T-023d's GR-18, whose
+    // place was 「未着手のマイルストーンの図形の上」, and this case read the
+    // plan day back. ⛔ The dummy has since left the figure, so the reasoning
+    // that branch rested on -- 「図形の上に在り、ぶつかる `GR-3` が無いから」 --
+    // is gone with it. ⚠️ The figure itself did NOT move: 表 T-221 の `LF-10`
+    // still centres it on `start` (FR-043: 「動いたのはダミーであって図形では
+    // ない」).
+    //
+    // ⚠️ THE FIXTURE SEPARATES ALL THREE READINGS. jan(9) is a Friday and
+    // jan(17) a Saturday, so the plan day (9th), the working day the dummy is
+    // DRAWN on (12th, the Monday -- 「予定の開始日の翌稼働日」, 暦に従う
+    // `FR-054`) and the day the hand let go on (17th) are three different days,
+    // and none of them is the working day a forbidden snap would reach (the
+    // 16th behind it or the 19th ahead of it). ⛔ 「掴んだ端点を置いた日を、稼働
+    // 日へ寄せてはならない（MUST NOT）」（表 T-023d の結び）—— 休日に働くことが
+    // ある.
     const next = accepted(
       run(
-        notStarted({ start: jan(12), finish: jan(12), milestone: true }, { shapeKind: 'milestone' }),
-        { kind: 'beginTaskActual', uid: 1, droppedDay: jan(15) },
+        notStarted({ start: jan(9), finish: jan(9), milestone: true }, { shapeKind: 'milestone' }),
+        { kind: 'beginTaskActual', uid: 1, droppedDay: jan(17) },
       ),
     )
     const task = taskIn(next, 1)
-    expect(task.actualStart).toBe(jan(12))
-    expect(task.actualDuration).toBe(0)
+    expect(task.actualStart, 'FR-043: 実績開始日 ＝ 掴みシロを離した日').toBe(jan(17))
+    expect(task.actualStart, 'FR-043 (MUST NOT): 位置は例外ではない').not.toBe(jan(9))
+    expect(task.actualStart, 'FR-043: 翌稼働日 is where the dummy is DRAWN, not what is written')
+      .not.toBe(jan(12))
+    expect(task.actualStart, 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
+      .not.toBe(jan(16))
+    expect(task.actualStart, 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
+      .not.toBe(jan(19))
+    // ⭐ Exception ②, which the ruling left standing: a point has no length.
+    expect(task.actualDuration, 'FR-043 (MUST): 実績期間は S-130 とすること').toBe(
+      MILESTONE_ACTUAL_DURATION,
+    )
     expect(task.resumeValid).toBe(true)
   })
 })

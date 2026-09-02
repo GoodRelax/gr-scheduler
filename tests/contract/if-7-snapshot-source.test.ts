@@ -274,8 +274,18 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
     expect(IO_3['備考']).toContain('S-81')
     expect(bare(S_81['キー'] ?? '')).toBe('exportCanvas')
 
-    const svg = exported(endpoint().api.exportSvg())
-    expect(rootSizeOf(svg)).toEqual(EXPORT_CANVAS)
+    const one = endpoint()
+    const svg = exported(one.api.exportSvg())
+    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
+    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
+    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
+    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    const size = rootSizeOf(svg)
+    expect(size.width).toBe(EXPORT_CANVAS.width)
+    expect(size.height).toBeGreaterThanOrEqual(EXPORT_CANVAS.height)
+    expect(size.height).toBeLessThanOrEqual(
+      one.shell.loop.document().documentSettings.exportCanvasHeightCap,
+    )
   })
 
   it('the size it takes is the one the running document carries, not one chosen at the call', () => {
@@ -284,7 +294,16 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
     // number the picture takes has to be the document's own.
     const one = endpoint()
     expect(one.shell.loop.document().documentSettings.exportCanvas).toEqual(EXPORT_CANVAS)
-    expect(rootSizeOf(exported(one.api.exportSvg()))).toEqual(EXPORT_CANVAS)
+    // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
+    // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
+    // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
+    // （MUST）」 -- so S-81's height is the FLOOR and S-217 is the ceiling.
+    const size = rootSizeOf(exported(one.api.exportSvg()))
+    expect(size.width).toBe(EXPORT_CANVAS.width)
+    expect(size.height).toBeGreaterThanOrEqual(EXPORT_CANVAS.height)
+    expect(size.height).toBeLessThanOrEqual(
+      one.shell.loop.document().documentSettings.exportCanvasHeightCap,
+    )
   })
 
   it('what comes back is one SVG document, not a fragment', () => {

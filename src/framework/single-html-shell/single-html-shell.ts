@@ -66,10 +66,11 @@
 // responsibility column says this component holds. FR-067's exactly-one check
 // and its notify-then-descend are `embeddedStartupDocument`'s, and the id it
 // looks for is fixed by the contract `app-shell-source.ts` carries.
-// ⛔ The counterpart is still owed: UF-47 also owes `AppShellSource`'s
-// implementation (IF-8), and nothing in `src/` implements it -- so this build
-// can READ an embedded document and cannot WRITE one, and index.html ships no
-// container for a writer to find.
+// ⭐⭐ THE COUNTERPART IS NO LONGER OWED. UF-47's other half -- `AppShellSource`
+// (IF-8) -- is `appShellSource` below, so this build can WRITE an embedded
+// document as well as read one, and IO-7 of table T-024 goes out as a file
+// (D-173). ⚠️ index.html still ships no container, so the first export takes
+// the writer's 「there is none yet, add one」 branch.
 //
 // ⭐ THE PUBLIC POINT IS PLACED HERE, which is the other half of UF-47's row:
 // `installAgentApi` (PI-17) builds the surface and refuses to place it, and
@@ -101,7 +102,15 @@ import type { Document } from '../../entity/document-model/document/document'
 // own shape is derived from this signature below, so no name crosses the folder
 // that table T-064 has no row for.
 import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
-import { documentFromJson } from '../../adapter/document-codec/document-codec'
+// ⛔ `AppShellReading` IS NOT IMPORTED, AND THE ANSWER BELOW IS NOT ANNOTATED
+// WITH IT. Table T-064's PI-20 is the full count of what DocumentCodec may be
+// asked for and it names `AppShellSource` and not that type, so the name may not
+// cross this folder (check 26b). The seam's own member declares the return
+// type, and the object below is typed by it.
+import {
+  documentFromJson,
+  type AppShellSource,
+} from '../../adapter/document-codec/document-codec'
 import type {
   DisplayLanguage,
   ScreenSurface,
@@ -224,6 +233,87 @@ const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
  * nothing.
  */
 const EMBEDDED_DOCUMENT_ABSENT = 'null'
+
+/**
+ * The application as the host delivered it, taken before this file has built
+ * anything -- IF-8's one value, and the other half of UF-47's row.
+ *
+ * ⛔⛔ TAKEN AT THE HEAD OF `boot` AND NEVER AGAIN, WHICH IS THE WHOLE OF WHAT
+ * MAKES IT THE DELIVERED APPLICATION. `AppShell.html` says in as many words
+ * that a serialization of the LIVE DOM would carry a screen's worth of nodes
+ * FR-067 never asked for and would grow with every export of an export. At the
+ * first statement of `boot` the parser has finished and this file has appended
+ * nothing, so what stands in the page is exactly what the host was given --
+ * and re-exporting an export starts from that same delivered text, so the file
+ * does not grow. ⚠️ Measured 2026-09-02: 1,753,785 characters once the screen
+ * is drawn against the artifact's own 1,116,570 bytes, which is the size of the
+ * mistake this timing avoids.
+ *
+ * ⛔ `fetch(location.href)` IS NOT USED, AND IT IS NOT A MATTER OF TASTE. It
+ * answers with the artifact's own bytes where it works, and it is refused
+ * outright for a page opened from disk -- measured 2026-09-02, Chromium on a
+ * `file://` page: `TypeError: Failed to fetch`. That is LM-14's environment and
+ * the one this tool is meant to be carried around in, so the road that fails
+ * exactly there cannot be the road.
+ *
+ * ⚠️ WHAT IS GIVEN UP is byte-for-byte fidelity: this is the parsed document
+ * serialized again, so quoting and empty-element spelling are the browser's
+ * rather than the file's. ⛔ The two things that would BREAK are both kept: a
+ * `<script>` element's text is serialized verbatim, so CN-8's `script-src`
+ * hash still matches, and no character reference is introduced inside it.
+ */
+let deliveredAppShellHtml: string | null = null
+
+/**
+ * The page as it stands, with the prologue `outerHTML` leaves out.
+ *
+ * ⚠️ THE DOCTYPE IS NOT DECORATION. `documentElement.outerHTML` begins at
+ * `<html>`, and an exported file without the prologue is parsed in quirks
+ * mode -- a different page from the one that was exported.
+ *
+ * @purity semi-pure-b
+ */
+function readDeliveredHtml(): string {
+  const prologue = document.doctype === null ? '' : `<!DOCTYPE ${document.doctype.name}>\n`
+  return `${prologue}${document.documentElement.outerHTML}\n`
+}
+
+/**
+ * IF-8's implementation (table T-065), which UF-47 of table T-075 gives to this
+ * unit.
+ *
+ * ⭐ IT ANSWERS FROM WHAT WAS TAKEN, and asking the page again is exactly what
+ * `AppShell.html` forbids -- see `deliveredAppShellHtml`. The member is still a
+ * promise because the seam is: an implementation that had to fetch its own file
+ * would need one, and the caller may not be made to know which kind it got.
+ * ⛔ THE ID IS THE SHELL'S TO SUPPLY AND NOT THE SHELL'S TO CHOOSE. It is the
+ * same constant BT-1 reads with, which is what makes the writer aim at the
+ * element the reader opens; `app-shell-source.ts` carries the contract that
+ * fixes the value.
+ *
+ * @purity semi-pure-b
+ */
+function appShellSource(): AppShellSource {
+  return {
+    /** @purity semi-pure-b */
+    async readAppShell() {
+      const delivered = deliveredAppShellHtml
+      if (delivered === null || delivered === '') {
+        // ⚠️ Only reachable if this seam is asked before `boot` has run, which
+        // no road of this build takes. It is answered rather than thrown
+        // because FR-028 (MUST NOT) forbids the throw across the seam.
+        return { ok: false, what: 'the application was not read before the screen was built' }
+      }
+      return {
+        ok: true,
+        appShell: {
+          html: delivered,
+          embeddedDocumentElementId: EMBEDDED_DOCUMENT_ELEMENT_ID,
+        },
+      }
+    },
+  }
+}
 
 /**
  * Where the `Agent API` appears while it is on.
@@ -529,6 +619,11 @@ function environmentOf(appHeaderHeight: number, scrollbarThickness: number): Fra
 
 /** @purity non-pure */
 function boot(): void {
+  // ⛔ THE FIRST STATEMENT, AND IT HAS TO STAY THE FIRST. IF-8 answers with the
+  // application AS DELIVERED, and the line below is where this file begins
+  // building a screen into the same page.
+  deliveredAppShellHtml = readDeliveredHtml()
+
   const scheduleCanvas = document.createElement('div')
   scheduleCanvas.dataset.role = SCHEDULE_CANVAS_ROLE
   scheduleCanvas.setAttribute('style', AT_WINDOW_ORIGIN)
@@ -901,6 +996,10 @@ function boot(): void {
     // `createElement` on it and nothing else, which is what lets that unit be
     // tested where there is no browser.
     canvasRasterizer(document),
+    // IF-8 (UF-47). ⭐ THE COUNTERPART THIS FILE OWED: BT-1 could READ an
+    // embedded document and nothing could WRITE one, so IO-7 of table T-024
+    // stood on FR-096's chooser and wrote nothing (D-173).
+    appShellSource(),
   )
   loop = running
 
