@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Checks 12-14: gate the defect types that every review round regenerates.
+"""Checks 12-14 and 32: gate the defect types that every review round regenerates.
 
 Seven rounds of review kept producing the same four kinds of duplication,
 because none of checks 1-11 look for them: the near-duplicate detector only
@@ -14,9 +14,11 @@ checks gate the types mechanically, so the next round cannot recreate them.
     14  a value written twice        a settings default that also appears
                                      as a literal in the requirements
                                      (advisory: printed, does not fail)
+    32  the outright forbidden word  部品 outside the lines that name it AS
+                                     forbidden (table T-006b, A-17)
 
 Usage: python style-checks.py [repo-root]
-Exit code 1 if check 12 or 13 reports a finding.
+Exit code 1 if check 12 or 32 reports a finding.
 
 NOTE ON NON-ASCII: the patterns hold Japanese text because the
 specification is written in Japanese; those code points are data.
@@ -162,6 +164,46 @@ for num, owners in sorted(defaults.items(), key=lambda kv: -len(kv[1])):
                            ' '.join(str(h) for h in hits[:6])
                            + (' ...' if len(hits) > 6 else '')))
 
+# ------------------------------------------------------- check 32
+
+# A-17 of table T-006b is the one row of that table that forbids a word
+# outright -- compounds included -- and the same row exempts the places that
+# name it AS forbidden.  So a line may hold the word exactly when it cites
+# A-17, the table, or calls it a forbidden word.
+# ⭐ THAT EXEMPTION IS READ FROM THE RULE, NOT HELD IN A BASELINE.  A baseline
+# would have to be edited every time the changelog mentions the ban again, and
+# a held line is a debt; this one cannot go stale.
+#
+# ⚠️ WHY IT IS HERE. Until 2026-09-03 the word was counted only by
+# audit-ch5.py, which check.sh does not run -- so the count sat red for a whole
+# round and nobody was told (the ledger's D-227).  A check nothing runs is not
+# a check.
+FORBIDDEN_WORD = '部品'
+NAMES_THE_BAN = re.compile(r'A-17|T-006b|禁止語')
+
+
+def spec_markdown():
+    """Every manuscript of docs/spec, without the strictdoc export."""
+    found = []
+    for here, dirs, names in os.walk(os.path.join(ROOT, 'docs', 'spec')):
+        dirs[:] = [d for d in dirs if d not in ('output', '__pycache__')]
+        for name in sorted(names):
+            if name.endswith('.md'):
+                found.append(os.path.relpath(os.path.join(here, name), ROOT)
+                             .replace(os.sep, '/'))
+    return sorted(found)
+
+
+for rel in spec_markdown():
+    for i, line in enumerate(read(rel), 1):
+        if FORBIDDEN_WORD not in line or NAMES_THE_BAN.search(line):
+            continue
+        report('32', rel, i,
+               'the forbidden word %s -- A-17 of table T-006b forbids it, '
+               'compounds included. Write コンポーネント / モジュール / ユニット '
+               'for a unit of structure, or UI パーツ for a thing on screen'
+               % FORBIDDEN_WORD)
+
 # ------------------------------------------------------- output
 
 for f in sorted(findings):
@@ -173,6 +215,11 @@ print('check 13 (transfer leftover, ADVISORY): %d'
       % len([a for a in advisory if a.startswith('13')]))
 print('check 14 (value echoed, ADVISORY)     : %d'
       % len([a for a in advisory if a.startswith('14')]))
+print('check 32 (forbidden word 部品)        : %d  (%d lines name the ban and '
+      'are exempt)'
+      % (len([f for f in findings if f.startswith('32')]),
+         len([1 for rel in spec_markdown() for line in read(rel)
+              if FORBIDDEN_WORD in line and NAMES_THE_BAN.search(line)])))
 if advisory:
     print('')
     print('-- advisory: these are candidates to read, not proven defects.')

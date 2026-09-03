@@ -53,6 +53,15 @@ const FILES = [
   join('_assets', 'fig-erd-overview.md'),
 ]
 
+/**
+ * The heading Chapter 1.9 (:274) gives the first column of a numbered table.
+ *
+ * ⚠️ A Japanese literal in code. Rule 03 section 5 keeps code English and ASCII
+ * and admits 日本語そのものを扱う処理 as the exception -- this is the word the
+ * Japanese manuscript writes, and matching it is the whole job of this file.
+ */
+const ROW_ID_HEADING = '行 ID'
+
 const cells = (line: string): string[] =>
   line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
 
@@ -61,9 +70,18 @@ const isSeparator = (line: string): boolean => /^\|[\s:|-]+\|$/.test(line.trim()
 /**
  * The table with this ID, wherever in the specification it lives.
  *
- * Throws when the table is missing, when it has no rows, or when its first
- * column is not a row ID -- all three mean the test cannot name a line of the
- * specification when it fails, which is the whole point of driving it here.
+ * Throws when the table is missing, when it has no rows, or when nothing under
+ * the caption is headed by a row ID -- all three mean the test cannot name a
+ * line of the specification when it fails, which is the whole point of driving
+ * it here.
+ *
+ * ⛔ THE HEADING ROW IS SEARCHED FOR, NOT ASSUMED TO BE THE FIRST ONE. Taking
+ * the first markdown row as the heading is what made table T-012a unreadable
+ * (the ledger's D-216): its caption is followed by a four-vertex table headed
+ * 「点」 before the row-ID one, so the helper threw on the vertex table's
+ * heading while its own rows were being read correctly. ⚠️ Chapter 1.9 (:274)
+ * makes 「行 ID」 the first column of EVERY numbered table, which is what makes
+ * the heading findable rather than positional.
  */
 export function specTable(id: string): SpecTable {
   for (const file of FILES) {
@@ -82,7 +100,7 @@ export function specTable(id: string): SpecTable {
       if (isSeparator(line)) continue
       const row = cells(line)
       if (headings.length === 0) {
-        headings = row
+        if (row[0] === ROW_ID_HEADING) headings = row
         continue
       }
       if (row.length !== headings.length) continue
@@ -95,10 +113,10 @@ export function specTable(id: string): SpecTable {
       rows.push({ id: first, cells: row.slice(1), by })
     }
 
-    if (headings[0] !== '行 ID') {
+    if (headings.length === 0) {
       throw new Error(
-        `table ${id} in ${file}: the first column is ${JSON.stringify(headings[0])}, ` +
-          'not the row ID that Chapter 1.9 requires (:274)',
+        `table ${id} in ${file}: no markdown row under the caption is headed ` +
+          `${JSON.stringify(ROW_ID_HEADING)}, the first column Chapter 1.9 requires (:274)`,
       )
     }
     if (rows.length === 0) {

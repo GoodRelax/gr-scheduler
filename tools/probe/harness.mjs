@@ -118,6 +118,18 @@ export async function pressAt(x, y) {
   await page().mouse.up()
 }
 
+/**
+ * Press twice at a point, which is the gesture MK-13 of table T-028 names.
+ *
+ * ⛔ IT IS THE ONE WAY INTO THE PROPERTIES PANEL FROM THE PICTURE. Measured
+ * 2026-09-03: no key opens it (the ledger's D-222), so a probe that wants an
+ * editable field has to come through here.
+ */
+export async function doublePressAt(x, y) {
+  await page().mouse.move(x, y)
+  await page().mouse.dblclick(x, y)
+}
+
 /** Press the entry of table T-109 with this row id. Answers false if absent. */
 export async function press(icon) {
   const box = await page().evaluate((wantedIcon) => {
@@ -224,10 +236,55 @@ export const PANEL = '[data-role="Properties Panel"]'
  * MK-13 (double-click a task) and IC-17 (the App Header -- and that one shows
  * the DOCUMENT's drawing settings, not the chosen task).
  * ⚠️ The panel is always in the DOM. `display` is the predicate, not presence.
+ *
+ * ⛔⛔ THIS FUNCTION USED TO PRESS `p`, WHICH THE NOTE ABOVE ALREADY SAID WAS
+ * THE COMMAND PALETTE. Measured 2026-09-03 on the shipped build (the ledger's
+ * D-222): `p` leaves 0 field rows and 0 inputs, a double press on a row name
+ * gives 6 field rows and 1 input, and one on a task gives 37 and 3. The ledger
+ * also claimed the task gesture did not work, and that was false.
+ *
+ * ⭐ THE PREDICATE COUNTS INPUTS, NOT FIELD ROWS. A probe wants this function
+ * because it is about to type; a panel that has filled with rows carrying no
+ * editable field is the state D-222 was reported from.
+ *
+ * @param at the point to press. Defaults to the name of the topmost row --
+ *   pass a task's `mid` from `shapes()` for the 37-field picture instead.
  */
-export async function openPanel() {
-  await key('p')
-  await until(async () => (await count(`${PANEL} [data-field-row]`)) > 0, 'the panel fills')
+export async function openPanel({ at = null } = {}) {
+  const pressPoint = at ?? (await rowNamePoint())
+  if (pressPoint === null) throw new Error('openPanel: no row name to press')
+  await doublePressAt(pressPoint.x, pressPoint.y)
+  await until(
+    async () => (await count(`${PANEL} input, ${PANEL} textarea`)) > 0,
+    'the panel fills with an editable field')
+}
+
+/**
+ * Where to press a row's name, which is what MK-13 wants under the pointer.
+ *
+ * ⛔ THE NAME IS WIDER THAN THE PART OF IT THAT CAN BE PRESSED. Measured
+ * 2026-09-03: the name span starts at x=36 and runs 134px, but the row's own
+ * controls sit on their own ground from x=66 -- so anything further right than
+ * about 60 presses a control instead of the name. The 8px inset is a point
+ * inside the name and clear of the grab strip on its left.
+ *
+ * ⚠️ `rowTopPx` names a row the way `hoverRow` does: the top edge `rows()`
+ * reports. Pass null for the topmost drawn row.
+ */
+export async function rowNamePoint(rowTopPx = null, { insetPx = 8 } = {}) {
+  return page().evaluate(([wantedTopPx, inset]) => {
+    const drawn = [...document.querySelectorAll('[data-depth]')]
+      .sort((a, b) => a.getBoundingClientRect().y - b.getBoundingClientRect().y)
+    const row = wantedTopPx === null
+      ? drawn[0]
+      : drawn.find((one) => Math.round(one.getBoundingClientRect().y) === wantedTopPx)
+    if (row === undefined) return null
+    const name = [...row.querySelectorAll('span')]
+      .find((span) => (span.textContent ?? '').trim().length > 0)
+    if (name === undefined) return null
+    const nameBox = name.getBoundingClientRect()
+    return { x: Math.round(nameBox.x + inset), y: Math.round(nameBox.y + nameBox.height / 2) }
+  }, [rowTopPx, insetPx])
 }
 
 export async function fieldValue() {

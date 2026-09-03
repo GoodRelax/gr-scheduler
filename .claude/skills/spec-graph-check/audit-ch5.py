@@ -15,6 +15,7 @@ MODEL = "docs/spec/_source/components.json"
 design = open(DESIGN, encoding="utf-8").read()
 glossary = open(GLOSSARY, encoding="utf-8").read()
 model = json.load(open(MODEL, encoding="utf-8"))
+nodes = [n["name"] for n in model["nodes"]]
 
 fails = []
 
@@ -35,24 +36,41 @@ def rows_of(table_id):
     return re.findall(r"^\| ([A-Z]{2,3}-\d+[a-z]?) \|", block, re.M)
 
 
+def stated(pattern):
+    """Every number the design's PROSE states in this shape, as a sorted list.
+
+    Nothing here may expect a number of its own.  Every absolute this file used
+    to hold went stale the day a row moved -- 12 of the 14 mismatches of
+    2026-09-03 were this file expecting 38 components, 9 interfaces and 71
+    units of a chapter that had come to hold 36, 8 and 68 (the ledger's D-227).
+    A relation between two things READ cannot go stale that way.
+    """
+    return sorted({int(n) for n in re.findall(pattern, design)})
+
+
 print("== counts the chapter asserts ==")
 cp = rows_of("T-062")
 pi = rows_of("T-064")
 ut = rows_of("T-063")
 iface = rows_of("T-065")
-check("T-062 rows (components)", len(cp), 38)
-check("T-064 rows (public interfaces)", len(pi), 38)
-check("T-065 rows (cross-layer interfaces)", len(iface), 9)
+check("T-062 rows == components.json nodes", len(cp), len(nodes))
+check("T-064 rows == T-062 rows", len(pi), len(cp))
 check("CP-n and PI-n are one to one",
       [c.replace("CP-", "") for c in cp], [p.replace("PI-", "") for p in pi])
 
-for phrase, want in (("38 のフォルダ", 1), ("38 コンポーネント", 2), ("部品", 1)):
-    check("phrase %r appears" % phrase, design.count(phrase), want)
+# 5.3's prose states three of these totals in words.  Read the number it
+# states and hold it against the table, rather than expecting either.
+check("prose 'N のフォルダ' == T-062 rows", stated(r"(\d+) のフォルダ"), [len(cp)])
+check("prose '表 T-062 の N コンポーネント' == T-062 rows",
+      stated(r"表 T-062 の (\d+) コンポーネント"), [len(cp)])
+check("prose 'N コンポーネントの公開インターフェース' == T-064 rows",
+      stated(r"(\d+) コンポーネントの公開インターフェース"), [len(pi)])
+check("prose '層をまたぐ N 本' == T-065 rows", stated(r"層をまたぐ (\d+) 本"), [len(iface)])
+check("prose '表 T-065 は N 行' == T-065 rows", stated(r"表 T-065 は (\d+) 行"), [len(iface)])
 
-# 部品 is forbidden (T-006b A-17); it may appear only where a rule names it
-for doc, want in (("01-04-requirements", 1), ("A-appendix", 1)):
-    check("%s names 部品 only where a rule does" % doc,
-          open("docs/spec/%s.md" % doc, encoding="utf-8").read().count("部品"), want)
+# 部品 (forbidden by T-006b A-17) is NOT counted here any more.  It moved to
+# check 32 of style-checks.py, which check.sh runs -- this file does not, so a
+# word this file caught was caught by nobody.  Two copies would part company.
 check("T-063 rows", len(ut), 7)
 
 # SU-1 defines a component by its public entry.  The earlier wording -- "it
@@ -73,25 +91,32 @@ folders = re.findall(r"([a-z0-9-]+)/", tree)
 leaves = [f for f in folders if f not in
           ("src", "entity", "document-model", "layout-engine", "use-case",
            "adapter", "framework")]
-check("directory tree leaf folders", len(leaves), 38)
+check("directory tree leaf folders == T-062 rows", len(leaves), len(cp))
 
-# Agent API member count, asserted in three places in the design
+# Agent API member count.  The design asserts it in prose in four places, and
+# the glossary's table T-107 is the owner -- so read both and pair them.  This
+# replaces a check that expected 18 and a second one that hunted for the
+# literals 10..17: neither could survive the table gaining a member.
 api_rows = re.findall(r"^\| (AM-\d+) \|", glossary, re.M)
-check("T-107 rows (Agent API members)", len(api_rows), 18)
-check("design never says a stale member count",
-      len(re.findall(r"1[0-7] [のメ]ンバ|17 メンバ", design)), 0)
+check("prose 'N メンバ' == T-107 rows", stated(r"(\d+) の?メンバ"), [len(api_rows)])
 
 print()
 print("== components.json against table T-062 ==")
-nodes = [n["name"] for n in model["nodes"]]
 named = re.findall(r"^\| CP-\d+ \| `[^`]+` \| `([^`]+)` \|", design, re.M)
-check("model nodes", len(nodes), 38)
 check("T-062 component names == model node names", sorted(named), sorted(nodes))
 
 print()
 print("== landing: every edge target declares a member ==")
 # member cell of table T-064, per component
-member_cells = re.findall(r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+) \|$", design, re.M)
+#
+# ⛔ THE CLOSING BAR MAY HAVE NO SPACE BEFORE IT. Measured 2026-09-03: this
+# pattern demanded 「 |」 at the end of the line, and PI-5 (`ScheduleLayout`)
+# ends 「**）|」 -- so one row of a 36-row table silently failed to parse and
+# the component was reported as declaring no member at all, with its row
+# sitting in table T-064 the whole time (the ledger's D-227). ⭐ The
+# manuscript is right; a reader that depends on trailing whitespace is not.
+member_cells = re.findall(
+    r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+?)\s*\|$", design, re.M)
 members = {name: re.findall(r"`([A-Za-z][A-Za-z0-9]*)`", cell)
            for name, cell in member_cells}
 check("T-064 covers every component", sorted(members), sorted(nodes))
@@ -132,11 +157,13 @@ def kebab(name):
     return re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower()
 
 
-check("T-075 rows (units)", len(rows_of("T-075")), 71)
+# The trailing bar is read the same way it is in table T-064 above, and for
+# the same reason.
 unit_cells = re.findall(
-    r"^\| UF-\d+ \| `([^`]+)` \| `([^`]+)` \| (.+?) \| (.+) \|$", design, re.M)
-check("T-075 rows that parse into 4 cells", len(unit_cells), 71)
-check("T-074 SU-3 states the unit count", design.count("**71。** 全数は 表 T-075"), 1)
+    r"^\| UF-\d+ \| `([^`]+)` \| `([^`]+)` \| (.+?) \| (.+?)\s*\|$", design, re.M)
+check("T-075 rows that parse into 4 cells", len(unit_cells), len(rows_of("T-075")))
+check("T-074 SU-3 states the unit count",
+      design.count("**%d。** 全数は 表 T-075" % len(unit_cells)), 1)
 
 files = [f for _, f, _, _ in unit_cells]
 check("unit file names are unique", len(set(files)), len(files))
@@ -165,7 +192,7 @@ if unsplit:
 
 # each cross-layer interface of T-065 is a unit of the component declaring it
 iface_rows = re.findall(r"^\| IF-\d+ \| `([^`]+)` \| `([^`]+)`", design, re.M)
-check("T-065 rows that parse", len(iface_rows), 9)
+check("T-065 rows that parse", len(iface_rows), len(iface))
 iface_files = {kebab(n) + ".ts": d for n, d in iface_rows}
 homeless = sorted(f for f, d in iface_files.items() if f not in owners.get(d, []))
 print("  interfaces with no unit of their own : %s" % (homeless or "none"))

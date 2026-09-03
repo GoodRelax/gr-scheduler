@@ -2951,6 +2951,13 @@ const ROW_CONTROL_STEPS = {
    * ないときは、読む人がパネルを広げる」 (FR-052, whose width is S-79). ⛔ What
    * to shrink instead is undecided BY THE SAME RULING (「あとは実際に使って再度
    * 判断する」), so nothing here shrinks anything.
+   * ⭐ MEASURED AGAIN 2026-09-03 (shipped build, S-79 at its default 170px):
+   * the run of seven stands at x=66..166 and GR-20's strip at depth d stands at
+   * x=16d..16d+16, so a depth clears iff 16d+16 <= 66 -- depths 1, 2 and 3 do
+   * (0 of the 7 rows on screen were covered, and a press at each strip's centre
+   * landed on the strip), and depths 4 and 5 do not. ⛔ That is D-154's
+   * remainder, and it stays open here rather than being answered by an
+   * invention: it is one of the three the ruling left undecided.
    */
   foldingGrid: 3,
 } as const

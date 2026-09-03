@@ -23,6 +23,30 @@
 // and everything in them are absent from it. ⛔ Until this round nothing drew
 // a band at all -- `layout.rows` reached no renderer.
 //
+// ⛔⛔ STOP -- EP-7 `Watermark` IS NOT DRAWN HERE, AND THIS IS WHERE IT WOULD
+// BE (D-195). FR-020 (MUST) lays the opener's name and an ISO-8601 UTC stamp
+// diagonally, repeatedly and faintly over the `Row Area` (U-50) and (MUST NOT)
+// outside it; EP-7 of table T-076 puts the same layer in the export. Measured
+// on the shipped build of 2026-09-03: 0 `data-role="Watermark"`, 0 `rotate`,
+// 0 ISO stamps, on the screen and in an exported `.svg`.
+//
+// ⛔ WHAT IS MISSING, AND WHERE IT WAS LOOKED FOR. Four values FR-020's
+// drawing cannot be made without, and no row of the specification holds any of
+// them: the ANGLE of 「斜めに」, the SIZE of the text, the SPACING of
+// 「繰り返し」, and the COLOUR of the ink. Searched table T-207 (its only rows
+// are S-100, S-101, S-102), table T-206 (S-99a the reader's name, S-144
+// whether it shows), table T-236 (25 colours, none the watermark's), FR-020
+// itself, EP-7 of table T-076, WY-2 of table T-041, `_source/settings.json`,
+// and the previous project's PoC and UI documents (neither draws one).
+// ⚠️ A FIFTH IS STATED BUT DOES NOT ARRIVE: S-102 `watermarkOpacity` is 0.08,
+// and `tools/generate_entity_types.py` gives table T-207 one target only
+// (`WATERMARK_UNLOCK_DIGEST`, S-101) -- so the opacity has no generated path
+// into `src/`, and rule 03 (「値は写さずに生成する」) forbids typing
+// it in. ⛔ Nothing is invented in their place, and nothing half-drawn is left
+// behind: the three inputs the layer would need (the name from S-99a, the
+// clock, and S-144) are not parameters of `svgFromSchedule` either, and adding
+// them before the values exist would be a signature with no drawing under it.
+//
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
 // leaves through here.

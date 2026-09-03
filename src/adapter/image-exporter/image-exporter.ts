@@ -42,10 +42,28 @@
 //
 // ⭐ WHAT THE RECEIVED PICTURE ALREADY CARRIES, so that nothing here draws it a
 // second time: EP-2 the `Time Ruler`, EP-5 the `Row Area`'s contents, EP-6's
-// `Status Line` and `Dual Cursor`, EP-7 the `Watermark`. All four are drawn by
-// SvgRenderer from what ScheduleGeometry (CP-6) measured. ⚠️ Whether FR-020's
-// question about the watermark was put to the person cannot be seen from here;
-// it belongs where the picture is made.
+// `Status Line` and `Dual Cursor`. Those three are drawn by SvgRenderer from
+// what ScheduleGeometry (CP-6) measured.
+//
+// ⛔ EP-7 THE `Watermark` IS NOT AMONG THEM, AND THE SENTENCE THAT SAID SO WAS
+// FALSE (D-195). Measured on the shipped build of 2026-09-03: 0 elements carry
+// `data-role="Watermark"`, 0 carry a `rotate`, and no `<text>` holds FR-020's
+// ISO-8601 stamp, on the screen or in an exported `.svg`. `svg-renderer.ts`
+// holds no watermark at all -- the word does not appear in it -- so the export
+// receives a picture with none, and this file may not add one (it has no edge
+// to a `Schedule`, no reader's name and no clock).
+// ⛔ STOP -- WHAT FR-020's DRAWING NEEDS AND NO ROW OF THE SPECIFICATION HOLDS:
+// the angle of 「斜めに」, the size of the text, the spacing of 「繰り返し」 and
+// the colour of its ink. Searched table T-207 (S-100 / S-101 / S-102 are its
+// only rows), table T-206 (S-99a the reader's name, S-144 whether it shows),
+// table T-236 (25 colours, none of them the watermark's), FR-020, EP-7 of table
+// T-076, WY-2 of table T-041, and the previous project's PoC and UI documents.
+// ⚠️ S-102 `watermarkOpacity` IS stated (0.08) but reaches no unit: the only
+// target `tools/generate_entity_types.py` gives table T-207 is S-101, so the
+// value has no generated path into `src/` and rule 03 (「値は写さずに生成する」)
+// forbids typing it in here.
+// ⚠️ Whether FR-020's question about the watermark was put to the person cannot
+// be seen from here either; it belongs where the picture is made.
 //
 // ⛔ WHAT THE EXPORT MUST NOT CONTAIN -- and the half of it this component
 // cannot enforce. Table T-076 keeps out the row controls (EP-4), the

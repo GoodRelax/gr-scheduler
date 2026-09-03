@@ -368,10 +368,13 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  * ⚠️ `RS-15` IS AMONG THEM, and this is one of the four places in this file
  * that raise it -- see `NoticeReason` for what that row is, which four reach
  * it, and why a fifth may not.
+ * ⛔ `RS-17` STOOD HERE UNTIL D-214. CR-280 retired that row with the auto-save
+ * it belonged to, and FR-076 (MUST NOT) forbids carrying a reason table T-233
+ * does not hold -- so the seat was an offer of a telling no caller could make.
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-17' | 'RS-21' | 'RS-25' | 'RS-26'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26'
 >
 
 export interface FrameLoop {
@@ -1253,6 +1256,14 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
  * ⭐ THERE WERE FOUR UNTIL CR-325. A form of table T-024 this build cannot yet
  * write got a row of its own then -- `RS-40` -- and no form of this build
  * reaches it any more; the note where its constant stood says why it is kept.
+ *
+ * ⛔ `RS-17` IS NOT BELOW, AND IT IS THE ONE SEAT THIS UNION EVER HELD THAT
+ * TABLE T-233 DID NOT (D-214). CR-280 retired it with the auto-save whose
+ * telling it was; keeping the seat left this type offering a reason FR-076
+ * (MUST NOT) forbids a telling to carry. ⚠️ NOTHING GENERATES THIS UNION, so
+ * a row retired in that table has to be struck here by hand -- the same
+ * standing cost `NOTICE_MANNER_OF_REASON` records just below.
+ * ⭐ Retiring it changed no behaviour: no raiser named it.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1271,7 +1282,6 @@ type NoticeReason =
   | 'RS-14'
   | 'RS-15'
   | 'RS-16'
-  | 'RS-17'
   | 'RS-20'
   | 'RS-21'
   | 'RS-23'
@@ -1328,7 +1338,6 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-14': 'NT-5',
   'RS-15': 'NT-3a',
   'RS-16': 'NT-5',
-  'RS-17': 'NT-3a',
   'RS-20': 'NT-5',
   'RS-21': 'NT-1',
   'RS-23': 'NT-3a',
@@ -6789,22 +6798,27 @@ export function frameLoop(
         // ⭐ THE SAME PICTURE AN EXPORT WRITES, and not a second rendering:
         // FR-025 says what goes out this way is the same picture, which is
         // what `ClipboardContent.picture` states in as many words.
+        // ⛔ D-208: WHAT IS SENT IS `exportSvg`'s ANSWER AND NOT `scene.svg`.
+        // The scene carries SvgRenderer's raw picture; table T-076's assembly
+        // (EP-1 / EP-3 and every row the export leaves out) happens inside
+        // ImageExporter, so sending the scene sent the screen's own drawing
+        // down a route FR-025 (:3268) says differs from the download only in
+        // the dialogue it skips -- 「出る絵は同じである（`FR-080`）」.
         const scene = exportScene()
         if (scene === null) return
         // FR-025 (MUST), CR-337: IO-6 is one of the three routes the ceiling
         // reaches (IO-3, IO-4, IO-6) -- `exportSvg` is asked here for the same
         // geometry an IO-3/IO-4 export would refuse on, and refused before the
-        // clipboard is ever written to. ⚠️ Not read for `.svg`: that member is
-        // not what this route sends (see the note above), only whether FR-025
-        // lets this picture out at all.
-        if (!exportSvg(scene).ok) {
+        // clipboard is ever written to.
+        const picture = exportSvg(scene)
+        if (!picture.ok) {
           raiseNotice(HEIGHT_CEILING_REASON, null)
           return
         }
         // ⚠️ NOT AWAITED, for the reason the file roads give: CS-4 of table
         // T-066 collected the document before the first await, and the rest
         // of this happening is settled before the write returns.
-        void writeClipboard(seam, { kind: 'picture', svg: scene.svg }).then(
+        void writeClipboard(seam, { kind: 'picture', svg: picture.svg }).then(
           (writing) => {
             // FR-076 (MUST): a failure is told. ⛔ STOP -- table T-233 has no
             // row for a clipboard write that would not go through, so the

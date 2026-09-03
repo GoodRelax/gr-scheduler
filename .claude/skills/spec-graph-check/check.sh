@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 27 mechanical checks for the gr-scheduler specification.
+# All 28 mechanical checks for the gr-scheduler specification.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -16,6 +16,13 @@
 #   12-14  Recurring defect types (style-checks.py) : a rule sitting in a
 #          value or name table (gate), a transfer leftover (advisory), a
 #          value written twice (advisory)
+#   32     the forbidden word 部品 (style-checks.py) : A-17 of table T-006b is
+#          the one row that forbids a word outright, compounds included, and
+#          states its own exemption -- a line may hold the word where it names
+#          the ban. The exemption is READ from that rule rather than held in a
+#          baseline, so it cannot go stale. ⛔ Added 2026-09-03: the word had
+#          been counted only by audit-ch5.py, which this script does not run,
+#          so two real uses sat unread for a round
 #   11     dup-check.py against the known-duplication baseline
 #   30     the generated `export const` of src/ against the list that
 #          names them in docs/development-rules/03-implementation.md
@@ -173,8 +180,10 @@ echo "===== 5-10, 15  Markdown source ====="
 python "$HERE/md-checks.py" "$REPO" || fail=1
 
 echo ""
-echo "===== 12-14  recurring defect types ====="
-python "$HERE/style-checks.py" "$REPO" || fail=1
+echo "===== 12-14, 32  recurring defect types ====="
+# ⚠️ utf-8, like every other check that prints Japanese: check 32 names the
+# forbidden word in its own finding, and a cp932 console mangles it.
+PYTHONIOENCODING=utf-8 python "$HERE/style-checks.py" "$REPO" || fail=1
 
 echo ""
 echo "===== 11  duplication detector ====="
