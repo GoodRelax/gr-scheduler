@@ -21,8 +21,14 @@
 #          states its own exemption -- a line may hold the word where it names
 #          the ban. The exemption is READ from that rule rather than held in a
 #          baseline, so it cannot go stale. ⛔ Added 2026-09-03: the word had
-#          been counted only by audit-ch5.py, which this script does not run,
-#          so two real uses sat unread for a round
+#          been counted only by audit-ch5.py, which this script did not run,
+#          so two real uses sat unread for a round -- see check 33
+#   33     audit-ch5.py, the Chapter 5 self-audit. ⛔⛔ IT USED TO LIVE OUTSIDE
+#          THIS SCRIPT and was red from CR-280 to 2026-09-03 without anyone
+#          seeing it: fourteen mismatches, twelve of them absolute numbers
+#          typed beside tables the same file already reads. Rule 04 named it
+#          as something to run separately, and a rule that must be remembered
+#          is a rule that does not run. It is inside now.
 #   11     dup-check.py against the known-duplication baseline
 #   30     the generated `export const` of src/ against the list that
 #          names them in docs/development-rules/03-implementation.md
@@ -272,6 +278,12 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-me
 echo ""
 echo "===== 30  the generated constants against the list that names them ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py || fail=1
+
+echo ""
+echo "===== 33  Chapter 5 answers to itself ====="
+# ⛔ utf-8: the audit prints Japanese table names, and a cp932 console
+# mangles them into the mojibake that hid its own failures before.
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || fail=1
 
 echo ""
 echo "===== 31  a row that still reads blocked while the row says it is settled ====="
