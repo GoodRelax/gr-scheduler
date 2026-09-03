@@ -4878,20 +4878,53 @@ export function frameLoop(
     }
     // The same three stages, in the same order table T-077 fixes for a frame.
     const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
-    // ⛔ THE EXPORT NEVER TAKES OP-10's EXCEPTION, whatever the screen is
-    // doing. That exception exists so a person's FIRST SCREEN is not a flat
-    // list; a picture written out is not a first screen, and FR-055's fit is
-    // what EP-2 and WY-3 measure an export against.
+    // ⛔⛔ THE EXPORT TAKES OP-10's EXCEPTION WHEN THE SCREEN DOES, AND THE
+    // NOTE THAT STOOD HERE SAID THE OPPOSITE (D-229). It read "a picture
+    // written out is not a first screen", and no row of the specification
+    // scopes the exception that way: OP-10 (MUST NOT) excludes a DOCUMENT --
+    // the one opened from BT-4 of table T-034 -- and says the exclusion is
+    // lifted by opening another document, not by the frame moving on. ⇒ While
+    // no place is stored, the screen kept the template's own zoom and this
+    // second run of table T-068 fell to FR-055's fit instead, which seats one
+    // level: measured on the shipped build at 1920x1080, the screen drew 8 rows
+    // over 3 tiers and the .svg carried 7 tier-1 titles.
+    // ⛔ FR-080 (MUST) is what that breaks -- its sentence on the zoom step and
+    // the level of detail reaching the export.
+    // ⚠️ WY-2 AND WY-3 ARE UNTOUCHED BY THIS. Both judge a JSON that has been
+    // OPENED (so BT-4's exclusion does not hold for it) and both run FR-055's
+    // fit themselves before comparing, so this argument is `false` on their
+    // road whatever it is here.
     const settings = viewSettings(
-      document, withPanelsClosed, regions, false, readToday(), environment.rowControlsHeightPx,
+      document,
+      withPanelsClosed,
+      regions,
+      fromStartupTemplate,
+      readToday(),
+      environment.rowControlsHeightPx,
     )
     // ⭐ LF-3's ROW-CONTROL FLOOR IS CARRIED INTO THE EXPORT TOO, though EP-4 of
     // table T-076 draws no row control in one. The floor is a rule of the BAND
     // (表 T-221) and not of the drawing, and a picture written out with shorter
     // bands than the screen shows would part the two -- which is the very thing
     // S-140's own note keeps true of FR-085's cut.
+    // ⭐⭐ S-211 REACHES THE PICTURE, for the reason it reaches the frame: HR-2
+    // of table T-015 (MUST) folds 段 0 itself, HR-1a then draws none of its
+    // descendants, and which rows are drawn is LC-1's answer -- so a picture
+    // written with the head open while the screen has it folded is two
+    // pictures, which FR-080 (MUST) forbids.
+    // ⛔ EP-12 OF TABLE T-076 DOES NOT REACH IT, and the note that used to
+    // stand at `isLevelZeroFolded: false` below claimed it did (D-229). That
+    // row's roster is `Pointer` / `ArmedShape` / `Selection` / `Marquee` /
+    // `Grab Region`・`Grab Point` -- where the hand points and how it is
+    // poised, and a fold is neither. ⚠️ Measured on the shipped build: with
+    // the head folded the screen drew 0 rows and the .svg carried 7.
     const layout = layoutFromSchedule(
-      document.schedule, settings, regions, undefined, undefined, environment.rowControlsHeightPx,
+      document.schedule,
+      settings,
+      regions,
+      undefined,
+      isLevelZeroFolded,
+      environment.rowControlsHeightPx,
     )
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
@@ -4995,11 +5028,18 @@ export function frameLoop(
           // `TaskGroup.parentId` puts it -- which is what it is, the follow
           // being a picture and never a write (table T-023d, MUST NOT).
           rowGrabbedAt: null,
-          // ⛔ 段 0 IS NEVER FOLDED IN A PICTURE THAT IS WRITTEN OUT, on the
-          // ground the held row above is at none: EP-12 of table T-076 keeps
-          // this session's state out of it, and S-211 is as much this session's
-          // as a dragged palette is. ⚠️ EP-3 draws the panel of a DOCUMENT.
-          isLevelZeroFolded: false,
+          // ⛔⛔ 段 0 IS FOLDED IN THE PICTURE WHEN IT IS FOLDED ON THE SCREEN,
+          // and `false` stood here (D-229). EP-12 of table T-076 was the ground
+          // given, and that row's roster does not name S-211: it names
+          // `Pointer` / `ArmedShape` / `Selection` / `Marquee` / `Grab Region`・
+          // `Grab Point`, and its reason is where the hand points and how it is
+          // poised. A fold is neither, and FR-080 (MUST) has an export
+          // reproduce what a display switch left on the screen.
+          // ⭐ THE SAME VALUE THE LAYOUT WAS BUILT WITH, and it has to be: EP-3
+          // draws the `Row Title Tree` off this session while the schedule side
+          // is drawn off the layout, so two answers here would fold one half of
+          // one picture.
+          isLevelZeroFolded,
           // ⚠️ Closed here whatever the reader left it at, for the reason the
           // corner above is at none: EP-12 of table T-076 keeps this session's
           // state out of the picture, and S-142 is as much this session's as the

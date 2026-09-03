@@ -2827,6 +2827,257 @@ test('D-49: the screen and the picture set a row in by the same one tier of S-37
 })
 
 // ---------------------------------------------------------------------------
+// D-229 -- the written picture carries the rows a person left standing
+// ---------------------------------------------------------------------------
+
+/** One line of the row title panel: the word, where it starts, how far down it stands. */
+interface PanelLine {
+  readonly name: string
+  readonly at: number
+  readonly down: number
+}
+
+/**
+ * The lines the panel is drawing on the screen right now, topmost first.
+ *
+ * ⭐ THE NAME'S OWN BOX AND NOT THE ROW'S, for the reason `drawnRowTitles`
+ * gives: the row's box starts at the panel's edge whatever tier it stands at,
+ * and what a reader sees as the tier is where the word begins.
+ *
+ * ⛔ `data-depth` IS READ AS A SELECTOR AND NOT AS THE ANSWER. The written
+ * picture carries no such attribute, so a tier taken from it on one side and
+ * worked out from the drawing on the other would be two different measurements
+ * being compared. Both sides are ranked by where the word starts instead --
+ * `tiered` below.
+ *
+ * @purity semi-pure-b
+ */
+async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
+  const lines = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
+      const span = row.querySelector('span')
+      const box = span === null ? null : span.getBoundingClientRect()
+      return {
+        name: (span?.textContent ?? '').trim(),
+        at: box === null ? Number.NaN : Math.round(box.x * 100) / 100,
+        down: box === null ? Number.NaN : Math.round(box.y * 100) / 100,
+      }
+    }),
+  )
+  return [...lines].sort((one, two) => one.down - two.down)
+}
+
+/**
+ * The lines the written picture puts in the panel, topmost first.
+ *
+ * ⚠️ THE WINDOW IS READ OFF THE SCREEN AND SHRUNK, not guessed. `FR-080` (MUST)
+ * has the picture be the screen 「`exportCanvas` ... の幅 ÷ 画面の幅 の比で縮めた
+ * 絵」, so the panel's own width and the bottom of its head both land at that
+ * ratio; `right` and `below` are those two, already multiplied.
+ *
+ * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
+ * reason: folding every row 「行が 1 つも描かれない状態になりうる」 and the head
+ * then 「頭にいま何行を畳み込んでいるかを示すこと（MUST）」. That count stands in
+ * the head, above the tree, and it is not a row -- counting it as one would have
+ * a build that obeys `HF-12` reported as drawing a row the screen does not.
+ * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
+ *
+ * @purity pure
+ */
+function panelLinesInPicture(picture: string, right: number, below: number): PanelLine[] {
+  const found: PanelLine[] = []
+  const marks = /<text\b([^>]*)>([^<]*)<\/text>/g
+  let one = marks.exec(picture)
+  while (one !== null) {
+    const attributes = one[1] ?? ''
+    const across = Number(/\bx="(-?\d+(?:\.\d+)?)"/.exec(attributes)?.[1] ?? '')
+    const down = Number(/\by="(-?\d+(?:\.\d+)?)"/.exec(attributes)?.[1] ?? '')
+    const said = (one[2] ?? '').trim()
+    if (Number.isFinite(across) && Number.isFinite(down) && across < right && down > below && said !== '') {
+      found.push({ name: said, at: across, down })
+    }
+    one = marks.exec(picture)
+  }
+  return found.sort((first, second) => first.down - second.down)
+}
+
+/**
+ * The lines as `tier:name`, in the order they stand.
+ *
+ * ⭐ THE TIER IS A RANK AND NOT A LENGTH: how many distinct indents stand
+ * shallower than this one. Neither side's own numbers are compared, so this
+ * reading is free of both `S-37` and of the ratio -- which is what keeps this
+ * case out of D-49's business. Measured 2026-09-03 on the shipped build: the
+ * screen puts tier 1 at 36px and the picture at the equivalent of 16px, a
+ * standing difference in the left inset that has nothing to do with which rows
+ * are drawn, and an absolute comparison would report it here instead.
+ *
+ * @purity pure
+ */
+function tiered(lines: readonly PanelLine[]): string[] {
+  const indents = [...new Set(lines.map((line) => line.at))].sort((one, two) => one - two)
+  return lines.map((line) => `${indents.indexOf(line.at)}:${line.name}`)
+}
+
+// GOES RED IF: the rows the written picture draws in the row title panel stop
+// being the rows the screen is drawing -- a different count, a different order,
+// or a different tier -- after a fold has been pressed and nothing has been
+// scrolled since.
+//
+// ⭐ THE REQUIREMENT IS `FR-080` (MUST), `docs/spec/01-04-requirements.md`, and
+// it says two things this case leans on, word for word:
+//   「画像として書き出したとき、`GRS` は、`GRS` が占める画面の全体を、
+//     `exportCanvas`（`_assets/tbl-settings.md` の表 T-204 の `S-81`）の
+//     幅 ÷ 画面の幅 の比で縮めた絵を出すこと」
+//   「表示の切り替え・ズームの段階・LOD による増減の結果を、書き出しでも同じに
+//     すること」
+// and its reason: 「見えているものが成果物になることが、この道具の前提である。」
+// Folding is a 表示の切り替え, and `EP-3` of table T-076 has the `Row Title
+// Panel` and the `Row Title Tree` drawn, with 「書き出し専用の幅を設けてはならない
+// （MUST NOT）」 -- which is why the two sides may be compared by the words
+// themselves, cut short or not.
+//
+// ⛔ WHAT IS *NOT* CLAIMED: that scrolling puts it right. The ledger's D-229
+// records that it does, and that reading is a symptom rather than a rule -- no
+// row of the specification says a picture becomes true once a wheel is turned.
+// What is asserted is only `FR-080`'s own agreement.
+//
+// ⭐ THE CONTROL IS ASSERTED FIRST so that a failure below is about the press
+// and not about the way the two sides are read. Measured 2026-09-03 on the
+// shipped build at 1920x1080: with the panel untouched the screen draws eight
+// rows over three tiers while the picture carries seven, all at one tier; one
+// notch of the wheel and the two agree exactly, name for name and tier for
+// tier. The notch is therefore turned FIRST and that agreement is what the
+// control holds -- the untouched reading is taken before it (it cannot be got
+// back afterwards) and judged straight after.
+//
+// ⚠️ THE FOLD PRESSED IS THE PANEL HEAD'S, `HF-12` of table T-051 by way of
+// table T-109, and it is the one press whose result cannot be reached by
+// accident: `HF-12` (MUST) folds 「最も浅い段の行も」 as well, so the screen is
+// left drawing no row at all, and a picture that carries any row after it
+// carries a row the screen does not. `HF-10` presses it open again, and the
+// second half of this case is that the picture comes back with it.
+test('D-229: the written picture draws the rows the screen draws after a fold, with no scroll', async () => {
+  test.setTimeout(300_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const chooser = entranceBy(T109_SOURCE, 'FR-096')
+    const ending = assignmentText(cellOf(T024, 'IO-3', T024_ENDING, T024_COLUMNS))
+    const foldAll = entranceBy(T109_SOURCE, 'HF-12')
+    const openAll = entranceBy(T109_SOURCE, 'HF-10')
+
+    const panel = await page.evaluate(() => {
+      const one = document.querySelector('[data-role="Row Title Panel"]')
+      if (one === null) return null
+      const box = one.getBoundingClientRect()
+      return { x: box.x, y: box.y, width: box.width, height: box.height }
+    })
+    expect(panel, 'the row title panel is not on the screen').not.toBeNull()
+    if (panel === null) return
+    const head = await entranceBox(page, foldAll)
+    expect(head, `${foldAll} (table T-051 row HF-12) is not drawn on the panel head`).not.toBeNull()
+    if (head === null) return
+
+    const ratio = EXPORT_WIDTH / BASE_SCREEN.width
+    const right = panel.width * ratio
+    const below = (head.y + head.height) * ratio
+
+    /** Write one picture and hand back its body, with the ratio's own guard. */
+    const write = async (nth: number, when: string): Promise<string> => {
+      expect(
+        await pressExportFormat(page, chooser, ending),
+        `the chooser offers nothing that writes ${ending} (table T-024 row IO-3)`,
+      ).toBe(true)
+      const wrote = await until(
+        page,
+        () => readWrites(page),
+        (seen) => seen.bodies.length === nth,
+        `the picture ${when} is written`,
+      )
+      const picture = wrote.bodies[nth - 1] ?? ''
+      expect(picture.startsWith('<svg'), `what was written ${when} is not an SVG`).toBe(true)
+      const width = Number(/^<svg\b[^>]*\bwidth="(-?\d+(?:\.\d+)?)"/.exec(picture)?.[1] ?? '')
+      expect(
+        width,
+        `the picture ${when} was written ${width}px wide and FR-025 (MUST) fixes the width at ` +
+          'S-81; the window this case reads the panel out of would be the wrong one',
+      ).toBe(EXPORT_WIDTH)
+      return picture
+    }
+
+    // Reading 1 -- nothing pressed. Taken now because a wheel cannot be turned
+    // back, and judged after the control below.
+    const untouchedScreen = tiered(await panelLinesOnScreen(page))
+    const untouchedPicture = tiered(panelLinesInPicture(await write(1, 'with nothing pressed'), right, below))
+
+    // The control -- one notch of the wheel over the panel and nothing else.
+    const overPanel = { x: panel.x + panel.width / 2, y: panel.y + panel.height / 2 }
+    await page.mouse.move(overPanel.x, overPanel.y)
+    await page.mouse.wheel(0, 200)
+    await readSettledDrawnSvg(page)
+    const scrolledScreen = tiered(await panelLinesOnScreen(page))
+    const scrolledPicture = tiered(panelLinesInPicture(await write(2, 'after one notch of the wheel'), right, below))
+    expect(
+      scrolledScreen.length,
+      'the panel is drawing fewer than two rows, so the control holds no order to agree about',
+    ).toBeGreaterThan(1)
+    expect(
+      new Set(scrolledScreen.map((line) => line.split(':')[0] ?? '')).size,
+      `the control is drawing one tier only (${JSON.stringify(scrolledScreen)}), so an agreement ` +
+        'about tiers would mean nothing',
+    ).toBeGreaterThan(1)
+    expect(
+      scrolledPicture,
+      'the control itself does not agree: the picture and the screen part company before anything ' +
+        'has been folded, so nothing below can be laid at the fold',
+    ).toEqual(scrolledScreen)
+
+    expect(
+      untouchedPicture,
+      'with nothing pressed at all, the picture draws rows the screen does not; FR-080 (MUST) has ' +
+        'the picture be the screen shrunk by one ratio',
+    ).toEqual(untouchedScreen)
+
+    // The claim -- a fold, and no scroll after it.
+    expect(await pressEntrance(page, foldAll), `${foldAll} is not on the screen`).toBe(true)
+    await readSettledDrawnSvg(page)
+    const foldedScreen = tiered(await panelLinesOnScreen(page))
+    expect(
+      foldedScreen,
+      `pressing ${foldAll} left the screen drawing exactly what it drew before, so this case ` +
+        'never folded anything and has nothing to judge',
+    ).not.toEqual(scrolledScreen)
+    const foldedPicture = tiered(panelLinesInPicture(await write(3, 'after every row was folded'), right, below))
+    expect(
+      foldedPicture,
+      `after ${foldAll} (table T-051 row HF-12) the screen draws ${foldedScreen.length} row(s) and ` +
+        `the picture ${foldedPicture.length}; FR-080 (MUST) has 表示の切り替え の結果 be the same ` +
+        'in the written picture, and nothing was scrolled in between',
+    ).toEqual(foldedScreen)
+
+    // And back the other way, so the case is not one about an empty drawing.
+    expect(await pressEntrance(page, openAll), `${openAll} is not on the screen`).toBe(true)
+    await readSettledDrawnSvg(page)
+    const openedScreen = tiered(await panelLinesOnScreen(page))
+    expect(
+      openedScreen.length,
+      `pressing ${openAll} (table T-051 row HF-10) brought no row back, so the second half of this ` +
+        'case has nothing to judge',
+    ).toBeGreaterThan(1)
+    const openedPicture = tiered(panelLinesInPicture(await write(4, 'after every row was opened again'), right, below))
+    expect(
+      openedPicture,
+      `after ${openAll} the screen draws ${openedScreen.length} row(s) and the picture ` +
+        `${openedPicture.length}; FR-080 (MUST) has the two the same, and nothing was scrolled ` +
+        'in between',
+    ).toEqual(openedScreen)
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
 
@@ -2852,6 +3103,7 @@ const HELD: readonly string[] = [
   'D-166',
   'D-210',
   'D-220',
+  'D-229',
 ]
 
 /**
