@@ -2189,6 +2189,76 @@
    }
   },
   {
+   "rowId": "K-115",
+   "keys": [
+    "commentBoxPad"
+   ],
+   "label": {
+    "ja": "コメントボックスの本文の箱の内側の余白",
+    "en": "commentBoxPad"
+   }
+  },
+  {
+   "rowId": "K-116",
+   "keys": [
+    "commentBoxWrapUnits"
+   ],
+   "label": {
+    "ja": "コメントボックスの本文を折り返す単位数",
+    "en": "commentBoxWrapUnits"
+   }
+  },
+  {
+   "rowId": "K-117",
+   "keys": [
+    "cornerRadiusPx"
+   ],
+   "label": {
+    "ja": "ハイライトボックスの角の丸み",
+    "en": "cornerRadiusPx"
+   }
+  },
+  {
+   "rowId": "K-118",
+   "keys": [
+    "carryMaxDepth"
+   ],
+   "label": {
+    "ja": "解釈しない要素の入れ子の深さの上限",
+    "en": "carryMaxDepth"
+   }
+  },
+  {
+   "rowId": "K-119",
+   "keys": [
+    "exportCanvasHeightCap"
+   ],
+   "label": {
+    "ja": "書き出す絵の高さの上限",
+    "en": "exportCanvasHeightCap"
+   }
+  },
+  {
+   "rowId": "K-120",
+   "keys": [
+    "scrollGroupOffset"
+   ],
+   "label": {
+    "ja": "表示の上端が指す行のどこにあるか",
+    "en": "scrollGroupOffset"
+   }
+  },
+  {
+   "rowId": "K-121",
+   "keys": [
+    "scrollDayOffset"
+   ],
+   "label": {
+    "ja": "表示の左端が指す日のどこにあるか",
+    "en": "scrollDayOffset"
+   }
+  },
+  {
    "rowId": "K-90",
    "keys": [
     "language"

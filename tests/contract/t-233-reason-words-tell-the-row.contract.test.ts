@@ -191,14 +191,12 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // message: the 場面 and the three fields of the dictionary were read side by
   // side first, and this note records what that reading found.
   //
-  // `RS-45` -- 場面 「この画面を動かす本体が、このファイルの中に見つからない」;
-  //   ja 「この画面を動かす本体が、このファイルの中に見つかりません」 is the same
-  //   sentence in the polite form, en 「The body that runs this screen is not
-  //   inside this file」 says the same thing, and the 作法 column writes the row
-  //   against `NT-3a`, whose next step 「配られた元のファイルを開き直してくださ
-  //   い」 / 「Open the file you were given again」 is a step the reader can
-  //   actually take when the shell was opened straight off the disk (表 T-004 の
-  //   `LM-14`). ⇒ the words tell the scene.
+  // ⛔⛔ `RS-45` LEFT THE TABLE ON 2026-09-04 (CR-347 §2.7, ledger row D-202,
+  //   利用者の裁定 2026-09-03 「html の読み戻しは不要。ユーザーは .html をダブル
+  //   クリックして開けばよい」). 表 T-233 no longer holds the row, and the
+  //   manuscript no longer holds its 項, so its pairing is not left behind here
+  //   -- 「一度退いた行の指紋を残さない」 is the second half of the case below.
+  //   ⚠️ 行 ID は席の番号であり、詰めない: no other row moved up into it.
   // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja 「これ以上深い段には行を
   //   足せません」 is again the same sentence, en 「A row cannot be added any
   //   deeper than this」 says the same, and the next step 「もっと浅い行に足して
@@ -206,9 +204,22 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
   //   CR-340 was written to keep. ⇒ the words tell the scene.
+  //
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-04 (CR-347 §2.6, ledger row D-124).
+  // `RS-47` -- 場面 「渡された日程が読めなかった」; ja 「渡された日程が読めません
+  //   でした」 is the same sentence in the polite past form, en 「The schedule
+  //   that was handed over could not be read」 says the same thing, and the 作法
+  //   column writes the row against `NT-3a`, whose next step 「別のファイルを開い
+  //   てください」 / 「Open a different file」 is a step the reader can actually
+  //   take -- the only one, since the schedule that was handed over is the one
+  //   that cannot be read. ⇒ the words tell the scene.
+  //   ⚠️ IT IS NOT `RS-26`, whose 場面 is 「起動時に渡された文書が読めなかった」
+  //   and whose 正 is 表 T-024a の `OP-14`; that row is `NT-1` and descends to
+  //   the next rank of 表 T-034. This row's 正 is `FR-087` and its 作法 `NT-3a`,
+  //   so the two are told differently and their words are kept apart.
   // ---------------------------------------------------------------------
-  'RS-45': '24f4818e5043cdb9',
   'RS-46': '1dc2be62612383ad',
+  'RS-47': '91391ea48d5ac4e5',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

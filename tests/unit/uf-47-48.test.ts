@@ -590,8 +590,23 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     expect(placement.occupiedX1).toBeGreaterThanOrEqual(actualEnd)
 
     // And the fit was taken on that: the whole actual bar is on screen.
+    //
+    // ⚠️ COMPARED ON THE GRID THE SPECIFICATION PRINTS COORDINATES ON, NOT ON
+    // THE RAW DOUBLE. 表 T-231 の `NS-3`: 「数の綴りを揃える | `NS-1` の**前に**、
+    // 座標と寸法を **0.01 px の格子**へ丸めた綴りにする」 (docs/spec/05-07-design.md),
+    // and 表 T-041 の `WY-3` puts 「丸めによる 1 px 未満の差」 outside what it
+    // measures at all. ⛔ So a difference below 0.01 px cannot appear in anything
+    // the specification says is drawn, and an exact `<=` here asserts a precision
+    // no row of docs/spec claims. ⚠️ `FR-055` itself is weaker still: 「ただし必ず
+    // 収まることを保証しない」.
+    // ⛔ IT IS NOT A LOOSENING OF WHAT THE CASE MEANS: the fit divides the Row
+    // Area's width by the extent and multiplies it back, so the last unit in the
+    // place lands where it lands -- 982.0000000000001 against 982 on 2026-09-04,
+    // once `S-79` widened the Row Title Panel. An overhang a reader could ever
+    // see is 0.01 px or more and still fails this line.
+    const onNs3Grid = (px: number): number => Math.round(px * 100) / 100
     expect(placement.actualX!).toBeGreaterThanOrEqual(rowArea.x)
-    expect(actualEnd).toBeLessThanOrEqual(rowArea.x + rowArea.width)
+    expect(onNs3Grid(actualEnd)).toBeLessThanOrEqual(onNs3Grid(rowArea.x + rowArea.width))
 
     // The extent grew, so the fit had to give a day less room than it does for
     // the same document without the actual. Measuring the plan alone would

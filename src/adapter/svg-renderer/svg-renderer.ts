@@ -2029,7 +2029,7 @@ const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GR-7']
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (tables T-206 and T-236)
+//   docs/spec/_source/settings.json (tables T-206, T-207 and T-236)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /**
  * The values table T-206 states that this unit needs, by row ID.
@@ -2191,5 +2191,43 @@ export const SCHEDULE_COLOURS: {
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   /* S-195 */
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
+  /* S-223 */
+  'S-223': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+}
+
+/**
+ * The values table T-207 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-207 holds what is BAKED INTO THE ARTIFACT and not kept
+ * in the document, so these are not document settings and are not
+ * in SETTINGS_DEFAULTS. They are reached by row ID because the
+ * table has no key column -- the row ID is the specification's own
+ * name for them.
+ *
+ * ⭐ THE FOUR VALUES FR-020 DRAWS WITH, less the colour. The angle is
+ * in degrees, the size is a fraction OF THE PICTURE's WIDTH (S-81)
+ * and the spacing is a multiple OF THE MARK's OWN HEIGHT, so two of
+ * the three mean nothing without the thing they multiply -- which is
+ * why they are ratios here and not lengths.
+ *
+ * ⛔ THE INK IS NOT HERE. S-223 is a row of table T-236, which states
+ * a light and a dark rendering of one decision; it arrives with the
+ * other colours. ⚠️ S-102 is the OPACITY and is not a colour: it is
+ * one number in both renderings, and table T-207 is where it stands.
+ */
+export const WATERMARK_MARKS: {
+  /** S-220 */
+  readonly 'S-220': string
+  /** S-221 */
+  readonly 'S-221': string
+  /** S-222 */
+  readonly 'S-222': string
+  /** S-102 */
+  readonly 'S-102': string
+} = {
+  'S-220': '-30',
+  'S-221': '0.08',
+  'S-222': '3',
+  'S-102': '0.08',
 }
 // </generated>

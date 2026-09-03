@@ -1,17 +1,25 @@
-// 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-340, ledger row D-206):
-// the entrance that adds a child row is drawn FAINT on a row that has reached
-// `FR-085`'s depth cap, and a press on it is answered with a reason instead of
-// a name field.
+// 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-340 then CR-348,
+// ledger row D-206): the entrance that adds a child row is drawn FAINT on a row
+// that has reached `FR-085`'s depth cap, and a press on it is answered with a
+// reason instead of a row.
 //
-// ⭐ THE TWO SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
+// ⚠️ THE ROW WAS REWRITTEN ON 2026-09-04 (CR-348) AND THIS FILE FOLLOWED IT.
+// 「打ち込み口を出さずに」 became 「行を立てずに」 because the field it named was
+// withdrawn from the same row: an ordinary press now raises the row with a
+// default name and opens its properties panel (the `FR-085` rename road), so
+// there is no name field left to withhold -- what the refusal withholds is the
+// ROW. ⛔ Nothing in this file may be written from the withdrawn model.
+//
+// ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
 // `HF-14` (docs/spec/01-04-requirements.md):
 //
 //   ⛔ 「**その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く
 //    描くこと（MUST）**」 —— ⭐ 「**`HF-13` が「開ける直下の子が 1 つも無いとき」に
 //    採るのと同じ形である。**」
-//   ⛔⛔ 「**薄いまま押されたときは、打ち込み口を出さずに理由を告げること（MUST）。
-//    理由は 表 T-233 の `RS-46` とすること（MUST）**」 —— 「**打ち込ませてから捨て
-//    ると、直前の「名前が空のまま確定された」と見分けがつかない。**」
+//   ⛔⛔ 「**薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は
+//    表 T-233 の `RS-46` とすること（MUST）**」
+//   ⛔ 「**行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 ——
+//    「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
 //
 // and out of 表 T-233:
 //
@@ -42,13 +50,19 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
-//   1. THAT NO NAME FIELD WAS OPENED. 「打ち込み口を出さずに」 is the other half of
-//      the MUST, and it cannot be read at this seam: the field is opened by the
-//      DOM surface (UF-71) and `ScreenView` carries no member for it --
-//      tests/unit/t-015-t-051-the-four-folding-controls.test.ts records the
-//      same hole for the `HF-17` ⇔ `HF-14` pairing. What is asserted instead is
-//      the observable consequence: the reason IS told, and the document is
-//      untouched.
+//   1. WHAT AN ORDINARY (UNREFUSED) PRESS RAISES. 「既定の名前で行を立てること
+//      （MUST）。その行のプロパティパネルを出し…（MUST）」 is HF-14's other half, and
+//      it belongs to a file about the ordinary press -- this one is named for
+//      the cap. ⛔ The old note here said the withheld half could not be read at
+//      this seam because it was a NAME FIELD; CR-348 withdrew that field, and
+//      what the refusal withholds is now the ROW and the PANEL, both of which
+//      this seam carries (`FrameLoop.document()` and
+//      `ScreenView.propertiesPanel`) and both of which are asserted below.
+//   1b. WHETHER THE DETAIL TIER WAS OPENED. 「立てた行が…詳しさの段（`FR-018`）で
+//      落ちる深さになるときは、その行が描かれるまで詳しさの段を開くこと（MUST）」 is a
+//      2026-09-04 MUST about the press that SUCCEEDS. ⛔ It is not written here:
+//      no press in this file raises a row, and choosing the seam it is read
+//      through is the implementer's, not this file's.
 //   2. HOW FAINT IS DRAWN. That is the surface's, and
 //      tests/unit/uf-72-screen-part.test.ts already holds `canOpenOneLevel`'s
 //      faintness there. Here the question is the one only this unit can answer:
@@ -429,15 +443,34 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ HF-14 still draws the capped entrance faint and still tells RS-46 when it is pressed', () => {
-    // The two sentences CR-340 added, pinned so that a manuscript which went
-    // back on either fails HERE rather than in a case that would then be
-    // asserting a rule nobody holds.
+    // The three sentences the refusal path stands on, pinned so that a
+    // manuscript which went back on any of them fails HERE rather than in a
+    // case that would then be asserting a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
       'その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '薄いまま押されたときは、打ち込み口を出さずに理由を告げること（MUST）。理由は 表 T-233 の `RS-46` とすること（MUST）',
+      '薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は 表 T-233 の `RS-46` とすること（MUST）',
     )
+    // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the row
+    // count and the panel rather than the reason alone: raising the row and
+    // refusing inside the panel would tell RS-46 and still be forbidden.
+    expect(says('T-051', 'HF-14')).toContain(
+      '行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）',
+    )
+  })
+
+  it('⛔ HF-14 no longer holds the model that was withdrawn on 2026-09-04', () => {
+    // ⚠️ THE GUARD THAT KEEPS THIS FILE HONEST. CR-348 withdrew three MUSTs
+    // (「名前は空で立てる」「既定の名を与えてはならない」「空のまま確定されたら立てない」)
+    // and the row now says the opposite: 「**押された瞬間に、既定の名前で行を立てる
+    // こと（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）**」.
+    // ⛔ If a case in this file ever reads an empty name field or an empty-name
+    // confirmation again, this is what says it is reading a rule nobody holds.
+    expect(says('T-051', 'HF-14')).toContain(
+      '押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
+    )
+    expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
   })
 
   it('⛔ 表 T-233 still holds RS-46, against NT-3a, and its words are in the dictionary', () => {
@@ -492,11 +525,10 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
 
   for (const language of ['ja', 'en'] as const) {
     it(`⭐ a press at the cap is told RS-46's own words, and NOT RS-38's or RS-15's (${language})`, () => {
-      // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and written
-      // into HF-14 itself: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
-      // 薄いまま押せ、打ち込み口が出て、確定しても行は増えず通知も出なかった。**」
-      // ⇒ 「打ったのに行が増えない」 was indistinguishable from HF-14's own
-      // 「名前が空のまま確定されたときは、その行を立てない」.
+      // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and still
+      // written into HF-14: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
+      // 薄いまま押せ、押した先は開き、確定しても行は増えず通知も出なかった。**」
+      // ⇒ 「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
       const built = stage(language)
 
       built.press(ADD_CHILD_ROW, AT_THE_CAP)
@@ -530,8 +562,9 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
   })
 
   it('⛔ the refused press leaves the document exactly as it was', () => {
-    // 「打ち込み口を出さずに理由を告げること（MUST）」 -- the field cannot be read at
-    // this seam (see the head of this file), but a row that arrived anyway can.
+    // ⭐ 「**薄いまま押されたときは、行を立てずに理由を告げること（MUST）**」. Since
+    // CR-348 this is the WHOLE of that half, and it is readable right here: the
+    // row is what the refusal withholds, so the row count is the assertion.
     const built = stage()
     const before = JSON.stringify(built.loop.document())
     const rowsBefore = rowCount(built)
@@ -541,6 +574,13 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
     expect(rowCount(built), 'a row was added past S-125').toBe(rowsBefore)
     expect(JSON.stringify(built.loop.document())).toBe(before)
     expect(built.loop.hasUnsavedEdits()).toBe(false)
+    // ⛔ 「**行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 -- the
+    // ordinary press opens the properties panel (`UF-64`), so a refusal that
+    // opened it too would be the very shape CR-348 forbids.
+    expect(
+      built.screen.last().propertiesPanel,
+      'the capped press opened the panel it was refused in',
+    ).toBeNull()
   })
 
   it('⛔ the control: the same press one level above the cap is NOT answered with a reason', () => {

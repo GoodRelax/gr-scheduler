@@ -2558,7 +2558,8 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
 // ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
 // 表 T-015's `HR-7` 「**直下の子だけ**を開き、**孫より下は畳んだままにすること
 // （MUST）**」 and `HF-14`'s 「**足した行は末子とすること（MUST）**」 and
-// 「**名前が空のまま確定されたときは、その行を立てないこと（MUST）**」 are all
+// 「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネル
+// を出し、名前の欄で名づけさせること（MUST）**」 are all
 // rules about what is WRITTEN when the entrance is pressed. This unit draws and
 // answers points; the press is planned in the translator and carried out three
 // layers away. What it owes is that the entrance EXISTS, once per row, that it
@@ -2778,16 +2779,37 @@ describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 
     ).toEqual([])
   })
 
-  it('GIVEN the specification is re-read WHEN 表 T-051 HF-14 is looked up THEN it still asks for one per row, an empty name typed in place, and no default', () => {
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-14 is looked up THEN it still asks for one per row and a last child, and now for the default name and the Properties Panel', () => {
     const hf14 = specTable('T-051').rows.find((one) => one.id === 'HF-14')
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
+
+    // ⭐ WHAT THIS UNIT DRAWS AND ANSWERS FOR -- unchanged since 2026-08-30.
     expect(cells).toContain('配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）')
     expect(cells).toContain('足した行は末子とすること（MUST）')
-    expect(cells).toContain('名前は空で立て、その場で打たせること（MUST）')
-    expect(cells).toContain('既定の名を与えてはならない（MUST NOT）')
-    expect(cells).toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
     expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
+    // ⛔ AND THE ONE DRAWING RULE THE NAMING CHANGE DID NOT TOUCH: a row already
+    // at `FR-085`'s depth limit still carries the entrance, drawn faint.
+    expect(cells).toContain(
+      'その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
+    )
+
+    // ⭐⭐ WHAT CHANGED ON 2026-09-04 (利用者の裁定 2026-09-03): the row is stood
+    // up WITH a default name and named in its Properties Panel, by the very road
+    // `FR-085` gives renaming. ⚠️ Not this unit's to carry out -- read here for
+    // the reason HR-8 is read below: the press it draws must not be planned into
+    // a second, in-place naming road.
+    expect(cells).toContain('押された瞬間に、既定の名前で行を立てること（MUST）')
+    expect(cells).toContain('その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
+    expect(cells).toContain('改名と別の道を作ってはならない（MUST NOT）')
+
+    // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN ARE WITHDRAWN: 「**その禁止
+    // の理由は「改名の入口が 1 つも無い」であり、`FR-085` が 2026-09-01 に改名の道
+    // を得た時点で失われていた。**」 ⚠️ The row keeps a history note repeating
+    // those words WITHOUT their （MUST）, so only a real revival reddens these.
+    expect(cells).not.toContain('名前は空で立て、その場で打たせること（MUST）')
+    expect(cells).not.toContain('既定の名を与えてはならない（MUST NOT）')
+    expect(cells).not.toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
   })
 
   it('GIVEN the specification is re-read WHEN 表 T-015 HR-8 is looked up THEN it still adds UNDER the row and not beside it', () => {

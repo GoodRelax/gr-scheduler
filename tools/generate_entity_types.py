@@ -1402,7 +1402,7 @@ COLOUR_TARGETS = {
     'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
-                         'S-169', 'S-195'],
+                         'S-169', 'S-195', 'S-223'],
 }
 
 COLOUR_NOTE = [
@@ -1661,9 +1661,19 @@ def derived_block(name):
 # S-100 is the default watermark unlock PASSWORD in the clear, and FR-020
 # (MUST NOT) forbids the raw password to be kept in code, in the model or in
 # what goes out -- that row's own note says 「成果物へ入るのは下の SHA-256 だけ
-# である」. S-102 (`watermarkOpacity`) is a number the drawing side would want
-# and nothing in `src/` draws the watermark yet, so generating it would be a
-# constant with no reader.
+# である」.
+#
+# ⭐ S-102 AND THE THREE OF CR-348 REACH THE DRAWING SIDE. Until 2026-09-04
+# `watermarkOpacity` was left out on the ground that nothing drew the
+# watermark, which was true and was the defect: FR-020 (MUST) has GRS lay
+# the mark over the Row Area, and measuring the shipped build found zero
+# elements doing it. FR-020 now (MUST) names S-220 / S-221 / S-222 and
+# S-223 as the values it is drawn with and (MUST NOT) forbids them in
+# `src/`, so a constant with no reader is the right shape to leave for the
+# reader to arrive at -- the alternative is the drawing side typing -30.
+# ⛔ S-223 IS NOT HERE. It is a colour, so it is a row of table T-236 and
+# rides with the other colours in SCHEDULE_COLOURS; only a value with no
+# light and dark rendering belongs in this constant.
 WATERMARK_TARGETS = {
     'WATERMARK_UNLOCK_DIGEST': (['S-101'], [
         ' * ⛔ THE RAW PASSWORD IS NOT HERE AND MAY NOT BE. FR-020 (MUST NOT)',
@@ -1675,6 +1685,18 @@ WATERMARK_TARGETS = {
         ' * ⭐ WHAT IT IS COMPARED AGAINST IS NOT ALWAYS THIS. S-99c of table',
         ' * T-206 holds a digest the author set, in `localStorage`; this one is',
         ' * what FR-020 falls back to while no such row is kept.',
+    ]),
+    'WATERMARK_MARKS': (['S-220', 'S-221', 'S-222', 'S-102'], [
+        ' * ⭐ THE FOUR VALUES FR-020 DRAWS WITH, less the colour. The angle is',
+        ' * in degrees, the size is a fraction OF THE PICTURE\'s WIDTH (S-81)',
+        ' * and the spacing is a multiple OF THE MARK\'s OWN HEIGHT, so two of',
+        ' * the three mean nothing without the thing they multiply -- which is',
+        ' * why they are ratios here and not lengths.',
+        ' *',
+        ' * ⛔ THE INK IS NOT HERE. S-223 is a row of table T-236, which states',
+        ' * a light and a dark rendering of one decision; it arrives with the',
+        ' * other colours. ⚠️ S-102 is the OPACITY and is not a colour: it is',
+        ' * one number in both renderings, and table T-207 is where it stands.',
     ]),
 }
 
@@ -1693,8 +1715,13 @@ def watermark_block(name):
             raise SystemExit('table T-207 has no row %s' % row_id)
         raw = by_id[row_id].get('value')
         # ⛔ The published table prints the value in backticks, which are the
-        # manuscript's markup and not part of the value. A cell that is not a
-        # plain string is an error at the call site rather than a silent one.
+        # manuscript's markup and not part of the value.
+        # ⚠️ A cell is EITHER a plain string OR a `num` object carrying the
+        # printing marks (`code`, `mark`). S-100 and S-101 are the first shape
+        # and S-102 is the second, and both are values; only a cell that is
+        # neither is an error at the call site rather than a silent one.
+        if isinstance(raw, dict) and 'num' in raw:
+            raw = raw['num']
         if not isinstance(raw, str):
             raise SystemExit(
                 'table T-207 row %s holds no plain value, so %s cannot be '
@@ -2113,8 +2140,15 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_GUIDE_CURSOR_SIZES') + NEWLINE * 2
-     + colour_block('SCHEDULE_COLOURS'),
-     ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
+     + colour_block('SCHEDULE_COLOURS')
+     # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The
+     # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236
+     # and has a light and a dark rendering; the angle, the size, the spacing
+     # and the opacity have one value each and are rows of table T-207.
+     # ⛔ Not in the shell beside WATERMARK_UNLOCK_DIGEST -- that one is
+     # compared against an answer the shell hashes, and these are drawn.
+     + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
+     ['docs/spec/_source/settings.json (tables T-206, T-207 and T-236)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means
     # there, so the open width has to be laid over the settings for the frame

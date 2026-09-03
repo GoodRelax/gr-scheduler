@@ -171,8 +171,17 @@ describe('ScreenRegions (PI-35)', () => {
   })
 
   it('U-50 puts the Row Area inside the Row Title Panel and below the ruler band', () => {
+    // ⛔ THE LEFT EDGE IS WRITTEN AS THE RELATION, NOT AS A NUMBER. `U-50` of
+    // `_assets/tbl-glossary.md`: 「左右は `Row Title Panel` と `Properties
+    // Panel` の内側」, so the Row Area begins where the Row Title Panel ends --
+    // and that width is `S-79` (`rowTitlePanelWidth`), read from the generated
+    // defaults the way the FR-052 case above reads it. ⚠️ A typed 170 stood
+    // here until 2026-09-04 and went stale the day the manuscript raised `S-79`
+    // to 200 (`docs/spec/_source/settings.json`, `S-79`: 「⭐⭐ **2026-09-03 に
+    // 170 から 200 へ上げた**（利用者の裁定）—— **深さ 5 の掴み代が操作子に覆わ
+    // れないことから決めた。**」).
     const { rowArea } = regionsFromScreen(ENV, SETTINGS)
-    expect(rowArea.x).toBe(170)
+    expect(rowArea.x).toBe(settingNumber('rowTitlePanelWidth'))
     expect(rowArea.y).toBe(56 + 48)
   })
 
@@ -191,8 +200,16 @@ describe('ScreenRegions (PI-35)', () => {
   })
 
   it('gives the Row Title Panel the whole canvas height, so it owns the corner under the ruler', () => {
+    // ⛔ The width is `S-79` read from the generated defaults, never typed --
+    // see the U-50 case above. The three numbers that ARE typed are this file's
+    // own fixture: ENV's header (56) and the canvas height it leaves (644).
     const r = regionsFromScreen(ENV, SETTINGS)
-    expect(r.rowTitlePanel).toEqual({ x: 0, y: 56, width: 170, height: 644 })
+    expect(r.rowTitlePanel).toEqual({
+      x: 0,
+      y: 56,
+      width: settingNumber('rowTitlePanelWidth'),
+      height: 644,
+    })
     expect(regionAtPointer(r, 50, 60)).toBe('rowTitlePanel')
   })
 
@@ -953,7 +970,7 @@ const geometryOf = (
 ): ScheduleGeometry =>
   geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS, selection)
 
-/** The x of a day index, at pxPerDay 6 from a Row Area starting at 170. */
+/** The x of a day index, at pxPerDay 6 from wherever the Row Area starts (`S-79`). */
 const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
 
 // LF-11 places the marker `markerGap` past the right end of the bar FR-013

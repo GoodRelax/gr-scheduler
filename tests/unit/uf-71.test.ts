@@ -1753,13 +1753,33 @@ describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打�
     expect(built.settledRowNames, 'the name was settled while a telling stood').toEqual([])
   })
 
-  it('GIVEN the specification is re-read WHEN HF-14 and SK-19 are looked up THEN they still ask for an empty name typed in place, settled with Enter', () => {
+  it('GIVEN the specification is re-read WHEN HF-14 and SK-19 are looked up THEN HF-14 stands the row up WITH the default name and names it in the Properties Panel, settled with Enter', () => {
     const hf14 = specTable('T-051').rows.find((one) => one.id === 'HF-14')
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
-    expect(cells).toContain('名前は空で立て、その場で打たせること（MUST）')
-    expect(cells).toContain('既定の名を与えてはならない（MUST NOT）')
-    expect(cells).toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
+
+    // ⭐⭐ THE RULING OF 2026-09-03, IN THE ROW'S OWN WORDS: 「**No name という
+    // タスクグループを追加してそれを編集するプロパティーウインドウを開け。
+    // つまり、現在タスクグループ名を変更する際の操作と操作感を合わせろ。**」
+    expect(cells).toContain('押された瞬間に、既定の名前で行を立てること（MUST）')
+    expect(cells).toContain('その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
+    // ⛔ ONE ROAD, AND IT IS THE ONE `FR-085` ALREADY DEFINES FOR RENAMING -- so
+    // this unit may not grow a second way of asking for the name.
+    expect(cells).toContain('改名と別の道を作ってはならない（MUST NOT）')
+    expect(cells).toContain('道は `FR-085` が改名について定めるものと同じものとすること（MUST）')
+    // ⛔ AND THE SPELLING OF THAT DEFAULT NAME IS NOT HERE TO BE COPIED FROM.
+    expect(cells).toContain('既定の名前は表示語として持つこと（MUST）')
+    expect(cells).toContain('仕様書に綴りを刷ってはならない（MUST NOT）')
+
+    // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN WERE WITHDRAWN ON
+    // 2026-09-04, and the row says why: 「**その禁止の理由は「改名の入口が 1 つも
+    // 無い」であり、`FR-085` が 2026-09-01 に改名の道を得た時点で失われていた。**」
+    // ⚠️ HELD NEGATIVELY ON PURPOSE: the row keeps a history note that repeats
+    // those words WITHOUT their （MUST）, so a quiet revival of the rules
+    // themselves -- and only that -- turns this case red again.
+    expect(cells).not.toContain('名前は空で立て、その場で打たせること（MUST）')
+    expect(cells).not.toContain('既定の名を与えてはならない（MUST NOT）')
+    expect(cells).not.toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
 
     const sk19 = specTable('T-036').rows.find((one) => one.id === 'SK-19')
     expect(sk19, '表 T-036 no longer holds SK-19').toBeDefined()

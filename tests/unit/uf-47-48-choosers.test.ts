@@ -2864,51 +2864,61 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
       }
     })
 
-    it(`⭐ an application that cannot read itself is told RS-45's own words (${language})`, async () => {
-      // ⛔⛔ THIS CASE EXPECTED `RS-42` UNTIL 2026-09-03 AND THE SPECIFICATION
-      // MOVED UNDER IT. CR-340 (利用者の裁定 2026-09-03, ledger row D-202) gave
-      // this one situation a seat of its own in 表 T-233:
+    it(`⭐ an application that cannot read itself carries a reason 表 T-233 still holds (${language})`, async () => {
+      // ⛔⛔ THIS CASE NAMED `RS-45` UNTIL 2026-09-04 AND THE SPECIFICATION MOVED
+      // OUT FROM UNDER IT A SECOND TIME. CR-340 had given this one situation a
+      // seat of its own; CR-347 §2.7 (利用者の裁定 2026-09-03 「html の読み戻し
+      // は不要。ユーザーは .html をダブルクリックして開けばよい」, ledger row
+      // D-202) took that seat away again, and 表 T-233 no longer holds `RS-45`
+      // -- nor does FR-038's dictionary, which is why naming it here threw.
       //
-      //   「| RS-45 | **この画面を動かす本体が、このファイルの中に見つからない** |
-      //    `NT-3a` | `FR-102` |」（docs/spec/01-04-requirements.md, 表 T-233）
+      // ⛔ WHAT REMAINS TRUE IS THE CLOSING OF 表 T-037, VERBATIM:
+      //   「⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を
+      //    運んではならない（MUST NOT）」
+      // and `FR-029`, which forbids the press to refuse in silence. So this case
+      // asks for exactly those two and no more: the press writes nothing, it
+      // says something, and whatever it says is the word FR-038's dictionary
+      // holds for a row 表 T-233 STILL holds -- with that row's own 作法, and its
+      // next step when that 作法 is `NT-3a`.
       //
-      // and said in as many words which of the three faults gets it:
-      //   「⭐ **`RS-45` に席を与える根拠**（`CR-333` の基準）—— **原因が分かって
-      //    おり**（埋め込みの外殻が取り出せない）、**読む人が次に採れる手がある**
-      //    …… ⛔ **`EmbeddedHtmlFault` の残り 2 つは `RS-42` のままとする**（利用者の
-      //    裁定 2026-09-03）—— **原因が分からず、読む人に採れる手が違わない。**」
-      //
-      // ⇒ LM-14 of 表 T-004 is still the environment -- opened straight off the
-      // disk, an application cannot always read its own source -- but 「原因の
-      // 分からない失敗」 is no longer a true thing to tell a reader about it.
-      // GOES RED IF: the press returns in silence (FR-029 MUST forbids it), or
-      // the `appShellUnavailable` arm is still filed under RS-42.
-      const words = wordsFor('RS-45')
+      // ⛔⛔ IT DOES NOT NAME THE REPLACEMENT ROW, BECAUSE docs/spec DOES NOT.
+      // No row of 表 T-233 now states this 場面: `RS-42` is 「原因の分からない失敗」
+      // and the cause here is known (the embedded shell cannot be taken out),
+      // `RS-3` is 表 T-004 の `LM-14`'s 「書き込みを試みたが、この環境では行えな
+      // かった」, and `RS-15` is the row 表 T-233 keeps for 「この理由にまだ行が
+      // 無い」. ⚠️ Choosing among those three is a ruling, not a reading, so this
+      // case measures the MUST NOT and leaves the choice to the front session.
+      // GOES RED IF: the press returns in silence, or it carries a reason that
+      // is not a row of 表 T-233 -- which is where the retired `RS-45` now falls.
       const { written, view } = await pressWithSeams(
         'IO-7',
         { appShell: unreadableAppShell() },
         language,
       )
       expect(written).toHaveLength(0)
-      const texts = view.notices.map((notice) => notice.text)
-      expect(texts, '表 T-233 の `RS-45`').toContain(words.text[language])
-      // ⛔ 「当たる行があるのに落ち先を運んではならない（MUST NOT）」 -- FR-029. The
-      // two rows this could still be wrongly filed under are named, so a fix
-      // that merely renamed a constant does not pass.
-      expect(texts, 'RS-42 is the OTHER two faults, not this one').not.toContain(
-        wordsFor('RS-42').text[language],
-      )
-      expect(texts, 'RS-15 is for a reason 表 T-233 holds no row for').not.toContain(
-        wordsFor('RS-15').text[language],
-      )
+      expect(
+        view.notices.length,
+        'FR-029 (MUST): the press could not act and said nothing',
+      ).toBeGreaterThan(0)
       for (const notice of view.notices) {
-        if (notice.text !== words.text[language]) continue
-        // 表 T-233 writes RS-45 against `NT-3a`, read here and never typed.
-        expect(notice.manner).toBe(mannerFor('RS-45'))
+        const carried = REASON_WORDS.find((one) => one.text[language] === notice.text)
         expect(
-          notice.nextSteps,
-          'NT-3a (MUST): 次に取れる手段を添えること -- 「配られた元のファイルを開き直してください」',
-        ).toContain(words.nextStep[language])
+          carried?.rowId,
+          `表 T-233 の閉じ（MUST NOT）: 同表に無い理由を運んではならない -- the words ` +
+            `${JSON.stringify(notice.text)} belong to no row of table T-233`,
+        ).toBeDefined()
+        const rowId = carried!.rowId
+        expect(
+          T_233.rows.map((row) => row.id),
+          `${rowId} is not a row of table T-233`,
+        ).toContain(rowId)
+        expect(notice.manner, `the manner table T-233 gives ${rowId}`).toBe(mannerFor(rowId))
+        if (mannerFor(rowId) === 'NT-3a') {
+          expect(
+            notice.nextSteps,
+            'NT-3a (MUST): 次に取れる手段を添えること',
+          ).toContain(carried!.nextStep[language])
+        }
       }
     })
   }
