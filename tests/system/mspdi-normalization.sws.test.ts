@@ -65,7 +65,7 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
-import { launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
+import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { expectDeclarationsUsable, rowOf, swsRegistry } from './sws-case'
 
 const registry = swsRegistry()
@@ -520,6 +520,10 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
+  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference
+  // browser passes a hook's 30s default on this machine; `CLEARING_UP_MS` of
+  // `./live-app` carries the measurements and the reason.
+  test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 

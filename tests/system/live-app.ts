@@ -72,6 +72,32 @@ export function screenOf(row: SpecRow): { width: number; height: number } {
 export const DRAWN_SVG = '[data-role="Schedule Canvas"] svg'
 
 /**
+ * How long a file's clearing-up hook is given to close the reference browser.
+ *
+ * ⛔ CLOSING IT IS SLOW ON THIS MACHINE, AND THAT IS THE WHOLE OF IT. Measured
+ * 2026-09-03 in a standalone script with nothing else running, one
+ * `browser.close()` on the `msedge` channel took 21s, 70s, 90s, 144s and 163s
+ * over five launches -- and 21s on the bundled browser for comparison. A hook's
+ * own default is 30s, which sits inside that range, so every System file that
+ * opens this browser reported red at the very end however green its cases were
+ * (measured: five of the seven files in one run, all with the same message and
+ * no assertion among them).
+ *
+ * ⛔⛔ IT IS *NOT* PAGES OR CONTEXTS PILING UP, and that theory was measured
+ * before this number was chosen: a context closes in 6..18ms, the files close
+ * their own in a `finally`, and the same 163s close was measured with
+ * `browser.contexts()` already empty.
+ *
+ * ⛔ IT LOOSENS NO ASSERTION. `test.setTimeout` inside `afterAll` moves THAT
+ * HOOK's allowance and nothing else; every case keeps the timeout it sets for
+ * itself, so a judgement that becomes slow still fails for being slow.
+ *
+ * ⚠️ ONE HOME FOR THE NUMBER, next to the launch it is about, rather than six
+ * copies that would drift apart the first time the machine changed.
+ */
+export const CLEARING_UP_MS = 300_000
+
+/**
  * Open the reference browser.
  *
  * ⚠️ The default failure says only that an executable is missing, which reads

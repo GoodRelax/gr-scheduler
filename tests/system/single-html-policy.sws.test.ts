@@ -42,7 +42,7 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
-import { DRAWN_SVG, launchReferenceBrowser } from './live-app'
+import { DRAWN_SVG, CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { expectDeclarationsUsable, lastCellOf, rowOf, swsRegistry } from './sws-case'
 
 const registry = swsRegistry()
@@ -219,6 +219,10 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
+  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference
+  // browser passes a hook's 30s default on this machine; `CLEARING_UP_MS` of
+  // `./live-app` carries the measurements and the reason.
+  test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 

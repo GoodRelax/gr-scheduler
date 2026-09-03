@@ -203,6 +203,99 @@ const SCRIPT = [
   // ⭐ THE SAME ENTRANCE TAKES THE PIN OFF AGAIN (FR-098 puts both on one).
   ['row', 'Mobile Client', 'pin'],
   ['row', 'Back Office', 'pin'],
+
+  // ------------------------------------------------------------------------
+  // ⭐ FIFTEEN MOVES ADDED 2026-09-03, AND WHAT THEY REACH THAT THE TWENTY-FIVE
+  // ABOVE NEVER DID. 25/25 agreeing was not "there is nothing left to find" --
+  // it was "there is nothing left being asked". Measured over the board this
+  // file builds, the twenty-five never once:
+  //   - pressed anything on a row at the DEEPEST tier the sample seeds (`L3`:
+  //     `Phone Sign In`, `Phone Home Screen`),
+  //   - pressed an entrance the two sides draw FAINT, so nothing checked that a
+  //     spent press changes nothing on either side (FR-029 MUST NOT lets the
+  //     press through so the reason can be told -- it does not let it act),
+  //   - held more than TWO pins at once, or took the MIDDLE one off,
+  //   - folded a PINNED row's own parent, which is the one thing FR-098 allows
+  //     to stop a pinned row being drawn,
+  //   - hid a pinned row with `hideSelf`.
+  //
+  // ⛔ THE FIRST OF THEM IS A NORMALISER, NOT A QUESTION. The twenty-five above
+  // leave the board in a state this file does not spell out anywhere, and a
+  // move whose meaning depends on an unstated state is a move nobody can read.
+  // `headOpenAll` is still compared like every other step.
+  ['head', 'headOpenAll'],
+
+  // ⭐ A LEAF'S OPEN-ONE ENTRANCE IS DRAWN AND SPENT ON BOTH SIDES. The sample
+  // draws it faint (its `faint` option stands at 「薄く描く」) and GRS marks it
+  // `aria-disabled`; FR-029 (MUST NOT) forbids taking the press away, so both
+  // receive it. ⛔ WHAT MUST NOT HAPPEN IS A CHANGE -- all four readings are
+  // compared after it, so a side that quietly acts on a spent entrance is
+  // caught here and nowhere else on this board.
+  ['row', 'Phone Sign In', 'openOne'],
+
+  // ⭐ THE DEEPEST TIER THE SAMPLE SEEDS, PINNED. Every pin above was on `L1`.
+  ['row', 'Phone Sign In', 'pin'],
+  // ⭐ FR-098's ONE EXCEPTION, PRESSED. 「畳まれた祖先・隠された祖先だけが、
+  // ピン止めした行を描かせないでよい」 -- so folding `Phone App` must take its
+  // pinned child off the board even though the pin is still on, and opening one
+  // tier again must bring it back still pinned.
+  ['row', 'Phone App', 'foldAll'],
+  ['row', 'Phone App', 'openOne'],
+
+  // ⭐ THREE PINS, IN THREE DIFFERENT SUBTREES AND AT THREE DIFFERENT TIERS.
+  // FR-098 (MUST NOT) 「ピン止めした行どうしに優劣を設けてはならない —— 固定した
+  // 順に上から並べる」, and with two pins a tree-ordered stack and a
+  // fixing-ordered stack can agree by accident. With three they cannot.
+  ['row', 'Billing', 'pin'],
+  ['row', 'Whole Product', 'pin'],
+
+  // ⭐ THE WHOLE FOLD FAMILY, RUN WITH THREE PINS STANDING.
+  ['head', 'headFoldAll'],
+  ['head', 'headOne'],
+  ['head', 'headOpenAll'],
+
+  // ⭐ A PINNED ROW HIDDEN BY ITS OWN ENTRANCE, AND BROUGHT BACK BY ITS PARENT.
+  ['row', 'Billing', 'hideSelf'],
+  ['row', 'Back Office', 'openOne'],
+
+  // ⭐ THE MIDDLE PIN COMES OFF FIRST. Taking the last one fixed off leaves a
+  // stack that reads the same whichever rule built it; taking the middle one
+  // off does not.
+  ['row', 'Whole Product', 'pin'],
+  ['row', 'Phone Sign In', 'pin'],
+  ['row', 'Billing', 'pin'],
+
+  // ⭐ A SPENT ENTRANCE PRESSED A SECOND TIME. The press just above armed
+  // `Back Office`'s open-one by hiding a child; with both children back it is
+  // spent, and this presses it again. ⛔ The board must not move.
+  ['row', 'Back Office', 'openOne'],
+
+  // ⭐ FR-098's OTHER EXCEPTION: A HIDDEN ANCESTOR, NOT A FOLDED ONE. The row is
+  // pinned at `L3` and its parent is taken away by that parent's OWN entrance
+  // (`hideSelf`, IC-59), which is a different press from folding the parent's
+  // children -- and the requirement names both.
+  ['row', 'Phone Sign In', 'pin'],
+  ['row', 'Phone App', 'hideSelf'],
+  // ⛔ `openAll` AND NOT `openOne`, AND THE DIFFERENCE WAS MEASURED. A row's
+  // open-one entrance brings back its DIRECT children only; `Phone Sign In` is a
+  // grandchild of `Mobile Client`, so after `openOne` it is still away -- BOTH
+  // SIDES AGREED ON THAT (measured 2026-09-03: 「could not be pressed (sample:
+  // false, GRS: false)」), which is the two behaving alike and this file asking a
+  // move that cannot land. ⭐ An unpressable move is a failure here on purpose,
+  // so the mistake showed rather than passing quietly.
+  ['row', 'Mobile Client', 'openAll'],
+  ['row', 'Phone Sign In', 'pin'],
+
+  // ⭐ A ROW WITH NO CHILDREN AT ALL. `Tablet App` is a leaf, so both its
+  // fold-all and its open-all are drawn spent on both sides. The twenty-five
+  // pressed neither on a leaf.
+  ['row', 'Tablet App', 'foldAll'],
+  ['row', 'Tablet App', 'openAll'],
+
+  // ⭐ FOLD-ALL PRESSED TWICE. The second press is spent on both sides.
+  ['row', 'Mobile Client', 'foldAll'],
+  ['row', 'Mobile Client', 'foldAll'],
+  ['row', 'Mobile Client', 'openAll'],
 ]
 
 const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${step[2]}`

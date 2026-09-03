@@ -116,7 +116,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable, type SpecTable } from '../contract/spec-table'
-import { launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
+import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
 // ---------------------------------------------------------------------------
@@ -128,6 +128,7 @@ const T024: SpecTable = specTable('T-024')
 const T025: SpecTable = specTable('T-025')
 const T036: SpecTable = specTable('T-036')
 const T109: SpecTable = specTable('T-109')
+const T201: SpecTable = specTable('T-201')
 const T204: SpecTable = specTable('T-204')
 const T206: SpecTable = specTable('T-206')
 const T212: SpecTable = specTable('T-212')
@@ -201,6 +202,24 @@ const T024_FIRST_CHARACTER = 3
 /** Columns of table T-204 after the row ID: key, type, default, meaning. */
 const T204_COLUMNS = 4
 const T204_DEFAULT = 2
+
+/**
+ * Columns of table T-201 after the row ID: the group, the key, the unit, the
+ * default, the floor, the ceiling, the note.
+ */
+const T201_COLUMNS = 7
+const T201_DEFAULT = 3
+
+/**
+ * `S-37` (`rowTitleIndent`) of table T-201, 「行見出しの字下げ。1 段深くなるごと
+ * にこの幅だけ字下げする」（利用者の裁定 2026-09-01）, which `FR-085` (MUST) also
+ * subtracts from the width a name is cut against.
+ *
+ * ⛔ READ, NEVER WRITTEN DOWN. The row moved from 12 to 16 on 2026-09-01, and a
+ * case holding either number would have gone red for the manuscript changing
+ * rather than for the product moving.
+ */
+const ROW_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
 
 /**
  * `S-81` of table T-204: the size a picture is written at. `FR-025` (MUST) has
@@ -530,7 +549,13 @@ test.beforeAll(async () => {
   await readSettledDrawnSvg(plainPage)
 })
 
+// ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference browser
+// passes a hook's 30s default on this machine -- measured at 21s..163s over five
+// launches -- so this file reported red at the very end however green all
+// twenty-two cases were. `CLEARING_UP_MS` of `./live-app` carries the
+// measurements, and why the contexts are not what is slow.
 test.afterAll(async () => {
+  test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 
@@ -2585,6 +2610,223 @@ test('D-210: on the month tier, a click on a day the next month has not lands on
 })
 
 // ---------------------------------------------------------------------------
+// D-49 -- one indent, for the screen and for the written picture
+// ---------------------------------------------------------------------------
+
+/** One drawn row: the tier it stands at, the word it shows, and that word's left edge. */
+interface DrawnRowTitle {
+  readonly depth: number
+  readonly name: string
+  readonly left: number
+}
+
+/**
+ * Every row the panel is drawing, with the left edge of its NAME.
+ *
+ * ⭐ THE NAME AND NOT THE ROW. The row's own box starts at the panel's edge and
+ * never moves; what `S-37` pushes is the word inside it, which is what a reader
+ * sees as the indent and what `FR-085` measures the room against.
+ *
+ * @purity semi-pure-b
+ */
+async function drawnRowTitles(page: Page): Promise<DrawnRowTitle[]> {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
+      const span = row.querySelector('span')
+      const box = span === null ? null : span.getBoundingClientRect()
+      return {
+        depth: Number(row.getAttribute('data-depth') ?? '0'),
+        name: (span?.textContent ?? '').trim(),
+        left: box === null ? Number.NaN : Math.round(box.x * 1000) / 1000,
+      }
+    }),
+  )
+}
+
+/**
+ * Where the written picture put this word, or `null` when it did not put it
+ * exactly once.
+ *
+ * ⛔ EXACTLY ONCE, AND A SECOND MATCH IS A `null` RATHER THAN THE FIRST ONE. The
+ * picture carries the task labels as `<text>` too, so a row whose name also
+ * reads as a task's would otherwise be measured off the wrong element, silently.
+ *
+ * @purity pure
+ */
+function writtenTitleLeft(picture: string, name: string): number | null {
+  const found: number[] = []
+  const marks = /<text\b([^>]*)>([^<]*)<\/text>/g
+  let one = marks.exec(picture)
+  while (one !== null) {
+    if ((one[2] ?? '') === name) {
+      const at = /\bx="(-?\d+(?:\.\d+)?)"/.exec(one[1] ?? '')
+      if (at !== null) found.push(Number(at[1]))
+    }
+    one = marks.exec(picture)
+  }
+  return found.length === 1 ? (found[0] ?? null) : null
+}
+
+/**
+ * The one step per tier a set of readings is made of, or a failure naming them.
+ *
+ * ⭐ FITTED FROM THE OUTERMOST PAIR AND THEN CHECKED AGAINST EVERY TIER, so that
+ * three tiers standing at 0 / 16 / 40 are a failure rather than an average of
+ * 20. `left = base + step x depth` is the shape `FR-085` gives the indent.
+ *
+ * @purity pure
+ */
+function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: number): number {
+  const tiers = [...byDepth.keys()].sort((one, two) => one - two)
+  const low = tiers[0] ?? 0
+  const high = tiers[tiers.length - 1] ?? 0
+  if (tiers.length < 2 || high === low) {
+    throw new Error(`${what} shows only the tier(s) ${JSON.stringify(tiers)}, so it holds no step to read`)
+  }
+  const step = ((byDepth.get(high) ?? 0) - (byDepth.get(low) ?? 0)) / (high - low)
+  for (const tier of tiers) {
+    const wanted = (byDepth.get(low) ?? 0) + step * (tier - low)
+    const seen = byDepth.get(tier) ?? 0
+    if (Math.abs(seen - wanted) > room) {
+      throw new Error(
+        `${what} does not move by one step per tier: tier ${tier} stands at ${seen} and a ` +
+          `step of ${step} puts it at ${wanted} -- readings ${JSON.stringify([...byDepth])}`,
+      )
+    }
+  }
+  return step
+}
+
+// GOES RED IF: the screen and the written picture stop setting a row in by the
+// same amount per tier, or either of them stops using `S-37` for it. The ledger
+// row D-49 was opened by the user's instruction of 2026-08-26 -- 「1 階層下がる
+// ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
+// picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
+// the number out for itself. `FR-085` (MUST) names one indent for both:
+// 「その行の深さぶんのインデント（`rowTitleIndent`。表 T-201 の `S-37`）」, and
+// `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
+//
+// ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.
+// `FR-025` (MUST) fixes the written width at `S-81` (table T-204) while this
+// page is `MC-6` wide (table T-025), so every length in the file is the screen's
+// times `S-81 / MC-6`. The case divides by that ratio -- both numbers read out
+// of the manuscript, neither measured off the file -- and guards that the file
+// really was written at `S-81` before it does.
+//
+// ⚠️ THE PANEL IS SCROLLED FIRST, AND THE READING BELOW SAYS WHY. Measured
+// 2026-09-03 on the shipped build: with the panel untouched the picture carries
+// only the seven `L1` rows, so it holds no second tier and no step can be read
+// off it at all; one notch of the wheel and it carries the same rows the screen
+// does, at three tiers. ⛔ That difference is NOT what this case is about and it
+// is not asserted here -- it is written down so the scroll is not mistaken for
+// a convenience.
+//
+// ⛔ WHAT IS DELIBERATELY NOT ASSERTED: the ledger's remaining 1px. The user's
+// wording 「全角 1 文字ぶん」 measures 13.0px against `S-37`'s 16, and moving a
+// settings value is a change request, not a disagreement between the two sides.
+// Nothing here reads a font size, and every number comes from the manuscript.
+test('D-49: the screen and the picture set a row in by the same one tier of S-37', async () => {
+  test.setTimeout(240_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const chooser = entranceBy(T109_SOURCE, 'FR-096')
+    const ending = assignmentText(cellOf(T024, 'IO-3', T024_ENDING, T024_COLUMNS))
+
+    const overPanel = await page.evaluate(() => {
+      const one = document.querySelector('[data-role="Row Title Panel"]')
+      if (one === null) return null
+      const box = one.getBoundingClientRect()
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    })
+    expect(overPanel, 'the row title panel is not on the screen').not.toBeNull()
+    if (overPanel === null) return
+    await page.mouse.move(overPanel.x, overPanel.y)
+    for (let notch = 0; notch < 2; notch += 1) {
+      await page.mouse.wheel(0, 200)
+      await page.waitForTimeout(250)
+    }
+    await page.waitForTimeout(600)
+
+    const drawn = await drawnRowTitles(page)
+    expect(drawn.length, 'the panel is drawing no rows at all').toBeGreaterThan(1)
+    // ⛔ ONLY NAMES THAT STAND ONCE. Two rows reading alike could not be paired
+    // with one `<text>` of the picture, and a wrong pairing would be measured
+    // rather than reported.
+    const once = drawn.filter(
+      (row) => drawn.filter((other) => other.name === row.name).length === 1 && row.name !== '',
+    )
+    expect(once.length, `no row name is unique in ${JSON.stringify(drawn.map((row) => row.name))}`).toBeGreaterThan(1)
+
+    expect(
+      await pressExportFormat(page, chooser, ending),
+      `the chooser offers nothing that writes ${ending} (table T-024 row IO-3)`,
+    ).toBe(true)
+    const wrote = await until(
+      page,
+      () => readWrites(page),
+      (seen) => seen.bodies.length === 1,
+      'the picture is written',
+    )
+    const picture = wrote.bodies[0] ?? ''
+    expect(picture.startsWith('<svg'), 'what was written is not an SVG').toBe(true)
+
+    // The ratio every length in the file is the screen's times, from the two
+    // rows that decide it and from nothing read off the file.
+    const width = Number(/^<svg\b[^>]*\bwidth="(-?\d+(?:\.\d+)?)"/.exec(picture)?.[1] ?? '')
+    expect(
+      width,
+      `the picture was written ${width}px wide and FR-025 (MUST) fixes the width at S-81; the ` +
+        'ratio this case divides by would be the wrong one',
+    ).toBe(EXPORT_WIDTH)
+    const ratio = EXPORT_WIDTH / BASE_SCREEN.width
+
+    const onScreen = new Map<number, number>()
+    const inPicture = new Map<number, number>()
+    const missing: string[] = []
+    for (const row of once) {
+      const at = writtenTitleLeft(picture, row.name)
+      if (at === null) {
+        missing.push(row.name)
+        continue
+      }
+      onScreen.set(row.depth, row.left)
+      inPicture.set(row.depth, at)
+    }
+    expect(
+      inPicture.size,
+      `the picture holds the tier(s) ${JSON.stringify([...inPicture.keys()])} of the rows the ` +
+        `screen is drawing, and this case needs two; it wrote none of ${JSON.stringify(missing)}`,
+    ).toBeGreaterThan(1)
+
+    // ⚠️ THE ROOM IS FOR THE ROUNDING THE FILE ITSELF DOES -- it writes its
+    // coordinates to two decimals -- and for a browser's sub-pixel layout. It is
+    // far under the 4px the ledger measured the two sides apart by.
+    const room = 0.1
+    const screenStep = stepPerTier(onScreen, 'the screen', room)
+    const pictureStep = stepPerTier(inPicture, 'the written picture', room) / ratio
+
+    expect(
+      Math.abs(screenStep - ROW_INDENT) <= room,
+      `the screen sets a row in by ${screenStep}px per tier and S-37 (rowTitleIndent) is ` +
+        `${ROW_INDENT}px -- readings ${JSON.stringify([...onScreen])}`,
+    ).toBe(true)
+    expect(
+      Math.abs(pictureStep - ROW_INDENT) <= room,
+      `the written picture sets a row in by ${pictureStep}px per tier once the S-81 / MC-6 ratio ` +
+        `is taken off, and S-37 is ${ROW_INDENT}px -- readings ${JSON.stringify([...inPicture])}`,
+    ).toBe(true)
+    expect(
+      Math.abs(screenStep - pictureStep) <= room,
+      `the screen moves a row in by ${screenStep}px per tier and the picture by ${pictureStep}px; ` +
+        'D-49 is exactly the two sides parting company',
+    ).toBe(true)
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
 
@@ -2592,6 +2834,7 @@ test('D-210: on the month tier, a click on a day the next month has not lands on
 const HELD: readonly string[] = [
   'D-24',
   'D-43',
+  'D-49',
   'D-52',
   'D-65',
   'D-66',
