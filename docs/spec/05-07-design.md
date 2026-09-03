@@ -723,7 +723,7 @@ stateDiagram-v2
 | IV-9 | `TaskVisual` の `fillColor` と `strokeColor` が同時に透明でないこと | その 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
 | IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ |
 | IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ |
-| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。⛔ **ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST）** | その 2 列と `start` ／ `finish` | 組合せ |
+| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。⭐⭐ **日数は暦日で数えること（MUST）**（利用者の裁定 2026-09-03）—— ⛔⛔ **2026-09-03 まで本行は稼働日で数えており、`FD-6`（暦日）と食い違っていた。`FD-6` が正である。**⛔ **ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST）** | その 2 列と `start` ／ `finish` | 組合せ |
 | IV-13 | デュアルカーソルが非 `null` のとき、2 つの日付がどちらも非 `null` であること | `_assets/tbl-settings.md` の `S-65` | 組合せ |
 | IV-14 | 日付の列が、日として読め、受け入れる日付の範囲に収まること。⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である | 表 T-058 の型の欄が日付または日時とする列と、表 T-214 | 範囲 |
 | IV-15 | `TaskOrigin.lastSeenImportSeq` が `Project.importSeq` を超えないこと | その 2 列 | 範囲 |

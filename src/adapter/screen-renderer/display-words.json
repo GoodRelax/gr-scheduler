@@ -3226,17 +3226,6 @@
    }
   },
   {
-   "rowId": "RS-45",
-   "text": {
-    "ja": "この画面を動かす本体が、このファイルの中に見つかりません",
-    "en": "The body that runs this screen is not inside this file"
-   },
-   "nextStep": {
-    "ja": "配られた元のファイルを開き直してください",
-    "en": "Open the file you were given again"
-   }
-  },
-  {
    "rowId": "RS-46",
    "text": {
     "ja": "これ以上深い段には行を足せません",
@@ -3245,6 +3234,17 @@
    "nextStep": {
     "ja": "もっと浅い行に足してください",
     "en": "Add it to a shallower row"
+   }
+  },
+  {
+   "rowId": "RS-47",
+   "text": {
+    "ja": "渡された日程が読めませんでした",
+    "en": "The schedule that was handed over could not be read"
+   },
+   "nextStep": {
+    "ja": "別のファイルを開いてください",
+    "en": "Open a different file"
    }
   },
   {
