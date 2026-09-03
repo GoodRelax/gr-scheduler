@@ -23,7 +23,21 @@
 //   D-210  a click on the month tier lands on the end of the month
 //   D-220  a picture too tall to draw is refused, and the other formats write
 //
-// ⛔ FOUR ROWS ARE NOT HELD HERE, AND THAT IS THE FINDING RATHER THAN A GAP.
+// ⭐ FIVE MORE ROWS WERE ADDED WITH CR-344, and they are of a different kind:
+// four of them are lines that landed in the specification on 2026-09-03, and
+// the fifth is a MUST that has stood for weeks with nobody asserting it. Every
+// one of them was found by a person pressing the shipped build while 6,009 unit
+// cases, 23 System cases and 32 machine checks were green.
+//
+//   D-232  a task drawn on empty ground leaves a name field under the keyboard
+//          (found here; the case since MOVED -- see "D-232" in the prose below)
+//   D-233  the settings surface prints dictionary words, and no raw identifier
+//   D-234  an added row is brought into view, not just the field that names it
+//   D-235  the bound document names the language the screen is in
+//   D-236  one sheet per reason, counted up, with no ceiling on the sheets
+//
+// ⛔ FIVE ROWS ARE NOT HELD HERE. Four of them are the finding rather than a
+// gap; the fifth, D-232, is a different shape -- it WAS held here, and moved.
 //
 //   D-15 asks that `FD-6` (table T-012a) and `IV-12` (table T-220) count the
 //   same days. `FD-6` is a truncation rule and `IV-12` is an invariant; ⛔ the
@@ -74,6 +88,20 @@
 //   box's dates, so there is nothing to type either. ⇒ The seam is where this
 //   agreement can be watched, and
 //   `tests/contract/document-invariants.contract.test.ts` already watches it.
+//
+//   D-232 asks that a name can be typed the moment a task is drawn. This file
+//   DID measure it (144x28px polygon count +1, typable-field count staying 0,
+//   Properties Panel `display:none`, focus on `BODY`) and DID write a case for
+//   it, and the case could not be made to pass: `FR-091` (MUST) has the field,
+//   but nothing anywhere makes a just-drawn task the selection
+//   `showPropertiesOfChoice()` needs to advance past, and that missing line is
+//   ledger row D-228, still `裁定待ち`. Rule 05's "止まるときは緑で止まる" means a
+//   case that cannot pass belongs to `tests/system/open-defect-pins.test.ts`'s
+//   `PINNED` / `test.fail()` machinery and not to a plain assertion left red in
+//   this file, so the case moved there. It stays in `HELD` just below: this
+//   file still measured the row and still stands behind why it is
+//   `裁定待ち`; `HELD`'s own gate only checks that the row is still in the
+//   ledger, not that the case still lives in this file.
 //
 // ⛔ ONE HALF OF D-66 IS ALSO NOT SETTLED HERE, and it is named at that case:
 // the run below writes through a REPLACED host save dialogue, so it proves
@@ -3078,6 +3106,652 @@ test('D-229: the written picture draws the rows the screen draws after a fold, w
 })
 
 // ---------------------------------------------------------------------------
+// What the five cases of CR-344 lean on
+// ---------------------------------------------------------------------------
+
+/**
+ * Every word the dictionary holds, in every language it spells one in.
+ *
+ * ⭐ WALKED RATHER THAN NAMED SECTION BY SECTION. `FR-038` (MUST) has 「画面に
+ * 刷る語は、言語ごとの辞書として 1 か所に持つこと」 and (MUST NOT) forbids a
+ * requirement or a table from spelling one, so what a case may ask of a word on
+ * the screen is whether the dictionary holds it -- not which heading of the
+ * manuscript it was filed under. A section added or renamed moves with this.
+ *
+ * @purity semi-pure-b
+ */
+function dictionaryWords(): ReadonlySet<string> {
+  const held = new Set<string>()
+  const walk = (value: unknown): void => {
+    if (typeof value === 'string') {
+      const said = flat(value)
+      if (said !== '') held.add(said)
+      return
+    }
+    if (Array.isArray(value)) {
+      value.forEach(walk)
+      return
+    }
+    if (value !== null && typeof value === 'object') {
+      for (const [key, one] of Object.entries(value as Record<string, unknown>)) {
+        if (key === '$comment') continue
+        walk(one)
+      }
+    }
+  }
+  walk(JSON.parse(readFileSync(DICTIONARY, 'utf8')))
+  if (held.size === 0) throw new Error(`${DICTIONARY} holds no words at all`)
+  return held
+}
+
+/**
+ * The word `FR-101` asks for while nothing has been written yet, kept by the
+ * language it is spelled in.
+ *
+ * ⭐ THIS IS HOW A CASE ASKS THE SCREEN WHICH LANGUAGE IT IS IN. `FR-038` (MUST)
+ * makes the display language 「`ja` と `en` の 2 言語」 and the dictionary spells
+ * every word in both, so the two spellings of one entry are a pair of witnesses:
+ * whichever of them the header is carrying names the language on the screen. ⛔
+ * NEITHER SPELLING IS IN THIS FILE, for the reason `FR-038` (MUST NOT) gives.
+ *
+ * ⚠️ The two are required to differ. An entry spelled the same way in both
+ * languages would witness nothing, and a case leaning on it would pass whatever
+ * the application did.
+ *
+ * @purity semi-pure-b
+ */
+function neverSavedByLanguage(): ReadonlyMap<string, string> {
+  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+    fileStatus?: Array<{ state?: string; text?: Record<string, string> }>
+  }
+  const found = (held.fileStatus ?? []).find((one) => one.state === 'neverSaved')
+  const said = new Map<string, string>()
+  for (const [language, word] of Object.entries(found?.text ?? {})) {
+    if (typeof word === 'string' && word !== '') said.set(language, word)
+  }
+  if (said.size < 2) {
+    throw new Error(`${DICTIONARY} spells the never-saved word in fewer than two languages`)
+  }
+  if (new Set(said.values()).size !== said.size) {
+    throw new Error(
+      `${DICTIONARY} spells the never-saved word the same way in two languages, so no reading of ` +
+        'the header can tell them apart',
+    )
+  }
+  return said
+}
+
+/** The field the keyboard is going into right now, while it is one that takes text. */
+interface TypedInto {
+  readonly tag: string
+  readonly width: number
+  readonly height: number
+  readonly value: string
+}
+
+/**
+ * The focused element, when it is a field a person can type a name into.
+ *
+ * ⚠️ A BOX OF ITS OWN IS PART OF THE ANSWER. The shipped build keeps a 0x0
+ * `input` in the page at all times (measured 2026-09-03), so "an input exists"
+ * and even "an input holds the focus" can both be true of a page that offers
+ * nobody anything. What is asked for is a field that is focused AND drawn.
+ *
+ * @purity semi-pure-b
+ */
+async function focusedTypableField(page: Page): Promise<TypedInto | null> {
+  return page.evaluate(() => {
+    const active = document.activeElement
+    if (active === null) return null
+    const tag = active.tagName
+    const editable = (active as HTMLElement).isContentEditable === true
+    const typed =
+      tag === 'TEXTAREA' ||
+      (tag === 'INPUT' && ['text', 'search', null, ''].includes(active.getAttribute('type')))
+    if (!typed && !editable) return null
+    const box = active.getBoundingClientRect()
+    if (box.width < 1 || box.height < 1) return null
+    return {
+      tag,
+      width: Math.round(box.width),
+      height: Math.round(box.height),
+      value: editable
+        ? (active.textContent ?? '').trim()
+        : (active as HTMLInputElement).value,
+    }
+  })
+}
+
+/** What one surface of the Properties Panel is printing: its item names, and every word on it. */
+interface PanelPrinting {
+  readonly names: readonly string[]
+  readonly words: readonly string[]
+}
+
+/**
+ * The item names the Properties Panel is printing right now, and everything else
+ * it is printing beside them.
+ *
+ * ⛔ NOT DECIDED BY THE SPECIFICATION: the panel marks a field row with
+ * `data-field-row` and prints its name in the row's first `span`. The
+ * specification settles what the name must BE and says nothing about the
+ * marking, so this is the same lean the cases above already take on
+ * `[data-field-row="PR-1"]` -- and a change to it breaks these cases, as it
+ * should.
+ *
+ * @purity semi-pure-b
+ */
+async function panelPrinting(page: Page): Promise<PanelPrinting> {
+  return page.evaluate((panel: string) => {
+    const host = document.querySelector(panel)
+    if (host === null) return { names: [], words: [] }
+    const names = Array.from(host.querySelectorAll('[data-field-row]'))
+      .map((row) => (row.querySelector('span')?.textContent ?? '').trim())
+      .filter((said) => said !== '')
+    const words = Array.from(host.querySelectorAll('*'))
+      .filter((element) => element.children.length === 0)
+      .map((element) => (element.textContent ?? '').replace(/\s+/g, ' ').trim())
+      .filter((said) => said !== '')
+    return { names, words }
+  }, PANEL)
+}
+
+/** How many notices are standing, and what the whole area reads. */
+interface Standing {
+  readonly sheets: number
+  readonly text: string
+}
+
+/**
+ * The notices standing right now, counted one sheet at a time.
+ *
+ * ⛔ `readNotices` COUNTS AREAS, NOT SHEETS, and every notice of the shipped
+ * build stands in the one `Notification Area` (measured 2026-09-03: three
+ * presses of a dead entrance gave one area holding three sheets, so a case that
+ * counted what `readNotices` answers would have read 1 and called `NT-3`
+ * honoured). The sheets are that area's own element children.
+ *
+ * @purity semi-pure-b
+ */
+async function standingNotices(page: Page): Promise<Standing> {
+  return page.evaluate(() => {
+    const areas = Array.from(document.querySelectorAll('[data-role]')).filter((marked) =>
+      (marked.getAttribute('data-role') ?? '').includes('Notification'),
+    )
+    let sheets = 0
+    let text = ''
+    for (const area of areas) {
+      sheets += Array.from(area.children).filter(
+        (child) => (child.textContent ?? '').trim() !== '',
+      ).length
+      text += (area.textContent ?? '').replace(/\s+/g, ' ').trim()
+    }
+    return { sheets, text }
+  })
+}
+
+/** How many of the dictionary's reasons a piece of screen text is carrying. @purity semi-pure-b */
+function reasonsCarriedBy(said: string): readonly string[] {
+  return reasonWordsOfDictionary()
+    .filter((one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)))
+    .map((one) => one.rowId)
+}
+
+/** How many times a piece of text carries one word. @purity pure */
+function timesCarried(said: string, word: string): number {
+  if (word === '') return 0
+  return said.split(word).length - 1
+}
+
+/** One row as the Row Title Panel is drawing it. */
+interface DrawnRow {
+  readonly top: number
+  readonly bottom: number
+  readonly text: string
+}
+
+/**
+ * The rows the Row Title Panel has drawn, and the panel's own box.
+ *
+ * ⚠️ `[data-depth]` IS THE DRAWN WINDOW AND NOT THE DOCUMENT. Eight rows is all
+ * the shipped build draws at the base screen (measured 2026-09-03), so a row
+ * that is missing from this answer is a row a person cannot see -- which is
+ * exactly what `HF-17` (MUST) is about.
+ *
+ * @purity semi-pure-b
+ */
+async function drawnRowsAndPanel(
+  page: Page,
+): Promise<{ rows: readonly DrawnRow[]; panelTop: number; panelBottom: number }> {
+  return page.evaluate(() => {
+    const panel = document.querySelector('[data-role="Row Title Panel"]')
+    const box = panel?.getBoundingClientRect()
+    const rows = Array.from(document.querySelectorAll('[data-depth]'))
+      .map((row) => {
+        const rowBox = row.getBoundingClientRect()
+        return {
+          top: Math.round(rowBox.top),
+          bottom: Math.round(rowBox.bottom),
+          text: (row.textContent ?? '').replace(/\s+/g, ' ').trim(),
+        }
+      })
+      .sort((one, two) => one.top - two.top)
+    return {
+      rows,
+      panelTop: Math.round(box?.top ?? 0),
+      panelBottom: Math.round(box?.bottom ?? window.innerHeight),
+    }
+  })
+}
+
+/**
+ * Put the pointer on a row's name and press one of that row's own entrances.
+ *
+ * ⛔ A ROW'S ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME (table T-051
+ * row `HF-6`), and the shell reads a real pointer -- a dispatched event reaches
+ * nothing here, which `tools/probe/harness.mjs` records as the way one session
+ * called a working feature broken.
+ *
+ * @purity non-pure
+ */
+async function pressRowEntrance(page: Page, rowTop: number, entrance: string): Promise<boolean> {
+  const name = await page.evaluate((wantedTop: number) => {
+    const row = Array.from(document.querySelectorAll('[data-depth]')).find(
+      (one) => Math.abs(one.getBoundingClientRect().top - wantedTop) < 2,
+    )
+    if (row === undefined) return null
+    const box = row.getBoundingClientRect()
+    return { x: Math.round(box.x + 30), y: Math.round(box.y + box.height / 2) }
+  }, rowTop)
+  if (name === null) return false
+  await page.mouse.move(name.x, name.y)
+  await page.waitForTimeout(500)
+  const at = await page.evaluate(
+    (asked: { entrance: string; top: number }) => {
+      const found = Array.from(document.querySelectorAll(`[data-icon="${asked.entrance}"]`)).find(
+        (one) => Math.abs(one.getBoundingClientRect().top - asked.top) < 60,
+      )
+      if (found === undefined) return null
+      const box = found.getBoundingClientRect()
+      if (box.width < 1 || box.height < 1) return null
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    },
+    { entrance, top: rowTop },
+  )
+  if (at === null) return false
+  await page.mouse.move(at.x, at.y)
+  await page.mouse.down()
+  await page.mouse.up()
+  await page.waitForTimeout(600)
+  return true
+}
+
+// ---------------------------------------------------------------------------
+// D-232 -- MOVED to `tests/system/open-defect-pins.test.ts` (see prose above,
+// under "FIVE ROWS ARE NOT HELD HERE"). `focusedTypableField` stays: D-43 and
+// the two cases beside it still call it.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// D-233 -- the settings surface prints words, not spellings
+// ---------------------------------------------------------------------------
+
+// GOES RED IF: the surface that shows the document's drawing settings prints an
+// item name the dictionary does not hold, or prints an identifier as it is held
+// inside. Chapter 1's paragraph under table T-006a (MUST) reads 「⛔ **プロパティ
+// パネルの項目名は `W-2` に従うこと（MUST）** …… ⛔⛔ **同じ面が文書の設定を出す
+// ときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
+// （MUST NOT）**」, and the preamble of table T-016 says where the names live:
+// 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は言語
+// ごとの辞書 1 つに持つ」と定めるので、表示名は `_source/display-words.json` の
+// `properties` 節が同じ行 ID で持つ」.
+//
+// ⭐ THE DICTIONARY IS WALKED WHOLE rather than asked for one section: the
+// settings surface has no rows of table T-016, and which heading its words are
+// filed under is the manuscript's business. What this case asks is `FR-038`'s
+// own question -- whether the word on the screen is a word the dictionary holds.
+//
+// ⚠️ THE SECOND HALF IS NOT THE SAME CLAIM AS THE FIRST. A name may be absent
+// from the dictionary without being an identifier, and an identifier may be
+// printed beside a name that is perfectly good; the ledger's D-233 measured
+// both at once (113 rows of internal spellings, and one raw UUID among the
+// values).
+test('D-233: the settings surface prints dictionary words and no raw identifier', async () => {
+  test.setTimeout(180_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const settings = entranceBy(T109_SOURCE, 'FR-072')
+    expect(await pressEntrance(page, settings), `${settings} is not on the screen`).toBe(true)
+    await page.waitForTimeout(900)
+
+    const printing = await panelPrinting(page)
+    expect(
+      printing.names.length,
+      `pressing ${settings} put no field row on the panel, so this case has nothing to read`,
+    ).toBeGreaterThan(0)
+
+    const held = dictionaryWords()
+    const strangers = [...new Set(printing.names)].filter((name) => !held.has(name))
+    expect(
+      strangers.slice(0, 12),
+      `the settings surface prints ${strangers.length} of its ${printing.names.length} item ` +
+        'name(s) as words the dictionary does not hold; the paragraph under table T-006a (MUST) ' +
+        'has this surface follow the same rule as the panel, whose names FR-038 keeps in ' +
+        `${DICTIONARY}`,
+    ).toEqual([])
+
+    // ⚠️ A UUID IS THE SHAPE THE LEDGER MEASURED (`scrollGroupId`). It is asked
+    // for by shape rather than by field name so that an identifier printed in
+    // some other row is caught by the same reading.
+    const identifiers = printing.words.filter((said) =>
+      /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/.test(said),
+    )
+    expect(
+      identifiers,
+      'the settings surface prints an identifier as it is held inside, which the same paragraph ' +
+        '(MUST NOT) forbids: 「内部の綴りや識別子をそのまま出してはならない」',
+    ).toEqual([])
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
+// D-234 -- the added row is brought into view, not just its field
+// ---------------------------------------------------------------------------
+
+// GOES RED IF: a row added at the shallowest tier, or added under a row standing
+// at the foot of the panel, is not drawn once its name is settled -- or is drawn
+// outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「⛔ **足した
+// 行が描かれていないときは、その行が見える位置まで表示位置を送ること（MUST）。
+// 打ち込み口だけを送ってはならない（MUST NOT）** —— **口だけ送ると、確定した
+// あとに行がどこへ行ったか読めない。**⚠️ **送り方は `HF-9` に従う。**⭐ **`HF-14`
+// （配下に足す）も同じとすること（MUST）** —— **押した行が画面の下端に在るときに
+// 同じことが起きる。**」
+//
+// ⭐ THE NAME IS WHAT MAKES THE ROW FINDABLE. `HF-14` (MUST) has the row stand
+// with an empty name and (MUST) throws it away if the name is settled empty, so
+// a row that is never named is a row this case may not look for -- and the name
+// typed below is what tells the new row from the eight the build already draws.
+//
+// ⚠️ BOTH HALVES ARE PRESSED, and `HF-17`'s own last sentence is why: the two
+// entrances differ only in where the row lands, and the row says in as many
+// words that `HF-14` is held to the same thing.
+test('D-234: a row added at the head, and one added under the last row, are both brought into view', async () => {
+  test.setTimeout(240_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const addAtHead = entranceBy(T109_SOURCE, 'HF-17')
+    const addUnderRow = entranceBy(T109_SOURCE, 'HF-14')
+
+    // --- HF-17, the shallowest tier -------------------------------------
+    expect(await pressEntrance(page, addAtHead), `${addAtHead} is not on the screen`).toBe(true)
+    await page.waitForTimeout(600)
+    const headField = await focusedTypableField(page)
+    expect(
+      headField,
+      `pressing ${addAtHead} (table T-051 row HF-17) opened no field to type the new row's name ` +
+        'into, and HF-14 (MUST) has the row stand with an empty name for a person to fill',
+    ).not.toBeNull()
+    if (headField === null) return
+
+    const headName = 'ZetaHeadRow'
+    await page.keyboard.type(headName)
+    await page.keyboard.press('Enter')
+    await page.waitForTimeout(1200)
+
+    const afterHead = await drawnRowsAndPanel(page)
+    const headRow = afterHead.rows.find((row) => row.text.includes(headName))
+    expect(
+      headRow,
+      `after the name was settled the row named ${JSON.stringify(headName)} is drawn nowhere; ` +
+        `the panel is drawing ${afterHead.rows.length} row(s) and HF-17 (MUST) has the view sent ` +
+        'until the added row is one of them',
+    ).not.toBeUndefined()
+    if (headRow === undefined) return
+    expect(
+      headRow.top >= afterHead.panelTop && headRow.bottom <= afterHead.panelBottom,
+      `the row named ${JSON.stringify(headName)} is drawn at ${headRow.top}..${headRow.bottom}px ` +
+        `while the panel is at ${afterHead.panelTop}..${afterHead.panelBottom}px, so it is not at ` +
+        'a position it can be read from',
+    ).toBe(true)
+
+    // --- HF-14, under the row standing lowest ---------------------------
+    const lowest = [...afterHead.rows].sort((one, two) => two.top - one.top)[0]
+    expect(lowest, 'the panel drew no row to add a child under').not.toBeUndefined()
+    if (lowest === undefined) return
+    expect(
+      await pressRowEntrance(page, lowest.top, addUnderRow),
+      `${addUnderRow} (table T-051 row HF-14) is not drawn on the row at the foot of the panel ` +
+        'even with the pointer on its name',
+    ).toBe(true)
+
+    const childField = await focusedTypableField(page)
+    expect(
+      childField,
+      `pressing ${addUnderRow} on the lowest row opened no field to type the new row's name into`,
+    ).not.toBeNull()
+    if (childField === null) return
+
+    const childName = 'ZetaChildRow'
+    await page.keyboard.type(childName)
+    await page.keyboard.press('Enter')
+    await page.waitForTimeout(1200)
+
+    const afterChild = await drawnRowsAndPanel(page)
+    const childRow = afterChild.rows.find((row) => row.text.includes(childName))
+    expect(
+      childRow,
+      `after the name was settled the row named ${JSON.stringify(childName)} is drawn nowhere; ` +
+        'HF-17 (MUST) holds HF-14 to the same thing -- 「`HF-14`（配下に足す）も同じとすること' +
+        '（MUST）」',
+    ).not.toBeUndefined()
+    if (childRow === undefined) return
+    expect(
+      childRow.top >= afterChild.panelTop && childRow.bottom <= afterChild.panelBottom,
+      `the row named ${JSON.stringify(childName)} is drawn at ${childRow.top}..${childRow.bottom}px ` +
+        `while the panel is at ${afterChild.panelTop}..${afterChild.panelBottom}px`,
+    ).toBe(true)
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
+// D-235 -- the bound document names the language the screen is in
+// ---------------------------------------------------------------------------
+
+// GOES RED IF: the display language is changed and the document goes on naming
+// the language it named before. `FR-038` (MUST) reads 「⭐ **表示言語を替えた
+// ときは、綴じた文書自身が名乗る言語も同じものに替えること（MUST）** ——
+// **読み上げと自動翻訳がそれを見る。**⚠️ **画面には現れないので、押しても
+// 気づけない。**」, and the same requirement fixes the two languages it can be:
+// 「対象は `ja` と `en` の 2 言語とする」.
+//
+// ⛔ WHAT THE DOCUMENT NAMES ITS LANGUAGE WITH IS NOT SETTLED BY A REQUIREMENT,
+// and the ledger's D-235 names the one place a bound HTML document has for it --
+// the root element's `lang`. Nothing else in the deliverable declares a
+// language, and it is what a screen reader and an automatic translation read,
+// which is the reason the requirement gives.
+//
+// ⚠️ THE SCREEN IS ASKED WHICH LANGUAGE IT IS IN rather than told. The display
+// language is chosen from the browser when nothing was stored (`FR-038`), so a
+// case that assumed one language would report a build opened in the other as
+// broken. The witness is the dictionary's own pair of spellings for the word
+// `FR-101` puts in the header while nothing has been written to a file.
+test('D-235: changing the display language changes the language the document names', async () => {
+  test.setTimeout(180_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const toggle = entranceBy(T109_SOURCE, 'FR-038')
+    const words = neverSavedByLanguage()
+
+    /** Which language the header is printing in, by the word it carries. */
+    const shownLanguage = async (): Promise<string> => {
+      const said = await page.evaluate(() => {
+        const header = document.querySelector('[data-role="App Header"]')
+        return (header?.textContent ?? '').replace(/\s+/g, ' ').trim()
+      })
+      const found = [...words.entries()].filter(([, word]) => said.includes(word))
+      if (found.length !== 1) {
+        throw new Error(
+          `the header reads ${JSON.stringify(said)}, which carries ${found.length} of the ` +
+            "dictionary's never-saved words; exactly one is needed to name the language on the screen",
+        )
+      }
+      return found[0]?.[0] ?? ''
+    }
+
+    const declared = async (): Promise<string> =>
+      page.evaluate(() => document.documentElement.getAttribute('lang') ?? '')
+
+    const wasShown = await shownLanguage()
+    const wasDeclared = await declared()
+    expect(
+      wasDeclared,
+      `before anything was pressed the screen is in ${JSON.stringify(wasShown)} and the document ` +
+        `names ${JSON.stringify(wasDeclared)}`,
+    ).toBe(wasShown)
+
+    expect(await pressEntrance(page, toggle), `${toggle} is not on the screen`).toBe(true)
+    await page.waitForTimeout(900)
+
+    const nowShown = await shownLanguage()
+    expect(
+      nowShown,
+      `pressing ${toggle} (table T-109, sourced to FR-038) left the screen in the same language, ` +
+        'so this case never reached the moment the requirement is about',
+    ).not.toBe(wasShown)
+    expect(
+      await declared(),
+      `the screen changed from ${JSON.stringify(wasShown)} to ${JSON.stringify(nowShown)} and the ` +
+        'document goes on naming the old one; FR-038 (MUST) has the two the same',
+    ).toBe(nowShown)
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
+// D-236 -- one sheet per reason, and no ceiling on the sheets
+// ---------------------------------------------------------------------------
+
+// GOES RED IF: pressing one dead entrance again puts a second sheet up instead
+// of adding to the one already standing, or the standing sheet reads exactly the
+// same after the second press (nothing was counted), or a second reason is
+// merged into the first. Table T-037 row `NT-3` (MUST) reads 「⛔⛔ **同じ理由の
+// 通知が既に立っているときは、新しく積まずに、その 1 枚の件数を増やすこと
+// （MUST）** …… ⭐ **件数の示し方は本行が既に持つ。**⭐ **`NT-8`（いちばん新しい
+// ものから消す）とはそのまま両立する** …… ⛔ **枚数に上限を置いてはならない
+// （MUST NOT）**」.
+//
+// ⭐ THE READING THAT CARRIES THE CLAIM IS THE REASON'S OWN WORDS, not the sheet
+// count: 「同じ理由の通知」 is what may not be stacked, so what is counted is how
+// many times the dictionary's sentence for that reason stands on the screen.
+// The sheets are counted as well, and the two together are what tell a merge
+// from a build that simply stopped raising the second notice.
+//
+// ⛔ THE CEILING IS WATCHED FROM THE OTHER SIDE. A cap cannot be reached by
+// pressing one dead entrance -- merging keeps that at one sheet however often it
+// is pressed -- so what is asserted instead is that a SECOND, DIFFERENT reason
+// stands beside the first: a build that kept one sheet at all times would be
+// capped at one, and `NT-8` (MUST) is written for two or more standing at once.
+//
+// ⚠️ THE PRESSES ARE SPACED. Table T-023 row `MK-13` gives a double click its
+// own meaning, and two presses of one entrance inside the interval a browser
+// calls a double click are not two presses of it.
+test('D-236: pressing one dead entrance again counts on the standing notice instead of stacking', async () => {
+  test.setTimeout(240_000)
+  const opened = await openStubbedPage()
+  try {
+    const page = opened.page
+    const spacing = 1600
+
+    const faint = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('[data-icon][data-enabled="false"]')).map(
+        (one) => one.getAttribute('data-icon') ?? '',
+      ),
+    )
+    expect(
+      faint.length,
+      'no entrance is drawn faint, so nothing on this page can be pressed to no effect and the ' +
+        'case has no notice to raise',
+    ).toBeGreaterThan(0)
+    const dead = faint[0] ?? ''
+
+    expect(await pressEntrance(page, dead), `${dead} is not on the screen`).toBe(true)
+    await page.waitForTimeout(spacing)
+    const once = await standingNotices(page)
+    expect(once.sheets, `pressing the faint entrance ${dead} raised no notice at all`).toBe(1)
+
+    const reasons = reasonsCarriedBy(once.text)
+    expect(
+      reasons,
+      `the notice ${dead} raised reads ${JSON.stringify(once.text)}, and table T-233 is where ` +
+        'every reason a notice may carry lives',
+    ).toHaveLength(1)
+    const carried = reasonWordsOfDictionary().find((one) => one.rowId === reasons[0])
+    if (carried === undefined) return
+    const word = once.text.includes(carried.ja) ? carried.ja : carried.en
+
+    expect(await pressEntrance(page, dead), `${dead} left the screen between two presses`).toBe(true)
+    await page.waitForTimeout(spacing)
+    const twice = await standingNotices(page)
+    expect(
+      timesCarried(twice.text, word),
+      `pressing ${dead} a second time put the same reason (${carried.rowId}) up ` +
+        `${timesCarried(twice.text, word)} times; NT-3 (MUST) has the standing sheet counted up ` +
+        'instead of a second one being stacked',
+    ).toBe(1)
+    expect(twice.sheets, `${dead} pressed twice leaves more than one sheet standing`).toBe(1)
+    expect(
+      twice.text,
+      `the standing notice reads exactly what it read after one press, so nothing was counted; ` +
+        'NT-3 (MUST) has its 件数 grow',
+    ).not.toBe(once.text)
+
+    expect(await pressEntrance(page, dead), `${dead} left the screen between two presses`).toBe(true)
+    await page.waitForTimeout(spacing)
+    const thrice = await standingNotices(page)
+    expect(thrice.sheets, `${dead} pressed three times leaves more than one sheet standing`).toBe(1)
+    expect(
+      thrice.text,
+      'the standing notice reads exactly what it read after two presses, so the third press was ' +
+        'counted nowhere',
+    ).not.toBe(twice.text)
+
+    // ⭐ A SECOND REASON, WHICH IS WHERE THE CEILING WOULD SHOW. The other faint
+    // entrances are pressed until one of them raises a reason the first did not.
+    let second: Standing | null = null
+    for (const other of faint.slice(1)) {
+      if (!(await pressEntrance(page, other))) continue
+      await page.waitForTimeout(spacing)
+      const seen = await standingNotices(page)
+      if (reasonsCarriedBy(seen.text).length > 1) {
+        second = seen
+        break
+      }
+    }
+    expect(
+      second,
+      'none of the faint entrances on this page raises a reason different from the one already ' +
+        'standing, so this half of NT-3 (MUST NOT: 枚数に上限を置いてはならない) cannot be judged here',
+    ).not.toBeNull()
+    if (second === null) return
+    expect(
+      second.sheets,
+      `two different reasons are standing and the screen is showing ${second.sheets} sheet(s); ` +
+        'NT-3 merges only 同じ理由, and NT-8 (MUST) is written for two or more standing at once',
+    ).toBe(2)
+  } finally {
+    await opened.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
 
@@ -3104,6 +3778,11 @@ const HELD: readonly string[] = [
   'D-210',
   'D-220',
   'D-229',
+  'D-232',
+  'D-233',
+  'D-234',
+  'D-235',
+  'D-236',
 ]
 
 /**

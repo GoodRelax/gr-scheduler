@@ -162,6 +162,16 @@
 //      and the block above the `drop` sets out the reasoning in full, with the
 //      one question docs/spec does not answer: WHICH of the two languages is
 //      written into the document when a row is settled.
+//   8. THE EIGHT ROWS OF TABLE T-104 NO FIELD OF THE SETTINGS FACE STANDS FOR
+//      (CR-344). `IC-17` of table T-109 opens that face on the document's
+//      drawing settings and `DR-3` of table T-052 says what those are, so a row
+//      of table T-104 with no key in that group -- `themeHue`, `language`,
+//      `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`, `planActualGuideColor` and
+//      `watermarkOpacity` -- has no field to be printed on, whatever the road
+//      were wired to. ⚠️ Of a kind with 6 and 7: the surface exists and can be
+//      raised, and it is the ENTRY that has no place on it. ⭐ Which rows those
+//      are is measured against the group rather than listed: see
+//      `ROWS_ON_THE_SETTINGS_FACE`.
 //
 // ⭐ Every one of those is recorded by `DROPPED` below rather than passed over,
 // and the acceptance group holds the dictionary against the two lists together:
@@ -270,6 +280,20 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // ⚠️ Keyed by the row and not by the column: a row may carry several columns
   // and still show ONE name -- PR-14 is 「fade in/out days」 over two.
   properties: 'rowId',
+  // ⭐ THE NAME THE SAME PANEL SHOWS FOR A ROW OF TABLE T-104 (CR-344,
+  // 2026-09-03). The paragraph under table T-006a
+  // (docs/spec/01-04-requirements.md:316) puts the settings face under the
+  // property panel's own rule -- 「⛔⛔ **同じ面が文書の設定を出すときも、これに
+  // 従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」
+  // -- so the keys of `DocumentSettings` show a WORD now instead of the spelling
+  // of the key (the reader's report D-233: 「設定の面は 113 行を出し、日本語の項目名
+  // は 0、生の識別子が 1 つ混じっていた」).
+  // ⚠️ Keyed by the row of table T-104 and not by the key it edits, exactly as
+  // `properties` is keyed by the row of table T-016: one row can fix several keys
+  // (K-105 spells three) and shows ONE name over them. ⛔ Until this stood here,
+  // every one of its 110 entries collapsed onto the empty key and the filled copy
+  // the carriage group drives held one word for all of them.
+  settings: 'rowId',
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'rowId',
@@ -1069,6 +1093,97 @@ for (const entry of GENERATED['properties'] ?? []) {
   })
 }
 
+// -- settings: the name the same panel shows for a row of table T-104 (UF-64)
+
+/** The heading of the column table T-104 fixes the settings key spellings in. */
+const CONFIRMED_NAME_COLUMN = '確定名（英）'
+
+/**
+ * Table T-104 -- 「`documentSettings` が持つ設定値の**名前**の正はここである」
+ * (_assets/tbl-glossary.md, section 4), read as the join between a key of the
+ * presentation group and the row whose word names it.
+ *
+ * ⚠️ A ROW MAY FIX SEVERAL KEYS (K-103 spells two, K-105 three), so the whole
+ * list the cell writes is kept and not its first code span.
+ */
+const T104 = specTable('T-104').rows.map((row) => ({
+  row: row.id,
+  keys: (row.by[CONFIRMED_NAME_COLUMN] ?? '')
+    .split('/')
+    .map((one) => one.replace(/`|\*/g, '').trim())
+    .filter((one) => one.length > 0),
+}))
+
+/**
+ * The row of table T-104 that fixes a settings key, or `undefined` when it fixes
+ * none -- six of the 113 keys, which is the ledger's D-238.
+ *
+ * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS: the group's keys are dotted, and
+ * the table fixes some leaves by name (`fontScaleSizes.S` is K-105) and some
+ * groups by name (`exportCanvas` is K-87, and the panel stands one field for each
+ * of its leaves, both naming that row).
+ */
+const rowOfSettingsKey = (key: string): string | undefined => {
+  const parts = key.split('.')
+  for (let take = parts.length; take > 0; take -= 1) {
+    const spelling = parts.slice(0, take).join('.')
+    const found = T104.find((item) => item.keys.includes(spelling))
+    if (found !== undefined) return found.row
+  }
+  return undefined
+}
+
+/**
+ * The rows of table T-104 that a field of the settings face really stands for.
+ *
+ * ⛔ EIGHT ROWS ARE OUTSIDE IT, and they are the omission below. `IC-17` of table
+ * T-109 opens the face on the document's drawing settings and `DR-3` of table
+ * T-052 says what those are, so a row of table T-104 whose key is not in that
+ * group has no field to be printed on: `themeHue` (DR-5 of table T-052 keeps the
+ * hue on `Project`), `language` (FR-038's own RATIONALE keeps it out of the
+ * document -- 「どの言語で開くかは読む人の環境であり、文書に保存しない（MUST
+ * NOT）」), `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`, `planActualGuideColor`
+ * and `watermarkOpacity`. ⭐ Measured, not assumed: the group is asked.
+ */
+const ROWS_ON_THE_SETTINGS_FACE = new Set(
+  Object.keys(SETTINGS_DEFAULTS)
+    .map(rowOfSettingsKey)
+    .filter((row): row is string => row !== undefined),
+)
+
+/**
+ * Where a settings name arrives: the field the panel stands for that row while
+ * the face is showing the document's settings.
+ *
+ * ⚠️ Read by ROW and never by position, for the reason `propertyFieldName` is:
+ * no row of docs/spec fixes the order the settings face lists its keys in, so a
+ * reordering must not make this file fall.
+ */
+const settingsFieldName = (view: ScreenView, rowId: string): string | undefined =>
+  view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
+
+for (const entry of GENERATED['settings'] ?? []) {
+  const rowId = keyOf('settings', entry)
+  if (!ROWS_ON_THE_SETTINGS_FACE.has(rowId)) {
+    drop(
+      'settings',
+      rowId,
+      'the presentation group (DR-3 of table T-052) that IC-17 opens the face on holds no key ' +
+        'on this row, so no field of that face carries its name',
+    )
+    continue
+  }
+  place({
+    section: 'settings',
+    key: rowId,
+    field: 'label',
+    unit: 'UF-64',
+    what: `the name the settings face shows for ${rowId}`,
+    frame: PANEL_STATES['documentSettings'] as Frame,
+    read: (view) => settingsFieldName(view, rowId),
+  })
+}
+
 // -- the help: FR-036's four tables that no other surface prints (UF-66)
 
 /**
@@ -1407,18 +1522,38 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
 const TELLING = (manner: string, reason: string): Frame =>
   frameWith({ session: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
 
-/** Every frame this file knows how to put on the screen, each named. */
-const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = [
-  ...PLACES.map((at) => ({ what: at.what, frame: at.frame })),
-  ...T234.map((entry) => ({
-    what: `the question ${entry.row} of table T-234 raises`,
-    frame: ASKING(entry.row, entry.namesWhatGoes),
-  })),
-  ...T233.map((entry) => ({
-    what: `the telling ${entry.row} of table T-233 raises, in the manner of ${entry.manner}`,
-    frame: TELLING(entry.manner, entry.row),
-  })),
-]
+/**
+ * Every frame this file knows how to put on the screen, each named.
+ *
+ * ⚠️ ONE FRAME IS COUNTED ONCE, however many places stand on it. The acceptance
+ * case below builds every frame for every written word, so its cost is words x
+ * frames -- and the settings face CR-344 added carries 102 places on ONE frame,
+ * which made that cost words x PLACES instead (measured 2026-09-03: 16.6s
+ * against the 20s budget, 8.9s once the copies are dropped).
+ * ⭐ DEDUPLICATED BY IDENTITY AND NOT BY CONTENT: two frames that merely look
+ * alike are both kept and both built, so no screen this file can raise falls out
+ * of the sweep. The name kept is the first place that asked for it.
+ */
+const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() => {
+  const seen = new Set<Frame>()
+  const each: { readonly what: string; readonly frame: Frame }[] = []
+  for (const one of [
+    ...PLACES.map((at) => ({ what: at.what, frame: at.frame })),
+    ...T234.map((entry) => ({
+      what: `the question ${entry.row} of table T-234 raises`,
+      frame: ASKING(entry.row, entry.namesWhatGoes),
+    })),
+    ...T233.map((entry) => ({
+      what: `the telling ${entry.row} of table T-233 raises, in the manner of ${entry.manner}`,
+      frame: TELLING(entry.manner, entry.row),
+    })),
+  ]) {
+    if (seen.has(one.frame)) continue
+    seen.add(one.frame)
+    each.push(one)
+  }
+  return each
+})()
 
 /** The frames that print exactly this word when the view is asked for in this language. */
 const framesPrinting = (

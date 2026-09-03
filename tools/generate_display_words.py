@@ -65,6 +65,7 @@ REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
+SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
 # ⭐ The four tables FR-036 (MUST) puts on the help that no section already
 # carried. Table T-023 is `assignments` and table T-023b is `arms`, both of
 # which were raised for other reasons and serve here too.
@@ -92,6 +93,20 @@ ARM_TABLE = 'T-023b'
 # user asked for one word over both (「1 行で入るように」), so the word is
 # the row's and is never built by joining the columns'.
 PROPERTY_TABLE = 'T-016'
+# The name a settings item shows. Table T-104 of the glossary is the whole
+# count of the keys `documentSettings` carries and is the AUTHORITY ON THE
+# NAME, and the paragraph under table T-006a (MUST) holds the surface that
+# prints those settings to the same rule as the one that prints a property:
+# the word on the screen is this dictionary's, and the internal spelling is
+# (MUST NOT) never printed as it is -- which is what it was printing (D-233).
+# ⚠️ ONE WORD PER ROW, NOT PER KEY, the same move PROPERTY_TABLE records.
+# `K-103` names two keys and `K-105` names three, and a word per key would
+# settle names table T-104 has not settled.
+# ⭐ THE KEYS EACH ROW NAMES TRAVEL WITH THE WORD (`settings_keys` below).
+# The surface holds a settings KEY and the dictionary is keyed by ROW, so
+# something has to join them; read from the table every run it cannot go
+# stale, and written out by hand it would be wrong the day it was written.
+SETTINGS_TABLE = 'T-104'
 # ⛔ FR-036 (MUST) names these by number: 「表 T-023a（判定順序）・表 T-023b
 # （構え）・表 T-023c（選択）・表 T-023d（掴み領域）・表 T-023（割当）・表 T-036
 # （ショートカット）・コマンドパレットの全項目を示すこと」. A row of one of them
@@ -249,6 +264,27 @@ def table_rows(rel, row_pattern, table):
     return found
 
 
+def settings_keys():
+    """Which settings keys each row of table T-104 names, in the table's order.
+
+    ⭐ THE JOIN THE SURFACE NEEDS, READ RATHER THAN WRITTEN DOWN. `IC-17` of
+    table T-109 puts the document's settings on the Properties Panel, and what
+    that side holds is a settings KEY -- while this dictionary is keyed by the
+    row of table T-104, which is where the name lives. ⛔ A map written out in
+    `src/` would be wrong the day it was written: the two rosters already
+    disagree in both directions, and rule 03 section 1 forbids a value copied
+    out of the specification by hand.
+
+    ⚠️ A row may name several keys (`K-103`, `K-105`), and the order is the
+    table's own -- rule 03 section 4, the same reason `roster` gives.
+
+    @purity semi-pure-b
+    """
+    return dict((row[0], CODE_SPAN.findall(row[2]))
+                for row in table_rows(REL_GLOSSARY, SETTINGS_ROW,
+                                      SETTINGS_TABLE))
+
+
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -280,6 +316,7 @@ def roster():
         'properties': [row[0] for row in
                        table_rows(REL_PROPERTY_ITEMS, PROPERTY_ROW,
                                   PROPERTY_TABLE)],
+        'settings': list(settings_keys()),
         'pressOrder': [row[0] for row in
                        table_rows(REL_REQUIREMENTS, PRESS_ORDER_ROW,
                                   PRESS_ORDER_TABLE)],
@@ -340,6 +377,7 @@ def roster():
 SHAPE = {
     'icons': ('rowId', ('label', 'hint')),
     'properties': ('rowId', ('label',)),
+    'settings': ('rowId', ('label',)),
     'pressOrder': ('rowId', ('text',)),
     'selecting': ('rowId', ('text',)),
     'grabAreas': ('rowId', ('text',)),
@@ -423,19 +461,32 @@ def problems(doc, wanted):
     return found
 
 
-def build(doc):
+def build(doc, keys_by_row):
     """What reaches src/: the manuscript's own entries, under a banner.
 
     ⭐ Nothing is translated, re-ordered or filled in here. What the generator
     adds is the guarantee that the roster still matches the specification, and a
     signpost back to the manuscript (Chapter 6.2, MUST).
+
+    ⚠️ ONE SECTION LEAVES WITH MORE THAN THE MANUSCRIPT WROTE. A settings entry
+    carries the KEYS its row of table T-104 names beside its word, for the reason
+    `settings_keys` gives: the surface holds a settings key and this dictionary
+    is keyed by a row, and that join belongs to the table rather than to either
+    side. ⛔ The WORD is still the manuscript's alone -- nothing here writes one.
     """
     out = {'$comment': BANNER}
-    for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
+    for section in ('icons', 'properties', 'settings', 'paletteGroups',
+                    'surfaces', 'notices',
                     'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays'):
+        if section == 'settings':
+            out[section] = [{'rowId': entry['rowId'],
+                             'keys': keys_by_row[entry['rowId']],
+                             'label': entry['label']}
+                            for entry in doc[section]]
+            continue
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -477,7 +528,7 @@ def main():
         say('%d word(s), %d written' % (counted(doc), filled(doc)))
         return 0
 
-    built = build(doc)
+    built = build(doc, settings_keys())
     out = path_of(REL_OUT)
     if '--check' in sys.argv:
         current = io.open(out, encoding='utf-8', newline='').read()

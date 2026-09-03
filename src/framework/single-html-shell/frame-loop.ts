@@ -4236,6 +4236,52 @@ export function frameLoop(
     // drawn (PD-191).
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = { regions, layout, geometry, settingsMeasuredWith: withPanelShown }
+    // ⛔ HF-17 OF TABLE T-051 (MUST): 「足した行が描かれていないときは、その行が
+    // 見える位置まで表示位置を送ること。打ち込み口だけを送ってはならない」 ——
+    // 「口だけ送ると、確定したあとに行がどこへ行ったか読めない」. ⭐ The same row
+    // puts HF-14 under it, so both entrances are answered here and not twice.
+    // ⭐ ASKED OF THE PICTURE THIS PASS WORKED OUT, which is what 「描かれていない」
+    // is a question about -- and asked THROUGH `drawnRowBoxesOf`, which is the
+    // one place the cut is made (see its own note). ⛔ NOT of `ScheduleLayout.rows`:
+    // that list holds every row the level of detail and the folds left standing,
+    // ⚠️ including the ones below the `Row Area`'s bottom edge -- measured
+    // 2026-09-03, 1920×1080, 69 rows in it against 8 the panel drew.
+    // ⭐ SENT BY WRITING THE ANCHOR, which is 「送り方は `HF-9` に従う」 read through
+    // S-78 and S-176: the row becomes the top of the scrolling remainder and is
+    // therefore drawn. ⛔ NOT by scrolling a host element -- a position the
+    // document never heard of is undone by the next frame.
+    // ⚠️ THE DAY IS CARRIED AS THIS FRAME RESOLVED IT AND NOT AS THE DOCUMENT
+    // STORES IT. OP-10 of table T-024a leaves `scrollDate` null until a place is
+    // stored and re-fits every frame while it is; writing that null back would
+    // leave the fit answering for the vertical again and undo this very write.
+    // ⛔ NO STEP OF THE UNDO HISTORY IS PUSHED: `isUndoable` keeps CM-66 out of
+    // it, which is UN-8 of table T-027.
+    if (addedRowOwedSight !== null) {
+      const owedSight = addedRowOwedSight
+      addedRowOwedSight = null
+      if (!drawnRowBoxesOf(layout, regions).some((one) => one.groupId === owedSight)) {
+        writeDocument(
+          [
+            {
+              kind: 'setScrollPosition',
+              scrollDate: settings.scrollDate,
+              scrollGroupId: owedSight,
+              scrollDayOffset: settings.scrollDayOffset,
+              scrollGroupOffset: 0,
+            },
+          ],
+          values,
+        )
+        // FT-2 of table T-078 -- the current value moved, so a frame is owed.
+        // ⛔ ASKED HERE BECAUSE THIS WRITE IS NOT ON A HAPPENING'S ROAD: the ones
+        // `receiveInput` makes are followed by that function's own ask.
+        // ⚠️ THIS PASS DRAWS NOTHING FURTHER: what it worked out is about the
+        // place the view has just left, and one more frame is what BO-1 already
+        // costs a first paint.
+        ask()
+        return
+      }
+    }
     // @STAR HELD IN A BINDING SO THAT FR-102's RECORD COUNTS THE VERY STRING
     // THAT WENT OUT. A census taken from a second call to `svgFromSchedule`
     // would be a second opinion about what was drawn, which is the one thing
@@ -4649,10 +4695,37 @@ export function frameLoop(
    * @purity non-pure
    */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
-    raisedNotices = [
-      ...raisedNotices,
-      { manner: NOTICE_MANNER_OF_REASON[reason], reason, affectedCount },
-    ]
+    // ⛔⛔ NT-3 OF TABLE T-037 (MUST): 「同じ理由の通知が既に立っているときは、新し
+    // く積まずに、その 1 枚の件数を増やすこと」 -- 実測 2026-09-03 で同じ文が 13 枚
+    // 積まれ、1080 の画面の 63% を覆った (D-236).
+    // ⭐ THE REASON IS THE WHOLE OF THE IDENTITY, which is what that row says and
+    // no more: `manner` is read off the reason (`NOTICE_MANNER_OF_REASON`), so
+    // two tellings of one reason cannot differ in manner either.
+    // ⭐ THE GATHERED ONE GOES TO THE END, which NT-3 requires outright: 「`NT-8`
+    // とはそのまま両立する —— まとめた 1 枚がいちばん新しいものになる」. ⛔ Leaving
+    // it where it stood would put NT-8's 「いちばん新しいものから消す」 on a
+    // different telling than the one this raise touched.
+    // ⚠️ A COUNT OF `null` COUNTS AS ONE. NT-3 asks for 「その 1 枚の件数」 and the
+    // measured case is a refusal that carries no count of its own, so gathering
+    // two of those has to answer 2 -- ⛔ not `null`, which would say the screen
+    // gathered nothing.
+    // ⛔ NO CEILING IS PUT ON THE COUNT OR ON THE LIST (NT-3, MUST NOT):
+    // 「枚数に上限を置いてはならない」.
+    const standing = raisedNotices.find((one) => one.reason === reason)
+    if (standing !== undefined) {
+      raisedNotices = [
+        ...raisedNotices.filter((one) => one.reason !== reason),
+        {
+          ...standing,
+          affectedCount: (standing.affectedCount ?? 1) + (affectedCount ?? 1),
+        },
+      ]
+    } else {
+      raisedNotices = [
+        ...raisedNotices,
+        { manner: NOTICE_MANNER_OF_REASON[reason], reason, affectedCount },
+      ]
+    }
     if (settled(environment)) ask()
   }
 
@@ -5581,6 +5654,19 @@ export function frameLoop(
   // so a bare `string | null` could not tell 「no field is owed」 from 「a field
   // is owed at the shallowest level」.
   let newRowNameFieldWantedUnder: { readonly parentGroupId: string | null } | null = null
+
+  /**
+   * The row HF-17 has just stood up and owes a look at -- `null` where none is
+   * owed.
+   *
+   * ⭐ HELD ACROSS ONE FRAME, for the reason `nameFieldWantedRow` gives: 「足した
+   * 行が描かれていないとき」 is a question about the picture, and the picture that
+   * holds the new row is the one the frame after the write draws. Asking while
+   * the write is still being made would be asking about the frame before.
+   * ⛔ THE ROW AND NOT A FLAG. The answer is 「その行が見える位置」, so the row has
+   * to be named for the anchor to be written.
+   */
+  let addedRowOwedSight: string | null = null
 
   /**
    * Whether the happening being carried out now arrived with an in-place edit
@@ -8058,6 +8144,16 @@ export function frameLoop(
       ],
       frame,
     )
+    // HF-17 (MUST): 「足した行が描かれていないときは、その行が見える位置まで表示
+    // 位置を送ること」, and its last sentence puts HF-14 under the same rule. The
+    // look is owed by the frame that will draw the row -- see `addedRowOwedSight`.
+    // ⛔ ASKED OF THE DOCUMENT AND NOT OF THE OUTCOME. `writeDocument` answers
+    // nothing (a refusal raises its own telling), and a row that was refused is
+    // not a row to send the view to -- so what is tested is whether the row is
+    // now there.
+    if (held.document.schedule.taskGroups.some((one) => one.id === planned.newGroupId)) {
+      addedRowOwedSight = planned.newGroupId
+    }
   }
 
   // HF-14 (MUST): the settling arrives from the side that drew the field.

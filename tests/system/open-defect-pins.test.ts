@@ -48,6 +48,13 @@
 //     and `input-command-translator.ts` carry the dropped day between them.
 //     ⭐ Its control stays where it was: the pinned case is gone, the thing
 //     that proves the pointer reaches the hold at all is still worth running.
+//   ⭐ D-232 IS PINNED HERE, moved 2026-09-03 from
+//     `tests/system/measured-sweep.test.ts`, where the case first found it but
+//     could not close it: FR-091 (MUST) reaches no branch that puts a
+//     just-drawn task into the selection, so `showPropertiesOfChoice()` never
+//     advances and the keyboard stays on `BODY`. The missing branch is ledger
+//     row D-228, still `裁定待ち`; this pin can only turn green once that
+//     ruling lands and is implemented.
 //
 // WHY THEY ARE HERE AND NOT IN `npm run parity`. That harness holds the
 // application against
@@ -113,37 +120,58 @@ interface Pin {
   readonly wrong: string
 }
 
+const D230: Pin = {
+  ledger: 'D-230',
+  wrong:
+    'the first frame is drawn with the App Header measured as 0 high, so the whole tree ' +
+    'stands 24px too high and a ninth row leaks into the drawing area -- table T-077 row ' +
+    'BO-1 (MUST NOT) draws nothing until the screen size is settled',
+}
+
+const D232: Pin = {
+  ledger: 'D-232',
+  wrong:
+    'a task is drawn on empty ground and the keyboard stays on BODY -- no field of any width ' +
+    'takes it, so FR-091 (MUST) is not met: 「作った直後に入力できること」',
+}
+
 /**
- * ⛔ NO ROW HERE IS PINNED BY A `test.fail()` CASE OF THIS FILE ANY MORE. Every
- * row this file once held that way has been fixed. What the list still is, and
- * what the last case in this file makes of it, is the gate: a row named here
- * must still be an OPEN row of `docs/development-records/defects.md`, so a
- * System case written for it cannot outlive the row it was written for.
- *
  * ⚠️ D-230's CASE IS NOT IN THIS FILE. It is
  * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
  * file of its own: the fault it watches shows only on the first page of a
  * browser process, so the case must own the launch. It is a plain assertion and
  * not `test.fail()` -- it is red while the row is open, which is the correct
- * report -- so this gate is the only thing that notices the day the row leaves
- * the ledger.
+ * report -- so D-230 sits in this list only for the gate at the bottom of this
+ * file: a row named here must still be an OPEN row of
+ * `docs/development-records/defects.md`, so a System case written for it
+ * cannot outlive the row it was written for.
+ *
+ * ⭐ D-232's CASE IS IN THIS FILE, moved here from
+ * `tests/system/measured-sweep.test.ts` where it was found and could not be
+ * closed: `FR-091` (MUST) has the field, but the one line that would put a
+ * just-drawn task into the selection so `showPropertiesOfChoice()` can reach
+ * it is missing everywhere, and that gap is `D-228`, an open row of its own
+ * awaiting a ruling. Nothing here can turn green before that ruling lands, so
+ * it is pinned by `test.fail()` -- the shape "HOW A PIN IS BUILT HERE" above
+ * describes -- rather than left red with nothing watching for the day it goes
+ * green on its own.
  */
-const PINNED: readonly Pin[] = [
-  {
-    ledger: 'D-230',
-    wrong:
-      'the first frame is drawn with the App Header measured as 0 high, so the whole tree ' +
-      'stands 24px too high and a ninth row leaks into the drawing area -- table T-077 row ' +
-      'BO-1 (MUST NOT) draws nothing until the screen size is settled',
-  },
-]
+const PINNED: readonly Pin[] = [D230, D232]
 
-// ⛔ THE ANNOUNCER WENT WITH THE LAST PIN (2026-09-02). It printed 「this suite
-// is green because a defect is open」 on the run's own output for every
-// `test.fail()` case; there is no such case in this file to announce any more,
-// and a function nothing calls is one the compiler refuses. ⭐ What it did is
-// written out here rather than kept as dead code: the next pin brings it back
-// with the case it belongs to.
+/**
+ * Say, on the run's own output, which ledger row this case is holding.
+ *
+ * ⭐ Printed rather than only annotated. A pinned case is GREEN today, so it
+ * scrolls past in the summary with everything else; the one thing that must
+ * not be missable is that the suite is green because a defect is open.
+ *
+ * @purity non-pure
+ */
+function announce(pin: Pin, what: string): void {
+  // eslint-disable-next-line no-console
+  console.log(`\n[OPEN DEFECT ${pin.ledger}] ${what}\n    ${pin.wrong}`)
+  test.info().annotations.push({ type: 'open defect', description: `${pin.ledger}: ${pin.wrong}` })
+}
 
 // ---------------------------------------------------------------------------
 // The screen, read out of the specification at read time
@@ -884,6 +912,164 @@ test('D-182: where the dummy is dropped decides where the actual starts', async 
     )
   }
   expect(complaints, 'the drop position was ignored').toEqual([])
+})
+
+// ---------------------------------------------------------------------------
+// D-232 -- a task drawn on empty ground leaves the keyboard nowhere to go
+// ---------------------------------------------------------------------------
+
+/** How far the drag below carries, wide enough to be read as a drag and not a click. */
+const DRAW_WIDTH_PX = 300
+
+/** The field the keyboard is going into right now, while it is one that takes text. */
+interface TypedInto {
+  readonly tag: string
+  readonly width: number
+  readonly height: number
+  readonly value: string
+}
+
+/**
+ * The focused element, when it is a field a person can type a name into.
+ *
+ * ⚠️ A BOX OF ITS OWN IS PART OF THE ANSWER. The shipped build keeps a 0x0
+ * `input` in the page at all times (measured 2026-09-03), so "an input exists"
+ * and even "an input holds the focus" can both be true of a page that offers
+ * nobody anything. What is asked for is a field that is focused AND drawn.
+ *
+ * @purity semi-pure-b
+ */
+async function focusedTypableField(page: Page): Promise<TypedInto | null> {
+  return page.evaluate(
+    /** @purity semi-pure-b */
+    () => {
+      const active = document.activeElement
+      if (active === null) return null
+      const tag = active.tagName
+      const editable = (active as HTMLElement).isContentEditable === true
+      const typed =
+        tag === 'TEXTAREA' ||
+        (tag === 'INPUT' && ['text', 'search', null, ''].includes(active.getAttribute('type')))
+      if (!typed && !editable) return null
+      const box = active.getBoundingClientRect()
+      if (box.width < 1 || box.height < 1) return null
+      return {
+        tag,
+        width: Math.round(box.width),
+        height: Math.round(box.height),
+        value: editable ? (active.textContent ?? '').trim() : (active as HTMLInputElement).value,
+      }
+    },
+  )
+}
+
+// GOES RED IF: a task dragged onto empty ground below the last row stops being
+// drawn -- either the rectangle entrance stopped answering a press, or the
+// drag stopped being read as one. It says nothing about the keyboard; it
+// proves that the gesture the pinned case below drives is one the product
+// still acts on.
+test('control for D-232: a task dragged onto empty ground below the last row is drawn', async ({
+  baseURL,
+}) => {
+  test.setTimeout(180_000)
+  const app = await openTheApp(baseURL)
+  await scrollToTheGround(app.page)
+  const spot = await emptyCanvasPoint(app.page)
+  expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
+  if (spot === null) {
+    await app.close()
+    return
+  }
+
+  expect(await pressEntrance(app.page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(
+    true,
+  )
+  const before = await censusOf(app.page)
+  await app.page.mouse.move(spot.x, spot.y)
+  await app.page.mouse.down()
+  await app.page.mouse.move(spot.x + DRAW_WIDTH_PX, spot.y, { steps: 10 })
+  await app.page.mouse.up()
+  await app.page.waitForTimeout(1000)
+  const after = await censusOf(app.page)
+  expect(
+    after.shapes,
+    'dragging on empty ground below the last row drew nothing, so the pinned case on D-232 ' +
+      'below would reach nothing',
+  ).not.toBe(before.shapes)
+  await app.close()
+})
+
+// GOES RED IF: D-232 is fixed. Playwright then reports "expected to fail, but
+// passed" and this entry has to be taken out. Nothing else makes it pass: some
+// field that takes text must hold the keyboard the instant the drag lets go,
+// and what is typed into it must reach it.
+// `FR-091` (MUST) is 「作成者がタスクを作った直後、およびあとから求めたとき、`GRS`
+// は、そのタスクの名称をその場で入力・変更できるようにすること」, and its own
+// paragraph adds 「⭐ 作った直後に入力できること（MUST）―― `UC-001` は「置く→名前を
+// 付ける」を 1 つの流れとしており、選び直してからプロパティパネルを開く 2 手に
+// しない。」
+// ⚠️ MEASURED ON THE SHIPPED BUILD, 2026-09-03 (3/3 runs): the 144x28px
+// `polygon` count rises by one, but the field count with any width stays at 0,
+// the Properties Panel stays `display:none`, and the focus stays on `BODY`.
+// `frame-loop.ts`'s `showPropertiesOfChoice()` (paired with `nameFieldWantedRow`)
+// is the road `FR-085`/`MK-13` already uses for a double-click, but it only
+// advances when something is already selected -- and no line anywhere makes a
+// just-drawn task the selection. That missing line is ledger row `D-228`,
+// still awaiting a ruling; until it lands, this case has nothing to turn green
+// on.
+test('D-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
+  baseURL,
+}) => {
+  test.fail()
+  test.setTimeout(180_000)
+  announce(D232, 'drawing a task on empty ground')
+  const app = await openTheApp(baseURL)
+  await scrollToTheGround(app.page)
+  const spot = await emptyCanvasPoint(app.page)
+  expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
+  if (spot === null) {
+    await app.close()
+    return
+  }
+
+  expect(await pressEntrance(app.page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(
+    true,
+  )
+  const before = await censusOf(app.page)
+  await app.page.mouse.move(spot.x, spot.y)
+  await app.page.mouse.down()
+  await app.page.mouse.move(spot.x + DRAW_WIDTH_PX, spot.y, { steps: 10 })
+  await app.page.mouse.up()
+  await app.page.waitForTimeout(1000)
+  const after = await censusOf(app.page)
+  expect(
+    after.shapes,
+    `the drag on empty ground drew no new shape (${before.shapes} before, ${after.shapes} after), ` +
+      'so this case never reached the moment FR-091 is about',
+  ).not.toBe(before.shapes)
+
+  try {
+    const field = await focusedTypableField(app.page)
+    expect(
+      field,
+      'right after the task was drawn nothing that takes text holds the keyboard, so FR-091 ' +
+        '(MUST) is not met: 「作った直後に入力できること（MUST）」, and a person has to select ' +
+        'the task again and open the Properties Panel -- the two steps the requirement forbids',
+    ).not.toBeNull()
+    if (field === null) return
+
+    const typed = 'ZetaDrawnTask'
+    await app.page.keyboard.type(typed)
+    await app.page.waitForTimeout(400)
+    const filled = await focusedTypableField(app.page)
+    expect(
+      filled?.value ?? null,
+      `what was typed did not reach the field that held the keyboard (a ${field.tag} of ` +
+        `${field.width}x${field.height}px), so the name cannot be entered on the spot`,
+    ).toContain(typed)
+  } finally {
+    await app.close()
+  }
 })
 
 // ---------------------------------------------------------------------------

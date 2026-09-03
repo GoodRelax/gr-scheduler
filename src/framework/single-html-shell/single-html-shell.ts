@@ -725,6 +725,36 @@ function boot(): void {
     document.documentElement.setAttribute('style', written)
   }
 
+  /** What the root element already names, so an unchanged frame writes nothing. */
+  let documentLanguageWritten = ''
+
+  /**
+   * FR-038 (MUST): 「表示言語を替えたときは、綴じた文書自身が名乗る言語も同じもの
+   * に替えること」 -- 「読み上げと自動翻訳がそれを見る」.
+   *
+   * ⭐ WRITTEN ON THE SAME ELEMENT `paintPageGround` WRITES ON, AND BY THE SAME
+   * UNIT. The root element is the bound document's own, not the screen surface's
+   * (`DomScreenSurface` says so from its side), so the one file that already
+   * touches it is the one that names its language.
+   * ⭐ RIDES ON THE DRAWING RATHER THAN ON A TRIGGER OF ITS OWN, exactly as the
+   * ground does: the loop holds the chosen language (LY-5 of table T-060) and
+   * hands it over on `ScreenView.language`, and table T-078 names no trigger for
+   * a language either.
+   * ⚠️ FR-038 (MUST NOT) keeps the choice out of the document's contents -- this
+   * writes the ATTRIBUTE the bound file carries, which is what that requirement
+   * calls 「綴じた文書自身が名乗る言語」, not a settings key.
+   *
+   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the bargain `paintPageGround` keeps for the
+   * same reason: this runs at the head of every frame.
+   *
+   * @purity non-pure
+   */
+  function nameDocumentLanguage(language: string): void {
+    if (language === documentLanguageWritten) return
+    documentLanguageWritten = language
+    document.documentElement.setAttribute('lang', language)
+  }
+
   // ⭐ THE FIRST PAINT IS HERE, BEFORE ANYTHING IS BUILT. FR-041 (MUST) forbids
   // the environment's colour to stand in, and every moment before this one is a
   // moment it does -- BO-1 deliberately holds the first frame back until the
@@ -949,6 +979,7 @@ function boot(): void {
     /** @purity non-pure */
     showScreenView: (view) => {
       paintPageGround()
+      nameDocumentLanguage(view.language)
       screenSurface.showScreenView(view)
     },
   }

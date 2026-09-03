@@ -5,7 +5,9 @@
   "Generated FROM this file: src/adapter/screen-renderer/display-words.json (tools/generate_display_words.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "EVERY ENTRY IS NOW WRITTEN, and this line used to say the opposite. The ruling of 2026-08-21 (PD-160) built the place and left the filling to the user, because table T-109 refuses an English column in as many words and a word invented by an agent would settle the very names that refusal protects. The user has since written them. Fill ja and en here for anything added; nothing else has to change for a word to appear, and the generator counts the written cells on every run.",
-  "THIS FILE HOLDS NO ROSTER. Which entries exist is read from docs/spec every run -- table T-109, table T-037, table T-023, table T-023b and FR-072 -- and the generator refuses to write if this file and those tables disagree. Read those tables to know which entry a key stands for; a group is keyed by the first row of table T-109 that sits in it."
+  "THIS FILE HOLDS NO ROSTER. Which entries exist is read from docs/spec every run -- table T-109, table T-037, table T-023, table T-023b, table T-104 and FR-072 -- and the generator refuses to write if this file and those tables disagree. Read those tables to know which entry a key stands for; a group is keyed by the first row of table T-109 that sits in it.",
+  "THE settings SECTION IS KEYED BY THE ROW OF TABLE T-104, one word per row and never one per key -- the same move the properties section makes over table T-016, and for the same reason: K-103 names two keys and K-105 names three, and a word per key would settle names the glossary has not settled. The KEYS each row names are not written here; the generator reads them out of that table and carries them into src/ beside the word, so the surface can go from a settings key to its word without either side holding a copy of the table.",
+  "ITS WORDS WERE CARRIED OUT OF TABLE T-104 RATHER THAN INVENTED (D-233, 2026-09-03). That table is the authority on the NAME of a settings key and already held the user's own Japanese, so the ja cells are its own with the Markdown emphasis taken off, and the en cells are that table's settled English name. They are this file's now: edit them here, and the screen follows on the next npm run gen."
  ],
  "icons": [
   {
@@ -1098,6 +1100,778 @@
    "label": {
     "ja": "高さ",
     "en": "height"
+   }
+  }
+ ],
+ "settings": [
+  {
+   "rowId": "K-1",
+   "label": {
+    "ja": "1 日の幅（zoomX = 1）",
+    "en": "pxPerDayAt1x"
+   }
+  },
+  {
+   "rowId": "K-2",
+   "label": {
+    "ja": "目盛の帯の高さ",
+    "en": "rulerHeight"
+   }
+  },
+  {
+   "rowId": "K-3",
+   "label": {
+    "ja": "目盛の文字",
+    "en": "rulerFont"
+   }
+  },
+  {
+   "rowId": "K-112",
+   "label": {
+    "ja": "目盛ラベルどうしの隙間（横）",
+    "en": "rulerLabelGap"
+   }
+  },
+  {
+   "rowId": "K-113",
+   "label": {
+    "ja": "罫線と目盛ラベルの余白（縦）",
+    "en": "rulerLabelPad"
+   }
+  },
+  {
+   "rowId": "K-114",
+   "label": {
+    "ja": "目盛ラベルの下側の余白（縦）",
+    "en": "rulerLabelBottomPad"
+   }
+  },
+  {
+   "rowId": "K-4",
+   "label": {
+    "ja": "予定の縦幅（zoomY = 1）",
+    "en": "basePlanHeight"
+   }
+  },
+  {
+   "rowId": "K-5",
+   "label": {
+    "ja": "実績 ÷ 予定",
+    "en": "actualOfPlan"
+   }
+  },
+  {
+   "rowId": "K-6",
+   "label": {
+    "ja": "実績の縦幅の下限",
+    "en": "actualMin"
+   }
+  },
+  {
+   "rowId": "K-7",
+   "label": {
+    "ja": "フォント ÷ 実績",
+    "en": "fontOfActual"
+   }
+  },
+  {
+   "rowId": "K-8",
+   "label": {
+    "ja": "最小フォント",
+    "en": "fontMin"
+   }
+  },
+  {
+   "rowId": "K-9",
+   "label": {
+    "ja": "細線のフォント倍率",
+    "en": "thinFontScale"
+   }
+  },
+  {
+   "rowId": "K-10",
+   "label": {
+    "ja": "予定から実績までの間隔（下に置くとき）",
+    "en": "actualGap"
+   }
+  },
+  {
+   "rowId": "K-11",
+   "label": {
+    "ja": "積み順の段の間隔",
+    "en": "stackGap"
+   }
+  },
+  {
+   "rowId": "K-12",
+   "label": {
+    "ja": "行の間隔",
+    "en": "rowGap"
+   }
+  },
+  {
+   "rowId": "K-13",
+   "label": {
+    "ja": "矩形",
+    "en": "shapeHeightOf.rectangle"
+   }
+  },
+  {
+   "rowId": "K-14",
+   "label": {
+    "ja": "矢羽根",
+    "en": "shapeHeightOf.chevron"
+   }
+  },
+  {
+   "rowId": "K-15",
+   "label": {
+    "ja": "矢印",
+    "en": "shapeHeightOf.arrow"
+   }
+  },
+  {
+   "rowId": "K-16",
+   "label": {
+    "ja": "端点スパン",
+    "en": "shapeHeightOf.endpointSpan"
+   }
+  },
+  {
+   "rowId": "K-17",
+   "label": {
+    "ja": "マイルストーン",
+    "en": "shapeHeightOf.milestone"
+   }
+  },
+  {
+   "rowId": "K-18",
+   "label": {
+    "ja": "依存線の太さ",
+    "en": "dependencyWidth"
+   }
+  },
+  {
+   "rowId": "K-19",
+   "label": {
+    "ja": "矢印の三角形の長さ",
+    "en": "dependencyArrowLength"
+   }
+  },
+  {
+   "rowId": "K-20",
+   "label": {
+    "ja": "入口の走り ÷ 三角形",
+    "en": "dependencyRunOfArrow"
+   }
+  },
+  {
+   "rowId": "K-22",
+   "label": {
+    "ja": "マーカー径",
+    "en": "markerSize"
+   }
+  },
+  {
+   "rowId": "K-23",
+   "label": {
+    "ja": "実績の右端からの隙間",
+    "en": "markerGap"
+   }
+  },
+  {
+   "rowId": "K-24",
+   "label": {
+    "ja": "円の線の太さ",
+    "en": "markerStroke"
+   }
+  },
+  {
+   "rowId": "K-25",
+   "label": {
+    "ja": "再開日未定のときの縮小率",
+    "en": "resumeScaleInvalid"
+   }
+  },
+  {
+   "rowId": "K-26",
+   "label": {
+    "ja": "再開アイコンの腕の長さ ÷ マーカー",
+    "en": "resumeArmOfMarker"
+   }
+  },
+  {
+   "rowId": "K-27",
+   "label": {
+    "ja": "再開アイコンの矢じり ÷ マーカー",
+    "en": "resumeHeadOfMarker"
+   }
+  },
+  {
+   "rowId": "K-28",
+   "label": {
+    "ja": "再開アイコンへ繋ぐ破線の実部",
+    "en": "resumeDashOn"
+   }
+  },
+  {
+   "rowId": "K-29",
+   "label": {
+    "ja": "再開アイコンへ繋ぐ破線の空部",
+    "en": "resumeDashOff"
+   }
+  },
+  {
+   "rowId": "K-30",
+   "label": {
+    "ja": "幅の概算係数",
+    "en": "labelCoef"
+   }
+  },
+  {
+   "rowId": "K-31",
+   "label": {
+    "ja": "形状の内側の余白",
+    "en": "labelPad"
+   }
+  },
+  {
+   "rowId": "K-32",
+   "label": {
+    "ja": "形状の外へ出すときの隙間",
+    "en": "labelGap"
+   }
+  },
+  {
+   "rowId": "K-33",
+   "label": {
+    "ja": "ベースライン補正",
+    "en": "labelBaseline"
+   }
+  },
+  {
+   "rowId": "K-34",
+   "label": {
+    "ja": "縁取りの太さ ÷ フォント",
+    "en": "labelHaloOfFont"
+   }
+  },
+  {
+   "rowId": "K-35",
+   "label": {
+    "ja": "打ち切り幅（半角換算）",
+    "en": "truncateUnits"
+   }
+  },
+  {
+   "rowId": "K-36",
+   "label": {
+    "ja": "行名の文字",
+    "en": "rowTitleFont"
+   }
+  },
+  {
+   "rowId": "K-37",
+   "label": {
+    "ja": "行名の TaskGroup の深さ 1 段ぶんのインデント",
+    "en": "rowTitleIndent"
+   }
+  },
+  {
+   "rowId": "K-38",
+   "label": {
+    "ja": "TaskGroup 深さ 1 の行名の倍率",
+    "en": "rowTitleTopScale"
+   }
+  },
+  {
+   "rowId": "K-39",
+   "label": {
+    "ja": "予定の輪郭線",
+    "en": "planStroke"
+   }
+  },
+  {
+   "rowId": "K-40",
+   "label": {
+    "ja": "細線の太さ ÷ その形状の予定の縦幅",
+    "en": "thinStrokeOfPlan"
+   }
+  },
+  {
+   "rowId": "K-41",
+   "label": {
+    "ja": "細線の太さの下限",
+    "en": "thinStrokeMin"
+   }
+  },
+  {
+   "rowId": "K-42",
+   "label": {
+    "ja": "細線の太さの上限",
+    "en": "thinStrokeMax"
+   }
+  },
+  {
+   "rowId": "K-43",
+   "label": {
+    "ja": "矢羽根の切り欠き ÷ 高さ",
+    "en": "chevronNotchOfHeight"
+   }
+  },
+  {
+   "rowId": "K-44",
+   "label": {
+    "ja": "矢羽根の切り欠き ÷ 幅",
+    "en": "chevronNotchOfWidth"
+   }
+  },
+  {
+   "rowId": "K-45",
+   "label": {
+    "ja": "矢印の矢じり ÷ 線の太さ",
+    "en": "arrowHeadOfStroke"
+   }
+  },
+  {
+   "rowId": "K-46",
+   "label": {
+    "ja": "矢印の矢じり ÷ 全長（上限）",
+    "en": "arrowHeadOfSpan"
+   }
+  },
+  {
+   "rowId": "K-47",
+   "label": {
+    "ja": "端点スパンの点の半径 ÷ 線の太さ",
+    "en": "spanDotOfStroke"
+   }
+  },
+  {
+   "rowId": "K-48",
+   "label": {
+    "ja": "☆ の内接半径 ÷ 外接半径",
+    "en": "starInnerOfOuter"
+   }
+  },
+  {
+   "rowId": "K-49",
+   "label": {
+    "ja": "ゼロ期間でも残す最小幅",
+    "en": "minShapeWidth"
+   }
+  },
+  {
+   "rowId": "K-50",
+   "label": {
+    "ja": "イナズマ線の太さ",
+    "en": "progressLineWidth"
+   }
+  },
+  {
+   "rowId": "K-51",
+   "label": {
+    "ja": "上下へのはみ出し",
+    "en": "progressLineOverhang"
+   }
+  },
+  {
+   "rowId": "K-52",
+   "label": {
+    "ja": "目盛が「年」から「年 ＋ 月」に変わる px/day",
+    "en": "rulerTierPxPerDayMonth"
+   }
+  },
+  {
+   "rowId": "K-53",
+   "label": {
+    "ja": "目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day",
+    "en": "rulerTierPxPerDayWeek"
+   }
+  },
+  {
+   "rowId": "K-54",
+   "label": {
+    "ja": "目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day",
+    "en": "rulerTierPxPerDayDay"
+   }
+  },
+  {
+   "rowId": "K-55",
+   "label": {
+    "ja": "この幅を割った WBS の深さは描かない",
+    "en": "taskLevelOfDetailReadablePx"
+   }
+  },
+  {
+   "rowId": "K-56",
+   "label": {
+    "ja": "グループ LOD の初項",
+    "en": "groupLevelOfDetailBase"
+   }
+  },
+  {
+   "rowId": "K-57",
+   "label": {
+    "ja": "グループ LOD の公比",
+    "en": "groupLevelOfDetailRatio"
+   }
+  },
+  {
+   "rowId": "K-58",
+   "label": {
+    "ja": "積み順の安全弁",
+    "en": "stackSafetyCap"
+   }
+  },
+  {
+   "rowId": "K-59",
+   "label": {
+    "ja": "明暗テーマ（ダークモードはこの値の 'dark' を指す通称）",
+    "en": "themePreference"
+   }
+  },
+  {
+   "rowId": "K-60",
+   "label": {
+    "ja": "テーマの色相",
+    "en": "themeHue"
+   }
+  },
+  {
+   "rowId": "K-61",
+   "label": {
+    "ja": "モノクロにするか",
+    "en": "themeMonochrome"
+   }
+  },
+  {
+   "rowId": "K-62",
+   "label": {
+    "ja": "1 ノッチの倍率",
+    "en": "zoomStep"
+   }
+  },
+  {
+   "rowId": "K-63",
+   "label": {
+    "ja": "下限",
+    "en": "zoomMin"
+   }
+  },
+  {
+   "rowId": "K-64",
+   "label": {
+    "ja": "上限",
+    "en": "zoomMax"
+   }
+  },
+  {
+   "rowId": "K-65",
+   "label": {
+    "ja": "キャンバスの余白",
+    "en": "canvasPadding"
+   }
+  },
+  {
+   "rowId": "K-67",
+   "label": {
+    "ja": "横のズーム倍率",
+    "en": "zoomX"
+   }
+  },
+  {
+   "rowId": "K-68",
+   "label": {
+    "ja": "縦のズーム倍率",
+    "en": "zoomY"
+   }
+  },
+  {
+   "rowId": "K-69",
+   "label": {
+    "ja": "表示の左端が指す日付",
+    "en": "scrollDate"
+   }
+  },
+  {
+   "rowId": "K-70",
+   "label": {
+    "ja": "表示の上端が指す行",
+    "en": "scrollGroupId"
+   }
+  },
+  {
+   "rowId": "K-71",
+   "label": {
+    "ja": "Row Title Panel の幅",
+    "en": "rowTitlePanelWidth"
+   }
+  },
+  {
+   "rowId": "K-72",
+   "label": {
+    "ja": "Properties Panel の幅",
+    "en": "propertyPanelWidth"
+   }
+  },
+  {
+   "rowId": "K-110",
+   "label": {
+    "ja": "ピン止めの対象",
+    "en": "pinnedGroupIds"
+   }
+  },
+  {
+   "rowId": "K-111",
+   "label": {
+    "ja": "ピン止めの件数の上限",
+    "en": "pinnedRowMax"
+   }
+  },
+  {
+   "rowId": "K-73",
+   "label": {
+    "ja": "積む向き",
+    "en": "stackDirection"
+   }
+  },
+  {
+   "rowId": "K-74",
+   "label": {
+    "ja": "予実の表示",
+    "en": "planActualDisplay"
+   }
+  },
+  {
+   "rowId": "K-75",
+   "label": {
+    "ja": "担当ラベル",
+    "en": "assigneeVisible"
+   }
+  },
+  {
+   "rowId": "K-76",
+   "label": {
+    "ja": "完了率ラベル",
+    "en": "percentCompleteVisible"
+   }
+  },
+  {
+   "rowId": "K-77",
+   "label": {
+    "ja": "依存線",
+    "en": "dependencyVisible"
+   }
+  },
+  {
+   "rowId": "K-78",
+   "label": {
+    "ja": "進捗マーカー",
+    "en": "progressMarkerVisible"
+   }
+  },
+  {
+   "rowId": "K-79",
+   "label": {
+    "ja": "イナズマ線",
+    "en": "progressLineVisible"
+   }
+  },
+  {
+   "rowId": "K-80",
+   "label": {
+    "ja": "デュアルカーソル",
+    "en": "dualCursor"
+   }
+  },
+  {
+   "rowId": "K-81",
+   "label": {
+    "ja": "ガイドカーソル",
+    "en": "guideCursorMode"
+   }
+  },
+  {
+   "rowId": "K-82",
+   "label": {
+    "ja": "日付罫線（日付ごとの縦線）",
+    "en": "dateGridLinesVisible"
+   }
+  },
+  {
+   "rowId": "K-83",
+   "label": {
+    "ja": "グループ罫線（TaskGroup 境界の横線）",
+    "en": "groupGridLinesVisible"
+   }
+  },
+  {
+   "rowId": "K-84",
+   "label": {
+    "ja": "変更前の予定を重ねるか",
+    "en": "baselineVisible"
+   }
+  },
+  {
+   "rowId": "K-85",
+   "label": {
+    "ja": "文字サイズ",
+    "en": "fontScale"
+   }
+  },
+  {
+   "rowId": "K-86",
+   "label": {
+    "ja": "取込の連番",
+    "en": "importSeq"
+   }
+  },
+  {
+   "rowId": "K-87",
+   "label": {
+    "ja": "SVG / PNG の出力サイズ",
+    "en": "exportCanvas"
+   }
+  },
+  {
+   "rowId": "K-88",
+   "label": {
+    "ja": "PNG の倍率",
+    "en": "exportPngScale"
+   }
+  },
+  {
+   "rowId": "K-91",
+   "label": {
+    "ja": "補助線の太さ",
+    "en": "planActualGuideWeight"
+   }
+  },
+  {
+   "rowId": "K-92",
+   "label": {
+    "ja": "補助線の破線の刻み",
+    "en": "planActualGuidePattern"
+   }
+  },
+  {
+   "rowId": "K-93",
+   "label": {
+    "ja": "補助線の色",
+    "en": "planActualGuideColor"
+   }
+  },
+  {
+   "rowId": "K-94",
+   "label": {
+    "ja": "フェード掴み点の半辺",
+    "en": "fadeHandleHalfPx"
+   }
+  },
+  {
+   "rowId": "K-95",
+   "label": {
+    "ja": "フェード掴み点の枠線",
+    "en": "fadeHandleStrokePx"
+   }
+  },
+  {
+   "rowId": "K-97",
+   "label": {
+    "ja": "取り込むファイルの上限",
+    "en": "importMaxBytes"
+   }
+  },
+  {
+   "rowId": "K-98",
+   "label": {
+    "ja": "取り込む Task の件数の上限",
+    "en": "importMaxItems"
+   }
+  },
+  {
+   "rowId": "K-99",
+   "label": {
+    "ja": "WBS のネストの深さの上限",
+    "en": "importMaxDepth"
+   }
+  },
+  {
+   "rowId": "K-100",
+   "label": {
+    "ja": "App Header の高さの上限",
+    "en": "appHeaderMaxHeight"
+   }
+  },
+  {
+   "rowId": "K-101",
+   "label": {
+    "ja": "透かしの濃さ",
+    "en": "watermarkOpacity"
+   }
+  },
+  {
+   "rowId": "K-102",
+   "label": {
+    "ja": "TaskGroup の深さの上限",
+    "en": "maxGroupDepth"
+   }
+  },
+  {
+   "rowId": "K-103",
+   "label": {
+    "ja": "受け入れる日付の範囲",
+    "en": "importMinDate / importMaxDate"
+   }
+  },
+  {
+   "rowId": "K-104",
+   "label": {
+    "ja": "依存を作ったときに置くラグ",
+    "en": "dependencyLagDefault"
+   }
+  },
+  {
+   "rowId": "K-105",
+   "label": {
+    "ja": "文字サイズの段（S / M / L）の px",
+    "en": "fontScaleSizes.S / fontScaleSizes.M / fontScaleSizes.L"
+   }
+  },
+  {
+   "rowId": "K-106",
+   "label": {
+    "ja": "アイコンの説明を出すまでの待ち時間",
+    "en": "iconHintDelayMs"
+   }
+  },
+  {
+   "rowId": "K-107",
+   "label": {
+    "ja": "掴んだときの実績期間",
+    "en": "actualInitialDuration"
+   }
+  },
+  {
+   "rowId": "K-108",
+   "label": {
+    "ja": "マイルストーンの実績期間",
+    "en": "milestoneActualDuration"
+   }
+  },
+  {
+   "rowId": "K-109",
+   "label": {
+    "ja": "ダミーの濃さ",
+    "en": "dummyOpacity"
+   }
+  },
+  {
+   "rowId": "K-90",
+   "label": {
+    "ja": "表示言語（ja / en）。置き場と規則は表 T-206 の S-99",
+    "en": "language"
    }
   }
  ],

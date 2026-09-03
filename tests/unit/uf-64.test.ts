@@ -91,20 +91,29 @@
 //      keeps the panel's width alone), table T-206 and FR-072 itself. The
 //      cases therefore assert only the half the unit CAN keep: `showing` does
 //      not move and `isSubjectGone` is raised.
-//   4. The `row` a settings field names. `PropertyField.row` asks for a `K-n`
-//      of table T-104, and that table reaches no generated roster in `src/`;
-//      measured, it does not even cover the group -- `carryMaxDepth`,
-//      `importMaxDate`, `importMinDate` and the `fontScaleSizes` leaves have no
-//      row, and `watermarkOpacity` / `importSeq` / `themeHue` /
-//      `planActualGuideColor` are rows with no key in this group. A copied map
-//      would be wrong on arrival, so the cases assert only that a settings
-//      field names something, not what.
+//   4. WHICH ROW THE SIX KEYS TABLE T-104 HOLDS NO ROW FOR MAY NAME, and what
+//      those six are called on the screen. ⛔ Measured against the table, it
+//      fixes 107 of the presentation group's 113 keys; `carryMaxDepth`,
+//      `commentBoxPad`, `commentBoxWrapUnits`, `exportCanvasHeightCap`,
+//      `scrollDayOffset` and `scrollGroupOffset` have no row, which is the
+//      ledger's D-238. ⛔ NO ROW ID AND NO NAME IS INVENTED FOR THEM HERE: the
+//      cases count them and hold the other 107 to the row the table does fix.
+//      ⚠️ Eight rows go the other way -- `themeHue` (DR-5 of table T-052 keeps
+//      the hue on `Project`), `language` (FR-038's RATIONALE keeps the chosen
+//      language out of the document: 「どの言語で開くかは読む人の環境であり、
+//      文書に保存しない（MUST NOT）」), `zoomStep`, `zoomMin`, `zoomMax`,
+//      `importSeq`, `planActualGuideColor` and `watermarkOpacity` are rows of
+//      table T-104 with no key in this group, so no field stands for them.
 //   5. The order the settings side lists its keys in, and how `ordinal` counts
-//      a dependency inside its successor. Table T-104's printed order reaches
-//      no roster in `src/`, and no row anywhere fixes the ordinal; the cases
-//      compare the settings keys as a SET, and use a successor holding exactly
-//      one dependency at the array position the rest of the product counts
-//      from (AT-72's ordinal, which `import-document` issues from 0).
+//      a dependency inside its successor. ⛔ The printed-order MUST is table
+//      T-016's own paragraph -- 「表 T-016 は印刷順に出すこと（MUST）」 -- and it
+//      says nothing about the other face; no row fixes an order for the
+//      settings, and no row anywhere fixes the ordinal. So the cases compare the
+//      settings rows as a MULTISET -- a multiset and not a set, because one row
+//      of table T-104 stands for several keys where the table spells several
+//      (K-105 spells three) -- and use a successor holding exactly one
+//      dependency at the array position the rest of the product counts from
+//      (AT-72's ordinal, which `import-document` issues from 0).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -179,14 +188,26 @@ const NAME_COLUMN = '列（`GRS JSON`）'
  * ⭐ THE MANUSCRIPT AND NOT THE COPY IN `src/`: reading the file beside the unit
  * would let this agree with a drift `npm run gen:check` exists to catch.
  */
-const SHOWN_NAME: Readonly<Record<string, { readonly ja: string; readonly en: string }>> =
+interface WordEntry {
+  readonly rowId: string
+  readonly label: { readonly ja: string; readonly en: string }
+}
+
+/** One section of the dictionary manuscript, keyed by the row id each entry names. */
+const wordsOfSection = (
+  section: string,
+): Readonly<Record<string, { readonly ja: string; readonly en: string }>> =>
   Object.fromEntries(
     (
-      JSON.parse(
-        readFileSync(join(process.cwd(), 'docs/spec/_source/display-words.json'), 'utf8'),
-      ) as { properties: { rowId: string; label: { ja: string; en: string } }[] }
-    ).properties.map((item) => [item.rowId, item.label]),
+      (
+        JSON.parse(
+          readFileSync(join(process.cwd(), 'docs/spec/_source/display-words.json'), 'utf8'),
+        ) as Record<string, readonly WordEntry[] | undefined>
+      )[section] ?? []
+    ).map((item) => [item.rowId, item.label]),
   )
+
+const SHOWN_NAME = wordsOfSection('properties')
 
 /** The heading of the column added on 2026-08-26, which FR-006's panel obeys. */
 const INPUT_KIND_COLUMN = '入力の型'
@@ -275,6 +296,94 @@ const KIND_OF_INPUT: Readonly<Record<string, PropertyControlKind>> = {
 
 /** FR-009 (MUST): kind, lag and BOTH ends. Table T-016 carries no such row. */
 const DEPENDENCY_ITEMS = ['lag', 'linkType', 'predecessorUid', 'successorUid'] as const
+
+// ---------------------------------------------------------------------------
+// Table T-104 and the settings half of the dictionary, READ AT RUN TIME for the
+// same reasons table T-016 and `SHOWN_NAME` are.
+//
+// ⭐ WHY THE SETTINGS FACE NEEDS A ROSTER AT ALL NOW. Until 2026-09-03 the cases
+// below found a settings field by THE SPELLING OF THE KEY IT EDITS, because that
+// spelling was what the panel printed. The paragraph under table T-006a ended
+// that (docs/spec/01-04-requirements.md:316): 「⛔⛔ **同じ面が文書の設定を出すとき
+// も、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
+// （MUST NOT）**」 and 「**`FR-038` の辞書が 表 T-016 と同じ行 ID で持つ英語の綴り
+// が、そのまま画面に出る。**」 ⇒ the name is a WORD now, and a word is not a
+// handle.
+//
+// ⭐ WHAT A FIELD IS FOUND BY INSTEAD, and the specification does fix it: the row
+// id the field names. `IF-9` of table T-065 (docs/spec/05-07-design.md:378) has
+// the surface hand a committed value back 「プロパティパネルの欄で確定した値を、
+// その欄が名乗る行 ID とともに返し」, and `PI-18` of table T-064 names the tables
+// those ids are drawn from -- 「割当は 表 T-016 の「入力の型」の欄と 表 T-104」.
+// ⇒ the selection face names a `PR-n` and the settings face a `K-n`.
+// ---------------------------------------------------------------------------
+
+/** The heading of the column table T-104 fixes the settings key spellings in. */
+const CONFIRMED_NAME_COLUMN = '確定名（英）'
+
+/**
+ * Table T-104 -- 「`documentSettings` が持つ設定値の**名前**の正はここである」
+ * (_assets/tbl-glossary.md, section 4).
+ *
+ * ⚠️ A ROW MAY FIX SEVERAL KEYS: K-103 spells two and K-105 three, so what is
+ * kept is the whole list the cell writes and not its first code span.
+ */
+const T_104 = specTable('T-104').rows.map((row) => ({
+  row: row.id,
+  keys: (row.by[CONFIRMED_NAME_COLUMN] ?? '')
+    .split('/')
+    .map((one) => one.replace(/`|\*/g, '').trim())
+    .filter((one) => one.length > 0),
+}))
+
+/**
+ * The row of table T-104 that fixes a settings key, or `undefined` when the
+ * table fixes none (the ledger's D-238; omission 4 above).
+ *
+ * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS. `SETTINGS_DEFAULTS` is printed
+ * with the dotted keys `_assets/tbl-settings.md` writes, while table T-104
+ * spells some leaves (`shapeHeightOf.rectangle` is K-13 and `fontScaleSizes.S`
+ * K-105) and some groups (`exportCanvas` is K-87, and the panel stands one field
+ * for `exportCanvas.width` and one for `exportCanvas.height`).
+ */
+const rowOfKey = (key: string): string | undefined => {
+  const parts = key.split('.')
+  for (let take = parts.length; take > 0; take -= 1) {
+    const spelling = parts.slice(0, take).join('.')
+    const found = T_104.find((item) => item.keys.includes(spelling))
+    if (found !== undefined) return found.row
+  }
+  return undefined
+}
+
+/** The row of table T-104 a case means, or a failure that names the key. */
+const rowFixing = (key: string): string => {
+  const row = rowOfKey(key)
+  if (row === undefined) throw new Error(`table T-104 fixes no row for ${key}`)
+  return row
+}
+
+/**
+ * The name the settings face shows for a row, read out of the dictionary
+ * MANUSCRIPT -- which FR-038 (MUST NOT) makes the one place a printed word may
+ * live, and which CR-344 gave a `settings` section keyed by the row of table
+ * T-104.
+ */
+const SETTINGS_WORD = wordsOfSection('settings')
+
+/**
+ * The presentation group itself -- `DR-3` of table T-052, which `IC-17` of table
+ * T-109 puts on this panel. The dotted keys are the manuscript's own.
+ */
+const SETTINGS_KEYS = Object.keys(SETTINGS_DEFAULTS)
+
+/**
+ * ⚠️ THE KEYS TABLE T-104 FIXES NO ROW FOR -- the ledger's D-238, six of the 113
+ * measured on 2026-09-03. ⛔ Counted from the table rather than listed here: a
+ * row the specification adds takes one off this list by itself, and nothing
+ * below has to be edited for it.
+ */
+const KEYS_WITH_NO_ROW = SETTINGS_KEYS.filter((key) => rowOfKey(key) === undefined)
 
 // ---------------------------------------------------------------------------
 // Inputs.
@@ -1022,9 +1131,56 @@ describe('FR-009 -- a selected dependency', () => {
 })
 
 describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
-  it('carries every key of the presentation group, once each', () => {
-    const names = settingsPanel().fields.map((field) => field.name)
-    expect([...names].sort()).toEqual(Object.keys(SETTINGS_DEFAULTS).sort())
+  it('\u2b50 was really driven by table T-104 and the dictionary, and not by a hollow read of them', () => {
+    // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE THE CASES BELOW
+    // AGREE WITH ANYTHING -- the same guard `T_016` already carries, for the
+    // same reason (rule 04 section 2). A heading that moved empties every
+    // `keys` list, and every case below would then find no row and assert
+    // nothing.
+    expect(T_104.length, 'table T-104').toBeGreaterThan(1)
+    for (const item of T_104) {
+      expect(item.row, 'row id').toMatch(/^K-\d+$/)
+      expect(item.keys.length, `${item.row} ${CONFIRMED_NAME_COLUMN}`).toBeGreaterThan(0)
+    }
+    // ⭐ And the dictionary really holds a word for every row a field names.
+    for (const key of SETTINGS_KEYS) {
+      const row = rowOfKey(key)
+      if (row === undefined) continue
+      expect(SETTINGS_WORD[row]?.ja ?? '', `${row} ja`).not.toBe('')
+      expect(SETTINGS_WORD[row]?.en ?? '', `${row} en`).not.toBe('')
+    }
+  })
+
+  it('carries every key of the presentation group, once each -- each field naming the row of table T-104 that fixes that key', () => {
+    // ⭐ IC-17 of table T-109 puts the document's drawing settings on this
+    // panel and `DR-3` of table T-052 is what those settings are, so the roster
+    // is `DocumentSettings` itself. ⛔ WHAT CHANGED ON 2026-09-03 IS HOW A FIELD
+    // IS TOLD APART: this case compared the field NAMES against the keys until
+    // the paragraph under table T-006a made the name a word of the dictionary
+    // (see the block above `CONFIRMED_NAME_COLUMN`), and a name is no longer a
+    // handle. The handle the specification does fix is the row id.
+    //
+    // ⚠️ A MULTISET AND NOT A SET (omission 5): table T-104 fixes one row for
+    // `exportCanvas` while the group holds `exportCanvas.width` and
+    // `exportCanvas.height`, so the row stands twice and a set would let one of
+    // the two fall off the panel unnoticed.
+    //
+    // ⛔ THE SIX KEYS THE TABLE FIXES NO ROW FOR ARE COUNTED, NOT NAMED
+    // (D-238, omission 4): the case holds their number against the table's own
+    // answer, and invents neither a row id nor a name for them.
+    const rows = settingsPanel().fields.map((field) => field.row)
+    const named = rows.filter((row) => T_104.some((item) => item.row === row))
+
+    expect(rows.length, 'one field per key of the presentation group').toBe(SETTINGS_KEYS.length)
+    expect([...named].sort(), 'the rows of table T-104 the group\'s keys fall on').toEqual(
+      SETTINGS_KEYS.map(rowOfKey)
+        .filter((row): row is string => row !== undefined)
+        .sort(),
+    )
+    expect(
+      rows.length - named.length,
+      'the keys of the group that table T-104 fixes no row for (D-238)',
+    ).toBe(KEYS_WITH_NO_ROW.length)
   })
 
   it('MUST mark them editable (UN-13 of table T-027 undoes a settings change)', () => {
@@ -1035,30 +1191,107 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     for (const field of settingsPanel().fields) expect(field.row.length, field.name).toBeGreaterThan(0)
   })
 
+  it('⛔ MUST NOT put the internal spelling of a key on the screen (the reader\'s report D-233)', () => {
+    // ⛔ THE RULE, VERBATIM (docs/spec/01-04-requirements.md:316, under table
+    // T-006a): 「⛔⛔ **同じ面が文書の設定を出すときも、これに従うこと（MUST）。
+    // 内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」, measured on the
+    // shipped build the same day: 「設定の面は 113 行を出し、日本語の項目名は 0、
+    // 生の識別子が 1 つ混じっていた」.
+    //
+    // ⭐ THE CLAIM IS MADE WHERE THE TWO PART -- the reader who chose `ja`. The
+    // same paragraph states the English side as the exception: 「**`FR-038` の
+    // 辞書が 表 T-016 と同じ行 ID で持つ英語の綴りが、そのまま画面に出る。**」, and
+    // `W-2` of table T-006a makes a property panel item name camelCase. ⇒ an
+    // English name that reads like the key is the rule being kept, not broken.
+    for (const field of settingsPanel().fields) {
+      const item = T_104.find((one) => one.row === field.row)
+      if (item === undefined) continue
+      expect(item.keys, `${field.row} shows the spelling of its own key`).not.toContain(field.name)
+    }
+  })
+
   it('reads the value out of the document it was handed, not out of the roster', () => {
     // ⚠️ 04-verification section 2: a value that reaches nothing is a value
-    // nobody notices going stale. S-80 is `propertyPanelWidth`.
+    // nobody notices going stale. S-80 is `propertyPanelWidth`, and table T-104
+    // fixes the row this looks the field up by.
+    const row = rowFixing('propertyPanelWidth')
     const moved = settingsOf({ propertyPanelWidth: 999 })
-    const field = settingsPanel(moved).fields.find((one) => one.name === 'propertyPanelWidth')
-    expect(field?.text).toContain('999')
-    expect(field?.text).not.toBe(
-      settingsPanel().fields.find((one) => one.name === 'propertyPanelWidth')?.text,
+    const field = settingsPanel(moved).fields.find((one) => one.row === row)
+    expect(field?.text, row).toContain('999')
+    expect(field?.text, row).not.toBe(
+      settingsPanel().fields.find((one) => one.row === row)?.text,
     )
   })
 
   it('reaches a key that lives inside a group of its own', () => {
+    // ⚠️ ONE ROW STANDS FOR BOTH LEAVES: table T-104 fixes the GROUP by name
+    // (`exportCanvas`, and the group holds a width and a height), so the row id
+    // cannot part the two and no row of docs/spec parts them either. ⭐ What is
+    // asked is therefore that ONE of the fields that row stands for carries the
+    // value, and that the panel still stands as many of them as before -- a
+    // field quietly dropped would otherwise pass.
+    const row = rowFixing('exportCanvas.width')
     const moved = settingsOf({ 'exportCanvas.width': 4321 })
-    const field = settingsPanel(moved).fields.find((one) => one.name === 'exportCanvas.width')
-    expect(field?.text).toContain('4321')
+    const fields = settingsPanel(moved).fields.filter((one) => one.row === row)
+
+    expect(fields.length, row).toBe(settingsPanel().fields.filter((one) => one.row === row).length)
+    expect(
+      fields.some((one) => one.text.includes('4321')),
+      `${row} carries the value the document was handed`,
+    ).toBe(true)
   })
 
-  it('keeps the settings the same in either language (FR-038 holds no store of strings)', () => {
+  it('MUST show the settings names in the language the reader chose (FR-038 exempts three things and this is none of them)', () => {
+    // ⛔ THE OPPOSITE OF WHAT STOOD HERE, and the reason it stood is gone. The
+    // case used to assert that the two panels were IDENTICAL, and gave as its
+    // reason that FR-038 held no store of strings. That store has existed since
+    // CR-194 -- FR-038's fifth paragraph (MUST): 「画面に刷る語は、言語ごとの辞書
+    // として 1 か所に持つこと（MUST）。要求にも表にも語そのものを書いてはならない
+    // （MUST NOT）」 -- and CR-344 (2026-09-03) put the settings names into it.
+    //
+    // ⭐ WHAT FR-038 EXEMPTS, VERBATIM: 「タスク名と行名、および表 T-016 の項目名
+    // は翻訳の対象ではない」. ⛔ A settings name is none of the three: it is a row
+    // of 表 T-104, not of 表 T-016. ⇒ it follows the language, and the words are
+    // the dictionary's -- read from the manuscript here, never retyped.
+    //
+    // ⚠️ THE SIX OF D-238 ARE PASSED OVER (omission 4): the dictionary holds no
+    // entry for a key table T-104 gives no row, so there is no word to hold the
+    // field to and this case invents none.
+    const inJapanese = settingsPanel().fields
     const inEnglish = panelOf(
       oneTaskSchedule(),
       emptySelection(),
       sessionWith({ propertiesShowing: 'documentSettings', language: 'en' }),
+    ).fields
+
+    for (const field of inJapanese) {
+      const word = SETTINGS_WORD[field.row]
+      if (word === undefined) continue
+      expect(field.name, `${field.row} ja`).toBe(word.ja)
+      expect(inEnglish.find((one) => one.row === field.row)?.name, `${field.row} en`).toBe(word.en)
+    }
+  })
+
+  it('MUST change nothing but the names with the language -- a value is not a word', () => {
+    // ⭐ THE OTHER HALF OF THE RULE ABOVE. FR-038 (MUST) shows 「メニューとパネル
+    // の文字」 in the chosen language and its RATIONALE keeps the language out of
+    // the document -- 「どの言語で開くかは読む人の環境であり、文書に保存しない
+    // （MUST NOT）」 -- so everything the panel carries BESIDES the name is the
+    // document's and may not move: the row it names, the value it shows, whether
+    // it may be edited, and the controls that edit it.
+    const inEnglish = panelOf(
+      oneTaskSchedule(),
+      emptySelection(),
+      sessionWith({ propertiesShowing: 'documentSettings', language: 'en' }),
+    ).fields
+    const withoutTheName = (fields: readonly PropertyField[]): readonly PropertyField[] =>
+      fields.map((field) => ({ ...field, name: '' }))
+
+    expect(withoutTheName(inEnglish)).toEqual(withoutTheName(settingsPanel().fields))
+    // ⛔ And the case is not vacuous the other way: the names DO move.
+    expect(inEnglish.map((field) => field.name)).not.toEqual(
+      settingsPanel().fields.map((field) => field.name),
     )
-    expect(inEnglish.fields).toEqual(settingsPanel().fields)
   })
 
   it('keeps the editing route open for what a toggle hides', () => {

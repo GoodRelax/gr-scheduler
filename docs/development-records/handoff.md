@@ -35,18 +35,21 @@
 ## 0.5 **始点（前の巡の終わりに実測）**
 
 ```
-単体   153 ファイル / 6010 件 —— 6009 緑 / 1 skip / 赤 0
-e2e    tests/system  61 件全部緑・3.1 分（うち 23 件は 1 回の起動で回る掃引。1.5 分）
+単体   153 ファイル / 6523 件 —— 6522 緑 / 1 skip / 赤 0
+e2e    tests/system  67 件全部緑・3.5 分（うち 28 件は 1 回の起動で回る掃引）
+       ⭐ PINNED に D-232 が入っている（D-228 の裁定待ちなので expected-to-fail の錨）
 同型   npm run parity —— 50/50 一致・説明の無い食い違い 0・exit 0（44 清・6 は FR-098 の説明つき）
 検査   check.sh 32 本 ALL GREEN ／ gen:check 17 本 OK ／ typecheck ／ layers 清潔
        audit-ch5.py RESULT: PASS（⭐ CR-280 以来はじめて）
-台帳   230 行。残件 9
+台帳   239 行。残件 14
 ```
 
 **残件 10 の内訳 —— ⛔ コードを書く仕事は 0 である:**
 
 ```
-裁定待ち 5   §1.1。⛔ 利用者を待っている。これが唯一の詰まり
+裁定待ち 8   §1.1。⛔ 利用者を待っている。これが唯一の詰まり
+未検討   2   D-237（深さ 3 の一部で IC-91 が口を出すのに行ができない）
+             D-238（113 の設定のうち 6 つに名を定めた行が無い）
 実測待ち 4   §1.2。⚠️ 4 件とも「出荷ビルドから測れない」ことを実測済み
 ```
 
@@ -183,7 +186,8 @@ D-211   ⛔ IV-19 は文書の不変条件で、答えを画面へ出す要求�
 
 **固定の仕掛け:**
 ```
-tests/system/measured-sweep.test.ts       23 件。1 回の起動で 1.5 分
+tests/system/measured-sweep.test.ts       28 件。1 回の起動
+tests/system/first-frame-is-the-settled-frame.test.ts  最初の 1 枚だけを測る
 tests/system/rows-fixed-with-nothing-holding-them.test.ts  12 件。殻の規則を測る唯一の道
 tests/system/user-reported-fixes.test.ts  利用者が指摘し、直したものの錨
 tests/system/open-defect-pins.test.ts     ⭐ PINNED に D-230 が入った（この巡ではじめて）
@@ -285,8 +289,12 @@ tools/precheck.py          ⚠️ 生成物を直したあとは「直接編集�
   ⚠️ 表示語を足すのは docs/spec/_source/display-words.json
   ⚠️ プロパティ項目を足すのは docs/spec/_source/property-items.json
 
-⛔ 日本語の文書を書き換える Python を、シェルのヒアドキュメントに直接書くな
-   —— バックスラッシュと引用符が壊れる。スクラッチパッドへ書いてパスで走らせろ
+⛔⛔ 日本語の文書を書き換える Python を、シェルに直接書くな。⚠️ 前の巡は 1 日に 3 度噛まれた
+   ① ヒアドキュメント —— バックスラッシュと引用符が壊れ、コマンドが返らなくなった
+   ② 台帳のセルの縦棒 —— 行が 1 セル増え、metrics が 2 度落ちた
+   ③ python -c "..." の中のバッククォート —— bash がコマンド置換として実行し、
+      `FR-093` などの識別子が 4 つのセルから黙って消えた（文はそのまま残るので気づきにくい）
+   ⇒ ⭐ スクラッチパッドへファイルを書き、パスで走らせろ。⛔ 書いたあと必ず読み直して確かめろ
 ```
 
 ---

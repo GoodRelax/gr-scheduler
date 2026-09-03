@@ -256,6 +256,27 @@ const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowI
  */
 const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
 
+/**
+ * The row of table T-104 a settings key sits in, and the word that row shows.
+ *
+ * ⭐ THE SAME SPLIT AGAIN, ONE SURFACE LATER. The paragraph under table T-006a
+ * (MUST) holds this panel's SETTINGS side to the rule its properties side
+ * already keeps -- 「⛔⛔ 同じ面が文書の設定を出すときも、これに従うこと（MUST）。
+ * 内部の綴りや識別子をそのまま出してはならない（MUST NOT）」 -- and until that
+ * landed the surface printed all 113 keys as they are spelled inside (D-233).
+ *
+ * ⚠️ KEYED BY THE KEY, HELD BY THE ROW. The dictionary is keyed by `K-n`
+ * because that is where table T-104 settles a name, and one row may name
+ * several keys (`K-103` two, `K-105` three); this map is the flattening, and
+ * the keys it flattens travel from that table with the word rather than being
+ * written out here, which rule 03 section 1 forbids.
+ */
+const SETTINGS_WORDS_BY_KEY = new Map(
+  displayWords.settings.flatMap((entry) =>
+    entry.keys.map((key) => [key, entry] as const),
+  ),
+)
+
 /** What an entry says while the dictionary holds no word for its row (PD-160). */
 const NO_ENTRY_WORDS = ''
 
@@ -289,6 +310,44 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  */
 function itemName(row: string, language: DisplayLanguage): string {
   const word = ITEM_WORDS_BY_ROW.get(row)?.label[language]
+  if (word === undefined) return NO_ENTRY_WORDS
+  return word === '' ? NO_ENTRY_WORDS : word
+}
+
+/**
+ * The row of table T-104 one settings key belongs to, with its word.
+ *
+ * ⚠️ A KEY MAY BE PART OF A ROW RATHER THAN A ROW'S WHOLE NAME. That table
+ * spells `fontScaleSizes.S` / `.M` / `.L` out on `K-105` and stops at
+ * `exportCanvas` on `K-87` and at `planActualGuidePattern` on `K-92`, whose
+ * parts the document holds as `exportCanvas.width` and the rest -- so a key
+ * that names no row of its own belongs to the row its path stands under, and
+ * shows that row's word. ⛔ NOT A SECOND WORD MINTED FOR THE PART: one word per
+ * row is the same rule the properties side keeps, and `K-105` shows the table
+ * saying it out loud.
+ *
+ * @purity pure
+ */
+function settingsWordOf(key: string): (typeof displayWords.settings)[number] | undefined {
+  const own = SETTINGS_WORDS_BY_KEY.get(key)
+  if (own !== undefined) return own
+  const separator = key.lastIndexOf(KEY_PATH_SEPARATOR)
+  return separator === -1 ? undefined : SETTINGS_WORDS_BY_KEY.get(key.slice(0, separator))
+}
+
+/**
+ * The name one settings key shows, in the display language (FR-038).
+ *
+ * ⛔ THE KEY IS NOT THE FALLBACK, for the reason `itemName` gives one line up
+ * and the paragraph under table T-006a (MUST NOT) puts in as many words:
+ * 「内部の綴りや識別子をそのまま出してはならない」. A key whose row of table
+ * T-104 nobody has written -- or which that table has no row for at all -- shows
+ * no name, and `settingsFields` names the six that are in that state.
+ *
+ * @purity pure
+ */
+function settingsName(key: string, language: DisplayLanguage): string {
+  const word = settingsWordOf(key)?.label[language]
   if (word === undefined) return NO_ENTRY_WORDS
   return word === '' ? NO_ENTRY_WORDS : word
 }
@@ -526,6 +585,47 @@ function textOfValue(value: unknown): string {
   // `_source/settings.json`, which gives it a type but no spelling. Chose
   // nothing over a shape invented here.
   return ''
+}
+
+/**
+ * An identifier as the document holds one: the shape `_source/erd.json` gives
+ * every `format: uuid` column, and the shape the generated document schema
+ * gives `scrollGroupId` and the members of `pinnedGroupIds`.
+ *
+ * ⚠️ ASKED BY SHAPE AND NOT BY KEY NAME. A roster of the settings keys that
+ * hold an identifier would be a copy of the schema kept by hand, and it would
+ * be wrong the day another such key was added.
+ */
+const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+
+/**
+ * A settings value written out for the screen, with no identifier in it.
+ *
+ * ⛔ THE PARAGRAPH UNDER TABLE T-006a (MUST NOT) FORBIDS BOTH HALVES:
+ * 「内部の綴りや識別子をそのまま出してはならない」 -- the spelling of the key,
+ * which `settingsName` answers, and the identifier itself, which is this. The
+ * surface was printing `scrollGroupId`'s raw UUID (D-233, measured 2026-09-03).
+ *
+ * STOP -- ⛔ NO LINE SAYS WHAT STANDS IN ITS PLACE. Looked in table T-104 (which
+ * names `scrollGroupId` 「表示の上端が指す行」 and `pinnedGroupIds` 「ピン止めの
+ * 対象」, both names of the row and neither a rule for printing it), in FR-072,
+ * in FR-006, in table T-016 and in `_assets/tbl-settings.md`; none of them says
+ * whether the row a settings key points at may be shown by its NAME, and
+ * resolving one would be a rule invented here. Chose nothing, which is what
+ * this file prints everywhere a word is unsettled (PD-160) -- and it is the one
+ * choice the MUST NOT above certainly allows.
+ *
+ * @purity pure
+ */
+function textOfSettingsValue(value: unknown): string {
+  if (typeof value === 'string') return IDENTIFIER.test(value) ? '' : value
+  if (Array.isArray(value)) {
+    return value
+      .map(textOfSettingsValue)
+      .filter((said) => said !== '')
+      .join(PART_SEPARATOR)
+  }
+  return textOfValue(value)
 }
 
 /**
@@ -1377,20 +1477,26 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
 /**
  * The document's drawing settings, as IC-17 of table T-109 puts them here.
  *
- * STOP -- ⛔ NOT IN THE CODE: table T-104's row ids. `PropertyField.row` asks for
- * the `K-n` that holds a settings item, and nothing generates that table into
- * `src/` the way `_source/settings.json` and table T-109's icon roster are
- * generated. Looked in `_assets/tbl-glossary.md` (section 4 holds the rows), in
- * `_source/settings.json` (it carries no row id), in `_assets/tbl-settings.md`
- * (whose rows are the `S-n` of the value tables, not `K-n`) and in
- * `SETTINGS_DEFAULTS`. ⚠️ A map written out by hand would be wrong the day it
- * was written: the two rosters already disagree in both directions --
- * `carryMaxDepth` is a settings key with no row in table T-104, and
- * `watermarkOpacity` (K-101) and `importSeq` (K-86) are rows with no settings
- * key. Chose the settled key name, which table T-104 itself holds as the item's
- * name and which arrives from the generated roster: it is the only join to that
- * table this file can hold without copying it. ⚠️ `row` and `name` therefore
- * read alike on this side -- that is the gap showing, not a duplication.
+ * ⭐ TABLE T-104 NOW REACHES THIS FILE, and the note that stood here saying it
+ * did not is gone with it: `tools/generate_display_words.py` reads that table
+ * every run and carries each row's id, the keys it names and the word the
+ * screen shows into the dictionary, so `PropertyField.row` is the real `K-n`
+ * and `name` is the dictionary's word rather than the key spelled again.
+ *
+ * STOP -- ⛔ SIX KEYS HAVE NO ROW IN TABLE T-104, so no word of theirs is
+ * settled and this surface shows none: `carryMaxDepth`, `commentBoxPad`,
+ * `commentBoxWrapUnits`, `exportCanvasHeightCap`, `scrollDayOffset` and
+ * `scrollGroupOffset` (measured 2026-09-03: 113 keys against that table's 110
+ * rows). All six stand in `_source/settings.json` and are printed into
+ * `_assets/tbl-settings.md`, which holds VALUES and says in as many words that
+ * 「名前の正は `tbl-glossary.md` の表 T-104 が持つ」. ⛔ A name written here
+ * would settle six names the glossary has not settled, which is the very thing
+ * table T-109's refusal of an English column protects; the row is drawn with
+ * its value and no name, the same thing an unwritten dictionary cell says
+ * everywhere else in this file (PD-160). ⚠️ Eight rows go the other way and are
+ * never shown, having no settings key: `themeHue`, `zoomStep`, `zoomMin`,
+ * `zoomMax`, `importSeq`, `planActualGuideColor`, `watermarkOpacity`,
+ * `language`.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which settings this panel shows,
  * and in what order. IC-17 says the entry puts "the document's drawing settings"
@@ -1410,11 +1516,20 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
  *
  * @purity pure
  */
-function settingsFields(settings: DocumentSettings): readonly PropertyField[] {
+function settingsFields(
+  settings: DocumentSettings,
+  language: DisplayLanguage,
+): readonly PropertyField[] {
   return Object.keys(SETTINGS_DEFAULTS).map((key) => ({
-    row: key,
-    name: key,
-    text: textOfValue(valueAt(settings, key)),
+    // ⚠️ THE KEY IS THE FALLBACK FOR THE ROW AND NEVER FOR THE NAME. `row` is
+    // not printed -- it is what `data-field-row` carries -- so a key standing in
+    // for a row that does not exist tells a reader of the DOM which item this
+    // is, while the same key standing in for a NAME would be the internal
+    // spelling on the screen that the paragraph under table T-006a (MUST NOT)
+    // forbids.
+    row: settingsWordOf(key)?.rowId ?? key,
+    name: settingsName(key, language),
+    text: textOfSettingsValue(valueAt(settings, key)),
     isEditable: true,
     // STOP -- ⛔ NO CONTROL ON THIS SIDE THIS ROUND, and the reason is the row
     // ids the note above records as missing. `PropertyFieldKey` names WHAT a
@@ -1464,7 +1579,7 @@ export function propertiesPanelFromSelection(
       // The document is the subject on this side, and a document cannot go away
       // while a panel is describing it.
       isSubjectGone: false,
-      fields: settingsFields(settings),
+      fields: settingsFields(settings, session.language),
       // ⭐ THE SAME ENTRANCE ON BOTH ARMS. Table T-109 places its row on the
       // SURFACE, and FR-072's two contents are one surface -- a panel that lost
       // its way out when the settings came up would be a surface a reader
