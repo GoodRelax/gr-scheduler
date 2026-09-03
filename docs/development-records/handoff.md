@@ -36,18 +36,18 @@
 
 ```
 単体   153 ファイル / 6010 件 —— 6009 緑 / 1 skip / 赤 0
-e2e    tests/system  59 件全部緑（うち 23 件は 1 回の起動で回る掃引。1.5 分）
+e2e    tests/system  61 件全部緑・3.1 分（うち 23 件は 1 回の起動で回る掃引。1.5 分）
 同型   npm run parity —— 50/50 一致・説明の無い食い違い 0・exit 0（44 清・6 は FR-098 の説明つき）
 検査   check.sh 32 本 ALL GREEN ／ gen:check 17 本 OK ／ typecheck ／ layers 清潔
        audit-ch5.py RESULT: PASS（⭐ CR-280 以来はじめて）
-台帳   229 行。残件 10
+台帳   230 行。残件 9
 ```
 
 **残件 10 の内訳 —— ⛔ コードを書く仕事は 0 である:**
 
 ```
 裁定待ち 5   §1.1。⛔ 利用者を待っている。これが唯一の詰まり
-実測待ち 5   §1.2。⚠️ うち 4 件は「出荷ビルドから測れない」ことを実測済み
+実測待ち 4   §1.2。⚠️ 4 件とも「出荷ビルドから測れない」ことを実測済み
 ```
 
 ⭐⭐ **台帳の数は 5 つの束で読む**（`tools/ledger_metrics.py` が刷る）。
@@ -84,7 +84,6 @@ e2e    tests/system  59 件全部緑（うち 23 件は 1 回の起動で回る�
 ### 1.2 **`実測待ち` 5 件 —— ⚠️ 4 件は「押せない」ことが実測済みである**
 
 ```
-D-49    押せば閉じる。試験は 19 件入っている
 D-15    ⛔ FD-6 も IV-12 も画面に出ない。継ぎ目でしか見張れない
 D-124   ⛔ 起動時に文書を渡す道が無く、OP-14 に一度も到達しない
         ⇒ 表 T-034 の BT-2 を配線するしかない。それ自体が行の中身である
@@ -187,7 +186,8 @@ D-211   ⛔ IV-19 は文書の不変条件で、答えを画面へ出す要求�
 tests/system/measured-sweep.test.ts       23 件。1 回の起動で 1.5 分
 tests/system/rows-fixed-with-nothing-holding-them.test.ts  12 件。殻の規則を測る唯一の道
 tests/system/user-reported-fixes.test.ts  利用者が指摘し、直したものの錨
-tests/system/open-defect-pins.test.ts     ⚠️ PINNED は空。門番だけが残っている
+tests/system/open-defect-pins.test.ts     ⭐ PINNED に D-230 が入った（この巡ではじめて）
+                                          ⚠️ D-230 は同じ巡で閉じたので、刈り取りのとき外すこと
 tools/parity/check.mjs                    50 手。⭐ いま 50/50 一致（44 清・6 は説明つき）
 ```
 

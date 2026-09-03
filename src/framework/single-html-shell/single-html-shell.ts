@@ -844,8 +844,13 @@ function boot(): void {
       // FT-3 of table T-078 and nothing else: this records the number and
       // hands the deciding to the shell's own resize path, which is the one
       // place that judges whether the size CHANGED. ⛔ NFR-010 forbids waking a
-      // frame on anything the table does not name. ⚠️ `loop` is still null on
-      // the first call -- that one is BO-1's measurement, not a change.
+      // frame on anything the table does not name.
+      // ⚠️⚠️ `loop` IS NULL FOR THE FIRST TWO CALLS AND NOT ONLY THE FIRST, and
+      // the note that stood here said otherwise (D-230). The first is BO-1's
+      // own measurement, which no loop is waiting for; the SECOND is BO-5's
+      // frame filling the header from inside `frameLoop`'s factory, and that
+      // one IS a change. Neither is lost: the line after `loop = running` hands
+      // the settled measurements over the moment there is somewhere to put them.
       loop?.resize(nowEnvironment())
     },
   })
@@ -1024,6 +1029,36 @@ function boot(): void {
     appShellSource(),
   )
   loop = running
+
+  // ⛔⛔ BO-5's FRAME RAN BEFORE THIS BINDING EXISTED, AND WHAT IT MEASURED WAS
+  // THROWN AWAY (D-230). `frameLoop` runs table T-077's first frame inside its
+  // own factory, and that frame is what fills the `App Header` and draws the
+  // first row lattice -- so `onAppHeaderHeightPx` and `onRowControlsHeightPx`
+  // both fire while `loop` is still null, and the `loop?.resize` each of them
+  // ends with reaches nobody.
+  // ⚠️ MEASURED ON THE SHIPPED BUILD AT 1920x1080, TEN COLD BROWSER PROCESSES:
+  // BO-1 measured the header before anything was in it and got 13px, the drawn
+  // header is 37px, and the corrected number reached the loop only when some
+  // later happening read `nowEnvironment()` again -- 44ms to 1614ms afterwards,
+  // with the whole `Row Title Tree` standing 24px too high until then and a
+  // ninth row's 9px sliver inside the drawing area.
+  // ⛔ FR-051 (MUST) IS WHY IT CANNOT BE MEASURED EARLIER: the height is the
+  // environment's own, and an `App Header` with nothing in it is not the header
+  // -- its parts carry their own boxes (measured: at a 12px text size the drawn
+  // header is 24px of content where one line is 18px). So the first frame is
+  // what settles BO-1's second measurement, and this is where its answer is
+  // handed on.
+  // ⛔⛔ AND NOT `resize`, WHICH WOULD ASK FOR THE FRAME INSTEAD OF RUNNING IT.
+  // Measured, not reasoned about: handing these numbers to `resize` moved
+  // nothing at all -- the frame it asks for is a `requestAnimationFrame`
+  // callback, the environment ran it 44ms to 1614ms after this line in ten cold
+  // browser processes, and the page held the picture drawn against the
+  // unsettled header for the whole of that. `settleFirstFrameEnvironment` runs
+  // it here, inside `boot`'s own task, so no other party ever sees it.
+  // ⛔ NFR-010 IS NOT WIDENED. The member compares the five measurements
+  // against the ones in force and runs nothing when none moved, so a startup
+  // where the header measured the same twice costs one comparison.
+  loop.settleFirstFrameEnvironment(nowEnvironment())
 
   // FR-076 (MUST): what BO-2 decided and could not tell, told now that there is
   // somewhere to put it.

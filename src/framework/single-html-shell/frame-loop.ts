@@ -401,6 +401,25 @@ export interface FrameLoop {
   /** FT-3: the window changed size. */
   resize(env: FrameEnvironment): void
   /**
+   * BO-1's measurements as BO-5's OWN FRAME settled them, and the one road that
+   * runs the frame they change without asking for one (D-230).
+   *
+   * ⛔ NOT FT-3, WHICH IS WHY IT IS NOT `resize`. Table T-078's FT-3 is 「画面の
+   * 寸法が変わったこと」 -- something that HAPPENS to a screen already up -- and
+   * this is table T-077 still running: the `App Header`'s height (FR-051, MUST)
+   * cannot be measured until the header has been DRAWN, so the first frame is
+   * what settles it and the caller has one number before that frame and another
+   * after it. ⚠️ Measured on the shipped build: 13px before, 37px after.
+   * ⛔ THE FRAME IS RUN IN THE CALLER'S OWN TASK AND NOT ASKED FOR, which is the
+   * whole difference from `resize`. BO-1 (NFR-011, MUST) forbids a frame before
+   * the dimensions have settled, and a frame ASKED for lands in a later task --
+   * measured 44ms to 1614ms later -- with the picture drawn against the
+   * unsettled numbers standing in the page until it does.
+   * ⭐ Answers with nothing and changes nothing when no measurement moved, so a
+   * caller that hands over what is already in force costs one comparison.
+   */
+  settleFirstFrameEnvironment(env: FrameEnvironment): void
+  /**
    * MK-10's answer for one happening: `TranslatedInput.isBrowserDefaultStopped`
    * and nothing else.
    *
@@ -4586,6 +4605,28 @@ export function frameLoop(
     return env.width > 0 && env.height > 0
   }
 
+  /**
+   * Whether two sets of BO-1's measurements say the same thing.
+   *
+   * ⭐ ONE PLACE FOR THE COMPARISON, because two roads make it: FT-3's `resize`
+   * and BO-1's own `settleFirstFrameEnvironment`. ⛔ A second copy would part
+   * company from this one the first time a measurement was added, and the road
+   * that kept the old list would wake no frame for it.
+   * ⚠️ THE ROW-CONTROL FLOOR COUNTS AS A SIZE. LF-3 of table T-221 moves every
+   * row's band, so a frame that kept the old one draws a different picture.
+   *
+   * @purity pure
+   */
+  function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
+    return (
+      one.width === other.width &&
+      one.height === other.height &&
+      one.appHeaderHeight === other.appHeaderHeight &&
+      one.scrollbarThickness === other.scrollbarThickness &&
+      one.rowControlsHeightPx === other.rowControlsHeightPx
+    )
+  }
+
   // ---- FR-076: what is raised to be told ----------------------------------
 
   /**
@@ -8089,17 +8130,7 @@ export function frameLoop(
       // size already in force did not change it, and NFR-010 forbids waking a
       // frame on anything table T-078 does not list (MUST NOT). ⚠️ A browser
       // fires resize for things that leave the window alone.
-      const same =
-        next.width === environment.width &&
-        next.height === environment.height &&
-        next.appHeaderHeight === environment.appHeaderHeight &&
-        next.scrollbarThickness === environment.scrollbarThickness &&
-        // ⭐ COUNTED AS A SIZE CHANGE, which is what it is: LF-3's floor moves
-        // every row's band, so a frame that kept the old one would draw the
-        // picture the ruling of 2026-09-03 refuses. The measurement reaches this
-        // member only when the surface said it MOVED (FT-3).
-        next.rowControlsHeightPx === environment.rowControlsHeightPx
-      if (same) return
+      if (isSameEnvironment(next, environment)) return
       const wasSettled = settled(environment)
       environment = next
       if (!settled(next)) return
@@ -8107,6 +8138,20 @@ export function frameLoop(
       // once, and until now it had not.
       if (!wasSettled) runFrame()
       else ask()
+    },
+    /** @purity non-pure */
+    settleFirstFrameEnvironment(next: FrameEnvironment): void {
+      if (isSameEnvironment(next, environment)) return
+      environment = next
+      // ⛔ BO-1 IS STILL UNSETTLED IF THE SIZE IS, and NFR-011 (MUST) forbids
+      // the frame -- the same refusal `resize` makes one line above, and for
+      // the same reason: a host that hands over a 0 x 0 window has settled
+      // nothing to draw against.
+      if (!settled(next)) return
+      // ⛔ RUN AND NOT ASKED FOR. See this member's declaration: a frame asked
+      // for lands in a later task, and until it does the page holds a picture
+      // drawn against measurements table T-077 had not settled.
+      runFrame()
     },
     // ⚠️ Both read a value this loop holds and is free to replace, so neither is
     // deterministic: two calls a frame apart answer differently.

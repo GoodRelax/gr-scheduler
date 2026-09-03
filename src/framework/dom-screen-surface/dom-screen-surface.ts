@@ -56,8 +56,20 @@
 //      box is fixed by `line-height` and a padding written in `em`, so what it
 //      measures to is whatever the machine's text size makes it -- which is
 //      exactly the quantity FR-051 refuses to let a settings number stand in
-//      for. ⛔ Its content cannot change it (`overflow:hidden` and a header that
-//      does not wrap), so the number settled at BO-1 stays true.
+//      for. ⛔ How LONG the content is cannot change it (`overflow:hidden` and a
+//      header that does not wrap).
+//   2a. ⛔⛔ WHETHER THERE IS ANY CONTENT AT ALL DOES CHANGE IT, and the line
+//      that stood here said the number settled at BO-1 stays true (D-230). An
+//      empty flex box lays out no line at all, and the parts drawn into the
+//      header carry boxes of their own that can be taller than one line -- so
+//      the measurement taken before the first description is the height of an
+//      EMPTY header and not of the `App Header`. ⚠️ Measured on the shipped
+//      build: 13px empty against 37px drawn at a 16px text size, and 10px
+//      against 34px at 12px, where one line is 18px. ⭐ The redraw below
+//      re-measures and reports, which is what settles it -- BO-5's own frame is
+//      the first caller of that path, so the caller has the true number before
+//      the environment paints anything (see the note after `loop = running` in
+//      the shell).
 //   3. A LATER CHANGE IS REPORTED THE SAME WAY. `onAppHeaderHeightPx` is called
 //      again only when a redraw of the header measured a DIFFERENT height. That
 //      is FT-3 of table T-078 -- 「画面の寸法が変わったこと」 -- and the caller

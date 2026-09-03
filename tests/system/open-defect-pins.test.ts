@@ -114,16 +114,33 @@ interface Pin {
 }
 
 /**
- * ⛔ EMPTY, AND THAT IS THE POINT OF THE LAST CASE IN THIS FILE. Every row this
- * file once pinned has been fixed, so nothing here is expected to fail any more
- * -- and the ledger check below is what says so out loud rather than leaving an
- * empty list to read as 「nobody wrote the pins」.
+ * ⛔ NO ROW HERE IS PINNED BY A `test.fail()` CASE OF THIS FILE ANY MORE. Every
+ * row this file once held that way has been fixed. What the list still is, and
+ * what the last case in this file makes of it, is the gate: a row named here
+ * must still be an OPEN row of `docs/development-records/defects.md`, so a
+ * System case written for it cannot outlive the row it was written for.
+ *
+ * ⚠️ D-230's CASE IS NOT IN THIS FILE. It is
+ * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
+ * file of its own: the fault it watches shows only on the first page of a
+ * browser process, so the case must own the launch. It is a plain assertion and
+ * not `test.fail()` -- it is red while the row is open, which is the correct
+ * report -- so this gate is the only thing that notices the day the row leaves
+ * the ledger.
  */
-const PINNED: readonly Pin[] = []
+const PINNED: readonly Pin[] = [
+  {
+    ledger: 'D-230',
+    wrong:
+      'the first frame is drawn with the App Header measured as 0 high, so the whole tree ' +
+      'stands 24px too high and a ninth row leaks into the drawing area -- table T-077 row ' +
+      'BO-1 (MUST NOT) draws nothing until the screen size is settled',
+  },
+]
 
 // ⛔ THE ANNOUNCER WENT WITH THE LAST PIN (2026-09-02). It printed 「this suite
 // is green because a defect is open」 on the run's own output for every
-// `test.fail()` case; with `PINNED` empty there is no such case to announce,
+// `test.fail()` case; there is no such case in this file to announce any more,
 // and a function nothing calls is one the compiler refuses. ⭐ What it did is
 // written out here rather than kept as dead code: the next pin brings it back
 // with the case it belongs to.
@@ -885,7 +902,7 @@ test('every defect pinned in this file is still an open row of the ledger', () =
   for (const pin of PINNED) {
     expect(
       ledger.includes(`| ${pin.ledger} |`),
-      `${pin.ledger} is pinned by a case in this file but is no longer a row of ` +
+      `${pin.ledger} is pinned by a System case but is no longer a row of ` +
         'docs/development-records/defects.md -- if it was fixed, take the pin out',
     ).toBe(true)
   }
