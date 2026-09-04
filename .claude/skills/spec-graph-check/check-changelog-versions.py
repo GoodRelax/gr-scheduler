@@ -11,11 +11,19 @@ stray row (1.33 -> 1.79, with the following row becoming 1.80), so the count
 this check enforces is not a baseline of known debt -- it is the true state,
 held at zero going forward.
 
-WHAT THIS DOES NOT CHECK. D-246 also found the table's last stretch of rows
-running in descending order after a long ascending run. That is a separate
-claim -- a version can be unique and still be out of order -- and is left for
-its own check. This one only asks whether every version number in the table
-is distinct.
+AND THE OTHER HALF. D-246 also found a stretch of rows running in descending
+order after a long ascending run. Measured 2026-09-05: 21 steps went
+backwards, from 1.78 down to 1.32, before climbing again. The rows were
+sorted by version that day -- moved, never edited, with the multiset of lines
+asserted identical before and after -- so this check holds both properties at
+zero: every version appears once, and each one is greater than the one above
+it.
+
+WHAT THIS DOES NOT CHECK: the DATE column. After the sort one pair remains
+out of order by date -- 1.53 is dated 2026-08-30 and 1.54 is dated
+2026-08-29 -- which is a fact about those two rows, not about the ordering.
+Guarding it would mean deciding which of the two dates is wrong, and nobody
+has.
 
     python .claude/skills/spec-graph-check/check-changelog-versions.py
 
@@ -39,6 +47,11 @@ ANY_HEADING = re.compile(r'^## ')
 # start of the line only, so later cells (free text, often containing bold
 # markers and Japanese prose) can never be mistaken for a version number.
 ROW = re.compile(r'^\|\s*([0-9]+(?:\.[0-9]+)+)\s*\|')
+
+
+def ordinal(version):
+    """A version as a tuple, so 1.9 sorts below 1.10 rather than above it."""
+    return tuple(int(part) for part in version.split('.'))
 
 
 def versions_in_changelog(path):
@@ -82,8 +95,20 @@ def main():
                   'names' % (v, counts[v], REL))
         return 1
 
+    backwards = [
+        (versions[i - 1], versions[i])
+        for i in range(1, len(versions))
+        if ordinal(versions[i]) < ordinal(versions[i - 1])
+    ]
+    if backwards:
+        for before, after in backwards:
+            print('FAIL     version %s stands below %s in the %s revision '
+                  'history -- each row must name a version greater than the '
+                  'row above it' % (after, before, REL))
+        return 1
+
     print('OK       %s: %d revision row(s), %d distinct version number(s), '
-          'no duplicates' % (REL, len(versions), len(counts)))
+          'no duplicates, none out of order' % (REL, len(versions), len(counts)))
     return 0
 
 
