@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# All 34 mechanical checks for the gr-scheduler specification.
+# All 35 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
-# when check 38 was added and the number was recounted -- it had been wrong
-# for several additions before that. To recount:
+# when checks 37 and 38 were added and the number was recounted -- it had
+# been wrong for several additions before that. To recount:
 #
 #   grep -o '^echo "=====[^"]*' check.sh
 #
@@ -119,6 +119,18 @@
 #          this holds the count at zero rather than a baseline of known debt.
 #          Ordering (D-246 also found a descending stretch after an ascending
 #          one) is a separate claim and not checked here
+#   37     check-dictionary-table-covariance.py : the 12 groups of
+#          display-words.json keyed by a table row id (every one but
+#          `reasons`, table T-233, which tests/contract/
+#          t-233-reason-words-tell-the-row.contract.test.ts already guards)
+#          are fingerprinted against that row's cells, the same latch as that
+#          precedent widened to a whole row instead of one named column.
+#          D-145: nothing but T-233 had this, so a table cell could be
+#          rewritten out from under its display word -- the exact shape of
+#          D-166 -- on any of the other 323 pairings and every check here
+#          would stay green. Held against dictionary-table-pairing.txt, a
+#          fingerprint snapshot and not a debt count: FAIL means either side
+#          moved and nobody re-read the pair, not that a number rose
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -304,6 +316,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || fa
 echo ""
 echo "===== 31  a row that still reads blocked while the row says it is settled ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || fail=1
+
+echo ""
+echo "===== 37  a table's row and its display word were read together ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-dictionary-table-covariance.py || fail=1
 
 echo ""
 echo "===== 38  revision history version numbers are unique ====="
