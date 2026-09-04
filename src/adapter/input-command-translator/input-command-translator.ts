@@ -5905,9 +5905,48 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
 }
 
 /**
+ * The fold the PERSON put on the row this press was made on, taken off -- and
+ * nothing else's.
+ *
+ * ⛔⛔ HF-14 (MUST, 利用者の裁定 2026-09-04): 「立てた行が、人が畳んだ親の下に入る
+ * ときは、その親を開くこと」, ⛔ 「開いてよいのは押した親 1 つだけである。その先祖
+ * まで開いてはならない（MUST NOT）」. ⭐ It is the same promise as the tier above
+ * it -- 「立てた行は見える」 -- read against the other thing that hides a row.
+ * ⚠️ 「`HF-7` の畳みは人が自分でしたことなので、製品が動かすのはこの 1 つの場合に
+ * 限る」: nothing else in this file may take a fold off unasked.
+ *
+ * ⭐ ONE ROW AND NOT A WALK UP THE TREE, which is the MUST NOT read literally.
+ * ⚠️ An ancestor cannot be folded anyway while this press is possible -- LC-1
+ * drops every descendant of a folded row, so a row whose ancestor is folded is
+ * not drawn and carries no IC-91 to press. The MUST NOT is honoured by asking
+ * about `parentGroupId` alone rather than by relying on that.
+ *
+ * ⭐ HF-17's press (段 0) has no parent at all and the row says so: 「`HF-17`
+ * （段 0 へ足す）には親が無いので当たらない」 -- `null` answers nothing here.
+ *
+ * ⚠️ ONLY THE FOLD (AT-56). HR-6's hiding (AT-57) is not this row's subject,
+ * and a hidden parent is not drawn, so no press reaches one.
+ *
+ * @purity pure
+ */
+function parentFoldTakenOff(
+  schedule: Schedule,
+  parentGroupId: string | null,
+): readonly DocumentCommand[] {
+  if (parentGroupId === null) return []
+  const parent = schedule.taskGroups.find((one) => one.id === parentGroupId)
+  if (parent?.isCollapsed !== true) return []
+  // CM-33. ⚠️ Written only when it changes something: an unfolded parent would
+  // cost an undo step for a write that moves nothing (the reason
+  // `foldsRowAndBelow` leaves the rows already folded out of its bundle).
+  return [{ kind: 'setTaskGroupCollapsed', groupId: parentGroupId, collapsed: false }]
+}
+
+/**
  * HF-14's press, whole: the row is stood up with the default name, FR-018's
- * tier is opened far enough to draw it, and the row is carried out so that the
- * `Properties Panel` can be turned to it.
+ * tier is opened far enough to draw it, the fold the person put on the parent
+ * is taken off, and the row is carried out so that the `Properties Panel` can
+ * be turned to it.
  *
  * ⭐ ONE MEMBER FOR IC-91 AND IC-93, which HF-17 asks for by name: 「名前の扱いは
  * `HF-14` に従う」. The two differ only in the parent (`null` is 段 0) and in the
@@ -5935,6 +5974,11 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
  * what FR-031 orders CM-71 before CM-72 to avoid. Zoom first, row second: the
  * step already holds the new zoom, so undo takes the row away and leaves the
  * tier where the press opened it.
+ * ⭐ THE FOLD RIDES WITH THE ROW AND NOT WITH THE ZOOM, which is the same rule
+ * read the other way: CM-33 is undoable (no row of table T-027 excludes it), so
+ * a bundle of its own would earn a SECOND step and one undo would take the row
+ * away and leave the parent open. In CM-26's bundle the two are one step, and
+ * one undo gives back both the row and the fold the person had put there.
  *
  * @purity pure
  */
@@ -5958,6 +6002,7 @@ function rowStoodUp(
           ]
         : [],
       [
+        ...parentFoldTakenOff(context.document.schedule, parentGroupId),
         {
           // CM-26. ⭐ `derivedFromTaskUid` is null because this row is nobody's
           // derivation: FR-058 lends a `Task`'s name to a row that has none of
