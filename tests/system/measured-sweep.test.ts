@@ -927,6 +927,13 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       const box = drawn.getBoundingClientRect()
       const said = (drawn.textContent ?? '').trim()
       if (said === '') continue
+      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Row Area,
+      // so none of them PAINTS on the band -- but a clipped element still
+      // reports its unclipped box, and this walk picks labels by geometry
+      // alone. Measured 2026-09-05: without this, the band read
+      // ['user 2026-09-05T...','2026','2027','2028'] and the month tier was
+      // never found. `data-role="Watermark"` is what the attribute is for.
+      if (drawn.closest('[data-role="Watermark"]') !== null) continue
       // ⚠️ THE MIDDLE, NOT THE EDGES. A word's box is taller than the tier it
       // stands in -- measured 2026-09-03, a 16px tier carries a 21px box that
       // starts 2px above the tier's own line and ends 3px below it -- so a
@@ -1789,6 +1796,8 @@ test('D-92: the ruler band keeps its height across stages and splits it evenly',
         const box = label.getBoundingClientRect()
         const said = (label.textContent ?? '').trim()
         if (said === '') continue
+        // ⛔ NOT THE WATERMARK -- see the same guard on the walk above.
+        if (label.closest('[data-role="Watermark"]') !== null) continue
         if (box.bottom <= firstRowTop && box.bottom > band.top - 8) {
           const top = Math.round(box.top * 100) / 100
           held.set(top, [...(held.get(top) ?? []), said])
@@ -3087,10 +3096,44 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  *
  * @purity pure
  */
+/**
+ * The picture with FR-020's watermark layer cut out.
+ *
+ * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks row
+ * names by coordinate alone. The watermark is a grid of <text> marks laid
+ * over the Row Area, so each of them looks like a row name standing at some
+ * x and y. Measured 2026-09-05: four of them landed among the eleven row
+ * names and the picture stopped agreeing with the screen.
+ *
+ * ⛔ The layer nests one <g> of its own (the rotation), so the closing tag
+ * is counted rather than searched for.
+ */
+function withoutTheWatermark(picture: string): string {
+  const at = picture.indexOf('<g data-role="Watermark"')
+  if (at === -1) return picture
+  let depth = 0
+  let scan = at
+  while (scan < picture.length) {
+    const opens = picture.indexOf('<g', scan)
+    const closes = picture.indexOf('</g>', scan)
+    if (closes === -1) break
+    if (opens !== -1 && opens < closes) {
+      depth += 1
+      scan = opens + 2
+      continue
+    }
+    depth -= 1
+    scan = closes + 4
+    if (depth === 0) return picture.slice(0, at) + picture.slice(scan)
+  }
+  return picture.slice(0, at)
+}
+
 function panelLinesInPicture(picture: string, right: number, below: number): PanelLine[] {
   const found: PanelLine[] = []
+  const scanned = withoutTheWatermark(picture)
   const marks = /<text\b([^>]*)>([^<]*)<\/text>/g
-  let one = marks.exec(picture)
+  let one = marks.exec(scanned)
   while (one !== null) {
     const attributes = one[1] ?? ''
     const across = Number(/\bx="(-?\d+(?:\.\d+)?)"/.exec(attributes)?.[1] ?? '')
@@ -3099,7 +3142,7 @@ function panelLinesInPicture(picture: string, right: number, below: number): Pan
     if (Number.isFinite(across) && Number.isFinite(down) && across < right && down > below && said !== '') {
       found.push({ name: said, at: across, down })
     }
-    one = marks.exec(picture)
+    one = marks.exec(scanned)
   }
   return found.sort((first, second) => first.down - second.down)
 }

@@ -1909,12 +1909,19 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
  *
  * STOP -- ⛔ ONLY `S-99` HAS A PRODUCER IN THIS BUILD. The other three are
  * named so the set is visible and so the next owner has one place to add to,
- * and nothing reads or writes them: S-99a is the watermark's opened-by name
- * (`single-html-shell.ts` records that nothing holds it), S-99b is the record
- * that turns the `Agent API` on PER DOCUMENT, and S-99c is the unlock
- * password's digest, which nothing asks a person for --
- * `input-command-translator.ts` records that table T-037 has no row for asking.
+ * and nothing WRITES them: S-99b is the record that turns the `Agent API` on
+ * PER DOCUMENT, and S-99c is the unlock password's digest, which nothing asks
+ * a person for -- `input-command-translator.ts` records that table T-037 has
+ * no row for asking.
  * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
+ * ⭐ S-99a IS READ SINCE D-195 WAS CLOSED, and is still not written: FR-020's
+ * watermark lays the name over the Row Area every frame, so `watermarkOpenedBy`
+ * below asks the store for it and falls back to the row's own default. ⛔ THE
+ * PRODUCER IS STILL MISSING and is FR-086's, not this loop's -- that
+ * requirement (MUST) has a person enter the name and (MUST NOT) lets the
+ * schedule be drawn before they have. ⚠️ So every reader is drawn under the
+ * SAME name until it lands, which is a weaker trail than GL-007 asks for and
+ * is recorded here rather than papered over.
  * ⛔ S-99b IS NOT WAITING ON A PRODUCER, WHICH IS WHY IT IS STILL HERE. IC-20
  * now turns the `Agent API` on and `ScreenSession.isAgentApiEnabled` carries it
  * -- what is missing is the KEY's other half, 「文書の識別子」, which S-99b names
@@ -3078,6 +3085,13 @@ function readToday(): string {
  * they are cut rather than the text being assembled by hand -- nothing here can
  * then disagree with the spelling the document model already uses.
  *
+ * ⭐ FR-020's STAMP IS READ FROM HERE TOO, AND THE NAME IS THE ONLY THING THAT
+ * DOES NOT FIT. That requirement (MUST) asks for exactly this spelling --
+ * 「`ISO 8601`（`RFC 3339` の書式。`YYYY-MM-DDThh:mm:ssZ`）で秒まで」 -- and
+ * a second speller would be a second answer for one moment. ⛔ MSPDI's own
+ * dates are NOT this: FR-020 (MUST NOT) forbids confusing them, and they are
+ * zoneless local time settled elsewhere.
+ *
  * @purity semi-pure-b
  */
 function readInstantOfWrite(): string {
@@ -3351,6 +3365,57 @@ export function frameLoop(
   // session's state. `screenStateFromInput` (PI-18) is what moves it, and FT-1
   // now reaches it.
   let screenState: ScreenState = emptyScreenState()
+  /**
+   * FR-020's trail, settled ONCE for this run and handed to every picture.
+   *
+   * ⭐ ONCE, AND THE ROW THAT SAYS SO IS WY-2 OF TABLE T-041: the layer is set
+   * aside from that comparison because its two halves change 「実行のたび・機
+   * ごとに」 -- per RUN and per machine, which is what 「実行時の日時」 means.
+   * ⛔ NOT PER FRAME. A clock read inside the loop would move the drawing every
+   * second, which makes every frame owe a repaint and puts a different string
+   * into FR-102's record for two frames that drew the same schedule.
+   *
+   * ⭐ THE NAME FALLS BACK THE WAY THE DIGEST DOES. An empty stored value and
+   * no stored value are one answer -- FR-086 (MUST NOT) forbids a road that
+   * leaves the name empty, so an empty one is a store that holds nothing --
+   * and the fallback is table T-206's own default for the row. ⛔ The word is
+   * not typed here: `NOT_STORED_WATERMARK_NAME` carries it.
+   */
+  const watermarkStampedAt = readInstantOfWrite()
+  const watermarkStoredName = readBrowserStored('S-99a')
+  const watermarkOpenedBy =
+    watermarkStoredName === null || watermarkStoredName === ''
+      ? NOT_STORED_WATERMARK_NAME['S-99a']
+      : watermarkStoredName
+  /**
+   * FR-020's layer for the picture being drawn now, or `null` where S-144 of
+   * table T-206 has been turned off.
+   *
+   * ⭐ ONE PLACE FOR BOTH PICTURES, which is FR-020's 「画面から透かしを消した
+   * ときは、書き出す絵からも消すこと（MUST）」 kept where it cannot be kept
+   * twice. ⚠️ `screenState` IS READ AT THE CALL and not captured: the export
+   * road builds a fresh `ScreenState` for its own reasons (EP-11 closes the
+   * palette), and S-144 is the one row of this session that must NOT be reset
+   * for it.
+   * ⚠️ WHICH IS WHY IT IS `semi-pure-b` AND NOT `-a`: the two halves of the
+   * mark are settled once and never move, but S-144 is the session's and does.
+   *
+   * ⛔ `Watermark` IS WRITTEN OUT RATHER THAN IMPORTED, which is the same move
+   * `'screen'` and the `Dual Cursor`'s following side already make at the call
+   * below -- and for a reason of the specification's rather than of taste:
+   * table T-064 calls itself the full count of the names callable from outside
+   * a component, and it does not name this one. Importing it would put a name
+   * across a folder boundary that no row publishes. ⚠️ The compiler still holds
+   * the two together -- the object is checked against the parameter where it is
+   * handed over, so a shape that drifted would be an error at that line.
+   *
+   * @purity semi-pure-b
+   */
+  function watermarkNow(): { readonly openedBy: string; readonly stampedAt: string } | null {
+    return screenState.watermarkVisible
+      ? { openedBy: watermarkOpenedBy, stampedAt: watermarkStampedAt }
+      : null
+  }
   let values: FrameValues | null = null
   let owed = false
   // CS-2 of table T-066 -- the press a gesture began with, kept until the
@@ -4303,6 +4368,11 @@ export function frameLoop(
         // ⛔ NOT HANDED TO THE EXPORT CALL BELOW, which is EP-12 of table
         // T-076 -- an export carries no sign of what a person is doing.
         marqueeRect(pressed, pointerAt),
+        // FR-020 (MUST) -- the opener's name and the run's UTC stamp, laid
+        // over the `Row Area`. ⭐ THE SAME CALL THE EXPORT MAKES, which is
+        // that requirement's 「画面から透かしを消したときは、書き出す絵からも
+        // 消すこと」 kept in one place rather than two.
+        watermarkNow(),
       )
     surface.showSvg(drawnSvg)
     recordFrame(drawnSvg, layout)
@@ -5044,6 +5114,20 @@ export function frameLoop(
         // whichever the person exporting was reading.
         null,
         rulerWeekdayWords(language),
+        // ⛔ NO POINTER, NO HOVER AND NO MARQUEE, spelled out because the
+        // watermark stands behind them and the list is positional: EP-12 of
+        // table T-076 keeps 操作の状態 out of a picture, and CU-3's guide
+        // cursor follows a pointer an export does not have.
+        null,
+        null,
+        null,
+        // ⭐ EP-7 OF TABLE T-076: 「`Row Area` の中だけ描く」 -- the export
+        // carries the layer, and carries it from the same reading of S-144 the
+        // screen was drawn from. ⛔ NOT `stateForExport`: that one is built
+        // fresh so EP-11 can close the palette, and a fresh `ScreenState`
+        // answers S-144's default -- which would put the watermark back into a
+        // picture the person had taken it off the screen of.
+        watermarkNow(),
       ),
       regions,
       screenView: screenViewFromRegions(
@@ -8291,6 +8375,32 @@ export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   readonly 'S-207': number
 } = {
   'S-207': 2000,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the store is its
+ * own to read: table T-206 keeps this row in `localStorage`, LM-14
+ * admits a host that refuses that store, and no caller holds a name to
+ * be handed in on its behalf. ⛔ It is not a document setting and must
+ * not become one -- FR-020 (MUST NOT) keeps the watermark out of the
+ * document, and table T-206 is where that is recorded.
+ *
+ * ⭐ IT IS THE FALLBACK AND NOT THE NAME. FR-086 (MUST) has a person
+ * enter one and starts them from this default; while nothing asks, the
+ * start is the whole of what is held.
+ */
+export const NOT_STORED_WATERMARK_NAME: {
+  /** S-99a */
+  readonly 'S-99a': 'user'
+} = {
+  'S-99a': 'user',
 }
 
 /**

@@ -303,6 +303,14 @@ test(
             const parts: string[] = []
             for (const child of Array.from(element.childNodes)) {
               if (child.nodeType === Node.ELEMENT_NODE) {
+                // ⭐⭐ WY-2 COMPARES THE DRAWING WITHOUT THE WATERMARK. Its own
+                // wording is 「透かしの層を除いた描画が正規化後に同じ SVG /
+                // PNG になること」, and its remark says the layer carries the
+                // name and the instant of the run, so it changes every run and
+                // every machine by design. Measured 2026-09-05: without this,
+                // two page loads a second apart differ at the stamp and SWS-7
+                // can never pass once FR-020 draws anything.
+                if ((child as Element).getAttribute('data-role') === 'Watermark') continue
                 parts.push(written(child as Element))
                 continue
               }
@@ -319,7 +327,12 @@ test(
         const idsOf = (markup: string): string[] =>
           Array.from(
             new DOMParser().parseFromString(markup, 'image/svg+xml').querySelectorAll('[id]'),
-          ).map((one) => one.id)
+          )
+            // ⭐⭐ The same exclusion as above: NS-4 asks that ids be constant,
+            // and the watermark's clip id is derived from the Row Area, which
+            // WY-2 has already set the whole layer aside from.
+            .filter((one) => one.closest('[data-role="Watermark"]') === null)
+            .map((one) => one.id)
 
         const one = shapeOf(pair.first)
         const two = shapeOf(pair.second)

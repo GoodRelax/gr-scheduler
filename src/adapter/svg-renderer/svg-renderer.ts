@@ -23,29 +23,29 @@
 // and everything in them are absent from it. ⛔ Until this round nothing drew
 // a band at all -- `layout.rows` reached no renderer.
 //
-// ⛔⛔ STOP -- EP-7 `Watermark` IS NOT DRAWN HERE, AND THIS IS WHERE IT WOULD
-// BE (D-195). FR-020 (MUST) lays the opener's name and an ISO-8601 UTC stamp
+// ⭐⭐ EP-7 `Watermark` IS DRAWN HERE, AND THE STOP THAT STOOD HERE IS SPENT
+// (D-195). FR-020 (MUST) lays the opener's name and an ISO-8601 UTC stamp
 // diagonally, repeatedly and faintly over the `Row Area` (U-50) and (MUST NOT)
-// outside it; EP-7 of table T-076 puts the same layer in the export. Measured
-// on the shipped build of 2026-09-03: 0 `data-role="Watermark"`, 0 `rotate`,
-// 0 ISO stamps, on the screen and in an exported `.svg`.
+// outside it; EP-7 of table T-076 puts the same layer in the export, and
+// `watermarkSvg` below is the one place either picture gets one.
 //
-// ⛔ WHAT IS MISSING, AND WHERE IT WAS LOOKED FOR. Four values FR-020's
-// drawing cannot be made without, and no row of the specification holds any of
-// them: the ANGLE of 「斜めに」, the SIZE of the text, the SPACING of
-// 「繰り返し」, and the COLOUR of the ink. Searched table T-207 (its only rows
-// are S-100, S-101, S-102), table T-206 (S-99a the reader's name, S-144
-// whether it shows), table T-236 (25 colours, none the watermark's), FR-020
-// itself, EP-7 of table T-076, WY-2 of table T-041, `_source/settings.json`,
-// and the previous project's PoC and UI documents (neither draws one).
-// ⚠️ A FIFTH IS STATED BUT DOES NOT ARRIVE: S-102 `watermarkOpacity` is 0.08,
-// and `tools/generate_entity_types.py` gives table T-207 one target only
-// (`WATERMARK_UNLOCK_DIGEST`, S-101) -- so the opacity has no generated path
-// into `src/`, and rule 03 (「値は写さずに生成する」) forbids typing
-// it in. ⛔ Nothing is invented in their place, and nothing half-drawn is left
-// behind: the three inputs the layer would need (the name from S-99a, the
-// clock, and S-144) are not parameters of `svgFromSchedule` either, and adding
-// them before the values exist would be a signature with no drawing under it.
+// ⭐ THE FIVE VALUES ARRIVE GENERATED, WHICH IS WHAT THE STOP WAS WAITING FOR.
+// FR-020 (MUST) names them and (MUST NOT) lets them be typed into `src/`:
+// the angle (S-220), the size (S-221) and the spacing (S-222) reach this unit
+// in `WATERMARK_MARKS` at the foot of this file, the opacity (S-102) rides in
+// the same block, and the ink (S-223) rides in `SCHEDULE_COLOURS` because a
+// colour is one decision with a light and a dark rendering. ⛔ NOT ONE OF THE
+// FIVE IS SPELLED IN THIS FILE'S OWN TEXT -- the angle and the opacity go into
+// the markup as the strings the generator printed, and only the two that are
+// RATIOS are read as numbers, because a ratio has to be multiplied by the
+// thing table T-207 names for it.
+//
+// ⭐ WHAT STILL ARRIVES AS AN ARGUMENT, AND WHY IT MUST. The name (S-99a) and
+// the moment are not values of a table: this unit is pure, so it may not read
+// a clock, and LM-14 puts S-99a in a store only the Framework can reach. They
+// come in together as `Watermark`, and `null` is "no watermark on this
+// picture" -- which is how S-144 of table T-206 reaches a unit that may not
+// read it either.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -158,6 +158,48 @@ export interface DualCursorFollow {
    * may not take half a measurement away with it. @provisional PD-311
    */
   readonly x: number | null
+}
+
+/**
+ * FR-020's trail, as the picture receives it -- the fourth thing in this file
+ * that is not a property of the document, and the last.
+ *
+ * ⭐ WHY BOTH HALVES TRAVEL AND NEITHER IS REACHED FOR. This unit is pure. The
+ * name is S-99a of table T-206, which that row keeps in `localStorage` -- a
+ * store LY-5 of table T-060 leaves with the Framework and LM-14 admits may be
+ * refused outright -- and the moment is a clock, which a pure unit may not read
+ * at all. So the two are settled by the shell and handed in already spelled.
+ *
+ * ⭐ `null` IS S-144 OF TABLE T-206, SPENT BY THE CALLER. FR-020 (MUST) has the
+ * exported picture lose the watermark when the screen loses it, and the row
+ * that says whether it shows is kept out of the document -- so the shell asks
+ * that question once and hands nothing rather than a mark. ⛔ NOT A DEFAULT
+ * THIS UNIT CHOSE: a picture drawn with no watermark is what a caller that
+ * holds no name can honestly ask for, and inventing one here would put a name
+ * in a reader's exported file that nobody entered.
+ */
+export interface Watermark {
+  /**
+   * S-99a of table T-206 -- the name of the one who opened the document.
+   *
+   * ⛔ NOT THE AUTHOR'S. FR-020's own RATIONALE says so in as many words: the
+   * trail is worth having because it records who had the schedule on screen,
+   * and a document's author showing up on someone else's screen would be the
+   * wrong name. ⚠️ Where it comes from is FR-086's, not this unit's.
+   */
+  readonly openedBy: string
+  /**
+   * The moment, spelled as FR-020 (MUST) requires: ISO 8601 (the RFC 3339
+   * form, `YYYY-MM-DDThh:mm:ssZ`), UTC, to the second.
+   *
+   * ⛔ SPELLED BY THE CALLER AND NOT HERE, and the string is drawn exactly as
+   * it arrives. FR-020 forbids a local reading (a screen copied in one zone
+   * and read in another would carry two different answers), and MSPDI's own
+   * dates are zoneless local time that the same sentence (MUST NOT) forbids
+   * confusing with this one -- so there is one speller for this moment and it
+   * is the side that read the clock.
+   */
+  readonly stampedAt: string
 }
 
 /**
@@ -1069,6 +1111,97 @@ function rulerSvg(
 }
 
 /**
+ * The name table T-103 settles for the layer FR-020 lays down (U-20), written
+ * on the group as `data-role`.
+ *
+ * ⛔ NOT kebab-case, and W-4 of table T-006a is the row that says so: its own
+ * proviso sends a `data-role` that carries a UI PART's settled name to W-6's
+ * form, 「表 T-103 の名をそのまま書く」, because translating it would mint a
+ * second spelling of one thing.
+ * ⚠️ IT CHANGES NO HIT TEST, measured against `readScreenPartAt`: that walk
+ * stops at DomScreenSurface's own root and answers `null` for any point this
+ * layer's markup is under, so a mark here cannot be mistaken for a part a
+ * person can press. The attribute is what makes the layer nameable from
+ * outside -- which is how D-195 was measured in the first place.
+ */
+const WATERMARK_ROLE = 'Watermark'
+
+/**
+ * FR-020's layer: the opener's name and the run's UTC stamp, laid diagonally,
+ * repeatedly and faintly over the `Row Area` (U-50) and nowhere else.
+ *
+ * ⭐ WHAT EACH OF THE FIVE VALUES MULTIPLIES, WHICH IS THE WHOLE OF THE
+ * ARITHMETIC HERE. S-220 is a number of degrees and goes into the rotation as
+ * written. S-221 is a fraction 「掛ける相手は書き出す絵の幅（`S-81`）」 and S-222
+ * is a multiple 「掛ける相手は透かしの文字の高さ」 whose spacing is 「縦横とも
+ * 同じ」 -- so the size is a share of THE PICTURE BEING DRAWN and the step is
+ * that size again, on both axes.
+ * ⭐ WHY THE PICTURE'S OWN WIDTH AND NOT THE LITERAL 1600. FR-080 (MUST) draws
+ * an export by taking THIS PICTURE and scaling it by `S-81`'s width over the
+ * screen's, so a mark that is S-221 of the width here is S-221 of `S-81`'s
+ * width once the export has scaled it -- which is what S-221's own note asks
+ * for on both counts at once (the row it names, and 「画面の大きさが変わっても
+ * 割合が保たれる」). ⛔ A constant 1600 here would hold the first half and break
+ * the second: it would be 8% of the picture at one screen width only.
+ *
+ * ⭐ THE OPACITY IS ON THE GROUP AND NOT ON EACH MARK, and that is a
+ * consequence of S-102 rather than a flourish. A group is composited once, so
+ * marks that overlap stay at S-102 instead of adding up to a patch darker than
+ * any row states -- and FR-020 (MUST) asks for a mark that is only just
+ * distinguishable and (MUST NOT) forbids one dark enough to read.
+ *
+ * ⚠️ THE GRID IS SQUARE AND CENTRED, AND ITS REACH IS THE HALF-DIAGONAL. The
+ * marks are tiled in the ROTATED frame, so a grid the size of the Row Area
+ * would leave the corners bare once it turned; half the diagonal is the least
+ * radius that still covers the rectangle at every angle S-220 admits (-90..90).
+ * ⛔ The clip is what keeps FR-020's 「`Row Area` の外へ重ねてはならない」 --
+ * the covering grid deliberately runs outside and is cut back to the rectangle.
+ * ⚠️ It is a SEPARATE group from the rotated one so that the clip is read in
+ * the picture's own coordinates: a clip-path and a transform on one element
+ * would leave the rectangle turning with its contents.
+ *
+ * ⛔ NOTHING IS DRAWN WHERE THE ARITHMETIC WOULD NOT TERMINATE OR WOULD MEAN
+ * NOTHING: a step of zero, a size of zero and an empty rectangle all answer
+ * with no layer, which is also what a `NaN` from a value that is not a number
+ * answers.
+ *
+ * @purity pure
+ */
+function watermarkSvg(
+  area: ScreenRect,
+  pictureWidth: number,
+  mark: Watermark,
+  ink: string,
+  clipId: string,
+): string {
+  const size = Number(WATERMARK_MARKS['S-221']) * pictureWidth
+  const step = Number(WATERMARK_MARKS['S-222']) * size
+  if (!(size > 0) || !(step > 0) || area.width <= 0 || area.height <= 0) return ''
+  const centreX = area.x + area.width / 2
+  const centreY = area.y + area.height / 2
+  const reach = Math.hypot(area.width, area.height) / 2
+  // FR-020 (MUST) lays both, in the order the requirement names them.
+  const text = escaped(`${mark.openedBy} ${mark.stampedAt}`)
+  const marks: string[] = []
+  for (let y = centreY - reach; y <= centreY + reach; y += step) {
+    for (let x = centreX - reach; x <= centreX + reach; x += step) {
+      marks.push(
+        `<text x="${rounded(x)}" y="${rounded(y)}" xml:space="preserve">${text}</text>`,
+      )
+    }
+  }
+  return (
+    `<g data-role="${WATERMARK_ROLE}" clip-path="url(#${clipId})"` +
+    ` opacity="${WATERMARK_MARKS['S-102']}" fill="${ink}"` +
+    ` font-size="${rounded(size)}" text-anchor="middle">` +
+    `<g transform="rotate(${WATERMARK_MARKS['S-220']} ${rounded(centreX)}` +
+    ` ${rounded(centreY)})">` +
+    marks.join('') +
+    '</g></g>'
+  )
+}
+
+/**
  * The SVG for one frame (FR-080).
  *
  * ⭐ Every coordinate arrives already computed: ADR-001 has the shell run
@@ -1142,6 +1275,17 @@ function rulerSvg(
  * document, so they reach the hit test as an argument and never as a constant).
  * ⚠️ IT IS THE HIT AND NOT A BOOLEAN: the marker and the dummies of ONE Task
  * darken, so both the row and the thing it claimed have to arrive.
+ *
+ * ⭐ `watermark` IS FR-020's TRAIL, or `null` for a picture that carries none.
+ * ⛔ IT IS NOT SPENT THROUGH `drawsOperationState`, and that is the one thing
+ * that sets it apart from the four arguments above it: EP-7 of table T-076 puts
+ * the layer in the EXPORT as well as on the screen, and FR-020 (MUST) ties the
+ * two together in the other direction as well -- 「画面から透かしを消したときは、
+ * 書き出す絵からも消すこと」. So both pictures ask the same question of the same
+ * value, and the answer travels rather than being decided here.
+ * ⚠️ WHICH IS ALSO WHY WY-2 AND WY-3 OF TABLE T-041 SET THIS LAYER ASIDE: both
+ * halves of it change 「実行のたび・機ごとに」, so the two pictures they compare
+ * can only be compared without it.
  */
 export function svgFromSchedule(
   schedule: Schedule,
@@ -1156,6 +1300,7 @@ export function svgFromSchedule(
   pointer: Point | null = null,
   hovered: Hit | null = null,
   marquee: ScreenRect | null = null,
+  watermark: Watermark | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1971,6 +2116,25 @@ export function svgFromSchedule(
     ? [`<g clip-path="url(#${scrollClipId})">${labelParts.join('')}</g>`]
     : labelParts
 
+  // FR-020's 「`Row Area` の外へ重ねてはならない」 and EP-7's 「`Row Area` の中
+  // だけ描く」, as the rectangle both name. ⭐ No new value is minted: this IS
+  // `regions.rowArea`, which PI-35 already cut for U-50.
+  //
+  // ⛔ PUSHED HERE AND NOT BESIDE `scrollClipId` ABOVE, which is not tidiness:
+  // the dependency loop mints its arrowhead only `if (defsParts.length === 0)`,
+  // so a clip added before it would take every arrowhead out of every picture
+  // that carries a watermark. ⚠️ Nothing else reads `defsParts` between here
+  // and the assembly below.
+  const watermarkClipId = `grs-watermark-clip-${pictureId(
+    `${rounded(area.x)}x${rounded(area.y)}|${rounded(area.width)}x${rounded(area.height)}`,
+  )}`
+  if (watermark !== null) {
+    defsParts.push(
+      `<clipPath id="${watermarkClipId}"><rect x="${rounded(area.x)}" y="${rounded(area.y)}"` +
+        ` width="${rounded(area.width)}" height="${rounded(area.height)}"/></clipPath>`,
+    )
+  }
+
   const parts = [
     ...defsParts,
     ...bandParts,
@@ -2009,6 +2173,21 @@ export function svgFromSchedule(
     // table T-076 keeps operation state out of a picture, and the export road
     // simply does not pass a rectangle -- the default is what answers it.
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'))]),
+    // ⭐ FR-020's layer, over everything the `Row Area` holds -- 「重ねる」 is
+    // what that requirement asks and the last thing drawn is what is on top.
+    // ⛔ IT CANNOT REACH THE BAND, whatever it is drawn before or after: U-50
+    // starts where the `Time Ruler` ends, and the clip minted above is that
+    // rectangle. It stands before the band all the same, so that the one
+    // sentence below -- the band is drawn over everything -- stays true as
+    // written.
+    // ⭐ S-223 IS ASKED FOR THROUGH `themed` LIKE EVERY OTHER COLOUR. Its row
+    // is 「`S-147` に同じ」 in both renderings, which is exactly the automatic
+    // half of the user's ruling of 2026-09-04: the ink is the reading ink, so
+    // it is darker than the ground in the light theme and lighter in the dark
+    // one without either being chosen here.
+    ...(watermark === null
+      ? []
+      : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)]),
     // FR-017's band last of all. The Row Area's own paint is clipped to it,
     // but FR-014's overhang (LF-12) and a label that runs past the first row
     // are not, and the Time Ruler does not scroll down (SC-2) -- so it is

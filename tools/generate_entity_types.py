@@ -1157,6 +1157,29 @@ ARRIVES_AS_ARGUMENT_ZOOM = ARRIVES_AS_ARGUMENT + [
     ' * the specification says the document does not keep the value, and',
     ' * the second is where the value itself stands.',
 ]
+# ⛔ A SEVENTH SEAM: no door AND no caller, because the STORE is the shell's
+# own. S-99a is one of the rows table T-206 keeps in `localStorage`, LM-14
+# admits an environment that refuses that store outright, and LY-5 of table
+# T-060 leaves it with the Framework -- so the unit that reads the store is the
+# unit that has to hold what to fall back to.
+#
+# ⭐ THE FALLBACK IS THE ROW'S OWN DEFAULT, AND FR-086 IS WHY THAT IS THE RIGHT
+# ONE. That requirement (MUST) has a person enter the name and starts them from
+# this very value; nothing in this build asks yet, so the start is all there is
+# -- and FR-020 (MUST) still lays a name over the Row Area meanwhile. ⛔ The
+# alternative was the shell typing the word in, which rule 03 forbids.
+STORED_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the store is its',
+    " * own to read: table T-206 keeps this row in `localStorage`, LM-14",
+    ' * admits a host that refuses that store, and no caller holds a name to',
+    ' * be handed in on its behalf. ⛔ It is not a document setting and must',
+    ' * not become one -- FR-020 (MUST NOT) keeps the watermark out of the',
+    ' * document, and table T-206 is where that is recorded.',
+    ' *',
+    ' * ⭐ IT IS THE FALLBACK AND NOT THE NAME. FR-086 (MUST) has a person',
+    ' * enter one and starts them from this default; while nothing asks, the',
+    ' * start is the whole of what is held.',
+]
 NOT_STORED_TARGETS = {
     'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-93', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
@@ -1298,6 +1321,13 @@ NOT_STORED_TARGETS = {
     # land in frame-loop.ts: one constant per consuming SUBJECT, and those two
     # are how long a held entrance waits.
     'NOT_STORED_INTERACTION_RECORD_LIMITS': (['S-207'], KEPT_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO ANY LINE ABOVE, and the subject is what keeps it
+    # apart: every other row in this file's shell block is a length, a count
+    # or a time, and this one is a NAME -- the word FR-020 lays over the Row
+    # Area while FR-086's entry road does not exist. ⚠️ It is the only row of
+    # table T-206 in `src/` whose cell is a `lit`, so its generated type is
+    # the literal itself.
+    'NOT_STORED_WATERMARK_NAME': (['S-99a'], STORED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in the translator:
     # one constant per consuming SUBJECT, and the two do not even arrive the
@@ -1678,8 +1708,12 @@ def derived_block(name):
 # the mark over the Row Area, and measuring the shipped build found zero
 # elements doing it. FR-020 now (MUST) names S-220 / S-221 / S-222 and
 # S-223 as the values it is drawn with and (MUST NOT) forbids them in
-# `src/`, so a constant with no reader is the right shape to leave for the
-# reader to arrive at -- the alternative is the drawing side typing -30.
+# `src/`, so the values were carried here first and the drawing arrived
+# after -- the alternative is the drawing side typing -30.
+# ⭐ THE READER EXISTS SINCE D-195 WAS CLOSED: `watermarkSvg` in
+# svg-renderer.ts spends all four, and until it did the whole block was
+# dropped from the build as dead code -- a value that reaches no reader
+# is a value the artifact does not carry.
 # ⛔ S-223 IS NOT HERE. It is a colour, so it is a row of table T-236 and
 # rides with the other colours in SCHEDULE_COLOURS; only a value with no
 # light and dark rendering belongs in this constant.
@@ -2175,6 +2209,11 @@ TARGETS = [
      + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
+     # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
+     # names. ⛔ Not folded into the digest below -- that one is a row of table
+     # T-207 baked into the artifact, and this is a row of table T-206 the
+     # environment may hold a different value for.
+     + not_stored_block('NOT_STORED_WATERMARK_NAME') + NEWLINE * 2
      # ⭐ FR-020's digest, in the one unit that compares against it: the answer
      # is read off a field this layer drew and hashed with the browser's own
      # SHA-256, which LR-6 keeps out of every other layer. ⛔ Not folded into

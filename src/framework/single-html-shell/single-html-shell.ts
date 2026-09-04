@@ -182,10 +182,16 @@ const SCROLLBAR_PROBE_PX = 100
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: nothing holds the reader's own
  * name. S-99a names 「透かしに出す開いた者の名前」 and is one of the four rows of
- * table T-206 kept in `localStorage` with no owner anywhere in `src/`
- * (`local-storage-document-store.ts` records that); AG-6 of table T-035 selects
- * on 「自分以外の書き手」 and never says where this side's name comes from.
+ * table T-206 kept in `localStorage`; AG-6 of table T-035 selects on
+ * 「自分以外の書き手」 and never says where THIS side's name comes from.
  * ⚠️ Empty is 「no name is held」 rather than a name invented here.
+ * ⭐ S-99a HAS A READER SINCE D-195 WAS CLOSED, and it is not this one:
+ * `frame-loop.ts` asks the store for it so that FR-020's watermark has a name,
+ * and falls back to that row's own default. ⛔ IT MAY NOT BE BORROWED FOR THIS
+ * LINE. FR-086 (MUST) says who S-99a is -- the one who OPENED the document --
+ * and AG-6 tells writers apart, so a name kept for the trail is not evidence
+ * that this side's writer is the same person. ⚠️ NOTHING WRITES S-99a YET
+ * either, which is FR-086's road and not this file's.
  *
  * ⛔ IT IS READ IN THIS BUILD, WHICH IT WAS NOT BEFORE IC-20 LANDED. The note
  * here used to say the opposite and gave S-99b as the reason; that reason is
