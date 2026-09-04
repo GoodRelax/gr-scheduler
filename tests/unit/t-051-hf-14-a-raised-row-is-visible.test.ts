@@ -486,7 +486,10 @@ describe('the manuscript still says what these cases read', () => {
     // The worked value this file reuses, already exercised by
     // tests/unit/layout-engine.test.ts: zoomY at exactly S-87's default clears
     // depth 2 and misses depth 3.
-    const settings = { ...TEMPLATE.documentSettings, zoomY: GROUP_LOD_BASE } as unknown as DocumentSettings
+    // TEMPLATE is Record<string, unknown>, so the settings object has to be
+    // narrowed before it can be spread.
+    const stored = TEMPLATE['documentSettings'] as Record<string, unknown>
+    const settings = { ...stored, zoomY: GROUP_LOD_BASE } as unknown as DocumentSettings
     expect(groupDepthLimit(settings)).toBe(2)
   })
 

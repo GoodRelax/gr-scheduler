@@ -1859,9 +1859,20 @@ export function svgFromSchedule(
 
   // ⛔ GD-6 of table T-020a (MUST) asks for the head here and NOT on the guide
   // above: 「依存線は実線で矢じりを持ち、補助線は点線で矢じりを持たない」.
+  // ⭐⭐ ONE HEAD, MINTED ONCE -- AND NOT BY COUNTING defsParts. D-256: this
+  // read `defsParts.length === 0`, and the pinned-row clip above is pushed
+  // into the same list, so pinning ANY row made the condition false and the
+  // <marker> was never written while every polyline kept its marker-end.
+  // Measured 2026-09-05 in the shipped build: one marker and 258 resolving
+  // references before pinning, zero and 258 dangling after. GD-6 of table
+  // T-020a (MUST) asks for the head, so that was a live violation.
+  // ⛔ The list is shared. Nothing may read its length to mean 'nobody has
+  // written anything yet' -- ask about the thing itself.
+  let arrowMinted = false
   for (const link of geometry.dependencies) {
     if (!settings.dependencyVisible) break
-    if (defsParts.length === 0) {
+    if (!arrowMinted) {
+      arrowMinted = true
       defsParts.push(
         dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
       )
