@@ -1359,21 +1359,6 @@ const STOPPING_BOX =
   `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`
 
 /**
- * How much stands between a row control's shape and each side of its box.
- *
- * ⛔ NOT A VALUE OF THE SPECIFICATION, and not S-141 either: that row is the gap
- * FR-029 fixes 「図形と入口の枠のあいだ」 and a row control has no frame at all
- * (`STYLE.rowControl` says why). ⚠️ It is named rather than written twice
- * because the ground HF-6 (MUST) lays under the controls has to reach the LEFT
- * EDGE of the leftmost one, and that edge is this padding away from its shape --
- * so a number written in two places would put the band and the control it must
- * cover on two different answers.
- *
- * @provisional PD-151
- */
-const ROW_CONTROL_PAD_EM = 0.125
-
-/**
  * How the parts are placed and painted.
  *
  * ⛔ NOT VALUES OF THE SPECIFICATION. Every length here is relative (`em`, a
@@ -1504,19 +1489,21 @@ const STYLE = {
   // (`border:none`), so there is no edge for the shape to be held off. ⚠️ It is
   // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
   // centres its own content reads as exactly that to anyone holding the drawn
-  // control against that row.
+  // control against that row. ⭐ WHAT THAT ROW ASKS FOR INSTEAD (MUST, 利用者の
+  // 裁定 2026-09-03) is 「コマンドパレットの入口と同じ考え方」 -- the same two rows
+  // composing the same box -- and `rowControlBoxStyle` is where that is built,
+  // beside the note saying which half of it may not be declared on the control.
   // ⭐ AND NO BOX IS STATED FOR THE FILL EN-3 OF TABLE T-237 PUTS ON THE PIN
   // EITHER, WHICH WAS MEASURED RATHER THAN ASSUMED. A stated box was written
   // and taken out again: HF-5 (MUST NOT) 「中央で揃えてはならない。上端から
   // 下げてはならない」 refuses every declaration that would give this control a
   // box of its own without moving the shape inside it -- a centring, a
   // `margin-top`, a `padding-top`, a `top`. ⛔ So the fill takes the box the
-  // control already has, and that box is not left to chance: measured on the
-  // shipped build of 2026-08-30 it is 20 x 24px, which is S-138 (16) with
-  // `ROW_CONTROL_PAD_EM` on each side and the line box the shape's own 16px
-  // makes -- a filled icon, not a band across the row. ⚠️ A height written
-  // here would be one the specification never printed and, on a row set larger
-  // (S-36 / S-38 by depth), one the shape would hang out of.
+  // control already has, and since CR-346 that box is `rowControlBoxPx` on both
+  // axes -- S-138 with S-141 on either side of the shape -- a filled icon, not
+  // a band across the row. ⚠️ Measured before that change it was 20 x 24px at
+  // the host's own 16px text and 24 x 48px at 32px, because the height was the
+  // line box the reader's own text made.
   // ⛔ OUT OF THE FLOW, AND THAT IS THE POINT. These three are drawn only while
   // the pointer is on the row's name (HF-6), and S-140 of table T-206 -- the
   // room FR-085 subtracts before cutting that name -- is 0px. Left in the flex
@@ -1551,9 +1538,12 @@ const STYLE = {
     // pointer of its own (`rowFoldingGridStyle` says why), so a control that
     // merely inherited the row's `auto` would inherit the lattice's `none`
     // instead and stop being pressable.
+    // ⛔ THE BOX ITSELF IS NOT HERE, AND `STYLE`'s own note says why: every
+    // length in this object is relative, and since CR-346 the control's box is
+    // a number of pixels S-138 and S-141 compose. `rowControlBoxStyle` carries
+    // it, appended where the control is made.
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
-    `border:none;padding:0 ${ROW_CONTROL_PAD_EM}em;cursor:pointer;` +
-    'pointer-events:auto;',
+    'border:none;cursor:pointer;pointer-events:auto;',
   // FR-029 (MUST), as that requirement now reads: an entrance that can change
   // nothing right now is drawn faint, in table T-236's S-149 -- which is
   // `PAINT.rule`, the same colour `entryFaintStyle` takes for the entrances
@@ -2511,9 +2501,21 @@ function shapeNode(host: Document, tag: string): Element {
  * entry with no body at all collapses to zero height -- unreachable by pointer
  * and by IF-9's fourth member alike.
  *
+ * ⚠️ `aroundTheShape` IS THE ROOM ITS ENTRY KEEPS AROUND IT WHERE THE ENTRY MAY
+ * NOT DECLARE IT ITSELF, and exactly one caller passes anything: a row control
+ * (`rowControlGlyphGapStyle` says why the gap has to ride here on that one
+ * axis). ⛔ It may not carry a shape's own box -- that is `glyphStyle`, which
+ * FR-029 (MUST NOT) keeps the same on every surface -- and nothing passed here
+ * may change what is drawn, only the room left beside it.
+ *
  * @purity non-pure
  */
-function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
+function fillEntry(
+  host: Document,
+  entry: HTMLElement,
+  icon: string,
+  aroundTheShape = '',
+): void {
   const drawn = GLYPH_BY_ROW.get(icon)
   if (drawn === undefined) {
     entry.replaceChildren(icon)
@@ -2521,7 +2523,7 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
   }
   const shape = shapeNode(host, 'svg')
   shape.setAttribute('viewBox', iconGlyphs.viewBox)
-  shape.setAttribute('style', glyphStyle())
+  shape.setAttribute('style', glyphStyle() + aroundTheShape)
   shape.setAttribute('aria-hidden', 'true')
   shape.setAttribute('focusable', 'false')
   for (const element of drawn) {
@@ -2819,38 +2821,58 @@ function fillScreenFrame(
  * `panelCornerEntryElement`), because it is the same quantity: two controls of
  * one glyph box standing side by side.
  *
- * ⛔ IN `em`, NOT PIXELS. FR-039 carries the reader's own text size through the
- * panel (S-197), and a gap in pixels would leave the controls behind the moment
- * a reader enlarged the text. ⚠️ It is a step, not a width: each control is
- * sized by its own glyph, and this is only where the next one starts.
+ * ⛔⛔ THE STEP IS ONE CONTROL'S OWN BOX, AND SINCE CR-346 IT IS NOT A NUMBER OF
+ * ITS OWN AT ALL (`rowControlStepPx`). It stood at 1.25`em` -- the box's 20px at
+ * the host's own 16px text -- on the reading that FR-039 carries the reader's
+ * text size through the panel (S-197) and a step in pixels would leave the
+ * controls behind. ⇒ That reading died with the ruling of 2026-09-03: HF-5 (MUST
+ * NOT) fixes the control's own box in pixels, so a step that grew with the
+ * reader's text would leave gaps between the controls, and a step that shrank
+ * with it would stand them ON one another. ⚠️ Measured on the shipped build
+ * before the change: at 32px text the step was 40px and the box 24px, so the run
+ * of seven reached from x=24 to x=192 across a panel 170px wide and covered the
+ * grab strip GR-20 lays at the row's left edge (HF-6 MUST NOT).
+ * ⚠️ IT IS STILL A STEP AND NOT A WIDTH -- what a step means is where the NEXT
+ * control starts, and the two are one number only for as long as PD-348 leaves
+ * the gap between two controls at nothing.
  *
  * @provisional PD-348
+ *
+ * @purity pure
  */
-const ROW_CONTROL_RIGHT_EM = 1.25
+function rowControlStepPx(): number {
+  return rowControlBoxPx()
+}
 
 /**
  * How far in from the row's right edge the NEAREST control stands.
  *
  * ⭐ HF-4's edge and not a step in from it -- see `rowControlRight`. ⚠️ Named
- * here for the reason `ROW_CONTROL_PAD_EM` is named: the ground HF-6 (MUST) lays
- * reaches from the leftmost control, so this term is read twice and may not be
- * written twice.
+ * here for the reason `rowControlStepPx` is: the ground HF-6 (MUST) lays reaches
+ * from the leftmost control, so this term is read twice and may not be written
+ * twice.
+ *
+ * ⛔ IN PIXELS SINCE CR-346, and the run's own arithmetic is why rather than any
+ * rule about this inset. It was 0.25`em`, which is this at the host's own 16px
+ * text; `rowControlStepPx` is now a number of pixels, and a run whose terms were
+ * measured in two units would place the seven controls by neither -- the reading
+ * `leftToRightBy` makes of them says so in as many words.
  *
  * @provisional PD-348
  */
-const ROW_CONTROL_EDGE_EM = 0.25
+const ROW_CONTROL_EDGE_PX = 4
 
 /**
  * Where the control `stepsFromEdge` places from the row's right edge stands.
  *
- * ⭐ The row's own right padding is the first term, so the nearest control
- * sits exactly where the name's box ends -- HF-4's 「行見出しパネルの右端に
- * 揃えること（MUST）」 -- rather than a step in from it.
+ * ⭐ The inset above is the first term, so the nearest control sits where the
+ * row's box ends -- HF-4's 「行見出しパネルの右端に揃えること（MUST）」 -- rather
+ * than a step in from it.
  *
  * @purity pure
  */
 function rowControlRight(stepsFromEdge: number): string {
-  return `right:${rowControlRightEm(stepsFromEdge)}em;`
+  return `right:${rowControlRightPx(stepsFromEdge)}px;`
 }
 
 /**
@@ -2864,8 +2886,8 @@ function rowControlRight(stepsFromEdge: number): string {
  *
  * @purity pure
  */
-function rowControlRightEm(stepsFromEdge: number): number {
-  return ROW_CONTROL_EDGE_EM + ROW_CONTROL_RIGHT_EM * stepsFromEdge
+function rowControlRightPx(stepsFromEdge: number): number {
+  return ROW_CONTROL_EDGE_PX + rowControlStepPx() * stepsFromEdge
 }
 
 /**
@@ -2969,7 +2991,7 @@ const ROW_FOLDING_CELLS = {
  *
  * ⭐ ONE NAME FOR IT, read by the lattice that stands there and by the ground
  * HF-6 (MUST) lays 「いちばん左の操作子の左端から行の右端まで」 -- the same term
- * the declaration of `rowControlRightEm` refuses to write twice.
+ * the declaration of `rowControlRightPx` refuses to write twice.
  */
 const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
 
@@ -3010,53 +3032,117 @@ const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
 function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
   // The leftmost control's LEFT edge, measured from the row's right edge: where
   // that control's right edge stands, plus its own width -- its shape (S-138)
-  // with `ROW_CONTROL_PAD_EM` on either side of it, which is
-  // `rowControlWidthCss`.
-  const reach = rowControlRightEm(leftmostStepsFromEdge)
+  // with `S-141` on either side of it, which is `rowControlBoxPx`.
+  const reach = rowControlRightPx(leftmostStepsFromEdge)
   return (
     'position:absolute;top:0;bottom:0;right:0;' +
-    `width:calc(${reach}em + ${rowControlWidthCss()});` +
+    `width:${reach + rowControlBoxPx()}px;` +
     `background:${PAINT.panel};pointer-events:none;`
   )
 }
 
 /**
- * The width of ONE control, measured the way the ground above measures it: the
- * shape's box (S-138) with `ROW_CONTROL_PAD_EM` on either side of it.
+ * The OUTER BOX of one row control, in pixels, on BOTH axes -- `S-138` with
+ * `S-141` on either side of the shape, which is how FR-029 composes an entrance.
  *
- * ⭐ NAMED BECAUSE IT IS NOW READ TWICE. The ground reaches the leftmost
- * control's left edge and HF-1's lattice gives each of its two columns the same
- * width -- ⛔ and a second spelling of it would drift the day PD-348 is ruled
- * on, which is the drift `rowControlRightEm` was named to stop.
- *
- * @purity pure
- */
-function rowControlWidthCss(): string {
-  return `calc(${ROW_CONTROL_PAD_EM * 2}em + ${NOT_STORED_ICON_SIZES['S-138']}px)`
-}
-
-/**
- * The height of ONE row control, in pixels -- `S-138` with `S-141` above the
- * shape and `S-141` below it, which is how FR-029 composes an entrance.
- *
- * ⭐⭐ A CONSTANT AND NOT THE LINE BOX (利用者の裁定 2026-09-03, CR-342). Until
- * that ruling this height was whatever line box the host's base font made, and
- * on the shipped build that came to the same 24px -- ⛔ so the two readings
- * could not be told apart by the number. They are told apart by the reader's
- * text size: S-138's own note (MUST NOT) says 「閲覧者の文字サイズに追随させない
- * —— 大きくしたい人はブラウザの表示倍率で変える」, and a line box follows it.
- * ⭐ The same sentence states the answer outright: 「入口の外形は 26 × 24px の
- * まま動かない」, and 16 + 4 × 2 is that 24.
- * ⚠️ HF-5 (MUST) draws every row control 「行の名前の文字サイズにかかわらず …
- * 同じ大きさで」, so this is the height of all seven and not of the four in the
- * lattice alone.
+ * ⭐⭐ ONE NUMBER FOR BOTH AXES, AND IT IS THE SPECIFICATION'S (利用者の裁定
+ * 2026-09-03, CR-346). HF-5 of table T-051 (MUST) settles what 「大きさ」 in that
+ * row means -- 「ここでいう「大きさ」は操作子自身の箱であり、格子の段ではない」 --
+ * and says where the number lives: 「大きさの在り処は 表 T-206 の `S-138` と
+ * `S-141` であり、どちらも閲覧者の文字サイズに追随しないと既に定めている」. LF-3 of
+ * table T-221 spells the same sum out for the floor it puts under a row's band:
+ * 「操作子 1 つの外形は … 表 T-206 の `S-138` と `S-141` が決めており、格子はその
+ * 2 段ぶんである」.
+ * ⛔ NOTHING RELATIVE IS LEFT IN IT, which is the whole of what CR-346 changed
+ * here. The width was `calc(0.25em + 16px)` and the height was whatever line box
+ * the host's base font made: measured on the shipped build, one control was
+ * 20 x 24px at the host's own 16px text, 22 x 36 at 24px and 24 x 48 at 32px --
+ * ⛔ so the lower rank of HF-1's lattice stood ON the upper one and a press near
+ * the join reached whichever the browser stacked on top. 「操作子の大きさは
+ * マウスで押しやすいことから決まる量であり、読む字の大きさとは無関係である」.
+ * ⭐ THE SAME COMPOSITION THE COMMAND PALETTE'S ENTRANCES TAKE, which HF-5 (MUST)
+ * asks for outright: 「コマンドパレットの入口と同じ考え方に揃えること」 --
+ * `entryGlyphRoom` builds those out of these same two rows, and `S-138`'s own
+ * note states the answer, 「入口の外形は 26 × 24px のまま動かない」, of which
+ * 16 + 4 × 2 is the 24.
  * ⛔ A FUNCTION AND NOT A CONSTANT, for the reason `rowBandPx`'s note gives:
  * the generated block stands at the foot of this file.
  *
  * @purity pure
  */
-function rowControlHeightPx(): number {
+function rowControlBoxPx(): number {
   return NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2
+}
+
+/**
+ * The width of ONE control as a declaration, which the lattice's two columns
+ * take -- `rowControlBoxPx` and no other reading of it.
+ *
+ * ⭐ NAMED BECAUSE IT IS READ TWICE. The ground reaches the leftmost control's
+ * left edge and HF-1's lattice gives each of its two columns the same width --
+ * ⛔ and a second spelling of it would drift the day PD-348 is ruled on, which
+ * is the drift `rowControlRightPx` was named to stop.
+ *
+ * @purity pure
+ */
+function rowControlWidthCss(): string {
+  return `${rowControlBoxPx()}px`
+}
+
+/**
+ * The box one row control keeps around the shape it holds, which is what makes
+ * that box the same however large the reader's own text is.
+ *
+ * ⭐⭐ HF-5 OF TABLE T-051 (MUST NOT), 利用者の裁定 2026-09-03: 「読む人の文字
+ * サイズや宿主の行ボックスに追随させてはならない —— 追随させると、字を大きくした
+ * 人ほど押す的が動く」. ⇒ `inline-flex` is what takes the host's LINE BOX out of
+ * the answer: a flex box is as tall as what stands in it, and what stands in it
+ * is one shape of `S-138` on a side (`glyphStyle`), which is a number of pixels.
+ * ⛔ `display:inline-block` -- a `button`'s own default -- measured the strut the
+ * reader's text makes, which is the defect.
+ *
+ * ⛔⛔ NO VERTICAL LENGTH IS DECLARED HERE, AND THAT IS DELIBERATE. A `height`, a
+ * `min-height` or a vertical `padding` would give an EMPTY control a height, and
+ * the case 「a node carrying the SAME declarations but nothing inside … measures
+ * wide and NOT high」 of tests/unit/uf-72-screen-part.test.ts is what keeps the
+ * 4 x 0 finding catchable (04-verification.md section 2). ⇒ The gap S-141 states
+ * above and below the shape rides on the SHAPE instead
+ * (`rowControlGlyphGapStyle`), so the control is as tall as what it holds and a
+ * control holding nothing is still nothing high.
+ * ⚠️ THE HORIZONTAL GAP IS THE CONTROL'S OWN, and that same case is why: it
+ * asserts an empty control is still WIDE, which is what told 4 x 0 from 0 x 0.
+ * ⭐ Either way the outer box is `rowControlBoxPx` on both axes.
+ *
+ * ⛔ NOTHING CENTRES THE CONTROL ITSELF, which HF-5 (MUST NOT) forbids: the
+ * shape is the only thing in the box, it carries a definite size, and a flex
+ * item with a definite cross size does not stretch -- so `align-items` is not
+ * declared and the control keeps the static position `STYLE.rowControl` explains.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the two reasons `glyphStyle`
+ * gives: the value arrives in the generated block at the foot of this file, and
+ * `STYLE` states that every length in it is relative, which this one is not.
+ *
+ * @purity pure
+ */
+function rowControlBoxStyle(): string {
+  return `display:inline-flex;padding:0 ${NOT_STORED_ICON_SIZES['S-141']}px;`
+}
+
+/**
+ * The gap S-141 states between the shape and the edge of the control it stands
+ * in, on the axis `rowControlBoxStyle` may not declare.
+ *
+ * ⚠️ ON THE SHAPE AND NOT ON THE CONTROL, for the reason that declaration gives.
+ * ⭐ It is the same row on both axes -- 「図形と入口の枠の最低隙間」 -- so the
+ * outer box comes to `rowControlBoxPx` whichever way it is measured.
+ * ⛔ IT IS NOT A SET-DOWN OF THE CONTROL, which HF-5 (MUST NOT) forbids
+ * 「上端から下げてはならない」: what moves is the shape INSIDE a box whose own top
+ * stays level with the name's, and the box is the thing that row speaks of.
+ *
+ * @purity pure
+ */
+function rowControlGlyphGapStyle(): string {
+  return `margin:${NOT_STORED_ICON_SIZES['S-141']}px 0;`
 }
 
 /**
@@ -3064,7 +3150,7 @@ function rowControlHeightPx(): number {
  *
  * ⭐⭐ A BOX THAT HOLDS THE FOUR, AND NOT FOUR OFFSETS WORKED OUT HERE. The
  * second rank of the lattice stands one control's HEIGHT below the first, and
- * that height is `rowControlHeightPx` -- `S-138` with `S-141` on either side of
+ * that height is `rowControlBoxPx` -- `S-138` with `S-141` on either side of
  * it, which is what FR-029 composes an entrance out of.
  * ⛔⛔ THE RANKS ARE STATED AND NO LONGER LEFT TO THE CONTENT (利用者の裁定
  * 2026-09-03, CR-342). A track sized by what stands in it measures the host's
@@ -3104,16 +3190,15 @@ function rowControlHeightPx(): number {
  * @purity pure
  */
 function rowFoldingGridStyle(): string {
-  const columnWidth = rowControlWidthCss()
-  // HF-1 (MUST): 「2 × 2 の格子」 -- two ranks, each one control tall, so the
-  // lattice takes exactly twice `rowControlHeightPx` however tall the host
-  // would have laid a line out.
-  const rankHeight = `${rowControlHeightPx()}px`
+  // HF-1 (MUST): 「2 × 2 の格子」 -- two columns and two ranks, each one control's
+  // own box, so the lattice takes exactly twice `rowControlBoxPx` on each axis
+  // however tall the host would have laid a line out.
+  const track = rowControlWidthCss()
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
-    `grid-template-columns:${columnWidth} ${columnWidth};` +
-    `grid-template-rows:${rankHeight} ${rankHeight};` +
-    `right:${rowControlRightEm(ROW_CONTROL_STEPS.foldingGrid)}em;` +
+    `grid-template-columns:${track} ${track};` +
+    `grid-template-rows:${track} ${track};` +
+    `right:${rowControlRightPx(ROW_CONTROL_STEPS.foldingGrid)}px;` +
     'pointer-events:none;'
   )
 }
@@ -3154,7 +3239,7 @@ const FOLDED_ROW_COUNT_MARK = 'data-folded-rows'
  * ⛔ THEY DID DIFFER UNTIL 2026-08-31 -- 2px for the axis and 3px for the
  * holding mark, both invented here because no row of the specification held
  * either. The sample draws both at 3.
- * ⛔ A FUNCTION AND NOT A CONSTANT, for the reason `rowControlRightEm`'s note
+ * ⛔ A FUNCTION AND NOT A CONSTANT, for the reason `rowControlRightPx`'s note
  * gives: the generated block that declares `NOT_STORED_ROW_BAND_SIZES` stands
  * at the foot of this file, and a module-level `const` would read it inside its
  * own temporal dead zone.
@@ -3383,16 +3468,21 @@ function rowControlElement(
   canAct: boolean,
 ): HTMLElement {
   // FR-029 (MUST): faint while there is nothing this control could change.
-  // ⛔ NO `height` IS DECLARED HERE, AND THAT IS DELIBERATE (CR-342). The
-  // ruling of 2026-09-03 fixes the LATTICE at two ranks of `rowControlHeightPx`
-  // (`rowFoldingGridStyle`), which is what LF-3 reads; declaring the same height
-  // on the control itself would give an EMPTY control a height, and the case
+  // ⭐⭐ AND THE CONTROL'S OWN BOX BESIDE IT, WHICH HF-5 (MUST) SETTLED ON
+  // 2026-09-03 (CR-346): 「ここでいう「大きさ」は操作子自身の箱であり、格子の段では
+  // ない」. ⛔ WHAT STOOD HERE UNTIL THEN WAS THE OTHER READING -- the lattice's
+  // ranks held the height and the control took whatever line box the reader's
+  // own text made -- and that row now names where the number lives instead:
+  // 「大きさの在り処は 表 T-206 の `S-138` と `S-141` であり、どちらも閲覧者の文字
+  // サイズに追随しないと既に定めている」.
+  // ⛔ NO `height` IS DECLARED EVEN NOW, and `rowControlBoxStyle` carries the
+  // reason: a declared height would give an EMPTY control a height, and the case
   // 「a node carrying the SAME declarations but nothing inside … measures wide
   // and NOT high」 of tests/unit/uf-72-screen-part.test.ts is what keeps the 4 x 0
-  // finding catchable (04-verification.md section 2). ⚠️ Reported rather than
-  // taken: 表 T-051's HF-5 says the controls are all one size and no row says
-  // whether that size is the control's own box or the rank it stands in.
-  const style = canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk
+  // finding catchable (04-verification.md section 2).
+  const style =
+    (canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk) +
+    rowControlBoxStyle()
   // ⛔ `null` IS A CONTROL TABLE T-103 NAMES NO PART FOR, and it is not an
   // omission: IC-82 and IC-91 make and unmake a row rather than folding one, so
   // neither belongs to U-47 `Row Expander` or U-48 `Row Pin`, and claiming
@@ -3410,7 +3500,7 @@ function rowControlElement(
   // has the reason told. ⭐ The same bargain `commandEntry` keeps, and the same
   // one `entryFaintStyle` sets out at length.
   if (!canAct) control.setAttribute('aria-disabled', 'true')
-  fillEntry(host, control, icon)
+  fillEntry(host, control, icon, rowControlGlyphGapStyle())
   return control
 }
 
@@ -3794,11 +3884,14 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⚠️ NO `data-role` AND NO KEY OF ITS OWN -- see `DELETE_ROW_ENTRY`. The row
   // this sits in carries the `data-group-id` that says which row goes, and
   // writing a copy here would state one row's key in two places.
-  const remove = made(host, 'button', STYLE.rowControl)
-  remove.setAttribute('type', 'button')
-  remove.setAttribute('data-icon', DELETE_ROW_ENTRY)
-  remove.setAttribute('aria-label', DELETE_ROW_ENTRY)
-  fillEntry(host, remove, DELETE_ROW_ENTRY)
+  // ⭐ BUILT BY THE ONE BUILDER THE OTHER SIX TAKE (CR-346). It was assembled
+  // here by hand from `STYLE.rowControl`, which was the same node for as long as
+  // that declaration carried the control's whole box -- ⛔ and stopped being one
+  // the moment the box moved into `rowControlBoxStyle`: measured on the shipped
+  // build, this control alone fell back to the host's own button padding and came
+  // out 28 x 26px against the other six at 24 x 24, which is exactly the 「同じ
+  // 大きさで描くこと（MUST）」 of HF-5 broken by a second assembly of one thing.
+  const remove = rowControlElement(host, null, DELETE_ROW_ENTRY, true)
   remove.setAttribute(
     'style',
     remove.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.remove),
@@ -3889,7 +3982,7 @@ function openEveryRowElement(host: Document): HTMLElement {
  *
  * ⚠️ `stepsFromEdge` IS THE ROW CONTROLS' STEP, and it is the same quantity:
  * how far apart two controls of one glyph box (S-138) stand. ⛔ Not a new
- * number -- see `ROW_CONTROL_RIGHT_EM` for why it is in `em` and for the
+ * number -- see `rowControlStepPx` for what it is measured in and for the
  * pending decision it is held under (PD-348).
  *
  * @purity non-pure
@@ -3930,18 +4023,18 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
  * shipped build (2026-08-30, 1920 x 1080): IC-78 spanned 120..146 and IC-74
  * 140..166 -- the two OVERLAPPED BY 6px, so a press in that strip reached
  * whichever the browser stacked on top. ⚠️ The cause is that they are not the
- * same quantity: a row's control carries no frame and is 20px across, while
- * these two are entrances with a frame and are 26px.
+ * same quantity: a row's control carries no frame and these two are entrances
+ * with one, so the frame's own thickness is in this step and not in theirs.
  *
  * ⭐ THE WIDTH IS BUILT FROM WHAT `entryStyle` AND `entryGlyphRoom` ALREADY
  * BUILD THEM FROM -- `S-138` on a side, `S-141` of padding on each side, and
  * the entrance's own 1px border on each side. ⛔ No number is typed here: both
  * rows reach this file generated, which is what rule 03 asks.
  *
- * ⚠️ IN PIXELS AND NOT `em`, unlike the row controls, and for the reason those
- * are in `em`: what scales with the reader's text there is the row's name, and
- * these entrances are sized by `S-138`, which FR-029 (MUST NOT) forbids
- * following the reader's text size.
+ * ⚠️ IN PIXELS, WHICH THE ROW CONTROLS' STEP ALSO IS SINCE CR-346 -- see
+ * `rowControlStepPx` for the ruling that took the reader's text size out of it.
+ * ⛔ THE TWO ARE STILL DIFFERENT NUMBERS, and the note above says why: this one
+ * carries the frame's thickness and that one does not.
  *
  * @purity pure
  */
