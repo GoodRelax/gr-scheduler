@@ -1,5 +1,17 @@
-// FR-072 and the two entrances the `Properties Panel` now has -- `MK-13` and
-// `IC-17` -- and `SK-19`, the key that takes it away again.
+// FR-072 (MUST NOT): a moved selection is not by itself an entrance to the
+// `Properties Panel`. Two roads that ARE entrances -- `MK-13` and `IC-17` --
+// are driven here so that the refusal can be told from a panel that never opens
+// at all, and `SK-19` is the key that takes the panel away again.
+//
+// ⛔ THIS FILE COUNTS NO ENTRANCES, AND MUST NOT. `FR-072` forbids itself from
+// enumerating them (「その入口を本要求が数え上げてはならない（MUST NOT）—— 員数を
+// 2 か所に置けば必ず離れていく」), and a test that held the roster would be the
+// second place the count lives -- the very drift that MUST NOT was written for.
+// `MK-13` and `IC-17` appear below as two roads EACH NAMED BY A ROW OF ITS OWN,
+// never as the whole of the set. FR-072 itself records that 行を選ぶ道 (`FR-042`)
+// was already a third when the count was written, and that `FR-091` and `HF-14`
+// of table T-051 「さらに求めている」 -- and a road named tomorrow must not make
+// a line of this file go red.
 //
 // Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
 // table T-062). It is the only layer that may hold a current value (LY-5 of
@@ -46,11 +58,15 @@
 // ---------------------------------------------------------------------------
 //
 //   `FR-072`       ⛔ 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始め
-//                  てはならない（MUST NOT）」／「出す入口は 表 T-023 の `MK-13` と
-//                  `IC-17` の 2 つである。」／⚠️ 「出しているあいだは、選択が動けば
-//                  中身がそれに移る」／⛔ 「パネルを出すのをやめても、選択を解いて
-//                  はならない（MUST NOT）」／「いま何を出しているかを、入口の押下
-//                  状態で示すこと（MUST）。」
+//                  てはならない（MUST NOT）」／「出すのは、出すことを求める要求が名
+//                  指した押下のときだけである（MUST）。」／⛔ 「その入口を本要求が
+//                  数え上げてはならない（MUST NOT）」／⚠️ 「出しているあいだは、選
+//                  択が動けば中身がそれに移る」／⛔ 「パネルを出すのをやめても、選
+//                  択を解いてはならない（MUST NOT）」／「いま何を出しているかを、入
+//                  口の押下状態で示すこと（MUST）。」
+//                  ⚠️ 「出す入口は…`MK-13` と `IC-17` の 2 つである」は 2026-09-04
+//                  に落ちた —— 書かれた時点で既に偽であり（行を選ぶ道が 3 つ目で
+//                  あった）、この版まで本ファイルはその 1 文を逐語で見張っていた。
 //   `FR-006`       「プロパティパネルが選択を出しているとき、`GRS` は、表 T-016 の
 //                  項目をプロパティパネルに出し…」 ⭐ ITS SUBJECT IS THE PANEL
 //                  ALREADY SHOWING -- it is not a second entrance.
@@ -164,10 +180,33 @@ const REQUIREMENTS = readFileSync(
   'utf8',
 )
 
-/** The two sentences of FR-072 these cases stand on, quoted from the manuscript. */
+/**
+ * `FR-072`'s own STATEMENT, cut out of the manuscript.
+ *
+ * ⭐ WHY A SLICE AND NOT THE WHOLE FILE: the sentences below are FR-072's own
+ * rules, and a `toContain` over the whole manuscript would keep passing if they
+ * drifted into some other requirement -- which is the very failure the MUST NOT
+ * against enumerating exists to prevent.
+ */
+function fr072Statement(): string {
+  const start = REQUIREMENTS.indexOf('**UID**: FR-072')
+  if (start < 0) throw new Error('the manuscript holds no requirement FR-072')
+  const end = REQUIREMENTS.indexOf('**ORIGIN**', start)
+  if (end < 0) throw new Error('FR-072 has no ORIGIN, so its STATEMENT has no end')
+  return REQUIREMENTS.slice(start, end)
+}
+
+const FR_072 = fr072Statement()
+
+/** The sentences of FR-072 these cases stand on, quoted from the manuscript. */
 const FR_072_NOT_FROM_A_SELECTION =
   '表 T-023c の選択が動いたことだけを理由に、パネルを出し始めてはならない（MUST NOT）'
-const FR_072_THE_TWO_ENTRANCES = '出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。'
+/** ⭐ WHAT REPLACED THE COUNT: a rule about WHEN, which names no entrance. */
+const FR_072_ONLY_A_NAMED_PRESS =
+  '出すのは、出すことを求める要求が名指した押下のときだけである（MUST）。'
+/** ⛔ And the MUST NOT that keeps the roster out of this requirement for good. */
+const FR_072_MUST_NOT_ENUMERATE = 'その入口を本要求が数え上げてはならない（MUST NOT）'
+const FR_072_MOVES_WITH_THE_SELECTION = '出しているあいだは、選択が動けば中身がそれに移る'
 const FR_072_KEEPS_THE_SELECTION =
   'パネルを出すのをやめても、選択を解いてはならない（MUST NOT）'
 const T_036_NOT_WHILE_A_SURFACE_STANDS = '`SK-19` の 2 段目を当ててはならない（MUST NOT）'
@@ -500,7 +539,7 @@ function doubleClickTask(built: Stage, uid: number): void {
   built.send(pointer('up', at.x, at.y, { clickCount: 2 }))
 }
 
-/** IC-17 pressed on the `App Header` -- the other of FR-072's two entrances. */
+/** IC-17 pressed on the `App Header` -- the road table T-109 names to the panel. */
 function pressIc17(built: Stage): void {
   built.aimAt(APP_HEADER, 'IC-17')
   built.send(pointer('down', 700, 20))
@@ -540,13 +579,40 @@ describe('the manuscript still says what these cases read', () => {
     expect(SK_3, 'SK-3 still deletes what is selected').toContain('選択しているものを削除する')
   })
 
-  it('⛔ FR-072 still names the two entrances, and still forbids the third', () => {
-    // ⭐ THE GROUND OF THIS WHOLE FILE, read rather than typed: if the ruling of
-    // 2026-08-30 is ever reversed, this case says so in one line instead of
-    // leaving six cases asserting a rule the manuscript no longer holds.
-    expect(REQUIREMENTS).toContain(FR_072_NOT_FROM_A_SELECTION)
-    expect(REQUIREMENTS).toContain(FR_072_THE_TWO_ENTRANCES)
-    expect(REQUIREMENTS).toContain(FR_072_KEEPS_THE_SELECTION)
+  it('⛔ FR-072 opens the panel only on a press a requirement named, and may not count them', () => {
+    // ⭐ THE GROUND OF THIS WHOLE FILE, read rather than typed: if the rulings of
+    // 2026-08-30 are ever reversed, this case says so in one line instead of
+    // leaving the cases below asserting a rule the manuscript no longer holds.
+    //
+    // ⛔ THIS GUARD HOLDS NO COUNT, ON PURPOSE. Until 2026-09-04 FR-072 closed
+    // with 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。」 and this
+    // very case asserted it word for word. ⛔ The sentence was already false the
+    // day it was written -- 行を選ぶ道 (`FR-042`) was a third -- and `FR-091`
+    // and `HF-14` of table T-051 have since named more. ⇒ What stands here in
+    // its place is NOT 「その 1 文が無いこと」, which would rot the other way
+    // (going red the moment anyone quotes it in a history note, as FR-072 now
+    // does). It is the pair of rules FR-072 carries instead: a MUST that says
+    // WHEN the panel may open without naming any entrance, and a MUST NOT that
+    // forbids this requirement from ever holding the roster again.
+    expect(FR_072.match(/\*\*UID\*\*:/g)?.length, 'the cut holds one requirement, not the file').toBe(
+      1,
+    )
+    expect(FR_072, 'FR-072 (MUST NOT): 選択が動いたことだけを理由に出し始めない').toContain(
+      FR_072_NOT_FROM_A_SELECTION,
+    )
+    expect(FR_072, 'FR-072 (MUST): 出すのは、要求が名指した押下のときだけである').toContain(
+      FR_072_ONLY_A_NAMED_PRESS,
+    )
+    expect(
+      FR_072,
+      'FR-072 (MUST NOT): 入口を数え上げない —— 員数を 2 か所に置けば必ず離れていく',
+    ).toContain(FR_072_MUST_NOT_ENUMERATE)
+    expect(FR_072, 'FR-072: 出しているあいだは、選択が動けば中身がそれに移る').toContain(
+      FR_072_MOVES_WITH_THE_SELECTION,
+    )
+    expect(FR_072, 'FR-072 (MUST NOT): 出すのをやめても、選択を解かない').toContain(
+      FR_072_KEEPS_THE_SELECTION,
+    )
   })
 
   it('⛔ table T-036 still keeps SK-19’s second stage off while a 面 stands', () => {
@@ -639,10 +705,17 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
 })
 
 // ===========================================================================
-// (b) MK-13 and IC-17 -- the two entrances that do put it up
+// (b) MK-13 and IC-17 -- two roads that DO put it up
+// ===========================================================================
+//
+// ⛔ TWO OF THE ROADS, NEVER "THE ROADS". Each case below rests on the row that
+// names its own road -- `MK-13` of table T-023, `IC-17` of table T-109 -- and
+// none of them says the set is closed. ⭐ WHY THEY ARE HERE AT ALL: without a
+// road that does open the panel, (a)'s refusals would all pass on a loop that
+// never opened it, which is a different defect wearing the same green.
 // ===========================================================================
 
-describe('table T-023 MK-13 and table T-109 IC-17 -- the two entrances', () => {
+describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up', () => {
   it('⛔ MUST: a double click on a Task puts the panel up, showing that Task', () => {
     // MK-13: 「タスク（名称ラベルと本体のどちらでも）＝ プロパティパネルを出し…」
     const built = stage()
@@ -664,7 +737,7 @@ describe('table T-023 MK-13 and table T-109 IC-17 -- the two entrances', () => {
 
     pressIc17(built)
 
-    expect(built.panel(), 'IC-17 is the second of FR-072’s two entrances').not.toBeNull()
+    expect(built.panel(), '表 T-109 IC-17: 文書の描画設定をプロパティパネルに出す').not.toBeNull()
     expect(built.panel()?.showing).toBe('documentSettings')
   })
 

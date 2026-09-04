@@ -1882,13 +1882,6 @@
    }
   },
   {
-   "rowId": "K-117",
-   "label": {
-    "ja": "ハイライトボックスの角の丸み",
-    "en": "cornerRadiusPx"
-   }
-  },
-  {
    "rowId": "K-118",
    "label": {
     "ja": "解釈しない要素の入れ子の深さの上限",
@@ -2541,17 +2534,6 @@
    }
   },
   {
-   "rowId": "RS-47",
-   "text": {
-    "ja": "渡された日程が読めませんでした",
-    "en": "The schedule that was handed over could not be read"
-   },
-   "nextStep": {
-    "ja": "別のファイルを開いてください",
-    "en": "Open a different file"
-   }
-  },
-  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -2567,15 +2549,15 @@
   {
    "rowId": "QN-1",
    "text": {
-    "ja": "この行と、行に載っているタスクを削除しますか？ 取り消しでは戻せません",
-    "en": "Delete this row and the tasks on it? Undo will not bring them back"
+    "ja": "この行と、行に載っているタスクを削除しますか？",
+    "en": "Delete this row and the tasks on it?"
    }
   },
   {
    "rowId": "QN-2",
    "text": {
-    "ja": "このタスクと、その配下のタスクを削除しますか？ 取り消しでは戻せません",
-    "en": "Delete this task and the tasks under it? Undo will not bring them back"
+    "ja": "このタスクと、その配下のタスクを削除しますか？",
+    "en": "Delete this task and the tasks under it?"
    }
   },
   {

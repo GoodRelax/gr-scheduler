@@ -831,9 +831,15 @@ export function groupDepthLimit(settings: DocumentSettings): number {
  * (MUST NOT), so this is not asked about it. `landingZoomY` says what the fit
  * does there instead.
  *
+ * ⭐ EXPORTED FOR HF-14's SECOND HALF (MUST, 2026-09-04): 「立てた行が、現に描かれ
+ * ている詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれるまで詳し
+ * さの段を開くこと」. Opening the tier means putting `zoomY` at the smallest value
+ * that draws that depth, which is exactly this -- and the MUST NOT above is why
+ * the caller reads it here instead of typing the expression a second time.
+ *
  * @purity pure
  */
-function groupDepthThresholdOf(depth: number, settings: DocumentSettings): number {
+export function groupDepthThresholdOf(depth: number, settings: DocumentSettings): number {
   return settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, depth - 2)
 }
 

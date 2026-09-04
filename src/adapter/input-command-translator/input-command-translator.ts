@@ -152,6 +152,8 @@ import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geome
 import {
   dateAtX,
   fitZoom,
+  groupDepthLimit,
+  groupDepthThresholdOf,
   xFromDay,
   type RowPlacement,
   type ScheduleLayout,
@@ -162,6 +164,11 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
+// ⚠️ A VALUE AND NOT ONLY A TYPE, which HF-14 (MUST NOT) forces: 「既定の名前は
+// 表示語として持つこと。仕様書に綴りを刷ってはならない」, and Chapter 6.2 gives the
+// words ONE destination in `src/`. Reading the word here is the alternative to
+// spelling it, which is the thing forbidden.
+import { DEFAULT_ROW_NAME } from '../../use-case/edit-document/edit-document'
 import type {
   DocumentCommand,
   TaskMilestoneGlyph,
@@ -679,44 +686,15 @@ export type InPlaceTarget =
    * this file's, as CR-146 leaves it: no row of the specification settles one.
    */
   | { readonly kind: 'assignee'; readonly uid: number }
-  /**
-   * HF-14 of table T-051 (IC-91) -- a row is being added under `parentGroupId`,
-   * and the person is naming it where it will stand.
-   *
-   * ⭐⭐ WHY THE PRESS PLANS NO COMMAND AT ALL. HF-14 (MUST) has the row stood
-   * up with an empty name and typed in place, (MUST NOT) forbids giving it a
-   * default name -- 「改名の入口が表 T-109 に 1 つも無い」ので、既定の名で立てる
-   * と直せない行ができる -- and (MUST) refuses to stand the row up at all when
-   * the name is settled empty: 「名前が空のまま確定されたときは、その行を立てない
-   * こと」. ⇒ A `createTaskGroup` planned on the press would be all three of
-   * those broken at once, and CM-26 would refuse it in any case: FR-058 (MUST
-   * NOT) has that command reject a row carrying neither a name nor a derivation
-   * source. So this target carries everything the write needs EXCEPT the name,
-   * and the side that collects the characters supplies that one thing.
-   *
-   * ⭐ THE THREE VALUES ARE DECIDED HERE BECAUSE THEY ARE RULES, not because
-   * they are convenient: `parentGroupId` is HR-8's 「足す先は配下」, `order` is
-   * HF-14's 末子 (MUST), and `newGroupId` is `InputContext`'s minted identifier,
-   * which this layer is handed for exactly this reason (AT-51 is a UUID and
-   * minting one is not a pure act).
-   */
-  | {
-      readonly kind: 'newRowName'
-      /**
-       * The row the new one is added UNDER -- `TaskGroup.id` (AT-51) -- or
-       * `null` for 段 0, the panel's head.
-       *
-       * ⭐ `null` IS HF-17 (MUST): 「最も浅い段へ行を 1 つ足す」, pressed on IC-93.
-       * HR-2 makes the head level 0 and a row of the shallowest level is one
-       * whose `parentId` is null (AT-52), so the two spellings are the same
-       * thing and no second name is minted for it.
-       */
-      readonly parentGroupId: string | null
-      /** The identifier the new row takes, minted by the caller (`newGroupId`). */
-      readonly newGroupId: string
-      /** AT-55, one past the last sibling -- HF-14's 末子 (MUST). */
-      readonly order: number
-    }
+  // ⛔⛔ `newRowName` STOOD HERE AND IS GONE (利用者の裁定 2026-09-04). HF-14 of
+  // table T-051 read 「名前は空で立て、その場で打たせること（MUST）」, 「既定の名を
+  // 与えてはならない（MUST NOT）」 and 「名前が空のまま確定されたときは、その行を
+  // 立てないこと（MUST）」; all three were withdrawn, and the row now reads 「押さ
+  // れた瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを出
+  // し、名前の欄で名づけさせること（MUST）」 with 「改名と別の道を作ってはならない
+  // （MUST NOT）」 beside it. ⇒ IC-91 and IC-93 plan CM-26 and carry the row out
+  // as `CreatedSubject`; the naming is `rowName`'s road, one entry below, which
+  // is the very sameness that MUST NOT demands.
   /**
    * MK-13's 行見出し entry -- a double click on a row's NAME in the
    * `Row Title Panel`, which FR-085 (MUST) makes the one path to renaming a row
@@ -751,11 +729,14 @@ export type InPlaceTarget =
 // CM-48 is its own piece of work; the kind is left out until that work is
 // asked for, for the same YAGNI reason and not for the old one.
 //
-// ⛔ `newRowName` AND `rowName` ARE TWO KINDS AND MUST NOT BE FOLDED TOGETHER.
-// `rowName` RENAMES a row that already stands, which MK-13 reaches by a double
-// click on the 行見出し; `newRowName` is HF-14's naming of a row that does NOT
-// yet exist, and it arrives on a press on IC-91. One writes CM-34 against a
-// row, the other CM-26 to make one.
+// ⛔⛔ THE TWO ARE ONE ROAD SINCE 2026-09-04, AND THAT IS A MUST NOT. HF-14 of
+// table T-051: 「改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が
+// 改名について定めるものと同じものとすること（MUST）」, and FR-091 says the same of a
+// Task: 「入口の道は `FR-085`（行の名前）と同じものとすること（MUST）」.
+// ⭐ So a press that MAKES a row plans CM-26 and carries the row out as
+// `CreatedSubject`; what happens next is `rowName`'s road and no other. ⚠️ The
+// note that stood here kept them apart, which was right while HF-14 asked for
+// an in-place field, and is the very thing the ruling withdrew.
 
 /**
  * CM-60, which is the one road into `dualCursor` (S-65).
@@ -871,6 +852,29 @@ export type SpentEntranceSituation =
   | 'rowIsAtTheDeepestLevel'
 
 /**
+ * The one thing a write brought into being, for the two requirements that leave
+ * the person standing on what they just made.
+ *
+ * ⭐ TWO MEMBERS BECAUSE TWO REQUIREMENTS ASK, and they ask for the same two
+ * moves: FR-001 (MUST) makes a drawn `Task` the selection and FR-091 (MUST)
+ * has it namable 「作った直後に」; HF-14 (MUST) stands a row up and 「その行の
+ * プロパティパネルを出し、名前の欄で名づけさせること」. Both roads end at
+ * FR-085's -- the `Properties Panel`, its name field, focused, all selected --
+ * and FR-091 (MUST) says so outright: 「入口の道は `FR-085`（行の名前）と同じもの
+ * とすること」. ⛔ 「その道をここに書き写してはならない（MUST NOT）」 is why this
+ * carries WHAT was made and not what is to be done about it.
+ *
+ * ⛔ NOT `Selection`. A row is not a member of SL-1 of table T-023c -- that row
+ * puts 行 outside the drawing area's selection on purpose -- so the two are
+ * different sets and one value may not stand for both.
+ */
+export type CreatedSubject =
+  /** FR-001: the `Task` a drag or a click on empty ground just drew (AT-19). */
+  | { readonly kind: 'task'; readonly uid: number }
+  /** HF-14 / HF-17: the `TaskGroup` a press on IC-91 or IC-93 stood up (AT-51). */
+  | { readonly kind: 'row'; readonly groupId: string }
+
+/**
  * What one happening is assigned to.
  *
  * ⭐ Wider than `DocumentCommand` because table T-036 is wider: opening a file,
@@ -904,6 +908,28 @@ export type InputAction =
   | {
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
+      /**
+       * What the writes above BRING INTO BEING, when a requirement says the
+       * person is to be left standing on it. Absent for every write that makes
+       * nothing, which is nearly all of them.
+       *
+       * ⭐⭐ WHY THE ACTION CARRIES IT AND THE SHELL DOES NOT WORK IT OUT.
+       * FR-001 (MUST, 利用者の裁定 2026-09-03): 「作ったタスクを選択にすること」,
+       * and HF-14 of table T-051 (MUST, 利用者の裁定 2026-09-04): 「押された瞬間
+       * に、既定の名前で行を立てること。その行のプロパティパネルを出し、名前の欄
+       * で名づけさせること」. Neither identity can be read back off the pointer
+       * -- `selectionFromInput` answers what was UNDER the press, and empty
+       * ground is under a drawn Task -- so the party that PLANNED the creation
+       * is the only one that knows what was made.
+       *
+       * ⛔ NOT A SECOND ACTION KIND. One happening carries one action, and the
+       * write and the standing-on-it are one press; a kind of its own could be
+       * planned without the write, or the write without it.
+       *
+       * ⚠️ A PLAN AND NOT A PROMISE. A refused write makes nothing, so the
+       * holder tests the document before it stands anybody on this.
+       */
+      readonly created?: CreatedSubject
     }
   /**
    * S-211 of table T-206 moves, and the writes that go with the same press.
@@ -1361,6 +1387,30 @@ function changed(commands: readonly DocumentCommand[]): TranslatedInput {
   return commands.length === 0
     ? CONSUMED_ELSEWHERE
     : acted({ kind: 'changeDocument', writes: [commands] })
+}
+
+/**
+ * A write that brings one thing into being, and the thing it brings.
+ *
+ * ⭐ FR-001 (MUST) and HF-14 (MUST) both end a creating press standing on what
+ * was created; `CreatedSubject` says why the planner is the only party that can
+ * name it. ⛔ NOT FOLDED INTO `changed`: every other caller of that member
+ * creates nothing, and an optional argument there would read as though they
+ * might.
+ *
+ * ⚠️ `writes` MAY BE MORE THAN ONE, for the reason `changedInOrder` gives -- a
+ * press that opens FR-018's tier before it stands the row up owes two.
+ *
+ * @purity pure
+ */
+function changedAndCreated(
+  writes: readonly (readonly DocumentCommand[])[],
+  created: CreatedSubject,
+): TranslatedInput {
+  const owed = writes.filter((one) => one.length > 0)
+  return owed.length === 0
+    ? CONSUMED_ELSEWHERE
+    : acted({ kind: 'changeDocument', writes: owed, created })
 }
 
 /**
@@ -4489,23 +4539,18 @@ function commandFromEntry(
       // 「最も浅い段へ行を 1 つ足す」.
       //
       // ⭐ THE SAME NAMING AS IC-91, which HF-17 asks for in as many words:
-      // 「名前の扱いは `HF-14` に従う」 -- the row is stood up with no name, the
-      // person types it where it will stand, and an empty name stands no row up.
+      // 「名前の扱いは `HF-14` に従う」 -- so since 2026-09-04 the row is stood up
+      // on the press with the default name and named in the `Properties Panel`.
       // ⭐ `parentGroupId: null` IS 段 0, and HF-17 (MUST) makes the new row
       // 「最も浅い段の末子」 -- which is `orderPastLastChild` over the rows that
       // have no parent.
       // ⛔ NEVER SPENT. FR-085 allows a row at the shallowest level, so the
       // depth cap (S-125) cannot refuse depth 1 -- and this entrance is the one
       // road to a first row in a document that has none.
-      return acted({
-        kind: 'editInPlace',
-        target: {
-          kind: 'newRowName',
-          parentGroupId: null,
-          newGroupId: context.newGroupId,
-          order: orderPastLastChild(context.document.schedule, null),
-        },
-      })
+      // ⭐ AND FR-018's TIER IS NEVER OPENED FOR IT EITHER: 「深さ 1 を LOD の
+      // 対象にしてはならない（MUST NOT）」, so a row of the shallowest level is
+      // drawn at every zoom and `rowStoodUp` plans no CM-65 for it.
+      return rowStoodUp(context, null, 1)
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -4890,17 +4935,30 @@ function commandFromRowEntry(
 
   if (entry === ENTRY.rowAddChild) {
     // IC-91 -- HF-14 (MUST), which names HR-8 of table T-015: one row is added
-    // UNDER this one, as its LAST child, with an empty name typed in place.
+    // UNDER this one, as its LAST child.
     //
-    // ⭐⭐ NO COMMAND IS PLANNED HERE, and `InPlaceTarget`'s `newRowName` carries
-    // the whole of why: the name does not exist yet, HF-14 (MUST NOT) forbids
-    // inventing one, and CM-26 refuses a row that carries neither a name nor a
-    // derivation source (FR-058, MUST NOT). So the press asks for the naming and
-    // the write follows the settling.
-    // ⛔⛔ THE FAINT ENTRANCE IS TOLD ITS REASON AND OPENS NO FIELD, WHICH HF-14
-    // GAINED ON 2026-09-03 (MUST): 「薄いまま押されたときは、打ち込み口を出さずに
-    // 理由を告げること。理由は 表 T-233 の `RS-46` とすること」 -- 「打ち込ませて
-    // から捨てると、直前の『名前が空のまま確定された』と見分けがつかない」.
+    // ⭐⭐ THE ROW IS STOOD UP ON THE PRESS, WITH THE DEFAULT NAME (MUST, 利用者
+    // の裁定 2026-09-04): 「押された瞬間に、既定の名前で行を立てること。その行の
+    // プロパティパネルを出し、名前の欄で名づけさせること」, 「改名と別の道を作って
+    // はならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じものと
+    // すること（MUST）」. ⛔ 「その作法をここに書き写してはならない（MUST NOT）」 --
+    // so what is planned here is CM-26 and the fact that a row was made; WHAT
+    // the panel then does about it is FR-085's, on the holder's side.
+    // ⚠️⚠️ WHAT THIS REPLACES: until 2026-09-04 this press planned NO command
+    // and asked for an in-place field instead, because HF-14 then read 「名前は
+    // 空で立て、その場で打たせること」, 「既定の名を与えてはならない（MUST NOT）」
+    // and 「名前が空のまま確定されたときは、その行を立てないこと（MUST）」. All
+    // three were withdrawn in that ruling -- 「その禁止の理由は『改名の入口が 1 つ
+    // も無い』であり、`FR-085` が 2026-09-01 に改名の道を得た時点で失われていた」 --
+    // and `InPlaceTarget` no longer carries a `newRowName` kind at all.
+    // ⭐ THE NAME IS READ AND NOT SPELLED. HF-14 (MUST NOT): 「仕様書に綴りを刷っ
+    // てはならない」, 置き場は FR-038 の辞書 -- `DEFAULT_ROW_NAME` is that word,
+    // read out of `display-words.json` by the aggregate that owns CM-26.
+    // ⛔⛔ THE FAINT ENTRANCE IS TOLD ITS REASON AND STANDS NO ROW UP, WHICH
+    // HF-14 STATES SINCE 2026-09-04 (MUST): 「薄いまま押されたときは、行を立てずに
+    // 理由を告げること。理由は 表 T-233 の `RS-46` とすること」 -- ⛔ 「行を立てて
+    // からパネルを開き、そこで拒んではならない（MUST NOT）」, 「押した人には、名づ
+    // けを求められたうえで捨てられたようにしか見えない」.
     // ⚠️ THE NOTE THAT STOOD HERE SAID THE CAP WAS NOT TESTED ON THIS SIDE, on
     // HR-8's 「深さの上限の扱いは `FR-085` が持つ」. That still holds of the WRITE
     // -- `createTaskGroup` refuses the parent on its own account and no rule is
@@ -4913,20 +4971,13 @@ function commandFromRowEntry(
     // ⛔ MEASURED ON THE DOCUMENT AND NOT ON `context.layout.rows`, for the
     // reason `rowDepthOfGroup` gives: a row's depth is a fact of the tree, and
     // the picture holds only the rows it drew.
-    if (
-      rowDepthOfGroup(context, rowGroupId) >= context.document.documentSettings.maxGroupDepth
-    ) {
+    const parentDepth = rowDepthOfGroup(context, rowGroupId)
+    if (parentDepth >= context.document.documentSettings.maxGroupDepth) {
       return nothingToDo('rowIsAtTheDeepestLevel')
     }
-    return acted({
-      kind: 'editInPlace',
-      target: {
-        kind: 'newRowName',
-        parentGroupId: rowGroupId,
-        newGroupId: context.newGroupId,
-        order: orderPastLastChild(context.document.schedule, rowGroupId),
-      },
-    })
+    // FR-004 derives a row's depth from its parent, so the row this press makes
+    // stands one below the row it was pressed on.
+    return rowStoodUp(context, rowGroupId, parentDepth + 1)
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
@@ -5851,6 +5902,78 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
   const byId = new Map(rows.map((one) => [one.id, one]))
   const found = byId.get(groupId)
   return found === undefined ? 1 : rowGrabDepthOf(byId, found)
+}
+
+/**
+ * HF-14's press, whole: the row is stood up with the default name, FR-018's
+ * tier is opened far enough to draw it, and the row is carried out so that the
+ * `Properties Panel` can be turned to it.
+ *
+ * ⭐ ONE MEMBER FOR IC-91 AND IC-93, which HF-17 asks for by name: 「名前の扱いは
+ * `HF-14` に従う」. The two differ only in the parent (`null` is 段 0) and in the
+ * depth that follows from it.
+ *
+ * ⭐⭐ WHY THE TIER IS OPENED HERE (MUST, 2026-09-04): 「立てた行が、現に描かれて
+ * いる詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれるまで詳しさ
+ * の段を開くこと」, ⛔ 「表示位置を送るだけで済ませてはならない（MUST NOT）」 --
+ * 「送っても、詳しさが落とした行は現れない」. FR-018's group half is a function of
+ * `zoomY` alone (`groupDepthLimit`), so opening the tier IS putting `zoomY` at
+ * the smallest value that draws this depth, and CM-65 is the row of table T-108
+ * that writes it.
+ * ⛔ THE EXPRESSION IS NOT TYPED HERE. `groupDepthThresholdOf` is the one place
+ * it lives, and its own note says why a second copy is forbidden: the fit lands
+ * the zoom ON a threshold and reads it back through `groupDepthLimit`, so a
+ * value computed by any other route can differ by one ulp.
+ * ⚠️ `zoomX` IS CARRIED THROUGH UNCHANGED. CM-65 writes both S-75 and S-76, and
+ * FR-018's group half reads only the vertical -- nothing here is about the
+ * horizontal, so it is handed back what it already holds.
+ *
+ * ⛔⛔ TWO WRITES AND NOT ONE BUNDLE, which is the trap `isUndoable` spells out.
+ * UN-8 of table T-027 keeps CM-65 out of the undo history; WS-4 of table T-067
+ * pushes the document as it stood BEFORE a write. Folded together, the one step
+ * CM-26 pushes would carry the OLD zoom and an undo would rewind it -- exactly
+ * what FR-031 orders CM-71 before CM-72 to avoid. Zoom first, row second: the
+ * step already holds the new zoom, so undo takes the row away and leaves the
+ * tier where the press opened it.
+ *
+ * @purity pure
+ */
+function rowStoodUp(
+  context: InputContext,
+  parentGroupId: string | null,
+  depth: number,
+): TranslatedInput {
+  const settings = context.document.documentSettings
+  const opensTier = depth > groupDepthLimit(settings)
+  const newGroupId = context.newGroupId
+  return changedAndCreated(
+    [
+      opensTier
+        ? [
+            {
+              kind: 'setZoom',
+              zoomX: settings.zoomX,
+              zoomY: groupDepthThresholdOf(depth, settings),
+            } as const,
+          ]
+        : [],
+      [
+        {
+          // CM-26. ⭐ `derivedFromTaskUid` is null because this row is nobody's
+          // derivation: FR-058 lends a `Task`'s name to a row that has none of
+          // its own, and HF-14 now gives this one a name of its own.
+          kind: 'createTaskGroup',
+          id: newGroupId,
+          parentId: parentGroupId,
+          label: DEFAULT_ROW_NAME,
+          derivedFromTaskUid: null,
+          // AT-55, one past the last sibling -- HF-14's 末子 (MUST).
+          order: orderPastLastChild(context.document.schedule, parentGroupId),
+        } as const,
+      ],
+    ],
+    { kind: 'row', groupId: newGroupId },
+  )
 }
 
 /**
@@ -6911,7 +7034,24 @@ function commandFromArmed(
     // STOP -- ⛔ AR-3 IS THE ONLY ARM THIS OPENS. The figure is a column of the
     // `TaskVisual` CM-6 makes; nothing else the palette can hold needs a second
     // command on the new Task.
-    return changed(commands)
+    //
+    // ⭐⭐ THE NEW TASK IS CARRIED OUT WITH THE WRITE (MUST, 利用者の裁定
+    // 2026-09-03): FR-001's 「作ったタスクを選択にすること」 and its MUST NOT --
+    // 「選択にしないと `FR-091`（作った直後に入力できること）が果たせない」, 「名前
+    // を出す道は、何かが選ばれているときにしか進まないからである」.
+    // ⛔ THE HOLDER CANNOT WORK THE UID OUT. `selectionFromInput` answers what
+    // was UNDER the pointer, and PD-4 is the row where nothing was; the Task
+    // does not exist until CM-6 has run, and by then the press is over.
+    // ⭐ THE NUMBER IS READ AND NOT INVENTED, by the very reading the glyph
+    // command above already rests on: FR-001 (MUST) takes `Task.uid` from
+    // `Project.uidHighWaterMark` and (MUST NOT) from the largest live uid, so
+    // `nextIssuedUid` is a pure function of the document this component holds.
+    // ⚠️ ONE bundle, ONE creation -- the note on that member states the bargain,
+    // and CM-21 above names the same number for the same Task.
+    return changedAndCreated([commands], {
+      kind: 'task',
+      uid: nextIssuedUid(context.document.schedule),
+    })
   }
 
   if (armed.kind === 'commentBox') {

@@ -513,9 +513,13 @@ function sayTheDefects(when) {
     console.log('    that no OPEN row of docs/development-records/defects.md is a')
     console.log('    question a ROW CONTROLS sample can be asked -- it has rows and')
     console.log('    nothing else: no task bars, no canvas, no watermark.')
-    console.log('    ⭐ The four pressed out of the shipped build on 2026-09-01 --')
-    console.log('    D-06, D-147, D-181, D-182 -- are all closed, and PINNED in')
-    console.log('    tests/system/open-defect-pins.test.ts is now the empty list.')
+    // ⛔ NO SENTENCE ABOUT ANOTHER FILE'S STATE BELONGS HERE. One used to:
+    // it said PINNED in tests/system/open-defect-pins.test.ts was the empty
+    // list, and by 2026-09-04 that list read [D230, D232]. ⭐ A corrected
+    // copy would rot the same way at the next pin, so what is printed is
+    // only what THIS file can vouch for -- its own list, above.
+    console.log('    ⭐ Which pins stand is the pin file\'s own to report, and it')
+    console.log('    prints them on its own run. This board does not repeat them.')
   }
   for (const one of KNOWN_DEFECTS) {
     console.log(`    ⛔⛔ ${one.ledger}  ${one.move}  [${one.reading}]`)

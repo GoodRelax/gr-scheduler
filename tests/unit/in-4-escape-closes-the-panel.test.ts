@@ -96,7 +96,7 @@
 //      `PD-339` was settled on 2026-08-30 (CR-304) and the answer is that it
 //      does not -- 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」.
 //      ⛔ Still not asked HERE, because it is FR-072's rule and not IN-4's:
-//      tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts holds it, along
+//      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts holds it, along
 //      with the MUST NOT that keeps the selection standing after the close.
 //   4. WHAT A SAVED DOCUMENT READS BACK AS once the panel has been closed. The
 //      same blocked ruling. These cases read the width THIS SESSION draws with,

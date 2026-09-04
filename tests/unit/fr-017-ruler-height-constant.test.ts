@@ -36,6 +36,19 @@
 //           `fontScale`), `S-136` (`rulerLabelPad`), `S-1` (`pxPerDayAt1x`).
 //   表 T-201 closing paragraph: the label size is `rulerFont` whatever the tier;
 //           what a tier changes is only how the band is divided inside.
+//   FR-017  ⭐⭐ THE ONE EXCEPTION FR-017 CARVES IN THAT (利用者の裁定
+//           2026-09-03):「**`TM-4` の 3 行目（曜）は、同じ段の他の行より小さく
+//           刷ってよい（MAY）。比は … 表 T-206 の `S-219` が持つこと（MUST）**」
+//           -- a MAY on the size and a MUST on the ratio. ⚠️ 表 T-201's closing
+//           paragraph still states its rule unqualified, and an earlier
+//           revision of this file quoted it that way; the sweep below now holds
+//           the pair `rulerFont` / `rulerFont` x `S-219` instead.
+//   表 T-206 `S-219` -- the ratio itself, READ OUT OF THE MANUSCRIPT and never
+//           typed in. ⭐ THIS FILE IS WHERE THAT MATTERS: sweeping 表 T-215's
+//           three text sizes tells a RELATION (`rulerFont` x `S-219`) from a
+//           literal, which a file drawing at one size cannot.
+//   表 T-238 what each 段 prints, which is what says the exception belongs to
+//           `TM-4` alone -- the only 段 of the four with a third 行.
 //   表 T-205 `S-83` / `S-84` / `S-85`, the three thresholds, quoted as px/day at
 //           a 12px ruler font.
 //   表 T-215 `S-121` / `S-122` / `S-123` -- the px of `S` / `M` / `L`.
@@ -79,6 +92,7 @@ import {
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The values, solved from the manuscript rather than typed in.
@@ -134,6 +148,30 @@ const rulerHeightOf = (rulerFont: number): number => {
  * the band holds three 段 and no more.
  */
 const MOST_SEGMENTS = 3
+
+/**
+ * 表 T-206 の `S-219`——「目盛の曜日の段の文字の大きさの係数（`FR-017`）」, read
+ * off the manuscript's 既定 cell at read time.
+ *
+ * ⛔ THE NUMBER IS NEVER TYPED IN. FR-017 gives the 曜 its size as a RATIO
+ * against `rulerFont`, so what a case may hold is the relation; a product
+ * written here would be right at one text size of 表 T-215 and wrong at the
+ * other two, which is precisely the failure this file's axis exists to catch.
+ */
+const WEEKDAY_FONT_COEF = ((): number => {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-219')
+  if (row === undefined) throw new Error('表 T-206 no longer holds S-219')
+  const cell = row.by['既定']
+  const hit = cell === undefined ? null : /^-?\d+(?:\.\d+)?/.exec(cell.trim())
+  if (hit === null) throw new Error('S-219 の 既定 is no longer a bare number')
+  return Number(hit[0])
+})()
+
+if (!(WEEKDAY_FONT_COEF > 0) || WEEKDAY_FONT_COEF >= 1) {
+  // ⛔ At 1 or above,「小さく刷ってよい」stops being readable as an exception and
+  // the sweep below would pass without measuring anything.
+  throw new Error('S-219 no longer states a ratio that makes the 曜 smaller')
+}
 
 /** 表 T-205 -- the three thresholds, in px/day at a 12px ruler font. */
 const THRESHOLD = {
@@ -558,23 +596,52 @@ describe('FR-017 -- the band height does not move with the tier', () => {
 // ---------------------------------------------------------------------------
 
 describe('FR-017 -- only the arrangement inside the band changes', () => {
-  it('draws every label at `rulerFont` whatever the tier, at every text size', () => {
+  it('draws every label at `rulerFont`, only `TM-4`’s third 行 at `rulerFont` x `S-219`', () => {
     // 表 T-201, closing paragraph:「文字の大きさは段階によらず `rulerFont` とし、
     // 段階が変えるのは帯の中の段の組み方だけである —— 段階で文字が変わると、
     // 段階 → 実効フォントサイズ → 判定 → 段階 の循環になる」. FR-017 makes the
     // effective font size an input to the judgement, so a tier that moved the
     // label size would feed its own decision.
+    //
+    // ⭐ FR-017 (利用者の裁定 2026-09-03) carves ONE exception:「⭐⭐ **`TM-4` の
+    // 3 行目（曜）は、同じ段の他の行より小さく刷ってよい（MAY）。比は … 表 T-206
+    // の `S-219` が持つこと（MUST）**」. 表 T-238 gives a third 行 to `TM-4` and
+    // to no other 段, so the exception cannot reach a tier standing in fewer
+    // than three 段, and inside `TM-4` it cannot reach the first two.
+    //
+    // ⛔ ASSERTED AS THE RELATION, NOT AS THE EFFECT, and this file is where
+    // the difference shows: the sweep draws the same tier at 表 T-215's three
+    // text sizes, so `rulerFont` x `S-219` is a different number in each pass.
+    // A renderer holding one literal would answer `S` correctly and `M` and `L`
+    // wrongly -- exactly the shape of failure a written-out product would miss.
+    // ⚠️ THE MAY IS NOT FORCED. A renderer that declines it draws the 曜 at
+    // `rulerFont` and still passes; what cannot pass is any THIRD size, or the
+    // smaller size anywhere the exception does not reach.
     for (const scale of FONT_SCALES) {
+      const smaller = scale.font * WEEKDAY_FONT_COEF
       for (const sample of TIER_SAMPLE) {
         const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
+        const band = bandOf(settings)
         const where = `${scale.name} / ${sample.name}`
-        const labels = rulerTextsOf(drawn(settings), bandOf(settings))
+        const svg = drawn(settings)
+        const labels = rulerTextsOf(svg, band)
         expect(labels.length, `${where}: the band carries labels`).toBeGreaterThan(0)
+
+        // 表 T-238: the third 行 is the last 段 of a tier standing in three.
+        const baselines = baselinesOf(svg, band)
+        const third =
+          baselines.length === MOST_SEGMENTS ? (baselines[MOST_SEGMENTS - 1] as number) : null
+
         for (const one of labels) {
-          expect(numberAt(one.text, 'font-size') as number, `${where}: ${one.text}`).toBeCloseTo(
-            scale.font,
-            2,
-          )
+          const size = numberAt(one.text, 'font-size') as number
+          const onThird =
+            third !== null &&
+            Math.round((numberAt(one.text, 'y') as number) * 100) / 100 === third
+          if (onThird && Math.abs(size - smaller) < Math.abs(size - scale.font)) {
+            expect(size, `${where}: the 曜's size is \`rulerFont\` x S-219`).toBeCloseTo(smaller, 6)
+          } else {
+            expect(size, `${where}: ${one.text}`).toBeCloseTo(scale.font, 2)
+          }
         }
       }
     }
@@ -610,9 +677,12 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
     // FR-017's monotonicity MUST forbids a coarser tier showing more rows than
     // a finer one.
     // ⚠️ THE COUNT PER TIER IS NO LONGER MISSING, and this comment used to say
-    // it was. FR-017 (MUST, 利用者の裁定 2026-08-27) now states what each 段
-    // prints and folds 年 ＋ 月 into one of them wherever both are shown, which
-    // fixes a count for every tier and not only for the fourth.
+    // it was. 表 T-238（`FR-017`, MUST, 利用者の裁定 2026-09-03）now states what
+    // every 段 prints, 行 by 行, which fixes a count for each of the four and
+    // not only for the fourth: 1 / 2 / 2 / 3.
+    // ⛔ AN EARLIER REVISION OF THIS COMMENT SAID THE FOLD APPLIED「wherever
+    // both are shown」, quoting the 2026-08-27 ruling. 表 T-238 の `TM-2` splits
+    // them instead, so that reading is withdrawn for the month 段.
     // ⚠️ THE COUNT PER TIER IS STILL NOT ASSERTED HERE. This file's axis is the
     // text size, and the count does not move with it; the counts belong to the
     // band's own file (`uf-32-ruler-band.test.ts`), which asserts them at one

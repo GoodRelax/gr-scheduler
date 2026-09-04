@@ -131,6 +131,7 @@ import {
   type Notice,
   type OpenModal,
   type PropertiesPanel,
+  type PropertyField,
   type RowTitle,
   type ScreenFrame,
   type ScreenSurface,
@@ -700,19 +701,18 @@ interface Stage {
   author: string
   surface: ScreenSurface | undefined
   /**
-   * The way HF-14 of 表 T-051 (MUST) opens its name field, as the unit handed it
-   * over -- or `null` while it has handed nothing over.
+   * The one way in the unit hands over for putting a person into a field of the
+   * `Properties Panel`, or `null` while it has handed nothing over.
    *
    * ⭐ IT DOES NOT TRAVEL ON IF-9, AND THE MANUSCRIPT IS WHY. 表 T-065's cell for
-   * IF-9 names four supplies and every one of them is a QUESTION the shell asks;
-   * HF-14 needs the field OPENED, and the row it will name does not exist yet, so
-   * there is nothing in a `ScreenView` for a description to carry. ⚠️ That the
-   * seam has no member for this is a HOLE IN THE SPECIFICATION and not a reading
-   * of it -- see the note on the listener case below.
+   * IF-9 names five supplies and every one of them is a QUESTION the shell asks,
+   * so a state of the page cannot be asked for across that seam; the Framework's
+   * own wiring is the arrangement `onAppHeaderHeightPx` already travels on.
+   * ⭐⭐ HF-14 OF 表 T-051 SHARES IT RATHER THAN GROWING ONE OF ITS OWN, which is
+   * that row's (MUST NOT): 「**改名と別の道を作ってはならない（MUST NOT）。道は
+   * `FR-085` が改名について定めるものと同じものとすること（MUST）**」.
    */
-  openNewRowName: ((parentGroupId: string) => void) | null
-  /** Every name the unit settled in that field, with the row it was to stand under. */
-  readonly settledRowNames: { readonly parentGroupId: string; readonly name: string }[]
+  focusField: ((row: string) => void) | null
   /** The tree the unit built inside the mount. */
   root(): FakeElement
 }
@@ -764,8 +764,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
     clockMs: Date.UTC(2026, 7, 20, 3, 4, 5),
     author: 'Watcher',
     surface: undefined,
-    openNewRowName: null,
-    settledRowNames: [],
+    focusField: null,
     root(): FakeElement {
       const first = mount.children[0]
       if (first === undefined) throw new Error('the unit mounted nothing')
@@ -810,13 +809,12 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
       built.reportedHeights.push(heightPx)
       built.reportedBeforeFactoryReturned.push(built.surface === undefined)
     },
-    // HF-14 of 表 T-051 (MUST): 「**名前は空で立て、その場で打たせること
-    // （MUST）**」 -- the way in, and the way the settled name comes back out.
-    holdOpenNewRowName: (open: (parentGroupId: string) => void): void => {
-      built.openNewRowName = open
-    },
-    onNewRowNameSettled: (parentGroupId: string, name: string): void => {
-      built.settledRowNames.push({ parentGroupId, name })
+    // 表 T-023's MK-13 and FR-085 (MUST): the way a person is put into the name
+    // field of the `Properties Panel`. ⭐ HF-14 of 表 T-051 (MUST) names THIS
+    // road for the row it stands up -- 「**道は `FR-085` が改名について定めるもの
+    // と同じものとすること（MUST）**」 -- and forbids a second one.
+    holdFocusPropertyField: (focus: (row: string) => void): void => {
+      built.focusField = focus
     },
     readTheme: (): ScreenTheme => THEME,
   }
@@ -1480,50 +1478,24 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // 説明」 and says why: 「説明を最後に置くのは、`IN-3` が求める「消せること」
     // を果たす手立てがほかに 1 つも無いからである」. A press is on the side that
     // reads keys, not here. This case still falls the day one comes back.
-    // ⭐⭐ A THIRD PART JOINED THE TWO ON 2026-08-30, AND THE MANUSCRIPT PUT IT
-    // THERE. HF-14 of 表 T-051 (MUST) 「**配下に行を足す操作子を、行ごとに 1 つ
-    // 置くこと（MUST）**」 goes on 「⭐ **名前は空で立て、その場で打たせること
-    // （MUST）。既定の名を与えてはならない（MUST NOT）**」 and 「⭐ **名前が空の
-    // まま確定されたときは、その行を立てないこと（MUST）**」. ⇒ A THIRD FIELD
-    // TAKES CHARACTERS AND HAS TO NOTICE THEM BEING SETTLED, so a listener that
-    // serves it is not this unit widening its own supply.
-    //
-    // ⭐ 「その場」 IS WHAT SAYS WHERE IT MAY SIT. In place is on the row, and the
-    // row is in the `Row Title Panel` (U-22 of 表 T-103) -- which U-23 makes the
-    // name to use 「操作の入口を指すとき」. So the rule is not widened to "wherever
-    // a field happens to be": it is widened to the one part the MUST names, and a
-    // listener on the header or the canvas still falls this case.
-    //
-    // ⛔⛔ AND THE FIELD IS OPENED FIRST, ON PURPOSE. `holdOpenNewRowName` is the
-    // only way the field is ever put into the tree; before that it is a node the
-    // unit made and has not placed, so a containment check run without opening it
-    // reports 「keydown on [data-role=""]」 and says nothing about where the
-    // listener serves.
-    //
-    // ⚠️ WHAT THE SPECIFICATION DOES NOT DECIDE, RECORDED HERE RATHER THAN
-    // GUESSED AT. ① 表 T-103 names NO part for this field, so no `data-role` is
-    // owed: W-4 of 表 T-006a (MUST) only says that a `data-role` which carries a
-    // settled name spells it as 表 T-103 does, and there is no settled name to
-    // carry. ② 表 T-065's IF-9 names no member for the settled name either, so
-    // the way it leaves this unit is undeclared. ⛔ Neither is a reason to relax
-    // this case, and neither is invented here.
+    // ⭐⭐ A THIRD PART JOINED THE TWO ON 2026-08-30 AND LEFT AGAIN ON 2026-09-04,
+    // AND BOTH TIMES THE MANUSCRIPT DECIDED IT. HF-14 of 表 T-051 (MUST) used to
+    // read 「名前は空で立て、その場で打たせること（MUST）」, and 「その場」 is
+    // among the rows -- so a third field took characters, inside the `Row Title
+    // Tree`, and a listener serving it was not this unit widening its supply.
+    // ⛔ ALL THREE OF THAT ROW'S MUSTS WERE WITHDRAWN (利用者の裁定 2026-09-04,
+    // quoted in the row itself). It now reads 「押された瞬間に、既定の名前で行を
+    // 立てること（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせる
+    // こと（MUST）」 with 「改名と別の道を作ってはならない（MUST NOT）」 beside it
+    // ⇒ THE NAMING HAPPENS IN THE `Properties Panel`, which was already one of
+    // the two parts IF-9 names, so the roster goes back to two.
+    // ⭐ THE LIST IS DERIVED AND NOT COUNTED: it is exactly the parts the IF-9
+    // cell names as carrying something a PERSON settled -- 「対話欄で確定した
+    // 発話を返し、プロパティパネルの欄で確定した値を…返し」 -- and nothing else.
+    // ⛔ A listener among the rows now falls this case, which is how the row's
+    // own MUST NOT is held down from here.
     const root = built.root()
-    const parentRow = RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? ''
-    expect(built.openNewRowName, 'the unit never handed over HF-14 の 開き方').not.toBeNull()
-    built.openNewRowName?.(parentRow)
-
-    // ⚠️ BOTH NAMES OF ONE PLACE. 表 T-103's `U-23` says the `Row Title Tree` is
-    // 「**`Row Title Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）」
-    // and then 「⚠️ **操作の入口を指すときは「行見出しパネル」と書くこと（MUST）**」
-    // -- so the rows stand in the tree while an entrance among them is NAMED for
-    // the panel. Both are listed rather than one being chosen, because the
-    // manuscript uses both and this case is about place, not about naming.
-    const noticing = [
-      oneByRole(root, 'Dialogue Field'),
-      oneByRole(root, 'Properties Panel'),
-      oneByRole(root, partName('U-22')),
-      oneByRole(root, partName('U-23')),
-    ]
+    const noticing = [oneByRole(root, 'Dialogue Field'), oneByRole(root, 'Properties Panel')]
 
     expect(built.world.registrations.length).toBeGreaterThan(0)
 
@@ -1604,153 +1576,231 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 })
 
 // ===========================================================================
-// HF-14 of 表 T-051 (MUST) -- the name of a row that does not exist yet.
+// HF-14 of 表 T-051 (MUST) -- the row is stood up AT THE PRESS, with the default
+// name, and named in its own `Properties Panel`.
 //
-// ⭐ WHAT THE MANUSCRIPT SAYS, VERBATIM (docs/spec/01-04-requirements.md,
-// 表 T-051 の `HF-14`):
-//   「**配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）**」 —— 表 T-015 の
-//   `HR-8` である。⭐ 「**足した行は末子とすること（MUST）**」 ⭐ 「**名前は空で
-//   立て、その場で打たせること（MUST）。既定の名を与えてはならない（MUST NOT）**」
-//   —— ⛔⛔ 「**改名の入口が表 T-109 に 1 つも無い**（`UN-14` は「名前の変更」を
-//   取り消せると書いているのに）ので、**既定の名で立てると、直せない行ができる。**」
-//   ⭐ 「**名前が空のまま確定されたときは、その行を立てないこと（MUST）**」 ——
-//   「空の名は `FR-085` の打ち切りも `FR-052` の幅合わせも掴むものが無い。」
+// ⭐ WHAT THE MANUSCRIPT SAYS NOW (docs/spec/01-04-requirements.md, 表 T-051 の
+// `HF-14`; the ruling of 2026-09-03 is quoted verbatim inside the row):
+//   「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティ
+//   パネルを出し、名前の欄で名づけさせること（MUST）**」 —— ⛔ 「**改名と別の道を
+//   作ってはならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じ
+//   ものとすること（MUST）**」 —— ⛔ 「**その作法をここに書き写してはならない
+//   （MUST NOT）**」 —— ⭐ 「**既定の名前は表示語として持つこと（MUST）。仕様書に
+//   綴りを刷ってはならない（MUST NOT）**」（置き場は `FR-038` の辞書）。
 //
-// ⭐ SK-19 of 表 T-036 is what settles it: 「**その場の編集を確定する**（名称・
-// 担当者名・**行名**・文書名・プロパティの入力）」, key `Enter` -- and 行名 is
-// this field by name.
+// ⛔⛔ THREE MUSTS WERE WITHDRAWN ON 2026-09-04, and the cases that carried them
+// went with them: 「名前は空で立て、その場で打たせること」「既定の名を与えては
+// ならない」「名前が空のまま確定されたときは、その行を立てないこと」. The row
+// says why in its own words -- 「**その禁止の理由は「改名の入口が 1 つも無い」で
+// あり、`FR-085` が 2026-09-01 に改名の道を得た時点で失われていた**」.
+// ⛔ ONE OF THEM HAS NO SUCCESSOR AT ALL, AND NONE WAS INVENTED. 「空のまま確定
+// されたら立てない」 was a rule about a settling that can no longer happen: the
+// row is already standing when the panel opens, so there is nothing left to
+// withhold. Nothing in HF-14 as it now stands replaces it.
 //
-// ⛔ WHAT IS NOT ASKED HERE, AND WHY. 「足した行は末子とすること（MUST）」 and
-// 「その行を立てないこと（MUST）」 are rules about the WRITE. This unit holds no
-// document and makes no command; what it owes HF-14 is that the field stands
-// where the row will, that it stands EMPTY, and that what was settled -- the
-// empty name included -- reaches the caller who does the writing. ⛔ A unit that
-// swallowed the empty settling would leave that caller holding a row it can
-// neither stand up nor drop.
+// ⛔ WHAT THIS UNIT CANNOT CARRY, WRITTEN DOWN RATHER THAN ASSERTED:
+//   - 「押された瞬間に…行を立てること」 and 「足した行は末子とすること」 are the
+//     WRITE. This unit holds no document and makes no command; a `ScreenView`
+//     reaches it with the row already in it.
+//   - 「既定の名前は表示語として持つこと」 is the naming side's. The word travels
+//     into this unit inside `RowTitle.label`, so a case here could assert only
+//     what the fixture typed. ⭐ What CAN be held from here is that the word has
+//     a home and that the specification does not spell it -- the last case reads
+//     the pointer the manuscript does state and then asks FR-038's dictionary.
+//   - 「立てた行が…詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれ
+//     るまで詳しさの段を開くこと（MUST）。表示位置を送るだけで済ませてはならない
+//     （MUST NOT）」 IS NOT CARRIABLE HERE, and is deliberately not asserted. This
+//     unit is HANDED a `ScreenView`: which rows survived the detail tier, and
+//     where the viewport was sent, are both settled before the description
+//     arrives. ⛔ A case here could only check that a row the fixture itself put
+//     into the view was drawn, which says nothing at all about a tier being
+//     opened. That MUST belongs to the side that chooses the tier.
+//   - 「薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は 表
+//     T-233 の `RS-46`」 is likewise raised elsewhere; this unit draws whatever
+//     `notices` it is handed.
 //
-// ⚠️ AND WHAT THE SPECIFICATION DOES NOT DECIDE, recorded rather than invented:
-// 表 T-103 gives this field no settled name (so no `data-role` is owed), and
-// 表 T-065's IF-9 names no member for the settled name, so the way it leaves
-// this unit is undeclared. The cases below therefore find the field by WHERE IT
-// APPEARED and never by a mark, and read the settling off the wiring.
+// ⭐ WHAT IS LEFT HERE IS THE ROAD, AND THE ROAD IS THE WHOLE OF THE (MUST NOT).
+// FR-085 and 表 T-023's `MK-13` put a person into the name field of the
+// `Properties Panel`, this unit is the only side that can (LR-6 keeps the
+// browser out of every other layer), and HF-14 says its own naming goes THAT
+// way and no other. ⚠️ How that road behaves in detail -- which control answers,
+// and every character already there chosen -- is held by
+// tests/unit/mk-13-the-name-field-is-armed.test.ts. What is held HERE is that
+// there is exactly one of it, and that it does not stand among the rows.
 // ===========================================================================
 
-describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打たせること', () => {
+describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロパティパネルの名前の欄で名づけさせること', () => {
   /**
-   * Where 「その場」 is: the tree the rows themselves stand in.
+   * The row of the name field, READ OUT OF 表 T-023's `MK-13` and never typed.
    *
-   * ⭐ 表 T-103's `U-23`: 「行見出しツリー。**`Row Title Panel` の中身**（パネルが
-   * 画面領域、ツリーがその中の木の表示）」 -- the rows are drawn here, so a field
-   * standing where the new row will stand is here too. ⚠️ The entrance that opens
-   * it is still NAMED for the panel, which is that row's own MUST 「操作の入口を
-   * 指すときは「行見出しパネル」と書くこと」; naming and placing are two things.
+   * ⭐ HF-14 (MUST NOT) forbids its own cell to write the manner down -- 「**その
+   * 作法をここに書き写してはならない（MUST NOT）**」 -- and points at `FR-085`
+   * instead; `FR-085` and `MK-13` both call the field 「名前の欄（`AT-53`）」. So
+   * the row id has a home already, and a cell that stopped naming one fails here
+   * in one line rather than leaving every case below asking about nothing.
    */
-  const panelOf = (built: Stage): FakeElement => oneByRole(built.root(), partName('U-23'))
+  const NAME_ROW = ((): string => {
+    const mk13 = specTable('T-023').rows.find((one) => one.id === 'MK-13')
+    const found = /行見出し（行の名前）[^`]*`[^`]*`[^`]*`(AT-\d+)`/.exec(mk13?.cells.join(' ') ?? '')
+    if (found === null) throw new Error('表 T-023 MK-13 no longer names the row-name field')
+    return found[1] as string
+  })()
+
+  /** The row the description below is about -- the first the rich view draws. */
+  const GROUP_ID = RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? ''
 
   /**
-   * Open the naming and hand back the ONE node it put into the panel.
+   * The name standing in that field.
    *
-   * ⭐ FOUND BY WHAT APPEARED AND NOT BY A MARK, deliberately: 表 T-103 names no
-   * part for this field, so there is no `data-role` the specification owes it and
-   * a case that looked for one would be asserting a name nobody decided.
+   * ⚠️ THIS FILE'S OWN AND IT DECIDES NOTHING. The default name is FR-038's
+   * dictionary's (`defaultNames` の `row`) and reaches this unit inside the
+   * description; what a case here needs is a value it can tell apart from every
+   * other word on the screen.
    */
-  function openedField(built: Stage, parentGroupId: string): FakeElement {
-    const before = selfAndDescendants(panelOf(built))
-    expect(built.openNewRowName, 'the unit handed over no way to open HF-14 の 欄').not.toBeNull()
-    built.openNewRowName?.(parentGroupId)
-    const added = selfAndDescendants(panelOf(built)).filter((one) => !before.includes(one))
+  const THE_NAME_STANDING_THERE = 'RowNameStandingHere'
+
+  /** The `Properties Panel` of a row, with the one field HF-14 sends a person to. */
+  const panelWithName = (): PropertiesPanel =>
+    ({
+      showing: 'selection',
+      isSubjectGone: false,
+      fields: [
+        {
+          row: NAME_ROW,
+          name: 'label',
+          text: THE_NAME_STANDING_THERE,
+          isEditable: true,
+          controls: [
+            {
+              key: { holder: 'taskGroup', groupId: GROUP_ID, column: 'label' },
+              kind: 'text',
+              text: THE_NAME_STANDING_THERE,
+              choices: null,
+              min: null,
+              max: null,
+              widthInFontSizes: 8,
+            },
+          ],
+        } as PropertyField,
+      ],
+      commands: [],
+    }) as PropertiesPanel
+
+  /** The controls a person edits a field through -- a form element and nothing else. */
+  const CONTROL_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
+  const controlsIn = (part: FakeElement): FakeElement[] =>
+    selfAndDescendants(part).filter((one) => CONTROL_TAGS.has(one.tagName))
+
+  /** Everything a failure needs to be read without opening the unit. */
+  const whatWasDrawn = (part: FakeElement): string =>
+    controlsIn(part)
+      .map((one) => `${one.tagName}[value=${JSON.stringify(one.value)}]`)
+      .join(' ; ')
+
+  /**
+   * The rows drawn WITH the panel of one of them up -- the picture HF-14 asks
+   * for the instant the entrance is pressed.
+   *
+   * ⚠️ `notices` is drawn empty: `NT-8` of 表 T-037 (MUST) puts the newest
+   * telling away 「`Enter` と `Esc` のどの階層よりも先に」, and no case here is
+   * about that rung.
+   */
+  const drawn = (): Stage => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView({
+      ...RICH_VIEW,
+      notices: [],
+      propertiesPanel: panelWithName(),
+    })
+    return built
+  }
+
+  it('⭐ MUST: GIVEN the row is standing WHEN the naming is looked for THEN it is in the `Properties Panel` -- 「その行のプロパティパネルを出し、名前の欄で名づけさせること」', () => {
+    const built = drawn()
+    const panel = oneByRole(built.root(), partName('U-25'))
+
+    // ⭐ THE FIELD IS THE ONE `FR-085` ALREADY DEFINES, asked for by the row id
+    // that requirement names -- not by a mark invented here.
+    expect(controlsIn(panel).map((one) => one.value), whatWasDrawn(panel)).toContain(
+      THE_NAME_STANDING_THERE,
+    )
+  })
+
+  it('⛔ MUST NOT: GIVEN the rows are drawn WHEN the tree is read THEN nothing among them takes characters -- 「改名と別の道を作ってはならない（MUST NOT）」', () => {
+    // ⛔ THIS IS THE CASE THE WITHDRAWN MUSTS TURNED INSIDE OUT. Until 2026-09-04
+    // the row asked for a field 「その場」, among the rows; it now forbids one,
+    // because a second place to type a name IS a second road. ⚠️ 表 T-103's
+    // `U-23` is where the rows stand (「**`Row Title Panel` の中身**」), so that
+    // is the part read.
+    const built = drawn()
+    const tree = oneByRole(built.root(), partName('U-23'))
+
+    expect(controlsIn(tree), whatWasDrawn(tree)).toEqual([])
     expect(
-      added,
-      'opening the naming did not put exactly one field where the rows stand',
-    ).toHaveLength(1)
-    return added[0] as FakeElement
-  }
+      selfAndDescendants(tree).filter((one) => one.hasAttribute('contenteditable')),
+      'a node among the rows takes characters without being a form control',
+    ).toEqual([])
+  })
 
-  /**
-   * The panel drawn with NOTHING TOLD, which is what `SK-19`'s naming needs.
-   *
-   * ⛔⛔ `RICH_VIEW` CARRIES A TELLING, AND SINCE 2026-08-31 THAT CHANGES WHICH
-   * RUNG `Enter` REACHES. `NT-8` of table T-037 (MUST) puts the newest telling
-   * away 「`Enter` と `Esc` のどの階層よりも先に」, so with one standing the press
-   * takes the telling and settles no name at all. ⭐ That is held by its own
-   * case below; these ones are about the naming, so they draw an empty
-   * `notices`.
-   */
-  const drawnPanel = (): { built: Stage; parentGroupId: string } => {
+  it('⭐ MUST: GIVEN the surface is built WHEN the road is looked for THEN it is FR-085 の道, handed over once and landing in the panel', () => {
+    // ⛔ THE PREMISE THE WHOLE ROW RESTS ON, and the reason it is not on IF-9:
+    // 表 T-065's cell names five supplies and every one of them is a QUESTION,
+    // so a state of the page cannot be asked for across that seam.
     const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView({ ...RICH_VIEW, notices: [] })
-    return { built, parentGroupId: RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? '' }
-  }
+    expect(built.focusField, 'the unit handed over no way to put a person in the name field').not.toBeNull()
 
-  /** The same panel WITH one telling standing, for `NT-8`'s own case. */
-  const drawnPanelTelling = (): { built: Stage; parentGroupId: string } => {
-    const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(RICH_VIEW)
-    return { built, parentGroupId: RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? '' }
-  }
+    surfaceOf(built).showScreenView({
+      ...RICH_VIEW,
+      notices: [],
+      propertiesPanel: panelWithName(),
+    })
+    // ⭐ The premise without which 「it took the focus」 says nothing.
+    expect(built.world.activeElement).toBeNull()
 
-  it('⭐ GIVEN the naming of a new row is opened WHEN the field is read THEN it stands AMONG THE ROWS -- 「その場」 (MUST)', () => {
-    const { built, parentGroupId } = drawnPanel()
+    built.focusField?.(NAME_ROW)
 
-    // ⛔ Before it is opened there is nothing to type into: 「その場で打たせる」
-    // is what a press on IC-91 begins, not a field that waits on every frame.
-    const field = openedField(built, parentGroupId)
-
-    expect(panelOf(built).contains(field)).toBe(true)
+    const panel = oneByRole(built.root(), partName('U-25'))
+    const active = built.world.activeElement
+    expect(active, 'nothing took the focus').not.toBeNull()
+    expect(
+      panel.contains(active as FakeElement),
+      `the focus landed outside the Properties Panel: ${whatWasDrawn(panel)}`,
+    ).toBe(true)
+    // ⛔ AND NOT AMONG THE ROWS, which is the same (MUST NOT) from the other end.
+    expect(oneByRole(built.root(), partName('U-23')).contains(active as FakeElement)).toBe(false)
   })
 
-  it('⛔ GIVEN the naming is opened WHEN the field is read THEN it holds NOTHING -- 「既定の名を与えてはならない（MUST NOT）」', () => {
-    const { built, parentGroupId } = drawnPanel()
-    const field = openedField(built, parentGroupId)
-
-    // ⛔ THE REASON THE MUST NOT IS THERE, in the row's own words: 「改名の入口が
-    // 表 T-109 に 1 つも無い…ので、既定の名で立てると、直せない行ができる」. A
-    // placeholder that arrived as the VALUE would be exactly that row.
-    expect(field.value, 'the field stands with a name already in it').toBe('')
-    expect(field.textContent, 'the field stands with a name already in it').toBe('')
-    // ⚠️ The row it is naming does not exist, so nothing of the parent's name may
-    // have been copied in either.
-    expect(field.value).not.toBe(RICH_VIEW.rowTitlePanel.titles[0]?.label ?? null)
-  })
-
-  it('⭐ GIVEN a name is typed WHEN Enter settles it THEN that name reaches the caller WITH the row it is to stand under (SK-19, HR-8 「足す先は配下」)', () => {
-    const { built, parentGroupId } = drawnPanel()
-    const field = openedField(built, parentGroupId)
-
-    field.value = 'NewRowNameHere'
-    keyPress(field, 'Enter')
-
-    expect(built.settledRowNames).toEqual([{ parentGroupId, name: 'NewRowNameHere' }])
-  })
-
-  it('⛔ GIVEN the field is left EMPTY WHEN Enter settles it THEN the empty name reaches the caller too, so 「その行を立てないこと（MUST）」 has somewhere to be obeyed', () => {
-    const { built, parentGroupId } = drawnPanel()
-    const field = openedField(built, parentGroupId)
-
-    keyPress(field, 'Enter')
-
-    // ⭐ THE RULE IS ABOUT THE WRITE AND THE WRITE IS THE CALLER'S: 「名前が空の
-    // まま確定されたときは、その行を立てないこと（MUST）」. ⛔ A unit that kept
-    // the empty settling to itself would put the field away and tell nobody, and
-    // the caller would go on waiting for a settling that never comes -- the row
-    // it is holding could then be neither stood up nor dropped.
-    expect(built.settledRowNames).toEqual([{ parentGroupId, name: '' }])
-  })
-
-  it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
+  it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the name field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
     // 「⛔⛔ **この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）**」
     // ——「**階層は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持ち、どちらも本行を
     // 先頭に置く**」. ⭐ The user's own words: 「タスク名の確定の Enter より、
     // エラーメッセージの消去を優先しろ」.
-    // ⚠️ ONE RUNG PER PRESS, which is what `IN-4` has always asked of `Esc`: the
-    // SECOND press is what settles the name.
-    const { built, parentGroupId } = drawnPanelTelling()
-    const field = openedField(built, parentGroupId)
+    // ⚠️ ONE RUNG PER PRESS, which is what `IN-4` has always asked of `Esc`.
+    // ⭐ THE FIELD IS THE PANEL'S NOW, not one standing among the rows: HF-14's
+    // 「その場で打たせること」 was withdrawn on 2026-09-04 and the naming moved
+    // onto FR-085's road, so the rung this case is about is reached in the
+    // control the panel drew.
+    const built = wire({ 'App Header': 37 })
+    // ⚠️ `RICH_VIEW` carries one telling, which is the whole premise here.
+    surfaceOf(built).showScreenView({ ...RICH_VIEW, propertiesPanel: panelWithName() })
+    const panel = oneByRole(built.root(), partName('U-25'))
+    const control = controlsIn(panel)[0]
+    expect(control, whatWasDrawn(panel)).toBeDefined()
 
-    field.value = 'NewRowNameHere'
+    // ⚠️ A PERSON PUTTING THE CARET IN, TYPING, AND PRESSING THE KEY -- all
+    // three, because a bare keystroke on a field nobody entered settles nothing
+    // and a case that sent one alone would be green for the wrong reason.
+    const field = control as FakeElement
+    field.focus()
+    keyPress(field, '', { type: 'focusin' })
+    field.value = 'RowNamedWhileATellingStood'
+    keyPress(field, '', { type: 'input' })
     keyPress(field, 'Enter')
 
-    expect(built.settledRowNames, 'the name was settled while a telling stood').toEqual([])
+    expect(
+      surfaceOf(built).readFieldCommit(),
+      'the value was settled while a telling stood',
+    ).toBeNull()
   })
 
   it('GIVEN the specification is re-read WHEN HF-14 and SK-19 are looked up THEN HF-14 stands the row up WITH the default name and names it in the Properties Panel, settled with Enter', () => {
@@ -1780,6 +1830,47 @@ describe('HF-14 of 表 T-051 (MUST) -- 名前は空で立て、その場で打�
     expect(cells).not.toContain('名前は空で立て、その場で打たせること（MUST）')
     expect(cells).not.toContain('既定の名を与えてはならない（MUST NOT）')
     expect(cells).not.toContain('名前が空のまま確定されたときは、その行を立てないこと（MUST）')
+
+    // ⭐⭐ THE DEFAULT NAME HAS A HOME, AND THE SPELLING IS NOT READ OUT OF THIS
+    // FILE. HF-14 (MUST NOT) forbids the specification to print it, so the only
+    // honest way to reach it is the POINTER the manuscript does state -- the
+    // invariant under 表 T-050 (MUST): 「**名前は `FR-038` の辞書の
+    // `defaultNames` の `row` の語とすること（MUST）**」 -- followed into the
+    // dictionary FR-038 keeps. ⛔ Nothing here types 「No name」: the two names
+    // that ARE typed are the two the manuscript itself spells, and the word is
+    // whatever the dictionary holds under them.
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    const pointer = /名前は `FR-038` の辞書の `([A-Za-z]+)` の `([A-Za-z]+)` の語とすること（MUST）/.exec(
+      requirements,
+    )
+    expect(pointer, '表 T-050 no longer points at the dictionary for the default name').not.toBeNull()
+    const dictionary = JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'),
+        'utf8',
+      ),
+    ) as Record<string, readonly Record<string, unknown>[]>
+    const section = dictionary[(pointer as RegExpExecArray)[1] as string]
+    expect(section, 'FR-038 の辞書 no longer holds the section 表 T-050 names').toBeDefined()
+    const entry = section?.find((one) =>
+      Object.values(one).includes((pointer as RegExpExecArray)[2] as string),
+    )
+    expect(entry, 'FR-038 の辞書 no longer holds the word 表 T-050 names').toBeDefined()
+    const word = entry?.['text'] as Record<string, string> | undefined
+    expect(word?.['ja'], 'the default name has no word to stand a row up with').toBeTruthy()
+    expect(word?.['en'], 'the default name has no word to stand a row up with').toBeTruthy()
+    // ⚠️ 「**仕様書に綴りを刷ってはならない（MUST NOT）**」 IS DELIBERATELY NOT
+    // ASSERTED AS A SUBSTRING, and what was measured is written down rather than
+    // guessed at: HF-14's cell DOES hold the word, inside the verbatim quotation
+    // of the ruling that put the rule there (「**No name というタスクグループを
+    // 追加して…**」). ⛔ A case that searched the cell would be red on the day the
+    // rule landed, and would be asking the manuscript to stop quoting the person
+    // who gave it -- which no requirement asks for. The MUST NOT is about where
+    // the value LIVES, and that half is what the lines above hold: it lives in
+    // FR-038's dictionary, and this file reads it from there.
 
     const sk19 = specTable('T-036').rows.find((one) => one.id === 'SK-19')
     expect(sk19, '表 T-036 no longer holds SK-19').toBeDefined()

@@ -40,7 +40,7 @@
 //                  entrance whose second half this is.
 //   `SK-19`        「その場の編集を確定する」 -- what a person presses when the
 //                  typing is done. ⚠️ Not driven here:
-//                  tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts owns
+//                  tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns
 //                  that key.
 //
 // ---------------------------------------------------------------------------
@@ -64,7 +64,7 @@
 //   1. THAT A DOUBLE CLICK IS WHAT CALLS IT. The press is read by UF-48 and the
 //      shell is what joins the two sides, so a case here would be asserting a
 //      unit it is not driving.
-//      tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts holds the half
+//      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts holds the half
 //      that can be seen from the loop: the panel goes up, showing that Task.
 //      ⛔ THE JOIN ITSELF -- that the shell calls this with `PR-1` when MK-13
 //      happens -- IS WATCHED BY NEITHER FILE, and is reported rather than

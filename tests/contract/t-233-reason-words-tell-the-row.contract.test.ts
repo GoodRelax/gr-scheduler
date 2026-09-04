@@ -134,7 +134,7 @@ const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
  *
  * ⚠️ THE HEADING USED TO SAY THE FIVE WERE JOINED WITH A NUL, and `fingerprintOf`
  * below has always joined them with a space. The comment was corrected rather
- * than the code (2026-09-03): changing the separator would re-key all 44 rows
+ * than the code (2026-09-03): changing the separator would re-key all 43 rows
  * without a single pair having been re-read, which is exactly the paste-in this
  * file exists to forbid. ⛔ A space is the weaker separator -- text moved across
  * a field boundary keeps the same hash -- and that is a real, if small, hole.
@@ -205,21 +205,25 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
   //   CR-340 was written to keep. ⇒ the words tell the scene.
   //
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-04 (CR-347 §2.6, ledger row D-124).
-  // `RS-47` -- 場面 「渡された日程が読めなかった」; ja 「渡された日程が読めません
-  //   でした」 is the same sentence in the polite past form, en 「The schedule
-  //   that was handed over could not be read」 says the same thing, and the 作法
-  //   column writes the row against `NT-3a`, whose next step 「別のファイルを開い
-  //   てください」 / 「Open a different file」 is a step the reader can actually
-  //   take -- the only one, since the schedule that was handed over is the one
-  //   that cannot be read. ⇒ the words tell the scene.
-  //   ⚠️ IT IS NOT `RS-26`, whose 場面 is 「起動時に渡された文書が読めなかった」
-  //   and whose 正 is 表 T-024a の `OP-14`; that row is `NT-1` and descends to
-  //   the next rank of 表 T-034. This row's 正 is `FR-087` and its 作法 `NT-3a`,
-  //   so the two are told differently and their words are kept apart.
+  // ⛔⛔ `RS-47` LEFT THE TABLE ON 2026-09-04, THE SAME DAY IT ARRIVED (CR-349
+  //   §1, ledger row 1.81 of 表 T-100). It was added by CR-347 for 場面 「渡され
+  //   た日程が読めなかった」 with 作法 `NT-3a` and 正 `FR-087`, and the reading
+  //   recorded here on the morning of 2026-09-04 argued the two rows were kept
+  //   apart. ⛔ THAT READING WAS WRONG, and the entry is withdrawn rather than
+  //   corrected: `RS-26` 「起動時に渡された文書が読めなかった」 is the SAME
+  //   scene told the OTHER way (`NT-1`, 正 表 T-024a の `OP-14`), so the
+  //   specification held two manners for one situation and contradicted itself.
+  //   ⭐ 表 T-024a の `OP-14` has held the whole rule since before CR-347 --
+  //   「黙って捨てずに通知すること（MUST）。作法は 表 T-037 の `NT-1`… 運ぶ理由は
+  //   表 T-233 の `RS-26` とする。そのうえで 表 T-034 の次の順位へ降りること
+  //   （MUST）。空で起動してはならない（MUST NOT）」 -- and `FR-087` now points
+  //   at it instead of restating it. ⇒ 表 T-233 no longer holds the row and the
+  //   manuscript no longer holds its 項, so its pairing is not left behind here.
+  //   ⚠️ 行 ID は席の番号であり、詰めない: no other row moved up into it, and the
+  //   42 pairings above are untouched -- not one of them was re-keyed, because
+  //   not one of their pairs moved.
   // ---------------------------------------------------------------------
   'RS-46': '1dc2be62612383ad',
-  'RS-47': '91391ea48d5ac4e5',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

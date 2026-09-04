@@ -327,11 +327,11 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）|
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）／ `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／ `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**（利用者の裁定 2026-09-03）。**同行は「立てた行が落ちる深さになるなら、描かれるまで詳しさの段を開くこと（MUST）」と定めるので、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。**⛔ **式を写して持たせてはならない（MUST NOT）** —— **`groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。**|
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。命令の列で書き込む）／ `replaceDocument`（`non-pure`。`ApplyDocumentChange` の外で組み立てた文書を現在値にする。手順は 表 T-067、呼び手ごとの扱いは 表 T-230） |
-| PI-9 | `UseCase` | `EditDocument` | `editDocument`（表 T-108 の命令を集約へ振り分ける。表 T-067 の `WS-3` が呼ぶ。集約ごとの割りは 表 T-063 の `UT-2`）／ `Refusal`（型。拒んだ理由。表 T-035 の `AG-9a`）／ `SettingsLimits`（型。`editDocument` に渡す下限・上限） |
+| PI-9 | `UseCase` | `EditDocument` | `editDocument`（表 T-108 の命令を集約へ振り分ける。表 T-067 の `WS-3` が呼ぶ。集約ごとの割りは 表 T-063 の `UT-2`）／ `Refusal`（型。拒んだ理由。表 T-035 の `AG-9a`）／ `SettingsLimits`（型。`editDocument` に渡す下限・上限）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— **同行は「既定の名前は表示語として持つこと（MUST）。仕様書に綴りを刷ってはならない（MUST NOT）」と定める。** |
 | PI-10 | `UseCase` | `ImportDocument` | `importDocument`（合流の選択肢は 表 T-032a） |
 | PI-11 | `UseCase` | `UndoEdit` | `undoEdit` |
 | PI-12 | `UseCase` | `RedoEdit` | `redoEdit` |
@@ -739,7 +739,7 @@ stateDiagram-v2
 
 | 行 ID | 求めるもの | 算式 |
 | --- | --- | --- |
-| LF-1 | 目盛の刻みの間隔 | 段階ごとに固定とし、**年の段は 1 年、年と月の段は 1 か月、週の段は 7 日、日の段と曜日の段は 1 日**に 1 つ刻む。⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからである**（`FR-017`。利用者の裁定 2026-08-27）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。**⛔ **これ以外の間隔を採ってはならない（MUST NOT）**（利用者の裁定 2026-08-26）—— **間引いた段では読む人が刻みの単位を数え直すことになり、2 日おきと 3 日おきが倍率で入れ替わる。** ⭐ **週の段の起点は `Project.weekStartDay` が持つ**（`FR-054`）。**ラベルが 1 刻みに収まることは段階の側が保証する** —— しきい値の導き方は 表 T-205 の注が持つ |
+| LF-1 | 目盛の刻みの間隔 | 段階ごとに固定とする。⭐⭐ **刻むのは段ではなく行であり、その行が刷る単位に 1 つ刻むこと（MUST）** —— **どの行が何を刷るかは `FR-017` の 表 T-238 が持つ。**⇒ **年を刷る行は 1 年、月を刷る行は 1 か月、週の始まりの日を刷る行は 7 日、日と曜日を刷る行は 1 日に 1 つである。**⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからである**（`FR-017`。利用者の裁定 2026-08-27）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。**⚠️⚠️ **2026-09-04 まで、本行は段ごとに 1 つの間隔を与え「年と月の段は 1 か月」と書いていた** —— **その段が 1 行だった頃の文である。**⛔ **同日に 表 T-238 がその段を 2 行に割ったので、1 つの段が 2 通りに刻むようになり、上の行について述べる文が無くなった。**⭐ **実測（2026-09-04、出荷ビルド）: 月の段の年の行は 1 回、月の行は 12 回刻んだ。**⇒ **行を単位にすれば、次に段が割れても文を書き足さずに済む。**⛔ **これ以外の間隔を採ってはならない（MUST NOT）**（利用者の裁定 2026-08-26）—— **間引いた段では読む人が刻みの単位を数え直すことになり、2 日おきと 3 日おきが倍率で入れ替わる。** ⭐ **週の段の起点は `Project.weekStartDay` が持つ**（`FR-054`）。**ラベルが 1 刻みに収まることは段階の側が保証する** —— しきい値の導き方は 表 T-205 の注が持つ |
 | LF-2 | 行の帯高 | 段ごとに、その段に載る `Task` が縦に取る高さの最大を採り、それらを合計して、段と段のあいだに `stackGap` を段数から 1 を引いた数だけ加える。**`Task` を 1 つも持たない段は、矩形が縦に取る高さとする** |
 | LF-3 | 行の縦位置 | 前の行の縦位置に、前の行の帯高と `rowGap` を加える。**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**（利用者の裁定 2026-09-03）—— ⛔ **下回ると、格子の下段が次の行の帯へ落ち、押しがその行の操作子に取られる。**⚠️ **床を数で書かない** —— 操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである。⛔ **同表の値を写してはならない。**⚠️ **この床は閲覧者の文字サイズに追随しない** —— `S-138` がそう定めている |
 | LF-4 | 依存線の走りの長さ | 入口の走りは `dependencyArrowLength` に `dependencyRunOfArrow` を掛けた長さ、出口の走りはそこから `dependencyArrowLength` を 1 つ引いた長さとする。⚠️ **出口と入口に別々の設定値を持たない** —— 別々に持つと必ず食い違う |

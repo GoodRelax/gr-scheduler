@@ -2099,22 +2099,6 @@ const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground'
 const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 
 /**
- * What marks HF-14's name field for the row that does not exist yet, and which
- * row it will stand under.
- *
- * ⛔ NOT A `data-role` AND NOT A `data-icon`, for the reason
- * `ROW_CONTROL_GROUND_MARK` above gives: table T-103 holds no part for it and
- * table T-109 no entrance -- the entrance is IC-91, the control that opened it.
- * ⭐ It carries the parent's `TaskGroup.id` rather than merely saying that the
- * field is up, so that what this unit believed about the pending row can be read
- * back and held against the description (rule 04).
- * ⛔ IT IS NOT `data-group-id`. That attribute is what `readScreenPartAt` walks
- * to answer WHICH ROW a press was on, and this field stands on no row -- writing
- * it here would make a press in the field report the parent as the row pressed.
- */
-const NEW_ROW_NAME_MARK = 'data-new-row-under'
-
-/**
  * What marks the grab strip GR-20 of table T-023d lays along a row's left edge.
  *
  * ⛔ NOT A `data-icon`, AND THAT IS MEASURED RATHER THAN CHOSEN. Table T-109
@@ -2134,35 +2118,6 @@ const NEW_ROW_NAME_MARK = 'data-new-row-under'
  * state one row's key in two places.
  */
 const ROW_GRAB_STRIP_MARK = 'data-row-grab'
-
-/**
- * How HF-14's name field is drawn: on the grid the rows are drawn on, set in one
- * step deeper than its parent, and taking the ordinary ink of the panel.
- *
- * ⭐ THE SAME BOX A ROW TAKES, which is what 「その場で打たせる」 means here: the
- * person types where the name is going to be read. ⚠️ The indent is the row's
- * own left padding, exactly as `rowTitleElement` sets it -- see
- * `newRowNameEntryBox` for where that step comes from and why it is derived.
- *
- * @purity pure
- */
-function newRowNameEntryStyle(box: ScreenRect, indentPx: number): string {
-  // ⚠️ A HEIGHT OF NONE IS THE PANEL THAT DREW NO ROW, and there the field takes
-  // the height the environment's own text gives it: no row of the specification
-  // states a row's height for a row that does not exist yet, and FR-042 lets
-  // every row carry its own (AT-59), so there is nothing to copy. ⛔ Inventing
-  // one would put the field at a size no row is drawn at.
-  const placed =
-    box.height > 0
-      ? boxStyle(box)
-      : `position:absolute;left:${box.x}px;top:${box.y}px;width:${box.width}px;`
-  return (
-    placed +
-    'box-sizing:border-box;font:inherit;pointer-events:auto;' +
-    `padding:0 0 0 ${indentPx}px;` +
-    `background:${PAINT.panel};color:${PAINT.ink};border:0;outline:0;`
-  )
-}
 
 const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
@@ -4102,88 +4057,6 @@ function addTopRowElement(host: Document): HTMLElement {
  *
  * @purity pure
  */
-/**
- * Where HF-14's field for the new row's name stands: under the LAST row the
- * parent's subtree drew, set in one step deeper than the parent's own name.
- *
- * ⭐⭐ WHY IT IS PLACED AT ALL RATHER THAN OPENED IN A DIALOGUE. HF-14 (MUST)
- * has the row 「名前は空で立て、その場で打たせること」, and 「その場」 is where the
- * row is going to be: the panel, under its parent, at its own depth. ⛔ A box in
- * the middle of the screen would be the two-step 「選び直してからパネルを開く」
- * that FR-091's own MUST refuses for the same act on a `Task`.
- *
- * ⭐ UNDER THE WHOLE SUBTREE AND NOT UNDER THE PARENT'S OWN LINE, because HF-14
- * (MUST) makes the new row the LAST child: 「足した行は末子とすること」. The rows
- * arrive in the order they are drawn, so the parent's subtree is the run that
- * follows it while the depth stays greater -- the first row at or above the
- * parent's depth is the next thing that is not under it.
- * ⚠️ A parent that drew no child at all (a leaf, or a folded row -- HR-1a)
- * leaves the run empty, and the field stands directly under the parent's line.
- *
- * ⛔ THE INDENT STEP IS DERIVED AND NOT READ, and this is the price of the seam
- * rather than a choice: `rowTitleIndent` (S-37) is a document setting and
- * `DocumentSettings` does not cross IF-9. What DOES cross is the product
- * FR-085 cut the name against -- `RowTitle.indentPx`, which is that setting
- * times the row's own `depth` -- so one step is that product over that depth,
- * and the depth is never 0 (a root row is depth 1). ⭐ Reading it back this way
- * keeps the field on the very grid the drawn rows use, which a number invented
- * here could not.
- *
- * ⚠️ `null` WHERE THE PANEL DREW NO SUCH PARENT. The row may have left the
- * picture between the press and the paint (FR-018 drops rows, HR-1a hides a
- * folded row's descendants), and a field placed against a row that is not there
- * would stand at an invented place.
- *
- * @purity pure
- */
-function newRowNameEntryBox(
-  panel: RowTitlePanel,
-  parentGroupId: string | null,
-): { readonly box: ScreenRect; readonly indentPx: number } | null {
-  // ⭐ 段 0's OWN FIELD (HF-17, MUST): 「最も浅い段へ行を 1 つ足す」, and 「足した行
-  // は最も浅い段の末子とすること」 -- so it stands under the LAST row the panel
-  // drew, at the depth of the shallowest level.
-  // ⛔ THE STEP IS READ BACK OFF A DRAWN ROW, exactly as the branch below reads
-  // it: `RowTitle.indentPx` is `rowTitleIndent` times the row's own depth, and
-  // a root row's depth is 1 -- so the first row of depth 1 states one step
-  // outright, and nothing is invented. ⚠️ A panel of no rows cannot be measured
-  // at all, which is the one case this answers `null` for; the field then does
-  // not open, and nothing is written.
-  if (parentGroupId === null) {
-    const last = panel.titles[panel.titles.length - 1]
-    if (last === undefined) return null
-    const first = panel.titles[0] ?? last
-    return {
-      box: {
-        x: first.box.x,
-        y: last.box.y + last.box.height,
-        width: first.box.width,
-        height: first.box.height,
-      },
-      indentPx: first.indentPx / first.depth,
-    }
-  }
-  const at = panel.titles.findIndex((one) => one.groupId === parentGroupId)
-  if (at === -1) return null
-  const parent = panel.titles[at]
-  if (parent === undefined) return null
-  let last = parent
-  for (let next = at + 1; next < panel.titles.length; next += 1) {
-    const under = panel.titles[next]
-    if (under === undefined || under.depth <= parent.depth) break
-    last = under
-  }
-  return {
-    box: {
-      x: parent.box.x,
-      y: last.box.y + last.box.height,
-      width: parent.box.width,
-      height: parent.box.height,
-    },
-    indentPx: parent.indentPx + parent.indentPx / parent.depth,
-  }
-}
-
 function rowsTopPx(panel: RowTitlePanel): number | null {
   let top: number | null = null
   for (const title of panel.pinnedTitles) {
@@ -5712,63 +5585,14 @@ export interface ScreenSurfaceWiring {
    * from the specification are what watch it.
    */
   readonly holdFocusPropertyField?: (focus: (row: string) => void) => void
-  /**
-   * HF-14's 「その場で打たせること（MUST）」, handed over the same way and at the
-   * same moment: a way to open an EMPTY name field where the new row is going to
-   * stand, under the row whose `TaskGroup.id` (AT-51) is passed in.
-   *
-   * ⭐⭐ WHY IT TRAVELS HERE AND NOT ON IF-9 -- the same bargain
-   * `holdFocusPropertyField` above sets out at length: table T-065 names five
-   * supplies for that seam and every one of them is a QUESTION, and this is a
-   * request. ⛔ HF-14 cannot be met without it: the field is this unit's (LR-6),
-   * the press is answered three layers away, and the row being named does not
-   * exist yet, so there is nothing in `ScreenView` for a description to carry.
-   *
-   * ⛔ EMPTY, AND NOT MERELY CLEARED (HF-14, MUST NOT): 「既定の名を与えては
-   * ならない」, because 「改名の入口が表 T-109 に 1 つも無い」ので、既定の名で立てる
-   * と直せない行ができる.
-   * ⚠️ ASK IT AFTER THE DESCRIPTION HAS BEEN DRAWN, for the reason above: the
-   * field is placed against the rows the last paint put on the screen.
-   * ⚠️ A ROW THIS SURFACE DID NOT DRAW does nothing, and quietly -- see
-   * `newRowNameEntryBox`.
-   *
-   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the member above.
-   */
-  readonly holdOpenNewRowName?: (open: (parentGroupId: string | null) => void) => void
-  /**
-   * The name the person settled in that field, with the row it is to stand
-   * under -- the other half of HF-14, going the other way.
-   *
-   * ⭐ PUSHED AND NOT PULLED, WHICH IS WHERE IT PARTS FROM `readFieldCommit`.
-   * That member is IF-9's and is collected once a frame; this one is not on IF-9
-   * at all (see the member above), and the settling is a happening the caller
-   * has to answer with a write -- `onAppHeaderHeightPx` is the precedent for a
-   * measurement leaving this unit the same way.
-   *
-   * ⛔ THE EMPTY NAME IS REPORTED TOO, AND THAT IS DELIBERATE. HF-14 (MUST):
-   * 「名前が空のまま確定されたときは、その行を立てないこと」 -- which is a rule
-   * about what to WRITE, and what to write is the caller's. ⭐ Reporting it lets
-   * that caller put the field away and drop the pending row in one place;
-   * swallowing it here would leave the caller waiting for a settling that never
-   * comes. ⚠️ Whether a name of nothing but spaces is 「空」 is NOT decided here
-   * or there: the text is carried exactly as it was typed, and no row of the
-   * specification says which characters count as empty.
-   *
-   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the two above.
-   */
-  /*
-   * ⚠️ `null` IS 段 0 AND NOT A MISSING ANSWER. HF-17 (MUST) adds a row at the
-   * shallowest level through IC-93 and 「名前の扱いは `HF-14` に従う」, so this one
-   * seam carries both namings and a row of that level has no parent (AT-52).
-   * ⚠️ WRITTEN AS A METHOD AND NOT AS A FUNCTION-TYPED PROPERTY, which is the
-   * one place in this interface that does so: a caller written before HF-17
-   * annotates its own parameter `string`, and a method's parameters are
-   * compared bivariantly -- so the widening does not force every such caller to
-   * be rewritten in step. ⛔ THE COST IS REAL AND IS THE SAME ONE THE OPTIONAL
-   * MEMBERS OF THIS SEAM CARRY: such a caller is handed `null` for a 段 0
-   * naming and no compiler says so.
-   */
-  onNewRowNameSettled?(parentGroupId: string | null, name: string): void
+  // ⛔⛔ HF-14's IN-PLACE NAME FIELD IS RETIRED （利用者の裁定 2026-09-04）. The row
+  // read 「名前は空で立て、その場で打たせること（MUST）」, 「既定の名を与えて
+  // はならない（MUST NOT）」 and 「名前が空のまま確定されたときは、その行を立て
+  // ないこと（MUST）」; all three were withdrawn. It now reads 「押された瞬間に、
+  // 既定の名前で行を立てること（MUST）。その行のプロパティパネルを出し、名前の
+  // 欄で名づけさせること（MUST）」 with 「改名と別の道を作ってはならない
+  // （MUST NOT）」 beside it — so the naming goes out on `focusPropertyField`,
+  // the very road FR-085's rename already takes.
   /**
    * FR-020's 「打ち込む文字」, handed to the caller once, before this factory
    * returns -- a way to read what stands in the masked field U-60 `Watermark
@@ -5887,21 +5711,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const dialogueField = part(host, 'div', ROLE.dialogueField, STYLE.hidden)
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
   const dialogueEntry = host.createElement('input')
-  // HF-14 of table T-051 (MUST): 「名前は空で立て、その場で打たせること」. ⭐ Built
-  // with the tree and never rebuilt, the same bargain `dialogueEntry` takes --
-  // a node made at the moment it is wanted would be made after the paint that
-  // was supposed to place it, and a node thrown away with the tree would take
-  // the characters and the focus with it.
-  const newRowNameEntry = host.createElement('input')
   const appHeader = part(host, 'div', ROLE.appHeader, STYLE.appHeader)
   const modalLayer = made(host, 'div', STYLE.layer)
   /**
    * FR-020 (MUST): the masked field U-60 asks the watermark unlock password
    * into, while that surface stands -- `null` while it does not.
    *
-   * ⛔ NOT BUILT WITH THE TREE, WHERE `dialogueEntry` AND `newRowNameEntry` ARE.
-   * Those two live as long as the page because what they hold must survive a
-   * redraw of the surface around them; this one must NOT -- FR-020 (MUST NOT)
+   * ⛔ NOT BUILT WITH THE TREE, WHERE `dialogueEntry` IS. That one lives as
+   * long as the page because what it holds must survive a redraw of the surface
+   * around it; this one must NOT -- FR-020 (MUST NOT)
    * keeps the raw password out of code, model and output, so the characters
    * exist only while the surface asking for them is up, and go with it.
    * ⚠️ Held as `TextEntryControl` and not as an `HTMLInputElement`, the shape
@@ -5939,25 +5757,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   dialogueEntry.setAttribute('type', 'text')
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
   dialogueField.append(dialogueMessages, dialogueEntry)
-
-  newRowNameEntry.setAttribute('type', 'text')
-  // ⛔ NO `data-role` AND NO `data-icon`. Table T-103 names no part for a field
-  // that stands in for a row not yet made and table T-109 no entrance -- the
-  // entrance is IC-91, which is the control that OPENED this. ⭐ A mark of its
-  // own instead, the move `data-corner-band` and `ROW_CONTROL_GROUND_MARK`
-  // already make: what was drawn can be read back and held against the
-  // specification (rule 04) without claiming to be a row of any table.
-  newRowNameEntry.setAttribute(NEW_ROW_NAME_MARK, 'true')
-  // ⛔ NO WORD IS INVENTED FOR IT, the same bargain the row controls keep:
-  // FR-038 (MUST NOT) holds one dictionary and nothing on the wiring carries a
-  // word, so the entrance that opened this field is its accessible name.
-  newRowNameEntry.setAttribute('aria-label', ADD_CHILD_ROW_ENTRY)
-  newRowNameEntry.setAttribute('style', STYLE.hidden)
-  // ⛔ NOT MOUNTED HERE. The tree holds the rows the description carries and
-  // nothing else -- a hidden node standing in it at all times would be one more
-  // child on every frame for a field that is wanted on almost none, and what is
-  // drawn is what is read back against the description (rule 04). ⭐ It is put in
-  // when a naming begins and taken out when one ends.
 
   // The order is the stacking order: the frame and the panels first, the header
   // over them, and what is meant to be read over everything last. ⚠️ The
@@ -6022,16 +5821,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // description always writes.
   let langShown = ''
   let headerHeightPx = 0
-  /**
-   * How wide the `Row Title Panel` was drawn last, in pixels -- the one number
-   * HF-17's field has to stand against when the panel drew no row at all.
-   *
-   * ⚠️ THE PANEL'S OWN, taken where the panel is placed rather than measured a
-   * second time: `panelEdge` reads U-24's divider (FR-052), which is what says
-   * how far the panel reaches. ⛔ Zero until the first placement, and a field
-   * placed then is a field of no width -- which is what a panel of no width is.
-   */
-  let rowTitlePanelWidthPx = 0
+  // ⛔ `rowTitlePanelWidthPx` STOOD HERE AND IS GONE. It was kept for one
+  // reader — the place HF-14's in-place field stood at when the panel had drawn
+  // no row — and that field is retired （利用者の裁定 2026-09-04）.
   // ⛔ Held apart from the number, and not folded into it as a 0 meaning 「not
   // measured yet」: 0 is a height a host really does answer, so the two must be
   // told apart or the first measurement is swallowed by the starting value --
@@ -6054,18 +5846,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let rowControlsHeightPx = 0
   let settled: Settlement | null = null
   let isFieldUp = false
-  /**
-   * The `Row Title Panel` as it was last DRAWN -- what HF-14's name field is
-   * placed against.
-   *
-   * ⛔ THE DRAWN ONE AND NOT THE OFFERED ONE, which is the same distinction
-   * `drawnKeys` is kept for: a frame that declines to redraw the tree (because
-   * this very field is up) leaves the rows of the frame before on the screen,
-   * and a field placed against a description that was never drawn would stand
-   * where nothing is. ⚠️ `null` until the first paint, which is why the caller
-   * is told to ask for the field only after a description has been drawn.
-   */
-  let lastRowTitlePanel: RowTitlePanel | null = null
+  // ⛔ `lastRowTitlePanel` STOOD HERE AND IS GONE, for the same reason: it held
+  // the description HF-14's in-place field was placed against, and nothing else
+  // ever read it.
   // ⛔ ONE AT A TIME AND THE LAST ONE WINS. A person can only have hold of one
   // control, and `change` is raised as the previous one is left -- so a second
   // commit before the shell has collected the first is a commit the shell would
@@ -6301,10 +6084,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    */
   function placePanels(view: ScreenView): void {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
-    // ⚠️ KEPT because HF-17's field has nothing else to stand against when the
-    // panel drew no row -- see `openNewRowName`. ⛔ Not a second placing: it is
-    // the very number written on the panel one line down.
-    rowTitlePanelWidthPx = titleEdge === null ? 0 : titleEdge.x
     rowTitlePanel.setAttribute(
       'style',
       titleEdge === null
@@ -6462,28 +6241,20 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       root.setAttribute('data-full-screen', String(view.frame.isFullScreen))
     }
     if (changed('rowTitlePanel')) {
-      // ⛔⛔ A REDRAW MAY NOT TAKE WHAT IS BEING TYPED, the same guard the
-      // `Properties Panel` keeps below and for a reason measured there: table
-      // T-078 runs a frame on every happening and `replaceChildren` detaches
-      // every child of this tree -- and a detached `input` loses the focus, so
-      // HF-14's field would come away between two letters with half a name in
-      // it. While it is up the rows are left exactly as they stand; the frame
-      // after the name is settled draws them again from the description.
-      // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
-      // See `drawnKeys`.
-      if (newRowNaming !== null) {
-        drawnKeys.rowTitlePanel = lastKeys.rowTitlePanel ?? ''
-      } else {
-        fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
-        lastRowTitlePanel = view.rowTitlePanel
-        // ⛔ HERE AND NOT AT BO-1, BECAUSE THERE IS NOTHING TO MEASURE UNTIL A
-        // ROW HAS BEEN DRAWN. LF-3's floor is the lattice's own box, and the
-        // lattice is built per row -- so this is the first moment the answer
-        // exists. ⚠️ The frame that measures it was laid out without it; the
-        // caller's FT-3 path draws the next one with it, which is the bargain
-        // `onAppHeaderHeightPx` already makes for the header's height.
-        reportRowControlsHeight()
-      }
+      // ⛔ THE GUARD THAT STOOD HERE IS GONE WITH THE FIELD IT PROTECTED. It
+      // declined to redraw this tree while HF-14's in-place field was up,
+      // because `replaceChildren` detaches every child and a detached `input`
+      // loses the focus. ⭐ The naming now happens in the `Properties Panel`,
+      // which keeps its own guard for its own controls, and this tree holds
+      // nothing a person types into.
+      fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
+      // ⛔ HERE AND NOT AT BO-1, BECAUSE THERE IS NOTHING TO MEASURE UNTIL A
+      // ROW HAS BEEN DRAWN. LF-3's floor is the lattice's own box, and the
+      // lattice is built per row -- so this is the first moment the answer
+      // exists. ⚠️ The frame that measures it was laid out without it; the
+      // caller's FT-3 path draws the next one with it, which is the bargain
+      // `onAppHeaderHeightPx` already makes for the header's height.
+      reportRowControlsHeight()
       // HF-10 (MUST NOT): the entrance may not overlap the pinned rows' controls,
       // and the band above the topmost row is where it does not. ⚠️ Recorded and
       // not enforced: the entrance stays where HF-10 (MUST) puts it, and this
@@ -7131,18 +6902,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity non-pure */
   function settleOnPressOutside(event: Event): void {
     releaseWatermarkUnlockOnPressOutside(event)
-    // IN-6 of table T-028 (MUST) reaches HF-14's field as well: a press outside
-    // it settles what stands in it. ⛔ Answered BEFORE the properties panel's
-    // own field below and not inside it -- the two fields are held by two
-    // different variables, and a press outside both has to settle both.
-    // ⚠️ A press INSIDE the field settles nothing, the same first test the
-    // panel's field makes.
-    if (
-      newRowNaming !== null &&
-      (event as { target?: unknown }).target !== (newRowNameEntry as unknown)
-    ) {
-      settleNewRowName()
-    }
     const held = heldTextControl
     if (held === null) return
     const pressedOn: unknown = (event as { target?: unknown }).target
@@ -7173,173 +6932,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     isFieldHeld = false
   }
 
-  // ------------------------------------------------- HF-14's name field ---
-
-  /**
-   * The row HF-14's field is naming a child OF -- `TaskGroup.id` (AT-51) -- or
-   * `null` while no such naming is in flight.
-   *
-   * ⭐ ONE VALUE FOR TWO QUESTIONS: whether the field is up, and whose child it
-   * will make. A second flag for the first of them would be a second opinion
-   * about the same fact.
-   */
-  // ⭐ A BOX AROUND THE PARENT AND NOT THE PARENT ITSELF, because the parent
-  // may itself be `null`: HF-17 (MUST) has IC-93 add a row at 段 0, whose
-  // parent is none (AT-52) -- so a bare `string | null` could not tell 「no
-  // field is up」 from 「a field is up at the shallowest level」.
-  let newRowNaming: { readonly parentGroupId: string | null } | null = null
-  /**
-   * Whether an `Esc` has already taken the characters back and nothing has been
-   * typed since -- IN-4's 1 階層 per press (MUST), kept exactly as the
-   * properties panel's `isHeldTextTakenBack` keeps it and for the same measured
-   * reason: released on the first press, the field came away on the very press
-   * that cancelled the edit, which spends two levels of table T-028 on one.
-   * ⚠️ THE VALUE PUT BACK IS THE EMPTY ONE, because HF-14 (MUST NOT) starts the
-   * row with no name at all -- so IN-4's 「編集を始める前の値へ戻すこと」 is a
-   * clearing here, and nothing of what was typed reaches the document.
-   */
-  let isNewRowNameTakenBack = false
-
-  /**
-   * HF-14's 「その場で打たせること（MUST）」, carried out where the field is.
-   *
-   * ⭐ PLACED AGAINST THE ROWS THE LAST PAINT DREW, which is why the caller is
-   * told to ask AFTER a description has been drawn: `newRowNameEntryBox` reads
-   * the parent's own box and depth out of that description.
-   * ⛔ A ROW THIS SURFACE DID NOT DRAW DOES NOTHING, and quietly -- the row may
-   * have left the picture between the press and the paint, and a field placed
-   * against a row that is not there would stand at an invented place. ⚠️ Nothing
-   * is reported back then: no name was settled, so there is nothing to settle.
-   *
-   * @purity non-pure
-   */
-  function openNewRowName(parentGroupId: string | null): void {
-    const panel = lastRowTitlePanel
-    if (panel === null) return
-    // ⭐⭐ THE EMPTY PANEL IS 段 0's OWN CASE AND MUST NOT BE REFUSED. HF-17
-    // (MUST) exists precisely for it -- 「本行が無いと、最も浅い段の行を作る道が
-    // 画面から消える ... 行が 1 つも無い文書では押す相手が存在しない」 -- and with
-    // no row drawn there is no row to measure the field against. ⇒ It is placed
-    // against the PANEL instead: the panel's own left edge and width, under the
-    // band the head's entrances stand in.
-    // ⛔ STILL NOTHING FOR A ROW'S OWN FIELD (IC-91): that one goes under a
-    // parent, and a parent that left the picture is the case
-    // `newRowNameEntryBox` answers `null` for.
-    const placed =
-      newRowNameEntryBox(panel, parentGroupId) ??
-      (parentGroupId === null && panel.titles.length === 0 && panel.pinnedTitles.length === 0
-        ? {
-            box: {
-              x: 0,
-              y: headerHeightPx + panelCornerStepPx(),
-              width: rowTitlePanelWidthPx,
-              height: 0,
-            },
-            indentPx: 0,
-          }
-        : null)
-    if (placed === null) return
-    newRowNaming = { parentGroupId }
-    isNewRowNameTakenBack = false
-    // ⛔ EMPTY (HF-14, MUST NOT): 「既定の名を与えてはならない」.
-    newRowNameEntry.value = ''
-    // ⚠️ AN EMPTY VALUE IS 段 0. The mark's name is 「the row this field's row
-    // goes under」 and HF-17's row goes under none, so nothing is written in it
-    // -- ⛔ no stand-in id is minted, which would name a row that does not exist.
-    newRowNameEntry.setAttribute(NEW_ROW_NAME_MARK, parentGroupId ?? '')
-    newRowNameEntry.setAttribute('style', newRowNameEntryStyle(placed.box, placed.indentPx))
-    // ⭐ PUT INTO THE TREE ONLY NOW, and it stays until the naming ends: the
-    // frame after this one declines to redraw the tree while the field is up
-    // (see `showScreenView`), so `replaceChildren` cannot take it away under the
-    // person's hand.
-    rowTitleTree.append(newRowNameEntry)
-    // ⚠️ Guarded rather than assumed, the reason IN-4's listener gives: table
-    // T-075 leaves this unit runnable against a host that lays nothing out, and
-    // such a host need give its elements no `focus` at all.
-    if (typeof newRowNameEntry.focus === 'function') newRowNameEntry.focus()
-  }
-
-  /**
-   * The settling: what stands in the field goes to the caller, and the field
-   * comes away.
-   *
-   * ⛔ THE EMPTY NAME TRAVELS TOO. HF-14 (MUST) refuses to stand the row up when
-   * 「名前が空のまま確定された」, and that is a rule about the WRITE -- which is
-   * the caller's. Swallowing the settling here would leave that caller holding a
-   * pending row that never resolves. ⚠️ `onNewRowNameSettled` records that no
-   * side trims the text: no row says which characters count as 「空」.
-   *
-   * @purity non-pure
-   */
-  function settleNewRowName(): void {
-    const naming = newRowNaming
-    if (naming === null) return
-    const settled = newRowNameEntry.value
-    newRowNaming = null
-    isNewRowNameTakenBack = false
-    newRowNameEntry.value = ''
-    newRowNameEntry.removeAttribute(NEW_ROW_NAME_MARK)
-    newRowNameEntry.setAttribute('style', STYLE.hidden)
-    if (typeof newRowNameEntry.blur === 'function') newRowNameEntry.blur()
-    // ⚠️ Guarded rather than assumed, the reason `blur` is: table T-075 leaves
-    // this unit runnable against a host that lays nothing out, and such a host
-    // need give its elements no `remove` either. ⛔ The hidden declaration above
-    // is what covers that host, and the next redraw of the tree takes the node
-    // out in any case -- this only keeps the tree the rows alone until then.
-    if (typeof newRowNameEntry.remove === 'function') newRowNameEntry.remove()
-    wiring.onNewRowNameSettled?.(naming.parentGroupId, settled)
-  }
-
-  /**
-   * SK-19 and IN-4 of table T-028, spent where the characters are -- the same
-   * two the properties panel's own listeners carry and for the same measured
-   * reasons, which those listeners set out at length.
-   *
-   * ⭐ HUNG ON THE FIELD AND NOT ON THE PANEL. This field is one control rather
-   * than a drawn set of them, so there is nothing for a listener further out to
-   * tell apart; the panel's listeners hang where they do because `focusin`
-   * bubbles from many controls to one place.
-   * ⛔ `preventDefault` IS NOT CALLED HERE, the same bargain the panel's `Esc`
-   * listener keeps: MK-10's answer for the whole happening is
-   * `TranslatedInput.isBrowserDefaultStopped`, and a second opinion raised here
-   * would put that decision in two places.
-   *
-   * @purity non-pure
-   */
-  newRowNameEntry.addEventListener('keydown', (event: Event) => {
-    if (newRowNaming === null) return
-    const key = event as Partial<KeyboardEvent>
-    // NT-8 (MUST): the standing telling has both of these presses first -- this
-    // one field answers `Enter` and `Esc` alike, so the one question covers
-    // both rungs at once.
-    if (isPressTakenByStandingNotice(key.key)) return
-    if (key.key === HOST_ESCAPE_KEY) {
-      // IN-4's FIRST level: the characters go back to what the edit started
-      // from, which HF-14 makes the empty name. ⭐ The field is NOT let go on
-      // this press -- IN-4 spends one level per press, and the next `Esc` finds
-      // nothing unsettled and moves the ladder on.
-      if (isNewRowNameTakenBack) {
-        settleNewRowName()
-        return
-      }
-      newRowNameEntry.value = ''
-      isNewRowNameTakenBack = true
-      return
-    }
-    if (key.key !== HOST_ENTER || key.isComposing === true) return
-    // ⚠️ A modified `Enter` is left alone, the same bargain the panel's listener
-    // takes: `commandFromKey` assigns SK-19 to the plain press only.
-    if (key.ctrlKey === true || key.altKey === true) return
-    if (key.metaKey === true || key.shiftKey === true) return
-    settleNewRowName()
-  })
-
-  // ⚠️ `input` AND NOT `change`: this is the person putting characters in again
-  // after a cancellation, which makes the edit unsettled once more -- the very
-  // reading the properties panel's own `input` listener records.
-  newRowNameEntry.addEventListener('input', () => {
-    isNewRowNameTakenBack = false
-  })
+  // ⛔⛔ HF-14's NAME FIELD SECTION STOOD HERE AND IS GONE （利用者の裁定
+  // 2026-09-04）: the field's own state, `openNewRowName`, `settleNewRowName` and
+  // its two listeners. The row no longer asks for a field placed among the rows
+  // — 「押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティ
+  // パネルを出し、名前の欄で名づけさせること（MUST）」 — and 「改名と別の道を作っ
+  // てはならない（MUST NOT）」 makes the panel's own field the only road.
+  // ⭐ SK-19, IN-4 and IN-6 are answered for it by the `Properties Panel`'s
+  // listeners, which is the whole point of there being one road.
 
   /**
    * IF-9's fifth answer -- whether characters stand in a field of this surface
@@ -7522,7 +7122,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // FR-020 (MUST) makes the watermark unlock answer 「打ち込む文字」, and the
     // password the specification itself states carries six characters table
     // T-036 assigns -- see `isWatermarkUnlockHeld` for what was measured.
-    return heldTextControl !== null || newRowNaming !== null || isWatermarkUnlockHeld
+    return heldTextControl !== null || isWatermarkUnlockHeld
   }
 
   /**
@@ -7698,12 +7298,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // ⛔ THE CALLER MAY NOT USE IT YET: nothing has been drawn, so the panel holds
   // no control until the first `showScreenView`.
   wiring.holdFocusPropertyField?.(focusPropertyField)
-
-  // HF-14's 「その場で打たせること（MUST）」, handed over the same way and at the
-  // same moment, and under the same caution: nothing has been drawn yet, so the
-  // panel holds no row for the field to be placed against until the first
-  // `showScreenView`.
-  wiring.holdOpenNewRowName?.(openNewRowName)
 
   // FR-020's 「打ち込む文字」, handed over the same way and at the same moment,
   // and under the same caution: nothing has been drawn yet, so U-60 holds no

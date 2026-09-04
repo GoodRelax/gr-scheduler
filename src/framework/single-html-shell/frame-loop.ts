@@ -100,6 +100,7 @@ import {
 import {
   emptySelection,
   selectionOfAll,
+  selectionWith,
 } from '../../entity/document-model/selection/selection'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import {
@@ -530,47 +531,14 @@ export interface ScreenWiring {
    * written from the specification are what watch it.
    */
   readonly focusPropertyField?: (row: string) => void
-  /**
-   * HF-14 of table T-051 (MUST) -- 「名前は空で立て、その場で打たせること」: open
-   * an EMPTY name field where the new row is going to stand, under the row whose
-   * `TaskGroup.id` (AT-51) is passed in.
-   *
-   * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT, exactly as `focusPropertyField` above
-   * is, and for the same reason `screen-surface.ts` records: the IF-9 cell of
-   * table T-065 names five supplies and every one of them is a QUESTION.
-   * ⚠️ ASKED ONLY AFTER A DESCRIPTION HAS BEEN DRAWN -- see `showFrame`. The
-   * field is placed against the rows on the screen, and the row it goes under
-   * may not have been drawn at all.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30): a
-   * caller that never fills it leaves HF-14 with an entrance that opens nothing,
-   * and no compiler will say so. ⭐ The tests written from the specification are
-   * what watch it.
-   */
-  readonly openNewRowName?: (parentGroupId: string | null) => void
-  /**
-   * The other half of HF-14, going the other way: hear the name the person
-   * settled in that field, with the row it is to stand under.
-   *
-   * ⭐ PUSHED AND NOT PULLED, WHICH IS WHERE IT PARTS FROM `readFieldCommit`.
-   * That value is collected at the head of a happening because a `change` is not
-   * one of table T-078's triggers; this one arrives DURING the happening that
-   * settles it -- the surface's own `keydown` and `pointerdown` listeners run
-   * before this loop's, the same order `spendFieldCommit` already rests on -- so
-   * the write lands before the press is translated, which is where that member
-   * puts its own write too.
-   *
-   * ⛔ THE EMPTY NAME ARRIVES HERE AS WELL, and HF-14 (MUST) is answered on this
-   * side: 「名前が空のまま確定されたときは、その行を立てないこと」. The surface
-   * reports every settling so that the pending row can be dropped in one place.
-   *
-   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as the member above.
-   */
-  // ⚠️ `null` IS 段 0 -- HF-17's IC-93 names a row of the shallowest level, and
-  // such a row has no parent (AT-52).
-  readonly holdNewRowNameSettled?: (
-    settle: (parentGroupId: string | null, name: string) => void,
-  ) => void
+  // ⛔⛔ `openNewRowName` AND `holdNewRowNameSettled` STOOD HERE AND ARE GONE
+  // (利用者の裁定 2026-09-04). The pair carried HF-14's empty field on the screen
+  // and the name settled in it back again, which the row asked for while it read
+  // 「名前は空で立て、その場で打たせること（MUST）」. That row now reads 「押さ
+  // れた瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを
+  // 出し、名前の欄で名づけさせること（MUST）」 with 「改名と別の道を作ってはなら
+  // ない（MUST NOT）」 beside it — so the naming goes out on `focusPropertyField`
+  // above, at `AT-53`, and this seam has nothing left to carry.
   /**
    * FR-020 (MUST) -- a way to read what stands in the masked field U-60
    * `Watermark Unlock` draws, at the moment one of that surface's two answers
@@ -4420,21 +4388,13 @@ export function frameLoop(
       nameFieldWantedRow = null
       screen.focusPropertyField?.(wanted)
     }
-    // ⭐ HF-14's OWN HALF, SPENT IN THE SAME PLACE AND FOR THE SAME REASON. The
-    // press on IC-91 is answered while this frame is still being decided, and
-    // the field is placed against the rows the line above has just drawn -- so
-    // the ask waits for the far side of that line.
-    // ⛔ SPENT WHETHER OR NOT THE SURFACE ANSWERS, exactly as MK-13's is: the
-    // seam member is optional, and holding the ask back for a later frame would
-    // only open the field under a row the person had since moved away from.
-    // ⚠️ THE PENDING ROW IS NOT DROPPED HERE. If the surface draws no field --
-    // because the parent left the picture -- no name is ever settled, and the
-    // next press on IC-91 replaces what this one left standing.
-    if (newRowNameFieldWantedUnder !== null) {
-      const under = newRowNameFieldWantedUnder.parentGroupId
-      newRowNameFieldWantedUnder = null
-      screen.openNewRowName?.(under)
-    }
+    // ⛔⛔ HF-14's OWN HALF STOOD HERE AND IS GONE (利用者の裁定 2026-09-04).
+    // It opened an empty field under the row IC-91 was pressed on, which the row
+    // asked for while it read 「名前は空で立て、その場で打たせること」. The
+    // row now stands up on the press and is named in the `Properties Panel`
+    // (「改名と別の道を作ってはならない（MUST NOT）」), so the ask above -- MK-13's,
+    // at `AT-53` -- is the one this press leaves standing, and there is no
+    // second field to place against the rows this frame drew.
   }
 
   /**
@@ -5616,44 +5576,13 @@ export function frameLoop(
    */
   let nameFieldWantedRow: string | null = null
 
-  /**
-   * The row HF-14 is about to make, held from the press on IC-91 until the
-   * person settles its name -- or `null` while none is being named.
-   *
-   * ⭐⭐ WHY THE WHOLE COMMAND IS NOT HELD, only its three settled parts. CM-26
-   * (MUST NOT, through FR-058) refuses a row that carries neither a name nor a
-   * derivation source, so there IS no command until the name arrives; what the
-   * translator settled on the press -- the parent (HR-8's 「足す先は配下」), the
-   * place among the siblings (HF-14's 末子) and the minted `TaskGroup.id`
-   * (AT-51) -- is carried here until the one missing value comes in.
-   * ⛔ NOT A QUEUE. HF-14 puts one field on the screen at a time and the surface
-   * holds one; a second press on IC-91 replaces the naming in flight, exactly as
-   * a second double click asks `nameFieldWanted` for the same one field.
-   */
-  // ⛔ REACHED THROUGH `InputAction` AND NOT BY NAMING `InPlaceTarget`. Table
-  // T-064 is 「名簿であり全数」 for what crosses a component folder, and PI-18
-  // does not list that type -- so importing it would be a name crossing the
-  // boundary that the roster does not admit (check 26b measures exactly this).
-  // ⭐ `InputAction` is already one of the names this file takes, and the target
-  // is a member of it, so nothing new crosses and the shape is still declared in
-  // one place rather than copied here.
-  let namingNewRow:
-    | Extract<Extract<InputAction, { kind: 'editInPlace' }>['target'], { kind: 'newRowName' }>
-    | null = null
-  /**
-   * The row whose child field HF-14 asks to be opened on the far side of the
-   * next paint -- `null` where none is owed.
-   *
-   * ⭐ A REQUEST HELD ACROSS ONE FRAME, for the reason `nameFieldWanted` above
-   * gives word for word: the field is placed against the rows the paint puts on
-   * the screen, so asking for it while the frame is still being decided would
-   * place it against the frame before.
-   */
-  // ⭐ A BOX AROUND THE ANSWER AND NOT THE ANSWER ITSELF, because the answer
-  // may itself be `null`: HF-17 (MUST) adds a row at 段 0, whose parent IS none,
-  // so a bare `string | null` could not tell 「no field is owed」 from 「a field
-  // is owed at the shallowest level」.
-  let newRowNameFieldWantedUnder: { readonly parentGroupId: string | null } | null = null
+  // ⛔⛔ `namingNewRow` AND `newRowNameFieldWantedUnder` STOOD HERE AND ARE GONE
+  // (利用者の裁定 2026-09-04). They held one half of a row across the wait for a
+  // name typed in place, which is what HF-14 of table T-051 asked for until that
+  // ruling: 「名前は空で立て、その場で打たせること」. The row now reads 「押された
+  // 瞬間に、既定の名前で行を立てること（MUST）」, so nothing is held across
+  // anything: the press plans CM-26 and carries the row out as `CreatedSubject`,
+  // and the naming is FR-085's road — `nameFieldWantedRow` above, at `AT-53`.
 
   /**
    * The row HF-17 has just stood up and owes a look at -- `null` where none is
@@ -6890,6 +6819,7 @@ export function frameLoop(
         const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
         if (owedQuestion !== null) {
           const owedWrites = action.writes
+          const owedCreation = action.created
           asking = {
             question: owedQuestion,
             /** @purity non-pure */
@@ -6898,6 +6828,10 @@ export function frameLoop(
               // Nothing was written, so there is nothing to undo either.
               if (!isProceeding) return
               for (const bundle of owedWrites) writeDocument(bundle, answeringFrame)
+              // ⭐ THE SAME TWO MUSTs ON THE FAR SIDE OF NT-7's QUESTION. A
+              // creating press that owed one would otherwise write the thing
+              // and leave nobody standing on it.
+              if (owedCreation !== undefined) standOnWhatWasCreated(owedCreation)
             },
           }
           return
@@ -6917,6 +6851,11 @@ export function frameLoop(
         // one bundle and one reference swap (WS-6, MUST); what FR-031 permits
         // is one GESTURE writing twice, not one write landing in halves.
         for (const bundle of action.writes) writeDocument(bundle, frame)
+        // FR-001 (MUST) and HF-14 (MUST): a press that MAKES something leaves
+        // the person standing on it. ⚠️ AFTER the writes and never before --
+        // a refused bundle makes nothing, and `standOnWhatWasCreated` tests the
+        // document rather than the plan.
+        if (action.created !== undefined) standOnWhatWasCreated(action.created)
         return
       }
       // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
@@ -7148,21 +7087,10 @@ export function frameLoop(
         )
         return
       case 'editInPlace':
-        if (action.target.kind === 'newRowName') {
-          // HF-14 of table T-051 (MUST): 「名前は空で立て、その場で打たせること」.
-          //
-          // ⭐ NOTHING IS WRITTEN ON THE PRESS, and `InPlaceTarget.newRowName`
-          // carries the whole of why -- there is no row to write until there is
-          // a name, and 「既定の名を与えてはならない（MUST NOT）」.
-          // ⛔ THE FIELD IS NOT ASKED FOR HERE, AND THAT IS NOT A DETOUR: it is
-          // placed against the rows on the screen, and the screen holds the
-          // frame BEFORE this happening until the paint below. The request is
-          // left standing and spent at the paint -- the same bargain
-          // `nameFieldWanted` takes, and its note says why at length.
-          namingNewRow = action.target
-          newRowNameFieldWantedUnder = { parentGroupId: action.target.parentGroupId }
-          return
-        }
+        // ⛔⛔ THE `newRowName` BRANCH STOOD HERE AND IS GONE. `InPlaceTarget`
+        // no longer carries that kind: HF-14 (MUST, 利用者の裁定 2026-09-04)
+        // stands the row up on the press instead, and IC-91 / IC-93 now arrive
+        // as a `changeDocument` carrying `created` -- see the case above.
         if (action.target.kind === 'taskName') {
           // MK-13's Task entry (MUST), as that row reads since 2026-08-30
           // (利用者の指示と裁定, CR-304): 「タスク（名称ラベルと本体のどちらでも）
@@ -7479,6 +7407,66 @@ export function frameLoop(
     isPropertiesPanelPutAway = false
     propertiesShowing = 'selection'
     propertiesSubject = { selection, groupIds: selectedGroupIds }
+  }
+
+  /**
+   * What a creating press owes once its write has landed: the thing that was
+   * made is what is chosen, and the name field is opened on it.
+   *
+   * ⭐⭐ TWO REQUIREMENTS, ONE ROAD, AND THE ROAD IS FR-085's. FR-091 (MUST):
+   * 「作った直後に入力できること」 and 「入口の道は `FR-085`（行の名前）と同じもの
+   * とすること（MUST）」; HF-14 of table T-051 (MUST): 「その行のプロパティパネル
+   * を出し、名前の欄で名づけさせること（MUST）」 and 「改名と別の道を作っては
+   * ならない（MUST NOT）」. ⛔ Neither requirement's own wording is copied into
+   * this file: what FR-085 asks for -- the panel, the name field, focused, all
+   * of the existing text selected -- is the pair of lines the double-click
+   * branch of `carryOutAction` already writes, and this writes the same pair.
+   *
+   * ⛔ THE DOCUMENT IS ASKED, NOT THE PLAN. `writeDocument` answers nothing and
+   * a refusal raises its own telling, so a `created` whose write was refused
+   * would otherwise put the panel up over something that does not exist.
+   *
+   * ⚠️ FR-001 (MUST) IS THE TASK HALF: 「作ったタスクを選択にすること」, with the
+   * MUST NOT that says why -- 「選択にしないと `FR-091` が果たせない」. SL-2's
+   * shape is taken: the new Task REPLACES what was chosen, because a drag on
+   * empty ground is one press choosing one thing.
+   *
+   * ⛔ A ROW IS NOT A MEMBER OF `Selection`. SL-1 of table T-023c leaves 行 out
+   * of the drawing area's selection on purpose, so a made row goes into
+   * `selectedGroupIds` -- FR-085's set, the same one `chooseRow` writes.
+   *
+   * @purity non-pure
+   */
+  // ⛔ REACHED THROUGH `InputAction` AND NOT BY NAMING `CreatedSubject`. Table
+  // T-064 is 「名簿であり全数」 for what crosses a component folder and PI-18 does
+  // not list that type, so importing it would be a name crossing a boundary the
+  // roster does not admit (check 26b measures exactly this). ⭐ `InputAction` is
+  // already one of the names this file takes, and this is a member of it -- the
+  // same road the retired `namingNewRow` took to `InPlaceTarget`.
+  function standOnWhatWasCreated(
+    created: NonNullable<Extract<InputAction, { kind: 'changeDocument' }>['created']>,
+  ): void {
+    if (created.kind === 'task') {
+      if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
+      selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
+      showPropertiesOfChoice()
+      nameFieldWantedRow = TASK_NAME_FIELD_ROW
+      return
+    }
+    if (!held.document.schedule.taskGroups.some((one) => one.id === created.groupId)) return
+    selectedGroupIds = [created.groupId]
+    showPropertiesOfChoice()
+    nameFieldWantedRow = ROW_NAME_FIELD_ROW
+    // HF-17 (MUST): 「足した行が描かれていないときは、その行が見える位置まで
+    // 表示位置を送ること」, and its last sentence puts HF-14 under the same
+    // rule. The look is owed by the frame that will draw the row -- see
+    // `addedRowOwedSight`.
+    // ⛔ THE SCROLL IS NOT THE WHOLE ANSWER AND HF-14 SAYS SO (MUST NOT):
+    // 「表示位置を送るだけで済ませてはならない」. FR-018's tier is opened by the
+    // write itself -- the translator plans CM-65 ahead of CM-26 where the new
+    // depth would be dropped -- so by the time this runs the row is drawable
+    // and the anchor below is about WHERE it is, not WHETHER it is.
+    addedRowOwedSight = created.groupId
   }
 
   /**
@@ -8087,80 +8075,15 @@ export function frameLoop(
     if (owesAFrame) ask()
   }
 
-  /**
-   * HF-14's other half: the person settled the name of the row IC-91 asked for
-   * -- or IC-93, where HF-17 (MUST) adds one at 段 0 and 「名前の扱いは `HF-14` に
-   * 従う」. ⚠️ `null` IS THAT LEVEL, not a missing answer: a row of the shallowest
-   * level is one whose `parentId` is none (AT-52).
-   *
-   * ⛔⛔ THE EMPTY NAME STANDS NO ROW UP (HF-14, MUST): 「名前が空のまま確定され
-   * たときは、その行を立てないこと」 -- 「空の名は `FR-085` の打ち切りも `FR-052`
-   * の幅合わせも掴むものが無い」. ⚠️ WHAT COUNTS AS EMPTY IS THE TEXT ITSELF and
-   * nothing is trimmed off it first: the row says 「空のまま」 and no row of the
-   * specification says which characters are to be read as no characters at all,
-   * so a name of spaces is a name here. ⛔ Deciding otherwise would be this file
-   * inventing the rule.
-   *
-   * ⭐ THE PARENT IS CHECKED AGAINST WHAT WAS PLANNED, not taken from the
-   * settling: a field the person left open while pressing IC-91 on another row
-   * settles the FIRST row's name after the second has replaced the plan, and
-   * writing it against the plan in hand would put one person's name under
-   * another row.
-   *
-   * ⛔ NO FRAME OF ITS OWN IS RAISED. This runs inside the happening that
-   * settled the name -- the surface's own listeners run before this loop's, the
-   * order `spendFieldCommit` already rests on -- so `values` is the frame that
-   * happening began with, and `writeDocument` asks for the paint (FT-2).
-   * ⚠️ Dropped where no frame has run: BO-1 has not settled the size, and there
-   * is no frame of reference to write against -- the same guard `receiveInput`
-   * makes at its head.
-   *
-   * @purity non-pure
-   */
-  function settleNewRowName(parentGroupId: string | null, name: string): void {
-    const planned = namingNewRow
-    namingNewRow = null
-    if (planned === null || planned.parentGroupId !== parentGroupId) return
-    if (name === '') return
-    const frame = values
-    if (frame === null) return
-    // CM-26 of table T-108, with the three values the press settled and the one
-    // the person just typed. ⭐ `derivedFromTaskUid` is empty because this row
-    // is nobody's derivation: FR-058 lends a `Task`'s name to a row that has
-    // none of its own, and this row has one.
-    // ⛔ THE DEPTH IS NOT TESTED HERE. FR-085 (MUST NOT) refuses a parent
-    // already at `maxGroupDepth` and `createTaskGroup` is where that refusal
-    // lives; HR-8 leaves the cap to that requirement and forbids repeating it.
-    writeDocument(
-      [
-        {
-          kind: 'createTaskGroup',
-          id: planned.newGroupId,
-          parentId: planned.parentGroupId,
-          label: name,
-          derivedFromTaskUid: null,
-          order: planned.order,
-        },
-      ],
-      frame,
-    )
-    // HF-17 (MUST): 「足した行が描かれていないときは、その行が見える位置まで表示
-    // 位置を送ること」, and its last sentence puts HF-14 under the same rule. The
-    // look is owed by the frame that will draw the row -- see `addedRowOwedSight`.
-    // ⛔ ASKED OF THE DOCUMENT AND NOT OF THE OUTCOME. `writeDocument` answers
-    // nothing (a refusal raises its own telling), and a row that was refused is
-    // not a row to send the view to -- so what is tested is whether the row is
-    // now there.
-    if (held.document.schedule.taskGroups.some((one) => one.id === planned.newGroupId)) {
-      addedRowOwedSight = planned.newGroupId
-    }
-  }
-
-  // HF-14 (MUST): the settling arrives from the side that drew the field.
-  // ⚠️ HANDED OVER ONCE, like every other seam of this wiring, and optional on
-  // both sides -- a surface that never calls it leaves the naming with no write
-  // at the end of it, in silence.
-  screen?.holdNewRowNameSettled?.(settleNewRowName)
+  // ⛔⛔ `settleNewRowName` STOOD HERE AND IS GONE, AND SO HAS THE SEAM IT WAS
+  // HANDED OVER ON (利用者の裁定 2026-09-04). It wrote CM-26 once a name typed in
+  // place had been settled, and refused to stand the row up when that name came
+  // back empty -- HF-14's 「名前が空のまま確定されたときは、その行を立てない
+  // こと（MUST）」. That MUST was withdrawn with the two beside it, and the row
+  // now stands up on the press with the default name. ⭐ The write is planned by
+  // the translator and lands on the one road every other press takes, and the
+  // sight HF-17 owes is written where that write is carried out -- `standOnWhat
+  // WasCreated`.
 
   // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
   // ⚠️ Held back while BO-1 is unsettled; the first resize that settles the

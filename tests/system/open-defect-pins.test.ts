@@ -48,13 +48,18 @@
 //     and `input-command-translator.ts` carry the dropped day between them.
 //     ⭐ Its control stays where it was: the pinned case is gone, the thing
 //     that proves the pointer reaches the hold at all is still worth running.
-//   ⭐ D-232 IS PINNED HERE, moved 2026-09-03 from
-//     `tests/system/measured-sweep.test.ts`, where the case first found it but
-//     could not close it: FR-091 (MUST) reaches no branch that puts a
-//     just-drawn task into the selection, so `showPropertiesOfChoice()` never
-//     advances and the keyboard stays on `BODY`. The missing branch is ledger
-//     row D-228, still `裁定待ち`; this pin can only turn green once that
-//     ruling lands and is implemented.
+//   ⛔ D-232 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case
+//     that held it is an ordinary assertion now. What was missing was the
+//     branch ledger row D-228 named: nothing made a just-drawn task the
+//     selection, so `showPropertiesOfChoice()` never advanced and the keyboard
+//     stayed on `BODY`. FR-001 (MUST, 利用者の裁定 2026-09-03) now has the
+//     drawn task become the selection, and the placement carries the new
+//     identity out with it rather than the shell guessing at it from the
+//     pointer -- so the same road `FR-085`/`MK-13` uses for a rename now runs
+//     for a task that has just been drawn.
+//     ⚠️ THE PIN RANG BY ITSELF. It reported 「Expected to fail, but passed」
+//     on 2026-09-04, which is the whole reason to leave an anchor rather than
+//     a note: nobody had to remember to come back and look.
 //
 // WHY THEY ARE HERE AND NOT IN `npm run parity`. That harness holds the
 // application against
@@ -128,13 +133,6 @@ const D230: Pin = {
     'BO-1 (MUST NOT) draws nothing until the screen size is settled',
 }
 
-const D232: Pin = {
-  ledger: 'D-232',
-  wrong:
-    'a task is drawn on empty ground and the keyboard stays on BODY -- no field of any width ' +
-    'takes it, so FR-091 (MUST) is not met: 「作った直後に入力できること」',
-}
-
 /**
  * ⚠️ D-230's CASE IS NOT IN THIS FILE. It is
  * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
@@ -156,22 +154,19 @@ const D232: Pin = {
  * describes -- rather than left red with nothing watching for the day it goes
  * green on its own.
  */
-const PINNED: readonly Pin[] = [D230, D232]
+const PINNED: readonly Pin[] = [D230]
 
-/**
- * Say, on the run's own output, which ledger row this case is holding.
- *
- * ⭐ Printed rather than only annotated. A pinned case is GREEN today, so it
- * scrolls past in the summary with everything else; the one thing that must
- * not be missable is that the suite is green because a defect is open.
- *
- * @purity non-pure
- */
-function announce(pin: Pin, what: string): void {
-  // eslint-disable-next-line no-console
-  console.log(`\n[OPEN DEFECT ${pin.ledger}] ${what}\n    ${pin.wrong}`)
-  test.info().annotations.push({ type: 'open defect', description: `${pin.ledger}: ${pin.wrong}` })
-}
+// ⛔ THERE WAS AN `announce` HELPER HERE AND THERE IS NOT ANY MORE. It printed
+// `[OPEN DEFECT D-nnn]` on the run's own output, and D-232's case was its last
+// caller; unpinning that case on 2026-09-04 left it with none. D-230 is still
+// pinned, but its case stands in another file.
+//
+// ⭐ WHATEVER PINS THE NEXT CASE HERE SHOULD BRING IT BACK, and this is the
+// reason it existed: a pinned case is GREEN today, so it scrolls past in the
+// summary with every other green line. The one thing that must not be
+// missable is that the suite is green BECAUSE a defect is open -- so the case
+// says so on stdout and pushes a `test.info()` annotation, rather than only
+// carrying a comment no runner prints.
 
 // ---------------------------------------------------------------------------
 // The screen, read out of the specification at read time
@@ -1012,17 +1007,15 @@ test('control for D-232: a task dragged onto empty ground below the last row is 
 // `polygon` count rises by one, but the field count with any width stays at 0,
 // the Properties Panel stays `display:none`, and the focus stays on `BODY`.
 // `frame-loop.ts`'s `showPropertiesOfChoice()` (paired with `nameFieldWantedRow`)
-// is the road `FR-085`/`MK-13` already uses for a double-click, but it only
-// advances when something is already selected -- and no line anywhere makes a
-// just-drawn task the selection. That missing line is ledger row `D-228`,
-// still awaiting a ruling; until it lands, this case has nothing to turn green
-// on.
+// is the road `FR-085`/`MK-13` already uses for a double-click. It used to
+// advance only when something was already selected, and nothing made a
+// just-drawn task the selection -- that was ledger row `D-228`, settled by the
+// user on 2026-09-03 and written into FR-001 (MUST). The case is an ordinary
+// assertion now.
 test('D-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
   baseURL,
 }) => {
-  test.fail()
   test.setTimeout(180_000)
-  announce(D232, 'drawing a task on empty ground')
   const app = await openTheApp(baseURL)
   await scrollToTheGround(app.page)
   const spot = await emptyCanvasPoint(app.page)

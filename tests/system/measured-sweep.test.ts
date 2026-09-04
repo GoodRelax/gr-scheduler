@@ -1679,27 +1679,95 @@ test('D-152: settling the same value again writes nothing, so one undo puts the 
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the ruler band changes height when the granularity changes, or a
-// stage that stands on two tiers gives them anything other than half the band
-// each. `FR-017` (MUST) says 「目盛の帯の高さは、目盛の段階が変わっても動かさ
+// 段 that stands on two 行 gives them anything other than half the band each, or
+// the sweep stops crossing a 段 boundary. `FR-017` (MUST) says 「目盛の帯の高さは、目盛の段階が変わっても動かさ
 // ないこと（MUST）」 and 「⭐ 段が 3 つに満たない段階では、帯の高さを段の数で
 // 等分すること（MUST）... ⛔ 余りをどこかへ寄せてはならない（MUST NOT）」.
 //
-// ⭐ THE TIERS ARE READ FROM TWO BASELINES, as the unit case for this row does:
-// `S-136` and `S-179` place a label inside its tier and neither names the tier's
+// ⭐ THE LINES ARE READ FROM TWO BASELINES, as the unit case for this row does:
+// `S-136` and `S-179` place a label inside its line and neither names the line's
 // own height, so the distance between two labels' tops is the only thing on the
-// screen that a tier's height can be read off. Even division is exactly what
+// screen that a line's height can be read off. Even division is exactly what
 // makes that distance the band over the count; pushing the remainder to one end
-// would leave each tier its natural height and the distance would not divide.
+// would leave each line its natural height and the distance would not divide.
 //
-// ⛔ THREE TIERS ARE NOT REACHED HERE and are outside the rule anyway: stage 4
-// is where the band holds three, and 「段が 3 つに満たない段階」 is stages 1..3.
-// Measured 2026-09-03 on this build: pressing the zoom-in entrance six times
-// never left the two-tier stage, so no case here claims anything about three.
+// ⛔⛔ THE SWEEP DOES NOT PROVE IT CROSSED A BOUNDARY BY COUNTING THE LINES, and
+// it cannot: table T-238 (`FR-017`, MUST, 利用者の裁定 2026-09-03) gives `TM-2`
+// 月 two 行 (`yyyy` over `m`) AND `TM-3` 週 two (`yyyy-mm` over `d`), so the one
+// boundary this sweep crosses does not move the count at all. Until that ruling
+// the 月 段 stood on a single folded `yyyy-mm` and a count told them apart; the
+// ruling withdrew that -- 「⚠️ `TM-2`（月の段）はそれを覆し、`yyyy` と `m` を 2 段
+// に分ける」 -- and a count-only guard then fires on a sweep that crossed the
+// boundary perfectly well, which is the opposite of what a guard is for.
+//
+// ⭐ WHAT NAMES A 段 IS THE PAIR (how many 行 it stands on, what its first 行
+// prints): 1/`yyyy`, 2/`yyyy`, 2/`yyyy-mm`, 3/`yyyy-mm` for `TM-1`..`TM-4`.
+// Neither half alone separates all four; the pair does, and the case checks the
+// four keys are still distinct in the table before it leans on them. Both halves
+// are read out of table T-238 at read time. `tests/unit/uf-32-ruler-band.test.ts`
+// reached the same answer for the drawing helper and D-210 below takes it too;
+// 「月を語で書いてはならない（MUST NOT）」 keeps both shapes digits and a hyphen in
+// either language, so no display word moves them.
+//
+// ⭐ THE GUARD IS STILL LOUD: a sweep that stopped crossing a boundary would see
+// one 段 for all nine readings and fail below, and a reading that is none of the
+// four 段 fails as well -- 「同表に無い行を刷ってはならない（MUST NOT）」.
+//
+// ⛔ THREE 行 ARE NOT REACHED HERE and are outside the even-division rule anyway:
+// `TM-4` is the only 段 that stands on three, and 「段が 3 つに満たない段階」 is
+// `TM-1`..`TM-3`. Measured 2026-09-04 on this build, from `zoomX` = 1: the nine
+// readings below walk `TM-3`, `TM-3`, then `TM-2` seven times -- the boundary is
+// crossed on the second press and no further one is reached, so no reading here
+// claims anything about `TM-1` or `TM-4`.
+//
+// ⚠️ WIDENING THE SWEEP TO REACH `TM-1` WAS WEIGHED AND DROPPED. `S-53` steps the
+// zoom by 1.1 and `S-83` puts the `TM-1` boundary at 1.4 px/day against `S-1`'s
+// 6, so it is another six presses at least, and it would leave the shared page so
+// far out that D-91 below has to climb all the way back before it finds its three
+// 行. It would buy one thing -- the height MUST asked across two different 行
+// counts -- and `tests/unit/uf-32-ruler-band.test.ts` already asks the band's
+// height at all four 段. ⛔ It would NOT buy the guard: `TM-1` is a boundary this
+// sweep does not cross, and proving a different crossing says nothing about the
+// one the readings below actually walk.
 test('D-92: the ruler band keeps its height across stages and splits it evenly', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
-  const readBand = async (): Promise<{ height: number; tiers: number[] } | null> =>
+  // ⭐ THE FOUR 段 OF TABLE T-238, TAKEN FROM THE TABLE AT READ TIME. A 段 is
+  // named by how many of its three 行 it prints and by the shape of the first of
+  // them. ⚠️ `docs/spec` states no grammar for the tokens the table writes, so
+  // the reading of `yyyy` and `yyyy-mm` is written here as
+  // `tests/unit/uf-32-ruler-band.test.ts` writes it, and a token the table grows
+  // that this case cannot read throws rather than being guessed at.
+  const notPrinted = String.fromCharCode(0x5237, 0x3089, 0x306a, 0x3044)
+  const thirdLine = 3
+  const shapeOf = (token: string): RegExp => {
+    if (token === 'yyyy') return /^\d{4}$/
+    if (token === 'yyyy-mm') return /^\d{4}-\d{1,2}$/
+    throw new Error(
+      `table T-238 writes ${JSON.stringify(token)} on a first 行, and this case reads only ` +
+        '`yyyy` and `yyyy-mm`',
+    )
+  }
+  const tiers = ['TM-1', 'TM-2', 'TM-3', 'TM-4'].map((row) => ({
+    row,
+    lines: [T238_FIRST_LINE, T238_SECOND_LINE, thirdLine].filter(
+      (column) => tierLine(row, column) !== notPrinted,
+    ).length,
+    first: shapeOf(tierLine(row, T238_FIRST_LINE)),
+  }))
+  const keyOf = (one: { lines: number; first: RegExp }): string => `${one.lines}/${one.first.source}`
+  expect(
+    new Set(tiers.map(keyOf)).size,
+    `table T-238 no longer tells its four 段 apart by how many 行 they stand on and what the first ` +
+      `of them prints (${tiers.map((one) => `${one.row} ${keyOf(one)}`).join(', ')}), so a sweep ` +
+      'can no longer say which boundary it crossed',
+  ).toBe(4)
+
+  const readBand = async (): Promise<{
+    height: number
+    lines: Array<{ top: number; words: string[] }>
+  } | null> =>
     page.evaluate((canvas: string) => {
       const svg = document.querySelector(canvas)
       const rows = Array.from(document.querySelectorAll('[data-depth]'))
@@ -1714,61 +1782,92 @@ test('D-92: the ruler band keeps its height across stages and splits it evenly',
         .filter((box) => box.width > 500 && Math.abs(box.bottom - firstRowTop) < 1.5)
         .sort((one, two) => two.height - one.height)[0]
       if (band === undefined) return null
-      const tops = new Set<number>()
+      // ⛔ A LABEL WITH NOTHING IN IT IS NOT A 行. FR-017 (MUST) says 「『刷らな
+      // い』は『空で刷る』ではない」, so an empty box may not raise the count.
+      const held = new Map<number, string[]>()
       for (const label of Array.from(svg.querySelectorAll('text'))) {
         const box = label.getBoundingClientRect()
+        const said = (label.textContent ?? '').trim()
+        if (said === '') continue
         if (box.bottom <= firstRowTop && box.bottom > band.top - 8) {
-          tops.add(Math.round(box.top * 100) / 100)
+          const top = Math.round(box.top * 100) / 100
+          held.set(top, [...(held.get(top) ?? []), said])
         }
       }
-      return { height: Math.round(band.height * 100) / 100, tiers: [...tops].sort((one, two) => one - two) }
+      return {
+        height: Math.round(band.height * 100) / 100,
+        lines: [...held.entries()]
+          .sort((one, two) => one[0] - two[0])
+          .map(([top, words]) => ({ top, words })),
+      }
     }, CANVAS)
 
-  const seen: Array<{ height: number; tiers: number[] }> = []
+  /** Which 段 of table T-238 a reading is, or null if it is none of them. */
+  const nameOf = (band: { lines: Array<{ words: string[] }> }): string | null => {
+    const first = band.lines[0]
+    if (first === undefined || first.words.length === 0) return null
+    const found = tiers.filter(
+      (one) => one.lines === band.lines.length && first.words.every((said) => one.first.test(said)),
+    )
+    return found.length === 1 ? (found[0] as { row: string }).row : null
+  }
+
+  const seen: Array<{ height: number; lines: Array<{ top: number; words: string[] }>; tier: string | null }> = []
+  // ⚠️ THE TICKS ARRIVE BEFORE THE WORDS -- D-91 below measured a frame with all
+  // its 行 ticked and not one word in any of them -- and every reading here turns
+  // on the words, so the drawing is settled before the first one as well as
+  // before each of the eight that follow.
+  await readSettledDrawnSvg(page)
   const first = await readBand()
   expect(first, 'no ruler band could be found above the first row band').not.toBeNull()
   if (first === null) return
-  seen.push(first)
+  seen.push({ ...first, tier: nameOf(first) })
 
-  // ⚠️ Zooming OUT, because coarser stages are the ones with fewer than three
-  // tiers -- which is the only case FR-017's even-division MUST is about.
+  // ⚠️ Zooming OUT, because the coarser 段 are the ones standing on fewer than
+  // three 行 -- which is the only case FR-017's even-division MUST is about.
   const coarser = entranceBy(T109_PURPOSE, TIME_AXIS, ZOOM_OUT)
   for (let step = 0; step < 8; step += 1) {
     expect(await pressEntrance(page, coarser), `${coarser} is not on the screen`).toBe(true)
     await readSettledDrawnSvg(page)
     const now = await readBand()
-    if (now !== null) seen.push(now)
+    if (now !== null) seen.push({ ...now, tier: nameOf(now) })
   }
 
-  const counts = new Set(seen.map((one) => one.tiers.length))
+  const walked = seen
+    .map((one) => `${one.tier ?? '?'}[${one.lines.map((line) => line.words[0] ?? '').join('|')}]`)
+    .join(' -> ')
   expect(
-    counts.size,
-    `the sweep never changed how many tiers the ruler stands on (always ${[...counts].join('/')}), ` +
-      'so it proved nothing about a stage boundary',
+    seen.filter((one) => one.tier === null).length,
+    `a reading of the ruler is none of the four 段 of table T-238, and FR-017 (MUST NOT) says ` +
+      `「同表に無い行を刷ってはならない」; the sweep walked ${walked}`,
+  ).toBe(0)
+
+  const crossed = new Set(seen.map((one) => one.tier))
+  expect(
+    crossed.size,
+    `the sweep never left one 段 of table T-238 (${walked}), so it proved nothing about a stage ` +
+      'boundary',
   ).toBeGreaterThan(1)
 
   const heights = new Set(seen.map((one) => one.height))
   expect(
     [...heights],
-    'the ruler band changed height when the granularity changed, which FR-017 (MUST) forbids',
+    `the ruler band changed height when the granularity changed, which FR-017 (MUST) forbids; the ` +
+      `sweep walked ${walked}`,
   ).toHaveLength(1)
 
   for (const one of seen) {
-    if (one.tiers.length !== 2) continue
-    const apart = Math.round((((one.tiers[1] ?? 0) - (one.tiers[0] ?? 0)) as number) * 100) / 100
+    if (one.lines.length !== 2) continue
+    const apart = Math.round((((one.lines[1]?.top ?? 0) - (one.lines[0]?.top ?? 0)) as number) * 100) / 100
     expect(
       apart,
-      `the band is ${one.height}px and stands on two tiers, so FR-017 (MUST) gives each of them ` +
-        `${one.height / 2}px; the two baselines are ${apart}px apart`,
+      `the band is ${one.height}px and ${one.tier ?? '?'} stands on two 行, so FR-017 (MUST) gives ` +
+        `each of them ${one.height / 2}px; the two baselines are ${apart}px apart`,
     ).toBeCloseTo(one.height / 2, 1)
   }
   expect(
-    seen.some((one) => one.tiers.length === 2),
-    'no stage in the sweep stood on two tiers, so the even division was never asked',
-  ).toBe(true)
-  expect(
-    seen.every((one) => one.tiers.length <= 3),
-    'a stage stood on more than the three tiers FR-017 allows the band',
+    seen.some((one) => one.lines.length === 2),
+    `no 段 in the sweep stood on two 行, so the even division was never asked; the sweep walked ${walked}`,
   ).toBe(true)
 })
 
@@ -2492,6 +2591,18 @@ function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }
 
+/** Table T-238 (`FR-017`) -- what each tier of the ruler prints, read at read time. */
+const T238: SpecTable = specTable('T-238')
+/** Columns of table T-238 after the row ID: the tier, then its three lines. */
+const T238_COLUMNS = 4
+const T238_FIRST_LINE = 1
+const T238_SECOND_LINE = 2
+
+/** One line of a tier as table T-238 writes it, back-quotes taken off. @purity pure */
+function tierLine(rowId: string, column: number): string {
+  return cellOf(T238, rowId, column, T238_COLUMNS).replace(/`/g, '').trim()
+}
+
 /**
  * The day one month on from the day given, as `FR-001` (MUST) settles it:
  * 「1 単位を足した先が暦に無い日になるときは、その月の末日とすること（MUST）。
@@ -2531,33 +2642,97 @@ test('D-210: on the month tier, a click on a day the next month has not lands on
     const coarser = entranceBy(T109_PURPOSE, TIME_AXIS, ZOOM_OUT)
     const rectangle = entranceBy(T109_PURPOSE, 'SH-1')
 
-    // ⚠️ THE MONTH STAGE IS THE ONE WITH ONE TIER OF `YYYY-MM`. `FR-017` (MUST)
-    // has the year and the month share a tier and gives the four stages; the
-    // week stage stands on two tiers and the year stage prints no month.
-    const monthly = (tiers: readonly RulerTier[]): RulerTier | null => {
-      if (tiers.length !== 1) return null
-      const only = tiers[0] as RulerTier
-      const said = only.words.filter((one) => /^\d{4}-\d{2}$/.test(one))
-      return said.length > 0 && said.length === only.words.length ? only : null
+    // ⚠️ WHICH TIER IS THE MONTH ONE IS READ OFF ITS FIRST LINE'S SHAPE. Table
+    // T-238 (`FR-017`, MUST, 利用者の裁定 2026-09-03) says what each 段 prints:
+    // `TM-1` 年 prints `yyyy`; `TM-2` 月 prints `yyyy` over `m`; `TM-3` 週 prints
+    // `yyyy-mm` over `d`; `TM-4` 日 adds a 曜 under those two.
+    //
+    // ⛔ COUNTING THE TIERS CANNOT TELL THEM APART -- `TM-2` and `TM-3` both
+    // stand on two, one because the year and the month were split and one
+    // because they were folded and the week joined them.
+    // ⛔ NOR CAN THE SECOND LINE -- a bare month number and a bare day of the
+    // month are the same shape.
+    // ⭐ THE FIRST LINE IS WHERE THEY DIFFER: `yyyy` alone at the month 段 and
+    // `yyyy-mm` at the week and day ones, because FR-017 keeps the fold「畳みが
+    // 要るのは `TM-3` と `TM-4` だけであり」. tests/unit/uf-32-ruler-band.test.ts
+    // reached the same answer for the drawing helper, and a system test can take
+    // it too: these shapes are digits and a hyphen, and FR-017 (MUST NOT) says
+    // 「月を語で書いてはならない」exactly so that no language moves them.
+    // ⛔⛔ THIS CASE USED TO LOOK FOR ONE TIER OF `YYYY-MM`, which was the whole
+    // of the 2026-08-27 ruling and is now only `TM-3` and `TM-4`; the month 段
+    // it was waiting for stopped existing on 2026-09-03 and the case went red at
+    // its own precondition without the behaviour below ever being asked.
+    expect(
+      [
+        tierLine('TM-2', T238_FIRST_LINE),
+        tierLine('TM-2', T238_SECOND_LINE),
+        tierLine('TM-3', T238_FIRST_LINE),
+      ],
+      'table T-238 no longer prints `yyyy` over `m` at the month tier and `yyyy-mm` at the week ' +
+        'one, so the shapes this case tells the two apart by are no longer the table',
+    ).toEqual(['yyyy', 'm', 'yyyy-mm'])
+
+    const printsOnly = (line: RulerTier, shape: RegExp): boolean =>
+      line.words.length > 0 && line.words.every((said) => shape.test(said))
+    const monthly = (
+      lines: readonly RulerTier[],
+    ): { years: RulerTier; months: RulerTier } | null => {
+      if (lines.length !== 2) return null
+      const [years, months] = lines as [RulerTier, RulerTier]
+      // `yyyy` and not `yyyy-mm` on the first line, a bare number on the second.
+      if (!printsOnly(years, /^\d{4}$/) || !printsOnly(months, /^\d{1,2}$/)) return null
+      return { years, months }
     }
-    let tier = monthly(await rulerTiers(page))
-    for (let step = 0; step < 20 && tier === null; step += 1) {
+    // ⚠️ THE DRAWING IS SETTLED BEFORE IT IS READ. D-91 measured the ticks of a
+    // fresh stage arriving before any of its words; the reading below turns on
+    // the words, so a half-drawn frame would answer null and the loop would zoom
+    // past the stage it is looking for.
+    await readSettledDrawnSvg(page)
+    let seen = await rulerTiers(page)
+    let stage = monthly(seen)
+    for (let step = 0; step < 20 && stage === null; step += 1) {
       expect(await pressEntrance(page, coarser), `${coarser} is not on the screen`).toBe(true)
-      tier = monthly(await rulerTiers(page))
+      await readSettledDrawnSvg(page)
+      seen = await rulerTiers(page)
+      stage = monthly(seen)
     }
     expect(
-      tier,
-      'the ruler never came to stand on one tier of YYYY-MM, so the month stage FR-001 is about was ' +
-        'never reached',
+      stage,
+      'the ruler never came to stand on the month tier of table T-238 -- `yyyy` on the first line ' +
+        'and a bare month number on the second -- so the stage FR-001 is about was never reached; ' +
+        `the band last stood on ${JSON.stringify(seen.map((one) => one.words.slice(0, 4)))}`,
     ).not.toBeNull()
-    if (tier === null) return
+    if (stage === null) return
+    const { years, months: tier } = stage
 
-    // Each tick opens a month, and the label that follows it names that month.
-    const months = tier.ticks.map((x, at) => ({
-      x,
-      next: tier.ticks[at + 1] ?? null,
-      label: tier.words[at] ?? '',
-    }))
+    // Each tick of the month line opens a month, and the number that follows it
+    // names that month. ⭐ THE YEAR IS NOT ON THAT LINE: `TM-2` gives it a line
+    // of its own, ticked once a year (measured: one tick, two words), so it
+    // cannot be paired tick for tick. What is taken is the year the leftmost
+    // tick stands in -- the first word of that line, which the drawing clamps to
+    // the view's left edge exactly as it clamps the first month -- and the
+    // roll-over from 12 to 1 carries the year on from there.
+    expect(
+      tier.words.length,
+      `the month line is divided by ${tier.ticks.length} ticks and prints ${tier.words.length} ` +
+        'numbers; this case reads the number that follows each tick by position',
+    ).toBe(tier.ticks.length)
+    const opening = Number(years.words[0] ?? '')
+    expect(
+      Number.isInteger(opening),
+      `the first line of the ruler prints ${JSON.stringify(years.words)}, and this case needs the ` +
+        'year its leftmost tick stands in',
+    ).toBe(true)
+    let running = opening
+    const months = tier.ticks.map((x, at) => {
+      const month = Number(tier.words[at] ?? '')
+      if (at > 0 && month < Number(tier.words[at - 1] ?? '')) running += 1
+      return {
+        x,
+        next: tier.ticks[at + 1] ?? null,
+        label: `${running}-${String(month).padStart(2, '0')}`,
+      }
+    })
     const clamping = months.find((one, at) => {
       if (one.next === null || !/^\d{4}-\d{2}$/.test(one.label)) return false
       const [year, month] = one.label.split('-').map(Number) as [number, number]

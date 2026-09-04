@@ -1256,6 +1256,15 @@ NOT_STORED_TARGETS = {
     # shared constant would say the two arrive on the same ground, and the
     # paragraph above each is what says the ground.
     'NOT_STORED_GUIDE_CURSOR_SIZES': (['S-209'], DRAWN_UNDER_THE_HAND_ALONE),
+    # ⭐ The coefficient FR-017 prints the day tier's THIRD line at. ⚠️ NOT
+    # A LENGTH -- it is a fraction of the ruler's own font size (S-3), so
+    # what it multiplies is known only where the ruler is drawn.
+    # ⛔ NOT WITH THE CURSORS ABOVE. Their ground is that the export does
+    # not show them; EP-5 of table T-076 draws the ruler INTO an exported
+    # picture, so this one is the reader's own for the other reason: the
+    # document keeps the DATES and never the width their labels take.
+    'NOT_STORED_RULER_WEEKDAY_SIZES': (['S-219'],
+                                       DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
     # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
@@ -2140,6 +2149,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_GUIDE_CURSOR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS')
      # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The
      # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236

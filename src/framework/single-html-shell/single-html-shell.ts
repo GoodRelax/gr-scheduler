@@ -771,15 +771,6 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => void) | null = null
 
   /**
-   * What the screen surface handed over for HF-14, or `null` until it has --
-   * the way to open an empty name field where a new row will stand.
-   *
-   * ⚠️ Filled while the factory below runs, the same moment
-   * `focusPropertyFieldHeld` is.
-   */
-  let openNewRowNameHeld: ((parentGroupId: string | null) => void) | null = null
-
-  /**
    * What the screen surface handed over for FR-020, or `null` until it has --
    * the way to read what stands in U-60's masked field.
    *
@@ -789,22 +780,11 @@ function boot(): void {
    * the characters live in the control the surface drew and nowhere else.
    */
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
-  /**
-   * What the LOOP handed over for the same row -- where a settled name is to be
-   * taken -- or `null` until it has.
-   *
-   * ⛔ HELD RATHER THAN PASSED STRAIGHT THROUGH, because the two sides are built
-   * in the wrong order for that: the surface is made before the loop, and its
-   * wiring has to name a destination that does not exist yet. ⚠️ A settling that
-   * arrives before the loop is built reaches nobody, which cannot happen -- the
-   * field is opened by a press, and no press is answered until the loop is
-   * running.
-   */
-  // ⚠️ `parentGroupId` MAY BE `null`, which is 段 0 -- HF-17's IC-93 adds a row
-  // at the shallowest level, and such a row has no parent (AT-52).
-  let newRowNameSettledHeld:
-    | ((parentGroupId: string | null, name: string) => void)
-    | null = null
+  // ⛔ THE TWO HOLDERS FOR HF-14's FIELD STOOD HERE AND ARE GONE, with the seam
+  // they served: `openNewRowNameHeld` (the way to open an empty name field where
+  // a new row would stand) and `newRowNameSettledHeld` (where the settled name
+  // was to be taken). 利用者の裁定 2026-09-04 withdrew the three MUSTs that
+  // asked for that field, and the naming now goes out on `focusPropertyField`.
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -834,14 +814,6 @@ function boot(): void {
     holdFocusPropertyField: (focus) => {
       focusPropertyFieldHeld = focus
     },
-    // HF-14 of table T-051 (MUST): the field the person types the new row's name
-    // in is the surface's, so the surface hands over the way to open it and this
-    // holds the handle for the loop. ⛔ It does not travel on IF-9 either, for
-    // the reason the member above gives.
-    /** @purity non-pure */
-    holdOpenNewRowName: (open) => {
-      openNewRowNameHeld = open
-    },
     // FR-020 (MUST): the masked field U-60 asks the watermark unlock password
     // into is the surface's, so the surface hands over the way to read it and
     // this holds the handle for the loop. ⛔ It does not travel on IF-9 either,
@@ -849,13 +821,6 @@ function boot(): void {
     /** @purity non-pure */
     holdReadWatermarkUnlockAnswer: (read) => {
       readWatermarkUnlockAnswerHeld = read
-    },
-    // The other direction: what was settled goes to the loop, which is the one
-    // party that may write the document. ⚠️ Read through the binding rather than
-    // captured, because the loop is built after this factory returns.
-    /** @purity non-pure */
-    onNewRowNameSettled: (parentGroupId, name) => {
-      newRowNameSettledHeld?.(parentGroupId, name)
     },
     // LF-3's row-control floor, taken the way the header's height is and for the
     // same reason: HF-19 (MUST NOT) keeps the number out of the manuscript, so
@@ -1017,17 +982,12 @@ function boot(): void {
       // would say so -- see `ScreenWiring.focusPropertyField`.
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
-      // HF-14's two halves, joined here for the reason the bindings above give:
-      // the surface is built before the loop, so neither side can name the other
-      // directly. ⚠️ BOTH MEMBERS ARE OPTIONAL ON BOTH SIDES, so a dropped line
-      // here would leave IC-91 opening no field, or a settled name reaching
-      // nobody, and nothing would say so.
-      /** @purity non-pure */
-      openNewRowName: (parentGroupId) => openNewRowNameHeld?.(parentGroupId),
-      /** @purity non-pure */
-      holdNewRowNameSettled: (settle) => {
-        newRowNameSettledHeld = settle
-      },
+      // ⛔⛔ HF-14's TWO HALVES WERE JOINED HERE AND ARE GONE (利用者の裁定
+      // 2026-09-04). They carried an empty name field onto the screen and the
+      // name settled in it back again, which that row asked for while it read
+      // 「名前は空で立て、その場で打たせること」. The row now stands up on the
+      // press and is named through `focusPropertyField` above, which is the road
+      // 「改名と別の道を作ってはならない（MUST NOT）」 leaves as the only one.
       // FR-020's 「打ち込む文字」, joined here for the reason the bindings above
       // give: the surface is built before the loop, so neither side can name the
       // other directly. ⚠️ THE MEMBER IS OPTIONAL ON BOTH SIDES, so a dropped

@@ -65,6 +65,7 @@ SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
 WATERMARK_UNLOCK_DIGEST              既定の透かし解除パスワードの SHA-256（表 T-207 の `S-101`）
 WATERMARK_MARKS                      透かしを描く 4 値のうち色でないもの（表 T-207 の `S-220` / `S-221` / `S-222` / `S-102`）
+NOT_STORED_RULER_WEEKDAY_SIZES       目盛の曜日の段の文字の大きさの係数（表 T-206 の `S-219`）
 ```
 
 ⚠️⚠️ **この一覧は 3 度直した。**⛔⛔ **手で保つのをやめる潮時である。**

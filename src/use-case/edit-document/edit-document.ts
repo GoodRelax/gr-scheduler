@@ -83,7 +83,7 @@ export type {
 } from './edit-document-settings'
 
 import { editTask, type TaskCommand } from './edit-task'
-import { editTaskGroup, type TaskGroupCommand } from './edit-task-group'
+import { DEFAULT_ROW_NAME, editTaskGroup, type TaskGroupCommand } from './edit-task-group'
 import { editDependency, type DependencyCommand } from './edit-dependency'
 import { editAnnotation, type AnnotationCommand } from './edit-annotation'
 import { editResource, type ResourceCommand } from './edit-resource'
@@ -94,6 +94,20 @@ import {
   type DocumentSettingsCommand,
   type SettingsLimits,
 } from './edit-document-settings'
+
+/**
+ * HF-14 of table T-051 (MUST, 利用者の裁定 2026-09-04): 「押された瞬間に、既定の
+ * 名前で行を立てること」, and 「既定の名前は表示語として持つこと（MUST）。仕様書に
+ * 綴りを刷ってはならない（MUST NOT）」.
+ *
+ * ⭐ RE-EXPORTED AND NOT RE-SPELLED. Chapter 6.2 (MUST) gives the words exactly
+ * one destination in `src/`, `edit-task-group.ts` reads it from there, and the
+ * party that PLANS CM-26 for IC-91 / IC-93 lives outside this folder -- so the
+ * public entry has to carry the one value across, the same way it carries the
+ * eight aggregates. ⛔ A second `displayWords.defaultNames.find(...)` on the
+ * planning side is what that MUST forbids.
+ */
+export { DEFAULT_ROW_NAME }
 
 export {
   editTask,

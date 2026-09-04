@@ -752,36 +752,44 @@ function pictureId(seed: string): string {
 /**
  * Which row of the Time Ruler's band prints what -- table T-006b's ⑤.
  *
- * ⭐ `yearMonth` IS ONE ROW, not two stacked. FR-017 (MUST) has the year and
- * the month share a single 段 printed as `YYYY-MM`, and `year` is kept beside
- * it for the one step that shows no month at all.
+ * ⭐ `yearMonth` IS ONE ROW, not two stacked, AND `month` IS A SECOND ONE.
+ * Table T-238 of FR-017 gives `TM-3` and `TM-4` a first line of `yyyy-mm` --
+ * that is `yearMonth`, one 段 -- and gives `TM-2` two lines, `yyyy` then `m`,
+ * which are `year` and `month` standing apart. `year` also carries `TM-1`,
+ * the one step that shows no month at all.
  */
-type RulerRow = 'year' | 'yearMonth' | 'week' | 'day' | 'weekday'
+type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday'
 
 /**
  * L-1 of table T-005a spells the four steps 年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
- * 年 ＋ 月 ＋ 日 ＋ 曜日, and FR-017 (MUST, 利用者の裁定 2026-08-27) says what
- * each 段 of the band prints: the year and the month together in one 段, the
- * week's first day's number, the day's number, and the weekday -- so the rows
- * below are those four steps read through that sentence, one 段 per row.
+ * 年 ＋ 月 ＋ 日 ＋ 曜日, and table T-238 of FR-017 (MUST, 利用者の裁定
+ * 2026-09-03) says line by line what each of those four steps prints. The rows
+ * below are that table read straight down, one 段 per line, and the table's
+ * 「刷らない」 is an ABSENT row rather than an empty one (MUST):
  *
- * ⛔ THE FOLD IS AT EVERY STEP THAT SHOWS BOTH, not only the last. FR-017
- * (MUST NOT) forbids the year and the month standing in separate 段 and says
- * the fold reaches every step where both are out: folding at one step and not
- * at another makes the same pair change shape halfway through a zoom, and a
- * reader cannot tell it is the same pair.
+ *   TM-1 年   `yyyy`      --          --
+ *   TM-2 月   `yyyy`      `m`         --
+ *   TM-3 週   `yyyy-mm`   `d`         --
+ *   TM-4 日   `yyyy-mm`   `d`         曜
  *
- * ⚠️ THE NOTE THAT STOOD HERE WAS FALSE. It read S-2's remark as
- * 「段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）」 and had the day and the weekday
- * sharing one 段. The remark now reads （年 ＋ 月 / 日 / 曜日） and that sharing
- * was withdrawn on 2026-08-27. ⭐ The count did not move: the last step stood
- * in three 段 before and stands in three now, which is what lets FR-017's other
- * MUST -- the band's height MUST NOT move with the step -- go on holding
- * without the band growing.
+ * ⛔ THE FOLD IS NOT AT EVERY STEP THAT SHOWS BOTH -- THE NOTE THAT STOOD
+ * HERE WAS WITHDRAWN. It read 「THE FOLD IS AT EVERY STEP THAT SHOWS BOTH」 and
+ * called separate 段 for the year and the month a MUST NOT. That WAS FR-017 on
+ * the ruling of 2026-08-27; table T-238 overturned it on 2026-09-03 for the
+ * month step alone, where `TM-2` prints `yyyy` and `m` in two 段.
+ * ⭐ THE ORIGINAL REASON STILL HOLDS FOR `TM-3` AND `TM-4`, and T-238 says so
+ * itself: the band's height MUST NOT move with the step, so the step that puts
+ * four things out has only three 段 and the year and the month must share one
+ * there. The old sentence was simply written wider than its own reason.
+ *
+ * ⚠️ S-2's remark counts the 段 of the finest step -- （年 ＋ 月 / 日 / 曜日）,
+ * three of them -- and that count did not move: `TM-4` stood in three 段 before
+ * and stands in three now. `TM-2` grew from one 段 to two, which the equal
+ * share below absorbs without the band growing.
  */
 const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
   year: ['year'],
-  yearMonth: ['yearMonth'],
+  yearMonth: ['year', 'month'],
   yearMonthWeek: ['yearMonth', 'week'],
   yearMonthDayWeekday: ['yearMonth', 'day', 'weekday'],
 }
@@ -821,8 +829,11 @@ function twoDigits(value: number): string {
  *
  * ⛔ Only the day and weekday rows take `tickStrideOf`'s number (LF-1 of table
  * T-221) -- FR-017 (MUST NOT) forbids thinning any row, so the year, the
- * year-and-month and the week rows walk their own calendar unit and stop at the
- * band's right edge. ⚠️ The stride is anchored on the day serial rather than on
+ * year-and-month, the month and the week rows walk their own calendar unit and
+ * stop at the band's right edge. ⭐ `month` TICKS WITH `yearMonth` AND IS NOT A
+ * NEW INTERVAL: LF-1 gives 「年と月の段は 1 か月」, and T-238's `TM-2` is that
+ * same step with the pair printed on two lines instead of one, so the two rows
+ * are one calendar walk shown twice. ⚠️ The stride is anchored on the day serial rather than on
  * whichever day the left edge happens to fall on, or every label would jump
  * one place to the side each time the view is panned by a day.
  *
@@ -852,7 +863,7 @@ function ticksOfRow(
   let at: CalendarDay =
     row === 'year'
       ? { year: from.year, month: 1, day: 1 }
-      : row === 'yearMonth'
+      : row === 'yearMonth' || row === 'month'
         ? { year: from.year, month: from.month, day: 1 }
         : row === 'week'
           ? dayOfSerial(firstSerial - ((weekdayOf(from) - weekStart + 7) % 7))
@@ -863,7 +874,7 @@ function ticksOfRow(
     at =
       row === 'year'
         ? { year: at.year + 1, month: 1, day: 1 }
-        : row === 'yearMonth'
+        : row === 'yearMonth' || row === 'month'
           ? { year: at.month === 12 ? at.year + 1 : at.year, month: (at.month % 12) + 1, day: 1 }
           : dayOfSerial(serialOf(at) + (row === 'week' ? 7 : stride))
   }
@@ -882,15 +893,15 @@ function ticksOfRow(
  * second time here: FR-017 fixes one test and one arithmetic, and a copy of
  * either would part company with the layout the bars were placed by.
  *
- * ⭐ WHAT EACH ROW PRINTS IS NOW WRITTEN DOWN. FR-017 (MUST, 利用者の裁定
- * 2026-08-27) gives the year-and-month row `YYYY-MM` -- ⛔ the month in DIGITS
- * and never a word, so that S-83 can be one value in both languages -- the week
- * row the number of the day its week begins on, the day row the day's number,
- * and the weekday row the weekday. ⚠️ THE NOTE THAT STOOD HERE WAS FALSE. It
- * gave the month a row of its own and had the day row print the day's digits
- * AND the weekday; the ruling of 2026-08-27 folded the month into the year's
- * row and gave the weekday a row of its own, so the day row now prints digits
- * alone. ⛔ The weekday is the only language-dependent thing in the
+ * ⭐ WHAT EACH ROW PRINTS IS A TABLE, AND THE TABLE IS T-238. FR-017 (MUST,
+ * 利用者の裁定 2026-09-03) has every step print that table's lines and ⛔ (MUST
+ * NOT) print any line the table does not hold. `ROWS_OF_TIER` above is that
+ * table's shape and the label below is its contents. ⛔ The month is DIGITS
+ * and never a word, so that S-83 can be one value in both languages.
+ * ⚠️ THE NOTE THAT STOOD HERE IS SUPERSEDED. It said the ruling of 2026-08-27
+ * 「folded the month into the year's row」 at every step; T-238 unfolded it at
+ * the month step alone (`TM-2`: `yyyy` over `m`) and left `TM-3` and `TM-4`
+ * folded. ⛔ The weekday is the only language-dependent thing in the
  * picture, and it arrives as `weekdayWords` rather than being spelled here:
  * FR-038 (MUST) gives every printed word one dictionary and Chapter 6.2 gives
  * it one generated destination, neither of which is this file.
@@ -932,13 +943,15 @@ function rulerSvg(
   // ⛔ The band's height does NOT move with the tier (FR-017, MUST): the rows
   // share whatever S-2 gave the band, so a coarse tier gets taller rows rather
   // than a shorter band. S-2's own remark sizes the band for three of them.
-  // ⛔ HOW A TIER WITH FEWER THAN THREE ROWS SPENDS THAT HEIGHT IS NOWHERE
-  // STATED. FR-017 says only that the arrangement inside changes, and S-2's
-  // remark counts the 段 of the finest tier alone; since the fold of 2026-08-27
-  // that is open for three tiers rather than one. ⭐ An equal share is the one
-  // reading that needs no number of its own -- nothing is invented and no row
-  // is guessed at -- and it keeps every row the same height as its neighbours,
-  // which is what the finest tier does where the count IS stated.
+  // ⭐ HOW A TIER WITH FEWER THAN THREE ROWS SPENDS THAT HEIGHT IS STATED.
+  // FR-017 (MUST) says 「段が 3 つに満たない段階では、帯の高さを段の数で等分
+  // すること」 and ⛔ (MUST NOT) forbids pushing the remainder anywhere, so the
+  // division below is the requirement itself rather than a reading of it.
+  // ⚠️ THE NOTE THAT STOOD HERE SAID IT WAS 「NOWHERE STATED」 and reasoned an
+  // equal share out as the choice that invents no number. The conclusion was
+  // right and the premise is now wrong. ⚠️ Three tiers stand in fewer than
+  // three rows after T-238: `year` in one, `yearMonth` in two (`yyyy` over
+  // `m`) and `yearMonthWeek` in two.
   const rowHeight = band.height / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
@@ -998,9 +1011,12 @@ function rulerSvg(
             ` stroke="${rule}" stroke-width="1"/>`,
         )
       }
-      // FR-017 (MUST): the year-and-month row prints `YYYY-MM`, the weekday row
-      // a weekday, and the other three a number each -- the year, the number of
-      // the day the week begins on, the day. ⚠️ The weekday is looked up by
+      // Table T-238 (MUST), column by column: `yyyy-mm` for the year-and-month
+      // row, `yyyy` for the year row, `m` for the month row, `d` for the week
+      // row (the number of the day its week begins on) and for the day row,
+      // and the weekday for the weekday row. ⛔ THE MONTH AND THE DAY ARE NOT
+      // PADDED: T-238 writes them `m` and `d`, one letter each, against the
+      // `yyyy-mm` it writes out in full. ⚠️ The weekday is looked up by
       // `weekdayOf`'s number, which is AT-17's -- 0 for Sunday -- and
       // `weekdayWords` arrives in that same order, so no mapping stands here.
       // ⛔ A weekday absent from the dictionary prints as nothing rather than
@@ -1012,12 +1028,32 @@ function rulerSvg(
           ? String(day.year)
           : row === 'yearMonth'
             ? `${day.year}-${twoDigits(day.month)}`
-            : row === 'weekday'
-              ? (weekdayWords[weekdayOf(day)] ?? '')
-              : String(day.day)
+            : row === 'month'
+              ? String(day.month)
+              : row === 'weekday'
+                ? (weekdayWords[weekdayOf(day)] ?? '')
+                : String(day.day)
+      // ⭐ THE WEEKDAY ROW MAY PRINT SMALLER, AND ONLY IT. T-238 (MAY) lets
+      // `TM-4`'s third line stand below the other lines of its own step, and
+      // (MUST) puts the ratio in S-219 of table T-206 -- which is why the
+      // number arrives from the generated block rather than being written
+      // here. ⛔ The family is untouched (T-238's MUST NOT, on FR-039): the
+      // reader's own letters stay, and the size alone moves. ⚠️ WHY IT IS
+      // TAKEN UP: the English weekday is what fixes the width of the day step
+      // -- S-85's derivation in table T-205 is bound by that very label -- and
+      // at the step's own threshold `Mon` measures wider than the day column
+      // it has to sit in.
+      // ⚠️ The baseline does NOT move with it. S-179 and S-136 place the
+      // baseline from `rulerFont` and the row's top, and T-238 gives the ratio
+      // to the SIZE and to nothing else; a second offset here would be a
+      // number with no row behind it.
+      const fontSize =
+        row === 'weekday'
+          ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
+          : settings.rulerFont
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
-          ` font-size="${rounded(settings.rulerFont)}" fill="${ink}"` +
+          ` font-size="${rounded(fontSize)}" fill="${ink}"` +
           ` xml:space="preserve">${escaped(label)}</text>`,
       )
     }
@@ -2126,6 +2162,29 @@ export const NOT_STORED_GUIDE_CURSOR_SIZES: {
   readonly 'S-209': number
 } = {
   'S-209': 8,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⭐ AND
+ * ITS PICTURE DOES LEAVE THE TOOL -- EP-6 of table T-076 draws the
+ * two lines into an exported picture -- so what makes this the
+ * reader's own is not that the mark is hidden but that the document
+ * keeps the two DATES (S-65) and never the width they take.
+ */
+export const NOT_STORED_RULER_WEEKDAY_SIZES: {
+  /** S-219 */
+  readonly 'S-219': number
+} = {
+  'S-219': 0.8,
 }
 
 /**

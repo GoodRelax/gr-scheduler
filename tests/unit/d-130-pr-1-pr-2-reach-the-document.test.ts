@@ -76,7 +76,7 @@
 //      「壊れているとも動くとも示せていない」.
 //   3. THAT PRESSING `Enter` A SECOND TIME PUTS THE PANEL AWAY. That is
 //      `SK-19`'s second stage and
-//      tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts owns it.
+//      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns it.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

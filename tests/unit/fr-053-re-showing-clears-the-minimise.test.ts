@@ -22,7 +22,7 @@
 // READ.
 //
 // ⭐ THE HOST, THE FIXTURE DOCUMENT AND THE STAGE ARE COPIED from
-// tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts, which drives this
+// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, which drives this
 // same unit through the same seams.
 //
 // ---------------------------------------------------------------------------
@@ -139,7 +139,7 @@ const FR_053_RE_SHOWING_CLEARS_IT =
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from
-// tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts.
+// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts.
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(

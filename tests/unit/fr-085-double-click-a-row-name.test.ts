@@ -11,7 +11,7 @@
 // T-036 already puts the panel away on an `Enter` raised with no unsettled edit
 // standing, and FR-085 (MUST NOT) forbids restating it -- so what these cases
 // ask is that the row's name arrives on the very panel SK-19 already closes.
-// tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts owns that key.
+// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns that key.
 //
 // Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
 // table T-062). It is the layer that holds the current values (LY-5 of table
@@ -51,7 +51,7 @@
 // declarations named in the imports below. ⛔ NO FUNCTION BODY WAS READ.
 //
 // ⭐ THE DOCUMENT, THE HOST, THE PANE AND THE STAGE ARE COPIED from
-// tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts, which drives this
+// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, which drives this
 // same unit through the same seams.
 
 import { readFileSync } from 'node:fs'
@@ -144,7 +144,7 @@ const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from
-// tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts.
+// tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts.
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
