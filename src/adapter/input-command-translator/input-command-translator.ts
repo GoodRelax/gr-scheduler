@@ -6841,10 +6841,18 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
  * written -- a second write would be an entrance no row gives this grab, which
  * is the reading GR-6 takes of `actualFinish` as well.
  *
- * ⚠️ IV-12 MEASURES THE SAME SPAN IN WORKED DAYS (`edit-task.ts`, at CM-16 /
- * CM-17 and again at CM-11), so on a plan that covers non-working days a pair
- * FD-6 allows can still be refused there. ⛔ Neither table says which of the two
- * counts a fade day is, and nothing here picks one for them.
+ * ⭐⭐ BOTH TABLES COUNT A FADE DAY THE SAME WAY, and both say so. FD-6
+ * (MUST) counts the span in calendar days and forbids working days; IV-12
+ * (MUST) was brought to calendar days by the ruling of 2026-09-03, which its
+ * own row records. So a pair FD-6 allows is a pair IV-12 allows, and nothing
+ * here has to pick a counting for either of them.
+ *
+ * ⚠️⚠️ THIS NOTE SAID THE OPPOSITE UNTIL 2026-09-05. It claimed IV-12 measured
+ * the span in worked days and that neither table said which counting applied.
+ * Both were true when written and both stopped being true the same day, when
+ * IV-12 was corrected to agree with FD-6. ⛔ Nothing in this file behaved on
+ * either claim -- it was a note about somewhere else, which is the kind this
+ * codebase is not supposed to carry.
  *
  * @purity pure
  */
