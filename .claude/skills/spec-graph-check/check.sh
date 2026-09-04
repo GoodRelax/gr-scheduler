@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-# All 28 mechanical checks for the gr-scheduler specification.
+# All 34 mechanical checks for the gr-scheduler specification.
+#
+# The count is the numbered checks below, NOT counting check 0 (the rules
+# index, which prints before any check runs). It said 28 until 2026-09-05,
+# when check 38 was added and the number was recounted -- it had been wrong
+# for several additions before that. To recount:
+#
+#   grep -o '^echo "=====[^"]*' check.sh
+#
+# then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
+# on). A heading may carry several numbers because one script answers them.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -103,6 +113,12 @@
 #          which is the failure the table's own claim says cannot happen; those
 #          142 are held in crossing-names-baseline.txt so the run starts at
 #          new 0 and a NEW unlisted crossing is red the day it appears
+#   38     check-changelog-versions.py : the A.3 Changelog table in
+#          docs/spec/A-appendix.md names each version number once. D-246 found
+#          two rows both claiming 1.33 -- CR-348 renamed the stray one, so
+#          this holds the count at zero rather than a baseline of known debt.
+#          Ordering (D-246 also found a descending stretch after an ascending
+#          one) is a separate claim and not checked here
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -288,6 +304,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || fa
 echo ""
 echo "===== 31  a row that still reads blocked while the row says it is settled ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || fail=1
+
+echo ""
+echo "===== 38  revision history version numbers are unique ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-changelog-versions.py || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
