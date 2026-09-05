@@ -91,6 +91,18 @@ const APP_HEADER = 'App Header'
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 /** S-69, the overlay FR-015 draws. Its toggle is FR-049's. */
 const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
+/**
+ * FR-031's two entrances -- RD-1 and RD-2 of table T-230.
+ *
+ * ⭐ THEY MOVED OUT OF THE DEFAULT'S STOP NOTE ON 2026-09-05 (D-265). That note
+ * said the stack was 「neither an argument here nor a member of `ScreenSession`」,
+ * which was true and is not any more: `ScreenSession.canUndo` / `canRedo` are
+ * the two questions FR-029 asks about them, and the note beside those members
+ * says why they are the shell's to answer and what an absent answer means.
+ */
+const UNDO_ENTRY: IconId = 'IC-5'
+/** The forward half of `UNDO_ENTRY`; that note holds both. */
+const REDO_ENTRY: IconId = 'IC-6'
 /** S-59, the plan half (FR-049). */
 const PLAN_DISPLAY_ENTRY: IconId = 'IC-8'
 /** S-59, the actual half (FR-049). */
@@ -210,6 +222,29 @@ function commandStateOf(
       // overlay would hold, and FR-029 makes faint mean "cannot be used".
       return { isEnabled: true, isPressed: settings.baselineVisible }
 
+    case UNDO_ENTRY:
+      // FR-029 (MUST): 「その入口を押しても、いま文書にも画面にも何も変えられない
+      // ときは、その入口を薄く描くこと」. What IC-5's 職務 acts on is the history
+      // (FR-031, RD-1 of table T-230), and an empty one is 「対象が 1 つも無い」.
+      // ⛔ NOT LEFT OUT AS "THE HISTORY IS NOT DRAWN". The same requirement
+      // (MUST NOT) refuses a surface the right to keep an entrance out of the
+      // rule -- 「本規則は 表 T-109 の全行に当たる ... 載る面によって薄くしない
+      // 入口があってはならない」 -- so the sentence about counting on the drawn
+      // side is HOW a target is counted, not a licence to exempt a target that
+      // has no picture of its own.
+      // ⚠️ `!== false` AND NEVER `=== true`: an absent answer means the shell
+      // did not say, and an entrance whose answer is unknown stays usable (the
+      // head of this file, and the note on the member itself).
+      // ⛔ NOT DISABLED IN THE HOST'S SENSE EITHER -- FR-029 (MUST NOT) --
+      // which is the drawing side's affair; `isEnabled: false` is this
+      // component saying 薄く and nothing more, exactly as it is for IC-18.
+      return { isEnabled: session.canUndo !== false, isPressed: false }
+
+    case REDO_ENTRY:
+      // The same rule read forward (RD-2). ⭐ Written to look like the case
+      // above because it IS the same rule (rule 03 section 4).
+      return { isEnabled: session.canRedo !== false, isPressed: false }
+
     case PLAN_DISPLAY_ENTRY:
       // ⛔ FR-049 (MUST NOT) refuses to let both halves be hidden, and S-59
       // holds three values with no fourth standing for "neither" -- so hiding
@@ -276,7 +311,7 @@ function commandStateOf(
       return { isEnabled: true, isPressed: session.isAgentApiEnabled }
 
     default:
-      // STOP -- ⚠️ NOT REACHABLE FROM THESE FOUR ARGUMENTS: whether four of the
+      // STOP -- ⚠️ NOT REACHABLE FROM THESE FOUR ARGUMENTS: whether two of the
       // remaining entries can be used. Each is left usable, because FR-029
       // makes faint a claim that the entry would do nothing and a false claim
       // of that is the worse error.
@@ -286,13 +321,19 @@ function commandStateOf(
       //   IC-2, FR-060: overwriting needs the file that was opened, and FR-060
       //     itself says that permission can be lost and is offered back at
       //     startup. Whether it is held now is the shell's to know.
-      //   IC-5 / IC-6, FR-031: whether anything is on the undo or the redo
-      //     stack. Table T-027 owns what goes on it and `EditHistory` holds it;
-      //     it is neither an argument here nor a member of `ScreenSession`.
-      // Searched: FR-087 (table T-024a), FR-060, FR-031 (table T-027),
-      // `ScreenSession` and table T-206. ⭐ LY-5 of table T-060 is why they are
-      // absent rather than forgotten -- only the Framework may hold a current
-      // value, and `ScreenSession` is the list of what it hands over.
+      // ⭐⭐ IC-5 AND IC-6 STOOD HERE UNTIL 2026-09-05 AND HAVE THEIR OWN CASES
+      // NOW (D-265). What this note said of them -- 「whether anything is on the
+      // undo or the redo stack ... is neither an argument here nor a member of
+      // `ScreenSession`」 -- was true and stopped being true when that type
+      // gained `canUndo` / `canRedo`. ⚠️ Measured before the change, on the
+      // shipped build at 1920x1080: with an untouched document both entrances
+      // drew at `rgb(22, 24, 29)` -- the dark side -- and three presses on IC-5
+      // moved no row, no glyph and no label and raised no telling, which FR-029
+      // (MUST) forbids either way round.
+      // Searched: FR-087 (table T-024a), FR-060, `ScreenSession` and table
+      // T-206. ⭐ LY-5 of table T-060 is why the remaining two are absent rather
+      // than forgotten -- only the Framework may hold a current value, and
+      // `ScreenSession` is the list of what it hands over.
       //
       // STOP -- ⛔ NO CONSTANT HOLDS THE ZOOM BOUNDS: whether IC-12 .. IC-15
       // (FR-018) are already at the end of their travel. `zoomX` / `zoomY`

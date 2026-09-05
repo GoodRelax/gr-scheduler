@@ -2386,6 +2386,40 @@ export interface ScreenSession {
    * on numbers this component cannot read for itself.
    */
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  /**
+   * Whether the history holds a step to go back to, and one to come forward to
+   * (FR-031, and RD-1 / RD-2 of table T-230).
+   *
+   * ⭐⭐ WHY THEY ARE HERE AT ALL (D-265, measured 2026-09-05 on the shipped
+   * build). FR-029 (MUST) draws an entrance faint 「その入口を押しても、いま文書
+   * にも画面にも何も変えられないとき」 and (MUST NOT) allows a surface to hold an
+   * entrance out of that rule -- 「本規則は 表 T-109 の全行に当たる ... 載る面に
+   * よって薄くしない入口があってはならない」. IC-5 and IC-6 are two of those
+   * rows; with an empty history a press on either moved no row, no glyph and no
+   * label, and raised no telling. ⛔ The STOP note in `app-header-items.ts` said
+   * these two could not be answered because the stack 「is neither an argument
+   * here nor a member of `ScreenSession`」 -- these are that member.
+   *
+   * ⭐ HELD BY THE SHELL, for the reason every value beside them is: LY-5 of
+   * table T-060 leaves the Framework as the only layer that may hold a current
+   * value, and `EditHistory` is one. ⛔ A COUNT IS NOT CARRIED, only the two
+   * questions FR-029 asks: nothing on the screen prints how deep the history
+   * is, and a number would be a second thing to keep in step.
+   *
+   * ⚠️ OPTIONAL, AND THE READING IS FIXED HERE: absent means NOT KNOWN, and an
+   * entrance whose answer is not known stays usable. ⛔ Absent may not be read
+   * as 「nothing to undo」 -- a false faint tells the reader an entrance is
+   * broken, which is the very reading FR-029 exists to prevent, and the head of
+   * `app-header-items.ts` states that discipline for all four of its STOPs.
+   * ⚠️ SO THIS IS THE DRAWING HALF ALONE. FR-029's second MUST -- 「押されたとき
+   * に限り、行えない理由を通知すること」, with `RS-27` of table T-233 as the
+   * fall-back FR-029 names for 「どの入口にも当たる行が無いとき」 -- is owed by the
+   * side that receives the press, and neither this component nor this type can
+   * discharge it.
+   */
+  readonly canUndo?: boolean
+  /** The forward half of `canUndo`; that member's note holds both. */
+  readonly canRedo?: boolean
 }
 
 // ------------------------------------------------- the nine unit contracts ---
@@ -2442,7 +2476,23 @@ export interface ScreenSession {
 //       settings: DocumentSettings,
 //       selection: Selection,
 //       session: ScreenSession,
+//       schedule?: Schedule,
 //     ): CommandPalette | null
+//     ⭐ `schedule` WAS ADDED 2026-09-05 (D-281), widening this contract from
+//     four arguments to five. FR-029 (MUST) counts an entrance's target 「画面
+//     に描かれている側で」 and (MUST NOT) forbids counting what is not drawn;
+//     `Selection` is never pruned when a fold or a hiding takes a Task out of
+//     the picture, so which row each Task sits in (`Schedule.taskGroupMembers`,
+//     ET-5) is the second half of that reading -- `ScreenSession.rowBoxes` being
+//     the first.
+//     ⚠️ IT IS THE LAST ARGUMENT AND OPTIONAL, which is not the shape the other
+//     eight take. An argument added in the middle would have re-typed every
+//     caller of the unit, and the callers that are not this file are the
+//     spec-only tests -- which the author of a unit may not edit (rule 05).
+//     ⛔ ABSENT MEANS "THE PICTURE WAS NOT HANDED OVER", never "nothing is
+//     drawn": `isEntryUsable` falls back to the pre-D-281 count rather than
+//     drawing an entrance faint on a caller's omission, because FR-029's whole
+//     point is that a false faint reads as a broken entrance.
 //     ⚠️ Table T-023c's SL-1 does not admit the palette, so FR-053 warns against
 //     writing its faintness as a selection -- there would be no state that
 //     clears it.
@@ -2530,7 +2580,17 @@ export function screenViewFromRegions(
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
     rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),
     propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session),
-    commandPalette: commandPaletteFromScreenState(state, settings, selection, session),
+    commandPalette: commandPaletteFromScreenState(
+      state,
+      settings,
+      selection,
+      session,
+      // FR-029 (MUST): the target is counted 「画面に描かれている側で」, and
+      // ET-5's member rows are the half of that reading `ScreenSession.rowBoxes`
+      // does not carry. ⛔ Never omitted here -- see UF-65's note above for what
+      // omitting it would mean.
+      schedule,
+    ),
     openModal: openModalFromScreenState(state, schedule, session),
     notices: noticesFromSession(session),
     confirmation: confirmationFromSession(session),

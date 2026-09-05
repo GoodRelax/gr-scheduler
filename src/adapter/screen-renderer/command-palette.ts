@@ -124,6 +124,7 @@
 // MUST FR-085 puts on whichever side does judge one does not reach this file.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
@@ -374,13 +375,74 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
  * entries turn on and off lives in `DocumentSettings`, which the fixed
  * signature does not carry.
  *
+ * ⭐⭐ THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (D-281). FR-029
+ * (MUST) says 「その対象を、画面に描かれている側で数えること」 and (MUST NOT)
+ * 「描かれていないものの上に残る状態を数えてはならない」; `Selection` is not cut
+ * when a fold, a hiding or FR-018's depth limit takes a Task out of the picture
+ * -- nothing in `selection.ts` prunes it -- so counting `selection.items` alone
+ * kept this entrance dark over a picture holding none of them. ⚠️ Measured
+ * 2026-09-05 on the shipped build: two Tasks chosen, then IC-78 (HR-2) folded
+ * every row away, and IC-37 stayed at `rgb(22, 24, 29)` over a picture with 0
+ * rows and 0 polygons, answering the press with neither a moved bar nor a
+ * telling -- which FR-029 (MUST) forbids either way round.
+ * ⭐ `drawnTaskUids` is that reading, and it is the same one `row-title-panel.ts`
+ * already makes for HF-13's arming: a row is drawn exactly when the shell
+ * measured a box for it this frame.
+ * ⛔ `null` IS "THE PICTURE WAS NOT HANDED OVER" AND NEVER "NOTHING IS DRAWN".
+ * A caller that passes no `Schedule` gets the reading this member made before
+ * D-281 -- every chosen Task counted -- because a false faint tells the reader
+ * an entrance is broken, which is the very reading FR-029 exists to prevent
+ * (the same discipline `app-header-items.ts` states for its own STOP notes).
+ * ⚠️ An EMPTY set is a different answer and is honoured: it says the picture
+ * was handed over and holds none of them.
+ *
  * @purity pure
  */
-function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
+function isEntryUsable(
+  row: IconRosterRow,
+  selection: Selection,
+  drawnTasks: ReadonlySet<number> | null,
+): boolean {
   if (!row.authority.includes(ALIGN_REQUIREMENT)) return true
   return (
-    selection.ordered && selection.items.filter((item) => item.kind === 'task').length >= 2
+    selection.ordered &&
+    selection.items.filter(
+      (item) => item.kind === 'task' && (drawnTasks === null || drawnTasks.has(item.uid)),
+    ).length >= 2
   )
+}
+
+/**
+ * The `Task.uid` of every Task the picture holds this frame.
+ *
+ * ⭐ TWO FACTS MEET HERE AND NEITHER IS THIS UNIT'S OWN. `ScreenSession.rowBoxes`
+ * is the set of rows the shell actually DREW -- `ScheduleLayout.rows` cut to the
+ * `Row Area`, so a fold (HR-1a), a hiding (HR-6) and FR-018's depth limit have
+ * all already been applied to it -- and `Schedule.taskGroupMembers` (ET-5 of
+ * table T-056) is which row each Task sits in. A Task reaches the picture only
+ * through a member row of a drawn group, which is the very walk
+ * `schedule-layout.ts` makes, so the join is exact rather than an estimate.
+ * ⛔ A TASK WITH NO MEMBER ROW IS NOT DRAWN AND IS NOT COUNTED: nothing places
+ * it, so there is no box for it to be lined up against.
+ *
+ * ⭐ BUILT ONCE PER FRAME AND NEVER PER ENTRY. NFR-013 (MUST NOT) forbids an
+ * `O(n^2)` walk on the drawing path, and asking each entry to scan the members
+ * would be one -- the same reason `schedule-layout.ts` builds its four indexes
+ * before its row loop opens.
+ *
+ * @purity pure
+ */
+function drawnTaskUids(
+  schedule: Schedule | undefined,
+  session: ScreenSession,
+): ReadonlySet<number> | null {
+  if (schedule === undefined) return null
+  const drawnGroupIds = new Set(session.rowBoxes.map((placed) => placed.groupId))
+  const uids = new Set<number>()
+  for (const member of schedule.taskGroupMembers) {
+    if (drawnGroupIds.has(member.groupId)) uids.add(member.taskUid)
+  }
+  return uids
 }
 
 /**
@@ -464,6 +526,7 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
 function commandItemFor(
   row: IconRosterRow,
   selection: Selection,
+  drawnTasks: ReadonlySet<number> | null,
   language: DisplayLanguage,
   armed: ArmedEntry,
   isRecording: boolean,
@@ -471,7 +534,7 @@ function commandItemFor(
 ): CommandItem {
   return {
     icon: row.rowId,
-    isEnabled: isEntryUsable(row, selection),
+    isEnabled: isEntryUsable(row, selection, drawnTasks),
     // FR-102 (MUST): whether the record is running has to be readable, and
     // IC-76 is the entrance that turns it -- so the entrance is what says so.
     // ⛔ ONE ROW AND NOT A LOOKUP: S-206 is the only state of table T-206
@@ -590,6 +653,7 @@ function isFoldedMilestoneGlyph(met: number): boolean {
  */
 function paletteGroups(
   selection: Selection,
+  drawnTasks: ReadonlySet<number> | null,
   language: DisplayLanguage,
   isMilestoneListOpen: boolean,
   armed: ArmedEntry,
@@ -636,7 +700,9 @@ function paletteGroups(
       milestoneGlyphsMet += 1
       if (isFoldedMilestoneGlyph(milestoneGlyphsMet) && !isMilestoneListOpen) continue
     }
-    group.commands.push(commandItemFor(row, selection, language, armed, isRecording, settings))
+    group.commands.push(
+      commandItemFor(row, selection, drawnTasks, language, armed, isRecording, settings),
+    )
   }
 
   return groups
@@ -798,8 +864,15 @@ export function commandPaletteFromScreenState(
   settings: DocumentSettings,
   selection: Selection,
   session: ScreenSession,
+  schedule?: Schedule,
 ): CommandPalette | null {
   if (!state.paletteShown) return null
+
+  // FR-029 (MUST): 「その対象を、画面に描かれている側で数えること」. ⭐ Worked
+  // out ONCE for the whole palette, before any entry is described, for the
+  // reason `drawnTaskUids` gives -- and read by `isEntryUsable` alone, which is
+  // the only member of an entry any requirement counts a target for.
+  const drawnTasks = drawnTaskUids(schedule, session)
 
   // ⭐ THE CORNER IS THE WHOLE OF THE PLACE, AND THAT IS SETTLED RATHER THAN
   // MISSING. What used to stand here was a STOP note looking for the palette's
@@ -831,6 +904,10 @@ export function commandPaletteFromScreenState(
     minimise: commandItemFor(
       minimiseRow(),
       selection,
+      // IC-75 carries no `FR-034` in its authority column, so `isEntryUsable`
+      // answers `true` for it whatever this set holds -- passed through for the
+      // same reason the two arguments below are: one place names the row.
+      drawnTasks,
       session.language,
       armedEntry(state.armed),
       // ⛔ NEVER THE ONE THIS ARGUMENT IS ABOUT: IC-75 is not IC-76, so the
@@ -857,6 +934,7 @@ export function commandPaletteFromScreenState(
       ? []
       : paletteGroups(
           selection,
+          drawnTasks,
           session.language,
           session.isMilestoneListOpen,
           armedEntry(state.armed),

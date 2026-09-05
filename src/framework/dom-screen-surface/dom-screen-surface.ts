@@ -4341,6 +4341,16 @@ const TRUE_TEXT = String(true)
 const HOST_ESCAPE_KEY = 'Escape'
 
 /**
+ * The host's name for a key being let go.
+ *
+ * ⛔ THE ONLY HAPPENING THIS UNIT READS THAT THE INPUT SEAM DOES NOT. Table
+ * T-036 assigns nothing to a release and IF-2 carries no shape for one, so
+ * reading it here takes no press away from `commandFromKey` -- see the listener
+ * that uses it, and `releaseTakenBackText` for why a press is too early.
+ */
+const HOST_KEY_RELEASE = 'keyup'
+
+/**
  * Which kinds of control a person puts CHARACTERS into.
  *
  * ⛔ A RECORD OVER THE KIND AND NOT A LIST OF NAMES, so that a kind added to
@@ -6821,25 +6831,74 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * Whether the characters in the held control have already been taken back by
    * an `Esc`, and nothing has been typed since.
    *
-   * ⭐ THIS IS WHAT KEEPS IN-4 AT 1 階層 PER PRESS (MUST). The first `Esc`
-   * puts the value back and the level is spent on the edit -- so this side goes
-   * on answering `true`, and the shell, which reads that answer AFTER this
-   * listener has run, stops the ladder at 「確定していないその場の編集」 and
-   * takes nothing else. The SECOND `Esc` finds nothing left unsettled, this side
-   * lets the control go, and the ladder moves on to the rung below.
-   * ⚠️ MEASURED, NOT REASONED: with the control released on the first press the
-   * panel came away on that same press, because the shell read `false` from a
+   * ⭐ THIS IS WHAT KEEPS IN-4 AT 1 階層 PER PRESS (MUST) while the press it
+   * was raised on is still being reckoned. The `Esc` puts the value back and
+   * the level is spent on the edit -- so this side goes on answering `true`,
+   * and the shell, which reads that answer AFTER this listener has run, stops
+   * the ladder at 「確定していないその場の編集」 and takes nothing else.
+   * ⚠️ MEASURED, NOT REASONED: with the control released DURING that press the
+   * panel came away on the same press, because the shell read `false` from a
    * flag this listener had just cleared.
+   * ⛔ IT DOES NOT OUTLIVE THE PRESS. `releaseTakenBackText` lets the control
+   * go as soon as the press has been reckoned -- see its own note, and D-267
+   * for what an answer that outlived the press cost.
    *
    * ⛔ `Enter` DOES NOT USE THIS FLAG, AND MUST NOT BE FOLDED INTO IT. That key
-   * lets the control GO (see its listener), which is a different end to the
-   * unsettled edit from `Esc`'s: IN-4 spends a press per level and needs the
-   * field kept, while SK-19 needs it gone -- and IN-5a reads the very same
-   * answer, so a flag that said 「確定済み」 with the field still focused would
-   * hand every single-character key back to table T-036 while a person was
-   * still typing in it.
+   * lets the control go from inside its own listener, because SK-19 has no
+   * level below it to protect -- `Esc` has to wait a turn and it does not.
    */
   let isHeldTextTakenBack = false
+  /**
+   * Let a cancelled control go, once the press that cancelled it has been
+   * reckoned.
+   *
+   * ⛔⛔ THIS IS D-267, AND THE TWO HALVES PULL OPPOSITE WAYS. IF-9 answers
+   * 「入力中か」 with ONE truth value (利用者の裁定 2026-08-27) and three rules
+   * read it: IN-4's first rung, IN-5a's swallowing of single-character keys,
+   * and WS-2 of table T-067 taking AG-9 of table T-035. IN-4 needs the answer
+   * `true` for the length of the cancelling press or the ladder spends a second
+   * level; WS-2 and IN-5a need it `false` the moment the edit is gone, or
+   * `Ctrl+Z` is refused with RS-8 for ever after and the person is left with a
+   * document that cannot be undone. ⇒ Neither flag alone can serve both, and a
+   * SECOND member on IF-9 is exactly what that ruling forbids.
+   *
+   * ⭐ SO THE ANSWER MOVES IN TIME RATHER THAN SPLITTING IN TWO. IN-6 settles
+   * which state 「入力中」 names: 「押しても焦点が欄に留まり、`AG-9` の「入力中」
+   * が解けない」 -- the caret being in the field IS the state, so a cancelled
+   * edit has to give the field up. It is given up on the RELEASE of the same
+   * `Esc`, which is after the whole press has been reckoned and before any
+   * later press can be raised. `KEY_RELEASE` is where that is hung.
+   *
+   * ⛔⛔ NOT A MICROTASK, AND THAT WAS MEASURED RATHER THAN REASONED. A release
+   * queued with `Promise.resolve().then` runs BETWEEN two listeners of the same
+   * `keydown`, not after them: the host takes a microtask checkpoint whenever
+   * the script stack empties, and it empties as each listener returns. Measured
+   * 2026-09-05 on the shipped build -- with the release so queued, one `Esc`
+   * cancelled the edit AND put the `Properties Panel` away, which is the two
+   * levels for one press IN-4 forbids (1 階層, MUST).
+   *
+   * ⛔ NOT `isHeldTextTakenBack` LEFT STANDING WITH THE FIELD FOCUSED EITHER.
+   * That was tried and the ledger's D-152 records what it cost: with the caret
+   * still in a field and this answer `false`, typing `p` opens the Command
+   * Palette.
+   *
+   * ⚠️ THE FLAG IS RE-READ RATHER THAN CAPTURED. The `input` listener puts it
+   * back down the moment characters go in again, so a person who typed inside
+   * that one turn keeps their field and their unsettled edit.
+   *
+   * @purity non-pure
+   */
+  function releaseTakenBackText(held: TextEntryControl): void {
+    if (heldTextControl !== held || !isHeldTextTakenBack) return
+    // ⚠️ Guarded rather than assumed: table T-075 leaves this unit runnable
+    // against a host that is not a browser, and one that lays nothing out
+    // need not give its elements a `blur` at all.
+    if (typeof held.blur === 'function') held.blur()
+    heldTextControl = null
+    heldTextValueAtFocus = ''
+    isFieldHeld = false
+    isHeldTextTakenBack = false
+  }
   propertiesPanel.addEventListener('focusin', (event: Event) => {
     isFieldHeld = true
     heldTextControl = textEntryControlOf(event.target)
@@ -6877,13 +6936,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * control was focused with, so a restored value raises none and no commit is
    * ever built from the abandoned characters.
    *
-   * ⛔ THE CONTROL IS NOT LET GO ON THIS PRESS, and that is measured rather
-   * than preferred: this listener runs BEFORE the shell's, so a flag cleared
-   * here is the value the shell reads, and the ladder then took the
+   * ⛔ THE CONTROL IS NOT LET GO FROM INSIDE THIS LISTENER, and that is
+   * measured rather than preferred: it runs BEFORE the shell's, so a flag
+   * cleared here is the value the shell reads, and the ladder then took the
    * `Properties Panel` away on the very press that cancelled the edit -- two
-   * levels for one press, which IN-4 forbids (1 階層, MUST). The level is
-   * spent on the edit, the person keeps the field, and the NEXT `Esc` finds
-   * nothing unsettled and moves on.
+   * levels for one press, which IN-4 forbids (1 階層, MUST).
+   * ⛔⛔ IT IS LET GO ONE TURN LATER, AND THAT IS D-267. Kept past the press,
+   * this side went on answering 「入力中」 to WS-2 of table T-067 as well, so
+   * `Ctrl+Z` after a cancelled edit was refused with RS-8 -- 「1 回だけ押した人
+   * は、そのあと取り消しが効かない文書を持つことになる」.
+   * `releaseTakenBackText` holds both halves; its note carries the reasoning.
    *
    * ⛔ `preventDefault` IS NOT CALLED HERE. MK-10's answer for the whole
    * happening is `TranslatedInput.isBrowserDefaultStopped`, which the input seam
@@ -6902,18 +6964,39 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
     if (isHeldTextTakenBack) {
       // Nothing stands unsettled any more, so this press is not the edit's.
-      // ⚠️ Guarded rather than assumed: table T-075 leaves this unit runnable
-      // against a host that is not a browser, and one that lays nothing out
-      // need not give its elements a `blur` at all.
-      if (typeof held.blur === 'function') held.blur()
-      heldTextControl = null
-      heldTextValueAtFocus = ''
-      isFieldHeld = false
-      isHeldTextTakenBack = false
+      // ⚠️ A SECOND `Esc` REACHES THIS ONLY WHERE THE RELEASE NEVER CAME -- a
+      // key held down repeats its press without ever being let go, and a host
+      // that table T-075 leaves this unit runnable against need raise no
+      // release at all. In a browser the `keyup` below has already let the
+      // control go and this listener returns above, on `held === null`.
+      releaseTakenBackText(held)
       return
     }
     held.value = heldTextValueAtFocus
     isHeldTextTakenBack = true
+  })
+
+  /**
+   * Where the cancelled control is let go -- `releaseTakenBackText`'s own note
+   * says why it cannot be let go on the press itself, and why no queued turn is
+   * late enough either.
+   *
+   * ⛔ NOTHING IS ASSIGNED TO A KEY RELEASE, which is why this listener may have
+   * one to itself: table T-036 spells presses only, and IF-2 carries no shape
+   * for a release (see `DomInputSource`). So this reads a happening the rest of
+   * the tool does not, and takes no press away from anybody.
+   *
+   * ⚠️ THE FOCUS HAS NOT MOVED BY NOW. The press put the value back and took
+   * nothing else, so the release still lands on the same control, inside this
+   * panel.
+   *
+   * @purity non-pure
+   */
+  propertiesPanel.addEventListener(HOST_KEY_RELEASE, (event: Event) => {
+    const held = heldTextControl
+    if (held === null || !isHeldTextTakenBack) return
+    if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+    releaseTakenBackText(held)
   })
 
   /**
