@@ -296,6 +296,118 @@ const SCRIPT = [
   ['row', 'Mobile Client', 'foldAll'],
   ['row', 'Mobile Client', 'foldAll'],
   ['row', 'Mobile Client', 'openAll'],
+
+  // ------------------------------------------------------------------------
+  // ⭐ TWENTY-FIVE MOVES ADDED 2026-09-05, AND WHAT THE FIFTY ABOVE NEVER ASKED.
+  // 50/50 agreeing is again not "there is nothing left to find" -- it is
+  // "there is nothing left being asked". ⭐ MEASURED OVER THIS BOARD, not
+  // guessed: the eleven rows the sample seeds and the five acts a row carries
+  // make 55 cells, and the fifty above press 20 of them. THIRTY-FIVE ARE
+  // NEVER PRESSED, and THREE ROWS ARE NEVER TOUCHED AT ALL --
+  // 「Phase Gates」, 「Phone Home Screen」, 「Reporting」.
+  //   - the deepest tier (`L3`) receives only `openOne` and `pin`; its
+  //     `hideSelf`, `foldAll` and `openAll` are never pressed,
+  //   - 「Whole Product」, the FIRST root, never receives one press of the fold
+  //     family -- only `hideSelf` and `pin`,
+  //   - no parent ever has EVERY child away at once, so nothing asks what a row
+  //     holding nothing draws,
+  //   - folding and hiding are never combined on the same subtree, though
+  //     `HR-6` (MUST) makes hiding do both: 「あわせて、その行と、その配下を
+  //     畳んだ状態にすること」,
+  //   - a pinned row and a pinned ANCESTOR of it never stand together, so the
+  //     pinned stack is never asked to hold a parent and its own child,
+  //   - a pinned row is never folded BY ITS OWN entrance, so a count is never
+  //     read off a row while it is lifted out of the flow,
+  //   - the head's own entrances are never pressed twice running except
+  //     `headOne`, so a SPENT HEAD entrance is never pressed at all -- every
+  //     spent press above is on a row.
+  //
+  // ⛔ THE PIN CAP IS DELIBERATELY NOT REACHED. `S-127` (`pinnedRowMax`) stands
+  // at 5 and FR-098 (MUST) has GRS refuse the sixth and tell the reader; the
+  // sample has no cap and would simply take it. That is a difference the
+  // SPECIFICATION wins, but it is not a difference this file can express -- a
+  // `KNOWN_DIVERGENCES` entry excuses a whole READING for the whole run, which
+  // would blind every other move. ⭐ So this block holds at most FOUR pins, and
+  // the cap stays a question for a test that can name it.
+
+  // ⛔ A NORMALISER AND A QUESTION AT ONCE. The fifty leave the board open, so
+  // this press is the head's open-all with nothing left to open -- the first
+  // SPENT HEAD entrance this file presses. FR-029 (MUST NOT) lets the press
+  // through so the reason can be told; ⛔ what must not happen is a change.
+  ['head', 'headOpenAll'],
+  // ⭐ THE HEAD'S FOLD-ALL PRESSED TWICE. `headOne` is the only head entrance
+  // the fifty press twice running, and it is never spent when they do.
+  ['head', 'headFoldAll'],
+  ['head', 'headFoldAll'],
+  ['head', 'headOpenAll'],
+
+  // ⭐ EVERY CHILD OF ONE PARENT TAKEN AWAY. 「Reporting」 is a row the fifty
+  // never touch, and with 「Billing」 already away 「Back Office」 becomes a row
+  // holding nothing -- which is what its count and its arming are then asked.
+  ['row', 'Billing', 'hideSelf'],
+  ['row', 'Reporting', 'hideSelf'],
+  // ⭐ FOLDING A PARENT WHOSE CHILDREN ARE ALREADY HIDDEN. The two ways a row
+  // can be away are never combined above. `HR-6` already folded each child as
+  // it was hidden, so this asks what folding the parent adds on top.
+  ['row', 'Back Office', 'foldAll'],
+  // ⭐ AND OPEN-ALL OVER BOTH. `HR-6` names the parent's OPEN-ONE (`HR-7`) as
+  // what brings a hidden row back; whether open-all does it too is a question
+  // neither side has been asked. ⛔ Back Office's open-all is one of the 35
+  // cells never pressed.
+  ['row', 'Back Office', 'openAll'],
+
+  // ⭐ HIDE-SELF AT THE DEEPEST TIER, on a row the fifty never touch. `L3`
+  // above receives only `openOne` and `pin`.
+  ['row', 'Phone Home Screen', 'hideSelf'],
+  // ⭐ OPEN-ALL ON A PARENT WITH A HIDDEN CHILD -- another never-pressed cell,
+  // and the same question as `Back Office` asked one tier deeper.
+  ['row', 'Phone App', 'openAll'],
+
+  // ⭐ A PINNED ROW AND A PINNED ANCESTOR OF IT, STANDING TOGETHER. Every pin
+  // above sits in a subtree of its own. FR-098 (MUST NOT) 「同じ行を本来の縦
+  // 位置にも描いてはならない」 and stacks the pinned in the order they were
+  // fixed -- with a parent and its own child both lifted, a stack that quietly
+  // keeps tree order and one that keeps fixing order cannot read alike.
+  ['row', 'Phone App', 'pin'],
+  ['row', 'Phone Sign In', 'pin'],
+  // ⭐ FR-098's FOLDED-ANCESTOR EXCEPTION WHERE THE ANCESTOR IS ITSELF PINNED.
+  // 「ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015
+  // の `HR-1a`）と、隠した行の配下にあるとき（同表の `HR-6`）に限ること
+  // （MUST）」 -- above, the folded ancestor was an ordinary row. Here it is
+  // itself lifted out of the flow, so the child is under a parent that is no
+  // longer in the place it was folded in.
+  ['row', 'Phone App', 'foldAll'],
+  ['row', 'Phone App', 'openOne'],
+
+  // ⭐ FOUR PINS, AT TWO TIERS, WITH A PARENT-CHILD PAIR AMONG THEM. Three was
+  // the most the fifty held, and those three shared no ancestry.
+  // 「Phase Gates」 is a row the fifty never touch; 「Tablet App」's pin is one
+  // of the 35 cells never pressed.
+  ['row', 'Phase Gates', 'pin'],
+  ['row', 'Tablet App', 'pin'],
+  // ⭐ THE HEAD'S FOLD FAMILY OVER THAT STACK. Above it was run over three
+  // pins that no fold could reach through a shared ancestor.
+  ['head', 'headFoldAll'],
+  ['head', 'headOpenAll'],
+  // ⭐ THE FIRST-FIXED PIN COMES OFF. The block above took the MIDDLE one off;
+  // taking the HEAD of the stack off asks whether the rest keep the order they
+  // were fixed in, or quietly re-stack. ⛔ It also leaves a pinned row whose
+  // pinned ancestor has just stopped being pinned.
+  ['row', 'Phone App', 'pin'],
+
+  // ⭐ THE FOLD FAMILY ON THE FIRST ROOT, WHICH NEVER RECEIVES ONE PRESS OF IT
+  // ABOVE -- and it now carries a pinned child, so folding it is FR-098's
+  // exception reached from a third direction.
+  ['row', 'Whole Product', 'foldAll'],
+  ['row', 'Whole Product', 'openOne'],
+
+  // ⭐ A PINNED ROW FOLDED BY ITS OWN ENTRANCE. Pins and a row's own fold are
+  // never combined on one row above, so no count has ever been read off a row
+  // while FR-098 holds it out of the scrolling flow.
+  ['row', 'Mobile Client', 'pin'],
+  ['row', 'Mobile Client', 'foldAll'],
+  ['row', 'Mobile Client', 'openAll'],
+  ['row', 'Mobile Client', 'pin'],
 ]
 
 const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${step[2]}`
@@ -643,9 +755,18 @@ async function run() {
       ? '⛔'
       : (broken.length > 0 ? '⛔⛔' : (settled.length > 0 ? '⚠️ ' : '✅'))
     console.log(`${mark} ${move}`)
-    for (const [what] of settled) {
+    // ⛔⛔ AND IT SHOWS ITS WORKING. `isKnown` excuses a reading on ONE test --
+    // the two hold the same items in a different ORDER -- and says nothing
+    // about WHICH order either side took. That is blunt enough to swallow a
+    // real find: the moves that stand a pinned row beside its own pinned
+    // ANCESTOR are order questions too, and an excuse that prints only its
+    // reason would wave them through unread. ⭐ So both orders are printed
+    // every run, and a reader can see that GRS's IS the order they were fixed.
+    for (const [what, , , left, right] of settled) {
       console.log(`    ${what} differs as the specification says it should`
         + ` -- ${whyKnown(what)}`)
+      console.log(`    ${what} the sample:`, JSON.stringify(left))
+      console.log(`    ${what} GRS       :`, JSON.stringify(right))
     }
     for (const [what, onlySample, onlyApp, left, right] of broken) {
       const one = defectFor(move, what)

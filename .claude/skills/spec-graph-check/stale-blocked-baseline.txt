@@ -1,4 +1,4 @@
-46
+47
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a
@@ -71,3 +71,18 @@
 # defects.md alone; the harvest's 46 are history, and rewriting them buys
 # nothing. ⭐ The count is still taken across both files, because a row that is
 # harvested must not make the total fall as if ground had been won.
+# 2026-09-05: 46 -> 47. ⛔ THIS ONE IS NOT APPEND-ONLY ROT, AND THE ROW IS NOT
+# REWORDED TO DODGE THE SUBSTRING. D-262 carries 利用者の裁定が要る in cell 5
+# AND a ✅ 実物確認, which is what this check reads as a contradiction. It is
+# not one here: the user ruled on 2026-09-05 「押してから問え」 for exactly
+# this row -- press it first, and raise the question ONLY if it breaks. It
+# broke (a highlight box dragged from a pinned row up the tree lands with
+# topGroupId below bottomGroupId, so IV-19 does not hold), so the row now
+# HAS to carry both a measurement and an open ruling at the same time.
+# ⚠️ SO THE CHECK HOLDS A PREMISE THIS ROUND FALSIFIED -- 「a row that has
+# been pressed cannot still be waiting on a ruling」. Under the user's
+# 押してから問え order, pressing is what RAISES the ruling. ⭐ The next round
+# should decide whether to teach the check that pairing rather than let the
+# baseline absorb one row per occurrence.
+# ⛔ Rewording the cell to lose the phrase was rejected: the row IS blocked,
+# and a check that goes green because the words moved is a false green.
