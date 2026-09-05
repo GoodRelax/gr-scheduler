@@ -435,11 +435,20 @@ const T_109_ROW_EXPANDER = [
 const T_051_HF1_FOUR_CONTROLS =
   '隠す操作子と、配下を 1 階層開く操作子と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ'
 const T_051_HF1_IS_A_LATTICE = '並びは 2 × 2 の格子とすること（MUST）'
-const T_051_HF1_LEFT_TO_RIGHT = '左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く'
+// ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
+// the old wording read as four controls in a line -- see D-260.
+const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層開く'
 
-/** 表 T-051 `HF-4` — the whole left-to-right run of a row, ruled 2026-08-30. */
+/**
+ * 表 T-051 `HF-4` — the whole left-to-right run of a row.
+ *
+ * ⭐⭐ RULED AGAIN 2026-09-05: delete and add stopped taking a column each
+ * and became one column, delete above add, so the run is four columns wide
+ * instead of five. That is what made HF-1's lattice read as a lattice
+ * again, and it is what took the run's left edge off HF-15's grab strip.
+ */
 const T_051_HF4_THE_WHOLE_RUN =
-  '折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止めの順に、左から右へ置くこと（MUST）'
+  '折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ置くこと（MUST）'
 
 /** 表 T-051 `HF-10` — the run at the panel's head, ruled the same day. */
 const T_051_HF10_THE_HEAD_RUN =

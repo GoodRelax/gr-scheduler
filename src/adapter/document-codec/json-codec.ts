@@ -1148,7 +1148,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['integer'],
         },
         rulerTierPxPerDayDay: {
-          type: ['integer'],
+          type: ['number'],
         },
         rulerTierPxPerDayMonth: {
           type: ['number'],

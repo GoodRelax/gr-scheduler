@@ -151,7 +151,10 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
 
   it('S-221 -- the character-size coefficient -- multiplies the WRITTEN picture width (FR-020), not a literal 1600', () => {
     const row = rowOf(T_207, 'S-221')
-    expect(bare(row.by['値'] ?? '')).toBe('0.08')
+    // ⭐⭐ MOVED BY THE RULING OF 2026-09-05 -- 「字の大きさも、
+    // コントラストも小さくしろ」. CR-351 carries the arithmetic; this guard
+    // only holds the manuscript to what was decided.
+    expect(bare(row.by['値'] ?? '')).toBe('0.01125')
     expect(bare(row.by['下限'] ?? '')).toBe('0.01')
     expect(bare(row.by['上限'] ?? '')).toBe('1')
     // ⭐ 「掛ける相手は書き出す絵の幅（S-81）である」 -- a case that hard-coded the
@@ -163,7 +166,10 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
 
   it('S-222 -- the repeat-spacing coefficient -- multiplies the mark height, both axes alike', () => {
     const row = rowOf(T_207, 'S-222')
-    expect(bare(row.by['値'] ?? '')).toBe('3')
+    // ⭐⭐ MOVED BY THE RULING OF 2026-09-05 -- 「字の大きさも、
+    // コントラストも小さくしろ」. CR-351 carries the arithmetic; this guard
+    // only holds the manuscript to what was decided.
+    expect(bare(row.by['値'] ?? '')).toBe('14.44')
     expect(bare(row.by['下限'] ?? '')).toBe('1')
     expect(bare(row.by['上限'] ?? '')).toBe('20')
     expect(row.by['備考'] ?? '').toContain('縦横とも同じ間隔')
@@ -172,7 +178,10 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
   it('S-102 -- watermarkOpacity -- sits inside the same table, outside the contrast range (LM-13)', () => {
     const row = rowOf(T_207, 'S-102')
     expect(bare(row.by['名前'] ?? '')).toBe('watermarkOpacity')
-    expect(bare(row.by['値'] ?? '')).toBe('0.08')
+    // ⭐⭐ MOVED BY THE RULING OF 2026-09-05 -- 「字の大きさも、
+    // コントラストも小さくしろ」. CR-351 carries the arithmetic; this guard
+    // only holds the manuscript to what was decided.
+    expect(bare(row.by['値'] ?? '')).toBe('0.06')
     expect(bare(row.by['下限'] ?? '')).toBe('0.02')
     expect(bare(row.by['上限'] ?? '')).toBe('0.30')
     // ⭐ 「薄いほうがよい、が狙いである」 -- the range's own top must not exceed
@@ -182,14 +191,17 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
 })
 
 describe('table T-236 still holds S-223, the fourth of the four values (the ink colour)', () => {
-  it('S-223 -- the ink colour -- is the same as S-147 (the main text colour), in both themes', () => {
+  it('S-223 -- the ink colour -- is the same as S-148 (the muted text colour), in both themes', () => {
     const row = rowOf(T_236, 'S-223')
     // ⚠️ `bare()` reads the FIRST backtick span of a cell. These two cells are
-    // each spelled "`S-147` に同じ", so `bare()` correctly returns "S-147" and
+    // each spelled "`S-148` に同じ", so `bare()` correctly returns "S-148" and
     // not the trailing words -- unlike the raw-sentence cells read below,
     // which carry more than one backtick span and are read whole instead.
-    expect(bare(row.by['明るいテーマ'] ?? '')).toBe('S-147')
-    expect(bare(row.by['暗いテーマ'] ?? '')).toBe('S-147')
+    // ⭐⭐ MOVED BY THE RULING OF 2026-09-05 -- 「字の大きさも、
+    // コントラストも小さくしろ」. CR-351 carries the arithmetic; this guard
+    // only holds the manuscript to what was decided.
+    expect(bare(row.by['明るいテーマ'] ?? '')).toBe('S-148')
+    expect(bare(row.by['暗いテーマ'] ?? '')).toBe('S-148')
     expect(row.by['色相追随'] ?? '').toBe('—')
     // ⛔ FR-020 (MUST NOT): 「濃さをここに書いてはならない」 -- S-223's own row
     // must defer S-102's number rather than restating it.

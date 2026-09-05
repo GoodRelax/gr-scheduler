@@ -2374,7 +2374,7 @@ export const NOT_STORED_RULER_WEEKDAY_SIZES: {
   /** S-219 */
   readonly 'S-219': number
 } = {
-  'S-219': 0.8,
+  'S-219': 0.6,
 }
 
 /**
@@ -2441,7 +2441,7 @@ export const SCHEDULE_COLOURS: {
   /* S-195 */
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-223 */
-  'S-223': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }
 
 /**
@@ -2475,8 +2475,8 @@ export const WATERMARK_MARKS: {
   readonly 'S-102': string
 } = {
   'S-220': '-30',
-  'S-221': '0.08',
-  'S-222': '3',
-  'S-102': '0.08',
+  'S-221': '0.01125',
+  'S-222': '14.44',
+  'S-102': '0.06',
 }
 // </generated>

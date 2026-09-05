@@ -647,7 +647,7 @@
      "maximum": 20
     },
     "rulerTierPxPerDayDay": {
-     "type": "integer",
+     "type": "number",
      "maximum": 60
     },
     "rulerTierPxPerDayMonth": {
