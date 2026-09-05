@@ -3782,11 +3782,11 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // SK-16 / SK-16a -- one axis each, by the same step the wheel turns by.
   if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed([zoomCommand(context, zoomTimes(context, factor, 'x'), null)])
+    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
   }
   if (altOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed([zoomCommand(context, null, zoomTimes(context, factor, 'y'))])
+    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
   }
 
   // SK-17 -- 等倍. ⚠️ The 1 is the multiplicative identity, which is what 倍率
@@ -3794,11 +3794,11 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // somewhere else the day that default moved, and S-76's own note fixes 等倍
   // as the baseline `basePlanHeight` is defined against.
   if (ctrl && key === KEY.zero) {
-    return changed([{ kind: 'setZoom', zoomX: 1, zoomY: 1 }])
+    return changed(zoomWrites(context, 1, 1))
   }
 
   // SK-18 -- FR-055. The zoom is measured from the layout this frame ran, and
-  // the place is handed back to OP-10 (see `fitCommand`).
+  // the place the fit worked out is written down with it (see `fitCommand`).
   if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
 
   // SK-20 -- FR-046: showing the line puts today into `statusDate`, hiding it
@@ -3852,9 +3852,9 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   // when it scrolls.
   const factor = Math.pow(context.zoomStep, -input.notches)
 
-  if (ctrl) return changed([zoomCommand(context, zoomTimes(context, factor, 'x'), zoomTimes(context, factor, 'y'))])
-  if (shiftOnly) return changed([zoomCommand(context, zoomTimes(context, factor, 'x'), null)])
-  if (altOnly) return changed([zoomCommand(context, null, zoomTimes(context, factor, 'y'))])
+  if (ctrl) return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), zoomTimes(context, factor, 'y')))
+  if (shiftOnly) return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
+  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
 
   // MK-1 / MK-5 -- the wheel's own distance, because no row says how far one
   // detent scrolls and S-96 says the device is what knows.
@@ -4309,12 +4309,12 @@ function commandFromEntry(
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
-      return changed([zoomCommand(context, zoomTimes(context, factor, 'x'), null)])
+      return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
     }
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
-      return changed([zoomCommand(context, null, zoomTimes(context, factor, 'y'))])
+      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
     }
     case ENTRY.baselineVisible:
     case ENTRY.progressLineVisible:
@@ -7477,6 +7477,106 @@ function zoomCommand(
 }
 
 /**
+ * Whether this document already names a display position -- OP-10 of table
+ * T-024a's own condition, read on the side that WRITES rather than the side
+ * that draws.
+ *
+ * ⛔ THE CONDITION IS WRITTEN TWICE, once here and once in `viewSettings`
+ * (`src/framework/single-html-shell/frame-loop.ts`), which is the same bargain
+ * `collapsesDiscarded` keeps with CM-72: that side decides what to DRAW while
+ * no place is named, this side decides whether a press still has one to name.
+ * If OP-10's condition is ever re-ruled, both move.
+ * ⚠️ BOTH HALVES, because the row states both -- 「表示位置が `null`、または指す
+ * 行が存在しないとき」. A `scrollGroupId` still pointing at a row CD-2 of table
+ * T-050 has deleted is as unplaced as a `null`, so a test on the day alone
+ * would leave the fit running on it.
+ *
+ * @purity pure
+ */
+function namesAPlace(
+  schedule: Schedule,
+  scrollDate: string | null,
+  scrollGroupId: string | null,
+): boolean {
+  if (scrollDate === null) return false
+  return schedule.taskGroups.some((one) => one.id === scrollGroupId)
+}
+
+/**
+ * 「人の拡大の押下は表示位置を据えるものとする」 (利用者の裁定 2026-09-06) --
+ * the write that seats the place a zoom press was asked about, or nothing at
+ * all when the document already names one.
+ *
+ * ⭐⭐ WHY A ZOOM OWES A PLACE. OP-10 states a RESULT -- while the stored place
+ * is 「人がまだ場所を決めていない」 the picture is the one FR-055's fit chooses
+ * -- and the reading side honours it by choosing again on every frame. So a
+ * `setZoom` written under that condition was overwritten before anyone saw it,
+ * and IC-10 / IC-12 / IC-13 / IC-15 moved the picture not once (measured
+ * 2026-09-05, and again here: `pxPerDay` stood at 1.5310100413467218 through
+ * four presses on a 1920x1080 screen). ⭐ Once the press has said where it is
+ * looking, the person HAS decided a place, OP-10's condition no longer holds,
+ * and the zoom they asked for is the zoom they get.
+ *
+ * ⭐ THE PLACE IS THE ONE ON SCREEN, read the way a pan reads it: the top left
+ * corner of the `Row Area` measured against the layout this frame was drawn
+ * from, which is `scrolledAnchor` with both distances at zero. ⛔ NOT a second
+ * copy of the fit's anchor arithmetic -- the frame in hand was ALREADY laid out
+ * at whatever OP-10 chose, so the corner of it is that choice, written down.
+ *
+ * ⛔ NOTHING IS WRITTEN WHERE A PLACE ALREADY STANDS, and that is not a saving
+ * -- it is the one thing that keeps a held press honest. FR-018 (MUST) has
+ * IC-12 .. IC-15 go on stepping while they are held, so this member is reached
+ * dozens of times in one press; re-writing an anchor that is already seated
+ * would put the day and the row through `dayAtX` / `rowIndexAtTopEdge` once per
+ * step, and S-176 / S-177 would drift by the rounding each time.
+ * ⛔ AND NOTHING IS WRITTEN WHERE THE SEAT WOULD NOT SEAT. A document whose
+ * layout names no row -- one with no `TaskGroup` at all -- has no S-78 to give,
+ * and a `setScrollPosition` carrying the null it already holds would be a write
+ * that changed nothing and pushed the schedule instant along (FR-063).
+ *
+ * @purity pure
+ */
+function placeSeated(context: InputContext): readonly DocumentCommand[] {
+  const schedule = context.document.schedule
+  const settings = context.document.documentSettings
+  if (namesAPlace(schedule, settings.scrollDate, settings.scrollGroupId)) return []
+  const at = scrolledAnchor(context, 0, 0)
+  if (!namesAPlace(schedule, at.scrollDate, at.scrollGroupId)) return []
+  return [
+    {
+      kind: 'setScrollPosition',
+      scrollDate: at.scrollDate,
+      scrollDayOffset: at.scrollDayOffset,
+      scrollGroupId: at.scrollGroupId,
+      scrollGroupOffset: at.scrollGroupOffset,
+    },
+  ]
+}
+
+/**
+ * The writes one zoom the person asked for owes: the place it was asked about,
+ * where none is stored yet, and then the zoom itself.
+ *
+ * ⭐ ONE BUNDLE AND NOT TWO, which is the difference from `fitWrites`. FR-031
+ * (MUST) splits the FIT into two writes because CM-72 has to push the step
+ * UN-17 asks for; a zoom pushes no step at all -- UN-8 of table T-027 keeps
+ * both `setZoom` (CM-65) and `setScrollPosition` (CM-66) out of the history --
+ * so there is no order for a history to see and nothing to keep apart.
+ * ⛔ THE PLACE GOES FIRST ANYWAY, so that a reader of the bundle meets it in
+ * the order it is meant: this is where the person was looking, and this is what
+ * they asked to do to it.
+ *
+ * @purity pure
+ */
+function zoomWrites(
+  context: InputContext,
+  zoomX: number | null,
+  zoomY: number | null,
+): readonly DocumentCommand[] {
+  return [...placeSeated(context), zoomCommand(context, zoomX, zoomY)]
+}
+
+/**
  * The schedule as FR-055 has to measure it: every collapse thrown away.
  *
  * ⭐ HF-8 of table T-051 (MUST) is the rule, and this is only its MEASUREMENT
@@ -7503,11 +7603,22 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
 /**
  * SK-18 -- FR-055's fit.
  *
- * ⭐ The place is handed back rather than computed. OP-10 of table T-024a reads
- * a null `scrollDate` as 「人がまだ場所を決めていない」 and requires the reader
- * to show what FR-055 would choose (MUST), which is exactly what this key asks
- * for -- so nulls say it once, in the place the rule already lives, instead of
- * a second copy of the anchor arithmetic that `frame-loop.ts` runs.
+ * ⭐⭐ THE PLACE THE FIT WORKED OUT IS WRITTEN DOWN, and until 2026-09-06 it was
+ * handed back as a pair of nulls instead. The reasoning behind that was that
+ * OP-10 of table T-024a reads a null `scrollDate` as 「人がまだ場所を決めていな
+ * い」 and has the reader show what FR-055 would choose -- which is what this
+ * press asks for -- so the nulls said it once in the place the rule already
+ * lives. ⛔ THAT WAS THE DEFECT. OP-10 states a RESULT and the reading side
+ * honours it by choosing AGAIN ON EVERY FRAME, so a press that answered with
+ * nulls left the picture exactly as it found it and every zoom written after it
+ * was overwritten before anyone saw it. ⭐ 「人の拡大の押下は表示位置を据えるもの
+ * とする」 (利用者の裁定 2026-09-06): the press decides a place, so the place it
+ * decided is what the document holds -- and `fitZoom` has already answered it
+ * (`FitToScreen.scrollDate` / `.scrollGroupId`), so nothing is computed twice
+ * and no anchor arithmetic is copied out of `frame-loop.ts`.
+ * ⚠️ A DOCUMENT WITH NOTHING DRAWN STILL ANSWERS NULL, because that is what the
+ * fit answers for it -- `fitZoom` hands back the settings' own place when the
+ * layout has no row -- and there is no place in such a document to name.
  *
  * ⭐ BOTH PASSES OF THE RULE PRINTED AFTER TABLE T-068 ARE RUN INSIDE
  * `fitZoom`, AND NEITHER IS READ OFF THE FRAME. ⛔ The frame's own layout
@@ -7554,12 +7665,14 @@ function fitCommand(context: InputContext): DocumentCommand {
     kind: 'fitScheduleToScreen',
     zoomX: fitted.zoomX,
     zoomY: fitted.zoomY,
-    scrollDate: null,
-    scrollGroupId: null,
-    // ⭐ CLEARED WITH THE ANCHORS THEY BELONG TO. A `null` anchor is OP-10's
-    // 「人がまだ場所を決めていない」, and a fraction left standing from the pan
-    // before would slide FR-055's fitted answer by up to one row and one day --
-    // which is the one thing a fit must not do.
+    scrollDate: fitted.scrollDate,
+    scrollGroupId: fitted.scrollGroupId,
+    // ⭐ ZEROED WITH THE ANCHORS THEY BELONG TO, which is the answer `FitToScreen`
+    // says it does not carry a member for: the fit puts the corner of the content
+    // on the corner of the `Row Area`, so both fractions are zero -- and a
+    // fraction left standing from the pan before would slide FR-055's fitted
+    // answer by up to one row and one day, which is the one thing a fit must not
+    // do.
     scrollDayOffset: 0,
     scrollGroupOffset: 0,
   }

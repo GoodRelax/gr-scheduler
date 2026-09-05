@@ -2497,6 +2497,13 @@ function drawnRowBoxesOf(
  * ⭐ The document is NOT edited. OP-10 sits on the reading side ("読む側の規則
  * は表 T-024a の `OP-10` が持つ", FR-051), so the stored settings keep saying
  * `null` and every frame decides again.
+ * ⚠️ WHICH IS WHY A ZOOM PRESS NOW SEATS THE PLACE ON THE WRITING SIDE.
+ * 「人の拡大の押下は表示位置を据えるものとする」 (利用者の裁定 2026-09-06):
+ * IC-10 / IC-12 .. IC-15 write a place of their own (`placeSeated` and
+ * `fitCommand` in `input-command-translator.ts`), so this answer stops being
+ * re-decided the moment a person has decided one -- and the zoom they asked
+ * for is no longer overwritten by the next frame. ⛔ Nothing here moved for it:
+ * this member still answers the same picture for the same stored values.
  *
  * ⚠️ Runs the two passes the rule after table T-068 allows, and runs them
  * inside `fitZoom` (PI-5) rather than here. ⛔ A third pass is forbidden -- the
