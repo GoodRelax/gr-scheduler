@@ -4468,10 +4468,23 @@ function commandFromEntry(
       // the press answered with neither a write nor a reason, which FR-029
       // (MUST) forbids either way round. ⭐ `isEntryUsable` (UF-65) counts the
       // same two.
-      if (
-        context.selection.ordered &&
-        context.selection.items.filter((one) => one.kind === 'task').length >= 2
-      ) {
+      //
+      // ⭐⭐ AND THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (D-265),
+      // which is the sentence above kept rather than a new rule: FR-029 (MUST)
+      // counts an entrance's targets 「画面に描かれている側で」 and (MUST NOT)
+      // 「描かれていないものの上に残る状態を数えてはならない」. ⛔ `Selection` IS
+      // NOT CUT WHEN A TASK LEAVES THE PICTURE -- a fold (HR-1a), a hiding
+      // (HR-6) and FR-018's depth limit all take a row out without touching it
+      // -- so counting `selection.items` alone answered a press over a picture
+      // holding none of the chosen Tasks with a silent write. ⚠️ Measured
+      // 2026-09-05: two Tasks chosen, IC-78 folded every row away, IC-37 drawn
+      // faint by `command-palette.ts` -- and this branch still wrote.
+      // ⭐ THE SAME READING THE PALETTE DREW, made from the same two facts:
+      // which rows the frame drew (`drawnRowGroupIds`) joined through
+      // `Schedule.taskGroupMembers` (ET-5 of table T-056) to the Tasks they
+      // carry. ⛔ A second, wider reading here is exactly what the faint side
+      // must not disagree with.
+      if (context.selection.ordered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')
@@ -6800,6 +6813,47 @@ function commandFromGrab(
  *
  * @purity pure
  */
+/**
+ * How many of the chosen Tasks the picture actually HOLDS -- FR-029's 「画面に
+ * 描かれている側で数えること」 for FR-034's two entrances.
+ *
+ * ⭐⭐ THE SAME JOIN THE PALETTE MAKES, out of the same two facts and neither of
+ * them invented here: `InputContext.drawnRowGroupIds` is the set of rows the
+ * last frame drew (the shell's one cut, which a fold, a hiding and FR-018's
+ * depth limit have all already been applied to), and `Schedule.taskGroupMembers`
+ * (ET-5 of table T-056) is which row each Task sits in. A Task reaches the
+ * picture only through a member row of a drawn group. ⛔ A Task with no member
+ * row is not drawn and is not counted: nothing places it, so there is no bar to
+ * line up.
+ *
+ * ⛔ ABSENT MEANS "NO PICTURE WAS HANDED OVER" AND NEVER "NOTHING IS DRAWN",
+ * which is the reading `drawnRowGroupIds` fixes for itself: a caller that
+ * carries none gets the wider count this branch made before D-265, because a
+ * false faint tells the reader an entrance is broken -- the very reading FR-029
+ * exists to prevent. ⚠️ An EMPTY array is a different answer and is honoured.
+ *
+ * ⛔ IT COUNTS AND DOES NOT NARROW THE WRITE. FR-034 lines up 「選ばれたタスク」
+ * and no row of it or of table T-108 cuts that set down to the picture, so
+ * `alignWrites` still reads the selection -- what is decided here is only
+ * whether the entrance has anything to do, which is the whole of FR-029.
+ *
+ * ⚠️ ONE PASS OVER THE MEMBERS. NFR-013 (MUST NOT) refuses an O(n^2) walk, and
+ * asking each chosen Task for its row would be one.
+ *
+ * @purity pure
+ */
+function chosenDrawnTaskCount(context: InputContext): number {
+  const chosen = context.selection.items.filter((one) => one.kind === 'task')
+  const drawnIds = context.drawnRowGroupIds
+  if (drawnIds === undefined) return chosen.length
+  const drawn = new Set(drawnIds)
+  const drawnTaskUids = new Set<number>()
+  for (const member of context.document.schedule.taskGroupMembers) {
+    if (drawn.has(member.groupId)) drawnTaskUids.add(member.taskUid)
+  }
+  return chosen.filter((one) => one.kind === 'task' && drawnTaskUids.has(one.uid)).length
+}
+
 function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
   const anchorRef = chosen[chosen.length - 1]

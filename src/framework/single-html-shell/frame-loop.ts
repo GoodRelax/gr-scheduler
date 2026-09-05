@@ -2204,6 +2204,25 @@ interface SessionHeld {
   readonly confirmation: RaisedConfirmation | null
   /** FR-076 (MUST) -- what has been raised to tell. */
   readonly notices: readonly RaisedNotice[]
+  /**
+   * FR-031's two questions, as `ScreenSession.canUndo` / `canRedo` ask them --
+   * whether the history holds a step back and one forward (RD-1 / RD-2 of table
+   * T-230).
+   *
+   * ⭐ THE SHELL IS WHERE THEY CAN BE ANSWERED AT ALL: LY-5 of table T-060
+   * leaves the current value with this layer, and `held.history` is one. FR-029
+   * (MUST) then draws IC-5 and IC-6 faint on those answers, which is what
+   * `app-header-items.ts` reads them for.
+   * ⛔ NOT A COUNT. The member on the far side takes the two questions and no
+   * depth, and nothing on the screen prints how deep the history is.
+   *
+   * ⚠️ OPTIONAL, AND ABSENT MEANS NOT KNOWN -- an entrance whose answer is not
+   * known stays usable, which is the reading the far side fixes. ⛔ It is not
+   * "nothing to undo": a false faint tells the reader an entrance is broken,
+   * the very reading FR-029 exists to prevent.
+   */
+  readonly canUndo?: boolean
+  readonly canRedo?: boolean
 }
 
 /**
@@ -2262,6 +2281,8 @@ function sessionOf(
     propertiesSubject,
     confirmation,
     notices,
+    canUndo,
+    canRedo,
   } = session
   return {
     language,
@@ -2397,6 +2418,17 @@ function sessionOf(
     // ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow
     // the body sideways, so `x` and `width` stay the panel's own.
     rowBoxes: drawnRowBoxesOf(layout, regions),
+    // FR-029 (MUST) with RD-1 and RD-2 of table T-230 -- the two questions
+    // IC-5 and IC-6 are drawn faint on. ⭐ Carried through as they were handed
+    // in: the history is the loop's to hold (LY-5 of table T-060) and this
+    // function decides nothing about it, exactly as it carries `notices` and
+    // `confirmation` through.
+    // ⚠️ SPREAD AND NOT ASSIGNED, because `exactOptionalPropertyTypes` is on
+    // and the two members are optional: an absent answer has to be an ABSENT
+    // KEY rather than a key holding `undefined`, which is also the honest
+    // shape -- the export path (EP-12) hands neither over.
+    ...(canUndo === undefined ? {} : { canUndo }),
+    ...(canRedo === undefined ? {} : { canRedo }),
   }
 }
 
@@ -4434,6 +4466,23 @@ export function frameLoop(
           propertiesSubject,
           confirmation: asking?.question ?? null,
           notices: raisedNotices,
+          // FR-029 (MUST) with RD-1 and RD-2 of table T-230, read off the ONE
+          // history this loop holds -- the same value `undoEdit` and `redoEdit`
+          // are asked with, so the faint entrance and the press agree.
+          // ⭐ BOTH SIDES READ THE PUBLISHED TYPE, and neither reaches for a
+          // function. `EditHistory` is what PI-4 of table T-064 publishes, so
+          // `done` and `undone` are the names this layer may cross for. The
+          // counting function beside them is not on that row, and the crossing
+          // check says so out loud -- it returns `history.done.length` and
+          // nothing else, so reading the field is the same answer without the
+          // crossing.
+          // ⛔ NOT `previousStep` / `nextStep`, which BUILD A NEW HISTORY to
+          // answer a question -- this is asked once per frame and moves
+          // nothing.
+          // ⚠️ `held` AND NOT THE PREVIEW: a preview is a picture folded onto
+          // the held document and has no history of its own.
+          canUndo: held.history.done.length > 0,
+          canRedo: held.history.undone.length > 0,
         }),
       )
     // ⭐ READ OFF THE VERY DESCRIPTION THAT WENT OUT, for the reason `drawnSvg`
@@ -5224,6 +5273,13 @@ export function frameLoop(
           propertiesSubject: null,
           confirmation: null,
           notices: [],
+          // ⛔ THE TWO HISTORY QUESTIONS ARE LEFT UNANSWERED HERE, AND THAT IS
+          // THE ANSWER. EP-12 of table T-076 keeps this session's state out of
+          // the picture, and how deep the reader's history stands is as much
+          // this session's as the selection is -- a faint IC-5 in a written
+          // picture would carry it out. ⚠️ Absent reads as NOT KNOWN on the far
+          // side, which draws the entrance as it always was; ⛔ `false` would
+          // say 「nothing to undo」 about a picture nobody can press.
         }),
       ),
       settings,
@@ -6945,10 +7001,31 @@ export function frameLoop(
       // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
       // RedoEdit itself: the pair is replaced by the ONE write path, which is
       // what MS-1 of table T-042 is about.
+      // ⭐⭐ AND AN EMPTY HISTORY IS TOLD RATHER THAN WRITTEN (D-265, FR-029
+      // MUST): 「押されたときに限り、行えない理由を通知すること」. The pair is
+      // drawn faint on the very questions `sessionOf` is handed above, so the
+      // press has to answer with a row of table T-233 and never in silence.
+      // ⛔ `replaceHeldDocument` CANNOT ANSWER IT. RD-1 and RD-2 commit whether
+      // or not a step moved -- `undoEdit` calls `undone: false` an answer and
+      // hands the very pair back (document-change-plan.ts says so in as many
+      // words) -- so the replacement is ACCEPTED, `hasUnsavedEdits` is set for
+      // an edit nobody made, and nothing is raised. ⇒ The guard belongs on this
+      // side, where the history is held.
+      // ⚠️ TABLE T-233 HAS NO ROW FOR 「nothing to undo」, so `RS-27` is what
+      // FR-029 names for 「どの入口にも当たる行が無いとき」 -- the fallback and
+      // not a row reached past.
       case 'undoEdit':
+        if (held.history.done.length === 0) {
+          raiseNotice(NOTHING_TO_DO_REASON, null)
+          return
+        }
         replaceHeldDocument({ row: 'RD-1' })
         return
       case 'redoEdit':
+        if (held.history.undone.length === 0) {
+          raiseNotice(NOTHING_TO_DO_REASON, null)
+          return
+        }
         replaceHeldDocument({ row: 'RD-2' })
         return
       case 'copySelection':
