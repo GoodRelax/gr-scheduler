@@ -46,15 +46,31 @@
 //               gesture, and AG-2's stamp check already turns away the write
 //               that such a read would lead to.
 //
-// ⛔ SIX OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
-// member: AM-8, AM-9, AM-10, AM-12, AM-14 and AM-15. In every case the
-// component this one hands the work to publishes no entry for it (Chapter 5.2
-// draws the edges; PI-17 does not let this component do the work itself). They
-// are declared, they refuse with a value rather than throwing, and they are
+// ⛔ FIVE OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
+// member: AM-8, AM-9, AM-10, AM-14 and AM-15. ⚠️ THE REASON IS NO LONGER ONE
+// REASON, and the block that said it was has been re-measured (2026-09-05).
+// Every entry these members hand work to is now published -- `mspdiFromDocument`
+// and `exportEmbeddedHtml` at DocumentCodec's entry (PI-20), `exportPng` at
+// ImageExporter's (PI-21), `replaceDocument` at ApplyDocumentChange's (PI-8) --
+// so "the component publishes no entry for it" was true of one member only, and
+// AM-12 is wired below because of it. What stops the other five is stated at
+// each member, and it is one of exactly two things:
+//
+//   the seam does not reach here   AM-14 and AM-15. Both entries take a seam of
+//                                  another layer's -- `Rasterizer` (IF-6) and
+//                                  `AppShellSource` (IF-8) -- and `AgentApiWiring`
+//                                  below carries neither. Reported; the fix is
+//                                  outside this component.
+//   this component's own face      AM-8, AM-9 and AM-10. The entry takes values
+//                                  table T-107's row gives the member no way to
+//                                  carry. Widening a face is a decision about
+//                                  that table, not one to take here.
+//
+// They are declared, they refuse with a value rather than throwing, and they are
 // reported. ⛔ None of them is faked: answering with an empty string or a
 // document built here would be a wrong answer wearing a right shape.
 //
-// ⚠️ WHY THREE OF THOSE SIX CARRY TWO DIFFERENT PURITY VALUES (R7.6). The
+// ⚠️ WHY THREE OF THOSE FIVE CARRY TWO DIFFERENT PURITY VALUES (R7.6). The
 // tag on a member of `AgentApi` is the contract, and it is the value table
 // T-107 states for that row; the tag on the body below is what that body does
 // today. For AM-8, AM-9 and AM-10 the two differ -- T-107 classifies them
@@ -87,7 +103,7 @@ import {
 // exactly as their tables have them.
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
 import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
-import { jsonFromDocument } from '../document-codec/document-codec'
+import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 // ⭐ A namespace for the same reason as the two above: PI-21's entry and AM-13
 // of table T-107 are both spelled `exportSvg`, and rule 03 forbids giving
 // either side a second name.
@@ -359,7 +375,7 @@ export interface AgentApi {
    */
   exportJson(): AgentExport<string>
   /**
-   * AM-12. The exchange format. ⛔ Not wired -- see the member.
+   * AM-12. The exchange format, as a value, with no download dialogue.
    *
    * @purity semi-pure-b
    */
@@ -570,13 +586,19 @@ function agentRefusal(
 }
 
 /**
- * The refusal a member gives when the component it hands the work to publishes
- * no entry for it. See the block at the top of this file.
+ * The refusal a member gives when it has not been built. See the block at the
+ * top of this file for the two things that stop one, and each member for which
+ * of the two stops it.
+ *
+ * ⚠️ `what` NAMES WHAT IS MISSING, NOT WHO PUBLISHES NOTHING. Every entry these
+ * five reach is published now (measured 2026-09-05), so the sentence this used
+ * to compose -- "publishes no entry yet" -- named a state of the tree that had
+ * stopped being true, on the one road a machine reads rather than a person.
  *
  * @purity pure
  */
-function notAvailable(target: string, snapshot: AgentSnapshot, owner: string): AgentRefusal {
-  return agentRefusal(target, 'notAvailable', snapshot, `${owner} publishes no entry yet`, [])
+function notAvailable(target: string, snapshot: AgentSnapshot, missing: string): AgentRefusal {
+  return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
 }
 
 /**
@@ -753,14 +775,39 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // ApplyDocumentChange -> ImportDocument, so an intake reaches the
       // document through the one write path (MS-1 of table T-042). ⭐ That path
       // now exists: `replaceDocument` (PI-8) carries RD-3 and RD-4 of table
-      // T-230 and asks PI-10 itself at WS-3. ⛔ What is still missing is on THIS
-      // side: `AgentImportSource` holds one text field, while RD-3 and RD-4
-      // want the whole of `ImportRequest` -- the merge choices of table T-032a,
-      // OP-5's verdict, OP-4's confirmation. Widening AM-8's face is a decision
-      // about table T-107, not one to take here. Reported.
+      // T-230 and asks PI-10 itself at WS-3.
+      //
+      // ⛔ TWO THINGS STOP IT, AND THE SECOND IS THE ONE THAT MATTERS.
+      //
+      //   the face   `AgentImportSource` holds one text field, while RD-3 and
+      //              RD-4 want the whole of `ImportRequest` -- the merge choices
+      //              of table T-032a, OP-5's verdict, OP-4's confirmation, OP-6's
+      //              default settings and AT-109's per-import id. Widening AM-8's
+      //              face is a decision about table T-107, not one to take here.
+      //   FR-073     ⛔⛔ AND WIDENING THE FACE WOULD NOT MAKE THIS SAFE TO WIRE
+      //              (the reader's ruling of 2026-09-05). FR-073 now says a
+      //              document whose format version is newer than the greatest
+      //              this build knows MUST be accepted and opened, MUST NOT be
+      //              refused -- and MUST NOT be opened in silence: the columns
+      //              that could not be read are shown on `U-61` (Difference
+      //              Review) and the person is asked whether to go on, carrying
+      //              RS-48 of table T-233. ⛔ `U-61` does not exist in this
+      //              build. A member that accepted an intake today would satisfy
+      //              the first MUST by breaking the MUST NOT beside it, and it
+      //              would break it on the road where nobody is watching -- the
+      //              caller is a machine, so the silence would not even be
+      //              noticed. Refusing keeps ONE requirement unmet and states
+      //              which; accepting would meet it by breaking the same one.
+      //
+      // ⚠️ The refusal therefore stands until `U-61` is drawn, not merely until
+      // AM-8's face is widened. Reported.
       return {
         accepted: false,
-        refusal: notAvailable('AM-8', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
+        refusal: notAvailable(
+          'AM-8',
+          source.readSnapshot(),
+          "AM-8's face carries only text, and FR-073's U-61 is not drawn",
+        ),
       }
     },
 
@@ -778,7 +825,11 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // table T-107. Reported.
       return {
         accepted: false,
-        refusal: notAvailable('AM-9', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
+        refusal: notAvailable(
+          'AM-9',
+          source.readSnapshot(),
+          'AM-9 declares neither a row of table T-230 nor the stamp WS-1 matches',
+        ),
       }
     },
 
@@ -788,7 +839,11 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // Reported.
       return {
         accepted: false,
-        refusal: notAvailable('AM-10', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
+        refusal: notAvailable(
+          'AM-10',
+          source.readSnapshot(),
+          'AM-10 declares neither a row of table T-230 nor the stamp WS-1 matches',
+        ),
       }
     },
 
@@ -803,17 +858,32 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     exportMspdi(): AgentExport<string> {
-      // ⛔ NOT WIRED. PI-20 lists `mspdiFromDocument`, and DocumentCodec's
-      // public entry publishes only the GRS JSON pair -- UT-5 of table T-063
-      // keeps the three formats apart precisely so one can land without the
-      // others, and this is the one that has not. ⛔ Not written here instead:
-      // IO-1 answers to the exchange partner's schema (Chapter 6.2), and
-      // FR-021 makes the round trip lossless, neither of which is this
-      // component's. Reported.
-      return {
-        ok: false,
-        refusal: notAvailable('AM-12', source.readSnapshot(), 'DocumentCodec (PI-20)'),
-      }
+      // ⭐ WIRED (2026-09-05). This member refused until now on the claim that
+      // DocumentCodec's public entry published only the GRS JSON pair; that
+      // claim was measured and is false -- `document-codec.ts` publishes
+      // `mspdiFromDocument`, and all seven of PI-20's names are there. IO-1 of
+      // table T-024 answers to the exchange partner's schema (Chapter 6.2) and
+      // FR-021 makes the round trip lossless, and both stay where they are
+      // stated: this member adds no rule of its own, exactly as AM-11 does not.
+      //
+      // ⛔ THE WRITER'S OWN NOTICES ARE DROPPED, and that is an absence rather
+      // than a decision taken here. `mspdiFromDocument` answers with notices
+      // beside the text -- EX-3 and EX-6 of table T-033 each want the person
+      // told at the moment of writing -- and there is nowhere on this face to
+      // put them: AG-9a fixes what a REFUSAL carries and table T-107 gives AM-12
+      // no second answer for a telling that is not one. ⚠️ The road a person
+      // takes drops them at the same point and for the same reason (FR-076 MUST
+      // NOT: table T-233 holds no row for either), so the two entrances are
+      // still equals, which is what FR-028 asks. Reported.
+      //
+      // ⛔ NO MID-GESTURE GATE, deliberately, and NOT by copying AM-11. AM-13's
+      // gate exists because a PICTURE is drawn from the values a person is at
+      // that moment dragging; this member writes the DOCUMENT, and CS-2 of table
+      // T-066 freezes that at the instant the pointer went down, so the text is
+      // as consistent during a gesture as it is outside one. A refusal here
+      // would turn the API away from a read it is entitled to (AG-9 refuses
+      // WRITES, in as many words).
+      return { ok: true, value: mspdiFromDocument(source.readSnapshot().document).text }
     },
 
     /** @purity semi-pure-b */
@@ -888,30 +958,55 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     exportPng(): AgentExport<never> {
-      // ⛔ NOT WIRED. PI-21 lists `exportPng` and ImageExporter's public entry
-      // publishes only the `Rasterizer` seam, which is empty. ⛔ The answer's
-      // TYPE is undecided as well as the answer -- whether an image comes back
-      // as bytes, as a data URL, or as a promise is PI-21's to say, and IF-6
-      // is what reaches the canvas. That is why the value side of this outcome
-      // is `never` rather than a shape guessed at here. ⚠️ When it lands, the
-      // mid-gesture gate `exportSvg` carries applies to it for the same reason.
-      // AG-8 is already honoured: the failure is a value. Reported.
+      // ⛔ NOT WIRED, AND THE OLD REASON WAS STALE (re-measured 2026-09-05).
+      // It said PI-21 published only the `Rasterizer` seam and that the answer's
+      // TYPE was undecided. Both are false now: `image-exporter.ts` publishes
+      // `exportPng(rasterizer, scene): Promise<ImageExport>`, and the shape is
+      // settled down to the bytes -- `Rastering.pngBytes` is a `Uint8Array`.
+      //
+      // ⛔ WHAT IS ACTUALLY MISSING IS THE SEAM, and it is missing OUTSIDE this
+      // component. `exportPng` needs an implementor of `Rasterizer` (IF-6);
+      // `AgentApiWiring` below carries none, and the layer that holds the one
+      // the person's own road uses hands this API only the snapshot source, the
+      // document holder, the change audience and the two dialogue seams.
+      // ⛔ NOT ADDED HERE AS AN OPTIONAL FIELD. A seam nobody supplies would
+      // compile and would still refuse, which is this same refusal wearing the
+      // costume of a fix. Reported: the wiring has to carry IF-6, and the side
+      // that builds the seams has to hand it over.
+      // ⚠️ TWO CONSEQUENCES FOR THE DAY IT LANDS. The member becomes a promise,
+      // because PI-21's entry is one and FR-028 forbids only the throw, not the
+      // wait; and the mid-gesture gate `exportSvg` carries applies to it word
+      // for word -- IO-4 is painted from the very picture IO-3 assembles, so a
+      // raster taken mid-drag shows the state no read of this API can answer
+      // with. AG-8 is already honoured: the failure is a value. Reported.
       return {
         ok: false,
-        refusal: notAvailable('AM-14', source.readSnapshot(), 'ImageExporter (PI-21)'),
+        refusal: notAvailable('AM-14', source.readSnapshot(), 'the wiring carries no Rasterizer (IF-6)'),
       }
     },
 
     /** @purity semi-pure-b */
     exportEmbeddedHtml(): AgentExport<string> {
-      // ⛔ NOT WIRED. PI-20 lists `exportEmbeddedHtml` as `semi-pure-b`, and it
-      // needs the application's own HTML, which arrives over IF-8
-      // (`AppShellSource`) -- a seam DocumentCodec declares and whose members
-      // are still a TODO. IO-7 of table T-024 and FR-067 are that component's
-      // to answer. Reported.
+      // ⛔ NOT WIRED, AND HALF OF THE OLD REASON WAS STALE (re-measured
+      // 2026-09-05). `exportEmbeddedHtml` IS published at DocumentCodec's entry,
+      // and IF-8's members are NOT a TODO any more -- `AppShellSource` declares
+      // `readAppShell(): Promise<AppShellReading>` and `AppShell` carries the
+      // HTML and the id of the element the document is written into.
+      //
+      // ⭐ THE HALF THAT WAS TRUE IS THE WHOLE OF WHAT BLOCKS THIS: the
+      // application's own HTML can only be read by the shell (IF-8's own note
+      // gives that as the reason the seam exists at all), and `AgentApiWiring`
+      // below carries no such seam. So this is AM-14's situation exactly, with
+      // IF-8 in place of IF-6 -- see that member for why an optional field is
+      // not the fix. IO-7 of table T-024 and FR-067 stay DocumentCodec's to
+      // answer, and this member would add nothing to them.
+      // ⚠️ It becomes a promise on the day it lands, for AM-14's reason.
+      // ⛔ NO MID-GESTURE GATE WHEN IT DOES: what goes into the file is
+      // `jsonFromDocument`'s text, not a picture, so AM-11's and AM-12's
+      // reading of CS-2 holds and AM-13's gate does not apply. Reported.
       return {
         ok: false,
-        refusal: notAvailable('AM-15', source.readSnapshot(), 'DocumentCodec (PI-20)'),
+        refusal: notAvailable('AM-15', source.readSnapshot(), 'the wiring carries no AppShellSource (IF-8)'),
       }
     },
 

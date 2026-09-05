@@ -3871,29 +3871,70 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   // ⛔ MK-1 gets NO such fallback: a plain sideways turn is a combination table
   // T-023 has no row for, and reading it as MK-1 would assign it here.
   const sideways = input.scrollPx.x !== 0 ? input.scrollPx.x : input.scrollPx.y
+  // ⛔⛔ A PLAIN SIDEWAYS TURN IS NEITHER MK-1 NOR MK-5, and the ⛔ note just
+  // above says so in as many words: table T-023 gives 「修飾なし」 only
+  // 「縦スクロール」, so a turn with no vertical distance is a combination the
+  // table has no row for. ⚠️ WITHOUT THIS THE BRANCH BELOW WROTE THE POSITION
+  // ALREADY IN FORCE BACK OVER ITSELF, once per detent, and zeroed S-176 with
+  // it -- a fraction no detent had moved. MEASURED 2026-09-05 on the shipped
+  // build, 1920x1080: forty sideways turns raised forty frames, wrote no
+  // markup and changed no pixel of the drawn picture (D-329).
+  // ⚠️ UNASSIGNED AND NOT CONSUMED, because MK-10's subject is 「本ツールが割り
+  // 当てた修飾キーの付いた入力」 and a bare wheel carries no modifier -- the same
+  // reading `isWheelHere` already writes down.
+  if (plain && input.scrollPx.y === 0) return UNASSIGNED
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
-  return changed([
-    {
-      kind: 'setScrollPosition',
-      scrollDate: moved.scrollDate,
-      // ⭐ MK-5's sideways turn is continuous: the device reports a distance in
-      // px and S-177 can hold any part of a day, so the schedule moves by the
-      // distance turned rather than by whole days. ⚠️ MK-1 passes zero on this
-      // axis, so both members answer the values already in force.
-      scrollDayOffset: moved.scrollDayOffset,
-      // MK-1 -- see `rowTurnedTo`, which is `scrolledAnchor`'s vertical half
-      // with a one-row floor under it. ⚠️ MK-5 keeps the plain answer: it
-      // decides no vertical place, and the place standing at the top edge is
-      // the one already in force.
-      scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
-      // ⭐ A detent lands ON a row, so the fraction it leaves behind is zero.
-      // ⛔ Writing `moved.scrollGroupOffset` beside a floored id would spell a
-      // place neither the floor nor the distance asked for.
-      scrollGroupOffset: plain ? 0 : moved.scrollGroupOffset,
-    },
-  ])
+  const to = {
+    kind: 'setScrollPosition',
+    scrollDate: moved.scrollDate,
+    // ⭐ MK-5's sideways turn is continuous: the device reports a distance in
+    // px and S-177 can hold any part of a day, so the schedule moves by the
+    // distance turned rather than by whole days. ⚠️ MK-1 passes zero on this
+    // axis, so both members answer the values already in force.
+    scrollDayOffset: moved.scrollDayOffset,
+    // MK-1 -- see `rowTurnedTo`, which is `scrolledAnchor`'s vertical half
+    // with a one-row floor under it. ⚠️ MK-5 keeps the plain answer: it
+    // decides no vertical place, and the place standing at the top edge is
+    // the one already in force.
+    scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
+    // ⭐ A detent lands ON a row, so the fraction it leaves behind is zero.
+    // ⛔ Writing `moved.scrollGroupOffset` beside a floored id would spell a
+    // place neither the floor nor the distance asked for.
+    scrollGroupOffset: plain ? 0 : moved.scrollGroupOffset,
+  } as const
+  // ⭐ THE TURN HAD NOWHERE TO GO. `rowTurnedTo` answers the value in force at
+  // both ends of the stack and `scrolledAnchor` answers it for a distance of
+  // zero, so a turn against the end of the schedule spells the position it
+  // already had. ⛔ Writing it is not free: WS-4 pushes a step for every write
+  // and the shell owes a frame for the document it is handed back.
+  // ⚠️ ASSIGNED, so MK-2's 「面が立っていない」 turn is still this tool's and the
+  // browser does not scroll the page under a schedule that cannot move.
+  return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])
+}
+
+/**
+ * Whether this position is the one the document already holds.
+ *
+ * ⭐ COMPARED, NOT ASSUMED, and by value because all four members are a string
+ * or a number. ⛔ The four are S-77, S-78, S-176 and S-177, which is the whole
+ * of what CM-66 writes -- a member left out here would make a real movement
+ * read as none.
+ *
+ * @purity pure
+ */
+function isScrollPositionInForce(
+  context: InputContext,
+  to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>,
+): boolean {
+  const settings = context.document.documentSettings
+  return (
+    to.scrollDate === settings.scrollDate &&
+    to.scrollGroupId === settings.scrollGroupId &&
+    to.scrollDayOffset === settings.scrollDayOffset &&
+    to.scrollGroupOffset === settings.scrollGroupOffset
+  )
 }
 
 // STOP -- ⛔ HALF OF THE ZOOM RULE IS STILL UNWRITTEN. FR-016 requires the day

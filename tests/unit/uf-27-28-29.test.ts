@@ -55,7 +55,10 @@ import {
   type AgentWriteOutcome,
   type FrameSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import {
+  documentFromJson,
+  mspdiFromDocument,
+} from '../../src/adapter/document-codec/document-codec'
 import type { ExportScene } from '../../src/adapter/image-exporter/image-exporter'
 import {
   emptyDialogueLog,
@@ -129,8 +132,19 @@ const T_107 = [
  * The rows of table T-107 whose work has no entry to hand to yet, per the head
  * comment of `agent-api-members.ts`. FR-028 is what makes each one answer with
  * a value rather than throwing, so a walk of these is a walk of that MUST NOT.
+ *
+ * ⭐ AM-12 REMOVED (2026-09-05). It was here on the claim that DocumentCodec's
+ * public entry (PI-20) published no `exportMspdi` seam. That claim was
+ * re-measured on the shipping build and is false: `document-codec.ts:68`
+ * publishes `mspdiFromDocument`, the Agent API and the person-driven road both
+ * answer with the same 650,004-byte MSPDI text for the same document, and
+ * `agent-api-members.ts` now wires AM-12 to it. The other five still have
+ * nowhere to hand their work (AM-14 and AM-15: the seam does not reach this
+ * component; AM-8, AM-9, AM-10: this component's own face has no way to carry
+ * what the call takes) and are unchanged. See AM-12's own describe block below
+ * for the claim that replaces this one.
  */
-const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-12', 'AM-14', 'AM-15'] as const
+const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-14', 'AM-15'] as const
 
 /**
  * WS-1 of table T-067 and AG-2 of table T-035: the match is made on all three
@@ -1179,6 +1193,29 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
   })
 })
 
+describe('AM-12 exportMspdi -- wired 2026-09-05, no longer a refusal (AG-7, FR-028)', () => {
+  // ⭐ Until this date the roster above answered this row with a refusal.
+  // DocumentCodec's public entry (PI-20) was re-measured and does publish
+  // `mspdiFromDocument` (`document-codec.ts:68`), so the member now does the
+  // work instead of reporting an absent seam. These two cases pin the
+  // replacement claim without touching the refusal shape the roster still
+  // measures for the other five rows.
+  it('answers the MSPDI text as a value, not the AM-12 refusal the roster once expected', () => {
+    const one = bench()
+    const answer = one.api.exportMspdi()
+
+    expect(answer.ok).toBe(true)
+    if (answer.ok) expect(typeof answer.value).toBe('string')
+  })
+
+  it('adds no rule of its own: the value is exactly what mspdiFromDocument answers for the same document', () => {
+    const one = bench()
+    const text = exported(one.api.exportMspdi())
+
+    expect(text).toBe(mspdiFromDocument(one.document).text)
+  })
+})
+
 describe('AM-13 exportSvg -- the picture as a value', () => {
   it('answers a picture once a frame has been computed', () => {
     const svg = exported(bench().api.exportSvg())
@@ -1213,7 +1250,9 @@ describe('AM-13 exportSvg -- the picture as a value', () => {
   })
 })
 
-describe('the six rows with nowhere to hand the work -- FR-028 and AG-8', () => {
+describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () => {
+  // ⭐ AM-12 (exportMspdi) left this roster 2026-09-05 -- see the note on
+  // `T_035_UNWIRED` above. It is answered for separately below.
   const callOf: Record<string, (api: AgentApi) => { readonly target: string } | null> = {
     'AM-8': (api) => {
       const answer = api.importDocument({ text: '{}' })
@@ -1226,10 +1265,6 @@ describe('the six rows with nowhere to hand the work -- FR-028 and AG-8', () => 
     'AM-10': (api) => {
       const answer = api.redoEdit()
       return answer.accepted ? null : answer.refusal
-    },
-    'AM-12': (api) => {
-      const answer = api.exportMspdi()
-      return answer.ok ? null : answer.refusal
     },
     'AM-14': (api) => {
       const answer = api.exportPng()
