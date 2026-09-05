@@ -190,6 +190,40 @@ describe('table T-207 still holds the three values FR-020 names by row (S-220 / 
   })
 })
 
+describe('the ruling of 2026-09-05: the watermark keeps its default name for now', () => {
+  // ⭐⭐ WHY THESE THREE ARE PINNED TOGETHER. FR-086 asks for a road that
+  // does not exist -- measured 2026-09-05 across 87 rows of T-109, 23 of
+  // T-036, 7 of T-234 and 59 of T-103, none of them an entrance for the
+  // name. The ruling was to leave the default standing and build the road
+  // later, so three places moved at once and each can rot without the
+  // others: the requirement, the startup roster that listed it, and the
+  // reason word that would have announced it.
+  it('FR-086 says the road to type the name is not built for now', () => {
+    expect(REQUIREMENTS).toContain('名前を入力させる道は、いまは実装しない')
+    // ⛔ AND THE COST IS NAMED RATHER THAN LEFT OUT. A specification that
+    // drops a goal quietly reads later as though the goal were met.
+    expect(REQUIREMENTS).toContain('GL-007')
+  })
+
+  it('RS-19 must not be told while there is no road to set the name', () => {
+    // ⚠️ QUOTED LONG ENOUGH TO COUNT. Check 39 reads a clause as held only
+    // when at least 28 characters ending at the marker appear verbatim
+    // under tests/, so the row's own scene is quoted with it.
+    expect(REQUIREMENTS).toContain(
+      '名前が、まだ設定されていない⛔⛔ **いまは告げてはならない（MUST NOT）',
+    )
+  })
+
+  it('NT-4 no longer counts the name setting among the matters pending at startup', () => {
+    const row = rowOf(specTable('T-037'), 'NT-4')
+    const said = Object.values(row.by).join(' ')
+    // ⚠️ The row still HOLDS the rule -- one sheet, all of them together --
+    // and only stopped listing an item whose road was never built.
+    expect(said).toContain('1 枚に集約して出すこと')
+    expect(said).not.toContain('透かしに出す名前の設定を別々の面')
+  })
+})
+
 describe('table T-236 still holds S-223, the fourth of the four values (the ink colour)', () => {
   it('S-223 -- the ink colour -- is the same as S-148 (the muted text colour), in both themes', () => {
     const row = rowOf(T_236, 'S-223')

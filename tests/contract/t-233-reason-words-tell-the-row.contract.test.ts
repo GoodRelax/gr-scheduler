@@ -159,7 +159,15 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-13': 'cbeb9438978a562a',
   'RS-14': '8a3b1693d6bc54e1',
   'RS-16': 'd17dd51b976cadca',
-  'RS-19': '6a388ae725a11c09',
+  // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
+  // 「いまは告げてはならない（MUST NOT）」 when the ruling of that day left
+  // the watermark's default name standing and put the road to set one off
+  // until later. ⚠️ The words are NOT changed with it: the next step it
+  // offers -- set a name and the watermark prints it -- is undoable today,
+  // but the row is never told while that is so, and these are the words
+  // wanted the day the road is built. ⛔ If the road lands and this pair is
+  // still dormant, that is the moment to read them again.
+  'RS-19': 'b221c6186d413ef1',
   'RS-20': '9660f89d7f3c1a5b',
   'RS-21': '320caa7b7c536e85',
   'RS-22': '2ed14dc8b74a9021',
