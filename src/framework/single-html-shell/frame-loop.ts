@@ -7692,7 +7692,44 @@ export function frameLoop(
     before: InputContext,
     partBefore: ScreenPart | null,
     grabBefore: Grabbed | null,
+    noticesBefore: readonly RaisedNotice[],
   ): boolean {
+    // ⭐⭐ A WHEEL THAT MOVED NOTHING IS THE SAME QUESTION, ON THE SAME AXIS.
+    // FR-048's own ⚠️ states it: 「判定はポインタではなく描く内容に置くこと
+    // （`NFR-010` と同じ軸）」, and NFR-010 is 「操作していない間は描き直さない」
+    // read through 「描く内容が変わる」 -- a turn against the end of the schedule
+    // is an operation whose whole effect is nothing.
+    // ⛔ NOT A WIDENING OF TABLE T-078. FT-1 still raises the happening and the
+    // shell still hears it; this narrows what a frame is owed FOR, exactly as
+    // the move below narrows one, and adds no trigger.
+    // ⚠️ MEASURED 2026-09-05, shipped build, 1920x1080: forty sideways turns
+    // over the schedule raised forty frames at a median of 13.3ms of work each,
+    // wrote no markup and changed no pixel -- half a second thrown away for one
+    // gesture (D-329). The translator now plans nothing for those turns, which
+    // is what makes the comparison below able to answer false.
+    // ⛔ EVERY BINDING THE PICTURE IS DRAWN FROM IS COMPARED, and a turn that
+    // scrolled, zoomed, refused into a telling or took a surface down still
+    // paints. The four are the three `receiveInput` itself compares at its foot
+    // plus the tellings, which are the one thing a REFUSED write changes.
+    if (input.kind === 'wheel') {
+      // A gesture in flight. MK-2's turn mid-drag is the one happening that can
+      // both leave a press held and move the axis under it, and
+      // `previewOfHeldPress` works that picture out again for every happening.
+      if (pressed !== null) return true
+      if (held.document !== before.document) return true
+      if (screenState !== before.screenState) return true
+      if (selection !== before.selection) return true
+      if (raisedNotices !== noticesBefore) return true
+      // ⛔ THE STANDING EXPLANATION IS NOT ASKED FOR HERE, and the move's own
+      // reading is why: a move repaints because a move TAKES THE EXPLANATION
+      // DOWN -- EZ-6 of table T-040 (MUST) has it go away 「ポインタが動いたら」.
+      // A wheel moves no pointer; `beginPointerRest` is not called for one, and
+      // the three things EZ-2 and EZ-6 are drawn from -- the point, the layout
+      // and the rest -- are the same on both sides of a turn that moved
+      // nothing. ⚠️ MEASURED: asking for it here cost 40 frames of the 40 at a
+      // point where an explanation stood, and 0 at a point where none did.
+      return false
+    }
     if (input.kind !== 'pointer' || input.phase !== 'move') return true
     // 1. A gesture in flight. The drag, the pan and the marquee all draw
     //    something that follows the pointer, which is why FR-048's own ⚠️ warns
@@ -7848,6 +7885,11 @@ export function frameLoop(
     // and for the same one reader: FR-048 asks whether the pointer entered a
     // different row of table T-023d as well.
     const grabBefore = grabUnderPointer
+    // ⭐ AND THE TELLINGS, at the same one moment and for `owesFrame`: a write
+    // that was REFUSED leaves the document exactly as it was and puts a row on
+    // `ScreenSession.notices` instead, so the document comparison alone cannot
+    // see that the picture changed.
+    const noticesBefore = raisedNotices
     if (input.kind === 'pointer') {
       // FR-018's repeat ends where table T-028 ends the gesture: IN-1 on the
       // release, IN-1a on the pointer lost outside the window.
@@ -8253,7 +8295,7 @@ export function frameLoop(
     // FT-1 owes a frame for every happening the row names, save the one FR-048
     // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint
     // once.
-    const owesAFrame = owesFrame(input, context, partBefore, grabBefore)
+    const owesAFrame = owesFrame(input, context, partBefore, grabBefore, noticesBefore)
     // FR-102: what became of the happening the line above was written for.
     // ⭐⭐ THIS IS THE HALF THAT SETTLES AN ARGUMENT ABOUT AN ENTRANCE.
     // `on` is the row of table T-109 the pointer stood on and `grab` the row of
