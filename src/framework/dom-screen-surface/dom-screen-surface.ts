@@ -2089,6 +2089,17 @@ const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground'
 const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 
 /**
+ * What marks the ONE column HF-4 of table T-051 (MUST) stands the deletion and
+ * the addition in, 「消すと足すの縦の対」.
+ *
+ * ⛔ NOT A `data-role` AND NOT A `data-icon`, for the reason the lattice above
+ * carries none: it is an arrangement of two entrances and not a third one.
+ * ⭐ A mark of its own is what lets HF-4's 「縦の対」 -- and the MUST NOT that
+ * nothing stands between the two -- be read back off the drawn page (rule 04).
+ */
+const ROW_CONTROL_PAIR_MARK = 'data-row-control-pair'
+
+/**
  * What marks the grab strip GR-20 of table T-023d lays along a row's left edge.
  *
  * ⛔ NOT A `data-icon`, AND THAT IS MEASURED RATHER THAN CHOSEN. Table T-109
@@ -2916,10 +2927,21 @@ function rowControlRightPx(stepsFromEdge: number): number {
  * what the row is read by.
  */
 const ROW_CONTROL_STEPS = {
-  /** IC-91 -- HF-14, which is HR-8. */
-  addChild: 2,
-  /** IC-82 -- one step in from the edge, so a pointer meets the pin first. */
-  remove: 1,
+  /**
+   * The ONE column HF-4's 「消すと足すの縦の対」 takes -- IC-82 above IC-91.
+   *
+   * ⭐⭐ ONE STEP AND NOT TWO SINCE 2026-09-05 (利用者の裁定: 「**[x]の下に[+]
+   * 並びを変える。格子の線は不要。4 列になって、系統も縦で揃って見やすいだろ？**」).
+   * HF-4 (MUST) now reads 「**折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の
+   * 対、ピン止めの順に、左から右へ置くこと**」 and 「**消すを上、足すを下に置く
+   * こと**」. ⛔ THEY TOOK A COLUMN EACH UNTIL THAT DAY, which made the run five
+   * columns wide over two ranks of two -- 「上の段が 5 つ、下の段が 2 つになるので、
+   * `HF-1` の格子が格子として読めなかった」.
+   * ⭐ ONE STEP IN FROM THE EDGE, so a pointer poured in from the right still
+   * meets the pin before the deletion -- the reason below is untouched by the
+   * pair standing where the deletion alone used to.
+   */
+  pair: 1,
   /** IC-60 -- the outermost, which HF-4 (MUST) fixes. */
   pin: 0,
   /**
@@ -2940,15 +2962,16 @@ const ROW_CONTROL_STEPS = {
    * ないときは、読む人がパネルを広げる」 (FR-052, whose width is S-79). ⛔ What
    * to shrink instead is undecided BY THE SAME RULING (「あとは実際に使って再度
    * 判断する」), so nothing here shrinks anything.
-   * ⭐ MEASURED AGAIN 2026-09-03 (shipped build, S-79 at its default 170px):
-   * the run of seven stands at x=66..166 and GR-20's strip at depth d stands at
-   * x=16d..16d+16, so a depth clears iff 16d+16 <= 66 -- depths 1, 2 and 3 do
-   * (0 of the 7 rows on screen were covered, and a press at each strip's centre
-   * landed on the strip), and depths 4 and 5 do not. ⛔ That is D-154's
-   * remainder, and it stays open here rather than being answered by an
-   * invention: it is one of the three the ruling left undecided.
+   * ⭐ MEASURED AGAIN 2026-09-05 (shipped build, 1920x1080, panel 200px wide):
+   * with the pair standing in ONE column the run reaches x=100 instead of x=76,
+   * and GR-20's strip at depth d stands at x=16d..16d+16 -- so a depth clears
+   * iff 16d+16 <= 100, which every depth FR-085 allows now does. ⭐ Measured
+   * before the change: depth 4's strip ended at 80 and depth 5's at 96, so the
+   * run covered 4px of one and the whole 16 of the other. ⚠️ THE COLUMN THE RUN
+   * LOST IS WHAT FREED THEM -- HF-4 says so itself: 「**列が 1 つ減ったことで
+   * `HF-15` の掴み代も空いた**」.
    */
-  foldingGrid: 3,
+  foldingGrid: 2,
 } as const
 
 /**
@@ -2987,11 +3010,38 @@ const ROW_FOLDING_CELLS = {
 } as const
 
 /**
+ * Where in HF-4's 「消すと足すの縦の対」 each of the two stands.
+ *
+ * ⭐⭐ THE ORDER IS THE RULING'S OWN AND IS NOT CHOSEN HERE. HF-4 (MUST, 利用者の
+ * 裁定 2026-09-05): 「**消すを上、足すを下に置くこと（MUST）**」 -- 「**[x]の下に
+ * [+]**」 in the words the ruling was given in.
+ * ⛔ NOTHING MAY STAND BETWEEN THEM (MUST NOT): 「**足すと消すのあいだに他の操作子
+ * を挟んではならない**」, and that row adds how the ban is read now they are a
+ * column -- 「**いまは縦に隣り合うので、この禁止は縦に読む**」. ⇒ One column of
+ * two ranks, and no third rank.
+ * ⛔ NO FRAME AND NO RULE LINE AROUND EITHER GRID (HF-1, MUST NOT, same ruling:
+ * 「**格子の線は不要**」) -- 「**線を引くと操作子 1 つぶんの幅が要り、`HF-15` の
+ * 掴み代を覆いに行く**」.
+ */
+const ROW_CONTROL_PAIR_CELLS = {
+  /** IC-82 -- FR-032's deletion, the upper of the two. */
+  remove: { column: 1, row: 1 },
+  /** IC-91 -- HF-14, which is HR-8: the lower of the two. */
+  addChild: { column: 1, row: 2 },
+} as const
+
+/**
  * The step from the row's right edge that the LEFTMOST control reaches.
  *
  * ⭐ ONE NAME FOR IT, read by the lattice that stands there and by the ground
  * HF-6 (MUST) lays 「いちばん左の操作子の左端から行の右端まで」 -- the same term
  * the declaration of `rowControlRightPx` refuses to write twice.
+ * ⚠️ ONE MORE STEP THAN THE LATTICE'S OWN because the lattice is TWO columns
+ * wide: its right-hand column stands at `foldingGrid` and its left-hand one a
+ * step further in. ⛔ It is not a count of the controls, so it follows the
+ * lattice by arithmetic rather than being re-stated when the run loses a column
+ * -- 2026-09-05 took the run from five columns to four and this line did not
+ * move.
  */
 const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
 
@@ -3146,9 +3196,16 @@ function rowControlGlyphGapStyle(): string {
 }
 
 /**
- * HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」.
+ * HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」, and HF-4's
+ * 「消すと足すの縦の対」 -- ONE declaration, asked for `columns` columns.
  *
- * ⭐⭐ A BOX THAT HOLDS THE FOUR, AND NOT FOUR OFFSETS WORKED OUT HERE. The
+ * ⭐⭐ ONE BOX SHAPE FOR BOTH SINCE 2026-09-05. HF-4 (MUST) sets the pair down
+ * as a column of two the way HF-1 sets the folding four down as two columns of
+ * two, so the two boxes differ in nothing but how many columns they take -- ⛔
+ * and a second spelling of the ranks would let the two drift apart, which is
+ * exactly the drift `rowControlRightPx` was named to stop.
+ *
+ * ⭐⭐ A BOX THAT HOLDS THEM, AND NOT OFFSETS WORKED OUT HERE. The
  * second rank of the lattice stands one control's HEIGHT below the first, and
  * that height is `rowControlBoxPx` -- `S-138` with `S-141` on either side of
  * it, which is what FR-029 composes an entrance out of.
@@ -3186,32 +3243,39 @@ function rowControlGlyphGapStyle(): string {
  * controls inside it.
  * ⛔ AND IT TAKES NO ROOM. Out of the flow like the controls it holds, so S-140
  * stays the 0 that FR-085 subtracts and the name's box does not move.
+ * ⛔⛔ AND NOTHING IS DRAWN AROUND IT (HF-1, MUST NOT, 利用者の裁定 2026-09-05
+ * 「**格子の線は不要**」): no border, no outline, no ground of its own. 「**線を
+ * 引くと操作子 1 つぶんの幅が要り、`HF-15` の掴み代を覆いに行く**」 -- the shapes
+ * carry the arrangement, so a frame would cost the very column the same ruling
+ * gave back.
  *
  * @purity pure
  */
-function rowFoldingGridStyle(): string {
-  // HF-1 (MUST): 「2 × 2 の格子」 -- two columns and two ranks, each one control's
-  // own box, so the lattice takes exactly twice `rowControlBoxPx` on each axis
-  // however tall the host would have laid a line out.
+function rowControlGridStyle(columns: number, stepsFromEdge: number): string {
+  // Every track is one control's own box, so the box takes exactly
+  // `rowControlBoxPx` per column and per rank however tall the host would have
+  // laid a line out. ⭐ TWO RANKS FOR BOTH: HF-1's 「2 × 2」 and HF-4's 「縦の対」
+  // are each two deep, and no row of the specification puts a third.
   const track = rowControlWidthCss()
+  const columnTracks = Array.from({ length: columns }, () => track).join(' ')
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
-    `grid-template-columns:${track} ${track};` +
+    `grid-template-columns:${columnTracks};` +
     `grid-template-rows:${track} ${track};` +
-    `right:${rowControlRightPx(ROW_CONTROL_STEPS.foldingGrid)}px;` +
+    `right:${rowControlRightPx(stepsFromEdge)}px;` +
     'pointer-events:none;'
   )
 }
 
 /**
- * Which cell of the lattice one control stands in.
+ * Which cell of a grid one control stands in.
  *
  * @purity pure
  */
-function rowFoldingCellStyle(cell: { readonly column: number; readonly row: number }): string {
+function rowControlCellStyle(cell: { readonly column: number; readonly row: number }): string {
   // ⛔ `position:static` UNDOES `STYLE.rowControl`'s `absolute` AND NOTHING
-  // ELSE. A control in the lattice is placed by the grid; one taken out of the
-  // grid's flow would stack all four in the first cell.
+  // ELSE. A control in a grid is placed by the grid; one taken out of the
+  // grid's flow would stack every one of them in the first cell.
   return `position:static;grid-column:${cell.column};grid-row:${cell.row};`
 }
 
@@ -3704,11 +3768,11 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // the reason is told.
   // HF-1 of table T-051 (MUST): 「並びは 2 × 2 の格子とすること」. ⭐ THE FOUR
   // FOLDING CONTROLS GO INSIDE THIS BOX AND THE OTHER THREE DO NOT, which is
-  // HF-4's own division: 「折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止め
-  // の順に、左から右へ置くこと」 -- the lattice is one item in that run.
-  // ⚠️ APPENDED BEFORE THE THREE, so the row's children keep the order HF-4
+  // HF-4's own division: 「折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、
+  // ピン止めの順に、左から右へ置くこと」 -- the lattice is one item in that run.
+  // ⚠️ APPENDED BEFORE THE REST, so the row's children keep the order HF-4
   // reads left to right, and after the ground, so the ground stays under them.
-  const foldingGrid = made(host, 'div', rowFoldingGridStyle())
+  const foldingGrid = made(host, 'div', rowControlGridStyle(2, ROW_CONTROL_STEPS.foldingGrid))
   foldingGrid.setAttribute(ROW_FOLDING_GRID_MARK, 'true')
   row.append(foldingGrid)
 
@@ -3720,7 +3784,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     // and these four are placed inside it.
     open.setAttribute(
       'style',
-      open.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.open),
+      open.getAttribute('style') + rowControlCellStyle(ROW_FOLDING_CELLS.open),
     )
     foldingGrid.append(open)
 
@@ -3728,7 +3792,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     close.setAttribute('data-can-close', String(title.expander.canClose))
     close.setAttribute(
       'style',
-      close.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.close),
+      close.getAttribute('style') + rowControlCellStyle(ROW_FOLDING_CELLS.close),
     )
     foldingGrid.append(close)
 
@@ -3746,7 +3810,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
     closeBelow.setAttribute(
       'style',
-      closeBelow.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.closeBelow),
+      closeBelow.getAttribute('style') + rowControlCellStyle(ROW_FOLDING_CELLS.closeBelow),
     )
     foldingGrid.append(closeBelow)
   }
@@ -3781,9 +3845,51 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // it STANDS is the cell.
   openOneLevel.setAttribute(
     'style',
-    openOneLevel.getAttribute('style') + rowFoldingCellStyle(ROW_FOLDING_CELLS.openOneLevel),
+    openOneLevel.getAttribute('style') + rowControlCellStyle(ROW_FOLDING_CELLS.openOneLevel),
   )
   foldingGrid.append(openOneLevel)
+
+  // HF-4 of table T-051 (MUST, 利用者の裁定 2026-09-05): 「消すと足すの縦の対」.
+  //
+  // ⭐⭐ ONE COLUMN OF TWO, AND A BOX FOR THE SAME REASON HF-1's LATTICE IS ONE.
+  // 「消すを上、足すを下に置くこと（MUST）」 asks for a second rank, and HF-5
+  // (MUST NOT) 「上端から下げてはならない」 forbids setting the CONTROL down -- so
+  // what is set down has to be the RANK, exactly as it is for the four above.
+  // ⛔ NOTHING MAY STAND BETWEEN THEM (MUST NOT), and a grid of one column with
+  // no third rank is what makes that unbreakable rather than merely true today:
+  // 「いまは縦に隣り合うので、この禁止は縦に読む」.
+  // ⚠️ APPENDED AFTER THE LATTICE AND BEFORE THE PIN, so the row's children keep
+  // the order HF-4 reads left to right.
+  const controlPair = made(host, 'div', rowControlGridStyle(1, ROW_CONTROL_STEPS.pair))
+  controlPair.setAttribute(ROW_CONTROL_PAIR_MARK, 'true')
+  row.append(controlPair)
+
+  // IC-82 -- FR-032's deletion, on every row and answering for the row it is
+  // drawn on. ⛔ NOT UNDER `title.expander`: that judgement is HF-1's, which
+  // places the folding controls on a row that has something BELOW it, and a
+  // leaf row is as deletable as any other.
+  //
+  // ⭐ NOTHING SAYS WHETHER IT IS SPENT, because nothing spends it. The four
+  // above carry `canOpen` / `canClose` / `canCloseBelow` because a fold can
+  // already stand; a row that is drawn is a row CM-27 can delete. ⚠️ So FR-029's
+  // faint state never falls on it either, for the reason the pin's note gives.
+  // ⚠️ NO `data-role` AND NO KEY OF ITS OWN -- see `DELETE_ROW_ENTRY`. The row
+  // this sits in carries the `data-group-id` that says which row goes, and
+  // writing a copy here would state one row's key in two places.
+  // ⭐ BUILT BY THE ONE BUILDER THE OTHER SIX TAKE (CR-346). It was assembled
+  // here by hand from `STYLE.rowControl`, which was the same node for as long as
+  // that declaration carried the control's whole box -- ⛔ and stopped being one
+  // the moment the box moved into `rowControlBoxStyle`: measured on the shipped
+  // build, this control alone fell back to the host's own button padding and came
+  // out 28 x 26px against the other six at 24 x 24, which is exactly the 「同じ
+  // 大きさで描くこと（MUST）」 of HF-5 broken by a second assembly of one thing.
+  // ⭐ THE UPPER RANK OF THE PAIR SINCE 2026-09-05 -- 「[x]の下に[+]」.
+  const remove = rowControlElement(host, null, DELETE_ROW_ENTRY, true)
+  remove.setAttribute(
+    'style',
+    remove.getAttribute('style') + rowControlCellStyle(ROW_CONTROL_PAIR_CELLS.remove),
+  )
+  controlPair.append(remove)
 
   // IC-91 -- HF-14 (MUST), which names HR-8: 「配下に行を足す操作子を、行ごとに
   // 1 つ置くこと」.
@@ -3795,6 +3901,8 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // leaf row is precisely where a first child is likeliest to be wanted.
   // ⚠️ SPENT ONLY AT THE DEPTH CAP -- `RowTitle.canAddChildRow` carries why, and
   // HR-8 (MUST NOT) leaves the cap itself to FR-085.
+  // ⭐ THE LOWER RANK OF THE PAIR SINCE 2026-09-05, and it is the whole of what
+  // that ruling moved: 「**[x]の下に[+]並びを変える**」.
   const addChild = rowControlElement(
     host,
     null,
@@ -3804,9 +3912,9 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   addChild.setAttribute('data-can-add-child-row', String(title.canAddChildRow ?? true))
   addChild.setAttribute(
     'style',
-    addChild.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.addChild),
+    addChild.getAttribute('style') + rowControlCellStyle(ROW_CONTROL_PAIR_CELLS.addChild),
   )
-  row.append(addChild)
+  controlPair.append(addChild)
 
   // U-48 `Row Pin` (FR-098): the control sits on every row, and the same one
   // lets go.
@@ -3871,32 +3979,6 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
       (title.isPinned ? 'visibility:visible;' : ''),
   )
   row.append(pin)
-
-  // IC-82 -- FR-032's deletion, on every row and answering for the row it is
-  // drawn on. ⛔ NOT UNDER `title.expander`: that judgement is HF-1's, which
-  // places the folding controls on a row that has something BELOW it, and a
-  // leaf row is as deletable as any other.
-  //
-  // ⭐ NOTHING SAYS WHETHER IT IS SPENT, because nothing spends it. The pair
-  // above carries `canOpen` / `canClose` because a fold can already stand;
-  // a row that is drawn is a row CM-27 can delete. ⚠️ So FR-029's faint state
-  // never falls on it either, for the reason the pin's note gives.
-  // ⚠️ NO `data-role` AND NO KEY OF ITS OWN -- see `DELETE_ROW_ENTRY`. The row
-  // this sits in carries the `data-group-id` that says which row goes, and
-  // writing a copy here would state one row's key in two places.
-  // ⭐ BUILT BY THE ONE BUILDER THE OTHER SIX TAKE (CR-346). It was assembled
-  // here by hand from `STYLE.rowControl`, which was the same node for as long as
-  // that declaration carried the control's whole box -- ⛔ and stopped being one
-  // the moment the box moved into `rowControlBoxStyle`: measured on the shipped
-  // build, this control alone fell back to the host's own button padding and came
-  // out 28 x 26px against the other six at 24 x 24, which is exactly the 「同じ
-  // 大きさで描くこと（MUST）」 of HF-5 broken by a second assembly of one thing.
-  const remove = rowControlElement(host, null, DELETE_ROW_ENTRY, true)
-  remove.setAttribute(
-    'style',
-    remove.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.remove),
-  )
-  row.append(remove)
 
   // HF-18 (MUST): 「配下に畳み込んでいる行があるとき、その行数を行に示すこと」, and
   // 「その行自身にも印を付けること」.
@@ -6036,8 +6118,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    */
   function reportRowControlsHeight(): void {
     let tallest = rowControlsHeightPx
-    for (const lattice of rowTitleTree.querySelectorAll(`[${ROW_FOLDING_GRID_MARK}]`)) {
-      tallest = Math.max(tallest, lattice.getBoundingClientRect().height)
+    // ⭐ BOTH BOXES OF HF-4's RUN ARE READ, not the folding lattice alone: since
+    // 2026-09-05 the deletion and the addition stand in a second grid of two
+    // ranks, and 「格子はその 2 段ぶんである」 is as true of that one as of the
+    // lattice. ⚠️ They measure the same on the shipped build, so this changes no
+    // number today -- it stops the answer depending on which box was asked.
+    const stacked = `[${ROW_FOLDING_GRID_MARK}],[${ROW_CONTROL_PAIR_MARK}]`
+    for (const box of rowTitleTree.querySelectorAll(stacked)) {
+      tallest = Math.max(tallest, box.getBoundingClientRect().height)
     }
     if (tallest === rowControlsHeightPx) return
     rowControlsHeightPx = tallest

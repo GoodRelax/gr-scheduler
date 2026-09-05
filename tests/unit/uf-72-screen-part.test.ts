@@ -450,6 +450,9 @@ const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層開く'
 const T_051_HF4_THE_WHOLE_RUN =
   '折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ置くこと（MUST）'
 
+/** 表 T-051 `HF-4` — which of the pair stands on top, ruled the same day. */
+const T_051_HF4_DELETE_ABOVE_ADD = '消すを上、足すを下に置くこと（MUST）'
+
 /** 表 T-051 `HF-10` — the run at the panel's head, ruled the same day. */
 const T_051_HF10_THE_HEAD_RUN =
   '頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの順とすること（MUST）'
@@ -4764,7 +4767,7 @@ const HF1_LEFT_TO_RIGHT = T_051_HF1_LATTICE.map((one) => entranceForRule(one.rul
  * T-109 の `IC-60`）」 in as many words, so the two ids are the manuscript's own
  * and the premise case below holds them to it.
  */
-const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, entranceForRule('HF-14'), 'IC-82', 'IC-60']
+const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, 'IC-82', entranceForRule('HF-14'), 'IC-60']
 
 /** `HF-10`'s head run, left to right: 1 階層開く・すべて畳む・すべて開く・足す. */
 const HF10_LEFT_TO_RIGHT = [
@@ -4877,6 +4880,18 @@ function latticeOf(nodes: readonly FakeElement[]): string[][] {
 const HF1_LATTICE = 'HF-1 の格子'
 
 /**
+ * What `HF-4` calls 「消すと足すの縦の対」 -- the two read as ONE member of the
+ * row's run, because that is how `HF-4` counts them since 2026-09-05.
+ */
+const HF4_PAIR = 'HF-4 の縦の対'
+
+/**
+ * The pair's two entries, TOP TO BOTTOM: `HF-4` (MUST) 「**消すを上、足すを下に
+ * 置くこと（MUST）**」（利用者の裁定 2026-09-05「**[x]の下に[+]**」）.
+ */
+const HF4_PAIR_TOP_TO_BOTTOM = ['IC-82', entranceForRule('HF-14')]
+
+/**
  * The row's run, left to right, as `HF-4` reads it: the lattice as one member,
  * then whatever else the row carries.
  *
@@ -4891,6 +4906,11 @@ function runOf(row: FakeElement): string[] {
       .filter((one) => one.hasAttribute('data-icon'))
       .map(iconOf)
     const folding = icons.filter((one) => HF1_LEFT_TO_RIGHT.includes(one))
+    const pair = icons.filter((one) => HF4_PAIR_TOP_TO_BOTTOM.includes(one))
+    // ⭐ A BOX THAT BRINGS ONLY 消す AND 足す IS `HF-4`'s 縦の対, one member of
+    // the run -- 「**消すと足すの縦の対**」 counts them as one thing exactly as
+    // 「（`HF-1` の格子）」 counts the folding four as one.
+    if (pair.length === icons.length && icons.length > 0) return HF4_PAIR
     if (folding.length === 0) {
       if (icons.length !== 1) {
         throw new Error(`one box of the row's run brings ${icons.length} entries: ${icons.join(' ')}`)
@@ -4906,22 +4926,27 @@ function runOf(row: FakeElement): string[] {
   }
 
   const read = leftToRightBy(controlHostsOf(row), nameOf)
-  // ⭐ The lattice is ONE member of the run even where the unit hangs its four
-  // controls on the row itself: consecutive lattice boxes read as the one
-  // lattice, and four that were NOT consecutive stay two members and fail.
-  return read.filter((one, index) => one !== HF1_LATTICE || read[index - 1] !== HF1_LATTICE)
+  // ⭐ The lattice and the pair are each ONE member of the run even where the
+  // unit hangs their controls on the row itself: consecutive boxes of the same
+  // name read as one, and members that were NOT consecutive stay separate and
+  // fail.
+  return read.filter(
+    (one, index) => (one !== HF1_LATTICE && one !== HF4_PAIR) || read[index - 1] !== one,
+  )
 }
 
 /**
- * `HF-4`'s run as a reader meets it, left to right, since CR-336 made the
- * folding four a lattice: 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、
- * ピン止めの順に、左から右へ置くこと（MUST）**」.
+ * `HF-4`'s run as a reader meets it, left to right, since the ruling of
+ * 2026-09-05: 「**折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの
+ * 順に、左から右へ置くこと（MUST）**」.
  *
- * ⭐ FOUR MEMBERS, NOT SEVEN -- that sentence counts the lattice as one thing and
- * names three after it. The seven ENTRIES are `HF4_LEFT_TO_RIGHT` above, and the
- * premise case holds the two to each other.
+ * ⭐ THREE MEMBERS, NOT SEVEN -- that sentence counts the lattice as one thing,
+ * 消す と 足す as one more, and names ピン止め after them. The seven ENTRIES are
+ * `HF4_LEFT_TO_RIGHT` above, and the premise case holds the two to each other.
+ * ⚠️ IT WAS FOUR MEMBERS UNTIL THAT DAY, with 足す and 消す taking a column each
+ * -- which is what left `HF-1`'s lattice unreadable as a lattice.
  */
-const HF4_RUN = [HF1_LATTICE, entranceForRule('HF-14'), 'IC-82', 'IC-60']
+const HF4_RUN = [HF1_LATTICE, HF4_PAIR, 'IC-60']
 
 
 describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a 2 x 2 lattice', () => {
@@ -5091,17 +5116,21 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
     expect(says).toContain(
       'ピン止めの操作子（表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）',
     )
+    // ⭐⭐ WHICH OF THE PAIR IS ON TOP IS THE ROW'S OWN, ruled 2026-09-05.
+    expect(says).toContain(T_051_HF4_DELETE_ABOVE_ADD)
+    // ⭐ AND THE BAN ON ANYTHING BETWEEN THEM IS READ VERTICALLY NOW.
+    expect(says).toContain('いまは縦に隣り合うので、この禁止は縦に読む')
 
     // ⛔ AND THE RUN IS THE WHOLE ROSTER, so nothing on the row is left unplaced.
     expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())
   })
 
-  it('⭐ GIVEN a row is drawn WHEN its run is read from the left THEN the lattice, 足す, 消す and ピン止め stand in HF-4’s order (MUST: 折り畳みの 4 つ（HF-1 の格子）、足す、消す、ピン止めの順に、左から右へ)', () => {
-    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、
-    // ピン止めの順に、左から右へ置くこと（MUST）**」. ⭐ THE SENTENCE COUNTS THE
-    // FOUR AS ONE MEMBER -- 「（`HF-1` の格子）」 -- so the run this reads has four
-    // members and not seven, and where the four stand WITHIN the lattice is
-    // `HF-1`'s business and has its own cases above.
+  it('⭐ GIVEN a row is drawn WHEN its run is read from the left THEN the lattice, the 縦の対 and ピン止め stand in HF-4’s order (MUST: 折り畳みの 4 つ（HF-1 の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ)', () => {
+    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折り畳みの 4 つ（`HF-1` の格子）、消すと足す
+    // の縦の対、ピン止めの順に、左から右へ置くこと（MUST）**」. ⭐ THE SENTENCE
+    // COUNTS THE FOUR AS ONE MEMBER -- 「（`HF-1` の格子）」 -- and 消す と 足す as
+    // one more, so the run this reads has THREE members and not seven; where each
+    // stands WITHIN its own box has its own cases.
     const built = drawn(oneLiveRow())
 
     expect(runOf(theRowOf(built))).toEqual(HF4_RUN)
@@ -5149,26 +5178,61 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
     expect(runOf(theRowOf(built))).toEqual(HF4_RUN)
   })
 
-  it('⭐ MUST GIVEN a row is drawn WHEN the outermost control is read THEN it is the pin, and the deletion is the one step inside it (HF-4: ピン止めを並びのいちばん外へ)', () => {
+  it('⭐ MUST GIVEN a row is drawn WHEN the outermost control is read THEN it is the pin, and the deletion’s column is the one step inside it (HF-4: ピン止めを並びのいちばん外へ)', () => {
     // ⛔ THE TWO REASONS ARE HF-4's OWN: 「**削除（`IC-82`）がいちばん外に在ると、
     // 右から流し込んだポインタが最初に触るのが削除になる**」 and 「**押す頻度は
     // ピンのほうが高く、削除は一度きりである**」.
-    const run = runOf(theRowOf(drawn(oneLiveRow())))
+    // ⭐ WHAT STANDS ONE STEP IN IS THE PAIR SINCE 2026-09-05, and the deletion
+    // is its upper rank -- the pointer poured in from the right still meets the
+    // pin before it.
+    const row = theRowOf(drawn(oneLiveRow()))
+    const run = runOf(row)
 
     expect(run[run.length - 1], `the outermost control is not the pin: ${run.join(' ')}`).toBe(
       'IC-60',
     )
-    expect(run[run.length - 2], `the deletion is not one step in: ${run.join(' ')}`).toBe('IC-82')
+    expect(run[run.length - 2], `the pair is not one step in: ${run.join(' ')}`).toBe(HF4_PAIR)
+    expect(
+      controlsOf(row).map(iconOf),
+      'the deletion is not on the row at all',
+    ).toContain('IC-82')
   })
 
-  it('⛔ MUST NOT GIVEN a row is drawn WHEN 足す and 消す are found in the run THEN they are next to each other (HF-4: 枠つきの ＋ と × は対として読ませるもの)', () => {
-    const run = runOf(theRowOf(drawn(oneLiveRow())))
-    const add = run.indexOf(entranceForRule('HF-14'))
-    const remove = run.indexOf('IC-82')
+  it('⛔ MUST NOT GIVEN a row is drawn WHEN 消す and 足す are found THEN they stand in ONE column with 消す above 足す and nothing between them (HF-4: 消すを上、足すを下 / いまは縦に隣り合う)', () => {
+    // ⭐⭐ 表 T-051 `HF-4` (MUST, 利用者の裁定 2026-09-05): 「**消すを上、足すを下に
+    // 置くこと（MUST）**」, and (MUST NOT) 「**足すと消すのあいだに他の操作子を挟んで
+    // はならない**」 -- 「**いまは縦に隣り合うので、この禁止は縦に読む**」.
+    // ⛔ SO THE READING IS THE LATTICE READING AND NOT THE LEFT-TO-RIGHT ONE: one
+    // column, two ranks, 消す first.
+    const row = theRowOf(drawn(oneLiveRow()))
+    const pair = controlsOf(row).filter((one) => HF4_PAIR_TOP_TO_BOTTOM.includes(iconOf(one)))
 
-    expect(add, `足す is not on the row: ${run.join(' ')}`).toBeGreaterThanOrEqual(0)
-    expect(remove, `消す is not on the row: ${run.join(' ')}`).toBeGreaterThanOrEqual(0)
-    expect(remove - add, `something stands between 足す and 消す: ${run.join(' ')}`).toBe(1)
+    expect(pair.length, `消す and 足す are not both on the row: ${serialize(row)}`).toBe(2)
+    expect(latticeOf(pair), 'the pair is not one column of two, 消す above 足す').toEqual([
+      HF4_PAIR_TOP_TO_BOTTOM,
+    ])
+  })
+
+  it('⛔ MUST NOT GIVEN a row is drawn WHEN the boxes that carry its run are read THEN not one of them draws a line or a frame around what it holds (HF-1: 格子を線や枠で囲んではならない)', () => {
+    // ⛔⛔ 表 T-051 `HF-1` (MUST NOT, 利用者の裁定 2026-09-05「**格子の線は不要**」):
+    // 「**格子を線や枠で囲んではならない（MUST NOT）**」 —— 「**線を引くと操作子 1 つ
+    // ぶんの幅が要り、`HF-15` の掴み代を覆いに行く**」.
+    const row = theRowOf(drawn(oneLiveRow()))
+
+    // ⚠️ WHAT IS REFUSED IS A LINE THAT PAINTS, not the property. A control that
+    // says `border:none` is TAKING the host's own button frame away, which is
+    // the same rule read the other way round.
+    const paintsNothing = /^(none|0|0px|initial|unset|revert)$/i
+    for (const host of controlHostsOf(row)) {
+      const declared = styleMap(host)
+      for (const [property, value] of declared) {
+        if (!/^(border|outline|box-shadow)/.test(property)) continue
+        expect(
+          paintsNothing.test(value.trim()) ? '' : `${property}:${value}`,
+          `a box of the row's run draws a line: ${inlineStyle(host)}`,
+        ).toBe('')
+      }
+    }
   })
 })
 
