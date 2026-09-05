@@ -106,11 +106,13 @@ export interface AppShell {
    * contract that fixes the value and why it is not free.
    *
    * ⛔ The type stays `string` and is not narrowed to that one literal. PD-71
-   * -- what shape of id this seam admits -- is recorded as undecided in
-   * docs/development-records/pending-decisions.md, and a literal would settle
-   * it in the type system without a ruling. ⚠️ It would also leave
-   * `unusableElementId` unreachable, and that refusal has to go on working for
-   * HTML this build did not assemble.
+   * -- what shape of id this seam admits -- is SETTLED (CR-353): the accepted
+   * shape is the one `isUsableElementId` in `embedded-html-codec.ts` checks.
+   * ⚠️ A narrower type would still be wrong, because this seam carries
+   * whatever id `AppShell.html` was actually assembled with, not only ids
+   * this build wrote -- and narrowing to the one literal would leave
+   * `unusableElementId` unreachable, dropping a refusal that has to go on
+   * working for HTML this build did not assemble.
    *
    * ⛔ Plain ASCII, and nothing that could end an attribute or a tag: this
    * value is written into a start tag and thereby into the artifact, where a

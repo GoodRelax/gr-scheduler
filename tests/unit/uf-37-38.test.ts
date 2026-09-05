@@ -41,10 +41,14 @@
 //              are told apart here and none is told apart in `AppShellReading`
 //   PD-70 / PD-71   the container's markup, its placement, what happens when
 //              there is more than one, and the shape of element id accepted
-//              across IF-8. ⛔ Not decided by docs/spec. The cases marked
-//              PD-70 / PD-71 are the ones docs/development-rules/
-//              06-pending-decisions.md section 3 asks for: the tests that fall
-//              when the recommendation is overturned.
+//              across IF-8. ⛔ Not decided by docs/spec, but both are now
+//              SETTLED (CR-353): PD-70 kept its recommendation as the ruling,
+//              PD-71 did not -- the ruling rejects only characters that would
+//              break the start tag, rather than requiring a leading ASCII
+//              letter. The cases below are pinned to the ruling now, the way
+//              docs/development-rules/06-pending-decisions.md section 3 asks:
+//              a later ruling that changes either one is what should make
+//              these fall next.
 //
 // ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
 // be driven by a fixed copy of that table, one test walking every row. T_024,
@@ -161,28 +165,49 @@ const EXECUTABLE_SCRIPT_TYPES = [
 ] as const
 
 /**
- * PD-71's recommendation: an ASCII letter, then ASCII letters, digits, `-` and
- * `_`. ⚠️ Narrower than an HTML id may be today, and refused rather than
- * repaired -- a repaired id names an element BT-1 would then fail to find.
+ * PD-71's RULING (CR-353, 2026-09-05, "ruling 1: b"): reject only the
+ * characters that would break the start tag this file writes -- everything
+ * else is a usable id, a leading digit, dash or underscore included. This
+ * replaced the earlier recommendation of an ASCII letter followed by
+ * letters, digits, `-` and `_`, which is why a leading digit or dash now
+ * belongs on this side of the line instead of the other one. ⚠️ Refused
+ * rather than repaired -- a repaired id names an element BT-1 would then
+ * fail to find.
  */
-const USABLE_IDS = ['a', 'A', 'grsDocument', 'grs-document', 'grs_document', 'Z9-_z'] as const
+const USABLE_IDS = [
+  'embedded-document',
+  '2024-plan',
+  '9',
+  'a.b',
+  'a:b',
+  '_x-1',
+  '-leading-dash',
+  'has=equals',
+  '\u65e5\u672c\u8a9e',
+] as const
 
+/**
+ * The characters PD-71's ruling still refuses, because each would break the
+ * start tag `<script type="..." id="${elementId}">` or the scan that finds
+ * it again: an empty id names no element; every kind of whitespace would
+ * begin a second attribute; `"` and `'` would close the attribute value;
+ * `<` and `>` would end or reopen the tag; `&` would be decoded as a
+ * character reference. The NUL case is the one job 1 of this round closed --
+ * `BREAKING_ELEMENT_ID_CHARACTER` in embedded-html-codec.ts now refuses every
+ * C0 control character, not only the ones that are also whitespace.
+ */
 const UNUSABLE_IDS = [
   '',
-  '1document',
-  '-document',
-  '_document',
   'has space',
+  'has\ttab',
+  'has\nnewline',
+  'has\u00a0nbsp',
   'has"quote',
   "has'quote",
   'has>angle',
   'has<angle',
-  'has=equals',
-  'has.dot',
-  'has:colon',
+  'has&amp',
   'has\u0000nul',
-  'has\nnewline',
-  '\u65e5\u672c\u8a9e',
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -1031,13 +1056,15 @@ describe('@purity semi-pure-b -- one external read, then pure assembly', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-70 -- the provisional markup, pinned so a ruling makes exactly this fall
+// PD-70 -- SETTLED (CR-353): the ruling kept the markup, still pinned exactly
 // ---------------------------------------------------------------------------
 
-describe('PD-70 -- the container markup, pinned (docs/development-rules/06 section 3)', () => {
+describe('PD-70 -- the container markup, now SETTLED (CR-353; docs/development-rules/06 section 3)', () => {
   it('writes `<script type="application/json" id="...">` and closes it', async () => {
-    // ⛔ Nothing in docs/spec names the container. This is the recommendation
-    // of PD-70, and this case is what falls when it is overturned.
+    // ⛔ Nothing in docs/spec names the container. This was the recommendation
+    // of PD-70; the ruling kept it as-is, so this case did not fall. ⭐ Still
+    // pinned to the exact string -- only a later ruling that changes the
+    // markup should make it fall next.
     const html = await exported(PLAIN_SHELL, ID, SMALL)
     const container = onlyContainer(html, ID)
     expect(container.startTag).toBe(`<script type="application/json" id="${ID}">`)

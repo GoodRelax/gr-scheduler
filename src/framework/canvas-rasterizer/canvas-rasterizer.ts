@@ -161,11 +161,13 @@ function failedRastering(reason: RasterFaultReason, what: string): Rastering {
  * FR-025 fixes at S-81, times S-82, on the near side of the seam.
  *
  * ⛔ NOT IN THE SPECIFICATION: no row says what a rasterizer does with a size
- * that is not a whole number of pixels. Class C of
- * docs/development-rules/06-pending-decisions.md -- a raster leaves no trace in
- * the saved form, and overturning this is one branch.
+ * that is not a whole number of pixels.
  *
- * @provisional PD-133
+ * ⭐ SETTLED (CR-353, PD-133). This is a BOUNDARY OF ACCEPTANCE, not a value
+ * that could be tuned: refusing is what keeps an export's size the one FR-025
+ * fixed, and it is what makes a raster reproducible instead of silently
+ * rounded. The ruling keeps the refusal.
+ *
  * @purity pure
  */
 function isPaintableSize(sizePx: RasterSizePx): boolean {
@@ -186,11 +188,15 @@ function isPaintableSize(sizePx: RasterSizePx): boolean {
  * saying so.
  *
  * ⛔ NOT IN THE SPECIFICATION: WY-2 makes a silently different picture a
- * defect, but no row says to refuse the picture that would become one. Class C
- * -- display only, one guard to remove. ⚠️ The picture that crosses this seam
- * today holds one reference and it is `url(#...)`, which is internal.
+ * defect, but no row says to refuse the picture that would become one.
+ * ⚠️ The picture that crosses this seam today holds one reference and it is
+ * `url(#...)`, which is internal.
  *
- * @provisional PD-131
+ * ⭐ SETTLED (CR-353, PD-131). This is a BOUNDARY OF ACCEPTANCE, not a value:
+ * a picture that has to fetch cannot be rastered reproducibly, so WY-2 and
+ * FR-080 would be comparing something nobody can reproduce. The ruling keeps
+ * the refusal.
+ *
  * @purity pure
  */
 function fetchedReference(svg: string): string | null {

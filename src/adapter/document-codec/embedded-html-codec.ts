@@ -74,8 +74,11 @@
 //      application stops loading. `JSON.stringify` escapes every C0 character,
 //      NUL included, as a six-character `\u00XX`, so no raw control character
 //      can reach the file through the document. The one other thing written
-//      here is the element id, and `isUsableElementId` holds it to ASCII
-//      letters, digits, `-` and `_`.
+//      here is the element id. `isUsableElementId` refuses every character
+//      that would break the start tag -- whitespace, quotes, `<`, `>`, `&` --
+//      which covers the whitespace controls; the rest of C0 is kept out by
+//      the shell, which supplies one fixed constant for this id and no other
+//      (`app-shell-source.ts`).
 //   3. ⛔ A HASH THAT NO LONGER MATCHES. CN-8 gives the artifact a content
 //      security policy, and a policy that names script hashes is invalidated
 //      by any edit to a script it covers. This file edits no existing script:
@@ -117,7 +120,9 @@ export type EmbeddedHtmlFaultReason =
    * reader's behalf. ⚠️ This build cannot produce such a file; one means the
    * HTML was assembled by something else.
    *
-   * @provisional PD-70
+   * ⭐ SETTLED (CR-353, PD-70). This refusal is the boundary of what the writer
+   * accepts, not a value that can be tuned later: it is the half of FR-067 the
+   * writing side keeps.
    */
   | 'moreThanOneEntry'
 
@@ -135,25 +140,50 @@ export type EmbeddedHtmlExport =
  * The container's type attribute.
  *
  * ⛔ Not in docs/spec, and not free either: it has to be a type no browser
- * treats as a script, or point 3 of the header comment stops holding. See
- * PD-70.
+ * treats as a script, or point 3 of the header comment stops holding.
  *
- * @provisional PD-70
+ * ⭐ SETTLED (CR-353, PD-70). This value is written into every single .html the
+ * tool exports, so it is part of the exchanged file rather than an internal
+ * choice, and it is kept as it stands.
  */
 const CONTAINER_TYPE = 'application/json'
 
 /**
- * The ids that can be written into a start tag and found again.
+ * The characters an element id may NOT contain.
  *
- * ⛔ Not in docs/spec: no table names the container, so no table constrains
- * what may name it. The shape below is the classic HTML id -- an ASCII letter
- * followed by letters, digits, `-` and `_` -- which is narrower than today's
- * HTML allows and deliberately so. Point 2 of the header comment is the
- * reason. See PD-71.
+ * ⭐ SETTLED (CR-353, PD-71). The rule is stated as what is REFUSED, because
+ * the reason is refusal: each of these would break the start tag this file
+ * writes, `<script type="..." id="${elementId}">`, or the string scan that
+ * finds it again.
  *
- * @provisional PD-71
+ *   - whitespace (every class of it) would begin a second attribute;
+ *   - `"` would close the attribute value, `'` would do the same for HTML
+ *     written with single quotes, which `idOfStartTag` also reads;
+ *   - `<` and `>` would end or reopen the tag -- `containerSpans` reads a start
+ *     tag as far as its first `>`;
+ *   - `&` would be decoded as a character reference, so the id read back would
+ *     not be the id written.
+ *
+ * ⛔ An empty id is refused too: it names no element.
+ *
+ * ⛔ Every C0 control character (`\x00`-`\x1f`, plus `\x7f`) is refused too,
+ * NUL included, even though none of them is whitespace or one of the four
+ * listed above. Rule 04 section 3 has the measured incident: one control
+ * character inside a string key was rewritten by the browser, the exported
+ * artifact's hash stopped matching, and the whole application stopped. The
+ * acceptance boundary is rule 06 clause F: it is loosened only in the
+ * direction that costs nothing to undo, since a document already accepted
+ * cannot be un-accepted later.
+ *
+ * ⭐ EVERYTHING ELSE IS ACCEPTED, a leading digit included. `.` and `:` are
+ * accepted as well. Nothing here owes the CSS grammar anything: the ONE
+ * consumer that builds a selector out of this id -- the startup count in
+ * `single-html-shell.ts` -- puts it through `CSS.escape()`, so the reader's
+ * side takes care of what CSS cannot spell bare. Point 2 of the header comment
+ * (no control character reaches the artifact) still holds, because every
+ * character listed above is refused and `JSON.stringify` covers the payload.
  */
-const USABLE_ELEMENT_ID = /^[A-Za-z][A-Za-z0-9_-]*$/
+const BREAKING_ELEMENT_ID_CHARACTER = /[\s"'<>&\x00-\x1f\x7f]/
 
 /** Half-open, as the names say: `begin` is the `<`, `end` is past the `>`. */
 interface ElementSpan {
@@ -168,7 +198,7 @@ function fault(reason: EmbeddedHtmlFaultReason, what: string): EmbeddedHtmlFault
 
 /** @purity pure */
 function isUsableElementId(elementId: string): boolean {
-  return USABLE_ELEMENT_ID.test(elementId)
+  return elementId !== '' && !BREAKING_ELEMENT_ID_CHARACTER.test(elementId)
 }
 
 /**
@@ -268,7 +298,9 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
  * fragment with neither `</body>` nor `</html>` takes it at the end, which is
  * the same position by another route.
  *
- * @provisional PD-70
+ * ⭐ SETTLED (CR-353, PD-70). The position is written into the exported file
+ * and the charset reason is what fixes it, so it is not a value to revisit.
+ *
  * @purity pure
  */
 function indexOfInsertion(html: string): number {

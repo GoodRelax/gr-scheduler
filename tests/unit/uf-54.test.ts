@@ -70,15 +70,15 @@
 //                      carries. This unit must read NEITHER -- a second reading
 //                      would be a second place deciding an export's size
 //
-// FIVE PROVISIONAL DECISIONS ARE PINNED, AND MARKED AS SUCH. Each has its own
+// FIVE DECISIONS ARE PINNED, EACH MARKED WITH ITS OWN STATUS. Each has its own
 // block at the foot of this file, per docs/development-rules/
 // 06-pending-decisions.md section 3, which asks for the test that falls when a
 // provisional value is overturned to be written in advance:
-//   PD-130  which `RasterFaultReason` each way of refusing maps onto
-//   PD-131  a picture that would make the decoder fetch is refused
-//   PD-132  what the root <svg> tag's own width and height become
-//   PD-133  a pixel size that is not a whole number of pixels is refused
-//   PD-134  nothing is painted under the picture
+//   PD-130  which `RasterFaultReason` each way of refusing maps onto (provisional)
+//   PD-131  a picture that would make the decoder fetch is refused (SETTLED, CR-353)
+//   PD-132  what the root <svg> tag's own width and height become (provisional)
+//   PD-133  a pixel size that is not a whole number of pixels is refused (SETTLED, CR-353)
+//   PD-134  nothing is painted under the picture (provisional)
 // Every block outside those five holds whatever those decisions turn out to be.
 
 import { describe, expect, it } from 'vitest'
@@ -1278,14 +1278,15 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
 })
 
 // ---------------------------------------------------------------------------
-// PD-131 (provisional) -- a picture that would make the decoder fetch is refused
+// PD-131 -- SETTLED (CR-353) -- a picture that would make the decoder fetch is
+// refused
 //
 // docs/spec does not say whether an external reference is refused or painted
-// anyway. The recommendation: refuse it, with the offending reference named in
-// `what`, because an SVG rendered through an <img> fetches nothing, so what is
-// behind such a reference is silently absent from the raster while it still
-// shows on the screen -- and neither WY-2 nor WY-3 can be judged on a picture
-// that lost a part without saying so.
+// anyway. The ruling kept the recommendation: refuse it, with the offending
+// reference named in `what`, because an SVG rendered through an <img> fetches
+// nothing, so what is behind such a reference is silently absent from the
+// raster while it still shows on the screen -- and neither WY-2 nor WY-3 can
+// be judged on a picture that lost a part without saying so.
 // ---------------------------------------------------------------------------
 
 function pictureCarrying(inner: string): string {
@@ -1341,7 +1342,7 @@ const PD_131_SELF_CONTAINED: readonly { readonly why: string; readonly inner: st
   { why: 'no reference at all', inner: '<rect width="8" height="8"/>' },
 ]
 
-describe('PD-131 (provisional) -- a picture that would have to fetch is refused', () => {
+describe('PD-131 -- SETTLED (CR-353) -- a picture that would have to fetch is refused', () => {
   it('walks every kind of outside reference and names it', async () => {
     expect(PD_131_FETCHES.length).toBeGreaterThan(0)
     for (const { why, inner, named } of PD_131_FETCHES) {
@@ -1461,13 +1462,15 @@ describe('PD-132 (provisional) -- what becomes of the root <svg> tag', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-133 (provisional) -- a pixel size that is not whole pixels is refused
+// PD-133 -- SETTLED (CR-353) -- a pixel size that is not whole pixels is
+// refused
 //
 // A canvas truncates what it is given, so a fractional size comes back as a
 // picture at a size nobody asked for, and WY-3 (which compares the screen's
 // rectangles against the export's after ONE rounding rule, :3081 MUST) cannot
 // be judged on it. Rounding it here would make this unit decide an export's
-// size, which FR-025 fixes at S-81 times S-82 on the near side.
+// size, which FR-025 fixes at S-81 times S-82 on the near side. The ruling
+// kept the refusal.
 // ---------------------------------------------------------------------------
 
 const PD_133_SIZES: readonly { readonly why: string; readonly sizePx: RasterSizePx }[] = [
@@ -1481,7 +1484,7 @@ const PD_133_SIZES: readonly { readonly why: string; readonly sizePx: RasterSize
   { why: 'a width without end', sizePx: { widthPx: Number.POSITIVE_INFINITY, heightPx: 900 } },
 ]
 
-describe('PD-133 (provisional) -- a size a canvas cannot be is refused, not rounded', () => {
+describe('PD-133 -- SETTLED (CR-353) -- a size a canvas cannot be is refused, not rounded', () => {
   it('walks every size that is not whole pixels', async () => {
     for (const { why, sizePx } of PD_133_SIZES) {
       const { fake, settled } = await raster({}, EXPORT_PICTURE, sizePx)

@@ -1886,13 +1886,16 @@ function deepestAncestorRow(
 /**
  * The row identifier a task's row gets.
  *
- * @provisional PD-80
  * ⚠️ AT-51 says the identifier is a UUID and IV-1 says it is unique; NOTHING
  * says which UUID, and a `pure` function may not mint a random one (PI-20 fixes
  * the purity, and R7.1 puts randomness in `semi-pure-b`). So it is derived from
  * the task's own UID, which IV-1 already makes unique, in the variant-1
- * version-4 layout. ⭐ Reversing this costs one function and the tests that
- * read a row id.
+ * version-4 layout.
+ *
+ * ⭐ SETTLED (CR-353, PD-80). This identifier is written into the exchanged
+ * file, so it is not an internal value that could be swapped later: deriving it
+ * from the UID is what makes an export deterministic and reproducible, and that
+ * determinism is the ground the ruling stands on.
  *
  * @purity pure
  */
@@ -2273,7 +2276,9 @@ function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedC
  * tool. The type is `xsd:integer` with no further restriction (:232), so a
  * major version is valid there.
  *
- * @provisional PD-81
+ * ⭐ SETTLED (CR-353, PD-81). The value goes into every exchanged file, so it
+ * is not an internal choice; the schema's own documentation is what fixes both
+ * what is valid and what 12 would falsely claim, and the ruling keeps `0`.
  */
 const GRS_SAVE_VERSION = '0'
 
@@ -2288,7 +2293,9 @@ const GRS_SAVE_VERSION = '0'
  * ⛔ A real currency is not written: no column of table T-058 holds an amount
  * of money, so naming one would state a fact the document does not have.
  *
- * @provisional PD-82
+ * ⭐ SETTLED (CR-353, PD-82). The value goes into every exchanged file, so it
+ * is not an internal choice; ISO 4217 and the schema's own documentation are
+ * what make `XXX` the one honest code here, and the ruling keeps it.
  */
 const UNSTATED_CURRENCY_CODE = 'XXX'
 

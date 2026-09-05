@@ -460,7 +460,18 @@ function embeddedStartupDocument(): {
   /** FR-088's row when the gate turned BT-1 away, `null` otherwise. */
   readonly refusal: StartupNoticeReason | null
 } {
-  const containers = document.querySelectorAll(`#${EMBEDDED_DOCUMENT_ELEMENT_ID}`)
+  // ⛔ THROUGH `CSS.escape`, and `querySelectorAll` rather than
+  // `getElementById`. The escape is here because THIS is the only consumer of
+  // the id that builds a CSS selector out of it: a CSS identifier may not begin
+  // with a digit, and `#2024-plan` is a parse error that throws rather than
+  // returning nothing. The writing side (`embedded-html-codec.ts`,
+  // PD-71 -- settled) refuses only the characters that would BREAK A START TAG
+  // -- whitespace, quotes, `<`, `>`, `&` -- and lets a leading digit, `.` and
+  // `:` through, precisely because the reader's side takes care of the CSS
+  // grammar here. ⛔ Do not "simplify" this to `getElementById`: that returns
+  // one element or none, and FR-067 needs the COUNT to tell "not exactly one"
+  // apart from "none".
+  const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
   if (containers.length === 0) return { candidate: { kind: 'none' }, refusal: null }
   if (containers.length > 1) {
     return {
