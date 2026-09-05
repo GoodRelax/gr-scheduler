@@ -260,6 +260,152 @@ function withWbsDescendants(tasks: readonly Task[], seeds: Iterable<number>): Re
 }
 
 /**
+ * Every row's place in the ROW TREE, top to bottom: a preorder walk of AT-52's
+ * `parentId` taking siblings in AT-55's `order`.
+ *
+ * ⭐ WHAT `HM-9` MEANS BY 「行の木における位置」, and the only thing this
+ * answers. It is a rank and not a `y`: a row `FR-098` pinned, a row `HR-1a`
+ * folded away and a row `HR-6` hid all keep their place between their siblings,
+ * which is the whole point of that row's MUST NOT.
+ *
+ * ⚠️⚠️ THIS IS A THIRD COPY OF ONE WALK, AND IT IS REPORTED RATHER THAN HIDDEN.
+ * `schedule.ts` holds it for `IV-19` and `input-command-translator.ts` holds it
+ * for `FR-019`; the entity's copy is file-local and table T-064 publishes no
+ * entry for it, so neither of the other two may import it, and LR-1 of table
+ * T-061 forbids this layer reaching out to the Adapter for the translator's.
+ * ⇒ Rule 03's DRY points at exporting the entity's one and deleting the other
+ * two; until it is exported, all three must be changed together.
+ *
+ * @purity pure
+ */
+function rowTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+  const childrenOf = new Map<string | null, TaskGroup[]>()
+  const holds = new Set(groups.map((one) => one.id))
+  for (const one of groups) {
+    const parent = one.parentId !== null && holds.has(one.parentId) ? one.parentId : null
+    const kin = childrenOf.get(parent)
+    if (kin === undefined) childrenOf.set(parent, [one])
+    else kin.push(one)
+  }
+  for (const kin of childrenOf.values()) kin.sort((a, b) => a.order - b.order)
+
+  const rankById = new Map<string, number>()
+  const walk = (parent: string | null): void => {
+    for (const one of childrenOf.get(parent) ?? []) {
+      if (rankById.has(one.id)) continue
+      rankById.set(one.id, rankById.size)
+      walk(one.id)
+    }
+  }
+  walk(null)
+  // A row a `parentId` ring makes unreachable is appended rather than dropped --
+  // IV-5 is where that ring is reported, and every row still needs a rank.
+  for (const one of groups) if (!rankById.has(one.id)) rankById.set(one.id, rankById.size)
+  return rankById
+}
+
+/**
+ * `ST-2` of table T-014 -- 「`start` 昇順 → `finish` 降順 → `uid` 昇順」, which
+ * `HM-9` (MUST) sends the tie to 「同じ行に兄弟が複数いるときは 表 T-014 の
+ * `ST-2` の順とすること」.
+ *
+ * ⚠️ A COLUMN THAT IS ABSENT SORTS AS THE EMPTY TEXT, so a Task carrying no
+ * `start` stands before every dated one and the answer stays TOTAL -- which is
+ * `ST-2`'s own reason for existing (「決定的でないと再描画のたびに段が入れ替わ
+ * る」). `uid` closes every remaining tie, and AT-24 makes it unique.
+ *
+ * @purity pure
+ */
+function compareByStackOrder(left: Task, right: Task): number {
+  const text = (a: string | null, b: string | null): number =>
+    a === b ? 0 : (a ?? '') < (b ?? '') ? -1 : 1
+  const byStart = text(left.start, right.start)
+  if (byStart !== 0) return byStart
+  const byFinish = text(left.finish, right.finish)
+  if (byFinish !== 0) return -byFinish
+  return left.uid - right.uid
+}
+
+/**
+ * `AT-26` rebuilt from the row tree -- `HM-9` of table T-015a (MUST), 「並べ替え
+ * た順序も WBS へ伝わること」.
+ *
+ * 「各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている
+ * 行の、行の木における位置で決めること（MUST）」, and (MUST NOT) 「画面に描かれ
+ * た位置で決めてはならない」 -- so the rank comes from `rowTreeRankById` above
+ * and never from a drawn `y`.
+ *
+ * ⭐ THE ROW THAT DRAWS IT, AND NOT THE ROW IT WAS DERIVED FROM. The same row
+ * settles that in as many words (利用者の裁定 2026-09-05「移した後の行のバーだ
+ * ろ？ もともとあったバーとは区別すべきでないのでは？」), so the row is read off
+ * `Schedule.taskGroupMembers` -- ET-5, the one place that says which row draws a
+ * `Task` -- and `TaskGroup.derivedFromTaskUid` is not consulted at all.
+ * ⛔ REBUILDING THE COLUMN IS ALLOWED AND NOTHING ELSE IS. AT-26's origin is
+ * `Consume`, which Chapter 5.7 defines as 「取り込んで解釈し、書き出すときに作り
+ * 直すもの」; `wbsParentUid` (AT-25) is not touched here, which is `HM-3`'s MUST
+ * NOT 「WBS の親を変えてはならない」 read at its narrowed width (同裁定).
+ *
+ * ⚠️ A Task on no row at all is ranked after every ranked one rather than
+ * dropped: IV-6 has each Task on exactly one row, so that is a broken document
+ * being kept deterministic rather than a case with a rule of its own.
+ *
+ * ⭐ EXPORTED FOR THE THIRD ROAD INTO `HM-9`, and for that alone. `HM-9` is
+ * reached by three commands, not two: CM-35 reorders siblings and CM-73 moves a
+ * row, both of which live in this file, and CM-19 moves a BAR to another row,
+ * which lives in edit-task.ts. The membership CM-19 rewrites is exactly the
+ * `Schedule.taskGroupMembers` entry this function reads, so the same rank has to
+ * be rebuilt after it. ⛔ A FOURTH WALK IN THAT FILE IS WHAT THIS EXPORT AVOIDS
+ * -- the note above already counts three copies of the row-tree walk as debt.
+ * ⚠️ It is not a public entry of the component (Chapter 5.3, MUST NOT): the two
+ * files are one unit's two aggregates, and edit-task.ts already reaches here for
+ * `DEFAULT_ROW_NAME`.
+ *
+ * @purity pure
+ */
+export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
+  if (schedule.tasks.length === 0) return schedule.tasks
+  const rankById = rowTreeRankById(schedule.taskGroups)
+  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const rankOf = (task: Task): number => {
+    const row = rowOfTask.get(task.uid)
+    const rank = row === undefined ? undefined : rankById.get(row)
+    return rank === undefined ? rankById.size : rank
+  }
+  const family = new Map<number | null, Task[]>()
+  for (const task of schedule.tasks) {
+    const kin = family.get(task.wbsParentUid)
+    if (kin === undefined) family.set(task.wbsParentUid, [task])
+    else kin.push(task)
+  }
+  const placeOf = new Map<number, number>()
+  for (const kin of family.values()) {
+    const ordered = [...kin].sort((a, b) => {
+      const byRow = rankOf(a) - rankOf(b)
+      return byRow !== 0 ? byRow : compareByStackOrder(a, b)
+    })
+    ordered.forEach((task, at) => placeOf.set(task.uid, at))
+  }
+  // ⚠️ A Task whose column already holds its rank comes through UNTOUCHED, the
+  // same care every branch of this file takes: rebuilding it would rebuild the
+  // schedule, and move FR-063's instant, for a write that changed nothing.
+  return schedule.tasks.map((task) => {
+    const at = placeOf.get(task.uid)
+    return at === undefined || task.wbsOrder === at ? task : { ...task, wbsOrder: at }
+  })
+}
+
+/**
+ * A document whose rows have just moved, with `AT-26` brought back into step
+ * with them -- `HM-9` (MUST).
+ *
+ * @purity pure
+ */
+function withWbsOrderFollowingTheRows(document: Document, rows: readonly TaskGroup[]): Document {
+  const moved = withSchedule(document, { taskGroups: rows })
+  return withSchedule(moved, { tasks: tasksRankedByTheRowTree(moved.schedule) })
+}
+
+/**
  * Runs one TaskGroup command against the document.
  *
  * @purity pure
@@ -746,12 +892,16 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         return place === undefined || place === one.order ? one : { ...one, order: place }
       })
       if (ordered.every((one, at) => one === groups[at])) return edited(document)
-      // ⛔ GAP: HM-9 ("並べ替えた順序も WBS へ伝わること（MUST）") is NOT carried
-      // out. It needs a mapping from the order of rows onto `Task.wbsOrder`,
-      // and no requirement or table gives one: a row holds Tasks from anywhere
-      // in the WBS (HM-10), and the two axes are deliberately independent
-      // (HM-3). Nothing here writes `wbsOrder`.
-      return edited(withSchedule(document, { taskGroups: ordered }))
+      // ⭐ HM-9 (MUST) RIDES ON THIS WRITE: 「並べ替えた順序も WBS へ伝わること」.
+      // The user's ruling of 2026-09-05 gave the mapping this branch used to say
+      // it did not have -- each Task ranks among its WBS siblings by where the
+      // row that DRAWS it stands in the row tree -- so `AT-26` is rebuilt from
+      // the rows this command just renumbered.
+      // ⛔ THE TWO AXES STAY INDEPENDENT. `wbsParentUid` (AT-25) is not written
+      // here and a row still holds Tasks from anywhere in the WBS (HM-10); what
+      // the row tree settles is the ORDER under one parent and nothing else,
+      // which is HM-3 read at the width its own ruling narrowed it to.
+      return edited(withWbsOrderFollowingTheRows(document, ordered))
     }
 
     case 'moveTaskGroup': {
@@ -826,7 +976,10 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         return place === undefined || place === one.order ? one : { ...one, order: place }
       })
       if (next.every((one, at) => one === groups[at])) return edited(document)
-      return edited(withSchedule(document, { taskGroups: next }))
+      // ⭐ HM-9 (MUST) AGAIN, for the same reason the reorder above carries it:
+      // a row that changed parent or place changed its rank in the row tree, and
+      // every Task that row DRAWS ranks among its WBS siblings by that rank.
+      return edited(withWbsOrderFollowingTheRows(document, next))
     }
 
     case 'expandAllTaskGroups': {

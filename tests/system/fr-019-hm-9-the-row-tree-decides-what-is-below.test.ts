@@ -58,6 +58,7 @@ import { lastCellOf, rowOf } from './sws-case'
 const T014: SpecTable = specTable('T-014')
 const T015A: SpecTable = specTable('T-015a')
 const T023B: SpecTable = specTable('T-023b')
+const T023D: SpecTable = specTable('T-023d')
 const T025: SpecTable = specTable('T-025')
 const T109: SpecTable = specTable('T-109')
 const T206: SpecTable = specTable('T-206')
@@ -177,6 +178,8 @@ const HM_3 = rowOf(T015A, 'HM-3').id
 const HM_8 = rowOf(T015A, 'HM-8').id
 const HM_9 = rowOf(T015A, 'HM-9').id
 const IV_19 = rowOf(T220, 'IV-19').id
+/** `GR-20` -- the grab strip table T-023d lays along a row's left edge. */
+const GR_20 = rowOf(T023D, 'GR-20').id
 
 // ---------------------------------------------------------------------------
 // The document, as `AM-3` of table T-107 hands it over
@@ -507,6 +510,44 @@ async function barBodyOn(page: Page, row: DrawnRow): Promise<{ x: number; y: num
     }
   }
   return null
+}
+
+/**
+ * The centre of the grab strip `GR-20` of table T-023d lays on one row.
+ *
+ * ⭐ Held verbatim -- row `GR-20` (table T-023d):
+ * 「行の左端に敷く掴み代」, and 「行の左端とは、その行の字下げの後ろである
+ * （MUST）—— 掴み代は行の名前の直前に立ち、段の字下げとともに動くこと
+ * （MUST）」, ⛔「パネルの左端に揃えてはならない（MUST NOT）」.
+ *
+ * ⛔⛔ SO NO x IS WRITTEN HERE, AND NONE MAY BE. The strip's x is a function of
+ * the row's depth, and its width is `S-138` of table T-206 -- a settings value
+ * that is nobody's to copy. The strip's own box is read off the drawn page
+ * instead, so a change to either the indent or `S-138` moves this point with it.
+ * ⚠️ Measured 2026-09-05 on the shipped build: at depth 2 the strip ran
+ * x 32..48 and the row's name began at x 52, so a press at x=60 -- what this
+ * file did until today -- landed on the NAME and never on the strip.
+ *
+ * ⛔ `null` ALSO MEANS 「掴めない」 AND NOT ONLY 「見つからない」. GR-20 (MUST
+ * NOT): 「ピン止めしている行は掴めないこと」, and the drawing side keeps that by
+ * laying no strip at all on a pinned row -- so a pinned row answers `null` here.
+ *
+ * @purity semi-pure-b
+ */
+async function grabStripCentreOn(
+  page: Page,
+  id: string,
+): Promise<{ x: number; y: number } | null> {
+  return page.evaluate((wanted: string) => {
+    const row = Array.from(document.querySelectorAll('[data-depth]')).find(
+      (one) => one.getAttribute('data-group-id') === wanted,
+    )
+    const strip = row?.querySelector('[data-row-grab]')
+    if (strip === null || strip === undefined) return null
+    const box = strip.getBoundingClientRect()
+    if (box.width === 0 || box.height === 0) return null
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  }, id)
 }
 
 /**
@@ -875,7 +916,12 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const rows = await drawnRows(page)
       const before = await readDocumentShot(page)
       const groups = before?.groups ?? []
+      // ⛔ GR-20 (MUST NOT): 「ピン止めしている行は掴めないこと」. FR-098 lifts a
+      // pinned row to the head of the panel and the drawing side keeps the MUST
+      // NOT by laying no strip on it at all -- so a pinned row is dropped before
+      // a pair is picked, rather than being grabbed at a point that is not there.
       const pair = rows
+        .filter((row) => !row.pinned)
         .map((row) => groups.find((group) => group.id === row.id))
         .filter((group): group is DocGroup => group !== undefined)
       const sibling = pair.find(
@@ -890,14 +936,21 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), the row's own
       // opening marker (what this drag ultimately feeds into `HM-9` for):
       // 「| HM-9 | 並べ替えた順序も WBS へ伝わること（MUST）」
-      if (sibling !== undefined && above !== undefined) {
-        const from = rows.find((one) => one.id === sibling.id) as DrawnRow
+      const grab = sibling === undefined ? null : await grabStripCentreOn(page, sibling.id)
+      expect
+        .soft(grab, `${GR_20} (MUST) lays a grab strip on the row this drag takes hold of`)
+        .not.toBeNull()
+
+      if (sibling !== undefined && above !== undefined && grab !== null) {
         const to = rows.find((one) => one.id === above.id) as DrawnRow
-        await dragBetween(
-          page,
-          { x: 60, y: from.y + Math.round(from.height / 2) },
-          { x: 60, y: to.y + 8 },
-        )
+        // ⭐ THE GRAB IS TAKEN WHERE GR-20 PUT IT, read off the drawn row --
+        // see `grabStripCentreOn`. ⛔ No x is written here, because GR-20 (MUST)
+        // 「掴み代は行の名前の直前に立ち、段の字下げとともに動くこと」 moves the
+        // strip with the row's depth, and until today this case pressed a fixed
+        // x=60 that stood on the row's NAME.
+        // ⛔ THE SAME x AT BOTH ENDS: `HF-15` (MUST) settles the axis on the
+        // first travel past `S-208`, and this case is about the POSITION axis.
+        await dragBetween(page, grab, { x: grab.x, y: to.y + 8 })
         const after = await readDocumentShot(page)
         const now = (after?.groups ?? []).find((one) => one.id === sibling.id)
         expect

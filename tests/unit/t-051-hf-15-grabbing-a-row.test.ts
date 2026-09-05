@@ -107,7 +107,17 @@
 //   - THE UNDO HISTORY ITSELF. UN-4 makes one drag 一段, but `FrameLoop`
 //     publishes no history, so what is asserted here is the other half of the
 //     same claim: the whole gesture writes ONCE, on the release, and what it
-//     wrote is inside `schedule.taskGroups` and nowhere else.
+//     wrote is inside `schedule.taskGroups` and the one `Task` field 表 T-015a
+//     of `HM-9` opened, and nowhere else.
+//     ⭐ 表 T-015a の HM-9 (利用者の裁定 2026-09-05)「並べ替えた順序も WBS へ
+//     伝わること（MUST）」 puts the reordered rank on `Task.wbsOrder`, and a
+//     `Task` lives OUTSIDE `schedule.taskGroups` -- so the release reaching it
+//     is a REQUIREMENT, not a leak. ⚠️ The heading MUST NOT is untouched by
+//     that: nothing is written while the row is HELD, and the two cases above
+//     this one still compare the whole document mid-drag.
+//     ⛔ HM-3 still forbids the parent moving 「タスクバーを別の行へ移す操作
+//     では WBS の親を変えてはならない（MUST NOT）」, so `wbsParentUid` is
+//     read back unchanged below, and so is every other field of every task.
 //   - WHICH SIDE REFUSES A PINNED ROW. GR-20's MUST NOT is a statement about
 //     the grab AREA, and 表 T-065's IF-9 (MUST) leaves the side that DREW the
 //     panel to say where one is -- so it is held in
@@ -777,6 +787,33 @@ describe('the specification still says what these cases are driven by', () => {
     )
   })
 
+  it('表 T-015a still sends the reordered order into the WBS (HM-9), and still keeps the parent still (HM-3)', () => {
+    // ⭐ 利用者の裁定 2026-09-05. Until it, HM-3 read 「WBS を変えてはならない」
+    // widely and the release below was asserted to touch the rows and nothing
+    // else. The ruling narrowed the ban to the parent-child link and gave the
+    // sibling rank to HM-9 -- which is why the release now reaches `Task`.
+    const hm9 = saysOf('T-015a', 'HM-9')
+    expect(hm9, '表 T-015a の HM-9 no longer sends the order to the WBS').toContain(
+      '並べ替えた順序も WBS へ伝わること（MUST）',
+    )
+    expect(hm9, 'HM-9 no longer decides the rank by the row tree').toContain(
+      '各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている行の、行の木における位置で決めること（MUST）',
+    )
+
+    const hm3 = saysOf('T-015a', 'HM-3')
+    expect(hm3, 'HM-3 no longer forbids the WBS parent moving').toContain(
+      'WBS の親を変えてはならない（MUST NOT）',
+    )
+    expect(hm3, 'HM-3 no longer leaves the sibling order to HM-9').toContain(
+      '同じ親の下での順序は `HM-9` に従い',
+    )
+
+    // ⛔ The heading of 表 T-023d is NOT weakened by any of that: what may be
+    // written on the RELEASE says nothing about what may be written while the
+    // row is held, and that is still nothing at all.
+    expect(REQUIREMENTS).toContain('掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）')
+  })
+
   it('FR-085 still owns the depth cap, and S-125 still counts a root row as depth 1', () => {
     expect(REQUIREMENTS).toContain('深さの上限は `FR-004` に従う（値は表 T-211 の `S-125`）')
     expect(saysOf('T-211', 'S-125')).toContain('根の行を深さ 1 と数える')
@@ -1237,12 +1274,19 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
     expect(built.loop.document(), 'the document was written while the row was held').toEqual(before)
   })
 
-  it('⭐ IN-1 / FR-031: the whole gesture writes ONCE, on the release, and only inside `schedule.taskGroups`', () => {
+  it('⭐ IN-1 / FR-031: the whole gesture writes ONCE, on the release, and only inside `schedule.taskGroups` and `Task.wbsOrder`', () => {
     // UN-4: 「掴んで動かす 1 回のドラッグは、親をまたぐことも、またがないことも
     // あり、どちらも 1 段である」 -- one drag, one CM-73 (表 T-108), one 段.
     // ⚠️ `FrameLoop` publishes no history, so what is read here is the other
-    // half of the claim: everything OUTSIDE the rows is untouched, which is what
-    // a single `moveTaskGroup` leaves behind.
+    // half of the claim: everything the move is not allowed to reach is
+    // untouched, which is what a single `moveTaskGroup` leaves behind.
+    //
+    // ⭐ 表 T-015a の HM-9 (利用者の裁定 2026-09-05) widened WHERE that one
+    // write may land: 「各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、
+    // その `Task` を描いている行の、行の木における位置で決めること（MUST）」.
+    // A `Task` is not in `schedule.taskGroups`, so the release MUST reach
+    // `Task.wbsOrder` (`AT-26`). ⛔ It may reach nothing else: HM-3 keeps
+    // `wbsParentUid` still, and every other task field is compared whole.
     const built = stage()
     const at = stripPoint(built.loop, A2)
     const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
@@ -1259,12 +1303,40 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
       before.schedule.taskGroups,
     )
 
-    // Everything the row move does NOT touch, compared whole.
-    const { taskGroups: _movedBefore, ...restBefore } = before.schedule
-    const { taskGroups: _movedAfter, ...restAfter } = after.schedule
-    expect(restAfter, 'the release wrote outside `schedule.taskGroups`').toEqual(restBefore)
+    // Everything the row move does NOT touch, compared whole. `tasks` is
+    // lifted out here ONLY so the single field HM-9 opened can be read on its
+    // own -- every other field of every task is put back two blocks below.
+    const { taskGroups: _movedBefore, tasks: _tasksBefore, ...restBefore } = before.schedule
+    const { taskGroups: _movedAfter, tasks: _tasksAfter, ...restAfter } = after.schedule
+    expect(
+      restAfter,
+      'the release wrote outside `schedule.taskGroups` and `Task.wbsOrder`',
+    ).toEqual(restBefore)
     expect(after.documentSettings).toEqual(before.documentSettings)
     expect(after.schemaVersion).toEqual(before.schemaVersion)
+
+    // ⭐ HM-9 (MUST): the reordered order reached the WBS at all.
+    const ranks = (doc: any) =>
+      (doc.schedule.tasks as any[]).map((one) => [one.uid, one.wbsOrder])
+    expect(ranks(after), 'the release did not carry the new order into `Task.wbsOrder`').not.toEqual(
+      ranks(before),
+    )
+
+    // ⛔ HM-9 opened ONE field and no more. The same tasks come back, in the
+    // same order, carrying every other value they had.
+    const exceptTheRank = (doc: any) =>
+      (doc.schedule.tasks as any[]).map(({ wbsOrder: _rank, ...rest }) => rest)
+    expect(exceptTheRank(after), 'the release wrote a task field other than `wbsOrder`').toEqual(
+      exceptTheRank(before),
+    )
+
+    // ⛔ HM-3 (MUST NOT): 「タスクバーを別の行へ移す操作では WBS の親を
+    // 変えてはならない」 -- 禁止の対象は親子関係であり、同じ親の下の順序
+    // ではない。Stated on its own so a later widening of the field list cannot
+    // let the parent slip through with it.
+    const parents = (doc: any) =>
+      (doc.schedule.tasks as any[]).map((one) => [one.uid, one.wbsParentUid])
+    expect(parents(after), 'the release moved a WBS parent (HM-3)').toEqual(parents(before))
 
     // HM-5 (MUST NOT): 行の器を作り直してはならない -- the same rows come back,
     // carrying the same names, colours and heights.

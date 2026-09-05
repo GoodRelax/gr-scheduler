@@ -1,4 +1,12 @@
-978
+972
+#
+# LOWERED 978 -> 972 ON 2026-09-05, after two spec-only bodies wrote the
+# tests that hold this round rulings clauses. The check itself said to:
+#   "976 not (was 978) -- lower the baseline to hold the ground".
+# The rulings ADDED clauses (978 -> 1000 at the worst point); the ground was
+# recovered by writing tests that press them and quote them, not by raising
+# the number. Two of the new tests are RED on purpose -- a red test holds a
+# clause just as well as a green one, and says the work is owed.
 #
 # ⭐⭐ LOWERED 1164 -> 978 ON 2026-09-05, THE SAME DAY IT WAS FIRST SET,
 # because the first measurement counted two kinds of clause it should never

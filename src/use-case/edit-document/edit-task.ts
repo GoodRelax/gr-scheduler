@@ -47,7 +47,10 @@ import { refused, edited } from './edit-document'
 // the WORD is FR-038's dictionary's -- never one typed here. The read itself,
 // and why the English cell is the one taken, is documented where the constant
 // is raised.
-import { DEFAULT_ROW_NAME } from './edit-task-group'
+// HM-9 (MUST) has ONE rule for the three commands that disturb the row tree --
+// CM-35 and CM-73 in that file, and CM-19 here -- so the walk is imported rather
+// than written a second time. Its own note says why it is exported.
+import { DEFAULT_ROW_NAME, tasksRankedByTheRowTree } from './edit-task-group'
 
 /** The five shapes of table T-012 (AT-100). */
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
@@ -1004,10 +1007,17 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'moveTaskToTaskGroup': { // CM-19
-      // HM-3: タスクバーを別の行へ移す操作では WBS を変えてはならない（MUST NOT）
-      // -- 行の移動と階層の移動は別の操作である. HM-10 is the consequence: 移るの
-      // は掴んだ `Task` だけであり, its WBS children stay on the row they were on.
-      // So exactly one `TaskGroupMember` is rewritten and no task is touched.
+      // HM-3: タスクバーを別の行へ移す操作では WBS の「親」を変えてはならない
+      // （MUST NOT）-- 行の移動と階層の移動は別の操作である. ⭐ THE BAN IS ON THE
+      // PARENT LINK AND ON NOTHING ELSE (利用者の裁定 2026-09-05, which narrowed
+      // this row from the older 「WBS を変えてはならない」): `wbsParentUid`
+      // (AT-25) is what may not move here, and HM-3 itself sends the ORDER on to
+      // HM-9 -- 「同じ親の下での順序は `HM-9` に従い、行の位置で決まる」.
+      // HM-10 is the other consequence of the narrowed ban: 移るのは掴んだ
+      // `Task` だけであり, its WBS children keep the row they were already on,
+      // because each of them has a `TaskGroupMember` of its own.
+      // ⇒ Exactly one membership is rewritten, no `wbsParentUid` is touched, and
+      // `wbsOrder` (AT-26) is rebuilt from the row tree below.
       if (!schedule.taskGroups.some((one) => one.id === command.groupId)) {
         return refused([reject('CM-19', 'IV-2', `no TaskGroup with id ${command.groupId}`)])
       }
@@ -1020,7 +1030,15 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const taskGroupMembers = schedule.taskGroupMembers.map((one) =>
         one.taskUid === command.uid ? { ...one, groupId: command.groupId } : one,
       )
-      return edited(withSchedule(document, { ...schedule, taskGroupMembers }))
+      // HM-9 (MUST): 並べ替えた順序も WBS へ伝わること. The bar now hangs off a
+      // different row, so its rank among the siblings sharing its WBS parent is
+      // decided by where that NEW row sits in the row tree. ⭐ THE SAME WALK THE
+      // OTHER TWO ROADS TAKE -- CM-35 and CM-73 in edit-task-group.ts call this
+      // very function, and HM-9 has one rule for all three. ⛔ The moved bar is
+      // not told apart from the bars that were already there (同裁定「移した後の
+      // 行のバーだろ？ もともとあったバーとは区別すべきでないのでは？」).
+      const moved: Schedule = { ...schedule, taskGroupMembers }
+      return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheRowTree(moved) }))
     }
 
     case 'setTaskVisualShapeKind': { // CM-20
