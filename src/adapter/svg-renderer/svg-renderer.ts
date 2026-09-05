@@ -2049,9 +2049,22 @@ export function svgFromSchedule(
   for (const box of geometry.highlightBoxes) {
     // FR-019: the author's line colour, and the annotation's fixed one only
     // when they named none.
+    //
+    // ⭐ THE CORNERS ARE ROUNDED (D-299). FR-019 makes the radius a MUST --
+    // 「ハイライトボックスの角の丸みは 表 T-217 が持ち、倍率によらず一定に
+    // 描くこと（MUST）」-- and the value rides on the box itself (AT-122).
+    // ⛔ Until now nothing wrote `rx`, so every box was square whatever the
+    // document held. ⚠️ NO SCALE IS APPLIED: `cornerRadiusPx` is already in
+    // screen pixels and the four numbers beside it are too, which is what
+    // makes the radius the same at every zoom.
+    // ⭐ `ry` is left off on purpose -- SVG defaults it to `rx`, so writing
+    // both would be the same number in two places.
+    const radius = box.cornerRadiusPx
+    const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
     linkParts.push(
       `<rect x="${rounded(box.box.x)}" y="${rounded(box.box.y)}"` +
         ` width="${rounded(box.box.width)}" height="${rounded(box.box.height)}"` +
+        rounding +
         ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
         ' stroke-width="1"/>',
     )

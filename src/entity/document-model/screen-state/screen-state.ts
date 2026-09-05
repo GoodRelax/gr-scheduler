@@ -141,11 +141,10 @@ export function screenStateWithWatermark(state: ScreenState, visible: boolean): 
 /**
  * What one press of Esc takes.
  *
- * ⚠️ EIGHT MEMBERS, SEVEN LEVELS, ONE LEVEL WITH NO MEMBER AND ONE MEMBER WITH
- * NO LEVEL. IN-4 of table T-028 fixes seven, of which this value carries six:
- * two of the members below are that ladder's THIRD level (開いている面), and
- * `escapeTarget` says why there are two of them and why they are answered in
- * this order.
+ * ⚠️ NINE MEMBERS, SEVEN LEVELS AND ONE MEMBER WITH NO LEVEL. IN-4 of table
+ * T-028 fixes seven, and this value now carries all seven: two of the members
+ * below are that ladder's THIRD level (開いている面), and `escapeTarget` says
+ * why there are two of them and why they are answered in this order.
  * ⭐ `'notice'` IS THE HEAD OF THE LADDER SINCE 2026-08-31 (利用者の指示), and
  * NT-8 of table T-037 (MUST) is the row that puts it there. ⚠️ SO THE COUNTS
  * ABOVE MOVED BY ONE: what was the first level (確定していないその場の編集) is
@@ -153,10 +152,17 @@ export function screenStateWithWatermark(state: ScreenState, visible: boolean): 
  * ⛔ `'propertiesPanel'` IS THE MEMBER WITH NO LEVEL OF ITS OWN. Table T-109
  * puts the panel on this ladder and IN-4 gives it no rung, so the rung is chosen
  * where the answer is given rather than claimed here.
- * ⛔ IN-4's LAST LEVEL -- 出ている説明 -- HAS NO MEMBER HERE. Nothing in this
- * build spends an `Esc` on the explanation IN-3 asks to be dismissible.
- * Reported rather than invented, because a member added here would be a level
- * every caller then had to spend and no caller can.
+ * ⭐ `'tooltip'` IS IN-4's LAST LEVEL -- 出ている説明 -- AND IT IS A LEVEL THE
+ * LADDER MUST HOLD. That row (MUST) ends the order with it and states the
+ * reason in as many words: 「説明を最後に置くのは、`IN-3` が求める『消せること』
+ * を果たす手立てがほかに 1 つも無いからである」. ⛔ SO ITS ABSENCE WAS NOT A
+ * REPORT BUT A BREACH: with no rung here, IN-3's 「消せること」 -- 「ポインタも
+ * フォーカスも動かさずに消す手立てがあること」 -- had no way to be met at all
+ * (D-307). ⚠️ IT IS OPTIONAL FOR THE REASON THE THREE MEMBERS BELOW IT ARE: the
+ * explanations are a current value the Framework holds (LY-5 of table T-060),
+ * so a caller that cannot see them leaves it out and absence reads as
+ * 「出ていない」 -- which keeps IN-4a, because the press then reaches the
+ * browser instead of being swallowed by a level nobody can spend.
  */
 export type EscapeTarget =
   | 'notice'
@@ -167,6 +173,7 @@ export type EscapeTarget =
   | 'propertiesPanel'
   | 'armed'
   | 'dualCursorMode'
+  | 'tooltip'
 
 /**
  * Which of the two dates S-65 holds is meant -- the two spellings are the
@@ -277,6 +284,37 @@ export interface EscapeContext {
    * spend two levels on one press, which IN-4 forbids (1 階層, MUST).
    */
   readonly isPropertiesPanelOpen?: boolean
+  /**
+   * IN-4's LAST level -- whether an explanation (U-53) is standing on the
+   * screen.
+   *
+   * ⭐ THE ONLY WAY IN-3 OF TABLE T-028 CAN BE KEPT. That row (MUST) asks a
+   * tooltip to be dismissible 「ポインタもフォーカスも動かさずに」, and IN-4
+   * states in as many words that it is placed last because no other means
+   * exists. So this is not one convenience among several: it is the whole of
+   * that MUST.
+   *
+   * ⛔ OUTSIDE `ScreenState` FOR THE REASON THE THREE MEMBERS ABOVE ARE. What
+   * explanations one frame carries is `ScreenView.tooltips`, built afresh per
+   * frame by UF-69 out of where the pointer rests -- a current value, and LY-5
+   * of table T-060 leaves those with the Framework.
+   *
+   * ⚠️ OPTIONAL, AND THE SAME PRICE THE TWO ABOVE PAY: a press whose level is
+   * `'tooltip'` may be reckoned ONCE, by the holder of the explanations, and a
+   * second caller that cannot see them answers `null` and hands the key to the
+   * browser (IN-4a) rather than spending a level twice.
+   *
+   * ⛔ THE HOLDER MUST ALSO BE ABLE TO ACT ON THE ANSWER, AND IN THIS BUILD IT
+   * CANNOT YET. `frame-loop.ts` already knows whether one stands
+   * (`isTooltipStanding`, read off the description it last drew) and so can
+   * REPORT this level -- but putting the explanation away needs a value UF-69
+   * reads, and `ScreenSession` (table T-075) carries none: EZ-2 and EZ-6 of
+   * table T-040 raise a tooltip purely from the rest and the place, so the next
+   * frame would raise the very one this level just took. What is missing is one
+   * member on `ScreenSession` saying the standing explanation has been
+   * dismissed, cleared by the next pointer move (IN-3's 「引き金が外れるまで」).
+   */
+  readonly isTooltipStanding?: boolean
 }
 
 /**
@@ -284,7 +322,8 @@ export interface EscapeContext {
  *
  * IN-4 fixes the order -- the standing telling, then the unsettled in-place
  * edit, then the open surface,
- * then the gesture in flight, then what is armed, then the Dual Cursor mode --
+ * then the gesture in flight, then what is armed, then the Dual Cursor mode,
+ * then the standing explanation --
  * and the two answers that share its 開いている面 are the standing question and
  * the surface S-99g holds, in that order. The `Properties Panel` is answered
  * after the gesture, for the reason given where it is answered.
@@ -339,5 +378,14 @@ export function escapeTarget(state: ScreenState, context: EscapeContext): Escape
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (state.armed.kind !== 'none') return 'armed'
   if (context.dualCursorMode) return 'dualCursorMode'
+  // IN-4's LAST level (MUST): 出ている説明. ⛔ BELOW EVERY OTHER RUNG AND ABOVE
+  // `null`, which is the order that row prints and not a choice made here --
+  // and the row gives the reason itself: 「説明を最後に置くのは、`IN-3` が求める
+  // 『消せること』を果たす手立てがほかに 1 つも無いからである」.
+  // ⛔ `=== true` AND NOT A TRUTHY TEST, the reading every optional member here
+  // takes: a caller that cannot see the explanations falls through to `null`,
+  // so IN-4a still hands the key to the browser (MUST) instead of losing it to
+  // a level nobody can spend.
+  if (context.isTooltipStanding === true) return 'tooltip'
   return null
 }

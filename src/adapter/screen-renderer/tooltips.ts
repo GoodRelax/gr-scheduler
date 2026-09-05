@@ -12,11 +12,29 @@
 // cheaper and safer than describing the same things a second time, and it is
 // why `screenViewFromRegions` builds this member last.
 //
-// ⭐ WHY NOTHING HERE SAYS "CAN BE DISMISSED". IN-3 of table T-028 grants that
-// to every tooltip, along with being pointed at and with standing until its
-// trigger is removed. A member per tooltip would let a caller describe one that
-// IN-3 forbids.
-// ⚠️ THAT THIRD CONDITION IS NOT "NEVER GOES AWAY BY ITSELF". IN-3 holds a
+// ⛔⛔ STOP -- NOTHING GRANTS IN-3's 「消せること」, AND THE NOTE THAT STOOD HERE
+// SAID SOMETHING FALSE. It read 「WHY NOTHING HERE SAYS 'CAN BE DISMISSED': IN-3
+// of table T-028 grants that to every tooltip」 -- but IN-3 grants nothing; it
+// REQUIRES (MUST) that an explanation can be put away 「ポインタもフォーカスも
+// 動かさずに」, and IN-4 of the same table names the ONE means: its last rung,
+// 出ている説明. Measured 2026-09-05 on the shipped build: with an explanation
+// standing over IC-7, `Esc` left it standing. ⇒ No side gave what this file
+// assumed had been given (D-307).
+// ⭐ THE RUNG NOW EXISTS: `escapeTarget` (screen-state.ts) answers `'tooltip'`
+// as IN-4's last level. ⛔ WHAT IS STILL MISSING IS THE VALUE THIS UNIT WOULD
+// READ. EZ-2 and EZ-6 of table T-040 raise an explanation purely from the rest
+// (`pointerRestedMs`) and the place (`iconUnderPointer`, `taskUnderPointer`),
+// and `ScreenSession` carries nothing saying the reader has put one away -- so
+// a rung spent on the far side would be undone by the very next frame, which
+// would raise the same explanation from the same two answers. One member on
+// `ScreenSession` is what closes it: 「the standing explanation was dismissed」,
+// raised by the holder when `escapeTarget` answers `'tooltip'` and cleared on
+// the next pointer move, which is IN-3's own 「引き金が外れるまで」. This unit
+// would then answer with no explanation while it stands.
+// ⛔ NOT INVENTED HERE. Table T-075 fixes this unit's signature and Chapter 5.3
+// fixes `ScreenSession` outside this file, so the member is reported rather
+// than added.
+// ⚠️ IN-3's THIRD CONDITION IS NOT "NEVER GOES AWAY BY ITSELF". IN-3 holds a
 // tooltip until the pointer or the focus leaves what it explains, the person
 // dismisses it, or its content stops being valid -- so a trigger that has left
 // may take the tooltip with it. Nothing needs doing about that here: this unit

@@ -227,6 +227,19 @@ export interface DependencyGeometry {
 export interface HighlightGeometry {
   readonly id: string
   readonly box: ScreenRect
+  /**
+   * AT-122's `cornerRadiusPx`, carried through so the drawing side can round
+   * the corners. Null when the box states none, and then no rounding is drawn.
+   *
+   * ⛔ Until now this interface held `id` and `box` alone, so the radius the
+   * document stores reached no `<rect>` and every highlight box was drawn with
+   * square corners (D-299).
+   *
+   * ⚠️ IN PIXELS, NOT IN DAYS. FR-019 draws the radius at a constant size
+   * whatever the zoom, so it is passed through untouched -- the two numbers
+   * beside it are already screen pixels and no scale is applied here.
+   */
+  readonly cornerRadiusPx: number | null
 }
 
 /**
@@ -1467,6 +1480,12 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
         width: Math.abs(x1 - x0),
         height: Math.max(top.y + top.height, bottom.y + bottom.height) - y,
       },
+      // AT-122, straight through. ⛔ NOT resolved to a default here: S-132 of
+      // table T-217 is what a NEW box is given (CM-52 of table T-108 writes
+      // it), and a box that states none states none. Resolving it here would
+      // put the same value in two places, and the one that resolved it would
+      // be the drawing side rather than the entrance the table names.
+      cornerRadiusPx: box.cornerRadiusPx,
     })
   }
   return out

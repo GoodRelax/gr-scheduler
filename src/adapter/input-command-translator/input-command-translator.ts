@@ -3690,10 +3690,14 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     // the browser now (MUST), or the text being typed can be neither copied
     // nor pasted.
     if (ctrl && (key === KEY.c || key === KEY.v)) return UNASSIGNED
-    // ⚠️ `Esc` is NOT let through here, and does not cancel the typing either:
-    // IN-4's levels are the open surface, the gesture, the arming and the Dual
-    // Cursor, and an in-place edit is none of them. `escapeTarget` owns that
-    // order and this file does not add a level to it.
+    // ⚠️ `Esc` is NOT let through here, and this file does not cancel the
+    // typing either -- but NOT because the ladder has no rung for it. It has:
+    // IN-4's SECOND level is 確定していないその場の編集 and `escapeTarget`
+    // answers `'textEntry'` for it (the note that stood here said the opposite,
+    // and was left behind by 利用者の裁定 2026-08-27). ⛔ THE RUNG IS SPENT
+    // WHERE THE CHARACTERS ARE, which is not here: this unit is pure and holds
+    // no field, so it REPORTS the level below and the side that drew the
+    // control puts the value back. `escapeTarget` owns the order either way.
   }
 
   // SK-19 -- settles the in-place edit, so it is assigned only while one is
