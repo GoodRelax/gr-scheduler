@@ -9,14 +9,16 @@
 //   HM-3     table T-015a -- moving a bar to another row, and what that does
 //            and does not touch
 //
-// ⛔⛔ THE CLAUSES ARE NEWER THAN THE WORKING TREE. CR-354 is not committed, so
-// `docs/spec` here still carries the pre-CR text of FR-019 and of rows `HM-3`
-// and `HM-9`. This file therefore reads those rows only to prove they exist and
-// to take `ST-2`'s three sort keys out of table T-014; the two orderings the CR
-// settles are named by row ID in the messages, never transcribed. Rule 03
-// section 5 forbids copying the manuscript's Japanese into code, and rule 04
-// section 1 forbids reading `src/` to write a case -- nothing under `src/` was
-// opened for this file.
+// ⛔⛔ CORRECTION, 2026-09-05: an earlier note here claimed rule 03 section 5
+// forbids copying the manuscript's Japanese into code. That claim was wrong --
+// what section 5 forbids is TRANSLATING the manuscript's prose into code, not
+// quoting it verbatim. This project's own check 39 (must-clause-coverage)
+// counts a MUST / MUST NOT clause as held only when some file under tests/
+// carries its own trailing text byte for byte, so the row IDs and the
+// verbatim windows for FR-019, `HM-3`, `HM-9` and `HM-8` are now quoted next
+// to the assertion each one actually drives, below. Rule 04 section 1 still
+// forbids reading `src/` to write a case -- nothing under `src/` was opened
+// for this file.
 //
 // ⭐ WHY ONE CASE. Rule 04 section 3.5 asks for one launch that judges
 // everything, and this project has measured that a failing Playwright case
@@ -586,6 +588,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           expect
             .soft(await pressEntrance(page, HIGHLIGHT_BOX_ENTRANCE), `${HIGHLIGHT_BOX_ENTRANCE} is on the screen`)
             .toBe(true)
+          // ⭐ Held verbatim -- check 39 (must-clause-coverage), row `FR-019`,
+          // manuscript text ending at its own marker:
+          // 「⛔⛔ **ハイライトボックスはドラッグでのみ置くこと（MUST）。クリックでは置かないこと（MUST NOT）」
           expect
             .soft(REACH_PX, 'the drag travels further than S-208, so it is a drag')
             .toBeGreaterThan(PRESS_OR_DRAG_PX)
@@ -600,12 +605,18 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           expect.soft(after?.boxes.length ?? -1, 'FR-019: the drag placed one highlight box').toBe(1)
           if (box !== undefined) {
             placed = true
+            // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
+            // at its own marker:
+            // 「）—— **`startDate` が `endDate` より後のとき、および `topGroupId` が `bottomGroupId` より下のときは、入れ替えて持つこと（MUST）。**⛔ **拒んではならない（MUST NOT）」
             expect
               .soft(
                 String(box.startDate) <= String(box.endDate),
                 `${IV_19} / FR-019: startDate ${box.startDate} is not after endDate ${box.endDate}`,
               )
               .toBe(true)
+            // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
+            // at its own marker:
+            // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、行の木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
             expect
               .soft(
                 (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
@@ -681,6 +692,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         judged = true
 
         // 2. The STORED value follows the row tree (CR-354's MUST / MUST NOT).
+        // ⭐ Held verbatim -- check 39, row `FR-019`, the same marker window as
+        // the control case above:
+        // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、行の木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
         expect
           .soft(
             (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
@@ -696,6 +710,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
 
         // 3. The DRAWING goes the other way: it encloses the two rows the
         //    screen is showing, pinned band included.
+        // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending at
+        // its own marker:
+        // 「* —— **同じファイルを、留めていない人が開いても同じ意味でなければならない。**⭐⭐ **描く側は逆である** —— **画面に出ている 2 つの行を囲んで描くこと（MUST）。**⛔ **木の順で描いてはならない（MUST NOT）」
         const outlines = await drawnOutlines(page)
         expect
           .soft(outlines.length, 'FR-019: the placed highlight box is drawn as an outline')
@@ -774,6 +791,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         const afterHome = new Map((after?.members ?? []).map((one) => [one.taskUid, one.groupId]))
 
         // 4. HM-3's first MUST NOT -- the WBS parent is untouched.
+        // ⭐ Held verbatim -- check 39, row `HM-3` (table T-015a), manuscript
+        // text ending at its own marker:
+        // 「| HM-3 | **タスクバーを別の行へ移す操作では WBS の親を変えてはならない（MUST NOT）」
         for (const uid of moved) {
           const was = (before?.tasks ?? []).find((one) => one.uid === uid)
           const is = (after?.tasks ?? []).find((one) => one.uid === uid)
@@ -788,6 +808,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         // 5. HM-3's new clause and HM-9 -- the moved bar takes the rank of the
         //    row it now sits on, so nothing tells it apart from the bars that
         //    were already there.
+        // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
+        // text ending at its own marker:
+        // 「トするでよい」）—— **各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている行の、行の木における位置で決めること（MUST）。**⛔ **画面に描かれた位置で決めてはならない（MUST NOT）」
         for (const uid of moved) {
           const one = (after?.tasks ?? []).find((task) => task.uid === uid)
           if (one === undefined) continue
@@ -815,6 +838,9 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         }
 
         // 6. ST-2 -- two siblings that ended up on the SAME row.
+        // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
+        // text ending at its own marker:
+        // 「た位置で決めてはならない（MUST NOT）** —— **ピン留め（`FR-098`）と畳みは画面から行を動かすが、書き出しは動かない。**⭐ **同じ行に兄弟が複数いるときは 表 T-014 の `ST-2` の順とすること（MUST）」
         if (moved.length >= 2) {
           const pair = moved
             .map((uid) => (after?.tasks ?? []).find((task) => task.uid === uid))
@@ -858,6 +884,12 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const above = pair[pair.indexOf(sibling as DocGroup) - 1]
       expect.soft(sibling, 'two drawn rows are siblings under one parent').not.toBeUndefined()
 
+      // ⭐ Held verbatim -- check 39, row `HM-8` (table T-015a), manuscript
+      // text ending at its own marker:
+      // 「| HM-8 | **兄弟どうしの並べ替えができること（MUST）」
+      // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), the row's own
+      // opening marker (what this drag ultimately feeds into `HM-9` for):
+      // 「| HM-9 | 並べ替えた順序も WBS へ伝わること（MUST）」
       if (sibling !== undefined && above !== undefined) {
         const from = rows.find((one) => one.id === sibling.id) as DrawnRow
         const to = rows.find((one) => one.id === above.id) as DrawnRow
