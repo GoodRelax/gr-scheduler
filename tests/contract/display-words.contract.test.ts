@@ -2077,7 +2077,15 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
   // ⚠️ Raising it is right and narrowing the sweep would not be: the claim IS
   // that EVERY written word reaches a screen, and a sample would let the one
   // that does not through.
-  20_000,
+  // ⛔⛔ 20_000 WAS NOT ENOUGH ONCE THE MACHINE WAS BUSY. Measured
+  // 2026-09-05: this case costs 9.13s when the file runs alone, so twenty
+  // seconds is barely twice its own cost, and in a full run -- where every
+  // other file is competing for the same cores -- it timed out. That is the
+  // third shape D-255 takes: not a torn read and not an empty one, just a
+  // read that does not finish in time. ⭐ The budget is four times the
+  // measured solo cost now, which is room for a loaded machine rather than
+  // a wish that the machine will be idle.
+  40_000,
   )
 })
 
