@@ -3297,6 +3297,17 @@
    }
   },
   {
+   "rowId": "RS-48",
+   "text": {
+    "ja": "この文書は新しい形式で書かれており、読めなかった項目があります",
+    "en": "This document is in a newer format, and some items could not be read"
+   },
+   "nextStep": {
+    "ja": "読めなかった項目はそのまま保たれ、保存し直しても失われません",
+    "en": "What could not be read is kept, and survives saving again"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

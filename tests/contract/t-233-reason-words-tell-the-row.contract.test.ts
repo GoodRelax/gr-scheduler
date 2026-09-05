@@ -232,6 +232,26 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   not one of their pairs moved.
   // ---------------------------------------------------------------------
   'RS-46': '1dc2be62612383ad',
+  //
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row D-282,
+  //   利用者の裁定 「② ただし、具体的に差分を表示してユーザーの確認を受ける」).
+  // `RS-48` -- 場面 「文書の形式の版が、この造りが知る最大の版より新しく、読め
+  //   なかった項目がある」; ja 「この文書は新しい形式で書かれており、読めなかった
+  //   項目があります」, en 「This document is in a newer format, and some items
+  //   could not be read」.
+  //   ⛔ THE FIRST DRAFT TOLD ONLY HALF THE SCENE and was corrected before this
+  //   fingerprint was taken: it said the format was newer and never said that
+  //   anything had failed to read -- which is the half the ruling is about.
+  //   ⭐ The next step 「読めなかった項目はそのまま保たれ、保存し直しても失われ
+  //   ません」 is the one FR-073 leaves open, and it is the reassurance that
+  //   makes accepting the document safe: the ruling turned on not losing what
+  //   could not be read.
+  //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBOURS, and the distinction is WHY the
+  //   item could not be read. `RS-25` 「列が決められた形に合わない」 is a value
+  //   that is malformed; this row is a value that is well formed and UNKNOWN.
+  //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
+  //   at all; here it opens. ⇒ the words tell the scene.
+  'RS-48': '6e26ad7870b49da2',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

@@ -7237,10 +7237,26 @@ function commandFromArmed(
     // those roads carry no direction to normalise.
     // ⭐ `early` / `late` above are that swap for the two days, read the same way
     // FR-001's own drag reads them one branch up.
-    // ⭐ WHICH ROW IS 上: the one drawn higher. `RowPlacement.y` is where the row
-    // was actually drawn, so a pinned row lifted by FR-098 is ordered by where it
-    // stands rather than by where its tree puts it.
-    const isPressAbove = row.y <= releaseRow.y
+    // ⭐⭐ WHICH ROW IS 上 IS THE PLACE IN THE ROW TREE (MUST, 利用者の裁定
+    // 2026-09-05), 「その『下』は、行の木における順位で判ずること」.
+    // ⛔ AND NOT THE PLACE ON THE SCREEN (MUST NOT), 「画面に描かれた位置で判じて
+    // はならない」. `RowPlacement.y` is where the row was DRAWN, and FR-098 lifts
+    // a pinned row out of the tree's order, so `row.y <= releaseRow.y` -- which
+    // stood here until this ruling -- wrote a pair IV-19 turns down. Measured
+    // 2026-09-05 on the shipped build: pin the row of rank 5, drag from it to the
+    // row of rank 0, and `topGroupId` came out as the rank-5 row.
+    // ⚠️ THE DRAWN SIDE IS THE OPPOSITE AND STAYS SO: the same clause has the
+    // picture 「画面に出ている 2 つの行を囲んで描くこと」, which `schedule-geometry.ts`
+    // already does by taking the min and max of the two DRAWN bands. The two are
+    // not in conflict -- the value stored is the tree's order, the frame drawn is
+    // the screen's -- so neither may be made to follow the other.
+    const rankById = taskGroupRankById(context.document.schedule.taskGroups)
+    // ⚠️ Every row the walk was handed has a rank, and `rowAtY` only ever answers
+    // with a row the layout drew from this same document -- so the fallback is
+    // unreachable and exists to keep the comparison total.
+    const pressRank = rankById.get(row.groupId) ?? 0
+    const releaseRank = rankById.get(releaseRow.groupId) ?? 0
+    const isPressAbove = pressRank <= releaseRank
     const top = isPressAbove ? row : releaseRow
     const bottom = isPressAbove ? releaseRow : row
     return changed([
@@ -7258,6 +7274,53 @@ function commandFromArmed(
   }
 
   return CONSUMED_ELSEWHERE
+}
+
+/**
+ * The place every row takes in the DOCUMENT's own order, top to bottom: a
+ * preorder walk of AT-52's `parentId`, siblings by AT-55's `order`.
+ *
+ * ⭐ WHAT 「下」 MEANS TO IV-19, and the only thing this answers. It is a rank
+ * and not a `y`: a row FR-098 pinned, a row HR-1a folded away and a row HR-6
+ * hid all keep their place between their siblings, so the order a value is
+ * STORED in cannot be read off the picture.
+ * ⛔ NOT `ScheduleLayout.rows`, which is the drawn set in the drawn order --
+ * that is the set the FRAME is measured against, one branch above, and reading
+ * it here is the very defect this walk replaces.
+ *
+ * ⚠️ THIS IS A SECOND COPY, AND IT IS REPORTED. `schedule.ts` holds the same
+ * walk for IV-19 under the name `taskGroupRankById`, and that copy is the one
+ * the invariant is judged by -- but it is a file-local function there and
+ * table T-064 publishes no entry for it, so this side cannot import it. Rule
+ * 03's DRY points at exporting that one and deleting this; until it is
+ * exported the two must be changed together.
+ *
+ * @purity pure
+ */
+function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+  const childrenOf = new Map<string | null, TaskGroup[]>()
+  const holds = new Set(groups.map((group) => group.id))
+  for (const group of groups) {
+    const parent = group.parentId !== null && holds.has(group.parentId) ? group.parentId : null
+    const siblings = childrenOf.get(parent)
+    if (siblings === undefined) childrenOf.set(parent, [group])
+    else siblings.push(group)
+  }
+  for (const siblings of childrenOf.values()) siblings.sort((a, b) => a.order - b.order)
+
+  const rankById = new Map<string, number>()
+  const walk = (parent: string | null): void => {
+    for (const group of childrenOf.get(parent) ?? []) {
+      if (rankById.has(group.id)) continue
+      rankById.set(group.id, rankById.size)
+      walk(group.id)
+    }
+  }
+  walk(null)
+  // A row a `parentId` ring makes unreachable is appended rather than dropped --
+  // IV-18 is where that ring is reported, and every row still needs a rank.
+  for (const group of groups) if (!rankById.has(group.id)) rankById.set(group.id, rankById.size)
+  return rankById
 }
 
 /**
