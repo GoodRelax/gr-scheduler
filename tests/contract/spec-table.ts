@@ -84,8 +84,34 @@ const isSeparator = (line: string): boolean => /^\|[\s:|-]+\|$/.test(line.trim()
  * the heading findable rather than positional.
  */
 export function specTable(id: string): SpecTable {
+  const unreadable: string[] = []
   for (const file of FILES) {
-    const text = readFileSync(join(SPEC, file), 'utf8')
+    // ⛔⛔ A MANUSCRIPT CAN BE LOCKED WHILE THIS RUNS, and the read then
+    // throws rather than returning something short. Measured 2026-09-05 on
+    // Windows: rewriting one manuscript while the suite ran took 115 of 158
+    // files red at once, and the error was
+    // `EBUSY: resource busy or locked`, not an empty string. The file is
+    // not damaged -- its bytes are identical afterwards -- so the run is a
+    // FALSE red that looks like a defect in whichever table was asked for.
+    // ⚠️ It does not take an edit. This repository sits under a syncing
+    // folder, and the sync holds a file open for its own moment too, which
+    // is the likeliest reading of D-255's rare unreproducible failure.
+    // ⭐ So the read is caught and named, and the suite is not run while
+    // anything is writing docs/spec.
+    let text: string
+    try {
+      text = readFileSync(join(SPEC, file), 'utf8')
+    } catch (cause) {
+      unreadable.push(`${file} (${cause instanceof Error ? cause.message : String(cause)})`)
+      continue
+    }
+    // ⚠️ AND THE OTHER HALF OF THE SAME MOMENT: the read can succeed and
+    // hand back a file that is empty or still filling. Measured 2026-09-05:
+    // both shapes appeared in the same experiment, so both are caught.
+    if (text.trim().length === 0) {
+      unreadable.push(`${file} (read back empty)`)
+      continue
+    }
     const lines = text.split('\n')
     const at = lines.findIndex((line) => line.startsWith(`**表 ${id} —`))
     if (at < 0) continue
@@ -123,6 +149,16 @@ export function specTable(id: string): SpecTable {
       throw new Error(`table ${id} in ${file}: no rows with a row ID`)
     }
     return { id, caption, file, headings, rows }
+  }
+  if (unreadable.length > 0) {
+    throw new Error(
+      `table ${id} was not found, and ${unreadable.length} of the ` +
+        `${FILES.length} manuscript file(s) could not be READ: ` +
+        `${unreadable.join('; ')}. That is not a defect in the ` +
+        'specification and not a defect in this table -- the file was held ' +
+        'open by something else while this run read it. Re-run with nothing ' +
+        'writing docs/spec, and give the syncing folder a moment. See D-255.',
+    )
   }
   throw new Error(`the specification has no table ${id}`)
 }

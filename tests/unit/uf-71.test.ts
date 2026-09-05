@@ -1819,7 +1819,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     expect(cells).toContain('道は `FR-085` が改名について定めるものと同じものとすること（MUST）')
     // ⛔ AND THE SPELLING OF THAT DEFAULT NAME IS NOT HERE TO BE COPIED FROM.
     expect(cells).toContain('既定の名前は表示語として持つこと（MUST）')
-    expect(cells).toContain('仕様書に綴りを刷ってはならない（MUST NOT）')
+    expect(cells).toContain('仕様書が規則として綴りを刷ってはならない（MUST NOT）')
 
     // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN WERE WITHDRAWN ON
     // 2026-09-04, and the row says why: 「**その禁止の理由は「改名の入口が 1 つも
@@ -1862,7 +1862,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     const word = entry?.['text'] as Record<string, string> | undefined
     expect(word?.['ja'], 'the default name has no word to stand a row up with').toBeTruthy()
     expect(word?.['en'], 'the default name has no word to stand a row up with').toBeTruthy()
-    // ⚠️ 「**仕様書に綴りを刷ってはならない（MUST NOT）**」 IS DELIBERATELY NOT
+    // ⚠️ 「**仕様書が規則として綴りを刷ってはならない（MUST NOT）**」 IS DELIBERATELY NOT
     // ASSERTED AS A SUBSTRING, and what was measured is written down rather than
     // guessed at: HF-14's cell DOES hold the word, inside the verbatim quotation
     // of the ruling that put the rule there (「**No name というタスクグループを

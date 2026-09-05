@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# All 35 mechanical checks for the gr-scheduler specification.
+# All 36 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
-# when checks 37 and 38 were added and the number was recounted -- it had
-# been wrong for several additions before that. To recount:
+# when checks 37 and 38 were added and the number was recounted, and 35 later
+# the same day when check 39 was added -- it had been wrong for several
+# additions before that. To recount:
 #
 #   grep -o '^echo "=====[^"]*' check.sh
 #
@@ -131,6 +132,17 @@
 #          would stay green. Held against dictionary-table-pairing.txt, a
 #          fingerprint snapshot and not a debt count: FAIL means either side
 #          moved and nobody re-read the pair, not that a number rose
+#   39     check-must-clause-coverage.py : D-254 measured that moving seven
+#          MUST/MUST NOT clauses in docs/spec/ rang zero tests, the same day
+#          D-257 and D-260 showed the opposite for five other clauses -- the
+#          cover is mottled, not absent, and nothing before this counted
+#          which was which. Counts every `（MUST）` / `（MUST NOT）` marker in
+#          the nine manuscript files (the same set check 37 reads), and holds
+#          a clause verbatim-tied only if a trailing slice of its own text
+#          (>=28 characters, ending at the marker) is quoted somewhere under
+#          tests/. Held against must-clause-coverage-baseline.txt the same
+#          way check 29 and check 31 are: the UNHELD count (1,164 of 1,634 on
+#          2026-09-05) may fall freely and may only rise deliberately
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -324,6 +336,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-dictionary-t
 echo ""
 echo "===== 38  revision history version numbers are unique ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-changelog-versions.py || fail=1
+
+echo ""
+echo "===== 39  MUST / MUST NOT clauses held verbatim by a test ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-coverage.py || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="

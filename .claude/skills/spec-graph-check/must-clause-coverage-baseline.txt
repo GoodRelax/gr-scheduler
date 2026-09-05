@@ -1,0 +1,17 @@
+1164
+# ⛔ MUST / MUST NOT clauses in docs/spec/ (the nine manuscript files
+# check-must-clause-coverage.py reads -- see its own docstring) with no
+# verbatim tie to any file under tests/.
+#
+# ⭐ MEASURED 2026-09-05, THE DAY D-254 WAS FILED: 1,634 marked clauses total,
+# 470 held (some part of the clause, at least 28 characters ending at the
+# marker, quoted verbatim in some file under tests/), 1,164 not. This is the
+# FIRST measurement -- nobody had counted this before, so 1,164 is simply
+# today's true state, not a chosen number.
+#
+# ⭐ The number coming DOWN is the work (a round that writes a verbatim-
+# holding test for a previously bare clause lowers it, and should lower this
+# file to match). It going UP is a MUST or MUST NOT clause added, or a clause
+# whose only tie broke, without a test taking its place.
+#
+# ⛔ RAISE THIS ONLY TO TAKE THE DEBT ON DELIBERATELY, and say why in the commit.
