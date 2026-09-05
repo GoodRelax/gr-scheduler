@@ -1,4 +1,10 @@
-972
+961
+#
+# LOWERED 972 -> 961 ON 2026-09-05. A spec-only body wrote the cases that
+# press the frame-time clauses this round added, and quoted them. Eleven more
+# clauses are now held. The run is RED on purpose: one operation gets two
+# opposite verdicts depending on which number is read, which is exactly what
+# the new clauses forbid confusing.
 #
 # LOWERED 978 -> 972 ON 2026-09-05, after two spec-only bodies wrote the
 # tests that hold this round rulings clauses. The check itself said to:

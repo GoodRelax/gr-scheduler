@@ -6916,16 +6916,55 @@ export function frameLoop(
    */
   function answerSettledFormat(format: ExportFormatId): boolean {
     // S-99g: the surface has answered its question, so it is no longer open.
+    // ⛔⛔ AND THAT IS WHY BOTH GATES BELOW NOW TELL. The surface is taken down
+    // on the line above, BEFORE either of them is read -- so an early return in
+    // silence is the chooser closing with nothing written and nothing said,
+    // which is FR-029's (MUST) forbidden shape stated in its own first
+    // sentence: a press that changes nothing and says nothing cannot be told
+    // from a broken one.
+    // ⭐ MEASURED 2026-09-05 on the shipped build at 1920x1080 (`file://`, the
+    // host save dialogue replaced so that the reading is of what happens once a
+    // handle has been asked for): with SK-11's save still standing in that
+    // dialogue, `Ctrl`+`Shift`+`E` and a press on `IO-3` closed U-54, wrote 0
+    // bytes and raised 0 notices. With the same build and nothing in flight the
+    // same press wrote 395,400 bytes. ⚠️ That is the SHAPE the ledger's D-320
+    // reported and not its case: every one of table T-024's five file rows
+    // writes from this surface at this commit, which the same probe measured.
     screenState = screenStateWithSurface(screenState, null)
-    // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to. Doing nothing
-    // then is the absence of the behaviour and not the behaviour.
+    // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to.
+    // ⚠️ NOT "the absence of the behaviour", which is what this line used to
+    // answer. `exportPictureContent` already settled the same question the
+    // other way one screen below -- "A MISSING SEAM DOES NOT REACH NOBODY ... a
+    // press that returned `null` in silence is exactly FR-029's (MUST)
+    // forbidden shape" -- and a missing FileStore is that argument's own case:
+    // the chooser is only on the screen because IC-2 was pressed.
+    // ⭐ `RS-3` and not `RS-40`: table T-233 gives RS-3 「書き込みを試みたが、
+    // この環境では行えなかった」 against LM-14 of table T-004, which is a host
+    // that cannot write rather than a form this build cannot make. Every one of
+    // the five rows CAN be made here, so RS-40 would be a wrong reason wearing
+    // a right shape.
     const store = files
-    if (store === undefined) return true
+    if (store === undefined) {
+      raiseNotice(SEAM_ABSENT_REASON, null)
+      return true
+    }
     // ⛔ ONE AT A TIME, the same guard the save and the open paths keep: CS-4 of
     // table T-066 collects at the moment the operation begins, and a second one
     // begun mid-wait would take the one question the screen can hold away from
     // the first.
-    if (isFileOperationWaiting || asking !== null || openChoosing !== null) return true
+    // ⭐ `RS-27` IS THE FALLBACK DOING ITS JOB, not a row reached for over one
+    // that fits: this press could not be performed because another file
+    // operation holds the one question the screen can carry, and no row of
+    // table T-233 names that situation. `NOTHING_TO_DO_REASON` records the rule
+    // -- FR-029's 「どの入口にも当たる行が無いときの落ち先」 -- and D-265 of the
+    // defect ledger closed the same shape on IC-5 / IC-6 with the same row.
+    // ⛔ NOT `RS-7` OR `RS-9`. Those are WS-2's mid-gesture and mid-notify
+    // refusals of a WRITE by the `Agent API`, and neither is a person's press
+    // arriving while a file question stands.
+    if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
+      raiseNotice(NOTHING_TO_DO_REASON, null)
+      return true
+    }
     isFileOperationWaiting = true
     // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the save path
     // has, and for the reason CS-4 gives: the operation spans frames, and the

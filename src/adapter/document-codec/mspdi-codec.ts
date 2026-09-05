@@ -1339,6 +1339,22 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     // null parent IS the root. A task the exchange partner left without an
     // OutlineLevel therefore reads as a root: it is the only reading that keeps
     // every task in the tree, which FR-058 requires. Reported.
+    //
+    // ⛔ STOP -- THIS IS WHERE FR-021 BREAKS, AND IT IS NOT THIS FILE'S TO
+    // CLOSE. The exchange partner writes ONE row at `OutlineLevel` 0 -- the
+    // project summary, `UID` 0 -- and every real task at 1 or deeper. The clamp
+    // below flattens that row onto the same depth as the top tasks, so it stops
+    // being their parent, and DV-4 to DV-7 then rebuild four columns from the
+    // flattened tree. ⚠️ MEASURED on the three files of sample-schedule/, taken
+    // in and written straight back out: `Task/ID` differs on EVERY task
+    // (46/46, 135/135, 257/257, each off by one), `Task/OutlineNumber` on every
+    // task, and `Task/OutlineLevel` and `Task/Summary` on the summary row
+    // itself. A file with no level-0 row round-trips these four exactly.
+    // ⛔ Not closed here by reading level 0 as a depth of its own: `S-115` fixes
+    // the root at depth 1, so the document has nowhere to hold the distinction,
+    // and writing `depth - 1` back would need a column saying the file brought
+    // a level-0 row. That is a change request against table T-058, not a choice
+    // this file may make -- the same shape as the STOP on `writtenFadeValues`.
     const depth = level === null || level < 1 ? 1 : level
     const parentIndex = lastIndexShallowerThan(levels, depth)
     const parentUid = parentIndex === null ? null : uids[parentIndex] ?? null
@@ -2341,16 +2357,93 @@ function writtenTasks(
   frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): readonly XmlElement[] {
-  const depths = taskDepths(schedule.tasks)
-  const numbers = outlineNumbers(schedule.tasks)
+  // HM-9 (MUST): the order a person put the rows in reaches the WBS, and this
+  // is where it leaves. ⛔ Not `schedule.tasks` in the order the collection
+  // happens to hold -- `tasksRankedByTheRowTree` rewrites `wbsOrder` in place
+  // and never moves the collection, so reading the collection reads the order
+  // the file arrived in and the reorder is silently dropped.
+  const ordered = tasksInWbsOrder(schedule.tasks)
+  const depths = taskDepths(ordered)
+  const numbers = outlineNumbers(ordered)
   const hasChildren = new Set(
-    schedule.tasks.map((task) => task.wbsParentUid).filter((uid): uid is number => uid !== null),
+    ordered.map((task) => task.wbsParentUid).filter((uid): uid is number => uid !== null),
   )
   const minutesPerDay = minutesPerWorkingDay(schedule.project.minutesPerDay)
-  const written = schedule.tasks.map((task, index) => writtenTask(
+  const written = ordered.map((task, index) => writtenTask(
     task, schedule, index, depths, numbers, hasChildren, minutesPerDay, frames, run,
   ))
   return splicedCarriedRows(written, schedule.project.carryElements, 'Task')
+}
+
+/**
+ * The tasks in the order they leave: the walk of the WBS tree, every sibling
+ * group in `wbsOrder` (AT-26).
+ *
+ * ⭐ HM-9 of table T-015a (MUST) -- 「並べ替えた順序も WBS へ伝わること」, and
+ * 「各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている
+ * 行の、行の木における位置で決めること」. That rank is ALREADY `wbsOrder`:
+ * `tasksRankedByTheRowTree` in the use-case layer rebuilds the column from the
+ * row tree after every command that reaches HM-9. ⛔ This unit does not rank
+ * anything of its own -- it neither reads a row nor a drawn `y`, both of which
+ * HM-9 forbids it, and re-deciding the order here would give one rule two
+ * homes.
+ *
+ * ⭐ The WALK, and not a sort of the flat collection. `Task/OutlineLevel` and
+ * `Task/OutlineNumber` (DV-5, DV-6) only describe a tree when the rows sit in
+ * outline order, so a child has to follow its parent immediately; ordering the
+ * siblings without walking would write levels that jump.
+ *
+ * ⚠️ Written iteratively, for the reason `readXml` and `writtenXml` give: a
+ * document in hand may nest as deep as `S-133` allows and a recursive walk
+ * would end the process rather than the write.
+ *
+ * ⚠️ A task the walk never reaches -- a `wbsParentUid` ring, which FR-023
+ * refuses on the way in but a document already in hand may hold -- is appended
+ * rather than dropped. FR-021 carries back even what this software cannot use.
+ *
+ * ⚠️ A `wbsOrder` of `null` sorts after every ranked sibling, which is where
+ * `tasksRankedByTheRowTree` puts a task no row draws. The sort is stable, so
+ * ties keep the order the collection already had.
+ *
+ * @purity pure
+ */
+function tasksInWbsOrder(tasks: readonly Task[]): readonly Task[] {
+  if (tasks.length < 2) return tasks
+  const known = new Set(tasks.map((task) => task.uid))
+  // A parent no task in this document has is not a parent: the task is a root,
+  // which is how `taskDepths` and `outlineNumbers` already read it.
+  const family = new Map<number | null, Task[]>()
+  for (const task of tasks) {
+    const parent =
+      task.wbsParentUid !== null && known.has(task.wbsParentUid) ? task.wbsParentUid : null
+    const kin = family.get(parent)
+    if (kin === undefined) family.set(parent, [task])
+    else kin.push(task)
+  }
+  for (const kin of family.values()) kin.sort((a, b) => rankOfSibling(a) - rankOfSibling(b))
+
+  const out: Task[] = []
+  const seen = new Set<number>()
+  const stack: Task[] = [...(family.get(null) ?? [])].reverse()
+  while (stack.length > 0) {
+    const task = stack.pop()
+    if (task === undefined) break
+    if (seen.has(task.uid)) continue
+    seen.add(task.uid)
+    out.push(task)
+    const kin = family.get(task.uid) ?? []
+    for (let index = kin.length - 1; index >= 0; index -= 1) {
+      const child = kin[index]
+      if (child !== undefined && !seen.has(child.uid)) stack.push(child)
+    }
+  }
+  for (const task of tasks) if (!seen.has(task.uid)) out.push(task)
+  return out
+}
+
+/** @purity pure */
+function rankOfSibling(task: Task): number {
+  return task.wbsOrder ?? Number.MAX_SAFE_INTEGER
 }
 
 /** @purity pure */
