@@ -1152,7 +1152,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     ...tasksRead.carriedRows,
     ...resourcesRead.carriedRows,
     ...assignmentsRead.carriedRows,
-  ])
+  ], tasksRead.outlineBase)
   const highWaterMark = Math.max(
     project.uidHighWaterMark,
     ...tasksRead.tasks.map((task) => task.uid),
@@ -1195,6 +1195,7 @@ function projectFromRoot(
   root: XmlElement,
   current: Document,
   carriedRows: readonly CarryElement[],
+  outlineBase: number,
 ): Project {
   const split = carrySplit(root, PROJECT_CONSUMED)
   return {
@@ -1226,6 +1227,9 @@ function projectFromRoot(
     importSeq: current.schedule.project.importSeq,
     carry: split.carry,                                   // AT-22
     carryElements: [...split.carryElements, ...carriedRows], // AT-23
+    // AT-24. ⛔ Not read off `<Project>`: MSPDI has no element for it. It is
+    // measured off `<Tasks>` (FR-021) and handed in by the caller.
+    outlineBase,                                          // AT-24
   }
 }
 
@@ -1277,6 +1281,8 @@ interface TasksReading {
   readonly tasks: readonly Task[]
   /** What did not become a row, on its way to `project.carryElements`. */
   readonly carriedRows: readonly CarryElement[]
+  /** AT-24, measured off the collection: what the file counted its top row as. */
+  readonly outlineBase: number
 }
 
 /**
@@ -1302,15 +1308,33 @@ interface TasksReading {
  *
  * @purity pure
  */
+function outlineBaseOf(collection: XmlElement): number {
+  for (const element of collection.children) {
+    if (element.name !== 'Task') continue
+    if (isTrue(element, 'IsNull')) continue
+    if (integerColumn(element, 'OutlineLevel') === 0) return 0
+  }
+  return 1
+}
+
+/**
+ * Every `Task`, and the elements under `<Tasks>` that are not tasks.
+ *
+ * @purity pure
+ */
 function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const collection = childOf(root, 'Tasks')
-  if (collection === null) return { tasks: [], carriedRows: [] }
+  if (collection === null) return { tasks: [], carriedRows: [], outlineBase: 1 }
   // FR-054, on the file being read: `Project/MinutesPerDay` first, `S-128` only
   // when the file states none. ⛔ Not the standing document's number.
   const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
   // EX-6, once for the whole file: the definitions are the project's, and every
   // task's values are read against the same answer.
   const fadeColumns = fadeColumnsByFieldId(root)
+  // FR-021 (MUST): the outline base is the file's, not GRS's. Read once, over
+  // the whole collection, before any depth is decided -- a base decided task by
+  // task would put two tasks of one file on two different scales.
+  const outlineBase = outlineBaseOf(collection)
   const tasks: Task[] = []
   const carriedRows: CarryElement[] = []
   const levels: number[] = []
@@ -1340,22 +1364,14 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     // OutlineLevel therefore reads as a root: it is the only reading that keeps
     // every task in the tree, which FR-058 requires. Reported.
     //
-    // ⛔ STOP -- THIS IS WHERE FR-021 BREAKS, AND IT IS NOT THIS FILE'S TO
-    // CLOSE. The exchange partner writes ONE row at `OutlineLevel` 0 -- the
-    // project summary, `UID` 0 -- and every real task at 1 or deeper. The clamp
-    // below flattens that row onto the same depth as the top tasks, so it stops
-    // being their parent, and DV-4 to DV-7 then rebuild four columns from the
-    // flattened tree. ⚠️ MEASURED on the three files of sample-schedule/, taken
-    // in and written straight back out: `Task/ID` differs on EVERY task
-    // (46/46, 135/135, 257/257, each off by one), `Task/OutlineNumber` on every
-    // task, and `Task/OutlineLevel` and `Task/Summary` on the summary row
-    // itself. A file with no level-0 row round-trips these four exactly.
-    // ⛔ Not closed here by reading level 0 as a depth of its own: `S-115` fixes
-    // the root at depth 1, so the document has nowhere to hold the distinction,
-    // and writing `depth - 1` back would need a column saying the file brought
-    // a level-0 row. That is a change request against table T-058, not a choice
-    // this file may make -- the same shape as the STOP on `writtenFadeValues`.
-    const depth = level === null || level < 1 ? 1 : level
+    // FR-021 (MUST): the depth is the file's level measured from the file's own
+    // base, so a file that counts from 0 keeps its top row as the parent of the
+    // rest instead of being flattened onto it. `S-115` still fixes GRS's root at
+    // depth 1; `Project.outlineBase` (AT-24) holds the difference, and the write
+    // side puts it back. ⚠️ A level ABOVE the base cannot exist by definition,
+    // so anything shallower than the base reads as a root.
+    const shifted = level === null ? 1 : level - outlineBase + 1
+    const depth = shifted < 1 ? 1 : shifted
     const parentIndex = lastIndexShallowerThan(levels, depth)
     const parentUid = parentIndex === null ? null : uids[parentIndex] ?? null
     const wbsOrder = countOfChildrenSoFar(levels, uids, parentIndex, depth)
@@ -1366,7 +1382,7 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     ))
   })
   tellRoundedActualDurations(run)
-  return { tasks, carriedRows }
+  return { tasks, carriedRows, outlineBase }
 }
 
 /**
@@ -2363,14 +2379,20 @@ function writtenTasks(
   // and never moves the collection, so reading the collection reads the order
   // the file arrived in and the reorder is silently dropped.
   const ordered = tasksInWbsOrder(schedule.tasks)
-  const depths = taskDepths(ordered)
-  const numbers = outlineNumbers(ordered)
+  // FR-021 (MUST): `ID`, `OutlineLevel` and `OutlineNumber` are all derived from
+  // the tree (DV-4 to DV-6), so all three are written on the base the file
+  // arrived with. A document GRS made itself carries 1 and is unaffected.
+  const base = schedule.project.outlineBase
+  const outlineLevels = new Map<number, number>()
+  for (const [uid, depth] of taskDepths(ordered)) outlineLevels.set(uid, depth - 1 + base)
+  const numbers = outlineNumbers(ordered, base)
   const hasChildren = new Set(
     ordered.map((task) => task.wbsParentUid).filter((uid): uid is number => uid !== null),
   )
   const minutesPerDay = minutesPerWorkingDay(schedule.project.minutesPerDay)
   const written = ordered.map((task, index) => writtenTask(
-    task, schedule, index, depths, numbers, hasChildren, minutesPerDay, frames, run,
+    task, schedule, index, base, outlineLevels, numbers, hasChildren, minutesPerDay,
+    frames, run,
   ))
   return splicedCarriedRows(written, schedule.project.carryElements, 'Task')
 }
@@ -2493,17 +2515,26 @@ function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
  *
  * @purity pure
  */
-function outlineNumbers(tasks: readonly Task[]): ReadonlyMap<number, string> {
+function outlineNumbers(
+  tasks: readonly Task[],
+  base: number,
+): ReadonlyMap<number, string> {
+  const paths = new Map<number, readonly number[]>()
   const numbers = new Map<number, string>()
   const counters = new Map<string, number>()
   for (const task of tasks) {
     const parentKey = task.wbsParentUid === null ? '' : String(task.wbsParentUid)
     const next = (counters.get(parentKey) ?? 0) + 1
     counters.set(parentKey, next)
-    const parentNumber = task.wbsParentUid === null ? null : numbers.get(task.wbsParentUid)
-    numbers.set(task.uid, parentNumber === undefined || parentNumber === null
-      ? String(next)
-      : `${parentNumber}.${next}`)
+    const parentPath = task.wbsParentUid === null ? [] : paths.get(task.wbsParentUid) ?? []
+    const path = [...parentPath, next]
+    paths.set(task.uid, path)
+    // ⭐ A base of 0 means the file's top row sits at `OutlineLevel` 0, and the
+    // exchange partner leaves that row OUT of the numbering: it is written `0`
+    // and its children start the count at `1`. Dropping the first step of the
+    // path says exactly that, and drops nothing when the base is 1.
+    const shown = path.slice(1 - base)
+    numbers.set(task.uid, shown.length === 0 ? '0' : shown.join('.'))
   }
   return numbers
 }
@@ -2513,7 +2544,8 @@ function writtenTask(
   task: Task,
   schedule: Schedule,
   index: number,
-  depths: ReadonlyMap<number, number>,
+  base: number,
+  outlineLevels: ReadonlyMap<number, number>,
   numbers: ReadonlyMap<number, string>,
   hasChildren: ReadonlySet<number>,
   minutesPerDay: number,
@@ -2528,10 +2560,10 @@ function writtenTask(
     // FR-021's exact scope. What is NOT covered is a file that WAS edited: EX-2
     // asks for the untouched tasks to keep their values, and no column tells
     // this unit which tasks a person touched. Reported.
-    leaf('ID', String(index + 1)),
+    leaf('ID', String(index + base)),
     ...optionalLeaf('Name', task.name),
     ...optionalLeaf('OutlineNumber', numbers.get(task.uid) ?? null),
-    ...optionalLeaf('OutlineLevel', depths.get(task.uid) ?? null),
+    ...optionalLeaf('OutlineLevel', outlineLevels.get(task.uid) ?? null),
     ...optionalLeaf('Start', task.start),
     ...optionalLeaf('Finish', task.finish),
     ...optionalLeaf('Resume', task.resume),

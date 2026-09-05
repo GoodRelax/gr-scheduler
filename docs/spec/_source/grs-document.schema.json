@@ -815,7 +815,8 @@
     "uidHighWaterMark",
     "importSeq",
     "carry",
-    "carryElements"
+    "carryElements",
+    "outlineBase"
    ],
    "additionalProperties": false,
    "properties": {
@@ -952,6 +953,10 @@
      "items": {
       "$ref": "#/$defs/CarryElement"
      }
+    },
+    "outlineBase": {
+     "type": "integer",
+     "default": 1
     }
    }
   },

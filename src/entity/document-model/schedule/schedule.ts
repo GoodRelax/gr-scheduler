@@ -80,6 +80,8 @@ export interface Project {
   readonly carry: Readonly<Record<string, string>>
   /** AT-23 */
   readonly carryElements: readonly CarryElement[]
+  /** AT-139 */
+  readonly outlineBase: number
 }
 
 /** ET-2 of table T-056. */
@@ -707,10 +709,14 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
  * is not a member of its own column fails to compile rather than shipping.
  */
 export const COLUMN_DEFAULTS: {
+  readonly Project: {
+    readonly outlineBase: NonNullable<Project['outlineBase']>
+  }
   readonly TaskVisual: {
     readonly milestoneGlyph: NonNullable<TaskVisual['milestoneGlyph']>
   }
 } = {
+  Project: { outlineBase: 1 },
   TaskVisual: { milestoneGlyph: 'diamond' },
 }
 

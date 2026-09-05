@@ -323,6 +323,7 @@ const PROJECT: Project = {
   themeHue: 0,
   uidHighWaterMark: 400,
   importSeq: 3,
+  outlineBase: 1,
   carry: {},
   carryElements: [],
 }

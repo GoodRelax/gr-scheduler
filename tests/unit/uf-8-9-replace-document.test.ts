@@ -156,6 +156,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   themeHue: 214,
   uidHighWaterMark: 0,
   importSeq: 0,
+  outlineBase: 1,
   carry: {},
   carryElements: [],
   ...part,

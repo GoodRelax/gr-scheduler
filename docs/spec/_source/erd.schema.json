@@ -290,6 +290,7 @@
   "entity": {
    "type": "object",
    "required": [
+    "seat",
     "name",
     "description",
     "export",
@@ -298,6 +299,11 @@
    ],
    "additionalProperties": false,
    "properties": {
+    "seat": {
+     "type": "integer",
+     "minimum": 1,
+     "$comment": "The row id in the printed table. A SEAT, not a position: it never moves once given, so a reference to it cannot go quietly stale when a row is added above."
+    },
     "name": {
      "type": "string",
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
@@ -345,6 +351,7 @@
   "column": {
    "type": "object",
    "required": [
+    "seat",
     "name",
     "type",
     "nullable",
@@ -356,6 +363,11 @@
    ],
    "additionalProperties": false,
    "properties": {
+    "seat": {
+     "type": "integer",
+     "minimum": 1,
+     "$comment": "The row id in the printed table. A SEAT, not a position: it never moves once given, so a reference to it cannot go quietly stale when a row is added above."
+    },
     "name": {
      "type": "string",
      "pattern": "^[a-z][A-Za-z0-9]*$",
@@ -509,6 +521,7 @@
   "relation": {
    "type": "object",
    "required": [
+    "seat",
     "parent",
     "child",
     "multiplicity",
@@ -518,6 +531,11 @@
    ],
    "additionalProperties": false,
    "properties": {
+    "seat": {
+     "type": "integer",
+     "minimum": 1,
+     "$comment": "The row id in the printed table. A SEAT, not a position: it never moves once given, so a reference to it cannot go quietly stale when a row is added above."
+    },
     "parent": {
      "type": "string",
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
@@ -570,6 +588,7 @@
   "derived": {
    "type": "object",
    "required": [
+    "seat",
     "entity",
     "name",
     "exchange",
@@ -577,6 +596,11 @@
    ],
    "additionalProperties": false,
    "properties": {
+    "seat": {
+     "type": "integer",
+     "minimum": 1,
+     "$comment": "The row id in the printed table. A SEAT, not a position: it never moves once given, so a reference to it cannot go quietly stale when a row is added above."
+    },
     "entity": {
      "type": "string",
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",

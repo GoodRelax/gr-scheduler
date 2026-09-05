@@ -1,4 +1,19 @@
-961
+965
+#
+# RAISED 961 -> 965 ON 2026-09-06, AND THE RAISE IS A DEBT, NOT A RESULT.
+# Two rulings added four clauses and no test holds any of them yet:
+#
+#   OP-10   a person's zoom or view choice BECOMES the view position (MUST)
+#   OP-10   the row may not be redone every frame (MUST NOT)
+#   FR-021  the outline base of the file that came in is kept (MUST)
+#   Ch 5.4  an ET-/AT-/RL-/DV- number, once given, is never reissued
+#           (MUST NOT)
+#
+# The tests are owed to a body that reads only docs/spec/, which cannot be
+# spawned until this work is a commit for it to branch from. LOWER THIS BACK
+# TO 961 when those four are held. A raise that outlives one round is a
+# clause nobody ever writes a test for.
+#
 #
 # LOWERED 972 -> 961 ON 2026-09-05. A spec-only body wrote the cases that
 # press the frame-time clauses this round added, and quoted them. Eleven more

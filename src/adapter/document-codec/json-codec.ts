@@ -125,7 +125,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'lastSaved', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'lastSaved', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase'],
     closed: true,
     properties: {
       id: {
@@ -207,6 +207,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         items: {
           ref: 'CarryElement',
         },
+      },
+      outlineBase: {
+        type: ['integer'],
       },
     },
   },

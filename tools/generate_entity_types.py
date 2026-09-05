@@ -116,7 +116,7 @@ def ts_element(spec):
             'string': 'string', 'boolean': 'boolean'}[kind]
 
 
-def entity_block(entity, row_id, first_column):
+def entity_block(entity, row_id):
     """One entity, documented by pointing at its rows rather than copying them.
 
     Chapter 1.9 tells the specification not to write out the text it points at.
@@ -125,8 +125,8 @@ def entity_block(entity, row_id, first_column):
     """
     lines = ['/** %s of table T-056. */' % row_id,
              'export interface %s {' % entity['name']]
-    for i, column in enumerate(entity['columns']):
-        lines.append('  /** AT-%d */' % (first_column + i))
+    for column in entity['columns']:
+        lines.append('  /** AT-%d */' % column['seat'])
         lines.append('  readonly %s: %s' % (column['name'],
                                             ts_type(column['json'], column['name'])))
     lines.append('}')
@@ -534,12 +534,14 @@ def ts_literal(value):
 
 
 def numbering(erd):
-    """The ET- row and the first AT- row of every entity, by position."""
-    seats, column = {}, 0
-    for i, entity in enumerate(erd['entities'], 1):
-        seats[entity['name']] = ('ET-%d' % i, column + 1)
-        column += len(entity['columns'])
-    return seats
+    """The ET- row of every entity, as the manuscript seated it.
+
+    ⛔ Not counted from the position any more. A seat is given once and never
+    moves, so a column added above an entity no longer renames every row below
+    it -- the hazard the appendix records twice (0.19 and 0.46).
+    """
+    return {entity['name']: ('ET-%d' % entity['seat'], )
+            for entity in erd['entities']}
 
 
 def schedule_block(erd):

@@ -208,13 +208,13 @@ FIGURES = {'figure': figure, 'container': container_figure}
 def entity_table(doc, prefix):
     words = doc['printed']['words']
     rows = []
-    for i, e in enumerate(doc['entities'], 1):
+    for e in doc['entities']:
         keys = [c['name'] for c in e['columns'] if c['key'].startswith('PK')]
         key = (text(e['key_note']) if 'key_note' in e
                else (text(words['key_separator']).join('`%s`' % k for k in keys)
                      or words['none']))
         rows.append('| %s-%d | `%s` | %s | %s | %s | %s |'
-                    % (prefix, i, e['name'], text(e['description']), key,
+                    % (prefix, e['seat'], e['name'], text(e['description']), key,
                        text(words['export_yes' if e['export'] else 'export_no']),
                        text(words['carry_yes']) if e['carry'] else words['none']))
     return rows
@@ -222,11 +222,14 @@ def entity_table(doc, prefix):
 
 def relation_table(doc, prefix):
     rows = ['| %s-%d | `%s` | `%s` | %s | %s |'
-            % (prefix, i, r['parent'], r['child'], r['multiplicity'],
+            % (prefix, r['seat'], r['parent'], r['child'], r['multiplicity'],
                text(r['label']))
-            for i, r in enumerate(doc['relations'], 1)]
+            for r in doc['relations']]
     carry = doc['printed']['carry']
-    for j, o in enumerate(carry_owners(doc), len(doc['relations']) + 1):
+    # ⚠️ The carry rows are DERIVED, not written, so they hold no seat of
+    # their own; they follow the last seat the manuscript gave.
+    taken = max(r['seat'] for r in doc['relations'])
+    for j, o in enumerate(carry_owners(doc), taken + 1):
         rows.append('| %s-%d | `%s` | `CarryElement` | %s | %s |'
                     % (prefix, j, o, carry['multiplicity'],
                        text(carry['meaning'])))
@@ -235,16 +238,14 @@ def relation_table(doc, prefix):
 
 def column_table(doc, prefix):
     rows = []
-    n = 0
     for e in doc['entities']:
         for c in e['columns']:
-            n += 1
             meaning = text(c['meaning'])
             if 'default' in c['json']:
                 meaning += text(doc['printed']['words']['default_note']).replace(
                     '{value}', '`%s`' % json_literal(c['json']['default']))
             rows.append('| %s-%d | `%s` | `%s` | %s | %s | %s | %s | %s | %s |'
-                        % (prefix, n, e['name'], c['name'], c['type'],
+                        % (prefix, c['seat'], e['name'], c['name'], c['type'],
                            c['nullable'],
                            c['key'] or '—', c['origin'],
                            ('`%s`' % c['exchange']) if c['exchange'] else '—',
@@ -275,9 +276,9 @@ def json_literal(value):
 
 def derived_table(doc, prefix):
     return ['| %s-%d | `%s` | `%s` | `%s` | %s |'
-            % (prefix, i, d['entity'], d['name'], d['exchange'],
+            % (prefix, d['seat'], d['entity'], d['name'], d['exchange'],
                text(d['source']))
-            for i, d in enumerate(doc['derived'], 1)]
+            for d in doc['derived']]
 
 
 BUILDERS = {'entity': entity_table, 'relation': relation_table,

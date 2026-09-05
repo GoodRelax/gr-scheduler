@@ -355,6 +355,7 @@ const scheduleOf = (
     themeHue: 214,
     uidHighWaterMark: 1000,
     importSeq: 0,
+    outlineBase: 1,
     carry: {},
     carryElements: [],
   },

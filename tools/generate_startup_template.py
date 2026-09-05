@@ -2507,6 +2507,9 @@ class Builder(object):
             'themeHue': hue,
             'uidHighWaterMark': self.next_uid,
             'importSeq': 0,
+            # FR-021: a document GRS made itself counts its outline
+            # from 1, which is the shape ProjectLibre writes too.
+            'outlineBase': 1,
             'carry': {},
             'carryElements': [],
         }
