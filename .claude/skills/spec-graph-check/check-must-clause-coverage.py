@@ -114,11 +114,16 @@ REL_BASELINE = '.claude/skills/spec-graph-check/must-clause-coverage-baseline.tx
 # ⭐ The same nine files check-dictionary-table-covariance.py (check 37) reads
 # as "the specification" -- copied rather than imported so this check has no
 # import-time dependency on that module.
+# ⛔⛔ A-appendix.md IS NOT READ, AND THE REASON IS THE ONE HF-14 WAS
+# CORRECTED FOR ON THE SAME DAY (D-259): a dated quotation is a RECORD, not
+# a rule. Measured 2026-09-05: every one of its 165 marked clauses sits
+# under A.3 Changelog, where they read 「FR-020 に「〜すること（MUST）」を
+# 置いた」 -- a past tense sentence describing a change that was made. A
+# test cannot hold one, and asking for one would ask a test to pin history.
 FILES = (
     '01-04-requirements.md',
     '05-07-design.md',
     '08-10-test.md',
-    'A-appendix.md',
     os.path.join('_assets', 'tbl-glossary.md'),
     os.path.join('_assets', 'tbl-settings.md'),
     os.path.join('_assets', 'tbl-property-items.md'),
@@ -153,6 +158,39 @@ def load_test_corpus():
     return chr(0).join(parts)
 
 
+# ⛔⛔ CHAPTER 1 IS NOT READ EITHER, and for the second half of the same
+# distinction: its clauses rule how the SPECIFICATION is written, not what
+# the product does. Measured 2026-09-05: 43 unheld clauses sat under
+# 「Chapter 1. Foundation」, and they read like 「要求は必ず「〜すること。」
+# で終える（MUST）」 and 「条件は主語より先に書く（MUST）」. ⭐ Checks 5
+# to 15 already read the manuscript for exactly those, so a test quoting
+# them would be a second place holding one rule -- which is the thing this
+# specification most consistently forbids.
+SKIP_SECTIONS = (
+    ('01-04-requirements.md', 'Chapter 1. Foundation'),
+)
+
+
+def skipped_spans(rel, text):
+    """The [start, end) offsets of any section this check does not read."""
+    spans = []
+    for where, heading in SKIP_SECTIONS:
+        if where != rel:
+            continue
+        # ⛔ THE HEADING'S OWN DEPTH, NOT ANY '# '. Measured 2026-09-05:
+        # searching for '# ' matched inside '## ' and the span then ran to the
+        # end of the file, because this manuscript carries exactly one
+        # top-level heading -- which silently skipped 1465 of the 1635
+        # clauses and read as though the debt had collapsed to 146.
+        opener = chr(10) + '## ' + heading
+        at = text.find(opener)
+        if at < 0:
+            continue
+        nxt = text.find(chr(10) + '## ', at + 1)
+        spans.append((at, len(text) if nxt < 0 else nxt))
+    return spans
+
+
 def find_markers():
     """Yields (rel_path, clause_window) for every MUST / MUST NOT marker in
     FILES, where clause_window is the up-to-120-character manuscript text
@@ -165,7 +203,10 @@ def find_markers():
         found_any_file = True
         with io.open(path, encoding='utf-8') as handle:
             text = handle.read()
+        spans = skipped_spans(rel, text)
         for m in MARKER_RE.finditer(text):
+            if any(a <= m.start() < b for a, b in spans):
+                continue
             window_start = max(0, m.end() - TRY_LENS[0])
             yield rel, text[window_start:m.end()]
     if not found_any_file:

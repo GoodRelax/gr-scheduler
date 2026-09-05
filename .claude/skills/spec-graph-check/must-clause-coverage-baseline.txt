@@ -1,4 +1,25 @@
-1164
+978
+#
+# ⭐⭐ LOWERED 1164 -> 978 ON 2026-09-05, THE SAME DAY IT WAS FIRST SET,
+# because the first measurement counted two kinds of clause it should never
+# have read. Nothing was written to earn this; the scope was wrong.
+#
+#   165  A-appendix.md, every one of them under A.3 Changelog. Those are
+#        RECORDS -- past-tense sentences saying a MUST was placed somewhere.
+#        A test cannot hold one, and asking for one asks a test to pin
+#        history. Same distinction HF-14 was corrected for the same day.
+#    45  Chapter 1 of 01-04-requirements.md. Those rule how the
+#        SPECIFICATION is written, not what the product does, and checks 5
+#        to 15 already read the manuscript for exactly them.
+#
+# ⛔ AND THE SCOPE CHANGE ITSELF SHIPPED A BUG THAT WAS CAUGHT BY READING THE
+# NUMBER. The first attempt matched the chapter heading with a bare "# ",
+# which also matches inside "## ", so the skipped span ran to the end of a
+# file that carries one top-level heading -- 1465 clauses vanished and the
+# check happily reported 146. A count that moves that far is not a result.
+#
+# ⭐ Coverage as it now stands: 447 held of 1425.
+#
 # ⛔ MUST / MUST NOT clauses in docs/spec/ (the nine manuscript files
 # check-must-clause-coverage.py reads -- see its own docstring) with no
 # verbatim tie to any file under tests/.
