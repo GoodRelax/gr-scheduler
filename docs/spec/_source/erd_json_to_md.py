@@ -98,7 +98,14 @@ def text(value):
 
 
 def carry_owners(doc):
-    return [e['name'] for e in doc['entities'] if e['carry']]
+    """(seat, entity name) for every entity whose carryElements gets a row.
+
+    ⛔ The SEAT is the manuscript's, not the position in this list. The row
+    is derived -- no relation is written for it -- but Chapter 5.4 makes every
+    printed RL- number a seat, and a number counted from the end of the
+    relation list would move the moment a relation is written.
+    """
+    return [(e['carry_seat'], e['name']) for e in doc['entities'] if e['carry']]
 
 
 # ---------------------------------------------------------------- figure ---
@@ -145,7 +152,7 @@ def figure(doc):
                    % (r['parent'], CROWS_FOOT[r['multiplicity']], r['child'],
                       esc(text(r['label']))))
     carry = doc['printed']['carry']
-    for o in carry_owners(doc):
+    for _seat, o in carry_owners(doc):
         out.append('    %s ||--o{ CarryElement : "%s"'
                    % (o, esc(text(carry['label']))))
     out.append('```')
@@ -226,12 +233,9 @@ def relation_table(doc, prefix):
                text(r['label']))
             for r in doc['relations']]
     carry = doc['printed']['carry']
-    # ⚠️ The carry rows are DERIVED, not written, so they hold no seat of
-    # their own; they follow the last seat the manuscript gave.
-    taken = max(r['seat'] for r in doc['relations'])
-    for j, o in enumerate(carry_owners(doc), taken + 1):
+    for seat, o in carry_owners(doc):
         rows.append('| %s-%d | `%s` | `CarryElement` | %s | %s |'
-                    % (prefix, j, o, carry['multiplicity'],
+                    % (prefix, seat, o, carry['multiplicity'],
                        text(carry['meaning'])))
     return rows
 

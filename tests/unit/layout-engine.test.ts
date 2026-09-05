@@ -903,6 +903,14 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       zoomY: 1,
       scrollDate: LAYOUT_SETTINGS.scrollDate,
       scrollGroupId: LAYOUT_SETTINGS.scrollGroupId,
+      // The floor is handed out with every answer, this arm included: it is a
+      // property of the settings and not of what was drawn, so it stands even
+      // where nothing was. FR-094's floor is S-24 over S-25, and the zoom that
+      // reaches it is that height over S-23.
+      floorZoomY:
+        LAYOUT_SETTINGS.actualMin /
+        LAYOUT_SETTINGS.actualOfPlan /
+        LAYOUT_SETTINGS.basePlanHeight,
     })
   })
 

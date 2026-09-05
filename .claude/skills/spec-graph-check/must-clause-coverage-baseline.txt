@@ -1,4 +1,36 @@
-965
+960
+#
+# LOWERED 965 -> 960 ON 2026-09-06, WHICH PAYS OFF THE RAISE BELOW AND ONE
+# CLAUSE MORE. A spec-only body wrote the cases that press the four clauses the
+# two rulings of 2026-09-06 added, and quoted each of them verbatim:
+#
+#   OP-10   tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts
+#           (both clauses: the choice becomes the place, and the row is not
+#            redone every frame)
+#   FR-021  tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts
+#   Ch 5.4  tests/contract/erd-seats-are-never-reissued.contract.test.ts
+#
+# ⭐ THE TARGET WAS 961 AND THE MEASUREMENT SAYS 960, so 960 is what is written
+# here -- this file may fall freely and 「lower the baseline to hold the
+# ground」 is what the check itself printed. The fifth clause is `NF-4` of
+# table T-224 (「使われないまま残った席番号であり、別のものに割り当て直しては
+# ならない（MUST NOT）」), quoted in the contract file's head comment because it
+# is the reason that file refuses to assert the seats are contiguous. ⚠️ It is
+# held by a QUOTATION GOVERNING A DELIBERATE NON-ASSERTION, not by an
+# assertion -- which is all this check ever claims of any of its 494.
+#
+# ⛔ THE RUN IS RED ON PURPOSE IN TWO PLACES, and neither assertion was
+# weakened to make it green:
+#   - seven cases of the OP-10 file. Measured at commit c782071: one press of
+#     SK-16 writes `zoomX: 1 -> 1.1` into the document and the frame draws the
+#     same `pxPerDay` as before it, with `scrollDate` / `scrollGroupId` still
+#     null. CR-359 wrote the sentences and left the implementation to a later
+#     body ("裁定 1 の実装場所を仕様では指さない"), so the work is owed.
+#   - one case of the ERD seats file. 表 T-057 prints thirty `RL-` rows while
+#     the manuscript seats twenty-two; `RL-23` to `RL-30` (the carryElements
+#     rows) are numbered from the end of the list, so one more relation
+#     renumbers all eight. A-appendix 1.84 counts 22 relations seated.
+#
 #
 # RAISED 961 -> 965 ON 2026-09-06, AND THE RAISE IS A DEBT, NOT A RESULT.
 # Two rulings added four clauses and no test holds any of them yet:

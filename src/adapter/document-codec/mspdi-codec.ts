@@ -1227,9 +1227,9 @@ function projectFromRoot(
     importSeq: current.schedule.project.importSeq,
     carry: split.carry,                                   // AT-22
     carryElements: [...split.carryElements, ...carriedRows], // AT-23
-    // AT-24. ⛔ Not read off `<Project>`: MSPDI has no element for it. It is
-    // measured off `<Tasks>` (FR-021) and handed in by the caller.
-    outlineBase,                                          // AT-24
+    // AT-139. ⛔ Not read off `<Project>`: MSPDI has no element for it. It
+    // is measured off `<Tasks>` (FR-021) and handed in by the caller.
+    outlineBase,                                          // AT-139
   }
 }
 
@@ -1281,7 +1281,7 @@ interface TasksReading {
   readonly tasks: readonly Task[]
   /** What did not become a row, on its way to `project.carryElements`. */
   readonly carriedRows: readonly CarryElement[]
-  /** AT-24, measured off the collection: what the file counted its top row as. */
+  /** AT-139, measured off the collection: what the file counted its top row as. */
   readonly outlineBase: number
 }
 
@@ -1367,7 +1367,7 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     // FR-021 (MUST): the depth is the file's level measured from the file's own
     // base, so a file that counts from 0 keeps its top row as the parent of the
     // rest instead of being flattened onto it. `S-115` still fixes GRS's root at
-    // depth 1; `Project.outlineBase` (AT-24) holds the difference, and the write
+    // depth 1; `Project.outlineBase` (AT-139) holds the difference, and the write
     // side puts it back. ⚠️ A level ABOVE the base cannot exist by definition,
     // so anything shallower than the base reads as a root.
     const shifted = level === null ? 1 : level - outlineBase + 1

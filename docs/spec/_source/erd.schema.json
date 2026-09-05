@@ -334,6 +334,11 @@
      "type": "boolean",
      "description": "Whether the entity holds a carry store for elements the software does not interpret. Also decides whether an edge to the carry-element entity is drawn."
     },
+    "carry_seat": {
+     "type": "integer",
+     "minimum": 1,
+     "$comment": "The RL- seat of this entity's carryElements row. A seat like every other: the row is derived, but its NUMBER is written here so that adding a relation cannot renumber it."
+    },
     "key_note": {
      "$ref": "#/$defs/prose",
      "description": "Overrides the key cell of the entity table when the key cannot be written as a list of column names."

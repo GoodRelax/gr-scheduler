@@ -7447,8 +7447,8 @@ function keyZoomFactor(context: InputContext, isIn: boolean): number {
  * @purity pure
  */
 function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
-  const settings = context.document.documentSettings
-  return (axis === 'x' ? settings.zoomX : settings.zoomY) * factor
+  const on = zoomOnScreen(context)
+  return (axis === 'x' ? on.x : on.y) * factor
 }
 
 /**
@@ -7468,11 +7468,15 @@ function zoomCommand(
   zoomX: number | null,
   zoomY: number | null,
 ): DocumentCommand {
-  const settings = context.document.documentSettings
+  // ⭐ The axis that did not move is filled from the PICTURE, for the reason
+  // `zoomOnScreen` gives: while no place is named the stored pair is not what
+  // anyone is looking at, and carrying it over would move the other axis on a
+  // press that never asked to.
+  const on = zoomOnScreen(context)
   return {
     kind: 'setZoom',
-    zoomX: zoomX === null ? settings.zoomX : zoomX,
-    zoomY: zoomY === null ? settings.zoomY : zoomY,
+    zoomX: zoomX === null ? on.x : zoomX,
+    zoomY: zoomY === null ? on.y : zoomY,
   }
 }
 
@@ -7648,25 +7652,81 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
  * て」 in as many words). S-125 caps the sweep, so NFR-013's growth is unchanged
  * and this happens once per PRESS rather than once per frame.
  *
+ * ⚠️ The return type is INFERRED rather than written. `FitToScreen` is the
+ * layout engine's own name and table T-064 does not publish it -- check 26b
+ * counts a name that leaves its folder, and this wrapper needs the VALUE, not
+ * the name.
+ *
  * @purity pure
  */
-function fitCommand(context: InputContext): DocumentCommand {
-  const settings = context.document.documentSettings
-  const fitted = fitZoom(
+function fittedNow(context: InputContext) {
+  return fitZoom(
     collapsesDiscarded(context.document.schedule),
-    settings,
+    context.document.documentSettings,
     context.regions,
     { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
     // LF-3's row-control floor, so the fit measures the bands the frame will
     // draw rather than shorter ones.
     context.rowControlsHeightPx,
   )
+}
+
+/**
+ * The zoom the picture in front of the person is drawn at.
+ *
+ * ⭐ NOT ALWAYS THE STORED PAIR. While no place is named, OP-10 of table
+ * T-024a draws FR-055's fit instead of `S-73`/`S-74`, so the stored pair is a
+ * number nobody has seen. A step taken from it moves the picture to somewhere
+ * the person did not ask for -- measured on the fixture of
+ * `tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts`: a press of
+ * IC-13 (zoom IN) took `pxPerDay` from 18.68 to 6.6, which is SMALLER.
+ * ⛔ Reading `ScheduleLayout` instead would not do: it carries no zoom, and
+ * `zoomY` cannot be recovered from a band already sitting on LF-3's floor.
+ * ⭐ Running the fit again is exact, because the fit is what drew the frame.
+ *
+ * @purity pure
+ */
+function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } {
+  const settings = context.document.documentSettings
+  if (namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)) {
+    return { x: settings.zoomX, y: settings.zoomY }
+  }
+  const fitted = fittedNow(context)
+  // ⛔ THE ROW AXIS IS CLAMPED UP TO THE FLOOR, the time axis is not. At or
+  // below `floorZoomY` no band, label font or milestone figure moves however
+  // small the number gets, so the floor IS what the person is looking at --
+  // and a step taken from a smaller number lands under the floor as well and
+  // moves nothing, which is exactly the entrance FR-029 calls broken.
+  return { x: fitted.zoomX, y: Math.max(fitted.zoomY, fitted.floorZoomY) }
+}
+
+/** @purity pure */
+function fitCommand(context: InputContext): DocumentCommand {
+  const schedule = context.document.schedule
+  const fitted = fittedNow(context)
+  // FR-055 has the fit set the place as well as the zoom, and OP-10 (MUST)
+  // makes a fit the person PRESSED a place they chose. ⛔ `fitZoom` answers
+  // `null` where the run it settled on has no dated content to measure a left
+  // edge from -- a document with rows and no dated task -- and a null left
+  // standing would keep OP-10's condition true, so the next frame would fit
+  // again and the press would have decided nothing.
+  // ⭐ The fallback is the corner ON SCREEN, which is the same answer
+  // `placeSeated` gives every other zoom, so the two entrances cannot disagree.
+  // ⚠️ A document that names no place at all (no `TaskGroup`) keeps the
+  // nulls: there is no place to write, and OP-10 goes on fitting it, which is
+  // what that row asks for.
+  const at = scrolledAnchor(context, 0, 0)
+  const place = namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId)
+    ? { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
+    : namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
+      ? { scrollDate: at.scrollDate, scrollGroupId: at.scrollGroupId }
+      : { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
   return {
     kind: 'fitScheduleToScreen',
     zoomX: fitted.zoomX,
     zoomY: fitted.zoomY,
-    scrollDate: fitted.scrollDate,
-    scrollGroupId: fitted.scrollGroupId,
+    scrollDate: place.scrollDate,
+    scrollGroupId: place.scrollGroupId,
     // ⭐ ZEROED WITH THE ANCHORS THEY BELONG TO, which is the answer `FitToScreen`
     // says it does not carry a member for: the fit puts the corner of the content
     // on the corner of the `Row Area`, so both fractions are zero -- and a

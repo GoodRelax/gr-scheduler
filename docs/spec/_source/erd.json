@@ -438,6 +438,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 23,
    "key_note": {
     "ja": "— （文書に 1 つしか無い。`id` は主キーにしない）"
    },
@@ -854,6 +855,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 24,
    "columns": [
     {
      "seat": 24,
@@ -1222,6 +1224,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 25,
    "key_note": {
     "ja": "— （後続タスクの下での位置が表す）"
    },
@@ -1564,6 +1567,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 26,
    "columns": [
     {
      "seat": 63,
@@ -1735,6 +1739,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 27,
    "key_note": {
     "ja": "親の暦 ＋ `ordinal`"
    },
@@ -1839,6 +1844,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 28,
    "key_note": {
     "ja": "親の暦 ＋ `ordinal`"
    },
@@ -1993,6 +1999,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 29,
    "columns": [
     {
      "seat": 85,
@@ -2124,6 +2131,7 @@
    },
    "export": true,
    "carry": true,
+   "carry_seat": 30,
    "columns": [
     {
      "seat": 92,

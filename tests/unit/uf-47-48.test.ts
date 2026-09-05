@@ -619,8 +619,13 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // OP-10: "`null` は「人がまだ場所を決めていない」を表す値であって、欠けて
     // いるのではない（`OP-6` の補完に当たらない）". FR-051 puts the same thing
     // the other way round: "読む側の規則は表 T-024a の `OP-10` が持つ". So the
-    // stored settings still say null after the first frame, and every later
-    // frame decides again.
+    // stored settings still say null after the first frame.
+    // ⛔ AND THE ROW IS NOT REDONE EVERY FRAME. OP-10 gained
+    // 「本行を毎フレームやり直してはならない（MUST NOT）」 on 2026-09-06; this
+    // case is about the row FIRING ON ITS OWN at boot leaving the pair null,
+    // which is a different question from how often it fires, and
+    // tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts holds that
+    // one.
     const document = twoRowDocument()
     const pane = host()
     const loop = frameLoop(pane.surface, document, SCREEN)

@@ -1676,6 +1676,16 @@ export interface FitToScreen {
   readonly scrollDate: string | null
   /** S-78. A `TaskGroup.id`, never a row number. */
   readonly scrollGroupId: string | null
+  /**
+   * The zoom at which LF-3's floor is reached, handed out with the answer.
+   *
+   * ⭐ WHY THE FIT CARRIES IT. `zoomY` may land BELOW this number, and at or
+   * below it nothing on the row axis moves -- `zoomYAtPlanHeightFloor` says
+   * so. A caller that wants the zoom the picture is DRAWN at therefore wants
+   * `Math.max(zoomY, floorZoomY)`, and only this unit knows the second term.
+   * ⛔ Not a row of table T-064, for the reason this interface gives above.
+   */
+  readonly floorZoomY: number
 }
 
 /**
@@ -1837,6 +1847,7 @@ export function fitZoom(
       zoomY: 1,
       scrollDate: settings.scrollDate,
       scrollGroupId: settings.scrollGroupId,
+      floorZoomY,
     }
   }
   // Rows but no drawn Task leaves nothing to divide by on this axis alone.
@@ -1916,6 +1927,7 @@ export function fitZoom(
     // a pinned row is not on the remainder at all.
     scrollGroupId:
       chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,
+    floorZoomY,
   }
 }
 
