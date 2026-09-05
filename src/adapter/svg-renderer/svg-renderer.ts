@@ -1535,6 +1535,37 @@ export function svgFromSchedule(
     layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId),
   )
   const hasPinnedRows = pinnedGroupIds.size > 0
+  /**
+   * The vertical stretch a figure has to reach before it is worth drawing at
+   * all -- P-1 of the 2026-09-05 measurement, and the whole of what this
+   * change is.
+   *
+   * ⭐⭐ WHY. Every frame serialises the picture to a string and re-parses it
+   * (`DomSvgSurface`, UF-49). Measured on the shipped document at 1000 `Task`:
+   * one write of 526,553 characters per scrolled frame, and 3,557 of the 5,038
+   * shapes in it stand WHOLLY outside the canvas -- 74% of those characters
+   * paint nothing. A shape that cannot reach a pixel is built, escaped,
+   * written, parsed, laid out and thrown away again on the next wheel notch.
+   *
+   * ⛔ THIS IS NOT `FR-018`. The detail tier drops ROWS from the layout and is
+   * decided in `schedule-layout.ts`; this drops nothing from the layout, from
+   * the hit test or from any answer -- it only declines to WRITE a figure that
+   * the canvas cannot show. The picture is the same picture.
+   *
+   * ⛔ ONLY THE SCREEN'S OWN PICTURE. `picture === 'export'` draws the whole
+   * schedule and its canvas IS the content, so an export keeps every shape and
+   * its bytes are untouched. WY-2 of table T-041 compares two exports, and
+   * neither is culled.
+   *
+   * ⭐ THE MARGIN IS THE `Row Area`'S OWN HEIGHT, and no number is invented
+   * here: a row's figures stand in that row's band (`FR-042`), and the label,
+   * the marker and the fade handles are all placed down that same band, so
+   * nothing of one row overshoots it by a whole screen. A row taller than the
+   * area is never dropped -- its band crosses the window by definition.
+   */
+  const skipsOffScreen = picture === 'screen'
+  const drawnFrom = area.y - area.height
+  const drawnTo = areaBottom + area.height
   for (const [position, row] of layout.rows.entries()) {
     const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
@@ -1617,6 +1648,18 @@ export function svgFromSchedule(
     // outside-label loop) rather than a second lookup of the same map.
     const placed = placedOf.get(task.taskUid)
     const isPinnedTask = placed !== undefined && pinnedGroupIds.has(placed.groupId)
+    // The cull `skipsOffScreen` above states, asked of this Task's own band.
+    // ⚠️ `TaskPlacement.y`/`height` are what the row's stacking reserved for
+    // it, so this is the stretch every figure below is placed within.
+    // ⛔ A Task with no placement is never dropped: `placedOf` is the only
+    // answer to where it stands, and without one there is nothing to ask.
+    if (
+      skipsOffScreen &&
+      placed !== undefined &&
+      (placed.y + placed.height < drawnFrom || placed.y > drawnTo)
+    ) {
+      continue
+    }
     const plan = paintOf(
       visual?.strokeColor ?? null,
       visual?.fillColor ?? null,
@@ -1876,6 +1919,24 @@ export function svgFromSchedule(
       defsParts.push(
         dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
       )
+    }
+    // The cull `skipsOffScreen` above states, asked of the routed line itself.
+    // ⭐ EXACT, unlike the Task's: a polyline never leaves the box its own
+    // points make, so a line whose every vertex is off one edge paints nothing
+    // between them either. ⛔ IT IS NOT ASKED OF THE TWO ENDS' ROWS -- a line
+    // between two Tasks a screen apart crosses the window while neither end is
+    // in it, and RT-4a already refuses to drop a line for a row that is not
+    // drawn.
+    // ⚠️ AFTER the head is minted, so the `<marker>` GD-6 asks for is written
+    // exactly when it was before this change.
+    if (skipsOffScreen) {
+      let linkTop = Number.POSITIVE_INFINITY
+      let linkBottom = Number.NEGATIVE_INFINITY
+      for (const at of link.points) {
+        if (at.y < linkTop) linkTop = at.y
+        if (at.y > linkBottom) linkBottom = at.y
+      }
+      if (linkBottom < drawnFrom || linkTop > drawnTo) continue
     }
     // SL-8 (MUST NOT): a selected dependency is NOT framed. It is the same
     // polyline at S-178 times `dependencyWidth`.

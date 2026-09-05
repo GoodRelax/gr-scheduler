@@ -2100,6 +2100,24 @@ const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 const ROW_CONTROL_PAIR_MARK = 'data-row-control-pair'
 
 /**
+ * How long a quiet spell has to be before the frame that ends it measures the
+ * two boxes above again, in milliseconds.
+ *
+ * NOT A SETTING AND NOT A ROW OF ANY TABLE. Nothing is drawn from it and nothing
+ * about the picture depends on it: it decides only how often this unit asks the
+ * environment a question whose answer it already holds.
+ * `rowControlsPanelDrawnAtMs` says why the question is asked again at all.
+ *
+ * A SECOND, MEASURED AGAINST THE TWO THINGS IT HAS TO SIT BETWEEN. Frames inside
+ * a gesture stand 16.7 ms apart at the rate NFR-002 asks for and 50 ms apart at
+ * the rate a target-scale scroll actually reaches, so a second is far enough
+ * above both that no gesture ends a lull and the hot path pays nothing. It is
+ * also short enough that a change in the environment the key cannot see is
+ * carried into the bands by the person's very next act.
+ */
+const ROW_CONTROLS_LULL_MS = 1000
+
+/**
  * What marks the grab strip GR-20 of table T-023d lays along a row's left edge.
  *
  * ⛔ NOT A `data-icon`, AND THAT IS MEASURED RATHER THAN CHOSEN. Table T-109
@@ -6029,6 +6047,45 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * the bands jump the moment the head was opened again.
    */
   let rowControlsHeightPx = 0
+  /**
+   * What the last measurement of `rowControlsHeightPx` was taken against, or
+   * `null` while none has been taken.
+   *
+   * A KEY, AND NOT A MEASUREMENT ON EVERY FRAME. `getBoundingClientRect` on a
+   * tree that has just been rebuilt makes the environment lay that tree out on
+   * the spot, and the frame is holding the thread while it does. Measured on the
+   * shipped build at the target scale (1000 Task, 1920 x 1080): of the 15 reads
+   * this unit made per frame while scrolling, the FIRST cost 11.3 ms and the
+   * other fourteen cost 0.00 ms each -- so the cost is not the reads, it is the
+   * one layout they force, and it was 37% of the number NFR-003 is about.
+   * The read is therefore taken only on a frame where something that can move
+   * the box has moved, and `rowControlsMeasureKey` is the list of those things.
+   *
+   * NOT AN OPTIMISATION OF THE ANSWER, ONLY OF HOW OFTEN IT IS ASKED FOR.
+   * HF-19 (MUST NOT) keeps the number out of the manuscript, so it is still
+   * measured off the lattice the environment laid out and never worked out from
+   * its parts.
+   */
+  let rowControlsMeasuredAgainst: string | null = null
+  /**
+   * When the panel was last drawn, by `readClockMs`, so that the frame which
+   * ENDS a lull can be told from one in the middle of a gesture.
+   *
+   * THE NET UNDER THE KEY. `rowControlsMeasureKey` lists what this unit can see,
+   * and one thing it cannot see is the reader's own text size: measured on the
+   * shipped build, a page whose base text was moved to 24px and then to 32px
+   * redrew the panel without redrawing the header, so no term of the key moved.
+   * The box does not move under it either -- it measured 48px at all three
+   * sizes, which is CR-342's stated ranks doing what they were stated for -- but
+   * a key that can never be wrong is a key that was not needed, and this net is
+   * what makes the answer merely STALE rather than FROZEN: the first frame after
+   * a lull measures again, whatever the key says.
+   * A LULL AND NOT A PERIOD, because the cost is only spent where there is room
+   * for it. Frames inside a gesture stand 16.7 ms apart and never end a lull, so
+   * the scroll path pays nothing; a frame that follows a second of quiet has the
+   * whole of NFR-003's budget free and one forced layout in it is not seen.
+   */
+  let rowControlsPanelDrawnAtMs = 0
   let settled: Settlement | null = null
   let isFieldUp = false
   // ⛔ `lastRowTitlePanel` STOOD HERE AND IS GONE, for the same reason: it held
@@ -6110,6 +6167,75 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   /**
+   * Everything this unit can see that is able to move the height of HF-1's
+   * lattice or of HF-4's pair, as one string. While it does not change, the
+   * measurement already taken still stands.
+   *
+   * EACH TERM IS READ WITHOUT ASKING THE ENVIRONMENT TO LAY ANYTHING OUT.
+   * A witness that itself forced a layout would cost what it saved: measured on
+   * the shipped build, `getComputedStyle(...).fontSize` read in this same place
+   * cost 305.7 ms over 302 frames against 263.2 ms for the reads it would have
+   * replaced -- so nothing here reads style or geometry back off the tree.
+   *
+   * WHAT MOVES THE BOX, TERM BY TERM.
+   * 1. The stated shape of the two boxes. `rowControlGridStyle` states
+   *    `grid-template-rows` as two tracks of `rowControlBoxPx` (S-138 with
+   *    S-141 on either side of it) since CR-342, so the height is a declaration
+   *    and not a line box -- and these four declarations are where that
+   *    declaration, and the padding around the shape inside it, are spelled.
+   *    A change to table T-206's numbers, or a third rank, moves them.
+   * 2. Whether the tree draws any such box at all. Every row drawn gets one
+   *    lattice and one pair, so this turns true on the first frame that draws a
+   *    row -- which is the frame the note on the call site says is the first
+   *    moment there is anything to measure. It does NOT count the rows: a
+   *    scroll moves 7 and 8 rows through the panel by turns, and counting them
+   *    would re-measure on half the frames for a box whose stated height is the
+   *    same on every row.
+   * 3. The language. Which faces the environment falls back to can change with
+   *    it, which is the same reason the `lang` attribute above is written before
+   *    the header is re-measured.
+   * 4. The theme, for the same reason: a theme is a declaration block, and
+   *    nothing stops one from restating a size.
+   * 5. The width the frame reserves for the panel (FR-052's divider), which is
+   *    also how a window resize reaches this side -- `ScreenSurfaceWiring` lets
+   *    nothing else on this unit ask the environment how large it is.
+   * 6. The header's own measured height. That one IS laid out from its content,
+   *    so it follows the reader's text size, and a change in it is this unit's
+   *    only witness that the environment's own text size moved.
+   *
+   * WHAT IS NOT A TERM, AND WHAT CATCHES IT INSTEAD.
+   * The reader's text size has no term of its own beyond 6, and term 6 does not
+   * always move with it: measured on the shipped build, moving the page's base
+   * text to 24px and then to 32px redrew the panel without redrawing the header,
+   * so the header was never re-measured and no term of this key moved. Two
+   * things answer for that. S-138's note (MUST NOT) and HF-5 (MUST NOT) both say
+   * the control's box does not follow the reader's text size -- 「閲覧者の文字
+   * サイズに追随させない」 -- and CR-342 made that true of the RANKS as well by
+   * stating them, which the same measurement bears out: the box was 48px at all
+   * three sizes and every row band came out to the pixel it had before. And
+   * `ROW_CONTROLS_LULL_MS` is the net under that reasoning, so a reading this
+   * key cannot see can go stale but cannot freeze.
+   *
+   * @purity non-pure
+   */
+  function rowControlsMeasureKey(view: ScreenView): string {
+    const edge = panelEdge(view.frame, 'rowTitlePanel')
+    const rowsDrawn =
+      view.rowTitlePanel.pinnedTitles.length + view.rowTitlePanel.titles.length > 0
+    return [
+      rowControlGridStyle(2, ROW_CONTROL_STEPS.foldingGrid),
+      rowControlGridStyle(1, ROW_CONTROL_STEPS.pair),
+      rowControlBoxStyle(),
+      rowControlGlyphGapStyle(),
+      String(rowsDrawn),
+      view.language,
+      themeStyle(readTheme()),
+      String(edge === null ? 'none' : edge.x),
+      String(headerHeightPx),
+    ].join('|')
+  }
+
+  /**
    * LF-3 of table T-221 (MUST): the height HF-1's lattice takes vertically,
    * which that row makes a floor under the row's band.
    *
@@ -6126,7 +6252,26 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    *
    * @purity non-pure
    */
-  function reportRowControlsHeight(): void {
+  function reportRowControlsHeight(measuredAgainst: string): void {
+    // THE ONE CONDITION THAT IS NOT IN THE KEY: an answer of 0 is asked again
+    // on every frame until it is not 0. `ScreenSurfaceWiring.mount` states that
+    // a host really can lay a mount out at 0 x 0 -- a preview pane that has not
+    // been sized yet does exactly that -- and a key alone would then hold the
+    // FIRST answer, which is the one taken before the environment had sized
+    // anything, and the bands would keep a floor of 0 for the life of the page.
+    // A host that lays nothing out at all measures 0 for ever and so goes on
+    // asking, which is what it did before this key existed and costs it nothing:
+    // there is no layout for the read to force.
+    const drawnAtMs = readClockMs()
+    const endsALull = drawnAtMs - rowControlsPanelDrawnAtMs >= ROW_CONTROLS_LULL_MS
+    rowControlsPanelDrawnAtMs = drawnAtMs
+    if (
+      !endsALull &&
+      rowControlsHeightPx !== 0 &&
+      measuredAgainst === rowControlsMeasuredAgainst
+    )
+      return
+    rowControlsMeasuredAgainst = measuredAgainst
     let tallest = rowControlsHeightPx
     // ⭐ BOTH BOXES OF HF-4's RUN ARE READ, not the folding lattice alone: since
     // 2026-09-05 the deletion and the addition stand in a second grid of two
@@ -6445,7 +6590,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // exists. ⚠️ The frame that measures it was laid out without it; the
       // caller's FT-3 path draws the next one with it, which is the bargain
       // `onAppHeaderHeightPx` already makes for the header's height.
-      reportRowControlsHeight()
+      // ⚠️ THE KEY IS BUILT AFTER THE TREE WAS FILLED AND NOT BEFORE IT: term 2
+      // is about the tree that now stands, and the header's height (term 6) has
+      // already been re-measured this frame by the block above.
+      reportRowControlsHeight(rowControlsMeasureKey(view))
       // HF-10 (MUST NOT): the entrance may not overlap the pinned rows' controls,
       // and the band above the topmost row is where it does not. ⚠️ Recorded and
       // not enforced: the entrance stays where HF-10 (MUST) puts it, and this
