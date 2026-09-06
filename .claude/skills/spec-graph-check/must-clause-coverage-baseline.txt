@@ -1,5 +1,14 @@
-950
+952
 #
+# RAISED 950 -> 952 ON 2026-09-06. FR-020 gained the two clauses the user
+# settled about WHEN the watermark's trail is stamped: at the moment the
+# document is opened and again when the document CHANGES (a watermark
+# answers "who had this content on screen, and when" -- change the content
+# and the answer changes), and never from a clock read inside the frame
+# loop (two frames drawing the same schedule would otherwise be two
+# different pictures, and FR-102's record a different string each second).
+# ⛔ Debt: the write path lives in frame-loop.ts, which another body holds
+# this round. Held verbatim when that file is free.
 # RAISED 948 -> 950 ON 2026-09-06. Two more of the user's rulings reach the
 # specification: a comment box's body is placed by an offset from its anchor
 # and that offset lands on the box's BOTTOM-LEFT (a second reference corner
