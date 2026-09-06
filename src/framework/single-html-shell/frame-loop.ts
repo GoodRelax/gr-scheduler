@@ -3794,12 +3794,19 @@ export function frameLoop(
   /**
    * FR-020's trail, settled ONCE for this run and handed to every picture.
    *
-   * ⭐ ONCE, AND THE ROW THAT SAYS SO IS WY-2 OF TABLE T-041: the layer is set
-   * aside from that comparison because its two halves change 「実行のたび・機
-   * ごとに」 -- per RUN and per machine, which is what 「実行時の日時」 means.
-   * ⛔ NOT PER FRAME. A clock read inside the loop would move the drawing every
-   * second, which makes every frame owe a repaint and puts a different string
-   * into FR-102's record for two frames that drew the same schedule.
+   * ⭐ TWO MOMENTS, AND FR-020 (MUST) NAMES BOTH: when the document is opened,
+   * and again when the document CHANGES. The mark answers 「誰がいつこの内容
+   * を画面に出していたか」, so an answer about content that has since
+   * moved is the wrong answer. The opening read is here; the second is in
+   * `holder.replace`, which is the ONE door every write goes through.
+   * ⛔ NOT PER FRAME (MUST NOT). A clock read inside the loop would move the
+   * drawing every second, which makes every frame owe a repaint and puts a
+   * different string into FR-102's record for two frames that drew the same
+   * schedule.
+   * ⭐ WY-2 OF TABLE T-041 STILL SETS THE LAYER ASIDE from the determinism
+   * comparison, and for the reason it states: the two halves change
+   * 「実行のたび・機ごとに」, which a per-write stamp does not weaken --
+   * it only makes the string move MORE often within one run, never less.
    *
    * ⭐ THE NAME FALLS BACK THE WAY THE DIGEST DOES. An empty stored value and
    * no stored value are one answer -- FR-086 (MUST NOT) forbids a road that
@@ -3807,7 +3814,7 @@ export function frameLoop(
    * and the fallback is table T-206's own default for the row. ⛔ The word is
    * not typed here: `NOT_STORED_WATERMARK_NAME` carries it.
    */
-  const watermarkStampedAt = readInstantOfWrite()
+  let watermarkStampedAt = readInstantOfWrite()
   const watermarkStoredName = readBrowserStored('S-99a')
   const watermarkOpenedBy =
     watermarkStoredName === null || watermarkStoredName === ''
@@ -4393,6 +4400,20 @@ export function frameLoop(
     },
     /** @purity non-pure */
     replace(next: HeldDocument): void {
+      // FR-020 (MUST): the trail is stamped when the document is opened and
+      // again when it CHANGES. This is the second of those two moments, and it
+      // is here for the same reason the selection is pruned here -- `replace`
+      // is the single door an edit, an undo, a redo, a merge and a whole other
+      // document all pass through.
+      // ⚠️ THE REFERENCE, NOT THE CONTENT. FR-020 says a write that changed
+      // nothing does not re-stamp, and a command that decides it has nothing to
+      // do returns the document it was handed (`edited(document)`), so an
+      // unmoved document arrives here as the very object already held.
+      // ⛔ BEFORE THE SWAP, because the comparison is against what stood until
+      // now -- after `held = next` there would be nothing left to compare to.
+      if (next.document !== held.document) {
+        watermarkStampedAt = readInstantOfWrite()
+      }
       held = next
       // Table T-023c's closing rule (MUST NOT), and this is the one place it
       // can be kept: `replace` is the single door every write goes through --
