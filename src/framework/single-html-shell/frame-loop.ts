@@ -7200,7 +7200,27 @@ export function frameLoop(
         // OP-8 (MUST NOT) and CS-4's one-at-a-time, which is the same guard the
         // save path keeps: a second read begun mid-wait would take away the one
         // question the screen can hold, and OP-8 refuses it on its own account.
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
+        // ⛔⛔ AND IT TELLS NOW, WHICH IT DID NOT UNTIL 台帳 D-337. Turning this
+        // gate back in silence is FR-029's (MUST) forbidden shape stated in its
+        // own words -- 「押しても絵が動かない入口は、故障した入口と見分けられな
+        // い」 -- and pressing `Ctrl`+`O` a second time mid-wait was measured
+        // raising 0 notices on 2026-09-06.
+        // ⭐ `RS-27`, THE SAME ROW THE EXPORT GATE RAISES. `answerSettledFormat`
+        // closed this identical shape for IC-2 (D-334), and D-265 closed it for
+        // IC-5 / IC-6 before that: no row of table T-233 names 「another file
+        // operation holds the one question the screen can carry」, so RS-27 is
+        // FR-029's 「どの入口にも当たる行が無いときの落ち先」 doing its job and
+        // not a row reached for over one that fits.
+        // ⛔ NOT `RS-3`. That row is LM-14's host that cannot write at all, and
+        // the store above is present -- this press is refused by the timing of
+        // another operation, never by the environment.
+        // ⛔ NOT `RS-7` OR `RS-9`, for the reason the export gate records: those
+        // are WS-2's refusals of a WRITE by the `Agent API`, and neither is a
+        // person's press arriving while a file question stands.
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
+          raiseNotice(NOTHING_TO_DO_REASON, null)
+          return
+        }
         isFileOperationWaiting = true
         // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the same shape the
         // save path has, and for the same reason CS-4 gives: the operation
@@ -7260,7 +7280,13 @@ export function frameLoop(
         if (store === undefined) return
         // OP-8 (MUST NOT) and CS-4's one-at-a-time, the same guard the two
         // roads beside this one keep.
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
+        // ⭐ AND IT TELLS, for the reason the open path above records (D-337):
+        // `RS-27` is FR-029's fallback, and this road was measured silent on
+        // the same day by the same probe.
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
+          raiseNotice(NOTHING_TO_DO_REASON, null)
+          return
+        }
         isFileOperationWaiting = true
         // ⚠️ NOT AWAITED, for the reason the open path above records.
         // ⭐ OP-4 (MUST) IS KEPT BY GOING DOWN THIS ROAD AND NO OTHER: the
@@ -7277,7 +7303,16 @@ export function frameLoop(
         // ⛔ ONE AT A TIME. CS-4 of table T-066 collects at the moment the
         // operation begins, and a second one begun mid-wait would take the one
         // question the screen can hold away from the first.
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
+        // ⭐ AND IT TELLS, for the reason the open path above records (D-337).
+        // ⚠️ ONE KEYSTROKE REACHES THIS CASE AND NOT TWO. D-337 named it 「`SK-11`
+        // 保存・`SK-11a` 別名保存」, but `Ctrl`+`Shift`+`S` is bound to nothing in
+        // this build and `SK-11a` appears nowhere in `src/`: the translator has
+        // `ctrl && KEY.s` alone (SK-11), and whether a handle is asked for is
+        // `saveHeldDocumentToFile`'s decision further down the road.
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
+          raiseNotice(NOTHING_TO_DO_REASON, null)
+          return
+        }
         isFileOperationWaiting = true
         // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS. The rest of this
         // happening is settled before the chooser has even opened -- CS-4 says
