@@ -209,6 +209,21 @@ export function editDocumentSettings(
       // ⚠️ DC-4 forbids this taking the Dual Cursor down with it (MUST NOT):
       // FR-048 keeps the three kinds independent, so one entrance may not
       // switch off two. Nothing here touches `dualCursor`.
+      //
+      // ⛔⛔ AND IT STILL DOES NOT, AFTER 利用者の裁定 2026-09-06 (CR-364, B-2).
+      // The ruling 「デュアルカーソルモードを Disable にするか、別のカーソルモード
+      // にしたら Dual Cursor が消えるべきだろ？」 was read in §0 of that CR as
+      // 「`double-vertical` を離れることが「消す」ことである」 -- i.e. as a rule
+      // for THIS case. ⭐ THAT READING IS REFUSED HERE, on two sentences the
+      // ruling never touched: table T-029's closing paragraph (MUST) says
+      // 「`CU-2` と `CU-3` の「縦 2 本」は別のものである」, and DC-4 (MUST NOT)
+      // draws the consequence -- the guide cursor's 「なし」 may not clear the
+      // measuring pair, 「1 つの入口が 2 つを同時に消してはならない」.
+      // ⭐ `guideCursorMode` (S-66) IS CU-3 AND HOLDS NO DATES; the pair is
+      // CU-2 and lives in `dualCursor` (S-65). Clearing one from the other
+      // would need the manuscript to fuse them first. ⚠️ WHAT THE RULING DOES
+      // REACH is DC-4's own way out, and `input-command-translator.ts` carries
+      // it there -- leaving the mode now emits CM-61.
       return put({ guideCursorMode: command.mode })
 
     case 'setDualCursor': { // CM-60
@@ -220,10 +235,23 @@ export function editDocumentSettings(
     }
 
     case 'clearDualCursor': // CM-61
-      // DC-7: this is the ONLY way the two lines go away. Leaving the mode
-      // does not clear them, so that a measurement can be read while doing
-      // something else -- and without this entrance EP-6 would keep drawing
-      // them into every export with no way to stop it.
+      // DC-7: the one way the two lines go away, and EP-6 of table T-076 is
+      // why one is owed at all -- the export draws the pair, so with no road
+      // to null it would draw it for ever.
+      //
+      // ⭐⭐ WHAT REACHES IT CHANGED ON 利用者の裁定 2026-09-06 (CR-364, B-2):
+      // 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
+      // Dual Cursor が消えるべきだろ？」. Leaving the mode now carries this
+      // command, so the clearing rides DC-4's way out instead of waiting for
+      // an entrance of its own. ⛔ NO ENTRANCE WAS ADDED, and the ruling is
+      // why: it says the act of stepping off the mode IS the clearing, so a
+      // 75th row of table T-109 would be a second way to do one thing
+      // (FR-029, MUST NOT).
+      // ⚠️ DC-7 STILL READS THE OLD WAY in the manuscript -- 「置いた 2 本を消す
+      // 入口を、モードを出る入口とは別に置くこと（MUST）。モードを出ただけで消して
+      // はならない（MUST NOT）」. §1 of CR-364 names DC-7 as the row to edit and
+      // the edit has not landed; this case is written to the ruling, not to
+      // the unedited row.
       return put({ dualCursor: null })
 
     case 'setFontScale': { // CM-62

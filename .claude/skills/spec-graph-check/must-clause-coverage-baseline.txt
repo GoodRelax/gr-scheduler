@@ -1,4 +1,13 @@
-950
+951
+#
+# RAISED 950 -> 951 ON 2026-09-06, a debt. DC-7 was reversed by the user's
+# ruling: it used to require a SEPARATE entrance to clear the two measuring
+# lines and forbid the mode's exit from clearing them; it now requires the
+# exit to clear them. Two clauses left, one arrived, and nothing holds it.
+#
+# LOWER THIS when a body that reads only docs/spec has written it. The
+# spec-only body running this round was given five other rows, not this one.
+#
 #
 # LOWERED 952 -> 950 ON 2026-09-06. The spec-only body's FR-098 file landed:
 # 17 cases, five of which were RED when it wrote them and are green now that

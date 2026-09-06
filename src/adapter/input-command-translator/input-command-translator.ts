@@ -749,6 +749,15 @@ export type InPlaceTarget =
 type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 
 /**
+ * CM-61, which is the one road that puts `dualCursor` (S-65) back to `null`.
+ *
+ * ⭐ NAMED OFF `DocumentCommand` FOR THE REASON ABOVE, and it travels the same
+ * way: as the `placed` half of `setDualCursorFollowing`, so that leaving the
+ * mode and clearing the pair are ONE press and one write.
+ */
+type ClearDualCursor = Extract<DocumentCommand, { readonly kind: 'clearDualCursor' }>
+
+/**
  * Which 場面 a pressed entrance was spent in -- FR-029's 「押された入口の場面」.
  *
  * ⭐⭐ A SITUATION AND NOT A ROW OF 表 T-233, WHICH IS THE WHOLE POINT OF THE
@@ -1336,18 +1345,25 @@ export type InputAction =
    * or turns it over. See `InputContext.dualCursorFollowing`.
    *
    * ⛔ `placed` IS NULL FAR MORE OFTEN THAN NOT. DC-1 (MUST NOT) forbids
-   * re-placing a pair that already stands when the mode is re-entered, DC-4
-   * writes nothing on the way out, and DC-7 (MUST NOT) keeps the pair standing
-   * after it -- so a write happens only on the entry that has no pair yet and
-   * on the click that fixes a side.
-   * ⚠️ Typed as CM-60 itself rather than as two dates, so that this may not
-   * become a second road into `dualCursor`: `edit-document-settings.ts` is
-   * where IV-13 is judged, and the command is what it judges.
+   * re-placing a pair that already stands when the mode is re-entered -- so a
+   * write happens on the entry that has no pair yet, on the click that fixes a
+   * side, and on the way out.
+   * ⚠️ Typed as CM-60 and CM-61 themselves rather than as two dates or a flag,
+   * so that this may not become a second road into `dualCursor`:
+   * `edit-document-settings.ts` is where IV-13 is judged, and the commands are
+   * what it judges.
+   *
+   * ⭐⭐ THE WAY OUT CARRIES CM-61 SINCE 利用者の裁定 2026-09-06 (CR-364, B-2):
+   * 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
+   * Dual Cursor が消えるべきだろ？」. Before it, leaving wrote nothing at all,
+   * because DC-7 read 「モードを出ただけで消してはならない（MUST NOT）」.
+   * ⛔ THAT SENTENCE IS THE ONE THE RULING OVERTURNS, and it still stands
+   * unedited in the manuscript -- see `commandFromDualCursorEntry`.
    */
   | {
       readonly kind: 'setDualCursorFollowing'
       readonly following: DualCursorSide | null
-      readonly placed: SetDualCursor | null
+      readonly placed: SetDualCursor | ClearDualCursor | null
     }
 
 /** What `commandFromInput` answers. */
@@ -4708,13 +4724,36 @@ function commandFromEntry(
  * DC-1's own default; leaving sets it to null. There is no second flag to keep
  * in step, which is why the mode cannot be up with nobody following.
  *
- * ⛔ A PAIR ALREADY STANDING IS NOT PUT DOWN AGAIN (DC-1, MUST NOT). DC-7
- * (MUST NOT) keeps the two lines standing after the mode is left, so that a
- * measurement can be read while doing something else -- re-placing them on the
- * way back in would wipe that measurement at the moment of re-entry.
+ * ⭐⭐ LEAVING CLEARS THE PAIR -- 利用者の裁定 2026-09-06, recorded as B-2 of
+ * CR-364: 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
+ * Dual Cursor が消えるべきだろ？」. The way out is therefore CM-61 and not an
+ * empty write, and the clearing needs no entrance of its own.
  *
- * ⛔ LEAVING WRITES NOTHING AT ALL, for the same row: DC-7 puts the clearing on
- * an entrance of its own, and DC-4's Esc-or-same-entry is not it.
+ * ⛔⛔ THIS CONTRADICTS THE MANUSCRIPT AS IT STANDS, and the disagreement is
+ * deliberate rather than missed. DC-7 still reads 「置いた 2 本を消す入口を、
+ * モードを出る入口とは別に置くこと（MUST）。モードを出ただけで消してはならない
+ * （MUST NOT）」 -- that MUST NOT is the exact sentence the ruling overturns, and
+ * §1 of CR-364 names DC-7 as the row to edit. ⚠️ THE EDIT HAS NOT LANDED: the
+ * row is unchanged. Until it does, this function is ahead of the document it
+ * answers to, and the reader who finds them disagreeing should fix the row, not
+ * this branch.
+ *
+ * ⛔ AND NOT ON A GUIDE-CURSOR CHANGE, which is the OTHER reading of the same
+ * ruling and is refused here. `S-66`'s 「縦 2 本」 is CU-3 of table T-029; the
+ * placed pair is CU-2; and table T-029's closing paragraph (MUST) says in as
+ * many words that 「`CU-2` と `CU-3` の「縦 2 本」は別のものである」. DC-4 adds the
+ * consequence (MUST NOT): the guide cursor's 「なし」 may not take this mode down
+ * with it, 「3 種は独立に出し分ける（`FR-048`）ので、1 つの入口が 2 つを同時に
+ * 消してはならない」. ⚠️ The ruling did not address either sentence, so clearing
+ * from `setGuideCursorMode` would be a rule no sentence states. See the CM-59
+ * case of `edit-document-settings.ts`.
+ *
+ * ⛔ A PAIR ALREADY STANDING IS NOT PUT DOWN AGAIN (DC-1, MUST NOT), and that
+ * row OUTLIVES its stated reason. It reasons from DC-7 keeping the pair after
+ * the mode is left, which is no longer so; but a pair can still stand with
+ * nobody following, because `dualCursor` is SAVED (S-65) and a document may be
+ * opened with one in it. ⚠️ So the branch below is reached from a load and no
+ * longer from a re-entry -- it is not dead, and its rule is unchanged.
  *
  * ⚠️ 「画面の中央」 IS THE `Row Area`'S HORIZONTAL MIDPOINT, which DC-1 now says
  * in as many words. ⛔ Not the window's: the two lines run down the `Row Area`
@@ -4726,9 +4765,19 @@ function commandFromDualCursorEntry(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  // DC-4: 「同じ入口の再押下」. The document is untouched (DC-7).
+  // DC-4: 「同じ入口の再押下」, and the ruling above makes it clear the pair in
+  // the same press -- the side stops following and `dualCursor` goes to null
+  // together, which is what the one action carrying both halves is for.
+  // ⚠️ THE OTHER WAY OUT IS NOT HERE. DC-4 also gives 「`Esc`」, and that road
+  // never reaches this file: `frame-loop.ts` drops the mode itself at
+  // `escapeLevel === 'dualCursorMode'` and emits no command. It still needs
+  // this same write to obey the ruling.
   if (context.dualCursorFollowing !== null) {
-    return acted({ kind: 'setDualCursorFollowing', following: null, placed: null })
+    return acted({
+      kind: 'setDualCursorFollowing',
+      following: null,
+      placed: { kind: 'clearDualCursor' },
+    })
   }
   const standing = context.document.documentSettings.dualCursor
   if (standing !== null) {
@@ -8339,19 +8388,25 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
 // far side of this file rather than one of the 15 above:
 //
-//   DC-7's clear  「置いた 2 本を消す入口を、モードを出る入口とは別に置くこと
-//                (MUST)」. `clearDualCursor` (CM-61) is written and
-//                `edit-document-settings.ts` states its rule; what is missing
-//                is the ENTRANCE. ⛔ Table T-109's 74 rows hold none, and
-//                giving it one needs a 75th glyph in figure F-019 -- which
-//                RC-13 of table T-026 reserves to the user. ⚠️ Until it
-//                exists, EP-6 of table T-076 goes on drawing the two lines
-//                into every export with no way to take them away, which is
-//                the very consequence DC-7 names. ⭐ RAISED AS PD-345, with
-//                what the ruling has to settle; ⚠️ table T-036 was measured
-//                too and holds no keystroke either -- SK-20 puts the status
-//                line's clearing on IC-44, and the Dual Cursor has no such
-//                row. DC-3's day count is beside it as PD-344.
+//   [ANSWERED 2026-09-06, PD-345] DC-7's clear stood here and no longer does.
+//                ⛔⛔ THE OLD NOTE ASKED FOR THE WRONG THING. It read: 「置いた
+//                2 本を消す入口を、モードを出る入口とは別に置くこと (MUST)」 ...
+//                what is missing is the ENTRANCE -- and went looking for a
+//                75th row of table T-109 and a 75th glyph in figure F-019,
+//                which RC-13 of table T-026 reserves to the user. ⭐ 利用者の
+//                裁定 2026-09-06 (CR-364, B-2) refused the new entrance and
+//                gave the clearing to the way OUT instead: 「デュアルカーソル
+//                モードを Disable にするか、別のカーソルモードにしたら Dual
+//                Cursor が消えるべきだろ？」. `commandFromDualCursorEntry` now
+//                emits CM-61 on DC-4's re-press, so no row, glyph or keystroke
+//                is owed and EP-6 of table T-076 has its way to stop drawing
+//                the pair. ⚠️ TWO THINGS ARE STILL OPEN, and neither is a
+//                missing entrance: DC-7's own text is unedited in the
+//                manuscript (§1 of CR-364 names it), and DC-4's OTHER way out
+//                -- 「`Esc`」 -- is `frame-loop.ts`'s alone, which drops the
+//                mode at `escapeLevel === 'dualCursorMode'` and emits no
+//                command, so it does not clear yet. ⭐ DC-3's day count is
+//                untouched beside it as PD-344.
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
 // table T-203, table T-206, table T-234, table T-037, table T-026, table

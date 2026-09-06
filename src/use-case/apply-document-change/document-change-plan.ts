@@ -167,7 +167,17 @@ function isUndoable(command: DocumentCommand): boolean {
     case 'fitScheduleToScreen':
       return false
     // UN-12: where the two measuring lines stand.
+    // ⛔⛔ `clearDualCursor` IS HERE FOR CONSISTENCY, NOT FOR UN-12. That row
+    // rules on 「位置の変更」 and says nothing about clearing, so no sentence
+    // decides this one. What decides it is the other half of the same file:
+    // `columnsOutsideHistory` keeps `dualCursor` OUT of every step, so a step
+    // pushed by a clear restores nothing at all. ⚠️ Measured 2026-09-06, when
+    // CM-61 gained its first caller (CR-364, the ruling that leaving the mode
+    // clears the pair): every mode exit pushed an undo step that gave back
+    // nothing. Before that caller existed the command was dead and the fault
+    // was dormant. ⭐ The comment above already says the two halves MUST agree.
     case 'setDualCursor':
+    case 'clearDualCursor':
       return false
     default:
       return true
