@@ -285,5 +285,14 @@ def main():
     return 0
 
 
+# ⛔ The success path prints a star, and a Windows console defaults to cp932,
+# which cannot encode one. Measured 2026-09-06: the check CRASHED on the very
+# path that says the ground improved, so a body that improved it saw a
+# traceback instead. Reconfigure the stream rather than asking every caller
+# to remember PYTHONIOENCODING.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, 'reconfigure'):
+        _stream.reconfigure(encoding='utf-8', errors='replace')
+
 if __name__ == '__main__':
     sys.exit(main())

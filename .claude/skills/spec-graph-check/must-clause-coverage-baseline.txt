@@ -1,4 +1,16 @@
-960
+949
+#
+# LOWERED 960 -> 949 ON 2026-09-06. A spec-only body wrote four files for
+# rows that were built and measured but held by nothing: entering the Dual
+# Cursor drops the arm, a standing explanation is the last rung of the Esc
+# ladder, F2 opens the document name in place, and AM-7 refuses a malformed
+# request instead of throwing. Eleven more clauses are held.
+#
+# Six of its cases were RED on purpose and are green now: they showed that
+# the AM-7 guard read the request's two members and nothing inside them, so
+# `commands: [null]` still threw. That is the shape of test this project
+# wants -- the body was told not to soften an assertion and did not.
+#
 #
 # LOWERED 965 -> 960 ON 2026-09-06, WHICH PAYS OFF THE RAISE BELOW AND ONE
 # CLAUSE MORE. A spec-only body wrote the cases that press the four clauses the

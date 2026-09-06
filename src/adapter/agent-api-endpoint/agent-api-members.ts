@@ -780,7 +780,17 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       if (request === null || typeof request !== 'object'
         || (request.readStamp as unknown) === null
         || typeof request.readStamp !== 'object'
-        || !Array.isArray(request.commands)) {
+        || !Array.isArray(request.commands)
+        // ⛔⛔ AND THE ELEMENTS, not only the array. A spec-only body measured
+        // the hole this guard still had on 2026-09-06: `commands: [null]`
+        // walked past a check that read the request's two members and nothing
+        // inside them, and threw in `planDocumentChange` reading `.kind` off
+        // the null. ⭐ A string element was already refused correctly -- the
+        // class that got through is the NULLISH one, which `typeof` calls an
+        // object.
+        || request.commands.some(
+          (one) => one === null || one === undefined || typeof one !== 'object',
+        )) {
         return {
           accepted: false,
           refusal: agentRefusal(
