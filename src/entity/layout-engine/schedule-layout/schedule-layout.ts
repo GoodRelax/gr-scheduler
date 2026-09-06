@@ -1325,6 +1325,11 @@ export function layoutFromSchedule(
         // ⛔ AND NOTHING IS 「重ねて押し込」まれた (MUST NOT): the item that found
         // no lane is not pushed into one that is already taken. It is simply
         // not drawn, along with the rest of its row.
+        // @provisional PD-430 -- `S-89` is the LARGEST NUMBER OF STACKS ALLOWED,
+        // so the test is made before a further lane is opened: `stackSafetyCap`
+        // lanes stand and the one that would exceed it is refused. ST-7 spells
+        // this out since 2026-09-06; before that a spec-only body read
+        // 「達したら」 the other way and measured the difference.
         if (lanes.length >= settings.stackSafetyCap) {
           capStop = { groupId: row.id, cap: settings.stackSafetyCap }
           break
