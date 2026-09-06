@@ -1,6 +1,14 @@
 # ---- Dependencies / build output ----
 node_modules/
-dist/
+# ⛔ `dist/*`, NOT `dist/` -- git cannot re-include a file underneath an
+# excluded DIRECTORY, so the negation below would be dead against `dist/`.
+dist/*
+# ⭐ THE ONE EXCEPTION: the shipped deliverable itself.
+# `npx vite build` writes the whole application into this single file, and it
+# is what a reader opens. Keeping it out of the repository meant the only way
+# to look at the product was to build it (the user's instruction 2026-09-07).
+# ⛔ It is generated -- never edit it by hand; rebuild instead.
+!dist/index.html
 build/
 .vite/
 _site/

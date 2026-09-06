@@ -1,4 +1,11 @@
-934
+951
+#
+# RAISED 934 -> 951 ON 2026-09-07 by the two zoom ceilings (FR-016) and the
+# Panel Divider's thickness (EP-9), both written from the user's rulings of
+# that day. ⛔ THE DEBT IS OWED BACK THE SAME ROUND: the ledger row D-377
+# holds it, and the anchors land with the code, in the wave that implements
+# them. A clause written today and tested tomorrow is the exact shape D-254
+# measured, so it is recorded rather than left to be noticed.
 #
 # LOWERED 935 -> 934 ON 2026-09-07 by the plan/actual split (FR-049, the
 # user's ruling). Three new clauses were written and all three are held
