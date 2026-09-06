@@ -158,6 +158,11 @@
 #          ⚠️ It prints, without gating, the rows whose only link to a ruling
 #          is a change request: a CR routinely cites the row that RAISED it,
 #          so gating there is a 38-row noise floor on a 7-row signal
+#   42     check-quoted-source.py : a 「…」 quotation inside a comment of
+#          src/ or tests/ that NO manuscript under docs/spec contains -- a
+#          paraphrase hardened into a citation. ⛔ `D-339`: one such sentence
+#          was quoted as a row of 表 T-051 and kept `D-318` open for a round.
+#          Held against quoted-source-baseline.txt (283); `--list` prints them
 #   41     tools/precheck.py : the six traps that otherwise cost a round trip
 #          -- a bare change-request number, personal information or an
 #          absolute path, a hand edit to a generated file, and the rest. ⛔ It
@@ -370,6 +375,12 @@ echo "===== 40  a row still un-ruled while its pending decision is 裁定済 ===
 # ⛔ utf-8: it prints the two books' Japanese state words, and telling 未検討
 # from 裁定済 is the whole point of the line.
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruled-elsewhere.py || fail=1
+
+echo ""
+echo "===== 42  a comment quoting a sentence docs/spec does not contain ====="
+# ⛔ utf-8: the quotations it prints are Japanese, and a mangled one cannot
+# be looked up in the manuscript it is supposed to have come from.
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-quoted-source.py || fail=1
 
 echo ""
 echo "===== 37  a table's row and its display word were read together ====="

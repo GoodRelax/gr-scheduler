@@ -83,6 +83,8 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+sys.path.insert(0, HERE)
+from ledger_quotes import asserts_any                  # noqa: E402
 
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 # The ledger is TWO FILES since 2026-09-02: a row reaching 実測済 or 取下げ is
@@ -177,8 +179,13 @@ def scan(ledger_path, settled):
         decided = cells[5]
         status = cells[6].strip().strip(u'` *')
 
+        # ⛔ READ OUTSIDE QUOTATION (`D-344`), the same way check 31 does.
+        # A marker inside 「…」, 『…』 or a `code span` is a quoted
+        # requirement, the name of a state, or the row dating its own older
+        # text -- not this row's claim to be un-ruled. ⭐ The ステータス test
+        # is untouched: cell 6 holds one state name and nothing else.
         reads_unruled = (status in UNRULED_STATUS
-                         or any(p in decided for p in UNRULED_IN_CELL))
+                         or asserts_any(decided, UNRULED_IN_CELL))
         if not reads_unruled:
             continue
 

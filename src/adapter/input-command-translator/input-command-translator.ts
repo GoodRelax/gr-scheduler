@@ -166,9 +166,13 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
 // ⚠️ A VALUE AND NOT ONLY A TYPE, which HF-14 (MUST NOT) forces: 「既定の名前は
-// 表示語として持つこと。仕様書に綴りを刷ってはならない」, and Chapter 6.2 gives the
-// words ONE destination in `src/`. Reading the word here is the alternative to
-// spelling it, which is the thing forbidden.
+// 表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST
+// NOT）」, and Chapter 6.2 gives the words ONE destination in `src/`. Reading the
+// word here is the alternative to spelling it, which is the thing forbidden.
+// ⚠️ THE PROHIBITION IS ABOUT A RULE, not about every appearance of the spelling:
+// HF-14 says as much in its own 2026-09-05 note, and its dated quotations of the
+// 利用者の裁定 print the default name. This comment quoted the older, narrower
+// wording until 2026-09-06.
 import { DEFAULT_ROW_NAME } from '../../use-case/edit-document/edit-document'
 import type {
   DocumentCommand,
@@ -209,8 +213,8 @@ export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
 
 /**
  * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST):
- * 「軸を 1 本に固定すること。掴んでから最初に閾値を超えた向きで軸が決まり、離す
- * まで変わらないこと」.
+ * 「軸を 1 本に固定すること（MUST）。掴んでから最初に閾値を超えた向きで軸が決ま
+ * り、離すまで変わらないこと（MUST）」.
  *
  * ⭐ TWO NAMES AND NOT `x` / `y`, because the row names the two by what they
  * CHANGE and not by which way the hand went: 「上下は位置を変え、段を変えては
@@ -405,10 +409,16 @@ export interface InputContext {
    * band.
    *
    * ⛔ NOT A NUMBER WRITTEN HERE, for the reason `zoomStep` above gives and one
-   * of its own: HF-19 (MUST NOT) keeps the number out of the manuscript --
-   * 「操作子の高さは字形（`S-138`）に余白を足したもので、読む人の文字サイズが
-   * 動かす（`FR-039`）」 -- so it is measured where the lattice is drawn and
-   * travels as a value.
+   * of its own: 表 T-051 の `HF-19` and 表 T-221 の `LF-3` both keep the number
+   * out of the manuscript -- the lattice is two ranks of a box whose size 表
+   * T-206 の `S-138` and `S-141` hold, and neither row may copy those -- so it
+   * is measured where the lattice is drawn and travels as a value.
+   * ⛔⛔ THE FLOOR DOES NOT FOLLOW THE READER'S FONT SIZE. `S-138`, `HF-19` and
+   * `LF-3` all say so, and `HF-19` adds that `FR-039` moves the size of a row's
+   * NAME but not the size of a control (表 T-051 の `HF-5`). ⚠️ Until 2026-09-06
+   * this comment cited, as `HF-19`'s own words, a sentence saying the opposite --
+   * that the reader's font size moves the control height. NO SUCH SENTENCE IS IN
+   * `docs/spec`, and what is there says the floor does not follow it.
    * ⚠️ Wanted by FR-055's fit alone, which measures the bands the frame is about
    * to draw; absent reads as no floor, which is what a caller drawing no row
    * control has.
@@ -672,13 +682,14 @@ export type InPlaceTarget =
   | { readonly kind: 'taskName'; readonly uid: number }
   /**
    * MK-13's 「担当ラベル ＝ 担当者名の変更」, reached through GR-11 of table
-   * T-023d, which AS-1 of table T-225 (MUST) names in as many words:
-   * 「担当ラベルをダブルクリックした ⇒ その場で担当者名を編集させること。入口の
-   * 割当は表 T-023 の `MK-13`、掴み領域は表 T-023d の `GR-11` が既に持つ」.
+   * T-023d, which 表 T-225 の `AS-1` (MUST) settles for the double click: its
+   * entry is assigned by 表 T-023 の `MK-13` and its grab region by 表 T-023d の
+   * `GR-11`.
    *
    * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 gives 担当ラベル a destination
-   * separate from 「タスク（名称ラベルと本体のどちらでも） ＝ 名称の編集」, and
-   * folding the two would put one operation where the row prints two.
+   * separate from the one it gives タスク（名称ラベルと本体のどちらでも）, which
+   * is the property panel's 名称 field (表 T-016 の `PR-1`), and folding the two
+   * would put one operation where the row prints two.
    *
    * ⚠️ THE TASK IS WHAT IS CARRIED, not an assignment or a resource. AS-3 and
    * AS-7 of table T-225 turn what was settled into CM-44 / CM-45, both of which

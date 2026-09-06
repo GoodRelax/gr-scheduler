@@ -6447,10 +6447,25 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * LF-3 of table T-221 (MUST): the height HF-1's lattice takes vertically,
    * which that row makes a floor under the row's band.
    *
-   * ⭐ MEASURED OFF THE LATTICE ITSELF and never worked out from its parts:
-   * HF-19 (MUST NOT) keeps the number out of the manuscript because 「読む人の
-   * 文字サイズが動かす」, and the box the browser laid out is the only honest
-   * answer to that.
+   * ⭐ MEASURED OFF THE LATTICE ITSELF and never worked out from its parts.
+   * HF-19 keeps the NUMBER out of its own row -- 「算式は 表 T-221 の `LF-3` が
+   * 持つ。数は本行に書かない」 -- and hands the sizes to S-138 and S-141, which
+   * the browser is the thing that lays out. So the laid-out box is the honest
+   * answer, and adding S-138 and S-141 up here would be a second copy of a sum
+   * the manuscript already gives one home.
+   *
+   * ⛔⛔ THE REASON THAT USED TO STAND HERE WAS FALSE AND IT INVERTED THE ROW.
+   * It cited HF-19 for 「読む人の文字サイズが動かす」. HF-19 says the opposite,
+   * in a MUST NOT: 「この床を閲覧者の文字サイズに追随させてはならない」, because
+   * S-138 settles that for the entrance and a floor that followed on its own
+   * would leave the band taller or shorter than the entrance it has to clear.
+   * LF-3 of table T-221 repeats it: 「この床は閲覧者の文字サイズに追随しない」.
+   * ⚠️ THE CODE IS RIGHT AND ONLY THE REASON WAS WRONG -- the measure key below
+   * does not carry the font scale, so the floor does not follow it. ⛔ Anyone
+   * who "fixed" the code to agree with the old sentence would break S-138.
+   * ⭐ Found 2026-09-06 by check 42, which holds every 「…」 in a comment against
+   * the manuscripts. This is the second time a paraphrase quoted as a citation
+   * hid something: the first kept D-318 open.
    * ⚠️ MEASURABLE EVEN WHILE THE CONTROLS ARE NOT SHOWN. HF-6 draws them 「その
    * 行の名前にポインタが乗っているあいだだけ」 and `ROW_CONTROL_SHOWN_CSS` does
    * that with `visibility`, which leaves the boxes laid out -- so the answer

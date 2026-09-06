@@ -68,6 +68,9 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from ledger_quotes import asserts_any                  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'stale-blocked-baseline.txt')
@@ -128,7 +131,13 @@ def find_stale(ledger_path):
         status = cells[6].strip().strip('`')
         seen = cells[9].strip()
 
-        if not any(phrase in decided for phrase in STILL_BLOCKED):
+        # ⛔ READ OUTSIDE QUOTATION (`D-344`). A marker inside 「…」, 『…』 or a
+        # `code span` is somebody else's words -- a verbatim requirement, the
+        # name of a state, or the row dating its own older text as history --
+        # not this row's claim to be blocked. Three misfires were absorbed
+        # into the baseline before this line existed; rule 04 section 6.3
+        # forbids the fourth. See ledger_quotes.py.
+        if not asserts_any(decided, STILL_BLOCKED):
             continue
 
         why = None

@@ -1,5 +1,10 @@
-8
+7
 #
+# LOWERED 8 -> 7 ON 2026-09-06, the same day it was raised. D-301 was the
+# eighth: it named PD-343, which became 裁定済 when the guide cursor's second
+# vertical retired. The row now opens by saying the ruling landed and the
+# build followed, and that the 未検討 below it is the record of before --
+# this project does not rewrite its own history, so the row keeps both.
 # RAISED 7 -> 8 ON 2026-09-06, DELIBERATELY. PD-343 (where the guide
 # cursor's two vertical lines stand) became 裁定済 that day -- and the
 # ruling was that the mode itself retires, so the question was not

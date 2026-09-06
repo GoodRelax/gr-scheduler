@@ -12,21 +12,31 @@
 //      ⚠️ **構えが依存線のときは表 T-023d を適用せず**、当たったタスクの**左半分
 //      / 右半分**で依存の端点を決める（規則と理由は `FR-009`）」
 //
-//   `FR-009`（docs/spec/01-04-requirements.md:1847）:
+//   `FR-009`（docs/spec/01-04-requirements.md:1850）:
 //     「**依存線を構えているときの当たり判定は、タスクの左半分と右半分のどちらに
 //      当たったかを返すこと（MUST）。** 左半分が開始側、右半分が終了側である。
 //      **端点の掴み代で判定してはならない（MUST NOT）** —— 低いズームでバーが数
 //      px まで縮むと掴めなくなる。半分で割れば、どれだけ細くても必ずどちらかに
-//      落ちる。」
-//     「**引き出した辺と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する
-//      （MUST）。** したがって**種別を選ぶ入口を別に設けない**」
+//      落ちる。 ⛔⛔ **割る点は、そのタスクのバー自身の中点とすること（MUST）。
+//      表 T-038 が定める占有幅で割ってはならない（MUST NOT）** —— **占有幅には
+//      バーの外に出るラベルと印が入るので、中点が絵の上のバーの中央からずれる。**
+//      ⭐ **バーは予定の幾何に付き、予定が無いときは実績に落ちる。**⚠️ **中点
+//      ちょうどに当たったときは右半分とすること（MUST）**…⛔⛔ **どちらの半分か
+//      を、公開された名前から問えるようにすること（MUST）**…⛔ **表 T-023c の
+//      `SL-1` を答える公開名（`_source` の外では 表 T-064 の `PI-7`）に構えを渡
+//      してはならない（MUST NOT）**…⭐ **半分を答える名は別に置くこと（MUST）。
+//      構えが依存線のときだけ呼ぶ。」
 //
-// ⛔⛔ WHERE THE HALVES ARE SPLIT IS NOT STATED. `FR-009` says 「左半分」 and
-// 「右半分」 and never says of WHAT (the drawn bar? the occupied width table
-// T-038 measures?) nor which half owns the exact midpoint. So the cases below
-// probe the FIRST and LAST QUARTER of a wide bar, where every reading agrees,
-// and the midpoint itself is left untested and reported as a gap rather than
-// decided here.
+//   表 T-064 の `PI-7`（docs/spec/05-07-design.md:332）names the separate name:
+//     「`dependencyEndAtPointer`（`FR-009` の「左半分 / 右半分」を答える。⛔ 構え
+//      が依存線のときだけ呼ぶ —— 同要求が `itemAtPointer` に構えを渡すことを禁じ
+//      ている）」
+//
+// ⛔ 2026-09-06 の訂正: an earlier round of this file said 「WHERE THE HALVES ARE
+// SPLIT IS NOT STATED」 and left the midpoint untested. `FR-009` now states both,
+// and 表 T-064 names the member that answers, so the cases below ask the
+// requirement as it now reads: `dependencyEndAtPointer` for the half,
+// `itemAtPointer` for what is on the point, and never one name doing both.
 
 import { describe, expect, it } from 'vitest'
 
@@ -42,8 +52,13 @@ import {
   screenStateWithArmed,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
-import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
+  geometryFromLayout,
+  type BarGeometry,
+  type ScheduleGeometry,
+} from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  dependencyEndAtPointer,
   itemAtPointer,
   type PointerSlop,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
@@ -135,6 +150,52 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
     ...part,
   }) as unknown as Schedule
 
+/** One Task on one row, whatever the Task is. */
+const oneRowOf = (task: Record<string, unknown>): Schedule =>
+  scheduleOf({
+    tasks: [taskOf({ uid: 1, ...task })],
+    taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+    taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
+  })
+
+const geometryOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): ScheduleGeometry => {
+  const regions = regionsFromScreen(ENV, settings)
+  return geometryFromLayout(
+    schedule,
+    settings,
+    layoutFromSchedule(schedule, settings, regions),
+    regions,
+    emptySelection(),
+  )
+}
+
+/**
+ * How far a drawn bar reaches sideways, and how high up it is, read off the two
+ * forms `BarGeometry` publishes and nothing else.
+ *
+ * ⭐ THE BAR ITSELF: this is the shape's own ink, which is exactly what 「その
+ * タスクのバー自身の中点」 is measured on. Nothing table T-038 adds to the
+ * occupancy -- a label spilling out (`OC-1`), a marker (`OC-3`) -- is in here.
+ */
+const spanOfBar = (
+  bar: BarGeometry,
+): { readonly left: number; readonly right: number; readonly y: number } => {
+  if (bar.form === 'outline') {
+    const xs = bar.points.map((point) => point.x)
+    const ys = bar.points.map((point) => point.y)
+    return {
+      left: Math.min(...xs),
+      right: Math.max(...xs),
+      y: (Math.min(...ys) + Math.max(...ys)) / 2,
+    }
+  }
+  return {
+    left: Math.min(bar.from.x, bar.to.x),
+    right: Math.max(bar.from.x, bar.to.x),
+    y: (bar.from.y + bar.to.y) / 2,
+  }
+}
+
 /**
  * One WIDE bar on one row. ⭐ Wide on purpose: `FR-009`'s MUST NOT forbids
  * deciding the endpoint by the grab margin, and a bar only a few slops across
@@ -142,19 +203,9 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
  * middle. 60 days at 6px is 360px, so each quarter is 90px -- far outside the
  * 6px margin of `S-90`.
  */
-const ONE_WIDE_BAR = scheduleOf({
-  tasks: [taskOf({ uid: 1, name: 'Design', start: '2026-01-05', finish: '2026-03-05' })],
-  taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
-  taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
-})
+const ONE_WIDE_BAR = oneRowOf({ name: 'Design', start: '2026-01-05', finish: '2026-03-05' })
 
-const GEOMETRY = geometryFromLayout(
-  ONE_WIDE_BAR,
-  SETTINGS,
-  layoutFromSchedule(ONE_WIDE_BAR, SETTINGS, REGIONS),
-  REGIONS,
-  emptySelection(),
-)
+const GEOMETRY = geometryOf(ONE_WIDE_BAR)
 
 const BAR = layoutFromSchedule(ONE_WIDE_BAR, SETTINGS, REGIONS).placements[0]!
 /** A point a quarter of the way in from the left edge -- unambiguously 左半分. */
@@ -207,56 +258,201 @@ describe('表 T-023a の PD-3 -- a hit beats the arming', () => {
 })
 
 // ---------------------------------------------------------------------------
-// FR-009: the two halves, while armed -- and table T-023d, while not
+// FR-009: 半分を答える名は別に置くこと（MUST）
 // ---------------------------------------------------------------------------
 
 describe('FR-009 -- 左半分と右半分のどちらに当たったかを返すこと（MUST）', () => {
-  it('the hit test tells the two halves apart while a dependency is armed', () => {
-    // ⛔⛔ THE MUST, ASKED WITHOUT NAMING A MEMBER. `FR-009` says the hit test
-    // answers with WHICH HALF and does not say what the answer is called, so
-    // this case asks only what the requirement guarantees: the answer for a
-    // point in the left half and the answer for a point in the right half are
-    // not the same answer. A hit test that cannot be told the dependency is
-    // armed cannot make that distinction at all.
-    //
-    // ⚠️ The two probes are a quarter in from each end, so the MUST NOT --
-    // 「端点の掴み代で判定してはならない」 -- is respected by the question too:
+  it('the separate name answers 開始側 in the left half and 終了側 in the right', () => {
+    // 「左半分が開始側、右半分が終了側である」, asked of the name 表 T-064 の
+    // `PI-7` puts it under. ⚠️ The two probes are a quarter in from each end, so
+    // 「端点の掴み代で判定してはならない」 is respected by the question too:
     // neither probe is anywhere near an endpoint's grab margin.
+    const onTask = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
+    expect(onTask, 'nothing was hit on the bar, so this file cannot ask its question').not.toBeNull()
+    const uid = (onTask!.item as { readonly taskUid: number }).taskUid
+
+    expect(dependencyEndAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, uid)).toEqual({
+      taskUid: 1,
+      edge: 'start',
+    })
+    expect(dependencyEndAtPointer(GEOMETRY, IN_RIGHT_HALF, MIDDLE_Y, uid)).toEqual({
+      taskUid: 1,
+      edge: 'finish',
+    })
+  })
+
+  it('the midpoint itself is the right half', () => {
+    // 「⚠️ **中点ちょうどに当たったときは右半分とすること（MUST）** —— どちらでも
+    // よいが、決めておかないと同じ点が押すたびに違う端点を返す」
+    const bar = GEOMETRY.tasks[0]!.plan
+    expect(bar, 'the wide fixture drew no plan bar').not.toBeNull()
+    const { left, right, y } = spanOfBar(bar!)
+    const middle = (left + right) / 2
+    expect(dependencyEndAtPointer(GEOMETRY, middle, y, 1)?.edge).toBe('finish')
+    // And the point one pixel to its left is the other half, so the line is AT
+    // the middle and not somewhere past it.
+    expect(dependencyEndAtPointer(GEOMETRY, middle - 1, y, 1)?.edge).toBe('start')
+  })
+
+  it('the split is the bar own middle, not the middle of the occupied width', () => {
+    // 「⛔⛔ **割る点は、そのタスクのバー自身の中点とすること（MUST）。表 T-038 が
+    // 定める占有幅で割ってはならない（MUST NOT）** —— 占有幅にはバーの外に出る
+    // ラベルと印が入るので、中点が絵の上のバーの中央からずれる」
+    //
+    // ⭐ HOW THE TWO MIDDLES ARE PULLED APART: 表 T-013 の `NL-3` puts a name
+    // that does not fit 「形状の右に出す」, and 表 T-038 の `OC-1` counts that
+    // spill into the occupancy. A short bar with a long name therefore has an
+    // occupancy whose middle sits well to the RIGHT of the bar's own middle.
+    // Any point between the two middles is the bar's 右半分 and the occupancy's
+    // 左半分, so the two readings disagree there and only there.
+    const schedule = oneRowOf({
+      name: 'A task whose name is far too long to be written inside its own short bar',
+      start: '2026-01-05',
+      finish: '2026-01-15',
+    })
+    const geometry = geometryOf(schedule)
+    const drawn = geometry.tasks[0]!
+    expect(drawn.plan, 'the long-named fixture drew no plan bar').not.toBeNull()
+    const { left, right, y } = spanOfBar(drawn.plan!)
+    const label = drawn.label
+    expect(
+      label,
+      'the long name produced no label, so the two middles cannot be pulled apart',
+    ).not.toBeNull()
+    expect(
+      label!.x + label!.width,
+      'the label did not spill past the right edge of the bar (NL-3), so this case cannot ask its question',
+    ).toBeGreaterThan(right)
+
+    const barMiddle = (left + right) / 2
+    // 表 T-038: `OC-1` adds the spill to the occupancy; nothing in this fixture
+    // adds anything to the left (`OC-2` is hidden by default, there is no
+    // actual bar, no deadline mark and no delay figure).
+    const occupiedMiddle = (left + (label!.x + label!.width)) / 2
+    expect(
+      occupiedMiddle,
+      'the occupancy middle did not move right of the bar middle, so nothing is being told apart',
+    ).toBeGreaterThan(barMiddle)
+
+    // A point the two readings disagree about, and which is on the bar so both
+    // readings can see it: right of the bar's middle, left of the occupancy's.
+    const between = (barMiddle + Math.min(occupiedMiddle, right)) / 2
+    expect(between).toBeGreaterThan(barMiddle)
+    expect(between).toBeLessThan(occupiedMiddle)
+    expect(
+      dependencyEndAtPointer(geometry, between, y, 1)?.edge,
+      'the point is right of the bar own middle, so FR-009 makes it 終了側',
+    ).toBe('finish')
+  })
+
+  it('with no plan bar drawn, the halves are the actual bar halves', () => {
+    // 「⭐ **バーは予定の幾何に付き、予定が無いときは実績に落ちる。**」 and the
+    // same requirement's 「依存線は予定の幾何に付くこと（MUST）。予定を表示して
+    // いないときに限り、実績の幾何に付ける」.
+    //
+    // ⭐ `S-59` = `'actual-only'` is how a Task comes to have no plan bar at
+    // all: `FR-001`'s floor (`S-49`) means a Task with no dates still draws one,
+    // so hiding the plan is the case the clause describes. ⚠️ The actual is put
+    // WELL AFTER the plan on purpose -- if the split still followed the plan,
+    // both probes would land on the same side of it.
+    const schedule = oneRowOf({
+      name: 'Actual only',
+      milestone: false,
+      start: '2026-01-05',
+      finish: '2026-01-20',
+      actualStart: '2026-03-02',
+      actualDuration: 40,
+    })
+    const geometry = geometryOf(schedule, settingsOf({ ...SETTINGS, planActualDisplay: 'actual-only' }))
+    const drawn = geometry.tasks[0]!
+    expect(
+      drawn.plan,
+      'a plan bar was drawn anyway, so this case cannot ask about a Task without one',
+    ).toBeNull()
+    expect(drawn.actual, 'the fixture drew no actual bar either').not.toBeNull()
+    const { left, right, y } = spanOfBar(drawn.actual!)
+    expect(right - left, 'the actual bar has no width to halve').toBeGreaterThan(4)
+    expect(dependencyEndAtPointer(geometry, left + (right - left) * 0.25, y, 1)?.edge).toBe('start')
+    expect(dependencyEndAtPointer(geometry, left + (right - left) * 0.75, y, 1)?.edge).toBe('finish')
+  })
+
+  it('a bar a few px wide still falls in one half or the other', () => {
+    // 「**端点の掴み代で判定してはならない（MUST NOT）** —— 低いズームでバーが数
+    // px まで縮むと掴めなくなる。半分で割れば、どれだけ細くても必ずどちらかに
+    // 落ちる」. ⭐ At this width BOTH endpoints' grab margins (`S-90` = 6px to
+    // either side of an end) cover the WHOLE bar, so a reading that used them
+    // could not tell the halves apart here at all.
+    //
+    // ⭐ HOW A BAR GETS THAT NARROW AT ALL: `S-86` (24px) drops any Task whose
+    // width came from its duration and fell below it, but `FR-021`'s LOD rule
+    // exempts a shape whose width did NOT come from the duration -- 「期間がゼロ
+    // の `Task` は 表 T-201 の `S-49`（`minShapeWidth`）の床で…幅が決まり」. A
+    // Task that starts and finishes the same day is drawn at that 6px floor and
+    // stays drawn, which is the narrowest bar the specification admits.
+    const schedule = oneRowOf({
+      name: 'T',
+      milestone: false,
+      start: '2026-01-05',
+      finish: '2026-01-05',
+    })
+    const geometry = geometryOf(schedule)
+    const drawn = geometry.tasks[0]
+    expect(
+      drawn,
+      'the Task was not drawn at this zoom, so this case cannot ask its question',
+    ).toBeDefined()
+    const bar = drawn!.plan ?? drawn!.actual
+    expect(bar).not.toBeNull()
+    const { left, right, y } = spanOfBar(bar!)
+    expect(
+      right - left,
+      'the bar is not narrow enough to be the case this asks about',
+    ).toBeLessThan(SLOP.planEndpoint * 2)
+    // Every point across the bar answers, and the two ends answer differently.
+    expect(dependencyEndAtPointer(geometry, left, y, 1)?.edge).toBe('start')
+    expect(dependencyEndAtPointer(geometry, right, y, 1)?.edge).toBe('finish')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-009: the name that answers 「点の上に何が在るか」 must not answer the half
+// ---------------------------------------------------------------------------
+
+describe('FR-009 -- SL-1 を答える公開名に構えを渡してはならない（MUST NOT）', () => {
+  it('itemAtPointer answers a row of table T-023d, and the same one in both halves', () => {
+    // 「⛔ **表 T-023c の `SL-1` を答える公開名（…表 T-064 の `PI-7`）に構えを渡し
+    // てはならない（MUST NOT）** —— その名は「点の上に何が在るか」を答えるもので
+    // あり、構えによって答えが変わると、それに対して書かれたすべての呼び手と試験
+    // が構えを意識することになる」
+    //
+    // ⇒ The consequence that can be measured from outside: that name has no way
+    // to be told the arming, so its answer for a point CANNOT vary with it, and
+    // a wide bar's two quarters are both its body -- one grab of 表 T-023d, not
+    // two endpoints. ⭐ Whether PD-3 withholds table T-023d is settled by the
+    // CALLER, outside this name; `FR-009` puts the half on a name of its own.
     const left = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
     const right = itemAtPointer(GEOMETRY, IN_RIGHT_HALF, MIDDLE_Y, SLOP)
+    const grabRows = new Set(specTable('T-023d').rows.map((one) => one.id))
     expect(left).not.toBeNull()
     expect(right).not.toBeNull()
     expect(left!.item).toEqual({ kind: 'task', taskUid: 1 })
-    expect(right!.item).toEqual({ kind: 'task', taskUid: 1 })
+    expect(grabRows.has(left!.grab), `${left!.grab} is not a row of table T-023d`).toBe(true)
     expect(
       right,
-      'the hit test answered the same thing for both halves, so FR-009 cannot decide an endpoint',
-    ).not.toEqual(left)
+      'itemAtPointer told the two halves apart, which is the half being answered by the wrong name',
+    ).toEqual(left)
   })
 
-  it('PD-3 must not apply table T-023d while a dependency is armed', () => {
-    // 「⚠️ **構えが依存線のときは表 T-023d を適用せず**」. `Hit.grab` names a row
-    // of 表 T-023d, so an answer that still carries one while the dependency is
-    // armed is the table being applied.
-    const armedHit = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
-    const grabRows = new Set(specTable('T-023d').rows.map((one) => one.id))
-    expect(armedHit).not.toBeNull()
+  it('the half is asked of a separate name that takes no grab margin', () => {
+    // 「⭐ **半分を答える名は別に置くこと（MUST）。構えが依存線のときだけ呼ぶ。**」
+    // ⇒ two different names; and the one that answers the half is reached
+    // without a `PointerSlop` at all, which is 「端点の掴み代で判定してはならない」
+    // made unaskable rather than merely unused.
+    expect(dependencyEndAtPointer).not.toBe(itemAtPointer)
     expect(
-      grabRows.has(armedHit!.grab),
-      `while armed, the hit still answered with ${armedHit!.grab} of table T-023d`,
-    ).toBe(false)
-  })
-
-  it('the same two points do something ELSE while nothing is armed (table T-023d)', () => {
-    // The other side of the same rule: unarmed, the press IS a row of 表 T-023d,
-    // and a wide bar's two quarters are both its body -- one grab, not two
-    // endpoints. ⭐ This is what makes the case above a real distinction rather
-    // than an accident of geometry.
-    const left = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
-    const right = itemAtPointer(GEOMETRY, IN_RIGHT_HALF, MIDDLE_Y, SLOP)
-    const grabRows = new Set(specTable('T-023d').rows.map((one) => one.id))
-    expect(grabRows.has(left!.grab)).toBe(true)
-    expect(left!.grab).toBe(right!.grab)
+      dependencyEndAtPointer.length,
+      'dependencyEndAtPointer takes something beyond the geometry, the point and the Task',
+    ).toBe(4)
   })
 })
 

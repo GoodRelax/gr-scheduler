@@ -1,4 +1,25 @@
-52
+50
+#
+# LOWERED 52 -> 50 ON 2026-09-06, AND THE HEURISTIC IS WHAT CHANGED, NOT THE
+# LEDGER. `D-344` landed: a still-blocked marker is now read OUTSIDE
+# QUOTATION only -- the contents of 「…」, 『…』 and a `code span` are
+# removed before the phrases are looked for (ledger_quotes.py).
+#
+# ⭐ MEASURED ACROSS BOTH LEDGER FILES BEFORE AND AFTER. Exactly two rows
+# stop matching, and both are the misfires this file already named:
+#   D-286 (defects.md)       「再開日を未定のままにもできること」 -- a verbatim
+#                            quote of FR-044, which is the third misfire the
+#                            note below says to fix by changing the heuristic
+#   D-135 (fixed-defects.md) ⛔ 上の「未定」はもう真でない -- the row
+#                            quoting its OWN older word to date it as history,
+#                            which is the append-only rot being CLEANED UP
+# ⛔ Nothing else moves. No row was reworded to dodge the substring, and no
+# row is exempted: a row that is blocked in its own voice (⛔ **未定。**) is
+# untouched. Rehearsed on a scratch ledger: the assertion form counts 1, the
+# same words inside 「」 count 0.
+#
+# ⚠️ Check 40 (check-ruled-elsewhere.py) reads its cell the same way from the
+# same module; its count did not move (8), so no baseline change there.
 #
 # RAISED 48 -> 52 ON 2026-09-06, DELIBERATELY, AND THE RAISE IS THE POINT:
 # the check's VOCABULARY was widened, not the ledger loosened. STILL_BLOCKED
