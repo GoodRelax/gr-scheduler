@@ -3246,6 +3246,19 @@ function planActualWithColumn(task: Task, column: keyof Task, text: string): Pla
     // whole row of it, so the row this settling names is the thing to get
     // right -- a second reading on the write side would be the same rule in
     // two places (rule 03 section 4).
+    // ⭐⭐ THE OTHER HALF OF THE SAME REQUIREMENT, and it was still broken when
+    // the erase half above landed: 「再開予定日を置いたとき、`resumeValid` を
+    // `true` にすること（MUST）」. FR-044 names the failure beside the clause --
+    // 「置かないと表 T-019a の `PS-3` が先に当たり、日付を置いても状態が変わら
+    // ない」 -- and that is exactly what a spec-only body measured on 2026-09-06:
+    // a task on `PA-4` (中断・再開日未定, so `resumeValid` false) took a resume
+    // date and stayed on `PA-4`, the date discarded. ⛔ `PA-4` is the ONE state
+    // from which putting a date is a new act, because FR-044 also allows
+    // 「再開日を未定のままにもできること」, so this was the whole point of the
+    // column.
+    if (column === 'resume' && day !== null) {
+      written['resumeValid'] = true
+    }
     if (column === 'resume' && day === null && task.resume !== null) {
       written['resumeValid'] = false
     }

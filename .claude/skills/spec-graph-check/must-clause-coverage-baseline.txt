@@ -1,4 +1,20 @@
-951
+942
+#
+# LOWERED 951 -> 942 ON 2026-09-06. A spec-only body wrote four files for rows
+# that were built and measured and held by nothing: the resume date, the
+# carried original, deleting an assignee with its question, and the three file
+# gates. Nine clauses newly held, 63 cases.
+#
+# ⭐ One of its cases was RED and found a defect nobody had filed: FR-044's
+# FIRST must -- putting a resume date makes it valid -- was still broken while
+# its second was being repaired. The requirement names the failure beside the
+# clause. Fixed, so the case is green.
+#
+# ⚠️ It also measured what the corpus actually is: the RAW FILE BYTES. A
+# trailing window containing a paragraph break cannot be held by a TS string
+# literal, so two clauses had to be held at 60 and 40 characters rather than
+# 120. The fall-through is what saved them.
+#
 #
 # RAISED 950 -> 951 ON 2026-09-06, a debt. DC-7 was reversed by the user's
 # ruling: it used to require a SEPARATE entrance to clear the two measuring

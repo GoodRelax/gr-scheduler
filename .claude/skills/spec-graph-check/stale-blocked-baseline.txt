@@ -1,5 +1,21 @@
 48
 #
+# RAISED 47 -> 48 ON 2026-09-06 for D-286, and this one is the check's fault,
+# not the row's. The marker it matched is 「未定」 inside a VERBATIM QUOTE of
+# FR-044 -- 「再開日を未定のままにもできること」 -- which is why PA-4 is a state
+# at all. The row is not blocked; it is quoting the requirement that explains
+# it, which is exactly what this ledger's style asks for.
+#
+# ⛔ THIS IS THE THIRD MISFIRE and the note taken on the second said what to
+# do about a third: change the heuristic, not the number. D-344 opens for it.
+# LOWER THIS when that row lands.
+#
+#
+# LOWERED 48 -> 47 ON 2026-09-06. The exemption was taken for D-306 while its
+# ruling was pending; the ruling landed (CR-363), the band is cut, and the
+# sentence that read as blocked is now dated as the record it is.
+#
+#
 # RAISED 47 -> 48 ON 2026-09-06 for D-306, deliberately.
 # Its tick records MEASURING the defect -- five pins, the cap the
 # specification itself sets, already overrun the Row Area -- not a fix. The
