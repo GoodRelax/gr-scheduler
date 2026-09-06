@@ -404,6 +404,32 @@ export interface InputContext {
   readonly zoomMin: number
   readonly zoomMax: number
   /**
+   * Whether the picture in front of the person stands at the document's own
+   * zoom (`S-73` / `S-74`) rather than at FR-055's fit -- OP-10 of table
+   * T-024a, answered by the side that DREW it.
+   *
+   * ⛔⛔ IT CANNOT BE WORKED OUT HERE, WHICH IS THE WHOLE REASON THE MEMBER
+   * EXISTS (D-358). OP-10 has three branches that draw the stored pair or the
+   * fit, and the second of them -- 「表 T-034 の `BT-4`（起動テンプレート）から
+   * 開いた文書には働かせてはならない（MUST NOT）」 -- turns on where the
+   * document CAME FROM, which no value reachable from here records. ⛔ The
+   * condition must not be written a second time to reach it: it was written
+   * twice already, only one copy carried the exception, and the shipped build
+   * at 1920x1080 answered a first press of IC-12 with `zoomX` 1 -> 0.2285 and
+   * the IC-13 that followed with 0.2765 -- a zoom IN that came out 3.6 times
+   * smaller than where it started.
+   *
+   * ⚠️ ABSENT READS AS 「nobody said」, and then the base half of the condition
+   * is read here as it always was -- a document that names a place is at its
+   * own zoom, and one that does not is at the fit. ⭐ That is the answer for
+   * every document except the bundled template, so a caller that leaves it out
+   * is right everywhere it used to be right and wrong only where it was wrong
+   * before. ⛔ It is NOT a default anyone may lean on: `collectInputContext`
+   * fills it on every frame, and only the tests written from the specification
+   * watch that it does.
+   */
+  readonly isPictureAtStoredZoom?: boolean
+  /**
    * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height HF-1's
    * lattice of row controls takes, which that row makes a floor under a row's
    * band.
@@ -4918,9 +4944,11 @@ function commandFromDualCursorEntry(
   // the same press -- the side stops following and `dualCursor` goes to null
   // together, which is what the one action carrying both halves is for.
   // ⚠️ THE OTHER WAY OUT IS NOT HERE. DC-4 also gives 「`Esc`」, and that road
-  // never reaches this file: `frame-loop.ts` drops the mode itself at
-  // `escapeLevel === 'dualCursorMode'` and emits no command. It still needs
-  // this same write to obey the ruling.
+  // never reaches this file: `escapeTarget` names that level for a holder the
+  // Framework keeps (LY-5 of table T-060), so `frame-loop.ts` drops the mode
+  // itself at `escapeLevel === 'dualCursorMode'`. ⭐ IT MAKES THIS SAME WRITE
+  // THERE (D-301) -- one command for DC-4's two ways out, so neither can drift
+  // from DC-7.
   if (context.dualCursorFollowing !== null) {
     return acted({
       kind: 'setDualCursorFollowing',
@@ -7876,11 +7904,18 @@ function zoomCommand(
  * T-024a's own condition, read on the side that WRITES rather than the side
  * that draws.
  *
- * ⛔ THE CONDITION IS WRITTEN TWICE, once here and once in `viewSettings`
- * (`src/framework/single-html-shell/frame-loop.ts`), which is the same bargain
- * `collapsesDiscarded` keeps with CM-72: that side decides what to DRAW while
- * no place is named, this side decides whether a press still has one to name.
- * If OP-10's condition is ever re-ruled, both move.
+ * ⛔ THE BASE HALF OF THE CONDITION IS WRITTEN TWICE, once here and once in
+ * `viewSettings` (`src/framework/single-html-shell/frame-loop.ts`), which is
+ * the same bargain `collapsesDiscarded` keeps with CM-72: that side decides
+ * what to DRAW while no place is named, this side decides whether a press
+ * still has one to name. If OP-10's condition is ever re-ruled, both move.
+ * ⛔⛔ AND THE BT-4 EXCEPTION IS WRITTEN ONCE, on that side alone (D-358).
+ * 「表 T-034 の `BT-4` から開いた文書には働かせてはならない（MUST NOT）」 turns
+ * on where the document came from, which nothing reachable from here records --
+ * so a second copy could only be a guess. ⚠️ THIS MEMBER IS THEREFORE NOT THE
+ * ONE TO ASK WHAT IS DRAWN: `zoomOnScreen` reads
+ * `InputContext.isPictureAtStoredZoom` for that, and asking here instead is
+ * exactly the defect D-358 recorded.
  * ⚠️ BOTH HALVES, because the row states both -- 「表示位置が `null`、または指す
  * 行が存在しないとき」. A `scrollGroupId` still pointing at a row CD-2 of table
  * T-050 has deleted is as unplaced as a `null`, so a test on the day alone
@@ -8183,11 +8218,21 @@ function fittedNow(context: InputContext) {
  * `zoomY` cannot be recovered from a band already sitting on LF-3's floor.
  * ⭐ Running the fit again is exact, because the fit is what drew the frame.
  *
+ * ⛔⛔ WHICH BRANCH OF OP-10 DREW THE FRAME IS ASKED OF THE DRAWING SIDE AND
+ * NOT DECIDED HERE (D-358) -- see `InputContext.isPictureAtStoredZoom`, which
+ * carries the BT-4 exception this side has no way to see.
+ *
  * @purity pure
  */
 function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } {
   const settings = context.document.documentSettings
-  if (namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)) {
+  // ⚠️ `??` AND NOT `===  true`: absent is 「nobody said」 and falls back to the
+  // base half of OP-10's condition, which is the reading this line held before
+  // the member existed. `false` from a caller that DID say is an answer.
+  const atStoredZoom =
+    context.isPictureAtStoredZoom ??
+    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+  if (atStoredZoom) {
     return { x: settings.zoomX, y: settings.zoomY }
   }
   const fitted = fittedNow(context)
@@ -8817,7 +8862,12 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                open document away and returning to BT-4 is a startup state,
 //                which LY-5 leaves with the Framework, and FR-095 puts a
 //                confirmation in front of it -- the same shape as IC-66 above.
-//                ⚠️ NO LEDGER ROW NAMED IT when this was measured.
+//                ⛔⛔ AND IT IS BLOCKED ON A ROW OF THE SPECIFICATION rather
+//                than on work (台帳 D-364, blocked on 台帳 D-284): table T-230
+//                closes with 「本表の 5 つが、まるごと差し替える呼び手の全数で
+//                ある。呼び手は、自分がどの行かを名乗ること（MUST）」 and none of
+//                the five names `FR-095`. ⭐ `frame-loop.ts` carries the whole
+//                measurement beside `ROSTER_DELETE_ENTRY`.
 //
 // ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
 // far side of this file rather than one of the 10 above:
@@ -8834,14 +8884,14 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                Cursor が消えるべきだろ？」. `commandFromDualCursorEntry` now
 //                emits CM-61 on DC-4's re-press, so no row, glyph or keystroke
 //                is owed and EP-6 of table T-076 has its way to stop drawing
-//                the pair. ⚠️ ONE THING IS STILL OPEN, and it is not a missing
-//                entrance: DC-7's own text HAS since been edited to match (it
-//                now reads 「モードを出たら、置いた 2 本を消すこと（MUST）」, so the
-//                second of the two is closed), and DC-4's OTHER way out
-//                -- 「`Esc`」 -- is `frame-loop.ts`'s alone, which drops the
-//                mode at `escapeLevel === 'dualCursorMode'` and emits no
-//                command, so it does not clear yet. ⭐ DC-3's day count is
-//                untouched beside it as PD-344.
+//                the pair. ⭐ NOTHING IS OPEN HERE ANY LONGER: DC-7's own text
+//                HAS since been edited to match (it now reads 「モードを出たら、
+//                置いた 2 本を消すこと（MUST）」), and DC-4's OTHER way out
+//                -- 「`Esc`」 -- writes the same CM-61 as of D-301, in
+//                `frame-loop.ts`, which is where that way out lives: the level
+//                belongs to a holder this file cannot reach, so no action ever
+//                comes back for it. ⭐ DC-3's day count is untouched beside it
+//                as PD-344.
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
 // table T-203, table T-206, table T-234, table T-037, table T-026, table

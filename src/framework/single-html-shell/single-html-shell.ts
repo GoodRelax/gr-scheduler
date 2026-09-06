@@ -140,6 +140,10 @@ import {
   frameLoop,
   noWorkingWeekdayReason,
   startupDisplayLanguage,
+  // FR-073's 「この造りが知る最大の版」. ⭐ Read off `startup-template.json`
+  // there rather than typed out here -- see its own note for why it lives in
+  // that file and not in this one.
+  GREATEST_KNOWN_SCHEMA_VERSION,
   type FrameEnvironment,
   type FrameLoop,
   type PointerShape,
@@ -385,7 +389,16 @@ const AGENT_API_WRITER = 'agent'
  * @purity semi-pure-a
  */
 function startupTemplateDocument(): Document {
-  const read = documentFromJson(JSON.stringify(startupTemplate))
+  // ⭐ FR-073's comparison runs on BT-4 as well (D-282), and it necessarily
+  // answers `known`: `GREATEST_KNOWN_SCHEMA_VERSION` IS this file's own
+  // `schemaVersion`, so the two are equal and FR-073 counts equal as readable.
+  // ⛔ Passed rather than skipped because the reason is arithmetic and not a
+  // rule -- a road that omits the number reports `notCompared`, and OP-7 would
+  // then have one road answering a hole for no stated reason.
+  const read = documentFromJson(
+    JSON.stringify(startupTemplate),
+    GREATEST_KNOWN_SCHEMA_VERSION,
+  )
   // ⛔ `read.clampedCount` IS DROPPED HERE, DELIBERATELY. The template is
   // BUNDLED, so a value of it outside its own bounds is a build that shipped
   // wrong and not something the person did -- the paragraph above says the same
@@ -507,7 +520,18 @@ function embeddedStartupDocument(): {
   // character's own JSON escape so that no `</script>` can end the tag early --
   // so the reader below gives the character back and a step here would corrupt
   // it.
-  const read = documentFromJson(embedded)
+  // ⭐ FR-073's comparison, given the number it is against (D-282). A single
+  // .html written by an older build carries the version IT knew, so BT-1 is the
+  // road where `newerThanKnown` can really come back.
+  // STOP -- ⛔ THE READING IS DROPPED, AND WHAT IS MISSING IS THE TELLING.
+  // FR-073 (MUST) has 「読めなかった列を具体的に並べて見せ、続けてよいかを問う」
+  // on `U-61` of table T-103 carrying `RS-48` of table T-233, and 「読めなかった
+  // 列は、解釈せずに持ち回ること（MUST）」 in a vessel of origin `Carry`.
+  // ⚠️ `JsonDecoding` counts no unread columns and PI-20 publishes no member
+  // that would, so a telling raised here could only name columns nobody
+  // counted. ⛔ Nothing is invented for it; `decodedDocument` in
+  // `frame-loop.ts` records the same absence for the import road.
+  const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0 }
   const refusal = noWorkingWeekdayReason(read.document)
   // FR-067: a rank that yields nothing descends rather than starting empty, so

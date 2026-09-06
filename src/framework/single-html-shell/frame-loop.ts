@@ -275,6 +275,32 @@ import {
   writeClipboard,
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
+// ⭐ READ, NEVER TYPED OUT. `tools/generate_startup_template.py` prints its own
+// `SCHEMA_VERSION` into this file, so the version this build knows is a value
+// the build already holds -- and rule 03 section 1 forbids a second copy of a
+// generated value, which would go on saying the old date after the generator
+// moved. ⚠️ The whole template is imported for one key, which costs nothing:
+// `single-html-shell.ts` imports the same module for BT-4.
+import startupTemplate from './startup-template.json'
+
+/**
+ * FR-073's 「この造りが知る最大の版」 -- the greatest `GRS JSON` format version
+ * this build knows, which every read of a document is judged against (OP-7 of
+ * table T-024a).
+ *
+ * ⛔ IT HAS TO TRAVEL AS AN ARGUMENT (D-282). `documentFromJson` takes it and
+ * says why in as many words: the version is not DocumentCodec's to hold -- an
+ * Adapter reaching for the Framework's bundled template would be `LR-6` broken
+ * -- so a caller that leaves it out gets `notCompared`, which is FR-073's
+ * comparison not running at all. ⚠️ Every caller in this build passed nothing
+ * until 2026-09-07, so the judgement was `notCompared` on all four roads.
+ *
+ * ⭐ EXPORTED FOR `single-html-shell.ts`, which reads BT-1 and BT-4 and needs
+ * the same number. ⛔ It cannot live there instead: that file already imports
+ * this one, and the other direction would close a cycle. ⚠️ The name does not
+ * leave this folder, so check 26b's reverse walk has nothing to say about it.
+ */
+export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
 /**
  * What the shell measured about the window this frame. `regionsFromScreen`
@@ -325,6 +351,18 @@ export interface FrameValues {
    * @provisional PD-254
    */
   readonly settingsMeasuredWith: DocumentSettings
+  /**
+   * Whether the picture this frame drew stands at the document's own zoom
+   * (`S-73` / `S-74`) rather than at FR-055's fit -- OP-10 of table T-024a,
+   * decided once in `viewSettings` and carried rather than asked again.
+   *
+   * ⛔ THE PRESS SIDE CANNOT WORK IT OUT (D-358). Two of OP-10's three branches
+   * draw the stored pair -- a document that names a place, and the BT-4
+   * exception for the bundled template (MUST NOT) -- and only this side knows
+   * the second, because only this side is told the document came from BT-4.
+   * ⭐ `collectInputContext` hands it on as `InputContext.isPictureAtStoredZoom`.
+   */
+  readonly isPictureAtStoredZoom: boolean
 }
 
 /**
@@ -1112,6 +1150,39 @@ const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
  * T-109 stands this row on U-49 alone, so the entry is the whole of the join.
  */
 const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
+
+/*
+ * STOP -- ⛔⛔ IC-98 OF TABLE T-109 HAS NO CONSTANT HERE AND NO BRANCH BELOW,
+ * AND THE REASON IS A ROW OF THE SPECIFICATION RATHER THAN AN OVERSIGHT
+ * (台帳 D-364, blocked on 台帳 D-284).
+ *
+ * ⭐ WHAT THE PRESS OWES IS KNOWN, and only its last step is not. FR-095:
+ * 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻すこと。捨てる前に、
+ * 未保存の編集について表 T-024a の `OP-4` と同じ確認を行うこと（MUST）」 -- so
+ * the question is `DISCARD_QUESTION` (QN-5), which table T-234's closing note
+ * confirms in as many words: 「`FR-095` も行を持たない ... 同じ問いに 2 つ目の
+ * 鍵を作らない」. ⇒ The road would be `askToDiscardCurrentDocument(held.document)`
+ * and then `replaceHeldDocument({ row, document: <the BT-4 template> })`.
+ *
+ * ⭐ THE `row` NOW EXISTS: table T-230 gained `RD-7`（`FR-095` の初期化）on
+ * 2026-09-07, and its cells are RD-4's -- the caller brings the document
+ * (BT-4's bundled template), the history is discarded, the stamp arrives as it
+ * came, and no undo step is pushed. ⚠️ WHEN THIS BLOCK WAS WRITTEN the table
+ * still closed at five rows and named no caller for FR-095, which is what the
+ * paragraph below is still measuring against. ⛔ Read the table, not this note.
+ *
+ * ⛔ AND NEITHER HALF MAY BE SHIPPED ALONE. A branch that raised QN-5 and
+ * discarded nothing on 「続ける」 is exactly the defect 規則 04 section 3.6
+ * records from a real press -- 「消す確認が嘘をつく」 -- and telling `RS-27`
+ * instead would be FR-029's fallback used for a hole in this build rather than
+ * for the scene that row names. ⇒ The entrance stays drawn and unanswered until
+ * the row exists, which is the state D-364 records.
+ *
+ * ⚠️ A SECOND THING IS MISSING BESIDE THE ROW: the template FR-027 keeps one of
+ * is read in `single-html-shell.ts` (`startupTemplateDocument`) and no member
+ * carries it into this loop, so the wiring owes one too -- `HeldDocumentCall`
+ * is the shape it would arrive in.
+ */
 
 /**
  * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
@@ -2275,6 +2346,19 @@ interface DecodedIntake {
  * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason, which
  * `exportedText` above records from the writing side.
  *
+ * STOP -- ⛔ `formatVersion` IS DROPPED HERE TOO, AND THE COMPARISON NOW RUNS
+ * (D-282). Until 2026-09-07 nothing passed FR-073's 「この造りが知る最大の版」,
+ * so OP-7 answered `notCompared` on every road; the number now travels and the
+ * reading is real. ⛔ WHAT IS STILL MISSING IS THE TELLING, and it is missing
+ * on purpose rather than forgotten: FR-073 (MUST) has a `newerThanKnown`
+ * reading 「読めなかった列を具体的に並べて見せ、続けてよいかを問う」 on 表 T-103's
+ * `U-61` carrying `RS-48` of table T-233, and 「読めなかった列は、解釈せずに
+ * 持ち回ること（MUST）」 in a vessel of origin `Carry`. ⚠️ NEITHER HALF EXISTS
+ * TO BE CALLED: `JsonDecoding` reports the reading and no list of unread
+ * columns, and no member of PI-20 answers one -- so a telling raised here could
+ * only name columns nobody counted. ⛔ Nothing is invented for it; the road is
+ * a wave of its own.
+ *
  * @purity pure
  */
 function decodedDocument(
@@ -2283,7 +2367,9 @@ function decodedDocument(
   current: Document,
 ): DecodedIntake | null {
   if (format === 'grsJson') {
-    const read = documentFromJson(text)
+    // ⭐ FR-073's comparison, given the number it is against (D-282). Without
+    // this argument OP-7 answered `notCompared` for every file a person opened.
+    const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
     return read.ok ? { document: read.document, clampedCount: read.clampedCount } : null
   }
   const read = documentFromMspdi(text, current)
@@ -2743,6 +2829,28 @@ function drawnRowBoxesOf(
 }
 
 /**
+ * What one reading of OP-10 answered: the settings the picture is drawn from,
+ * and whether that picture stands at the document's own zoom.
+ *
+ * ⭐⭐ THE SECOND MEMBER EXISTS BECAUSE ONLY THIS SIDE CAN ANSWER IT, and
+ * `input-command-translator.ts` has to know it: a zoom press steps from the
+ * zoom the person is LOOKING at, and OP-10 has three branches -- a stored
+ * place, the BT-4 exception, and the fit -- of which the first two draw
+ * `S-73`/`S-74` and only the third draws FR-055's. ⛔ THE CONDITION IS NOT
+ * WRITTEN A SECOND TIME FOR IT (D-358): the press side used to ask only
+ * whether a place was named, missed the BT-4 exception that side had, and so
+ * stepped the bundled template's zoom from the fit -- measured on the shipped
+ * build at 1920x1080, one press of IC-12 took `zoomX` from 1 to 0.2285 and a
+ * press of IC-13 (zoom IN) then answered 0.2765, which is 3.6 times SMALLER
+ * than where it started. ⭐ The answer travels instead, as
+ * `InputContext.isPictureAtStoredZoom`.
+ */
+interface ViewSettings {
+  readonly settings: DocumentSettings
+  readonly isAtStoredZoom: boolean
+}
+
+/**
  * OP-10 of table T-024a -- what to draw when the stored place is `null` or
  * points at a row that is gone.
  *
@@ -2775,10 +2883,10 @@ function viewSettings(
   fromTemplate: boolean,
   runDay: string,
   rowControlsHeightPx: number | undefined,
-): DocumentSettings {
+): ViewSettings {
   const groupIds = new Set(held.schedule.taskGroups.map((one) => one.id))
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
-  if (placed) return stored
+  if (placed) return { settings: stored, isAtStoredZoom: true }
 
   // ⭐ THE POSITION IS NO LONGER DECIDED HERE. OP-10 sends the zoom AND the
   // position to FR-055, and `fitZoom` (PI-5) now answers all four, so the two
@@ -2850,7 +2958,12 @@ function viewSettings(
   // and no day is invented in its place, so such a document falls to the fit
   // below like any other.
   if (fromTemplate && covered.length > 0) {
-    return { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 }
+    // ⭐ 「倍率は文書が持つものをそのまま使う」 -- OP-10's own sentence for this
+    // branch, which is why it answers `true` beside the fit's `false`.
+    return {
+      settings: { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 },
+      isAtStoredZoom: true,
+    }
   }
 
   // ⛔ `held.schedule` AND NOT A COPY WITH THE COLLAPSES DISCARDED. OP-10
@@ -2872,18 +2985,23 @@ function viewSettings(
     rowControlsHeightPx,
   )
   return {
-    ...pinned,
-    zoomX: fitted.zoomX,
-    zoomY: fitted.zoomY,
-    scrollDate: fitted.scrollDate,
-    scrollGroupId: fitted.scrollGroupId,
-    // ⛔ CLEARED WITH THE ANCHORS THEY BELONG TO, exactly as `fitCommand`
-    // clears them for the press. The fit puts the content's top left corner on
-    // the Row Area's corner, so S-176 and S-177 are both zero here; a fraction
-    // left standing from an earlier pan slid FR-055's answer by up to one row
-    // and one day, which is the one thing a fit must not do.
-    scrollDayOffset: 0,
-    scrollGroupOffset: 0,
+    settings: {
+      ...pinned,
+      zoomX: fitted.zoomX,
+      zoomY: fitted.zoomY,
+      scrollDate: fitted.scrollDate,
+      scrollGroupId: fitted.scrollGroupId,
+      // ⛔ CLEARED WITH THE ANCHORS THEY BELONG TO, exactly as `fitCommand`
+      // clears them for the press. The fit puts the content's top left corner on
+      // the Row Area's corner, so S-176 and S-177 are both zero here; a fraction
+      // left standing from an earlier pan slid FR-055's answer by up to one row
+      // and one day, which is the one thing a fit must not do.
+      scrollDayOffset: 0,
+      scrollGroupOffset: 0,
+    },
+    // ⛔ THE ONE BRANCH THAT DOES NOT DRAW `S-73`/`S-74`. A press stepped from
+    // the stored pair here would move the picture to a zoom nobody has seen.
+    isAtStoredZoom: false,
   }
 }
 
@@ -3486,7 +3604,14 @@ function isDisplayLanguage(value: string): value is DisplayLanguage {
  * @purity pure
  */
 function projectIdentityFromText(text: string): ProjectIdentity | null {
-  const read = documentFromJson(text)
+  // ⭐ THE VERSION TRAVELS HERE TOO (D-282), and the reading is dropped with
+  // the document. ⛔ Not because the comparison does not matter but because
+  // this act is not a LOAD: FR-073 answers 「文書を読み込んだとき」 and this
+  // road opens nothing -- DI-3 (MUST NOT) reads somebody else's file for two
+  // columns alone. ⚠️ Handed over all the same, so that no road of this build
+  // is one where `documentFromJson` is asked without the number: a caller that
+  // omits it gets `notCompared` and nothing says so.
+  const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) return null
   const project = read.document.schedule.project
   return { projectName: project.name, projectId: project.id }
@@ -4833,9 +4958,10 @@ export function frameLoop(
     // rule (MUST) has the picture follow the POINTER. A picture whose axis
     // moves with it cannot. ⭐ The layout below still reads the preview: the
     // layout IS the picture, and the axis is what it is drawn against.
-    const settings = viewSettings(held.document, withPanelShown, regions,
-                                  fromStartupTemplate, readToday(),
-                                  environment.rowControlsHeightPx)
+    const view = viewSettings(held.document, withPanelShown, regions,
+                              fromStartupTemplate, readToday(),
+                              environment.rowControlsHeightPx)
+    const settings = view.settings
     // ⭐ S-211 REACHES THE LAYOUT AND NOT ONLY THE PANEL. HR-2 of table T-015
     // (MUST) has a folded 段 0 draw no row at all, and which rows are drawn is
     // LC-1's answer -- so the fold is handed to the layout, and the panel, the
@@ -4879,7 +5005,13 @@ export function frameLoop(
     // reads. Two different answers here would put a grab where no point is
     // drawn (PD-191).
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
-    values = { regions, layout, geometry, settingsMeasuredWith: withPanelShown }
+    values = {
+      regions,
+      layout,
+      geometry,
+      settingsMeasuredWith: withPanelShown,
+      isPictureAtStoredZoom: view.isAtStoredZoom,
+    }
     // ⛔ HF-17 OF TABLE T-051 (MUST): 「足した行が描かれていないときは、その行が
     // 見える位置まで表示位置を送ること。打ち込み口だけを送ってはならない」 ——
     // 「口だけ送ると、確定したあとに行がどこへ行ったか読めない」. ⭐ The same row
@@ -5677,6 +5809,9 @@ export function frameLoop(
     // OPENED (so BT-4's exclusion does not hold for it) and both run FR-055's
     // fit themselves before comparing, so this argument is `false` on their
     // road whatever it is here.
+    // ⚠️ ONLY THE SETTINGS ARE OWED HERE. `ViewSettings`'s second member is for
+    // the press side (see `FrameValues.isPictureAtStoredZoom`), and an export
+    // has no press.
     const settings = viewSettings(
       document,
       withPanelsClosed,
@@ -5684,7 +5819,7 @@ export function frameLoop(
       fromStartupTemplate,
       readToday(),
       environment.rowControlsHeightPx,
-    )
+    ).settings
     // ⭐ LF-3's ROW-CONTROL FLOOR IS CARRIED INTO THE EXPORT TOO, though EP-4 of
     // table T-076 draws no row control in one. The floor is a rule of the BAND
     // (表 T-221) and not of the drawing, and a picture written out with shorter
@@ -5901,6 +6036,14 @@ export function frameLoop(
         }),
       ),
       settings,
+      // ⛔ THE DOCUMENT'S HUE, HANDED OVER WITH THE REQUEST (D-277). DR-5 of
+      // table T-052 keeps `themeHue` at `Project`, so neither `settings`
+      // (which carries S-72's preference) nor the `ScreenView` above can
+      // answer it, and `_source/components.json` has SingleHtmlShell hand it
+      // to ImageExporter rather than let that side read a document. ⭐ The
+      // same expression the frame crosses the theme with, for the reason
+      // FR-080 (MUST) gives: one drawing, not two.
+      themeHue: document.schedule.project.themeHue,
     }
   }
 
@@ -6400,6 +6543,10 @@ export function frameLoop(
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
+      // ⛔ OP-10 OF TABLE T-024a, ANSWERED BY THE SIDE THAT DREW THE PICTURE
+      // (D-358). The press side steps from the zoom in front of the person,
+      // and the BT-4 exception (MUST NOT) is invisible from there.
+      isPictureAtStoredZoom: frame.isPictureAtStoredZoom,
       // LF-3's row-control floor (MUST), measured by the surface that drew the
       // lattice -- FR-055's fit runs the layout again and has to run it with the
       // same floor the frame was drawn with.
@@ -9449,10 +9596,31 @@ export function frameLoop(
     // panel comes back, and UN-16 of table T-027 (パネル幅は対象外) is untouched
     // because no width was written at all.
     if (escapeLevel === 'propertiesPanel') isPropertiesPanelPutAway = true
-    // DC-4: `Esc` is one of the two ways out of the mode. ⛔ The two lines stay
-    // where they were put -- DC-7 (MUST NOT) forbids leaving the mode from
-    // clearing them, so nothing here touches `dualCursor`.
-    if (escapeLevel === 'dualCursorMode') dualCursorFollowing = null
+    // DC-4: `Esc` is one of the two ways out of the mode, and DC-7 (MUST) has
+    // leaving it take the two lines down with it.
+    //
+    // ⭐⭐ THE PAIR GOES WITH THE MODE -- 「モードを出たら、置いた 2 本を消すこと
+    // （MUST）」 with 「消したときは `dualCursor` を `null` へ戻すこと（MUST）」
+    // (DC-7, 利用者の裁定 2026-09-06, carried in by CR-364 / CR-369). ⛔ THE
+    // NOTE THAT STOOD HERE READ THE ROW BACKWARDS (D-301): it cited DC-7 as
+    // FORBIDDING the clear, which is that row's PRE-CR-364 sentence -- so this
+    // road dropped the following side and left the lines drawn, and a person
+    // pressing `Esc` saw nothing change at all.
+    // ⭐ THE SAME WRITE THE RE-PRESS ROAD MAKES, which is what keeps DC-4's two
+    // ways out from meaning two different things: `commandFromDualCursorEntry`
+    // (`input-command-translator.ts`) answers its own way out with CM-61, and
+    // this is that same command on the road the translator cannot reach --
+    // `escapeTarget` names this level for a holder that lives here (LY-5 of
+    // table T-060), so no action ever comes back for it.
+    // ⚠️ THE LEVEL IMPLIES THE MODE IS UP, so no press writes into a document
+    // with nothing placed: `escapeContextOf`'s `dualCursorMode` IS
+    // `dualCursorFollowing !== null`, and DC-1 (MUST) puts both dates down on
+    // the way in. ⛔ It also implies no gesture is in flight -- `escapeTarget`
+    // ranks 'gesture' above this rung -- so WS-2 cannot refuse the write.
+    if (escapeLevel === 'dualCursorMode') {
+      dualCursorFollowing = null
+      writeDocument([{ kind: 'clearDualCursor' }], frame)
+    }
 
     // ⛔ THE ORDER IS LOAD-BEARING. The press is dropped AFTER the translator
     // has read it -- a release is decided entirely from the press (CS-2) --
