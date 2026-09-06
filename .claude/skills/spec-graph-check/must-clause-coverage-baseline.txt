@@ -1,5 +1,12 @@
-948
+952
 #
+# RAISED 948 -> 952 ON 2026-09-06, DELIBERATELY. FR-009 gained four marked
+# clauses when the user's ruling on D-346 was written down: where the half
+# splits (the bar's own midpoint, not table T-038's occupied width), which
+# side the exact midpoint falls on, that the answer must be reachable from a
+# published name, and that the existing hit test may not take the arm.
+# ⛔ Debt, not a settlement: the body that implements it runs beside a
+# spec-only body whose job is to hold these four verbatim.
 # LOWERED 952 -> 948 ON 2026-09-06, the same day it was raised. Retiring
 # the guide cursor's 'double-vertical' (CR-369) took marked clauses out with
 # it, and the spec-only body that followed the moved tables held four more
