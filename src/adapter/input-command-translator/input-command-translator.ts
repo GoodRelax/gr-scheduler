@@ -8416,30 +8416,20 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   if (input.kind === 'pointer') {
     if (input.phase !== 'up') return state
     const on = context.pressed === null ? null : context.pressed.on
-    // STOP -- ⛔ U-62 `Import Report`'s ONE ENTRANCE CANNOT BE ANSWERED HERE, AND
-    // WHAT IS MISSING IS A MEMBER OF `ScreenPart`. FR-023 (MUST) raises that
-    // surface after an import dropped rows and U-62 of table T-103 gives it 「入口
-    // は `OK` の 1 つだけである」, whose WORD comes from NT-8 of table T-037.
-    // `dom-screen-surface.ts` now draws it; a press on it arrives here and every
-    // road is shut:
-    //   `on.entry` names a row of table T-109, and NO row of it names U-62 --
-    //     the entrance is a WORD, and minting a row is what FR-029 (MUST) and
-    //     RC-13 of table T-026 refuse this side;
-    //   `on.noticeDismissKey` names a telling of `ScreenSession.notices`, and
-    //     the shell spends it by taking that telling out of the list -- a press
-    //     marked that way is swallowed there and never reaches this member;
-    //   `on.confirmationAnswer` is one of NT-7's two answers, and U-62's own row
-    //     (⛔) says it is not a `Confirmation` -- it asks nothing.
-    // ⛔ AND THE PART ALONE WILL NOT DO: `on.part` says only that the press
-    // landed on that surface, so acting on it would close U-62 on a press
-    // anywhere -- on a name, or on the scrollbar of the list FR-023 (MUST NOT)
-    // forbids shortening -- which is an entrance the specification did not give.
-    // ⇒ What is owed is ONE more member on `ScreenPart`
-    // (`src/adapter/screen-renderer/screen-surface.ts`) saying that a press
-    // landed on a surface's word entrance, and one arm here closing S-99g's
-    // surface when it is set: `screenStateWithSurface(state, null)`.
-    // ⚠️ MEANWHILE NOTHING IS TRAPPED: `escapeTarget` reaches U-62 at the surface
-    // rung of IN-4 like any other surface, so `Esc` is the way out.
+    // U-62 `Import Report`'s one entrance (NT-8 of table T-037): FR-023 (MUST)
+    // raises that surface after an import dropped rows, and table T-103 gives
+    // it 「入口は `OK` の 1 つだけである」. A press there closes S-99g's surface.
+    // ⛔ READ OFF `isImportReportDismiss` AND NOT `entry`, `noticeDismissKey` OR
+    // `confirmationAnswer`: no row of table T-109 names U-62 (FR-029, MUST),
+    // minting one is RC-13 of table T-026's decision to make and not this
+    // member's, `noticeDismissKey` names a telling of `ScreenSession.notices`
+    // which U-62 is not, and `confirmationAnswer` is one of NT-7's two answers
+    // which U-62's own row says it never asks for.
+    // ⚠️ AND NOT `on.part` ALONE: that answers only that the press landed on
+    // U-62 somewhere, and acting on it would close the surface on a press
+    // anywhere -- on a dropped name, or on the scrollbar of the list FR-023
+    // (MUST NOT) forbids shortening.
+    if (on?.isImportReportDismiss === true) return screenStateWithSurface(state, null)
     return on === null || on.entry === null ? state : screenStateFromEntry(on.entry, context)
   }
   if (input.kind !== 'key') return state

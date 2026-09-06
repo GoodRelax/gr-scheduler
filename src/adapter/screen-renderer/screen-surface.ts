@@ -247,6 +247,30 @@ export interface ScreenPart {
    * one would settle a question nobody answered.
    */
   readonly confirmationAnswer?: string
+  /**
+   * Whether the point is on U-62 `Import Report`'s one entrance -- table
+   * T-103's 「入口は `OK` の 1 つだけである」, whose word is NT-8 of table T-037.
+   *
+   * ⛔ A SEVENTH MEMBER AND NOT A SPELLING OF `entry`, `noticeDismissKey` or
+   * `confirmationAnswer`, for the reason each of those gives in turn: FR-029
+   * (MUST) makes table T-109 the whole of the icons and no row of it names
+   * U-62, so `entry` cannot carry this press without minting a row RC-13 of
+   * table T-026 refuses this side; `noticeDismissKey` names a telling of
+   * `ScreenSession.notices`, which U-62 is not; and `confirmationAnswer` is one
+   * of NT-7's two answers, which U-62's own row says it never asks for.
+   *
+   * ⚠️ `part` ALONE WILL NOT DO: that member says only that the press landed on
+   * U-62 somewhere, and acting on it would close the surface on a press
+   * anywhere on it -- on a dropped name, or on the scrollbar of the list
+   * FR-023 (MUST NOT) forbids shortening -- which is an entrance the
+   * specification did not give.
+   *
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS `false`, the same bargain `isRowGrabStrip`
+   * and `confirmationAnswer` above keep: a `ScreenPart` literal written before
+   * this member existed goes on compiling, and a description that does not
+   * carry it comes from a side that has not been taught to answer yet.
+   */
+  readonly isImportReportDismiss?: boolean
 }
 
 /**

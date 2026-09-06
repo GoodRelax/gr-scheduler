@@ -556,8 +556,8 @@ const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
  * ⭐ MARKED ALL THE SAME, for the reason `WATERMARK_UNLOCK_ENTRY_ATTRIBUTE`
  * above is: the read-back rule 04 asks for after anything that draws has to be
  * able to find it.
- * ⛔⛔ AND A PRESS ON IT CANNOT YET BE ANSWERED -- see the STOP on
- * `importReportElements` for the member `ScreenPart` would have to gain.
+ * ⭐ READ BACK AS `ScreenPart.isImportReportDismiss` (`readScreenPartAt` below),
+ * which `input-command-translator.ts` closes S-99g's surface on.
  */
 const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
 
@@ -5572,22 +5572,12 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
   // MUST) and no row of it names U-62 -- minting one is RC-13 of table T-026's
   // decision to make, not this unit's.
   //
-  // STOP -- ⛔ A PRESS ON THIS ENTRANCE STILL CLOSES NOTHING, AND THE ABSENCE IS
-  // OUTSIDE THIS FILE. `readScreenPartAt` can only answer what `ScreenPart`
-  // declares, and not one of its members can carry this press:
-  //   `entry` names a row of table T-109 and U-62 has none (FR-029, MUST);
-  //   `noticeDismissKey` is a telling of `ScreenSession.notices`, and the shell
-  //     spends it by taking that telling out of the list -- a press marked that
-  //     way is swallowed there and never reaches `screenStateFromInput`;
-  //   `confirmationAnswer` is one of NT-7's two answers, and U-62 (⛔ its own
-  //     row) is not a `Confirmation`.
-  // ⇒ What is owed is ONE more member on `ScreenPart`
-  // (`src/adapter/screen-renderer/screen-surface.ts`) saying that a press landed
-  // on a surface's word entrance, this walk putting it on the answer, and
-  // `input-command-translator.ts` closing S-99g's surface when it is set.
-  // ⚠️ UNTIL THEN THE WAY OUT IS `Esc` at the surface rung of IN-4, which
-  // reaches U-62 like any other surface -- so nothing is trapped, and the
-  // entrance is drawn because FR-023 (MUST) has U-62 carry it.
+  // ⭐ A PRESS ON THIS ENTRANCE CLOSES U-62: `readScreenPartAt` answers it as
+  // `ScreenPart.isImportReportDismiss` (the member `entry`, `noticeDismissKey`
+  // and `confirmationAnswer` could none of them carry -- see that member's own
+  // note in `screen-surface.ts`), and `input-command-translator.ts` closes
+  // S-99g's surface when it reads that member set. `Esc` at the surface rung
+  // of IN-4 remains a second way out, same as every other surface.
   const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
   dismiss.setAttribute('type', 'button')
   dismiss.setAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE, 'true')
@@ -8215,6 +8205,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let part: string | null = null
     let dismissKey: string | null = null
     let answer: string | null = null
+    // U-62 `Import Report`'s one entrance (NT-8 of table T-037). ⛔ A TRUTH
+    // VALUE AND NOT A KEY, the same shape `isRowGrabStrip` keeps below: the
+    // button carries no payload of its own, so there is nothing to read back
+    // but whether the point was on it.
+    let onImportReportDismiss = false
     // GR-20 of table T-023d. ⛔ A TRUTH VALUE AND NOT A KEY: the strip carries
     // no `data-group-id` of its own, because the row it sits in already does
     // and the walk takes the innermost one.
@@ -8258,6 +8253,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // on this same walk and not by a second query, for the reason the note
       // above gives -- a second query would ask a screen that had moved.
       if (node.getAttribute(ROW_GRAB_STRIP_MARK) !== null) onGrabStrip = true
+      // U-62 `Import Report`'s one entrance (NT-8 of table T-037), read on the
+      // same walk for the same reason.
+      if (node.getAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE) !== null) {
+        onImportReportDismiss = true
+      }
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -8300,6 +8300,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // answer」, so a reader that compares whole answers is left unchanged for
       // every point that is on neither.
       ...(answer === null ? {} : { confirmationAnswer: answer }),
+      // U-62 `Import Report`'s one entrance (NT-8 of table T-037), carried the
+      // same way `isRowGrabStrip` is above.
+      ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
     }
   }
 
