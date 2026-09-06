@@ -1,5 +1,14 @@
-952
+941
 #
+# LOWERED 952 -> 941 ON 2026-09-06. Eleven clauses of this round are now held
+# verbatim by a test that also presses what they say: FR-025 (a picture may
+# not carry a scale; a document holding the retired key keeps it) through the
+# export's own size and a JSON round trip; FR-023's five (drop the row, do not
+# ask, tell the names afterwards) through an import of a task with an unusable
+# date; and HF-17 (unfold segment zero by ONE level, not all of it) through a
+# fully folded document. ⭐ Two more were already held, by the ST-7 file.
+# ⛔ None of the eleven went red -- the code already matched, and the sites
+# that carry them quote the clauses in their own comments.
 # RAISED 950 -> 952 ON 2026-09-06. FR-020 gained the two clauses the user
 # settled about WHEN the watermark's trail is stamped: at the moment the
 # document is opened and again when the document CHANGES (a watermark
