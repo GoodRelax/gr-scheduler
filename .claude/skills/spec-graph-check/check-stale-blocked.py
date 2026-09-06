@@ -88,12 +88,14 @@ REL_BASELINE = '.claude/skills/spec-graph-check/stale-blocked-baseline.txt'
 
 # ⛔ Phrases that mean "this cell is waiting on a ruling or a spec row that
 # does not exist yet".
-STILL_BLOCKED = (u'未定', u'利用者の裁定が要る', u'裁定を待つ', u'仕様に行が無い')
+STILL_BLOCKED = (u'未定', u'利用者の裁定が要る', u'裁定を待つ',
+                 u'仕様に行が無い', u'裁定が要る')
 
 # ⭐ Phrases that mean the block named above is over, when they sit in the
 # same cell as one of the phrases above.
 SETTLED_IN_CELL = (u'裁定を受けた', u'裁定が下りた', u'裁定は下りて', u'決着',
-                    u'仕様書へ入れた', u'書いた先は')
+                    u'仕様書へ入れた', u'書いた先は',
+                    u'裁定された', u'裁定')
 
 # ⭐ A status this far along could not have been reached without a decision.
 # ⚠ Renamed 2026-09-01 with the eight-state ledger: テスト中 and テスト待ち

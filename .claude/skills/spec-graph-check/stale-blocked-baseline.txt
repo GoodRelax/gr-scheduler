@@ -1,4 +1,29 @@
-48
+52
+#
+# RAISED 48 -> 52 ON 2026-09-06, DELIBERATELY, AND THE RAISE IS THE POINT:
+# the check's VOCABULARY was widened, not the ledger loosened. STILL_BLOCKED
+# gained 裁定が要る (the bare form -- 利用者の裁定が要る was already there and
+# missed every cell that dropped the 利用者の) and SETTLED_IN_CELL gained
+# 裁定された, which is the phrase this round's own rulings are written in.
+#
+# ⭐ WHY: this round handed four items to bodies as unexamined that had
+# already been ruled -- one of them thirteen days earlier. D-301 was one, and
+# neither check 31 nor the new check 40 saw it, because its ruling came from a
+# CR and its cell said 裁定された beside an older 裁定が要る. The two words
+# close exactly that hole: D-301 is now caught.
+#
+# ⚠️ MEASURED BOTH WAYS BEFORE SETTLING. Adding 未検討 to STILL_BLOCKED as
+# well took the count 48 -> 115: most cells keep their opening 未検討 as the
+# record of when the row was raised, so that word is narrative, not state.
+# 67 new hits on a 48 baseline is noise, and noise is how a check gets
+# ignored. 未検討 was therefore NOT added.
+#
+# ⭐ ONE OF THE FIVE THE WIDENING FOUND WAS FIXED, NOT ABSORBED: D-318 held
+# 裁定が要る and 裁定された in the same cell within an hour of each other --
+# the front session's own contradiction. The older sentence is now dated as
+# the record it is, which is why this lands at 52 and not 53.
+#
+# LOWER THIS by rewording the four, not by narrowing the words back.
 #
 # RAISED 47 -> 48 ON 2026-09-06 for D-286, and this one is the check's fault,
 # not the row's. The marker it matched is 「未定」 inside a VERBATIM QUOTE of

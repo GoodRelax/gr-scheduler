@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 36 mechanical checks for the gr-scheduler specification.
+# All 38 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -11,6 +11,7 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
+# ⭐ Recounted 2026-09-06 when checks 40 and 41 were added: 36 -> 38.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -143,6 +144,29 @@
 #          tests/. Held against must-clause-coverage-baseline.txt the same
 #          way check 29 and check 31 are: the UNHELD count (1,164 of 1,634 on
 #          2026-09-05) may fall freely and may only rise deliberately
+#   40     check-ruled-elsewhere.py : a defects.md row still reading as
+#          un-ruled -- ステータス at 未検討 / 裁定待ち / 仕様待ち, or its
+#          対応方針・決定仕様 cell holding 未検討 / 裁定待ち / 利用者の裁定が
+#          要る / 裁定を待つ / 未定 / 仕様に行が無い -- while a `PD-nnn` the
+#          same row NAMES stands at 裁定済 in pending-decisions.md. ⛔ Check 31
+#          is intra-row and check 25 reads the marks in src/; NOTHING read the
+#          two books together, and the same question lands in both. ⚠️
+#          Measured 2026-09-06: four items were handed out as unexamined and
+#          re-worked when they had already been ruled -- D-270 for thirteen
+#          days, against a PD-178 that named the very test that had to fall.
+#          Held against ruled-elsewhere-baseline.txt (7) the way check 31 is.
+#          ⚠️ It prints, without gating, the rows whose only link to a ruling
+#          is a change request: a CR routinely cites the row that RAISED it,
+#          so gating there is a 38-row noise floor on a 7-row signal
+#   41     tools/precheck.py : the six traps that otherwise cost a round trip
+#          -- a bare change-request number, personal information or an
+#          absolute path, a hand edit to a generated file, and the rest. ⛔ It
+#          existed as `npm run precheck` and SAT IN NO GATE: nothing called
+#          it, and there is no git hook, so it ran only when somebody
+#          remembered -- which rule 04's own measurement says means it did not
+#          run. It reads what git reports as changed, so on a clean tree it
+#          passes having looked at nothing; that is the point, it is the
+#          cheapest guard and it goes first
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -177,6 +201,18 @@ echo "   The front session ORCHESTRATES: subagents implement and test (05.6)."
 echo ""
 # The index is Japanese; a cp932 console would mangle it.
 PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || fail=1
+
+echo ""
+echo "===== 41  the traps that are cheaper to catch before the edit ====="
+# ⛔ Wired in 2026-09-06. `npm run precheck` had existed for rounds and was in
+# NO gate whatever -- this script never called it and there is no git hook, so
+# it ran only when somebody remembered. Measured green (exit 0) on the tree of
+# that day BEFORE being wired: a gate that is born red teaches people to ignore
+# gates. ⚠️ With no arguments it reads what git reports as changed, so on a
+# clean tree it passes having examined nothing. That is correct: it is the
+# early guard, not the authority. check.sh below stays the authority.
+PYTHONIOENCODING=utf-8 python tools/precheck.py || fail=1
+
 echo ""
 echo "===== 1-4  StrictDoc export ====="
 # The export writes INTO $SD and never clears it, so a run leaves its own
@@ -328,6 +364,12 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || fa
 echo ""
 echo "===== 31  a row that still reads blocked while the row says it is settled ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || fail=1
+
+echo ""
+echo "===== 40  a row still un-ruled while its pending decision is 裁定済 ====="
+# ⛔ utf-8: it prints the two books' Japanese state words, and telling 未検討
+# from 裁定済 is the whole point of the line.
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruled-elsewhere.py || fail=1
 
 echo ""
 echo "===== 37  a table's row and its display word were read together ====="

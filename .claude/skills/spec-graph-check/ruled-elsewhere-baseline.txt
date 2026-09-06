@@ -1,0 +1,42 @@
+7
+#
+# SET TO 7 ON 2026-09-06, the day check 40 was written. ⛔ COUNTED FIRST, then
+# written here -- the number is what the check printed against the tree as it
+# stood, NOT a zero with the rows "fixed" to reach it.
+#
+# The seven, as printed (row [status] -> the 裁定済 PD it names):
+#
+#   docs/development-records/defects.md
+#     D-252 [取下げ]   -> PD-70, PD-71
+#     D-269 [未検討]   -> PD-70, PD-71, PD-80, PD-81, PD-82, PD-131, PD-133
+#     D-270 [試験待ち] -> PD-178
+#     D-292 [試験待ち] -> PD-3
+#   docs/development-records/fixed-defects.md
+#     D-48  [実測済]   -> PD-319
+#     D-61  [実測済]   -> PD-339
+#     D-156 [実測済]   -> PD-400
+#
+# ⭐⭐ D-270 IS THE ROW THIS CHECK WAS WRITTEN FOR. Its 対応方針・決定仕様 cell
+# opened 「⛔ 未検討。」 while PD-178 had stood at 裁定済 since 2026-08-23 --
+# thirteen days -- holding both the answer and the name of the test that had to
+# fall. It was handed to a body as unexamined and re-worked from nothing. Had
+# this check existed, the row would have been red the day PD-178 was ruled.
+#
+# ⚠️ D-269 is the largest hit and it is a real one: the row is still 未検討
+# while all seven PD rows it names are 裁定済 -- PD-428 is the row that says
+# those seven were MISCLASSIFIED and are already implemented behind
+# @provisional marks. That is precisely the ledger and the pending book
+# disagreeing about the same question.
+#
+# ⚠️ The three in fixed-defects.md are the harvest's share: a row only reaches
+# 実測済 by having been ruled on, so a cell that opened 未検討 and was never
+# reworded travels into the harvested file with the staleness intact. They are
+# not new work; they are old openings nobody deleted.
+#
+# ⛔ HOW TO BRING THIS DOWN. Reword the 対応方針・決定仕様 cell so it says what
+# the ruling was and where it is recorded -- do NOT delete the history. The
+# row stays a record. Then lower this number and say which row in the commit.
+#
+# ⛔ RAISING THIS IS TAKING ON DEBT. A new hit means a body is about to redo a
+# question the user already answered, which is the most expensive failure this
+# repository has measured. Raise it only deliberately, and say why here.
