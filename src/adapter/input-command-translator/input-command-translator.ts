@@ -7953,6 +7953,35 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
       return screenStateWithSurface(state, AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return screenStateWithSurface(state, RESOURCE_ROSTER)
+    // IC-45 -- table T-023b's closing paragraph (MUST): 「`Dual Cursor` モード
+    // （表 T-029a）に入るときも構えを外すこと（MUST）」, with its own reason
+    // beside it -- 「同モードは作成・移動・編集を受け付けないので、構えたまま
+    // 入れると何も起きない構えが残る」 (DC-5, which is PD-2 of table T-023a).
+    //
+    // ⛔ THE WAY IN ONLY, WHICH IS WHY THIS IS NOT AN UNCONDITIONAL DISARM.
+    // The same entry is DC-4's way OUT (`commandFromDualCursorEntry` reads the
+    // very same value to tell the two apart), and the clause says 「入るとき」
+    // -- disarming on the way out would take an arm the reader picked up while
+    // the mode stood, which no row asks for.
+    //
+    // ⭐ THE MODE IS THE FOLLOWING SIDE, so `dualCursorFollowing === null`
+    // is 「入る」 and nothing else has to be kept in step. ⚠️ The mode itself
+    // is NOT written here: it is a current value the Framework holds (LY-5 of
+    // table T-060), which `commandFromDualCursorEntry` answers with
+    // `setDualCursorFollowing`. This member owns `armed` and only that.
+    //
+    // ⚠️ 台帳 D-295 WAS THIS CASE BEING ABSENT: `IC-45` has no key in
+    // `ARMED_BY_ENTRY` either, so the press fell past the switch, `armedByEntry`
+    // answered null, and the state came back untouched with the arm still held.
+    // ⚠️ ONE CORNER IS DELIBERATELY NOT MIRRORED: PD-313 lets
+    // `commandFromDualCursorEntry` take the press WITHOUT raising the mode when
+    // the axis can name no day, and the arm is dropped here all the same.
+    // Re-reading `dayAtX` here would put PD-313's rule in a second place, and
+    // that corner is one BO-1 of table T-077 already forbids drawing in.
+    case ENTRY.dualCursor:
+      return context.dualCursorFollowing === null
+        ? screenStateWithArmed(state, { kind: 'none' })
+        : state
     // IC-41 -- FR-020 (MUST): 「透かしを消す入口（表 T-109 の `IC-41`）が押された
     // とき、透かし解除の面（…… 表 T-103 の `U-60`）を立てること」, and (MUST)
     // 「同じ入口が両方向を担うこと …… 出ているときは押すと面が立ち、消えていると

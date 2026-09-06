@@ -12,28 +12,33 @@
 // cheaper and safer than describing the same things a second time, and it is
 // why `screenViewFromRegions` builds this member last.
 //
-// ⛔⛔ STOP -- NOTHING GRANTS IN-3's 「消せること」, AND THE NOTE THAT STOOD HERE
-// SAID SOMETHING FALSE. It read 「WHY NOTHING HERE SAYS 'CAN BE DISMISSED': IN-3
-// of table T-028 grants that to every tooltip」 -- but IN-3 grants nothing; it
-// REQUIRES (MUST) that an explanation can be put away 「ポインタもフォーカスも
-// 動かさずに」, and IN-4 of the same table names the ONE means: its last rung,
-// 出ている説明. Measured 2026-09-05 on the shipped build: with an explanation
-// standing over IC-7, `Esc` left it standing. ⇒ No side gave what this file
-// assumed had been given (D-307).
-// ⭐ THE RUNG NOW EXISTS: `escapeTarget` (screen-state.ts) answers `'tooltip'`
-// as IN-4's last level. ⛔ WHAT IS STILL MISSING IS THE VALUE THIS UNIT WOULD
-// READ. EZ-2 and EZ-6 of table T-040 raise an explanation purely from the rest
-// (`pointerRestedMs`) and the place (`iconUnderPointer`, `taskUnderPointer`),
-// and `ScreenSession` carries nothing saying the reader has put one away -- so
-// a rung spent on the far side would be undone by the very next frame, which
-// would raise the same explanation from the same two answers. One member on
-// `ScreenSession` is what closes it: 「the standing explanation was dismissed」,
-// raised by the holder when `escapeTarget` answers `'tooltip'` and cleared on
-// the next pointer move, which is IN-3's own 「引き金が外れるまで」. This unit
-// would then answer with no explanation while it stands.
-// ⛔ NOT INVENTED HERE. Table T-075 fixes this unit's signature and Chapter 5.3
-// fixes `ScreenSession` outside this file, so the member is reported rather
-// than added.
+// ⭐⭐ IN-3's 「消せること」 IS GRANTED, AND NOT BY ANYTHING IN THIS FILE. The
+// note that stood here for three rounds said 「WHY NOTHING HERE SAYS 'CAN BE
+// DISMISSED': IN-3 of table T-028 grants that to every tooltip」 -- but IN-3
+// grants nothing; it REQUIRES (MUST) that an explanation can be put away
+// 「ポインタもフォーカスも動かさずに」, and IN-4 of the same table names the ONE
+// means: its last rung, 出ている説明. Measured 2026-09-05 on the shipped build:
+// with an explanation standing over IC-7, `Esc` left it standing, twice (D-307).
+//
+// ⭐ THE THREE PARTS THAT CLOSE IT, AND WHY ONLY THE LAST IS HERE:
+//   the rung      `escapeTarget` (screen-state.ts) answers `'tooltip'` as
+//                 IN-4's last level, below the Dual Cursor mode and above null
+//                 -- so IN-4a still hands the key to the browser when no
+//                 explanation stands.
+//   the holder    `frame-loop.ts` is the one side that can see whether one
+//                 stands, and it raises `ScreenSession.isTooltipDismissed` when
+//                 the rung is spent, clearing it on the next pointer move.
+//                 ⛔ LY-5 of table T-060 leaves that current value there, not
+//                 here.
+//   this unit     answers with NO explanation while that member stands. ⛔ AND
+//                 THAT IS THE WHOLE OF WHAT THIS FILE DOES ABOUT IT: EZ-2 and
+//                 EZ-6 of table T-040 raise an explanation purely from the rest
+//                 (`pointerRestedMs`) and the place (`iconUnderPointer`,
+//                 `taskUnderPointer`), so without this reading the very next
+//                 frame would raise the same explanation from the same two
+//                 unchanged answers and the rung would spend nothing.
+// ⛔ NOT INVENTED HERE. Table T-075 fixes this unit's signature, so the member
+// arrives on the session it is already handed rather than as a new argument.
 // ⚠️ IN-3's THIRD CONDITION IS NOT "NEVER GOES AWAY BY ITSELF". IN-3 holds a
 // tooltip until the pointer or the focus leaves what it explains, the person
 // dismisses it, or its content stops being valid -- so a trigger that has left
@@ -342,6 +347,15 @@ export function tooltipsFromScreenView(
   settings: DocumentSettings,
   session: ScreenSession,
 ): readonly Tooltip[] {
+  // IN-3 of table T-028 (MUST) -- 「消せること」, spent through IN-4's last rung
+  // (出ている説明) by the side that holds the session. ⛔ BEFORE EVERY RAISER
+  // AND NOT INSIDE ONE: the row asks that a standing explanation can be put
+  // away, and both raisers below would otherwise put the same one straight back
+  // from the rest and the place, which have not changed. ⚠️ FR-037's scrollbar
+  // hint is under it too -- IN-3 speaks of ツールチップ without dividing them,
+  // and the rung it names is one rung for whatever stands.
+  if (session.isTooltipDismissed === true) return []
+
   const pointer = session.pointer
 
   // STOP -- ⚠️ NOT STATED: whether resting for exactly `iconHintDelayMs` is

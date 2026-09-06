@@ -167,6 +167,16 @@ export type AgentRefusalReason =
    * that answers with this has not failed; it has not been built.
    */
   | 'notAvailable'
+  /**
+   * ⛔ NOT A CATEGORY THE SPECIFICATION STATES EITHER, and it is here for the
+   * same reason `notAvailable` is: FR-028 (MUST NOT) forbids throwing, and a
+   * caller outside this build can hand a member an argument that is not the
+   * shape table T-107 declares. ⭐ AG-9a asks a refusal to carry 「理由の区分」
+   * and does not enumerate the categories, which is what leaves room for both.
+   * ⚠️ Measured 2026-09-06 (ledger row D-325): `applyCommands` with no
+   * `readStamp` threw where this answers.
+   */
+  | 'malformedRequest'
 
 /**
  * Why a call was turned away. AG-9a fixes the first three fields (MUST): the
@@ -759,6 +769,29 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity non-pure */
     applyCommands(request: AgentWriteRequest): AgentWriteOutcome {
       const snapshot = source.readSnapshot()
+      // ⛔⛔ FR-028 (MUST NOT): 「例外を投げてはならない」. The MUST NOT is
+      // unconditional, so a caller who leaves the stamp out has to be REFUSED,
+      // not thrown at -- and a caller outside this build is exactly who would.
+      // ⚠️ Measured 2026-09-06: `applyCommands({commands})` with no `readStamp`
+      // reached `documentStamp`'s comparison and threw
+      // `Cannot read properties of undefined (reading 'scheduleUpdatedUtc')`.
+      // ⭐ The well-formed shape was never broken; `tests/unit/uf-27-28-29.test.ts`
+      // has covered it since AM-7 was built. Ledger row D-325.
+      if (request === null || typeof request !== 'object'
+        || (request.readStamp as unknown) === null
+        || typeof request.readStamp !== 'object'
+        || !Array.isArray(request.commands)) {
+        return {
+          accepted: false,
+          refusal: agentRefusal(
+            'AM-7',
+            'malformedRequest',
+            snapshot,
+            'AM-7 takes { readStamp, commands }; one of the two is missing or not its shape',
+            [],
+          ),
+        }
+      }
       return writeThroughTheOnePath(
         wiring,
         snapshot,

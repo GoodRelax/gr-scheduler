@@ -1,4 +1,15 @@
-47
+48
+#
+# RAISED 47 -> 48 ON 2026-09-06, deliberately, for D-322.
+# The check reads a leading tick in 実物確認 as "the block is over". On that
+# row the tick records measuring the DEFECT -- F2 pressed on the shipped
+# build, nothing stands up -- not a fix. The row really is waiting on a
+# ruling: a body measured both roads FR-035 could take and found each needs
+# a rule invented, which the house rules forbid.
+#
+# LOWER IT AGAIN when that ruling lands. If a third row ever needs this
+# exemption, the check's heuristic is what should change, not the number.
+#
 # ⛔ Rows whose 対応方針・決定仕様 cell still contains a still-blocked phrase
 # (未定 / 利用者の裁定が要る / 裁定を待つ / 仕様に行が無い) while the SAME row
 # also shows the block is over -- a settled phrase in the same cell, a

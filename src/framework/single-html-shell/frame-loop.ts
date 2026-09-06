@@ -2161,6 +2161,11 @@ interface SessionHeld {
    * `null` for a point it claims for anything else.
    */
   readonly taskUnderPointer: Task | null
+  /**
+   * IN-3 of table T-028 -- whether the reader has put the standing explanation
+   * away through IN-4's last rung. See `ScreenSession.isTooltipDismissed`.
+   */
+  readonly isTooltipDismissed: boolean
   /** FR-053 -- where GR-19's drag left the palette, `null` while nobody has. */
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   /**
@@ -2268,6 +2273,7 @@ function sessionOf(
     pointerRestedMs,
     iconUnderPointer,
     taskUnderPointer,
+    isTooltipDismissed,
     commandPaletteDraggedTo,
     rowGrabbedAt,
     isLevelZeroFolded,
@@ -2327,6 +2333,12 @@ function sessionOf(
     // `itemAtPointer` (PI-7) answered for this very point, handed on rather
     // than asked for again (R7.4).
     taskUnderPointer,
+    // IN-3 of table T-028 (MUST) -- 「消せること」, which IN-4's last rung
+    // (出ている説明) is the one means of. ⭐ Handed on rather than decided here,
+    // for the reason the two above are: only the loop can see whether an
+    // explanation stands, and LY-5 of table T-060 leaves that current value
+    // with it.
+    isTooltipDismissed,
     // FR-053: where the drag left it, or the `Row Area`'s corner while nobody
     // has dragged it. ⭐ Handed in rather than decided here -- it is a current
     // value and LY-5 of table T-060 leaves those with the loop, which is the
@@ -2673,6 +2685,7 @@ function escapeLevelOf(
   context: InputContext,
   isConfirmationStanding: boolean,
   isPropertiesPanelOpen: boolean,
+  isTooltipStanding: boolean,
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
@@ -2688,6 +2701,12 @@ function escapeLevelOf(
     dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
     isPropertiesPanelOpen,
+    // IN-4's LAST level, and the one this side alone can report: what a frame
+    // put up is `ScreenView.tooltips`, built afresh per frame by UF-69, and
+    // LY-5 of table T-060 leaves that current value here. ⛔ Reporting it is
+    // not spending it -- the caller does that, by raising the dismissal the
+    // next frame reads.
+    isTooltipStanding,
   })
 }
 
@@ -3799,6 +3818,24 @@ export function frameLoop(
   // ⚠️ WHAT WAS DRAWN AND NOT WHAT IS DUE. It says only that the last painted
   // frame carried one, which is exactly what a move might now have to erase.
   let isTooltipStanding = false
+  // Whether the reader has put that explanation away -- IN-3 of table T-028's
+  // 「消せること」, spent through the last rung of IN-4's ladder (出ている説明).
+  //
+  // ⛔ WHY A SECOND BINDING AND NOT THE ONE ABOVE TURNED OFF. `isTooltipStanding`
+  // is a RECORD of what the last painted frame carried, rewritten from
+  // `screenView.tooltips` on every paint -- so a dismissal written into it would
+  // be overwritten by the next frame, which is the frame that has to honour it.
+  // This one is a DECISION the reader made, and it outlives frames until the
+  // pointer moves.
+  //
+  // ⭐ CLEARED WHERE `beginPointerRest` IS CALLED, which is IN-3's own 「引き金が
+  // 外れるまで」 read forwards: a move starts EZ-2's wait over, so the next
+  // explanation is raised on its own terms rather than held down by a dismissal
+  // that belonged to the place the pointer has left. ⚠️ Not on a key: IN-3 asks
+  // that the putting-away happen 「ポインタもフォーカスも動かさずに」, so a
+  // dismissal that any keystroke undid would put the explanation back under the
+  // hand that had just taken it away.
+  let isTooltipDismissed = false
   // FT-4 of table T-078 -- when the rest EZ-2 of table T-040 waits on began,
   // read off the monotonic clock R3.6 requires for an elapsed time, or `null`
   // while the pointer has never yet been reported to stand anywhere.
@@ -4452,6 +4489,8 @@ export function frameLoop(
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
               : null,
+          // IN-3 / IN-4's last rung, as it stands this frame.
+          isTooltipDismissed,
           commandPaletteDraggedTo,
           rowGrabbedAt,
           // S-211 of table T-206 -- 段 0's own fold, as this frame stands.
@@ -5233,6 +5272,12 @@ export function frameLoop(
           // the pointer nor the moment. EP-15 of table T-076 keeps the
           // explanation out of the picture in as many words.
           taskUnderPointer: null,
+          // ⚠️ NOTHING TO PUT AWAY IN A PICTURE THAT IS BEING WRITTEN OUT, for
+          // the same reason the two above are empty: EP-15 of table T-076 keeps
+          // the explanation out of it, so no dismissal of one can show either.
+          // ⛔ `false` and not `true`: this says nobody dismissed anything, which
+          // is what happened -- the picture simply carries no explanation.
+          isTooltipDismissed: false,
           commandPaletteDraggedTo: null,
           // ⛔ NO ROW IS BEING HELD IN A PICTURE THAT IS BEING WRITTEN OUT, on
           // the same ground the corner above is at none: EP-12 of table T-076
@@ -7076,10 +7121,42 @@ export function frameLoop(
         return
       case 'copySelection':
       case 'pasteClipboard':
-        // STOP -- ⛔ NO CLIPBOARD SEAM IS WIRED. SK-4 and SK-5 belong to
-        // ClipboardGateway (PI-24 of table T-064), and nothing in this build
-        // builds one or hands it to this loop. ⚠️ Doing nothing here is not
-        // the behaviour: it is the absence of it.
+        // STOP -- ⛔ NO STORE HOLDS WHAT WAS COPIED. ⚠️ Doing nothing here is
+        // not the behaviour: it is the absence of it (台帳 D-321 / D-290).
+        //
+        // ⛔⛔ THE NOTE THAT STOOD HERE NAMED THE WRONG THING MISSING. It read
+        // 「NO CLIPBOARD SEAM IS WIRED. SK-4 and SK-5 belong to ClipboardGateway
+        // (PI-24 of table T-064), and nothing in this build builds one or hands
+        // it to this loop」 -- and BOTH halves are false, measured 2026-09-06:
+        // `src/adapter/clipboard-gateway/` is built, and the `clipboard` seam IS
+        // handed to this loop (`copyPictureToClipboard`, below, spends it).
+        // ⭐ WHAT THAT GATEWAY CANNOT DO IS READ. PI-24 publishes `writeClipboard`
+        // and nothing else, and that is the specification's own shape: R-9 of
+        // table T-008 marks the route 「送信のみ・読まない」, and FR-033 (MUST
+        // NOT) forbids reading the OS clipboard in as many words -- 「複製に使う
+        // 置き場はアプリの中に持つこと（MUST）。OS のクリップボードから読み込ん
+        // ではならない（MUST NOT）」. ⇒ SK-4 and SK-5 do not belong to that
+        // component at all; they want a store of this loop's own, which LY-5 of
+        // table T-060 would leave here.
+        //
+        // ⭐ THE WRITES ARE ALREADY WRITTEN, which is what makes this a store and
+        // not a feature: `pasteTaskSubtree` (CM-8) takes a `sourceUid` and
+        // `pasteTaskGroupSubtree` takes a `sourceGroupId`, so what a copy has to
+        // keep is IDENTIFIERS and never content. ⛔ THREE THINGS ARE STILL
+        // MISSING, and none may be guessed at here:
+        //   ① `pasteTaskGroupSubtree` wants `newGroupIds`, one fresh id per row
+        //      of the copied subtree -- so this side would have to walk DU-2's
+        //      subtree, which is a rule `edit-task-group.ts` already owns.
+        //   ② FR-033 (MUST) refuses a paste 「段が表 T-014 の `ST-7` の安全弁に
+        //      達したとき」 and (MUST NOT) one past FR-004's depth. `edit-task.ts`
+        //      records at CM-8 that the first cannot be answered from a
+        //      document-only function and that no signature says who passes the
+        //      count in.
+        //   ③ Nothing states what a copy of a since-deleted row means, nor what
+        //      `Ctrl+V` tells when the store is empty (FR-029 wants a row of
+        //      table T-233 and no row names this).
+        // ⚠️ Wiring the entrance without ① .. ③ would paste unchecked, which is
+        // the very MUST half of FR-033 is.
         return
       case 'openDocumentFile': {
         // SK-10 of table T-036 and IC-1 of table T-109 -- OP-2's one entry,
@@ -7354,6 +7431,27 @@ export function frameLoop(
         // ⭐ NARROWED ON 2026-08-30: MK-13's Task entry no longer needs one, and
         // the reason this STOP used to give for it has expired -- the row now
         // requires the very route it used to forbid, and the branch above is it.
+        //
+        // ⛔⛔ THE TWO ROADS OUT WERE BOTH MEASURED 2026-09-06 (台帳 D-322) AND
+        // NEITHER IS OPEN:
+        //   the panel   `showPropertiesOfChoice` + `focusPropertyField`, which is
+        //               what the two branches above use. ⛔ `PropertiesSubject`
+        //               holds a table T-023c selection and FR-085's rows and
+        //               NOTHING ELSE -- there is no subject for the document --
+        //               and table T-016 (`_assets/tbl-property-items.md`) has no
+        //               row for the title, so `focusPropertyField` and
+        //               `readFieldCommit`, which are both keyed BY a row of that
+        //               table, have nothing to be keyed by. Two invented rules,
+        //               not one.
+        //   in place    which is what FR-035 actually asks -- 「作成者が文書名を
+        //               選んだとき、`GRS` は、その場で編集できるようにすること」.
+        //               ⛔ The title is drawn as a plain `span` in the
+        //               `App Header` (`fillAppHeader`), `ScreenView` carries no
+        //               description of an editable one, and IF-9 reports which
+        //               entry a point is on and never what was typed into one.
+        // ⚠️ FR-091 IS NOT THE PRECEDENT IT LOOKS LIKE. It was re-pointed at
+        // FR-085's road on 2026-09-04 BECAUSE a Task has a panel subject and a
+        // table T-016 row; FR-035 still says 「その場で」 and has neither.
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
@@ -7918,6 +8016,14 @@ export function frameLoop(
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
+      // IN-3 of table T-028 -- 「引き金が外れるまで」 read forwards. ⛔ THE
+      // DISMISSAL BELONGS TO WHERE THE POINTER STOOD, not to the session: the
+      // line above starts EZ-2's wait over, so leaving this standing would make
+      // one `Esc` silence every explanation the reader ever moved onto after it.
+      // ⚠️ ON THE SAME TEST AS THE REST, and deliberately so -- a host reports a
+      // `move` for a pointer that has not left its pixel, and clearing on those
+      // would undo the dismissal under a hand that is holding still.
+      if (hasMoved) isTooltipDismissed = false
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
       // ⭐ RECORDED BEFORE ANY OF THE THREE MEMBERS IS ASKED. IN-1 settles
@@ -8025,7 +8131,25 @@ export function frameLoop(
     // levels are `screenStateFromInput`'s, so asking after it had moved the
     // state would reckon against a state that has just lost a level and spend
     // two on one press -- and IN-4 allows 1 階層 (MUST).
-    const escapeLevel = escapeLevelOf(input, context, asking !== null, isPropertiesPanelOnScreen())
+    const escapeLevel = escapeLevelOf(
+      input,
+      context,
+      asking !== null,
+      isPropertiesPanelOnScreen(),
+      isTooltipStanding,
+    )
+    // IN-3 of table T-028 (MUST): 「消せること —— ポインタもフォーカスも動かさず
+    // に消す手立てがあること」, and IN-4 (MUST) names the ONE means -- its last
+    // rung, 出ている説明. ⛔ SPENT HERE BECAUSE ONLY THIS SIDE CAN SPEND IT: the
+    // explanation is raised afresh every frame by UF-69 out of the rest and the
+    // place, so the putting-away has to be a value the NEXT frame reads, and
+    // `ScreenSession.isTooltipDismissed` is that value.
+    // ⚠️ NOT ADDED TO `isEscapeSpentHere` BELOW. Those two levels are spent here
+    // INSTEAD of by `screenStateFromInput`; this one is spent here as well as by
+    // it, and costs nothing there -- `'tooltip'` is not one of the two levels
+    // that member consumes, so it answers with the state untouched and IN-4's
+    // 1 階層 per press (MUST) is kept.
+    if (escapeLevel === 'tooltip') isTooltipDismissed = true
     selection = selectionFromInput(input, context)
     // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
     // person then takes on it is a row of table T-024, which this member does
@@ -8381,8 +8505,20 @@ export function frameLoop(
       // default, so an `Esc` that declined a question -- or closed the panel --
       // would ALSO leave full screen. IN-4a hands the key on only when NOTHING
       // is consumed (MUST), and FR-071's way out is the browser's own behaviour.
-      const level = escapeLevelOf(input, context, asking !== null, isPropertiesPanelOnScreen())
-      if (level === 'confirmation' || level === 'propertiesPanel') return true
+      const level = escapeLevelOf(
+        input,
+        context,
+        asking !== null,
+        isPropertiesPanelOnScreen(),
+        isTooltipStanding,
+      )
+      // ⭐ `'tooltip'` JOINS THE TWO FOR THE SAME REASON THEY ARE HERE:
+      // `commandFromInput` can see none of the three, and all three presses ARE
+      // assigned -- `receiveInput` raises the dismissal above. ⛔ Without this
+      // the tool would take the press AND leave the browser its default, so an
+      // `Esc` that put an explanation away would ALSO leave full screen.
+      // IN-4a hands the key on only when NOTHING is consumed (MUST).
+      if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
       // NT-7 of table T-037 (MUST NOT): 「問いが立っているあいだ、この 2 つの
       // キーをほかの何にも渡してはならない」 -- the browser included, which is
       // what MK-10 of table T-023 asks this member. ⛔ `commandFromInput` below

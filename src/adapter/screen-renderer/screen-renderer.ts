@@ -2083,6 +2083,35 @@ export interface ScreenSession {
    * explanation may be invented here.
    */
   readonly taskUnderPointer?: Task | null
+  /**
+   * Whether the reader has put the standing explanation away -- IN-3 of table
+   * T-028's 「消せること」, spent through the last rung of IN-4's ladder
+   * (出ている説明).
+   *
+   * ⛔ WITHOUT THIS MEMBER THE RUNG CANNOT BE SPENT AT ALL, which is what 台帳
+   * D-307 was. EZ-2 and EZ-6 of table T-040 raise an explanation purely from
+   * the rest (`pointerRestedMs`) and the place (`iconUnderPointer`,
+   * `taskUnderPointer`), so a press taken on the far side would be undone by
+   * the very next frame -- it would raise the same explanation from the same
+   * two unchanged answers. Measured 2026-09-05 on the shipped build: with an
+   * explanation standing over IC-7, `Esc` left it standing, twice.
+   *
+   * ⭐ THE SIDE THAT HOLDS IT IS THE SHELL, for the reason every member of this
+   * type is here: LY-5 of table T-060 leaves a current value with the
+   * Framework, and `escapeTarget` reports the rung to the one holder that can
+   * see whether an explanation stands.
+   *
+   * ⭐ CLEARED BY THE NEXT POINTER MOVE, which is IN-3's own 「引き金が外れる
+   * まで」 read forwards: a move begins EZ-2's wait again, so the next
+   * explanation is raised on its own terms rather than blocked by a dismissal
+   * that belonged to the place the pointer has left.
+   *
+   * ⚠️ OPTIONAL, AND THE SAME PRICE `taskUnderPointer` PAYS: a description from
+   * a side that has not been taught to answer carries no dismissal, which reads
+   * the same as one nobody has made -- ⛔ never as an explanation that may be
+   * withheld here for a reason this unit invented.
+   */
+  readonly isTooltipDismissed?: boolean
   /** Where the person dragged the palette to (FR-053). See `CommandPalette.at`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   /**
