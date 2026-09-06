@@ -50,7 +50,7 @@
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { bare, specTable, type SpecTable } from '../contract/spec-table'
+import { bareAll, specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -127,11 +127,21 @@ const SURFACE_COLUMN = 0
 const PURPOSE_COLUMN = 2
 const SOURCE_COLUMN = 3
 
-/** Row IDs of table T-109 that sit on one surface, in the table's own order. @purity pure */
+/**
+ * Row IDs of table T-109 that sit on one surface, in the table's own order.
+ *
+ * ⛔ THE WHOLE CELL IS READ, NOT ITS FIRST SPAN. An entrance may stand on
+ * SEVERAL surfaces -- table T-109 has one row naming six of them -- and `bare`
+ * refuses such a cell on purpose (`D-351`), which is what turned the two cases
+ * below red once that row grew its sixth surface. ⭐ Membership is the right
+ * reading: the row belongs to every surface its cell names.
+ *
+ * @purity pure
+ */
 function entrancesOnSurface(surface: string): readonly string[] {
   const found = T109.rows
     .filter((row) => row.cells.length === T109_COLUMNS)
-    .filter((row) => bare(row.cells[SURFACE_COLUMN] ?? '') === surface)
+    .filter((row) => bareAll(row.cells[SURFACE_COLUMN] ?? '').includes(surface))
     .map((row) => row.id)
   if (found.length === 0) throw new Error(`table T-109 puts no entrance on ${surface}`)
   return found
@@ -637,16 +647,15 @@ function guideMode(name: string): string {
   return name
 }
 
-// ⭐ Table T-029 row `CU-3` (MUST) has four modes and lets the reader choose
+// ⭐ Table T-029 row `CU-3` (MUST) has three modes and lets the reader choose
 // between them, and names them in the same words `S-66` spells: none, a
-// crosshair, one vertical line, two vertical lines. Three of the four are
-// asked here.
+// crosshair, one vertical line. All three are asked here.
 //
-// ⛔ THE FOURTH IS NOT ASKED. `docs/development-records/defects.md` row D-72
-// records that two vertical lines were deliberately left out, because nothing
-// in tables T-029 / T-202 / T-206 / T-236 fixes the distance between the two
-// and `FR-048` (MUST) also wants them told apart from `CU-2` with no means
-// given (pending decision PD-343). A case here would have to invent both.
+// ⚠️ A FOURTH USED TO STAND. `S-66` records that `'double-vertical'` was
+// retired on 2026-09-06 by the user's ruling, and `CU-3` now forbids it (MUST
+// NOT) for the reason `docs/development-records/defects.md` row D-72 had
+// already given: nothing told it apart from `CU-2`. `guideMode` above is what
+// keeps this file honest -- a mode `S-66` does not offer cannot be named here.
 const GUIDE_NONE = guideMode('none')
 const GUIDE_CROSSHAIR = guideMode('crosshair')
 const GUIDE_SINGLE_VERTICAL = guideMode('single-vertical')
@@ -708,10 +717,12 @@ async function movePointerTo(page: Page, at: { x: number; y: number }): Promise<
 // GOES RED IF: pressing the entrance table T-109 gives the crosshair stops
 // drawing two lines through the pointer, or the entrance for one vertical line
 // stops drawing exactly one, or either stops following the pointer, or the mode
-// the application starts in already draws one. The counts are table T-029 row
-// `CU-3`'s own words -- a crosshair is two lines and one vertical line is one --
-// and the three entrances are looked up in table T-109 by the value of `S-66`
-// each one sets, so renaming or renumbering them moves the case.
+// the application starts in already draws one, or a second press of the
+// entrance that is standing stops putting the guide cursor away. The counts are
+// table T-029 row `CU-3`'s own words -- a crosshair is two lines and one
+// vertical line is one -- and the two entrances are looked up in table T-109 by
+// the value of `S-66` each one sets, so renaming or renumbering them moves the
+// case.
 test('D-72: the guide cursor can be switched to a crosshair and to a single vertical line', async ({
   baseURL,
 }) => {
@@ -761,15 +772,26 @@ test('D-72: the guide cursor can be switched to a crosshair and to a single vert
       'the single vertical line did not follow the pointer',
     ).toEqual({ vertical: 1, horizontal: 0 })
 
-    // ⭐ And back. `CU-3` (MUST) has the four modes exclusive, so choosing one
+    // ⭐ And back. `CU-3` (MUST) has the three modes exclusive, so choosing one
     // has to put the one before it away -- otherwise the two counts above could
     // both be met by lines that simply pile up.
-    const none = entranceNaming(`'${GUIDE_NONE}'`)
-    expect(await pressEntrance(app.page, none), `${none} is not on the screen`).toBe(true)
+    //
+    // ⛔ THE WAY BACK IS THE ENTRANCE THAT IS STANDING, PRESSED AGAIN, and that
+    // is not a convenience: `FR-048` (MUST) has each of the three cursors put
+    // away by pressing the entrance that brought it out, and (MUST NOT) forbids
+    // an entrance whose job is to put one away -- so `'none'` stays a value of
+    // `S-66` with no entrance of its own, as `S-66` says in as many words.
+    // ⚠️ MEASURED, 2026-09-07: asking table T-109 for the entrance whose purpose
+    // names `'none'` finds exactly one row, and it is the CROSSHAIR's own -- that
+    // row spells `'none'` only to record that pressing IT again is the way back.
+    // Pressing it from one vertical line therefore puts the crosshair up, and
+    // this case read those two lines as a failure to put the cursor away.
+    expect(await pressEntrance(app.page, single), `${single} is not on the screen`).toBe(true)
     await movePointerTo(app.page, here)
     expect(
       await readLinesThroughPointer(app.page, here),
-      `${none} sets the guide cursor to ${GUIDE_NONE}, and CU-3 has the four modes exclusive`,
+      `pressing ${single} a second time puts the guide cursor back to ${GUIDE_NONE}, which is what ` +
+        'FR-048 gives instead of an entrance of its own',
     ).toEqual({ vertical: 0, horizontal: 0 })
   } finally {
     await app.close()

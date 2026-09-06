@@ -183,6 +183,24 @@ const UNFOLD_ALL_ENTRANCE = (() => {
   return found[0]?.id ?? ''
 })()
 
+/**
+ * `IC-20` -- the one entrance of table T-109 governed by `FR-065`, which turns
+ * the `Agent API` on. ⭐ Looked up rather than spelled, for the reason the rest
+ * of this file looks its entrances up: moving the row moves the case.
+ *
+ * ⚠️ Anchored so that a longer requirement number cannot answer for this one.
+ */
+const AGENT_API_ENTRANCE = (() => {
+  const wanted = /FR-065(?![0-9])/
+  const found = T109.rows.filter((row) => row.cells.some((cell) => wanted.test(cell)))
+  if (found.length !== 1) {
+    throw new Error(
+      `table T-109 has ${found.length} entrances governed by FR-065, and this file needs one`,
+    )
+  }
+  return found[0]?.id ?? ''
+})()
+
 /** `SK-13` -- opens the help, which is one of the faces `S-99g` counts. */
 const SK13_KEY = (() => {
   const found = /`([^`]+)`/.exec(cellOf(T036, 'SK-13', 1, 3))
@@ -515,16 +533,47 @@ function describe(some: readonly Drawn[]): string {
 }
 
 /**
- * The name of every row the Row Title Panel is drawing, in its own order.
+ * The identifier of every row (`TaskGroup`) THE DOCUMENT holds, in its order.
  *
- * ⚠️ Names come back CUT: `FR-085` ends a name that does not fit with an
- * ellipsis, and that is the requirement working. Nothing here compares a name
- * against one it typed; the names are carried so that a failure can say WHICH
- * row went missing.
+ * ⛔⛔ THE DOCUMENT, NOT THE DRAWING, and that is the whole point of this
+ * helper. `[data-depth]` marks the rows the Row Title Panel has DRAWN, and
+ * `FR-018` (MUST) takes rows out of the drawing as the level of detail falls --
+ * so a count taken from the page answers "how many fit on the screen", which is
+ * not the question `SL-1` raises. Measured on the shipped build, 2026-09-07:
+ * `SK-2`'s key, then `SK-3`'s, then the confirmation's yes, left the document
+ * holding 100 rows throughout while the DRAWN rows went from 8 to 7 -- the case
+ * below read that 8 -> 7 as rows having been deleted, and nothing had been.
+ *
+ * ⭐ `AM-3` of table T-107 (`readDocument`) is the one road to the document
+ * itself, and `_assets/tbl-glossary.md` calls what it gives back a frozen copy
+ * of the whole of it.
  *
  * @purity semi-pure-b
  */
-async function readRowNames(page: Page): Promise<string[]> {
+async function readDocumentRowIds(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const api = (
+      window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }
+    ).grSchedulerAgentApi
+    if (api === undefined) throw new Error('the Agent API is not open, so the document cannot be read')
+    const held = api.readDocument() as { schedule: { taskGroups: { id: string }[] } }
+    return held.schedule.taskGroups.map((one) => one.id)
+  })
+}
+
+/**
+ * The name of every row the Row Title Panel is DRAWING, in its own order.
+ *
+ * ⚠️ THE WINDOW, NOT THE DOCUMENT -- see `readDocumentRowIds` above. What this
+ * is for is saying in a failure message what the panel had on it at the time.
+ *
+ * ⚠️ Names come back CUT: `FR-085` ends a name that does not fit with an
+ * ellipsis, and that is the requirement working. Nothing here compares a name
+ * against one it typed.
+ *
+ * @purity semi-pure-b
+ */
+async function readDrawnRowNames(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map(
       (row) => `${row.getAttribute('data-depth')}:${(row.querySelector('span')?.textContent ?? '').trim()}`,
@@ -691,8 +740,18 @@ for (const key of SK3_KEYS) {
 // GOES RED IF: the same gesture takes a row away. Table T-023c row `SL-1` rules
 // a row (`TaskGroup`) out of what can be selected, and `SK-3` says its targets
 // are exactly what that row names -- so a row survives a `Delete` however many
-// tasks it held. ⚠️ The rows are counted in the Row Title Panel, which table T-031 row
-// `SC-3` has drawn at all times.
+// tasks it held.
+//
+// ⛔⛔ THE ROWS ARE COUNTED IN THE DOCUMENT AND NOT IN THE PANEL, and until
+// 2026-09-07 they were not: this case counted `[data-depth]`, which is the
+// window `FR-018` (MUST) narrows as the level of detail falls, and it went red
+// because emptying the tasks let the panel draw one row fewer. `readDocumentRowIds`
+// carries that measurement. ⭐ `SL-1` is a statement about the document, so the
+// document is what is read -- through `AM-3` of table T-107, which the build
+// publishes once the entrance `FR-065` gives has been pressed.
+//
+// ⚠️ THE NAMES OF THE DRAWN ROWS ARE STILL READ, but only to say in a failure
+// what the panel had on it at the time.
 test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () => {
   test.setTimeout(180_000)
   expect(
@@ -703,16 +762,28 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
   const opened = await openTheApp()
   const page = opened.page
   try {
-    const rowsBefore = await readRowNames(page)
-    expect(rowsBefore.length, 'the build opens with rows drawn').toBeGreaterThan(0)
+    expect(
+      await pressEntrance(page, AGENT_API_ENTRANCE),
+      `the entrance ${AGENT_API_ENTRANCE} is on the screen`,
+    ).toBe(true)
+    expect(
+      await page.evaluate(
+        () => typeof (window as unknown as Record<string, unknown>).grSchedulerAgentApi,
+      ),
+      `pressing ${AGENT_API_ENTRANCE} publishes the Agent API, which is how the document is read`,
+    ).toBe('object')
+
+    const rowsBefore = await readDocumentRowIds(page)
+    const drawnBefore = await readDrawnRowNames(page)
+    expect(rowsBefore.length, 'the build opens with rows in the document').toBeGreaterThan(0)
 
     await page.mouse.move(BASE_SCREEN.width / 2, BASE_SCREEN.height / 2)
     await page.keyboard.press(SK2_KEY)
     await page.waitForTimeout(400)
     expect(
-      (await readRowNames(page)).length,
+      await readDocumentRowIds(page),
       'SK-2 selected but deleted nothing, so the rows still stand at this point',
-    ).toBe(rowsBefore.length)
+    ).toEqual(rowsBefore)
 
     await page.keyboard.press(SK3_KEYS[0] as string)
     await page.waitForTimeout(700)
@@ -720,23 +791,20 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
     await page.keyboard.press('y')
     await page.waitForTimeout(1200)
 
-    // ⚠️ NOT AN EQUALITY, A FLOOR. The panel draws the rows that fit, and
-    // `FR-042` (MUST) treats a row's stated height as a LOWER bound driven by
-    // what the row carries -- so emptying the rows can legitimately let MORE of
-    // them fit. What `SL-1` forbids is the count going DOWN.
-    //
-    // ⚠️ THE COUNT AND NOT THE NAMES. `FR-032` (MUST) has a row whose name was
-    // derived from a task settle that name before the task goes, and (MUST) has
-    // a nameless task's row settle on a default name -- so a name may
-    // legitimately change here. What `SL-1` promises is that the ROW is still
-    // there.
-    const rowsAfter = await readRowNames(page)
+    // ⛔ AN EQUALITY OF IDENTIFIERS, not a floor on a count. `SL-1` rules a row
+    // out of what can be selected, so `SK-3` cannot reach one: every row the
+    // document held is still there, and it is the same row. ⚠️ The NAMES are not
+    // compared -- `FR-032` (MUST) has a row whose name came from a task settle
+    // that name before the task goes, so a name may legitimately change here.
+    const rowsAfter = await readDocumentRowIds(page)
+    const drawnAfter = await readDrawnRowNames(page)
     expect(
-      rowsAfter.length,
+      rowsAfter,
       'SL-1: a row is not among what can be selected, so none of them was deleted; ' +
-        `before [${rowsBefore.join(' | ')}], after [${rowsAfter.join(' | ')}]; ` +
-        `the confirmation said [${asked.join(' // ')}]`,
-    ).toBeGreaterThanOrEqual(rowsBefore.length)
+        `the document held ${String(rowsBefore.length)} rows and now holds ` +
+        `${String(rowsAfter.length)}; the panel drew [${drawnBefore.join(' | ')}] and now draws ` +
+        `[${drawnAfter.join(' | ')}]; the confirmation said [${asked.join(' // ')}]`,
+    ).toEqual(rowsBefore)
   } finally {
     await opened.close()
   }

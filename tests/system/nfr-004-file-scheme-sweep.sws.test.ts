@@ -350,8 +350,12 @@ const GEOMETRY_SCRIPT = `(() => {
     '[data-role="Command Palette"]', '[data-role="Properties Panel"]',
     '[data-role="Scrollbars"]', '[data-role="Dialogue Field"]']
     .map(overlay).filter(Boolean)
-  const clear = (x, y) => {
+  const uncovered = (x, y) => {
     for (const r of blockers) if (x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 8 && y <= r.bottom + 8) return false
+    return true
+  }
+  const clear = (x, y) => {
+    if (!uncovered(x, y)) return false
     for (const r of boxes) if (x >= r.left - 20 && x <= r.right + 20 && y >= r.top - 12 && y <= r.bottom + 12) return false
     return true
   }
@@ -361,8 +365,30 @@ const GEOMETRY_SCRIPT = `(() => {
       if (clear(x, y)) { empty = { x, y }; break }
     }
   }
-  const first = boxes[0]
-  const second = boxes.find((r) => r !== first && Math.abs(r.top - first.top) > 20) || null
+  // ⛔⛔ A BAR UNDER THE COMMAND PALETTE IS NOT A BAR THIS SWEEP CAN PRESS, and
+  // that is measured rather than careful: GR-19 of table T-023d says the palette
+  // floats over the schedule and that the band wins over whatever is drawn
+  // beneath it. Until 2026-09-07 the three press points were taken from the
+  // widest bar with no such check, and a zoom that changed WHICH bar was widest
+  // could hand back one lying under the palette. Measured on the shipped build:
+  // after SK-16 the point came back at (505, 236) with the palette's own
+  // commands on top of it, and every gesture from there -- SK-19's double-click
+  // included -- went into the palette, so the row was reported as not answering
+  // while nothing was wrong with it. ⭐ The three points are checked rather than
+  // the whole rectangle: a long bar may legitimately run under the palette at
+  // one end while the places this sweep touches are in the open.
+  // ⭐ TWO POOLS, because the two bars are touched in different places. The
+  // second bar is only ever CLICKED IN ITS MIDDLE (SL-2, SL-4, SL-7b), so its
+  // middle is the whole of what has to be in the open; the first is also dragged
+  // from both of its ends (GR-3, GR-4), so all three points have to be.
+  const middleClear = boxes.filter((r) => uncovered(r.left + r.width / 2, r.top + r.height / 2))
+  const pressable = middleClear.filter((r) =>
+    uncovered(r.left + 2, r.top + r.height / 2) &&
+    uncovered(r.right - 2, r.top + r.height / 2))
+  const first = pressable[0]
+  const second = first
+    ? (middleClear.find((r) => r !== first && Math.abs(r.top - first.top) > 20) || null)
+    : null
   const band = (() => {
     const grip = document.querySelector('[data-icon="IC-53"]')
     if (!grip) return null
@@ -468,15 +494,21 @@ interface Probe {
    *   placesNothing    the row's answer IS "no shape is placed" -- PD-4a, MK-12
    *                    and SK-1 / SK-1a. ⛔ NOT "the screen stands still": those
    *                    rows keep an arm, and an arm's marking moves the screen.
+   *   answersSilently  the row's answer is KEPT INSIDE THE TOOL and shows
+   *                    nothing -- SK-4. ⭐ Still an assertion, and a sharp one:
+   *                    FR-029 (MUST) has a press that cannot be carried out say
+   *                    why, and a raised notice moves the reading. What this
+   *                    value asserts is therefore that the tool took the press
+   *                    and refused nothing.
    */
-  readonly expect: 'answers' | 'answersWhileHeld' | 'placesNothing'
+  readonly expect: 'answers' | 'answersWhileHeld' | 'placesNothing' | 'answersSilently'
   /**
    * Run BEFORE the baseline reading is taken.
    *
    * ⛔ WITHOUT THIS THE SWEEP LIES. A row that needs something selected or armed
    * first would otherwise be read as having answered when all that moved was the
-   * setting-up -- measured: SK-4 passed on the click that selected a bar, while
-   * `frame-loop.ts:6954` records that no clipboard seam is wired at all.
+   * setting-up -- measured on SK-4, which passed on the click that selected a
+   * bar rather than on the copy that followed it.
    */
   readonly setUp?: (page: Page, at: Geometry) => Promise<void>
   readonly act: (page: Page, at: Geometry) => Promise<number | null>
@@ -517,8 +549,49 @@ async function calm(page: Page): Promise<void> {
   }
 }
 
+/**
+ * Press one entrance of table T-109, and say what stopped the press when it
+ * could not be made.
+ *
+ * ⛔ A BARE TIMEOUT NAMES NOTHING. `page.click` waits for the entrance to be in
+ * the page, to have a size, to hold still and to be the thing a point on it
+ * belongs to, and it reports the same sentence whichever of the four failed --
+ * measured 2026-09-07 on SL-7b, whose whole report was 「Timeout 8000ms
+ * exceeded」. ⭐ So the four are read apart here and put into the failure, which
+ * is what `couldNotBePressed` prints.
+ *
+ * @purity non-pure
+ */
 async function press(page: Page, icon: string): Promise<null> {
-  await page.click(`[data-icon="${icon}"]`, { timeout: 8_000 })
+  const selector = `[data-icon="${icon}"]`
+  try {
+    await page.click(selector, { timeout: 8_000 })
+  } catch (thrown) {
+    const seen = await page.evaluate((wanted: string) => {
+      const entry = document.querySelector(wanted)
+      if (entry === null) return 'not in the page'
+      const box = entry.getBoundingClientRect()
+      if (box.width < 1 || box.height < 1) return `drawn with no size (${box.width}x${box.height})`
+      const middle = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)
+      if (middle === null) return `at (${Math.round(box.x)}, ${Math.round(box.y)}), outside the window`
+      if (middle !== entry && !entry.contains(middle)) {
+        const over = middle.closest('[data-role]')
+        return `covered by ${over === null ? middle.tagName : String(over.getAttribute('data-role'))}`
+      }
+      // ⭐ `FR-029` has an entrance say when it cannot be worked, and the shell
+      // writes that beside the entry -- which a driver reads as "disabled" and
+      // waits out. An entrance turned off is the TOOL ANSWERING, not a fault.
+      if (entry.getAttribute('aria-disabled') === 'true' || entry.getAttribute('data-enabled') === 'false') {
+        return 'reachable but turned off by the tool (aria-disabled), so its rule was not met'
+      }
+      return 'reachable and not turned off, and the press still failed'
+    }, selector)
+    throw new Error(
+      `${icon} could not be pressed: ${seen} -- ${
+        thrown instanceof Error ? thrown.message.split('\n')[0] ?? '' : String(thrown)
+      }`,
+    )
+  }
   return null
 }
 
@@ -526,6 +599,37 @@ async function press(page: Page, icon: string): Promise<null> {
 async function selectBar(page: Page, at: Geometry): Promise<void> {
   await page.mouse.click(at.barBody.x, at.barBody.y)
   await page.waitForTimeout(250)
+}
+
+/**
+ * Put exactly ONE row of the `Row Title Panel` into the selection.
+ *
+ * ⛔⛔ WHY SK-4 NEEDS THIS AND `selectBar` IS NOT ENOUGH. `FR-033` names TWO
+ * subjects a copy can have -- one `Task`, or one `TaskGroup` -- and each in the
+ * singular. `FR-085` (MUST) keeps the panel's row selection as a set of its own,
+ * SEPARATE from the schedule area's (table T-023c row `SL-1` rules a row out of
+ * that one), and SL-2's replacing of the schedule selection therefore says
+ * nothing about how many rows are standing. ⇒ A click on a bar can leave rows
+ * selected from probes that ran before it, and a copy with more than one subject
+ * is one `FR-029` (MUST) has the tool refuse ALOUD.
+ *
+ * ⚠️ MEASURED, 2026-09-07: pressed at its place in this sweep, SK-4 came back
+ * with a notice standing (`notices=1`) -- the refusal, correctly given. Pressed
+ * on a freshly opened build with one row clicked, the same key raised none.
+ * ⭐ So the row is what this puts in the selection: one press, no modifier,
+ * which `FR-085` makes a replacing choice rather than a widening one.
+ *
+ * @purity non-pure
+ */
+async function selectOneRow(page: Page): Promise<void> {
+  const rows = page.locator('[data-depth]')
+  const drawn = await rows.count()
+  if (drawn === 0) throw new Error('SK-4 needs a row of the Row Title Panel to take a copy of')
+  // ⚠️ Not the first: `FR-018` draws the topmost rows of the tree there, and the
+  // one below it is as good a subject while being further from the panel's own
+  // head. A build drawing a single row still has one to press.
+  await rows.nth(drawn > 1 ? 1 : 0).click({ timeout: 5_000 })
+  await page.waitForTimeout(300)
 }
 
 async function stroke(page: Page, keys: string): Promise<null> {
@@ -702,16 +806,58 @@ const PROBES: readonly Probe[] = [
   {
     // SL-7b: the order is what FR-034 reads, and IC-37 is that reader. A drawing
     // that moves means the alignment ran against a selection that had an order.
+    //
+    // ⛔ WITHOUT A SECOND TARGET THIS ROW CANNOT BE JUDGED, so the setting-up
+    // says so rather than going on. Measured 2026-09-07: the entrance carries
+    // `aria-disabled` while fewer than two are selected -- which is the tool
+    // keeping SL-7b's own MUST NOT -- and a press of a disabled entrance times
+    // out after 8s and was reported only as 「Timeout 8000ms exceeded」. ⭐ SL-2
+    // and SL-4 above already refuse in exactly this way.
     rows: ['SL-7b'],
     expect: 'answers',
     setUp: async (p, g) => {
+      if (g.otherBar === null) {
+        throw new Error('SL-7b needs a second target: an order is what FR-034 reads')
+      }
+      // ⚠️ THE MARK COUNT IS READ THREE TIMES, because the number on its own
+      // says nothing: the drawing carries dashed elements that are not SL-8's
+      // mark (measured on a freshly opened build: 10 with nothing selected, 11
+      // with one bar, 141 after `Ctrl+A`). It is the STEPS that say whether each
+      // press took.
+      const marks = async (): Promise<number> =>
+        p.evaluate(() => {
+          const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
+          return svg === null ? -1 : svg.querySelectorAll('[stroke-dasharray]').length
+        })
+      const atFirst = await marks()
       await p.mouse.click(g.barBody.x, g.barBody.y)
       await p.waitForTimeout(150)
-      if (g.otherBar === null) return
+      const afterOne = await marks()
       await p.keyboard.down('Shift')
       await p.mouse.click(g.otherBar.x, g.otherBar.y)
       await p.keyboard.up('Shift')
-      await p.waitForTimeout(150)
+      await p.waitForTimeout(400)
+      // ⭐ THE TOOL'S OWN ANSWER TO "IS THE ORDER THERE": the entrance is turned
+      // off until the selection FR-034 reads has one, which is this row's MUST
+      // NOT doing its work. Read it here so that a setting-up which did not take
+      // says so, instead of the act timing out on a turned-off entrance.
+      const armed = await p.evaluate(() => {
+        const entry = document.querySelector('[data-icon="IC-37"]')
+        const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
+        return {
+          enabled: entry === null ? 'no entry' : String(entry.getAttribute('data-enabled')),
+          marked: svg === null ? -1 : svg.querySelectorAll('[stroke-dasharray]').length,
+        }
+      })
+      if (armed.enabled !== 'true') {
+        throw new Error(
+          `two presses left the alignment entrance turned off (data-enabled=${armed.enabled}); ` +
+            `dashed elements went ${String(atFirst)} -> ${String(afterOne)} -> ` +
+            `${String(armed.marked)} across the plain press at (${String(g.barBody.x)}, ` +
+            `${String(g.barBody.y)}) and the Shift press at (${String(g.otherBar.x)}, ` +
+            `${String(g.otherBar.y)}) -- a step of one each time is a press that took`,
+        )
+      }
     },
     act: async (p) => press(p, 'IC-37'),
   },
@@ -839,7 +985,21 @@ const PROBES: readonly Probe[] = [
       return null
     },
   },
-  { rows: ['SK-4'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+c') },
+  {
+    // ⛔⛔ SK-4 IS SILENT WHEN IT WORKS, and reading it as `answers` had the
+    // sweep passing this row only when the copy was REFUSED. FR-033 (MUST) puts
+    // the store a copy goes into inside the application and (MUST NOT) forbids
+    // reading the host clipboard, so a copy writes nothing out, draws nothing
+    // and changes no document -- SK-5 is where it becomes visible. Measured on
+    // the shipped build, 2026-09-07: with one bar selected, `Ctrl+C` moved
+    // neither the drawing nor the body nor the notices nor the clipboard seam.
+    // ⭐ What is left to judge is FR-029's: a press the tool could not carry out
+    // raises a notice, so silence is the answer and a notice is the refusal.
+    rows: ['SK-4'],
+    expect: 'answersSilently',
+    setUp: async (p) => selectOneRow(p),
+    act: async (p) => stroke(p, 'Control+c'),
+  },
   {
     rows: ['SK-5'],
     expect: 'answers',
@@ -955,13 +1115,33 @@ function couldNotBePressed(result: SweepResult): readonly string[] {
   )
 }
 
+/**
+ * What one outcome looked like, short enough to print beside a failing row.
+ *
+ * ⭐ A ROW THAT FAILS HAS TO SAY WHICH READING MOVED. `moved` is five readings
+ * folded into one boolean, and a bare `SK-4 (answers)` sent a whole round of
+ * measurement into guessing which of the five it was.
+ *
+ * @purity pure
+ */
+function reading(one: Outcome | undefined): string {
+  if (one === undefined) return 'no reading'
+  return (
+    `moved=${String(one.moved)} notices=${String(one.noticeCount)} ` +
+    `shapes${one.shapesDelta >= 0 ? '+' : ''}${String(one.shapesDelta)} ` +
+    `dashed${one.dashedDelta >= 0 ? '+' : ''}${String(one.dashedDelta)} ` +
+    `files+${String(one.wroteFiles)} clipboard+${String(one.clipboardDelta)} ` +
+    `held=${one.heldCanvas === null ? 'none' : String(one.heldCanvas !== one.beforeCanvas)}`
+  )
+}
+
 /** Rows that were reached and did not do what their line of the table promises. */
 function didNotAnswer(result: SweepResult): readonly string[] {
   return PROBES.filter(
     (probe) =>
       result.outcomes[nameOf(probe)]?.failure == null &&
       !answeredAsPromised(probe, result.outcomes[nameOf(probe)]),
-  ).map((probe) => `${nameOf(probe)} (${probe.expect})`)
+  ).map((probe) => `${nameOf(probe)} (${probe.expect}: ${reading(result.outcomes[nameOf(probe)])})`)
 }
 
 async function sweep(browser: Browser, url: string): Promise<SweepResult> {
@@ -1042,6 +1222,12 @@ function answeredAsPromised(probe: Probe, one: Outcome | undefined): boolean {
       return one.heldCanvas !== null && one.heldCanvas !== one.beforeCanvas
     case 'placesNothing':
       return one.shapesDelta === 0
+    // ⛔ NOT A WEAKER `answers`. Silence here means the tool refused nothing:
+    // FR-029 (MUST) has a press it could not carry out raise a notice, and
+    // `moved` counts a notice as movement -- so this goes red exactly when the
+    // copy was turned away.
+    case 'answersSilently':
+      return !one.moved
   }
 }
 
