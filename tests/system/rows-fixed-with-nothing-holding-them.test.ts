@@ -754,7 +754,7 @@ test('D-133: confirming the name field moves the panel and the row heading toget
 const WIDEN_BY_PX = 90
 
 // GOES RED IF: a `Ctrl`+`Z` puts the panel width back. 表 T-027 row `UN-16`
-// files 「見る場所の割り付けと出力の設定 —— パネル幅（`FR-052`）」 under 対象外,
+// files 「見る場所の割り付け —— パネル幅（`FR-052`）」 under 対象外,
 // and the rule printed after the table reads 「対象外の操作で文書が戻っては
 // ならない（MUST NOT）」. ⚠️ `UN-16` also says 「保存することと戻せることは別で
 // ある」, so the width being IN the document is not a reason for an undo to move

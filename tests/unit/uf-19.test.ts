@@ -198,7 +198,6 @@ const SETTINGS_BASE = {
   fontScaleSizes: { S: 12, M: 14, L: 16 },
   zoomX: 1,
   zoomY: 1,
-  exportPngScale: 1,
   baselineVisible: true,
   dependencyVisible: true,
   dependencyLagDefault: 0,

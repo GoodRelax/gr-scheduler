@@ -2816,7 +2816,8 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
   })
 
   it('⭐ IO-4 writes the bytes IF-6 painted, at the size the picture asks for', async () => {
-    // FR-025 (MUST): the pixels are the picture's size times S-82. The fake
+    // FR-025 (MUST): the pixels ARE the picture's size -- a scale is forbidden
+    // (MUST NOT) and S-82 retired with the idea. The fake
     // above folds the height it was asked for into its last byte, so a route
     // that asked for a different size answers with a different file.
     const { written } = await pressWithSeams('IO-4', { rasterizer: paintingRasterizer() })

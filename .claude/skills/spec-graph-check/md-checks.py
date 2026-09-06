@@ -177,7 +177,11 @@ RETIRED = {'FR-050', 'T-030',
            # S-82 (exportPngScale) went on 2026-09-06 with the very idea of a
            # scale: the user settled that a picture is always S-81's size and
            # that anyone needing more is handed an exchange format instead.
-           'S-82'}
+           'S-82',
+           # CM-70 (setExportPngScale) and K-88 followed S-82 on the same day:
+           # a command that accepts and writes nothing is a published name with
+           # no meaning, and the key it named is gone.
+           'CM-70', 'K-88'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

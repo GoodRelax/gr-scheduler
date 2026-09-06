@@ -33,11 +33,12 @@
 //                      produces, as bytes. No member reads an image back, so no
 //                      intake is opened for FR-023
 //   FR-025             (:3132) the output size is fixed at S-81 (MUST NOT let it
-//                      be chosen per export) and the PNG scale is chosen from
-//                      S-82. Every one of its rules -- the size, the scale, the
-//                      TaskGroup-wise dropping, the blank remainder, the count
-//                      that must be told -- is settled BEFORE the call arrives,
-//                      so this unit decides none of them
+//                      be chosen per export) and the export MUST NOT hold a
+//                      scale at all -- S-82 retired with the idea on 2026-09-06.
+//                      Every one of its rules -- the fixed width, the height
+//                      grown to S-217, the blank remainder, the refusal to draw
+//                      a part of a picture -- is settled BEFORE the call
+//                      arrives, so this unit decides none of them
 //   FR-080             (:3073) the export is the screen shrunk by one ratio, and
 //                      table T-076 (:3101-:3114) settles which UI parts are
 //                      drawn. Both are settled on the near side as well
@@ -64,11 +65,11 @@
 //   Chapter 5.3        (:370) the implementing layer may not reach past the
 //                      declaring folder's public entry, so the seam's types are
 //                      imported from `image-exporter.ts` here as well (LR-2)
-//   table T-204        (docs/spec/_assets/tbl-settings.md :195-:196) S-81
-//                      `exportCanvas` = 1600 x 900 and S-82 `exportPngScale`
-//                      in { 1, 2 }. Their product is what `RasterSizePx`
-//                      carries. This unit must read NEITHER -- a second reading
-//                      would be a second place deciding an export's size
+//   table T-204        (docs/spec/_assets/tbl-settings.md) S-81 `exportCanvas`
+//                      = 1600 x 900, and S-217 the ceiling the height may grow
+//                      to. That size is what `RasterSizePx` carries. This unit
+//                      must read NEITHER -- a second reading would be a second
+//                      place deciding an export's size
 //
 // FIVE DECISIONS ARE PINNED, EACH MARKED WITH ITS OWN STATUS. Each has its own
 // block at the foot of this file, per docs/development-rules/
@@ -139,17 +140,23 @@ const T_075_UF_54 = {
  */
 const T_024_ROWS = [
   { id: 'IO-3', format: 'SVG', canWrite: true, canRead: false, note: 'size is S-81' },
-  { id: 'IO-4', format: 'PNG', canWrite: true, canRead: false, note: 'scale is S-82' },
+  { id: 'IO-4', format: 'PNG', canWrite: true, canRead: false, note: 'size is S-81, no scale' },
 ] as const
 
 /**
- * Table T-204 rows S-81 and S-82 (docs/spec/_assets/tbl-settings.md :195-:196).
- * Held here ONLY to build the sizes a real caller would pass and to prove this
- * unit does not read them: the seam already carries their product.
+ * Table T-204 row S-81 (docs/spec/_assets/tbl-settings.md). Held here ONLY to
+ * build the sizes a real caller would pass and to prove this unit does not read
+ * it: the seam already carries the finished size.
+ *
+ * ⛔ S-82 (`exportPngScale`) IS GONE. FR-025 (MUST NOT) forbids the export
+ * holding a scale at all (the reader's ruling of 2026-09-06), so the only
+ * sizes a caller now builds are S-81's width and a height grown within S-217.
+ * `heights` are the two this file passes in its stead -- the unchanged one and
+ * a grown one -- so the cases still walk more than a single size.
  */
 const T_204 = {
   s81: { id: 'S-81', key: 'exportCanvas', width: 1600, height: 900 },
-  s82: { id: 'S-82', key: 'exportPngScale', values: [1, 2] },
+  grownHeights: [900, 1800],
 } as const
 
 /**
@@ -179,8 +186,8 @@ const T_076_ROWS = [
 /**
  * The whole of `RasterFaultReason`, as `rasterizer.ts` declares it. Three
  * because NT-3a (MUST) makes a failure notice carry what can be done next, and
- * these three do not share a next step: IO-3's SVG, the smaller value of S-82,
- * and trying again.
+ * these three do not share a next step: IO-3's SVG, an exchange format instead
+ * of a picture (FR-025 has no smaller scale left to offer), and trying again.
  */
 const RASTER_FAULT_REASONS: readonly RasterFaultReason[] = [
   'unsupported',
@@ -239,7 +246,7 @@ const EXPORT_PICTURE = [
   '</svg>',
 ].join('')
 
-/** The size a caller computes for S-82 = 1: S-81's width and height times one. */
+/** The size a caller computes when the picture needs no growing: S-81 itself. */
 const SIZE_AT_SCALE_1: RasterSizePx = { widthPx: 1600, heightPx: 900 }
 
 // ---------------------------------------------------------------------------
@@ -580,7 +587,7 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(new Set(RASTER_FAULT_REASONS).size).toBe(3)
     expect(T_037_ROWS).toHaveLength(2)
     expect(T_024_ROWS).toHaveLength(2)
-    expect(T_204.s82.values).toEqual([1, 2])
+    expect(T_204.grownHeights).toEqual([900, 1800])
   })
 
   it('builds a picture that carries one marker per row of table T-076', () => {
@@ -770,26 +777,23 @@ describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => 
     expect(at('blob.arrayBuffer')).toBeGreaterThan(at('canvas.toBlob'))
   })
 
-  it('walks S-82 -- both scales of table T-204 reach the canvas as given', async () => {
-    for (const scale of T_204.s82.values) {
-      const sizePx: RasterSizePx = {
-        widthPx: T_204.s81.width * scale,
-        heightPx: T_204.s81.height * scale,
-      }
+  it('walks the grown heights -- each size of table T-204 reaches the canvas as given', async () => {
+    for (const heightPx of T_204.grownHeights) {
+      const sizePx: RasterSizePx = { widthPx: T_204.s81.width, heightPx }
       const { fake, settled } = await raster({}, EXPORT_PICTURE, sizePx)
-      const why = `${T_204.s82.id} = ${scale}`
+      const why = `${T_204.s81.id} grown to ${heightPx}`
       bytesOf(settled, why)
       expect(fake.canvasSizes, why).toEqual([{ widthPx: sizePx.widthPx, heightPx: sizePx.heightPx }])
       expect(fake.drawCalls[0]?.slice(1), why).toEqual([0, 0, sizePx.widthPx, sizePx.heightPx])
     }
   })
 
-  it('reads neither S-81 nor S-82 -- a size that is neither is painted just the same', async () => {
+  it('does not read S-81 -- a size that is not it is painted just the same', async () => {
     // A second reading of table T-204 here would be a second place deciding an
     // export's size, which FR-025 (MUST NOT) fixes on the near side.
     const odd: RasterSizePx = { widthPx: 7, heightPx: 11 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, odd)
-    bytesOf(settled, 'a size that is not S-81 times S-82')
+    bytesOf(settled, 'a size that is not S-81')
     expect(fake.canvasSizes).toEqual([{ widthPx: 7, heightPx: 11 }])
     expect(fake.canvasSizes[0]?.widthPx).not.toBe(T_204.s81.width)
   })
@@ -1256,8 +1260,8 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
   })
 
   it('does not call a machine that refuses everything `tooLarge`', async () => {
-    // NT-3a: `tooLarge` would send the person to the smaller value of S-82,
-    // which cannot help a browser that paints nothing at all.
+    // NT-3a: `tooLarge` would send the person to an exchange format instead of
+    // a picture, which cannot help a browser that paints nothing at all.
     const fault = faultOf(
       await raster({ contextFor: () => null }, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled),
       'no context at any size',
@@ -1449,12 +1453,12 @@ describe('PD-132 (provisional) -- what becomes of the root <svg> tag', () => {
   })
 
   it('writes the size the caller asked for, not S-81', async () => {
-    // S-82's larger value must give a bigger picture, not a blurred one: a
-    // decoder handed the old intrinsic size may raster at THAT size and scale
-    // the bitmap afterwards.
+    // A grown picture must come out bigger, not blurred: a decoder handed the
+    // old intrinsic size may raster at THAT size and scale the bitmap
+    // afterwards.
     const sizePx: RasterSizePx = { widthPx: 3200, heightPx: 1800 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, sizePx)
-    bytesOf(settled, 'S-82 at its larger value')
+    bytesOf(settled, 'a size larger than S-81')
     const root = rootTagOf(svgGivenToDecoder(fake.srcs[0] ?? ''))
     expect(attributeValue(root, 'width')).not.toBe(String(T_204.s81.width))
     expect(attributeValue(root, 'width')).toMatch(/^3200(px)?$/)
@@ -1469,7 +1473,7 @@ describe('PD-132 (provisional) -- what becomes of the root <svg> tag', () => {
 // picture at a size nobody asked for, and WY-3 (which compares the screen's
 // rectangles against the export's after ONE rounding rule, :3081 MUST) cannot
 // be judged on it. Rounding it here would make this unit decide an export's
-// size, which FR-025 fixes at S-81 times S-82 on the near side. The ruling
+// size, which FR-025 fixes at S-81, grown in height only, on the near side. The ruling
 // kept the refusal.
 // ---------------------------------------------------------------------------
 

@@ -137,7 +137,6 @@ const documentOf = (part: DocumentParts = {}): Document =>
       zoomY: 1,
       scrollDate: null,
       scrollGroupId: null,
-      exportPngScale: 1,
       dependencyVisible: true,
     },
     documentStamp: {

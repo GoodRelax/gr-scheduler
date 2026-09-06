@@ -331,7 +331,6 @@ const SETTINGS_KINDS = [
   'setPanelWidths',
   'pinTaskGroup',
   'unpinTaskGroup',
-  'setExportPngScale',
   'fitScheduleToScreen',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 

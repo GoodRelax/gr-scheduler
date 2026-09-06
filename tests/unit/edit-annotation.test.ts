@@ -93,7 +93,6 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       zoomY: 1,
       scrollDate: null,
       scrollGroupId: null,
-      exportPngScale: 1,
       dependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },

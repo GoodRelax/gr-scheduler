@@ -35,7 +35,8 @@
 //   FR-025      the output size is never asked for (MUST NOT); the width is
 //               fixed at S-81's (MUST) and the height grows until the picture
 //               fits (MUST), as far as S-217 and no further (MUST); the PNG's
-//               pixels are that size times S-82; the ratio is never changed to
+//               pixels ARE that size -- a scale is forbidden (MUST NOT) and
+//               S-82 retired with the idea; the ratio is never changed to
 //               make the picture fit (MUST NOT); a picture shorter than S-81
 //               leaves the rest blank (MUST) and no row is added to fill it
 //               (MUST NOT); and -- CR-337 -- a picture that will not fit UNDER
@@ -516,13 +517,6 @@ const EVERY_REASON: readonly { readonly why: string; readonly reason: unknown }[
 // ---------------------------------------------------------------------------
 
 /**
- * Table T-204's row `S-82` -- the two values `exportPngScale` admits, in the
- * table's own order. FR-025 (MUST) lets the scale be chosen from these and
- * no others.
- */
-const T_204_S82 = [1, 2] as const
-
-/**
  * `RasterFaultReason`'s three values with the next step each one leaves, which
  * is WHY there are three: NT-3a of table T-037 (MUST) makes a failure notice
  * carry what can be done next, and these three do not share one.
@@ -530,7 +524,7 @@ const T_204_S82 = [1, 2] as const
 const T_037_REASONS: readonly { readonly reason: RasterFaultReason; readonly nextStep: string }[] =
   [
     { reason: 'unsupported', nextStep: 'the SVG of IO-3 is still there' },
-    { reason: 'tooLarge', nextStep: "the smaller of exportPngScale's two values" },
+    { reason: 'tooLarge', nextStep: 'an exchange format instead of a picture' },
     { reason: 'rasterFailed', nextStep: 'try again' },
   ]
 
@@ -1382,22 +1376,22 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
     expect(calls[0]?.svg).toBe(result.svg)
   })
 
-  it('asks for S-81 times S-82 pixels (one case walks both values of S-82)', async () => {
-    for (const scale of T_204_S82) {
-      const settings = settingsOf({ exportPngScale: scale })
-      const { rasterizer, calls } = watchedRasterizer()
-      const scene = sceneOf(viewOf(TALL_ROWS), { settings })
-      const result = await pngOf(rasterizer, scene)
-      expect(calls[0]?.sizePx, `S-82 = ${scale}`).toEqual({
-        widthPx: SETTINGS.exportCanvas.width * scale,
-        heightPx: GROWN_HEIGHT * scale,
-      })
-      // ⚠️ The SVG itself stays at the picture's own size: S-82 multiplies the
-      // PIXELS, not the picture (RasterSizePx says so in as many words).
-      const root = assembledOf(result, scene).root
-      expect(num(root.attrs, 'width'), `S-82 = ${scale}`).toBe(SETTINGS.exportCanvas.width)
-      expect(num(root.attrs, 'height'), `S-82 = ${scale}`).toBeCloseTo(GROWN_HEIGHT, 6)
-    }
+  it('asks for exactly S-81 pixels -- FR-025 admits no scale (MUST NOT)', async () => {
+    // ⛔ THE MULTIPLIER IS GONE, NOT PINNED TO ONE. FR-025 (MUST NOT) forbids
+    // the export holding a scale at all (the reader's ruling of 2026-09-06
+    // 「PNGはいつも原則 1600x900 のままとする」), so `S-82` left table T-204 and
+    // this case walks no values: the pixels ARE the picture's own size.
+    const { rasterizer, calls } = watchedRasterizer()
+    const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS })
+    const result = await pngOf(rasterizer, scene)
+    expect(calls[0]?.sizePx).toEqual({
+      widthPx: SETTINGS.exportCanvas.width,
+      heightPx: GROWN_HEIGHT,
+    })
+    // ⚠️ The SVG carries the same size the raster is asked for.
+    const root = assembledOf(result, scene).root
+    expect(num(root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num(root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
   })
 
   it('gives back the bytes the seam answered with, untouched', async () => {
@@ -1920,17 +1914,17 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     expect(grownFor(tallScreen, TALL_ROWS, halved).ok, 'over the halved one').toBe(false)
   })
 
-  it('asks the rasterizer for the GROWN height times S-82 (MUST)', async () => {
-    // FR-025 (MUST): the pixels are the picture's size times S-82. ⛔ A route
-    // that read `exportCanvas.height` again here would paint a 900-unit window
-    // onto a picture 1280 tall.
+  it('asks the rasterizer for the GROWN height (MUST)', async () => {
+    // FR-025 (MUST): the pixels ARE the picture's size. ⛔ A route that read
+    // `exportCanvas.height` again here would paint a 900-unit window onto a
+    // picture 1280 tall.
     const { rasterizer, calls } = watchedRasterizer()
     const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS }, regionsOf(screenOf(800)))
     const result = await pngOf(rasterizer, scene)
     expect(calls).toHaveLength(1)
     expect(calls[0]?.sizePx).toEqual({
-      widthPx: SETTINGS.exportCanvas.width * SETTINGS.exportPngScale,
-      heightPx: result.heightPx * SETTINGS.exportPngScale,
+      widthPx: SETTINGS.exportCanvas.width,
+      heightPx: result.heightPx,
     })
     expect(result.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
   })

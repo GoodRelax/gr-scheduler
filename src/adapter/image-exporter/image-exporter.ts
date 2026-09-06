@@ -84,8 +84,8 @@
 // `DocumentSettings` (PI-2). EP-1 needs the `App Header` band's rectangle and
 // EP-3 needs the `Row Title Panel`'s, and `ScreenView` carries neither on
 // purpose -- "the rectangles of the parts themselves are ScreenRegions' and are
-// NOT repeated here" -- while S-81 and S-82 are the export's own size and scale
-// and live in the presentation group. ⛔ Neither import adds a source of truth:
+// NOT repeated here" -- while S-81 is the export's own size and lives in the
+// presentation group. ⛔ Neither import adds a source of truth:
 // both are the frame values ADR-001 already has the shell compute once and hand
 // out, and SvgRenderer and ScreenRenderer each hold both edges. The edge list
 // is short by two; that is reported rather than edited from here.
@@ -146,7 +146,7 @@ export interface ExportScene {
   readonly regions: ScreenRegions
   /** The parts outside the schedule (PI-37). Table T-076 decides which survive. */
   readonly screenView: ScreenView
-  /** The presentation group: `exportCanvas` (S-81), `exportPngScale` (S-82) and the row-name values FR-085 uses. */
+  /** The presentation group: `exportCanvas` (S-81) and the row-name values FR-085 uses. */
   readonly settings: DocumentSettings
 }
 
@@ -185,8 +185,8 @@ interface SvgPicture {
    * member -- this is the one of the two that varies (the reader's ruling of
    * 2026-09-02, 「収まらない場合は縦の 900 を延ばせ」).
    * ⛔ Published rather than worked out again by the caller: `exportPng` paints
-   * at this height times `S-82`, and a second arithmetic is how the raster and
-   * the picture would come to be different sizes.
+   * at exactly this height, and a second arithmetic is how the raster and the
+   * picture would come to be different sizes.
    */
   readonly heightPx: number
 }
@@ -579,12 +579,15 @@ export function exportSvg(scene: ExportScene): SvgExport {
  * reaching `Rasterizer`. ⚠️ The SECOND failure is `RasterFault` (IF-6): the
  * picture exists and only painting it did not succeed.
  *
- * ⭐ The pixel size is the picture's own size multiplied by S-82 (MUST: the
- * scale is chosen from S-82's values; MUST NOT: the size is not chosen at each
- * export). The width is S-81's and the height is the one `exportSvg` grew to
- * within S-217 (CR-333). Both settings come from the document, so the same
- * JSON in the same screen gives the same output -- which is the reason
- * FR-025's RATIONALE gives for saving them at all.
+ * ⭐ The pixel size IS the picture's own size -- there is no multiplier any
+ * more. FR-025 (MUST NOT) forbids the export holding a scale at all (the
+ * reader's ruling of 2026-09-06 「PNGはいつも原則1600x900のままとする」), so
+ * `S-82` was retired with the idea; whoever needs finer output is handed an
+ * exchange format instead (IO-2 / IO-7 / IO-1 / IO-3 of table T-024). The
+ * width is S-81's and the height is the one `exportSvg` grew to within S-217
+ * (CR-333). Both come from the document, so the same JSON in the same screen
+ * gives the same output -- which is the reason FR-025's RATIONALE gives for
+ * saving the size at all.
  *
  * ⚠️ The seam comes first because it is what the shell supplies once at wiring
  * time, while the scene is what differs from call to call.
@@ -597,14 +600,13 @@ export async function exportPng(
 ): Promise<ImageExport> {
   const picture = exportSvg(scene)
   if (!picture.ok) return picture
-  const scale = scene.settings.exportPngScale
   // ⭐ THE PICTURE'S OWN HEIGHT, NOT S-81's. FR-025 (MUST) grows the height to
   // fit and stops at S-217, so the raster is painted at what `exportSvg`
   // actually drew -- reading the setting again here would paint a 900-unit
   // window onto a picture that is taller than that (CR-333).
   const sizePx = {
-    widthPx: scene.settings.exportCanvas.width * scale,
-    heightPx: picture.heightPx * scale,
+    widthPx: scene.settings.exportCanvas.width,
+    heightPx: picture.heightPx,
   }
   try {
     return { ...picture, png: await rasterizer.rasterizePng(picture.svg, sizePx) }

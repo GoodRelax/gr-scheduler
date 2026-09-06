@@ -565,15 +565,17 @@ const KEYED_CASES: readonly OutsideCase[] = [
   // ⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE (D-102). It was
   // deliberately not written here by the session that moved the row -- rule 05
   // section 7 forbids that -- so it is recorded as owed rather than invented.
-  {
-    undoRow: 'UN-16',
-    commandRow: 'CM-70',
-    settingRows: ['S-82'],
-    keys: ['exportPngScale'],
-    expected: [2],
-    command: { kind: commandKindOf('CM-70'), scale: 2 } as unknown as DocumentCommand,
-    before: [],
-  },
+  // ⛔⛔ CM-70 (`setExportPngScale`) USED TO STAND HERE, WRITING `S-82`
+  // (`exportPngScale`) TO 2. It cannot any more: FR-025 (MUST NOT) forbids the
+  // export holding a scale at all (the reader's ruling of 2026-09-06
+  // 「PNGはいつも原則 1600x900 のままとする」), so `S-82` left table T-204 and
+  // the key left `DocumentSettings`. Every case in this list asserts that a
+  // command WROTE a key and left no 段; with no key to write, there is nothing
+  // for this row to assert.
+  // ⚠️ CM-70 ITSELF IS STILL A ROW OF TABLE T-108, so the command kind is still
+  // declared and still 対象外 -- what is gone is only the value it wrote. ⇒ The
+  // gap is reported, not invented over: whether CM-70 retires with S-82 is the
+  // specification's to say.
 ]
 
 const OUTSIDE_CASES: readonly OutsideCase[] = [...UN_7_CASES, ...KEYED_CASES]

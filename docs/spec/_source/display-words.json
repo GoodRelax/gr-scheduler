@@ -1764,13 +1764,6 @@
    }
   },
   {
-   "rowId": "K-88",
-   "label": {
-    "ja": "PNG の倍率",
-    "en": "exportPngScale"
-   }
-  },
-  {
    "rowId": "K-91",
    "label": {
     "ja": "補助線の太さ",

@@ -166,11 +166,10 @@ const EXPORT_CANVAS = sizeOf(rowOf(T204, 'S-81'))
 /** `S-217` `exportCanvasHeightCap` -- how far the height may be stretched. */
 const EXPORT_HEIGHT_CAP = numberIn(rowOf(T204, 'S-217').by['既定値'] ?? '')
 
-/** `S-82` `exportPngScale` -- the scales a person may choose between. */
-const PNG_SCALES: readonly number[] = (rowOf(T204, 'S-82').cells[1] ?? '')
-  .split('/')
-  .map((piece) => numberIn(piece))
-  .filter((value) => Number.isFinite(value))
+// ⛔ THERE IS NO SCALE TO READ. `S-82` (`exportPngScale`) left table T-204 on
+// 2026-09-06: FR-025 (MUST NOT) forbids the export holding a scale at all (the
+// reader's ruling 「PNGはいつも原則 1600x900 のままとする」), so one picture is
+// asked for and its width must be `S-81`'s own.
 
 /** `TP-6` -- how many `Task` the startup template holds. */
 const TEMPLATE_TASKS = numberIn(rowOf(T226, 'TP-6').cells[1] ?? '')
@@ -366,9 +365,8 @@ interface MemberAnswer {
   readonly notAvailable: boolean
 }
 
-/** What one call of `AM-14` at one scale of `S-82` produced. */
+/** What the one call of `AM-14` produced. FR-025 leaves no scale to vary. */
 interface PngAttempt {
-  readonly scale: number
   readonly shape: string
   readonly width: number
   readonly height: number
@@ -923,18 +921,17 @@ function summarise(
 }
 
 // ---------------------------------------------------------------------------
-// `FR-025` -- the picture, its scale and its width
+// `FR-025` -- the picture and its fixed width
 // ---------------------------------------------------------------------------
 
 /** @purity non-pure */
 async function measurePng(page: Page): Promise<PngAttempt[]> {
   return page.evaluate(
-    async ([member, scales]: [string, number[]]) => {
+    async (member: string) => {
       type Bag = Record<string, unknown>
       const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
       const fn = api[member]
       const out: {
-        scale: number
         shape: string
         width: number
         height: number
@@ -969,17 +966,17 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
         return ''
       }
 
-      for (const scale of scales) {
+      {
         if (typeof fn !== 'function') {
-          out.push({ scale, shape: typeof fn, width: -1, height: -1, answer: '(not a function)' })
-          continue
+          out.push({ shape: typeof fn, width: -1, height: -1, answer: '(not a function)' })
+          return out
         }
-        // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED BY THE SPECIFICATION. `S-82` is
-        // a setting, so the plain number and the named form are both tried and
-        // the first that yields a picture is the one reported.
+        // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED BY THE SPECIFICATION, and there
+        // is no scale to pass any more: the member is called with nothing and
+        // with an empty bag, and the first that yields a picture is reported.
         let picture = ''
         let answer = ''
-        for (const argument of [scale, { scale }, { exportPngScale: scale }]) {
+        for (const argument of [undefined, {}]) {
           let value: unknown
           try {
             value = await (fn as (a: unknown) => unknown).call(api, argument)
@@ -992,8 +989,8 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
           if (picture !== '') break
         }
         if (picture === '') {
-          out.push({ scale, shape: 'no picture', width: -1, height: -1, answer })
-          continue
+          out.push({ shape: 'no picture', width: -1, height: -1, answer })
+          return out
         }
         const size = await new Promise<{ w: number; h: number }>((settle) => {
           const image = new Image()
@@ -1001,11 +998,11 @@ async function measurePng(page: Page): Promise<PngAttempt[]> {
           image.onerror = () => settle({ w: -1, h: -1 })
           image.src = picture
         })
-        out.push({ scale, shape: 'picture', width: size.w, height: size.h, answer })
+        out.push({ shape: 'picture', width: size.w, height: size.h, answer })
       }
       return out
     },
-    [AM_14, [...PNG_SCALES]] as [string, number[]],
+    AM_14,
   )
 }
 
@@ -1562,46 +1559,36 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   // -------------------------------------------------------------------------
   //
   // `FR-025`, verbatim:
-  // PNG の倍率は表 T-204 の `S-82` から選べるようにすること（MUST）
+  // ⛔⛔ **倍率を持ってはならない（MUST NOT）**
   // ⭐⭐ **幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ばすこと（MUST）**
   // ⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）。**
   //
-  // ⭐ HOW THE WIDTH IS READ. A PNG only states pixels, and `S-82` is a raster
-  // scale over the fixed output size of `S-81`, so the fixed width shows up as
-  // `S-81`'s width times the chosen scale. Anything else means the width was
-  // not fixed to `S-81`.
-  if (PNG_SCALES.length === 0) {
-    unmet.push('table T-204 row S-82 offered no scale this file could read')
-  }
+  // ⭐ HOW THE WIDTH IS READ. A PNG only states pixels, and there is no scale
+  // over the fixed output size of `S-81` any more, so the fixed width shows up
+  // as `S-81`'s width itself. Anything else means the width was not fixed.
   for (const attempt of m.png) {
     if (attempt.width < 0) {
       unmet.push(
-        `FR-025: ${AM_14} produced no picture at scale ${String(attempt.scale)} of S-82; it ` +
-          `answered ${JSON.stringify(attempt.answer)}`,
+        `FR-025: ${AM_14} produced no picture; it answered ${JSON.stringify(attempt.answer)}`,
       )
       continue
     }
-    const wanted = EXPORT_CANVAS.width * attempt.scale
-    if (attempt.width !== wanted) {
+    if (attempt.width !== EXPORT_CANVAS.width) {
       unmet.push(
-        `FR-025: at scale ${String(attempt.scale)} the picture is ${String(attempt.width)}px wide, ` +
-          `not the ${String(wanted)}px that S-81's fixed width of ${String(EXPORT_CANVAS.width)} ` +
-          'comes to at that scale',
+        `FR-025: the picture is ${String(attempt.width)}px wide, not S-81's fixed width of ` +
+          `${String(EXPORT_CANVAS.width)}`,
       )
     }
-    const floor = EXPORT_CANVAS.height * attempt.scale
-    const ceiling = EXPORT_HEIGHT_CAP * attempt.scale
-    if (attempt.height < floor) {
+    if (attempt.height < EXPORT_CANVAS.height) {
       unmet.push(
-        `FR-025: at scale ${String(attempt.scale)} the picture is ${String(attempt.height)}px high, ` +
-          `below S-81's height of ${String(EXPORT_CANVAS.height)} at that scale -- the height is ` +
-          'stretched from there, never cut below it',
+        `FR-025: the picture is ${String(attempt.height)}px high, below S-81's height of ` +
+          `${String(EXPORT_CANVAS.height)} -- the height is stretched from there, never cut below it`,
       )
     }
-    if (attempt.height > ceiling) {
+    if (attempt.height > EXPORT_HEIGHT_CAP) {
       unmet.push(
-        `FR-025: at scale ${String(attempt.scale)} the picture is ${String(attempt.height)}px high, ` +
-          `past S-217's cap of ${String(EXPORT_HEIGHT_CAP)} at that scale`,
+        `FR-025: the picture is ${String(attempt.height)}px high, past S-217's cap of ` +
+          `${String(EXPORT_HEIGHT_CAP)}`,
       )
     }
   }

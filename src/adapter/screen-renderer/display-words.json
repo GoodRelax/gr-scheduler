@@ -2025,16 +2025,6 @@
    }
   },
   {
-   "rowId": "K-88",
-   "keys": [
-    "exportPngScale"
-   ],
-   "label": {
-    "ja": "PNG の倍率",
-    "en": "exportPngScale"
-   }
-  },
-  {
    "rowId": "K-91",
    "keys": [
     "planActualGuideWeight"

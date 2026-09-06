@@ -56,11 +56,10 @@
 //                 settles the conversion: 「1 MB = 1024 × 1024 バイトとする」
 //   表 T-027      which operations earn a 段 and which do not. UN-3 (a Task
 //                 property of table T-016, and PR-1 is `name`) is the 対象 row
-//                 these cases write with; UN-16 -- 「見る場所の割り付けと出力
-//                 の設定 —— パネル幅（`FR-052`）・ピン止め（`FR-098`）・PNG の
-//                 倍率（`FR-025`）」 -- is the 対象外 row they walk
-//   表 T-108      CM-9 `setTaskName`, and CM-67 / CM-68 / CM-69 / CM-70, the
-//                 four commands whose 正 is one of UN-16's three requirements
+//                 these cases write with; UN-16 -- 「見る場所の割り付け
+//                 —— パネル幅（`FR-052`）」 -- is the 対象外 row they walk
+//   表 T-108      CM-9 `setTaskName`, and CM-67 / CM-68 / CM-69, the
+//                 commands whose 正 is one of UN-16's requirements
 //   表 T-067 WS-4 「取り消しの履歴に 1 段積む。表 T-027 の対象外なら積まない」
 //                 -- the step is pushed by the write path and nowhere else
 //   表 T-042 MS-1 `applyDocumentChange` is the ONE write path, so a history
@@ -185,8 +184,8 @@ const S_95_BYTES = S_95_NUMBER * MB_FACTOR
  * The `FR-` ids table T-027's UN-16 names, and the table T-108 commands whose
  * 正 is one of them.
  *
- * ⭐ Manuscript-to-manuscript: UN-16 says 「パネル幅（`FR-052`）・PNG の倍率
- * （`FR-025`）」 and table T-108's 正 column says which
+ * ⭐ Manuscript-to-manuscript: UN-16 says 「パネル幅（`FR-052`）」
+ * and table T-108's 正 column says which
  * command each of those requirements owns. Nothing here decides which commands
  * are out of scope; the two tables do, and re-deciding either one reaches this
  * file.
@@ -351,16 +350,20 @@ function writeNames(one: Bench, nth: number): void {
  * A payload for each command table T-027's UN-16 puts out of scope.
  *
  * ⚠️ Each value differs from what the bundled document already holds
- * (`rowTitlePanelWidth` 170, `propertyPanelWidth` 280, `exportPngScale` 1,
- * nothing pinned), because a command that changed nothing would leave no 段
- * for a reason that has nothing to do with table T-027. The cases assert the
- * change before they assert the absence of the 段.
+ * (`rowTitlePanelWidth` 170, `propertyPanelWidth` 280, nothing pinned), because
+ * a command that changed nothing would leave no 段 for a reason that has
+ * nothing to do with table T-027. The cases assert the change before they
+ * assert the absence of the 段.
+ *
+ * ⚠️ CM-70 USED TO BE AN EXCEPTION HERE, because the key it wrote
+ * had gone while the command itself stayed. Both are retired now, so the
+ * roster below is CM-67 alone (FR-025 / table T-108, 2026-09-06) and
+ * every command in it really does write.
  */
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
   setPanelWidths: { kind: 'setPanelWidths', rowTitlePanelWidth: 200, propertyPanelWidth: 300 },
   pinTaskGroup: { kind: 'pinTaskGroup', groupId: FIRST_GROUP_ID },
   unpinTaskGroup: { kind: 'unpinTaskGroup', groupId: FIRST_GROUP_ID },
-  setExportPngScale: { kind: 'setExportPngScale', scale: 2 },
 }
 
 // ---------------------------------------------------------------------------
@@ -509,12 +512,15 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
   // -- because UN-16 and IV-3 of table T-220 stated opposite things about a pin
   // whose row an undo removes. CM-68 / CM-69 therefore leave this file's scope,
   // and the 対象 half of their behaviour is owed a home (D-102).
-  it('UN-16 names two requirements, and table T-108 gives them two commands', () => {
+  // ⚠️ THE ROW STILL NAMES `FR-025`, BUT ONLY TO SAY THE SCALE LEFT IT.
+  // FR-025 (MUST NOT) took the PNG scale away on 2026-09-06 and CM-70 retired
+  // with it, so the pair of requirements is answered by one command now.
+  it('UN-16 names two requirements, and table T-108 gives them one command', () => {
     expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052'])
-    expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67', 'CM-70'])
+    expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67'])
   })
 
-  describe('UN-16 対象外 -- 見る場所の割り付けと出力の設定', () => {
+  describe('UN-16 対象外 -- 見る場所の割り付け', () => {
     for (const command of UN_16_COMMANDS) {
       it(`UN-16 / ${command.commandRow} \`${command.kind}\` (${command.requirement}): changes the document and leaves NO 段`, () => {
         const one = bench()
@@ -533,7 +539,6 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
 
         expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
         // ⚠️ Without this the case would pass on a command that was silently a
-        // no-op: nothing happened, so nothing was pushed.
         expect(one.json(), 'the command really did change the document').not.toBe(before)
         expect(one.depth()).toBe(0)
       })
@@ -544,7 +549,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     const one = bench()
     writeNames(one, 1)
     expect(one.depth()).toBe(1)
-    one.write([PAYLOAD['setExportPngScale'] as DocumentCommand])
+    one.write([PAYLOAD['setPanelWidths'] as DocumentCommand])
     expect(one.depth()).toBe(1)
 
     const back = undoEdit(one.held)

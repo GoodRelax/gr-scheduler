@@ -484,7 +484,8 @@ describe('FR-024 -- every key of the presentation group is written', () => {
   })
 
   // ⭐ THIS CASE WAS THE ONE RED, AND THE DEBT WAS ITS OWN. It used to set
-  // EVERY number key to 0, `exportPngScale` among them -- and that key is one
+  // EVERY number key to 0, the retired `exportPngScale` among them -- and that
+  // key was one
   // of the six the manuscript spells the values of, so 0 is not a number below
   // a bound but a value no row holds. The preamble of 表 T-220 admits the
   // enum as one of the two conditions this group may be held to, so refusing

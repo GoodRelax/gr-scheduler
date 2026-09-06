@@ -131,7 +131,6 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'setPanelWidths'; readonly rowTitlePanelWidth: number; readonly propertyPanelWidth: number }
   | { readonly kind: 'pinTaskGroup'; readonly groupId: string }
   | { readonly kind: 'unpinTaskGroup'; readonly groupId: string }
-  | { readonly kind: 'setExportPngScale'; readonly scale: 1 | 2 }
   | {
       readonly kind: 'fitScheduleToScreen'
       readonly zoomX: number
@@ -386,9 +385,6 @@ export function editDocumentSettings(
       if (!held.includes(command.groupId)) return edited(document)
       return put({ pinnedGroupIds: held.filter((one) => one !== command.groupId) })
     }
-
-    case 'setExportPngScale': // CM-70
-      return put({ exportPngScale: command.scale })
 
     case 'fitScheduleToScreen': { // CM-71
       // ⭐ HALF OF ONE PRESS, AND THE FIRST HALF. FR-031 (MUST) splits the fit

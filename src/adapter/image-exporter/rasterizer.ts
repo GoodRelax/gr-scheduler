@@ -31,10 +31,10 @@
  * The pixel size the raster is painted at.
  *
  * ⭐ Pixels, and named so, because they are NOT the picture's own units: the
- * SVG that crosses this seam is `exportCanvas` (S-81) wide, and these are that
- * size multiplied by `exportPngScale` (S-82). ⚠️ The multiplication happens on
- * the near side -- S-82 is a value of the presentation group and this seam is
- * on the far side of the layer that may read it.
+ * SVG that crosses this seam is `exportCanvas` (S-81) wide and as tall as
+ * FR-025 grew it, and these are that same size in device pixels. ⚠️ There is
+ * no multiplier: FR-025 (MUST NOT) forbids the export holding a scale at all
+ * (the reader's ruling of 2026-09-06), and `S-82` was retired with the idea.
  */
 export interface RasterSizePx {
   readonly widthPx: number
@@ -53,8 +53,10 @@ export interface RasterSizePx {
  *
  * ⭐ Three values, because NT-3a of table T-037 (MUST) makes a failure notice
  * carry what can be done next, and these three do not share a next step: the
- * first leaves the SVG (IO-3) as the way out, the second leaves the smaller of
- * `exportPngScale`'s two values, and the third leaves trying again.
+ * first leaves the SVG (IO-3) as the way out, the second leaves an exchange
+ * format instead of a picture (IO-2 / IO-7 / IO-1 / IO-3 of table T-024 --
+ * FR-025 no longer has a smaller scale to offer), and the third leaves trying
+ * again.
  */
 export type RasterFaultReason =
   /** There is no way to raster here at all -- this browser, or this way of opening the app. */

@@ -252,7 +252,6 @@
 | K-85 | 表示の切り替え | `fontScale` | 文字サイズ |
 | K-86 | 表示の切り替え | `importSeq` | 取込の連番 |
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
-| K-88 | 出力 | `exportPngScale` | PNG の倍率 |
 | K-91 | 予実の補助線 | `planActualGuideWeight` | 補助線の太さ |
 | K-92 | 予実の補助線 | `planActualGuidePattern` | 補助線の破線の刻み |
 | K-93 | 予実の補助線 | `planActualGuideColor` | 補助線の色 |
@@ -434,7 +433,6 @@
 | CM-67 | 見せ方の群 | `setPanelWidths` | ⭐ | パネル幅を変える | `FR-052` |
 | CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
 | CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
-| CM-70 | 見せ方の群 | `setExportPngScale` | — | PNG の倍率を選ぶ | `FR-025` |
 | CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体が収まる倍率と表示位置を置く | `FR-055` |
 | CM-72 | `TaskGroup` | `expandAllTaskGroups` | ⭐ | 畳んだ行をすべて開く | `FR-055`（表 T-051 の `HF-8`）|
 | CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | 行の親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|

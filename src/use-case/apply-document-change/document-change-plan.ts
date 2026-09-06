@@ -148,9 +148,10 @@ function isUndoable(command: DocumentCommand): boolean {
     // UN-7: the eight boolean rows of table T-202.
     case 'setElementVisible':
       return false
-    // UN-16: where you look and what you export, not what the schedule says.
+    // UN-16: where you look, and nothing else any more. ⚠️ The row used to
+    // name the PNG scale too; FR-025 took the scale away on 2026-09-06 and
+    // CM-70 (`setExportPngScale`) retired with it.
     case 'setPanelWidths':
-    case 'setExportPngScale':
       return false
     // UN-8: the zoom and the position. ⭐ `fitScheduleToScreen` IS here now.
     // FR-031 (MUST) splits one fit press into two writes: CM-71 puts the zoom
@@ -237,10 +238,14 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     baselineVisible: current.baselineVisible,
 
     // UN-16 -- where you look and what you export. `setPanelWidths` (CM-67)
-    // writes the pair, `setExportPngScale` (CM-70) writes the scale.
+    // writes the pair. ⛔ THE SCALE IS GONE: FR-025 (MUST NOT) forbids the
+    // export holding one at all (the reader's ruling of 2026-09-06), so `S-82`
+    // / `exportPngScale` was retired and there is no key here to carry over.
+    // ⚠️ A saved document that still holds the key is not broken by this: OP-6
+    // of table T-024a keeps a key it does not know rather than dropping it, and
+    // a retired key is an unknown key from the day it retires.
     rowTitlePanelWidth: current.rowTitlePanelWidth,
     propertyPanelWidth: current.propertyPanelWidth,
-    exportPngScale: current.exportPngScale,
     // ⛔ `pinnedGroupIds` (S-126) IS NOT KEPT, AND THAT IS NOW WHAT THE ROWS
     // SAY. UN-16 used to name it, which put it against IV-3 of table T-220
     // (every pinned id names a `TaskGroup` THAT EXISTS): pin a row, undo the

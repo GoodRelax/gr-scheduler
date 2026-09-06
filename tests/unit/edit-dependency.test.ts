@@ -96,7 +96,6 @@ const documentOf = (tasks: readonly Task[]): Document =>
       zoomY: 1,
       scrollDate: null,
       scrollGroupId: null,
-      exportPngScale: 1,
       dependencyVisible: true,
       // ⚠️ S-117 of table T-213 lives in the document, so a fixture that
       // leaves it out hands the aggregate `undefined` as the value it puts on

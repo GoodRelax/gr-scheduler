@@ -392,7 +392,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     for (const command of [
       { kind: 'setElementVisible', element: 'dependencyVisible', visible: false }, // UN-7
-      { kind: 'setExportPngScale', scale: 2 }, // UN-16
+      { kind: 'setPanelWidths', rowTitlePanelWidth: 210, propertyPanelWidth: 310 }, // UN-16
       { kind: 'setZoom', zoomX: 2, zoomY: 2 }, // UN-8
     ] as const) {
       const plan = planOf(document, [command as DocumentCommand])

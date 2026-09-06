@@ -87,7 +87,6 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       zoomY: 1,
       scrollDate: null,
       scrollGroupId: null,
-      exportPngScale: 1,
       dependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
@@ -437,8 +436,10 @@ const T_027 = [
   {
     row: 'UN-16',
     undoable: false,
-    operation: '見る場所の割り付けと出力の設定 —— PNG の倍率（FR-025）',
-    command: { kind: 'setExportPngScale', scale: 2 },
+    // ⚠️ THE ROW USED TO NAME THE PNG SCALE. FR-025 (MUST NOT) took the scale
+    // away on 2026-09-06 and CM-70 retired with it, so CM-67 is what UN-16 has.
+    operation: '見る場所の割り付け（FR-052）',
+    command: { kind: 'setPanelWidths', rowTitlePanelWidth: 210, propertyPanelWidth: 310 },
   },
 ] as const satisfies readonly {
   row: string

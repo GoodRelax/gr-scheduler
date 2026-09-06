@@ -18,10 +18,10 @@
 // inward only (LR-1).
 //
 // ⭐ NOTHING ABOUT THE EXPORT IS DECIDED HERE. FR-025 fixes the output size at
-// S-81 and the scale at S-82, FR-080 fixes the picture, and table T-076 fixes
-// which parts are drawn -- all of it before the call arrives. What crosses is a
-// finished picture and the pixel size to paint it at. ⛔ So this file reads
-// neither S-81 nor S-82: `RasterSizePx` already carries their product, and a
+// S-81 and forbids a scale entirely (MUST NOT), FR-080 fixes the picture, and
+// table T-076 fixes which parts are drawn -- all of it before the call arrives.
+// What crosses is a finished picture and the pixel size to paint it at. ⛔ So
+// this file does not read S-81: `RasterSizePx` already carries that size, and a
 // second reading here would be a second place that decides an export's size.
 // ⚠️ IO-4 of table T-024 is a write-only direction and this unit answers with
 // bytes; it never reads an image back, so no intake is opened for FR-023.
@@ -59,8 +59,8 @@
 //
 //   3. THE INTRINSIC SIZE. Some decoders need the SVG to carry its own width
 //      and height, and a decoder that has them may rasterize at THAT size and
-//      then scale the bitmap -- which is how S-82's larger value would produce
-//      a blurred picture instead of a bigger one. So the root tag's width and
+//      then scale the bitmap -- which is how a picture grown taller than its
+//      own intrinsic size would come back blurred. So the root tag's width and
 //      height are rewritten to the pixel size asked for whenever the picture
 //      carries a `viewBox`, which is what keeps the coordinates and so the
 //      picture itself unchanged. ⛔ A picture with neither a `viewBox` nor a
@@ -158,7 +158,7 @@ function failedRastering(reason: RasterFaultReason, what: string): Rastering {
  * ⛔ Refused rather than rounded. A canvas truncates what it is given, so a
  * fractional size would come back as a picture at a size nobody asked for, and
  * rounding it here would make this unit decide an export's size -- which
- * FR-025 fixes at S-81, times S-82, on the near side of the seam.
+ * FR-025 fixes at S-81, grown in height only, on the near side of the seam.
  *
  * ⛔ NOT IN THE SPECIFICATION: no row says what a rasterizer does with a size
  * that is not a whole number of pixels.
