@@ -825,11 +825,12 @@ const COLOUR_COLUMNS: readonly string[] = ['strokeColor', 'fillColor', 'color']
 /**
  * Table T-016's 複数行 -- `PR-2` `notes` and, since 2026-09-06, `PR-21` `text`.
  *
- * ⚠️ `text` REACHES NOTHING YET, and it is written all the same. `controlKindOf`
- * is only ever asked through `controlOf`, which takes a `ShapedEntity`, and
- * `COLUMN_SHAPES` has no `CommentBox` -- see `commentBoxFields` for what that
- * shuts. ⛔ Leaving it out would make this roster a partial copy of the table's
- * 入力の型 column, which is the drift rule 03 section 1 forbids.
+ * ⭐ `text` REACHES `PR-21` NOW (D-349, 2026-09-06): `COLUMN_SHAPES` carries
+ * `CommentBox`, so `controlKindOf` can be asked about the column and this line
+ * is what turns table T-016's 複数行 into the control's kind. ⛔ It was written
+ * here before it reached anything, for the reason that still holds: leaving it
+ * out would make this roster a partial copy of the table's 入力の型 column,
+ * which is the drift rule 03 section 1 forbids.
  */
 const MULTILINE_COLUMNS: readonly string[] = ['notes', 'text']
 
@@ -871,8 +872,16 @@ function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKin
   if (COLOUR_COLUMNS.includes(column)) return 'color'
   if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
   if (CHOICE_OVER_DOCUMENT_COLUMNS.includes(column)) return 'choice'
-  const dates: readonly string[] = entity === 'Task' ? DATE_COLUMNS.Task : []
-  if (dates.includes(column)) return 'date'
+  // ⚠️ ASKED OF THE WHOLE ROSTER AND NOT OF ONE ENTITY. `DATE_COLUMNS` is
+  // generated per entity and holds only the entities that HAVE a date column,
+  // so a shaped entity may be absent from it -- which is what the widening
+  // reads as "no date column" rather than as an error. ⛔ Spelling one entity
+  // here (it read `entity === 'Task'` until PR-21 arrived) makes this a partial
+  // copy of the roster: `CommentBox.anchorDate` is a date the manuscript marks,
+  // and the moment table T-016 gains a row for it the old form would have drawn
+  // it as text.
+  const dateRoster: Partial<Record<ShapedEntity, readonly string[]>> = DATE_COLUMNS
+  if ((dateRoster[entity] ?? []).includes(column)) return 'date'
 
   const shape = COLUMN_SHAPES[entity][column]
   if (shape === undefined) return 'text'
@@ -1331,7 +1340,7 @@ function fieldsOfItem(
       const box = schedule.commentBoxes.find((one) => one.id === subject.id)
       // ⚠️ The box is gone from the document, which is the same state a task's
       // arm answers `null` for -- FR-072 calls it the selection having gone.
-      return box === undefined ? null : commentBoxFields(box, language)
+      return box === undefined ? null : commentBoxFields(schedule, box, labelCoef, language)
     }
     case 'highlightBox':
     case 'statusLine':
@@ -1361,35 +1370,74 @@ type CommentBox = Schedule['commentBoxes'][number]
  * DECLARES, so declaring anything else would put that entrance out of reach.
  *
  * ⚠️ `isEditable` IS THE TABLE'S MARK AND `PR-21` CARRIES NONE, so the field is
- * editable; `controls` being empty is a separate statement, which
- * `PropertyField.controls` spells out: 「EMPTY IS NOT "NOT EDITABLE". It means
- * this side has no control to offer」.
+ * editable; the CONTROL is a separate statement, and FR-006 (MUST) is what asks
+ * for it -- 「同表の 入力の型 の欄が名指す形とすること」, which for `PR-21` reads
+ * `複数行`.
  *
- * STOP -- ⛔⛔ NO CONTROL CAN BE OFFERED FROM THIS FILE, AND TWO THINGS ARE
- * MISSING FOR IT (measured 2026-09-06, D-283). Neither is in this unit:
- *   * `PropertyFieldKey` (`screen-renderer.ts`) has five arms -- `task`,
- *     `taskVisual`, `taskGroup`, `dependency`, `project` -- and NONE of them can
- *     name a comment box, which AT-110 identifies by a `string` id. A control
- *     carries that key, and a commit is read back by it (IF-9), so a control
- *     built with one of the five would name the wrong thing.
- *   * `COLUMN_SHAPES` (`schedule.ts`, generated from `_source/erd.json`) holds
- *     `Task`, `TaskVisual`, `TaskGroup` and `Dependency` and no `CommentBox`,
- *     so `controlKindOf` has no entity to be asked about `text` under.
- * ⛔ Nothing is invented for either: an arm and an entity are both changes to
- * units this round may not touch. ⭐ The write side is already standing --
- * CM-48 `setCommentBoxText` in `edit-annotation.ts` -- so what is left is the
- * key, the shape, and one case in `commandFromFieldCommit`.
+ * ⭐⭐ THE TWO ABSENCES THE STOP HERE RECORDED ARE BOTH CLOSED (D-349,
+ * 2026-09-06). `PropertyFieldKey` has a `commentBox` arm now -- `id`, not `uid`,
+ * because AT-110 makes a box's key a `string` -- and `SHAPED_ENTITIES` in
+ * `tools/generate_entity_types.py` carries `CommentBox`, so `COLUMN_SHAPES` has
+ * an entity for `controlKindOf` to be asked about `text` under. Nothing is
+ * spelled out here: the FORM comes off `MULTILINE_COLUMNS` and the shape, both
+ * of which already stood.
+ *
+ * STOP -- ⛔ THE WRITE SIDE IS NOT WIRED YET, and it is one case:
+ * `commandFromFieldCommit` (`input-command-translator.ts`) has no `commentBox`
+ * arm, so a settled value reaches no command. ⭐ The command itself is already
+ * standing -- CM-48 `setCommentBoxText` in `edit-annotation.ts` -- so what is
+ * left is that one case. ⛔ Not done here: that unit was out of this round's
+ * reach.
  *
  * @purity pure
  */
-function commentBoxFields(box: CommentBox, language: DisplayLanguage): readonly PropertyField[] {
+function commentBoxFields(
+  schedule: Schedule,
+  box: CommentBox,
+  labelCoef: number,
+  language: DisplayLanguage,
+): readonly PropertyField[] {
   return COMMENT_BOX_ITEMS.map((item) => ({
     row: item.row,
     name: itemName(item.row, language),
     text: item.columns.map((column) => textOfValue(box[column])).join(PART_SEPARATOR),
     isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: [],
+    controls: controlsOfCommentBoxItem(schedule, box, item, labelCoef),
   }))
+}
+
+/**
+ * The controls of one row of table T-016 whose 対象 is `CommentBox`.
+ *
+ * ⚠️ `subjectUid` IS `null`, AND THAT IS NOT A PLACEHOLDER. The one thing
+ * `controlOf` uses it for is `PR-15`'s chooser over the document's own tasks, a
+ * `Task` row -- no `CommentBox` row of table T-016 offers candidates that are
+ * not an enumeration, so there is nothing for a subject to be looked up by.
+ *
+ * ⚠️ READ-ONLY IS ASKED THE SAME WAY IT IS FOR A TASK: table T-016 marks no
+ * `CommentBox` row 読み取り専用, so this returns a control today, and it stays
+ * the table's answer rather than this file's if a mark ever arrives.
+ *
+ * @purity pure
+ */
+function controlsOfCommentBoxItem(
+  schedule: Schedule,
+  box: CommentBox,
+  item: CommentBoxPropertyItem,
+  labelCoef: number,
+): readonly PropertyControl[] {
+  if (READ_ONLY_ROWS.includes(item.row)) return []
+  return item.columns.map((column) =>
+    controlOf(
+      schedule,
+      { holder: 'commentBox', id: box.id, column },
+      'CommentBox',
+      column,
+      textOfValue(box[column]),
+      null,
+      labelCoef,
+    ),
+  )
 }
 
 // -------------------------------------------------------- the picked row ----

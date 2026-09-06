@@ -144,6 +144,7 @@ import {
   type Selection,
 } from '../../entity/document-model/selection/selection'
 import {
+  dependencyEndAtPointer,
   itemsInMarquee,
   type Hit,
   type Item,
@@ -3786,6 +3787,22 @@ export function commandFromFieldCommit(
       return schedule.taskGroups.some((held) => held.id === key.groupId)
         ? commandFromGroupColumn(key.groupId, key.column, commit.text)
         : []
+    case 'commentBox':
+      // PR-21 of table T-016, whose 対象 is `CommentBox` and whose 入力の型 is
+      // 複数行. ⭐ MK-13 (MUST) sends the double click here since 2026-09-06:
+      // 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
+      // `PR-21`）を編集できる状態にして焦点を置くこと」, and the same row
+      // (MUST NOT) forbids an editor drawn over the chart instead.
+      // ⚠️ AN EMPTIED FIELD IS `null` AND NOT `''` -- AT-112 spells the body a
+      // nullable string, and FR-024 (MUST) keeps a null column written rather
+      // than dropped, so an empty box and a box that never had a body are the
+      // same document either way.
+      // ⛔ THE BOX IS CHECKED FIRST for the reason every arm above checks: a
+      // field can settle after the thing it named has gone, and CM-48 would
+      // refuse the write rather than let this build a command nobody can apply.
+      return schedule.commentBoxes.some((held) => held.id === key.id)
+        ? [{ kind: 'setCommentBoxText', id: key.id, text: settledText(commit.text) }]
+        : []
     case 'dependency': {
       const successor = taskByUid(schedule, key.successorUid)
       const dependency = successor?.dependencies[key.ordinal]
@@ -6693,120 +6710,21 @@ function commandFromArmingEntry(entry: string, context: InputContext): Translate
 }
 
 /**
- * CM-36, named off `DocumentCommand` rather than restated.
+ * The end the pointer names -- which Task, and which half of its bar.
  *
- * ⭐ THE SAME DEVICE `SetDualCursor` ABOVE USES, AND FOR THE SAME REASON: the
- * two edges and their spellings are that command's, `edit-dependency.ts` is
- * where FR-009's three refusals are judged, and a pair of names written out
- * here would be a second declaration for the compiler to fail to keep in step.
+ * ⭐⭐ NOT COMPUTED HERE ANY MORE. FR-009 (MUST, 利用者の裁定 2026-09-06):
+ * 「どちらの半分かを、公開された名前から問えるようにすること（MUST）…半分を答える
+ * 名は別に置くこと（MUST）。構えが依存線のときだけ呼ぶ」. ⛔ A copy of the rule in
+ * this file could not be asked from outside, so the rule now lives at
+ * `dependencyEndAtPointer` (layoutEngine, the layer the bar's geometry is in)
+ * and this file only calls it. The three private readings that used to stand
+ * here -- the bar's extent, the middle, and the walk over the Tasks -- were
+ * that copy.
+ *
+ * ⭐ TABLE T-023d IS STILL NOT APPLIED, WHICH IS PD-3's OWN SENTENCE: 「構えが
+ * 依存線のときは表 T-023d を適用せず」. `itemAtPointer` (PI-7) IS that table;
+ * the name called here is a different one and takes no `PointerSlop`.
  */
-type CreateDependency = Extract<DocumentCommand, { readonly kind: 'createDependency' }>
-
-/** FR-009's two edges, off the command that carries them. */
-type DependencyEnd = {
-  readonly uid: number
-  readonly edge: CreateDependency['predecessorEdge']
-}
-
-/**
- * The horizontal middle of the bar a dependency hangs on, and how tall it
- * stands -- or null where this Task drew no bar this frame.
- *
- * ⭐ THE PLAN'S BAR, AND THE ACTUAL'S ONLY WHERE NO PLAN IS DRAWN. FR-009
- * (MUST): 「依存線は予定の幾何に付くこと（MUST）。予定を表示していないときに限り、
- * 実績の幾何に付ける」, with the reason beside it -- 「どちらの辺かだけを定めてどちら
- * のバーかを定めないと、予実の表示を切り替えたときに絵が決まらない」. The edge this
- * reading answers is an edge OF that bar, so it is measured on that bar and no
- * other.
- *
- * ⚠️ A SHAPE'S OWN SILHOUETTE, WHICH IS WHAT THE TWO FORMS OF `BarGeometry`
- * HOLD: an outline is its run of points, and a line is its two ends plus SH-3's
- * head. ⛔ The stroke is not spread around the line here, as `item-hit-area`
- * spreads it: that widening exists so a thin line can be GRABBED, and FR-009
- * (MUST NOT) is precisely the rule that a grab margin may not decide this
- * answer.
- *
- * @purity pure
- */
-function barExtentOf(
-  task: ScheduleGeometry['tasks'][number],
-): { readonly x: number; readonly width: number; readonly y: number; readonly height: number } | null {
-  const bar = task.plan ?? task.actual
-  if (bar === null) return null
-  const points = bar.form === 'outline' ? bar.points : [bar.from, bar.to, ...(bar.head ?? [])]
-  if (points.length === 0) return null
-  const xs = points.map((one) => one.x)
-  const ys = points.map((one) => one.y)
-  const x = Math.min(...xs)
-  const y = Math.min(...ys)
-  return { x, width: Math.max(...xs) - x, y, height: Math.max(...ys) - y }
-}
-
-/**
- * Which of FR-009's two edges an x names on one Task whose hit is already
- * settled, or null where this Task drew no bar to measure.
- *
- * ⭐⭐ THE HALF AND NEVER A GRAB MARGIN, which FR-009 states twice over: 「依存線
- * を構えているときの当たり判定は、タスクの左半分と右半分のどちらに当たったかを返す
- * こと（MUST）。左半分が開始側、右半分が終了側である。端点の掴み代で判定しては
- * ならない（MUST NOT）—— 低いズームでバーが数 px まで縮むと掴めなくなる。半分で
- * 割れば、どれだけ細くても必ずどちらかに落ちる」. ⇒ The middle is compared, and
- * no distance is.
- *
- * ⛔⛔ NO CONTAINMENT IS TESTED HERE, AND THAT IS THE LAST CLAUSE ABOVE. 「どれだけ
- * 細くても必ずどちらかに落ちる」 is a promise that a hit Task always yields an
- * endpoint, so a point that MK-9a placed on a Task through a part drawn outside
- * the bar -- GR-11's assignee label to the left, GR-7's marker to the right,
- * GR-1 / GR-2's fade handles -- still falls on the side of the middle it is on.
- * ⚠️ A point exactly on the middle falls to 'start', which is what keeps the two
- * halves exhaustive on a bar of zero width, the very case that MUST NOT is about.
- *
- * @purity pure
- */
-function dependencyEdgeOn(
-  task: ScheduleGeometry['tasks'][number],
-  x: number,
-): DependencyEnd | null {
-  const bar = barExtentOf(task)
-  if (bar === null) return null
-  return { uid: task.taskUid, edge: x < bar.x + bar.width / 2 ? 'start' : 'finish' }
-}
-
-/**
- * The end the pointer names, over the whole picture -- which Task it is on, and
- * which half of that Task's bar it fell in.
- *
- * ⭐ TABLE T-023d IS NOT APPLIED, WHICH IS PD-3's OWN SENTENCE: 「構えが依存線の
- * ときは表 T-023d を適用せず」. `itemAtPointer` (PI-7) IS that table, so it is not
- * the instrument for this reading -- and it could not be asked from here in any
- * case, because it takes `PointerSlop`, which table T-206 keeps out of the
- * document on purpose and which never reaches this file.
- *
- * ⛔ SO THE BAR'S OWN SILHOUETTE SAYS WHETHER THE POINT IS ON IT, and no margin
- * is grown around it -- the MUST NOT `dependencyEdgeOn` quotes forbids a grab
- * margin from deciding this answer, and a margin is exactly what table T-023d's
- * reading would have brought.
- *
- * ⚠️ THE FIRST BAR THE POINT FALLS IN. MK-9a's priority order is table T-023d's
- * and that table is withheld here, so no order of its own is invented: the
- * geometry's own order is taken, which is the order the schedule was drawn in.
- *
- * @purity pure
- */
-function dependencyEndAt(
-  geometry: ScheduleGeometry,
-  x: number,
-  y: number,
-): DependencyEnd | null {
-  for (const task of geometry.tasks) {
-    const bar = barExtentOf(task)
-    if (bar === null) continue
-    if (x < bar.x || x > bar.x + bar.width) continue
-    if (y < bar.y || y > bar.y + bar.height) continue
-    return dependencyEdgeOn(task, x)
-  }
-  return null
-}
 
 /**
  * PD-3 while AR-4 is armed: UC-004's step 2, whole.
@@ -6848,17 +6766,17 @@ function commandFromDependencyDrag(
   // ⚠️ `pressRowOf` only answers PD-3 for a press that HIT, so the null is
   // unreachable; it is tested rather than asserted because `Hit` is nullable.
   if (hit === null || hit.item.kind !== 'task') return CONSUMED_ELSEWHERE
-  const pressed = hit.item.taskUid
-  const drawn = context.geometry.tasks.find((one) => one.taskUid === pressed)
-  const from = drawn === undefined ? null : dependencyEdgeOn(drawn, press.at.x)
+  // The press's Task is MK-9a's answer already, so it is NAMED; the release has
+  // no `Hit` before it, so the bar's own silhouette answers which Task.
+  const from = dependencyEndAtPointer(context.geometry, press.at.x, press.at.y, hit.item.taskUid)
   if (from === null) return CONSUMED_ELSEWHERE
-  const into = dependencyEndAt(context.geometry, release.x, release.y)
+  const into = dependencyEndAtPointer(context.geometry, release.x, release.y, null)
   if (into === null) return CONSUMED_ELSEWHERE
   return changed([
     {
       kind: 'createDependency',
-      predecessorUid: from.uid,
-      successorUid: into.uid,
+      predecessorUid: from.taskUid,
+      successorUid: into.taskUid,
       predecessorEdge: from.edge,
       successorEdge: into.edge,
     },

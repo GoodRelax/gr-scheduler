@@ -1019,6 +1019,28 @@ export type PropertyFieldKey =
       readonly holder: 'project'
       readonly column: keyof Schedule['project'] & string
     }
+  | {
+      /**
+       * One `CommentBox`, named by the `string` id AT-110 of table T-058 makes
+       * its primary key -- the same id `ItemRef` names a picked box by.
+       *
+       * ⭐⭐ WHY THERE IS A SIXTH ARM (表 T-016 の `PR-21`, CR-368). That row
+       * carries 対象 `CommentBox`, column `text`, 入力の型 `複数行`, and `MK-13`
+       * of table T-023 (MUST) sends a double click on a box to it: 「コメント
+       * ボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の `PR-21`）を
+       * 編集できる状態にして焦点を置くこと」, with 「⛔ 図の上で打ち換える器を
+       * 置いてはならない（MUST NOT）」 beside it. FR-006 (MUST) then puts a
+       * control of that 入力の型 on the field, and a control carries this key --
+       * so without an arm that can name a box, the row could be drawn but never
+       * typed into (D-349).
+       * ⛔ AN `id` AND NOT A `uid`: a comment box has no integer key. AT-110
+       * makes the id a `string`, which is why this arm is shaped like the
+       * `taskGroup` one rather than like the `task` one.
+       */
+      readonly holder: 'commentBox'
+      readonly id: string
+      readonly column: keyof Schedule['commentBoxes'][number] & string
+    }
 
 // ------------------------------------------------------------ UF-65 ---------
 

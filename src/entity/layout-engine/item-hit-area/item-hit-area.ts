@@ -521,6 +521,12 @@ function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: numb
  * right-half answer while a dependency is armed (FR-009). None of those three
  * is decided here.
  *
+ * ⛔⛔ AND THE ARMING NEVER REACHES THIS FUNCTION. FR-009 (MUST NOT): 「表
+ * T-023c の `SL-1` を答える公開名（表 T-064 の `PI-7`）に構えを渡してはならない
+ * …構えによって答えが変わると、それに対して書かれたすべての呼び手と試験が構えを
+ * 意識することになる」. The half is `dependencyEndAtPointer` below, which is a
+ * name of its own and is called only while AR-4 is armed.
+ *
  * ⚠️ `resolving` DEFAULTS TO THE PRESS, which is the reading every caller
  * before table T-023d's closing rule was asking for, and the safe one: a caller
  * that forgets it gets the narrower answer rather than a grab the rule forbids.
@@ -586,6 +592,88 @@ export function itemAtPointer(
   const status = geometry.statusLine
   if (status !== null && Math.abs(x - status.x) <= slop.line && y >= status.top && y <= status.bottom) {
     return { item: { kind: 'statusLine' }, grab: 'GR-16' }
+  }
+  return null
+}
+
+// ------------------------------------------------ FR-009's two halves ----
+
+/**
+ * Which end of a dependency a point names, and on which Task.
+ *
+ * ⚠️ NOT AN `Item` AND NOT A `Hit`. Table T-023c's SL-1 says what can be hit
+ * and table T-023d says which grab claims it; neither has a half. This is the
+ * answer to a DIFFERENT question, which is why it has a type of its own.
+ */
+export interface DependencyEnd {
+  readonly taskUid: number
+  /**
+   * FR-009, in as many words: 「左半分が開始側、右半分が終了側である」.
+   *
+   * ⚠️ NOT DECLARED AS A NAMED UNION HERE. `DependencyEdge` is spelled once, on
+   * `createDependency` in the use-case layer, and Chapter 5.3 forbids this layer
+   * from importing that one. The two literals are written out instead, and the
+   * assignment in `input-command-translator.ts` is where the compiler checks
+   * that they still agree.
+   */
+  readonly edge: 'start' | 'finish'
+}
+
+/**
+ * FR-009's MUST, asked from the outside: which half of a Task's bar a point
+ * fell in, while a dependency is armed.
+ *
+ * ⛔⛔ A NAME OF ITS OWN, AND THAT IS THE REQUIREMENT ITSELF. FR-009: 「⛔ 表
+ * T-023c の `SL-1` を答える公開名（表 T-064 の `PI-7`）に構えを渡してはならない
+ * （MUST NOT）…⭐ 半分を答える名は別に置くこと（MUST）。構えが依存線のときだけ
+ * 呼ぶ」. So `itemAtPointer` is untouched -- it neither takes the arming nor
+ * answers the half -- and a caller that has read AR-4's arming asks this
+ * instead. ⚠️ Table T-023a's PD-3 says the same from the other side: 「構えが
+ * 依存線のときは表 T-023d を適用せず」, and this function applies no row of it.
+ *
+ * ⛔⛔ THE BAR'S OWN MIDDLE, WHICH IS THE 2026-09-06 RULING WRITTEN INTO FR-009:
+ * 「割る点は、そのタスクのバー自身の中点とすること（MUST）。表 T-038 が定める
+ * 占有幅で割ってはならない（MUST NOT）—— 占有幅にはバーの外に出るラベルと印が
+ * 入るので、中点が絵の上のバーの中央からずれる」. ⇒ `boxOfBar` of the drawn bar,
+ * never the placement's occupied width and never `merged` with anything.
+ *
+ * ⭐ THE PLAN'S BAR, THE ACTUAL'S ONLY WHERE NO PLAN IS DRAWN, which is the same
+ * requirement's 「依存線は予定の幾何に付くこと（MUST）。予定を表示していないとき
+ * に限り、実績の幾何に付ける」.
+ *
+ * ⚠️ THE MIDDLE ITSELF IS THE RIGHT HALF: 「中点ちょうどに当たったときは右半分と
+ * すること（MUST）」, so the comparison is `x < middle ? 'start' : 'finish'` and
+ * not `<=`. That also keeps the two halves exhaustive on a bar of zero width,
+ * which is the case the MUST NOT above -- 「端点の掴み代で判定してはならない」 --
+ * exists for: 「どれだけ細くても必ずどちらかに落ちる」. ⛔ NO SLOP IS TAKEN, and
+ * this function has no `PointerSlop` parameter for that reason.
+ *
+ * `onTaskUid` says which of FR-009's two readings is being asked:
+ *
+ *   - a UID -- the press, whose Task MK-9a has already settled (`Hit.item`).
+ *     ⭐ NO CONTAINMENT IS TESTED, because 「どれだけ細くても必ずどちらかに落ちる」
+ *     promises a hit Task always yields an end: a press that reached the Task
+ *     through ink drawn outside its bar (GR-7's marker, GR-11's assignee label,
+ *     GR-1 / GR-2's fade handles) still falls on the side of the middle it is on.
+ *   - `null` -- the release, which no `Hit` precedes, so the bar's own
+ *     silhouette says which Task the point is on. ⚠️ THE FIRST BAR IT FALLS IN:
+ *     MK-9a's priority order is table T-023d's and PD-3 withholds that table, so
+ *     no order of its own is invented and the geometry's own order is taken.
+ *
+ * @purity pure
+ */
+export function dependencyEndAtPointer(
+  geometry: ScheduleGeometry,
+  x: number,
+  y: number,
+  onTaskUid: number | null,
+): DependencyEnd | null {
+  for (const task of geometry.tasks) {
+    if (onTaskUid !== null && task.taskUid !== onTaskUid) continue
+    const bar = boxOfBar(task.plan) ?? boxOfBar(task.actual)
+    if (bar === null) continue
+    if (onTaskUid === null && !isInsideBoxInclusive(x, y, bar)) continue
+    return { taskUid: task.taskUid, edge: x < bar.x + bar.width / 2 ? 'start' : 'finish' }
   }
   return null
 }

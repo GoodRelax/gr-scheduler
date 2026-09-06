@@ -413,7 +413,7 @@ export interface ColumnShape {
 }
 
 /**
- * What each column of the four edited entities accepts, as the 型 column
+ * What each column of the edited entities accepts, as the 型 column
  * of table T-058 states it.
  *
  * ⭐ THE PARAGRAPH UNDER TABLE T-016 (MUST NOT) forbids the choices,
@@ -440,6 +440,9 @@ export const COLUMN_SHAPES: {
     readonly [column: string]: ColumnShape
   }
   readonly Dependency: {
+    readonly [column: string]: ColumnShape
+  }
+  readonly CommentBox: {
     readonly [column: string]: ColumnShape
   }
 } = {
@@ -494,6 +497,14 @@ export const COLUMN_SHAPES: {
     lagFormat: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     carry: { kind: 'map', choices: null, min: null, max: null, isNullable: false },
     carryElements: { kind: 'array', choices: null, min: null, max: null, isNullable: false },
+  },
+  CommentBox: {
+    id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
+    leaderShapeKind: { kind: 'enum', choices: ['calloutBox', 'polyline'], min: null, max: null, isNullable: true },
+    text: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    anchorDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    anchorGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    bodyOffsetPx: { kind: 'object', choices: null, min: null, max: null, isNullable: true },
   },
 }
 

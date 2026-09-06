@@ -171,22 +171,32 @@ def date_columns_block(erd):
 # date columns to be written into that table on the ground that
 # grs-document.schema.json and DATE_COLUMNS already hold them -- so the panel
 # has to DERIVE them, and nothing carried the manuscript's enumerations and
-# bounds into src/ at all. ⛔ Four entities and not all eighteen: FR-006's table
+# bounds into src/ at all. ⛔ Five entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
-# adds a row's colour and height (`TaskGroup`), and FR-009 adds the dependency
-# line. A roster of every entity would state a shape for columns no surface
-# offers.
+# adds a row's colour and height (`TaskGroup`), FR-009 adds the dependency
+# line, and PR-21 of table T-016 (対象 `CommentBox`, 2026-09-06) adds the
+# comment box. A roster of every entity would state a shape for columns no
+# surface offers.
+#
+# ⛔ `HighlightBox` IS NOT HERE, AND IT WAS ASKED FOR. No row of table T-016
+# carries 対象 `HighlightBox`, so FR-006 (MUST NOT -- 「対象の違う行を出しては
+# ならない」) leaves this panel nothing to draw for one, and a shape for its
+# seven columns would be the very roster the paragraph above refuses. ⚠️ AND IT
+# WOULD NOT CLOSE D-314 EITHER: what is broken there is the DEFAULT of S-132
+# (table T-217), and erd.json states no default, no minimum and no maximum for
+# `HighlightBox.cornerRadiusPx` -- so nothing this constant can carry would
+# reach it. That road is the settings one (NOT_STORED_TARGETS), not this one.
 #
 # ⚠️ READ FROM erd.json AND NOT FROM grs-document.schema.json, although the
 # paragraph names the schema. That file is ITSELF generated from erd.json by
 # erd_json_to_schema.py, so erd.json is the manuscript -- and naming a third
 # source in schedule.ts's banner would push its "Rebuild:" line out of the
 # window check 27 reads a banner in.
-SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency']
+SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency', 'CommentBox']
 
 COLUMN_SHAPES_NOTE = [
     '/**',
-    ' * What each column of the four edited entities accepts, as the 型 column',
+    ' * What each column of the edited entities accepts, as the 型 column',
     ' * of table T-058 states it.',
     ' *',
     ' * ⭐ THE PARAGRAPH UNDER TABLE T-016 (MUST NOT) forbids the choices,',
@@ -213,7 +223,7 @@ def column_shape(node):
 
 
 def column_shapes_block(erd):
-    """The accepted shape of every column of the four edited entities."""
+    """The accepted shape of every column of the edited entities."""
     by_name = dict((e['name'], e) for e in erd['entities'])
     out = list(COLUMN_SHAPES_NOTE)
     for name in SHAPED_ENTITIES:

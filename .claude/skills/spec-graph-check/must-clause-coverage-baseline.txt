@@ -1,5 +1,14 @@
-952
+943
 #
+# LOWERED 952 -> 943 ON 2026-09-06. A spec-only body measured which of five
+# rows were ALREADY held and refused to write those, then held only what was
+# bare: that the depth valve actually raises RS-24 when it is reached (the
+# existing file only asked the negative), and that the EXPORT road tells --
+# ST-7's clause of that morning. 35 new cases, all green.
+# ⛔ It also left four clauses unwritten and said why: the specification does
+# not say how often RS-24 may be raised, does not name a reason row for a
+# refused paste or an empty store, and does not ask the non-picture exports
+# to stay silent. ⭐ Those are holes, not coverage.
 # RAISED 948 -> 952 ON 2026-09-06, DELIBERATELY. FR-009 gained four marked
 # clauses when the user's ruling on D-346 was written down: where the half
 # splits (the bar's own midpoint, not table T-038's occupied width), which
