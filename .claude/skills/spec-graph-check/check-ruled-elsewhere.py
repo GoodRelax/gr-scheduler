@@ -105,10 +105,17 @@ REL_BASELINE = '.claude/skills/spec-graph-check/ruled-elsewhere-baseline.txt'
 UNRULED_IN_CELL = (u'未検討', u'裁定待ち', u'利用者の裁定が要る',
                    u'裁定を待つ', u'未定', u'仕様に行が無い')
 
-# ⛔ The two bands of table 05:375 that mean the same thing in the ステータス
-# column: 未仕分け (まだ調べていない) and 仕様の穴 (利用者の裁定か、仕様の行が
-# 要る).
-UNRULED_STATUS = (u'未検討', u'裁定待ち', u'仕様待ち')
+# ⛔ States that say "nobody has ruled on this yet".
+#
+# ⚠⚠ MEASURED 2026-09-07: 仕様待ち USED TO BE IN THIS TUPLE, and it does not
+# belong. Rule 05:376 puts 裁定待ち and 仕様待ち in one band whose label is an
+# OR -- 「利用者の裁定か、仕様の行が要る」 -- and the ledger's own status table
+# (docs/development-records/defects.md:61) spells out which half 仕様待ち is:
+# 「裁定は下りた。⚠ まだ仕様書に書かれていない」. ⇒ 仕様待ち is what a row
+# MOVES TO when its ruling comes down, so flagging it as un-ruled fires on
+# exactly the rows that did the right thing. Eight rows went red the moment
+# PD-431..PD-441 were ruled and their ledger rows were advanced.
+UNRULED_STATUS = (u'未検討', u'裁定待ち')
 
 # ⭐ The one state rule 06 step 3 writes when the ruling has come down.
 SETTLED_STATE = u'裁定済'

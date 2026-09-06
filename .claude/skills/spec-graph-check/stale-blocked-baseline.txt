@@ -1,4 +1,21 @@
-51
+50
+#
+# LOWERED 51 -> 50 ON 2026-09-07, AND THE DEBT THE RAISE BOOKED IS PAID, NOT
+# ABSORBED. PD-431..PD-441 were all ruled on 2026-09-07 (the user's 「裁定は
+# すべて提案通りでよい。」), so the four cells that still opened 裁定が要る --
+# D-268, D-357, D-363, D-366 -- were stating a block that had ended. Each
+# opening is now dated as the record it is (⭐ かつての問い（… に下りた）) and
+# the ruling it received stands at the end of the same cell.
+# ⚠️ The count lands at 50 and not 47 because those four were not four fresh
+# hits: three of them were the raise, and one (D-268) was already inside the
+# 50 from earlier rounds.
+# ⭐ CHECK 40 WAS ALSO NARROWED THE SAME DAY, and that one WAS the check's
+# fault: 仕様待ち sat in its UNRULED_STATUS while the ledger's own status
+# table (defects.md:61) defines 仕様待ち as 「裁定は下りた。まだ仕様書に書かれ
+# ていない」 -- the state a row MOVES TO when its ruling arrives. Eight rows
+# went red for doing the right thing. That word is gone from the tuple; check
+# 40's baseline did not move (3).
+
 #
 # RAISED 50 -> 51 ON 2026-09-07, and the debt is booked as D-367.
 # D-268 went from 仕様待ち to 裁定待ち when a body measured that no table
