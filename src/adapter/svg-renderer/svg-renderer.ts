@@ -47,6 +47,18 @@
 // picture" -- which is how S-144 of table T-206 reaches a unit that may not
 // read it either.
 //
+// ⭐⭐ EVERY FIGURE CARRIES `data-figure`, ITS OWN IDENTITY (D-316). Deleting
+// one `Task` measured 827 direct children of `<svg>` against 823 in the next
+// picture: 682 of them had a byte-identical twin, only 20 stood at the same
+// index, and the common prefix was 0 -- so the far side rebuilt 723 elements
+// for a change that touched one. ⛔ Nothing in the picture said which figure
+// was which (one `data-role` and three `id`s among 827), and identity is the
+// one thing a differ cannot recover after the fact. `figureKey` below states
+// what a key is built from and why it is never an index.
+// ⚠️ WHAT IS NOT HERE. This file still hands over one whole string, and
+// `SvgSurface` still takes one -- nothing about diffing is decided here or in
+// that seam. What is added is the identity, and nothing else.
+//
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
 // leaves through here.
@@ -267,6 +279,60 @@ function rounded(value: number): string {
   return (Math.round(value * 100) / 100).toString()
 }
 
+/**
+ * WHAT ONE DRAWN FIGURE IS, written on the figure itself so that the same
+ * figure can be recognised in the next frame's picture (D-316).
+ *
+ * ⛔ WHY IT IS NEEDED, MEASURED (2026-09-05, and again 2026-09-07). Deleting
+ * ONE `Task` took the direct children of `<svg>` from 827 to 823. 682 of them
+ * (82.5%) had a byte-identical twin in the other picture, but only 20 (2.4%)
+ * stood at the same INDEX, and the common prefix was 0 elements long -- so a
+ * differ working by position, or by leading and trailing run, still had to
+ * rewrite 723 of the 827. ⭐ Nothing in the picture said which figure was
+ * which: one `data-role` (the watermark layer) and three `id`s (the arrowhead
+ * marker and two clip paths) among 827.
+ *
+ * ⭐ WHAT THE KEY IS BUILT FROM: the identifier the DOCUMENT gives the thing
+ * (a `Task`'s UID, a `TaskGroup`'s id, a box's id, a day's serial) and the
+ * name of the part being drawn -- never an index into an array. An index is
+ * exactly the thing a delete moves, which is the defect this closes.
+ *
+ * ⛔ NOT `data-role`. That attribute carries a UI PART's settled name from
+ * table T-103 (W-4 of table T-006a), and none of these figures is one; a key
+ * written there would mint a second spelling of a settled word.
+ *
+ * ⚠️ IT IS NOT A DIFFING PROTOCOL, and no requirement is being invented here.
+ * Nothing in this file, and nothing across `SvgSurface`, decides what to do
+ * with a key -- the seam still hands over one whole string. What is added is
+ * only the identity that a differ on the far side cannot recover once it is
+ * lost, which is why it has to be written on the side that knows it.
+ *
+ * ⭐ ONE FIGURE MAY BE SEVERAL ELEMENTS, AND THEY ALL CARRY THE SAME KEY. A
+ * line-form bar is a line, a head and however many dots; a marker is a disc
+ * and its symbol. ⛔ They are NOT given an index apiece: the count varies with
+ * the shape, so an index would move for the same reason a position does. What
+ * the key answers is "which figure is this", and the run of elements that
+ * share one key is that figure.
+ *
+ * ⚠️ IT COSTS BYTES, and the picture is serialised once a frame -- so nothing
+ * else is written here: no size, no state and no colour, all of which are
+ * already in the attributes beside it.
+ *
+ * ⛔ THE EXPORT CARRIES IT TOO, AND NO TEST HERE SUPPRESSES IT. Only the
+ * screen re-renders, so only the screen has any use for a key -- but table
+ * T-076 says which PARTS an export draws and nothing about which attributes a
+ * figure carries, and FR-080 with WY-2 of table T-041 asks for one drawing
+ * rather than two. Leaving it out of the export would be a rule this file
+ * invented. ⚠️ Reported rather than decided: the keys put `Task` UIDs and
+ * `TaskGroup` ids into a picture handed to a reader, which is a judgement
+ * about what may leave the tool and belongs to whoever owns table T-076.
+ *
+ * @purity pure
+ */
+function figureKey(key: string): string {
+  return ` data-figure="${escaped(key)}"`
+}
+
 /** @purity pure */
 function pointsOf(path: Path): string {
   return path.map((one) => `${rounded(one.x)},${rounded(one.y)}`).join(' ')
@@ -326,10 +392,13 @@ function cornersOfBar(bar: BarGeometry): Path {
  *
  * @purity pure
  */
-function barMaskRectSvg(box: ScreenRect): string {
+function barMaskRectSvg(box: ScreenRect, key: string): string {
   return (
     `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
-    ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"/>`
+    ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"` +
+    // D-316: the mask's rectangles are rebuilt with everything else, so they
+    // are named after the bar each one covers.
+    `${figureKey(key)}/>`
   )
 }
 
@@ -406,7 +475,7 @@ function centreFromLeftEdge(leftEdge: Point, width: number): Point {
  *
  * @purity pure
  */
-function selectionFrameSvg(box: ScreenRect, colour: string): string {
+function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string {
   const stroke = NOT_STORED_SELECTION_SIZES['S-174']
   const [on, off] = NOT_STORED_SELECTION_SIZES['S-175']
   const width = Math.max(box.width, stroke)
@@ -416,7 +485,7 @@ function selectionFrameSvg(box: ScreenRect, colour: string): string {
     ` y="${rounded(box.y - (height - box.height) / 2)}"` +
     ` width="${rounded(width)}" height="${rounded(height)}"` +
     ` fill="none" stroke="${colour}" stroke-width="${rounded(stroke)}"` +
-    ` stroke-dasharray="${rounded(on)} ${rounded(off)}"/>`
+    ` stroke-dasharray="${rounded(on)} ${rounded(off)}"${figureKey(key)}/>`
   )
 }
 
@@ -616,34 +685,39 @@ function markerSvg(
   ink: string,
   backing: string,
   faintness: number,
+  key: string,
 ): string {
   const { centre, radius } = marker
+  // D-316: the disc and the symbol are ONE figure and carry one key. The
+  // wrapping group carries it too, because in the PM-1a case that group is
+  // what a differ finds first.
+  const named = figureKey(key)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
-    ` fill="${backing}" stroke="${ink}" stroke-width="1"/>`
+    ` fill="${backing}" stroke="${ink}" stroke-width="1"${named}/>`
   const r = radius * 0.5
   const mark =
     marker.symbol === 'PM-1a'
-      ? `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"/>`
+      ? `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
       : marker.symbol === 'PM-2'
         ? `<polyline points="${rounded(centre.x - r)},${rounded(centre.y)}` +
           ` ${rounded(centre.x - r * 0.2)},${rounded(centre.y + r * 0.7)}` +
           ` ${rounded(centre.x + r)},${rounded(centre.y - r * 0.7)}"` +
-          ` fill="none" stroke="${ink}" stroke-width="1.5"/>`
+          ` fill="none" stroke="${ink}" stroke-width="1.5"${named}/>`
         : marker.symbol === 'PM-3'
           ? `<line x1="${rounded(centre.x - r * 0.6)}" y1="${rounded(centre.y + r)}` +
             `" x2="${rounded(centre.x + r * 0.6)}" y2="${rounded(centre.y - r)}"` +
-            ` stroke="${ink}" stroke-width="1.5"/>`
+            ` stroke="${ink}" stroke-width="1.5"${named}/>`
           : marker.symbol === 'PM-4'
             ? `<line x1="${rounded(centre.x)}" y1="${rounded(centre.y - r)}` +
               `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * 0.35)}"` +
-              ` stroke="${ink}" stroke-width="1.5"/>` +
+              ` stroke="${ink}" stroke-width="1.5"${named}/>` +
               `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * 0.8)}"` +
-              ` r="${rounded(radius * 0.12)}" fill="${ink}"/>`
+              ` r="${rounded(radius * 0.12)}" fill="${ink}"${named}/>`
             : ''
   const drawn = disc + mark
   if (marker.symbol !== 'PM-1a') return drawn
-  return `<g opacity="${rounded(faintness)}">${drawn}</g>`
+  return `<g opacity="${rounded(faintness)}"${named}>${drawn}</g>`
 }
 
 /**
@@ -692,6 +766,8 @@ function labelSvg(
    * them clear of the bar.
    */
   padLeft: number,
+  /** D-316: which label this is, kept from frame to frame. */
+  key: string,
 ): string {
   const x = box.x + padLeft
   // ⭐ S-33 MULTIPLIES THE FONT, NOT THE BOX. Table T-012's closing paragraph
@@ -709,18 +785,20 @@ function labelSvg(
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
-    ` paint-order="stroke" xml:space="preserve">${escaped(text)}</text>`
+    ` paint-order="stroke" xml:space="preserve"${figureKey(key)}>${escaped(text)}</text>`
   )
 }
 
 /** @purity pure */
-function barSvg(bar: BarGeometry, paint: Paint): string {
+function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
+  // D-316: one bar is one figure, however many elements its form takes.
+  const named = figureKey(key)
   if (bar.form === 'outline') {
     const marks = bar.marks ?? []
     if (marks.length === 0) {
       return (
         `<polygon points="${pointsOf(bar.points)}" fill="${paint.fill}"` +
-        ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"/>`
+        ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"${named}/>`
       )
     }
     // ⭐ ONE PATH AND ONE FILL RULE, not a polygon with shapes laid on top.
@@ -735,22 +813,22 @@ function barSvg(bar: BarGeometry, paint: Paint): string {
       .join('')
     return (
       `<path d="${subpaths}" fill-rule="evenodd" fill="${paint.fill}"` +
-      ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"/>`
+      ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"${named}/>`
     )
   }
   const line =
     `<line x1="${rounded(bar.from.x)}" y1="${rounded(bar.from.y)}"` +
     ` x2="${rounded(bar.to.x)}" y2="${rounded(bar.to.y)}"` +
-    ` stroke="${paint.stroke}" stroke-width="${rounded(bar.strokeWidth)}"/>`
+    ` stroke="${paint.stroke}" stroke-width="${rounded(bar.strokeWidth)}"${named}/>`
   const head =
     bar.head === null
       ? ''
-      : `<polygon points="${pointsOf(bar.head)}" fill="${paint.stroke}"/>`
+      : `<polygon points="${pointsOf(bar.head)}" fill="${paint.stroke}"${named}/>`
   const dots = bar.dots
     .map(
       (dot) =>
         `<circle cx="${rounded(dot.at.x)}" cy="${rounded(dot.at.y)}"` +
-        ` r="${rounded(dot.radius)}" fill="${paint.stroke}"/>`,
+        ` r="${rounded(dot.radius)}" fill="${paint.stroke}"${named}/>`,
     )
     .join('')
   return line + head + dots
@@ -1032,7 +1110,11 @@ function rulerSvg(
   out.push(
     `<rect x="${rounded(band.x)}" y="${rounded(band.y)}"` +
       ` width="${rounded(band.width)}" height="${rounded(band.height)}"` +
-      ` fill="${ground}"/>`,
+      // ⭐ D-316: the ruler's own figures are named by the ROW of the tier and
+      // by the DAY a tick stands on, never by their number in the walk -- a
+      // sideways scroll drops ticks off one end and adds them at the other,
+      // which is exactly the move that renumbers every one of them.
+      ` fill="${ground}"${figureKey('ruler-ground')}/>`,
   )
 
   for (const [index, row] of rows.entries()) {
@@ -1056,7 +1138,7 @@ function rulerSvg(
       out.push(
         `<line x1="${rounded(band.x)}" y1="${rounded(top)}"` +
           ` x2="${rounded(right)}" y2="${rounded(top)}"` +
-          ` stroke="${rule}" stroke-width="1"/>`,
+          ` stroke="${rule}" stroke-width="1"${figureKey(`ruler-${row}-rule`)}/>`,
       )
     }
     for (const day of ticksOfRow(row, layout, stride, weekStart, from, right, cap)) {
@@ -1073,7 +1155,8 @@ function rulerSvg(
         out.push(
           `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
             ` x2="${rounded(x)}" y2="${rounded(top + rowHeight)}"` +
-            ` stroke="${rule}" stroke-width="1"/>`,
+            ` stroke="${rule}" stroke-width="1"` +
+            `${figureKey(`ruler-${row}-tick-${serialOf(day)}`)}/>`,
         )
       }
       // Table T-238 (MUST), column by column: `yyyy-mm` for the year-and-month
@@ -1119,7 +1202,8 @@ function rulerSvg(
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
           ` font-size="${rounded(fontSize)}" fill="${ink}"` +
-          ` xml:space="preserve">${escaped(label)}</text>`,
+          ` xml:space="preserve"${figureKey(`ruler-${row}-label-${serialOf(day)}`)}>` +
+          `${escaped(label)}</text>`,
       )
     }
   }
@@ -1128,7 +1212,7 @@ function rulerSvg(
   out.push(
     `<line x1="${rounded(band.x)}" y1="${rounded(band.y + band.height)}"` +
       ` x2="${rounded(right)}" y2="${rounded(band.y + band.height)}"` +
-      ` stroke="${rule}" stroke-width="1"/>`,
+      ` stroke="${rule}" stroke-width="1"${figureKey('ruler-foot-rule')}/>`,
   )
   return out
 }
@@ -1601,10 +1685,13 @@ export function svgFromSchedule(
     if (bottom <= top) continue
     const chosen = colourOfGroup.get(row.groupId) ?? null
     const band = chosen === null ? themed(bandRowOf(row.depth, position)) : chosen
+    // D-316: the row's own identifier, never its position -- a delete above
+    // this row moves the position and leaves the row the same row.
+    const rowKey = `row-${row.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
         ` width="${rounded(area.width)}" height="${rounded(bottom - top)}"` +
-        ` fill="${monochrome ? achromatic(band) : band}"/>`,
+        ` fill="${monochrome ? achromatic(band) : band}"${figureKey(`${rowKey}-band`)}/>`,
     )
     // S-68 is whether the group grid line is drawn at all; S-165 is its
     // colour. FR-042's RATIONALE makes the line itself a MUST -- one row is
@@ -1613,7 +1700,7 @@ export function svgFromSchedule(
     bandParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
-        ` stroke="${themed('S-165')}" stroke-width="1"/>`,
+        ` stroke="${themed('S-165')}" stroke-width="1"${figureKey(`${rowKey}-rule`)}/>`,
     )
   }
 
@@ -1662,7 +1749,10 @@ export function svgFromSchedule(
         bandParts.push(
           `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
             ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
-            ` stroke="${themed('S-149')}" stroke-width="1"/>`,
+            ` stroke="${themed('S-149')}" stroke-width="1"` +
+            // D-316: the DAY, not the tick's number in the run -- scrolling
+            // sideways drops ticks off one end and adds them at the other.
+            `${figureKey(`date-grid-${serialOf(day)}`)}/>`,
         )
       }
     }
@@ -1689,6 +1779,10 @@ export function svgFromSchedule(
     ) {
       continue
     }
+    // D-316: the stem every figure of this Task is named from. `taskUid` is
+    // the document's own identifier for it (MSPDI's UID, table T-058), so it
+    // survives a delete anywhere else in the schedule.
+    const taskKey = `task-${task.taskUid}`
     const plan = paintOf(
       visual?.strokeColor ?? null,
       visual?.fillColor ?? null,
@@ -1706,12 +1800,16 @@ export function svgFromSchedule(
       settings.planStroke,
     )
     if (task.plan !== null) {
-      ;(isPinnedTask ? planPartsPinned : planParts).push(barSvg(task.plan, plan))
+      ;(isPinnedTask ? planPartsPinned : planParts).push(
+        barSvg(task.plan, plan, `${taskKey}-plan`),
+      )
       // FR-009's bar-exclusion mask, the plan half. Same rectangle SL-8's
       // selection frame reads a few lines below (`boxOfPoints` over
       // `cornersOfBar`) -- no shape of its own is minted here either.
       const planBarBox = boxOfPoints(cornersOfBar(task.plan))
-      if (planBarBox !== null) barMaskParts.push(barMaskRectSvg(planBarBox))
+      if (planBarBox !== null) {
+        barMaskParts.push(barMaskRectSvg(planBarBox, `${taskKey}-plan-mask`))
+      }
     }
     for (const guide of task.guides) {
       // S-105: the guide takes the ACTUAL bar's colour, because it is the line
@@ -1721,14 +1819,22 @@ export function svgFromSchedule(
         `<polyline points="${pointsOf(guide)}" fill="none" stroke="${actual.stroke}"` +
           ` stroke-width="${rounded(settings.planActualGuideWeight)}"` +
           ` stroke-dasharray="${rounded(settings.planActualGuidePattern.on)}` +
-          ` ${rounded(settings.planActualGuidePattern.off)}"/>`,
+          // ⚠️ D-316: BOTH guides of one Task carry the one key. A guide is
+          // the line that leaves the actual bar (S-105) and there are at most
+          // two of them, so which is which is the run's own order -- an index
+          // would say more than the geometry does.
+          ` ${rounded(settings.planActualGuidePattern.off)}"${figureKey(`${taskKey}-guide`)}/>`,
       )
     }
     if (task.actual !== null) {
-      ;(isPinnedTask ? actualPartsPinned : actualParts).push(barSvg(task.actual, actual))
+      ;(isPinnedTask ? actualPartsPinned : actualParts).push(
+        barSvg(task.actual, actual, `${taskKey}-actual`),
+      )
       // FR-009's bar-exclusion mask, the actual half.
       const actualBarBox = boxOfPoints(cornersOfBar(task.actual))
-      if (actualBarBox !== null) barMaskParts.push(barMaskRectSvg(actualBarBox))
+      if (actualBarBox !== null) {
+        barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
+      }
     }
     // FR-043 (MUST): two faint grab handles on a Task not started, one on a
     // milestone. ⛔ EP-14 of table T-076 keeps them out of the exported
@@ -1778,6 +1884,7 @@ export function svgFromSchedule(
               ),
             },
             actual,
+            `${taskKey}-dummies`,
           ),
         )
         .join('')
@@ -1810,7 +1917,7 @@ export function svgFromSchedule(
         ? 1
         : settings.dummyOpacity
       ;(isPinnedTask ? actualPartsPinned : actualParts).push(
-        `<g opacity="${rounded(faintness)}">${marks}</g>`,
+        `<g opacity="${rounded(faintness)}"${figureKey(`${taskKey}-dummies`)}>${marks}</g>`,
       )
     }
     if (selected.has(task.taskUid)) {
@@ -1830,7 +1937,9 @@ export function svgFromSchedule(
       ])
       // A Task neither half of which was drawn (S-59's plan-only / actual-only)
       // has no extent, and a frame around nothing would sit at the origin.
-      if (box !== null) selectionParts.push(selectionFrameSvg(box, themed('S-151')))
+      if (box !== null) {
+        selectionParts.push(selectionFrameSvg(box, themed('S-151'), `${taskKey}-frame`))
+      }
 
       // FR-075 (MUST): the grab points show on the SELECTED Task and on no
       // other. S-92's hit area is already live in ItemHitArea, so until this
@@ -1843,7 +1952,11 @@ export function svgFromSchedule(
           `<rect x="${rounded(foundAt.x - half)}" y="${rounded(foundAt.y - half)}"` +
             ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
             ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
-            ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"/>`,
+            // ⚠️ D-316: the three grab points of one Task share its key, for
+            // the reason the guides do -- FD-5 decides how many there are, so
+            // a number here would move when the shape does.
+            ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"` +
+            `${figureKey(`${taskKey}-fade-handle`)}/>`,
         )
       }
     }
@@ -1862,6 +1975,7 @@ export function svgFromSchedule(
           themed('S-161'),
           themed('S-162'),
           handOn(task.taskUid, MARKER_GRAB_ROWS) ? 1 : settings.dummyOpacity,
+          `${taskKey}-marker`,
         ),
       )
     }
@@ -1875,6 +1989,7 @@ export function svgFromSchedule(
           themed('S-168'),
           themed('S-169'),
           settings.labelPad,
+          `${taskKey}-label`,
         ),
       )
     }
@@ -1892,13 +2007,25 @@ export function svgFromSchedule(
     // S-169 its outline; table T-236 holds no other pair for a label, and
     // inventing one would be this file writing a settings row.
     if (placed !== undefined) {
-      for (const [box, text] of [
-        [task.assigneeLabel, placed.assigneeLabel],
-        [task.percentLabel, placed.percentLabel],
+      // ⭐ D-316: the two OC-2 labels are named apart, because they are two
+      // different readings of the Task and either may be switched off alone
+      // (S-60 / S-61) while the other stays.
+      for (const [box, text, part] of [
+        [task.assigneeLabel, placed.assigneeLabel, 'assignee'],
+        [task.percentLabel, placed.percentLabel, 'percent'],
       ] as const) {
         if (box === null || text === '') continue
         ;(isPinnedTask ? labelPartsPinned : labelParts).push(
-          labelSvg(box, text, placed.labelFontSize, settings, themed('S-168'), themed('S-169'), 0),
+          labelSvg(
+            box,
+            text,
+            placed.labelFontSize,
+            settings,
+            themed('S-168'),
+            themed('S-169'),
+            0,
+            `${taskKey}-${part}-label`,
+          ),
         )
       }
     }
@@ -2045,19 +2172,24 @@ export function svgFromSchedule(
     // region computed here.
     const points = pointsOf(link.points)
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
+    // D-316: a dependency IS its two ends, so the two UIDs are its name --
+    // and the halo and the line under it are one figure and share it.
+    const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
     ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
       `<polyline points="${points}" fill="none" stroke="${themed('S-146')}"` +
-        ` stroke-width="${rounded(haloWidth)}"${haloMask}/>` +
+        ` stroke-width="${rounded(haloWidth)}"${haloMask}${linkKey}/>` +
         `<polyline points="${points}" fill="none"` +
         ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
-        ` marker-end="url(#${arrowId})"/>`,
+        ` marker-end="url(#${arrowId})"${linkKey}/>`,
     )
   }
 
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
     linkParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
-        ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"/>`,
+        ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +
+        // ⚠️ D-316: one per picture, so the name of the thing is the key.
+        `${figureKey('progress-line')}/>`,
     )
   }
 
@@ -2074,7 +2206,8 @@ export function svgFromSchedule(
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
         ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
-        ` stroke="${themed('S-163')}" stroke-width="${rounded(statusWidth)}"/>`,
+        ` stroke="${themed('S-163')}" stroke-width="${rounded(statusWidth)}"` +
+        `${figureKey('status-line')}/>`,
     )
   }
 
@@ -2108,7 +2241,11 @@ export function svgFromSchedule(
       linkParts.push(
         `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
           ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
-          ` stroke="${colour}" stroke-width="${rounded(width)}"/>`,
+          ` stroke="${colour}" stroke-width="${rounded(width)}"` +
+          // ⭐ D-316: `date1` and `date2` are S-65's own two members, so the
+          // two lines are told apart by the value each stands on and never by
+          // which of them is following (DC-8, which an export never sees).
+          `${figureKey(`dual-cursor-${side}`)}/>`,
       )
     }
   }
@@ -2157,14 +2294,16 @@ export function svgFromSchedule(
       const vertical = (x: number): string =>
         `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
-        ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"/>`
+        ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+        `${figureKey('guide-cursor-vertical')}/>`
       if (settings.guideCursorMode === 'crosshair') {
         // 十字: the vertical and the horizontal, crossing under the hand.
         linkParts.push(vertical(pointer.x))
         linkParts.push(
           `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
             ` x2="${rounded(area.x + area.width)}" y2="${rounded(pointer.y)}"` +
-            ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"/>`,
+            ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+            `${figureKey('guide-cursor-horizontal')}/>`,
         )
       } else if (settings.guideCursorMode === 'single-vertical') {
         // 縦 1 本.
@@ -2203,14 +2342,14 @@ export function svgFromSchedule(
         ` width="${rounded(box.box.width)}" height="${rounded(box.box.height)}"` +
         rounding +
         ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
-        ' stroke-width="1"/>',
+        ` stroke-width="1"${figureKey(`box-${box.id}`)}/>`,
     )
     // SL-8. ⭐ The rectangle IS the bounding box here, so the frame lands on
     // the same four numbers the box was drawn from -- and it is still a
     // separate rect, because SL-8 (MUST NOT) forbids re-stroking the target's
     // own outline and the dash has to survive the author's own line colour.
     if (selectedBoxes.has(box.id)) {
-      selectionParts.push(selectionFrameSvg(box.box, themed('S-151')))
+      selectionParts.push(selectionFrameSvg(box.box, themed('S-151'), `box-${box.id}-frame`))
     }
   }
 
@@ -2235,7 +2374,8 @@ export function svgFromSchedule(
     annotationParts.push(
       `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
         ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
-        ` fill="${themed('S-146')}" stroke="${ANNOTATION_COLOUR}" stroke-width="1"/>`,
+        ` fill="${themed('S-146')}" stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        `${figureKey(`comment-${box.id}`)}/>`,
     )
     for (const [index, line] of box.lines.entries()) {
       // ⛔ The baseline sits at the FOOT of each em box. FR-097 makes one line
@@ -2249,14 +2389,21 @@ export function svgFromSchedule(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
           ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
-          ` xml:space="preserve">${escaped(line)}</text>`,
+          // ⭐ D-316: the line's number IS its identity here, and it is not an
+          // array position standing in for one -- FR-097 wraps the box's own
+          // text, so line 3 stays line 3 of this box whatever happens to any
+          // other box.
+          ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
+          `${escaped(line)}</text>`,
       )
     }
     // SL-8, the framed half. ⭐ The body IS the bounding rectangle, and the
     // frame is still a separate rect: SL-8 (MUST NOT) forbids re-stroking the
     // target's own outline, and the dash has to survive the annotation colour.
     if (selectedComments.has(box.id)) {
-      selectionParts.push(selectionFrameSvg(box.body, themed('S-151')))
+      selectionParts.push(
+        selectionFrameSvg(box.body, themed('S-151'), `comment-${box.id}-frame`),
+      )
     }
   }
 
@@ -2333,7 +2480,9 @@ export function svgFromSchedule(
     // ⛔ NOTHING IS DRAWN FOR AN EXPORT, and no guard here says so: EP-12 of
     // table T-076 keeps operation state out of a picture, and the export road
     // simply does not pass a rectangle -- the default is what answers it.
-    ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'))]),
+    // ⚠️ D-316: there is at most ONE marquee, so its key is simply what it
+    // is -- there is nothing to tell it apart from.
+    ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
     // ⭐ FR-020's layer, over everything the `Row Area` holds -- 「重ねる」 is
     // what that requirement asks and the last thing drawn is what is on top.
     // ⛔ IT CANNOT REACH THE BAND, whatever it is drawn before or after: U-50

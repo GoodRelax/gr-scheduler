@@ -124,7 +124,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a value that moves in a table moves
 // here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -155,7 +155,7 @@ const IC_GRAB_MARKER = 'IC-53'
 
 /** Rows table T-109 places on the palette, in the table's own print order. */
 const PALETTE_ROWS: readonly string[] = T_109.rows
-  .filter((row) => bare(row.by['面'] ?? '') === U_26)
+  .filter((row) => bareAll(row.by['面'] ?? '').includes(U_26))
   .map((row) => row.id)
 
 /**

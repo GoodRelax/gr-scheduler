@@ -140,7 +140,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -330,13 +330,19 @@ const isHeadRule = (authority: string): boolean =>
  * end the row, not where each one is; the one placement the manuscript does fix
  * has a case of its own.
  */
-/** Every entry 表 T-109 puts on the `Row Title Panel`, head and rows alike. */
+/**
+ * Every entry 表 T-109 puts on the `Row Title Panel`, head and rows alike.
+ *
+ * ⚠️ `bareAll`, not `bare`: 表 T-109's 面 column enumerates -- `IC-52` names
+ * six surfaces in one cell -- so membership is `includes`, never `===` on a
+ * first span that would answer for one surface of six (`D-351`).
+ */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
-  (one) => bare(one.by['面'] ?? '') === partName('U-22'),
+  (one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')),
 )
 
 const T_109_ON_THE_ROW = T_109.rows
-  .filter((one) => bare(one.by['面'] ?? '') === partName('U-22'))
+  .filter((one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')))
   // ⛔ THE PANEL'S HEAD IS NOT A ROW, and which rows stand there is read out of
   // 表 T-051 rather than written here -- see `T_051_AT_THE_HEAD` above for why
   // the list that used to stand in this line could not be kept true.
@@ -354,7 +360,7 @@ if (T_109_ON_THE_ROW.length === 0) {
  * row cannot be counted twice or dropped by both.
  */
 const T_109_AT_THE_HEAD = T_109.rows
-  .filter((one) => bare(one.by['面'] ?? '') === partName('U-22'))
+  .filter((one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')))
   .filter((one) => isHeadRule(one.by['正'] ?? ''))
   .map((one) => ({ row: one.id, rule: one.by['正'] ?? '' }))
 

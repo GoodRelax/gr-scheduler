@@ -1976,16 +1976,20 @@ function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | n
  * day and the top of a band, so a movement shorter than either had nowhere to
  * be written at all.
  *
- * STOP -- ⛔ `setScrollPosition` (CM-66) CARRIES ONLY THE TWO ANCHORS. All four
- * are written into that command below, because a pan that does not carry the
- * fractions cannot be 等倍, but the command's own type in
- * `edit-document-settings.ts` has no member for either and its CM-66 branch
- * puts only `scrollDate` and `scrollGroupId`. Until that use-case type gains
- * `scrollDayOffset` and `scrollGroupOffset` -- and `fitScheduleToScreen`
- * (CM-71) with it -- this file does not compile and nothing reaches S-176 or
- * S-177. ⛔ NOT A CASE THE ROWS LEAVE OPEN: the paragraph under table T-023d
- * states the MUST and table T-203 states the two keys; the seam is simply in
- * another unit.
+ * ⛔⛔ THE STOP THAT STOOD HERE IS CLOSED, AND EVERY CLAIM IT MADE IS NOW FALSE
+ * (measured 2026-09-06). It read: 「`setScrollPosition` (CM-66) CARRIES ONLY THE
+ * TWO ANCHORS ... the command's own type in `edit-document-settings.ts` has no
+ * member for either and its CM-66 branch puts only `scrollDate` and
+ * `scrollGroupId`. Until that use-case type gains `scrollDayOffset` and
+ * `scrollGroupOffset` -- and `fitScheduleToScreen` (CM-71) with it -- this file
+ * does not compile and nothing reaches S-176 or S-177」.
+ * ⭐ CR-260 GAVE THE COMMAND BOTH MEMBERS: `DocumentSettingsCommand`'s
+ * `setScrollPosition` arm carries `scrollDayOffset` and `scrollGroupOffset`,
+ * `fitScheduleToScreen` carries them too, and the CM-66 branch of
+ * `editDocumentSettings` puts all four. ⚠️ THE FILE HAS COMPILED SINCE.
+ * ⛔ A STOP LEFT STANDING AFTER ITS OBSTACLE IS GONE IS WORSE THAN NO STOP: the
+ * blocker it named was cited again as the reason FR-016's zoom centre could not
+ * be written (台帳 D-297), and it was not the reason.
  */
 interface ScrollAnchor {
   /** S-77. */
@@ -3955,11 +3959,11 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // SK-16 / SK-16a -- one axis each, by the same step the wheel turns by.
   if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
+    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null))
   }
   if (altOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
+    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null))
   }
 
   // SK-17 -- 等倍. ⚠️ The 1 is the multiplicative identity, which is what 倍率
@@ -3967,7 +3971,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // somewhere else the day that default moved, and S-76's own note fixes 等倍
   // as the baseline `basePlanHeight` is defined against.
   if (ctrl && key === KEY.zero) {
-    return changed(zoomWrites(context, 1, 1))
+    return changed(zoomWrites(context, 1, 1, null))
   }
 
   // SK-18 -- FR-055. The zoom is measured from the layout this frame ran, and
@@ -4025,9 +4029,21 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   // when it scrolls.
   const factor = Math.pow(context.zoomStep, -input.notches)
 
-  if (ctrl) return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), zoomTimes(context, factor, 'y')))
-  if (shiftOnly) return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
-  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
+  // ⭐ THE THREE WHEEL ZOOMS ARE THE ONLY ROUTES THAT CARRY A POINTER, so they
+  // are the only ones that hand `zoomWrites` an x. MK-2's own cell says it in
+  // as many words -- 「両軸ズーム（ポインタ中心）」 -- and FR-016 (MUST) states it
+  // for all three: 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かな
+  // いこと」. ⚠️ MK-3 and MK-4 have no cell of their own about the centre and
+  // need none: the requirement's sentence is about ズーム and not about an axis.
+  if (ctrl) {
+    return changed(
+      zoomWrites(context, zoomTimes(context, factor, 'x'), zoomTimes(context, factor, 'y'), input.x),
+    )
+  }
+  if (shiftOnly) {
+    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x))
+  }
+  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), input.x))
 
   // MK-1 / MK-5 -- the wheel's own distance, because no row says how far one
   // detent scrolls and S-96 says the device is what knows.
@@ -4110,23 +4126,38 @@ function isScrollPositionInForce(
   )
 }
 
-// STOP -- ⛔ HALF OF THE ZOOM RULE IS STILL UNWRITTEN. FR-016 requires the day
-// and the row under the pointer to stand still through a zoom (MUST), and for a
-// pointer-less route the centre of the `Row Area` instead.
-// ⚠️ THE REASON THIS STOP USED TO GIVE IS NO LONGER TRUE and is corrected here
-// rather than repeated: it said PI-5 published no way to go from a day back to
-// an x, and `xFromDay` is exported and imported by this very file. ⛔ What
-// blocks the rule now is the WRITING side, not the reading side. Holding a
-// point still through a zoom lands the edge partway into a day and partway into
-// a row -- S-176 and S-177 can hold exactly that since CR-260 -- but
-// `setScrollPosition` (CM-66) carries no member for either, and the zoom
-// commands (CM-65) carry no position at all, so a zoom that held the point
-// still would have nowhere to write where it moved the edge to.
+// STOP -- ⛔ THE ROW HALF OF THE ZOOM RULE IS STILL UNWRITTEN. FR-016 (MUST):
+// 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」, and
+// 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
+// `Row Area` の中心をズームの中心とすること（MUST）」.
+// ⭐⭐ THE DAY HALF IS WRITTEN AS OF 2026-09-06 -- see `placeHeldStill` -- and
+// what let it be written was measuring the two reasons this STOP used to give
+// and finding both false (台帳 D-297):
+//     ⛔ 「`setScrollPosition` (CM-66) carries no member for either」 -- it has
+//        carried `scrollDayOffset` and `scrollGroupOffset` since CR-260.
+//     ⛔ 「the zoom commands (CM-65) carry no position at all」 -- true, and it
+//        does not follow: a gesture answers a LIST of table T-108's rows, and
+//        `zoomWrites` has emitted CM-66 beside CM-65 since `placeSeated`.
+// ⛔ WHAT IS ACTUALLY LEFT IS THE ROW, and the obstacle is a layer's and not a
+// missing member: holding the row under the pointer still needs the y each row
+// lands at AFTER the zoom, and the row axis is not linear in `zoomY` --
+// `planHeightOf` takes a `Math.max` against FR-094's floor, LF-3 puts a second
+// floor under the band, the stack count decides the band's height (ST-2 / ST-3
+// of table T-014), and `groupDepthLimit` changes WHICH rows are drawn at all.
+// ⇒ The only exact answer is to run table T-068 again at the zoom about to be
+// written, and this file may not: 表 T-068's own rule reserves a further run to
+// FR-055's fit (「全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる」), and
+// MN-6 of table T-070 rejected components computing their own layout for the
+// NFR-002 / NFR-003 budget in as many words.
+// ⚠️ THE DAY HALF NEEDS NO SUCH RUN, which is why the two parted here: the time
+// axis IS linear in `zoomX` (`pxPerDay = pxPerDayAt1x * zoomX`), so the new left
+// edge can be named in the frame already in hand.
 // Searched: table T-064 PI-5 and PI-6, `schedule-layout.ts`,
 // `schedule-geometry.ts`, `edit-document-settings.ts` CM-65 / CM-66, FR-016,
-// FR-017, FR-055, table T-203 S-176 / S-177.
-// Until those commands carry a position, a zoom moves the scale and leaves the
-// anchor where it was, and the MUST is unmet rather than guessed at.
+// FR-017, FR-055, FR-094, table T-014, table T-068, table T-070, table T-203
+// S-176 / S-177.
+// ⛔ NOTHING IS GUESSED FOR THE ROW: a zoom leaves the row anchor where it was,
+// and the MUST stays half unmet rather than approximated.
 
 /**
  * A press, a move, a release or a lost pointer.
@@ -4494,12 +4525,12 @@ function commandFromEntry(
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
-      return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null))
+      return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null))
     }
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
-      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y')))
+      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null))
     }
     case ENTRY.baselineVisible:
     case ENTRY.progressLineVisible:
@@ -5331,9 +5362,16 @@ function commandFromRowEntry(
   // ⛔ HR-1a's SUBTREE WRITE IS NOT BORROWED HERE. That row governs 畳む操作
   // (HR-2 / HR-4), and HR-6 keeps itself off that ground: 「畳みと違い、グループ
   // LOD と同じ絵になることを求めない」.
-  // ⭐⭐ AND THE SUBTREE IS FOLDED WITH IT, WHICH HR-6 (MUST) STATES SINCE
-  // 2026-08-31: 「あわせて、その行の配下を畳んだ状態にすること（MUST）」, and
-  // (MUST NOT) 「配下をそのままにして隠してはならない」.
+  // ⭐⭐ AND THE ROW AND ITS SUBTREE ARE FOLDED WITH IT, WHICH HR-6 (MUST)
+  // STATES SINCE 2026-08-31: 「あわせて、その行と、その配下を畳んだ状態にすること
+  // （MUST）」, and ⛔⛔ 「配下だけを畳んで、その行自身を畳まずに隠してはならない
+  // （MUST NOT）」.
+  // ⛔⛔ THIS QUOTATION READ 「あわせて、その行の配下を…」 UNTIL 2026-09-06 -- the
+  // wording the row itself carried for part of 2026-08-31 and no longer does
+  // (台帳 D-339). ⭐ It is the very reading the foot of this member records as
+  // broken, and quoting it HERE said the pressed row's own fold was out of
+  // scope while the code twelve lines down writes it. The code was right and
+  // this sentence was the stale one.
   // ⭐ THE REASON IS THE WAY BACK. HR-6 has the row return through the parent's
   // IC-90, and HR-7 (MUST NOT) has that press touch no fold below the direct
   // children -- so what comes back is THIS ROW ALONE, which is what the sample
@@ -5341,8 +5379,12 @@ function commandFromRowEntry(
   // 「畳む前の形を覚えて戻す」 that HR-1a threw out.
   // ⚠️ THE FOLD OUTLIVES THE HIDING, and that is intended rather than overlooked
   // -- the row comes back folded and its own IC-90 opens it.
-  // ⛔ THIS ROW'S OWN FOLD IS NOT WRITTEN: HR-6 asks for the CONFIGURATION of
-  // its 配下, and a row that is not drawn has no fold to read.
+  // ⭐ THIS ROW'S OWN FOLD IS WRITTEN WITH THE REST, and `foldsRowAndBelow`
+  // below is what writes it -- see the MUST NOT quoted at the head of this
+  // member. ⛔ The sentence that stood here said the opposite ("HR-6 asks for
+  // the CONFIGURATION of its 配下, and a row that is not drawn has no fold to
+  // read") and was written against the wording the row carried for part of
+  // 2026-08-31 (台帳 D-339).
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
   // ⚠️ Gone, or already hidden: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
@@ -7907,8 +7949,110 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
 }
 
 /**
+ * The x FR-016 (MUST) holds still through a zoom: the pointer, or the middle of
+ * the `Row Area` where the route carries no pointer.
+ *
+ * ⭐ THE SECOND HALF IS A ROW OF ITS OWN AND NOT A FALLBACK INVENTED HERE:
+ * 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
+ * `Row Area` の中心をズームの中心とすること（MUST）」 -- 「上の規則が守っている
+ * のは『見ているものが動かない』ことであり、ポインタはその代理である。代理が無い
+ * ときは画面の中心を代理とする」.
+ * ⚠️ THE `Row Area` AND NOT THE WINDOW. The requirement names that region, and
+ * it is the one the day axis is laid against (`layoutFromSchedule` puts the
+ * anchor day at `regions.rowArea.x`).
+ *
+ * @purity pure
+ */
+function zoomCentreX(context: InputContext, pointerX: number | null): number {
+  const area = context.regions.rowArea
+  return pointerX === null ? area.x + area.width / 2 : pointerX
+}
+
+/**
+ * S-75 / S-76 read on this side, so that the day held still is measured against
+ * the zoom that will actually be in force.
+ *
+ * ⛔ NOT A SECOND OWNER OF THE BOUND. `editDocumentSettings` applies it to what
+ * CM-65 writes and stays the only place that DOES; this reads the same pair off
+ * `InputContext` -- where FR-055's fit already needs it -- to know how far the
+ * picture will really scale. ⚠️ Without it a notch past the end would move the
+ * anchor for a scaling the clamp then refuses, and the day under the pointer
+ * would drift once per notch at the end of the range.
+ *
+ * @purity pure
+ */
+function zoomWithinBounds(context: InputContext, value: number): number {
+  return Math.max(context.zoomMin, Math.min(context.zoomMax, value))
+}
+
+/**
+ * FR-016's zoom centre, day half (MUST): 「ズームはポインタ位置を中心とし、カーソル
+ * 下の日付 ... が動かないこと」.
+ *
+ * ⭐⭐ WHY NO SECOND LAYOUT IS NEEDED, which is the whole reason this half could
+ * be written while the row half could not. The time axis is linear in the zoom
+ * -- `pxPerDay = pxPerDayAt1x * zoomX` -- so 「the day coordinate the left edge
+ * will stand at」 has an exact spelling in the frame ALREADY laid out: scaling
+ * the axis by `factor` about the point `centreX` puts the left edge where
+ * `centreX - (centreX - area.x) / factor` stands today. `dayAnchorAt` then reads
+ * that x back as S-77 with S-177, which is the pair CM-66 writes.
+ * ⚠️ DERIVED AND NOT COPIED: the identity holds because both layouts put the
+ * anchor day's own left edge at `regions.rowArea.x`, so the only thing that
+ * differs between them is the scale.
+ *
+ * ⛔ THE ROW ANCHOR IS THE ONE IN FORCE AND IS NOT MOVED. The STOP above says
+ * why: the y a row lands at after the zoom cannot be had without running table
+ * T-068 again, which is FR-055's alone. So the vertical half of the pair is
+ * `rowAnchorAt` at the top edge -- the value already standing -- and the row
+ * under the pointer is left to move.
+ *
+ * ⭐ THIS IS ALSO `placeSeated`'s WORK, DONE ONCE. OP-10 of table T-024a has the
+ * reader fit again on every frame while no place is named, so a zoom written
+ * under that condition is overwritten before anyone sees it (利用者の裁定
+ * 2026-09-06, 「人の拡大の押下は表示位置を据えるものとする」). The position written
+ * here names a place, so the condition stops holding -- one write does both.
+ * ⚠️ WHICH IS WHY `placeSeated` IS STILL THE FALLBACK rather than being deleted:
+ * every route that cannot name a held day still owes the seating.
+ *
+ * @purity pure
+ */
+function placeHeldStill(
+  context: InputContext,
+  zoomX: number | null,
+  centreX: number,
+): readonly DocumentCommand[] {
+  // ⚠️ MK-4 / SK-16a / IC-14 / IC-15 move the row axis alone, so no day moves
+  // and there is nothing to hold: the seating is all that is owed.
+  if (zoomX === null) return placeSeated(context)
+  const area = context.regions.rowArea
+  const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
+  // ⚠️ A factor that is not a finite positive number is a picture with no time
+  // axis (a zero `pxPerDay`, an empty document) -- nothing to hold still.
+  if (!Number.isFinite(factor) || factor <= 0) return placeSeated(context)
+  const day = dayAnchorAt(context, centreX - (centreX - area.x) / factor)
+  const row = rowAnchorAt(context, area.y)
+  const to = {
+    kind: 'setScrollPosition',
+    scrollDate: day.scrollDate,
+    scrollDayOffset: day.scrollDayOffset,
+    scrollGroupId: row.scrollGroupId,
+    scrollGroupOffset: row.scrollGroupOffset,
+  } as const
+  // ⛔ A POSITION THAT NAMES NO PLACE IS NOT WRITTEN, for the two reasons
+  // `placeSeated` gives: OP-10 would go on fitting over it, and FR-063 would be
+  // moved by a write that changed nothing.
+  if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollGroupId)) {
+    return placeSeated(context)
+  }
+  // ⭐ A zoom already at S-75 / S-76's end holds every day still by doing
+  // nothing, and this is where that comes out: the four members answer the
+  // values in force, so no write is made and WS-4 pushes no frame.
+  return isScrollPositionInForce(context, to) ? [] : [to]
+}
+
+/**
  * The writes one zoom the person asked for owes: the place it was asked about,
- * where none is stored yet, and then the zoom itself.
+ * held still around the point FR-016 names, and then the zoom itself.
  *
  * ⭐ ONE BUNDLE AND NOT TWO, which is the difference from `fitWrites`. FR-031
  * (MUST) splits the FIT into two writes because CM-72 has to push the step
@@ -7918,6 +8062,8 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
  * ⛔ THE PLACE GOES FIRST ANYWAY, so that a reader of the bundle meets it in
  * the order it is meant: this is where the person was looking, and this is what
  * they asked to do to it.
+ * ⚠️ `pointerX` IS `null` FOR EVERY ROUTE THAT HAS NO POINTER -- see
+ * `zoomCentreX`, which is where the row of FR-016 that covers those is read.
  *
  * @purity pure
  */
@@ -7925,8 +8071,12 @@ function zoomWrites(
   context: InputContext,
   zoomX: number | null,
   zoomY: number | null,
+  pointerX: number | null,
 ): readonly DocumentCommand[] {
-  return [...placeSeated(context), zoomCommand(context, zoomX, zoomY)]
+  return [
+    ...placeHeldStill(context, zoomX, zoomCentreX(context, pointerX)),
+    zoomCommand(context, zoomX, zoomY),
+  ]
 }
 
 /**
@@ -8516,10 +8666,19 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 15 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 74 rows of that table less the 59
-// this file assigns (`ENTRY` holds 44 and `ARMED_BY_ENTRY` 15), and the two
-// groups below add up to it: 6 + 9.
+// STOP -- ⛔ 10 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 89 rows of that table less the 79
+// this file assigns (`ENTRY` holds 57 and `ARMED_BY_ENTRY` 22, and the two sets
+// are disjoint), and the two groups below add up to it: 4 + 6.
+// ⚠️⚠️ MEASURED 2026-09-06 AND ALL THREE NUMBERS HAD DRIFTED: this note read
+// 「15 ... 74 ... 44 and 15 ... 6 + 9」, none of which the tree or the
+// manuscript still answered, and its second group named IC-55 / IC-56 / IC-57,
+// which table T-109 no longer holds at all. ⭐ HOW TO RE-MEASURE, so the next
+// reader does not carry these forward either: count `^| IC-` in
+// `docs/spec/_assets/tbl-glossary.md` for the table, and the `'IC-nn'` keys of
+// `ENTRY` and `ARMED_BY_ENTRY` below with the comments stripped for this file's
+// share. ⛔ Do not count the entries listed in the two groups by hand -- that
+// is how the drift began.
 // ⭐ IC-45 LEFT THE SECOND GROUP THIS ROUND. It stood there on the ground that
 // CM-60 demands both dates at once, and DC-1 refutes that ground: entering the
 // mode places both, so the entry writes the pair it needs and nothing is
@@ -8558,9 +8717,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
 // CM-59 and CM-63, and all four are now written above.
 //
-// ⭐ 4 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the four is a
-// `DocumentCommand`, and LY-5 of table T-060 leaves a current value with the
-// Framework, so `frame-loop.ts` spends them in `answerSettledEntry`:
+// ⭐ 8 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- what each press needs
+// is a value of `ScreenSession`, a surface, or a question, and LY-5 of table
+// T-060 leaves a current value with the Framework, so `frame-loop.ts` spends
+// them in `answerSettledEntry`:
 // ⚠️ IT WAS 6 UNTIL 2026-09-02. NT-7's two answers stood here as IC-69 / IC-70;
 // CR-327 made them word buttons and (MUST NOT) took their rows out of table
 // T-109, so they are no longer rows of it to be answered for at all.
@@ -8570,17 +8730,32 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                rather than answered here: S-99 is written back to
 //                `localStorage`, so the press is an ACT and not only a value,
 //                and LR-6 keeps the browser out of this layer.
+//   IC-66        FR-099's 「選んだ担当者を消す」, on U-49 `Resource Roster`.
+//                ⭐ IT STOOD IN THE SECOND GROUP UNTIL 2026-09-06 on the ground
+//                that FR-099 (MUST) requires the names of the tasks the
+//                deletion would unassign to be shown and confirmed first and
+//                that 「no road in this build raises that question」 -- 台帳
+//                D-288 / D-289 built that road, and `frame-loop.ts` now raises
+//                QN-3 of table T-234 there and writes CM-42 on the answer.
+//                ⛔ STILL NOT THIS FILE'S: the write waits on a question, and a
+//                pure member can neither ask one nor hold the answer.
 //   IC-71 .. IC-73  OP-3's three answers, on U-56 `Open Chooser`.
 //                `OPEN_CHOICE_OF_ENTRY` in the same file maps each row to its
 //                `OpenChoice` and closes the surface with the answer.
 //                ⛔ NOTHING OPENS U-56 BY ENTRY, and no entrance is owed: OP-3
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
+//   IC-95 .. IC-97  MM-1 / MM-2 / MM-4 of table T-032a, on U-53 `Difference
+//                Review` (FR-022). `MERGE_CHOICE_OF_ENTRY` in the same file
+//                maps each row to its answer, and it is the same shape as
+//                IC-71 .. IC-73: the choice belongs to a surface the READ
+//                raised, not to a press this file could plan.
 //
-// ⛔ 5 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
+// ⛔ 2 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
 // 2026-08-30, when IC-37 and IC-38 were measured to be writable after all, 7
-// until 2026-08-31, when IC-18 joined them, and 6 until 2026-09-02, when
-// CR-329 gave IC-41 a surface to raise):
+// until 2026-08-31, when IC-18 joined them, 6 until 2026-09-02, when
+// CR-329 gave IC-41 a surface to raise, and 3 until 2026-09-06, when IC-66's
+// question was measured to have been built):
 //
 //   [WRITTEN 2026-08-31, D-149 of the defect ledger] IC-18 stood here and no
 //                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED
@@ -8622,28 +8797,30 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                MORE. The SHA-256 comparison and the write that follows a
 //                match are `frame-loop.ts`'s: a pure member can neither read a
 //                field nor hash one (LR-6, and CS-1 of table T-066).
-//   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
-//                six still unanswered. ⚠️ Its five neighbours are answered above:
-//                they move `ScreenSession.selectedResourceUids` (PD-143), which
-//                is the shell's and no `DocumentCommand` at all. ⛔ THIS ONE IS
-//                A WRITE -- `deleteResource` (CM-42), handed the `uid`s that
-//                choice holds -- and what stops it is not the `uid`s: FR-099
-//                (MUST) requires the names of the tasks it would unassign to be
-//                shown and confirmed first (QN-3 of table T-234, NT-7 of table
-//                T-037), and no road in this build raises that question.
-//                `frame-loop.ts` records the same gap at `ConfirmationQuestion`
-//                and `notices.ts` from the drawing side. ⚠️ Answering the press
-//                without it would run the deletion unasked, which is the very
-//                MUST that half of FR-099 is.
-//   IC-54 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: one
+//   [ANSWERED 2026-09-06, 台帳 D-288 / D-289] IC-66 stood here and no longer
+//                does -- it is in the first group above now.
+//   IC-54        ⛔ NOT AN ENTRY. Table T-109 says so in its own column: the row
 //                shows the figure the palette is holding (table T-023b) and
-//                three show the autosave state (FR-061). ⚠️ IC-53 stood here
-//                until GR-19 of table T-023d gave the band it marks a gesture.
-//                It is still not a button -- what answers it is a drag, settled
-//                on the release.
+//                ends 「ボタンではない」. ⚠️ IC-55 .. IC-57 stood beside it as the
+//                autosave state until they left table T-109; naming rows the
+//                table no longer holds is what made this note's own count wrong
+//                (measured 2026-09-06). ⚠️ IC-53 stood here until GR-19 of table
+//                T-023d gave the band it marks a gesture. It is still not a
+//                button -- what answers it is a drag, settled on the release.
+//   IC-98        ⛔⛔ AN ENTRY NOTHING IN `src/` ANSWERS AT ALL -- not this file,
+//                not `answerSettledEntry`, not `screenStateFromEntry` (measured
+//                2026-09-06: the row id occurs only in `icon-roster.json`,
+//                `icon-glyphs.json` and `display-words.json`, so it is DRAWN and
+//                its press falls through). Table T-109: `App Header`, 群 文書,
+//                「文書を新しく始める（開いている文書を捨て、表 T-034 の `BT-4` と
+//                同じ状態へ戻す）」. ⛔ NOT THIS FILE'S EITHER WAY: throwing the
+//                open document away and returning to BT-4 is a startup state,
+//                which LY-5 leaves with the Framework, and FR-095 puts a
+//                confirmation in front of it -- the same shape as IC-66 above.
+//                ⚠️ NO LEDGER ROW NAMED IT when this was measured.
 //
 // ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
-// far side of this file rather than one of the 15 above:
+// far side of this file rather than one of the 10 above:
 //
 //   [ANSWERED 2026-09-06, PD-345] DC-7's clear stood here and no longer does.
 //                ⛔⛔ THE OLD NOTE ASKED FOR THE WRONG THING. It read: 「置いた

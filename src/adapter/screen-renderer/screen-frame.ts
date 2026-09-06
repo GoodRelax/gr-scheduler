@@ -118,6 +118,19 @@ function dividerAt(
  * "everything fits" state SC-4 names, and it is the only one that claims no
  * display position the arguments do not carry.
  *
+ * ⛔⛔ AND THE GRAB IS SHUT ONE ROW FURTHER OUT, WHICH IS WHY SIZING THE GRIP
+ * HERE WOULD NOT OPEN IT (D-298, measured 2026-09-07 against the manuscript).
+ * SC-4 of table T-031 says the bar is grabbed and moved, and FR-052 (MUST) has
+ * the display position change by working the bar -- but table T-023d, which
+ * MK-9a of table T-023 declares holds 掴み領域の全数 and their priority, has NO
+ * ROW for either lane. ⇒ Whichever unit would translate a press on a lane into
+ * a scroll has no grab region to read, so a proportional grip drawn here would
+ * be a shape nothing presses. ⛔ Do not mint the row: FR-029 reserves the
+ * roster, and the two members a proportion needs stay ScheduleLayout's whatever
+ * that row says. Searched: FR-051, FR-052, SC-4 of table T-031, table T-023d,
+ * table T-203 (S-77 / S-78) and table T-206 (S-205 is the lane's THICKNESS
+ * floor and settles nothing about the grip).
+ *
  * @purity pure
  */
 function scrollbarIn(axis: Scrollbar['axis'], track: ScreenRect): Scrollbar {

@@ -71,7 +71,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -107,7 +107,7 @@ const ROW_TITLE_PANEL = bare(
 )
 
 const T_109_ON_THE_PANEL = specTable('T-109').rows.filter(
-  (one) => bare(one.by['面'] ?? '') === ROW_TITLE_PANEL,
+  (one) => bareAll(one.by['面'] ?? '').includes(ROW_TITLE_PANEL),
 )
 
 /** The entrance 表 T-109 gives one row of 表 T-051, by that table's own join. */

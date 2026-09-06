@@ -315,8 +315,8 @@
    "source": "ImageExporter",
    "target": "SvgRenderer",
    "arrow": "dependency",
-   "label": "SVG string",
-   "description": "takes the SVG string"
+   "label": "SVG string and every colour",
+   "description": "takes the SVG string, and asks the same renderer for every colour it paints, AT THE DOCUMENT'S HUE -- PD-51 (2026-09-06) forbids a literal here, and without the hue the answer comes back at hue 0"
   },
   {
    "source": "FileGateway",
@@ -337,7 +337,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image to send out"
+   "description": "gets the raster image to send out, handing over the document's theme hue with the request"
   },
   {
    "source": "InputCommandTranslator",
@@ -547,7 +547,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image"
+   "description": "gets the raster image, handing over the document's theme hue with the request"
   },
   {
    "source": "AgentApiEndpoint",
@@ -659,7 +659,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "writes the image out for a person"
+   "description": "writes the image out for a person, and hands over the document's theme hue (Project.themeHue, AT-19) with the request"
   },
   {
    "source": "SingleHtmlShell",

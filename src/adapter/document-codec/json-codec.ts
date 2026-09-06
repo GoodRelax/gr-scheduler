@@ -71,6 +71,38 @@ export interface JsonFault {
  */
 export type JsonRefusalReason = 'RS-25'
 
+/**
+ * FR-073's judgement about the format version of the text that was read.
+ *
+ * ⭐ FR-073 (MUST): 「判別は文字列の大小で行うこと」 and 「この `GRS` が知っている
+ * 最大の版より新しい版を読めない版とすること」. The format is a date spelled
+ * `YYYY-MM-DD` (or `YYYY-MM-DDTHH:MM` for a second turn on the same day), whose
+ * dictionary order IS its time order, so `>` on the two strings is the whole
+ * comparison and no comparator is owed.
+ *
+ * ⛔ `newerThanKnown` IS NOT A REFUSAL, and must never be turned into one. The
+ * reader's ruling of 2026-09-05 put three sentences on this case at once:
+ * 「受けて開くこと（MUST）」, 「拒んではならない（MUST NOT）」 and 「黙って開いても
+ * ならない（MUST NOT）」. So the decoding stays `ok: true` and what is owed is a
+ * TELLING -- the columns that could not be read shown on `U-61`
+ * (`Difference Review`, table T-103) carrying `RS-48` of table T-233, and the
+ * person asked whether to go on.
+ * ⛔ THAT TELLING IS NOT DRAWN, and it is not this unit's to draw: this file is
+ * pure, and no surface in this build lays out FR-073's unread columns (`U-61`
+ * exists, but only with FR-022's merge candidates on it). ⛔ Nothing here may
+ * stand in for it by refusing -- that would meet the first MUST by breaking the
+ * MUST NOT beside it.
+ *
+ * ⛔ `notCompared` IS A HOLE AND SAYS SO. It is what comes back when the caller
+ * handed no version to compare against, and it is deliberately NOT spelled as
+ * `known`: a document that was never compared must not be reported as one that
+ * was found to be readable, or 「黙って開いてもならない」 is broken in silence by
+ * the very value that was supposed to answer for it. ⚠️ Nothing in `docs/spec`
+ * makes this state legal -- OP-7 of table T-024a sends EVERY open to FR-073 --
+ * so a caller that leaves it here owes the version, not a reading of this value.
+ */
+export type FormatVersionReading = 'notCompared' | 'known' | 'newerThanKnown'
+
 export type JsonDecoding =
   | {
       readonly ok: true
@@ -89,6 +121,17 @@ export type JsonDecoding =
        * decides whether it has anybody to tell.
        */
       readonly clampedCount: number
+      /**
+       * OP-7 of table T-024a: 「形式の版は `FR-073` に従って判別する」.
+       *
+       * ⭐ ON THE DECODING AND NOT ON A SEPARATE CALL, for the reason the body
+       * of `documentFromJson` already gives about `clampedSettings`: every road
+       * that turns `GRS JSON` into a document comes through this one function,
+       * so one judgement here is what keeps BT-1, BT-4 and OP-12's import from
+       * drifting apart.
+       * ⚠️ The raiser is the caller's, exactly as `clampedCount`'s is.
+       */
+      readonly formatVersion: FormatVersionReading
     }
   | {
       readonly ok: false
@@ -1420,6 +1463,31 @@ function collectFaults(
 }
 
 /**
+ * FR-073's comparison, in one expression.
+ *
+ * ⭐ 「判別は文字列の大小で行うこと（MUST）」 -- so `>` and not a parsed date.
+ * FR-073 gives the reason in as many words: the spelling makes dictionary order
+ * the time order, and a shorter string sorts before a longer one that starts
+ * the same way, so `YYYY-MM-DD` and `YYYY-MM-DDTHH:MM` may be mixed without
+ * breaking the order.
+ *
+ * ⛔ EQUAL AND OLDER ARE THE SAME ANSWER HERE. FR-073 defines 「読めない版」 as
+ * strictly newer than the greatest known one, and (MUST NOT) forbids the
+ * version carrying whether a change breaks anything -- so an OLDER version is
+ * not a finding this unit may report, and inventing a third outcome for it
+ * would give the date the second meaning that sentence refuses.
+ *
+ * @purity pure
+ */
+function formatVersionReading(
+  schemaVersion: string,
+  greatestKnownSchemaVersion: string | undefined,
+): FormatVersionReading {
+  if (greatestKnownSchemaVersion === undefined) return 'notCompared'
+  return schemaVersion > greatestKnownSchemaVersion ? 'newerThanKnown' : 'known'
+}
+
+/**
  * Reads one `GRS JSON` text.
  *
  * ⭐ Pure, and it takes the TEXT rather than a parsed value: parsing is where a
@@ -1442,9 +1510,21 @@ function collectFaults(
  *
  * ⚠️ The shape is checked, not the content. See the block at the top.
  *
+ * ⭐ `greatestKnownSchemaVersion` IS OP-7's SECOND SIDE, and it has to arrive
+ * as an argument. FR-073 compares the document's version against the greatest
+ * version this build knows of, and that version is not this unit's to hold: it is the
+ * one the build's own generator wrote into the bundled startup template, so
+ * naming it here would be a second copy of a generated value (rule 03) and
+ * reading it here would be an Adapter reaching into the Framework (`LR-6`).
+ * ⛔ Leaving it out leaves FR-073 unanswered on that road, which is what
+ * `formatVersion` reports as `notCompared` rather than hiding.
+ *
  * @purity pure
  */
-export function documentFromJson(text: string): JsonDecoding {
+export function documentFromJson(
+  text: string,
+  greatestKnownSchemaVersion?: string,
+): JsonDecoding {
   let parsed: unknown
   try {
     parsed = JSON.parse(withoutLeadingByteOrderMark(text))
@@ -1483,8 +1563,15 @@ export function documentFromJson(text: string): JsonDecoding {
   // road's clamping would be moving values the row says are not restored at all;
   // FR-056's merge builds its document from the current one and never through
   // this function.
+  // ⭐ FR-073 / OP-7 -- the whole of the comparison, and nothing beyond it.
+  // ⛔ It does NOT gate the return: 「受けて開くこと（MUST）」「拒んではならない
+  // （MUST NOT）」 leave the reading as a value the caller acts on.
+  const formatVersion = formatVersionReading(read.schemaVersion, greatestKnownSchemaVersion)
+
   const clamp = clampedSettings(read.documentSettings)
-  if (clamp.clamped.length === 0) return { ok: true, document: read, clampedCount: 0 }
+  if (clamp.clamped.length === 0) {
+    return { ok: true, document: read, clampedCount: 0, formatVersion }
+  }
   // ⚠️ A NEW ROOT AND NOT A WRITE. `clampedSettings` is pure and hands a fresh
   // settings group back, keys it knows nothing about included (OP-6 MUST), so
   // the document is rebuilt around it rather than the parsed value being edited.
@@ -1492,6 +1579,7 @@ export function documentFromJson(text: string): JsonDecoding {
     ok: true,
     document: { ...read, documentSettings: clamp.settings },
     clampedCount: clamp.clamped.length,
+    formatVersion,
   }
 }
 

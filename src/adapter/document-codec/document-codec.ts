@@ -63,7 +63,7 @@ import { withoutLeadingByteOrderMark } from './mspdi-codec'
 export type { AppShell, AppShellReading, AppShellSource } from './app-shell-source'
 
 export { documentFromJson, jsonFromDocument } from './json-codec'
-export type { JsonDecoding, JsonFault } from './json-codec'
+export type { FormatVersionReading, JsonDecoding, JsonFault } from './json-codec'
 
 export { documentFromMspdi, mspdiFromDocument } from './mspdi-codec'
 export type { MspdiDecoding, MspdiEncoding, MspdiFault, MspdiNotice } from './mspdi-codec'

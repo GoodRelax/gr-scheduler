@@ -85,7 +85,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ===========================================================================
 // List one -- the marks 表 T-012 prints for SH-5
@@ -194,7 +194,7 @@ interface MilestoneEntrance {
 }
 
 const MILESTONE_ENTRANCES: readonly MilestoneEntrance[] = T_109.rows
-  .filter((row) => bare(row.by[T_109_SURFACE_COLUMN] ?? '') === COMMAND_PALETTE)
+  .filter((row) => bareAll(row.by[T_109_SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
   .filter((row) => bare(row.by[T_109_ARM_COLUMN] ?? '') === MILESTONE_ARM)
   .map((row) => ({ row: row.id, entrance: row.by[T_109_ENTRANCE_COLUMN] ?? '' }))
 

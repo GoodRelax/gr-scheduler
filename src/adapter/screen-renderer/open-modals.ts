@@ -702,6 +702,20 @@ export function openModalFromScreenState(
   // names U-60 and the `surfaces` section of the dictionary holds no heading for
   // it, exactly as it holds none for U-55 -- ⛔ and one written here would be
   // the second store of translated words FR-038 forbids (MUST NOT).
+  //
+  // STOP -- ⛔⛔ FR-020's 「透かしがアクセス制御ではなく証跡であることを画面上でも
+  // 示すこと（MUST）」 IS NOT KEPT ANYWHERE, and this surface is where a reader
+  // meets the misreading it guards against -- they have just been asked for a
+  // password (D-304, measured 2026-09-07). ⛔ It cannot be kept here: every word
+  // this unit prints comes out of the generated dictionary, and no entry of it
+  // says the mark is a trail. What is owed is a row of the manuscript's own
+  // dictionary; ⛔ writing the sentence in this file would be the second store
+  // of translated words FR-038 forbids (MUST NOT), the same reason `heading`
+  // above stands empty. ⚠️ The trail ITSELF is carried, so this is the telling
+  // and not the mark: `Watermark` of `svg-renderer.ts` holds `openedBy` and
+  // `stampedAt`, which is 「誰がいつ画面に出していたか」 in as many members.
+  // Searched: FR-020, table T-103 (U-60), table T-109, table T-234 (QN-9),
+  // table T-207 and the `surfaces` / `questions` sections of the dictionary.
   if (surface === WATERMARK_UNLOCK) {
     return {
       surface: WATERMARK_UNLOCK,
@@ -783,6 +797,17 @@ export function openModalFromScreenState(
   //     document, and nothing in this component resolves one.
   //   FR-068, `AI Export Modal` (U-30): the document that would be handed to an
   //     AI, which is built outside this component and does not arrive here.
+  //     ⛔⛔ AND NO ROW SAYS WHAT IT IS (D-268, measured 2026-09-07 against the
+  //     manuscript). FR-068 asks for 「AI へ渡す文書」 to be read and copied, and
+  //     that phrase occurs in exactly two places -- the requirement itself and
+  //     IC-19 of table T-109 -- neither of which spells the text. AG-4 of table
+  //     T-035 hands a reader a FROZEN COPY, which is a value and not a string,
+  //     so the Agent API does not settle it either. ⇒ Choosing between the
+  //     exchange formats of table T-024 here would be this unit minting the
+  //     form, which is what rule 03 section 1 forbids. ⛔ There is also no door:
+  //     `ScreenSession` carries no member for it, and only the shell holds the
+  //     side that could spell one. Searched: FR-068, UC-012, UC-013, FR-028,
+  //     table T-035, table T-024, table T-103 (U-30) and table T-109.
   // ⭐ WHAT FR-099 ASKS FOR NOW HAS ENTRIES, and they arrive by the road every
   // other entry does: table T-109 places IC-63 .. IC-68 on U-49 and IC-62 in
   // the `Command Palette`, so `commandsOnSurface` above emits the six without

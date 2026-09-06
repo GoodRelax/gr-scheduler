@@ -96,7 +96,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -131,7 +131,7 @@ const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? 
  */
 function entranceFor(rule: string): string {
   const onThePanel = specTable('T-109').rows.filter(
-    (one) => bare(one.by['面'] ?? '') === ROW_TITLE_PANEL,
+    (one) => bareAll(one.by['面'] ?? '').includes(ROW_TITLE_PANEL),
   )
   const found = onThePanel.filter((one) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),

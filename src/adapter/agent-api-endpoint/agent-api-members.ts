@@ -834,22 +834,31 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       //              refused -- and MUST NOT be opened in silence: the columns
       //              that could not be read are shown on `U-61` (Difference
       //              Review) and the person is asked whether to go on, carrying
-      //              RS-48 of table T-233. ⛔ `U-61` does not exist in this
-      //              build. A member that accepted an intake today would satisfy
-      //              the first MUST by breaking the MUST NOT beside it, and it
-      //              would break it on the road where nobody is watching -- the
-      //              caller is a machine, so the silence would not even be
-      //              noticed. Refusing keeps ONE requirement unmet and states
-      //              which; accepting would meet it by breaking the same one.
+      //              RS-48 of table T-233. ⛔⛔ THE OLD NOTE HERE SAID 「`U-61`
+      //              does not exist in this build」 AND THAT HALF IS NOW FALSE:
+      //              CR-366 drew the surface (`screen-renderer.ts` and
+      //              `dom-screen-surface.ts` both lay it out). ⛔ What it lays
+      //              out is FR-022's merge candidates and nothing else -- no
+      //              road puts FR-073's unread columns on it, and no road makes
+      //              the comparison that would find them: `documentFromJson`
+      //              answers OP-7 only when a caller hands it the greatest
+      //              version this build knows, and no caller does yet
+      //              (`json-codec.ts`, `formatVersion`). A member that accepted
+      //              an intake today would satisfy the first MUST by breaking
+      //              the MUST NOT beside it, and it would break it on the road
+      //              where nobody is watching -- the caller is a machine, so the
+      //              silence would not even be noticed. Refusing keeps ONE
+      //              requirement unmet and states which; accepting would meet it
+      //              by breaking the same one.
       //
-      // ⚠️ The refusal therefore stands until `U-61` is drawn, not merely until
-      // AM-8's face is widened. Reported.
+      // ⚠️ The refusal therefore stands until FR-073's telling is on `U-61`, not
+      // merely until AM-8's face is widened. Reported.
       return {
         accepted: false,
         refusal: notAvailable(
           'AM-8',
           source.readSnapshot(),
-          "AM-8's face carries only text, and FR-073's U-61 is not drawn",
+          "AM-8's face carries only text, and FR-073's telling is on no surface",
         ),
       }
     },

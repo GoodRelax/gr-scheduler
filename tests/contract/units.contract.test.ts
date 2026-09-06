@@ -11,7 +11,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { bare, specTable } from './spec-table'
+import { bare, bareAll, specTable } from './spec-table'
 
 const T075 = specTable('T-075')
 const T062 = specTable('T-062')
@@ -33,20 +33,40 @@ const layerOf = (component: string): string => {
   return bare(row.by['層'] ?? '')
 }
 
+/**
+ * Every purity value one row of table T-075 states.
+ *
+ * ⛔⛔ THE COLUMN ENUMERATES, AND THE MANUSCRIPT SAYS SO IN AS MANY WORDS
+ * (05-07-design.md, under table T-075): 「純粋性は関数ごとの分類である（`R7.1`）。
+ * 本欄はそのユニットが持つ関数の純粋性を重複なく並べたものであり、メンバごとの値は
+ * 表 T-064 が持つ」. `UF-41` and `UF-51` are 「`semi-pure-b` ／ `non-pure`」, and
+ * the same section settles that this is no violation: 「`semi-pure-b` と
+ * `non-pure` が同じユニットに載ることは `R7.9` に反しない」. Reading the first
+ * span alone asked for half of what those two rows state (`D-351`).
+ */
+const puritiesOf = (row: (typeof T075.rows)[number]): readonly string[] => {
+  const stated = bareAll(row.by['純粋性'] ?? '')
+  // The table writes an em dash for a unit that only declares an interface;
+  // the tree keeps to ASCII and says n/a.
+  return stated.map((one) => (one === '—' || one === '-' ? 'n/a' : one))
+}
+
 const units = T075.rows.map((row) => {
   const component = bare(row.by['コンポーネント'] ?? '')
   const file = bare(row.by['ユニット'] ?? '')
-  const purity = bare(row.by['純粋性'] ?? '')
+  const purities = puritiesOf(row)
   return {
     id: row.id,
     component,
     file,
-    // The table writes an em dash for a unit that only declares an interface;
-    // the tree keeps to ASCII and says n/a.
-    purity: purity === '—' || purity === '-' ? 'n/a' : purity,
+    purities,
     path: join('src', LAYER_FOLDER[layerOf(component)] ?? '?', kebab(component), file),
   }
 })
+
+/** Every `@purity` tag a file carries, header and functions alike. */
+const purityTagsIn = (text: string): readonly string[] =>
+  [...text.matchAll(/@purity\s+([a-z/-]+)/g)].map((hit) => hit[1] ?? '')
 
 describe('table T-075 -- the unit inventory', () => {
   // ⚠️ CR-280 retired the autosave whole, and with it CP-23 `AutosaveGateway`,
@@ -75,7 +95,18 @@ describe('table T-075 -- the unit inventory', () => {
     expect(readFileSync(path, 'utf8')).toContain(`@unit      ${id} `)
   })
 
-  it.each(units)('$id $path carries the purity of its row', ({ path, purity }) => {
-    expect(readFileSync(path, 'utf8')).toContain(`@purity    ${purity}`)
+  it.each(units)('$id $path carries the purity of its row', ({ path, purities }) => {
+    const text = readFileSync(path, 'utf8')
+    const tags = purityTagsIn(text)
+    // ⭐ The file-level summary line names ONE of the values the row states --
+    // for the 66 rows that state one, that is the value, and this is the check
+    // as it always stood.
+    const summary = /@purity {4}([a-z/-]+)/.exec(text)?.[1] ?? ''
+    expect(purities, `${path}'s header says ${summary}`).toContain(summary)
+    // ⛔ AND EVERY value the row states is carried by some function of the
+    // unit. For UF-41 and UF-51 that is the half the header cannot say.
+    for (const stated of purities) {
+      expect(tags, `${path} carries no @purity ${stated}`).toContain(stated)
+    }
   })
 })

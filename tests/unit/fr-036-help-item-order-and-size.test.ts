@@ -119,7 +119,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a ratio that moves in table T-206
 // moves here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -189,9 +189,14 @@ const U_30_HELP = ((): string => {
   const table = specTable('T-103')
   const row = table.rows.find((one) => one.id === 'U-30')
   if (row === undefined) throw new Error('table T-103 no longer has row U-30')
-  const written = bare(row.by['確定名（英）'] ?? '')
-  const found = written.split('/').map((one) => one.trim()).find((one) => one.includes('Help'))
-  if (found === undefined) throw new Error(`table T-103's U-30 names no help surface: ${written}`)
+  // ⚠️ U-30's cell enumerates -- 「`Help Modal` / `AI Export Modal`」 -- so it
+  // is read as the list it is. Splitting the FIRST span on '/' read one name
+  // and called it two (`D-351`).
+  const written = bareAll(row.by['確定名（英）'] ?? '')
+  const found = written.find((one) => one.includes('Help'))
+  if (found === undefined) {
+    throw new Error(`table T-103's U-30 names no help surface: ${written.join(' / ')}`)
+  }
   return found
 })()
 

@@ -59,7 +59,7 @@ import {
   type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at run time rather than copied here (Chapter 1.9 :275)
@@ -104,9 +104,7 @@ interface Row {
  */
 const PALETTE_ENTRANCES: readonly Row[] = T_109.rows
   .filter((row) =>
-    bare(row.by[SURFACE_COLUMN] ?? '')
-      .split(' / ')
-      .includes(COMMAND_PALETTE),
+    bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE),
   )
   .filter((row) => !(row.by[ENTRANCE_COLUMN] ?? '').includes(NOT_A_BUTTON))
   .filter((row) => bare(row.by[GROUP_COLUMN] ?? '') !== NO_GROUP)

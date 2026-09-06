@@ -1,4 +1,11 @@
-7
+3
+#
+# LOWERED 7 -> 3 ON 2026-09-07. The four that left were rows whose
+# 対応方針 still opened 「⛔ 未検討。」 long after the same cell went on to
+# name the clause -- the opener was a relic, not a claim, and it was struck
+# from 85 rows whose status is no longer 未検討. ⭐ The three that remain
+# (D-61, D-48, D-156) are 実測済 rows naming a PD that was ruled later; they
+# are records, and the check reads a record as a claim -- see D-367.
 #
 # LOWERED 8 -> 7 ON 2026-09-06, the same day it was raised. D-301 was the
 # eighth: it named PD-343, which became 裁定済 when the guide cursor's second

@@ -2687,6 +2687,13 @@
     "ja": "基準日線。左右に動かすと基準日が変わる",
     "en": "The status line -- drag it sideways to change the status date"
    }
+  },
+  {
+   "rowId": "GR-21",
+   "text": {
+    "ja": "スクロールバーのつまみ。掴んで動かすと表示位置が変わる",
+    "en": "The scrollbar’s grip -- drag it to change what is shown"
+   }
   }
  ],
  "shortcuts": [
@@ -3360,6 +3367,17 @@
    }
   },
   {
+   "rowId": "RS-52",
+   "text": {
+    "ja": "稼働日の暦が変わったので、完了率を数え直しました",
+    "en": "The working-day calendar changed, so the percent complete was counted again"
+   },
+   "nextStep": {
+    "ja": "元の完了率が要るときは、取り消しで暦の変更ごと戻せます",
+    "en": "Undo puts back the calendar change and the percent complete together"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3410,8 +3428,8 @@
   {
    "rowId": "QN-9",
    "text": {
-    "ja": "透かしを消すには、透かし解除パスワードが要ります",
-    "en": "Hiding the watermark needs the watermark unlock password"
+    "ja": "透かしを消すには、透かし解除パスワードが要ります。透かしはアクセス制御ではなく、画面に出した証跡です",
+    "en": "Hiding the watermark needs the watermark unlock password. The watermark is a record that this was on screen, not access control"
    }
   },
   {

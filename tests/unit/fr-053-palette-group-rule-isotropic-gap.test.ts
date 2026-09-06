@@ -134,7 +134,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a value that moves in table T-206
 // moves here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
@@ -183,7 +183,7 @@ const U_26 = ((): string => {
 const PALETTE_ROWS: readonly string[] = ((): readonly string[] => {
   const table = specTable('T-109')
   return table.rows
-    .filter((row) => bare(row.by['面'] ?? '') === U_26)
+    .filter((row) => bareAll(row.by['面'] ?? '').includes(U_26))
     .map((row) => row.id)
 })()
 

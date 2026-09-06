@@ -159,7 +159,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
-import { specTable, bare } from '../contract/spec-table'
+import { specTable, bare, bareAll } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // What the tables say, read at load time.
@@ -1404,7 +1404,10 @@ describe('the specification still says what these cases copy', () => {
   it('⛔ GIVEN table T-109 WHEN it is filtered on its surface column THEN it prints NO row against Confirmation (NT-7 MUST NOT)', () => {
     const fromTheTable = specTable('T-109')
       // The heading of the surface column, in the table's own language.
-      .rows.filter((one) => bare(one.by['面'] ?? one.cells[0] ?? '') === CONFIRMATION)
+      // ⚠️ `bareAll`, not `bare`: IC-52 names six surfaces in that one cell,
+      // and reading only the first would answer this MUST NOT for one of six
+      // (`D-351`).
+      .rows.filter((one) => bareAll(one.by['面'] ?? one.cells[0] ?? '').includes(CONFIRMATION))
       .map((one) => one.id)
 
     // ⛔ THE MUST NOT ITSELF, quoted in the row's own words above.

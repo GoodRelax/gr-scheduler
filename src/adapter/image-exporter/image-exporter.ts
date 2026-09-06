@@ -31,8 +31,16 @@
 //
 // ⭐ WHAT ARRIVES, AND WHY NOTHING IS CALLED FOR IT. `_source/components.json`
 // draws this component exactly two outgoing edges: to SvgRenderer ("takes the
-// SVG string") and to ScreenRenderer ("takes the parts table T-076 lets into
-// the export (EP-1 / EP-3)"). ⛔ Both are edges of SUPPLY, not of call.
+// SVG string, and asks the same renderer for every colour it paints, AT THE
+// DOCUMENT'S HUE") and to ScreenRenderer ("takes the parts table T-076 lets
+// into the export (EP-1 / EP-3)"). ⛔ Only the second is an edge of SUPPLY
+// alone; the colour half of the first IS a call, and `colourOf` is the one
+// name it reaches. ⚠️ THE HUE IS NOT ON EITHER EDGE. It is `Project.themeHue`
+// (AT-19), and the three components that ask for a picture -- SingleHtmlShell,
+// ClipboardGateway and AgentApiEndpoint -- each hand it over WITH the request
+// (their own edges say so since 2026-09-07), which is why it is a member of
+// `ExportScene` rather than something read here.
+// ⛔ THE PICTURE ITSELF IS STILL SUPPLY AND NOT A CALL.
 // `svgFromSchedule` could not be called from here even though 5.3 would allow
 // the import: it takes a `Schedule`, a layout, a geometry, a selection and the
 // regions, and this component has an edge to none of those. ⚠️ ADR-001 has the
@@ -149,6 +157,25 @@ export interface ExportScene {
   readonly screenView: ScreenView
   /** The presentation group: `exportCanvas` (S-81) and the row-name values FR-085 uses. */
   readonly settings: DocumentSettings
+  /**
+   * The document's theme hue (`Project.themeHue`, AT-19) -- the number table
+   * T-236 writes `H` for (D-277).
+   *
+   * ⛔ HANDED IN, BECAUSE IT CANNOT BE READ HERE AND MUST NOT BE GUESSED.
+   * DR-5 of table T-052 keeps the hue at `Project`, so it is in neither
+   * `DocumentSettings` (which holds `themePreference`, S-72) nor `ScreenView`;
+   * `_source/components.json` has SingleHtmlShell, ClipboardGateway and
+   * AgentApiEndpoint each hand it over WITH the request, and this member is
+   * that hand-over. ⚠️ Until 2026-09-07 a literal 0 stood in for it inside
+   * `dividerLinesSvg`, and the export drew the `Panel Divider` at
+   * `hsl(0 14% 87%)` where the screen paints `hsl(214 14% 87%)` -- WY-2 of
+   * table T-041 and FR-080 both require the two to be one drawing.
+   *
+   * ⛔ NO DEFAULT. A member with a fallback is a second answer to the question
+   * table T-236 already answers once, and the fallback is exactly the hue 0
+   * this row exists to retire.
+   */
+  readonly themeHue: number
 }
 
 /**
@@ -250,24 +277,6 @@ export type ImageExport =
 const CHROME_GROUND = '#f3f4f6'
 const CHROME_INK = '#111111'
 
-/**
- * Where the `Document Title` sits inside the band: its size and its left inset,
- * each as a fraction of the band's own height.
- *
- * ⛔ NOT IN THE SPECIFICATION. EP-1 (MUST NOT) forbids MOVING the title but no
- * table says where it stands, and `AppHeaderItems` carries the string without a
- * rectangle -- unlike `RowTitle`, which carries its `box`. ⚠️ WY-3 compares the
- * title's bounding rectangle between the screen and the export, so the two
- * sides have to read ONE rectangle in the end; until one exists, this places it
- * from the only measured value the band has (FR-051 measures the header's
- * height; S-116 only caps it), so nothing here is a number a table might be
- * thought to have chosen.
- *
- * @provisional PD-52
- */
-const TITLE_FONT_OF_BAND = 0.4
-const TITLE_INSET_OF_BAND = 0.5
-
 /** ⚠️ Distinctive because an exported picture may be inlined beside another SVG. */
 const FIT_CLIP_ID = 'grs-export-fit'
 
@@ -363,8 +372,21 @@ function appHeaderSvg(
   // FR-035 fixes a substitute for the BROWSER TAB and says nothing about a
   // header with no title, so a document without one shows none.
   if (documentTitle === null || documentTitle === '') return ground
-  const fontSizePx = band.height * TITLE_FONT_OF_BAND * ratio
-  const x = (band.x + band.height * TITLE_INSET_OF_BAND) * ratio
+  // ⭐ D-276: THE SIZE AND THE INSET ARE THE SCREEN'S OWN ROWS, S-225 and
+  // S-226 of table T-206 (the reader's ruling of 2026-09-07). EP-1 of table
+  // T-076 (MUST) has the screen and the export read one row for each and
+  // (MUST NOT) lets the export hold a value of its own. ⛔ Until this, two
+  // fractions of the BAND's height stood here (0.4 and 0.5, PD-52): measured
+  // on the shipped build at 1920x1080, they drew the title at 14.8px and
+  // 18.5px from the left where the screen draws it at 16px and 12px -- 7.5%
+  // smaller and 6.5px to the right, against a row that forbids moving it.
+  // ⛔ The band's height may NOT come back into either number: FR-051 measures
+  // that height and S-226's own note says it does not decide where the title
+  // stands.
+  // ⭐ Both are multiplied by the ratio and by nothing else, which is what
+  // WY-3 compares -- "the bounding rectangle on the screen times the ratio".
+  const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * ratio
+  const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
   // S-33's baseline correction, taken against the BAND. ⚠️ No longer the way
   // `svg-renderer.ts` anchors a name label: table T-012's closing paragraph
   // calls S-33 「字形の中でのずれ」, so that file now multiplies the FONT by it
@@ -441,22 +463,29 @@ function rowTitleSvg(
  * colour (a horizontal line inside the schedule, drawn by `SvgRenderer`), a
  * different line from the vertical `Panel Divider` this function draws.
  *
- * ⛔ THE HUE HALF OF S-149 IS NOT READ. `_source/components.json` gives
- * `ImageExporter` exactly two outgoing edges -- to `SvgRenderer` and to
- * `ScreenRenderer` -- and neither reaches `Project.themeHue` (AT-19); a third
- * edge is a manuscript change this fix may not make. `NO_HUE_EDGE` below
- * stands in for it: S-149's cells sit at a low saturation (14% light / 12%
- * dark), so the line stays close to neutral whatever hue the document
- * actually carries. `settings.themePreference` IS read -- unlike the old
- * literal, this line now answers dark mode.
+ * ⭐⭐ THE HUE IS THE DOCUMENT'S, AND ARRIVES WITH THE REQUEST (D-277 closed
+ * 2026-09-07). ⛔ A literal 0 stood here until then, on the ground that
+ * `_source/components.json` drew this component no edge that reaches
+ * `Project.themeHue` (AT-19) -- and the ground was measured false in the
+ * picture: the screen paints this same line `rgb(217,221,226)` =
+ * `hsl(214 14% 87%)` and the export wrote `hsl(0 14% 87%)`. S-149's low
+ * saturation made the two close, not equal, and FR-080 with WY-2 of table
+ * T-041 asks for one drawing rather than a near one. ⭐ The manuscript now
+ * says so on all four edges: this component "asks the same renderer for every
+ * colour it paints, AT THE DOCUMENT'S HUE", and SingleHtmlShell,
+ * ClipboardGateway and AgentApiEndpoint each "hand over the document's theme
+ * hue with the request". `ExportScene.themeHue` is that hand-over.
  *
  * @purity pure
  */
-const NO_HUE_EDGE = 0
-
-function dividerLinesSvg(view: ScreenView, settings: DocumentSettings, ratio: number): string {
+function dividerLinesSvg(
+  view: ScreenView,
+  settings: DocumentSettings,
+  themeHue: number,
+  ratio: number,
+): string {
   const dark = settings.themePreference === 'dark'
-  const ink = colourOf('S-149', NO_HUE_EDGE, dark, settings.themeMonochrome)
+  const ink = colourOf('S-149', themeHue, dark, settings.themeMonochrome)
   return view.frame.dividers
     .map((divider) => rectSvg(scaledRect(divider.line, ratio), ink))
     .join('')
@@ -548,7 +577,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
     pinned.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
     titles.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
-    dividerLinesSvg(screenView, settings, ratio)
+    dividerLinesSvg(screenView, settings, scene.themeHue, ratio)
 
   const width = settings.exportCanvas.width
   // ⭐ THE CLIP STAYS, although nothing is dropped any more: it bounds the
@@ -631,3 +660,38 @@ export async function exportPng(
     }
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands: `AppHeaderItems`
+ * carries the title as a string and no rectangle -- unlike
+ * `RowTitle`, which carries its `box` -- so there is no door to pass
+ * it through. ⛔ It is not a document setting and may not become one:
+ * table T-206 is where the specification records that the document
+ * does not keep it. ⭐ AND THE SCREEN READS THE SAME ROW -- EP-1 of
+ * table T-076 (MUST) has the size and the inset come from one row on
+ * both sides and (MUST NOT) lets an export hold a value of its own,
+ * so what makes this the reader's own is not that the title is
+ * hidden but that the document keeps its TEXT (`Project.title`,
+ * U-27) and neither of the two numbers it is written with.
+ */
+export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
+  /** S-225, in px */
+  readonly 'S-225': number
+  /** S-226, in px */
+  readonly 'S-226': number
+} = {
+  'S-225': 16,
+  'S-226': 12,
+}
+// </generated>

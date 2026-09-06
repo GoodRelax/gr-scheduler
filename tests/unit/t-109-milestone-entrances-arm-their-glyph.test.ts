@@ -127,7 +127,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ===========================================================================
 // The manuscripts, read at run time rather than copied (Chapter 1.9 :275)
@@ -210,7 +210,7 @@ interface Entrance {
 }
 
 const ENTRANCES: readonly Entrance[] = T_109.rows
-  .filter((row) => bare(row.by[SURFACE_COLUMN] ?? '') === COMMAND_PALETTE)
+  .filter((row) => bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
   .filter((row) => bare(row.by[ARM_COLUMN] ?? '') === MILESTONE_ARM)
   .map((row): Entrance => {
     const cell = row.by[ENTRANCE_COLUMN] ?? ''

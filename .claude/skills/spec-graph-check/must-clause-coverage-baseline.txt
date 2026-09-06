@@ -1,4 +1,22 @@
-941
+959
+#
+# RAISED 941 -> 959 ON 2026-09-07. Eighteen clauses were written into the
+# specification in one round, from four rulings the user gave that day, and
+# none of them has a verbatim tie under tests/ yet:
+#   FR-060  (3) the overwrite target is NOT remembered, no start-up offer to
+#           restore the permission, and no file handle in localStorage/IndexedDB
+#   FR-012  (3) a calendar edit re-counts the stored percent complete, tells
+#           with a count, and does it inside the SAME write as the calendar
+#   RS-52   (1) may not re-count silently
+#   EP-1    (3) screen and export read ONE row for the title's size and inset,
+#           no export-only constant, no measuring the DOM
+#   S-225 / S-226 (2) no export-only value; do not scale by the band's height
+#   FR-020  (2) the place that shows "evidence, not access control" is QN-9,
+#           and no second display word may be minted for it
+#   GR-21   (4) the grip's length is the visible fraction, its floor is S-205,
+#           plus FR-051's own MUST that the grip must be draggable
+# ⛔ THE DEBT IS BOOKED. Ledger row D-355 carries it and names the four tests
+# that pay it back; lower this number in the commit that lands them.
 #
 # LOWERED 952 -> 941 ON 2026-09-06. Eleven clauses of this round are now held
 # verbatim by a test that also presses what they say: FR-025 (a picture may

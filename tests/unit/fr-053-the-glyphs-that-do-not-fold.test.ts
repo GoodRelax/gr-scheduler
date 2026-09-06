@@ -64,7 +64,7 @@ import {
   type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275)
@@ -117,9 +117,7 @@ const MILESTONE_ARM = 'AR-3'
 const MILESTONE_LIST_SETTING = 'S-142'
 
 const paletteRows = T_109.rows.filter((row) =>
-  bare(row.by[SURFACE_COLUMN] ?? '')
-    .split(' / ')
-    .includes(COMMAND_PALETTE),
+  bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE),
 )
 
 /**

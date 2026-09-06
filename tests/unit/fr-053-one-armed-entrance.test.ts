@@ -119,7 +119,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a row that moves in the specification
 // moves here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -164,7 +164,7 @@ interface ArmingEntrance {
  * marked.
  */
 const ARMING_ENTRANCES: readonly ArmingEntrance[] = T_109.rows
-  .filter((row) => bare(row.by[SURFACE_COLUMN] ?? '') === COMMAND_PALETTE)
+  .filter((row) => bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
   .map((row) => ({
     row: row.id,
     arm: bare(row.by[ARM_COLUMN] ?? ''),
@@ -421,7 +421,7 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
     // that arms nothing can never be the armed one.
     const armless = new Set(
       T_109.rows
-        .filter((row) => bare(row.by[SURFACE_COLUMN] ?? '') === COMMAND_PALETTE)
+        .filter((row) => bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
         .map((row) => row.id)
         .filter((row) => !ARMING_ENTRANCES.some((entrance) => entrance.row === row)),
     )

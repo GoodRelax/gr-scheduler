@@ -1075,6 +1075,33 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
     " * and never the gap the shape's own kind implies.",
 ]
 
+# ⛔ AN EIGHTH GROUND, AND THE THIRD WHOSE PICTURE LEAVES THE TOOL -- but the
+# first where the SCREEN AND THE EXPORT READ THE SAME ROW. S-225 is the size
+# the `Document Title` is written at and S-226 is its inset from the band's
+# left edge, and EP-1 of table T-076 (MUST) has both sides read one row while
+# forbidding (MUST NOT) an export a constant of its own: the reader's ruling of
+# 2026-09-07, taken after the export was measured drawing the title 7.5%
+# smaller and 6.5px to the right of the screen's.
+# ⛔ S-194's ground does NOT fit: that one turns on the document keeping the
+# two DATES a cursor is drawn from, and a title has no such pair. ⚠️ Nor does
+# S-196's: that one turns on the label's ANCHOR being kept, and nothing
+# anchors a title. ⭐ What table T-206 records here is that the document keeps
+# the title's TEXT (`Project.title`, U-27) and neither of the two numbers it
+# is written with.
+DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = [
+    ' * ⚠️ This unit reads the row where it stands: `AppHeaderItems`',
+    ' * carries the title as a string and no rectangle -- unlike',
+    ' * `RowTitle`, which carries its `box` -- so there is no door to pass',
+    ' * it through. ⛔ It is not a document setting and may not become one:',
+    ' * table T-206 is where the specification records that the document',
+    ' * does not keep it. ⭐ AND THE SCREEN READS THE SAME ROW -- EP-1 of',
+    ' * table T-076 (MUST) has the size and the inset come from one row on',
+    ' * both sides and (MUST NOT) lets an export hold a value of its own,',
+    " * so what makes this the reader's own is not that the title is",
+    ' * hidden but that the document keeps its TEXT (`Project.title`,',
+    ' * U-27) and neither of the two numbers it is written with.',
+]
+
 # ⛔⛔ RETIRED 2026-09-06 (CR-369). The seventh ground held exactly one
 # row and that row went out with the mode it measured, so
 # NOT_STORED_GUIDE_CURSOR_SIZES is no longer written. ⭐ The paragraph is kept
@@ -1311,6 +1338,16 @@ NOT_STORED_TARGETS = {
     # document keeps the DATES and never the width their labels take.
     'NOT_STORED_RULER_WEEKDAY_SIZES': (['S-219'],
                                        DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⭐ D-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # unit that assembles an exported picture. ⛔ NOT FOLDED INTO ANY LINE
+    # ABOVE -- every one of them is read by a unit that draws the schedule,
+    # and these two are read where the CHROME around it is drawn.
+    # ⚠️ The screen draws the same title from the same two rows, so this
+    # constant is generated a second time into the unit that paints it -- the
+    # bargain S-218 already stands on in two units, and the whole of what the
+    # reader ruled on 2026-09-07.
+    'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226'],
+                                        DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
     # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
@@ -2262,6 +2299,16 @@ TARGETS = [
      # compared against an answer the shell hashes, and these are drawn.
      + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
      ['docs/spec/_source/settings.json (tables T-206, T-207 and T-236)']),
+    # ⭐ D-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # one unit that assembles a picture that goes out. ⛔ Until 2026-09-07 this
+    # file held `TITLE_FONT_OF_BAND` and `TITLE_INSET_OF_BAND`, two fractions
+    # of the band's own height invented here (PD-52) -- and EP-1 (MUST NOT)
+    # forbids an export a constant of its own, because a second value is how
+    # the title on the screen and the title in the picture came to stand 6.5px
+    # apart.
+    (os.path.join(ADAPTER, 'image-exporter', 'image-exporter.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means
     # there, so the open width has to be laid over the settings for the frame

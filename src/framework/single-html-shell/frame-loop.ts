@@ -912,8 +912,19 @@ const BYTES_PER_MEGABYTE = 1024 * 1024
  * at.
  *
  * ⭐ S-95 IS PRINTED IN MEGABYTES and FR-031 measures a step in BYTES -- 「1 段
- * の大きさは、その段の保存形を UTF-8 で符号化した長さ（バイト）で測ること
- * （MUST）」 -- so the two have to be brought into one unit before
+ * の大きさは、その段の文書を詰めた `GRS JSON`（字下げも改行も持たない形）へ直列
+ * 化し、UTF-8 で符号化した長さ（バイト）で測ること（MUST）」.
+ * ⛔⛔ THE QUOTATION ABOVE SAID 「その段の保存形を」 UNTIL 2026-09-06, WHICH IS A
+ * WORD THE REQUIREMENT ITSELF REFUSES (台帳 D-339): FR-031 warns in the next
+ * breath 「詰めた形は、保存する形とは別である」 -- 書き出しが書くのは字下げのある
+ * 形であり（`FR-024`）、詰めた形はどこにも保存されない. ⭐ The measuring side was
+ * never wrong -- `stepSizeBytes` in `document-change-plan.ts` is
+ * `JSON.stringify`, which IS the packed form -- so what the misquotation
+ * endangered was the next reader, not the number.
+ * ⚠️ THE SAME ROW ALSO FORBIDS COUNTING CHARACTERS (MUST NOT), 「和文は 1 文字が
+ * 3 バイトになるので、文字数で測ると上限が 3 倍に緩む」, which is why the length is
+ * taken in UTF-8 bytes and not in `String.length`. The two halves have to be
+ * brought into one unit before
  * `historyWithStep` compares them. ⛔ The factor is not chosen here: S-95's own
  * remark states it, and CR-173 already put the same one beside the same shape of
  * bound in `validate-imported-document.ts` (S-113). ⚠️ Left unconverted the
@@ -8618,6 +8629,24 @@ export function frameLoop(
         // when the editor below lands, the count goes on `affectedCount` and the
         // row goes on `reason`, and no word of it is composed here (FR-038,
         // MUST NOT).
+        //
+        // ⛔⛔ AND THE EDITOR ALONE WOULD NOT BE ENOUGH -- MEASURED 2026-09-06,
+        // AGAINST THE LEDGER'S OWN READING OF D-273 (「造りだけが未着手」). Every
+        // row of table T-225 that turns what was typed into this field into a
+        // command names a DIFFERENT command from CM-41: `AS-7` 「名簿に無い名前を
+        // 受け取った」 ⇒ CM-40 and CM-44 (make the resource, then assign it),
+        // `AS-8` 「同名の担当者が複数いる名前を受け取った」 ⇒ assign to the smaller
+        // uid and 「統合してはならない（MUST NOT）」, `AS-3` the `-` ⇒ CM-45,
+        // `AS-10` a name already on this Task ⇒ 「割当を増やさないこと（MUST）」.
+        // ⇒ NO ROW OF THAT TABLE RENAMES A `Resource`, and `FR-099` says of the
+        // one surface that lists them 「本要求が足すのは名簿の表示と削除だけで
+        // ある」. So CM-41 (`setResourceName`) has no entrance in the
+        // specification, not merely none in this build -- which is what D-350
+        // counted from the other end.
+        // ⚠️ THE ACT IS NAMED ALL THE SAME: `FR-008` (MUST) 「担当者の名前を変えた
+        // ときは ... 通知すること」, `UN-15` of table T-027 makes 改名 undoable, and
+        // `RS-49` now carries the telling. ⛔ WHICH GESTURE PERFORMS IT IS THE
+        // HOLE, and choosing one here would be inventing a row of table T-225.
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
@@ -8851,10 +8880,18 @@ export function frameLoop(
    * `PropertyField` carries no way to say a value has stopped being current.
    *
    * ⛔ AN EMPTYING CHANGES NEITHER MEMBER, and that is FR-072's own sentence
-   * rather than a shortcut: 「選択が解除されたときは、直前に出していた中身を残し、
-   * 見出しで『選択なし』と示すこと（MUST）」. Both halves follow from leaving them
-   * alone -- the subject standing here IS the 「直前」 that MUST names, and the
-   * heading reads 「選択なし」 off a `Selection` that is now empty.
+   * rather than a shortcut: 「選択が解除されたときは、直前に出していた中身を残す
+   * こと（MUST）」. It follows from leaving them alone -- the subject standing
+   * here IS the 「直前」 that MUST names.
+   * ⛔⛔ THIS QUOTATION READ 「…中身を残し、見出しで『選択なし』と示すこと（MUST）」
+   * UNTIL 2026-09-06 AND NO SUCH SENTENCE IS IN `docs/spec` (台帳 D-339). It was
+   * FR-072's wording before CR-272 (2026-08-28), which struck the heading
+   * because the requirement asked for the same thing twice, and the requirement
+   * now says the opposite in as many words: ⛔ 「パネルの先頭に見出しの行を置いて
+   * はならない（MUST NOT）」（利用者の指示 2026-08-27）. ⭐ What carries 「いま何を
+   * 出しているか」 is the entrance's pressed state alone (FR-029's EN-4 of table
+   * T-237), and FR-072's RATIONALE records the price: an emptied selection
+   * leaves the panel showing the previous contents without saying so.
    * ⚠️ WHICH ALSO KEEPS THE MUST NOT BESIDE IT. 「選択を解除しても設定へは移らな
    * いこと（MUST NOT）」: with the settings up, an emptying leaves them up, and
    * nothing here can move to them either.

@@ -1,4 +1,15 @@
-50
+51
+#
+# RAISED 50 -> 51 ON 2026-09-07, and the debt is booked as D-367.
+# D-268 went from 仕様待ち to 裁定待ち when a body measured that no table
+# spells the text the AI Export surface hands over, so its 対応方針 now
+# says 裁定が要る -- truthfully. Its 実物確認 still opens ✅ because the
+# surface WAS pressed, by hand, on 2026-09-05. ⛔ Both cells are correct;
+# the check reads the second as evidence that the first is stale.
+# ⚠️ THIS IS THE FOURTH TIME a prose-reading check has read a RECORD as a
+# current claim (D-344, D-347, check 40 today, and this). The handoff said
+# to revisit how these checks are written when a third appeared. D-367
+# carries that work; lower this number in the commit that lands it.
 #
 # LOWERED 52 -> 50 ON 2026-09-06, AND THE HEURISTIC IS WHAT CHANGED, NOT THE
 # LEDGER. `D-344` landed: a still-blocked marker is now read OUTSIDE

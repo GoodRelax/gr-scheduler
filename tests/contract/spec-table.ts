@@ -171,43 +171,91 @@ const SPAN = /`([^`]+)`/
  *
  * ⭐ MEASURED over every numbered table on 2026-09-06: 8561 cells, 695 of them
  * carrying two or more code spans. Grouping those by the text between the
- * first two spans separates the shapes cleanly. A joiner or nothing at all --
- * 「`Ctrl` ＋ `R`」, 「`resumeValid` が `false`」, 「`GL-001` / `GL-002`」 --
- * means the answer is BOTH spans. Anything else -- an opening bracket, a
- * requirement UID, a sentence -- means the first span is the answer and the
- * rest is prose about it.
- *
- * ⛔⛔ THE ENUMERATING JOINERS ARE NOT IN THIS LIST YET, AND THE REASON IS A
- * MEASUREMENT, not a judgement that they are safe. Adding 「/」「／」「、」「・」
- * 「と」「または」 was tried first and turned 18 unit files and 1 contract file
- * red, on live cells -- every one of them a test reading half of what it
- * names. Two of the reds are worth naming because they are real drift the
- * halving was hiding:
- *   - `tests/contract/units.contract.test.ts:39` reads 表 T-075's 純粋性 as
- *     'semi-pure-b' where the table says 「`semi-pure-b` ／ `non-pure`」 (UF-41
- *     and UF-51), and the two files it then checks carry only the first half
- *     in their `@purity` header.
- *   - `tests/unit/uf-71-confirmation.test.ts:1407` reads 表 T-109's 面 column
- *     as 'Help Modal' where the cell names six surfaces.
- * ⭐ Closing those is not this file's work -- it is 19 files this round may
- * not touch. ⇒ The list holds the welds that make ONE atomic value, which is
- * exactly the shape `D-343` was raised for, and it lands green. ⚠️ WIDEN IT
- * when the 19 are fixed; do not widen it and absorb the reds.
+ * first two spans separates the shapes cleanly. A weld or nothing at all --
+ * 「`Ctrl` ＋ `R`」, 「`resumeValid` が `false`」 -- means the answer is BOTH
+ * spans read as ONE value. Anything that is neither a weld nor a joiner -- an
+ * opening bracket, a requirement UID, a sentence -- means the first span is
+ * the answer and the rest is prose about it.
  */
 const WELDS: readonly string[] = ['', '＋', '+', '＝', '=', '→', 'が']
 
 /**
- * The text inside the first `code span` of a cell, or the cell itself.
+ * What sits between two code spans when the cell ENUMERATES values -- several
+ * answers, not one answer spelled across two spans.
  *
- * ⛔⛔ IT REFUSES A CELL WHOSE ANSWER IS MORE THAN ONE SPAN (the ledger's
- * `D-343`). Returning the first span out of 「`Ctrl` ＋ `R`」 is 'Ctrl', and
- * out of 「`resumeValid` が `false`」 is 'resumeValid' -- HALF the cell, handed
- * back with no sign that anything was dropped. A premise read that way is
- * silently half true, and the test built on it passes while checking half of
- * what it names.
+ * ⭐ 「`semi-pure-b` ／ `non-pure`」 (表 T-075, UF-41) is two purities;
+ * 「`Delete` / `Backspace`」 (表 T-036, SK-3) is two spellings of one key;
+ * 「`Help Modal` / `AI Export Modal` / …」 (表 T-109, IC-52) is six surfaces.
+ * A caller that wants the whole answer calls `bareAll`; `bare` REFUSES such a
+ * cell rather than handing back the first of six with nothing saying so.
  *
- * ⚠️ THIS HAS MISLED A MEASUREMENT TWICE, which is why it now throws rather
- * than warns:
+ * ⛔⛔ THE LIST IS A MEASUREMENT, NOT A GUESS (`D-351`). Widening `bare` with
+ * these joiners turned 19 unit files and 1 contract file red on live cells --
+ * every one of them a premise that was silently half read. All 20 now read the
+ * whole cell; the two reads that were really drifting are named in `D-351`.
+ * ⚠️ Re-measure before adding a joiner: 「と」 and 「または」 also occur as
+ * ordinary prose, and only the between-spans position keeps them honest.
+ */
+const JOINERS: readonly string[] = ['/', '／', '、', '・', 'と', 'または']
+
+/**
+ * Every value a cell states, in the order it prints them.
+ *
+ * ⭐ ONE value for the ordinary cell -- 「`Command Palette`」 gives
+ * `['Command Palette']`, and 「`AgentApiEndpoint`（`SingleHtmlShell` が実装
+ * する）」 gives `['AgentApiEndpoint']` because a bracket is prose, not a
+ * joiner. SEVERAL for an enumerating cell -- 「`Delete` / `Backspace`」 gives
+ * `['Delete', 'Backspace']`.
+ *
+ * ⛔ IT STILL REFUSES A WELDED PAIR. 「`Ctrl` ＋ `R`」 is one value spelled in
+ * two spans, and no list of strings can say that faithfully -- the caller has
+ * to read the cell raw and say what it means (`D-343`).
+ *
+ * ⛔ A cell with no code span at all is returned whole, exactly as `bare` does.
+ */
+export function bareAll(cell: string): readonly string[] {
+  const values: string[] = []
+  let rest = cell
+  for (;;) {
+    const span = SPAN.exec(rest)
+    if (span === null) {
+      if (values.length === 0) return [cell.replace(/\*/g, '').trim()]
+      return values
+    }
+    values.push(span[1] ?? '')
+    rest = rest.slice((span.index ?? 0) + span[0].length)
+    const next = SPAN.exec(rest)
+    if (next === null) return values
+    const between = rest.slice(0, next.index).replace(/\*/g, '').trim()
+    if (JOINERS.includes(between)) continue
+    if (WELDS.includes(between)) {
+      throw new Error(
+        `a cell whose answer is more than one code span, welded by ` +
+          `${JSON.stringify(between)}: ${JSON.stringify(cell)}. ` +
+          `${JSON.stringify(span[1] ?? '')} and ` +
+          `${JSON.stringify(next[1] ?? '')} are ONE value spelled in two ` +
+          `spans, not two values -- see D-343. Read the cell raw ` +
+          `(row.by['…'] / row.cells[n]) and say in the test what the whole ` +
+          `cell means.`,
+      )
+    }
+    return values
+  }
+}
+
+/**
+ * The single value a cell states.
+ *
+ * ⛔⛔ IT REFUSES A CELL THAT STATES MORE THAN ONE (the ledger's `D-343` and
+ * `D-351`). Returning the first span out of 「`Ctrl` ＋ `R`」 is 'Ctrl', out of
+ * 「`resumeValid` が `false`」 is 'resumeValid', and out of 表 T-109's
+ * 「`Help Modal` / `AI Export Modal` / …」 is one surface of six -- HALF the
+ * cell, handed back with no sign that anything was dropped. A premise read
+ * that way is silently half true, and the test built on it passes while
+ * checking half of what it names.
+ *
+ * ⚠️ THIS HAS MISLED A MEASUREMENT TWICE, which is why it throws rather than
+ * warns:
  *   - `D-337`: 「先の実測が打った 3 つの鍵では読み直しの門に届いていなかった」
  *     -- the keys came out of a cell that spelled them across two spans.
  *   - `mk-13-the-name-field-is-armed.test.ts`: a regex of the same shape took
@@ -215,34 +263,24 @@ const WELDS: readonly string[] = ['', '＋', '+', '＝', '=', '→', 'が']
  *     clause was inserted ahead of the one it meant. That test is fixed; this
  *     is the helper being fixed so the trap cannot be laid again.
  *
- * ⭐ WHAT A CALLER DOES INSTEAD. Read the cell raw -- `row.by['作法']` -- and
- * say in the test what the whole cell means. Two contract tests already do
- * exactly that and say why in their own comments; the throw makes that the
- * road everyone takes rather than the one two files happened to find.
+ * ⭐ WHAT A CALLER DOES INSTEAD. An ENUMERATING cell has `bareAll`, which hands
+ * back every value; a WELDED cell has no honest list form, so read it raw --
+ * `row.by['作法']` -- and say in the test what the whole cell means.
  *
  * ⛔ A cell that carries a span and then PROSE is untouched: the first span is
  * the answer there, and 「`AgentApiEndpoint`（`SingleHtmlShell` が実装する）」
- * still returns 'AgentApiEndpoint'. Only a welded pair is refused.
+ * still returns 'AgentApiEndpoint'.
  */
 export function bare(cell: string): string {
-  const first = SPAN.exec(cell)
-  if (first === null) return cell.replace(/\*/g, '').trim()
-  const rest = cell.slice((first.index ?? 0) + first[0].length)
-  const next = SPAN.exec(rest)
-  if (next !== null) {
-    const weld = rest.slice(0, next.index).replace(/\*/g, '').trim()
-    if (WELDS.includes(weld)) {
-      throw new Error(
-        `bare() was given a cell whose answer is more than one code span, ` +
-          `welded by ${JSON.stringify(weld)}: ${JSON.stringify(cell)}. ` +
-          `Returning ${JSON.stringify(first[1] ?? '')} would drop ` +
-          `${JSON.stringify(next[1] ?? '')} and everything after it, and ` +
-          `nothing would say so -- see D-343. Read the cell raw ` +
-          `(row.by['…'] / row.cells[n]) and say in the test what the whole ` +
-          `cell means, or split it on the joiner first and call bare() on ` +
-          `each part.`,
-      )
-    }
+  const values = bareAll(cell)
+  if (values.length > 1) {
+    throw new Error(
+      `bare() was given a cell that states ${values.length} values, not one: ` +
+        `${JSON.stringify(cell)}. Returning ${JSON.stringify(values[0] ?? '')} ` +
+        `would drop ${JSON.stringify(values.slice(1).join(', '))} and nothing ` +
+        `would say so -- see D-351. Call bareAll() and say in the test what ` +
+        `the whole cell means.`,
+    )
   }
-  return first[1] ?? ''
+  return values[0] ?? ''
 }

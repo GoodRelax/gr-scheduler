@@ -1740,6 +1740,19 @@ export function propertiesPanelFromSelection(
     }
   }
 
+  // ⭐⭐ THIS IS WHERE FR-072's 「出しているあいだは、選択が動けば中身がそれに移
+  // る」 IS KEPT, and it was measured rather than argued (D-274, 2026-09-07): the
+  // subject below is built from the LIVE `selection` and `session.selectedGroupIds`
+  // whenever either holds anything, and the remembered one is reached for only
+  // when both are empty. ⚠️ The ledger row reported a panel that stayed on a
+  // row's three fields after a Task was pressed; calling this function directly
+  // for the three states gives AT-53 / AT-58 / AT-59 for a row alone, sixteen
+  // PR-* rows for a Task alone, and those sixteen FOLLOWED by the three when the
+  // row is still picked as well. ⇒ No arrangement of the arguments makes this
+  // unit answer the row's three once a Task stands in `selection.items`, so
+  // whatever the ledger measured is upstream of here -- either the `Selection`
+  // this is handed, or the surface declining to redraw the part.
+  //
   // Nothing picked in either of the two sets SL-1 and FR-085 keep apart. That is
   // FR-072's "the selection was cleared", and it is when the remembered subject
   // takes over.

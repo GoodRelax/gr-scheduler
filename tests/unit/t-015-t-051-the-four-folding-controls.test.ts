@@ -105,7 +105,7 @@ import {
   wire,
   type FakeElement,
 } from '../fixtures/fake-browser'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -161,7 +161,7 @@ const isHeadRule = (authority: string): boolean =>
 
 /** Every entrance 表 T-109 stands on the `Row Title Panel`, head and rows alike. */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
-  (one) => bare(one.by['面'] ?? '') === ROW_TITLE_PANEL,
+  (one) => bareAll(one.by['面'] ?? '').includes(ROW_TITLE_PANEL),
 )
 
 /** Those of them the panel's HEAD carries, and those each ROW carries. */

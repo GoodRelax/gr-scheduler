@@ -177,7 +177,7 @@ import {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at read time rather than copied.
@@ -211,9 +211,17 @@ const T_027_INSIDE_ROWS = specTable('T-027')
   .rows.filter((row) => bare(row.by['区分'] ?? '') === '対象')
   .map((row) => row.id)
 
-/** Whether one row of 表 T-202 is a toggle, by its own 型 column. */
-const isBooleanRow = (row: { readonly by: Readonly<Record<string, string>> }): boolean =>
-  bare(row.by['型'] ?? '') === '真偽'
+/**
+ * Whether one row of 表 T-202 is a toggle, by its own 型 column.
+ *
+ * ⚠️ The 型 column enumerates where a setting takes one of several words --
+ * `S-58` is 「`'up'` / `'down'`」 -- so the whole cell is read and a toggle is
+ * the row whose type is 真偽 and nothing else (`D-351`).
+ */
+const isBooleanRow = (row: { readonly by: Readonly<Record<string, string>> }): boolean => {
+  const types = bareAll(row.by['型'] ?? '')
+  return types.length === 1 && types[0] === '真偽'
+}
 
 /**
  * 表 T-202's 真偽 rows -- what FR-049 calls toggles, and therefore what UN-7

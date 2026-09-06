@@ -148,7 +148,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -442,8 +442,11 @@ const DELETE_SELECTION = (): HumanInput => key(deleteSpelling())
  * typed `Delete` here would be a second home for the same spelling.
  */
 function deleteSpelling(): string {
-  const cell = bare(rowOf('T-036', 'SK-3').by['割当'] ?? '')
-  const first = cell.split('/')[0]?.trim() ?? ''
+  // ⚠️ SK-3's cell enumerates 「`Delete` / `Backspace`」, so it is read as the
+  // list it is. Splitting the FIRST span on '/' looked like it took the first
+  // of two and in fact took the whole of one (`D-351`).
+  const spellings = bareAll(rowOf('T-036', 'SK-3').by['割当'] ?? '')
+  const first = spellings[0]?.trim() ?? ''
   if (first === '') throw new Error('table T-036 SK-3 states no assignment')
   return first
 }
