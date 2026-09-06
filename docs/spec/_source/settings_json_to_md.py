@@ -203,11 +203,88 @@ def schema_problems(doc):
     return out
 
 
+ERD = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'erd.json')
+
+
+def erd_column_types():
+    """Every ERD column's printed type, keyed by column name.
+
+    ⭐ Read here rather than typed out, for rule 03's reason: the type of a
+    column has ONE source and it is docs/spec/_source/erd.json.
+    """
+    doc = json.load(io.open(ERD, encoding='utf-8'))
+    out = {}
+    for entity in doc['entities']:
+        for column in entity['columns']:
+            out.setdefault(column['name'], []).append(
+                (entity['name'], column['type']))
+    return out
+
+
+def type_of(row):
+    """The 型 cell of a settings row, however that row spells it."""
+    value = row.get('type')
+    if isinstance(value, dict):
+        return value.get('ja')
+    return value
+
+
+def same_type(settings_type, erd_type):
+    """Whether the two manuscripts are saying the same thing.
+
+    ⛔ NOT string equality. The two tables print for different readers: the
+    ERD's 型 column carries the classification AND its range in one token
+    (整数（0〜359）), while the settings table puts the range in its own 下限 /
+    上限 columns and prints only what is left (0〜359). ⭐ So the test is
+    containment, in either direction, once the parentheses are gone.
+    """
+    if settings_type is None or erd_type is None:
+        return True
+    bare = erd_type.replace('（', '(').replace('）', ')')
+    inner = bare[bare.find('(') + 1:bare.rfind(')')] if '(' in bare else ''
+    head = bare[:bare.find('(')] if '(' in bare else bare
+    return settings_type in (erd_type, head, inner)
+
+
+def type_stated_twice(doc):
+    """⛔ D-335: a value whose type is written in BOTH manuscripts.
+
+    Measured 2026-09-06: three of the settings keys are also ERD columns, and
+    one of the three -- themeHue -- already disagreed in wording while nothing
+    compared them. This is the latch that would have caught it.
+
+    ⚠️ IT DOES NOT REMOVE THE DUAL MANAGEMENT, and is not meant to look as if
+    it does. The type still stands in two places; what changes is that the two
+    can no longer drift in silence. Removing the second copy is the other
+    repair D-335 records, and it is larger.
+    """
+    columns = erd_column_types()
+    found = []
+    for block in doc['blocks']:
+        if block['kind'] != 'table':
+            continue
+        for row in block['rows']:
+            key = (row.get('key') or '').strip('`')
+            if key not in columns:
+                continue
+            settings_type = type_of(row)
+            for entity, erd_type in columns[key]:
+                if not same_type(settings_type, erd_type):
+                    found.append(
+                        '%s row %s: 型 is %r here and %r on %s.%s in erd.json '
+                        '-- one value, two manuscripts, and they disagree '
+                        '(ledger row D-335)'
+                        % (block['id'], row['id'], settings_type, erd_type,
+                           entity, key))
+    return found
+
+
 def problems(doc):
     """Everything that must hold before a single byte is written."""
     found = schema_problems(doc)
     if found:
         return found
+    found.extend(type_stated_twice(doc))
     seen = set()
     for block in doc['blocks']:
         if block['kind'] != 'table':
