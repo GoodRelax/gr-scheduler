@@ -2670,7 +2670,7 @@
   {
    "rowId": "GR-14",
    "text": {
-    "ja": "コメント / ハイライトボックスの本体・アンカー・四隅。動かす / 大きさを変える",
+    "ja": "コメントボックス / ハイライトボックスの本体・アンカー・四隅。動かす / 大きさを変える",
     "en": "A comment or highlight box: body, anchor and corners move or resize it"
    }
   },
@@ -3389,8 +3389,8 @@
   {
    "rowId": "QN-3",
    "text": {
-    "ja": "この担当者を削除しますか？ 下のタスクの割り当てが外れます",
-    "en": "Delete this resource? It will be unassigned from the tasks below"
+    "ja": "選んでいる担当者を削除しますか？ 下のタスクの割り当てが外れます",
+    "en": "Delete the selected resources? They will be unassigned from the tasks below"
    }
   },
   {
