@@ -284,6 +284,13 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 
 ⛔ sample-schedule/ は .gitignore されているので、作業木には無い。
    親から写さないと FR-021 の条項が 1 本余分に落ちる
+
+⛔⛔ scratch/ に .html を置きっぱなしにするな。
+   実測 2026-09-07: 前の巡が残した scratch/bt1-*.html 3 本を
+   dev サーバーが拾い、[PARSE_ERROR] Expected `)` but found `;` で
+   「Build failed with 4 errors」を吐いた。⭐ 出荷ビルドは通るので、
+   npx vite build だけでは見えない —— e2e のログの [WebServer] の行にしか出ない。
+   ⇒ ⭐ 探り針は .mjs で書き、.html は測ったら消せ。
 ```
 
 ### 6.5 ⛔ 表に 1 行足すと、6 か所が連鎖する（**実測 2026-09-07、表 T-023d の `GR-21`**）
