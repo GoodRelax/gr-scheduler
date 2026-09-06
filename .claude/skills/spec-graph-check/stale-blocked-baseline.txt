@@ -1,4 +1,10 @@
-48
+47
+#
+# LOWERED 48 -> 47 ON 2026-09-06, the same day it was raised. The debt the
+# raise took on was D-322 waiting for a ruling; the ruling landed (CR-361,
+# the user's (b)), the field is built, and the shipped page was pressed.
+# The exemption is spent, so the number goes back.
+#
 #
 # RAISED 47 -> 48 ON 2026-09-06, deliberately, for D-322.
 # The check reads a leading tick in 実物確認 as "the block is over". On that

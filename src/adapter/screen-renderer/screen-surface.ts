@@ -282,9 +282,16 @@ export interface DialogueInput {
 }
 
 /**
- * A value a person settled in one field of the `Properties Panel`, as the
- * surface read it. IF-9's 「プロパティパネルの欄で確定した値を、その欄が名乗る
- * 行 ID とともに返し」.
+ * A value a person settled in one editable field, as the surface read it.
+ * IF-9's 「編集できる欄で確定した値を、その欄が名乗る行 ID とともに返し」.
+ *
+ * ⭐⭐ 「編集できる欄」 AND NO LONGER 「プロパティパネルの欄」 (利用者の裁定
+ * 2026-09-06, CR-361). That cell now carries 「⭐ 行 ID は 表 T-016 の行に限らな
+ * い。ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る」, which is FR-035's
+ * 「その場で編集できるようにすること」 arriving on the seam it was always going
+ * to arrive on. ⛔ NOTHING ELSE OF THAT CELL MOVED, and one thing in particular
+ * did not: 「確定していない文字入力の有無は真偽 1 つとし、どの欄が保持している
+ * かを返してはならない（MUST NOT）」 -- see `hasUnsettledTextEntry`.
  *
  * ⭐ SETTLED, NOT TYPED. The reading side turns this into a row of table T-108
  * and FR-031 (with UN-3 of table T-027) makes one property change ONE step of
@@ -352,9 +359,15 @@ export interface ScreenSurface {
   readDialogueInput(): DialogueInput | null
 
   /**
-   * The value a person has settled in a field of the `Properties Panel` since
-   * this was last asked, or `null` while none has been. The third of what IF-9
-   * says this seam supplies, and the only one that carries a value BACK.
+   * The value a person has settled in an editable field since this was last
+   * asked, or `null` while none has been. The third of what IF-9 says this seam
+   * supplies, and the only one that carries a value BACK.
+   *
+   * ⚠️ THE FIELDS ARE NOT ALL ON ONE PANEL SINCE 2026-09-06 (CR-361): the row
+   * id a commit carries may be a row of table T-016 or the `U-27` of table
+   * T-103 the header's document name field names. ⛔ Which of them it is does
+   * not change what this member does, and no second member is added for the
+   * second field -- `FieldCommit` carries the row.
    *
    * ⭐ Pulled, like the two around it and for the same reason: UF-60 is `pure`
    * (table T-075), so it can neither register a listener nor remember one. The

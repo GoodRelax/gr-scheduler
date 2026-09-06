@@ -1390,6 +1390,25 @@ const STYLE = {
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
+  // FR-035 (MUST): 「作成者が文書名を選んだとき、`GRS` は、その場で編集できるよ
+  // うにすること」 -- the field SK-9 opens where the name stands.
+  // ⛔⛔ EVERY DECLARATION HERE IS THE BOX STAYING THE BOX IT WAS, and FR-051 is
+  // why: what that requirement (MUST) settles at BO-1 is the height this header
+  // MEASURES to, and it is measured on the frames that redraw the header -- not
+  // on the press that opens this field. So a field that stood taller than the
+  // text it replaced would put everything below the header at an offset taken
+  // from a header that is no longer that tall. `font:inherit` carries the size,
+  // the weight and the line height of the name it stands in (which is also what
+  // `entryStyle` declares it for: a host gives an input a font of its own), and
+  // the border, the padding and the margin are taken off for the same reason.
+  // ⚠️ THE PAINT IS INHERITED RATHER THAN STATED: the band already carries
+  // `PAINT.ground` and `PAINT.ink`, and a value restated here would part company
+  // with the theme FR-041 (MUST) repaints on IC-16.
+  // ⛔ THE FOCUS RING IS THE HOST'S OWN AND IS NOT TOUCHED (FR-029, 「環境の作法
+  // に従う」) -- it is what says the person is typing in it.
+  documentTitleEntry:
+    'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
+    'background:transparent;border:0;padding:0;margin:0;',
   // ⭐ SMALLER THAN THE REST OF THE HEADER, AND THE RATIO IS NOT SETTLED --
   // `FILE_STATUS_TEXT_SCALE` carries the whole of why, and the row it waits
   // for. ⚠️ What FR-051 measures at BO-1 is the height this box comes out at,
@@ -2678,10 +2697,18 @@ function drawLanguageReading(host: Document, entry: HTMLElement, language: Displ
 }
 
 /**
- * U-31 `App Header` (UF-62), filled in place.
+ * U-31 `App Header` (UF-62), filled in place. Answers with the `Document Title`
+ * it drew.
  *
  * ⚠️ The header ELEMENT is not rebuilt, only its contents: the box whose height
  * FR-051 settles at BO-1 has to be the same box from one frame to the next.
+ *
+ * ⭐ THE NAME COMES BACK BECAUSE SK-9 OPENS A FIELD IN IT (FR-035, MUST), and
+ * the box it is opened in is the one this function has just made. ⛔ Not found
+ * again by asking the host for it: `ScreenSurfaceWiring` says only
+ * `createElement` is called on the host, and the same bargain
+ * `modalElement` already keeps for U-60's masked field is to hand the element
+ * back to the caller that will need it.
  *
  * @purity non-pure
  */
@@ -2690,7 +2717,7 @@ function fillAppHeader(
   header: HTMLElement,
   items: AppHeaderItems,
   anchors: Map<string, HTMLElement>,
-): void {
+): HTMLElement {
   const title = part(host, 'span', ROLE.documentTitle, STYLE.documentTitle)
   // ⛔ Nothing is substituted for a document that carries no title: FR-035
   // fixes `Untitled` for the BROWSER TAB and says nothing about the header.
@@ -2735,6 +2762,7 @@ function fillAppHeader(
   }
 
   header.replaceChildren(title, fileStatus, commands)
+  return title
 }
 
 /**
@@ -6565,8 +6593,32 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // says why it has to.
     let isHeaderMoved = false
     if (changed('appHeaderItems')) {
-      fillAppHeader(host, appHeader, view.appHeaderItems, anchorsOf('appHeaderItems'))
-      isHeaderMoved = reportHeaderHeight()
+      // ⛔ A REDRAW MAY NOT TAKE WHAT IS BEING TYPED, the same guard the
+      // `Properties Panel` keeps and for the same measured reason: `fillAppHeader`
+      // replaces every child of this band, and the field SK-9 opened over the
+      // name is one of them -- so half a name would be swept away between two
+      // letters, and the caret with it.
+      // ⭐ THE HEIGHT IS NOT RE-MEASURED EITHER, AND MUST NOT BE: FR-051 (MUST)
+      // places everything below the header against this measurement, and the
+      // band the person is typing in is the band that is on the screen.
+      if (documentTitleEntry !== null) {
+        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
+        // See `drawnKeys`: recording it is what left the panel showing a reading
+        // the document no longer held, for good.
+        drawnKeys.appHeaderItems = lastKeys.appHeaderItems ?? ''
+      } else {
+        documentTitleBox = fillAppHeader(
+          host,
+          appHeader,
+          view.appHeaderItems,
+          anchorsOf('appHeaderItems'),
+        )
+        // ⚠️ THE NAME AS IT WAS DRAWN, kept for the field FR-035 opens on it:
+        // that field cannot read it back off the box, because while it stands the
+        // box holds the field instead of the text.
+        documentTitleShown = view.appHeaderItems.documentTitle ?? ''
+        isHeaderMoved = reportHeaderHeight()
+      }
     }
     if (changed('frame')) {
       fillScreenFrame(host, frameLayer, view.frame, anchorsOf('frame'))
@@ -6896,6 +6948,19 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * @purity non-pure
    */
   function focusPropertyField(row: string): void {
+    // ⭐⭐ THE ROW MAY NAME A FIELD THIS PANEL NEVER DREW (利用者の裁定
+    // 2026-09-06, CR-361). IF-9 now reads 「行 ID は 表 T-016 の行に限らない。
+    // ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る」, and SK-9 asks for that
+    // one -- so the row is looked at before the panel is, and the field FR-035
+    // (MUST) asks for is MADE where the name stands.
+    // ⛔ ONE ROAD AND NOT TWO. The asker names a row and this side answers with
+    // whatever field that row names, which is the same division Chapter 5.3
+    // states under table T-065 -- a second member for the second field would be
+    // the shell holding an opinion about where a field is drawn.
+    if (row === DOCUMENT_TITLE_ROW) {
+      openDocumentTitleField()
+      return
+    }
     const control = typedControlsByRow.get(row)
     if (control === undefined) return
     if (typeof control.focus === 'function') control.focus()
@@ -7314,6 +7379,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity non-pure */
   function settleOnPressOutside(event: Event): void {
     releaseWatermarkUnlockOnPressOutside(event)
+    // IN-6 (MUST) reaches U-27's own field as well, and this is the one press
+    // listener that hears 「欄の外」 in full -- see that function.
+    settleDocumentTitleOnPressOutside(event)
     const held = heldTextControl
     if (held === null) return
     const pressedOn: unknown = (event as { target?: unknown }).target
@@ -7352,6 +7420,338 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // てはならない（MUST NOT）」 makes the panel's own field the only road.
   // ⭐ SK-19, IN-4 and IN-6 are answered for it by the `Properties Panel`'s
   // listeners, which is the whole point of there being one road.
+
+  // ------------------------------------------- U-27, edited where it stands ---
+
+  /**
+   * FR-035 (MUST): the field SK-9 opens over the `Document Title`, while it
+   * stands -- `null` at every other moment.
+   *
+   * ⛔⛔ MADE ON THE ASK AND NOT DRAWN WITH THE HEADER, which is what that
+   * requirement says: 「作成者が文書名を選んだとき、`GRS` は、その場で編集できる
+   * ようにすること」 -- 選んだとき is the moment the field exists from. ⚠️ A field
+   * drawn on every frame would also be a box of the host's own height standing
+   * in the header for ever, and FR-051 (MUST) measures that header ONCE per
+   * redraw and places everything below it against the answer.
+   * ⚠️ Held as `TextEntryControl` and not as an `HTMLInputElement`, the shape
+   * every other field of this unit is held in: table T-075 leaves it runnable
+   * against a host that lays nothing out, and such a host need not give its
+   * elements a `blur`.
+   */
+  let documentTitleEntry: TextEntryControl | null = null
+  /**
+   * The `Document Title` box the last redraw of the header left standing, which
+   * is where that field is opened -- `null` until the first one.
+   */
+  let documentTitleBox: HTMLElement | null = null
+  /**
+   * The name that box was last drawn WITH, which is what the field opens on and
+   * what the box gets back when the field comes down.
+   *
+   * ⛔ NOT READ BACK OFF THE BOX. While the field stands the box holds the
+   * field and no text at all, so the description this unit was handed is the
+   * only record of what the name was.
+   * ⚠️ THE EMPTY STRING IS WHAT AN ABSENT NAME DRAWS, which is what
+   * `fillAppHeader` writes for `null` and what FR-035 (MUST NOT) forbids the
+   * document to hold as a value -- the two are told apart in the document and
+   * need not be told apart in a box.
+   */
+  let documentTitleShown = ''
+  /**
+   * What stood in that field when it was opened -- IN-4's 「編集を始める前の値」.
+   */
+  let documentTitleValueAtFocus = ''
+  /**
+   * Whether an `Esc` has already taken the characters back and nothing has been
+   * typed since -- the same flag, and the same one-turn dance, that
+   * `isHeldTextTakenBack` keeps for the panel's own control (D-267).
+   */
+  let isDocumentTitleTakenBack = false
+
+  /**
+   * IF-9's row id for that field -- `U-27` of table T-103, the ruling of
+   * 2026-09-06 (CR-361): 「ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る」.
+   *
+   * ⛔ NOT A ROW OF TABLE T-016, and nothing was added to that table for it: the
+   * name is not an item of the `Properties Panel` (FR-074, MUST NOT), and the
+   * widened IF-9 is what lets a field name a row of another table.
+   */
+  const DOCUMENT_TITLE_ROW = 'U-27'
+  /**
+   * What that field edits: `Project.title` (AT-3 of table T-058), the column
+   * CM-1 of table T-108 writes.
+   *
+   * ⭐ THE SUBJECT NEEDS NO ID, unlike every other holder a key can name: a
+   * document holds exactly one `Project`, so there is nothing to tell apart.
+   */
+  const DOCUMENT_TITLE_KEY: PropertyFieldKey = { holder: 'project', column: 'title' }
+
+  /**
+   * FR-035's 「その場で編集できるようにすること」, carried out: the name the
+   * header drew becomes a field, the person is put in it, and everything already
+   * in it is selected.
+   *
+   * ⭐ ASKED FOR THROUGH `focusPropertyField`, WHICH IS THE ONE ROAD FOR ALL
+   * THREE FIELDS. That member is keyed by a row id, IF-9 now says the row id
+   * 「は 表 T-016 の行に限らない」, and this row is the one SK-9 names -- so the
+   * shell asks the same way for this field as for MK-13's two, and it is this
+   * side that knows the ask means MAKING a field rather than focusing one
+   * (Chapter 5.3 under table T-065: the side that drew a part answers for it).
+   *
+   * ⛔ NOTHING HAPPENS BEFORE THE FIRST FRAME, and quietly: the box does not
+   * exist until a description has been drawn, which is the same silence
+   * `focusPropertyField` keeps for a row the panel never drew.
+   * ⛔ A SECOND ASK WHILE THE FIELD STANDS DOES NOTHING EITHER -- it would open a
+   * field over a field and lose the characters already typed into the first.
+   *
+   * @purity non-pure
+   */
+  function openDocumentTitleField(): void {
+    const box = documentTitleBox
+    if (box === null || documentTitleEntry !== null) return
+    const drawn = made(host, 'input', STYLE.documentTitleEntry)
+    drawn.setAttribute('type', 'text')
+    // Written for the reader of the built page and for a check, the way
+    // `controlElement` writes it -- what the commit travels by is `CONTROL_KEYS`.
+    drawn.setAttribute('data-field-row', DOCUMENT_TITLE_ROW)
+    const entry = drawn as unknown as TextEntryControl
+    entry.value = documentTitleShown
+    // IF-9's third answer is built from these two the same way the panel's is,
+    // so `fieldCommitOf` needs no second reading for this field.
+    CONTROL_KEYS.set(drawn, { row: DOCUMENT_TITLE_ROW, key: DOCUMENT_TITLE_KEY })
+    // A person puts CHARACTERS into it, which is what IN-5a's swallowing and
+    // IN-4's rung are about -- 名称・担当者名・行名・文書名・注記の本文.
+    TYPED_CONTROLS.add(drawn)
+    // ⛔ INSIDE THE PART AND NOT IN PLACE OF IT. `U-27` is a row of table T-103
+    // and IF-9's fourth answer is which part a point is on, so a field that
+    // REPLACED the box would leave a point on the name answering as nothing --
+    // and EP-1 of table T-076 (MUST NOT) says the name does not move.
+    box.replaceChildren(drawn)
+    documentTitleEntry = entry
+    documentTitleValueAtFocus = documentTitleShown
+    isDocumentTitleTakenBack = false
+    // ⛔ BEFORE THE FOCUS AND AFTER THE STATE: the host may raise a happening on
+    // the very focus placed below, and a listener hung after it would miss one
+    // -- while `watchDocumentTitleField` reads the state to tell its own field
+    // from a field that has since been taken down.
+    watchDocumentTitleField(drawn, entry)
+    // 「焦点を置き、既にある文字をすべて選んだ状態にすること」 -- the select after
+    // the focus, so that the host's own focus handling does not move the caret
+    // afterwards. ⚠️ Both guarded, the reason `focusPropertyField` gives.
+    if (typeof entry.focus === 'function') entry.focus()
+    if (typeof entry.select === 'function') entry.select()
+  }
+
+  /**
+   * The field comes down and the name stands where it stood.
+   *
+   * ⛔ THE FIELD IS LET GO BEFORE THE BOX IS REWRITTEN, so that the `focusout`
+   * the host may raise on a field taken off the page finds nothing to settle:
+   * whatever was owed has been settled by the caller already.
+   * ⚠️ WHAT GOES BACK IS THE DESCRIPTION'S NAME AND NEVER WHAT WAS TYPED. A
+   * value the person settled reaches the document through CM-1 and comes back
+   * on the next description; one that was refused (FR-035's MUST NOT) or taken
+   * back never became the name at all.
+   *
+   * @purity non-pure
+   */
+  function closeDocumentTitleField(): void {
+    if (documentTitleEntry === null) return
+    documentTitleEntry = null
+    documentTitleValueAtFocus = ''
+    isDocumentTitleTakenBack = false
+    if (documentTitleBox !== null) documentTitleBox.textContent = documentTitleShown
+  }
+
+  /**
+   * The one settling for all three of its triggers -- SK-19's `Enter`, IN-6's
+   * press outside, and the host's own `change` on leaving the field.
+   *
+   * ⛔ ONE PLACE, BECAUSE IT IS ONE ACT. IN-6 says so in as many words --
+   * 「`SK-19` の `Enter` と同じ確定である —— 引き金が 3 つ目になるだけで、確定の
+   * 意味は 1 つである」 -- and the panel's own three triggers already build one
+   * commit through `fieldCommitOf` for that reason.
+   *
+   * ⛔⛔ AN EMPTY NAME IS NOT SETTLED, AND THE VALUE GOES BACK (利用者の裁定
+   * 2026-09-06). FR-035 (MUST NOT) is what stands behind it: 「`title` に空文字
+   * を受け付けてはならない」 -- 「空文字と `null` の 2 つの「無い」を持つと、往復と
+   * 合流のたびにどちらへ寄せるかの規則が要る」. ⚠️ THIS IS NOT A SECOND READING OF
+   * CM-1's REFUSAL: that command refuses an empty name that reaches it and says
+   * why (FR-076); this field does not send one, so a person who empties the box
+   * gets the name they had rather than a telling about a value they did not mean
+   * to write. ⛔ AND IT IS NOT MADE INTO `null` EITHER -- clearing the name is
+   * not what FR-035 asks the field for, and 「無い」 has one spelling.
+   *
+   * ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN, the rule both IN-6 (MUST NOT)
+   * and IN-6's own reason state: 「同じ値を 2 度書くと取り消しが 2 段になる」
+   * (FR-031 with UN-3 of table T-027).
+   *
+   * @purity non-pure
+   */
+  function settleDocumentTitle(): void {
+    const entry = documentTitleEntry
+    if (entry === null) return
+    if (entry.value === '') {
+      entry.value = documentTitleValueAtFocus
+      return
+    }
+    if (entry.value === documentTitleValueAtFocus) return
+    const commit = fieldCommitOf(entry)
+    if (commit === null) return
+    fieldCommit = commit
+    // IN-4's 「編集を始める前の値」 is now the value just settled, which is what
+    // the host's own `change` on the way out is then compared against -- the
+    // same move `Enter` makes on the panel's control.
+    documentTitleValueAtFocus = commit.text
+  }
+
+  /**
+   * IN-6 of table T-028 (MUST) for this field: a press OUTSIDE it settles what
+   * stands in it, and (MUST NOT) does not take it back.
+   *
+   * ⛔ HUNG WITH THE PANEL'S OWN, ON THE HOST, AND FOR THE SAME MEASURED REASON:
+   * 「欄の外」 includes the schedule, and the schedule is not inside this unit's
+   * tree at all (IF-1 hands the whole picture over as its own surface).
+   * ⛔ THE PRESS ITSELF IS NOT TOUCHED (IN-6, MUST NOT): the settling rides ON
+   * the press rather than replacing it.
+   *
+   * @purity non-pure
+   */
+  function settleDocumentTitleOnPressOutside(event: Event): void {
+    const held = documentTitleEntry
+    if (held === null) return
+    // The press is INSIDE the field it would settle, so there is nothing
+    // outside it to settle from.
+    if ((event as { target?: unknown }).target === (held as unknown)) return
+    settleDocumentTitle()
+    // ⚠️ Guarded rather than assumed, the reason every other call to it gives.
+    if (typeof held.blur === 'function') held.blur()
+    closeDocumentTitleField()
+  }
+
+  /**
+   * The two keys and the three happenings this field answers, hung on the field
+   * itself and thrown away with it.
+   *
+   * ⛔⛔ ON THE FIELD AND NOT ON THE HEADER AROUND IT, WHICH IS A RULE AND NOT A
+   * PREFERENCE -- and it is the very rule `watchWatermarkUnlock` states for
+   * U-60. FT-1 of table T-078 has the human input reach the shell through IF-2
+   * and forbids widening that supply, so a listener this unit keeps outside the
+   * parts it serves would be a second source of input. ⭐ The `Properties Panel`
+   * and the `Dialogue Field` are where the standing ones hang because those are
+   * the parts they serve; this one serves a field that exists only while a
+   * person is typing in it, so it lives and dies with that field and NOTHING AT
+   * ALL is registered while the name is only a name.
+   * ⚠️ MEASURED RATHER THAN REASONED: hung on the `App Header`, they fell the
+   * case in `tests/unit/uf-71.test.ts` that derives the roster of parts a
+   * listener may sit in from the IF-9 cell itself.
+   *
+   * ⭐ EVERY ONE OF THEM IS THE PANEL'S OWN RULE, READ OFF THE SAME ROWS. SK-19
+   * settles 「その場の編集」 and names 文書名 among them, IN-4's rung takes it
+   * back to 「編集を始める前の値」, IN-5a names 文書名 as one of the five things
+   * typed in place, and NT-8 (MUST) puts a standing telling before any rung of
+   * either ladder. ⛔ NO NEW RULE IS WRITTEN FOR THIS FIELD -- 利用者の指示
+   * 2026-09-06: 「確定の作法は既存の欄と同じとする」.
+   * ⭐ THEY RUN BEFORE THE SHELL'S, which is what makes one press enough: these
+   * hang on a node and `DomInputSource` hangs on the window, so the commit is
+   * standing by the time `spendFieldCommit` reads it at the head of the same
+   * happening.
+   * ⛔ NOTHING HERE REPORTS TO THE SHELL AND NOTHING RAISES A FRAME, the same
+   * bargain the panel's listeners and U-60's keep: what they move is this unit's
+   * own answer to `hasUnsettledTextEntry`, and what they settle leaves by
+   * `readFieldCommit`, which the shell was already going to read.
+   *
+   * @purity non-pure
+   */
+  function watchDocumentTitleField(field: HTMLElement, entry: TextEntryControl): void {
+    /**
+     * Whether the field this listener was hung on is still the one standing.
+     *
+     * ⚠️ COMPARED RATHER THAN ASSUMED. A field taken off the page may still be
+     * handed a `focusout` or a key release by the host, and the state below
+     * belongs to whatever field stands NOW -- which may be none.
+     */
+    const isStanding = (): boolean => documentTitleEntry === entry
+
+    // The host's own `change`, which is what settles a field left by a road that
+    // is neither a press nor a key -- a `Tab` away, or the window itself going.
+    // ⚠️ IT IS RAISED BEFORE `focusout`, the order the panel's own
+    // `onFieldChange` already rests on: the settling has happened by the time
+    // the listener below takes the field down.
+    field.addEventListener('change', () => {
+      if (!isStanding()) return
+      settleDocumentTitle()
+    })
+    // ⚠️ `input` AND NOT `change`, the one place that is right for the reason
+    // the panel's own listener gives: this is the person putting characters in
+    // again after a cancellation, which makes the edit unsettled once more.
+    field.addEventListener('input', () => {
+      if (!isStanding()) return
+      isDocumentTitleTakenBack = false
+    })
+    field.addEventListener('focusout', () => {
+      if (!isStanding()) return
+      // ⛔ THE FIELD MAY NOT OUTLIVE THE FOCUS, AND D-152 / D-267 ARE WHY.
+      // `hasUnsettledTextEntry` answers 「入力中」 from this field standing, and
+      // one left standing with the caret gone would go on answering `true`:
+      // IN-5a would swallow every single-character key with nowhere to put it,
+      // and WS-2 of table T-067 would refuse every write with RS-8.
+      closeDocumentTitleField()
+    })
+    // IN-4's rung for 「確定していないその場の編集」, spent where the characters
+    // are.
+    field.addEventListener('keydown', (event: Event) => {
+      if (!isStanding()) return
+      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      // NT-8 (MUST): a standing telling has this press before any rung below it.
+      if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
+      if (isDocumentTitleTakenBack) {
+        // Nothing stands unsettled any more, so this press is not the field's.
+        // ⚠️ A SECOND `Esc` REACHES THIS ONLY WHERE THE RELEASE NEVER CAME -- a
+        // key held down repeats its press without ever being let go.
+        closeDocumentTitleField()
+        return
+      }
+      // ⛔ 取り消したときは、編集を始める前の値へ戻すこと（MUST）。書きかけの文字
+      // を文書へ書いてはならない（MUST NOT） -- IN-4 with FR-031. Putting the
+      // value back BEFORE the field is let go is what keeps the second half: the
+      // host raises `change` on the way out only where the value differs from
+      // the one the field was focused with, so a restored value raises none.
+      // ⛔ THE FIELD IS NOT TAKEN DOWN ON THIS PRESS, and that is measured rather
+      // than preferred (D-267): this listener runs BEFORE the shell's, so a
+      // field let go here would have the ladder take a second level on the one
+      // press -- IN-4 forbids it (1 階層, MUST).
+      entry.value = documentTitleValueAtFocus
+      isDocumentTitleTakenBack = true
+    })
+    // Where the cancelled field is let go, one turn later --
+    // `releaseTakenBackText` carries the whole of why it can be neither the
+    // press itself nor a microtask.
+    field.addEventListener(HOST_KEY_RELEASE, (event: Event) => {
+      if (!isStanding() || !isDocumentTitleTakenBack) return
+      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      closeDocumentTitleField()
+    })
+    // SK-19 of table T-036: `Enter` settles the in-place edit, and that row's
+    // own list names 文書名.
+    // ⚠️ A modified `Enter` is left alone, the same bargain the panel's listener
+    // takes: `commandFromKey` assigns SK-19 to the plain press only.
+    field.addEventListener('keydown', (event: Event) => {
+      if (!isStanding()) return
+      const key = event as Partial<KeyboardEvent>
+      if (key.key !== HOST_ENTER || key.isComposing === true) return
+      if (key.ctrlKey === true || key.altKey === true) return
+      if (key.metaKey === true || key.shiftKey === true) return
+      // NT-8 (MUST): the standing telling has this press first.
+      if (isPressTakenByStandingNotice(HOST_ENTER)) return
+      settleDocumentTitle()
+      // ⭐ THE FIELD IS LET GO, which is what makes SK-19's second stage
+      // reachable: `hasUnsettledTextEntry` answers from this field standing, and
+      // one never let go would answer 「あり」 for ever -- so a second `Enter`
+      // would find the same state as the first.
+      closeDocumentTitleField()
+    })
+  }
 
   /**
    * IF-9's fifth answer -- whether characters stand in a field of this surface
@@ -7534,7 +7934,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // FR-020 (MUST) makes the watermark unlock answer 「打ち込む文字」, and the
     // password the specification itself states carries six characters table
     // T-036 assigns -- see `isWatermarkUnlockHeld` for what was measured.
-    return heldTextControl !== null || isWatermarkUnlockHeld
+    // ⭐⭐ AND U-27's OWN FIELD COUNTS SINCE 2026-09-06 (CR-361), AND IN-5a IS A
+    // THIRD TIME WHY: that row names 文書名 among the five things typed in place,
+    // and the name a person is halfway through typing carries as many single
+    // characters table T-036 assigns as any other. ⛔ STILL ONE TRUTH VALUE AND
+    // NOT WHICH OF THE THREE FIELDS HOLDS IT (MUST NOT, under table T-065).
+    return heldTextControl !== null || isWatermarkUnlockHeld || documentTitleEntry !== null
   }
 
   /**

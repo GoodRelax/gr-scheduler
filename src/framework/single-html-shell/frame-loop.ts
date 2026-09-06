@@ -516,8 +516,17 @@ export interface ScreenWiring {
    */
   readonly language: DisplayLanguage
   /**
-   * MK-13's second half -- a way to put the person into the control the surface
-   * drew for one row of table T-016, with everything already in it selected.
+   * MK-13's second half -- a way to put the person into the field the surface
+   * drew for one row, with everything already in it selected.
+   *
+   * ⭐ THE ROW IS NOT ALWAYS ONE OF TABLE T-016 SINCE 2026-09-06 (CR-361).
+   * IF-9 reads 「行 ID は 表 T-016 の行に限らない。ヘッダの文書名の欄は 表 T-103
+   * の `U-27` を名乗る」, and SK-9 asks for that one -- FR-035 (MUST): 「作成者が
+   * 文書名を選んだとき、`GRS` は、その場で編集できるようにすること」. ⛔ WHICH
+   * FIELD A ROW NAMES IS THE DRAWING SIDE'S ANSWER AND NOT THIS ONE'S (LR-6,
+   * and Chapter 5.3 under table T-065): the caller names the row, and the side
+   * that drew it decides whether that means focusing a control it has already
+   * drawn or making the name it drew editable where it stands.
    *
    * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT. The IF-9 cell of table T-065 names
    * five supplies and every one of them is a question; the surface hands this
@@ -1169,6 +1178,22 @@ const TASK_NAME_FIELD_ROW = 'PR-1'
  * `ScreenSurface.focusPropertyField` takes one by design.
  */
 const ROW_NAME_FIELD_ROW = 'AT-53'
+
+/**
+ * The row SK-9 names as the field `F2` puts the person into -- `U-27` of table
+ * T-103, the `Document Title` the `App Header` draws.
+ *
+ * ⭐⭐ NOT A ROW OF TABLE T-016, AND THAT IS THE WHOLE OF CR-361 (利用者の裁定
+ * 2026-09-06). IF-9 now reads 「編集できる欄で確定した値を、その欄が名乗る行 ID
+ * とともに返し」 with 「⭐ 行 ID は 表 T-016 の行に限らない。ヘッダの文書名の欄は
+ * 表 T-103 の `U-27` を名乗る」 -- so the two constants above are property rows
+ * and this one is a UI part, and the road they travel is the same road.
+ * ⛔ NO ROW IS ADDED TO THE PROPERTY TABLE FOR IT. FR-074 (MUST NOT) keeps the
+ * document name out of 文書の基本情報 and names FR-035 as its one entrance, and
+ * FR-035 asks for 「その場で」 -- so the panel is not where this field is drawn
+ * and the panel's rows are not what it can be named by.
+ */
+const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
 
 /**
  * The rows of table T-234 this file can ask on, spelled as that table spells
@@ -4536,11 +4561,14 @@ export function frameLoop(
     // one thing this record must never be.
     isTooltipStanding = screenView.tooltips.length > 0
     screen.surface.showScreenView(screenView)
-    // ⭐ MK-13's SECOND HALF, SPENT HERE AND NOWHERE ELSE. The press that asks
-    // for it runs while this frame is still being decided, and the control it
-    // names does not exist until the description above has been drawn -- so the
-    // ask is left standing by `carryOutAction` and collected on the far side of
-    // the one line that draws it.
+    // ⭐ MK-13's SECOND HALF -- AND SK-9's WHOLE -- SPENT HERE AND NOWHERE
+    // ELSE. The press that asks for it runs while this frame is still being
+    // decided, and the field it names does not exist until the description above
+    // has been drawn -- so the ask is left standing by `carryOutAction` and
+    // collected on the far side of the one line that draws it.
+    // ⚠️ SK-9's FIELD IS MADE BY THE ASK RATHER THAN MERELY FOCUSED BY IT
+    // (FR-035, 「その場で編集できるようにすること」), which changes nothing here:
+    // the header it is made in is drawn by that same line.
     // ⛔ SPENT WHETHER OR NOT THE SURFACE ANSWERS. The seam member is OPTIONAL
     // (利用者の裁定 2026-08-30), so a surface that does not carry it leaves
     // MK-13 half done in silence -- and holding the ask back for a later frame
@@ -5765,6 +5793,10 @@ export function frameLoop(
    * ⚠️ A ROW AND NO LONGER A FLAG. MK-13 has TWO destinations since the user's
    * ruling of 2026-09-01 -- PR-1 for a task's name and AT-53 for a row's -- and
    * a boolean could only ever spend the one that was written at the paint.
+   * ⭐ THREE SINCE 2026-09-06 (CR-361), AND THE THIRD IS NOT A PROPERTY ROW:
+   * SK-9 asks for `U-27` of table T-103, the name the header draws. IF-9's own
+   * widening is what lets one holder carry all three -- 「行 ID は 表 T-016 の行
+   * に限らない」 -- so nothing about this binding changed to take it.
    */
   let nameFieldWantedRow: string | null = null
 
@@ -7424,34 +7456,48 @@ export function frameLoop(
           nameFieldWantedRow = ROW_NAME_FIELD_ROW
           return
         }
-        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR SK-9, NOR FOR MK-13's 担当
-        // ラベル. Both open a field on the schedule itself -- the document title
-        // and the assignee's name -- and nothing in this build draws one.
+        if (action.target.kind === 'documentTitle') {
+          // SK-9's one entrance to FR-035 (MUST): 「作成者が文書名を選んだとき、
+          // `GRS` は、その場で編集できるようにすること」.
+          //
+          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED BY THE SECOND OF THE TWO
+          // ROADS IT MEASURED, and the ruling of 2026-09-06 (CR-361) is which:
+          // 「ヘッダに出ている文書名を、その場で編集できる欄にする。プロパティ
+          // パネルへ回さない」. ⛔ THE PANEL ROAD STAYS SHUT for the reason that
+          // STOP recorded and which has not changed -- `PropertiesSubject` holds
+          // a table T-023c selection and FR-085's rows and no subject for the
+          // document, and table T-016 has no row for the name -- so nothing here
+          // raises the panel, and this is the one branch of the three that does
+          // not call `showPropertiesOfChoice`.
+          //
+          // ⭐ THE SAME ROAD ALL THE SAME, WHICH IS WHY NO SEAM WAS WIDENED FOR
+          // IT: what the two branches above ask for is 「put the person into the
+          // field that names this row」, and IF-9 now says the row id 「は 表
+          // T-016 の行に限らない」 and names `U-27` for this one. So the ask is
+          // left standing exactly as theirs is and spent at the paint -- see
+          // `nameFieldWanted` -- and the field the surface opens for it is the
+          // header's own.
+          // ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE. The name is
+          // written by the field's own commit (CM-1, through
+          // `commandFromFieldCommit`), and FR-072's selection is untouched: a
+          // document is not a row of table T-023c.
+          nameFieldWantedRow = DOCUMENT_TITLE_FIELD_ROW
+          return
+        }
+        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR MK-13's 担当ラベル. It opens a
+        // field on the schedule itself -- the assignee's name, AS-1 of table
+        // T-225 -- and nothing in this build draws one.
         // ⚠️ FR-091's 「作った直後に入力できること」 wants the same editor.
-        // ⭐ NARROWED ON 2026-08-30: MK-13's Task entry no longer needs one, and
-        // the reason this STOP used to give for it has expired -- the row now
-        // requires the very route it used to forbid, and the branch above is it.
-        //
-        // ⛔⛔ THE TWO ROADS OUT WERE BOTH MEASURED 2026-09-06 (台帳 D-322) AND
-        // NEITHER IS OPEN:
-        //   the panel   `showPropertiesOfChoice` + `focusPropertyField`, which is
-        //               what the two branches above use. ⛔ `PropertiesSubject`
-        //               holds a table T-023c selection and FR-085's rows and
-        //               NOTHING ELSE -- there is no subject for the document --
-        //               and table T-016 (`_assets/tbl-property-items.md`) has no
-        //               row for the title, so `focusPropertyField` and
-        //               `readFieldCommit`, which are both keyed BY a row of that
-        //               table, have nothing to be keyed by. Two invented rules,
-        //               not one.
-        //   in place    which is what FR-035 actually asks -- 「作成者が文書名を
-        //               選んだとき、`GRS` は、その場で編集できるようにすること」.
-        //               ⛔ The title is drawn as a plain `span` in the
-        //               `App Header` (`fillAppHeader`), `ScreenView` carries no
-        //               description of an editable one, and IF-9 reports which
-        //               entry a point is on and never what was typed into one.
-        // ⚠️ FR-091 IS NOT THE PRECEDENT IT LOOKS LIKE. It was re-pointed at
-        // FR-085's road on 2026-09-04 BECAUSE a Task has a panel subject and a
-        // table T-016 row; FR-035 still says 「その場で」 and has neither.
+        // ⭐ NARROWED TWICE. On 2026-08-30 MK-13's Task entry left it, because
+        // that row now requires the very route it used to forbid (the branch at
+        // the head of this case). On 2026-09-06 the document name left it, by
+        // the ruling CR-361 carries -- ⛔ AND NOT BY THE PANEL: what that ruling
+        // opened was the in-place road, and 担当ラベル could take the same one.
+        // ⚠️ IT IS NOT THE SAME FIELD, WHICH IS WHY THIS IS STILL A STOP: the
+        // name of the document is ONE field the header always draws (`U-27`),
+        // and an assignee's label is one of however many the schedule is drawing
+        // this frame -- `ScreenView` carries no description of an editable one
+        // and no row id names WHICH task's label was pressed.
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette

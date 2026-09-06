@@ -998,6 +998,27 @@ export type PropertyFieldKey =
       readonly ordinal: number
       readonly column: keyof Schedule['tasks'][number]['dependencies'][number] & string
     }
+  | {
+      /**
+       * The document's own `Project` -- the one holder that carries no id,
+       * because a document holds exactly one of them.
+       *
+       * ⭐⭐ WHY THERE IS A FIFTH ARM AT ALL (利用者の裁定 2026-09-06, CR-361).
+       * IF-9 of table T-065 now reads 「編集できる欄で確定した値を、その欄が名乗る
+       * 行 ID とともに返し」 with 「⭐ 行 ID は 表 T-016 の行に限らない。ヘッダの
+       * 文書名の欄は 表 T-103 の `U-27` を名乗る」 -- so a field that is NOT on
+       * the `Properties Panel` settles on that seam, and the subject it names is
+       * the document itself. FR-035 (MUST) is what draws it: 「作成者が文書名を
+       * 選んだとき、`GRS` は、その場で編集できるようにすること」.
+       * ⛔ NOT A ROW OF TABLE T-016, AND NO ROW IS ADDED TO IT. The document
+       * name is not an item of the `Properties Panel` -- FR-074 (MUST NOT)
+       * keeps it out of 文書の基本情報 in as many words, naming FR-035 as its
+       * one entrance -- so what names this field is the row of table T-103 the
+       * header draws, which is the very widening the ruling made.
+       */
+      readonly holder: 'project'
+      readonly column: keyof Schedule['project'] & string
+    }
 
 // ------------------------------------------------------------ UF-65 ---------
 

@@ -3453,6 +3453,32 @@ function commandFromDependencyColumn(
 }
 
 /**
+ * The document's own columns, of which exactly one is settled in a field: the
+ * name, in the header (`U-27` of table T-103).
+ *
+ * ⭐ CM-1 OF TABLE T-108 IS THE WHOLE ANSWER, and FR-035 is the one entrance to
+ * it (FR-029): 「作成者が文書名を選んだとき、`GRS` は、その場で編集できるように
+ * すること」. ⛔ NOTHING IS WRITTEN FOR ANY OTHER COLUMN OF `Project`, and that
+ * is not a gap: 文書の基本情報 is FR-074's surface and CM-2 is its command, and
+ * that requirement (MUST NOT) keeps the name out of it -- so no other column of
+ * this holder is drawn as a field for a person to settle.
+ *
+ * ⛔ THE EMPTY STRING IS NOT REFUSED HERE, AND THAT IS DELIBERATE. FR-035's
+ * 「`title` に空文字を受け付けてはならない（MUST NOT）」 is CM-1's own rule and
+ * `edit-project.ts` keeps it, where a refusal can be TOLD (FR-076); a second
+ * reading written here would be a second place for one rule to live (rule 03
+ * section 4). ⚠️ The field itself does not settle an empty value either -- 利用
+ * 者の裁定 2026-09-06 has it put the value back instead -- so this arrives only
+ * from a producer that is not that field.
+ *
+ * @purity pure
+ */
+function commandFromProjectColumn(column: string, text: string): readonly DocumentCommand[] {
+  if (column !== 'title') return []
+  return [{ kind: 'setProjectTitle', title: text }]
+}
+
+/**
  * The row of table T-016 the assignee stands on.
  *
  * ⭐ THE ONE ITEM DISPATCHED BY ROW ID RATHER THAN BY COLUMN, and it has to be:
@@ -3658,6 +3684,12 @@ export function commandFromFieldCommit(
         commit.text,
       )
     }
+    // ⚠️ NO EXISTENCE CHECK, WHERE THE FOUR ABOVE ALL HAVE ONE. Those name a
+    // task, a group or a dependency the document may have lost between the
+    // frame that drew the field and the frame that collects this; a document
+    // always holds exactly one `Project`, so there is nothing to have gone.
+    case 'project':
+      return commandFromProjectColumn(key.column, commit.text)
   }
 }
 
