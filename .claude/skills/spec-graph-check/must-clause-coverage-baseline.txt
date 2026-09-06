@@ -1,5 +1,12 @@
-948
+950
 #
+# RAISED 948 -> 950 ON 2026-09-06. Two more of the user's rulings reach the
+# specification: a comment box's body is placed by an offset from its anchor
+# and that offset lands on the box's BOTTOM-LEFT (a second reference corner
+# would put the same number in two places); and hiding the dependency lines
+# may NOT be given a separate face, because the palette toggle is symmetric
+# and the geometry is rebuilt every frame, so showing them again is the way
+# back. ⛔ Debt: held verbatim when the drawing follows.
 # RAISED 946 -> 948 ON 2026-09-06. FR-025 lost the MUST that made the PNG
 # scale selectable and gained two in its place, both the user's: a picture
 # MAY NOT carry a scale at all, and a document that still holds the retired

@@ -173,7 +173,11 @@ RETIRED = {'FR-050', 'T-030',
            'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139',
            # S-209 (the gap between the guide cursor's two vertical lines)
            # went out with the mode it measured, on 2026-09-06 (CR-369).
-           'S-209'}
+           'S-209',
+           # S-82 (exportPngScale) went on 2026-09-06 with the very idea of a
+           # scale: the user settled that a picture is always S-81's size and
+           # that anyone needing more is handed an exchange format instead.
+           'S-82'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):
