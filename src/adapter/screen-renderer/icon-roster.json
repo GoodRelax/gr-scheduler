@@ -631,7 +631,7 @@
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "同・`'crosshair'`",
+   "entryTo": "ガイドカーソルを `'crosshair'` にする（`S-66`。3 値排他）。⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）",
    "authority": "`FR-048`",
    "arms": null,
    "armsShape": null

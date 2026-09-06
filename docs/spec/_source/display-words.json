@@ -633,8 +633,8 @@
     "en": "Crosshair"
    },
    "hint": {
-    "ja": "ガイドカーソルを十字にする",
-    "en": "Make the Guide Cursor a crosshair"
+    "ja": "ガイドカーソルを十字にする。もう一度押すと消す",
+    "en": "Make the Guide Cursor a crosshair; press again to clear it"
    }
   },
   {
@@ -644,8 +644,8 @@
     "en": "Single vertical"
    },
    "hint": {
-    "ja": "ガイドカーソルを縦 1 本にする",
-    "en": "Make the Guide Cursor a single vertical line"
+    "ja": "ガイドカーソルを縦 1 本にする。もう一度押すと消す",
+    "en": "Make the Guide Cursor a single vertical line; press again to clear it"
    }
   },
   {

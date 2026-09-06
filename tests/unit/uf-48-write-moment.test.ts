@@ -764,12 +764,18 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 })
 
 // ===========================================================================
-// THE TWELVE ENTRANCES OF TABLE T-109 THAT SET A DISPLAY VALUE
+// THE TEN ENTRANCES OF TABLE T-109 THAT SET A DISPLAY VALUE
 // ===========================================================================
 //
 // A SECOND SUBJECT, AND IT IS HERE BECAUSE THE CURRENCY IS THE SAME: take an
 // entry, then read `loop.document()`. Nothing else about the shell is publicly
-// readable, and every one of these twelve writes a settings row.
+// readable, and every one of these ten writes a settings row.
+//
+// ⭐⭐ THEY WERE TWELVE UNTIL 2026-09-06 (CR-369, 利用者の裁定). Table T-109
+// retired IC-46 (`'none'` にする) and IC-49 (`'double-vertical'`), and the two
+// seats are left empty rather than closed up. IC-47 is now the head of the
+// guide-cursor group -- the one that names `S-66` -- and IC-48 hangs off it
+// with 「同・」.
 //
 // ⛔ WRITTEN WITHOUT READING THE BODY OF THE TRANSLATOR OR OF THE LOOP
 // (docs/development-rules/04-verification.md section 1). What was read of
@@ -791,9 +797,15 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 //                     outside it.
 //   FR-049 (MUST NOT) the plan and the actual may not BOTH be hidden -- a screen
 //                     with not one bar on it looks broken.
-//   FR-048            the guide cursor is one of S-66's four values, exclusive,
-//                     and IC-46 .. IC-49 are the four entrances to it. Table
-//                     T-109 spells WHICH value each of the four sets.
+//   FR-048            the guide cursor is one of S-66's THREE values, exclusive,
+//                     and IC-47 / IC-48 are the two entrances to it. Table
+//                     T-109 spells WHICH value each of the two sets.
+//   FR-048 (MUST)     カーソル 3 種は、それを出した入口をもう一度押せば消える
+//                     こと。消すための別の入口を置いてはならない（MUST NOT）.
+//                     ⭐ `CU-3` ではこれが `'none'` への道であり、`'none'` は
+//                     値として残るが自分の入口を持たない -- which is why the
+//                     third value has no row in table T-109 and the entrances
+//                     are two, not three.
 //   FR-039 (MUST NOT) a value saved in the document may not force the reader's
 //                     choice, so IC-16 has to be able to leave a document saved
 //                     as `dark` as well as one saved as `light`.
@@ -804,7 +816,8 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 //   T-109 IC-16       S-72, on the `App Header`.
 //   T-109 IC-39/IC-40 S-64 / S-63, on the `Command Palette`.
 //   T-109 IC-42/IC-43 S-67 / S-68, on the `Command Palette`.
-//   T-109 IC-46 .. 49 S-66, on the `Command Palette`, one entrance per value.
+//   T-109 IC-47/IC-48 S-66, on the `Command Palette`, one entrance per value
+//                     EXCEPT `'none'`, which FR-048 reaches by a re-press.
 //   T-103 U-31 / U-26 the settled names of the two surfaces they stand on.
 //
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, because docs/spec does not decide it:
@@ -907,12 +920,12 @@ const EXPECTED_BOOLEAN_KEYS = [
 
 /** S-59's three values, read out of its type cell. */
 const PLAN_ACTUAL_VALUES = enumeratedValues(cellAt('T-202', 'S-59', SETTING_TYPE))
-/** S-66's four, read out of its type cell -- FR-048 makes them exclusive. */
+/** S-66's three, read out of its type cell -- FR-048 makes them exclusive. */
 const GUIDE_VALUES = enumeratedValues(cellAt('T-202', 'S-66', SETTING_TYPE))
 /** S-72's two, read out of its type cell in table T-203. */
 const THEME_VALUES = enumeratedValues(cellAt('T-203', 'S-72', SETTING_TYPE))
 
-/** The two surfaces of table T-103 these twelve stand on. */
+/** The two surfaces of table T-103 these ten stand on. */
 const APP_HEADER = bare(cellAt('T-103', 'U-31', T_103_NAME))
 const COMMAND_PALETTE = bare(cellAt('T-103', 'U-26', T_103_NAME))
 
@@ -931,7 +944,7 @@ const planIsShown = (value: string): boolean => value !== 'actual-only'
 const actualIsShown = (value: string): boolean => value !== 'plan-only'
 
 // ---------------------------------------------------------------------------
-// The twelve, as fixed data
+// The ten, as fixed data
 // ---------------------------------------------------------------------------
 
 interface Entrance {
@@ -980,18 +993,22 @@ const ENTRANCES: readonly Entrance[] = [
     row: 'S-68',
     key: 'groupGridLinesVisible',
   },
-  { entry: 'IC-46', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+  // ⛔ IC-46 STOOD HERE and IC-49 after IC-48, until CR-369 retired both on
+  // 2026-09-06. The seats are left empty in the manuscript and they are left
+  // empty here.
   { entry: 'IC-47', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
   { entry: 'IC-48', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
-  { entry: 'IC-49', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
 ]
 
 /**
- * The eight of the twelve whose own cell in table T-109 names the settings row.
+ * The eight of the ten whose own cell in table T-109 names the settings row.
  *
- * ⚠️ The other four do not name one: IC-9 refers back to IC-8, and IC-47 ..
- * IC-49 refer back to IC-46. A guard case pins that, so that a manuscript which
- * starts spelling them out reaches this file rather than being inferred past.
+ * ⚠️ The other two do not name one: IC-9 refers back to IC-8, and IC-48 refers
+ * back to IC-47. A guard case pins that, so that a manuscript which starts
+ * spelling them out reaches this file rather than being inferred past.
+ *
+ * ⭐ IC-47 REPLACED IC-46 AS THE HEAD OF THE 「同・」 CHAIN on 2026-09-06. The
+ * guard is not dropped with the retired row -- it is pointed at the new head.
  */
 const NAMES_ITS_OWN_ROW = new Set([
   'IC-4',
@@ -1001,15 +1018,19 @@ const NAMES_ITS_OWN_ROW = new Set([
   'IC-40',
   'IC-42',
   'IC-43',
-  'IC-46',
+  'IC-47',
 ])
 
 /** The five entrances whose row is one of table T-202's boolean ones. */
 const BOOLEAN_ENTRANCES = ENTRANCES.filter((one) => BOOLEAN_KEYS.includes(one.key))
 
 /**
- * The four guide-cursor entrances, each with the value table T-109 spells for
+ * The two guide-cursor entrances, each with the value table T-109 spells for
  * it -- the first `'value'` in its own cell.
+ *
+ * ⭐ IC-47's cell now spells two values, not one: `'crosshair'` first, then the
+ * `'none'` its own re-press returns to (FR-048). The FIRST is the one the
+ * entrance sets, which is why this reads `[0]` rather than the whole list.
  */
 const GUIDE_ENTRANCES = ENTRANCES.filter((one) => one.row === 'S-66').map((one) => ({
   ...one,
@@ -1191,7 +1212,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
   })
 })
 
-describe('the tables these twelve entrances are driven by', () => {
+describe('the tables these ten entrances are driven by', () => {
   it('the four tables print the columns this file reads by position', () => {
     expect(specTable('T-202').headings.length).toBe(5)
     expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
@@ -1224,19 +1245,26 @@ describe('the tables these twelve entrances are driven by', () => {
 
   it('the multi-valued rows spell the values these cases drive', () => {
     expect(PLAN_ACTUAL_VALUES).toEqual(['both', 'plan-only', 'actual-only'])
-    expect(GUIDE_VALUES).toEqual(['none', 'crosshair', 'single-vertical', 'double-vertical'])
+    // ⛔⛔ THREE, NOT FOUR, SINCE 2026-09-06 (CR-369, 利用者の裁定). 表 T-029
+    // の `CU-3` now reads 「**3 モード排他** —— なし / 十字 / 縦 1 本。⛔ **「縦
+    // 2 本」を持ってはならない（MUST NOT）**」, and `S-66` states 「⭐⭐
+    // **`'double-vertical'` は 2026-09-06 に退役した**」 and 「⛔ **この値を持つ
+    // 文書は取り込めない**」. ⚠️ A manuscript that puts a fourth value back
+    // fails here rather than being admitted.
+    expect(GUIDE_VALUES).toEqual(['none', 'crosshair', 'single-vertical'])
     expect(THEME_VALUES).toEqual(['light', 'dark'])
   })
 
-  it('each of the twelve stands on the surface table T-109 puts it on', () => {
+  it('each of the ten stands on the surface table T-109 puts it on', () => {
     expect(APP_HEADER).toBe('App Header')
     expect(COMMAND_PALETTE).toBe('Command Palette')
+    expect(ENTRANCES.length, 'IC-46 and IC-49 retired on 2026-09-06').toBe(10)
     for (const one of ENTRANCES) {
       expect(bare(cellAt('T-109', one.entry, T_109_SURFACE)), one.entry).toBe(one.part)
     }
   })
 
-  it('each of the twelve is joined to the settings row this file pairs it with', () => {
+  it('each of the ten is joined to the settings row this file pairs it with', () => {
     for (const one of ENTRANCES) {
       const cell = cellAt('T-109', one.entry, T_109_ENTRANCE)
       if (NAMES_ITS_OWN_ROW.has(one.entry)) {
@@ -1251,10 +1279,48 @@ describe('the tables these twelve entrances are driven by', () => {
     }
   })
 
-  it('the four guide-cursor entrances spell the four values of S-66, one each', () => {
-    // FR-048 makes S-66 exclusive and table T-109 gives it one entrance per
-    // value, so the four entrances and the four values are the same set.
-    expect(GUIDE_ENTRANCES.map((one) => one.value)).toEqual(GUIDE_VALUES)
+  it('the two guide-cursor entrances spell the two values of S-66 that have one', () => {
+    // FR-048 makes S-66 exclusive, and until 2026-09-06 table T-109 gave it one
+    // entrance per value. CR-369 took that apart in BOTH directions at once:
+    // `'double-vertical'` left the row (so IC-49 went with it) and the new MUST
+    // 「カーソル 3 種は、それを出した入口をもう一度押せば消えること」 made
+    // `'none'` the destination of a re-press, so IC-46 went too --
+    // ⭐ 「`'none'` は値として残るが自分の入口を持たない」.
+    const [NONE, ...WITH_AN_ENTRANCE] = GUIDE_VALUES
+    expect(NONE, 'S-66 still defaults to and still holds `none`').toBe('none')
+    expect(GUIDE_ENTRANCES.map((one) => one.value)).toEqual(WITH_AN_ENTRANCE)
+  })
+
+  it('⛔ table T-109 holds neither IC-46 nor IC-49, and the seats are left empty', () => {
+    // ⛔ THE RETIREMENT ITSELF, so that a manuscript which puts either row back
+    // reaches this file rather than being inferred past. Version 1.89 of the
+    // appendix states both halves: 「表 T-109 から `IC-46`（`'none'` にする）と
+    // `IC-49`（`'double-vertical'`）が退役し、`IC-45`（測る 2 本）が `IC-48`
+    // （縦 1 本）の右へ移った。89 行」 and 「⛔ **席は空けたまま詰めていない。**」
+    const ids = specTable('T-109').rows.map((one) => one.id)
+    expect(ids, 'IC-46 was the entrance to `none`, which FR-048 now reaches by a re-press').not.toContain('IC-46')
+    expect(ids, 'IC-49 was the entrance to the retired `double-vertical`').not.toContain('IC-49')
+    expect(ids, 'the seats are left empty, so the rows around them stayed').toContain('IC-45')
+    expect(ids.length, 'table T-109 stands at 89 rows').toBe(89)
+  })
+
+  it('⛔ FR-048 places no second entrance for putting a cursor away', () => {
+    // FR-048 (MUST NOT): 「消すための別の入口を置いてはならない」. ⭐ Read as
+    // the whole of table T-109 rather than as the guide-cursor group alone,
+    // because the MUST covers カーソル 3 種.
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    expect(requirements).toContain('もう一度押せば消えること（MUST）')
+    expect(requirements).toContain('消すための別の入口を置いてはならない（MUST NOT）')
+    for (const one of specTable('T-109').rows) {
+      const cell = one.cells[T_109_ENTRANCE] ?? ''
+      expect(
+        enumeratedValues(cell)[0],
+        `${one.id} would be a second entrance whose whole job is to reach 'none'`,
+      ).not.toBe('none')
+    }
   })
 
   it('the contrary document is a valid GRS JSON document', () => {
@@ -1278,26 +1344,66 @@ describe('the tables these twelve entrances are driven by', () => {
   })
 })
 
-describe('IC-46 .. IC-49 -- each guide-cursor entrance sets the value table T-109 spells', () => {
-  // FR-048 makes S-66 one of four, exclusive. Table T-109 gives each value an
-  // entrance of its own, so an entrance SETS a value: it does not cycle, and
-  // where the row stood before does not change where it lands.
+describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109 spells', () => {
+  // FR-048 makes S-66 one of three, exclusive. Table T-109 gives two of the
+  // three an entrance of its own, so an entrance SETS a value: it does not
+  // cycle, and where the row stood before does not change where it lands.
+  //
+  // ⭐⭐ EXCEPT WHERE IT LANDS ON ITSELF. CR-369 added a MUST to FR-048 on
+  // 2026-09-06 that these six cases have to answer to as well:
+  //   「⛔⛔ **カーソル 3 種は、それを出した入口をもう一度押せば消えること
+  //    （MUST）。消すための別の入口を置いてはならない（MUST NOT）** …
+  //    ⭐ **`CU-3` ではこれが `'none'` への道であり、`'none'` は値として残るが
+  //    自分の入口を持たない。**」
+  // So IC-47 taken while S-66 ALREADY holds `'crosshair'` leaves `'none'`, and
+  // IC-48 taken while it holds `'single-vertical'` does the same. ⛔ THE
+  // EXPECTATION IS TAKEN FROM THE MANUSCRIPT AND NOT FROM THE CODE
+  // (04-verification section 1): the requirement decides both halves, and
+  // `'none'` is where it says the re-press goes.
+  //
+  // ⚠️ The two re-press cases are the ONLY road to `'none'` these cases have.
+  // IC-46 used to be the other one, and 表 T-109 retired it precisely because
+  // this road exists.
+  const IS_A_REPRESS = (entrance: { value: string }, from: string): boolean =>
+    from === entrance.value
+  const NONE = GUIDE_VALUES[0] as string
+
   for (const entrance of GUIDE_ENTRANCES) {
     for (const from of GUIDE_VALUES) {
-      it(`${entrance.entry} puts guideCursorMode at ${entrance.value}, starting from ${from}`, () => {
+      const lands = IS_A_REPRESS(entrance, from) ? NONE : entrance.value
+      const what = IS_A_REPRESS(entrance, from)
+        ? `FR-048 (MUST): a re-press of ${entrance.entry} puts the cursor away`
+        : `table T-109 ${entrance.entry}: this entrance sets ${entrance.value}`
+      it(`${entrance.entry} puts guideCursorMode at ${lands}, starting from ${from}`, () => {
         const run = standing({ ...CONTRARY, guideCursorMode: from })
         expect(settingsOf(run.loop).guideCursorMode, 'the premise').toBe(from)
 
         takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
 
-        expect(
-          settingsOf(run.loop).guideCursorMode,
-          `table T-109 ${entrance.entry}: this entrance sets ${entrance.value}`,
-        ).toBe(entrance.value)
+        expect(settingsOf(run.loop).guideCursorMode, what).toBe(lands)
         run.frames.runAnimationFrames()
       })
     }
   }
+
+  it('⛔ one entrance does not put two cursors away at once (FR-048 MUST NOT)', () => {
+    // FR-048: 「⛔ **1 つの入口が 2 つを同時に消してはならない（MUST NOT）**」,
+    // which 表 T-029a's DC-4 states for `CU-2` as 「⚠️ **ガイドカーソルの「なし」
+    // （`CU-3`）で出てはならない（MUST NOT）**」. So the re-press that takes
+    // `guideCursorMode` to `'none'` must leave `dualCursor` (`S-65`, `CU-2`)
+    // exactly where it stood.
+    const run = standing({ ...CONTRARY, guideCursorMode: 'crosshair' })
+    const before = settingsOf(run.loop).dualCursor
+
+    takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-47')
+
+    expect(settingsOf(run.loop).guideCursorMode, 'the premise: the re-press landed').toBe(NONE)
+    expect(
+      settingsOf(run.loop).dualCursor,
+      'FR-048 (MUST NOT): one entrance may not put two cursors away at once',
+    ).toEqual(before)
+    run.frames.runAnimationFrames()
+  })
 })
 
 describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the DOCUMENT value', () => {
@@ -1431,7 +1537,7 @@ describe('FR-049 (MUST) -- only a boolean row is a toggle, so nothing else in T-
   //
   // ⭐ THE ROW EACH ENTRANCE NAMES IS LEFT OUT of the comparison and every other
   // row of table T-202 is in it -- so S-58 (stackDirection), S-65 (dualCursor)
-  // and S-70 (fontScale) are compared for all twelve, and IC-16 is compared on
+  // and S-70 (fontScale) are compared for all ten, and IC-16 is compared on
   // ALL THIRTEEN rows because S-72 is not a row of table T-202 at all.
   for (const entrance of ENTRANCES) {
     const spared = entrance.table === 'T-202' ? entrance.key : ''

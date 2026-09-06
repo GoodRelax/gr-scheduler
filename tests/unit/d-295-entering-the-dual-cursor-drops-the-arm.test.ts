@@ -459,10 +459,26 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   it('the guide-cursor entrances touch the arm at neither end (FR-048)', () => {
     // ⚠️ 表 T-029a's closing note: 「`+`（十字）と `|`（縦 1 本）のガイドカーソル
     // は表示だけであり、編集を妨げない。**排他になるのは `Dual Cursor` だけで
-    // ある。**」 -- so IC-46..IC-49 are the nearest neighbours of IC-45 that must
-    // NOT drop the arm, and they are what stops "any cursor entrance clears it"
-    // from passing.
-    for (const entry of ['IC-46', 'IC-47', 'IC-48', 'IC-49']) {
+    // ある。**」 -- so the guide-cursor entrances are the nearest neighbours of
+    // IC-45 that must NOT drop the arm, and they are what stops "any cursor
+    // entrance clears it" from passing.
+    // ⭐ TWO, NOT FOUR, SINCE CR-369 (2026-09-06): 表 T-109 retired IC-46 (set
+    // `'none'`) and IC-49 (`'double-vertical'`) with the mode itself, so the
+    // pair below is the whole guide-cursor family. ⛔ THIS IS A REMOVAL OF ROWS
+    // THAT NO LONGER EXIST, NOT A RELAXATION -- every entrance table T-109 still
+    // gives to FR-048 is still driven, and each is still held to `—` and to an
+    // untouched arm.
+    // ⭐ READ, NOT TYPED: the family is every row of 表 T-109 the 正 column hands
+    // to FR-048, so a retired or added mode reaches this case by itself. The
+    // count guard is what stops a re-worded column from emptying the loop.
+    const guideCursorEntries = T_109.rows
+      .filter((one) => (one.by['正'] ?? '').replace(/[`*\s]/g, '') === 'FR-048')
+      .map((one) => one.id)
+    expect(guideCursorEntries, 'table T-109 hands no entrance to FR-048').toEqual([
+      'IC-47',
+      'IC-48',
+    ])
+    for (const entry of guideCursorEntries) {
       expect(armRowOfEntry(entry), `${entry} is no longer a bare cursor entrance`).toBe('—')
       const after = pressing(entry, armedWith({ kind: 'highlightBox' }), null)
       expect(after.armed, entry).toEqual({ kind: 'highlightBox' })
