@@ -3359,6 +3359,17 @@
    }
   },
   {
+   "rowId": "RS-51",
+   "text": {
+    "ja": "読んだ設定値が範囲の外だったので、範囲に収めました",
+    "en": "Settings the document carried were out of range and were brought back in"
+   },
+   "nextStep": {
+    "ja": "元の値が要るときは、保存し直す前に元のファイルを控えてください",
+    "en": "Keep a copy of the original file before saving, if those values matter"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

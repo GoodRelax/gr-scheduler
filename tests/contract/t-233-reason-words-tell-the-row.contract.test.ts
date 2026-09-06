@@ -273,6 +273,19 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // 項目があります」 -- that one is the VERSION being newer and keeps what it could
   // not read, where this one is a value the document cannot use and drops it.
   'RS-50': 'eee407b62182693d',
+  // ⭐ ADDED 2026-09-06, on the user's ruling that a document carrying settings
+  // out of range is clamped and told about. Read together before the fingerprint
+  // was taken: the row of table T-233, the ja and en text, and the next step.
+  // ⛔ The words are NOT quoted here -- rule 02 section 4 has a note name its row
+  // rather than copy it, and check 42 holds every quotation against the
+  // manuscripts, so a copy here would be one more thing to keep in step.
+  // ⭐ What the reading found: the scene and both languages say the same two
+  // things -- that the values were wrong AND that they were not refused -- and
+  // the next step names the only protection the requirement leaves, which is to
+  // keep the original file, because nothing is written back until SK-11.
+  // ⚠️ It stays clear of RS-48, which is a NEWER FORMAT and keeps what it could
+  // not read. This one is a value this build understands and refuses to leave.
+  'RS-51': '58cbcc420820f165',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

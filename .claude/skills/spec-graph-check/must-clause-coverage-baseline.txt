@@ -1,5 +1,13 @@
-943
+946
 #
+# RAISED 943 -> 946 ON 2026-09-06. FR-009's crossing rule got the two halves
+# it never had, both from the user: the halo is drawn on the line in front
+# (never by detecting crossings, which would put that search on the every-
+# frame road NFR-013 governs); the line in front is the SELECTED one, and
+# otherwise the later-made one; and the halo may not be laid where the line
+# runs over a bar, because a bar is the schedule itself and may not be eaten
+# for the sake of a dependency line.
+# ⛔ Debt: a spec-only body holds these three verbatim when the drawing lands.
 # LOWERED 952 -> 943 ON 2026-09-06. A spec-only body measured which of five
 # rows were ALREADY held and refused to write those, then held only what was
 # bare: that the depth valve actually raises RS-24 when it is reached (the

@@ -32,6 +32,7 @@
 // a closed key set -- see the note on the generated region below.
 
 import type { Document } from '../../entity/document-model/document/document'
+import { clampedSettings } from '../../entity/document-model/document-settings/document-settings'
 import { withoutLeadingByteOrderMark } from './mspdi-codec'
 
 /** Why a text could not be read as a document. */
@@ -71,7 +72,24 @@ export interface JsonFault {
 export type JsonRefusalReason = 'RS-25'
 
 export type JsonDecoding =
-  | { readonly ok: true; readonly document: Document }
+  | {
+      readonly ok: true
+      readonly document: Document
+      /**
+       * How many settings keys `clampedSettings` had to move to bring them
+       * inside the bounds their own rows state -- `0` when nothing moved.
+       *
+       * ⭐ A COUNT AND NOT A LIST, which is the whole of what the person is
+       * owed: the manner is `NT-5` (accepted, with a caution), and no surface
+       * of the specification shows WHICH keys were moved. ⛔ So nothing here
+       * hands the key names on -- a list nobody may draw is a list that would
+       * only invite a face the specification does not hold.
+       * ⚠️ The raiser is the caller's, not this file's: this unit is pure and
+       * `raiseNotice` lives with the loop. Every read road gets the number and
+       * decides whether it has anybody to tell.
+       */
+      readonly clampedCount: number
+    }
   | {
       readonly ok: false
       readonly reason: JsonRefusalReason
@@ -1450,7 +1468,34 @@ export function documentFromJson(text: string): JsonDecoding {
   // preamble of table T-220 forbids this codec from refusing either (MUST NOT).
   // ⭐ The filling belongs to ImportDocument (CP-10), which FR-087 hangs from
   // and which every intake reaches; what this unit owes is to let it through.
-  return { ok: true, document: parsed as unknown as Document }
+  const read = parsed as unknown as Document
+
+  // ⭐⭐ `clampedSettings` (PI-2 of table T-064) RUNS HERE, AND THIS IS THE ONE
+  // PLACE IT RUNS. The note on `GRS_DOCUMENT_SCHEMA` above states the standing
+  // rule it answers: the preamble of table T-220 forbids this codec to refuse a
+  // display setting for being out of bounds (MUST NOT), because the range is
+  // that function's work -- it moves the value into range rather than shutting a
+  // whole document out over one display key. Until now nothing called it, so an
+  // out-of-bounds setting was neither refused nor clamped.
+  // ⭐ WHY THE READ ROAD AND NOT EACH CALLER. Every road that turns `GRS JSON`
+  // into a document comes through here -- BT-1's embedded container, BT-4's
+  // bundled template, and OP-12's import -- so one call is what keeps the three
+  // from drifting apart, and a fourth road gets it for free.
+  // ⛔ NOT ON THE MERGE ROAD. `OP-6` of table T-024a keeps a merged document's
+  // presentation group out of the restore altogether, so a merge that took this
+  // road's clamping would be moving values the row says are not restored at all;
+  // FR-056's merge builds its document from the current one and never through
+  // this function.
+  const clamp = clampedSettings(read.documentSettings)
+  if (clamp.clamped.length === 0) return { ok: true, document: read, clampedCount: 0 }
+  // ⚠️ A NEW ROOT AND NOT A WRITE. `clampedSettings` is pure and hands a fresh
+  // settings group back, keys it knows nothing about included (OP-6 MUST), so
+  // the document is rebuilt around it rather than the parsed value being edited.
+  return {
+    ok: true,
+    document: { ...read, documentSettings: clamp.settings },
+    clampedCount: clamp.clamped.length,
+  }
 }
 
 /**

@@ -386,6 +386,12 @@ const AGENT_API_WRITER = 'agent'
  */
 function startupTemplateDocument(): Document {
   const read = documentFromJson(JSON.stringify(startupTemplate))
+  // ⛔ `read.clampedCount` IS DROPPED HERE, DELIBERATELY. The template is
+  // BUNDLED, so a value of it outside its own bounds is a build that shipped
+  // wrong and not something the person did -- the paragraph above says the same
+  // of a fault here -- and `RS-51` tells a person about the file THEY handed
+  // over. ⚠️ The clamp itself still ran, so the template that reaches the layout
+  // is in range either way.
   if (!read.ok) {
     throw new Error(
       'the bundled startup template is not a GRS JSON document: ' +
@@ -459,6 +465,15 @@ function embeddedStartupDocument(): {
   readonly candidate: EmbeddedCandidate
   /** FR-088's row when the gate turned BT-1 away, `null` otherwise. */
   readonly refusal: StartupNoticeReason | null
+  /**
+   * How many settings keys the read road had to clamp in BT-1's own text --
+   * `RS-51`'s number, or `0` where there was nothing embedded to read.
+   *
+   * ⚠️ CARRIED EVEN WHEN BT-1 LOSES, and the caller is what decides: this
+   * function does not know which rank of table T-034 won, and telling a person
+   * about a document that was never opened would be worse than telling nothing.
+   */
+  readonly clampedCount: number
 } {
   // ⛔ THROUGH `CSS.escape`, and `querySelectorAll` rather than
   // `getElementById`. The escape is here because THIS is the only consumer of
@@ -472,16 +487,19 @@ function embeddedStartupDocument(): {
   // one element or none, and FR-067 needs the COUNT to tell "not exactly one"
   // apart from "none".
   const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
-  if (containers.length === 0) return { candidate: { kind: 'none' }, refusal: null }
+  if (containers.length === 0) {
+    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0 }
+  }
   if (containers.length > 1) {
     return {
       candidate: { kind: 'entryCountNotOne', entryCount: containers.length },
       refusal: null,
+      clampedCount: 0,
     }
   }
   const embedded = containers[0]?.textContent?.trim() ?? ''
   if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
-    return { candidate: { kind: 'none' }, refusal: null }
+    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0 }
   }
   // ⛔ Through the same reader every other intake takes (FR-023 calls every one
   // untrusted). ⚠️ NOTHING IS UN-ESCAPED FIRST: what the writer put in the
@@ -490,17 +508,20 @@ function embeddedStartupDocument(): {
   // so the reader below gives the character back and a step here would corrupt
   // it.
   const read = documentFromJson(embedded)
-  if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null }
+  if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0 }
   const refusal = noWorkingWeekdayReason(read.document)
   // FR-067: a rank that yields nothing descends rather than starting empty, so
   // a refused BT-1 hands `none` and the telling travels beside it.
-  if (refusal !== null) return { candidate: { kind: 'none' }, refusal }
+  if (refusal !== null) {
+    return { candidate: { kind: 'none' }, refusal, clampedCount: read.clampedCount }
+  }
   return {
     candidate: {
       kind: 'read',
       document: read.document,
     },
     refusal: null,
+    clampedCount: read.clampedCount,
   }
 }
 
@@ -772,6 +793,55 @@ function boot(): void {
     document.documentElement.setAttribute('lang', language)
   }
 
+  /**
+   * What FR-035 (MUST) calls 「タブの見出し」 for a document with no name:
+   * 「`title` が `null` のときは、タブの見出しを `Untitled` とすること」.
+   *
+   * ⛔ A CONSTANT OF THIS FILE'S AND NOT A KEY OF THE DICTIONARY. The same
+   * requirement says 「表示言語で切り替えない」 and gives its ground -- 「見出しに
+   * 出すのは文書の値の代わりであり、文書の値は訳さない」 -- so a word read out of
+   * `display-words.json` would be exactly the switching that MUST NOT happens.
+   */
+  const UNTITLED_TAB_HEADING = 'Untitled'
+
+  /**
+   * What the tab already carries, so an unchanged frame writes nothing.
+   *
+   * ⚠️ `null` UNTIL THE FIRST FRAME, and not the empty string: FR-035 (MUST NOT)
+   * forbids `title` to be empty, but a sentinel that could BE a heading would
+   * leave the one document that carried it wearing the build's own tab heading.
+   */
+  let browserTabHeadingWritten: string | null = null
+
+  /**
+   * FR-035 (MUST): 「ブラウザのタブにも、いま開いている日程表が判る文書名を出す
+   * こと」 -- 「同じ機で 2 つの文書を同時に開くことが実際に起きる構成なので、タブの
+   * 見出しが同じだと選べない」.
+   *
+   * ⭐ THE THIRD OF THE SAME SHAPE, beside `paintPageGround` and
+   * `nameDocumentLanguage`, and for their reason: the tab's heading belongs to
+   * the BOUND DOCUMENT, not to the drawing. ⛔ So it is not written in
+   * `dom-screen-surface.ts`: that file holds itself to the handful of host calls
+   * it names, and it may not reach for `document.title`.
+   * ⛔ AND NOT ON THE SCREEN RENDERER'S SIDE FOR A SECOND REASON: an in-place
+   * edit stops the redraw while it runs, so a heading written from the drawing
+   * would stop following the name at exactly the moment the name is being typed.
+   * ⭐ THE VALUE IS `ScreenView.appHeaderItems.documentTitle`, which is the
+   * document's own `title` column (AT-3) and arrives on EVERY frame -- so a
+   * rename, an undo, a re-open and a merge all move the heading with no trigger
+   * of this file's own (NFR-010, MUST NOT).
+   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the bargain both functions above keep for
+   * the same reason: this runs at the head of every frame.
+   *
+   * @purity non-pure
+   */
+  function nameBrowserTab(documentTitle: string | null): void {
+    const heading = documentTitle ?? UNTITLED_TAB_HEADING
+    if (heading === browserTabHeadingWritten) return
+    browserTabHeadingWritten = heading
+    document.title = heading
+  }
+
   // ⭐ THE FIRST PAINT IS HERE, BEFORE ANYTHING IS BUILT. FR-041 (MUST) forbids
   // the environment's colour to stand in, and every moment before this one is a
   // moment it does -- BO-1 deliberately holds the first frame back until the
@@ -962,6 +1032,7 @@ function boot(): void {
     showScreenView: (view) => {
       paintPageGround()
       nameDocumentLanguage(view.language)
+      nameBrowserTab(view.appHeaderItems.documentTitle)
       screenSurface.showScreenView(view)
     },
   }
@@ -1079,6 +1150,15 @@ function boot(): void {
     running.raiseStartupNotice(STARTUP_NOTICE_REASON[notice.code])
   }
   if (embedded.refusal !== null) running.raiseStartupNotice(embedded.refusal)
+  // `RS-51`: BT-1's own text carried settings outside their bounds, the read
+  // road brought them inside, and the person is told how many moved.
+  // ⛔ ONLY WHEN BT-1 ACTUALLY WON. `StartupChoice.row` is table T-034's answer,
+  // and a count measured on a rank that lost describes a document nobody is
+  // looking at -- FR-076's telling is about the document that is open.
+  // ⚠️ BT-4 IS NOT TOLD ON EVEN WHEN IT WINS; `startupTemplateDocument` says why.
+  if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
+    running.raiseStartupNotice('RS-51', embedded.clampedCount)
+  }
 
   // ---- FR-065 and FR-028: the public point --------------------------------
   //

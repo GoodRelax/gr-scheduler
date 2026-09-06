@@ -375,7 +375,7 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-51'
 >
 
 export interface FrameLoop {
@@ -494,9 +494,15 @@ export interface FrameLoop {
    * dictionary's (FR-038, MUST NOT). ⭐ NT-4 of table T-037 -- 「起動時の保留中
    * の用件を 1 枚に集約」 -- is kept by that list being one list.
    *
+   * ⭐ `affectedCount` IS THE RAISER'S MEASUREMENT OR `null`, exactly as it is
+   * on the loop's own `raiseNotice`: `RS-51` is told with the number of settings
+   * keys the read road had to move, and every other startup row carries none.
+   * ⛔ No count is invented on this side (FR-038, MUST NOT covers the words and
+   * NT-3 covers the number).
+   *
    * @purity non-pure
    */
-  raiseStartupNotice(reason: StartupNoticeReason): void
+  raiseStartupNotice(reason: StartupNoticeReason, affectedCount?: number | null): void
 }
 
 /**
@@ -1367,6 +1373,14 @@ type NoticeReason =
   | 'RS-44'
   | 'RS-45'
   | 'RS-46'
+  // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). The ruling of 2026-09-06
+  // took choice ⓑ -- a setting outside its own bounds is brought INSIDE on the
+  // road that reads the document, and the person is told how many keys moved --
+  // so the telling is `NT-5`'s "accepted, with a caution" rather than a refusal.
+  // ⚠️ THE SEATS BETWEEN `RS-46` AND THIS ONE ARE NOT THIS FILE'S. `RS-47` to
+  // `RS-50` are rows of table T-233 no raiser here reaches, and a seat offered
+  // for a reason nothing raises is what D-214 struck `RS-17` for.
+  | 'RS-51'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1435,6 +1449,11 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // table settles as a telling rather than a refusal of an input.
   'RS-45': 'NT-3a',
   'RS-46': 'NT-3a',
+  // ⛔ `NT-5` AND NOT `NT-1`, which is what choice ⓑ decided: the document WAS
+  // accepted and opened, and only the out-of-bounds keys were moved -- so the
+  // telling has to look unlike a refusal, which is the whole of the line NT-5
+  // and NT-1 are drawn along. ⚠️ Nor `NT-3a`: nothing of ours failed.
+  'RS-51': 'NT-5',
 }
 
 /**
@@ -1502,6 +1521,16 @@ const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeRe
 
 /** The row of table T-233 OP-11's caution carries. */
 const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
+
+/**
+ * The row of table T-233 the read road's clamp carries -- a document was opened
+ * and some of its settings had to be moved back inside their own bounds.
+ *
+ * ⭐ SPELLED HERE BECAUSE THE ROW ID IS THE JOIN, the move `NoticeReason` itself
+ * makes: the codec MEASURES the number (`JsonDecoding.clampedCount`) and names
+ * no row, and this file names the row and writes no words.
+ */
+const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
 /**
  * The row of table T-233 FR-015's caution carries -- the overlay's own tasks
@@ -2200,6 +2229,19 @@ function exportedText(form: SaveFileForm, document: Document): string | null {
 }
 
 /**
+ * What one decoded intake carries: the document, and how many settings keys the
+ * read road had to bring back inside their bounds (`RS-51`).
+ *
+ * ⭐ THE COUNT TRAVELS BESIDE THE DOCUMENT RATHER THAN BEING RE-MEASURED. The
+ * codec is where `clampedSettings` runs, and a second measurement taken after
+ * the clamp would answer zero -- the values are already in range by then.
+ */
+interface DecodedIntake {
+  readonly document: Document
+  readonly clampedCount: number
+}
+
+/**
  * OP-12's answer turned into a document, or `null` where the decoder refused.
  *
  * ⭐ UT-5 of table T-063 KEEPS EACH FORMAT IN A CODEC OF ITS OWN, so the answer
@@ -2224,13 +2266,17 @@ function decodedDocument(
   format: ExchangeFormat,
   text: string,
   current: Document,
-): Document | null {
+): DecodedIntake | null {
   if (format === 'grsJson') {
     const read = documentFromJson(text)
-    return read.ok ? read.document : null
+    return read.ok ? { document: read.document, clampedCount: read.clampedCount } : null
   }
   const read = documentFromMspdi(text, current)
-  return read.ok ? read.document : null
+  // ⛔ ZERO AND NOT A MEASUREMENT ON THE MSPDI ROAD. That codec builds the
+  // presentation group out of the CURRENT document rather than out of the file
+  // -- its own note says so -- so there is no incoming setting there to be out
+  // of bounds, and a count taken here would be counting this build's own values.
+  return read.ok ? { document: read.document, clampedCount: 0 } : null
 }
 
 /**
@@ -6841,11 +6887,24 @@ export function frameLoop(
       raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
       return
     }
-    let incoming = decodedDocument(reading.format, file.text, current)
+    const decoded = decodedDocument(reading.format, file.text, current)
     // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above records
     // why: table T-233 holds no row for one, and FR-076 (MUST NOT) makes that
     // table the whole of what a telling may carry.
-    if (incoming === null) return
+    if (decoded === null) return
+    let incoming = decoded.document
+    // `RS-51` (MUST): a setting the file carried outside its own bounds was
+    // brought inside on the read road, and the person is told HOW MANY moved.
+    // ⛔ THE OPEN GOES ON, which is what choice ⓑ decided and what the manner
+    // `NT-5` says out loud: the document was accepted, so this is a caution
+    // beside it and never a refusal (MUST NOT).
+    // ⚠️ THE NUMBER RIDES ON `affectedCount`, the one place on `RaisedNotice` a
+    // number travels -- the same road `IGNORED_FILES_REASON` takes just above.
+    // ⛔ NOT THE KEYS THEMSELVES. No surface of the specification shows which
+    // ones moved, and building one here would be inventing a face.
+    if (decoded.clampedCount > 0) {
+      raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
+    }
 
     // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
     // is asked -- the row states the reason itself, that asking first would
@@ -9701,8 +9760,8 @@ export function frameLoop(
       agentApiEnablingWatch = watch
     },
     /** @purity non-pure */
-    raiseStartupNotice(reason: StartupNoticeReason): void {
-      raiseNotice(reason, null)
+    raiseStartupNotice(reason: StartupNoticeReason, affectedCount: number | null = null): void {
+      raiseNotice(reason, affectedCount)
     },
   }
 }
@@ -9855,7 +9914,3 @@ export const WATERMARK_UNLOCK_DIGEST: {
   'S-101': 'e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134',
 }
 // </generated>
-
-
-
-
