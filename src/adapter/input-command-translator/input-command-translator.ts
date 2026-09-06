@@ -723,11 +723,26 @@ export type InPlaceTarget =
 // and `item-hit-area.ts` gives GR-11 its row, so a `Hit` can name it and AS-1
 // has its destination above.
 //
-// ⚠️ 「コメントボックス ＝ 本文の編集」 IS NO LONGER ONE OF THEM. GR-14 now
-// answers with a comment box, so a `Hit` can name one and the reason this STOP
-// used to give for it has expired. FR-097 owns that entrance and wiring it to
-// CM-48 is its own piece of work; the kind is left out until that work is
-// asked for, for the same YAGNI reason and not for the old one.
+// STOP -- ⛔⛔ 「コメントボックス ＝ 本文の編集」 IS STILL UNREACHABLE, AND NOT FOR
+// THE REASON THIS NOTE USED TO GIVE (台帳 D-283). GR-14 answers with a comment
+// box, so a `Hit` can name one and the old ground -- that nothing could -- has
+// expired; but the note that replaced it said the kind was 「left out until that
+// work is asked for」, which read as YAGNI and hid a seam. ⇒ Measured 2026-09-06,
+// both roads out of this file are shut and neither can be opened from it:
+//   * THE PANEL'S ROAD. `docs/spec/_source/property-items.json` is table T-016's
+//     single source of truth and carries 19 items, none of them a comment box --
+//     and table T-016 is 「`Task` の属性表」, so a row for one is a change to the
+//     manuscript, not to `src/`.
+//   * THE IN-PLACE ROAD. Nothing draws an editable field over the schedule. The
+//     shell's own `editInPlace` branch records the same STOP for MK-13's
+//     担当ラベル -- a label is one of however many the frame drew, and `ScreenView`
+//     carries no description of an editable one.
+// ⭐ FR-097 (MUST) points at MK-13 for its entrance and MK-13 (MUST) points back
+// at FR-097 for what the entrance does; neither names WHERE the typing happens,
+// so choosing a place here would be an invention. ⚠️ WHEN A GENERIC IN-PLACE
+// FIELD LANDS, THIS SIDE IS SMALL: one kind on `InPlaceTarget` carrying the box's
+// id, and one branch of `commandFromGrab` beside GR-14's move, planning CM-48
+// (`setCommentBoxText`) -- which `edit-annotation.ts` already holds.
 //
 // ⛔⛔ THE TWO ARE ONE ROAD SINCE 2026-09-04, AND THAT IS A MUST NOT. HF-14 of
 // table T-051: 「改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が
@@ -4176,7 +4191,19 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // following, and it is `InputContext.dualCursorFollowing`.
       return commandFromDualCursorPress(press, context)
     case 'PD-3':
-      return commandFromGrab(input, press, context)
+      // ⭐⭐ THE ARMING SPLITS THIS ROW IN TWO, AND THE ROW ITSELF SAYS SO.
+      // PD-3 of table T-023a: 「構えが依存線のときは表 T-023d を適用せず、当たった
+      // タスクの左半分 / 右半分で依存の端点を決める（規則と理由は `FR-009`）」.
+      // ⛔ ASKED HERE AND NOT INSIDE `commandFromGrab`, because what that member
+      // IS is table T-023d -- every branch of it is one of that table's rows,
+      // and the sentence above withholds the whole table rather than one row.
+      // ⚠️ READ ON THE RELEASE AND STILL CS-2's MOMENT: the arming cannot have
+      // drifted since the press, for the reason `pressRowOf` is called again
+      // above gives -- it moves only on a press of a palette entry, which
+      // REPLACES the press, or on `Esc`, which drops it.
+      return context.screenState.armed.kind === 'dependency'
+        ? commandFromDependencyDrag(input, press, context)
+        : commandFromGrab(input, press, context)
     case 'PD-4':
       return commandFromArmed(input, press, context)
     case 'PD-4a':
@@ -4694,6 +4721,12 @@ function commandFromEntry(
       // ⭐ AND FR-018's TIER IS NEVER OPENED FOR IT EITHER: 「深さ 1 を LOD の
       // 対象にしてはならない（MUST NOT）」, so a row of the shallowest level is
       // drawn at every zoom and `rowStoodUp` plans no CM-65 for it.
+      //
+      // STOP -- ⛔⛔ THE THIRD THING THAT HIDES THE ROW IS NOT ANSWERED HERE:
+      // 段 0's own fold (S-211). `context.isLevelZeroFolded` is in hand, but the
+      // opening cannot travel with this press. See `parentFoldTakenOff` for the
+      // whole of it -- what table T-051 says, what the fabricated citation used
+      // to say instead, and why `InputAction` cannot carry both halves.
       return rowStoodUp(context, null, 1)
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
@@ -4742,14 +4775,16 @@ function commandFromEntry(
  * Dual Cursor が消えるべきだろ？」. The way out is therefore CM-61 and not an
  * empty write, and the clearing needs no entrance of its own.
  *
- * ⛔⛔ THIS CONTRADICTS THE MANUSCRIPT AS IT STANDS, and the disagreement is
- * deliberate rather than missed. DC-7 still reads 「置いた 2 本を消す入口を、
- * モードを出る入口とは別に置くこと（MUST）。モードを出ただけで消してはならない
- * （MUST NOT）」 -- that MUST NOT is the exact sentence the ruling overturns, and
- * §1 of CR-364 names DC-7 as the row to edit. ⚠️ THE EDIT HAS NOT LANDED: the
- * row is unchanged. Until it does, this function is ahead of the document it
- * answers to, and the reader who finds them disagreeing should fix the row, not
- * this branch.
+ * ⭐⭐ AND THE MANUSCRIPT NOW SAYS THE SAME, so nothing here is ahead of it.
+ * §1 of CR-364 named DC-7 as the row to edit and the edit has landed: that row
+ * reads 「モードを出たら、置いた 2 本を消すこと（MUST）」 with the ruling quoted
+ * beside it. ⚠️ WHAT STOOD HERE UNTIL 2026-09-06 SAID THE OPPOSITE -- that DC-7
+ * 「still reads」 its pre-CR-364 sentence 「置いた 2 本を消す入口を、モードを出る
+ * 入口とは別に置くこと（MUST）。モードを出ただけで消してはならない（MUST NOT）」 and
+ * that the edit had not landed. ⛔ It is corrected rather than deleted because
+ * the withdrawn pair is what DC-1's own ⛔⛔ note is about: that row's MUST NOT
+ * used to reason from 「モードを出ても 2 本を残す」, and a reader meeting the
+ * surviving prohibition needs to know its ground moved.
  *
  * ⛔ AND NOT ON A GUIDE-CURSOR CHANGE, which is the OTHER reading of the same
  * ruling and is refused here. `S-66`'s 「縦 2 本」 is CU-3 of table T-029; the
@@ -6098,8 +6133,27 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
  * not drawn and carries no IC-91 to press. The MUST NOT is honoured by asking
  * about `parentGroupId` alone rather than by relying on that.
  *
- * ⭐ HF-17's press (段 0) has no parent at all and the row says so: 「`HF-17`
- * （段 0 へ足す）には親が無いので当たらない」 -- `null` answers nothing here.
+ * ⛔⛔ `null` IS 段 0 AND THIS MEMBER CANNOT ANSWER FOR IT, WHICH IS A DEFECT
+ * AND NOT A READING (台帳 D-318). The sentence that stood here -- 「`HF-17`
+ * （段 0 へ足す）には親が無いので当たらない」, quoted as though it were a row of
+ * table T-051 -- is in no manuscript under `docs/spec/`; it was a paraphrase
+ * written in `defects.md`, and citing it as a rule is what closed this question
+ * without anyone deciding it (台帳 D-339).
+ * ⭐ WHAT THE TABLE ACTUALLY SAYS POINTS THE OTHER WAY. The footnote under table
+ * T-051: 「`HF-17` は `HF-14` を ... 段 0 に対して行うものである」, so 段 0 IS the
+ * parent HF-14's MUST is about; and 「パネルの頭は段 0 であり、行ではない」, so
+ * what stands in for AT-56 there is S-211 of table T-206 -- a value of the
+ * SCREEN, which this member has no command to write and `DocumentCommand` holds
+ * no row for.
+ * ⇒ ⛔ THE PRESS IS LEFT UNANSWERED HERE ON PURPOSE, and the answer is owed by
+ * the party that holds S-211. The obstacle is one this file cannot lift:
+ * `InputAction`'s `setLevelZeroFolded` moves S-211 but carries no
+ * `CreatedSubject`, and `changeDocument` carries one but moves no screen value,
+ * so a press that both opens the head and stands the person on the new row owes
+ * a member the shell reads -- and IC-93 must do both, because HF-14 also
+ * requires 「その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）」.
+ * ⚠️ MEASURED (2026-09-05, shipped build): IC-78 then IC-93 leaves `taskGroups`
+ * 100 -> 101 with 0 rows drawn and 0 tellings raised.
  *
  * ⚠️ ONLY THE FOLD (AT-56). HR-6's hiding (AT-57) is not this row's subject,
  * and a hidden parent is not drawn, so no press reaches one.
@@ -6576,6 +6630,179 @@ function commandFromArmingEntry(entry: string, context: InputContext): Translate
     // it arms, which is `screenStateFromInput`'s answer.
   }
   return changed(commands)
+}
+
+/**
+ * CM-36, named off `DocumentCommand` rather than restated.
+ *
+ * ⭐ THE SAME DEVICE `SetDualCursor` ABOVE USES, AND FOR THE SAME REASON: the
+ * two edges and their spellings are that command's, `edit-dependency.ts` is
+ * where FR-009's three refusals are judged, and a pair of names written out
+ * here would be a second declaration for the compiler to fail to keep in step.
+ */
+type CreateDependency = Extract<DocumentCommand, { readonly kind: 'createDependency' }>
+
+/** FR-009's two edges, off the command that carries them. */
+type DependencyEnd = {
+  readonly uid: number
+  readonly edge: CreateDependency['predecessorEdge']
+}
+
+/**
+ * The horizontal middle of the bar a dependency hangs on, and how tall it
+ * stands -- or null where this Task drew no bar this frame.
+ *
+ * ⭐ THE PLAN'S BAR, AND THE ACTUAL'S ONLY WHERE NO PLAN IS DRAWN. FR-009
+ * (MUST): 「依存線は予定の幾何に付くこと（MUST）。予定を表示していないときに限り、
+ * 実績の幾何に付ける」, with the reason beside it -- 「どちらの辺かだけを定めてどちら
+ * のバーかを定めないと、予実の表示を切り替えたときに絵が決まらない」. The edge this
+ * reading answers is an edge OF that bar, so it is measured on that bar and no
+ * other.
+ *
+ * ⚠️ A SHAPE'S OWN SILHOUETTE, WHICH IS WHAT THE TWO FORMS OF `BarGeometry`
+ * HOLD: an outline is its run of points, and a line is its two ends plus SH-3's
+ * head. ⛔ The stroke is not spread around the line here, as `item-hit-area`
+ * spreads it: that widening exists so a thin line can be GRABBED, and FR-009
+ * (MUST NOT) is precisely the rule that a grab margin may not decide this
+ * answer.
+ *
+ * @purity pure
+ */
+function barExtentOf(
+  task: ScheduleGeometry['tasks'][number],
+): { readonly x: number; readonly width: number; readonly y: number; readonly height: number } | null {
+  const bar = task.plan ?? task.actual
+  if (bar === null) return null
+  const points = bar.form === 'outline' ? bar.points : [bar.from, bar.to, ...(bar.head ?? [])]
+  if (points.length === 0) return null
+  const xs = points.map((one) => one.x)
+  const ys = points.map((one) => one.y)
+  const x = Math.min(...xs)
+  const y = Math.min(...ys)
+  return { x, width: Math.max(...xs) - x, y, height: Math.max(...ys) - y }
+}
+
+/**
+ * Which of FR-009's two edges an x names on one Task whose hit is already
+ * settled, or null where this Task drew no bar to measure.
+ *
+ * ⭐⭐ THE HALF AND NEVER A GRAB MARGIN, which FR-009 states twice over: 「依存線
+ * を構えているときの当たり判定は、タスクの左半分と右半分のどちらに当たったかを返す
+ * こと（MUST）。左半分が開始側、右半分が終了側である。端点の掴み代で判定しては
+ * ならない（MUST NOT）—— 低いズームでバーが数 px まで縮むと掴めなくなる。半分で
+ * 割れば、どれだけ細くても必ずどちらかに落ちる」. ⇒ The middle is compared, and
+ * no distance is.
+ *
+ * ⛔⛔ NO CONTAINMENT IS TESTED HERE, AND THAT IS THE LAST CLAUSE ABOVE. 「どれだけ
+ * 細くても必ずどちらかに落ちる」 is a promise that a hit Task always yields an
+ * endpoint, so a point that MK-9a placed on a Task through a part drawn outside
+ * the bar -- GR-11's assignee label to the left, GR-7's marker to the right,
+ * GR-1 / GR-2's fade handles -- still falls on the side of the middle it is on.
+ * ⚠️ A point exactly on the middle falls to 'start', which is what keeps the two
+ * halves exhaustive on a bar of zero width, the very case that MUST NOT is about.
+ *
+ * @purity pure
+ */
+function dependencyEdgeOn(
+  task: ScheduleGeometry['tasks'][number],
+  x: number,
+): DependencyEnd | null {
+  const bar = barExtentOf(task)
+  if (bar === null) return null
+  return { uid: task.taskUid, edge: x < bar.x + bar.width / 2 ? 'start' : 'finish' }
+}
+
+/**
+ * The end the pointer names, over the whole picture -- which Task it is on, and
+ * which half of that Task's bar it fell in.
+ *
+ * ⭐ TABLE T-023d IS NOT APPLIED, WHICH IS PD-3's OWN SENTENCE: 「構えが依存線の
+ * ときは表 T-023d を適用せず」. `itemAtPointer` (PI-7) IS that table, so it is not
+ * the instrument for this reading -- and it could not be asked from here in any
+ * case, because it takes `PointerSlop`, which table T-206 keeps out of the
+ * document on purpose and which never reaches this file.
+ *
+ * ⛔ SO THE BAR'S OWN SILHOUETTE SAYS WHETHER THE POINT IS ON IT, and no margin
+ * is grown around it -- the MUST NOT `dependencyEdgeOn` quotes forbids a grab
+ * margin from deciding this answer, and a margin is exactly what table T-023d's
+ * reading would have brought.
+ *
+ * ⚠️ THE FIRST BAR THE POINT FALLS IN. MK-9a's priority order is table T-023d's
+ * and that table is withheld here, so no order of its own is invented: the
+ * geometry's own order is taken, which is the order the schedule was drawn in.
+ *
+ * @purity pure
+ */
+function dependencyEndAt(
+  geometry: ScheduleGeometry,
+  x: number,
+  y: number,
+): DependencyEnd | null {
+  for (const task of geometry.tasks) {
+    const bar = barExtentOf(task)
+    if (bar === null) continue
+    if (x < bar.x || x > bar.x + bar.width) continue
+    if (y < bar.y || y > bar.y + bar.height) continue
+    return dependencyEdgeOn(task, x)
+  }
+  return null
+}
+
+/**
+ * PD-3 while AR-4 is armed: UC-004's step 2, whole.
+ *
+ * ⭐ THE GESTURE IS ONE DRAG, which is what UC-004 describes: 「作成者が先行タスク
+ * の左右どちらかの辺から矢印を引き出し、後続タスクの左右どちらかの辺へ引き入れる」.
+ * The press is the drawing OUT and the release is the drawing IN, so the press's
+ * Task is the predecessor and the release's is the successor.
+ *
+ * ⛔ NO `linkType` IS CHOSEN HERE, AND NONE MAY BE. FR-009 (MUST): 「引き出した辺
+ * と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する」, 「したがって種別を選ぶ
+ * 入口を別に設けない」 -- so the pair of edges leaves here and `edit-dependency.ts`
+ * is where table T-018's row is looked up. A `linkType` written on this side
+ * would BE the entrance that sentence refuses.
+ *
+ * ⭐ THE PREDECESSOR IS NAMED BY THE PRESS'S `Hit` AND THE HALF BY THE BAR.
+ * PD-3's CONDITION is 「何かに当たった（判定の順と優先は MK-9a）」, and MK-9a's
+ * order is the one the shell already resolved into `press.hit`; what the row
+ * withholds is the RESULT column, which is where table T-023d's operations live.
+ * ⛔ So `hit.grab` is dropped and `hit.item` is kept.
+ *
+ * ⚠️ AN END THAT IS NOT A TASK ENDS THE GESTURE IN SILENCE, and that is PD-4a's
+ * shape rather than an invention: 「何もしない。引きかけの矢印があれば捨てる。構えは
+ * 解かない」 -- the half-drawn arrow is the renderer's and the arming is untouched,
+ * so there is nothing to write. ⛔ NO TELLING IS COMPOSED HERE. FR-009's three
+ * refusals (MUST NOT) are named by UID and `edit-dependency.ts` judges all three,
+ * so a release ON a Task travels there and is refused with the reason table T-233
+ * gives a refused write; a release on empty canvas has no UID to send and no row
+ * of that table describes it.
+ *
+ * @purity pure
+ */
+function commandFromDependencyDrag(
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  const hit = press.hit
+  // ⚠️ `pressRowOf` only answers PD-3 for a press that HIT, so the null is
+  // unreachable; it is tested rather than asserted because `Hit` is nullable.
+  if (hit === null || hit.item.kind !== 'task') return CONSUMED_ELSEWHERE
+  const pressed = hit.item.taskUid
+  const drawn = context.geometry.tasks.find((one) => one.taskUid === pressed)
+  const from = drawn === undefined ? null : dependencyEdgeOn(drawn, press.at.x)
+  if (from === null) return CONSUMED_ELSEWHERE
+  const into = dependencyEndAt(context.geometry, release.x, release.y)
+  if (into === null) return CONSUMED_ELSEWHERE
+  return changed([
+    {
+      kind: 'createDependency',
+      predecessorUid: from.uid,
+      successorUid: into.uid,
+      predecessorEdge: from.edge,
+      successorEdge: into.edge,
+    },
+  ])
 }
 
 /**

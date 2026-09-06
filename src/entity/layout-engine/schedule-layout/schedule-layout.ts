@@ -289,15 +289,64 @@ export interface ScheduleLayout {
    * which is what every caller meant before a band existed.
    */
   readonly scrollAreaY?: number
+  /**
+   * ST-7's safety valve: the row that reached it, or `null` while no row did.
+   *
+   * ⭐⭐ THIS IS 「達したことを判別できる値」 (ST-7, MUST), and the layout that
+   * carries it is a layout that STOPPED: 「達したらそこで処理を止め」, so the row
+   * named here is NOT in `rows`, none of its `Task` is in `placements`, and
+   * neither is any row after it. ⚠️ So `contentWidth`, `contentHeight` and
+   * `contentX0` measure what was laid out BEFORE the valve and not the document.
+   *
+   * ⛔⛔ REQUIRED AND NOT OPTIONAL, unlike the two members above it. Those two
+   * have a reading for `undefined` that every caller meant already; this one has
+   * none -- a caller that never learns the valve was reached is a caller that
+   * shows a picture with rows missing and says nothing, which is exactly the
+   * 「黙って切り捨て」 ST-7 forbids (MUST NOT). A required member makes the
+   * compiler put it in front of every reader.
+   *
+   * ⭐ WHAT THE READER OWES: 「人に通知すること（MUST）」, as `RS-24` of table
+   * T-233 -- 「1 つの `TaskGroup` の段数が安全弁に達したので、これ以上積めない」 --
+   * in the manner that row names, `NT-3a`. ⛔ NOT RAISED HERE. Table T-060's
+   * LY-5 leaves a current value to the Framework and this unit is `pure`; the
+   * shell is where `layoutFromSchedule` is called and where `RaisedNotice` is
+   * appended, so the telling is raised there, off this member.
+   */
+  readonly stackSafetyCapReached: StackSafetyCapStop | null
 }
 
-/** ST-7 stops the whole layout rather than truncating or overlapping. */
-export class StackSafetyCapReached extends Error {
-  /** @purity pure */
-  constructor(readonly groupId: string, readonly cap: number) {
-    super(`table T-014 ST-7: group ${groupId} needs more than ${cap} stacks`)
-    this.name = 'StackSafetyCapReached'
-  }
+/**
+ * ST-7's safety valve, once it has been reached -- what `ScheduleLayout`
+ * carries back in place of the exception this used to be.
+ *
+ * ⭐⭐ A VALUE AND NOT A THROW, WHICH IS ST-7's OWN SENTENCE (MUST / MUST NOT):
+ * 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること
+ * （MUST）。例外を投げてはならない（MUST NOT）」. ⛔ The row states its own reason
+ * in the same breath -- 「投げると捕まえる者が要り、`FR-028` が `Agent API` に課
+ * した禁止と同じ安全弁が 2 つの機構を持つことになる」 -- so catching the throw
+ * somewhere up the stack and raising the telling from the catch would do the
+ * very thing the sentence argues against. The return type and the side that
+ * reads it are one change.
+ *
+ * ⭐ THE TWO MEMBERS ARE THE TWO THE EXCEPTION CARRIED, and nothing was minted
+ * to replace it: ST-7 counts 「その `TaskGroup` の行に載っている `Task` が同時に
+ * 重なる段数」, so the group is what reached the valve and `S-89` is the number
+ * it reached. ⛔ NEITHER REACHES THE SCREEN AS A WORD. FR-038 (MUST) keeps every
+ * printed string in the one dictionary and `RS-24` of table T-233 is what is
+ * read out of it, so these two are for the shell to tell WHICH row and WHAT cap
+ * -- never to be printed.
+ *
+ * ⚠️ NOT A ROW OF TABLE T-064, and PI-5 needs no word added for it -- that table
+ * holds the NAMES a component publishes and leaves arguments and return values
+ * to `src/`, exactly as the notes on `FitToScreen` and `NotStoredZoom` say. This
+ * type exists only to give `ScheduleLayout` its member. ⛔ The exception this
+ * replaces was never on PI-5 either, so nothing was struck from the roster.
+ */
+export interface StackSafetyCapStop {
+  /** The `TaskGroup.id` of the row whose lanes reached `S-89`. */
+  readonly groupId: string
+  /** `S-89` as it stood in the settings this run was given. */
+  readonly cap: number
 }
 
 const MS_PER_DAY = 86400000
@@ -1147,6 +1196,9 @@ export function layoutFromSchedule(
   let widest = Number.NEGATIVE_INFINITY
   let leftmost = Number.POSITIVE_INFINITY
   const emptyLane = reservedHeight('rectangle', settings)
+  // ST-7's valve. Stays null for every run that never reaches it, which is what
+  // `ScheduleLayout.stackSafetyCapReached` publishes as "no row did".
+  let capStop: StackSafetyCapStop | null = null
 
   for (const row of rows) {
     // ---- LC-2, the task half: CR-163 measures the shape, not the depth -----
@@ -1258,8 +1310,24 @@ export function layoutFromSchedule(
         }
       }
       if (lane < 0) {
+        // ---- ST-7: the safety valve, and it STOPS rather than throwing ------
+        // ⭐⭐ 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知
+        // すること（MUST）。例外を投げてはならない（MUST NOT）」. ⛔ THE STOP IS
+        // TAKEN BEFORE THIS ROW IS PLACED, which is what 「そこで」 asks for: the
+        // row's `placements` and its `RowPlacement` are pushed further down, so
+        // breaking here leaves the offending row -- and every row after it --
+        // out of the picture rather than half in it. ⛔ A partial row would
+        // leave `laneOf` short of `measured`, and the lane heights below index
+        // it position by position.
+        // ⚠️ THIS IS NOT 「黙って切り捨て」 (MUST NOT): the truncation is what
+        // 「処理を止め」 means, and `stackSafetyCapReached` is the value that
+        // keeps it from being silent -- the shell raises `RS-24` off it.
+        // ⛔ AND NOTHING IS 「重ねて押し込」まれた (MUST NOT): the item that found
+        // no lane is not pushed into one that is already taken. It is simply
+        // not drawn, along with the rest of its row.
         if (lanes.length >= settings.stackSafetyCap) {
-          throw new StackSafetyCapReached(row.id, settings.stackSafetyCap)
+          capStop = { groupId: row.id, cap: settings.stackSafetyCap }
+          break
         }
         lane = lanes.length
         lanes.push([])
@@ -1271,6 +1339,11 @@ export function layoutFromSchedule(
       laneMinX0[lane] = Math.min(laneMinX0[lane]!, item.occupiedX0)
       laneOf.push(lane)
     }
+    // ST-7 again: the inner loop can only leave early for the valve, and the
+    // whole pass stops with it. ⛔ Two breaks and not a labelled one -- nothing
+    // else in this file uses a label, and the flag is the value that leaves the
+    // function anyway.
+    if (capStop !== null) break
 
     // ---- LC-9, LF-2: each lane is its tallest, gaps go between them -------
     // One pass over `measured`. Re-filtering it per lane cost O(lanes x m), and
@@ -1415,6 +1488,10 @@ export function layoutFromSchedule(
     contentX0,
     pinnedBandHeight: band.height,
     scrollAreaY: band.scrollAreaY,
+    // ST-7 (MUST): 「達したことを判別できる値で返して」. ⚠️ The rest of this
+    // object measures what was laid out BEFORE the valve whenever this is not
+    // null -- see the member's own note.
+    stackSafetyCapReached: capStop,
   }
 }
 
@@ -1948,7 +2025,15 @@ export function fitZoom(
   // FR-055's empty-document arm (MUST). ⚠️ 「描くものが 1 つも無い」 is no ROW
   // at all: LF-2 gives a row holding no Task one rectangle's band, so an empty
   // row still has an extent and is fitted like any other.
-  if (atUnity.rows.length === 0) {
+  // ⛔⛔ AND A RUN THAT STOPPED IS NOT AN EMPTY DOCUMENT. ST-7's valve stops the
+  // pass 「そこで」, so a document whose FIRST row reaches it comes back with no
+  // row at all -- and answering that with the empty-document arm would tell the
+  // person their document is empty. The run below carries on instead: nothing
+  // was placed, so `contentWidth` is 0, `zoomX` is 1 by the arm just after this
+  // one, no depth fits, and the fit lands on depth 1 with the held position
+  // kept. ⭐ The picture the frame then draws carries the valve itself, and
+  // `RS-24` is raised off THAT.
+  if (atUnity.rows.length === 0 && atUnity.stackSafetyCapReached === null) {
     return {
       zoomX: 1,
       zoomY: 1,
@@ -1977,6 +2062,20 @@ export function fitZoom(
   // less one `rowGap`. ⚠️ Each run measures its OWN band, because a deeper cap
   // can put a taller row in it.
   const fits = (run: ScheduleLayout): boolean => {
+    // ⛔⛔ A RUN THAT REACHED ST-7's VALVE DOES NOT FIT, WHATEVER IT MEASURED.
+    // FR-055 takes 「描くものが `Row Area` から ピン止めした行の帯を除いた残りに
+    // 収まる最も深い段」, and a run that stopped never laid 描くもの out: the row
+    // that reached the valve and every row after it are missing, so its
+    // `contentHeight` is short of the picture by an unknown amount and seating a
+    // depth on it would fit the screen to a document nobody has measured.
+    // ⚠️ DECIDED HERE BECAUSE THE THROW USED TO DECIDE IT. While the valve threw,
+    // the exception left `fitZoom` altogether and the fit produced no answer at
+    // all; something has to be answered now, and refusing the run is the
+    // conservative half -- FR-055 falls back to depth 1, which is the shallowest
+    // picture and the least likely to reach the valve again.
+    // ⛔ NO ROW SAYS THIS, and no `PD-` number holds it yet -- the reading is
+    // written out here so the next reader can refute it rather than guess it.
+    if (run.stackSafetyCapReached !== null) return false
     const remainderTop = run.scrollAreaY ?? regions.rowArea.y
     return run.contentHeight <= regions.rowArea.y + regions.rowArea.height - remainderTop
   }

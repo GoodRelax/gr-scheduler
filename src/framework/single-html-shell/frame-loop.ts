@@ -1344,6 +1344,7 @@ type NoticeReason =
   | 'RS-20'
   | 'RS-21'
   | 'RS-23'
+  | 'RS-24'
   | 'RS-25'
   | 'RS-26'
   | 'RS-27'
@@ -1400,6 +1401,10 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-20': 'NT-5',
   'RS-21': 'NT-1',
   'RS-23': 'NT-3a',
+  // ⭐ `NT-3a` IS TABLE T-233's OWN MANNER COLUMN for this row, and its 正 is
+  // ST-7 of table T-014 -- something of OURS stopped (the layout stopped
+  // stacking), so the telling owes the next step the dictionary already holds.
+  'RS-24': 'NT-3a',
   'RS-25': 'NT-1',
   'RS-26': 'NT-1',
   'RS-27': 'NT-1',
@@ -1669,6 +1674,24 @@ const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
  * failed in silence leaves nobody able to act on it.
  */
 const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
+
+/**
+ * The row of table T-233 ST-7's safety valve is told on -- 「1 つの `TaskGroup`
+ * の段数が安全弁に達したので、これ以上積めない」.
+ *
+ * ⭐⭐ ST-7 OF TABLE T-014 (MUST) IS WHY IT IS RAISED AT ALL: 「達したらそこで
+ * 処理を止め、達したことを判別できる値で返して人に通知すること（MUST）」, and the
+ * same row forbids the two silences either side of it (MUST NOT) -- 「黙って切り
+ * 捨てても、重ねて押し込んでもならない」. `ScheduleLayout.stackSafetyCapReached`
+ * is 「判別できる値」; this constant is 「人に通知する」.
+ * ⛔ NOT RAISED WHERE THE VALVE IS MEASURED. `schedule-layout.ts` is `pure` and
+ * LY-5 of table T-060 leaves the current value to the Framework, so the layout
+ * carries the stop back and the shell is what tells.
+ * ⚠️ ST-7 ARGUES AGAINST CATCHING A THROW IN AS MANY WORDS -- 「投げると捕まえる
+ * 者が要り、`FR-028` が `Agent API` に課した禁止と同じ安全弁が 2 つの機構を持つ
+ * ことになる」 -- so nothing here is wrapped in a `try`.
+ */
+const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
 
 /**
  * The row of table T-233 FR-065's third MUST is kept with -- 「無効にしても、
@@ -3762,6 +3785,31 @@ export function frameLoop(
   // T-060 puts here.
   // @provisional PD-142
   let selectedGroupIds: readonly string[] = []
+  /**
+   * FR-033's 「複製に使う置き場」 -- SK-4 put something here and SK-5 takes it.
+   *
+   * ⭐⭐ IN THE APP AND NOT THE OS's, WHICH IS FR-033's OWN SENTENCE (MUST /
+   * MUST NOT): 「複製に使う置き場はアプリの中に持つこと（MUST）。OS のクリップ
+   * ボードから読み込んではならない（MUST NOT）」. ⭐ R-9 of table T-008 marks the
+   * clipboard route 「送信のみ・読まない」, so `ClipboardGateway` (PI-24) -- which
+   * IS built and IS handed to this loop -- publishes `writeClipboard` and nothing
+   * that reads. ⇒ SK-4 and SK-5 never belonged to it; they want this binding.
+   *
+   * ⭐ IDENTIFIERS AND NEVER CONTENT. `pasteTaskSubtree` (CM-8) takes a
+   * `sourceUid` and `pasteTaskGroupSubtree` takes a `sourceGroupId`, and both
+   * read the subtree out of the document AT PASTE TIME -- so a copy that kept
+   * rows would paste what the document no longer holds.
+   * ⚠️ THE SOURCE CAN BE GONE by the time SK-5 arrives, and that is told rather
+   * than guessed at: see the paste's own note.
+   *
+   * ⚠️ Lost with the page. Table T-203 has no key for it and table T-206 no row,
+   * which is what leaves it a current value LY-5 of table T-060 puts here --
+   * the same standing as `selectedGroupIds` above.
+   */
+  let copiedForPaste:
+    | { readonly kind: 'task'; readonly uid: number }
+    | { readonly kind: 'row'; readonly groupId: string }
+    | null = null
   // FR-099 (MUST) -- who is chosen in the `Resource Roster` (U-49), by
   // `Resource.uid` (AT-85), which AS-6 of table T-225 makes the key a document
   // writes while a person is shown the name. ⛔ SL-1 admits no resource either.
@@ -3849,6 +3897,31 @@ export function frameLoop(
   // rest of the session, which is the half of NT-2 that is kept -- it does not
   // go before it has been read.
   let raisedNotices: readonly RaisedNotice[] = []
+  /**
+   * Whether the frame DRAWN BEFORE THIS ONE stopped on ST-7's safety valve --
+   * the one piece of state `STACK_SAFETY_CAP_REASON` needs to be told once
+   * rather than sixty times a second.
+   *
+   * ⚠️⚠️ THIS IS THE WHOLE OF THE DESIGN, AND IT IS LOAD-BEARING. `raiseNotice`
+   * adds to `affectedCount` on EVERY call (NT-3 of table T-037, MUST:
+   * 「新しく積まずに、その 1 枚の件数を増やすこと」), so a raise on every frame
+   * would leave one telling whose count climbs by 60 each second -- a number
+   * about the frame rate and not about the document. ⭐ RAISED ON THE TURN FROM
+   * `null` TO A STOP, which is the moment ST-7 is about: 「達したらそこで処理を
+   * 止め」 happens once, however long the picture stays that way.
+   *
+   * ⭐ HOLDING THE `groupId` AND NOT A `boolean` costs nothing and says which row
+   * the standing telling is about, so a valve that moves to a DIFFERENT
+   * `TaskGroup` without passing through `null` is a new stop and is told again.
+   * ⛔ UNRULED, AND MINE (2026-09-06): no clause settles whether the second group
+   * owes a second telling. ST-7 counts 「その `TaskGroup` の行に載っている `Task`
+   * が同時に重なる段数」 -- per group -- which is the reading this follows.
+   *
+   * ⚠️ A TELLING PUT AWAY IS NOT RAISED AGAIN while the same stop stands. NT-8
+   * (MUST) lets a person dismiss a telling, and re-raising it on the next frame
+   * would make this one impossible to dismiss.
+   */
+  let stackSafetyCapToldFor: string | null = null
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
   // of, until one of that row's two word buttons answers it.
   //
@@ -4480,6 +4553,27 @@ export function frameLoop(
       // が縦に取る高さも下回らない」, measured by the surface that drew it.
       environment.rowControlsHeightPx,
     )
+    // ⭐⭐ ST-7 OF TABLE T-014 (MUST) LANDS HERE: 「達したらそこで処理を止め、達した
+    // ことを判別できる値で返して人に通知すること」 -- the layout returned the value,
+    // and this is 「人に通知する」. ⛔ Without these four lines the picture simply
+    // comes back with rows missing and says nothing, which is that row's own
+    // 「黙って切り捨て」 (MUST NOT).
+    // ⚠️ ON THE TURN ALONE, never every frame -- see `stackSafetyCapToldFor`.
+    const capStop = layout.stackSafetyCapReached
+    if (capStop !== null && stackSafetyCapToldFor !== capStop.groupId) {
+      stackSafetyCapToldFor = capStop.groupId
+      // ⛔ `null` FOR THE COUNT AND NOT `capStop.cap`. `RaisedNotice.affectedCount`
+      // counts how many things a telling is about (NT-3), and `cap` is `S-89` --
+      // a setting, not a tally. ⚠️ `RS-24`'s words in `display-words.json` take no
+      // number, so nothing here would print it either.
+      raiseNotice(STACK_SAFETY_CAP_REASON, null)
+    } else if (capStop === null) {
+      // ⭐ THE VALVE LET GO, so the next time it closes is a new stop and is told
+      // again. Edits that move Tasks off the row are exactly what `RS-24`'s next
+      // step asks the person to do 「重なっているタスクを別の行へ移すか…」, and a
+      // person who did it and then hit the valve once more must hear about it.
+      stackSafetyCapToldFor = null
+    }
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
     // Task alone, and `itemAtPointer` can only be as narrow as the geometry it
@@ -5310,6 +5404,20 @@ export function frameLoop(
       isLevelZeroFolded,
       environment.rowControlsHeightPx,
     )
+    // STOP -- ⛔⛔ `layout.stackSafetyCapReached` IS READ BY NOBODY ON THIS ROAD,
+    // AND THAT IS A GAP IN THE SPECIFICATION AND NOT A DECISION TAKEN HERE.
+    // ST-7 of table T-014 (MUST) says 「達したことを…人に通知すること」 and `RS-24`
+    // of table T-233 is the row that says it -- but this road WRITES A FILE, and
+    // a picture written out with rows missing is not a telling on a screen.
+    // ⚠️ NO ROW SETTLES WHETHER A STOPPED EXPORT TELLS. Table T-076 governs what
+    // an export leaves out and says nothing about a stop; `RS-24` names its 正 as
+    // ST-7, which is about the STACKING and not about the writing.
+    // ⛔ A TELLING WAS NOT INVENTED HERE. Raising `RS-24` from the export would
+    // put a screen telling on a road a person may have taken from the `Agent API`
+    // (FR-028), and refusing the write would be `FR-080`'s 「2 つの絵」 read
+    // backwards. ⭐ THE VALUE IS THERE THE MOMENT A RULING ARRIVES -- the layout
+    // carries it, so whichever of the two is chosen is a change at this line.
+    // ⇒ 裁定が要る (D-271).
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
     // that an export does not have -- so the picture is rendered with none of
@@ -7304,6 +7412,177 @@ export function frameLoop(
     return true
   }
 
+  /**
+   * SK-4 of table T-036 -- 「コピーする」, whose 正 is FR-033.
+   *
+   * ⭐⭐ AN IDENTIFIER IS WHAT IS KEPT, and that is the specification's shape and
+   * not a saving: `pasteTaskSubtree` (CM-8) takes a `sourceUid`, and
+   * `pasteTaskGroupSubtree` takes a `sourceGroupId`; both read table T-223's
+   * cascade out of the document when the paste lands. ⇒ A store holding ROWS
+   * would paste a document that has since been edited away.
+   * ⛔ NOTHING IS SENT TO THE OS. FR-033 (MUST NOT) forbids READING the OS
+   * clipboard, and R-9 of table T-008 leaves the write route to FR-025's picture
+   * -- neither says a Task copy goes out, so it does not.
+   *
+   * ⭐ FR-033 NAMES TWO SUBJECTS and this reads both: 「選ばれた `Task` とその WBS
+   * の子孫を部分木ごと」 for the chart, 「行見出しパネルでは、選ばれた `TaskGroup`
+   * を部分木ごと」 for the panel.
+   * ⛔ UNRULED, AND MINE (2026-09-06): WHICH OF THE TWO WINS when a row and a
+   * Task are both chosen. FR-033 states the row clause unconditionally, and DU-2
+   * cascades DU-1 over every `Task` on the copied rows -- so the row is the
+   * SUPERSET of the Task standing on it, and taking it can lose nothing the
+   * person had picked. Overturn it by naming the axis in FR-033.
+   * ⛔ UNRULED, AND MINE: MORE THAN ONE. FR-033 says 「選ばれた `Task`」 and
+   * 「選ばれた `TaskGroup`」 in the singular and both commands carry ONE source,
+   * so two cannot be expressed; `RS-27` is FR-029's 「どの入口にも当たる行が無い
+   * とき」 doing its job rather than a row reached past. ⚠️ A copy of several is
+   * a change to table T-223 and to both command shapes, not to this function.
+   *
+   * @purity non-pure
+   */
+  function copyForPaste(): void {
+    // ⭐ THE PANEL'S AXIS FIRST -- see the note above on which wins.
+    if (selectedGroupIds.length === 1) {
+      copiedForPaste = { kind: 'row', groupId: selectedGroupIds[0] as string }
+      return
+    }
+    const chosenTaskUids = selection.items.flatMap((one) =>
+      one.kind === 'task' ? [one.uid] : [],
+    )
+    if (selectedGroupIds.length === 0 && chosenTaskUids.length === 1) {
+      copiedForPaste = { kind: 'task', uid: chosenTaskUids[0] as number }
+      return
+    }
+    // ⛔ FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」. A press
+    // that changes no picture and says nothing is 「故障した入口と見分けられない」.
+    // ⛔ THE STORE IS LEFT AS IT STOOD. A refused copy is not an emptying -- what
+    // was copied before is still what SK-5 would paste, and clearing it here
+    // would spend a person's earlier copy on a press that did nothing.
+    raiseNotice(NOTHING_TO_DO_REASON, null)
+  }
+
+  /**
+   * SK-5 of table T-036 -- 「貼り付ける」, FR-033's landing.
+   *
+   * ⭐ THE ONE PLACE ST-7's VALVE IS ANSWERED FOR A PASTE. FR-033 (MUST):
+   * 「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知
+   * すること」 -- 「貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効か
+   * なかったりする」. ⛔ `edit-task.ts` RECORDS AT CM-8 THAT IT CANNOT ANSWER IT,
+   * and it is right: ST-1 counts 描画上の占有幅 and table T-038 forbids counting
+   * by dates alone (MUST NOT), so the number lives in the LAYOUT. ⭐ This side
+   * has one, so the paste is folded onto a copy and the copy is laid out.
+   * ⚠️ THE FOLD IS PI-9 AND SETTLES NOTHING -- `editDocument` is pure, pushes no
+   * undo step, moves no stamp and notifies nobody; it is the same road the drag
+   * preview takes (`previewOfHeldPress`).
+   * ⚠️ LAID OUT WITH THIS FRAME'S OWN SETTINGS, REGIONS AND FOLD, because ST-7
+   * counts what is DRAWN: HR-1a of table T-015 draws no descendant of a folded
+   * row, and its own note says in as many words 「畳みで段数が増えることはない」.
+   *
+   * ⛔ THE OTHER TWO REFUSALS ARE NOT RE-STATED HERE, which is rule 03 section 1.
+   * FR-004's depth (MUST NOT) is refused inside `editTaskGroup` at CM-28, and a
+   * missing id likewise -- so a fold that comes back refused is handed to
+   * `writeDocument` unchanged, and the row of table T-233 that fits is raised by
+   * `raiseWriteRefusal` rather than chosen here.
+   *
+   * ⛔ UNRULED, AND MINE (2026-09-06): AN EMPTY STORE AND A SOURCE THAT HAS BEEN
+   * DELETED. No row of table T-233 names either, so both fall to `RS-27`, which
+   * FR-029 appoints for 「どの入口にも当たる行が無いとき」. ⚠️ A row of its own for
+   * 「貼るものがありません」 would read better and is a change to table T-233.
+   *
+   * @purity non-pure
+   */
+  function pasteWhatWasCopied(frame: FrameValues): void {
+    const copied = copiedForPaste
+    if (copied === null) {
+      raiseNotice(NOTHING_TO_DO_REASON, null)
+      return
+    }
+    const schedule = held.document.schedule
+    const command = pasteCommandFor(copied, schedule)
+    if (command === null) {
+      raiseNotice(NOTHING_TO_DO_REASON, null)
+      return
+    }
+    // ⭐ FR-033's VALVE, MEASURED ON THE DOCUMENT THIS PASTE WOULD MAKE.
+    const folded = editDocument(held.document, command, settingsLimitsOf(frame))
+    if (folded.ok) {
+      const wouldDraw = layoutFromSchedule(
+        folded.document.schedule,
+        frame.settingsMeasuredWith,
+        frame.regions,
+        undefined,
+        isLevelZeroFolded,
+        environment.rowControlsHeightPx,
+      )
+      if (wouldDraw.stackSafetyCapReached !== null) {
+        // ⛔ NOT WRITTEN, WHICH IS 「貼り付けを受け付けず」. ⭐ `RS-24` is the row
+        // table T-233 gives ST-7, and its next step -- 「重なっているタスクを別の
+        // 行へ移すか、日付をずらしてください」 -- is what this person has to do.
+        raiseNotice(STACK_SAFETY_CAP_REASON, null)
+        return
+      }
+    }
+    // ⭐ ONE COMMAND, ONE BUNDLE, ONE STEP -- FR-031's 「身振り 1 つ ＝ 取り消し
+    // 1 段」. A refusal from here is raised by `writeDocument` itself.
+    writeDocument([command], frame)
+  }
+
+  /**
+   * What `copiedForPaste` becomes on the write path, or `null` when the thing it
+   * names is no longer in the document.
+   *
+   * ⭐ FR-033 (MUST) SETTLES WHERE A ROW LANDS: 「貼り付け先は、選んでいる行の子と
+   * すること（MUST）。何も選んでいないときは最上位に置くこと（MUST）」 -- so one
+   * chosen row is the parent and none is the top level.
+   * ⛔ UNRULED, AND MINE (2026-09-06): MORE THAN ONE ROW CHOSEN. 「選んでいる行」 is
+   * singular and names no answer for two, so this refuses rather than picking one
+   * of them -- picking would be this file deciding where a person's work lands.
+   *
+   * ⚠️ THE SUBTREE IS WALKED ON THIS SIDE BECAUSE THE COMMAND'S SHAPE DEMANDS IT.
+   * `pasteTaskGroupSubtree` takes `newGroupIds` keyed by every copied row, and a
+   * pure function may not mint one (`crypto.randomUUID` is not pure) -- the same
+   * reason `importSessionId` and `newGroupId` are minted out here. ⛔ THE RULE IS
+   * STILL `edit-task-group.ts`'s: that unit re-derives DU-2's subtree itself and
+   * refuses any row this side failed to give an id for, so the two cannot part
+   * company in silence.
+   *
+   * @purity non-pure
+   */
+  function pasteCommandFor(
+    copied: { readonly kind: 'task'; readonly uid: number } | { readonly kind: 'row'; readonly groupId: string },
+    schedule: Schedule,
+  ): DocumentCommand | null {
+    if (copied.kind === 'task') {
+      // ⚠️ GONE SINCE IT WAS COPIED. CM-8 would refuse it, but the refusal it
+      // raises is about a command nobody could have meant -- this is the person's
+      // own copy having been deleted, which the caller tells with `RS-27`.
+      return taskByUid(schedule, copied.uid) === null
+        ? null
+        : { kind: 'pasteTaskSubtree', sourceUid: copied.uid }
+    }
+    const byParent = new Map<string | null, TaskGroup[]>()
+    for (const row of schedule.taskGroups) {
+      byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
+    }
+    if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
+    if (selectedGroupIds.length > 1) return null
+    // DU-2: 「配下の行」 come with the row that was copied.
+    const newGroupIds: Record<string, string> = {}
+    const walking = [copied.groupId]
+    while (walking.length > 0) {
+      const id = walking.pop() as string
+      if (newGroupIds[id] !== undefined) continue
+      newGroupIds[id] = crypto.randomUUID()
+      for (const child of byParent.get(id) ?? []) walking.push(child.id)
+    }
+    return {
+      kind: 'pasteTaskGroupSubtree',
+      sourceGroupId: copied.groupId,
+      targetGroupId: selectedGroupIds.length === 1 ? (selectedGroupIds[0] as string) : null,
+      newGroupIds,
+    }
+  }
+
   function carryOutAction(action: InputAction | null, frame: FrameValues): void {
     // MK-12: a combination this tool assigns nothing to produces nothing.
     if (action === null) return
@@ -7389,44 +7668,14 @@ export function frameLoop(
         }
         replaceHeldDocument({ row: 'RD-2' })
         return
+      // SK-4 and SK-5 of table T-036, which FR-033 is the 正 of. The store the
+      // two share is `copiedForPaste`; these two lines are its entrance and its
+      // exit, and everything either of them decides is stated on the helper.
       case 'copySelection':
+        copyForPaste()
+        return
       case 'pasteClipboard':
-        // STOP -- ⛔ NO STORE HOLDS WHAT WAS COPIED. ⚠️ Doing nothing here is
-        // not the behaviour: it is the absence of it (台帳 D-321 / D-290).
-        //
-        // ⛔⛔ THE NOTE THAT STOOD HERE NAMED THE WRONG THING MISSING. It read
-        // 「NO CLIPBOARD SEAM IS WIRED. SK-4 and SK-5 belong to ClipboardGateway
-        // (PI-24 of table T-064), and nothing in this build builds one or hands
-        // it to this loop」 -- and BOTH halves are false, measured 2026-09-06:
-        // `src/adapter/clipboard-gateway/` is built, and the `clipboard` seam IS
-        // handed to this loop (`copyPictureToClipboard`, below, spends it).
-        // ⭐ WHAT THAT GATEWAY CANNOT DO IS READ. PI-24 publishes `writeClipboard`
-        // and nothing else, and that is the specification's own shape: R-9 of
-        // table T-008 marks the route 「送信のみ・読まない」, and FR-033 (MUST
-        // NOT) forbids reading the OS clipboard in as many words -- 「複製に使う
-        // 置き場はアプリの中に持つこと（MUST）。OS のクリップボードから読み込ん
-        // ではならない（MUST NOT）」. ⇒ SK-4 and SK-5 do not belong to that
-        // component at all; they want a store of this loop's own, which LY-5 of
-        // table T-060 would leave here.
-        //
-        // ⭐ THE WRITES ARE ALREADY WRITTEN, which is what makes this a store and
-        // not a feature: `pasteTaskSubtree` (CM-8) takes a `sourceUid` and
-        // `pasteTaskGroupSubtree` takes a `sourceGroupId`, so what a copy has to
-        // keep is IDENTIFIERS and never content. ⛔ THREE THINGS ARE STILL
-        // MISSING, and none may be guessed at here:
-        //   ① `pasteTaskGroupSubtree` wants `newGroupIds`, one fresh id per row
-        //      of the copied subtree -- so this side would have to walk DU-2's
-        //      subtree, which is a rule `edit-task-group.ts` already owns.
-        //   ② FR-033 (MUST) refuses a paste 「段が表 T-014 の `ST-7` の安全弁に
-        //      達したとき」 and (MUST NOT) one past FR-004's depth. `edit-task.ts`
-        //      records at CM-8 that the first cannot be answered from a
-        //      document-only function and that no signature says who passes the
-        //      count in.
-        //   ③ Nothing states what a copy of a since-deleted row means, nor what
-        //      `Ctrl+V` tells when the store is empty (FR-029 wants a row of
-        //      table T-233 and no row names this).
-        // ⚠️ Wiring the entrance without ① .. ③ would paste unchecked, which is
-        // the very MUST half of FR-033 is.
+        pasteWhatWasCopied(frame)
         return
       case 'openDocumentFile': {
         // SK-10 of table T-036 and IC-1 of table T-109 -- OP-2's one entry,

@@ -22,7 +22,6 @@ import {
   groupDepthLimit,
   layoutFromSchedule,
   rulerTierOf,
-  StackSafetyCapReached,
   taskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -792,10 +791,22 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     expect(packed.rows[0]!.height).toBe(68)
   })
 
-  it('ST-7 stops rather than truncating or overlapping when the cap is reached', () => {
+  it('ST-7 stops at the cap and says so by a value, and throws nothing', () => {
     const many = Array.from({ length: 4 }, (_, i) => spanning(i + 1, '2026-01-01', 20))
     const capped = settingsOf({ ...LAYOUT_SETTINGS, stackSafetyCap: 2 })
-    expect(() => layoutFromSchedule(oneRow(many), capped, REGIONS)).toThrow(StackSafetyCapReached)
+    // Until 2026-09-06 this threw. ST-7 forbids exactly that: the valve must
+    // stop, and hand back a value the caller can tell the stop by, so that
+    // RS-24 can be told (the ruling of PD-178, 2026-08-23).
+    const layout = layoutFromSchedule(oneRow(many), capped, REGIONS)
+    expect(layout.stackSafetyCapReached).not.toBeNull()
+    expect(layout.stackSafetyCapReached!.cap).toBe(2)
+  })
+
+  it('ST-7 leaves the stopped row out whole, and keeps the rows before it', () => {
+    const capped = settingsOf({ ...LAYOUT_SETTINGS, stackSafetyCap: 2 })
+    const ordinary = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), capped, REGIONS)
+    expect(ordinary.stackSafetyCapReached).toBeNull()
+    expect(ordinary.rows).toHaveLength(1)
   })
 })
 
