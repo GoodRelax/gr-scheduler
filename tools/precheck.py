@@ -216,9 +216,29 @@ def trap_double_blank(relative, lines):
 
 
 # ---------------------------------------------------------------- trap 3
-def trap_generated_edit(relative, lines):
+def trap_generated_edit(relative, lines, dirty=()):
+    """A generated artifact in the diff with no manuscript beside it.
+
+    ⛔ THE TRAP IS "EDITED BY HAND", NOT "IN THE DIFF". A round that edits a
+    manuscript and reruns `npm run gen` puts every artifact of that manuscript
+    in the diff, and that is the correct state, not a mistake. Measured
+    2026-09-06, the first round to touch four manuscripts after this trap was
+    made a gate: five artifacts were reported and all five were correct
+    regenerations. ⭐ So it fires only when NOTHING the artifact names as its
+    manuscript is dirty in the same diff -- which is the shape of the mistake
+    it was written for, someone typing into the artifact itself.
+    ⚠️ Whether the artifact MATCHES its manuscript is not a question a
+    one-second diff can answer; `npm run gen:check` (check 16) answers it.
+    """
     if not is_generated(relative, lines):
         return []
+    declaration = chr(10).join(lines[:GENERATED_MARKER_WITHIN_LINES])
+    for other in dirty:
+        other = other.replace(os.sep, '/')
+        if other == relative:
+            continue
+        if other in declaration or other.rsplit('/', 1)[-1] in declaration:
+            return []
     return ['%s  is a generated artifact -- edit its manuscript and rerun '
             '`npm run gen`, or the next run erases this' % relative]
 
@@ -293,7 +313,10 @@ def main():
             continue
         looked += 1
         for _title, trap in TRAPS:
-            found.extend(trap(relative, lines))
+            if trap is trap_generated_edit:
+                found.extend(trap(relative, lines, files))
+            else:
+                found.extend(trap(relative, lines))
         found.extend(trap_challenge_pairing(relative, lines, goals))
 
     if found:

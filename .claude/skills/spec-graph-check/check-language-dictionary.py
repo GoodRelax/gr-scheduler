@@ -62,7 +62,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            24, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            25, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -76,7 +76,10 @@ EXEMPT = {
                 '(the user\'s ruling of that day), one token each and all '
                 'three drawn from the same closed enum. The count rises '
                 'because the table has three more rows, not because the '
-                'exemption widened.'),
+                'exemption widened. '
+                '⭐ 24 -> 25 on 2026-09-06: PR-21 carries the comment '
+                'box body, drawn with the same 複数行 token PR-2 already used. '
+                'One more row of the same closed enum.'),
     },
 }
 

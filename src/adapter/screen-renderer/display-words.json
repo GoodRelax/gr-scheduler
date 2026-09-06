@@ -13,6 +13,17 @@
    }
   },
   {
+   "rowId": "IC-98",
+   "label": {
+    "ja": "新しく始める",
+    "en": "New"
+   },
+   "hint": {
+    "ja": "開いている文書を捨てて、新しく始める",
+    "en": "Discard the open document and start a new one"
+   }
+  },
+  {
    "rowId": "IC-1",
    "label": {
     "ja": "開く",
@@ -1124,6 +1135,13 @@
    "label": {
     "ja": "高さ",
     "en": "height"
+   }
+  },
+  {
+   "rowId": "PR-21",
+   "label": {
+    "ja": "本文",
+    "en": "text"
    }
   }
  ],
@@ -3352,6 +3370,17 @@
    }
   },
   {
+   "rowId": "RS-50",
+   "text": {
+    "ja": "下記の無効なタスクを削除して取り込みました",
+    "en": "The invalid tasks listed below were removed, and the rest was imported"
+   },
+   "nextStep": {
+    "ja": "元のファイルの日付を直して読み直すか、取り消しで取り込む前へ戻せます",
+    "en": "Fix the dates in the original file and read it again, or undo to get back to before the import"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3650,8 +3679,8 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネルを開いて名前を編集、行見出し＝行名",
-    "en": "What it does depends on what it lands on -- Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: opens the Properties Panel and edits its name; row title: the row name"
+    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネルを開いて名前を編集、行見出し＝行名",
+    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Name Label: its name; Assignee Label: the resource name; task: opens the Properties Panel and edits its name; row title: the row name"
    },
    "press": {
     "ja": "ダブルクリック",

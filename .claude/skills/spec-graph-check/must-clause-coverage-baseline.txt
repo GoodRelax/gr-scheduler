@@ -1,4 +1,18 @@
-942
+952
+#
+# RAISED 942 -> 952 ON 2026-09-06, DELIBERATELY. Four rulings of that day
+# reached the specification and each added marked clauses that nothing under
+# tests/ holds yet:
+#   FR-023  the import drops the invalid rows and tells afterwards -- the two
+#           choices are gone, the telling and the "not a count alone" are new
+#   T-023 MK-13 / T-016 PR-21  the comment box body is edited in the panel
+#   T-014 ST-7  the telling may not be limited to the drawing road
+#   T-051 HF-17  adding a row at level 0 opens the fold by one level, and
+#           may not open it all the way
+#   T-109 IC-98 / T-103 U-62  the entrance FR-095 never had, and the face
+#           that lists what the import dropped
+# â This is debt, not a settlement: a spec-only body is to hold these
+# verbatim and bring the number back down.
 #
 # LOWERED 951 -> 942 ON 2026-09-06. A spec-only body wrote four files for rows
 # that were built and measured and held by nothing: the resume date, the

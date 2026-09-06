@@ -219,6 +219,17 @@
    ],
    "isReadOnly": false,
    "appliesTo": "TaskGroup"
+  },
+  {
+   "rowId": "PR-21",
+   "columns": [
+    "text"
+   ],
+   "inputKinds": [
+    "複数行"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox"
   }
  ]
 }
