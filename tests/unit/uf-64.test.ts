@@ -225,6 +225,18 @@ const INPUT_KIND_COLUMN = '入力の型'
 const APPLIES_TO_COLUMN = '対象'
 const ON_A_TASK = 'Task'
 const ON_A_ROW = 'TaskGroup'
+/**
+ * The THIRD value that column carries, from 2026-09-06 (CR-368).
+ *
+ * ⭐ PR-21 (`CommentBox.text`, 入力の型 `複数行`) is where 表 T-023 の `MK-13`
+ * now sends a double click on a comment box -- 「コメントボックス ＝ プロパティ
+ * パネルを出し、本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置く
+ * こと（MUST）」 -- and the same row forbids the other way it could have gone:
+ * 「⛔ **図の上で打ち換える器を置いてはならない（MUST NOT）**」.
+ * ⛔ So a comment box's panel is no longer empty of table T-016, and the cases
+ * that used to say it was are now the row's own claim, keyed by 対象.
+ */
+const ON_A_COMMENT_BOX = 'CommentBox'
 
 /**
  * FR-006 (MUST): 「同表が読み取り専用と記した項目を除いて」編集できること.
@@ -275,6 +287,9 @@ const T_016 = specTable('T-016').rows.map((row) => {
  * carry a `TaskGroup` row either.
  */
 const T_016_ON_A_TASK = T_016.filter((item) => item.appliesTo === ON_A_TASK)
+
+/** The half of table T-016 a selected `CommentBox` puts up, in the table's own order. */
+const T_016_ON_A_COMMENT_BOX = T_016.filter((item) => item.appliesTo === ON_A_COMMENT_BOX)
 
 /**
  * Table T-016's 入力の型 column against the members of `PropertyControlKind`.
@@ -1379,7 +1394,15 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
     // HERE AGREE WITH ANYTHING (rule 04 section 2).
     expect(T_016_ON_A_TASK.length, '対象 = Task').toBeGreaterThan(0)
     expect(T_016_ON_A_ROW.length, '対象 = TaskGroup').toBeGreaterThan(0)
-    expect(T_016_ON_A_TASK.length + T_016_ON_A_ROW.length).toBe(T_016.length)
+    // ⭐ THE THIRD VALUE ARRIVED ON 2026-09-06 (CR-368, PR-21 = `CommentBox`).
+    // ⛔ The sum is still held against the whole table: this case is what says
+    // the 対象 column carries no value these cases have not been told about, and
+    // dropping it would let a fourth kind reach a panel unwatched.
+    expect(T_016_ON_A_COMMENT_BOX.length, '対象 = CommentBox').toBeGreaterThan(0)
+    expect(
+      T_016_ON_A_TASK.length + T_016_ON_A_ROW.length + T_016_ON_A_COMMENT_BOX.length,
+      'table T-016 carries a 対象 these cases do not know',
+    ).toBe(T_016.length)
   })
 
   it("⛔ MUST NOT put a `TaskGroup` row on a selected task's panel", () => {
@@ -1426,26 +1449,102 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
 })
 
 describe('table T-023c -- the other kinds SL-1 admits', () => {
+  /**
+   * ⚠️ THE COMMENT BOX LEFT THIS LIST ON 2026-09-06 (CR-368). Until then table
+   * T-016 carried no row for any of the three; PR-21 (`CommentBox.text`) is now
+   * one, so the comment box has its own group below and this list is the kinds
+   * the table still stands nothing against.
+   */
   const OTHERS: readonly ItemRef[] = [
     { kind: 'highlightBox', id: 'h1' },
-    { kind: 'commentBox', id: 'c1' },
     { kind: 'statusLine' },
   ]
 
+  const withBoxes = (): Schedule =>
+    scheduleOf({
+      commentBoxes: [{ id: 'c1' }],
+      highlightBoxes: [{ id: 'h1' }],
+    })
+
   it('stays on the selection and stands no `Task` row against them', () => {
-    // ⛔ Neither table T-016 nor FR-009 carries a row for these three, and
+    // ⛔ Neither table T-016 nor FR-009 carries a row for these two, and
     // FR-072 forbids falling through to the settings.
     for (const item of OTHERS) {
-      const panel = panelOf(
-        scheduleOf({
-          commentBoxes: [{ id: 'c1' }],
-          highlightBoxes: [{ id: 'h1' }],
-        }),
-        holding(item),
-      )
+      const panel = panelOf(withBoxes(), holding(item))
       expect(panel.showing, item.kind).toBe('selection')
       for (const row of T_016) expect(panel.fields.map((f) => f.row), item.kind).not.toContain(row.row)
     }
+  })
+})
+
+describe('表 T-023 MK-13 -- a selected comment box puts its 本文 up (PR-21, CR-368)', () => {
+  // ⛔ THE RULE, VERBATIM (表 T-023 の `MK-13`, the user's ruling of 2026-09-06):
+  // 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の `PR-21`）
+  //   を編集できる状態にして焦点を置くこと（MUST）（`FR-097`）—— ⭐ **図の上で
+  //   打ち換える器を置いてはならない（MUST NOT）**」.
+  // ⭐ WHICH FIELDS STAND THERE IS FR-006's 対象 rule, the same one the
+  // `TaskGroup` group above drives: 「いま選ばれているものと同じ「対象」を持つ行
+  // だけを出すこと（MUST）。対象の違う行を出してはならない（MUST NOT）」.
+
+  const THE_BOX: ItemRef = { kind: 'commentBox', id: 'c1' }
+
+  const boxPanel = (language: 'ja' | 'en' = 'ja'): PropertiesPanel =>
+    panelOf(
+      scheduleOf({ commentBoxes: [{ id: 'c1', text: 'a body' }] }),
+      holding(THE_BOX),
+      sessionWith({ language }),
+    )
+
+  it('stays on the selection rather than falling through to the settings (FR-072)', () => {
+    expect(boxPanel().showing).toBe('selection')
+  })
+
+  it('⭐ MUST put every `CommentBox` row up, in the table\'s order, and nothing else', () => {
+    expect(boxPanel().fields.map((field) => field.row)).toEqual(
+      T_016_ON_A_COMMENT_BOX.map((item) => item.row),
+    )
+  })
+
+  it('⛔ MUST NOT put a `Task` or a `TaskGroup` row on it (FR-006)', () => {
+    const rows = boxPanel().fields.map((field) => field.row)
+    for (const item of T_016) {
+      if (item.appliesTo === ON_A_COMMENT_BOX) continue
+      expect(rows, item.row).not.toContain(item.row)
+    }
+  })
+
+  it('⭐ carries the name the dictionary holds, not the GRS JSON column (FR-038)', () => {
+    const inJapanese = boxPanel().fields.map((field) => field.name)
+    expect(inJapanese).toEqual(T_016_ON_A_COMMENT_BOX.map((item) => item.name))
+    for (const item of T_016_ON_A_COMMENT_BOX) {
+      expect(inJapanese, `${item.row} shows its column`).not.toContain(item.columns)
+    }
+    expect(boxPanel('en').fields.map((field) => field.name)).toEqual(
+      T_016_ON_A_COMMENT_BOX.map((item) => item.nameInEnglish),
+    )
+  })
+
+  it('⭐ gives each of them the form its 入力の型 column names', () => {
+    // PR-21's cell reads `複数行`, which is `multiline` of `PropertyControlKind`.
+    const wanted = T_016_ON_A_COMMENT_BOX.map((item) =>
+      item.inputKinds.map((word) => KIND_OF_INPUT[word]),
+    )
+    expect(boxPanel().fields.map((field) => field.controls.map((one) => one.kind))).toEqual(wanted)
+  })
+
+  it('⭐ leaves them editable -- MK-13 asks for 「編集できる状態」 (FR-006)', () => {
+    // ⛔ Table T-016 marks no `CommentBox` row 読み取り専用, so a read-only
+    // control would satisfy the roster and none of the ruling.
+    for (const item of T_016_ON_A_COMMENT_BOX) {
+      expect(item.readOnly, `${item.row} 読み取り専用`).toBe(false)
+    }
+    for (const field of boxPanel().fields) {
+      expect(field.isEditable, field.row).toBe(true)
+    }
+  })
+
+  it('shows what the box already holds', () => {
+    expect(fieldAt(boxPanel().fields, 'PR-21').text).toContain('a body')
   })
 })
 

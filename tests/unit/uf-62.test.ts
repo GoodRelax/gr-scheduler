@@ -169,7 +169,11 @@ const T_109_APP_HEADER_RUNS: readonly {
   readonly rows: readonly string[]
 }[] = [
   { group: 'パレット', rows: ['IC-7'] },
-  { group: '文書', rows: ['IC-1', 'IC-2', 'IC-3', 'IC-4'] },
+  // ⚠️ IC-98 STANDS AT THE HEAD OF THIS RUN, AND THAT IS NEW (CR-368,
+  // 2026-09-06). FR-095 (文書を新しく始める) had no entrance in any table until
+  // then; table T-109 gave it one and printed it between IC-7 and IC-1, so the
+  // 文書 run gained a row at its head rather than at its end.
+  { group: '文書', rows: ['IC-98', 'IC-1', 'IC-2', 'IC-3', 'IC-4'] },
   { group: '履歴', rows: ['IC-5', 'IC-6'] },
   {
     group: '表示',
@@ -234,6 +238,10 @@ const IC_AGENT_API = 'IC-20'
  * two values, which is note 2 of the head comment.
  */
 const T_109_APP_HEADER_ACTIONS = [
+  // ⭐ IC-98 (CR-368): 「文書を新しく始める」. Table T-109 keys no state on it --
+  // FR-095 starts a document rather than turning something on -- so it belongs
+  // in this list, at the head, where that table prints it.
+  'IC-98',
   'IC-1',
   'IC-2',
   'IC-3',

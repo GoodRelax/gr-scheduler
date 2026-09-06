@@ -1,5 +1,18 @@
-7
+8
 #
+# RAISED 7 -> 8 ON 2026-09-06, DELIBERATELY. PD-343 (where the guide
+# cursor's two vertical lines stand) became 裁定済 that day -- and the
+# ruling was that the mode itself retires, so the question was not
+# answered, it was removed. D-301 [実装待ち] names PD-343 and now reads as
+# the eighth. ⛔ The row was read against the ruling before this number
+# moved, and the ruling is recorded in it: the specification carries the
+# new MUST (FR-048's re-press), the spelling left S-66, and IC-46/IC-49
+# left table T-109. What still reads as un-ruled is the row's own earlier
+# prose, which this project does not rewrite.
+# ⚠️ This is the shape rule 04 section 3.8 warns about: the check reads
+# prose, and a row that records its own history reads like a row that has
+# not moved. ⭐ It is still worth having -- it caught four already-ruled
+# rows the day it was written.
 # SET TO 7 ON 2026-09-06, the day check 40 was written. ⛔ COUNTED FIRST, then
 # written here -- the number is what the check printed against the tree as it
 # stood, NOT a zero with the rows "fixed" to reach it.

@@ -626,28 +626,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-45",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "カーソル",
-   "entryTo": "デュアルカーソルの 2 本を置く（`S-65`）",
-   "authority": "`FR-082`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-46",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "カーソル",
-   "entryTo": "ガイドカーソルを `'none'` にする（`S-66`。4 値排他）",
-   "authority": "`FR-048`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-47",
    "surfaces": [
     "Command Palette"
@@ -670,13 +648,13 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-49",
+   "rowId": "IC-45",
    "surfaces": [
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "同・`'double-vertical'`",
-   "authority": "`FR-048`",
+   "entryTo": "デュアルカーソルの 2 本を置く（`S-65`）",
+   "authority": "`FR-082`",
    "arms": null,
    "armsShape": null
   },

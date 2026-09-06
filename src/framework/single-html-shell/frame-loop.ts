@@ -8946,12 +8946,12 @@ export function frameLoop(
     //    cursor (`S-66` of table T-202) and the side of the `Dual Cursor` that
     //    DC-1 of table T-029a has following it -- and while that mode is up,
     //    one side always is.
-    // ⭐ 縦 2 本 IS NO LONGER EXCLUDED. It was, while nothing drew it: no row
-    //    stated the distance between its two lines, so the picture held
-    //    nothing that followed the pointer and a frame would have changed no
-    //    pixel. S-209 of table T-206 now states that distance and SvgRenderer
-    //    draws the pair, so 「なし」 is once more the only mode that follows
-    //    nothing -- which is what this test reads.
+    // ⭐ 縦 2 本 IS NOT A MODE AT ALL SINCE 2026-09-06, so no exclusion is owed
+    //    for it either way. CU-3 of table T-029 (MUST NOT) 「「縦 2 本」を持って
+    //    はならない」 and S-66 now holds three values; 「なし」 is the only one of
+    //    the three that follows nothing, which is exactly what this test reads.
+    //    ⚠️ WHAT STOOD HERE reasoned from S-209 stating the gap between that
+    //    mode's two lines -- that row went with the mode.
     const guideMode = before.document.documentSettings.guideCursorMode
     if (guideMode !== GUIDE_CURSOR_NONE) return true
     if (dualCursorFollowing !== null) return true
@@ -9855,5 +9855,7 @@ export const WATERMARK_UNLOCK_DIGEST: {
   'S-101': 'e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134',
 }
 // </generated>
+
+
 
 

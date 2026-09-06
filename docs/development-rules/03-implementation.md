@@ -34,7 +34,6 @@ ENTITY_ROWS                          実体の行（`erd.json`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
-NOT_STORED_GUIDE_CURSOR_SIZES        案内カーソルの 2 本の隔たり（`S-209`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
 NOT_STORED_ICON_SIZES                アイコンの箱と隔たり（`S-138` / `S-141`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）

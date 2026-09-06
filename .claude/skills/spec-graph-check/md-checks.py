@@ -161,10 +161,19 @@ RETIRED = {'FR-050', 'T-030',
            'FR-026', 'FR-061', 'BT-3', 'LM-17', 'RS-17', 'RS-18',
            'QN-6', 'QN-7', 'S-112', 'K-96', 'U-28', 'PG-13', 'TR-2',
            'IC-55', 'IC-56', 'IC-57', 'IF-4', 'RD-5', 'CP-23', 'CP-29',
+           # IC-46 (guide cursor -> 'none') and IC-49 (guide cursor ->
+           # 'double-vertical') left table T-109 on 2026-09-06 (CR-369, the
+           # user's ruling). The changelog of 1.15 names IC-49 as the
+           # neighbour a glyph had to be told apart from, and that record is
+           # true of the day it was written, so the seats stay burnt.
+           'IC-46', 'IC-49',
            'UF-43', 'UF-44', 'UF-52', 'PI-23', 'PI-29',
            'T-044', 'T-045', 'T-046', 'T-047',
            'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',
-           'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139'}
+           'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139',
+           # S-209 (the gap between the guide cursor's two vertical lines)
+           # went out with the mode it measured, on 2026-09-06 (CR-369).
+           'S-209'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

@@ -73,7 +73,7 @@ export interface DocumentSettings {
   readonly groupGridLinesVisible: boolean
   readonly groupLevelOfDetailBase: number
   readonly groupLevelOfDetailRatio: number
-  readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical' | 'double-vertical'
+  readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical'
   readonly iconHintDelayMs: number
   readonly importMaxBytes: number
   readonly importMaxDate: string

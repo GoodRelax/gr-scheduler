@@ -424,8 +424,7 @@
      "enum": [
       "none",
       "crosshair",
-      "single-vertical",
-      "double-vertical"
+      "single-vertical"
      ]
     },
     "iconHintDelayMs": {

@@ -1018,7 +1018,18 @@ const propertyFieldName = (view: ScreenView, rowId: string): string | undefined 
 const T016 = specTable('T-016')
 const APPLIES_TO_COLUMN = '対象'
 const GRS_COLUMN = '列（`GRS JSON`）'
+const ON_A_TASK = 'Task'
 const ON_A_ROW = 'TaskGroup'
+/**
+ * The third value that column carries, from 2026-09-06 (CR-368).
+ *
+ * ⭐ PR-21 (`CommentBox.text`) is where 表 T-023 の `MK-13` sends a double click
+ * on a comment box -- 「本文の欄（表 T-016 の `PR-21`）を編集できる状態にして
+ * 焦点を置くこと（MUST）」 -- so its word arrives on a frame that holds a picked
+ * COMMENT BOX. ⛔ On the task's frame it arrives nowhere at all, and FR-006's
+ * MUST NOT is what says so.
+ */
+const ON_A_COMMENT_BOX = 'CommentBox'
 
 /**
  * The row a field of the panel DECLARES for one row of table T-016.
@@ -1078,9 +1089,57 @@ const ROW_PICKED: Frame = frameWith({
   session: sessionWith({ propertiesShowing: 'selection', selectedGroupIds: [THE_ROW] }),
 })
 
+/**
+ * A comment box picked on the schedule -- AR-5 of table T-023b, and the 対象
+ * PR-21 carries (CR-368).
+ *
+ * ⚠️ THE PICK IS IN THE SELECTION AND NOT IN THE SESSION, which is what parts it
+ * from `ROW_PICKED`: a row of the `Row Title Panel` is held by
+ * `ScreenSession.selectedGroupIds` (FR-085) while everything table T-023c admits
+ * is held by `Selection` (SL-1).
+ */
+const THE_BOX = 'c1'
+
+const SCHEDULE_WITH_A_COMMENT_BOX = {
+  ...SCHEDULE,
+  commentBoxes: [
+    {
+      id: THE_BOX,
+      leaderShapeKind: null,
+      text: 'a body',
+      anchorDate: null,
+      anchorGroupId: null,
+      bodyOffsetPx: null,
+    },
+  ],
+} as unknown as Schedule
+
+const BOX_PICKED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_COMMENT_BOX,
+  selection: selectionWith(emptySelection(), { kind: 'commentBox', id: THE_BOX }),
+  session: sessionWith({ propertiesShowing: 'selection' }),
+})
+
+/**
+ * The frame that puts one row of table T-016 on the panel, by its 対象.
+ *
+ * ⛔ THROWS ON A VALUE IT HAS NOT BEEN TOLD ABOUT rather than falling back to
+ * the task's frame: a fourth 対象 would otherwise be asked for on a screen that
+ * cannot print it, and this file would report the road as broken while the only
+ * thing missing is a frame.
+ */
+const frameFor = (rowId: string): Frame => {
+  const appliesTo = bare(T016.rows.find((row) => row.id === rowId)?.by[APPLIES_TO_COLUMN] ?? '')
+  if (appliesTo === ON_A_TASK) return PANEL_STATES['selection'] as Frame
+  if (appliesTo === ON_A_ROW) return ROW_PICKED
+  if (appliesTo === ON_A_COMMENT_BOX) return BOX_PICKED
+  throw new Error(
+    `table T-016 ${rowId} carries 対象 ${JSON.stringify(appliesTo)}, which this file can raise no frame for`,
+  )
+}
+
 for (const entry of GENERATED['properties'] ?? []) {
   const rowId = keyOf('properties', entry)
-  const isOnARow = bare(T016.rows.find((row) => row.id === rowId)?.by[APPLIES_TO_COLUMN] ?? '') === ON_A_ROW
   const declared = declaredRowOf(rowId)
   place({
     section: 'properties',
@@ -1088,7 +1147,7 @@ for (const entry of GENERATED['properties'] ?? []) {
     field: 'label',
     unit: 'UF-67',
     what: `the name the properties panel shows for ${rowId}`,
-    frame: (isOnARow ? ROW_PICKED : PANEL_STATES['selection']) as Frame,
+    frame: frameFor(rowId),
     read: (view) => propertyFieldName(view, declared),
   })
 }

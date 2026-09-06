@@ -2553,8 +2553,10 @@ const ENTRY = {
    *
    * ⭐ ONE ENTRANCE OVER TWO VALUES, so a press moves to the other one. S-72
    * holds exactly two, and FR-029 (MUST NOT) forbids a second entrance for the
-   * same function -- so an entry per value, the shape IC-46 .. IC-49 have, is
-   * not open here.
+   * same function -- so an entry per value is not open here. ⚠️ THE EXAMPLE
+   * THIS NOTE USED TO GIVE IS GONE: IC-46 .. IC-49 were four such entries, and
+   * since 2026-09-06 the guide cursor has two rows that toggle (see
+   * `guideCursorCrosshair` below), which is this row's own shape.
    */
   themePreference: 'IC-16',
   /**
@@ -2665,23 +2667,33 @@ const ENTRY = {
    * 「同じ入口の再押下」, so one entry answers for both and FR-029 (MUST NOT) is
    * not brushed.
    *
-   * ⛔ NOT THE WAY THE TWO LINES ARE CLEARED. DC-7 (MUST) puts that on an
-   * entrance OF ITS OWN and (MUST NOT) forbids leaving the mode from doing it
-   * -- see the STOP at the foot of this file for what table T-109 still owes.
+   * ⭐ AND IT IS ALSO THE WAY THE TWO LINES ARE CLEARED, SINCE 2026-09-06.
+   * DC-7 (MUST) now reads 「モードを出たら、置いた 2 本を消すこと」 and its own
+   * ⚠️ withdraws the entrance it used to require -- 「出ることが消すことなので、
+   * 別の入口は要らない」. ⛔ WHAT STOOD HERE SAID THE OPPOSITE (that DC-7 put
+   * the clearing on an entrance of its own and forbade leaving the mode from
+   * doing it); it is corrected rather than deleted because table T-109 is no
+   * longer owed a row for it.
    */
   dualCursor: 'IC-45',
   /**
-   * IC-46 .. IC-49 -- one entry for each value of S-66.
+   * IC-47 and IC-48 -- one entry for each value of S-66 A READER MAY ASK FOR.
    *
-   * ⭐ NOT A TOGGLE AND NOT A CYCLE. CU-3 of table T-029 calls the guide cursor
-   * 4 モード排他 and requires (MUST) that the reader choose among them, and
-   * table T-109 draws an entry per value -- so a press names its value outright
-   * and what the value was before does not enter into it.
+   * ⭐ TWO ROWS, NOT FOUR, SINCE 2026-09-06. IC-49 went with the value it wrote
+   * -- CU-3 (MUST NOT) 「「縦 2 本」を持ってはならない」, 「測るための 2 本
+   * （`CU-2`）と見分けが付かない」 -- and IC-46 went because 'none' stopped
+   * having an entrance: FR-048 (MUST NOT) 「消すための別の入口を置いてはならない」
+   * and ⭐ 「`'none'` は値として残るが自分の入口を持たない」. ⛔ Neither seat is
+   * filled by another row: table T-109 leaves both empty (a row ID is a seat
+   * number), so no name here may be re-pointed at IC-46 or IC-49.
+   *
+   * ⭐ EACH IS NOW A TOGGLE, AND STILL NOT A CYCLE. A press names its own value
+   * outright unless that value already stands, and then FR-048 (MUST) 「それを
+   * 出した入口をもう一度押せば消えること」 makes it mean 'none' --
+   * `commandFromGuideCursorEntry` is where that one comparison is made.
    */
-  guideCursorNone: 'IC-46',
   guideCursorCrosshair: 'IC-47',
   guideCursorSingleVertical: 'IC-48',
-  guideCursorDoubleVertical: 'IC-49',
   /**
    * IC-50 -- FR-053's milestone glyph list, opened and folded by ONE entrance.
    * The state is S-142 of table T-206, which the shell holds.
@@ -2966,23 +2978,27 @@ function visibleElementOfEntry(entry: string): VisibleElement | null {
     : null
 }
 
-/** The four values S-66 admits, taken from the command rather than restated. */
+/** The three values S-66 admits, taken from the command rather than restated. */
 type GuideCursorMode = Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode']
 
 /**
- * The value each of IC-46 .. IC-49 puts into S-66.
+ * The value each of IC-47 and IC-48 puts into S-66.
  *
- * ⭐ THE SPELLINGS ARE COPIED, THE SET IS NOT INVENTED. Table T-109 prints the
- * four values verbatim in these four rows and S-66 holds the same four, so
- * this is the join between a row id and a value both documents already spell
- * (rule 03 section 1). The type above is the compiler's check that no fifth
- * spelling can be written here.
+ * ⭐ THE SPELLINGS ARE COPIED, THE SET IS NOT INVENTED. Table T-109 prints
+ * these two values verbatim in these two rows and S-66 holds them, so this is
+ * the join between a row id and a value both documents already spell (rule 03
+ * section 1). The type above is the compiler's check that no other spelling can
+ * be written here.
+ *
+ * ⛔ 'none' IS NOT IN THIS MAP AND MAY NOT BE PUT BACK. It is still one of the
+ * three values S-66 admits, but FR-048 (MUST NOT) 「消すための別の入口を置いて
+ * はならない」 and ⭐ 「`'none'` は値として残るが自分の入口を持たない」 -- it is
+ * reached only by pressing again the entry that is standing.
+ * ⛔ 'double-vertical' IS NOT A VALUE AT ALL SINCE 2026-09-06 (CU-3, MUST NOT).
  */
 const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, GuideCursorMode>> = {
-  'IC-46': 'none',
   'IC-47': 'crosshair',
   'IC-48': 'single-vertical',
-  'IC-49': 'double-vertical',
 }
 
 /** @purity pure */
@@ -4501,11 +4517,9 @@ function commandFromEntry(
       ])
     case ENTRY.dualCursor:
       return commandFromDualCursorEntry(press, context)
-    case ENTRY.guideCursorNone:
     case ENTRY.guideCursorCrosshair:
     case ENTRY.guideCursorSingleVertical:
-    case ENTRY.guideCursorDoubleVertical:
-      return commandFromGuideCursorEntry(entry)
+      return commandFromGuideCursorEntry(entry, context)
     case ENTRY.paletteMinimise:
       // FR-053 -- S-200, which the shell holds. Same shape as the row below.
       return acted({ kind: 'togglePaletteMinimised' })
@@ -4992,23 +5006,41 @@ function commandFromVisibleElementEntry(entry: string, context: InputContext): T
 }
 
 /**
- * One press on one of the guide cursor's four entrances (CM-59).
+ * One press on one of the guide cursor's two entrances (CM-59).
  *
- * ⭐ NOTHING IS READ FROM THE DOCUMENT. CU-3 of table T-029 has the reader
- * CHOOSE among four exclusive modes and table T-109 gives each mode its own
- * entry, so the value the press writes is the row's own and does not depend on
- * the value it replaces. ⚠️ Pressing the entry for the mode already set writes
- * that mode again and costs one undo step (UN-13 keeps S-66 in the history);
- * no row makes a second press on the same entry mean "switch the cursor off"
- * -- IC-46 is the entrance table T-109 places for that, and reading it as an
- * off switch would give one function two entrances (FR-029, MUST NOT).
+ * ⭐⭐ THE SECOND PRESS ON THE STANDING ENTRY MEANS 'none' -- FR-048 (MUST):
+ * 「カーソル 3 種は、それを出した入口をもう一度押せば消えること」, with (MUST NOT)
+ * 「消すための別の入口を置いてはならない」 and ⭐ 「`CU-3` ではこれが `'none'` への
+ * 道であり、`'none'` は値として残るが自分の入口を持たない」 beside it. So the value
+ * a press writes is the row's own EXCEPT when that value already stands.
+ * ⛔ WHAT STOOD HERE READ NOTHING FROM THE DOCUMENT and said in as many words
+ * that 「no row makes a second press on the same entry mean "switch the cursor
+ * off" -- IC-46 is the entrance table T-109 places for that」. ⚠️ IC-46 IS GONE
+ * (2026-09-06) and FR-048 now states the rule that note said no row stated.
+ *
+ * ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ENTRY, for the reason
+ * `commandFromVisibleElementEntry` gives: a drawn screen is as old as the last
+ * paint and FR-048 itself lets a paint be skipped, so a press read against the
+ * picture could take the wrong branch and leave the cursor refusing to go.
+ * ⭐ `context.document` is the copy CS-1 froze at the head of THIS frame.
+ *
+ * ⛔ THE DUAL CURSOR IS NOT TOUCHED HERE (FR-048, MUST NOT: 「1 つの入口が 2 つを
+ * 同時に消してはならない」; DC-4 says the same of the guide cursor's 「なし」).
+ * The one command this returns names S-66 and nothing else.
+ *
+ * ⭐ ONE FUNCTION IS STILL ONE ENTRANCE (FR-029, MUST NOT): both directions of
+ * ONE mode sit on that mode's own row, which is the shape IC-75 has for the
+ * palette's minimise (「同じ入口で戻す」) and IC-41 for the watermark.
  *
  * @purity pure
  */
-function commandFromGuideCursorEntry(entry: string): TranslatedInput {
+function commandFromGuideCursorEntry(entry: string, context: InputContext): TranslatedInput {
   const mode = guideCursorModeOfEntry(entry)
   if (mode === null) return CONSUMED_ELSEWHERE
-  return changed([{ kind: 'setGuideCursorMode', mode }])
+  const standing = context.document.documentSettings.guideCursorMode
+  // ⚠️ ONE PRESS IS STILL ONE UNDO STEP EITHER WAY -- UN-13 keeps S-66 in the
+  // history and this branch changes which value is written, not whether one is.
+  return changed([{ kind: 'setGuideCursorMode', mode: standing === mode ? 'none' : mode }])
 }
 
 /**
@@ -8455,6 +8487,30 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   if (input.kind === 'pointer') {
     if (input.phase !== 'up') return state
     const on = context.pressed === null ? null : context.pressed.on
+    // STOP -- ⛔ U-62 `Import Report`'s ONE ENTRANCE CANNOT BE ANSWERED HERE, AND
+    // WHAT IS MISSING IS A MEMBER OF `ScreenPart`. FR-023 (MUST) raises that
+    // surface after an import dropped rows and U-62 of table T-103 gives it 「入口
+    // は `OK` の 1 つだけである」, whose WORD comes from NT-8 of table T-037.
+    // `dom-screen-surface.ts` now draws it; a press on it arrives here and every
+    // road is shut:
+    //   `on.entry` names a row of table T-109, and NO row of it names U-62 --
+    //     the entrance is a WORD, and minting a row is what FR-029 (MUST) and
+    //     RC-13 of table T-026 refuse this side;
+    //   `on.noticeDismissKey` names a telling of `ScreenSession.notices`, and
+    //     the shell spends it by taking that telling out of the list -- a press
+    //     marked that way is swallowed there and never reaches this member;
+    //   `on.confirmationAnswer` is one of NT-7's two answers, and U-62's own row
+    //     (⛔) says it is not a `Confirmation` -- it asks nothing.
+    // ⛔ AND THE PART ALONE WILL NOT DO: `on.part` says only that the press
+    // landed on that surface, so acting on it would close U-62 on a press
+    // anywhere -- on a name, or on the scrollbar of the list FR-023 (MUST NOT)
+    // forbids shortening -- which is an entrance the specification did not give.
+    // ⇒ What is owed is ONE more member on `ScreenPart`
+    // (`src/adapter/screen-renderer/screen-surface.ts`) saying that a press
+    // landed on a surface's word entrance, and one arm here closing S-99g's
+    // surface when it is set: `screenStateWithSurface(state, null)`.
+    // ⚠️ MEANWHILE NOTHING IS TRAPPED: `escapeTarget` reaches U-62 at the surface
+    // rung of IN-4 like any other surface, so `Esc` is the way out.
     return on === null || on.entry === null ? state : screenStateFromEntry(on.entry, context)
   }
   if (input.kind !== 'key') return state
@@ -8682,9 +8738,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                Cursor が消えるべきだろ？」. `commandFromDualCursorEntry` now
 //                emits CM-61 on DC-4's re-press, so no row, glyph or keystroke
 //                is owed and EP-6 of table T-076 has its way to stop drawing
-//                the pair. ⚠️ TWO THINGS ARE STILL OPEN, and neither is a
-//                missing entrance: DC-7's own text is unedited in the
-//                manuscript (§1 of CR-364 names it), and DC-4's OTHER way out
+//                the pair. ⚠️ ONE THING IS STILL OPEN, and it is not a missing
+//                entrance: DC-7's own text HAS since been edited to match (it
+//                now reads 「モードを出たら、置いた 2 本を消すこと（MUST）」, so the
+//                second of the two is closed), and DC-4's OTHER way out
 //                -- 「`Esc`」 -- is `frame-loop.ts`'s alone, which drops the
 //                mode at `escapeLevel === 'dualCursorMode'` and emits no
 //                command, so it does not clear yet. ⭐ DC-3's day count is

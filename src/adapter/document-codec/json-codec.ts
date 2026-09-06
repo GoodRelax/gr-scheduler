@@ -1002,7 +1002,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['number'],
         },
         guideCursorMode: {
-          enum: ['none', 'crosshair', 'single-vertical', 'double-vertical'],
+          enum: ['none', 'crosshair', 'single-vertical'],
         },
         iconHintDelayMs: {
           type: ['integer'],

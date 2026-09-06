@@ -1,5 +1,10 @@
-952
+948
 #
+# LOWERED 952 -> 948 ON 2026-09-06, the same day it was raised. Retiring
+# the guide cursor's 'double-vertical' (CR-369) took marked clauses out with
+# it, and the spec-only body that followed the moved tables held four more
+# verbatim. ⛔ The nine clauses the raise was taken on are still bare; this
+# is not them being covered.
 # RAISED 942 -> 952 ON 2026-09-06, DELIBERATELY. Four rulings of that day
 # reached the specification and each added marked clauses that nothing under
 # tests/ holds yet:

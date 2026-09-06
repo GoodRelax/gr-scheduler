@@ -1065,7 +1065,13 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
     " * and never the gap the shape's own kind implies.",
 ]
 
-# ⛔ A SEVENTH GROUND, AND THE ONE WHOSE PICTURE HAS NOWHERE TO STAND. S-209
+# ⛔⛔ RETIRED 2026-09-06 (CR-369). The seventh ground held exactly one
+# row and that row went out with the mode it measured, so
+# NOT_STORED_GUIDE_CURSOR_SIZES is no longer written. ⭐ The paragraph is kept
+# because DRAWN_UNDER_THE_HAND_ALONE is the sentence a future row of this
+# shape would arrive on, and because it records WHY the other six grounds did
+# not fit -- which is the part that would be re-derived otherwise.
+# S-209
 # is the distance between the two lines of CU-3's 縦 2 本, read by the unit
 # that draws them. ⛔ The ground of S-138 and S-180 does NOT fit: those close
 # on EP-1 / EP-4, which keep an ENTRANCE out of an export, and on EP-14, which
@@ -1280,7 +1286,6 @@ NOT_STORED_TARGETS = {
     # table T-076 puts one in an exported picture and the other out of it. One
     # shared constant would say the two arrive on the same ground, and the
     # paragraph above each is what says the ground.
-    'NOT_STORED_GUIDE_CURSOR_SIZES': (['S-209'], DRAWN_UNDER_THE_HAND_ALONE),
     # ⭐ The coefficient FR-017 prints the day tier's THIRD line at. ⚠️ NOT
     # A LENGTH -- it is a fraction of the ruler's own font size (S-3), so
     # what it multiplies is known only where the ruler is drawn.
@@ -2175,7 +2180,10 @@ TARGETS = [
     # are drawn by this unit and by no other, and S-194 is the only row that
     # gives them a width -- S-178 is the multiplier DC-8 borrows from SL-8 and
     # stands with the selection's rows, where SL-8 put it.
-    # ⭐ And the guide cursor's own gap, in a fourth constant: CU-3's 縦 2 本 is
+    # ⛔ THE GUIDE CURSOR'S OWN GAP WAS A FOURTH CONSTANT UNTIL 2026-09-06
+    # (CR-369): CU-3's 縦 2 本 retired, and S-209 with it.
+    # ⚠️ What follows records the ground it stood on, not a block still
+    # written. ⭐ CU-3's 縦 2 本 was
     # drawn by this unit and by no other, and S-209 is the only row that states
     # how far apart its two lines stand. ⛔ Not folded into the Dual Cursor's --
     # FR-048 (MUST) keeps the two pairs apart, and EP-6 of table T-076 draws
@@ -2184,7 +2192,6 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_GUIDE_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS')
      # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The

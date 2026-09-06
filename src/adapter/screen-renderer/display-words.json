@@ -618,28 +618,6 @@
    }
   },
   {
-   "rowId": "IC-45",
-   "label": {
-    "ja": "デュアルカーソル",
-    "en": "Dual Cursor"
-   },
-   "hint": {
-    "ja": "デュアルカーソルの 2 本を置く",
-    "en": "Place the two Dual Cursor lines"
-   }
-  },
-  {
-   "rowId": "IC-46",
-   "label": {
-    "ja": "ガイドなし",
-    "en": "None"
-   },
-   "hint": {
-    "ja": "ガイドカーソルを出さない",
-    "en": "Show no Guide Cursor"
-   }
-  },
-  {
    "rowId": "IC-47",
    "label": {
     "ja": "十字",
@@ -662,14 +640,14 @@
    }
   },
   {
-   "rowId": "IC-49",
+   "rowId": "IC-45",
    "label": {
-    "ja": "縦 2 本",
-    "en": "Double vertical"
+    "ja": "デュアルカーソル",
+    "en": "Dual Cursor"
    },
    "hint": {
-    "ja": "ガイドカーソルを縦 2 本にする",
-    "en": "Make the Guide Cursor two vertical lines"
+    "ja": "デュアルカーソルの 2 本を置く",
+    "en": "Place the two Dual Cursor lines"
    }
   },
   {

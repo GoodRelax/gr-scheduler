@@ -2085,25 +2085,17 @@ export function svgFromSchedule(
       } else if (settings.guideCursorMode === 'single-vertical') {
         // 縦 1 本.
         linkParts.push(vertical(pointer.x))
-      } else if (settings.guideCursorMode === 'double-vertical') {
-        // ⛔ 縦 2 本 DREW NOTHING UNTIL NOW, AND ONE HALF OF THAT NOTE WAS
-        // WRONG. It said two undecided values were stacked here -- the gap AND
-        // a mark telling this pair from CU-2's -- which is rule 06's class H.
-        // ⭐ MEASURED: the second is already answered, a dozen lines above.
-        // The guide cursor is drawn in `themed('S-148')` at width 1 while the
-        // Dual Cursor takes S-195 and S-194, so the two pairs are already told
-        // apart on screen, which is exactly what FR-048's closing MUST asks:
-        // 「同じ見た目なので、どちらが出ているかを画面上で区別できるように
-        // すること（MUST）」. ⇒ Exactly ONE value was undecided, the gap, and a
-        // row now states it with a recommended value -- rule 06's class C, so
-        // this is drawn and marked rather than left blank. @provisional PD-343
-        const gap = NOT_STORED_GUIDE_CURSOR_SIZES['S-209']
-        // ⭐ The pointer stands BETWEEN the two, not on one of them: CU-3 calls
-        // the mode a 補助線 that follows the pointer, and a pair hung off one
-        // side would put the hand outside what it is guiding.
-        linkParts.push(vertical(pointer.x - gap / 2))
-        linkParts.push(vertical(pointer.x + gap / 2))
       }
+      // ⛔⛔ AND THERE IS NO THIRD BRANCH SINCE 2026-09-06. A 縦 2 本 pair was
+      // drawn here, at the gap S-209 stated, until CU-3 of table T-029 took the
+      // value away: 「「縦 2 本」を持ってはならない（MUST NOT）」, because
+      // 「測るための 2 本（`CU-2`）と見分けが付かない」. S-209 went with it -- the
+      // row it dimensioned no longer exists -- so both the branch and the
+      // constant are gone rather than left unreachable. ⭐ PD-343, which asked
+      // whether the gap was decided, is closed by the retirement.
+      // ⚠️ CU-2's own pair is UNAFFECTED: it is drawn elsewhere, off `dualCursor`
+      // (S-65) at S-194 / S-195, and FR-048 (MUST NOT) forbids one entrance
+      // taking two cursors down together.
     }
   }
 
@@ -2402,30 +2394,6 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
 } = {
   'S-194': 1,
-}
-
-/**
- * The values table T-206 states that this unit needs, by row ID.
- *
- * ⭐ Table T-206 holds what the document does NOT store, so these
- * are not document settings and are not in SETTINGS_DEFAULTS. They
- * are reached by row ID because most rows of that table have no key
- * column -- the row ID is the specification's own name for them.
- *
- * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
- * setting and may not become one: table T-206 is where the
- * specification records that the document does not keep it. ⭐ What
- * keeps it out of an exported picture is EP-6 of table T-076, which
- * draws the `Status Line` and the `Dual Cursor` and NOT the
- * `Guide Cursor` -- 「書き出した時点のポインタの位置に意味が無い」 --
- * so a reader handed this document sees the same picture whatever
- * this value is.
- */
-export const NOT_STORED_GUIDE_CURSOR_SIZES: {
-  /** S-209, in px */
-  readonly 'S-209': number
-} = {
-  'S-209': 8,
 }
 
 /**

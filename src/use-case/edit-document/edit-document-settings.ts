@@ -102,7 +102,7 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'setElementVisible'; readonly element: VisibleElement; readonly visible: boolean }
   | {
       readonly kind: 'setGuideCursorMode'
-      readonly mode: 'none' | 'crosshair' | 'single-vertical' | 'double-vertical'
+      readonly mode: 'none' | 'crosshair' | 'single-vertical'
     }
   | { readonly kind: 'setDualCursor'; readonly date1: string; readonly date2: string }
   | { readonly kind: 'clearDualCursor' }
@@ -214,16 +214,32 @@ export function editDocumentSettings(
       // The ruling 「デュアルカーソルモードを Disable にするか、別のカーソルモード
       // にしたら Dual Cursor が消えるべきだろ？」 was read in §0 of that CR as
       // 「`double-vertical` を離れることが「消す」ことである」 -- i.e. as a rule
-      // for THIS case. ⭐ THAT READING IS REFUSED HERE, on two sentences the
-      // ruling never touched: table T-029's closing paragraph (MUST) says
-      // 「`CU-2` と `CU-3` の「縦 2 本」は別のものである」, and DC-4 (MUST NOT)
-      // draws the consequence -- the guide cursor's 「なし」 may not clear the
-      // measuring pair, 「1 つの入口が 2 つを同時に消してはならない」.
-      // ⭐ `guideCursorMode` (S-66) IS CU-3 AND HOLDS NO DATES; the pair is
-      // CU-2 and lives in `dualCursor` (S-65). Clearing one from the other
-      // would need the manuscript to fuse them first. ⚠️ WHAT THE RULING DOES
-      // REACH is DC-4's own way out, and `input-command-translator.ts` carries
-      // it there -- leaving the mode now emits CM-61.
+      // for THIS case. ⭐ THAT READING IS REFUSED HERE, on a sentence the
+      // ruling never touched: DC-4 (MUST NOT) says the guide cursor's 「なし」
+      // may not clear the measuring pair, 「3 種は独立に出し分ける（`FR-048`）
+      // ので、1 つの入口が 2 つを同時に消してはならない」, and FR-048 repeats it
+      // in its own words. ⭐ `guideCursorMode` (S-66) IS CU-3 AND HOLDS NO
+      // DATES; the pair is CU-2 and lives in `dualCursor` (S-65). Clearing one
+      // from the other would need the manuscript to fuse them first.
+      // ⚠️ WHAT THE RULING DOES REACH is DC-4's own way out, and
+      // `input-command-translator.ts` carries it there -- leaving the mode now
+      // emits CM-61.
+      //
+      // ⭐⭐ AND THE OTHER READING CANNOT EVEN BE SPELLED SINCE 2026-09-06:
+      // 'double-vertical' left S-66 that day (利用者の裁定 -- 縦 2 本の入口は
+      // いらない), so the mode this case writes is one of the three CU-3 now
+      // names. ⛔ NO CONDITION RESCUES A DOCUMENT THAT CARRIES THE RETIRED
+      // VALUE -- Chapter 6 admits only the per-key type and the enumeration the
+      // manuscript spells for this group, so such a document is refused where
+      // every other out-of-enumeration value is, and 「外すだけ。古い文書は拒む」
+      // is the ruling that says so.
+      //
+      // ⚠️ A PRESS NEVER ARRIVES HERE ASKING FOR THE MODE THAT ALREADY STANDS.
+      // FR-048 (MUST) 「それを出した入口をもう一度押せば消えること」 makes the
+      // re-press mean `'none'`, and the translator -- which is the side that
+      // reads what stands (`commandFromGuideCursorEntry`) -- decides that. This
+      // case still puts whatever it is given: CM-59 is one road into S-66 and
+      // may not hold a second copy of the rule (R2.7).
       return put({ guideCursorMode: command.mode })
 
     case 'setDualCursor': { // CM-60

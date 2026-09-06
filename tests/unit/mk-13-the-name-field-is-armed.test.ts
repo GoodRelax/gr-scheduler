@@ -107,16 +107,28 @@ const rowOf = (table: string, id: string) => {
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
 /**
- * The row of 表 T-016 MK-13 names -- read OUT OF MK-13's own cell.
+ * The row of 表 T-016 MK-13 names FOR A TASK -- read OUT OF MK-13's own cell.
  *
  * ⭐ NOT TYPED (rule 03 section 1): the cell reads 「名称の欄（表 T-016 の
  * `PR-1`）」, so the row id has a home already and this file reads it from there.
  * ⛔ A cell that stopped naming one fails here, in one line, instead of leaving
  * every case below asking about a row nothing points at.
+ *
+ * ⚠️ THE 欄 IS PART OF THE PATTERN, AND HAS TO BE (CR-368, 2026-09-06). MK-13
+ * settles one destination per 対象, and from that day it names a SECOND row of
+ * 表 T-016 -- 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
+ * `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」 -- and prints it BEFORE
+ * the task's clause. ⛔ A pattern that took the first `PR-n` in the cell would
+ * hand this file the comment box's 本文の欄 and every case below would be
+ * driving the wrong 対象 while reading as though it drove the task's. These
+ * cases are the TASK's half (the head of this file quotes only that clause), so
+ * the clause is picked by the 欄 the task's own wording names.
  */
 const NAME_ROW = ((): string => {
-  const found = /表 T-016 の `(PR-\d+)`/.exec(MK_13)
-  if (found === null) throw new Error('表 T-023 MK-13 no longer names a row of 表 T-016')
+  const found = /名称の欄（表 T-016 の `(PR-\d+)`）/.exec(MK_13)
+  if (found === null) {
+    throw new Error('表 T-023 MK-13 no longer names 名称の欄（表 T-016 の `PR-n`） for a task')
+  }
   return found[1] as string
 })()
 
@@ -856,6 +868,13 @@ describe('the manuscript still says what these cases read', () => {
     // AGREE WITH ANYTHING -- rule 04 section 2.
     expect(U_25).toBe('Properties Panel')
     expect(NAME_ROW).toBe('PR-1')
+    // ⛔ AND THE ROW IT IS NOT. MK-13 names a second row of 表 T-016 for the
+    // comment box (CR-368) and prints that clause FIRST, so this states that
+    // the guard above is picking a clause rather than the first `PR-n` it meets.
+    expect(MK_13, 'MK-13 still settles the comment box on 本文の欄').toContain(
+      '本文の欄（表 T-016 の `PR-21`）',
+    )
+    expect(NAME_ROW, 'the task\'s clause, not the comment box\'s').not.toBe('PR-21')
     expect(MK_13, 'MK-13 still puts the focus in the name field').toContain(
       '編集できる状態にして焦点を置き',
     )

@@ -541,6 +541,26 @@ const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
  */
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
+/**
+ * The one entrance U-62 `Import Report` of table T-103 carries -- 「入口は `OK`
+ * の 1 つだけである」 -- whose WORD FR-023 sends to NT-8 of table T-037.
+ *
+ * ⛔ NOT `data-icon`, AND THAT IS TABLE T-109's ANSWER RATHER THAN A CHOICE OF
+ * THIS UNIT'S: no row of that table names U-62, so there is no `IconId` this
+ * entrance could be reported as, and minting one is what FR-029 (MUST) and
+ * RC-13 of table T-026 keep away from this file.
+ * ⛔ NOT `NOTICE_DISMISS_KEY_ATTRIBUTE` EITHER. That one names a telling of
+ * `ScreenSession.notices` and the shell spends a press on it by taking that
+ * telling out of the list; U-62 is a SURFACE standing in S-99g, so a press
+ * marked that way would remove nothing and the surface would never close.
+ * ⭐ MARKED ALL THE SAME, for the reason `WATERMARK_UNLOCK_ENTRY_ATTRIBUTE`
+ * above is: the read-back rule 04 asks for after anything that draws has to be
+ * able to find it.
+ * ⛔⛔ AND A PRESS ON IT CANNOT YET BE ANSWERED -- see the STOP on
+ * `importReportElements` for the member `ScreenPart` would have to gain.
+ */
+const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
+
 // -------------------------------------------------------------- the paint ---
 
 /**
@@ -1845,6 +1865,20 @@ const STYLE = {
   // of its contents, and an answer whose word has been squeezed out cannot be
   // read -- NT-7 (MUST) has the person CHOOSE between the two.
   confirmationAnswer: 'flex:none;',
+  // U-62 `Import Report`, laid out as a COLUMN over `STYLE.modal` for the one
+  // reason `confirmation` above is, and it is the same measurement (D-134) that
+  // settles it rather than a preference: the box is capped and scrolls as a
+  // whole, so a list long enough to fill it pushes what stands under the list
+  // out of reach -- and U-62 has 「入口は `OK` の 1 つだけである」, which an
+  // entrance nobody can reach empties. ⛔ NO NEW LENGTH IS INVENTED: every one
+  // here is still `STYLE.modal`'s, and the specification holds no row that gives
+  // this surface a size of its own (searched: table T-103, table T-206's S-
+  // rows, table T-212, FR-023).
+  importReportBox: 'display:flex;flex-direction:column;',
+  // ⚠️ THE SCROLLING HALF AND THE ENTRANCE BESIDE IT ARE `confirmationNames`
+  // AND `confirmationAnswers`, REUSED RATHER THAN COPIED -- the job is the same
+  // one (a list that may scroll, and the way out held out of it), and a second
+  // declaration would be a second set of lengths to keep in step.
   // NT-7 (MUST): 「頭の 1 文字（`Y` と `N`）を太字にすること」. ⛔ THE WEIGHT IS
   // THE WHOLE OF WHAT IS DECLARED -- the row asks for bold and nothing else, and
   // a colour or a size here would be a second signifier nobody stated.
@@ -5145,7 +5179,12 @@ function modalElement(
     host,
     'div',
     modal.surface,
-    STYLE.modal + ('entries' in modal ? helpStyle() : ''),
+    STYLE.modal +
+      ('entries' in modal ? helpStyle() : '') +
+      // U-62 is laid out as a column so that its one entrance stays reachable
+      // however long the list is -- `STYLE.importReportBox` says why, and the
+      // measurement behind it is the confirmation's own (D-134).
+      ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
   drawn.setAttribute('aria-modal', 'true')
@@ -5373,6 +5412,8 @@ function modalElement(
     }
   }
 
+  if ('droppedTaskNames' in modal) body.push(...importReportElements(host, modal))
+
   if ('fields' in modal) {
     // ⛔ `null`: these are table T-104's fields on a modal, not table T-016's on
     // the `Properties Panel`, and `focusPropertyField` answers for the panel.
@@ -5461,6 +5502,107 @@ function modalElement(
 
   drawn.replaceChildren(header, ...body)
   return { element: drawn, watermarkUnlockEntry }
+}
+
+/** U-62 `Import Report` of table T-103, as `screen-renderer.ts` describes it. */
+type ImportReport = Extract<OpenModal, { readonly droppedTaskNames: readonly (string | null)[] }>
+
+/**
+ * U-62 `Import Report` of table T-103 -- what FR-023 (MUST) tells after an
+ * import dropped rows: 「取り込んだあとで、落とした `Task` の名前を並べて告げる
+ * こと」.
+ *
+ * ⛔ THE NAMES ARE ONE ELEMENT EACH AND ARE NEVER JOINED INTO ONE STRING, the
+ * move `confirmationElement` and FR-099's roster both make and for the one
+ * reason: a `Task` that carries no name of its own (AT-27) would be lost
+ * between two separators, and losing it turns the list back into the count
+ * FR-023 (MUST NOT) forbids -- 「件数だけを告げて済ませてはならない」.
+ * ⛔ AND NOTHING IS CAPPED, SENT ON, OR SUMMARISED. The same MUST NOT is why:
+ * its own reason is 「どれが落ちたかを人が知らなければ、元のファイルを直すことが
+ * できない」, and a person cannot repair a row that a cap left unnamed. So the
+ * list is drawn whole and it is the BOX that is laid out to hold it
+ * (`STYLE.importReportBox`), which is what the confirmation does with FR-032's
+ * names.
+ * ⛔ NOTHING HERE IS TRANSLATED. FR-023 (MUST NOT): 「名前は文書の値であるので
+ * 訳さない」 -- so the names cross as the file wrote them, and the three strings
+ * that ARE words (`text`, `nextStep`, `dismissText`) arrive already read out of
+ * the one dictionary FR-038 names.
+ * ⚠️ NOT A `Confirmation` (U-55) AND NOT A NOTICE (U-57): U-62's own row says
+ * both in as many words, so nothing here asks a question and nothing here is
+ * held to NT-9's one line.
+ *
+ * @purity non-pure
+ */
+function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
+  // RS-50 of table T-233, and NT-3a's next step for the same row where it has
+  // one. ⭐ READ AND NOT WRITTEN: `notices.ts` took both out of the dictionary,
+  // which is what keeps FR-038's MUST NOT (one store of the words) unbroken.
+  const said = made(host, 'div', '')
+  said.textContent = modal.text
+  const lines: HTMLElement[] = [said]
+  if (modal.nextStep !== '') {
+    // ⚠️ THE QUIET COLOUR IS `noticeElement`'s, reused rather than declared a
+    // second time: this is the same thing (what can be done next) and a second
+    // declaration would be a second colour to keep in step.
+    const step = made(host, 'div', STYLE.noticeNextStep)
+    step.textContent = modal.nextStep
+    lines.push(step)
+  }
+  for (const name of modal.droppedTaskNames) {
+    const line = made(host, 'div', STYLE.confirmationItem)
+    // ⛔ THE ATTRIBUTE IS NOT WHAT TELLS THE PERSON -- no reader can see one,
+    // the same reason `confirmationElement` gives for its own. It is kept for
+    // the read-back rule 04 asks for after anything that draws, and it is the
+    // one way a row the file left nameless (AT-27) can be told from a row
+    // named with an empty string.
+    line.setAttribute('data-unnamed', String(name === null))
+    line.textContent = name ?? ''
+    lines.push(line)
+  }
+  // ⛔⛔ THE LIST SCROLLS AND THE ENTRANCE DOES NOT (the confirmation's own
+  // measurement, D-134): a way out pushed off the bottom by a long list is no
+  // way out, and U-62 has exactly one -- 「入口は `OK` の 1 つだけである」.
+  const names = made(host, 'div', STYLE.confirmationNames)
+  names.replaceChildren(...lines)
+
+  // NT-8 of table T-037, whose WORD FR-023 sends here for: 「どの表示言語でも
+  // `OK` と綴ること」. ⛔ A WORD IS THE BODY AND NO SHAPE IS DRAWN, the bargain
+  // `noticeElement` keeps for the same row: `fillEntry` is not called and no
+  // `data-icon` is set, because table T-109 is the whole of the icons (FR-029,
+  // MUST) and no row of it names U-62 -- minting one is RC-13 of table T-026's
+  // decision to make, not this unit's.
+  //
+  // STOP -- ⛔ A PRESS ON THIS ENTRANCE STILL CLOSES NOTHING, AND THE ABSENCE IS
+  // OUTSIDE THIS FILE. `readScreenPartAt` can only answer what `ScreenPart`
+  // declares, and not one of its members can carry this press:
+  //   `entry` names a row of table T-109 and U-62 has none (FR-029, MUST);
+  //   `noticeDismissKey` is a telling of `ScreenSession.notices`, and the shell
+  //     spends it by taking that telling out of the list -- a press marked that
+  //     way is swallowed there and never reaches `screenStateFromInput`;
+  //   `confirmationAnswer` is one of NT-7's two answers, and U-62 (⛔ its own
+  //     row) is not a `Confirmation`.
+  // ⇒ What is owed is ONE more member on `ScreenPart`
+  // (`src/adapter/screen-renderer/screen-surface.ts`) saying that a press landed
+  // on a surface's word entrance, this walk putting it on the answer, and
+  // `input-command-translator.ts` closing S-99g's surface when it is set.
+  // ⚠️ UNTIL THEN THE WAY OUT IS `Esc` at the surface rung of IN-4, which
+  // reaches U-62 like any other surface -- so nothing is trapped, and the
+  // entrance is drawn because FR-023 (MUST) has U-62 carry it.
+  const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
+  dismiss.setAttribute('type', 'button')
+  dismiss.setAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE, 'true')
+  // ⚠️ Empty only while the dictionary holds no word (PD-160), and ⛔ nothing is
+  // printed in its place: a row id on the screen is a string FR-038 (MUST) does
+  // not hold. The frame `entryStyle` gives keeps the entrance visible meanwhile.
+  dismiss.textContent = modal.dismissText
+  // ⛔ HELD OUT OF THE SCROLLING REGION BY `confirmationAnswers`, reused for the
+  // reason `STYLE.importReportBox` gives: it is the same job -- the way out,
+  // kept off the list -- and a second declaration would be a second set of
+  // lengths to keep in step. ⚠️ ONE CHILD AND NOT TWO: NT-7's two answers are a
+  // choice, and U-62 asks nothing.
+  const wayOut = made(host, 'div', STYLE.confirmationAnswers)
+  wayOut.replaceChildren(dismiss)
+  return [names, wayOut]
 }
 
 /**
