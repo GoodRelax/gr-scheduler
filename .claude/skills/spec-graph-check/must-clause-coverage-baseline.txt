@@ -1,4 +1,14 @@
-949
+950
+#
+# RAISED 949 -> 950 ON 2026-09-06, and it is a debt, not a result.
+# CR-363 took the user's ruling on the pinned band: it REMOVED one MUST (the
+# band scrolls when it does not fit) and put two in its place -- what does not
+# fit is not drawn (MUST), and the band may not be made scrollable (MUST NOT).
+# Net one more clause, and nothing holds either yet.
+#
+# LOWER THIS BACK TO 949 when a body that reads only docs/spec has written
+# them. A raise that outlives one round is a clause nobody ever tests.
+#
 #
 # LOWERED 960 -> 949 ON 2026-09-06. A spec-only body wrote four files for
 # rows that were built and measured but held by nothing: entering the Dual
