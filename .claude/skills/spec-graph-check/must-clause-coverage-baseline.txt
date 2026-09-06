@@ -1,4 +1,16 @@
-950
+952
+#
+# RAISED 950 -> 952 ON 2026-09-06, the same debt as the line below, grown.
+# The body that implemented CR-363 found two more sentences of FR-098 that
+# the ruling overturned and the CR had not edited: the list of reasons a
+# pinned row may go undrawn (it said those reasons were the ONLY ones), and
+# the MUST NOT against the band filling the Row Area -- which the ruling's
+# own wording presupposes breaking. Both are now written as the ruling has
+# them, and nothing holds the new wording yet.
+#
+# LOWER THIS when the spec-only body writing FR-098's cases returns. It was
+# already running when this was raised.
+#
 #
 # RAISED 949 -> 950 ON 2026-09-06, and it is a debt, not a result.
 # CR-363 took the user's ruling on the pinned band: it REMOVED one MUST (the

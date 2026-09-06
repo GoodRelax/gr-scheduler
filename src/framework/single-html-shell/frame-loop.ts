@@ -1074,6 +1074,29 @@ function isConfirmationAnswerKey(key: string): boolean {
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 
 /**
+ * IC-66 -- FR-099's 「選んだ担当者を消す」, on U-49 `Resource Roster`.
+ *
+ * ⛔⛔ HERE FOR A REASON NONE OF THE ROWS ABOVE HAVE, and the difference
+ * matters. Every other entry in this block is here because a press on it is NOT
+ * a `DocumentCommand`; this one IS -- CM-42 of table T-108, which table T-109
+ * names in the row itself. What keeps it out of `input-command-translator.ts`
+ * is the ARGUMENT and not the road: CM-42 is handed the `uid`s the choice
+ * holds, that choice is `ScreenSession.selectedResourceUids` (PD-143) which
+ * LY-5 of table T-060 leaves with the Framework, and `InputContext` carries no
+ * member for it. ⚠️ THE SAME SHAPE `DIALOGUE_FIELD_ENTRY` ABOVE HAS, whose own
+ * note ends on the same sentence.
+ *
+ * ⚠️ ITS FIVE NEIGHBOURS ON THAT SURFACE ARE ANSWERED OVER THERE, and this
+ * branch cannot join them: IC-63 / IC-64 / IC-65 arrive as `chooseResources`
+ * and IC-67 / IC-68 as `toggleChosenResource`, and both actions MOVE the set
+ * this one READS -- so the translator can plan them without holding it.
+ *
+ * ⛔ NO SURFACE IS ASKED FOR BESIDE IT, unlike `CLOSE_SURFACE_ENTRY`: table
+ * T-109 stands this row on U-49 alone, so the entry is the whole of the join.
+ */
+const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
+
+/**
  * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
  *
  * ⛔ NOT ONE OF THE ROWS ABOVE, and it is here for the opposite reason: table
@@ -1206,26 +1229,39 @@ const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
  * one: a raiser that supplied a sentence would be the second store of
  * translated strings FR-038 forbids (MUST NOT).
  *
- * ⛔ TWO ROWS OF THAT TABLE ARE MISSING FROM THIS UNION, and each is missing
- * because no road in this build reaches the moment it names:
+ * ⛔⛔ A NOTE STOOD HERE NAMING TWO ROWS AS MISSING FROM THIS UNION, and on
+ * 2026-09-06 BOTH HALVES OF IT WERE MEASURED AND BOTH WERE WRONG:
  *
- *   QN-3  FR-099's unassignment. `notices.ts` records the same gap from the
- *         other end -- table T-109 places IC-66 on U-49, so there is an
- *         entrance, and what is absent is a raiser that puts the question up
- *         and spends the answer.
+ *   QN-3  FR-099's unassignment. ⭐ WRITTEN NOW (台帳 D-288 with D-289): table
+ *         T-109 places IC-66 on U-49, `answerSettledEntry` answers that press,
+ *         and `confirmationOwedByResourceDeletion` is the raiser the old note
+ *         called absent. ⛔ THE ROAD AND THE QUESTION LANDED TOGETHER, because
+ *         either alone is a breach: a press answered without the question runs
+ *         the deletion unasked, which is the MUST half of FR-099, and a
+ *         question with no press behind it would be asked about nothing.
  *   QN-5  the confirmation before unsaved edits are thrown away and replaced.
- *         ⛔ CR-280 gave it a second caller in SK-21 (`Ctrl` + `R`), and
- *         neither road raises it yet.
+ *         ⛔ THE OLD NOTE READ 「CR-280 gave it a second caller in SK-21
+ *         (`Ctrl` + `R`), and neither road raises it yet」, AND IT WAS ALREADY
+ *         UNTRUE OF BOTH ROADS. `askToDiscardCurrentDocument` raises it,
+ *         `openDocumentIntoHold` asks it on every replace, and OP-13 sends
+ *         SK-21 down that same road with the choice fixed to `replace` -- so
+ *         the second caller reaches it through the first. ⚠️ The row was in
+ *         this union the whole time it was called missing from it.
  *
- * ⛔ NO CALLER IS INVENTED FOR EITHER. A question raised from a road
- * that does not exist would be asked about nothing.
+ * ⛔ NO CALLER IS INVENTED FOR A ROW ALL THE SAME. What changed for QN-3 is
+ * that the road exists, not that the rule about inventing one moved.
+ *
+ * ⚠️ `QN-9` IS NOT HERE AND IS NOT MISSING. FR-020's question is drawn on U-60
+ * `Watermark Unlock`, which is a name S-99g holds and `open-modals.ts` reads
+ * the row for -- so it never travels as a `ScreenSession.confirmation`, and
+ * `answerWatermarkUnlock` is what spends its two answers.
  *
  * ⚠️ `QN-8` IS DELIBERATELY ABSENT, exactly as `RS-15` is absent from
  * `NoticeReason`: it is where the DICTIONARY lands when it is asked for a key
  * it does not hold, and every question this file asks is a row of its own --
  * handing that row over would say something untrue about the question at hand.
  */
-type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-4' | 'QN-5'
+type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
 
 /**
  * The row of table T-234 DI-4's overwrite question shows.
@@ -1238,6 +1274,17 @@ const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
 /** The row of table T-234 OP-4's replace question shows. */
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
+
+/**
+ * The row of table T-234 FR-099's deletion of the chosen assignees shows.
+ *
+ * ⚠️ ITS 場面 IS A CONDITION AND NOT AN OPERATION -- 「担当者を消すことで解かれ
+ * る割当があるとき」 -- so a deletion that frees no assignment shows no question
+ * at all. ⛔ Asking anyway would be a place FR-031 (MUST NOT) forbids adding,
+ * and NT-7 states the same limit from table T-037's side: 「問うてよいのは、要求
+ * が確認を求めると定めた場面だけとすること（MUST）」.
+ */
+const UNASSIGNMENT_QUESTION: ConfirmationQuestion = 'QN-3'
 
 /**
  * The rows of table T-233 this file can raise, spelled as that table spells
@@ -3091,6 +3138,76 @@ function confirmationOwedBy(
   // See the head note on which row a write that does both shows.
   const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
   return { manner: CONFIRMATION_MANNER, question, items }
+}
+
+/**
+ * The question FR-099 owes before the chosen assignees are deleted, or null
+ * where it owes none.
+ *
+ * ⭐ THE SCENE IS THE RELEASED ASSIGNMENT AND NOT THE DELETION. QN-3 of table
+ * T-234 words its 場面 「担当者を消すことで解かれる割当があるとき」, and FR-099
+ * says the same from its own side (MUST): 「消すことで解かれる割当があるときは、
+ * そのタスクの名前を示して確認を求めること」. ⛔ So a deletion that frees no
+ * assignment is written straight through, and undo is what stands behind it --
+ * the same reading `confirmationOwedBy` above makes for a `Task` that leads
+ * nothing, and for the same reason (FR-031, MUST NOT).
+ *
+ * ⛔ THE NAMES ARE THE TASKS' AND NEVER THE ASSIGNEES'. That row asks for
+ * 「解かれる割当のタスクの名前」 and points at CD-5 of table T-050 for the
+ * chain, and CD-5 takes 「その担当者を指す割当」 while leaving every `Task`
+ * where it stood -- 「タスクは消えない —— 担当が外れるだけである」.
+ *
+ * ⚠️ ONE ITEM PER TASK. Two chosen assignees standing on one `Task` free two
+ * assignments and reach ONE task; NT-7 asks for what the deletion reaches, and
+ * a name printed twice tells a reader nothing the first printing did not.
+ * ⚠️ ORDER IS THE ASSIGNMENTS' OWN and no sort is invented (rule 03 section 4).
+ * `unassignedTaskNamesOf` in `open-modals.ts` builds FR-099's other list of the
+ * same tasks the same way, and the two are read on the same surface.
+ * ⚠️ A `taskUid` no `Task` answers to is left OUT, while a `Task` carrying no
+ * name of its own is carried as `null` -- the two rules that sibling states,
+ * for the reasons it gives: `null` already means 「a task with no name」, so
+ * spelling an absent task the same way would leave the two unreadable apart.
+ * ⚠️ AN ASSIGNMENT WITH NO `taskUid` STILL OWES THE QUESTION and adds no name.
+ * It is an assignment the deletion frees, which is the whole of the 場面, and
+ * it reaches no task to name -- the same reading `unassignedTaskNamesOf` writes
+ * for the roster's own list.
+ *
+ * ⚠️ `isShownOnAnotherRow` IS FALSE THROUGHOUT. `ConfirmationItem` says so on
+ * the member itself -- 「`false` wherever FR-032 is not the one asking」 -- and
+ * rows have nothing to do with the tasks an unassignment reaches.
+ *
+ * ⭐ ONE PASS AND A `Map` rather than a scan per task, the shape
+ * `tasksReachedByEachResource` keeps for the same list (NFR-013).
+ *
+ * @purity pure
+ */
+function confirmationOwedByResourceDeletion(
+  uids: readonly number[],
+  held: Document,
+): RaisedConfirmation | null {
+  const schedule = held.schedule
+  const going = new Set(uids)
+  const reached: number[] = []
+  const seen = new Set<number>()
+  let isFreeingAny = false
+  for (const assignment of schedule.assignments) {
+    const resourceUid = assignment.resourceUid
+    if (resourceUid === null || !going.has(resourceUid)) continue
+    isFreeingAny = true
+    const taskUid = assignment.taskUid
+    if (taskUid === null || seen.has(taskUid)) continue
+    seen.add(taskUid)
+    reached.push(taskUid)
+  }
+  if (!isFreeingAny) return null
+  const taskOfUid = new Map(schedule.tasks.map((one) => [one.uid, one]))
+  const items: ConfirmationItem[] = []
+  for (const taskUid of reached) {
+    const task = taskOfUid.get(taskUid)
+    if (task === undefined) continue
+    items.push({ name: task.name, isShownOnAnotherRow: false })
+  }
+  return { manner: CONFIRMATION_MANNER, question: UNASSIGNMENT_QUESTION, items }
 }
 
 /**
@@ -6879,9 +6996,20 @@ export function frameLoop(
    * discipline still holds there: the answer lands on the operation that was
    * begun, not on what the document says now.
    *
+   * ⚠️⚠️ ONE OF THEM IS A `DocumentCommand` SINCE 2026-09-06, so the head note
+   * above no longer covers every branch: IC-66 writes CM-42 of table T-108 and
+   * is here for its ARGUMENT rather than for want of a row -- `ROSTER_DELETE_ENTRY`
+   * carries the whole reason. ⭐ THAT IS WHY THE FRAME IS AN ARGUMENT NOW:
+   * `writeDocument` is handed the frame the press was decided against (WS-6),
+   * and every other branch here writes nothing at all.
+   *
    * @purity non-pure
    */
-  function answerSettledEntry(entry: IconId, surface: string | null): boolean {
+  function answerSettledEntry(
+    entry: IconId,
+    surface: string | null,
+    frame: FrameValues,
+  ): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
       // D-61 of the defect ledger (利用者の指摘 2026-08-27): 「`[x]` と `[ESC]`
       // のどちらでも非表示にできるべき」. This is the `[x]` half; IN-4's level
@@ -6952,6 +7080,83 @@ export function frameLoop(
       // reverses whatever stands. ⛔ It was written from the ENTRY while there
       // were two rows, each saying which way it went.
       isMilestoneListOpen = !isMilestoneListOpen
+      return true
+    }
+    if (entry === ROSTER_DELETE_ENTRY) {
+      // IC-66 of table T-109 -- FR-099's 「選んだ担当者を消す」, and the last of
+      // the `Resource Roster`'s six entrances to be answered (台帳 D-288). Why
+      // it is answered HERE rather than by the translator is the entry
+      // constant's own note.
+      //
+      // ⛔⛔ THE PRESS AND THE QUESTION LANDED IN ONE PIECE (台帳 D-289), and
+      // neither half is worth anything alone. FR-099 (MUST) requires the names
+      // of the tasks this would unassign to be shown and confirmed first, so a
+      // press answered with the write alone would destroy assignments unasked
+      // -- which is the very MUST that half of the requirement is.
+      //
+      // ⭐ WHILE A QUESTION STANDS, THIS PRESS IS TOLD AND NOT SPENT IN
+      // SILENCE. FR-029 (MUST): 「押されたときに限り、行えない理由を通知する
+      // こと」, and table T-233 holds no row for 「a question is already up」 --
+      // so `RS-27` is that requirement's own fallback, exactly as the open and
+      // reopen roads carry it under the same guard (D-337). ⛔ NOT
+      // `carryOutAction`'s silent return: that branch predates D-337, and the
+      // user's ruling of 2026-08-30 is that a press with nothing to do says
+      // why.
+      // ⚠️ THE GUARD ITSELF IS THAT BRANCH'S REASON THOUGH -- a second write
+      // started now would land on a document the standing question never saw.
+      if (asking !== null) {
+        raiseNotice(NOTHING_TO_DO_REASON, null)
+        return true
+      }
+      // FR-029 (MUST) again, and the plainest reading of it: 「選んだ担当者を
+      // 消す」 has no subject when nobody is chosen, so the entrance holds
+      // nothing it can do. ⛔ NOT RS-34 -- that row is 「揃える相手の `Task` が
+      // 選ばれていない」, which is FR-034's align and a different 正; no row of
+      // table T-233 names this scene, which is what `RS-27` is the fallback
+      // for.
+      // ⛔ AND NOT WRITTEN THROUGH AS AN EMPTY BUNDLE. CM-42 answers an empty
+      // `uids` with the document unchanged, so the press would be an ACCEPTED
+      // write: it would mark the document as holding unsaved edits (FR-100)
+      // and say nothing to the person who pressed.
+      const chosen = selectedResourceUids
+      if (chosen.length === 0) {
+        raiseNotice(NOTHING_TO_DO_REASON, null)
+        return true
+      }
+      // CM-42 of table T-108, handed the `uid`s the choice holds -- which is
+      // what table T-109 names in IC-66's own row.
+      // ⭐ THE SET IS TAKEN NOW AND CARRIED WITH THE QUESTION, which is CS-4 of
+      // table T-066 and the shape `carryOutAction` keeps for FR-032's writes:
+      // the answer lands on the operation that was BEGUN, not on whichever
+      // people the roster holds chosen by the time it arrives.
+      // ⚠️ NOTHING PRUNES THAT SET AFTERWARDS, and that is the shell's standing
+      // shape rather than a decision taken here: `selectedGroupIds` is not
+      // pruned by a row deletion either. ⛔ The consequence is measurable --
+      // press this twice and the second press names `uid`s the document no
+      // longer holds, which CM-42 refuses and `writeDocument` tells with the
+      // refusal's own reason. ⚠️ Told rather than silent, so no MUST of FR-029
+      // is broken; whether the set should be cleared is PD-143's, which is
+      // 未裁定 and says nothing about a deletion.
+      const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
+      const owedQuestion = confirmationOwedByResourceDeletion(chosen, held.document)
+      if (owedQuestion === null) {
+        // QN-3's 場面 is not met -- this deletion frees no assignment -- and
+        // FR-031 (MUST NOT) keeps the places that may ask from growing. Undo is
+        // what stands behind it (UN-15 names FR-099's deletion), which is what
+        // that requirement's RATIONALE intends.
+        writeDocument(writes, frame)
+        return true
+      }
+      asking = {
+        question: owedQuestion,
+        /** @purity non-pure */
+        settle(isProceeding, answeringFrame) {
+          // FR-099 (MUST) -- 「取りやめる」 leaves the document untouched.
+          // Nothing was written, so there is nothing to undo either.
+          if (!isProceeding) return
+          writeDocument(writes, answeringFrame)
+        },
+      }
       return true
     }
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
@@ -8384,7 +8589,7 @@ export function frameLoop(
     const settledAnswer = answerSettledOnRelease(input, context)
     const spent =
       (settledEntry !== null &&
-        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context))) ||
+        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
       (settledFormat !== null && answerSettledFormat(settledFormat)) ||
       // FR-020 (MUST): U-60 `Watermark Unlock` carries NT-7's two word buttons
       // too, so an answer has to be offered to that surface FIRST -- it answers

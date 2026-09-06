@@ -214,6 +214,10 @@ export interface RowPlacement {
    * can be re-derived: S-78 and S-176 point at the SCROLLING remainder (FR-098,
    * MUST) so the anchor may not be taken from a banded row, and FR-055's fit
    * names the first scrolling row.
+   * ⛔ A PINNED ROW THAT DID NOT FIT IN THE BAND IS NOT IN `rows` AT ALL, so no
+   * reader can find it here with the flag set to false and put it back in the
+   * chain: FR-098 (MUST) 「入りきらない行を描かないこと」 (利用者の裁定
+   * 2026-09-06). `pinnedBandOf` says how the boundary is read.
    */
   readonly isPinned?: boolean
 }
@@ -262,7 +266,11 @@ export interface ScheduleLayout {
   readonly contentX0: number | null
   /**
    * LF-14 of table T-221: how tall FR-098's pinned band stands, gaps between
-   * its rows included and no gap below it. Zero while nothing is pinned.
+   * its rows included and no gap below it. Zero while nothing is pinned, and
+   * zero again when every pin was turned away by the `Row Area`'s bottom edge.
+   * ⭐ NEVER TALLER THAN THE `Row Area` (FR-098, MUST, 利用者の裁定 2026-09-06):
+   * the pins that do not fit inside it are not drawn, so the remainder LF-14
+   * leaves the scrolling rows can no longer come out negative for want of room.
    *
    * ⛔⛔ OPTIONAL, for the reason `RowPlacement.isPinned` gives, and `undefined`
    * reads as zero everywhere. ⚠️ FR-055's fit is the reader that cannot do
@@ -273,7 +281,7 @@ export interface ScheduleLayout {
   readonly pinnedBandHeight?: number
   /**
    * The top edge of the scrolling remainder -- the `Row Area`'s own top while
-   * nothing is pinned, and one `rowGap` below the band otherwise.
+   * no pin reached the band, and one `rowGap` below the band otherwise.
    *
    * ⛔ THIS IS WHAT S-78 AND S-176 POINT AT (FR-098, MUST), and the band's top
    * edge is forbidden (MUST NOT) -- 「帯は流れないので、そこを指すと表示位置が二
@@ -1374,7 +1382,7 @@ export function layoutFromSchedule(
   // ---- FR-098 with LF-14: lift the pinned rows out of the chain ------------
   const band = pinnedBandOf(rowPlacements, settings, regions)
   const lifted = liftedRows(rowPlacements, band)
-  const shifted = shiftedPlacements(placements, band.shiftByGroupId)
+  const shifted = shiftedPlacements(placements, band.shiftByGroupId, band.droppedPinnedIds)
 
   // ---- S-78 with S-176: put the place the display points at at the top -----
   // ⛔ OVER THE SCROLLING ROWS AND FROM THE REMAINDER'S TOP EDGE. FR-098 (MUST)
@@ -1432,14 +1440,55 @@ export function layoutFromSchedule(
  * scrolling rows are re-chained over the gap a lifted row leaves, and the whole
  * remainder then begins one `rowGap` below the band.
  *
- * ⛔ STOP -- TWO OF FR-098's RULES ARE NOT ANSWERED HERE. 「帯が `Row Area` を
- * 埋め尽くし、スクロールする行が 1 行も描けなくなってはならない（MUST NOT）」
- * has no remedy anywhere in docs/spec: `S-127` caps the COUNT at five and no
- * row says what to do when five bands are taller than the `Row Area`. And
- * 「ピン止めした行が画面に収まらないときは、ピン止めした行の並びを縦にスクロール
- * できるようにすること（MUST）」 needs a scroll position for the band, which no
- * settings row holds -- table T-203 carries `S-126` and `S-127` and nothing
- * else. ⛔ Neither is invented here.
+ * ⭐⭐ WHAT HAPPENS WHEN THE PINS DO NOT FIT (利用者の裁定 2026-09-06, CR-363).
+ * FR-098 states 「ピン止めした行が画面に収まらないときは、入りきらない行を描かない
+ * こと（MUST）。帯を縦にスクロールできるようにしてはならない（MUST NOT）」 —— so the
+ * band stops at the `Row Area`'s bottom edge and a pin that does not fit inside
+ * it is dropped from the picture. ⛔ THE PERSON RECOVERS BY UNPINNING and is
+ * told nothing: 「通知は出さない（同裁定）—— 表 T-233 に行を足さない」.
+ * ⚠️ MEASURED BEFORE THIS BOUND EXISTED (2026-09-06, 1920x1080, the standing
+ * document with five of its tallest rows pinned -- five IS `S-127`'s default):
+ * the band stood 986 tall in a `Row Area` of 958, its bottom edge fell at 1090
+ * against the area's own 1062, and the remainder began at 1098, OUTSIDE the
+ * area, so not one of the 63 scrolling rows had anywhere on screen to stand.
+ * ⛔ That is the cap's own count and not an abusive way to hold the tool.
+ *
+ * ⭐ 「入りきらない」 IS READ AS "does not fit ENTIRELY". -きる is the completive,
+ * so a row whose band would fall PARTLY below the area's bottom edge has not
+ * 「入りきった」 and is not drawn. ⚠️ No other sentence of FR-098 settles the
+ * boundary; this reading is the sentence's own verb and nothing was invented
+ * around it. ⭐ THE GAP BELOW A ROW IS NOT PART OF THAT ROW: the test is on the
+ * row's own band, because 「行」 is what the sentence drops and `rowGap` stands
+ * BETWEEN two rows.
+ *
+ * ⭐ THE FIRST PIN THAT DOES NOT FIT ENDS THE BAND, and every pin after it is
+ * dropped with it -- including a short one that would have fitted in the space
+ * the tall one could not use. ⛔ Fitting that one instead would rank it above
+ * the row it stepped over, and FR-098 (MUST NOT) forbids exactly that: 「ピン止め
+ * した行どうしに優劣を設けてはならない（MUST NOT）—— 固定した順に上から並べる」.
+ *
+ * ⚠️ A DROPPED PIN DOES NOT FALL BACK INTO THE SCROLLING CHAIN. FR-098 (MUST)
+ * takes a pinned row 「スクロールする領域から抜いて」 and the new sentence says the
+ * one that does not fit is not drawn -- putting it back at its natural place
+ * would be drawing it, and would draw it where the band already stands.
+ *
+ * ⛔ STOP -- ONE OF FR-098's RULES IS STILL NOT ANSWERED HERE. 「帯が `Row Area`
+ * を埋め尽くし、スクロールする行が 1 行も描けなくなってはならない（MUST NOT）」 has
+ * no remedy anywhere in docs/spec: `S-127` caps the COUNT at five and no row
+ * says how much of the area a band has to leave behind. Cutting at the bottom
+ * edge narrows the breach but does not close it -- a band whose last row ends
+ * within one `rowGap` of that edge still leaves a remainder of zero or less.
+ * ⛔ A height to reserve is NOT invented here; it would be a number the
+ * specification does not hold, and PD-396's 「数で切る案」 was not the one taken.
+ *
+ * ⛔ ONE MORE SENTENCE OF FR-098 NOW CONTRADICTS THE RULING AND IS NOT OBEYED
+ * HERE. 「ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（`HR-1a`）と、
+ * 隠した行の配下にあるとき（`HR-6`）に限ること（MUST）。それ以外の理由で描くのを
+ * やめてはならない（MUST NOT）」 admits no third reason, and 「入りきらない」 is a
+ * third reason. ⭐ The 2026-09-06 ruling is the later and the more specific of
+ * the two, and CR-363 exists to overturn a MUST, so it is what is built. ⚠️ The
+ * older sentence is a manuscript defect to be reported, not one to be settled
+ * by whichever rule the code happens to reach first.
  *
  * @purity pure
  */
@@ -1452,6 +1501,12 @@ function pinnedBandOf(
   readonly scrollAreaY: number
   readonly scrollingContentHeight: number
   readonly pinnedIdsPlaced: ReadonlySet<string>
+  /**
+   * The pins that named a placed row and STILL are not drawn, because the band
+   * would have carried them past the `Row Area`'s bottom edge (FR-098, MUST).
+   * ⛔ Disjoint from `pinnedIdsPlaced`: a row is in the band or it is gone.
+   */
+  readonly droppedPinnedIds: ReadonlySet<string>
   readonly shiftByGroupId: ReadonlyMap<string, number>
 } {
   const placedById = new Map(rowPlacements.map((row) => [row.groupId, row] as const))
@@ -1469,35 +1524,75 @@ function pinnedBandOf(
   }
 
   const shiftByGroupId = new Map<string, number>()
+  const inBand = new Set<string>()
+  const dropped = new Set<string>()
   // The band, stacked from the very top of the `Row Area` -- FR-098 (MUST)
   // names U-50's top edge and (MUST NOT) forbids reaching above the Time Ruler.
+  // ⭐ AND BOUNDED BY THAT SAME AREA'S BOTTOM EDGE, 利用者の裁定 2026-09-06:
+  // 「入りきらない行を描かないこと（MUST）」. The doc comment above says what
+  // 「入りきらない」 is read to mean and why the whole tail goes with the first
+  // row that fails.
+  const rowAreaBottom = regions.rowArea.y + regions.rowArea.height
   let bandY = regions.rowArea.y
   for (const row of banded) {
+    // ⛔ ONCE ONE ROW IS OUT, EVERY LATER PIN IS OUT. Reading the test as a
+    // filter -- skipping the tall row and admitting the next short one --
+    // would put that short one above a row fixed before it, which FR-098
+    // (MUST NOT) forbids: 「優劣を設けてはならない —— 固定した順に上から並べる」.
+    if (dropped.size > 0 || bandY + row.height > rowAreaBottom) {
+      dropped.add(row.groupId)
+      continue
+    }
     shiftByGroupId.set(row.groupId, bandY - row.y)
+    inBand.add(row.groupId)
     bandY += row.height + settings.rowGap
   }
   const height = Math.max(0, bandY - regions.rowArea.y - settings.rowGap)
   // One `rowGap` between the band and the remainder, which is the length LF-14
   // subtracts alongside the band's own height.
-  const scrollAreaY = regions.rowArea.y + (banded.length === 0 ? 0 : height + settings.rowGap)
+  // ⚠️ `inBand` AND NOT `banded`: when every pin was dropped there is no band,
+  // so the remainder starts at the area's own top edge and takes no gap -- the
+  // same picture as 「留めた行が 1 つも無い」, which is what the screen shows.
+  const scrollAreaY = regions.rowArea.y + (inBand.size === 0 ? 0 : height + settings.rowGap)
 
   let scrollY = scrollAreaY
   for (const row of rowPlacements) {
+    // ⛔ `seen` AND NOT `inBand`: a dropped pin does not come back as a
+    // scrolling row. FR-098 (MUST) has already taken it 「スクロールする領域から
+    // 抜いて」, and the 2026-09-06 ruling says it is not drawn at all.
     if (seen.has(row.groupId)) continue
     shiftByGroupId.set(row.groupId, scrollY - row.y)
     scrollY += row.height + settings.rowGap
   }
   const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.rowGap)
 
-  // ⚠️ `seen` AND NOT THE SETTING'S OWN SET is what leaves here: a pin naming a
-  // row this pass did not place lifts nothing, so the rows that actually
-  // reached the band are the ones every reader below has to be told about.
-  return { height, scrollAreaY, scrollingContentHeight, pinnedIdsPlaced: seen, shiftByGroupId }
+  // ⚠️ `seen` AND NOT THE SETTING'S OWN SET is what the two sets below are cut
+  // from: a pin naming a row this pass did not place lifts nothing, so the rows
+  // that actually reached the band are the ones every reader below is told
+  // about -- and the ones the bottom edge turned away are named separately, so
+  // that a reader can stop drawing them without re-deriving the arithmetic.
+  return {
+    height,
+    scrollAreaY,
+    scrollingContentHeight,
+    pinnedIdsPlaced: inBand,
+    droppedPinnedIds: dropped,
+    shiftByGroupId,
+  }
 }
 
 /**
  * The rows at the heights `pinnedBandOf` settled, each saying which side of the
- * boundary it ended on.
+ * boundary it ended on -- and WITHOUT the pins the band's bottom edge turned
+ * away, which FR-098 (MUST) does not draw: 「入りきらない行を描かないこと」
+ * (利用者の裁定 2026-09-06).
+ *
+ * ⛔ DROPPED AND NOT MERELY MARKED. Every reader of `ScheduleLayout.rows` draws
+ * what it is handed -- `svg-renderer.ts` a band per row, the shell a box per
+ * row in the `Row Title Panel` -- so a row left in the array with a flag on it
+ * would have to be re-judged in each of them, and either could forget. ⭐ It is
+ * the same construction the requirement's 「両方を、同時に同じ高さへ上げること
+ * （MUST）」 already rests on: one array, both sides.
  *
  * @purity pure
  */
@@ -1505,10 +1600,12 @@ function liftedRows(
   rowPlacements: readonly RowPlacement[],
   band: {
     readonly pinnedIdsPlaced: ReadonlySet<string>
+    readonly droppedPinnedIds: ReadonlySet<string>
     readonly shiftByGroupId: ReadonlyMap<string, number>
   },
 ): readonly RowPlacement[] {
-  return rowPlacements.map((row) => {
+  const kept = rowPlacements.filter((row) => !band.droppedPinnedIds.has(row.groupId))
+  return kept.map((row) => {
     const shift = band.shiftByGroupId.get(row.groupId) ?? 0
     const isPinned = band.pinnedIdsPlaced.has(row.groupId)
     if (shift === 0 && !isPinned) return row
@@ -1526,13 +1623,23 @@ function liftedRows(
  * と日程の側の両方を、同時に同じ高さへ上げること（MUST）」 read for the figures
  * a lifted row carries.
  *
+ * ⛔ AND THE FIGURES OF A DROPPED PIN LEFT OUT ALTOGETHER. 「入りきらない行を
+ * 描かないこと（MUST）」 is about the row, and FR-098 spells elsewhere how wide
+ * 「その行のために描くもの」 reaches: 「行の地だけでなく、その行のバー・ラベル・
+ * 進捗マーカー・依存線を含めて」. ⚠️ Cutting the row's ground alone and leaving
+ * its bars is the very fault measured on 2026-08-31 -- 「読む人には、留めた行の
+ * 中へ別の行のバーが入り込んで見える」 -- and here they would float over the
+ * scrolling rows with no row of their own anywhere on screen.
+ *
  * @purity pure
  */
 function shiftedPlacements(
   placements: readonly TaskPlacement[],
   shiftByGroupId: ReadonlyMap<string, number>,
+  droppedPinnedIds: ReadonlySet<string>,
 ): readonly TaskPlacement[] {
-  return placements.map((one) => {
+  const kept = placements.filter((one) => !droppedPinnedIds.has(one.groupId))
+  return kept.map((one) => {
     const shift = shiftByGroupId.get(one.groupId) ?? 0
     return shift === 0 ? one : { ...one, y: one.y + shift }
   })

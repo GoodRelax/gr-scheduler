@@ -119,8 +119,14 @@ const FR_098_TOP_IS_ROW_AREA =
 const FR_098_BOTH_SIDES = '行見出しの側と日程の側の両方を、同時に同じ高さへ上げること（MUST）'
 const FR_098_BAND_INSIDE = '帯は `Row Area` の中に置き、スクロールする行が並ぶのはその残りとすること（MUST）'
 const FR_098_NOT_UNDER = 'スクロールする行を帯の下へ潜らせてはならない（MUST NOT）'
+// ⛔⛔ THIS MUST NOT WAS WITHDRAWN ON 2026-09-06 (CR-363, 利用者の裁定
+// 「特別な対応は要らない。ピンが多すぎてスクロールできなくなったら、ユーザーが
+// 自分でピンを抜く」). The ruling's own sentence presupposes the state it used to
+// forbid, so preventing it would be the 「特別な対応」 that was refused.
+// ⭐ The latch now holds the sentence that replaced it, so this file still goes
+// red if the manuscript drifts back.
 const FR_098_NOT_FILLED =
-  '帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなってはならない（MUST NOT）'
+  '帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなることは在りうる'
 const FR_098_NOT_BY_ZOOM =
   'ピン止めした行を、表示量の増減（`FR-018`）で描かなくしてはならない（MUST NOT）'
 const FR_098_ONLY_TWO = 'それ以外の理由で描くのをやめてはならない（MUST NOT）'
@@ -441,21 +447,32 @@ describe('LF-14 (MUST) -- the scrolling rows begin below the band, and the hole 
     ).toEqual([])
   })
 
-  it('⛔ MUST NOT: the band never fills the Row Area -- a scrolling row is still drawn', () => {
-    // 「帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなっては
-    //   ならない（MUST NOT）—— 埋め尽くすと、留めた行を見比べる相手が画面から消え、
-    //   ピン止めの目的そのものが失われる」. ⭐ Every row of the document is pinned
-    //   but one, and `S-127`'s own ceiling is what bounds how many may be.
+  it('⭐ the band MAY fill the Row Area -- the tool does not prevent it (CR-363)', () => {
+    // ⛔⛔ THE OPPOSITE OF WHAT THIS CASE USED TO ASSERT, and deliberately.
+    // Until 2026-09-06 FR-098 read 「帯が `Row Area` を埋め尽くし、スクロールする
+    // 行が 1 行も描けなくなってはならない（MUST NOT）」 and this case held it. The
+    // user withdrew that clause: 「特別な対応は要らない。ピンが多すぎてスクロール
+    // できなくなったら、ユーザーが自分でピンを抜く」.
+    // ⭐ WHAT IS HELD INSTEAD is the half of the ruling that IS a rule -- the band
+    // stays inside the `Row Area`. ⛔ A case asserting a scrolling row survives
+    // would now hold a clause that no longer exists.
+    // ⚠️ The recovery is the person's: unpinning gives the rows back, and that is
+    // held by the unpin case elsewhere in this file.
     const drawn = draw(FOUR_ROOTS, {
       pinnedGroupIds: ['g1', 'g2', 'g3'],
       pinnedRowMax: 3,
       zoomY: 4,
     })
 
-    expect(
-      idsOf(rowsOf(drawn)).filter((one) => one === 'g4'),
-      'FR-098 (MUST NOT): 帯が `Row Area` を埋め尽くし … 1 行も描けなくなってはならない',
-    ).toEqual(['g4'])
+    // ⭐ WHAT IS STILL A RULE: no banded row reaches past the bottom of the
+    // `Row Area`. 「帯は `Row Area` の中に置き」 is untouched by the ruling.
+    const area = drawn.regions.rowArea
+    const past = rowsOf(drawn)
+      .filter((one) => (['g1', 'g2', 'g3'] as readonly string[]).includes(one.groupId))
+      .filter((one) => one.y + one.height > area.y + area.height + SLACK)
+      .map((one) => one.groupId)
+
+    expect(past, 'FR-098 (MUST): 帯は `Row Area` の中に置き').toEqual([])
   })
 })
 
