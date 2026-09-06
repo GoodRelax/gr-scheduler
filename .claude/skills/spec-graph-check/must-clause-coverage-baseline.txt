@@ -1,4 +1,18 @@
-952
+950
+#
+# LOWERED 952 -> 950 ON 2026-09-06. The spec-only body's FR-098 file landed:
+# 17 cases, five of which were RED when it wrote them and are green now that
+# the band is cut. It holds both clauses the pinned-band ruling created.
+#
+# ⛔ Two of its cases had to be retired on arrival, and by me rather than by
+# it: they latched 「帯が Row Area を埋め尽くし…（MUST NOT）」, which the same
+# ruling withdrew AFTER the body branched. A test for a clause that no longer
+# exists is worse than no test. The latches now hold the sentence that
+# replaced it, so the files still go red if the manuscript drifts back.
+#
+# ⚠️ THE DEBT IS NOT FULLY PAID. It stood at 949 before the ruling; the two
+# corrections to FR-098 put it at 952 and this pays back two.
+#
 #
 # RAISED 950 -> 952 ON 2026-09-06, the same debt as the line below, grown.
 # The body that implemented CR-363 found two more sentences of FR-098 that
