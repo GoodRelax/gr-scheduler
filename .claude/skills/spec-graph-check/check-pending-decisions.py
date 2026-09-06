@@ -125,6 +125,18 @@ def main():
             problems.append('%s is class %s, which the rule says to WAIT for, '
                             'yet it is implemented provisionally in %s'
                             % (pd, row['class'], ', '.join(sorted(marks[pd]))))
+        # ⛔ Rule 06 section 3 orders the steps: fix the value, run the tests,
+        # STRIKE THE MARK, then set the state to 裁定済. Until 2026-09-07 nothing
+        # held the third step, so a settled row could keep its mark for ever --
+        # and thirteen of them did, across four files, while this check stayed
+        # green. ⭐ With that branch the mark's whole life is covered: an open
+        # A-to-C row must carry one, a D-to-H row may not, and a settled row may
+        # not either.
+        if row['state'] == '裁定済' and pd in marks:
+            problems.append('%s has been ruled on, but %s still carries its '
+                            'provisional mark -- rule 06 section 3 strikes the '
+                            'mark BEFORE the state moves, so one of the two is '
+                            'wrong' % (pd, ', '.join(sorted(marks[pd]))))
 
     for wave in closed_waves():
         for pd, row in sorted(rows.items()):

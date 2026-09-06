@@ -3496,7 +3496,6 @@ const FOLD_COUNT_MARK = '\u25be\u0020'
  * ⚠️ THE SAME SHAPE THE ROWS USE -- the mark and the number -- and HF-12 states
  * no shape at all. The sample writes a phrase there instead (「・N 行を畳み込み
  * 中」), which its own panel is wide enough for and S-79's 170px is not.
- * @provisional PD-415
  *
  * ⛔ WRITTEN ON EVERY FRAME AND NOT ONCE, exactly as `markPanelCornerEntry` is
  * and for the same reason: the head's furniture is built with the panel and

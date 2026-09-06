@@ -134,7 +134,7 @@ interface PanelIndex {
    * one-level-open is what brings it back.
    * ⚠️ THE DISPLAY AMOUNT (FR-018) IS NOT TOLD APART FROM A FOLD HERE:
    * ScheduleLayout settles that and Chapter 5.3 keeps this component away from
-   * it, so a row the zoom dropped is counted as folded away. @provisional PD-319
+   * it, so a row the zoom dropped is counted as folded away.
    */
   /**
    * ⚠️ HF-18's 「配下に畳み込んでいる行があるとき、その行数」 READS TWO WAYS:
@@ -204,7 +204,7 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
 }
 
 /**
- * @provisional PD-396 -- HF-6 draws the pin only while the pointer is on the
+ * HF-6 draws the pin only while the pointer is on the
  * row, so which rows are pinned can only be found by sweeping every one of
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
@@ -231,30 +231,30 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * ⚠️ WHERE IT LANDS IS NOT THIS UNIT'S ANSWER -- `canAddChildRow` below says
  * only whether the entrance has anything left to do.
  *
- * @provisional PD-400 -- and nothing here REORDERS one either. Table T-023d is
+ * and nothing here REORDERS one either. Table T-023d is
  * the full count of what can be grabbed and holds no row for a row of this
  * panel, so a drag would need a row of its own; two arrows would need two more
  * controls and could not change depth at all.
  *
- * @provisional PD-402 -- and nothing here HIDES a row either, which is the
+ * and nothing here HIDES a row either, which is the
  * third such hole. HR-6 states the hiding, AT-57 holds `TaskGroup.isHidden`,
  * U-29 names the tab that brings one back and UN-14 counts the change among
  * what undo covers -- and AT-57's own note says the entrance HR-6 has is the
  * one that RESTORES. ⭐ The user's answer on 2026-08-30 was to give that job to
  * the single chevron, which retires the tab along with it.
  *
- * @provisional PD-403 -- and how the folded state is HELD is not settled. ⛔
+ * and how the folded state is HELD is not settled. ⛔
  * Measured in the prototype that day: folding a row without folding its subtree
  * left every descendant reading 「開いている」, invisible only because an
  * ancestor was, so restoring the ancestor opened every level at once. The
  * invariant proposed is that a folded row's descendants are folded too.
  *
- * @provisional PD-404 -- and whether the panel head's 「すべて畳む」 folds L1
+ * and whether the panel head's 「すべて畳む」 folds L1
  * with everything else. Table T-015 pairs HR-1/HR-3 and HR-2/HR-4 by SCOPE, so
  * the head is level 0; folding L1 too makes its four entrances read exactly as
  * a row's, at the cost of a panel that can stand empty.
  *
- * @provisional PD-401 -- and the folding shapes do not read as one family.
+ * and the folding shapes do not read as one family.
  * Table T-015 already pairs them by SCOPE (HR-1/HR-3, HR-2/HR-4), so the panel
  * head is level 0; figure F-019 draws that pair as `+` and `>`, which share
  * nothing. ⛔ The shapes are the user's ruling to make, not this file's.

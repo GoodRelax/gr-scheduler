@@ -1,5 +1,9 @@
 // The closing rule of 表 T-023d that makes a HELD grab follow the pointer --
-// its nine rows, and the rows the paragraph after it exempts.
+// its ten rows, and the rows the paragraph after it exempts.
+//
+// ⭐ NINE OF THE TEN ARE DRIVEN HERE. The tenth, GR-21, is the `Scrollbars`
+// thumb, and it is measured rather than driven -- see the block at the foot of
+// this file, which presses it and states what was measured.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
 // whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
@@ -26,7 +30,13 @@
 //                        `ScheduleGeometry`
 //   schedule-layout.ts   `RowPlacement`, `ScheduleLayout` (`pxPerDay`, `rows`)
 //   screen-regions.ts    `ScreenRect`
+//   screen-renderer.ts   `ScreenView`, `ScreenFrame` and `Scrollbar` (`axis`,
+//                        `track`, `thumb`) -- read for GR-21 alone, because the
+//                        thumb is drawn in the view and not in `FrameValues`
 //   item-hit-area.ts     `Item`, `GrabArea`, `Hit` and the head comment
+//                        ⭐ `GrabArea` -- 「Which row of table T-023d claimed
+//                        the point」 -- spells GR-1 .. GR-18 and no more, which
+//                        is one half of why GR-21 is measured and not driven.
 //   schedule.ts          the entity types this fixture writes out
 //   edit-task.ts /       the `kind` spellings of table T-108, to learn WHICH
 //   edit-document.ts     command could carry each release
@@ -84,6 +94,11 @@
 //           `GR-17` に当たらない」
 //   T-023d GR-16         基準日線、線の上、左右に動かして `statusDate` を変える
 //           （`FR-046`）
+//   T-023d GR-21         `Scrollbars` のつまみ, standing at the END of the
+//           priority order (2026-09-07). 場所:「帯の中の、いま見えている範囲を
+//           表す区間」, 操作:「掴めば表示位置を変える（規則は `FR-051`）」.
+//           ⭐ NAMED BY THE CLOSING RULE AND NOT DRIVEN HERE -- the block at the
+//           foot of this file presses it and reports what was measured.
 //   T-023d  ⛔「掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）」
 //   T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
 //   FR-031  「文書を変えるドラッグ 1 回を 1 段にまとめること（MUST）」
@@ -110,6 +125,21 @@
 //     fade pair. ⛔ Nothing here repeats a case of that file.
 //   - `GR-19`, the palette's grab band: `FR-053` has its own following rule and
 //     its own owner.
+//   - `GR-21`'s FOLLOWING. ⛔ NOT A READING OF THE SPECIFICATION -- the closing
+//     rule names GR-21 among the ten, so the duty is exactly as strong as the
+//     other nine. What is missing is a road to drive it on, and it was measured
+//     rather than assumed (2026-09-07, this fixture, `scrollbarThickness: 14`):
+//       · the drawn thumb is the WHOLE lane -- vertical `track` and `thumb` both
+//         came out `{x:1176, y:48, width:14, height:628}` -- so there is no grip
+//         to carry, only a lane;
+//       · a press on the middle of that thumb followed by a 120px move changed
+//         nothing at all: `current()` was byte-identical before, during and
+//         after the drag, and so was `document()`;
+//       · `GrabArea` -- the type that answers 「Which row of table T-023d
+//         claimed the point」 -- runs GR-1 .. GR-18, so no unit can even report
+//         a press as GR-21's.
+//     ⭐ The block at the foot of this file pins those measurements, so the day
+//     the thumb starts to follow they fail and this exemption has to go.
 //   - WHICH `DocumentCommand` a release plans. The release is read where it
 //     lands -- on `document()` -- because table T-108 is not this file's
 //     subject.
@@ -679,8 +709,9 @@ function statusLineOf(loop: FrameLoop) {
 }
 
 // ===========================================================================
-// The nine rows, each with the point it is grabbed at and the coordinate the
-// closing rule makes follow the pointer
+// The nine rows of the ten that are driven, each with the point it is grabbed
+// at and the coordinate the closing rule makes follow the pointer.
+// (The tenth, GR-21, is measured at the foot of this file.)
 // ===========================================================================
 
 interface Follower {
@@ -777,6 +808,17 @@ const FOLLOWERS: readonly Follower[] = [
   },
 ]
 
+/**
+ * The one row of the closing rule this file MEASURES instead of driving.
+ *
+ * ⛔ NOT AN EXEMPTION FROM THE RULE. The closing rule names GR-21 among the ten
+ * and the paragraph after the table exempts it nowhere, so the duty is as
+ * strong as the other nine's; what is missing is a road to drive it on. The
+ * block at the foot of this file states what was measured, and fails the day
+ * the road appears.
+ */
+const MEASURED_NOT_DRIVEN = 'GR-21'
+
 /** How far every following case carries the pointer. */
 const TRAVEL_DAYS = 4
 
@@ -785,12 +827,25 @@ const TRAVEL_DAYS = 4
 // ===========================================================================
 
 describe('the manuscript still states the rule this file is about', () => {
-  it('names nine rows, and they are the nine these cases drive', () => {
+  it('names ten rows: the nine these cases drive, and GR-21', () => {
+    // ⭐ GR-21 JOINED THE RULE ON 2026-09-07 and the count moved with it. ⛔ The
+    // number is asserted as well as the membership, so a row silently dropped
+    // out of the sentence fails here rather than quietly shrinking what the
+    // `describe.each` below walks.
     expect(
       FOLLOWING_ROWS.length,
       'table T-023d: the closing rule that makes a held grab follow the pointer',
-    ).toBe(9)
-    expect(FOLLOWERS.map((one) => one.row)).toEqual([...FOLLOWING_ROWS])
+    ).toBe(10)
+    // ⛔ NOT A SUBSET CHECK. The nine driven rows are the sentence's own list
+    // with exactly one row taken out, in the sentence's own order -- so a row
+    // ADDED to the rule lands here as a failure instead of passing unnoticed.
+    expect(FOLLOWERS.map((one) => one.row)).toEqual(
+      FOLLOWING_ROWS.filter((row) => row !== MEASURED_NOT_DRIVEN),
+    )
+    expect(
+      FOLLOWING_ROWS.filter((row) => !FOLLOWERS.some((one) => one.row === row)),
+      'the one row of the closing rule this file measures instead of driving',
+    ).toEqual([MEASURED_NOT_DRIVEN])
   })
 
   it('is a MUST, and forbids a write while the button is down (MUST NOT)', () => {
@@ -815,52 +870,23 @@ describe('the manuscript still states the rule this file is about', () => {
     ).toContain('表 T-015a の `HM-3`')
   })
 
-  it('leaves one row of table T-023d unaccounted for, and it is GR-21 (MUST NOT)', () => {
+  it('leaves no row of table T-023d unaccounted for (MUST NOT)', () => {
     // 「⛔ 追従しない行を残してはならない（MUST NOT）」. The paragraph splits the
-    // table three ways: the rows this rule names, the ones it exempts with a
-    // reason each, and the ones the other two closing rules already cover.
+    // table three ways: the ten this rule names, the five it exempts with a
+    // reason each, and the five the other two closing rules already cover.
     //
-    // ⛔⛔ AND SINCE GR-21 JOINED THE TABLE (2026-09-07) THE MANUSCRIPT BREAKS
-    // ITS OWN MUST NOT, measured here rather than papered over. The paragraph
-    // catches a row by its 操作 column saying 「動かす」「変える」「ずらす」;
-    // GR-21's says 「掴めば表示位置を変える」, so the criterion DOES reach it --
-    // yet the row is named by none of the three sentences. Nothing else in
-    // docs/spec asks the thumb to follow either: FR-051's own table T-031 row
-    // SC-4 states 「掴んで動かすと表示位置が変わる」 with no MUST about the
-    // held grab, which is what makes GR-20's 「表 T-051 の `HF-15` が追従を同じ
-    // MUST で既に求めている」 work and GR-21 have no such sentence to lean on.
-    //
-    // ⛔ PINNED EXACTLY, not excluded: a SECOND unaccounted row fails this
-    // case, and so does the manuscript finally accounting for GR-21 -- at which
-    // point this exception must be deleted and the empty expectation restored.
+    // ⭐⭐ THE HOLE THIS CASE PINNED IS CLOSED (2026-09-07). GR-21 joined the
+    // table before it joined any of the three sentences, and for one day this
+    // case carried a `KNOWN_GAP = ['GR-21']` exception and a second case beside
+    // it that proved the gap was real. The closing rule now names GR-21, so both
+    // are gone and the empty expectation is back -- which is exactly what the
+    // exception's own ⛔ said to do the day the manuscript accounted for it.
     // ⛔ Do not weaken this to `not.toContain` or to a subset check.
-    const KNOWN_GAP = ['GR-21'] as const
     const every = specTable('T-023d').rows.map((one) => one.id)
     const accounted = new Set([...FOLLOWING_ROWS, ...exemptRows(), ...coveredElsewhereRows()])
     const missing = every.filter((id) => !accounted.has(id))
-    expect(missing, 'table T-023d: 追従しない行を残してはならない（MUST NOT）').toEqual([
-      ...KNOWN_GAP,
-    ])
-    expect(accounted.size, 'and nothing is accounted for twice').toBe(
-      every.length - KNOWN_GAP.length,
-    )
-  })
-
-  it('the gap is real: GR-21 is grabbed to CHANGE something, by the row itself', () => {
-    // ⭐ The exception above stands or falls on this: if GR-21's 操作 column did
-    // NOT speak of moving or changing, the closing paragraph would have no duty
-    // towards it and there would be no gap to pin. Read from the table, so the
-    // day the row is reworded this case says whether the exception may go.
-    const row = specTable('T-023d').rows.find((one) => one.id === 'GR-21')
-    expect(row, 'table T-023d no longer holds GR-21').toBeDefined()
-    const action = (row?.cells ?? []).join(' ')
-    expect(action, 'GR-21: 掴めば表示位置を変える').toContain('変える')
-    // And the closing rule really is the MUST NOT this case is measuring.
-    expect(exemptLine(), 'table T-023d: 追従しない行を残してはならない（MUST NOT）').toContain(
-      '追従しない行を残してはならない（MUST NOT）',
-    )
-    // ⛔ None of the three sentences names it -- which is the gap itself.
-    expect([...FOLLOWING_ROWS, ...exemptRows(), ...coveredElsewhereRows()]).not.toContain('GR-21')
+    expect(missing, 'table T-023d: 追従しない行を残してはならない（MUST NOT）').toEqual([])
+    expect(accounted.size, 'and nothing is accounted for twice').toBe(every.length)
   })
 
   it('gives every exempted row a reason of its own', () => {
@@ -1386,6 +1412,171 @@ describe('table T-023d GR-7: the progress marker is pressed, not carried', () =>
     expect(
       built.loop.document(),
       'table T-028 IN-1: ポインタ操作は押した時点で実行せず、離した時点で確定すること',
+    ).toEqual(before)
+  })
+})
+
+// ===========================================================================
+// (e) GR-21 -- the tenth row of the closing rule, MEASURED rather than driven
+// ===========================================================================
+
+/**
+ * A lane thick enough to press. ⚠️ `SCREEN` gives the scrollbars no thickness
+ * at all, which is why the nine `FOLLOWERS` above never meet one: their figures
+ * are all drawn inside the `Row Area`, and GR-21's is drawn inside the lane.
+ * ⭐ The number is this fixture's own environment and nothing the manuscript
+ * fixes -- `FR-051` settles the thickness from the host, and `S-205` gives only
+ * its floor -- so it is stated where it is used and nothing is asserted of it.
+ */
+const LANE_THICKNESS = 14
+
+interface LaneStage {
+  readonly loop: FrameLoop
+  send(input: HumanInput): void
+  /** The last `ScreenView` the loop handed the surface. */
+  view(): ScreenView
+}
+
+/**
+ * The same loop the nine cases drive, wired to a surface that KEEPS what it is
+ * shown -- because `Scrollbars` is UF-61's `ScreenFrame` and not `FrameValues`,
+ * so `current()` cannot answer where the thumb is drawn.
+ */
+function laneStage(): LaneStage {
+  const pen = host()
+  const views: ScreenView[] = []
+  const surface: ScreenSurface = {
+    showScreenView: (one) => {
+      views.push(one)
+    },
+    readDialogueInput: () => null,
+    readFieldCommit: () => null,
+    hasUnsettledTextEntry: () => false,
+    readScreenPartAt: (): ScreenPart | null => null,
+  }
+  const loop = frameLoop(
+    pen.surface as any,
+    fixtureDocument(),
+    { ...SCREEN, scrollbarThickness: LANE_THICKNESS },
+    { surface, language: 'en' },
+  )
+  pen.runAnimationFrames()
+  return {
+    loop,
+    send: (input) => {
+      loop.receiveInput(input)
+      pen.runAnimationFrames()
+    },
+    view: () => {
+      const last = views[views.length - 1]
+      if (last === undefined) throw new Error('the loop showed no screen view')
+      return last
+    },
+  }
+}
+
+/** The lane and thumb of one axis, as UF-61 described them this frame. */
+function laneOf(built: LaneStage, axis: 'horizontal' | 'vertical') {
+  const found = built.view().frame.scrollbars.find((one) => one.axis === axis)
+  if (found === undefined) throw new Error(`UF-61 described no ${axis} scrollbar`)
+  return found
+}
+
+const thumbCentre = (built: LaneStage, axis: 'horizontal' | 'vertical'): Point => {
+  const bar = laneOf(built, axis)
+  return { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
+}
+
+describe('table T-023d GR-21: the `Scrollbars` thumb -- measured, not driven', () => {
+  // ⛔⛔ THIS BLOCK PINS A GAP. It does NOT say the thumb may stand still: the
+  // closing rule names GR-21 among the ten and no sentence of table T-023d
+  // exempts it, so the duty is the same one the nine above are judged on. What
+  // it says is what was MEASURED on 2026-09-07, so that the day a press on the
+  // thumb starts to do anything these cases fail and are replaced by a
+  // `FOLLOWERS` entry -- which is the only honest way to leave a row of a MUST
+  // undriven in a file whose subject is that MUST.
+  //
+  // ⭐ WHY IT CANNOT BE DRIVEN, in the three places it was looked for:
+  //   · `GrabArea` of `item-hit-area.ts` -- the type that answers which row of
+  //     table T-023d claimed a point -- runs GR-1 .. GR-18, so no press can
+  //     even be reported as GR-21's;
+  //   · `FrameValues`, which `current()` answers with, carries `regions`,
+  //     `layout`, `geometry` and the settings it drew with, and no scrollbar --
+  //     the thumb is UF-61's, which is why this block wires its own surface;
+  //   · `ScreenRegions` (PI-35) gives the lanes no rectangle of their own
+  //     either: `regionAtPointer` reports a press on a lane as the canvas that
+  //     contains it.
+
+  it('is one of the ten the closing rule names, and no sentence exempts it', () => {
+    // ⭐ THE PREMISE OF THE WHOLE BLOCK, read from the manuscript. If GR-21 ever
+    // moved into the exempt list, the pins below would be measuring a row with
+    // no duty and would have to go.
+    expect(FOLLOWING_ROWS, 'table T-023d: the closing rule names GR-21').toContain(
+      MEASURED_NOT_DRIVEN,
+    )
+    expect(exemptRows(), 'GR-21 is not among the rows the paragraph exempts').not.toContain(
+      MEASURED_NOT_DRIVEN,
+    )
+    expect(
+      coveredElsewhereRows(),
+      'and not among the rows the other two closing rules cover',
+    ).not.toContain(MEASURED_NOT_DRIVEN)
+  })
+
+  it('is drawn: SC-4 keeps both lanes and both thumbs described every frame', () => {
+    // 「`U-21` `Scrollbars`」 of table T-031, SC-4 (MUST): both of them, always.
+    // ⛔ A PREMISE, NOT A DECORATION -- a thumb that was not described at all
+    // would make the two pins below vacuous rather than measured.
+    const built = laneStage()
+    expect(built.view().frame.scrollbars.map((one) => one.axis)).toEqual([
+      'horizontal',
+      'vertical',
+    ])
+    for (const axis of ['horizontal', 'vertical'] as const) {
+      const bar = laneOf(built, axis)
+      expect(bar.thumb.width, `${axis}: the thumb has no width to press`).toBeGreaterThan(0)
+      expect(bar.thumb.height, `${axis}: the thumb has no height to press`).toBeGreaterThan(0)
+    }
+  })
+
+  for (const axis of ['vertical', 'horizontal'] as const) {
+    it(`⛔ GAP: the ${axis} thumb does not follow the pointer that holds it`, () => {
+      // ⛔ EXPECTED TO FAIL THE DAY GR-21 IS IMPLEMENTED, and that failure is
+      // the point: it is what tells the next reader to write a `FOLLOWERS`
+      // entry and delete this case.
+      const built = laneStage()
+      const at = thumbCentre(built, axis)
+      built.send(pointer('down', at.x, at.y))
+      const held = { ...laneOf(built, axis).thumb }
+      const travel = 120
+      for (const step of [1, 2, 3]) {
+        const to =
+          axis === 'vertical'
+            ? { x: at.x, y: at.y + step * travel }
+            : { x: at.x + step * travel, y: at.y }
+        built.send(pointer('move', to.x, to.y))
+      }
+      expect(
+        { ...laneOf(built, axis).thumb },
+        `table T-023d GR-21: 掴めば表示位置を変える -- the ${axis} thumb followed the pointer, so this pin is out of date`,
+      ).toEqual(held)
+    })
+  }
+
+  it('⛔ GAP: releasing on the lane settles no display position either', () => {
+    // 「確定は 表 T-028 の `IN-1` に従う（離した時点）」 -- and the value a
+    // settled GR-21 would move is the display position the document keeps
+    // (`S-77` / `S-78` of table T-203), so a release that changed nothing at
+    // all is the gap, not the rule being obeyed.
+    const built = laneStage()
+    const before = structuredClone(built.loop.document())
+    const at = thumbCentre(built, 'vertical')
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x, at.y + 120))
+    built.send(pointer('up', at.x, at.y + 120))
+    expect(
+      built.loop.document(),
+      'table T-023d GR-21: a release on the thumb moved the display position, so this pin is out of date',
     ).toEqual(before)
   })
 })

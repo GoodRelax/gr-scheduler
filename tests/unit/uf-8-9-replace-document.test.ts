@@ -28,8 +28,12 @@
 // ⭐ THE RULE THESE CASES ARE DRIVEN BY:
 //
 //   表 T-230 「まるごと差し替えるときの呼び手ごとの扱い」, every row it prints
-//             (RD-1 .. RD-4 and RD-6 -- RD-5 「自動保存からの復帰」 left the
-//             table with CR-280, which took 「自動保存」 out of the manuscript),
+//             (RD-1 .. RD-4, RD-6 and RD-7 -- RD-5 「自動保存からの復帰」 left
+//             the table with CR-280, which took 「自動保存」 out of the
+//             manuscript, and RD-7 「`FR-095` の初期化」 was seated on
+//             2026-09-07. ⛔ RD-7's CELLS are read here like every other row's;
+//             its BEHAVIOUR is not driven, and section 12 at the foot of this
+//             file says what was measured and pins it),
 //             read out of docs/spec/05-07-design.md at load time through
 //             `specTable` rather than copied. Chapter 1.9 (:275) asks that a
 //             test of a requirement pointing at a table be driven by the table,
@@ -55,6 +59,9 @@
 //     empty history, RD-2 with no undone side). T-230 has no column for it.
 //   - the shape of the value a refusal returns to an `Agent API` caller. AG-9a
 //     owns that, and it is CP-17's face, not this one's.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -106,6 +113,8 @@ import { specTable } from '../contract/spec-table'
 // 1. The manuscript, read at load time rather than copied.
 // ---------------------------------------------------------------------------
 
+const SPEC = join(process.cwd(), 'docs', 'spec')
+
 const T_230 = specTable('T-230')
 
 const headingWith = (needle: string): string => {
@@ -128,6 +137,35 @@ const cellOf = (row: string, column: string): string => {
 
 /** The row IDs table T-230 prints, in the order it prints them. */
 const ROWS = T_230.rows.map((row) => row.id)
+
+/**
+ * The one row of table T-230 whose behaviour this file cannot yet DRIVE, and
+ * what was measured about it.
+ *
+ * ⛔⛔ NOT AN EXPECTATION BENT TO THE CODE, AND NOT AN EXEMPTION. RD-7 joined
+ * the table on 2026-09-07 with the same MUST over it as the other five --
+ * 「呼び手は、自分がどの行かを名乗ること（MUST）」 -- and nothing in docs/spec
+ * excuses `replaceDocument` from carrying it. What is missing is the road:
+ *
+ *   MEASURED 2026-09-07, through `bench(...).run(...)` with the row named:
+ *     `ReplacementCall` is declared as RD-1 / RD-2 / RD-3 / RD-4 / RD-6, so a
+ *     call naming RD-7 cannot be written in typed code at all (the drive below
+ *     casts, and the cast IS the finding); and at run time the call ends in
+ *     `TypeError: Cannot read properties of undefined (reading 'ok')` with
+ *     nothing swapped and nothing delivered -- the row's three columns are
+ *     never reached.
+ *
+ * ⭐ SO THE CELLS ARE READ FOR ALL SIX ROWS and the BEHAVIOUR is driven for
+ * five, with the sixth's behaviour written out in skipped cases that are ready
+ * to be unskipped the day the road lands (the same shape
+ * tests/unit/uf-48-write-moment.test.ts uses for FR-018's repeat). ⛔ Do not
+ * quietly drop RD-7 out of `ROWS`: the cell-reading cases are exactly what
+ * would then stop noticing the row.
+ */
+const NOT_YET_DRIVABLE = 'RD-7'
+
+/** The rows whose behaviour is driven below. */
+const DRIVEN_ROWS = ROWS.filter((row) => row !== NOT_YET_DRIVABLE)
 
 // ---------------------------------------------------------------------------
 // 2. Fixtures. Every nullable column of table T-058 is spelled `null`, because
@@ -319,6 +357,35 @@ const SAME_SCHEDULE_STAMP = rowed(
 )
 
 /**
+ * RD-7's caller brings 「表 T-034 の `BT-4` の同梱の雛形」, and this pair stands
+ * in for it.
+ *
+ * ⛔ NOT `OUT_OF_A_FILE` UNDER ANOTHER NAME, and not the real template either.
+ * Table T-230 says what the path must do with the document RD-7 hands it, and
+ * the only thing it says about WHERE that document came from is the WS-3 cell
+ * -- 「`RD-4` と違うのは、入ってくる文書の出どころだけである」. Where it came
+ * from is the caller's business and not this path's, so a fixture is enough; what a
+ * fixture must NOT be is the same object RD-4 and RD-6 hand in, because a case
+ * that landed the wrong row's document would then still pass.
+ * ⚠️ Its 刻 is `FROM_A_FILE` for the same reason RD-6's is: 「入ってきたまま」
+ * (MUST NOT 進める) can only be judged against a 刻 the case chose itself.
+ */
+const THE_BUNDLED_TEMPLATE = rowed(
+  [taskOf({ uid: 7, name: 'the bundled template' })],
+  stampOf({
+    scheduleUpdatedUtc: FROM_A_FILE,
+    settingsUpdatedUtc: FROM_A_FILE,
+    lastEditedBy: 'whoever wrote the template',
+  }),
+)
+
+/** The same template with the 日程データの群の刻 already current -- the `match` flavour. */
+const TEMPLATE_SAME_SCHEDULE_STAMP = rowed(
+  [taskOf({ uid: 7, name: 'the bundled template' })],
+  stampOf({ settingsUpdatedUtc: FROM_A_FILE, lastEditedBy: 'whoever wrote the template' }),
+)
+
+/**
  * Wide enough that neither bound of FR-031 binds here. What the bounds do when
  * they DO bind is uf-8-9-history-depth's case, not this file's.
  */
@@ -393,7 +460,8 @@ const acceptedImport = (outcome: ImportOutcome): Document => {
 }
 
 // ---------------------------------------------------------------------------
-// 3. One running write path, and the six rows driven through it.
+// 3. One running write path, the six rows of table T-230, and the five of them
+//    the path can be driven with.
 // ---------------------------------------------------------------------------
 
 interface Delivery {
@@ -593,6 +661,30 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         outgoingScheduleUpdatedUtc,
         incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedUtc,
       }
+    case 'RD-7': {
+      // 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）」, so the
+      // document the caller hands IS WS-3's answer -- the same sentence that
+      // settles RD-6 covers this row: 「「呼び手が持って来る」の行では、呼び手が
+      // 渡した文書がそのまま `WS-3` の答えである。」
+      //
+      // ⛔ THE CAST IS THE FINDING, NOT A CONVENIENCE. `ReplacementCall` does
+      // not admit RD-7, so this drive cannot be written in typed code without
+      // it; see `NOT_YET_DRIVABLE`. ⛔ Do not delete the cast by teaching this
+      // file a private call type -- the type IS the seam under judgement.
+      //
+      // ⚠️ The three settled columns are RD-4's, not RD-6's: 履歴「捨てる」,
+      // 刻印「入ってきたまま」, 取り消しの 1 段「積まない」. The cases below read
+      // every one of them out of the manuscript rather than from this comment.
+      const template = instants === 'differ' ? THE_BUNDLED_TEMPLATE : TEMPLATE_SAME_SCHEDULE_STAMP
+      return {
+        start,
+        call: { row: 'RD-7', document: template } as unknown as ReplacementCall,
+        ws3Document: template,
+        ws3History: null,
+        outgoingScheduleUpdatedUtc,
+        incomingScheduleUpdatedUtc: template.documentStamp.scheduleUpdatedUtc,
+      }
+    }
     default:
       throw new Error(`table T-230 has grown a row this file does not drive: ${row}`)
   }
@@ -602,25 +694,33 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
 // 4. 表 T-230 itself, before anything is driven by it.
 //    「本表の …… が、まるごと差し替える呼び手の全数である。」
 //
-// ⭐ THE COUNT IN THAT SENTENCE AGREES WITH THE TABLE AGAIN (recounted
-// 2026-09-03). CR-280 took RD-5 「自動保存からの復帰」 out with the mechanism it
-// named and left the sentence saying 「本表の 6 つ」 over a five-row table;
-// CR-288 corrected it, and it now reads 「**本表の 5 つが、まるごと差し替える呼び
-// 手の全数である。**」 So both are read below: the row IDs, and the number the
-// closing sentence claims for them.
+// ⭐ THE COUNT IN THAT SENTENCE AGREES WITH THE TABLE (recounted 2026-09-07).
+// It has been wrong before and been corrected twice: CR-280 took RD-5 out with
+// the mechanism it named and left the sentence saying six over a five-row
+// table, CR-288 corrected it to five, and seating RD-7 on 2026-09-07 moved both
+// the table and the sentence back to six. ⛔ So the number is not typed here:
+// the case below reads the row IDs, counts them, and then looks for that very
+// count in the closing sentence -- which is the only shape that survives the
+// next row.
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 -- the whole set of callers, before any of them is driven', () => {
-  it('GIVEN the manuscript WHEN its rows are read THEN this file drives every one', () => {
-    expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6'])
-    // 「本表の 5 つが …… 全数である」 -- the prose and the table say one number.
-    expect(ROWS).toHaveLength(5)
+  it('GIVEN the manuscript WHEN its rows are read THEN this file has a drive for every one', () => {
+    expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6', 'RD-7'])
+    // 「本表の 6 つが …… 全数である」 -- the prose and the table say one number,
+    // and both moved on 2026-09-07 when RD-7 was seated. ⚠️ RD-5 is a retired
+    // seat, so the count is six over rows numbered up to seven.
+    expect(ROWS).toHaveLength(6)
+    const closing = readFileSync(join(SPEC, '05-07-design.md'), 'utf8')
+    expect(closing, 'the prose under table T-230 counts the rows it prints').toContain(
+      `本表の ${ROWS.length} つが、まるごと差し替える呼び手の全数である`,
+    )
     for (const instants of INSTANT_FLAVOURS) {
       for (const row of ROWS) expect(() => driveOf(row, instants), `${row} / ${instants}`).not.toThrow()
     }
   })
 
-  it('GIVEN the WS-3 column WHEN it is read THEN it names a component for four rows and the caller for one', () => {
+  it('GIVEN the WS-3 column WHEN it is read THEN it names a component for four rows and the caller for two', () => {
     // 「`WS-3` の位置に立つのは本表がその欄に名指したものである（MUST）」 and
     // 「「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の
     // 答えである。」
@@ -629,6 +729,13 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     expect(cellOf('RD-3', COL_WS3)).toContain('ImportDocument')
     expect(cellOf('RD-4', COL_WS3)).toContain('ImportDocument')
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
+    // ⭐ RD-7 IS THE SECOND SUCH ROW, and its cell names where the document
+    // comes from as well: 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）」.
+    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
+    expect(
+      ROWS.filter((row) => cellOf(row, COL_WS3).startsWith('呼び手が持って来る')),
+      'the rows whose WS-3 column has the caller bring the document',
+    ).toEqual(['RD-6', 'RD-7'])
   })
 
   it('GIVEN a caller that names no row WHEN it asks for a replacement THEN nothing is swapped and nothing is told', () => {
@@ -818,7 +925,7 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
     }
   })
 
-  for (const row of ROWS) {
+  for (const row of DRIVEN_ROWS) {
     it(`GIVEN ${row} WHEN the replacement lands THEN its 刻印 is what the 刻印 column of table T-230 says`, () => {
       const drive = driveOf(row)
       const one = bench(drive.start)
@@ -870,7 +977,7 @@ describe('表 T-230 の取り消しの 1 段の欄 -- 行ごとに', () => {
     }
   })
 
-  for (const row of ROWS) {
+  for (const row of DRIVEN_ROWS) {
     if (row === 'RD-3') continue
     it(`GIVEN ${row} (積まない) WHEN the replacement lands THEN no 段 was pushed`, () => {
       const drive = driveOf(row)
@@ -911,13 +1018,17 @@ describe('表 T-230 の取り消しの 1 段の欄 -- 行ごとに', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 の履歴の欄 -- 行ごとに', () => {
-  it('GIVEN the 履歴 column WHEN its five cells are read THEN they are 問う先が答えたもの ×2, いまのものを残す, 捨てる, 空にする', () => {
+  it('GIVEN the 履歴 column WHEN its six cells are read THEN they are 問う先が答えたもの ×2, いまのものを残す, 捨てる, 空にする, 捨てる', () => {
+    // ⭐ THE SIXTH CELL IS RD-7's, AND IT IS RD-4's WORD (2026-09-07). The table
+    // gives 「捨てる」 to two rows now, so the cases below that group 捨てる with
+    // 空にする walk three rows and not two.
     expect(ROWS.map((row) => cellOf(row, COL_HISTORY))).toEqual([
       '問う先が答えたものを据える',
       '問う先が答えたものを据える',
       'いまのものを残す',
       '捨てる',
       '空にする',
+      '捨てる',
     ])
   })
 
@@ -987,7 +1098,7 @@ describe('表 T-230 の履歴の欄 -- 行ごとに', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => {
-  for (const row of ROWS) {
+  for (const row of DRIVEN_ROWS) {
     it(`GIVEN ${row} WHEN the replacement lands THEN the document is the one ${cellOf(row, COL_WS3)} answered with`, () => {
       const drive = driveOf(row)
       const one = bench(drive.start)
@@ -1046,7 +1157,7 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
 // ---------------------------------------------------------------------------
 
 describe('WS-6 then WS-7 -- 差し替えの後に通知を配る', () => {
-  for (const row of ROWS) {
+  for (const row of DRIVEN_ROWS) {
     it(`GIVEN ${row} WHEN the replacement is accepted THEN WS-6 runs once, first, and WS-7 once after it`, () => {
       // 「差し替えは 1 つの参照の置き換えとすること（MUST）」 and 「通知は差し
       // 替えの後とすること（MUST）。前に配ってはならない（MUST NOT）」.
@@ -1132,7 +1243,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     expect(one.delivered[0]?.hasMovedSchedule).toBe(true)
   })
 
-  it('GIVEN the twelve drives WHEN their two 刻 are compared THEN six differ and six match, so the row-by-row case can answer either way', () => {
+  it('GIVEN every drive WHEN their two 刻 are compared THEN half differ and half match, so the row-by-row case can answer either way', () => {
     // ⭐ The guard on the case below. If every drive expected 「動いた」, a unit
     // that never judged at all would pass it -- which is exactly how a case
     // that recomputed its expectation from the holder stayed green while the
@@ -1151,7 +1262,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     )
   })
 
-  it('GIVEN every row of table T-230, driven both ways WHEN each lands THEN WS-7 is told the equality of the two 刻 THE CASE SET UP', () => {
+  it('GIVEN every drivable row of table T-230, driven both ways WHEN each lands THEN WS-7 is told the equality of the two 刻 THE CASE SET UP', () => {
     // 「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
     // 文書の `scheduleUpdatedUtc` の等値で導くこと（MUST）」 —— 「`WS-5` が判定
     // を下さない行があるためである。」
@@ -1161,7 +1272,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // a claim about which two values are compared, and a case that reads one of
     // them from the unit's own output cannot check that claim at all).
     for (const instants of INSTANT_FLAVOURS) {
-      for (const row of ROWS) {
+      for (const row of DRIVEN_ROWS) {
         const where = `${row} / ${instants}`
         const drive = driveOf(row, instants)
 
@@ -1199,5 +1310,134 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
       expect(outcome.hasMovedSchedule, instants).toBe(moved)
       expect(one.delivered[0]?.hasMovedSchedule, instants).toBe(moved)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 12. RD-7 -- 「`FR-095` の初期化」, seated in table T-230 on 2026-09-07.
+//
+// ⛔⛔ THE ROW IS READ HERE AND ITS BEHAVIOUR IS NOT DRIVEN, and the reason is
+// measured rather than assumed. See `NOT_YET_DRIVABLE` above for what was
+// measured; what follows is (a) the row's four cells, read out of the
+// manuscript so a re-ruling reaches this file, (b) one pin on the measured
+// state, which fails the day the road lands, and (c) the behaviour itself,
+// written out and skipped so that unskipping it is the whole of the work.
+//
+// ⭐ WHY THE CELLS ARE ASSERTED AGAINST RD-4's RATHER THAN TYPED. The
+// manuscript states the relation itself -- 「扱いは `RD-4` と同じであり、選んだ
+// のではなく導いた」 and 「`RD-4` と違うのは、入ってくる文書の出どころだけで
+// ある」 -- so the cases below compare the two rows instead of copying either
+// row's words, and a manuscript that re-rules ONE of the two fails here.
+// ---------------------------------------------------------------------------
+
+describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだのではなく導いた', () => {
+  it('GIVEN RD-7 WHEN its three settled columns are read THEN each is RD-4のもの', () => {
+    for (const column of [COL_HISTORY, COL_STAMP, COL_UNDO_STEP]) {
+      expect(cellOf('RD-7', column), `表 T-230 RD-7 / ${column}`).toBe(cellOf('RD-4', column))
+    }
+    // ⛔ AND NOT VACUOUS: RD-4's three cells are not the same as every other
+    // row's, so 「同じ」 is a claim and not a tautology.
+    expect(cellOf('RD-7', COL_HISTORY)).not.toBe(cellOf('RD-6', COL_HISTORY))
+    expect(cellOf('RD-7', COL_UNDO_STEP)).not.toBe(cellOf('RD-3', COL_UNDO_STEP))
+  })
+
+  it('GIVEN RD-7 WHEN its WS-3 column is read THEN it differs from RD-4 in the 出どころ alone', () => {
+    // 「`RD-4` と違うのは、入ってくる文書の出どころだけである」 —— ファイルでは
+    // なく、表 T-034 の `BT-4` の同梱の雛形から来る。
+    expect(cellOf('RD-4', COL_WS3)).toContain('ImportDocument')
+    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
+    expect(cellOf('RD-7', COL_WS3), 'the template BT-4 of table T-034').toContain('BT-4')
+  })
+
+  it('GIVEN RD-7 WHEN its 正 column is read THEN it is `FR-095` ／ `OP-4`', () => {
+    // ⭐ THE PAIR IS THE POINT. `OP-4` is what RD-4 answers to as well, and it
+    // is why the history is 捨てる: 「取り消しの履歴は引き継がない」.
+    const source = headingWith('正')
+    expect(cellOf('RD-7', source)).toContain('FR-095')
+    expect(cellOf('RD-7', source)).toContain('OP-4')
+    expect(cellOf('RD-4', source), 'RD-4 answers to OP-4 too').toContain('OP-4')
+  })
+
+  it('⛔ GAP: a call naming RD-7 reaches none of its three columns', () => {
+    // ⛔⛔ THIS PINS WHAT WAS MEASURED, IT DOES NOT BLESS IT. Table T-230 puts
+    // RD-7 under the same MUST as the other five, so a path that cannot carry
+    // it is a path that is behind its own manuscript -- 「本行が無かったあいだ、
+    // `FR-095` は名乗る行を持たないので、直上の MUST によって実装できなかった」
+    // records the mirror of this state, one day earlier.
+    //
+    // ⇒ THE DAY `ReplacementCall` GAINS RD-7 THIS CASE FAILS, and the four
+    // skipped cases below are what replaces it.
+    const start = heldWithOneStep()
+    const one = bench(start)
+    // Ending by throwing is also "did not carry it", so both endings are
+    // allowed here -- but neither may end in a swap. ⚠️ The `expect`s sit
+    // outside the `try`, so a failing assertion cannot be read as a throw.
+    let outcome: ReplaceOutcome | 'threw'
+    try {
+      outcome = one.run(driveOf('RD-7').call)
+    } catch {
+      outcome = 'threw'
+    }
+    if (outcome !== 'threw') {
+      expect(
+        outcome.accepted,
+        'RD-7 was carried after all -- delete this pin and unskip the four cases below',
+      ).toBe(false)
+    }
+    expect(one.swapped, 'WS-6 ran for a row the path does not carry').toEqual([])
+    expect(one.delivered, 'WS-7 ran for a row the path does not carry').toEqual([])
+    expect(one.held()).toBe(start)
+  })
+
+  // ⛔ NOT IMPLEMENTED, AND SKIPPED RATHER THAN LEFT RED. Each of the four
+  // below is the behaviour table T-230 gives RD-7, written against the same
+  // `driveOf('RD-7')` the five driven rows use. ⭐ Unskip them, and delete the
+  // pin above, the day `ReplacementCall` admits the row.
+
+  it.skip('履歴: RD-7 (捨てる) leaves nothing to undo and nothing to redo', () => {
+    // OP-4 of table T-024a: 「取り消しの履歴は引き継がない（`LM-9` と同じ理由）」
+    // -- the 正 column RD-4 and RD-7 share.
+    const drive = driveOf('RD-7')
+    expect(stepCount(drive.start.history), 'the case starts with something to lose').toBe(1)
+    const one = bench(drive.start)
+    accepted(one.run(drive.call))
+    expect(stepCount(one.held().history)).toBe(0)
+    expect(undoEdit(one.held()).undone).toBe(false)
+    expect(redoEdit(one.held()).redone).toBe(false)
+  })
+
+  it.skip('刻印: RD-7 (入ってきたまま) lands the template stamp, not the one this write would mint', () => {
+    // 「`WS-5` は …… 「入ってきたまま」の行で進めてはならない（MUST NOT）」.
+    const drive = driveOf('RD-7')
+    const one = bench(drive.start)
+    const landed = accepted(one.run(drive.call)).document
+    expect(landed.documentStamp).toEqual(drive.ws3Document.documentStamp)
+    expect(landed.documentStamp.lastEditedBy).not.toBe(WRITER)
+    expect(landed.documentStamp.settingsUpdatedUtc).not.toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.scheduleUpdatedUtc).not.toBe(WRITE_INSTANT)
+  })
+
+  it.skip('取り消しの 1 段: RD-7 (積まない) pushes none', () => {
+    // 「`WS-4` は、本表の欄が「積まない」の行で取り消しの 1 段を積んではならない
+    // （MUST NOT）」.
+    const drive = driveOf('RD-7')
+    const one = bench(drive.start)
+    accepted(one.run(drive.call))
+    expect(stepCount(one.held().history)).toBe(0)
+  })
+
+  it.skip('`WS-3`: the template the caller brought lands, and WS-6 then WS-7 run once each', () => {
+    // 「「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の
+    // 答えである。」 ⛔ Judged against the document THIS CASE brought, never
+    // against what the holder answers afterwards.
+    const drive = driveOf('RD-7')
+    const one = bench(drive.start)
+    const landed = accepted(one.run(drive.call)).document
+    expect(landed).toEqual(THE_BUNDLED_TEMPLATE)
+    expect(landed).not.toEqual(OUT_OF_A_FILE)
+    expect(one.order).toEqual(['WS-6', 'WS-7'])
+    expect(one.swapped).toHaveLength(1)
+    expect(one.delivered).toHaveLength(1)
+    expect(one.delivered[0]?.visibleToASubscriber).toEqual(THE_BUNDLED_TEMPLATE)
   })
 })

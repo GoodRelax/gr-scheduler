@@ -1631,7 +1631,49 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     // ⛔ And the four this member does NOT offer are not in that column: RD-1
     // and RD-2 are reached from inside the loop, RD-3 and RD-4 need an
     // `ImportDocument` call nothing hands it.
-    expect(T_230.rows.map((row) => row.id)).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6'])
+    expect(T_230.rows.map((row) => row.id)).toEqual([
+      'RD-1',
+      'RD-2',
+      'RD-3',
+      'RD-4',
+      'RD-6',
+      'RD-7',
+    ])
+  })
+
+  it('RD-7 also has the caller bring the document, and this member does not offer it', () => {
+    // ⛔⛔ MEASURED, NOT PAPERED OVER (2026-09-07). RD-7 「`FR-095` の初期化」
+    // joined the table with 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の
+    // 雛形）」 in its WS-3 column, so table T-230 now has TWO rows whose caller
+    // brings the document -- and `HeldDocumentCall`, which is this member's
+    // whole argument type, still admits ONE. `HELD_ROWS` above does not notice,
+    // because it matches the cell exactly and RD-7's carries a parenthesis; so
+    // the difference is stated here rather than left to that accident.
+    //
+    // ⭐ WHY IT IS NOT SIMPLY A MISSING ROW. The 呼び手 of RD-6 is outside this
+    // loop -- BO-2 of table T-077 chooses the startup document before a loop
+    // exists -- while the 呼び手 of RD-7 is `FR-095`, whose entrance IC-98 of
+    // table T-109 is pressed inside the shell. ⛔ Nothing in docs/spec hands
+    // FR-095's initialization to a caller outside the loop, so this file does
+    // not mint that road; and nothing in docs/spec exempts it either, which is
+    // why this is a pin and not an assertion that the member is complete.
+    // ⇒ The day the shell grows an FR-095 road, this case fails and `HELD_ROWS`
+    // and the block above have to be rewritten around two rows.
+    const brings = T_230.rows
+      .filter((row) => (row.by[COL_WS3] ?? '').startsWith('呼び手が持って来る'))
+      .map((row) => row.id)
+    expect(brings, '表 T-230: the rows whose WS-3 column has the caller bring it').toEqual([
+      'RD-6',
+      'RD-7',
+    ])
+    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
+    // ⭐ And the three columns RD-7 is settled by, read here so that a
+    // manuscript which re-rules any of them reaches this file: 表 T-230 gives
+    // RD-7 exactly RD-4's three answers.
+    for (const column of [COL_HISTORY, COL_STAMP, COL_UNDO_STEP]) {
+      expect(cellOf('RD-7', column), `表 T-230 RD-7 / ${column}`).toBe(cellOf('RD-4', column))
+    }
+    expect(HELD_ROWS, 'this member still stands in one row of the two').toEqual(['RD-6'])
   })
 
   for (const row of HELD_ROWS) {

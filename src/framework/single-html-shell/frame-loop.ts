@@ -8592,13 +8592,13 @@ export function frameLoop(
         // same pair `isSurfaceStanding` joins for table T-023's closing rule.
         // ⭐ The first stage is untouched by this: it happened in the surface
         // before this case ran, which is 「1 段目は当てたままである」.
-        // @provisional PD-393 -- the row says 「焦点が名称の欄の外にあるときも同じ
+        // the row says 「焦点が名称の欄の外にあるときも同じ
         // である」 with no exception, so an `Enter` raised with the focus in the
         // Dialogue Field (FR-065) closes the panel too. ⚠️ THE USER DID NOT RULE
         // ON THAT CORNER; the closing rule excludes only a standing 面, and a
         // field is not one. What stands here is the row read literally.
         //
-        // @provisional PD-395 -- and a double click followed by an `Enter` with
+        // and a double click followed by an `Enter` with
         // nothing typed puts the panel away on that FIRST press, because a field
         // merely focused is not 「確定していない編集」 by either fact below.
         // ⚠️ The user's flow was 「編集が終わったら Enter」, so this is the row
@@ -8940,7 +8940,6 @@ export function frameLoop(
         // ⚠️ NOT SETTLED BY ANY ROW. FR-072 words the turn for a panel that is
         // UP, and no row says what this entrance means to a panel that is not.
         // The turn is left alone rather than given a second rule.
-        // @provisional PD-339
         isPropertiesPanelPutAway = false
         // @provisional PD-144
         propertiesShowing =
@@ -9427,7 +9426,6 @@ export function frameLoop(
         // means to a panel a reader put away. This is FR-052's own sentence
         // applied to it, and nothing further is read into the press -- it does
         // not choose a subject and does not move `propertiesShowing`.
-        // @provisional PD-339
         if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
           isPropertiesPanelPutAway = false
         }

@@ -406,7 +406,7 @@ export function tooltipsFromScreenView(
   // hint that read 「いまは行えません」 would put a reason under the pointer,
   // which is the MUST NOT above.
   //
-  // @provisional PD-392 -- the open question CR-306 section 6 (a) records, now
+  // the open question CR-306 section 6 (a) records, now
   // held by a row of its own. ⚠️ The user's ruling of 2026-08-30 said only that
   // the reason travels on the PRESS; it said nothing about what the hint reads
   // on an entry that cannot act. What stands here is that row's recommendation:
