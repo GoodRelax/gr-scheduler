@@ -1504,6 +1504,50 @@ export type OpenModal =
        */
       readonly candidates: readonly MergeCandidateLine[]
     })
+  // U-62 `Import Report` of table T-103 -- the surface FR-023 (MUST) sends the
+  // names of the `Task` rows an import dropped to.
+  //
+  // ⭐ A SURFACE AND NOT A TELLING, WHICH U-62's OWN ROW SETTLES: 「`Notification
+  // Area`（`U-57`）でもない —— 表 T-037 の `NT-9` が通知を 1 行に限っており、落と
+  // した名前の列挙が入らない」. ⛔ AND NOT A `Confirmation` (U-55) either -- 「答え
+  // を求めない。入口は `OK` の 1 つだけである」 -- so nothing here carries a second
+  // answer for a person to weigh.
+  // ⚠️ NO ROW OF TABLE T-109 NAMES IT, exactly as none names U-60: the way out
+  // is a WORD and a word has no shape, so `commands` comes back empty and the
+  // one entrance travels as `dismissText` below.
+  | (OpenSurface & {
+      readonly surface: 'Import Report'
+      /**
+       * The names of the `Task` rows the import dropped, in the order the file
+       * carried them -- or `null` for one the file gave no name (AT-27).
+       *
+       * ⛔ NOT A COUNT (FR-023, MUST NOT: 「件数だけを告げて済ませてはならない」).
+       * That requirement gives its own reason: 「どれが落ちたかを人が知らなければ、
+       * 元のファイルを直すことができない」.
+       * ⚠️ UNTRANSLATED (FR-023, MUST NOT: 「名前は文書の値であるので訳さない」),
+       * which is why these cross as strings of the file rather than as rows of
+       * any dictionary -- ⛔ and a name the file never carried stays `null`
+       * rather than being filled in here.
+       */
+      readonly droppedTaskNames: readonly (string | null)[]
+      /**
+       * `RS-50` of table T-233, in the display language (FR-038) -- what the
+       * surface says about the list below it.
+       *
+       * ⭐ A ROW READ, NEVER A SENTENCE WRITTEN. FR-023 names the row and FR-038
+       * (MUST NOT) keeps the words in the one dictionary, exactly as
+       * `Watermark Unlock.question` carries QN-9's.
+       */
+      readonly text: string
+      /** NT-3a's next step for the same row, or the empty string where none. */
+      readonly nextStep: string
+      /**
+       * The word on the one entrance, which FR-023 sends to NT-8 (「閉じる入口の
+       * 語は `FR-076` の `NT-8` が持つ」) -- the same word every told notice is
+       * put away with, read out of the same section of the dictionary.
+       */
+      readonly dismissText: string
+    })
   // Any other name S-99g carries. ⛔ Nothing beyond the three members every
   // surface has: with no settled name for FR-074's surface or FR-088's, a caller
   // that spelled either differently cannot be told from the other.
@@ -2433,6 +2477,19 @@ export interface ScreenSession {
    * required member would have each of them write an empty list to say so.
    */
   readonly mergeCandidates?: readonly MergeCandidateLine[]
+  /**
+   * FR-023 (MUST): the names of the `Task` rows the last import dropped -- what
+   * U-62 `Import Report` lays out, and what that requirement (MUST NOT) forbids
+   * reducing to a count.
+   *
+   * ⭐ HELD HERE FOR THE REASON `mergeCandidates` ABOVE IS. The rows are gone
+   * from the document by the time the surface stands, so nothing in `Schedule`
+   * can answer for them, and LY-5 of table T-060 leaves the Framework as the
+   * only layer that may hold a current value.
+   * ⚠️ OPTIONAL, AND ABSENT MEANS NONE -- an import that dropped nothing raises
+   * no surface at all (FR-023 tells only 「落としたものは」).
+   */
+  readonly droppedTaskNames?: readonly (string | null)[]
   /**
    * FR-072: which of the two the LAST operation chose, or `null` while the
    * properties panel is closed.

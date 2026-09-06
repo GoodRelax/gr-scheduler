@@ -513,6 +513,39 @@ export function confirmationAnswers(language: DisplayLanguage): readonly Confirm
 }
 
 /**
+ * What U-62 `Import Report` of table T-103 prints: the sentence and the next
+ * step of one row of table T-233, and the word on its one way out.
+ *
+ * ⭐⭐ WHY THIS FILE AND NOT `open-modals.ts`. FR-023 (MUST) sends that surface's
+ * reason to 表 T-233 and its closing entrance's word to NT-8 -- and both
+ * sections of FR-038's dictionary are read HERE and nowhere else. A second
+ * reading of either would be one decision in two places (R2.7), which is the
+ * same bargain `confirmationAnswers` above keeps for U-60.
+ * ⛔ THE NAMES ARE NOT HERE AND MAY NOT BE. FR-023 (MUST NOT): 「名前は文書の値
+ * であるので訳さない」, so what the surface lists crosses untouched by any
+ * dictionary; this answers for the words alone.
+ * ⛔ NOTHING IS COMPOSED. The sentence, the step and the word are three strings
+ * the caller lays out, because how a surface is written is the drawing side's
+ * and FR-038 (MUST NOT) bars this file from minting one.
+ *
+ * @purity pure
+ */
+export function reasonSurfaceWords(
+  reason: string,
+  language: DisplayLanguage,
+): { readonly text: string; readonly nextStep: string; readonly dismissText: string } {
+  return {
+    text: reasonWord(reason, 'text', language),
+    // ⚠️ NT-3a's step, read the way `toldNotice` reads it -- and left as
+    // `NO_WORDS` rather than dropped, because a surface is not a list of
+    // notices and the caller is the side that knows whether it has a place to
+    // draw one.
+    nextStep: reasonWord(reason, 'nextStep', language),
+    dismissText: dismissText(language),
+  }
+}
+
+/**
  * What stands between two gathered texts.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how several texts are written on

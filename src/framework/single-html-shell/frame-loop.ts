@@ -1869,6 +1869,25 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
 const DIFFERENCE_REVIEW_SURFACE = 'Difference Review'
 
 /**
+ * U-62 `Import Report` of table T-103 -- the surface FR-023 (MUST) puts the
+ * names of the `Task` rows an import dropped on.
+ *
+ * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), the same as
+ * the line above: `ScreenState.surface` (S-99g) carries it and
+ * `open-modals.ts` discriminates the list of names on it.
+ * ⛔ IT HAS NO ENTRANCE THAT OPENS IT EITHER, and no row of table T-109 at
+ * all: U-62 rises from the open road when something was dropped, and its one
+ * way out is the word NT-8 holds.
+ */
+const IMPORT_REPORT_SURFACE = 'Import Report'
+
+/**
+ * What `taskUidsWithAnUnusableDate` would answer for a verdict that refused
+ * nothing -- shared so that an accepted input mints no set at all.
+ */
+const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
+
+/**
  * The three entries table T-109 places on that surface, each bound to the row of
  * table T-032a it answers.
  *
@@ -2358,6 +2377,11 @@ interface SessionHeld {
    * Empty on every frame that is not one of those.
    */
   readonly mergeCandidates: readonly MergeCandidateLine[]
+  /**
+   * FR-023 (MUST) -- the names of the `Task` rows the last import dropped, laid
+   * out on U-62 `Import Report`. Empty on every frame that surface is not up.
+   */
+  readonly droppedTaskNames: readonly (string | null)[]
   /** FR-076 (MUST) -- what has been raised to tell. */
   readonly notices: readonly RaisedNotice[]
   /**
@@ -2438,6 +2462,7 @@ function sessionOf(
     propertiesSubject,
     confirmation,
     mergeCandidates,
+    droppedTaskNames,
     notices,
     canUndo,
     canRedo,
@@ -2563,6 +2588,10 @@ function sessionOf(
     // FR-022 (MUST): what U-61 lays out before its three answers are offered.
     // ⭐ Held by the loop for the same reason `confirmation` below is.
     mergeCandidates,
+    // FR-023 (MUST): the names U-62 `Import Report` lays out. ⭐ Held by the
+    // loop for the same reason the line above is, and ⛔ never counted -- that
+    // requirement (MUST NOT) refuses a bare tally.
+    droppedTaskNames,
     // FR-032 (MUST): the question standing in front of a delete, or none.
     // ⭐ Held by the loop, not built here -- LY-5 of table T-060 leaves a
     // current value with this layer and this function is handed it.
@@ -3140,6 +3169,74 @@ function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): Readonl
     }
   }
   return held
+}
+
+/**
+ * The rules a refusal names when what it refused is 「文書が使えない日付」.
+ *
+ * ⭐⭐ FR-023 SPELLS THE CLASS OUT AND THIS IS THAT SPELLING, ROW BY ROW: 「日と
+ * して読めない値（空文字を含む）」 is IV-14 of table T-220, and 「表 T-214 の範囲の
+ * 外にある値」 is that table's two rows, S-119 and S-120.
+ * ⛔ NOTHING ELSE IS DROPPABLE. FR-023 (MUST NOT) puts the resource ceilings
+ * outside this rule in as many words -- 「上限を超えたときに落とすべき行を名指し
+ * できないからである」 -- and every other invariant of table T-220 refuses the
+ * WHOLE input rather than a row of it.
+ */
+const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
+
+/** Where `ImportRefusal.at` points when the column it names is on a `Task`. */
+const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
+
+/**
+ * Which `Task` of the arriving schedule a refusal is about, or `null` where it
+ * is about something that is not one.
+ *
+ * ⭐ THE POINTER IS THE ONLY JOIN THERE IS, and it is one the validator writes
+ * on purpose: `ImportVerdict`'s own note says a refusal carries the row and the
+ * column in `at` 「which is what the caller needs to offer it and to count what
+ * would go」.
+ * ⛔ A POINTER WITH NO COLUMN IS NOT ONE OF THESE. `sweepDateColumns` always
+ * writes `.../{index}/{column}`, so a refusal naming the row alone came from
+ * another rule and is not this function's to claim.
+ *
+ * @purity pure
+ */
+function taskIndexOfRefusal(at: string): number | null {
+  if (!at.startsWith(TASK_REFUSAL_PREFIX)) return null
+  const rest = at.slice(TASK_REFUSAL_PREFIX.length)
+  const cut = rest.indexOf('/')
+  if (cut <= 0) return null
+  const index = Number(rest.slice(0, cut))
+  return Number.isInteger(index) && index >= 0 ? index : null
+}
+
+/**
+ * The `Task` rows FR-023 (MUST) drops out of an arriving document -- the ones
+ * whose date columns the validator refused -- as the uids to delete.
+ *
+ * ⛔ SEEDS ONLY, AND THE CASCADE IS NOT DONE HERE. CD-1 of table T-050 is what
+ * a dropped `Task` takes with it, and FR-023 sends the dropping to that row
+ * rather than to a second sweep -- 「取り除く連鎖を 2 通り持たない」.
+ *
+ * @purity pure
+ */
+function taskUidsWithAnUnusableDate(
+  refusals: readonly { readonly rule: string; readonly at: string }[],
+  tasks: readonly Task[],
+): ReadonlySet<number> {
+  const seeds = new Set<number>()
+  for (const refusal of refusals) {
+    if (!UNUSABLE_DATE_RULES.has(refusal.rule)) continue
+    const index = taskIndexOfRefusal(refusal.at)
+    if (index === null) continue
+    const task = tasks[index]
+    // ⚠️ An index the schedule does not hold names no row to drop. It cannot
+    // happen while the verdict is the one this very document was judged by, and
+    // saying so out loud costs nothing.
+    if (task === undefined) continue
+    seeds.add(task.uid)
+  }
+  return seeds
 }
 
 /**
@@ -3982,6 +4079,33 @@ export function frameLoop(
    * would make this one impossible to dismiss.
    */
   let stackSafetyCapToldFor: string | null = null
+  /**
+   * The `TaskGroup` the LAST `exportScene` stopped on, or `null` where that
+   * layout did not reach ST-7's valve.
+   *
+   * ⭐⭐ ST-7 OF TABLE T-014 (MUST NOT, 利用者の裁定 2026-09-06): 「通知先を画面を
+   * 描く経路に限ってはならない」 —— 「絵を書き出す経路（`FR-080`）で達したときも、
+   * 書き出しを終えたあとで同じ通知を画面に上げること（MUST）」. That row says why
+   * the frame's own telling cannot stand in for this one: 「書き出しは画面と別に
+   * 配置を組むので、「画面で既に告げた」は成り立たない」.
+   * ⛔ NOT RAISED WHERE IT IS MEASURED. `exportScene` also answers IF-7's
+   * snapshot (R7.4), and a picture merely LOOKED AT is not 「書き出す」 -- so the
+   * value is left here and the two roads that actually write a picture raise it
+   * once their write is done.
+   * ⚠️ WRITTEN BY EVERY CALL, which is why each of those roads takes its own
+   * copy at the call and never reads this again across an await.
+   */
+  let stackSafetyCapOfLastExportScene: string | null = null
+  /**
+   * The copy of the line above that IO-3 / IO-4's road is holding, from the
+   * moment its picture was built until its file has been written.
+   *
+   * ⛔ A SECOND VARIABLE AND NOT A SECOND READ. `exportHeldDocumentToFile`
+   * awaits a file store between the picture and the write, and an `Agent API`
+   * snapshot taken in that gap would rewrite the line above -- so the value is
+   * lifted out of it while the two are still one statement apart.
+   */
+  let stackSafetyCapOwedByPictureExport: string | null = null
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
   // of, until one of that row's two word buttons answers it.
   //
@@ -4069,6 +4193,17 @@ export function frameLoop(
   // ⚠️ HELD RATHER THAN RE-DERIVED because PI-10 is what gathered them, and
   // R2.7 refuses this file making that pairing judgement a second time.
   let mergeCandidates: readonly MergeCandidateLine[] = []
+  // FR-023 (MUST) -- what U-62 `Import Report` lays out while it stands: the
+  // names of the `Task` rows the last import dropped, in the order the file
+  // carried them. Empty while that surface is not up.
+  //
+  // ⛔ NAMES AND NOT A COUNT (FR-023, MUST NOT), and ⛔ not uids either: the
+  // rows are gone, so a uid would name nothing a person could look up in the
+  // file they have to mend.
+  // ⚠️ HELD RATHER THAN RE-DERIVED, the same as the line above: the rows are
+  // not in any document once the import has landed, so nothing can answer for
+  // them a second time.
+  let droppedTaskNames: readonly (string | null)[] = []
   // Whether a file operation that waits for the person is running (CS-4 of
   // table T-066).
   //
@@ -4832,6 +4967,9 @@ export function frameLoop(
           // FR-022 (MUST): what U-61 lays out while it stands. Empty while no
           // merge is being asked about, which is every frame but those.
           mergeCandidates,
+          // FR-023 (MUST): what U-62 lays out while it stands. Empty on every
+          // frame but those, for the same reason the line above is.
+          droppedTaskNames,
           notices: raisedNotices,
           // FR-029 (MUST) with RD-1 and RD-2 of table T-230, read off the ONE
           // history this loop holds -- the same value `undoEdit` and `redoEdit`
@@ -5489,20 +5627,19 @@ export function frameLoop(
       isLevelZeroFolded,
       environment.rowControlsHeightPx,
     )
-    // STOP -- ⛔⛔ `layout.stackSafetyCapReached` IS READ BY NOBODY ON THIS ROAD,
-    // AND THAT IS A GAP IN THE SPECIFICATION AND NOT A DECISION TAKEN HERE.
-    // ST-7 of table T-014 (MUST) says 「達したことを…人に通知すること」 and `RS-24`
-    // of table T-233 is the row that says it -- but this road WRITES A FILE, and
-    // a picture written out with rows missing is not a telling on a screen.
-    // ⚠️ NO ROW SETTLES WHETHER A STOPPED EXPORT TELLS. Table T-076 governs what
-    // an export leaves out and says nothing about a stop; `RS-24` names its 正 as
-    // ST-7, which is about the STACKING and not about the writing.
-    // ⛔ A TELLING WAS NOT INVENTED HERE. Raising `RS-24` from the export would
-    // put a screen telling on a road a person may have taken from the `Agent API`
-    // (FR-028), and refusing the write would be `FR-080`'s 「2 つの絵」 read
-    // backwards. ⭐ THE VALUE IS THERE THE MOMENT A RULING ARRIVES -- the layout
-    // carries it, so whichever of the two is chosen is a change at this line.
-    // ⇒ 裁定が要る (D-271).
+    // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED, AND THE RULING IS ST-7's OWN
+    // (D-271, 利用者の裁定 2026-09-06). That row now reads 「通知先を画面を描く経路
+    // に限ってはならない（MUST NOT）」 —— 「絵を書き出す経路（`FR-080`）で達したとき
+    // も、書き出しを終えたあとで同じ通知を画面に上げること（MUST）」, so the value
+    // this layout carries is kept rather than dropped.
+    // ⛔ STILL NOT RAISED HERE, and for the reason the old note gave: this
+    // function also answers IF-7's snapshot (R7.4), and a reader who merely
+    // LOOKED at the picture wrote nothing. ⭐ 「書き出しを終えたあとで」 puts the
+    // telling on the two roads that write one -- see
+    // `stackSafetyCapOfLastExportScene`.
+    // ⛔ AND THE WRITE IS NOT REFUSED. ST-7 asks for a telling and nothing more;
+    // refusing would be FR-080's 「2 つの絵」 read backwards.
+    stackSafetyCapOfLastExportScene = layout.stackSafetyCapReached?.groupId ?? null
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
     // that an export does not have -- so the picture is rendered with none of
@@ -5667,6 +5804,10 @@ export function frameLoop(
           // above takes, on EP-12's ground that this session's state stays out of
           // an export.
           mergeCandidates: [],
+          // ⛔ AND NEITHER DOES U-62, on the same ground: EP-12 of table T-076
+          // keeps this session's state out of a written picture, and what an
+          // import dropped is as much this session's as the selection is.
+          droppedTaskNames: [],
           notices: [],
           // ⛔ THE TWO HISTORY QUESTIONS ARE LEFT UNANSWERED HERE, AND THAT IS
           // THE ANSWER. EP-12 of table T-076 keeps this session's state out of
@@ -6621,6 +6762,45 @@ export function frameLoop(
    *
    * @purity non-pure
    */
+  /**
+   * FR-023 (MUST): 「取り込んだあとで、落とした `Task` の名前を並べて告げる
+   * こと」, on U-62 `Import Report` of table T-103.
+   *
+   * ⭐⭐ A SURFACE AND NOT A TELLING, AND U-62's OWN ROW IS WHY: 「`Notification
+   * Area`（`U-57`）でもない —— 表 T-037 の `NT-9` が通知を 1 行に限っており、
+   * 落とした名前の列挙が入らない」. ⚠️ Measured on this build: `RaisedNotice`
+   * has three members -- `manner`, `reason`, `affectedCount` -- and not one of
+   * them can carry a `Task` name, so `raiseNotice` could only ever say the
+   * count FR-023 (MUST NOT) refuses.
+   * ⛔ AND NOT A `Confirmation` (U-55): U-62 asks nothing (「答えを求めない。
+   * 入口は `OK` の 1 つだけである」), and a question with one answer is not
+   * one of NT-7's two.
+   *
+   * ⛔ NOTHING IS RAISED WHEN NOTHING WAS DROPPED. FR-023 tells about
+   * 「落としたもの」, and a surface over an empty list would stand in front of a
+   * clean import with nothing to say.
+   *
+   * ⚠️ WHERE THE STATE GOES: the names beside `mergeCandidates`, and the name
+   * of the surface in S-99g -- so IN-4 of table T-028 reaches it at the surface
+   * rung without this file writing a way out. ⭐ That is also the way out U-60
+   * has, and for the same reason.
+   *
+   * STOP -- ⛔ THE `OK` CANNOT BE PRESSED YET, AND THAT IS TWO ABSENCES OUTSIDE
+   * THIS FILE. (1) `dom-screen-surface.ts` draws a modal's body from the members
+   * it recognises and has no branch for `droppedTaskNames`, so the list and the
+   * word are described and not yet painted; (2) `input-command-translator.ts`
+   * is what turns a press on a word button into an action, and U-62's entrance
+   * has no row of table T-109 to be recognised by. ⚠️ Both files were owned by
+   * other hands this round. Until they learn it, `Esc` is the way out.
+   *
+   * @purity non-pure
+   */
+  function tellWhatTheImportDropped(names: readonly (string | null)[]): void {
+    if (names.length === 0) return
+    droppedTaskNames = names
+    screenState = screenStateWithSurface(screenState, IMPORT_REPORT_SURFACE)
+  }
+
   async function openDocumentIntoHold(store: FileStore, route: OpenRoute): Promise<void> {
     // CS-4: collected at the moment the operation begins, and not read again.
     const current = held.document
@@ -6661,7 +6841,7 @@ export function frameLoop(
       raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
       return
     }
-    const incoming = decodedDocument(reading.format, file.text, current)
+    let incoming = decodedDocument(reading.format, file.text, current)
     // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above records
     // why: table T-233 holds no row for one, and FR-076 (MUST NOT) makes that
     // table the whole of what a telling may carry.
@@ -6685,30 +6865,80 @@ export function frameLoop(
       },
       bounds,
     )
-    if (!verdict.ok) {
-      // STOP -- ⛔ THE REFUSALS REACH NOBODY, and the reason is no longer that
-      // nothing holds a telling: it is that none of them can be KEYED. Each names
-      // the rule, the place and whether NT-1 or NT-6 is its manner, and table
-      // T-233 says in as many words that FR-023's refusals are not among its rows
-      // because the rows of table T-220 already carry ids of their own -- while
-      // `display-words.json` has no section keyed on those, so there is nothing
-      // for the words to be read out of. ⚠️ FR-023's other half is missing with
-      // it: that requirement lets a person drop the rows a date refusal names and
-      // take the rest, and there is no surface to offer the choice on.
+    // ⛔ THE `Task` ROWS FR-023 (MUST) DROPS, WORKED OUT BEFORE ANYTHING IS
+    // DELETED, so that the names told at the end are the names of the rows that
+    // stood in the FILE -- once they are gone nothing can answer for them.
+    // ⭐⭐ THE RULING OF 2026-09-06 IS WHAT MAKES THIS A DROP RATHER THAN A
+    // REFUSAL (台帳 D-275): 「その行を落として残りを取り込むこと（MUST）。人に
+    // 選ばせてはならない（MUST NOT）」, and FR-023 gives its own ground --
+    // 取り消し（`FR-031`）で取り込み前へ戻せるのだから、選ばせても失われるものが
+    // 無い.
+    // ⛔ NO SURFACE IS RAISED HERE TO ASK ANYTHING. That same MUST NOT is why:
+    // the only surface FR-023 asks for is the one that TELLS, at the end.
+    const droppedSeeds = verdict.ok
+      ? NO_DROPPED_SEEDS
+      : taskUidsWithAnUnusableDate(verdict.refusals, incoming.schedule.tasks)
+    // FR-023 (MUST): 「落としたものは 表 T-050 の `CD-1` に従うこと」, and the
+    // row's cascade is asked for rather than restated -- ⭐ `deleteTask` is the
+    // one command that carries it, so the WBS descendants, the visual, the
+    // origin, the row membership, the dependencies and the assignments all go
+    // the way they go for a deletion made on the screen.
+    // ⚠️ THE NAMES ARE READ OFF THE CASCADE AND NOT OFF THE SEEDS: a descendant
+    // dropped with its parent is a `Task` that was dropped, and FR-023 asks for
+    // 「落とした `Task` の名前」 without narrowing it to the ones a date refused.
+    // ⭐ WALKED IN THE FILE'S OWN ORDER AND INDEXED ONCE (R5 / NFR-013): the
+    // input may carry two hundred thousand rows, and a `find` per dropped row
+    // would make this O(n²) over exactly that.
+    const droppedNames: (string | null)[] = []
+    const lost = tasksLostWith(incoming.schedule.tasks, droppedSeeds)
+    for (const task of incoming.schedule.tasks) {
+      if (lost.has(task.uid)) droppedNames.push(task.name)
+    }
+    for (const uid of droppedSeeds) {
+      // ⚠️ A SEED THE PREVIOUS DELETION ALREADY TOOK IS SKIPPED. CD-1 reaches
+      // WBS descendants, so two refused rows on one branch leave the second
+      // naming a `Task` that is no longer there, and CM-7 would refuse it.
+      if (!incoming.schedule.tasks.some((one) => one.uid === uid)) continue
+      // ⛔ `settingsLimitsOf(null)` AND NOT A FRAME'S: the two values that
+      // function measures are the zoom bounds and the `Row Area` width, and
+      // neither is read by a deletion. ⚠️ A picture is not necessarily drawn
+      // yet at this point in the open, which is the other reason.
+      const result = editDocument(incoming, { kind: 'deleteTask', uid }, settingsLimitsOf(null))
+      // ⛔ A REFUSED DELETION LEAVES THE INPUT AS IT WAS, and the re-judgement
+      // below is what then turns the open away -- nothing is half-applied, which
+      // OP-5 (MUST NOT) requires in as many words.
+      if (!result.ok) continue
+      incoming = result.document
+    }
+    // OP-5 (MUST): the mended input is judged again, and by the same rules --
+    // ⭐ a file that carried an unusable date somewhere a `Task` row cannot be
+    // named for (the project's own columns, an assignment, a comment box) is
+    // still refused, because dropping 「その行」 has no meaning there.
+    // ⛔ THE VERDICT IS NOT ASSUMED TO HAVE CHANGED. Re-running the whole
+    // validation is what keeps FR-023's other refusals -- the rings, the depth
+    // cap, the resource ceilings -- exactly as strict as they were.
+    const afterDropping =
+      droppedNames.length === 0
+        ? verdict
+        : validateImportedDocument(
+            { document: incoming, byteLength: file.byteLength, emptyRowTaskUids: [] },
+            bounds,
+          )
+    if (!afterDropping.ok) {
+      // STOP -- ⛔ THESE REFUSALS REACH NOBODY, and the reason is not that
+      // nothing holds a telling: it is that none of them can be KEYED. Each
+      // names the rule, the place and whether NT-1 or NT-6 is its manner, and
+      // table T-233 says in as many words that FR-023's refusals are not among
+      // its rows because the rows of table T-220 already carry ids of their own
+      // -- while `display-words.json` has no section keyed on those, so there is
+      // nothing for the words to be read out of.
+      // ⭐ FR-023's DATE HALF IS NO LONGER PART OF THIS GAP (台帳 D-275): those
+      // rows are dropped above and told on `RS-50`, which the dictionary holds.
+      // What is left here is every OTHER row of table T-220 and a date refusal
+      // naming something that is not a `Task` row.
       //
-      // ⭐⭐ WHAT THE RULING OF 2026-09-06 SETTLED (CR-364 A-2, ledger row
-      // D-275), so that the next hand does not have to ask it again. FR-023
-      // spells 「文書が使えない日付」 out itself: 「日として読めない値（空文字を
-      // 含む）」 と 「表 T-214 の範囲の外にある値」 -- 「⚠️ 空文字を特例にしない
-      // —— 列が空を許すときの空は `null` であり（`FR-024` の契約）、空文字はその
-      // 契約の外にある」. ⭐ `sweepDateColumns` in `validate-imported-document.ts`
-      // already draws exactly that line, and it is IV-14 of table T-220 that
-      // states it as an invariant. ⛔ THE RESOURCE CEILINGS ARE NOT IN THIS: the
-      // requirement excludes them in as many words, because no row can be named
-      // as the one to drop.
-      //
-      // ⛔⛔ AND IT IS STILL NOT RAISABLE FROM HERE, WHICH IS FOUR ABSENCES AND
-      // NOT ONE (measured 2026-09-06). ⚠️ None of them is this file's to fill:
+      // ⛔⛔ STILL NOT RAISABLE FROM HERE, WHICH IS FOUR ABSENCES AND NOT ONE
+      // (measured 2026-09-06). ⚠️ None of them is this file's to fill:
       //   1. docs/spec names no section of FR-038's dictionary for table
       //      T-220's rows, and says nothing about how 「どの行のどの列が使えない
       //      か」 reaches the words -- ⛔ every row of table T-233 is a FIXED
@@ -6726,8 +6956,7 @@ export function frameLoop(
       // ⚠️ `raiseNotice` IS NOT WIDENED TO CARRY `IV-14` INSTEAD. FR-076 (MUST
       // NOT) bars a telling from carrying a reason table T-233 does not hold,
       // and that table's closing puts FR-023's refusals outside it on purpose --
-      // 「⛔ 同じものに 2 つ目の鍵を作らない」. ⇒ the reason has to be keyed where
-      // the specification already put it, and the road there is the four above.
+      // 「⛔ 同じものに 2 つ目の鍵を作らない」.
       return
     }
 
@@ -6846,7 +7075,11 @@ export function frameLoop(
     // RD-4 of table T-230 -- OP-3's replace. The history is dropped and the
     // stamp comes through as the file wrote it, and both are that row's to say.
     if (choice === 'replace') {
-      replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
+      const replaced = replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
+      // FR-023 (MUST): 「取り込んだあとで、落とした `Task` の名前を並べて
+      // 告げること」. ⛔ AFTER, AND ONLY WHERE THE WRITE WENT THROUGH: a
+      // refused replace dropped nothing, so there is nothing to name.
+      if (replaced) tellWhatTheImportDropped(droppedNames)
       return
     }
     // RD-3 -- the merge and the overlay. It is the one row of table T-230 whose
@@ -6937,6 +7170,11 @@ export function frameLoop(
       editedBy: EDITED_BY_SCREEN,
       updatedUtc: readInstantOfWrite(),
     })
+
+    // FR-023 (MUST): the same telling the replace above makes, on the road that
+    // merges or overlays -- ⚠️ the rows were dropped from the ARRIVING document
+    // before either choice was put, so both roads owe it.
+    if (landed) tellWhatTheImportDropped(droppedNames)
 
     // FR-015 (MUST): 「対応するタスクが無い重ねる側のタスクは、描かずに通知する
     // こと」, and OP-9 of table T-024a points at this same requirement for the
@@ -7113,6 +7351,10 @@ export function frameLoop(
     // behaviour and not the behaviour.
     const form = saveFormOfExportFormat(format)
     if (form === null) return
+    // ST-7 (MUST): this road may owe a telling once its file is written. The
+    // slate is wiped at the head so that a form which builds no picture cannot
+    // inherit the stop of an export made earlier in the session.
+    stackSafetyCapOwedByPictureExport = null
     // CS-4: collected at the moment the operation begins, and not read again.
     const written = held.document
     // ⭐ TWO ROADS TO ONE WRITE, TOLD APART BY WHETHER THE FORM IS TEXT. The
@@ -7133,7 +7375,22 @@ export function frameLoop(
       store,
       chosenFileSave(content, written.schedule.project, form),
     )
-    if (saving.ok) return
+    if (saving.ok) {
+      // ⭐⭐ ST-7 OF TABLE T-014 (MUST): 「書き出しを終えたあとで同じ通知を画面に
+      // 上げること」 -- IO-3 and IO-4 are 「書き出す」, and this is the moment the
+      // writing ended. ⛔ NOT BEFORE THE WRITE: the sentence puts it after, so a
+      // save that failed says why it failed and nothing else.
+      // ⭐ THE SAME REASON THE SCREEN RAISES (`RS-24`) AND THE SAME `null` COUNT
+      // -- 「同じ通知」 in as many words, and `RS-24`'s words take no number.
+      // ⛔ `stackSafetyCapToldFor` IS NOT TOUCHED. That guard belongs to the
+      // frame, which lays the picture out separately (ST-7's own ⭐), so moving
+      // it here would silence the screen's telling for a stop it never told.
+      if (stackSafetyCapOwedByPictureExport !== null) {
+        stackSafetyCapOwedByPictureExport = null
+        raiseNotice(STACK_SAFETY_CAP_REASON, null)
+      }
+      return
+    }
     // FR-076 (MUST): the same raising SK-11's road makes, over the same seam.
     raiseFileFault(saving.fault)
   }
@@ -7205,6 +7462,10 @@ export function frameLoop(
       case 'svg':
       case 'png': {
         const scene = exportScene()
+        // ST-7 (MUST): the stop this picture was laid out with, lifted out of
+        // `exportScene`'s answer while the two are still one statement apart --
+        // the raise itself waits for the write (`exportHeldDocumentToFile`).
+        stackSafetyCapOwedByPictureExport = stackSafetyCapOfLastExportScene
         if (scene === null) return null
         // IO-3 is the picture itself, and it is the same picture IO-4 is
         // painted from -- WY-2 of table T-041 judges the two to be one drawing,
@@ -7958,6 +8219,10 @@ export function frameLoop(
         // down a route FR-025 (:3268) says differs from the download only in
         // the dialogue it skips -- 「出る絵は同じである（`FR-080`）」.
         const scene = exportScene()
+        // ST-7 (MUST): the stop this picture was laid out with, taken here
+        // rather than read after the write for the reason
+        // `stackSafetyCapOfLastExportScene` gives.
+        const capStopInPicture = stackSafetyCapOfLastExportScene
         if (scene === null) return
         // FR-025 (MUST), CR-337: IO-6 is one of the three routes the ceiling
         // reaches (IO-3, IO-4, IO-6) -- `exportSvg` is asked here for the same
@@ -7977,8 +8242,18 @@ export function frameLoop(
             // row for a clipboard write that would not go through, so the
             // reason has nowhere to point and RS-15 is what it falls to.
             // ⚠️ A row of its own is what is owed.
-            if (writing.ok) return
-            raiseNotice('RS-15', null)
+            if (!writing.ok) {
+              raiseNotice('RS-15', null)
+              return
+            }
+            // ⭐⭐ ST-7 OF TABLE T-014 (MUST): 「書き出しを終えたあとで同じ通知を
+            // 画面に上げること」. IO-6 writes a picture out of the app exactly as
+            // IO-3 and IO-4 do -- FR-025 says the two differ only in the
+            // dialogue -- so a stop reached laying it out is told here, on the
+            // write that went through.
+            // ⛔ NOT ON A FAILED WRITE: nothing left the app, and the line
+            // above already told why.
+            if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
           },
         )
         return
@@ -8565,7 +8840,27 @@ export function frameLoop(
       nameFieldWantedRow = TASK_NAME_FIELD_ROW
       return
     }
-    if (!held.document.schedule.taskGroups.some((one) => one.id === created.groupId)) return
+    const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
+    if (madeRow === undefined) return
+    // HF-17 of table T-051 (MUST, 利用者の裁定 2026-09-06): 「本行で行を足すとき、
+    // 段 0 が畳まれていれば（`S-211`）1 階層だけ開くこと（MUST）。すべて開いては
+    // ならない（MUST NOT）」, and that row states its own ground: 「開かなければ、
+    // 本行の MUST NOT（打ち込み口だけを送ってはならない）が破れる」.
+    // ⭐ WHY `parentId === null` IS HF-17's ROW AND NOT HF-14's. HF-17 adds to
+    // 「最も浅い段」 and HF-14 adds 「配下に」, so a made row with no parent is the
+    // one this clause speaks of; nothing else here can tell the two entrances
+    // apart, and no value is invented to.
+    // ⛔ ONLY THE HEAD IS OPENED. S-211 is one boolean, so clearing it opens 段 0
+    // and nothing under it -- which is the 1 階層 the clause allows and not
+    // HF-10's 「すべて開く」 (IC-74), whose act would throw away folds the person
+    // made themselves.
+    // ⛔ HF-16's ACT IS NOT COPIED, and that is deliberate: IC-92 also carries
+    // the document writes that bring HR-6's hidden rows back (AT-57), and this
+    // clause asks for none of that -- HF-14's rule is 「その親を開くこと」 and
+    // 「その先祖まで開いてはならない」, which is about folds alone.
+    // ⚠️ NOT A WRITE. S-211 is not in the document (table T-206: 「保存しない」),
+    // so this carries no undo step and cannot disagree with the write above.
+    if (madeRow.parentId === null && isLevelZeroFolded) isLevelZeroFolded = false
     selectedGroupIds = [created.groupId]
     showPropertiesOfChoice()
     nameFieldWantedRow = ROW_NAME_FIELD_ROW
@@ -9198,6 +9493,15 @@ export function frameLoop(
       abandoned.settle(null)
     }
 
+    // FR-023: U-62 went away, so the names it laid out are dropped with it --
+    // the same housekeeping the merge above does, and for the same reason: what
+    // a surface lays out belongs to the surface.
+    // ⛔ NOTHING IS SETTLED BY ITS GOING. U-62 asks nothing, so a way out that
+    // is `Esc` rather than the `OK` decides exactly as much: nothing.
+    if (droppedTaskNames.length > 0 && screenState.surface !== IMPORT_REPORT_SURFACE) {
+      droppedTaskNames = []
+    }
+
     // IN-2 of table T-028 -- the shape the pointer now stands on.
     //
     // ⭐ LAST, AND AFTER THE PRESS HAS BEEN DROPPED, because IN-2 asks for the
@@ -9551,3 +9855,5 @@ export const WATERMARK_UNLOCK_DIGEST: {
   'S-101': 'e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134',
 }
 // </generated>
+
+

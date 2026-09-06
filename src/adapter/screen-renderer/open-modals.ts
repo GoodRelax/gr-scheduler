@@ -89,7 +89,7 @@ import type {
 // (R2.7). ⚠️ AN EDGE BETWEEN TWO UNITS OF THE ONE COMPONENT, which crosses no
 // boundary table T-061 draws: both are ScreenRenderer's, and `screen-renderer.ts`
 // already imports each of them.
-import { confirmationAnswers } from './notices'
+import { confirmationAnswers, reasonSurfaceWords } from './notices'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -172,6 +172,29 @@ const WATERMARK_UNLOCK = 'Watermark Unlock'
  * on 2026-09-05 for saying otherwise.
  */
 const DIFFERENCE_REVIEW = 'Difference Review'
+
+/**
+ * U-62 of table T-103, the surface FR-023 (MUST) sends the names of the `Task`
+ * rows an import dropped to.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), and the literal
+ * `OpenModal` discriminates its own members on.
+ * ⚠️ TABLE T-109 PLACES NOTHING ON IT, the same as U-60: its one entrance is a
+ * WORD (NT-8) and a word has no shape, so `commandsOnSurface` answers with
+ * nothing. ⛔ AND THE `surfaces` SECTION HOLDS NO HEADING FOR IT either -- one
+ * written here would be the second store of translated words FR-038 forbids
+ * (MUST NOT), so `heading` comes back empty exactly as U-60's and U-61's do.
+ */
+const IMPORT_REPORT = 'Import Report'
+
+/**
+ * The row of table T-233 FR-023 (MUST) makes U-62's sentence.
+ *
+ * ⛔ A ROW ID AND NEVER A SENTENCE, for the reason `WATERMARK_UNLOCK_QUESTION`
+ * gives: FR-023 names the row and FR-038 (MUST NOT) keeps the words in the one
+ * dictionary.
+ */
+const IMPORT_REPORT_REASON = 'RS-50'
 
 /**
  * The row of table T-234 FR-020 (MUST) makes U-60's question.
@@ -710,6 +733,32 @@ export function openModalFromScreenState(
       heading,
       commands,
       candidates: session.mergeCandidates ?? [],
+    }
+  }
+
+  // FR-023 (MUST): 「取り込んだあとで、落とした `Task` の名前を並べて告げること」,
+  // and (MUST NOT) 「件数だけを告げて済ませてはならない」 -- so the names are
+  // carried, one entry each, and never counted.
+  //
+  // ⭐ READ FROM THE SESSION AND NOT FROM `schedule`, for the reason the merge
+  // above is: the rows these name are the ones the import DID NOT take, so no
+  // document holds them and LY-5 of table T-060 leaves them with the Framework.
+  // ⛔ NOTHING HERE IS TRANSLATED (FR-023, MUST NOT: 「名前は文書の値であるので
+  // 訳さない」) -- the names cross as the file wrote them, and the three strings
+  // that ARE words are read out of the one dictionary by `notices.ts`.
+  // ⚠️ `commands` IS EMPTY AND THAT IS TABLE T-109's ANSWER RATHER THAN A GAP:
+  // no row of it names this surface, because U-62's one entrance is the word
+  // NT-8 holds. `Esc` reaches it at the surface rung of IN-4 like any other.
+  if (surface === IMPORT_REPORT) {
+    return {
+      surface: IMPORT_REPORT,
+      heading,
+      commands,
+      // ⛔ CARRIED EVEN WHEN EMPTY, the same reading the merge above takes: an
+      // empty list is a surface with nothing left to name rather than one this
+      // side declined to fill.
+      droppedTaskNames: session.droppedTaskNames ?? [],
+      ...reasonSurfaceWords(IMPORT_REPORT_REASON, session.language),
     }
   }
 

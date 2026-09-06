@@ -711,6 +711,28 @@ export type InPlaceTarget =
    * once -- so which one was double clicked is a fact only this press holds.
    */
   | { readonly kind: 'rowName'; readonly groupId: string }
+  /**
+   * MK-13's コメントボックス entry, as that row reads since the user's ruling of
+   * 2026-09-06: 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
+   * `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」, with 「図の上で打ち換え
+   * る器を置いてはならない（MUST NOT）」 beside it. FR-097 (MUST) sends its
+   * entrance here and nowhere else.
+   *
+   * ⭐ THE SAME SHAPE AS `taskName` AND `rowName`, WHICH IS WHAT THAT MUST NOT
+   * SETTLED. All three end in the `Properties Panel`'s own field; only the row
+   * differs -- `PR-21` against `PR-1` and `AT-53` -- and which row a field is is
+   * the shell's join to make.
+   *
+   * ⛔ NO 全選択 IS ASKED FOR, AND THAT IS THE ROW'S OWN SILENCE. `MK-13` says
+   * 「既にある文字をすべて選んだ状態にすること（MUST）」 of its Task entry and of
+   * its 行見出し entry, and says it of the comment box NOWHERE -- so nothing is
+   * carried here for it.
+   *
+   * ⛔ THE BOX IS CARRIED AND NOT READ BACK OFF THE SELECTION, for the reason
+   * `rowName` gives: the first click of the double click chose it, and several
+   * boxes can stand chosen at once (SL-3 of table T-023c).
+   */
+  | { readonly kind: 'commentBoxText'; readonly id: string }
 
 // ⚠️ WHAT USED TO STAND HERE WAS A STOP SAYING 「行見出し」 COULD NOT BE REACHED,
 // on the ground that the Row Title Panel lies outside table T-023a's decision
@@ -723,26 +745,32 @@ export type InPlaceTarget =
 // and `item-hit-area.ts` gives GR-11 its row, so a `Hit` can name it and AS-1
 // has its destination above.
 //
-// STOP -- ⛔⛔ 「コメントボックス ＝ 本文の編集」 IS STILL UNREACHABLE, AND NOT FOR
-// THE REASON THIS NOTE USED TO GIVE (台帳 D-283). GR-14 answers with a comment
-// box, so a `Hit` can name one and the old ground -- that nothing could -- has
-// expired; but the note that replaced it said the kind was 「left out until that
-// work is asked for」, which read as YAGNI and hid a seam. ⇒ Measured 2026-09-06,
-// both roads out of this file are shut and neither can be opened from it:
-//   * THE PANEL'S ROAD. `docs/spec/_source/property-items.json` is table T-016's
-//     single source of truth and carries 19 items, none of them a comment box --
-//     and table T-016 is 「`Task` の属性表」, so a row for one is a change to the
-//     manuscript, not to `src/`.
-//   * THE IN-PLACE ROAD. Nothing draws an editable field over the schedule. The
-//     shell's own `editInPlace` branch records the same STOP for MK-13's
-//     担当ラベル -- a label is one of however many the frame drew, and `ScreenView`
-//     carries no description of an editable one.
-// ⭐ FR-097 (MUST) points at MK-13 for its entrance and MK-13 (MUST) points back
-// at FR-097 for what the entrance does; neither names WHERE the typing happens,
-// so choosing a place here would be an invention. ⚠️ WHEN A GENERIC IN-PLACE
-// FIELD LANDS, THIS SIDE IS SMALL: one kind on `InPlaceTarget` carrying the box's
-// id, and one branch of `commandFromGrab` beside GR-14's move, planning CM-48
-// (`setCommentBoxText`) -- which `edit-annotation.ts` already holds.
+// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (台帳 D-283, 利用者の裁定 2026-09-06).
+// It measured two roads on 2026-09-06 and found both shut: the PANEL's, on the
+// ground that 「`_source/property-items.json` ... carries 19 items, none of them
+// a comment box」 and that table T-016 is 「`Task` の属性表」; and the IN-PLACE
+// one, on the ground that nothing draws an editable field over the schedule.
+// ⛔ THE FIRST GROUND EXPIRED THE SAME DAY AND THE SECOND WAS WITHDRAWN:
+//   * The manuscript now carries `PR-21` -- 対象 `CommentBox`, column `text`,
+//     入力の型 複数行 -- so the count is 20 and the panel's road is open.
+//   * MK-13 now reads 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表
+//     T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」 and 「図の上
+//     で打ち換える器を置いてはならない（MUST NOT）」 -- so the in-place road is not
+//     merely unbuilt, it is forbidden, and 「neither names WHERE the typing
+//     happens」 is no longer true of MK-13.
+// ⇒ `commentBoxText` above is the kind that note predicted, and the branch of
+// `commandFromGrab` beside GR-14's move is where it is raised.
+// ⛔ NO CM-48 IS PLANNED FROM THAT BRANCH, WHICH IS WHERE THIS SIDE PARTS FROM
+// THE OLD NOTE'S PLAN. The destination is a FIELD now, so the value is written
+// by that field's own commit through `commandFromFieldCommit` -- exactly as
+// `taskName` and `rowName` write nothing on the press. CM-48
+// (`setCommentBoxText`) is standing in `edit-annotation.ts` for that commit.
+// STOP -- ⛔ THE COMMIT CANNOT REACH IT YET, AND NOT FROM THIS FILE. A commit is
+// named by `PropertyFieldKey` (`screen-renderer.ts`), whose five arms name a
+// task, a task visual, a row, a dependency and the project, and none of which
+// can name a box; `properties-panel.ts` records the same gap from the drawing
+// side, together with `COLUMN_SHAPES` having no `CommentBox`. ⇒ Until an arm is
+// added there, `commandFromFieldCommit` below has no case to gain.
 //
 // ⛔⛔ THE TWO ARE ONE ROAD SINCE 2026-09-04, AND THAT IS A MUST NOT. HF-14 of
 // table T-051: 「改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が
@@ -6853,6 +6881,20 @@ function commandFromGrab(
     // FR-046: the line is dragged sideways and `statusDate` follows it.
     const day = dayAtX(context.layout, release.x)
     return day === null ? CONSUMED_ELSEWHERE : changed([{ kind: 'setStatusDate', date: textOfDay(day) }])
+  }
+
+  if (release.clickCount >= 2 && item.kind === 'commentBox' && hit.grab === 'GR-14') {
+    // MK-13's コメントボックス entry (MUST, 利用者の裁定 2026-09-06): 「プロパティ
+    // パネルを出し、本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置く
+    // こと」. FR-097 (MUST) sends its entrance here.
+    // ⛔ READ BEFORE THE MOVE, WHICH IS THIS FUNCTION'S OWN RULE: a double click
+    // means something different from a drag on the same place, and GR-14's move
+    // stands directly below. Without this the two presses would be one.
+    // ⛔ NOTHING IS WRITTEN AND NOTHING IS CHOSEN HERE, as for `taskName` and
+    // `rowName`: the first click of the double click already moved the selection
+    // (SL-2 of table T-023c), and the body is written by the panel field's own
+    // commit.
+    return acted({ kind: 'editInPlace', target: { kind: 'commentBoxText', id: item.id } })
   }
 
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {

@@ -412,6 +412,7 @@ type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
   | { readonly heldBy: 'taskVisual'; readonly columns: readonly (keyof TaskVisual)[] }
   | { readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
   | { readonly heldBy: 'taskGroup'; readonly columns: readonly (keyof TaskGroup)[] }
+  | { readonly heldBy: 'commentBox'; readonly columns: readonly (keyof CommentBox)[] }
 )
 
 /**
@@ -424,15 +425,26 @@ type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
  */
 type TaskPropertyItem = Extract<PropertyItem, { heldBy: 'task' | 'taskVisual' | 'assignment' }>
 type GroupPropertyItem = Extract<PropertyItem, { heldBy: 'taskGroup' }>
+type CommentBoxPropertyItem = Extract<PropertyItem, { heldBy: 'commentBox' }>
 
 /**
- * The two values table T-016's 対象 column takes, spelled as that table spells
- * them -- a settled name copied spelling and all (rule 03 section 1).
+ * The values table T-016's 対象 column takes, spelled as that table spells them
+ * -- a settled name copied spelling and all (rule 03 section 1).
+ *
+ * ⚠️ THREE SINCE 2026-09-06, WHERE FR-006 STILL SAYS TWO. That requirement's
+ * 対象 paragraph reads 「対象は 表 T-016 の `対象` の欄が持ち、`Task` か
+ * `TaskGroup` のいずれかである」 while the table it names now holds `PR-21` with
+ * 対象 `CommentBox` (the user's ruling of 2026-09-06, carried into
+ * `_source/property-items.json`). ⛔ The TABLE is what that same paragraph makes
+ * the source of the 対象 value, so the table is followed and the sentence
+ * counting them is reported as one revision behind -- ⛔ this file does not
+ * choose between them.
  */
-type AppliesTo = 'Task' | 'TaskGroup'
+type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox'
 
 const APPLIES_TO_TASK: AppliesTo = 'Task'
 const APPLIES_TO_TASK_GROUP: AppliesTo = 'TaskGroup'
+const APPLIES_TO_COMMENT_BOX: AppliesTo = 'CommentBox'
 
 /**
  * Where the values of a row whose 対象 is `Task` live.
@@ -479,10 +491,18 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
  * wrong entity -- ⚠️ what changed on 2026-09-02 is that a row of 対象
  * `TaskGroup` no longer needs placing, its 対象 being the answer.
  *
+ * ⭐ `CommentBox` ANSWERS THE SAME WAY, AND FOR THE SAME REASON (2026-09-06).
+ * The map exists only because the `Task` side has THREE holders -- `task`,
+ * `taskVisual` and `assignment` -- that one value of 対象 cannot tell apart. A
+ * box's items are the box's own columns (ET-13 of table T-056), so writing
+ * `PR-21` into the map would be this file re-typing 対象, which rule 03
+ * section 1 forbids.
+ *
  * @purity pure
  */
 function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
   if (appliesTo === APPLIES_TO_TASK_GROUP) return 'taskGroup'
+  if (appliesTo === APPLIES_TO_COMMENT_BOX) return 'commentBox'
   const heldBy = HELD_BY_ON_A_TASK[row]
   if (heldBy === undefined) {
     throw new Error(`table T-016 holds ${row}, and nothing says which entity holds its value`)
@@ -542,6 +562,17 @@ const TASK_ITEMS: readonly TaskPropertyItem[] = PROPERTY_ITEMS.filter(
 
 const GROUP_ITEMS: readonly GroupPropertyItem[] = PROPERTY_ITEMS.filter(
   (item): item is GroupPropertyItem => item.appliesTo === APPLIES_TO_TASK_GROUP,
+)
+
+/**
+ * The rows a selected comment box puts up -- `PR-21` alone today.
+ *
+ * ⭐ THE SAME FILTER AND NOT A SPECIAL CASE. FR-006 (MUST) prints the rows whose
+ * 対象 matches what is selected and (MUST NOT) the ones whose does not, so the
+ * third 対象 is served by the third split rather than by a rule of its own.
+ */
+const COMMENT_BOX_ITEMS: readonly CommentBoxPropertyItem[] = PROPERTY_ITEMS.filter(
+  (item): item is CommentBoxPropertyItem => item.appliesTo === APPLIES_TO_COMMENT_BOX,
 )
 
 /**
@@ -791,8 +822,16 @@ function assigneeChoices(schedule: Schedule): readonly Assignee[] {
  */
 const COLOUR_COLUMNS: readonly string[] = ['strokeColor', 'fillColor', 'color']
 
-/** Table T-016's 複数行, which is `PR-2` alone today. */
-const MULTILINE_COLUMNS: readonly string[] = ['notes']
+/**
+ * Table T-016's 複数行 -- `PR-2` `notes` and, since 2026-09-06, `PR-21` `text`.
+ *
+ * ⚠️ `text` REACHES NOTHING YET, and it is written all the same. `controlKindOf`
+ * is only ever asked through `controlOf`, which takes a `ShapedEntity`, and
+ * `COLUMN_SHAPES` has no `CommentBox` -- see `commentBoxFields` for what that
+ * shuts. ⛔ Leaving it out would make this roster a partial copy of the table's
+ * 入力の型 column, which is the drift rule 03 section 1 forbids.
+ */
+const MULTILINE_COLUMNS: readonly string[] = ['notes', 'text']
 
 /**
  * The one item table T-016 calls 選択 whose candidates are not an enumeration.
@@ -1255,12 +1294,19 @@ function subjectOf(selection: Selection): ItemRef | null {
  * The fields of one picked item, or `null` when it is no longer in the document
  * -- which is one of the two states FR-072 calls the selection having gone.
  *
+ * ⭐⭐ THE COMMENT BOX LEFT THE STOP BELOW ON 2026-09-06 (D-283). Table T-016
+ * gained `PR-21` -- 対象 `CommentBox`, column `text`, 入力の型 複数行 -- and
+ * `MK-13` (MUST) now reads 「コメントボックス ＝ プロパティパネルを出し、本文の欄
+ * （表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと」 with 「図の上で打ち
+ * 換える器を置いてはならない（MUST NOT）」 beside it. So the roster is the
+ * table's, exactly as a task's and a row's are, and nothing is invented here.
+ *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what this panel shows for a
- * highlight box, a comment box or the status line. Table T-016 is the `Task`
- * attribute table, FR-009 covers the dependency line, and nothing states items
- * for the other three kinds SL-1 of table T-023c admits. Looked in FR-072,
- * FR-006, FR-009, table T-016 and table T-023c. Chose no fields, so that the
- * panel says nothing rather than an item roster invented here.
+ * highlight box or the status line. FR-009 covers the dependency line, and
+ * nothing states items for those two of the kinds SL-1 of table T-023c admits.
+ * Looked in FR-072, FR-006, FR-009, table T-016 and table T-023c. Chose no
+ * fields, so that the panel says nothing rather than an item roster invented
+ * here.
  *
  * @purity pure
  */
@@ -1281,11 +1327,69 @@ function fieldsOfItem(
       if (successor === null || dependency === undefined) return null
       return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef)
     }
+    case 'commentBox': {
+      const box = schedule.commentBoxes.find((one) => one.id === subject.id)
+      // ⚠️ The box is gone from the document, which is the same state a task's
+      // arm answers `null` for -- FR-072 calls it the selection having gone.
+      return box === undefined ? null : commentBoxFields(box, language)
+    }
     case 'highlightBox':
-    case 'commentBox':
     case 'statusLine':
       return []
   }
+}
+
+// ------------------------------------------------------- the comment box ----
+
+/**
+ * ⚠️ Derived from `Schedule` the way `TaskGroup` below is, and for the same
+ * reason: PI-1 of table T-064 publishes the type and not the entities beneath
+ * it.
+ */
+type CommentBox = Schedule['commentBoxes'][number]
+
+/**
+ * The rows of table T-016 whose 対象 is `CommentBox` -- `PR-21` 本文, which
+ * `MK-13` (MUST) makes the destination of a double click on the box.
+ *
+ * ⭐ THE FIELD DECLARES ITS `PR-n`, WHERE FR-042's THREE DECLARE AN `AT-n`.
+ * That difference is the two rows' own wording and not a choice made here:
+ * table T-016's note for `PR-18` sends `MK-13` to 「実体は ... `AT-53` である」,
+ * while `MK-13`'s comment-box entry names 「本文の欄（表 T-016 の `PR-21`）」 in
+ * as many words and `PR-21`'s own note calls that row 「`MK-13` の言う「本文の
+ * 編集」の入口である」. ⛔ IF-9 has the shell ask for a field BY THE ROW IT
+ * DECLARES, so declaring anything else would put that entrance out of reach.
+ *
+ * ⚠️ `isEditable` IS THE TABLE'S MARK AND `PR-21` CARRIES NONE, so the field is
+ * editable; `controls` being empty is a separate statement, which
+ * `PropertyField.controls` spells out: 「EMPTY IS NOT "NOT EDITABLE". It means
+ * this side has no control to offer」.
+ *
+ * STOP -- ⛔⛔ NO CONTROL CAN BE OFFERED FROM THIS FILE, AND TWO THINGS ARE
+ * MISSING FOR IT (measured 2026-09-06, D-283). Neither is in this unit:
+ *   * `PropertyFieldKey` (`screen-renderer.ts`) has five arms -- `task`,
+ *     `taskVisual`, `taskGroup`, `dependency`, `project` -- and NONE of them can
+ *     name a comment box, which AT-110 identifies by a `string` id. A control
+ *     carries that key, and a commit is read back by it (IF-9), so a control
+ *     built with one of the five would name the wrong thing.
+ *   * `COLUMN_SHAPES` (`schedule.ts`, generated from `_source/erd.json`) holds
+ *     `Task`, `TaskVisual`, `TaskGroup` and `Dependency` and no `CommentBox`,
+ *     so `controlKindOf` has no entity to be asked about `text` under.
+ * ⛔ Nothing is invented for either: an arm and an entity are both changes to
+ * units this round may not touch. ⭐ The write side is already standing --
+ * CM-48 `setCommentBoxText` in `edit-annotation.ts` -- so what is left is the
+ * key, the shape, and one case in `commandFromFieldCommit`.
+ *
+ * @purity pure
+ */
+function commentBoxFields(box: CommentBox, language: DisplayLanguage): readonly PropertyField[] {
+  return COMMENT_BOX_ITEMS.map((item) => ({
+    row: item.row,
+    name: itemName(item.row, language),
+    text: item.columns.map((column) => textOfValue(box[column])).join(PART_SEPARATOR),
+    isEditable: !READ_ONLY_ROWS.includes(item.row),
+    controls: [],
+  }))
 }
 
 // -------------------------------------------------------- the picked row ----

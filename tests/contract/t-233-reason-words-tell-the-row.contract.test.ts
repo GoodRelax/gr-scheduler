@@ -257,6 +257,22 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // this file asks: the 場面 against the three dictionary fields, before
   // anything was recorded.
   'RS-49': '72cb83eccb85ea1f',
+  // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
+  // tells). Read together before anything was recorded, the way this file
+  // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
+  // ja 「下記の無効なタスクを削除して取り込みました」 is the user's own wording of
+  // the ruling and says the same scene -- ⭐ 「下記の」 is load-bearing, because
+  // FR-023 (MUST NOT) forbids telling the count alone, so the words themselves
+  // promise the list the surface draws. en 「The invalid tasks listed below were
+  // removed, and the rest was imported」 keeps both halves: what was dropped AND
+  // that the rest came in. The next step 「元のファイルの日付を直して読み直すか、
+  // 取り消しで取り込む前へ戻せます」 / 「Fix the dates in the original file and read
+  // it again, or undo to get back to before the import」 names the two roads the
+  // requirement actually leaves open, and no third.
+  // ⚠️ It stays clear of `RS-48` 「この文書は新しい形式で書かれており、読めなかった
+  // 項目があります」 -- that one is the VERSION being newer and keeps what it could
+  // not read, where this one is a value the document cannot use and drops it.
+  'RS-50': 'eee407b62182693d',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 
