@@ -380,6 +380,56 @@ function repriced(within: WorkingCalendar, task: Task): Task {
 }
 
 /**
+ * The element name the note under table T-019 calls 「最終列」, kept as a
+ * constant so the two sides of the Carry read the same string.
+ *
+ * ⚠️ THE EXCHANGE PARTNER'S OWN ELEMENT NAME AND NOT A COLUMN OF `Task`.
+ * `Stop` has no row of table T-056 -- G-13 of table T-005 puts it among the
+ * items 「算出で置き換えうるが原値を保つ項目」, so it arrives as a scalar leaf and
+ * lives in `Task.carry` under the name MSPDI spells it with.
+ */
+const CARRIED_STOP = 'Stop'
+
+/**
+ * The task with the imported `Stop` let go of, because a person has just edited
+ * that task's actuals.
+ *
+ * ⭐⭐ THE SECOND HALF OF THE NOTE UNDER TABLE T-019, WHICH USED TO BE MISSING.
+ * That note reads 「最終列は算出して書くときの値である。取り込んだ原値があり、その
+ * タスクの実績を人が編集していないあいだは、最終列によらず原値をそのまま書き戻す
+ * こと（MUST）」 and closes with 「人がそのタスクの実績を編集したときに限り、最終列の
+ * 値へ置き換える —— `FR-012` の完了率と同じ規則である」. The FIRST half is already
+ * kept, and by the exporter: `writtenStop` in `mspdi-codec.ts` writes nothing of
+ * its own while `carry['Stop']` holds a value. ⛔ SO THE ORIGINAL WON FOREVER --
+ * a person could suspend, resume and re-suspend a task and the file would still
+ * go back out carrying the day the import brought, which is the very 「編集して
+ * いないタスクの値を書き換える」 test (EX-2 of table T-033) read backwards.
+ *
+ * ⭐ THIS UNIT IS WHERE 「人が … 編集した」 IS KNOWN. No column records it (and
+ * none is invented here), and the exporter cannot tell an edited task from an
+ * untouched one -- so the fact is spent at the moment it is true, by dropping
+ * the carried value, and the exporter's existing fall-through computes the
+ * replacement table T-019's last column names.
+ *
+ * ⛔ ONLY THE THREE COMMANDS THAT EDIT THE ACTUALS CALL THIS. The note says
+ * 「そのタスクの実績」 and nothing wider: a plan date (CM-11), a deadline, a name
+ * or a fade is not an actual, and dropping the carried value for one of those
+ * would move a day in a file 表 T-033 requires to come back unchanged. ⚠️ It is
+ * the same rule FR-012's 完了率 keeps, which the note names as the precedent.
+ *
+ * @purity pure
+ */
+function actualsEdited(task: Task): Task {
+  if (task.carry[CARRIED_STOP] === undefined) return task
+  return {
+    ...task,
+    carry: Object.fromEntries(
+      Object.entries(task.carry).filter(([name]) => name !== CARRIED_STOP),
+    ),
+  }
+}
+
+/**
  * A task and its WBS descendants. IV-4 forbids a cycle in `wbsParentUid`, so
  * the sweep terminates; it is written as a sweep rather than a recursion
  * because the rows arrive in no particular parent-before-child order.
@@ -823,12 +873,11 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           }
           break
       }
-      // ⛔ MISSING: FR-010 requires the imported `Stop` to be written back
-      // untouched 人がそのタスクの実績を編集していないあいだ, and to be replaced
-      // by the computed value 人がそのタスクの実績を編集したときに限り. No column
-      // records that a person edited a task's actuals, and no requirement says
-      // which unit drops or marks the carried value. `carry` is left as it is.
-      return edited(withTask(document, repriced(within, placed)))
+      // ⭐ THE CARRIED `Stop` IS LET GO OF HERE. The note under table T-019
+      // replaces it with the last column's value 人がそのタスクの実績を編集した
+      // ときに限り, and this command is exactly that moment -- see
+      // `actualsEdited`, which also says why the drop lives in this unit.
+      return edited(withTask(document, repriced(within, actualsEdited(placed))))
     }
 
     case 'beginTaskActual': { // CM-14 ⭐
@@ -880,8 +929,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         actualDuration: duration,
         resumeValid: true,
       }
-      // ⛔ MISSING: the carried `Stop` -- see CM-13.
-      return edited(withTask(document, repriced(within, begun)))
+      // ⭐ The carried `Stop` is let go of -- see CM-13 and `actualsEdited`.
+      // ⚠️ Starting a task IS editing its actuals: three of the five columns
+      // table T-019 names are written just above.
+      return edited(withTask(document, repriced(within, actualsEdited(begun))))
     }
 
     case 'cycleTaskPlanActualState': { // CM-15 ⭐
@@ -941,8 +992,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           turned = { ...task, resume: null, resumeValid: true }
           break
       }
-      // ⛔ MISSING: the carried `Stop` -- see CM-13.
-      return edited(withTask(document, repriced(within, turned)))
+      // ⭐ The carried `Stop` is let go of -- see CM-13 and `actualsEdited`.
+      // ⚠️ Every one of table T-021a's four rows writes an actual column, so the
+      // press is an edit of the actuals whichever row it ran.
+      return edited(withTask(document, repriced(within, actualsEdited(turned))))
     }
 
     case 'setTaskFadeInDays': // CM-16

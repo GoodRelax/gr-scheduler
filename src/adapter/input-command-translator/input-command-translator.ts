@@ -3190,6 +3190,12 @@ function isVisualChoice(column: VisualColumn, value: string): boolean {
  * on a task that has no actual yet names a row that cannot be filled; nothing
  * is written rather than a duration invented here.
  *
+ * ⚠️ ONE COLUMN IS SETTLED IN PAIRS AND THAT IS NOT A STATE BEING CHOSEN.
+ * FR-044 (MUST) binds `resume` and `resumeValid` in BOTH directions -- placing a
+ * resume date turns `resumeValid` on, clearing one turns it off -- so a settling
+ * that touches the date writes the pair before the row is read off below. The
+ * branch says why the second half is not left to `planActualState`.
+ *
  * @purity pure
  */
 function planActualWithColumn(task: Task, column: keyof Task, text: string): PlacedPlanActual | null {
@@ -3208,6 +3214,25 @@ function planActualWithColumn(task: Task, column: keyof Task, text: string): Pla
     const day = settledDay(text)
     if (day === undefined) return null
     written[column] = day
+    // ⭐ FR-044's CLOSING MUST, WHICH IS PA-3's PAIRING READ THE OTHER WAY
+    // ROUND: 「置いた再開日を消したときは、`resumeValid` を `false` に戻すこと
+    // （MUST）—— 戻さないと表 T-019a の `PS-5` に落ち、日付を消しただけで中断が
+    // 黙って解ける」. ⛔ WITHOUT THIS LINE THE REQUIREMENT'S OWN WARNING IS THE
+    // BEHAVIOUR: `resumeValid` stays `true`, `planActualState` below falls past
+    // PS-3 and PS-4 to PS-5, and the row that leaves here is PA-2 (進行中) --
+    // so `edit-task.ts` writes `resumeValid: true` back into a document column
+    // 表 T-058 requires, and the suspension is gone with nothing said.
+    // ⛔ ONLY WHERE A DATE ACTUALLY STOOD THERE. The requirement speaks of
+    // 「置いた再開日を消したとき」, and `false` for a column that was already
+    // empty would take a task PS-5 holds (進行中) into PS-3's 中断・再開日未定 --
+    // a suspension nobody asked for. ⚠️ The pair is written HERE and not judged
+    // in `edit-task.ts`: table T-019 is 「`GRS` が置く値」 and CM-13 places a
+    // whole row of it, so the row this settling names is the thing to get
+    // right -- a second reading on the write side would be the same rule in
+    // two places (rule 03 section 4).
+    if (column === 'resume' && day === null && task.resume !== null) {
+      written['resumeValid'] = false
+    }
   }
 
   const state = planActualState(next)

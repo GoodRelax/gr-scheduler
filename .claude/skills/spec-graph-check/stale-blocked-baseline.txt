@@ -1,4 +1,15 @@
-47
+48
+#
+# RAISED 47 -> 48 ON 2026-09-06 for D-306, deliberately.
+# Its tick records MEASURING the defect -- five pins, the cap the
+# specification itself sets, already overrun the Row Area -- not a fix. The
+# row genuinely waits on a ruling: FR-098 needs a value to hold the band's
+# scroll position, table T-203 has none, and the same requirement ends by
+# forbidding a new settings key. A body may not invent one.
+#
+# LOWER IT AGAIN when that ruling lands. This is the second row to need this
+# exemption; if a third appears, the check's heuristic is what should change.
+#
 #
 # LOWERED 48 -> 47 ON 2026-09-06, the same day it was raised. The debt the
 # raise took on was D-322 waiting for a ruling; the ruling landed (CR-361,
