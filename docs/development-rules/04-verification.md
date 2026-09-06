@@ -264,3 +264,40 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 ⭐ **上げるなら、なぜ背負うのかをコミットに書け。**
 ⭐⭐ **検査 37 の対は別物である** —— **「行と語を一緒に読んだ」という記録なので、一緒に直したら読み直すのが設計である。混ぜるな。**
 
+
+### 6.4 ⛔⛔ 走らせ方を知らないと、偽の赤が出る（**実測 2026-09-07**）
+
+```
+⛔ tests/system/ ・ tests/usecase/ ・ tests/nfr/ は Playwright であって vitest ではない
+   （表 T-218 の TS-3、playwright.config.ts の testMatch）。
+   vitest.config.ts が読むのは tests/{contract,integration,unit} だけである。
+   ⇒ npx vitest run tests/system/… は「No test files found」で 終了コード 1 を返す。
+   ⚠️ 実測: 2026-09-07 の波で 5 体すべてがブリーフのこの誤りを訂正して返した。
+     ⭐ 訂正は成果だが、体 1 つあたり寄り道 1 回ぶん高くついた
+
+⛔⛔ npm run e2e はビルドを走らせない。
+   playwright.config.ts の webServer は npm run dev だけを立てるので、
+   dist/index.html が古いか無いままの木で回すと、file:// を押す件が軒並み落ちる。
+   ⚠️ 実測 2026-09-07: 先に npx vite build を打たなかった 1 回目は 7 落ち、
+     打った 2 回目は 6 落ち —— 差の 6 本はすべて偽の赤であった
+   ⇒ ⭐ e2e の前に必ず npx vite build
+
+⛔ sample-schedule/ は .gitignore されているので、作業木には無い。
+   親から写さないと FR-021 の条項が 1 本余分に落ちる
+```
+
+### 6.5 ⛔ 表に 1 行足すと、6 か所が連鎖する（**実測 2026-09-07、表 T-023d の `GR-21`**）
+
+```
+① 原稿の表に行を書く                     docs/spec/01-04-requirements.md
+② 表示語を書く                            docs/spec/_source/display-words.json
+   ⛔ 書かないと generate_display_words.py が「仕様と合わない」と言って
+     何も書かずに止まる。⚠️ npm run gen を >/dev/null に流すとこれが見えない
+③ その表の写しを持つ試験を直す            2026-09-07 は 3 本あった
+④ 「1 行も取りこぼさない」と主張する試験に、件を足すか除く理由を書く
+⑤ 検査 37 の対（dictionary-table-pairing.txt）に 1 行足す
+⑥ 重複検出器を通す                        ⛔ 行の中で要求の一文を引用すると新しい群になる。
+                                            引用ではなく指せ（規則 02）
+⚠️ さらに 検査 12 が「値の表に規則（MUST / MUST NOT）を書くな」と言う ——
+   設定値の備考に規則を書いてはならない。規則は要求が持ち、備考はそれを指す
+```

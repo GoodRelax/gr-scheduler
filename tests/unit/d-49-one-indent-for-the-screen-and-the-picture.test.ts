@@ -434,6 +434,11 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
     regions: EXPORT_REGIONS,
     screenView: view,
     settings: EXPORT_SETTINGS,
+    // ⭐ Handed over WITH the request, as `_source/components.json` has the
+    // shell do: `Project.themeHue` (AT-19) is in neither `DocumentSettings` nor
+    // `ScreenView`, so a scene that did not state it could not be built.
+    // ⛔ Not a literal: the same `S-73` the session above is given.
+    themeHue: THEME_HUE,
   }
 }
 

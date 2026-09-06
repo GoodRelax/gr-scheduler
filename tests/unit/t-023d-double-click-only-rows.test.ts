@@ -110,6 +110,7 @@ import {
   type PointerInput,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the rows these cases are driven by. Chapter 1.9 asks a test
@@ -119,11 +120,19 @@ import {
 /**
  * 表 T-023d, most-preferred first, in the table's own PRINTED order -- which is
  * not the numeric order of the row ids. 「上の行ほど優先すること（MUST）」.
+ *
+ * ⛔ AND IT HAD GONE STALE, TWICE OVER. This copy said 19 rows while the table
+ * printed 21: `GR-20`（行見出しパネルの行）joined on 2026-08-30 and `GR-21`
+ * （`Scrollbars` のつまみ）on 2026-09-07, and NEITHER reached here -- so the
+ * two walks below, which say 「no row of table T-023d」 may reach CM-25 or open
+ * the panel, were quietly saying it about 19 of the 21. ⭐ Nothing caught that,
+ * because no case compared the copy with the manuscript; one below now does,
+ * the way tests/unit/uf-30-31.test.ts does for its own copy.
  */
 const T_023D = [
   'GR-19',
   'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-9', 'GR-17',
-  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-16',
+  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-20', 'GR-16', 'GR-21',
 ] as const
 
 /**
@@ -593,8 +602,8 @@ describe('the rosters and the fixture these cases stand on', () => {
   // A walk over an empty roster passes without asserting anything, so the
   // counts are pinned first and a vacuous case cannot go green.
   it('carries the rows of 表 T-023d, 表 T-023 MK-13 and 表 T-028 IN-4 / IN-5a', () => {
-    expect(T_023D).toHaveLength(19)
-    expect(new Set(T_023D).size).toBe(19)
+    expect(T_023D).toHaveLength(21)
+    expect(new Set(T_023D).size).toBe(21)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     // The closing rule names exactly these two, and the table prints GR-10
@@ -614,6 +623,14 @@ describe('the rosters and the fixture these cases stand on', () => {
     expect(IN_4_LEVELS[0]).toBe('unsettled in-place edit')
     expect(IN_4_LEVELS[IN_4_LEVELS.length - 1]).toBe('standing tooltip')
     expect(IN_5A_FIELDS).toHaveLength(5)
+  })
+
+  it('copies 表 T-023d in the order the manuscript still prints it (MUST)', () => {
+    // 「上の行ほど優先すること（MUST）」. ⭐ The roster above is the fixed copy
+    // Chapter 1.9 (:275) asks a table-driven test to be built on, and this case
+    // is what keeps it honest -- ⛔ without it the copy fell two rows behind
+    // the table and the walks below shrank without anything saying so.
+    expect([...T_023D]).toEqual(specTable('T-023d').rows.map((row) => row.id))
   })
 
   it('draws a schedule the coordinates can be read from', () => {

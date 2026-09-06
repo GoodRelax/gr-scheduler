@@ -80,6 +80,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { Document } from '../../src/entity/document-model/document/document'
+import { specTable } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -106,6 +107,31 @@ describe('FR-025 -- the manuscript this file is driven by', () => {
     expect(REQUIREMENTS).toContain(FR_025_KEEP_RETIRED_KEY)
   })
 })
+
+/**
+ * The heading the settings tables give their default column.
+ *
+ * ⚠️ Built from its code points: rule 03 section 5 keeps this tree ASCII, so a
+ * literal would be invisible in a diff.
+ */
+const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
+
+/**
+ * `S-73` of table T-216 -- the document's theme hue (`Project.themeHue`,
+ * AT-19), which a scene has to state because DR-5 of table T-052 keeps it at
+ * `Project` and therefore out of `DocumentSettings` and `ScreenView` alike.
+ *
+ * ⛔ Read from the manuscript rather than typed: rule 03 section 1 forbids
+ * copying a value the specification already holds.
+ */
+const THEME_HUE = ((): number => {
+  const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
+  if (row === undefined) throw new Error('table T-216 has no row S-73')
+  const found = /-?\d+(?:\.\d+)?/.exec((row.by[DEFAULT_COLUMN] ?? '').replace(/`/g, ''))
+  const value = Number(found?.[0] ?? '')
+  if (!Number.isFinite(value)) throw new Error('table T-216 row S-73 states no number')
+  return value
+})()
 
 // ===========================================================================
 // 2. FR-025 (MUST NOT): the picture carries no scale
@@ -229,6 +255,7 @@ const sceneOf = (settings: DocumentSettings): ExportScene => ({
   regions: REGIONS,
   screenView: VIEW,
   settings,
+  themeHue: THEME_HUE,
 })
 
 const PNG_BYTES = Uint8Array.from([0x89, 0x50, 0x4e, 0x47])

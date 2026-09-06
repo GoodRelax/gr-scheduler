@@ -1,4 +1,17 @@
-959
+935
+#
+# LOWERED 959 -> 935 ON 2026-09-07, THE SAME DAY IT WAS RAISED. The debt
+# booked as D-355 is paid: tests/unit/d-355-the-four-rulings-of-2026-09-07
+# holds all eighteen clauses of that day's four rulings verbatim, plus four
+# neighbours caught in the same windows -- 22 markers, 20 constants,
+# 31 cases. ⭐ Nine of the eighteen are also PRESSED against the build
+# (FR-060 four ways, EP-1/S-225/S-226 three, FR-020 two); the other nine
+# are held verbatim only, because the build does not exist yet, and the
+# file says so instead of writing a case that passes on nothing.
+# ⛔ THE CONSTANTS ARE CUT FROM THE MANUSCRIPT BY SCRIPT, never typed, and
+# the file re-reads docs/spec at run time and goes red if a clause is
+# reworded -- check 39 counts raw bytes under tests/, so a test that only
+# reads the specification holds nothing.
 #
 # RAISED 941 -> 959 ON 2026-09-07. Eighteen clauses were written into the
 # specification in one round, from four rulings the user gave that day, and

@@ -96,6 +96,7 @@ import type {
   ScreenRect,
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Settings. ⛔ Rule 03 forbids re-typing a value the specification holds, so
@@ -130,6 +131,79 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({ ...SETTINGS_BASE, ...part }) as unknown as DocumentSettings
 
 const SETTINGS = settingsOf()
+
+// ---------------------------------------------------------------------------
+// PI-21's roster, read out of table T-064 rather than typed here
+// ---------------------------------------------------------------------------
+
+/**
+ * The members table T-064 gives `PI-21`, read from the table at run time.
+ *
+ * ⭐ READ AND NOT COPIED. 「本表は名前と、それが何を担うかだけを持つ」 — the
+ * table is the roster, so a case that types the roster out again can go on
+ * passing after the row has gained or lost a member. The names are picked the
+ * way check 26b picks them: split the member cell on the full-width solidus,
+ * and take a piece's leading back-quoted ASCII identifier.
+ */
+const PI_21_MEMBERS = ((): readonly { name: string; isType: boolean }[] => {
+  const row = specTable('T-064').rows.find((one) => one.id === 'PI-21')
+  if (row === undefined) throw new Error('table T-064 no longer holds PI-21')
+  const cell = row.cells[row.cells.length - 1] ?? ''
+  return cell
+    .split(String.fromCharCode(0xff0f))
+    .map((piece) => {
+      const found = /^\s*`([A-Za-z][A-Za-z0-9_]*)`/.exec(piece)
+      // ⭐ A piece that points at 表 T-065 names a cross-layer interface, and
+      // 5.3 says those files hold declarations only -- so it is erased before
+      // it can be a runtime name. That is read from the cell, not assumed.
+      return found === null ? null : { name: found[1] as string, isType: piece.includes('T-065') }
+    })
+    .filter((one): one is { name: string; isType: boolean } => one !== null)
+})()
+
+/** The names of `PI-21` that survive to run time: the two entries. */
+const PI_21_ENTRIES = PI_21_MEMBERS.filter((one) => !one.isType).map((one) => one.name)
+
+/**
+ * ⛔ THE ONE RUNTIME NAME ON THIS ENTRY THAT TABLE T-064 DOES NOT GIVE IT.
+ *
+ * `NOT_STORED_DOCUMENT_TITLE_SIZES` is the constant rule 03 section 1 has
+ * `npm run gen` print out of table T-206 (`S-225` / `S-226`) so that the value
+ * is not re-typed. ⚠️ Table T-064 knows that species -- `PI-2` names
+ * 「原稿を刷った 3 つの定数」 in its own cell -- so a generated constant is not
+ * outside the roster by nature; this one is simply not in the row yet.
+ * ⚠️ Measured 2026-09-07: the same gap stands on `PI-19`, whose entry
+ * (`svg-renderer.ts`) publishes SEVEN such constants against a row that names
+ * `svgFromSchedule` and `colourOf` only. ⇒ It is a gap between table T-064 and
+ * `src/`, not this component's own, and it is reported rather than papered
+ * over: neither docs/spec nor src/ was touched to make this file green.
+ * ⛔ PINNED EXACTLY. A SECOND unnamed runtime name fails the case below, and so
+ * does table T-064 finally naming this one -- at which point delete this list.
+ */
+const PI_21_UNNAMED_RUNTIME_NAMES = ['NOT_STORED_DOCUMENT_TITLE_SIZES'] as const
+
+/**
+ * The heading the settings tables give their default column.
+ *
+ * ⚠️ Built from its code points: rule 03 section 5 keeps this tree ASCII, so a
+ * literal would be invisible in a diff.
+ */
+const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
+
+/**
+ * `S-73` of table T-216 -- the document's theme hue (`Project.themeHue`,
+ * AT-19). DR-5 of table T-052 keeps the hue at `Project`, so it is in neither
+ * `DocumentSettings` nor `ScreenView` and a scene has to state it.
+ * ⛔ Read from the manuscript, not typed (rule 03 section 1).
+ */
+const THEME_HUE = ((): number => {
+  const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
+  if (row === undefined) throw new Error('table T-216 has no row S-73')
+  const found = /-?\d+(?:\.\d+)?/.exec((row.by[DEFAULT_COLUMN] ?? '').replace(/`/g, ''))
+  const value = Number(found?.[0] ?? '')
+  if (!Number.isFinite(value)) throw new Error('table T-216 row S-73 states no number')
+  return value
+})()
 
 /**
  * The half of each answer that carries a picture.
@@ -689,6 +763,7 @@ const sceneOf = (
   // tall, which fits, and the scenes that do NOT fit are built on purpose in
   // the last two describes.
   settings: SETTINGS,
+  themeHue: THEME_HUE,
   ...part,
 })
 
@@ -1754,12 +1829,47 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
 })
 
 describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', () => {
-  it('GIVEN the public entry WHEN its runtime names are read THEN they are exactly exportSvg and exportPng', () => {
-    // ⚠️ The types PI-21 re-publishes are erased, so only the two entries are
-    // there to count. A third runtime name would be a member table T-064 does
-    // not give this component.
-    expect(Object.keys(imageExporter).sort()).toEqual(['exportPng', 'exportSvg'])
-    expect(typeof exportSvg).toBe('function')
+  it('GIVEN table T-064 WHEN PI-21 is read THEN it gives one seam type and two entries', () => {
+    // ⭐ The roster this describe is held against, taken from the manuscript.
+    // `Rasterizer` is IF-6 of table T-065, declared in its own file and
+    // re-published by the entry (「公開エントリは、そのインターフェースを再び
+    // 公開すること（MUST）」), so it is a type and erased.
+    expect(PI_21_MEMBERS.map((one) => one.name)).toEqual([
+      'Rasterizer',
+      'exportSvg',
+      'exportPng',
+    ])
+    expect(PI_21_MEMBERS.filter((one) => one.isType).map((one) => one.name)).toEqual(['Rasterizer'])
+  })
+
+  it('GIVEN the public entry WHEN its runtime names are read THEN every member T-064 gives it is a function there', () => {
+    const published = Object.keys(imageExporter)
+    for (const name of PI_21_ENTRIES) {
+      expect(published, `table T-064 gives PI-21 \`${name}\``).toContain(name)
+      expect(
+        typeof (imageExporter as unknown as Record<string, unknown>)[name],
+        `PI-21 \`${name}\``,
+      ).toBe('function')
+    }
+    // ⛔ AND NO THIRD ENTRY. What the table gives PI-21 is what may be CALLED
+    // through it; a further callable name would be a member the row does not
+    // hold, and 5.3 leaves a component exactly one way out of its folder.
+    const callable = published.filter(
+      (name) => typeof (imageExporter as unknown as Record<string, unknown>)[name] === 'function',
+    )
+    expect(callable.sort()).toEqual([...PI_21_ENTRIES].sort())
+  })
+
+  it('⛔ and publishes exactly one runtime name table T-064 does not give it', () => {
+    // ⛔ EXPECTED RED ON THE MANUSCRIPT, NOT ON THE CODE. See the note on
+    // PI_21_UNNAMED_RUNTIME_NAMES: this pins the gap so that a SECOND unnamed
+    // name, or the row finally naming this one, turns the case red.
+    const unnamed = Object.keys(imageExporter).filter(
+      (name) => !PI_21_ENTRIES.includes(name) && !PI_21_MEMBERS.some((one) => one.name === name),
+    )
+    expect(unnamed.sort(), 'runtime names of `image-exporter.ts` with no member in T-064').toEqual(
+      [...PI_21_UNNAMED_RUNTIME_NAMES].sort(),
+    )
   })
 })
 
@@ -2121,7 +2231,13 @@ describe('table T-024 -- which routes the height ceiling reaches', () => {
     // ⚠️ THAT IO-1 / IO-2 / IO-7 STILL WRITE FOR A TOO-TALL SCENE IS NOT
     // MEASURABLE IN THIS FILE. It is measurable where those three are pressed,
     // which is `tests/unit/uf-47-48-choosers.test.ts`.
-    // GOES RED IF: a third runtime name appears on this component.
-    expect(Object.keys(imageExporter).sort()).toEqual(['exportPng', 'exportSvg'])
+    // GOES RED IF: a third CALLABLE name appears on this component -- which is
+    // what would give the ceiling a route it does not have. ⚠️ The roster comes
+    // from table T-064's own PI-21 row; the describe above holds the one
+    // generated constant the row does not yet name.
+    const callable = Object.keys(imageExporter).filter(
+      (name) => typeof (imageExporter as unknown as Record<string, unknown>)[name] === 'function',
+    )
+    expect(callable.sort()).toEqual([...PI_21_ENTRIES].sort())
   })
 })

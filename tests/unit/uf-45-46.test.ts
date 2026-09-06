@@ -94,6 +94,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by (Chapter 1.9, :275).
@@ -571,6 +572,29 @@ const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unk
  */
 const EXPORT_SETTINGS = nestedFrom(SETTINGS_DEFAULTS) as unknown as DocumentSettings
 
+/**
+ * The heading the settings tables give their default column.
+ *
+ * ⚠️ Built from its code points: rule 03 section 5 keeps this tree ASCII, so a
+ * literal would be invisible in a diff.
+ */
+const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
+
+/**
+ * `S-73` of table T-216 -- the document's theme hue (`Project.themeHue`,
+ * AT-19). DR-5 of table T-052 keeps the hue at `Project`, so it reaches an
+ * export through neither `DocumentSettings` nor `ScreenView` and the scene has
+ * to state it. ⛔ Read from the manuscript, not typed (rule 03 section 1).
+ */
+const THEME_HUE = ((): number => {
+  const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
+  if (row === undefined) throw new Error('table T-216 has no row S-73')
+  const found = /-?\d+(?:\.\d+)?/.exec((row.by[DEFAULT_COLUMN] ?? '').replace(/`/g, ''))
+  const value = Number(found?.[0] ?? '')
+  if (!Number.isFinite(value)) throw new Error('table T-216 row S-73 states no number')
+  return value
+})()
+
 /** A screen of the export's base environment. 1000 wide, so FR-080's ratio is 1.6. */
 const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 
@@ -664,6 +688,7 @@ const EXPORT_SCENE: ExportScene = {
   regions: EXPORT_REGIONS,
   screenView: EXPORT_VIEW,
   settings: EXPORT_SETTINGS,
+  themeHue: THEME_HUE,
 }
 
 /**

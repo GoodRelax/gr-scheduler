@@ -286,6 +286,31 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⚠️ It stays clear of RS-48, which is a NEWER FORMAT and keeps what it could
   // not read. This one is a value this build understands and refuses to leave.
   'RS-51': '58cbcc420820f165',
+  // ⭐ ADDED 2026-09-07, on the ruling that editing the working-day calendar
+  // recounts the STORED percent complete (FR-012). The row, both languages and
+  // the next step were read against each other BEFORE this fingerprint was
+  // taken, which is what this record is for.
+  // ⛔ The words are NOT quoted here -- rule 02 section 4 has a note name its
+  // row rather than copy it, and FR-038 (MUST NOT) admits one store of printed
+  // words.
+  // ⭐ WHAT THE READING FOUND. The 場面 carries two halves -- the calendar
+  //   changed AND the stored value was counted again -- and both languages
+  //   carry both; neither says only that the calendar moved, which is the half
+  //   that would leave a reader wondering why a number they never touched had
+  //   changed. The next step names the ONE road FR-012 leaves open and no
+  //   other: 「暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分け
+  //   てはならない（MUST NOT）」, so undo gives back the calendar and the
+  //   percent complete together -- which is exactly what both next steps say.
+  // ⭐ THE COUNT IS NOT IN THE WORD, AND SHOULD NOT BE. The row's 作法 is
+  //   `NT-3`, which is where 「対象の件数を添えること」 lives, and NT-3 names
+  //   「暦の変更」 among its own examples. `RS-49` is paired the same way and
+  //   its row says so outright: 「件数の示し方は `NT-3` が持つ」. ⇒ a count
+  //   spelled into the dictionary would be the second store NT-3 already is.
+  // ⚠️ IT STAYS CLEAR OF `RS-21`, and the row says why: RS-21 (`NT-1`) REFUSES
+  //   a calendar with no working weekday, where this row is the consequence of
+  //   a calendar that WAS accepted. Nothing in either word could be read for
+  //   the other scene.
+  'RS-52': '501f1fa746835622',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 
