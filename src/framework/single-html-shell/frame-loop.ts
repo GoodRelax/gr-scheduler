@@ -1854,6 +1854,43 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
 }
 
 /**
+ * U-61 `Difference Review` of table T-103 -- the surface FR-022 (MUST) puts the
+ * merge's question on.
+ *
+ * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), for the reason
+ * `OPEN_CHOOSER_SURFACE` above is copied: `ScreenState.surface` (S-99g) carries
+ * it, `icon-roster.json` places IC-95 .. IC-97 on it out of table T-109's own
+ * surface column, and `open-modals.ts` discriminates the candidate list on it.
+ * ⛔ THIS SURFACE HAS NO ENTRANCE THAT OPENS IT (FR-022): 「この面は開く道
+ * （`FR-087` の `OP-3`）から立つ。独立したアイコンの入口は持たない」. So it is
+ * raised from the open road below and from nowhere else -- IC-94 stood for such
+ * an entrance until 2026-09-05 and was withdrawn from table T-109 for it.
+ */
+const DIFFERENCE_REVIEW_SURFACE = 'Difference Review'
+
+/**
+ * The three entries table T-109 places on that surface, each bound to the row of
+ * table T-032a it answers.
+ *
+ * ⭐ A JOIN, NOT A TRANSLATION -- the same shape `OPEN_CHOICE_OF_ENTRY` above
+ * has, and for the same reason: table T-109 has no English column on purpose, so
+ * a row id is the only handle it admits, and the spellings on the right are
+ * `import-document.ts`'s.
+ * ⚠️ `MM-3`（1 件ずつ決める）IS DELIBERATELY ABSENT, and it is the user's ruling
+ * of 2026-09-06 that leaves it out -- 「重複している予定や実績をどちらのファイル
+ * から取り込むかだけを選択させる。複雑なことは要らない」. FR-022 records the
+ * ruling beside table T-032a, and the row itself is not retired: `MG-9` still
+ * gives it meaning for a caller that answers through the `Agent API` (AM-8).
+ * ⛔ So nothing here decides it -- table T-109 places three entries and this
+ * states which row each of the three means.
+ */
+const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
+  'IC-95': { kind: 'allSame' },
+  'IC-96': { kind: 'allDifferent' },
+  'IC-97': { kind: 'cancelImport' },
+}
+
+/**
  * OP-2 of table T-024a -- which of its two routes this loop takes.
  *
  * STOP -- ⛔ THE OTHER ROUTE HAS NO TRIGGER. A drop is watched by the store
@@ -2225,6 +2262,20 @@ type PropertiesShowing = ScreenSession['propertiesShowing']
 type PropertiesSubject = NonNullable<ScreenSession['propertiesSubject']>
 
 /**
+ * One pair U-61 `Difference Review` lays out (FR-022, MUST), and what the three
+ * answers of table T-032a mean to PI-10.
+ *
+ * ⛔ DERIVED, NEVER DECLARED A SECOND TIME -- the same move `PropertiesShowing`
+ * above makes and for the reason stated there. What a candidate line is is
+ * ScreenRenderer's to say and what an answer is is ImportDocument's, table T-064
+ * carries neither name across, and a fresh declaration here would be a second
+ * shape for one thing (R4's DRY, and the fence LR-2 draws).
+ */
+type MergeCandidateLine = NonNullable<ScreenSession['mergeCandidates']>[number]
+type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']>
+type MergeMapping = NonNullable<MergeChoices['mapping']>
+
+/**
  * What this loop holds for the reading session, as `sessionOf` is handed it.
  *
  * ⭐ ONE ARGUMENT AND NOT TWELVE. Every member is a current value LY-5 of table
@@ -2302,6 +2353,11 @@ interface SessionHeld {
   readonly propertiesSubject: PropertiesSubject | null
   /** NT-7 of table T-037 -- the question standing, or none. */
   readonly confirmation: RaisedConfirmation | null
+  /**
+   * FR-022 (MUST) -- the tasks U-61 lays out while the merge's question stands.
+   * Empty on every frame that is not one of those.
+   */
+  readonly mergeCandidates: readonly MergeCandidateLine[]
   /** FR-076 (MUST) -- what has been raised to tell. */
   readonly notices: readonly RaisedNotice[]
   /**
@@ -2381,6 +2437,7 @@ function sessionOf(
     propertiesShowing,
     propertiesSubject,
     confirmation,
+    mergeCandidates,
     notices,
     canUndo,
     canRedo,
@@ -2503,6 +2560,9 @@ function sessionOf(
     // is handed in: LY-5 of table T-060 leaves a current value with this layer,
     // and this function is handed it.
     notices,
+    // FR-022 (MUST): what U-61 lays out before its three answers are offered.
+    // ⭐ Held by the loop for the same reason `confirmation` below is.
+    mergeCandidates,
     // FR-032 (MUST): the question standing in front of a delete, or none.
     // ⭐ Held by the loop, not built here -- LY-5 of table T-060 leaves a
     // current value with this layer and this function is handed it.
@@ -3987,6 +4047,28 @@ export function frameLoop(
     /** @purity non-pure */
     settle(choice: OpenChoice | null): void
   } | null = null
+  // FR-022 (MUST) -- the road back to the merge that put U-61 `Difference
+  // Review` up, until one of IC-95 .. IC-97 answers it.
+  //
+  // ⛔ HELD BESIDE `openChoosing` AND NOT INSIDE IT, although the two roads run
+  // one after the other on the same open: OP-3's question is answered BEFORE
+  // OP-5's landing is attempted, and this one is asked only once PI-10 has said
+  // there are candidates to ask about -- so the two stand at different moments
+  // and a shared holder would settle whichever was waiting.
+  // ⛔ NOTHING IS CHOSEN WHILE IT STANDS. FR-022 (MUST NOT) forbids GRS settling
+  // 「同じか別か」 by itself, so a surface that goes away unanswered abandons the
+  // merge -- `null` is what the waiter is handed, and nothing has been written by
+  // then, which is what MG-6 asks of a merge that did not happen.
+  let mergeChoosing: {
+    /** @purity non-pure */
+    settle(mapping: MergeMapping | null): void
+  } | null = null
+  // FR-022 (MUST) -- what U-61 lays out while it stands: the tasks that could
+  // correspond, gathered by `UID`. Empty while no merge is being asked about.
+  //
+  // ⚠️ HELD RATHER THAN RE-DERIVED because PI-10 is what gathered them, and
+  // R2.7 refuses this file making that pairing judgement a second time.
+  let mergeCandidates: readonly MergeCandidateLine[] = []
   // Whether a file operation that waits for the person is running (CS-4 of
   // table T-066).
   //
@@ -4747,6 +4829,9 @@ export function frameLoop(
           propertiesShowing: propertiesShowingNow(),
           propertiesSubject,
           confirmation: asking?.question ?? null,
+          // FR-022 (MUST): what U-61 lays out while it stands. Empty while no
+          // merge is being asked about, which is every frame but those.
+          mergeCandidates,
           notices: raisedNotices,
           // FR-029 (MUST) with RD-1 and RD-2 of table T-230, read off the ONE
           // history this loop holds -- the same value `undoEdit` and `redoEdit`
@@ -5577,6 +5662,11 @@ export function frameLoop(
           propertiesShowing: null,
           propertiesSubject: null,
           confirmation: null,
+          // ⛔ NO QUESTION STANDS IN A PICTURE THAT IS BEING WRITTEN OUT, so
+          // U-61 has nothing to lay out either -- the same reading `confirmation`
+          // above takes, on EP-12's ground that this session's state stays out of
+          // an export.
+          mergeCandidates: [],
           notices: [],
           // ⛔ THE TWO HISTORY QUESTIONS ARE LEFT UNANSWERED HERE, AND THAT IS
           // THE ANSWER. EP-12 of table T-076 keeps this session's state out of
@@ -6433,6 +6523,42 @@ export function frameLoop(
   }
 
   /**
+   * FR-022 (MUST): lay out the tasks that could correspond, then wait for one of
+   * table T-032a's answers to be taken on U-61 `Difference Review`.
+   *
+   * ⭐ THE SURFACE IS U-61 AND THE ANSWERS ARE THE ROSTER'S -- the same division
+   * `askHowToOpen` above stands on. This side names the surface and hands over
+   * the pairing; table T-109's own surface column places IC-95 .. IC-97, and
+   * `MERGE_MAPPING_OF_ENTRY` states which row of table T-032a each one means.
+   * ⛔ NO WORDS ARE WRITTEN HERE (FR-038, MUST NOT). The three labels are the
+   * dictionary's rows; the names in the list are the two documents' own values,
+   * which that requirement leaves untranslated.
+   * ⛔ THE CANDIDATES ARE PI-10's AND NOT WORKED OUT HERE. FR-022 gathers them by
+   * `UID` (MUST) and `importDocument` is what does it -- deciding again on this
+   * side is what R2.7 refuses, and the two answers could then differ.
+   * ⚠️ S-99g HOLDS ONE SURFACE, so whatever stood open gives way to this one --
+   * the `Open Chooser` that asked OP-3 a moment ago has already answered and been
+   * closed by the entry that answered it.
+   *
+   * @purity non-pure
+   */
+  function askWhichFileToTakeFrom(
+    candidates: readonly MergeCandidateLine[],
+  ): Promise<MergeMapping | null> {
+    return new Promise<MergeMapping | null>((answer) => {
+      mergeChoosing = {
+        /** @purity non-pure */
+        settle(mapping) {
+          answer(mapping)
+        },
+      }
+      mergeCandidates = candidates
+      screenState = screenStateWithSurface(screenState, DIFFERENCE_REVIEW_SURFACE)
+      if (settled(environment)) ask()
+    })
+  }
+
+  /**
    * OP-4 of table T-024a (MUST): the confirmation owed before a replace throws
    * the current document away.
    *
@@ -6691,14 +6817,24 @@ export function frameLoop(
       // ⛔ Declaring the flag true here would refuse this very open.
       anotherOpenInProgress: false,
       unsavedEditsDiscardConfirmed: isDiscardConfirmed,
-      // STOP -- ⛔ NOTHING PUTS FR-022's, MG-4's OR MG-12's QUESTION. Table
-      // T-032a's four answers, the project profile's three and the presentation
-      // group's three each need a surface, and table T-103 names none for any
-      // of them -- table T-109 places no entry for one either. `null` is "not
-      // answered", which `MergeChoices` declares as its own meaning, so a merge
-      // that has candidates is refused by PI-10 rather than being decided here
-      // (FR-022 MUST NOT). ⚠️ The refusal that comes back carries the
-      // candidates, and it reaches nobody for the reason above.
+      // ⭐ FR-022's QUESTION IS NOW PUT, AND `null` IS STILL WHAT LEAVES HERE.
+      // `MergeChoices` declares `null` as "not answered", and the merge road
+      // below asks PI-10 with exactly this value in order to LEARN whether there
+      // is anything to ask about -- the refusal it answers with is what carries
+      // the candidates FR-022 (MUST) lays out. The answer then replaces this
+      // member on the way to the write.
+      //
+      // STOP -- ⛔ MG-4's AND MG-12's QUESTIONS ARE STILL UNPUT. The project
+      // profile's three answers and the presentation group's three are a
+      // different question from table T-032a's, MG-9 forbids asking them per key
+      // (MUST NOT) but not per subject, and ⛔ table T-109 places no entry for
+      // either on U-61 -- so a merge whose profile or whose `documentSettings`
+      // conflict is still refused by PI-10 with nobody able to answer.
+      // ⛔ AND THE REFUSAL STILL REACHES NOBODY, measured on the shipped build
+      // (2026-09-06): `replaceHeldDocument` turns it into `importRefused`, and
+      // `NOTICE_REASON_OF_WRITE_REFUSAL` maps that to `null` because table T-233
+      // holds no row for it -- the note on that map says so itself. ⚠️ A row of
+      // table T-233 is what is owed, and it is a MUST this round did not write.
       merge: null,
       defaultSettings: DEFAULT_DOCUMENT_SETTINGS,
       // AT-109 -- one per import, and minting one is not a pure act, which is
@@ -6730,10 +6866,73 @@ export function frameLoop(
     // so the two are necessarily the same document. ⚠️ NOT `current`: that one
     // is CS-4's read from before the two waits, and an edit made while the
     // question stood would leave it naming a different set of matches.
+    // FR-022 (MUST): 「合流が選ばれ…読んだファイルのタスクが現在の文書のタスクに
+    // 対応するかもしれないとき…表 T-032a の選択肢から選ばせること」, on U-61
+    // (MUST) and with the candidates laid out first (MUST).
+    //
+    // ⭐ PI-10 IS ASKED WHETHER THERE IS ANYTHING TO ASK ABOUT, rather than this
+    // file working the pairing out. `importDocument` is pure, so running it with
+    // `merge: null` costs a judgement and changes nothing, and the refusal it
+    // answers with is FR-022's question in value form -- it carries the very
+    // candidates the requirement (MUST) has laid out. ⛔ Gathering them here
+    // would be this file making PI-10's pairing judgement a second time, which
+    // R2.7 refuses; the overlay road below already pays the same cost for the
+    // same reason.
+    // ⛔ NOTHING IS ASKED WHEN THERE IS NOTHING TO ASK. MG-2 asks only when there
+    // are candidates, and a merge that has none goes straight to the write --
+    // raising U-61 over an empty list would be a surface that cannot be answered
+    // usefully.
+    // ⚠️ THE OTHER REFUSALS ARE LEFT WHERE THEY WERE. Only `mappingNotChosen` is
+    // FR-022's; MG-4's and MG-12's have no entry on this surface (the STOP above),
+    // and every other reason is a refusal `replaceHeldDocument` tells.
+    // ⛔ THE OVERLAY IS NOT ASKED. OP-9 of table T-024a says in as many words
+    // that the third choice is not a merge, and FR-015's own note repeats it --
+    // 「`FR-022` の…は合流についての規則であり、重ねには掛からない」. So the
+    // question is put on the merge alone.
+    let mergeAnswers: MergeChoices | null = null
+    const asked =
+      choice === 'merge' ? importDocument({ ...importing, choice, current: held.document }) : null
+    if (asked !== null && !asked.ok && asked.refusal.reason === 'mappingNotChosen') {
+      const mapping = await askWhichFileToTakeFrom(
+        // ⛔ CARRIED, NEVER RE-DERIVED, and the pairing is PI-10's own: `UID` is
+        // what gathers a candidate (FR-022, MUST) and both sides' uids cross
+        // because MG-1 decides whether unmatched ones may join them.
+        asked.refusal.candidates.map((candidate) => ({
+          currentUid: candidate.currentTaskUid,
+          incomingUid: candidate.incomingTaskUid,
+          currentName: candidate.currentTaskName,
+          incomingName: candidate.incomingTaskName,
+        })),
+      )
+      // FR-022 (MUST NOT): 「同じか別かを `GRS` が自動で確定してはならない」. A
+      // surface that went away unanswered settles nothing, and MG-6 is kept by
+      // construction -- no write has happened yet, so the document is exactly as
+      // it was.
+      if (mapping === null) return
+      // MM-4 of table T-032a -- 「取込をやめる」, which MG-6 (MUST) settles as the
+      // document being exactly as it was before the import.
+      //
+      // ⭐ ANSWERED HERE AND NOT HANDED ON, AND THE PRECEDENT IS `cancelled` OF
+      // `NOTICE_REASON_OF_FILE_FAULT`: a person who called the operation off is
+      // owed no telling, and table T-233 gives one nothing to be told with.
+      // ⛔ MEASURED RATHER THAN ASSUMED (2026-09-06, `scratch/probe-answer.mjs`
+      // on the shipped build): handing MM-4 to PI-10 comes back as
+      // `importCancelled`, `replaceHeldDocument` turns it into `importRefused`,
+      // and `NOTICE_REASON_OF_WRITE_REFUSAL` maps that to `null` -- so the
+      // refusal is dropped and the road is silent EITHER WAY. Stopping here says
+      // the same thing in one line and does not write a value nobody reads.
+      // ⚠️ MG-6 IS KEPT BY CONSTRUCTION: no write has happened at this point, so
+      // there is nothing to put back.
+      if (mapping.kind === 'cancelImport') return
+      // ⚠️ MG-4 AND MG-12 STAY UNANSWERED: this is table T-032a's answer alone,
+      // and `MergeChoices` declares `null` as "not answered" for the other two.
+      mergeAnswers = { mapping, profileConflict: null, settingsConflict: null }
+    }
+
     const importedAgainst = held.document
     const landed = replaceHeldDocument({
       row: 'RD-3',
-      importing: { ...importing, choice },
+      importing: { ...importing, choice, merge: mergeAnswers },
       historyLimits: HISTORY_LIMITS,
       editedBy: EDITED_BY_SCREEN,
       updatedUtc: readInstantOfWrite(),
@@ -6759,7 +6958,12 @@ export function frameLoop(
     // pure and the request is the very one RD-3 was given, so the two runs
     // answer alike.
     // ⚠️ A member on `ReplaceOutcome` for the report is what is owed.
-    const overlaid = importDocument({ ...importing, choice, current: importedAgainst })
+    const overlaid = importDocument({
+      ...importing,
+      choice,
+      merge: mergeAnswers,
+      current: importedAgainst,
+    })
     // The row landed, so PI-10 accepted it; a refusal here would be the two runs
     // disagreeing, and there is nothing about THIS requirement to tell then.
     if (!overlaid.ok) return
@@ -7318,6 +7522,26 @@ export function frameLoop(
       // question already settled.
       screenState = screenStateWithSurface(screenState, null)
       choosing.settle(openChoice)
+      return true
+    }
+    // FR-022 (MUST) -- one of table T-032a's three, taken on U-61.
+    //
+    // ⭐ THE SAME SHAPE THE THREE ABOVE HAVE, deliberately: the entries exist
+    // only while the surface holding them is up, the surface is closed HERE
+    // rather than by `screenStateFromEntry` because these three ARE the answer,
+    // and a press that reached one with no merge waiting is a press this loop has
+    // no answer for.
+    // ⛔ THE LIST IS DROPPED WITH THE ANSWER. What U-61 laid out belongs to the
+    // merge being asked about, and leaving it behind would have the next surface
+    // show a pairing that is no longer being asked.
+    const mergeMapping = MERGE_MAPPING_OF_ENTRY[entry]
+    if (mergeMapping !== undefined) {
+      const choosing = mergeChoosing
+      if (choosing === null) return false
+      mergeChoosing = null
+      mergeCandidates = []
+      screenState = screenStateWithSurface(screenState, null)
+      choosing.settle(mergeMapping)
       return true
     }
     return false
@@ -8957,6 +9181,20 @@ export function frameLoop(
     if (openChoosing !== null && screenState.surface !== OPEN_CHOOSER_SURFACE) {
       const abandoned = openChoosing
       openChoosing = null
+      abandoned.settle(null)
+    }
+
+    // FR-022 (MUST NOT): U-61 went away without one of table T-032a's being
+    // taken, so 「同じか別か」 was never settled and the merge is abandoned.
+    // ⛔ THE SAME ONE WAY OUT THE `Open Chooser` HAS, and for the same reason:
+    // this question also stands in S-99g, so IN-4 of table T-028 spends the first
+    // level of `Esc` on it without this file saying anything.
+    // ⚠️ MG-6 is kept by construction -- nothing has been written when the
+    // surface stands, so an abandoned merge leaves the document as it was.
+    if (mergeChoosing !== null && screenState.surface !== DIFFERENCE_REVIEW_SURFACE) {
+      const abandoned = mergeChoosing
+      mergeChoosing = null
+      mergeCandidates = []
       abandoned.settle(null)
     }
 

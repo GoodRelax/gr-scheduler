@@ -970,6 +970,39 @@
    "authority": "`FR-102`",
    "arms": null,
    "armsShape": null
+  },
+  {
+   "rowId": "IC-95",
+   "surfaces": [
+    "Difference Review"
+   ],
+   "group": null,
+   "entryTo": "重複しているタスクを、開いたファイルの値で取り込む（表 T-032a の `MM-1`）",
+   "authority": "`FR-022`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-96",
+   "surfaces": [
+    "Difference Review"
+   ],
+   "group": null,
+   "entryTo": "重複しているタスクを、別のものとして両方とも残す（表 T-032a の `MM-2`）",
+   "authority": "`FR-022`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-97",
+   "surfaces": [
+    "Difference Review"
+   ],
+   "group": null,
+   "entryTo": "取込をやめ、取込前の状態へ戻す（表 T-032a の `MM-4`）",
+   "authority": "`FR-022`",
+   "arms": null,
+   "armsShape": null
   }
  ]
 }

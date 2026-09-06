@@ -5335,6 +5335,44 @@ function modalElement(
     }
   }
 
+  if ('candidates' in modal) {
+    // U-61 `Difference Review` of table T-103 -- FR-022 (MUST): 「選ばせる前に、
+    // 対応するかもしれないタスクを並べて見せること」, and (MUST NOT) 「選択肢だけを
+    // 出してはならない」.
+    //
+    // ⛔ ONE ELEMENT PER SIDE, NOT ONE JOINED LINE, the same move the roster
+    // above makes and for the same reason: a `Task` that carries no name of its
+    // own (AT-27) would be lost between two separators, and losing it turns the
+    // list back into the count that MUST NOT forbids.
+    // ⛔ NOTHING HERE IS TRANSLATED. A task's name is its own value and FR-038
+    // leaves a document's values alone, so both sides are drawn as the documents
+    // wrote them. ⚠️ `data-uid` is for the read-back rule 04 asks for after
+    // anything that draws; the UID is drawn as characters as well, because NT-1's
+    // 「文字で」 reading is what lets a person tell two same-named tasks apart.
+    // ⛔ NO ENTRANCE IS DRAWN HERE: the three answers are `commands` of the
+    // header above, placed by table T-109 (IC-95 .. IC-97).
+    for (const candidate of modal.candidates) {
+      const line = made(host, 'div', STYLE.field)
+      line.setAttribute('data-uid', String(candidate.currentUid))
+      line.setAttribute('data-incoming-uid', String(candidate.incomingUid))
+      const uid = made(host, 'span', STYLE.fieldName)
+      uid.textContent =
+        candidate.currentUid === candidate.incomingUid
+          ? String(candidate.currentUid)
+          : `${candidate.currentUid} / ${candidate.incomingUid}`
+      const current = made(host, 'span', 'margin-right:0.5em;')
+      current.setAttribute('data-side', 'current')
+      current.setAttribute('data-unnamed', String(candidate.currentName === null))
+      current.textContent = candidate.currentName ?? ''
+      const incoming = made(host, 'span', 'margin-right:0.5em;')
+      incoming.setAttribute('data-side', 'incoming')
+      incoming.setAttribute('data-unnamed', String(candidate.incomingName === null))
+      incoming.textContent = candidate.incomingName ?? ''
+      line.append(uid, current, incoming)
+      body.push(line)
+    }
+  }
+
   if ('fields' in modal) {
     // ⛔ `null`: these are table T-104's fields on a modal, not table T-016's on
     // the `Properties Panel`, and `focusPropertyField` answers for the panel.

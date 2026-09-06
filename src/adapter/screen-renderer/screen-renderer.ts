@@ -1474,10 +1474,67 @@ export type OpenModal =
        */
       readonly answers: readonly ConfirmationAnswer[]
     })
+  // U-61 `Difference Review` of table T-103 -- the surface FR-022 (MUST) sends
+  // the merge's question to, and FR-073 the newer-version one.
+  //
+  // ⭐ ITS THREE ANSWERS ARE `commands` AND NOTHING ELSE HAS TO BE DECLARED FOR
+  // THEM: table T-109 places IC-95 .. IC-97 on this surface out of its own
+  // surface column, so `commandsOnSurface` emits them the way it emits IC-71 ..
+  // IC-73 on U-56. ⛔ Which of table T-032a's rows each entry means is the
+  // shell's join, not this component's -- the same division `OPEN_CHOICE_OF_ENTRY`
+  // already stands on.
+  // ⛔ SO THE ONE MEMBER HERE IS THE HALF THAT IS NOT AN ENTRANCE. FR-022
+  // (MUST NOT) forbids showing the choices alone and (MUST) has the tasks that
+  // could correspond laid out before anyone is asked, and nothing in
+  // `ScreenState`, `Schedule` or the entry roster carries them -- they are the
+  // pairing PI-10 worked out for THIS import.
+  | (OpenSurface & {
+      readonly surface: 'Difference Review'
+      /**
+       * FR-022 (MUST): the tasks that could correspond, gathered by `UID` match
+       * -- laid out before the choice is offered.
+       *
+       * ⛔ NOT A COUNT (FR-022, MUST NOT: 「選択肢だけを出してはならない」). A
+       * number would leave a person unable to judge what they are about to lose,
+       * which is the reason that MUST NOT gives for itself.
+       * ⚠️ NAMES AND UIDS AND NOTHING TRANSLATED: a task's name is its own value
+       * (AT-27) and FR-038 leaves a document's values alone, so these cross as
+       * the document wrote them -- ⛔ a name it never carried is `null` and is
+       * not filled in here.
+       */
+      readonly candidates: readonly MergeCandidateLine[]
+    })
   // Any other name S-99g carries. ⛔ Nothing beyond the three members every
   // surface has: with no settled name for FR-074's surface or FR-088's, a caller
   // that spelled either differently cannot be told from the other.
   | (OpenSurface & { readonly surface: string })
+
+/**
+ * One pair U-61 lays out -- a task of the document standing now and a task of
+ * the file being merged in, which share a `UID` (FR-022, MUST).
+ *
+ * ⭐ BOTH SIDES, NEVER ONE. The question is which file the duplicated thing is
+ * taken from (利用者の裁定 2026-09-06), and a person cannot answer it while
+ * seeing only one of the two.
+ */
+export interface MergeCandidateLine {
+  /**
+   * `Task.uid` (AT-26) on the side of the document standing now.
+   *
+   * ⚠️ BOTH UIDS ARE CARRIED AND NOT ONE. FR-022 gathers the candidates by
+   * `UID` match (MUST), which makes the two equal in the ordinary case -- but
+   * MG-1 of table T-032 decides whether tasks whose `UID` does NOT match may
+   * join them, and a single member would silently pick a side the moment it
+   * does.
+   */
+  readonly currentUid: number
+  /** `Task.uid` on the side of the file being read. */
+  readonly incomingUid: number
+  /** The name the document standing now carries, or `null` where it has none. */
+  readonly currentName: string | null
+  /** The name the file being read carries, or `null` where it has none. */
+  readonly incomingName: string | null
+}
 
 // ------------------------------------------------------------ UF-67 ---------
 
@@ -2358,6 +2415,24 @@ export interface ScreenSession {
    * @provisional PD-143
    */
   readonly selectedResourceUids: readonly number[]
+  /**
+   * FR-022 (MUST): the tasks that could correspond in the merge U-61 is asking
+   * about -- laid out BEFORE the three answers are offered, which the same
+   * requirement's MUST NOT (「選択肢だけを出してはならない」) is what forbids
+   * skipping.
+   *
+   * ⭐ HELD HERE FOR THE REASON `selectedResourceUids` ABOVE IS. LY-5 of table
+   * T-060 leaves the Framework as the only layer that may hold a current value,
+   * and a pairing worked out for an import that is waiting on an answer is one.
+   * ⛔ NOTHING IN THE SPECIFICATION HOLDS IT. Searched: `ScreenState` (S-99g),
+   * table T-203, table T-206 and table T-058 -- S-99g carries the surface's NAME
+   * and no payload, and the pairing is not part of any document.
+   *
+   * ⚠️ OPTIONAL, AND ABSENT MEANS NONE -- the same reading `isRecordingInteractions`
+   * takes. Every road that is not the merge has nothing to lay out, and a
+   * required member would have each of them write an empty list to say so.
+   */
+  readonly mergeCandidates?: readonly MergeCandidateLine[]
   /**
    * FR-072: which of the two the LAST operation chose, or `null` while the
    * properties panel is closed.

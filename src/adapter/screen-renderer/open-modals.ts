@@ -157,6 +157,23 @@ const EXPORT_CHOOSER = 'Export Chooser'
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
 /**
+ * U-61 of table T-103, the surface FR-022 (MUST) sends the merge's question to
+ * and FR-073 the newer-version one.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), and the literal
+ * `OpenModal` discriminates its candidate member on. The same spelling
+ * `icon-roster.json` now carries in its surface column for IC-95 .. IC-97.
+ * ⚠️ NO BRANCH IS NEEDED FOR THE THREE ANSWERS -- table T-109 places them on
+ * this surface, so `commandsOnSurface` emits them the way it emits IC-71 ..
+ * IC-73 on U-56. What this surface needs a branch for is the half that is NOT an
+ * entrance: the tasks FR-022 (MUST) lays out before anyone is asked.
+ * ⛔ IT HAS NO INDEPENDENT ENTRANCE OF ITS OWN (FR-022): it rises from the
+ * opening road, OP-3 of table T-024a, and IC-94 was withdrawn from table T-109
+ * on 2026-09-05 for saying otherwise.
+ */
+const DIFFERENCE_REVIEW = 'Difference Review'
+
+/**
  * The row of table T-234 FR-020 (MUST) makes U-60's question.
  *
  * ⛔ A ROW ID AND NEVER A SENTENCE, the join `RaisedConfirmation.question`
@@ -673,6 +690,26 @@ export function openModalFromScreenState(
       commands,
       question: questionTextOf(WATERMARK_UNLOCK_QUESTION, session.language),
       answers: confirmationAnswers(session.language),
+    }
+  }
+
+  // FR-022 (MUST): 「選ばせる前に、対応するかもしれないタスクを並べて見せること」,
+  // and (MUST NOT) 「選択肢だけを出してはならない」 -- so the pairing is carried
+  // even when it is empty, because an empty one is a merge with nothing to ask
+  // about rather than a list this side declined to fill.
+  //
+  // ⭐ READ FROM THE SESSION AND NOT FROM `schedule`. The candidates are pairs
+  // of a task standing NOW and a task of the file being READ, and the file being
+  // read is not in the schedule -- PI-10 worked the pairing out for this import
+  // and the shell is the only layer that may hold it (LY-5 of table T-060).
+  // ⛔ NOTHING IS COMPOSED HERE: the names are the documents' own values, which
+  // FR-038 leaves untranslated, and the three answers are `commands`.
+  if (surface === DIFFERENCE_REVIEW) {
+    return {
+      surface: DIFFERENCE_REVIEW,
+      heading,
+      commands,
+      candidates: session.mergeCandidates ?? [],
     }
   }
 

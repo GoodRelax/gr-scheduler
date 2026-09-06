@@ -4632,6 +4632,131 @@
      ]
     }
    ]
+  },
+  {
+   "rowId": "IC-95",
+   "elements": [
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "9.5"
+      },
+      {
+       "name": "cy",
+       "value": "12"
+      },
+      {
+       "name": "r",
+       "value": "6.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 2.4"
+      }
+     ]
+    },
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "14.5"
+      },
+      {
+       "name": "cy",
+       "value": "12"
+      },
+      {
+       "name": "r",
+       "value": "6.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-96",
+   "elements": [
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "7.5"
+      },
+      {
+       "name": "cy",
+       "value": "12"
+      },
+      {
+       "name": "r",
+       "value": "4.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 2.4"
+      }
+     ]
+    },
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "16.5"
+      },
+      {
+       "name": "cy",
+       "value": "12"
+      },
+      {
+       "name": "r",
+       "value": "4.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-97",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M7 7 L17 17"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M17 7 L7 17"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
   }
  ]
 }

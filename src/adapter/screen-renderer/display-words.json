@@ -957,6 +957,39 @@
     "ja": "マウス操作と画面描画の記録を始める。もう一度押すと止まり、記録をクリップボードへ入れる",
     "en": "Start recording pointer input and drawing; press again to stop and put the record on the clipboard"
    }
+  },
+  {
+   "rowId": "IC-95",
+   "label": {
+    "ja": "開いたファイルから取る",
+    "en": "Take from the opened file"
+   },
+   "hint": {
+    "ja": "重複しているタスクを、開いたファイルの値で取り込む",
+    "en": "Take the duplicated tasks from the file that was opened"
+   }
+  },
+  {
+   "rowId": "IC-96",
+   "label": {
+    "ja": "両方とも残す",
+    "en": "Keep both"
+   },
+   "hint": {
+    "ja": "重複しているタスクを、別のものとして両方とも残す。足した側は取込元へ戻せなくなる",
+    "en": "Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master"
+   }
+  },
+  {
+   "rowId": "IC-97",
+   "label": {
+    "ja": "取込をやめる",
+    "en": "Stop the import"
+   },
+   "hint": {
+    "ja": "取込をやめ、取込前と同じ状態へ戻す",
+    "en": "Stop the import and put the document back exactly as it was"
+   }
   }
  ],
  "properties": [
