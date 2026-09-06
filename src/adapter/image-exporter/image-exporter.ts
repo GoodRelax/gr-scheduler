@@ -106,6 +106,7 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { RowTitle, ScreenView } from '../screen-renderer/screen-renderer'
+import { colourOf } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
 export type {
@@ -248,20 +249,6 @@ export type ImageExport =
  */
 const CHROME_GROUND = '#f3f4f6'
 const CHROME_INK = '#111111'
-
-/**
- * The line EP-9 keeps in the export although the control is not kept.
- *
- * ⛔ NOT IN THE SPECIFICATION, and it may not be invented twice. EP-9 (MUST)
- * makes this the SAME one line as `Group Grid Lines` (U-18) and forbids a new
- * settled name and a new settings key for it; FR-042 makes drawing that line a
- * MUST but no table gives its colour, and nothing has drawn one yet. ⭐ When
- * SvgRenderer draws `Group Grid Lines`, this constant is the place that has to
- * be made to agree with it -- one grep for EP-9 finds both.
- *
- * @provisional PD-51
- */
-const GRID_LINE_INK = '#d1d5db'
 
 /**
  * Where the `Document Title` sits inside the band: its size and its left inset,
@@ -447,11 +434,31 @@ function rowTitleSvg(
  * FR-080 (MUST) writes the properties panel as closed and gives its room to the
  * schedule, so an export's frame is the one that holds with it closed.
  *
+ * ⭐ D-277: THE COLOUR IS S-149, table T-236's rule colour (「区切りの線」) --
+ * `dom-screen-surface.ts` paints this same `Panel Divider` with `PAINT.rule`
+ * (S-149, FR-029), so the export reads the identical row rather than a second
+ * number of its own. ⛔ NOT S-165 -- that row is `Group Grid Lines`' own
+ * colour (a horizontal line inside the schedule, drawn by `SvgRenderer`), a
+ * different line from the vertical `Panel Divider` this function draws.
+ *
+ * ⛔ THE HUE HALF OF S-149 IS NOT READ. `_source/components.json` gives
+ * `ImageExporter` exactly two outgoing edges -- to `SvgRenderer` and to
+ * `ScreenRenderer` -- and neither reaches `Project.themeHue` (AT-19); a third
+ * edge is a manuscript change this fix may not make. `NO_HUE_EDGE` below
+ * stands in for it: S-149's cells sit at a low saturation (14% light / 12%
+ * dark), so the line stays close to neutral whatever hue the document
+ * actually carries. `settings.themePreference` IS read -- unlike the old
+ * literal, this line now answers dark mode.
+ *
  * @purity pure
  */
-function dividerLinesSvg(view: ScreenView, ratio: number): string {
+const NO_HUE_EDGE = 0
+
+function dividerLinesSvg(view: ScreenView, settings: DocumentSettings, ratio: number): string {
+  const dark = settings.themePreference === 'dark'
+  const ink = colourOf('S-149', NO_HUE_EDGE, dark, settings.themeMonochrome)
   return view.frame.dividers
-    .map((divider) => rectSvg(scaledRect(divider.line, ratio), GRID_LINE_INK))
+    .map((divider) => rectSvg(scaledRect(divider.line, ratio), ink))
     .join('')
 }
 
@@ -541,7 +548,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
     pinned.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
     titles.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
-    dividerLinesSvg(screenView, ratio)
+    dividerLinesSvg(screenView, settings, ratio)
 
   const width = settings.exportCanvas.width
   // ⭐ THE CLIP STAYS, although nothing is dropped any more: it bounds the

@@ -1603,6 +1603,49 @@ def not_stored_block(name):
     return '\n'.join(out)
 
 
+# ---- table T-217's one row: a HighlightBox's own default, not a setting ----
+#
+# ⛔ NOT `not_stored_block`, AND NOT BECAUSE OF A DIFFERENT REASON THAN THE
+# NAME SAYS. That function reads table T-206, whose whole point is a row
+# where the document does NOT keep a value at all. S-132 is not that kind of
+# row: table T-217's own paragraph says its value LANDS in the schedule data,
+# as a `HighlightBox`'s own `cornerRadiusPx` column (D-314) -- so the document
+# DOES keep the number once a box exists. What was missing from src/ was
+# never a place to keep it; it was the STARTING number a newly created box is
+# given, which is table T-217's own default cell and answers to no row of
+# table T-206.
+def annotation_defaults_block():
+    """The one row of table T-217, by its own key column."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-217']
+    if not block:
+        raise SystemExit('settings.json holds no table T-217')
+    rows = block[0]['rows']
+    if len(rows) != 1 or rows[0]['id'] != 'S-132':
+        raise SystemExit(
+            'table T-217 no longer holds exactly one row named S-132 -- '
+            'annotation_defaults_block assumed that shape and has to be reread')
+    row = rows[0]
+    cell = not_stored_cell(row.get('default'))
+    if cell is None:
+        raise SystemExit('table T-217 row S-132 holds no machine value, so '
+                         'NOT_STORED_ANNOTATION_SIZES cannot be generated')
+    out = ['/**',
+           " * Table T-217's one row (S-132): the corner radius a newly",
+           ' * created `HighlightBox` is given.',
+           ' *',
+           ' * ⭐ NOT A DOCUMENT SETTING. FR-019 (MUST) draws every',
+           ' * `HighlightBox` at a fixed radius whatever the zoom -- this is',
+           ' * that fixed number, read once here rather than typed at the',
+           ' * one call site table T-217\'s own note sends it to.',
+           ' */',
+           "export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': %s } = {"
+           % cell[1],
+           "  'S-132': %s," % cell[0],
+           '}']
+    return '\n'.join(out)
+
+
 # ---- a value table T-206 states in two rows and nothing may add up by hand --
 #
 # ⛔ NOT `not_stored_block`'s SHAPE, AND THE DIFFERENCE IS THE POINT. That one
@@ -2254,6 +2297,12 @@ TARGETS = [
     (os.path.join(ADAPTER, 'screen-renderer', 'properties-panel.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ D-314: the one call site FR-019 gives a fixed radius, reading table
+    # T-217's own default rather than a copy typed at the use-case that
+    # creates a `HighlightBox`.
+    (os.path.join(USECASE, 'edit-document', 'edit-annotation.ts'),
+     lambda _erd: annotation_defaults_block(),
+     ['docs/spec/_source/settings.json (table T-217)']),
 ]
 
 

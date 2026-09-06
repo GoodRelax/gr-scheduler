@@ -502,9 +502,16 @@ function achromatic(colour: string): string {
  * the two lines are held off the theme, so letting the theme's own monochrome
  * switch move them would be following it after all.
  *
+ * ⭐ EXPORTED FOR D-277: `ImageExporter` draws the `Panel Divider` boundary
+ * line (EP-9) in the same colour the screen's own divider is painted in --
+ * S-149, `PAINT.rule` in `dom-screen-surface.ts` (FR-029) -- and reading this
+ * one function is how the two stay one decision instead of a second guess of
+ * the colour standing beside it (5.3 / LR-2: through this file, the public
+ * entry of the component that already carries table T-236).
+ *
  * @purity pure
  */
-function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
+export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
   const row = SCHEDULE_COLOURS[rowId]
   // The generator raises on a row table T-236 has not, so this can only fire
   // when a row ID typed here is not one the block was asked for.

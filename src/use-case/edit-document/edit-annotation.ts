@@ -97,14 +97,6 @@ export type AnnotationCommand =
       readonly strokeColor: string | null
     }
 
-/**
- * S-132 of table T-217, the one row that table has. Its ⚠️ says the value
- * lands in a `HighlightBox` column, so a new box carries it rather than the
- * drawing side resolving it; FR-019 draws the radius at a constant size
- * whatever the zoom, which is a rule about drawing, not about the stored value.
- */
-const CORNER_RADIUS_PX = 4
-
 /** P-19 of table T-102 -- the one palette value the specification spells. */
 const TRANSPARENT = 'transparent'
 
@@ -349,7 +341,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         // whoever draws an unspecified outline cannot read the colour off the
         // specification. Writing a guess into the column would hide that.
         strokeColor: null,
-        cornerRadiusPx: CORNER_RADIUS_PX,
+        cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
       }
       return edited(withSchedule(document, { highlightBoxes: [...schedule.highlightBoxes, box] }))
     }
@@ -420,3 +412,21 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
 function reject(command: string, rule: string, what: string): Refusal {
   return { command, rule, what }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-217)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * Table T-217's one row (S-132): the corner radius a newly
+ * created `HighlightBox` is given.
+ *
+ * ⭐ NOT A DOCUMENT SETTING. FR-019 (MUST) draws every
+ * `HighlightBox` at a fixed radius whatever the zoom -- this is
+ * that fixed number, read once here rather than typed at the
+ * one call site table T-217's own note sends it to.
+ */
+export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': number } = {
+  'S-132': 4,
+}
+// </generated>

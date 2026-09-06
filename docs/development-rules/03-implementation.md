@@ -52,6 +52,7 @@ NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / 
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
 NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
+NOT_STORED_ANNOTATION_SIZES          ハイライトボックスの角の丸み（`S-132`）
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（`S-90` 〜 `S-93` / `S-137`）
