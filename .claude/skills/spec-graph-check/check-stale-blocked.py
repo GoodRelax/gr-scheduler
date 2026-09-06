@@ -69,7 +69,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from ledger_quotes import asserts_any                  # noqa: E402
+from ledger_quotes import asserts_any, outside_quotation                  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
@@ -140,8 +140,21 @@ def find_stale(ledger_path):
         if not asserts_any(decided, STILL_BLOCKED):
             continue
 
+        # ⛔ THE BLOCKED PHRASES ARE STRUCK OUT BEFORE THE SETTLED ONES ARE
+        # LOOKED FOR, and the reason is that one contains the other:
+        # 「利用者の裁定が要る」 holds 「裁定」, which SETTLED_IN_CELL lists.
+        # Without this, a row could not state its block in the words this check
+        # itself indexes without also reading as settled -- measured 2026-09-06
+        # on D-278, the first row to reach 裁定待ち since the check was written.
+        # ⭐ IT DOES NOT WEAKEN THE CHECK: a row that really was ruled writes the
+        # settlement SOMEWHERE ELSE in the cell (裁定が下りた, 決着, 書いた先は),
+        # and those survive the strike-out whole.
+        spoken = outside_quotation(decided)
+        for phrase in STILL_BLOCKED:
+            spoken = spoken.replace(phrase, u' ')
+
         why = None
-        if any(phrase in decided for phrase in SETTLED_IN_CELL):
+        if any(phrase in spoken for phrase in SETTLED_IN_CELL):
             why = u'決定仕様の欄に決着の語も入っている'
         elif status in TESTING_STATUSES:
             why = u'ステータスが %s まで進んでいる' % status

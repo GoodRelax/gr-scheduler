@@ -8085,6 +8085,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // reads, and the ladder would take the SURFACE away on the very press that
     // cleared the field -- two levels for one press, which IN-4 forbids
     // (1 階層, MUST).
+    // ⛔⛔ THE CONTROL IS NOT LET GO FROM INSIDE THIS LISTENER EITHER, ON D-267'S
+    // TERMS: kept held past the press, `isWatermarkUnlockHeld` still answered
+    // 「入力中」 to `hasUnsettledTextEntry` after the `Esc` that cancelled it, so
+    // one press did not release it (`D-319`) -- the same cost D-267 measured
+    // for `isHeldTextTakenBack` left standing. `releaseTakenBackWatermarkUnlock`
+    // below holds both halves; its own note carries the reasoning, and it is not
+    // queued with `Promise.resolve().then` for the same measured reason
+    // `releaseTakenBackText` gives -- a microtask runs BETWEEN two listeners of
+    // the same `keydown`, not after them.
     surface.addEventListener('keydown', (event: Event) => {
       const held = watermarkUnlockEntry
       if (held === null || !isWatermarkUnlockHeld) return
@@ -8092,19 +8101,50 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // NT-8 (MUST): a standing telling has this press before any rung below it.
       if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
       if (isWatermarkUnlockTakenBack) {
-        // Nothing stands unsettled any more, so this press is not the field's --
-        // let the control go, and the next `Esc` reaches the surface's own rung.
-        // ⚠️ Guarded rather than assumed, the reason the panel's listener
-        // gives: a host that lays nothing out need not give its elements a
-        // `blur`.
-        if (typeof held.blur === 'function') held.blur()
-        isWatermarkUnlockHeld = false
-        isWatermarkUnlockTakenBack = false
+        // ⚠️ A SECOND `Esc` REACHES THIS ONLY WHERE THE RELEASE NEVER CAME -- a
+        // key held down repeats its press without ever being let go, and a host
+        // that table T-075 leaves this unit runnable against need raise no
+        // release at all. In a browser the `keyup` below has already let the
+        // control go and this listener returns above, on `!isWatermarkUnlockHeld`.
+        releaseTakenBackWatermarkUnlock(held)
         return
       }
       held.value = ''
       isWatermarkUnlockTakenBack = true
     })
+
+    /**
+     * Where the cancelled watermark unlock field is let go, on the release of
+     * the same `Esc` that cancelled it -- `D-319`, fixed on the same terms as
+     * `releaseTakenBackText` (D-267) keeps for the panel's own control.
+     *
+     * @purity non-pure
+     */
+    surface.addEventListener(HOST_KEY_RELEASE, (event: Event) => {
+      const held = watermarkUnlockEntry
+      if (held === null || !isWatermarkUnlockTakenBack) return
+      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      releaseTakenBackWatermarkUnlock(held)
+    })
+  }
+
+  /**
+   * Let a cancelled watermark unlock field go, once the press that cancelled
+   * it has been reckoned -- `D-319`, shaped after `releaseTakenBackText`
+   * (D-267): the control has to keep answering 「入力中」 for the length of the
+   * cancelling press (IN-4, 1 階層, MUST) and stop answering it the moment the
+   * edit is gone (WS-2 of table T-067), and the release moves in time between
+   * the two rather than splitting `isWatermarkUnlockHeld` into a second flag.
+   *
+   * @purity non-pure
+   */
+  function releaseTakenBackWatermarkUnlock(held: TextEntryControl): void {
+    if (watermarkUnlockEntry !== held || !isWatermarkUnlockTakenBack) return
+    // ⚠️ Guarded rather than assumed, the reason the panel's listener gives: a
+    // host that lays nothing out need not give its elements a `blur` at all.
+    if (typeof held.blur === 'function') held.blur()
+    isWatermarkUnlockHeld = false
+    isWatermarkUnlockTakenBack = false
   }
 
   function hasUnsettledTextEntry(): boolean {

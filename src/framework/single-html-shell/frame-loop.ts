@@ -1371,7 +1371,12 @@ type NoticeReason =
   | 'RS-42'
   | 'RS-43'
   | 'RS-44'
-  | 'RS-45'
+  // ⛔ `RS-45` IS NOT HERE, on the same terms `RS-17` states above. Table
+  // T-233 retired the seat CR-340 gave it, and nothing generates this union,
+  // so a row struck from the table has to be struck here by hand -- keeping
+  // it would let a telling carry a reason FR-076 (MUST NOT) forbids.
+  // `appShellUnavailable` (`NOTICE_REASON_OF_EMBEDDED_HTML_FAULT` below) is
+  // the one raiser that named it and now falls to `RS-15`.
   | 'RS-46'
   // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). The ruling of 2026-09-06
   // took choice ⓑ -- a setting outside its own bounds is brought INSIDE on the
@@ -1443,11 +1448,10 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // 所ではなかった」. ⚠️ The three rows above it are `NT-3a` because a raster or
   // a record DID fail, which is the line the two manners are drawn along.
   'RS-44': 'NT-1',
-  // The two rows table T-233 gained on 2026-09-03 (CR-340), both `NT-3a` in the
-  // table's own manner column. ⭐ `RS-45` is a failure of ours -- the shell could
-  // not find the body that runs it -- and `RS-46` is FR-085's cap, which the
-  // table settles as a telling rather than a refusal of an input.
-  'RS-45': 'NT-3a',
+  // `RS-45`, the other row CR-340 gained on 2026-09-03, retired 2026-09-04
+  // (see the union above) and has no entry here any more. `RS-46` is FR-085's
+  // cap, `NT-3a` in the table's own manner column, which the table settles as
+  // a telling rather than a refusal of an input.
   'RS-46': 'NT-3a',
   // ⛔ `NT-5` AND NOT `NT-1`, which is what choice ⓑ decided: the document WAS
   // accepted and opened, and only the out-of-bounds keys were moved -- so the
@@ -1630,13 +1634,13 @@ type EmbeddedHtmlFaultReason = Exclude<
  *
  * ⭐ A census the compiler keeps, on the same terms as the rastering above: a
  * reason added to `EmbeddedHtmlFaultReason` is a compile error here.
- * ⭐⭐ ONE OF THE THREE HAS A ROW OF ITS OWN SINCE 2026-09-03 (利用者の裁定):
- * table T-233 gained `RS-45` -- 「この画面を動かす本体が、このファイルの中に
- * 見つからない」, whose 正 is FR-102 -- and only `appShellUnavailable` is sent to
- * it. It meets the test CR-333 set for giving a reason a seat: the cause is
- * known (the embedded shell could not be read back) and the reader has a next
- * step (open the file they were given again rather than one off the disk).
- * ⛔ THE OTHER TWO STAY ON `RS-42`, BY THE SAME RULING. Neither has a cause the
+ * ⛔ `RS-45` NO LONGER SEATS `appShellUnavailable`. CR-340 gave it a row on
+ * 2026-09-03 and the ruling of 2026-09-04 retired that row from table T-233
+ * again (see `NoticeReason` above); measured against the current 44 rows, none
+ * names this reason. It falls to `RS-15` instead, on the same terms
+ * `single-html-shell.ts`'s `STARTUP_NOTICE_REASON` already uses for
+ * `embeddedEntryCountNotOne` -- a row for it is owed and not yet written.
+ * ⛔ THE OTHER TWO STAY ON `RS-42`, unchanged by this. Neither has a cause the
  * reader can be told nor a different step to take -- the source read carries a
  * container this build cannot aim at -- so 「原因の分からない失敗」 is what the
  * situation IS from the side that is told about it.
@@ -1650,7 +1654,7 @@ type EmbeddedHtmlFaultReason = Exclude<
 const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
   Record<EmbeddedHtmlFaultReason, NoticeReason>
 > = {
-  appShellUnavailable: 'RS-45',
+  appShellUnavailable: 'RS-15',
   unusableElementId: 'RS-42',
   moreThanOneEntry: 'RS-42',
 }
