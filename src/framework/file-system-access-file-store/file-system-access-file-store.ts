@@ -323,11 +323,17 @@ function whyOf(thrown: unknown): string {
 /**
  * IF-3's three states, given a file and what may be done to it.
  *
- * ⭐ One place turns a permission into a state, so that the answer the startup
- * panel gets and the answer a restore gets cannot drift apart. ⚠️ Anything but
- * `granted` is `permissionLost`: FR-060's offer is owed to a file that cannot
- * be written just now, and the browser's "not yet asked" and "refused" are the
- * same thing to the person looking at that panel.
+ * ⭐ One place turns a permission into a state, so that the answer a read gets
+ * and the answer a restore gets cannot drift apart. ⚠️ Anything but `granted`
+ * is `permissionLost`: the browser's "not yet asked" and "refused" are the same
+ * thing to the person, who in both cases cannot save over the file right now.
+ *
+ * ⛔ NOT A STARTUP OFFER, AND THERE IS NONE TO BE OWED. FR-060 (MUST NOT,
+ * 利用者の裁定 2026-09-07) 「起動時に権限の復帰を申し出てもならない（MUST NOT）
+ * —— 覚えていないので、申し出る相手が存在しない」. ⭐ What this state feeds is
+ * `RS-1` of table T-233 -- 「覚えているファイルへ、いま書き込む権限が無い」 --
+ * about a file opened WITHIN this run, which the same requirement keeps:
+ * 「上書きが成り立つのは、同じ起動のうちに一度保存先を決めたあとである」.
  *
  * @purity pure
  */
@@ -388,12 +394,16 @@ function firstDroppedFile(items: DroppedItems): DroppedItem | null {
  * Whether the file behind this handle may be written right now.
  *
  * ⚠️ A browser with handles but no `queryPermission` is answered `granted`,
- * which is the optimistic side on purpose: the pessimistic side would put
- * FR-060's restore offer onto the startup panel (NT-4 of table T-037) every
- * time nothing was wrong, and a write that turns out to be refused comes back
- * as `permissionLost` anyway.
+ * which is the optimistic side on purpose: the pessimistic side would report
+ * `permissionLost` for a file this run opened itself every time nothing was
+ * wrong, which would make FR-060's overwrite unreachable on such a host for
+ * good -- and a write that does turn out to be refused comes back as
+ * `permissionLost` anyway.
+ * ⛔ NOT ABOUT A STARTUP PANEL ROW. Until 2026-09-07 this note claimed the
+ * pessimistic side would put a restore offer onto NT-4 of table T-037; FR-060
+ * now forbids the offer outright (MUST NOT), and NT-4 lists no such row.
  * Searched: FR-060, LM-14 of table T-004, CN-2 of table T-003, IF-3 of table
- * T-065.
+ * T-065, NT-4 of table T-037.
  *
  * @provisional PD-105
  *
@@ -847,15 +857,24 @@ export function fileSystemAccessFileStore(
     },
 
     /**
-     * FR-060's second MUST, minus the part this unit cannot keep.
+     * Ask back the write permission for the file THIS RUN opened.
      *
-     * ⛔ Only a file opened during THIS run can be restored. A handle does not
-     * survive a reload on its own, and the specification names no place to
-     * keep one -- LY-5 lists the browser things this layer uses and IO-5 of
-     * table T-024 gives localStorage to autosave, neither of which can hold a
-     * handle. So after a restart this answers `none`, and FR-060's startup
-     * offer has nothing to offer. See PD-100; ⛔ do not invent a second store
-     * to close it.
+     * ⭐ ONLY A FILE OPENED DURING THIS RUN, AND THAT IS THE SPECIFICATION.
+     * FR-060 (利用者の裁定 2026-09-07): 「前回開いていたファイルを覚えてはならない
+     * （MUST NOT）… 起動した直後の最初の保存で、人がファイルを選び直すのが本仕様で
+     * ある（MUST）—— 上書きが成り立つのは、同じ起動のうちに一度保存先を決めたあと
+     * である」. ⇒ after a restart this answers `none`, which is the required
+     * behaviour and not a shortfall. ⚠️ Until 2026-09-07 this comment called
+     * the member 「FR-060's second MUST, minus the part this unit cannot keep」,
+     * against a version of the requirement that asked for a startup offer.
+     *
+     * ⛔ DO NOT INVENT A SECOND STORE to make a handle survive a reload. The
+     * same requirement now states it: 「そのためにファイルの取っ手を
+     * `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）—— 覚えないと
+     * いう裁定そのものを破ることになる」. ⚠️ This used to point at PD-100 as the
+     * open question about where to keep a handle; that row is gone from
+     * docs/development-records/pending-decisions.md (measured 2026-09-07),
+     * because the requirement above answered it.
      *
      * @purity non-pure
      */

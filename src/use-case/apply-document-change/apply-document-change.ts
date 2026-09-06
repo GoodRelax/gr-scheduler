@@ -62,7 +62,15 @@ import {
 // published signatures reach would put names on the component's face that
 // R2.19 never declared -- the per-aggregate command unions leave through
 // EditDocument's own entry, which is where they are declared.
-export type { DocumentCommand, Refusal, SettingsLimits } from '../edit-document/edit-document'
+// ⭐ `EditReport` travels for the same reason: `ApplyOutcome` names it, so it
+// is on this component's published face whether it is written down or not.
+export type {
+  DocumentCommand,
+  EditReport,
+  Refusal,
+  SettingsLimits,
+} from '../edit-document/edit-document'
+import type { EditReport } from '../edit-document/edit-document'
 // ⭐ THE SAME MOVE, towards UndoEdit this time. `ChangeStep` and `HeldDocument`
 // are DECLARED there because table T-230 puts UndoEdit in WS-3's position for
 // RD-1, so this component imports it -- and a declaration here would send the
@@ -118,6 +126,18 @@ export type ApplyOutcome =
       readonly document: Document
       /** WS-5's judgement: the schedule-data group moved (FR-063). */
       readonly hasMovedSchedule: boolean
+      /**
+       * ⛔ WHAT THIS WRITE STILL OWES A TELLING FOR. FR-012 (MUST) has a
+       * calendar edit recount the stored 完了率 「暦の変更と同じ書き込みの中で」
+       * and then 「値が変わった `Task` の件数を添えて告げる」 -- the recount is
+       * already in `document` above, and this is the count that goes with it.
+       *
+       * ⛔ NOTHING HERE RAISES THE NOTICE. Raising one is the shell's, and the
+       * words are FR-038's dictionary -- the reason is `RS-52` of table T-233
+       * and the manner is `NT-3` of table T-037, and a caller composes neither
+       * (FR-038, MUST NOT). ⚠️ NT-3's count is `recountedTaskUids.length`.
+       */
+      readonly report: EditReport
     }
 
 export type ReplaceOutcome =
@@ -213,7 +233,12 @@ export function applyDocumentChange(
     holder,
     audience,
   )
-  return { accepted: true, document: plan.document, hasMovedSchedule: plan.hasMovedSchedule }
+  return {
+    accepted: true,
+    document: plan.document,
+    hasMovedSchedule: plan.hasMovedSchedule,
+    report: plan.report,
+  }
 }
 
 /**

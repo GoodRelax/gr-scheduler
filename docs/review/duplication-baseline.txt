@@ -25,3 +25,4 @@ tbl-glossary.md/T:T-109 IC-39 + tbl-glossary.md/T:T-109 IC-40 + tbl-glossary.md/
 tbl-glossary.md/T:T-109 IC-71 + tbl-glossary.md/T:T-109 IC-72
 01-04-requirements.md/NFR-006 + 01-04-requirements.md/NFR-009
 01-04-requirements.md/FR-024 + 01-04-requirements.md/UC-011
+tbl-glossary.md/T:T-109 IC-8 + tbl-glossary.md/T:T-109 IC-9

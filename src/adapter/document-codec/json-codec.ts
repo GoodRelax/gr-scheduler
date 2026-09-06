@@ -939,6 +939,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         actualOfPlan: {
           type: ['number'],
         },
+        actualVisible: {
+          type: ['boolean'],
+        },
         appHeaderMaxHeight: {
           type: ['integer'],
         },
@@ -1125,9 +1128,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         pinnedRowMax: {
           type: ['integer'],
         },
-        planActualDisplay: {
-          enum: ['both', 'plan-only', 'actual-only'],
-        },
         planActualGuidePattern: {
           type: ['object'],
           properties: {
@@ -1144,6 +1144,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         planStroke: {
           type: ['integer'],
+        },
+        planVisible: {
+          type: ['boolean'],
         },
         progressLineOverhang: {
           type: ['integer'],

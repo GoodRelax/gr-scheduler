@@ -1479,15 +1479,31 @@
      }
     },
     {
-     "id": "S-59",
-     "key": "`planActualDisplay`",
-     "type": "`'both'` / `'plan-only'` / `'actual-only'`",
+     "id": "S-227",
+     "key": "`planVisible`",
+     "type": {
+      "ja": "真偽"
+     },
      "default": {
-      "lit": "'both'",
+      "lit": "true",
       "code": true
      },
      "note": {
-      "ja": "予実の表示。3 値にした規則と理由は `FR-049`"
+      "ja": "予定の表示。実績（`S-228`）とは独立に切り替える。規則と理由は `FR-049`"
+     }
+    },
+    {
+     "id": "S-228",
+     "key": "`actualVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "true",
+      "code": true
+     },
+     "note": {
+      "ja": "実績の表示。予定（`S-227`）とは独立に切り替える。規則と理由は `FR-049`"
      }
     },
     {

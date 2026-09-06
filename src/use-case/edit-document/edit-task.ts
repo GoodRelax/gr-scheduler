@@ -374,8 +374,19 @@ function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
   return Math.round(((task.actualDuration ?? 0) / span) * 100)
 }
 
-/** A task with FR-012's stored figure brought back in step with its inputs. @purity pure */
-function repriced(within: WorkingCalendar, task: Task): Task {
+/**
+ * A task with FR-012's stored figure brought back in step with its inputs.
+ *
+ * ⭐ EXPORTED SO THAT THE CALENDAR AGGREGATE COUNTS BY THE SAME FORMULA.
+ * FR-012 (MUST) says of its own arithmetic "この式を 1 か所に閉じ込め、呼ぶ側が
+ * 式の中身に依存しない形にすること", and the same requirement now also asks
+ * for a recount "稼働日の暦を編集したときも" -- so `edit-calendar.ts` asks HERE
+ * rather than keeping a second copy of the division.
+ * ⚠️ Folder-internal (Chapter 5.3): nothing outside `edit-document/` may import it.
+ *
+ * @purity pure
+ */
+export function repriced(within: WorkingCalendar, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(within, task) }
 }
 

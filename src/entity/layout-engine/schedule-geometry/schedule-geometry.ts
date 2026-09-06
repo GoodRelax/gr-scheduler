@@ -1034,7 +1034,9 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   actualHeight: number): readonly Path[] {
   const settings = inputs.settings
   // GD-1: only with both bars on screen, and only with an actual to connect to.
-  if (settings.planActualDisplay !== 'both' || placed.actualX === null) return []
+  // S-227 and S-228 are independent booleans (FR-049, the user's ruling
+  // 2026-09-07), so both are read; neither implies the other.
+  if (!settings.planVisible || !settings.actualVisible || placed.actualX === null) return []
   const middle = placed.y + placed.planHeight / 2
 
   // GD-4: the days themselves, not the pixels the figures cover.
@@ -1703,8 +1705,8 @@ export function geometryFromLayout(
     within: workingCalendarOf(schedule),
     taskByUid: new Map(schedule.tasks.map((one) => [one.uid, one])),
     statusDate: dayOf(schedule.project.statusDate),
-    showPlan: settings.planActualDisplay !== 'actual-only',
-    showActual: settings.planActualDisplay !== 'plan-only',
+    showPlan: settings.planVisible,
+    showActual: settings.actualVisible,
     // SL-1 admits five kinds and only the Task ones can carry a fade handle.
     selectedTaskUids: new Set(
       selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : [])),

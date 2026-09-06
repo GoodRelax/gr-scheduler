@@ -1797,7 +1797,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         day(10),
       )
       const placed = placementOf(drawn, 1)
-      expect(drawn.settings.planActualDisplay, 'both bars are on screen').toBe('both')
+      expect(drawn.settings.planVisible, 'the plan bar is on screen').toBe(true)
+      expect(drawn.settings.actualVisible, 'the actual bar is on screen').toBe(true)
       expect(placed.actualX, 'the Task has an actual bar').not.toBeNull()
       const actualRight = (placed.actualX ?? 0) + placed.actualWidth
       expect(actualRight, 'and it ends short of the plan').toBeLessThan(placed.x + placed.width)

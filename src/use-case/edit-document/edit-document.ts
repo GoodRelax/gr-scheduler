@@ -144,8 +144,40 @@ export interface Refusal {
  * values so the Agent API can report them.
  */
 export type EditResult =
-  | { readonly ok: true; readonly document: Document }
+  | { readonly ok: true; readonly document: Document; readonly report: EditReport }
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
+
+/**
+ * What an accepted edit leaves for the caller to TELL, beside the document.
+ *
+ * ⚠️ Not every edit has something. The empty report below is the answer for
+ * seven of the eight aggregates and for most of the eighth's commands, which is
+ * why `acceptedEdit` fills it in.
+ */
+export interface EditReport {
+  /**
+   * FR-012 (MUST) asks two things of a calendar edit -- 「格納済みの完了率を
+   * 数え直すこと（MUST）」 and 「数え直したことを、値が変わった `Task` の
+   * 件数を添えて告げること（MUST）」 -- these are those `Task`s, by uid.
+   *
+   * ⭐ A LIST AND NOT A LENGTH, for the same reason `ImportReport` keeps lists:
+   * a bundle may hold more than one calendar command, and a uid counted twice
+   * would be one `Task` reported as two. The count NT-3 of table T-037 asks for
+   * is this list's length, taken where the notice is raised.
+   * ⚠️ The reason that count rides on is `RS-52` of table T-233, and the
+   * manner is `NT-3`. ⛔ No word of either is composed here (FR-038, MUST NOT).
+   */
+  readonly recountedTaskUids: readonly number[]
+}
+
+/**
+ * The report of an edit that left nothing to tell.
+ *
+ * ⚠️ One frozen value rather than a fresh `{ recountedTaskUids: [] }` per
+ * accepted edit: every command of table T-108 builds one of these, and an
+ * empty report carries no identity for anyone to compare.
+ */
+const NOTHING_TO_TELL: EditReport = { recountedTaskUids: [] }
 
 /**
  * The accepted edit: the document an aggregate answers with.
@@ -159,8 +191,8 @@ export type EditResult =
  *
  * @purity pure
  */
-export function acceptedEdit(document: Document): EditResult {
-  return { ok: true, document }
+export function acceptedEdit(document: Document, report: EditReport = NOTHING_TO_TELL): EditResult {
+  return { ok: true, document, report }
 }
 
 /**
@@ -318,7 +350,6 @@ const PROJECT_KINDS = [
 /** CM-56 to CM-71, the 見せ方の群. */
 const SETTINGS_KINDS = [
   'setStackDirection',
-  'setPlanActualDisplay',
   'setElementVisible',
   'setGuideCursorMode',
   'setDualCursor',

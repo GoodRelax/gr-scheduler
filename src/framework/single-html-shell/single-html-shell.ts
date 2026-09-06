@@ -363,13 +363,15 @@ const AGENT_API_WRITER = 'agent'
  *
  * STOP -- ⛔ NOTHING IN THIS BUILD DERIVES A DOCUMENT IDENTIFIER, and this file
  * does not invent one. `choose-startup-document.ts` carries the same STOP from
- * the far side: no requirement says what makes two documents the same one,
- * `Project.id` is not it (AT-1 is nullable and is marked as no primary key), and
- * S-99b of table T-206 names an identifier without defining one.
+ * the far side: no requirement says what makes two documents the same one, and
+ * `Project.id` is not it (AT-1 is nullable and is marked as no primary key).
  * ⚠️ NOTHING READS IT ANY MORE. UF-23 took a key only to tell a losing
  * autosave's document from the winner's, and CR-280 retired both, so the
- * constant went with them and only this note is kept -- S-99b of table T-206
- * still names an identifier nothing in this build derives.
+ * constant went with them and only this note is kept.
+ * ⭐⭐ AND THE ONE ROW THAT USED TO BE CITED HERE NO LONGER ASKS FOR ONE. S-99b
+ * of table T-206 named 「文書の識別子」 until 2026-09-05 and now says the record
+ * is kept 「オリジンごとに 1 つ」; FR-065 records why -- 「文書を一意に指す手立て
+ * が仕様のどこにも無い」. ⇒ Nothing left in `src/` wants a document key.
  */
 
 /**
@@ -1022,15 +1024,16 @@ function boot(): void {
   // and BT-3's autosave are each R-1 / R-3 of table T-008 -- untrusted -- and
   // each of them needs this same gate before it may be handed over as `read`.
 
-  // STOP -- ⛔ FR-060's SECOND MUST IS NOT KEPT, and the piece that is missing
-  // is not on this side. That MUST is the startup offer to win back a lost
-  // permission, and it needs the store to still know WHICH file was open --
-  // but PI-28 holds its handle in a value that dies with the page: nothing puts
-  // one away and nothing brings one back, so `readOpenedFileState` answers
-  // `none` on the first press of every run and there is nothing to offer.
-  // ⚠️ NT-4 of table T-037 is where the offer would stand, and table T-077
-  // already puts it outside the boot order, so no step of that table is being
-  // skipped here.
+  // ⛔⛔ NO STARTUP OFFER IS OWED, AND MAKING ONE WOULD BREAK TWO MUST NOTs.
+  // A STOP stood here reading 「FR-060's SECOND MUST IS NOT KEPT」 and naming
+  // NT-4 of table T-037 as where the offer would stand; that requirement was
+  // rewritten on 2026-09-07 (台帳 D-278, 利用者の裁定) and now forbids BOTH
+  // halves: ⛔ 「前回開いていたファイルを覚えてはならない（MUST NOT）」 ⇒ 「起動時
+  // に権限の復帰を申し出てもならない（MUST NOT）」. ⭐ What stands instead is a
+  // MUST this build already keeps by doing nothing: 「起動した直後の最初の保存
+  // で、人がファイルを選び直すのが本仕様である」. Chapter 5.5 of the design
+  // records the same removal, and LM-14 of table T-004 carries it as a stated
+  // limitation rather than as a gap.
 
   // ---- BO-3, BO-4, BO-5 ---------------------------------------------------
   // BO-3 is inside the document: zoomX / zoomY and scrollDate / scrollGroupId
@@ -1192,27 +1195,28 @@ function boot(): void {
   // the surface and the shell that turned it on decides where the reference
   // goes. Section 3 of `_assets/tbl-glossary.md` is what decided the name.
   //
-  // ⛔ FR-028 (MUST): 「既定では公開しない」. The loop starts with the enabling
-  // off and this watcher is set before any input can arrive, so the name is
-  // absent until a person presses IC-20 -- and it is REMOVED again on the way
-  // back, which is the half a toggle that installed and never uninstalled would
-  // fail from the second press on.
+  // ⛔ FR-028 (MUST): 「既定では公開しない」. Nothing has turned the enabling on
+  // at an origin the person has never turned it on at, so the name is absent
+  // until they press IC-20 -- and it is REMOVED again on the way back, which is
+  // the half a toggle that installed and never uninstalled would fail from the
+  // second press on.
   // ⚠️ REMOVING THE NAME IS NOT TAKING THE API BACK, and FR-065 (MUST) has that
   // said out loud rather than papered over: a reference already handed out goes
   // on working, `installAgentApi` says the same from its side, and the loop
   // raises RS-20 of table T-233 in NT-5's manner as the press is accepted.
   //
-  // ⛔ NOT REMEMBERED PER DOCUMENT, which is FR-065's other MUST and the one
-  // thing here that is NOT kept. S-99b of table T-206 keys that record by
-  // 「文書の識別子」 and nothing in this build derives one -- `frame-loop.ts`
-  // (`sessionOf`) carries the same STOP, and the note above says why this file
-  // does not invent one.
-  // ⭐ So the enabling lasts as long as the page, which is the smallest honest
-  // behaviour: a record filed under a made-up key would be remembered for the
-  // WRONG document, and that is the outcome the MUST exists to forbid.
-  // ⭐ THE MUST NOT BESIDE IT IS KEPT ALREADY -- `replaceHeldDocument` turns the
-  // enabling off on the three rows of table T-230 that do not carry the history
-  // forward, and this watcher hears that turn like any other.
+  // ⭐⭐ REMEMBERED PER ORIGIN SINCE D-280 CLOSED, which is FR-065's other MUST:
+  // 「有効化はブラウザ（オリジン）ごとに記憶すること」. `frame-loop.ts` holds both
+  // halves -- `startupAgentApiEnabled` reads S-99b of table T-206 and
+  // `setAgentApiEnabled` writes it -- so this file asks for and stores nothing.
+  // ⛔⛔ WHICH IS WHY THE SENTENCE ABOVE IS NARROWER THAN IT LOOKS. The loop can
+  // start with the enabling already ON, so 「既定では公開しない」 is kept by the
+  // STORE having nothing rather than by this watcher being late: the watcher is
+  // told the standing value the moment it is set (see `watchAgentApiEnabling`),
+  // and the name is placed then, before any input can arrive.
+  // ⛔ NOTHING PUTS IT BACK ON A NEW DOCUMENT. A `setAgentApiEnabled(false)`
+  // stood in `replaceHeldDocument` under a MUST NOT that was struck on
+  // 2026-09-05; FR-065 now states the cost of the wider scope itself.
   //
   // ⚠️ `globalThis` IS REACHED THROUGH ONE INDEX, because the host's own
   // declarations carry no such member and there is nothing to narrow: what goes

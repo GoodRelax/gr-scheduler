@@ -155,6 +155,38 @@ const workingOf = (document: Document, uid: number): readonly number[] =>
 const calendarWithUid = (document: Document, uid: number): Calendar =>
   document.schedule.calendars.find((one) => one.uid === uid) as Calendar
 
+/**
+ * A `Task` for the FR-012 cases. Every column of table T-058 the formula reads
+ * is spelled; the rest is what the aggregate never looks at.
+ */
+const taskOf = (part: Record<string, unknown>): unknown => ({
+  uid: 0,
+  wbsParentUid: null,
+  wbsOrder: 0,
+  name: 'a task',
+  start: null,
+  finish: null,
+  milestone: null,
+  deadline: null,
+  notes: null,
+  calendarUid: null,
+  actualStart: null,
+  actualDuration: null,
+  actualFinish: null,
+  resume: null,
+  resumeValid: null,
+  percentComplete: null,
+  fadeInDays: null,
+  fadeOutDays: null,
+  dependencies: [],
+  carry: {},
+  carryElements: [],
+  ...part,
+})
+
+const percentOf = (document: Document, uid: number): number | null =>
+  document.schedule.tasks.find((one) => one.uid === uid)?.percentComplete ?? null
+
 describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
   it('FR-088 settles the working weekdays and the week start in ONE document', () => {
     // FR-088 (MUST): 「1 回の編集が `Calendar` と `Project` の両方に及ぶときも、
@@ -403,5 +435,170 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     // One write, both halves (FR-088).
     expect(workingOf(plan.document, 1)).toEqual([2, 3, 4, 5, 6, 7])
     expect(plan.document.schedule.project.weekStartDay).toBe(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-012 -- 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）」
+//           （利用者の裁定 2026-09-07。台帳 D-353）
+//
+// ⭐ THE ONE FIXTURE ALL FOUR CASES SHARE. A plan of 2026-09-07 (Mon) to
+// 2026-09-14 (Mon) with 3 worked days behind it, counted once by 表 T-209's
+// S-106 calendar (月〜金) and once by that calendar with Saturday added.
+//
+// ⛔⛔ THE LEDGER'S OWN ARITHMETIC FOR THIS EXAMPLE IS WRONG, AND THE
+// SPECIFICATION SAYS SO. D-353 records 「月〜金の暦では 6 稼働日で 50%、土曜を
+// 足すと 7 稼働日で 43%」, which counts 2026-09-14 as a worked day of the plan.
+// FR-012 forbids exactly that: 「期間は開始日と終了日の差とし、端を含む日数と取り
+// 違えないこと（MUST NOT）—— 含めると期間 0 が存在しなくなり、この規定が空振り
+// する」, and `workingDaysBetween` counts [from, to). ⇒ MEASURED 2026-09-07:
+// 月〜金 = 5 worked days = 60%, 土曜を足すと 6 worked days = 50%. ⭐ The example
+// still shows what it was written to show -- the stored figure moves although
+// no date moved -- and the two numbers below are the measured pair, not the
+// ledger's.
+// ---------------------------------------------------------------------------
+
+const PLAN_START = '2026-09-07T00:00:00' // Monday
+const PLAN_FINISH = '2026-09-14T00:00:00' // the Monday after; a bound, not a worked day
+const WORKED_DAYS = 3
+
+/** What FR-012 stores while the calendar is 表 T-209's S-106 (月〜金). */
+const PERCENT_UNDER_MON_TO_FRI = 60
+/** What it stores once Saturday is worked. AT-73's first code is Sunday, so 7. */
+const SATURDAY = 7
+const PERCENT_WITH_SATURDAY = 50
+
+/** The document both FR-012 cases start from: one task that moves, one that does not. */
+const documentWithAPricedTask = (): Document =>
+  documentOf({
+    tasks: [
+      taskOf({
+        uid: 10,
+        name: 'the task whose figure moves',
+        start: PLAN_START,
+        finish: PLAN_FINISH,
+        actualDuration: WORKED_DAYS,
+        percentComplete: PERCENT_UNDER_MON_TO_FRI,
+      }),
+      // ⛔ NOT DECORATION. FR-012's count is 「値が変わった `Task` の件数」 and not
+      // every task the calendar reaches, so a task the change leaves alone has to
+      // be in the document for the count to be a claim. EX-5 of table T-033 -- 中身
+      // のない行 -- is the case FR-012 excepts from its own MUST NOT, and its stored
+      // figure is kept as it stands.
+      taskOf({ uid: 11, name: '中身のない行 (EX-5)', percentComplete: 99 }),
+    ],
+  })
+
+describe('FR-012 -- 暦を編集したときの完了率の数え直し (D-353)', () => {
+  it('GIVEN a plan of 9/7 to 9/14 with 3 worked days WHEN Saturday becomes a worked day THEN the stored 完了率 is counted again', () => {
+    // FR-012 (MUST): 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと
+    // （MUST）」. The requirement's own reason: both the numerator and the
+    // denominator are counted in working days, so the right figure moves when
+    // the calendar moves even though no date does.
+    const document = documentWithAPricedTask()
+    expect(percentOf(document, 10), 'the figure the document arrives with').toBe(
+      PERCENT_UNDER_MON_TO_FRI,
+    )
+
+    const result = editCalendar(document, {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `FR-012 / D-353: 2026-09-07 to 2026-09-14, ${WORKED_DAYS} worked days -- `
+        + `月〜金 = ${percentOf(document, 10)}% , 土曜を足すと = ${percentOf(result.document, 10)}%`,
+    )
+    expect(percentOf(result.document, 10)).toBe(PERCENT_WITH_SATURDAY)
+    // ⛔ AND THE DATES DID NOT MOVE. The whole point of the ruling is that the
+    // stored figure goes stale without any edit to the task at all.
+    const moved = result.document.schedule.tasks.find((one) => one.uid === 10)
+    expect(moved?.start).toBe(PLAN_START)
+    expect(moved?.finish).toBe(PLAN_FINISH)
+    expect(moved?.actualDuration).toBe(WORKED_DAYS)
+  })
+
+  it('GIVEN the same edit WHEN it is accepted THEN the report names the `Task`s whose value CHANGED, and only those', () => {
+    // FR-012 (MUST): 「数え直したことを、値が変わった `Task` の件数を添えて告げること
+    // （MUST）」, and NT-3 of table T-037 asks for 対象の件数 on a destructive result,
+    // naming 暦の変更（`FR-088`） as its own example. The count is this list's length.
+    const result = editCalendar(documentWithAPricedTask(), {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.report.recountedTaskUids).toEqual([10])
+    // ⛔ 11 IS NOT IN IT. Its figure did not move, so counting it would report a
+    // number bigger than the one FR-012 asks for.
+    expect(result.report.recountedTaskUids).not.toContain(11)
+    expect(percentOf(result.document, 11), 'EX-5 の中身のない行 keeps what it holds').toBe(99)
+  })
+
+  it('GIVEN a calendar edit that moves no figure WHEN it is accepted THEN the report is empty', () => {
+    // ⛔ NOT VACUOUS: the calendar DOES change here -- Saturday is added, and
+    // the case asserts it landed -- while this task's plan holds no Saturday,
+    // so its span in worked days is the same before and after. 「値が変わった
+    // `Task`」 is then nobody, and the count NT-3 asks for is 0.
+    // ⚠️ 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Thu] = 4 worked days
+    // under 表 T-209's S-106, and the same 4 with Saturday worked.
+    const document = documentOf({
+      tasks: [
+        taskOf({
+          uid: 10,
+          start: '2026-09-07T00:00:00',
+          finish: '2026-09-11T00:00:00',
+          actualDuration: 3,
+          percentComplete: 75,
+        }),
+      ],
+    })
+    const result = editCalendar(document, {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(workingOf(result.document, 1)).toContain(SATURDAY)
+    expect(percentOf(result.document, 10)).toBe(75)
+    expect(result.report.recountedTaskUids).toEqual([])
+  })
+
+  it('FR-012 -- 暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）', () => {
+    // 「暦の変更は取り消せるので、分けると取り消しが暦だけを戻し、数え直した完了率が
+    // 残る」. ⭐ So the proof is that ONE plan carries both halves and pushes ONE
+    // undo step: the step holds the document as it stood BEFORE the write, which
+    // is where the old figure is, and there is no second write for a second step.
+    const document = documentWithAPricedTask()
+    const plan = planDocumentChange({
+      document,
+      readStamp: document.documentStamp,
+      commands: [
+        { kind: 'setCalendar', workingDayTypes: [...S_106_WORKING, SATURDAY] } as DocumentCommand,
+      ],
+      moment: CALM,
+      history: EMPTY_HISTORY,
+      historyLimits: HISTORY_LIMITS,
+      settingsLimits: LIMITS,
+      editedBy: 'user',
+      updatedUtc: '2026-08-17T01:00:00Z',
+    })
+    expect(plan.ok).toBe(true)
+    if (!plan.ok) return
+
+    // Both halves in the one settled document.
+    expect(workingOf(plan.document, 1)).toContain(SATURDAY)
+    expect(percentOf(plan.document, 10)).toBe(PERCENT_WITH_SATURDAY)
+    // ONE step, and it holds the figure as it was, so one undo puts both back.
+    expect(plan.history.done).toHaveLength(1)
+    expect(percentOf(plan.history.done[0]?.step.document as Document, 10)).toBe(
+      PERCENT_UNDER_MON_TO_FRI,
+    )
+    // The count reaches WS-7 through the plan, because the telling happens
+    // after the swap and the figures it would compare are gone by then.
+    expect(plan.report.recountedTaskUids).toEqual([10])
   })
 })

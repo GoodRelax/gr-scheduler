@@ -96,8 +96,8 @@
     "en": "Plan Bar"
    },
    "hint": {
-    "ja": "予定バーを表示する。もう一度押すと非表示にする。予定と実績の両方を非表示にすることはできない",
-    "en": "Show the Plan Bar; press again to hide it — plan and actual cannot both be hidden"
+    "ja": "予定バーを表示する。もう一度押すと非表示にする。実績の表示には影響しない",
+    "en": "Show the Plan Bar; press again to hide it — the actual is left as it stands"
    }
   },
   {
@@ -107,8 +107,8 @@
     "en": "Actual Bar"
    },
    "hint": {
-    "ja": "実績バーを表示する。もう一度押すと非表示にする。予定と実績の両方を非表示にすることはできない",
-    "en": "Show the Actual Bar; press again to hide it — plan and actual cannot both be hidden"
+    "ja": "実績バーを表示する。もう一度押すと非表示にする。予定の表示には影響しない",
+    "en": "Show the Actual Bar; press again to hide it — the plan is left as it stands"
    }
   },
   {
@@ -1885,13 +1885,23 @@
    }
   },
   {
-   "rowId": "K-74",
+   "rowId": "K-122",
    "keys": [
-    "planActualDisplay"
+    "planVisible"
    ],
    "label": {
-    "ja": "予実の表示",
-    "en": "planActualDisplay"
+    "ja": "予定の表示",
+    "en": "planVisible"
+   }
+  },
+  {
+   "rowId": "K-123",
+   "keys": [
+    "actualVisible"
+   ],
+   "label": {
+    "ja": "実績の表示",
+    "en": "actualVisible"
    }
   },
   {

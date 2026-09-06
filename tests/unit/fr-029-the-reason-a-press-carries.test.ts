@@ -76,7 +76,7 @@
 //              so `IC-77` is spent only where that row draws no child of its
 //              own, and `HR-7` clears the PRESSED row's fold, so `IC-90` is
 //              spent only where that row is open and hides no direct child.
-//   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-8 / IC-9 / IC-37 /
+//   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-37 /
 //              IC-38 / IC-18 -- the entrances pressed, and the 面 each is on.
 //
 // ---------------------------------------------------------------------------
@@ -259,8 +259,14 @@ const GAMMA = '33333333-3333-4333-8333-333333333333'
 interface Fixture {
   /** Rows the person folded (AT-56). */
   readonly folded?: readonly string[]
-  /** S-59, `planActualDisplay` -- FR-049's three values. */
-  readonly planActual?: 'both' | 'plan-only' | 'actual-only'
+  /**
+   * S-227 / S-228 -- FR-049's two independent booleans since 2026-09-07.
+   *
+   * ⛔ NEITHER ENTRANCE IS EVER SPENT ANY MORE, which is why IC-8 and IC-9
+   * left the roster above: hiding the second half is allowed, so there is no
+   * press left for FR-029's rule to answer.
+   */
+  readonly planActual?: { readonly planVisible: boolean; readonly actualVisible: boolean }
 }
 
 /**
@@ -343,7 +349,7 @@ function documentWith(part: Fixture = {}): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      ...(part.planActual === undefined ? {} : { planActualDisplay: part.planActual }),
+      ...(part.planActual === undefined ? {} : part.planActual),
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -591,20 +597,6 @@ const SPENT: readonly Spent[] = [
     // on this same entrance leaves behind.
     primedBy: [{ entry: 'IC-78', onRow: null }],
     because: 'a first press folded 段 0 itself, so no drawn row and no level is left open',
-  },
-  {
-    icon: 'IC-8',
-    reason: 'RS-33',
-    fixture: { planActual: 'plan-only' },
-    onRow: null,
-    because: 'the plan is the only one of the two showing, and S-59 has no fourth value',
-  },
-  {
-    icon: 'IC-9',
-    reason: 'RS-33',
-    fixture: { planActual: 'actual-only' },
-    onRow: null,
-    because: 'the actual is the only one of the two showing, and S-59 has no fourth value',
   },
   {
     icon: 'IC-37',
@@ -898,15 +890,17 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
       },
       {
         icon: 'IC-8',
-        fixture: { planActual: 'both' },
+        fixture: { planActual: { planVisible: true, actualVisible: true } },
         onRow: null,
-        because: 'both are showing, so hiding the plan leaves the actual',
+        because: 'the plan is showing, so hiding it changes the picture',
       },
       {
         icon: 'IC-9',
-        fixture: { planActual: 'both' },
+        fixture: { planActual: { planVisible: false, actualVisible: true } },
         onRow: null,
-        because: 'both are showing, so hiding the actual leaves the plan',
+        because:
+          'the actual is showing, so hiding it changes the picture -- and the plan'
+          + ' being hidden already does not stand in the way (FR-049)',
       },
     ]
 

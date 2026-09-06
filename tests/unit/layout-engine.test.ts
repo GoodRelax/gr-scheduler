@@ -1157,11 +1157,12 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
 
   it('FR-013 moves the marker to the plan bar when only the plan is displayed', () => {
     // 予定だけを表示しているときは、予定バーの右端の外側に出すこと（MUST）--
-    // the one exception FR-013 names, keyed on S-59, and the same form as
-    // FR-009's 予定を表示していないときに限り、実績の幾何に付ける.
+    // the one exception FR-013 names, keyed on S-227 / S-228, and the same
+    // form as FR-009's 予定を表示していないときに限り、実績の幾何に付ける.
     const planOnly = settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
-      planActualDisplay: 'plan-only', // S-59
+      planVisible: true, // S-227
+      actualVisible: false, // S-228
     })
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),

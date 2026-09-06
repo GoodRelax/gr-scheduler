@@ -295,8 +295,19 @@ export interface FileStore {
    * Ask for the lost permission back, and answer with what came of it.
    * `non-pure`.
    *
-   * ⭐ This is FR-060's second MUST -- without it there is no way back to the
-   * file that was open, which is the whole point of holding onto it.
+   * ⭐ ABOUT A FILE OPENED DURING THIS RUN, AND NEVER ABOUT A REMEMBERED ONE.
+   * FR-060 (MUST NOT, 利用者の裁定 2026-09-07): 「前回開いていたファイルを覚えては
+   * ならない（MUST NOT）。⇒ 起動時に権限の復帰を申し出てもならない（MUST NOT）——
+   * 覚えていないので、申し出る相手が存在しない」, and 「起動した直後の最初の保存で、
+   * 人がファイルを選び直すのが本仕様である（MUST）—— 上書きが成り立つのは、同じ起動
+   * のうちに一度保存先を決めたあとである」.
+   *
+   * ⛔ SO IT IS NEVER CALLED AT STARTUP, and having no caller at all is the
+   * correct state of this build rather than a hole: a startup offer is what the
+   * requirement now forbids. ⚠️ Until 2026-09-07 the requirement read 「権限が
+   * 失われているときは、起動時にその復帰を申し出ること（MUST）」 and this comment
+   * called the member that MUST -- ⛔ do not read the absence of a caller as
+   * that MUST going unkept and "fix" it back into a violation.
    */
   restoreOpenedFilePermission(): Promise<OpenedFileState>
 

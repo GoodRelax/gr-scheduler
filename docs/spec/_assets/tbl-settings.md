@@ -128,7 +128,8 @@
 | 行 ID | キー | 型 | 既定 | 意味 |
 | --- | --- | --- | --- | --- |
 | S-58 | `stackDirection` | `'up'` / `'down'` | `'up'` | 積む向き |
-| S-59 | `planActualDisplay` | `'both'` / `'plan-only'` / `'actual-only'` | `'both'` | 予実の表示。3 値にした規則と理由は `FR-049` |
+| S-227 | `planVisible` | 真偽 | `true` | 予定の表示。実績（`S-228`）とは独立に切り替える。規則と理由は `FR-049` |
+| S-228 | `actualVisible` | 真偽 | `true` | 実績の表示。予定（`S-227`）とは独立に切り替える。規則と理由は `FR-049` |
 | S-60 | `assigneeVisible` | 真偽 | `false` | 担当ラベル。既定は隠す（下記） |
 | S-61 | `percentCompleteVisible` | 真偽 | `false` | 完了率ラベル。既定は隠す（下記） |
 | S-62 | `dependencyVisible` | 真偽 | `true` | 依存線。核機能であり、段数に影響しない。寸法をズームに追随させない規則は `FR-094` が持つ |

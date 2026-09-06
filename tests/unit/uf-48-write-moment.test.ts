@@ -788,15 +788,17 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 // THE ROWS THESE CASES ANSWER TO.
 //
 //   FR-049 (MUST)     every row of table T-202 that carries a show/hide can be
-//                     switched, and the plan/actual row (S-59) can be chosen
-//                     from three values.
+//                     switched. ⭐ The plan (S-227) and the actual (S-228) are
+//                     two of them, and each is switched on its own.
 //   FR-049 (MUST NOT) not every row of table T-202 is a toggle -- only the rows
-//                     whose type is boolean are. The multi-valued rows (S-59,
-//                     S-66) and the rows holding a value of their own (S-58
+//                     whose type is boolean are. The multi-valued row (S-66)
+//                     and the rows holding a value of their own (S-58
 //                     stackDirection, S-70 fontScale, S-65 dualCursor) are
 //                     outside it.
-//   FR-049 (MUST NOT) the plan and the actual may not BOTH be hidden -- a screen
-//                     with not one bar on it looks broken.
+//   FR-049 (MUST NOT) one half's entrance may not decide the other half. ⛔ THE
+//                     CLAUSE THAT ONCE FORBADE HIDING BOTH WAS STRUCK ON
+//                     2026-09-07 (the user's ruling): the pair is completely
+//                     independent, and hiding both is allowed.
 //   FR-048            the guide cursor is one of S-66's THREE values, exclusive,
 //                     and IC-47 / IC-48 are the two entrances to it. Table
 //                     T-109 spells WHICH value each of the two sets.
@@ -810,9 +812,9 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 //                     choice, so IC-16 has to be able to leave a document saved
 //                     as `dark` as well as one saved as `light`.
 //   T-109 IC-4        S-69, on the `App Header`.
-//   T-109 IC-8/IC-9   S-59, on the `App Header` -- show and hide the plan, and
-//                     the actual. Table T-109 writes IC-9's setting as a
-//                     reference back to IC-8 rather than repeating the row id.
+//   T-109 IC-8/IC-9   S-227 and S-228, on the `App Header` -- show and hide the
+//                     plan, and the actual. ⭐ Since 2026-09-07 each entrance
+//                     names its own row rather than one shared enumeration.
 //   T-109 IC-16       S-72, on the `App Header`.
 //   T-109 IC-39/IC-40 S-64 / S-63, on the `Command Palette`.
 //   T-109 IC-42/IC-43 S-67 / S-68, on the `Command Palette`.
@@ -908,6 +910,8 @@ const DEFAULT_OF = new Map(
  * hand the gate's own subject to `FR-049` and to the saved document at once.
  */
 const EXPECTED_BOOLEAN_KEYS = [
+  'planVisible',
+  'actualVisible',
   'assigneeVisible',
   'percentCompleteVisible',
   'dependencyVisible',
@@ -918,8 +922,6 @@ const EXPECTED_BOOLEAN_KEYS = [
   'baselineVisible',
 ]
 
-/** S-59's three values, read out of its type cell. */
-const PLAN_ACTUAL_VALUES = enumeratedValues(cellAt('T-202', 'S-59', SETTING_TYPE))
 /** S-66's three, read out of its type cell -- FR-048 makes them exclusive. */
 const GUIDE_VALUES = enumeratedValues(cellAt('T-202', 'S-66', SETTING_TYPE))
 /** S-72's two, read out of its type cell in table T-203. */
@@ -929,19 +931,6 @@ const THEME_VALUES = enumeratedValues(cellAt('T-203', 'S-72', SETTING_TYPE))
 const APP_HEADER = bare(cellAt('T-103', 'U-31', T_103_NAME))
 const COMMAND_PALETTE = bare(cellAt('T-103', 'U-26', T_103_NAME))
 
-/**
- * Whether S-59's value leaves the plan drawn, and whether it leaves the actual
- * drawn.
- *
- * ⭐ READ OFF THE VALUE NAMES THEMSELVES, which is where table T-202 puts the
- * meaning: `plan-only` is the plan alone, `actual-only` the actual alone. A
- * guard case below pins that those are still the two names.
- *
- * @purity pure
- */
-const planIsShown = (value: string): boolean => value !== 'actual-only'
-/** @purity pure */
-const actualIsShown = (value: string): boolean => value !== 'plan-only'
 
 // ---------------------------------------------------------------------------
 // The ten, as fixed data
@@ -962,8 +951,8 @@ interface Entrance {
 
 const ENTRANCES: readonly Entrance[] = [
   { entry: 'IC-4', part: APP_HEADER, table: 'T-202', row: 'S-69', key: 'baselineVisible' },
-  { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-59', key: 'planActualDisplay' },
-  { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-59', key: 'planActualDisplay' },
+  { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-227', key: 'planVisible' },
+  { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-228', key: 'actualVisible' },
   { entry: 'IC-16', part: APP_HEADER, table: 'T-203', row: 'S-72', key: 'themePreference' },
   {
     entry: 'IC-39',
@@ -1001,18 +990,21 @@ const ENTRANCES: readonly Entrance[] = [
 ]
 
 /**
- * The eight of the ten whose own cell in table T-109 names the settings row.
+ * The nine of the ten whose own cell in table T-109 names the settings row.
  *
- * ⚠️ The other two do not name one: IC-9 refers back to IC-8, and IC-48 refers
- * back to IC-47. A guard case pins that, so that a manuscript which starts
- * spelling them out reaches this file rather than being inferred past.
+ * ⚠️ The last one does not name one: IC-48 refers back to IC-47. A guard case
+ * pins that, so that a manuscript which starts spelling it out reaches this
+ * file rather than being inferred past.
  *
+ * ⭐ IC-9 LEFT THE INFERRED SIDE ON 2026-09-07: it used to read 「同上」 off
+ * IC-8, and now names S-228, its own row (the user's ruling).
  * ⭐ IC-47 REPLACED IC-46 AS THE HEAD OF THE 「同・」 CHAIN on 2026-09-06. The
  * guard is not dropped with the retired row -- it is pointed at the new head.
  */
 const NAMES_ITS_OWN_ROW = new Set([
   'IC-4',
   'IC-8',
+  'IC-9',
   'IC-16',
   'IC-39',
   'IC-40',
@@ -1064,8 +1056,8 @@ function documentWithSettings(overrides: Record<string, unknown>): Document {
  * same thing for the sibling row S-72 in as many words: the saved value is the
  * STARTING value.
  *
- * ⚠️ S-59 is left where the template put it. The cases that drive it set it
- * themselves, one value at a time.
+ * ⚠️ S-227 and S-228 are booleans like the rest, so they are flipped away
+ * from their defaults with every other boolean row.
  */
 const CONTRARY: Record<string, unknown> = {
   ...Object.fromEntries(BOOLEAN_KEYS.map((key) => [key, DEFAULT_OF.get(key) !== 'true'])),
@@ -1237,14 +1229,14 @@ describe('the tables these ten entrances are driven by', () => {
     // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
     // and LEFT on 2026-09-02 for table T-206, taking both back down -- see the
     // note over EXPECTED_BOOLEAN_KEYS for why that is the point rather than an
-    // accident. The five that are not booleans are S-58, S-59, S-65, S-66 and
-    // S-70.
+    // accident. The four that are not booleans are S-58, S-65, S-66 and S-70;
+    // ⭐ S-59 left the four on 2026-09-07 by splitting into the booleans S-227
+    // and S-228 (the user's ruling).
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(13)
+    expect(T_202_KEYS.length).toBe(14)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {
-    expect(PLAN_ACTUAL_VALUES).toEqual(['both', 'plan-only', 'actual-only'])
     // ⛔⛔ THREE, NOT FOUR, SINCE 2026-09-06 (CR-369, 利用者の裁定). 表 T-029
     // の `CU-3` now reads 「**3 モード排他** —— なし / 十字 / 縦 1 本。⛔ **「縦
     // 2 本」を持ってはならない（MUST NOT）**」, and `S-66` states 「⭐⭐
@@ -1464,69 +1456,62 @@ describe('IC-16 -- the theme entrance leaves a document saved either way (FR-039
   }
 })
 
-describe('IC-8 / IC-9 -- the four transitions of S-59 that table T-109 spells', () => {
-  // FR-049 (MUST): S-59 can be chosen from three values. Table T-109 divides the
-  // choosing between two entrances -- IC-8 shows and hides the PLAN, IC-9 the
-  // ACTUAL -- so from the value that shows both, each of them hides its own
-  // half, and from the value that has its own half hidden, each shows it again.
-  const [BOTH, PLAN_ONLY, ACTUAL_ONLY] = PLAN_ACTUAL_VALUES as [string, string, string]
-
-  const spelled: readonly (readonly [string, string, string])[] = [
-    [BOTH, 'IC-8', ACTUAL_ONLY],
-    [BOTH, 'IC-9', PLAN_ONLY],
-    [ACTUAL_ONLY, 'IC-8', BOTH],
-    [PLAN_ONLY, 'IC-9', BOTH],
+describe('IC-8 / IC-9 -- each entrance flips its own row and leaves the other', () => {
+  // FR-049 (MUST, the ruling of 2026-09-07): S-227 and S-228 are two independent
+  // booleans. Table T-109 gives each its own entrance -- IC-8 the PLAN, IC-9 the
+  // ACTUAL -- so a press flips the row it names and MUST NOT touch the other.
+  const spelled: readonly (readonly [string, 'planVisible' | 'actualVisible'])[] = [
+    ['IC-8', 'planVisible'],
+    ['IC-9', 'actualVisible'],
   ]
 
-  for (const [from, entry, to] of spelled) {
-    it(`${entry} takes ${from} to ${to}`, () => {
-      const run = standing({ ...CONTRARY, planActualDisplay: from })
-      expect(settingsOf(run.loop).planActualDisplay, 'the premise').toBe(from)
+  for (const [entry, key] of spelled) {
+    for (const from of [true, false]) {
+      it(`${entry} takes ${key} from ${String(from)} to ${String(!from)}`, () => {
+        const other = key === 'planVisible' ? 'actualVisible' : 'planVisible'
+        for (const otherFrom of [true, false]) {
+          const run = standing({ ...CONTRARY, [key]: from, [other]: otherFrom })
+          expect(settingsOf(run.loop)[key], 'the premise').toBe(from)
 
-      takeEntry(run.loop, run.screen, APP_HEADER, entry)
+          takeEntry(run.loop, run.screen, APP_HEADER, entry)
 
-      expect(
-        settingsOf(run.loop).planActualDisplay,
-        `table T-109 ${entry} shows and hides its own half of S-59`,
-      ).toBe(to)
-      run.frames.runAnimationFrames()
-    })
-  }
-})
-
-describe('FR-049 (MUST NOT) -- the plan and the actual are never both hidden', () => {
-  // ⛔ EVERY ONE OF S-59's THREE VALUES THROUGH BOTH ENTRANCES. Two of the six
-  // are the transition the MUST NOT is about: IC-8 hiding the plan while the
-  // plan is the only thing showing, and IC-9 hiding the actual while the actual
-  // is. What GRS does INSTEAD is not decided anywhere in docs/spec, so these
-  // cases hold the forbidden result and nothing else -- including that the
-  // document is still one the schema admits, which is what catches a value
-  // outside the three being written to mean "neither".
-  for (const from of PLAN_ACTUAL_VALUES) {
-    for (const entry of ['IC-8', 'IC-9']) {
-      it(`${entry} taken while S-59 holds ${from} leaves at least one of the two drawn`, () => {
-        const run = standing({ ...CONTRARY, planActualDisplay: from })
-        expect(settingsOf(run.loop).planActualDisplay, 'the premise').toBe(from)
-
-        takeEntry(run.loop, run.screen, APP_HEADER, entry)
-
-        const after = settingsOf(run.loop).planActualDisplay
-        expect(
-          PLAN_ACTUAL_VALUES,
-          `FR-049: S-59 is an enumeration of three, and ${entry} wrote ${String(after)}`,
-        ).toContain(after)
-        expect(
-          planIsShown(after) || actualIsShown(after),
-          'FR-049 (MUST NOT): a screen with not one bar on it looks broken',
-        ).toBe(true)
-        expect(
-          validateDocument(run.loop.document()).valid,
-          'the document the press left is still one the schema admits',
-        ).toBe(true)
-        run.frames.runAnimationFrames()
+          expect(
+            settingsOf(run.loop)[key],
+            `table T-109 ${entry} flips its own row`,
+          ).toBe(!from)
+          expect(
+            settingsOf(run.loop)[other],
+            `FR-049 (MUST NOT): ${entry} may not decide ${other}`,
+          ).toBe(otherFrom)
+          expect(
+            validateDocument(run.loop.document()).valid,
+            'the document the press left is still one the schema admits',
+          ).toBe(true)
+          run.frames.runAnimationFrames()
+        }
       })
     }
   }
+})
+
+describe('FR-049 -- both halves may be hidden (the ruling of 2026-09-07)', () => {
+  // \u26d4 THE MUST NOT THAT STOOD HERE WAS STRUCK AS WRONG. The user settled on
+  // 2026-09-07 that the pair is completely independent, so the state this file
+  // once held to be unreachable is now an ordinary one, and the safety valve the
+  // front runner proposed instead was turned down.
+  it('IC-8 pressed while the actual is already hidden leaves neither drawn', () => {
+    const run = standing({ ...CONTRARY, planVisible: true, actualVisible: false })
+
+    takeEntry(run.loop, run.screen, APP_HEADER, 'IC-8')
+
+    expect(settingsOf(run.loop).planVisible).toBe(false)
+    expect(settingsOf(run.loop).actualVisible).toBe(false)
+    expect(
+      validateDocument(run.loop.document()).valid,
+      'the document with neither half drawn is still one the schema admits',
+    ).toBe(true)
+    run.frames.runAnimationFrames()
+  })
 })
 
 describe('FR-049 (MUST) -- only a boolean row is a toggle, so nothing else in T-202 moves', () => {

@@ -257,22 +257,23 @@ const T_109_APP_HEADER_ACTIONS = [
 ] as const
 
 /**
- * S-59 of table T-202, with what FR-049 makes each value mean for the two
- * halves. The three values are the row's own, spelled through the generated
- * `DocumentSettings` type so that a change to S-59 fails the compiler.
+ * S-227 and S-228 of table T-202, with what FR-049 makes each pair mean for the
+ * two halves. ⭐ THE FOURTH COMBINATION IS A ROW HERE (the user's ruling
+ * 2026-09-07): the MUST NOT that once forbade hiding both was struck as wrong,
+ * so 'neither shown' is an ordinary state and not a refused one.
  *
- * `isEnabled` is NOT a column here: FR-049's MUST NOT ("both halves may not be
- * hidden") is what decides it, and the cases derive it from the OTHER half
- * rather than restating it.
+ * `isEnabled` is NOT a column here: with the two rows independent, neither
+ * entry is ever faint, and a case below states that in as many words.
  */
 const S_59_ROWS: readonly {
-  readonly value: DocumentSettings['planActualDisplay']
+  readonly value: { readonly planVisible: boolean; readonly actualVisible: boolean }
   readonly isPlanShown: boolean
   readonly isActualShown: boolean
 }[] = [
-  { value: 'both', isPlanShown: true, isActualShown: true },
-  { value: 'plan-only', isPlanShown: true, isActualShown: false },
-  { value: 'actual-only', isPlanShown: false, isActualShown: true },
+  { value: { planVisible: true, actualVisible: true }, isPlanShown: true, isActualShown: true },
+  { value: { planVisible: true, actualVisible: false }, isPlanShown: true, isActualShown: false },
+  { value: { planVisible: false, actualVisible: true }, isPlanShown: false, isActualShown: true },
+  { value: { planVisible: false, actualVisible: false }, isPlanShown: false, isActualShown: false },
 ]
 
 /** S-99 (table T-206). FR-038 admits exactly these two. */
@@ -596,12 +597,21 @@ describe('UF-62 commands: the roster and its order', () => {
 })
 
 // ---------------------------------------------------------------------------
-// IC-8 / IC-9 -- FR-049 and S-59 of table T-202.
+// ---------------------------------------------------------------------------
+// FR-049 の三つの条項を、逐語で持つ（2026-09-07 の裁定）
+//
+//   予定の表示（`S-227`）と実績の表示（`S-228`）は、それぞれ独立した真偽の行とすること（MUST）
+//   一方の入口の押下が、他方の表示にも、他方の入口の見え方にも効いてはならない（MUST NOT）
+//   本要求で 2 つを結ぶ条件を書いてはならない（MUST NOT）
+// ---------------------------------------------------------------------------
+// IC-8 / IC-9 -- FR-049 and S-227 / S-228 of table T-202.
 // ---------------------------------------------------------------------------
 
-describe('UF-62 IC-8 / IC-9: the plan and the actual (FR-049, S-59)', () => {
-  const itemsAt = (value: DocumentSettings['planActualDisplay']): AppHeaderItems =>
-    itemsOf(UNNAMED, settingsOf({ planActualDisplay: value }))
+describe('UF-62 IC-8 / IC-9: the plan and the actual (FR-049, S-227 / S-228)', () => {
+  const itemsAt = (value: {
+    readonly planVisible: boolean
+    readonly actualVisible: boolean
+  }): AppHeaderItems => itemsOf(UNNAMED, settingsOf(value))
 
   it('presses each entry exactly while its own half is drawn', () => {
     for (const row of S_59_ROWS) {
@@ -611,28 +621,27 @@ describe('UF-62 IC-8 / IC-9: the plan and the actual (FR-049, S-59)', () => {
     }
   })
 
-  it('never lets both halves be hidden (FR-049, MUST NOT)', () => {
+  it('lets both halves be hidden (FR-049, the ruling of 2026-09-07)', () => {
+    const items = itemsAt({ planVisible: false, actualVisible: false })
+    expect(commandFor(items, IC_PLAN).isPressed).toBe(false)
+    expect(commandFor(items, IC_ACTUAL).isPressed).toBe(false)
+  })
+
+  it('faints neither entry, in any of the four combinations (FR-049)', () => {
     for (const row of S_59_ROWS) {
       const items = itemsAt(row.value)
-      const shown = [commandFor(items, IC_PLAN), commandFor(items, IC_ACTUAL)].filter(
-        (command) => command.isPressed,
-      )
-      expect(shown.length).toBeGreaterThan(0)
+      expect(commandFor(items, IC_PLAN).isEnabled).toBe(true)
+      expect(commandFor(items, IC_ACTUAL).isEnabled).toBe(true)
     }
   })
 
-  it('faints the entry that would hide the last drawn half (FR-049 MUST NOT, through FR-029)', () => {
-    for (const row of S_59_ROWS) {
-      const items = itemsAt(row.value)
-      expect(commandFor(items, IC_PLAN).isEnabled).toBe(row.isActualShown)
-      expect(commandFor(items, IC_ACTUAL).isEnabled).toBe(row.isPlanShown)
+  it('reads each entry from its own row alone (FR-049, MUST NOT)', () => {
+    for (const actualVisible of [true, false]) {
+      const shown = itemsAt({ planVisible: true, actualVisible })
+      const hidden = itemsAt({ planVisible: false, actualVisible })
+      expect(commandFor(shown, IC_PLAN).isPressed).toBe(true)
+      expect(commandFor(hidden, IC_PLAN).isPressed).toBe(false)
     }
-  })
-
-  it('leaves both usable while both halves are drawn', () => {
-    const items = itemsAt('both')
-    expect(commandFor(items, IC_PLAN).isEnabled).toBe(true)
-    expect(commandFor(items, IC_ACTUAL).isEnabled).toBe(true)
   })
 })
 
@@ -832,12 +841,16 @@ describe('UF-62 faintness is a claim, not a default (FR-029)', () => {
     expect(faintIconsOf(itemsOf())).toEqual([IC_DIALOGUE_FIELD])
   })
 
-  it('faints only the half that may not be hidden, and the dialogue field', () => {
-    const planOnly = itemsOf(UNNAMED, settingsOf({ planActualDisplay: 'plan-only' }))
-    expect(faintIconsOf(planOnly)).toEqual([IC_PLAN, IC_DIALOGUE_FIELD])
-
-    const actualOnly = itemsOf(UNNAMED, settingsOf({ planActualDisplay: 'actual-only' }))
-    expect(faintIconsOf(actualOnly)).toEqual([IC_ACTUAL, IC_DIALOGUE_FIELD])
+  it('faints neither half, in any of the four combinations (FR-049, 2026-09-07)', () => {
+    // ⭐ THE HALF THAT MAY NOT BE HIDDEN NO LONGER EXISTS. S-227 and S-228 are
+    // independent booleans and hiding both is allowed, so the only faint entry
+    // left in these four is the dialogue field's (FR-066).
+    for (const planVisible of [true, false]) {
+      for (const actualVisible of [true, false]) {
+        const items = itemsOf(UNNAMED, settingsOf({ planVisible, actualVisible }))
+        expect(faintIconsOf(items)).toEqual([IC_DIALOGUE_FIELD])
+      }
+    }
   })
 
   it('does not faint an entry because the document is empty', () => {

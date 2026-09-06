@@ -86,6 +86,12 @@ export interface SettingsLimits {
  * which is the value the screen uses and the document does not keep.
  */
 export type VisibleElement =
+  // S-227 / S-228 -- the plan half and the actual half. ⭐ They joined this
+  // union on 2026-09-07, when FR-049 split them out of one three-valued row
+  // into two independent booleans (the user's ruling). ⛔ Nothing here reads
+  // one to decide the other; that is what 'independent' means.
+  | 'planVisible'
+  | 'actualVisible'
   | 'assigneeVisible'
   | 'percentCompleteVisible'
   | 'dependencyVisible'
@@ -98,7 +104,6 @@ export type VisibleElement =
 /** CM-56 to CM-71 of table T-108. */
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly direction: 'up' | 'down' }
-  | { readonly kind: 'setPlanActualDisplay'; readonly display: 'both' | 'plan-only' | 'actual-only' }
   | { readonly kind: 'setElementVisible'; readonly element: VisibleElement; readonly visible: boolean }
   | {
       readonly kind: 'setGuideCursorMode'
@@ -194,12 +199,6 @@ export function editDocumentSettings(
   switch (command.kind) {
     case 'setStackDirection': // CM-56
       return put({ stackDirection: command.direction })
-
-    case 'setPlanActualDisplay': // CM-57
-      // FR-049 forbids hiding both bars, which the three-valued enumeration
-      // already makes impossible -- "OFF OFF は作らせない" is why it is an
-      // enumeration and not two toggles.
-      return put({ planActualDisplay: command.display })
 
     case 'setElementVisible': // CM-58
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)

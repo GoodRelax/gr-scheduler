@@ -46,25 +46,23 @@
 //               gesture, and AG-2's stamp check already turns away the write
 //               that such a read would lead to.
 //
-// ⛔ FIVE OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
-// member: AM-8, AM-9, AM-10, AM-14 and AM-15. ⚠️ THE REASON IS NO LONGER ONE
-// REASON, and the block that said it was has been re-measured (2026-09-05).
-// Every entry these members hand work to is now published -- `mspdiFromDocument`
-// and `exportEmbeddedHtml` at DocumentCodec's entry (PI-20), `exportPng` at
-// ImageExporter's (PI-21), `replaceDocument` at ApplyDocumentChange's (PI-8) --
-// so "the component publishes no entry for it" was true of one member only, and
-// AM-12 is wired below because of it. What stops the other five is stated at
-// each member, and it is one of exactly two things:
+// ⛔ THREE OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
+// member: AM-8, AM-9 and AM-10. ⚠️ IT WAS FIVE UNTIL 台帳 D-356 CLOSED
+// (2026-09-07). AM-14 and AM-15 were blocked on a seam that did not reach here
+// -- `Rasterizer` (IF-6) and `AppShellSource` (IF-8) -- and `AgentApiWiring`
+// carries both now, so both are wired below. ⛔⛔ THE OTHER HALF OF THAT ROW WAS
+// A FALSE CLAIM IN THIS FILE: the members said widening their signature to a
+// promise was 表 T-107's decision, and that table's preamble says the opposite
+// verbatim -- 「引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1
+// が持つ。本表は名前と、何を担うかだけを持つ」. ⇒ The signature is this file's.
 //
-//   the seam does not reach here   AM-14 and AM-15. Both entries take a seam of
-//                                  another layer's -- `Rasterizer` (IF-6) and
-//                                  `AppShellSource` (IF-8) -- and `AgentApiWiring`
-//                                  below carries neither. Reported; the fix is
-//                                  outside this component.
+// What stops the three that remain is one thing only:
+//
 //   this component's own face      AM-8, AM-9 and AM-10. The entry takes values
 //                                  table T-107's row gives the member no way to
-//                                  carry. Widening a face is a decision about
-//                                  that table, not one to take here.
+//                                  carry -- an ARGUMENT it has nowhere to put,
+//                                  which is a different question from the
+//                                  RETURN type the preamble leaves here.
 //
 // They are declared, they refuse with a value rather than throwing, and they are
 // reported. ⛔ None of them is faked: answering with an empty string or a
@@ -103,6 +101,10 @@ import {
 // exactly as their tables have them.
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
 import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
+// ⭐ A namespace for the reason the two above are: PI-20's entry and AM-15 of
+// table T-107 are both spelled `exportEmbeddedHtml`, and rule 03 forbids giving
+// either side a second name.
+import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 // ⭐ A namespace for the same reason as the two above: PI-21's entry and AM-13
 // of table T-107 are both spelled `exportSvg`, and rule 03 forbids giving
@@ -160,6 +162,25 @@ export type AgentRefusalReason =
    * classification (AG-9a), and the Agent API composes no words at all.
    */
   | 'tooTall'
+  /**
+   * AM-14: the picture WAS drawn and painting it did not succeed -- `RasterFault`
+   * (IF-6). ⭐ AG-8 of table T-035 (MUST) has a failed image come back as a
+   * value, and this is that value's category; IF-6's own three-way reason
+   * (`unsupported` / `tooLarge` / `rasterFailed`) travels in `what`, because
+   * AG-9a asks for 「理由の区分」 and one category per member is what the rest of
+   * this union holds.
+   * ⛔ NOT `tooTall`. That one is FR-025's refusal to draw the picture at all,
+   * and the rasterizer is never even asked for it.
+   */
+  | 'rasterFailed'
+  /**
+   * AM-15: the application's own HTML could not be read, or the document could
+   * not be written into it -- `EmbeddedHtmlFault` (UT-5 of table T-063).
+   * ⚠️ LM-14's neighbourhood is the commonest of its three reasons: a page
+   * opened straight off the disk cannot always read itself back. That reason,
+   * too, travels in `what`.
+   */
+  | 'embeddedHtmlFailed'
   /**
    * ⛔ NOT A CATEGORY THE SPECIFICATION STATES. It exists because FR-028
    * forbids throwing (MUST NOT) and six members of table T-107 have nothing to
@@ -397,17 +418,27 @@ export interface AgentApi {
    */
   exportSvg(): AgentExport<string>
   /**
-   * AM-14. The image, failure included (AG-8). ⛔ Not wired -- see the member.
+   * AM-14. The image, failure included (AG-8).
+   *
+   * ⭐ A PROMISE, AND THE SIGNATURE IS THIS FILE'S TO SETTLE. The preamble of
+   * table T-107 says so in as many words: 「引数・戻り値は `src/` の公開エントリ
+   * が持ち、境界値は Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ」 --
+   * so no ruling was needed to make it one. PI-21's entry is a promise because
+   * IF-6 has to decode an image before it can paint it, and FR-028 forbids only
+   * the throw, not the wait.
    *
    * @purity semi-pure-b
    */
-  exportPng(): AgentExport<never>
+  exportPng(): Promise<AgentExport<Uint8Array>>
   /**
-   * AM-15. Application and document in one .html. ⛔ Not wired -- see the member.
+   * AM-15. Application and document in one .html.
+   *
+   * ⭐ A promise for AM-14's reason, and settled here on AM-14's authority:
+   * IF-8's `readAppShell` is one, because the shell fetches its own HTML.
    *
    * @purity semi-pure-b
    */
-  exportEmbeddedHtml(): AgentExport<string>
+  exportEmbeddedHtml(): Promise<AgentExport<string>>
 
   // ---- AM-16 -------------------------------------------------------------
   /**
@@ -454,6 +485,23 @@ export interface AgentApiWiring {
   readonly dialogueHolder: PostDialogueMessage.DialogueLogHolder
   /** PI-16's seam: who is told once an utterance is in the log. */
   readonly dialogueAudience: PostDialogueMessage.DialogueAudience
+  /**
+   * IF-6 of table T-065 (CP-31), which AM-14 paints IO-4 with.
+   *
+   * ⛔ PRESENT AND POSSIBLY `undefined`, NEVER OPTIONAL. The layer that holds
+   * the one implementation takes it as an optional argument -- a loop that runs
+   * for a path touching no picture is handed none -- so the absence is real and
+   * `exportPng` answers `notAvailable` for it. ⚠️ Making the FIELD optional
+   * instead would let a wiring forget it in silence, which is the one way this
+   * seam can go missing without anybody measuring it.
+   */
+  readonly rasterizer: ImageExporter.Rasterizer | undefined
+  /**
+   * IF-8 of table T-065, which AM-15 reads the application's own HTML through.
+   *
+   * ⚠️ Absent on the same terms as `rasterizer` above, and for the same reason.
+   */
+  readonly appShell: DocumentCodec.AppShellSource | undefined
   /**
    * The name every write and every utterance from this API is recorded under.
    *
@@ -1009,57 +1057,126 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity semi-pure-b */
-    exportPng(): AgentExport<never> {
-      // ⛔ NOT WIRED, AND THE OLD REASON WAS STALE (re-measured 2026-09-05).
-      // It said PI-21 published only the `Rasterizer` seam and that the answer's
-      // TYPE was undecided. Both are false now: `image-exporter.ts` publishes
-      // `exportPng(rasterizer, scene): Promise<ImageExport>`, and the shape is
-      // settled down to the bytes -- `Rastering.pngBytes` is a `Uint8Array`.
-      //
-      // ⛔ WHAT IS ACTUALLY MISSING IS THE SEAM, and it is missing OUTSIDE this
-      // component. `exportPng` needs an implementor of `Rasterizer` (IF-6);
-      // `AgentApiWiring` below carries none, and the layer that holds the one
-      // the person's own road uses hands this API only the snapshot source, the
-      // document holder, the change audience and the two dialogue seams.
-      // ⛔ NOT ADDED HERE AS AN OPTIONAL FIELD. A seam nobody supplies would
-      // compile and would still refuse, which is this same refusal wearing the
-      // costume of a fix. Reported: the wiring has to carry IF-6, and the side
-      // that builds the seams has to hand it over.
-      // ⚠️ TWO CONSEQUENCES FOR THE DAY IT LANDS. The member becomes a promise,
-      // because PI-21's entry is one and FR-028 forbids only the throw, not the
-      // wait; and the mid-gesture gate `exportSvg` carries applies to it word
-      // for word -- IO-4 is painted from the very picture IO-3 assembles, so a
-      // raster taken mid-drag shows the state no read of this API can answer
-      // with. AG-8 is already honoured: the failure is a value. Reported.
-      return {
-        ok: false,
-        refusal: notAvailable('AM-14', source.readSnapshot(), 'the wiring carries no Rasterizer (IF-6)'),
+    async exportPng(): Promise<AgentExport<Uint8Array>> {
+      // ⭐ WIRED (台帳 D-356). This member refused until now because
+      // `AgentApiWiring` carried no implementor of `Rasterizer` (IF-6); it
+      // carries one, and the whole of the work is handing it to PI-21's entry.
+      // ⛔ AND NO RULING WAS NEEDED TO MAKE THE SIGNATURE A PROMISE. The note
+      // that stood here said widening the face was 表 T-107's decision; the
+      // preamble of that table says the opposite in as many words -- 「引数・
+      // 戻り値は `src/` の公開エントリが持ち」 -- and the entry is this file.
+      const snapshot = source.readSnapshot()
+
+      // ⭐ THE SAME GATE AM-13 CARRIES, word for word and for its own reason:
+      // IO-4 is painted from the very picture IO-3 assembles, so a raster taken
+      // mid-drag shows the state no read of this API can answer with (AG-4 with
+      // AG-9).
+      if (snapshot.isGestureInFlight || snapshot.isEditingInPlace) {
+        const reason = snapshot.isGestureInFlight ? 'gestureInFlight' : 'editingInPlace'
+        return {
+          ok: false,
+          refusal: agentRefusal(
+            'AM-14',
+            reason,
+            snapshot,
+            'AG-4 with AG-9: the picture would not match what a read answers',
+            [],
+          ),
+        }
       }
+
+      const scene = snapshot.exportScene
+      if (scene === null) {
+        // BO-1 of table T-077 (MUST, NFR-011), exactly as AM-13 reads it: there
+        // is no picture yet, and inventing a size to paint at would answer with
+        // one the screen never showed.
+        return {
+          ok: false,
+          refusal: agentRefusal('AM-14', 'notDrawnYet', snapshot, 'BO-1: no frame yet', []),
+        }
+      }
+
+      const seam = wiring.rasterizer
+      if (seam === undefined) {
+        // ⚠️ A REAL ENVIRONMENT AND NOT A HOLE IN THE BUILD. `frame-loop.ts`
+        // takes IF-6 as an optional argument, so a loop running where nothing
+        // can paint -- Node, and the paths that touch no picture -- has none.
+        return {
+          ok: false,
+          refusal: notAvailable('AM-14', snapshot, 'the wiring carries no Rasterizer (IF-6)'),
+        }
+      }
+
+      const painted = await ImageExporter.exportPng(seam, scene)
+      // ⛔ THE SNAPSHOT IS THE ONE TAKEN BEFORE THE AWAIT, and every refusal
+      // below carries it. CS-4 of table T-066: the operation began against that
+      // document, and reading a fresh one here would answer a caller with a
+      // stamp its own call never stood at.
+      if (!painted.ok) {
+        // FR-025 with S-217 (CR-337): grown to the ceiling, the picture still
+        // does not fit, so the rasterizer was never asked. The same refusal
+        // AM-13 makes, because it is the same assembly.
+        return {
+          ok: false,
+          refusal: agentRefusal(
+            'AM-14',
+            'tooTall',
+            snapshot,
+            'FR-025 with S-217: grown to the ceiling, the picture still does not fit (MUST NOT draw part of one)',
+            [],
+          ),
+        }
+      }
+      if (!painted.png.ok) {
+        // AG-8 of table T-035 (MUST): a failed image comes back as a VALUE.
+        // ⭐ IF-6's own reason travels in `what` -- see `rasterFailed`.
+        return {
+          ok: false,
+          refusal: agentRefusal(
+            'AM-14',
+            'rasterFailed',
+            snapshot,
+            `IF-6 could not paint it (${painted.png.fault.reason}): ${painted.png.fault.what}`,
+            [],
+          ),
+        }
+      }
+      return { ok: true, value: painted.png.pngBytes }
     },
 
     /** @purity semi-pure-b */
-    exportEmbeddedHtml(): AgentExport<string> {
-      // ⛔ NOT WIRED, AND HALF OF THE OLD REASON WAS STALE (re-measured
-      // 2026-09-05). `exportEmbeddedHtml` IS published at DocumentCodec's entry,
-      // and IF-8's members are NOT a TODO any more -- `AppShellSource` declares
-      // `readAppShell(): Promise<AppShellReading>` and `AppShell` carries the
-      // HTML and the id of the element the document is written into.
-      //
-      // ⭐ THE HALF THAT WAS TRUE IS THE WHOLE OF WHAT BLOCKS THIS: the
-      // application's own HTML can only be read by the shell (IF-8's own note
-      // gives that as the reason the seam exists at all), and `AgentApiWiring`
-      // below carries no such seam. So this is AM-14's situation exactly, with
-      // IF-8 in place of IF-6 -- see that member for why an optional field is
-      // not the fix. IO-7 of table T-024 and FR-067 stay DocumentCodec's to
-      // answer, and this member would add nothing to them.
-      // ⚠️ It becomes a promise on the day it lands, for AM-14's reason.
-      // ⛔ NO MID-GESTURE GATE WHEN IT DOES: what goes into the file is
-      // `jsonFromDocument`'s text, not a picture, so AM-11's and AM-12's
-      // reading of CS-2 holds and AM-13's gate does not apply. Reported.
-      return {
-        ok: false,
-        refusal: notAvailable('AM-15', source.readSnapshot(), 'the wiring carries no AppShellSource (IF-8)'),
+    async exportEmbeddedHtml(): Promise<AgentExport<string>> {
+      // ⭐ WIRED (台帳 D-356), on AM-14's terms: what blocked this was IF-8 not
+      // reaching the wiring, and it reaches it now. IO-7 of table T-024 and
+      // FR-067 stay DocumentCodec's to answer, and this member adds nothing to
+      // them -- exactly as AM-11 and AM-12 add nothing to theirs.
+      // ⛔ NO MID-GESTURE GATE: what goes into the file is `jsonFromDocument`'s
+      // text and not a picture, so AM-11's and AM-12's reading of CS-2 holds
+      // and AM-13's gate does not apply.
+      const snapshot = source.readSnapshot()
+      const seam = wiring.appShell
+      if (seam === undefined) {
+        // ⚠️ The same real absence AM-14 records for IF-6.
+        return {
+          ok: false,
+          refusal: notAvailable('AM-15', snapshot, 'the wiring carries no AppShellSource (IF-8)'),
+        }
       }
+      const made = await DocumentCodec.exportEmbeddedHtml(seam, snapshot.document)
+      if (!made.ok) {
+        // ⛔ CS-4 again: the refusal carries the snapshot this call began at.
+        return {
+          ok: false,
+          refusal: agentRefusal(
+            'AM-15',
+            'embeddedHtmlFailed',
+            snapshot,
+            `UT-5 could not assemble it (${made.fault.reason}): ${made.fault.what}`,
+            [],
+          ),
+        }
+      }
+      return { ok: true, value: made.html }
     },
 
     // ---- AM-16 -----------------------------------------------------------

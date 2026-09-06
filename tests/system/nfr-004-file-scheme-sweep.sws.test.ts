@@ -336,7 +336,17 @@ const GEOMETRY_SCRIPT = `(() => {
   // 「日程表は横に長いバーが並ぶので、触れたものを取ると画面外まで伸びたバーが
   // 巻き込まれる」. What is taken is therefore the widest bar lying WHOLLY inside
   // the schedule area.
+  // ⛔ ONLY THE PLAN BOX IS GRABBABLE. item-hit-area.ts states it in as many
+  // words -- the actual bar's BODY is deliberately not a grab area, and only its
+  // ENDS are (GR-5 / GR-6 / GR-15). Before this filter the widest qualifying
+  // polygons after the sweep's zooms were -actual ones, so SL-7b pressed twice
+  // on ground that selects nothing and then read SL-7b's own MUST NOT -- the one
+  // about a range selection and a select-all making no order -- as a defect.
+  // Measured 2026-09-07: with the
+  // filter the same 22 preceding probes leave the dashed count 11 -> 11 -> 12 and
+  // IC-37 enabled.
   const boxes = [...svg.querySelectorAll('polygon')]
+    .filter((e) => (e.getAttribute('data-figure') || '').endsWith('-plan'))
     .map((e) => e.getBoundingClientRect())
     .filter((r) => r.width >= 40 && r.width <= 600 && r.height >= 8 &&
       r.top > area.top + 120 && r.bottom < area.bottom - 40 &&

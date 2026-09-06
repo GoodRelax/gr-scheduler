@@ -238,7 +238,8 @@
 | K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
 | K-111 | 画面の状態 | `pinnedRowMax` | ピン止めの件数の上限 |
 | K-73 | 表示の切り替え | `stackDirection` | 積む向き |
-| K-74 | 表示の切り替え | `planActualDisplay` | 予実の表示 |
+| K-122 | 表示の切り替え | `planVisible` | 予定の表示 |
+| K-123 | 表示の切り替え | `actualVisible` | 実績の表示 |
 | K-75 | 表示の切り替え | `assigneeVisible` | 担当ラベル |
 | K-76 | 表示の切り替え | `percentCompleteVisible` | 完了率ラベル |
 | K-77 | 表示の切り替え | `dependencyVisible` | 依存線 |
@@ -420,7 +421,6 @@
 | CM-54 | `HighlightBox` | `setHighlightBoxRange` | — | 囲む範囲を変える | `FR-016` |
 | CM-55 | `HighlightBox` | `setHighlightBoxStrokeColor` | — | 枠の色を置く | `FR-019` |
 | CM-56 | 見せ方の群 | `setStackDirection` | — | 積む向きを選ぶ | `FR-003` |
-| CM-57 | 見せ方の群 | `setPlanActualDisplay` | — | 予実の表示を選ぶ | `FR-049` |
 | CM-58 | 見せ方の群 | `setElementVisible` | — | 要素の表示を切り替える | `FR-049` |
 | CM-59 | 見せ方の群 | `setGuideCursorMode` | — | ガイドカーソルを選ぶ | `FR-048` |
 | CM-60 | 見せ方の群 | `setDualCursor` | ⭐ | 2 本のカーソルを置く | `FR-082` |
@@ -463,8 +463,8 @@
 | IC-4 | `App Header` | 文書 | 変更前の予定の重ねを表示する・非表示にする（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）| `FR-049`（`FR-015`）| — |
 | IC-5 | `App Header` | 履歴 | 編集を取り消す | `FR-031` | — |
 | IC-6 | `App Header` | 履歴 | 取り消した編集をやり直す | `FR-031` | — |
-| IC-8 | `App Header` | 表示 | 予定を表示する・非表示にする（`S-59` の 3 値のうち）| `FR-049` | — |
-| IC-9 | `App Header` | 表示 | 実績を表示する・非表示にする（同上）| `FR-049` | — |
+| IC-8 | `App Header` | 表示 | 予定を表示する・非表示にする（`S-227`。実績とは独立）| `FR-049` | — |
+| IC-9 | `App Header` | 表示 | 実績を表示する・非表示にする（`S-228`。予定とは独立）| `FR-049` | — |
 | IC-10 | `App Header` | 表示 | 全体を 1 画面に収める | `FR-055` | — |
 | IC-11 | `App Header` | 表示 | 全画面表示に入り、同じ入口で出る（`S-99f`）| `FR-071` | — |
 | IC-12 | `App Header` | 表示 | 時間軸を縮小する（`S-75`）| `FR-018` | — |

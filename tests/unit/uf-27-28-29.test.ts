@@ -143,6 +143,14 @@ const T_107 = [
  * component; AM-8, AM-9, AM-10: this component's own face has no way to carry
  * what the call takes) and are unchanged. See AM-12's own describe block below
  * for the claim that replaces this one.
+ *
+ * ⚠️ AM-14 AND AM-15 ARE WIRED IN `src/` SINCE 2026-09-07 (台帳 D-356), and
+ * they are still on this roster for a reason that is now the BENCH's rather
+ * than the component's: `wiring` below hands neither IF-6 nor IF-8, which is
+ * the environment a loop touching no picture runs in, and both members answer
+ * `notAvailable` for it. ⭐ So this walk still walks FR-028's MUST NOT -- an
+ * absent seam is answered with a value -- and the two rows are exercised
+ * against a REAL seam by the shipped-build probe instead.
  */
 const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-14', 'AM-15'] as const
 
@@ -426,6 +434,12 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         notifyChangeWatchers({ document: state.document, hasMovedSchedule: false, dialogue: log })
       },
     },
+    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 D-356). `AgentApiWiring`
+    // requires both fields and lets either be `undefined`, which is the shape a
+    // loop that touches no picture runs in; this bench is one of those, so
+    // AM-14 and AM-15 answer `notAvailable`.
+    rasterizer: undefined,
+    appShell: undefined,
     writerName,
     schemaVersion,
   }
@@ -587,8 +601,11 @@ function callEveryMember(api: AgentApi): void {
   api.exportJson()
   api.exportMspdi()
   api.exportSvg()
-  api.exportPng()
-  api.exportEmbeddedHtml()
+  // ⚠️ `void`, not awaited: this walk asks whether a call THROWS, and these two
+  // answer promises (台帳 D-356). Neither rejects -- the case just below pins
+  // that -- so nothing is left unhandled.
+  void api.exportPng()
+  void api.exportEmbeddedHtml()
   api.focusTask(FIRST_UID)
   api.watchChanges(() => undefined).stopWatching()
   api.postDialogueMessage('a settled utterance')
@@ -1253,44 +1270,51 @@ describe('AM-13 exportSvg -- the picture as a value', () => {
 describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () => {
   // ⭐ AM-12 (exportMspdi) left this roster 2026-09-05 -- see the note on
   // `T_035_UNWIRED` above. It is answered for separately below.
-  const callOf: Record<string, (api: AgentApi) => { readonly target: string } | null> = {
-    'AM-8': (api) => {
+  // ⭐ EVERY CALL IS AWAITED SINCE AM-14 AND AM-15 BECAME PROMISES (台帳
+  // D-356). The three that are not promises are awaited too, because `await` on
+  // a plain value answers that value -- so one shape walks all five rows, which
+  // is what Chapter 1.9 asks of a table-driven case.
+  const callOf: Record<
+    string,
+    (api: AgentApi) => Promise<{ readonly target: string } | null>
+  > = {
+    'AM-8': async (api) => {
       const answer = api.importDocument({ text: '{}' })
       return answer.accepted ? null : answer.refusal
     },
-    'AM-9': (api) => {
+    'AM-9': async (api) => {
       const answer = api.undoEdit()
       return answer.accepted ? null : answer.refusal
     },
-    'AM-10': (api) => {
+    'AM-10': async (api) => {
       const answer = api.redoEdit()
       return answer.accepted ? null : answer.refusal
     },
-    'AM-14': (api) => {
-      const answer = api.exportPng()
+    'AM-14': async (api) => {
+      const answer = await api.exportPng()
       return answer.ok ? null : answer.refusal
     },
-    'AM-15': (api) => {
-      const answer = api.exportEmbeddedHtml()
+    'AM-15': async (api) => {
+      const answer = await api.exportEmbeddedHtml()
       return answer.ok ? null : answer.refusal
     },
   }
 
-  it('answers each one with a refusal VALUE that names its own row (FR-028 MUST NOT throw)', () => {
+  it('answers each one with a refusal VALUE that names its own row (FR-028 MUST NOT throw)', async () => {
     const api = bench().api
     for (const row of T_035_UNWIRED) {
       const call = callOf[row]
       expect(call, row).toBeDefined()
-      const refusal = call?.(api) ?? null
+      const refusal = call === undefined ? null : await call(api)
       expect(refusal, `${row} answered as if it had done the work`).not.toBeNull()
       expect(refusal?.target, row).toBe(row)
     }
   })
 
-  it('none of them touches the document (a wrong answer wearing a right shape)', () => {
+  it('none of them touches the document (a wrong answer wearing a right shape)', async () => {
     const one = bench()
     const before = one.document
-    for (const row of T_035_UNWIRED) callOf[row]?.(one.api)
+    for (const row of T_035_UNWIRED) await callOf[row]?.(one.api)
     expect(one.document).toBe(before)
   })
 })
@@ -1502,7 +1526,8 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
 })
 
 // ---------------------------------------------------------------------------
-// FR-028 -- nothing on this surface throws, and nothing on it is a promise.
+// FR-028 -- nothing on this surface throws, and only the two rows that CANNOT
+// answer without waiting are promises.
 // ---------------------------------------------------------------------------
 
 describe('FR-028 -- accepted or refused, always as a value', () => {
@@ -1521,7 +1546,21 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     expect(() => callEveryMember(one.api)).not.toThrow()
   })
 
-  it('answers no promise from any row (an exception a caller cannot see is the same fault)', () => {
+  // ⛔⛔ THIS CASE COVERED ALL FIFTEEN CALLS UNTIL 2026-09-07 (台帳 D-356), AND
+  // ITS BLANKET CLAIM WAS NOT THE SPECIFICATION'S. FR-028 (MUST NOT) forbids the
+  // THROW -- 「受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）」 --
+  // and says nothing about waiting; AG-7 asks an export to come back as a value
+  // rather than as a download dialogue, and AG-8 asks a FAILED image to come
+  // back as a value. ⭐ A promise that always settles is both of those.
+  // ⛔ AND THE BLANKET FORM MADE AM-14 UNSATISFIABLE: IO-4 is painted by IF-6,
+  // whose one member is a promise because an image has to be decoded before it
+  // can be painted -- so a synchronous AM-14 could only ever answer that it had
+  // not been built, which is the opposite of FR-028's own point that the two
+  // entrances are equals.
+  // ⭐ WHAT THE CASE STILL PINS is the thirteen that answer from values already
+  // held: a read or a write that quietly became a promise would leave every
+  // caller holding an object instead of an answer.
+  it('answers no promise from the thirteen rows that need no wait (FR-028)', () => {
     const one = bench()
     const isThenable = (value: unknown): boolean =>
       typeof value === 'object' &&
@@ -1540,13 +1579,20 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.exportJson(),
       one.api.exportMspdi(),
       one.api.exportSvg(),
-      one.api.exportPng(),
-      one.api.exportEmbeddedHtml(),
       one.api.focusTask(FIRST_UID),
       one.api.postDialogueMessage('anything'),
     ]
 
     for (const answer of answers) expect(isThenable(answer)).toBe(false)
+  })
+
+  // ⭐ AND THE TWO THAT DO WAIT SETTLE RATHER THAN REJECT, which is the half of
+  // FR-028 that survives the widening: a rejected promise is an exception the
+  // caller has to catch, and AG-8 asks for the failure as a VALUE.
+  it('AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {
+    const one = bench()
+    await expect(one.api.exportPng()).resolves.toHaveProperty('ok')
+    await expect(one.api.exportEmbeddedHtml()).resolves.toHaveProperty('ok')
   })
 
   it('a subscriber that throws does not turn an accepted write into an exception', () => {

@@ -44,6 +44,7 @@ import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import {
   editDocument,
   type DocumentCommand,
+  type EditReport,
   type Refusal,
   type SettingsLimits,
 } from '../edit-document/edit-document'
@@ -120,6 +121,16 @@ export type ChangePlan =
        * R2.7 refuses, and two derivations are two chances to disagree.
        */
       readonly hasMovedSchedule: boolean
+      /**
+       * What WS-7 still has to TELL, gathered from every command of the bundle.
+       *
+       * ⭐ It travels for the same reason `hasMovedSchedule` does: the write
+       * measured it and the telling happens after the swap, so working it out
+       * again on the notifying side would be two derivations of one fact (R2.7)
+       * -- and the notifying side could not work this one out at all, because
+       * the figures it would compare have already been replaced.
+       */
+      readonly report: EditReport
     }
 
 /**
@@ -214,12 +225,17 @@ function isUndoable(command: DocumentCommand): boolean {
  */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
   return {
-    // UN-7 -- the eight boolean rows of table T-202, every one of them written
+    // UN-7 -- the ten boolean rows of table T-202, every one of them written
     // by `setElementVisible` (CM-58) and by nothing else.
+    // ⭐ `planVisible` (S-227) and `actualVisible` (S-228) JOINED THEM ON
+    // 2026-09-07 (the user's ruling): FR-049 split the one three-valued row
+    // S-59 into two independent booleans, and a boolean row of table T-202 is
+    // what UN-7 rules on. ⛔ CM-57, the command that wrote the enumeration,
+    // retired with it.
     // ⚠️ THE MULTI-VALUED ROWS OF THAT TABLE STAY INSIDE THE HISTORY (UN-13,
     // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
-    // `planActualDisplay` (S-59), `guideCursorMode` (S-66) and `fontScale`
-    // (S-70) are absent by ruling and not by omission.
+    // `guideCursorMode` (S-66) and `fontScale` (S-70) are absent by ruling and
+    // not by omission.
     // ⛔⛔ `watermarkVisible` (S-144) IS NOT AMONG THEM SINCE 2026-09-02, and
     // its absence is a ruling rather than an omission (利用者の裁定, CR-335):
     // the row LEFT table T-202 for table T-206 that day, so UN-7 -- which rules
@@ -228,6 +244,8 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     // the value is `ScreenState.watermarkVisible` now, and the history holds
     // the DOCUMENT, so a value the document does not carry cannot be rewound
     // by an undo in the first place.
+    planVisible: current.planVisible,
+    actualVisible: current.actualVisible,
     assigneeVisible: current.assigneeVisible,
     percentCompleteVisible: current.percentCompleteVisible,
     dependencyVisible: current.dependencyVisible,
@@ -521,6 +539,12 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // ---- WS-3: validate and build, all or nothing ---------------------------
   let held = input.document
   const refusals: Refusal[] = []
+  // FR-012's recount rides out of the aggregate on `EditReport`, and a bundle
+  // may hold more than one command that fills one in. ⭐ THE UIDS ARE UNIONED
+  // AND NOT THE COUNTS ADDED: two calendar commands in one bundle can move the
+  // same `Task` twice, and NT-3 of table T-037 asks how many things the result
+  // REACHES -- adding lengths would report one task as two.
+  const recountedTaskUids = new Set<number>()
   for (const command of input.commands) {
     const result = editDocument(held, command, input.settingsLimits)
     if (!result.ok) {
@@ -528,6 +552,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
       continue
     }
     held = result.document
+    for (const uid of result.report.recountedTaskUids) recountedTaskUids.add(uid)
   }
   // AG-3: one refusal throws the whole bundle away. `held` is dropped on the
   // floor -- nothing has been replaced, so there is nothing to roll back.
@@ -574,7 +599,13 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     }),
   }
 
-  return { ok: true, document, history, hasMovedSchedule }
+  return {
+    ok: true,
+    document,
+    history,
+    hasMovedSchedule,
+    report: { recountedTaskUids: [...recountedTaskUids] },
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -599,10 +630,11 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
 > & { readonly choice: TChoice }
 
 /**
- * The five callers of table T-230, each carrying only what its own row needs.
+ * The six callers of table T-230, each carrying only what its own row needs.
  *
  * ⚠️ RD-5 was 「自動保存からの復帰」 until CR-280 retired the autosave on the
- * user's ruling (2026-08-29). Its seat number stays burnt.
+ * user's ruling (2026-08-29). Its seat number stays burnt, which is why the six
+ * run RD-1 to RD-4 and then RD-6, RD-7.
  *
  * ⛔ THE ROW IS AN ARGUMENT, NEVER A GUESS. T-230 requires a caller to name its
  * own row (MUST) and forbids accepting a replacement that names none (MUST
@@ -629,6 +661,16 @@ export type ReplacementCall =
   | { readonly row: 'RD-4'; readonly importing: ImportCall<'replace'> }
   /** RD-6 -- the document at startup (FR-062, table T-034). The caller brings it. */
   | { readonly row: 'RD-6'; readonly document: Document }
+  /**
+   * RD-7 -- FR-095's 初期化. The caller brings 「表 T-034 の `BT-4` の同梱の雛形」.
+   *
+   * ⭐ A ROW OF ITS OWN AND NOT RD-6 REUSED, because the two differ in a column
+   * the path acts on: table T-230 gives RD-6 「空にする」 and RD-7 「捨てる」, and
+   * gives RD-7 the pair 「`FR-095` ／ `OP-4`」 for its 正. ⚠️ Naming RD-6 for an
+   * initialise would put OP-4's MUST on the history where nobody on the path
+   * checks it -- which is the very habit the table's MUST forbids.
+   */
+  | { readonly row: 'RD-7'; readonly document: Document }
 
 export interface ReplacementInput {
   /** What the holder holds, read ONCE (CS-3 of table T-066). */
@@ -824,6 +866,22 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
     // ⭐ The stamp comes through untouched. A stamp minted here would leave
     // FR-063's equality with nothing of the writing to compare against.
     case 'RD-6':
+      return replacementSettled(held, { document: call.document, history: emptyHistory() })
+
+    // RD-7 -- FR-095's 初期化. The caller brings the bundled template of BT-4,
+    // so the document it brought IS WS-3's answer, by the same sentence that
+    // settles RD-6: 「「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま
+    // `WS-3` の答えである。」
+    // ⭐ THE OTHER THREE COLUMNS ARE RD-4's, not RD-6's -- 「扱いは `RD-4` と同じ
+    // であり、選んだのではなく導いた」. The history is 捨てる (OP-4: 「取り消しの
+    // 履歴は引き継がない」), the stamp comes through 入ってきたまま, and no step is
+    // pushed. ⚠️ 捨てる and RD-6's 空にする land on the same value here and are
+    // NOT the same cell: RD-6 empties a history that had nothing in it, and this
+    // row throws away one that did.
+    // ⛔ THE TEMPLATE IS NOT VALIDATED AGAIN (T-230, MUST NOT), and the OP-4
+    // confirmation that has to come first is the CALLER's -- FR-095 puts it
+    // 「捨てる前に」, which is before this road is entered at all.
+    case 'RD-7':
       return replacementSettled(held, { document: call.document, history: emptyHistory() })
   }
 }

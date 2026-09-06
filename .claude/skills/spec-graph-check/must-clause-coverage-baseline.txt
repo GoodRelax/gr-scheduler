@@ -1,4 +1,9 @@
-935
+934
+#
+# LOWERED 935 -> 934 ON 2026-09-07 by the plan/actual split (FR-049, the
+# user's ruling). Three new clauses were written and all three are held
+# verbatim by tests/unit/uf-62.test.ts; the two clauses the ruling struck
+# went out with the enumeration they described.
 #
 # LOWERED 959 -> 935 ON 2026-09-07, THE SAME DAY IT WAS RAISED. The debt
 # booked as D-355 is paid: tests/unit/d-355-the-four-rulings-of-2026-09-07

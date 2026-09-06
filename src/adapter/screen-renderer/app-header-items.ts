@@ -246,24 +246,18 @@ function commandStateOf(
       return { isEnabled: session.canRedo !== false, isPressed: false }
 
     case PLAN_DISPLAY_ENTRY:
-      // ⛔ FR-049 (MUST NOT) refuses to let both halves be hidden, and S-59
-      // holds three values with no fourth standing for "neither" -- so hiding
-      // the plan has nowhere to go while the plan is the only half shown. That
-      // is the one state of this entry FR-029 asks to be drawn faint.
-      return {
-        isEnabled: settings.planActualDisplay !== 'plan-only',
-        isPressed: settings.planActualDisplay !== 'actual-only',
-      }
+      // ⭐ FR-049 (the user's ruling 2026-09-07): S-227 and S-228 are two
+      // independent booleans, and hiding both is allowed. ⛔ So this entry is
+      // never faint, and its state MUST NOT be read from the other half --
+      // 'independent' means the place that reads one does not read the other.
+      return { isEnabled: true, isPressed: settings.planVisible }
 
     case ACTUAL_DISPLAY_ENTRY:
       // The same rule read from the other side. ⭐ Written to look like the
       // case above because it IS the same rule (rule 03 section 4): a reader
       // who has to spot the difference twice will read a difference in meaning
       // into it.
-      return {
-        isEnabled: settings.planActualDisplay !== 'actual-only',
-        isPressed: settings.planActualDisplay !== 'plan-only',
-      }
+      return { isEnabled: true, isPressed: settings.actualVisible }
 
     case FULL_SCREEN_ENTRY:
       // FR-071: the same entry leaves full screen again, so what a second press

@@ -21,10 +21,16 @@
 // `edit-document/` may import it (Chapter 5.3, MUST NOT).
 
 import { workingCalendarOf } from '../../entity/document-model/schedule/schedule'
-import type { Calendar, WeekDay } from '../../entity/document-model/schedule/schedule'
+import type {
+  Calendar,
+  Schedule,
+  Task,
+  WeekDay,
+} from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
-import type { EditResult, Refusal } from './edit-document'
+import type { EditReport, EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
+import { repriced } from './edit-task'
 
 /**
  * CM-39 of table T-108.
@@ -79,17 +85,26 @@ const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 /**
  * Runs the Calendar command against the document.
  *
- * ⛔ FR-088 requires the number of affected `Task`s to be reported (MUST), and
- * nothing here reports it. That is the CALLER's business: the count rides on
- * a notice, and a notice is WS-7 of table T-067 -- after the swap, `non-pure`
- * -- while this file is WS-3, which CP-9 limits to validating and returning a
- * new document. `EditResult` has no room for a count either, and it is the
- * type every aggregate answers with.
+ * ⭐⭐ THE RECOUNT FR-012 ASKS FOR HAPPENS HERE, INSIDE THIS WRITE. That
+ * requirement (MUST, 利用者の裁定 2026-09-07) reads 「稼働日の暦を編集したときも、
+ * 格納済みの完了率を数え直すこと（MUST）」, and it fixes WHERE: 「暦の変更と同じ
+ * 書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）——
+ * 暦の変更は取り消せるので、分けると取り消しが暦だけを戻し、数え直した完了率が
+ * 残る」. ⚠️ So it is the SAME `Document` this function answers with -- one
+ * value, one undo step, and the two can no more come apart than the two halves
+ * of an edit reaching both `Calendar` and `Project` can (the head of this file).
  *
- * ⛔ Which `Task`s "影響する" counts is not decided anywhere: every task the
- * calendar reaches, and only those whose derived days actually move, are
- * different numbers, and neither FR-088 nor NT-3 of table T-037 -- which names
- * this requirement as its example -- says which of the two is meant.
+ * ⭐ THE COUNT LEAVES ON `EditReport`, not on a notice raised here. The telling
+ * is WS-7 of table T-067 -- after the swap, `non-pure` -- while this file is
+ * WS-3, which CP-9 limits to validating and returning a new document. What
+ * rides out is the list of `Task`s whose stored figure MOVED; its length is
+ * NT-3's count, and `RS-52` of table T-233 is the reason it rides on.
+ *
+ * ⛔ A DIFFERENT COUNT, STILL UNDECIDED: FR-088's own 「影響する `Task` の件数を
+ * 通知すること（MUST）」. Every task the calendar reaches, and only those whose
+ * derived days actually move, are different numbers, and FR-088 says which of
+ * the two it means nowhere. ⭐ FR-012's count IS decided -- 「値が変わった `Task`
+ * の件数」 -- and that is the one measured below.
  *
  * @purity pure
  */
@@ -193,9 +208,68 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
         // Nothing moved, so the schedule reference must not move either.
         return edited(document)
       }
-      return edited({ ...document, schedule: { ...schedule, calendars, project } })
+
+      // FR-012's recount, and only when the WORKED DAYS moved. `weekStartDay`
+      // is not an input to counting 稼働日: FR-054 counts them by the document's
+      // `Calendar`, and AT-17 is where the week RULER starts. A command that
+      // moved the week start alone changes no figure, so recounting for it
+      // would name tasks that did not move.
+      const recounted =
+        calendars === schedule.calendars
+          ? null
+          : recountedPercentComplete({ ...schedule, calendars, project })
+      const settled: Schedule = recounted?.schedule ?? { ...schedule, calendars, project }
+      const report: EditReport = { recountedTaskUids: recounted?.movedTaskUids ?? [] }
+      return edited({ ...document, schedule: settled }, report)
     }
   }
+}
+
+/**
+ * The schedule with every `Task`'s stored `percentComplete` counted again by
+ * the calendar this schedule now resolves to, and the uids of the ones whose
+ * figure MOVED.
+ *
+ * ⭐ FR-012 (MUST): 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと
+ * （MUST）」. Its reason, in that requirement's own words, is that both the
+ * numerator and the denominator are counted in working days, so the right
+ * figure moves when the calendar moves even though no date does. ⚠️ The figures are STORED, which is why they have to be
+ * written rather than derived at the paint: FR-012 stores them and FR-090 shows
+ * what FR-012 stored.
+ *
+ * ⛔ THE FORMULA IS NOT REPEATED HERE. FR-012 requires it kept in one place --
+ * 「この式を 1 か所に閉じ込め、呼ぶ側が式の中身に依存しない形にすること」 -- so
+ * `repriced` in `edit-task.ts` is asked, and this function only decides WHICH
+ * calendar to ask it about and WHO moved.
+ *
+ * ⚠️ WHO MOVED IS THE STORED FIGURE'S OWN COMPARISON, and not whether
+ * `repriced` built a new object -- it builds one every time. FR-012's count is
+ * 「値が変わった `Task` の件数」, so the value is what is compared, and a task
+ * whose figure stands is handed back as the very object it was: the schedule
+ * reference is then left alone when nothing moved at all, and
+ * `document-change-plan.ts` reads FR-063's schedule instant off that reference.
+ *
+ * @purity pure
+ */
+function recountedPercentComplete(schedule: Schedule): {
+  readonly schedule: Schedule
+  readonly movedTaskUids: readonly number[]
+} {
+  // ⚠️ Resolved from the schedule as it now stands, never from the one that
+  // came in: FR-054 puts the choice on `Project.calendarUid`, and the command
+  // above may have written into whichever row that resolves to.
+  const within = workingCalendarOf(schedule)
+  const movedTaskUids: number[] = []
+
+  const tasks: Task[] = schedule.tasks.map((task) => {
+    const next = repriced(within, task)
+    if (next.percentComplete === task.percentComplete) return task
+    movedTaskUids.push(task.uid)
+    return next
+  })
+
+  if (movedTaskUids.length === 0) return { schedule, movedTaskUids: [] }
+  return { schedule: { ...schedule, tasks }, movedTaskUids }
 }
 
 /**

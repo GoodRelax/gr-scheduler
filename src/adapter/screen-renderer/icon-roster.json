@@ -103,7 +103,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "予定を表示する・非表示にする（`S-59` の 3 値のうち）",
+   "entryTo": "予定を表示する・非表示にする（`S-227`。実績とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -114,7 +114,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "実績を表示する・非表示にする（同上）",
+   "entryTo": "実績を表示する・非表示にする（`S-228`。予定とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null

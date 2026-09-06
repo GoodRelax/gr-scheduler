@@ -363,7 +363,10 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
       actualStart: '2026-03-02',
       actualDuration: 40,
     })
-    const geometry = geometryOf(schedule, settingsOf({ ...SETTINGS, planActualDisplay: 'actual-only' }))
+    const geometry = geometryOf(
+      schedule,
+      settingsOf({ ...SETTINGS, planVisible: false, actualVisible: true }),
+    )
     const drawn = geometry.tasks[0]!
     expect(
       drawn.plan,

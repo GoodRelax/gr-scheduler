@@ -114,6 +114,7 @@
     "actualInitialDuration",
     "actualMin",
     "actualOfPlan",
+    "actualVisible",
     "appHeaderMaxHeight",
     "arrowHeadOfSpan",
     "arrowHeadOfStroke",
@@ -166,10 +167,10 @@
     "percentCompleteVisible",
     "pinnedGroupIds",
     "pinnedRowMax",
-    "planActualDisplay",
     "planActualGuidePattern",
     "planActualGuideWeight",
     "planStroke",
+    "planVisible",
     "progressLineOverhang",
     "progressLineVisible",
     "progressLineWidth",
@@ -234,6 +235,9 @@
     "actualOfPlan": {
      "type": "number",
      "minimum": 0.05
+    },
+    "actualVisible": {
+     "type": "boolean"
     },
     "appHeaderMaxHeight": {
      "type": "integer",
@@ -514,13 +518,6 @@
     "pinnedRowMax": {
      "type": "integer"
     },
-    "planActualDisplay": {
-     "enum": [
-      "both",
-      "plan-only",
-      "actual-only"
-     ]
-    },
     "planActualGuidePattern": {
      "type": "object",
      "required": [
@@ -546,6 +543,9 @@
      "type": "integer",
      "minimum": 0,
      "maximum": 4
+    },
+    "planVisible": {
+     "type": "boolean"
     },
     "progressLineOverhang": {
      "type": "integer",

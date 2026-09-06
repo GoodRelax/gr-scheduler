@@ -622,8 +622,10 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
     // S-65 is the one 多値 row that belongs to UN-12 rather than UN-13; the
-    // rest are the four UN-13 names below.
-    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-58', 'S-59', 'S-65', 'S-66', 'S-70'])
+    // rest are the three UN-13 names below. ⭐ S-59 left this list on
+    // 2026-09-07 by splitting into the booleans S-227 and S-228, which UN-7
+    // now covers with every other toggle (the user's ruling).
+    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-58', 'S-65', 'S-66', 'S-70'])
   })
 })
 
@@ -806,14 +808,6 @@ const UN_13_CASES: readonly InsideCase[] = [
     key: 'stackDirection',
     wanted: 'down',
     command: { kind: commandKindOf('CM-56'), direction: 'down' } as unknown as DocumentCommand,
-  },
-  {
-    // 予実の表示（`FR-049`）
-    commandRow: 'CM-57',
-    settingRow: 'S-59',
-    key: 'planActualDisplay',
-    wanted: 'plan-only',
-    command: { kind: commandKindOf('CM-57'), display: 'plan-only' } as unknown as DocumentCommand,
   },
   {
     // ガイドカーソル（`FR-048`）

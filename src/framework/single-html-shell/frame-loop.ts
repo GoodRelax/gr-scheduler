@@ -318,10 +318,19 @@ export interface FrameEnvironment {
    * row's band.
    *
    * ⛔ MEASURED LIKE THE HEADER'S HEIGHT AND FOR THE SAME KIND OF REASON: HF-19
-   * (MUST NOT) keeps the number out of the manuscript -- 「操作子の高さは字形
-   * （`S-138`）に余白を足したもので、読む人の文字サイズが動かす（`FR-039`）」 --
-   * so the side that drew the lattice answers it and the layout is handed the
-   * answer. ⚠️ It is NOT part of `ScreenEnvironment`: `regionsFromScreen` cuts
+   * of table T-051 keeps the NUMBER out of the manuscript -- it leaves the
+   * arithmetic to LF-3 and (MUST NOT) forbids copying the values S-138 and
+   * S-141 hold -- so the side that drew the lattice answers it and the layout is
+   * handed the answer.
+   * ⛔⛔ THIS FLOOR DOES NOT FOLLOW THE READER'S TEXT SIZE, and the note here
+   * said the opposite until 2026-09-07 (台帳 D-339): it quoted a sentence
+   * `docs/spec` does not contain, giving 「読む人の文字サイズが動かす（`FR-039`）」
+   * as the reason for measuring. ⛔ HF-19 forbids exactly that (MUST NOT) and
+   * LF-3 says the same, and FR-039 moves the size of a row's NAME and not of the
+   * controls (HF-5). ⚠️ The measuring is right; only the reason was wrong, so
+   * anyone who had "fixed" the code to agree with the quotation would have
+   * broken HF-19.
+   * ⚠️ It is NOT part of `ScreenEnvironment`: `regionsFromScreen` cuts
    * rectangles out of the window and this settles no rectangle.
    * ⚠️ ABSENT UNTIL THE FIRST PANEL HAS BEEN DRAWN -- there is no lattice to
    * measure before that -- and absent is the floor every band had before the
@@ -517,8 +526,13 @@ export interface FrameLoop {
    * ⚠️ ONE WATCHER, REPLACED BY THE NEXT. Nothing in table T-078 makes this a
    * trigger and no requirement asks for more than one listener; a second caller
    * would be a second holder of the public point.
-   * ⚠️ NOT CALLED BACK FOR THE STATE IT IS IN when it is set: it starts off,
-   * which FR-028 requires, so there is nothing to report until it moves.
+   * ⭐⭐ TOLD AT ONCE WHEN THE VALUE IS ALREADY ON, and that is a MUST rather
+   * than a convenience since D-280 closed. FR-065 (MUST): 「有効化はブラウザ
+   * （オリジン）ごとに記憶すること」, so a page opened at an origin where the
+   * person turned it on starts ON -- and a watcher that only heard TURNS would
+   * never place the public point, which is the remembering not being kept at
+   * all. ⛔ NOTHING IS SAID WHEN IT IS OFF: FR-028 (MUST) keeps it unexposed by
+   * default, and taking away a name nobody has placed is not a state to report.
    *
    * @purity non-pure
    */
@@ -1164,24 +1178,36 @@ const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
  * 鍵を作らない」. ⇒ The road would be `askToDiscardCurrentDocument(held.document)`
  * and then `replaceHeldDocument({ row, document: <the BT-4 template> })`.
  *
- * ⭐ THE `row` NOW EXISTS: table T-230 gained `RD-7`（`FR-095` の初期化）on
- * 2026-09-07, and its cells are RD-4's -- the caller brings the document
- * (BT-4's bundled template), the history is discarded, the stamp arrives as it
- * came, and no undo step is pushed. ⚠️ WHEN THIS BLOCK WAS WRITTEN the table
- * still closed at five rows and named no caller for FR-095, which is what the
- * paragraph below is still measuring against. ⛔ Read the table, not this note.
+ * ⭐ THE ROW OF THE SPECIFICATION NOW EXISTS: table T-230 gained `RD-7`
+ * （`FR-095` の初期化）on 2026-09-07, and its cells are RD-4's -- the caller
+ * brings the document (BT-4's bundled template), the history is discarded, the
+ * stamp arrives as it came, and no undo step is pushed.
+ *
+ * ⛔⛔ AND `src/` HAS NO SUCH ROW YET, WHICH IS WHERE THIS NOW STANDS (measured
+ * 2026-09-07). `ReplacementCall` in
+ * `src/use-case/apply-document-change/document-change-plan.ts` is the union of
+ * table T-230's callers and it holds five members -- RD-1, RD-2, RD-3, RD-4,
+ * RD-6 -- and `planReplacement` in the same file switches on exactly those
+ * five. ⇒ `replaceHeldDocument({ row: 'RD-7', ... })` does not compile, and that
+ * file is ApplyDocumentChange's, not this component's. TWO LINES ARE OWED
+ * THERE: a `| { readonly row: 'RD-7'; readonly document: Document }` beside
+ * RD-6's, and a `case 'RD-7'` treated as RD-4 is (history 「捨てる」, stamp as it
+ * came, no undo step). ⚠️ RD-6 MAY NOT BE BORROWED FOR IT: table T-230 (MUST)
+ * has a caller name its OWN row, and RD-6's history cell says 「空にする」 where
+ * RD-7's says 「捨てる」.
  *
  * ⛔ AND NEITHER HALF MAY BE SHIPPED ALONE. A branch that raised QN-5 and
  * discarded nothing on 「続ける」 is exactly the defect 規則 04 section 3.6
  * records from a real press -- 「消す確認が嘘をつく」 -- and telling `RS-27`
  * instead would be FR-029's fallback used for a hole in this build rather than
  * for the scene that row names. ⇒ The entrance stays drawn and unanswered until
- * the row exists, which is the state D-364 records.
+ * `ReplacementCall` carries RD-7.
  *
- * ⚠️ A SECOND THING IS MISSING BESIDE THE ROW: the template FR-027 keeps one of
- * is read in `single-html-shell.ts` (`startupTemplateDocument`) and no member
- * carries it into this loop, so the wiring owes one too -- `HeldDocumentCall`
- * is the shape it would arrive in.
+ * ⚠️ A THIRD THING IS OWED ON THIS SIDE AND IS SMALL: the template FR-027 keeps
+ * one of is read in `single-html-shell.ts` (`startupTemplateDocument`) and no
+ * member carries it into this loop. ⛔ NOT ADDED AHEAD OF THE ROW -- an argument
+ * nothing reads is dead weight this file would have to explain, and the shape
+ * it arrives in is decided by what `replaceHeldDocument` may be handed.
  */
 
 /**
@@ -2166,19 +2192,18 @@ const WEB_STORAGE_KEY_PREFIX = 'grsched.'
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
   'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
   'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
-  'S-99b': `${WEB_STORAGE_KEY_PREFIX}agentApiDocuments`,
+  'S-99b': `${WEB_STORAGE_KEY_PREFIX}agentApiEnabled`,
   'S-99c': `${WEB_STORAGE_KEY_PREFIX}unlockPasswordSha256`,
 }
 
 /**
  * The four rows of table T-206 LM-14 counts, as a census the compiler keeps.
  *
- * STOP -- ⛔ ONLY `S-99` HAS A PRODUCER IN THIS BUILD. The other three are
+ * STOP -- ⛔ TWO OF THE FOUR HAVE A PRODUCER IN THIS BUILD. The other two are
  * named so the set is visible and so the next owner has one place to add to,
- * and nothing WRITES them: S-99b is the record that turns the `Agent API` on
- * PER DOCUMENT, and S-99c is the unlock password's digest, which nothing asks
- * a person for -- `input-command-translator.ts` records that table T-037 has
- * no row for asking.
+ * and nothing WRITES them: S-99c is the unlock password's digest, which nothing
+ * asks a person for -- `input-command-translator.ts` records that table T-037
+ * has no row for asking.
  * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
  * ⭐ S-99a IS READ SINCE D-195 WAS CLOSED, and is still not written: FR-020's
  * watermark lays the name over the Row Area every frame, so `watermarkOpenedBy`
@@ -2188,11 +2213,14 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
  * schedule be drawn before they have. ⚠️ So every reader is drawn under the
  * SAME name until it lands, which is a weaker trail than GL-007 asks for and
  * is recorded here rather than papered over.
- * ⛔ S-99b IS NOT WAITING ON A PRODUCER, WHICH IS WHY IT IS STILL HERE. IC-20
- * now turns the `Agent API` on and `ScreenSession.isAgentApiEnabled` carries it
- * -- what is missing is the KEY's other half, 「文書の識別子」, which S-99b names
- * and does not define and which nothing in this build derives. `sessionOf`
- * carries the STOP and says where the same line was stopped at before.
+ * ⭐ S-99b IS READ AND WRITTEN SINCE D-280 WAS CLOSED. FR-065 (MUST) reads
+ * 「有効化はブラウザ（オリジン）ごとに記憶すること」 and S-99b's own note says
+ * 「オリジンごとに 1 つ」置く, so one key with no second half is the whole of it:
+ * `startupAgentApiEnabled` reads it and `setAgentApiEnabled` writes it.
+ * ⛔ THE KEY WAS `…agentApiDocuments` UNTIL THEN, and the plural was the shape
+ * of a rule that is gone -- FR-065 asked for the record PER DOCUMENT until
+ * 2026-09-05 and now records in its own words why that form could not stand
+ * (「文書を一意に指す手立てが仕様のどこにも無い」).
  */
 type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
@@ -2624,21 +2652,23 @@ function sessionOf(
     fileSavedAt,
     // FR-065: the person turned the `Agent API` on or off with IC-20, and this
     // is what they left it at.
-    // STOP -- ⛔ NOT REMEMBERED PER DOCUMENT, WHICH IS HALF OF THAT REQUIREMENT.
-    // FR-065 (MUST) has the enabling remembered per document and S-99b of table
-    // T-206 puts that record in `localStorage` keyed by 「文書の識別子」 -- and
-    // ⛔ NOTHING DERIVES ONE. S-99b names an identifier
-    // without defining one, and `Project.id` is not it (AT-1 is nullable and is
-    // marked as no primary key). ⚠️ So no key is invented and `BROWSER_STORED_KEY`
-    // stays unwritten. ⭐ The MUST NOT beside it IS kept: `replaceHeldDocument`
-    // puts this back to false on the three rows of table T-230 that do not carry
-    // the history forward, so what was opened for one document is not still in
-    // force for the next.
+    // ⭐ REMEMBERED, AND PER ORIGIN (台帳 D-280). FR-065 (MUST): 「有効化はブラウザ
+    // （オリジン）ごとに記憶すること」, and S-99b of table T-206 puts that record
+    // in `localStorage` 「オリジンごとに 1 つ」 -- `startupAgentApiEnabled` reads
+    // it and `setAgentApiEnabled` writes it, and neither needs a key for the
+    // document. ⛔ NOTHING PUTS IT BACK ON A NEW DOCUMENT any more: the MUST NOT
+    // that asked for that was struck on 2026-09-05, and the requirement now
+    // states the price of the wider scope itself.
     isAgentApiEnabled,
     // FR-066 / S-99i: IC-18's own switch, apart from the one above (D-149).
-    // ⛔ NOT REMEMBERED PER DOCUMENT EITHER, for the same reason the STOP above
-    // gives -- S-99i names an identifier the same way S-99b does and this build
-    // derives none, so `BROWSER_STORED_KEY` stays unwritten for this row too.
+    // ⛔ NOT REMEMBERED, AND NOT FOR THE REASON THE ROW ABOVE ONCE GAVE. The
+    // note here read 「S-99i names an identifier the same way S-99b does」 until
+    // D-280 closed, and that was measured false: S-99i names no identifier at
+    // all -- it is one value with one default (「表示」) and no key column, so
+    // `BrowserStoredRow` has no row for it and nothing is written.
+    // ⚠️ LEFT WHERE IT STANDS RATHER THAN GIVEN FR-065's ANSWER: PD-419 is
+    // 未裁定 and asks what S-99i does when the capability goes down and comes
+    // back, and borrowing the row above's scope would decide that here.
     isDialogueFieldVisible,
     pointer,
     // EZ-2 of table T-040 -- the two halves of its condition, both measured by
@@ -2953,10 +2983,13 @@ function viewSettings(
   // ⚠️ THE OFFSETS ARE CLEARED FOR THE REASON THE FIT CLEARS THEM: the
   // corner of the content is on the corner of the Row Area, so a fraction
   // left over from nothing would slide the first frame by a row and a day.
-  // ⚠️ AND ONLY WHILE THERE IS A DAY TO COVER. OP-10 (MUST): 「`Task` を 1 件も
-  // 持たない文書では、本行のこの除外は働かない」 -- there is nothing to count,
-  // and no day is invented in its place, so such a document falls to the fit
-  // below like any other.
+  // ⚠️ AND ONLY WHILE THERE IS A DAY TO COVER. OP-10 of table T-024a (MUST)
+  // withholds the BT-4 exclusion from a document that holds no `Task` at all --
+  // the row is POINTED AT rather than quoted, because the sentence that stood
+  // here was a paraphrase carrying a （MUST） it had not earned (台帳 D-339), and
+  // because that row itself warns against saying 「この除外」 twice for two
+  // different exclusions. ⇒ There is nothing to count, no day is invented in its
+  // place, and such a document falls to the fit below like any other.
   if (fromTemplate && covered.length > 0) {
     // ⭐ 「倍率は文書が持つものをそのまま使う」 -- OP-10's own sentence for this
     // branch, which is why it answers `true` beside the fit's `false`.
@@ -3879,6 +3912,33 @@ export function startupDisplayLanguage(): DisplayLanguage {
 }
 
 /**
+ * FR-065 (MUST): 「有効化はブラウザ（オリジン）ごとに記憶すること」 -- what this
+ * origin was left at, or off where it has never been turned on here.
+ *
+ * ⭐ ONE KEY AND NO SECOND HALF, which is S-99b's own shape: that row puts the
+ * record in `localStorage` 「オリジンごとに 1 つ」. ⚠️ The requirement records
+ * what this widening costs, in its own words -- 「1 つの文書で開いたことが、同じ
+ * ブラウザで開いた別の文書にも効く」 -- and answers it with the sentence above
+ * it, which this build keeps: 「有効であるあいだ、そのことを画面上に示すこと」.
+ * ⛔ SO NOTHING PUTS IT BACK TO FALSE ON A NEW DOCUMENT. The MUST NOT that once
+ * asked for that was struck on 2026-09-05 (台帳 D-280).
+ *
+ * ⚠️ ANYTHING BUT THE ONE SPELLING IS OFF, which is FR-065's own default rather
+ * than a guess: 「既定で公開しない」 is that requirement's RATIONALE, and FR-023
+ * calls every intake untrusted -- so a store that answers nothing, refuses
+ * outright, or answers something else all reach the same place.
+ *
+ * ⭐ PUBLISHED FOR THE SAME REASON `startupDisplayLanguage` IS: 「起動したとき」
+ * is table T-077's business, and the key and the store belong with the current
+ * value this loop holds.
+ *
+ * @purity semi-pure-b
+ */
+export function startupAgentApiEnabled(): boolean {
+  return readBrowserStored('S-99b') === String(true)
+}
+
+/**
  * ADR-001 -- the screen rectangles, the layout and the geometry are computed
  * ONCE at the head of a frame and handed out.
  *
@@ -4194,11 +4254,15 @@ export function frameLoop(
   // only two writers.
   // @provisional PD-338
   let isPropertiesPanelPutAway = false
-  // FR-065 -- whether the person has turned the `Agent API` on for the document
-  // being read. ⛔ Starts off, which is the judgement FR-065's RATIONALE calls
-  // 「既定で公開しない」. What is NOT kept, and why no key is written for it, is
-  // in `sessionOf`.
-  let isAgentApiEnabled = false
+  // FR-065 -- whether the person has turned the `Agent API` on at this origin.
+  // ⭐ SEEDED FROM S-99b, exactly as `language` two declarations down is seeded
+  // from S-99: FR-065 (MUST) 「有効化はブラウザ（オリジン）ごとに記憶すること」,
+  // and a value that started `false` every time would be that MUST unkept.
+  // ⛔ NOT PER DOCUMENT. That form was struck on 2026-09-05 and FR-065 records
+  // why in its own words -- 「文書を一意に指す手立てが仕様のどこにも無い」.
+  // ⚠️ Off where the store has nothing or refuses, which is FR-028's default
+  // and the judgement FR-065's RATIONALE calls 「既定で公開しない」.
+  let isAgentApiEnabled = startupAgentApiEnabled()
   // Who to tell when that turns, or `null` while nobody has asked.
   // ⛔ NOT A LIST. FR-065's public point is one name in one place, so one
   // listener is all there is to be; `watchAgentApiEnabling` says the same from
@@ -4207,10 +4271,11 @@ export function frameLoop(
   // FR-066 -- S-99i of table T-206, IC-18's own switch (D-149). ⭐ STARTS
   // `true`, which is that row's own default (「表示」). ⛔ A SEPARATE VALUE FROM
   // `isAgentApiEnabled` JUST ABOVE, and S-99i (MUST NOT) says so in as many
-  // words: one is the capability, this is what the reader chose to see. ⚠️
-  // Carried exactly the way `isAgentApiEnabled` is -- not written to
-  // `localStorage`, and not remembered per document, because S-99i keeps this
-  // in the environment and not in `Schedule`.
+  // words: one is the capability, this is what the reader chose to see. ⛔ AND
+  // NO LONGER CARRIED THE SAME WAY. The one above is seeded from S-99b and
+  // written back; this one is not, because PD-419 (未裁定) asks what S-99i does
+  // across the capability going down and coming back, and `BrowserStoredRow`
+  // holds no row for it -- see `sessionOf` for the false claim that stood here.
   let isDialogueFieldVisible = true
   // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
   // what startup settled on -- S-99 if the store had it, the host otherwise --
@@ -6149,18 +6214,28 @@ export function frameLoop(
   /**
    * FR-065 -- the enabling moved, so whoever places the public point is told.
    *
-   * ⭐ ONE DOOR FOR BOTH WAYS AND FOR BOTH REASONS. A person moves it with IC-20
-   * and a whole-document replacement puts it back to false, and the party that
-   * has to install or uninstall may not learn about one of those and not the
-   * other. ⛔ Nothing is told when it did not move: FR-028's exposure is a state,
+   * ⭐ ONE DOOR, so the party that has to install or uninstall hears every turn.
+   * ⛔ Nothing is told when it did not move: FR-028's exposure is a state,
    * not an event, and telling twice would have the installer place the name over
    * a reference it had already handed out.
+   *
+   * ⭐⭐ AND ONE DOOR IS WHERE S-99b IS WRITTEN. FR-065 (MUST): 「有効化はブラウザ
+   * （オリジン）ごとに記憶すること」, and S-99b of table T-206 puts that record in
+   * `localStorage`, 「オリジンごとに 1 つ」 -- so the key has no second half and
+   * every turn of this value is the whole of what there is to remember.
+   * ⛔ THE SPELLING OF THE TWO STATES IS NOT A VALUE OF THE SPECIFICATION AND
+   * NOT ONE THIS FILE CHOSE. S-99b states THAT the enabling is remembered and
+   * states no spelling for it, so the language's own words for a boolean are
+   * used and are asked for rather than typed -- `startupAgentApiEnabled` reads
+   * the same `String(true)` back, and nothing outside this file ever sees the
+   * string.
    *
    * @purity non-pure
    */
   function setAgentApiEnabled(next: boolean): void {
     if (next === isAgentApiEnabled) return
     isAgentApiEnabled = next
+    writeBrowserStored('S-99b', String(next))
     agentApiEnablingWatch?.(next)
   }
 
@@ -6777,25 +6852,14 @@ export function frameLoop(
       // has the preview worked out again at the end of `receiveInput`, from the
       // document this call just put in place.
       previewDocument = null
-      // FR-065 (MUST): 「1 つの文書で開いたことが、別の文書を開いたときにも効いて
-      // いてはならない」.
-      //
-      // ⭐ WHICH ROWS ARE 「別の文書」 IS TABLE T-230's OWN ANSWER, read off its
-      // 履歴 column rather than judged here: RD-4 and RD-6 say 「捨てる」 or
-      // 「空にする」, which is that table saying the document now current is not a
-      // continuation of the one that was. ⚠️ The other three carry it forward --
-      // RD-1 and RD-2 restore an earlier state of the SAME document and RD-3
-      // merges into the one being read (「いまのものを残す」) -- so turning the
-      // `Agent API` off on an undo would take a person's choice away for nothing.
-      // ⛔ THIS IS THE HALF OF FR-065 THAT CAN BE KEPT WITHOUT AN IDENTIFIER.
-      // The remembering half needs one and nothing derives one; `sessionOf`
-      // carries that STOP.
-      // ⭐ THROUGH THE ONE DOOR, so the side that placed the public point hears
-      // this turn as well as IC-20's -- an entrance left standing over a
-      // document the person never opened it for is the exposure FR-028 forbids.
-      if (call.row === 'RD-4' || call.row === 'RD-6') {
-        setAgentApiEnabled(false)
-      }
+      // ⛔⛔ NOTHING TURNS THE `Agent API` OFF HERE ANY MORE (台帳 D-280). A
+      // `setAgentApiEnabled(false)` stood on RD-4 and RD-6 under a quotation of
+      // FR-065 -- 「1 つの文書で開いたことが、別の文書を開いたときにも効いていては
+      // ならない」 -- and that MUST NOT was struck on 2026-09-05. The requirement
+      // now reads 「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」 and
+      // names the price in the same breath: 「1 つの文書で開いたことが、同じ
+      // ブラウザで開いた別の文書にも効く」. ⇒ Putting it back on a replacement is
+      // a violation of the rule as it stands, not the keeping of one.
       // FR-100 -- what the leave guard is asked about. ⭐ THE SAME COLUMN
       // ANSWERS IT: the two rows that say 「捨てる」 or 「空にする」 put a
       // document up that came from a file or from the template, so nothing
@@ -9981,11 +10045,24 @@ export function frameLoop(
       source: snapshotSource,
       holder,
       audience,
+      // ⭐ IF-6 AND IF-8, HANDED ON RATHER THAN BUILT A SECOND TIME (台帳 D-356).
+      // Both arrived as arguments of this loop -- `canvasRasterizer` (CP-31) and
+      // `appShellSource` -- and AM-14 and AM-15 paint IO-4 and assemble IO-7
+      // from exactly the two the person's own road uses, which is what makes the
+      // two entrances equals (FR-028).
+      // ⚠️ `undefined` TRAVELS TOO, and the members answer `notAvailable` for it:
+      // a loop running where nothing can paint is handed neither.
+      rasterizer,
+      appShell,
       ...dialogueSeams,
     }),
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {
       agentApiEnablingWatch = watch
+      // See the declaration: S-99b may have started this page ON, and a watcher
+      // told only about TURNS would leave FR-065's remembered enabling with no
+      // public point behind it.
+      if (isAgentApiEnabled) watch(true)
     },
     /** @purity non-pure */
     raiseStartupNotice(reason: StartupNoticeReason, affectedCount: number | null = null): void {

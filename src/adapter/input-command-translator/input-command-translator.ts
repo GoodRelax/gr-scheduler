@@ -2571,13 +2571,13 @@ const ENTRY = {
   /** IC-7 -- FR-053, S-99e. SK-14. */
   palette: 'IC-7',
   /**
-   * IC-8 / IC-9 -- the plan half and the actual half of S-59.
+   * IC-8 / IC-9 -- the plan half (S-227) and the actual half (S-228).
    *
-   * ⛔ TWO ENTRIES OVER THREE VALUES, WHICH IS NOT TWO BOOLEANS. FR-049 (MUST)
-   * makes the plan/actual display a three-valued enumeration and (MUST NOT)
-   * refuses the fourth combination -- both hidden. `planActualDisplayFrom`
-   * answers what each press moves to, including the press that asks for the
-   * refused one.
+   * ⭐ TWO ENTRIES OVER TWO INDEPENDENT BOOLEANS (FR-049, the user's ruling
+   * 2026-09-07). A press flips the half it names and leaves the other half
+   * exactly as it stands. ⛔ Hiding both is allowed: the MUST NOT that once
+   * forbade it was struck as wrong, and the three-valued enumeration that stood
+   * in its place went with it.
    */
   planDisplay: 'IC-8',
   actualDisplay: 'IC-9',
@@ -3004,6 +3004,8 @@ type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['e
 
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
   'IC-4': 'baselineVisible',
+  'IC-8': 'planVisible',
+  'IC-9': 'actualVisible',
   'IC-39': 'progressLineVisible',
   'IC-40': 'progressMarkerVisible',
   'IC-42': 'dateGridLinesVisible',
@@ -3048,43 +3050,6 @@ function guideCursorModeOfEntry(entry: string): GuideCursorMode | null {
   return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
     ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as GuideCursorMode)
     : null
-}
-
-/** The three values S-59 admits, taken from the command rather than restated. */
-type PlanActualDisplay = Extract<DocumentCommand, { kind: 'setPlanActualDisplay' }>['display']
-
-/**
- * What S-59 becomes when the plan half (IC-8) or the actual half (IC-9) is
- * pressed, or `null` when the press asks for the state FR-049 refuses.
- *
- * ⭐ TWO ENTRANCES OVER THREE VALUES. Each entry is worded 「出す・しまう」, so a
- * press flips the half it names and leaves the other half as it stands -- which
- * is a full pair of booleans everywhere except one corner: hiding the only half
- * still showing would leave neither, and FR-049 states (MUST NOT) that both
- * MUST NOT be hidden. That corner is the whole reason S-59 is an enumeration of
- * three rather than two independent toggles, and it is why this answers `null`
- * rather than a value: there is no value to move to.
- *
- * ⛔ THE REFUSED PRESS DOES NOT FALL THROUGH TO THE OTHER HALF. Reading 「予定
- * をしまう」 from `'plan-only'` as `'actual-only'` would obey the letter and
- * show the actual, which is not what was asked for -- and FR-049's reason for
- * the rule is that a screen with no bars looks broken, not that some bar must
- * be swapped in.
- * ⚠️ NOTHING IS SAID TO THE PERSON HERE. Table T-037 places no notice on this
- * refusal, and this file may not mint one.
- *
- * @purity pure
- */
-function planActualDisplayFrom(
-  display: PlanActualDisplay,
-  isPlanHalf: boolean,
-): PlanActualDisplay | null {
-  const isShownNow = display === 'both' || display === (isPlanHalf ? 'plan-only' : 'actual-only')
-  if (!isShownNow) return 'both'
-  // The half pressed is showing, so the press hides it and the other half is
-  // what is left -- unless the other half is not showing either.
-  if (display !== 'both') return null
-  return isPlanHalf ? 'actual-only' : 'plan-only'
 }
 
 /**
@@ -4568,20 +4533,12 @@ function commandFromEntry(
     case ENTRY.dependencyVisible:
       return commandFromVisibleElementEntry(entry, context)
     case ENTRY.planDisplay:
-    case ENTRY.actualDisplay: {
-      // CM-57 -- FR-049's three values. `planActualDisplayFrom` holds the rule
-      // and says why a press can have nowhere to go.
-      const display = planActualDisplayFrom(
-        context.document.documentSettings.planActualDisplay,
-        entry === ENTRY.planDisplay,
-      )
-      // FR-029 (MUST): this is the one state of the pair `commandStateOf`
-      // (UF-62) draws faint -- 「both hidden」 is the combination FR-049 (MUST
-      // NOT) refuses and S-59 has no fourth value for -- so the press is told
-      // why it did nothing rather than swallowed.
-      if (display === null) return nothingToDo('onlyOneOfPlanAndActualShown')
-      return changed([{ kind: 'setPlanActualDisplay', display }])
-    }
+    case ENTRY.actualDisplay:
+      // ⭐ S-227 / S-228 GO THE ORDINARY ROAD (CM-58). FR-049 (the ruling of
+      // 2026-09-07) made them two independent booleans of table T-202, which is
+      // exactly what `commandFromVisibleElementEntry` answers for.
+      // ⛔ CM-57 retired with the three-valued row it existed to write.
+      return commandFromVisibleElementEntry(entry, context)
     case ENTRY.themePreference: {
       // CM-63 -- FR-039's light/dark, which S-72 holds two values for. ⚠️ The
       // saved value is a STARTING value and not a binding one (FR-039, MUST

@@ -24,17 +24,31 @@
 // `installAgentApi` below. Two consequences worth stating, because both are
 // somebody else's work and neither is missing by accident:
 //
-//   * WHO may turn it on, and how it is remembered. FR-065 makes enabling a
-//     per-document memory (MUST) and S-99b of table T-206 puts that record in
-//     `localStorage`, keyed by the document, deliberately NOT in the document:
-//     enabling is the reader's judgement, not the document's content. That is
+//   * WHO may turn it on, and how it is remembered. FR-065 (MUST, 利用者の裁定
+//     2026-09-05): 「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）——
+//     有効にするかどうかは読む人の道具立ての判断であって、文書の性質ではない」,
+//     and it says the cost out loud: 「1 つの文書で開いたことが、同じブラウザで
+//     開いた別の文書にも効く」. S-99b of table T-206 puts that record in
+//     `localStorage`, ONE per origin, deliberately NOT in the document. That is
 //     the Framework's to hold (LY-5), and the startup flag FR-028's RATIONALE
 //     admits is the shell's too.
-//     ⚠️ THE TURNING ON NOW EXISTS AND THE INSTALLING STILL DOES NOT. IC-20 of
-//     table T-109 moves `ScreenSession.isAgentApiEnabled`, but no caller of
-//     `installAgentApi` reads it, so pressing IC-20 opens no entrance and the
-//     memory S-99b asks for is not written either -- `single-html-shell.ts`
-//     carries the STOP that says what each of the two is waiting on.
+//     ⚠️ UNTIL 2026-09-05 THE REQUIREMENT SAID 「文書ごとに記憶する」 and this
+//     note said so with it. ⛔ That form did not stand up: nothing in the
+//     specification points at one document uniquely -- AT-1 (`Project.id`)
+//     admits `null` and is not a primary key.
+//     ⭐ THE TURNING ON AND THE INSTALLING BOTH EXIST (measured 2026-09-07):
+//     IC-20 of table T-109 moves `ScreenSession.isAgentApiEnabled`, and
+//     `single-html-shell.ts` watches that through `watchAgentApiEnabling` and
+//     calls `installAgentApi` on the way up, deleting the name again on the way
+//     down. ⛔ A NOTE HERE CLAIMED THE OPPOSITE until 2026-09-07 -- 「no caller
+//     of `installAgentApi` reads it, so pressing IC-20 opens no entrance」 --
+//     and it was false.
+//     ⛔ THE SEAM THAT IS STILL OPEN IS THE WRITE, and it is not this
+//     component's: `frame-loop.ts` declares S-99b's key and nothing writes it,
+//     so the enabling lasts as long as the page instead of as long as the
+//     origin. ⚠️ Nothing in this folder can close it -- LY-5 leaves
+//     `localStorage` with the Framework, and this component has no reader of
+//     the flag at all.
 //   * THAT it is on has to be visible while it is on (FR-065, MUST). UF-62 of
 //     table T-075 owns that indicator and `app-header-items.ts` draws it, so
 //     this half is kept.

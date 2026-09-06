@@ -31,6 +31,7 @@ export interface DocumentSettings {
   readonly actualInitialDuration: number
   readonly actualMin: number
   readonly actualOfPlan: number
+  readonly actualVisible: boolean
   readonly appHeaderMaxHeight: number
   readonly arrowHeadOfSpan: number
   readonly arrowHeadOfStroke: number
@@ -93,13 +94,13 @@ export interface DocumentSettings {
   readonly percentCompleteVisible: boolean
   readonly pinnedGroupIds: readonly string[]
   readonly pinnedRowMax: number
-  readonly planActualDisplay: 'both' | 'plan-only' | 'actual-only'
   readonly planActualGuidePattern: {
     readonly off: number
     readonly on: number
   }
   readonly planActualGuideWeight: number
   readonly planStroke: number
+  readonly planVisible: boolean
   readonly progressLineOverhang: number
   readonly progressLineVisible: boolean
   readonly progressLineWidth: number
@@ -165,6 +166,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'actualInitialDuration': 1,
   'actualMin': 16,
   'actualOfPlan': 0.73,
+  'actualVisible': true,
   'appHeaderMaxHeight': 56,
   'arrowHeadOfSpan': 0.4,
   'arrowHeadOfStroke': 3.2,
@@ -220,11 +222,11 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'percentCompleteVisible': false,
   'pinnedGroupIds': [],
   'pinnedRowMax': 5,
-  'planActualDisplay': 'both',
   'planActualGuidePattern.off': 2,
   'planActualGuidePattern.on': 2,
   'planActualGuideWeight': 1,
   'planStroke': 1,
+  'planVisible': true,
   'progressLineOverhang': 6,
   'progressLineVisible': false,
   'progressLineWidth': 2,

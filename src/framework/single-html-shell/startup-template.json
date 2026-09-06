@@ -40912,6 +40912,7 @@
   "actualInitialDuration": 1,
   "actualMin": 16,
   "actualOfPlan": 0.73,
+  "actualVisible": true,
   "appHeaderMaxHeight": 56,
   "arrowHeadOfSpan": 0.4,
   "arrowHeadOfStroke": 3.2,
@@ -40971,13 +40972,13 @@
   "percentCompleteVisible": false,
   "pinnedGroupIds": [],
   "pinnedRowMax": 5,
-  "planActualDisplay": "both",
   "planActualGuidePattern": {
    "off": 2,
    "on": 2
   },
   "planActualGuideWeight": 1,
   "planStroke": 1,
+  "planVisible": true,
   "progressLineOverhang": 6,
   "progressLineVisible": false,
   "progressLineWidth": 2,
