@@ -1288,6 +1288,12 @@ NOT_STORED_TARGETS = {
     # of SL-1, so the two are not one subject. ⚠️ S-178 is read by both and
     # stands in one place: it is the multiplier SL-8 states, and DC-8 reaches
     # it by naming that row rather than restating the number.
+    # ⛔ NOT FOLDED INTO THE SELECTION LINE EITHER. S-224 is the halo FR-009
+    # lays on the dependency line in front, and its subject is the DEPENDENCY,
+    # not the selection sign -- the halo is drawn on every line, selected or
+    # not, and only the ORDER changes when one is selected. ⭐ Like S-178 it is
+    # a multiplier on the line's own width (S-18) rather than a length.
+    'NOT_STORED_DEPENDENCY_SIZES': (['S-224'], DRAWN_INTO_THE_EXPORTED_PICTURE),
     'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194'], DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
@@ -2200,6 +2206,7 @@ TARGETS = [
     # one into an exported picture and not the other.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEPENDENCY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2

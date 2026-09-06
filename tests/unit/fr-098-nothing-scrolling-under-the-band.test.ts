@@ -364,8 +364,15 @@ interface Figure {
   readonly opacity: number
 }
 
-/** Tags whose whole subtree defines something rather than drawing it. */
-const SKIP = new Set(['defs', 'clipPath', 'marker', 'style', 'title', 'desc'])
+/**
+ * Tags whose whole subtree defines something rather than drawing it.
+ *
+ * ⭐ `mask` JOINS `clipPath` HERE for the same reason (FR-009's crossing
+ * halo, ruling 2026-09-06): its `<rect>` children mark what NOT to paint the
+ * halo across and are never themselves painted, exactly as `clipPath`'s own
+ * `<rect>` already was not.
+ */
+const SKIP = new Set(['defs', 'clipPath', 'mask', 'marker', 'style', 'title', 'desc'])
 const LEAF = new Set(['rect', 'line', 'circle', 'ellipse', 'polygon', 'polyline', 'path', 'text'])
 
 const attrOf = (attrs: string, name: string): string | null => {

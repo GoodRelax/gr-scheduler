@@ -373,11 +373,20 @@ const onlyIn = (picture: string, other: string): readonly Element[] => {
   return paintedOf(picture).filter((drawn) => !there.includes(settledText(drawn)))
 }
 
-/** The one polyline a scene with no 基準日 draws: the 依存線. */
+/**
+ * The one polyline a scene with no 基準日 draws: the 依存線.
+ *
+ * ⛔⛔ NOT "the one polyline": FR-009's crossing halo (ruling 2026-09-06) is
+ * drawn as a SECOND polyline immediately before this one, in the same 地の色
+ * `FR-019`'s comment box takes -- so `marker-end` (GD-6) is what still finds
+ * the 依存線 itself among the two.
+ */
 const dependencyIn = (svg: string): Element => {
-  const found = paintedOf(svg).filter((drawn) => drawn.tag === 'polyline')
+  const found = paintedOf(svg).filter(
+    (drawn) => drawn.tag === 'polyline' && attribute(drawn.text, 'marker-end') !== null,
+  )
   if (found.length !== 1) {
-    throw new Error(`the scene should draw exactly one polyline, it drew ${found.length}`)
+    throw new Error(`the scene should draw exactly one 依存線, it drew ${found.length}`)
   }
   return found[0] as Element
 }

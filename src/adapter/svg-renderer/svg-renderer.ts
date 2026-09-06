@@ -318,6 +318,22 @@ function cornersOfBar(bar: BarGeometry): Path {
 }
 
 /**
+ * One opaque rectangle for the FR-009 bar-exclusion `<mask>`: black hides,
+ * so this is the shape a dependency's halo must not be drawn across.
+ *
+ * ⭐ THE SAME `ScreenRect` `selectionParts` frames a few lines below --
+ * `boxOfPoints(cornersOfBar(...))` -- and not a second notion of "the bar".
+ *
+ * @purity pure
+ */
+function barMaskRectSvg(box: ScreenRect): string {
+  return (
+    `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
+    ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"/>`
+  )
+}
+
+/**
  * The four corners of a rectangle CENTRED on one point.
  *
  * ⚠️ ITS ONE CALLER HANDS IT A MIDDLE IT WORKED OUT, never a day's edge:
@@ -1465,6 +1481,12 @@ export function svgFromSchedule(
   // capable of crossing into the band as a bar is, so it gets the same split.
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
+  // FR-009 (MUST NOT, ruling 2026-09-06): the crossing halo must not paint
+  // over a bar. Collected here, alongside every plan/actual bar the task loop
+  // below already draws, and turned into a <mask> once the loop is done --
+  // no separate pass over the Tasks and no per-crossing search, only the same
+  // rectangles `selectionParts` already reads off `cornersOfBar`.
+  const barMaskParts: string[] = []
   // ⛔ TABLE T-020 HAS NO ROW FOR AN ANNOTATION, so where a comment box sits
   // among the six is decided here rather than read. It goes OVER ZO-5's name
   // labels: NFR-007 makes 4.5:1 a MUST for the comment box's own text, and a
@@ -1678,6 +1700,11 @@ export function svgFromSchedule(
     )
     if (task.plan !== null) {
       ;(isPinnedTask ? planPartsPinned : planParts).push(barSvg(task.plan, plan))
+      // FR-009's bar-exclusion mask, the plan half. Same rectangle SL-8's
+      // selection frame reads a few lines below (`boxOfPoints` over
+      // `cornersOfBar`) -- no shape of its own is minted here either.
+      const planBarBox = boxOfPoints(cornersOfBar(task.plan))
+      if (planBarBox !== null) barMaskParts.push(barMaskRectSvg(planBarBox))
     }
     for (const guide of task.guides) {
       // S-105: the guide takes the ACTUAL bar's colour, because it is the line
@@ -1692,6 +1719,9 @@ export function svgFromSchedule(
     }
     if (task.actual !== null) {
       ;(isPinnedTask ? actualPartsPinned : actualParts).push(barSvg(task.actual, actual))
+      // FR-009's bar-exclusion mask, the actual half.
+      const actualBarBox = boxOfPoints(cornersOfBar(task.actual))
+      if (actualBarBox !== null) barMaskParts.push(barMaskRectSvg(actualBarBox))
     }
     // FR-043 (MUST): two faint grab handles on a Task not started, one on a
     // milestone. ⛔ EP-14 of table T-076 keeps them out of the exported
@@ -1877,6 +1907,12 @@ export function svgFromSchedule(
     `${rounded(width)}x${rounded(height)}|${geometry.tasks.length}` +
       `|${geometry.dependencies.length}|${selected.size}|${schedule.project.title ?? ''}`,
   )}`
+  // FR-009's bar-exclusion mask (MUST NOT paint the crossing halo over a
+  // bar). One id per picture, the same way `arrowId` is minted -- reused by
+  // every halo polyline the loop below draws, never rebuilt per link.
+  const dependencyHaloMaskId = `grs-dependency-halo-mask-${pictureId(
+    `${rounded(width)}x${rounded(height)}|${barMaskParts.length}`,
+  )}`
   const defsParts: string[] = []
 
   // D-170 / FR-098's new ⛔⛔: 「スクロールする行を帯の下へ潜らせてはならない」
@@ -1911,14 +1947,42 @@ export function svgFromSchedule(
   // T-020a (MUST) asks for the head, so that was a live violation.
   // ⛔ The list is shared. Nothing may read its length to mean 'nobody has
   // written anything yet' -- ask about the thing itself.
+  // FR-009 (MUST, ruling 2026-09-06): 「① 選ばれている依存線が常に手前である。
+  // ② そのほかは、後に作られた線が手前である」. `geometry.dependencies` is
+  // ALREADY back-to-front by ②: it is built by walking `schedule.tasks` and
+  // each Task's own `dependencies` in document order (RC-6's 「作られる順は
+  // 入力が決める」), so nothing here re-derives "created order" -- a stable
+  // sort on "is it selected" alone moves ①'s lines to the front while
+  // leaving every tie (both selected, or both not) in that same order.
+  // ⛔ `Array.prototype.sort` is stable (ES2019+), which ② depends on.
+  const orderedDependencies = [...geometry.dependencies].sort((a, b) => {
+    const aFront = selectedLinks.has(`${a.predecessorUid}>${a.successorUid}`) ? 1 : 0
+    const bFront = selectedLinks.has(`${b.predecessorUid}>${b.successorUid}`) ? 1 : 0
+    return aFront - bFront
+  })
+  // S-224 (table T-206) is a multiplier on the line's OWN thickness (S-18),
+  // not on whatever `selectedLineWidth` below thickens it to for SL-8 -- the
+  // row's own note names `dependencyWidth` by row ID, not the selected width.
+  const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
   let arrowMinted = false
-  for (const link of geometry.dependencies) {
+  for (const link of orderedDependencies) {
     if (!settings.dependencyVisible) break
     if (!arrowMinted) {
       arrowMinted = true
       defsParts.push(
         dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
       )
+      // Minted beside the arrowhead, for the same reason: both are shared by
+      // every dependency line and neither may be written more than once.
+      if (barMaskParts.length > 0) {
+        defsParts.push(
+          `<mask id="${dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
+            `<rect x="0" y="0" width="${rounded(width)}" height="${rounded(height)}"` +
+            ' fill="white"/>' +
+            barMaskParts.join('') +
+            '</mask>',
+        )
+      }
     }
     // The cull `skipsOffScreen` above states, asked of the routed line itself.
     // ⭐ EXACT, unlike the Task's: a polyline never leaves the box its own
@@ -1963,8 +2027,21 @@ export function svgFromSchedule(
       predecessorPlaced !== undefined && pinnedGroupIds.has(predecessorPlaced.groupId)
     const successorPinned =
       successorPlaced !== undefined && pinnedGroupIds.has(successorPlaced.groupId)
+    // FR-009's halo, drawn INTO THE SAME ARRAY AND RIGHT BEFORE the main
+    // line, never a separate pass: `orderedDependencies` is already
+    // back-to-front, so a later link's halo lands on top of every earlier
+    // link's main stroke (reading it as the one behind), and its own main
+    // stroke -- pushed immediately after -- restores this line's own ink
+    // on top of its own halo. ⛔ NOT drawn full length unconditionally onto
+    // the bar: the shared `mask` (built once, above) is what keeps it off
+    // table T-206's `S-224` clear of the bar rather than any per-crossing
+    // region computed here.
+    const points = pointsOf(link.points)
+    const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
     ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
-      `<polyline points="${pointsOf(link.points)}" fill="none"` +
+      `<polyline points="${points}" fill="none" stroke="${themed('S-146')}"` +
+        ` stroke-width="${rounded(haloWidth)}"${haloMask}/>` +
+        `<polyline points="${points}" fill="none"` +
         ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
         ` marker-end="url(#${arrowId})"/>`,
     )
@@ -2349,6 +2426,29 @@ export const NOT_STORED_SELECTION_SIZES: {
   'S-174': 2,
   'S-175': [2, 2],
   'S-178': 2,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⭐ AND
+ * ITS PICTURE DOES LEAVE THE TOOL -- EP-6 of table T-076 draws the
+ * two lines into an exported picture -- so what makes this the
+ * reader's own is not that the mark is hidden but that the document
+ * keeps the two DATES (S-65) and never the width they take.
+ */
+export const NOT_STORED_DEPENDENCY_SIZES: {
+  /** S-224, in × */
+  readonly 'S-224': number
+} = {
+  'S-224': 3,
 }
 
 /**

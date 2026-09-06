@@ -650,15 +650,39 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
     // first is nothing the specification fixes -- and a case that took
     // `strokes[0]` for one of them would be asserting an order no row states.
     const strokesAt = (hue: number): readonly string[] => {
-      const svg = drawn(
-        scene({
-          project: { calendarUid: null, statusDate: '2026-01-15', themeHue: hue, title: null },
-        }),
-        showing,
-      )
+      const scheduleAt = scene({
+        project: { calendarUid: null, statusDate: '2026-01-15', themeHue: hue, title: null },
+      })
+      const svg = drawn(scheduleAt, showing)
+      // ⛔⛔ A THIRD polyline is drawn now: FR-009's crossing halo (ruling
+      // 2026-09-06), the SAME 地の色 (S-146) `FR-019` の注記 already takes,
+      // and S-146 FOLLOWS `themeHue` -- unlike S-159 and S-160, which this
+      // case exists to show do NOT. It has no place in a check of the two
+      // FIXED colours, so it is isolated out rather than counted.
+      // ⭐ Isolated by diffing, the same way `withLinks` below tells 依存線
+      // apart from 補助線: it and its own main line vanish together when
+      // `dependencyVisible` is off, so what survives that toggle is the
+      // イナズマ線 (unrelated to that setting); `marker-end` (GD-6, asserted
+      // a few cases below in this same file) then singles out the 依存線's
+      // own line from the halo among the two that did NOT survive.
+      // ⛔ `.text` COMPARED RAW, NOT NORMALISED: a progress line names no id
+      // and points at nothing (unlike the 依存線, whose `marker-end` carries
+      // one), so it prints byte-identical whether or not dependencies are
+      // drawn beside it -- there is no id for a dependency-count change to
+      // disturb.
+      const withoutDeps = drawn(scheduleAt, settingsOf({ ...showing, dependencyVisible: false }))
+      const withoutDepsTexts = paintedOf(withoutDeps).map((drawn) => drawn.text)
       const polylines = paintedOf(svg).filter((drawn) => drawn.tag === 'polyline')
-      expect(polylines.length, 'both the 依存線 and the イナズマ線 are drawn').toBe(2)
-      return polylines.map((drawn) => attribute(drawn.text, 'stroke') as string)
+      expect(polylines.length, '依存線・その縁・イナズマ線の 3 本が描かれる').toBe(3)
+      const dependencyLine = polylines.find(
+        (drawn) => attribute(drawn.text, 'marker-end') !== null,
+      )
+      const progressLine = polylines.find((drawn) => withoutDepsTexts.includes(drawn.text))
+      expect(dependencyLine, '依存線 is drawn').toBeDefined()
+      expect(progressLine, 'イナズマ線 is drawn').toBeDefined()
+      return [dependencyLine as Element, progressLine as Element].map(
+        (drawn) => attribute(drawn.text, 'stroke') as string,
+      )
     }
     const at214 = strokesAt(214)
     const at30 = strokesAt(30)
@@ -726,7 +750,16 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
   const withLinks = (): { links: readonly Element[]; guides: readonly Element[] } => {
     const guides = polylinesOf(drawn(APART_SCENE, WITHOUT_LINKS))
     const all = polylinesOf(drawn(APART_SCENE, SHOWN))
-    const links = all.filter((drawn) => !guides.some((oneGroup) => oneGroup.text === drawn.text))
+    // ⛔⛔ FR-009's crossing halo (ruling 2026-09-06) ALSO vanishes with
+    // `dependencyVisible`, so this diff alone no longer isolates only the
+    // 依存線 -- `marker-end` (GD-6, this describe block's own subject) is
+    // what tells the halo apart from the 依存線's own line among what is
+    // left, so it is filtered here rather than in each case below.
+    const links = all.filter(
+      (drawn) =>
+        !guides.some((oneGroup) => oneGroup.text === drawn.text) &&
+        attribute(drawn.text, 'marker-end') !== null,
+    )
     return { links, guides }
   }
 
@@ -824,8 +857,14 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
     const at30 = boxStroke(withBox(30, null))
     expect(at30, 'テーマの色相に追随しない').toBe(at214)
     const svg = withBox(214, null)
+    // ⛔⛔ NOT THE FIRST polyline: FR-009's crossing halo (ruling 2026-09-06)
+    // is drawn immediately before the 依存線's own line and takes 地の色
+    // (S-146, which follows `themeHue`), so `marker-end` (GD-6) is what
+    // singles out the line this case actually means.
     const link = attribute(
-      (paintedOf(svg).find((drawn) => drawn.tag === 'polyline') as Element).text,
+      (paintedOf(svg).find(
+        (drawn) => drawn.tag === 'polyline' && attribute(drawn.text, 'marker-end') !== null,
+      ) as Element).text,
       'stroke',
     ) as string
     expect(at214, '依存線から離した色').not.toBe(link)
@@ -1005,7 +1044,13 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
     {
       what: '依存線',
       ref: { kind: 'dependency', successorUid: 2, ordinal: 0 },
-      find: (svg) => paintedOf(svg).find((drawn) => drawn.tag === 'polyline') as Element,
+      // ⛔⛔ NOT the first polyline: FR-009's crossing halo (ruling
+      // 2026-09-06) is drawn immediately before this line and would answer
+      // first otherwise. `marker-end` (GD-6) singles out the line meant here.
+      find: (svg) =>
+        paintedOf(svg).find(
+          (drawn) => drawn.tag === 'polyline' && attribute(drawn.text, 'marker-end') !== null,
+        ) as Element,
     },
     {
       what: '基準日線',

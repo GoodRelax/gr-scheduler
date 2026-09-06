@@ -1620,14 +1620,22 @@ function commentGeometry(
     // at the head, for the reason the loop's own note gives.
     const fontSize = settings.fontScaleSizes[settings.fontScale]
     const pad = settings.commentBoxPad
+    const width = widest * fontSize * settings.labelCoef + 2 * pad
+    const height = lines.length * fontSize + 2 * pad
+    // FR-019 (MUST, ruling 2026-09-06): bodyOffsetPx runs from the anchor to
+    // the body's BOTTOM-LEFT corner, not its top-left. `x` is unaffected --
+    // the left edge is the left edge whichever corner is the reference -- but
+    // `y` must be lifted by the box's own height so that
+    // (x, y + height) === (anchor.x + offset.dx, anchor.y + offset.dy) is the
+    // corner the offset actually names. MUST NOT anchor top-left or centre.
     out.push({
       id: box.id,
       anchor,
       body: {
         x: anchor.x + offset.dx,
-        y: anchor.y + offset.dy,
-        width: widest * fontSize * settings.labelCoef + 2 * pad,
-        height: lines.length * fontSize + 2 * pad,
+        y: anchor.y + offset.dy - height,
+        width,
+        height,
       },
       lines,
       fontSize,
