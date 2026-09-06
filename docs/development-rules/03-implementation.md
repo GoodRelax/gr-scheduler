@@ -25,6 +25,19 @@
 
 ⭐ **いま原稿から生成されている定数**（増えたらここに足す）:
 
+
+⛔⛔ **生成される定数を 1 つ足すには、3 か所に書く（実測 2026-09-06）**
+
+```
+tools/generate_entity_types.py  組の表（`NOT_STORED_` で探せ。行番号で探すな）
+tools/generate_entity_types.py  ファイルごとの出力式（`not_stored_block(...)` を並べている所）
+docs/development-rules/03-implementation.md  すぐ下の一覧
+```
+
+⛔ **2 つ目を落とすと、黙って何も出ない**（組の表に書いても、出力式が呼ばなければ出力されない）。
+⚠️ **3 つ目を落とすと、木と一覧の数が合わないと検査が鳴る。**
+⭐ **表 T-206 以外の表から出すときは、その表用の出力式を新しく書く** ——
+**`not_stored_block` は 表 T-206 専用である**（`S-132` は 表 T-217 なので `annotation_defaults_block` を足した）。
 ```
 COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
 COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
