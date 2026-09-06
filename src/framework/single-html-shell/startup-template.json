@@ -40937,7 +40937,6 @@
    "width": 1600
   },
   "exportCanvasHeightCap": 4096,
-  "exportPngScale": 1,
   "fadeHandleHalfPx": 4.5,
   "fadeHandleStrokePx": 1.5,
   "fontMin": 12,

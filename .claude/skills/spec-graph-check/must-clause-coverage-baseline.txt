@@ -1,5 +1,12 @@
-946
+948
 #
+# RAISED 946 -> 948 ON 2026-09-06. FR-025 lost the MUST that made the PNG
+# scale selectable and gained two in its place, both the user's: a picture
+# MAY NOT carry a scale at all, and a document that still holds the retired
+# key keeps it (OP-6 covers keys this build no longer knows).
+# ⭐ S-82 retires with the idea -- anyone needing more than 1600x900 is
+# handed JSON, single html, MSPDI XML or SVG instead of a bigger raster.
+# ⛔ Debt: held verbatim when the code follows.
 # RAISED 943 -> 946 ON 2026-09-06. FR-009's crossing rule got the two halves
 # it never had, both from the user: the halo is drawn on the line in front
 # (never by detecting crossings, which would put that search on the every-

@@ -128,7 +128,7 @@ type JsonSchemaKind =
 interface SchemaNode {
   readonly ref?: string
   readonly type?: readonly JsonSchemaKind[]
-  readonly enum?: readonly (null | number | string)[]
+  readonly enum?: readonly (null | string)[]
   readonly minimum?: number
   readonly maximum?: number
   readonly maxLength?: number
@@ -977,9 +977,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         exportCanvasHeightCap: {
           type: ['number'],
-        },
-        exportPngScale: {
-          enum: [1, 2],
         },
         fadeHandleHalfPx: {
           type: ['number'],

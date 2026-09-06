@@ -136,7 +136,6 @@
     "dummyOpacity",
     "exportCanvas",
     "exportCanvasHeightCap",
-    "exportPngScale",
     "fadeHandleHalfPx",
     "fadeHandleStrokePx",
     "fontMin",
@@ -354,12 +353,6 @@
     },
     "exportCanvasHeightCap": {
      "type": "number"
-    },
-    "exportPngScale": {
-     "enum": [
-      1,
-      2
-     ]
     },
     "fadeHandleHalfPx": {
      "type": "number",

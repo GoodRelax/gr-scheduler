@@ -59,7 +59,6 @@ export interface DocumentSettings {
     readonly height: number
   }
   readonly exportCanvasHeightCap: number
-  readonly exportPngScale: 1 | 2
   readonly fadeHandleHalfPx: number
   readonly fadeHandleStrokePx: number
   readonly fontMin: number
@@ -189,7 +188,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'exportCanvas.height': 900,
   'exportCanvas.width': 1600,
   'exportCanvasHeightCap': 4096,
-  'exportPngScale': 1,
   'fadeHandleHalfPx': 4.5,
   'fadeHandleStrokePx': 1.5,
   'fontMin': 12,
