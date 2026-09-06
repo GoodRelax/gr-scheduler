@@ -252,6 +252,11 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
   //   at all; here it opens. ⇒ the words tell the scene.
   'RS-48': '6e26ad7870b49da2',
+  // ⭐ ADDED 2026-09-06 (CR-364, the ruling that renaming an assignee must
+  // carry the count). The row is FR-008's, and the pairing was read the way
+  // this file asks: the 場面 against the three dictionary fields, before
+  // anything was recorded.
+  'RS-49': '72cb83eccb85ea1f',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

@@ -3308,6 +3308,17 @@
    }
   },
   {
+   "rowId": "RS-49",
+   "text": {
+    "ja": "担当者の名前を変えました。この担当者が付いているタスクの表示が変わります",
+    "en": "The assignee has been renamed, and every task they are on now shows the new name"
+   },
+   "nextStep": {
+    "ja": "変えたくないものが含まれていたときは、元に戻してください",
+    "en": "Undo it if that reached something you did not mean to rename"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

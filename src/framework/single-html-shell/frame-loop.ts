@@ -6461,6 +6461,39 @@ export function frameLoop(
       // for the words to be read out of. ⚠️ FR-023's other half is missing with
       // it: that requirement lets a person drop the rows a date refusal names and
       // take the rest, and there is no surface to offer the choice on.
+      //
+      // ⭐⭐ WHAT THE RULING OF 2026-09-06 SETTLED (CR-364 A-2, ledger row
+      // D-275), so that the next hand does not have to ask it again. FR-023
+      // spells 「文書が使えない日付」 out itself: 「日として読めない値（空文字を
+      // 含む）」 と 「表 T-214 の範囲の外にある値」 -- 「⚠️ 空文字を特例にしない
+      // —— 列が空を許すときの空は `null` であり（`FR-024` の契約）、空文字はその
+      // 契約の外にある」. ⭐ `sweepDateColumns` in `validate-imported-document.ts`
+      // already draws exactly that line, and it is IV-14 of table T-220 that
+      // states it as an invariant. ⛔ THE RESOURCE CEILINGS ARE NOT IN THIS: the
+      // requirement excludes them in as many words, because no row can be named
+      // as the one to drop.
+      //
+      // ⛔⛔ AND IT IS STILL NOT RAISABLE FROM HERE, WHICH IS FOUR ABSENCES AND
+      // NOT ONE (measured 2026-09-06). ⚠️ None of them is this file's to fill:
+      //   1. docs/spec names no section of FR-038's dictionary for table
+      //      T-220's rows, and says nothing about how 「どの行のどの列が使えない
+      //      か」 reaches the words -- ⛔ every row of table T-233 is a FIXED
+      //      sentence, and nothing in the dictionary carries a place for a row
+      //      or a column to be put into.
+      //   2. `tools/generate_display_words.py` builds each section's roster from
+      //      a table and refuses a section it does not know outright, so the
+      //      words cannot be written into the manuscript until it learns one.
+      //   3. `notices.ts` reads a reason out of `displayWords.reasons` alone,
+      //      which is table T-233's rows and nothing else; anything outside it
+      //      falls to `RS-15`.
+      //   4. `RaisedNotice` carries `manner`, `reason` and `affectedCount` --
+      //      ⛔ there is no member a row or a column can travel on, and NT-3's
+      //      count cannot stand in for a name FR-023 asks for BY NAME.
+      // ⚠️ `raiseNotice` IS NOT WIDENED TO CARRY `IV-14` INSTEAD. FR-076 (MUST
+      // NOT) bars a telling from carrying a reason table T-233 does not hold,
+      // and that table's closing puts FR-023's refusals outside it on purpose --
+      // 「⛔ 同じものに 2 つ目の鍵を作らない」. ⇒ the reason has to be keyed where
+      // the specification already put it, and the road there is the four above.
       return
     }
 
@@ -7738,6 +7771,21 @@ export function frameLoop(
         // and an assignee's label is one of however many the schedule is drawing
         // this frame -- `ScreenView` carries no description of an editable one
         // and no row id names WHICH task's label was pressed.
+        //
+        // ⭐⭐ THE TELLING THE RENAME OWES NOW HAS A ROW, AS OF 2026-09-06
+        // (CR-364 B-1, ledger row D-273): table T-233 gained `RS-49`, whose 正
+        // is `FR-008` and whose 作法 is `NT-3`, and `display-words.json` holds
+        // its words. ⛔ NOTHING RAISES IT YET AND NOTHING HERE SHOULD: this STOP
+        // is the reason -- no entrance renames an assignee, so `setResourceName`
+        // (CM-41 of table T-108) has no caller anywhere in `src/`, and a raiser
+        // with no rename to answer would be a telling for an act that cannot
+        // happen. ⭐ WHICH IS WHY THE ROW WAS WRITTEN FIRST: `FR-008` (MUST)
+        // asks for 「その担当者が付いている全タスクの表示が変わることを、対象の
+        // 件数とともに通知すること」, and `edit-resource.ts` records in its own
+        // words that the count is not the use case's to carry but FR-076's. ⇒
+        // when the editor below lands, the count goes on `affectedCount` and the
+        // row goes on `reason`, and no word of it is composed here (FR-038,
+        // MUST NOT).
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
