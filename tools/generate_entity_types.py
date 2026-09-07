@@ -1186,6 +1186,22 @@ SETTLED_WHERE_IT_STANDS = [
     ' * become one: table T-206 is where the specification records that the',
     " * document does not keep it, and it stands on S-138's ground.",
 ]
+# ⛔ AN EIGHTH SEAM: no door AND no caller, because the value is one END of a
+# DERIVATION this unit alone can carry out. FR-016 (MUST) states the ceiling of
+# the day axis as 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
+# both of the other two terms are already here and nowhere else: the region is
+# `InputContext.regions.rowArea` and the width of one day at 等倍 is read back
+# off the frame's own layout. ⛔ The row's own note forbids the number itself
+# reaching `src/` by hand -- 「`src/` に 10 を打ち込んではならない」 -- which is
+# exactly what a generated block is for.
+DERIVED_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the derivation is',
+    ' * its own to carry out: FR-016 (MUST) puts the ceiling of the day axis',
+    " * at 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and the",
+    ' * other two terms of that quotient are values only this side holds. ⛔',
+    ' * It is not a document setting and must not become one: table T-206 is',
+    ' * where the specification records that the document does not keep it.',
+]
 # ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
 # a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
 # zoom trio is stated once, among the drawing settings, and table T-206 records
@@ -1404,6 +1420,13 @@ NOT_STORED_TARGETS = {
     # so it has no literal to emit; its own note puts it beside S-99g, and the
     # shell holds it the way it holds that one.
     'NOT_STORED_ROW_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though all three land in the
+    # translator: one constant per consuming SUBJECT. S-96 is how far one notch
+    # steps, S-208 / S-212 are HF-15's grab, and S-229 is the FLOOR ON WHAT
+    # STAYS VISIBLE that FR-016 turns into the ceiling of the day axis -- three
+    # subjects, and a shared constant would make one of the three paragraphs a
+    # lie.
+    'NOT_STORED_VISIBLE_DAY_FLOOR': (['S-229'], DERIVED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
 
@@ -2233,7 +2256,8 @@ TARGETS = [
     # settles it. ⛔ Not folded into the zoom step -- see NOT_STORED_TARGETS.
     (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_SIZES'),
+     + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),

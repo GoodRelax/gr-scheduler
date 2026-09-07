@@ -1,4 +1,15 @@
-976
+972
+#
+# LOWERED 976 -> 972 ON 2026-09-07, part of the debt D-377 booked. The wave
+# that built FR-016's ceiling for the DATE axis (ledger row D-375) wrote its
+# anchor in tests/system/user-reported-fixes.test.ts, and that anchor carries
+# four of the clauses raised that day in the manuscript's own characters: the
+# range S-75 / S-76 holds, 「拡大の側には、軸ごとに導かれる上限を置くこと」,
+# 「固定の倍率で止めてはならない」 and 「日数を `src/` に打ち込んではならない」.
+# ⛔ THE REST OF D-377'S DEBT IS STILL OWED, and deliberately: FR-016's ceiling
+# for the ROW axis (D-374) and its row anchor (D-366) are not built in this
+# tree, so their clauses are not quoted -- a clause held by a test that does
+# not exercise it pays this check in appearance only.
 #
 # RAISED AGAIN 951 -> 976 THE SAME DAY, by the creation flow (FR-083's SP-2 /
 # SP-3, the press order of table T-023a, FR-091) and by the two Agent API

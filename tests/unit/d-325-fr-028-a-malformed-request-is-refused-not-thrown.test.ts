@@ -249,6 +249,7 @@ function bench(): Bench {
     // loop that touches no picture runs in; this bench is one of those, so
     // AM-14 and AM-15 answer `notAvailable`.
     rasterizer: undefined,
+    takeInDocument: undefined,
     appShell: undefined,
     writerName: `agent under test ${benchCount}`,
     schemaVersion: TEMPLATE['schemaVersion'] as string,

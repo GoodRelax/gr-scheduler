@@ -71,6 +71,7 @@ NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左�
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（`S-90` 〜 `S-93` / `S-137`）
 NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-214` / `S-215`）
+NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下限（`S-229`）
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）

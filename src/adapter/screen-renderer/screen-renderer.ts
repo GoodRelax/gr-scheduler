@@ -1289,10 +1289,13 @@ export interface AiExportModal extends OpenSurface {
    * FR-068: the document that would be handed to an AI. One value, because the
    * requirement shows and copies the same thing.
    *
-   * ⛔ NO ENTRY FOR THE COPY. FR-068 asks for a way to put it on the clipboard,
-   * and table T-109 -- which FR-029 makes the whole of the icons (MUST) -- holds
-   * no row for one, so a `CommandItem` for it would mint an icon. The text is
-   * carried; the control is a gap in table T-109.
+   * ⭐ THE ENTRY FOR THE COPY IS ONE OF `commands` AND NOT A MEMBER OF ITS OWN.
+   * FR-068 (MUST) settles which row it is -- 「複写の入口は 表 T-109 の `IC-52`
+   * とすること（MUST）。新しい行を足してはならない（MUST NOT）」 -- and
+   * 「その行は既にこの面に在る」, so `commandsOnSurface` already emits it and a
+   * `CommandItem` minted here would be the second entrance FR-029 forbids.
+   * ⚠️ What a press of it SPENDS is not this component's: R-9 of table T-008
+   * puts the clipboard outside, and the shell owns that seam.
    */
   readonly documentText: string
 }
@@ -2171,6 +2174,28 @@ export interface ScreenSession {
    * reason: table T-206 keeps this in the environment, not in `Schedule`.
    */
   readonly isDialogueFieldVisible: boolean
+  /**
+   * FR-068 -- the document that would be handed to an AI, for the `AI Export
+   * Modal` (U-30) to show. `undefined` while that surface is not standing.
+   *
+   * ⭐ HANDED IN AND NOT BUILT HERE. FR-068 (MUST) says which document it is --
+   * 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」 -- and ⛔
+   * and its next clause forbids a new exchange format for this face (MUST NOT).
+   * ⚠️ THAT ONE IS POINTED AT AND NOT QUOTED: the manuscript's own sentence
+   * carries a broken character where 「鋳る」 belongs, and quoting it mended
+   * would be putting words in the specification's mouth (check 42). Reported.
+   * Table T-024's
+   * `GRS JSON` is DocumentCodec's (IO-2), a component chapter 5.3 gives
+   * ScreenRenderer no edge to, and `Schedule` alone is not the document that
+   * codec writes. So the shell that holds the whole `Document` fills this, the
+   * way it fills `openedFileName` and `isAgentApiEnabled` beside it.
+   *
+   * ⚠️ OPTIONAL, AND THAT IS THE COST OF THE SURFACE BEING ONE OF SIX. A caller
+   * that never opens U-30 has nothing to put here, and the surface cannot be
+   * open without the shell having filled it -- `openModalFromScreenState` says
+   * what it does with an absence.
+   */
+  readonly aiExportDocument?: string
   /**
    * U-42 `Pointer`, or `null` while it is outside the window. Read by FR-037's
    * hint and by EZ-2's wait (table T-040).

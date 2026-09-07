@@ -41,10 +41,11 @@
 // repeats that this is its single exception. So the roster settles the
 // placement of every row but that one, and FR-038 settles that one.
 //
-// ⭐ TWO SURFACES HAVE SOMEWHERE TO PUT WHAT THEY SHOW. `OpenModal` is a
+// ⭐ THREE SURFACES HAVE SOMEWHERE TO PUT WHAT THEY SHOW. `OpenModal` is a
 // union discriminated on `surface`: the `Resource Roster` (U-49) member carries
-// the roster FR-099 asks for and the `Export Chooser` (U-54) member carries the
-// formats FR-096 asks for, and this unit fills both below.
+// the roster FR-099 asks for, the `Export Chooser` (U-54) member carries the
+// formats FR-096 asks for, and the `AI Export Modal` (U-30) member carries the
+// document FR-068 asks for -- and this unit fills all three below.
 // ⚠️ The help (U-30 `Help Modal`) comes back with one member beyond the three
 // every surface has -- `language`, which FR-038 (MUST) makes readable before the
 // toggle is pressed -- but not with the four `HelpModal` also declares, so what
@@ -111,6 +112,15 @@ import licence from './licence.json'
  * the other half of U-30 -- is not the help.
  */
 const HELP_MODAL = 'Help Modal'
+
+/**
+ * The other half of U-30 of table T-103, the surface FR-068 opens.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), the literal
+ * `OpenModal` discriminates `AiExportModal` on, and the same spelling
+ * `icon-roster.json` carries in its surface column for IC-52.
+ */
+const AI_EXPORT_MODAL = 'AI Export Modal'
 /** Table T-109, which the help roster names for a row that IS an entrance. */
 const ICON_TABLE = 'T-109'
 
@@ -776,7 +786,36 @@ export function openModalFromScreenState(
     }
   }
 
-  // STOP -- ⛔ NOT MODELLED, AND THIS UNIT MAY NOT ADD IT: what the four other
+  // FR-068 (MUST): 「面にはその文書を読める形で出すこと（MUST）。題と閉じる入口
+  // だけにしてはならない（MUST NOT）」, and the document is settled --
+  // 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」.
+  //
+  // ⭐ CARRIED RATHER THAN CHOSEN (D-268). The STOP that stood in the note below
+  // said no row spelled the text and there was no door to hand one through;
+  // both halves were closed on 2026-09-07 -- the requirement names the row of
+  // table T-024, and `ScreenSession.aiExportDocument` is the door, filled by the
+  // shell that holds the whole `Document`. ⛔ So nothing is minted here: this
+  // unit neither picks a format nor writes one.
+  //
+  // ⚠️ AN ABSENT MEMBER FALLS THROUGH TO THE CATCH-ALL rather than showing an
+  // empty page. A caller that opened this surface without filling the member has
+  // not given the surface its document, and `documentText: ''` would be this
+  // unit claiming the document IS empty -- which is a value invented here.
+  // ⛔ The copy entrance is not built here either: FR-068 (MUST) makes it
+  // 「表 T-109 の `IC-52`」 and ⛔ 「新しい行を足してはならない（MUST NOT）」, and
+  // that row is already in `commands` above because table T-109 places it on
+  // this surface. What a press of it spends belongs to the layer that owns the
+  // clipboard seam (R-9 of table T-008), which is the shell.
+  if (surface === AI_EXPORT_MODAL && session.aiExportDocument !== undefined) {
+    return {
+      surface: AI_EXPORT_MODAL,
+      heading,
+      commands,
+      documentText: session.aiExportDocument,
+    }
+  }
+
+  // STOP -- ⛔ NOT MODELLED, AND THIS UNIT MAY NOT ADD IT: what the three other
   // surfaces show. `OpenModal` declares a payload for each of them, and
   // `screen-renderer.ts` is where they stand; none is filled here, so a
   // description of one of them lands in the union's catch-all member. Each line
@@ -795,26 +834,20 @@ export function openModalFromScreenState(
   //   FR-088, no settled name: the working weekdays, the exception days and the
   //     week's first day. ⚠️ They are the calendar FR-054 RESOLVES for the
   //     document, and nothing in this component resolves one.
-  //   FR-068, `AI Export Modal` (U-30): the document that would be handed to an
-  //     AI, which is built outside this component and does not arrive here.
-  //     ⛔⛔ AND NO ROW SAYS WHAT IT IS (D-268, measured 2026-09-07 against the
-  //     manuscript). FR-068 asks for 「AI へ渡す文書」 to be read and copied, and
-  //     that phrase occurs in exactly two places -- the requirement itself and
-  //     IC-19 of table T-109 -- neither of which spells the text. AG-4 of table
-  //     T-035 hands a reader a FROZEN COPY, which is a value and not a string,
-  //     so the Agent API does not settle it either. ⇒ Choosing between the
-  //     exchange formats of table T-024 here would be this unit minting the
-  //     form, which is what rule 03 section 1 forbids. ⛔ There is also no door:
-  //     `ScreenSession` carries no member for it, and only the shell holds the
-  //     side that could spell one. Searched: FR-068, UC-012, UC-013, FR-028,
-  //     table T-035, table T-024, table T-103 (U-30) and table T-109.
+  // ⭐⭐ FR-068 IS NO LONGER ON THIS LIST (D-268, closed 2026-09-07). What stood
+  // here said no row spelled the text and `ScreenSession` had no member to hand
+  // one through; the requirement now names the row of table T-024 and the member
+  // exists, and the branch above fills the surface. ⛔ The ground it gave was
+  // real while it stood -- it is the manuscript that moved, not the reading.
   // ⭐ WHAT FR-099 ASKS FOR NOW HAS ENTRIES, and they arrive by the road every
   // other entry does: table T-109 places IC-63 .. IC-68 on U-49 and IC-62 in
   // the `Command Palette`, so `commandsOnSurface` above emits the six without
   // this file naming one. ⛔ So none of them is minted here, and the note that
   // said they could not exist is gone because the rows now do.
-  // ⚠️ FR-068's copy control is still owed one: table T-109 places nothing but
-  // IC-52 on the `AI Export Modal`, and FR-029 (MUST) forbids minting a row.
+  // ⭐ FR-068's copy control is owed nothing: the requirement itself says which
+  // row it is -- 「複写の入口は 表 T-109 の `IC-52` とすること（MUST）。新しい行
+  // を足してはならない（MUST NOT）」 -- and 「その行は既にこの面に在る」, which
+  // `commandsOnSurface` emits without this file naming it.
   // STOP -- ⛔ THE FORMATS ABOVE GO OUT WITH NO WORDS. `display-words.json` has
   // a section per roster the specification already keeps -- one per row of table
   // T-109, the palette groups, the surfaces table T-103 has named, one per row

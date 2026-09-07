@@ -44,13 +44,14 @@
 // is the very width FR-052 already subtracted.
 //
 // ⛔ Two STOP notes below say what is open: which side of the gap the lane sits
-// on, and the grip's length. ⭐ The divider's BAND is no longer among them --
-// table T-206 gained S-134 -- and what is left of that pair, the thickness of
-// the line, is marked where the divider is built.
-// ⚠️ THE TWO ARE NOT THE SAME KIND OF HOLE. The first is a rule no requirement
-// states; the second is a rule GR-21 of table T-023d states in full, whose two
-// numbers this unit's three arguments do not carry -- so it is closed in the
-// manuscript and open in the wiring, and `scrollbarIn` says which wire.
+// on, and the grip's length. ⭐ Neither belongs to the divider any more -- the
+// BAND was closed when table T-206 gained S-134, and the LINE'S THICKNESS was
+// closed by EP-9 of table T-076 on 2026-09-07 (D-363), which is read from
+// `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
+// ⚠️ THE TWO THAT REMAIN ARE NOT THE SAME KIND OF HOLE. The first is a rule no
+// requirement states; the second is a rule GR-21 of table T-023d states in full,
+// whose two numbers this unit's three arguments do not carry -- so it is closed
+// in the manuscript and open in the wiring, and `scrollbarIn` says which wire.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -58,6 +59,10 @@ import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+// ⭐ D-363: EP-9's one place for the rule's thickness. The import lands on the
+// public entry of the component that draws `Group Grid Lines` (LR-2), and adds
+// no cycle -- SvgRenderer imports no other adapter.
+import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
 import type { PanelDivider, ScreenFrame, Scrollbar } from './screen-renderer'
 
 /**
@@ -78,15 +83,21 @@ import type { PanelDivider, ScreenFrame, Scrollbar } from './screen-renderer'
  * thing the MUST NOT above asks for, and the reason the width may be spent
  * without asking the `Row Area` for any of it.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how thick the LINE is. Looked in
- * FR-051 and FR-052 (both state where the boundary is and what a drag does,
- * neither sizes the line), in tables T-201 / T-203 / T-212, and in EP-9 of table
- * T-076, which makes it the same one line as `Group Grid Lines` (U-18) and ⛔
- * forbids a new settings key for it, while FR-042, FR-089 and S-68 give that
- * line a rule, a colour and a visibility and never a width. Chose the boundary
- * segment itself: zero width is the one value that cannot claim room no row
- * grants, and it leaves the stroke to the surface -- which EP-9 has already tied
- * to U-18's.
+ * ⭐⭐ THE LINE'S THICKNESS IS SETTLED, AND THE STOP THAT STOOD HERE IS GONE
+ * (D-363). What it said -- that no clause sizes the line, so zero was chosen --
+ * was measured true on the screen AND in the export: nothing was drawn at all.
+ * EP-9 of table T-076 now says 「同じ線とは太さも同じであるということである
+ * （MUST）」 and ⛔ 「太さを 0 で描いてはならない（MUST NOT）」, and it says where
+ * the number lives: 「描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2
+ * か所に置いてはならない（MUST NOT）」 and 「画面と書き出しも同じ 1 か所を読む
+ * こと（MUST）」.
+ *
+ * ⛔ SO NO NUMBER IS WRITTEN HERE. `GROUP_GRID_LINE_WIDTH_PX` is the one place,
+ * and it stands in the component that draws U-18 itself (LR-2: through
+ * `svg-renderer.ts`, that component's public entry). Both readers of the
+ * rectangle built below -- `dom-screen-surface.ts` on the screen and
+ * `image-exporter.ts` in the exported picture -- size it from this one member,
+ * which is EP-9's last sentence discharged rather than restated.
  *
  * @purity pure
  */
@@ -104,7 +115,12 @@ function dividerAt(
       width: bandWidth,
       height: panelBox.height,
     },
-    line: { x: boundaryX, y: panelBox.y, width: 0, height: panelBox.height },
+    line: {
+      x: boundaryX,
+      y: panelBox.y,
+      width: GROUP_GRID_LINE_WIDTH_PX,
+      height: panelBox.height,
+    },
   }
 }
 

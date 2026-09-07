@@ -7983,7 +7983,51 @@ function keyZoomFactor(context: InputContext, isIn: boolean): number {
 }
 
 /**
- * The zoom now in force, stepped once.
+ * FR-016's ceiling for the day axis (MUST): 「日付の軸（`zoomX`）の上限は、見えて
+ * いる範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率
+ * とすること（MUST）」 —— 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）
+ * である。」
+ *
+ * ⭐⭐ NOT A MAGNIFICATION AND NOT A SETTING, WHICH IS THE WHOLE POINT. The same
+ * requirement (MUST NOT): 「固定の倍率で止めてはならない（MUST NOT）」 ——
+ * 「画面の広さも行の中身も環境で変わるので、倍率の直値はそのどちらにも合わない。」
+ * So the ceiling is
+ * worked out from the region in front of the person on the frame it is asked
+ * about, and a wider window raises it by itself.
+ * ⛔ THE DAY COUNT IS NOT TYPED HERE, which S-229's own note states as a
+ * MUST NOT (「`src/` に 10 を打ち込んではならない」): it arrives through the
+ * generated `NOT_STORED_VISIBLE_DAY_FLOOR` block at the foot of this file,
+ * whose single source of truth is `docs/spec/_source/settings.json`.
+ *
+ * ⭐ THE WIDTH OF ONE DAY AT 等倍 IS READ BACK OFF THE FRAME rather than
+ * recomputed: the time axis is linear in the zoom -- `pxPerDay = pxPerDayAt1x *
+ * zoomX`, the identity `placeHeldStill` already leans on -- so the frame's own
+ * `pxPerDay` over the zoom it was DRAWN at is that width exactly. ⛔ Laying the
+ * schedule out a second time to get it is what MN-6 of table T-070 refuses.
+ * ⚠️ `zoomOnScreen` AND NOT THE STORED `S-75`, for the reason that member
+ * gives: while no place is named the picture stands at FR-055's fit, and
+ * dividing the drawn `pxPerDay` by a zoom nobody is looking at would answer a
+ * width no day has.
+ *
+ * ⚠️ ANSWERS `null` WHERE THERE IS NO SUCH QUOTIENT -- an empty document with
+ * no time axis, a region with no width, a zoom of zero. A picture with no day
+ * in it has no 「見えている範囲」 for the row to keep, and the range S-75 holds
+ * is then the only bound, which is where this file stood before.
+ *
+ * @purity pure
+ */
+function zoomXCeiling(context: InputContext): number | null {
+  const width = context.regions.rowArea.width
+  const drawnAt = zoomOnScreen(context).x
+  const pxPerDayAt1x = context.layout.pxPerDay / drawnAt
+  const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
+  if (!Number.isFinite(ceiling) || ceiling <= 0) return null
+  return ceiling
+}
+
+/**
+ * The zoom now in force, stepped once, with FR-016's ceiling for that axis
+ * applied.
  *
  * ⛔ NOTHING IS ROUNDED HERE AND NOTHING MAY BE. FR-018 (MUST NOT) names the
  * three places a zoom is stepped -- the wheel, the button and the rounding of a
@@ -7993,11 +8037,37 @@ function keyZoomFactor(context: InputContext, isIn: boolean): number {
  * MUST NOT broken silently: the requirement measured one notch taking the rows
  * from 9 to 21.
  *
+ * ⭐⭐ THE CEILING IS APPLIED HERE AND IN ONE PLACE, so that both things a
+ * stepped zoom feeds see the same number: `placeHeldStill`, which measures the
+ * day it must hold against the zoom that will really be in force, and
+ * `zoomCommand`, which writes it. ⛔ Applied on only one of the two, a notch
+ * past the ceiling would move the anchor for a scaling that never happened and
+ * the date under the pointer would drift once per notch at the end of the
+ * range -- which is the very defect `zoomWithinBounds` records for S-75 / S-76.
+ * ⚠️ IT IS NOT THE CLAMP TO S-75 / S-76 AND DOES NOT REPLACE IT. That range is
+ * the edit path's (CM-71) and stays there; this is the second, derived bound
+ * FR-016 adds on the magnifying side alone -- 「拡大の側には、軸ごとに導かれる
+ * 上限を置くこと（MUST）」. ⭐ A zoom OUT is never held back BY it: a step that
+ * lands under the ceiling is written as it stands, and a document that opens
+ * ABOVE the ceiling is only ever carried towards it, never away.
+ * ⚠️ WHAT THIS FILE STILL OWES IS THE TELLING, NOT THE BOUND. FR-016 (MUST
+ * NOT): 「上限に達したことを、押しても何も起きない入口で示してはならない（MUST
+ * NOT）」 —— 「作法は `FR-029` に従う。」 The entrance an `IC-13` press stands in is drawn by
+ * `src/adapter/screen-renderer`. The same is already true of S-75 / S-76's own
+ * ends, so this adds no new silence -- it makes the existing one reachable one
+ * notch sooner on the day axis.
+ * ⛔ NOTHING IS APPLIED TO THE ROW AXIS HERE. FR-016 states a ceiling for
+ * `zoomY` as well, and it is not written: see `D-374` of the ledger and the
+ * measurement recorded against it.
+ *
  * @purity pure
  */
 function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
   const on = zoomOnScreen(context)
-  return (axis === 'x' ? on.x : on.y) * factor
+  const stepped = (axis === 'x' ? on.x : on.y) * factor
+  if (axis !== 'x') return stepped
+  const ceiling = zoomXCeiling(context)
+  return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 
 /**
@@ -9090,5 +9160,27 @@ export const NOT_STORED_ROW_GRAB_SIZES: {
 } = {
   'S-208': 6,
   'S-212': 0.4,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the derivation is
+ * its own to carry out: FR-016 (MUST) puts the ceiling of the day axis
+ * at 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and the
+ * other two terms of that quotient are values only this side holds. ⛔
+ * It is not a document setting and must not become one: table T-206 is
+ * where the specification records that the document does not keep it.
+ */
+export const NOT_STORED_VISIBLE_DAY_FLOOR: {
+  /** S-229 */
+  readonly 'S-229': number
+} = {
+  'S-229': 10,
 }
 // </generated>

@@ -439,6 +439,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     // loop that touches no picture runs in; this bench is one of those, so
     // AM-14 and AM-15 answer `notAvailable`.
     rasterizer: undefined,
+    takeInDocument: undefined,
     appShell: undefined,
     writerName,
     schemaVersion,
@@ -1279,7 +1280,7 @@ describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () =>
     (api: AgentApi) => Promise<{ readonly target: string } | null>
   > = {
     'AM-8': async (api) => {
-      const answer = api.importDocument({ text: '{}' })
+      const answer = await api.importDocument({ text: '{}' })
       return answer.accepted ? null : answer.refusal
     },
     'AM-9': async (api) => {
@@ -1557,10 +1558,19 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   // can be painted -- so a synchronous AM-14 could only ever answer that it had
   // not been built, which is the opposite of FR-028's own point that the two
   // entrances are equals.
-  // ⭐ WHAT THE CASE STILL PINS is the thirteen that answer from values already
+  // ⛔⛔ AND AM-8 LEFT THE ROSTER ON 2026-09-07 (台帳 D-357), FOR A REASON THAT
+  // IS NOT FR-028's AT ALL. FR-022 (MUST) now says 「`AM-8`（`importDocument`）が
+  // 合流にあたるときは、`U-61` を立て、人が答えるまで待つこと」, and that
+  // requirement's own note names the cost -- 「エージェントが「取り込んで」と
+  // 言ってから、人が画面で答えるまで止まる。無人運転はできない」. ⇒ A wait is the
+  // REQUIREMENT here, so a synchronous AM-8 could only be one that never asked.
+  // ⛔ NO EXPECTATION IS LOWERED: the row moves to the case below, which pins the
+  // half of FR-028 that survives -- the promise settles and never rejects.
+  //
+  // ⭐ WHAT THE CASE STILL PINS is the twelve that answer from values already
   // held: a read or a write that quietly became a promise would leave every
   // caller holding an object instead of an answer.
-  it('answers no promise from the thirteen rows that need no wait (FR-028)', () => {
+  it('answers no promise from the twelve rows that need no wait (FR-028)', () => {
     const one = bench()
     const isThenable = (value: unknown): boolean =>
       typeof value === 'object' &&
@@ -1573,7 +1583,6 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.readSelection(),
       one.api.readDialogueMessages(),
       one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [] }),
-      one.api.importDocument({ text: '{}' }),
       one.api.undoEdit(),
       one.api.redoEdit(),
       one.api.exportJson(),
@@ -1586,11 +1595,15 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     for (const answer of answers) expect(isThenable(answer)).toBe(false)
   })
 
-  // ⭐ AND THE TWO THAT DO WAIT SETTLE RATHER THAN REJECT, which is the half of
+  // ⭐ AND THE THREE THAT DO WAIT SETTLE RATHER THAN REJECT, which is the half of
   // FR-028 that survives the widening: a rejected promise is an exception the
   // caller has to catch, and AG-8 asks for the failure as a VALUE.
-  it('AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {
+  // ⚠️ AM-8 JOINED THEM ON 2026-09-07 (台帳 D-357) -- see the note above -- and it
+  // is judged on `accepted` rather than on `ok`, because AG-9a's shape for a
+  // write is `AgentWriteOutcome` and not `AgentExport`.
+  it('AM-8, AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {
     const one = bench()
+    await expect(one.api.importDocument({ text: '{}' })).resolves.toHaveProperty('accepted')
     await expect(one.api.exportPng()).resolves.toHaveProperty('ok')
     await expect(one.api.exportEmbeddedHtml()).resolves.toHaveProperty('ok')
   })

@@ -46,8 +46,12 @@
 //               gesture, and AG-2's stamp check already turns away the write
 //               that such a read would lead to.
 //
-// ⛔ THREE OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
-// member: AM-8, AM-9 and AM-10. ⚠️ IT WAS FIVE UNTIL 台帳 D-356 CLOSED
+// ⛔ TWO OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
+// member: AM-9 and AM-10. ⚠️ IT WAS THREE UNTIL 台帳 D-357 CLOSED (2026-09-07):
+// AM-8 is wired now, because FR-022 (MUST NOT) forbids the refusal outright --
+// 「合流を拒んではならない」 -- and the two grounds the member gave for it were
+// the same false claim about table T-107 that D-356 struck, plus a telling
+// FR-073 owes that refusing never supplied. ⚠️ IT WAS FIVE UNTIL 台帳 D-356 CLOSED
 // (2026-09-07). AM-14 and AM-15 were blocked on a seam that did not reach here
 // -- `Rasterizer` (IF-6) and `AppShellSource` (IF-8) -- and `AgentApiWiring`
 // carries both now, so both are wired below. ⛔⛔ THE OTHER HALF OF THAT ROW WAS
@@ -58,7 +62,7 @@
 //
 // What stops the three that remain is one thing only:
 //
-//   this component's own face      AM-8, AM-9 and AM-10. The entry takes values
+//   this component's own face      AM-9 and AM-10. The entry takes values
 //                                  table T-107's row gives the member no way to
 //                                  carry -- an ARGUMENT it has nowhere to put,
 //                                  which is a different question from the
@@ -68,10 +72,10 @@
 // reported. ⛔ None of them is faked: answering with an empty string or a
 // document built here would be a wrong answer wearing a right shape.
 //
-// ⚠️ WHY THREE OF THOSE FIVE CARRY TWO DIFFERENT PURITY VALUES (R7.6). The
+// ⚠️ WHY TWO OF THEM CARRY TWO DIFFERENT PURITY VALUES (R7.6). The
 // tag on a member of `AgentApi` is the contract, and it is the value table
 // T-107 states for that row; the tag on the body below is what that body does
-// today. For AM-8, AM-9 and AM-10 the two differ -- T-107 classifies them
+// today. For AM-9 and AM-10 the two differ -- T-107 classifies them
 // `non-pure` because each is a write, while the body only reads a snapshot to
 // build the refusal, which is `semi-pure-b`. ⛔ The body is NOT tagged
 // `non-pure` to make the pair match: a tag is a claim, and claiming a side
@@ -283,18 +287,24 @@ export type AgentWriteOutcome =
   | { readonly accepted: false; readonly refusal: AgentRefusal }
 
 /**
- * What AM-8 is handed.
+ * What AM-8 is handed: the document to take in, in any of the three shapes a
+ * caller naturally has it in.
  *
- * ⛔ ONE FIELD, AND NOT BECAUSE ONE IS ENOUGH. An intake needs the merge
- * choices of table T-032a as well, and those are ImportDocument's vocabulary
- * (PI-10); Chapter 5.2 draws this component no edge to it, and this face holds
- * nothing to carry them in -- see AM-8.
- * The text is here because IO-1 and IO-2 of table T-024 are both text (CN-5 of
- * table T-003), and it is never read: the member refuses.
+ * ⭐⭐ THE MERGE CHOICES ARE NOT HERE, AND THAT IS THE REQUIREMENT (D-357).
+ * FR-022 (MUST): 「呼ぶ側が機械であっても、選ぶのは人であること」 —— ⛔
+ * 「`Agent API` の呼び出しに、選択肢をあらかじめ渡させてはならない（MUST NOT）」.
+ * So a wider face would have been the wrong widening: what AM-8 needs is the
+ * DOCUMENT, and table T-032a's answers come from a person on U-61.
+ *
+ * ⭐ THREE SHAPES BECAUSE A CALLER HOLDS IT IN THREE. `readDocument` (AM-3)
+ * answers with the root itself, so handing that value straight back is the
+ * plainest call there is; `{ document }` is the same value named; and
+ * `{ text }` is IO-1 / IO-2 of table T-024, both of which are text (CN-5 of
+ * table T-003). ⭐ THE SIGNATURE IS THIS FILE'S TO SETTLE -- table T-107's
+ * preamble says so in as many words: 「引数・戻り値は `src/` の公開エントリが
+ * 持ち、境界値は Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ」.
  */
-export interface AgentImportSource {
-  readonly text: string
-}
+export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
 
 /** What a watcher is handed. AG-6 decides what is in it; PI-15 builds it. */
 export type AgentChangeReceiver = (notice: NotifyChangeWatchers.ChangeNotice) => void
@@ -378,11 +388,17 @@ export interface AgentApi {
    */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
   /**
-   * AM-8. Intake and merge. ⛔ Not wired -- see the member.
+   * AM-8. Intake and merge.
+   *
+   * ⭐⭐ A PROMISE, AND FR-022 IS WHY (D-357): 「`AM-8`（`importDocument`）が
+   * 合流にあたるときは、`U-61` を立て、人が答えるまで待つこと（MUST）」. The wait
+   * is the requirement, so the answer cannot be a value settled at the call.
+   * ⭐ The signature is this file's to settle, on AM-14's authority and table
+   * T-107's own preamble; FR-028 forbids the throw, not the wait.
    *
    * @purity non-pure
    */
-  importDocument(source: AgentImportSource): AgentWriteOutcome
+  importDocument(source: AgentImportSource): Promise<AgentWriteOutcome>
 
   // ---- AM-9, AM-10 ---------------------------------------------------------------
   /**
@@ -502,6 +518,25 @@ export interface AgentApiWiring {
    * ⚠️ Absent on the same terms as `rasterizer` above, and for the same reason.
    */
   readonly appShell: DocumentCodec.AppShellSource | undefined
+  /**
+   * AM-8's road: hand the document to the side that owns the import, and wait.
+   *
+   * ⭐⭐ FR-022 (MUST) IS THE WHOLE OF WHY THIS IS A SEAM AND NOT A CALL:
+   * 「`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答える
+   * まで待つこと（MUST）」. Raising a surface and waiting on a person is a
+   * current value's business, and LY-5 of table T-060 leaves those with the
+   * Framework -- so the layer that draws U-61 and holds the answer is the layer
+   * that fills this, and this component neither raises the surface nor decides
+   * the merge.
+   * ⛔ IT ANSWERS WHETHER A DOCUMENT LANDED, AND NOTHING ELSE. FR-022 (MUST NOT)
+   * keeps table T-032a's choices away from the caller, so nothing about the
+   * answer a person gave may travel back through here either.
+   *
+   * ⚠️ Absent on the same terms as `rasterizer` and `appShell` above: a wiring
+   * with no import road answers `notAvailable`, which is a real absence rather
+   * than a refusal of the requirement.
+   */
+  readonly takeInDocument: ((incoming: Document) => Promise<boolean>) | undefined
   /**
    * The name every write and every utterance from this API is recorded under.
    *
@@ -657,6 +692,38 @@ function agentRefusal(
  */
 function notAvailable(target: string, snapshot: AgentSnapshot, missing: string): AgentRefusal {
   return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
+}
+
+/**
+ * The document AM-8 was handed, out of whichever of `AgentImportSource`'s three
+ * shapes it arrived in, or `null` for a value that is none of them.
+ *
+ * ⛔ NOTHING IS VALIDATED HERE BEYOND THE SHAPE. OP-5 of table T-024a (MUST) is
+ * the judgement, and it runs on the import road with the bounds in force -- ⚠️
+ * judging here would be a second, weaker copy of it standing in front of the
+ * real one. What this answers is only 「which of the three did the caller mean」.
+ *
+ * ⛔ `{ text }` IS READ THROUGH PI-20 AND NOT PARSED HERE. `documentFromJson` is
+ * DocumentCodec's own reader for IO-2 of table T-024 (FR-024), and a second
+ * parse would be the duplication chapter 5.3 refuses. ⚠️ A text it turns away
+ * comes back `null`, which the member answers `malformedRequest` for.
+ *
+ * @purity pure
+ */
+function handedDocument(handed: AgentImportSource): Document | null {
+  if (handed === null || typeof handed !== 'object') return null
+  const bag = handed as Record<string, unknown>
+  if (typeof bag['text'] === 'string') {
+    const read = DocumentCodec.documentFromJson(bag['text'])
+    return read.ok ? read.document : null
+  }
+  const named = bag['document']
+  if (named !== null && typeof named === 'object') return named as Document
+  // AM-3's own answer, handed straight back: the root carries `schedule`, which
+  // is the member no other shape of this union has.
+  return typeof bag['schedule'] === 'object' && bag['schedule'] !== null
+    ? (handed as Document)
+    : null
 }
 
 /**
@@ -860,54 +927,98 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity semi-pure-b */
-    importDocument(_source: AgentImportSource): AgentWriteOutcome {
-      // ⛔ NOT WIRED, and not to be wired around. Chapter 5.2 draws no edge
-      // from this component to ImportDocument (PI-10); the edge it draws is
-      // ApplyDocumentChange -> ImportDocument, so an intake reaches the
-      // document through the one write path (MS-1 of table T-042). ⭐ That path
-      // now exists: `replaceDocument` (PI-8) carries RD-3 and RD-4 of table
-      // T-230 and asks PI-10 itself at WS-3.
+    async importDocument(handedSource: AgentImportSource): Promise<AgentWriteOutcome> {
+      // ⭐⭐ WIRED (台帳 D-357). This member refused until 2026-09-07, and FR-022
+      // now forbids that refusal outright: 「呼ぶ側が機械であっても、選ぶのは
+      // 人であること（MUST）」, 「`AM-8`（`importDocument`）が合流にあたる
+      // ときは、`U-61` を立て、人が答えるまで待つこと（MUST）」 ——
+      // ⛔ 「合流を拒んではならない（MUST NOT）」.
       //
-      // ⛔ TWO THINGS STOP IT, AND THE SECOND IS THE ONE THAT MATTERS.
+      // ⛔ BOTH OF THE OLD GROUNDS ARE GONE, AND ONE WAS ALREADY FALSE.
+      //   the face   The note said widening it was 「a decision about table
+      //              T-107」. That table's own preamble says the opposite in as
+      //              many words -- 「引数・戻り値は `src/` の公開エントリが
+      //              持ち、境界値は Chapter 6.1 が持つ。本表は名前と、何を
+      //              担うかだけを持つ」 -- so the shape was always this file's,
+      //              and AM-14 / AM-15 landed on that same reading the same day.
+      //   FR-073     The note said accepting would open a newer-version document
+      //              in silence. ⭐ That ground belonged to the SILENCE and never
+      //              to the intake: FR-073 says 「拒んではならない（MUST NOT）」
+      //              as plainly as FR-022 does, so refusing broke one MUST NOT to
+      //              keep another. ⚠️ WHAT IS STILL OWED IS THE TELLING -- see
+      //              the STOP below.
       //
-      //   the face   `AgentImportSource` holds one text field, while RD-3 and
-      //              RD-4 want the whole of `ImportRequest` -- the merge choices
-      //              of table T-032a, OP-5's verdict, OP-4's confirmation, OP-6's
-      //              default settings and AT-109's per-import id. Widening AM-8's
-      //              face is a decision about table T-107, not one to take here.
-      //   FR-073     ⛔⛔ AND WIDENING THE FACE WOULD NOT MAKE THIS SAFE TO WIRE
-      //              (the reader's ruling of 2026-09-05). FR-073 now says a
-      //              document whose format version is newer than the greatest
-      //              this build knows MUST be accepted and opened, MUST NOT be
-      //              refused -- and MUST NOT be opened in silence: the columns
-      //              that could not be read are shown on `U-61` (Difference
-      //              Review) and the person is asked whether to go on, carrying
-      //              RS-48 of table T-233. ⛔⛔ THE OLD NOTE HERE SAID 「`U-61`
-      //              does not exist in this build」 AND THAT HALF IS NOW FALSE:
-      //              CR-366 drew the surface (`screen-renderer.ts` and
-      //              `dom-screen-surface.ts` both lay it out). ⛔ What it lays
-      //              out is FR-022's merge candidates and nothing else -- no
-      //              road puts FR-073's unread columns on it, and no road makes
-      //              the comparison that would find them: `documentFromJson`
-      //              answers OP-7 only when a caller hands it the greatest
-      //              version this build knows, and no caller does yet
-      //              (`json-codec.ts`, `formatVersion`). A member that accepted
-      //              an intake today would satisfy the first MUST by breaking
-      //              the MUST NOT beside it, and it would break it on the road
-      //              where nobody is watching -- the caller is a machine, so the
-      //              silence would not even be noticed. Refusing keeps ONE
-      //              requirement unmet and states which; accepting would meet it
-      //              by breaking the same one.
+      // ⛔ THE CHOICES ARE NOT TAKEN FROM THE CALLER (FR-022, MUST NOT), which is
+      // why this face carries a document and nothing else: `takeInDocument`
+      // raises U-61 on the far side of the seam and answers only once a person
+      // has.
       //
-      // ⚠️ The refusal therefore stands until FR-073's telling is on `U-61`, not
-      // merely until AM-8's face is widened. Reported.
+      // STOP -- ⛔ FR-073'S TELLING IS STILL ON NO SURFACE, and this member is
+      // not where it can be put. That requirement (MUST) has the columns a newer
+      // version could not be read as laid out on U-61 and carried through the
+      // write on `Carry`, with RS-48 of table T-233 for the reason. ⚠️ Neither
+      // half is reachable from here: `documentFromJson` (PI-20) answers OP-7 only
+      // when a caller hands it the greatest version this build knows and no
+      // caller does, and DocumentCodec is the component that would carry the
+      // unread columns. ⛔ That absence is no longer a reason to refuse the
+      // intake -- refusing was measured to break FR-022 and FR-073 both. Reported.
+      const snapshot = source.readSnapshot()
+      const road = wiring.takeInDocument
+      if (road === undefined) {
+        // ⚠️ A REAL ABSENCE, the same one `rasterizer` and `appShell` record: a
+        // wiring built with no import road has nowhere to raise U-61.
+        return {
+          accepted: false,
+          refusal: notAvailable('AM-8', snapshot, 'the wiring carries no import road'),
+        }
+      }
+      const incoming = handedDocument(handedSource)
+      if (incoming === null) {
+        // FR-028 (MUST NOT): 「例外を投げてはならない」, so a caller outside
+        // this build who hands something that is not a document is REFUSED and
+        // not thrown at -- the shape D-325 closed for AM-7.
+        return {
+          accepted: false,
+          refusal: agentRefusal(
+            'AM-8',
+            'malformedRequest',
+            snapshot,
+            'AM-8 takes the document, { document } or { text }; none of the three was given',
+            [],
+          ),
+        }
+      }
+      // ⭐ THE WAIT FR-022 ASKS FOR. Everything below this line runs after a
+      // person has answered on U-61, so the snapshot read above is stale by
+      // construction and the one taken below is the answer's own.
+      const landed = await road(incoming)
+      const after = source.readSnapshot()
+      if (!landed) {
+        // STOP -- ⛔ AG-9a ENUMERATES NO CATEGORY FOR THE THREE WAYS THIS ENDS.
+        // A person answered `MM-4` 「取込をやめる」 (MG-6), the import road
+        // turned the document away (OP-5 / FR-088), or OP-8 refused a second
+        // operation while one stood -- and `AgentRefusalReason` holds a row for
+        // none of the three. ⭐ `commandRefused` is the nearest that IS stated:
+        // the write did not go through and the document is exactly as it was.
+        // ⚠️ Which of the three it was travels in `what` and nowhere else, and a
+        // row of its own is what is owed. Reported.
+        return {
+          accepted: false,
+          refusal: agentRefusal(
+            'AM-8',
+            'commandRefused',
+            after,
+            'the import did not land: answered MM-4, refused by OP-5, or OP-8 held',
+            [],
+          ),
+        }
+      }
       return {
-        accepted: false,
-        refusal: notAvailable(
-          'AM-8',
-          source.readSnapshot(),
-          "AM-8's face carries only text, and FR-073's telling is on no surface",
-        ),
+        accepted: true,
+        stamp: frozenCopy(after.document.documentStamp),
+        // WS-5 (FR-063): a merge that landed moved the schedule-data group, which
+        // is what RD-3 of table T-230 advances the stamp for.
+        hasMovedSchedule: true,
       }
     },
 

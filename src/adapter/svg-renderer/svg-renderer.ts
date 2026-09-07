@@ -591,6 +591,29 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
   return monochrome ? achromatic(substituted) : substituted
 }
 
+/**
+ * How thick the `Group Grid Lines` (U-18) rule is drawn, in CSS px.
+ *
+ * ⭐ EXPORTED FOR D-363, AND THIS IS THE ONE PLACE. EP-9 of table T-076 says of
+ * the `Panel Divider` boundary line 「描く側は、罫の太さを 1 か所から読むこと
+ * （MUST）。番号を 2 か所に置いてはならない（MUST NOT）」 and 「画面と書き出しも
+ * 同じ 1 か所を読むこと（MUST）」, because 「`Group Grid Lines`（`U-18`）と同じ線
+ * を 1 本引くこと（MUST）」 and 「同じ線とは太さも同じであるということである
+ * （MUST）」 —— ⛔ 「太さを 0 で描いてはならない（MUST NOT）」.
+ *
+ * ⭐ WHY IT LIVES HERE AND NOT IN A TABLE. The same EP-9 forbids a settings key
+ * for the divider (「新しい確定名も新しい設定値のキーも作らない」), and no row of
+ * tables T-202 / T-203 / T-236 gives the group grid line a width either -- S-68
+ * is whether it is drawn and S-165 is its colour. So the number is the drawer's
+ * own, and the drawer of U-18 is this file: `bandsAndRulesSvg` below takes it,
+ * `screen-frame.ts` takes it for the divider's line rectangle, and
+ * `dom-screen-surface.ts` / `image-exporter.ts` both size that one rectangle --
+ * which is how the screen and the export read the same one place.
+ *
+ * ⛔ NOT A DOCUMENT SETTING AND MUST NOT BECOME ONE.
+ */
+export const GROUP_GRID_LINE_WIDTH_PX = 1
+
 /** Which column of table T-236 the saved theme asks for (S-72). @purity pure */
 function isDarkTheme(settings: DocumentSettings): boolean {
   return settings.themePreference === 'dark'
@@ -1700,7 +1723,11 @@ export function svgFromSchedule(
     bandParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
-        ` stroke="${themed('S-165')}" stroke-width="1"${figureKey(`${rowKey}-rule`)}/>`,
+        ` stroke="${themed('S-165')}"` +
+        // ⛔ THE NUMBER IS NOT WRITTEN HERE (D-363). EP-9 of table T-076 asks
+        // for one place and forbids two, and the divider's line takes the very
+        // same constant through `screen-frame.ts`.
+        ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
     )
   }
 

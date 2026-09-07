@@ -1,4 +1,4 @@
-// One System case for each of eight rows of the defect ledger
+// One System case for each of nine rows of the defect ledger
 // (`docs/development-records/defects.md` and, once a row has been measured,
 // `docs/development-records/fixed-defects.md`) -- rows that are fixed in the
 // tree and were measured by hand, and that had nothing holding the fix down.
@@ -17,6 +17,11 @@
 //   D-277  the `Panel Divider` line is one colour, on the screen and in the picture
 //   D-282  a loaded document's format version is compared with the greatest one known
 //   D-297  a zoom holds the date under the pointer, and the middle date without one
+//
+// The ninth was written in this round, against a clause of `FR-016` that was
+// settled the same day (2026-09-07):
+//
+//   D-375  magnifying the date axis stops with `S-229` days still on the screen
 //
 // ⚠️ D-277 HAS NO CASE IN THE FILE THAT NAMES IT.
 // `tests/system/divider-colour-corner-and-sticky-field.test.ts` judges the
@@ -1569,12 +1574,166 @@ test('D-297: a zoom holds the date under the pointer, and the middle date when t
   }
 })
 
+/**
+ * The number of days `FR-016` (MUST) keeps on the screen, read out of the
+ * manuscript at read time.
+ *
+ * ⭐ THE VALUE IS THE SPECIFICATION'S AND NOT THIS FILE'S -- the row is `S-229`
+ * of table T-206, and its own note (MUST NOT) keeps the number out of `src/`
+ * for the same reason it is kept out of here: 「`src/` に 10 を打ち込んではならな
+ * い」. Moving the row moves this case with it.
+ */
+const VISIBLE_DAY_FLOOR = numberIn(cellOf(T206, 'S-229', 1, 3), 'table T-206 row S-229')
+
+/**
+ * How many days the ruler shows across the whole `Row Area`.
+ *
+ * ⭐ BOTH TERMS ARE READ OFF THE RUNNING APPLICATION: the ground of the ruler is
+ * laid with the `Row Area`'s own x and width, and the width of one day comes
+ * from the ticks. Nothing about the layout is taken from `src/`.
+ *
+ * @purity semi-pure-b
+ */
+async function visibleDaysNow(page: Page, canvas: string, what: string): Promise<number> {
+  const reading = await readRuler(page, canvas)
+  return reading.band.width / timeAxisOf(reading, what).pxPerDay
+}
+
+// GOES RED IF: turning the wheel towards magnification goes on making a day
+// wider after the visible span has reached `S-229` days, or if the span it
+// stops at is the same number of PIXELS PER DAY on two windows of different
+// widths -- which is the fixed magnification the requirement forbids outright.
+// Measured on this build 2026-09-07 BEFORE the fix, at the screen of table
+// T-025 row `MC-6`: thirty notches of `MK-3` took a day to 384px wide and the
+// screen to 4.43 days, and every further notch left it there because `S-76`'s
+// own end was the only thing stopping it.
+//
+// ⭐ THE SECOND WINDOW IS WHAT SEPARATES A DERIVED CEILING FROM A STORED ONE.
+// A build that had simply lowered `zoomMax` would stop at one magnification on
+// both windows and show FEWER than `S-229` days on the narrower one.
+//
+// ⭐⭐ THE CLAUSES THIS CASE HOLDS, IN THE MANUSCRIPT'S OWN CHARACTERS. `FR-016`
+// gained them on 2026-09-07 and the ledger row `D-377` booked the debt of
+// having written them with no test carrying their words; each line below is the
+// text of `docs/spec/01-04-requirements.md` ending at the marker, copied and
+// not paraphrased, so that moving any of them moves this file too:
+//
+//   -203 の `S-75` / `S-76` が持つ範囲へ収めること（MUST）
+//   拡大の側には、軸ごとに導かれる上限を置くこと（MUST）
+//   無いところで止まる。**⛔ **固定の倍率で止めてはならない（MUST NOT）
+//   の 表 T-206 の `S-229` 日を下回らない倍率とすること（MUST）
+//   る。**⛔ **日数を `src/` に打ち込んではならない（MUST NOT）
+//
+// ⛔ THE ROW AXIS'S OWN CEILING IS NOT AMONG THEM AND MUST NOT BE ADDED UNTIL IT
+// IS BUILT: `D-374` is not fixed in this tree, and a clause quoted by a test
+// that does not exercise it is the debt this check was raised against, paid in
+// appearance only.
+test('D-375: magnifying the date axis stops with S-229 days still on the screen', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+  const app = await openTheApp(baseURL)
+  const canvas = '[data-role="Schedule Canvas"] svg'
+  const wheelAway = async (times: number): Promise<void> => {
+    for (let turn = 0; turn < times; turn++) {
+      await app.page.keyboard.down('Shift')
+      await app.page.mouse.wheel(0, -120)
+      await app.page.keyboard.up('Shift')
+      await app.page.waitForTimeout(40)
+    }
+    await readSettledDrawnSvg(app.page)
+  }
+  try {
+    const canvasBox = await app.page.evaluate((selector: string) => {
+      const box = window.document.querySelector(selector)?.getBoundingClientRect()
+      return box === undefined ? null : { x: box.x, y: box.y, width: box.width, height: box.height }
+    }, canvas)
+    expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
+    if (canvasBox === null) return
+    await app.page.mouse.move(
+      Math.round(canvasBox.x + canvasBox.width / 2),
+      Math.round(canvasBox.y + canvasBox.height / 2),
+    )
+
+    // ---- the wide window ------------------------------------------------
+    const before = await visibleDaysNow(app.page, canvas, 'before magnifying')
+    expect(
+      before,
+      'the document opens with fewer days on the screen than the ceiling keeps, so magnifying ' +
+        'it proves nothing',
+    ).toBeGreaterThan(VISIBLE_DAY_FLOOR)
+    // ⭐ Far more notches than it takes to reach the ceiling, so that a build
+    // which only SLOWED the magnification is caught as well as one that never
+    // stopped: at `S-53` = 1.1 a notch, thirty notches multiply the axis by
+    // more than seventeen.
+    await wheelAway(50)
+    const wide = await readRuler(app.page, canvas)
+    const wideDays = wide.band.width / timeAxisOf(wide, 'at the ceiling, wide window').pxPerDay
+    expect(
+      wideDays,
+      `FR-016 (MUST): 「日付の軸（\`zoomX\`）の上限は、見えている範囲が ... 表 T-206 の ` +
+        `\`S-229\` 日を下回らない倍率とすること（MUST）」. The Row Area is ` +
+        `${String(Math.round(wide.band.width))}px wide and shows ${wideDays.toFixed(2)} days`,
+    ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
+    // ⛔ AND IT REALLY STOPPED THERE. A ceiling that let the span keep falling
+    // by a fraction of a day per notch would pass the line above on the first
+    // reading and fail the person turning the wheel.
+    await wheelAway(10)
+    const further = await visibleDaysNow(app.page, canvas, 'past the ceiling, wide window')
+    expect(
+      further,
+      `ten more notches took the screen from ${wideDays.toFixed(2)} days to ` +
+        `${further.toFixed(2)}, so the magnification has no ceiling at all`,
+    ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
+
+    // ---- the narrow window ----------------------------------------------
+    // ⛔ FR-016 (MUST NOT): 「固定の倍率で止めてはならない（MUST NOT）」 ——
+    // 「画面の広さも行の中身も環境で変わるので、倍率の直値はそのどちらにも合わない。」
+    await app.page.setViewportSize({ width: 1280, height: 900 })
+    await readSettledDrawnSvg(app.page)
+    await wheelAway(20)
+    const narrow = await readRuler(app.page, canvas)
+    const narrowAxis = timeAxisOf(narrow, 'at the ceiling, narrow window')
+    const narrowDays = narrow.band.width / narrowAxis.pxPerDay
+    expect(
+      narrow.band.width,
+      'the narrower window did not narrow the Row Area, so the two readings are one reading',
+    ).toBeLessThan(wide.band.width)
+    expect(
+      narrowDays,
+      `FR-016 (MUST): the promise is a number of DAYS and not a magnification. The Row Area is ` +
+        `now ${String(Math.round(narrow.band.width))}px wide and shows ${narrowDays.toFixed(2)} days`,
+    ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
+    expect(
+      narrowAxis.pxPerDay,
+      `FR-016 (MUST NOT): 「固定の倍率で止めてはならない」. A day is ` +
+        `${narrowAxis.pxPerDay.toFixed(2)}px wide at the ceiling of the ` +
+        `${String(Math.round(narrow.band.width))}px window and was ` +
+        `${timeAxisOf(wide, 'wide').pxPerDay.toFixed(2)}px at the ceiling of the ` +
+        `${String(Math.round(wide.band.width))}px one -- one magnification for both widths is ` +
+        'the fixed ceiling the requirement forbids',
+    ).toBeLessThan(timeAxisOf(wide, 'wide').pxPerDay)
+  } finally {
+    await app.close()
+  }
+})
+
 // ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
 
 /** The ledger rows the cases above hold down. */
-const HELD: readonly string[] = ['D-34', 'D-45', 'D-72', 'D-87', 'D-160', 'D-277', 'D-282', 'D-297']
+const HELD: readonly string[] = [
+  'D-34',
+  'D-45',
+  'D-72',
+  'D-87',
+  'D-160',
+  'D-277',
+  'D-282',
+  'D-297',
+  'D-375',
+]
 
 /**
  * The two files the ledger is kept in.

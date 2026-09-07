@@ -395,6 +395,26 @@ export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }
 type AgentApiWiring = Parameters<typeof installAgentApi>[0]
 
 /**
+ * A document handed straight in, with no file behind it -- AM-8's road (D-357).
+ *
+ * ⭐ WHAT THE MACHINE MAY SAY AND WHAT IT MAY NOT. FR-022 (MUST NOT):
+ * 「`Agent API` の呼び出しに、選択肢をあらかじめ渡させてはならない」, so table
+ * T-032a's mapping is NOT here -- it is answered on U-61 by a person. What IS
+ * here is what a file would otherwise have carried: the document, which row of
+ * table T-024 it came in as, and how big it was, because OP-5's judgement is
+ * measured in bytes (S-113).
+ * ⭐ `choice` IS OP-3's, NOT TABLE T-032a's. It says what the ENTRANCE means --
+ * AM-8 of table T-107 is 「取り込み・合流」 -- and FR-022 begins 「合流が選ばれ
+ * （`FR-087` の `OP-3`）」, so the merge road is the one this entrance walks.
+ */
+interface HandedImport {
+  readonly incoming: Document
+  readonly format: ExchangeFormat
+  readonly byteLength: number
+  readonly choice: OpenChoice
+}
+
+/**
  * The members of PI-17's wiring that are current values LY-5 of table T-060
  * leaves with this layer, gathered so that the file which PLACES the public
  * point can hand them over without holding any of them itself.
@@ -1229,6 +1249,18 @@ const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
 /** U-25 of table T-103, spelled as that table spells it. */
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
+
+/**
+ * The `AI Export Modal` half of U-30 of table T-103, spelled as that table
+ * spells it -- the surface FR-068 opens.
+ *
+ * ⭐ ASKED TWICE BY THIS LOOP, for the two halves of that requirement:
+ * `sessionOf` is told whether it stands, so the document can be put on it, and
+ * `answerSettledEntry` is told, so a press of IC-52 drawn there copies before
+ * it closes. ⚠️ Spelled here as `PROPERTIES_PANEL_SURFACE` above is spelled --
+ * a value of the glossary, named by each unit that does work on it.
+ */
+const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
 /**
  * U-60 of table T-103, spelled as that table spells it -- the surface FR-020
@@ -2507,6 +2539,16 @@ interface SessionHeld {
   readonly isAgentApiEnabled: boolean
   /** FR-066 / S-99i of table T-206 -- IC-18's own switch, apart from the one above. */
   readonly isDialogueFieldVisible: boolean
+  /**
+   * FR-068 -- whether the `AI Export Modal` (U-30) is the surface standing.
+   *
+   * ⭐ A GATE AND NOT THE TEXT. `sessionOf` is handed the whole `Document`
+   * already, so the document that goes on the surface is written there; what
+   * only the caller knows is whether anybody is looking at it. ⛔ Writing it
+   * every frame would run `jsonFromDocument` over the whole schedule sixty
+   * times a second for a surface that is closed almost always.
+   */
+  readonly isAiExportSurfaceOpen: boolean
   /** U-42 `Pointer`, or `null` while it is outside the window. */
   readonly pointer: { readonly x: number; readonly y: number } | null
   /** FT-4 of table T-078, for EZ-2's wait. */
@@ -2636,6 +2678,7 @@ function sessionOf(
     fileSavedAt,
     isAgentApiEnabled,
     isDialogueFieldVisible,
+    isAiExportSurfaceOpen,
     pointer,
     pointerRestedMs,
     iconUnderPointer,
@@ -2687,6 +2730,22 @@ function sessionOf(
     // 未裁定 and asks what S-99i does when the capability goes down and comes
     // back, and borrowing the row above's scope would decide that here.
     isDialogueFieldVisible,
+    // FR-068 (MUST): 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること
+    // （MUST）」, and the clause after it forbids a new exchange format for this
+    // face (MUST NOT) -- ⚠️ pointed at rather than quoted, because that sentence
+    // carries a broken character in the manuscript (see `ScreenSession`).
+    // `jsonFromDocument` is DocumentCodec's IO-2 writer and the
+    // one already used by the save road and by AM-3, so nothing is minted here.
+    //
+    // ⭐ THE WHOLE `Document` AND NOT `document.schedule`: FR-024 makes the
+    // presentation group part of what a GRS JSON carries, and the codec writes
+    // the value it is handed.
+    // ⛔ ONLY WHILE THE SURFACE STANDS -- see `isAiExportSurfaceOpen`. An
+    // ABSENT member here is 「nobody is reading it」 and not 「the document is
+    // empty」, which is the distinction `openModalFromScreenState` turns on.
+    // ⚠️ SPREAD RATHER THAN SET TO `undefined`: `exactOptionalPropertyTypes`
+    // makes those two different things, and the absence is the one meant.
+    ...(isAiExportSurfaceOpen ? { aiExportDocument: jsonFromDocument(held) } : {}),
     pointer,
     // EZ-2 of table T-040 -- the two halves of its condition, both measured by
     // the loop and neither of them decidable here.
@@ -5229,6 +5288,10 @@ export function frameLoop(
           fileSavedAt,
           isAgentApiEnabled,
           isDialogueFieldVisible,
+          // FR-068: the surface the document is read on. ⭐ Asked of the very
+          // `ScreenState` this frame is drawn from, so the document on the
+          // surface and the surface itself are one moment.
+          isAiExportSurfaceOpen: screenState.surface === AI_EXPORT_MODAL_SURFACE,
           pointer: pointerAt,
           pointerRestedMs,
           // ⭐ THE ANSWER THE SURFACE ALREADY GAVE, taken from where
@@ -6043,6 +6106,11 @@ export function frameLoop(
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
+          // ⚠️ NO SURFACE IS OPEN IN AN EXPORTED PICTURE. EP-11 of table T-076
+          // keeps a tool's own surfaces out of it, and `stateForExport` is built
+          // with none standing -- so the document that FR-068 shows has nobody
+          // reading it here.
+          isAiExportSurfaceOpen: false,
           // ⚠️ Fresh for the same reason `isAgentApiEnabled` just above is:
           // EP-12 of table T-076 keeps this session's state out of the picture,
           // and with the API answered off here the field is absent regardless
@@ -7181,7 +7249,11 @@ export function frameLoop(
     screenState = screenStateWithSurface(screenState, IMPORT_REPORT_SURFACE)
   }
 
-  async function openDocumentIntoHold(store: FileStore, route: OpenRoute): Promise<void> {
+  async function openDocumentIntoHold(
+    store: FileStore | null,
+    route: OpenRoute,
+    handed: HandedImport | null = null,
+  ): Promise<boolean> {
     // CS-4: collected at the moment the operation begins, and not read again.
     const current = held.document
     // ⛔ THE BOUNDS ARE THE ONES IN FORCE, NEVER THE ARRIVING FILE'S.
@@ -7192,53 +7264,79 @@ export function frameLoop(
     // ceiling, which empties NFR-009.
     const bounds: ImportBounds = current.documentSettings
 
-    const opening = await openDocumentFile(store, route)
-    if (!opening.ok) {
-      // FR-076 (MUST): the same road `saveHeldDocumentToFile` takes one over.
-      raiseFileFault(opening.fault)
-      return
-    }
-    // OP-11 (MUST): the rest were left behind and the person is told so, in the
-    // manner NT-5 that table T-233 pairs with this row -- which is why the open
-    // goes on below rather than reading as refused (MUST NOT).
-    // ⚠️ THE NUMBER RIDES ON `affectedCount`. That member is documented against
-    // NT-3 and this row follows NT-5, and it is the one place on `RaisedNotice`
-    // a number can travel -- so the count is carried rather than dropped, and no
-    // word of it is written here (FR-038, MUST NOT).
-    if (opening.ignoredFileCount > 0) {
-      raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
-    }
-    const file = opening.file
+    // ⭐⭐ THE READING SIDE IS THE ONLY HALF THAT DIFFERS BETWEEN THE TWO
+    // ENTRANCES (D-357). A person's press arrives with a `FileStore` and no
+    // document; AM-8 of table T-107 arrives with the document and no store.
+    // Everything after this branch -- OP-5's judgement, FR-023's drop, FR-088's
+    // calendar, OP-3's choice, OP-4's confirmation, FR-022's question on U-61
+    // and the write itself -- is ONE road walked by both, which is what FR-028
+    // asks for in as many words: the two entrances are equals.
+    // ⛔ SO NOTHING IS RE-IMPLEMENTED FOR THE MACHINE. A second copy of this
+    // road is exactly how the two entrances would drift apart.
+    let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
+    let incoming: Document
+    if (handed !== null) {
+      // ⛔ NO OP-12 CHECK ON THIS ROAD, AND NOT BY OVERSIGHT. That row (MUST)
+      // compares a file's EXTENSION with its first non-blank character, and a
+      // caller of AM-8 hands a value rather than a file -- there is no extension
+      // to disagree with anything. ⚠️ What the value has to BE is checked on the
+      // other side of the seam, where the shape is still a caller's.
+      handedIn = { format: handed.format, byteLength: handed.byteLength }
+      incoming = handed.incoming
+    } else if (store === null) {
+      // ⛔ Neither a store nor a handed document is nothing to open.
+      return false
+    } else {
+      const opening = await openDocumentFile(store, route)
+      if (!opening.ok) {
+        // FR-076 (MUST): the same road `saveHeldDocumentToFile` takes one over.
+        raiseFileFault(opening.fault)
+        return false
+      }
+      // OP-11 (MUST): the rest were left behind and the person is told so, in
+      // the manner NT-5 that table T-233 pairs with this row -- which is why the
+      // open goes on below rather than reading as refused (MUST NOT).
+      // ⚠️ THE NUMBER RIDES ON `affectedCount`. That member is documented against
+      // NT-3 and this row follows NT-5, and it is the one place on `RaisedNotice`
+      // a number can travel -- so the count is carried rather than dropped, and
+      // no word of it is written here (FR-038, MUST NOT).
+      if (opening.ignoredFileCount > 0) {
+        raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
+      }
+      const file = opening.file
 
-    // OP-12 (MUST): both the extension and the first non-blank character have
-    // to name the same row of table T-024, and a file where either disagrees is
-    // not read at all (MUST NOT).
-    const reading = formatFromFile(file.fileName, file.text)
-    if (!reading.ok) {
-      // FR-076 (MUST): which side disagreed is told. `reading.mismatch` is
-      // carried precisely so NT-1 can say WHICH item is wrong, and table T-233
-      // gives OP-12 a row per answer.
-      raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
-      return
+      // OP-12 (MUST): both the extension and the first non-blank character have
+      // to name the same row of table T-024, and a file where either disagrees
+      // is not read at all (MUST NOT).
+      const reading = formatFromFile(file.fileName, file.text)
+      if (!reading.ok) {
+        // FR-076 (MUST): which side disagreed is told. `reading.mismatch` is
+        // carried precisely so NT-1 can say WHICH item is wrong, and table T-233
+        // gives OP-12 a row per answer.
+        raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
+        return false
+      }
+      const decoded = decodedDocument(reading.format, file.text, current)
+      // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above
+      // records why: table T-233 holds no row for one, and FR-076 (MUST NOT)
+      // makes that table the whole of what a telling may carry.
+      if (decoded === null) return false
+      handedIn = { format: reading.format, byteLength: file.byteLength }
+      incoming = decoded.document
+      // `RS-51` (MUST): a setting the file carried outside its own bounds was
+      // brought inside on the read road, and the person is told HOW MANY moved.
+      // ⛔ THE OPEN GOES ON, which is what choice ⓑ decided and what the manner
+      // `NT-5` says out loud: the document was accepted, so this is a caution
+      // beside it and never a refusal (MUST NOT).
+      // ⚠️ THE NUMBER RIDES ON `affectedCount`, the one place on `RaisedNotice`
+      // a number travels -- the same road `IGNORED_FILES_REASON` takes above.
+      // ⛔ NOT THE KEYS THEMSELVES. No surface of the specification shows which
+      // ones moved, and building one here would be inventing a face.
+      if (decoded.clampedCount > 0) {
+        raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
+      }
     }
-    const decoded = decodedDocument(reading.format, file.text, current)
-    // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above records
-    // why: table T-233 holds no row for one, and FR-076 (MUST NOT) makes that
-    // table the whole of what a telling may carry.
-    if (decoded === null) return
-    let incoming = decoded.document
-    // `RS-51` (MUST): a setting the file carried outside its own bounds was
-    // brought inside on the read road, and the person is told HOW MANY moved.
-    // ⛔ THE OPEN GOES ON, which is what choice ⓑ decided and what the manner
-    // `NT-5` says out loud: the document was accepted, so this is a caution
-    // beside it and never a refusal (MUST NOT).
-    // ⚠️ THE NUMBER RIDES ON `affectedCount`, the one place on `RaisedNotice` a
-    // number travels -- the same road `IGNORED_FILES_REASON` takes just above.
-    // ⛔ NOT THE KEYS THEMSELVES. No surface of the specification shows which
-    // ones moved, and building one here would be inventing a face.
-    if (decoded.clampedCount > 0) {
-      raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
-    }
+    const readIn = handedIn
 
     // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
     // is asked -- the row states the reason itself, that asking first would
@@ -7248,7 +7346,7 @@ export function frameLoop(
         document: incoming,
         // S-113 is stated in megabytes and measured in bytes, which is why the
         // gateway carries the file's byte length beside the decoded text.
-        byteLength: file.byteLength,
+        byteLength: readIn.byteLength,
         // STOP -- ⛔ NO CODEC ANSWERS THIS. `ImportCandidate.emptyRowTaskUids`
         // records that docs/spec says neither how such a row is recognised nor
         // where it is held, and PI-20 of table T-064 publishes nothing that
@@ -7314,7 +7412,7 @@ export function frameLoop(
       droppedNames.length === 0
         ? verdict
         : validateImportedDocument(
-            { document: incoming, byteLength: file.byteLength, emptyRowTaskUids: [] },
+            { document: incoming, byteLength: readIn.byteLength, emptyRowTaskUids: [] },
             bounds,
           )
     if (!afterDropping.ok) {
@@ -7350,7 +7448,7 @@ export function frameLoop(
       // NOT) bars a telling from carrying a reason table T-233 does not hold,
       // and that table's closing puts FR-023's refusals outside it on purpose --
       // 「⛔ 同じものに 2 つ目の鍵を作らない」.
-      return
+      return false
     }
 
     // FR-088 (MUST NOT / MUST): 「稼働する曜日を 1 つも持たない暦を、文書の暦
@@ -7391,7 +7489,7 @@ export function frameLoop(
     const noWorkingWeekday = noWorkingWeekdayReason(incoming)
     if (noWorkingWeekday !== null) {
       raiseNotice(noWorkingWeekday, null)
-      return
+      return false
     }
 
     // ⭐ OP-13 of table T-024a (MUST): 「選ばせる面を開かずに、同じファイルをもう
@@ -7403,13 +7501,22 @@ export function frameLoop(
     // ⚠️ OP-4 BELOW STILL RUNS. That row is not skipped with the question --
     // OP-13 says in as many words 「`OP-4` の確認は掛かること（MUST）」, and a
     // settled `'replace'` reaches it exactly as a chosen one does.
+    // ⭐⭐ AM-8 SETTLES IT TOO, AND FOR A REASON OF ITS OWN (D-357). FR-022
+    // (MUST) has `AM-8` raise U-61 when the intake IS a merge, and ⛔ forbids
+    // handing the caller the choices (MUST NOT) -- so the caller names neither
+    // the mapping nor OP-3's three. `HandedImport.choice` carries what the
+    // entrance means, and the surface below is still where a person answers.
     const choice =
-      route === OPEN_ROUTE_REOPEN ? OPEN_CHOICE_OF_REOPEN : await askHowToOpen()
+      handed !== null
+        ? handed.choice
+        : route === OPEN_ROUTE_REOPEN
+          ? OPEN_CHOICE_OF_REOPEN
+          : await askHowToOpen()
     // ⛔ OP-3 (MUST NOT): nothing is chosen here. A question that went away
     // unanswered leaves the read where it was, and an abandoned open changes
     // no document -- which is the only outcome that does not decide for the
     // person.
-    if (choice === null) return
+    if (choice === null) return false
 
     // OP-4 (MUST): the replace is the one choice that throws the current
     // document away, so it is the one choice that asks first. That row exempts
@@ -7425,13 +7532,13 @@ export function frameLoop(
     // never asked. Narrowing it needs the manuscript, not this file.
     const isDiscardConfirmed =
       choice === 'replace' ? await askToDiscardCurrentDocument(current) : false
-    if (choice === 'replace' && !isDiscardConfirmed) return
+    if (choice === 'replace' && !isDiscardConfirmed) return false
 
     // ⭐ WHAT PI-10 IS BROUGHT, minus the two fields table T-230 fills in for
     // this side: `current` is CS-3's one read, and the row fixes the choice.
     const importing = {
       incoming,
-      format: reading.format,
+      format: readIn.format,
       // OP-5 passed above, and this side never claims it did not run.
       validationPassed: true,
       // OP-8 (MUST NOT) is kept at the ENTRANCE, where a second open is refused
@@ -7473,7 +7580,7 @@ export function frameLoop(
       // 告げること」. ⛔ AFTER, AND ONLY WHERE THE WRITE WENT THROUGH: a
       // refused replace dropped nothing, so there is nothing to name.
       if (replaced) tellWhatTheImportDropped(droppedNames)
-      return
+      return replaced
     }
     // RD-3 -- the merge and the overlay. It is the one row of table T-230 whose
     // stamp advances and whose WS-4 can owe a step, so it is the one row that
@@ -7534,7 +7641,7 @@ export function frameLoop(
       // surface that went away unanswered settles nothing, and MG-6 is kept by
       // construction -- no write has happened yet, so the document is exactly as
       // it was.
-      if (mapping === null) return
+      if (mapping === null) return false
       // MM-4 of table T-032a -- 「取込をやめる」, which MG-6 (MUST) settles as the
       // document being exactly as it was before the import.
       //
@@ -7549,7 +7656,7 @@ export function frameLoop(
       // the same thing in one line and does not write a value nobody reads.
       // ⚠️ MG-6 IS KEPT BY CONSTRUCTION: no write has happened at this point, so
       // there is nothing to put back.
-      if (mapping.kind === 'cancelImport') return
+      if (mapping.kind === 'cancelImport') return false
       // ⚠️ MG-4 AND MG-12 STAY UNANSWERED: this is table T-032a's answer alone,
       // and `MergeChoices` declares `null` as "not answered" for the other two.
       mergeAnswers = { mapping, profileConflict: null, settingsConflict: null }
@@ -7578,7 +7685,7 @@ export function frameLoop(
     // merge, and `ImportReport.baselineTaskUidsNotDrawn` is the overlay side's
     // member; a refused row is told by `replaceHeldDocument` itself and has
     // nothing left undrawn to caution about.
-    if (!landed || choice !== 'baseline') return
+    if (!landed || choice !== 'baseline') return landed
 
     // ⚠️ PI-10 IS ASKED A SECOND TIME, AND THAT IS A COST RATHER THAN A CHOICE:
     // `ReplaceOutcome` (PI-8) answers with the document and WS-5's judgement and
@@ -7597,7 +7704,7 @@ export function frameLoop(
     })
     // The row landed, so PI-10 accepted it; a refusal here would be the two runs
     // disagreeing, and there is nothing about THIS requirement to tell then.
-    if (!overlaid.ok) return
+    if (!overlaid.ok) return landed
 
     // ⚠️ THE NUMBER RIDES ON `affectedCount`, exactly as OP-11's caution above
     // has it: that member is documented against NT-3 and this row follows NT-5,
@@ -7609,6 +7716,7 @@ export function frameLoop(
     // 注意を伝えるとき」, and with nothing left undrawn there is no caution.
     const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
     if (notDrawn > 0) raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
+    return landed
   }
 
   /**
@@ -7635,6 +7743,65 @@ export function frameLoop(
     const openedFile = await store.readOpenedFileState()
     if (openedFile.kind === 'none') return
     await openDocumentIntoHold(store, OPEN_ROUTE_REOPEN)
+  }
+
+  /**
+   * AM-8 of table T-107, from this side of the seam (台帳 D-357).
+   *
+   * ⭐⭐ FR-022 (MUST), the ruling of 2026-09-07: 「呼ぶ側が機械であっても、選ぶ
+   * のは人であること（MUST）」 and 「`AM-8`（`importDocument`）が合流にあたるとき
+   * は、`U-61` を立て、人が答えるまで待つこと（MUST）」 —— ⛔ 「合流を拒んでは
+   * ならない（MUST NOT）」.
+   *
+   * ⭐ SO THIS IS A WAIT AND NOT A COMPUTATION. It walks the very road a person's
+   * press walks -- `openDocumentIntoHold` with the document handed in instead of
+   * read from a file -- and that road already raises U-61 through
+   * `askWhichFileToTakeFrom` and does not resolve until an answer arrives.
+   * ⛔ NOTHING ABOUT THE MERGE IS SETTLED HERE: the same requirement's MUST NOT
+   * keeps the choices away from the caller, and the surface is where they land.
+   *
+   * ⚠️ THE COST THE RULING NAMES: 「エージェントが「取り込んで」と言ってから、
+   * 人が画面で答えるまで止まる。無人運転はできない」. The promise this answers
+   * with is that wait, and a caller that never shows the page never sees it end.
+   *
+   * ⛔ OP-8 (MUST NOT) STILL HOLDS ACROSS THE TWO ENTRANCES. One file operation
+   * at a time, and a machine's call that arrives while a person's question
+   * stands is refused rather than allowed to take the one surface away.
+   * ⚠️ ANSWERED `false` FOR THAT, which the caller's side turns into a refusal;
+   * no notice is raised on this road, because the party that would read it is
+   * the machine and it is told in its own answer.
+   *
+   * ⭐ THE ROUTE IS UNREAD ON THIS ROAD. `OpenRoute` (IF-3's) tells the file
+   * gateway which gesture asked for a FILE, and no file is read here -- the
+   * argument travels only so far as the branch that skips the read.
+   *
+   * @purity non-pure
+   */
+  async function takeInHandedDocument(incoming: Document): Promise<boolean> {
+    // OP-8 (MUST NOT) and CS-4's one-at-a-time -- the same guard the person's
+    // own entrances keep, and the reason is the same: a second read begun
+    // mid-wait would take away the one question the screen can hold.
+    if (isFileOperationWaiting || asking !== null || openChoosing !== null) return false
+    isFileOperationWaiting = true
+    try {
+      return await openDocumentIntoHold(null, OPEN_ROUTE_FROM_CHOOSER, {
+        incoming,
+        // IO-2 of table T-024 -- the machine-facing row, which is what a value
+        // handed straight in is. ⛔ Not asked of `formatFromFile`: OP-12 reads
+        // an extension and a first character, and there is neither here.
+        format: 'grsJson',
+        // S-113 is stated in megabytes and measured in bytes, and OP-5 judges
+        // against it -- so the value is measured the same way a file's is,
+        // through the same writer table T-024 names for IO-2.
+        byteLength: new TextEncoder().encode(jsonFromDocument(incoming)).length,
+        // FR-022 begins 「合流が選ばれ（`FR-087` の `OP-3`）」, and AM-8 of table
+        // T-107 is 「取り込み・合流」 -- so this entrance means the merge, and
+        // OP-3's three-way question is not put to a machine.
+        choice: 'merge',
+      })
+    } finally {
+      endFileOperationWait()
+    }
   }
 
   /**
@@ -8024,6 +8191,42 @@ export function frameLoop(
       // hand the press to `carryOutAction` as an edit of the schedule beneath.
       isPropertiesPanelPutAway = true
       return true
+    }
+    if (entry === CLOSE_SURFACE_ENTRY && surface === AI_EXPORT_MODAL_SURFACE) {
+      // FR-068 (MUST): 「複写の入口は 表 T-109 の `IC-52` とすること（MUST）。
+      // 新しい行を足してはならない（MUST NOT）」 —— 「その行は既にこの面に在る」.
+      //
+      // ⭐⭐ SO THE COPY RIDES ON THE ROW THAT WAS ALREADY THERE, and this is
+      // the whole of why it is done in this layer: R-9 of table T-008 puts the
+      // clipboard outside the components that draw, `ClipboardContent` already
+      // carries a `document` variant named for FR-068, and no row of table
+      // T-108 makes this a `DocumentCommand` -- nothing is written to the
+      // document at all.
+      // ⛔ NOT SPENT: this answers `false` so that the press goes on to close
+      // the surface the way it closes every other one (IN-4 of table T-028,
+      // spent by `input-command-translator.ts`). Returning `true` would make
+      // FR-068's copy entrance a control that no longer closes, which is the
+      // second entrance FR-029 forbids wearing the first one's shape.
+      // ⚠️ THE DOCUMENT IS READ HERE AND NOT INSIDE THE PROMISE, which is CS-4
+      // of table T-066 and the same shape the record's copy keeps: what goes on
+      // the clipboard is what the person was reading when they pressed.
+      const seam = clipboard
+      // ⛔ NOTHING IS WRITTEN WHERE NO CLIPBOARD WAS HANDED IN -- the answer
+      // `copyPictureToClipboard` and the record's copy both make (CP-30).
+      if (seam !== undefined) {
+        // ⭐ THE SAME WRITER `sessionOf` PUT ON THE SURFACE (FR-068, MUST):
+        // 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」, so
+        // the text copied and the text read are one call and cannot part.
+        const text = jsonFromDocument(held.document)
+        void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
+          // FR-076 (MUST): a failure is told. ⛔ STOP -- table T-233 has no row
+          // for a clipboard write that would not go through, so the reason has
+          // nowhere to point and RS-15 is what it falls to, exactly as the
+          // picture's own write records. ⚠️ A row of its own is what is owed.
+          if (!writing.ok) raiseNotice('RS-15', null)
+        })
+      }
+      return false
     }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
       // FR-038 (MUST): exactly two languages, so one entry that shows the
@@ -10180,6 +10383,10 @@ export function frameLoop(
       // a loop running where nothing can paint is handed neither.
       rasterizer,
       appShell,
+      // ⭐ FR-022's WAIT (D-357). AM-8 walks the person's own import road and
+      // stops on U-61 until somebody answers -- `takeInHandedDocument` carries
+      // the requirement and the cost.
+      takeInDocument: takeInHandedDocument,
       ...dialogueSeams,
     }),
     /** @purity non-pure */
