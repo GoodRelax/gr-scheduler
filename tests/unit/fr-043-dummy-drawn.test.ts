@@ -1,5 +1,5 @@
 // The drawn `Actual Operation Dummy` (U-52): FR-043's MUST that it be SHOWN,
-// the width FR-043 now gives it -- 「1 日ぶんと `S-180` の小さい方」, aligned to
+// the width FR-043 now gives it -- 「1 日ぶんと … `S-180` の小さい方」, aligned to
 // 「日の列の左端」 -- and EP-14's rule that an export draws none of it.
 //
 // ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
@@ -18,6 +18,22 @@
 //   FR-043    「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める掴み
 //             シロを 2 つ（マイルストーンは例外とする）、実績の開始点と終了点
 //             として薄くタスクの上に示し …（MUST）」
+//   FR-043    ⭐⭐ 「**ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に
+//             別々の印を描いてはならない（MUST NOT）**」（利用者の裁定 2026-09-08、
+//             逐語「タスクのダミーは1日とする。 だから = は1日」）—— 「**ダミーの
+//             実績は `S-129` ＝ 1 稼働日であり、その 1 日を覆う 1 つの印として
+//             描く。**」 ⭐ 「**掴む先が 2 つであることは変わらない** —— 表 T-023d
+//             の `GR-9` と `GR-17` はどちらも残り …… ⇒ **人から見れば掴みシロは
+//             1 つであり、掴めば実績が立つ。**」
+//
+// ⛔⛔ TWO COUNTS, AND THIS FILE KEEPS THEM APART. The line above it names
+//   掴みシロ を 2 つ -- the GRAB side, which table T-023d still holds -- and the
+//   2026-09-08 ruling names 印 は 1 つ -- the DRAWING side, which this file
+//   measures. ⭐ Every count of a FIGURE below is one; every count of a `dummies`
+//   ROW below is two. ⛔ 2026-09-08 まで this file read the first line as a count
+//   of figures, and that is precisely the reading the ruling struck down:
+//   「⛔ **2026-09-08 まで `GR-9` と `GR-17` の位置に縦棒が 1 本ずつ立ち、画面には
+//   2 本見えていた** —— **利用者の申し立ては「1つだけにしろ」であった。**」
 //   FR-043    ⭐ 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
 //             表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に
 //             揃えること（MUST）」（利用者の裁定 2026-09-02）
@@ -706,14 +722,18 @@ const planBoxOf = (drawn: Drawn, uid: number): Box => {
 }
 
 /**
- * Where FR-043 puts the ink of the two dummies of `notStartedSchedule`.
+ * The two day columns table T-023d gives a not-started `Task`'s GRAB TARGETS.
  *
- * GR-9 stands one working day right of the plan start (FR-043 / T-023d GR-9),
- * GR-17 `S-129` working days right of GR-9 (FR-043 / T-023d GR-17), the day is
- * `S-1` × `zoomX` wide (FR-017), and each ink begins at its day column's left
- * edge and runs 「1 日ぶんと `S-180` の小さい方」 (FR-043).
+ * GR-9 stands one working day right of the plan start (FR-043 / T-023d GR-9)
+ * and GR-17 `S-129` working days right of GR-9 (FR-043 / T-023d GR-17); the day
+ * is `S-1` × `zoomX` wide (FR-017).
+ *
+ * ⛔ THIS IS THE GRAB SIDE AND IT IS STILL TWO -- FR-043: 「⭐ **掴む先が 2 つで
+ * あることは変わらない** —— 表 T-023d の `GR-9` と `GR-17` はどちらも残り」. What is
+ * DRAWN at these two columns is a separate question, and `inkExpectedOf` answers
+ * it.
  */
-const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] => {
+const grabColumnsOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] => {
   const left = planBoxOf(fresh, UNDER_TEST).x0
   const dayWidth = dayWidthAt(zoomX)
   const width = drawnWidthAt(zoomX)
@@ -724,6 +744,21 @@ const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: s
     { grab: 'GR-17', x0: gr17, x1: gr17 + width },
   ]
 }
+
+/**
+ * Where FR-043 puts the ONE mark of `notStartedSchedule` -- ⭐ one entry, and
+ * that is the claim.
+ *
+ * FR-043 (MUST, 利用者の裁定 2026-09-08): 「**ダミーの印は 1 つだけ描くこと**」,
+ * ⛔ (MUST NOT): 「**開始の側と終了の側に別々の印を描いてはならない**」. WHICH of
+ * the two grab columns the mark stands on is FR-043's own drawing-position MUST,
+ * 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）**」 -- GR-9's
+ * place (T-023d), never GR-17's, which stands a further `S-129` worked days on.
+ * The ink begins at that day column's left edge and runs 「1 日ぶんと … `S-180` の
+ * 小さい方」 (FR-043).
+ */
+const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] =>
+  grabColumnsOf(fresh, zoomX).slice(0, 1)
 
 /**
  * Where GR-18's ink must begin: the left edge of the day column one working day
@@ -827,7 +862,12 @@ describe('the reader this file measures pictures with', () => {
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     const fill = bar.flatMap((one) => one.colours)[0]
     expect(fill).toBeDefined()
-    const expected = inkExpectedOf(fresh, NARROW_DAY_ZOOM)
+    // ⭐⭐ THE CONTROL SPLICES **TWO** FIGURES ON PURPOSE, at both of table
+    // T-023d's grab columns -- and this is NOT the product's picture. A control
+    // that put one there could not tell a working reader from one that stops
+    // after the first figure it finds, and every case below that asks for
+    // 「1 つだけ」 would then be green over a reader incapable of answering 2.
+    const expected = grabColumnsOf(fresh, NARROW_DAY_ZOOM)
     const width = drawnWidthAt(NARROW_DAY_ZOOM)
     const obedient = spliced(started.svg, expected, width, band, fill!)
 
@@ -904,16 +944,61 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
     const days = `${dayWidthAt(zoomX)}px/day`
 
-    it(`FR-043 (MUST) shows both handles at ${days}: the picture draws two figures`, () => {
-      // FR-043: 「実績の入力を始める掴みシロを 2 つ …… 実績の開始点と終了点として
+    it(`FR-043 (MUST) shows the handle at ${days}: the picture draws ONE figure`, () => {
+      // FR-043: 「実績の入力を始める掴みシロを …… 実績の開始点と終了点として
       // 薄くタスクの上に示し」. ⛔ A live hit target with nothing under the
       // pointer is not 「示し」 -- that is the defect this case exists for.
+      //
+      // ⭐⭐ AND EXACTLY ONE FIGURE SHOWS IT (利用者の裁定 2026-09-08): 「**ダミー
+      // の印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の印を描いては
+      // ならない（MUST NOT）**」 —— 「**ダミーの実績は `S-129` ＝ 1 稼働日であり、
+      // その 1 日を覆う 1 つの印として描く**」. ⛔ 2026-09-08 まで this case asked
+      // for two, quoting 「掴みシロを 2 つ」 -- but that phrase counts GRAB
+      // TARGETS, and FR-043 says in the same breath 「⭐ **掴む先が 2 つである
+      // ことは変わらない**」. The row count is asserted right below, still at two.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
-      expect(dummyInkOf(fresh, started)).toHaveLength(2)
+      // ⭐ THE GRAB SIDE, UNTOUCHED: both rows of table T-023d are still there.
+      expect(geometryOf(fresh, UNDER_TEST).dummies.map((one) => one.grab)).toEqual([
+        'GR-9',
+        'GR-17',
+      ])
+      // ⭐ THE DRAWING SIDE: one figure.
+      expect(dummyInkOf(fresh, started)).toHaveLength(1)
     })
 
-    it(`⭐ FR-043 (MUST) draws each dummy min(1 day, S-180) wide at ${days}`, () => {
+    it(`⛔ FR-043 (MUST NOT) draws no second mark at GR-17's day at ${days}`, () => {
+      // 「**開始の側と終了の側に別々の印を描いてはならない（MUST NOT）**」. ⭐ SAID
+      // AS A PLACE AND NOT ONLY AS A COUNT: the case above would be equally
+      // green over a picture that drew its ONE mark at the finish side, and
+      // FR-043's drawing-position MUST -- 「ダミーを描く位置は、予定の開始日の翌
+      // 稼働日とすること」 -- names GR-9's day for it (table T-023d GR-9), which
+      // GR-17 is `S-129` worked days past.
+      const fresh = draw(notStartedSchedule(), zoomX)
+      const started = draw(startedSchedule(), zoomX)
+      const columns = grabColumnsOf(fresh, zoomX)
+      const gr9 = columns[0]!
+      const gr17 = columns[1]!
+      const found = dummyInkOf(fresh, started)
+      expect(found).toHaveLength(1)
+      expect(onGrid(found[0]!.x0), 'the one mark stands on GR-9 の日の列').toBeCloseTo(
+        onGrid(gr9.x0),
+        2,
+      )
+      // ⛔ AND NO DUMMY INK REACHES INTO GR-17'S OWN DAY COLUMN. ⚠️ Measured
+      // half a day in, so the mark's own right edge -- which touches that column
+      // where a day is the narrower of FR-043's two numbers -- is not counted
+      // as ink standing there. ⚠️ ASKED OF `dummyInkOf` AND NOT OF EVERY DROPPED
+      // FIGURE: 表 T-023d の `GR-7` puts the not-started marker 「終了点の掴み
+      // シロの外側」, so the marker itself stands near this column at the wider
+      // magnification and is not a dummy.
+      expect(
+        found.filter((one) => spansX(one, gr17.x0 + dayWidthAt(zoomX) / 2)),
+        'FR-043 (MUST NOT): a second mark is drawn at GR-17',
+      ).toHaveLength(0)
+    })
+
+    it(`⭐ FR-043 (MUST) draws the dummy min(1 day, S-180) wide at ${days}`, () => {
       // FR-043: 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること
       // （MUST）」, ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」.
       // ⭐ The answer differs between the two runs of this case, and that
@@ -931,7 +1016,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       }
     })
 
-    it(`⭐ FR-043 (MUST) begins each dummy at its day column's left edge at ${days}`, () => {
+    it(`⭐ FR-043 (MUST) begins the dummy at its day column's left edge at ${days}`, () => {
       // FR-043: 「日の列の左端に揃えること（MUST）」. The left edge is counted in
       // days from the plan bar's own left edge (T-023d GR-3), which is what
       // makes this a claim about the specification's arithmetic and not about a
@@ -973,12 +1058,17 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
     const band = actualBandOf(started)
-    for (const dummy of geometryOf(fresh, UNDER_TEST).dummies) {
-      const drawnFigures = drawnAt(fresh.svg, started.svg, dummy.at.x + drawnWidthAt(NARROW_DAY_ZOOM) / 2)
-      expect(drawnFigures.length, `nothing is drawn at ${dummy.grab}`).toBeGreaterThan(0)
+    // ⛔ WALKED OVER THE INK, NOT OVER THE `dummies` ROWS. Until 2026-09-08 this
+    // case walked both rows of table T-023d and asked for ink at each; FR-043's
+    // MUST NOT now leaves ink at one of them, and the row it does not draw is
+    // still a grab target. ⭐ The vertical is what this case is about, and one
+    // mark is all there is to measure it on.
+    for (const ink of inkExpectedOf(fresh, NARROW_DAY_ZOOM)) {
+      const drawnFigures = drawnAt(fresh.svg, started.svg, (ink.x0 + ink.x1) / 2)
+      expect(drawnFigures.length, `nothing is drawn at ${ink.grab}`).toBeGreaterThan(0)
       const box = unionOf(drawnFigures)
-      expect(onGrid(box.y0), `${dummy.grab} top`).toBeCloseTo(onGrid(band.y0), 2)
-      expect(onGrid(box.y1), `${dummy.grab} bottom`).toBeCloseTo(onGrid(band.y1), 2)
+      expect(onGrid(box.y0), `${ink.grab} top`).toBeCloseTo(onGrid(band.y0), 2)
+      expect(onGrid(box.y1), `${ink.grab} bottom`).toBeCloseTo(onGrid(band.y1), 2)
     }
   })
 
@@ -991,7 +1081,10 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const inks = onlyIn(fresh.svg, started.svg).filter(
       (one) => one.box !== null && sameOnGrid(one.box.y0, band.y0) && sameOnGrid(one.box.y1, band.y1),
     )
-    expect(inks.length, 'no dummy ink to judge the faintness of').toBe(2)
+    // ⭐ ONE, since 利用者の裁定 2026-09-08 -- 「ダミーの印は 1 つだけ描くこと」.
+    // ⚠️ THE COUNT IS HERE ONLY SO THE LOOP CANNOT BE EMPTY: a faintness case
+    // over no ink at all would be green whatever the picture did.
+    expect(inks.length, 'no dummy ink to judge the faintness of').toBe(1)
     for (const figure of inks) {
       expect(figure.opacity, 'a dummy is not faint').toBeCloseTo(DUMMY_OPACITY, 6)
     }
@@ -1010,7 +1103,9 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const inks = onlyIn(fresh.svg, started.svg).filter(
       (one) => one.box !== null && sameOnGrid(one.box.y0, band.y0) && sameOnGrid(one.box.y1, band.y1),
     )
-    expect(inks.length, 'no dummy ink to judge the colours of').toBe(2)
+    // ⭐ ONE (FR-043, 利用者の裁定 2026-09-08), for the same reason the faintness
+    // case above states its count: an empty loop would prove nothing.
+    expect(inks.length, 'no dummy ink to judge the colours of').toBe(1)
     for (const figure of inks) {
       for (const colour of figure.colours) {
         if (colour === 'none') continue
@@ -1151,29 +1246,39 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     expect(GR_7['場所']).toContain('未着手のときは終了点の掴みシロの外側')
   })
 
-  it('EP-14 (MUST NOT): what the screen draws at GR-9 and GR-17 is not in the export', () => {
+  it('EP-14 (MUST NOT): what the screen draws for the dummy is not in the export', () => {
     const pictures = shellPictures(notStartedSchedule())
     const dummies = taskGeometryOf(pictures, UNDER_TEST).dummies
+    // ⭐ THE GRAB SIDE IS STILL TWO -- and it MUST be, because `dayWidthOf`
+    // below reads the shell's own day width out of the gap between the pair.
     expect(dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
-    // FR-043's 「1 日ぶんと `S-180` の小さい方」, at the width the shell's own
+    // FR-043's 「1 日ぶんと … `S-180` の小さい方」, at the width the shell's own
     // picture gives a day.
     const width = Math.min(dayWidthOf(pictures, UNDER_TEST), DUMMY_WIDTH_UPPER_BOUND)
     // ⛔ THE PRECONDITION IS PART OF THE CLAIM. Without it this case passes
     // while nothing is drawn anywhere, which is exactly the state EP-14 must
     // not be confused with: a picture that draws no dummy because the dummy is
     // drawn nowhere obeys no requirement.
-    for (const dummy of dummies) {
-      const dropped = drawnAt(pictures.screen, pictures.exportInner, dummy.at.x + width / 2)
-      expect(
-        dropped.length,
-        `the screen draws nothing at ${dummy.grab} that the export leaves out`,
-      ).toBeGreaterThan(0)
-    }
+    //
+    // ⛔⛔ ASKED OF THE ONE MARK, NOT OF BOTH ROWS. Until 2026-09-08 this loop
+    // walked every `dummies` row and demanded dropped ink at each; FR-043 (MUST
+    // NOT) 「開始の側と終了の側に別々の印を描いてはならない」 leaves ink at one of
+    // them. ⭐ WHICH ONE IS NOT GUESSED: FR-043's drawing-position MUST 「ダミー
+    // を描く位置は、予定の開始日の翌稼働日とすること」 is GR-9's place (T-023d).
+    const anchor = dummies.find((one) => one.grab === 'GR-9')
+    if (anchor === undefined) throw new Error('the shell drew no GR-9 to look for')
+    const dropped = drawnAt(pictures.screen, pictures.exportInner, anchor.at.x + width / 2)
+    expect(
+      dropped.length,
+      'the screen draws nothing at GR-9 that the export leaves out',
+    ).toBeGreaterThan(0)
     // Nothing else went missing on the way. ⛔ MEASURED AGAINST EVERY TASK'S
     // DUMMIES, NOT ONLY THIS ONE'S: EP-14 keeps `Actual Operation Dummy`
     // (`U-52`) out of the picture altogether, and this document holds a second
-    // Task that is also not started, so FR-043 gives that one two handles of
-    // its own.
+    // Task that is also not started, so FR-043 gives that one a mark of its own.
+    // ⚠️ BOTH ROWS ARE STILL SWEPT HERE, and deliberately: this half says what
+    // may go missing, so it has to admit ink at either place rather than assume
+    // where the mark stands.
     const everyDummyX = pictures.geometry.tasks.flatMap((one) =>
       one.dummies.map((dummy) => dummy.at.x),
     )

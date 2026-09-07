@@ -1,4 +1,10 @@
-965
+964
+#
+# LOWERED 965 -> 964 ON 2026-09-08. The nineteen tests that held FR-043's
+# PRE-ruling reading were rewritten to the ruling itself, and two new cases
+# were added that press WHERE the one mark stands, not only how many there
+# are. The clause they now carry verbatim is the 2026-09-08 MUST NOT against
+# a second mark -- one of the six this file's next entry took on debt for.
 #
 # LOWERED 966 -> 965 ON 2026-09-08. Not a test written for the purpose -- an
 # existing test grew the clause verbatim while a body was mending a fabricated

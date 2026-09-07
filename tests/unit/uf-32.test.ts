@@ -418,13 +418,16 @@ const spanOf = (bar: Element): { readonly from: number; readonly to: number } =>
  * it is the 予定バー of the same `Task`.
  *
  * ⛔ NESTING ALONE STOPPED BEING ENOUGH ON 2026-08-26, and what replaces it is
- * a row, not a looser reading. `AFTER` is 未着手, so FR-043 (MUST) now owes it
- * 「実績の入力を始める掴みシロを**2 つ**…**薄く**タスクの上に示し」, and `GR-17` of
- * 表 T-023d puts the second of them 「未着手のタスクの上、`S-129` ぶん進んだ
- * 稼働日」 -- which is inside `AFTER`'s own 予定バー. A second figure therefore
- * nests, and FR-013 (MUST) has already said that neither its colour nor its band
- * can be told from the 実績バー's: 「色は実績バーの色を継ぎ、独立した色を保存
- * しない」（`FR-041`）.
+ * a row, not a looser reading. `AFTER` is 未着手, so FR-043 (MUST) owes it a
+ * ダミーの印 drawn 「**薄く**タスクの上に」, and FR-043's drawing-position MUST puts
+ * it 「予定の開始日の翌稼働日」 -- which is inside `AFTER`'s own 予定バー. A second
+ * figure therefore nests, and FR-013 (MUST) has already said that neither its
+ * colour nor its band can be told from the 実績バー's: 「色は実績バーの色を継ぎ、
+ * 独立した色を保存しない」（`FR-041`）.
+ * ⚠️ HOW MANY ダミーの印 NEST IS NOT WHAT THIS TURNS ON, and it changed on
+ * 2026-09-08: FR-043 (MUST) now draws 「1 つだけ」 and (MUST NOT) forbids a
+ * second. ⭐ One nested figure is already one too many for nesting to tell the
+ * two bars apart.
  * ⭐ THE ROW THAT TELLS THEM APART IS THE ONE THAT MADE THEM ALIKE. The same MUST
  * draws the ダミー 薄く -- 「濃さの値は `S-131`」 -- and no requirement draws an
  * 実績バー 薄く, so a figure the picture states a 濃さ for is a ダミー and not a
@@ -1224,7 +1227,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
 
   const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
 
-  /** FR-043's 「1 日ぶんと `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
+  /** FR-043's 「1 日ぶんと … `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
   const drawnWidthAt = (zoomX: number): number =>
     Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
 
@@ -1254,7 +1257,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
     const days = `${dayWidthAt(zoomX)}px/day`
 
-    it(`draws the not-started marker AND both 掴みシロ at S-131 at ${days}, and nothing else faint`, () => {
+    it(`draws the not-started marker AND the one ダミーの印 at S-131 at ${days}, and nothing else faint`, () => {
       // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く
       // 描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
       // `S-131`」。表 T-021 の `PM-1a` is the 未着手 symbol.
@@ -1278,14 +1281,27 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
         'every 濃さ the picture states is `S-131`, and it states no other',
       ).toEqual(new Set([S_131]))
 
-      // FR-043 (MUST): 「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める
-      // 掴みシロを**2 つ**（マイルストーンは例外とする）、実績の開始点と終了点と
-      // して**薄く**タスクの上に示し」 -- two of them, and drawn 薄く.
+      // ⭐⭐ FR-043 (MUST / MUST NOT, 利用者の裁定 2026-09-08, 逐語「タスクの
+      // ダミーは1日とする。 だから = は1日」「1つだけにしろ」): 「**ダミーの印は
+      // 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の印を描いてはならない
+      // （MUST NOT）**」 —— 「ダミーの実績は `S-129` ＝ 1 稼働日であり、その 1 日を
+      // 覆う 1 つの印として描く」.
+      //
+      // ⛔⛔ THIS CASE USED TO ASK FOR TWO POLYGONS, quoting FR-043's 「掴みシロ
+      // を**2 つ**」 as its reason. That phrase is about the GRAB side and is
+      // still true -- 「⭐ **掴む先が 2 つであることは変わらない** —— 表 T-023d の
+      // `GR-9` と `GR-17` はどちらも残り」 -- but it was never a count of DRAWN
+      // FIGURES, and reading it as one is exactly what the 2026-09-08 ruling
+      // struck down: 「⛔ **2026-09-08 まで `GR-9` と `GR-17` の位置に縦棒が
+      // 1 本ずつ立ち、画面には 2 本見えていた** —— **利用者の申し立ては「1つだけ
+      // にしろ」であった**」. ⚠️ This file draws pictures and counts figures, so
+      // it speaks only to the drawing side. The grab side is measured where the
+      // hit areas are, not here.
       const faint = faintFiguresOf(svg)
       const dummies = faint
         .filter((drawn) => drawn.tag === 'polygon')
         .sort((one, other) => spanOf(one).from - spanOf(other).from)
-      expect(dummies, 'FR-043 (MUST): 未着手 owes 掴みシロ を 2 つ').toHaveLength(2)
+      expect(dummies, 'FR-043 (MUST): ダミーの印は 1 つだけ').toHaveLength(1)
 
       // ⛔ AND THE 予定バー IS NOT AMONG THEM. FR-013 names the marker and the
       // ダミー and nothing else, so the one bar of this scene is at full 濃さ.
@@ -1298,30 +1314,46 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // 2026-09-02): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
       // こと（MUST）。日の列の左端に揃えること（MUST）」.
       //
+      // ⭐ WHICH day column the one mark stands on is FR-043's own drawing-
+      // position MUST: 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること
+      // （MUST）**」, which is 表 T-023d の GR-9's place. GR-17 is 「`GR-9` の日
+      // から `S-129` ぶん進んだ稼働日」 and holds no ink of its own any more.
+      //
       // ⭐ The day column is counted in DAYS from the 予定バー's own left edge:
-      // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, GR-9 stands
-      // 「予定の開始日の翌稼働日」 and GR-17 「`GR-9` の日から `S-129` ぶん進んだ
-      // 稼働日」, and FR-017 makes one day `S-1` × `zoomX` wide. ⛔ Nothing here
-      // is a number read off a run.
+      // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, and FR-017 makes
+      // one day `S-1` × `zoomX` wide. ⛔ Nothing here is a number read off a run.
       const dayWidth = dayWidthAt(zoomX)
       const planLeft = spanOf(bars[0] as Element).from
-      const expected = [planLeft + dayWidth, planLeft + (1 + S_129) * dayWidth]
-      for (const [i, one] of dummies.entries()) {
+      const mark = spanOf(dummies[0] as Element)
+      expect(
+        mark.to - mark.from,
+        `the ダミー is drawn 「1 日ぶんと S-180 の小さい方」 at ${days}`,
+      ).toBeCloseTo(drawnWidthAt(zoomX), 6)
+      // ⛔ 「`S-93` とは別の値である —— あちらは読む人の当たり判定であって、
+      // 環境が大きく取ってよい」. Nothing here measures S-93.
+      expect(
+        mark.from,
+        `the ダミー begins at its day column's left edge at ${days}`,
+      ).toBeCloseTo(planLeft + dayWidth, 6)
+      // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
+      // ⚠️ STATED AS A PLACE AND NOT ONLY AS A COUNT: without this, one mark
+      // drawn at GR-17's column instead of GR-9's would pass the count above,
+      // and at 6px a day the two columns are adjacent.
+      const gr17Left = planLeft + (1 + S_129) * dayWidth
+      for (const one of dummies) {
         const span = spanOf(one)
         expect(
-          span.to - span.from,
-          `the ダミー is drawn 「1 日ぶんと S-180 の小さい方」 at ${days}`,
-        ).toBeCloseTo(drawnWidthAt(zoomX), 6)
-        // ⛔ 「`S-93` とは別の値である —— あちらは読む人の当たり判定であって、
-        // 環境が大きく取ってよい」. Nothing here measures S-93.
-        expect(
-          span.from,
-          `the ダミー begins at its day column's left edge at ${days}`,
-        ).toBeCloseTo(expected[i] as number, 6)
+          span.from < gr17Left && gr17Left < span.to,
+          `a ダミーの印 straddles GR-17's day column at ${days}`,
+        ).toBe(false)
+        expect(span.from, `a ダミーの印 begins at GR-17's day column at ${days}`).not.toBeCloseTo(
+          gr17Left,
+          6,
+        )
       }
 
       // 表 T-021 の `PM-1a` (`( · )`) is the 未着手 marker, and FR-013 draws it
-      // 薄く beside the 掴みシロ. ⚠️ HOW MANY FIGURES THE SYMBOL TAKES IS NOT
+      // 薄く beside the ダミーの印. ⚠️ HOW MANY FIGURES THE SYMBOL TAKES IS NOT
       // ASSERTED -- 表 T-021 prints `( · )` and no row of docs/spec says whether a
       // ring and a point are one element or two.
       expect(
@@ -1339,18 +1371,23 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     expect(faintnessOf(drawn(running))).toEqual([])
   })
 
-  it('does not thin the late mark, which wins over 未着手 -- but still thins the 掴みシロ', () => {
+  it('does not thin the late mark, which wins over 未着手 -- but still thins the ダミーの印', () => {
     // FR-013: 「⚠️ **遅れの `(!)` は薄くしない** —— `PM-4` が勝つ状態であり、
     // `UC-006` が最も見つけたい対象だからである」, and 「⚠️ **未着手のタスクでも
     // `PM-4` は進捗マーカーの場所に出る**（表 T-023d の `GR-7`）—— **未着手で
     // あることは実績バーの有無が担う**（`FR-043`）」.
     //
     // ⛔ THIS CASE USED TO ASK FOR NO 濃さ AT ALL, AND THAT READING TAKES THE
-    // 掴みシロ AWAY WITH THE MARKER. FR-043 (MUST) shows them 「`Task` が未着手
+    // ダミー AWAY WITH THE MARKER. FR-043 (MUST) shows it 「`Task` が未着手
     // であるあいだ」 -- being late is not being started, and the requirement
-    // exempts nothing for it -- so the two 掴みシロ are still owed and FR-013
-    // still draws them 薄く. What the 遅れ takes away is the marker's own
+    // exempts nothing for it -- so the ダミーの印 is still owed and FR-013
+    // still draws it 薄く. What the 遅れ takes away is the marker's own
     // faintness, not the picture's.
+    //
+    // ⛔ THE COUNT IS ONE, AND WAS TWO UNTIL 2026-09-08. FR-043 (MUST): 「ダミー
+    // の印は 1 つだけ描くこと」, (MUST NOT): 「開始の側と終了の側に別々の印を描いて
+    // はならない」. ⭐ 「掴む先が 2 つであることは変わらない」, but a grab target is
+    // not a figure and this case counts figures.
     const late = oneRow([spanning(1, '2026-01-05', 5, { name: 'late' })], {
       project: { calendarUid: null, statusDate: '2026-02-01', themeHue: 214, title: null },
     })
@@ -1358,12 +1395,12 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     expect(new Set(faintnessOf(svg)), 'the only 濃さ stated is `S-131`').toEqual(new Set([S_131]))
     expect(
       faintFiguresOf(svg).filter((drawn) => drawn.tag === 'polygon'),
-      'FR-043 (MUST): a late Task that has not started still shows its two 掴みシロ',
-    ).toHaveLength(2)
+      'FR-043 (MUST): a late Task that has not started still shows its one ダミーの印',
+    ).toHaveLength(1)
 
     // 表 T-021 の `PM-4` is `(!)`, drawn where `GR-7` puts the marker. ⛔ None of
     // its figures is 薄く -- and no `line` of the picture is, which is the same
-    // claim made against every figure that is not a bar or a 掴みシロ.
+    // claim made against every figure that is not a bar or a ダミーの印.
     expect(
       faintFiguresOf(svg).filter((drawn) => drawn.tag !== 'polygon' && drawn.tag !== 'g'),
       'FR-013: 遅れの `(!)` は薄くしない',

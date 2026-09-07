@@ -1,4 +1,15 @@
-493
+486
+#
+# LOWERED 493 -> 486 ON 2026-09-08 by a body sent to close nineteen red tests.
+# It was not asked to mend citations; it found seven of its own on the way.
+# All seven abbreviated the same clause the same way, writing 「1 日ぶんと
+# `S-180` の小さい方」 where FR-043 says 「1 日ぶんと `_assets/tbl-settings.md`
+# の 表 T-206 の `S-180` の小さい方」. ⚠️ AN ABBREVIATION IS A FABRICATION to
+# this check, and rightly: the words it drops are the ones that say where the
+# number lives, which is the half a reader needs.
+# ⭐ The body measured 496 in its worktree and 489 after; the trunk read 493
+# and 486. That constant three is rule 04's 6.7 -- docs/spec/output/ is
+# gitignored, so no worktree can resolve the three quotations living there.
 #
 # LOWERED 501 -> 493 ON 2026-09-08 by finishing the repair the entry below
 # began. That entry mended ONE of the places carrying the fabricated 場面

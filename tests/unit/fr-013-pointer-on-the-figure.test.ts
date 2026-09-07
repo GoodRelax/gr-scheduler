@@ -7,9 +7,9 @@
 //
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (04-verification section 1).
 //
-// ⭐ WHY THIS FILE EXISTS. tests/unit/uf-32.test.ts asserts that the two
-// 掴みシロ and the 未着手 marker are drawn at S-131; this file asserts the other
-// half of the same MUST -- that the one under the pointer stops being faint.
+// ⭐ WHY THIS FILE EXISTS. tests/unit/uf-32.test.ts asserts that the ONE
+// ダミーの印 and the 未着手 marker are drawn at S-131; this file asserts the other
+// half of the same MUST -- that the mark under the pointer stops being faint.
 //
 // THE LINES THIS FILE RESTS ON
 //
@@ -17,6 +17,19 @@
 //     「**未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、ポインタが
 //      乗っているあいだだけ濃くすること（MUST）** —— 作法は表 T-051 の `HF-6` と
 //      同じである。濃さの値は `S-131`。」
+//
+//   FR-043 (MUST / MUST NOT, 利用者の裁定 2026-09-08, 逐語「タスクのダミーは1日
+//   とする。 だから = は1日」「1つだけにしろ」)
+//     「⭐⭐ **ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の
+//      印を描いてはならない（MUST NOT）**」
+//     ⭐ 「**掴む先が 2 つであることは変わらない** —— 表 T-023d の `GR-9` と
+//      `GR-17` はどちらも残り …… ⇒ **人から見れば掴みシロは 1 つであり、掴めば
+//      実績が立つ。**」
+//   ⇒ ⛔ THE COUNT OF DRAWN INK AND THE COUNT OF GRAB TARGETS ARE TWO DIFFERENT
+//   NUMBERS, AND THIS FILE KEEPS THEM APART. `probesAt` below still walks BOTH
+//   day columns table T-023d gives a `Task` -- that is the grab side, and it is
+//   still two. `inkProbeAt` names the ONE column FR-043 draws on -- that is the
+//   drawing side, and it is one. No case reads a drawn figure at GR-17's column.
 //
 //   T-051 HF-6 (MUST)
 //     「**操作子は、その行の名前にポインタが乗っているあいだだけ描くこと
@@ -48,10 +61,10 @@
 //       FR-043 / T-023d GR-9   GR-9 stands one working day right of it, and
 //       T-023d GR-17           GR-17 `S-129` working days right of GR-9;
 //       FR-017 (MUST) 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」.
-//     The point put under the pointer is inside GR-9's own day column AND
+//     The point put under the pointer is inside its own day column AND
 //     within half of S-93 of that column's left edge, so it is covered by the
-//     hit box wherever on the day the environment centres those 30px -- and it
-//     is inside the ink under FR-043's new width as well. ⭐ A case below
+//     hit box wherever on the day the environment centres those 30px -- and the
+//     GR-9 one is inside the ink under FR-043's width as well. ⭐ A case below
 //     asserts that containment rather than assuming it.
 //
 //   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」, which at
@@ -75,9 +88,16 @@
 //     red, and PD-360 -- 「`FR-013` の「ポインタが乗っている」が、描いた図形の上の
 //     ことか、表 T-023d が点を与えた行のことか」 -- is 未裁定. ⭐ REPORTED, not
 //     guessed at in either direction.
-//   * WHETHER THE OTHER 掴みシロ OF THE SAME `Task` STAYS FAINT. Measured, it
-//     rises with the one pointed at: the two are drawn inside one faint group.
-//     No row of docs/spec divides a `Task`'s two 掴みシロ for this purpose.
+//   * ⛔⛔ WHETHER A POINTER ON GR-17'S DAY COLUMN DARKENS THE ONE MARK. Since
+//     2026-09-08 no ink stands there at all -- FR-043 (MUST NOT) forbids a
+//     second mark -- while table T-023d still keeps GR-17 as a grab target. So
+//     「ポインタが乗っている」 has two readings for that column: on the DRAWN
+//     figure (nothing is), or on the ROW's own place (the hand is). ⭐ MEASURED,
+//     the mark darkens from there; ⛔ but PD-351 and PD-360 are both 未裁定 and
+//     no row of docs/spec settles which reading FR-013 inherits, so NO CASE
+//     BELOW ASSERTS EITHER DIRECTION for GR-17's column. ⭐ REPORTED, not
+//     guessed at. What every case below does assert is the drawing side, where
+//     FR-043 leaves nothing open: exactly one mark, on GR-9's day column.
 
 import { describe, expect, it } from 'vitest'
 
@@ -278,8 +298,13 @@ interface Probe {
 }
 
 /**
- * The two places FR-043 and table T-023d put a not-started `Task`'s dummies,
- * and the point inside each that this file points at.
+ * The two places table T-023d puts a not-started `Task`'s GRAB TARGETS, and the
+ * point inside each that this file points at.
+ *
+ * ⛔ THE GRAB SIDE, NOT THE DRAWING SIDE. FR-043's 2026-09-08 ruling took the
+ * ink down to one mark and left this pair alone: 「⭐ **掴む先が 2 つであることは
+ * 変わらない** —— 表 T-023d の `GR-9` と `GR-17` はどちらも残り」. So this stays
+ * at two, and `inkProbeAt` below names the one column ink is drawn on.
  *
  * ⛔ NOT READ OFF THE PICTURE. Every number here comes from the specification:
  * the plan bar's left edge (GR-3), one day (FR-017's `S-1` × `zoomX`), `S-129`
@@ -295,6 +320,33 @@ const probesAt = (zoomX: number): readonly Probe[] => {
     { grab: 'GR-9', dayLeft: gr9, x: gr9 + inside },
     { grab: 'GR-17', dayLeft: gr17, x: gr17 + inside },
   ]
+}
+
+/**
+ * The ONE column FR-043 draws the mark on, and a point on that ink.
+ *
+ * ⭐ FR-043 (MUST): 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること**」 and
+ * 「**ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の印を描いては
+ * ならない（MUST NOT）**」（利用者の裁定 2026-09-08）. 「予定の開始日の翌稼働日」 is
+ * GR-9's own place (T-023d), and GR-17 stands a further `S-129` worked days on,
+ * so the ONE mark is on the first of the two columns and never on the second.
+ * ⛔ This is not a choice made here: FR-043's alignment MUST 「日の列の左端に
+ * 揃えること」 names one column, and the drawing-position MUST names which.
+ */
+const inkProbeAt = (zoomX: number): Probe => probesAt(zoomX)[0] as Probe
+
+/**
+ * The column FR-043's MUST NOT keeps ink OFF -- GR-17's own, `S-129` worked days
+ * right of the mark. ⚠️ Only the DRAWING is claimed of it; see the header for
+ * what is deliberately left unasserted about a pointer put here.
+ */
+const noInkProbeAt = (zoomX: number): Probe => probesAt(zoomX)[1] as Probe
+
+/** Points spread across the one mark's own ink, all of them FR-043's arithmetic. */
+const acrossTheInkAt = (zoomX: number): readonly number[] => {
+  const { dayLeft } = inkProbeAt(zoomX)
+  const width = drawnWidthAt(zoomX)
+  return [dayLeft, dayLeft + width / 2, dayLeft + width]
 }
 
 // ---------------------------------------------------------------------------
@@ -386,11 +438,27 @@ const dummiesOf = (svg: string): readonly Ink[] => {
     .sort((one, other) => one.x0 - other.x0)
 }
 
-/** The one faintly drawn polygon the point falls in, named by the row it serves. */
-const dummyUnder = (svg: string, probe: Probe): Ink => {
-  const found = dummiesOf(svg).filter((one) => one.x0 <= probe.x && probe.x <= one.x1)
-  expect(found.length, `exactly one 掴みシロ is drawn under ${probe.grab}'s point`).toBe(1)
+/** The one faintly drawn polygon an x falls in. */
+const dummyAtX = (svg: string, x: number, where: string): Ink => {
+  const found = dummiesOf(svg).filter((one) => one.x0 <= x && x <= one.x1)
+  expect(found.length, `exactly one ダミーの印 is drawn at ${where}`).toBe(1)
   return found[0] as Ink
+}
+
+/** The one faintly drawn polygon the point falls in, named by the row it serves. */
+const dummyUnder = (svg: string, probe: Probe): Ink =>
+  dummyAtX(svg, probe.x, `${probe.grab}'s point`)
+
+/**
+ * FR-043 (MUST NOT): 「**開始の側と終了の側に別々の印を描いてはならない**」.
+ * ⛔ Nothing faint may stand at the second column at all.
+ */
+const noDummyAtX = (svg: string, x: number, where: string): void => {
+  const found = dummiesOf(svg).filter((one) => one.x0 <= x && x <= one.x1)
+  expect(
+    found.length,
+    `FR-043 (MUST NOT): a second ダミーの印 is drawn at ${where}`,
+  ).toBe(0)
 }
 
 /**
@@ -424,7 +492,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   // ⭐ A MAGNIFICATION AT WHICH `S-180` IS THE SMALLER OF FR-043'S TWO NUMBERS
   // (`S-1` × 2.5 = 15px a day, against S-180's 12). The second describe runs at
   // one where the DAY is the smaller, so between them the file exercises both
-  // sides of 「1 日ぶんと `S-180` の小さい方」 -- and the point put under the
+  // sides of 「1 日ぶんと … `S-180` の小さい方」 -- and the point put under the
   // pointer is a different distance from the day's left edge in each.
   const ZOOM = 2.5
   const SETTINGS = settingsAt(ZOOM)
@@ -440,22 +508,32 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   })
 
   it('draws a scene the cases below can be read from', () => {
-    // ⚠️ 04-verification section 2. FR-043 (MUST) owes 掴みシロ を 2 つ, and
-    // FR-013 draws them at S-131 -- if either half were missing, every case
+    // ⚠️ 04-verification section 2. FR-043 (MUST) owes 「ダミーの印は 1 つだけ」,
+    // and FR-013 draws it at S-131 -- if either half were missing, every case
     // below would be asking about a picture that was not there.
     const resting = drawn(SETTINGS, null)
 
-    expect(dummiesOf(resting)).toHaveLength(2)
+    expect(dummiesOf(resting), 'FR-043 (MUST): ダミーの印は 1 つだけ').toHaveLength(1)
+    // ⛔ AND IT IS THE FIRST COLUMN, NOT THE SECOND. Without this the case
+    // above would be equally green over a picture that drew its one mark at
+    // GR-17's place, which FR-043's drawing-position MUST forbids.
+    expect(dummyAtX(resting, inkProbeAt(ZOOM).x, 'GR-9 の日の列').x0).toBeCloseTo(
+      inkProbeAt(ZOOM).dayLeft,
+      2,
+    )
+    noDummyAtX(resting, noInkProbeAt(ZOOM).x, 'GR-17 の日の列')
     expect(new Set(faintnessOf(resting))).toEqual(new Set([S_131]))
   })
 
   it('⭐ every point this file uses is one S-93 covers, and is on the ink', () => {
     // ⛔ THE CASE THAT MAKES THE OTHERS MEAN SOMETHING. FR-043 aligns the ink to
-    // 「日の列の左端」 and bounds its width by 「1 日ぶんと `S-180` の小さい方」,
+    // 「日の列の左端」 and bounds its width by 「1 日ぶんと … `S-180` の小さい方」,
     // while ⛔ 「当たり判定は本段の対象ではない」 leaves the 30px of S-93 where
     // they were. A point that had drifted out of the hit box would make every
     // case below a claim about something else.
     const resting = drawn(SETTINGS, null)
+    // ⭐ THE GRAB SIDE FIRST, AND IT IS STILL TWO -- 表 T-023d keeps GR-9 and
+    // GR-17, and S-93 gives each of them a hit box. ⛔ Nothing here reads ink.
     for (const probe of probesAt(ZOOM)) {
       // Inside the day the row gives it (T-023d), so the hit box covers it
       // wherever on that day the environment centres its 30px.
@@ -467,24 +545,30 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
         Math.abs(probe.x - probe.dayLeft),
         `${probe.grab} is within S-93 of its day`,
       ).toBeLessThanOrEqual(DUMMY_HIT_WIDTH / 2)
-      // And on the ink FR-043 now draws, which begins at that same pixel.
-      const ink = dummyUnder(resting, probe)
-      expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
-        probe.dayLeft,
-        2,
-      )
-      expect(ink.x1 - ink.x0, `${probe.grab}'s ink is min(1 day, S-180) wide`).toBeCloseTo(
-        drawnWidthAt(ZOOM),
-        2,
-      )
-      // ⭐ AND THIS IS THE `S-180` SIDE OF 「小さい方」 -- the day is wider here.
-      expect(drawnWidthAt(ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
     }
+    // ⭐ AND THE DRAWING SIDE, WHICH IS ONE. FR-043 (MUST): 「ダミーの印は 1 つ
+    // だけ描くこと」, at 「予定の開始日の翌稼働日」, 「日の列の左端に揃え」て
+    // 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方」 wide.
+    const onTheInk = inkProbeAt(ZOOM)
+    const ink = dummyUnder(resting, onTheInk)
+    expect(ink.x0, `${onTheInk.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
+      onTheInk.dayLeft,
+      2,
+    )
+    expect(ink.x1 - ink.x0, `${onTheInk.grab}'s ink is min(1 day, S-180) wide`).toBeCloseTo(
+      drawnWidthAt(ZOOM),
+      2,
+    )
+    // ⭐ AND THIS IS THE `S-180` SIDE OF 「小さい方」 -- the day is wider here.
+    expect(drawnWidthAt(ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
+    // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
+    // The second grab target has a hit box (asserted above) and no ink.
+    noDummyAtX(resting, noInkProbeAt(ZOOM).x, 'GR-17 の日の列')
   })
 
   it('⭐ leaves S-131 for the dummy the pointer is on (MUST)', () => {
     const resting = drawn(SETTINGS, null)
-    const probe = probesAt(ZOOM)[0] as Probe
+    const probe = inkProbeAt(ZOOM)
     const ink = dummyUnder(resting, probe)
 
     expect(isStillFaint(resting, ink), 'faint while nothing points at it').toBe(true)
@@ -499,11 +583,11 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     // gives each the same condition. So a pointer on a 掴みシロ may not carry the
     // marker with it: the marker is elsewhere, and 「乗っている」 is a place.
     //
-    // ⚠️ WHAT IS *NOT* CLAIMED HERE, because no row settles it: whether the
-    // OTHER 掴みシロ of the same `Task` stays faint. Measured, it does not --
-    // the two are drawn inside one faint group and rise together.
+    // ⚠️ WHAT IS *NOT* CLAIMED HERE, because no row settles it: whether a
+    // pointer put on GR-17's day column -- a grab target FR-043 kept, with no
+    // ink of its own since 2026-09-08 -- darkens the one mark. See the header.
     const resting = drawn(SETTINGS, null)
-    const probe = probesAt(ZOOM)[0] as Probe
+    const probe = inkProbeAt(ZOOM)
     const ink = dummyUnder(resting, probe)
 
     const restingMarker = markerFiguresOf(resting)
@@ -518,7 +602,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
 
   it('⛔ a pointer somewhere else on the screen changes nothing', () => {
     const resting = drawn(SETTINGS, null)
-    const probe = probesAt(ZOOM)[0] as Probe
+    const probe = inkProbeAt(ZOOM)
     const ink = dummyUnder(resting, probe)
 
     // A point well clear of the task, still inside the drawing.
@@ -528,14 +612,25 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     expect(new Set(faintnessOf(away))).toEqual(new Set([S_131]))
   })
 
-  it('⭐ each of the two answers to its own place, one case walking both', () => {
+  it('⭐ the one mark answers from anywhere on its own ink, one case walking it', () => {
+    // ⛔ THIS CASE USED TO WALK TWO MARKS. FR-043 (MUST NOT, 利用者の裁定
+    // 2026-09-08) 「開始の側と終了の側に別々の印を描いてはならない」 left one, so
+    // what it walks now is the ONE mark's own extent -- both edges of the ink
+    // and its middle. ⭐ THE WALK IS STILL WORTH WALKING: FR-013's condition is
+    // 「ポインタが乗っている」 and 表 T-051 の `HF-6` makes that a PLACE, so a
+    // drawing that darkened only at the figure's centre would meet it nowhere
+    // else on the mark it is drawn as.
+    // ⚠️ THE THREE POINTS ARE FR-043'S OWN ARITHMETIC, not read off the ink:
+    // the day column's left edge and 「ダミーを描く幅は、1 日ぶんと … `S-180` の
+    // 小さい方」.
     const resting = drawn(SETTINGS, null)
+    const ink = dummyUnder(resting, inkProbeAt(ZOOM))
 
-    for (const probe of probesAt(ZOOM)) {
-      const ink = dummyUnder(resting, probe)
+    for (const x of acrossTheInkAt(ZOOM)) {
+      expect(dummyAtX(resting, x, `${x} on the ink`).points, 'the same one mark').toBe(ink.points)
       expect(
-        isStillFaint(drawn(SETTINGS, { x: probe.x, y: ink.y }), ink),
-        `${probe.grab} at ${probe.x},${ink.y}`,
+        isStillFaint(drawn(SETTINGS, { x, y: ink.y }), ink),
+        `the one mark at ${x},${ink.y}`,
       ).toBe(false)
     }
   })
@@ -554,17 +649,26 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
 
   it('draws the task at this zoom, or the case below would be asking about nothing', () => {
     const resting = drawn(LOW, null)
-    expect(dummiesOf(resting)).toHaveLength(2)
+    // FR-043 (MUST): 「ダミーの印は 1 つだけ描くこと」, ⛔ (MUST NOT): 「開始の側と
+    // 終了の側に別々の印を描いてはならない」（利用者の裁定 2026-09-08）. ⚠️ THE
+    // COUNT MATTERS MOST AT THIS ZOOM: a day is 1.5px here, so two marks a day
+    // apart would stand edge to edge and read as one wider mark.
+    expect(dummiesOf(resting), 'FR-043 (MUST): ダミーの印は 1 つだけ').toHaveLength(1)
+    noDummyAtX(resting, noInkProbeAt(ZOOM).x, 'GR-17 の日の列')
   })
 
   it('⭐ still leaves S-131 for the dummy under the pointer, with no won grab row handed over', () => {
     const resting = drawn(LOW, null)
 
-    for (const probe of probesAt(ZOOM)) {
-      const ink = dummyUnder(resting, probe)
+    // ⭐ WALKED ACROSS THE ONE MARK, for the reason the same walk is written at
+    // the higher zoom: HF-6's condition is a PLACE, so every point of the ink
+    // owes the same answer -- and here every one of them is also inside S-90's
+    // slop, which the case below measures.
+    const ink = dummyUnder(resting, inkProbeAt(ZOOM))
+    for (const x of acrossTheInkAt(ZOOM)) {
       expect(
-        isStillFaint(drawn(LOW, { x: probe.x, y: ink.y }), ink),
-        `${probe.grab} at ${probe.x},${ink.y} at a low zoom`,
+        isStillFaint(drawn(LOW, { x, y: ink.y }), ink),
+        `the one mark at ${x},${ink.y} at a low zoom`,
       ).toBe(false)
     }
   })
@@ -596,13 +700,12 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
     // two would prove half of 「小さい方」.
     expect(dayWidthAt(ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
     const resting = drawn(LOW, null)
-    for (const probe of probesAt(ZOOM)) {
-      const ink = dummyUnder(resting, probe)
-      expect(ink.x1 - ink.x0, `${probe.grab}'s ink`).toBeCloseTo(dayWidthAt(ZOOM), 2)
-      expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
-        probe.dayLeft,
-        2,
-      )
-    }
+    const probe = inkProbeAt(ZOOM)
+    const ink = dummyUnder(resting, probe)
+    expect(ink.x1 - ink.x0, `${probe.grab}'s ink`).toBeCloseTo(dayWidthAt(ZOOM), 2)
+    expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
+      probe.dayLeft,
+      2,
+    )
   })
 })
