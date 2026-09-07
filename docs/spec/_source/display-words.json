@@ -2629,6 +2629,17 @@
    }
   },
   {
+   "rowId": "RS-54",
+   "text": {
+    "ja": "構えている形状は、選んでいるものには当てられません",
+    "en": "The armed shape cannot be applied to what is selected"
+   },
+   "nextStep": {
+    "ja": "構えはそのまま使えます。選択を解いて、空いている所に引いてください",
+    "en": "The arming is still live; clear the selection and drag on empty space"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3399,8 +3410,8 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネルを開いて名前を編集、行見出し＝行名",
-    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Name Label: its name; Assignee Label: the resource name; task: opens the Properties Panel and edits its name; row title: the row name"
+    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、行見出し＝行名",
+    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; row title: the row name"
    },
    "press": {
     "ja": "ダブルクリック",

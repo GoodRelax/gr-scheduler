@@ -1,4 +1,21 @@
-964
+1016
+#
+# RAISED 964 -> 1016 ON 2026-09-08, DELIBERATELY, AND THE USER SET THE PRICE.
+# Four rulings and six clause-gaps landed in one wave and brought about
+# fifty-two MUST / MUST NOT clauses with them -- the boundary binding GR-4,
+# the milestone dummy's figure and colour, the panel that AS-1 now opens,
+# AS-11's rename, RS-54, IN-4's 選択 rung, MK-13 read before the priority
+# order, GR-8's hit box, T-038's order and its reserved space, and FR-019's
+# one polyline.
+# ⛔ NO TEST WAS WRITTEN FOR THEM, and that is not an oversight: the user's
+# instruction that morning was 「新規のテストは要らない。 不具合修正確認の
+# テストや実測だけでよい」. ⇒ The tie comes from the fix-confirmation anchors
+# the repair bodies write, not from a fresh suite.
+# ⭐ EXPECT THIS TO FALL AGAIN IN THE SAME ROUND. Every anchor that quotes its
+# clause verbatim pays some of it back -- 966 -> 965 -> 964 all happened that
+# way, in hours, without anyone setting out to do it.
+# ⚠️ The debt is D-377's. ⛔ Do not close that row while this number stands
+# above 964.
 #
 # LOWERED 965 -> 964 ON 2026-09-08. The nineteen tests that held FR-043's
 # PRE-ruling reading were rewritten to the ruling itself, and two new cases
