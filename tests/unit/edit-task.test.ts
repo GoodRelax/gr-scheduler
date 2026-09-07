@@ -841,21 +841,27 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
 
   it('FR-043 gives a milestone S-130 for its length and still writes the day let go of', () => {
     // ⭐ THE LENGTH IS AN EXCEPTION AND THE DAY IS NOT. FR-043 (MUST):
-    // 「マイルストーンの例外は 2 つだけである —— 実績バーを持たないので（表
-    // T-023d の `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）。実績期間は
-    // `S-130` とすること（MUST）」, and then ⛔⛔ 「位置は例外ではない（MUST
-    // NOT）」（利用者の裁定 2026-09-02「マイルストーンは中心が配置する場所。
-    // ただし、実績のダミーは翌日」）—— 「ダミーは形状を問わず予定の開始日の翌
-    // 稼働日に立ち、離した日が実績開始になる」.
+    // 「⚠️ **マイルストーンの例外は 3 つである** —— 実績バーを持たないので（表
+    // T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。実績期間
+    // は `S-130` とすること（MUST）**」, and then ⛔⛔ 「**位置は例外ではない
+    // （MUST NOT）**」（利用者の裁定 2026-09-02「**マイルストーンは中心が配置する
+    // 場所。ただし、実績のダミーは翌日**」）—— 「**ダミーは形状を問わず予定の開始
+    // 日の翌稼働日に立ち、離した日が実績開始になる。**」
+    // ⚠️ THE COUNT WENT 2 -> 3 ON 2026-09-08 and this citation said two. ⭐ The
+    // third is a DRAWING exception and reaches nothing here: 「⭐⭐ **3 つ目は
+    // 図形と色である** —— **ダミーの図形は、そのマイルストーンの実績の図形と同じ
+    // とすること（MUST）。矩形で描いてはならない（MUST NOT）**」 -- the values
+    // this case measures (`actualDuration` = S-130, `actualStart` = the day let
+    // go of) are the first two, unchanged.
     //
     // ⛔ WHAT THIS CASE USED TO ASSERT AND WHY IT NO LONGER DOES. Until CR-332
     // FR-043 sent the milestone's 「位置と当たり判定」 to T-023d's GR-18, whose
     // place was 「未着手のマイルストーンの図形の上」, and this case read the
     // plan day back. ⛔ The dummy has since left the figure, so the reasoning
-    // that branch rested on -- 「図形の上に在り、ぶつかる `GR-3` が無いから」 --
-    // is gone with it. ⚠️ The figure itself did NOT move: 表 T-221 の `LF-10`
-    // still centres it on `start` (FR-043: 「動いたのはダミーであって図形では
-    // ない」).
+    // that branch rested on -- the dummy standing ON the figure, where no GR-3
+    // is in its way -- is gone with it. ⚠️ The figure itself did NOT move:
+    // 表 T-221 の `LF-10` still centres it on `start` (FR-043: 「**動いたのは
+    // ダミーであって図形ではない**」).
     //
     // ⚠️ THE FIXTURE SEPARATES ALL THREE READINGS. jan(9) is a Friday and
     // jan(17) a Saturday, so the plan day (9th), the working day the dummy is

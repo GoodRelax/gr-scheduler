@@ -329,6 +329,50 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   perfectly good arm and only lacked the drag.
   'RS-53': '8097f1bf0378f6ca',
   'RS-15': 'c85a8bb4ca6b676b',
+  // RS-54 -- 「構えた形状が、選んでいるものに当てられない」, 作法 `NT-1`, 正
+  //   `FR-083` (利用者の裁定 2026-09-08). Read against the words before the
+  //   fingerprint was taken: the text says the armed shape cannot be applied to
+  //   what is selected, and the next step says the arming is still live and
+  //   names the road -- clear the selection and drag on empty space. ⛔ The words
+  //   themselves are not spelled here; they are the dictionary's (FR-038, MUST
+  //   NOT).
+  // ⭐ THE ARMING STAYING UP IS THE HALF THE ROW INSISTS ON, and the words carry
+  //   it. FR-083 (MUST) says 「形状の変更が拒まれたときも、構えは立てること」 and
+  //   the row repeats that the arm is still standing -- so a word that only said
+  //   "that cannot be done" would leave a person believing their press was
+  //   thrown away entirely, which is the opposite of what the row states.
+  // ⭐ THE NEXT STEP IS A ROAD THE SPECIFICATION ITSELF LEAVES OPEN: `SP-1` of
+  //   FR-083's own table arms the shape when nothing is selected, so clearing
+  //   the selection and dragging on empty space is where the armed shape does
+  //   land. ⚠️ The 作法 is `NT-1` and not `NT-3a`, so the step is not owed -- it
+  //   is carried all the same, and the case above only holds NT-3a rows to one.
+  // ⚠️ IT STAYS CLEAR OF `RS-10`, which the row makes a MUST NOT in as many
+  //   words: RS-10 is 「命令が拒否されたので、束ごと落とした」 and its answer is to
+  //   take the refused operation out and try again, where this scene has no
+  //   operation to take out -- the shape was never applied to anything.
+  // ⭐⭐ RE-READ 2026-09-08, AND THE PAIR STILL HOLDS -- the fingerprint below
+  //   was re-keyed because the 場面 moved, NOT because a word did. What moved:
+  //   the row used to quote FR-083's clause where it says the arm stays up, and
+  //   check 11 (duplicate detection) caught that quotation as the same MUST
+  //   written in two places; rule 02 has a row name its 正 rather than copy it,
+  //   so the row now points at FR-083 instead of transcribing it and adds a
+  //   MUST NOT against transcribing it again. ⛔ THE SCENE ITSELF DID NOT
+  //   CHANGE: 「構えた形状が、選んでいるものに当てられない」 and 「構えは立った
+  //   ままである」 are both still there, word for word, and so is the MUST NOT
+  //   against RS-10.
+  // ⭐ WHAT THE RE-READING FOUND, reading the 場面, the manuscript dictionary
+  //   (docs/spec/_source/display-words.json) and the generated one
+  //   (src/adapter/screen-renderer/display-words.json) side by side: the two
+  //   dictionaries are identical for this row, and both halves of the scene are
+  //   still carried -- the text says the armed shape does not land on what is
+  //   selected, and the next step says the arm is still usable before it names
+  //   the road. ⇒ nothing needed correcting, so only the record was re-keyed.
+  // ⚠️ THE HAZARD THIS FILE EXISTS FOR IS THE OPPOSITE ONE -- D-166, where the
+  //   scene turned into its own opposite and the word stayed. Here the word and
+  //   the scene still say the same thing; the change was a pointer replacing a
+  //   copy, which no machine check on either side could have told apart from a
+  //   rewrite.
+  'RS-54': '05e77fef91404b02',
 }
 
 const fingerprintOf = (rowId: string): string => {

@@ -1,4 +1,18 @@
-486
+473
+#
+# LOWERED 486 -> 473 ON 2026-09-08 across the repair wave. Thirteen more, and
+# not one of them was written as a fabrication -- every one was TRUE when it
+# was written and the specification moved underneath it. That is the shape to
+# expect: the day four rulings land, the comments that quoted the old wording
+# become the largest single source of false citations in the tree.
+# ⭐ THE CHECK IS WHAT MAKES A RULING SAFE TO APPLY. Without it, a wave that
+# rewrites AS-1, T-023d's closing rule, FR-043's exceptions and MK-13 leaves
+# behind a dozen comments still arguing from the sentences it replaced, and
+# the next reader believes them.
+# ⚠️ Two kinds slipped past a naive grep this round and are worth naming:
+# a sentence broken across two comment lines, and an ABBREVIATED quotation --
+# 「1 日ぶんと `S-180` の小さい方」 for a clause that also says where S-180
+# lives. Dropping the half that says where to look is a fabrication too.
 #
 # LOWERED 493 -> 486 ON 2026-09-08 by a body sent to close nineteen red tests.
 # It was not asked to mend citations; it found seven of its own on the way.

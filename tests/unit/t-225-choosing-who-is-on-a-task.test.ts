@@ -56,7 +56,9 @@
 //             「入力の型」の欄に従うこと（MUST）」
 //   表 T-016  PR-16 -- 入力の型 is 選択, the row carries no read-only mark, and
 //             the item is an `Assignment` rather than a column of `Task`
-//   表 T-023  MK-13 -- 担当ラベル ＝ 担当者名の変更
+//   表 T-023  MK-13 -- 担当ラベル ＝ 表 T-225 の `AS-1` の宛先とすること (MUST),
+//             and 「その宛先をここに書き写してはならない（MUST NOT）」 with it.
+//             ⚠️ REWRITTEN 2026-09-08; it read 「担当者名の変更」 until then
 //   表 T-023d GR-11 -- the assignee label, jutting out past the bar, reached by
 //             a double click alone
 //   表 T-038  OC-2 -- the label is counted in the occupied width while shown
@@ -68,6 +70,11 @@
 // ⭐ SEVERAL OF THESE ARE EXPECTED TO BE RED, and that is the point
 // (04-verification section 1): the expected value states what the specification
 // says. Each such case names its row and says what the tree does instead.
+// ⚠️ NONE OF THEM IS RED ANY MORE (measured 2026-09-08). The ⛔ notes are left
+// standing on purpose -- they say what the case is FOR -- but a reader must not
+// take 「EXPECTED RED」 in one of them as a report of the tree as it stands.
+// ⛔ WHAT IS STILL MISSING IS NOT IN THIS FILE'S THREE UNITS: AS-1's 「焦点を置く」
+// is the shell's and the surface's, and no unit driven here can answer for it.
 //
 // ⭐ WHAT THIS FILE DELIBERATELY DOES NOT ASSERT, because the specification
 // settles none of it. Each was searched for before being given up on:
@@ -79,11 +86,17 @@
 //      belongs to FR-099's roster, which is a different surface with a
 //      different verb (削除, not 解除). Searched 表 T-023c, 表 T-028, FR-099
 //      and 表 T-225 itself. Only the 「`-` を確定した」 half is asserted.
-//   2. The partial-match search AS-5 makes a MUST. `PropertyControl` publishes
-//      `kind`, `choices`, `min` and `max` and nothing that could carry a
-//      search, and no table gives one a shape. The dropdown half IS asserted --
-//      that the control offers the roster -- and the search half is reported
-//      as a hole rather than tested against an invented member.
+//   2. ⭐⭐ CLOSED 2026-09-08, AND THE HOLE IS WORTH RECORDING. This read: 「The
+//      partial-match search AS-5 makes a MUST. `PropertyControl` publishes
+//      `kind`, `choices`, `min` and `max` and nothing that could carry a search
+//      … reported as a hole rather than tested against an invented member」.
+//      That member now exists -- `PropertyControl.searchWords` -- so the half is
+//      asserted below instead of reported. ⛔ MEASURED BEFORE THE CASE WAS
+//      WRITTEN: taking `searchWords` off the assignee's control left all 7168
+//      cases of the whole suite exactly as they were, so AS-5's second MUST was
+//      held by nothing at all. ⚠️ WHETHER THE MATCH IS ON A FRAGMENT IS STILL
+//      NOT ASSERTED and cannot be here: FR-029 「環境の作法に従う」 leaves the
+//      narrowing to the host, and this unit draws nothing.
 //   3. How several assignees on one task are written into one field, and in
 //      what order. FR-059's 「先頭 1 名と残りの人数」 is written for the assignee
 //      LABEL; AS-5 makes the panel a different surface and no row says how it
@@ -725,6 +738,27 @@ describe('表 T-225 AS-5 -- the form the panel offers for PR-16', () => {
     expect(choices as readonly string[]).toHaveLength(SCHEDULE.resources.length)
   })
 
+  it('⛔ MUST attach the partial-match search too (the second half)', () => {
+    // AS-5 (MUST) attaches TWO things and not one: 「名簿から選ばせる形とし、
+    // ドロップダウンと部分一致の検索を添えること」. The case above holds the first;
+    // this holds the second, so a surface that offered only the chooser fails
+    // the row rather than passing on its dropdown alone.
+    //
+    // ⭐ WHAT A TYPED FRAGMENT SETTLES IS A NAME, which is why the words are
+    // NAMES and are offered once each: AS-8 (MUST) is the row that says what a
+    // name two people carry means -- 「`uid` の小さいほうへ割り当てる」 -- so a
+    // second identical word could not be told from the first by typing it.
+    // ⚠️ WHETHER THE HOST NARROWS ON A FRAGMENT IS NOT ASSERTED, and the head of
+    // this file says why: FR-029 leaves that to 「環境の作法」 and this unit draws
+    // nothing.
+    const control = assigneeField(TASK_HELD).controls[0]
+    expect(control, 'AS-5 (MUST): the assignee is chosen from the roster').not.toBe(undefined)
+    const words = (control as PropertyControl).searchWords
+    expect(words, 'AS-5 (MUST): 部分一致の検索を添えること').not.toBe(undefined)
+    const names = new Set(SCHEDULE.resources.map((one) => one.name))
+    expect([...(words ?? [])].sort()).toEqual([...names].sort())
+  })
+
   it('⛔ AS-9 -- MUST offer the two same-named people as two candidates', () => {
     // ⛔ EXPECTED RED. AS-9: 「プロパティパネルで `uid` を選んだ …… 同姓同名を
     // 見分ける経路はここだけである」. If the roster were folded to one entry per
@@ -923,39 +957,75 @@ describe('表 T-225 AS-2 -- the glyph that keeps GR-11 reachable', () => {
   })
 })
 
-describe('表 T-225 AS-1 -- the in-place route the assignee label carries', () => {
-  it('⛔ MUST open an in-place edit of the assignee name on a double click', () => {
-    // ⛔ EXPECTED RED. AS-1 (MUST): 「担当ラベルをダブルクリックした …… その場で
-    // 担当者名を編集させること。入口の割当は表 T-023 の `MK-13`、掴み領域は表
-    // T-023d の `GR-11` が既に持つ」, and MK-13 spells the destination
-    // 「担当ラベル ＝ 担当者名の変更」. IN-5a of 表 T-028 lists 「an assignee」
-    // among the things typed in place, so the state AS-1 opens is one the rest
-    // of the specification already knows about.
+// ---------------------------------------------------------------------------
+// AS-1 -- where the assignee label's double click goes.
+//
+// ⛔⛔ THIS BLOCK WAS REWRITTEN ON 2026-09-08 BECAUSE THE ROW WAS. Until that
+// day AS-1 read 「その場で担当者名を編集させること（MUST）」 and the case below
+// asserted the destination was NOT the panel, quoting MK-13's ruling of
+// 2026-08-27. Both are gone: the user ruled 「パネルへ（条項を書き換える）」 and
+// AS-1 now reads 「プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を
+// 編集できる状態にして焦点を置くこと（MUST）」 with 「その場で打ち換える器を置いて
+// はならない（MUST NOT）」 beside it, while MK-13's 担当ラベル entry now says only
+// 「表 T-225 の `AS-1` の宛先とすること（MUST）」. ⛔ A case still asserting the
+// retired MUST NOT would be exactly the drift D-166 records.
+// ---------------------------------------------------------------------------
+
+describe('表 T-225 AS-1 -- the panel the assignee label opens', () => {
+  it('sends the double click to a destination of its own', () => {
+    // AS-1 (MUST): 「担当ラベルをダブルクリックした …… 入口の割当は表 T-023 の
+    // `MK-13`、掴み領域は表 T-023d の `GR-11` が既に持つ」, and MK-13 prints
+    // 担当ラベル apart from 「タスク（名称ラベルと本体のどちらでも）」 -- 「⛔ その
+    // 宛先をここに書き写してはならない（MUST NOT）」 is that row's own reason for
+    // keeping the two apart.
     //
     // ⚠️ The hit is handed in rather than found, because the sweep above has
-    // already reported that nothing draws GR-11 -- so this case asks the second
-    // question on its own: given the row, is there a destination? `InPlaceTarget`
-    // publishes two members, `documentTitle` and `taskName`, and neither is it.
+    // already reported what the picture draws -- so this case asks the second
+    // question on its own: given the row, is there a destination of its own?
     const answer = afterDoubleClick(0, 0, taskHitOn('GR-11', TASK_HELD))
     const action = answer.action
-    expect(action?.kind, 'MK-13 sends 担当ラベル to an in-place edit').toBe('editInPlace')
+    expect(action?.kind, 'MK-13 sends 担当ラベル to an edit of a named field').toBe('editInPlace')
     if (action !== null && action.kind === 'editInPlace') {
       const target: string = action.target.kind
-      // ⚠️ ONLY WHAT THE ROWS SETTLE. MK-13 gives 担当ラベル its own destination,
-      // separate from 「タスク（名称ラベルと本体のどちらでも） ＝ 名称の編集」, so
-      // what AS-1 opens may not be the task name -- and FR-035 owns the other
-      // member. What it IS called is a name no row has settled, so no case here
-      // spells one.
+      // ⚠️ ONLY WHAT THE ROWS SETTLE. What the destination is CALLED is a name no
+      // row has settled, so no case here spells one; that it is neither of the
+      // two MK-13 and FR-035 already own is the whole of what the rows say.
       expect(target).not.toBe('taskName')
       expect(target).not.toBe('documentTitle')
     }
   })
 
-  it('⛔ MUST NOT be the properties panel', () => {
-    // MK-13 (MUST NOT, 利用者の裁定 2026-08-27): 「プロパティパネルを開く経路を
-    // 本行に置いてはならない」. AS-5's panel is the OTHER of FR-008's two
-    // entrances, reached by selecting -- not by double-clicking the label.
-    const answer = afterDoubleClick(0, 0, taskHitOn('GR-11', TASK_HELD))
-    expect(answer.action?.kind).not.toBe('openPropertiesPanel')
+  it('⛔ MUST have a PR-16 field on the panel for the focus to be put on', () => {
+    // AS-1 (MUST): 「プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を
+    // 編集できる状態にして焦点を置くこと」. ⭐ THE HALF THIS SEAM CAN ANSWER FOR is
+    // the field: whether it is DRAWN and whether it is EDITABLE. Which press
+    // raises the panel is the shell's, and putting a person into a drawn control
+    // is the surface's (IF-9) -- neither is a unit this file drives.
+    //
+    // ⛔ THE ROW ID IS WHAT THE FOCUS IS ASKED FOR BY, which is why it is
+    // asserted rather than the field's position: IF-9 takes 「その欄が名乗る行
+    // ID」, so a field that named anything else could not be reached however
+    // well it were drawn.
+    const field = assigneeField(TASK_HELD)
+    expect(field.row).toBe('PR-16')
+    // 「編集できる状態にして」 -- FR-006 (MUST) makes every row table T-016 does
+    // not mark read-only editable, and AS-5 (MUST) says the same of this one in
+    // as many words 「編集できること」.
+    expect(field.isEditable, 'AS-5 (MUST): the panel edits the assignee').toBe(true)
+    expect(field.controls.length, 'a field with no control cannot be edited').toBeGreaterThan(0)
+  })
+
+  it('⛔ MUST leave a task nobody is on the same field to focus', () => {
+    // ⭐ AS-1 IS NOT WRITTEN FOR A TASK THAT ALREADY HAS SOMEBODY. AS-2 (MUST)
+    // keeps the label -- 「担当者名の代わりに `-` の 1 文字を出すこと」 -- for the
+    // stated reason that a task nobody is on would otherwise have no figure
+    // GR-11 could claim, so the double click reaches this very row there too.
+    // ⛔ A panel that dropped the field when the list is empty would leave that
+    // press with nothing to focus, which is AS-1's MUST unmet in the one case
+    // AS-2 exists to protect.
+    const field = assigneeField(TASK_ALONE)
+    expect(field.row).toBe('PR-16')
+    expect(field.isEditable).toBe(true)
+    expect(field.controls.length).toBeGreaterThan(0)
   })
 })

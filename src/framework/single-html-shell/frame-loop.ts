@@ -1521,6 +1521,14 @@ type NoticeReason =
   // terms the note above `RS-51` states.
   | 'RS-52'
   | 'RS-53'
+  // ⭐ THE ROW A SHAPE THAT COULD NOT BE APPLIED IS TOLD ON (`RS-54`). Its 正 is
+  // FR-083, which holds 「形状の変更が拒まれたときも、構えは立てること（MUST）」,
+  // and the table's own row carries 「`RS-10` を当ててはならない（MUST NOT）」 --
+  // so this seat is not a nicety but the one way that MUST NOT can be kept.
+  // ⚠️ IT IS REACHED BY READING THE REFUSALS, not by a reason of its own: the
+  // road that raises it is WS-3's `refused`, the same road `RS-10` rides, and
+  // `reasonOfWriteRefusal` below is where the two are told apart.
+  | 'RS-54'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1601,6 +1609,10 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // never `null`: the count IS what that manner is for.
   'RS-52': 'NT-3',
   'RS-53': 'NT-1',
+  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR THIS ROW, not a reading
+  // taken here: the person's input was not accepted, and nothing of ours
+  // failed -- which is the line `NT-1` and `NT-3a` are drawn along.
+  'RS-54': 'NT-1',
 }
 
 /**
@@ -1649,6 +1661,71 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   deliveringNotices: 'RS-9',
   refused: 'RS-10',
   importRefused: null,
+}
+
+/**
+ * The row of table T-233 a shape the selection cannot take carries (`RS-54`),
+ * and the pair that picks it out of a WS-3 bundle.
+ *
+ * ⭐ WHY THE REASON ALONE IS NOT ENOUGH HERE, WHICH IS THE WHOLE OF D-402.
+ * `NOTICE_REASON_OF_WRITE_REFUSAL` above rides on `PlanRefusal['reason']`, and
+ * WS-3 spells every refusal of every command `refused` -- so a shape pressed on
+ * a selection it cannot be given landed on `RS-10` along with everything else
+ * the bundle could refuse. ⛔ Table T-233's `RS-54` row forbids that in as many
+ * words: 「`RS-10` を当ててはならない（MUST NOT）」, and its reason is that the
+ * other row's next step is 「拒まれた変更を取り除いて、もう一度」 -- a step this
+ * road has nothing to offer, because the person pressed one entry and there is
+ * no item to take out of it.
+ * ⛔ THE COMMAND *AND* THE RULE, NOT EITHER ALONE. CM-20 refuses for one rule
+ * only today, but a second rule added to it later would be a second reason, and
+ * a row for it is table T-233's to give rather than this file's to guess (the
+ * standing cost `NOTICE_MANNER_OF_REASON` records). Reading both keeps a new
+ * refusal falling back to `RS-10` rather than quietly taking these words.
+ * ⚠️ NOT `TABLE_T108_ROWS` OF `edit-task.ts` REACHED FOR: the row ID is what
+ * crosses the seam on `Refusal.command`, and this side compares the string it
+ * is handed.
+ */
+const SHAPE_APPLICATION_COMMAND = 'CM-20'
+const SHAPE_APPLICATION_RULE = 'FR-083'
+const SHAPE_NOT_APPLICABLE_REASON: NoticeReason = 'RS-54'
+
+/**
+ * Which row of table T-233 one refused write is told on.
+ *
+ * ⛔ EVERY REFUSAL THAT IS NOT THE SHAPE'S KEEPS THE ROW THE CENSUS GIVES IT,
+ * and that is a refusal to invent rather than an omission: table T-233 holds one
+ * row for a bundle dropped (`WS-3`) and one for the shape (`RS-54`), and a
+ * refusal it names no third row for is owed a row rather than a guess.
+ *
+ * ⭐ ALL OF THEM AND NOT ONE OF THEM. A bundle whose refusals are all the
+ * shape's is the press table T-233 wrote `RS-54` for; a bundle holding even one
+ * other refusal was dropped for more than the shape, and `RS-10` is then the
+ * true word for it.
+ *
+ * ⚠️⚠️ ONE HALF OF THIS IS UNGUARDED, MEASURED 2026-09-08 AND WRITTEN DOWN
+ * RATHER THAN LEFT TO BE REDISCOVERED. Widening the test above to every WS-3
+ * refusal -- so that `RS-10` becomes unreachable from this road altogether --
+ * takes ZERO cases red in the whole suite. ⛔ Nothing drives a shell-reachable
+ * WS-3 refusal that is NOT the shape's: every command refusal a person can
+ * raise through the palette or the ground today is CM-20 against FR-083. ⭐ The
+ * narrow half IS guarded (two cases of
+ * `tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts` go red when the
+ * branch is taken out). A case that reaches a second refusal road is what this
+ * line is owed.
+ *
+ * @purity pure
+ */
+function reasonOfWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): NoticeReason | null {
+  if (refusal.step === 'WS-3' && refusal.reason === 'refused') {
+    const all = refusal.refusals
+    const shapeOnly =
+      all.length > 0 &&
+      all.every(
+        (one) => one.command === SHAPE_APPLICATION_COMMAND && one.rule === SHAPE_APPLICATION_RULE,
+      )
+    if (shapeOnly) return SHAPE_NOT_APPLICABLE_REASON
+  }
+  return NOTICE_REASON_OF_WRITE_REFUSAL[refusal.reason]
 }
 
 /**
@@ -5945,7 +6022,11 @@ export function frameLoop(
    * @purity non-pure
    */
   function raiseWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): void {
-    const reason = NOTICE_REASON_OF_WRITE_REFUSAL[refusal.reason]
+    // ⛔ NOT THE CENSUS READ DIRECTLY. `reasonOfWriteRefusal` is where D-402's
+    // one line was split: WS-3 spells every command's refusal `refused`, so the
+    // census keyed on the reason alone told a shape the selection cannot take
+    // with `RS-10`'s words -- which table T-233's `RS-54` row forbids (MUST NOT).
+    const reason = reasonOfWriteRefusal(refusal)
     // See the census: the replacement road's WS-3 is the one refusal table T-233
     // names no row for.
     if (reason === null) return

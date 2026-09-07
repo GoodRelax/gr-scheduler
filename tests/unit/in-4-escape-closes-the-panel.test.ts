@@ -42,10 +42,20 @@
 //                   what the first level of `Esc` closes; IC-52 names the panel
 //                   a 面; therefore `Esc` closes the panel.
 //   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん
-//                   消費し、無ければブラウザへ渡すこと。**消費する階層は 確定して
-//                   いないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけ
-//                   の矢印 → 構え → `Dual Cursor` モード → 出ている説明 の順とする
-//                   こと（MUST）**」
+//                   消費し、無ければブラウザへ渡すこと。**消費する階層は 出ている
+//                   通知 → 確定していないその場の編集 → 開いている面 → 進行中の
+//                   ドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード
+//                   → 出ている説明 の順とすること（MUST）**」
+//                   ⚠️⚠️ 「選択」 WAS PUT INTO THIS LADDER ON 2026-09-08, and the
+//                   row records what it was before: 「タスクを選ぶと `FR-006` に
+//                   よりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目
+//                   は消費する対象が無いものとして `IN-4a` によりブラウザへ落ちて
+//                   いた」. ⛔ THAT SENTENCE IS THE OLD SHAPE OF TWO CASES BELOW,
+//                   which asserted the second press reaching the browser. They
+//                   now walk the three rungs the panel route really stands on --
+//                   面, then 選択, then the browser -- because the gesture that
+//                   puts the panel up (MK-13, a double click) selects with its
+//                   first click, so a selection has been standing all along.
 //   表 T-028 IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
 //                   （MUST）**」 —— 全画面表示から `Esc` で戻る経路（`FR-071`）は
 //                   ブラウザ側の挙動なので、渡さないと戻れなくなる。
@@ -529,7 +539,21 @@ function openThePanel(built: Stage): void {
   built.send(pointer('up', at.x, at.y, { clickCount: 2 }))
 }
 
-/** A loop whose panel is up and which has nothing else for `Esc` to spend. */
+/**
+ * A loop whose panel is up -- AND WHICH HAS A SELECTION STANDING BEHIND IT.
+ *
+ * ⛔⛔ THIS COMMENT USED TO READ 「a loop whose panel is up and which has nothing
+ * else for `Esc` to spend」, AND THAT WAS FALSE THE DAY IT WAS WRITTEN. `MK-13`
+ * is a double click, so its FIRST click already moved the selection of table
+ * T-023c onto the Task; the panel is merely what the second click added. ⭐ It
+ * did not matter until 2026-09-08, when the ruling of that day put 「選択」 into
+ * IN-4's ladder between 「構え」 and 「`Dual Cursor` モード」 -- before it, a
+ * standing selection was not a rung and the press after the panel fell through
+ * to the browser.
+ * ⚠️ Nothing about the fixture changed; only what is true about it. ⭐ The two
+ * cases that read the far end of the ladder walk one rung further now, and say
+ * so in their own names.
+ */
 function withThePanelUp(): Stage {
   const built = stage()
   openThePanel(built)
@@ -658,13 +682,43 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     ).toBe(true)
   })
 
-  it('⛔ IN-4a (MUST): the press AFTER the panel has gone reaches the browser', () => {
+  it('⛔ IN-4 / IN-4a (MUST): 面, then 選択, then the browser -- one rung per press', () => {
     // The other half of the pair, so that a failure says WHICH side broke: the
     // panel is exactly one level, no more and no less.
+    //
+    // ⭐⭐ THE LADDER HAS THREE RUNGS ON THIS ROUTE, and asserting them in order
+    // is what makes the claim about the panel exact. IN-4 orders 「開いている面
+    // → 進行中のドラッグ・引きかけの矢印 → 構え → 選択」, and `MK-13` is a double
+    // click whose first half already moved the selection -- so the panel, the
+    // selection and then nothing is the whole of what this fixture has to spend.
+    // ⛔ NEITHER 「進行中のドラッグ」 NOR 「構え」 STANDS HERE: the gesture was
+    // released (IN-1 settles on release) and no palette entrance was pressed.
+    // ⚠️ 2026-09-08: this case used to stop after the first press and demand the
+    // browser, which was true only while 「選択」 was absent from the ladder.
     const built = withThePanelUp()
 
+    // Rung 1 -- 「開いている面」. The panel goes, and the press is spent on it.
+    expect(
+      built.loop.isBrowserDefaultStopped(ESCAPE()),
+      'the open panel is IN-4のいう「開いている面」, so the first press has something to spend',
+    ).toBe(true)
+    built.send(ESCAPE())
+    expect(built.panelIsUp(), 'IN-4: 消費する階層は … 開いている面 …の順とすること').toBe(false)
+
+    // Rung 2 -- 「選択」. ⭐ THIS IS ALSO FR-072's MUST NOT SEEN FROM THE SIDE:
+    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」. A loop that
+    // took the selection away with the panel would have nothing left to spend
+    // here and would fall straight through to the browser.
+    // ⛔ NOT ASSERTED BY DELETING THE TASK -- that is FR-072's own file
+    // (tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts) and
+    // a `Delete` here would spend the very selection the next press needs.
+    expect(
+      built.loop.isBrowserDefaultStopped(ESCAPE()),
+      'FR-072 (MUST NOT): パネルを出すのをやめても、選択を解いてはならない -- so 選択 is still a rung',
+    ).toBe(true)
     built.send(ESCAPE())
 
+    // Rung 3 -- there is none. IN-4a hands the press to the browser.
     expect(
       built.loop.isBrowserDefaultStopped(ESCAPE()),
       'IN-4a: 全画面表示から `Esc` で戻る経路（`FR-071`）はブラウザ側の挙動である',
@@ -705,11 +759,27 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
     expect(built.panelIsUp()).toBe(false)
   })
 
-  it('⛔ IN-4a (MUST): with both 面 spent, the next press reaches the browser', () => {
+  it('⛔ IN-4 / IN-4a (MUST): with both 面 spent, 選択 is the last rung before the browser', () => {
+    // ⭐ THE SAME THREE RUNGS AS ABOVE WITH A SECOND 面 ON TOP, which is what
+    // makes this a case about the LADDER rather than about the panel: four
+    // presses, four different answers, and the fourth is the browser's.
+    // ⚠️ 2026-09-08: this case used to demand the browser on the third press.
+    // It did so correctly while 「選択」 was not a rung of IN-4; the ruling of
+    // that day put it in, and a case that still demanded the browser there was
+    // asking the loop to skip a level the manuscript now orders.
     const built = withThePanelUp()
     built.send(OPEN_HELP())
 
     built.send(ESCAPE())
+    built.send(ESCAPE())
+    expect(built.modalIsUp() || built.panelIsUp(), 'both 面 are spent').toBe(false)
+
+    // 「選択」 -- still standing, because nothing above spent it and FR-072
+    // (MUST NOT) forbids the panel's closing to take it.
+    expect(
+      built.loop.isBrowserDefaultStopped(ESCAPE()),
+      'IN-4: 面 の次に残っているのは 選択 の段である',
+    ).toBe(true)
     built.send(ESCAPE())
 
     expect(built.loop.isBrowserDefaultStopped(ESCAPE())).toBe(false)

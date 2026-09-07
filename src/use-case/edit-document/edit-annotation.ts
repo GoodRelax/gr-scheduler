@@ -263,15 +263,26 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-49', 'AT-110', `no comment box with id ${command.id}`)])
       }
-      // FR-019: コメントボックスは引出し四角と折れ線の 2 種から選べること（MUST）.
-      // CR-172 spelled the two -- calloutBox / polyline -- so
-      // `CommentBoxLeaderShapeKind` carries membership and the MUST has
-      // something to enforce; before that this command could only refuse.
+      // ⛔⛔ FR-019 NO LONGER ASKS FOR A CHOICE (利用者の裁定 2026-09-07):
+      // 「⛔⛔ **コメントボックスの引出しは折れ線 1 種とすること（MUST）。2 種から
+      // 選ばせてはならない（MUST NOT）**」. ⚠️ Until that day the requirement read
+      // 「引出し四角と折れ線の 2 種から選べること（MUST）」 and this arm was the
+      // entrance that kept it; that sentence is gone from docs/spec.
       //
-      // ⚠️ The payload is NOT nullable, though AT-111 admits null. FR-019 asks
-      // for a choice between two, and no requirement gives a way back to naming
-      // neither -- inventing one here would decide what CM-46's ⛔ above is
-      // still waiting on. A box created by AR-5 keeps null until this is called.
+      // ⭐ THE COLUMN AND THE ENUM STAY, AND THE REQUIREMENT SAYS SO ITSELF:
+      // 「⚠️ **`leaderShapeKind` の列と列挙を退役させることは、本段では行わない**
+      // —— **同じ名を持つファイルが 21 ある（実測 2026-09-08、`src` 3 ／ `tests`
+      // 14 ／ `docs/spec` 4）ので、1 度に動かす別の段が要る。**」 ⇒ CM-48 of table
+      // T-108 is still a command, AT-111 still admits both spellings, and this
+      // arm still stores what it is handed. ⛔ NOTHING HERE MAY REFUSE ONE OF
+      // THE TWO on the strength of the new MUST -- the retirement is another
+      // round's, and the drawing is where 「1 種」 is now obeyed
+      // (`svg-renderer.ts` draws the one 折れ線 and reads no kind).
+      //
+      // ⚠️ The payload is NOT nullable, though AT-111 admits null. No
+      // requirement gives a way back to naming neither -- inventing one here
+      // would decide what CM-46's ⛔ above is still waiting on. A box created by
+      // AR-5 keeps null until this is called.
       //
       // ⭐ The same one-field test the other nine arms of this file keep, and
       // the one arm that was missing it (ledger row D-378). FR-020 (MUST)

@@ -73,9 +73,15 @@
 //                   this file's subject: 終わらせないと「ドラッグ中」が解けず、
 //                   `Agent API` の書き込みが以後ずっと拒否される（表 T-035 の
 //                   AG-9）.
-//   表 T-028 IN-4   Esc consumes ONE level, in the order 開いている面 → 進行中の
-//                   ドラッグ・引きかけの矢印 → 構え → `Dual Cursor` モード. With
-//                   no surface open, the first Esc takes the press in flight.
+//   表 T-028 IN-4   Esc consumes ONE level, in the order 出ている通知 → 確定して
+//                   いないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけ
+//                   の矢印 → 構え → 選択 → `Dual Cursor` モード → 出ている説明.
+//                   With no surface open and nothing yet settled, the first Esc
+//                   takes the press in flight. ⚠️⚠️ 「選択」 JOINED THE LADDER ON
+//                   2026-09-08, below 「構え」, and that is why `pressIsInFlight`
+//                   below carries a warning about what it may be asked: a press
+//                   that RELEASED on a Task leaves a selection standing, and a
+//                   rung is a rung whether or not a gesture is in flight.
 //   表 T-028 IN-4a  消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
 //                   （MUST） -- used below only to READ whether a press is still
 //                   in flight, through `isBrowserDefaultStopped`.
@@ -443,6 +449,21 @@ function clearanceFrom(loop: FrameLoop, spot: { x: number; y: number }): number 
  * 無いときは、必ずブラウザへ渡すこと. ⛔ Asked with
  * `isBrowserDefaultStopped`, which the interface declares must change nothing,
  * so reading it cannot end the gesture it is reading.
+ *
+ * ⛔⛔ WHAT THIS DOES NOT ANSWER, WRITTEN DOWN 2026-09-08. It says whether `Esc`
+ * has ANY rung left, and IN-4's ladder is 出ている通知 → 確定していないその場の編集
+ * → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor`
+ * モード → 出ている説明. A standing SELECTION is a rung of it -- the ruling of
+ * 2026-09-08 put it there -- so on any route that leaves something selected this
+ * reads true with no gesture whatever in flight. ⇒ ⛔ IT MAY ONLY BE USED WHERE
+ * NOTHING BELOW 「進行中のドラッグ」 CAN BE STANDING, which is every remaining
+ * caller: a bare loop, a press still down (IN-1 settles the selection on the
+ * release, so an unreleased press has selected nothing yet), and the two
+ * interruptions -- `Esc` (IN-1) and a lost pointer (IN-1a) -- which end the
+ * press without ever settling it.
+ * ⭐ THE ONE CALLER THAT DID NOT MEET THAT CONDITION WAS THE RELEASE, and it no
+ * longer asks this: it measures AG-9's gate directly instead. ⛔ Do not reach
+ * for this to mean 「the gesture is over」 -- it means 「`Esc` still has work」.
  */
 const pressIsInFlight = (loop: FrameLoop): boolean => loop.isBrowserDefaultStopped(ESCAPE())
 
@@ -550,13 +571,32 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // writes at all. IN-1 settles a pointer operation on the release, so once
     // the button is up there is no gesture for AG-9 to refuse, and FR-046 makes
     // SK-20 write today into `statusDate`.
+    //
+    // ⛔⛔ THE RELEASE IS MEASURED THROUGH AG-9'S OWN GATE, NOT THROUGH `Esc`.
+    // Until 2026-09-08 this case read `pressIsInFlight` -- 「the release ended
+    // the gesture (IN-1)」 -- and that proxy is not the thing this file is
+    // about: it asks whether `Esc` HAS ANY RUNG LEFT, and IN-4's ladder has
+    // several. The ruling of that day put 「選択」 into the ladder, and a press
+    // on a plan bar SELECTS the Task it settled on, so from that day the proxy
+    // answered true for a gesture that was thoroughly over. ⭐ The proxy was
+    // never wrong about `Esc`; it was always wrong about AG-9, and the ladder
+    // growing a rung is what made the difference visible.
+    // ⭐ WHAT REPLACES IT IS STRICTLY MORE THAN IT ASSERTED: the same write is
+    // driven twice, once with the button down and once after it came up, so the
+    // case now says that THE RELEASE IS WHAT ENDED THE REFUSAL rather than only
+    // that a write lands afterwards. ⚠️ `SK-20` is 出す / 消す, so the refused
+    // press leaves `statusDate` null and the second arrival is the one that
+    // writes today into it -- the toggle never got its first half.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
+    const before = loop.document()
+    loop.receiveInput(BASE_DATE_LINE())
+    expectDocumentUntouched(loop, before, 'AG-9 (MUST): the press is still down, so the write is refused')
+
     loop.receiveInput(pointer('up', centre.x, centre.y))
-    expect(pressIsInFlight(loop), 'the release ended the gesture (IN-1)').toBe(false)
 
     loop.receiveInput(BASE_DATE_LINE())
 

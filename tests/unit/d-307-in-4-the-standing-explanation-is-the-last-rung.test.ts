@@ -3,10 +3,18 @@
 //   IN-3 「ツールチップは、次の 3 つをすべて満たすこと（MUST）。**消せること**
 //        —— ポインタもフォーカスも動かさずに消す手立てがあること。」
 //   IN-4 「**消費する階層は 出ている通知 → 確定していないその場の編集 → 開いて
-//        いる面 → 進行中のドラッグ・引きかけの矢印 → 構え → `Dual Cursor` モード
-//        → 出ている説明 の順とすること（MUST）** —— 説明を最後に置くのは、`IN-3`
-//        が求める「消せること」を果たす手立てがほかに 1 つも無いからである。」
+//        いる面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor`
+//        モード → 出ている説明 の順とすること（MUST）** —— 説明を最後に置くのは、
+//        `IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからで
+//        ある。」
+//
 //   IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**」
+//
+// ⚠️⚠️ 選択 JOINED THE LADDER ON 2026-09-08 (利用者の裁定, ledger D-398), between
+// 構え and `Dual Cursor` モード. The rung above the foot therefore moved, and the
+// premise cases below were red until this file was re-read against the row.
+// ⛔ THE ROW PUTS ITS PLACE AS A MUST NOT -- 「構えより前に置いてはならない
+// （MUST NOT）」 -- so the adjacency asserted below is the row's, not a choice.
 //
 // ⭐⭐ THE TWO ROWS ARE ONE RULE. IN-4's own reason says the explanation is put
 // last BECAUSE IN-3's 「消せること」 has no other way to be met -- so a build
@@ -79,9 +87,10 @@
 //   - IN-3's other two thirds (ポインタを乗せられること / 引き金が外れるまで
 //     出ていること). D-307 is about the first, and the third is a geometry and
 //     a rest that uf-69.test.ts already holds.
-//   - Where the ladder's `propertiesPanel` rung sits. IN-4 does not print it;
-//     it reached `EscapeTarget` from another row, and asserting an order the
-//     manuscript does not state would be this file inventing one.
+//   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against 選択. IN-4
+//     gives the panel no rung of its own, and asserting an order the manuscript
+//     does not state would be this file inventing one -- but the row DOES print
+//     one relation, 「本行の並びで選択より上に在る」, and that one is asserted.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -109,6 +118,22 @@ import type {
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  commandFromInput,
+  selectionFromInput,
+  type InputContext,
+  type TranslatedInput,
+} from '../../src/adapter/input-command-translator/input-command-translator'
+import type { Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import type {
+  KeyInput,
+  PointerInput,
+} from '../../src/adapter/input-command-translator/input-source'
+import {
+  emptySelection,
+  selectionWith,
+  type Selection,
+} from '../../src/entity/document-model/selection/selection'
 import { specTable } from '../contract/spec-table'
 
 // ===========================================================================
@@ -128,10 +153,26 @@ const IN_3_UNTIL_THE_TRIGGER_GOES =
   'ること** —— 説明そのものの上へポインタを移しても消えないこと。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
-  'ればブラウザへ渡すこと。**消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  'ればブラウザへ渡すこと。**消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 
+/**
+ * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ D-398 is the
+ * ledger row it closes, and the row gives the reason in the same breath.
+ */
+const IN_4_SELECTION_NOT_ABOVE_THE_ARM =
+  '**構えより前に置いてはならない（MUST NOT）** —— **構えたまま何かを選んでいるとき、構えを解く手立てが `Esc` から消える。**'
+
+/** IN-4's refusal of a 「panel not showing」 condition on that rung. */
+const IN_4_NO_PANEL_CONDITION =
+  '**「パネルが出ていないとき」という条件は置かない**'
+
+/**
+ * ⚠️ ANCHORED ON THE ROW ITSELF AND NOT ON WHAT PRECEDES IT. It read
+ * '**（`FR-031`）|\n| IN-4a | ...' until 2026-09-08, and the ruling that added
+ * 選択 rewrote IN-4's tail -- so the anchor broke without IN-4a moving at all.
+ */
 const IN_4A_TO_THE_BROWSER =
-  '**（`FR-031`）|\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）'
+  '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
 
 /** The half of IN-3 D-307 is about, quoted as the row writes it. */
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること'
@@ -155,6 +196,7 @@ const LADDER_AS_PRINTED = [
   '開いている面',
   '進行中のドラッグ・引きかけの矢印',
   '構え',
+  '選択',
   '`Dual Cursor` モード',
   '出ている説明',
 ] as const
@@ -294,6 +336,15 @@ describe('D-307 -- the manuscript these cases are driven by', () => {
     expect(IN_4_THE_LADDER).toContain('`Dual Cursor` モード → 出ている説明')
   })
 
+  it('still puts 選択 between 構え and the Dual Cursor mode, and still forbids it above 構え', () => {
+    // ⭐ D-398. The rung joined the row on 2026-09-08 and the two clauses below
+    // are what fix its place; a re-wording of either takes this file red before
+    // any behaviour case runs.
+    expect(IN_4_THE_LADDER).toContain('構え → 選択 → `Dual Cursor` モード')
+    expect(REQUIREMENTS).toContain(IN_4_SELECTION_NOT_ABOVE_THE_ARM)
+    expect(REQUIREMENTS).toContain(IN_4_NO_PANEL_CONDITION)
+  })
+
   it('still requires the press to reach the browser when there is nothing to spend', () => {
     expect(REQUIREMENTS).toContain(IN_4A_TO_THE_BROWSER)
   })
@@ -363,6 +414,11 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
         context: contextOf({ isTooltipStanding: true }),
       },
       {
+        rung: 'selection',
+        state: emptyScreenState(),
+        context: contextOf({ isSelectionStanding: true, isTooltipStanding: true }),
+      },
+      {
         rung: 'dualCursorMode',
         state: emptyScreenState(),
         context: contextOf({ dualCursorMode: true, isTooltipStanding: true }),
@@ -370,6 +426,256 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
     ]
     for (const { rung, state, context } of standing) {
       expect(escapeTarget(state, context), rung).toBe(rung)
+    }
+  })
+})
+
+// ===========================================================================
+// 9. ⭐ D-398 -- 選択 is a rung, it sits below 構え, and it is above the mode
+// ===========================================================================
+//
+// Exported declarations read for this section and section 10, and nothing else:
+//   input-command-translator.ts  `commandFromInput`, `selectionFromInput`,
+//                                `InputContext`, `TranslatedInput`
+//   selection.ts                 `emptySelection`, `selectionWith`, `Selection`
+//   item-hit-area.ts             `Hit`
+//   input-source.ts              `PointerInput`, `KeyInput`
+
+const NO_MODS = { ctrl: false, shift: false, alt: false, meta: false } as const
+
+/** SK-8's key, spelled the way table T-036's assignment column spells it. */
+const ESCAPE_KEY = {
+  kind: 'key',
+  key: 'Esc',
+  modifiers: NO_MODS,
+} as unknown as KeyInput
+
+/** One `Task` picked, which is the smallest thing table T-023c calls a selection. */
+const selectionWithOneTask = (): Selection => selectionWith(emptySelection(), { kind: 'task', uid: 7 })
+
+/**
+ * ⛔ NOTHING OF THE SCHEDULE IS READ ON THIS ROAD EITHER: a key input leaves
+ * `selectionFromInput` at SL-5 or at IN-4's rung, both of which read the
+ * selection, the screen state and the questions `escapeContextOf` carries.
+ */
+const contextWithSelection = (
+  selection: Selection,
+  part: Partial<InputContext> = {},
+): InputContext =>
+  ({
+    document: { schedule: { tasks: [], commentBoxes: [], highlightBoxes: [] } },
+    layout: { rows: [], pxPerDay: 0 },
+    geometry: { items: [] },
+    regions: {},
+    screenState: emptyScreenState(),
+    selection,
+    zoomStep: 0.1,
+    zoomMin: 0.2,
+    zoomMax: 5,
+    newCommentBoxId: 'a',
+    newHighlightBoxId: 'b',
+    pressed: null,
+    isTextEntryUnsettled: false,
+    dualCursorFollowing: null,
+    ...part,
+  }) as unknown as InputContext
+
+describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a rung', () => {
+  it('answers selection when something is selected and nothing above it stands', () => {
+    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+      'selection' satisfies EscapeTarget,
+    )
+  })
+
+  it('leaves the arm reachable while something is selected (MUST NOT: 構えより前に置いてはならない)', () => {
+    // ⛔⛔ THE WHOLE OF THE ROW'S MUST NOT. With the rung placed ABOVE 構え, a
+    // press made with a shape armed AND a Task selected would answer
+    // 'selection', and 「構えを解く手立てが `Esc` から消える」.
+    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
+    expect(escapeTarget(armed, contextOf({ isSelectionStanding: true }))).toBe('armed')
+    // ⭐ AND THE OTHER WAY ROUND, which is what makes the case above mean
+    // something: with nothing armed, the same selection IS what the press finds.
+    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+      'selection',
+    )
+  })
+
+  it('is spent before the Dual Cursor mode, which is the rung below it', () => {
+    const both = contextOf({ isSelectionStanding: true, dualCursorMode: true })
+    expect(escapeTarget(emptyScreenState(), both)).toBe('selection')
+  })
+
+  it('lets the open panel take the press first, so one press never spends two rungs', () => {
+    // ⭐ THE ROW REFUSES A 「パネルが出ていないとき」 CONDITION and says why:
+    // 「プロパティパネルは「開いている面」に当たり、本行の並びで選択より上に在る
+    // ので、出ているあいだの `Esc` はそちらが先に消費する。」 ⇒ FR-072's
+    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 is kept by
+    // the ORDER, not by a second question.
+    const withPanel = contextOf({ isSelectionStanding: true, isPropertiesPanelOpen: true })
+    expect(escapeTarget(emptyScreenState(), withPanel)).toBe('propertiesPanel')
+    // ⭐ AND THE SELECTION IS STILL THERE FOR THE NEXT PRESS -- D-398's whole
+    // measurement was that the second press found nothing and fell to IN-4a.
+    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+      'selection',
+    )
+  })
+
+  it('answers null when nothing is selected, so IN-4a still hands the key over', () => {
+    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: false }))).toBeNull()
+    // The member is optional; absence reads as 「何も選んでいない」.
+    expect(escapeTarget(emptyScreenState(), QUIET)).toBeNull()
+  })
+
+  it('and the rung is actually SPENT: the press that names it clears the selection', () => {
+    // ⛔ WITHOUT THIS THE FIVE CASES ABOVE PROVE ONLY THAT A NAME WAS ANSWERED.
+    // D-307's own record is the argument: a rung was added there in 2026-09-05
+    // and the behaviour did not change, because nobody spent it.
+    // ⭐ `selectionFromInput` is the member that answers the selection (UN-9
+    // keeps it out of the document), so this is where the rung is spent.
+    const held = selectionWithOneTask()
+    expect(held.items.length, 'the control: something IS selected before the press').toBe(1)
+    expect(selectionFromInput(ESCAPE_KEY, contextWithSelection(held)).items).toEqual([])
+  })
+
+  it('⛔ FR-072 (MUST NOT): the press that puts the panel away leaves the selection alone', () => {
+    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」, kept by
+    // the ORDER: with the panel up the press names `'propertiesPanel'`, so this
+    // member answers with the selection it was handed.
+    const held = selectionWithOneTask()
+    const answered = selectionFromInput(
+      ESCAPE_KEY,
+      contextWithSelection(held, { isPropertiesPanelShowing: true }),
+    )
+    expect(answered).toBe(held)
+  })
+
+  it('a press with nothing selected changes nothing, so no write is invented', () => {
+    const empty = emptySelection()
+    expect(selectionFromInput(ESCAPE_KEY, contextWithSelection(empty))).toBe(empty)
+  })
+})
+
+// ===========================================================================
+// 10. ⭐ D-399 -- a double click on the ACTUAL reaches MK-13, not the grab
+// ===========================================================================
+//
+// ⚠️ A SECOND LEDGER ROW IN THIS FILE, AND THE REASON IS THE SAME RULING DAY.
+// D-398 and D-399 were measured together on 2026-09-08 and the manuscript
+// answered both in one pass; this section is D-399's anchor, and nothing above
+// it depends on anything below.
+//
+// THE ROWS THESE CASES REST ON
+//   T-023 MK-13   its 実績 entry -- 「実績（実績バー、および未着手のダミー） ＝
+//                 **タスクの項と同じとすること（MUST）**」
+//   T-023d        its closing rule -- 「ダブルクリックの宛先は 表 T-023 の
+//                 `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」 with
+//                 「本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。」
+//   T-023d GR-5 / GR-6 / GR-15 / GR-9 / GR-17 / GR-18 -- the actual's regions
+//
+// Exported declarations read, and nothing else:
+//   input-command-translator.ts  `commandFromInput(input, context)`,
+//                                `InputContext`, `TranslatedInput`
+//   item-hit-area.ts             `Hit`
+//   input-source.ts              `PointerInput`
+//   selection.ts                 `emptySelection`
+
+/** MK-13's 実績 entry, quoted as the row prints it. */
+const MK_13_THE_ACTUAL =
+  '実績（実績バー、および未着手のダミー） ＝ **タスクの項と同じとすること（MUST）**'
+
+/** Table T-023d's closing rule, both halves. */
+const T_023D_MK_13_FIRST =
+  '**ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）**'
+const T_023D_NOT_BY_THE_ORDER =
+  '**本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。**'
+
+/** ⭐ The regions table T-023d gives the actual, in the row order it prints them. */
+const THE_ACTUALS_GRABS = ['GR-5', 'GR-6', 'GR-15', 'GR-9', 'GR-17', 'GR-18'] as const
+
+/** GR-12, the body -- the entry MK-13 already sent to the name before D-399. */
+const THE_BODY = 'GR-12'
+
+const pointerAt = (phase: PointerInput['phase'], clicks: number): PointerInput =>
+  ({
+    kind: 'pointer',
+    phase,
+    button: 'left',
+    x: 100,
+    y: 50,
+    modifiers: NO_MODS,
+    clickCount: clicks,
+  }) as unknown as PointerInput
+
+const hitOn = (grab: string): Hit =>
+  ({ item: { kind: 'task', taskUid: 7 }, grab }) as unknown as Hit
+
+/**
+ * ⛔ NOTHING OF THE SCHEDULE IS READ ON MK-13's ROAD, which is why an empty
+ * one serves. A press carrying a `Hit` is PD-3 by `pressRowOf` alone (it reads
+ * `screenState` and `dualCursorFollowing` and nothing else), and MK-13's answer
+ * is given before the grab switch touches a day or a Task.
+ * ⭐ THE EMPTY SCHEDULE AND THE ZERO-WIDTH DAY ARE WHAT MAKE THE SINGLE-CLICK
+ * CASE READABLE: every grab arm below MK-13 looks the Task up or asks for a
+ * day, finds neither, and answers 「this tool kept the press」 with no
+ * `editInPlace` in it -- which is exactly 「MK-13 was not reached」.
+ */
+const releaseOn = (grab: string, clicks: number): TranslatedInput => {
+  const at = pointerAt('down', clicks)
+  const context = {
+    document: { schedule: { tasks: [], commentBoxes: [], highlightBoxes: [] } } as never,
+    layout: { rows: [], pxPerDay: 0 } as never,
+    geometry: { items: [] } as never,
+    regions: {} as never,
+    screenState: emptyScreenState(),
+    selection: emptySelection(),
+    zoomStep: 0.1,
+    zoomMin: 0.2,
+    zoomMax: 5,
+    newCommentBoxId: 'a',
+    newHighlightBoxId: 'b',
+    pressed: { at, hit: hitOn(grab), on: null },
+    isTextEntryUnsettled: false,
+    dualCursorFollowing: null,
+  } as unknown as InputContext
+  return commandFromInput(pointerAt('up', clicks), context)
+}
+
+const inPlaceKindOf = (answer: TranslatedInput): string | null => {
+  const action = answer.action
+  if (action === null || action.kind !== 'editInPlace') return null
+  return action.target.kind
+}
+
+describe('T-023 MK-13 / table T-023d (MUST, 利用者の裁定 2026-09-08) -- the actual is part of the Task', () => {
+  it('still sends the actual to the Task entry, and still reads MK-13 before the priority order', () => {
+    expect(REQUIREMENTS).toContain(MK_13_THE_ACTUAL)
+    expect(REQUIREMENTS).toContain(T_023D_MK_13_FIRST)
+    expect(REQUIREMENTS).toContain(T_023D_NOT_BY_THE_ORDER)
+    // ⭐ THE SIX REGIONS ARE READ OUT OF THE TABLE, not typed from memory: a row
+    // that left table T-023d would take this red before any behaviour case ran.
+    const rows = specTable('T-023d').rows.map((row) => row.id)
+    for (const grab of THE_ACTUALS_GRABS) expect(rows, grab).toContain(grab)
+    expect(rows).toContain(THE_BODY)
+  })
+
+  it('⛔ THE CONTROL: the body (GR-12) already reached the name field, so an empty answer means nothing', () => {
+    expect(inPlaceKindOf(releaseOn(THE_BODY, 2))).toBe('taskName')
+  })
+
+  it('every region the actual is grabbed by opens the Task name field on a double click', () => {
+    // 「実績はタスクの一部であり、自分の面を持たない。」 ⇒ one destination for
+    // all six, and it is the Task's own -- 表 T-016 の `PR-1`.
+    for (const grab of THE_ACTUALS_GRABS) {
+      expect(inPlaceKindOf(releaseOn(grab, 2)), grab).toBe('taskName')
+    }
+  })
+
+  it('⛔ the plain press is untouched: 「素の押下の順は 1 文字も変わらない」', () => {
+    // ⭐ THE OTHER HALF OF THE CLOSING RULE. With one click the same regions
+    // must still fall to the grab's own operation, so none of them answers
+    // `editInPlace` at all.
+    for (const grab of THE_ACTUALS_GRABS) {
+      expect(inPlaceKindOf(releaseOn(grab, 1)), grab).toBe(null)
     }
   })
 })

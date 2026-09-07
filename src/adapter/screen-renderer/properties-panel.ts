@@ -1095,10 +1095,40 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
  *
  * ⭐ WHAT A SETTLED CANDIDATE DOES IS 割り当てる: AS-7 (MUST) creates the person
  * and assigns, AS-10 (MUST) only forbids a second assignment of someone already
- * on the task, and no row of table T-225 speaks of replacing -- 解除 has its own
- * row and its own signal (AS-3). ⚠️ SO A CHOOSER THAT ALREADY SHOWS SOMEBODY
- * READS LIKE A REPLACEMENT AND IS NOT ONE: no row settles that, and it is
- * reported rather than invented here.
+ * on the task, and no row of table T-225 speaks of releasing the one who was
+ * there -- 解除 has its own row and its own signal (AS-3).
+ * ⚠️ HALF OF THAT NOTE WAS OVERTAKEN ON 2026-09-08 AND IS CORRECTED HERE. It
+ * used to read 「a chooser that already shows somebody READS LIKE A REPLACEMENT
+ * AND IS NOT ONE: no row settles that」. AS-7 now settles the naming half in as
+ * many words -- 「そのタスクに担当者が既に就いていても、同じように振る舞うこと
+ * （MUST）。就いている担当者の改名として扱ってはならない（MUST NOT）」 -- and the
+ * ruling behind it names THIS surface as the road for changing who is seated
+ * (逐語 「担当を変える場合はすでにプロパティーパネルから切り替え可能」), which is
+ * AS-5's chooser and AS-9's uid. ⛔ SO NOTHING HERE RENAMES A `Resource`: the row
+ * forbids reading a new name as a rename, whoever is seated.
+ * ⛔ WHAT IS STILL UNSETTLED IS THE RELEASE, and it is reported rather than
+ * invented: no row of table T-225 says the assignment already standing is taken
+ * away when a second candidate is settled, and AS-3 gives 解除 its own signal.
+ *
+ * ⭐⭐ THIS FIELD IS NOW THE DESTINATION OF AN ENTRANCE, WHICH IT WAS NOT WHEN IT
+ * WAS BUILT. AS-1 was rewritten on 2026-09-08 (利用者の裁定 「パネルへ（条項を書き
+ * 換える）」) and reads 「プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を
+ * 編集できる状態にして焦点を置くこと（MUST）」 with 「その場で打ち換える器を置いては
+ * ならない（MUST NOT）」 beside it -- so a double click on the assignee label
+ * arrives HERE, the way MK-13's コメントボックス entry arrives at `PR-21`.
+ * ⛔ NOTHING IS ADDED FOR IT ON THIS SIDE, and that is not an omission: IF-9 has
+ * the focus asked for by 「その欄が名乗る行 ID」, which is `PropertyField.row`,
+ * and the field this control stands in already names `PR-16` and already carries
+ * `isEditable`. What the row asks for beyond that is not this unit's to give --
+ * raising the panel is the shell's and putting a person into a drawn control is
+ * the surface's (Chapter 5.3 under table T-065).
+ * ⚠️ MEASURED 2026-09-08 AND HANDED ON RATHER THAN WORKED AROUND: the surface
+ * reaches a row's control through the ones a person types INTO, and a 選択 is not
+ * one of those -- so the entrance this row's own 入力の型 fixes cannot itself be
+ * the thing focused, and the typed entrance of this row is the search box AS-5
+ * (MUST) has attached beside the chooser. ⛔ NO SECOND CONTROL IS MINTED HERE TO
+ * SUIT THAT: the paragraph under table T-016 (MUST) makes the form follow the
+ * 入力の型 column, and 選択 is what that column says.
  *
  * @purity pure
  */

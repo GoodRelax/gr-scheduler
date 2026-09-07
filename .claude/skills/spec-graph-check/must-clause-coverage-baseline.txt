@@ -1,4 +1,13 @@
-1016
+995
+#
+# LOWERED 1016 -> 995 ON 2026-09-08, IN THE SAME ROUND THAT RAISED IT.
+# The entry below took on fifty-two clauses of debt and said to expect it to
+# fall again from the fix-confirmation anchors alone, without a fresh suite.
+# It fell twenty-one. ⭐ THE PREDICTION HELD, and it held because the repair
+# bodies were told to make their anchors quote the clause verbatim rather
+# than paraphrase it -- one line in each brief, and it paid for itself.
+# ⚠️ It is still 31 above where the round opened (964). D-377 owns the rest.
+# ⛔ Do not close that row while this number stands above 964.
 #
 # RAISED 964 -> 1016 ON 2026-09-08, DELIBERATELY, AND THE USER SET THE PRICE.
 # Four rulings and six clause-gaps landed in one wave and brought about

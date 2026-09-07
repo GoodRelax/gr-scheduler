@@ -186,6 +186,15 @@ const EVERY_ROW_ARMS_THE_PRESSED_SHAPE = '**どの行でも、押した入口の
 const ARMING_IS_NOT_REFUSED_FOR_A_SELECTION =
   'T）**（利用者の指示 2026-09-07、逐語「アイコンを押すと必ずその構えに入る」）—— ⛔ **選んでいるものが在ることを理由に、構えを拒んではならない（MUST NOT）'
 
+/**
+ * ⭐ THE CLAUSE D-389 / D-402 ARE MEASURED AGAINST (2026-09-08). A palette press
+ * that could not give its shape to the selection still ARMS -- and the telling
+ * that goes with it is table T-233's `RS-54`, whose own row forbids `RS-10`.
+ * ⚠️ HELD AT 90 -- the 120-character window crosses the paragraph break.
+ */
+const FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL =
+  'を変えることは、そのまま残る** —— **2 つは同じ押しの 2 つの結果であり、どちらかを選ぶものではない。**⛔ **形状の変更が拒まれたときも、構えは立てること（MUST）'
+
 // -- Ruling B: a bar-shaped task needs a drag ------------------------------
 
 const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
@@ -225,6 +234,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-023b (MUST NOT) -- a re-press means the same thing either way', T_023B_THE_REPRESS_MEANS_THE_SAME],
   ['FR-083 (MUST) -- every row of the table arms the pressed shape', EVERY_ROW_ARMS_THE_PRESSED_SHAPE],
   ['FR-083 (MUST NOT) -- arming is not refused for a selection', ARMING_IS_NOT_REFUSED_FOR_A_SELECTION],
+  ['FR-083 (MUST) -- the arming stands even when the shape change is refused', FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL],
   ['FR-001 (MUST) -- a bar shape dragged makes a task of the span drawn', BAR_SHAPE_DRAG_MAKES_THE_SPAN],
   ['FR-001 (MUST NOT) -- a click makes no bar-shaped task', FR_001_A_CLICK_MAKES_NO_BAR_TASK],
   ['FR-001 (MUST) -- it is told that nothing was made', FR_001_TELLS_IT_MADE_NOTHING],
@@ -308,6 +318,16 @@ const CHEVRON_SPELLING = shapeSpelling('SH-2')
 const RS_53 = 'RS-53'
 /** `RS-27` -- the fallback FR-029 (MUST NOT) forbids where a row of its own fits. */
 const RS_27 = 'RS-27'
+/** `RS-54` -- the reason an armed shape the selection cannot take carries. */
+const RS_54 = 'RS-54'
+/**
+ * `RS-10` -- the bundle-dropped row `RS-54` (MUST NOT) forbids in its place.
+ *
+ * ⛔ ITS NEXT STEP IS WHY. The dictionary answers `RS-10` with 「拒まれた変更を
+ * 取り除いて、もう一度」, and a palette press holds ONE change -- so the reader
+ * was being told to take out the only thing they did.
+ */
+const RS_10 = 'RS-10'
 
 /** The manner table T-233 writes a reason against. */
 function mannerOf(rowId: string): string {
@@ -348,6 +368,20 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
     expect(mannerOf(RS_53)).toBe('NT-1')
     expect(wordsOf(RS_53).ja.length).toBeGreaterThan(0)
     expect(wordsOf(RS_53).en.length).toBeGreaterThan(0)
+  })
+
+  it('⭐ table T-233 holds RS-54, writes it against NT-1, and it is not RS-10', () => {
+    // ⛔ GOES RED IF THE ROW IS RETIRED OR ITS MANNER MOVES. `RS-54` is the row
+    // 2026-09-08 added for a shape the selection cannot take, and its 正 is
+    // FR-083 -- the requirement whose clause section 1 holds.
+    expect(mannerOf(RS_54)).toBe('NT-1')
+    expect(wordsOf(RS_54).ja.length).toBeGreaterThan(0)
+    expect(wordsOf(RS_54).en.length).toBeGreaterThan(0)
+    // ⛔ THE ASSERTIONS OF SECTION 5 WOULD BE VACUOUS if the dictionary gave the
+    // two rows the same words: telling `RS-54` and telling `RS-10` would then be
+    // indistinguishable, and D-389 is precisely that they must not be.
+    expect(wordsOf(RS_54).ja).not.toBe(wordsOf(RS_10).ja)
+    expect(wordsOf(RS_54).en).not.toBe(wordsOf(RS_10).en)
   })
 
   it('⭐ S-208 reaches src/ as a positive number of pixels', () => {
@@ -830,8 +864,17 @@ function emptyDocument(): Document {
 interface Stage {
   readonly loop: FrameLoop
   notices(): readonly Notice[]
+  /**
+   * `CommandPalette.armedText` -- the one member that carries WHAT IS ARMED to
+   * the screen. ⛔ Read instead of the row id because table T-023b's closing
+   * rule (MUST NOT) keeps those ids off the screen, so this is all a person
+   * ever sees of the arm.
+   */
+  armedText(): string | null
   pressEntry(entrance: Entrance): void
   pressGround(x: number, y: number): void
+  /** The same press, travelled past `S-208` -- which is what makes a bar task. */
+  dragGround(from: { x: number; y: number }, to: { x: number; y: number }): void
 }
 
 function stage(language: DisplayLanguage = 'ja'): Stage {
@@ -846,6 +889,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   return {
     loop,
     notices: () => screen.last().notices,
+    armedText: () => screen.last().commandPalette?.armedText ?? null,
     pressEntry: (entrance) => {
       screen.drawAt(partOf(entrance))
       send(pointer('down', 700, 20))
@@ -856,6 +900,12 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
       screen.drawAt(null)
       send(pointer('down', x, y))
       send(pointer('up', x, y))
+    },
+    dragGround: (from, to) => {
+      screen.drawAt(null)
+      send(pointer('down', from.x, from.y))
+      send(pointer('move', to.x, to.y))
+      send(pointer('up', to.x, to.y))
     },
   }
 }
@@ -904,5 +954,100 @@ describe('FR-029 / table T-233: the telling carries RS-53 and not the fallback',
     expect(built.notices().length).toBe(0)
     expect((built.loop.document().schedule as any).tasks.length).toBe(1)
     expect((built.loop.document().schedule as any).tasks[0].milestone).toBe(true)
+  })
+})
+
+// ===========================================================================
+// 5. D-389 / D-402 -- an armed shape the selection cannot take (RS-54)
+// ===========================================================================
+//
+// ⭐⭐ WHAT THE USER MEASURED (D-389, 2026-09-08). Pressing a shape in the
+// palette answered with `RS-10`'s words, and the next step that row's dictionary
+// entry carries is 「拒まれた変更を取り除いて、もう一度」. ⛔ A palette press
+// holds ONE change, so there is nothing to take out: the reader was handed a
+// step they could not take. Table T-233's `RS-54` row now forbids the pairing in
+// as many words -- 「`RS-10` を当ててはならない（MUST NOT）」.
+//
+// ⭐⭐ WHY THE ROW ALONE DID NOT FIX IT (D-402). `frame-loop.ts` mapped the
+// whole of WS-3's `refused` onto `RS-10` from ONE line, keyed on the reason, and
+// every command's refusal spells that same reason -- so table T-233 could gain
+// `RS-54` and the screen would not move. The branch is what moved it.
+//
+// ⚠️ REFUSING IS CORRECT AND IS NOT WHAT CHANGED. FR-083 (MUST NOT) forbids
+// crossing between table T-012's `SH-1`..`SH-4` and `SH-5`, `editTask` refuses
+// it (CM-20), and AG-3 makes the bundle atomic. Only the WORDS moved.
+
+/**
+ * A milestone drawn on empty ground -- which leaves it SELECTED -- and then the
+ * rectangle entrance pressed. SP-2 of FR-083 gives that press two results: the
+ * rectangle is armed, and `setTaskVisualShapeKind` (CM-20) is planned for what
+ * is selected. The second is refused against FR-083, the one thing selected
+ * being a milestone.
+ */
+function shapeRefusedOnTheSelection(language: DisplayLanguage = 'ja'): Stage {
+  const built = stage(language)
+  built.pressEntry(MILESTONE)
+  built.pressGround(GROUND.x, GROUND.y)
+  built.pressEntry(RECTANGLE)
+  return built
+}
+
+describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54', () => {
+  it('⛔ THE SETUP IS REAL: the milestone was drawn, and it is the only task', () => {
+    // ⚠️ WITHOUT THIS EVERY CASE BELOW COULD PASS ON AN EMPTY SELECTION, where
+    // `commandFromArmingEntry` plans nothing and nothing is refused at all.
+    const built = stage()
+    built.pressEntry(MILESTONE)
+    built.pressGround(GROUND.x, GROUND.y)
+    const tasks = (built.loop.document().schedule as any).tasks
+    expect(tasks.length).toBe(1)
+    expect(tasks[0].milestone).toBe(true)
+    expect(built.notices().length, 'the milestone press itself told nobody').toBe(0)
+  })
+
+  for (const language of ['ja', 'en'] as const) {
+    it(`⭐⭐ THE DEFECT: the refusal is told RS-54's words and NOT RS-10's, in ${language}`, () => {
+      const told = shapeRefusedOnTheSelection(language).notices()
+      expect(told.length, 'FR-083: the refusal is told').toBe(1)
+      expect(told[0]?.text).toBe(wordsOf(RS_54)[language])
+      // ⛔ THE MEASURED DEFECT, WORD FOR WORD. This is the line that was red.
+      expect(told[0]?.text).not.toBe(wordsOf(RS_10)[language])
+    })
+  }
+
+  it('⭐ and it is told in NT-1s manner, the manner table T-233 writes RS-54 against', () => {
+    expect(shapeRefusedOnTheSelection().notices()[0]?.manner).toBe(mannerOf(RS_54))
+  })
+
+  it('⭐⭐ FR-083 (MUST): the arming STANDS through the refusal', () => {
+    // The clause section 1 holds, read off `CommandPalette.armedText` -- the one
+    // member that carries what is armed to the screen.
+    const built = shapeRefusedOnTheSelection()
+    const armed = built.armedText()
+    expect(armed).not.toBe(null)
+    expect(armed?.length ?? 0).toBeGreaterThan(0)
+  })
+
+  it('⛔ and nothing reached the document: AG-3 makes the bundle atomic', () => {
+    const built = stage()
+    built.pressEntry(MILESTONE)
+    built.pressGround(GROUND.x, GROUND.y)
+    const before = JSON.stringify(built.loop.document())
+    built.pressEntry(RECTANGLE)
+    expect(JSON.stringify(built.loop.document())).toBe(before)
+  })
+
+  it('⛔ THE CONTROL: a shape the selection CAN take is refused nothing and tells nobody', () => {
+    // ⚠️ WITHOUT THIS, A BUILD THAT TOLD RS-54 ON EVERY PALETTE PRESS WOULD PASS
+    // EVERY CASE ABOVE. ⭐ A rectangle-shaped task takes the chevron, both being
+    // bar shapes of table T-012 -- FR-083 forbids only the crossing to SH-5.
+    const built = stage()
+    built.pressEntry(RECTANGLE)
+    built.dragGround(GROUND, { x: GROUND.x + 240, y: GROUND.y })
+    const drawn = (built.loop.document().schedule as any).tasks
+    expect(drawn.length, 'the drag drew no bar-shaped task to select').toBe(1)
+    expect(drawn[0].milestone).not.toBe(true)
+    built.pressEntry(CHEVRON)
+    expect(built.notices().length, 'a shape it CAN take was told as a refusal').toBe(0)
   })
 })

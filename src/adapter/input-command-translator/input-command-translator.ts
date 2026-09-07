@@ -706,12 +706,16 @@ export type InPlaceTarget =
   | { readonly kind: 'documentTitle' }
   /**
    * MK-13's Task entry -- the name label OR the body, both editing the name --
-   * reached through GR-10, GR-12 and GR-15 of table T-023d.
+   * and MK-13's 実績 entry with it, which that row (MUST) sends to the same
+   * destination: 「実績（実績バー、および未着手のダミー） ＝ **タスクの項と同じと
+   * すること（MUST）**」, 「実績はタスクの一部であり、自分の面を持たない。」 ⇒
+   * reached through GR-10 and GR-12 of table T-023d, and through the actual's
+   * own six regions (GR-5, GR-6, GR-15, GR-9, GR-17, GR-18).
    *
-   * ⭐ STILL ONE KIND FOR THE TWO PLACES, because MK-13 folded them into one
-   * entry and names one destination for both. Which grab it came in by is not
-   * carried: nothing downstream could use it without the same operation
-   * meaning two things.
+   * ⭐ STILL ONE KIND FOR EVERY ONE OF THOSE PLACES, because MK-13 names one
+   * destination for all of them. Which grab it came in by is not carried:
+   * nothing downstream could use it without the same operation meaning two
+   * things.
    *
    * ⚠️ THE DESTINATION IS THE PANEL'S NAME FIELD since 2026-08-30, and the uid
    * is carried all the same -- MK-13 says which Task was double clicked and the
@@ -719,15 +723,22 @@ export type InPlaceTarget =
    */
   | { readonly kind: 'taskName'; readonly uid: number }
   /**
-   * MK-13's 「担当ラベル ＝ 担当者名の変更」, reached through GR-11 of table
-   * T-023d, which 表 T-225 の `AS-1` (MUST) settles for the double click: its
-   * entry is assigned by 表 T-023 の `MK-13` and its grab region by 表 T-023d の
-   * `GR-11`.
+   * MK-13's 担当ラベル entry, reached through GR-11 of table T-023d. That entry
+   * carries no destination of its own since 2026-09-08 (利用者の裁定): it reads
+   * 「担当ラベル ＝ **表 T-225 の `AS-1` の宛先とすること（MUST）**」, with
+   * 「その宛先をここに書き写してはならない（MUST NOT）」 beside it -- and AS-1
+   * (MUST) is 「**プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を編集
+   * できる状態にして焦点を置くこと（MUST）**」, 「その場で打ち換える器を置いては
+   * ならない（MUST NOT）」.
+   * ⚠️⚠️ WHAT WAS QUOTED HERE UNTIL 2026-09-08 (台帳 D-399) WAS THE ROW'S
+   * RETIRED WORDING, and the row itself records the change: 「2026-09-08 まで
+   * 本行は「担当者名の変更」とだけ書いており、宛先は `AS-1` と読み合わせるほかな
+   * かった。」
    *
-   * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 gives 担当ラベル a destination
-   * separate from the one it gives タスク（名称ラベルと本体のどちらでも）, which
-   * is the property panel's 名称 field (表 T-016 の `PR-1`), and folding the two
-   * would put one operation where the row prints two.
+   * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 sends 担当ラベル to AS-1's
+   * destination, the panel's 担当者 field (表 T-016 の `PR-16`), where it sends
+   * タスク（名称ラベルと本体のどちらでも） to the 名称 field (表 T-016 の `PR-1`);
+   * folding the two would put one operation where the row prints two.
    *
    * ⚠️ THE TASK IS WHAT IS CARRIED, not an assignment or a resource. AS-3 and
    * AS-7 of table T-225 turn what was settled into CM-44 / CM-45, both of which
@@ -884,10 +895,14 @@ export type SpentEntranceSituation =
    * words the spent side the same way: 「開ける直下の子が 1 つも無いときは、
    * `FR-029` に従って薄く描くこと」.
    * ⚠️⚠️ THE NAME IS OLDER THAN THE ROW IT CARRIES, and neither half of it is
-   * what RS-30 asks. It was `rowAlreadyFolded` while RS-30 read 「その行は既に
-   * 畳まれている」 and belonged to HF-3; it was renamed to this while notes in
-   * this file put 「その行は畳まれておらず、隠れている子も無い」 into RS-30 --
-   * words that row does not carry (台帳 D-339). ⛔ WHAT MAPS THE NAME TO RS-30 is
+   * what RS-30 asks. Both of the next two sentences are quoted IN ORDER TO DENY
+   * THEM, and neither is in `docs/spec`: the first is the row's retired wording
+   * and the second a fabrication this file itself made (台帳 D-339). It was
+   * `rowAlreadyFolded` while the retired 台帳 D-339 wording 「その行は既に畳まれ
+   * ている」 stood in RS-30 and it belonged to HF-3; it was renamed to this while
+   * notes in this file, per 台帳 D-339, put 「その行は畳まれておらず、隠れている
+   * 子も無い」 into RS-30 -- words that row does not carry.
+   * ⛔ WHAT MAPS THE NAME TO RS-30 is
    * the roster in `frame-loop.ts` and not the spelling, so the spelling is left
    * alone here. ⚠️ PD-411 recorded that the old row had no press left that
    * could raise it; the row as it now reads is raised here.
@@ -905,8 +920,12 @@ export type SpentEntranceSituation =
    * HF-15 (GR-20): the held row has no sibling immediately above it, so there
    * is no row for it to become the last child of.
    *
-   * ⭐ THE ROW'S OWN CONSEQUENCE: 「右へ 1 歩はすぐ上の兄弟の末子になること
-   * （MUST）」 ⇒ 「すぐ上に兄弟が無い行は右へ動かせない」.
+   * ⭐ THE ROW'S OWN CONSEQUENCE, AND THE CLAUSE IS QUOTED WHOLE: 「左右は段を
+   * 変えること（MUST）。右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は親の
+   * 次の兄弟になること（MUST）」 ⇒ 「すぐ上に兄弟が無い行は右へ動かせない」.
+   * ⚠️ IT WAS CUT DOWN TO ITS RIGHT-HAND HALF UNTIL 2026-09-08, which check 42
+   * counts as a fabrication: the half that was dropped is the one saying the
+   * pair is one rule about depth.
    */
   | 'noSiblingAboveToNestUnder'
   /** HF-15: the held row is already at the shallowest level, so it cannot go left. */
@@ -937,8 +956,12 @@ export type SpentEntranceSituation =
    *
    * ⭐ THE NAME IS RS-44's OWN 場面 -- 「注記を置こうとした所に、指す行が無い」
    * -- and that row's 正 is FR-019, which gained the ruling this member serves
-   * on 2026-09-02: 「指す `TaskGroup` が無い縦位置で注記を置こうとしたときは、
-   * 作らずに理由を告げること（MUST）」.
+   * on 2026-09-02: 「指す `TaskGroup` が無い縦位置で置こうとしたときは、作らずに
+   * 理由を告げること（MUST）」, with 「作法は `FR-029` に従い、理由は 表 T-233 の
+   * `RS-44` とする。」 beside it.
+   * ⚠️ THE WORD 「注記を」 STOOD INSIDE THAT QUOTATION UNTIL 2026-09-08 and the
+   * clause does not carry it -- the subject is already 注記 from the sentence
+   * before it in FR-019, and inserting it made the citation a paraphrase.
    * ⛔ NOT AN ENTRANCE OF TABLE T-109 LIKE THE TEN ABOVE, AND THAT IS THE ROW'S
    * DOING. FR-029 is the 作法 FR-019 names, and 表 T-233 is keyed on 場面 rather
    * than on entrances -- so a press on the schedule with a palette arm standing
@@ -5387,7 +5410,8 @@ function commandFromRowEntry(
       // る子が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- which is the
       // very question `wouldMoveARow` asks of the picture above.
       // ⛔ THE SITUATION WAS `null` UNTIL THEN, and the note that stood here said
-      // why: RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
+      // why, quoting the retired 台帳 D-339 wording in order to deny it:
+      // RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
       // would tell the reader something untrue, and the fallback RS-27 was all
       // that fitted. ⚠️ The manuscript closed that gap; PD-411 goes with it.
       return nothingToDo('rowIsOpenWithNoHiddenChild')
@@ -7010,21 +7034,51 @@ function commandFromGrab(
     // were folded into a single entry because NL-1 of table T-013 draws the
     // label inside the shape, so answering them separately would put one
     // operation in two places.
-    // ⚠️ THREE ROWS AND NOT TWO. The body is GR-12 for every shape, and a
-    // milestone's actual figure (GR-15) stands over it in table T-023d -- so a
-    // double click on a milestone that has an actual would otherwise reach
-    // nothing at all.
-    // ⛔ The dummies (GR-9 / GR-17 / GR-18) and the ends (GR-3 to GR-6) are NOT
-    // the body: table T-023d gives each of them a grab region of its own, and
-    // no entry of MK-13 names one.
-    const isNameEntrance = hit.grab === 'GR-10' || hit.grab === 'GR-12' || hit.grab === 'GR-15'
+    // ⚠️ THE BODY IS GR-12 FOR EVERY SHAPE, and a milestone's actual figure
+    // (GR-15) stands over it in table T-023d -- so a double click on a milestone
+    // that has an actual would otherwise reach nothing at all.
+    //
+    // ⭐⭐ THE ACTUAL IS ON THIS LIST SINCE 2026-09-08 (利用者の裁定, D-399).
+    // MK-13 gained an entry for it -- 「実績（実績バー、および未着手のダミー） ＝
+    // **タスクの項と同じとすること（MUST）**」 -- and gives the reason itself:
+    // 「実績はタスクの一部であり、自分の面を持たない。」 ⇒ the six grab regions
+    // table T-023d gives the actual (GR-5 / GR-6 its ends, GR-15 the milestone's
+    // figure, GR-9 / GR-17 / GR-18 the 未着手 dummies) all reach the Task's own
+    // name field, exactly as GR-10 and GR-12 do.
+    // ⛔ THE PRIORITY ORDER IS NOT WHAT DECIDES A DOUBLE CLICK, and table
+    // T-023d's closing rule says so as a MUST: 「ダブルクリックの宛先は 表 T-023
+    // の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」, with 「本表の順で
+    // ダブルクリックの宛先を決めてはならない（MUST NOT）。」 beside it. ⚠️ THE ROW
+    // RECORDS THE MEASUREMENT THIS REPAIRS: 「実績の端（`GR-5` / `GR-6`）は
+    // `GR-12` より上に在るので、実績の端をダブルクリックしても `MK-13` の宛先へ
+    // 届かず、同じ日を書き直す空振りになっていた」 -- the `GR-5` / `GR-6` arm of
+    // the switch below wrote `setTaskPlanActualState` for the day already there.
+    // ⭐ READ BEFORE THAT SWITCH AND NOT INSIDE IT, which is what 「先に読む」
+    // asks; the switch keeps every one of those rows for the plain press, and
+    // 「素の押下の順は 1 文字も変わらない」.
+    // ⛔ GR-3 AND GR-4 ARE NOT ON THIS LIST. They are the PLAN bar's ends, and
+    // MK-13 names 名称ラベル, 本体, 担当ラベル, 実績, コメントボックス and 行見出し
+    // and no end of the plan -- so that double click still falls to the grab.
+    // ⛔ NOR ARE GR-7 AND GR-8: the progress marker and the resume icon stand
+    // OUTSIDE the actual bar in table T-023d, and neither is 実績バー nor a
+    // 未着手のダミー.
+    const isNameEntrance =
+      hit.grab === 'GR-10' ||
+      hit.grab === 'GR-12' ||
+      hit.grab === 'GR-15' ||
+      hit.grab === 'GR-5' ||
+      hit.grab === 'GR-6' ||
+      hit.grab === 'GR-9' ||
+      hit.grab === 'GR-17' ||
+      hit.grab === 'GR-18'
     if (isNameEntrance) {
       return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
     }
-    // MK-13's OTHER Task entry -- 「担当ラベル ＝ 担当者名の変更」 -- which AS-1
-    // of table T-225 makes a MUST and sends to GR-11. ⛔ A SEPARATE ANSWER and
-    // not a fourth row on `isNameEntrance`: the two destinations are printed
-    // apart in MK-13, so they leave here apart.
+    // MK-13's 担当ラベル entry, which that row (MUST) sends to 表 T-225 の `AS-1`
+    // -- 「担当ラベル ＝ **表 T-225 の `AS-1` の宛先とすること（MUST）**」 -- and
+    // table T-023d gives it GR-11. ⛔ A SEPARATE ANSWER and not another arm of
+    // `isNameEntrance`: the two destinations are printed apart in MK-13 (PR-16
+    // against PR-1), so they leave here apart.
     if (hit.grab === 'GR-11') {
       return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
     }
@@ -8871,6 +8925,28 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     if (isSelectAll && !context.isTextEntryUnsettled) {
       return selectionOfAll(everythingSelectable(context))
     }
+    // IN-4's SIXTH level, spent (利用者の裁定 2026-09-08). ⭐ SPENT HERE BECAUSE
+    // THIS IS THE MEMBER THAT ANSWERS THE SELECTION: `escapeTarget` (PI-36)
+    // names the rung and nothing here reads the ladder a second time.
+    // ⛔ THE ROW IS WHAT SAYS THE RUNG WAS MISSING RATHER THAN OPTIONAL: 「タスク
+    // を選ぶと `FR-006` によりパネルが立つので、1 度目の `Esc` はパネルの段が
+    // 食い、2 度目は消費する対象が無いものとして `IN-4a` によりブラウザへ落ちて
+    // いた。」 ⇒ 「選択を解く手立てが `Esc` に 1 つも無かった。」 (D-398).
+    // ⚠️ ONE PRESS, ONE RUNG: `escapeContextOf` reports the panel, so the press
+    // that puts the panel away answers `'propertiesPanel'` here and leaves the
+    // selection exactly as it was -- which is FR-072's 「パネルを出すのをやめて
+    // も、選択を解いてはならない（MUST NOT）」. ⛔ IN-4 says the two do not
+    // collide: 「あちらはパネルを閉じる操作の話であり、本行は `Esc` の段の話で
+    // ある。」
+    // ⛔ NOT A `DocumentCommand`: UN-9 keeps the selection out of the undo
+    // record, so clearing it is this value and never `applyDocumentChange`.
+    if (
+      isCombo(input.modifiers, false, false, false) &&
+      input.key === KEY.escape &&
+      escapeTarget(context.screenState, escapeContextOf(context)) === 'selection'
+    ) {
+      return emptySelection()
+    }
     return held
   }
   if (input.kind !== 'pointer' || input.phase !== 'up') return held
@@ -8933,16 +9009,30 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  * What Esc consumes, in the levels IN-4 fixes.
  *
  * ⭐ The order is NOT re-implemented: `escapeTarget` (PI-36) owns it, and this
- * only supplies the three things it cannot see -- a telling still standing, a
- * gesture in flight and the Dual Cursor mode -- all three of which are the
- * shell's current values (LY-5) that reached this side on `InputContext`.
+ * only supplies what that member cannot see -- a telling still standing, a
+ * gesture in flight, the Dual Cursor mode, the selection and the
+ * `Properties Panel` -- every one of which is a current value the shell holds
+ * (LY-5) that reached this side on `InputContext`.
  *
- * ⛔ TWO OF `EscapeContext`'s LEVELS ARE LEFT UNSET, and that is the value's own
- * rule rather than an omission: a standing `Confirmation` and the
- * `Properties Panel` are current values this pure member holds nothing of, and
- * each may be reckoned by ONE caller or IN-4's 1 階層 per press is spent twice.
- * ⚠️ SO A CALLER THAT HOLDS EITHER MUST NOT ASK THE MEMBERS THIS FEEDS about a
+ * ⛔ ONE OF `EscapeContext`'s LEVELS IS LEFT UNSET, and that is the value's own
+ * rule rather than an omission: a standing `Confirmation` is a current value
+ * this pure member holds nothing of, and it may be reckoned by ONE caller or
+ * IN-4's 1 階層 per press is spent twice.
+ * ⚠️ SO A CALLER THAT HOLDS IT MUST NOT ASK THE MEMBERS THIS FEEDS about a
  * press at that level. `frame-loop.ts` is where the rule is kept.
+ * ⭐⭐ THE PANEL IS NO LONGER AMONG THE UNSET ONES, and D-398 is why it may not
+ * be. IN-4 gained its 選択 rung (利用者の裁定 2026-09-08) and `selectionFromInput`
+ * is the one member that can spend it, so this side now answers a press below
+ * the panel's rung -- and with the panel left unset the very press that put the
+ * panel away would read as 「not open」, fall to 選択 and clear the selection,
+ * which FR-072 (MUST NOT) forbids: 「パネルを出すのをやめても、選択を解いては
+ * ならない（MUST NOT）」. ⚠️ Reporting it spends nothing: `screenStateFromInput`
+ * answers `'propertiesPanel'` with the state untouched, exactly as it does for
+ * the telling, and the shell is still the one party that can put the panel away.
+ * ⛔ `isPropertiesPanelShowing` IS OPTIONAL AND FORGETTING IT IS SILENT (利用者の
+ * 裁定 2026-08-30) -- its own row says so -- so a caller that does not set it
+ * gets the pre-D-398 fault back and only the tests written from the
+ * specification will say so.
  *
  * @purity pure
  */
@@ -8962,6 +9052,17 @@ function escapeContextOf(context: InputContext): EscapeContext {
     // for the holder to reckon.
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
+    // S-99h of table T-206, read off the context the shell filled from
+    // `isPropertiesPanelOnScreen()`. ⛔ REPORTED AND NOT LEFT UNSET SINCE D-398,
+    // for the reason stated above: the 選択 rung sits BELOW the panel's, so an
+    // unset panel would let the press that closed it clear the selection too.
+    isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
+    // IN-4's SIXTH level (利用者の裁定 2026-09-08): 選択. ⭐ THIS CALLER CAN SEE
+    // IT -- `InputContext.selection` carries it because table T-023c's rules are
+    // decided in this file -- so the level is REPORTED rather than left for a
+    // holder to reckon, and `selectionFromInput` is where it is spent.
+    // ⚠️ A COUNT AND NEVER THE ITEMS: IN-4 spends its rung on 選択 as a whole.
+    isSelectionStanding: context.selection.items.length > 0,
     // ⭐ A SIDE STANDING IS THE MODE BEING UP. IN-4 spends a press on the MODE
     // and DC-4 takes the whole of it, so the narrower question is the one that
     // travels and the side itself stays here.
@@ -9183,15 +9284,23 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
       case 'dualCursorMode':
       case 'confirmation':
       case 'propertiesPanel':
+      case 'selection':
       case null:
       default:
-        // ⛔ NONE OF THOSE FIVE LEVELS IS IN THIS VALUE. A standing telling, a
+        // ⛔ NONE OF THOSE LEVELS IS IN THIS VALUE. A standing telling, a
         // gesture in flight,
-        // the Dual Cursor mode, a standing `Confirmation` and the
-        // `Properties Panel` are all current values the Framework holds (LY-5),
+        // the Dual Cursor mode, a standing `Confirmation`, the
+        // `Properties Panel` and the selection are all values held outside
+        // `ScreenState`,
         // which is why `EscapeContext` exists at all -- the shell drops the
         // press, leaves the mode, settles the question or puts the panel away,
         // when `escapeTarget` names its level.
+        // ⚠️ `'selection'` IS SPENT IN THIS FILE ALL THE SAME, by
+        // `selectionFromInput` -- table T-023c's rules are decided here and
+        // UN-9 keeps the selection out of the document. It is listed here for
+        // the reason the two below are: it is one of the values the type admits,
+        // and answering it with the state untouched is what keeps IN-4 at
+        // 1 階層 per press.
         // Answering with the state unchanged is not "nothing happened": the
         // level WAS consumed, by a holder this function cannot reach.
         //
@@ -9202,17 +9311,24 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
         // shell's (LY-5), and disarming here as well would spend a second level
         // on the press that put a telling away.
         //
-        // ⚠️ `'confirmation'` AND `'propertiesPanel'` CANNOT ARRIVE HERE TODAY,
-        // and both are listed rather than left to `default:` because each is one
-        // of the values the type admits. `escapeContextOf` leaves
-        // `isConfirmationStanding` and `isPropertiesPanelOpen` unset on purpose:
-        // this member is pure and can see neither the question nor the panel,
-        // and `EscapeContext` (MUST) has a press at either level reckoned by ONE
+        // ⚠️ `'confirmation'` CANNOT ARRIVE HERE TODAY, and it is listed rather
+        // than left to `default:` because it is one of the values the type
+        // admits. `escapeContextOf` leaves `isConfirmationStanding` unset on
+        // purpose: this member is pure and cannot see the question, and
+        // `EscapeContext` (MUST) has a press at that level reckoned by ONE
         // caller, or IN-4's 1 階層 per press would be spent twice.
         // ⛔ WHICH IS WHY THE CALLER MUST NOT ASK THIS MEMBER AT ALL for such a
-        // press: unset reads as 「not open」, so this member would answer for the
-        // NEXT level down and disarm on the press that closed the panel.
+        // press: unset reads as 「not standing」, so this member would answer for
+        // the NEXT level down and close the surface behind the question.
         // `frame-loop.ts` states the same rule where it skips the call.
+        // ⭐⭐ `'propertiesPanel'` DOES ARRIVE HERE SINCE D-398, and that is a
+        // repair rather than a widening: `escapeContextOf` now reports the panel
+        // off `InputContext.isPropertiesPanelShowing`, so the press that puts
+        // the panel away answers `'propertiesPanel'` on this road too and leaves
+        // the state untouched -- where before it read as 「not open」 and this
+        // member disarmed on the press that closed the panel. ⚠️ The shell's
+        // skip of this call for that press is now belt and braces rather than
+        // the only guard.
         return state
     }
   }

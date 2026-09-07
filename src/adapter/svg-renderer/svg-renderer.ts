@@ -464,6 +464,99 @@ function cornersAround(centre: Point, width: number, height: number): Path {
 }
 
 /**
+ * One closed outline carried from the box it was drawn in onto another box.
+ *
+ * ⭐ WHY A MAP AND NOT A SECOND DRAWING. FR-043 (MUST) asks the milestone
+ * dummy's figure to be 「そのマイルストーンの実績の図形と同じ」, and the table
+ * of the fifteen marks table T-012's `SH-5` prints lives inside
+ * `schedule-geometry.ts` and is not exported. Writing the glyphs again here
+ * would be a second spelling of `SH-5`, which is exactly what the row it is
+ * copied from would then drift away from. ⇒ The figure is taken from the one
+ * the geometry already made for this Task and moved onto the dummy's box.
+ *
+ * ⛔ THE BOX IS NOT NEGOTIATED. FR-043 says of the same exception 「⚠️ 大きさは
+ * 例外ではない —— 描く幅は 1 日ぶんと `S-180` の小さい方のままである（本要求の
+ * 上の段）。変わったのは形と色だけである」, so the ink keeps exactly the extent
+ * the rectangle had -- `min(1 day, S-180)` across, the actual band down, the
+ * day column's left edge on the left -- and only the outline inside it changes.
+ * ⚠️ A figure whose box is not square therefore comes out stretched. That is
+ * the consequence of a width MUST and a height that follows the band, both of
+ * which the requirement leaves untouched; nothing here may pick one to break.
+ *
+ * @purity pure
+ */
+function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
+  const scaleX = to.width / from.width
+  const scaleY = to.height / from.height
+  return path.map((one) => ({
+    x: to.x + (one.x - from.x) * scaleX,
+    y: to.y + (one.y - from.y) * scaleY,
+  }))
+}
+
+/**
+ * The figure FR-043's one faint mark is drawn as, on this Task.
+ *
+ * ⭐⭐ THE MILESTONE EXCEPTION, THE THIRD ONE (FR-043, 利用者の裁定 2026-09-08,
+ * 逐語「マイルストーンダミー形状は、マイルストーン実績の形状と合わせろ。
+ * マイルストーン実績の色の薄い奴としろ。 つかみ判定も実測とあせろ。」):
+ * 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイルストーンの実績の
+ * 図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）」.
+ *
+ * ⭐ WHERE THE FIGURE COMES FROM. A not-started Task has no actual bar at all
+ * -- `dummiesOf` only emits a dummy while `actualX` is null -- so the actual
+ * milestone figure is not on the geometry to copy. What IS there is the PLAN's,
+ * and for a milestone the two are the one glyph: `barOf` builds both from
+ * `placed.milestoneGlyph`, and only their side differs. ⇒ Taking the plan's
+ * outline gives 「そのマイルストーンの実績の図形」 with nothing invented.
+ *
+ * ⛔ NO COLOUR IS DECIDED HERE. The caller hands the paint the ACTUAL bar would
+ * have taken, which is what FR-013 (「色は実績バーの色を継ぎ、独立した色を保存
+ * しない」) and FR-041 (MUST NOT) already settle, and the faintness is S-131 on
+ * the group around it. FR-043 spells the milestone half of the same rule:
+ * 「同要求の『色は実績バーの色を継ぎ、独立した色を保存しない』を、マイルストーン
+ * では実績のマイルストーンの図形の色として読むこと（MUST）。⛔ 新しい色の式を
+ * 立ててはならない（MUST NOT）」.
+ *
+ * ⚠️ ONE CASE FALLS BACK TO THE RECTANGLE AND NO ROW COVERS IT: a milestone
+ * drawn while the PLAN is hidden (`showPlan` false) has neither bar on its
+ * geometry, so there is no figure to copy and no glyph reaches this layer --
+ * `TaskGeometry` carries `shapeKind` but not `milestoneGlyph`. Reported rather
+ * than guessed; the figure MUST NOT then be a rectangle either, and only the
+ * geometry can answer it.
+ *
+ * @purity pure
+ */
+function dummyFigure(
+  plan: BarGeometry | null,
+  isMilestone: boolean,
+  centre: Point,
+  width: number,
+  height: number,
+): BarGeometry {
+  const box: ScreenRect = {
+    x: centre.x - width / 2,
+    y: centre.y - height / 2,
+    width,
+    height,
+  }
+  const rectangle: BarGeometry = { form: 'outline', points: cornersAround(centre, width, height) }
+  if (!isMilestone || plan === null || plan.form !== 'outline') return rectangle
+  const from = boxOfPoints(plan.points)
+  // ⛔ A silhouette with no extent on one axis cannot be carried onto a box:
+  // the ratio would be a division by zero. Nothing is invented for it.
+  if (from === null || from.width <= 0 || from.height <= 0) return rectangle
+  return {
+    form: 'outline',
+    points: pathFitted(plan.points, from, box),
+    // ⭐ The cut-out marks ride the SAME map as the silhouette, so `box` from
+    // `hexagon` and `smile` from `circle` stay told apart at the dummy's size
+    // for the reason `BarGeometry.marks` gives at full size.
+    marks: (plan.marks ?? []).map((one) => pathFitted(one, from, box)),
+  }
+}
+
+/**
  * The centre of a rectangle whose LEFT EDGE stands on this point, so that a
  * mark aligned to an edge can still be stated -- and hit -- as a centred one.
  *
@@ -1948,18 +2041,23 @@ export function svgFromSchedule(
     // marker off GR-17 and dropping that dummy would take EP-5's marker with
     // it (WY-3 of table T-041 measures it), and table T-023d still keeps GR-17
     // as a grab target (only the drawn ink was ever two).
-    // ⛔ WHAT THE ONE MARK IS SHAPED LIKE IS STILL OPEN: GR-18 on a milestone
-    // is drawn with this same rectangle outline, not with the milestone's own
-    // figure. The count was settled on 2026-09-08; the FIGURE was not, and
-    // ledger row D-390 carries it. @provisional PD-208
+    // ⭐⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED, AND PD-208 WITH IT
+    // (利用者の裁定 2026-09-08). FR-043's milestone exception went from two to
+    // three: 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイルストーン
+    // の実績の図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）」.
+    // ⛔ Until that day GR-18 on a milestone was drawn with the SAME rectangle
+    // outline as GR-9 / GR-17, which is the thing that MUST NOT now forbids.
+    // `dummyFigure` below is where the figure is chosen; the box it is drawn in
+    // did not move, because 「大きさは例外ではない」.
     if (picture === 'screen' && task.dummies.length > 0) {
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
       // storing a derived one, so there is no second formula and no key here.
       // ⛔ `drawnWidth`, never `dummyWidth`: `item-hit-area.ts` spells S-93's
       // HIT width that way, and S-180's own note is that the two differ.
-      // ⭐ FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと 表 T-206 の `S-180` の
-      // 小さい方とすること」. ⛔ S-180 IS THE UPPER BOUND AND NOT THE WIDTH
+      // ⭐ FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md`
+      // の 表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に
+      // 揃えること（MUST）」. ⛔ S-180 IS THE UPPER BOUND AND NOT THE WIDTH
       // (MUST NOT) -- it is a fixed px and a day is not, so at the zoom FR-055
       // opens a whole document at, one mark covered two day columns and the day
       // it pointed at was not the day it stood on. Capping it keeps the mark
@@ -1979,15 +2077,18 @@ export function svgFromSchedule(
       // `grab` rather than by position so a reordering upstream could not
       // silently swap which one gets drawn.
       const anchor = task.dummies.find((one) => one.grab !== 'GR-17') ?? task.dummies[0]!
+      // ⭐ THE FIGURE, WHICH IS THE ONLY THING FR-043's THIRD MILESTONE
+      // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
+      // but a milestone, and the milestone's own glyph for one -- carried off
+      // the plan bar the geometry already built, never minted here.
       const marks = barSvg(
-        {
-          form: 'outline',
-          points: cornersAround(
-            centreFromLeftEdge(anchor.at, drawnWidth),
-            drawnWidth,
-            anchor.height,
-          ),
-        },
+        dummyFigure(
+          task.plan,
+          task.shapeKind === 'milestone',
+          centreFromLeftEdge(anchor.at, drawnWidth),
+          drawnWidth,
+          anchor.height,
+        ),
         actual,
         `${taskKey}-dummies`,
       )
@@ -2363,7 +2464,9 @@ export function svgFromSchedule(
   }
 
   // CU-3 of table T-029: 「`Guide Cursor`（ガイドカーソル） | ポインタに追従
-  // する補助線 | 4 モード排他 —— なし / 十字 / 縦 1 本 / 縦 2 本」. The mode is
+  // する補助線 | **3 モード排他** —— なし / 十字 / 縦 1 本」. ⛔ The row goes on
+  // 「**「縦 2 本」を持ってはならない（MUST NOT）**」 -- the fourth mode was taken
+  // away on 2026-09-06 and the citation here still counted four. The mode is
   // S-66 of table T-202, and until this round nothing in `src/` read it but
   // FrameLoop's "does this move owe a frame" test -- the setting reached the
   // document and no line was ever drawn (D-72).
@@ -2466,14 +2569,40 @@ export function svgFromSchedule(
   }
 
   for (const box of geometry.commentBoxes) {
-    // ⛔ STOP -- THE LEADER IS NOT DRAWN. AT-111 gives a comment box two leader
-    // kinds, `calloutBox` and `polyline`, and FR-019 makes the author's choice
-    // between them a MUST -- but NO ROW IN ANY TABLE says what either one is
-    // drawn AS, and RC-13 of table T-026 reserves a new figure to the user.
-    // Drawing a segment here would be this unit minting the figure. ⚠️ The
-    // visible consequence while it stands: the choice changes nothing on
-    // screen, and a body dragged off its anchor is joined to it by nothing.
-    //
+    // ⭐⭐ THE LEADER IS DRAWN, AND THE STOP THAT STOOD HERE IS SPENT
+    // (利用者の裁定 2026-09-07). FR-019 (MUST): 「⛔⛔ コメントボックスの引出しは
+    // 折れ線 1 種とすること（MUST）。2 種から選ばせてはならない（MUST NOT）」,
+    // and the figure it had no row for now has one: 「⭐⭐ 描き方はこうである
+    // （MUST）: 留めた点と、本文の箱の左下隅とを、1 本の線で結ぶこと。」
+    // ⛔ 「途中に曲がりを置いてはならない（MUST NOT）」 -- so ONE segment, not a
+    // polyline with a bend this unit would have to place. ⛔ 「吹き出しの尻尾に
+    // してはならない（MUST NOT）」.
+    // ⭐ Both ends are already settled elsewhere, which is why nothing is minted
+    // here: 「端点が 2 つとも既に決まっているので、この線は一意に定まる —— 留めた
+    // 点は本要求が日付と行の識別子で持ち、箱の基準隅は本要求の上の段が左下と
+    // 定めている。」 `CommentGeometry.anchor` is the first and `body`'s
+    // bottom-left corner the second (AT-113 / AT-114 and the bodyOffsetPx MUST).
+    // ⭐ THE COLOUR IS THE ANNOTATION'S FIXED ONE, and not the author's line
+    // colour: 「線は注記の色で描くこと（MUST）。新しい設定値を立ててはならない
+    // （MUST NOT）—— 色は本段がハイライトボックスについて述べる固定色と同じで
+    // ある。」 ⚠️ NO ROW GIVES THE LINE A WEIGHT, and none is invented for it:
+    // it takes the same literal 1 the highlight box and the comment body beside
+    // it are already stroked at, so the three move together if a row ever
+    // arrives. ⛔ Reported rather than guessed -- a weight of its own would be
+    // a settings value this unit minted.
+    // ⭐ PUSHED BEFORE THE BODY so the filled body covers the end of the line
+    // rather than the line crossing the text -- the body's own fill is what
+    // NFR-007 put there, and a leader drawn over it would undo that ground.
+    // ⚠️ `leaderShapeKind` STILL EXISTS on the document and is untouched here:
+    // FR-019 says so itself -- 「`leaderShapeKind` の列と列挙を退役させることは、
+    // 本段では行わない」 -- so the value is stored and no longer read by the
+    // drawing, which is what 「1 種とする」 means for this unit.
+    annotationParts.push(
+      `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
+        ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
+        ` stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        `${figureKey(`comment-${box.id}-leader`)}/>`,
+    )
     // ⭐ The body is FILLED rather than left open. NFR-007 makes 4.5:1 a MUST
     // for the comment box's own text in as many words, and text laid over an
     // arbitrary bar has no known ground to meet that against. S-162 is the

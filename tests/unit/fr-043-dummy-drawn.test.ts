@@ -42,9 +42,10 @@
 //   FR-043    「ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）」
 //             and 「終了点の掴みシロは、実績開始日から `S-129` ぶん進んだ稼働日
 //             に置くこと（MUST）」
-//   FR-017    「1 日あたりの表示幅は、表 T-201 の `S-1` に `zoomX` を掛けた値と
-//             すること（MUST）」 -- the OTHER half of 「1 日ぶん」, and the reason
-//             the two zooms below give two different answers.
+//   FR-017    「**1 日あたりの表示幅は、表 T-201（`_assets/tbl-settings.md`）の
+//             `S-1` に `zoomX` を掛けた値とすること（MUST）。**」 -- the OTHER half
+//             of 「1 日ぶん」, and the reason the two zooms below give two
+//             different answers.
 //   FR-013    「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、
 //             ポインタが乗っているあいだだけ濃くすること（MUST）…… 濃さの値
 //             は `S-131`。色は実績バーの色を継ぎ、独立した色を保存しない
@@ -687,6 +688,18 @@ const unionOf = (figures: readonly Figure[]): Box => {
 const drawnAt = (withDummy: string, withoutDummy: string, x: number): readonly Figure[] =>
   onlyIn(withDummy, withoutDummy).filter((figure) => spansX(figure.box, x))
 
+/**
+ * The FIGURE the started twin draws for the milestone's own actual (LF-10 of
+ * table T-221: 「a smaller figure at the actual day」), normalised.
+ */
+const actualMilestoneShapeOf = (started: Drawn): string => {
+  const actual = geometryOf(started, UNDER_TEST).actual
+  if (actual === null || actual.form !== 'outline') {
+    throw new Error('the twin drew no actual milestone figure')
+  }
+  return shapeOf(actual.points.map((one) => [one.x, one.y] as const))
+}
+
 /** The band the actual bar of the started twin occupies -- S-180's vertical. */
 const actualBandOf = (started: Drawn): Box => {
   const actual = geometryOf(started, UNDER_TEST).actual
@@ -695,6 +708,59 @@ const actualBandOf = (started: Drawn): Box => {
   if (box === null) throw new Error('the actual bar has no points')
   return box
 }
+
+/**
+ * The vertices one drawn outline is written with.
+ *
+ * ⛔ THROWS ON ANYTHING BUT A `polygon`, for the reason `boxOfPath` throws on a
+ * curve: a figure this file cannot read is a figure it may not report a shape
+ * for. The milestone under test is a ◇, which `barSvg` writes as a polygon
+ * because that glyph cuts nothing out of itself.
+ */
+const verticesOf = (figure: Figure): readonly (readonly [number, number])[] => {
+  if (figure.tag !== 'polygon') {
+    throw new Error(`this file cannot read the outline of a <${figure.tag}>`)
+  }
+  const raw = /(?:^|\s)points="([^"]*)"/.exec(figure.text)?.[1]
+  if (raw === undefined) throw new Error('the polygon carries no points')
+  return pointsOf(raw)
+}
+
+/**
+ * A closed outline written as shares of its own bounding box -- the FIGURE,
+ * with its place and its size taken out.
+ *
+ * ⭐⭐ THIS IS WHAT LETS 「同じ図形」 BE MEASURED. FR-043's third milestone
+ * exception (利用者の裁定 2026-09-08) says 「**ダミーの図形は、そのマイルストーン
+ * の実績の図形と同じとすること（MUST）**」 while the段 above it keeps the dummy's
+ * own width and the actual figure keeps its own (LF-10 of table T-221), so the
+ * two are never the same SIZE and may never be compared as pixels. Normalising
+ * each to its own box leaves exactly what the MUST names.
+ * ⛔ A ◇ normalises to its four edge midpoints and a rectangle to its four
+ * corners, so the two can never be mistaken for one another -- which is the
+ * MUST NOT beside it: 「**矩形で描いてはならない（MUST NOT）**」.
+ */
+const shapeOf = (points: readonly (readonly [number, number])[]): string => {
+  const box = boxOfPoints(points)
+  if (box === null || box.x1 - box.x0 <= 0 || box.y1 - box.y0 <= 0) {
+    throw new Error('an outline with no extent has no shape to compare')
+  }
+  return points
+    .map(
+      ([x, y]) =>
+        `${((x - box.x0) / (box.x1 - box.x0)).toFixed(3)},` +
+        `${((y - box.y0) / (box.y1 - box.y0)).toFixed(3)}`,
+    )
+    .join(' ')
+}
+
+/** The figure a rectangle of any size normalises to, written out once. */
+const RECTANGLE_SHAPE = shapeOf([
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+])
 
 /** Whether two boxes are the same rectangle, to the picture's own precision. */
 const sameBoxAs = (box: Box | null, other: Box | null): boolean =>
@@ -1118,11 +1184,15 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const days = `${dayWidthAt(zoomX)}px/day`
 
     it(`GR-18 (MUST): a milestone not started draws one dummy, min(1 day, S-180) wide at ${days}`, () => {
-      // FR-043: 「⚠️ マイルストーンの例外は 2 つだけである —— 実績バーを持たない
-      // ので（表 T-023d の `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）。
-      // 実績期間は `S-130` とすること（MUST）」. The width MUST is written of
+      // FR-043: 「⚠️ **マイルストーンの例外は 3 つである** —— 実績バーを持たない
+      // ので（表 T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。
+      // 実績期間は `S-130` とすること（MUST）**」. The width MUST is written of
       // 「ダミー」 with no exception, and S-180's row names GR-18 among the three
-      // it bounds.
+      // it bounds -- and the third exception is a FIGURE, not a size: 「⚠️ **大き
+      // さは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方のままである**
+      // （本要求の上の段）。**変わったのは形と色だけである。**」 ⇒ this case measures
+      // the width and is untouched by it.
+      // ⛔ THE COUNT WAS 2 UNTIL 2026-09-08 and this citation still said so.
       // ⛔ NO VERTICAL IS ASSERTED -- a milestone has no actual bar, so S-180's
       // 「縦の広がりは実績バーの帯に従う」 reaches GR-9 and GR-17 and stops.
       const fresh = draw(milestoneSchedule(), zoomX)
@@ -1139,7 +1209,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       //   表 T-023d GR-18  「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ
       //                    場所である」
       //   FR-043           「日の列の左端に揃えること（MUST）」 and ⛔⛔ 「位置は
-      //                    例外ではない（MUST NOT）—— ダミーは形状を問わず予定の
+      //                    例外ではない（MUST NOT）…… ダミーは形状を問わず予定の
       //                    開始日の翌稼働日に立ち」
       // ⭐ The arithmetic is the specification's: the ruler Task's plan bar begins
       // at the milestone's own day column (T-023d GR-3), this document's calendar
@@ -1152,6 +1222,50 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
         onGrid(gr18ColumnLeftOf(fresh, zoomX)),
         2,
       )
+    })
+
+    it(`⛔ FR-043 (MUST NOT) draws GR-18 as anything but a rectangle at ${days}`, () => {
+      // FR-043's THIRD milestone exception (利用者の裁定 2026-09-08, 逐語
+      // 「マイルストーンダミー形状は、マイルストーン実績の形状と合わせろ。
+      // マイルストーン実績の色の薄い奴としろ。 つかみ判定も実測とあせろ。」):
+      // 「⭐⭐ **3 つ目は図形と色である** —— **ダミーの図形は、そのマイルストーンの
+      // 実績の図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）**」.
+      // ⭐ THIS CASE IS THE MUST NOT HALF, stated on its own so that a figure
+      // which is neither the rectangle nor the milestone's own still fails the
+      // next case rather than passing both.
+      const fresh = draw(milestoneSchedule(), zoomX)
+      const started = draw(startedMilestoneSchedule(), zoomX)
+      const ink = gr18InkOf(fresh, started)
+      expect(ink.length, 'no dummy ink to judge the figure of').toBe(1)
+      expect(shapeOf(verticesOf(ink[0]!))).not.toBe(RECTANGLE_SHAPE)
+    })
+
+    it(`⭐ FR-043 (MUST) draws GR-18 as the milestone's own actual figure at ${days}`, () => {
+      // 「**ダミーの図形は、そのマイルストーンの実績の図形と同じとすること
+      // （MUST）**」. ⭐ THE OTHER SIDE OF THE COMPARISON IS A DRAWING THE
+      // SPECIFICATION PUTS BESIDE IT, not a value out of `src/`: the started
+      // twin is the same milestone with an actual, and LF-10 of table T-221 is
+      // what draws its figure. Normalising both to their own boxes is what the
+      // MUST asks about -- FR-043 keeps the dummy's own width in the段 above
+      // (「大きさは例外ではない」), so the two are the same FIGURE at two sizes.
+      const fresh = draw(milestoneSchedule(), zoomX)
+      const started = draw(startedMilestoneSchedule(), zoomX)
+      const ink = gr18InkOf(fresh, started)
+      expect(ink.length, 'no dummy ink to judge the figure of').toBe(1)
+      expect(shapeOf(verticesOf(ink[0]!))).toBe(actualMilestoneShapeOf(started))
+    })
+
+    it(`⚠️ FR-043 leaves GR-18's own box where it was at ${days}`, () => {
+      // 「⚠️ **大きさは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方の
+      // ままである**（本要求の上の段）。**変わったのは形と色だけである。**」
+      // ⭐ So the figure that replaced the rectangle occupies the rectangle's
+      // extent exactly: the day column's left edge, `min(1 day, S-180)` across.
+      // ⛔ The vertical is NOT asserted, for the reason the width case gives.
+      const fresh = draw(milestoneSchedule(), zoomX)
+      const started = draw(startedMilestoneSchedule(), zoomX)
+      const box = unionOf(gr18InkOf(fresh, started))
+      expect(onGrid(box.x0)).toBeCloseTo(onGrid(gr18ColumnLeftOf(fresh, zoomX)), 2)
+      expect(onGrid(box.x1 - box.x0)).toBeCloseTo(onGrid(drawnWidthAt(zoomX)), 2)
     })
 
   }

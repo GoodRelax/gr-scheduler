@@ -27,6 +27,17 @@ import type {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { planDocumentChange } from '../../src/use-case/apply-document-change/document-change-plan'
 import { editAnnotation, type AnnotationCommand } from '../../src/use-case/edit-document/edit-document'
+// ⚠️ The four below serve the LAST describe block alone -- FR-019's leader, as
+// the picture draws it. Nothing above them reaches a drawing.
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 
 // ---- fixtures --------------------------------------------------------------
 //
@@ -295,12 +306,23 @@ describe('EditAnnotation (UF-14) -- the CommentBox group, CM-46 to CM-51', () =>
     }
   })
 
-  it('FR-019 lets a comment box be set to either leader shape (CM-49)', () => {
-    // FR-019: 「コメントボックスは引出し四角と折れ線の 2 種から選べること
-    // （MUST）」-- so BOTH have to be reachable through CM-49, and the value
-    // that arrives has to be the value stored. The two spellings are AT-111's,
-    // named by CR-172; this case names them rather than reading them from the
-    // implementation.
+  it('CM-49 stores either AT-111 spelling, which FR-019 keeps alive while it draws one', () => {
+    // ⛔⛔ THIS CASE USED TO CITE A SENTENCE docs/spec NO LONGER HOLDS -- that
+    // FR-019 let an author choose between the two leader kinds. ⚠️ The retired
+    // wording is deliberately NOT quoted here: a citation of a sentence the
+    // manuscripts do not contain is a fabrication whichever way the comment
+    // means it, and check 42 is right to say so. 利用者の裁定 2026-09-07 put in
+    // its place 「⛔⛔ **コメントボックスの引出しは折れ線 1 種とすること（MUST）。
+    // 2 種から選ばせてはならない（MUST NOT）**」.
+    //
+    // ⭐ WHAT IS ASSERTED IS STILL RIGHT, AND FR-019 IS WHY: 「⚠️ **`leaderShapeKind`
+    // の列と列挙を退役させることは、本段では行わない** —— **同じ名を持つファイル
+    // が 21 ある（実測 2026-09-08、`src` 3 ／ `tests` 14 ／ `docs/spec` 4）ので、
+    // 1 度に動かす別の段が要る。**」 ⇒ the column and its two spellings survive
+    // the ruling, so CM-49 still stores the value it is handed, unchanged.
+    // ⛔ NO CASE HERE CLAIMS THE CHOICE IS OFFERED TO ANYONE any more -- 「2 種
+    // から選ばせてはならない」 speaks of the surface that would offer it, and the
+    // drawing obeys it by reading no kind at all.
     for (const kind of ['calloutBox', 'polyline'] as const) {
       const document = documentOf({ schedule: { commentBoxes: [commentBoxOf({ id: 'c1' })] } })
       const result = editAnnotation(document, {
@@ -543,5 +565,125 @@ describe('EditAnnotation (UF-14) -- what a deletion drags with it, and the revis
       expect(plan.hasMovedSchedule).toBe(true)
       expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-019's leader, DRAWN -- the ruling of 2026-09-07
+//
+// ⚠️ WHY THESE CASES ARE IN THIS FILE AND NOT A DRAWING ONE. The rest of this
+// file is EditAnnotation's, and a picture is SvgRenderer's; the two are only
+// together here because the ruling that settled the leader settled the command
+// beside it, and no file under tests/ named the leader at all. ⭐ They are the
+// confirmation of a defect fix -- the leader was drawn nowhere -- and are
+// deliberately the smallest thing that can go red if it stops being drawn.
+// ---------------------------------------------------------------------------
+
+const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8 }
+
+/** Expand SETTINGS_DEFAULTS' dotted keys into the nested shape the type has. */
+const resolvedSettings = (): DocumentSettings => {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
+    const dot = key.indexOf('.')
+    if (dot < 0) {
+      out[key] = value
+      continue
+    }
+    const head = key.slice(0, dot)
+    const nest = { ...((out[head] as Record<string, unknown>) ?? {}) }
+    nest[key.slice(dot + 1)] = value
+    out[head] = nest
+  }
+  return out as unknown as DocumentSettings
+}
+
+/** One pass of table T-068's chain over a schedule holding one comment box. */
+const pictureOf = (box: CommentBox): { readonly svg: string; readonly drawn: number } => {
+  const schedule = documentOf({ schedule: { commentBoxes: [box] } }).schedule
+  const settings = resolvedSettings()
+  const regions = regionsFromScreen(SCREEN, settings)
+  const layout = layoutFromSchedule(schedule, settings, regions)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  return {
+    svg: svgFromSchedule(
+      schedule,
+      settings,
+      layout,
+      geometry,
+      regions,
+      emptySelection(),
+      'screen',
+    ),
+    drawn: geometry.commentBoxes.length,
+  }
+}
+
+/**
+ * Every element the picture names `comment-c1-leader`, whatever its tag.
+ *
+ * ⭐ SELECTED BY ITS KEY, NOT BY ITS TAG (D-316 gives every figure a
+ * `data-figure` of its own): a case that swept every `<line>` would count the
+ * row rules and the cursors beside it, and a case that assumed a tag could not
+ * tell 「1 本の線」 from a polyline drawn with a bend in it.
+ */
+const leaderPartsOf = (
+  svg: string,
+): readonly { readonly tag: string; readonly attrs: string }[] =>
+  [...svg.matchAll(/<([a-z]+)\s([^>]*?)\/>/g)]
+    .filter((hit) => (hit[2] ?? '').includes('data-figure="comment-c1-leader"'))
+    .map((hit) => ({ tag: hit[1] ?? '', attrs: hit[2] ?? '' }))
+
+const numberIn = (attrs: string, name: string): number =>
+  Number.parseFloat(new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(attrs)?.[1] ?? 'NaN')
+
+describe("FR-019's leader, as the picture draws it", () => {
+  it('⭐ FR-019 (MUST) joins the anchor to the body with ONE straight segment', () => {
+    // ⛔⛔ THE DEFECT THIS CLOSES: nothing drew a leader at all, so a body
+    // dragged off its anchor was joined to it by nothing. FR-019 (利用者の裁定
+    // 2026-09-07) now says how: 「⭐⭐ **描き方はこうである（MUST）: 留めた点と、
+    // 本文の箱の左下隅とを、1 本の線で結ぶこと。**」
+    // ⛔ 「**途中に曲がりを置いてはならない（MUST NOT）**」 -- ONE segment, which
+    // is why this case counts `<line>` elements and not a polyline's vertices.
+    // ⭐ 「**端点が 2 つとも既に決まっているので、この線は一意に定まる**」, so the
+    // two ends are read off the geometry the picture was built from rather than
+    // computed here.
+    const box = commentBoxOf({ id: 'c1', text: 'x', bodyOffsetPx: { dx: 40, dy: -60 } })
+    const picture = pictureOf(box)
+    expect(picture.drawn, 'the geometry placed no comment box to draw').toBe(1)
+    const parts = leaderPartsOf(picture.svg)
+    expect(parts.length, 'the picture draws no leader').toBe(1)
+    // ⛔ A `<line>` HAS EXACTLY TWO ENDS AND NO MIDDLE, which is how 「途中に
+    // 曲がりを置いてはならない」 is held: a polyline or a path here would admit
+    // a bend this unit had to place, and the tag is what forbids it.
+    expect(parts[0]?.tag).toBe('line')
+  })
+
+  it('⭐ FR-019 (MUST) puts the far end on the BODY’s bottom-left corner', () => {
+    // 「**その基準隅を左下とすること（MUST）**」（利用者の裁定 2026-09-06「付箋は
+    // アンカーとなる場所を1点決める そこの日付を基準に付箋を付ける。付箋の基準は
+    // 左下の点とする」）. ⛔ 「**左上や中心を基準にしてはならない（MUST NOT）**」.
+    // ⭐ THE BODY IS THE ONLY RECTANGLE THE PICTURE DRAWS FOR A COMMENT BOX, so
+    // its own four numbers name the corner without this case placing one.
+    const box = commentBoxOf({ id: 'c1', text: 'x', bodyOffsetPx: { dx: 40, dy: -60 } })
+    const picture = pictureOf(box)
+    const body = /<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.-]+)" height="([\d.-]+)"[^>]*data-figure="comment-c1"/
+      .exec(picture.svg)
+    expect(body, 'the picture draws no comment body').not.toBeNull()
+    if (body === null) return
+    const left = Number.parseFloat(body[1] ?? 'NaN')
+    const bottom = Number.parseFloat(body[2] ?? 'NaN') + Number.parseFloat(body[4] ?? 'NaN')
+    const [leader] = leaderPartsOf(picture.svg)
+    expect(leader).toBeDefined()
+    if (leader === undefined) return
+    expect(numberIn(leader.attrs, 'x2')).toBeCloseTo(left, 2)
+    expect(numberIn(leader.attrs, 'y2')).toBeCloseTo(bottom, 2)
+    // ⛔ AND THE NEAR END IS SOMEWHERE ELSE, not a second corner of the body:
+    // the segment has to LEAVE the box, so a leader whose two ends coincide
+    // would pass the corner assertion above and draw nothing visible.
+    const same =
+      numberIn(leader.attrs, 'x1') === numberIn(leader.attrs, 'x2') &&
+      numberIn(leader.attrs, 'y1') === numberIn(leader.attrs, 'y2')
+    expect(same).toBe(false)
   })
 })

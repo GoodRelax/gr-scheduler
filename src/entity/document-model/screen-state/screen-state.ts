@@ -141,17 +141,33 @@ export function screenStateWithWatermark(state: ScreenState, visible: boolean): 
 /**
  * What one press of Esc takes.
  *
- * ⚠️ NINE MEMBERS, SEVEN LEVELS AND ONE MEMBER WITH NO LEVEL. IN-4 of table
- * T-028 fixes seven, and this value now carries all seven: two of the members
- * below are that ladder's THIRD level (開いている面), and `escapeTarget` says
- * why there are two of them and why they are answered in this order.
+ * ⚠️ ONE MEMBER PER LEVEL OF IN-4, PLUS TWO THAT SHARE ONE AND ONE WITH NO
+ * LEVEL AT ALL. IN-4 of table T-028 (MUST) prints the order in as many words --
+ * 「消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 →
+ * 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード →
+ * 出ている説明 の順とすること（MUST）」 -- and this value carries every one of
+ * them: `'confirmation'` and `'surface'` are both that ladder's 開いている面,
+ * and `escapeTarget` says why there are two of them and why they are answered
+ * in this order. ⛔ NO COUNT IS WRITTEN HERE. The one that stood -- 「NINE
+ * MEMBERS, SEVEN LEVELS」 -- rotted the day 選択 joined the row (2026-09-08),
+ * and rule 03 section 3 forbids a figure this file cannot keep.
  * ⭐ `'notice'` IS THE HEAD OF THE LADDER SINCE 2026-08-31 (利用者の指示), and
- * NT-8 of table T-037 (MUST) is the row that puts it there. ⚠️ SO THE COUNTS
- * ABOVE MOVED BY ONE: what was the first level (確定していないその場の編集) is
- * now the second, and the shared level is the third rather than the second.
+ * NT-8 of table T-037 (MUST) is the row that puts it there.
+ * ⭐⭐ `'selection'` IS IN-4's SIXTH LEVEL, ADDED 2026-09-08 (利用者の裁定), AND
+ * ITS PLACE IS THE WHOLE OF IT: the row (MUST NOT) says 「構えより前に置いては
+ * ならない（MUST NOT）」 and gives the reason -- 「構えたまま何かを選んでいる
+ * とき、構えを解く手立てが `Esc` から消える。」. ⛔ SO ITS ABSENCE WAS A BREACH
+ * AND NOT A GAP, and the row records the measurement: 「タスクを選ぶと `FR-006`
+ * によりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目は消費する
+ * 対象が無いものとして `IN-4a` によりブラウザへ落ちていた。」 ⇒ 「選択を解く
+ * 手立てが `Esc` に 1 つも無かった。」 (D-398).
  * ⛔ `'propertiesPanel'` IS THE MEMBER WITH NO LEVEL OF ITS OWN. Table T-109
  * puts the panel on this ladder and IN-4 gives it no rung, so the rung is chosen
- * where the answer is given rather than claimed here.
+ * where the answer is given rather than claimed here. ⚠️ IN-4 NOW SAYS WHERE IT
+ * STANDS RELATIVE TO 選択 ALL THE SAME -- 「プロパティパネルは「開いている面」に
+ * 当たり、本行の並びで選択より上に在るので、出ているあいだの `Esc` はそちらが
+ * 先に消費する。」 -- which is why the rung below asks no question about the
+ * panel: the row (MUST) says 「「パネルが出ていないとき」という条件は置かない」.
  * ⭐ `'tooltip'` IS IN-4's LAST LEVEL -- 出ている説明 -- AND IT IS A LEVEL THE
  * LADDER MUST HOLD. That row (MUST) ends the order with it and states the
  * reason in as many words: 「説明を最後に置くのは、`IN-3` が求める『消せること』
@@ -172,6 +188,7 @@ export type EscapeTarget =
   | 'gesture'
   | 'propertiesPanel'
   | 'armed'
+  | 'selection'
   | 'dualCursorMode'
   | 'tooltip'
 
@@ -236,7 +253,43 @@ export interface EscapeContext {
   /** A drag under way, or an arrow half drawn. */
   readonly gestureInFlight: boolean
   /**
-   * IN-4's last level -- whether the Dual Cursor mode is up at all.
+   * IN-4's SIXTH level -- whether anything at all is selected (table T-023c).
+   *
+   * ⭐ A QUESTION AND NOT THE SELECTION ITSELF, the reading every optional
+   * member here takes. What is selected is `Selection`, which UN-9 keeps out of
+   * the document and the Framework carries beside it (LY-5 of table T-060), and
+   * IN-4 spends its level on 選択 as a whole rather than on one of the things in
+   * it -- so the narrower question is the one that travels.
+   *
+   * ⛔ ITS PLACE IS BELOW 構え AND NOT ABOVE IT, WHICH THE ROW STATES AS A MUST
+   * NOT: 「構えより前に置いてはならない（MUST NOT）」, because 「構えたまま何かを
+   * 選んでいるとき、構えを解く手立てが `Esc` から消える。」 ⚠️ MEASURED, not
+   * argued: with the rung ahead of `'armed'`, a press made while a palette shape
+   * was armed AND a Task was selected answers `'selection'`, and `AR-1` can then
+   * be reached only by pressing the armed entry again (SP-4).
+   *
+   * ⚠️ OPTIONAL, AND ABSENT READS AS 「何も選んでいない」, for the reason
+   * `isConfirmationStanding` gives: the `EscapeContext` literals already written
+   * go on compiling, and a caller that cannot see the selection falls through to
+   * the rung below rather than swallowing the press (IN-4a). ⛔ THE SAME PRICE
+   * AND THE SAME RULE: a press whose level is `'selection'` may be reckoned
+   * ONCE, by the holder of the selection, or IN-4's 1 階層 per press is spent
+   * twice.
+   *
+   * ⛔ NO QUESTION ABOUT THE PANEL BELONGS BESIDE IT. The row (MUST) says
+   * 「「パネルが出ていないとき」という条件は置かない」 and gives the reason --
+   * 「プロパティパネルは「開いている面」に当たり、本行の並びで選択より上に在るの
+   * で、出ているあいだの `Esc` はそちらが先に消費する。」 -- so the guard is
+   * `isPropertiesPanelOpen` standing above this member, and nothing else.
+   * ⚠️ FR-072's 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」
+   * IS NOT TOUCHED BY THIS RUNG, and IN-4 says so itself: 「あちらはパネルを
+   * 閉じる操作の話であり、本行は `Esc` の段の話である。」 ⛔ What the caller owes
+   * that MUST NOT is that ONE press spend ONE rung -- the press that put the
+   * panel away must not also clear the selection.
+   */
+  readonly isSelectionStanding?: boolean
+  /**
+   * IN-4's SEVENTH level -- whether the Dual Cursor mode is up at all.
    *
    * ⭐ A QUESTION AND NOT THE VALUE ITSELF. What the holder keeps is the
    * following side (`DualCursorSide | null`); this row asks only whether one
@@ -322,8 +375,8 @@ export interface EscapeContext {
  *
  * IN-4 fixes the order -- the standing telling, then the unsettled in-place
  * edit, then the open surface,
- * then the gesture in flight, then what is armed, then the Dual Cursor mode,
- * then the standing explanation --
+ * then the gesture in flight, then what is armed, then what is selected, then
+ * the Dual Cursor mode, then the standing explanation --
  * and the two answers that share its 開いている面 are the standing question and
  * the surface S-99g holds, in that order. The `Properties Panel` is answered
  * after the gesture, for the reason given where it is answered.
@@ -377,6 +430,19 @@ export function escapeTarget(state: ScreenState, context: EscapeContext): Escape
   // the two rules above, and a ruling that disagrees moves this one line.
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (state.armed.kind !== 'none') return 'armed'
+  // IN-4's SIXTH level (利用者の裁定 2026-09-08): 選択. ⛔ BELOW 構え AND NOT
+  // ABOVE IT, which the row states as a MUST NOT -- 「構えより前に置いては
+  // ならない（MUST NOT）」 -- and reasons: 「構えたまま何かを選んでいるとき、
+  // 構えを解く手立てが `Esc` から消える。」
+  // ⛔ NO 「panel not showing」 CONDITION IS WRITTEN HERE, and the row (MUST)
+  // refuses one in as many words: 「「パネルが出ていないとき」という条件は置か
+  // ない」, because 「プロパティパネルは「開いている面」に当たり、本行の並びで
+  // 選択より上に在るので、出ているあいだの `Esc` はそちらが先に消費する。」 --
+  // the `isPropertiesPanelOpen` rung four lines above IS that guard.
+  // ⛔ `=== true` AND NOT A TRUTHY TEST, the reading every optional member here
+  // takes: a caller that cannot see the selection falls through to the rung
+  // below rather than swallowing a press it cannot spend (IN-4a).
+  if (context.isSelectionStanding === true) return 'selection'
   if (context.dualCursorMode) return 'dualCursorMode'
   // IN-4's LAST level (MUST): 出ている説明. ⛔ BELOW EVERY OTHER RUNG AND ABOVE
   // `null`, which is the order that row prints and not a choice made here --
