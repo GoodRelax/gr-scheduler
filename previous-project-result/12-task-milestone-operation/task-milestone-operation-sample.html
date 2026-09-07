@@ -1,0 +1,663 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<title>タスクとマイルストーンの置き方 —— 実働サンプル</title>
+<style>
+:root{--bg:#fff;--ink:#16181d;--quiet:#5b6572;--rule:#d3d8de;--panel:#f5f6f8;
+      --accent:hsl(214 62% 40%);--warn:#a3253c;--ok:#1f7a3d;--noteBg:#fffaf0;--note:#8a6d1f;
+      --shape:#4a5260;--draft:hsl(214 62% 40%)}
+@media(prefers-color-scheme:dark){:root{--bg:hsl(214 12% 10%);--ink:#e6e9ee;--quiet:#98a2b0;
+  --rule:#343a42;--panel:hsl(214 12% 15%);--accent:hsl(214 66% 68%);--warn:#f08a9e;--ok:#6fc98d;
+  --noteBg:hsl(45 18% 14%);--note:#e0c46a;--shape:#b6bec9;--draft:hsl(214 70% 70%)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);padding:24px 30px 90px;
+     font:16px/1.7 "Segoe UI","Yu Gothic UI",system-ui,sans-serif}
+h1{font-size:25px;line-height:1.4;margin:0 0 6px}
+h2{font-size:18px;margin:26px 0 8px}
+p{margin:0 0 12px}
+.sub{color:var(--quiet);font-size:14px;line-height:1.7;margin:0 0 16px}
+code{background:var(--panel);padding:1px 6px;border-radius:3px;font-size:14px;
+     font-family:Consolas,"Courier New",monospace}
+
+/* ---- the always-visible state bar ---------------------------------------- */
+.statebar{position:sticky;top:0;z-index:30;background:var(--panel);border:1px solid var(--rule);
+          border-radius:8px;padding:10px 16px;margin:0 0 18px;font-size:16px;line-height:1.7}
+.statebar .grid{display:flex;gap:26px;flex-wrap:wrap}
+.statebar .cell{min-width:230px}
+.statebar .lbl{color:var(--quiet);font-size:13px;display:block;line-height:1.4}
+.statebar b{font-size:16px}
+.statebar .on{color:var(--accent)}
+.statebar .off{color:var(--quiet)}
+.statebar .hint{color:var(--quiet);font-size:13px;margin-top:4px;line-height:1.5}
+
+.wrap{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.left{flex:none;width:812px;max-width:100%}
+.side{flex:1;min-width:330px}
+
+/* ---- palette ------------------------------------------------------------- */
+.palette{border:1px solid var(--rule);border-radius:8px;padding:12px 14px;background:var(--panel);
+         margin:0 0 14px}
+.pgroup{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px}
+.pgroup:last-child{margin-bottom:0}
+.pgroup .gl{width:210px;flex:none;font-size:14px;color:var(--quiet);line-height:1.45}
+.pgroup .gl b{color:var(--ink);font-size:15px}
+.shapebtn{display:flex;align-items:center;gap:7px;border:1px solid var(--rule);border-radius:6px;
+          background:var(--bg);color:var(--ink);font:inherit;font-size:14px;padding:5px 10px;
+          cursor:pointer;line-height:1.3}
+.shapebtn:hover{border-color:var(--accent)}
+.shapebtn.armed{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);
+                box-shadow:inset 0 0 0 1px var(--accent)}
+.shapebtn .mono{color:var(--quiet);font-family:Consolas,monospace;font-size:12px}
+.shapebtn svg{display:block}
+
+/* ---- chart --------------------------------------------------------------- */
+.chart{border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--bg);
+       user-select:none;width:max-content;max-width:100%}
+.axisrow,.gridrow{display:flex}
+.corner{width:130px;flex:none;border-right:1px solid var(--rule);background:var(--panel)}
+.axis{position:relative;background:var(--panel);border-bottom:1px solid var(--rule)}
+.axis .month{font-size:13px;color:var(--quiet);padding:3px 8px;border-bottom:1px solid var(--rule)}
+.axis .days{display:flex}
+.axis .day{flex:none;text-align:center;font-size:12px;line-height:22px;color:var(--quiet);
+           border-left:1px solid var(--rule)}
+.axis .day.wk{color:var(--warn)}
+.rowlabel{width:130px;flex:none;border-right:1px solid var(--rule);background:var(--panel);
+          display:flex;align-items:center;padding:0 10px;font-size:15px}
+.canvasWrap{position:relative;flex:none}
+svg.board{display:block;touch-action:none;cursor:default}
+svg.board.armed{cursor:crosshair}
+.gl-day{stroke:var(--rule);stroke-width:1}
+.gl-wk{stroke:color-mix(in srgb,var(--warn) 22%,transparent);stroke-width:1}
+.shape{fill:color-mix(in srgb,var(--shape) 22%,transparent);stroke:var(--shape);stroke-width:1.5;
+       stroke-linejoin:round}
+.shape.sel{stroke:var(--accent);stroke-width:2.5;
+           fill:color-mix(in srgb,var(--accent) 22%,transparent)}
+.draftshape{fill:color-mix(in srgb,var(--draft) 14%,transparent);stroke:var(--draft);stroke-width:2;
+            stroke-dasharray:5 4;stroke-linejoin:round}
+.itemname{font-size:12px;fill:var(--quiet)}
+.nameField{position:absolute;font:inherit;font-size:14px;width:190px;padding:3px 7px;
+           border:2px solid var(--accent);border-radius:4px;background:var(--bg);color:var(--ink);z-index:5}
+.nameHint{position:absolute;font-size:12px;color:var(--quiet);z-index:5;white-space:nowrap}
+.hints{font-size:14px;color:var(--quiet);margin:8px 2px 0;line-height:1.6}
+
+/* ---- checklist / options / log ------------------------------------------- */
+.card{border:1px solid var(--rule);border-radius:8px;padding:12px 16px;background:var(--panel);
+      margin:0 0 16px}
+.card h3{margin:0 0 8px;font-size:16px}
+.chk{border-top:1px dotted var(--rule);padding:8px 0}
+.chk:first-of-type{border-top:none}
+.chk .head{display:flex;gap:8px;align-items:baseline;font-size:15px;line-height:1.55}
+.chk .mark{flex:none;width:20px;font-size:16px;color:var(--quiet)}
+.chk .mark.done{color:var(--ok)}
+.chk .how{color:var(--quiet);font-size:13.5px;margin-left:28px;line-height:1.55}
+.chk .sub{margin-left:28px;font-size:13.5px;line-height:1.6}
+.chk .sub .m{color:var(--quiet)} .chk .sub .m.done{color:var(--ok)}
+.opt{margin:0 0 10px;font-size:14px;line-height:1.6}
+.opt label{cursor:pointer;display:block}
+.opt .why{display:block;margin-left:22px;color:var(--quiet);font-size:13px;line-height:1.5}
+.log{max-height:330px;overflow:auto;font-size:13.5px;line-height:1.55}
+.log div{border-bottom:1px dotted var(--rule);padding:3px 0}
+.log .k{color:var(--accent);font-weight:600}
+.note{background:var(--noteBg);border-left:4px solid var(--note);padding:12px 16px;margin:16px 0;
+      font-size:15px;line-height:1.75}
+button.plain{font:inherit;font-size:14px;padding:4px 12px;border:1px solid var(--rule);
+             border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+table.t{border-collapse:collapse;font-size:14.5px;margin:0 0 14px}
+table.t th,table.t td{border:1px solid var(--rule);padding:6px 12px;text-align:left}
+table.t th{background:var(--panel)}
+</style></head><body>
+
+<h1>タスクとマイルストーンの置き方 —— 実働サンプル</h1>
+<p class="sub">
+⛔ <b>これは仕様書ではない。</b>2026-09-07 に挙がった 4 つの申し立てについて、
+<b>実装する前に、意図した動きを手で触って裁定していただく</b>ための素描である。<br>
+⭐ <b>見た目は判定の対象ではない。</b>色も間隔も図形の寸法もわざと素っ気なくしてある。
+<b>判定していただきたいのは動きだけ</b>である。</p>
+
+<div class="statebar" id="statebar">
+  <div class="grid">
+    <div class="cell"><span class="lbl">いま武装している形</span><b id="sArmed">—</b></div>
+    <div class="cell"><span class="lbl">選択</span><b id="sSel">—</b></div>
+    <div class="cell" style="min-width:420px"><span class="lbl">素描（ドラッグ中の下書き）</span><b id="sDraft">—</b></div>
+  </div>
+  <div class="hint" id="sHint"></div>
+</div>
+
+<div class="wrap">
+ <div class="left">
+
+  <div class="palette" id="palette">
+    <div class="pgroup" id="pgTask">
+      <div class="gl"><b>タスク</b><br>期間を持つ。<b>引くと横に伸びる</b></div>
+    </div>
+    <div class="pgroup" id="pgMile">
+      <div class="gl"><b>マイルストーン</b><br>点である。<b>追随するが伸びない</b></div>
+    </div>
+  </div>
+
+  <div class="chart">
+    <div class="axisrow">
+      <div class="corner"></div>
+      <div class="axis" id="axis"></div>
+    </div>
+    <div class="gridrow">
+      <div class="rowlabel" id="rowlabel">作業行</div>
+      <div class="canvasWrap" id="canvasWrap">
+        <svg class="board" id="board"></svg>
+      </div>
+    </div>
+  </div>
+  <div class="hints">
+    形アイコンを押す → <b>タスクは</b>行の上を押したまま引く（<b>マイルストーンはクリックだけでよい</b>）→
+    離す → 名前を打って <code>Enter</code>。
+    <code>Esc</code>、または<b>武装中と同じアイコンをもう一度押す</b>と武装が解ける。置いたものを押すと選択できる。
+    <button class="plain" id="reset" style="margin-left:10px">全部消してやり直す</button>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>⭐ 引き比べていただきたいのは、この 1 点である</h3>
+    <table class="t">
+      <tr><th></th><th>タスク（4 形）</th><th>マイルストーン（4 形）</th></tr>
+      <tr><th>押している間の素描</th>
+          <td><b>始点から今のポインタまで横に伸びる</b><br><span style="color:var(--quiet)">＝ 期間を引き出している</span></td>
+          <td><b>ポインタに追随するだけ。伸びない</b><br><span style="color:var(--quiet)">＝ 点なので長さが無い</span></td></tr>
+      <tr><th>素描の形</th>
+          <td colspan="2"><b>置かれるものと同じ形</b>。素描と本番は同じ描画関数を通る<br>
+          <span style="color:var(--quiet)">⛔ 六角形を武装しているのに矩形の素描が出る、ということは起こらない</span></td></tr>
+      <tr><th>離したとき決まるもの</th>
+          <td>始点と終点（<b>引いた分だけ</b>）<br><span style="color:var(--quiet)">⛔ 裁定⑤（2026-09-07）：引かずに離すと<b>何も置かれない</b></span></td>
+          <td>離した位置の 1 日だけ<br><span style="color:var(--quiet)">クリックだけで置ける（変わらず）</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>何が起きたか</h3>
+    <div class="log" id="logbody"></div>
+  </div>
+
+ </div>
+
+ <div class="side">
+  <div class="card">
+    <h3>4 つのふるまい —— 押して確かめる</h3>
+    <div id="checklist"></div>
+    <div style="font-size:13px;color:var(--quiet);margin-top:6px;line-height:1.5">
+      ⭐ この印は<b>実際にその手を打つと自動で立つ</b>。読んで頷くのではなく、押して立ててください。</div>
+  </div>
+
+  <div class="card">
+    <h3>⛔ 申し立ての側を再現する（既定は全部オフ）</h3>
+    <div class="opt"><label><input type="checkbox" id="oNoDraft">
+      押している間、何も描かない
+      <span class="why">＝ 申し立て ②。離すまで何が出るか判らない、といういまの姿</span></label></div>
+    <div class="opt"><label><input type="checkbox" id="oWrongDraft">
+      マイルストーンでも<b>タスクの形</b>で素描する
+      <span class="why">＝ 申し立て ② の後半。武装した形と素描の形が食い違う</span></label></div>
+    <div class="opt"><label><input type="checkbox" id="oRefuse">
+      選択中は形アイコンを<b>拒む</b>
+      <span class="why">＝ 申し立て ①。押しても武装しない</span></label></div>
+    <hr style="border:none;border-top:1px dotted var(--rule);margin:10px 0">
+    <div class="opt"><label><input type="checkbox" id="oClearSel" checked>
+      武装したら選択を外す
+      <span class="why">⚠️ ここは指示が決めていない。外す側を既定にした（<b>武装と選択は別の構え</b>という読み）。
+      外さない側も試せます</span></label></div>
+  </div>
+ </div>
+</div>
+
+<h2>✅ 2026-09-07、利用者の裁定が下りた（6 件とも）</h2>
+<div class="note">
+<b>① 武装したときに選択を外すか。</b> 裁定：<b>受理</b>（変更なし）。外す側のまま。⇒ 右の設定で切り替えられる。<br>
+<b>② 同じアイコンをもう一度押したらどうなるか。</b> 裁定：<b>却下</b>。利用者の言葉のまま —— 「反対。トグルにせよ。
+ユーザーに選択肢がある。」⇒ <b>トグルにした。</b>武装中のアイコンをもう一度押すと武装が解ける。<code>Esc</code> でも解ける。
+⛔ <b>何を選んでいても同じである</b>：選択の有無で、この押し直しの意味は変えない。
+⚠️ ① は生きている：それは<b>別の</b>アイコンについての規則であり、<b>別の</b>アイコンを押せば、
+何を選んでいても必ずその形に武装する。<br>
+<b>③ 名前欄で <code>Esc</code> を押したらどうなるか。</b> 裁定：<b>受理</b>（変更なし）。
+欄だけ閉じ、置いたものは「無題」で残る。武装は解けない。⇒ もう一度 <code>Esc</code> を打つと武装が解ける。<br>
+<b>④ 名前を打っている間に次を置けるか。</b> 裁定：<b>受理</b>（変更なし）。置けないまま
+（名前欄が開いている間、行は押しても始まらない）。<br>
+<b>⑤ タスクの最短の長さ。</b> 裁定：<b>却下</b>。利用者の言葉のまま —— 「タスクはドラッグ必須。」
+⇒ <b>タスクはドラッグしないと置かれない。</b>押して、動かさずに離すと<b>何も置かれない</b>
+（理由がログと状態欄に出る）。⚠️ マイルストーンは点なので、この裁定のあとも<b>クリックだけで置ける</b>。
+この対比がこの見本の主題である。<br>
+<b>⑥ 逆向きに引いたとき。</b> 裁定：<b>受理</b>（変更なし）。左へ引いても始点と終点を入れ替えて成立させる。
+</div>
+
+<h2>この見本が省いていること</h2>
+<p class="sub">
+行は 1 本だけ。木も入れ子も無い。依存も、カレンダー（休日の詰め）も、取り消しも、保存も、
+拡大縮小も、スクロールも無い。日付軸は<b>期間に意味を持たせるためだけ</b>に置いてある。
+土日は薄く赤いが、<b>働かない日として扱ってはいない</b>（引けば普通にまたぐ）。</p>
+
+<script>
+/* ------------------------------------------------------------------ geometry */
+const DAYS=21, DAY_W=32, ROW_H=76, BAR_H=24, MS_R=12;
+const SVGW=DAYS*DAY_W, MIDY=Math.round(ROW_H/2);
+const START=new Date(2026,8,7);              // 2026-09-07 (Monday)
+const dayDate=(i)=>{const d=new Date(START);d.setDate(d.getDate()+i);return d};
+const dayLabel=(i)=>{const d=dayDate(i);return (d.getMonth()+1)+'/'+d.getDate()};
+const isWeekend=(i)=>{const w=dayDate(i).getDay();return w===0||w===6};
+
+/* --------------------------------------------------------------- the shapes */
+/* ⭐ ONE drawing function per shape, used by THREE callers: the palette icon,
+   the draft that follows the pointer, and the placed item. That is not a tidy-
+   ness choice -- complaint 2 says the product draws a Task-shaped draft while a
+   milestone is armed. It cannot happen if there is only one function. */
+const el=(t,a)=>{let s='<'+t;for(const k in a)s+=' '+k+'="'+a[k]+'"';return s+'/>'};
+const poly=(pts,c)=>el('polygon',{points:pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' '),class:c});
+
+function taskPath(key,x0,x1,cy,h,cls){
+  const w=Math.max(2,x1-x0), t=cy-h/2, b=cy+h/2, k=Math.min(11,w/3);
+  if(key==='rectangle') return el('rect',{x:x0,y:t,width:w,height:h,class:cls});
+  if(key==='chevron')   return poly([[x0,t],[x1-k,t],[x1,cy],[x1-k,b],[x0,b],[x0+k,cy]],cls);
+  if(key==='arrow'){
+    const th=h*0.42;
+    return el('rect',{x:x0,y:cy-th/2,width:Math.max(1,w-k),height:th,class:cls})
+         + poly([[x1-k,t],[x1,cy],[x1-k,b]],cls);
+  }
+  if(key==='endpointSpan'){
+    const th=Math.max(2,h*0.18), e=h*0.42;
+    return el('rect',{x:x0,y:cy-th/2,width:w,height:th,class:cls})
+         + poly([[x0,cy-e],[x0+e,cy],[x0,cy+e],[x0-e,cy]],cls)
+         + poly([[x1,cy-e],[x1+e,cy],[x1,cy+e],[x1-e,cy]],cls);
+  }
+  return '';
+}
+function regular(cx,cy,r,n,cls){
+  const p=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;p.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}
+  return poly(p,cls);
+}
+function milePath(key,cx,cy,r,cls){
+  if(key==='circle')  return el('circle',{cx:cx,cy:cy,r:r,class:cls});
+  if(key==='diamond') return poly([[cx,cy-r],[cx+r,cy],[cx,cy+r],[cx-r,cy]],cls);
+  if(key==='hexagon') return regular(cx,cy,r,6,cls);
+  if(key==='pentagon')return regular(cx,cy,r,5,cls);
+  return '';
+}
+const SHAPES={
+  rectangle   :{kind:'task',ja:'矩形',      mono:'==='   },
+  chevron     :{kind:'task',ja:'矢羽根',    mono:'>===>' },
+  arrow       :{kind:'task',ja:'矢印',      mono:'--->'  },
+  endpointSpan:{kind:'task',ja:'端点スパン',mono:'*----*'},
+  circle      :{kind:'milestone',ja:'〇',      mono:'circle'  },
+  diamond     :{kind:'milestone',ja:'◇',      mono:'diamond' },
+  hexagon     :{kind:'milestone',ja:'六角形',  mono:'hexagon' },
+  pentagon    :{kind:'milestone',ja:'五角形',  mono:'pentagon'},
+};
+const isTask=(k)=>SHAPES[k].kind==='task';
+const drawShape=(key,g,cls)=>isTask(key)
+  ? taskPath(key,g.x0,g.x1,g.cy,g.h,cls)
+  : milePath(key,g.cx,g.cy,g.r,cls);
+
+/* ------------------------------------------------------------------- the state */
+let armed=null;          // shape key or null
+let selected=null;       // item id or null
+let drag=null;           // {shape,anchor,cur} while the pointer is held
+let naming=null;         // {id} while the name field is open
+let items=[];            // placed things
+let nextId=1;
+let armedAtLastPlace=null;   // for behaviour 4: did we place twice on one arming?
+let lastRefusal=null;        // ruling 5: why the last release placed nothing (shown until the next action)
+const done={b1:false,b2task:false,b2mile:false,b3:false,b4stay:false,b4esc:false,
+            b5toggle:false,b6taskrefuse:false,b6mileplace:false};
+
+const opt=(id)=>document.getElementById(id).checked;
+
+/* ------------------------------------------------------------------------ log */
+const logEl=document.getElementById('logbody');let logN=0;
+function say(w,d){logN++;const e=document.createElement('div');
+  e.innerHTML='<span class="k">'+logN+'.</span> '+w+(d?' <span style="color:var(--quiet)">— '+d+'</span>':'');
+  logEl.prepend(e)}
+
+/* --------------------------------------------------------------------- palette */
+function miniIcon(key){
+  const cls='shape';
+  const body=isTask(key)?taskPath(key,3,45,11,13,cls):milePath(key,24,11,9,cls);
+  return '<svg width="48" height="22" viewBox="0 0 48 22" aria-hidden="true">'+body+'</svg>';
+}
+function buildPalette(){
+  for(const key in SHAPES){
+    const s=SHAPES[key];
+    const b=document.createElement('button');
+    b.className='shapebtn';b.id='btn-'+key;b.type='button';
+    b.setAttribute('data-shape',key);
+    b.innerHTML=miniIcon(key)+'<span>'+s.ja+'</span><span class="mono">'+s.mono+'</span>';
+    b.addEventListener('click',()=>pressShape(key));
+    document.getElementById(s.kind==='task'?'pgTask':'pgMile').appendChild(b);
+  }
+}
+
+/* ⭐ COMPLAINT 1. There is no branch here that can refuse. Whatever is selected,
+   whatever is armed, pressing a shape arms that shape. The only refusal in the
+   file is the deliberate reproduction switch below, and it is off by default. */
+function pressShape(key){
+  const hadSel=selected;
+  lastRefusal=null;
+  if(opt('oRefuse')&&selected){
+    say('⛔ <b>拒んだ</b>：'+SHAPES[key].ja+' を押したが、選択中なので武装しなかった','申し立て ① の再現');
+    render();return;
+  }
+  if(naming) closeName(true);
+  const was=armed;
+  /* ⭐ RULING 2 (2026-09-07, the owner overturned the earlier default): pressing
+     the SAME armed icon again RELEASES the arming -- it is a toggle.
+     ⛔ AND THE SELECTION IS NOT CONSULTED. The ruling carries its own MUST NOT:
+     what a re-press means may not change with what is selected. Behaviour 1
+     ("pressing an icon always arms") is a rule about a DIFFERENT icon; the
+     already-armed icon is the one case it does not speak of. */
+  if(was===key){
+    armed=null;armedAtLastPlace=null;done.b5toggle=true;
+    say('⭐ <b>同じアイコン</b>（'+SHAPES[key].ja+'）をもう一度押した → <b>武装が解けた</b>（トグル）',
+        '裁定②「反対。トグルにせよ。」');
+    render();return;
+  }
+  armed=key;
+  if(opt('oClearSel')) selected=null;
+  if(hadSel){done.b1=true;
+    say('⭐ <b>選択したまま</b> '+SHAPES[key].ja+' を押した → <b>武装した</b>',
+        was?('前の武装は '+SHAPES[was].ja+'。別のアイコンなので、選択中でも必ず武装する'):'武装していなかった');
+  }else{
+    say('武装：<b>'+SHAPES[key].ja+'</b>（'+(isTask(key)?'タスク・期間を引く':'マイルストーン・点を置く')+'）');
+  }
+  armedAtLastPlace=null;
+  render();
+}
+
+/* ----------------------------------------------------------------- the board */
+const board=document.getElementById('board');
+board.setAttribute('width',SVGW);board.setAttribute('height',ROW_H);
+board.setAttribute('viewBox','0 0 '+SVGW+' '+ROW_H);
+
+function buildAxis(){
+  const ax=document.getElementById('axis');
+  const a=dayDate(0),b=dayDate(DAYS-1);
+  let days='';
+  for(let i=0;i<DAYS;i++)
+    days+='<div class="day'+(isWeekend(i)?' wk':'')+'" style="width:'+DAY_W+'px">'+dayDate(i).getDate()+'</div>';
+  ax.innerHTML='<div class="month">'+a.getFullYear()+' 年 '+(a.getMonth()+1)+' 月 '+a.getDate()+' 日 〜 '
+    +(b.getMonth()+1)+' 月 '+b.getDate()+' 日（数字は日）</div><div class="days">'+days+'</div>';
+  ax.style.width=SVGW+'px';
+}
+
+const dayFromX=(x)=>Math.max(0,Math.min(DAYS-1,Math.floor(x/DAY_W)));
+const pointerDay=(ev)=>dayFromX(ev.clientX-board.getBoundingClientRect().left);
+
+function taskGeom(a,b){const lo=Math.min(a,b),hi=Math.max(a,b);
+  return {x0:lo*DAY_W+3,x1:(hi+1)*DAY_W-3,cy:MIDY,h:BAR_H}}
+function mileGeom(d){return {cx:d*DAY_W+DAY_W/2,cy:MIDY,r:MS_R}}
+const geomOf=(it)=>isTask(it.shape)?taskGeom(it.a,it.b):mileGeom(it.day);
+
+function render(){
+  /* grid */
+  let g='';
+  for(let i=0;i<DAYS;i++){
+    if(isWeekend(i)) g+=el('rect',{x:i*DAY_W,y:0,width:DAY_W,height:ROW_H,
+      fill:'color-mix(in srgb, var(--warn) 6%, transparent)'});
+    g+=el('line',{x1:i*DAY_W,y1:0,x2:i*DAY_W,y2:ROW_H,class:isWeekend(i)?'gl-wk':'gl-day'});
+  }
+  /* placed items */
+  let body='';
+  items.forEach(it=>{
+    const cls='shape'+(selected===it.id?' sel':'');
+    const ge=geomOf(it);
+    body+=drawShape(it.shape,ge,cls);
+    /* ⛔ The chart clips at its own edge, so a name placed at the shape would be
+       cut for anything near the last day. Clamp it inward instead. */
+    let tx=isTask(it.shape)?ge.x0:ge.cx, anch=isTask(it.shape)?'start':'middle';
+    const half=(it.name||'（無題）').length*6.5;
+    if(tx+half>SVGW-3){tx=SVGW-3;anch='end'} else if(tx-half<3){tx=3;anch='start'}
+    body+='<text class="itemname" x="'+tx+'" y="'+(MIDY+BAR_H/2+16)+'" text-anchor="'+anch+'">'
+        + escapeText(it.name||'（無題）')+'</text>';
+  });
+  /* the draft */
+  let d='';
+  if(drag&&!opt('oNoDraft')){
+    /* ⛔ `shownAs` is the ONLY place the drawn shape can differ from the armed
+       shape, and only when the reproduction switch is on. */
+    const shownAs=(!isTask(drag.shape)&&opt('oWrongDraft'))?'rectangle':drag.shape;
+    const ge=isTask(shownAs)
+      ? taskGeom(drag.anchor, isTask(drag.shape)?drag.cur:drag.cur)
+      : mileGeom(drag.cur);
+    d=drawShape(shownAs,ge,'draftshape');
+  }
+  board.innerHTML=g+body+d;
+  board.classList.toggle('armed',!!armed&&!naming);
+  paintState();paintPalette();paintChecklist();
+}
+const escapeText=(s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function paintPalette(){
+  for(const key in SHAPES)
+    document.getElementById('btn-'+key).classList.toggle('armed',armed===key);
+}
+
+function paintState(){
+  const A=document.getElementById('sArmed'),S=document.getElementById('sSel'),
+        D=document.getElementById('sDraft'),H=document.getElementById('sHint');
+  if(armed){A.className='on';A.textContent=SHAPES[armed].ja+'（'+(isTask(armed)?'タスク':'マイルストーン')+'）'}
+  else{A.className='off';A.textContent='なし（何も武装していない）'}
+  const it=items.find(i=>i.id===selected);
+  if(it){S.className='on';S.textContent='あり：'+(it.name||'（無題）')+' / '+SHAPES[it.shape].ja}
+  else{S.className='off';S.textContent='なし'}
+  if(drag){
+    D.className='on';
+    if(isTask(drag.shape)){
+      const lo=Math.min(drag.anchor,drag.cur),hi=Math.max(drag.anchor,drag.cur);
+      D.textContent='ドラッグ中：'+SHAPES[drag.shape].ja+' '+dayLabel(lo)+' → '+dayLabel(hi)
+        +'（'+(hi-lo+1)+' 日ぶん・伸びます）';
+    }else{
+      D.textContent='ドラッグ中：'+SHAPES[drag.shape].ja+' '+dayLabel(drag.cur)+'（点・伸びません）';
+    }
+  }else{D.className='off';D.textContent=naming?'なし（名前を打っています）':'なし'}
+  let h='';
+  if(naming) h='名前欄が開いています。<b>Enter</b> で確定（欄が閉じ、選択が外れます）／<b>Esc</b> で欄だけ閉じます。';
+  else if(drag&&opt('oNoDraft')) h='⛔ <b>設定により素描を描いていません。</b>引いていることは道具の中では成立しています。';
+  else if(drag&&!isTask(drag.shape)&&opt('oWrongDraft')) h='⛔ <b>設定により、武装した形（'
+      +SHAPES[drag.shape].ja+'）ではなく矩形で描いています。</b>';
+  else if(drag) h='素描の形は <b>'+SHAPES[drag.shape].ja+'</b>。武装している形そのものです。';
+  else if(lastRefusal) h=lastRefusal+' <span style="color:var(--quiet)">（次の操作をすると消えます）</span>';
+  else if(armed) h=(isTask(armed)
+      ? 'タスクは行の上で押したまま<b>引いて</b>ください（クリックだけでは置けません）。'
+      : '行を<b>クリック</b>すると、その日にマイルストーンが置かれます。')
+      +' 同じアイコンをもう一度押すか、<b>Esc</b> で武装が解けます。';
+  else h='形アイコンを押すと武装します。<b>選択中でも必ず武装します。</b>';
+  H.innerHTML=h;
+}
+
+/* --------------------------------------------------------------- the gestures */
+board.addEventListener('pointerdown',ev=>{
+  if(naming) return;                          // decision ④: naming is modal
+  lastRefusal=null;
+  const day=pointerDay(ev);
+  if(!armed){                                  // no arming -> plain selection
+    const hit=hitTest(ev);
+    selected=hit?hit.id:null;
+    say(hit?('選択：<b>'+(hit.name||'（無題）')+'</b>'):'選択を外した');
+    render();return;
+  }
+  board.setPointerCapture(ev.pointerId);
+  drag={shape:armed,anchor:day,cur:day,moved:false,stretched:false};
+  say('押した：'+SHAPES[armed].ja+' の素描を '+dayLabel(day)+' から始めた');
+  render();
+});
+board.addEventListener('pointermove',ev=>{
+  if(!drag) return;
+  const day=pointerDay(ev);
+  if(day===drag.cur) return;
+  drag.cur=day;drag.moved=true;
+  if(isTask(drag.shape)){
+    if(Math.abs(drag.cur-drag.anchor)>=1){drag.stretched=true;if(!opt('oNoDraft'))done.b2task=true}
+  }else{
+    if(!opt('oNoDraft')&&!opt('oWrongDraft'))done.b2mile=true;
+  }
+  render();
+});
+board.addEventListener('pointerup',ev=>{
+  if(!drag) return;
+  const d=drag;drag=null;
+  /* ⭐ RULING 5 (2026-09-07, the owner overturned the earlier default): a TASK
+     requires a drag. Releasing on the same day it was pressed places nothing.
+     A MILESTONE is a point, so the identical gesture (press, release, no
+     movement) still places it in the branch below -- that contrast is the
+     whole point of this page, so it must not be broken here. */
+  if(isTask(d.shape)&&d.anchor===d.cur){
+    lastRefusal='⛔ <b>何も置かなかった</b>：'+SHAPES[d.shape].ja+' は<b>タスク</b>なので、ドラッグ（引く）が必須である。'
+      +'引かずに離した。マイルストーンなら同じ操作で 1 点置けている';
+    done.b6taskrefuse=true;
+    say(lastRefusal,'裁定⑤「タスクはドラッグ必須。」');
+    render();return;
+  }
+  const id='i'+(nextId++);
+  let it;
+  if(isTask(d.shape)){
+    const lo=Math.min(d.anchor,d.cur),hi=Math.max(d.anchor,d.cur);
+    it={id:id,shape:d.shape,a:lo,b:hi,name:''};
+    say('離した：<b>'+SHAPES[d.shape].ja+'</b> を '+dayLabel(lo)+'〜'+dayLabel(hi)
+        +'（'+(hi-lo+1)+' 日）に置いた');
+  }else{
+    it={id:id,shape:d.shape,day:d.cur,name:''};
+    say('離した：<b>'+SHAPES[d.shape].ja+'</b> を '+dayLabel(d.cur)+' に置いた','点なので 1 日');
+    done.b6mileplace=true;
+  }
+  items.push(it);
+  lastRefusal=null;
+  /* ⭐ COMPLAINT 4: the arming is NOT cleared here. */
+  if(armedAtLastPlace===armed&&armed){done.b4stay=true;
+    say('⭐ <b>武装したまま 2 つめを置けた</b>（アイコンを押し直していません）')}
+  armedAtLastPlace=armed;
+  selected=id;
+  openName(it);
+  render();
+});
+board.addEventListener('pointercancel',()=>{if(drag){drag=null;say('ドラッグが中断された');render()}});
+
+function hitTest(ev){
+  const x=ev.clientX-board.getBoundingClientRect().left;
+  for(let i=items.length-1;i>=0;i--){
+    const it=items[i];
+    if(isTask(it.shape)){const g=taskGeom(it.a,it.b);if(x>=g.x0-4&&x<=g.x1+4)return it}
+    else{const g=mileGeom(it.day);if(Math.abs(x-g.cx)<=g.r+3)return it}
+  }
+  return null;
+}
+
+/* ------------------------------------------------------------- the name field */
+let field=null,fieldHint=null;
+function openName(it){
+  const wrap=document.getElementById('canvasWrap');
+  closeName(false);
+  field=document.createElement('input');
+  field.className='nameField';field.id='nameField';field.value='';
+  field.setAttribute('placeholder','名前を打って Enter');
+  const g=geomOf(it);
+  const x=isTask(it.shape)?g.x0:g.cx-95;
+  field.style.left=Math.max(2,Math.min(x,SVGW-196))+'px';
+  field.style.top=(MIDY+BAR_H/2+22)+'px';
+  wrap.appendChild(field);
+  fieldHint=document.createElement('div');
+  fieldHint.className='nameHint';fieldHint.id='nameHint';
+  fieldHint.textContent='Enter で確定 / Esc で欄だけ閉じる';
+  fieldHint.style.left=field.style.left;fieldHint.style.top=(MIDY+BAR_H/2+52)+'px';
+  wrap.appendChild(fieldHint);
+  naming={id:it.id};
+  field.focus();
+  say('名前欄が出た','置いたものは選択された状態です');
+}
+function closeName(quiet){
+  if(field){field.remove();field=null}
+  if(fieldHint){fieldHint.remove();fieldHint=null}
+  naming=null;
+  if(!quiet) return;
+}
+/* ⭐ COMPLAINT 3: commit -> close the field -> CLEAR THE SELECTION, so the next
+   placement starts from nothing selected while the arming still stands. */
+function commitName(){
+  if(!naming) return;
+  const it=items.find(i=>i.id===naming.id);
+  const v=field.value.trim();
+  if(it) it.name=v||'（無題）';
+  closeName(true);
+  selected=null;
+  lastRefusal=null;
+  done.b3=true;
+  say('⭐ <b>Enter</b>：「'+escapeText(it?it.name:'')+'」で確定 → <b>欄が閉じ、選択が外れた</b>',
+      armed?('武装は '+SHAPES[armed].ja+' のまま'):'武装なし');
+  render();
+}
+
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Enter'&&naming){ev.preventDefault();commitName();return}
+  if(ev.key!=='Escape') return;
+  ev.preventDefault();
+  lastRefusal=null;
+  if(naming){                       /* decision ③ */
+    const it=items.find(i=>i.id===naming.id);
+    if(it&&!it.name) it.name='（無題）';
+    closeName(true);
+    say('Esc：名前欄だけ閉じた','置いたものは「無題」で残ります。武装は解けていません');
+    render();return;
+  }
+  if(drag){drag=null;say('Esc：素描を取りやめた');render();return}
+  if(armed){const a=armed;armed=null;armedAtLastPlace=null;done.b4esc=true;
+    say('⭐ <b>Esc</b>：武装（'+SHAPES[a].ja+'）を解いた');render();return}
+  if(selected){selected=null;say('Esc：選択を外した');render();return}
+  say('Esc：解くものが無かった');
+});
+
+/* ------------------------------------------------------------------ checklist */
+const CHECKS=[
+ {n:'①',t:'形アイコンは、何かを選択していても<b>必ず</b>その武装に入る',
+  how:'まず 1 つ置く → それを押して選択（バーの上を 1 回押す）→ 別の形アイコンを押す。'
+     +'状態欄の「武装」が変わればよい。',
+  marks:[{k:'b1',t:'選択したまま押して、武装した'}]},
+ {n:'②',t:'押している間、<b>置かれるものの形の素描</b>がポインタに追随する',
+  how:'武装して、行の上を押したまま横へ引く。離す前に素描が見えていること。',
+  marks:[{k:'b2task',t:'タスク：引くと<b>横に伸びた</b>'},
+         {k:'b2mile',t:'マイルストーン：追随したが<b>伸びなかった</b>（形も武装どおり）'}]},
+ {n:'③',t:'離すと名前欄が出る。<code>Enter</code> で確定し、欄が閉じ、<b>選択が外れる</b>',
+  how:'離す → 名前を打つ → Enter。状態欄の「選択」が「なし」に戻ればよい。',
+  marks:[{k:'b3',t:'Enter で確定し、欄が閉じ、選択が外れた'}]},
+ {n:'④',t:'武装は続く（続けてもう 1 つ置ける）／ <code>Esc</code> で武装が解ける',
+  how:'確定したあと、アイコンを押し直さずにもう 1 度引く。そのあと Esc。',
+  marks:[{k:'b4stay',t:'押し直さずに 2 つめを置けた'},
+         {k:'b4esc',t:'Esc で武装が解けた'}]},
+ {n:'⑤',t:'⭐ 裁定②：武装中と<b>同じ</b>アイコンをもう一度押すと、武装が<b>解ける</b>（トグル）',
+  how:'形アイコンを押して武装 → <b>同じ</b>アイコンをもう一度押す。'
+     +'状態欄の「いま武装している形」が「なし」に戻ればよい。'
+     +'⛔ 何かを選んだ状態でも同じであること（選択の有無で意味を変えない）。',
+  marks:[{k:'b5toggle',t:'同じアイコンを押し直して武装が解けた'}]},
+ {n:'⑥',t:'⭐ 裁定⑤：<b>タスク</b>は引かないと置かれない／<b>マイルストーン</b>はクリックだけで置ける',
+  how:'タスクの形を武装して、行の上を押してすぐ離す（引かない）→ 何も置かれず、理由がログと状態欄に出る。'
+     +'続けてマイルストーンの形を武装し、同様にクリックする → 1 点置かれる。',
+  marks:[{k:'b6taskrefuse',t:'タスク：引かずに離すと何も置かれず、理由が示された'},
+         {k:'b6mileplace',t:'マイルストーン：クリックだけで置けた'}]},
+];
+function paintChecklist(){
+  const box=document.getElementById('checklist');
+  box.innerHTML=CHECKS.map(c=>{
+    const all=c.marks.every(m=>done[m.k]);
+    return '<div class="chk"><div class="head"><span class="mark'+(all?' done':'')+'">'
+      +(all?'✓':'□')+'</span><span>'+c.n+' '+c.t+'</span></div>'
+      +'<div class="sub">'+c.marks.map(m=>'<span class="m'+(done[m.k]?' done':'')+'">'
+      +(done[m.k]?'✓':'□')+'</span> '+m.t).join('<br>')+'</div>'
+      +'<div class="how">'+c.how+'</div></div>';
+  }).join('');
+}
+
+/* ---------------------------------------------------------------------- reset */
+document.getElementById('reset').addEventListener('click',()=>{
+  closeName(true);items=[];selected=null;armed=null;drag=null;armedAtLastPlace=null;nextId=1;
+  lastRefusal=null;
+  say('はじめの状態へ戻した','立った印はそのままにしてあります');
+  render();
+});
+['oNoDraft','oWrongDraft','oRefuse','oClearSel'].forEach(id=>
+  document.getElementById(id).addEventListener('change',e=>{
+    lastRefusal=null;
+    say('設定：'+e.target.parentElement.textContent.trim().split('\n')[0]+' → '+(e.target.checked?'オン':'オフ'));
+    render();
+  }));
+
+buildPalette();buildAxis();render();
+say('開いた。形アイコンを押すところから始めてください');
+</script>
+</body></html>

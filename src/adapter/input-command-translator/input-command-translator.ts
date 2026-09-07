@@ -952,6 +952,26 @@ export type SpentEntranceSituation =
    * both end at the cap are still two 場面, and 表 T-233 is keyed on 場面.
    */
   | 'rowIsAtTheDeepestLevel'
+  /**
+   * FR-001 (MUST NOT): a bar shape (SH-1 .. SH-4 of table T-012) was armed and
+   * the press was released without travelling past `S-208`, so there is no span
+   * to make a task out of.
+   *
+   * ⭐ THE NAME IS RS-53's OWN 場面 -- 「バーの形状を構えたまま、引かずに離した」,
+   * whose 正 is FR-001, granted on 2026-09-07 with the user's ruling 「タスクは
+   * ドラッグ必須。」
+   * ⛔ NOT THE FALLBACK `RS-27`: the row states its own reason for existing --
+   * 「`RS-27`（押した入口が、いま行えることを持たない）では、何をすればよいかが
+   * 読めない。」 -- and the census beside `NOTICE_REASON_OF_SPENT_ENTRANCE` forbids
+   * reaching for the fallback where a row of one's own exists.
+   * ⛔ NOT AN ENTRANCE OF TABLE T-109, for the same reason
+   * `noRowToPutTheAnnotationOn` above is not: 表 T-233 is keyed on 場面, and a
+   * press on the schedule with an arm standing owes the same telling.
+   * ⚠️ A MILESTONE NEVER RAISES IT -- RS-53's own note says a point is placed by
+   * exactly this gesture, and FR-001 (MUST NOT) forbids refusing one for having
+   * been dragged either.
+   */
+  | 'barShapeReleasedWithoutADrag'
 
 /**
  * The one thing a write brought into being, for the two requirements that leave
@@ -1820,73 +1840,6 @@ function dayFromSerial(serial: number): CalendarDay {
 /** @purity pure */
 function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
-}
-
-/** How many days a calendar month holds. @purity pure */
-function daysInMonth(year: number, month: number): number {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate()
-}
-
-/**
- * The same day of the month, some months on.
- *
- * ⭐⭐ THE CLAMP IS FR-001's OWN SINCE 2026-09-03 (MUST): 「1 単位を足した先が暦に
- * 無い日になるときは、その月の末日とすること」 -- 「月の段で 1 月 31 日を押すと、
- * 1 か月後はどの暦にも無い」. ⛔ 「翌月へこぼしてはならない（MUST NOT）」, which
- * is what `Date.UTC` would do on its own, 「こぼすと、押したマス目より 1 つ多い
- * 期間になり」 the same requirement's 「見えているマス目 1 つ分であり、画面と一致
- * する」 is broken.
- * ⚠️ THE YEAR STEP IS THE SAME RULE (同要求): 「年の段でも同じことが起きる（2 月
- * 29 日の 1 年後）—— 同じ規則で足りる」, which is why `dayOneTierUnitOn` reaches
- * this one member for both steps rather than a second arithmetic.
- * ⛔ THE NOTE THAT STOOD HERE SAID 「THE CLAMP HAS NO ROW AND IS REPORTED」. It
- * was true when written and the manuscript has since answered it; the reading
- * the code already took is the one the ruling settled on.
- *
- * @purity pure
- */
-function dayPlusMonths(day: CalendarDay, months: number): CalendarDay {
-  const zeroBased = day.year * 12 + (day.month - 1) + months
-  const year = Math.floor(zeroBased / 12)
-  const month = zeroBased - year * 12 + 1
-  return { year, month, day: Math.min(day.day, daysInMonth(year, month)) }
-}
-
-/**
- * FR-001 (MUST, 利用者の裁定 2026-09-02): the day a click's task finishes on --
- * 「押した日を起点に、いま目盛が刻んでいる最も細かい段の 1 単位ぶんのタスク」.
- *
- * ⭐ THE STEP IS `layout.tier` AND IS NOT WORKED OUT HERE. FR-001 names 表 T-205
- * の `S-83` / `S-84` / `S-85` as what switches it by px/day, and `rulerTierOf`
- * (PI-5) is the one member that reads those three -- so the unit a click places
- * is the unit the band under the pointer is drawing, at every zoom, with no
- * second arithmetic to drift from it.
- * ⚠️ THERE IS NO CAP (同裁定): 「上限は置かない —— 見えているマス目 1 つ分であり、
- * 画面と一致する」. A click at the year step legitimately makes a task a year long.
- *
- * ⭐ WHY THE FINISH IS THE DAY AFTER THE UNIT rather than its last day: the plan
- * bar runs from `start` to `finish` EXCLUDING the finish day (`spanWidthOf` in
- * `schedule-layout.ts` states that convention), so 「見えているマス目 1 つ分」 --
- * 「画面と一致する」 -- is a finish one whole unit past the start. ⛔ THAT IS WHY
- * THE OLD RULE IS GONE: 「開始日と終了日が同じタスク」 drew no cell at all, only
- * `S-49`'s minimum width.
- *
- * @purity pure
- */
-function dayOneTierUnitOn(day: CalendarDay, tier: ScheduleLayout['tier']): CalendarDay {
-  switch (tier) {
-    case 'yearMonthDayWeekday':
-      return dayShifted(day, 1)
-    case 'yearMonthWeek':
-      // LF-1 of table T-221 gives the week step seven days, and `tickStrideOf`
-      // answers with the same seven; a week is seven days by definition and is
-      // not a setting (that member says so where it names DAYS_PER_WEEK).
-      return dayShifted(day, 7)
-    case 'yearMonth':
-      return dayPlusMonths(day, 1)
-    case 'year':
-      return dayPlusMonths(day, 12)
-  }
 }
 
 /**
@@ -6886,7 +6839,9 @@ function isRowUnder(
 
 /**
  * SP-2 and SP-3 of FR-083 -- a palette shape pressed while something is
- * selected changes what is selected, and leaves the arming alone.
+ * selected changes what is selected. ⭐ The arming half of the same press is
+ * `screenStateFromInput`'s and happens too (since 2026-09-07 the two rows end
+ * 「あわせてその形状を構える」); this member answers only the document side.
  *
  * ⛔ A MIXED SELECTION IS NOT FILTERED HERE, AND THAT IS NOT AN OVERSIGHT.
  * FR-083 states SP-3 (change ALL of what is selected) and, in the same
@@ -7677,7 +7632,7 @@ function commandFromArmed(
     // one; writing it into the document would put a value the column refuses
     // where the schema expects one of five.
     if (shapeKind === null) return CONSUMED_ELSEWHERE
-    // ⭐ THE THREE ROADS FR-001 NOW HAS, and each names both of its dates here
+    // ⭐ THE TWO ROADS FR-001 NOW HAS, and each names both of its dates here
     // rather than one branch patching another's answer.
     //
     // ⛔⛔ A MILESTONE IS PLACED BY THE PRESS ALONE (MUST, 利用者の裁定
@@ -7692,17 +7647,35 @@ function commandFromArmed(
     // T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを
     // 作ること」.
     //
-    // ⭐⭐ A BAR CLICKED MAKES ONE UNIT OF THE STEP THE BAND IS DRAWING (MUST):
-    // 「クリックしたときは、押した日を起点に、いま目盛が刻んでいる最も細かい段の
-    // 1 単位ぶんのタスクを作ること」 -- `dayOneTierUnitOn` holds the reading and
-    // the reason the finish lands one whole unit on.
+    // ⛔⛔ AND A BAR CLICKED MAKES NOTHING (MUST NOT, 利用者の裁定 2026-09-07,
+    // 逐語「タスクはドラッグ必須」): FR-001 「クリックでは、バーの形状のタスクを
+    // 作らないこと」 -- 「タスクは期間を持つものであり、引いていない押下はその期間
+    // を言っていない」. FR-083's RATIONALE carries the same MUST NOT.
+    // ⭐ AND IT IS TOLD (MUST): 「作らなかったことを告げること（MUST）」, whose
+    // manner that same clause hands to FR-029 -- 「押しても何も起きない入口と見分
+    // けがつかなくなる」.
+    // ⭐⭐ THE TELLING IS 表 T-037's `NT-1` AND `raiseNotice` IN `frame-loop.ts`
+    // RAISES IT, off the `tellEntryHasNothingToDo` action `nothingToDo` builds
+    // -- the same one member every other refusal on this road already reaches
+    // (FR-019's own, one branch below, is the nearest neighbour).
+    // ⭐⭐ THE REASON IS `RS-53`, WHICH THE MANUSCRIPT GRANTED ON 2026-09-07 FOR
+    // THIS PRESS AND NO OTHER: 「バーの形状を構えたまま、引かずに離した」, whose
+    // 正 is FR-001 itself. ⛔ NOT THE FALLBACK `RS-27`: the row is written with
+    // the reason it exists -- 「`RS-27`（押した入口が、いま行えることを持たない）
+    // では、何をすればよいかが読めない。」 -- and the census beside
+    // `NOTICE_REASON_OF_SPENT_ENTRANCE` states the same rule from the far side
+    // (reaching for the fallback where a row of one's own exists is the MUST
+    // NOT). The words themselves are the dictionary's and are not spelled here
+    // (FR-038, MUST NOT).
+    // ⚠️ ⛔ `CONSUMED_ELSEWHERE` WOULD BE THE DEFECT THE CLAUSE NAMES: it keeps
+    // the browser off the press (MK-10) and carries no reason to anyone, which
+    // is 「押しても何も起きない入口」 word for word.
+    // ⭐ A MILESTONE NEVER REACHES THIS LINE, and RS-53's own note says why: a
+    // point IS placed by a press that did not travel.
     const isMilestone = shapeKind === 'milestone'
-    const start = isMilestone || !dragged ? from : early
-    const finish = isMilestone
-      ? from
-      : dragged
-        ? late
-        : dayOneTierUnitOn(from, context.layout.tier)
+    if (!isMilestone && !dragged) return nothingToDo('barShapeReleasedWithoutADrag')
+    const start = isMilestone ? from : early
+    const finish = isMilestone ? from : late
     const commands: DocumentCommand[] = [
       {
         kind: 'createTask',
@@ -9106,10 +9079,17 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
 
   const armed = armedByEntry(entry)
   if (armed === null) return state
-  // SP-2 / SP-3 -- 「構えは変えない」.
-  if (context.selection.items.length > 0) return state
-  // SP-4 -- the same entry pressed again, with nothing selected, disarms.
-  // SP-1 -- otherwise it arms.
+  // SP-1 .. SP-4 of FR-083, and NOT ONE OF THEM READS THE SELECTION.
+  // ⭐ SP-1 .. SP-3 all end 「あわせてその形状を構える」 since the user's
+  // 2026-09-07 instruction 「アイコンを押すと必ずその構えに入る」, and the
+  // requirement carries a MUST NOT against refusing to arm because something is
+  // selected. ⭐ SP-4 lost its 「何も選んでいない」 on the same day (the user's
+  // ruling 「トグルにせよ。 ユーザーに選択肢がある」), with its own MUST NOT
+  // against letting the selection change what a re-press means.
+  // ⛔ SO THE SELECTION IS NOT CONSULTED HERE AT ALL: the entry already armed
+  // disarms, any other entry arms. The other half of SP-2 / SP-3 -- changing
+  // the shape of what IS selected -- is `commandFromArmingEntry`'s, and the two
+  // are two results of one press rather than a choice between them.
   return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
 }
 

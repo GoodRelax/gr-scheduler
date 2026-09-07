@@ -642,18 +642,50 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
     expect(wrong, wrong.join('; ')).toEqual([])
   })
 
-  it('⚠️ pressing one of them with a milestone selected does NOT arm it (SP-2)', () => {
-    // SP-2 of FR-083: 「構えは変えない」 -- and this case is also what proves the
-    // case above drove SP-2 at all. ⛔ If the click on the figure had failed to
-    // select it, every press would have fallen through to SP-1 and ARMED, and
-    // the case above would have been measuring a road that never reached the
-    // document. Reading the arm back is what tells the two roads apart.
+  it('⭐ pressing one of them with a milestone selected ALSO arms it (SP-2)', () => {
+    // ⚠️ REWRITTEN 2026-09-07 BECAUSE THE ROW WAS. SP-2 read 「構えは変えない」
+    // until the user's instruction of that day (逐語「アイコンを押すと必ずその
+    // 構えに入る」); it now reads 「その 1 つの形状を変え、あわせてその形状を
+    // 構える」, and FR-083 carries a MUST NOT against refusing to arm because
+    // something is selected. ⛔ THIS IS THE ROW MOVING, NOT THE CASE RELAXING:
+    // the assertion is stricter than before -- both results of the one press
+    // are demanded, where the old case demanded one and forbade the other.
+    // ⭐ The discrimination the old case bought (did the click actually SELECT?)
+    // is bought here by the document half instead: an unselected milestone
+    // cannot have had its figure changed by a palette press.
     const first = ENTRANCES[0] as Entrance
     const app = stage(oneMilestoneDocument())
     app.take(GLYPH_LIST_TOGGLE)
     app.clickOnTask(STANDING_UID)
     app.take(first.row)
-    expect(armedEntrances(app.pane), `${first.row} armed instead of changing`).toEqual([])
+    expect(storedGlyphOf(app.loop, STANDING_UID), 'the selected one did not change').toBe(
+      first.glyph,
+    )
+    expect(armedEntrances(app.pane), `${first.row} changed but did not arm`).toEqual([first.row])
+  })
+
+  it('⭐ the same entrance pressed again disarms, whatever is selected (SP-4)', () => {
+    // 表 T-023b の締め: 「解除は `Esc`、またはパレットの同じ入口の再押下とする
+    // こと（MUST）」 with 「選んでいるものの有無で、この再押下の意味を変えては
+    // ならない（MUST NOT）」 (the user's ruling 2026-09-07, 逐語「トグルにせよ。
+    // ユーザーに選択肢がある」). SP-4 lost its 「何も選んでいない」 the same day.
+    // ⛔ THE CONTROL IS THE SELECTED SIDE: a build that kept the old guard would
+    // pass the empty case and fail this one, because it never reached SP-4 with
+    // a selection standing.
+    const first = ENTRANCES[0] as Entrance
+    for (const selected of [false, true]) {
+      const app = stage(selected ? oneMilestoneDocument() : emptyRowDocument())
+      app.take(GLYPH_LIST_TOGGLE)
+      if (selected) app.clickOnTask(STANDING_UID)
+      app.take(first.row)
+      expect(armedEntrances(app.pane), `selected=${selected}: first press did not arm`).toEqual([
+        first.row,
+      ])
+      app.take(first.row)
+      expect(armedEntrances(app.pane), `selected=${selected}: second press did not disarm`).toEqual(
+        [],
+      )
+    }
   })
 
   it('⛔ with nothing selected the same press ARMS instead, which is SP-1', () => {

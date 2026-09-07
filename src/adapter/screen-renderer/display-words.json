@@ -3388,6 +3388,17 @@
    }
   },
   {
+   "rowId": "RS-53",
+   "text": {
+    "ja": "タスクは期間を持つので、引かないと作れません",
+    "en": "A task has a span, so it is not created without a drag"
+   },
+   "nextStep": {
+    "ja": "始める日から終わる日まで引いてください。点を置きたいときはマイルストーンを使います",
+    "en": "Drag from the start day to the finish day. To place a point, use a milestone"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

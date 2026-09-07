@@ -785,6 +785,30 @@ async function pressEntrance(page: Page, entrance: string): Promise<boolean> {
   return true
 }
 
+/**
+ * Leave a palette entrance ARMED, whatever it was before.
+ *
+ * ⛔⛔ NOT `pressEntrance` TWICE OVER, AND NOT ONCE EITHER. `SP-4` of `FR-083`
+ * (MUST, 利用者の裁定 2026-09-07, 逐語「トグルにせよ。 ユーザーに選択肢がある」)
+ * makes a press of the entrance that is ALREADY armed a disarm, so a case that
+ * presses to arm and presses again later ends up with nothing armed and measures
+ * a gesture the requirement is not about. ⭐ The arming is read off the entrance
+ * itself (`data-armed`), which is what the drawing side writes.
+ *
+ * @purity non-pure
+ */
+async function armEntrance(page: Page, entrance: string): Promise<boolean> {
+  const armed = async (): Promise<boolean> =>
+    page.evaluate(
+      (wanted: string) =>
+        document.querySelector(`[data-icon="${wanted}"]`)?.getAttribute('data-armed') === 'true',
+      entrance,
+    )
+  if (await armed()) return true
+  if (!(await pressEntrance(page, entrance))) return false
+  return armed()
+}
+
 /** Whatever the notices are saying right now (table T-037). @purity semi-pure-b */
 async function readNotices(page: Page): Promise<string[]> {
   return page.evaluate(() =>
@@ -2595,11 +2619,6 @@ test('D-220: a picture too tall to draw is refused as RS-43, and the other forma
   }
 })
 
-/** How many days a month holds. @purity pure */
-function daysInMonth(year: number, month: number): number {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate()
-}
-
 /** Table T-238 (`FR-017`) -- what each tier of the ruler prints, read at read time. */
 const T238: SpecTable = specTable('T-238')
 /** Columns of table T-238 after the row ID: the tier, then its three lines. */
@@ -2612,222 +2631,159 @@ function tierLine(rowId: string, column: number): string {
   return cellOf(T238, rowId, column, T238_COLUMNS).replace(/`/g, '').trim()
 }
 
-/**
- * The day one month on from the day given, as `FR-001` (MUST) settles it:
- * 「1 単位を足した先が暦に無い日になるときは、その月の末日とすること（MUST）。
- * 翌月へこぼしてはならない（MUST NOT）」.
- *
- * @purity pure
- */
-function oneMonthOn(day: string): string {
-  const [year, month, date] = day.split('-').map(Number) as [number, number, number]
-  const nextYear = month === 12 ? year + 1 : year
-  const nextMonth = month === 12 ? 1 : month + 1
-  const landed = Math.min(date, daysInMonth(nextYear, nextMonth))
-  const two = (value: number): string => String(value).padStart(2, '0')
-  return `${nextYear}-${two(nextMonth)}-${two(landed)}`
-}
-
-// GOES RED IF: a click on the schedule while the ruler is stepping in months
-// makes a task that ends on a day of the month after the one clicked, rather
-// than on the last day of that month, when the day clicked does not exist there.
-// `FR-001` (MUST) says 「クリックしたときは、押した日を起点に、いま目盛が刻んで
-// いる最も細かい段の 1 単位ぶんのタスクを作ること（MUST）」 and 「⛔⛔ **1 単位を
-// 足した先が暦に無い日になるときは、その月の末日とすること（MUST）** ... ⛔ **翌月
-// へこぼしてはならない（MUST NOT）**」.
+// GOES RED IF: a bar shape armed and pressed WITHOUT a drag puts a task on the
+// schedule; or puts nothing there and says nothing; or if a bar shape DRAGGED
+// stops making the span that was drawn; or if a milestone stops being placed by
+// the press alone.
 //
-// ⭐ A CONTROL IS PRESSED AS WELL -- the fifteenth of the same month. Without it
-// a build that clamped EVERY click to the end of the month would pass, and the
-// clamp would be hiding a second defect rather than settling this row.
+// `FR-001` (MUST NOT) 「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」
+// -- 「タスクは期間を持つものであり、引いていない押下はその期間を言っていない。」
+// (MUST) 「作らなかったことを告げること（MUST）」, whose manner that clause hands to
+// `FR-029`, and whose reason is table T-233's fallback because no row of that
+// table names this 場面 yet.
+// (MUST) 「引いた期間のタスクを作ること（MUST）」 for the drag.
+// (MUST) 「マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと
+// （MUST）」, and (MUST NOT) 「引いたことを理由に拒んではならない（MUST NOT）」.
 //
-// ⚠️ WHICH MONTH IS TAKEN OFF THE RULER, not written here: the case looks along
-// the tier the build is drawing for a month of 31 days whose successor is
-// shorter, so the document may move its dates without moving this case.
-test('D-210: on the month tier, a click on a day the next month has not lands on its last day', async () => {
+// ⛔⛔ THE CASE THAT STOOD HERE MEASURED THE MONTH-END CLAMP, and the clamp is
+// gone with the road that needed it: FR-001 itself records that 「クリックで作る
+// 道が無くなったので、その段の読み方も、末日で止める規則も要らない。」 The zoom to
+// the month tier, the ruler reading and the two clicks it compared went with it.
+//
+// ⚠️ THE HEIGHT IS SWEPT, NOT CHOSEN. `FR-001` makes a task only where the press
+// falls on no item at all, and which heights are free depends on what the
+// document draws; the first one where a drag makes a shape is taken, and every
+// later press in this case is made at that same height.
+test('D-210: a bar shape needs a drag, a milestone needs only a press', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
   try {
     const page = opened.page
-    const coarser = entranceBy(T109_PURPOSE, TIME_AXIS, ZOOM_OUT)
     const rectangle = entranceBy(T109_PURPOSE, 'SH-1')
-
-    // ⚠️ WHICH TIER IS THE MONTH ONE IS READ OFF ITS FIRST LINE'S SHAPE. Table
-    // T-238 (`FR-017`, MUST, 利用者の裁定 2026-09-03) says what each 段 prints:
-    // `TM-1` 年 prints `yyyy`; `TM-2` 月 prints `yyyy` over `m`; `TM-3` 週 prints
-    // `yyyy-mm` over `d`; `TM-4` 日 adds a 曜 under those two.
-    //
-    // ⛔ COUNTING THE TIERS CANNOT TELL THEM APART -- `TM-2` and `TM-3` both
-    // stand on two, one because the year and the month were split and one
-    // because they were folded and the week joined them.
-    // ⛔ NOR CAN THE SECOND LINE -- a bare month number and a bare day of the
-    // month are the same shape.
-    // ⭐ THE FIRST LINE IS WHERE THEY DIFFER: `yyyy` alone at the month 段 and
-    // `yyyy-mm` at the week and day ones, because FR-017 keeps the fold「畳みが
-    // 要るのは `TM-3` と `TM-4` だけであり」. tests/unit/uf-32-ruler-band.test.ts
-    // reached the same answer for the drawing helper, and a system test can take
-    // it too: these shapes are digits and a hyphen, and FR-017 (MUST NOT) says
-    // 「月を語で書いてはならない」exactly so that no language moves them.
-    // ⛔⛔ THIS CASE USED TO LOOK FOR ONE TIER OF `YYYY-MM`, which was the whole
-    // of the 2026-08-27 ruling and is now only `TM-3` and `TM-4`; the month 段
-    // it was waiting for stopped existing on 2026-09-03 and the case went red at
-    // its own precondition without the behaviour below ever being asked.
-    expect(
-      [
-        tierLine('TM-2', T238_FIRST_LINE),
-        tierLine('TM-2', T238_SECOND_LINE),
-        tierLine('TM-3', T238_FIRST_LINE),
-      ],
-      'table T-238 no longer prints `yyyy` over `m` at the month tier and `yyyy-mm` at the week ' +
-        'one, so the shapes this case tells the two apart by are no longer the table',
-    ).toEqual(['yyyy', 'm', 'yyyy-mm'])
-
-    const printsOnly = (line: RulerTier, shape: RegExp): boolean =>
-      line.words.length > 0 && line.words.every((said) => shape.test(said))
-    const monthly = (
-      lines: readonly RulerTier[],
-    ): { years: RulerTier; months: RulerTier } | null => {
-      if (lines.length !== 2) return null
-      const [years, months] = lines as [RulerTier, RulerTier]
-      // `yyyy` and not `yyyy-mm` on the first line, a bare number on the second.
-      if (!printsOnly(years, /^\d{4}$/) || !printsOnly(months, /^\d{1,2}$/)) return null
-      return { years, months }
-    }
-    // ⚠️ THE DRAWING IS SETTLED BEFORE IT IS READ. D-91 measured the ticks of a
-    // fresh stage arriving before any of its words; the reading below turns on
-    // the words, so a half-drawn frame would answer null and the loop would zoom
-    // past the stage it is looking for.
+    // ⭐ A DIAMOND AND NOT THE CIRCLE, because this case reads the polygons the
+    // canvas draws and 〇 is not one. Table T-109's IC-30 is 「同・◇」, and the
+    // figure is read out of that cell rather than typed as a row id.
+    const diamond = entranceBy(T109_PURPOSE, '◇')
     await readSettledDrawnSvg(page)
-    let seen = await rulerTiers(page)
-    let stage = monthly(seen)
-    for (let step = 0; step < 20 && stage === null; step += 1) {
-      expect(await pressEntrance(page, coarser), `${coarser} is not on the screen`).toBe(true)
-      await readSettledDrawnSvg(page)
-      seen = await rulerTiers(page)
-      stage = monthly(seen)
+
+    const startX = 700
+    const dragPx = 160
+    /**
+     * The shapes a gesture left behind that stand at `near`, of a size a task
+     * bar or a glyph has.
+     *
+     * ⛔ NOT SIMPLY THE WIDEST NEW ONE. A creation opens the Properties Panel on
+     * what it made (`FR-001` MUST, `FR-091`), the Row Area narrows, and every
+     * bar on the drawing is redrawn at a new x -- so the whole picture reads as
+     * new. What is looked for is a shape that stands where the hand was.
+     */
+    const madeNear = (
+      before: readonly string[],
+      after: readonly string[],
+      near: number,
+    ): number[][] =>
+      after
+        .filter((one) => !before.includes(one))
+        .map((one) => one.split(',').map(Number))
+        .filter((box) => Math.abs((box[0] ?? 0) - near) <= 40 && (box[3] ?? 0) > 8)
+
+    // ① THE CLICK, which is also how free ground is found. ⭐ A press that hit
+    // an item is not PD-4 and raises no telling, so the telling itself is the
+    // reading that says the ground was clear.
+    let ground: number | null = null
+    for (const y of [700, 660, 620, 560, 500, 440, 380, 320, 260, 740, 800, 860, 900, 940]) {
+      expect(await armEntrance(page, rectangle), `${rectangle} would not arm`).toBe(true)
+      const before = await drawnShapes(page)
+      await page.mouse.move(startX, y)
+      await page.mouse.down()
+      await page.mouse.up()
+      await page.waitForTimeout(900)
+      const standing = await standingNotices(page)
+      if (standing.sheets === 0) continue
+      const after = await drawnShapes(page)
+      // ⛔⛔ NOTHING WAS CREATED (MUST NOT, 利用者の裁定 2026-09-07): FR-001's
+      // 「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」.
+      expect(
+        after.length,
+        'a bar shape was armed and pressed without a drag, and the drawing changed',
+      ).toBe(before.length)
+      // ⛔ AND IT WAS TOLD (MUST): 「作らなかったことを告げること（MUST）」 --
+      // 「押しても何も起きない入口と見分けがつかなくなる。」
+      expect(
+        reasonsCarriedBy(standing.text),
+        `the notice says ${JSON.stringify(standing.text)} and carries no reason of table T-233`,
+      ).not.toEqual([])
+      ground = y
+      break
     }
     expect(
-      stage,
-      'the ruler never came to stand on the month tier of table T-238 -- `yyyy` on the first line ' +
-        'and a bare month number on the second -- so the stage FR-001 is about was never reached; ' +
-        `the band last stood on ${JSON.stringify(seen.map((one) => one.words.slice(0, 4)))}`,
+      ground,
+      'no height on the screen answered a bar press with the telling FR-001 (MUST) owes it, so ' +
+        'either no height was clear ground or the press was answered in silence',
     ).not.toBeNull()
-    if (stage === null) return
-    const { years, months: tier } = stage
+    if (ground === null) return
+    // NT-8 of table T-037: the person clears the notice, and `Enter` is one of
+    // the two keys that does it.
+    await page.keyboard.press('Enter')
+    await page.waitForTimeout(400)
 
-    // Each tick of the month line opens a month, and the number that follows it
-    // names that month. ⭐ THE YEAR IS NOT ON THAT LINE: `TM-2` gives it a line
-    // of its own, ticked once a year (measured: one tick, two words), so it
-    // cannot be paired tick for tick. What is taken is the year the leftmost
-    // tick stands in -- the first word of that line, which the drawing clamps to
-    // the view's left edge exactly as it clamps the first month -- and the
-    // roll-over from 12 to 1 carries the year on from there.
-    // ⛔ THIS CASE ONCE DEMANDED ONE NUMBER PER TICK, AND THE DRAWING NEVER
-    // OWED IT (measured 2026-09-07, ship build: 11 ticks, 12 numbers). `rulerSvg`
-    // emits one label per calendar month it walks and a tick only where the
-    // boundary really falls, holding the leftmost label at the band's edge when
-    // its boundary is off to the left -- so the labels lead the ticks by one
-    // whenever the view does not open exactly on a month boundary. ⭐ The year
-    // line above already showed the same shape (one tick, two words), which is
-    // why this reads the lead off the two counts instead of fixing it.
+    // ② THE DRAG, at the very point the click made nothing at.
+    expect(await armEntrance(page, rectangle), `${rectangle} would not arm`).toBe(true)
+    const beforeDrag = await drawnShapes(page)
+    await page.mouse.move(startX, ground)
+    await page.mouse.down()
+    await page.mouse.move(startX + dragPx, ground, { steps: 8 })
+    await page.mouse.up()
+    await page.waitForTimeout(900)
+    const drew = madeNear(beforeDrag, await drawnShapes(page), startX).sort(
+      (one, two) => (two[2] ?? 0) - (one[2] ?? 0),
+    )[0]
     expect(
-      tier.words.length,
-      `the month line is divided by ${tier.ticks.length} ticks and prints ${tier.words.length} ` +
-        'numbers; this case reads the number that follows each tick by position',
-    ).toBeGreaterThanOrEqual(tier.ticks.length)
-    const opening = Number(years.words[0] ?? '')
-    expect(
-      Number.isInteger(opening),
-      `the first line of the ruler prints ${JSON.stringify(years.words)}, and this case needs the ` +
-        'year its leftmost tick stands in',
-    ).toBe(true)
-    let running = opening
-    // The clamped leading label is the offset between the two lists: tick `at`
-    // opens the month named by word `at + lead`.
-    const lead = tier.words.length - tier.ticks.length
-    const months = tier.ticks.map((x, at) => {
-      const here = at + lead
-      const month = Number(tier.words[here] ?? '')
-      if (here > 0 && month < Number(tier.words[here - 1] ?? '')) running += 1
-      return {
-        x,
-        next: tier.ticks[at + 1] ?? null,
-        label: `${running}-${String(month).padStart(2, '0')}`,
-      }
-    })
-    const clamping = months.find((one, at) => {
-      if (one.next === null || !/^\d{4}-\d{2}$/.test(one.label)) return false
-      const [year, month] = one.label.split('-').map(Number) as [number, number]
-      const following = at + 1
-      return (
-        daysInMonth(year, month) === 31 &&
-        daysInMonth(month === 12 ? year + 1 : year, month === 12 ? 1 : month + 1) < 31 &&
-        months[following] !== undefined
-      )
-    })
-    expect(
-      clamping,
-      `the ruler shows ${months.map((one) => one.label).join(', ')}, and none of them has 31 days ` +
-        'with a shorter month after it -- there is nothing on the screen the clamp could apply to',
+      drew,
+      `a ${dragPx}px drag from x=${startX} drew no bar there, and FR-001 (MUST) has it make the ` +
+        'span that was drawn',
     ).not.toBeUndefined()
-    if (clamping === undefined || clamping.next === null) return
+    if (drew === undefined) return
+    // ⭐ THE SPAN IS THE ONE THAT WAS DRAWN. The bar snaps to whole day columns,
+    // so the width is held to a band around the drag rather than to the pixel --
+    // which is still far from the single day column the retired road made, and
+    // far from `S-49`'s minimum width.
+    expect(
+      drew[2] ?? 0,
+      `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is not the span that was drawn`,
+    ).toBeGreaterThan(dragPx * 0.6)
+    expect(drew[2] ?? 0).toBeLessThan(dragPx * 1.4)
+    // ⭐ AND THE TWO DATES ARE NOT ONE DAY, read off the Properties Panel rather
+    // than off the picture. FR-001 (MUST) leaves what was created selected, so
+    // the panel is already showing it; 「引いた期間のタスク」 has a period, and
+    // the answer this half keeps from coming back -- a task made by a press that
+    // drew nothing -- would show the retired road's own span instead.
+    const drawnDates = await panelDates(page)
+    expect(drawnDates, 'the task the drag made is not showing on the Properties Panel').not.toBeNull()
+    expect(
+      drawnDates?.start === drawnDates?.finish,
+      `the drag made a task from ${drawnDates?.start} to ${drawnDates?.finish}, which is one point`,
+    ).toBe(false)
 
-    const [year, month] = clamping.label.split('-').map(Number) as [number, number]
-    const pxPerDay = (clamping.next - clamping.x) / daysInMonth(year, month)
-
-    const made: Array<{ aimed: number; start: string; finish: string }> = []
-    for (const day of [15, 31]) {
-      expect(await pressEntrance(page, rectangle), `${rectangle} is not on the screen`).toBe(true)
-      const x = Math.round(clamping.x + (day - 1) * pxPerDay + pxPerDay / 2)
-      let read: { start: string; finish: string; name: string } | null = null
-      // ⚠️ THE HEIGHT IS SWEPT, NOT CHOSEN. `FR-001` makes a task only where the
-      // press falls on no item at all, and which heights are free depends on
-      // what the document draws; the first one that makes a shape is taken.
-      for (const y of [980, 940, 900, 860, 800, 740, 680, 620, 560, 500, 440, 380, 320, 260]) {
-        const before = await drawnShapes(page)
-        await page.mouse.move(x, y)
-        await page.mouse.down()
-        await page.mouse.up()
-        await page.waitForTimeout(900)
-        const after = await drawnShapes(page)
-        const fresh = after
-          .filter((one) => !before.includes(one))
-          .map((one) => one.split(',').map(Number))
-          .filter((box) => (box[2] ?? 0) > 20 && (box[3] ?? 0) > 6)
-          .sort((one, two) => (two[2] ?? 0) - (one[2] ?? 0))[0]
-        if (fresh === undefined) continue
-        const middle = { x: (fresh[0] ?? 0) + (fresh[2] ?? 0) / 2, y: (fresh[1] ?? 0) + (fresh[3] ?? 0) / 2 }
-        await doubleClickBar(page, middle)
-        read = await panelDates(page)
-        break
-      }
-      expect(read, `no press at x=${x} made a task, so the ${day}th was never asked for`).not.toBeNull()
-      if (read === null) return
-      made.push({ aimed: day, start: read.start, finish: read.finish })
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(400)
-    }
-
-    for (const one of made) {
-      expect(
-        one.start,
-        `the case aimed at the ${one.aimed}th of ${clamping.label} and the task starts on ` +
-          `${one.start}; the reading below would be about another day`,
-      ).toBe(`${clamping.label}-${String(one.aimed).padStart(2, '0')}`)
-      expect(
-        one.finish,
-        `a click on ${one.start} made a task ending on ${one.finish}; FR-001 (MUST) puts the end one ` +
-          'month on, at the last day of that month when the day itself is not in it, and (MUST NOT) ' +
-          'forbids spilling into the month after',
-      ).toBe(oneMonthOn(one.start))
-    }
-
-    // ⭐ THE TWO READINGS MUST DIFFER IN KIND, or the case has not shown a clamp.
-    const clamped = made.find((one) => one.aimed === 31)
-    const plain = made.find((one) => one.aimed === 15)
-    expect(clamped?.finish.slice(-2), 'the 31st was not clamped to the end of the following month').not.toBe('31')
-    expect(plain?.finish.slice(-2), 'the 15th was moved as well, so the clamp is not the rule it stands for').toBe(
-      '15',
-    )
+    // ③ THE MILESTONE, pressed and released on one point.
+    // ⚠️ A REFUSAL MAY STAND HERE AND IT IS NOT THIS CASE'S. The task ② made is
+    // selected, so arming a milestone also asks SP-2 to change its shape, which
+    // CM-20 refuses across 表 T-012's SH-1..SH-4 / SH-5 line -- and FR-083 (MUST)
+    // still stands the arm up. The notices are cleared rather than read.
+    expect(await armEntrance(page, diamond), `${diamond} would not arm`).toBe(true)
+    await page.keyboard.press('Enter')
+    await page.waitForTimeout(400)
+    const milestoneX = startX + dragPx + 260
+    const beforeMilestone = await drawnShapes(page)
+    await page.mouse.move(milestoneX, ground)
+    await page.mouse.down()
+    await page.mouse.up()
+    await page.waitForTimeout(900)
+    expect(
+      madeNear(beforeMilestone, await drawnShapes(page), milestoneX).length,
+      'a milestone armed and pressed put nothing where the press was, and FR-001 (MUST) has the ' +
+        'press alone place it',
+    ).toBeGreaterThan(0)
   } finally {
     await opened.close()
   }

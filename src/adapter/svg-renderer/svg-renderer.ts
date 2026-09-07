@@ -262,6 +262,35 @@ const FADE_HANDLE_FILL_COLOUR = '#ffffff'
 /** The other half of the same missing row. See `FADE_HANDLE_FILL_COLOUR`. @provisional PD-1 */
 const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
+/**
+ * How far past each side edge of the `Row Area` a figure still counts as worth
+ * writing, as a multiple of that area's own width. The sideways half of the
+ * cull `skipsOffScreen` states; the up-and-down half takes the area's own
+ * HEIGHT and needs no number at all, because a row's figures stand in that
+ * row's band.
+ *
+ * ⭐ 1.5 IS THE AUTHOR'S OWN NUMBER, ruled 2026-09-07: a little margin is owed
+ * for the assignee and the name, and one and a half screens on each side is
+ * plenty. ⛔ IT IS NOT A QUOTATION FROM docs/spec, and no row of it states a
+ * margin -- sideways the band is NOT the whole of a Task's ink, because NL-3 of
+ * table T-013 puts the name label outside the bar, GR-11 hangs the assignee off
+ * it and the percent label sits beside it, so the bar's own rectangle is too
+ * tight a test and how much to add was a ruling rather than a measurement.
+ *
+ * ⛔ NO SETTINGS ROW IS INVENTED FOR IT, and none may be. The value decides
+ * nothing a reader can see: everything inside the window is drawn either way,
+ * and a document that carried the number would let one machine's saved file
+ * change how much another machine declines to write. ⛔ It is also NOT a
+ * measurement of how far a label can overhang -- no row of docs/spec states
+ * one -- so it is written here as what it is, a margin generous enough that
+ * the question does not arise.
+ *
+ * ⚠️ WIDTH AND NOT A FIXED PX. `MC-6` of table T-025 is one screen and the
+ * application is drawn on others; a margin tied to the area is the same margin
+ * on all of them.
+ */
+const OFF_SCREEN_SIDE_MARGIN = 1.5
+
 /** @purity pure */
 function escaped(text: string): string {
   return text
@@ -1698,10 +1727,27 @@ export function svgFromSchedule(
    * the marker and the fade handles are all placed down that same band, so
    * nothing of one row overshoots it by a whole screen. A row taller than the
    * area is never dropped -- its band crosses the window by definition.
+   *
+   * ⭐⭐ AND THE SAME QUESTION SIDEWAYS, which this cull did not ask until
+   * 2026-09-07 and which is where most of the waste was. Measured on the
+   * shipped document at 1000 `Task`, 1920x1080, the view a fresh start opens
+   * at: 1,317 keyed figures written, 264 of them touching the window, 870
+   * standing WHOLLY off its right-hand edge and 183 with no size at all. The
+   * up-and-down test above had already cut the picture to eight rows; every
+   * one of those 870 belongs to a row that IS drawn and to a bar the time axis
+   * has carried off the screen. ⛔ Judging a Task by its row alone is judging
+   * one axis of a two-axis picture.
+   *
+   * ⛔ THE HORIZONTAL MARGIN IS NOT THE AREA'S OWN WIDTH. Sideways a figure
+   * really does overshoot its bar -- see `OFF_SCREEN_SIDE_MARGIN`, which
+   * carries the author's number and the reason it is not a settings row.
    */
   const skipsOffScreen = picture === 'screen'
   const drawnFrom = area.y - area.height
   const drawnTo = areaBottom + area.height
+  const sideMargin = area.width * OFF_SCREEN_SIDE_MARGIN
+  const drawnLeftOf = area.x - sideMargin
+  const drawnRightOf = area.x + area.width + sideMargin
   for (const [position, row] of layout.rows.entries()) {
     const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
@@ -1799,12 +1845,34 @@ export function svgFromSchedule(
     // it, so this is the stretch every figure below is placed within.
     // ⛔ A Task with no placement is never dropped: `placedOf` is the only
     // answer to where it stands, and without one there is nothing to ask.
-    if (
-      skipsOffScreen &&
-      placed !== undefined &&
-      (placed.y + placed.height < drawnFrom || placed.y > drawnTo)
-    ) {
-      continue
+    // ⭐ AND THE SIDEWAYS HALF, asked of the WIDER of this Task's two shapes --
+    // a Task is worth writing when EITHER the plan or the actual reaches the
+    // range (author's ruling, 2026-09-07). `TaskPlacement` already carries
+    // both spans in drawn px -- `x`/`width` is the plan shape as it is painted
+    // (a milestone centred on its day, a short bar floored to `minShapeWidth`)
+    // and `actualX`/`actualWidth` the actual -- so nothing is re-derived here
+    // and no date is read.
+    // ⛔ `actualX` IS NULLABLE AND MEANS THE TASK HAS NO ACTUAL YET, not zero:
+    // taken as a number it would drag the left edge to the day the axis starts
+    // at and the test would never fire.
+    // ⚠️ ONE `continue` FOR BOTH AXES, because they are one question -- which
+    // range this frame has to compute -- and a Task outside on either axis is
+    // outside.
+    if (skipsOffScreen && placed !== undefined) {
+      const barLeft =
+        placed.actualX === null ? placed.x : Math.min(placed.x, placed.actualX)
+      const barRight =
+        placed.actualX === null
+          ? placed.x + placed.width
+          : Math.max(placed.x + placed.width, placed.actualX + placed.actualWidth)
+      if (
+        placed.y + placed.height < drawnFrom ||
+        placed.y > drawnTo ||
+        barRight < drawnLeftOf ||
+        barLeft > drawnRightOf
+      ) {
+        continue
+      }
     }
     // D-316: the stem every figure of this Task is named from. `taskUid` is
     // the document's own identifier for it (MSPDI's UID, table T-058), so it
@@ -2154,14 +2222,23 @@ export function svgFromSchedule(
     // drawn.
     // ⚠️ AFTER the head is minted, so the `<marker>` GD-6 asks for is written
     // exactly when it was before this change.
+    // ⭐ BOTH AXES, and the sideways one for the same reason the up-and-down
+    // one is not asked of the two ends' rows: a line between two Tasks a screen
+    // apart CROSSES the window with neither end in it, so the test is the
+    // polyline's own rectangle and never its endpoints'.
     if (skipsOffScreen) {
       let linkTop = Number.POSITIVE_INFINITY
       let linkBottom = Number.NEGATIVE_INFINITY
+      let linkLeft = Number.POSITIVE_INFINITY
+      let linkRight = Number.NEGATIVE_INFINITY
       for (const at of link.points) {
         if (at.y < linkTop) linkTop = at.y
         if (at.y > linkBottom) linkBottom = at.y
+        if (at.x < linkLeft) linkLeft = at.x
+        if (at.x > linkRight) linkRight = at.x
       }
       if (linkBottom < drawnFrom || linkTop > drawnTo) continue
+      if (linkRight < drawnLeftOf || linkLeft > drawnRightOf) continue
     }
     // SL-8 (MUST NOT): a selected dependency is NOT framed. It is the same
     // polyline at S-178 times `dependencyWidth`.

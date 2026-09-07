@@ -1812,54 +1812,6 @@ const S_208_PRESS_OR_DRAG = (() => {
   return Number(found[0])
 })()
 
-/** A day serial back as the text a date column is spelled with. */
-const dayTextOf = (serial: number): string =>
-  new Date(serial * MS_PER_DAY).toISOString().slice(0, 10)
-
-/**
- * One unit of the finest tier a ruler at this px/day is ruling, in days.
- *
- * FR-001 (MUST): 「段は `_assets/tbl-settings.md` の 表 T-205 の `S-83` /
- * `S-84` / `S-85` が px/日 で切り替える（26 以上で 日、4.3〜26 で 週、1.4〜4.3 で
- * 月、1.4 未満で 年）」.
- *
- * ⛔⛔ THE MONTH AND THE YEAR ARE REFUSED RATHER THAN GUESSED AT. Nothing in
- * docs/spec says which day 「1 単位」 lands on when the day pressed has no
- * counterpart a month or a year on -- the 31st, or the 29th of February -- so a
- * case driven at those tiers would be asserting a rule this file had made up.
- */
-function unitInDaysOf(pxPerDay: number): number {
-  const flat = SETTINGS as unknown as Record<string, number>
-  if (pxPerDay >= (flat['rulerTierPxPerDayDay'] as number)) return 1
-  if (pxPerDay >= (flat['rulerTierPxPerDayWeek'] as number)) return 7
-  throw new Error(
-    `at ${pxPerDay}px a day the ruler is ruling months or years, and no row of docs/spec ` +
-      'says what one unit of those is when the day pressed has no counterpart',
-  )
-}
-
-const ONE_UNIT_IN_DAYS = unitInDaysOf(LAYOUT.pxPerDay)
-
-/** The same fixture zoomed until the ruler rules DAYS (`S-85`: 26 以上で 日). */
-const AT_THE_DAY_TIER = (() => {
-  const settings = settingsOf({ ...(SETTINGS as unknown as Record<string, unknown>), zoomX: 8 })
-  const regions = regionsFromScreen(ENV, settings)
-  const layout = layoutFromSchedule(SCHEDULE, settings, regions)
-  const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection())
-  const rowOfIt = (groupId: string) => {
-    const row = layout.rows.find((one) => one.groupId === groupId)
-    if (row === undefined) throw new Error(`no row ${groupId} in the zoomed layout`)
-    return row
-  }
-  return {
-    layout,
-    context: { layout, regions, geometry } as Partial<InputContext>,
-    xOfDay: (text: string): number =>
-      layout.originX + (serialOf(text) - ORIGIN_SERIAL) * layout.pxPerDay,
-    midYOfRow: (groupId: string): number => rowOfIt(groupId).y + rowOfIt(groupId).height / 2,
-  }
-})()
-
 describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
   const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
 
@@ -1911,277 +1863,142 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
   })
 
   // =========================================================================
-  // CR-338 -- WHAT A PRESS ON EMPTY GROUND MAKES.
+  // CR-338 / the ruling of 2026-09-07 -- WHAT A PRESS ON EMPTY GROUND MAKES.
   //
-  // ⛔⛔ THE CLAUSE THESE CASES USED TO ASSERT IS WITHDRAWN. FR-001 says so
-  // itself (docs/spec/01-04-requirements.md:943): 「⛔⛔ **2026-09-02 まで
-  // 「ドラッグせずにクリックしたとき、および期間が 1 日に満たないドラッグのとき
-  // は、開始日と終了日が同じタスクを作ること（MUST）」と定めていた** —— **同じ
-  // 手つきが 2 つの意味を持ち、形が要る入力を自分で言っていなかった。**」
+  // ⛔⛔ A BAR SHAPE CLICKED MAKES NOTHING. FR-001's STATEMENT
+  // (docs/spec/01-04-requirements.md, FR-001 / FR-083):
+  //   「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」
+  //   「タスクは期間を持つものであり、引いていない押下はその期間を言っていない。」
+  //   「作らなかったことを告げること（MUST）」 -- 「押しても何も起きない入口と見分け
+  //   がつかなくなる。」
+  // ⚠️ FR-083's RATIONALE USED TO CARRY A SECOND COPY OF THE SAME MUST NOT and
+  // no longer does (2026-09-08): the duplication detector caught the pair, and
+  // 表 T-051 の `HF-14` states the rule it broke. FR-083 now points at FR-001
+  // for what a press without a drag makes, so this file cites FR-001 alone.
   //
-  // ⭐⭐ WHAT STANDS IN ITS PLACE, in the same STATEMENT (利用者の裁定 2026-09-02):
-  //   「⭐⭐ **`_assets/tbl-settings.md` の 表 T-206 の `S-208` を超えて動いた
-  //    ときをドラッグとし、超えないときをクリックとすること（MUST）** —— **同じ
-  //    手の動きに同じ値を使い、行の掴みと別に持たない。**」
-  //   「⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、
-  //    引いた期間のタスクを作ること（MUST）。**」
-  //   「⭐⭐ **クリックしたときは、押した日を起点に、いま目盛が刻んでいる最も
-  //    細かい段の 1 単位ぶんのタスクを作ること（MUST）** …… **段は …… 表 T-205 の
-  //    `S-83` / `S-84` / `S-85` が px/日 で切り替える**（26 以上で 日、4.3〜26 で
-  //    週、1.4〜4.3 で 月、1.4 未満で 年）。⚠️ **上限は置かない** —— **見えている
-  //    マス目 1 つ分であり、画面と一致する。**」
+  // ⭐ WHAT STILL STANDS, in the same STATEMENT:
+  //   「引いた期間のタスクを作ること（MUST）」 for a bar shape DRAGGED.
+  //   「マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと
+  //    （MUST）」, and 「引いたことを理由に拒んではならない（MUST NOT）」.
+  //   「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとすること
+  //    （MUST）」, now read only to tell a drag from a click.
   //
-  // ⛔ WHAT IS NOT ASSERTED, AND IS A FINDING RATHER THAN A GUESS: WHAT ONE UNIT
-  // OF THE MONTH OR THE YEAR TIER IS. Neither FR-001 nor any row of docs/spec
-  // says what 「1 単位」 lands on when the pressed day has no counterpart a month
-  // on -- the 31st of a month, or the 29th of February. `unitInDaysOf` below
-  // therefore REFUSES those two tiers instead of choosing a rule, and every case
-  // here is driven at a zoom that rules days or weeks, where one unit is a whole
-  // number of days for every day of the calendar.
+  // ⚠️ THE TIER NO LONGER MATTERS TO ANY OF THIS, and that is why the cases that
+  // used to zoom to the day, week and month bands are gone: a click makes no
+  // task at any zoom, so there is no unit of a band to work out and no calendar
+  // to clamp against.
   // =========================================================================
 
-  it('⭐ FR-001 (MUST): a click makes ONE unit of the tier the ruler is ruling, starting at the day pressed', () => {
-    // ⭐ THE FIXTURE'S TIER IS READ, NEVER ASSUMED: `unitInDaysOf` puts
-    // `LAYOUT.pxPerDay` against S-83 / S-84 / S-85, which is what FR-001 says
-    // decides the tier. ⛔ And the SPAN one unit makes is not spelled out here
-    // either -- FR-001 states the dragged span in its own sentence, so the click
-    // is held to the task a drag of exactly one unit makes, and no convention
-    // about which end `finish` names is invented in this file.
+  it('⛔⛔ FR-001 / FR-083 (MUST NOT): a bar shape armed and CLICKED makes no Task, and (MUST) says so', () => {
+    // ⭐ THE DISCRIMINATION THIS BUYS. Until 2026-09-07 this very press made a
+    // task one tier-unit long, so an implementation that kept that road alive
+    // -- or that reached for the drag's own two days and made a zero-length
+    // task -- fails on the first expectation. ⛔ AND AN IMPLEMENTATION THAT
+    // MERELY WENT SILENT FAILS ON THE LAST: an answer that consumes the press
+    // and carries no reason (action `null`) is exactly 「押しても何も起きない入口」,
+    // which the clause forbids by name.
     const y = midYOfRow('g3')
-    const pressedDay = '2026-01-04'
-    const oneUnitOn = dayTextOf(serialOf(pressedDay) + ONE_UNIT_IN_DAYS)
-
-    const clicked = oneCommand(
-      gestureAction(
-        pointerOf('down', xOfDay(pressedDay), y),
-        pointerOf('up', xOfDay(pressedDay), y),
-        null,
-        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
-      ),
-      'createTask',
-    )
-    const draggedOneUnit = oneCommand(
-      gestureAction(
-        pointerOf('down', xOfDay(pressedDay), y),
-        pointerOf('up', xOfDay(oneUnitOn), y),
-        null,
-        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
-      ),
-      'createTask',
-    )
-
-    // 「押した日を起点に」.
-    expect(String(clicked['start']).slice(0, 10)).toBe(pressedDay)
-    // 「…… 最も細かい段の 1 単位ぶんのタスクを作ること（MUST）」.
-    expect(clicked['start']).toBe(draggedOneUnit['start'])
-    expect(clicked['finish']).toBe(draggedOneUnit['finish'])
-    // ⛔ AND THE WITHDRAWN CLAUSE IS NOT QUIETLY STILL TRUE. At this zoom the
-    // ruler is ruling weeks, so one unit is seven days and a click that still
-    // made 「開始日と終了日が同じタスク」 would be the old rule surviving its own
-    // withdrawal. ⚠️ The guard is written as the unit rather than as 7 so that a
-    // fixture moved into the day band fails loudly instead of asserting nothing.
-    expect(ONE_UNIT_IN_DAYS, 'this case is being driven at the day tier').toBeGreaterThan(1)
-    expect(clicked['finish']).not.toBe(clicked['start'])
+    const at = xOfDay('2026-01-04')
+    for (const shapeKind of ['rectangle', 'chevron', 'arrow', 'endpointSpan'] as const) {
+      const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+        screenState: armedWith({ kind: 'taskShape', shapeKind }),
+      })
+      expect(kindsOf(answer), shapeKind).not.toContain('createTask')
+      expect(kindsOf(answer), shapeKind).toEqual([])
+      expect(answer.action?.kind, shapeKind).toBe('tellEntryHasNothingToDo')
+    }
   })
 
-  it('⭐ FR-001 (MUST): at a zoom that rules DAYS, that one unit is one day', () => {
-    // ⭐ THE SAME MUST, AT THE OTHER TIER THIS FILE CAN REACH WITHOUT A CALENDAR
-    // QUESTION: 「26 以上で 日」, so one unit is one day and the task the click
-    // makes is the one a drag across a single day column makes.
-    const flat = SETTINGS as unknown as Record<string, number>
-    expect(
-      AT_THE_DAY_TIER.layout.pxPerDay,
-      'the zoomed fixture no longer rules days',
-    ).toBeGreaterThanOrEqual(flat['rulerTierPxPerDayDay'] as number)
+  it('⭐ FR-001 (MUST): a bar shape DRAGGED still makes the span that was drawn', () => {
+    // ⭐ THE DISCRIMINATION THIS BUYS. It is the other half of the case above:
+    // an implementation that read the ruling as "a bar makes nothing" and
+    // refused every bar press fails here, because 「引いた期間のタスクを作ること
+    // （MUST）」 is untouched. ⚠️ Both ends are asserted, so a drag that made SOME
+    // task of the wrong span does not pass either.
+    const y = midYOfRow('g3')
+    const made = oneCommand(
+      gestureAction(
+        pointerOf('down', xOfDay('2026-01-04'), y),
+        pointerOf('up', xOfDay('2026-01-11'), y),
+        null,
+        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+      ),
+      'createTask',
+    )
+    expect(String(made['start']).slice(0, 10)).toBe('2026-01-04')
+    expect(String(made['finish']).slice(0, 10)).toBe('2026-01-11')
+  })
 
-    const y = AT_THE_DAY_TIER.midYOfRow('g3')
-    const at = AT_THE_DAY_TIER.xOfDay('2026-01-04')
+  it('⭐⭐ FR-001 (MUST): a milestone arm is still placed by the press alone, and a drag is not refused', () => {
+    // ⭐ THE DISCRIMINATION THIS BUYS, and it is the exemption the ruling states
+    // in as many words -- 「マイルストーンは本禁止の対象外である」. An implementation
+    // that put the new MUST NOT in front of the whole armed branch, rather than
+    // in front of the bar shapes alone, makes nothing here and fails on the
+    // click. ⛔ The drag is asserted beside it because 「引いたことを理由に拒んでは
+    // ならない（MUST NOT）」: a milestone road that borrowed the bar's drag test
+    // would refuse the press people actually make. ⚠️ Both dates are the PRESSED
+    // day either way (表 T-012's SH-5 is a point), so the dragged case also pins
+    // that the release is not read.
+    const y = midYOfRow('g3')
+    const at = xOfDay('2026-01-04')
     const clicked = oneCommand(
       gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-        ...AT_THE_DAY_TIER.context,
-        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }),
       }),
       'createTask',
     )
-    const draggedOneDay = oneCommand(
-      gestureAction(
-        pointerOf('down', at, y),
-        pointerOf('up', AT_THE_DAY_TIER.xOfDay('2026-01-04') + 1, y),
-        null,
-        {
-          ...AT_THE_DAY_TIER.context,
-          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
-        },
-      ),
-      'createTask',
-    )
-
+    expect(clicked['shapeKind']).toBe('milestone')
     expect(String(clicked['start']).slice(0, 10)).toBe('2026-01-04')
-    expect(clicked['start']).toBe(draggedOneDay['start'])
-    expect(clicked['finish']).toBe(draggedOneDay['finish'])
-  })
+    expect(String(clicked['finish']).slice(0, 10)).toBe('2026-01-04')
 
-  // =========================================================================
-  // CR-341 (ledger row D-210) -- THE CALENDAR QUESTION THE BLOCK ABOVE REFUSED
-  // TO GUESS AT IS NOW ANSWERED BY docs/spec, so it is asserted rather than
-  // filed as a hole. FR-001's STATEMENT, verbatim (利用者に問わずに決めた
-  // 2026-09-03, and the rule the ruling of 2026-09-02 needed to be complete):
-  //
-  //   ⛔⛔ 「**1 単位を足した先が暦に無い日になるときは、その月の末日とすること
-  //    （MUST）**」 —— 「**月の段で 1 月 31 日を押すと、1 か月後はどの暦にも無い。**」
-  //   ⛔ 「**翌月へこぼしてはならない（MUST NOT）**」 —— 「**こぼすと、押したマス目
-  //    より 1 つ多い期間になり、直前の「見えているマス目 1 つ分であり、画面と一致
-  //    する」を破る。**」
-  //   ⚠️ 「**年の段でも同じことが起きる**（2 月 29 日の 1 年後）—— **同じ規則で足りる。**」
-  // =========================================================================
-
-  /**
-   * The same fixture zoomed until the ruler rules MONTHS.
-   *
-   * ⭐ THE BAND IS READ, NEVER TYPED. FR-001 states the switch -- 「26 以上で 日、
-   * 4.3〜26 で 週、1.4〜4.3 で 月、1.4 未満で 年」 -- and 表 T-205's `S-83` /
-   * `S-84` / `S-85` hold those figures, so the zoom is aimed at the middle of
-   * the month band as the settings themselves state it. ⛔ The case below then
-   * asserts the fixture really landed there; a zoom that missed fails loudly
-   * instead of asserting the week tier's answer under a month tier's name.
-   */
-  const AT_THE_MONTH_TIER = (() => {
-    const flat = SETTINGS as unknown as Record<string, number>
-    const floor = flat['rulerTierPxPerDayMonth'] as number
-    const ceiling = flat['rulerTierPxPerDayWeek'] as number
-    const aimedAt = (floor + ceiling) / 2
-    const zoomX = (SETTINGS.zoomX * aimedAt) / LAYOUT.pxPerDay
-    const settings = settingsOf({ ...(SETTINGS as unknown as Record<string, unknown>), zoomX })
-    const regions = regionsFromScreen(ENV, settings)
-    const layout = layoutFromSchedule(SCHEDULE, settings, regions)
-    const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection())
-    const rowOfIt = (groupId: string) => {
-      const row = layout.rows.find((one) => one.groupId === groupId)
-      if (row === undefined) throw new Error(`no row ${groupId} in the month-tier layout`)
-      return row
-    }
-    return {
-      layout,
-      floor,
-      ceiling,
-      context: { layout, regions, geometry } as Partial<InputContext>,
-      /** The middle of the column a day is drawn in -- at ~3px a day, an edge is not a safe aim. */
-      midXOfDay: (text: string): number =>
-        layout.originX + (serialOf(text) - ORIGIN_SERIAL + 0.5) * layout.pxPerDay,
-      midYOfRow: (groupId: string): number => rowOfIt(groupId).y + rowOfIt(groupId).height / 2,
-    }
-  })()
-
-  it('⭐⭐ FR-001 (MUST): at the MONTH tier, one unit from the 31st is the last day of the month it lands in', () => {
-    // ⭐ THE DAY PRESSED IS THE ONE FR-001 ITSELF NAMES: 「月の段で 1 月 31 日を押す
-    // と、1 か月後はどの暦にも無い」. February 2026 has 28 days, so 「その月の末日」
-    // is the 28th -- and 「翌月へこぼしてはならない（MUST NOT）」 rules out the 3rd
-    // of March, which is where a plain 31-days-on or a rolled-over month lands.
-    expect(
-      AT_THE_MONTH_TIER.layout.pxPerDay,
-      'the zoomed fixture is not ruling months',
-    ).toBeGreaterThanOrEqual(AT_THE_MONTH_TIER.floor)
-    expect(AT_THE_MONTH_TIER.layout.pxPerDay).toBeLessThan(AT_THE_MONTH_TIER.ceiling)
-
-    const y = AT_THE_MONTH_TIER.midYOfRow('g3')
-    const pressedDay = '2026-01-31'
-    const lastDayOfTheMonthItLandsIn = '2026-02-28'
-    const at = AT_THE_MONTH_TIER.midXOfDay(pressedDay)
-
-    const clicked = oneCommand(
-      gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-        ...AT_THE_MONTH_TIER.context,
-        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+    const drawn = oneCommand(
+      gestureAction(pointerOf('down', at, y), pointerOf('up', xOfDay('2026-01-11'), y), null, {
+        screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }),
       }),
       'createTask',
     )
-
-    // 「押した日を起点に」.
-    expect(String(clicked['start']).slice(0, 10)).toBe(pressedDay)
-    // ⛔ 「翌月へこぼしてはならない（MUST NOT）」 -- the half that is checkable
-    // without knowing which end `finish` names: whatever it is, it is in
-    // February.
-    expect(
-      String(clicked['finish']).slice(0, 7),
-      'FR-001 (MUST NOT): one unit from the 31st of January spilled past February',
-    ).toBe('2026-02')
-    // ⭐ 「その月の末日とすること（MUST）」.
-    expect(String(clicked['finish']).slice(0, 10)).toBe(lastDayOfTheMonthItLandsIn)
-
-    // ⭐ AND THE SPAN IS STILL THE ONE A DRAG OF THAT LENGTH MAKES, so no
-    // convention about which end `finish` names is invented in this file --
-    // the same technique the two cases above use.
-    const draggedThere = oneCommand(
-      gestureAction(
-        pointerOf('down', at, y),
-        pointerOf('up', AT_THE_MONTH_TIER.midXOfDay(lastDayOfTheMonthItLandsIn), y),
-        null,
-        {
-          ...AT_THE_MONTH_TIER.context,
-          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
-        },
-      ),
-      'createTask',
-    )
-    expect(clicked['start']).toBe(draggedThere['start'])
-    expect(clicked['finish']).toBe(draggedThere['finish'])
-  })
-
-  it('⭐ FR-001 (MUST): at the MONTH tier, a day that HAS a counterpart keeps it', () => {
-    // ⛔ WITHOUT THIS, AN ANSWER THAT CLAMPED EVERY MONTH-TIER CLICK TO THE END
-    // OF THE FOLLOWING MONTH WOULD PASS THE CASE ABOVE. 「1 単位を足した先が暦に
-    // 無い日になるときは」 is a condition, not a rule for every day: the 15th of
-    // January has a counterpart a month on, and the clamp must leave it alone.
-    const y = AT_THE_MONTH_TIER.midYOfRow('g3')
-    const at = AT_THE_MONTH_TIER.midXOfDay('2026-01-15')
-    const clicked = oneCommand(
-      gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-        ...AT_THE_MONTH_TIER.context,
-        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
-      }),
-      'createTask',
-    )
-    expect(String(clicked['start']).slice(0, 10)).toBe('2026-01-15')
-    expect(String(clicked['finish']).slice(0, 10)).toBe('2026-02-15')
+    expect(String(drawn['start']).slice(0, 10)).toBe('2026-01-04')
+    expect(String(drawn['finish']).slice(0, 10)).toBe('2026-01-04')
   })
 
   it('⭐ FR-001 (MUST): S-208, and nothing else, is where a press stops being a click and becomes a drag', () => {
-    // 「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとする
-    // こと（MUST）」 -- 超えて is STRICTLY beyond, so a movement of exactly S-208
-    // is still a click. ⭐ THE CASE THAT USED TO STAND HERE MEASURED THE MOVEMENT
-    // IN DAYS (「a drag shorter than one day」); CR-338 withdrew that reading, and
-    // the boundary is a distance in px that knows nothing of the calendar.
+    // 「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとすること
+    // （MUST）」 -- 超えて is STRICTLY beyond, so a movement of exactly S-208 is
+    // still a click. ⭐ THE CASE NOW READS THE BOUNDARY OFF WHETHER ANYTHING WAS
+    // CREATED rather than off which span was created: below the line nothing is
+    // made and the telling is raised, above it the dragged task appears.
+    // ⭐ THE DISCRIMINATION THIS BUYS. An implementation that used >= instead of
+    // > makes a task at exactly S-208 and fails the first half; one that carried
+    // a threshold of its own (a day column, say, rather than 表 T-206's px)
+    // fails the second half, because this fixture draws a day at exactly S-208
+    // px and the two readings part company one pixel later.
     const y = midYOfRow('g3')
     const at = xOfDay('2026-01-04')
-    const madeBy = (dx: number): Readonly<Record<string, unknown>> =>
-      oneCommand(
-        gestureAction(pointerOf('down', at, y), pointerOf('up', at + dx, y), null, {
-          screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
-        }),
-        'createTask',
-      )
+    const answerFor = (dx: number): TranslatedInput =>
+      gestureAction(pointerOf('down', at, y), pointerOf('up', at + dx, y), null, {
+        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+      })
 
-    const clicked = madeBy(0)
     // ⭐ ON THE LINE IS STILL A CLICK, and this fixture makes the reading sharp:
     // one day is S-208 px wide here, so a movement of exactly S-208 lands in the
-    // NEXT day's column and STILL makes the click's task, from the day pressed.
+    // NEXT day's column and is STILL no drag.
     expect(LAYOUT.pxPerDay, 'the fixture no longer draws a day at S-208 px').toBe(
       S_208_PRESS_OR_DRAG,
     )
-    expect(madeBy(S_208_PRESS_OR_DRAG)['start']).toBe(clicked['start'])
-    expect(madeBy(S_208_PRESS_OR_DRAG)['finish']).toBe(clicked['finish'])
+    for (const dx of [0, S_208_PRESS_OR_DRAG]) {
+      expect(kindsOf(answerFor(dx)), `${dx}px`).toEqual([])
+      expect(answerFor(dx).action?.kind, `${dx}px`).toBe('tellEntryHasNothingToDo')
+    }
 
     // ⛔ ONE PIXEL BEYOND IT IS A DRAG, and 「引いた期間のタスクを作ること（MUST）」
-    // gives the dragged span instead of the tier's unit.
-    const justBeyond = madeBy(S_208_PRESS_OR_DRAG + 1)
+    // makes the span that was drawn.
+    const justBeyond = oneCommand(answerFor(S_208_PRESS_OR_DRAG + 1), 'createTask')
     expect(String(justBeyond['start']).slice(0, 10)).toBe('2026-01-04')
     expect(String(justBeyond['finish']).slice(0, 10)).toBe('2026-01-05')
-    expect(justBeyond['finish']).not.toBe(clicked['finish'])
 
-    const dragged = madeBy(2 * S_208_PRESS_OR_DRAG)
+    const dragged = oneCommand(answerFor(2 * S_208_PRESS_OR_DRAG), 'createTask')
     expect(String(dragged['start']).slice(0, 10)).toBe('2026-01-04')
     expect(String(dragged['finish']).slice(0, 10)).toBe('2026-01-06')
-    expect(dragged['finish']).not.toBe(clicked['finish'])
   })
 
   it('FR-001 (MUST): a drag on no row at all names the row that has to be made', () => {
@@ -2390,19 +2207,31 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
   })
 
   it('MK-11 only bites when nothing is armed (FR-083 note)', () => {
-    // With a shape armed, a click on empty ground is PD-4 and makes a Task of
-    // zero length, so the selection is not the answer being asked for.
+    // 「`MK-11` は構えていないときにだけ効く」 -- with a shape armed, a click on
+    // empty ground is PD-4 and not PD-5, so the selection is not the answer
+    // being asked for.
+    // ⭐ THE DISCRIMINATION THIS BUYS, AND WHY IT NO LONGER READS `createTask`.
+    // Until 2026-09-07 the armed click made a task, and that WAS the mark of
+    // PD-4; the ruling of that day took the task away but not the road. So the
+    // two roads are told apart by what PD-4 now owes -- FR-001's 「作らなかった
+    // ことを告げること（MUST）」 -- while a bare click on nothing (PD-5) is the
+    // selection's alone and answers no action at all. ⛔ An implementation that
+    // let MK-11 swallow the armed press would answer `null` here and fail.
     const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
     const at = xOfDay('2026-01-20')
     const y = midYOfRow('g4')
-    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+    const armedAnswer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
       selection: held,
       screenState: screenStateWithArmed(emptyScreenState(), {
         kind: 'taskShape',
         shapeKind: 'rectangle',
       }),
     })
-    expect(kindsOf(answer)).toContain('createTask')
+    expect(armedAnswer.action?.kind).toBe('tellEntryHasNothingToDo')
+    const bare = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+      selection: held,
+    })
+    expect(bare.action).toBeNull()
   })
 
   it('SL-7 (MUST): a body drag moves every selected Task', () => {

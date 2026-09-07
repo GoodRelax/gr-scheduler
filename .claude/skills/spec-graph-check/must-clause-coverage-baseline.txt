@@ -1,4 +1,22 @@
-967
+960
+#
+# LOWERED 967 -> 960 ON 2026-09-08 by the two rulings of 2026-09-07
+# (「トグルにせよ。 ユーザーに選択肢がある。」 and 「タスクはドラッグ必須。」).
+# A spec-only body holds THIRTEEN clauses verbatim in
+# tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts (36 cases), and
+# every one of them is PRESSED as well as held -- including the two controls
+# that stop the easy wrong builds passing: a different entrance still arms
+# while a selection stands, and a milestone pressed without travel is still
+# placed and still tells nobody.
+# ⛔ ONE CLAUSE OF THAT NEIGHBOURHOOD CANNOT EVER BE HELD, and the body
+# measured why rather than skipping it: 表 T-023b's 「構えは持続すること
+# （MUST）」 starts a paragraph with only 17 characters before its marker, and
+# this check's shortest window is 28 -- so every window reaches back across a
+# blank line, which no single string literal can carry. The file says so in
+# its header and presses the rule anyway.
+# ⚠️ ALSO MEASURED: FR-083's milestone exemption is written
+# （MUST NOT 適用しない）, which this check's marker regex does not match. That
+# exemption is invisible to the count -- a bare-clause list is not complete.
 #
 # LOWERED 972 -> 967 ON 2026-09-07 by the row axis: the ceiling and the row
 # anchor landed, and their anchors in tests/system/user-reported-fixes.test.ts

@@ -2618,6 +2618,17 @@
    }
   },
   {
+   "rowId": "RS-53",
+   "text": {
+    "ja": "\u30bf\u30b9\u30af\u306f\u671f\u9593\u3092\u6301\u3064\u306e\u3067\u3001\u5f15\u304b\u306a\u3044\u3068\u4f5c\u308c\u307e\u305b\u3093",
+    "en": "A task has a span, so it is not created without a drag"
+   },
+   "nextStep": {
+    "ja": "\u59cb\u3081\u308b\u65e5\u304b\u3089\u7d42\u308f\u308b\u65e5\u307e\u3067\u5f15\u3044\u3066\u304f\u3060\u3055\u3044\u3002\u70b9\u3092\u7f6e\u304d\u305f\u3044\u3068\u304d\u306f\u30de\u30a4\u30eb\u30b9\u30c8\u30fc\u30f3\u3092\u4f7f\u3044\u307e\u3059",
+    "en": "Drag from the start day to the finish day. To place a point, use a milestone"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

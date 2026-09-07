@@ -1520,6 +1520,7 @@ type NoticeReason =
   // ⚠️ THE SEATS BETWEEN `RS-51` AND THIS ONE ARE STILL NOT THIS FILE'S, on the
   // terms the note above `RS-51` states.
   | 'RS-52'
+  | 'RS-53'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1599,6 +1600,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // its own examples. ⚠️ It is therefore the one raiser here whose count is
   // never `null`: the count IS what that manner is for.
   'RS-52': 'NT-3',
+  'RS-53': 'NT-1',
 }
 
 /**
@@ -1961,6 +1963,11 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   // ⛔ NOT `RS-38` BESIDE IT, WHICH THE RULING SEPARATES BY NAME: 「あちらは
   // `HF-15` の移動のためであり、足す押しには真でない」.
   rowIsAtTheDeepestLevel: 'RS-46',
+  // FR-001's refusal, whose row table T-233 gained on 2026-09-07 with the
+  // user's ruling 「タスクはドラッグ必須。」 ⭐ Like `noRowToPutTheAnnotationOn`
+  // above, the 場面 is a press on the schedule rather than a pressed entrance --
+  // 表 T-233 is keyed on the situation, not on the entrance.
+  barShapeReleasedWithoutADrag: 'RS-53',
 }
 
 /**

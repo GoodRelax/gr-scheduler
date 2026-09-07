@@ -311,6 +311,23 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
   'RS-52': '501f1fa746835622',
+  // RS-53 -- 「バーの形状を構えたまま、引かずに離した」, 作法 `NT-1`, 正 `FR-001`.
+  //   Read against the words before the fingerprint was taken: the text says a
+  //   task has a span and so is not made without a drag, and the next step names
+  //   the drag and points at the milestone for a point. ⛔ The words themselves
+  //   are not spelled here -- they are the dictionary's (FR-038, MUST NOT).
+  // ⭐ THE NEXT STEP NAMES THE ROAD, WHICH IS THE WHOLE POINT OF THE ROW. FR-001
+  //   grants it with the reason spelled into the row itself -- 「`RS-27`（押した
+  //   入口が、いま行えることを持たない）では、何をすればよいかが読めない。」 -- so a
+  //   word that only said "nothing happened" would fail the row it belongs to.
+  // ⭐ IT NAMES THE MILESTONE, AND THAT IS NOT A SECOND SCENE. FR-001 keeps
+  //   「マイルストーンは押すだけで置くこと（MUST）」 and RS-53's own note says a
+  //   point never raises this row, so telling the reader where the press they
+  //   just made IS the right gesture is the same one answer, not another row's.
+  // ⚠️ IT STAYS CLEAR OF `RS-27`, the fallback: that row is about an ENTRANCE
+  //   with nothing to do, where this is a press on the schedule that had a
+  //   perfectly good arm and only lacked the drag.
+  'RS-53': '8097f1bf0378f6ca',
   'RS-15': 'c85a8bb4ca6b676b',
 }
 

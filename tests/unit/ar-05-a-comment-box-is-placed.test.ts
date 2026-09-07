@@ -607,7 +607,16 @@ describe('PD-4 / AR-5 -- an armed comment box entrance plans a placement', () =>
   it('AR-2: an armed SHAPE places no comment box, so CM-46 is AR-5’s alone', () => {
     const answer = placingGesture({ screenState: armedWith(ARMED_RECTANGLE) })
     expect(kindsOf(answer)).not.toContain(CM_46)
-    expect(kindsOf(answer)).toContain('createTask')
+    // ⭐ THE CONTROL, AND WHY IT NO LONGER READS `createTask`. This gesture is a
+    // press and a release on one point, and FR-001 (MUST NOT, 利用者の裁定
+    // 2026-09-07) now says 「クリックでは、バーの形状のタスクを作らないこと（MUST
+    // NOT）」 -- so the bar arm writes nothing here either. What still parts the
+    // two arms is the road the press took: the shape arm owes FR-001's telling
+    // (「作らなかったことを告げること（MUST）」) and the comment-box arm owes CM-46.
+    // ⛔ Without a control this case would pass on an implementation where the
+    // shape arm did nothing at all, which is the one answer FR-001 forbids.
+    expect(kindsOf(answer)).toEqual([])
+    expect(answer.action?.kind).toBe('tellEntryHasNothingToDo')
   })
 })
 

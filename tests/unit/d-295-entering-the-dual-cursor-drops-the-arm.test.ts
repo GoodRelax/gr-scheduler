@@ -48,8 +48,8 @@
 // ---------------------------------------------------------------------------
 //   T-023b 締め   the clause quoted at the head, and the two beside it that
 //                 make the control below meaningful: 「**構えは持続すること
-//                 （MUST）。**」 and 「**解除は `Esc`、または何も選んでいない
-//                 ときのパレットの同じ入口の再押下とすること（MUST）**」
+//                 （MUST）。**」 and 「**解除は `Esc`、またはパレットの同じ入口
+//                 の再押下とすること（MUST）**」
 //   T-023b AR-1.. the six values an arm may take
 //   T-029a DC-1   「入る | パレットの `Dual Cursor` の入口を押す」 -- so the
 //                 press this file makes IS the entrance the clause speaks of
@@ -123,8 +123,12 @@ import { specTable } from '../contract/spec-table'
  * clauses, and matching them against the manuscript is what makes the cases
  * below cases about the specification rather than about this file's opinion.
  */
+// ⚠️ RE-ANCHORED 2026-09-07. The sentence before this one was rewritten by the
+// user's ruling 「トグルにせよ。 ユーザーに選択肢がある」 (SP-4 no longer turns on
+// the selection), so the anchor now starts at the exclusivity sentence -- which
+// is still the same paragraph, and still what makes 「入るとき」 legible.
 const THE_CLAUSE =
-  'ットを押した意味は `FR-083` の `SP-1` 〜 `SP-3` が持つ。 構えの各値は排他であり、依存線を構えれば図形の構えは外れる。**`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）'
+  '構えの各値は排他であり、依存線を構えれば図形の構えは外れる。**`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）'
 
 /** The reason the same paragraph gives, which is why 「入るとき」 is not 「出るとき」. */
 const THE_REASON = '同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も起きない構えが残る'
@@ -446,9 +450,12 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   })
 
   it('SP-4: pressing the entrance that is already armed un-arms it', () => {
-    // 「解除は `Esc`、または何も選んでいないときのパレットの同じ入口の再押下と
-    // すること（MUST）」 -- so the second press of the SAME entrance answers AR-1,
-    // and that is a different fact from IC-45's.
+    // 「解除は `Esc`、またはパレットの同じ入口の再押下とすること（MUST）」 -- so
+    // the second press of the SAME entrance answers AR-1, and that is a
+    // different fact from IC-45's. ⚠️ The clause lost its 「何も選んでいないとき
+    // の」 on 2026-09-07 (the user's ruling 「トグルにせよ」); every case in this
+    // file presses with an empty selection, so the widened half is driven by
+    // tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts instead.
     for (const entry of ARMING_ENTRIES) {
       const armed = pressing(entry, emptyScreenState(), null)
       const again = pressing(entry, armed, null)
