@@ -38,6 +38,26 @@ else moves.
 ⛔ It also does not remove the EMPHASIS marks. 「**未定**」 inside a quote is
 still inside the quote; ⛔ **未定** outside one is still an assertion. Only
 the quotation delimiters decide.
+
+⭐⭐ A SECOND THING A CELL CAN BE, ADDED FOR `D-367`: A DATED RECORD.
+Quotation was the first misreading; the second is TIME. A cell may state, in
+its own voice, something that WAS true on a day -- 「the surface was pressed
+and it was empty」, 「a ruling was outstanding」 -- and a prose-reading check
+turns that record into a claim about today. ⛔ MEASURED FOUR TIMES before this
+line existed (`D-344`, `D-347`, check 40, check 31), and the handoff had said
+to change how these checks are written when a third appeared.
+
+⭐ THE USER RULED ON 2026-09-07 (`PD-441`, proposal ①): a sentence that begins
+「⚠️ 実測（<date>）」 is to be read as a RECORD, not as a present claim. ⛔ No
+new mark was invented -- rule 03 already defines ⚠️ as 「注意・過去に実際に踏
+んだ罠」, so a dated 実測 under that mark is a record BY DEFINITION. The
+notation itself is written down in `docs/development-rules/04-verification.md`
+section 6.6, and this module is its implementation; the two must be read
+together.
+
+⛔ THE ALTERNATIVE WAS REJECTED, and the reason is worth keeping: adding one
+more word to each check's vocabulary was rejected because 語の一覧は必ず漏れる
+-- a word list always leaks, and the fourth occurrence is the proof.
 """
 import re
 
@@ -66,7 +86,56 @@ def outside_quotation(cell):
     return text
 
 
+# ⭐ WHERE A SENTENCE STARTS, in the ledger's house style. Cells are one long
+# line, so 。 is not the only boundary: the marks ⭐ / ⛔ / ⚠️ and the arrow ⇒
+# each open a new statement. Splitting on all four is what lets ONE sentence be
+# struck without taking its neighbours with it.
+#
+# ⭐ A RUN OF MARKS IS ONE OPENING, not several. 「⚠️⚠️ **実測（…」 doubles the
+# mark for weight, so the lookbehind refuses to split between two marks; only
+# the first of a run starts a sentence.
+_SENTENCE_START = re.compile(u'(?<=。)|(?<![⭐⛔⚠️])(?=[⭐⛔⇒⚠])')
+
+# ⭐ THE RECORD OPENER, verbatim as ruled: ⚠️ 実測（YYYY-MM-DD…
+#
+# ⛔ THE MARK IS ⚠️ AND NOTHING ELSE. ⭐ and ⛔ open sentences that claim, not
+# sentences that record; rule 03 gives ⚠️ alone the meaning 「過去に実際に踏ん
+# だ」. ⛔ The full-width bracket is part of the notation: 「実測 2026-09-07」
+# with no bracket is NOT the mark, because a bare date reads as often in a
+# present claim (「実測で覆した」) as in a record.
+#
+# ⭐ What is skipped before the mark, and between it and 実測, is emphasis and
+# whitespace only -- 「**⚠️ 実測（…」 and 「⚠️⚠️ **実測（…」 are both the
+# house style and both count.
+_RECORD_OPENER = re.compile(u'^[\\s*]*(?:⚠️?[\\s*]*)+実測（\\d{4}-\\d{2}-\\d{2}')
+
+
+def outside_record(cell):
+    """`cell` with every 「⚠️ 実測（日付）…」 sentence replaced by a space.
+
+    ⛔ ONLY THE SENTENCE THAT CARRIES THE MARK IS STRUCK, not the rest of the
+    cell. A row that records a past measurement and then states where it now
+    stands keeps the second half in its own voice, which is the whole point:
+    the notation dates one statement, it does not exempt a row.
+    """
+    kept = []
+    for piece in _SENTENCE_START.split(cell):
+        kept.append(u' ' if _RECORD_OPENER.match(piece) else piece)
+    return u''.join(kept)
+
+
+def spoken_now(cell):
+    """What `cell` claims about TODAY: no quotations, no dated records.
+
+    Quotations are struck first. A record sentence may hold a quote, and
+    striking the quote leaves the opener in place for the second pass; the
+    reverse order would leave a record's marker hidden inside a quote it had
+    already consumed.
+    """
+    return outside_record(outside_quotation(cell))
+
+
 def asserts_any(cell, phrases):
-    """True when the cell says one of `phrases` IN ITS OWN VOICE."""
-    spoken = outside_quotation(cell)
+    """True when the cell says one of `phrases` IN ITS OWN VOICE, ABOUT TODAY."""
+    spoken = spoken_now(cell)
     return any(phrase in spoken for phrase in phrases)

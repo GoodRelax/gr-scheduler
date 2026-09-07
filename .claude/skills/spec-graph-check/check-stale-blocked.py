@@ -41,6 +41,30 @@ WHAT COUNTS AS A HIT. Both of these true in the SAME row:
          working thing, which cannot happen before it was decided what to
          build.
 
+⭐⭐ NEITHER SIDE OF THAT PAIRING IS LOOKED FOR INSIDE A DATED RECORD
+(`D-367`, the user's ruling of 2026-09-07 on `PD-441`). A sentence opening
+「⚠️ 実測（YYYY-MM-DD）」 states what was true ON THAT DAY. Its words are struck
+from cell 5 -- blocked phrases and settled phrases alike -- before either list
+is looked for. The notation is written down in `docs/development-rules/
+04-verification.md` section 6.6 and implemented in `ledger_quotes.py`.
+
+⛔⛔ WHAT THAT RULING DOES NOT REACH, MEASURED 2026-09-07 BEFORE IT WAS
+IMPLEMENTED. The shape `D-367` was opened for is a row whose cell 5 says 「裁定
+が要る」 (true, in its own voice, today) beside a cell 9 that opens ✅ (also
+true -- somebody pressed the shipped build). `D-268` stood exactly there on
+2026-09-07. ⛔ The notation cannot date that cell 9, because the 実物確認
+column's own convention is to open with ✅ and not with ⚠️ -- so the third arm
+above still reads that record as evidence, and this check still faults the
+row. ⚠️ The row was reworded instead, and the shape is unfixed rather than
+absent: measured across both ledger files on 2026-09-07, ZERO rows now stand
+in it, and the ✅ arm's whole reachable population is rows whose ステータス has
+NOT reached a testing state (it is an `elif` after the status arm). ⭐ The
+baseline file already carries the falsified premise this rests on -- under the
+user's 押してから問え order (`D-262`), pressing is what RAISES a ruling, so a
+✅ is not evidence that one has come down. ⛔ Retiring or gating that arm is a
+second change, not this ruling, and it was NOT taken here on one body's own
+judgement.
+
 ⚠️ THE EXCEPTION THIS CANNOT TELL APART. A row may legitimately say "the
 first question was ruled, a second one is now open" -- an early decision
 settled and appended with 決着, and a LATER, DIFFERENT question opened with
@@ -69,7 +93,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from ledger_quotes import asserts_any, outside_quotation                  # noqa: E402
+from ledger_quotes import asserts_any, spoken_now                  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
@@ -131,12 +155,16 @@ def find_stale(ledger_path):
         status = cells[6].strip().strip('`')
         seen = cells[9].strip()
 
-        # ⛔ READ OUTSIDE QUOTATION (`D-344`). A marker inside 「…」, 『…』 or a
-        # `code span` is somebody else's words -- a verbatim requirement, the
-        # name of a state, or the row dating its own older text as history --
-        # not this row's claim to be blocked. Three misfires were absorbed
-        # into the baseline before this line existed; rule 04 section 6.3
-        # forbids the fourth. See ledger_quotes.py.
+        # ⛔ READ OUTSIDE QUOTATION (`D-344`) AND OUTSIDE A DATED RECORD
+        # (`D-367`). A marker inside 「…」, 『…』 or a `code span` is somebody
+        # else's words -- a verbatim requirement, the name of a state, or the
+        # row dating its own older text as history -- and a marker inside a
+        # sentence opening 「⚠️ 実測（日付）」 is what was true ON THAT DAY, not
+        # a claim about today (the user's ruling of 2026-09-07, `PD-441`; the
+        # notation is written down in rule 04 section 6.6). Neither is this
+        # row's claim to be blocked. Three misfires were absorbed into the
+        # baseline before the first of these lines existed; rule 04 section
+        # 6.3 forbids absorbing a fourth. See ledger_quotes.py.
         if not asserts_any(decided, STILL_BLOCKED):
             continue
 
@@ -149,7 +177,15 @@ def find_stale(ledger_path):
         # ⭐ IT DOES NOT WEAKEN THE CHECK: a row that really was ruled writes the
         # settlement SOMEWHERE ELSE in the cell (裁定が下りた, 決着, 書いた先は),
         # and those survive the strike-out whole.
-        spoken = outside_quotation(decided)
+        #
+        # ⭐ THE SETTLED PHRASES ARE READ THE SAME WAY AS THE BLOCKED ONES
+        # (`D-367`): a 決着 sitting inside 「⚠️ 実測（日付）…」 records that an
+        # EARLIER question closed on that day, which is not evidence that the
+        # question this cell is open on today has closed. Reading one side of
+        # the pairing outside records and the other side inside them would
+        # make the check fire on exactly the rows that dated their history
+        # honestly.
+        spoken = spoken_now(decided)
         for phrase in STILL_BLOCKED:
             spoken = spoken.replace(phrase, u' ')
 

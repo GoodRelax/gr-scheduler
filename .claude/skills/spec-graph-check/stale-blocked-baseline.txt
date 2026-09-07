@@ -1,5 +1,44 @@
 50
 #
+# HELD AT 50 ON 2026-09-07 WHEN THE RECORD NOTATION LANDED (`D-367`), AND THE
+# NUMBER NOT MOVING IS THE MEASUREMENT, NOT AN OMISSION.
+#
+# The user ruled on 2026-09-07 (`PD-441`, proposal ①) that a sentence opening
+# 「⚠️ 実測（YYYY-MM-DD）」 is a RECORD, not a present claim. The notation is
+# written down in docs/development-rules/04-verification.md section 6.6 and
+# implemented in ledger_quotes.py (outside_record / spoken_now); this check now
+# strikes such sentences from cell 5 before looking for the blocked phrases AND
+# before looking for the settled ones.
+#
+# ⛔ COUNTED BEFORE AND AFTER, both ledger files: 50 -> 50. Nothing moved, and
+# the reason is that almost nothing is written in the ruled form yet. Of the
+# 377 full-shape rows, exactly ONE cell 5 carries 「⚠️ 実測（日付）」 -- D-318 --
+# and that one sits inside 「…」, so outside_quotation had already removed it.
+# ⚠️ SO `PD-441`'s own sentence 「いま書かれている行はほぼ全部すでにこの形で
+# ある」 IS FALSE, measured. The notation buys nothing today; it buys the rows
+# written after it. Check 40's count did not move either (3).
+#
+# ⭐ REHEARSED BOTH WAYS ON A SCRATCH LEDGER (scratch/rehearse-record.py, the
+# real baseline, the two real ledger files plus one synthetic row):
+#     ⛔ **裁定が要る。**⭐ **決着した先は…**            -> 51, exit 1 (FAIL)
+#     ⚠️ **実測（2026-09-07）**: 裁定が要る。⭐ …        -> 50, exit 0 (OK)
+#     ⭐ **実測（2026-09-07）**: 裁定が要る。⭐ …        -> 51, exit 1 (FAIL)
+# The same words fail unmarked and pass marked, and the WRONG mark fails --
+# which is what says the check is reading the notation and not just going soft.
+#
+# ⛔⛔ THE SHAPE `D-367` WAS OPENED FOR IS NOT FIXED BY THIS RULING, and saying
+# so is the honest outcome. That shape is 対応方針 saying 「裁定が要る」 (true,
+# in the row's own voice, today) beside a 実物確認 opening ✅ (also true --
+# somebody pressed the shipped build). The ✅ cannot carry the ⚠️ mark, because
+# the 実物確認 column's convention is to open with ✅. ⚠️ MEASURED 2026-09-07:
+# zero rows stand in that shape now (D-268 was reworded), and the ✅ arm's whole
+# reachable population is rows whose ステータス has not reached a testing state
+# -- it is an `elif` after the status arm, and today it accounts for 1 of the
+# 50 (D-159, 取下げ). ⭐ The falsified premise is already recorded further down
+# this file under D-262: under 押してから問え, pressing is what RAISES a ruling.
+# ⛔ Retiring or status-gating that arm was NOT done here -- it is a second
+# decision, outside the ruling, and D-367 says not to take it alone.
+#
 # LOWERED 51 -> 50 ON 2026-09-07, AND THE DEBT THE RAISE BOOKED IS PAID, NOT
 # ABSORBED. PD-431..PD-441 were all ruled on 2026-09-07 (the user's 「裁定は
 # すべて提案通りでよい。」), so the four cells that still opened 裁定が要る --

@@ -42,7 +42,17 @@ WHAT COUNTS AS A HIT. Both of these true for the SAME `D-` row:
      未検討, 裁定待ち, 利用者の裁定が要る, 裁定を待つ, 未定, 仕様に行が無い.
   2. The row NAMES a `PD-nnn` whose 状態 in pending-decisions.md is 裁定済.
 
-⭐ CONDITION 1 IS DELIBERATELY THE SAME SHAPE AS CHECK 31's, and the two
+⭐ CONDITION 1 IS READ OUTSIDE QUOTATION AND OUTSIDE A DATED RECORD, through
+the same `asserts_any()` check 31 uses. A sentence opening 「⚠️ 実測（YYYY-MM-
+DD）」 records what was true on that day and is struck before the phrases are
+looked for (`D-367`, the user's ruling of 2026-09-07 on `PD-441`; the notation
+is written down in `docs/development-rules/04-verification.md` section 6.6).
+⚠️ MEASURED 2026-09-07: this check's count did not move (3), because the three
+rows it still holds date their history in prose that does not carry the mark.
+⛔ The ステータス test is untouched -- cell 6 holds one state name and nothing
+else, so it is a present claim by construction and can never be a record.
+
+⭐ CONDITION 1 IS ALSO DELIBERATELY THE SAME SHAPE AS CHECK 31's, and the two
 checks overlap on some phrases. They are not the same check: check 31's
 evidence that the block is over comes from ELSEWHERE IN THE SAME ROW, and this
 one's comes from THE OTHER FILE. A row can fail one and pass the other, and
