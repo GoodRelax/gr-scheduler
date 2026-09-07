@@ -745,19 +745,47 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       if (svg === null) return null
       const leaf = new Set(leaves)
       const area = svg.getBoundingClientRect()
-      for (const e of svg.querySelectorAll('[data-figure]')) {
-        const found = /^task-(\d+)-plan$/.exec(e.getAttribute('data-figure') ?? '')
-        if (found === null || !leaf.has(Number(found[1]))) continue
-        const box = e.getBoundingClientRect()
-        if (box.width < 30 || box.width > 900 || box.height < 8) continue
-        if (box.x < area.x + 60 || box.y < area.y + 60) continue
-        if (box.x + box.width > area.right - 200) continue
-        if (box.y + box.height > area.bottom - 120) continue
-        return {
-          key: e.getAttribute('data-figure') ?? '',
-          x: Math.round(box.x + box.width / 2),
-          y: Math.round(box.y + box.height / 2),
+      // ⚠️ A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. D-316 lets one bar
+      // take more than one SVG element under the same data-figure key -- a
+      // thin bar is a line, a head polygon and its dot marks, all sharing one
+      // key -- and measured across 1000 tasks, a repeated key always repeats as
+      // one unbroken run in document order, never apart. Taking the FIRST
+      // element that matches the pattern would silently read whichever piece of
+      // the run happens to come first -- a near-zero-height line, say -- and
+      // miss the rest of the same bar sitting right beside it. So a whole run is
+      // folded into one rectangle before the size and position filters below
+      // ever run, and what they judge is the bar, not one of its parts.
+      const all = [...svg.querySelectorAll('[data-figure]')]
+      let index = 0
+      while (index < all.length) {
+        const key = all[index]?.getAttribute('data-figure') ?? ''
+        let end = index + 1
+        while (end < all.length && (all[end]?.getAttribute('data-figure') ?? '') === key) end += 1
+        const found = /^task-(\d+)-plan$/.exec(key)
+        if (found !== null && leaf.has(Number(found[1]))) {
+          const rects = all.slice(index, end).map((e) => e.getBoundingClientRect())
+          const left = Math.min(...rects.map((r) => r.left))
+          const top = Math.min(...rects.map((r) => r.top))
+          const right = Math.max(...rects.map((r) => r.right))
+          const bottom = Math.max(...rects.map((r) => r.bottom))
+          const box = { x: left, y: top, width: right - left, height: bottom - top }
+          if (
+            box.width >= 30 &&
+            box.width <= 900 &&
+            box.height >= 8 &&
+            box.x >= area.x + 60 &&
+            box.y >= area.y + 60 &&
+            box.x + box.width <= area.right - 200 &&
+            box.y + box.height <= area.bottom - 120
+          ) {
+            return {
+              key,
+              x: Math.round(box.x + box.width / 2),
+              y: Math.round(box.y + box.height / 2),
+            }
+          }
         }
+        index = end
       }
       return null
     },

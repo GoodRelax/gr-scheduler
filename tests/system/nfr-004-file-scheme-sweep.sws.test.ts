@@ -345,9 +345,48 @@ const GEOMETRY_SCRIPT = `(() => {
   // Measured 2026-09-07: with the
   // filter the same 22 preceding probes leave the dashed count 11 -> 11 -> 12 and
   // IC-37 enabled.
-  const boxes = [...svg.querySelectorAll('polygon')]
-    .filter((e) => (e.getAttribute('data-figure') || '').endsWith('-plan'))
-    .map((e) => e.getBoundingClientRect())
+  //
+  // WARNING: A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. D-316 lets one bar
+  // take more than one SVG element under the same data-figure key -- a thin bar
+  // is a line, a head polygon and its dot marks, all sharing one key -- and a
+  // run's elements sit next to each other in document order, never apart.
+  // Selecting polygon elements alone and matching the key on each therefore
+  // either drops the line/dots half of a run or, where a run happens to place
+  // two polygons back to back, counts one figure as two boxes. The assumption a
+  // reader here must make -- and the one this makes -- is that a key's elements
+  // are ALWAYS the run starting at its first occurrence and ending at the last
+  // element still carrying it, so grouping by that run gives one box per figure
+  // regardless of how many elements it was drawn with.
+  const runs = []
+  {
+    const all = [...svg.querySelectorAll('[data-figure]')]
+    let index = 0
+    while (index < all.length) {
+      const key = all[index].getAttribute('data-figure') || ''
+      let end = index + 1
+      while (end < all.length && (all[end].getAttribute('data-figure') || '') === key) end += 1
+      runs.push({ key, elements: all.slice(index, end) })
+      index = end
+    }
+  }
+  const unionOf = (elements) => {
+    const rects = elements.map((e) => e.getBoundingClientRect())
+    const left = Math.min.apply(null, rects.map((r) => r.left))
+    const top = Math.min.apply(null, rects.map((r) => r.top))
+    const right = Math.max.apply(null, rects.map((r) => r.right))
+    const bottom = Math.max.apply(null, rects.map((r) => r.bottom))
+    return { left, top, right, bottom, width: right - left, height: bottom - top }
+  }
+  const boxes = runs
+    // WARNING: A RUN QUALIFIES ONLY IF IT HAS A POLYGON IN IT, the same
+    // restriction this selector always had (it read svg.querySelectorAll of
+    // polygon before). A milestone WITH marks folds its bar and its marks into
+    // one path element (SvgRenderer's barSvg), never a polygon, and dropping
+    // that restriction would let this file start pressing milestones nothing
+    // here asked it to -- measured: SK-19 stopped answering once a plain
+    // data-figure selector let such a path compete for the widest box.
+    .filter((run) => run.key.endsWith('-plan') && run.elements.some((e) => e.tagName === 'polygon'))
+    .map((run) => unionOf(run.elements))
     .filter((r) => r.width >= 40 && r.width <= 600 && r.height >= 8 &&
       r.top > area.top + 120 && r.bottom < area.bottom - 40 &&
       r.left > area.left + 220 && r.right < area.right - 80)

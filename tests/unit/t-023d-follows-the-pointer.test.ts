@@ -294,6 +294,8 @@ const PLAIN_UID = 1
 const MILESTONE_UID = 3
 /** The suspended Task GR-7 and GR-8 are grabbed on. */
 const SUSPENDED_UID = 4
+/** The Task `wideFixtureDocument` adds, GR-21's horizontal drag reads it. */
+const OVERFLOW_UID = 900
 
 const BOX_ID = '2b000000-0000-4000-8000-000000000001'
 
@@ -1417,7 +1419,7 @@ describe('table T-023d GR-7: the progress marker is pressed, not carried', () =>
 })
 
 // ===========================================================================
-// (e) GR-21 -- the tenth row of the closing rule, MEASURED rather than driven
+// (e) GR-21 -- the tenth row of the closing rule, DRIVEN through its own surface
 // ===========================================================================
 
 /**
@@ -1430,6 +1432,62 @@ describe('table T-023d GR-7: the progress marker is pressed, not carried', () =>
  */
 const LANE_THICKNESS = 14
 
+/** One more group id, past the five the nine `FOLLOWERS` share. */
+const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+
+/**
+ * A document wide and tall enough that GR-21's grip is SHORTER than its lane.
+ *
+ * ⛔ `fixtureDocument()` DOES NOT OVERFLOW EITHER AXIS, and that is measured
+ * rather than assumed: its widest span is `SUSPENDED_UID`'s 24 days, and its
+ * five rows fall far short of `SCREEN.height`. That is exactly the shape this
+ * block used to measure (`track` and `thumb` identical, `{width:14,
+ * height:628}` both) -- and a press on THAT fixture could never tell a
+ * working grab from a dead one, because nothing would move either way.
+ *
+ * ⚠️ A WIDE SPAN ALONE DOES NOT OVERFLOW EITHER, and that is measured too:
+ * `viewSettings` (`frame-loop.ts`) opens any document whose `scrollDate` is
+ * unplaced by running FR-055's fit (`fitZoom`, PI-5), which picks a `zoomX`
+ * that makes the content's width MATCH the `Row Area` almost exactly -- a
+ * two-year span came back `pxPerDay=1.34, contentWidth=976.4` against a
+ * `Row Area` 976px wide. ⭐ THE FLOOR IS WHAT MAKES A GRIP POSSIBLE: `S-97`
+ * (`NOT_STORED_ZOOM_BOUNDS`, `edit-document.ts`) stops that fit at
+ * `zoomX = 0.02`, so a span wide enough to ask for less than that -- more than
+ * `rowArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
+ * thirty years -- is fit at the FLOOR instead and spills over the lane for
+ * real. ⛔ The forty extra rows need no such floor: they are flat, so nothing
+ * about the fit can collapse them away, and `contentHeight` simply outgrows
+ * `SCREEN.height` on its own.
+ */
+function wideFixtureDocument(): Document {
+  const draft = fixtureDocument() as unknown as {
+    schedule: {
+      tasks: Task[]
+      taskGroups: unknown[]
+      taskGroupMembers: { taskUid: number; groupId: string; stackOrder: null }[]
+    }
+  }
+  const overflowGroup = overflowGroupId(900)
+  draft.schedule.taskGroups.push(group(overflowGroup, 900, 'Overflow'))
+  draft.schedule.taskGroupMembers.push({
+    taskUid: OVERFLOW_UID,
+    groupId: overflowGroup,
+    stackOrder: null,
+  })
+  draft.schedule.tasks.push(
+    task({
+      uid: OVERFLOW_UID,
+      name: 'Overflow',
+      start: '2026-04-01T00:00:00',
+      finish: '2056-04-01T00:00:00',
+    }),
+  )
+  for (let extra = 0; extra < 40; extra += 1) {
+    draft.schedule.taskGroups.push(group(overflowGroupId(901 + extra), 901 + extra, `Filler ${extra}`))
+  }
+  return draft as unknown as Document
+}
+
 interface LaneStage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
@@ -1438,9 +1496,12 @@ interface LaneStage {
 }
 
 /**
- * The same loop the nine cases drive, wired to a surface that KEEPS what it is
- * shown -- because `Scrollbars` is UF-61's `ScreenFrame` and not `FrameValues`,
- * so `current()` cannot answer where the thumb is drawn.
+ * The same loop the nine cases drive, wired to a surface that answers where
+ * the two lanes are -- because `Scrollbars` is UF-61's `ScreenFrame` and not
+ * `FrameValues`, so `current()` cannot answer where the thumb is drawn, and
+ * because the surface is the side that DREW them (SC-4 of table T-031), the
+ * same bargain `dividerPanel` and `isRowGrabStrip` keep for the two bands this
+ * file does not press.
  */
 function laneStage(): LaneStage {
   const pen = host()
@@ -1452,11 +1513,38 @@ function laneStage(): LaneStage {
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     hasUnsettledTextEntry: () => false,
-    readScreenPartAt: (): ScreenPart | null => null,
+    // ⭐⭐ A REAL ANSWER, WHERE THE FIXTURE THIS BLOCK USED TO USE ANSWERED
+    // `null` EVERYWHERE. `ScreenPart.scrollbarAxis` (`screen-surface.ts`) is
+    // GR-21's road in, and the only true answer for a point on one of the two
+    // lanes this surface just showed is the axis that lane stands for -- the
+    // grip and the band around it alike, because table T-023d itself leaves
+    // the band's OWN behaviour undecided and answers only where the point is.
+    readScreenPartAt: (x, y): ScreenPart | null => {
+      const last = views[views.length - 1]
+      if (last === undefined) return null
+      const on = last.frame.scrollbars.find(
+        (bar) =>
+          x >= bar.track.x &&
+          x <= bar.track.x + bar.track.width &&
+          y >= bar.track.y &&
+          y <= bar.track.y + bar.track.height,
+      )
+      if (on === undefined) return null
+      return {
+        part: 'Schedule Canvas',
+        entry: null,
+        format: null,
+        rowGroupId: null,
+        resourceUid: null,
+        dividerPanel: null,
+        noticeDismissKey: null,
+        scrollbarAxis: on.axis,
+      }
+    },
   }
   const loop = frameLoop(
     pen.surface as any,
-    fixtureDocument(),
+    wideFixtureDocument(),
     { ...SCREEN, scrollbarThickness: LANE_THICKNESS },
     { surface, language: 'en' },
   )
@@ -1487,30 +1575,54 @@ const thumbCentre = (built: LaneStage, axis: 'horizontal' | 'vertical'): Point =
   return { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
 }
 
-describe('table T-023d GR-21: the `Scrollbars` thumb -- measured, not driven', () => {
-  // ⛔⛔ THIS BLOCK PINS A GAP. It does NOT say the thumb may stand still: the
-  // closing rule names GR-21 among the ten and no sentence of table T-023d
-  // exempts it, so the duty is the same one the nine above are judged on. What
-  // it says is what was MEASURED on 2026-09-07, so that the day a press on the
-  // thumb starts to do anything these cases fail and are replaced by a
-  // `FOLLOWERS` entry -- which is the only honest way to leave a row of a MUST
-  // undriven in a file whose subject is that MUST.
+describe('table T-023d GR-21: the schedule follows the pointer while its grip is held', () => {
+  // ⭐⭐ THIS BLOCK USED TO PIN A GAP (until 2026-09-07): `laneStage`'s surface
+  // answered `null` at every point, so `press.on` was never set, the grab was
+  // unreachable in that fixture, and the cases below measured a stub rather
+  // than the application -- green there proved nothing about GR-21. ⭐ What
+  // closes the gap is read here rather than assumed: `ScreenPart.scrollbarAxis`
+  // (`screen-surface.ts`) gives a press on a lane a road in, and
+  // `input-command-translator.ts`'s `scrollbarFollow` / `commandFromScrollbar`
+  // turn a drag on it into FR-051's change of the display position -- but ONLY
+  // where `wideFixtureDocument` makes the content actually overflow the `Row
+  // Area`, because `scrollGearing` answers ZERO otherwise (a document that
+  // fits has nothing to scroll to). ⛔ NOT AN EXEMPTION FROM THE RULE. The
+  // closing rule names GR-21 among the ten and the paragraph after the table
+  // exempts it nowhere, so the duty is exactly the one the nine `FOLLOWERS`
+  // above are judged on.
   //
-  // ⭐ WHY IT CANNOT BE DRIVEN, in the three places it was looked for:
-  //   · `GrabArea` of `item-hit-area.ts` -- the type that answers which row of
-  //     table T-023d claimed a point -- runs GR-1 .. GR-18, so no press can
-  //     even be reported as GR-21's;
-  //   · `FrameValues`, which `current()` answers with, carries `regions`,
-  //     `layout`, `geometry` and the settings it drew with, and no scrollbar --
-  //     the thumb is UF-61's, which is why this block wires its own surface;
-  //   · `ScreenRegions` (PI-35) gives the lanes no rectangle of their own
-  //     either: `regionAtPointer` reports a press on a lane as the canvas that
-  //     contains it.
+  // ⛔⛔ NOT THE DRAWN THUMB'S OWN SHAPE OR POSITION. `scrollbarIn`
+  // (`screen-frame.ts`) draws `thumb: track` -- a STOP of its own, standing on
+  // an absence this file's cases may not touch: UF-61 is handed no edge to
+  // `ScheduleLayout`'s two extents, so the grip cannot be drawn shorter than
+  // its lane or moved inside it yet. The press point is still taken from the
+  // thumb's own rectangle (`thumbCentre`), because until that STOP closes the
+  // rectangle covers the whole lane and a point on it is a point GR-21 claims
+  // either way.
+  //
+  // ⛔⛔ A SECOND, DIFFERENT GAP -- FOUND WHILE WRITING THESE CASES, AND NOT
+  // FIXED HERE because it stands in `frame-loop.ts`, outside this round's
+  // files. 「掴んでいるあいだ……描いて示すこと（MUST）」 is NOT met for GR-21 as
+  // shipped: `isPreviewedPress` answers `press.on.dividerPanel !== null` for
+  // any press the surface claimed, and GR-21's press carries `scrollbarAxis`
+  // with `dividerPanel: null` -- so no live preview is built for it, and
+  // `isDocumentChangingPress` answers `true` for that same press (`entry` is
+  // `null`, which is its own `true`), so AG-9 (table T-035) refuses the
+  // document write `scrollbarFollow` asks for on every move besides. ⭐ Measured
+  // directly: pressing the grip and moving it three times left both
+  // `frameOf(loop).geometry` (the picture) and `document()` (the display
+  // position) BYTE IDENTICAL to what they were before the first move, and only
+  // the RELEASE -- when `pressed` is dropped and the gesture is no longer "in
+  // flight" -- carries the write through. That is exactly D-298's own
+  // measurement in `screen-frame.ts` ("a 100px DRAG … moves the picture",
+  // where a drag is down-move-up together) and this file's cases below do not
+  // claim more than that measurement does. ⇒ The cases exercise what GR-21
+  // actually does today -- settle the display position on release, table
+  // T-028's IN-1 -- and do not assert the live half of the closing rule, which
+  // remains open.
 
   it('is one of the ten the closing rule names, and no sentence exempts it', () => {
-    // ⭐ THE PREMISE OF THE WHOLE BLOCK, read from the manuscript. If GR-21 ever
-    // moved into the exempt list, the pins below would be measuring a row with
-    // no duty and would have to go.
+    // ⭐ THE PREMISE OF THE WHOLE BLOCK, read from the manuscript.
     expect(FOLLOWING_ROWS, 'table T-023d: the closing rule names GR-21').toContain(
       MEASURED_NOT_DRIVEN,
     )
@@ -1523,10 +1635,15 @@ describe('table T-023d GR-21: the `Scrollbars` thumb -- measured, not driven', (
     ).not.toContain(MEASURED_NOT_DRIVEN)
   })
 
-  it('is drawn: SC-4 keeps both lanes and both thumbs described every frame', () => {
+  it('is drawn on both axes, over a document that genuinely overflows the Row Area', () => {
     // 「`U-21` `Scrollbars`」 of table T-031, SC-4 (MUST): both of them, always.
-    // ⛔ A PREMISE, NOT A DECORATION -- a thumb that was not described at all
-    // would make the two pins below vacuous rather than measured.
+    // ⛔ A PREMISE, NOT A DECORATION. `scrollGearing` answers zero wherever the
+    // `Row Area` is not shorter than the content it shows (`input-command-
+    // translator.ts`), so without a document that overflows BOTH axes the two
+    // cases below would press a grip with nowhere to carry the picture to and
+    // could not tell a working grab from a dead one -- which is exactly the
+    // shape `fixtureDocument` has (measured 2026-09-07: content and `Row Area`
+    // the same size on both axes).
     const built = laneStage()
     expect(built.view().frame.scrollbars.map((one) => one.axis)).toEqual([
       'horizontal',
@@ -1534,49 +1651,65 @@ describe('table T-023d GR-21: the `Scrollbars` thumb -- measured, not driven', (
     ])
     for (const axis of ['horizontal', 'vertical'] as const) {
       const bar = laneOf(built, axis)
-      expect(bar.thumb.width, `${axis}: the thumb has no width to press`).toBeGreaterThan(0)
-      expect(bar.thumb.height, `${axis}: the thumb has no height to press`).toBeGreaterThan(0)
+      const length = axis === 'horizontal' ? 'width' : 'height'
+      expect(bar.thumb[length], `${axis}: the thumb has no length to press`).toBeGreaterThan(0)
     }
+    const frame = frameOf(built.loop)
+    const area = (built.loop.current() as any).regions.rowArea as { width: number; height: number }
+    expect(
+      (frame.layout as any).contentWidth,
+      'wideFixtureDocument: the horizontal content must overflow the Row Area',
+    ).toBeGreaterThan(area.width)
+    expect(
+      (frame.layout as any).contentHeight,
+      'wideFixtureDocument: the vertical content must overflow the Row Area',
+    ).toBeGreaterThan(area.height)
   })
 
   for (const axis of ['vertical', 'horizontal'] as const) {
-    it(`⛔ GAP: the ${axis} thumb does not follow the pointer that holds it`, () => {
-      // ⛔ EXPECTED TO FAIL THE DAY GR-21 IS IMPLEMENTED, and that failure is
-      // the point: it is what tells the next reader to write a `FOLLOWERS`
-      // entry and delete this case.
+    it(`does not yet preview the ${axis} drag while it is held (open gap, D-298)`, () => {
+      // ⛔⛔ PINS THE SECOND GAP THE BLOCK COMMENT NAMES, with a WORKING press --
+      // unlike the block this replaces, `press.on.scrollbarAxis` really is set
+      // here, so a change below would mean the gap closed, not that the fixture
+      // finally became reachable. Reads `frameOf(loop)`, the same picture the
+      // nine `FOLLOWERS` read theirs off, never `document()` -- IN-1 settles
+      // nothing on a hold either way, and this is asking about the PICTURE.
       const built = laneStage()
       const at = thumbCentre(built, axis)
+      // ⚠️ `OVERFLOW_UID`, NOT `PLAIN_UID`. At the floor zoom this fixture's
+      // 30-year span forces, `PLAIN_UID`'s 18-day plan bar is too thin a
+      // fraction of the picture for the layout to place at all -- measured:
+      // its entry is simply absent from `geometry.tasks` at this scale, where
+      // `OVERFLOW_UID`'s bar (spanning the whole thirty years) always is.
+      const heldReading = (): number =>
+        axis === 'vertical' ? bandOf(built.loop, ROW_A).y : planBox(built.loop, OVERFLOW_UID).x0
       built.send(pointer('down', at.x, at.y))
-      const held = { ...laneOf(built, axis).thumb }
-      const travel = 120
-      for (const step of [1, 2, 3]) {
-        const to =
-          axis === 'vertical'
-            ? { x: at.x, y: at.y + step * travel }
-            : { x: at.x + step * travel, y: at.y }
-        built.send(pointer('move', to.x, to.y))
-      }
+      const held = heldReading()
+      built.send(pointer('move', at.x + (axis === 'vertical' ? 0 : 120), at.y + (axis === 'vertical' ? 120 : 0)))
       expect(
-        { ...laneOf(built, axis).thumb },
-        `table T-023d GR-21: 掴めば表示位置を変える -- the ${axis} thumb followed the pointer, so this pin is out of date`,
-      ).toEqual(held)
+        heldReading(),
+        `table T-023d GR-21: this pin is out of date -- the ${axis} drag now moves the picture while held`,
+      ).toBe(held)
     })
   }
 
-  it('⛔ GAP: releasing on the lane settles no display position either', () => {
-    // 「確定は 表 T-028 の `IN-1` に従う（離した時点）」 -- and the value a
-    // settled GR-21 would move is the display position the document keeps
-    // (`S-77` / `S-78` of table T-203), so a release that changed nothing at
-    // all is the gap, not the rule being obeyed.
-    const built = laneStage()
-    const before = structuredClone(built.loop.document())
-    const at = thumbCentre(built, 'vertical')
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + 120))
-    built.send(pointer('up', at.x, at.y + 120))
-    expect(
-      built.loop.document(),
-      'table T-023d GR-21: a release on the thumb moved the display position, so this pin is out of date',
-    ).toEqual(before)
-  })
+  for (const axis of ['horizontal', 'vertical'] as const) {
+    it(`settles the ${axis} display position on the release (table T-028 IN-1)`, () => {
+      // 「確定は 表 T-028 の `IN-1` に従う（離した時点）」, and the value a
+      // settled GR-21 moves is the display position the document keeps (`S-77`
+      // / `S-78` of table T-203, `setScrollPosition` CM-66 of table T-108).
+      const built = laneStage()
+      const before = built.loop.document().documentSettings
+      const at = thumbCentre(built, axis)
+      const to = axis === 'vertical' ? { x: at.x, y: at.y + 120 } : { x: at.x + 120, y: at.y }
+      built.send(pointer('down', at.x, at.y))
+      built.send(pointer('move', to.x, to.y))
+      built.send(pointer('up', to.x, to.y))
+      const after = built.loop.document().documentSettings
+      expect(
+        axis === 'vertical' ? after.scrollGroupId : after.scrollDate,
+        `table T-023d GR-21: 掴めば表示位置を変える（規則は FR-051） -- the ${axis} release settled nothing`,
+      ).not.toBe(axis === 'vertical' ? before.scrollGroupId : before.scrollDate)
+    })
+  }
 })

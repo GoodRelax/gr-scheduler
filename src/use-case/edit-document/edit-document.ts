@@ -21,17 +21,17 @@
 // different: a rule about Tasks moving does not move the rules about
 // calendars.
 //
-// ⭐ The eight files are exactly table T-108's eleven groups, folded onto the
-// aggregates that own them, and the counts add up to its 73 commands:
+// ⭐ The eight files are exactly table T-108's groups, folded onto the
+// aggregates that own them:
 //
-//     edit-task.ts             `Task` 14 + `TaskVisual` 6      = 20
-//     edit-task-group.ts       `TaskGroup` 12                  = 12
-//     edit-dependency.ts       `Dependency` 3                  =  3
-//     edit-annotation.ts       `CommentBox` 6 + `HighlightBox` 4 = 10
-//     edit-resource.ts         `Resource` 4 + `Assignment` 2   =  6
-//     edit-calendar.ts         `Calendar` 1                    =  1
-//     edit-project.ts          `Project` 5                     =  5
-//     edit-document-settings.ts 見せ方の群 16                    = 16
+//     edit-task.ts               `Task` + `TaskVisual`
+//     edit-task-group.ts         `TaskGroup`
+//     edit-dependency.ts         `Dependency`
+//     edit-annotation.ts         `CommentBox` + `HighlightBox`
+//     edit-resource.ts           `Resource` + `Assignment`
+//     edit-calendar.ts           `Calendar`
+//     edit-project.ts            `Project`
+//     edit-document-settings.ts  見せ方の群
 //
 // ⚠️ `DocumentCommand` is declared HERE and re-exported by
 // ApplyDocumentChange, not the other way round. Table T-064 lists the type
@@ -41,12 +41,17 @@
 // for WS-3, and LR-3 forbids a cycle inside a layer.
 //
 // ✅ COMPLETE: all eight aggregates are written, and `DocumentCommand` is the
-// full 73 commands of table T-108 -- 20 + 12 + 3 + 10 + 6 + 1 + 5 + 16. The
-// count is not a claim made in prose: `ROUTE_TABLE` below is annotated
-// `Record<DocumentCommand['kind'], AggregateEdit>`, so a row of table T-108
-// that no aggregate lists is a missing property the compiler NAMES, and a
-// listed kind that belongs to no command is rejected by the `satisfies` on the
-// list that holds it. Neither can pass review by being overlooked.
+// full set of table T-108's rows.
+// ⛔ NOT A COUNT, and not one kept here. Table T-108 counts itself -- a group
+// gains and loses rows on its own schedule (CM-70 retired 2026-09-06, CM-57
+// retired 2026-09-07, both without touching this file) -- so a total copied
+// into prose is a total that goes stale the next time a row does. The
+// completeness this file owes is checked structurally instead: `ROUTE_TABLE`
+// below is annotated `Record<DocumentCommand['kind'], AggregateEdit>`, so a row
+// of table T-108 that no aggregate lists is a missing property the compiler
+// NAMES, and a listed kind that belongs to no command is rejected by the
+// `satisfies` on the list that holds it. Neither can pass review by being
+// overlooked.
 //
 // ⛔ One aggregate still reports a gap of its own, and it is a gap INSIDE a
 // command rather than a command left out: edit-calendar.ts declares CM-39
@@ -369,7 +374,7 @@ const SETTINGS_KINDS = [
  * Which aggregate owns a command, resolved from `kind` alone.
  *
  * ⭐ The annotation is the census. `Record<DocumentCommand['kind'], ...>`
- * demands a property for every one of table T-108's 73 rows, so an aggregate
+ * demands a property for every one of table T-108's rows, so an aggregate
  * whose list forgets one of its own commands does not build, and the compiler
  * says which name is missing. That is the whole reason the routing is a table
  * derived from eight lists rather than a chain of branches.
@@ -400,10 +405,10 @@ const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
 /**
  * The same table, keyed by any string.
  *
- * ⚠️ `ROUTE_TABLE` is typed by the 73 kinds, so reading it never admits a
- * miss. A command can still arrive from outside TypeScript -- AG-8's Agent API
- * hands one over as data -- and that miss must be VISIBLE. The map answers
- * `undefined`, which the dispatch below turns into a refusal.
+ * ⚠️ `ROUTE_TABLE` is typed by all of `DocumentCommand['kind']`, so reading it
+ * never admits a miss. A command can still arrive from outside TypeScript --
+ * AG-8's Agent API hands one over as data -- and that miss must be VISIBLE.
+ * The map answers `undefined`, which the dispatch below turns into a refusal.
  */
 const ROUTES: ReadonlyMap<string, AggregateEdit> = new Map(Object.entries(ROUTE_TABLE))
 
