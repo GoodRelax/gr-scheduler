@@ -175,8 +175,25 @@ export function editDocumentSettings(
   limits: SettingsLimits,
 ): EditResult {
   const settings = document.documentSettings
-  const put = (part: Partial<DocumentSettings>): EditResult =>
-    edited(withSettings(document, { ...settings, ...part }))
+  // ⭐ THE ONE-FIELD TEST, KEPT ONCE FOR SIXTEEN ARMS. FR-020 (MUST) forbids
+  // re-stamping the trail for a write that changed nothing, and `frame-loop.ts`
+  // reads that off the DOCUMENT reference -- so an arm that rebuilds the
+  // presentation group for a value already held moves the trail with nothing
+  // behind it (ledger row D-378, measured on the shipped build 2026-09-08).
+  //
+  // ⚠️ BY VALUE, AND ONLY THE KEYS THE ARM IS WRITING. `part` carries between
+  // one and six of them, so this is the per-field comparison each arm would
+  // otherwise write out; nothing walks the document, which is what NFR-013
+  // governs on the every-frame road the reference test protects.
+  // ⛔ A KEY WHOSE VALUE IS AN OBJECT IS COMPARED BY REFERENCE, exactly as
+  // `sameRow` in `edit-task.ts` compares its own. That is exact for every key
+  // written here but one: CM-60 builds a fresh `dualCursor`, so that arm makes
+  // the test on the two dates itself before it reaches this.
+  const put = (part: Partial<DocumentSettings>): EditResult => {
+    const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
+    if (keys.every((key) => settings[key] === part[key])) return edited(document)
+    return edited(withSettings(document, { ...settings, ...part }))
+  }
   // FR-016: hold the zoom inside what S-75 and S-76 allow (MUST). This is a
   // CLAMP, not a refusal -- the requirement says 収める, and a wheel notch past
   // the end is an ordinary thing to do, not an error.
@@ -244,6 +261,13 @@ export function editDocumentSettings(
       // IV-13: while `dualCursor` is not null, BOTH dates are not null.
       if (dayOf(command.date1) === null || dayOf(command.date2) === null) {
         return refused([reject('CM-60', 'IV-13', 'both cursor dates must be dates')])
+      }
+      // ⭐ THE ONE ARM THAT MAKES THE TEST ITSELF, and `put`'s own note says
+      // why: the value written is a fresh object, so the reference comparison
+      // there cannot see that the pair already stands where it is being put.
+      const held = settings.dualCursor
+      if (held !== null && held.date1 === command.date1 && held.date2 === command.date2) {
+        return edited(document)
       }
       return put({ dualCursor: { date1: command.date1, date2: command.date2 } })
     }

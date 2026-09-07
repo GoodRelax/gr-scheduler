@@ -272,6 +272,13 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       // for a choice between two, and no requirement gives a way back to naming
       // neither -- inventing one here would decide what CM-46's ⛔ above is
       // still waiting on. A box created by AR-5 keeps null until this is called.
+      //
+      // ⭐ The same one-field test the other nine arms of this file keep, and
+      // the one arm that was missing it (ledger row D-378). FR-020 (MUST)
+      // forbids re-stamping the trail for a write that changed nothing, and
+      // FR-063 moves the schedule instant only for a write that moved that
+      // group -- both are read off the reference this line refuses to rebuild.
+      if (box.leaderShapeKind === command.leaderShapeKind) return edited(document)
       return edited(putCommentBox(document, { ...box, leaderShapeKind: command.leaderShapeKind }))
     }
 

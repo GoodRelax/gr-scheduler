@@ -131,7 +131,7 @@ import { specTable } from '../contract/spec-table'
  */
 const T_023D = [
   'GR-19',
-  'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-9', 'GR-17',
+  'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-17', 'GR-9',
   'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-20', 'GR-16', 'GR-21',
 ] as const
 

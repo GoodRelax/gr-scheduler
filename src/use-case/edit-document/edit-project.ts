@@ -11,6 +11,20 @@
 // ない", and WS-6 of table T-067 makes replacing the current value the sole
 // business of ApplyDocumentChange.
 //
+// ⭐ EVERY COMMAND THAT WRITES THE VALUE ALREADY HELD RETURNS THE SAME
+// DOCUMENT. FR-020 (MUST) forbids re-stamping the trail for a write that
+// changed nothing, and FR-063 moves the schedule instant only for a write that
+// moved the schedule group -- `document-change-plan.ts` reads both off the
+// REFERENCE, so a rebuild on a no-op moves them with nothing behind it.
+// ⚠️ Compared BY VALUE and one field at a time. The arm knows which column it
+// is about, so nothing here walks the document: NFR-013 governs the every-frame
+// road that the reference test protects, and a deep comparison would undo it.
+// ⛔ Ledger row D-378: measured on the shipped build 2026-09-08 -- CM-1 with
+// the title the document already held moved the watermark eight seconds and
+// answered `hasMovedSchedule: true`. `withProject` was the one `with...` helper
+// of this folder with no such test (`withTask` and `withVisual` have carried
+// one all along), so the five arms below carry it themselves.
+//
 // ⚠️ It is not the public entry of its component. Nothing outside
 // `edit-document/` may import it (Chapter 5.3, MUST NOT) -- `edit-document.ts`
 // re-exports what leaves.
@@ -80,6 +94,10 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       if (command.title === '') {
         return refused([reject('CM-1', 'FR-035', 'the document name may not be an empty string')])
       }
+      // ⚠️ AFTER the refusal, never before: a refused write and a write that
+      // changed nothing are two different answers, and FR-028 has the caller
+      // told which one it got.
+      if (project.title === command.title) return edited(document)
       return edited(withProject(document, { ...project, title: command.title }))
     }
 
@@ -93,11 +111,17 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       // Only the keys table T-224 admits are spread, and the type admits no
       // others -- `title` is absent from ProjectProfileFields, so CM-2 cannot
       // reach the document name even by mistake (FR-074's MUST NOT).
+      //
+      // ⭐ A COLUMN IS SPREAD ONLY WHERE IT MOVES, so a bundle of eight fields
+      // that all say what the row already says leaves `held` as the very object
+      // it started from. That is this arm's answer to the same rule the other
+      // four keep with one comparison: the sweep IS the per-field test.
       let held = project
       for (const key of PROFILE_KEYS) {
         const value = command.fields[key]
-        if (value !== undefined) held = { ...held, [key]: value }
+        if (value !== undefined && value !== held[key]) held = { ...held, [key]: value }
       }
+      if (held === project) return edited(document)
       return edited(withProject(document, held))
     }
 
@@ -108,12 +132,17 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       if (dayOf(command.date) === null) {
         return refused([reject('CM-3', 'FR-046', `not a date: ${command.date}`)])
       }
+      if (project.statusDate === command.date) return edited(document)
       return edited(withProject(document, { ...project, statusDate: command.date }))
     }
 
     case 'clearStatusDate':
       // FR-046: erasing the line IS setting statusDate to null. There is no
       // separate visibility flag to clear (the requirement forbids one).
+      // ⚠️ Erasing a line that is not there changes nothing, so the same
+      // document goes back. It is NOT refused: the document already stands as
+      // the command asks, which is the answer CM-37 gives for the same shape.
+      if (project.statusDate === null) return edited(document)
       return edited(withProject(document, { ...project, statusDate: null }))
 
     case 'setThemeHue': {
@@ -121,6 +150,7 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       if (!Number.isInteger(command.hue) || command.hue < 0 || command.hue > 359) {
         return refused([reject('CM-5', 'S-73', `hue outside 0..359: ${command.hue}`)])
       }
+      if (project.themeHue === command.hue) return edited(document)
       return edited(withProject(document, { ...project, themeHue: command.hue }))
     }
   }

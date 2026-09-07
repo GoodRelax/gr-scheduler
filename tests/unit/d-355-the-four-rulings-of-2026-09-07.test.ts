@@ -58,6 +58,14 @@
 //     second write to forbid. A case pressing it would be red, and a green one
 //     could only assert that nothing happens -- which is the defect, not the
 //     rule. Measured 2026-09-07 against ce63d66.
+//     ⭐⭐ OVERTAKEN, AND THE MEASUREMENT ABOVE IS KEPT AS THE DATED RECORD IT
+//     IS: the build landed between ce63d66 and 49aa78f. `editCalendar` now
+//     re-counts inside the same write, `EditReport.recountedTaskUids` carries
+//     the set, and `writeDocument` raises `RS-52` with its length. ⇒ The cases
+//     that press all four clauses live in `tests/unit/edit-calendar.test.ts`
+//     -- the FR-012 describe block there and the controls beside it;
+//     nothing about FR-012 is un-pressed here any longer. Re-measured
+//     2026-09-08 against 49aa78f, on the shipped build as well.
 //  2. GR-21 -- the grip's length. `screenFrameFromRegions`
 //     (`src/adapter/screen-renderer/screen-frame.ts`) builds every bar through
 //     `scrollbarIn` at line 137, which returns `{ axis, track, thumb: track }`:

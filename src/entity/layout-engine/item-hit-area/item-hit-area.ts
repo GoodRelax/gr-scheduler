@@ -28,9 +28,10 @@
 //     which rows it removes is stated on the rows.
 //
 // ⚠️ The order is the table's PRINTED order, which is not the numeric order of
-// its row IDs: GR-17 sits under GR-9, and GR-15 and GR-18 sit above GR-12.
-// Sorting by number would quietly reverse three of the table's own decisions,
-// among them "重なったら開始点が勝つ".
+// its row IDs: GR-17 sits ABOVE GR-9 (the user's ruling of 2026-09-08 -- the
+// finish wins where the two dummies overlap), and GR-15 and GR-18 sit above
+// GR-12. Sorting by number would quietly reverse three of the table's own
+// decisions, that one among them.
 //
 // ⚠️ The order is global, not per Task. One Task's GR-12 must not beat
 // another's GR-3, so the rows are the outer loop and the Tasks the inner one.
@@ -348,7 +349,9 @@ const TASK_ROWS: readonly TaskRow[] = [
     },
   },
   // GR-3 / GR-4 -- the plan's two ends. GR-15's row records why a milestone
-  // has neither: a point has no duration to resize.
+  // has neither: a point has no duration to resize. ⚠️ The two ends do NOT
+  // reach alike: `isOnPlanEnd` below carries the boundary the ruling of
+  // 2026-09-08 put at the plan start, and says why it binds GR-3 alone.
   { grab: 'GR-3', reach: 'anyPress',
     isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
   { grab: 'GR-4', reach: 'anyPress',
@@ -377,12 +380,18 @@ const TASK_ROWS: readonly TaskRow[] = [
       return box !== null && isInsideBoxInclusive(x, y, box)
     },
   },
-  // GR-9, then GR-17 -- GR-17's own row puts itself below GR-9 so that the
-  // start point wins where the two overlap.
-  { grab: 'GR-9', reach: 'anyPress',
-    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
+  // GR-17, then GR-9 -- ⭐ SWAPPED ON 2026-09-08 BY THE USER'S RULING. Table
+  // T-023d's closing note carries it and the reason: zoomed out the two
+  // dummies stand only S-129 apart and fall on the same pixel, and the finish
+  // is the one to hand back. ⛔ Until that day GR-17's row placed itself BELOW
+  // GR-9 and the start won instead; the row now says the opposite.
+  // ⭐ EITHER STILL ENTERS AN ACTUAL (FR-043): GR-9 sets the start day and the
+  // duration, GR-17 sets the duration with the start pinned at GR-9's day, so
+  // preferring the finish never leaves the person unable to record one.
   { grab: 'GR-17', reach: 'anyPress',
     isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-17', x, y, slop) },
+  { grab: 'GR-9', reach: 'anyPress',
+    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
   // GR-10 -- the name label, wherever LC-6 put it.
   //
   // ⛔ `doubleClickOnly`, because the row's operation column now holds a double
@@ -447,14 +456,51 @@ const TASK_ROWS: readonly TaskRow[] = [
   },
 ]
 
-/** @purity pure */
+/**
+ * GR-3 and GR-4, with the plan start's own x standing as the boundary between
+ * the plan side and the actual side -- the user's ruling of 2026-09-08, carried
+ * by the closing notes under table T-023d.
+ *
+ * ⭐⭐ GR-3 REACHES LEFTWARDS ONLY, and that clamp is this whole change. The row
+ * requires a press AT or LEFT of the plan start to be the plan's, and a press
+ * RIGHT of it to fall through to the actual dummies (MUST). S-90's own reach is
+ * still spent, but on the left hand alone.
+ *
+ * ⛔ THE CLAMP IS HERE AND NOT ON `isOnDummy`, and the geometry is why. A dummy
+ * stands on a day AFTER the plan's start (GR-9's row, GR-18's row), and
+ * `xFromDay` rises with the day, so its S-93 box already begins at or right of
+ * the boundary at every zoom -- there is nothing on that side to clamp. The one
+ * member that crossed the boundary was this one: GR-3 spread S-90 to BOTH sides
+ * of the plan start and stands above the dummies, so it swallowed the first
+ * S-90 of their reach. ⚠️ One clamp only: the ruling's own note calls the two
+ * rules two faces of one answer, and writing it on both sides would be the
+ * copy nothing keeps honest.
+ *
+ * ⛔ WITHOUT IT THE ACTUAL SIDE GOES AWAY AS THE ZOOM FALLS. Measured on the
+ * shipped build, on a Task not started, 1920x1080 over file://: at 1.5px a day
+ * the next working day's column is 1.5px right of the plan start, so a press 2px
+ * to its right was answered by GR-3 and only a press 8px out reached the dummy.
+ * Once a day is narrower than S-90 there is no reachable ground left between
+ * them at all.
+ *
+ * ⚠️ GR-4 IS NOT CLAMPED. The ruling names the plan START as the boundary and
+ * says nothing of the finish, and on a one-day plan the finish stands right of
+ * that boundary. Its own row is unchanged, so its reach stays even on both
+ * hands the way S-90 states it.
+ *
+ * ⚠️ NEITHER END EXISTS ON A MILESTONE (GR-15's row), so the clamp never
+ * reaches GR-18: the dummy on a milestone has no GR-3 above it to be clamped,
+ * and no row above GR-18 claims the pixel right of its day.
+ *
+ * @purity pure
+ */
 function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
                      which: 'left' | 'right'): boolean {
   if (boxed.task.shapeKind === 'milestone') return false
   const box = boxed.plan
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
-  const edge = which === 'left' ? box.x : box.x + box.width
-  return Math.abs(x - edge) <= slop.planEndpoint
+  if (which === 'right') return Math.abs(x - (box.x + box.width)) <= slop.planEndpoint
+  return x <= box.x && box.x - x <= slop.planEndpoint
 }
 
 /** @purity pure */

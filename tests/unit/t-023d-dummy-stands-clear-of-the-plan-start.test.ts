@@ -77,8 +77,8 @@
 //           領域の全数と優先順位は表 T-023d が持つ。定めないと、同じ場所を押す
 //           たびに違うものを掴む」
 //   T-023d  「上の行ほど優先すること（MUST）」 and the printed order, in which
-//           GR-3 stands above GR-9, GR-9 above GR-17, and all of them above
-//           GR-12
+//           GR-3 stands above the dummies, GR-17 above GR-9 (swapped by the
+//           user's ruling of 2026-09-08), and all of them above GR-12
 //   T-023d  GR-3 「予定の開始点 | 予定バーの左端 | `start` を変える」
 //   T-023d  GR-4 「予定の終了点 | 予定バーの右端 | `finish` を変える」
 //   T-023d  GR-7 「進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点
@@ -719,21 +719,27 @@ describe('the fixture stands where these cases think it does', () => {
     ).toBeGreaterThan(SLOP.dummyWidth)
   })
 
-  it('prints GR-3 above GR-9, GR-9 above GR-17, and all three above GR-12 (MUST)', () => {
+  it('prints GR-3 above the dummies, GR-17 above GR-9, and all of them above GR-12 (MUST)', () => {
     // 「上の行ほど優先すること（MUST）」. ⭐ Read out of the table, not copied:
     // a list written here would go on passing after the order had been changed,
     // and the order is exactly what D-56 turns on.
+    // ⚠️ GR-17 AND GR-9 SWAPPED ON 2026-09-08, by the user's ruling 「実績の
+    // 開始日と実績の終了日のどちらをつかむか難しいことになるが、実績の終了日を
+    // 優先しろ」. The table used to close GR-17's row with 「重なったら開始点
+    // が勝つ」 and now says the finish wins. ⭐ THE ASSERTION MOVED WITH THE
+    // MANUSCRIPT AND DID NOT WEAKEN: it still demands a total order over the
+    // same four rows, only the middle pair is the other way round.
     const at = (row: string): number => {
       const found = T_023D_ORDER.indexOf(row)
       if (found < 0) throw new Error(`table T-023d no longer prints ${row}`)
       return found
     }
-    expect(at('GR-3')).toBeLessThan(at('GR-9'))
-    expect(at('GR-9')).toBeLessThan(at('GR-17'))
-    expect(at('GR-17')).toBeLessThan(at('GR-12'))
+    expect(at('GR-3')).toBeLessThan(at('GR-17'))
+    expect(at('GR-17')).toBeLessThan(at('GR-9'))
+    expect(at('GR-9')).toBeLessThan(at('GR-12'))
     // GR-4 is the row that wins for a one-day plan, where the plan's two ends
     // are a day apart and GR-4 stands above every dummy as well.
-    expect(at('GR-4')).toBeLessThan(at('GR-9'))
+    expect(at('GR-4')).toBeLessThan(at('GR-17'))
   })
 
   it('carries an S-129 of at least one worked day, which the dummy\'s length assumes', () => {

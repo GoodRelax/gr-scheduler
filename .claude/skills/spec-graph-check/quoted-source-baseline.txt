@@ -1,1 +1,14 @@
-502
+501
+#
+# LOWERED 502 -> 501 ON 2026-09-08 by repairing a FABRICATED CITATION that was
+# load-bearing -- the third time this check has caught one that the code
+# reasoned from. A comment in input-command-translator.ts attributed to `RS-30`
+# of table T-233 the words 「その行は畳まれておらず、隠れている子も無い」 and then
+# argued from them that narrowing `openOneLevel`'s arm would make the telling
+# untrue. ⛔ RS-30 says 「直下に、画面へ戻せる子が 1 つも無い」 and the dictionary
+# entry says the same; neither mentions being unfolded, so the danger the
+# comment described does not exist and the reasoning was void.
+# ⭐ THE BEHAVIOUR WAS NOT CHANGED TO MATCH THE COMMENT. Whether a folded
+# childless row should still arm that entrance is now ledger row D-385, to be
+# settled from HF-13's own row -- this file already records a case where the
+# code was right and only its stated reason was wrong.

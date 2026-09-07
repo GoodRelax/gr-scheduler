@@ -32,6 +32,7 @@ import type {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { planDocumentChange } from '../../src/use-case/apply-document-change/document-change-plan'
 import { editCalendar } from '../../src/use-case/edit-document/edit-calendar'
+import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 
 // ---------------------------------------------------------------------------
 // Fixed data copied from the tables (Chapter 1.9)
@@ -600,5 +601,188 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (D-353)'
     // The count reaches WS-7 through the plan, because the telling happens
     // after the swap and the figures it would compare are gone by then.
     expect(plan.report.recountedTaskUids).toEqual([10])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-012 -- THE CONTROLS. Every case above passes for more than one build, so
+// each of the three ways this could have been built WRONG is given a case that
+// tells it apart from the right one:
+//
+//   ⓐ a build that RE-COUNTS ON EVERY WRITE (the trigger is not read at all),
+//   ⓑ a build that re-counts in a SECOND write (so one undo splits the halves),
+//   ⓒ a build that TELLS WITHOUT A COUNT (or counts the wrong set).
+//
+// ⭐ ⓐ IS TOLD APART BY A STORED FIGURE THAT DISAGREES WITH THE FORMULA. FR-012
+// STORES the figure and lists WHEN it is counted again -- 日付を編集したとき and,
+// since 2026-09-07, 稼働日の暦を編集したとき. A figure that arrived from an
+// exchange partner disagreeing with our arithmetic is therefore a state the
+// document may hold, and a write that is neither of those two occasions must
+// leave it exactly as it stands. ⛔ A build that re-counted unconditionally
+// would quietly repair it, and every case above would still pass.
+// ---------------------------------------------------------------------------
+
+/**
+ * The same plan as the cases above, but holding a figure NO calendar in this
+ * file counts to: 99 against 60 (月〜金) and 50 (土曜を足して). So whichever
+ * calendar a wrong build counted by, the disagreement shows.
+ */
+const documentWithADisagreeingFigure = (): Document =>
+  documentOf({
+    tasks: [
+      taskOf({
+        uid: 10,
+        name: 'a figure an exchange partner stored',
+        start: PLAN_START,
+        finish: PLAN_FINISH,
+        actualDuration: WORKED_DAYS,
+        percentComplete: 99,
+      }),
+    ],
+  })
+
+const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
+  planDocumentChange({
+    document,
+    readStamp: document.documentStamp,
+    commands,
+    moment: CALM,
+    history: EMPTY_HISTORY,
+    historyLimits: HISTORY_LIMITS,
+    settingsLimits: LIMITS,
+    editedBy: 'user',
+    updatedUtc: '2026-08-17T01:00:00Z',
+  })
+
+describe('FR-012 -- the controls on the recount (D-353)', () => {
+  it('ⓐ GIVEN a calendar command that moves only the week start WHEN it lands THEN nothing is counted again', () => {
+    // ⭐ THE WEEK START IS NOT AN INPUT TO 稼働日. FR-054 counts the working days
+    // by the document's `Calendar`; AT-17's `Project.weekStartDay` is where the
+    // week RULER begins. So this write is neither of FR-012's two occasions.
+    // ⛔ CONTROL: a build that re-counted on every write would answer 60 here --
+    // the formula's own figure -- and would name uid 10 in the report. Both
+    // assertions below fail for that build and hold for this one.
+    const document = documentWithADisagreeingFigure()
+    const result = editCalendar(document, { kind: 'setCalendar', weekStartDay: 4 })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.document.schedule.project.weekStartDay, 'the half that DID move').toBe(4)
+    expect(percentOf(result.document, 10)).toBe(99)
+    expect(result.report.recountedTaskUids).toEqual([])
+  })
+
+  it('ⓐ GIVEN a write that is not a calendar edit at all WHEN it lands THEN nothing is counted again', () => {
+    // ⛔ CONTROL, and the wider one: the recount must be keyed to the OCCASION,
+    // not fired by whatever write happens to pass. `setTaskName` moves no input
+    // of the formula, so the stored 99 stands and the report is the one frozen
+    // empty value every non-calendar edit answers with. A build that re-counted
+    // on every write repairs it to 60 and reports [10].
+    const plan = planOf(documentWithADisagreeingFigure(), [
+      { kind: 'setTaskName', uid: 10, name: 'renamed' } as DocumentCommand,
+    ])
+    expect(plan.ok).toBe(true)
+    if (!plan.ok) return
+    expect(plan.document.schedule.tasks[0]?.name).toBe('renamed')
+    expect(percentOf(plan.document, 10)).toBe(99)
+    expect(plan.report.recountedTaskUids).toEqual([])
+  })
+
+  it('ⓐ GIVEN the same calendar edit applied twice WHEN the second lands THEN the document does not move', () => {
+    // ⛔ CONTROL on the OTHER half of "every write": a build that rebuilt the
+    // schedule unconditionally would answer a NEW document here even though the
+    // calendar already said Saturday. `edit-calendar.ts` returns the very
+    // document it was handed, which is what FR-063's schedule instant is read
+    // off (`document-change-plan.ts` compares the schedule REFERENCE), so an
+    // unconditional rebuild would move the instant for a write that changed
+    // nothing.
+    const once = editCalendar(documentWithAPricedTask(), {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(once.ok).toBe(true)
+    if (!once.ok) return
+    expect(percentOf(once.document, 10)).toBe(PERCENT_WITH_SATURDAY)
+
+    const twice = editCalendar(once.document, {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(twice.ok).toBe(true)
+    if (!twice.ok) return
+    expect(twice.document, 'the same document, not an equal one').toBe(once.document)
+    expect(twice.report.recountedTaskUids).toEqual([])
+  })
+
+  it('ⓑ GIVEN the calendar edit WHEN ONE undo is pressed THEN both the calendar and the 完了率 go back', () => {
+    // FR-012 (MUST NOT): 「別の書き込みに分けてはならない」——「暦の変更は取り消せる
+    // ので、分けると取り消しが暦だけを戻し、数え直した完了率が残る」.
+    // ⭐ THE UNDO IS ACTUALLY PRESSED HERE, not inferred from the step's contents:
+    // `undoEdit` is asked for the pair the plan answered with.
+    // ⛔ CONTROL: for a build that wrote the recount as a SECOND step, `done`
+    // would hold 2 and this single undo would put back one half only -- the
+    // calendar back to 月〜金 with the 完了率 still 50, or the 完了率 back to 60
+    // with Saturday still worked. Both of the paired assertions below catch it,
+    // and so does the length.
+    const document = documentWithAPricedTask()
+    const plan = planOf(document, [
+      { kind: 'setCalendar', workingDayTypes: [...S_106_WORKING, SATURDAY] } as DocumentCommand,
+    ])
+    expect(plan.ok).toBe(true)
+    if (!plan.ok) return
+    expect(plan.history.done, 'ONE step for the one gesture (FR-031)').toHaveLength(1)
+
+    const undone = undoEdit({ document: plan.document, history: plan.history })
+    expect(undone.undone).toBe(true)
+    expect(workingOf(undone.next.document, 1), 'the calendar half').not.toContain(SATURDAY)
+    expect(percentOf(undone.next.document, 10), 'the 完了率 half').toBe(PERCENT_UNDER_MON_TO_FRI)
+    // ⛔ AND THERE IS NOTHING LEFT TO UNDO. A second step would still be here.
+    expect(undone.next.history.done).toHaveLength(0)
+  })
+
+  it('ⓒ GIVEN two tasks whose figures move and one whose figure does not WHEN the calendar is edited THEN the count is 2', () => {
+    // FR-012 (MUST): 「値が変わった `Task` の件数を添えて告げること」, and NT-3 of
+    // table T-037 is the manner -- 「対象の件数」. The count the shell raises is
+    // `recountedTaskUids.length`, so this case fixes WHICH SET is counted.
+    // ⛔ CONTROL, three wrong builds at once: one that told without a count has
+    // no list to answer with at all; one that counted every task the calendar
+    // REACHES answers 3; one that counted the tasks it merely rebuilt answers 3
+    // as well, because `repriced` builds a new object every time. Only the set
+    // 「値が変わった `Task`」 answers 2.
+    const document = documentOf({
+      tasks: [
+        taskOf({
+          uid: 10,
+          start: PLAN_START,
+          finish: PLAN_FINISH,
+          actualDuration: WORKED_DAYS,
+          percentComplete: PERCENT_UNDER_MON_TO_FRI,
+        }),
+        taskOf({
+          uid: 12,
+          start: PLAN_START,
+          finish: PLAN_FINISH,
+          actualDuration: WORKED_DAYS,
+          percentComplete: PERCENT_UNDER_MON_TO_FRI,
+        }),
+        // 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Thu] = 4 worked days
+        // with or without Saturday, so this one's figure stands.
+        taskOf({
+          uid: 11,
+          start: '2026-09-07T00:00:00',
+          finish: '2026-09-11T00:00:00',
+          actualDuration: 3,
+          percentComplete: 75,
+        }),
+      ],
+    })
+    const result = editCalendar(document, {
+      kind: 'setCalendar',
+      workingDayTypes: [...S_106_WORKING, SATURDAY],
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.report.recountedTaskUids).toEqual([10, 12])
+    expect(result.report.recountedTaskUids).toHaveLength(2)
+    expect(percentOf(result.document, 11), 'the one that did not move').toBe(75)
   })
 })

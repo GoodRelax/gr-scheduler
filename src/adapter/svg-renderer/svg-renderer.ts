@@ -269,9 +269,17 @@ const FADE_HANDLE_STROKE_COLOUR = '#374151'
  * HEIGHT and needs no number at all, because a row's figures stand in that
  * row's band.
  *
- * ⭐ 1.5 IS THE AUTHOR'S OWN NUMBER, ruled 2026-09-07: a little margin is owed
- * for the assignee and the name, and one and a half screens on each side is
- * plenty. ⛔ IT IS NOT A QUOTATION FROM docs/spec, and no row of it states a
+ * ⭐⭐ 0.25 IS THE AUTHOR'S OWN NUMBER, and the ruling was given twice.
+ * 利用者の裁定 2026-09-07（逐語「それでも両側1.5倍あれば十分」）was built as 1.5 on
+ * EACH side. 利用者の裁定 2026-09-08, shown what each reading costs
+ * （逐語「両側あわせて1.5倍でいけ」）: the DRAWN RANGE is one and a half windows
+ * in total -- the window itself plus a quarter of it on either hand.
+ * ⚠️ THE COST OF THE OTHER READING WAS MEASURED BEFORE THE RULING, on the
+ * shipped build at 1000 `Task`, 1920x1080: 21.52 ms per frame at 1.5 a side
+ * against 18.38 ms at 0.25 a side, median of three alternated runs.
+ * ⭐ A quarter of a window still clears the assignee and the name by far more
+ * than either can overhang.
+ * ⛔ IT IS NOT A QUOTATION FROM docs/spec, and no row of it states a
  * margin -- sideways the band is NOT the whole of a Task's ink, because NL-3 of
  * table T-013 puts the name label outside the bar, GR-11 hangs the assignee off
  * it and the percent label sits beside it, so the bar's own rectangle is too
@@ -289,7 +297,7 @@ const FADE_HANDLE_STROKE_COLOUR = '#374151'
  * application is drawn on others; a margin tied to the area is the same margin
  * on all of them.
  */
-const OFF_SCREEN_SIDE_MARGIN = 1.5
+const OFF_SCREEN_SIDE_MARGIN = 0.25
 
 /** @purity pure */
 function escaped(text: string): string {

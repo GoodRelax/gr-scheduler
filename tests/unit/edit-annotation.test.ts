@@ -314,6 +314,42 @@ describe('EditAnnotation (UF-14) -- the CommentBox group, CM-46 to CM-51', () =>
     }
   })
 
+  it('CM-49 answers the SAME document when the shape asked for is the one already named', () => {
+    // FR-020 (MUST): the trail is stamped when the document is opened and when
+    // it CHANGES, and a write that changed nothing is neither -- `frame-loop.ts`
+    // keeps that by comparing the DOCUMENT reference. FR-063 does the same on
+    // the SCHEDULE reference for the instant. CM-49 was the one arm of this
+    // file with no such test (ledger row D-378).
+    //
+    // ⭐ THE CONTROL, both halves in one case:
+    //   ① a build that answers a new document for every write fails the first
+    //      expectation -- that is the build D-378 measured.
+    //   ② a build that answers the document it was handed whatever it was
+    //      asked fails the second, which is the worse of the two wrong builds:
+    //      the shape would then never be storable at all.
+    const named = documentOf({
+      schedule: { commentBoxes: [commentBoxOf({ id: 'c1', leaderShapeKind: 'polyline' })] },
+    })
+    const again = editAnnotation(named, {
+      kind: 'setCommentBoxLeaderShapeKind',
+      id: 'c1',
+      leaderShapeKind: 'polyline',
+    })
+    expect(again.ok).toBe(true)
+    if (!again.ok) return
+    expect(again.document).toBe(named)
+
+    const moved = editAnnotation(named, {
+      kind: 'setCommentBoxLeaderShapeKind',
+      id: 'c1',
+      leaderShapeKind: 'calloutBox',
+    })
+    expect(moved.ok).toBe(true)
+    if (!moved.ok) return
+    expect(moved.document).not.toBe(named)
+    expect(moved.document.schedule.commentBoxes[0]!.leaderShapeKind).toBe('calloutBox')
+  })
+
   it('FR-019 keeps comment boxes and highlight boxes as different things', () => {
     // FR-019: 「コメントボックスは点を指し、ハイライトボックスは範囲を囲む。
     // 必要な情報が違うので別のものとして持つ」-- two arrays (DR-2), so an id

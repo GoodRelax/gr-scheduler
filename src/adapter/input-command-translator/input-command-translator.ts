@@ -6658,13 +6658,20 @@ function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
  * ⭐ THE CLOSING RULE UNDER TABLE T-051 (MUST), WORD FOR WORD: 「その操作で、
  * 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」,
  * and 「数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である」.
- * ⚠️ `openOneLevel` IS THE ONE PLACE THAT RULE IS ANSWERED SHORT, and by a row
- * of the specification rather than by a choice made here: RS-30 of table T-233
- * words HF-13's spent 場面 「その行は畳まれておらず、隠れている子も無い」, so a
- * FOLDED row with no child at all is armed even though its opening reveals
- * nothing. ⛔ NARROWING IT WOULD MAKE THE TELLING UNTRUE -- the notice would
- * open 「その行は畳まれておらず」 on a row that is folded, which FR-029 (MUST NOT)
- * forbids -- and no other row of that table fits.
+ * ⚠️⚠️ `openOneLevel` IS ANSWERED SHORT HERE: a FOLDED row with no child at
+ * all is armed, even though opening it reveals nothing and the closing rule
+ * above would call that no target.
+ * ⛔⛔ THE REASON THIS COMMENT USED TO GIVE FOR THAT WAS A FABRICATED CITATION,
+ * corrected 2026-09-08. It attributed to `RS-30` of table T-233 the words
+ * 「その行は畳まれておらず、隠れている子も無い」 and reasoned that narrowing the
+ * arm would make the telling untrue on a folded row. ⛔ THAT ROW SAYS NOTHING
+ * OF THE KIND: read it, and the dictionary entry beside it. Neither mentions
+ * being unfolded, so the telling would be true of a folded childless row and
+ * the danger the old reason described does not exist.
+ * ⭐ WHETHER THE BEHAVIOUR IS RIGHT IS AN OPEN QUESTION and is `D-385` of
+ * docs/development-records/defects.md. ⛔ DO NOT 'FIX' THE CODE TO AGREE WITH A
+ * COMMENT -- the quoted-source baseline file records a case where the code was
+ * right and only its stated reason was wrong. Read HF-13's own row first.
  *
  * ⭐ `ancestorId` OF `null` MEANS THE WHOLE DOCUMENT, which is what HR-1 reaches
  * (IC-74); there is no pressed row then, so nothing is added for one.

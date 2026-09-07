@@ -592,6 +592,30 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // row moves the schedule instant: a `TaskGroup` is schedule-group data, and
   // FR-063 moves that instant for a write that touched the group.
   const hasMovedSchedule = hasMovedScheduleGroup(input.document, settled)
+  // ⛔⛔ A WRITE THAT MOVED NOTHING DOES NOT ADVANCE THE STAMP. FR-020 (MUST NOT)
+  // says it in as many words -- 「拒まれた書き込みや、何も変えなかった書き込みでは
+  // 打ち直さない」 -- and until 2026-09-08 this line advanced it for every
+  // accepted write, which made the watermark move on a press that changed no
+  // value (ledger D-378; measured on the shipped build, 8 seconds forward for
+  // writing the title the document already held).
+  // ⭐ THE TEST IS IDENTITY AND NOT A VALUE COMPARISON, and that is what makes it
+  // affordable here: every arm of `edit-document/` now answers the document it
+  // was handed when its own fields did not move, so `settled === input.document`
+  // is exactly "nothing moved" and costs one reference check on a road AG-3
+  // already runs once per bundle. ⛔ A deep comparison would put that cost on
+  // the write road for no further truth.
+  // ⚠️ FR-063 IS NOT CONTRADICTED: it moves the schedule instant 「文書が更新された
+  // とき」 and speaks of the instant that 動いた; a write that updated nothing is
+  // not one of those.
+  if (settled === input.document) {
+    return {
+      ok: true,
+      document: input.document,
+      history,
+      hasMovedSchedule,
+      report: { recountedTaskUids: [...recountedTaskUids] },
+    }
+  }
   const document: Document = {
     ...settled,
     documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedUtc, {
