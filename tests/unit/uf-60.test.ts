@@ -413,6 +413,11 @@ const SESSION: ScreenSession = {
   notices: [],
   confirmation: null,
   rowBoxes: [{ groupId: 'g1', box: ROW_BOX }],
+  // GR-21 of table T-023d divides these to get the scrollbar grip's
+  // length, and this file asks nothing of it. ⭐ A whole of zero is
+  // "everything fits", which is the lane-long grip SC-4 of table T-031
+  // draws when nothing overflows.
+  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
 const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
@@ -477,7 +482,7 @@ const viewOf = (frame: Frame = FRAME): ScreenView =>
  */
 const membersFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
   language: frame.session.language,
-  frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state),
+  frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state, frame.session),
   appHeaderItems: appHeaderItemsFromDocument(
     frame.schedule,
     frame.settings,

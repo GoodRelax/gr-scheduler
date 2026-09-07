@@ -84,6 +84,7 @@ import type {
 import type {
   PanelDivider,
   ScreenFrame,
+  ScreenSession,
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
@@ -217,11 +218,52 @@ const STATE = emptyScreenState()
 // Reading the answer.
 // ---------------------------------------------------------------------------
 
+/**
+ * The fourth argument the contract fixes, with every member of `ScreenSession`
+ * spelled out so a case that means to vary one varies exactly one.
+ *
+ * ⚠️ UF-61 READS ONE OF THEM. The "nine unit contracts" section gives this
+ * unit the session for `scrollExtent` alone -- GR-21 of table T-023d makes the
+ * grip's length a fraction of an extent `ScheduleLayout` holds -- so every
+ * other member below is a required field filled with the value that asks
+ * nothing: no pointer, no selection, no notice, no question.
+ *
+ * ⭐ A WHOLE OF ZERO IS "EVERYTHING FITS", which is the state SC-4 of table
+ * T-031 names, and the cases below are written against it. ⛔ Nothing here
+ * asserts GR-21's fraction; a case that means to would say so and hand this
+ * helper a `scrollExtent` of its own.
+ */
+const SESSION: ScreenSession = {
+  language: 'ja',
+  openedFileName: null,
+  fileSavedAt: null,
+  isAgentApiEnabled: false,
+  isDialogueFieldVisible: false,
+  pointer: null,
+  pointerRestedMs: 0,
+  commandPaletteAt: { x: 0, y: 0 },
+  iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: 0,
+  isMilestoneListOpen: false,
+  isPaletteMinimised: false,
+  dualCursorFollowing: null,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesSubject: null,
+  propertiesShowing: null,
+  notices: [],
+  confirmation: null,
+  rowBoxes: [],
+  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
+}
+
 const frameOf = (
   regions: ScreenRegions = REGIONS,
   settings: DocumentSettings = SETTINGS,
   state: ScreenState = STATE,
-): ScreenFrame => screenFrameFromRegions(regions, settings, state)
+  session: ScreenSession = SESSION,
+): ScreenFrame => screenFrameFromRegions(regions, settings, state, session)
 
 const scrollbarOn = (frame: ScreenFrame, axis: Scrollbar['axis']): Scrollbar => {
   const found = frame.scrollbars.filter((bar) => bar.axis === axis)
@@ -586,7 +628,7 @@ describe('UF-61 -- table T-075 makes the unit `pure`', () => {
       state: structuredClone(state),
     }
 
-    screenFrameFromRegions(regions, settings, state)
+    screenFrameFromRegions(regions, settings, state, SESSION)
 
     expect(regions).toEqual(before.regions)
     expect(settings).toEqual(before.settings)

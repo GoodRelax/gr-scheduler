@@ -5,7 +5,8 @@
 // @purity    pure
 //
 // ⚠️ PART of this file is generated. The marked region at the bottom -- search
-// for NOT_STORED_PANEL_DIVIDER_SIZES -- comes from
+// for NOT_STORED_PANEL_DIVIDER_SIZES, and the scrollbar constant beside it --
+// comes from
 // docs/spec/_source/settings.json (table T-206) and is overwritten by
 // `npm run gen`; `npm run gen:check` fails if it has drifted. Everything above
 // the marker is hand written. Do not edit by hand inside that region: edit the
@@ -19,6 +20,11 @@
 // others. Its row of table T-075 names FR-051, FR-052 and FR-071, and the
 // signature published here is the one the "nine unit contracts" section of
 // screen-renderer.ts fixes.
+// ⚠️ IT IS FOUR ARGUMENTS SINCE D-298 (2026-09-08), and only `scrollExtent` is
+// read off the fourth: GR-21 of table T-023d sizes the scrollbar grip as a
+// fraction of an extent that is ScheduleLayout's, and this component has no edge
+// to reach it by. ⛔ Nothing else on `ScreenSession` is touched here -- the
+// other eight units are the readers of the rest.
 //
 // ⭐ WHAT THIS UNIT ADDS TO ScreenRegions. The rectangles of the parts
 // themselves are PI-35's and are not repeated. What is decided here is what
@@ -44,14 +50,18 @@
 // is the very width FR-052 already subtracted.
 //
 // ⛔ Two STOP notes below say what is open: which side of the gap the lane sits
-// on, and the grip's length. ⭐ Neither belongs to the divider any more -- the
-// BAND was closed when table T-206 gained S-134, and the LINE'S THICKNESS was
-// closed by EP-9 of table T-076 on 2026-09-07 (D-363), which is read from
-// `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
+// on, and WHERE ALONG THE LANE the grip starts. ⭐ Neither belongs to the
+// divider any more -- the BAND was closed when table T-206 gained S-134, and the
+// LINE'S THICKNESS was closed by EP-9 of table T-076 on 2026-09-07 (D-363),
+// which is read from `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
+// ⭐ AND THE GRIP'S LENGTH IS CLOSED TOO (D-298, 2026-09-08): GR-21 of table
+// T-023d states it in full, and the extent it is a fraction of now travels on
+// `ScreenSession.scrollExtent`. What is left of that hole is the grip's START,
+// which needs a number `ScheduleLayout` does not publish.
 // ⚠️ THE TWO THAT REMAIN ARE NOT THE SAME KIND OF HOLE. The first is a rule no
-// requirement states; the second is a rule GR-21 of table T-023d states in full,
-// whose two numbers this unit's three arguments do not carry -- so it is closed
-// in the manuscript and open in the wiring, and `scrollbarIn` says which wire.
+// requirement states; the second is part of a rule GR-21 states in full, whose
+// remaining number nothing this unit is handed carries -- so it is closed in the
+// manuscript and open in the wiring, and `scrollbarIn` says which wire.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -63,7 +73,12 @@ import type {
 // public entry of the component that draws `Group Grid Lines` (LR-2), and adds
 // no cycle -- SvgRenderer imports no other adapter.
 import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
-import type { PanelDivider, ScreenFrame, Scrollbar } from './screen-renderer'
+import type {
+  PanelDivider,
+  ScreenFrame,
+  ScreenSession,
+  Scrollbar,
+} from './screen-renderer'
 
 /**
  * The boundary of one panel: the line EP-9 of table T-076 keeps in the export
@@ -127,87 +142,85 @@ function dividerAt(
 /**
  * One lane and its grip.
  *
- * ⭐⭐ THE GRAB IS OPEN AGAIN, AND THIS NOTE NO LONGER CLAIMS OTHERWISE. What
- * stood here said table T-023d had NO ROW for either lane, so a proportional
- * grip would be "a shape nothing presses". GR-21 of table T-023d was written on
- * 2026-09-07 and that ground is gone: `ScreenPart.scrollbarAxis` reports a press
- * on a lane and `input-command-translator.ts` turns a drag on it into FR-051's
- * change of the display position (D-298, measured on the shipped build --
- * a 100px drag on each lane moves the picture, and moved nothing before it).
+ * ⭐⭐ THE GRAB IS OPEN, AND SO IS THE LENGTH (D-298 closed on 2026-09-08).
+ * `ScreenPart.scrollbarAxis` reports a press on a lane and
+ * `input-command-translator.ts` turns a drag on it into FR-051's change of the
+ * display position -- measured on the shipped build, a 100px drag on each lane
+ * moves the picture, and moved nothing before it.
  *
- * STOP -- ⛔ NOT REACHABLE FROM THIS UNIT'S ARGUMENTS: how long the grip is.
- * GR-21 (MUST) states the rule and leaves no room for a choice -- 「長さは、帯の
- * 長さに対する『見えている範囲 ÷ 全体』の割合とすること」, floored at S-205 of
- * table T-206 -- and both of its two numbers are ScheduleLayout's
- * (`contentWidth` / `contentHeight` against the `Row Area`). ⛔ UF-61 is handed
- * `ScreenRegions`, `DocumentSettings` and `ScreenState` and none of the three
- * carries either, `ScreenSession.rowBoxes` carries only the rows already CUT to
- * the `Row Area` (`drawnRowBoxesOf` in `frame-loop.ts`), and
- * `_source/components.json` gives ScreenRenderer no edge to ScheduleLayout --
- * which is the same absence `ScreenSession.rowBoxes` records of itself.
- * ⇒ ⛔ WHAT IS MISSING IS A WAY IN, NOT A RULE, AND THERE ARE TWO OF THEM.
- * ⛔ Neither may be minted here -- a second computation of an extent this
- * component cannot read would be the very duplication chapter 5.3 refuses.
+ * ⭐⭐ THE LENGTH IS GR-21's, WRITTEN OUT AND NOT CHOSEN. GR-21 of table T-023d
+ * (MUST) says 「長さは、帯の長さに対する『見えている範囲 ÷ 全体』の割合とすること」
+ * and (MUST) 「長さの下限を `S-205` とすること」. Both halves stand below:
+ *   - 「全体」 is `ScheduleLayout`'s, which this component has no edge to and may
+ *     NOT measure again (chapter 5.3, and ADR-001 runs the layout once a frame).
+ *     ⭐ IT ARRIVES INSTEAD, as `ScreenSession.scrollExtent` -- the door that
+ *     was missing when this note was a STOP, opened the way `rowBoxes` was.
+ *     That member's own note carries why `ScreenState` and `ScreenRegions` were
+ *     refuted, and why no edge was added to `_source/components.json`.
+ *   - 「見えている範囲」 sideways is the lane's own length, which is the `Row
+ *     Area`'s width and is already in hand. ⚠️ DOWNWARDS IT IS NOT: FR-098 puts
+ *     the pinned band inside the `Row Area` and LF-14 leaves the scrolling rows
+ *     the remainder, and `contentHeight` measures against that remainder -- so
+ *     `scrollExtent.visibleHeight` carries it and the lane's height does not
+ *     stand in for it. ⛔ Using the lane's height there would overstate the
+ *     fraction by exactly the band, and grow the grip as rows are pinned.
  *
- * ⭐⭐ THE THREE CANDIDATE DOORS, MEASURED 2026-09-08 AGAINST 93699dc, SO THAT
- * THE NEXT ROUND ARGUES WITH NUMBERS RATHER THAN WITH THIS NOTE:
- *   1. A MEMBER ON `ScreenSession` the shell fills from `ScheduleLayout` -- the
- *      shape `rowBoxes` already has. ⭐ THE CHEAPEST OF THE THREE and the one
- *      to take: a FIELD is not a name that crosses a folder, so table T-064
- *      owes it no row and check 26b stays quiet, and `sessionOf` in
- *      `frame-loop.ts` is already handed `layout` at the call that builds the
- *      session. ⛔ It costs edits in TWO files this unit may not reach --
- *      `screen-renderer.ts` (the member, and a fourth argument in the contract
- *      of the nine) and `frame-loop.ts` (the fill).
- *   2. A MEMBER ON `ScreenState`. ⛔ REFUTED TWICE. LY-1 replaces that value
- *      whole through the `screenStateWith*` writers, and PI-36 of table T-064
- *      enumerates them -- so a new writer may not be called from the shell
- *      until that cell names it, which is exactly the wait
- *      `screenStateWithWatermark` sat out. ⚠️ AND THE FILL WOULD COST A FRAME:
- *      `frame-loop.ts` decides whether a wheel or a move owes a picture by
- *      `screenState !== before.screenState`, so an extent rewritten every frame
- *      makes that test answer true forever (D-329 measured 13.3ms a frame).
- *   3. A MEMBER ON `ScreenRegions`. ⛔ REFUTED BY BUILD ORDER, which is not a
- *      matter of taste: `frame-loop.ts` builds the regions FIRST and then hands
- *      them to `layoutFromSchedule`, so the layout is computed FROM the regions
- *      and its extents cannot be inside them.
- * ⚠️ AN EDGE IN `_source/components.json` WOULD ALSO OPEN IT, and it is a
- * change to the specification rather than to this tree -- so it is named here
- * and not taken.
+ * ⛔ NO NEW NUMBER IS MINTED. GR-21 (MUST NOT) says 「新しい設定値を立てない
+ * （割合は既にある値から導ける）」, and the floor is S-205 -- the row that is
+ * already the LANE'S THICKNESS floor, reused on purpose 「最小のつまみを正方形に
+ * するため」. ⛔ The lane's thickness may not be substituted for it: that
+ * thickness is at least S-205 and usually more, so flooring at it would make the
+ * grip longer than the fraction GR-21 fixes wherever the host's bars are wider.
+ * ⭐ S-205 reaches this Adapter through the generated block at the foot of this
+ * file. It stands in `frame-loop.ts` too, and chapter 5.3 is why it stands
+ * twice rather than being imported.
  *
- * ⛔⛔ AND THE FLOOR IS SHUT BY A SECOND DOOR, WHICH THIS NOTE DID NOT SAY
- * BEFORE. GR-21 (MUST) puts the grip's minimum length at S-205, a row of table
- * T-206 that the document does not store -- and the only way a `pure` unit
- * reads such a row is the generated region at the foot of a file, whose keys
- * are chosen in `tools/generate_entity_types.py` (`NOT_STORED_SCROLLBAR_SIZES`
- * holds S-205 today, and that block is written into `frame-loop.ts`, a
- * Framework file no Adapter may import). ⇒ The block at the foot of THIS file
- * carries S-134 and not S-205, so even with the two extents in hand the floor
- * could not be honoured. ⭐ THE MEND IS ONE KEY IN THAT GENERATOR AND NOT A NEW
- * MECHANISM: one manuscript row generated into two units is a bargain the tree
- * already takes, and the generator says so itself where S-218 lands twice.
- * ⛔ AND IT MAY NOT BE SUBSTITUTED: the lane's own thickness is
- * always at least S-205 and usually more, so flooring at the thickness would
- * make the grip longer than the fraction GR-21 fixes for every environment
- * whose bars are wider than S-205 -- a rule invented where one already stands.
- * ⛔ NO SETTINGS ROW IS OWED EITHER: GR-21 says so in as many words
- * (「新しい設定値を立てない」), and S-205 -- which the floor names -- already
- * exists as the lane's THICKNESS floor and is deliberately reused so that the
- * smallest grip comes out square.
- * ⭐ Chose, meanwhile, the grip that fills its lane: that is exactly the
- * "everything fits" state SC-4 of table T-031 names, it claims no display
- * position the arguments do not carry, and the drag it is grabbed by is
- * geared off the extents rather than off this length, so the picture moves the
- * right distance whatever this comes out at (`scrollGearing` carries that
- * reading). Searched: GR-21 and the closing rules of table T-023d, FR-051,
- * FR-052, FR-037, SC-4 of table T-031, table T-203 (S-77 / S-78 / S-176 /
- * S-177), table T-206 (S-205), `_source/components.json` and the nine unit
- * contracts in `screen-renderer.ts`.
+ * STOP -- ⛔ NOT REACHABLE FROM THIS UNIT'S ARGUMENTS: WHERE ALONG THE LANE the
+ * grip sits. GR-21 calls it 「帯の中の、いま見えている範囲を表す区間」, and a
+ * 区間 has a start as well as a length. ⛔ The start is the display position
+ * measured against the content, and `ScheduleLayout` publishes no offset to
+ * measure it with: `rows` and `placements` arrive ALREADY slid, while
+ * `contentWidth` / `contentHeight` / `contentX0` are stated to be measured
+ * BEFORE the slide, so the difference cannot be recovered from either.
+ * S-77 / S-78 / S-176 / S-177 of table T-203 name the place in DAYS and ROWS
+ * and this unit has neither a calendar nor a row list to turn them into a
+ * fraction. ⇒ ⛔ A THIRD NUMBER WOULD HAVE TO TRAVEL, and it is not minted
+ * here -- the grip is laid at the lane's start meanwhile, which is where a
+ * document that has not been scrolled puts it. ⚠️ The drag is geared off the
+ * extents rather than off this rectangle (`scrollGearing`), so the picture
+ * still moves the right distance while this stands.
+ * Searched: GR-21 and the closing rules of table T-023d, FR-051, FR-052,
+ * FR-037, FR-098, SC-4 of table T-031, LF-14 of table T-221, table T-203
+ * (S-77 / S-78 / S-176 / S-177), table T-206 (S-205), and `ScheduleLayout`.
  *
  * @purity pure
  */
-function scrollbarIn(axis: Scrollbar['axis'], track: ScreenRect): Scrollbar {
-  return { axis, track, thumb: track }
+function scrollbarIn(
+  axis: Scrollbar['axis'],
+  track: ScreenRect,
+  visible: number,
+  whole: number,
+): Scrollbar {
+  const along = axis === 'horizontal' ? track.width : track.height
+  // GR-21 (MUST): 「見えている範囲 ÷ 全体」. ⚠️ Never more than one -- SC-4 of
+  // table T-031 draws the bar when everything fits, and a fraction above one
+  // would run the grip past the end of its lane. ⭐ A content of zero is that
+  // same "everything fits": nothing was placed, so all of it is on screen.
+  const share = whole > 0 ? Math.min(1, visible / whole) : 1
+  // GR-21 (MUST): the floor. ⚠️ Held to the lane as well, because a lane
+  // shorter than S-205 would otherwise carry a grip hanging out of it -- the
+  // floor exists so the grip can be grabbed, and one drawn outside cannot be.
+  const least = Math.min(along, NOT_STORED_SCROLLBAR_SIZES['S-205'])
+  const length = Math.max(least, along * share)
+  return {
+    axis,
+    track,
+    // ⚠️ The start is the lane's own; the STOP above says what is missing.
+    thumb:
+      axis === 'horizontal'
+        ? { x: track.x, y: track.y, width: length, height: track.height }
+        : { x: track.x, y: track.y, width: track.width, height: length },
+  }
 }
 
 /**
@@ -235,6 +248,7 @@ export function screenFrameFromRegions(
   regions: ScreenRegions,
   settings: DocumentSettings,
   state: ScreenState,
+  session: ScreenSession,
 ): ScreenFrame {
   const rowArea = regions.rowArea
 
@@ -271,8 +285,22 @@ export function screenFrameFromRegions(
       dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x),
     ],
     scrollbars: [
-      scrollbarIn('horizontal', horizontalTrack),
-      scrollbarIn('vertical', verticalTrack),
+      // GR-21's two fractions. ⚠️ The sideways one is seen through the lane
+      // itself (the `Row Area`'s width); the downwards one through the
+      // scrolling remainder, which the pinned band shortens -- see
+      // `scrollbarIn` and `ScrollExtent.visibleHeight`.
+      scrollbarIn(
+        'horizontal',
+        horizontalTrack,
+        horizontalTrack.width,
+        session.scrollExtent.contentWidth,
+      ),
+      scrollbarIn(
+        'vertical',
+        verticalTrack,
+        session.scrollExtent.visibleHeight,
+        session.scrollExtent.contentHeight,
+      ),
     ],
   }
 }
@@ -290,15 +318,42 @@ export function screenFrameFromRegions(
  * column -- the row ID is the specification's own name for them.
  *
  * ⚠️ This unit reads the row where it stands instead of being handed
- * it: the contract in screen-renderer.ts fixes UF-61 at three
- * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
- * value either -- so there is no door to pass it through. ⛔ It is
- * still not a document setting and must not become one.
+ * it: FR-051 (MUST NOT) forbids a setting to hold what these rows
+ * bound, so there is no door to pass one through however many
+ * arguments the contract in screen-renderer.ts fixes. ⭐ Where a row
+ * stands in two units, Chapter 5.3 is the reason -- an Adapter may
+ * not import the Framework file it also stands in, so the one
+ * manuscript row is generated into both. ⛔ It is still not a
+ * document setting and must not become one.
  */
 export const NOT_STORED_PANEL_DIVIDER_SIZES: {
   /** S-134, in px */
   readonly 'S-134': number
 } = {
   'S-134': 8,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: FR-051 (MUST NOT) forbids a setting to hold what these rows
+ * bound, so there is no door to pass one through however many
+ * arguments the contract in screen-renderer.ts fixes. ⭐ Where a row
+ * stands in two units, Chapter 5.3 is the reason -- an Adapter may
+ * not import the Framework file it also stands in, so the one
+ * manuscript row is generated into both. ⛔ It is still not a
+ * document setting and must not become one.
+ */
+export const NOT_STORED_SCROLLBAR_SIZES: {
+  /** S-205, in px */
+  readonly 'S-205': number
+} = {
+  'S-205': 8,
 }
 // </generated>

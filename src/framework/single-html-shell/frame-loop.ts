@@ -2874,6 +2874,29 @@ function sessionOf(
     // ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow
     // the body sideways, so `x` and `width` stay the panel's own.
     rowBoxes: drawnRowBoxesOf(layout, regions),
+    // GR-21 of table T-023d (MUST): the scrollbar grip's length is 「帯の長さに
+    // 対する『見えている範囲 ÷ 全体』の割合」, and 「全体」 is this layout's.
+    // ⭐ READ OFF THE LAYOUT THIS FRAME ALREADY BUILT, never measured again --
+    // ADR-001 runs table T-068 once a frame and hands the answer on, which is
+    // the same bargain `rowBoxes` above is carried by. UF-61 divides; nothing
+    // is decided here.
+    // ⚠️ THE HEIGHT IS THE SCROLLING REMAINDER'S, not the `Row Area`'s.
+    // `layout.contentHeight` measures the rows that FLOW (FR-098 lifts the
+    // pinned ones into a band that does not, and LF-14 of table T-221 leaves
+    // the rest to the remainder), so the height it is seen through has to be
+    // that same remainder -- ⛔ the `Row Area`'s own height would overstate it
+    // by exactly the band, and the grip would grow as rows were pinned.
+    // ⭐ THE SAME TWO EDGES `drawnRowBoxesOf` CUTS AGAINST, read the same way:
+    // `scrollAreaY` is undefined until a pin reaches the band, and reads as the
+    // `Row Area`'s own top.
+    scrollExtent: {
+      contentWidth: layout.contentWidth,
+      contentHeight: layout.contentHeight,
+      visibleHeight: Math.max(
+        0,
+        regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
+      ),
+    },
     // FR-029 (MUST) with RD-1 and RD-2 of table T-230 -- the two questions
     // IC-5 and IC-6 are drawn faint on. ⭐ Carried through as they were handed
     // in: the history is the loop's to hold (LY-5 of table T-060) and this
@@ -10493,10 +10516,13 @@ export const NOT_STORED_REPEAT_TIMES: {
  * column -- the row ID is the specification's own name for them.
  *
  * ⚠️ This unit reads the row where it stands instead of being handed
- * it: the contract in screen-renderer.ts fixes UF-61 at three
- * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
- * value either -- so there is no door to pass it through. ⛔ It is
- * still not a document setting and must not become one.
+ * it: FR-051 (MUST NOT) forbids a setting to hold what these rows
+ * bound, so there is no door to pass one through however many
+ * arguments the contract in screen-renderer.ts fixes. ⭐ Where a row
+ * stands in two units, Chapter 5.3 is the reason -- an Adapter may
+ * not import the Framework file it also stands in, so the one
+ * manuscript row is generated into both. ⛔ It is still not a
+ * document setting and must not become one.
  */
 export const NOT_STORED_SCROLLBAR_SIZES: {
   /** S-205, in px */

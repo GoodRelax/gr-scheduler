@@ -191,7 +191,22 @@ RETIRED = {'FR-050', 'T-030',
            # CM-70 (setExportPngScale) and K-88 followed S-82 on the same day:
            # a command that accepts and writes nothing is a published name with
            # no meaning, and the key it named is gone.
-           'CM-70', 'K-88'}
+           'CM-70', 'K-88',
+           # AS-11 lived for about two hours on 2026-09-08. It was written to
+           # give CM-41 setResourceName the entrance table T-225 never had:
+           # an unknown name committed on a task that ALREADY has an assignee
+           # would rename that person rather than swap in a new one. The user
+           # ruled the other way the same morning -- 「差し替えでOK。 担当を
+           # 変える場合はすでにプロパティーパネルから切り替え可能。 削除も担当者
+           # 一覧から削除可能。」 -- so AS-7 took the input back and AS-11 went.
+           # ⭐ The seat stays burnt because AS-7's own row cites AS-11 as the
+           # thing it no longer has to be told apart from, and that record is
+           # true of the day it was written.
+           # ⚠️ CM-41 is once again a command no human entrance reaches. It is
+           # still reachable through the Agent API, so the notice requirement
+           # that names it is not stranded -- but ledger row D-273, which asked
+           # for the human path, is answered by the ruling, not by a row.
+           'AS-11'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

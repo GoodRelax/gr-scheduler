@@ -140,6 +140,14 @@
 //         a press as GR-21's.
 //     ⭐ The block at the foot of this file pins those measurements, so the day
 //     the thumb starts to follow they fail and this exemption has to go.
+//     ⚠️ THE FIRST OF THE THREE IS SPENT (D-298, 2026-09-08): GR-21's LENGTH
+//     landed, so the thumb is no longer the whole lane -- on `wideFixtureDocument`
+//     it now measures 216.7px of a 976px horizontal lane and 153.6px of a 628px
+//     vertical one. ⛔ THE EXEMPTION STILL STANDS, because what it is about is
+//     the FOLLOWING and not the length: the grip is still laid at its lane's
+//     START, so a held drag moves nothing on the picture, and the two cases below
+//     go on pinning that. ⭐ The grip's start is the STOP note `screen-frame.ts`
+//     now carries; the day it travels, those two fail and this whole block goes.
 //   - WHICH `DocumentCommand` a release plans. The release is read where it
 //     lands -- on `document()` -- because table T-108 is not this file's
 //     subject.

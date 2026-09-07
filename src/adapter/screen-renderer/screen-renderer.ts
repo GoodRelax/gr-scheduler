@@ -250,6 +250,43 @@ export interface Scrollbar {
   readonly thumb: ScreenRect
 }
 
+/**
+ * What GR-21 of table T-023d divides to get the grip's length: 「見えている範囲
+ * ÷ 全体」, per axis.
+ *
+ * ⭐ THE SHELL'S NUMBERS, CARRIED AND NOT MEASURED. All three are read straight
+ * off the `ScheduleLayout` the loop already built this frame -- see
+ * `ScreenSession.scrollExtent` for why they travel rather than being computed
+ * where they are used. ⛔ Nothing here is a settings row and none may become
+ * one: GR-21 (MUST NOT) 「新しい設定値を立てない」.
+ */
+export interface ScrollExtent {
+  /** `ScheduleLayout.contentWidth` -- everything drawn, by table T-038's occupancy. */
+  readonly contentWidth: number
+  /**
+   * `ScheduleLayout.contentHeight` -- ⚠️ THE SCROLLING ROWS ALONE.
+   *
+   * FR-098 lifts the pinned rows into a band that does not scroll, and LF-14 of
+   * table T-221 leaves the rest of the `Row Area` to the ones that do, so the
+   * layout measures this against that remainder and not against the whole
+   * rectangle. `visibleHeight` beside it is that remainder.
+   */
+  readonly contentHeight: number
+  /**
+   * The height `contentHeight` is seen through: the scrolling remainder's, which
+   * is the `Row Area`'s foot less the top edge LF-14 leaves the scrolling rows.
+   *
+   * ⛔ THERE IS NO `visibleWidth` BESIDE IT, and the absence is deliberate: the
+   * horizontal counterpart is the `Row Area`'s own width, which UF-61 is handed
+   * in `ScreenRegions` already. Carrying it here would put one number in two
+   * places, which is what the lane's thickness is derived rather than passed for
+   * (see the head of `screen-frame.ts`). ⚠️ The vertical one is NOT the `Row
+   * Area`'s height, which is why it is here at all -- the pinned band stands
+   * inside that rectangle and outside this measurement.
+   */
+  readonly visibleHeight: number
+}
+
 // ------------------------------------------------------------ UF-62 ---------
 
 /** What stands in the `App Header` (U-31), which is UF-62's row of table T-075. */
@@ -2630,6 +2667,33 @@ export interface ScreenSession {
    */
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
   /**
+   * How much there is to scroll through, and how much of it is on screen.
+   *
+   * ⭐⭐ WHY IT IS HERE (D-298). GR-21 of table T-023d (MUST) fixes the
+   * scrollbar grip's length as 「帯の長さに対する『見えている範囲 ÷ 全体』の割
+   * 合」, and 「全体」 is `ScheduleLayout`'s -- which UF-61 cannot read for
+   * itself, because `_source/components.json` gives ScreenRenderer no edge to
+   * ScheduleLayout. ⛔ It may not be measured again here either: ADR-001 has the
+   * shell run the layout once a frame, and a second computation of an extent
+   * this component cannot see would be the duplication chapter 5.3 refuses.
+   * ⇒ It arrives the way `rowBoxes` does, as bare numbers the shell reads off
+   * the layout it already built.
+   *
+   * ⚠️ NOT ON `ScreenState` (refuted 2026-09-08). LY-1 replaces that value whole
+   * through the `screenStateWith*` writers PI-36 of table T-064 enumerates, so a
+   * new writer could not be called from the shell until that cell named it; and
+   * the loop decides whether a wheel or a move owes a picture by
+   * `screenState !== before.screenState`, so an extent rewritten every frame
+   * would make that test answer true forever (D-329 measured 13.3ms a frame).
+   * ⚠️ NOT ON `ScreenRegions` either: the shell builds the regions FIRST and
+   * hands them to `layoutFromSchedule`, so the layout is computed FROM them and
+   * its extents cannot be inside them.
+   *
+   * ⛔ NO SETTINGS ROW IS OWED FOR ANY OF THIS: GR-21 says so in as many words
+   * (「新しい設定値を立てない（割合は既にある値から導ける）」).
+   */
+  readonly scrollExtent: ScrollExtent
+  /**
    * Whether the history holds a step to go back to, and one to come forward to
    * (FR-031, and RD-1 / RD-2 of table T-230).
    *
@@ -2679,11 +2743,16 @@ export interface ScreenSession {
 //       regions: ScreenRegions,
 //       settings: DocumentSettings,
 //       state: ScreenState,
+//       session: ScreenSession,
 //     ): ScreenFrame
 //     ⚠️ The scrollbar thickness is not an argument and must not become a
 //     setting (FR-051, MUST NOT). It is the gap between the `Row Area`'s right
 //     edge and the `Properties Panel`, less `canvasPadding` (S-56) -- which is
 //     the same arithmetic FR-052 states, read backwards.
+//     ⭐ THE FOURTH ARGUMENT IS GR-21's (D-298, 2026-09-08) and only its
+//     `scrollExtent` is read. The grip's length is 「見えている範囲 ÷ 全体」 and
+//     「全体」 is `ScheduleLayout`'s, which this component has no edge to -- so
+//     the shell carries it, exactly as it carries `rowBoxes` for UF-63.
 //
 //   UF-62  app-header-items.ts
 //     export function appHeaderItemsFromDocument(
@@ -2819,7 +2888,7 @@ export function screenViewFromRegions(
     // normalised on the way through -- `DisplayLanguage` admits the two FR-038
     // admits and no third, so there is no state to fall back from.
     language: session.language,
-    frame: screenFrameFromRegions(regions, settings, state),
+    frame: screenFrameFromRegions(regions, settings, state, session),
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
     rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),
     propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session),

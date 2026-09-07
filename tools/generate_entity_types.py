@@ -1137,6 +1137,27 @@ READ_WHERE_IT_STANDS = [
     ' * value either -- so there is no door to pass it through. ⛔ It is',
     ' * still not a document setting and must not become one.',
 ]
+# ⛔ A SEAM OF ITS OWN, BECAUSE THE ONE ABOVE NAMES A COUNT THAT MOVED. UF-61
+# takes FOUR arguments since D-298 -- `ScreenSession` joined them so GR-21 of
+# table T-023d could reach the extents the grip's length is a fraction of -- so
+# the sentence "fixes UF-61 at three arguments" is no longer true of the two
+# constants that stand in the frame's own units. ⭐ The ground did not move with
+# the count: the door that was opened carries EXTENTS and not settings values,
+# and FR-051 (MUST NOT) still forbids a setting to hold what these rows bound.
+# ⭐ AND THE SECOND HALF OF THE GROUND IS THE LAYER RULE: S-205 stands in
+# `frame-loop.ts` as well, and Chapter 5.3 keeps an Adapter from importing a
+# Framework file -- so one manuscript row is generated into both units rather
+# than passed between them.
+READ_WHERE_THE_FRAME_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands instead of being handed',
+    ' * it: FR-051 (MUST NOT) forbids a setting to hold what these rows',
+    ' * bound, so there is no door to pass one through however many',
+    ' * arguments the contract in screen-renderer.ts fixes. ⭐ Where a row',
+    ' * stands in two units, Chapter 5.3 is the reason -- an Adapter may',
+    ' * not import the Framework file it also stands in, so the one',
+    ' * manuscript row is generated into both. ⛔ It is still not a',
+    ' * document setting and must not become one.',
+]
 # ⛔ A FOURTH SEAM: no door AND no caller, because the clock is the shell's
 # own. FT-4 of table T-078 puts time arriving among the triggers a frame runs
 # on and gives it to SingleHtmlShell (CP-25) to count for itself, and the note
@@ -1244,7 +1265,7 @@ STORED_WHERE_IT_STANDS = [
 NOT_STORED_TARGETS = {
     'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-93', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
-    'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the
     # palette's, but the seam is not the same one: S-135a is a height UF-65
     # carries on the description it builds, and S-143 is a line the DRAWING
@@ -1268,7 +1289,21 @@ NOT_STORED_TARGETS = {
     # BO-1 -- and S-205 is the least this tool will draw whatever that
     # measurement says, because a host with overlay scrollbars answers 0 and
     # half of 0 is 0 (D-115).
-    'NOT_STORED_SCROLLBAR_SIZES': (['S-205'], READ_WHERE_IT_STANDS),
+    # ⭐⭐ AND IT IS WRITTEN INTO TWO UNITS, which is the bargain S-218 already
+    # stands on a few entries below: one manuscript row read by two units that
+    # may not import one another. `frame-loop.ts` floors the LANE'S THICKNESS
+    # with it at BO-1, and `screen-frame.ts` floors the GRIP'S LENGTH with it
+    # for GR-21 of table T-023d -- 「長さの下限を `S-205` とすること（MUST）」,
+    # which that row states is the same number on purpose 「最小のつまみを正方形
+    # にするため」. ⛔ The Adapter may not import the Framework file the block
+    # already stood in (Chapter 5.3), and ⛔ the lane's own thickness may not be
+    # substituted for it: that thickness is at least S-205 and usually more, so
+    # flooring at it would make the grip longer than the fraction GR-21 fixes.
+    # ⭐ ONE NAME AND NOT TWO, unlike S-218: there the two constants hold
+    # DIFFERENT row sets for different subjects, and here both hold {S-205} for
+    # the one subject table T-206's row names -- the least a scrollbar is drawn
+    # at. Two names for one set would be the invented distinction.
+    'NOT_STORED_SCROLLBAR_SIZES': (['S-205'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
     # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
@@ -2220,8 +2255,17 @@ TARGETS = [
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
+    # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors
+    # the GRIP'S LENGTH at the row the shell floors the LANE'S THICKNESS with,
+    # and this Adapter unit may not import that Framework file to reach it.
+    # ⛔ NOT FOLDED INTO NOT_STORED_PANEL_DIVIDER_SIZES, though both land in this
+    # file: one constant per consuming SUBJECT, and the subject differs -- S-134
+    # is the band FR-052's drag grabs at a panel boundary, S-205 is the least a
+    # scrollbar is drawn at. One shared constant would name neither.
     (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCROLLBAR_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⛔ ONE CONSTANT PER CONSUMING UNIT, the same split the note above states:
     # S-134 is UF-61's band and stands in `screen-frame.ts`; S-135a is UF-65's

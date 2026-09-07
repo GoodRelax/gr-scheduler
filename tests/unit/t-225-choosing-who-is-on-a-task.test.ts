@@ -462,6 +462,11 @@ const SESSION: ScreenSession = {
   notices: [],
   confirmation: null,
   rowBoxes: [],
+  // GR-21 of table T-023d divides these to get the scrollbar grip's
+  // length, and this file asks nothing of it. ⭐ A whole of zero is
+  // "everything fits", which is the lane-long grip SC-4 of table T-031
+  // draws when nothing overflows.
+  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
 const holding = (...items: readonly ItemRef[]): Selection =>
