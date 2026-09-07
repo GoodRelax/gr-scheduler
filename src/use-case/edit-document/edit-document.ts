@@ -352,7 +352,24 @@ const PROJECT_KINDS = [
   'setThemeHue',
 ] as const satisfies readonly ProjectCommand['kind'][]
 
-/** CM-56 to CM-71, the 見せ方の群. */
+/**
+ * The 見せ方の群 of table T-108 -- the whole of it, and nothing else.
+ *
+ * ⛔ NAMED AS A SET AND NOT AS A SPAN, which is the same discipline the head of
+ * this file takes for the total. What stood here read 「CM-56 to CM-71」 and so
+ * claimed sixteen rows: CM-57 and CM-70 were retired (2026-09-06 and
+ * 2026-09-07) and the span went on printing them, while the list below has
+ * fourteen names and always did. ⚠️ A SPAN IS A COUNT IN DISGUISE -- it is read
+ * by subtracting its ends -- so it rots the very next time a row is retired or
+ * added at either end, and nothing in the build can notice.
+ *
+ * ⭐ THE SET IS `DocumentSettingsCommand['kind']`, and the two annotations are
+ * what hold this list to it from both sides: the `satisfies` below refuses a
+ * name that is not one of that group's commands, and `ROUTE_TABLE`'s
+ * `Record<DocumentCommand['kind'], AggregateEdit>` refuses one left out. ⇒ The
+ * membership is checked by the compiler on every build, which is what no
+ * written span or total can be.
+ */
 const SETTINGS_KINDS = [
   'setStackDirection',
   'setElementVisible',

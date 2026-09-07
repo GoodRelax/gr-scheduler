@@ -145,13 +145,52 @@ function dividerAt(
  * the `Row Area` (`drawnRowBoxesOf` in `frame-loop.ts`), and
  * `_source/components.json` gives ScreenRenderer no edge to ScheduleLayout --
  * which is the same absence `ScreenSession.rowBoxes` records of itself.
- * ⇒ ⛔ WHAT IS MISSING IS A WAY IN, NOT A RULE: either a member of
- * `ScreenSession` the shell fills with the two extents (the shape `rowBoxes`
- * already has, and it is `frame-loop.ts` that would fill it), or an edge in
- * `_source/components.json`. ⛔ Neither may be minted here -- a second
- * computation of an extent this component cannot read would be the very
- * duplication chapter 5.3 refuses.
- * ⛔ AND NO SETTINGS ROW IS OWED: GR-21 says so in as many words
+ * ⇒ ⛔ WHAT IS MISSING IS A WAY IN, NOT A RULE, AND THERE ARE TWO OF THEM.
+ * ⛔ Neither may be minted here -- a second computation of an extent this
+ * component cannot read would be the very duplication chapter 5.3 refuses.
+ *
+ * ⭐⭐ THE THREE CANDIDATE DOORS, MEASURED 2026-09-08 AGAINST 93699dc, SO THAT
+ * THE NEXT ROUND ARGUES WITH NUMBERS RATHER THAN WITH THIS NOTE:
+ *   1. A MEMBER ON `ScreenSession` the shell fills from `ScheduleLayout` -- the
+ *      shape `rowBoxes` already has. ⭐ THE CHEAPEST OF THE THREE and the one
+ *      to take: a FIELD is not a name that crosses a folder, so table T-064
+ *      owes it no row and check 26b stays quiet, and `sessionOf` in
+ *      `frame-loop.ts` is already handed `layout` at the call that builds the
+ *      session. ⛔ It costs edits in TWO files this unit may not reach --
+ *      `screen-renderer.ts` (the member, and a fourth argument in the contract
+ *      of the nine) and `frame-loop.ts` (the fill).
+ *   2. A MEMBER ON `ScreenState`. ⛔ REFUTED TWICE. LY-1 replaces that value
+ *      whole through the `screenStateWith*` writers, and PI-36 of table T-064
+ *      enumerates them -- so a new writer may not be called from the shell
+ *      until that cell names it, which is exactly the wait
+ *      `screenStateWithWatermark` sat out. ⚠️ AND THE FILL WOULD COST A FRAME:
+ *      `frame-loop.ts` decides whether a wheel or a move owes a picture by
+ *      `screenState !== before.screenState`, so an extent rewritten every frame
+ *      makes that test answer true forever (D-329 measured 13.3ms a frame).
+ *   3. A MEMBER ON `ScreenRegions`. ⛔ REFUTED BY BUILD ORDER, which is not a
+ *      matter of taste: `frame-loop.ts` builds the regions FIRST and then hands
+ *      them to `layoutFromSchedule`, so the layout is computed FROM the regions
+ *      and its extents cannot be inside them.
+ * ⚠️ AN EDGE IN `_source/components.json` WOULD ALSO OPEN IT, and it is a
+ * change to the specification rather than to this tree -- so it is named here
+ * and not taken.
+ *
+ * ⛔⛔ AND THE FLOOR IS SHUT BY A SECOND DOOR, WHICH THIS NOTE DID NOT SAY
+ * BEFORE. GR-21 (MUST) puts the grip's minimum length at S-205, a row of table
+ * T-206 that the document does not store -- and the only way a `pure` unit
+ * reads such a row is the generated region at the foot of a file, whose keys
+ * are chosen in `tools/generate_entity_types.py` (`NOT_STORED_SCROLLBAR_SIZES`
+ * holds S-205 today, and that block is written into `frame-loop.ts`, a
+ * Framework file no Adapter may import). ⇒ The block at the foot of THIS file
+ * carries S-134 and not S-205, so even with the two extents in hand the floor
+ * could not be honoured. ⭐ THE MEND IS ONE KEY IN THAT GENERATOR AND NOT A NEW
+ * MECHANISM: one manuscript row generated into two units is a bargain the tree
+ * already takes, and the generator says so itself where S-218 lands twice.
+ * ⛔ AND IT MAY NOT BE SUBSTITUTED: the lane's own thickness is
+ * always at least S-205 and usually more, so flooring at the thickness would
+ * make the grip longer than the fraction GR-21 fixes for every environment
+ * whose bars are wider than S-205 -- a rule invented where one already stands.
+ * ⛔ NO SETTINGS ROW IS OWED EITHER: GR-21 says so in as many words
  * (「新しい設定値を立てない」), and S-205 -- which the floor names -- already
  * exists as the lane's THICKNESS floor and is deliberately reused so that the
  * smallest grip comes out square.
