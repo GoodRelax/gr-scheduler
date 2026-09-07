@@ -375,14 +375,19 @@ export interface FrameValues {
 }
 
 /**
- * The rows of table T-230 a caller outside this loop may stand in: the two
- * whose `WS-3` column says the caller brings the document itself.
+ * The one row of table T-230 a caller outside this loop may stand in: RD-6, the
+ * startup document, whose `WS-3` column says the caller brings the document
+ * itself.
  *
  * ⛔ NARROWED OUT OF `ReplacementCall`, NEVER WRITTEN AGAIN. What each row
- * carries is PI-8's to say (rule 03 section 1), and the other four rows are not
- * this member's to offer: all four are reached from inside this file -- RD-1
+ * carries is PI-8's to say (rule 03 section 1), and the other five rows are not
+ * this member's to offer: all five are reached from inside this file -- RD-1
  * and RD-2 from the undo entries, RD-3 and RD-4 from the read OP-2 begins, and
  * an outside caller has no `ImportDocument` call to bring.
+ * ⚠️ RD-7 IS AMONG THE FIVE THOUGH ITS `WS-3` COLUMN READS LIKE RD-6's. FR-095
+ * (MUST) has the press ask 表 T-024a の `OP-4` の確認 first, and the asking is
+ * this loop's (`asking`) -- so the row cannot be handed in from outside without
+ * the question being raised outside too.
  */
 export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }>
 
@@ -1165,50 +1170,32 @@ const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
  */
 const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 
-/*
- * STOP -- ⛔⛔ IC-98 OF TABLE T-109 HAS NO CONSTANT HERE AND NO BRANCH BELOW,
- * AND THE REASON IS A ROW OF THE SPECIFICATION RATHER THAN AN OVERSIGHT
- * (台帳 D-364, blocked on 台帳 D-284).
+/**
+ * IC-98 of table T-109 -- FR-095's 「文書を新しく始める」, on the `App Header`.
  *
- * ⭐ WHAT THE PRESS OWES IS KNOWN, and only its last step is not. FR-095:
- * 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻すこと。捨てる前に、
- * 未保存の編集について表 T-024a の `OP-4` と同じ確認を行うこと（MUST）」 -- so
- * the question is `DISCARD_QUESTION` (QN-5), which table T-234's closing note
- * confirms in as many words: 「`FR-095` も行を持たない ... 同じ問いに 2 つ目の
- * 鍵を作らない」. ⇒ The road would be `askToDiscardCurrentDocument(held.document)`
- * and then `replaceHeldDocument({ row, document: <the BT-4 template> })`.
+ * ⭐ FR-095 IS THE WHOLE OF WHAT THE PRESS OWES: 「開いている文書を捨てて表 T-034
+ * の `BT-4` と同じ状態に戻すこと。捨てる前に、未保存の編集について表 T-024a の
+ * `OP-4` と同じ確認を行うこと（MUST）」 -- so the question is `DISCARD_QUESTION`
+ * (QN-5) and the landing is table T-230's `RD-7`.
+ * ⭐ THE QUESTION IS QN-5 AND NOT A ROW OF ITS OWN, which table T-234's closing
+ * note settles in as many words: 「`FR-095` も行を持たない —— 同要求は「表 T-024a
+ * の `OP-4` と同じ確認を行うこと（MUST）」と自ら定めており、同じ問いに 2 つ目の
+ * 鍵を作らない」.
  *
- * ⭐ THE ROW OF THE SPECIFICATION NOW EXISTS: table T-230 gained `RD-7`
- * （`FR-095` の初期化）on 2026-09-07, and its cells are RD-4's -- the caller
- * brings the document (BT-4's bundled template), the history is discarded, the
- * stamp arrives as it came, and no undo step is pushed.
+ * ⛔⛔ HERE FOR THE REASON `ROSTER_DELETE_ENTRY` IS AND NOT FOR THE ONE THE
+ * ENTRIES ABOVE IT HAVE. This press does reach a write, but the write is
+ * `replaceDocument` (PI-8) and not a `DocumentCommand`: table T-108 has no row
+ * for it, so `input-command-translator.ts` has nothing to plan and no `ENTRY`
+ * row is owed there. ⚠️ Measured rather than assumed -- `answerSettledEntry`
+ * runs off `entrySettledOnRelease`, which reads the press's own `ScreenPart`
+ * over IF-9, so the translator is not in this road at all.
  *
- * ⛔⛔ AND `src/` HAS NO SUCH ROW YET, WHICH IS WHERE THIS NOW STANDS (measured
- * 2026-09-07). `ReplacementCall` in
- * `src/use-case/apply-document-change/document-change-plan.ts` is the union of
- * table T-230's callers and it holds five members -- RD-1, RD-2, RD-3, RD-4,
- * RD-6 -- and `planReplacement` in the same file switches on exactly those
- * five. ⇒ `replaceHeldDocument({ row: 'RD-7', ... })` does not compile, and that
- * file is ApplyDocumentChange's, not this component's. TWO LINES ARE OWED
- * THERE: a `| { readonly row: 'RD-7'; readonly document: Document }` beside
- * RD-6's, and a `case 'RD-7'` treated as RD-4 is (history 「捨てる」, stamp as it
- * came, no undo step). ⚠️ RD-6 MAY NOT BE BORROWED FOR IT: table T-230 (MUST)
- * has a caller name its OWN row, and RD-6's history cell says 「空にする」 where
- * RD-7's says 「捨てる」.
- *
- * ⛔ AND NEITHER HALF MAY BE SHIPPED ALONE. A branch that raised QN-5 and
- * discarded nothing on 「続ける」 is exactly the defect 規則 04 section 3.6
- * records from a real press -- 「消す確認が嘘をつく」 -- and telling `RS-27`
- * instead would be FR-029's fallback used for a hole in this build rather than
- * for the scene that row names. ⇒ The entrance stays drawn and unanswered until
- * `ReplacementCall` carries RD-7.
- *
- * ⚠️ A THIRD THING IS OWED ON THIS SIDE AND IS SMALL: the template FR-027 keeps
- * one of is read in `single-html-shell.ts` (`startupTemplateDocument`) and no
- * member carries it into this loop. ⛔ NOT ADDED AHEAD OF THE ROW -- an argument
- * nothing reads is dead weight this file would have to explain, and the shape
- * it arrives in is decided by what `replaceHeldDocument` may be handed.
+ * ⛔ AND THE QUESTION MAY NOT BE RAISED WITHOUT THE LANDING. A branch that put
+ * QN-5 up and discarded nothing on 「続ける」 is the defect 規則 04 section 3.6
+ * records from a real press -- 「消す確認が嘘をつく」 -- which is why this stood
+ * as a STOP until `ReplacementCall` carried RD-7 (台帳 D-364 / D-284).
  */
+const NEW_DOCUMENT_ENTRY: IconId = 'IC-98'
 
 /**
  * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
@@ -1494,6 +1481,13 @@ type NoticeReason =
   // `RS-50` are rows of table T-233 no raiser here reaches, and a seat offered
   // for a reason nothing raises is what D-214 struck `RS-17` for.
   | 'RS-51'
+  // ⭐ THE ROW A CALENDAR EDIT'S RECOUNT IS TOLD ON (`RS-52`). FR-012 (MUST):
+  // 「数え直したことを、値が変わった `Task` の件数を添えて告げること」 -- the
+  // recount itself happens inside the write (`EditReport.recountedTaskUids`),
+  // and this seat is what lets `writeDocument` say it happened.
+  // ⚠️ THE SEATS BETWEEN `RS-51` AND THIS ONE ARE STILL NOT THIS FILE'S, on the
+  // terms the note above `RS-51` states.
+  | 'RS-52'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1566,6 +1560,13 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // telling has to look unlike a refusal, which is the whole of the line NT-5
   // and NT-1 are drawn along. ⚠️ Nor `NT-3a`: nothing of ours failed.
   'RS-51': 'NT-5',
+  // ⛔ `NT-3` AND NOT `NT-5`, AND IT IS TABLE T-233's OWN MANNER COLUMN FOR THIS
+  // ROW rather than a reading taken here. FR-012 (MUST) names the manner in the
+  // same breath as the duty -- 「作法は 表 T-037 の `NT-3`」 -- and NT-3 is the
+  // row that asks for 「対象の**件数**」, naming 「暦の変更（`FR-088`）」 among
+  // its own examples. ⚠️ It is therefore the one raiser here whose count is
+  // never `null`: the count IS what that manner is for.
+  'RS-52': 'NT-3',
 }
 
 /**
@@ -1643,6 +1644,22 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
  * no row, and this file names the row and writes no words.
  */
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
+
+/**
+ * The row of table T-233 a calendar edit's recount carries -- FR-012 (MUST):
+ * 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと」 and 「数え直した
+ * ことを、値が変わった `Task` の件数を添えて告げること」.
+ *
+ * ⭐ SPELLED HERE FOR THE REASON `SETTINGS_CLAMPED_REASON` IS: the write
+ * MEASURES the number (`EditReport.recountedTaskUids`) and names no row, and
+ * this file names the row and writes no words (FR-038, MUST NOT).
+ * ⛔ NOT RAISED BESIDE THE COMMAND THAT ASKED FOR IT, and there is no other
+ * place it could be: MS-1 of table T-042 leaves one write entrance, so
+ * `writeDocument` is the only site that ever holds the count. ⚠️ The count is
+ * what SELECTS the telling too -- FR-012 asks for it 「値が変わった `Task`」, so
+ * a write that moved none has nothing to say and says nothing.
+ */
+const RECOUNTED_PERCENT_COMPLETE_REASON: NoticeReason = 'RS-52'
 
 /**
  * The row of table T-233 FR-015's caution carries -- the overlay's own tasks
@@ -3964,6 +3981,15 @@ export function startupAgentApiEnabled(): boolean {
  * them is one a test already passes by order, and moving one would change what
  * those calls mean without changing a line of them. ⚠️ A named bag for the nine
  * is what is owed here, and each one added makes it owed more.
+ * ⭐ `startupTemplate` IS BT-4 OF TABLE T-034 ITSELF, and it is what FR-095's
+ * press puts up: 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻す
+ * こと」. ⛔ NOT READ HERE. `single-html-shell.ts` already turns the bundled
+ * `GRS JSON` into a `Document` for BO-2, and reading it a second time in this
+ * file would be the same rule written twice (rule 03 section 1) -- FR-027 keeps
+ * 「1 つ」 of that template, so one reader is all there may be.
+ * ⚠️ OPTIONAL ON THE SAME TERMS AS `screen` AND `files`: the loop runs for
+ * paths that never press IC-98, and the entry answers with a telling when there
+ * is no template rather than with a question it could not honour.
  *
  * @purity non-pure
  */
@@ -3978,6 +4004,7 @@ export function frameLoop(
   startedFromTemplate?: boolean,
   rasterizer?: Rasterizer,
   appShell?: AppShellSource,
+  startupTemplate?: Document,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -6798,6 +6825,23 @@ export function frameLoop(
       // FR-100 -- a write that landed is an edit no file has been told about.
       // ⚠️ A REFUSED write is not: nothing moved, so nothing is unsaved.
       hasUnsavedEdits = true
+      // FR-012 (MUST): 「数え直したことを、値が変わった `Task` の件数を添えて告げ
+      // ること」. CM-39 of table T-108 (`setCalendar`) is the only command that
+      // fills this member -- every other edit answers with the one frozen empty
+      // report -- so the count both names the occasion and is the occasion.
+      //
+      // ⛔ TOLD AFTER THE WRITE LANDED AND NOT BESIDE THE COMMAND. FR-012 (MUST
+      // NOT) forbids splitting the recount off into a second write -- 「暦の変更
+      // と同じ書き込みの中で行うこと」 -- and the recount is already inside
+      // `outcome.document`; this is the TELLING, which is the one half table
+      // T-233 leaves to a raiser.
+      // ⛔ NOTHING IS COMPOSED HERE: the row goes over and FR-038's dictionary
+      // holds the words (MUST NOT), exactly as `raiseWriteRefusal` below.
+      // ⚠️ ZERO SAYS NOTHING. FR-012 counts 「値が変わった `Task`」, and a
+      // calendar whose new working days moved no stored 完了率 has none -- a
+      // telling raised for it would report a change that did not happen.
+      const recounted = outcome.report.recountedTaskUids.length
+      if (recounted > 0) raiseNotice(RECOUNTED_PERCENT_COMPLETE_REASON, recounted)
       return
     }
     // FR-076 (MUST): the refusal is raised. It was never thrown nor swallowed --
@@ -6861,16 +6905,28 @@ export function frameLoop(
       // ブラウザで開いた別の文書にも効く」. ⇒ Putting it back on a replacement is
       // a violation of the rule as it stands, not the keeping of one.
       // FR-100 -- what the leave guard is asked about. ⭐ THE SAME COLUMN
-      // ANSWERS IT: the two rows that say 「捨てる」 or 「空にする」 put a
+      // ANSWERS IT: the three rows that say 「捨てる」 or 「空にする」 put a
       // document up that came from a file or from the template, so nothing
       // is unsaved the moment they land; the other three (undo, redo,
       // merge) leave edits the file has never been told about.
-      hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6'
+      // ⚠️ RD-7 IS AMONG THE THREE AND NOT AMONG THE OTHERS: FR-095 puts the
+      // BUNDLED template up, which no file is behind and no edit has touched.
+      hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6' && call.row !== 'RD-7'
       // OP-10 (MUST): the exception is lifted the moment ANOTHER document is
       // opened. ⚠️ Undo, redo and a merge do not lift it -- they leave the
       // same document standing, which is what the 履歴 column of table T-230
       // already answers and what FR-065's turn-off reads too.
       if (call.row === 'RD-4') fromStartupTemplate = false
+      // OP-10 (MUST NOT) again, in the other direction: 「表 T-034 の `BT-4`
+      // （起動テンプレート）から開いた文書には働かせてはならない」. FR-095 says
+      // the state it returns to IS 「表 T-034 の `BT-4` と同じ状態」, so the
+      // document this row puts up is that template and the exception is back on.
+      // ⛔ NOT LEFT AT WHATEVER THE BOOT DECIDED. A person who opened a file and
+      // then pressed IC-98 would otherwise have OP-10 re-run FR-055's fit on the
+      // bundled template -- which is the very scene that MUST NOT names, and
+      // which its own note says lands 「階層を持つ文書が「階層の無い文書」として
+      // 初回に現れる」.
+      if (call.row === 'RD-7') fromStartupTemplate = true
       if (settled(environment)) ask()
       return true
     }
@@ -7026,6 +7082,37 @@ export function frameLoop(
       }
       if (settled(environment)) ask()
     })
+  }
+
+  /**
+   * FR-095 -- 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻すこと。
+   * 捨てる前に、未保存の編集について表 T-024a の `OP-4` と同じ確認を行うこと
+   * （MUST）」, in that order.
+   *
+   * ⭐ THE SAME `askToDiscardCurrentDocument` OP-2's REPLACE USES, and that is
+   * the requirement's own instruction rather than a saving of lines: 「`OP-4` と
+   * 同じ確認」 is one question, and table T-234 refuses FR-095 a row of its own
+   * so that the two cannot drift apart.
+   *
+   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE, the same shape `readOneFile` keeps:
+   * what the operation needs is taken BEFORE the wait -- the document whose name
+   * QN-5 prints, and the template that will stand in its place -- and nothing
+   * after the wait reads `held` again. ⛔ The landing is `replaceHeldDocument`,
+   * which reads the holder once inside the write (CS-3).
+   *
+   * ⚠️ 「取りやめる」 LEAVES EVERYTHING WHERE IT WAS. Nothing was written before
+   * the question, so there is nothing to undo -- the shape FR-099's deletion
+   * keeps two members up.
+   *
+   * @purity non-pure
+   */
+  async function startNewDocument(template: Document): Promise<void> {
+    if (!(await askToDiscardCurrentDocument(held.document))) return
+    // RD-7 of table T-230, named because that table (MUST) requires a caller to
+    // name its own row and (MUST NOT) refuses a replacement that names none.
+    // ⛔ NOT RD-6: its 履歴 cell says 「空にする」 where RD-7's says 「捨てる」,
+    // and OP-4 (MUST) is what settles the history for this road.
+    replaceHeldDocument({ row: 'RD-7', document: template })
   }
 
   /**
@@ -7992,6 +8079,45 @@ export function frameLoop(
       // reverses whatever stands. ⛔ It was written from the ENTRY while there
       // were two rows, each saying which way it went.
       isMilestoneListOpen = !isMilestoneListOpen
+      return true
+    }
+    if (entry === NEW_DOCUMENT_ENTRY) {
+      // IC-98 of table T-109 -- FR-095's 「文書を新しく始める」. Why it is
+      // answered HERE rather than by the translator is the entry constant's own
+      // note.
+      //
+      // ⭐ WHILE A QUESTION STANDS, THIS PRESS IS TOLD AND NOT SPENT IN SILENCE
+      // -- the guard `ROSTER_DELETE_ENTRY` carries, for the reason it gives:
+      // FR-029 (MUST) 「押されたときに限り、行えない理由を通知すること」, table
+      // T-233 holds no row for 「a question is already up」, and `RS-27` is that
+      // requirement's own fallback (D-337). ⚠️ The guard itself is needed here
+      // too -- `askToDiscardCurrentDocument` writes `asking`, so a second press
+      // would replace the question the first one is still waiting on and leave
+      // that wait unsettled for ever.
+      if (asking !== null) {
+        raiseNotice(NOTHING_TO_DO_REASON, null)
+        return true
+      }
+      // ⛔ TOLD RATHER THAN ASKED WHEN THERE IS NO TEMPLATE. FR-095's RATIONALE
+      // says 「出すものは `FR-027` のテンプレートであり、本要求は別のテンプレート
+      // を持たない」, so a loop that was handed none has nothing to put up -- and
+      // raising QN-5 to then discard nothing is the defect 規則 04 section 3.6
+      // records, 「消す確認が嘘をつく」.
+      // ⭐ `RS-27` AND NOT `RS-3`, and the line between them is what each row
+      // says: RS-3 is a write this environment could not perform, and no write
+      // is attempted here. Table T-233 names no row for a loop built without its
+      // template, which is the scene FR-029's fallback is for -- the same
+      // reading the guard above takes, and the same one `carryOutAction` takes
+      // for a press with nothing to act on (D-337).
+      const template = startupTemplate
+      if (template === undefined) {
+        raiseNotice(NOTHING_TO_DO_REASON, null)
+        return true
+      }
+      // ⛔ THE PRESS IS SPENT NOW AND THE WORK FINISHES LATER, which is the shape
+      // `matchWatermarkUnlock` keeps: the question has to be answered before
+      // anything is discarded (FR-095, MUST), and this member answers a press.
+      void startNewDocument(template)
       return true
     }
     if (entry === ROSTER_DELETE_ENTRY) {

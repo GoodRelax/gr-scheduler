@@ -1133,6 +1133,16 @@ function boot(): void {
     // embedded document and nothing could WRITE one, so IO-7 of table T-024
     // stood on FR-096's chooser and wrote nothing (D-173).
     appShellSource(),
+    // FR-095 (MUST): 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻す
+    // こと」 -- the state IC-98 returns to is this document, and FR-095's own
+    // RATIONALE says it holds no other: 「出すものは `FR-027` のテンプレートで
+    // あり、本要求は別のテンプレートを持たない」.
+    // ⭐ THE ONE ALREADY READ ABOVE AND NOT A SECOND READING. FR-027 keeps
+    // 「1 つ」 of the template and `startupTemplateDocument` is the one reader of
+    // it in this build; handing the value over rather than the reader also keeps
+    // that function's `throw` at boot, where a broken bundle is a build that
+    // shipped wrong rather than a press that fails.
+    template,
   )
   loop = running
 

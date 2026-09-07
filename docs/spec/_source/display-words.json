@@ -2838,8 +2838,8 @@
   {
    "rowId": "PD-4",
    "text": {
-    "ja": "図形や注記を構えて何もない場所を押すと、それを作る",
-    "en": "Armed with a shape or a note, pressing empty space creates one"
+    "ja": "図形や注記を構えて何もない場所を押すと、押しているあいだその形がポインタに付いて伸び、離すと作られる",
+    "en": "Armed with a shape or a note, pressing empty space draws that shape following the pointer, and releasing creates it"
    }
   },
   {

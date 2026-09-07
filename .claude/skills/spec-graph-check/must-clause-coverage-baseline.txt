@@ -1,4 +1,8 @@
-951
+976
+#
+# RAISED AGAIN 951 -> 976 THE SAME DAY, by the creation flow (FR-083's SP-2 /
+# SP-3, the press order of table T-023a, FR-091) and by the two Agent API
+# rulings (FR-068, FR-022). ⛔ Same debt, same holder: the ledger row D-377.
 #
 # RAISED 934 -> 951 ON 2026-09-07 by the two zoom ceilings (FR-016) and the
 # Panel Divider's thickness (EP-9), both written from the user's rulings of
