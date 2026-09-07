@@ -1669,10 +1669,13 @@ test('D-130: a name settled in the panel reaches the drawing', async () => {
 
 // GOES RED IF: settling a value that has not changed writes a second time --
 // which is read here as one undo failing to put the old name back. Table T-028
-// row `IN-6` (MUST NOT) says 「始めた値と同じ値を書いてはならない（MUST NOT）
-// —— 同じ値を 2 度書くと取り消しが 2 段になる（`FR-031` と 表 T-027 の …）」, so
-// the second write, if it happened, would show up as a second undo step and one
-// `SK-6` would leave the new name standing.
+// row `IN-6` (MUST NOT) says 「始めた値と同じ値を書いてはならない（MUST NOT）」,
+// so the second write, if it happened, would show up as a second undo step and
+// one `SK-6` would leave the new name standing.
+// ⚠️ THE READING SURVIVES A ROW THAT MOVED. IN-6's reason was rewritten on
+// 2026-09-08 (it used to name that second step), because FR-031 now leaves no
+// step for a write that changed no value. ⭐ That makes this case STRICTER, not
+// weaker: a second write is now the only way a second step could appear.
 //
 // ⛔ IT LEANS ON THE CASE ABOVE having left the drawing renamed, and it puts the
 // document back: after it the drawing reads what it read at start-up.

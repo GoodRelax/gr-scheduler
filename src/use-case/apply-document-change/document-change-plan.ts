@@ -571,9 +571,24 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // ---- WS-4: one step of history --------------------------------------
   // AG-10: a call table T-027 excludes runs and is simply not recorded. A
   // bundle earns a step when ANY of its commands does.
+  // ⛔⛔ A WRITE THAT MOVED NOTHING LEAVES NO STEP. FR-031 (MUST, the user's
+  // ruling of 2026-09-08): 「書き込みが文書の値を 1 つも変えなかったときは、
+  // 取り消しの段を残さないこと（MUST）」 -- a step IS the document to go back
+  // to, and a document that did not move has no back to go to.
+  // ⭐ THE KIND STILL DECIDES WHETHER A STEP IS POSSIBLE and `isUndoable` still
+  // answers that from table T-027; this test decides whether one is actually
+  // pushed. The same requirement says so: 「種類が「段を積みうるか」を決め、
+  // 値が動いたかが「実際に積むか」を決める」.
+  // ⭐ IDENTITY, NOT A VALUE COMPARISON, for the same reason WS-5 below can use
+  // it: every arm of `edit-document/` answers the document it was handed when
+  // its own fields did not move, so `settled === input.document` IS "nothing
+  // moved". ⛔ A deep comparison would put that cost on the write road.
+  // ⚠️ THE ORDER IS UNCHANGED. This decides WHETHER a step is pushed, never
+  // WHEN -- the CM-71 / CM-72 warning above still governs, and the step still
+  // carries the document as it stood before the write.
   const recorded = input.commands.filter(isUndoable)
   const history =
-    recorded.length === 0
+    recorded.length === 0 || settled === input.document
       ? input.history
       : historyWithStep(
           input.history,

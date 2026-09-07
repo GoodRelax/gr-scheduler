@@ -1,4 +1,28 @@
-960
+966
+#
+# RAISED 960 -> 966 ON 2026-09-08, DELIBERATELY AND WITH THE USER'S LEAVE.
+# Six clauses arrived from three rulings given that evening and none has a
+# verbatim tie yet:
+#   表 T-023d  the dummy is drawn as ONE mark, not one per end (MUST), and the
+#             two ends may not be drawn separately (MUST NOT)
+#   表 T-023d  where two endpoints land on ONE day the finish is grabbed (MUST),
+#             and the table's printed order may not be used to hand the press to
+#             the start instead (MUST NOT) -- this applies to the plan's two ends,
+#             the actual's two ends and the dummy's two ends alike
+#   FR-031    a write that moved nothing leaves no 段 -- the three clauses of
+#             that ruling ARE held (tests/unit/fr-031-...), and are not part of
+#             this raise
+# ⛔ THE USER SAID THIS DEBT NEED NOT BE PAID THIS ROUND: 「追加の検査で見つかった
+# 不具合は対応不要。とにかく既知の不具合をすべて直せ」 (2026-09-08).
+# ⭐ THE DEBT IS STILL BOOKED, and the handoff names it: a spec-only body pays
+# it back in the round that implements those clauses, which is the same round
+# that closes ledger rows D-393 and D-396.
+# ⚠️ THE OTHER HALF OF THAT INSTRUCTION WAS NOT TAKEN THE SAME WAY. The
+# quoted-source check (comments citing sentences docs/spec does not contain) is
+# held at its baseline, because on this one day it caught two fabricated
+# citations and one of them was load-bearing -- the code reasoned from words no
+# table holds. That one costs no new test, only a corrected comment. The
+# handoff records this as an opinion awaiting the user's word, not a decision.
 #
 # LOWERED 967 -> 960 ON 2026-09-08 by the two rulings of 2026-09-07
 # (「トグルにせよ。 ユーザーに選択肢がある。」 and 「タスクはドラッグ必須。」).

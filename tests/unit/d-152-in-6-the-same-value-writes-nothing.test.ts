@@ -1,6 +1,9 @@
-// Unit tests for the last clause of `IN-6` of 表 T-028: 「⛔ **始めた値と同じ値を
-// 書いてはならない（MUST NOT）** —— 同じ値を 2 度書くと取り消しが 2 段になる
-// （`FR-031` と 表 T-027 の `UN-3`）」.
+// Unit tests for the last clause of `IN-6` of 表 T-028:
+// 「⛔ **始めた値と同じ値を書いてはならない（MUST NOT）**」.
+// ⚠️ ITS REASON WAS REWRITTEN ON 2026-09-08. It used to rest on a second undo
+// step; FR-031 gained a MUST the same day that leaves no step for a write that
+// changed no value, so the old reason had been made false by the very
+// requirement it cited. ⭐ The prohibition and these cases are unchanged.
 //
 // Unit under test: UF-71 `dom-screen-surface.ts` (CP-38 of 表 T-062), the side
 // of `IF-9` that HAS a field to settle -- 「まだ確定していない文字入力があるかを
@@ -379,12 +382,33 @@ describe('the manuscript still says what these cases read', () => {
     expect(wholeRow(T_028, 'IN-6')).toContain(THE_SAME_SETTLING)
   })
 
-  it('⭐ IN-6 still gives the undo history as its reason', () => {
-    // 「同じ値を 2 度書くと取り消しが 2 段になる（`FR-031` と 表 T-027 の `UN-3`）」
+  it('⭐ IN-6 keeps the MUST NOT, and no longer rests it on a consequence that cannot happen', () => {
+    // ⚠️⚠️ REWRITTEN 2026-09-08, AND THE ROW MOVED FIRST. IN-6 used to give
+    // its reason as 「同じ値を 2 度書くと取り消しが 2 段になる」, citing FR-031.
+    // ⛔ FR-031 GAINED A MUST THE SAME DAY that makes that consequence
+    // impossible -- a write that changed no value leaves no 段 at all -- so the
+    // reason was false, and false about the very requirement it cited.
+    // ⭐ THE PROHIBITION ITSELF STANDS, on a reason that is still true: stopped at
+    // the entrance, no command, no bundle and no telling are built at all.
+    // ⭐ THIS CASE IS THE GUARD AGAINST THE ROW DRIFTING BACK -- it fails if the
+    // retired consequence is written into IN-6 again.
     const inSix = wholeRow(T_028, 'IN-6')
-    expect(inSix).toContain('取り消しが 2 段になる')
-    expect(inSix).toContain('FR-031')
-    expect(inSix).toContain('UN-3')
+    expect(inSix).toContain(THE_SAME_VALUE_MUST_NOT)
+    expect(inSix, 'IN-6 lost the reason that survives FR-031').toContain(
+      '何も変えない書き込みを、そもそも道に乗せない',
+    )
+    // ⛔ THE RETIRED CONSEQUENCE MAY STILL BE PRINTED, BUT ONLY AS A DATED
+    // RECORD OF WHAT THE ROW USED TO SAY -- this project keeps those, and check
+    // 42 is why they must be quoted rather than paraphrased. ⭐ What this
+    // asserts is that it is not standing loose as the reason again: every
+    // occurrence in the row follows the words that mark it as retired.
+    const retired = '取り消しが 2 段になる'
+    for (let at = inSix.indexOf(retired); at >= 0; at = inSix.indexOf(retired, at + 1)) {
+      expect(
+        inSix.slice(0, at),
+        'IN-6 rests on a consequence FR-031 makes impossible',
+      ).toContain('まで、本行の理由は')
+    }
   })
 
   it('⛔ IN-5a still shuts single-character keys while text stands unsettled', () => {
@@ -441,10 +465,12 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
     })
 
     it(`⛔ ${row}: pressing SK-19 twice on one change writes once, not twice`, () => {
-      // 「同じ値を 2 度書くと取り消しが 2 段になる（`FR-031` と 表 T-027 の `UN-3`）」
-      // -- the second press finds the value it now started with, so it raises
-      // nothing. ⛔ If it raised the same value again, one `Ctrl+Z` would no
-      // longer undo one edit.
+      // IN-6 (MUST NOT) -- the second press finds the value it now started
+      // with, so it raises nothing. ⛔ If it raised the same value again, a
+      // second write would reach the document for one edit.
+      // ⚠️ NOT 「one `Ctrl+Z` would no longer undo one edit」 ANY MORE: FR-031
+      // (MUST, 2026-09-08) leaves no step for a write that changed no value, so
+      // the history would survive it. What this case guards is the write.
       const built = drawnPanel()
       const control = enterField(built, row)
       type(built, control, SOMETHING_ELSE[row] ?? '')

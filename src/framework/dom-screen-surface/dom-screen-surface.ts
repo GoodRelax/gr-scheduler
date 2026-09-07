@@ -7867,9 +7867,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * to write. ⛔ AND IT IS NOT MADE INTO `null` EITHER -- clearing the name is
    * not what FR-035 asks the field for, and 「無い」 has one spelling.
    *
-   * ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN, the rule both IN-6 (MUST NOT)
-   * and IN-6's own reason state: 「同じ値を 2 度書くと取り消しが 2 段になる」
-   * (FR-031 with UN-3 of table T-027).
+   * ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN -- IN-6 of table T-028 states
+   * that MUST NOT, and its reason is that stopping the write here means no
+   * command, no bundle and no telling are built at all.
+   * ⚠️ IN-6's reason was rewritten on 2026-09-08: it used to rest on a second
+   * undo step, and FR-031 gained a MUST the same day that leaves no step for a
+   * write that changed no value, so that consequence can no longer happen.
+   * ⭐ The prohibition is unchanged, and so is this member.
    *
    * @purity non-pure
    */

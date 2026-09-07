@@ -287,6 +287,12 @@ interface Bench {
 }
 
 function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
+  // ⭐ A FRESH BENCH RESTARTS THE NAME COUNTER, so the nth write on any bench
+  // writes `edit n` and a case can name the value a given 段 goes back to.
+  // ⛔ It may not restart per CALL of `writeNames`: FR-031 (MUST, 2026-09-08)
+  // leaves no 段 for a write that changed no value, so a second call rewriting
+  // `edit 1` over `edit 1` would add nothing at all.
+  namesWritten = 0
   let held: HeldDocument = { document: START, history: emptyHistory<ChangeStep>() }
   let writes = 0
 
@@ -335,10 +341,20 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
  * catches a table T-108 that has renamed the row -- the write would be refused
  * and `writeNames` would throw with the refusal in the message.
  */
+let namesWritten = 0
+
 function writeNames(one: Bench, nth: number): void {
   for (let i = 1; i <= nth; i += 1) {
+    // ⛔⛔ THE NAME MUST DIFFER FROM THE ONE ALREADY HELD, AND A COUNTER THAT
+    // RESTARTS AT 1 ON EVERY CALL DOES NOT. FR-031 (MUST, 2026-09-08) leaves no
+    // 段 for a write that changed no value, so a second `writeNames(one, 1)`
+    // writing `edit 1` over `edit 1` correctly adds nothing -- and this helper
+    // promises 「each of which changes the document」. ⭐ The counter runs across
+    // CALLS and is reset by `bench()`, so the nth write on a bench writes
+    // `edit n` and every write this file makes is a real one.
+    namesWritten += 1
     const outcome = one.write([
-      { kind: CM_9, uid: FIRST_TASK_UID, name: `edit ${i}` } as unknown as DocumentCommand,
+      { kind: CM_9, uid: FIRST_TASK_UID, name: `edit ${namesWritten}` } as unknown as DocumentCommand,
     ])
     if (!outcome.accepted) {
       throw new Error(`write ${i} was refused: ${JSON.stringify(outcome.refusal)}`)
