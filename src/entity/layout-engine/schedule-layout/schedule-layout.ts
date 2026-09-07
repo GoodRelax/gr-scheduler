@@ -2204,6 +2204,62 @@ export function fitZoom(
   }
 }
 
+/**
+ * Where the rows stand at a zoom nobody is drawing yet -- the member FR-016
+ * (MUST) asks table T-064's `PI-5` for: 「その倍率での行の位置を答えるメンバを、
+ * 表 T-064 の `PI-5` に置くこと（MUST）。」
+ *
+ * ⭐⭐ WHY IT CANNOT BE ARITHMETIC IN THE CALLER, which is the whole reason the
+ * name exists. The same requirement (MUST NOT): 「行の軸は `zoomY` に対して線形
+ * ではない」 ... 「倍率から位置を算で求めてはならない（MUST NOT）。」 Four things
+ * move under a zoom and none of them is a scale factor -- FR-094's floor holds
+ * the bands still below it, LF-3 puts a second floor under them, table T-014's
+ * lanes decide how many bands are stacked, and FR-018 changes WHICH rows are
+ * drawn at all. ⛔ An Adapter that multiplied a y by a ratio would be inventing
+ * the answer, and 表 T-070's `MN-6` forbids it laying out for itself besides.
+ *
+ * ⭐⭐ THE SECOND RUN IS WHAT TABLE T-068 NOW ALLOWS, and only here. The rule
+ * printed after that table (MUST): 「どちらも `layoutEngine`（`CP-5`）の中でのみ
+ * 走らせること（MUST）」 -- 「行の高さと縦位置を決める `LC-9` は本表の中にあるので、
+ * 候補の倍率での行の位置は本表をもう 1 度走らせることでしか得られない。」 So the
+ * run happens inside this unit, exactly as `fitZoom` above does its own, and
+ * what leaves is places rather than a layout.
+ *
+ * ⛔ THE ROW AXIS ALONE MOVES. `zoomX` is carried through untouched, because
+ * MK-4 and its two entrances move one axis and FR-016 leaves the other where it
+ * stands -- and because the lane count a row is given is settled by the
+ * HORIZONTAL overlap, so a zoomX changed here would answer a stack the frame
+ * will not draw.
+ *
+ * ⭐ THE CALLER'S OWN ANCHOR IS LEFT IN THE SETTINGS on purpose: the rows come
+ * back at the screen y they would be drawn at under the display position now in
+ * force, so the row S-78 names still stands at the remainder's top edge and a
+ * caller can read that edge back off the answer rather than being handed it.
+ *
+ * ⛔ NO `groupDepthCap`. That argument is FR-055's alone (see
+ * `layoutFromSchedule`), and this run wants exactly what FR-018 derives from
+ * the zoom it is asked about -- which is the point of asking.
+ *
+ * @purity pure
+ */
+export function rowPlacesAtZoomY(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  regions: ScreenRegions,
+  zoomY: number,
+  isLevelZeroFolded?: boolean,
+  rowControlsHeightPx?: number,
+): readonly RowPlacement[] {
+  return layoutFromSchedule(
+    schedule,
+    { ...settings, zoomY },
+    regions,
+    undefined,
+    isLevelZeroFolded,
+    rowControlsHeightPx,
+  ).rows
+}
+
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)

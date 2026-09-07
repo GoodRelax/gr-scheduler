@@ -1,4 +1,10 @@
-972
+967
+#
+# LOWERED 972 -> 967 ON 2026-09-07 by the row axis: the ceiling and the row
+# anchor landed, and their anchors in tests/system/user-reported-fixes.test.ts
+# carry five clauses verbatim. ⛔ Only clauses the anchor actually exercises
+# were quoted -- a clause held by a case that does not drive it pays this
+# check in appearance only, and the body that wrote them refused to do that.
 #
 # LOWERED 976 -> 972 ON 2026-09-07, part of the debt D-377 booked. The wave
 # that built FR-016's ceiling for the DATE axis (ledger row D-375) wrote its

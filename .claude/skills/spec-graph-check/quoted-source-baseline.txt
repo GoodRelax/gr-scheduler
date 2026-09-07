@@ -1,4 +1,10 @@
-505
+503
+#
+# LOWERED 505 -> 503 ON 2026-09-07. Two came back: the adapter's own copy of
+# the sentence after table T-068 was replaced when FR-016's row anchor widened
+# that rule, and the two copies in tests/unit/fr-055-fit-reaches-deep-tiers
+# were refreshed to the widened sentence rather than left quoting a rule the
+# specification no longer carries.
 #
 # LOWERED 508 -> 505 ON 2026-09-06, the day this check was written. Five
 # quotations in input-command-translator.ts were held against their rows: two

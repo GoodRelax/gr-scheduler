@@ -786,7 +786,7 @@ describe('FR-055 / FR-018 -- the fit follows S-125 rather than a tier number of 
 // The rule printed after table T-068 -- the two passes, and the third that is
 // forbidden (ledger row D-24)
 //
-//   「⭐ **全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる。**」
+//   「⭐ **全体を収める表示（`FR-055`）と、`FR-016` の行の軸の錨（`PI-5` の `rowPlacesAtZoomY`）だけが本表を 2 回まで走らせる。**」
 //   | 1 | 人が畳んだ状態をすべて捨て…**帯の高さが `FR-094` の床に達する倍率で、
 //       その文書が持つすべての深さを通して** `LC-1` 〜 `LC-9` を走らせ…⭐ **その床
 //       より下では絵が倍率に依らないので、1 回測れば床の内側に収まる段の縦幅は算術
@@ -843,7 +843,7 @@ const floorAdmits = (shape: TreeShape): number => {
 
 describe('T-068 -- only the fit runs the order more than once', () => {
   it('⛔ the ordinary layout cannot fit: its answer does not move with the Row Area height', () => {
-    // 「⭐ **全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる。**」 and the
+    // 「⭐ **全体を収める表示（`FR-055`）と、`FR-016` の行の軸の錨（`PI-5` の `rowPlacesAtZoomY`）だけが本表を 2 回まで走らせる。**」 and the
     // closing MUST of the table itself: 「上から順に 1 度だけ通ること（MUST）。後の
     // 段の結果を前の段へ戻してはならない（MUST NOT）」.
     // ⭐ Fitting means choosing the display amount against the room there is

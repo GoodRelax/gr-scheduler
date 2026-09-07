@@ -327,7 +327,7 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）／ `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／ `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**（利用者の裁定 2026-09-03）。**同行は「立てた行が落ちる深さになるなら、描かれるまで詳しさの段を開くこと（MUST）」と定めるので、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。**⛔ **式を写して持たせてはならない（MUST NOT）** —— **`groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。**|
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）／ `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／ `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**（利用者の裁定 2026-09-03）。**同行は「立てた行が落ちる深さになるなら、描かれるまで詳しさの段を開くこと（MUST）」と定めるので、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。**⛔ **式を写して持たせてはならない（MUST NOT）** —— **`groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。**／ `rowPlacesAtZoomY`（その倍率での行の位置。`FR-016` の行の軸の錨）—— ⭐ **`FR-016` が「その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと」と定めるために公開した**（利用者の裁定 2026-09-07）。**行の軸は `zoomY` に対して線形ではないので**（`FR-094` の下限・`LF-3` の第 2 の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）、**呼ぶ側は倍率から位置を算で求められない。**⛔ **Adapter に自前の割付けをさせないことは、表 T-070 の `MN-6` が既に定めている**|
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） ／ `dependencyEndAtPointer`（`FR-009` の「左半分 / 右半分」を答える。⛔ **構えが依存線のときだけ呼ぶ** —— 同要求が `itemAtPointer` に構えを渡すことを禁じている） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。命令の列で書き込む）／ `replaceDocument`（`non-pure`。`ApplyDocumentChange` の外で組み立てた文書を現在値にする。手順は 表 T-067、呼び手ごとの扱いは 表 T-230） |
@@ -552,7 +552,7 @@ stateDiagram-v2
 
 **`LC-9` が行を並べる順は木の順とすること（MUST）** —— 親の行の直下にその配下を置き、同じ親の下では `_assets/fig-erd-detail.md` の `AT-55` の昇順に並べる。**深さの順に並べてはならない（MUST NOT）** —— 同じ深さの行が塊になり、**親とその配下が画面の離れた場所に出る。**行が画面に収まりきらないとき、上端に来るのが根ばかりになり、**木を持つ文書が階層の無い一覧に見える。** ⚠️ **`LC-1` と `LC-2` が落とした行は、この順から抜けるだけである** —— 残った行どうしの前後は変わらない。**行の縞（`FR-042`）が数える「行の位置」も、この順での位置とすること（MUST）** —— 別の順で数えると、同じ文書で縞の向きと並びが食い違う。
 
-⭐ **全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる。**
+⭐ **全体を収める表示（`FR-055`）と、`FR-016` の行の軸の錨（`PI-5` の `rowPlacesAtZoomY`）だけが本表を 2 回まで走らせる。**⭐ **どちらも `layoutEngine`（`CP-5`）の中でのみ走らせること（MUST）**（利用者の裁定 2026-09-07）—— ⚠️ **行の高さと縦位置を決める `LC-9` は本表の中にあるので、候補の倍率での行の位置は本表をもう 1 度走らせることでしか得られない。**
 
 | 回 | すること |
 | --- | --- |

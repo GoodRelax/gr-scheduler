@@ -155,9 +155,11 @@ import {
   fitZoom,
   groupDepthLimit,
   groupDepthThresholdOf,
+  rowPlacesAtZoomY,
   xFromDay,
   type RowPlacement,
   type ScheduleLayout,
+  type TaskPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionAtPointer,
@@ -2112,11 +2114,29 @@ function rowAnchorAt(
   // band does not flow, so an anchor naming one would fix the display position
   // where it could never move again -- which is the very reason that
   // requirement points S-78 and S-176 at the remainder's top edge.
-  const rows = scrollingRowsOf(context.layout)
-  const held = {
+  return rowAnchorIn(scrollingRowsOf(context.layout), y, {
     scrollGroupId: settings.scrollGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
-  }
+  })
+}
+
+/**
+ * The same pair, made against a chain of rows handed in rather than the frame's
+ * own -- which is what lets FR-016's row anchor name a place in the picture the
+ * zoom is ABOUT to draw (`rowPlacesAtZoomY`).
+ *
+ * ⛔ ONE SPELLING AND NOT TWO. The slab, the half-open boundary and the fall
+ * back to the value in force were all written for the frame in hand; a second
+ * copy of them for the candidate frame would be two bijections against one
+ * `scrollOffsetOf`, and the picture would land somewhere neither named.
+ *
+ * @purity pure
+ */
+function rowAnchorIn(
+  rows: readonly RowPlacement[],
+  y: number,
+  held: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
+): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
   const at = rowIndexAtTopEdge(rows, y)
   if (at === null) return held
   const row = rows[at]
@@ -3960,11 +3980,11 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // SK-16 / SK-16a -- one axis each, by the same step the wheel turns by.
   if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null))
+    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
   }
   if (altOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null))
+    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
   }
 
   // SK-17 -- 等倍. ⚠️ The 1 is the multiplicative identity, which is what 倍率
@@ -3972,7 +3992,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // somewhere else the day that default moved, and S-76's own note fixes 等倍
   // as the baseline `basePlanHeight` is defined against.
   if (ctrl && key === KEY.zero) {
-    return changed(zoomWrites(context, 1, 1, null))
+    return changed(zoomWrites(context, 1, 1, null, null))
   }
 
   // SK-18 -- FR-055. The zoom is measured from the layout this frame ran, and
@@ -4038,13 +4058,19 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   // need none: the requirement's sentence is about ズーム and not about an axis.
   if (ctrl) {
     return changed(
-      zoomWrites(context, zoomTimes(context, factor, 'x'), zoomTimes(context, factor, 'y'), input.x),
+      zoomWrites(
+        context,
+        zoomTimes(context, factor, 'x'),
+        zoomTimes(context, factor, 'y'),
+        input.x,
+        input.y,
+      ),
     )
   }
   if (shiftOnly) {
-    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x))
+    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x, input.y))
   }
-  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), input.x))
+  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), input.x, input.y))
 
   // MK-1 / MK-5 -- the wheel's own distance, because no row says how far one
   // detent scrolls and S-96 says the device is what knows.
@@ -4127,38 +4153,29 @@ function isScrollPositionInForce(
   )
 }
 
-// STOP -- ⛔ THE ROW HALF OF THE ZOOM RULE IS STILL UNWRITTEN. FR-016 (MUST):
+// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (2026-09-07, the ledger's `D-366`),
+// AND WHAT CLOSED IT WAS A RULING RATHER THAN A DISCOVERY. FR-016 (MUST):
 // 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」, and
 // 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
-// `Row Area` の中心をズームの中心とすること（MUST）」.
-// ⭐⭐ THE DAY HALF IS WRITTEN AS OF 2026-09-06 -- see `placeHeldStill` -- and
-// what let it be written was measuring the two reasons this STOP used to give
-// and finding both false (台帳 D-297):
-//     ⛔ 「`setScrollPosition` (CM-66) carries no member for either」 -- it has
-//        carried `scrollDayOffset` and `scrollGroupOffset` since CR-260.
-//     ⛔ 「the zoom commands (CM-65) carry no position at all」 -- true, and it
-//        does not follow: a gesture answers a LIST of table T-108's rows, and
-//        `zoomWrites` has emitted CM-66 beside CM-65 since `placeSeated`.
-// ⛔ WHAT IS ACTUALLY LEFT IS THE ROW, and the obstacle is a layer's and not a
-// missing member: holding the row under the pointer still needs the y each row
-// lands at AFTER the zoom, and the row axis is not linear in `zoomY` --
+// `Row Area` の中心をズームの中心とすること（MUST）」. The day half landed on
+// 2026-09-06 (`dayHeldStill`); the row half is `rowHeldStill`, beside it.
+// ⛔ THE OBSTACLE THE STOP NAMED WAS REAL AND IS STILL REAL: holding the row
+// under the pointer needs the y each row lands at AFTER the zoom, and FR-016
+// says in as many words that 「行の軸は `zoomY` に対して線形ではない」 --
 // `planHeightOf` takes a `Math.max` against FR-094's floor, LF-3 puts a second
 // floor under the band, the stack count decides the band's height (ST-2 / ST-3
 // of table T-014), and `groupDepthLimit` changes WHICH rows are drawn at all.
 // ⇒ The only exact answer is to run table T-068 again at the zoom about to be
-// written, and this file may not: 表 T-068's own rule reserves a further run to
-// FR-055's fit (「全体を収める表示（`FR-055`）だけが本表を 2 回まで走らせる」), and
-// MN-6 of table T-070 rejected components computing their own layout for the
-// NFR-002 / NFR-003 budget in as many words.
-// ⚠️ THE DAY HALF NEEDS NO SUCH RUN, which is why the two parted here: the time
-// axis IS linear in `zoomX` (`pxPerDay = pxPerDayAt1x * zoomX`), so the new left
-// edge can be named in the frame already in hand.
-// Searched: table T-064 PI-5 and PI-6, `schedule-layout.ts`,
-// `schedule-geometry.ts`, `edit-document-settings.ts` CM-65 / CM-66, FR-016,
-// FR-017, FR-055, FR-094, table T-014, table T-068, table T-070, table T-203
-// S-176 / S-177.
-// ⛔ NOTHING IS GUESSED FOR THE ROW: a zoom leaves the row anchor where it was,
-// and the MUST stays half unmet rather than approximated.
+// written. ⭐ WHAT CHANGED IS WHO MAY RUN IT: the requirement now asks for the
+// member (「その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと
+// （MUST）」) and the rule after table T-068 admits the second run, on the
+// condition that neither run leaves the layout engine -- 「どちらも
+// `layoutEngine`（`CP-5`）の中でのみ走らせること（MUST）」. ⛔ So this file still
+// lays nothing out, which is what MN-6 of table T-070 refuses; it asks
+// `rowPlacesAtZoomY` where the rows will be and does arithmetic on the answer.
+// ⚠️ THE DAY HALF NEEDS NO SUCH RUN, which is why the two are written apart:
+// the time axis IS linear in `zoomX` (`pxPerDay = pxPerDayAt1x * zoomX`), so
+// the new left edge can be named in the frame already in hand.
 
 /**
  * A press, a move, a release or a lost pointer.
@@ -4650,12 +4667,12 @@ function commandFromEntry(
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
-      return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null))
+      return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
     }
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
-      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null))
+      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
     }
     case ENTRY.baselineVisible:
     case ENTRY.progressLineVisible:
@@ -8026,6 +8043,136 @@ function zoomXCeiling(context: InputContext): number | null {
 }
 
 /**
+ * The band of the tallest row this frame drew -- 「いちばん高い行の帯」 of
+ * FR-016's ceiling for the row axis.
+ *
+ * ⛔ EVERY LAID-OUT ROW AND NOT THE VISIBLE ONES. `ScheduleLayout.rows` carries
+ * the whole chain with the vertical scroll already applied, so the tallest row
+ * is found whether or not it is on the screen at this moment. A ceiling that
+ * moved when the person scrolled would be a ceiling nobody could predict.
+ *
+ * @purity pure
+ */
+function tallestBandOf(rows: readonly RowPlacement[]): RowPlacement | null {
+  let tallest: RowPlacement | null = null
+  for (const row of rows) {
+    if (tallest === null || row.height > tallest.height) tallest = row
+  }
+  return tallest
+}
+
+/**
+ * How the tallest row's band splits into the part that grows with the zoom and
+ * the part that does not -- `height = grows x (the plan scale ratio) + fixed`.
+ *
+ * ⭐⭐ READ OFF THE FRAME, NOT RE-DERIVED. `TaskPlacement` carries the height
+ * one figure reserved (`height`) and the plan bar inside it (`planHeight`), both
+ * measured by `schedule-layout.ts` at the zoom this frame was drawn at. LF-2 of
+ * table T-221 gives a lane the tallest of its figures and puts one `stackGap`
+ * between two lanes, so the band is a sum over lanes -- and the only term in
+ * that sum which does NOT scale with the plan bar is the `actualGap` a figure
+ * whose actual sits below reserves (table T-012's SH-3 / SH-4, which is what
+ * `actualPlacement` answers). ⛔ NO SHAPE RATIO AND NO FLOOR IS SPELLED HERE:
+ * every one of them is already inside the numbers the frame handed over, and a
+ * second spelling of `reservedHeight` in this file is the copy rule 03 forbids.
+ *
+ * ⚠️ THE TALLEST FIGURE OF A LANE IS TAKEN AS THE LANE'S, AT EVERY ZOOM. Above
+ * FR-094's floor every figure of a lane grows by the same ratio, so the one that
+ * is tallest now stays tallest -- except across the narrow span where two shapes
+ * whose `actualGap` differs swap places, and there the two answers differ by one
+ * `actualGap`. ⛔ NO ROW COVERS THAT SPAN and none is invented for it.
+ *
+ * ⭐ A ROW WITH NO FIGURE TAKES ONE RECTANGLE'S BAND, which is the reading
+ * `layoutFromSchedule` itself takes of LF-2 of table T-221 -- that row states
+ * the empty LANE's height (「`Task` を 1 つも持たない段は、矩形が縦に取る高さと
+ * する」) and the same height is what a row holding no lane at all comes out at.
+ * ⚠️ SO IT IS POINTED AT AND NOT QUOTED FOR THE ROW: no sentence of docs/spec
+ * says what an empty ROW's band is, and `rectangleHeight` is what the layout
+ * publishes that height as. The whole of such a band grows with the zoom.
+ *
+ * @purity pure
+ */
+function bandGrowthOf(
+  context: InputContext,
+  row: RowPlacement,
+): { readonly grows: number; readonly fixed: number } {
+  const settings = context.document.documentSettings
+  const tallestOfLane = new Map<number, TaskPlacement>()
+  for (const figure of context.layout.placements) {
+    if (figure.groupId !== row.groupId) continue
+    const held = tallestOfLane.get(figure.stack)
+    if (held === undefined || figure.height > held.height) tallestOfLane.set(figure.stack, figure)
+  }
+  if (tallestOfLane.size === 0) return { grows: context.layout.rectangleHeight, fixed: 0 }
+  let grows = 0
+  let fixed = settings.stackGap * (tallestOfLane.size - 1)
+  for (const figure of tallestOfLane.values()) {
+    const gap = figure.actualPlacement === 'below' ? settings.actualGap : 0
+    grows += Math.max(0, figure.height - gap)
+    fixed += gap
+  }
+  return { grows, fixed }
+}
+
+/**
+ * FR-016's ceiling for the row axis (MUST): 「行の軸（`zoomY`）の上限は、いちばん
+ * 高い行の帯が `Row Area` の高さに達する倍率とすること（MUST）」 —— 「1 つの行が
+ * 画面をちょうど埋めた先には、見せられるものが残っていない。」
+ *
+ * ⭐⭐ IT IS DERIVED FROM THE SCREEN, WHICH THE SAME REQUIREMENT DEMANDS TWICE.
+ * 「固定の倍率で止めてはならない（MUST NOT）」 —— 「画面の広さも行の中身も環境で
+ * 変わるので、倍率の直値はそのどちらにも合わない」, and for this axis in
+ * particular: ⛔ 「このために新しい設定値の行を立ててはならない（MUST NOT）」 ——
+ * 「画面の高さから導く。」 So the only two things this reads are the `Row Area`
+ * the person is looking at and the bands the frame in front of them drew.
+ *
+ * ⛔⛔ THE CUT-NAME MARK IS NOT THE SIGNAL, AND MAY NOT BECOME ONE. FR-016
+ * (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」,
+ * and the requirement carries the measurement that overturned it -- a sweep of
+ * 80 steps in which no observed row ever stopped being cut, because the row
+ * title's truncation reads width and depth and never `zoomY`.
+ * ⚠️ NOR ARE TWO FONT SIZES COMPARED: 「字の大きさを 2 つ比べて決めてはならない
+ * （MUST NOT）」 —— 「どちらかが動くたびに上限も動く。」 Nothing below reads a
+ * font size at all.
+ *
+ * ⭐ THE ARITHMETIC. A band is affine in the plan scale (see `bandGrowthOf`),
+ * and the plan scale above FR-094's floor is `basePlanHeight x zoomY` -- so the
+ * scale the tallest band needs in order to reach the `Row Area`'s height is
+ * `(height - fixed) / grows` times the scale this frame was drawn at, and that
+ * scale over `basePlanHeight` is the zoom. ⭐ THE DRAWN SCALE IS READ BACK OFF
+ * THE FRAME rather than recomputed from FR-094's floor: `rectangleHeight` is
+ * the plan bar of a rectangle, which is the scale times table T-206's ratio for
+ * that shape, so dividing one by the other answers the scale exactly and no
+ * floor is spelled here a second time.
+ *
+ * ⚠️ IT IS RE-DERIVED ON EVERY NOTCH, AND THAT IS THE ANSWER TO THE ONE THING
+ * THE ARITHMETIC CANNOT SEE. FR-018 draws deeper rows as `zoomY` rises, so a row
+ * taller than today's tallest can appear above this ceiling; because each press
+ * measures the frame in front of it, the following notch simply meets the lower
+ * ceiling the new row sets. ⛔ Running table T-068 again to look ahead is
+ * reserved to FR-055's fit and to `rowPlacesAtZoomY`, and this is neither.
+ *
+ * ⚠️ ANSWERS `null` WHERE THERE IS NO SUCH ZOOM -- a document with no row, a
+ * region with no height, a band that does not grow at all. The range S-75 /
+ * S-76 holds is then the only bound, which is where this file stood before.
+ *
+ * @purity pure
+ */
+function zoomYCeiling(context: InputContext): number | null {
+  const settings = context.document.documentSettings
+  const height = context.regions.rowArea.height
+  const tallest = tallestBandOf(context.layout.rows)
+  if (tallest === null || !(height > 0)) return null
+  const { grows, fixed } = bandGrowthOf(context, tallest)
+  if (!(grows > 0)) return null
+  const shapeRatio = settings.shapeHeightOf.rectangle
+  const drawnScale = context.layout.rectangleHeight / shapeRatio
+  const ceiling = (drawnScale * ((height - fixed) / grows)) / settings.basePlanHeight
+  if (!Number.isFinite(ceiling) || ceiling <= 0) return null
+  return ceiling
+}
+
+/**
  * The zoom now in force, stepped once, with FR-016's ceiling for that axis
  * applied.
  *
@@ -8056,17 +8203,20 @@ function zoomXCeiling(context: InputContext): number | null {
  * `src/adapter/screen-renderer`. The same is already true of S-75 / S-76's own
  * ends, so this adds no new silence -- it makes the existing one reachable one
  * notch sooner on the day axis.
- * ⛔ NOTHING IS APPLIED TO THE ROW AXIS HERE. FR-016 states a ceiling for
- * `zoomY` as well, and it is not written: see `D-374` of the ledger and the
- * measurement recorded against it.
+ * ⭐⭐ BOTH AXES ARE HELD BACK HERE SINCE 2026-09-07, WHICH IS WHAT FR-016 ASKS
+ * FOR: 「拡大の側には、軸ごとに導かれる上限を置くこと（MUST）」 -- 「どちらの軸も、
+ * これ以上拡げても得るものが無いところで止まる。」 ⚠️ The two ceilings are
+ * derived from different things and share nothing but this line: the day axis
+ * counts days across the `Row Area`'s width, the row axis measures the tallest
+ * band against its height. ⛔ Until that date only the day half stood, and the
+ * ledger's `D-374` recorded the row half as owed.
  *
  * @purity pure
  */
 function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
   const on = zoomOnScreen(context)
   const stepped = (axis === 'x' ? on.x : on.y) * factor
-  if (axis !== 'x') return stepped
-  const ceiling = zoomXCeiling(context)
+  const ceiling = axis === 'x' ? zoomXCeiling(context) : zoomYCeiling(context)
   return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 
@@ -8204,6 +8354,69 @@ function zoomCentreX(context: InputContext, pointerX: number | null): number {
 }
 
 /**
+ * The y FR-016 (MUST) holds still through a zoom -- the same two rows read on
+ * the other axis, because neither of them is written about an axis.
+ *
+ * ⭐ 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」 names
+ * the ROW beside the date, and the pointerless rule 「ポインタを伴わない経路
+ * （画面上のボタン・ショートカット・`Agent API`）では、`Row Area` の中心をズーム
+ * の中心とすること（MUST）」 says 「中心」 of that region and not of its width.
+ *
+ * @purity pure
+ */
+function zoomCentreY(context: InputContext, pointerY: number | null): number {
+  const area = context.regions.rowArea
+  return pointerY === null ? area.y + area.height / 2 : pointerY
+}
+
+/**
+ * The screen y one display-position pair points at inside a chain of rows.
+ *
+ * ⛔ THE SAME SLAB `rowAnchorIn` AND `scrollOffsetOf` USE, for the reason both
+ * of them give: the three are one bijection, and a length written differently
+ * in any of them puts the picture somewhere the others never named.
+ * ⚠️ A pair naming a row this chain does not hold answers `null`. FR-018 can
+ * drop a row between two zooms, and a caller that fell back to the first row
+ * there would move the picture to the top on a press that asked to hold it.
+ *
+ * @purity pure
+ */
+function rowPointIn(
+  rows: readonly RowPlacement[],
+  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
+): number | null {
+  const at = rows.findIndex((row) => row.groupId === anchor.scrollGroupId)
+  if (at < 0) return null
+  const row = rows[at]
+  if (row === undefined) return null
+  const below = rows[at + 1]
+  const slab = below === undefined ? row.height : below.y - row.y
+  const into = Number.isFinite(anchor.scrollGroupOffset) ? anchor.scrollGroupOffset : 0
+  return row.y + into * slab
+}
+
+/**
+ * Where the top edge of the scrolling remainder falls in a chain laid out with
+ * this pair in force.
+ *
+ * ⭐ IT IS `scrollOffsetOf`'s OWN TWO ARMS, READ FORWARDS. That member slides the
+ * chain so the row the pair names stands at the remainder's top edge, and slides
+ * it by nothing at all when the pair names no row it holds -- so the edge is the
+ * point the pair marks, or the first row's own top.
+ *
+ * @purity pure
+ */
+function topEdgeIn(
+  rows: readonly RowPlacement[],
+  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
+): number | null {
+  const marked = rowPointIn(rows, anchor)
+  if (marked !== null) return marked
+  const first = rows[0]
+  return first === undefined ? null : first.y
+}
+
+/**
  * S-75 / S-76 read on this side, so that the day held still is measured against
  * the zoom that will actually be in force.
  *
@@ -8235,11 +8448,104 @@ function zoomWithinBounds(context: InputContext, value: number): number {
  * anchor day's own left edge at `regions.rowArea.x`, so the only thing that
  * differs between them is the scale.
  *
- * ⛔ THE ROW ANCHOR IS THE ONE IN FORCE AND IS NOT MOVED. The STOP above says
- * why: the y a row lands at after the zoom cannot be had without running table
- * T-068 again, which is FR-055's alone. So the vertical half of the pair is
- * `rowAnchorAt` at the top edge -- the value already standing -- and the row
- * under the pointer is left to move.
+ * ⚠️ MK-4 / SK-16a / IC-14 / IC-15 move the row axis alone, so no day moves and
+ * this half has nothing to hold: it answers `null` and the row half carries the
+ * press by itself.
+ *
+ * @purity pure
+ */
+function dayHeldStill(
+  context: InputContext,
+  zoomX: number | null,
+  centreX: number,
+): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> | null {
+  if (zoomX === null) return null
+  const area = context.regions.rowArea
+  const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
+  // ⚠️ A factor that is not a finite positive number is a picture with no time
+  // axis (a zero `pxPerDay`, an empty document) -- nothing to hold still.
+  if (!Number.isFinite(factor) || factor <= 0) return null
+  return dayAnchorAt(context, centreX - (centreX - area.x) / factor)
+}
+
+/**
+ * FR-016's zoom centre, ROW half (MUST): 「ズームはポインタ位置を中心とし、カーソル
+ * 下の日付と行が動かないこと」 -- the half that stood unwritten until 2026-09-07
+ * and was the ledger's `D-366`.
+ *
+ * ⭐⭐ WHY IT NEEDS A SECOND LAYOUT WHERE THE DAY HALF NEEDED NONE. FR-016
+ * (MUST NOT): 「行の軸は `zoomY` に対して線形ではない」 ... 「倍率から位置を算で
+ * 求めてはならない（MUST NOT）」 -- so the y a row lands at cannot be scaled out
+ * of the frame in hand the way the left edge can. ⭐ The requirement names the
+ * way through in the same breath: 「その倍率での行の位置を答えるメンバを、表 T-064
+ * の `PI-5` に置くこと（MUST）」, which is `rowPlacesAtZoomY`, and the rule after
+ * table T-068 now allows exactly that second run -- ⭐ inside the layout engine
+ * and never here: 「どちらも `layoutEngine`（`CP-5`）の中でのみ走らせること
+ * （MUST）」. ⛔ 「Adapter に自前の割付けをさせてはならない（MUST NOT）」 -- nothing
+ * below lays anything out; it reads places back and does arithmetic on them.
+ *
+ * ⭐⭐ THE ARITHMETIC IS A DRIFT AND NOT A PLACEMENT. The candidate chain is laid
+ * out with the display position the frame in hand is ALREADY at, so the row the
+ * person is looking at lands somewhere in it; the distance from where they are
+ * looking to where it landed is exactly how far the picture has to be pushed
+ * back, and pushing the picture back is moving the top edge by that distance.
+ * ⭐ THE SEAT IS READ OFF THE FRAME AND NOT OUT OF THE DOCUMENT, which is what
+ * makes this right under OP-10 of table T-024a as well: while no place is named
+ * the picture stands at FR-055's fit, and the corner of the frame is that fit
+ * written down (`placeSeated` gives the same reason for the same reading).
+ *
+ * ⚠️ ANSWERS `null` WHERE THERE IS NOTHING TO HOLD -- no row under the centre,
+ * a row FR-018 stops drawing at the candidate zoom, an empty chain, or a
+ * candidate zoom the range has already refused. The anchor then stays where it
+ * is, which is where this file stood before.
+ *
+ * @purity pure
+ */
+function rowHeldStill(
+  context: InputContext,
+  zoomX: number | null,
+  zoomY: number | null,
+  centreY: number,
+): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> | null {
+  if (zoomY === null) return null
+  const on = zoomOnScreen(context)
+  const willBe = zoomWithinBounds(context, zoomY)
+  if (!(willBe > 0) || willBe === on.y) return null
+  const seat = scrolledAnchor(context, 0, 0)
+  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
+  // ⛔ BOTH AXES AS THEY WILL STAND. The lane a Task is given is settled by the
+  // HORIZONTAL overlap (ST-2 / ST-3 of table T-014), so a candidate laid out at
+  // the old `zoomX` would count lanes -- and so band heights -- the frame is
+  // about to stop drawing. ⚠️ `zoomOnScreen` and not the stored pair, for the
+  // reason that member gives.
+  const after = rowPlacesAtZoomY(
+    context.document.schedule,
+    {
+      ...context.document.documentSettings,
+      zoomX: zoomX === null ? on.x : zoomWithinBounds(context, zoomX),
+      scrollDate: seat.scrollDate,
+      scrollDayOffset: seat.scrollDayOffset,
+      scrollGroupId: seat.scrollGroupId,
+      scrollGroupOffset: seat.scrollGroupOffset,
+    },
+    context.regions,
+    willBe,
+    context.isLevelZeroFolded,
+    context.rowControlsHeightPx,
+  ).filter((row) => row.isPinned !== true)
+  const landed = rowPointIn(after, held)
+  const topEdge = topEdgeIn(after, seat)
+  if (landed === null || topEdge === null) return null
+  // ⭐ A zoom already at the axis's ceiling holds every row still by doing
+  // nothing, and this is where that comes out: the drift is zero, the pair
+  // answers the values in force, and no write is made.
+  return rowAnchorIn(after, topEdge + (landed - centreY), seat)
+}
+
+/**
+ * The display position one zoom owes: the day held still around FR-016's
+ * centre, the row held still around the same point, and nothing written at all
+ * where neither can be held.
  *
  * ⭐ THIS IS ALSO `placeSeated`'s WORK, DONE ONCE. OP-10 of table T-024a has the
  * reader fit again on every frame while no place is named, so a zoom written
@@ -8254,24 +8560,25 @@ function zoomWithinBounds(context: InputContext, value: number): number {
 function placeHeldStill(
   context: InputContext,
   zoomX: number | null,
+  zoomY: number | null,
   centreX: number,
+  centreY: number,
 ): readonly DocumentCommand[] {
-  // ⚠️ MK-4 / SK-16a / IC-14 / IC-15 move the row axis alone, so no day moves
-  // and there is nothing to hold: the seating is all that is owed.
-  if (zoomX === null) return placeSeated(context)
-  const area = context.regions.rowArea
-  const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
-  // ⚠️ A factor that is not a finite positive number is a picture with no time
-  // axis (a zero `pxPerDay`, an empty document) -- nothing to hold still.
-  if (!Number.isFinite(factor) || factor <= 0) return placeSeated(context)
-  const day = dayAnchorAt(context, centreX - (centreX - area.x) / factor)
-  const row = rowAnchorAt(context, area.y)
+  const day = dayHeldStill(context, zoomX, centreX)
+  const row = rowHeldStill(context, zoomX, zoomY, centreY)
+  if (day === null && row === null) return placeSeated(context)
+  // ⚠️ THE AXIS THAT COULD NOT BE HELD KEEPS THE VALUE THE FRAME IS AT, which
+  // is the corner `placeSeated` would have written -- not the document's own
+  // pair, which under OP-10 is a place nobody is looking at.
+  const seat = scrolledAnchor(context, 0, 0)
+  const heldDay = day ?? seat
+  const heldRow = row ?? seat
   const to = {
     kind: 'setScrollPosition',
-    scrollDate: day.scrollDate,
-    scrollDayOffset: day.scrollDayOffset,
-    scrollGroupId: row.scrollGroupId,
-    scrollGroupOffset: row.scrollGroupOffset,
+    scrollDate: heldDay.scrollDate,
+    scrollDayOffset: heldDay.scrollDayOffset,
+    scrollGroupId: heldRow.scrollGroupId,
+    scrollGroupOffset: heldRow.scrollGroupOffset,
   } as const
   // ⛔ A POSITION THAT NAMES NO PLACE IS NOT WRITTEN, for the two reasons
   // `placeSeated` gives: OP-10 would go on fitting over it, and FR-063 would be
@@ -8297,8 +8604,11 @@ function placeHeldStill(
  * ⛔ THE PLACE GOES FIRST ANYWAY, so that a reader of the bundle meets it in
  * the order it is meant: this is where the person was looking, and this is what
  * they asked to do to it.
- * ⚠️ `pointerX` IS `null` FOR EVERY ROUTE THAT HAS NO POINTER -- see
- * `zoomCentreX`, which is where the row of FR-016 that covers those is read.
+ * ⚠️ `pointerX` AND `pointerY` ARE `null` FOR EVERY ROUTE THAT HAS NO POINTER --
+ * see `zoomCentreX` and `zoomCentreY`, which is where the row of FR-016 that
+ * covers those is read. ⛔ THE TWO TRAVEL TOGETHER: a route either carries a
+ * pointer or does not, and one of the pair filled from a press while the other
+ * fell back on the middle would centre the two axes on different points.
  *
  * @purity pure
  */
@@ -8307,9 +8617,16 @@ function zoomWrites(
   zoomX: number | null,
   zoomY: number | null,
   pointerX: number | null,
+  pointerY: number | null,
 ): readonly DocumentCommand[] {
   return [
-    ...placeHeldStill(context, zoomX, zoomCentreX(context, pointerX)),
+    ...placeHeldStill(
+      context,
+      zoomX,
+      zoomY,
+      zoomCentreX(context, pointerX),
+      zoomCentreY(context, pointerY),
+    ),
     zoomCommand(context, zoomX, zoomY),
   ]
 }

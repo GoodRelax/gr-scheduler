@@ -1,4 +1,4 @@
-// One System case for each of nine rows of the defect ledger
+// One System case for each of eleven rows of the defect ledger
 // (`docs/development-records/defects.md` and, once a row has been measured,
 // `docs/development-records/fixed-defects.md`) -- rows that are fixed in the
 // tree and were measured by hand, and that had nothing holding the fix down.
@@ -18,10 +18,12 @@
 //   D-282  a loaded document's format version is compared with the greatest one known
 //   D-297  a zoom holds the date under the pointer, and the middle date without one
 //
-// The ninth was written in this round, against a clause of `FR-016` that was
-// settled the same day (2026-09-07):
+// The last three were written against clauses of `FR-016` that were settled on
+// 2026-09-07, one for each axis of the zoom and one for the row anchor:
 //
 //   D-375  magnifying the date axis stops with `S-229` days still on the screen
+//   D-374  magnifying the row axis stops before one row fills the `Row Area`
+//   D-366  a row-axis zoom leaves the row under the pointer where it was
 //
 // ⚠️ D-277 HAS NO CASE IN THE FILE THAT NAMES IT.
 // `tests/system/divider-colour-corner-and-sticky-field.test.ts` judges the
@@ -1718,6 +1720,358 @@ test('D-375: magnifying the date axis stops with S-229 days still on the screen'
   }
 })
 
+/**
+ * Every row the panel drew, top first, with the band each stands in.
+ *
+ * ⭐ THE PANEL AND NOT THE PICTURE. `FR-098` raises a pinned row on both sides
+ * at once, so the panel's boxes and the schedule's bands are cut from one
+ * `RowPlacement` -- and the panel is the side that carries the row's identity
+ * (`data-group-id`) and whether its name was cut (`data-truncated`), which is
+ * what the two cases below have to follow across a zoom.
+ *
+ * @purity semi-pure-b
+ */
+async function rowBandsNow(page: Page): Promise<
+  readonly { readonly id: string; readonly y: number; readonly height: number;
+             readonly isCut: boolean }[]
+> {
+  return page.evaluate(() =>
+    [...window.document.querySelectorAll('[data-group-id][data-depth]')]
+      .map((row) => {
+        const box = row.getBoundingClientRect()
+        return {
+          id: row.getAttribute('data-group-id') ?? '',
+          y: box.y,
+          height: box.height,
+          isCut: row.getAttribute('data-truncated') === 'true',
+        }
+      })
+      .sort((first, second) => first.y - second.y))
+}
+
+/**
+ * The Schedule Canvas's own box, or null while it is not on the screen.
+ *
+ * @purity semi-pure-b
+ */
+async function canvasBoxNow(page: Page): Promise<
+  { readonly x: number; readonly y: number; readonly width: number;
+    readonly height: number } | null
+> {
+  return page.evaluate((selector: string) => {
+    const box = window.document.querySelector(selector)?.getBoundingClientRect()
+    return box === undefined ? null : { x: box.x, y: box.y, width: box.width, height: box.height }
+  }, CANVAS)
+}
+
+/**
+ * The tallest band on the screen.
+ *
+ * ⛔⛔ THIS SATURATES AND MAY NOT BE ASSERTED ON ALONE. Measured 2026-09-07: the
+ * panel cuts a box at its own bottom edge, so a band taller than the panel reads
+ * as the panel's remaining height and stops moving -- 977px on a 1080px window
+ * and 597px on a 700px one, on a build with NO ceiling at all. A case built on
+ * this number is green against the very defect it was written for, which is how
+ * the first draft of `D-374`'s case passed against the unfixed tree.
+ *
+ * @purity pure
+ */
+function tallestBandOf(
+  bands: readonly { readonly height: number }[],
+): number {
+  return bands.reduce((most, band) => (band.height > most ? band.height : most), 0)
+}
+
+/**
+ * The distance from one band's top to the next one's -- the row PITCH, which is
+ * what `LF-3` of table T-221 makes the band plus one `rowGap`.
+ *
+ * ⭐ IT IS THE READING THAT DOES NOT SATURATE, because it is a difference of two
+ * tops rather than a height the panel may cut. Null while fewer than two rows
+ * are drawn, which is itself the state a missing ceiling ends in.
+ *
+ * @purity pure
+ */
+function rowPitchOf(
+  bands: readonly { readonly y: number }[],
+): number | null {
+  const first = bands[0]
+  const second = bands[1]
+  return first === undefined || second === undefined ? null : second.y - first.y
+}
+
+// GOES RED IF: turning the wheel towards magnification on the ROW axis goes on
+// until one row fills the screen by itself, or settles at the same row pitch on
+// two windows of different HEIGHTS -- which is the fixed magnification the
+// requirement forbids outright -- or stops as soon as the last cut row name
+// stops being cut, which the requirement forbids by name and by measurement.
+//
+// ⛔⛔ THE BAND HEIGHT IS DELIBERATELY NOT THE READING, AND THE FIRST DRAFT OF
+// THIS CASE WAS RETIRED FOR TAKING IT. The panel cuts a box at its own bottom
+// edge, so `tallestBandOf` saturates at the panel's remaining height and stops
+// moving; MEASURED 2026-09-07 against the tree with NO ceiling at all, forty-
+// five notches of `MK-4` left it reading 977.0px on a 1080px window and 597.0px
+// on a 700px one -- two different numbers, unmoved by further notches, which
+// passed both halves of the draft. The PITCH between two bands is a difference
+// of two tops and cannot be cut, and the COUNT of rows drawn is what the
+// requirement's own rationale is about.
+//
+// Measured 2026-09-07, forty-five notches of `MK-4` from the document of table
+// T-025 row `MC-6`, BEFORE the fix and after it:
+//
+//                     rows drawn   pitch      widest label
+//   1920x1080  before      1       (none)     13164px
+//              after       2       600.6px     1168px
+//   1920x700   before      1       (none)     13164px
+//              after       3       153.7px      839px
+//
+// ⭐ BEFORE THE FIX THE TWO WINDOWS STOPPED AT ONE MAGNIFICATION -- the same
+// 13164px label on both -- because `S-76`'s own end was the only thing that ever
+// stopped it. That is the fixed ceiling the requirement forbids, arrived at by
+// having no ceiling.
+//
+// ⭐⭐ AND THE CUT-NAME MARK IS RULED OUT BY MEASUREMENT, not by reading the
+// source. A build that stopped when no row name was cut any longer would stop
+// where `[data-truncated]` last read false anywhere on the screen; measured on
+// this build that moment comes with the tallest band at 434.1px, and the
+// magnifying goes on well past it. ⚠️ THIS HALF GOES RED FOR ONE PARTICULAR
+// WRONG BUILD -- the one the ledger's own recommendation would have produced --
+// and not for the unfixed tree, which overshoots rather than stopping early.
+//
+// ⭐⭐ THE CLAUSES THIS CASE HOLDS, IN THE MANUSCRIPT'S OWN CHARACTERS, each
+// line being the text of `docs/spec/01-04-requirements.md` ending at the
+// marker, copied and not paraphrased:
+//
+//   行の軸（`zoomY`）の上限は、いちばん高い行の帯が `Row Area` の高さに達する倍率とすること（MUST）
+//   このために新しい設定値の行を立ててはならない（MUST NOT）
+//   切られた名前の印を、この上限の信号にしてはならない（MUST NOT）
+//
+// ⛔ THE CLAUSES THIS CASE DOES NOT REACH ARE NOT QUOTED: 「字の大きさを 2 つ比べ
+// て決めてはならない」 cannot be told apart from any other formula by what reaches
+// the screen, and the ROW-anchor clauses belong to `D-366` below.
+test('D-374: magnifying the row axis stops before one row fills the Row Area', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+  const app = await openTheApp(baseURL)
+  const wheelAway = async (times: number): Promise<void> => {
+    for (let turn = 0; turn < times; turn++) {
+      await app.page.keyboard.down('Alt')
+      await app.page.mouse.wheel(0, -120)
+      await app.page.keyboard.up('Alt')
+      await app.page.waitForTimeout(35)
+    }
+    await readSettledDrawnSvg(app.page)
+  }
+  try {
+    const canvasBox = await canvasBoxNow(app.page)
+    expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
+    if (canvasBox === null) return
+    await app.page.mouse.move(
+      Math.round(canvasBox.x + canvasBox.width / 2),
+      Math.round(canvasBox.y + canvasBox.height / 2),
+    )
+
+    // ---- the tall window ------------------------------------------------
+    const opened = await rowBandsNow(app.page)
+    expect(opened.length, 'the document opens drawing fewer than three rows').toBeGreaterThan(2)
+    // ⭐ The moment the last cut name stops being cut is caught DURING the
+    // sweep, because after it the mark never comes back -- FR-016 records the
+    // same shape: the count of cut names is non-decreasing in `zoomY`.
+    let whenNoNameWasCut: number | null = null
+    for (let turn = 0; turn < 45; turn++) {
+      const bands = await rowBandsNow(app.page)
+      if (whenNoNameWasCut === null && bands.every((band) => !band.isCut)) {
+        whenNoNameWasCut = tallestBandOf(bands)
+      }
+      await wheelAway(1)
+    }
+    const tall = await rowBandsNow(app.page)
+    const tallPitch = rowPitchOf(tall)
+    expect(
+      tallestBandOf(tall),
+      `forty-five notches of MK-4 left the tallest band at ${tallestBandOf(opened).toFixed(1)}px, ` +
+        'so nothing was zoomed and a ceiling proves nothing',
+    ).toBeGreaterThan(tallestBandOf(opened))
+    // ⭐⭐ THE REQUIREMENT'S OWN PICTURE OF WHERE THE MAGNIFYING ENDS: 「1 つの行が
+    // 画面をちょうど埋めた先には、見せられるものが残っていない。」 A ceiling placed
+    // where the tallest band REACHES the Row Area's height leaves the screen
+    // holding more than that one row; one that never fires leaves exactly it.
+    expect(
+      tall.length,
+      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Row Area\` の高さに` +
+        `達する倍率とすること（MUST）」. Forty-five notches of MK-4 left ${String(tall.length)} ` +
+        `row(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
+        `${tallestBandOf(tall).toFixed(1)}px -- past the ceiling the magnifying goes on until ` +
+        'one row fills the screen alone',
+    ).toBeGreaterThan(1)
+    // ⛔ AND IT REALLY STOPPED THERE. A ceiling that let the bands go on growing
+    // by a few px a notch would pass a single reading and fail the person
+    // turning the wheel.
+    await wheelAway(10)
+    const further = rowPitchOf(await rowBandsNow(app.page))
+    expect(tallPitch, 'two bands are needed to measure a pitch and only one was drawn')
+      .not.toBeNull()
+    expect(
+      further,
+      `ten more notches took the row pitch from ${String(tallPitch)} to ${String(further)}, so ` +
+        'the magnification has no ceiling at all',
+    ).toBeCloseTo(tallPitch ?? 0, 0)
+
+    // ⛔⛔ FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない
+    // （MUST NOT）」 —— the requirement's own measurement is that the mark does not
+    // move with `zoomY` at all, so a build reading it would stop at the first
+    // moment below rather than at the ceiling.
+    expect(
+      whenNoNameWasCut,
+      'no cut row name was ever cleared during the sweep, so this build cannot be told apart ' +
+        'from one that stopped on the mark',
+    ).not.toBeNull()
+    expect(
+      tallestBandOf(tall),
+      `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
+        `The last cut row name cleared while the tallest band stood at ` +
+        `${(whenNoNameWasCut ?? 0).toFixed(1)}px and the magnifying settled at ` +
+        `${tallestBandOf(tall).toFixed(1)}px -- a build that stopped on the mark would have ` +
+        'stopped at the first of the two',
+    ).toBeGreaterThan((whenNoNameWasCut ?? 0) + 1)
+
+    // ---- the short window -----------------------------------------------
+    // ⛔ FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST
+    // NOT）」 —— 「画面の高さから導く。」 A stored magnification would settle at the
+    // same pitch whatever the window is; this one is derived from a height, so a
+    // shorter window has to settle lower.
+    await app.page.setViewportSize({ width: 1920, height: 700 })
+    await readSettledDrawnSvg(app.page)
+    await wheelAway(25)
+    const short = await rowBandsNow(app.page)
+    const shortPitch = rowPitchOf(short)
+    expect(
+      short.length,
+      `the short window settled with ${String(short.length)} row(s), so no pitch can be read ` +
+        'and the ceiling did not fire there either',
+    ).toBeGreaterThan(1)
+    expect(
+      shortPitch,
+      `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
+        `「画面の高さから導く。」 The row pitch settles at ${String(shortPitch)}px on a 700px ` +
+        `window and at ${String(tallPitch)}px on a 1080px one; one pitch for both windows is ` +
+        'the ceiling read off a stored number rather than off the screen',
+    ).toBeLessThan(tallPitch ?? 0)
+  } finally {
+    await app.close()
+  }
+})
+
+/**
+ * The one file `MN-6` of table T-070 is about, read as text.
+ *
+ * ⛔ THE SOURCE AND NOT THE BUILD. What the case below asks is whether a
+ * COMPONENT lays the schedule out for itself, and that is a fact about the
+ * component's own file; a bundle has every unit in it and could not answer.
+ */
+const TRANSLATOR_SOURCE = join(
+  process.cwd(), 'src', 'adapter', 'input-command-translator', 'input-command-translator.ts',
+)
+
+// GOES RED IF: one notch of the row-axis zoom (`MK-4`) moves the row under the
+// pointer, or fails to change the height of that row's band at all (a zoom that
+// did nothing would hold every row still by doing nothing), or if the Adapter
+// starts running the placement itself. Measured on this build 2026-09-07 BEFORE
+// the fix, at the screen of table T-025 row `MC-6`: one notch took a band from
+// 148px to 205px and carried the point under the pointer 52.2px down the
+// screen, because the display position was left naming the top edge. AFTER the
+// fix the same notch moves it 1.45px, and four other rows of the same document
+// move 0.33px to 0.38px.
+//
+// ⭐ THE ROW IS FOLLOWED BY ITS OWN IDENTITY (`data-group-id`) AND NOT BY ITS
+// PLACE IN THE LIST. `FR-018` draws deeper rows as `zoomY` rises, so the third
+// row on the screen before a notch need not be the third one after it.
+//
+// ⭐⭐ THE CLAUSES THIS CASE HOLDS, IN THE MANUSCRIPT'S OWN CHARACTERS:
+//
+//   ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと（MUST）
+//   倍率を変えたとき、行の軸でも掴んだ行を留めること（MUST）
+//   Adapter に自前の割付けをさせてはならない（MUST NOT）
+//
+// ⛔ AND ONE IT DOES NOT: 「その倍率での行の位置を答えるメンバを、表 T-064 の
+// `PI-5` に置くこと（MUST）」 says WHERE a member sits, and nothing that reaches
+// this case can see a table of published names. Check 26b is what holds it.
+test('D-366: one notch of the row-axis zoom leaves the row under the pointer where it was', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+  const app = await openTheApp(baseURL)
+  try {
+    const canvasBox = await canvasBoxNow(app.page)
+    expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
+    if (canvasBox === null) return
+    const before = await rowBandsNow(app.page)
+    expect(before.length, 'the document draws fewer than four rows to choose from')
+      .toBeGreaterThan(3)
+    // ⭐ A row well down the picture and not the first: the top edge is where a
+    // build that never moved the anchor happens to be right, so a case taken
+    // there could not tell the two builds apart.
+    const held = before[3]
+    expect(held, 'the fourth row is not on the screen').not.toBeUndefined()
+    if (held === undefined) return
+    const at = Math.round(held.y + held.height / 2)
+
+    await app.page.mouse.move(Math.round(canvasBox.x + canvasBox.width * 0.6), at)
+    await app.page.keyboard.down('Alt')
+    await app.page.mouse.wheel(0, -120)
+    await app.page.keyboard.up('Alt')
+    await readSettledDrawnSvg(app.page)
+
+    const after = await rowBandsNow(app.page)
+    const sameRow = after.find((band) => band.id === held.id)
+    expect(
+      sameRow,
+      `the row the pointer was over (${held.id}) is no longer drawn after one notch`,
+    ).not.toBeUndefined()
+    if (sameRow === undefined) return
+    expect(
+      sameRow.height,
+      `one notch of MK-4 left the band ${held.height.toFixed(1)}px tall, so nothing was zoomed ` +
+        'and holding the row still proves nothing',
+    ).not.toBe(held.height)
+    // The same point of the same row, measured as a fraction of its band so that
+    // a band which grew is followed rather than its top edge.
+    const into = (at - held.y) / held.height
+    const nowAt = sameRow.y + into * sameRow.height
+    expect(
+      Math.abs(nowAt - at),
+      `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと` +
+        `（MUST）」 and 「倍率を変えたとき、行の軸でも掴んだ行を留めること（MUST）」. The wheel ` +
+        `was turned at y=${String(at)}, where the band was ${held.height.toFixed(1)}px and is ` +
+        `now ${sameRow.height.toFixed(1)}px; the point under the pointer has moved to ` +
+        `y=${nowAt.toFixed(1)}`,
+    ).toBeLessThanOrEqual(4)
+
+    // ⛔ FR-016 (MUST NOT): 「Adapter に自前の割付けをさせてはならない（MUST NOT）」.
+    // ⚠️ WHAT THIS REACHES AND WHAT IT DOES NOT: it shows that the one component
+    // MN-6 of table T-070 was written about does not call the placement, which
+    // is the half a test can see. It does NOT show that every second run stays
+    // inside `layoutEngine` -- other components would each need their own line,
+    // and check 19 is what reads the tree's edges.
+    // ⛔ THE CODE AND NOT THE COMMENTS. That file explains WHY it does not lay
+    // the schedule out, and naming the placement in order to say so is not
+    // doing it -- a bare `includes` reads the explanation as the offence.
+    const translator = readFileSync(TRANSLATOR_SOURCE, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/(^|\n)[ \t]*\/\/[^\n]*/g, '$1')
+    expect(
+      /\blayoutFromSchedule\b/.test(translator),
+      `FR-016 (MUST NOT): 「Adapter に自前の割付けをさせてはならない（MUST NOT）」. ` +
+        'input-command-translator.ts names layoutFromSchedule outside its comments, so the ' +
+        'Adapter is laying the schedule out for itself instead of asking PI-5 where the rows ' +
+        'will be',
+    ).toBe(false)
+  } finally {
+    await app.close()
+  }
+})
+
 // ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
@@ -1732,6 +2086,8 @@ const HELD: readonly string[] = [
   'D-277',
   'D-282',
   'D-297',
+  'D-366',
+  'D-374',
   'D-375',
 ]
 
