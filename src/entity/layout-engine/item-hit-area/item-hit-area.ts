@@ -156,7 +156,14 @@ export interface PointerSlop {
   readonly actualEndpoint: number
   /** S-92: the fade handle's square, as its half-width. */
   readonly fadeHandle: number
-  /** S-93: the dummy's box. */
+  /**
+   * S-93: the box GR-9 / GR-17 / GR-18 take from their day's left edge, and
+   * -- since the ruling of 2026-09-08 -- the box GR-8's resume icon takes
+   * about its own centre. ⭐ ONE ROW SERVES BOTH, which is what its own
+   * remark in table T-206 now says and what GR-8's row asks for: 「新しい設定値
+   * を立てない —— 同じ行が実績のダミーに与えている大きさをそのまま使う」.
+   * ⚠️ The field names are the row's FIRST customer, not its only one.
+   */
   readonly dummyWidth: number
   readonly dummyHeight: number
   /**
@@ -334,8 +341,9 @@ const TASK_ROWS: readonly TaskRow[] = [
     grab: 'GR-1',
     reach: 'anyPress',
     /** @purity pure */
-    isClaimedBy: ({ task }, x, y, slop) => {
-      const corner = task.fadeHandles[0]
+    isClaimedBy: (boxed, x, y, slop) => {
+      if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
+      const corner = boxed.task.fadeHandles[0]
       return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
     },
   },
@@ -343,15 +351,18 @@ const TASK_ROWS: readonly TaskRow[] = [
     grab: 'GR-2',
     reach: 'anyPress',
     /** @purity pure */
-    isClaimedBy: ({ task }, x, y, slop) => {
-      const corner = task.fadeHandles[1]
+    isClaimedBy: (boxed, x, y, slop) => {
+      if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
+      const corner = boxed.task.fadeHandles[1]
       return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
     },
   },
   // GR-3 / GR-4 -- the plan's two ends. GR-15's row records why a milestone
   // has neither: a point has no duration to resize. ⚠️ The two ends do NOT
   // reach alike: `isOnPlanEnd` below carries the boundary the ruling of
-  // 2026-09-08 put at the plan start, and says why it binds GR-3 alone.
+  // 2026-09-08 put at the plan start. ⭐ BOTH ends stand down where a dummy
+  // stands right of that boundary -- `standsOnADummyRightOfThePlanStart` is
+  // where the closing rule that names all four plan-side rows is answered.
   // ⭐ NEITHER PAIR IS REORDERED for the ruling of the same day that has the
   // finish win where the two ends coincide: `endsStandOnOneDay` gates the
   // START instead, and its own note says why moving the row would be wrong.
@@ -373,14 +384,39 @@ const TASK_ROWS: readonly TaskRow[] = [
       isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius),
   },
   // GR-8 -- the resume icon, further out again.
+  //
+  // ⭐⭐ S-93's BOX, CENTRED ON THE ICON, and NOT the drawn outline: the row
+  // says 「当たり判定は `_assets/tbl-settings.md` の 表 T-206 の `S-93` の大きさ
+  // とすること（MUST）。図形の素の輪郭を当たり判定にしてはならない（MUST NOT）」,
+  // and 「起点はアイコンの中心とすること（MUST）」. ⚠️ The row's own measurement
+  // is why: the bent arrow's raw path box is about 9.4 x 4.9px at the default
+  // settings, so 「掴めないのではなく狙えない」.
+  //
+  // ⭐ NO NEW SETTING IS RAISED, which the row also states -- 「同じ行が実績の
+  // ダミーに与えている大きさをそのまま使う」. `PointerSlop.dummyWidth` /
+  // `dummyHeight` ARE S-93, and the field names say the row's first customer
+  // rather than its only one.
+  //
+  // ⛔ THE CENTRE IS THE DRAWN ICON'S OWN, i.e. the middle of the box the arm
+  // and the head occupy. The row rules out the day column's left edge that
+  // GR-9 / GR-17 / GR-18 anchor on -- 「アイコンは日の列に揃わず、マーカーの
+  // 外側に置かれるからである」 -- and names no other point, so the figure the
+  // renderer draws is what the centre is taken from.
+  //
+  // ⚠️ GR-7 STANDS ABOVE THIS ROW AND STILL DOES. A 30px box reaches back over
+  // the marker it hangs off, and the table's order is what settles the shared
+  // ground: the marker answers there, the icon answers past it. That is the
+  // same reading GR-7's own 「マーカーのさらに外側」 already carried.
   {
     grab: 'GR-8',
     reach: 'anyPress',
     /** @purity pure */
-    isClaimedBy: ({ task }, x, y) => {
+    isClaimedBy: ({ task }, x, y, slop) => {
       if (task.resume === null) return false
       const box = boxOfPath([...task.resume.arm, ...task.resume.head])
-      return box !== null && isInsideBoxInclusive(x, y, box)
+      if (box === null) return false
+      const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+      return isNearPoint(x, y, centre, slop.dummyWidth / 2, slop.dummyHeight / 2)
     },
   },
   // GR-17, then GR-9 -- ⭐ SWAPPED ON 2026-09-08 BY THE USER'S RULING. Table
@@ -486,20 +522,29 @@ const TASK_ROWS: readonly TaskRow[] = [
  * Once a day is narrower than S-90 there is no reachable ground left between
  * them at all.
  *
- * ⚠️ GR-4 IS NOT CLAMPED BY THIS BOUNDARY. The ruling names the plan START as
- * the boundary and says nothing of the finish, and on a one-day plan the finish
- * stands right of that boundary. Its reach stays even on both hands the way
- * S-90 states it.
+ * ⭐⭐ GR-4 IS FENCED TOO, AND BY THE OTHER HALF OF THE SAME RULING. The note
+ * that stood here said the ruling named the plan start and nothing else, and
+ * the manuscript deleted the note it was reading on 2026-09-08 -- 「⚠️⚠️ 2026-
+ * 09-08 まで、ここに「`GR-4` は 2026-09-08 の掴み分けの裁定では触れていない」と
+ * いう注が在った …… ⇒ 注を消し、境目は上の規則のとおり `GR-4` にも効く」. The
+ * closing rule now binds all four plan-side rows: 「⛔ 予定側の点の掴み代
+ * （`GR-1` / `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ
+ * 伸ばしてはならない（MUST NOT）」. `standsOnADummyRightOfThePlanStart` below
+ * is where GR-1, GR-2 and GR-4 answer it, and this function is where GR-3 does.
  *
- * ⛔ THAT IS NOT THE WHOLE OF WHAT 2026-09-08 SAID ABOUT GR-4, and the note
- * that stood here said it was -- it read the ruling as naming the plan start
- * and nothing else. The SECOND
- * closing rule under table T-023d names GR-4 outright -- 「予定の 2 端（`GR-3`
- * と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と
- * `GR-17`）にも、同じように当てはまる（MUST）」 -- so all three pairs carry it and
- * only one of them (the dummies) had it. `endsStandOnOneDay` below is where the
- * plan's and the actual's halves are answered, and its note records which of
- * them the geometry can still not tell.
+ * ⛔ GR-4 IS NOT CLAMPED THE WAY GR-3 IS, and the difference is the ruling's
+ * own: 「その位置より左を押したときは予定の開始点（`GR-3`）を掴み」 names the
+ * START alone as the row that keeps only its left hand. Refusing GR-4 every
+ * pixel right of the boundary would take the plan's finish off EVERY plan of
+ * more than zero days, since that end always stands right of its own start.
+ * What GR-4 gives up is the dummy's own box and nothing else.
+ *
+ * ⚠️ The SECOND closing rule under table T-023d names GR-4 as well -- 「予定の
+ * 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端
+ * （`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）」 -- and that one is a
+ * different case: two ends on ONE DAY. `endsStandOnOneDay` below is where the
+ * plan's and the actual's halves of it are answered, and its note records which
+ * of them the geometry can still not tell.
  *
  * ⚠️ NEITHER END EXISTS ON A MILESTONE (GR-15's row), so the clamp never
  * reaches GR-18: the dummy on a milestone has no GR-3 above it to be clamped,
@@ -512,10 +557,63 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   if (boxed.task.shapeKind === 'milestone') return false
   const box = boxed.plan
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
+  if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
   if (which === 'right') return Math.abs(x - (box.x + box.width)) <= slop.planEndpoint
   if (endsStandOnOneDay(box)) return false
   return x <= box.x && box.x - x <= slop.planEndpoint
 }
+
+/**
+ * Table T-023d's closing rule of 2026-09-08, the half that binds the PLAN side:
+ * 「⭐⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側の
+ * どの行よりも先に成立させること（MUST）」, and ⛔ 「予定側の点の掴み代（`GR-1` /
+ * `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ伸ばしては
+ * ならない（MUST NOT）」.
+ *
+ * ⭐⭐ THIS IS WHAT THE PURPOSE NEEDS, AND CLAMPING GR-3 ALONE WAS NOT. The
+ * rule states the purpose in the user's words -- 「Zoom Out して 1 日の表示が
+ * 潰れても、ダミーの実績を入力できることである」 -- and then says in as many
+ * words that the fence is not enough on its own: 「⛔ 低倍率でダミーが掴めなく
+ * なってはならない（MUST NOT）—— 境目を動かさないだけでは足りない。境目より右を
+ * 予定側の掴み代で埋めても、同じことが起きる」.
+ *
+ * ⚠️⚠️ AND THAT IS EXACTLY WHAT WAS MEASURED. The manuscript records it --
+ * 「低倍率で 1 〜 8 日の予定では、`GR-4` の `S-90`（端点の左右へ 6px）と、選ばれて
+ * いるあいだ現れる `GR-1` の `S-92` の半分（7.5px）が、描かれているダミーの印を
+ * 丸ごと飲んでいた」 -- and both rows sit ABOVE the dummies in the printed order,
+ * so neither was reachable however the fence at GR-3 was drawn.
+ *
+ * ⛔ THE TABLE'S PRINTED ORDER IS NOT REWRITTEN, and the rule says why it must
+ * not be: 「本表の順は、離れているものどうしの優先を決めるものである —— 境目の右
+ * で重なったときは本規則が勝つ（MUST）」. So the four rows stand down HERE, over
+ * the dummy's own box, and keep every other pixel the order gives them.
+ *
+ * ⭐ THE BOX IS THE DUMMY'S OWN, asked of `isOnDummy` rather than restated. A
+ * second copy of S-93's arithmetic is the thing that goes out of step, and the
+ * rule the two share -- 「`S-93` の幅は、境目の右側でだけ使うこと（MUST）」 -- is
+ * one answer with two faces, as the manuscript itself says.
+ *
+ * ⚠️ ONE TASK'S OWN DUMMIES, AND ITS OWN PLAN START. The boundary the rule
+ * names is 「予定の開始日の位置」 -- a Task's own -- so a Task's plan rows yield
+ * to that Task's dummies. Rows remain the outer loop of `itemAtPointer`, which
+ * is MK-9a's global order, and this changes none of it.
+ *
+ * ⚠️ THE x TEST IS NOT REDUNDANT WITH THE BOX. A dummy stands on a day AFTER
+ * the plan start, so its box already begins right of the boundary at every
+ * zoom; the comparison is written anyway because the rule is stated about the
+ * boundary and a reader must be able to see the boundary in the code.
+ *
+ * @purity pure
+ */
+function standsOnADummyRightOfThePlanStart(boxed: BoxedTask, x: number, y: number,
+                                           slop: PointerSlop): boolean {
+  const plan = boxed.plan
+  if (plan === null || x <= plan.x) return false
+  return DUMMY_ROWS.some((grab) => isOnDummy(boxed.task, grab, x, y, slop))
+}
+
+/** The three rows of table T-023d the fence hands the right-hand side to. */
+const DUMMY_ROWS = ['GR-17', 'GR-9', 'GR-18'] as const
 
 /** @purity pure */
 function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,

@@ -765,9 +765,10 @@ describe('表 T-023d closing rule -- a plain press does not land on GR-10', () =
 
 describe('表 T-023 MK-13 -- what a double click reaches', () => {
   it('reaches the name edit through the name label (GR-10)', () => {
-    // 「ダブルクリックの宛先は本表の順をそのまま使う —— 消えるのは素の押下の
-    // ときだけである」, so GR-10 is still a destination even though it is no
-    // longer a grab.
+    // 「ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に
+    // 読むこと（MUST）」 and 「素の押下の順は 1 文字も変わらない —— 消えるのは
+    // 素の押下のときの `GR-10` / `GR-11` だけである」, so GR-10 is still a
+    // destination even though it is no longer a grab.
     const probe = centreOf(labelOf(1))
     const answer = afterDoubleClick(probe.x, probe.y, taskHitOn('GR-10'))
     expect(answer.action).toEqual({

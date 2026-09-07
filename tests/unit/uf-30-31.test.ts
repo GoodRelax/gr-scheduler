@@ -137,8 +137,12 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * ⭐ THE ORDER IS STILL THE PRINTED ONE, closing rule and all. 「ダブルクリック
  * だけを持つ行（`GR-10` / `GR-11`）は、素の押下では掴みとして成立させないこと
  * （MUST NOT）」 does not reorder the table and does not drop a row from it:
- * 「⚠️ **ダブルクリックの宛先は本表の順をそのまま使う** —— 消えるのは素の押下の
- * ときだけである。」 So this roster needs no case of its own for those two rows.
+ * 「素の押下の順は 1 文字も変わらない —— 消えるのは素の押下のときの `GR-10` /
+ * `GR-11` だけである」. ⚠️ The double click is no longer read off this order at
+ * all -- 「ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より
+ * 先に読むこと（MUST）」 (利用者の裁定 2026-09-08), which replaced the sentence
+ * this comment used to quote. So this roster needs no case of its own for those
+ * two rows.
  * WHICH row a plain press lands on is `itemAtPointer`'s answer (UF-7), not this
  * unit's; the cases for it are in `t-023d-double-click-only-rows.test.ts`.
  *
@@ -2400,9 +2404,12 @@ describe('表 T-023d -- what a grab does', () => {
   })
 
   it('⛔ GR-18 (FR-043, MUST NOT): a MILESTONE is no exception -- the released day travels too', () => {
-    // ⛔⛔ FR-043 (利用者の裁定 2026-09-02): 「⚠️ マイルストーンの例外は 2 つだけ
+    // ⛔⛔ FR-043 (利用者の裁定 2026-09-02): 「⚠️ マイルストーンの例外は 3 つ
     // である …… ⛔⛔ **位置は例外ではない（MUST NOT）** …… ダミーは形状を問わず
-    // 予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. Until CR-332 a
+    // 予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. ⚠️ THE COUNT
+    // WENT FROM TWO TO THREE ON 2026-09-08 -- the third exception is the
+    // milestone dummy's FIGURE AND COLOUR, which changes nothing this case
+    // asks: the position is still not an exception. Until CR-332 a
     // milestone wrote its figure's own day whatever day the hand let go on, so
     // this case asks the release of a Task that really is one -- the row above
     // presses GR-18 over a rectangle, where both readings agree.
@@ -2590,8 +2597,9 @@ describe('MK-13 of 表 T-023 -- the double click', () => {
   // FR-072 is where the panel's contents are settled instead: 「プロパティパネル
   // に出す中身を**最後に行われた操作**で決めること」 -- no input has to ask.
   // ⚠️ The body is GR-12 of 表 T-023d, and the closing rule under that table
-  // says 「ダブルクリックの宛先は本表の順をそのまま使う」, so the hit this case
-  // hands in is the one a double click on the bar really arrives with.
+  // says 「ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より
+  // 先に読むこと（MUST）」, so the hit this case hands in is the one a double
+  // click on the bar really arrives with.
   it('the task body opens the SAME name for editing (MK-13, one entry)', () => {
     const action = doubleClickOn(TASK_1_HIT).action
     expect(action?.kind).toBe('editInPlace')
