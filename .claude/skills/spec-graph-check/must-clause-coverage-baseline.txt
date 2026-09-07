@@ -1,4 +1,11 @@
-966
+965
+#
+# LOWERED 966 -> 965 ON 2026-09-08. Not a test written for the purpose -- an
+# existing test grew the clause verbatim while a body was mending a fabricated
+# citation beside it, so the ground came for free.
+# ⭐ This is the direction D-377 owes: the debt went 934 -> 976, was walked
+# back to 972, then to 966, now 965. Every clause an anchor takes verbatim
+# pays a little of it back. ⛔ Never raise this to make a wave pass.
 #
 # RAISED 960 -> 966 ON 2026-09-08, DELIBERATELY AND WITH THE USER'S LEAVE.
 # Six clauses arrived from three rulings given that evening and none has a

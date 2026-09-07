@@ -1939,27 +1939,23 @@ export function svgFromSchedule(
         barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
       }
     }
-    // FR-043 (MUST): two faint grab handles on a Task not started, one on a
-    // milestone. ⛔ EP-14 of table T-076 keeps them out of the exported
+    // FR-043 (MUST, 利用者の裁定 2026-09-08, 逐語「タスクのダミーは1日とする。
+    // だから = は1日」「1つだけにしろ」): ONE faint mark on a Task not started,
+    // whether it holds two grab targets (GR-9 / GR-17) or one (GR-18 on a
+    // milestone). ⛔ EP-14 of table T-076 keeps it out of the exported
     // picture, and this is the only place that can obey it -- the geometry may
     // NOT be stripped instead, because GR-7 hangs the not-started progress
-    // marker off GR-17 and dropping the dummies would take EP-5's marker with
-    // them (WY-3 of table T-041 measures it).
+    // marker off GR-17 and dropping that dummy would take EP-5's marker with
+    // it (WY-3 of table T-041 measures it), and table T-023d still keeps GR-17
+    // as a grab target (only the drawn ink was ever two).
+    // ⛔ WHAT THE ONE MARK IS SHAPED LIKE IS STILL OPEN: GR-18 on a milestone
+    // is drawn with this same rectangle outline, not with the milestone's own
+    // figure. The count was settled on 2026-09-08; the FIGURE was not, and
+    // ledger row D-390 carries it. @provisional PD-208
     if (picture === 'screen' && task.dummies.length > 0) {
-      // ⭐ ONE GROUP RATHER THAN AN OPACITY PER SHAPE, for the reason
-      // `markerSvg`'s note already records: two translucent shapes composite to
-      // a third value where they meet, and GR-9 and GR-17 do meet. Below
-      // S-180's width in a day, the two marks are a day wide and a day apart
-      // and stand edge to edge, so their strokes -- which straddle the shared
-      // edge -- overlap on it. S-131 would stop being the degree of anything.
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
       // storing a derived one, so there is no second formula and no key here.
-      // ⭐ GR-18 is drawn as the SAME figure as GR-9 and GR-17, not as a
-      // milestone's own diamond (SH-5 governs the milestone, not a handle):
-      // FR-043 calls all three the same thing and S-93 gives all three ONE hit
-      // box, so one drawn figure keeps the picture and the target the same
-      // shape. @provisional PD-208
       // ⛔ `drawnWidth`, never `dummyWidth`: `item-hit-area.ts` spells S-93's
       // HIT width that way, and S-180's own note is that the two differ.
       // ⭐ FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと 表 T-206 の `S-180` の
@@ -1975,22 +1971,26 @@ export function svgFromSchedule(
       // ALONE -- the entity may not read it, so the two meet here and nowhere
       // else.
       const drawnWidth = Math.min(layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
-      const marks = task.dummies
-        .map((one) =>
-          barSvg(
-            {
-              form: 'outline',
-              points: cornersAround(
-                centreFromLeftEdge(one.at, drawnWidth),
-                drawnWidth,
-                one.height,
-              ),
-            },
-            actual,
-            `${taskKey}-dummies`,
+      // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d: 「`GR-9`
+      // と同じ場所である」), never GR-17's -- FR-043's alignment MUST (「日の列の
+      // 左端に揃えること」) names ONE day column, and GR-17 stands a further
+      // `S-129` working days to the right of it. ⛔ `dummiesOf` always puts
+      // GR-9 or GR-18 first and GR-17 (when present) second, but this reads by
+      // `grab` rather than by position so a reordering upstream could not
+      // silently swap which one gets drawn.
+      const anchor = task.dummies.find((one) => one.grab !== 'GR-17') ?? task.dummies[0]!
+      const marks = barSvg(
+        {
+          form: 'outline',
+          points: cornersAround(
+            centreFromLeftEdge(anchor.at, drawnWidth),
+            drawnWidth,
+            anchor.height,
           ),
-        )
-        .join('')
+        },
+        actual,
+        `${taskKey}-dummies`,
+      )
       // FR-013 (MUST): 「実績入力のダミー（`FR-043`）は薄く描き、ポインタが
       // 乗っているあいだだけ濃くすること」. ⭐ WHAT 「濃く」 IS: the mark drawn
       // with no faintness on it at all. ⛔ No settings row carries a second
@@ -1999,11 +1999,11 @@ export function svgFromSchedule(
       // taking away of that one attribute rather than a number invented here.
       // ⚠️ HF-6's precedent reads the same way: the row control is hidden and
       // then simply drawn, never drawn twice at two strengths.
-      // ⭐ THE TASK'S THREE ROWS MOVE TOGETHER, AND THE GROUP IS WHY. GR-9 and
-      // GR-17 are painted in ONE group for the compositing reason above, so a
-      // per-mark strength would put back exactly the third value that group
-      // exists to prevent; and the hand is on one of a Task's dummies or on
-      // none. @provisional PD-351
+      // ⭐ ONE MARK, TWO GRAB TARGETS. FR-043 keeps GR-9 and GR-17 (or GR-18)
+      // as separate things a hand can be on even though only one mark is
+      // drawn for them, so the group's own opacity darkens together for
+      // either -- there is no per-target strength to invent, and the hand is
+      // on one of a Task's dummies or on none. @provisional PD-351
       // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON. `handInside`'s note
       // carries the measurement: the plan's ends (GR-3 / GR-4) stand above
       // GR-9 / GR-17 in table T-023d, so below S-90's reach in a day's width

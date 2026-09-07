@@ -1,4 +1,17 @@
-501
+493
+#
+# LOWERED 501 -> 493 ON 2026-09-08 by finishing the repair the entry below
+# began. That entry mended ONE of the places carrying the fabricated 場面
+# 「その行は畳まれておらず、隠れている子も無い」. A body sent to REFUTE the
+# ledger row found ten more, and four of them a naive grep never sees --
+# the sentence is broken across two comment lines, so it must be hunted
+# with 「おらず」 and 「隠れている子」 separately. ⛔ Front session measured
+# seven and was wrong; the body measured eleven and was right.
+# ⭐ Five copies deliberately REMAIN, every one of them quoted in order to
+# deny it -- and those five is why this lands at 493 and not lower.
+# ⭐ THE BEHAVIOUR WAS STILL NOT CHANGED TO MATCH ANY COMMENT. What did
+# change is D-385, and it changed the other way: the pressing side now
+# reads what the drawing side reads, which is HF-13's own MUST.
 #
 # LOWERED 502 -> 501 ON 2026-09-08 by repairing a FABRICATED CITATION that was
 # load-bearing -- the third time this check has caught one that the code

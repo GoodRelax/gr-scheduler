@@ -55,6 +55,7 @@ const T025: SpecTable = specTable('T-025')
 const T032A: SpecTable = specTable('T-032a')
 const T103: SpecTable = specTable('T-103')
 const T107: SpecTable = specTable('T-107')
+const T109: SpecTable = specTable('T-109')
 const T233: SpecTable = specTable('T-233')
 
 /** The screen of the base environment: table T-025, row `MC-6`. */
@@ -72,6 +73,24 @@ const NOTIFICATION_AREA = bare(rowOf(T103, 'U-57').cells[0] ?? '')
 
 /** The choices of table T-032a, by row ID, in the order the table writes them. */
 const MERGE_CHOICES: readonly string[] = T032A.rows.map((row) => row.id)
+
+/**
+ * The entrances table T-109 puts ON the `Difference Review`, in the order this
+ * file would press them.
+ *
+ * ⭐ SETTLED, NOT INVENTED: row `U-61` of the glossary says 「面の上の入口は
+ * 表 T-109 の `IC-95` 〜 `IC-97` であり、表 T-032a の `MM-1`・`MM-2`・`MM-4` に
+ * 当たる」, and `FR-022`'s own paragraph says the same. Reading them through
+ * `rowOf` means a renumbering breaks this file rather than quietly leaving it
+ * pressing nothing.
+ *
+ * ⛔ `IC-97` (`MM-4`, 取込をやめる) IS DELIBERATELY ABSENT. `MG-6` has that
+ * choice put the document back exactly as it was before the intake, so
+ * answering with it would carry nothing through -- and the judgement below that
+ * asks whether the unreadable column survived the write would then go red for a
+ * reason that is not a breach of anything.
+ */
+const REVIEW_ANSWERS: readonly string[] = [rowOf(T109, 'IC-95').id, rowOf(T109, 'IC-96').id]
 
 /** `RS-48` -- the reason a newer-version document's telling carries. */
 const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
@@ -232,18 +251,91 @@ async function openTheAgentApi(page: Page): Promise<void> {
   }
 }
 
+/**
+ * Press an entrance of table T-109 with a real pointer, and say whether it was
+ * there to press at all.
+ *
+ * ⛔ NOT `page.click`, which waits on a selector and then throws: a part that is
+ * absent is one of the things this file MEASURES, so its absence has to come
+ * back as an answer rather than as an exception.
+ *
+ * @purity non-pure
+ */
+async function pressIfThere(page: Page, icon: string): Promise<boolean> {
+  const at = await page.evaluate((one: string) => {
+    const entry = document.querySelector(`[data-icon="${one}"]`)
+    if (entry === null) return null
+    const box = entry.getBoundingClientRect()
+    if (box.width === 0 || box.height === 0) return null
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  }, icon)
+  if (at === null) return false
+  await page.mouse.move(at.x, at.y)
+  await page.mouse.down()
+  await page.mouse.up()
+  return true
+}
+
 /** What the page hands back; every field is plain JSON. */
 interface SweepArgs {
   readonly members: { readonly read: string; readonly merge: string; readonly write: string }
   readonly parts: { readonly review: string; readonly notices: string }
   readonly marks: { readonly column: string; readonly reason: string }
   readonly handedVersion: string
+  /** How long a visit may wait on `AM-8`'s answer before it hands back. */
+  readonly patienceMs: number
+}
+
+/** What the first visit measured, before anyone has been asked anything. */
+interface Begun {
+  readonly tasksBefore: number
+  readonly uidHeldBack: number
+  readonly uidsInBoth: readonly number[]
+  /** The shapes that were answered outright, in the order they were tried. */
+  readonly imports: readonly ImportOutcome[]
+  /** The shape whose answer is still waiting on a person, or `''`. */
+  readonly awaiting: string
+}
+
+/** What the screen said while the merge was still waiting on a person. */
+interface OnScreen {
+  readonly reviewStood: boolean
+  readonly reviewText: string
+  readonly uidsNamedOnTheSurface: readonly number[]
+  readonly strangersOnTheSurface: number
+  readonly noticeText: string
+  readonly reasonNamed: boolean
+}
+
+/** What the last visit measured, after the answer was given. */
+interface Finished {
+  readonly tasksAfter: number
+  readonly heldBackSurvived: boolean
+  readonly columnSurvivedTheWrite: boolean
+  readonly writeAnswer: string
+  /** `AM-8`'s answer, once it came -- or `null` while nothing was waiting. */
+  readonly awaited: { readonly settled: boolean; readonly accepted: boolean; readonly answer: string } | null
 }
 
 /**
- * The whole experiment, in one visit: read the open document, hand back a
- * newer-version copy of it that is missing one task and carries a column no
- * build can read, then look at what stands and at what a write still holds.
+ * The whole experiment: read the open document, hand back a newer-version copy
+ * of it that is missing one task and carries a column no build can read, then
+ * look at what stands, answer it, and see what a write still holds.
+ *
+ * ⛔⛔ THREE VISITS, AND `FR-022` IS WHY (D-357). The requirement reads
+ * 「`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答える
+ * まで待つこと（MUST）」 -- so `AM-8`'s answer CANNOT arrive until a person has
+ * pressed something, and a person cannot press anything while a `page.evaluate`
+ * is still running. Awaiting `AM-8` inside the evaluate that would have to be
+ * left in order to answer it is a deadlock the requirement guarantees: measured
+ * 2026-09-08, it ran the `beforeAll` hook out of its 240s and took every case in
+ * this file down with it, none of them having measured anything at all.
+ * ⛔ THE PRODUCT IS NOT WHAT IS WRONG THERE. Making `AM-8` answer at the call
+ * would break the same requirement's three MUSTs -- 「呼ぶ側が機械であっても、
+ * 選ぶのは人であること（MUST）」 above all -- and let an unattended run through.
+ * ⭐ SO THE WAITING IS SPLIT: one visit starts the merge and leaves the promise
+ * behind, Playwright reads the surface and presses the answer, and a third visit
+ * collects what the promise settled to.
  *
  * @purity non-pure
  */
@@ -260,9 +352,14 @@ async function sweep(page: Page): Promise<Measured> {
     parts: { review: DIFFERENCE_REVIEW, notices: NOTIFICATION_AREA },
     marks: { column: COLUMN_FROM_THE_FUTURE, reason: REASON_NEWER_VERSION },
     handedVersion,
+    // ⚠️ A CEILING ON THE WAITING, NOT A DELAY. Every wait below is a race
+    // against this, so a promise that settles at once is read at once and one
+    // that never settles is reported rather than allowed to hang a hook.
+    patienceMs: 4_000,
   }
 
-  const seen = await page.evaluate(async (given: SweepArgs) => {
+  // ---- visit one: hand the document over and LEAVE ------------------------
+  const begun: Begun = await page.evaluate(async (given: SweepArgs) => {
     type Bag = Record<string, unknown>
     const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
     const call = (member: string, arg?: unknown): unknown => {
@@ -322,70 +419,217 @@ async function sweep(page: Page): Promise<Measured> {
     if (project !== undefined) project[given.marks.column] = 'carried, not dropped'
     const uidsInBoth = handedTasks.map((task) => Number(task.uid))
 
+    /** What one answer, once it is in hand, says about the merge. */
+    const reading = (answer: unknown): { accepted: boolean; answer: string } => {
+      const bag = answer as { accepted?: unknown; ok?: unknown } | null
+      return {
+        accepted:
+          typeof bag === 'object' && bag !== null && bag.accepted !== false && bag.ok !== false,
+        // ⚠️ `JSON.stringify` hands back `undefined` for an undefined answer,
+        // and `.slice` on that throws inside the page where nothing catches it.
+        answer: String(JSON.stringify(answer) ?? 'undefined').slice(0, 400),
+      }
+    }
+
     // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED BY THE SPECIFICATION. `AM-8` is
     // named as "import and merge" and paired with `AM-3`, so the document
     // itself is tried first and the wrapped form second; whichever is accepted
     // is the one reported.
+    // ⛔⛔ AND THE ANSWER IS RACED RATHER THAN AWAITED. `FR-022` (MUST) has
+    // `AM-8` wait on a person when the intake is a merge, so a promise that has
+    // not settled by `patienceMs` is the requirement being kept, not a fault:
+    // it is handed to the window for the third visit, this loop stops trying
+    // shapes (the tool is already asking about the first one), and the surface
+    // that has to be answered is left standing for Playwright to press.
     const imports: { shape: string; accepted: boolean; answer: string }[] = []
+    let awaiting = ''
     for (const [shape, arg] of [
       ['the document itself', handed],
       ['{ document }', { document: handed }],
     ] as [string, unknown][]) {
-      const answer = (await Promise.resolve(call(given.members.merge, arg))) as {
-        accepted?: unknown
-        ok?: unknown
-      } | null
-      const accepted =
-        typeof answer === 'object' &&
-        answer !== null &&
-        answer.accepted !== false &&
-        answer.ok !== false
-      imports.push({ shape, accepted, answer: JSON.stringify(answer).slice(0, 400) })
-      if (accepted) break
+      // ⛔ THE REJECTION IS TAKEN HERE, ON THE CALL. A promise handed to the
+      // window unhandled would be reported as an unhandled rejection by the
+      // page long before the third visit reaches it.
+      const asked = Promise.resolve(call(given.members.merge, arg)).then(
+        (value: unknown) => ({ settled: true, value }),
+        (thrown: unknown) => ({ settled: true, value: { threw: String(thrown) } }),
+      )
+      const raced = (await Promise.race([
+        asked,
+        new Promise((settle) =>
+          window.setTimeout(() => settle({ settled: false, value: null }), given.patienceMs),
+        ),
+      ])) as { settled: boolean; value: unknown }
+      if (!raced.settled) {
+        awaiting = shape
+        ;(window as unknown as Record<string, unknown>).__grsAwaitedMerge = asked
+        break
+      }
+      const seen = reading(raced.value)
+      imports.push({ shape, accepted: seen.accepted, answer: seen.answer })
+      if (seen.accepted) break
     }
 
-    await new Promise((settle) => window.setTimeout(settle, 1500))
-
-    const textOf = (role: string): string =>
-      Array.from(document.querySelectorAll(`[data-role="${role}"]`))
-        .map((node) => (node.textContent ?? '').trim())
-        .join(' | ')
-    const reviewStood = document.querySelector(`[data-role="${given.parts.review}"]`) !== null
-    const reviewText = textOf(given.parts.review)
-    const shared = new Set(uidsInBoth)
-    const printed = (reviewText.match(/\d+/g) ?? []).map(Number)
-    const uidsNamedOnTheSurface = uidsInBoth.filter((uid) => printed.includes(uid))
-    const strangersOnTheSurface = printed.filter((n) => !shared.has(n)).length
-    const noticeText = textOf(given.parts.notices)
-    const onScreen = document.body.textContent ?? ''
-    const reasonNamed =
-      onScreen.includes(given.marks.reason) ||
-      document.querySelector(`[data-reason="${given.marks.reason}"]`) !== null
-
-    const after = tasksOf(call(given.members.read))
-    const written = JSON.stringify(await Promise.resolve(call(given.members.write)))
-
-    return {
-      buildVersion: '',
-      handedVersion: given.handedVersion,
-      tasksBefore: before.length,
-      tasksAfter: after.length,
-      uidHeldBack,
-      heldBackSurvived: after.some((task) => Number(task.uid) === uidHeldBack),
-      uidsInBoth,
-      imports,
-      reviewStood,
-      reviewText,
-      uidsNamedOnTheSurface,
-      strangersOnTheSurface,
-      noticeText,
-      reasonNamed,
-      columnSurvivedTheWrite: written.includes(given.marks.column),
-      writeAnswer: written.slice(0, 300),
-    }
+    return { tasksBefore: before.length, uidHeldBack, uidsInBoth, imports, awaiting }
   }, args)
 
-  return { ...seen, buildVersion }
+  // ⚠️ THE SURFACE IS GIVEN TIME TO BE DRAWN, outside the evaluate. A frame is
+  // painted between two visits and never during one.
+  await page.waitForTimeout(1_500)
+
+  // ---- what stands, read while the answer is still owed -------------------
+  const onScreen: OnScreen = await page.evaluate(
+    (given: { review: string; notices: string; reason: string; uidsInBoth: number[] }) => {
+      const textOf = (role: string): string =>
+        Array.from(document.querySelectorAll(`[data-role="${role}"]`))
+          .map((node) => (node.textContent ?? '').trim())
+          .join(' | ')
+      const reviewText = textOf(given.review)
+      const shared = new Set(given.uidsInBoth)
+      const printed = (reviewText.match(/\d+/g) ?? []).map(Number)
+      const onPage = document.body.textContent ?? ''
+      return {
+        reviewStood: document.querySelector(`[data-role="${given.review}"]`) !== null,
+        reviewText,
+        uidsNamedOnTheSurface: given.uidsInBoth.filter((uid) => printed.includes(uid)),
+        strangersOnTheSurface: printed.filter((n) => !shared.has(n)).length,
+        noticeText: textOf(given.notices),
+        reasonNamed:
+          onPage.includes(given.reason) ||
+          document.querySelector(`[data-reason="${given.reason}"]`) !== null,
+      }
+    },
+    {
+      review: DIFFERENCE_REVIEW,
+      notices: NOTIFICATION_AREA,
+      reason: REASON_NEWER_VERSION,
+      uidsInBoth: [...begun.uidsInBoth],
+    },
+  )
+
+  // ---- the person answers -------------------------------------------------
+  //
+  // ⭐⭐ THIS IS THE PART A `page.evaluate` CANNOT DO, and the whole reason the
+  // sweep is split: 「呼ぶ側が機械であっても、選ぶのは人であること（MUST）」.
+  // The press goes through a real pointer on an entrance of table T-109, the
+  // same road a person has.
+  // ⚠️ NOTHING IS ASSERTED HERE. Whether the surface stood at all is judged
+  // below, off `reviewStood`; this only records which entrance answered so the
+  // message can say why `AM-8` never came back.
+  let answeredThrough = ''
+  if (begun.awaiting !== '') {
+    for (const entrance of REVIEW_ANSWERS) {
+      if (await pressIfThere(page, entrance)) {
+        answeredThrough = entrance
+        break
+      }
+    }
+    await page.waitForTimeout(1_000)
+  }
+
+  // ---- visit three: collect what the answer settled to --------------------
+  const finished: Finished = await page.evaluate(
+    async (given: {
+      members: { read: string; write: string }
+      column: string
+      uidHeldBack: number
+      patienceMs: number
+    }) => {
+      type Bag = Record<string, unknown>
+      const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
+      const call = (member: string): unknown => {
+        const fn = api[member]
+        if (typeof fn !== 'function') return { notAFunction: member }
+        try {
+          return (fn as () => unknown).call(api)
+        } catch (thrown) {
+          return { threw: String(thrown) }
+        }
+      }
+      const tasksOf = (doc: unknown): Bag[] => {
+        const schedule = (doc as { schedule?: { tasks?: unknown } } | null)?.schedule
+        const tasks = schedule?.tasks
+        return Array.isArray(tasks) ? (tasks as Bag[]) : []
+      }
+
+      const stashed = (window as unknown as Record<string, unknown>).__grsAwaitedMerge as
+        | Promise<{ settled: boolean; value: unknown }>
+        | undefined
+      let awaited: { settled: boolean; accepted: boolean; answer: string } | null = null
+      if (stashed !== undefined) {
+        const raced = (await Promise.race([
+          stashed,
+          new Promise((settle) =>
+            window.setTimeout(() => settle({ settled: false, value: null }), given.patienceMs),
+          ),
+        ])) as { settled: boolean; value: unknown }
+        const bag = raced.value as { accepted?: unknown; ok?: unknown } | null
+        awaited = {
+          settled: raced.settled,
+          accepted:
+            raced.settled &&
+            typeof bag === 'object' &&
+            bag !== null &&
+            bag.accepted !== false &&
+            bag.ok !== false,
+          answer: String(JSON.stringify(raced.value) ?? 'undefined').slice(0, 400),
+        }
+      }
+
+      const after = tasksOf(call(given.members.read))
+      const written = String(JSON.stringify(call(given.members.write)) ?? 'undefined')
+      return {
+        tasksAfter: after.length,
+        heldBackSurvived: after.some((task) => Number(task.uid) === given.uidHeldBack),
+        columnSurvivedTheWrite: written.includes(given.column),
+        writeAnswer: written.slice(0, 300),
+        awaited,
+      }
+    },
+    {
+      members: { read: AM_3, write: AM_11 },
+      column: COLUMN_FROM_THE_FUTURE,
+      uidHeldBack: begun.uidHeldBack,
+      patienceMs: args.patienceMs,
+    },
+  )
+
+  // The shape that was left waiting takes its place among the others, with what
+  // it finally answered -- or with why nothing came back.
+  const imports: ImportOutcome[] = [...begun.imports]
+  if (begun.awaiting !== '') {
+    const late = finished.awaited
+    imports.push({
+      shape: begun.awaiting,
+      accepted: late !== null && late.settled && late.accepted,
+      answer:
+        late !== null && late.settled
+          ? late.answer
+          : `it raised no answer of its own and is still waiting on a person; ` +
+            (answeredThrough === ''
+              ? `no entrance of ${REVIEW_ANSWERS.join(' / ')} was on the screen to answer through`
+              : `${answeredThrough} was pressed and the answer still did not come`),
+    })
+  }
+
+  return {
+    buildVersion,
+    handedVersion,
+    tasksBefore: begun.tasksBefore,
+    tasksAfter: finished.tasksAfter,
+    uidHeldBack: begun.uidHeldBack,
+    heldBackSurvived: finished.heldBackSurvived,
+    uidsInBoth: begun.uidsInBoth,
+    imports,
+    reviewStood: onScreen.reviewStood,
+    reviewText: onScreen.reviewText,
+    uidsNamedOnTheSurface: onScreen.uidsNamedOnTheSurface,
+    strangersOnTheSurface: onScreen.strangersOnTheSurface,
+    noticeText: onScreen.noticeText,
+    reasonNamed: onScreen.reasonNamed,
+    columnSurvivedTheWrite: finished.columnSurvivedTheWrite,
+    writeAnswer: finished.writeAnswer,
+  }
 }
 
 /** What was measured, or a loud failure if the sweep never ran. @purity pure */

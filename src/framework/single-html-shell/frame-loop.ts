@@ -4729,6 +4729,27 @@ export function frameLoop(
       // the document that now stands, and judging against the old one would
       // keep exactly what the write removed.
       selection = selectionWithinSchedule(selection, held.document.schedule)
+      // ⭐⭐ FT-2 OF TABLE T-078 -- 「現在値の差し替え（表 T-067 の `WS-6`）」 --
+      // AND THIS LINE IS WS-6 ITSELF, which is why the frame is asked for here
+      // rather than on each of the roads that reach it.
+      // ⛔ 台帳 D-387 WAS THE FRAME BEING ASKED FOR ON THE ROADS INSTEAD:
+      // `receiveInput` asks for its own at the foot (FT-1) and
+      // `replaceHeldDocument` asks for one for table T-230's six rows -- so a
+      // person saw every write, while the `Agent API`, which reaches this
+      // holder through `agentApiSeams` and takes neither of those two roads,
+      // moved the document and left the picture standing. ⚠️ MEASURED
+      // 2026-09-08 on the shipped build, 1400x900: `applyCommands` changed the
+      // title and the `Document Title` still read the old one 1500ms later,
+      // until the pointer was moved.
+      // ⭐ THE SHAPE IS FT-5's OWN (`dialogueSeams.dialogueAudience.deliver`)
+      // and is not invented here. `settled` is what keeps NFR-011's MUST --
+      // BO-1 of table T-077 forbids a frame before the dimensions have settled
+      // -- and `ask` coalesces, so a write made on a happening still paints
+      // once with FT-1's rather than twice.
+      // ⛔ NOT A COMPARISON OF THE DOCUMENT PER FRAME. The note under table
+      // T-078 forbids waking a frame on a trigger the table does not list (MUST
+      // NOT); this wires the row that was already there and mints nothing.
+      if (settled(environment)) ask()
     },
   }
 

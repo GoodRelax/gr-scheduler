@@ -876,15 +876,21 @@ export type SpentEntranceSituation =
   /** HF-11 (IC-77): nothing under this row is left unfolded. */
   | 'noUnfoldedRowBelow'
   /**
-   * HF-13 (IC-90): this row is open and hides no child, so opening one level
-   * puts nothing into the picture.
+   * HF-13 (IC-90): no DIRECT child of this row is out of the picture, so
+   * opening one level puts nothing into it.
    *
-   * ⭐ THE NAME IS RS-30's OWN 場面 AS THAT ROW NOW READS IT -- 「その行は畳まれて
-   * おらず、隠れている子も無い」, and table T-233 gives it 表 T-051 の `HF-13` for
-   * its 正. ⛔ IT WAS `rowAlreadyFolded` UNTIL 2026-08-31, when RS-30 said 「その行
-   * は既に畳まれている」 and belonged to HF-3 while HF-3 was still HR-5 (「自分を
-   * 畳む」). ⚠️ PD-411 recorded that the old row had no press left that could
-   * raise it; the rewritten row is raised here.
+   * ⭐ RS-30 OF TABLE T-233 IS THE ROW, WORD FOR WORD: 「直下に、画面へ戻せる子
+   * が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- and HF-13 (MUST)
+   * words the spent side the same way: 「開ける直下の子が 1 つも無いときは、
+   * `FR-029` に従って薄く描くこと」.
+   * ⚠️⚠️ THE NAME IS OLDER THAN THE ROW IT CARRIES, and neither half of it is
+   * what RS-30 asks. It was `rowAlreadyFolded` while RS-30 read 「その行は既に
+   * 畳まれている」 and belonged to HF-3; it was renamed to this while notes in
+   * this file put 「その行は畳まれておらず、隠れている子も無い」 into RS-30 --
+   * words that row does not carry (台帳 D-339). ⛔ WHAT MAPS THE NAME TO RS-30 is
+   * the roster in `frame-loop.ts` and not the spelling, so the spelling is left
+   * alone here. ⚠️ PD-411 recorded that the old row had no press left that
+   * could raise it; the row as it now reads is raised here.
    */
   | 'rowIsOpenWithNoHiddenChild'
   /** HF-10 (IC-74): no row anywhere is folded. */
@@ -5377,9 +5383,9 @@ function commandFromRowEntry(
     // 実装に 1 つも無く、入口の無い戻り道であった」; U-29 is gone from the
     // manuscript with that ruling and nothing in `src/` may bring it back.
     if (wouldMoveARow(context, rowGroupId, 'openOneLevel') === false) {
-      // ⭐⭐ RS-30 OF TABLE T-233 IS THIS 場面 SINCE 2026-08-31: 「その行は畳まれて
-      // おらず、隠れている子も無い」, with 表 T-051 の `HF-13` for its 正 -- which
-      // is exactly the pair of things this press can undo.
+      // ⭐⭐ RS-30 OF TABLE T-233 IS THIS 場面, WORD FOR WORD: 「直下に、画面へ戻せ
+      // る子が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- which is the
+      // very question `wouldMoveARow` asks of the picture above.
       // ⛔ THE SITUATION WAS `null` UNTIL THEN, and the note that stood here said
       // why: RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
       // would tell the reader something untrue, and the fallback RS-27 was all
@@ -5520,8 +5526,8 @@ function commandFromRowEntry(
   // swallowed. ⚠️ NEITHER CASE CAN BE PRESSED IN PRACTICE: HR-6 (MUST NOT) draws
   // no hidden row, so no control of one is reachable -- the test is what keeps a
   // stale picture from writing a row that has gone.
-  // ⛔ THE SITUATION IS `null`: 表 T-233's RS-30 is HF-13's 場面 (「その行は畳まれ
-  // ておらず、隠れている子も無い」) and no row of that table names a row that is
+  // ⛔ THE SITUATION IS `null`: 表 T-233's RS-30 is HF-13's 場面 (「直下に、画面
+  // へ戻せる子が 1 つも無い」) and no row of that table names a row that is
   // already hidden, so FR-029 leaves this to the fallback RS-27.
   if (row === undefined || row.isHidden === true) return nothingToDo(null)
   // ⭐⭐ AND SO IS THE OTHER HALF OF `RowExpander.canClose`, WHICH THIS SIDE
@@ -6658,30 +6664,34 @@ function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
  * ⭐ THE CLOSING RULE UNDER TABLE T-051 (MUST), WORD FOR WORD: 「その操作で、
  * 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」,
  * and 「数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である」.
- * ⚠️⚠️ `openOneLevel` IS ANSWERED SHORT HERE: a FOLDED row with no child at
- * all is armed, even though opening it reveals nothing and the closing rule
- * above would call that no target.
- * ⛔⛔ THE REASON THIS COMMENT USED TO GIVE FOR THAT WAS A FABRICATED CITATION,
- * corrected 2026-09-08. It attributed to `RS-30` of table T-233 the words
- * 「その行は畳まれておらず、隠れている子も無い」 and reasoned that narrowing the
- * arm would make the telling untrue on a folded row. ⛔ THAT ROW SAYS NOTHING
- * OF THE KIND: read it, and the dictionary entry beside it. Neither mentions
- * being unfolded, so the telling would be true of a folded childless row and
- * the danger the old reason described does not exist.
- * ⭐ WHETHER THE BEHAVIOUR IS RIGHT IS AN OPEN QUESTION and is `D-385` of
- * docs/development-records/defects.md. ⛔ DO NOT 'FIX' THE CODE TO AGREE WITH A
- * COMMENT -- the quoted-source baseline file records a case where the code was
- * right and only its stated reason was wrong. Read HF-13's own row first.
+ * ⭐⭐ `openOneLevel` OBEYS IT BY ASKING THE PICTURE, which is the one reading
+ * HF-13 (MUST) gives the spent side: 「開ける直下の子が 1 つも無いときは、
+ * `FR-029` に従って薄く描くこと」. ⇒ Armed exactly where a DIRECT child of the
+ * pressed row is out of the picture -- HR-1a's fold, HR-6's hiding and FR-018's
+ * drop are all already settled in it, and any one of them is a row this press
+ * puts back.
+ * ⛔⛔ IT READ `isCollapsed || 隠れている子` UNTIL 2026-09-08 (台帳 D-385), which
+ * armed a FOLDED row with no child at all: the drawing side drew that entrance
+ * faint and the press still wrote a fold, so an `aria-disabled` control acted.
+ * ⚠️ THE REASON THE OLD NOTE GAVE WAS A FABRICATED CITATION (台帳 D-339): it
+ * put 「その行は畳まれておらず、隠れている子も無い」 into `RS-30` of table T-233,
+ * which reads 「直下に、画面へ戻せる子が 1 つも無い」 and names no fold at all.
+ * ⇒ The telling is true of a folded childless row, so nothing was holding the
+ * wider arm up.
  *
  * ⭐ `ancestorId` OF `null` MEANS THE WHOLE DOCUMENT, which is what HR-1 reaches
  * (IC-74); there is no pressed row then, so nothing is added for one.
  *
- * ⛔ HR-6 IS READ HERE AND FR-018 IS NOT. A hidden row stays hidden however the
- * folds above it move (MUST NOT), so it can never be the row an open reveals;
- * whether the group level of detail would keep a revealed row is
- * ScheduleLayout's judgement and no argument here carries it. ⭐ The drawing
- * side (`row-title-panel.ts`) answers this same question with the same two
- * readings, which is what FR-029 requires of the pair.
+ * ⛔ THE `open` WALK READS HR-6 AND NOT FR-018. A hidden row stays hidden
+ * however the folds above it move (MUST NOT), so it can never be the row an
+ * open reveals; whether the group level of detail would keep a revealed row is
+ * ScheduleLayout's judgement and no argument there carries it.
+ * ⭐⭐ `openOneLevel` IS THE ONE THAT ASKS NEITHER, because it asks the picture,
+ * where both have already been settled together -- and that is what FR-029
+ * (MUST) means by 「その対象を、画面に描かれている側で数えること」. ⇒ It is the
+ * SAME set `row-title-panel.ts` builds for `canOpenOneLevel`
+ * (`groupIdsWithAChildOutOfThePicture`), off the same `rowBoxes`, which is what
+ * FR-029 requires of the pair.
  *
  * ⚠️ ONE PASS AND TWO SETS. NFR-013 (MUST NOT) refuses an O(n^2) algorithm, and
  * asking each row for its own children would be one.
@@ -6701,12 +6711,14 @@ function wouldMoveARow(
 
   const withDrawnChild = new Set<string>()
   const withUnhiddenChild = new Set<string>()
-  const withHiddenChild = new Set<string>()
+  // ⭐ HF-13's WHOLE ARMING TEST, and the same one `row-title-panel.ts` builds:
+  // a direct child the picture does not hold is a row this press puts back.
+  const withAChildOutOfThePicture = new Set<string>()
   for (const row of schedule.taskGroups) {
     if (row.parentId === null) continue
     if (drawn.has(row.id)) withDrawnChild.add(row.parentId)
-    if (row.isHidden === true) withHiddenChild.add(row.parentId)
-    else withUnhiddenChild.add(row.parentId)
+    else withAChildOutOfThePicture.add(row.parentId)
+    if (row.isHidden !== true) withUnhiddenChild.add(row.parentId)
   }
   const pressedRow =
     ancestorId === null
@@ -6723,10 +6735,11 @@ function wouldMoveARow(
   if (operation === 'fold') return ancestorId !== null && withDrawnChild.has(ancestorId)
 
   // HR-7 (HF-13): this row's own fold comes off and its direct children are
-  // unhidden -- RS-30's two halves, in the order that row words them.
+  // unhidden -- and RS-30 counts what that puts back, 「直下に、画面へ戻せる子
+  // が 1 つも無い」.
   if (operation === 'openOneLevel') {
     if (ancestorId === null) return false
-    return pressedRow?.isCollapsed === true || withHiddenChild.has(ancestorId)
+    return withAChildOutOfThePicture.has(ancestorId)
   }
 
   // HR-3 (HF-2): this row and its whole subtree lose both the fold and the
@@ -8959,11 +8972,18 @@ function escapeContextOf(context: InputContext): EscapeContext {
 /**
  * The next screen state after a press on one of the entries this tool drew.
  *
- * ⭐ FR-083's SP-1 and SP-4 are the whole reason this exists: a palette entry
- * pressed with NOTHING selected arms what it stands for (SP-1), and the same
- * entry pressed again disarms it (SP-4). ⚠️ With something selected the arming
- * is left exactly as it is -- SP-2 and SP-3 say so in as many words, and
- * `commandFromArmingEntry` is where that half is answered.
+ * ⭐ FR-083's SP-1 .. SP-4 are the whole reason this exists: a palette entry
+ * pressed arms what it stands for (SP-1), and the same entry pressed again
+ * disarms it (SP-4).
+ * ⭐⭐ THE SELECTION DOES NOT ENTER INTO EITHER. FR-083 (MUST) since the user's
+ * 2026-09-07 instruction 「アイコンを押すと必ずその構えに入る」: 「どの行でも、
+ * 押した入口の形状を構えること」, with a MUST NOT against refusing to arm
+ * because something is selected; and (MUST, 利用者の裁定 2026-09-07 「トグルに
+ * せよ」) 「`SP-4` は選択の有無で変わらないこと」. ⛔ THE NOTE THAT STOOD HERE
+ * SAID THE OPPOSITE -- 「with something selected the arming is left exactly as
+ * it is」 -- which was SP-2 and SP-3 as they read before that day.
+ * ⭐ SP-2 and SP-3's OTHER half, changing the shape of what IS selected, is
+ * `commandFromArmingEntry`'s; the two are two results of one press.
  *
  * ⛔ AR-4, AR-5 AND AR-6 ARM WHATEVER IS SELECTED. FR-083's four rows speak of
  * 「パレットの形状」 only, and a dependency (AR-4) and the two annotations

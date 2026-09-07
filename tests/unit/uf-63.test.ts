@@ -661,8 +661,8 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // that carried no control at all could never raise one of them, which is the
     // 「引き金が消える」 FR-029 names.
     // ⚠️ `RS-30` IS NOT ONE OF THEM ANY MORE. Its 正 moved to `HF-13` on
-    // 2026-08-31 and it now reads 「その行は畳まれておらず、隠れている子も無い」 --
-    // the one-level opener, which `RowTitle.canOpenOneLevel` carries and this
+    // 2026-08-31 and it now reads 「直下に、画面へ戻せる子が 1 つも無い」 -- the
+    // one-level opener, which `RowTitle.canOpenOneLevel` carries and this
     // member does not.
     expect(parentTitle([], ['p']).expander).toEqual({
       canOpen: false,

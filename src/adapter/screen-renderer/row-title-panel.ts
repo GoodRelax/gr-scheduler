@@ -108,10 +108,13 @@ interface PanelIndex {
    *
    * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) since
    * 2026-08-31 takes THIS row's fold off in the same press, so a folded parent
-   * with a hidden child draws both again -- and RS-30 of table T-233 words the
-   * spent 場面 as the two halves together, 「その行は畳まれておらず、隠れている子
-   * も無い」. ⛔ The narrowing that stood here refused a folded parent, which was
-   * right while the press wrote the CHILDREN's folds and is wrong now.
+   * with a hidden child draws both again. ⛔ The narrowing that stood here
+   * refused a folded parent, which was right while the press wrote the
+   * CHILDREN's folds and is wrong now.
+   * ⚠️ A NOTE HERE USED TO CALL 「その行は畳まれておらず、隠れている子も無い」
+   * the wording of RS-30 of table T-233. That row reads 「直下に、画面へ戻せる子
+   * が 1 つも無い」 and names no fold (台帳 D-339), which is why the arming
+   * below is `groupIdsWithAChildOutOfThePicture` and not this set.
    */
   readonly groupIdsWithHiddenChild: ReadonlySet<string>
   /**
@@ -671,9 +674,12 @@ function rowTitleOf(
     // `HF-13` である」. ⇒ A row with a hidden direct child has this entrance
     // armed even where nothing is folded, because the press draws that child
     // again.
-    // ⭐⭐ THE TWO HALVES ARE RS-30 OF TABLE T-233 READ BACKWARDS. That row words
-    // HF-13's spent 場面 「その行は畳まれておらず、隠れている子も無い」, so the
-    // entrance is armed exactly when this row IS folded or hides a direct child.
+    // ⭐⭐ AND THE SPENT SIDE IS HF-13's OWN SENTENCE (MUST): 「開ける直下の子が
+    // 1 つも無いときは、`FR-029` に従って薄く描くこと」, and RS-30 of table
+    // T-233 counts the same thing for the telling: 「直下に、画面へ戻せる子が
+    // 1 つも無い」. ⛔ NEITHER NAMES THIS ROW'S OWN FOLD -- a note here used to
+    // put 「その行は畳まれておらず、隠れている子も無い」 into RS-30 and read the
+    // arming off the fold, which is words that row does not carry (台帳 D-339).
     // ⛔ `groupIdsWithFoldedChildToOpen` STOOD HERE and asked about the CHILDREN's
     // folds, which is the reading HR-7 retired: 「孫より下の畳みに触れてはならない
     // （MUST NOT）」, so what comes off is this row's own AT-56.

@@ -352,6 +352,9 @@ const TASK_ROWS: readonly TaskRow[] = [
   // has neither: a point has no duration to resize. ⚠️ The two ends do NOT
   // reach alike: `isOnPlanEnd` below carries the boundary the ruling of
   // 2026-09-08 put at the plan start, and says why it binds GR-3 alone.
+  // ⭐ NEITHER PAIR IS REORDERED for the ruling of the same day that has the
+  // finish win where the two ends coincide: `endsStandOnOneDay` gates the
+  // START instead, and its own note says why moving the row would be wrong.
   { grab: 'GR-3', reach: 'anyPress',
     isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
   { grab: 'GR-4', reach: 'anyPress',
@@ -483,10 +486,20 @@ const TASK_ROWS: readonly TaskRow[] = [
  * Once a day is narrower than S-90 there is no reachable ground left between
  * them at all.
  *
- * ⚠️ GR-4 IS NOT CLAMPED. The ruling names the plan START as the boundary and
- * says nothing of the finish, and on a one-day plan the finish stands right of
- * that boundary. Its own row is unchanged, so its reach stays even on both
- * hands the way S-90 states it.
+ * ⚠️ GR-4 IS NOT CLAMPED BY THIS BOUNDARY. The ruling names the plan START as
+ * the boundary and says nothing of the finish, and on a one-day plan the finish
+ * stands right of that boundary. Its reach stays even on both hands the way
+ * S-90 states it.
+ *
+ * ⛔ THAT IS NOT THE WHOLE OF WHAT 2026-09-08 SAID ABOUT GR-4, and the note
+ * that stood here said it was -- it read the ruling as naming the plan start
+ * and nothing else. The SECOND
+ * closing rule under table T-023d names GR-4 outright -- 「予定の 2 端（`GR-3`
+ * と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と
+ * `GR-17`）にも、同じように当てはまる（MUST）」 -- so all three pairs carry it and
+ * only one of them (the dummies) had it. `endsStandOnOneDay` below is where the
+ * plan's and the actual's halves are answered, and its note records which of
+ * them the geometry can still not tell.
  *
  * ⚠️ NEITHER END EXISTS ON A MILESTONE (GR-15's row), so the clamp never
  * reaches GR-18: the dummy on a milestone has no GR-3 above it to be clamped,
@@ -500,6 +513,7 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   const box = boxed.plan
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
   if (which === 'right') return Math.abs(x - (box.x + box.width)) <= slop.planEndpoint
+  if (endsStandOnOneDay(box)) return false
   return x <= box.x && box.x - x <= slop.planEndpoint
 }
 
@@ -510,8 +524,72 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
   if (boxed.task.shapeKind === 'milestone') return false
   const box = boxed.actual
   if (box === null || !isInsideBoxInclusive(x, y, box)) return false
+  if (which === 'left' && endsStandOnOneDay(box)) return false
   const edge = which === 'left' ? box.x : box.x + box.width
   return Math.abs(x - edge) <= slop.actualEndpoint
+}
+
+/**
+ * Table T-023d's closing rule of 2026-09-08: 「2 つの端点が同じ日に立つときは、
+ * 終了側を掴むこと（MUST）」 -- 「予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端
+ * （`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように
+ * 当てはまる（MUST）」. ⛔ 「開始側が本表で上に在ることを理由に、開始側を掴ませて
+ * はならない（MUST NOT）」.
+ *
+ * ⭐ WHY THE CONDITION HANGS ON THE START AND NOT ON THE FINISH: the ruling's
+ * own reason is 「重なった 2 点のうち、開始を掴んでも長さは伸びない。終了を掴め
+ * ば、そこから引いて長さを与えられる」, and its purpose is 「同じ日に潰れた予定や
+ * 実績を、もう一度引き伸ばせること」. So the start is the end that gives nothing
+ * back, and it is the one that stands down.
+ *
+ * ⛔⛔ NOT DONE BY LIFTING GR-4 ABOVE GR-3 (or GR-6 above GR-5), and the same
+ * closing rule is what forbids it: 「本表の順は、離れている端点どうしの優先を決め
+ * るものである」. Measured on this file's own arithmetic: GR-6 claims within
+ * S-91 of the actual's right edge and GR-5 within S-91 of its left, and neither
+ * test is grown outside the bar -- so on any actual NARROWER THAN TWICE S-91
+ * the two bands already cover the whole bar, and lifting GR-6 would take the
+ * start away on bars whose ends are days apart. The order stays printed; the
+ * START alone carries a condition, and the condition is the DAY, not the pixel.
+ *
+ * ⭐ THE TWO ENDS STAND ON ONE DAY EXACTLY WHEN THE BAR MEASURES NOTHING
+ * ACROSS. Every bar this file is handed runs from its start day's column to its
+ * finish day's column -- `spanWidthOf` in `schedule-layout.ts` says of the plan
+ * that it excludes the finish day, so start == finish measures zero, and it
+ * builds the actual the same way from `actualDuration` -- so a width of zero IS
+ * the two days being one. ⛔ NO TOLERANCE IS TAKEN: the width is a serial-day
+ * difference multiplied by the scale, so a same-day bar is exactly 0 at every
+ * zoom, and a comparison with slack would catch a real one-day span wherever
+ * the zoom fell below it.
+ *
+ * ⚠️⚠️ MEASURED, AND THE PLAN'S HALF IS NOT CLOSED BY THIS. S-49
+ * (`minShapeWidth`, 6px by default, floor 1) is applied in `schedule-layout.ts`
+ * BEFORE the geometry reaches this file -- 「a Task of zero duration is still a
+ * Task, drawn at S-49」 -- so a plan bar whose start and finish are one day
+ * arrives 6px wide and is indistinguishable here from a plan that really spans
+ * 6px. This gate therefore fires on the ACTUAL (no floor is applied to
+ * `actualWidth`) and never on the plan. ⛔ DO NOT PATCH THAT BY COMPARING THE
+ * WIDTH AGAINST S-90 or against S-49: neither is a day, and the ruling's own
+ * MUST NOT against moving the boundary with the zoom applies to any figure in
+ * pixels standing in for a date. What is missing is a member on `TaskGeometry`
+ * saying the span was zero, which is another unit's file and another round.
+ *
+ * ⚠️ THE DUMMIES ARE ALREADY ANSWERED, AND NOT BY THIS GATE. GR-9 and GR-17
+ * stand S-129 apart in WORKING DAYS by construction (GR-17's row), so their two
+ * days can never be one and this condition is vacuous on them. What overlaps
+ * there is the PIXEL, which is the OTHER closing rule -- 「実績の開始と終了の
+ * どちらを掴んだか決められないときは、終了を優先する」 -- and that one is answered
+ * by GR-17 standing above GR-9 in `TASK_ROWS`.
+ *
+ * ⚠️ MILESTONES ARE UNTOUCHED. Both callers refuse a milestone before they ask
+ * this (GR-15's row: 「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
+ * `GR-17` に当たらない」), so the shape whose start and finish are always one day
+ * never reaches the gate -- which is what keeps GR-15, GR-18 and GR-12 saying
+ * on it exactly what they said before.
+ *
+ * @purity pure
+ */
+function endsStandOnOneDay(box: ScreenRect): boolean {
+  return box.width === 0
 }
 
 /**

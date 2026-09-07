@@ -528,9 +528,11 @@ export interface RowTitle {
   readonly expander: RowExpander
   /**
    * Whether IC-90 -- HF-13 of table T-051, HR-7 of table T-015 -- has anything
-   * left to do on this row: THIS row is folded, or one of its DIRECT children is
-   * hidden. ⭐ Table T-233's RS-30 words the spent 場面 as the negation of those
-   * two, 「その行は畳まれておらず、隠れている子も無い」.
+   * left to do on this row: a DIRECT child of it is out of the picture, which
+   * this press would put back. ⭐ HF-13 (MUST) words the spent side itself,
+   * 「開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと」, and
+   * table T-233's RS-30 tells it in those words: 「直下に、画面へ戻せる子が 1
+   * つも無い」.
    *
    * ⛔⛔ NOT A FOURTH MEMBER OF `RowExpander`, AND THE REASON IS THE ROW IT
    * COMES FROM. Those three are HF-1's and are written by HF-2 / HF-3 / HF-11;
@@ -549,10 +551,14 @@ export interface RowTitle {
    * since 2026-08-31: 「選択した `TaskGroup` の畳みだけを解くこと」, and (MUST
    * NOT) 「孫より下の畳みに触れてはならない」 -- HR-1a has already left every
    * descendant folded, so one fold taken off reveals exactly one level.
-   * ⚠️ A FOLDED ROW WITH NO CHILD AT ALL IS STILL ARMED, and that is RS-30's
-   * doing rather than a choice: the narrower reading would have the telling say
-   * 「その行は畳まれておらず」 of a folded row, which FR-029 (MUST NOT) forbids.
-   * ⛔ It is the one place the closing rule under table T-051 is answered short.
+   * ⛔⛔ A FOLDED ROW WITH NO CHILD AT ALL IS SPENT ALL THE SAME. Taking the
+   * fold off it puts no row into the picture, and the closing rule under table
+   * T-051 (MUST) counts 「その操作の前後で描かれる行の差」 and not the flag.
+   * ⚠️ A NOTE HERE ARGUED THE OPPOSITE from a fabricated citation (台帳 D-339):
+   * it read RS-30 as 「その行は畳まれておらず」 and concluded that narrowing the
+   * arm would make the telling untrue on a folded row. ⇒ RS-30 says no such
+   * thing, so nothing was holding the wider arm up, and the press side that had
+   * followed the note now asks the picture as this member does (台帳 D-385).
    *
    * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, the same bargain
    * `RowTitlePanel.canOpenEveryRow` takes and for the same reason: the

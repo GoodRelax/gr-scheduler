@@ -1080,12 +1080,49 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
-    // SK-19's first level settles an entry in place, so one is opened first.
+    // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (D-382). Table T-036's
+    // row reads 「その場の編集を確定する」 and then 「確定していないその場の編集が
+    // 1 つも無いときは、プロパティパネルを出しているならば出すのをやめること
+    // （MUST）」. The MUST is the second one, so the panel has to be UP before the
+    // press this probe reads, and nothing may be held in a field.
+    //
+    // ⛔⛔ THE DOUBLE-CLICK THAT USED TO SET THIS UP DID NOT PUT THE PANEL UP,
+    // AND THAT -- NOT THE BUILD -- IS WHY THE ROW WAS RED. Measured 2026-09-08 on
+    // the shipped build with the four probes that stand before this one replayed
+    // in order (SK-16, SK-16a, SK-17, SK-18) and `calm` run between them, then
+    // the same `geometryOf` point double-clicked:
+    //
+    //   from a fresh page   dblclick (584, 511) -> Properties Panel 279px wide
+    //   after those four    dblclick (839, 762) -> Properties Panel 0px wide
+    //
+    // ⭐ THE ZOOM IS WHAT MOVED IT. `SK-18` is `f`, and after the fit the widest
+    // `-plan` run this file's geometry picks is not a `Task`'s bar -- and `MK-13`
+    // of table T-023 opens the panel for 「タスク（名称ラベルと本体のどちらでも）」
+    // and for a row heading, not for whatever else may be the widest thing drawn.
+    // ⇒ Both `Enter` presses then landed with no panel up and nothing held, so
+    // `moved` read zero on a build that was obeying the row.
+    //
+    // ⭐⭐ THE PANEL IS THEREFORE PUT UP THROUGH `IC-17`, which is the OTHER
+    // settled road to it: 表 T-109 gives that entrance 「文書の描画設定をプロパ
+    // ティパネルに表示する」, and it sits in the `App Header`, so no zoom can move
+    // it out from under the press. ⛔ This is the same shape `SK-8` already uses
+    // -- put the surface up through its own entrance, then read the key that has
+    // to close it. Measured on the same run: `IC-17` -> panel 279px, `Enter` ->
+    // panel 0px with the canvas and the body both redrawn.
+    // ⛔ NOT A WEAKENED EXPECTATION: the row still has to move something, and the
+    // reading is still `answers`.
     rows: ['SK-19'],
     expect: 'answers',
     setUp: async (p, g) => {
-      await p.mouse.dblclick(g.barBody.x, g.barBody.y)
-      await p.waitForTimeout(500)
+      await selectBar(p, g)
+      await press(p, 'IC-17')
+      await p.waitForTimeout(600)
+      // ⛔ THE LEVEL ABOVE BOTH STAGES IS PUT AWAY FIRST. The same row opens with
+      // 「出ている通知があるときは、それを 1 つ消すこと（MUST）」, and a telling
+      // left standing would eat the press below -- the reading would then be
+      // `NT-8`'s put-away rather than the panel's.
+      const telling = await p.$('[data-notice]')
+      if (telling !== null) await telling.click({ timeout: 2_000 }).catch(() => undefined)
     },
     act: async (p) => stroke(p, 'Enter'),
   },

@@ -43,12 +43,13 @@
 //              説明するポップアップを出せ」）
 //   表 T-233   RS-28 「配下に、開ける行が 1 つも無い」（正: 表 T-051 の `HF-2`）
 //              RS-29 「配下に、畳める行が 1 つも無い」（`HF-11`）
-//              RS-30 「その行は畳まれておらず、隠れている子も無い」（`HF-13`）
+//              RS-30 「直下に、画面へ戻せる子が 1 つも無い」（`HF-13`）
 //                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
 //                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
 //                    行は既に畳まれている」, which stopped being reachable when
-//                    `HF-3` became `HR-6`. ⭐ It is now `HF-13`'s spent 場面 --
-//                    the negation of `HR-7`'s two ways of having work -- and the
+//                    `HF-3` became `HR-6`. ⭐ It is now `HF-13`'s spent 場面,
+//                    which that row states itself 「開ける直下の子が 1 つも無い
+//                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
 //                    roster below carries it again, on `IC-90`.
 //              RS-31 「畳まれた行が 1 つも無い」（`HF-10`）
 //              RS-32 「開いている行が 1 つも無い」（`HF-12`）
@@ -562,19 +563,19 @@ const SPENT: readonly Spent[] = [
     // stands on is by definition DRAWN -- hiding it always takes one row off the
     // screen, and `HF-3` says so: 「⭐ **描かれている行はいつでも隠せるので、本操作
     // 子を薄く描く場面は無い**」.
-    // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13` AND WAS REWORDED 「その行は畳まれ
-    // ておらず、隠れている子も無い」 -- the negation of `HR-7`'s two ways of having
-    // work: 「**選択した `TaskGroup` の畳みだけを解くこと（MUST）**」 and 「⭐ **直下
-    // の子が `HR-6` で隠されているときは、その隠しも解くこと（MUST）**」. `HF-13`
-    // states the spent side itself: 「⛔ **開ける直下の子が 1 つも無いときは、
-    // `FR-029` に従って薄く描くこと（MUST）**」.
-    // ⇒ an untouched document, where ALPHA is open and hides no child, is that
-    // 場面 exactly.
+    // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13`, and it now reads 「直下に、
+    // 画面へ戻せる子が 1 つも無い」 -- what `HR-7` would put back: 「**選択した
+    // `TaskGroup` の畳みだけを解くこと（MUST）**」 and 「⭐ **直下の子が `HR-6`
+    // で隠されているときは、その隠しも解くこと（MUST）**」. `HF-13` states the
+    // spent side itself: 「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に
+    // 従って薄く描くこと（MUST）**」.
+    // ⇒ an untouched document, where every direct child of ALPHA is drawn, is
+    // that 場面 exactly.
     icon: 'IC-90',
     reason: 'RS-30',
     fixture: {},
     onRow: ALPHA,
-    because: 'ALPHA is not folded and hides no direct child, so HR-7 has nothing to open',
+    because: 'every direct child of ALPHA is drawn, so HR-7 has nothing to put back',
   },
   {
     icon: 'IC-74',
