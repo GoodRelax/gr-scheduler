@@ -1332,6 +1332,52 @@ function paletteGroupRuleStyle(): string {
   )
 }
 
+/**
+ * The band U-27 `Document Title` stands in, with S-226's inset on its left.
+ *
+ * ⭐⭐ EP-1 of table T-076 (MUST): 「字の大きさと左の余白は、画面と書き出しが同じ
+ * 1 つの行を読むこと」, with (MUST NOT) 「書き出し専用の定数を持ってはならない」.
+ * `image-exporter.ts` reads S-225 and S-226 out of the same generated block, so
+ * the two sides now read one row each and neither holds a figure. ⛔ Until
+ * 2026-09-07 the export held two fractions of the band's height instead and the
+ * screen held none at all, and the two agreed only by accident -- which is the
+ * very thing that MUST forbids (D-276).
+ *
+ * ⛔ ONLY THE LEFT INSET IS THE ROW'S. The vertical padding and the padding on
+ * the right are what FR-051 has BO-1 measure the band's height from, and no row
+ * of table T-206 states either -- so they stay relative and are not restated as
+ * figures here. ⚠️ THE PIXELS DO NOT MOVE: S-226 was taken from this very
+ * declaration's own measurement (16px base, 0.75em = 12px), which is what the
+ * row's note records.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle` and
+ * `paletteGroupRuleStyle` give: it reads the generated block at the foot of this
+ * file, which a `const` evaluated above it cannot.
+ *
+ * @purity pure
+ */
+function appHeaderStyle(): string {
+  const inset = NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']
+  return `${STYLE.appHeader}padding-left:${inset}px;`
+}
+
+/**
+ * The name itself, at the size S-225 states.
+ *
+ * ⭐ THE SAME ROW THE EXPORT READS (EP-1, MUST) -- `appHeaderStyle` above
+ * carries the whole of why, and the pair is stated in two functions because the
+ * inset belongs to the band and the size to the name inside it.
+ * ⚠️ THE PIXELS DO NOT MOVE: S-225 is the size this span already came out at
+ * while it declared none and inherited the host's, which is what that row's own
+ * note records.
+ *
+ * @purity pure
+ */
+function documentTitleStyle(): string {
+  const size = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225']
+  return `${STYLE.documentTitle}font-size:${size}px;`
+}
+
 // -------------------------------------------------------------- the styles ---
 
 /**
@@ -2191,6 +2237,22 @@ const ROW_CONTROLS_LULL_MS = 1000
  */
 const ROW_GRAB_STRIP_MARK = 'data-row-grab'
 
+/**
+ * Which lane a point on U-21 `Scrollbars` is on, for `readScreenPartAt` to read
+ * back as `ScreenPart.scrollbarAxis`.
+ *
+ * ⭐ WRITTEN AND READ IN ONE FILE, the precedent `data-panel` sets: U-21 has no
+ * row in table T-109 either, so the two lanes are indistinguishable to everyone
+ * outside this unit unless the axis travels -- and GR-21 of table T-023d needs
+ * WHICH lane, because the two move different halves of the display position.
+ * ⛔ NOT A `data-role`: table T-103 gives both lanes the one name `Scrollbars`,
+ * and a second role here would answer IF-9 with a part that table does not hold.
+ * ⚠️ The VALUE is `Scrollbar['axis']` and is not spelled out here -- the same
+ * bargain `data-panel` keeps, for the reason `readScreenPartAt` states: a value
+ * typed into this file is a value that stops following its declaration.
+ */
+const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
+
 const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"],` +
@@ -2390,6 +2452,37 @@ function boxStyle(box: ScreenRect): string {
  */
 function cornerStyle(at: { readonly x: number; readonly y: number }): string {
   return `position:absolute;left:${at.x}px;top:${at.y}px;`
+}
+
+/**
+ * The same four numbers, for a box drawn INSIDE another absolutely placed one.
+ *
+ * ⛔⛔ WHY A THIRD PLACING FUNCTION, AND IT WAS MEASURED (D-368, on the shipped
+ * build at 1920x1080). `boxStyle` above speaks in window coordinates, which is
+ * right for every layer -- they span the root and the root is pinned to the
+ * viewport. It is NOT right inside a `position:absolute` box: that box becomes
+ * the containing block, so the window numbers are added to ITS corner and the
+ * drawn result stands at twice the corner. The horizontal lane came out at
+ * (200, 1062) with its grip at (400, 2124), and the vertical lane at (1902, 85)
+ * with its grip at (3804, 170) -- both exactly doubled, and both outside the
+ * window, so GR-21's grip could be neither seen nor grabbed.
+ *
+ * ⭐ THE CONTAINER IS SUBTRACTED HERE RATHER THAN THE CHILD BEING MOVED OUT.
+ * The alternative -- drawing the grip as a sibling of the lane -- would take it
+ * out of the lane's element, and `readScreenPartAt`'s walk reads the part and
+ * the axis off the ancestors it passes: a grip outside the lane would answer
+ * for no part at all unless every attribute the lane carries were written a
+ * second time on it.
+ *
+ * @purity pure
+ */
+function boxStyleWithin(box: ScreenRect, container: ScreenRect): string {
+  return boxStyle({
+    x: box.x - container.x,
+    y: box.y - container.y,
+    width: box.width,
+    height: box.height,
+  })
 }
 
 /**
@@ -2752,7 +2845,7 @@ function fillAppHeader(
   items: AppHeaderItems,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const title = part(host, 'span', ROLE.documentTitle, STYLE.documentTitle)
+  const title = part(host, 'span', ROLE.documentTitle, documentTitleStyle())
   // ⛔ Nothing is substituted for a document that carries no title: FR-035
   // fixes `Untitled` for the BROWSER TAB and says nothing about the header.
   title.textContent = items.documentTitle
@@ -2823,11 +2916,19 @@ function fillScreenFrame(
   }
   for (const bar of frame.scrollbars) {
     const track = part(host, 'div', ROLE.scrollbars, boxStyle(bar.track) + STYLE.scrollbarTrack)
-    track.setAttribute('data-axis', bar.axis)
-    // The grip, which SC-4 keeps drawn even when everything fits. Placed in the
-    // window's own numbers like everything else, so the lane it sits in does
-    // not have to become its frame of reference.
-    track.append(made(host, 'div', boxStyle(bar.thumb) + STYLE.scrollbarThumb))
+    track.setAttribute(SCROLLBAR_AXIS_ATTRIBUTE, bar.axis)
+    // GR-21 of table T-023d -- the grip, which SC-4 keeps drawn even when
+    // everything fits.
+    // ⛔ PLACED AGAINST THE LANE AND NOT AGAINST THE WINDOW (D-368). The lane is
+    // `position:absolute`, so it IS the grip's containing block whatever the
+    // grip's own numbers say; `boxStyleWithin` carries the measurement that
+    // proved a window-numbered grip lands at twice the lane's corner.
+    // ⭐ INSIDE THE LANE ON PURPOSE: the walk in `readScreenPartAt` reads
+    // `data-role` and `data-axis` off the ancestors, so a grip drawn beside the
+    // lane would answer IF-9 for no part.
+    track.append(
+      made(host, 'div', boxStyleWithin(bar.thumb, bar.track) + STYLE.scrollbarThumb),
+    )
     // FR-037: the faster way of doing the same thing, shown while the pointer
     // rests on a lane -- so the lane is what its tooltip is placed against.
     anchors.set(anchorKey({ kind: 'scrollbar', axis: bar.axis }), track)
@@ -6111,7 +6212,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const dialogueField = part(host, 'div', ROLE.dialogueField, STYLE.hidden)
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
   const dialogueEntry = host.createElement('input')
-  const appHeader = part(host, 'div', ROLE.appHeader, STYLE.appHeader)
+  const appHeader = part(host, 'div', ROLE.appHeader, appHeaderStyle())
   const modalLayer = made(host, 'div', STYLE.layer)
   /**
    * FR-020 (MUST): the masked field U-60 asks the watermark unlock password
@@ -8253,6 +8354,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // no `data-group-id` of its own, because the row it sits in already does
     // and the walk takes the innermost one.
     let onGrabStrip = false
+    // GR-21 of table T-023d. ⛔ THE AXIS AND NOT A TRUTH VALUE: the two lanes
+    // move different halves of the display position, so WHICH one is what the
+    // reading side cannot do without.
+    let axis: string | null = null
     // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`,
     // `data-panel`, `data-notice` and `data-confirmation-answer`, and the
     // OUTERMOST `data-role`: an entry
@@ -8292,6 +8397,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // on this same walk and not by a second query, for the reason the note
       // above gives -- a second query would ask a screen that had moved.
       if (node.getAttribute(ROW_GRAB_STRIP_MARK) !== null) onGrabStrip = true
+      // GR-21 of table T-023d: which of the two lanes, read on this same walk
+      // and for the same reason. ⚠️ Taken from the LANE, which the grip sits
+      // inside -- so one attribute answers for the grip and for the lane around
+      // it, and `input-command-translator.ts` carries what table T-023d leaves
+      // open about the difference.
+      const lane = node.getAttribute(SCROLLBAR_AXIS_ATTRIBUTE)
+      if (lane !== null && axis === null) axis = lane
       // U-62 `Import Report`'s one entrance (NT-8 of table T-037), read on the
       // same walk for the same reason.
       if (node.getAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE) !== null) {
@@ -8333,6 +8445,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // not a third state: nothing may read the absence as anything but "not on
       // a strip".
       ...(onGrabStrip ? { isRowGrabStrip: true } : {}),
+      // GR-21 of table T-023d, carried the way GR-20's answer above is: the
+      // member is optional and its own declaration fixes absent as 「on neither
+      // lane」, so a reader that compares whole answers is left unchanged for
+      // every point that is on neither. ⛔ The two spellings are NOT written out
+      // here, for the reason `data-panel` is not: the value this comes back as
+      // is `Scrollbar['axis']`, and a value typed into this file is a value that
+      // stops following its declaration.
+      ...(axis === null ? {} : { scrollbarAxis: axis as NonNullable<ScreenPart['scrollbarAxis']> }),
       noticeDismissKey: dismissKey,
       // NT-7 of table T-037, carried the way GR-20's answer above is: the
       // member is optional and its own declaration fixes absent as 「on neither
@@ -8571,6 +8691,36 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-193': 2,
   'S-197': 0.70,
   'S-198': 0.90,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands: `AppHeaderItems`
+ * carries the title as a string and no rectangle -- unlike
+ * `RowTitle`, which carries its `box` -- so there is no door to pass
+ * it through. ⛔ It is not a document setting and may not become one:
+ * table T-206 is where the specification records that the document
+ * does not keep it. ⭐ AND THE SCREEN READS THE SAME ROW -- EP-1 of
+ * table T-076 (MUST) has the size and the inset come from one row on
+ * both sides and (MUST NOT) lets an export hold a value of its own,
+ * so what makes this the reader's own is not that the title is
+ * hidden but that the document keeps its TEXT (`Project.title`,
+ * U-27) and neither of the two numbers it is written with.
+ */
+export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
+  /** S-225, in px */
+  readonly 'S-225': number
+  /** S-226, in px */
+  readonly 'S-226': number
+} = {
+  'S-225': 16,
+  'S-226': 12,
 }
 
 /**

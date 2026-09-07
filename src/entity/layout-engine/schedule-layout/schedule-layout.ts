@@ -357,6 +357,65 @@ function serialOf(day: CalendarDay): number {
 }
 
 /**
+ * The two calendar questions LC-2 asks per `Task`, each answered once per
+ * distinct argument for the length of ONE run of `layoutFromSchedule`.
+ *
+ * ⭐⭐ WHY, MEASURED. Every road into the calendar in `schedule.ts` builds its
+ * index again, and that index parses every `Exception` date with a regular
+ * expression; the file says so itself and gives the reason it will not hold one
+ * (R2.20 would make it a cache, and Chapter 5.6 records none). This pass asks
+ * `dayOf` three times per `Task` and `dateFromWorkingDays` once per `Task` that
+ * holds an actual. Measured 2026-09-07 on the built page at MC-7 scale (1000
+ * `Task`, 294 with an actual, 465 distinct stored starts, one calendar with 7
+ * exceptions), `dayOf` alone held 3.58ms of a 21.5ms frame, against the 16.7ms
+ * NFR-003 allows a whole frame.
+ *
+ * ⛔ NOT A CACHE, AND MUST NOT BECOME ONE. One of these is made inside
+ * `layoutFromSchedule`, filled by that call and dropped with it, so there is
+ * nothing to go stale and the answers are the ones the direct calls gave.
+ * ⚠️ Moving it outside one call needs Chapter 5.6 to record what invalidates
+ * it (R2.20); this note is not that record.
+ */
+interface DayReader {
+  /** `dayOf`, by the stored text -- which is what the regular expression reads. */
+  day(text: string | null): CalendarDay | null
+  /** `dateFromWorkingDays`, by the day counted from and the count. */
+  walk(from: CalendarDay, workingDays: number): CalendarDay
+}
+
+/**
+ * ⚠️ `null` is a REMEMBERED answer and not a miss: a column naming no day
+ * answers `null` every time, and `Map.get` tells the two apart by answering
+ * `undefined` for a key never seen.
+ *
+ * @purity pure
+ */
+function dayReaderFor(within: WorkingCalendar): DayReader {
+  const days = new Map<string, CalendarDay | null>()
+  const walks = new Map<string, CalendarDay>()
+  return {
+    day(text: string | null): CalendarDay | null {
+      const key = text ?? ''
+      const held = days.get(key)
+      if (held !== undefined) return held
+      const made = dayOf(text)
+      days.set(key, made)
+      return made
+    },
+    walk(from: CalendarDay, workingDays: number): CalendarDay {
+      // `textOfDay` spells the day, because a `CalendarDay` is a record and two
+      // equal ones are not the same key.
+      const key = `${textOfDay(from)}/${String(workingDays)}`
+      const held = walks.get(key)
+      if (held !== undefined) return held
+      const made = dateFromWorkingDays(within, from, workingDays)
+      walks.set(key, made)
+      return made
+    },
+  }
+}
+
+/**
  * Full-width counts two, half-width counts one. FR-093 forbids measuring the
  * glyphs and forbids keeping what a measurement returned.
  *
@@ -941,9 +1000,9 @@ function milestoneGlyphOf(
  *
  * @purity pure
  */
-function spanWidthOf(task: Task, pxPerDay: number): number {
-  const from = dayOf(task.start)
-  const toDay = dayOf(task.finish)
+function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
+  const from = reader.day(task.start)
+  const toDay = reader.day(task.finish)
   if (from === null || toDay === null) return 0
   return Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay
 }
@@ -1006,14 +1065,14 @@ function keptByLevelOfDetail(
  */
 function actualSpanOf(
   task: Task,
-  within: WorkingCalendar,
+  reader: DayReader,
   originSerial: number,
   pxPerDay: number,
   originX: number,
 ): { readonly x: number; readonly width: number } | null {
-  const from = dayOf(task.actualStart)
+  const from = reader.day(task.actualStart)
   if (from === null) return null
-  const toDay = dateFromWorkingDays(within, from, task.actualDuration ?? 0)
+  const toDay = reader.walk(from, task.actualDuration ?? 0)
   return {
     x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
     width: Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay,
@@ -1179,6 +1238,9 @@ export function layoutFromSchedule(
 
   // FR-054: one calendar for the whole document, resolved once.
   const within = workingCalendarOf(schedule)
+  // ⛔ MADE HERE AND NOWHERE ELSE, so that it lives and dies with this one call.
+  // Its own declaration carries the measurement and the limit.
+  const reader = dayReaderFor(within)
   const placements: TaskPlacement[] = []
   const rowPlacements: RowPlacement[] = []
 
@@ -1210,7 +1272,7 @@ export function layoutFromSchedule(
       .filter((text): text is Task => text !== undefined)
       .map((task) => {
         const kind = shapeKindOf(visualByUid, task)
-        const span = spanWidthOf(task, pxPerDay)
+        const span = spanWidthOf(task, pxPerDay, reader)
         const glyph = milestoneGlyphOf(visualByUid, task)
         return { task, kind, glyph, span, width: shapeWidthOf(span, kind, settings) }
       })
@@ -1233,7 +1295,7 @@ export function layoutFromSchedule(
     const laneMinX0: number[] = []
     const laneOf: number[] = []
     const measured = drawnTasks.map(({ task, kind, glyph, width }) => {
-      const from = dayOf(task.start)
+      const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       // LF-10 centres a milestone's figure on its day; every other shape
       // starts at it.
@@ -1253,7 +1315,7 @@ export function layoutFromSchedule(
       const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       const labelledX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
-      const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
+      const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       // ---- LC-7: OC-5 is the actual bar reaching outside the plan --------
       // ⛔ Not conditioned on `planActualDisplay`: OC-2 is the row that spells
       // out "count it only while it is shown", and OC-3 / OC-4 give the reason

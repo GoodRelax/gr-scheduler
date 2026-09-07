@@ -57,6 +57,7 @@ import {
   isDelayed,
   planActualState,
   nextWorkingDay,
+  textOfDay,
   workingCalendarOf,
   type CalendarDay,
   type Schedule,
@@ -330,6 +331,35 @@ interface GeometryInputs {
    * `isSelected` answers by walking the selected list each time.
    */
   readonly selectedTaskUids: ReadonlySet<number>
+  /**
+   * The two days FR-043's dummies stand on, worked out once per distinct
+   * `Task.start` instead of once per Task.
+   *
+   * ⭐⭐ WHY THIS IS HERE AT ALL, MEASURED. `nextWorkingDay` and
+   * `dateFromWorkingDays` read the calendar through an index that
+   * `schedule.ts` builds AGAIN ON EVERY CALL and deliberately never holds
+   * between calls -- its own note says so, and gives the reason: R2.20 would
+   * make a held index a cache, and Chapter 5.6 records none. Building it parses
+   * every `Exception` date with a regular expression. Measured 2026-09-07 on
+   * the built page at MC-7 scale (1000 `Task`, 706 of them with no actual, one
+   * calendar with 7 exceptions), that came to about 1,700 index builds and
+   * ~24,000 `dayOf` calls per frame, and `dayOf` alone held 3.58ms of a 21.5ms
+   * frame -- against NFR-003's 16.7ms for the whole of one.
+   *
+   * ⛔ THIS IS NOT A CACHE AND MUST NOT BECOME ONE. It is made inside
+   * `geometryFromLayout`, filled by that one call and dropped with it, so
+   * nothing survives to go stale and the function answers exactly what it
+   * answered before -- the same argument the `selectedTaskUids` set above is
+   * gathered on. ⚠️ Anything that moves it outside one call needs Chapter 5.6
+   * to record what invalidates it (R2.20), and this note is not that record.
+   */
+  readonly dummyFromByStart: Map<string, CalendarDay | null>
+  /**
+   * GR-17's day, keyed by the day it is counted from -- the second half of the
+   * walk above, kept apart because the `sideways` road of `dummiesOf` never
+   * asks for it and must not be made to pay for it.
+   */
+  readonly dummyEndByFrom: Map<string, CalendarDay>
 }
 
 // ---------------------------------------------------------------- shapes ----
@@ -1077,6 +1107,48 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 }
 
 /**
+ * GR-9's day: 「予定の開始日の翌稼働日」, worked out once per distinct stored
+ * start rather than once per Task.
+ *
+ * ⭐ THE KEY IS THE STORED TEXT AND NOT THE DAY. `dayOf` is itself part of what
+ * is being spared -- it runs a regular expression over the column -- so the
+ * lookup has to happen before it, and two Tasks that hold the same text hold
+ * the same day by definition. ⚠️ `null` is a REMEMBERED answer, not a miss:
+ * a column that names no day answers `null` every time it is asked, and
+ * `Map.get` tells the two apart by returning `undefined` for a key never seen.
+ *
+ * @purity pure
+ */
+function dummyFromOf(inputs: GeometryInputs, startText: string | null): CalendarDay | null {
+  const key = startText ?? ''
+  const held = inputs.dummyFromByStart.get(key)
+  if (held !== undefined) return held
+  const start = dayOf(startText)
+  const made = start === null ? null : nextWorkingDay(inputs.within, start)
+  inputs.dummyFromByStart.set(key, made)
+  return made
+}
+
+/**
+ * GR-17's day: `actualInitialDuration` worked days along from GR-9's.
+ *
+ * ⭐ ONE SETTING AND ONE CALENDAR FOR THE WHOLE PASS, so the day counted from
+ * is the only thing that varies and is the whole of the key. `textOfDay`
+ * spells it, because a `CalendarDay` is a record and two equal ones are not the
+ * same key.
+ *
+ * @purity pure
+ */
+function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
+  const key = textOfDay(from)
+  const held = inputs.dummyEndByFrom.get(key)
+  if (held !== undefined) return held
+  const made = dateFromWorkingDays(inputs.within, from, inputs.settings.actualInitialDuration)
+  inputs.dummyEndByFrom.set(key, made)
+  return made
+}
+
+/**
  * GR-9 / GR-17 / GR-18. FR-043 draws them only while nothing is started.
  *
  * ⛔ GR-9 DOES NOT STAND ON THE PLAN'S OWN START DAY. GR-3 (the plan start
@@ -1114,17 +1186,16 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
   if (placed.actualX !== null) return []
-  const start = dayOf(task.start)
-  if (start === null) return []
+  const from = dummyFromOf(inputs, task.start)
+  if (from === null) return []
   const middle = placed.y + placed.planHeight / 2
-  const from = nextWorkingDay(inputs.within, start)
   const fromX = xFromDay(inputs.layout, from)
   // GR-15: a milestone holds no actual BAR, so there is no second end for
   // GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
   if (placed.actualPlacement === 'sideways') {
     return [{ grab: 'GR-18', at: point(fromX, middle), height: actualHeight }]
   }
-  const end = dateFromWorkingDays(inputs.within, from, inputs.settings.actualInitialDuration)
+  const end = dummyEndOf(inputs, from)
   return [
     { grab: 'GR-9', at: point(fromX, middle), height: actualHeight },
     { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), height: actualHeight },
@@ -1711,6 +1782,10 @@ export function geometryFromLayout(
     selectedTaskUids: new Set(
       selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : [])),
     ),
+    // ⛔ MADE HERE AND NOWHERE ELSE, so that they live and die with this one
+    // call. Their own declarations carry the measurement and the limit.
+    dummyFromByStart: new Map<string, CalendarDay | null>(),
+    dummyEndByFrom: new Map<string, CalendarDay>(),
   }
 
   const tasks: TaskGeometry[] = []

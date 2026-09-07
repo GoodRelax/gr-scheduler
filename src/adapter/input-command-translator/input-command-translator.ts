@@ -212,6 +212,16 @@ export type {
 export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
 
 /**
+ * Which of the two `Scrollbars` (U-21) a gesture is on -- GR-21 of table T-023d.
+ *
+ * ⛔ NOT A UNION WRITTEN AGAIN. `ScreenPart.scrollbarAxis` is where the pair is
+ * named on the seam and `Scrollbar['axis']` where it is named in the
+ * description; a third spelling here would be a third place the same pair is
+ * decided (rule 03 section 1). This is only the name to call it by.
+ */
+type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
+
+/**
  * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST):
  * 「軸を 1 本に固定すること（MUST）。掴んでから最初に閾値を超えた向きで軸が決ま
  * り、離すまで変わらないこと（MUST）」.
@@ -4209,6 +4219,11 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     // press on its own band, and HF-15's row is a press on GR-20's strip.
     const panning = panFollow(input, context)
     if (panning !== UNASSIGNED) return panning
+    // GR-21 of table T-023d, the fourth: a press on one of the two lanes, which
+    // none of the other three can be -- PD-1's is on nothing the surface drew,
+    // FR-053's is on the palette's band and HF-15's is on a row's strip.
+    const scrolling = scrollbarFollow(input, context)
+    if (scrolling !== UNASSIGNED) return scrolling
     const palette = paletteFollow(input, context)
     return palette === UNASSIGNED ? rowGrabFollow(input, context) : palette
   }
@@ -4394,6 +4409,96 @@ function paletteFollow(input: PointerInput, context: InputContext): TranslatedIn
 }
 
 /**
+ * How far the display position moves for one pixel the grip of GR-21 is dragged.
+ *
+ * ⭐⭐ DERIVED FROM THE TWO RULES AND INVENTED NOWHERE. GR-21 of table T-023d
+ * (MUST) makes the grip's length 「帯の長さに対する『見えている範囲 ÷ 全体』の
+ * 割合」, and the closing rule under that table (MUST) has the grip follow the
+ * pointer while it is held. Those two together FIX this number: a grip that is
+ * `lane * visible / whole` long and follows the pointer one-for-one runs the
+ * length of its lane exactly while the picture runs the length of the whole, so
+ * one pixel of pointer is `whole / lane` pixels of picture. ⛔ No settings row
+ * is minted for it, which is what GR-21 says in as many words --
+ * 「新しい設定値を立てない（割合は既にある値から導ける）」.
+ *
+ * ⭐ THE LANE'S LENGTH IS THE `Row Area`'s, and that is not a second reading of
+ * `ScreenFrame`: `screenFrameFromRegions` (UF-61) lays the horizontal lane
+ * along the `Row Area`'s width and the vertical one along its height, out of
+ * the same rectangle this reads. ⛔ `ScreenFrame` itself is not on
+ * `InputContext` at all, so the rectangle is where the two sides meet.
+ *
+ * ⭐ ZERO WHERE THERE IS NOTHING TO SCROLL. SC-4 of table T-031 (MUST) keeps
+ * both bars drawn 「収まっていても」, and a grip that fills its lane has nowhere
+ * to be dragged to -- so a drag on it moves the picture by nothing, rather than
+ * by a distance the geometry cannot justify.
+ * ⚠️ THE VERTICAL LANE IS THE `Row Area`'s WHOLE HEIGHT AND THE ROWS THAT SCROLL
+ * ARE FEWER, wherever FR-098 has lifted pins into a band (`ScheduleLayout`'s
+ * `pinnedBandHeight` and `scrollAreaY`). That difference reaches this GUARD and
+ * nothing else -- the gearing itself is `whole / lane` whatever the visible
+ * extent is, because the grip is drawn along the LANE -- so the most it costs is
+ * a zero for a document with a pinned band and a hair more content than room.
+ * ⛔ No second length is read for it: UF-61 draws the lane against the `Row
+ * Area`, and a length measured differently here would part from the lane the
+ * person is actually dragging.
+ *
+ * @purity pure
+ */
+function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
+  const area = context.regions.rowArea
+  const lane = axis === 'horizontal' ? area.width : area.height
+  // 「全体」 -- what table T-038's occupancy measures, which is the same extent
+  // FR-055's fit is taken against (`ScheduleLayout.contentWidth` states it of
+  // itself). ⚠️ The `Row Area` is 「見えている範囲」 for the same axis.
+  const whole = axis === 'horizontal' ? context.layout.contentWidth : context.layout.contentHeight
+  if (!(lane > 0) || !(whole > lane)) return 0
+  return whole / lane
+}
+
+/** The travel of a pointer on one lane, as a distance for `panTo`. @purity pure */
+function scrollbarTravel(
+  context: InputContext,
+  axis: ScrollbarAxis,
+  by: { readonly dx: number; readonly dy: number },
+): { readonly dx: number; readonly dy: number } {
+  const gearing = scrollGearing(context, axis)
+  // ⛔ ONE AXIS EACH, AND THE OTHER IS PASSED ZERO RATHER THAN LEFT OUT.
+  // `scrolledAnchor` answers the value already in force for a distance of zero,
+  // so a horizontal lane decides nothing about S-78 and a vertical one nothing
+  // about S-77 -- which is what a bar for ONE direction means.
+  return axis === 'horizontal'
+    ? { dx: by.dx * gearing, dy: 0 }
+    : { dx: 0, dy: by.dy * gearing }
+}
+
+/**
+ * FR-051 (MUST): 「スクロールバーの操作でも表示位置を変えられるようにすること」,
+ * while GR-21's grip is held.
+ *
+ * ⭐ THE SAME SHAPE AS `panFollow`, AND FOR THE SAME REASON. The closing rule
+ * under table T-023d (MUST) names GR-21 among the grabs whose picture follows
+ * the pointer while held, and UN-8 of table T-027 puts 「ズーム・スクロール・
+ * パン」 outside the history -- so a display position written on every move
+ * pushes no step and settles nothing a release could take back.
+ * ⛔ THE PICTURE MOVES THE SAME WAY THE POINTER DOES, which is where this parts
+ * from PD-1's pan: a hand on the SCHEDULE drags the paper and the display
+ * position moves the opposite way, while a hand on the GRIP drags the marker
+ * and the display position follows it.
+ *
+ * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, the refusal
+ * `panFollow` and `paletteFollow` both make and for the reason they give.
+ *
+ * @purity pure
+ */
+function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput {
+  const press = context.pressed
+  const axis = press?.on?.scrollbarAxis
+  if (press === null || axis === undefined) return UNASSIGNED
+  if (press.followedTo === undefined) return UNASSIGNED
+  const by = scrollbarTravel(context, axis, followingTravel(input, press))
+  return panTo(context, by.dx, by.dy)
+}
+
+/**
  * What a press on one of the entries this tool drew is assigned to.
  *
  * ⭐ IN-1: settled on the RELEASE, and read against the PRESS -- which is why
@@ -4427,6 +4532,13 @@ function commandFromEntry(
   // has no row in table T-109, so `entry` is null on the band and the press
   // would otherwise fall through as "on a part, on no entry" and write nothing.
   if (on.dividerPanel !== null) return commandFromPanelDivider(on.dividerPanel, release, press, context)
+  // ⭐ BEFORE THE ENTRY IS READ, AND FOR THE REASON THE BAND ABOVE IS. U-21
+  // `Scrollbars` has no row in table T-109 either, so `entry` is null on a lane
+  // and the press would otherwise fall through as "on a part, on no entry" and
+  // write nothing -- which is what D-298 measured.
+  if (on.scrollbarAxis !== undefined) {
+    return commandFromScrollbar(on.scrollbarAxis, release, press, context)
+  }
   // ⭐ BEFORE THE ROW ITSELF, AND FOR THE REASON THE BAND ABOVE IS. GR-20's
   // strip carries no row of table T-109 -- that table holds no entrance for a
   // grab strip -- so `entry` is null on it and the press would otherwise fall
@@ -4472,13 +4584,35 @@ function commandFromEntry(
     }
     // On the part but on no entry and on no row -- the palette's own body, a
     // surface's background, a notice, the panel's empty tail below the last
-    // row. The press is this tool's (the browser must not act under it) and
-    // writes nothing.
+    // row, the band the header's name stands in.
+    //
+    // ⛔⛔ THE BROWSER KEEPS THIS RELEASE, AND MK-10 OF TABLE T-023 IS WHY:
+    // 「割り当てていない組合せを止めてはならない（MUST NOT）」. Nothing has been
+    // assigned to it -- this branch is the one that writes nothing at all -- so
+    // stopping it takes a behaviour away from the person and puts none back.
+    // ⛔⛔ WHAT STOOD HERE ANSWERED `CONSUMED_ELSEWHERE` AND WAS MEASURED WRONG
+    // (D-338, on the shipped build 2026-09-07). The `App Header` is a face this
+    // surface draws, so EVERY release over it took this road, FR-035's standing
+    // name field included -- and a click inside that field left the caret where
+    // it was: four presses at 20%, 40%, 60% and 80% of the text all read back
+    // the same selection (0..23, the select-all SK-9 opens with), where the
+    // same four with the release left alone read 5, 5 and 22, 22. ⚠️ MEASURED
+    // WHICH HAPPENING, not guessed: `pointerdown`, `mousedown`, `pointerup`,
+    // `mouseup` and `click` all reach the field and `pointerup` is the only one
+    // this tool prevented -- the host settles a click inside an already
+    // selected field on the RELEASE, so that a drag can extend it instead.
+    // ⛔ THE PRESS WAS ALREADY THE BROWSER'S, which is what makes the old
+    // reason "the browser must not start a text selection under a palette" not
+    // hold: a selection starts on the DOWN, `pointerAssignment` leaves the down
+    // alone everywhere outside the `Row Area`, and no `preventDefault` at all
+    // was recorded for one in the same measurement. ⇒ Stopping the release
+    // bought nothing and cost the caret.
+    //
     // ⛔ THE EMPTY TAIL DOES NOT LET GO OF THE CHOSEN ROWS. MK-11 of table
     // T-023 does that for the drawing area, and the note under table T-023a
     // keeps that table off this panel; FR-085 states no such rule of its own,
     // and letting go is reached by pressing a chosen row again with `Shift`.
-    return CONSUMED_ELSEWHERE
+    return UNASSIGNED
   }
   const entry = on.entry
 
@@ -5025,6 +5159,45 @@ function commandFromPanelDivider(
           : settings.propertyPanelWidth,
     },
   ])
+}
+
+/**
+ * FR-051 (MUST): 「スクロールバーの操作でも表示位置を変えられるようにすること」,
+ * settled on the release.
+ *
+ * ⭐ THE TRAVEL SINCE THE LAST PIECE, not since the press, which is what
+ * `followingTravel` answers -- a caller that followed the drag has already
+ * applied the earlier pieces and `scrolledAnchor` reads the layout they made,
+ * so a travel measured from the press would apply the whole distance twice.
+ * ⚠️ A caller that follows nothing gets the whole travel here, because that
+ * helper falls back to the press; the sum over one gesture is the same either
+ * way.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what a press on the LANE OUTSIDE
+ * the grip does. Table T-023d's GR-21 says it of itself -- 「つまみの外の帯を押
+ * したときの振る舞いは、本行は定めない（未決）」 -- and nothing else settles it:
+ * FR-051 states only that working the bar changes the display position, SC-4 of
+ * table T-031 keeps both bars drawn and says nothing of a press, and table
+ * T-203's S-77 / S-78 hold the position and not how it is reached. ⛔ The usual
+ * answers -- a page of travel, or a jump to the place pressed -- are each a
+ * distance no row gives, so neither is chosen here. Chose the same drag GR-21's
+ * grip gets: it is the one reading that needs no number the manuscript does not
+ * hold, and while the grip fills its lane (see `scrollbarIn` in
+ * `screen-frame.ts`) there is no outside for a person to press.
+ * Searched: table T-023d GR-21 and its closing rules, FR-051, FR-052, FR-037,
+ * SC-4 of table T-031, table T-203 (S-77 / S-78 / S-176 / S-177) and table
+ * T-206 (S-205 is the lane's thickness floor and settles nothing about a press).
+ *
+ * @purity pure
+ */
+function commandFromScrollbar(
+  axis: ScrollbarAxis,
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  const by = scrollbarTravel(context, axis, followingTravel(release, press))
+  return panTo(context, by.dx, by.dy)
 }
 
 /**
@@ -8668,19 +8841,26 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 10 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 89 rows of that table less the 79
-// this file assigns (`ENTRY` holds 57 and `ARMED_BY_ENTRY` 22, and the two sets
-// are disjoint), and the two groups below add up to it: 4 + 6.
-// ⚠️⚠️ MEASURED 2026-09-06 AND ALL THREE NUMBERS HAD DRIFTED: this note read
-// 「15 ... 74 ... 44 and 15 ... 6 + 9」, none of which the tree or the
-// manuscript still answered, and its second group named IC-55 / IC-56 / IC-57,
-// which table T-109 no longer holds at all. ⭐ HOW TO RE-MEASURE, so the next
-// reader does not carry these forward either: count `^| IC-` in
-// `docs/spec/_assets/tbl-glossary.md` for the table, and the `'IC-nn'` keys of
-// `ENTRY` and `ARMED_BY_ENTRY` below with the comments stripped for this file's
-// share. ⛔ Do not count the entries listed in the two groups by hand -- that
-// is how the drift began.
+// STOP -- ⛔ SOME ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⭐ WHICH ONES IS A SET AND NOT A COUNT: it is the rows
+// of table T-109 less the keys of `ENTRY` and `ARMED_BY_ENTRY` below (the two
+// are disjoint), and the two groups that follow name every member of it. So the
+// note goes stale only when a ROW ID here stops being one of them -- which is
+// what the groups themselves record, one entry at a time.
+// ⛔⛔ NO FIGURE IS WRITTEN HERE, AND THAT IS THE WHOLE OF WHAT D-365 CHANGED.
+// This headline carried five numbers and every one of them rotted, twice: it
+// read 「15 ... 74 ... 44 and 15 ... 6 + 9」 until 2026-09-06 and 「10 ... 89 ...
+// 57 ... 22 ... 79 ... 4 + 6」 until 2026-09-07, and the last of those was the
+// one the note itself could not keep -- the second figure of the pair counted
+// BULLETS while the two group headings counted ROWS, so 「4 + 6」 and 「8 ... 2」
+// stood four lines apart and disagreed. ⚠️ Rule 03 section 3 (MUST NOT) forbids
+// copying a value into a comment for exactly this reason: a figure nothing
+// checks goes on stating the old one.
+// ⭐ HOW TO RE-MEASURE, when a number is genuinely wanted: the rows are `^| IC-`
+// in `docs/spec/_assets/tbl-glossary.md`, and this file's share is the `'IC-nn'`
+// keys of `ENTRY` and `ARMED_BY_ENTRY` with the comments stripped.
+// ⛔ Do not count the entries listed in the two groups by hand -- that is how
+// the drift began, and how the last pair came apart.
 // ⭐ IC-45 LEFT THE SECOND GROUP THIS ROUND. It stood there on the ground that
 // CM-60 demands both dates at once, and DC-1 refutes that ground: entering the
 // mode places both, so the entry writes the pair it needs and nothing is
@@ -8710,8 +8890,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // undecidable: S-142 of table T-206 and `ScreenSession.isMilestoneListOpen`
 // have given the palette's own folding somewhere to be held.
 //
-// ⚠️ EVERY COUNT ABOVE WAS MEASURED AGAINST THE TREE, not carried forward, and
-// this note has been wrong twice before. Once its headline number disagreed
+// ⚠️ THIS NOTE HAS BEEN WRONG THREE TIMES, WHICH IS WHY IT NOW NAMES ROWS AND
+// NOT FIGURES. Once its headline number disagreed
 // with its own groups, and it called three rows a missing route that another
 // unit had already written end to end. Then its closing paragraph called twelve
 // rows undecidable and named CM-61 and CM-66 as the commands they wanted --
@@ -8719,13 +8899,13 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
 // CM-59 and CM-63, and all four are now written above.
 //
-// ⭐ 8 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- what each press needs
-// is a value of `ScreenSession`, a surface, or a question, and LY-5 of table
-// T-060 leaves a current value with the Framework, so `frame-loop.ts` spends
-// them in `answerSettledEntry`:
-// ⚠️ IT WAS 6 UNTIL 2026-09-02. NT-7's two answers stood here as IC-69 / IC-70;
-// CR-327 made them word buttons and (MUST NOT) took their rows out of table
-// T-109, so they are no longer rows of it to be answered for at all.
+// ⭐ GROUP ONE -- ANSWERED, AND DELIBERATELY NOT HERE. What each of these
+// presses needs is a value of `ScreenSession`, a surface, or a question, and
+// LY-5 of table T-060 leaves a current value with the Framework, so
+// `frame-loop.ts` spends them in `answerSettledEntry`:
+// ⚠️ IC-69 AND IC-70 STOOD HERE UNTIL 2026-09-02, as NT-7's two answers. CR-327
+// made them word buttons and (MUST NOT) took their rows out of table T-109, so
+// they are no longer rows of it to be answered for at all.
 //
 //   IC-21        FR-038's display language (S-99). ⚠️ It looks like one of ④'s
 //                rows and differs in ONE way, which is why it is spent there
@@ -8753,11 +8933,11 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                IC-71 .. IC-73: the choice belongs to a surface the READ
 //                raised, not to a press this file could plan.
 //
-// ⛔ 2 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen (⭐ 9 until
-// 2026-08-30, when IC-37 and IC-38 were measured to be writable after all, 7
-// until 2026-08-31, when IC-18 joined them, 6 until 2026-09-02, when
-// CR-329 gave IC-41 a surface to raise, and 3 until 2026-09-06, when IC-66's
-// question was measured to have been built):
+// ⛔ GROUP TWO -- CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⭐ IT HAS
+// ONLY EVER SHRUNK, and each departure is kept in place below with the date and
+// the reason: IC-37 / IC-38 (2026-08-30), IC-18 (2026-08-31), IC-41
+// (2026-09-02) and IC-66 (2026-09-06) each left because the obstacle named here
+// was measured to be gone, not because a way round it was found.
 //
 //   [WRITTEN 2026-08-31, D-149 of the defect ledger] IC-18 stood here and no
 //                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED

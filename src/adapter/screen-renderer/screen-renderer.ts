@@ -2143,9 +2143,17 @@ export interface ScreenSession {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   /**
-   * FR-065. ⚠️ S-99b remembers this per document but keeps the record in the
-   * environment: turning the API on is the reader's judgement, not the
-   * document's content.
+   * FR-065. ⚠️ S-99b keeps the record in the environment, and remembers it PER
+   * BROWSER ORIGIN: 「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」
+   * (the user's ruling of 2026-09-05). Turning the API on is the reader's
+   * judgement about their own tooling, not the document's content.
+   * ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (D-280). That reading
+   * was the requirement's until 2026-09-05, and the paragraph that replaced it
+   * records why it could not be built: nothing in the specification points at
+   * one document -- AT-1 (`Project.id`) admits `null` and is no primary key.
+   * ⚠️ The requirement calls the wider scope a price knowingly paid, which is
+   * why the MUST above it -- showing on screen that the API is on -- carries
+   * more weight, not less.
    */
   readonly isAgentApiEnabled: boolean
   /**

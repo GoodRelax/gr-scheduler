@@ -12,9 +12,14 @@
 // ⭐ WHY THE WHOLE FIELD CAN BE ABSENT. FR-066 puts the field up only while the
 // `Agent API` is on, so `null` is the entire answer while it is off -- not an
 // empty list, which would draw an empty conversation over a closed API. ⚠️ The
-// flag is not in the document: FR-065 remembers the choice per document, but
-// S-99b of table T-206 keeps that record in the environment, so it reaches this
-// unit as `ScreenSession.isAgentApiEnabled` rather than through `Schedule`.
+// flag is not in the document: FR-065 remembers the choice per BROWSER ORIGIN
+// (「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」, the user's ruling
+// of 2026-09-05), and S-99b of table T-206 keeps that record in the
+// environment, so it reaches this unit as `ScreenSession.isAgentApiEnabled`
+// rather than through `Schedule`.
+// ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (D-280): that was the
+// requirement's own wording until 2026-09-05, and it was withdrawn because
+// nothing in the specification points at one document.
 // ⭐⭐ A SECOND FLAG SINCE 2026-08-31 (D-149). FR-066 also has a MUST of its own
 // -- the reader may put the field away with IC-18 while the API stays on -- and
 // S-99i of table T-206 (MUST NOT) keeps that choice out of `isAgentApiEnabled`,

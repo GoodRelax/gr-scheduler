@@ -20,6 +20,7 @@ import type {
   IconId,
   PanelDivider,
   PropertyFieldKey,
+  Scrollbar,
   ScreenView,
 } from './screen-renderer'
 
@@ -271,6 +272,45 @@ export interface ScreenPart {
    * carry it comes from a side that has not been taught to answer yet.
    */
   readonly isImportReportDismiss?: boolean
+  /**
+   * Which of the two `Scrollbars` (U-21) the point is on, and absent where it is
+   * on neither.
+   *
+   * ⛔ WITHOUT IT, GR-21's GRAB HAS NO ROAD IN, which is exactly the absence
+   * `dividerPanel` records for FR-052 and `isRowGrabStrip` for HF-15. GR-21 of
+   * table T-023d gives the grip a grab region, and FR-051 (MUST) has 「スクロー
+   * ルバーの操作でも表示位置を変えられるようにすること」 -- but U-21 has no row
+   * in table T-109, so `entry` is `null` on a lane, and the note under table
+   * T-023a keeps that table's decision order off everything this surface drew.
+   * ⇒ Without this member a press on a lane falls through as "on a part, on no
+   * entry and on no row" and writes nothing, which is what was measured
+   * (D-298, 2026-09-07: a press on the vertical lane's centre and 120px of
+   * travel moved neither the picture nor one byte of the document).
+   *
+   * ⭐ THE AXIS AND NOT A TRUTH VALUE, which is where it parts from
+   * `isRowGrabStrip` and joins `dividerPanel`: the two lanes move different
+   * halves of the display position (S-77 with S-177, S-78 with S-176), so a
+   * reader that knew only THAT a lane was pressed could not say which half to
+   * move. ⚠️ `Scrollbar['axis']` is where that pair is named, and a union
+   * written again here would be a second place the same pair is decided
+   * (rule 03 section 1).
+   *
+   * ⛔ ONE ANSWER FOR THE LANE AND ITS GRIP ALIKE. GR-21 is the GRIP, and 表
+   * T-023d says in as many words 「つまみの外の帯を押したときの振る舞いは、本行は
+   * 定めない（未決）」 -- so this member says where the point is and nothing about
+   * what is owed; `input-command-translator.ts` carries the STOP that records
+   * what the manuscript leaves open there.
+   *
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS "on neither lane", the same bargain
+   * `isRowGrabStrip`, `confirmationAnswer` and `isImportReportDismiss` keep and
+   * for the same reason: a `ScreenPart` literal written before this member
+   * existed goes on compiling, and a description that does not carry it comes
+   * from a side that has not been taught to answer yet. ⭐ THAT IS THE SAFE
+   * DIRECTION -- a missing answer costs a scroll the person has to make with
+   * the wheel instead, where a wrongly filled one would move the picture under
+   * a press that was on something else.
+   */
+  readonly scrollbarAxis?: Scrollbar['axis']
 }
 
 /**

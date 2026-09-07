@@ -1,14 +1,28 @@
-// One System case for each of five CLOSED rows of the defect ledger
+// One System case for each of eight rows of the defect ledger
 // (`docs/development-records/defects.md` and, once a row has been measured,
-// `docs/development-records/fixed-defects.md`) -- rows the user reported, that
-// are visible on the screen, and that were fixed and measured by hand but had
-// nothing holding the fix down.
+// `docs/development-records/fixed-defects.md`) -- rows that are fixed in the
+// tree and were measured by hand, and that had nothing holding the fix down.
+//
+// The first five the user reported, and all five are visible on the screen:
 //
 //   D-34   the retired word for a notice is gone from every word the screen prints
 //   D-45   resting on a task bar tells its name and its two dates
 //   D-72   the guide cursor can be switched to a crosshair and to one vertical line
 //   D-87   the palette-visibility entrance stands at the left end of the header
 //   D-160  the entrances at the head of the row title panel do not sit on top of each other
+//
+// The last three stood at 「試験待ち」 on 2026-09-07 -- the build had landed and
+// been measured by hand, and the anchor was the only thing missing:
+//
+//   D-277  the `Panel Divider` line is one colour, on the screen and in the picture
+//   D-282  a loaded document's format version is compared with the greatest one known
+//   D-297  a zoom holds the date under the pointer, and the middle date without one
+//
+// ⚠️ D-277 HAS NO CASE IN THE FILE THAT NAMES IT.
+// `tests/system/divider-colour-corner-and-sticky-field.test.ts` judges the
+// SCREEN half of that row and declines the two-sided one in its own header,
+// citing a line of `image-exporter.ts` that has since moved: the hue now
+// travels to the exporter with the request. The two-sided case is here.
 //
 // ⛔ THE SIXTH ROW, D-116, HAS NO CASE HERE, AND THAT IS DELIBERATE. It asks
 // that a row's name be given "the width the specification gives it", and two
@@ -44,6 +58,15 @@
 // the running application, and moving a value in the manuscript moves the case
 // with it. Chapter 1.9 (`:275`) asks exactly this of a test that verifies a
 // requirement pointing at a table.
+//
+// ⭐ THE LAST THREE CASES ASSERT NO NUMBER AT ALL, which is why none of them
+// reads the manuscript for one. Each of the three requirements they lean on
+// asks that two readings of the SAME running document AGREE -- the picture with
+// the screen (`FR-080`, row `WY-2` of table T-041), the version of a document
+// with the greatest version the build knows (`FR-073`), the date under a point
+// before a zoom with the date under it after (`FR-016`) -- so both sides of
+// every comparison are read off the application, and a value written here would
+// be a third party to an agreement between two.
 //
 // ⭐ EACH CASE SAYS WHAT WOULD MAKE IT GO RED, in the sentence above its body.
 
@@ -938,11 +961,620 @@ test('D-160: the entrances at the head of the row title panel stand apart, in or
 })
 
 // ---------------------------------------------------------------------------
+// The Agent API, which the last three cases read the running document through
+// ---------------------------------------------------------------------------
+
+/** `IC-20` of table T-109 -- `FR-065` keeps the `Agent API` shut until a person opens it. */
+const AGENT_API_ENTRANCE = 'IC-20'
+
+/** `AM-2` of table T-107 -- the greatest document format version this build knows. */
+const AM_2 = 'schemaVersion'
+/** `AM-3` of table T-107 -- a frozen copy of the whole document. */
+const AM_3 = 'readDocument'
+/** `AM-11` of table T-107 -- the open document's `GRS JSON`, as a value. */
+const AM_11 = 'exportJson'
+/** `AM-13` of table T-107 -- the picture, as a value. */
+const AM_13 = 'exportSvg'
+
+/**
+ * Open the `Agent API` and fail by name when the entrance does not publish it.
+ *
+ * ⭐ The same helper `tests/system/divider-colour-corner-and-sticky-field.test.ts`
+ * carries, word for word and for the same reason: what the three cases below
+ * judge is the open document and what it writes out, and `FR-065` puts both
+ * behind that one entrance.
+ *
+ * @purity non-pure
+ */
+async function openTheAgentApi(page: Page): Promise<void> {
+  expect(
+    await pressEntrance(page, AGENT_API_ENTRANCE),
+    `the entrance ${AGENT_API_ENTRANCE} that FR-065 has open the Agent API is on the screen`,
+  ).toBe(true)
+  expect(
+    await page.evaluate(
+      /** @purity semi-pure-b */
+      () => typeof (window as unknown as Record<string, unknown>).grSchedulerAgentApi,
+    ),
+    `pressing ${AGENT_API_ENTRANCE} published the Agent API`,
+  ).toBe('object')
+}
+
+// ---------------------------------------------------------------------------
+// D-277 -- the Panel Divider's line is ONE colour, screen and picture alike
+// ---------------------------------------------------------------------------
+
+/** One `Panel Divider` line, as the screen paints it and as the picture paints it. */
+interface DividerPair {
+  readonly at: string
+  readonly screen: string
+  readonly exported: string
+}
+
+/** What the reading below came back with. */
+interface DividerReading {
+  readonly refusal: string | null
+  readonly hue: number | null
+  readonly ratio: number
+  readonly pairs: readonly DividerPair[]
+  readonly unmatched: readonly string[]
+}
+
+/**
+ * Every `Panel Divider` line on the screen, paired with the shape the picture
+ * `AM-13` writes out puts in the same place.
+ *
+ * ⛔ BOTH SIDES ARE THE RUNNING DOCUMENT'S OWN, and no colour is written here.
+ * The screen's line is asked what it is painted with; the picture's shape is
+ * asked what it is filled with; the browser resolves both through one probe
+ * element, so no rounding rule of this file can disagree with the one the page
+ * used. `AT-19` is read only to say what hue the two were resolved at.
+ *
+ * ⛔ THE LINE ON THE SCREEN IS FOUND BY GEOMETRY, not by a name of the tree,
+ * for the reason `tests/system/divider-colour-corner-and-sticky-field.test.ts`
+ * gives: the specification settles the part's name (`Panel Divider`) and the
+ * shell marks the band with it, but the line the band straddles carries no mark
+ * of its own.
+ *
+ * ⭐ THE SHAPE IN THE PICTURE IS FOUND BY THE SAME GEOMETRY, SHRUNK. `FR-080`
+ * (MUST) states the ratio as `exportCanvas`'s width over the screen's width, so
+ * the picture's own root width over the screen's width IS that ratio and no
+ * number of table T-204 has to be read here. A tolerance of one picture pixel
+ * is allowed on each of the four terms, which is the rounding `WY-3` sets aside
+ * in as many words.
+ *
+ * @purity semi-pure-b
+ */
+async function dividerColoursOnBothSides(
+  page: Page,
+  names: { readonly read: string; readonly picture: string; readonly divider: string; readonly canvas: string },
+): Promise<DividerReading> {
+  return page.evaluate((asked: { read: string; picture: string; divider: string; canvas: string }) => {
+    const empty = { hue: null, ratio: 0, pairs: [], unmatched: [] }
+    const api = (window as unknown as Record<string, Record<string, unknown> | undefined>)
+      .grSchedulerAgentApi
+    const read = api?.[asked.read]
+    const picture = api?.[asked.picture]
+    if (typeof read !== 'function' || typeof picture !== 'function') {
+      return { refusal: `the Agent API published neither ${asked.read} nor ${asked.picture}`, ...empty }
+    }
+    const opened = (read as () => unknown).call(api) as {
+      schedule?: { project?: { themeHue?: unknown } }
+    }
+    const hue = typeof opened.schedule?.project?.themeHue === 'number'
+      ? opened.schedule.project.themeHue
+      : null
+    const written = (picture as () => unknown).call(api) as
+      | { ok: true; value: string }
+      | { ok: false; refusal: unknown }
+    if (!written.ok) {
+      return { refusal: `${asked.picture} refused: ${JSON.stringify(written.refusal)}`, ...empty }
+    }
+
+    const canvas = window.document.querySelector(asked.canvas)
+    if (canvas === null) return { refusal: `no ${asked.canvas} on the screen`, ...empty }
+    const canvasBox = canvas.getBoundingClientRect()
+    const screenWidth = Math.max(1, canvasBox.x + canvasBox.width)
+    const drawn = new DOMParser().parseFromString(written.value, 'image/svg+xml')
+    const ratio = Number(drawn.documentElement.getAttribute('width')) / screenWidth
+    if (!Number.isFinite(ratio) || ratio <= 0) {
+      return { refusal: `the picture states no width this case can shrink by`, ...empty }
+    }
+    const shapes = Array.from(drawn.querySelectorAll('rect'))
+
+    // One probe, asked what each colour computes to. ⭐ A sentinel is written
+    // first, so a colour the browser refuses shows up as the sentinel rather
+    // than as whatever the probe was last given.
+    const probe = window.document.createElement('div')
+    window.document.body.appendChild(probe)
+    const resolved = (colour: string): string => {
+      probe.style.color = 'rgb(1, 2, 3)'
+      probe.style.color = colour
+      return window.getComputedStyle(probe).color
+    }
+
+    const pairs: { at: string; screen: string; exported: string }[] = []
+    const unmatched: string[] = []
+    for (const band of Array.from(window.document.querySelectorAll(asked.divider))) {
+      const over = band.getBoundingClientRect()
+      for (const one of Array.from(window.document.querySelectorAll('*'))) {
+        if (one === band) continue
+        const box = one.getBoundingClientRect()
+        const inside =
+          box.x >= over.x - 1 &&
+          box.x + box.width <= over.x + over.width + 1 &&
+          Math.abs(box.y - over.y) <= 1 &&
+          Math.abs(box.height - over.height) <= 1
+        if (!inside) continue
+        const background = window.getComputedStyle(one).backgroundColor
+        if (background === 'rgba(0, 0, 0, 0)' || background === 'transparent') continue
+        const at = `x=${String(Math.round(box.x))} y=${String(Math.round(box.y))} ` +
+          `w=${String(Math.round(box.width * 100) / 100)} h=${String(Math.round(box.height))}`
+        const near = shapes.filter(
+          (shape) =>
+            Math.abs(Number(shape.getAttribute('x')) - box.x * ratio) <= 1 &&
+            Math.abs(Number(shape.getAttribute('y')) - box.y * ratio) <= 1 &&
+            Math.abs(Number(shape.getAttribute('width')) - box.width * ratio) <= 1 &&
+            Math.abs(Number(shape.getAttribute('height')) - box.height * ratio) <= 1,
+        )
+        if (near.length === 0) {
+          unmatched.push(at)
+          continue
+        }
+        for (const shape of near) {
+          pairs.push({
+            at,
+            screen: resolved(background),
+            exported: resolved(shape.getAttribute('fill') ?? ''),
+          })
+        }
+      }
+    }
+    probe.remove()
+    return { refusal: null, hue, ratio, pairs, unmatched }
+  }, names)
+}
+
+// GOES RED IF: the shape the exported picture draws where the screen draws a
+// `Panel Divider` line is filled with anything but the colour the screen paints
+// that same line with, for the SAME open document -- which is what D-277 was:
+// measured 2026-09-07 through `AM-13`, the screen painted `rgb(217, 221, 226)`
+// and the picture filled `hsl(0 14% 87%)`, because the hue never reached the
+// exporter. It also goes red if the picture holds no shape at all where the
+// screen holds a line.
+//
+// ⭐ NEITHER COLOUR IS WRITTEN HERE. Both are read off the running application
+// for the one document it has open, and the browser resolves both, so the case
+// says only that the two are ONE -- which is what `FR-080` (MUST) and row
+// `WY-2` of table T-041 ask of a written picture.
+//
+// ⛔ THE CASE REFUSES TO RUN AT A HUE OF 0, and that is deliberate: the whole of
+// D-277 was a zero standing in for `AT-19`, so at a document whose own hue is 0
+// the broken build and the fixed one paint the same thing and this case would
+// pass on either.
+//
+// ⚠️ THE LINE'S THICKNESS IS A DIFFERENT ROW (`D-363`) and nothing here reads
+// it: the shapes are paired by geometry, so a thickness the two sides agree on
+// is all this case needs of it.
+test('D-277: the picture fills the Panel Divider line with the colour the screen paints it', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+  const app = await openTheApp(baseURL)
+  try {
+    await openTheAgentApi(app.page)
+    const reading = await dividerColoursOnBothSides(app.page, {
+      read: AM_3,
+      picture: AM_13,
+      divider: '[data-role="Panel Divider"]',
+      canvas: '[data-role="Schedule Canvas"]',
+    })
+    expect(reading.refusal, 'the picture could not be read').toBeNull()
+    expect(
+      reading.hue,
+      'AM-3 handed back no number for the hue DR-5 of table T-052 puts on the project, so there ' +
+        'is nothing to resolve either side at',
+    ).not.toBeNull()
+    expect(
+      reading.hue,
+      'the open document carries a hue of 0, and at that hue the build that dropped AT-19 on the ' +
+        'way to the exporter paints exactly what the fixed one paints -- this case would pass on ' +
+        'either, so it refuses to stand as an anchor for D-277',
+    ).not.toBe(0)
+    expect(
+      reading.pairs.length,
+      `no Panel Divider line on the screen was matched to a shape in the picture (ratio ` +
+        `${String(reading.ratio)}), so there is nothing to compare`,
+    ).toBeGreaterThan(0)
+    expect(
+      reading.unmatched,
+      'the picture holds no shape where the screen holds a Panel Divider line, and EP-9 of table ' +
+        'T-076 has the boundary line drawn in it',
+    ).toEqual([])
+    expect(
+      reading.pairs.map((one) => `${one.at} exported=${one.exported}`),
+      `FR-080 with WY-2 of table T-041: the picture is the screen shrunk, so each divider line is ` +
+        `filled with the colour the screen paints it. Resolved at the open document's own hue ` +
+        `${String(reading.hue)}`,
+    ).toEqual(reading.pairs.map((one) => `${one.at} exported=${one.screen}`))
+  } finally {
+    await app.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
+// D-282 -- a loaded document's schemaVersion is compared with something
+// ---------------------------------------------------------------------------
+
+/** The bundled startup template, whose own `schemaVersion` is the greatest version this build knows. */
+const STARTUP_TEMPLATE = join(
+  process.cwd(),
+  'src',
+  'framework',
+  'single-html-shell',
+  'startup-template.json',
+)
+
+/**
+ * The one module `FR-073`'s comparison lives in, as the dev server serves it.
+ *
+ * ⛔ REACHED THROUGH THE PAGE AND NOT IMPORTED HERE, and that is not a
+ * convenience. What D-282 built is a road with two ends -- the version the
+ * build knows, which only the running application can hand over (`AM-2`), and
+ * the reading the codec answers with -- and pressing the codec from Node would
+ * judge one end against a version this file chose. The dev server serves the
+ * very module the running application is built from, so both ends come from the
+ * one build.
+ *
+ * ⚠️ WHAT THE SHELL DOES WITH THE READING IS NOT JUDGED HERE. The reading is
+ * carried on the decoding and nothing consumes it yet; `U-61`'s telling is a
+ * different wave and a different row.
+ */
+const JSON_CODEC_MODULE = '/src/adapter/document-codec/json-codec.ts'
+
+/** What one document's version was read as, and the two versions it was read against. */
+interface VersionReading {
+  readonly refusal: string | null
+  readonly greatest: string
+  readonly own: string
+  readonly later: string
+  readonly asWritten: string
+  readonly ahead: string
+}
+
+/**
+ * Read the open document's own `GRS JSON` back through the codec twice: once as
+ * it stands, and once with its version moved one year on.
+ *
+ * ⭐ THE DOCUMENT IS THE RUNNING ONE (`AM-11`), so nothing about its shape is
+ * invented here; the only thing changed between the two readings is the one
+ * value `FR-073` compares.
+ *
+ * ⭐ A YEAR IS ADDED RATHER THAN A DATE BEING WRITTEN DOWN. `FR-073` (MUST)
+ * fixes the version as `YYYY-MM-DD` and (MUST) has the comparison made by
+ * string order, so the same date a year on is later by that very rule and is
+ * still of the form the requirement allows.
+ *
+ * @purity semi-pure-b
+ */
+async function versionReadings(
+  page: Page,
+  names: { readonly greatest: string; readonly json: string; readonly module: string },
+): Promise<VersionReading> {
+  return page.evaluate(
+    async (asked: { greatest: string; json: string; module: string }) => {
+      const empty = { greatest: '', own: '', later: '', asWritten: '', ahead: '' }
+      const api = (window as unknown as Record<string, Record<string, unknown> | undefined>)
+        .grSchedulerAgentApi
+      const greatest = api?.[asked.greatest]
+      const json = api?.[asked.json]
+      if (typeof greatest !== 'string' || typeof json !== 'function') {
+        return { refusal: `the Agent API published neither ${asked.greatest} nor ${asked.json}`, ...empty }
+      }
+      const written = (json as () => unknown).call(api) as
+        | { ok: true; value: string }
+        | { ok: false; refusal: unknown }
+      if (!written.ok) {
+        return { refusal: `${asked.json} refused: ${JSON.stringify(written.refusal)}`, ...empty }
+      }
+      const codec = (await import(asked.module)) as {
+        documentFromJson: (
+          text: string,
+          greatestKnownSchemaVersion?: string,
+        ) => { ok: boolean; formatVersion?: string; reason?: string }
+      }
+      if (typeof codec.documentFromJson !== 'function') {
+        return { refusal: `${asked.module} publishes no documentFromJson`, ...empty, greatest }
+      }
+      const parsed = JSON.parse(written.value) as Record<string, unknown>
+      const own = typeof parsed.schemaVersion === 'string' ? parsed.schemaVersion : ''
+      const later = `${String(Number(greatest.slice(0, 4)) + 1)}${greatest.slice(4)}`
+      const reading = (text: string): string => {
+        const out = codec.documentFromJson(text, greatest)
+        return out.ok ? (out.formatVersion ?? 'no reading at all') : `refused: ${String(out.reason)}`
+      }
+      return {
+        refusal: null,
+        greatest,
+        own,
+        later,
+        asWritten: reading(written.value),
+        ahead: reading(JSON.stringify({ ...parsed, schemaVersion: later })),
+      }
+    },
+    names,
+  )
+}
+
+// GOES RED IF: a document whose format version is later than the greatest one
+// this build knows is read as anything but `newerThanKnown`, or one that is not
+// later is read as anything but `known` -- which is what D-282 was: nothing
+// under `tests/` pressed any of it, and until 2026-09-07 all four callers left
+// the version out altogether, so every road answered `notCompared`. It also
+// goes red if `AM-2` stops answering with the bundled startup template's own
+// `schemaVersion`, which is the road that keeps the number from being retyped.
+//
+// ⛔ NOTHING IS ASSERTED ABOUT WHAT IS TOLD TO THE READER. `FR-073` (MUST) also
+// has the columns that could not be read shown and the reader asked whether to
+// go on; nothing counts those columns yet, and that is a different wave and a
+// different row of the ledger.
+test('D-282: a document later than the build reads as newerThanKnown, and one that is not reads as known', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+
+  const bundled = JSON.parse(readFileSync(STARTUP_TEMPLATE, 'utf8')) as { schemaVersion?: unknown }
+  expect(
+    typeof bundled.schemaVersion,
+    `${STARTUP_TEMPLATE} carries no schemaVersion, and it is the one FR-073 calls the greatest ` +
+      'version this build knows',
+  ).toBe('string')
+
+  const app = await openTheApp(baseURL)
+  try {
+    await openTheAgentApi(app.page)
+    const read = await versionReadings(app.page, {
+      greatest: AM_2,
+      json: AM_11,
+      module: JSON_CODEC_MODULE,
+    })
+    expect(read.refusal, 'the open document could not be read back through the codec').toBeNull()
+    expect(
+      read.greatest,
+      `AM-2 of table T-107 answers with the greatest version this build knows, and the bundled ` +
+        `startup template is where it is read off -- a second copy of that value is what rule 03 ` +
+        'forbids',
+    ).toBe(bundled.schemaVersion)
+    expect(
+      read.own <= read.greatest,
+      `the open document states ${read.own}, which is later than the ${read.greatest} the build ` +
+        'knows, so the first reading below would not be the one this case means to press',
+    ).toBe(true)
+    expect(
+      read.asWritten,
+      `the open document states ${read.own} against the ${read.greatest} this build knows, and ` +
+        'FR-073 (MUST) makes only a LATER version unreadable',
+    ).toBe('known')
+    expect(
+      read.ahead,
+      `a document stating ${read.later} is later than the ${read.greatest} this build knows, ` +
+        'which is what FR-073 (MUST) settles as the unreadable case',
+    ).toBe('newerThanKnown')
+  } finally {
+    await app.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
+// D-297 -- the centre a zoom is taken about
+// ---------------------------------------------------------------------------
+
+/** One tick of the time ruler: the day it stands on, and where it stands. */
+interface Tick {
+  readonly row: string
+  readonly serial: number
+  readonly x: number
+}
+
+/** The ruler's ticks and the band they stand in, as the page has them right now. */
+interface RulerReading {
+  readonly ticks: readonly Tick[]
+  readonly band: { readonly x: number; readonly width: number }
+}
+
+/**
+ * The time ruler as the drawing marks it.
+ *
+ * ⛔ THE HANDLES ARE THE DRAWING'S OWN AND THE SPECIFICATION SETTLES NEITHER --
+ * see `tests/system/live-app.ts`. `SvgRenderer` names each tick by the row of
+ * the tier and by the day it stands on, and names the band's ground; a change
+ * to either marking breaks this case, as it should.
+ *
+ * ⭐ THE BAND IS WHERE THE `Row Area` IS. The two regions are laid with one x
+ * and one width, so the ground of the ruler is what says where the `Row Area`'s
+ * middle is on the screen -- which is the point `FR-016` (MUST) names for every
+ * route that carries no pointer.
+ *
+ * @purity semi-pure-b
+ */
+async function readRuler(page: Page, canvas: string): Promise<RulerReading> {
+  return page.evaluate((selector: string) => {
+    const svg = window.document.querySelector(selector)
+    const ticks: { row: string; serial: number; x: number }[] = []
+    let band = { x: 0, width: 0 }
+    if (svg === null) return { ticks, band }
+    for (const element of Array.from(svg.querySelectorAll('[data-figure]'))) {
+      const key = element.getAttribute('data-figure') ?? ''
+      if (key === 'ruler-ground') {
+        const ground = element.getBoundingClientRect()
+        band = { x: ground.x, width: ground.width }
+        continue
+      }
+      const found = /^ruler-([A-Za-z]+)-tick-(-?\d+)$/.exec(key)
+      if (found === null) continue
+      const box = element.getBoundingClientRect()
+      ticks.push({ row: found[1] ?? '', serial: Number(found[2]), x: box.x })
+    }
+    return { ticks, band }
+  }, canvas)
+}
+
+/** The time axis the ruler's ticks describe: where a day stands and how wide one is. */
+interface TimeAxis {
+  readonly pxPerDay: number
+  readonly serialAtX: (x: number) => number
+}
+
+/**
+ * The time axis, read off the ruler's own ticks.
+ *
+ * ⭐ TWO TICKS OF ONE ROW ARE ENOUGH, because the time axis is linear in the
+ * zoom and every tick of a row stands on a day: the pixels between the first
+ * tick and the last, over the days between them, is the width of one day, and
+ * the day standing at any x follows. ⛔ Nothing about the layout is read from
+ * `src/` and no number is written here.
+ *
+ * @purity pure
+ */
+function timeAxisOf(reading: RulerReading, what: string): TimeAxis {
+  const rows = new Map<string, Tick[]>()
+  for (const tick of reading.ticks) {
+    const held = rows.get(tick.row) ?? []
+    held.push(tick)
+    rows.set(tick.row, held)
+  }
+  let best: Tick[] = []
+  for (const held of rows.values()) if (held.length > best.length) best = held
+  const sorted = [...best].sort((one, two) => one.serial - two.serial)
+  const first = sorted[0]
+  const last = sorted[sorted.length - 1]
+  if (first === undefined || last === undefined || first.serial === last.serial) {
+    throw new Error(`${what}: the time ruler shows fewer than two ticks of any one row`)
+  }
+  const pxPerDay = (last.x - first.x) / (last.serial - first.serial)
+  if (!Number.isFinite(pxPerDay) || pxPerDay <= 0) {
+    throw new Error(`${what}: the time ruler's ticks describe no time axis (${String(pxPerDay)})`)
+  }
+  return {
+    pxPerDay,
+    /** @purity pure */
+    serialAtX: (x: number): number => first.serial + (x - first.x) / pxPerDay,
+  }
+}
+
+/** The day a serial names, written the way `EZ-6` writes a date. @purity pure */
+function dateOfSerial(serial: number): string {
+  return new Date(serial * 86_400_000).toISOString().slice(0, 10)
+}
+
+/** The day standing under an x. @purity pure */
+function dayUnder(axis: TimeAxis, x: number): string {
+  return dateOfSerial(Math.floor(axis.serialAtX(x)))
+}
+
+// GOES RED IF: one notch of the wheel moves the date under the pointer, or one
+// keyboard zoom -- a route that carries no pointer at all -- moves the date at
+// the middle of the `Row Area`, or either of the two fails to change the width
+// of a day (a zoom that did nothing would hold every date still by doing
+// nothing). Measured on this build 2026-09-07 BEFORE the fix: the wheel moved
+// the date under the pointer four days and the key moved the middle's date two.
+//
+// ⛔ ONLY THE DATE AXIS IS ASSERTED, AND THAT IS DELIBERATE. `FR-016` (MUST)
+// names the row under the cursor as well, and the row axis is not written: it
+// is not linear in the zoom, so the row a zoom lands on cannot be had without
+// running the placement again, which table T-068 allows only for `FR-055`. That
+// half is `D-366` of the ledger and is waiting on a ruling.
+//
+// ⚠️ THE POINTER IS PARKED AWAY FROM THE MIDDLE for the keyboard half, so that
+// a build which centred every zoom on the pointer would move the middle's date
+// and be caught. The wheel half asks for the opposite: its x is a day's middle
+// well away from the `Row Area`'s own middle.
+test('D-297: a zoom holds the date under the pointer, and the middle date when there is no pointer', async ({
+  baseURL,
+}) => {
+  test.setTimeout(240_000)
+  const app = await openTheApp(baseURL)
+  const canvas = '[data-role="Schedule Canvas"] svg'
+  try {
+    const canvasBox = await app.page.evaluate((selector: string) => {
+      const box = window.document.querySelector(selector)?.getBoundingClientRect()
+      return box === undefined ? null : { x: box.x, y: box.y, width: box.width, height: box.height }
+    }, canvas)
+    expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
+    if (canvasBox === null) return
+
+    // ---- the wheel, which carries a pointer (`MK-3`) --------------------
+    const before = timeAxisOf(await readRuler(app.page, canvas), 'before the wheel')
+    const band = (await readRuler(app.page, canvas)).band
+    expect(band.width, 'the time ruler draws no ground, so the Row Area cannot be located').toBeGreaterThan(0)
+    // ⭐ The middle of a day column, a quarter of the way in from the band's
+    // left edge: away from the middle the keyboard half uses, and away from a
+    // day boundary, so that which day stands under it does not turn on a
+    // fraction of a pixel.
+    const roughly = band.x + band.width * 0.25
+    const at = Math.round(
+      band.x + (Math.floor((roughly - band.x) / before.pxPerDay) + 0.5) * before.pxPerDay,
+    )
+    const middle = band.x + band.width / 2
+    expect(
+      Math.abs(at - middle),
+      `the point the wheel is turned at (${String(at)}) is the middle of the Row Area, so this ` +
+        'case could not tell a pointer-centred zoom from a middle-centred one',
+    ).toBeGreaterThan(before.pxPerDay)
+    const heldByPointer = dayUnder(before, at)
+
+    await app.page.mouse.move(at, Math.round(canvasBox.y + canvasBox.height / 2))
+    await app.page.keyboard.down('Shift')
+    await app.page.mouse.wheel(0, -120)
+    await app.page.keyboard.up('Shift')
+    await readSettledDrawnSvg(app.page)
+
+    const afterWheel = timeAxisOf(await readRuler(app.page, canvas), 'after the wheel')
+    expect(
+      afterWheel.pxPerDay,
+      `one notch of the wheel left a day ${String(before.pxPerDay)}px wide, so nothing was zoomed ` +
+        'and holding the date still proves nothing',
+    ).not.toBe(before.pxPerDay)
+    expect(
+      dayUnder(afterWheel, at),
+      `FR-016 (MUST): the date under the pointer does not move. The wheel was turned at x=` +
+        `${String(at)}, where a day was ${String(before.pxPerDay)}px wide and is now ` +
+        `${String(afterWheel.pxPerDay)}px`,
+    ).toBe(heldByPointer)
+
+    // ---- the keyboard, which carries none (`SK-16`) ---------------------
+    // ⛔ THE POINTER IS TAKEN OFF THE MIDDLE FIRST. `FR-016` gives the middle
+    // of the `Row Area` to routes with no pointer, and a pointer that happened
+    // to be there would let a pointer-centred build pass.
+    await app.page.mouse.move(Math.round(band.x + band.width * 0.1), Math.round(canvasBox.y + canvasBox.height / 2))
+    const beforeKey = timeAxisOf(await readRuler(app.page, canvas), 'before the key')
+    const heldByMiddle = dayUnder(beforeKey, middle)
+    await app.page.keyboard.press('Shift+Equal')
+    await readSettledDrawnSvg(app.page)
+
+    const afterKey = timeAxisOf(await readRuler(app.page, canvas), 'after the key')
+    expect(
+      afterKey.pxPerDay,
+      `the keyboard zoom left a day ${String(beforeKey.pxPerDay)}px wide, so nothing was zoomed`,
+    ).not.toBe(beforeKey.pxPerDay)
+    expect(
+      dayUnder(afterKey, middle),
+      `FR-016 (MUST): a route that carries no pointer takes the middle of the Row Area as the ` +
+        `centre, so the date at x=${String(Math.round(middle))} does not move. The pointer was ` +
+        `parked at x=${String(Math.round(band.x + band.width * 0.1))}, where the date was ` +
+        `${dayUnder(beforeKey, band.x + band.width * 0.1)}`,
+    ).toBe(heldByMiddle)
+  } finally {
+    await app.close()
+  }
+})
+
+// ---------------------------------------------------------------------------
 // The rows themselves
 // ---------------------------------------------------------------------------
 
 /** The ledger rows the cases above hold down. */
-const HELD: readonly string[] = ['D-34', 'D-45', 'D-72', 'D-87', 'D-160']
+const HELD: readonly string[] = ['D-34', 'D-45', 'D-72', 'D-87', 'D-160', 'D-277', 'D-282', 'D-297']
 
 /**
  * The two files the ledger is kept in.

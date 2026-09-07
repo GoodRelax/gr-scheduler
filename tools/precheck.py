@@ -38,6 +38,18 @@ REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 GENERATED_MARKERS = ('本書は生成物である', 'GENERATED -- do not edit')
 GENERATED_MARKER_WITHIN_LINES = 15
 
+# ⛔ THE ONE FILE THIS TRAP MUST NOT READ. `dist/index.html` is the shipped
+# deliverable, and it left .gitignore on 2026-09-07 (the user's instruction) so
+# that a reader can open the product without building it. It INLINES the
+# generated rosters, so their `GENERATED -- do not edit` lands inside its first
+# fifteen lines as data -- the very confusion the note above describes, one
+# level further out. And the rule the trap enforces does not apply to it: its
+# manuscript is the whole of `src/`, which it cannot name, and it is rebuilt by
+# `npx vite build` rather than by `npm run gen`.
+# ⚠️ This is an exemption from ONE trap, not from the checks: `gen:check` and
+# the unit suite still judge everything the bundle is built from.
+NOT_A_HAND_EDITED_ARTIFACT = ('dist/index.html',)
+
 
 def say(message):
     sys.stdout.write(message + '\n')
@@ -230,6 +242,8 @@ def trap_generated_edit(relative, lines, dirty=()):
     ⚠️ Whether the artifact MATCHES its manuscript is not a question a
     one-second diff can answer; `npm run gen:check` (check 16) answers it.
     """
+    if relative in NOT_A_HAND_EDITED_ARTIFACT:
+        return []
     if not is_generated(relative, lines):
         return []
     declaration = chr(10).join(lines[:GENERATED_MARKER_WITHIN_LINES])

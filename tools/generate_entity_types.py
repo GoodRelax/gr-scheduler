@@ -2254,6 +2254,12 @@ TARGETS = [
     # FAINT it is laid, so the two halves arrive on the two roads their own
     # tables put them on -- ⛔ a percentage written into a colour row, or a
     # colour written into a settings row, would be one decision in two places.
+    # ⭐⭐ S-225 AND S-226 ARE HANDED TO TWO FILES ON PURPOSE, and that is the
+    # whole of EP-1 of table T-076 (MUST): 「字の大きさと左の余白は、画面と書き
+    # 出しが同じ 1 つの行を読むこと」. `image-exporter.ts` reads the same pair a
+    # few entries below; ⛔ this is NOT a duplicated decision -- the decision is
+    # the ROW, and two readers of one row is what the requirement asks for,
+    # while a second value would be what it forbids (D-276).
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_GRAB_STRIP_SIZES') + NEWLINE * 2
@@ -2262,6 +2268,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the

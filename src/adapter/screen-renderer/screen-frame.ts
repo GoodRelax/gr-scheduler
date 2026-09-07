@@ -43,10 +43,14 @@
 // layout. So `scrollbars` has no case in which it is short of two, and the lane
 // is the very width FR-052 already subtracted.
 //
-// ⛔ Two STOP notes below say what the specification leaves open: which side of
-// the gap the lane sits on, and the grip. ⭐ The divider's BAND is no longer
-// among them -- table T-206 gained S-134 -- and what is left of that pair, the
-// thickness of the line, is marked where the divider is built.
+// ⛔ Two STOP notes below say what is open: which side of the gap the lane sits
+// on, and the grip's length. ⭐ The divider's BAND is no longer among them --
+// table T-206 gained S-134 -- and what is left of that pair, the thickness of
+// the line, is marked where the divider is built.
+// ⚠️ THE TWO ARE NOT THE SAME KIND OF HOLE. The first is a rule no requirement
+// states; the second is a rule GR-21 of table T-023d states in full, whose two
+// numbers this unit's three arguments do not carry -- so it is closed in the
+// manuscript and open in the wiring, and `scrollbarIn` says which wire.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -107,29 +111,43 @@ function dividerAt(
 /**
  * One lane and its grip.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how long the grip is and where in
- * the lane it sits. Looked in SC-4 of table T-031 (it keeps the bar drawn
- * "fitted or not" and says nothing of the grip), in FR-051 and FR-037, and in
- * table T-203, whose S-77 and S-78 hold the display position as a date and a row
- * id rather than as a fraction -- and neither reaches this function. ⛔ The
- * numbers a grip needs are how much there is against how much is shown, and
- * those are ScheduleLayout's, which chapter 5.3 (MUST NOT) forbids this
- * component to read. Chose the grip that fills its lane: that is exactly the
- * "everything fits" state SC-4 names, and it is the only one that claims no
- * display position the arguments do not carry.
+ * ⭐⭐ THE GRAB IS OPEN AGAIN, AND THIS NOTE NO LONGER CLAIMS OTHERWISE. What
+ * stood here said table T-023d had NO ROW for either lane, so a proportional
+ * grip would be "a shape nothing presses". GR-21 of table T-023d was written on
+ * 2026-09-07 and that ground is gone: `ScreenPart.scrollbarAxis` reports a press
+ * on a lane and `input-command-translator.ts` turns a drag on it into FR-051's
+ * change of the display position (D-298, measured on the shipped build --
+ * a 100px drag on each lane moves the picture, and moved nothing before it).
  *
- * ⛔⛔ AND THE GRAB IS SHUT ONE ROW FURTHER OUT, WHICH IS WHY SIZING THE GRIP
- * HERE WOULD NOT OPEN IT (D-298, measured 2026-09-07 against the manuscript).
- * SC-4 of table T-031 says the bar is grabbed and moved, and FR-052 (MUST) has
- * the display position change by working the bar -- but table T-023d, which
- * MK-9a of table T-023 declares holds 掴み領域の全数 and their priority, has NO
- * ROW for either lane. ⇒ Whichever unit would translate a press on a lane into
- * a scroll has no grab region to read, so a proportional grip drawn here would
- * be a shape nothing presses. ⛔ Do not mint the row: FR-029 reserves the
- * roster, and the two members a proportion needs stay ScheduleLayout's whatever
- * that row says. Searched: FR-051, FR-052, SC-4 of table T-031, table T-023d,
- * table T-203 (S-77 / S-78) and table T-206 (S-205 is the lane's THICKNESS
- * floor and settles nothing about the grip).
+ * STOP -- ⛔ NOT REACHABLE FROM THIS UNIT'S ARGUMENTS: how long the grip is.
+ * GR-21 (MUST) states the rule and leaves no room for a choice -- 「長さは、帯の
+ * 長さに対する『見えている範囲 ÷ 全体』の割合とすること」, floored at S-205 of
+ * table T-206 -- and both of its two numbers are ScheduleLayout's
+ * (`contentWidth` / `contentHeight` against the `Row Area`). ⛔ UF-61 is handed
+ * `ScreenRegions`, `DocumentSettings` and `ScreenState` and none of the three
+ * carries either, `ScreenSession.rowBoxes` carries only the rows already CUT to
+ * the `Row Area` (`drawnRowBoxesOf` in `frame-loop.ts`), and
+ * `_source/components.json` gives ScreenRenderer no edge to ScheduleLayout --
+ * which is the same absence `ScreenSession.rowBoxes` records of itself.
+ * ⇒ ⛔ WHAT IS MISSING IS A WAY IN, NOT A RULE: either a member of
+ * `ScreenSession` the shell fills with the two extents (the shape `rowBoxes`
+ * already has, and it is `frame-loop.ts` that would fill it), or an edge in
+ * `_source/components.json`. ⛔ Neither may be minted here -- a second
+ * computation of an extent this component cannot read would be the very
+ * duplication chapter 5.3 refuses.
+ * ⛔ AND NO SETTINGS ROW IS OWED: GR-21 says so in as many words
+ * (「新しい設定値を立てない」), and S-205 -- which the floor names -- already
+ * exists as the lane's THICKNESS floor and is deliberately reused so that the
+ * smallest grip comes out square.
+ * ⭐ Chose, meanwhile, the grip that fills its lane: that is exactly the
+ * "everything fits" state SC-4 of table T-031 names, it claims no display
+ * position the arguments do not carry, and the drag it is grabbed by is
+ * geared off the extents rather than off this length, so the picture moves the
+ * right distance whatever this comes out at (`scrollGearing` carries that
+ * reading). Searched: GR-21 and the closing rules of table T-023d, FR-051,
+ * FR-052, FR-037, SC-4 of table T-031, table T-203 (S-77 / S-78 / S-176 /
+ * S-177), table T-206 (S-205), `_source/components.json` and the nine unit
+ * contracts in `screen-renderer.ts`.
  *
  * @purity pure
  */
