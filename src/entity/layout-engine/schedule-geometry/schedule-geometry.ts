@@ -811,7 +811,7 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
  * the actual as a second figure CENTRED on the actual day, so where the actual
  * day is at or past the planned one that figure stands to the right of the
  * plan's edge -- and a marker anchored on the plan is drawn ON it, which table
- * T-038's 「この 5 つを重ねて描いてはならない（MUST NOT）」 forbids and 「図形の
+ * T-038's 「この 4 つを重ねて描いてはならない（MUST NOT）」 forbids and 「図形の
  * 外側」 already refused. ⚠️ Measured 2026-09-08 on the shipped build: the
  * marker overlapped the sideways actual figure by 16.00px.
  * ⭐ `TaskPlacement.actualReach` IS THE ONE PLACE THE REACH IS WORKED OUT.

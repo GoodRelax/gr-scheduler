@@ -1,5 +1,12 @@
-5
+1
 #
+#
+# LOWERED 5 -> 1 ON 2026-09-08, the same day the file was created. Four of the
+# five rulings it opened with reached the specification within hours, because
+# the check names them every run instead of leaving them to memory.
+# ⭐ The one left is the assignee swap: the ruling says a name typed over an
+# existing assignee REPLACES them, and the clause still only says to create
+# and assign. ⛔ Do not close this row until that MUST NOT is written.
 # SET TO 5 ON 2026-09-09, the day check 43 was written. Counted FIRST against
 # docs/development-records/rulings.md as it stood, then written here -- not a
 # zero reached by "fixing" the rows.

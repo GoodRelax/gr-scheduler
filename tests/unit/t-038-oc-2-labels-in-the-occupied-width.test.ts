@@ -14,9 +14,10 @@
 // THE ROWS THIS FILE RESTS ON
 //
 //   T-038 OC-2 (docs/spec/01-04-requirements.md:1240)
-//     「| OC-2 | 担当ラベルと完了率ラベル | 左（バーの外側へ張り出す）。
-//      **表示しているときだけ算入すること（MUST）。非表示のときは算入しては
-//      ならない（MUST NOT）** |」
+//     「| OC-2 | 担当と完了率の札（**2 枚ではなく 1 枚である**。繋ぎ方と
+//      右寄せは `FR-090`）| 左（バーの外側へ張り出す）。**表示していると
+//      きだけ算入すること（MUST）。非表示のときは算入してはならない
+//      （MUST NOT）** |」
 //
 //   the heading of table T-038 (docs/spec/01-04-requirements.md:1236)
 //     「**段割当（`FR-003`）と全体表示の測定（`FR-055`）は、同じ本表を使うこと
@@ -356,10 +357,15 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 // THE ROWS THESE CASES REST ON (both sit under table T-038, requirements.md)
 //
 //   the order (01-04-requirements.md, under T-038)
-//     「**形状の外へ出すものの左右の並びを定めること（MUST）。並びは 担当ラベル
-//      （`OC-2`）→ 実績バーと実績のダミー（`FR-043`）→ 進捗マーカー（`OC-3`）
-//      → 再開アイコン（`OC-4`）→ 名称ラベル（`OC-1`）とすること（MUST）**
-//      …… **この 5 つを重ねて描いてはならない（MUST NOT）**」
+//     「**形状の外へ出すものの左右の並びを定めること（MUST）。並びは 担当と完了率
+//      の札（`OC-2`）→ 実績バーと実績のダミー（`FR-043`）→ 進捗マーカー
+//      （`OC-3`）→ 名称ラベル（`OC-1`）とすること（MUST）**
+//      …… **この 4 つを重ねて描いてはならない（MUST NOT）**」
+//
+//   the resume icon is NOT in that order (01-04-requirements.md, under T-038)
+//     「**再開アイコン（`OC-4`）は本並びに従わないこと（MUST NOT）。立てる場所は
+//      表 T-221 の `LF-11` が定める日付位置（`resume` の日）とすること
+//      （MUST）**」
 //
 //   the reservation (01-04-requirements.md, under T-038)
 //     「**名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
@@ -377,13 +383,15 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 //
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
-//   * THE RESUME ICON STANDING ON ITS OWN `resume` DAY. LF-13 of table T-221
-//     pins the icon to that day, which may be any day at all -- so it can walk
-//     out from under the room reserved for it and land on the name label. The
-//     order under table T-038 and LF-13 cannot both hold for such a Task, and
-//     no row settles which gives way. The case below uses PS-3 (`resumeValid`
-//     false, no `resume` day), where LF-13 itself puts the icon beside the
-//     marker.
+//   * THE RESUME ICON STANDING ON ITS OWN `resume` DAY. LF-11 of table T-221
+//     puts the icon on that day, which may be any day at all -- so it can walk
+//     out from under the room reserved for it and land on the name label. ⭐ The
+//     clash this note used to describe is settled: the closing text under table
+//     T-038 takes OC-4 out of the order and sends it to LF-11's date position,
+//     while keeping the room reserved. ⛔ WHAT IS STILL NOT ASSERTED is a Task
+//     whose `resume` day is far from the marks -- no row says what the name
+//     label does then. The case below uses PS-3 (`resumeValid` false, no
+//     `resume` day), which is the one case LF-11 itself puts beside the marker.
 //   * HOW WIDE THE RESERVED ROOM IS AS A NUMBER. The row forbids a new setting
 //     and names S-22 / S-26 / S-27 as its parts; the cases below therefore
 //     state the room as a RELATION -- the marks fall inside it, the label
@@ -414,7 +422,7 @@ const SUSPENDED = spanning(1, '2026-02-02', 20, {
   resumeValid: false,
 })
 
-/** S-63, set deliberately, with both OC-2 labels shown so all five are drawn. */
+/** S-63, set deliberately, with both OC-2 labels shown so every mark is drawn. */
 const markSettings = (marksVisible: boolean): DocumentSettings =>
   settingsOf({
     ...(BASE as unknown as Record<string, unknown>),
@@ -449,8 +457,8 @@ const bandOfPoints = (what: string, points: readonly { readonly x: number }[]): 
   x1: Math.max(...points.map((one) => one.x)),
 })
 
-describe('table T-038, D-394 -- the five stand side by side, and the label does not move', () => {
-  it('draws all five, or every case below proves nothing', () => {
+describe('table T-038, D-394 -- the order stands side by side, and the label does not move', () => {
+  it('draws every one of them, or every case below proves nothing', () => {
     const { placed, drawn } = drawnWithMarks(true)
     expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
     expect(drawn.assigneeLabel).not.toBeNull() // OC-2
@@ -461,7 +469,7 @@ describe('table T-038, D-394 -- the five stand side by side, and the label does 
     expect(drawn.label).not.toBeNull() // OC-1
   })
 
-  it('⛔ does not draw the five on top of one another (MUST NOT)', () => {
+  it('⛔ does not draw them on top of one another (MUST NOT)', () => {
     const { drawn } = drawnWithMarks(true)
     const assignee = drawn.assigneeLabel
     const percent = drawn.percentLabel
@@ -486,10 +494,15 @@ describe('table T-038, D-394 -- the five stand side by side, and the label does 
         x0: marker.centre.x - marker.radius,
         x1: marker.centre.x + marker.radius,
       },
+      // ⛔ OC-4 IS NOT ONE OF THE FOUR. The closing text under table T-038 takes
+      // the resume icon out of the order and sends it to LF-11's date position.
+      // It is measured here because THIS fixture names no `resume` day, which is
+      // the one case LF-11 itself stands the icon beside the marker -- so the
+      // reserved room is where it actually is.
       bandOfPoints('OC-4 resume', [...resume.arm, ...resume.head]),
       { what: 'OC-1 name label', x0: label.x, x1: label.x + label.width },
     ]
-    // ⭐ Stated as a chain rather than as five numbers: the row forbids the
+    // ⭐ Stated as a chain rather than as fixed numbers: the row forbids the
     // OVERLAP and fixes the ORDER, and both are exactly "each one ends at or
     // before the next one starts". ⚠️ Touching is allowed -- OC-2's assignee
     // label ends ON the bar's left edge, which the actual bar starts at.
@@ -614,7 +627,7 @@ describe('FR-044, D-400 -- the resume icon reaches the picture, not just the geo
 //     「| GR-7 | 進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点の
 //      掴みシロの外側、マイルストーンのときは図形の外側** |」
 //
-//   the MUST NOT under table T-038 -- 「この 5 つを重ねて描いてはならない」
+//   the MUST NOT under table T-038 -- 「この 4 つを重ねて描いてはならない（MUST NOT）」
 //
 // ⚠️ Measured 2026-09-08 on the shipped build: the marker sat 16.00px inside
 // the sideways actual figure LF-10 draws for a milestone, because the anchor

@@ -152,7 +152,7 @@ export interface TaskPlacement {
    * order puts the name label past 実績バーと実績のダミー -- so the moment it is
    * spelled twice they part company. ⚠️ Measured 2026-09-08 on the shipped
    * build, they had: a milestone's marker was drawn 16.00px INSIDE its own
-   * sideways actual figure, which table T-038's 「この 5 つを重ねて描いては
+   * sideways actual figure, which table T-038's 「この 4 つを重ねて描いては
    * ならない（MUST NOT）」 forbids.
    */
   readonly actualReach: number | null
@@ -713,7 +713,7 @@ function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways
  * file answers the second, so written twice they part company -- which is
  * exactly what a person met: measured 2026-09-08 on the shipped build, a
  * milestone's marker was drawn 16.00px INSIDE its own sideways actual figure,
- * which table T-038's 「この 5 つを重ねて描いてはならない（MUST NOT）」 forbids.
+ * which table T-038's 「この 4 つを重ねて描いてはならない（MUST NOT）」 forbids.
  *
  * ⚠️ `planHeightOf` rather than a carried height, so the two callers cannot
  * disagree: `TaskPlacement.planHeight` is built from this very call, and
@@ -1526,9 +1526,14 @@ export function layoutFromSchedule(
       const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       // ---- table T-038's order: what the name label has to clear ----------
-      // 「並びは 担当ラベル（OC-2）→ 実績バーと実績のダミー（FR-043）→ 進捗
-      // マーカー（OC-3）→ 再開アイコン（OC-4）→ 名称ラベル（OC-1）とすること
-      // （MUST）」, and 「この 5 つを重ねて描いてはならない（MUST NOT）」.
+      // 「並びは 担当と完了率の札（OC-2）→ 実績バーと実績のダミー（FR-043）→
+      // 進捗マーカー（OC-3）→ 名称ラベル（OC-1）とすること（MUST）」, and 「この
+      // 4 つを重ねて描いてはならない（MUST NOT）」.
+      // ⛔ THE RESUME ICON IS NOT ONE OF THE FOUR: 「再開アイコン（OC-4）は本
+      // 並びに従わないこと（MUST NOT）。立てる場所は 表 T-221 の LF-11 が定める
+      // 日付位置（resume の日）とすること（MUST）」. ⭐ Its room is still held
+      // clear in the order below (`markRoomOf`) -- the paragraph after the
+      // order requires that even though nothing is drawn in it.
       // ⭐ The marker does not hang off the plan bar: `markerAnchorX` in
       // ScheduleGeometry reads the ACTUAL bar's far end, or -- while nothing is
       // started -- GR-17's dummy. So the label has to clear whichever of the
