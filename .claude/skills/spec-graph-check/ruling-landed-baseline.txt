@@ -1,0 +1,56 @@
+5
+#
+# SET TO 5 ON 2026-09-09, the day check 43 was written. Counted FIRST against
+# docs/development-records/rulings.md as it stood, then written here -- not a
+# zero reached by "fixing" the rows.
+#
+# ⛔ WHAT THE NUMBER IS. Rulings whose 状態 still holds 未着地: the user has
+# answered, and nobody has written the answer down where the product is built
+# from. That is the exact state that made them answer twice --
+# 「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」.
+#
+# The five, as printed on 2026-09-09:
+#
+#   R-04  ⚠️ 一部未着地 -- the drag bands of 表 T-023d landed, but the half
+#         the book calls out below the table did not: 「開始日 = 終了日 は
+#         1 日である」 must be written into the specification, and the dummy
+#         mark must then grab the actual finish. ⭐ This row is why the same
+#         ruling was asked for TWICE: the user and the specification read
+#         「1 日」 two different ways and neither side noticed.
+#   R-07  the roster ruling -- a known name replaces the assignee in place
+#   R-09  assignee and percent as ONE right-aligned string at the bar's left
+#   R-10  the resume arrow always sits on the resume date
+#   R-11  the frame budget stays as it is until the other defects are gone
+#
+# ⭐ LOWERING THIS IS THE POINT OF THE FILE. When a ruling lands, change the
+# row's 状態 and lower this number in the same commit; the run says so on its
+# own when the count falls.
+# ⛔ RAISING IT IS TAKING ON DEBT of the most expensive kind this repository
+# has measured -- a ruling that has come down and is written nowhere gets
+# asked again. Raise it only deliberately, and say which row here.
+#
+# ------------------------------------------------------------------------
+# HELD LINES -- 適用済 rows whose 逐語 no document can carry.
+#
+# ⛔ A held line is a DEBT, NOT A PERMISSION, and it is held in BOTH
+# directions: a row that stops being a miss makes this file red, so an
+# exemption cannot rot into one. The shape is check 26b's
+# (published-members-baseline.txt).
+#
+# ⭐ Both of these were measured on 2026-09-09, and both are the same class:
+# the user ruled correctly, the ruling landed correctly, and the words they
+# spoke are not words a manuscript could contain.
+
+HELD R-06  The user quoted FR-055's own clause BACK, in their own spacing --
+#          「表示位置を scrollDate（null なら実行日）に合わせること（MUST）」
+#          where docs/spec/01-04-requirements.md:2766 says 「表示位置を
+#          `scrollDate` に合わせること（MUST）。`scrollDate` が `null` の
+#          ときは実行日に合わせてよい（MAY）」. ⭐ The ruling was that
+#          FR-055 does not change, so there is nothing for it to land AS.
+
+HELD R-08  The user chose an option by its letter: 「A：場所を常に空ける」.
+#          ⭐ The ruling DID land -- 表 T-038 excludes OC-3 and OC-4 from the
+#          occupied width, and its closing says why in the ruling's own
+#          terms: 「表示を切り替えてもタスクの位置が動かないようにするため」.
+#          ⛔ But no manuscript can hold the word "A", so no verbatim search
+#          will ever find this row. It is exempt by shape, not by debt.

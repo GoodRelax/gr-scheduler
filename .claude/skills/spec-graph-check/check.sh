@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 38 mechanical checks for the gr-scheduler specification.
+# All 40 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -12,6 +12,9 @@
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
 # ⭐ Recounted 2026-09-06 when checks 40 and 41 were added: 36 -> 38.
+# ⭐ Recounted 2026-09-09 when check 43 was added: the heading still said 38
+# and the ranges added to 39 -- check 42 went in without recounting, which is
+# the failure this note keeps happening to. 39 -> 40.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -163,6 +166,25 @@
 #          paraphrase hardened into a citation. ⛔ `D-339`: one such sentence
 #          was quoted as a row of 表 T-051 and kept `D-318` open for a round.
 #          Held against quoted-source-baseline.txt (283); `--list` prints them
+#   43     check-ruling-landed.py : a row of
+#          docs/development-records/rulings.md that says 適用済 while NEITHER
+#          docs/spec NOR the place its own 着地先 names holds its 逐語, a row
+#          closing with an empty 着地先, and the count of rulings still
+#          未着地. ⛔ The user's instruction of 2026-09-08, verbatim:
+#          「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」
+#          -- the same question was put to them more than twice, because a
+#          ruling had no single place to live and nothing could say out loud
+#          "this is already decided". rulings.md is that place; this is what
+#          stops it decaying into a book nobody updates. Verbatim comparison
+#          strikes emphasis, backticks, every kind of whitespace INCLUDING
+#          NEWLINES (four of eleven fabricated citations in the 2026-09-08
+#          hunt were invisible to grep because the sentence wrapped) and the
+#          decorative marks -- and relaxes nothing else. Held against
+#          ruling-landed-baseline.txt: line 1 is the 未着地 count (5), and
+#          each `HELD R-nn` line exempts one 適用済 row whose words no
+#          document could carry -- an option chosen by its letter, a clause
+#          quoted back in the user's own spacing. ⭐ Held in BOTH directions
+#          like check 26b: a HELD row that stops being a miss is red too
 #   41     tools/precheck.py : the six traps that otherwise cost a round trip
 #          -- a bare change-request number, personal information or an
 #          absolute path, a hand edit to a generated file, and the rest. ⛔ It
@@ -381,6 +403,12 @@ echo "===== 42  a comment quoting a sentence docs/spec does not contain ====="
 # ⛔ utf-8: the quotations it prints are Japanese, and a mangled one cannot
 # be looked up in the manuscript it is supposed to have come from.
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-quoted-source.py || fail=1
+
+echo ""
+echo "===== 43  a ruling the book calls applied whose words nothing holds ====="
+# ⛔ utf-8: it prints the user's own Japanese sentences, and a ruling that
+# arrives mangled cannot be looked up in the manuscript that should hold it.
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruling-landed.py || fail=1
 
 echo ""
 echo "===== 37  a table's row and its display word were read together ====="
