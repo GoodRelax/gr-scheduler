@@ -166,6 +166,26 @@ const GR_8_TAKES_S_93_AND_NOT_THE_OUTLINE =
 const GR_8_IS_CENTRED_ON_THE_ICON =
   'いのではなく狙えない。**⭐ **新しい設定値を立てない** —— **同じ行が実績のダミーに与えている大きさをそのまま使う。**⭐ **起点はアイコンの中心とすること（MUST）'
 
+// ---------------------------------------------------------------------------
+// ⭐ ADDED WITH THE ROUND THAT MEASURED D-395. The closing rule of 2026-09-08
+// that names the two ends standing on ONE DAY was held by nothing under
+// tests/: measured on this tree, making `endsStandOnOneDay` in the unit never
+// fire at all left 7223 cases green and 0 red. Section 8 below is what makes
+// that break red, and these three windows are the clause it stands on.
+// ---------------------------------------------------------------------------
+
+/** ⚠️ HELD AT 28 -- longer windows cross the blank line above the paragraph. */
+const THE_FINISH_WINS_WHEN_TWO_ENDS_SHARE_A_DAY =
+  'の端点が同じ日に立つときは、終了側を掴むこと（MUST）'
+
+/** Held at 120 characters. */
+const IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS =
+  'ら終了日をつかめるようにしろ」）—— **予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）'
+
+/** Held at 120 characters. */
+const NOT_BECAUSE_THE_START_STANDS_HIGHER =
+  '実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）。**⛔ **開始側が本表で上に在ることを理由に、開始側を掴ませてはならない（MUST NOT）'
+
 const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['the plan start is the fence', BOUNDARY_IS_THE_PLAN_START],
   ['left is the plan, right is a dummy', LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY],
@@ -177,6 +197,9 @@ const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['the dummy stays grabbable at a low zoom', THE_DUMMY_STAYS_GRABBABLE_AT_A_LOW_ZOOM],
   ['GR-8 takes S-93 and not the drawn outline', GR_8_TAKES_S_93_AND_NOT_THE_OUTLINE],
   ['GR-8 is centred on the icon', GR_8_IS_CENTRED_ON_THE_ICON],
+  ['the finish wins where two ends share a day', THE_FINISH_WINS_WHEN_TWO_ENDS_SHARE_A_DAY],
+  ['and it applies to the actual\'s two ends', IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS],
+  ['not because the start stands higher in the table', NOT_BECAUSE_THE_START_STANDS_HIGHER],
 ]
 
 describe('the clauses this file holds are still the manuscript\'s own words', () => {
@@ -625,5 +648,157 @@ describe('GR-8 takes S-93 about the icon, not the icon\'s own outline', () => {
   it('the progress marker keeps its own circle, and GR-8 begins past it', () => {
     expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS, MID_Y)).toBe('GR-7')
     expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS + 1, MID_Y)).toBe('GR-8')
+  })
+})
+
+// ===========================================================================
+// 8. GR-5 / GR-6 -- the actual's two ends standing on one day
+// ===========================================================================
+//
+// ⚠️ WHY THIS SECTION IS HERE AND NOT IN A FILE OF ITS OWN. It is the SAME
+// ruling of 2026-09-08 and the same table's closing rules -- section 1 already
+// holds five of them and now holds this one too -- and it is the same unit and
+// the same fixture style. A file of its own would split one ruling in two.
+//
+// ⛔⛔ NOTHING UNDER tests/ HELD THIS CLAUSE BEFORE. Measured on this tree by
+// breaking the unit on purpose: with the gate that stands the start down made
+// never to fire, `npx vitest run` answered 7223 passed and 0 failed. That is
+// why the ledger could record the actual side as done and be believed.
+//
+// ⛔⛔ WHAT THIS SECTION DOES NOT CLAIM, AND THE MEASUREMENT THAT SAYS SO.
+// The clause names 「2 つの端点が同じ日に立つとき」, and the geometry this unit
+// is handed carries PIXELS, not days: an actual bar's span reaches this file
+// as a width, and one day's width is not among the values `ScheduleGeometry`
+// or `PointerSlop` carry. So the case pinned below is the one the unit CAN
+// tell -- a bar measuring nothing across. ⚠️ Measured on the shipped build
+// (2026-09-08, file://, 1920x1080, 6px a day), a Task whose actual covers ONE
+// DAY (`actualDuration` 1, drawn 6px wide, starting three days right of the
+// plan start so no plan-side row can reach it): all seven pixels of the drawn
+// bar answered `GR-5`, and `GR-6` answered none of them. ⇒ The clause is not
+// met there, and closing it needs a day's width to reach this unit -- which is
+// another unit's file and another round, the same hole the unit's own note
+// records for the plan's half (S-49's floor hides it there).
+
+/** The actual bar's own band -- inside the plan band, so MID_Y is on both. */
+const ACTUAL_TOP = 104
+const ACTUAL_BOTTOM = 116
+
+/**
+ * Where the actual bar begins: far enough right of `PLAN_START_X` that neither
+ * `GR-3`'s reach (`S-90`) nor the fence can answer any press below, and far
+ * enough left of `PLAN_FINISH_X` that `GR-4`'s cannot either.
+ *
+ * ⭐ THAT DISTANCE IS THE POINT. On a Task whose actual starts ON the plan
+ * start, `GR-3` stands above `GR-5` and takes the pixel the collapsed bar
+ * occupies, so a case built there would measure the fence rather than this
+ * rule.
+ */
+const ACTUAL_START_X = 300
+
+/**
+ * One rectangle-shaped Task with an actual bar `spanPx` wide, and no dummy --
+ * `FR-043` draws those only while nothing is started.
+ *
+ * ⚠️ `marker` stays null for the reason `notStartedTask` gives: `GR-7` has no
+ * stake in this rule and should not answer any press by accident.
+ */
+function startedTask(spanPx: number): ScheduleGeometry {
+  const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
+  const task = base.tasks[0]!
+  return {
+    ...base,
+    tasks: [
+      {
+        ...task,
+        dummies: [],
+        actual: {
+          form: 'outline',
+          points: [
+            { x: ACTUAL_START_X, y: ACTUAL_TOP },
+            { x: ACTUAL_START_X + spanPx, y: ACTUAL_TOP },
+            { x: ACTUAL_START_X + spanPx, y: ACTUAL_BOTTOM },
+            { x: ACTUAL_START_X, y: ACTUAL_BOTTOM },
+          ],
+        },
+      },
+    ],
+  }
+}
+
+function grabOnActual(spanPx: number, x: number): GrabArea | null {
+  return itemAtPointer(startedTask(spanPx), x, MID_Y, SLOP)?.grab ?? null
+}
+
+/** Several days across, so the two ends stand days apart. */
+const MANY_DAYS_PX = 36
+
+/**
+ * Days apart, but NARROWER THAN TWICE `S-91`, so the two allowances overlap
+ * the whole bar.
+ *
+ * ⭐⭐ THIS IS THE WIDTH THAT SEPARATES THE TWO CANDIDATE FIXES. Standing the
+ * start down wherever the finish also reaches -- rather than where the two
+ * ends stand on one day -- looks right on a collapsed bar and takes the start
+ * away here, and the unit's own note records that measurement. A case at
+ * `MANY_DAYS_PX` alone cannot tell the two apart.
+ *
+ * ⚠️ `notStartedTask`'s zoom does not reach this fixture: the dummies it
+ * places are cleared, so nothing below is a function of `pxPerDay`.
+ */
+const TWO_DAYS_PX = NOT_STORED_SIZES['S-91']
+
+describe('where the actual\'s two ends stand on one day, the finish is what answers', () => {
+  // ⭐⭐ THE RULE ITSELF. `GR-5` stands ABOVE `GR-6` in table T-023d's printed
+  // order and both allowances reach the one pixel a collapsed bar occupies, so
+  // a build that let the order settle it answers the START here -- which is
+  // exactly what the clause's own MUST NOT forbids.
+  it('answers the finish on a bar that measures nothing across', () => {
+    expect(grabOnActual(0, ACTUAL_START_X)).toBe('GR-6')
+  })
+
+  // ⛔ AND THE START ANSWERS NOWHERE ON IT. Pressed on either side of the one
+  // pixel as well, so a build that merely shifted the start's reach by a pixel
+  // does not pass by landing next door.
+  it('never answers the start anywhere on that bar', () => {
+    for (const at of [ACTUAL_START_X - 1, ACTUAL_START_X, ACTUAL_START_X + 1]) {
+      expect(grabOnActual(0, at)).not.toBe('GR-5')
+    }
+  })
+
+  // ⭐ CONTROL, AND THE HALF THE CLAUSE PROTECTS. The purpose in the ruling's
+  // own words is 「同じ日に潰れた予定や実績を、もう一度引き伸ばせること」, so
+  // the finish has to be REACHABLE, not merely preferred: a build that refused
+  // both ends on a collapsed bar leaves the plan body underneath and the bar
+  // can never be stretched again.
+  it('does not fall through to the plan bar underneath', () => {
+    expect(grabOnActual(0, ACTUAL_START_X)).not.toBe('GR-12')
+  })
+
+  // ⭐⭐ CONTROL, AND THE REASON THE TABLE'S ORDER IS NOT REWRITTEN. Where the
+  // two ends stand days apart both answer their own row. A build that lifted
+  // `GR-6` above `GR-5` -- the fix the unit's own note refuses -- takes the
+  // start away here, because on any actual narrower than twice `S-91` the two
+  // allowances already cover the whole bar.
+  it('leaves both ends of a bar of several days answering their own rows', () => {
+    expect(grabOnActual(MANY_DAYS_PX, ACTUAL_START_X)).toBe('GR-5')
+    expect(grabOnActual(MANY_DAYS_PX, ACTUAL_START_X + MANY_DAYS_PX)).toBe('GR-6')
+  })
+
+  // ⭐ CONTROL. The start keeps `S-91`'s reach on a bar whose ends are apart,
+  // so the case above is not passing merely because one pixel happens to land
+  // on an edge.
+  it('keeps S-91\'s reach on the start of a bar of several days', () => {
+    const reach = NOT_STORED_SIZES['S-91']
+    expect(grabOnActual(MANY_DAYS_PX, ACTUAL_START_X + reach)).toBe('GR-5')
+  })
+
+  // ⭐⭐ THE CASE THAT REFUSES THE WRONG FIX. On a bar this narrow the finish's
+  // allowance already covers the start's own edge, so a build that preferred
+  // the finish WHEREVER THE TWO OVERLAP -- instead of where the two ends stand
+  // on one day -- answers `GR-6` here and takes the start off every actual of
+  // a few days. Measured: with `GR-6` lifted above `GR-5`, the case above at
+  // `MANY_DAYS_PX` stays green and this one goes red.
+  it('still answers the start on a bar narrower than twice S-91', () => {
+    expect(grabOnActual(TWO_DAYS_PX, ACTUAL_START_X)).toBe('GR-5')
   })
 })
