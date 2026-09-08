@@ -111,6 +111,17 @@ export interface TaskPlacement {
    */
   readonly x: number
   readonly width: number
+  /**
+   * Whether the plan's two ends stand on ONE DAY -- table T-023d's closing rule
+   * of 2026-09-08, 「2 つの端点が同じ日に立つときは、終了側を掴むこと（MUST）」.
+   *
+   * ⭐⭐ CARRIED BECAUSE `width` ABOVE CANNOT BE ASKED. That member is what is
+   * DRAWN, and its own note says so: a shape shorter than `minShapeWidth` is
+   * drawn at S-49's width, so a plan of one day arrives at the hit test
+   * indistinguishable from a plan that really spans S-49. `planEndsStandOnOneDay`
+   * decides the question in days, where the days are.
+   */
+  readonly planEndsStandOnOneDay: boolean
   readonly y: number
   /** What the row's stacking reserved: the plan, plus the actual when SH-3 or SH-4 pushes it below. */
   readonly height: number
@@ -1093,6 +1104,45 @@ function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
 }
 
 /**
+ * Whether the plan's two ends stand on ONE DAY -- the fact table T-023d's
+ * closing rule of 2026-09-08 turns on: 「2 つの端点が同じ日に立つときは、終了側
+ * を掴むこと（MUST）」, which names 「予定の 2 端（`GR-3` と `GR-4`）」 among the
+ * three pairs it binds.
+ *
+ * ⭐⭐ A TRUTH ABOUT DAYS, AND DELIBERATELY NOT A WIDTH. `spanWidthOf` above
+ * answers the same two dates in PIXELS, and `shapeWidthOf` then floors that at
+ * S-49 -- so by the time a bar reaches `item-hit-area.ts` a plan whose start
+ * and finish are one day is 6px wide and is indistinguishable there from a plan
+ * that really spans 6px. ⛔ THE HOLE CANNOT BE CLOSED WITH A PIXEL: the same
+ * table's MUST NOT -- 「倍率によってこの境目を動かしてはならない」 -- rules out
+ * any figure in pixels standing in for a date, and one day's width is exactly
+ * such a figure. So the DAY is decided where the days are known and carried.
+ *
+ * ⚠️ IT IS NOT `spanWidthOf(...) === 0`, although the two agree on every Task
+ * that names both dates. A Task naming neither also measures zero there, and
+ * its two ends do not stand on one day -- they stand nowhere -- so the width's
+ * `0` answers a second question it was never asked.
+ *
+ * ⚠️ THE READER MEMOISES, so asking it for the same two dates twice costs two
+ * map lookups and no arithmetic. Folding this into `spanWidthOf` would make one
+ * function answer in two units, which is the confusion this fact exists to end.
+ *
+ * ⛔ NOTHING HERE IS SAID ABOUT THE ACTUAL BAR. RV-1 of table T-069 fixes its
+ * right end at the start day plus `actualDuration` counted in working days, so
+ * its two ends stand on one day exactly when that span is zero -- and
+ * `actualSpanOf` puts no floor under the width, so the hit test can still read
+ * that off the bar it is handed.
+ *
+ * @purity pure
+ */
+function planEndsStandOnOneDay(task: Task, reader: DayReader): boolean {
+  const from = reader.day(task.start)
+  const toDay = reader.day(task.finish)
+  if (from === null || toDay === null) return false
+  return serialOf(from) === serialOf(toDay)
+}
+
+/**
  * The width the shape is actually drawn at, which is what CR-163 makes the
  * task level of detail read (S-86: "形状の幅がこれを割る Task を描かない").
  *
@@ -1431,7 +1481,11 @@ export function layoutFromSchedule(
         const kind = shapeKindOf(visualByUid, task)
         const span = spanWidthOf(task, pxPerDay, reader)
         const glyph = milestoneGlyphOf(visualByUid, task)
-        return { task, kind, glyph, span, width: shapeWidthOf(span, kind, settings) }
+        // ⭐ ASKED HERE FOR THE REASON THE THREE ABOVE ARE: this is the one
+        // place per Task that holds the dates and the reader together, and the
+        // fact leaves with the placement so the hit test never re-reads a date.
+        const oneDay = planEndsStandOnOneDay(task, reader)
+        return { task, kind, glyph, span, oneDay, width: shapeWidthOf(span, kind, settings) }
       })
       .filter(({ kind, span, width }) => keptByLevelOfDetail(kind, span, width, settings))
       // ---- LC-8, ST-2: start ascending, finish descending, uid ascending ---
@@ -1451,7 +1505,7 @@ export function layoutFromSchedule(
     const laneMaxX1: number[] = []
     const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = drawnTasks.map(({ task, kind, glyph, width }) => {
+    const measured = drawnTasks.map(({ task, kind, glyph, oneDay, width }) => {
       const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       // LF-10 centres a milestone's figure on its day; every other shape
@@ -1530,7 +1584,7 @@ export function layoutFromSchedule(
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
-      return { task, kind, glyph, x, width, label, font, placement, actual, labelX,
+      return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
                actualReach, fade, assigneeLabel, assigneeLabelWidth, percentLabel,
                percentLabelWidth, occupiedX0, occupiedX1 }
     })
@@ -1664,6 +1718,7 @@ export function layoutFromSchedule(
         stack: lane,
         x: item.x,
         width: item.width,
+        planEndsStandOnOneDay: item.oneDay,
         fadeInPx: item.fade.fadeIn,
         fadeOutPx: item.fade.fadeOut,
         y: tops[lane]!,

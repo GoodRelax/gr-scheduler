@@ -169,9 +169,11 @@ const GR_8_IS_CENTRED_ON_THE_ICON =
 // ---------------------------------------------------------------------------
 // ⭐ ADDED WITH THE ROUND THAT MEASURED D-395. The closing rule of 2026-09-08
 // that names the two ends standing on ONE DAY was held by nothing under
-// tests/: measured on this tree, making `endsStandOnOneDay` in the unit never
-// fire at all left 7223 cases green and 0 red. Section 8 below is what makes
-// that break red, and these three windows are the clause it stands on.
+// tests/: measured on this tree, making the unit's gate on the ACTUAL's two
+// ends (`actualEndsStandOnOneDay`) never fire at all left 7223 cases green and
+// 0 red. Section 8 below is what makes that break red, and these three windows
+// are the clause it stands on -- section 9 leans on the same three for the
+// PLAN's half of it.
 // ---------------------------------------------------------------------------
 
 /** ⚠️ HELD AT 28 -- longer windows cross the blank line above the paragraph. */
@@ -288,6 +290,10 @@ function notStartedTask(pxPerDay: number): ScheduleGeometry {
           ],
         },
         actual: null,
+        // ⭐ FALSE, AND IT IS A FIXTURE VALUE LIKE EVERY OTHER HERE. This plan
+        // runs from `PLAN_START_X` to `PLAN_FINISH_X`, which is many days --
+        // section 9 is where the same-day plan is built and pressed.
+        planEndsStandOnOneDay: false,
         guides: [],
         marker: null,
         resume: null,
@@ -800,5 +806,155 @@ describe('where the actual\'s two ends stand on one day, the finish is what answ
   // `MANY_DAYS_PX` stays green and this one goes red.
   it('still answers the start on a bar narrower than twice S-91', () => {
     expect(grabOnActual(TWO_DAYS_PX, ACTUAL_START_X)).toBe('GR-5')
+  })
+})
+
+// ===========================================================================
+// 9. GR-3 / GR-4 -- the PLAN's two ends standing on one day
+// ===========================================================================
+//
+// ⚠️ THE OTHER HALF OF SECTION 8's CLAUSE, and it was held by nothing. The
+// ruling names three pairs -- 「予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端
+// （`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように
+// 当てはまる（MUST）」 -- and section 8 pins the middle pair only. Section 1
+// already quotes the clause, so nothing new is quoted here.
+//
+// ⛔⛔ WHY THE UNIT COULD NOT ANSWER IT FROM A BOX. S-49 (`minShapeWidth`) is
+// the floor FR-001's RATIONALE puts under a Task of zero duration, and it is
+// applied before the geometry reaches `item-hit-area.ts` -- so a plan whose
+// start and finish are ONE DAY arrives as wide as a plan that really spans that
+// many pixels, and a gate reading the drawn width can never fire on it. ⭐ The
+// unit is now handed `TaskGeometry.planEndsStandOnOneDay`, decided in DAYS by
+// `ScheduleLayout`, and these cases press the fact rather than the width.
+//
+// ⛔⛔ NOTHING UNDER tests/ HELD THIS HALF BEFORE. Measured on this tree by
+// breaking the unit on purpose, three ways:
+//   - the day gate made NEVER to fire, which is the state that shipped: 2
+//     failed and 7267 passed, and both failures are the first two cases below.
+//   - the day gate made ALWAYS to fire, so `GR-3` answers nowhere: 14 failed
+//     across 5 files, two of them controls below. That is the count standing
+//     behind the ruling's purpose not being bought by taking the start away
+//     everywhere.
+//   - the gate written as a WIDTH (`box.width <= slop.planEndpoint`), the shape
+//     of fix this section exists to refuse: 1 failed, and it is the
+//     `NOT_ONE_DAY` case alone. ⇒ Without that one case a build reading the
+//     clause off pixels would pass the whole suite.
+//
+// ⚠️ WHAT THIS SECTION DOES NOT CLAIM. It says nothing about which end wins on
+// a plan of several days whose two allowances overlap: no row settles that, and
+// the case below at `NOT_ONE_DAY` is the control that keeps the start reachable
+// there.
+
+/**
+ * What S-49's floor draws a zero-duration plan at -- a width like any other by
+ * the time this unit sees it.
+ *
+ * ⭐⭐ THE FIGURE IS DELIBERATELY UNREMARKABLE, and the case at `NOT_ONE_DAY`
+ * below is why: the SAME width is handed in with the fact set the other way, so
+ * a build that answered the clause by comparing the width against S-49, against
+ * `S-90` or against one day's pixels fails there while passing here.
+ */
+const FLOORED_PLAN_PX = 6
+
+/**
+ * One rectangle-shaped Task drawn `widthPx` across, saying whether its plan's
+ * two ends stand on one day.
+ *
+ * ⚠️ THE DUMMIES COME FROM THE BASE AT THE HIGH ZOOM, so `GR-9` stands a whole
+ * day's width right of the plan start and its `S-93` box begins well past every
+ * press below. Section 3 is where the fence between them is measured; a dummy
+ * under one of these presses would measure that rule instead of this one.
+ */
+function planEndingWhereItBegan(widthPx: number, oneDay: boolean): ScheduleGeometry {
+  const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
+  const task = base.tasks[0]!
+  const finishX = PLAN_START_X + widthPx
+  return {
+    ...base,
+    tasks: [
+      {
+        ...task,
+        planEndsStandOnOneDay: oneDay,
+        plan: {
+          form: 'outline',
+          points: [
+            { x: PLAN_START_X, y: BAND_TOP },
+            { x: finishX, y: BAND_TOP },
+            { x: finishX, y: BAND_BOTTOM },
+            { x: PLAN_START_X, y: BAND_BOTTOM },
+          ],
+        },
+      },
+    ],
+  }
+}
+
+const ONE_DAY = true
+const NOT_ONE_DAY = false
+
+function grabOnPlan(widthPx: number, oneDay: boolean, x: number): GrabArea | null {
+  return itemAtPointer(planEndingWhereItBegan(widthPx, oneDay), x, MID_Y, SLOP)?.grab ?? null
+}
+
+describe('where the plan\'s two ends stand on one day, the finish is what answers', () => {
+  // ⭐⭐ THE RULE ITSELF. `GR-3` stands ABOVE `GR-4` in table T-023d's printed
+  // order and both reach the plan start's own pixel, so a build that lets the
+  // order settle it answers the START here -- which the clause's own MUST NOT
+  // forbids: 「開始側が本表で上に在ることを理由に、開始側を掴ませてはならない」.
+  it('answers the finish on the plan start\'s own pixel', () => {
+    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X)).toBe('GR-4')
+  })
+
+  // ⛔ AND THE START ANSWERS NOWHERE ON IT. Every pixel `S-90` reaches to the
+  // left of the plan start, and every pixel of the drawn bar, so a build that
+  // merely shifted the start's reach by a pixel does not pass by landing next
+  // door.
+  it('never answers the start anywhere the bar or its allowance reaches', () => {
+    const reach = NOT_STORED_SIZES['S-90']
+    for (let at = PLAN_START_X - reach; at < PLAN_START_X + FLOORED_PLAN_PX; at++) {
+      expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, at)).not.toBe('GR-3')
+    }
+  })
+
+  // ⭐ CONTROL, AND THE HALF THE CLAUSE PROTECTS. The purpose in the ruling's
+  // own words is 「同じ日に潰れた予定や実績を、もう一度引き伸ばせること」, so the
+  // finish has to be REACHABLE and not merely preferred: a build that refused
+  // both ends on a collapsed plan leaves only the body, and the bar can never
+  // be stretched again.
+  it('does not fall through to the plan body on the start\'s own pixel', () => {
+    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X)).not.toBe('GR-12')
+  })
+
+  // ⭐⭐ THE CASE THAT REFUSES THE WRONG FIX. The SAME drawn width, with the two
+  // ends days apart -- which is what a low zoom makes of a plan of several days.
+  // A build that read the clause off the width (against S-49, against `S-90`,
+  // or against one day's pixels) answers `GR-4` here and takes the start off
+  // every short plan at every low zoom.
+  it('keeps the start on a bar of the same width whose ends are days apart', () => {
+    expect(grabOnPlan(FLOORED_PLAN_PX, NOT_ONE_DAY, PLAN_START_X)).toBe('GR-3')
+  })
+
+  // ⭐ CONTROL. The wide plan of section 2 answers both of its ends as it did
+  // before, so the gate is not quietly firing on every Task.
+  it('leaves both ends of a plan of many days answering their own rows', () => {
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_START_X)).toBe('GR-3')
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_FINISH_X)).toBe('GR-4')
+  })
+
+  // ⭐⭐ CONTROL, AND THE SHAPE THAT IS ALWAYS ONE DAY. A milestone's start and
+  // finish are the same day by definition, so it carries the fact set -- and
+  // `GR-15`'s row says it has no plan ENDS at all (「マイルストーンは実績バーを
+  // 持たないので `GR-5` / `GR-6` / `GR-17` に当たらない」 is the actual's half of
+  // the same absence). The figure must still be picked up by `GR-12`. A build
+  // that gated the SHAPE instead of the ROW answers null here and leaves a
+  // milestone unmovable.
+  it('leaves a milestone\'s figure answering GR-12', () => {
+    const base = planEndingWhereItBegan(FLOORED_PLAN_PX, ONE_DAY)
+    const task = base.tasks[0]!
+    const asMilestone: ScheduleGeometry = {
+      ...base,
+      tasks: [{ ...task, shapeKind: 'milestone' }],
+    }
+    expect(itemAtPointer(asMilestone, PLAN_START_X + 2, MID_Y, SLOP)?.grab).toBe('GR-12')
   })
 })

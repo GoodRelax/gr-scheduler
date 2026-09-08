@@ -176,6 +176,25 @@ export interface TaskGeometry {
   readonly shapeKind: TaskPlacement['shapeKind']
   readonly plan: BarGeometry | null
   readonly actual: BarGeometry | null
+  /**
+   * Whether the PLAN's two ends stand on one day -- table T-023d's closing rule
+   * of 2026-09-08, 「2 つの端点が同じ日に立つときは、終了側を掴むこと（MUST）」,
+   * which binds 「予定の 2 端（`GR-3` と `GR-4`）」 as well as the actual's pair.
+   *
+   * ⭐⭐ CARRIED, NOT DERIVED FROM `plan` ABOVE. The bar's own box cannot answer
+   * it: S-49's floor (FR-001's RATIONALE) draws a Task of zero duration at
+   * `minShapeWidth`, so a plan whose start and finish are one day arrives here
+   * as wide as a plan that really spans that many pixels. `ScheduleLayout`
+   * settles it in DAYS and this member is where it lands.
+   *
+   * ⛔ THE ACTUAL HAS NO SUCH MEMBER, and does not need one: RV-1 of table T-069
+   * puts its right end at the start day plus `actualDuration` working days and
+   * nothing floors that width, so a reader of `actual` can still see the day.
+   *
+   * ⚠️ FALSE ON A TASK THAT NAMES NEITHER PLAN DATE. Its two ends stand on no
+   * day at all, which is not the case the clause is about.
+   */
+  readonly planEndsStandOnOneDay: boolean
   /** T-020a. Empty unless GD-1 holds. */
   readonly guides: readonly Path[]
   readonly marker: MarkerGeometry | null
@@ -1405,6 +1424,10 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     shapeKind: placed.shapeKind,
     plan,
     actual,
+    // ⭐ RELAYED AND NOT RE-DECIDED. `ScheduleLayout` read the two dates once,
+    // and a second reading here is the copy that goes out of step the day the
+    // plan bar's extent is settled (`spanWidthOf`'s note records that it is not).
+    planEndsStandOnOneDay: placed.planEndsStandOnOneDay,
     guides: guidesOf(inputs, task, placed, actualHeight),
     marker,
     // FR-044's icon follows the STATE, not the symbol: a suspended Task that

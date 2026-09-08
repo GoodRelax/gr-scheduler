@@ -364,8 +364,10 @@ const TASK_ROWS: readonly TaskRow[] = [
   // stands right of that boundary -- `standsOnADummyRightOfThePlanStart` is
   // where the closing rule that names all four plan-side rows is answered.
   // ⭐ NEITHER PAIR IS REORDERED for the ruling of the same day that has the
-  // finish win where the two ends coincide: `endsStandOnOneDay` gates the
-  // START instead, and its own note says why moving the row would be wrong.
+  // finish win where the two ends coincide: the START is what carries the
+  // condition -- `TaskGeometry.planEndsStandOnOneDay` for the plan's pair,
+  // `actualEndsStandOnOneDay` for the actual's -- and the latter's own note
+  // says why moving the row would be wrong.
   { grab: 'GR-3', reach: 'anyPress',
     isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
   { grab: 'GR-4', reach: 'anyPress',
@@ -542,9 +544,10 @@ const TASK_ROWS: readonly TaskRow[] = [
  * ⚠️ The SECOND closing rule under table T-023d names GR-4 as well -- 「予定の
  * 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端
  * （`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）」 -- and that one is a
- * different case: two ends on ONE DAY. `endsStandOnOneDay` below is where the
- * plan's and the actual's halves of it are answered, and its note records which
- * of them the geometry can still not tell.
+ * different case: two ends on ONE DAY. The plan's half of it is answered THREE
+ * LINES BELOW, off `TaskGeometry.planEndsStandOnOneDay`; the actual's half is
+ * `actualEndsStandOnOneDay`, whose note holds the reasoning for both and
+ * records what the geometry still cannot tell.
  *
  * ⚠️ NEITHER END EXISTS ON A MILESTONE (GR-15's row), so the clamp never
  * reaches GR-18: the dummy on a milestone has no GR-3 above it to be clamped,
@@ -559,7 +562,11 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
   if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
   if (which === 'right') return Math.abs(x - (box.x + box.width)) <= slop.planEndpoint
-  if (endsStandOnOneDay(box)) return false
+  // ⭐⭐ THE DAY, AND NOT THE DRAWN WIDTH. `planEndsStandOnOneDay` is carried on
+  // the geometry because S-49's floor makes the plan's box unable to answer --
+  // see `actualEndsStandOnOneDay` below, whose note holds the whole reasoning
+  // for both halves of the clause.
+  if (boxed.task.planEndsStandOnOneDay) return false
   return x <= box.x && box.x - x <= slop.planEndpoint
 }
 
@@ -622,7 +629,7 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
   if (boxed.task.shapeKind === 'milestone') return false
   const box = boxed.actual
   if (box === null || !isInsideBoxInclusive(x, y, box)) return false
-  if (which === 'left' && endsStandOnOneDay(box)) return false
+  if (which === 'left' && actualEndsStandOnOneDay(box)) return false
   const edge = which === 'left' ? box.x : box.x + box.width
   return Math.abs(x - edge) <= slop.actualEndpoint
 }
@@ -649,27 +656,38 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
  * start away on bars whose ends are days apart. The order stays printed; the
  * START alone carries a condition, and the condition is the DAY, not the pixel.
  *
- * ⭐ THE TWO ENDS STAND ON ONE DAY EXACTLY WHEN THE BAR MEASURES NOTHING
- * ACROSS. Every bar this file is handed runs from its start day's column to its
- * finish day's column -- `spanWidthOf` in `schedule-layout.ts` says of the plan
- * that it excludes the finish day, so start == finish measures zero, and it
- * builds the actual the same way from `actualDuration` -- so a width of zero IS
- * the two days being one. ⛔ NO TOLERANCE IS TAKEN: the width is a serial-day
- * difference multiplied by the scale, so a same-day bar is exactly 0 at every
- * zoom, and a comparison with slack would catch a real one-day span wherever
- * the zoom fell below it.
+ * ⭐ ON THE ACTUAL, THE TWO ENDS STAND ON ONE DAY EXACTLY WHEN THE BAR MEASURES
+ * NOTHING ACROSS. RV-1 of table T-069 fixes the bar's right end at 「`actualStart`
+ * に `actualDuration` を稼働日で加えた日」, `actualSpanOf` in
+ * `schedule-layout.ts` builds the width from that very difference, and NOTHING
+ * FLOORS IT -- so a width of zero IS the two days being one. ⛔ NO TOLERANCE IS
+ * TAKEN: the width is a serial-day difference multiplied by the scale, so a
+ * same-day bar is exactly 0 at every zoom, and a comparison with slack would
+ * catch a real one-day span wherever the zoom fell below it.
  *
- * ⚠️⚠️ MEASURED, AND THE PLAN'S HALF IS NOT CLOSED BY THIS. S-49
- * (`minShapeWidth`, 6px by default, floor 1) is applied in `schedule-layout.ts`
- * BEFORE the geometry reaches this file -- 「a Task of zero duration is still a
- * Task, drawn at S-49」 -- so a plan bar whose start and finish are one day
- * arrives 6px wide and is indistinguishable here from a plan that really spans
- * 6px. This gate therefore fires on the ACTUAL (no floor is applied to
- * `actualWidth`) and never on the plan. ⛔ DO NOT PATCH THAT BY COMPARING THE
- * WIDTH AGAINST S-90 or against S-49: neither is a day, and the ruling's own
- * MUST NOT against moving the boundary with the zoom applies to any figure in
- * pixels standing in for a date. What is missing is a member on `TaskGeometry`
- * saying the span was zero, which is another unit's file and another round.
+ * ⛔⛔ A ONE-DAY ACTUAL IS NOT THIS CASE, and the arithmetic that says so is the
+ * specification's own. RV-1 puts a `actualDuration` of 1 a working day PAST the
+ * start, and PV-2 of table T-021a writes `actualFinish` 「＝ 実績バーの右端」 --
+ * so 実績開始日 and 実績終了日 coincide when the duration is ZERO and not when
+ * it is one. ⚠️ Measured on the shipped build (2026-09-08, 6px a day): on a
+ * `actualDuration` of 1 every pixel of the drawn bar answers `GR-5` and `GR-6`
+ * answers none, and that is the OTHER debt -- 「実績の開始と終了のどちらを掴んだ
+ * か決められないときは、終了を優先すること（MUST）」 is written about the two
+ * DUMMIES, and no row says which of `GR-5` / `GR-6` yields where their two
+ * allowances cross on a short bar. ⛔ Do not close it here by inventing one.
+ *
+ * ⭐⭐ THE PLAN'S HALF IS CLOSED BY A CARRIED FACT, NOT BY THIS BOX. S-49
+ * (`minShapeWidth`) is applied in `schedule-layout.ts` before the geometry
+ * reaches this file -- 「a Task of zero duration is still a Task, drawn at S-49」
+ * -- so a plan bar whose start and finish are one day arrives at `minShapeWidth`
+ * and is indistinguishable here from a plan that really spans it. ⛔ THE CURE IS
+ * NOT A WIDTH COMPARED AGAINST S-90, S-49 OR ONE DAY'S PIXELS: none of those is
+ * a day, and the same table's 「倍率によってこの境目を動かしてはならない」 (MUST
+ * NOT) rules out any figure in pixels standing in for a date. So
+ * `TaskGeometry.planEndsStandOnOneDay` carries the DAY, decided where the days
+ * are, and `isOnPlanEnd` reads that instead. ⚠️ Which is why this function takes
+ * a box and the plan's half does not: the two halves are answered in different
+ * units on purpose, and the names say which.
  *
  * ⚠️ THE DUMMIES ARE ALREADY ANSWERED, AND NOT BY THIS GATE. GR-9 and GR-17
  * stand S-129 apart in WORKING DAYS by construction (GR-17's row), so their two
@@ -686,7 +704,7 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
  *
  * @purity pure
  */
-function endsStandOnOneDay(box: ScreenRect): boolean {
+function actualEndsStandOnOneDay(box: ScreenRect): boolean {
   return box.width === 0
 }
 
