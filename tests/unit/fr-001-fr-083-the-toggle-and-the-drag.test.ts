@@ -227,6 +227,36 @@ const MILESTONE_LANDS_ON_THE_PRESSED_POINT =
 const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
   'MUST）。引いても、押した点に置くこと（MUST）**（同裁定「マイルストーンはクリックだけとする」）—— **マイルストーンは長さを持たないので、引いた長さに意味が無い。**⛔ **引いたことを理由に拒んではならない（MUST NOT）'
 
+// -- Ruling C: the picture a held press owes, and the one press that ends it --
+//
+// ⭐⭐ THE SAME 2026-09-07 INSTRUCTION AS RULINGS A AND B, given in one breath.
+// 利用者の逐語 (docs/development-records/defects.md, D-372): 「アイコンを押すと必ず
+// その構えに入り、ドラッグ中は形がポインタに付いて伸び、離すとプロパティパネルが
+// `Name` を出し、`Enter` で閉じて選択が外れ、構えは続き、`Esc` で構えも解けること」.
+// Ruling A is its first clause; the constants below are its second and fourth.
+
+const PD_4_DRAWS_WHAT_WOULD_BE_PLACED =
+  '注記を構えている**（表 T-023b の AR-2 / AR-3 / AR-5 / AR-6） | 構えているものを**作る**。⭐ **押しているあいだ、置くことになる姿を、表 T-023d の閉じの規則と同じ作法で描くこと（MUST）'
+
+const PD_4_STRETCHES_THE_WAY_THE_POINTER_WENT =
+  'd の閉じの規則と同じ作法で描くこと（MUST）**（利用者の指示 2026-09-07）—— ⚠️ **あちらは掴み領域の規則であり、本行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）'
+
+const PD_4_THE_DRAFT_IS_THE_ARMED_SHAPE =
+  '）—— ⚠️ **あちらは掴み領域の規則であり、本行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）。**⛔ **その姿は、構えている行が 表 T-012 で持つ形状とすること（MUST）'
+
+const PD_4_NO_OTHER_SHAPE_IS_DRAWN =
+  '行は掴んでいないので自分で述べる必要がある。**⭐ **伸びる向きは、引いた向きとすること（MUST）。**⛔ **その姿は、構えている行が 表 T-012 で持つ形状とすること（MUST）。ほかの形状で描いてはならない（MUST NOT）'
+
+const PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES =
+  '2 で持つ形状とすること（MUST）。ほかの形状で描いてはならない（MUST NOT）**（利用者の指摘 2026-09-07）—— **置こうとしている物と違う形が出る。**⛔ **形状を 2 か所に持たせてはならない（MUST NOT）'
+
+const PD_4_NOTHING_IS_WRITTEN_WHILE_HELD =
+  '*置こうとしている物と違う形が出る。**⛔ **形状を 2 か所に持たせてはならない（MUST NOT）** —— **描く側と置く側が同じ表を引くこと（MUST）。**⛔ **押しているあいだ値を文書へ書いてはならない（MUST NOT）'
+
+/** ⚠️ HELD AT 60 -- the longer windows reach back across the paragraph break. */
+const FR_091_ONE_PRESS_CLOSES_AND_LETS_GO =
+  '後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと（MUST）'
+
 /** Every clause this file holds, with the name the two rulings know it by. */
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-083 SP-4 (MUST) -- the re-press does not turn on the selection', SP_4_DOES_NOT_TURN_ON_THE_SELECTION],
@@ -241,6 +271,13 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-001 (MUST) -- a milestone is placed by a press alone', MILESTONE_IS_PLACED_BY_A_PRESS_ALONE],
   ['FR-001 (MUST) -- a dragged milestone lands on the pressed point', MILESTONE_LANDS_ON_THE_PRESSED_POINT],
   ['FR-001 (MUST NOT) -- a milestone is not refused for having been dragged', MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG],
+  ['T-023a PD-4 (MUST) -- the held press draws what it would place', PD_4_DRAWS_WHAT_WOULD_BE_PLACED],
+  ['T-023a PD-4 (MUST) -- the draft stretches the way the pointer went', PD_4_STRETCHES_THE_WAY_THE_POINTER_WENT],
+  ['T-023a PD-4 (MUST) -- the draft is the armed row of table T-012', PD_4_THE_DRAFT_IS_THE_ARMED_SHAPE],
+  ['T-023a PD-4 (MUST NOT) -- no other shape is drawn', PD_4_NO_OTHER_SHAPE_IS_DRAWN],
+  ['T-023a PD-4 (MUST NOT) -- the shape is not kept in two places', PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES],
+  ['T-023a PD-4 (MUST NOT) -- nothing is written to the document while held', PD_4_NOTHING_IS_WRITTEN_WHILE_HELD],
+  ['FR-091 (MUST) -- one press closes the panel and lets that selection go', FR_091_ONE_PRESS_CLOSES_AND_LETS_GO],
 ]
 
 describe('the manuscript these cases are driven by', () => {
@@ -797,25 +834,43 @@ function host(): { readonly surface: { showSvg(svg: string): void }; runAnimatio
 interface ScreenPane {
   readonly wiring: ScreenWiring
   drawAt(part: ScreenPart | null): void
+  /**
+   * Whether the surface is holding a field a person is typing into -- what
+   * `hasUnsettledTextEntry` (IF-9) answers.
+   *
+   * ⭐⭐ WHY IT IS A SWITCH AND NOT A CONSTANT `false`. FR-091's clause is about
+   * the `Enter` that settles the NAME OF A TASK JUST MADE, and by then the real
+   * surface is holding `PR-1` of table T-016 -- so a fake that always answers
+   * 「無し」 cannot reach the moment the requirement is about. ⛔ MEASURED: with
+   * it wired to `false`, the case below passed on a build with no fix in it at
+   * all, because `carryOutAction`'s guard fell through to the ordinary close.
+   * ⚠️ OFF UNTIL A CASE TURNS IT ON, because `WS-2` of table T-067 refuses a
+   * write made while an entry stands, and the creation itself is such a write.
+   */
+  holdTextEntry(standing: boolean): void
   last(): ScreenView
 }
 
 function screenPane(language: DisplayLanguage): ScreenPane {
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
+  let textEntryStanding = false
   const surface: ScreenSurface = {
     showScreenView: (view) => {
       views.push(view)
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
+    hasUnsettledTextEntry: () => textEntryStanding,
     readScreenPartAt: () => part,
   }
   return {
     wiring: { surface, language },
     drawAt: (next) => {
       part = next
+    },
+    holdTextEntry: (standing) => {
+      textEntryStanding = standing
     },
     last: () => {
       const view = views[views.length - 1]
@@ -875,6 +930,21 @@ interface Stage {
   pressGround(x: number, y: number): void
   /** The same press, travelled past `S-208` -- which is what makes a bar task. */
   dragGround(from: { x: number; y: number }, to: { x: number; y: number }): void
+  /**
+   * A press LEFT HELD -- the only moment `PD-4`'s picture can be looked at, and
+   * the reason ruling C needs three drivers where rulings A and B needed one.
+   */
+  holdGround(at: { x: number; y: number }): void
+  movePointer(at: { x: number; y: number }): void
+  letGo(at: { x: number; y: number }): void
+  /** One key, spelled as table T-036's assignment column spells it. */
+  pressKey(which: string): void
+  /** What the surface answers for IF-9's 「確定していないその場の編集」. */
+  holdTextEntry(standing: boolean): void
+  /** `FrameValues` -- what ONE frame computed (ADR-001), picture and all. */
+  picture(): any
+  /** UF-64 of the description: `null` while the panel is closed. */
+  panel(): ScreenView['propertiesPanel']
 }
 
 function stage(language: DisplayLanguage = 'ja'): Stage {
@@ -907,6 +977,17 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
       send(pointer('move', to.x, to.y))
       send(pointer('up', to.x, to.y))
     },
+    holdGround: (at) => {
+      screen.drawAt(null)
+      send(pointer('down', at.x, at.y))
+    },
+    movePointer: (at) => send(pointer('move', at.x, at.y)),
+    letGo: (at) => send(pointer('up', at.x, at.y)),
+    pressKey: (which) =>
+      send({ kind: 'key', key: which, modifiers: { ...NO_MODIFIERS } } as HumanInput),
+    picture: () => loop.current() as any,
+    panel: () => screen.last().propertiesPanel,
+    holdTextEntry: (standing) => screen.holdTextEntry(standing),
   }
 }
 
@@ -1049,5 +1130,226 @@ describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54'
     expect(drawn[0].milestone).not.toBe(true)
     built.pressEntry(CHEVRON)
     expect(built.notices().length, 'a shape it CAN take was told as a refusal').toBe(0)
+  })
+})
+
+// ===========================================================================
+// 6. RULING C -- the picture a held press owes (PD-4), and the one press that
+//    ends the naming it leads to (FR-091)
+// ===========================================================================
+//
+// ⭐⭐ WHY THESE RUN THROUGH THE WHOLE SHELL AND NOT THROUGH UF-30. What PD-4
+// asks for is a PICTURE, and a picture is what UF-48 computes -- `current()`
+// answers `FrameValues`, whose `layout.placements` is 「置くことになる姿」 in the
+// only form anything outside the drawing side can read. UF-30 plans the RELEASE
+// and can say nothing about what stands while the press is still held.
+//
+// ⛔ NOT ONE EXPECTED VALUE IS COPIED OUT OF `src/`. Every one below is either a
+// spelling read out of table T-012 at run time (`shapeSpelling`), or a RELATION
+// the specification puts side by side: the picture against the document, the
+// picture against itself one move later, and the drawing side against the
+// placing side.
+
+describe('table T-023a PD-4: the held press draws what it would place', () => {
+  /** Far enough that `S-208` is passed on any machine: ten times the slop. */
+  const TRAVEL = DRAG_THRESHOLD * 10
+
+  function heldFor(entrance: Entrance, travel: number): Stage {
+    const built = stage()
+    built.pressEntry(entrance)
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + travel, y: GROUND.y })
+    return built
+  }
+
+  it('⛔ THE CONTROL: with NOTHING armed the same held drag draws no task', () => {
+    // ⚠️ WITHOUT THIS, A BUILD THAT DREW A TASK FOR EVERY HELD PRESS WOULD PASS
+    // EVERY CASE BELOW. PD-5 is the row a press with no arm falls on, and its
+    // result is 範囲選択 -- not a task.
+    const built = stage()
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    expect(built.picture().layout.placements.length).toBe(0)
+  })
+
+  it('⭐⭐ THE RULING: a bar shape held past S-208 stands in the PICTURE', () => {
+    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 D-372 ②). Measured
+    // 2026-09-08 on the shipped build, 1920x1080: a rectangle armed and empty
+    // ground dragged 100px left the schedule's SVG at 67081 bytes for all
+    // eleven samples between the press and the release -- 0 bytes of spread --
+    // and the row's own ⚠️ records the same measurement at 147px.
+    const built = heldFor(RECTANGLE, TRAVEL)
+    expect(built.picture().layout.placements.length).toBe(1)
+  })
+
+  it('⛔ and NOTHING reached the document while it was held (FR-031)', () => {
+    const built = stage()
+    built.pressEntry(RECTANGLE)
+    const before = JSON.stringify(built.loop.document())
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    expect(JSON.stringify(built.loop.document())).toBe(before)
+    expect(built.loop.hasUnsavedEdits()).toBe(false)
+  })
+
+  it('⭐ the picture stretches the way the pointer went, and the document does not', () => {
+    const near = heldFor(RECTANGLE, TRAVEL)
+    const nearWidth = near.picture().layout.placements[0].width
+    near.movePointer({ x: GROUND.x + TRAVEL * 3, y: GROUND.y })
+    const farWidth = near.picture().layout.placements[0].width
+    expect(farWidth).toBeGreaterThan(nearWidth)
+    expect((near.loop.document().schedule as any).tasks.length).toBe(0)
+  })
+
+  it('⭐ 伸びる向きは、引いた向き: a leftward drag draws to the LEFT of the press', () => {
+    const rightward = heldFor(RECTANGLE, TRAVEL)
+    const leftward = heldFor(RECTANGLE, -TRAVEL)
+    expect(leftward.picture().layout.placements[0].x).toBeLessThan(
+      rightward.picture().layout.placements[0].x,
+    )
+  })
+
+  it('⛔ FR-001 (MUST NOT): a bar shape that has not travelled draws nothing either', () => {
+    // ⭐ THE PICTURE FOLLOWS THE WRITE, which is what makes 「描く側と置く側が同じ
+    // 表を引く」 measurable from outside: a press that would make no task shows no
+    // task while it is held.
+    const built = stage()
+    built.pressEntry(RECTANGLE)
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + 1, y: GROUND.y })
+    expect(built.picture().layout.placements.length).toBe(0)
+  })
+
+  it('⭐ the release then writes ONCE, and the picture is the document from there on', () => {
+    const built = heldFor(RECTANGLE, TRAVEL)
+    built.letGo({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    expect((built.loop.document().schedule as any).tasks.length).toBe(1)
+    expect(built.picture().layout.placements.length).toBe(1)
+  })
+})
+
+describe('table T-023a PD-4 / 台帳 D-373: the draft is the ARMED shape', () => {
+  const TRAVEL = DRAG_THRESHOLD * 10
+
+  it('⭐ a bar shape armed draws table T-012s bar spelling', () => {
+    const built = stage()
+    built.pressEntry(RECTANGLE)
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    expect(built.picture().layout.placements[0].shapeKind).toBe(RECTANGLE_SPELLING)
+  })
+
+  it('⭐⭐ THE DEFECT D-373 IS ABOUT: a milestone armed does NOT draw a bar', () => {
+    // ⛔ 「置こうとしている物と違う形が出る」 is the row's own reason, word for
+    // word. A build that drew the bar spelling here would be drawing the thing
+    // it is not about to place.
+    const built = stage()
+    built.pressEntry(MILESTONE)
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    const drawn = built.picture().layout.placements
+    expect(drawn.length).toBe(1)
+    expect(drawn[0].shapeKind).not.toBe(RECTANGLE_SPELLING)
+    expect(drawn[0].shapeKind).toBe(shapeSpelling('SH-5'))
+  })
+
+  it('⭐⭐ 形状を 2 か所に持たせない: what is DRAWN is what is PLACED, figure and all', () => {
+    // ⭐ THE RELATION IS THE ASSERTION. Nothing here says what the figure ought
+    // to be -- it says the drawing side and the placing side answered the same,
+    // which is what 「描く側と置く側が同じ表を引くこと（MUST）」 asks for and what
+    // a second store of the shape would break.
+    const built = stage()
+    built.pressEntry(MILESTONE)
+    built.holdGround(GROUND)
+    built.movePointer({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    const held = built.picture().layout.placements[0]
+    built.letGo({ x: GROUND.x + TRAVEL, y: GROUND.y })
+    const placed = built.picture().layout.placements[0]
+    expect(held.shapeKind).toBe(placed.shapeKind)
+    expect(held.milestoneGlyph).toBe(placed.milestoneGlyph)
+  })
+})
+
+describe('FR-091: the created name is settled by ONE press', () => {
+  const TRAVEL = DRAG_THRESHOLD * 10
+
+  /** Draw one bar-shaped task the way FR-001 has it drawn, and stop there. */
+  function drawnTask(): Stage {
+    const built = stage()
+    built.pressEntry(RECTANGLE)
+    built.dragGround(GROUND, { x: GROUND.x + TRAVEL, y: GROUND.y })
+    return built
+  }
+
+  it('⛔ THE CONTROL: drawing one puts the panel up (FR-001 with FR-091)', () => {
+    // ⚠️ WITHOUT THIS, A BUILD THAT NEVER OPENED THE PANEL WOULD PASS THE CASE
+    // BELOW -- a panel that never stands is a panel that is always closed.
+    expect(drawnTask().panel()).not.toBe(null)
+  })
+
+  it('⭐⭐ THE RULING: one Enter closes it', () => {
+    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 D-372 ③). Measured
+    // 2026-09-08 on the shipped build, 1920x1080: a rectangle drawn, a name
+    // typed, `Enter` -- the panel was still 279px wide, and a further `Esc` was
+    // what closed it. 「2 度押させてはならない（MUST NOT）」.
+    //
+    // ⛔⛔ THE FIELD HAS TO BE STANDING OR THIS CASE MEASURES NOTHING. That is
+    // the whole of the defect: the `Enter` that settles the name is the press
+    // `carryOutAction`'s ordinary guard turns away, because an edit stood when
+    // it arrived. MEASURED with the fake answering 「無し」: the case passed on a
+    // build carrying no fix at all.
+    const built = drawnTask()
+    built.holdTextEntry(true)
+    built.pressKey('Enter')
+    expect(built.panel()).toBe(null)
+  })
+
+  // ⛔⛔ FR-072's HALF IS NOT DRIVEN HERE, AND IT IS NAMED RATHER THAN CLAIMED
+  // AWAY. Its MUST NOT -- 「パネルを出すのをやめても、選択を解いてはならない」 (利用者
+  // の裁定 2026-08-30) -- is about a rename made LATER, and the only road to a
+  // later rename is MK-13's double click on a task that is already drawn, which
+  // this fixture's screen has no `Hit` to answer with (`pressed.hit` is `null`
+  // for every press it makes). ⭐ IT WAS MEASURED INSTEAD, on the shipped build,
+  // 1920x1080, 2026-09-08: a star drawn and named, then chosen again by a double
+  // click and its field settled with one `Enter` -- the panel closed and `Delete`
+  // still took the task (2 ten-corner polygons -> 0), on the build before this
+  // change and on the build after it alike.
+
+  it('⭐ and that selection is let go: the next Delete has nothing to take', () => {
+    // ⭐ THE SELECTION IS READ THROUGH WHAT IT LETS A PERSON DO, because table
+    // T-023c's value does not leave the loop. `SK-3` of table T-036 deletes what
+    // is chosen, so a Delete that removes nothing is a selection that is gone.
+    const built = drawnTask()
+    built.pressKey('Enter')
+    built.pressKey('Delete')
+    expect((built.loop.document().schedule as any).tasks.length).toBe(1)
+  })
+
+  it('⛔ THE CONTROL: without that Enter the selection stands and Delete takes it', () => {
+    // ⚠️ WITHOUT THIS, A BUILD THAT NEVER CHOSE THE NEW TASK AT ALL -- or one
+    // whose `Delete` does nothing -- would pass the case above. FR-001 (MUST):
+    // 「作ったタスクを選択にすること」.
+    const built = drawnTask()
+    built.pressKey('Delete')
+    expect((built.loop.document().schedule as any).tasks.length).toBe(0)
+  })
+
+  it('⛔ FR-091 (MUST NOT): the arming stands through that press', () => {
+    // 「構えはこの押下で解けない（MUST NOT）—— 構えの持続は 表 T-023b が定めており、
+    // 解除は `Esc` と同じ入口の再押下だけである」, which is the 構えは続き half of
+    // 利用者の逐語 above.
+    const built = drawnTask()
+    const armedBefore = built.armedText()
+    built.pressKey('Enter')
+    expect(armedBefore).not.toBe(null)
+    expect(built.armedText()).toBe(armedBefore)
+  })
+
+  it('⭐ so the next drag draws a second task with no palette press in between', () => {
+    const built = drawnTask()
+    built.pressKey('Enter')
+    const lower = { x: GROUND.x, y: GROUND.y + 120 }
+    built.dragGround(lower, { x: lower.x + TRAVEL, y: lower.y })
+    expect((built.loop.document().schedule as any).tasks.length).toBe(2)
   })
 })

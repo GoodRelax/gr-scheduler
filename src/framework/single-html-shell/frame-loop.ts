@@ -953,11 +953,41 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
  * the history, so a write per move pushes no step. `panFollow` is that road, and
  * `PointerPress.followedTo` is what keeps the pieces from adding up.
  *
+ * ⭐⭐ PD-4 IS HERE, AND IT IS NOT A GRAB. Table T-023a's PD-4 asks for the
+ * picture in its own words since 2026-09-07 (the user's instruction): 「押して
+ * いるあいだ、置くことになる姿を、表 T-023d の閉じの規則と同じ作法で描くこと
+ * （MUST）」, 「伸びる向きは、引いた向きとすること（MUST）」 -- and the row says
+ * why it has to state it for itself: 「あちらは掴み領域の規則であり、本行は掴んで
+ * いないので自分で述べる必要がある」. ⛔ THE ROW IS READ OFF THE PRESS AND NOT
+ * WORKED OUT AGAIN: `PointerPress.pressRow` is what `pressRowOf` answered at the
+ * moment of the press, and CS-2 of table T-066 wants that moment.
+ * ⭐⭐ AND THE SHAPE IS NOT DECIDED HERE, WHICH IS THE HALF THAT MATTERS. PD-4
+ * (MUST NOT): 「形状を 2 か所に持たせてはならない —— 描く側と置く側が同じ表を引く
+ * こと（MUST）」. `previewOfHeldPress` folds THE RELEASE'S OWN WRITES onto a copy,
+ * so the drawn figure is table T-012's row `commandFromArmed` chose, reached by
+ * the one road; nothing in this file names a shape.
+ * ⛔ NOTHING REACHES THE DOCUMENT, and PD-4 says so in its own words:
+ * 「押しているあいだ値を文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵で
+ * あって編集ではない」, which the note on `previewDocument` states from the far
+ * side.
+ * ⚠️ A BAR THAT HAS NOT TRAVELLED DRAWS NOTHING, AND NO LINE HERE SAYS SO.
+ * FR-001 (MUST NOT) 「クリックでは、バーの形状のタスクを作らないこと」, so
+ * `commandFromArmed` answers with FR-029's telling rather than a write and the
+ * fold below finds no `changeDocument` -- the draft appears on the very travel
+ * that would make one. ⭐ A milestone is placed by the press alone, so its draft
+ * stands from the press, which is what that road already writes.
+ * ⚠️ MEASURED 2026-09-08 ON THE SHIPPED BUILD, WITHOUT THIS LINE: a rectangle
+ * armed and empty ground dragged 100px left the schedule's SVG at 67081 bytes
+ * for all 11 samples between the press and the release -- 0 bytes of spread --
+ * and 243 pieces of ink throughout. The row's own ⚠️ records the same shape of
+ * measurement (「空所を押して 147px 引いても絵が 1 バイトも動かない」).
+ *
  * @purity pure
  */
 function isPreviewedPress(press: PointerPress | null): boolean {
   if (press === null) return false
   if (press.on !== null) return press.on.dividerPanel !== null
+  if (press.pressRow === 'PD-4') return true
   return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
 }
 
@@ -4849,7 +4879,11 @@ export function frameLoop(
       // ⚠️ AFTER THE SWAP, never before: what a reference is judged against is
       // the document that now stands, and judging against the old one would
       // keep exactly what the write removed.
+      const chosenBeforeTheWrite = selection
       selection = selectionWithinSchedule(selection, held.document.schedule)
+      // FR-091's 「作った直後の場面」 ends where the selection does -- an undo that
+      // takes the new Task away is one of the two doors that can move it.
+      endCreatedNamingIfChosenMoved(chosenBeforeTheWrite)
       // ⭐⭐ FT-2 OF TABLE T-078 -- 「現在値の差し替え（表 T-067 の `WS-6`）」 --
       // AND THIS LINE IS WS-6 ITSELF, which is why the frame is asked for here
       // rather than on each of the roads that reach it.
@@ -6803,6 +6837,47 @@ export function frameLoop(
    * に限らない」 -- so nothing about this binding changed to take it.
    */
   let nameFieldWantedRow: string | null = null
+
+  /**
+   * The Task FR-091's one-press clause is about -- the one this loop has just
+   * made and put a name field on -- and `null` at every other instant.
+   *
+   * ⭐⭐ WHY A BINDING IS OWED AT ALL. FR-091 (MUST, the user's instruction of
+   * 2026-09-07, 逐語「`Enter` で閉じて選択が外れ」): 「作った直後の名称を `Enter`
+   * で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと
+   * （MUST）」, with 「2 度押させてはならない（MUST NOT）」 beside it -- and the
+   * next line limits it: 「これは作った直後の場面に限る（MUST）」, because FR-072's
+   * 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 (the user's
+   * ruling of 2026-08-30) still stands for a rename made later. ⇒ The two rulings
+   * are told apart by ONE fact -- whether the tool raised this selection itself
+   * -- and no value in this loop carried it.
+   * ⭐ THE REQUIREMENT SAYS WHY IT MAY BE CLEARED: 「選択を解くのは、この選択が
+   * そもそも名前の欄を運ぶために立っているからである …… 名前が着地した時点で、その
+   * 選択は役目を終える」.
+   * ⛔ A TASK AND NOT A ROW. FR-091 is 「タスクの名称を入力し、変更する」 and its
+   * clause is written about 「作ったタスク」; HF-14 of table T-051 names a row and
+   * asks for nothing of the kind, so `standOnWhatWasCreated`'s other branch does
+   * not set this.
+   * ⛔ NOR IS THE ARMING TOUCHED (MUST NOT): 「構えはこの押下で解けない」 --
+   * 「構えの持続は 表 T-023b が定めており、解除は `Esc` と同じ入口の再押下だけ」.
+   */
+  let namingCreatedTaskUid: number | null = null
+
+  /**
+   * The one rule that ends FR-091's 「作った直後の場面」: the instant the selection
+   * becomes anything other than what this loop just made, the clause is about
+   * nothing and the panel goes back to FR-072's rule.
+   *
+   * ⛔ WRITTEN ONCE AND CALLED FROM BOTH DOORS THAT REPLACE THE SELECTION --
+   * `selectionFromInput` on every happening, and table T-023c's closing rule
+   * inside `replaceHeldDocument` (an undo that takes the new Task away is that
+   * second door). A second reading of 「作った直後」 is what would drift.
+   *
+   * @purity non-pure
+   */
+  function endCreatedNamingIfChosenMoved(was: Selection): void {
+    if (selection !== was) namingCreatedTaskUid = null
+  }
 
   // ⛔⛔ `namingNewRow` AND `newRowNameFieldWantedUnder` STOOD HERE AND ARE GONE
   // (利用者の裁定 2026-09-04). They held one half of a row across the wait for a
@@ -9150,6 +9225,34 @@ export function frameLoop(
         // ⚠️ The user's flow was 「編集が終わったら Enter」, so this is the row
         // read literally as well -- but nobody ruled on the untouched field.
         if (screenState.surface !== null || asking !== null) return
+        // ⭐⭐ FR-091's ONE PRESS (MUST, the user's instruction of 2026-09-07,
+        // 逐語「`Enter` で閉じて選択が外れ」): 「作った直後の名称を `Enter` で確定
+        // したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと」,
+        // with 「2 度押させてはならない（MUST NOT）」.
+        // ⛔ AHEAD OF THE GUARD BELOW, AND THAT IS THE WHOLE OF THE FIX. This IS
+        // the press that settled the name -- the surface's own `Enter` listener
+        // settles before the window hears it -- so `didSettleFieldEntry` stands
+        // and the guard below returned, leaving the panel up. ⚠️ MEASURED
+        // 2026-09-08 on the shipped build, 1920x1080: a rectangle drawn, a name
+        // typed, `Enter` -- the panel was still 279px wide and it took a further
+        // `Esc` to close it (the ledger's D-372 ③, whose 2026-09-07 reading of the
+        // interaction record says the same).
+        // ⛔ NOT GUARDED ON `didSettleFieldEntry`: an `Enter` on a name nobody
+        // changed writes nothing (IN-6, 「始めた値と同じ値を書いてはならない」), and
+        // the person still settled the name -- one press either way.
+        // ⛔ FR-072's MUST NOT IS NOT BROKEN, and FR-091 says so itself: 「2 つの
+        // 裁定は衝突していない —— あちらは人が選んだ選択を守り、こちらは道具が立てた
+        // 選択を片づける」. `namingCreatedTaskUid` is the only thing that tells the
+        // two apart, and it stands for the created Task alone.
+        // ⛔ THE ARMING IS NOT TOUCHED (MUST NOT): 「構えはこの押下で解けない」 --
+        // `screenState` is not written here, so the next shape can be drawn
+        // straight away, which is the 4 つ FR-091's own ⚠️ ties together.
+        if (namingCreatedTaskUid !== null) {
+          namingCreatedTaskUid = null
+          isPropertiesPanelPutAway = true
+          selection = emptySelection()
+          return
+        }
         // ⭐ TWO FACTS MAKE ONE QUESTION, because the settling happens BEFORE
         // this case runs: `didSettleFieldEntry` says an edit stood when the
         // `Enter` arrived, and the seam says whether one stands now. Either of
@@ -9675,6 +9778,11 @@ export function frameLoop(
       selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
       showPropertiesOfChoice()
       nameFieldWantedRow = TASK_NAME_FIELD_ROW
+      // FR-091's 「作った直後の場面」 begins here and nowhere else -- see
+      // `namingCreatedTaskUid`. ⚠️ AFTER the three lines above, so that the one
+      // door that ends it (`endCreatedNamingIfChosenMoved`) cannot be reading a
+      // selection this very call is about to replace.
+      namingCreatedTaskUid = created.uid
       return
     }
     const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
@@ -10088,7 +10196,13 @@ export function frameLoop(
     // that member consumes, so it answers with the state untouched and IN-4's
     // 1 階層 per press (MUST) is kept.
     if (escapeLevel === 'tooltip') isTooltipDismissed = true
+    const chosenBeforeThisHappening = selection
     selection = selectionFromInput(input, context)
+    // FR-091's 「作った直後の場面」 ends where the selection does -- the other of
+    // the two doors. ⚠️ THE `Enter` THAT SPENDS THE CLAUSE PASSES THIS LINE
+    // UNTOUCHED: SK-19 moves no selection, so the flag still stands when
+    // `carryOutAction` reads it a few lines below.
+    endCreatedNamingIfChosenMoved(chosenBeforeThisHappening)
     // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
     // person then takes on it is a row of table T-024, which this member does
     // not read -- `answerSettledFormat` below is where the choice is spent.
