@@ -207,6 +207,37 @@ const IMPORT_REPORT = 'Import Report'
 const IMPORT_REPORT_REASON = 'RS-50'
 
 /**
+ * The row of table T-233 FR-073 (MUST) makes U-61's sentence when the intake
+ * being asked about carried columns this build could not read.
+ *
+ * ⛔ A ROW ID AND NEVER A SENTENCE, for the reason `IMPORT_REPORT_REASON` above
+ * gives: the requirement names the row -- 「運ぶ理由は 表 T-233 の `RS-48`」 --
+ * and FR-038 (MUST NOT) keeps the words in the one dictionary.
+ */
+const NEWER_FORMAT_VERSION_REASON = 'RS-48'
+
+/**
+ * `RS-48`'s two strings for `U-61`, or two empty ones where this intake read
+ * every column it was handed.
+ *
+ * ⭐ SEPARATED SO THE CONDITION IS SAID ONCE. FR-073's telling is about
+ * 「読めなかった項目」, and the same emptiness decides both strings -- writing
+ * the test twice inside one object literal is where the two would part company.
+ *
+ * @purity pure
+ */
+function unreadWords(session: ScreenSession): {
+  readonly unreadText: string
+  readonly unreadNextStep: string
+} {
+  if ((session.unreadColumns ?? []).length === 0) {
+    return { unreadText: '', unreadNextStep: '' }
+  }
+  const said = reasonSurfaceWords(NEWER_FORMAT_VERSION_REASON, session.language)
+  return { unreadText: said.text, unreadNextStep: said.nextStep }
+}
+
+/**
  * The row of table T-234 FR-020 (MUST) makes U-60's question.
  *
  * ⛔ A ROW ID AND NEVER A SENTENCE, the join `RaisedConfirmation.question`
@@ -757,6 +788,26 @@ export function openModalFromScreenState(
       heading,
       commands,
       candidates: session.mergeCandidates ?? [],
+      // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを
+      // 問うこと」, and that requirement sends them to this same surface --
+      // 「面は 表 T-103 の `U-61`」.
+      //
+      // ⭐ READ FROM THE SESSION FOR THE REASON THE PAIRING ABOVE IS: a column
+      // this build could not read is a key of the file, and the file is not in
+      // any document this side can see -- PI-20 named them while the text was
+      // still text, and the shell is the only layer that may hold them (LY-5).
+      // ⛔ CARRIED EVEN WHEN EMPTY, the same reading the pairing takes.
+      unreadColumns: session.unreadColumns ?? [],
+      // `RS-48`'s own words, and ⛔ only where there is something for them to be
+      // about: FR-073's telling is 「…より新しく、読めなかった項目がある」, so a
+      // merge of a document this build read in full says nothing.
+      // ⭐ READ AND NOT COMPOSED -- `reasonSurfaceWords` is where table T-233's
+      // rows are turned into words for a surface, and U-62 already reads its own
+      // through it (R2.7: one reading, not two).
+      // ⛔ `dismissText` IS DROPPED. That word is NT-8's way out of a telling,
+      // and U-61 is answered by IC-95 .. IC-97 instead -- drawing an `OK` beside
+      // them would offer a fourth answer to a question that has three.
+      ...unreadWords(session),
     }
   }
 

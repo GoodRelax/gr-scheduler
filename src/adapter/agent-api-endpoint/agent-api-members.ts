@@ -975,14 +975,17 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // `unreadColumns` is the list FR-073 has laid out. ⚠️ An earlier note here
       // said no caller passed that version; it was true when written and is not
       // now.
-      // ⛔ WHAT IS STILL MISSING IS THE ROAD TO THE SURFACE, and it is outside
-      // this component: `takeInDocument` below carries a `Document` and answers
-      // a boolean, and the layer that raises U-61 and the RS-48 telling is the
-      // one that fills that seam. ⛔ Widening it here alone would only hand a
-      // list to a side that draws nothing with it, so nothing is invented for it.
-      // ⚠️ AND THE OBJECT ROAD COUNTS NOTHING AT ALL: a caller that hands the
-      // document itself (or `{ document }`) never passes through PI-20, so no
-      // column is weighed on that road. Reported.
+      // ⭐⭐ THE ROAD TO THE SURFACE IS NOW BUILT, and this note used to say it
+      // was not. The shell carries `unreadColumns` from the codec through
+      // `DecodedIntake` and `SessionHeld` into `ScreenSession`, and the
+      // `Difference Review` modal (U-61) lays the columns out under the RS-48
+      // telling, whose words it reads from the dictionary. ⛔ Nothing of that
+      // belongs here: this component still hands a `Document` and takes a
+      // boolean, and table T-107's shape is unchanged.
+      // ⭐ THE OBJECT ROAD IS COUNTED TOO, and not by a second parser: the
+      // shell already had to write the handed value out as `GRS JSON` to weigh
+      // it against S-113, so it reads that same text back through the same
+      // PI-20 reader every other intake takes, and keeps only the reading.
       const snapshot = source.readSnapshot()
       const road = wiring.takeInDocument
       if (road === undefined) {

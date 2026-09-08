@@ -489,6 +489,15 @@ function embeddedStartupDocument(): {
    * about a document that was never opened would be worse than telling nothing.
    */
   readonly clampedCount: number
+  /**
+   * FR-073 (MUST): the columns of BT-1's own text this build could not read,
+   * because it declares a format version newer than the greatest one known --
+   * or empty where there was nothing embedded, or nothing unread.
+   *
+   * ⚠️ CARRIED EVEN WHEN BT-1 LOSES, for the reason `clampedCount` above is:
+   * this function does not know which rank of table T-034 won.
+   */
+  readonly unreadColumns: readonly string[]
 } {
   // ⛔ THROUGH `CSS.escape`, and `querySelectorAll` rather than
   // `getElementById`. The escape is here because THIS is the only consumer of
@@ -503,18 +512,19 @@ function embeddedStartupDocument(): {
   // apart from "none".
   const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
   if (containers.length === 0) {
-    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0 }
+    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
   }
   if (containers.length > 1) {
     return {
       candidate: { kind: 'entryCountNotOne', entryCount: containers.length },
       refusal: null,
       clampedCount: 0,
+      unreadColumns: [],
     }
   }
   const embedded = containers[0]?.textContent?.trim() ?? ''
   if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
-    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0 }
+    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
   }
   // ⛔ Through the same reader every other intake takes (FR-023 calls every one
   // untrusted). ⚠️ NOTHING IS UN-ESCAPED FIRST: what the writer put in the
@@ -525,21 +535,35 @@ function embeddedStartupDocument(): {
   // ⭐ FR-073's comparison, given the number it is against (D-282). A single
   // .html written by an older build carries the version IT knew, so BT-1 is the
   // road where `newerThanKnown` can really come back.
-  // STOP -- ⛔ THE READING IS DROPPED, AND WHAT IS MISSING IS THE TELLING.
-  // FR-073 (MUST) has 「読めなかった列を具体的に並べて見せ、続けてよいかを問う」
-  // on `U-61` of table T-103 carrying `RS-48` of table T-233, and 「読めなかった
-  // 列は、解釈せずに持ち回ること（MUST）」 in a vessel of origin `Carry`.
-  // ⚠️ `JsonDecoding` counts no unread columns and PI-20 publishes no member
-  // that would, so a telling raised here could only name columns nobody
-  // counted. ⛔ Nothing is invented for it; `decodedDocument` in
-  // `frame-loop.ts` records the same absence for the import road.
+  // ⭐⭐ THE READING IS CARRIED NOW (D-357), AND ONE HALF OF THE DUTY IS KEPT.
+  // `JsonDecoding.unreadColumns` names what this build could not read, so the
+  // caller raises `RS-48` of table T-233 when BT-1 wins -- FR-073's telling.
+  // ⛔ THE OTHER HALF CANNOT BE KEPT ON THIS ROAD, AND IT IS AN ABSENCE RATHER
+  // THAN AN OVERSIGHT. That requirement also asks 「続けてよいかを問う」 on
+  // `U-61` of table T-103, and every entrance table T-109 puts on that surface
+  // (IC-95 .. IC-97) is an answer to table T-032a's 「同じか別か」 -- a merge's
+  // question. BT-1 is not a merge and has nothing to merge against: BO-2 of
+  // table T-077 runs before there is a document to compare with, and 「やめる」
+  // at startup would leave table T-034 with no rank at all. ⛔ Nothing is minted
+  // for it. Searched: FR-073, FR-022, table T-103 `U-61`, table T-109,
+  // table T-032a, table T-034, table T-077 BO-2. Reported.
+  // ⚠️ AND THE COLUMNS ARE STILL CARRIED WHATEVER IS ASKED: 「読めなかった列は、
+  // 解釈せずに持ち回ること（MUST）」 is kept by the DOCUMENT, which
+  // `documentFromJson` hands back with every unknown key still on it.
   const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
-  if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0 }
+  if (!read.ok) {
+    return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0, unreadColumns: [] }
+  }
   const refusal = noWorkingWeekdayReason(read.document)
   // FR-067: a rank that yields nothing descends rather than starting empty, so
   // a refused BT-1 hands `none` and the telling travels beside it.
   if (refusal !== null) {
-    return { candidate: { kind: 'none' }, refusal, clampedCount: read.clampedCount }
+    return {
+      candidate: { kind: 'none' },
+      refusal,
+      clampedCount: read.clampedCount,
+      unreadColumns: read.unreadColumns,
+    }
   }
   return {
     candidate: {
@@ -548,6 +572,7 @@ function embeddedStartupDocument(): {
     },
     refusal: null,
     clampedCount: read.clampedCount,
+    unreadColumns: read.unreadColumns,
   }
 }
 
@@ -1195,6 +1220,19 @@ function boot(): void {
   // ⚠️ BT-4 IS NOT TOLD ON EVEN WHEN IT WINS; `startupTemplateDocument` says why.
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
+  }
+  // `RS-48` (FR-073, MUST): BT-1's own text declares a format version newer than
+  // the greatest this build knows, and some of its columns could not be read.
+  //
+  // ⛔ ONLY WHEN BT-1 ACTUALLY WON, on the same terms the clamp above states:
+  // a reading taken on a rank that lost describes a document nobody is looking
+  // at. ⚠️ BT-4 CANNOT REACH IT -- `startupTemplateDocument` says why: the
+  // template's version IS `GREATEST_KNOWN_SCHEMA_VERSION`, so it is never newer.
+  // ⛔ NO COUNT: FR-073 asks for the columns 「具体的に並べて」 and a tally is
+  // what that forbids -- and `raiseStartupNotice` has nowhere else to put them,
+  // which is the absence the reader above records.
+  if (chosen.row === 'BT-1' && embedded.unreadColumns.length > 0) {
+    running.raiseStartupNotice('RS-48')
   }
 
   // ---- FR-065 and FR-028: the public point --------------------------------

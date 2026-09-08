@@ -412,6 +412,20 @@ interface HandedImport {
   readonly format: ExchangeFormat
   readonly byteLength: number
   readonly choice: OpenChoice
+  /**
+   * FR-073 (MUST): the columns of the handed value this build could not read,
+   * because it declares a format version newer than the greatest one known.
+   *
+   * ⭐ MEASURED ON THIS SIDE OF THE SEAM AND CARRIED, rather than worked out
+   * where the intake road runs. `takeInDocument` (PI-17) takes a `Document`,
+   * which is this build's own shape -- a key it does not know is not on that
+   * type and cannot be found by looking at the value once it has been asserted
+   * into it. The one place the names still exist is the `GRS JSON` text the
+   * entrance writes for S-113's byte length, so the reading is taken there.
+   * ⛔ AND THE ENTRANCE IS NOT WIDENED FOR IT. AM-8 of table T-107 goes on
+   * taking a document and answering a boolean; this member is inside the shell.
+   */
+  readonly unreadColumns: readonly string[]
 }
 
 /**
@@ -441,13 +455,18 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  * ⚠️ `RS-15` IS AMONG THEM, and this is one of the four places in this file
  * that raise it -- see `NoticeReason` for what that row is, which four reach
  * it, and why a fifth may not.
+ * ⭐ `RS-48` IS AMONG THEM BECAUSE BT-1 IS A READ. FR-073 (MUST) has a document
+ * of a newer format version told about wherever it was read, and table T-034's
+ * first rank reads one -- a single `.html` carries whatever version the build
+ * that wrote it knew. ⛔ ONLY THE TELLING REACHES THIS ROAD; what FR-073 also
+ * asks for is recorded at the raiser in `single-html-shell.ts`.
  * ⛔ `RS-17` STOOD HERE UNTIL D-214. CR-280 retired that row with the auto-save
  * it belonged to, and FR-076 (MUST NOT) forbids carrying a reason table T-233
  * does not hold -- so the seat was an offer of a telling no caller could make.
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-51'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51'
 >
 
 export interface FrameLoop {
@@ -1556,13 +1575,25 @@ type NoticeReason =
   // `appShellUnavailable` (`NOTICE_REASON_OF_EMBEDDED_HTML_FAULT` below) is
   // the one raiser that named it and now falls to `RS-15`.
   | 'RS-46'
+  // ⭐ THE ROW A DOCUMENT OF A NEWER FORMAT VERSION IS TOLD ON (`RS-48`).
+  // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」
+  // —— 「面は 表 T-103 の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」. So the row is
+  // named here and the columns travel to `U-61` beside it; ⛔ neither half is a
+  // substitute for the other.
+  // ⚠️ ITS COUNT IS `null` AND NOT THE NUMBER OF COLUMNS. That requirement
+  // (MUST) has the columns 「具体的に並べて」 laid out, and `affectedCount` can
+  // only ever carry a tally -- which is the very thing the surface is for.
+  | 'RS-48'
   // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). The ruling of 2026-09-06
   // took choice ⓑ -- a setting outside its own bounds is brought INSIDE on the
   // road that reads the document, and the person is told how many keys moved --
   // so the telling is `NT-5`'s "accepted, with a caution" rather than a refusal.
-  // ⚠️ THE SEATS BETWEEN `RS-46` AND THIS ONE ARE NOT THIS FILE'S. `RS-47` to
-  // `RS-50` are rows of table T-233 no raiser here reaches, and a seat offered
-  // for a reason nothing raises is what D-214 struck `RS-17` for.
+  // ⚠️ THE SEATS BETWEEN `RS-46` AND THIS ONE ARE NOT ALL THIS FILE'S. `RS-47`,
+  // `RS-49` and `RS-50` are rows of table T-233 no raiser here reaches, and a
+  // seat offered for a reason nothing raises is what D-214 struck `RS-17` for.
+  // ⭐ `RS-48` IS NOW ONE OF THIS FILE'S and stands above; an earlier writing of
+  // this note counted it among the four, which was true until FR-073's telling
+  // had a raiser.
   | 'RS-51'
   // ⭐ THE ROW A CALENDAR EDIT'S RECOUNT IS TOLD ON (`RS-52`). FR-012 (MUST):
   // 「数え直したことを、値が変わった `Task` の件数を添えて告げること」 -- the
@@ -1647,6 +1678,12 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // cap, `NT-3a` in the table's own manner column, which the table settles as
   // a telling rather than a refusal of an input.
   'RS-46': 'NT-3a',
+  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR THIS ROW, not a reading
+  // taken here. ⚠️ It reads oddly beside `RS-51`, which is `NT-5` for a
+  // document that WAS opened -- and FR-073 has this one opened too (「そのとき
+  // は、受けて開くこと（MUST）」). The table says `NT-1` all the same, and the
+  // table is the answer; the manner is not re-derived here from what happened.
+  'RS-48': 'NT-1',
   // ⛔ `NT-5` AND NOT `NT-1`, which is what choice ⓑ decided: the document WAS
   // accepted and opened, and only the out-of-bounds keys were moved -- so the
   // telling has to look unlike a refusal, which is the whole of the line NT-5
@@ -1806,6 +1843,7 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
  * no row, and this file names the row and writes no words.
  */
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
+
 
 /**
  * The row of table T-233 a calendar edit's recount carries -- FR-012 (MUST):
@@ -2537,6 +2575,19 @@ function exportedText(form: SaveFileForm, document: Document): string | null {
 interface DecodedIntake {
   readonly document: Document
   readonly clampedCount: number
+  /**
+   * FR-073 (MUST): the columns this build could not read, because the document
+   * declares a format version newer than the greatest one it knows.
+   *
+   * ⭐ CARRIED RATHER THAN RE-MEASURED, the same move `clampedCount` above
+   * makes and for a stronger reason: the names are only knowable while the
+   * text's own keys are in hand, and the `Document` handed back has been
+   * asserted into this build's shape by then -- a walk over it afterwards
+   * would have nothing left to find.
+   * ⭐ EMPTY IS THE ORDINARY ANSWER. A version this build knows lists none, and
+   * `documentFromJson` states that as its own rule.
+   */
+  readonly unreadColumns: readonly string[]
 }
 
 /**
@@ -2558,18 +2609,16 @@ interface DecodedIntake {
  * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason, which
  * `exportedText` above records from the writing side.
  *
- * STOP -- ⛔ `formatVersion` IS DROPPED HERE TOO, AND THE COMPARISON NOW RUNS
- * (D-282). Until 2026-09-07 nothing passed FR-073's 「この造りが知る最大の版」,
- * so OP-7 answered `notCompared` on every road; the number now travels and the
- * reading is real. ⛔ WHAT IS STILL MISSING IS THE TELLING, and it is missing
- * on purpose rather than forgotten: FR-073 (MUST) has a `newerThanKnown`
- * reading 「読めなかった列を具体的に並べて見せ、続けてよいかを問う」 on 表 T-103's
- * `U-61` carrying `RS-48` of table T-233, and 「読めなかった列は、解釈せずに
- * 持ち回ること（MUST）」 in a vessel of origin `Carry`. ⚠️ NEITHER HALF EXISTS
- * TO BE CALLED: `JsonDecoding` reports the reading and no list of unread
- * columns, and no member of PI-20 answers one -- so a telling raised here could
- * only name columns nobody counted. ⛔ Nothing is invented for it; the road is
- * a wave of its own.
+ * ⭐⭐ FR-073's TELLING IS NOW MADE, AND THE STOP THAT STOOD HERE IS CLOSED
+ * (D-357). Both halves it named as missing exist: `JsonDecoding.formatVersion`
+ * is OP-7's reading (D-282) and `unreadColumns` is the list, so this function
+ * carries the list out and `openDocumentIntoHold` raises `RS-48` of table T-233
+ * and lays the columns on `U-61` -- 「読めなかった列を具体的に並べて見せ、続けて
+ * よいかを問うこと（MUST）」.
+ * ⛔ `formatVersion` ITSELF IS STILL NOT CARRIED OUT OF HERE, and that is not a
+ * gap: `unreadColumns` is empty for every reading but `newerThanKnown` (the
+ * codec states that as its own rule), so the list IS the reading as far as this
+ * road can act on it, and a second member saying the same thing is R4's DRY.
  *
  * @purity pure
  */
@@ -2582,14 +2631,25 @@ function decodedDocument(
     // ⭐ FR-073's comparison, given the number it is against (D-282). Without
     // this argument OP-7 answered `notCompared` for every file a person opened.
     const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
-    return read.ok ? { document: read.document, clampedCount: read.clampedCount } : null
+    return read.ok
+      ? {
+          document: read.document,
+          clampedCount: read.clampedCount,
+          unreadColumns: read.unreadColumns,
+        }
+      : null
   }
   const read = documentFromMspdi(text, current)
   // ⛔ ZERO AND NOT A MEASUREMENT ON THE MSPDI ROAD. That codec builds the
   // presentation group out of the CURRENT document rather than out of the file
   // -- its own note says so -- so there is no incoming setting there to be out
   // of bounds, and a count taken here would be counting this build's own values.
-  return read.ok ? { document: read.document, clampedCount: 0 } : null
+  // ⛔ AND NO UNREAD COLUMN ON THAT ROAD EITHER, for a reason of its own:
+  // FR-073's 「形式の版」 is `GRS JSON`'s own `schemaVersion`, and MSPDI carries
+  // no such field -- so `newerThanKnown` cannot arise there and there is nothing
+  // for this list to hold. ⛔ Inventing one out of MSPDI's unknown elements would
+  // be answering a different question than the one FR-073 asks.
+  return read.ok ? { document: read.document, clampedCount: 0, unreadColumns: [] } : null
 }
 
 /**
@@ -2747,6 +2807,11 @@ interface SessionHeld {
    */
   readonly mergeCandidates: readonly MergeCandidateLine[]
   /**
+   * FR-073 (MUST) -- the columns the intake U-61 is asking about could not be
+   * read. Empty on every frame that is not one of those.
+   */
+  readonly unreadColumns: readonly string[]
+  /**
    * FR-023 (MUST) -- the names of the `Task` rows the last import dropped, laid
    * out on U-62 `Import Report`. Empty on every frame that surface is not up.
    */
@@ -2832,6 +2897,7 @@ function sessionOf(
     propertiesSubject,
     confirmation,
     mergeCandidates,
+    unreadColumns,
     droppedTaskNames,
     notices,
     canUndo,
@@ -2976,6 +3042,10 @@ function sessionOf(
     // FR-022 (MUST): what U-61 lays out before its three answers are offered.
     // ⭐ Held by the loop for the same reason `confirmation` below is.
     mergeCandidates,
+    // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ」 -- the other half of
+    // what U-61 lays out, held by the loop for the reason the line above is.
+    // ⛔ Never a count: the requirement asks for the columns themselves.
+    unreadColumns,
     // FR-023 (MUST): the names U-62 `Import Report` lays out. ⭐ Held by the
     // loop for the same reason the line above is, and ⛔ never counted -- that
     // requirement (MUST NOT) refuses a bare tally.
@@ -4767,6 +4837,18 @@ export function frameLoop(
   // ⚠️ HELD RATHER THAN RE-DERIVED because PI-10 is what gathered them, and
   // R2.7 refuses this file making that pairing judgement a second time.
   let mergeCandidates: readonly MergeCandidateLine[] = []
+  // FR-073 (MUST) -- 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」.
+  // The columns the last intake could not read, laid out on U-61 beside the
+  // pairing above. Empty while no such document is being asked about.
+  //
+  // ⚠️ HELD BESIDE `mergeCandidates` AND NOT INSIDE IT, and the two are not the
+  // same list: a candidate is a pair of tasks and a column is a name, and an
+  // intake can have either without the other. ⛔ They go away together all the
+  // same, because both belong to the one surface that laid them out.
+  // ⚠️ NAMES AS THE CODEC READ THEM (PI-20's `unreadColumns`), untranslated --
+  // FR-038 (MUST NOT) leaves a document's own words alone, and a column this
+  // build has never heard of has no row in any dictionary to be looked up in.
+  let unreadColumns: readonly string[] = []
   // FR-023 (MUST) -- what U-62 `Import Report` lays out while it stands: the
   // names of the `Task` rows the last import dropped, in the order the file
   // carried them. Empty while that surface is not up.
@@ -5591,6 +5673,9 @@ export function frameLoop(
           // FR-022 (MUST): what U-61 lays out while it stands. Empty while no
           // merge is being asked about, which is every frame but those.
           mergeCandidates,
+          // FR-073 (MUST): the columns that intake could not read, laid out on
+          // the same surface. Empty on every frame but those.
+          unreadColumns,
           // FR-023 (MUST): what U-62 lays out while it stands. Empty on every
           // frame but those, for the same reason the line above is.
           droppedTaskNames,
@@ -6440,6 +6525,10 @@ export function frameLoop(
           // above takes, on EP-12's ground that this session's state stays out of
           // an export.
           mergeCandidates: [],
+          // ⛔ AND NOTHING FR-073 COULD NOT READ EITHER, on the same ground:
+          // the columns belong to the intake U-61 is asking about, and no
+          // question stands in a picture that is being written out.
+          unreadColumns: [],
           // ⛔ AND NEITHER DOES U-62, on the same ground: EP-12 of table T-076
           // keeps this session's state out of a written picture, and what an
           // import dropped is as much this session's as the selection is.
@@ -7575,6 +7664,10 @@ export function frameLoop(
     // road is exactly how the two entrances would drift apart.
     let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
     let incoming: Document
+    // FR-073 (MUST) -- what this intake could not read, gathered on whichever of
+    // the two reading sides ran. ⭐ Weighed once, below the branch, so that the
+    // two entrances are told alike (the paragraph above says why they must be).
+    let couldNotBeRead: readonly string[] = []
     if (handed !== null) {
       // ⛔ NO OP-12 CHECK ON THIS ROAD, AND NOT BY OVERSIGHT. That row (MUST)
       // compares a file's EXTENSION with its first non-blank character, and a
@@ -7583,6 +7676,7 @@ export function frameLoop(
       // other side of the seam, where the shape is still a caller's.
       handedIn = { format: handed.format, byteLength: handed.byteLength }
       incoming = handed.incoming
+      couldNotBeRead = handed.unreadColumns
     } else if (store === null) {
       // ⛔ Neither a store nor a handed document is nothing to open.
       return false
@@ -7635,8 +7729,41 @@ export function frameLoop(
       if (decoded.clampedCount > 0) {
         raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
       }
+      couldNotBeRead = decoded.unreadColumns
     }
     const readIn = handedIn
+
+    // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」
+    // -- 「面は 表 T-103 の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」.
+    //
+    // ⭐⭐ ONE TELLING AND NOT TWO: the surface is U-61 and `RS-48` is the reason
+    // IT carries, which is the shape U-62 `Import Report` already has for
+    // `RS-50` -- the row's words are written on the surface that lays the list
+    // out, not in the `Notification Area` beside it. ⛔ AND THE NOTIFICATION AREA
+    // IS NOT WHERE THIS MAY GO, which was MEASURED rather than reasoned
+    // (2026-09-09, `scratch/fr073-press.mjs` on the shipped build): a telling
+    // raised while U-61 stands is drawn across the top of the window at
+    // y=37..89, and IC-95 -- the entrance FR-022 (MUST) needs answered -- sits
+    // at y=60. `elementFromPoint` at its centre came back as the notice, and
+    // `AM-8` never settled because the answer could not be pressed at all.
+    //
+    // ⭐ THE LIST IS WHAT SELECTS THE TELLING, not the version reading. `RS-48`'s
+    // own 場面 is 「…より新しく、読めなかった項目がある」 -- both halves -- and the
+    // codec answers an empty list for every reading but `newerThanKnown`, so a
+    // newer document this build happened to understand in full says nothing.
+    // ⛔ AND THE OPEN GOES ON. 「そのときは、受けて開くこと（MUST）」 and 「拒んで
+    // はならない（MUST NOT）」, so nothing here returns early.
+    //
+    // STOP -- ⛔ AN INTAKE THAT RAISES NO U-61 IS STILL NOT TOLD, and the gap is
+    // the specification's rather than this file's. FR-073 sends both the list
+    // and the question to `U-61` (MUST), and every entrance table T-109 puts on
+    // that surface -- IC-95, IC-96, IC-97 -- is an answer to 「同じか別か」 out
+    // of table T-032a. So a MERGE that has candidates is asked properly, and a
+    // REPLACE, an OVERLAY, or a merge PI-10 found nothing to pair has no surface
+    // to be told on and no row saying what its two answers would be. ⛔ Nothing
+    // is invented for it. Searched: FR-073, FR-022, table T-103 `U-61`,
+    // table T-109, table T-032a, table T-024a `OP-3`. Reported.
+    if (couldNotBeRead.length > 0) unreadColumns = couldNotBeRead
 
     // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
     // is asked -- the row states the reason itself, that asking first would
@@ -8084,16 +8211,32 @@ export function frameLoop(
     if (isFileOperationWaiting || asking !== null || openChoosing !== null) return false
     isFileOperationWaiting = true
     try {
+      // S-113 is stated in megabytes and measured in bytes, and OP-5 judges
+      // against it -- so the value is measured the same way a file's is, through
+      // the same writer table T-024 names for IO-2.
+      // ⭐⭐ AND THE SAME TEXT IS READ BACK, WHICH IS FR-073's ONE FOOTHOLD ON
+      // THIS ROAD. A caller of AM-8 hands a VALUE, so the columns this build
+      // cannot read are keys sitting on a plain object that `Document` does not
+      // declare -- invisible to the type and to anything that walks it as one.
+      // Written out as IO-2's text they are ordinary JSON keys again, and PI-20
+      // -- the one reader every other intake takes -- names them. ⛔ So this is
+      // not a second parser (chapter 5.3): it is the same one, on the same text
+      // this line already had to write.
+      // ⚠️ THE READING IS TAKEN AND THE VALUE IS NOT REPLACED. What the handed
+      // value has to BE is OP-5's judgement further down the one road, and a
+      // refusal here would be a second, weaker copy of it standing in front --
+      // exactly what `handedDocument` on the far side of the seam refuses to do.
+      // ⛔ SO A TEXT PI-20 TURNS AWAY LISTS NO COLUMN AND STOPS NOTHING.
+      const handedText = jsonFromDocument(incoming)
+      const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
       return await openDocumentIntoHold(null, OPEN_ROUTE_FROM_CHOOSER, {
         incoming,
         // IO-2 of table T-024 -- the machine-facing row, which is what a value
         // handed straight in is. ⛔ Not asked of `formatFromFile`: OP-12 reads
         // an extension and a first character, and there is neither here.
         format: 'grsJson',
-        // S-113 is stated in megabytes and measured in bytes, and OP-5 judges
-        // against it -- so the value is measured the same way a file's is,
-        // through the same writer table T-024 names for IO-2.
-        byteLength: new TextEncoder().encode(jsonFromDocument(incoming)).length,
+        byteLength: new TextEncoder().encode(handedText).length,
+        unreadColumns: reread.ok ? reread.unreadColumns : [],
         // FR-022 begins 「合流が選ばれ（`FR-087` の `OP-3`）」, and AM-8 of table
         // T-107 is 「取り込み・合流」 -- so this entrance means the merge, and
         // OP-3's three-way question is not put to a machine.
@@ -8736,6 +8879,9 @@ export function frameLoop(
       if (choosing === null) return false
       mergeChoosing = null
       mergeCandidates = []
+      // FR-073's list goes with it, on the same terms as the pairing above:
+      // the columns belong to the intake that was being asked about.
+      unreadColumns = []
       screenState = screenStateWithSurface(screenState, null)
       choosing.settle(mergeMapping)
       return true
@@ -10543,6 +10689,7 @@ export function frameLoop(
       const abandoned = mergeChoosing
       mergeChoosing = null
       mergeCandidates = []
+      unreadColumns = []
       abandoned.settle(null)
     }
 

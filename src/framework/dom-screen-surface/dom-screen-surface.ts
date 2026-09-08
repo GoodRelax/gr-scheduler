@@ -5534,6 +5534,50 @@ function modalElement(
     }
   }
 
+  if ('unreadColumns' in modal) {
+    // U-61 `Difference Review` of table T-103 -- FR-073 (MUST): 「読めなかった
+    // 列を具体的に並べて見せ、続けてよいかを問うこと」.
+    //
+    // ⛔ ONE ELEMENT PER COLUMN, NOT ONE JOINED LINE, the same move the pairing
+    // above makes and for the same reason: names run together are a name nobody
+    // can pick out, which turns the list back into the count the requirement
+    // refuses. ⚠️ `data-unread-column` is for the read-back rule 04 asks for
+    // after anything that draws.
+    // ⛔ NOTHING HERE IS TRANSLATED. A column this build could not read has no
+    // row in any dictionary to be looked up in, and FR-038 (MUST NOT) leaves a
+    // document's own words alone -- so it is drawn exactly as the file spelled
+    // it. ⭐ The sentence ABOUT the list is `RS-48` of table T-233, told in the
+    // `Notification Area` where the shell raised it; no word of it is written
+    // here.
+    // `RS-48` of table T-233, and NT-3a's next step for the same row where it
+    // has one -- 「運ぶ理由は 表 T-233 の `RS-48`」. ⭐ READ AND NOT WRITTEN:
+    // `notices.ts` took both out of the one dictionary, which is what keeps
+    // FR-038's MUST NOT unbroken -- the same road `importReportElements` takes
+    // for `RS-50`. ⚠️ Empty where this intake read every column, so a merge of
+    // a document this build understands in full prints no sentence.
+    if (modal.unreadText !== '') {
+      const said = made(host, 'div', '')
+      said.textContent = modal.unreadText
+      body.push(said)
+    }
+    if (modal.unreadNextStep !== '') {
+      // ⚠️ THE QUIET COLOUR IS `noticeElement`'s, reused rather than declared a
+      // second time -- this is the same thing (what can be done next), the same
+      // bargain `importReportElements` keeps.
+      const step = made(host, 'div', STYLE.noticeNextStep)
+      step.textContent = modal.unreadNextStep
+      body.push(step)
+    }
+    for (const column of modal.unreadColumns) {
+      const line = made(host, 'div', STYLE.field)
+      line.setAttribute('data-unread-column', column)
+      const name = made(host, 'span', STYLE.fieldName)
+      name.textContent = column
+      line.append(name)
+      body.push(line)
+    }
+  }
+
   if ('droppedTaskNames' in modal) body.push(...importReportElements(host, modal))
 
   if ('fields' in modal) {

@@ -1599,6 +1599,39 @@ export type OpenModal =
        * not filled in here.
        */
       readonly candidates: readonly MergeCandidateLine[]
+      /**
+       * FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを
+       * 問うこと」 —— the columns a document of a newer format version
+       * carried that this build could not read, on the surface that
+       * requirement names: 「面は 表 T-103 の `U-61`」.
+       *
+       * ⛔ NOT A COUNT, for the reason `candidates` above is not one: a tally
+       * leaves a person unable to judge what they are about to accept, and the
+       * requirement asks for them 「具体的に並べて」.
+       * ⚠️ UNTRANSLATED. A column this build has never heard of has no row in
+       * any dictionary, and FR-038 (MUST NOT) leaves a document's own words
+       * alone -- so these cross exactly as the file spelled them.
+       * ⛔ CARRIED EVEN WHEN EMPTY, the same reading `candidates` takes: an
+       * empty list is an intake with nothing unread rather than one this side
+       * declined to fill.
+       */
+      readonly unreadColumns: readonly string[]
+      /**
+       * `RS-48` of table T-233, in the display language (FR-038) -- what the
+       * surface says about the list above, or the empty string where this
+       * intake read every column it was given.
+       *
+       * ⭐ A ROW READ, NEVER A SENTENCE WRITTEN, and the shape is U-62's own:
+       * FR-073 names the surface and the reason in one breath -- 「面は 表 T-103
+       * の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」 -- exactly as FR-023
+       * names U-62 and `RS-50`. ⛔ So it is not a notice beside the surface.
+       * ⚠️ EMPTY WHERE `unreadColumns` IS EMPTY: a merge of a document this
+       * build reads in full still raises U-61, and a sentence about columns
+       * that were all read would be a telling about nothing.
+       */
+      readonly unreadText: string
+      /** NT-3a's next step for the same row, or the empty string where none. */
+      readonly unreadNextStep: string
     })
   // U-62 `Import Report` of table T-103 -- the surface FR-023 (MUST) sends the
   // names of the `Task` rows an import dropped to.
@@ -2603,6 +2636,20 @@ export interface ScreenSession {
    * required member would have each of them write an empty list to say so.
    */
   readonly mergeCandidates?: readonly MergeCandidateLine[]
+  /**
+   * FR-073 (MUST): the columns the intake U-61 is asking about could not be
+   * read, because it declares a format version newer than the greatest this
+   * build knows -- what that requirement has 「具体的に並べて見せ」
+   * before anyone is asked whether to go on.
+   *
+   * ⭐ HELD HERE FOR THE REASON `mergeCandidates` ABOVE IS. The names are keys
+   * of the file being read and of no document this build holds -- nothing in
+   * `Schedule` or `DocumentSettings` can answer for them -- and LY-5 of table
+   * T-060 leaves the Framework as the only layer that may hold a current value.
+   * ⚠️ OPTIONAL, AND ABSENT MEANS NONE, the same reading `mergeCandidates`
+   * takes: every intake of a version this build knows has nothing to lay out.
+   */
+  readonly unreadColumns?: readonly string[]
   /**
    * FR-023 (MUST): the names of the `Task` rows the last import dropped -- what
    * U-62 `Import Report` lays out, and what that requirement (MUST NOT) forbids
