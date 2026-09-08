@@ -52,6 +52,11 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  geometryFromLayout,
+  type TaskGeometry,
+} from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   layoutFromSchedule,
   taskPlacement,
@@ -340,5 +345,191 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
     // a lane assignment that read the dates alone would draw the second task's
     // labels straight over the first task's bar.
     expect(lanesWith(true, true)).toEqual([0, 1])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// D-394 -- the marker and the task name were drawn on top of one another.
+//
+// THE ROWS THESE CASES REST ON (both sit under table T-038, requirements.md)
+//
+//   the order (01-04-requirements.md, under T-038)
+//     「**形状の外へ出すものの左右の並びを定めること（MUST）。並びは 担当ラベル
+//      （`OC-2`）→ 実績バーと実績のダミー（`FR-043`）→ 進捗マーカー（`OC-3`）
+//      → 再開アイコン（`OC-4`）→ 名称ラベル（`OC-1`）とすること（MUST）**
+//      …… **この 5 つを重ねて描いてはならない（MUST NOT）**」
+//
+//   the reservation (01-04-requirements.md, under T-038)
+//     「**名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
+//      同じ位置とすること（MUST）。`OC-3` / `OC-4` のぶんの場所は、描かない
+//      ときも空けること（MUST）。描いたときだけ空けてはならない（MUST NOT）**
+//      …… **空ける量は既にある値から求めること（MUST）。新しい設定値を立てて
+//      はならない（MUST NOT）** …… **算入するのは、形状の右端から名称ラベルの
+//      右端までとすること（MUST）**」
+//
+//   S-63 (_assets/tbl-settings.md, table T-202)
+//     「| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー
+//      （`FR-013`）と再開アイコン（`FR-044`）。寸法をズームに追随させない規則は
+//      `FR-094` が持つ |」 -- ONE switch for both, which is what makes "the
+//      label must not move" a single measurement.
+//
+// ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
+//
+//   * THE RESUME ICON STANDING ON ITS OWN `resume` DAY. LF-13 of table T-221
+//     pins the icon to that day, which may be any day at all -- so it can walk
+//     out from under the room reserved for it and land on the name label. The
+//     order under table T-038 and LF-13 cannot both hold for such a Task, and
+//     no row settles which gives way. The case below uses PS-3 (`resumeValid`
+//     false, no `resume` day), where LF-13 itself puts the icon beside the
+//     marker.
+//   * HOW WIDE THE RESERVED ROOM IS AS A NUMBER. The row forbids a new setting
+//     and names S-22 / S-26 / S-27 as its parts; the cases below therefore
+//     state the room as a RELATION -- the marks fall inside it, the label
+//     begins after it -- and never as a count of pixels.
+
+/** NL-3: long enough that no zoom in this fixture fits it inside the shape. */
+const OUTSIDE_NAME = 'a name far too long for this bar to hold inside itself'
+
+/**
+ * PS-3 of table T-021a: started, not finished, `resumeValid` false. FR-044
+ * draws the resume icon there, and LF-13 stands it beside the marker because
+ * the Task names no `resume` day.
+ *
+ * ⛔⛔ THE ACTUAL BAR REACHES PAST THE PLAN ON PURPOSE, and this is what makes
+ * the cases below bite. FR-013 hangs the marker off the ACTUAL bar's far end,
+ * so a Task whose actual stops short of the plan puts the marker back INSIDE
+ * the plan's own width and nothing can collide with a label placed after the
+ * shape. 20 worked days from a Monday is four weeks, against a plan of twenty
+ * CALENDAR days -- so the marker and the resume icon stand outside the shape,
+ * where the name label used to be written straight over them.
+ */
+const SUSPENDED = spanning(1, '2026-02-02', 20, {
+  name: OUTSIDE_NAME,
+  percentComplete: 40,
+  actualStart: '2026-02-02',
+  actualDuration: 20,
+  resume: null,
+  resumeValid: false,
+})
+
+/** S-63, set deliberately, with both OC-2 labels shown so all five are drawn. */
+const markSettings = (marksVisible: boolean): DocumentSettings =>
+  settingsOf({
+    ...(BASE as unknown as Record<string, unknown>),
+    assigneeVisible: true,
+    percentCompleteVisible: true,
+    progressMarkerVisible: marksVisible,
+  })
+
+const drawnWithMarks = (marksVisible: boolean): { placed: TaskPlacement; drawn: TaskGeometry } => {
+  const settings = markSettings(marksVisible)
+  const schedule = rowOf([SUSPENDED])
+  const layout = layoutFromSchedule(schedule, settings, REGIONS)
+  const placed = taskPlacement(layout, 1)
+  if (placed === null) throw new Error('task 1 was not drawn at this zoom')
+  const drawn = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection()).tasks.find(
+    (one) => one.taskUid === 1,
+  )
+  if (drawn === undefined) throw new Error('task 1 has no picture')
+  return { placed, drawn }
+}
+
+/** The left and right edge of one drawn thing, whatever shape it is. */
+interface Band {
+  readonly what: string
+  readonly x0: number
+  readonly x1: number
+}
+
+const bandOfPoints = (what: string, points: readonly { readonly x: number }[]): Band => ({
+  what,
+  x0: Math.min(...points.map((one) => one.x)),
+  x1: Math.max(...points.map((one) => one.x)),
+})
+
+describe('table T-038, D-394 -- the five stand side by side, and the label does not move', () => {
+  it('draws all five, or every case below proves nothing', () => {
+    const { placed, drawn } = drawnWithMarks(true)
+    expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
+    expect(drawn.assigneeLabel).not.toBeNull() // OC-2
+    expect(drawn.percentLabel).not.toBeNull() // OC-2
+    expect(drawn.actual).not.toBeNull() // FR-043's actual bar
+    expect(drawn.marker).not.toBeNull() // OC-3
+    expect(drawn.resume).not.toBeNull() // OC-4
+    expect(drawn.label).not.toBeNull() // OC-1
+  })
+
+  it('⛔ does not draw the five on top of one another (MUST NOT)', () => {
+    const { drawn } = drawnWithMarks(true)
+    const assignee = drawn.assigneeLabel
+    const percent = drawn.percentLabel
+    const actual = drawn.actual
+    const marker = drawn.marker
+    const resume = drawn.resume
+    const label = drawn.label
+    if (assignee === null || percent === null || actual === null) throw new Error('no OC-2 or actual')
+    if (marker === null || resume === null || label === null) throw new Error('no OC-3, OC-4 or OC-1')
+    // OC-2 is ONE cell of the table and gives one direction to both labels, so
+    // the pair is measured as one band -- no row orders them against each other.
+    const bands: readonly Band[] = [
+      { what: 'OC-2 assignee + percent', x0: percent.x, x1: assignee.x + assignee.width },
+      // A rectangle's bars are `outline` form (SH-1), so the points carry the
+      // horizontal; the line forms name two ends instead.
+      bandOfPoints(
+        'FR-043 actual',
+        actual.form === 'outline' ? actual.points : [actual.from, actual.to],
+      ),
+      {
+        what: 'OC-3 marker',
+        x0: marker.centre.x - marker.radius,
+        x1: marker.centre.x + marker.radius,
+      },
+      bandOfPoints('OC-4 resume', [...resume.arm, ...resume.head]),
+      { what: 'OC-1 name label', x0: label.x, x1: label.x + label.width },
+    ]
+    // ⭐ Stated as a chain rather than as five numbers: the row forbids the
+    // OVERLAP and fixes the ORDER, and both are exactly "each one ends at or
+    // before the next one starts". ⚠️ Touching is allowed -- OC-2's assignee
+    // label ends ON the bar's left edge, which the actual bar starts at.
+    for (let step = 0; step + 1 < bands.length; step++) {
+      const left = bands[step]
+      const right = bands[step + 1]
+      if (left === undefined || right === undefined) throw new Error('band missing')
+      expect({ pair: `${left.what} -> ${right.what}`, clear: left.x1 <= right.x0 }).toEqual({
+        pair: `${left.what} -> ${right.what}`,
+        clear: true,
+      })
+    }
+  })
+
+  it('⭐ leaves the name label where it is when S-63 hides the two marks (MUST)', () => {
+    const shown = drawnWithMarks(true)
+    const hidden = drawnWithMarks(false)
+    // The switch really did take them off the picture, or the case is vacuous.
+    expect([shown.drawn.marker === null, shown.drawn.resume === null]).toEqual([false, false])
+    expect([hidden.drawn.marker === null, hidden.drawn.resume === null]).toEqual([true, true])
+    expect(hidden.placed.labelX).toBe(shown.placed.labelX)
+    const shownLabel = shown.drawn.label
+    const hiddenLabel = hidden.drawn.label
+    if (shownLabel === null || hiddenLabel === null) throw new Error('no drawn name label')
+    expect(hiddenLabel.x).toBe(shownLabel.x)
+    expect(hiddenLabel.width).toBe(shownLabel.width)
+  })
+
+  it('⭐ leaves the occupied width unmoved by S-63 -- OC-3 / OC-4 (MUST NOT)', () => {
+    const shown = drawnWithMarks(true).placed
+    const hidden = drawnWithMarks(false).placed
+    expect([hidden.occupiedX0, hidden.occupiedX1]).toEqual([shown.occupiedX0, shown.occupiedX1])
+    // ⭐ 「算入するのは、形状の右端から名称ラベルの右端まで」 -- the reach ends
+    // at the label's right edge, and the reserved room falls INSIDE it.
+    expect(shown.occupiedX1).toBeGreaterThan(shown.labelX)
+  })
+
+  it('⭐ holds the room open -- the label no longer starts one gap past the bar', () => {
+    // ⛔ THE DEFECT ITSELF. Before D-394 the label began at 「形状の右端 +
+    // labelGap」, which is inside the marker; the room the row (MUST) asks to be
+    // held clear is what pushes it past.
+    const { placed } = drawnWithMarks(true)
+    expect(placed.labelX).toBeGreaterThan(placed.x + placed.width + BASE.labelGap)
   })
 })

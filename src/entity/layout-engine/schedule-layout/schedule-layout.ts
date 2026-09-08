@@ -59,6 +59,7 @@ import {
   COLUMN_DEFAULTS,
   dateFromWorkingDays,
   dayOf,
+  nextWorkingDay,
   planActualState,
   textOfDay,
   workingCalendarOf,
@@ -145,6 +146,22 @@ export interface TaskPlacement {
   readonly fadeOutPx: number
   /** NL-1 or NL-3 of table T-013. */
   readonly labelPlacement: LabelPlacement
+  /**
+   * NL-3's left edge: where the name label begins once the shape could not
+   * hold it. Meaningless while `labelPlacement` is `'inside'` -- NL-1's label
+   * has no part outside the shape for table T-038's order to be about.
+   *
+   * ⭐⭐ SETTLED HERE AND CARRIED, and this is the whole point of publishing it.
+   * The x used to be spelled a second time by `labelBoxOf` in ScheduleGeometry
+   * as 「shape's right edge plus `labelGap`」, which is the same rule in two
+   * places (rule 03 section 4) -- and table T-038's own heading forbids the
+   * stacking and the fit measuring apart. LC-7 counts the occupancy FROM this
+   * number, so whoever draws the label reads it rather than rebuilding it.
+   *
+   * ⛔ IT ALREADY CLEARS `OC-3` AND `OC-4`'s room, drawn or not (`markRoomOf`),
+   * so no caller may add the marker's width to it a second time.
+   */
+  readonly labelX: number
   /** The label after LC-4 cut it to truncateUnits. */
   readonly label: string
   /**
@@ -381,6 +398,12 @@ interface DayReader {
   day(text: string | null): CalendarDay | null
   /** `dateFromWorkingDays`, by the day counted from and the count. */
   walk(from: CalendarDay, workingDays: number): CalendarDay
+  /**
+   * `nextWorkingDay` -- 「予定の開始日の翌稼働日」, the day FR-043 stands GR-9's
+   * dummy on. ⛔ NOT `walk(from, 1)`: that answers a half-open end bound, which
+   * `nextWorkingDay`'s own declaration spells out.
+   */
+  after(from: CalendarDay): CalendarDay
 }
 
 /**
@@ -393,6 +416,7 @@ interface DayReader {
 function dayReaderFor(within: WorkingCalendar): DayReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
+  const afters = new Map<string, CalendarDay>()
   return {
     day(text: string | null): CalendarDay | null {
       const key = text ?? ''
@@ -410,6 +434,14 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
       if (held !== undefined) return held
       const made = dateFromWorkingDays(within, from, workingDays)
       walks.set(key, made)
+      return made
+    },
+    after(from: CalendarDay): CalendarDay {
+      const key = textOfDay(from)
+      const held = afters.get(key)
+      if (held !== undefined) return held
+      const made = nextWorkingDay(within, from)
+      afters.set(key, made)
       return made
     },
   }
@@ -1080,6 +1112,78 @@ function actualSpanOf(
 }
 
 /**
+ * How far right FR-043's dummy reaches -- GR-17's end point, or GR-18's single
+ * point on a milestone. `Number.NEGATIVE_INFINITY` where no dummy is drawn, so
+ * that a `Math.max` against it is the whole of the test.
+ *
+ * ⭐ SPELLED HERE BECAUSE THE ORDER OF TABLE T-038 IS DECIDED HERE. The dummy
+ * is the thing the marker hangs off while nothing is started (`markerAnchorX`,
+ * GR-7's not-started clause), so the name label cannot be placed without it.
+ * ⚠️ `dummiesOf` in ScheduleGeometry draws them, and reads the same two
+ * calendar walks FR-043 states -- 「予定の開始日の翌稼働日」 then
+ * `actualInitialDuration` worked days along from THAT day.
+ *
+ * ⚠️ Only asked while the Task has no actual at all: FR-043 draws the pair then
+ * and not otherwise, which is the same test `dummiesOf` opens with.
+ *
+ * @purity pure
+ */
+function dummyReachOf(
+  task: Task,
+  shapeKind: ShapeKind,
+  reader: DayReader,
+  originSerial: number,
+  pxPerDay: number,
+  originX: number,
+  settings: DocumentSettings,
+): number {
+  const start = reader.day(task.start)
+  // FR-013 (MUST NOT) keeps a Task with no planned start off the screen, and
+  // FR-043 draws no dummy without one either.
+  if (start === null) return Number.NEGATIVE_INFINITY
+  const from = reader.after(start)
+  // GR-15: a milestone holds no actual BAR, so FR-043 shows ONE point on it and
+  // there is no GR-17 further along.
+  const at = shapeKind === 'milestone' ? from : reader.walk(from, settings.actualInitialDuration)
+  return xOnTimeAxis(originSerial, pxPerDay, originX, at)
+}
+
+/**
+ * The room the progress marker (`OC-3`) and the resume icon (`OC-4`) stand in,
+ * measured from whatever the marker hangs off.
+ *
+ * ⛔⛔ HELD CLEAR WHETHER OR NOT THE TWO ARE DRAWN, which is table T-038's own
+ * MUST: 「名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
+ * 同じ位置とすること（MUST）。`OC-3` / `OC-4` のぶんの場所は、描かないときも
+ * 空けること（MUST）。描いたときだけ空けてはならない（MUST NOT）」.
+ * ⭐ WHY. `OC-1` IS counted in the occupied width and `OC-3` / `OC-4` are
+ * forbidden from it, so that flipping ONE switch -- S-63, which holds both --
+ * cannot move a Task. Put the name label outside the marker and let it slide
+ * back when the marker goes, and the very accident those two MUST NOTs exist to
+ * prevent returns through `OC-1`.
+ * ⇒ Nothing here reads `progressMarkerVisible`. It must not.
+ *
+ * ⭐ EVERY TERM IS A VALUE THE DOCUMENT ALREADY HOLDS -- the row forbids
+ * minting a new one (MUST NOT). `markerGap` (S-23) is the clearance `markerOf`
+ * puts before the circle and `resumeOf` puts before the icon; `markerSize`
+ * (S-22) is the circle across; and the icon's reach is `resumeArmOfMarker`
+ * (S-26) plus `resumeHeadOfMarker` (S-27) OF that same S-22, which is the
+ * arithmetic `resumeOf` draws it by.
+ *
+ * ⚠️ S-25 (`resumeScaleInvalid`) is deliberately absent: it only SHRINKS the
+ * icon (its range tops out at 1), so the room reserved here is the widest the
+ * pair can ever be -- and a room that varied with `resumeValid` would move the
+ * label per Task.
+ *
+ * @purity pure
+ */
+function markRoomOf(settings: DocumentSettings): number {
+  const side = settings.markerSize
+  const resumeReach = side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
+  return settings.markerGap + side + settings.markerGap + resumeReach
+}
+
+/**
  * How many ranks of controls stand on one row -- HF-1 of table T-051 (MUST):
  * 「並びは 2 × 2 の格子とすること」.
  *
@@ -1313,9 +1417,36 @@ export function layoutFromSchedule(
       const fade = clampedFade(task, kind, width, pxPerDay)
       const roomInside = Math.max(0, width - fade.fadeIn - fade.fadeOut)
       const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
-      // ---- LC-7: OC-1 is the label the shape could not hold --------------
-      const labelledX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
+      // ---- table T-038's order: what the name label has to clear ----------
+      // 「並びは 担当ラベル（OC-2）→ 実績バーと実績のダミー（FR-043）→ 進捗
+      // マーカー（OC-3）→ 再開アイコン（OC-4）→ 名称ラベル（OC-1）とすること
+      // （MUST）」, and 「この 5 つを重ねて描いてはならない（MUST NOT）」.
+      // ⭐ The marker does not hang off the plan bar: `markerAnchorX` in
+      // ScheduleGeometry reads the ACTUAL bar's far end, or -- while nothing is
+      // started -- GR-17's dummy. So the label has to clear whichever of the
+      // three reaches furthest, or the two MUST NOTs are broken exactly in the
+      // state a fresh Task is in.
+      // ⚠️ THE MAXIMUM IS TAKEN UNCONDITIONALLY, so this stays at or right of
+      // the anchor the geometry picks under any `planActualDisplay`: that side
+      // narrows the anchor (the plan alone, a milestone's figure), never widens
+      // it, and a label further out than it needs to be still overlaps nothing.
+      const outwardX = Math.max(
+        x + width,
+        actual !== null
+          ? actual.x + actual.width
+          : dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
+      )
+      // ---- LC-7: OC-1 is the label the shape could not hold --------------
+      // ⛔ MEASURED FROM `outwardX`, NOT FROM THE SHAPE, and the room for the
+      // two marks is held clear whether or not they are drawn (`markRoomOf`).
+      // `labelGap` (S-32) is 「形状の外へ出すラベル用」 and separates the label
+      // from the room, the way it used to separate it from the shape.
+      const labelX = outwardX + markRoomOf(settings) + settings.labelGap
+      // ⭐ 「算入するのは、形状の右端から名称ラベルの右端までとすること（MUST）」
+      // -- the held-clear room falls INSIDE that reach, and its width is a
+      // constant, so S-63 still moves nothing.
+      const labelledX1 = placement === 'right' ? labelX + text : x + width
       // ---- LC-7: OC-5 is the actual bar reaching outside the plan --------
       // ⛔ Not conditioned on `planActualDisplay`: OC-2 is the row that spells
       // out "count it only while it is shown", and OC-3 / OC-4 give the reason
@@ -1346,7 +1477,7 @@ export function layoutFromSchedule(
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
-      return { task, kind, glyph, x, width, label, font, placement, actual,
+      return { task, kind, glyph, x, width, label, font, placement, actual, labelX,
                fade, assigneeLabel, assigneeLabelWidth, percentLabel, percentLabelWidth,
                occupiedX0, occupiedX1 }
     })
@@ -1489,6 +1620,7 @@ export function layoutFromSchedule(
         actualX: item.actual === null ? null : item.actual.x,
         actualWidth: item.actual === null ? 0 : item.actual.width,
         labelPlacement: item.placement,
+        labelX: item.labelX,
         label: item.label,
         // LC-5 measured the label with this size; it leaves with the placement
         // so nothing downstream writes FR-077's formula a second time.

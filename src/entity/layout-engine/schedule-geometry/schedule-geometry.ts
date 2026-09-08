@@ -1302,9 +1302,15 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
         height,
       }
     : {
-        x: placed.x + placed.width + settings.labelGap,
+        // ⛔⛔ READ, NOT REBUILT. The left edge used to be spelled here as the
+        // shape's right edge plus `labelGap`, which put table T-038's order in
+        // two places -- and it ran the name label straight over OC-3's marker,
+        // which is what the user reported (D-394). `TaskPlacement.labelX` is
+        // where NL-3's label begins, held clear of OC-3 and OC-4 whether or not
+        // they are drawn, and LC-7 counted `occupiedX1` from that very number.
+        x: placed.labelX,
         y,
-        width: Math.max(0, placed.occupiedX1 - (placed.x + placed.width) - settings.labelGap),
+        width: Math.max(0, placed.occupiedX1 - placed.labelX),
         height,
       }
 }
