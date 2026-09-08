@@ -1,4 +1,26 @@
-0
+6
+#
+# RAISED 0 -> 6 ON 2026-09-09, deliberately, and here are the six.
+# ⛔ Four rulings came down at once and none is written into docs/spec yet;
+# two of the six are process rulings that land in the handoff and the
+# development rules rather than in a requirement.
+#
+#   R-27  the progress marker stands outside the grab margin, so the
+#         ordering counts S-93 and not the drawn mark
+#   R-28  the resume icon beats the plan bar body -- the user overruled
+#         the recommendation, and gave the reason: you can zoom in to
+#         edit the plan, but you cannot resume without the icon
+#   R-29  the pixels of the drawn dummy mark grab the FINISH side
+#   R-30  entries for font scale, monochrome, stack direction and the
+#         bulk delete of unreferenced people; the other two are measured
+#         first, because an entry may already exist
+#   R-31  refute "no clause covers this" BEFORE putting a row in front of
+#         the user -- three of four were not rulings at all
+#   R-32  harvest 実測済 and 取下げ out of defects.md every round
+#
+# ⛔ THIS NUMBER MUST REACH 0 AGAIN IN THE NEXT ROUND. It is the whole
+# reason the user asked twice; leaving it at 6 is how it becomes asking
+# three times.
 #
 # LOWERED 1 -> 0 ON 2026-09-09. The assignee swap landed: the release
 # clause is written into 表 T-225 of FR-008, and the seam that builds
