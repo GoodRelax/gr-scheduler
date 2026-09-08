@@ -980,3 +980,131 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
     expect(control.hasAttribute('disabled')).toBe(false)
   })
 })
+
+// ===========================================================================
+// 表 T-225 AS-1 (MUST) -- the assignee's own field, which MK-13 sends 担当ラベル to
+// ===========================================================================
+//
+// ⛔⛔ WHY THIS BLOCK STANDS BESIDE THE ONES ABOVE. AS-1 asks for the same two
+// halves as MK-13's task entry -- 「プロパティパネルを出し、担当者の欄（表 T-016
+// の `PR-16`）を編集できる状態にして焦点を置くこと（MUST）」 -- but for a row whose
+// 入力の型 is 選択 rather than 文字, and 表 T-225 の `AS-5` (MUST) hangs 「ドロップ
+// ダウンと部分一致の検索」 off it. ⚠️⚠️ A row drawn only as a chooser holds no
+// place for the focus to land: measured on the shipped build 2026-09-08, the
+// panel came up on a double click and the focus stayed on the page's body, so
+// the person was left outside every field of the panel they had just opened.
+// ⭐ THAT IS WHAT THESE CASES WATCH, and the whole reason they are here: the
+// cases above drive a 文字 row, which cannot see it.
+//
+// ⛔ WHICH ELEMENT THE FOCUS LANDS ON IS NOT ASSERTED, for the reason case 2 of
+// this file's head already gives -- FR-006 fixes the FORM of a control (表 T-016
+// の 入力の型) and not the tag, and `AS-5` names two entrances for this one row
+// without saying which of them 「焦点を置く」 means. ⭐ What IS asserted is that
+// the focus landed on a control OF THAT ROW, which is the half that was missing.
+
+/** Everything AS-1 writes, as one string. */
+const AS_1 = rowOf('T-225', 'AS-1').cells.join(' ')
+
+/**
+ * The row of 表 T-016 AS-1 names -- read OUT OF AS-1's own cell, never typed
+ * (rule 03 section 1), exactly as `NAME_ROW` is read out of MK-13's.
+ */
+const ASSIGNEE_ROW = ((): string => {
+  const found = /担当者の欄（表 T-016 の `(PR-\d+)`）/.exec(AS_1)
+  if (found === null) {
+    throw new Error('表 T-225 AS-1 no longer names 担当者の欄（表 T-016 の `PR-n`）')
+  }
+  return found[1] as string
+})()
+
+/** One person already on the Task, and one who is not -- `AS-5`'s 名簿. */
+const THE_PERSON_ON_IT = 'PersonAlreadyOn'
+const THE_OTHER_PERSON = 'PersonNotOnItYet'
+
+/**
+ * `PR-16` as `AS-5` (MUST) has it drawn: a chooser over the roster with a
+ * partial-match search beside it.
+ *
+ * ⚠️ THE CONTROL CARRIES NO TEXT OF ITS OWN, which is `AS-6`'s doing -- the
+ * field shows the names and the control shows what one press of it would
+ * settle. ⛔ So no case below can find this row by a value, the way
+ * `controlCarrying` finds the others.
+ */
+const ASSIGNEE_FIELD: PropertyField = {
+  row: ASSIGNEE_ROW,
+  name: 'assignee',
+  text: THE_PERSON_ON_IT,
+  isEditable: true,
+  controls: [
+    controlOf({
+      // ⭐ THE KEY IS THE ONE `AS-9` (MUST) SETTLES -- what a press of the
+      // chooser commits is a `uid`, so the key names the Task and its `uid`
+      // column. ⚠️ It decides nothing here: no case below reads a commit.
+      key: { holder: 'task', uid: 1, column: 'uid' },
+      kind: 'choice',
+      text: '',
+      choices: [THE_PERSON_ON_IT, THE_OTHER_PERSON],
+      searchWords: [THE_PERSON_ON_IT, THE_OTHER_PERSON],
+    }),
+  ],
+}
+
+/** Every control the panel drew for one row of 表 T-016. */
+const controlsOfRow = (built: Stage, row: string): FakeElement[] =>
+  controlsIn(oneByRole(built.root(), U_25)).filter(
+    (one) => one.getAttribute('data-field-row') === row,
+  )
+
+describe('表 T-225 AS-1 -- 担当者の欄を編集できる状態にして焦点を置く', () => {
+  it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
+    // ⛔ WITHOUT THIS, A PARSE THAT LOST THE CELL WOULD MAKE EVERY CASE BELOW
+    // AGREE WITH ANYTHING -- rule 04 section 2.
+    expect(ASSIGNEE_ROW).toBe('PR-16')
+    expect(AS_1, 'AS-1 still puts the focus in the assignee field').toContain(
+      '編集できる状態にして焦点を置くこと',
+    )
+    // ⛔ AND THE ROAD IT IS NOT. AS-1 forbids an editor drawn on the schedule
+    // itself, which is what makes the panel the only place a focus can land.
+    expect(AS_1, 'AS-1 still forbids an in-place editor').toContain(
+      'その場で打ち換える器を置いてはならない',
+    )
+  })
+
+  it('⛔ MUST: the assignee field takes the focus', () => {
+    // 「担当者の欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」.
+    // ⛔ GOES RED IF the row is drawn with nothing the focus can be put into --
+    // which is the state measured on the shipped build on 2026-09-08.
+    const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
+
+    askForFocus(built, ASSIGNEE_ROW)
+
+    const active = built.world.activeElement
+    expect(active, 'AS-1 (MUST): 担当者の欄 ... 焦点を置くこと').not.toBe(null)
+    expect(
+      controlsOfRow(built, ASSIGNEE_ROW),
+      'the focused control is one the panel drew for that row',
+    ).toContain(active)
+  })
+
+  it('⭐ the row asked for is the row that answers -- the name field is left alone', () => {
+    // ⛔ WITHOUT THIS, A UNIT THAT FOCUSED THE FIRST CONTROL IT DREW WOULD PASS
+    // THE CASE ABOVE. AS-1 names ONE row of 表 T-016 and the panel prints
+    // several (FR-006).
+    const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
+
+    askForFocus(built, ASSIGNEE_ROW)
+
+    expect(built.world.activeElement).not.toBe(controlCarrying(built, THE_NAME_ALREADY_THERE))
+  })
+
+  it('⛔ the field is still one a person can type in -- the control is not read-only', () => {
+    // 「編集できる状態にして」 comes before 「焦点を置く」 in the row's own order.
+    const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
+
+    askForFocus(built, ASSIGNEE_ROW)
+
+    const active = built.world.activeElement
+    expect(active === null ? true : active.hasAttribute('readonly')).toBe(false)
+    expect(active === null ? true : active.hasAttribute('disabled')).toBe(false)
+  })
+})

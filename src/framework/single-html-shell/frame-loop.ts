@@ -1336,6 +1336,27 @@ const TASK_NAME_FIELD_ROW = 'PR-1'
 const ROW_NAME_FIELD_ROW = 'AT-53'
 
 /**
+ * The row `AS-1` of table T-225 names as the field a double click on an
+ * assignee label puts the person into -- 「担当者の欄（表 T-016 の `PR-16`）」,
+ * which MK-13 sends 担当ラベル to (利用者の裁定 2026-09-08).
+ *
+ * ⛔ SPELLED HERE FOR THE REASON THE TWO ROWS ABOVE ARE: the row id is the join,
+ * and `ScreenSurface.focusPropertyField` takes one by design. ⚠️ WHICH CONTROL
+ * OF THAT ROW A PERSON LANDS IN IS THE DRAWING SIDE'S ANSWER -- AS-5 (MUST)
+ * hangs a chooser AND a search box off `PR-16`, and this side says the row.
+ */
+const ASSIGNEE_FIELD_ROW = 'PR-16'
+
+/**
+ * The row MK-13's コメントボックス entry names as the field a double click on a
+ * comment box puts the person into -- 「本文の欄（表 T-016 の `PR-21`）」
+ * (利用者の裁定 2026-09-06), which FR-097 (MUST) sends its one entrance to.
+ *
+ * ⛔ SPELLED HERE FOR THE REASON THE ROWS ABOVE ARE.
+ */
+const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
+
+/**
  * The row SK-9 names as the field `F2` puts the person into -- `U-27` of table
  * T-103, the `Document Title` the `App Header` draws.
  *
@@ -9272,53 +9293,77 @@ export function frameLoop(
           nameFieldWantedRow = DOCUMENT_TITLE_FIELD_ROW
           return
         }
-        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR MK-13's 担当ラベル. It opens a
-        // field on the schedule itself -- the assignee's name, AS-1 of table
-        // T-225 -- and nothing in this build draws one.
-        // ⚠️ FR-091's 「作った直後に入力できること」 wants the same editor.
-        // ⭐ NARROWED TWICE. On 2026-08-30 MK-13's Task entry left it, because
-        // that row now requires the very route it used to forbid (the branch at
-        // the head of this case). On 2026-09-06 the document name left it, by
-        // the ruling CR-361 carries -- ⛔ AND NOT BY THE PANEL: what that ruling
-        // opened was the in-place road, and 担当ラベル could take the same one.
-        // ⚠️ IT IS NOT THE SAME FIELD, WHICH IS WHY THIS IS STILL A STOP: the
-        // name of the document is ONE field the header always draws (`U-27`),
-        // and an assignee's label is one of however many the schedule is drawing
-        // this frame -- `ScreenView` carries no description of an editable one
-        // and no row id names WHICH task's label was pressed.
-        //
-        // ⭐⭐ THE TELLING THE RENAME OWES NOW HAS A ROW, AS OF 2026-09-06
-        // (CR-364 B-1, ledger row D-273): table T-233 gained `RS-49`, whose 正
-        // is `FR-008` and whose 作法 is `NT-3`, and `display-words.json` holds
-        // its words. ⛔ NOTHING RAISES IT YET AND NOTHING HERE SHOULD: this STOP
-        // is the reason -- no entrance renames an assignee, so `setResourceName`
-        // (CM-41 of table T-108) has no caller anywhere in `src/`, and a raiser
-        // with no rename to answer would be a telling for an act that cannot
-        // happen. ⭐ WHICH IS WHY THE ROW WAS WRITTEN FIRST: `FR-008` (MUST)
-        // asks for 「その担当者が付いている全タスクの表示が変わることを、対象の
-        // 件数とともに通知すること」, and `edit-resource.ts` records in its own
-        // words that the count is not the use case's to carry but FR-076's. ⇒
-        // when the editor below lands, the count goes on `affectedCount` and the
-        // row goes on `reason`, and no word of it is composed here (FR-038,
-        // MUST NOT).
-        //
-        // ⛔⛔ AND THE EDITOR ALONE WOULD NOT BE ENOUGH -- MEASURED 2026-09-06,
-        // AGAINST THE LEDGER'S OWN READING OF D-273 (「造りだけが未着手」). Every
-        // row of table T-225 that turns what was typed into this field into a
-        // command names a DIFFERENT command from CM-41: `AS-7` 「名簿に無い名前を
-        // 受け取った」 ⇒ CM-40 and CM-44 (make the resource, then assign it),
-        // `AS-8` 「同名の担当者が複数いる名前を受け取った」 ⇒ assign to the smaller
-        // uid and 「統合してはならない（MUST NOT）」, `AS-3` the `-` ⇒ CM-45,
-        // `AS-10` a name already on this Task ⇒ 「割当を増やさないこと（MUST）」.
-        // ⇒ NO ROW OF THAT TABLE RENAMES A `Resource`, and `FR-099` says of the
-        // one surface that lists them 「本要求が足すのは名簿の表示と削除だけで
-        // ある」. So CM-41 (`setResourceName`) has no entrance in the
-        // specification, not merely none in this build -- which is what D-350
-        // counted from the other end.
-        // ⚠️ THE ACT IS NAMED ALL THE SAME: `FR-008` (MUST) 「担当者の名前を変えた
-        // ときは ... 通知すること」, `UN-15` of table T-027 makes 改名 undoable, and
-        // `RS-49` now carries the telling. ⛔ WHICH GESTURE PERFORMS IT IS THE
-        // HOLE, and choosing one here would be inventing a row of table T-225.
+        if (action.target.kind === 'assignee') {
+          // MK-13's 担当ラベル entry, whose destination is `AS-1` of table T-225
+          // (MUST, 利用者の裁定 2026-09-08): 「プロパティパネルを出し、担当者の
+          // 欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」, with
+          // 「その場で打ち換える器を置いてはならない（MUST NOT）」 beside it.
+          //
+          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED BY THE RULING AND NOT BY A NEW
+          // ORGAN. It read 「NO IN-PLACE EDITOR EXISTS ... and nothing in this build
+          // draws one」, which was true of the row as it stood until 2026-09-08 --
+          // 「その場で担当者名を編集させること（MUST）」. ⚠⚠ The row itself records
+          // why it moved: 「その場の編集器は殻に 1 つも無く、条項と造りが食い違った
+          // ままであった」. ⇒ The destination is now the panel, which the two
+          // branches above already reach, so nothing is built for this one.
+          //
+          // ⭐ THE SAME TWO LINES AS `taskName` AND `rowName`, which is the ruling's
+          // own reading: 「表 T-023 の `MK-13` が挙げるほかの対象はすべてパネルへ行って
+          // おり」. ⛔ NO THIRD ENTRANCE IS MADE (FR-029, MUST NOT): the panel goes
+          // up through the one function FR-072 names as an entrance.
+          // ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE. The first click of the
+          // double click already moved the selection (SL-2 of table T-023c), and the
+          // assignment is written by the field's own commit -- which of table T-225's
+          // rows that commit becomes is `commandFromFieldCommit`'s, not this press's.
+          // ⛔ AND `FR-091`'s 「同じ 1 回の押下でパネルを閉じ、その選択を解く」 IS NOT
+          // COPIED HERE (MUST NOT), which `AS-1` states in as many words: that clause
+          // is written about a name given to a thing just made, and editing an
+          // assignee makes nothing.
+          // ⚠ NO 全選択 IS ASKED FOR EITHER -- `MK-13` says 「既にある文字をすべて選ん
+          // だ状態にすること」 of its Task entry and of its 行見出し entry, and
+          // `AS-1` says it nowhere.
+          showPropertiesOfChoice()
+          nameFieldWantedRow = ASSIGNEE_FIELD_ROW
+          return
+        }
+        if (action.target.kind === 'commentBoxText') {
+          // MK-13's コメントボックス entry (MUST, 利用者の裁定 2026-09-06):
+          // 「プロパティパネルを出し、本文の欄（表 T-016 の `PR-21`）を編集できる状態
+          // にして焦点を置くこと」, with 「図の上で打ち換える器を置いてはならない
+          // （MUST NOT）」 beside it. `FR-097` (MUST) sends its one entrance here.
+          //
+          // ⛔⛔ THE ROAD WAS DECLARED OPEN BEFORE IT WAS BUILT. The note under
+          // `InPlaceTarget` closed the ledger's D-283 on the ground that `PR-21`
+          // had arrived and the panel's road was 「open」 -- and it was open on the
+          // TRANSLATOR's side only: every `commentBoxText` reached this case and
+          // fell through the STOP below it, so a double click on a comment box put
+          // no panel up and settled no focus (measured on the shipped build,
+          // 2026-09-08). ⭐ THE TWO SIDES OF ONE ROAD ARE COUNTED APART FROM NOW ON.
+          //
+          // ⭐ THE SAME TWO LINES AS THE THREE ENTRIES ABOVE, which is what that
+          // MUST NOT settles -- only the row differs, `PR-21` against `PR-1`,
+          // `AT-53` and `PR-16`. ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE:
+          // the first click of the double click already chose the box (SL-3 of
+          // table T-023c) and the body is written by the field's own commit.
+          // ⚠ NO 全選択, AND THAT IS THE ROW'S OWN SILENCE -- `MK-13` asks for it
+          // of its Task entry and of its 行見出し entry and of the comment box
+          // nowhere.
+          showPropertiesOfChoice()
+          nameFieldWantedRow = COMMENT_BOX_TEXT_FIELD_ROW
+          return
+        }
+        // ⛔ EVERY KIND OF `InPlaceTarget` HAS A BRANCH ABOVE, and this is where
+        // the compiler says so: a member added to that union arrives here as
+        // something other than `never` and the assignment stops compiling.
+        // ⭐ WHICH IS WHY NO STOP STANDS HERE ANY MORE. The one that did named
+        // 担当ラベル and rested on a row that has since been rewritten; the telling
+        // an assignee's RENAME would owe (`RS-49`, `CM-41`) is a different act
+        // with no entrance in the specification, and `edit-resource.ts` holds
+        // that reading -- ⛔ nothing here raises it.
+        {
+          const unreached: never = action.target
+          void unreached
+        }
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette

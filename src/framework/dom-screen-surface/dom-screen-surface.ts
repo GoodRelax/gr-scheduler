@@ -4779,6 +4779,7 @@ function searchElements(
   row: string,
   control: PropertyControl,
   words: readonly string[],
+  typedByRow: Map<string, TextEntryControl> | null,
 ): readonly HTMLElement[] {
   const id = rosterId(row)
   const roster = host.createElement('datalist')
@@ -4803,6 +4804,27 @@ function searchElements(
   // so it is settled by `Enter` and abandoned by `Esc` like every other such
   // control, and IN-5a's `Delete` is swallowed while it holds the pointer.
   TYPED_CONTROLS.add(box)
+  // ⭐⭐ AND IT IS THE ONLY WAY INTO `PR-16`, WHICH IS WHY THE ROW IS RECORDED
+  // HERE TOO (MEASURED 2026-09-08 ON THE SHIPPED BUILD). `AS-1` of table T-225
+  // (MUST) has a double click on the assignee label 「担当者の欄（表 T-016 の
+  // `PR-16`）を編集できる状態にして焦点を置くこと」, and `focusPropertyField`
+  // reaches a row through `typedControlsByRow` -- which `controlElement` fills
+  // for the kinds of `IS_KIND_TYPED_INTO` alone. `PR-16`'s 入力の型 is 選択, so
+  // that map held nothing under it and the focus landed nowhere: the panel came
+  // up and the person was left outside every field on it.
+  // ⛔ NOT INSTEAD OF A CONTROL ALREADY RECORDED FOR THE ROW. `controlElement`
+  // runs first and takes the row when its kind is one typed into, and its own
+  // note says why the FIRST entrance of a row wins -- 「the row's own value
+  // stands in」 that one. This fills the row only where the chooser beside it
+  // could not, which is exactly the case `AS-5` (MUST) makes by hanging two
+  // entrances off one row where only the second takes characters.
+  // ⛔ `null` IS A CALLER THAT IS NOT THE PANEL, the same bargain
+  // `controlElement` keeps: `modalElement` draws table T-104's fields through
+  // its own builder and a control recorded from there would answer for a row
+  // the panel never drew.
+  if (typedByRow !== null && !typedByRow.has(row)) {
+    typedByRow.set(row, box as unknown as TextEntryControl)
+  }
   return [roster as HTMLElement, box]
 }
 
@@ -4877,7 +4899,7 @@ function fieldElement(
     // holding a copy of table T-016.
     const words = control.searchWords
     if (words !== undefined) {
-      controls.append(...searchElements(host, field.row, control, words))
+      controls.append(...searchElements(host, field.row, control, words, typedByRow))
     }
   }
   line.append(name, controls)
