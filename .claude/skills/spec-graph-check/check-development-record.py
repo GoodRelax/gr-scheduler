@@ -80,9 +80,17 @@ def main():
         # ⭐ fixed-defects.md is the fifth, added 2026-09-02: it is the defect
         # ledger's own second half, holding the rows that reached 実測済 or
         # 取下げ, and it is keyed the same way the ledger is.
+        # ⭐ rulings.md is the sixth, added 2026-09-08 on the user's instruction
+        # 「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」.
+        # It is keyed by the user's own words and their date, not by a folder
+        # of units -- a ruling can land in a requirement, a table row, a
+        # settings value or a rule of the development rules, and often in
+        # several at once. ⛔ Check 43 is the one that reads it, and it asks
+        # whether each ruling reached docs/spec rather than whether a folder
+        # of units is accounted for.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
-            'fixed-defects.md'
+            'fixed-defects.md', 'rulings.md'
         ):
             continue
         path = os.path.join(RECORDS, name)
