@@ -1,4 +1,32 @@
-991
+980
+#
+# LOWERED 991 -> 980 ON 2026-09-09, PAYING BACK PART OF D-377's DEBT.
+# tests/unit/d-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts holds nine
+# of the eighteen clauses commit 381c2ef raised 934 -> 951 on 2026-09-07 (the
+# two zoom ceilings of FR-016, T-076 EP-9's Panel Divider thickness): four of
+# FR-016's and all five of EP-9's. The other nine of the eighteen were ALREADY
+# held, verbatim, by tests/system/user-reported-fixes.test.ts -- a fact this
+# round measured rather than trusted, because the brief handed down said none
+# of the eighteen had a tie. ⭐ Two of the nine held here are quoted only
+# (FR-016's "no font comparison" and "no dead entrance at the ceiling" MUST
+# NOTs): the first names a private function no published entry surfaces, the
+# second's own text points the press at FR-029's screen-renderer convention,
+# neither of which a black-box unit test can honestly assert without inventing
+# a contract the specification does not state. ⭐ The other seven are PRESSED
+# against the real build, not merely quoted: EP-9's five against
+# `GROUP_GRID_LINE_WIDTH_PX` / `screenFrameFromRegions` / `exportSvg` (a
+# hand-typed duplicate width was measured to turn two cases red), and FR-016's
+# remaining two against `rowPlacesAtZoomY` (an arithmetic-from-zoom shortcut,
+# the literal violation the MUST NOT names, was measured to turn one case red).
+# ⚠️ MEASURED, NOT ASSUMED: the run immediately before this file existed
+# printed 990 not held (the baseline above still read 991 -- some other
+# round's work had already lowered the true count without updating this file);
+# the run immediately after printed 980. ⛔ D-377's debt is not closed: this
+# entry pays back only the nine named above. FR-016's STATEMENT block carries
+# well over a hundred MUST/MUST NOT markers in all (table T-023a/T-023b/T-023d
+# among them), most of them unrelated to the 2026-09-07 raise and untouched by
+# this entry -- D-377 itself is the eighteen this round was scoped to, not the
+# whole requirement.
 #
 # LOWERED 995 -> 991 ON 2026-09-09 by three rulings landing at once.
 # Four MUST clauses gained an anchor that quotes them word for word:

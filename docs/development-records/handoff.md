@@ -507,7 +507,7 @@ bash .claude/skills/spec-graph-check/check.sh        exit 0（⛔ grep ではな
 npm run parity                                       75/75
 npx vite build && npx playwright test                落ちる件に台帳の行が在ること
 ```
-⭐ **そして、巡を閉じる前に台帳を刈り取る**（利用者の裁定 2026-09-09、逐語「defects.mdで終わっている案件は(取り下げ、実測済み)はfixed-defects.mdに移せ」）——
+⭐ **そして、巡を閉じる前に台帳を刈り取る**（利用者の裁定 2026-09-09、逐語「defects.mdで終わっている案件は(取り下げ、実測済み)はfixed-defects.mdに移せ。」）——
 ⛔ **`defects.md` に `実測済` と `取下げ` を 1 行も残さない。**⭐ **機械的なので体に出す。**
 
 ```
