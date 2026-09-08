@@ -105,8 +105,10 @@
 // ⭐ WHAT IS READ OUT OF THE TREE. Two things, and both are there to stop a pin
 // outliving what it pins: the screen of the base environment (table T-025, row
 // `MC-6`, through `screenOf`), and the ledger itself -- the last case fails if
-// a row pinned here has left `docs/development-records/defects.md`, which is
-// where a fixed row goes.
+// a row pinned here has left the ledger. ⛔ THE LEDGER IS TWO FILES:
+// `docs/development-records/defects.md` and `fixed-defects.md`, and a row that
+// has been measured moves across from the first to the second. Reading only the
+// first calls that move a deletion -- see `LEDGERS` at the foot of this file.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -138,11 +140,14 @@ const D230: Pin = {
  * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
  * file of its own: the fault it watches shows only on the first page of a
  * browser process, so the case must own the launch. It is a plain assertion and
- * not `test.fail()` -- it is red while the row is open, which is the correct
+ * not `test.fail()` -- it was red while the row was open, which is the correct
  * report -- so D-230 sits in this list only for the gate at the bottom of this
- * file: a row named here must still be an OPEN row of
- * `docs/development-records/defects.md`, so a System case written for it
- * cannot outlive the row it was written for.
+ * file: a row named here must still be a row of the ledger, so a System case
+ * written for it cannot outlive the row it was written for.
+ * ⭐⭐ THE ROW SETTLED ON 2026-09-03 AND MOVED TO `fixed-defects.md` on
+ * 2026-09-08, and its case turned green with the fix. ⛔ The pin stays: the case
+ * is now the CONTROL for that fix, and the gate below reads both files so that
+ * the move is not mistaken for a deletion.
  *
  * ⭐ D-232's CASE IS IN THIS FILE, moved here from
  * `tests/system/measured-sweep.test.ts` where it was found and could not be
@@ -737,7 +742,7 @@ interface Dropped {
   readonly planX: number
   /** How wide that plan bar was drawn, before the hold was touched. */
   readonly planWidth: number
-  /** The gap the product draws between the two grab-holds -- see `faintHolds`. */
+  /** The width the product draws the one ダミーの印 at -- see `faintHolds`. */
   readonly step: number
   /** How far the hold was dragged before it was let go. */
   readonly carriedPx: number
@@ -755,10 +760,18 @@ interface Dropped {
  * pointer at all. One drawn on the ground below the last row is in view, at the
  * same zoom, with its own plan start to measure against.
  *
- * ⛔ NOT A NUMBER OF PIXELS WRITTEN HERE. The distance is counted in the gap
- * the product itself draws between the start hold and the end hold -- `FR-043`
- * puts the second `S-129` beyond the first -- so this file spells no width and
- * no zoom, and a change to either moves the drag with it.
+ * ⛔ NOT A NUMBER OF PIXELS WRITTEN HERE. The distance is counted in the width
+ * the product itself draws the one ダミーの印 at -- `FR-043` (MUST) draws it
+ * 「1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」 -- so
+ * this file spells no width and no zoom, and a change to either moves the drag
+ * with it.
+ * ⛔⛔ IT USED TO BE COUNTED IN THE GAP BETWEEN TWO DRAWN MARKS, and on
+ * 2026-09-08 there stopped being two: 「**ダミーの印は 1 つだけ描くこと（MUST）。
+ * 開始の側と終了の側に別々の印を描いてはならない（MUST NOT）**」. ⚠️ WHAT WENT
+ * AWAY IS INK AND NOT A GRAB TARGET -- 「掴む先が 2 つであることは変わらない」,
+ * and 表 T-023d still holds `GR-9` and `GR-17`. ⚠️ This file reads figures off
+ * the canvas, so it speaks to the drawing side only; the grab side is measured
+ * where the hit areas are.
  *
  * ⚠️ NOT COUNTED FROM THE PLAN START. `GR-9` says the start hold stands one
  * working day past the plan start; measured on two screens, the product draws
@@ -807,21 +820,36 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
     `the widest bar beside the grab-hold is ${plan.width}px, and the task drawn was ${barWidth}px`,
   ).toBeLessThan(24)
 
-  expect(dummy.halves.length, 'the grab-hold is not drawn as the two FR-043 asks for').toBe(2)
-  const step = (dummy.halves[1] ?? 0) - (dummy.halves[0] ?? 0)
-  expect(step, 'the two grab-holds are drawn on top of each other, so there is no unit to drag in')
+  // ⭐⭐ ONE MARK (MUST), 利用者の裁定 2026-09-08: `FR-043` 「**ダミーの印は 1 つ
+  // だけ描くこと（MUST）。開始の側と終了の側に別々の印を描いてはならない（MUST
+  // NOT）**」. ⛔ THIS ASKED FOR TWO UNTIL THAT DAY, and it was reading the grab
+  // side's count as a count of drawn figures -- 「⛔ **2026-09-08 まで `GR-9` と
+  // `GR-17` の位置に縦棒が 1 本ずつ立ち、画面には 2 本見えていた**」 is what the
+  // ruling struck down. ⚠️ The grab side did not move: 「掴む先が 2 つであること
+  // は変わらない」.
+  expect(dummy.halves.length, 'FR-043 (MUST) draws the ダミーの印 1 つだけ').toBe(1)
+  // ⭐ THE UNIT TO DRAG IN IS THE MARK'S OWN WIDTH, which `FR-043` (MUST) makes
+  // 「1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」 --
+  // a distance the PRODUCT chose at the zoom it came up at, and no number typed
+  // here. ⚠️ It is at most one day, so three of them and eight of them are still
+  // different days, which is all the case below asks of it.
+  const step = dummy.width
+  expect(step, 'the ダミーの印 is drawn with no width, so there is no unit to drag in')
     .toBeGreaterThan(0)
 
-  // ⛔⛔ THE MIDDLE OF THE PAIR, AND IT IS MEASURED, NOT CHOSEN FOR TIDINESS.
-  // The two holds overlap; FR-043 gives the overlap to the START hold, which is
-  // the one wanted. ⚠️ Nearer the left edge is NOT the start hold: table
-  // T-023d puts GR-3, the plan start point, above GR-9, so it takes the press
-  // there. Measured on the shipped build, counting from the start hold's own
-  // left edge with one step drawn 6px wide: at +3px and +6px the PLAN bar moved
-  // and no actual was written at all; at +9px through +15px the actual was
-  // written and the plan bar did not move; at +18px the END hold took it and
-  // the actual came out the width of the whole drag. The middle of the pair
-  // lands in the middle of that window.
+  // ⛔⛔ THE MIDDLE OF THE MARK, AND IT IS MEASURED, NOT CHOSEN FOR TIDINESS.
+  // The mark stands on GR-9's own day column -- FR-043 (MUST) 「**ダミーを描く
+  // 位置は、予定の開始日の翌稼働日とすること（MUST）**」 -- and GR-17's box begins
+  // a further S-129 along, so the middle of the mark is inside GR-9's reach and
+  // short of GR-17's. That is the one wanted: GR-9 puts the actual start on the
+  // day the hold was let go of, which is what the case below reads.
+  // ⚠️ Nearer the left edge is NOT the start hold: table T-023d puts GR-3, the
+  // plan start point, above GR-9, so it takes the press there. Measured on the
+  // shipped build with one day drawn 6px wide, counting from the mark's own left
+  // edge: at +3px and +6px the PLAN bar moved and no actual was written at all;
+  // at +9px through +15px the actual was written and the plan bar did not move;
+  // at +18px the END hold took it and the actual came out the width of the whole
+  // drag. The middle of the mark lands in the middle of that window.
   const carriedPx = steps * step
   const from = { x: dummy.x + dummy.width / 2, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
@@ -1069,20 +1097,51 @@ test('D-232: a task drawn on empty ground leaves a name field under the keyboard
 // The pins themselves
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: a row pinned here has left the ledger -- which is what happens to
-// a row once it is fixed and moved on to `fixed-defects.md`. At that moment the
-// case above it should already have gone red for passing; this is the second
-// net, for the case where somebody deletes the pin's subject and not the pin.
-test('every defect pinned in this file is still an open row of the ledger', () => {
-  const ledger = readFileSync(
-    join(process.cwd(), 'docs', 'development-records', 'defects.md'),
-    'utf8',
+/**
+ * The two files the ledger is kept in.
+ *
+ * ⛔ BOTH, AND `fixed-defects.md` IS NOT A SECOND LEDGER. The ledger's own
+ * opening says the settled rows live next door, that tools and checks read both
+ * files, and that a tool reading one of them measures only what the harvest left
+ * behind and comes up green for it. ⚠️ THOSE WORDS ARE THE LEDGER'S AND NOT THE
+ * SPECIFICATION'S, so they are pointed at rather than quoted:
+ * `docs/development-records/defects.md`, the paragraphs above its count table.
+ *
+ * ⛔⛔ THIS GATE READ ONLY `defects.md` AND WENT RED ON 2026-09-08, when the
+ * rows that had reached `実測済` were moved across. D-230 had not been deleted
+ * and its case had not gone stale: the row was settled and had walked next door.
+ * ⇒ The tool was the defect, which is the very thing the ledger's opening warns
+ * about, so it is the tool that was mended and not the pin.
+ */
+const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
+
+// GOES RED IF: a row pinned here has left the ledger PAIR altogether -- somebody
+// deleted the pin's subject and not the pin -- so a System case cannot outlive
+// the row it was written for.
+//
+// ⭐⭐ A PIN ON A SETTLED ROW IS NOT A FAULT, and the two readings are worth
+// keeping apart:
+//   * an OPEN row -- the case beside it is measuring a defect that is still
+//     there, and it must not go green by accident.
+//   * a SETTLED row -- the case has become a CONTROL. D-230's is exactly that:
+//     `tests/system/first-frame-is-the-settled-frame.test.ts` asserts the
+//     CORRECT behaviour plainly -- its own comment says it is deliberately not
+//     `test.fail()` -- so the day the fix landed it went from red to green on
+//     its own and now guards the fix. ⛔ Taking such a pin out would throw the
+//     guard away.
+// ⚠️ THE "UNPIN ME" SIGNAL IS NOT LOST BY READING BOTH FILES. A pin built the
+// way "HOW A PIN IS BUILT HERE" describes marks its case `test.fail()`, and the
+// runner itself fails a `test.fail()` case that passes -- so a pin left standing
+// over a row that has been fixed is reported by the run, not by this gate.
+test('every defect pinned in this file is still a row of the ledger', () => {
+  const written = LEDGERS.map((file) =>
+    readFileSync(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
   )
   for (const pin of PINNED) {
     expect(
-      ledger.includes(`| ${pin.ledger} |`),
-      `${pin.ledger} is pinned by a System case but is no longer a row of ` +
-        'docs/development-records/defects.md -- if it was fixed, take the pin out',
+      written.some((ledger) => ledger.includes(`| ${pin.ledger} |`)),
+      `${pin.ledger} is pinned by a System case but is a row of neither ${LEDGERS.join(' nor ')} ` +
+        'under docs/development-records/ -- the row it was written for is gone',
     ).toBe(true)
   }
   // ⚠️ Every pin is spelled once, so a copied-and-half-edited case cannot pin

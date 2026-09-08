@@ -2679,16 +2679,41 @@ test('D-210: a bar shape needs a drag, a milestone needs only a press', async ()
      * what it made (`FR-001` MUST, `FR-091`), the Row Area narrows, and every
      * bar on the drawing is redrawn at a new x -- so the whole picture reads as
      * new. What is looked for is a shape that stands where the hand was.
+     *
+     * ⛔⛔ AND A BAR THAT ONLY MOVED IS NOT A BAR THAT WAS MADE. `FR-043` (MUST)
+     * puts the created task on 「ドラッグを始めた縦位置が指す `TaskGroup`」 and,
+     * 「指す `TaskGroup` が無いときは行を 1 つ作ってそこへ載せること（MUST）」 --
+     * so a drag on clear ground can insert a row, and every bar BELOW it slides
+     * down by one row's height. Its x, its width and its height are all the ones
+     * it already had; only its y is new, which is exactly the one field the
+     * string carries that a creation does not have to change.
+     * ⚠️ MEASURED, 2026-09-08: the widest thing this returned for the drag below
+     * was `662,737,1530,20`, and `662,697,1530,20` -- the same bar, forty pixels
+     * higher -- stood in the picture before the drag. The bar the drag made was
+     * `698,653,162,28`, the second-widest. ⛔ The reading was not the draft of
+     * `FR-001`'s preview: the same two readings come out of a build from before
+     * the preview was written, so no loosening of the bound below would have been
+     * an honest repair.
+     * ⇒ A shape whose x, width and height all stood in the picture before is
+     * dropped, and only what the gesture actually added is judged.
      */
     const madeNear = (
       before: readonly string[],
       after: readonly string[],
       near: number,
-    ): number[][] =>
-      after
+    ): number[][] => {
+      const moved = new Set(
+        before.map((one) => {
+          const box = one.split(',')
+          return `${box[0]}:${box[2]}:${box[3]}`
+        }),
+      )
+      return after
         .filter((one) => !before.includes(one))
         .map((one) => one.split(',').map(Number))
+        .filter((box) => !moved.has(`${box[0]}:${box[2]}:${box[3]}`))
         .filter((box) => Math.abs((box[0] ?? 0) - near) <= 40 && (box[3] ?? 0) > 8)
+    }
 
     // ① THE CLICK, which is also how free ground is found. ⭐ A press that hit
     // an item is not PD-4 and raises no telling, so the telling itself is the
@@ -2755,7 +2780,16 @@ test('D-210: a bar shape needs a drag, a milestone needs only a press', async ()
       drew[2] ?? 0,
       `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is not the span that was drawn`,
     ).toBeGreaterThan(dragPx * 0.6)
-    expect(drew[2] ?? 0).toBeLessThan(dragPx * 1.4)
+    // ⛔ THE UPPER BOUND IS THE HALF THAT KEEPS THE TITLE. Without it a bar of
+    // any span at all would answer 「引いた期間のタスクを作ること（MUST）」, and
+    // the band would stop saying that the span is the DRAG's. ⚠️ It is judged on
+    // the shape the gesture ADDED -- see `madeNear` -- and not on the widest
+    // thing that changed, because a row inserted below the drag slides bars that
+    // were already there.
+    expect(
+      drew[2] ?? 0,
+      `a ${dragPx}px drag drew a bar ${drew[2]}px wide, which is wider than the span that was drawn`,
+    ).toBeLessThan(dragPx * 1.4)
     // ⭐ AND THE TWO DATES ARE NOT ONE DAY, read off the Properties Panel rather
     // than off the picture. FR-001 (MUST) leaves what was created selected, so
     // the panel is already showing it; 「引いた期間のタスク」 has a period, and

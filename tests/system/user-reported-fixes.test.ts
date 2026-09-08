@@ -1786,9 +1786,19 @@ function tallestBandOf(
  * The distance from one band's top to the next one's -- the row PITCH, which is
  * what `LF-3` of table T-221 makes the band plus one `rowGap`.
  *
- * ⭐ IT IS THE READING THAT DOES NOT SATURATE, because it is a difference of two
- * tops rather than a height the panel may cut. Null while fewer than two rows
- * are drawn, which is itself the state a missing ceiling ends in.
+ * ⛔⛔ IT IS ONLY READ WITHIN ONE WINDOW, AND MEASUREMENT (2026-09-08) IS WHY.
+ * The top of the FIRST band is not that row's own top once the rows overflow:
+ * the layout clamps it to the `Row Area`'s top and publishes only the part still
+ * on the screen, so `bands[1].y - bands[0].y` is a CUT remainder plus one
+ * `rowGap` rather than a pitch. Measured at the row-axis ceiling of the document
+ * of table T-025 row `MC-6`, the same row `49b5210f` reads
+ * `style.height: 15.0566px` on a 1920x1080 window and `169.327px` on a 1920x700
+ * one -- an ELEVENFOLD difference in the direction opposite to the zoom, decided
+ * by how far the view happens to be scrolled. Comparing that number across two
+ * windows says nothing about either ceiling; comparing it across two readings of
+ * the SAME window, which is all it is used for below, says whether anything
+ * moved. Null while fewer than two rows are drawn, which is itself the state a
+ * missing ceiling ends in.
  *
  * @purity pure
  */
@@ -1800,35 +1810,94 @@ function rowPitchOf(
   return first === undefined || second === undefined ? null : second.y - first.y
 }
 
+/**
+ * The `Row Area`'s height, read off the bands themselves: from the top of the
+ * highest to the bottom of the lowest.
+ *
+ * ⭐⭐ IT IS THE AREA AND NOT A SUM OF ROWS. The rows tile the `Row Area` with no
+ * gap at either end -- the layout clamps the first band to the area's top and
+ * cuts the last at its bottom -- so this span IS the area's height whether the
+ * document overflows it or not. Measured 2026-09-08 on the document of table
+ * T-025 row `MC-6`: 977.0px on a 1920x1080 window at three different zooms
+ * (freshly opened with 8 rows, and at the ceiling with 3), and 597.0px on a
+ * 1920x700 one. ⭐ Those are the very two numbers `tallestBandOf` was measured
+ * saturating at on the tree with no ceiling, which is what makes them the right
+ * yardstick to hold that saturation against.
+ *
+ * ⚠️ Zero while nothing is drawn, so a caller comparing against it is asserting
+ * that something was.
+ *
+ * @purity pure
+ */
+function rowAreaSpanOf(
+  bands: readonly { readonly y: number; readonly height: number }[],
+): number {
+  if (bands.length === 0) return 0
+  const top = Math.min(...bands.map((band) => band.y))
+  const bottom = Math.max(...bands.map((band) => band.y + band.height))
+  return bottom - top
+}
+
 // GOES RED IF: turning the wheel towards magnification on the ROW axis goes on
-// until one row fills the screen by itself, or settles at the same row pitch on
-// two windows of different HEIGHTS -- which is the fixed magnification the
-// requirement forbids outright -- or stops as soon as the last cut row name
-// stops being cut, which the requirement forbids by name and by measurement.
+// until one row fills the screen by itself, or settles with the tallest band
+// holding its height while the `Row Area` shrinks under it -- which is the
+// ceiling read off a stored number rather than off the screen -- or stops as
+// soon as the last cut row name stops being cut, which the requirement forbids
+// by name and by measurement.
 //
-// ⛔⛔ THE BAND HEIGHT IS DELIBERATELY NOT THE READING, AND THE FIRST DRAFT OF
-// THIS CASE WAS RETIRED FOR TAKING IT. The panel cuts a box at its own bottom
-// edge, so `tallestBandOf` saturates at the panel's remaining height and stops
-// moving; MEASURED 2026-09-07 against the tree with NO ceiling at all, forty-
-// five notches of `MK-4` left it reading 977.0px on a 1080px window and 597.0px
-// on a 700px one -- two different numbers, unmoved by further notches, which
-// passed both halves of the draft. The PITCH between two bands is a difference
-// of two tops and cannot be cut, and the COUNT of rows drawn is what the
-// requirement's own rationale is about.
+// ⛔⛔ THE BAND HEIGHT IS THE CROSS-WINDOW READING, AND IT IS HELD AGAINST THE
+// `Row Area`'s OWN HEIGHT SO THAT IT CANNOT SATURATE UNNOTICED. That guard is
+// what the first draft of this case lacked. `tallestBandOf` stops moving once
+// one band is cut at both ends of the area, and MEASURED 2026-09-07 against the
+// tree with NO ceiling at all, forty-five notches of `MK-4` left it reading
+// 977.0px on a 1080px window and 597.0px on a 700px one -- two different
+// numbers, unmoved by further notches, which passed the draft's bare
+// comparison. ⭐ THOSE TWO NUMBERS ARE THE `Row Area`'s HEIGHT ITSELF
+// (`rowAreaSpanOf`, measured 2026-09-08 as 977.0 and 597.0 on the same two
+// windows), so a saturated reading is not merely large -- it EQUALS the area,
+// and the case below says the tallest band must stand strictly inside it.
+// ⚠️ MEASURED 2026-09-08 with `zoomYCeiling`'s screen height replaced by 30000,
+// which is a ceiling nothing ever reaches: the case went red on the COUNT of
+// rows first (1 row, tallest 977.0px), so the guard against a saturated band is
+// a second net under that count rather than the one that catches this build.
+//
+// ⛔⛔ AND THE PITCH IS NOT THE CROSS-WINDOW READING EITHER, WHICH IS WHAT THE
+// SECOND DRAFT GOT WRONG. It reads the first band's top, and once the rows
+// overflow, that top is the area's top rather than the row's -- see
+// `rowPitchOf`, where the same row is measured at 15.06px on one window and
+// 169.33px on the other at their two ceilings. The pitch stays here for the
+// one thing it can answer: whether two readings of the SAME window differ.
 //
 // Measured 2026-09-07, forty-five notches of `MK-4` from the document of table
-// T-025 row `MC-6`, BEFORE the fix and after it:
+// T-025 row `MC-6`, BEFORE the row-axis ceiling was built and after it:
 //
-//                     rows drawn   pitch      widest label
-//   1920x1080  before      1       (none)     13164px
-//              after       2       600.6px     1168px
-//   1920x700   before      1       (none)     13164px
-//              after       3       153.7px      839px
+//                     rows drawn   tallest band   widest label
+//   1920x1080  before      1          977.0px       13164px
+//              after       2          592.6px        1168px
+//   1920x700   before      1          597.0px       13164px
+//              after       3          394.0px         839px
 //
 // ⭐ BEFORE THE FIX THE TWO WINDOWS STOPPED AT ONE MAGNIFICATION -- the same
 // 13164px label on both -- because `S-76`'s own end was the only thing that ever
 // stopped it. That is the fixed ceiling the requirement forbids, arrived at by
-// having no ceiling.
+// having no ceiling. ⚠️ THE TWO BAND HEIGHTS DIFFERED THERE ALL THE SAME, and
+// only because each had been cut to its own area: 977.0 and 597.0 ARE the two
+// areas. That is the whole reason the guard below is written as a comparison
+// with `rowAreaSpanOf` and not as a bare inequality between the two windows.
+//
+// ⭐⭐ RE-MEASURED 2026-09-08 on the tree that carries table T-038's order into
+// the layout (`labelX`, commit 5c89868), which moved every one of these numbers
+// by giving the name label more to clear:
+//
+//                     rows drawn   tallest band   Row Area   band / area
+//   1920x1080              3          680.30px     976.98px     0.6963
+//   1920x700               2          419.67px     596.98px     0.7030
+//
+// ⭐ THE SAME FRACTION OF TWO DIFFERENT AREAS, which is what 「画面の高さから
+// 導く」 looks like from outside. ⚠️ The two rows drawn on the shorter window
+// are the first and the last, so BOTH are cut by the area's edges and no band
+// there is whole -- which is why no reading that needs an uncut band, the pitch
+// among them, can be taken at this ceiling at all.
 //
 // ⭐⭐ AND THE CUT-NAME MARK IS RULED OUT BY MEASUREMENT, not by reading the
 // source. A build that stopped when no row name was cut any longer would stop
@@ -1938,26 +2007,77 @@ test('D-374: magnifying the row axis stops before one row fills the Row Area', a
 
     // ---- the short window -----------------------------------------------
     // ⛔ FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST
-    // NOT）」 —— 「画面の高さから導く。」 A stored magnification would settle at the
-    // same pitch whatever the window is; this one is derived from a height, so a
-    // shorter window has to settle lower.
+    // NOT）」 —— 「画面の高さから導く。」 A stored magnification would settle with the
+    // tallest band the same height whatever the window is; this one is derived
+    // from a height, so a shorter window has to settle lower.
     await app.page.setViewportSize({ width: 1920, height: 700 })
     await readSettledDrawnSvg(app.page)
     await wheelAway(25)
     const short = await rowBandsNow(app.page)
-    const shortPitch = rowPitchOf(short)
     expect(
       short.length,
-      `the short window settled with ${String(short.length)} row(s), so no pitch can be read ` +
-        'and the ceiling did not fire there either',
+      `the short window settled with ${String(short.length)} row(s), so the ceiling did not ` +
+        'fire there either',
     ).toBeGreaterThan(1)
+    // ⛔⛔ NEITHER READING MAY BE A SATURATED ONE, and this is the guard the
+    // first draft of this case was retired for lacking. A band cut at both ends
+    // of the `Row Area` reads as the area's own height and stops moving, so a
+    // build with no ceiling at all reports the two areas (977.0 and 597.0,
+    // measured) and clears a bare inequality between the two windows.
+    const tallArea = rowAreaSpanOf(tall)
+    const shortArea = rowAreaSpanOf(short)
     expect(
-      shortPitch,
+      tallestBandOf(tall),
+      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Row Area\` の高さに` +
+        `達する倍率とすること（MUST）」. The tallest band on the 1080px window reads ` +
+        `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Row Area -- a ` +
+        'band that fills the area at both ends is a band the area cut, which is what a build ' +
+        'with no ceiling settles at',
+    ).toBeLessThan(tallArea)
+    expect(
+      tallestBandOf(short),
+      `FR-016 (MUST): the same on the 700px window: ${tallestBandOf(short).toFixed(2)}px ` +
+        `against a ${shortArea.toFixed(2)}px Row Area`,
+    ).toBeLessThan(shortArea)
+    expect(
+      shortArea,
+      `the shorter window did not shorten the Row Area (${shortArea.toFixed(2)}px against ` +
+        `${tallArea.toFixed(2)}px), so the two readings are one reading`,
+    ).toBeLessThan(tallArea)
+    // ⛔⛔ THE BAND HAS TO SHRINK WITH THE AREA AND NOT MERELY SHRINK, and this
+    // half was measured into the case rather than reasoned into it. A bare
+    // 「the shorter window settles lower」 is cleared by a build that reads a
+    // STORED height: measured 2026-09-08 with `zoomYCeiling`'s
+    // `context.regions.rowArea.height` replaced by the literal 977, the tallest
+    // band still fell from 680.30px to 573.94px on the shorter window, because
+    // the ceiling is re-derived every notch off a frame whose own bands the
+    // area had already cut. It is the FRACTION of the area that gives that
+    // build away -- 0.9614 of a 596.98px area, against 0.6963 of the 976.98px
+    // one it was told to use.
+    //
+    // Measured 2026-09-08, the band's fall against the area's:
+    //
+    //                                  band 700 / band 1080   over the areas'
+    //   this build                           0.6169               1.0096
+    //   before commit 5c89868 (c3a153c)      0.6648               1.0881
+    //   `rowArea.height` replaced by 977     0.8437               1.3808
+    //
+    // ⭐ 1.25 stands between the two honest readings and the stored one with
+    // room on both sides, and it is a proportion rather than a length: nothing
+    // here is a number of pixels, which is what 「固定の倍率で止めてはならない」
+    // asks of the ceiling and this case asks of itself.
+    const bandFall = tallestBandOf(short) / tallestBandOf(tall)
+    const areaFall = shortArea / tallArea
+    expect(
+      bandFall,
       `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
-        `「画面の高さから導く。」 The row pitch settles at ${String(shortPitch)}px on a 700px ` +
-        `window and at ${String(tallPitch)}px on a 1080px one; one pitch for both windows is ` +
-        'the ceiling read off a stored number rather than off the screen',
-    ).toBeLessThan(tallPitch ?? 0)
+        `「画面の高さから導く。」 The tallest band settles at ${tallestBandOf(short).toFixed(2)}px ` +
+        `on a 700px window and at ${tallestBandOf(tall).toFixed(2)}px on a 1080px one, a fall to ` +
+        `${bandFall.toFixed(4)}, while the Row Area fell to ${areaFall.toFixed(4)} ` +
+        `(${shortArea.toFixed(2)}px against ${tallArea.toFixed(2)}px). A ceiling read off the ` +
+        'screen falls with the screen; one read off a stored number holds most of its height ' +
+        'and is only dragged down by the cutting',
+    ).toBeLessThan(areaFall * 1.25)
   } finally {
     await app.close()
   }
