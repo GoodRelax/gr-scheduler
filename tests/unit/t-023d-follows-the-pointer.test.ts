@@ -1599,35 +1599,26 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // exempts it nowhere, so the duty is exactly the one the nine `FOLLOWERS`
   // above are judged on.
   //
-  // ⛔⛔ NOT THE DRAWN THUMB'S OWN SHAPE OR POSITION. `scrollbarIn`
-  // (`screen-frame.ts`) draws `thumb: track` -- a STOP of its own, standing on
-  // an absence this file's cases may not touch: UF-61 is handed no edge to
-  // `ScheduleLayout`'s two extents, so the grip cannot be drawn shorter than
-  // its lane or moved inside it yet. The press point is still taken from the
-  // thumb's own rectangle (`thumbCentre`), because until that STOP closes the
-  // rectangle covers the whole lane and a point on it is a point GR-21 claims
-  // either way.
+  // ⛔⛔ NOT THE DRAWN THUMB'S OWN SHAPE OR POSITION -- those are UF-61's, and
+  // `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+  // them. ⚠️ WHAT STOOD HERE IS OUT OF DATE AND IS CORRECTED RATHER THAN LEFT
+  // (2026-09-08): it said `scrollbarIn` (`screen-frame.ts`) draws
+  // `thumb: track`, which stopped being true when D-298's length landed on
+  // 2026-09-08 and stopped being true of the START on the same day. The press
+  // point is still taken from the thumb's own rectangle (`thumbCentre`),
+  // which is now a point on the GRIP rather than anywhere on the lane -- and
+  // that is the stronger reading, since GR-21 is the grip.
   //
-  // ⛔⛔ A SECOND, DIFFERENT GAP -- FOUND WHILE WRITING THESE CASES, AND NOT
-  // FIXED HERE because it stands in `frame-loop.ts`, outside this round's
-  // files. 「掴んでいるあいだ……描いて示すこと（MUST）」 is NOT met for GR-21 as
-  // shipped: `isPreviewedPress` answers `press.on.dividerPanel !== null` for
-  // any press the surface claimed, and GR-21's press carries `scrollbarAxis`
-  // with `dividerPanel: null` -- so no live preview is built for it, and
-  // `isDocumentChangingPress` answers `true` for that same press (`entry` is
-  // `null`, which is its own `true`), so AG-9 (table T-035) refuses the
-  // document write `scrollbarFollow` asks for on every move besides. ⭐ Measured
-  // directly: pressing the grip and moving it three times left both
-  // `frameOf(loop).geometry` (the picture) and `document()` (the display
-  // position) BYTE IDENTICAL to what they were before the first move, and only
-  // the RELEASE -- when `pressed` is dropped and the gesture is no longer "in
-  // flight" -- carries the write through. That is exactly D-298's own
-  // measurement in `screen-frame.ts` ("a 100px DRAG … moves the picture",
-  // where a drag is down-move-up together) and this file's cases below do not
-  // claim more than that measurement does. ⇒ The cases exercise what GR-21
-  // actually does today -- settle the display position on release, table
-  // T-028's IN-1 -- and do not assert the live half of the closing rule, which
-  // remains open.
+  // ⚠️ AND THE SECOND GAP THIS BLOCK NAMED IS CLOSED (D-420, 2026-09-08). What
+  // it recorded was true when it was written: `isDocumentChangingPress`
+  // (`frame-loop.ts`) answered `true` for a press the surface had claimed with
+  // no entry, so AG-9 of table T-035 refused the write `scrollbarFollow` asks
+  // for on every move, and only the RELEASE carried one through. ⭐ AG-9's own
+  // sentence is what closed it -- 「パンと範囲選択は文書を変えないので拒否しない
+  // —— 対象は表 T-027 の取り消し対象行と一致させる」, and UN-8 of that table reads
+  // 「ズーム・スクロール・パン」 -- so a lane's drag is among the spared, and the
+  // two cases below now measure the live half of the closing rule instead of
+  // pinning its absence.
 
   it('is one of the ten the closing rule names, and no sentence exempts it', () => {
     // ⭐ THE PREMISE OF THE WHOLE BLOCK, read from the manuscript.
@@ -1675,13 +1666,15 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   })
 
   for (const axis of ['vertical', 'horizontal'] as const) {
-    it(`does not yet preview the ${axis} drag while it is held (open gap, D-298)`, () => {
-      // ⛔⛔ PINS THE SECOND GAP THE BLOCK COMMENT NAMES, with a WORKING press --
-      // unlike the block this replaces, `press.on.scrollbarAxis` really is set
-      // here, so a change below would mean the gap closed, not that the fixture
-      // finally became reachable. Reads `frameOf(loop)`, the same picture the
-      // nine `FOLLOWERS` read theirs off, never `document()` -- IN-1 settles
-      // nothing on a hold either way, and this is asking about the PICTURE.
+    it(`follows the pointer through the ${axis} drag, while it is held`, () => {
+      // ⭐⭐ THIS CASE WAS THE PIN, AND THE PIN WENT OFF (D-420, 2026-09-08). It
+      // asserted the reading did NOT move and carried its own instruction for
+      // the day it stopped holding -- 「this pin is out of date」 -- so it is
+      // FLIPPED here rather than deleted: the same fixture, the same reading,
+      // the opposite expectation, which is the closing rule of table T-023d
+      // measured instead of pinned.
+      // ⚠️ Reads `frameOf(loop)`, the same picture the nine `FOLLOWERS` read
+      // theirs off, never `document()` -- this is asking about the PICTURE.
       const built = laneStage()
       const at = thumbCentre(built, axis)
       // ⚠️ `OVERFLOW_UID`, NOT `PLAIN_UID`. At the floor zoom this fixture's
@@ -1696,8 +1689,8 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       built.send(pointer('move', at.x + (axis === 'vertical' ? 0 : 120), at.y + (axis === 'vertical' ? 120 : 0)))
       expect(
         heldReading(),
-        `table T-023d GR-21: this pin is out of date -- the ${axis} drag now moves the picture while held`,
-      ).toBe(held)
+        `table T-023d GR-21: the ${axis} drag drew nothing new while it was held`,
+      ).not.toBe(held)
     })
   }
 

@@ -49,19 +49,17 @@
 // layout. So `scrollbars` has no case in which it is short of two, and the lane
 // is the very width FR-052 already subtracted.
 //
-// ⛔ Two STOP notes below say what is open: which side of the gap the lane sits
-// on, and WHERE ALONG THE LANE the grip starts. ⭐ Neither belongs to the
-// divider any more -- the BAND was closed when table T-206 gained S-134, and the
-// LINE'S THICKNESS was closed by EP-9 of table T-076 on 2026-09-07 (D-363),
-// which is read from `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
-// ⭐ AND THE GRIP'S LENGTH IS CLOSED TOO (D-298, 2026-09-08): GR-21 of table
-// T-023d states it in full, and the extent it is a fraction of now travels on
-// `ScreenSession.scrollExtent`. What is left of that hole is the grip's START,
-// which needs a number `ScheduleLayout` does not publish.
-// ⚠️ THE TWO THAT REMAIN ARE NOT THE SAME KIND OF HOLE. The first is a rule no
-// requirement states; the second is part of a rule GR-21 states in full, whose
-// remaining number nothing this unit is handed carries -- so it is closed in the
-// manuscript and open in the wiring, and `scrollbarIn` says which wire.
+// ⛔ ONE STOP NOTE IS LEFT BELOW, and it says what is open: which side of the
+// gap the lane sits on. ⭐ Nothing of the divider is open any more -- the BAND
+// was closed when table T-206 gained S-134, and the LINE'S THICKNESS by EP-9 of
+// table T-076 on 2026-09-07 (D-363), which is read from
+// `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
+// ⭐⭐ AND GR-21 IS CLOSED WHOLE (D-298, 2026-09-08). Its LENGTH is 「見えている
+// 範囲 ÷ 全体」 and its START is where that range stands in the same whole; both
+// halves are the row's own arithmetic, and the three numbers they need travel on
+// `ScreenSession.scrollExtent`. ⚠️ The STOP that stood here for the start was
+// never a rule the manuscript lacked -- it was a number the wiring did not
+// carry, which is a different kind of hole and was closed by opening the door.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -175,23 +173,20 @@ function dividerAt(
  * file. It stands in `frame-loop.ts` too, and chapter 5.3 is why it stands
  * twice rather than being imported.
  *
- * STOP -- ⛔ NOT REACHABLE FROM THIS UNIT'S ARGUMENTS: WHERE ALONG THE LANE the
- * grip sits. GR-21 calls it 「帯の中の、いま見えている範囲を表す区間」, and a
- * 区間 has a start as well as a length. ⛔ The start is the display position
- * measured against the content, and `ScheduleLayout` publishes no offset to
- * measure it with: `rows` and `placements` arrive ALREADY slid, while
- * `contentWidth` / `contentHeight` / `contentX0` are stated to be measured
- * BEFORE the slide, so the difference cannot be recovered from either.
- * S-77 / S-78 / S-176 / S-177 of table T-203 name the place in DAYS and ROWS
- * and this unit has neither a calendar nor a row list to turn them into a
- * fraction. ⇒ ⛔ A THIRD NUMBER WOULD HAVE TO TRAVEL, and it is not minted
- * here -- the grip is laid at the lane's start meanwhile, which is where a
- * document that has not been scrolled puts it. ⚠️ The drag is geared off the
- * extents rather than off this rectangle (`scrollGearing`), so the picture
- * still moves the right distance while this stands.
- * Searched: GR-21 and the closing rules of table T-023d, FR-051, FR-052,
- * FR-037, FR-098, SC-4 of table T-031, LF-14 of table T-221, table T-203
- * (S-77 / S-78 / S-176 / S-177), table T-206 (S-205), and `ScheduleLayout`.
+ * ⭐⭐ AND THE START IS GR-21's TOO, WHICH IS THE HALF THE STOP HERE USED TO
+ * HOLD (D-298, closed 2026-09-08). That row calls the grip 「帯の中の、いま見え
+ * ている範囲を表す区間」, and a 区間 has a start as well as a length -- so the
+ * same 「見えている範囲 ÷ 全体」 that fixes the length fixes where the interval
+ * begins, measured with the SAME denominator. ⛔ What was missing was never the
+ * rule but the number: `ScheduleLayout` publishes no offset -- `rows` and
+ * `placements` arrive ALREADY slid while `contentWidth` / `contentHeight` /
+ * `contentX0` are measured BEFORE the slide, and S-77 / S-78 / S-176 / S-177 of
+ * table T-203 name the place in DAYS and ROWS, which this unit has neither a
+ * calendar nor a row list to turn into a fraction. ⭐ IT ARRIVES INSTEAD, as
+ * `ScreenSession.scrollExtent`'s `offsetX` / `offsetY`, read back off the
+ * layout by the shell exactly as the two extents beside them are.
+ * ⛔ NO NEW SETTINGS ROW FOR IT EITHER, for the reason the paragraph above
+ * gives: a fraction of numbers that already exist.
  *
  * @purity pure
  */
@@ -200,6 +195,7 @@ function scrollbarIn(
   track: ScreenRect,
   visible: number,
   whole: number,
+  offset: number,
 ): Scrollbar {
   const along = axis === 'horizontal' ? track.width : track.height
   // GR-21 (MUST): 「見えている範囲 ÷ 全体」. ⚠️ Never more than one -- SC-4 of
@@ -212,14 +208,20 @@ function scrollbarIn(
   // floor exists so the grip can be grabbed, and one drawn outside cannot be.
   const least = Math.min(along, NOT_STORED_SCROLLBAR_SIZES['S-205'])
   const length = Math.max(least, along * share)
+  // GR-21 (MUST): where the 区間 begins, on the same denominator as its length.
+  // ⛔ HELD INSIDE THE LANE AT BOTH ENDS. A grip drawn past the lane's foot
+  // cannot be grabbed, which is the very thing the floor above exists to
+  // prevent -- and the floor is what makes the clamp necessary: a grip lengthened
+  // to S-205 is longer than its share, so the share's own start would hang it
+  // out by the difference at the far end of the travel.
+  const start = Math.max(0, Math.min(along - length, whole > 0 ? (along * offset) / whole : 0))
   return {
     axis,
     track,
-    // ⚠️ The start is the lane's own; the STOP above says what is missing.
     thumb:
       axis === 'horizontal'
-        ? { x: track.x, y: track.y, width: length, height: track.height }
-        : { x: track.x, y: track.y, width: track.width, height: length },
+        ? { x: track.x + start, y: track.y, width: length, height: track.height }
+        : { x: track.x, y: track.y + start, width: track.width, height: length },
   }
 }
 
@@ -285,21 +287,24 @@ export function screenFrameFromRegions(
       dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x),
     ],
     scrollbars: [
-      // GR-21's two fractions. ⚠️ The sideways one is seen through the lane
-      // itself (the `Row Area`'s width); the downwards one through the
-      // scrolling remainder, which the pinned band shortens -- see
-      // `scrollbarIn` and `ScrollExtent.visibleHeight`.
+      // GR-21's two fractions, each with the place its 区間 begins. ⚠️ The
+      // sideways range is seen through the lane itself (the `Row Area`'s
+      // width); the downwards one through the scrolling remainder, which the
+      // pinned band shortens -- see `scrollbarIn` and
+      // `ScrollExtent.visibleHeight`.
       scrollbarIn(
         'horizontal',
         horizontalTrack,
         horizontalTrack.width,
         session.scrollExtent.contentWidth,
+        session.scrollExtent.offsetX ?? 0,
       ),
       scrollbarIn(
         'vertical',
         verticalTrack,
         session.scrollExtent.visibleHeight,
         session.scrollExtent.contentHeight,
+        session.scrollExtent.offsetY ?? 0,
       ),
     ],
   }

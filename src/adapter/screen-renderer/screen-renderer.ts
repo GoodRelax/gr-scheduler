@@ -285,6 +285,34 @@ export interface ScrollExtent {
    * inside that rectangle and outside this measurement.
    */
   readonly visibleHeight: number
+  /**
+   * How far INTO the content the visible range begins, sideways then downwards.
+   *
+   * ⭐⭐ WHY THE PAIR IS HERE (D-298, 2026-09-08). GR-21 of table T-023d calls
+   * the grip 「帯の中の、いま見えている範囲を表す区間」, and a 区間 has a start as
+   * well as a length: the two members above answer 「見えている範囲 ÷ 全体」 and
+   * say nothing about WHERE in the whole that range stands. ⛔ UF-61 cannot
+   * work it out for itself -- `ScheduleLayout.rows` and `placements` arrive
+   * already slid while `contentWidth` / `contentHeight` / `contentX0` are
+   * measured before the slide, and S-77 / S-78 / S-176 / S-177 of table T-203
+   * name the place in DAYS and ROWS, which that component has neither a
+   * calendar nor a row list to turn into a fraction.
+   *
+   * ⭐ READ BACK OFF THE LAYOUT THE SHELL ALREADY BUILT, never measured again --
+   * the same bargain the three members above are carried by (ADR-001 runs table
+   * T-068 once a frame). ⛔ NO SETTINGS ROW IS OWED: GR-21 (MUST NOT) says
+   * 「新しい設定値を立てない（割合は既にある値から導ける）」, and both are a
+   * difference between two numbers the layout publishes.
+   *
+   * ⛔⛔ OPTIONAL, AND THE READING IS FIXED HERE: absent means NOT SCROLLED, and
+   * zero is the same answer -- a document at its content's top left corner puts
+   * the grip at its lane's start, which is where UF-61 laid it before this pair
+   * existed. ⚠️ So a caller that fills neither gets exactly the old picture
+   * rather than a wrong one.
+   */
+  readonly offsetX?: number
+  /** The downwards half of `offsetX`; that member's note holds both. */
+  readonly offsetY?: number
 }
 
 // ------------------------------------------------------------ UF-62 ---------

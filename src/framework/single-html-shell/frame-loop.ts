@@ -3017,6 +3017,21 @@ function sessionOf(
     // ⭐ THE SAME TWO EDGES `drawnRowBoxesOf` CUTS AGAINST, read the same way:
     // `scrollAreaY` is undefined until a pin reaches the band, and reads as the
     // `Row Area`'s own top.
+    // ⭐⭐ AND WHERE THAT RANGE STANDS IN THE WHOLE (D-298). GR-21 calls the grip
+    // 「帯の中の、いま見えている範囲を表す区間」, so UF-61 is owed a start as well
+    // as a length -- and neither number can be recovered on that side, because
+    // `rows` and `placements` reach it already slid while the extents beside
+    // them are measured before the slide.
+    // ⭐ BOTH ARE A DIFFERENCE BETWEEN TWO NUMBERS THE LAYOUT PUBLISHES, taken
+    // here rather than measured: sideways, `contentX0` is the content's left
+    // edge in the very coordinates the figures are drawn in, so what stands
+    // left of the `Row Area` is how far in the view begins; downwards, the
+    // scrolling rows START at the remainder's top edge before the slide (LF-14
+    // of table T-221), so the first one's drawn `y` is that edge less the
+    // distance scrolled.
+    // ⛔ PINNED ROWS ARE PASSED OVER, and FR-098 is why: 「縦にスクロールしたこと
+    // は理由にならない」 -- a row in the band does not slide, so its `y` says
+    // nothing about how far the rest has.
     scrollExtent: {
       contentWidth: layout.contentWidth,
       contentHeight: layout.contentHeight,
@@ -3024,6 +3039,8 @@ function sessionOf(
         0,
         regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
       ),
+      offsetX: Math.max(0, regions.rowArea.x - (layout.contentX0 ?? regions.rowArea.x)),
+      offsetY: scrolledPastOf(layout, regions),
     },
     // FR-029 (MUST) with RD-1 and RD-2 of table T-230 -- the two questions
     // IC-5 and IC-6 are drawn faint on. ⭐ Carried through as they were handed
@@ -3090,6 +3107,32 @@ function drawnRowBoxesOf(
       },
     ]
   })
+}
+
+/**
+ * How far down the scrolling rows have been carried, for GR-21's start (D-298).
+ *
+ * ⭐ READ BACK OFF THE LAYOUT RATHER THAN MEASURED AGAIN. Before the slide the
+ * scrolling rows begin at the remainder's top edge -- LF-14 of table T-221
+ * leaves them 「`Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残り」 --
+ * so the first one's DRAWN `y` is that edge less the distance scrolled, and the
+ * difference is the distance. ⛔ Nothing is laid out here: ADR-001 runs table
+ * T-068 once a frame, and this is arithmetic on two numbers that run already
+ * published.
+ *
+ * ⛔ THE FIRST ROW THAT FLOWS, NEVER THE FIRST ROW. FR-098 (MUST NOT) keeps a
+ * pinned row still -- 「縦にスクロールしたことは理由にならない」 -- so a banded row
+ * stands at the `Row Area`'s top whatever the rest has done, and reading its `y`
+ * would answer zero for every scrolled document that has a pin.
+ * ⚠️ NEVER NEGATIVE. `scrollOffsetOf` answers 0 where the anchor names no row it
+ * placed, and a document resting at its top gives the two edges the same value.
+ *
+ * @purity pure
+ */
+function scrolledPastOf(layout: ScheduleLayout, regions: ScreenRegions): number {
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  const first = layout.rows.find((row) => row.isPinned !== true)
+  return first === undefined ? 0 : Math.max(0, scrollTop - first.y)
 }
 
 /**
@@ -3465,6 +3508,35 @@ const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
 function isDocumentChangingPress(press: PointerPress | null): boolean {
   if (press === null) return false
   if (press.on !== null) {
+    // ⭐⭐ GR-21's GRIP IS SPARED, ON AG-9's OWN SENTENCE (D-420, measured
+    // 2026-09-08 on the shipped build). That row spares what table T-027 leaves
+    // out of the history -- 「パンと範囲選択は文書を変えないので拒否しない ——
+    // 対象は表 T-027 の取り消し対象行と一致させる」 -- and UN-8 of that table
+    // reads 「ズーム・スクロール・パン」. A drag on a lane writes the display
+    // position and nothing else (`commandFromScrollbar` plans one
+    // `setScrollPosition`), so it is UN-8's スクロール and not a half-finished
+    // document change.
+    // ⛔ WITHOUT THIS THE PICTURE COULD NOT FOLLOW. The closing rule of table
+    // T-023d (MUST) names GR-21 among the grabs whose picture follows the
+    // pointer while held, and `scrollbarFollow` plans that follow on every
+    // move -- but WS-2 of table T-067 refused every one of those writes and
+    // raised a telling instead, so the schedule stood still through the drag
+    // and jumped at the release. ⚠️ MEASURED: three moves at 40px each answered
+    // `act=changeDocument doc=same notices=1`, and the release `doc=changed`.
+    // ⛔ THE `Panel Divider` IS NOT SPARED BESIDE IT, however alike the two
+    // look. FR-052 (MUST NOT) forbids that drag to write at all while it is
+    // held -- 「掴んでいるあいだ、その幅を文書へ書いてはならない」 -- so its
+    // picture is drawn without a write and it has nothing to be spared for.
+    // ⚠️ AND TABLE T-023d's OWN 「掴んでいるあいだ値を文書へ書いてはならない」 IS
+    // NOT BROKEN BY THIS, which is the one place the two readings could meet.
+    // That MUST NOT gives its own reason -- 「追従は絵であって編集ではない」 --
+    // and for GR-21 the picture IS the display position: FR-051 (MUST) then
+    // requires 「表示位置が変わったときは ... `S-77` と `S-78` が新しい表示位置を
+    // 指すようにすること」, so a followed picture that left those two behind
+    // would break a MUST rather than keep one. ⭐ PD-1's pan already stands on
+    // exactly this reading (`panFollow`), and UN-8 is why neither leaves a step
+    // behind for a release to take back.
+    if (press.on.scrollbarAxis !== undefined) return false
     const entry = press.on.entry
     return entry === null || !REPEATING_ENTRIES.includes(entry)
   }
@@ -10400,13 +10472,23 @@ export function frameLoop(
     // was worked out from, so there is no second reading and no second moment.
     // ⛔ Only when the write actually went: a move the shell spent elsewhere
     // moved nothing, and advancing here would lose that piece of the travel.
+    // ⭐⭐ AND GR-21's GRIP TELESCOPES ON THE SAME LINE (D-420). The closing rule
+    // of table T-023d (MUST) names it among the grabs whose picture follows the
+    // pointer while held, and `scrollbarFollow` plans that follow the same way
+    // the pan does -- so it owes the same record of what was applied. ⛔ Without
+    // it every piece of one drag is measured from the press against a layout the
+    // earlier pieces already moved, which is the runaway `panFollow`'s own note
+    // records (a -240 drag left the leftmost bar at -790).
+    // ⚠️ TOLD APART BY THE PART AND NOT BY THE ROW: a lane is a press the
+    // surface answered for, so it carries no row of table T-023a at all.
     if (
       !spent &&
       input.kind === 'pointer' &&
       input.phase === 'move' &&
       pressed !== null &&
-      pressed.on === null &&
-      pressed.pressRow === 'PD-1' &&
+      (pressed.on === null
+        ? pressed.pressRow === 'PD-1'
+        : pressed.on.scrollbarAxis !== undefined) &&
       translated.action !== null
     ) {
       pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
