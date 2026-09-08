@@ -874,6 +874,71 @@ function markerSvg(
 }
 
 /**
+ * FR-044's resume icon (MUST): 「中断のあいだは再開アイコンを描くこと（MUST）」.
+ *
+ * ⛔⛔ NOTHING DREW IT UNTIL THIS ROUND. `ResumeGeometry` was built by
+ * `resumeOf` and `TaskGeometry.resume` carried it, but `grep -rn "resume"` over
+ * this folder answered 0 -- so on the shipped build a suspended Task showed the
+ * marker's disc and no icon at all (measured 2026-09-08: 0 nodes in the band
+ * right of the marker). ⚠️ ItemHitArea's GR-8 was already live against that
+ * same geometry, which is the worse half: a person could grab an icon that had
+ * never been drawn.
+ *
+ * ⭐ THE PATHS ARE READ, NOT REBUILT. LF-13 of table T-221 states the figure --
+ * 「下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印」,
+ * the arm at `resumeArmOfMarker` (S-26) and the head at `resumeHeadOfMarker`
+ * (S-27) of the square, shrunk by `resumeScaleInvalid` (S-25) while
+ * `resumeValid` is false -- and `resumeOf` has already solved all of it. ⛔ So
+ * S-25's 「別の見た目」 (FR-044, MUST) arrives HERE as a smaller pair of paths
+ * and is not a second condition on this side. ⚠️ `ResumeGeometry.valid` is
+ * therefore read by nobody who draws: the size IS the difference, and no row of
+ * table T-236 holds a second colour or a strength for the invalid case, so
+ * inventing one would be this file writing a settings row.
+ *
+ * ⭐ GR-8's HIT BOX IS CENTRED ON THIS INK. ItemHitArea takes S-93's box about
+ * the centre of `[...arm, ...head]`'s bounding box, so drawing exactly those
+ * two paths is what makes the picture and the grab agree.
+ *
+ * ⚠️ THE ARM IS DASHED, at `resumeDashOn` (S-28) and `resumeDashOff` (S-29).
+ * Those two rows exist for no other figure -- table T-101's K-28 / K-29 gloss
+ * them as 「再開アイコンへ繋ぐ破線の実部 / 空部」 -- and LF-13's arm is the part
+ * that runs from the marker's own bottom to the head.
+ *
+ * ⚠️ THE STROKE IS `markerStroke` (S-24), WHICH IS A JUDGEMENT. FR-011 (MUST
+ * NOT) forbids this file holding a dimension of its own, and S-24 is the only
+ * stroke width table T-201 keeps in the 進捗マーカー group the icon's own rows
+ * (S-25 to S-29) sit in. ⛔ A number typed here would be exactly what that MUST
+ * NOT refuses.
+ *
+ * ⭐ S-161 IS THE INK, the same the marker's symbol is drawn in: table T-236
+ * holds 「進捗マーカーの文字色」 and no row of its own for this icon, and every
+ * settings row the icon has lives in the marker's group.
+ *
+ * ⛔ THE TWO PATHS ARRIVE LOOSE, NOT AS `ResumeGeometry`. Table T-064's PI-5
+ * names what ScheduleGeometry publishes and that type is not among them, so this
+ * unit reads `Path` -- which the table does name -- and never the shape.
+ *
+ * @purity pure
+ */
+function resumeSvg(
+  arm: Path,
+  head: Path,
+  ink: string,
+  settings: DocumentSettings,
+  key: string,
+): string {
+  // D-316: the arm and the head are ONE figure and carry one key.
+  const named = figureKey(key)
+  return (
+    `<polyline points="${pointsOf(arm)}" fill="none" stroke="${ink}"` +
+    ` stroke-width="${rounded(settings.markerStroke)}"` +
+    ` stroke-dasharray="${rounded(settings.resumeDashOn)} ${rounded(settings.resumeDashOff)}"` +
+    `${named}/>` +
+    `<polygon points="${pointsOf(head)}" fill="${ink}"${named}/>`
+  )
+}
+
+/**
  * ZO-5's name label, at the rectangle the geometry placed -- LC-6 across and
  * table T-012's 「名称ラベルの縦位置」 column down -- and the size LC-5
  * measured it with. ⭐ The size is read off the placement rather than derived
@@ -2182,6 +2247,23 @@ export function svgFromSchedule(
           `${taskKey}-marker`,
         ),
       )
+      // FR-044 (MUST): 「中断のあいだは再開アイコンを描くこと」. ⭐ NESTED INSIDE
+      // THE MARKER'S OWN TEST RATHER THAN GIVEN A SECOND ONE. S-63 is ONE
+      // switch for both figures -- table T-038's closing paragraph says so in
+      // as many words -- and `resumeOf` only builds an icon where a marker was
+      // built, so a second reading of `progressMarkerVisible` here would be the
+      // same condition in two places.
+      // ⭐ PUSHED AFTER the marker, which is table T-038's order: 進捗マーカー
+      // （OC-3）→ 再開アイコン（OC-4）.
+      // ⛔ NOT FAINT AND NOT DARKENED BY THE HAND. FR-013's MUST names the
+      // not-started marker and FR-043's dummies, and PM-1a never holds on a
+      // suspended Task -- so there is no strength for this figure to carry.
+      if (task.resume !== null) {
+        ;(isPinnedTask ? markerPartsPinned : markerParts).push(
+          resumeSvg(task.resume.arm, task.resume.head, themed('S-161'), settings,
+                    `${taskKey}-resume`),
+        )
+      }
     }
     if (task.label !== null && placed !== undefined && placed.label !== '') {
       ;(isPinnedTask ? labelPartsPinned : labelParts).push(

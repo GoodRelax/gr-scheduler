@@ -786,13 +786,18 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
  * plan on every Task running behind schedule -- the further behind, the
  * further the marker walked from the actual bar it is named against.
  *
- * ⚠️ A milestone has no actual bar at all (GR-15 says GR-5, GR-6 and GR-17 do
- * not apply to one), so GR-7 sends it to its figure and LF-10 makes the plan
- * figure's right edge that figure's outside. ⛔ NOT DECIDED BY THE
- * SPECIFICATION: which figure GR-7 means while the plan is not drawn at all
- * (`planActualDisplay` is actual-only, so only the actual figure is on
- * screen). LF-10 gives the actual figure a centre and no right end, so the
- * plan figure is the only reading table T-221 supports, and it is taken here.
+ * ⚠️ A milestone has no actual BAR (GR-15 says GR-5, GR-6 and GR-17 do not
+ * apply to one), so GR-7 sends it to 「図形の外側」. ⛔⛔ THAT IS WHICHEVER OF
+ * ITS FIGURES REACHES FURTHEST, NOT THE PLAN FIGURE'S RIGHT EDGE. LF-10 draws
+ * the actual as a second figure CENTRED on the actual day, so where the actual
+ * day is at or past the planned one that figure stands to the right of the
+ * plan's edge -- and a marker anchored on the plan is drawn ON it, which table
+ * T-038's 「この 5 つを重ねて描いてはならない（MUST NOT）」 forbids and 「図形の
+ * 外側」 already refused. ⚠️ Measured 2026-09-08 on the shipped build: the
+ * marker overlapped the sideways actual figure by 16.00px.
+ * ⭐ `TaskPlacement.actualReach` IS THE ONE PLACE THE REACH IS WORKED OUT.
+ * ScheduleLayout measures table T-038's order from that same number, so the
+ * marker and the name label cannot part company.
  *
  * A Task not started has no actual bar either, so FR-043's two dummies stand
  * in for that bar's ends and the marker hangs off GR-17 rather than off the
@@ -806,13 +811,15 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement,
   const planRight = placed.x + placed.width
   // FR-013's MUST: the plan alone is being displayed.
   if (!inputs.showActual) return inputs.showPlan ? planRight : null
-  // GR-7's milestone clause.
-  if (placed.shapeKind === 'milestone') return planRight
+  // GR-7's milestone clause: outside the FIGURE, and a milestone carries two.
+  if (placed.shapeKind === 'milestone') {
+    return placed.actualReach === null ? planRight : Math.max(planRight, placed.actualReach)
+  }
   // GR-7's not-started clause.
   const endpoint = dummies.find((one) => one.grab === 'GR-17')
   if (endpoint !== undefined) return endpoint.at.x
   // FR-013's own first clause, and the only arm that reads the actual bar.
-  if (placed.actualX !== null) return placed.actualX + placed.actualWidth
+  if (placed.actualReach !== null) return placed.actualReach
   // Nothing is started and FR-043 drew no dummy, which happens only where the
   // Task holds no start date -- and FR-013 forbids such a Task from reaching
   // the screen at all (MUST NOT), so there is no place to name here.

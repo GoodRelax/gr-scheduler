@@ -130,6 +130,22 @@ export interface TaskPlacement {
   readonly actualX: number | null
   readonly actualWidth: number
   /**
+   * How far right the actual FIGURE's ink reaches -- `null` while there is none.
+   *
+   * ⭐⭐ SETTLED HERE AND CARRIED, the bargain `labelX` and `labelFontSize`
+   * already keep. ⛔ It is NOT `actualX + actualWidth`: the pair above is the
+   * span of the DATES, and LF-10 of table T-221 draws a milestone's actual as a
+   * figure CENTRED on its day, whose own span is zero wide (S-130). Two rows read
+   * this number -- GR-7 of table T-023d anchors the progress marker 「実績バーの
+   * 右端の外側」 (「マイルストーンのときは図形の外側」) and table T-038's
+   * order puts the name label past 実績バーと実績のダミー -- so the moment it is
+   * spelled twice they part company. ⚠️ Measured 2026-09-08 on the shipped
+   * build, they had: a milestone's marker was drawn 16.00px INSIDE its own
+   * sideways actual figure, which table T-038's 「この 5 つを重ねて描いては
+   * ならない（MUST NOT）」 forbids.
+   */
+  readonly actualReach: number | null
+  /**
    * FD-6 / FD-6b of table T-012a in pixels, already clamped -- the fade drawn
    * at each end of the plan bar.
    *
@@ -664,6 +680,43 @@ function laidBelow(shapeKind: ShapeKind): boolean {
 function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways' {
   if (shapeKind === 'milestone') return 'sideways'
   return laidBelow(shapeKind) ? 'below' : 'inside'
+}
+
+/**
+ * How far right the ACTUAL figure's ink actually reaches.
+ *
+ * ⛔ NOT PUBLISHED. Table T-064's PI-5 names what this unit hands out, and
+ * this is not one of them -- so the answer LEAVES on `TaskPlacement.actualReach`
+ * instead, the way `labelX` and `labelFontSize` already do.
+ *
+ * ⛔⛔ NOT `actualX + actualWidth`. That pair is the span of the DATES, which
+ * `TaskPlacement` says in as many words, and LF-10 of table T-221 draws a
+ * milestone's actual as a figure CENTRED on its day: a Task whose
+ * `actualDuration` is S-130 (zero) has a zero-width span and a figure half a
+ * side wide on either side of it.
+ *
+ * ⭐ WHY IT IS ONE FUNCTION AND NOT TWO SPELLINGS. Two rows read this: GR-7 of
+ * table T-023d anchors the progress marker 「実績バーの右端の外側」 (and
+ * 「マイルストーンのときは図形の外側」), and table T-038's order puts the name
+ * label past 実績バーと実績のダミー. ScheduleGeometry answers the first and this
+ * file answers the second, so written twice they part company -- which is
+ * exactly what a person met: measured 2026-09-08 on the shipped build, a
+ * milestone's marker was drawn 16.00px INSIDE its own sideways actual figure,
+ * which table T-038's 「この 5 つを重ねて描いてはならない（MUST NOT）」 forbids.
+ *
+ * ⚠️ `planHeightOf` rather than a carried height, so the two callers cannot
+ * disagree: `TaskPlacement.planHeight` is built from this very call, and
+ * `taskGeometryOf` draws the sideways figure at `planHeight * actualOfPlan`.
+ *
+ * @purity pure
+ */
+function actualReachOf(
+  shapeKind: ShapeKind,
+  actual: { readonly x: number; readonly width: number },
+  settings: DocumentSettings,
+): number {
+  if (actualPlacementOf(shapeKind) !== 'sideways') return actual.x + actual.width
+  return actual.x + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
 }
 
 /**
@@ -1431,11 +1484,11 @@ export function layoutFromSchedule(
       // the anchor the geometry picks under any `planActualDisplay`: that side
       // narrows the anchor (the plan alone, a milestone's figure), never widens
       // it, and a label further out than it needs to be still overlaps nothing.
+      const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
       const outwardX = Math.max(
         x + width,
-        actual !== null
-          ? actual.x + actual.width
-          : dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
+        actualReach ??
+          dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
       )
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       // ⛔ MEASURED FROM `outwardX`, NOT FROM THE SHAPE, and the room for the
@@ -1478,8 +1531,8 @@ export function layoutFromSchedule(
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, x, width, label, font, placement, actual, labelX,
-               fade, assigneeLabel, assigneeLabelWidth, percentLabel, percentLabelWidth,
-               occupiedX0, occupiedX1 }
+               actualReach, fade, assigneeLabel, assigneeLabelWidth, percentLabel,
+               percentLabelWidth, occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -1619,6 +1672,7 @@ export function layoutFromSchedule(
         actualPlacement: actualPlacementOf(item.kind),
         actualX: item.actual === null ? null : item.actual.x,
         actualWidth: item.actual === null ? 0 : item.actual.width,
+        actualReach: item.actualReach,
         labelPlacement: item.placement,
         labelX: item.labelX,
         label: item.label,

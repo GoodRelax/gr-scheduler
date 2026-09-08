@@ -66,6 +66,8 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+// D-400's cases ask the PICTURE, not the geometry -- see their own note.
+import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 
 // ---------------------------------------------------------------------------
 // The fixture
@@ -531,5 +533,182 @@ describe('table T-038, D-394 -- the five stand side by side, and the label does 
     // held clear is what pushes it past.
     const { placed } = drawnWithMarks(true)
     expect(placed.labelX).toBeGreaterThan(placed.x + placed.width + BASE.labelGap)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// D-400 -- OC-4 was BUILT and never DRAWN.
+//
+// ⛔⛔ WHY THIS CASE IS HERE AND NOT ONE LAYER UP. Every case above reads
+// `TaskGeometry`, and `TaskGeometry.resume` was correct the whole time -- so
+// the whole file was green while the shipped build drew NOTHING in OC-4's
+// band (measured 2026-09-08: 0 nodes right of the marker on a suspended Task,
+// and `grep -rn "resume" src/adapter/svg-renderer/` answered 0). A row of
+// table T-038 that names a thing to be drawn is only met by the picture, so
+// this one case asks the renderer.
+//
+//   FR-044 (01-04-requirements.md, the STATEMENT)
+//     「**中断のあいだは再開アイコンを描くこと（MUST）。再開日が未定のときは
+//      表 T-201 の `S-25` に従って別の見た目にすること（MUST）**」
+//
+//   T-038 OC-4 (01-04-requirements.md)
+//     「| OC-4 | 再開アイコン | **算入してはならない（MUST NOT）**…… 場所は
+//      マーカーのさらに外側 |」
+//
+// ⛔ WHAT IS NOT ASSERTED: the icon's colour, its stroke width and its dash.
+// Table T-236 holds no row of its own for this figure and FR-011 sends its
+// dimensions to S-25 〜 S-29, so a number here would be this file deciding a
+// settings row. The case asks only that the ink EXISTS and stands where the
+// geometry put it.
+
+describe('FR-044, D-400 -- the resume icon reaches the picture, not just the geometry', () => {
+  const svgWithMarks = (marksVisible: boolean): string => {
+    const settings = markSettings(marksVisible)
+    const schedule = rowOf([SUSPENDED])
+    const layout = layoutFromSchedule(schedule, settings, REGIONS)
+    const geometry = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+    return svgFromSchedule(
+      schedule, settings, layout, geometry, REGIONS, emptySelection(), 'screen',
+    )
+  }
+
+  it('draws the marker too, or the case below proves nothing about the icon', () => {
+    // ⚠️ 04-verification section 2: a picture with no marker in it would pass
+    // the S-63 case below for the wrong reason.
+    expect(svgWithMarks(true)).toContain('data-figure="task-1-marker"')
+  })
+
+  it('⭐ draws the icon while the Task is suspended (MUST)', () => {
+    expect(svgWithMarks(true)).toContain('data-figure="task-1-resume"')
+  })
+
+  it('⭐ puts the drawn ink exactly where the geometry placed it', () => {
+    // ⛔ THE HALF THAT MATTERS TO A HAND. ItemHitArea's GR-8 takes S-93's box
+    // about the centre of `[...arm, ...head]`, so a picture drawn anywhere else
+    // hands the author a grab area with no figure in it -- which is the state
+    // the shipped build was in.
+    const { drawn } = drawnWithMarks(true)
+    const resume = drawn.resume
+    if (resume === null) throw new Error('no OC-4 geometry')
+    const svg = svgWithMarks(true)
+    for (const one of [...resume.arm, ...resume.head]) {
+      // The renderer rounds; two decimals is what `rounded` keeps.
+      const asDrawn = `${Math.round(one.x * 100) / 100},${Math.round(one.y * 100) / 100}`
+      expect({ point: asDrawn, drawn: svg.includes(asDrawn) })
+        .toEqual({ point: asDrawn, drawn: true })
+    }
+  })
+
+  it('⛔ draws no icon once S-63 has taken the marks off (MUST NOT)', () => {
+    // ONE switch for both figures -- table T-038's closing paragraph. ⛔ An icon
+    // left on screen after the marker went would move nothing (OC-4 is not
+    // counted) and would stand alone in the room reserved for a pair.
+    expect(svgWithMarks(false)).not.toContain('data-figure="task-1-resume"')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// D-400 -- a milestone's marker was drawn ON its own actual figure.
+//
+//   T-023d GR-7 (01-04-requirements.md)
+//     「| GR-7 | 進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点の
+//      掴みシロの外側、マイルストーンのときは図形の外側** |」
+//
+//   the MUST NOT under table T-038 -- 「この 5 つを重ねて描いてはならない」
+//
+// ⚠️ Measured 2026-09-08 on the shipped build: the marker sat 16.00px inside
+// the sideways actual figure LF-10 draws for a milestone, because the anchor
+// read the PLAN figure's right edge alone. ⛔ A milestone's actual span is
+// zero wide (S-130), so `actualX + actualWidth` is its CENTRE, not its edge.
+
+describe('table T-038 -- a milestone marker stands outside its actual figure too', () => {
+  /** A milestone begun on `actualStart`. Later than its plan parts the figures. */
+  const milestoneOf = (actualStart: string): Task =>
+    taskOf({
+      uid: 1,
+      name: 'm',
+      start: '2026-02-02',
+      finish: '2026-02-02',
+      milestone: true,
+      percentComplete: 40,
+      actualStart,
+      actualDuration: 0,
+      resumeValid: true,
+    })
+
+  const milestoneScene = (
+    actualStart = '2026-02-05',
+  ): { placed: TaskPlacement; drawn: TaskGeometry } => {
+    const settings = markSettings(true)
+    const schedule = {
+      ...rowOf([milestoneOf(actualStart)]),
+      taskVisuals: [
+        {
+          taskUid: 1, nameAnchor: null, nameAlign: null, shapeKind: 'milestone',
+          milestoneGlyph: 'diamond', fillColor: null, strokeColor: null, lineWeight: null,
+        },
+      ],
+    } as unknown as Schedule
+    const layout = layoutFromSchedule(schedule, settings, REGIONS)
+    const placed = taskPlacement(layout, 1)
+    if (placed === null) throw new Error('the milestone was not drawn at this zoom')
+    const drawn = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+      .tasks.find((one) => one.taskUid === 1)
+    if (drawn === undefined) throw new Error('the milestone has no picture')
+    return { placed, drawn }
+  }
+
+  it('draws a milestone whose actual figure reaches past its plan, or nothing is proved', () => {
+    const { placed, drawn } = milestoneScene()
+    expect(placed.shapeKind).toBe('milestone')
+    expect(placed.actualPlacement).toBe('sideways')
+    const actual = drawn.actual
+    const marker = drawn.marker
+    if (actual === null || marker === null) throw new Error('no actual figure or no marker')
+    const actualRight = actual.form === 'outline'
+      ? Math.max(...actual.points.map((one) => one.x))
+      : Math.max(actual.from.x, actual.to.x)
+    // ⚠️ The scene bites only while the actual figure sticks out to the RIGHT of
+    // the plan's; otherwise the plan's own edge would have been outside enough.
+    expect(actualRight).toBeGreaterThan(placed.x + placed.width)
+  })
+
+  it('⛔ does not draw the marker on the actual figure (MUST NOT)', () => {
+    const { drawn } = milestoneScene()
+    const actual = drawn.actual
+    const marker = drawn.marker
+    if (actual === null || marker === null) throw new Error('no actual figure or no marker')
+    const actualRight = actual.form === 'outline'
+      ? Math.max(...actual.points.map((one) => one.x))
+      : Math.max(actual.from.x, actual.to.x)
+    expect({ clear: marker.centre.x - marker.radius >= actualRight })
+      .toEqual({ clear: true })
+  })
+
+  it('⭐ measures OC-1 from the SAME reach OC-3 is anchored on (MUST)', () => {
+    // ⚠️ The heading of table T-038: 「2 か所で別々に数え上げてはならない
+    // （MUST NOT）」. ScheduleLayout answers where OC-1 begins and ScheduleGeometry
+    // answers where OC-3 stands, so the ONE thing that says they read the same
+    // reach is that the run between them does not depend on how far the actual
+    // figure sticks out.
+    //
+    // ⭐ STATED AS A DIFFERENCE, never as a count of pixels -- the row forbids a
+    // new setting and this file's own note forbids writing the room as a number.
+    // ⛔ A layout that measured from `actualX + actualWidth` -- a milestone's
+    // CENTRE, since S-130 makes its span zero wide -- keeps the first scene and
+    // loses the second by half a figure.
+    const together = milestoneScene('2026-02-02') // the plan's figure reaches furthest
+    const apart = milestoneScene('2026-02-05') // the actual's does
+    const runOf = (scene: { placed: TaskPlacement; drawn: TaskGeometry }): number => {
+      const marker = scene.drawn.marker
+      if (marker === null) throw new Error('no marker')
+      return scene.placed.labelX - (marker.centre.x + marker.radius)
+    }
+    // The two scenes really are different, or the case is vacuous.
+    expect(apart.drawn.marker?.centre.x).toBeGreaterThan(together.drawn.marker?.centre.x ?? 0)
+    expect(runOf(apart)).toBeCloseTo(runOf(together), 6)
+    expect(apart.placed.labelX).toBeGreaterThan(
+      (apart.drawn.marker?.centre.x ?? 0) + (apart.drawn.marker?.radius ?? 0),
+    )
   })
 })
