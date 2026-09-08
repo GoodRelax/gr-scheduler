@@ -1,4 +1,32 @@
-991
+977
+#
+# LOWERED 991 -> 977 ON 2026-09-09, PAYING BACK THE WHOLE OF THE ENTRY BELOW.
+# tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts holds every clause
+# R-27 / R-28 / R-29 / R-30 wrote, verbatim, and the run before it printed 991
+# not held against the run after's 977.
+# ⛔⛔ THE DEBT WAS FOURTEEN, NOT ELEVEN, AND THE ENTRY BELOW IS WRONG ABOUT IT.
+# Measured this round by running this check against the manuscript as commit
+# 52b605d left it, with today's tests/ as the corpus: 1634 markers, 977 unheld.
+# The commit added FOURTEEN markers and every one of them was bare, so the true
+# count went 977 -> 991. The "eleven" is the difference against the 980 written
+# in this file, and that 980 was already three too high -- the entry that wrote
+# it says as much in its own last paragraph ("the run immediately before this
+# file existed printed 990 not held ... some other round's work had already
+# lowered the true count"). ⭐ 977 here is the count this check printed, not a
+# subtraction.
+# ⚠️ AND THE FOUR REFUSAL-REASON ROWS OWED NOTHING. RS-55..RS-58 are rows of
+# 表 T-233, and a table row carries no （MUST）marker; the two MUST clauses in
+# that table's closing paragraph pre-date the commit and are still unheld,
+# among the 977. The brief handed down named those rows as one of the four
+# places the debt sat, and they were not one of them.
+# ⭐ WHAT IS AND IS NOT PRESSED, stated so the number is not read as coverage:
+# four of the fourteen are pressed against the build (R-28, `itemAtPointer`
+# answering GR-8 over GR-12 and the span it takes growing 1:1 with S-93). The
+# other ten are QUOTED ONLY, and the file says why for each: R-27 and R-29 are
+# measured NOT to hold in the tree today (the marker covers all but 4px of the
+# GR-17 dummy's box; the drawn mark's pixels answer GR-9, not GR-17), so a case
+# would be red, and R-30's Command Palette entrance has no row in 表 T-109 to
+# ask for.
 #
 # RAISED 980 -> 991 ON 2026-09-09, and it is meant to come back down in this
 # same round. Landing R-27 / R-28 / R-29 / R-30 and the four refusal-reason

@@ -373,6 +373,88 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   copy, which no machine check on either side could have told apart from a
   //   rewrite.
   'RS-54': '05e77fef91404b02',
+  // -----------------------------------------------------------------------
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-09 (the four write refusals table
+  // T-233 gained with 表 T-015a の `HM-4` / `FR-009` / `IV-1` / `IV-10` for
+  // their 正). ⛔ NOT PASTED IN FROM THE FAILURE MESSAGE: for each row the
+  // 場面 column, the ja and en text and the next step were read side by side,
+  // and against the 正 the row names, BEFORE anything was recorded here.
+  // ⛔ The words are not copied into these notes -- rule 02 section 4 has a
+  // note name its row, and FR-038 (MUST NOT) admits one store of them.
+  //
+  // RS-55 -- 場面 「動かす先が、その行自身か、その行の子孫である」（輪になる）,
+  //   作法 `NT-1`, 正 表 T-015a の `HM-4`.
+  // ⭐ BOTH HALVES OF THE SCENE ARE IN BOTH LANGUAGES: the destination being
+  //   the row ITSELF, and the destination being one of its own descendants.
+  //   A word that named only the descendant case would leave the self case
+  //   with no word, and the row states the two together.
+  // ⭐ THE WORDS DO NOT NARROW THE ROW TO ONE OF ITS TWO USES. The row says
+  //   it covers the nesting of rows AND the WBS parent, from one prohibition;
+  //   the words speak of moving a row under another and name neither, so
+  //   neither use is shut out.
+  // ⭐ THE NEXT STEP IS A ROAD `HM-4` ACTUALLY LEAVES OPEN: only a descendant
+  //   is refused as a parent, so taking that row out of the subtree first
+  //   makes the very same move legal. ⚠️ 作法 is `NT-1`, so a next step is not
+  //   owed here; it is carried all the same.
+  // ⚠️ IT STAYS CLEAR OF `RS-36` 〜 `RS-39` and `RS-38`, which are the indent
+  //   and outdent limits (no sibling above, already shallowest, the depth cap,
+  //   nowhere left in that direction). Those refuse a move that would be fine
+  //   but for a limit; this one refuses a move that can never be well formed.
+  // ⇒ the words tell the scene.
+  'RS-55': '130684b2b5f94e5d',
+  //
+  // RS-56 -- 場面 「同じ `Task` を、依存の先行と後続の両方にしようとした」,
+  //   作法 `NT-1`, 正 `FR-009`.
+  // ⭐ THE WORDS SAY THE SAME SENTENCE THE ROW DOES, in the negative, in both
+  //   languages: one task at both ends of one dependency.
+  // ⭐ AND THEY STAY AS NARROW AS THE ROW. `FR-009` forbids three things in
+  //   one clause -- the self reference, a pair that already has a dependency,
+  //   and an endpoint that is neither task nor milestone -- and only the first
+  //   is this row's. The words name only the first, so they cannot be read
+  //   over a refusal this row is not carried for.
+  // ⭐ THE NEXT STEP IS THE ROAD THE SAME CLAUSE LEAVES STANDING: 「引きかけの
+  //   矢印だけを捨てて構えは解かない」, so the arming survives the refusal and
+  //   drawing to another task is the very next thing a person can do.
+  // ⇒ the words tell the scene.
+  'RS-56': '772c6497e64774be',
+  //
+  // RS-57 -- 場面 「同じ id を持つものが、この文書に既に在る」, 作法 `NT-1`,
+  //   正 Chapter 6.1 の 表 T-220 の `IV-1`.
+  // ⭐ `IV-1` is 「主キーの値が、それが並ぶ配列の中で重複しないこと」 and this
+  //   row is its violation. The words say a thing with the same id is already
+  //   in this document -- the row's own vocabulary (id, not primary key),
+  //   which is the vocabulary a reader of the screen has.
+  // ⭐ THE NEXT STEP NAMES THE ONE ROAD: give it a different id. `IV-1` is
+  //   violated by the duplicate alone, so nothing else clears it.
+  // ⚠️ IT STAYS CLEAR OF `RS-25` 「読んだ `GRS JSON` の列が、決められた形に合わ
+  //   ない」, which is a malformed value; here the value is well formed and
+  //   already taken.
+  // ⚠️ WHAT THE READING COULD NOT SETTLE, and it is not a mismatch between the
+  //   two sides: the closing of the table keeps 取り込みの検証（`FR-023`）の
+  //   拒否 out of T-233 because 表 T-220's rows have row IDs of their own, yet
+  //   this row and `RS-58` take T-220 rows for their 正. The scene that
+  //   separates them is a WRITE refused by the invariant rather than an import
+  //   refused by it. ⛔ That is a question for the manuscript, not for the
+  //   words, and it is left where it is.
+  // ⇒ the words tell the scene.
+  'RS-57': 'ba449a8d282c9699',
+  //
+  // RS-58 -- 場面 「終了が開始より前である」, 作法 `NT-1`, 正 Chapter 6.1 の
+  //   表 T-220 の `IV-10`.
+  // ⭐ The row and both languages say one thing and the same thing: the finish
+  //   lies before the start.
+  // ⭐⭐ THE NEXT STEP IS EXACTLY AS WIDE AS `IV-10` AND NOT NARROWER. The
+  //   invariant is 「`finish` が `start` より前でないこと」, which ADMITS the two
+  //   being the same day, and the step offers the same day or a later one. A
+  //   step that asked for a later day only would forbid what the invariant
+  //   allows, and a person who followed it would never learn that a same-day
+  //   task is well formed.
+  // ⚠️ IT STAYS CLEAR OF `RS-50` 「文書が使えない日付を持つ `Task` を落として、
+  //   残りを取り込んだ」: that row is `NT-5`, an import that was ACCEPTED after
+  //   dropping rows, where this row is `NT-1`, a write that is refused and
+  //   changes nothing.
+  // ⇒ the words tell the scene.
+  'RS-58': '233c73e32acd128b',
 }
 
 const fingerprintOf = (rowId: string): string => {
