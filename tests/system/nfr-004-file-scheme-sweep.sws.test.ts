@@ -301,6 +301,7 @@ interface RawGeometry {
   readonly rowGrab: Spot | null
   readonly statusLine: Spot | null
   readonly dependency: Spot | null
+  readonly dependencyLines: number
 }
 
 interface Geometry {
@@ -320,8 +321,17 @@ interface Geometry {
   readonly rowGrab: Spot | null
   /** The status date line, once IC-44 has put one out -- GR-16. */
   readonly statusLine: Spot | null
-  /** A dependency line away from any bar -- GR-13. */
+  /** A point ON the ink of a dependency line, away from any bar -- GR-13. */
   readonly dependency: Spot | null
+  /**
+   * How many dependency polylines the drawing put out at all.
+   *
+   * ⭐ IT SEPARATES TWO FAILURES THAT LOOK ALIKE. `dependency === null` with
+   * lines drawn means this file could not find a place to press; with none
+   * drawn it means RT-4a left the link out at the zoom the sweep had reached,
+   * and no press could have answered. GR-13's message names which.
+   */
+  readonly dependencyLines: number
 }
 
 const GEOMETRY_SCRIPT = `(() => {
@@ -461,15 +471,74 @@ const GEOMETRY_SCRIPT = `(() => {
     const r = lines[lines.length - 1]
     return r ? { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } : null
   })()
+  // ⛔⛔ A DEPENDENCY IS PRESSED ON ITS OWN INK, AND ITS KEY IS WHAT FINDS IT.
+  // What stood here took the CENTRE OF THE BOUNDING RECTANGLE of the first
+  // <polyline> in document order that was not tiny and was clear of every bar,
+  // and both halves of that were wrong. Measured 2026-09-09 on this build,
+  // with the point that chooser returned then clicked:
+  //
+  //   fresh page          -> task-48-guide  (845, 773)  canvas unchanged
+  //   after MK-1..MK-5    -> task-9-guide  (1540, -227) canvas unchanged
+  //   after 'f'           -> task-713-guide (774, 890)  canvas changed
+  //
+  // ⛔ SO IT NEVER REACHED A DEPENDENCY AT ALL. 'polyline' is the tag the
+  // renderer also draws a task's guide line, a marker and the progress line
+  // with, the guides come first in document order, and their rectangles are
+  // 42x0 / 53x0 -- which the old width-AND-height test let through. The third
+  // reading is the worse one: a guide DID move the drawing, so on another day
+  // the same chooser would have reported GR-13 green for pressing something
+  // that is not a dependency.
+  // ⛔ AND A BOUNDING RECTANGLE'S CENTRE IS NOT ON THE LINE. A dependency is
+  // drawn as an orthogonal Z (measured: '1454,1563 1461,1563 1461,979
+  // 1437,979 1437,388 1451,388'), so its rectangle's middle sits in the open
+  // space the Z encloses, and one of those middles was 227px ABOVE the window.
+  //
+  // ⭐ WHAT IS TAKEN INSTEAD: the renderer names each link 'dep-<pred>-<succ>'
+  // (svg-renderer.ts, 'figureKey('dep-...')'), so the key selects them; each
+  // segment of the drawn path is walked, mapped into client space through the
+  // element's own screen CTM, and a point is taken ALONG the segment -- never
+  // its rectangle -- inside the schedule area and clear of every bar. The ends
+  // are avoided because MK-9a gives the bar's own row the press there.
+  // Measured with this chooser: the click lands on 'dep-9-281' / 'dep-290-291'
+  // and the canvas is redrawn in all three states above.
+  const dependencyLines = [...svg.querySelectorAll('polyline[data-figure]')]
+    .filter((e) => (e.getAttribute('data-figure') || '').indexOf('dep-') === 0)
   const dependency = (() => {
-    for (const e of svg.querySelectorAll('polyline')) {
-      const r = e.getBoundingClientRect()
-      if (r.width < 12 && r.height < 12) continue
-      const x = Math.round(r.left + r.width / 2)
-      const y = Math.round(r.top + r.height / 2)
-      if (clear(x, y)) return { x, y }
+    let best = null
+    for (const e of dependencyLines) {
+      const ctm = e.getScreenCTM()
+      if (ctm === null) continue
+      const numbers = (e.getAttribute('points') || '').trim().split(/[\\s,]+/).map(Number)
+      const corners = []
+      for (let i = 0; i + 1 < numbers.length; i += 2) {
+        const p = svg.createSVGPoint()
+        p.x = numbers[i]
+        p.y = numbers[i + 1]
+        const q = p.matrixTransform(ctm)
+        corners.push({ x: q.x, y: q.y })
+      }
+      for (let i = 0; i + 1 < corners.length; i += 1) {
+        const from = corners[i]
+        const to = corners[i + 1]
+        const length = Math.hypot(to.x - from.x, to.y - from.y)
+        // ⚠️ A 24px run is the shortest this file will aim at: shorter than
+        // that and every point on it is within the bar row's own reach.
+        if (length < 24) continue
+        for (const along of [0.5, 0.35, 0.65, 0.2, 0.8]) {
+          const x = Math.round(from.x + (to.x - from.x) * along)
+          const y = Math.round(from.y + (to.y - from.y) * along)
+          // ⛔ A SEGMENT MAY RUN THOUSANDS OF PIXELS PAST THE WINDOW (measured:
+          // one is 5810px long), so the POINT, not the segment, has to be in
+          // the schedule area -- a press outside it is dispatched into nothing.
+          if (x < area.left + 8 || x > area.right - 8) continue
+          if (y < area.top + 8 || y > area.bottom - 8) continue
+          if (!clear(x, y)) continue
+          if (best === null || length > best.length) best = { x, y, length }
+          break
+        }
+      }
     }
-    return null
+    return best === null ? null : { x: best.x, y: best.y }
   })()
   const spot = (r, at) => ({ x: Math.round(r.left + at), y: Math.round(r.top + r.height / 2) })
   return {
@@ -482,6 +551,7 @@ const GEOMETRY_SCRIPT = `(() => {
     rowGrab,
     statusLine,
     dependency,
+    dependencyLines: dependencyLines.length,
   }
 })()`
 
@@ -1028,10 +1098,46 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
+    // ⛔ NOT SKIPPED WHEN NOTHING IS FOUND, and the two reasons are told
+    // apart. A row this file cannot press is reported by `couldNotBePressed`
+    // and the case at the foot still goes red -- but the sentence has to say
+    // whether the drawing put out no link at that zoom (RT-4a's doing, not
+    // GR-13's) or put one out that this file could find no free point on.
+    // ⛔⛔ THE POINTER IS PUT THERE IN THE SETTING-UP, AND THAT IS WHAT MAKES
+    // THIS PROBE ABLE TO FAIL AT ALL. Measured 2026-09-09, with the chooser
+    // below deliberately aimed 30px OFF the ink and the whole sweep re-run:
+    // every case still passed. The reason is not the build -- it is that
+    // `moved` folds the BODY's hash in, HF-6 of table T-051 puts a row's
+    // controls out on hover, and `p.mouse.click` moves the pointer first:
+    //
+    //   hover only, ON the ink       (1500, 1016)  nothing moved
+    //   click,      ON the ink       (1500, 1016)  canvas AND body moved
+    //   hover only, 30px OFF the ink (1470, 1016)  body moved
+    //   click,      30px OFF the ink (1470, 1016)  body moved
+    //
+    // ⇒ Reading from a baseline taken BEFORE the pointer arrives, a press that
+    // misses the line entirely reads the same as one that hits it. The
+    // runner re-takes the baseline after `setUp` (「⭐ RE-TAKEN AFTER THE
+    // SETTING-UP, so that what is judged is the act」), so revealing here puts
+    // the hover into the baseline and leaves the CLICK as the only new thing.
+    // ⛔ NOT A WEAKENED EXPECTATION: the reading is still `answers`, and with
+    // this setting-up the same 30px break turns the sweep red.
+    // ⚠️ `geometryOf` is taken twice -- once for this, once for the act -- and
+    // the two agree because hovering the ink changes neither hash (row 1).
     rows: ['GR-13'],
     expect: 'answers',
+    setUp: async (p, g) => {
+      if (g.dependency !== null) await reveal(p, g.dependency)
+    },
     act: async (p, g) => {
-      if (g.dependency === null) throw new Error('GR-13 needs a dependency line drawn clear of every bar')
+      if (g.dependency === null) {
+        throw new Error(
+          g.dependencyLines === 0
+            ? 'GR-13 could not be pressed: the drawing put out no dependency line at this zoom'
+            : `GR-13 could not be pressed: ${String(g.dependencyLines)} dependency lines are drawn ` +
+              'and no point on one of them is in the schedule area and clear of every bar',
+        )
+      }
       await p.mouse.click(g.dependency.x, g.dependency.y)
       return null
     },
