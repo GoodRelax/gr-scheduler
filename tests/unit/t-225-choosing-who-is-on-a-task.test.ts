@@ -403,6 +403,35 @@ const SCHEDULE = scheduleOf({
   taskVisuals: [],
 })
 
+/**
+ * ⭐ THE CONTRAST AS-7's 解除 IS MEASURED AGAINST, and the reason it exists.
+ * The row releases 「そのタスクに担当者が 1 人だけ就いていたとき」 and says of
+ * everything else 「2 人以上が就いているタスクでどれを解くかは、本表のどの行も
+ * 定めていない」. ⛔ WITHOUT THIS SCHEDULE a reading that released EVERYBODY, or
+ * released 「the first one found」, would pass every one-person case above and
+ * nothing here would notice -- and the road to a task with several assignees
+ * (FR-059 counts them, AS-10 guards the pair) would be quietly closed.
+ */
+const SCHEDULE_TWO_SEATED = {
+  ...SCHEDULE,
+  assignments: [...SCHEDULE.assignments, assignmentOf(8, TASK_HELD, ROSTERED.uid)],
+} as unknown as Schedule
+
+/**
+ * ⭐ THE SAME ONE-PERSON TASK, PLUS AN ASSIGNMENT THAT NAMES NOBODY.
+ * `Assignment.resourceUid` is nullable, and `CM-45` (表 T-108) names a Task-and-
+ * Resource PAIR -- so a row with no `Resource` is neither somebody who can be
+ * released nor somebody who makes this task 「2 人以上」. ⛔ A reading that
+ * counted it would leave this task un-released, which is what this pins.
+ */
+const SCHEDULE_ONE_SEATED_PLUS_NULL = {
+  ...SCHEDULE,
+  assignments: [
+    ...SCHEDULE.assignments,
+    { uid: 8, taskUid: TASK_HELD, resourceUid: null, carry: {}, carryElements: [] },
+  ],
+} as unknown as Schedule
+
 /** ADR-001 has the shell compute these once a frame and hand them round. */
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
@@ -802,28 +831,76 @@ describe('表 T-225 AS-6 -- what is SHOWN against what is WRITTEN', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
-  it('⛔ MUST carry BOTH commands back from ONE call, in that order', () => {
+  it('⛔ MUST carry ALL THREE commands back from ONE call, in that order', () => {
     // ⛔ EXPECTED RED. AS-7 (MUST): 「その名前の `Resource` を作ってから割り当てる
     // こと（表 T-108 の `CM-40` と `CM-44`）」, and the paragraph under the table
     // (MUST): 「`AS-7` は、本行が書くことになった命令を 1 回の呼び出しで走らせる
     // こと …… 別々に走らせると、担当者だけができて割当ができていない状態が履歴に
     // 残る」.
     //
-    // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-09 AND THIS SEAM HAS NOT MOVED.
+    // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-08 AND THE SEAM NOW CARRIES IT.
     // Ruling R-07 (逐語 「差し替えでOK。 担当を変える場合はすでにプロパティー
     // パネルから切り替え可能。 削除も担当者一覧から削除可能。」) landed on AS-7 as
     // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を解く
-    // こと（MUST）」, so this call has to carry CM-45 as well whenever exactly one
-    // person was seated -- and `TASK_HELD` is such a task. ⛔ NOT ASSERTED HERE
-    // AND NOT INVENTED EITHER: the place that would write it is
-    // `commandsFromAssignee` of `input-command-translator.ts`, which the body that
-    // wrote the clause was not given, so the gap is reported rather than hidden
-    // behind a red case nobody was asked for.
+    // こと（MUST）」, so this call carries CM-45 as well whenever exactly one
+    // person was seated -- and `TASK_HELD` is such a task.
     //
-    // ⭐ SO THE ORDER IS PART OF THE RULE, not a preference: 作ってから割り当てる.
-    // The tree answers with an empty list -- `commandFromTaskColumn` carries a
-    // STOP saying PR-16 has no row of 表 T-108 to become.
-    expect(kindsOf(commandsForAssignee(UNKNOWN_NAME))).toEqual([CM_40, CM_44])
+    // ⭐ SO THE ORDER IS PART OF THE RULE, not a preference: 作ってから割り当てる,
+    // and CM-45 「が加わって 3 つである」 -- the paragraph under the table counts
+    // the bundle that way, so the release JOINS the pair rather than opening it.
+    expect(kindsOf(commandsForAssignee(UNKNOWN_NAME))).toEqual([CM_40, CM_44, CM_45])
+  })
+
+  it('⛔ MUST release the one person who was seated, and nobody else', () => {
+    // ⛔ AS-7 (MUST): 「そのタスクに担当者が 1 人だけ就いていたときは、その割当を
+    // 解くこと（MUST）」, and the row names 表 T-108 の `CM-45` for it. The pair
+    // that command takes is THIS task and the person who was on it -- not the
+    // person CM-40 has just made, whose uid CM-44 carries.
+    // ⚠️ 「解いても担当者そのものは残る」 (FR-008, MUST): no CM-42 is written,
+    // which is what `kindsOf` above already fixes.
+    const commands = commandsForAssignee(UNKNOWN_NAME)
+    expect(oneCommand(commands, CM_45)['taskUid']).toBe(TASK_HELD)
+    expect(oneCommand(commands, CM_45)['resourceUid']).toBe(SEATED.uid)
+  })
+
+  it('⛔ MUST NOT release anybody where TWO are seated -- no row says which', () => {
+    // ⛔ THE CONTRAST, AND IT IS THE POINT OF THE ROW'S OWN LIMIT. AS-7 (MUST)
+    // releases only 「担当者が 1 人だけ就いていたとき」 and reports the rest as a
+    // gap: 「2 人以上が就いているタスクでどれを解くかは、本表のどの行も定めて
+    // いない …… 発明せずに報告した」.
+    // ⚠️ WHAT THIS PROTECTS is the road to a task with several assignees -- a
+    // reading that released everybody, or 「the first one found」, would answer
+    // every case above correctly and only fail here.
+    expect(kindsOf(commandsForAssignee(UNKNOWN_NAME, TASK_HELD, SCHEDULE_TWO_SEATED))).toEqual([
+      CM_40,
+      CM_44,
+    ])
+  })
+
+  it('⛔ MUST NOT release anybody where NOBODY is seated', () => {
+    // ⛔ AS-7 (MUST) 「担当者が 1 人だけ就いていたときは」 -- a task nobody is on
+    // has no 割当 to 解く, and CM-45 would be refused by FR-008 on a pair that
+    // holds none, throwing the whole atomic bundle (AG-3) away.
+    expect(kindsOf(commandsForAssignee(UNKNOWN_NAME, TASK_ALONE))).toEqual([CM_40, CM_44])
+  })
+
+  it('⛔ counts a seated person, not an assignment that names nobody', () => {
+    // ⛔ `Assignment.resourceUid` is nullable and CM-45 names a PAIR, so a row
+    // with no `Resource` is neither releasable nor a second person. The task
+    // below still reads as 「1 人だけ」.
+    const commands = commandsForAssignee(UNKNOWN_NAME, TASK_HELD, SCHEDULE_ONE_SEATED_PLUS_NULL)
+    expect(kindsOf(commands)).toEqual([CM_40, CM_44, CM_45])
+    expect(oneCommand(commands, CM_45)['resourceUid']).toBe(SEATED.uid)
+  })
+
+  it('⛔ MUST NOT release anybody for a name the roster ALREADY holds', () => {
+    // ⛔ THE RELEASE IS AS-7's ALONE. A rostered name travels by AS-8 (uid の
+    // 小さいほう) and a uid by AS-9, and neither row carries the 解除 clause --
+    // the ruling's own next breath names the chooser as the road for changing
+    // who is seated (逐語 「担当を変える場合はすでにプロパティーパネルから切り替え
+    // 可能」), so seating a second rostered person leaves the first standing.
+    expect(kindsOf(commandsForAssignee(ROSTERED.name as string))).toEqual([CM_44])
+    expect(kindsOf(commandsForAssignee(TWIN_NAME))).toEqual([CM_44])
   })
 
   it('⛔ MUST name the new person by the uid FR-008 fixes for them', () => {

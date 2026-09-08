@@ -511,8 +511,6 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
     const { placed, drawn } = drawnWithMarks(true)
     expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
     expect(drawn.assigneeLabel).not.toBeNull() // OC-2's one card
-    // ⛔ FR-090 (MUST NOT) forbids a second box: 「2 枚を別々に置いてはならない」.
-    expect(drawn.percentLabel).toBeNull()
     expect(drawn.actual).not.toBeNull() // FR-043's actual bar
     expect(drawn.marker).not.toBeNull() // OC-3
     expect(drawn.resume).not.toBeNull() // OC-4

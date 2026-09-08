@@ -1,4 +1,10 @@
-995
+991
+#
+# LOWERED 995 -> 991 ON 2026-09-09 by three rulings landing at once.
+# Four MUST clauses gained an anchor that quotes them word for word:
+# the one-card outside label (FR-090) took three, and AS-7's release
+# took the fourth. ⭐ Measured, not estimated -- the runs before and
+# after the merge printed 995 and 991 held against the same manuscript.
 #
 # LOWERED 1016 -> 995 ON 2026-09-08, IN THE SAME ROUND THAT RAISED IT.
 # The entry below took on fifty-two clauses of debt and said to expect it to

@@ -1,4 +1,14 @@
-1
+0
+#
+# LOWERED 1 -> 0 ON 2026-09-09. The assignee swap landed: the release
+# clause is written into 表 T-225 of FR-008, and the seam that builds
+# the bundle now calls it. ⭐ Every ruling the user has handed down is
+# written where the product is built from, which is the state this file
+# exists to reach.
+# ⚠️ What is NOT closed is a different question the same row names:
+# which of several assignees to release. No row of 表 T-225 decides it,
+# the code stops there on purpose, and a test pins the stop. ⛔ That is a
+# pending decision, not an unlanded ruling -- it belongs to check 25.
 #
 #
 # LOWERED 5 -> 1 ON 2026-09-08, the same day the file was created. Four of the

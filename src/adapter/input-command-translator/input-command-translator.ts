@@ -3684,6 +3684,17 @@ function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
  * table T-016. Nothing is written where the task holds more than one, rather
  * than taking off a person the settler did not name.
  *
+ * ⭐ AS-7 BORROWS THIS SHAPE RATHER THAN GROWING A SECOND ONE. That row's own
+ * 解除 是 「そのタスクに担当者が 1 人だけ就いていたときは、その割当を解くこと
+ * （MUST）」, which is 表 T-108's `CM-45` under the same condition and the same
+ * gap -- AS-7 says in as many words 「2 人以上が就いているタスクでどれを解くか
+ * は、本表のどの行も定めていない」. One reading, one place.
+ *
+ * ⚠️ AN ASSIGNMENT WITH NO `Resource` IS NOT A SEATED PERSON. `Assignment`'s
+ * resource key is nullable (AT-93/AT-94 are the FK columns IV-2 guards), and
+ * `CM-45` names a Task-and-Resource PAIR -- so a null-resourced row can neither
+ * be released nor stand for somebody who was there.
+ *
  * @purity pure
  */
 function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly DocumentCommand[] {
@@ -3709,13 +3720,20 @@ function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly Doc
  * `uid` is asked first because the chooser is the only surface that settles this
  * item today and it commits nothing else.
  *
- * ⭐ WHAT EITHER MEANS IS 割り当てる AND NEVER 置き換える. AS-7 (MUST) makes a
- * `Resource` of a name the roster does not hold 「から割り当てること」, AS-10
- * (MUST) forbids only a SECOND assignment of somebody already on the task, and
- * 解除 has a row and a signal of its own (AS-3) -- so nothing here takes a
- * person off a task, and a task that already carries one keeps them.
+ * ⭐ WHAT EITHER MEANS IS 割り当てる, AND FOR AS-7 A 差し替え ON TOP OF IT.
+ * AS-7 (MUST) makes a `Resource` of a name the roster does not hold 「から割り
+ * 当てること」 and then (MUST) 「そのタスクに担当者が 1 人だけ就いていたときは、
+ * その割当を解くこと」 -- 利用者の裁定 2026-09-08, 逐語 「差し替えでOK」.
+ * ⛔ THAT RELEASE IS AS-7's ALONE AND REACHES NO FURTHER. A name or `uid` the
+ * roster ALREADY holds travels by AS-8 / AS-9 / AS-10, and none of those rows
+ * carries the 解除 clause -- the ruling's own next breath names the chooser as
+ * the road for changing who is seated -- so the branch above seats and takes
+ * nobody off. ⛔ Nor does it reach a task carrying two: AS-7 says 「2 人以上が
+ * 就いているタスクでどれを解くかは、本表のどの行も定めていない」.
+ * ⛔ AND NOTHING HERE IS A RENAME: AS-7 (MUST NOT) 「就いている担当者の改名と
+ * して扱ってはならない」.
  *
- * ⭐ AS-7 (MUST) ASKS FOR TWO COMMANDS IN ONE CALL AND THIS IS WHERE IT APPLIES:
+ * ⭐ AS-7 (MUST) ASKS FOR THOSE COMMANDS IN ONE CALL AND THIS IS WHERE IT APPLIES:
  * 「別々に走らせると、担当者だけができて割当ができていない状態が履歴に残る」.
  * The answer is a LIST the caller writes as one bundle, AG-3 of table T-035
  * makes that bundle atomic, and FR-031 makes it one undo step -- which UN-15 of
@@ -3759,6 +3777,17 @@ function commandsFromAssignee(
       taskUid,
       resourceUid: nextIssuedUid(schedule),
     },
+    // ⭐ AS-7's THIRD COMMAND, AND IT IS APPENDED BECAUSE THE ROW APPENDS IT.
+    // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を
+    // 解くこと（MUST）」, and the paragraph under table T-225 counts the bundle
+    // the same way -- 「誰も就いていないタスクでは `CM-40` と `CM-44` の 2 つ、
+    // 1 人が就いていたタスクではそれに `CM-45` が加わって 3 つである」. 加わって:
+    // CM-45 joins the pair, it does not open the list.
+    // ⛔ THE UID CM-44 NAMES IS NOT DISTURBED BY PUTTING IT LAST EITHER: CM-45
+    // takes nothing away from `Project.uidHighWaterMark` (it only drops
+    // assignments), so the mark plus one still belongs to CM-40's resource
+    // whichever end this sits at.
+    ...commandsFromUnassign(schedule, taskUid),
   ]
 }
 

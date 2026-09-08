@@ -301,7 +301,6 @@ function notStartedTask(pxPerDay: number): ScheduleGeometry {
         fadeHandles: [],
         label: null,
         assigneeLabel: null,
-        percentLabel: null,
       },
     ],
     dependencies: [],

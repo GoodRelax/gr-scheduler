@@ -229,14 +229,6 @@ export interface TaskGeometry {
    * now, so there is one box and one grab area rather than two.
    */
   readonly assigneeLabel: ScreenRect | null
-  /**
-   * ⛔ ALWAYS NULL SINCE THE RULING OF 2026-09-08. FR-090 (MUST NOT) forbids
-   * two boxes -- 「2 枚を別々に置いてはならない」 -- so the percent has no box
-   * of its own to leave by; it is inside `assigneeLabel`'s card. ⚠️ The member
-   * survives because fixtures outside this round's four files name it, and no
-   * row of table T-023d ever claimed it, so nothing reads it for a grab.
-   */
-  readonly percentLabel: ScreenRect | null
 }
 
 /** One dependency, routed. LC-10. */
@@ -1476,7 +1468,6 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
         : [],
     label: labelBoxOf(inputs, placed),
     assigneeLabel: outsideLabel,
-    percentLabel: null,
   }
 }
 

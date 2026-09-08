@@ -1106,9 +1106,19 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
  * (逐語 「担当を変える場合はすでにプロパティーパネルから切り替え可能」), which is
  * AS-5's chooser and AS-9's uid. ⛔ SO NOTHING HERE RENAMES A `Resource`: the row
  * forbids reading a new name as a rename, whoever is seated.
- * ⛔ WHAT IS STILL UNSETTLED IS THE RELEASE, and it is reported rather than
- * invented: no row of table T-225 says the assignment already standing is taken
- * away when a second candidate is settled, and AS-3 gives 解除 its own signal.
+ * ⭐ THE RELEASE WAS SETTLED ON 2026-09-08 TOO, FOR ONE CASE AND NO OTHER, and
+ * the note that used to call it wholly unsettled is corrected here. AS-7 (MUST)
+ * now ends 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当
+ * を解くこと」 -- 表 T-108's `CM-45`, the same word AS-3 uses -- so a name the
+ * roster does NOT hold, settled on a task exactly one person is on, both seats
+ * the new person and takes the old one off, in one call.
+ * ⛔ WHAT IS STILL UNSETTLED IS WHICH OF SEVERAL IS RELEASED, and it is reported
+ * rather than invented: AS-7 says in as many words 「2 人以上が就いているタスク
+ * でどれを解くかは、本表のどの行も定めていない」, and AS-3 stands on the same gap
+ * with 解除's own signal.
+ * ⚠️ NEITHER HALF IS THIS FILE'S WORK. The commands are written by
+ * `commandsFromAssignee` of `input-command-translator.ts`; this surface only
+ * hands the settled value back with `PR-16` on it (IF-9).
  *
  * ⭐⭐ THIS FIELD IS NOW THE DESTINATION OF AN ENTRANCE, WHICH IT WAS NOT WHEN IT
  * WAS BUILT. AS-1 was rewritten on 2026-09-08 (利用者の裁定 「パネルへ（条項を書き
