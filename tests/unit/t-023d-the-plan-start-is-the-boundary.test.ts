@@ -290,6 +290,8 @@ function notStartedTask(pxPerDay: number): ScheduleGeometry {
           ],
         },
         actual: null,
+        // Not a milestone, so FR-043's third exception does not reach it.
+        milestoneFigure: null,
         // ⭐ FALSE, AND IT IS A FIXTURE VALUE LIKE EVERY OTHER HERE. This plan
         // runs from `PLAN_START_X` to `PLAN_FINISH_X`, which is many days --
         // section 9 is where the same-day plan is built and pressed.

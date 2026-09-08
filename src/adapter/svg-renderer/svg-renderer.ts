@@ -505,10 +505,10 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
  *
  * ⭐ WHERE THE FIGURE COMES FROM. A not-started Task has no actual bar at all
  * -- `dummiesOf` only emits a dummy while `actualX` is null -- so the actual
- * milestone figure is not on the geometry to copy. What IS there is the PLAN's,
- * and for a milestone the two are the one glyph: `barOf` builds both from
- * `placed.milestoneGlyph`, and only their side differs. ⇒ Taking the plan's
- * outline gives 「そのマイルストーンの実績の図形」 with nothing invented.
+ * milestone figure is not on the geometry to copy. `TaskGeometry.milestoneFigure`
+ * is the member that answers it: `barOf` builds a milestone's plan and actual
+ * from the one `placed.milestoneGlyph` and only their side differs, so that
+ * outline IS 「そのマイルストーンの実績の図形」 with nothing invented.
  *
  * ⛔ NO COLOUR IS DECIDED HERE. The caller hands the paint the ACTUAL bar would
  * have taken, which is what FR-013 (「色は実績バーの色を継ぎ、独立した色を保存
@@ -518,18 +518,16 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
  * では実績のマイルストーンの図形の色として読むこと（MUST）。⛔ 新しい色の式を
  * 立ててはならない（MUST NOT）」.
  *
- * ⚠️ ONE CASE FALLS BACK TO THE RECTANGLE AND NO ROW COVERS IT: a milestone
- * drawn while the PLAN is hidden (`showPlan` false) has neither bar on its
- * geometry, so there is no figure to copy and no glyph reaches this layer --
- * `TaskGeometry` carries `shapeKind` but not `milestoneGlyph`. Reported rather
- * than guessed; the figure MUST NOT then be a rectangle either, and only the
- * geometry can answer it.
+ * ⛔ IT NO LONGER READS `task.plan` (D-407, measured 2026-09-08). A milestone
+ * drawn while the PLAN is hidden (`planVisible` false) has neither bar on its
+ * geometry, so reading the plan bar left that one case with nothing to copy and
+ * it fell back to the rectangle the MUST NOT forbids. The geometry answers it
+ * now, for every setting of that switch and in one place.
  *
  * @purity pure
  */
 function dummyFigure(
-  plan: BarGeometry | null,
-  isMilestone: boolean,
+  milestone: BarGeometry | null,
   centre: Point,
   width: number,
   height: number,
@@ -541,18 +539,18 @@ function dummyFigure(
     height,
   }
   const rectangle: BarGeometry = { form: 'outline', points: cornersAround(centre, width, height) }
-  if (!isMilestone || plan === null || plan.form !== 'outline') return rectangle
-  const from = boxOfPoints(plan.points)
+  if (milestone === null || milestone.form !== 'outline') return rectangle
+  const from = boxOfPoints(milestone.points)
   // ⛔ A silhouette with no extent on one axis cannot be carried onto a box:
   // the ratio would be a division by zero. Nothing is invented for it.
   if (from === null || from.width <= 0 || from.height <= 0) return rectangle
   return {
     form: 'outline',
-    points: pathFitted(plan.points, from, box),
+    points: pathFitted(milestone.points, from, box),
     // ⭐ The cut-out marks ride the SAME map as the silhouette, so `box` from
     // `hexagon` and `smile` from `circle` stay told apart at the dummy's size
     // for the reason `BarGeometry.marks` gives at full size.
-    marks: (plan.marks ?? []).map((one) => pathFitted(one, from, box)),
+    marks: (milestone.marks ?? []).map((one) => pathFitted(one, from, box)),
   }
 }
 
@@ -838,6 +836,7 @@ function markerSvg(
   ink: string,
   backing: string,
   faintness: number,
+  settings: DocumentSettings,
   key: string,
 ): string {
   const { centre, radius } = marker
@@ -845,9 +844,16 @@ function markerSvg(
   // wrapping group carries it too, because in the PM-1a case that group is
   // what a differ finds first.
   const named = figureKey(key)
+  // D-417. ⛔ THE STROKE IS `markerStroke` (S-24) FOR THE DISC AND FOR THE
+  // SYMBOL ALIKE. FR-094 (MUST NOT) forbids this file holding a dimension of
+  // its own, and S-24 is the only stroke width table T-201 keeps in the
+  // 進捗マーカー group -- the same reading `resumeSvg` below already takes for
+  // the resume icon's arm. ⚠️ Until this round the disc was typed at 1 and the
+  // three symbols at 1.5, so turning S-24 moved neither.
+  const stroke = rounded(settings.markerStroke)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
-    ` fill="${backing}" stroke="${ink}" stroke-width="1"${named}/>`
+    ` fill="${backing}" stroke="${ink}" stroke-width="${stroke}"${named}/>`
   const r = radius * 0.5
   const mark =
     marker.symbol === 'PM-1a'
@@ -856,15 +862,15 @@ function markerSvg(
         ? `<polyline points="${rounded(centre.x - r)},${rounded(centre.y)}` +
           ` ${rounded(centre.x - r * 0.2)},${rounded(centre.y + r * 0.7)}` +
           ` ${rounded(centre.x + r)},${rounded(centre.y - r * 0.7)}"` +
-          ` fill="none" stroke="${ink}" stroke-width="1.5"${named}/>`
+          ` fill="none" stroke="${ink}" stroke-width="${stroke}"${named}/>`
         : marker.symbol === 'PM-3'
           ? `<line x1="${rounded(centre.x - r * 0.6)}" y1="${rounded(centre.y + r)}` +
             `" x2="${rounded(centre.x + r * 0.6)}" y2="${rounded(centre.y - r)}"` +
-            ` stroke="${ink}" stroke-width="1.5"${named}/>`
+            ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
           : marker.symbol === 'PM-4'
             ? `<line x1="${rounded(centre.x)}" y1="${rounded(centre.y - r)}` +
               `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * 0.35)}"` +
-              ` stroke="${ink}" stroke-width="1.5"${named}/>` +
+              ` stroke="${ink}" stroke-width="${stroke}"${named}/>` +
               `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * 0.8)}"` +
               ` r="${rounded(radius * 0.12)}" fill="${ink}"${named}/>`
             : ''
@@ -2155,12 +2161,12 @@ export function svgFromSchedule(
       const anchor = task.dummies.find((one) => one.grab !== 'GR-17') ?? task.dummies[0]!
       // ⭐ THE FIGURE, WHICH IS THE ONLY THING FR-043's THIRD MILESTONE
       // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
-      // but a milestone, and the milestone's own glyph for one -- carried off
-      // the plan bar the geometry already built, never minted here.
+      // but a milestone, and the milestone's own glyph for one -- carried on
+      // `TaskGeometry.milestoneFigure`, which the geometry builds whether or
+      // not either bar is drawn (D-407), never minted here.
       const marks = barSvg(
         dummyFigure(
-          task.plan,
-          task.shapeKind === 'milestone',
+          task.milestoneFigure,
           centreFromLeftEdge(anchor.at, drawnWidth),
           drawnWidth,
           anchor.height,
@@ -2255,6 +2261,7 @@ export function svgFromSchedule(
           themed('S-161'),
           themed('S-162'),
           handOn(task.taskUid, MARKER_GRAB_ROWS) ? 1 : settings.dummyOpacity,
+          settings,
           `${taskKey}-marker`,
         ),
       )

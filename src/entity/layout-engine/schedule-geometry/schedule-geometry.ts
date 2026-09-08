@@ -177,6 +177,28 @@ export interface TaskGeometry {
   readonly plan: BarGeometry | null
   readonly actual: BarGeometry | null
   /**
+   * The milestone's own figure, for FR-043's third milestone exception --
+   * 「ダミーの図形は、そのマイルストーンの実績の図形と同じとすること（MUST）。
+   * 矩形で描いてはならない（MUST NOT）」 (利用者の裁定 2026-09-08). Null on
+   * every other shape, which is the only shape the exception is about.
+   *
+   * ⭐⭐ CARRIED SEPARATELY BECAUSE `plan` AND `actual` BOTH GO MISSING. A Task
+   * not started has no actual bar at all (`dummiesOf` only emits a dummy while
+   * `actualX` is null), and `planVisible` false takes `plan` with it -- so on a
+   * milestone drawn with the plan hidden there was no figure left on this type
+   * to copy, and the drawing fell back to a rectangle, which is exactly what
+   * that MUST NOT forbids (D-407, measured 2026-09-08).
+   *
+   * ⭐ IT IS THE ACTUAL'S FIGURE AND NOT A THIRD ONE. `barOf` builds a
+   * milestone's plan and actual from the one `placed.milestoneGlyph`, and only
+   * the side they are drawn on differs, so this is 「そのマイルストーンの実績の
+   * 図形」 with nothing invented. ⛔ Its BOX is not the dummy's -- the drawn
+   * width is S-180 against a day, which is `DRAWN_FOR_THE_SCREEN_ALONE` and
+   * therefore the renderer's to apply; this member carries the OUTLINE that
+   * gets fitted into it.
+   */
+  readonly milestoneFigure: BarGeometry | null
+  /**
    * Whether the PLAN's two ends stand on one day -- table T-023d's closing rule
    * of 2026-09-08, 「2 つの端点が同じ日に立つときは、終了側を掴むこと（MUST）」,
    * which binds 「予定の 2 端（`GR-3` と `GR-4`）」 as well as the actual's pair.
@@ -1429,6 +1451,15 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     shapeKind: placed.shapeKind,
     plan,
     actual,
+    // D-407. ⭐ BUILT WHETHER OR NOT EITHER BAR IS DRAWN, because FR-043's
+    // third milestone exception is about the DUMMY's figure and a dummy only
+    // exists where the actual bar does not. The arguments are the plan's box
+    // because `barOf`'s milestone branch reads only its centre and height, and
+    // the renderer refits the outline into the dummy's own box anyway.
+    milestoneFigure:
+      placed.shapeKind === 'milestone'
+        ? barOf(inputs, placed, placed.x, placed.x + placed.width, planTop, placed.planHeight, true)
+        : null,
     // ⭐ RELAYED AND NOT RE-DECIDED. `ScheduleLayout` read the two dates once,
     // and a second reading here is the copy that goes out of step the day the
     // plan bar's extent is settled (`spanWidthOf`'s note records that it is not).

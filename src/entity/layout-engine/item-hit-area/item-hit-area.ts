@@ -675,6 +675,15 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
  * か決められないときは、終了を優先すること（MUST）」 is written about the two
  * DUMMIES, and no row says which of `GR-5` / `GR-6` yields where their two
  * allowances cross on a short bar. ⛔ Do not close it here by inventing one.
+ * ⚠️ Re-read on 2026-09-09 for ledger row D-416 and the reading held: that
+ * clause's own reason (「`GR-9` と `GR-17` は `S-129` ぶんしか離れていない」), its
+ * own mechanism (「`GR-17` を `GR-9` より上に置いた」) and its own consolation
+ * (「どちらを掴んでも実績は立つ」, which is FR-043 about the dummies and is false
+ * of `GR-5`) all name the dummies, while the clause ABOVE it enumerates all
+ * three pairs where it means all three. ⛔ Preferring the finish wherever the
+ * two allowances cross takes `GR-5` off every actual of two days or fewer at
+ * `S-1`, and `tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts` fences
+ * that reading with a case of its own. ⇒ It needs a ruling, not a guess.
  *
  * ⭐⭐ THE PLAN'S HALF IS CLOSED BY A CARRIED FACT, NOT BY THIS BOX. S-49
  * (`minShapeWidth`) is applied in `schedule-layout.ts` before the geometry

@@ -24,6 +24,7 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
+  COLUMN_SHAPES,
   calendarDaysBetween,
   compareDays,
   dateFromWorkingDays,
@@ -1173,15 +1174,37 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // FR-078: 表 T-012 の `SH-5` が挙げる図形から選べるようにすること -- eight
       // of them, and AT-101 counts eight.
       //
-      // CR-172 spelled the eight (circle / hexagon / pentagon / diamond /
-      // square / star / triangleUp / triangleDown), in the order SH-5 prints
-      // them, which S-48 fixes as the order of their areas. `TaskMilestoneGlyph`
-      // now carries membership, so no runtime test is written here -- the same
-      // way `setTaskVisualShapeKind` leaves it to `TaskShapeKind`.
+      // CR-172 spelled them in the order SH-5 prints them, which S-48 fixes as
+      // the order of their areas.
+      //
+      // ⛔⛔ THE WORD IS JUDGED HERE AND NOT LEFT TO `TaskMilestoneGlyph`
+      // (D-418, measured 2026-09-08: `'NOT-A-GLYPH'` came back
+      // `accepted: true`). A type is gone at run time, and AM-7 of table T-107
+      // hands this path commands a caller wrote -- so AG-5 of table T-108
+      // (MUST), 「UI と同じ検証・同じ制限を通ること」, went unmet: the pointer's
+      // own road (`commandFromVisualColumn`) drops a word that is not one of
+      // SH-5's, and the Agent API's did not. ⭐ Judging it on THIS side is what
+      // makes the two roads one validation rather than two.
+      //
+      // ⛔ THE ROSTER IS NOT WRITTEN OUT. `COLUMN_SHAPES` is the schema's own
+      // enumeration, generated from `erd.json`, and table T-016's closing
+      // paragraph (MUST NOT) forbids the choices being stated a second time --
+      // so a figure SH-5 gains is admitted here without anyone editing a list.
+      //
+      // ⚠️ `null` IS NOT AN UNKNOWN WORD. AT-101 makes the column nullable, and
+      // FR-078's 「置いた後も変えられる」 undone is what clearing it means.
       //
       // ⚠️ Not refused for a task that is not a milestone: AT-101 says the column
       // is only READ while `shapeKind` is `'milestone'`, which is not a bar on
       // holding a value.
+      if (
+        command.glyph !== null
+        && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.glyph)
+      ) {
+        return refused([
+          reject('CM-21', 'FR-078', 'the figure is not one of those table T-012 SH-5 names'),
+        ])
+      }
       const visual = visualOf(schedule, command.uid)
       return edited(withVisual(document, { ...visual, milestoneGlyph: command.glyph }))
     }

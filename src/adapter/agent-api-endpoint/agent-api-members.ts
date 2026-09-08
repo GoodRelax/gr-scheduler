@@ -708,13 +708,26 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
  * parse would be the duplication chapter 5.3 refuses. ⚠️ A text it turns away
  * comes back `null`, which the member answers `malformedRequest` for.
  *
+ * ⛔⛔ AND THE VERSION IT IS READ AGAINST TRAVELS WITH IT (D-357). FR-073 (MUST)
+ * settles 「読めない版」 as strictly newer than the greatest version this build
+ * knows, and says of one 「そのときは、受けて開くこと（MUST）」 and
+ * 「拒んではならない（MUST NOT）」;
+ * a call that named no version left OP-7 answering `notCompared`, and a newer
+ * document carrying one column this build cannot read was turned away as
+ * `malformedRequest` -- measured on the shipped build 2026-09-09, which broke
+ * that MUST NOT and FR-022's 「合流を拒んではならない（MUST NOT）」 with it.
+ * ⭐ The number is `AgentApiWiring.schemaVersion`, which is AM-2's own.
+ *
  * @purity pure
  */
-function handedDocument(handed: AgentImportSource): Document | null {
+function handedDocument(
+  handed: AgentImportSource,
+  greatestKnownSchemaVersion: string,
+): Document | null {
   if (handed === null || typeof handed !== 'object') return null
   const bag = handed as Record<string, unknown>
   if (typeof bag['text'] === 'string') {
-    const read = DocumentCodec.documentFromJson(bag['text'])
+    const read = DocumentCodec.documentFromJson(bag['text'], greatestKnownSchemaVersion)
     return read.ok ? read.document : null
   }
   const named = bag['document']
@@ -955,13 +968,21 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       //
       // STOP -- ⛔ FR-073'S TELLING IS STILL ON NO SURFACE, and this member is
       // not where it can be put. That requirement (MUST) has the columns a newer
-      // version could not be read as laid out on U-61 and carried through the
-      // write on `Carry`, with RS-48 of table T-233 for the reason. ⚠️ Neither
-      // half is reachable from here: `documentFromJson` (PI-20) answers OP-7 only
-      // when a caller hands it the greatest version this build knows and no
-      // caller does, and DocumentCodec is the component that would carry the
-      // unread columns. ⛔ That absence is no longer a reason to refuse the
-      // intake -- refusing was measured to break FR-022 and FR-073 both. Reported.
+      // version could not be read as laid out on U-61, with RS-48 of table T-233
+      // for the reason.
+      // ⭐ ONE HALF LANDED (D-357): `documentFromJson` (PI-20) is now handed the
+      // greatest version this build knows on the `{ text }` road above, and its
+      // `unreadColumns` is the list FR-073 has laid out. ⚠️ An earlier note here
+      // said no caller passed that version; it was true when written and is not
+      // now.
+      // ⛔ WHAT IS STILL MISSING IS THE ROAD TO THE SURFACE, and it is outside
+      // this component: `takeInDocument` below carries a `Document` and answers
+      // a boolean, and the layer that raises U-61 and the RS-48 telling is the
+      // one that fills that seam. ⛔ Widening it here alone would only hand a
+      // list to a side that draws nothing with it, so nothing is invented for it.
+      // ⚠️ AND THE OBJECT ROAD COUNTS NOTHING AT ALL: a caller that hands the
+      // document itself (or `{ document }`) never passes through PI-20, so no
+      // column is weighed on that road. Reported.
       const snapshot = source.readSnapshot()
       const road = wiring.takeInDocument
       if (road === undefined) {
@@ -972,7 +993,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
           refusal: notAvailable('AM-8', snapshot, 'the wiring carries no import road'),
         }
       }
-      const incoming = handedDocument(handedSource)
+      const incoming = handedDocument(handedSource, wiring.schemaVersion)
       if (incoming === null) {
         // FR-028 (MUST NOT): 「例外を投げてはならない」, so a caller outside
         // this build who hands something that is not a document is REFUSED and

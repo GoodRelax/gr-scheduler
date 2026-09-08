@@ -87,11 +87,14 @@ export type JsonRefusalReason = 'RS-25'
  * TELLING -- the columns that could not be read shown on `U-61`
  * (`Difference Review`, table T-103) carrying `RS-48` of table T-233, and the
  * person asked whether to go on.
- * ⛔ THAT TELLING IS NOT DRAWN, and it is not this unit's to draw: this file is
- * pure, and no surface in this build lays out FR-073's unread columns (`U-61`
- * exists, but only with FR-022's merge candidates on it). ⛔ Nothing here may
- * stand in for it by refusing -- that would meet the first MUST by breaking the
- * MUST NOT beside it.
+ * ⭐ THE COLUMNS ARE COUNTED NOW (D-357): `unreadColumns` on the decoding below
+ * is the list, and this reading is what turns it on. ⚠️ An earlier note here
+ * said no member counted them; it was true when it was written and is not now.
+ * STOP -- ⛔ THAT TELLING IS STILL NOT DRAWN, and it is not this unit's to
+ * draw: this file is pure, and the surface that would lay the list out is
+ * `U-61`, which exists but carries only FR-022's merge candidates. ⛔ Nothing
+ * here may stand in for it by refusing -- that would meet the first MUST by
+ * breaking the MUST NOT beside it.
  *
  * ⛔ `notCompared` IS A HOLE AND SAYS SO. It is what comes back when the caller
  * handed no version to compare against, and it is deliberately NOT spelled as
@@ -132,6 +135,37 @@ export type JsonDecoding =
        * ⚠️ The raiser is the caller's, exactly as `clampedCount`'s is.
        */
       readonly formatVersion: FormatVersionReading
+      /**
+       * FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを
+       * 問うこと」 -- the columns, so that the surface that asks has something
+       * to lay out.
+       *
+       * ⭐ ALWAYS EMPTY UNLESS `formatVersion` IS `newerThanKnown`, and that is
+       * the requirement rather than a convenience: FR-073 defines 「読めない版」
+       * as strictly newer than the greatest version this build knows, and a key
+       * this build does not know in a document of a version it DOES know is a
+       * writer inventing a column -- RS-25's refusal, which is left exactly as
+       * it was.
+       *
+       * ⭐ NAMES, NOT PLACES, and 「列」 is why: a column of a newer version
+       * stands on every row that carries it, so a list of occurrences would
+       * name one column nine hundred times over and be unreadable as the
+       * 「具体的に並べて見せ」 the requirement asks for. Distinct, in the order
+       * the document first carries each.
+       * ⛔ NOTHING IS LOST BY LISTING THE NAME ONLY. 「読めなかった列は、解釈
+       * せずに持ち回ること（MUST）。落としてはならない（MUST NOT）」 is kept by
+       * the DOCUMENT and not by this list: the value handed back below is the
+       * parsed root with every unknown key still on it, so a write of it
+       * carries them all back out untouched. This list is what the telling
+       * reads; the carrying is the document's own.
+       *
+       * ⛔ NO ROW SPELLS THIS LIST. FR-073 names what has to be shown and table
+       * T-103's `U-61` names where, and neither settles a shape for it; the
+       * name alone is the narrowest thing that says which column went unread.
+       * Searched: FR-073, FR-022, table T-103, table T-233, table T-064.
+       * Reported.
+       */
+      readonly unreadColumns: readonly string[]
     }
   | {
       readonly ok: false
@@ -1313,9 +1347,39 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
 
 // </generated>
 
+/**
+ * What a fault says when the only thing wrong with a key is that this build
+ * does not know it.
+ *
+ * ⭐ NAMED RATHER THAN SPELLED TWICE. `documentFromJson` has to tell this one
+ * finding apart from every other in order to keep FR-073's 「受けて開くこと
+ * （MUST）」, and two copies of a sentence are two things to keep in step.
+ */
+const NOT_A_KEY_THIS_SHAPE_CARRIES = 'is not a key this shape carries'
+
 /** @purity pure */
 function fault(at: string, what: string): JsonFault {
   return { at, what }
+}
+
+/**
+ * Whether a fault is only 「this build does not know this key」.
+ *
+ * @purity pure
+ */
+function isUnknownKeyFault(one: JsonFault): boolean {
+  return one.what === NOT_A_KEY_THIS_SHAPE_CARRIES
+}
+
+/**
+ * The column a fault about an unknown key names -- the last step of its JSON
+ * pointer, with RFC 6901's two escapes undone.
+ *
+ * @purity pure
+ */
+function columnOf(at: string): string {
+  const last = at.slice(at.lastIndexOf('/') + 1)
+  return last.replace(/~1/g, '/').replace(/~0/g, '~')
 }
 
 /** @purity pure */
@@ -1454,7 +1518,7 @@ function collectFaults(
       if (child !== undefined) {
         collectFaults(inner, child, pointer(at, key), out)
       } else if (node.closed === true) {
-        out.push(fault(pointer(at, key), 'is not a key this shape carries'))
+        out.push(fault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
       }
     }
   }
@@ -1537,9 +1601,36 @@ export function documentFromJson(
     ])
   }
 
+  // ⭐⭐ FR-073 / OP-7 IS JUDGED BEFORE THE FAULTS ARE, AND THAT ORDER IS THE
+  // REQUIREMENT (D-357). A document of a version this build does not know is
+  // one 「受けて開くこと（MUST）」 and 「拒んではならない（MUST NOT）」, so the
+  // reading has to be in hand at the moment the faults are weighed -- weighing
+  // them first is what refused every newer document outright.
+  // ⚠️ Read off the parsed value rather than off `read` below, because `read`
+  // is only assumed to be a document AFTER the faults have been weighed. A text
+  // carrying no `schemaVersion` at all reads as `''`, which orders before every
+  // version and so is never 「newer」.
+  const declared = isObject(parsed) ? parsed['schemaVersion'] : undefined
+  const formatVersion = formatVersionReading(
+    typeof declared === 'string' ? declared : '',
+    greatestKnownSchemaVersion,
+  )
+
   const faults: JsonFault[] = []
   collectFaults(parsed, GRS_DOCUMENT_SCHEMA, '', faults)
-  if (faults.length > 0) return refusal(faults)
+  // ⭐ THE ONE FINDING A NEWER VERSION IS FORGIVEN, AND ONLY THAT ONE. FR-073
+  // (MUST) has the columns this build could not read laid out and carried, so
+  // an unknown KEY in a newer document is the finding rather than a fault; a
+  // wrong type, a missing column or an out-of-range value is not excused by the
+  // version and still refuses. ⛔ In a document of a version this build knows,
+  // an unknown key stays RS-25's refusal exactly as before -- there the writer
+  // invented a column, which is what that row is for.
+  const isNewer = formatVersion === 'newerThanKnown'
+  const refusing = isNewer ? faults.filter((one) => !isUnknownKeyFault(one)) : faults
+  if (refusing.length > 0) return refusal(refusing)
+  const unreadColumns = isNewer
+    ? [...new Set(faults.filter(isUnknownKeyFault).map((one) => columnOf(one.at)))]
+    : []
 
   // ⛔ THE ASSERTION OVER-CLAIMS IN ONE PLACE, and it has to. `Document` gives
   // the presentation group every key, while the schema run above deliberately
@@ -1566,14 +1657,13 @@ export function documentFromJson(
   // road's clamping would be moving values the row says are not restored at all;
   // FR-056's merge builds its document from the current one and never through
   // this function.
-  // ⭐ FR-073 / OP-7 -- the whole of the comparison, and nothing beyond it.
+  // ⭐ FR-073 / OP-7's reading was taken above, before the faults were weighed.
   // ⛔ It does NOT gate the return: 「受けて開くこと（MUST）」「拒んではならない
   // （MUST NOT）」 leave the reading as a value the caller acts on.
-  const formatVersion = formatVersionReading(read.schemaVersion, greatestKnownSchemaVersion)
 
   const clamp = clampedSettings(read.documentSettings)
   if (clamp.clamped.length === 0) {
-    return { ok: true, document: read, clampedCount: 0, formatVersion }
+    return { ok: true, document: read, clampedCount: 0, formatVersion, unreadColumns }
   }
   // ⚠️ A NEW ROOT AND NOT A WRITE. `clampedSettings` is pure and hands a fresh
   // settings group back, keys it knows nothing about included (OP-6 MUST), so
@@ -1583,6 +1673,7 @@ export function documentFromJson(
     document: { ...read, documentSettings: clamp.settings },
     clampedCount: clamp.clamped.length,
     formatVersion,
+    unreadColumns,
   }
 }
 

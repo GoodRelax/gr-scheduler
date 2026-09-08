@@ -40,7 +40,7 @@
 // another case has been measured in this project to leave the run unfinished.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, type SpecTable } from '../contract/spec-table'
@@ -94,6 +94,38 @@ const REVIEW_ANSWERS: readonly string[] = [rowOf(T109, 'IC-95').id, rowOf(T109, 
 
 /** `RS-48` -- the reason a newer-version document's telling carries. */
 const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
+
+/**
+ * The words `RS-48` is told in, in both display languages, read out of the
+ * manuscript's own dictionary.
+ *
+ * ⛔⛔ AND THE ROW ID IS NOT ONE OF THEM, WHICH THE FIRST WRITING OF THIS FILE
+ * GOT WRONG (measured 2026-09-09). It looked for the literal text `RS-48` in
+ * the page, or for a `[data-reason]` attribute -- and NEITHER handle is settled
+ * by anything: `data-reason` is on no element of the shipped build, and FR-076
+ * has a telling carry the row as its REASON while Chapter 6.2 has the words a
+ * person reads come from the dictionary, so a screen printing 「RS-48」 at a
+ * person would be the breach rather than the proof. So the judgement below
+ * could not have gone green however right the product was.
+ * ⭐ WHAT IS SETTLED IS THE WORDS. Chapter 6.2 (MUST) has them written in
+ * `docs/spec/_source/display-words.json` and reach `src/` by generation, and
+ * `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` already
+ * reads them from there. ⛔ THE MANUSCRIPT'S COPY, not the generated one: this
+ * file reads the specification and not `src/`.
+ * ⚠️ BOTH LANGUAGES, because `S-99` decides which one stands and this file does
+ * not set it -- a telling in either is the reason having been named.
+ */
+const REASON_WORDS: readonly string[] = (() => {
+  const raw = JSON.parse(
+    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  ) as { reasons?: { rowId: string; text?: { ja?: string; en?: string } }[] }
+  const found = (raw.reasons ?? []).find((one) => one.rowId === REASON_NEWER_VERSION)
+  const said = [found?.text?.ja ?? '', found?.text?.en ?? ''].filter((one) => one !== '')
+  if (said.length === 0) {
+    throw new Error(`the dictionary holds no words for ${REASON_NEWER_VERSION}`)
+  }
+  return said
+})()
 
 /** The `Agent API` members of table T-107 this file goes through. */
 const AM_2 = bare(rowOf(T107, 'AM-2').cells[1] ?? '')
@@ -184,7 +216,7 @@ interface Measured {
   readonly strangersOnTheSurface: number
   /** Everything the `Notification Area` said after the hand-over. */
   readonly noticeText: string
-  /** Whether the reason `RS-48` was named anywhere on the screen. */
+  /** Whether `RS-48` was told anywhere on the screen, in either of its words. */
   readonly reasonNamed: boolean
   /** Whether `AM-11`'s written document still carries the unreadable column. */
   readonly columnSurvivedTheWrite: boolean
@@ -479,14 +511,45 @@ async function sweep(page: Page): Promise<Measured> {
 
   // ---- what stands, read while the answer is still owed -------------------
   const onScreen: OnScreen = await page.evaluate(
-    (given: { review: string; notices: string; reason: string; uidsInBoth: number[] }) => {
+    (given: {
+      review: string
+      notices: string
+      reasonWords: string[]
+      uidsInBoth: number[]
+    }) => {
       const textOf = (role: string): string =>
         Array.from(document.querySelectorAll(`[data-role="${role}"]`))
           .map((node) => (node.textContent ?? '').trim())
           .join(' | ')
+      // ⛔⛔ THE NUMBERS ARE READ ONE ELEMENT AT A TIME, AND THE FIRST WRITING
+      // OF THIS FILE GOT IT WRONG (measured 2026-09-09). `textContent` over a
+      // whole surface returns the words of every descendant RUN TOGETHER with
+      // nothing between them, so a task named 「… increment 1」 printed above a
+      // line whose task carries UID 133 reads back as the single number 1133 --
+      // a number that is nobody's UID, invented by the reading rather than
+      // printed by the page. That is what produced 42 「strangers」 out of a
+      // surface that had printed none, and it is the same family as the trap
+      // section 6 of docs/development-rules/04-verification.md already records
+      // about a row name and what textContent gives back for it.
+      // ⭐ SO EACH LEAF IS ASKED FOR ITS OWN WORDS. Two things the page drew
+      // apart are never read as one, and nothing is forgiven: every number the
+      // surface actually prints is still weighed against the shared UIDs.
+      const leafWordsOf = (role: string): string[] => {
+        const words: string[] = []
+        for (const surface of Array.from(document.querySelectorAll(`[data-role="${role}"]`))) {
+          const leaves = Array.from(surface.querySelectorAll('*')).filter(
+            (node) => node.childElementCount === 0,
+          )
+          const read = leaves.length === 0 ? [surface] : leaves
+          for (const node of read) words.push((node.textContent ?? '').trim())
+        }
+        return words
+      }
       const reviewText = textOf(given.review)
       const shared = new Set(given.uidsInBoth)
-      const printed = (reviewText.match(/\d+/g) ?? []).map(Number)
+      const printed = leafWordsOf(given.review).flatMap((said) =>
+        (said.match(/\d+/g) ?? []).map(Number),
+      )
       const onPage = document.body.textContent ?? ''
       return {
         reviewStood: document.querySelector(`[data-role="${given.review}"]`) !== null,
@@ -494,15 +557,13 @@ async function sweep(page: Page): Promise<Measured> {
         uidsNamedOnTheSurface: given.uidsInBoth.filter((uid) => printed.includes(uid)),
         strangersOnTheSurface: printed.filter((n) => !shared.has(n)).length,
         noticeText: textOf(given.notices),
-        reasonNamed:
-          onPage.includes(given.reason) ||
-          document.querySelector(`[data-reason="${given.reason}"]`) !== null,
+        reasonNamed: given.reasonWords.some((said) => onPage.includes(said)),
       }
     },
     {
       review: DIFFERENCE_REVIEW,
       notices: NOTIFICATION_AREA,
-      reason: REASON_NEWER_VERSION,
+      reasonWords: [...REASON_WORDS],
       uidsInBoth: [...begun.uidsInBoth],
     },
   )
@@ -715,7 +776,8 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and carr
   // `FR-073` names for exactly this scene.
   if (!m.reasonNamed) {
     unmet.push(
-      `nothing on the screen named the reason ${REASON_NEWER_VERSION} of table T-233; the ` +
+      `nothing on the screen told ${REASON_NEWER_VERSION} of table T-233 in either of its ` +
+        `words (${REASON_WORDS.map((said) => JSON.stringify(said)).join(' / ')}); the ` +
         `${NOTIFICATION_AREA} said ${JSON.stringify(m.noticeText.slice(0, 200))}`,
     )
   }
