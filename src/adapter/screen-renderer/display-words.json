@@ -3410,6 +3410,50 @@
    }
   },
   {
+   "rowId": "RS-55",
+   "text": {
+    "ja": "自分自身や、その下にある行の中へは動かせません",
+    "en": "A row cannot be moved under itself or under one of its own descendants"
+   },
+   "nextStep": {
+    "ja": "先に外へ出してから、親にしたい行の下へ動かしてください",
+    "en": "Move it out first, then under the row you want as its parent"
+   }
+  },
+  {
+   "rowId": "RS-56",
+   "text": {
+    "ja": "同じタスクを、依存の前と後ろの両方にはできません",
+    "en": "One task cannot be both ends of a dependency"
+   },
+   "nextStep": {
+    "ja": "別のタスクへ引いてください",
+    "en": "Draw the line to a different task"
+   }
+  },
+  {
+   "rowId": "RS-57",
+   "text": {
+    "ja": "同じ id のものが、この文書に既にあります",
+    "en": "Something with the same id is already in this document"
+   },
+   "nextStep": {
+    "ja": "別の id を与えてください",
+    "en": "Give it a different id"
+   }
+  },
+  {
+   "rowId": "RS-58",
+   "text": {
+    "ja": "終了の日が、開始の日より前になっています",
+    "en": "The finish day is before the start day"
+   },
+   "nextStep": {
+    "ja": "開始と同じ日か、それより後の日を入れてください",
+    "en": "Enter the same day as the start, or a later one"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

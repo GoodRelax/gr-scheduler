@@ -1,4 +1,32 @@
-6
+2
+#
+# LOWERED 6 -> 2 ON 2026-09-09. The four specification rulings landed in one
+# pass, and each row's 着地先 now names the段 it was written into:
+#
+#   R-27  表 T-038's ordering counts the grab margin (S-93) and not the drawn
+#         mark. ⭐ 表 T-023d's GR-7 did NOT change -- it already said the
+#         marker stands outside the finish point's grab margin, which is why
+#         the user said this was not a ruling matter at all.
+#   R-28  表 T-023d's closing: GR-8 beats GR-12, and no cap on how much of the
+#         plan bar's middle its hit box takes. The table's ORDER did not move.
+#   R-29  表 T-023d's closing: every pixel of the one drawn dummy mark grabs
+#         GR-17. Added to the existing 「終了を優先」 paragraph, not as a new
+#         rule, and NOT copied into FR-043.
+#   R-30  FR-039 carries the verbatim and the font-scale entrance; FR-041 and
+#         FR-003 carry theirs. ⭐ TWO of the six commands already had an
+#         entrance and nothing was written for them (setCommentBoxAnchor ->
+#         GR-14, reorderTaskGroupSiblings -> HM-8). ⭐ FR-099 already had the
+#         bulk delete as two moves; only IC-65's 正 cell was corrected.
+#         ⛔ WHAT IS NOT DONE: the three 表 T-109 rows and their 図 F-019
+#         glyphs. Drawing an icon is the user's ruling (A-appendix 0.52/0.68)
+#         and a roster row rewrites two generated files under src/ that the
+#         round's brief put out of bounds. That is a pending decision, not an
+#         unlanded ruling -- it belongs to check 25.
+#
+# ⛔ THE TWO LEFT ARE PROCESS RULINGS. They land in
+# docs/development-records/handoff.md and docs/development-rules/, not in a
+# requirement, and the body that wrote the specification this round could not
+# touch either file.
 #
 # RAISED 0 -> 6 ON 2026-09-09, deliberately, and here are the six.
 # ⛔ Four rulings came down at once and none is written into docs/spec yet;
