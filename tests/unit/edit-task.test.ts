@@ -797,6 +797,64 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     expect(task.resumeValid).toBe(true)
     expect(planActualState(task)).toBe('notStarted')
   })
+
+  it('AT-39 must not store an actual whose end is before its start', () => {
+    // ⛔ MEASURED ON THE SHIPPED BUILD 2026-09-08, BEFORE THIS GATE: dragging
+    // GR-5 (the actual's LEFT end) to the right of the actual's own right end
+    // wrote `actualDuration` -3 and `percentComplete` -33, and dragging GR-6
+    // (the RIGHT end) left of the start wrote -4 and -44. Both documents then
+    // failed the generated `grs-document.schema.json`:
+    // 「/schedule/tasks/0/percentComplete must be >= 0」.
+    //
+    // ⭐ THE ROW BROKEN IS THE COLUMN'S OWN TYPE. AT-39 of
+    // `_assets/fig-erd-detail.md` types `percentComplete` 「整数（0 以上）」, and
+    // FR-012 fixes the only arithmetic that may fill it -- 「`round(actualDuration
+    // ÷ (finish − start) × 100)`（いずれも稼働日）」 -- over a denominator CM-11
+    // already keeps positive. A negative length cannot be stored and leave AT-39
+    // standing.
+    //
+    // ⛔ AND THE TWO OTHER TREATMENTS ARE FORBIDDEN IN AS MANY WORDS, which is
+    // why the answer is a refusal and not a repair: FR-012's
+    // 「0 〜 100 に丸めてはならない（MUST NOT）」 bars clipping the rate at zero,
+    // and the closing rule
+    // of table T-023d 「掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST
+    // NOT）」 bars pulling the dropped day back. CM-11's neighbouring pair does
+    // the same on FR-012's 「丸めて `finish` = `start` にしてはならない（MUST
+    // NOT）—— データを黙って変えることになる」.
+    //
+    // ⚠️ WHAT THIS CASE DOES NOT CLAIM: that docs/spec states an ordering over
+    // the ACTUAL pair. Table T-220 gives `actualStart` / `actualDuration` no
+    // IV row of the kind IV-10 gives `start` / `finish`, and 版 0.81 of the
+    // appendix records a negative length as 「未確認」. The figure asserted here
+    // is AT-39's bound, not an invented order.
+    const started = { actualStart: jan(5), actualDuration: 4, resumeValid: true }
+    for (const place of [
+      { row: 'PA-2', actualStart: jan(20), actualDuration: -3 },
+      { row: 'PA-3', actualStart: jan(20), actualDuration: -1, resume: jan(30) },
+      { row: 'PA-4', actualStart: jan(20), actualDuration: -1 },
+      { row: 'PA-5', actualStart: jan(20), actualDuration: -1, actualFinish: jan(8) },
+    ] as const) {
+      const result = run(before(started), {
+        kind: 'setTaskPlanActualState',
+        uid: 1,
+        place: place as PlanActualPlacement,
+      })
+      expectRefusal(result, 'AT-39')
+    }
+
+    // ⭐ ZERO IS NOT REFUSED. S-130 is 0 and FR-043 (MUST) gives it to every
+    // milestone's actual, so a gate that turned zero away would refuse the one
+    // length the manuscript hands out.
+    const flat = accepted(
+      run(before(started), {
+        kind: 'setTaskPlanActualState',
+        uid: 1,
+        place: { row: 'PA-2', actualStart: jan(5), actualDuration: 0 },
+      }),
+    )
+    expect(taskIn(flat, 1).actualDuration).toBe(0)
+    expect(taskIn(flat, 1).percentComplete).toBe(0)
+  })
 })
 
 // ---------------------------------------------------------------------------

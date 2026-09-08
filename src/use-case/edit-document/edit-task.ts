@@ -831,6 +831,53 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         const checked = checkDay(settings, text)
         if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
       }
+      // ⭐⭐ THE ONE GATE ON A BACKWARDS ACTUAL, AND IT STANDS HERE BECAUSE THIS
+      // IS THE ONLY COMMAND THAT TAKES `actualDuration` FROM OUTSIDE. CM-14
+      // writes S-129 or S-130, whose 下限 in table T-206 is 0; CM-15's PV-1
+      // writes the PLAN span, which CM-11's own FR-012 gate already keeps at or
+      // above zero. So one refusal here covers every road -- GR-5 dragged past
+      // the actual's right end, GR-6 dragged past its left end, and the Agent
+      // API and the property panel, which reach the same command.
+      //
+      // ⛔ THE ROW THIS ENFORCES IS THE COLUMN'S OWN TYPE, NOT AN INVENTED ONE.
+      // AT-39 of `_assets/fig-erd-detail.md` types `percentComplete` 「整数
+      // （0 以上）」, and the generated `grs-document.schema.json` carries it as
+      // `minimum: 0` -- `COLUMN_SHAPES.Task.percentComplete.min` in
+      // `schedule.ts` is the same figure reaching src/. FR-012 fixes the only
+      // arithmetic that may produce that column: `round(actualDuration ÷
+      // (finish − start) × 100)`, over a denominator this file has already
+      // proved positive. A negative `actualDuration` therefore CANNOT be stored
+      // and leave AT-39 standing.
+      //
+      // ⛔ AND THE OTHER TWO TREATMENTS ARE BARRED IN AS MANY WORDS. FR-012
+      // forbids folding the figure into a range -- 「0 〜 100 に丸めてはならない
+      // （MUST NOT）」 -- so the count may not be clipped at 0; and the closing
+      // rule of table T-023d forbids moving the day the hand let go on --
+      // 「掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）」 -- so
+      // the drop may not be pulled back to the other end. Refusing is what is
+      // left, and it is what the neighbouring pair already does: CM-11 above
+      // refuses 「`finish` が `start` より前の入力」 on FR-012's word 「丸めて
+      // `finish` = `start` にしてはならない（MUST NOT）—— データを黙って変える
+      // ことになる」.
+      //
+      // ⚠️ NO UNDO STEP IS LEFT BEHIND (FR-031, MUST). A refusal answers
+      // `ok: false` and carries no document, so the caller writes nothing --
+      // and nothing is what FR-031 asks a write that moved no value to leave.
+      //
+      // ⛔⛔ WHAT NO ROW OF docs/spec SAYS, AND IS NOT DECIDED HERE: what the
+      // ACTUAL pair should do when one end crosses the other. Table T-220 has
+      // no invariant over `actualStart` and `actualDuration` the way IV-10
+      // covers `start` and `finish`, table T-023d's GR-5 and GR-6 name only the
+      // columns they move, and 版 0.81 of the appendix records that a negative
+      // length is 「未確認であり、CR-203 が開いたまま」. This gate keeps AT-39
+      // rather than answering that question: a CR still owes the actual pair the
+      // row its plan twin has.
+      const laid = place.row === 'PA-1' ? null : place.actualDuration
+      if (laid !== null && laid < 0) {
+        faults.push(
+          reject('CM-13', 'AT-39', `an actual of ${laid} worked days ends before it starts`),
+        )
+      }
       if (faults.length > 0) return refused(faults)
 
       let placed: Task
