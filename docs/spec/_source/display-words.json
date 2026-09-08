@@ -616,6 +616,39 @@
    }
   },
   {
+   "rowId": "IC-99",
+   "label": {
+    "ja": "文字サイズ",
+    "en": "Font size"
+   },
+   "hint": {
+    "ja": "文字サイズを 1 段大きくする。いちばん大きい段の次はいちばん小さい段へ戻る",
+    "en": "Step the font size up by one; after the largest step it goes back to the smallest"
+   }
+  },
+  {
+   "rowId": "IC-100",
+   "label": {
+    "ja": "モノクロ",
+    "en": "Monochrome"
+   },
+   "hint": {
+    "ja": "モノクロで描く。もう一度押すと色に戻す",
+    "en": "Draw in monochrome; press again to go back to colour"
+   }
+  },
+  {
+   "rowId": "IC-101",
+   "label": {
+    "ja": "積む向き",
+    "en": "Stack direction"
+   },
+   "hint": {
+    "ja": "バーを積む向きを、上向きと下向きで入れ替える",
+    "en": "Swap the direction the bars are stacked in, up or down"
+   }
+  },
+  {
    "rowId": "IC-44",
    "label": {
     "ja": "基準日",

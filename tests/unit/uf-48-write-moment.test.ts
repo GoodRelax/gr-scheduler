@@ -1329,11 +1329,18 @@ describe('the tables these ten entrances are driven by', () => {
     // appendix states both halves: 「表 T-109 から `IC-46`（`'none'` にする）と
     // `IC-49`（`'double-vertical'`）が退役し、`IC-45`（測る 2 本）が `IC-48`
     // （縦 1 本）の右へ移った。89 行」 and 「⛔ **席は空けたまま詰めていない。**」
+    // ⚠️ THE HEIGHT IS NOT THAT APPENDIX ROW'S ANY MORE, and the retirement is.
+    // A changelog row records the day it was written and is never rewritten, so
+    // the count in it is the count of THAT day; the height of the table today is
+    // stated by the glossary's own sentence above table T-109 (「92 行ある」), and
+    // three rows were added under it on 2026-09-09 (IC-99 / IC-100 / IC-101, the
+    // ruling 「一旦提案通りでやれ。」). ⭐ What this case is for is the two empty
+    // seats, which are unaffected by anything added at the foot of the table.
     const ids = specTable('T-109').rows.map((one) => one.id)
     expect(ids, 'IC-46 was the entrance to `none`, which FR-048 now reaches by a re-press').not.toContain('IC-46')
     expect(ids, 'IC-49 was the entrance to the retired `double-vertical`').not.toContain('IC-49')
     expect(ids, 'the seats are left empty, so the rows around them stayed').toContain('IC-45')
-    expect(ids.length, 'table T-109 stands at 89 rows').toBe(89)
+    expect(ids.length, 'table T-109 stands at 92 rows').toBe(92)
   })
 
   it('⛔ FR-048 places no second entrance for putting a cursor away', () => {
@@ -1491,6 +1498,95 @@ describe('IC-16 -- the theme entrance leaves a document saved either way (FR-039
         settingsOf(run.loop).themePreference,
         'FR-039 (MUST NOT): the saved value is the starting value, not a cage',
       ).toBe(to)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// The three entrances the ruling of 2026-09-09 put on the Command Palette
+// ---------------------------------------------------------------------------
+//
+// 利用者の裁定 2026-09-09, 逐語「一旦提案通りでやれ。」. One ruling settled where
+// all three go, and the verbatim is held by FR-039 alone (that requirement says
+// so, and MUST NOT lets FR-041 or FR-003 carry a second copy):
+//
+//   FR-039  文字サイズを変える入口を `Command Palette` に置くこと（MUST）  -> CM-62
+//   FR-041  モノクロを選ぶ入口を `Command Palette` に置くこと（MUST）      -> CM-64
+//   FR-003  その入口を `Command Palette` に置くこと（MUST）                -> CM-56
+//
+// ⭐ ONE ANCHOR EACH, and each one asks the only question the requirement is
+// about: is the entrance THERE, and does taking it move the row it names. ⛔ Not
+// a new test form -- the shape below is `IC-16`'s above, which is the same kind
+// of entrance (one press, one exclusive row of the settings).
+
+/** The steps of S-70, in the order table T-215 prints them. */
+const FONT_SCALE_STEPS: readonly string[] = specTable('T-215').rows.map((row) =>
+  bare(row.cells[SETTING_KEY] ?? '').replace('fontScaleSizes.', ''),
+)
+/** S-58's two, read out of its type cell in table T-202. */
+const STACK_VALUES = enumeratedValues(cellAt('T-202', 'S-58', SETTING_TYPE))
+
+describe('IC-99 -- FR-039 (MUST) puts the font size on the Command Palette', () => {
+  it('table T-109 places it there, and its 正 names CM-62', () => {
+    expect(bare(cellAt('T-109', 'IC-99', T_109_SURFACE))).toBe(COMMAND_PALETTE)
+    expect(cellAt('T-109', 'IC-99', T_109_ENTRANCE)).toContain('`S-70`')
+    expect(rowOf('T-109', 'IC-99').cells[3] ?? '').toContain('`CM-62`')
+  })
+
+  for (const [index, from] of FONT_SCALE_STEPS.entries()) {
+    const to = FONT_SCALE_STEPS[(index + 1) % FONT_SCALE_STEPS.length] as string
+    it(`takes a document saved at ${from} to ${to}`, () => {
+      const run = standing({ ...CONTRARY, fontScale: from })
+      expect(settingsOf(run.loop).fontScale, 'the premise').toBe(from)
+
+      takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-99')
+
+      expect(
+        settingsOf(run.loop).fontScale,
+        'IC-99 moves to the next step table T-215 prints, and wraps at the end',
+      ).toBe(to)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('IC-100 -- FR-041 (MUST) puts monochrome on the Command Palette', () => {
+  it('table T-109 places it there, and its 正 names CM-64', () => {
+    expect(bare(cellAt('T-109', 'IC-100', T_109_SURFACE))).toBe(COMMAND_PALETTE)
+    expect(cellAt('T-109', 'IC-100', T_109_ENTRANCE)).toContain('`S-74`')
+    expect(rowOf('T-109', 'IC-100').cells[3] ?? '').toContain('`CM-64`')
+  })
+
+  for (const from of [false, true]) {
+    it(`takes a document saved as ${String(from)} to ${String(!from)}`, () => {
+      const run = standing({ ...CONTRARY, themeMonochrome: from })
+      expect(settingsOf(run.loop).themeMonochrome, 'the premise').toBe(from)
+
+      takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-100')
+
+      expect(settingsOf(run.loop).themeMonochrome, 'one entrance, two values').toBe(!from)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('IC-101 -- FR-003 (MUST) puts the stacking direction on the palette', () => {
+  it('table T-109 places it there, and its 正 names CM-56', () => {
+    expect(bare(cellAt('T-109', 'IC-101', T_109_SURFACE))).toBe(COMMAND_PALETTE)
+    expect(cellAt('T-109', 'IC-101', T_109_ENTRANCE)).toContain('`S-58`')
+    expect(rowOf('T-109', 'IC-101').cells[3] ?? '').toContain('`CM-56`')
+  })
+
+  for (const [index, from] of STACK_VALUES.entries()) {
+    const to = STACK_VALUES[1 - index] as string
+    it(`takes a document saved as ${from} to ${to}`, () => {
+      const run = standing({ ...CONTRARY, stackDirection: from })
+      expect(settingsOf(run.loop).stackDirection, 'the premise').toBe(from)
+
+      takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-101')
+
+      expect(settingsOf(run.loop).stackDirection, 'one entrance, two values').toBe(to)
       run.frames.runAnimationFrames()
     })
   }

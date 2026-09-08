@@ -615,6 +615,39 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-99",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "文字サイズの段を変える（`S-70`。3 値排他）。⭐ **押すたびに 表 T-215 が刷る並びの次の段へ移り、末尾の次は先頭へ戻る** —— **`FR-029` が同じ機能の入口を 2 か所に置くことを禁じているので、入口は 1 つであり、1 つの入口が 3 段すべてに届くには巡るほかない。**⚠️ **段の並びは 表 T-215 のものであって、本行が定めるものではない**",
+   "authority": "`FR-039`（表 T-108 の `CM-62`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-100",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "モノクロで描く・色に戻す（`S-74`）。⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。⛔ **`FR-049` の切り替えではない** —— **`S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である**",
+   "authority": "`FR-041`（表 T-108 の `CM-64`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-101",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "積む向きを選ぶ（`S-58`。2 値排他）。⭐ **押すたびにもう一方の向きへ移る** —— **`IC-16`（`S-72`）と同じ形であり、値が 2 つしか無いので巡りは往復になる**",
+   "authority": "`FR-003`（表 T-108 の `CM-56`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-44",
    "surfaces": [
     "Command Palette"

@@ -2665,6 +2665,24 @@ const ENTRY = {
   percentCompleteVisible: 'IC-80',
   dependencyVisible: 'IC-81',
   /**
+   * IC-99 / IC-100 / IC-101 -- the three entrances the ruling of 2026-09-09
+   * (逐語「一旦提案通りでやれ。」) put on the palette. S-70, S-74 and S-58, and
+   * the commands they write are CM-62, CM-64 and CM-56.
+   *
+   * ⭐ NONE OF THE THREE IS ONE OF FR-049's TOGGLES, and not one of them may be
+   * put into `VISIBLE_ELEMENT_BY_ENTRY`. That requirement takes the BOOLEAN rows
+   * of table T-202: `fontScale` and `stackDirection` stand in that table and are
+   * not boolean, and `themeMonochrome` is not in that table at all (S-74 is a
+   * row of table T-203). ⚠️ The same reading is what keeps IC-41 out of that map.
+   *
+   * ⭐ EACH ONE'S OWN ROW OF TABLE T-109 NAMES THE SETTING AND HOW A PRESS MOVES
+   * IT, which is rule ③ of the STOP note at the foot of this file -- so nothing
+   * here is a decision this file made up.
+   */
+  fontScale: 'IC-99',
+  themeMonochrome: 'IC-100',
+  stackDirection: 'IC-101',
+  /**
    * IC-41 -- FR-020's ONE entrance to the watermark, which since 2026-09-02
    * (利用者の裁定, CR-335) carries both directions: showing, a press raises
    * U-60 `Watermark Unlock`; hidden, a press puts the watermark back and asks
@@ -3062,6 +3080,40 @@ function guideCursorModeOfEntry(entry: string): GuideCursorMode | null {
   return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
     ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as GuideCursorMode)
     : null
+}
+
+/** The three steps S-70 admits, taken from the command rather than restated. */
+type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['scale']
+
+/**
+ * The steps of S-70, in the order table T-215 prints them.
+ *
+ * ⭐ THE SPELLINGS ARE COPIED AND THE SET IS NOT INVENTED, the same move
+ * `GUIDE_CURSOR_MODE_BY_ENTRY` above makes: S-70 prints these three verbatim and
+ * the type over it is the compiler's check that no fourth can be written here.
+ * ⭐ THE ORDER IS TABLE T-215's AND NOT THIS FILE'S. That table prints S, M then
+ * L, and its own bounds (S-121 .. S-123) keep them in that order by size, so
+ * stepping along it is stepping up in px -- which is what IC-99's own row of
+ * table T-109 says a press does, and what the dictionary word beside it says.
+ * ⛔ NO px IS WRITTEN HERE. What each step measures is `fontScaleSizes`, which
+ * table T-215 holds and `edit-document-settings.ts` reads on the write side.
+ */
+const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
+
+/**
+ * The step a press on IC-99 moves to, wrapping past the last one.
+ *
+ * ⭐ WRAPPING IS NOT A CHOICE MADE HERE EITHER. FR-029 (MUST NOT) forbids a
+ * second entrance for one function, so IC-99 is the only way to S-70 -- and one
+ * entrance reaches all three steps only by going round. IC-99's row states it.
+ * ⚠️ A value outside the three answers the first step, so a document that
+ * arrives holding something S-70 does not admit still moves rather than sticking.
+ *
+ * @purity pure
+ */
+function nextFontScale(current: FontScale): FontScale {
+  const at = FONT_SCALE_STEPS.indexOf(current)
+  return FONT_SCALE_STEPS[(at + 1) % FONT_SCALE_STEPS.length] as FontScale
 }
 
 /**
@@ -4709,6 +4761,40 @@ function commandFromEntry(
       // a `DocumentCommand` and not the shell's.
       const isDarkNow = context.document.documentSettings.themePreference === 'dark'
       return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
+    }
+    case ENTRY.fontScale:
+      // CM-62 -- FR-039's font size, which S-70 holds three steps for and table
+      // T-215 measures. ⭐ The step that follows is `nextFontScale`'s, and the
+      // ruler's own type and band follow it on the write side (FR-039, MUST) --
+      // ⛔ nothing here writes `rulerFont` or `rulerHeight`, or the two readings
+      // of S-2 / S-3 would have to agree forever.
+      // ⚠️ Like IC-16 below it, the saved value is a STARTING value and not a
+      // binding one (FR-039, MUST NOT), and this press is how a reader moves off
+      // it -- which that requirement's RATIONALE calls an edit of the document,
+      // so it is a `DocumentCommand` and not the shell's.
+      return changed([
+        {
+          kind: 'setFontScale',
+          scale: nextFontScale(context.document.documentSettings.fontScale),
+        },
+      ])
+    case ENTRY.themeMonochrome:
+      // CM-64 -- FR-041's monochrome, S-74. ⭐ ONE ENTRANCE OVER TWO VALUES, so
+      // a press moves to the other one, the same shape as IC-16.
+      // ⛔ NOT `setElementVisible`: S-74 is a row of table T-203, and FR-049's
+      // toggles are the boolean rows of table T-202 -- IC-100's own row says so.
+      return changed([
+        {
+          kind: 'setThemeMonochrome',
+          monochrome: !context.document.documentSettings.themeMonochrome,
+        },
+      ])
+    case ENTRY.stackDirection: {
+      // CM-56 -- FR-003's stacking direction, S-58, which holds exactly two
+      // values. ⭐ Same shape as IC-16 again: one entrance, so a press moves to
+      // the other value.
+      const isUpNow = context.document.documentSettings.stackDirection === 'up'
+      return changed([{ kind: 'setStackDirection', direction: isUpNow ? 'down' : 'up' }])
     }
     case ENTRY.statusLine:
       // FR-046, as SK-20 states it: showing the line puts today into
