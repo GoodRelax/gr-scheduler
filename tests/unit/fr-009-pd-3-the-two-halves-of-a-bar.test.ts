@@ -60,6 +60,7 @@ import {
 import {
   dependencyEndAtPointer,
   itemAtPointer,
+  NOT_STORED_SIZES,
   type PointerSlop,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
@@ -106,14 +107,15 @@ const SETTINGS = settingsOf({
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
-/** ⚠️ Table T-206's own figures, stated because `itemAtPointer` ships no default. */
+/** Table T-206, through the generated block `item-hit-area.ts` publishes. */
 const SLOP: PointerSlop = {
-  planEndpoint: 6, // S-90
-  actualEndpoint: 6, // S-91
-  fadeHandle: 7.5, // S-92
-  dummyWidth: 30, // S-93
-  dummyHeight: 20, // S-93
-  line: 4,
+  planEndpoint: NOT_STORED_SIZES['S-90'],
+  actualEndpoint: NOT_STORED_SIZES['S-91'],
+  // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
+  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
+  dummyWidth: NOT_STORED_SIZES['S-93'][0],
+  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  line: NOT_STORED_SIZES['S-137'],
 }
 
 const taskOf = (part: Record<string, unknown>): Task =>

@@ -33,6 +33,7 @@ import {
 import {
   itemAtPointer,
   itemsInMarquee,
+  NOT_STORED_SIZES,
   type PointerSlop,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
@@ -1446,15 +1447,14 @@ describe('ItemHitArea (PI-7)', () => {
   // of the document because they belong to the reader's environment. So the
   // cases below state them, at the numbers table T-206 records.
   const SLOP: PointerSlop = {
-    planEndpoint: 6, // S-90 -- 6px above and below the plan bar
-    actualEndpoint: 6, // S-91 -- the actual bar's own band
-    fadeHandle: 7.5, // S-92 -- half of the 15 x 15 square
-    dummyWidth: 30, // S-93 -- 30 x 20
-    dummyHeight: 20, // S-93
-    // ⛔ No row of table T-206 states this one, and no other table does either:
-    // GR-13 and GR-16 give the place as 線の上 and stop. The value here is the
-    // test's own, chosen so a probe sitting exactly ON the line answers.
-    line: 4,
+    planEndpoint: NOT_STORED_SIZES['S-90'], // S-90 -- 6px above and below the plan bar
+    actualEndpoint: NOT_STORED_SIZES['S-91'], // S-91 -- the actual bar's own band
+    // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
+    fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the 15 x 15 square
+    dummyWidth: NOT_STORED_SIZES['S-93'][0], // S-93 -- 30 x 20
+    dummyHeight: NOT_STORED_SIZES['S-93'][1], // S-93
+    // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
+    line: NOT_STORED_SIZES['S-137'],
   }
   const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
     geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))
@@ -1553,8 +1553,13 @@ describe('ItemHitArea (PI-7)', () => {
     const geometry = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
     expect(itemAtPointer(geometry, xOf(4), middleY, SLOP)?.grab).toBe('GR-5')
     // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
-    // two, so where they overlap the plan is what is picked up.
-    expect(itemAtPointer(geometry, xOf(7), middleY, SLOP)?.grab).toBe('GR-12')
+    // two, so where they overlap the plan is what is picked up. ⛔ The middle
+    // itself, not a nearby day index -- S-91's true reach (12px, not the 6 this
+    // fixture used to carry) eats into a bar this narrow enough that a point a
+    // couple of days off centre now lands inside the actual finish's own grab.
+    const actualXs = outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x)
+    const actualMiddleX = (Math.min(...actualXs) + Math.max(...actualXs)) / 2
+    expect(itemAtPointer(geometry, actualMiddleX, middleY, SLOP)?.grab).toBe('GR-12')
   })
 
   it('GR-7 takes the marker markerGap outside the ACTUAL bar, over the plan body', () => {
