@@ -529,6 +529,85 @@ async function wheelAt(page: Page, at: Spot, keys: readonly string[], dy: number
   for (const key of keys) await page.keyboard.up(key)
 }
 
+/** One lane of U-21 `Scrollbars`, and the grip `GR-21` puts in it. */
+interface Lane {
+  /** The centre of the grip -- where `GR-21` is taken hold of. */
+  readonly grip: Spot
+  /** How long the grip is along the lane, and how long the lane is. */
+  readonly gripLength: number
+  readonly trackLength: number
+}
+
+/**
+ * One lane of U-21 `Scrollbars` -- `GR-21` of table T-023d.
+ *
+ * ⛔ NOT PART OF `GEOMETRY_SCRIPT`, and not a member of `Geometry`. The two
+ * lanes are drawn as `div`s OUTSIDE the `Schedule Canvas` SVG that script
+ * measures, and the grip is the lane's first child rather than a shape in the
+ * drawing -- so the absence recorded above (no `data-uid`, no `id` on a bar)
+ * says nothing about this one, and no coordinate has to be guessed here.
+ *
+ * ⭐ WHICH LANE IS READ OFF `data-axis`, the mark
+ * `src/framework/dom-screen-surface/dom-screen-surface.ts` writes for exactly
+ * this reason: table T-103 gives BOTH lanes the one name `Scrollbars`, so the
+ * role alone cannot tell them apart, and `GR-21` needs which -- the two move
+ * different halves of the display position.
+ *
+ * ⭐ THE TWO LENGTHS COME BACK TOO, because `GR-21` (MUST) makes the grip's
+ * length 「見えている範囲 ÷ 全体」 of the lane's: a grip AS LONG AS ITS LANE is
+ * the tool saying there is nothing to scroll on that axis, and a drag that
+ * moves nothing then says something about the document rather than about the
+ * row.
+ *
+ * @purity non-pure
+ */
+async function laneOf(page: Page, axis: 'horizontal' | 'vertical'): Promise<Lane> {
+  const found = (await page.evaluate((wanted: string) => {
+    const lane = document.querySelector(`[data-role="Scrollbars"][data-axis="${wanted}"]`)
+    const grip = lane === null ? null : lane.firstElementChild
+    if (lane === null || grip === null) return null
+    const track = lane.getBoundingClientRect()
+    const box = grip.getBoundingClientRect()
+    if (box.width < 1 || box.height < 1) return null
+    const along = wanted === 'horizontal'
+    return {
+      grip: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+      gripLength: along ? box.width : box.height,
+      trackLength: along ? track.width : track.height,
+    }
+  }, axis)) as Lane | null
+  if (found === null) {
+    throw new Error(`GR-21: the ${axis} lane of U-21 put out no grip this sweep could take hold of`)
+  }
+  return found
+}
+
+/**
+ * The drawing, with the marks the shell mints afresh on every frame taken out.
+ *
+ * ⭐⭐ WHY THIS EXISTS BESIDE `Reading.canvas`. That member hashes the SVG's
+ * markup as it stands, and the shell puts a GENERATED id on the dependency
+ * marker and on the halo mask -- `grs-dependency-arrow-1xz3bsj`,
+ * `grs-dependency-halo-mask-1apuenc` -- which is different on every frame. So
+ * the hash moves whenever the shell REDRAWS, which is not the same question as
+ * whether the picture MOVED.
+ * ⛔ For nearly every row the difference does not matter, because the gesture
+ * either edits the document or does nothing at all. It matters for `GR-21`: a
+ * press on the grip redraws whether or not the display position follows it.
+ * ⚠️ MEASURED 2026-09-08 (shipped build, msedge, 1920x1080): with the ids
+ * normalized away, a 0px press on the horizontal grip leaves this string
+ * identical and a 200px drag changes it -- before a Fit and after one.
+ *
+ * @purity non-pure
+ */
+async function drawingOf(page: Page): Promise<string> {
+  return (await page.evaluate(`(() => {
+    const canvas = document.querySelector('[data-role="Schedule Canvas"] svg')
+    if (canvas === null) return ''
+    return canvas.outerHTML.replace(/grs-[a-z-]+-[a-z0-9]{4,}/g, 'grs-id')
+  })()`)) as string
+}
+
 // -------------------------------------------------------------------- probes --
 
 interface Probe {
@@ -1181,6 +1260,94 @@ const PROBES: readonly Probe[] = [
     rows: ['IO-6'],
     expect: 'answers',
     act: async (p) => press(p, 'IC-3'),
+  },
+
+  // ---- table T-023d again, and last of all: the lane grip -----------------
+  //
+  // ⭐⭐ WHY IT IS LAST AND NOT WITH THE OTHER GRAB REGIONS. `GR-21` moves the
+  // DISPLAY POSITION rather than the document, and `geometryOf` takes the
+  // widest bar WHEREVER IT NOW IS -- so every probe after this one would be
+  // hit-testing a picture that had been slid, quite possibly onto a different
+  // bar. ⛔ Nothing follows it here, and nothing should be put after it.
+  {
+    rows: ['GR-21'],
+    expect: 'answers',
+    // ⛔⛔ THE VIEW IS PUT INTO A STATED PLACE FIRST, and without this the row
+    // is read as dead for a reason that is the sweep's rather than the build's.
+    // ⚠️ MEASURED 2026-09-08, twice, over the whole sweep: dragged at its place
+    // here, the VERTICAL grip moved nothing -- and the reason is not `GR-21`.
+    // `SK-18` (the `f` key) runs seventy probes earlier and fits the schedule,
+    // and once everything is fitted the vertical grip is EXACTLY AS LONG AS ITS
+    // LANE (8 x 977 in a 8 x 977 lane, measured) -- `GR-21`'s own 「見えている
+    // 範囲 ÷ 全体」 saying there is nothing left to scroll downwards. ⛔ A drag
+    // that moves nothing there is the tool being right.
+    // ⭐ So the state is MADE rather than inherited: `SK-18` of table T-036 is
+    // pressed here too, which is the tool's own entrance and leaves a place
+    // this file can state. ⚠️ `Escape` first, because `f` typed into a field is
+    // a letter and not a shortcut.
+    setUp: async (p) => {
+      await p.keyboard.press('Escape')
+      await p.waitForTimeout(150)
+      await p.keyboard.press('f')
+      await p.waitForTimeout(600)
+    },
+    // ⭐⭐ THE HORIZONTAL LANE, and that is measured rather than preferred.
+    // After the Fit above, the two lanes stand differently (2026-09-08, shipped
+    // build, msedge, 1920x1080): the vertical grip fills its lane, and the
+    // horizontal grip is 1535 in a 1702 lane -- the schedule is longer than the
+    // window sideways even when it has been fitted, because `FR-051` fits what
+    // the `Row Area` can hold. ⇒ Sideways is where `GR-21` still has something
+    // to answer with. ⚠️ Before the Fit the horizontal grip is 421.5 in the
+    // same lane and answers a 200px drag the same way, so the row is not being
+    // pressed in an unusual state -- it is being pressed in a stated one.
+    // ⚠️ AND WHAT WAS MEASURED NOT TO HAPPEN, the same day, with the button
+    // held 600ms at the halfway point: the drawing does NOT move while the grip
+    // is held -- it moves on release, on both lanes. The closing rule of table
+    // T-023d (:2411 of docs/spec/01-04-requirements.md) names `GR-21` among the
+    // rows that must follow the pointer while held, so that is a question of
+    // its own, and it has an answer today. ⛔ It is NOT this file's question:
+    // NFR-004 asks whether the row works when the deliverable is opened
+    // directly, and an `answersWhileHeld` here would turn this sweep red for a
+    // defect that has nothing to do with the scheme.
+    // ⇒ `answers`, which is what `GR-21`'s own 操作 column promises:
+    // 「掴めば表示位置を変える（規則は `FR-051`）」.
+    //
+    // ⛔⛔ AND `answers` ALONE WOULD BE VACUOUS HERE, WHICH IS WHY THE ACT
+    // JUDGES FOR ITSELF AND THROWS. `moved` folds five readings and two of them
+    // are hashes of markup the shell mints afresh on every frame, so ANY redraw
+    // moves them whether or not the display position followed the grip --
+    // `drawingOf` above carries the measurement. ⚠️ MEASURED 2026-09-08 by
+    // shortening this drag to 0px and running the whole sweep again: `GR-21`
+    // still came back `answers` under both schemes. ⛔ The row would have
+    // passed with the grip doing nothing.
+    // ⭐ A THROW rather than a second expectation: `couldNotBePressed` already
+    // reports a probe that threw, with its own sentence, and the case at the
+    // foot of this file already asserts that list is empty. Repeating the same
+    // sweep with the drag at 0px now names `GR-21` there.
+    act: async (p) => {
+      const lane = await laneOf(p, 'horizontal')
+      // ⛔ NOT A SILENT PASS. A grip as long as its lane is the tool saying the
+      // whole schedule is in the window on this axis, and a drag then has
+      // nothing to move -- which says something about the document, not about
+      // `GR-21`. It is named rather than swallowed.
+      if (lane.gripLength >= lane.trackLength - 1) {
+        throw new Error(
+          `GR-21: the horizontal grip fills its lane (${String(Math.round(lane.gripLength))} of ` +
+            `${String(Math.round(lane.trackLength))}px), so nothing is left to scroll and the row ` +
+            'cannot be pressed for an answer here',
+        )
+      }
+      const before = await drawingOf(p)
+      const held = await dragFrom(p, lane.grip, 200, 0)
+      await settled(p)
+      if ((await drawingOf(p)) === before) {
+        throw new Error(
+          'GR-21: the horizontal lane grip was dragged 200px and the drawing did not move -- ' +
+            'FR-051 has the display position follow the grip',
+        )
+      }
+      return held
+    },
   },
 ]
 
