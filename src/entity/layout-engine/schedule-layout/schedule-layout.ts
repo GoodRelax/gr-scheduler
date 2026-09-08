@@ -32,11 +32,11 @@
 // the call sites: table T-038's preamble makes stacking and the fit measurement
 // share this one count (MUST).
 //
-// ⭐ OC-2 IS NO LONGER AMONG THEM. The assignee label (FR-059, with AS-2 of
-// table T-225 for the Task nobody is on) and the percent label (FR-090) are
-// settled and measured here, and OC-2's own MUST / MUST NOT -- count them only
-// while they are shown -- is why S-60 and S-61 are read at the measurement and
-// not at the drawing.
+// ⭐ OC-2 IS NO LONGER AMONG THEM. The assignee (FR-059, with AS-2 of table
+// T-225 for the Task nobody is on) and the percent (FR-090) are settled and
+// measured here as ONE card -- 「2 枚ではなく 1 枚である」 -- and OC-2's own
+// MUST / MUST NOT -- count it only while it is shown -- is why S-60 and S-61
+// are read at the measurement and not at the drawing.
 //
 // ⚠️ OC-7, the plan-against-actual guide, needs no term of its own: GD-5 of
 // table T-020a draws it from the actual's near end to the plan's near end, so
@@ -201,24 +201,27 @@ export interface TaskPlacement {
    */
   readonly labelFontSize: number
   /**
-   * OC-2's assignee label (FR-059), already reduced to what is DRAWN: the one
-   * name and the count behind it, or AS-2's single `-` where nobody is on the
-   * Task. `''` while S-60 has it hidden, which is the state OC-2 (MUST NOT)
-   * keeps out of the occupied width.
+   * OC-2's card -- ONE card and not two (FR-090, MUST, 利用者の裁定
+   * 2026-09-08): the assignee (FR-059, with AS-2's single `-` where nobody is
+   * on the Task) and the percent, 「担当 → 区切り → 完了率 → 百分率の記号 の順
+   * に繋いだ 1 つの文字列」. `''` while S-60 and S-61 have both hidden, which
+   * is the state OC-2 (MUST NOT) keeps out of the occupied width; with one of
+   * the two shown it is that one alone and no separator appears.
    *
    * ⭐ SETTLED HERE AND CARRIED, the bargain `label` and `labelFontSize`
    * already keep: LC-7 measured the occupancy with THIS text, so whoever draws
    * it reads the same string rather than resolving the roster a second time --
    * and a second resolution would part company with the measurement the moment
    * FR-059's filter or its ordering moved.
+   *
+   * ⛔ AND THAT IS WHY IT IS ONE FIELD AND NOT TWO. Two strings measured apart
+   * are two boxes placed apart, and FR-090's own RATIONALE records what that
+   * cost: 「実測（2026-09-08、出荷ビルド）: 40 タスクすべてで 2 枚が重なり、
+   * `70%佐藤` と繋がって読めた」. One string is measured once and drawn once.
    */
-  readonly assigneeLabel: string
-  /** FR-093's estimate of `assigneeLabel` at `labelFontSize`. Zero when it is `''`. */
-  readonly assigneeLabelWidth: number
-  /** OC-2's percent label (FR-090). `''` where FR-090 or S-61 draws none. */
-  readonly percentLabel: string
-  /** FR-093's estimate of `percentLabel` at `labelFontSize`. Zero when it is `''`. */
-  readonly percentLabelWidth: number
+  readonly outsideLabel: string
+  /** FR-093's estimate of `outsideLabel` at `labelFontSize`. Zero when it is `''`. */
+  readonly outsideLabelWidth: number
   /** What the row's stacking measured it as. Table T-038. */
   readonly occupiedX0: number
   readonly occupiedX1: number
@@ -610,6 +613,34 @@ function percentLabelOf(task: Task): string {
   if (planActualState(task) === 'notStarted') return ''
   const percent = task.percentComplete
   return percent === null ? '' : `${percent}${PERCENT_MARK}`
+}
+
+/**
+ * FR-090's 「区切り」 (MUST): 「半角コロンの前後に空白を 1 つずつ置いたもの」.
+ *
+ * ⛔ NOT A WORD (FR-038), for the reason `PERCENT_MARK` gives, and it is the
+ * requirement's own spelling rather than a choice made here.
+ */
+const OC2_SEPARATOR = ' : '
+
+/**
+ * OC-2's ONE card (FR-090, MUST, 利用者の裁定 2026-09-08, 逐語 「担当 完了率の
+ * 順にどちらも右寄せで並べる」): 「札の中身は 担当 → 区切り → 完了率 → 百分率の
+ * 記号 の順に繋いだ 1 つの文字列とし」.
+ *
+ * ⛔ 「2 枚の札ではなく 1 枚の札として描くこと（MUST）。2 枚を別々に置いては
+ * ならない（MUST NOT）」 -- so the join happens HERE, before LC-7 measures, and
+ * every side downstream reads one string. ⭐ 「`S-60` と `S-61` の片方だけを
+ * 出しているときは、その片方だけが札の中身になり、区切りは現れない。どちらも
+ * 出していないときは札そのものが無い」 -- which is the two guards below and the
+ * `''` they answer with.
+ *
+ * @purity pure
+ */
+function outsideLabelOf(assignee: string, percent: string): string {
+  if (assignee === '') return percent
+  if (percent === '') return assignee
+  return `${assignee}${OC2_SEPARATOR}${percent}`
 }
 
 /**
@@ -1575,23 +1606,23 @@ export function layoutFromSchedule(
         ? (assigneeLabels.get(task.uid) ?? NO_ASSIGNEE_MARK)
         : ''
       const percentLabel = settings.percentCompleteVisible ? percentLabelOf(task) : ''
-      const assigneeLabelWidth = labelWidth(assigneeLabel, font, settings)
-      const percentLabelWidth = labelWidth(percentLabel, font, settings)
+      // ⭐⭐ ONE CARD, SO ONE WIDTH (FR-090, MUST). The row itself says what is
+      // counted: 「1 枚に繋いであるので、算入するのも 1 枚ぶんの幅である」.
+      // ⛔ THIS USED TO BE TWO WIDTHS AND TWO GAPS, which is the arithmetic two
+      // separate boxes need -- and two boxes is exactly what the ruling struck.
+      const outsideLabel = outsideLabelOf(assigneeLabel, percentLabel)
+      const outsideLabelWidth = labelWidth(outsideLabel, font, settings)
       // ⚠️ THE GAP IS S-32 AND NOT A NEW VALUE: its own row under S-135 says
-      // 「`labelGap`（`S-32`）は形状の外へ出すラベル用」, and OC-2 puts these two
-      // outside the shape. ⛔ WHICH OF THE TWO STANDS NEARER THE BAR, AND WHAT
-      // SEPARATES THEM, IS NOT SETTLED ANYWHERE -- OC-2 gives one cell to both.
-      // @provisional PD-347
-      const outsideWidth =
-        (assigneeLabel === '' ? 0 : settings.labelGap + assigneeLabelWidth) +
-        (percentLabel === '' ? 0 : settings.labelGap + percentLabelWidth)
+      // 「`labelGap`（`S-32`）は形状の外へ出すラベル用」, and FR-090 (MUST) puts
+      // the card 「予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ
+      // 左へ離した位置に、札の右端を揃えて」 -- one gap, because there is one card.
+      const outsideWidth = outsideLabel === '' ? 0 : settings.labelGap + outsideLabelWidth
       const labelledX0 = x - outsideWidth
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
-               actualReach, fade, assigneeLabel, assigneeLabelWidth, percentLabel,
-               percentLabelWidth, occupiedX0, occupiedX1 }
+               actualReach, fade, outsideLabel, outsideLabelWidth, occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -1740,10 +1771,8 @@ export function layoutFromSchedule(
         // so nothing downstream writes FR-077's formula a second time.
         labelFontSize: item.font,
         // OC-2's pair, settled with the width LC-7 counted them by.
-        assigneeLabel: item.assigneeLabel,
-        assigneeLabelWidth: item.assigneeLabelWidth,
-        percentLabel: item.percentLabel,
-        percentLabelWidth: item.percentLabelWidth,
+        outsideLabel: item.outsideLabel,
+        outsideLabelWidth: item.outsideLabelWidth,
         occupiedX0: item.occupiedX0,
         occupiedX1: item.occupiedX1,
       })

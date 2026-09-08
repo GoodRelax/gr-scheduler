@@ -986,8 +986,18 @@ function labelSvg(
   padLeft: number,
   /** D-316: which label this is, kept from frame to frame. */
   key: string,
+  /**
+   * Which edge of the box the glyphs are pinned to.
+   *
+   * ⭐ AN ARGUMENT FOR THE SAME REASON `padLeft` IS ONE: the two callers answer
+   * different sentences. ZO-5's name label runs from its left edge, and OC-2's
+   * card (FR-090, MUST) has its RIGHT edge aligned -- 「札の右端を揃えて置く
+   * こと（MUST）…… 左端は揃えない」. ⚠️ `padLeft` is the left inset and means
+   * nothing at the far end, so an `end` caller passes 0.
+   */
+  anchor: 'start' | 'end' = 'start',
 ): string {
-  const x = box.x + padLeft
+  const x = anchor === 'end' ? box.x + box.width : box.x + padLeft
   // ⭐ S-33 MULTIPLIES THE FONT, NOT THE BOX. Table T-012's closing paragraph
   // calls it 「字形の中でのずれ」 -- a shift inside the glyph, down from the
   // middle of the type to the baseline SVG measures `y` from -- and says in
@@ -1002,6 +1012,7 @@ function labelSvg(
   const haloWidth = fontSize * settings.labelHaloOfFont
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
+    (anchor === 'end' ? ' text-anchor="end"' : '') +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
     ` paint-order="stroke" xml:space="preserve"${figureKey(key)}>${escaped(text)}</text>`
   )
@@ -2253,8 +2264,19 @@ export function svgFromSchedule(
       // as many words -- and `resumeOf` only builds an icon where a marker was
       // built, so a second reading of `progressMarkerVisible` here would be the
       // same condition in two places.
-      // ⭐ PUSHED AFTER the marker, which is table T-038's order: 進捗マーカー
-      // （OC-3）→ 再開アイコン（OC-4）.
+      // ⛔ NOT PLACED BY TABLE T-038's ORDER. The closing text under that table
+      // takes this figure out of the order outright -- 「再開アイコン（`OC-4`）
+      // は本並びに従わないこと（MUST NOT）。立てる場所は 表 T-221 の `LF-11` が
+      // 定める日付位置（`resume` の日）とすること（MUST）」 (利用者の裁定
+      // 2026-09-08, 逐語 「レジューム A矢印は常に再開日の位置を正とする。」).
+      // `resumeOf` already puts the arm on that day, and this side only paints
+      // the points it was handed. ⚠️ A note here read 「PUSHED AFTER the
+      // marker, which is table T-038's order」 until 2026-09-08; the order no
+      // longer names OC-4 at all, and the push below is a paint order within
+      // one list, not a placement.
+      // ⭐ MEASURED 2026-09-08 on the shipped build, on a Task whose `resume`
+      // day is its own plan start: the icon's left edge stood 0.000px from the
+      // plan bar's left edge and 38.000px LEFT of the marker's right edge.
       // ⛔ NOT FAINT AND NOT DARKENED BY THE HAND. FR-013's MUST names the
       // not-started marker and FR-043's dummies, and PM-1a never holds on a
       // suspended Task -- so there is no strength for this figure to carry.
@@ -2279,41 +2301,52 @@ export function svgFromSchedule(
         ),
       )
     }
-    // OC-2 of table T-038: the assignee label (FR-059, with AS-2 of table T-225
-    // for the Task nobody is on) and the percent label (FR-090), jutting out
-    // past the left of the bar where `outsideLabelBoxesOf` placed them.
+    // OC-2 of table T-038: ONE card carrying the assignee (FR-059, with AS-2 of
+    // table T-225 for the Task nobody is on) and the percent (FR-090), jutting
+    // out past the left of the bar where `outsideLabelBoxOf` placed it.
+    //
+    // ⭐⭐ ONE `<text>`, NOT TWO (FR-090, MUST, 利用者の裁定 2026-09-08): 「2 枚
+    // の札ではなく 1 枚の札として描くこと（MUST）。2 枚を別々に置いてはならない
+    // （MUST NOT）」. ⛔ THIS LOOP DREW TWO UNTIL THAT RULING LANDED, each at the
+    // left edge of its own FR-093 estimate -- and an estimate that under-reads
+    // its glyphs spills into its neighbour: measured 2026-09-08 on the shipped
+    // build, all 40 drawn Tasks overlapped by 3.089 to 13.971px and read as
+    // 「70%佐藤」. One string cannot collide with itself.
+    //
+    // ⭐ ANCHORED AT ITS RIGHT EDGE, which is FR-090's own sentence: 「予定バー
+    // の左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した位置に、札の
+    // 右端を揃えて置くこと（MUST）…… 左端は揃えない」.
+    // ⛔ THAT IS ALSO WHAT MAKES THE ESTIMATE SAFE: FR-093
+    // forbids measuring the glyphs, so the box is only ever an estimate, and
+    // anchoring the END sends the error LEFTWARD -- away from the bar, into the
+    // direction OC-2 already reserves -- instead of across the `labelGap`.
     //
     // ⛔ S-60 AND S-61 ARE NOT READ HERE. FR-049 (MUST) adds table T-202's
     // switches to the state condition of every requirement that draws the
     // element, and LC-7 is where that was spent -- OC-2's own MUST NOT keeps a
     // hidden label out of the occupied width, so the layout has to know. A
-    // hidden label reaches here as a null box, and a second test would be the
+    // hidden card reaches here as a null box, and a second test would be the
     // same condition in two places.
     // ⭐ THE SAME INK AND THE SAME HALO AS ZO-5. S-168 is 「ラベルの文字色」 and
     // S-169 its outline; table T-236 holds no other pair for a label, and
     // inventing one would be this file writing a settings row.
-    if (placed !== undefined) {
-      // ⭐ D-316: the two OC-2 labels are named apart, because they are two
-      // different readings of the Task and either may be switched off alone
-      // (S-60 / S-61) while the other stays.
-      for (const [box, text, part] of [
-        [task.assigneeLabel, placed.assigneeLabel, 'assignee'],
-        [task.percentLabel, placed.percentLabel, 'percent'],
-      ] as const) {
-        if (box === null || text === '') continue
-        ;(isPinnedTask ? labelPartsPinned : labelParts).push(
-          labelSvg(
-            box,
-            text,
-            placed.labelFontSize,
-            settings,
-            themed('S-168'),
-            themed('S-169'),
-            0,
-            `${taskKey}-${part}-label`,
-          ),
-        )
-      }
+    if (placed !== undefined && task.assigneeLabel !== null && placed.outsideLabel !== '') {
+      ;(isPinnedTask ? labelPartsPinned : labelParts).push(
+        labelSvg(
+          task.assigneeLabel,
+          placed.outsideLabel,
+          placed.labelFontSize,
+          settings,
+          themed('S-168'),
+          themed('S-169'),
+          0,
+          // D-316: one figure, one key -- and the key names the ROW of table
+          // T-038 rather than one of the two readings inside the card, because
+          // there is no longer a figure per reading to tell apart.
+          `${taskKey}-oc2-label`,
+          'end',
+        ),
+      )
     }
   }
 

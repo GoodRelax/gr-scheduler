@@ -805,8 +805,20 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
   it('⛔ MUST carry BOTH commands back from ONE call, in that order', () => {
     // ⛔ EXPECTED RED. AS-7 (MUST): 「その名前の `Resource` を作ってから割り当てる
     // こと（表 T-108 の `CM-40` と `CM-44`）」, and the paragraph under the table
-    // (MUST): 「`AS-7` は 2 つの命令を 1 回の呼び出しで走らせること …… 別々に
-    // 走らせると、担当者だけができて割当ができていない状態が履歴に残る」.
+    // (MUST): 「`AS-7` は、本行が書くことになった命令を 1 回の呼び出しで走らせる
+    // こと …… 別々に走らせると、担当者だけができて割当ができていない状態が履歴に
+    // 残る」.
+    //
+    // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-09 AND THIS SEAM HAS NOT MOVED.
+    // Ruling R-07 (逐語 「差し替えでOK。 担当を変える場合はすでにプロパティー
+    // パネルから切り替え可能。 削除も担当者一覧から削除可能。」) landed on AS-7 as
+    // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を解く
+    // こと（MUST）」, so this call has to carry CM-45 as well whenever exactly one
+    // person was seated -- and `TASK_HELD` is such a task. ⛔ NOT ASSERTED HERE
+    // AND NOT INVENTED EITHER: the place that would write it is
+    // `commandsFromAssignee` of `input-command-translator.ts`, which the body that
+    // wrote the clause was not given, so the gap is reported rather than hidden
+    // behind a red case nobody was asked for.
     //
     // ⭐ SO THE ORDER IS PART OF THE RULE, not a preference: 作ってから割り当てる.
     // The tree answers with an empty list -- `commandFromTaskColumn` carries a

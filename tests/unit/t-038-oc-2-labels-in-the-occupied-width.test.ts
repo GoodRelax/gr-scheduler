@@ -37,14 +37,16 @@
 //     row of docs/spec fixes the width of one character -- so every case below
 //     states the occupancy as a RELATION to the widths the placement itself
 //     publishes, never as a number.
-//   * WHICH OF THE TWO STANDS FURTHER LEFT WHEN BOTH ARE SHOWN. OC-2 gives the
-//     pair one direction and one rule; no row orders them.
-//   * THE GAP BETWEEN A LABEL AND THE BAR. Measured, the occupancy reaches 8px
-//     further left than the label itself for EACH label shown -- which is the
-//     value `_assets/tbl-settings.md` prints for S-32 `labelGap`. ⛔ But no row
-//     of docs/spec joins S-32 to OC-2, so the cases below are written to be
-//     independent of it: each states how the occupancy MOVES when a label's own
-//     width moves, which any constant gap drops out of.
+//   * WHICH OF THE TWO STANDS FURTHER LEFT. ⭐ THE QUESTION IS GONE: OC-2 is
+//     ONE card since 2026-09-08 -- 「**2 枚ではなく 1 枚である**」 -- and FR-090
+//     fixes the order INSIDE the string, 「担当 → 区切り → 完了率 → 百分率の
+//     記号」, which the cases below assert as text rather than as two boxes.
+//   * THE GAP BETWEEN THE CARD AND THE BAR. ⭐ S-32 IS NOW NAMED BY THE ROW,
+//     which it was not when this file was written: FR-090 (MUST) says 「予定
+//     バーの左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した位置に、
+//     札の右端を揃えて置くこと」, so the gap is asserted rather than cancelled
+//     out. ⚠️ The difference-shaped cases are kept beside it -- they hold
+//     whatever the gap is, and they are what catch a fixed slab.
 
 import { describe, expect, it } from 'vitest'
 
@@ -222,15 +224,14 @@ const jutOf = (placed: TaskPlacement): number => placed.x - placed.occupiedX0
 // ---------------------------------------------------------------------------
 
 describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () => {
-  it('draws a scene both labels can be read from, or every case below proves nothing', () => {
-    // ⚠️ 04-verification section 2. Two labels of zero width would satisfy every
+  it('draws a scene both readings can be read from, or every case below proves nothing', () => {
+    // ⚠️ 04-verification section 2. A card of zero width would satisfy every
     // relation below without anything ever being counted.
     const both = placedWith(true, true)
 
-    expect(both.assigneeLabel, 'FR-059 found the person on this task').not.toBeNull()
-    expect(both.percentLabel, 'the task carries a percentComplete to label').not.toBeNull()
-    expect(both.assigneeLabelWidth).toBeGreaterThan(0)
-    expect(both.percentLabelWidth).toBeGreaterThan(0)
+    expect(both.outsideLabel, 'FR-059 found the person on this task').toContain('A')
+    expect(both.outsideLabel, 'the task carries a percentComplete to label').toContain('%')
+    expect(both.outsideLabelWidth).toBeGreaterThan(0)
   })
 
   it('⛔ counts NEITHER label while both are hidden (MUST NOT)', () => {
@@ -240,60 +241,108 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
     expect(jutOf(placedWith(false, false))).toBe(0)
   })
 
-  it('⭐ counts the assignee label while it is shown (MUST)', () => {
+  it('⭐ counts the card while the assignee is shown (MUST)', () => {
     const shown = placedWith(true, false)
 
-    expect(jutOf(shown)).toBeGreaterThanOrEqual(shown.assigneeLabelWidth)
+    expect(jutOf(shown)).toBeGreaterThanOrEqual(shown.outsideLabelWidth)
   })
 
-  it("⭐ counts the assignee label's OWN width -- a longer name juts further, by exactly its excess", () => {
+  it("⭐ counts the assignee's OWN width -- a longer name juts further, by exactly its excess", () => {
     // ⭐ THE FORM WITH TEETH, and the one that survives the unstated gap:
-    // whatever constant sits between a label and the bar, it drops out of the
-    // difference. ⛔ A unit that reserved a fixed slab for the label instead of
+    // whatever constant sits between the card and the bar, it drops out of the
+    // difference. ⛔ A unit that reserved a fixed slab for the card instead of
     // counting it would answer the same jut for both of these names.
     const short = placedWith(true, false, ONE, 'Al')
     const long = placedWith(true, false, ONE, 'Alexandra Fitzwilliam')
 
-    expect(long.assigneeLabelWidth).toBeGreaterThan(short.assigneeLabelWidth)
+    expect(long.outsideLabelWidth).toBeGreaterThan(short.outsideLabelWidth)
     expect(jutOf(long) - jutOf(short)).toBeCloseTo(
-      long.assigneeLabelWidth - short.assigneeLabelWidth,
+      long.outsideLabelWidth - short.outsideLabelWidth,
       6,
     )
   })
 
-  it('⭐ counts the percent-complete label while it is shown (MUST)', () => {
+  it('⭐ counts the card while the percent-complete is shown (MUST)', () => {
     const shown = placedWith(false, true)
 
-    expect(shown.percentLabelWidth).toBeGreaterThan(0)
-    expect(jutOf(shown)).toBeGreaterThanOrEqual(shown.percentLabelWidth)
+    expect(shown.outsideLabelWidth).toBeGreaterThan(0)
+    expect(jutOf(shown)).toBeGreaterThanOrEqual(shown.outsideLabelWidth)
   })
 
-  it("⭐ counts the percent-complete label's OWN width -- `100%` juts further than `4%`", () => {
+  it("⭐ counts the percent-complete's OWN width -- `100%` juts further than `4%`", () => {
     // FR-090 (MUST): 「`percentComplete` の値を整数と百分率の記号で示すこと」,
-    // and (MUST NOT) 「丸めてはならない」 -- so the two labels really are
+    // and (MUST NOT) 「丸めてはならない」 -- so the two cards really are
     // different lengths, and OC-2 has to follow the one it was given.
     const narrow = placedWith(false, true, { ...ONE, percentComplete: 4 } as Task)
     const wide = placedWith(false, true, { ...ONE, percentComplete: 100 } as Task)
 
-    expect(wide.percentLabelWidth).toBeGreaterThan(narrow.percentLabelWidth)
+    expect(wide.outsideLabelWidth).toBeGreaterThan(narrow.outsideLabelWidth)
     expect(jutOf(wide) - jutOf(narrow)).toBeCloseTo(
-      wide.percentLabelWidth - narrow.percentLabelWidth,
+      wide.outsideLabelWidth - narrow.outsideLabelWidth,
       6,
     )
   })
 
-  it('⭐ counts BOTH when both are shown, rather than the wider of the two', () => {
-    // Each label contributes the same amount whether or not the other is shown,
-    // which is 「担当ラベルと完了率ラベル」 read as two counted things rather
-    // than as one slot they share.
-    const hidden = placedWith(false, false)
+  // -------------------------------------------------------------------------
+  // R-09 of docs/development-records/rulings.md, 逐語 「担当 完了率の順にどちら
+  // も右寄せで並べる。 下記を参照とせよ。 previous-project-result/08-poc/
+  // poc-integrated.html」, landed in FR-090 and in OC-2's own cell.
+  //
+  //   OC-2 (01-04-requirements.md)
+  //     「| OC-2 | 担当と完了率の札（**2 枚ではなく 1 枚である**。繋ぎ方と右寄せ
+  //      は `FR-090`）| …… |」
+  //   the reason column under the same table
+  //     「⭐ **1 枚に繋いであるので、算入するのも 1 枚ぶんの幅である**（`FR-090`）」
+  //   FR-090 (MUST)
+  //     「**札の中身は 担当 → 区切り → 完了率 → 百分率の記号 の順に繋いだ 1 つの
+  //      文字列とし、区切りは半角コロンの前後に空白を 1 つずつ置いたものとし、
+  //      予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した
+  //      位置に、札の右端を揃えて置くこと（MUST）。**」
+  //     「⭐ **`S-60` と `S-61` の片方だけを出しているときは、その片方だけが札の
+  //      中身になり、区切りは現れない。どちらも出していないときは札そのものが
+  //      無い**」
+  // -------------------------------------------------------------------------
+
+  it('⭐ joins the two readings into ONE string, in FR-090 order, with its separator (MUST)', () => {
     const assigneeOnly = placedWith(true, false)
     const percentOnly = placedWith(false, true)
     const both = placedWith(true, true)
 
-    expect(jutOf(both) - jutOf(assigneeOnly)).toBeCloseTo(jutOf(percentOnly) - jutOf(hidden), 6)
-    expect(jutOf(both) - jutOf(percentOnly)).toBeCloseTo(jutOf(assigneeOnly) - jutOf(hidden), 6)
-    expect(jutOf(both)).toBeGreaterThanOrEqual(both.assigneeLabelWidth + both.percentLabelWidth)
+    // 担当 → 区切り → 完了率 → 百分率の記号, and the separator is the
+    // requirement's own spelling.
+    expect(both.outsideLabel).toBe(
+      `${assigneeOnly.outsideLabel} : ${percentOnly.outsideLabel}`,
+    )
+  })
+
+  it('⛔ shows no separator when only one of S-60 / S-61 is on, and no card at all with neither', () => {
+    expect(placedWith(true, false).outsideLabel).not.toContain(':')
+    expect(placedWith(false, true).outsideLabel).not.toContain(':')
+    expect(placedWith(false, false).outsideLabel).toBe('')
+    expect(placedWith(false, false).outsideLabelWidth).toBe(0)
+  })
+
+  it("⭐ counts ONE card's width and ONE gap -- not two of either (MUST)", () => {
+    // ⛔ THE ARITHMETIC THE RULING CHANGED. Two cards cost two `labelGap`s and
+    // two widths; one card costs one of each, and the separator rides INSIDE
+    // the width rather than beside it.
+    const both = placedWith(true, true)
+    const assigneeOnly = placedWith(true, false)
+    const percentOnly = placedWith(false, true)
+
+    expect(jutOf(both)).toBeCloseTo(BASE.labelGap + both.outsideLabelWidth, 6)
+    expect(jutOf(assigneeOnly)).toBeCloseTo(BASE.labelGap + assigneeOnly.outsideLabelWidth, 6)
+    expect(jutOf(percentOnly)).toBeCloseTo(BASE.labelGap + percentOnly.outsideLabelWidth, 6)
+    // ⭐ Both readings ARE counted -- the card holds them and the separator, so
+    // it is wider than either part and wider than the two of them together.
+    expect(both.outsideLabelWidth).toBeGreaterThan(
+      assigneeOnly.outsideLabelWidth + percentOnly.outsideLabelWidth,
+    )
+    // ⛔ AND ONLY ONE GAP IS SPENT. Two boxes cost `2 * labelGap`; the three
+    // equalities above already fix the jut at ONE, so this states the same
+    // thing the way a reader checks it: the jut of the pair is a single gap
+    // past a single measured width.
+    expect(jutOf(both) - both.outsideLabelWidth).toBeCloseTo(BASE.labelGap, 6)
   })
 
   it('leaves the shape itself where it was -- the labels are occupancy, not geometry', () => {
@@ -461,8 +510,9 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
   it('draws every one of them, or every case below proves nothing', () => {
     const { placed, drawn } = drawnWithMarks(true)
     expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
-    expect(drawn.assigneeLabel).not.toBeNull() // OC-2
-    expect(drawn.percentLabel).not.toBeNull() // OC-2
+    expect(drawn.assigneeLabel).not.toBeNull() // OC-2's one card
+    // ⛔ FR-090 (MUST NOT) forbids a second box: 「2 枚を別々に置いてはならない」.
+    expect(drawn.percentLabel).toBeNull()
     expect(drawn.actual).not.toBeNull() // FR-043's actual bar
     expect(drawn.marker).not.toBeNull() // OC-3
     expect(drawn.resume).not.toBeNull() // OC-4
@@ -472,17 +522,16 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
   it('⛔ does not draw them on top of one another (MUST NOT)', () => {
     const { drawn } = drawnWithMarks(true)
     const assignee = drawn.assigneeLabel
-    const percent = drawn.percentLabel
     const actual = drawn.actual
     const marker = drawn.marker
     const resume = drawn.resume
     const label = drawn.label
-    if (assignee === null || percent === null || actual === null) throw new Error('no OC-2 or actual')
+    if (assignee === null || actual === null) throw new Error('no OC-2 or actual')
     if (marker === null || resume === null || label === null) throw new Error('no OC-3, OC-4 or OC-1')
-    // OC-2 is ONE cell of the table and gives one direction to both labels, so
-    // the pair is measured as one band -- no row orders them against each other.
+    // OC-2 is ONE cell of the table and ONE card since the ruling of
+    // 2026-09-08, so it is one band with nothing inside it to order.
     const bands: readonly Band[] = [
-      { what: 'OC-2 assignee + percent', x0: percent.x, x1: assignee.x + assignee.width },
+      { what: 'OC-2 card', x0: assignee.x, x1: assignee.x + assignee.width },
       // A rectangle's bars are `outline` form (SH-1), so the points carry the
       // horizontal; the line forms name two ends instead.
       bandOfPoints(
@@ -723,5 +772,88 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
     expect(apart.placed.labelX).toBeGreaterThan(
       (apart.drawn.marker?.centre.x ?? 0) + (apart.drawn.marker?.radius ?? 0),
     )
+  })
+})
+// ---------------------------------------------------------------------------
+// R-09 -- OC-2 was drawn as TWO boxes, and they overlapped.
+//
+// ⛔⛔ WHY THIS CASE IS HERE AND NOT ONE LAYER UP, for the reason the D-400
+// case above gives in the same words: every case in the first section reads
+// `TaskPlacement`, and the placement's arithmetic was self-consistent the whole
+// time. What was wrong was the PICTURE -- two `<text>` elements, each begun at
+// the LEFT edge of its own FR-093 estimate, so an estimate that under-read its
+// glyphs ran into its neighbour. ⚠️ Measured 2026-09-08 on the shipped build:
+// all 40 drawn Tasks overlapped, by 3.089 to 13.971px, reading as 「70%佐藤」.
+//
+//   FR-090 (MUST / MUST NOT, 利用者の裁定 2026-09-08)
+//     「**担当ラベル（`FR-059`）と完了率ラベルは、2 枚の札ではなく 1 枚の札と
+//      して描くこと（MUST）。2 枚を別々に置いてはならない（MUST NOT）** ……
+//      **札の中身は 担当 → 区切り → 完了率 → 百分率の記号 の順に繋いだ 1 つの
+//      文字列とし、区切りは半角コロンの前後に空白を 1 つずつ置いたものとし、
+//      予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した
+//      位置に、札の右端を揃えて置くこと（MUST）。**」
+//
+// ⛔ WHAT IS NOT ASSERTED: the ink, the halo and the type size. Those are ZO-5's
+// and are answered by the name label's own cases; a number here would be this
+// file deciding a row of table T-236.
+
+describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', () => {
+  const OC2_FIGURE = 'data-figure="task-1-oc2-label"'
+
+  const svgOf = (): string => {
+    const settings = markSettings(true)
+    const schedule = rowOf([SUSPENDED])
+    const layout = layoutFromSchedule(schedule, settings, REGIONS)
+    const geometry = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+    return svgFromSchedule(
+      schedule, settings, layout, geometry, REGIONS, emptySelection(), 'screen',
+    )
+  }
+
+  /** The opening `<text ...>` tag the card was drawn with. */
+  const cardTag = (svg: string): string => {
+    const at = svg.indexOf(OC2_FIGURE)
+    if (at < 0) throw new Error('the card was not drawn')
+    const opened = svg.lastIndexOf('<text ', at)
+    if (opened < 0) throw new Error('the card is not a text element')
+    return svg.slice(opened, at + OC2_FIGURE.length)
+  }
+
+  it('⭐ draws ONE figure for the card, and none for a second box (MUST NOT)', () => {
+    const svg = svgOf()
+    expect(svg).toContain(OC2_FIGURE)
+    expect(svg).not.toContain('data-figure="task-1-assignee-label"')
+    expect(svg).not.toContain('data-figure="task-1-percent-label"')
+    // ⚠️ 04-verification section 2: exactly one, so a second card cannot hide.
+    expect(svg.split(OC2_FIGURE).length - 1).toBe(1)
+  })
+
+  it('⭐ puts both readings in that one string, joined by FR-090 separator (MUST)', () => {
+    const { placed } = drawnWithMarks(true)
+    const svg = svgOf()
+
+    expect(placed.outsideLabel).toContain(' : ')
+    expect(svg).toContain(`>${placed.outsideLabel}<`)
+  })
+
+  it('⭐ aligns the card by its RIGHT edge, one labelGap from the plan bar (MUST)', () => {
+    // 「予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した
+    // 位置に、札の右端を揃えて置くこと」
+    // -- so the geometry's right edge is that number, and the picture is pinned
+    // to the far end rather than begun at the near one.
+    const { placed, drawn } = drawnWithMarks(true)
+    const card = drawn.assigneeLabel
+    if (card === null) throw new Error('no OC-2 card')
+    const rightEdge = card.x + card.width
+    expect(rightEdge).toBeCloseTo(placed.x - BASE.labelGap, 6)
+
+    // ⛔ THE DEFECT ITSELF. The glyphs used to begin at the box's LEFT edge, so
+    // an under-read estimate spilled RIGHTWARD across the gap and onto its
+    // neighbour. Anchored at the end, the drawn `x` IS the right edge and the
+    // estimate's error runs the other way, into the room OC-2 already reserves.
+    const tag = cardTag(svgOf())
+    expect({ anchored: tag.includes('text-anchor="end"') }).toEqual({ anchored: true })
+    const drawnX = Number(/ x="([-\d.]+)"/.exec(tag)?.[1] ?? 'NaN')
+    expect(drawnX).toBeCloseTo(rightEdge, 1)
   })
 })
