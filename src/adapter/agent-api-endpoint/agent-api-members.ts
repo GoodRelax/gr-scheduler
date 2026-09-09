@@ -299,8 +299,19 @@ export type AgentWriteOutcome =
  * ⭐ THREE SHAPES BECAUSE A CALLER HOLDS IT IN THREE. `readDocument` (AM-3)
  * answers with the root itself, so handing that value straight back is the
  * plainest call there is; `{ document }` is the same value named; and
- * `{ text }` is IO-1 / IO-2 of table T-024, both of which are text (CN-5 of
- * table T-003). ⭐ THE SIGNATURE IS THIS FILE'S TO SETTLE -- table T-107's
+ * `{ text }` is IO-2 of table T-024, the machine-facing row, which is text
+ * (CN-5 of table T-003).
+ * ⛔⛔ `{ text }` IS NOT IO-1, AND THIS NOTE USED TO SAY IT WAS -- corrected
+ * 2026-09-10 after an e2e read the note, handed MSPDI XML in and reported the
+ * `malformedRequest` as a broken FR-021. `handedDocument` below reads the text
+ * through PI-20 (`documentFromJson`) and through nothing else, and the shell
+ * agrees in as many words: `frame-loop.ts:8411` hands the intake road
+ * `format: 'grsJson'` with 「⛔ Not asked of `formatFromFile`: OP-12 reads an
+ * extension and a first character, and there is neither here」. ⚠️ OP-12 of
+ * table T-024a is a MUST on BOTH halves -- 「どちらか一方でも違うファイルを
+ * 読んではならない（MUST NOT）」 -- and a handed value has no extension, so
+ * admitting IO-1 here would be a ruling and not an implementation choice.
+ * ⭐ THE SIGNATURE IS THIS FILE'S TO SETTLE -- table T-107's
  * preamble says so in as many words: 「引数・戻り値は `src/` の公開エントリが
  * 持ち、境界値は Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ」.
  */

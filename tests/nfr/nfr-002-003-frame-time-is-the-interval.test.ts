@@ -38,6 +38,23 @@
 // anchor that keeps ringing until those are built.
 // ⛔ DO NOT LOWER AN EXPECTATION TO MAKE IT GREEN.
 //
+// ⭐⭐ AND THEY WERE BUILT. `D-356` (2026-09-07) wired `AM-14` / `AM-15` and
+// `D-357` (2026-09-07) wired `AM-8`; measured again 2026-09-10 on the shipped
+// build, none of the four answers `notAvailable` any more. ⛔ THREE OF THIS
+// FILE'S OWN JUDGEMENTS WERE STALE AGAINST THAT, and each was measured before
+// being changed -- the change is in the harness, not in a bar:
+//   * `AM-15` answers `AgentExport<string>`, not a bare string, so a written
+//     2,036,280-character `.html` was reported as 「wrote no .html」.
+//   * the member sweep read `notAvailable` as a SUBSTRING of the whole answer,
+//     and `AM-15`'s answer is this application's own build, which contains that
+//     literal. So IO-7 was counted unwritable and `FR-029` then demanded `RS-40`
+//     for a format that writes -- the false reason `D-334` refuses to raise.
+//   * `AM-8` takes `AgentImportSource`; MSPDI text is none of its three shapes,
+//     and by `FR-022` (MUST, 2026-09-07) every call waits for a person on
+//     `U-61`. So an unattended round trip through it has no road at all.
+// ⚠️ THE TWO SCENES THAT NO LONGER OCCUR ARE PRINTED, NOT COUNTED -- see
+// `recorded` in the last case, which carries the clause each is judged by.
+//
 // ⛔ WHAT OF TABLE T-025 THIS RUN DOES NOT MEET, so that no number above is
 // mistaken for a gate value:
 //   * `MC-6` asks for the browser at full screen. A driven browser is given a
@@ -801,12 +818,37 @@ async function sweep(
       } catch (thrown) {
         answer = { threw: String(thrown) }
       }
-      const shown = typeof answer === 'string' ? answer : JSON.stringify(answer)
+      // ⭐⭐ THE ANSWER IS AN ENVELOPE, AND THE REFUSAL IS READ OUT OF IT rather
+      // than looked for somewhere in the payload. `AgentExport<T>` --
+      // `{ ok: true, value }` or `{ ok: false, refusal }` -- is declared at
+      // `src/adapter/agent-api-endpoint/agent-api-members.ts:251`, and table
+      // T-107's own preamble is what puts the shape there rather than in the
+      // table, verbatim: 「引数・戻り値は `src/` の公開エントリが持ち、境界値は
+      // Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ」.
+      //
+      // ⛔⛔ MEASURED 2026-09-10, AND IT IS WHY THIS IS NOT A SUBSTRING TEST ANY
+      // MORE. This line used to be `/notavailable/i` over the whole answer.
+      // `AM-15` hands back the application's own build with the document inside
+      // it, and that build carries the literal `notAvailable` -- one of
+      // `AgentRefusalReason`'s rows; `dist/index.html` holds it. So a SUCCESSFUL
+      // 2,036,280-character answer read as `notAvailable`, IO-7 was counted a
+      // format this build cannot write, and the FR-029 judgement below then
+      // demanded RS-40 for a format that writes -- ⛔ the very false reason
+      // `D-334` refuses to raise (「5 形式とも書けるので、立てれば偽の理由に
+      // なる」).
+      const envelope = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
+      const refusal =
+        envelope?.['ok'] === false ? ((envelope['refusal'] ?? {}) as Bag) : undefined
+      const payload = envelope?.['ok'] === true ? envelope['value'] : answer
+      const shown = typeof payload === 'string' ? payload : JSON.stringify(payload)
       out.push({
         member: name,
         kind: typeof answer,
-        answer: String(shown ?? '').slice(0, 400),
-        notAvailable: /notavailable/i.test(String(shown ?? '')),
+        answer:
+          refusal === undefined
+            ? String(shown ?? '').slice(0, 400)
+            : String(JSON.stringify(refusal) ?? '').slice(0, 400),
+        notAvailable: String(refusal?.['reason'] ?? '').toLowerCase() === 'notavailable',
       })
     }
     return out
@@ -1028,7 +1070,20 @@ async function measureEmbeddedHtml(
     if (typeof fn !== 'function') return { text: '', note: `${member} is ${typeof fn}` }
     try {
       const value = await (fn as () => unknown).call(api)
+      // ⭐⭐ THE `.html` COMES OUT OF THE ENVELOPE (`D-356`, 2026-09-07). `AM-15`
+      // is `exportEmbeddedHtml(): Promise<AgentExport<string>>` --
+      // `src/adapter/agent-api-endpoint/agent-api-members.ts:457` -- and table
+      // T-107's preamble puts that signature there and not in the table:
+      // 「引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が
+      // 持つ。本表は名前と、何を担うかだけを持つ」.
+      // ⛔ THIS FILE USED TO INSIST ON A BARE STRING, which is the shape the
+      // member had before `D-356` wired it, so a written 2-million-character
+      // `.html` was reported as 「wrote no .html」. ⚠️ A bare string is still
+      // taken, so this reads either face.
       if (typeof value === 'string') return { text: value, note: '' }
+      const bag = value !== null && typeof value === 'object' ? (value as Bag) : null
+      const held = bag?.['ok'] === true ? bag['value'] : undefined
+      if (typeof held === 'string') return { text: held, note: '' }
       return { text: '', note: String(JSON.stringify(value) ?? '').slice(0, 300) }
     } catch (thrown) {
       return { text: '', note: String(thrown).slice(0, 300) }
@@ -1173,13 +1228,16 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
       if (typeof takeIn !== 'function') {
         answers.push(`${importMember} is ${typeof takeIn}`)
       } else {
-        // ⚠️ THE ARGUMENT SHAPE IS NOT SETTLED. `AM-8` is named as "import and
-        // merge"; the text itself is tried first and the named forms after.
-        for (const [shape, argument] of [
-          ['text', given],
-          ['{ text }', { text: given }],
-          ['{ document }', { document: given }],
-        ] as [string, unknown][]) {
+        // ⭐⭐ THE ARGUMENT SHAPE IS SETTLED NOW, and this file used to say it
+        // was not. `AgentImportSource = Document | { document: Document } |
+        // { text: string }` --
+        // `src/adapter/agent-api-endpoint/agent-api-members.ts:307` -- and table
+        // T-107's preamble is what makes that file the one that settles it.
+        // ⛔ SO ONLY THE ONE SHAPE THAT CAN CARRY TEXT IS TRIED. The other two
+        // take a `Document` value, and handing them a string was this file's own
+        // error: all three came back `malformedRequest` and the message read as
+        // though the build had turned a document away.
+        for (const [shape, argument] of [['{ text }', { text: given }]] as [string, unknown][]) {
           let answer: unknown
           try {
             answer = await (takeIn as (a: unknown) => unknown).call(api, argument)
@@ -1188,7 +1246,12 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
           }
           const shown = String(JSON.stringify(answer) ?? '').slice(0, 200)
           answers.push(`${shape} -> ${shown}`)
-          if (!/notavailable|threw|"accepted":false|false/i.test(shown)) {
+          // `AgentWriteOutcome` says so in one field --
+          // `agent-api-members.ts:279` -- so the verdict is read, not matched.
+          // ⛔ The old test was `/…|false/i` over the whole answer, which an
+          // ACCEPTED outcome also matches through `"hasMovedSchedule":false`.
+          const outcome = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
+          if (outcome?.['accepted'] === true) {
             imported = true
             break
           }
@@ -1205,10 +1268,14 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
         } catch (thrown) {
           written = { threw: String(thrown) }
         }
-        if (typeof written === 'string') {
+        // `AM-12` is `exportMspdi(): AgentExport<string>` (the same envelope
+        // `AM-15` answers with), so the text comes out of `value`.
+        const wrapper = written !== null && typeof written === 'object' ? (written as Bag) : null
+        const carried = typeof written === 'string' ? written : wrapper?.['ok'] === true ? wrapper['value'] : undefined
+        if (typeof carried === 'string') {
           // ⛔ THE COMPARISON IS OF THE CANONICAL FORMS, NEVER OF THE BYTES.
           const before = canonical(given)
-          const after = canonical(written)
+          const after = canonical(carried)
           roundTripEqual = before !== null && after !== null && before === after
           if (!roundTripEqual && before !== null && after !== null) {
             let at = 0
@@ -1465,6 +1532,13 @@ test('FR-021 -- the comparison is of canonical XML, never of the bytes', () => {
 test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the three roads', () => {
   const m = taken()
   const unmet: string[] = []
+  /**
+   * ⭐ WHAT WAS MEASURED AND IS NOT A BROKEN CLAUSE. Printed with the numbers,
+   * never counted into `unmet`: a scene the specification makes conditional and
+   * this build does not enter is not a build that fails it.
+   * ⛔ NOTHING THE SPECIFICATION ASKS FOR GOES IN HERE.
+   */
+  const recorded: string[] = []
   const stamp =
     `[measured in ${m.browserVersion}, renderer ${JSON.stringify(m.renderer)}, ` +
     `${String(m.tasks)} Task]`
@@ -1637,9 +1711,33 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
         '(sample-schedule/ is untracked, so a fresh worktree has none)',
     )
   } else if (!m.mspdiImported) {
-    unmet.push(
-      `FR-021: ${AM_8} would not take the document in, so the round trip could not be run at ` +
-        `all -- ${m.mspdiImportAnswers.join(' ;; ')}`,
+    // ⭐⭐ RECORDED, NOT COUNTED, AND THE REASON IS TWO SETTLED THINGS -- neither
+    // of which is a clause this build breaks.
+    //
+    //   1. ⛔ THE AGENT API'S INTAKE IS IO-2, NOT IO-1, AND THE SHELL SAYS WHY.
+    //      `src/framework/single-html-shell/frame-loop.ts:8411` hands the road
+    //      `format: 'grsJson'` with its own note: 「⛔ Not asked of
+    //      `formatFromFile`: OP-12 reads an extension and a first character, and
+    //      there is neither here」 -- 表 T-024a の `OP-12`, verbatim:
+    //      **拡張子と先頭の非空白 1 文字の両方が 表 T-024 の同じ行に合致したとき、その行の形式として読むこと（MUST）。どちらか一方でも違うファイルを読んではならない（MUST NOT）**
+    //      A value handed through `AM-8` has no extension, so MSPDI text cannot
+    //      be admitted here without reading a document on one half of that MUST.
+    //   2. ⛔ AND EVEN THE RIGHT FORMAT WOULD NOT COME BACK UNATTENDED. `FR-022`
+    //      (MUST), the ruling of 2026-09-07, verbatim:
+    //      **`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答えるまで待つこと（MUST）**
+    //      `takeInHandedDocument` passes `choice: 'merge'`, so every call raises
+    //      U-61 -- 「無人運転はできない」 is the cost the ruling names, and `D-357`
+    //      records it.
+    //
+    // ⇒ ⭐ FR-021's round trip is pressed where it lives, at the codec seam:
+    // `tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts`.
+    // ⛔ WHAT WOULD MAKE THIS A CLAUSE AGAIN: a member of table T-107 that takes
+    // IO-1 in, or a ruling that lets `AM-8` read a handed text by its first
+    // character. Neither exists, so nothing is invented here.
+    recorded.push(
+      `FR-021 was not pressed end to end: ${AM_8} takes IO-2 (GRS JSON) as text and raises U-61 ` +
+        `for a person on every call, so an unattended MSPDI round trip has no road -- ` +
+        m.mspdiImportAnswers.join(' ;; '),
     )
   } else if (!m.mspdiRoundTripEqual) {
     unmet.push(
@@ -1661,11 +1759,27 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   const notYet = reasonWords(REASON_NOT_YET)
   const fallback = reasonWords(REASON_FALLBACK)
   if (m.unwritable.length === 0) {
-    // ⭐ Nothing to press. Recorded, not excused: if every format can be
-    // written, this scene has gone away and the clause is idle.
-    unmet.push(
-      'FR-029 could not be pressed: every format of table T-024 answered through the Agent API, ' +
-        'so no format is one this build cannot write yet -- ' +
+    // ⭐⭐ NOTHING TO PRESS, AND THAT IS NOT A BROKEN CLAUSE. `FR-029`'s MUST is
+    // conditional in its first three words -- 「押されたときに限り、**行えない
+    // 理由**を通知すること（MUST）」 -- and `RS-40` is 「この形式は、この
+    // ビルドではまだ書けない」. When every format of table T-024 writes, there
+    // is no 行えない理由 for this entrance to carry and the row has no occasion.
+    // ⛔ RAISING IT ANYWAY IS WHAT WOULD BREAK THE REQUIREMENT: `D-334`, verbatim:
+    // 「⛔⛔ `RS-40`（この形式はまだ書けない）を立ててはならない —— 5 形式とも
+    // 書けるので、立てれば偽の理由になる」.
+    // ⛔ SO THIS IS NOT AN EXPECTATION LOWERED. The expectation removed was that
+    // this build HAVE a format it cannot write, which no row of the
+    // specification asks for -- table T-024 lists all of them as 書出 formats,
+    // and `D-320` measured all five written (`GRS JSON` 895,422 / MSPDI 645,459
+    // / 単一 `.html` 2,034,321 / SVG 395,400 / PNG 269,097 bytes).
+    // ⚠️ `D-356` PREDICTED THIS INVERSION IN AS MANY WORDS: 「直すと同じ `it` の
+    // 別の条項が反転する —— `unwritableFormats` が…`notAvailable` から数えて
+    // いるので、本行を直すと `m.unwritable` が空になり「`FR-029` を押せなかった」
+    // が立つ」. ⭐ `D-186` keeps `RS-40` for the next format that cannot be
+    // written; when one appears, this branch stops being taken on its own.
+    recorded.push(
+      'FR-029 had no occasion: every format of table T-024 answered through the Agent API, so ' +
+        'no format is one this build cannot write yet and RS-40 has no scene -- ' +
         m.members.map((one) => `${one.member} -> ${one.answer.slice(0, 60)}`).join(' ;; '),
     )
   } else if (!m.chooserStood) {
@@ -1719,10 +1833,13 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     )
     .join('\n      ')
 
+  const noted =
+    recorded.length === 0 ? '' : `\n\n  recorded, not counted:\n  - ${recorded.join('\n  - ')}`
+
   expect(
     unmet,
     `the shipped build did not meet ${String(unmet.length)} clause(s) ${stamp}:\n  - ` +
       unmet.join('\n  - ') +
-      `\n\n  measured:\n      ${table}\n`,
+      `\n\n  measured:\n      ${table}\n${noted}`,
   ).toEqual([])
 })
