@@ -7364,15 +7364,22 @@ function commandFromGrab(
     case 'GR-9':
     case 'GR-17':
     case 'GR-18': {
-      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND ONE DAY IN
-      // IT. FR-043 (MUST) places the same three columns whichever handle was
-      // grabbed and fixes whichever end was not, so no END is a parameter --
-      // what the drag decides is the DAY, 実績開始日 ＝ 掴みシロを離した日
-      // (利用者の裁定 2026-09-02). CM-14 reads the shape to choose between
-      // S-129 and S-130, so GR-18 still needs no separate answer here.
-      // ⛔ CM-14 CARRIES A STOP about the finish handle's own columns, which
-      // table T-023d's GR-17 row asks for and this translator does not feed --
-      // the row it would carry is withheld there, not lost here.
+      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND TWO THINGS IN
+      // IT: the DAY the hand let go on, and WHICH HANDLE it had hold of.
+      // ⛔⛔ THE HANDLE HAS TO TRAVEL, AND UNTIL 2026-09-09 IT DID NOT. FR-043
+      // (MUST) writes the same three columns whichever handle was grabbed --
+      // 「どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
+      // `resumeValid`（`true`）を置くこと（MUST）」 -- but table T-023d gives the
+      // two rows different VALUES for them: GR-9 「掴めば `actualStart` と
+      // `actualDuration` を置く」 puts the day let go on into the start, while
+      // GR-17 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
+      // 確定。`FR-043`）」 pins the start and reads the day as a length.
+      // ⭐ NOTHING DOWNSTREAM CAN RECOVER IT. The two handles share one drawn
+      // mark (FR-043, MUST: 「ダミーの印は 1 つだけ描くこと（MUST）」) split down
+      // its middle by table T-023d's closing rule, so which half was pressed is
+      // a fact of the POINTER and `hit.grab` is the only thing holding it.
+      // ⚠️ The three arms answer one command kind all the same: CM-14 reads the
+      // shape for itself to choose between S-129 and S-130.
       //
       // ⭐ THE RELEASE IS THE ONLY PHASE THAT REACHES THIS FUNCTION, which is
       // what table T-023d's grab means: the table's closing rule sends the
@@ -7408,7 +7415,9 @@ function commandFromGrab(
       // keeps the browser out from under a grab it took.
       const dropped = dayAtX(context.layout, release.x)
       if (dropped === null) return CONSUMED_ELSEWHERE
-      return changed([{ kind: 'beginTaskActual', uid, droppedDay: textOfDay(dropped) }])
+      return changed([
+        { kind: 'beginTaskActual', uid, grabbed: hit.grab, droppedDay: textOfDay(dropped) },
+      ])
     }
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days

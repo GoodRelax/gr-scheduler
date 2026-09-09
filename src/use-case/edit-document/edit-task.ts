@@ -29,6 +29,7 @@ import {
   compareDays,
   dateFromWorkingDays,
   dayOf,
+  nextWorkingDay,
   planActualState,
   taskByUid,
   textOfDay,
@@ -94,6 +95,30 @@ export type PlanActualPlacement =
       readonly actualFinish: string
     }
 
+/**
+ * Which of the three faint dummies of table T-023d the hand grabbed (FR-043).
+ *
+ * ⭐ THE ROW ID IS THE VALUE, exactly as `PlanActualPlacement` carries table
+ * T-019's: the two rows write DIFFERENT columns -- GR-9 「掴めば `actualStart`
+ * と `actualDuration` を置く（値は `FR-043`）」 and GR-17 「掴めば
+ * `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）」 --
+ * so which one was grabbed is part of what the press said, not something the
+ * columns written can be read back to.
+ *
+ * ⛔ IT CANNOT BE DERIVED FROM ANYTHING ELSE IN THE COMMAND. Both handles stand
+ * on ONE drawn mark -- FR-043 (MUST) 「ダミーの印は 1 つだけ描くこと」 -- and
+ * table T-023d's closing rule splits that one mark down its middle: 「1 つの
+ * ダミーの印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側
+ * （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」（利用者の裁定
+ * 2026-09-09）. Which half was pressed is a fact of the POINTER, and the hit
+ * test is the only thing that holds it.
+ *
+ * ⚠️ GR-18 IS ONE PLACE AND NOT TWO (table T-023d, MUST NOT): 「本行は 1 か所で
+ * ある。開始側と終了側に分けてはならない（MUST NOT）」 -- so a milestone names
+ * this row and takes the start handle's answer.
+ */
+export type ActualGrabHold = 'GR-9' | 'GR-17' | 'GR-18'
+
 /** CM-6 to CM-25 of table T-108. */
 export type TaskCommand =
   // ---------------------------------------------------------- `Task` (14) ----
@@ -130,6 +155,15 @@ export type TaskCommand =
   | {
       readonly kind: 'beginTaskActual'
       readonly uid: number
+      /**
+       * Which grab-hold the hand took (FR-043 shows 掴みシロを 2 つ, and table
+       * T-023d gives the two rows different columns to write).
+       *
+       * ⭐ CARRIED RATHER THAN GUESSED. `input-command-translator.ts` reads it
+       * off the hit the press landed on; nothing downstream of that press can
+       * recover it, because both handles stand on one drawn mark.
+       */
+      readonly grabbed: ActualGrabHold
       /**
        * FR-043's 掴みシロを離した日 (MUST, 利用者の裁定 2026-09-02): the day the
        * hand let the grab-hold go on, which is what the actual starts on.
@@ -945,12 +979,13 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       if (planActualState(task) !== 'notStarted') {
         return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
       }
-      // ⭐ Three columns at once, and the same three whichever handle was
-      // grabbed: どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
-      // `resumeValid`（`true`）を置くこと（MUST）。開始点を掴んだときは終了点を
-      // その既定の位置で、終了点を掴んだときは開始点を … 確定させること（MUST）
-      // -- neither end is left undecided, so only the DAY the hand chose comes
-      // in from outside, and it comes in once for both handles.
+      // ⭐ THREE COLUMNS AT ONCE, WHICHEVER HANDLE WAS GRABBED: 「どちらが掴ま
+      // れたときも実績開始日と実績期間（`actualDuration`）と `resumeValid`
+      // （`true`）を置くこと（MUST）」（FR-043）. ⛔ THE THREE ARE THE SAME
+      // COLUMNS AND NOT THE SAME VALUES: 「開始点を掴んだときは終了点をその既定
+      // の位置で、終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定させる
+      // こと（MUST）」 -- neither end is left undecided, and WHICH end the day
+      // the hand chose lands on is what `command.grabbed` carries.
       const visual = visualOf(schedule, task.uid)
       const isDrawnAsMilestone = isMilestone(task, visual)
       // S-129 by default; S-130 for a milestone, which 実績バーを持たない (点なの
@@ -983,34 +1018,77 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // and the ONE point FR-043 draws in place of a pair -- neither of which
       // is a day.
       //
-      // ⛔⛔ STOP -- THE FINISH HANDLE'S OWN COLUMNS ARE NOT IMPLEMENTED, AND
-      // THAT IS DELIBERATE. Table T-023d's GR-17 row asks the finish handle to
-      // leave the start where the START handle's dummy stands -- 「`actualStart`
-      // は `GR-9` の日で確定」 -- and FR-043 asks the same thing from the other
-      // side (MUST): 「終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定
-      // させること」. Neither is honoured here: this command writes the same
-      // three columns whichever handle was grabbed.
+      // ⭐⭐ THE FINISH HANDLE'S OWN COLUMNS. Table T-023d's GR-17 row: 「掴めば
+      // `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）」,
+      // and FR-043 asks the same from the other side (MUST): 「終了点を掴んだと
+      // きは開始点を予定の開始日の翌稼働日で確定させること」.
       //
-      // WHY IT IS NOT IMPLEMENTED: it collides head-on with FR-043's own value
-      // clause, a user ruling of 2026-09-02 that is also a MUST -- 「掴んで置く
-      // 値は、実績開始日 ＝ 掴みシロを離した日」. Pinning the start at GR-9's day
-      // means the day the hand let go on is no longer what the actual starts on.
+      // ⛔⛔ THIS ARM CARRIED A STOP UNTIL 2026-09-09, and what the STOP said was
+      // that the pinning collides head-on with FR-043's own value clause (MUST,
+      // 利用者の裁定 2026-09-02): 「掴んで置く値は、実績開始日 ＝ 掴みシロを離した
+      // 日」. Pinning the start at GR-9's day meant no grab could place a start.
       //
-      // MEASURED (shipped build, 2026-09-09, one day 6px wide, FR-102's own
-      // record read for each pixel): sweeping the band from 30px left of the
-      // one drawn mark to 30px right of it, GR-9 answered 0 of 67 pixels --
-      // GR-3 owns the left, GR-12 the five before the mark, and GR-17 every
-      // pixel of the mark and 30 beyond it. So at that magnification the finish
-      // handle is the ONLY handle a hand can reach, and pinning its start would
-      // leave no way whatsoever to place an actual start by grabbing -- which
-      // is the ability the 2026-09-02 ruling granted.
-      // The system case at tests/system/open-defect-pins.test.ts (D-182) reads
-      // exactly that: it drops the hold 3 steps and 8 steps along and requires
-      // two different days. With the pinning in place both landed on x=284.
-      //
-      // ⇒ AWAITING THE USER'S RULING on which of the two MUSTs governs. Until
-      // then the 2026-09-02 ruling stands, because it is the one a person can
-      // still exercise. ⛔ Do not re-implement the pinning without that ruling.
+      // ⭐⭐ WHAT DISSOLVED IT, VERBATIM. The ruling of 2026-09-09 cut the one
+      // drawn mark in half -- table T-023d's closing rule (MUST): 「1 つのダミー
+      // の印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側
+      // （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」 -- and
+      // FR-043 carries that split into the value clause: 「人が印を押したときに
+      // 掴むのは、印の左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側
+      // （同表の `GR-17`）とすること（MUST）」.
+      // ⇒ THE TWO MUSTs STOPPED COLLIDING, and the specification says so in its
+      // own words: 「左半分を掴めば `GR-9` が答え、離した日が実績開始日になるから
+      // である」（表 T-023d の結び）. A road to place a start by grabbing remains,
+      // so pinning the finish handle's start takes nothing away.
+      // ⛔ THE MEASUREMENT THE STOP LEANED ON MEASURED THE RULE THAT WAS
+      // OVERTURNED: swept around the mark on 2026-09-09, GR-9 answered 0 of 67
+      // pixels, because every pixel of the mark was GR-17's. Which pixel answers
+      // which row is `item-hit-area.ts`'s to decide and never this unit's; both
+      // rows are answered here whatever it returns.
+      if (command.grabbed === 'GR-17') {
+        // ⭐ GR-9's OWN DAY, read from the plan exactly as the drawing side reads
+        // it -- FR-043 (MUST): 「ダミーを描く位置は、予定の開始日の翌稼働日とする
+        // こと（MUST）」, 「翌稼働日は暦に従う」（FR-054）.
+        // ⛔ `nextWorkingDay` AND NOT `dateFromWorkingDays(planStart, 1)`: the
+        // second answers a half-open END BOUND, which for a Friday start lands on
+        // the Saturday. `schedule-layout.ts` stands the dummy with this same
+        // member, so the pinned day and the drawn mark cannot drift apart.
+        const planStart = dayOf(task.start)
+        if (planStart === null) {
+          return refused([
+            reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
+          ])
+        }
+        const pinned = nextWorkingDay(within, planStart)
+        // ⭐ THE LENGTH IS WHAT THE DRAG SAID, counted from the pinned start to
+        // the day the hand let go on. ⛔ THE DAY IS STILL NOT MOVED TO A WORKING
+        // ONE (table T-023d's closing rule, MUST NOT): `workingDaysBetween`
+        // COUNTS the worked days of a half-open span and rounds neither end, so
+        // a release on a Saturday answers the same count its Friday does.
+        // ⚠️ LET GO WHERE THE HANDLE ALREADY STANDS AND THE COUNT IS S-129 --
+        // table T-023d puts GR-17 「`GR-9` の日から `S-129` ぶん進んだ稼働日」, so
+        // a drag of nothing writes the length the mark was drawn at.
+        // ⚠️ NOTHING IS CLAMPED AT EITHER END. 「終了点を開始点の位置まで動かして
+        // 長さを 0 にすることは受け入れる」（FR-043）, and no row of docs/spec
+        // gives this arm a floor; GR-6 counts the same way for the same reason.
+        const pulled: Task = {
+          ...task,
+          actualStart: textOfDay(pinned),
+          actualDuration: workingDaysBetween(within, pinned, dropped.day),
+          resumeValid: true,
+        }
+        // ⭐ The carried `Stop` is let go of here too -- see CM-13.
+        return edited(withTask(document, repriced(within, actualsEdited(pulled))))
+      }
+      // ⭐ GR-9 AND GR-18: the day the hand let go on IS the actual start, and
+      // the finish takes 「その既定の位置」 -- `duration` above, which is S-129
+      // (S-130 for a milestone) and is where table T-023d draws GR-17.
+      // ⚠️ GR-18 COMES HERE BECAUSE ITS ROW IS ONE PLACE (MUST NOT): 「本行は 1 か
+      // 所である。開始側と終了側に分けてはならない」, and its own cell writes the
+      // start -- 「掴めば `actualStart` を置く。`actualDuration` は `S-130`」.
+      // ⭐ THIS ARM IS WHAT KEEPS LEDGER D-182 CLOSED: the system case at
+      // tests/system/open-defect-pins.test.ts drops the hold 3 steps and 8 steps
+      // along and requires two different days, and it presses the middle of the
+      // mark, which the split above gives to GR-9.
       const begun: Task = {
         ...task,
         actualStart: textOfDay(dropped.day),

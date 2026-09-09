@@ -74,6 +74,7 @@ export type {
   TaskMilestoneGlyph,
   TaskShapeKind,
   PlanActualPlacement,
+  ActualGrabHold,
 } from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export type { DependencyCommand, DependencyEdge } from './edit-dependency'
