@@ -245,9 +245,23 @@ const BAR_ACTUAL_DURATION = 3
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
 
-/** A milestone that is NOT started. See the last describe. */
+/**
+ * A milestone that is NOT started. See the last describe.
+ *
+ * ⭐⭐ PAST `BAR_FINISH` SINCE 2026-09-10, AND THAT IS LOAD-BEARING. The view is
+ * fitted to the schedule, so whatever ends LAST lands on the `Row Area`'s right
+ * edge -- a column the pointer cannot occupy, since R3.4 leaves that region
+ * half-open. While this day stood at 2026-04-17 the bar Task's 予定の終了点 was
+ * the last thing in the document and fell on that edge, and `onEndpoint` below
+ * stepped the probe one unit INWARD to reach it. ⛔ That step stopped working on
+ * 2026-09-09: 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取ること
+ * （MUST）」, ⛔ 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）」 -- so a
+ * pixel inside the bar answers `GR-12`, the body, and IN-2's four ends stopped
+ * carrying one meaning. ⇒ The milestone is put past the bar instead, which
+ * leaves the bar's own finish some ground outside itself.
+ */
 const NEW_STONE_UID = 3
-const NEW_STONE_DAY = '2026-04-17'
+const NEW_STONE_DAY = '2026-04-28'
 
 /** 1 day is this many px at zoom 1 -- S-1's key, set wide so a day is legible. */
 const PX_PER_DAY_AT_1X = 20
@@ -589,11 +603,15 @@ function emptyCanvas(loop: FrameLoop): Point {
  * a point. The note under table T-023a binds that table to the schedule's
  * drawing area (MUST), so a point AT `rowArea.x + rowArea.width` is on no region
  * at all and IN-2 names no shape there.
- * ⚠️ THIS FIXTURE PUTS A BAR END EXACTLY ON THAT EDGE: the view is fitted to the
- * schedule and the bar Task is the widest thing in it, so its 予定の終了点 lands
- * on the last column the pointer cannot occupy. Stepping one unit in keeps the
- * probe on the SAME grab region -- S-90 gives GR-4 六px either side of the end
- * -- while asking it somewhere a pointer can actually stand.
+ * ⛔⛔ AND STEPPING IN IS NO LONGER A WAY TO REACH AN END. This clamp read
+ * 「keeps the probe on the SAME grab region -- S-90 gives GR-4 six px either side
+ * of the end」 until 2026-09-10, which the ruling of 2026-09-09 made false:
+ * 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取ること（MUST）」.
+ * ⭐ SO THE FIXTURE MOVED INSTEAD -- `NEW_STONE_DAY` now ends the schedule, so
+ * no end of the bar Task falls on the region's edge and this clamp fires on
+ * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Row Area`
+ * would be asked where IN-2 names no shape at all, which is not a defect this
+ * file means to report.
  */
 function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
   const area = frameOf(loop).regions.rowArea

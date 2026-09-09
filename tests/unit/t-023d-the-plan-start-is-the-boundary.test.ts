@@ -297,12 +297,12 @@ const SLOP: PointerSlop = {
   // fault the fence cases below exist to catch, with the yardstick wrong.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   dummyWidth: NOT_STORED_SIZES['S-93'],
-  // ⭐⭐ NOT `S-93`'s SECOND NUMBER -- that row is one number and a WIDTH since
+  // ⭐⭐ AND NO SECOND NUMBER -- that row is one number and a WIDTH since
   // 2026-09-09: 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
   // (表 T-206, S-93), and table T-023d's closing rule says the same of the hold:
-  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」. ⇒ The band is this
-  // fixture's own, stated once below and used for the ink as well.
-  dummyHeight: ACTUAL_BAND_HEIGHT,
+  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」. ⛔ `PointerSlop`
+  // carried that band until 2026-09-10; the hold reads `DummyGeometry.ink` now,
+  // so this fixture's own band (below) reaches the ink alone.
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -562,10 +562,10 @@ const SHORT_PLAN_DAYS = 1
  * The same Task as section 2, with the plan drawn `SHORT_PLAN_DAYS` long and
  * the two fade handles standing on its corners (表 T-012a の 点 4 / 点 2).
  */
-function selectedShortPlan(pxPerDay: number): ScheduleGeometry {
+function selectedShortPlan(pxPerDay: number, days: number = SHORT_PLAN_DAYS): ScheduleGeometry {
   const base = notStartedTask(pxPerDay)
   const task = base.tasks[0]!
-  const finishX = PLAN_START_X + pxPerDay * SHORT_PLAN_DAYS
+  const finishX = PLAN_START_X + pxPerDay * days
   return {
     ...base,
     tasks: [
@@ -589,9 +589,16 @@ function selectedShortPlan(pxPerDay: number): ScheduleGeometry {
   }
 }
 
-function grabOnShortPlan(pxPerDay: number, x: number, y: number): GrabArea | null {
-  return itemAtPointer(selectedShortPlan(pxPerDay), x, y, SLOP)?.grab ?? null
+function grabOnShortPlan(pxPerDay: number, x: number, y: number, days?: number): GrabArea | null {
+  return itemAtPointer(selectedShortPlan(pxPerDay, days), x, y, SLOP)?.grab ?? null
 }
+
+/**
+ * The longest plan the manuscript's own measurement covers -- 「低倍率で 1 〜 8
+ * 日の予定では」 -- which is the shortest one whose FINISH stands clear of both
+ * dummies at 6px a day.
+ */
+const LONGEST_MEASURED_PLAN_DAYS = 8
 
 describe('right of the fence a dummy beats every plan-side row', () => {
   // ⭐ CONTROL. This is the defect itself. Before the repair, a press one pixel
@@ -628,9 +635,20 @@ describe('right of the fence a dummy beats every plan-side row', () => {
   // would leave a plan of more than zero days with no reachable finish at all,
   // since that end always stands right of its own start.
   it('the plan FINISH keeps the ground where no dummy stands', () => {
-    // At 6px a day the dummy of `GR-9` begins on the next working day's column,
-    // 6px along; a press 3px out is right of the fence and clear of that box.
-    expect(grabOnShortPlan(6, PLAN_START_X + 3, MID_Y)).toBe('GR-4')
+    // ⛔⛔ THE PRESS MOVED ON 2026-09-10, AND THE RULING IS WHY. This case used
+    // to press 3px INSIDE the plan bar's left end and ask for `GR-4`, on the
+    // reading that `S-90` reached both ways from each end. The ruling of
+    // 2026-09-09 took the inward hand away -- 「予定の端点（`GR-3` / `GR-4`）の
+    // 掴み代は端の外側だけに取ること（MUST）」, ⛔ 「予定の端点を端の内側へ伸ばし
+    // てはならない（MUST NOT）」 -- so the bar's whole inside now answers `GR-12`
+    // and the finish's own ground is OUTSIDE its own edge.
+    // ⚠️ AND A ONE-DAY PLAN HAS NONE OF IT AT THIS ZOOM: `GR-9` stands on the
+    // working day after the plan start, which for a one-day plan is the very
+    // column the finish's edge falls on, and its `S-93` box covers everything
+    // the finish would otherwise reach. ⇒ The plan is drawn out to the longest
+    // the manuscript measured, where the finish stands past both boxes.
+    const finishX = PLAN_START_X + 6 * LONGEST_MEASURED_PLAN_DAYS
+    expect(grabOnShortPlan(6, finishX + 3, MID_Y, LONGEST_MEASURED_PLAN_DAYS)).toBe('GR-4')
   })
 
   // ⭐ CONTROL. The purpose in the ruling's own words -- 「Zoom Out して 1 日の
@@ -791,6 +809,13 @@ function suspendedTask(): ScheduleGeometry {
             { x: ICON_LEFT_X + ICON_ARM, y: MID_Y + ICON_HEAD },
           ],
           valid: true,
+          // ⭐⭐ HALF OF `S-22`, WHICH IS THE ROAD THE SIZE TRAVELS. GR-8's own
+          // words: 「新しい設定値を立てない —— 進捗マーカー（`GR-7`）と同じ寸法
+          // をそのまま使う」, and `S-22` is a STORED setting, so it cannot ride
+          // on `PointerSlop` the way table T-206's unstored reaches do -- it
+          // reaches the hit test on the geometry, beside the paths it belongs
+          // to. ⛔ `MARKER_SIZE` is read from 表 T-201 above and never typed.
+          hitHalf: MARKER_SIZE / 2,
         },
       },
     ],
@@ -842,14 +867,26 @@ describe('GR-8 takes S-22 about the icon, not the icon\'s own outline', () => {
     expect(grabOnSuspended(ICON_CENTRE_X, ICON_CENTRE_Y + halfHeight + 2)).not.toBe('GR-8')
   })
 
-  // ⭐ CONTROL, AND THE BOUNDARY WITH `GR-7`. The bigger box reaches back over
-  // the marker, and the table's printed order settles the shared ground: the
-  // marker answers on its own circle and the icon answers past it. A build
-  // that lifted GR-8 above GR-7 -- or that grew the marker to keep its ground
-  // -- answers the wrong row at one of these two presses.
-  it('the progress marker keeps its own circle, and GR-8 begins past it', () => {
+  // ⭐ CONTROL, AND THE BOUNDARY WITH `GR-7` -- RE-MEASURED ON 2026-09-10.
+  // ⛔⛔ THE TWO ROWS NO LONGER SHARE GROUND HERE. On `S-93` the icon's box
+  // reached 15px either way and covered the marker's circle, so this case
+  // pressed one pixel past the circle and asked for `GR-8`. `S-22` reaches 8,
+  // and the icon on this fixture stands clear of the circle, so that pixel now
+  // answers nothing at all -- which is what the ruling bought: 「再開矢印のつか
+  // みシロが広い 進捗マーカーとサイズを合わせろ。」
+  // ⚠️ AND THE PRINTED ORDER TURNED ROUND, so a case that pressed shared ground
+  // would now expect the ICON: `GR-8` stands ABOVE `GR-7` in table T-023d since
+  // 2026-09-10. ⛔ READ OFF THE MANUSCRIPT, never typed, so a round that moves
+  // the rows again takes this case with it.
+  it('the progress marker keeps its own circle, and GR-8 answers on its own box', () => {
+    const order = specTable('T-023d').rows.map((one) => one.id)
+    expect(order.indexOf('GR-8'), 'table T-023d prints GR-8 above GR-7')
+      .toBeLessThan(order.indexOf('GR-7'))
+    const iconBoxLeft = ICON_CENTRE_X - MARKER_SIZE / 2
+    expect(iconBoxLeft, 'S-22 does not reach back over the marker on this fixture')
+      .toBeGreaterThan(MARKER_CENTRE_X + MARKER_RADIUS)
     expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS, MID_Y)).toBe('GR-7')
-    expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS + 1, MID_Y)).toBe('GR-8')
+    expect(grabOnSuspended(iconBoxLeft + 1, ICON_CENTRE_Y)).toBe('GR-8')
   })
 })
 
@@ -1245,8 +1282,20 @@ describe('where the plan\'s two ends stand on one day, the finish is what answer
   // order and both reach the plan start's own pixel, so a build that lets the
   // order settle it answers the START here -- which the clause's own MUST NOT
   // forbids: 「開始側が本表で上に在ることを理由に、開始側を掴ませてはならない」.
-  it('answers the finish on the plan start\'s own pixel', () => {
-    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X)).toBe('GR-4')
+  it('answers the finish on the collapsed bar\'s own right edge', () => {
+    // ⛔⛔ THE PIXEL PRESSED MOVED ON 2026-09-10, AND THE RULING IS WHY. This
+    // case pressed the plan START's own pixel and asked for `GR-4`, on the
+    // reading that `S-90` reached both ways from each end -- so where the two
+    // ends collapse onto one day the finish's reach covered the start's pixel.
+    // The ruling of 2026-09-09 took the inward hand away: 「予定の端点（`GR-3` /
+    // `GR-4`）の掴み代は端の外側だけに取ること（MUST）」, ⛔ 「予定の端点を端の
+    // 内側へ伸ばしてはならない（MUST NOT）」. ⇒ The finish's ground is now
+    // OUTSIDE its own edge, and `S-49` floors the drawn width so that edge is
+    // still a few pixels from the start's -- which is the ground pressed here.
+    // ⭐ THE CLAUSE THIS SECTION HOLDS IS UNTOUCHED: 「同じ日に潰れた予定や実績
+    // を、もう一度引き伸ばせること」 is what a reachable FINISH is for, and the
+    // case below shows the START answers nowhere at all.
+    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X + FLOORED_PLAN_PX)).toBe('GR-4')
   })
 
   // ⛔ AND THE START ANSWERS NOWHERE ON IT. Every pixel `S-90` reaches to the
@@ -1265,8 +1314,8 @@ describe('where the plan\'s two ends stand on one day, the finish is what answer
   // finish has to be REACHABLE and not merely preferred: a build that refused
   // both ends on a collapsed plan leaves only the body, and the bar can never
   // be stretched again.
-  it('does not fall through to the plan body on the start\'s own pixel', () => {
-    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X)).not.toBe('GR-12')
+  it('does not fall through to the plan body on that edge', () => {
+    expect(grabOnPlan(FLOORED_PLAN_PX, ONE_DAY, PLAN_START_X + FLOORED_PLAN_PX)).not.toBe('GR-12')
   })
 
   // ⭐⭐ THE CASE THAT REFUSES THE WRONG FIX. The SAME drawn width, with the two
@@ -1300,5 +1349,54 @@ describe('where the plan\'s two ends stand on one day, the finish is what answer
       tasks: [{ ...task, shapeKind: 'milestone' }],
     }
     expect(itemAtPointer(asMilestone, PLAN_START_X + 2, MID_Y, SLOP)?.grab).toBe('GR-12')
+  })
+})
+
+// ===========================================================================
+// 10. ⭐ The plan's two ends reach OUTWARDS ONLY
+// ===========================================================================
+//
+// 利用者の裁定 2026-09-09, 逐語「予定開始はレクタングルの左外側、実績開始はレク
+// タングル左内側をつかみシロにする 予定より実績の方を優先する ただし、予定の方が
+// 実績より縦幅が大きい。」
+//
+// ⛔⛔ WHY THIS SECTION WAS RAISED ON 2026-09-10. Three cases of sections 6 and
+// 9 were pointed at new pixels that day because this rule had taken the ground
+// they pressed away from `GR-3` and `GR-4`. ⚠️ MEASURED BEFORE IT WAS WRITTEN:
+// giving `GR-4`'s hand back BOTH sides of the finish -- the reading the ruling
+// struck down -- left `npx vitest run` at ZERO red across 195 files. ⇒ The rule
+// the whole round leant on was held by nothing, and rule 04 section 3.5 admits
+// a unit case for exactly that.
+
+describe('the plan\'s ends reach outside the bar and never inside it', () => {
+  /** Well clear of both dummies of the section-2 fixture, which stand at +24. */
+  const A_FEW_PX = 3
+
+  // ⛔ THE MUST NOT ITSELF, at the FINISH: 「予定の端点を端の内側へ伸ばしては
+  // ならない（MUST NOT）」. ⭐ Inside the bar is the actual's ground and the
+  // body's -- 「端の外は予定、端の内は実績とすること（MUST）」 -- and this Task
+  // carries no actual bar, so what is left there is `GR-12`.
+  it('leaves the pixels inside the finish to GR-12, not to GR-4', () => {
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_FINISH_X - A_FEW_PX)).toBe('GR-12')
+  })
+
+  // ⭐ CONTROL. The same distance on the OTHER side of the same edge is the
+  // finish's own: 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取る
+  // こと（MUST）」. Without this pair the case above would be equally green over
+  // a build that had lost `GR-4` altogether.
+  it('keeps the same distance outside the finish for GR-4', () => {
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_FINISH_X + A_FEW_PX)).toBe('GR-4')
+  })
+
+  // ⛔ AND THE SAME MUST NOT AT THE START. ⚠️ Asked at the HIGH zoom, where
+  // `GR-9` stands a whole day (24px) right of the plan start, so three pixels
+  // in is clear of the dummies' own boxes and the body is what is left.
+  it('leaves the pixels inside the start to GR-12, not to GR-3', () => {
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_START_X + A_FEW_PX)).toBe('GR-12')
+  })
+
+  // ⭐ CONTROL, the start's own half of the pair.
+  it('keeps the same distance outside the start for GR-3', () => {
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_START_X - A_FEW_PX)).toBe('GR-3')
   })
 })

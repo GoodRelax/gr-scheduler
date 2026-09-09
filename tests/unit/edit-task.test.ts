@@ -883,6 +883,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const next = accepted(
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
+        grabbed: 'GR-9',
         uid: 1,
         droppedDay: jan(8),
       }),
@@ -932,7 +933,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const next = accepted(
       run(
         notStarted({ start: jan(9), finish: jan(9), milestone: true }, { shapeKind: 'milestone' }),
-        { kind: 'beginTaskActual', uid: 1, droppedDay: jan(17) },
+        { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-18', droppedDay: jan(17) },
       ),
     )
     const task = taskIn(next, 1)

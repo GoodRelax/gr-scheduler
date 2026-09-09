@@ -850,8 +850,25 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   // at +9px through +15px the actual was written and the plan bar did not move;
   // at +18px the END hold took it and the actual came out the width of the whole
   // drag. The middle of the mark lands in the middle of that window.
+  //
+  // ⛔⛔ AND THE PRESS MOVED OFF THE MIDDLE ON 2026-09-10, WHICH IS NOT A
+  // REGRESSION. The ruling of 2026-09-09 cut the one mark down its centre --
+  // 表 T-023d's closing rule (MUST): 「1 つのダミーの印は、その横幅の中央で左右
+  // に割ること（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
+  // （`GR-17`）とすること（MUST）」 -- and BOTH halves are closed at that centre,
+  // so the middle pixel is claimed by both rows. ⭐ THE MANUSCRIPT DECIDES IT
+  // AND IT DECIDES FOR THE FINISH: 「実績の開始と終了のどちらを掴んだか決められ
+  // ないときは、終了を優先すること（MUST）」, and 表 T-023d prints GR-17 above
+  // GR-9. ⇒ Pressing the exact middle takes the FINISH hold, which pins the
+  // actual start at GR-9's day and writes only a length -- so the day the hand
+  // let go on stops being what the actual starts on, and this case would report
+  // D-182 open again over a build that closed it.
+  // ⭐ WHAT D-182 IS ABOUT IS THE START HOLD, and the quarter is squarely inside
+  // its half: 「左半分を実績の開始側（`GR-9`）」. The window measured above --
+  // +9px to +15px on a 6px day, out of a mark 6px wide standing at +6 -- is the
+  // same ground, and a quarter of the mark's own width lands in it at any zoom.
   const carriedPx = steps * step
-  const from = { x: dummy.x + dummy.width / 2, y: dummy.y + dummy.height / 2 }
+  const from = { x: dummy.x + dummy.width / 4, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
   await page.waitForTimeout(250)
   await page.mouse.down()

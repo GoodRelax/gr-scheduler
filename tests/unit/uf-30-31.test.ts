@@ -2382,8 +2382,11 @@ describe('表 T-023d -- what a grab does', () => {
   it('GR-9 / GR-17 / GR-18 (FR-043): a release on any dummy asks for one CM-14 carrying the day let go on', () => {
     // FR-043 (MUST): 「実績の入力を始める掴みシロを 2 つ…実績の開始点と終了点と
     // して薄くタスクの上に示し、どちらが掴まれたときも実績開始日と実績期間
-    // （`actualDuration`）と `resumeValid`（`true`）を置くこと」。One placement
-    // whichever handle was taken, so ONE command -- and 「掴んで置く値は、実績
+    // （`actualDuration`）と `resumeValid`（`true`）を置くこと」。The same three
+    // columns whichever handle was taken, so ONE command -- ⛔ AND NOT THE SAME
+    // VALUES: 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだ
+    // ときは開始点を予定の開始日の翻稼働日で確定させること（MUST）」, which is
+    // why the row taken travels on the command below. ⭐ And -- and 「掴んで置く値は、実績
     // 開始日 ＝ 掴みシロを離した日」（MUST、利用者の裁定 2026-09-02）, so that
     // one command carries the day the pointer was let go on. ⛔ 「離した日を
     // 稼働日へ寄せてはならない（MUST NOT）」 under table T-023d, so the day is
@@ -2407,6 +2410,19 @@ describe('表 T-023d -- what a grab does', () => {
       // The two spellings of one day differ (`textOfDay` writes the exchange
       // partner's own type), so the comparison is of the day, not the text.
       expect(String(asked['droppedDay']).slice(0, 10), row).toBe(releasedOn)
+      // ⭐⭐ AND WHICH HOLD WAS TAKEN TRAVELS WITH IT (ledger D-415). The two
+      // rows write DIFFERENT columns -- table T-023d GR-9 「掴めば `actualStart`
+      // と `actualDuration` を置く」, GR-17 「掴めば `actualDuration` を置く
+      // （`actualStart` は `GR-9` の日で確定。`FR-043`）」 -- and ⛔ NOTHING
+      // DOWNSTREAM CAN RECOVER IT: both handles stand on ONE drawn mark
+      // (FR-043, MUST: 「ダミーの印は 1 つだけ描くこと」), and the closing rule
+      // splits that one mark down its middle, so which half was pressed is a
+      // fact of the POINTER and this unit is the only place holding it.
+      // ⚠️ MEASURED 2026-09-10: with this line absent, sending `GR-9` for every
+      // hold left `npx vitest run` at ZERO red -- the carry had no anchor at
+      // all, and the whole GR-17 arm of `edit-task.ts` was unreachable in
+      // practice while every case stayed green.
+      expect(asked['grabbed'], row).toBe(row)
     }
   })
 

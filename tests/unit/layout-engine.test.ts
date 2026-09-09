@@ -1500,10 +1500,10 @@ describe('ItemHitArea (PI-7)', () => {
     // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
     fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the 15 x 15 square
     dummyWidth: NOT_STORED_SIZES['S-93'], // S-93 -- ⭐ one number, and a WIDTH, since 2026-09-09
-    // ⭐⭐ THE VERTICAL IS THE ACTUAL BAR'S BAND, not S-93's second number: that
-    // row now reads 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」, and
-    // table T-023d's closing rule says the same of the hold.
-    dummyHeight: settingNumber('basePlanHeight') * settingNumber('actualOfPlan'),
+    // ⭐⭐ AND NOTHING FOR THE VERTICAL: S-93's row now reads
+    // 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」, and
+    // `PointerSlop` stopped carrying a `dummyHeight` on 2026-09-10 -- the hold
+    // takes the band off `DummyGeometry.ink` instead.
     // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
     line: NOT_STORED_SIZES['S-137'],
   }
@@ -1716,7 +1716,18 @@ describe('ItemHitArea (PI-7)', () => {
     )
     // Day 20 is the actual's right end, not the plan's, which stopped at 15.
     expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + MARKER_OFFSET, 6)
-    expect(itemAtPointer(geometry, xOf(20) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    // ⛔⛔ PRESSED ON THE MARKER'S LEFT EDGE RATHER THAN ITS CENTRE SINCE
+    // 2026-09-10, and the printed order is why. Task 2 is 未着手, so it carries
+    // GR-9 and GR-17 -- both ABOVE GR-7 in table T-023d -- and their `S-93`
+    // boxes begin on the working day after Task 2's plan start, one day (6px)
+    // along. The marker's own centre stands 12px along, INSIDE those boxes, so
+    // a press there answers GR-17 and measures the dummies' rule instead of
+    // this one. ⭐ The circle reaches back `markerSize`/2 from its centre, and
+    // the pixel one step inside that left edge is Task 1's marker alone.
+    // ⭐ THE CONTEST IS UNCHANGED: this pixel is still inside Task 2's plan
+    // BODY, so a walk that took Task 2 first and answered GR-12 fails here.
+    const onTheMarkersLeftEdge = xOf(20) + MARKER_OFFSET - settingNumber('markerSize') / 2 + 1
+    expect(itemAtPointer(geometry, onTheMarkersLeftEdge, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-13 takes a dependency line where it runs clear of the bars', () => {

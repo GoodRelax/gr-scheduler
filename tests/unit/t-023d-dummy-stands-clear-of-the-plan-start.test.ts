@@ -287,24 +287,24 @@ const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
 const ZOOM_X = 6
 
 /**
- * The vertical of the dummies' hold, which `S-93` no longer carries: since
- * 2026-09-09 that row is ONE number and a width -- 「本行が定めるのは横だけで
- * ある —— 縦の広がりは実績の帯に従う」 -- and table T-023d's closing rule sends
- * the hold's vertical to the same place: 「ダミーの当たり判定の縦幅は、実績の帯
- * に従うこと（MUST）—— 横は同表の `S-93` が持つ」.
+ * ⭐ THE VERTICAL OF THE DUMMIES' HOLD IS STATED NOWHERE HERE, and that is the
+ * point: `S-93` no longer carries it -- since 2026-09-09 that row is ONE number
+ * and a width, 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」 --
+ * and table T-023d's closing rule sends the hold's vertical to the same place:
+ * 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）—— 横は同表の `S-93`
+ * が持つ」.
  *
- * ⭐ The band is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`), which
- * is where the one-lane rows of these fixtures stand.
+ * ⛔ `PointerSlop` HELD A `dummyHeight` UNTIL 2026-09-10 and this fixture stated
+ * `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`) for it. The hold reads
+ * the band off `DummyGeometry.ink` now, so a caller states nothing for it and
+ * this file cannot state a band the layout does not agree with.
  */
-const ACTUAL_BAND = settingNumber('basePlanHeight') * settingNumber('actualOfPlan')
-
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   dummyWidth: NOT_STORED_SIZES['S-93'],
-  dummyHeight: ACTUAL_BAND,
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -375,6 +375,19 @@ const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 
 /** GR-17: `S-129` worked days past GR-9's day, so the dummy is still that long. */
 const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
+
+/**
+ * How far the finish handle is pulled out, in worked days from GR-9's own day.
+ *
+ * ⭐ FOUR RATHER THAN ONE, so that the length written cannot be mistaken for
+ * `S-129` -- 「掴めば `actualDuration` を置く」 (table T-023d GR-17) is a count
+ * the drag decides, and a pull of exactly `S-129` would be the same number the
+ * other handle writes without counting anything.
+ */
+const PULLED_WORKED_DAYS = 4
+
+/** Where the finish handle is let go: `PULLED_WORKED_DAYS` past GR-9's day. */
+const PULLED_TO_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS)
 
 /**
  * A milestone that has not been started -- table T-023d's GR-18.
@@ -992,6 +1005,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       run(notStarted(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
+        grabbed: 'GR-9',
         droppedDay: stored(DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -1007,26 +1021,72 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     expect(task.resumeValid).toBe(true)
   })
 
-  it('places the same three values from GR-17, because one end is never decided alone', () => {
+  it('pins the start at GR-9 の日 from GR-17, and counts the length out to the release', () => {
+    // ⭐⭐ LEDGER D-415, AND THIS IS THE CASE THAT CLOSES IT. Table T-023d's
+    // GR-17 row: 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
+    // 確定。`FR-043`）」, and FR-043 asks the same from the other side (MUST):
     // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
-    // を … 確定させること（MUST）—— 片端だけが決まった状態を作らない」. Both
-    // handles route to one placement, so the document cannot tell which was
-    // grabbed -- and neither can this case, which is the point.
-    // ⛔⛔ TABLE T-023d's GR-17 ROW ASKS FOR MORE THAN THIS AND IS NOT
-    // IMPLEMENTED. It wants the finish handle to pin the start at GR-9's day
-    // and count the length out to the release. That clause is withheld on
-    // purpose: `edit-task.ts` carries a STOP at the place `actualStart` is
-    // written, saying which two MUSTs collide and that the user's ruling is
-    // awaited. ⭐ SO THIS CASE ASKS WHAT THE PRODUCT ACTUALLY DOES, and will
-    // have to be pointed at the other clause on the day that ruling arrives.
+    // を予定の開始日の翌稼働日で確定させること（MUST）」.
+    // ⛔⛔ WHAT THIS CASE ASSERTED UNTIL 2026-09-10, AND WHY IT WAS WRONG TO. It
+    // said the GR-17 row 「IS NOT IMPLEMENTED」 and asked for the GR-9 answer
+    // instead, because `beginTaskActual` carried no field saying which handle
+    // the hand took and `edit-task.ts` carried a STOP where `actualStart` is
+    // written. ⭐ BOTH ARE GONE: the ruling of 2026-09-09 cut the one drawn mark
+    // down its middle -- 「1 つのダミーの印は、その横幅の中央で左右に割ること
+    // （MUST）」 -- so the two MUSTs stopped colliding, and `TaskCommand` now
+    // carries `grabbed`. ⚠️ MEASURED 2026-09-10 BEFORE THIS CASE EXISTED:
+    // deleting the whole GR-17 arm of `edit-task.ts` left `npx vitest run` at
+    // 51 red of 51 -- not one case anywhere held it.
+    //
+    // ⚠️ THE THREE READINGS ARE THREE DIFFERENT DAYS. `PLAN_START` is a Friday,
+    // so GR-9's day is the Monday after it; the release below is four worked
+    // days past that Monday; and `PLAN_START` itself is neither. ⛔ A build that
+    // sent GR-17 down GR-9's arm writes the RELEASE day and `S-129`, and both
+    // halves of that answer are refused here.
     const built = draw(notStarted())
     expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
     const after = taskIn(
-      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      run(notStarted(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        grabbed: 'GR-17',
+        droppedDay: stored(PULLED_TO_DAY),
+      }),
       UNDER_TEST,
     )
-    expect(dayOf(after.actualStart)).toEqual(dayNamed(DROPPED_DAY))
+    expect(dayOf(after.actualStart), 'T-023d GR-17: `actualStart` は `GR-9` の日で確定')
+      .toEqual(dayNamed(WORKED_DAY_AFTER_START))
+    expect(dayOf(after.actualStart), 'GR-17 does not write the day the hand let go on')
+      .not.toEqual(dayNamed(PULLED_TO_DAY))
+    expect(dayOf(after.actualStart), 'nor the plan start itself')
+      .not.toEqual(dayNamed(PLAN_START))
+    expect(after.actualDuration, 'T-023d GR-17: 掴めば `actualDuration` を置く')
+      .toBe(PULLED_WORKED_DAYS)
+    expect(after.actualDuration, 'and it is NOT S-129, which is GR-9\'s answer')
+      .not.toBe(ACTUAL_INITIAL_DURATION)
+    expect(after.resumeValid).toBe(true)
+  })
+
+  it('⭐ THE CONTRAST: the same release through GR-9 writes the other two values', () => {
+    // ⛔ WITHOUT THIS PAIR EITHER ARM COULD ANSWER FOR BOTH. The case above is
+    // green over a build that pinned EVERY grab at GR-9's day; this one is green
+    // over a build that pinned none. Only both together say the two rows of
+    // table T-023d write different columns -- which is the whole reason
+    // `TaskCommand.grabbed` exists.
+    const after = taskIn(
+      run(notStarted(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        grabbed: 'GR-9',
+        droppedDay: stored(PULLED_TO_DAY),
+      }),
+      UNDER_TEST,
+    )
+    expect(dayOf(after.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日')
+      .toEqual(dayNamed(PULLED_TO_DAY))
+    expect(dayOf(after.actualStart)).not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
     expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    expect(after.resumeValid).toBe(true)
   })
 
   it('starts the actual bar where the hand let go, NOT where GR-9 is drawn', () => {
@@ -1040,6 +1100,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     const handleX = dummyNamed(taskDrawn(drawnBefore), 'GR-9').at.x
     const begun = run(notStarted(), {
       kind: 'beginTaskActual',
+      grabbed: 'GR-9',
       uid: UNDER_TEST,
       droppedDay: stored(DROPPED_DAY),
     })
@@ -1136,6 +1197,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
     const task = taskIn(
       run(milestone(), {
         kind: 'beginTaskActual',
+        grabbed: 'GR-18',
         uid: UNDER_TEST,
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
@@ -1157,6 +1219,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
     const task = taskIn(
       run(milestone(), {
         kind: 'beginTaskActual',
+        grabbed: 'GR-18',
         uid: UNDER_TEST,
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
@@ -1181,6 +1244,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
         taskIn(
           run(milestone(), {
             kind: 'beginTaskActual',
+            grabbed: 'GR-18',
             uid: UNDER_TEST,
             droppedDay: stored(iso),
           }),

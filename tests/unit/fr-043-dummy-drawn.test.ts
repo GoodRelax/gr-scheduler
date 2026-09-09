@@ -877,20 +877,46 @@ const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
 }
 
 /**
- * The dummy ink of a not-started rectangle Task: what the fresh picture draws
- * and the started twin does not, standing in the actual bar's own band.
+ * The dummy FIGURES of a not-started rectangle Task: what the fresh picture
+ * draws and the started twin does not, standing in the actual bar's own band --
+ * and not being the not-started marker.
  *
  * ⭐ The band is S-180's own rule for the vertical (「縦の広がりは実績バーの帯に
  * 従う」), so selecting on it names the dummies without naming a tag -- and
  * without using the x this file is about to measure.
+ *
+ * ⛔⛔ THE MARKER HAD TO BE TAKEN OUT ON 2026-09-10, and no defect made it so.
+ * `drawnAt`'s own note says the not-started marker survives the subtraction --
+ * PM-1a and PM-1 are different figures -- and it used to be told from a dummy
+ * by its BOX: the band was `S-4` x `S-5` and the marker `S-22` square, which
+ * were far apart. ⚠️ `S-5` was re-chosen as `actualMin` (`S-6`, 16px) over
+ * `S-4` (28px), so the band is now 16.002px tall and the marker's 16px square
+ * lands on the same rounded top and bottom. ⇒ Selecting on the band alone
+ * answers TWO figures for one mark, and every case that counted them read the
+ * marker as a second dummy. ⭐ Named by the marker's own centre, exactly the
+ * way `gr18InkOf` above names it.
  */
-const dummyInkOf = (fresh: Drawn, started: Drawn): readonly Box[] => {
+const dummyFiguresOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   const band = actualBandOf(started)
-  return onlyIn(fresh.svg, started.svg)
-    .filter((figure) => figure.box !== null && sameOnGrid(figure.box.y0, band.y0) && sameOnGrid(figure.box.y1, band.y1))
+  const marker = geometryOf(fresh, UNDER_TEST).marker
+  const isTheMarker = (box: Box): boolean =>
+    marker !== null &&
+    sameOnGrid((box.x0 + box.x1) / 2, marker.centre.x) &&
+    sameOnGrid((box.y0 + box.y1) / 2, marker.centre.y)
+  return onlyIn(fresh.svg, started.svg).filter(
+    (figure) =>
+      figure.box !== null &&
+      !isTheMarker(figure.box) &&
+      sameOnGrid(figure.box.y0, band.y0) &&
+      sameOnGrid(figure.box.y1, band.y1),
+  )
+}
+
+/** The same figures as their boxes, left to right. */
+const dummyInkOf = (fresh: Drawn, started: Drawn): readonly Box[] =>
+  dummyFiguresOf(fresh, started)
     .map((figure) => figure.box as Box)
     .sort((one, other) => one.x0 - other.x0)
-}
 
 // ---------------------------------------------------------------------------
 // The instrument, checked against a picture whose dummies this file put there
@@ -1151,10 +1177,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     // 濃さの値は `S-131`」.
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
-    const band = actualBandOf(started)
-    const inks = onlyIn(fresh.svg, started.svg).filter(
-      (one) => one.box !== null && sameOnGrid(one.box.y0, band.y0) && sameOnGrid(one.box.y1, band.y1),
-    )
+    const inks = dummyFiguresOf(fresh, started)
     // ⭐ ONE, since 利用者の裁定 2026-09-08 -- 「ダミーの印は 1 つだけ描くこと」.
     // ⚠️ THE COUNT IS HERE ONLY SO THE LOOP CANNOT BE EMPTY: a faintness case
     // over no ink at all would be green whatever the picture did.
@@ -1174,9 +1197,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     expect(bar.length, 'the twin drew no actual bar').toBeGreaterThan(0)
     const inherited = new Set(bar.flatMap((one) => one.colours))
-    const inks = onlyIn(fresh.svg, started.svg).filter(
-      (one) => one.box !== null && sameOnGrid(one.box.y0, band.y0) && sameOnGrid(one.box.y1, band.y1),
-    )
+    const inks = dummyFiguresOf(fresh, started)
     // ⭐ ONE (FR-043, 利用者の裁定 2026-09-08), for the same reason the faintness
     // case above states its count: an empty loop would prove nothing.
     expect(inks.length, 'no dummy ink to judge the colours of').toBe(1)
