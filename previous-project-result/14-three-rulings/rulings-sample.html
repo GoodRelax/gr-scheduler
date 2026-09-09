@@ -1,0 +1,319 @@
+<title>裁定 3 件 —— 掴みシロの残り</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f5f7fa; --surface:#ffffff; --surface-2:#eef1f6;
+  --ink:#0f1720; --ink-2:#48566d; --ink-3:#78869c;
+  --rule:#d7dde7;
+  --plan:#bccbe2; --plan-edge:#7e96bd; --actual:#3d5f96;
+  --grab:#cf1288; --grab-ink:#a30c69;
+  --out:#0e7c86;
+  --warn:#b4530a; --good:#12734a; --bad:#b3261e;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Noto Sans JP","Zen Kaku Gothic New",system-ui,sans-serif;
+  font-size:16px;line-height:1.7;}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 96px}
+h1{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:30px;
+  line-height:1.35;margin:0 0 6px;letter-spacing:.01em}
+h2{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:22px;
+  margin:56px 0 4px;padding-top:22px;border-top:2px solid var(--ink);letter-spacing:.01em}
+h3{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:17px;margin:30px 0 8px}
+p{margin:10px 0}
+.lede{color:var(--ink-2);font-size:15px;margin:0 0 4px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;
+  padding:20px 22px;margin:18px 0}
+.card.q{border-color:var(--grab);border-width:2px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px}
+th,td{border:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:700;font-size:13.5px}
+td.n{font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12.5px;
+  font-weight:700;vertical-align:2px}
+.pill.rec{background:var(--good);color:#fff}
+.scale{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;
+  padding:3px 10px;font-size:13px;font-weight:700;font-family:"IBM Plex Mono",monospace}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0 4px;font-size:13.5px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:7px}
+.sw{width:16px;height:16px;border-radius:3px;display:inline-block}
+figure{margin:16px 0 6px}
+figure svg{display:block;width:100%;height:auto}
+figcaption{font-size:13.5px;color:var(--ink-2);margin-top:6px}
+.note{background:var(--surface-2);border-left:4px solid var(--ink-3);
+  padding:10px 14px;margin:14px 0;font-size:14.5px}
+.note.warn{border-left-color:var(--warn)}
+.note.stop{border-left-color:var(--bad)}
+.note.star{border-left-color:var(--good)}
+blockquote{margin:12px 0;padding:10px 16px;border-left:4px solid var(--grab);
+  background:rgba(207,18,136,.13);font-weight:700}
+ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
+.foot{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--ink-3)}
+</style>
+<div class="wrap">
+
+<h1>裁定 3 件 —— 掴みシロの残り</h1>
+<p class="lede">2026-09-11 / 出荷ビルドの実測にもとづく。<b>触れるサンプルではない。図と表だけである。</b></p>
+
+<div class="note star">
+<b>この巡でやったこと</b>：掴みシロの裁定 7 件（<code>R-34</code>〜<code>R-40</code>）が仕様と造りに下り、
+既知の不具合が <b>5 行 → 2 行</b>になった。出荷ビルドを押した受け入れ 11 項目のうち <b>9 件が合格</b>。
+<b>この 3 件だけが、私では裁けずに残っている。</b>
+</div>
+
+<div class="note">
+<span class="scale">図はすべて実寸の ×4</span>
+数はすべて出荷ビルド（1920×1080、既定倍率で 1 日 6px）で測った値である。
+<b>比は崩していない</b> —— 予定 28px・実績 16.002px・1 日 6px を、そのまま 4 倍で描いている。
+</div>
+
+<div class="legend">
+  <span><i class="sw" style="background:#bccbe2"></i>予定バー（28px）</span>
+  <span><i class="sw" style="background:#3d5f96"></i>実績バー（16.002px）</span>
+  <span><i class="sw" style="background:#cf1288"></i>掴みシロ（実績側）</span>
+  <span><i class="sw" style="background:#0e7c86"></i>掴みシロ（予定側）</span>
+</div>
+
+<h2>裁定 ① ダミーの掴み代を、どこまで取るか</h2>
+<p class="lede"><code>D-424</code> / <code>PD-444</code> ——
+<b>この 3 件のうち、これだけが本物の「未解決の不具合」である。</b></p>
+
+<h3>いま起きていること（実測）</h3>
+<p><b>着手済</b>の 1 日の実績と、<b>未着手</b>のダミーで、掴み代の<b>横幅が合っていない</b>。
+縦は一致している（どちらも実績の帯 16.002px）。</p>
+
+<figure>
+<svg viewBox="0 0 1000 310" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="13">
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#0f1720">着手済 —— 1 日の実績</text>
+  <rect x="120" y="30" width="288" height="112" fill="#bccbe2" stroke="#7e96bd"/>
+  <rect x="120" y="54" width="24" height="64" fill="#3d5f96"/>
+  <rect x="120" y="54" width="16" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <rect x="132" y="54" width="12" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <text x="430" y="60" fill="#a30c69" font-weight="700">GR-5 = 4px（内側だけ）</text>
+  <text x="430" y="82" fill="#a30c69" font-weight="700">GR-6 = 3px（内側だけ）</text>
+  <text x="430" y="104" fill="#48566d">合わせて 1 日ぶん（6px）に収まっている</text>
+
+  <text x="0" y="192" font-size="14" font-weight="700" fill="#0f1720">未着手 —— ダミー（いま）</text>
+  <rect x="120" y="206" width="288" height="112" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="230" width="24" height="64" fill="#3d5f96" opacity=".38"/>
+  <rect x="120" y="230" width="12" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <rect x="132" y="230" width="132" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <text x="430" y="236" fill="#b3261e" font-weight="700">GR-17 = 34px　⛔ 描いた印の 10 倍まで伸びている</text>
+  <text x="430" y="258" fill="#a30c69" font-weight="700">GR-9 = 3px</text>
+  <text x="430" y="280" fill="#48566d">描かれている印は 6px（濃い帯）だけである</text>
+</svg>
+<figcaption>実測（1920×1080、1 日 6px）。<b>右端だけが 10 倍に伸びている。</b>
+原因は <code>GR-17</code> が「印の右半分」に加えて、1 稼働日ぶん右に立つ <code>S-93</code> の 30px の箱にも答えるためである。</figcaption>
+</figure>
+
+<h3>なぜ私では裁けないか —— ご自身の裁定が 2 つ衝突している</h3>
+<table>
+<tr><th style="width:100px"></th><th style="width:150px">裁定</th><th>逐語</th></tr>
+<tr><td><b>新</b><br>2026-09-09</td><td><code>R-36</code></td>
+<td><blockquote style="margin:0">未着手のつかみシロが着手済と形状が違い混乱する。 形状を合わせろ。 実績の幅に比べて予定の横幅が狭い。 縦幅の差は意図しているが、<b>横幅は合わせろ</b>。</blockquote></td></tr>
+<tr><td><b>旧</b><br>2026-09-02</td><td>表 T-023d の結び</td>
+<td><blockquote style="margin:0"><code>GR-9</code> / <code>GR-17</code> / <code>GR-18</code> の当たり判定は、その日の列の左端を起点に、右へ <code>S-93</code> の幅で取ること（<b>MUST</b>）</blockquote>
+<span style="font-size:13.5px;color:#48566d">目的は「Zoom Out して 1 日の表示が潰れてもダミーの実績を入力できるように」であった。</span></td></tr>
+</table>
+<p><code>R-36</code> は旧裁定を<b>名指しで取り下げていない</b>。⇒ MUST どうしの衝突であり、前に立つ者が裁くと三度目を問わせることになる。</p>
+
+<h3>案は 3 つある</h3>
+<figure>
+<svg viewBox="0 0 1000 430" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="13">
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#12734a">案 ① 印の 2 半分だけにする（R-36 を採る）</text>
+  <rect x="120" y="28" width="288" height="112" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="52" width="24" height="64" fill="#3d5f96" opacity=".38"/>
+  <rect x="120" y="52" width="12" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <rect x="132" y="52" width="12" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <text x="430" y="58" fill="#12734a" font-weight="700">GR-9 = 3px ／ GR-17 = 3px</text>
+  <text x="430" y="80" fill="#48566d">⭐ 着手済の実績と 完全に同じ形 になる</text>
+  <text x="430" y="102" fill="#48566d">⭐ 見える印と掴める所が 1 画素も食い違わない</text>
+  <text x="430" y="124" fill="#b3261e">⛔ 低倍率では印とともに縮む</text>
+
+  <text x="0" y="186" font-size="14" font-weight="700" fill="#78869c">案 ② いまのまま（S-93 の 30px を残す）</text>
+  <rect x="120" y="198" width="288" height="112" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="222" width="24" height="64" fill="#3d5f96" opacity=".38"/>
+  <rect x="120" y="222" width="12" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <rect x="132" y="222" width="132" height="64" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <text x="430" y="228" fill="#b3261e" font-weight="700">GR-9 = 3px ／ GR-17 = 34px</text>
+  <text x="430" y="250" fill="#48566d">⭐ 低倍率でも掴める（2026-09-02 の目的を守る）</text>
+  <text x="430" y="272" fill="#b3261e">⛔ 「形状が違い混乱する」が既定倍率で残る</text>
+
+  <text x="0" y="356" font-size="14" font-weight="700" fill="#b4530a">案 ③ S-93 の箱 自体 を左右に割る</text>
+  <rect x="120" y="368" width="288" height="56" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="380" width="24" height="32" fill="#3d5f96" opacity=".38"/>
+  <rect x="72" y="380" width="60" height="32" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <rect x="132" y="380" width="60" height="32" fill="rgba(207,18,136,.32)" stroke="#cf1288"/>
+  <text x="430" y="386" fill="#b4530a" font-weight="700">GR-9 = 15px ／ GR-17 = 15px（印の中心を基準に対称）</text>
+  <text x="430" y="408" fill="#48566d">⭐ 対称で低倍率でも掴めるが、⛔ 着手済より 5 倍広い</text>
+</svg>
+</figure>
+
+<h3>⭐ 低倍率の代償は、実測すると「着手済と同じ」であった</h3>
+<p>案 ① の唯一の代償は「低倍率で掴めなくなること」である。<b>それが着手済の実績と違うのかを測った。</b></p>
+<table>
+<tr><th>倍率</th><th class="n">ダミーのインク</th><th class="n">着手済 1 日の実績</th><th>差</th></tr>
+<tr><td>既定（1 日 6px）</td><td class="n">6.00px</td><td class="n">6.00px</td><td>なし</td></tr>
+<tr><td>−2 段</td><td class="n">4.95px</td><td class="n">4.96px</td><td>0.01px</td></tr>
+<tr><td>−4 段</td><td class="n">4.09px</td><td class="n">4.10px</td><td>0.01px</td></tr>
+<tr><td>−6 段</td><td class="n">3.39px</td><td class="n">3.39px</td><td>なし</td></tr>
+<tr><td>−8 段</td><td class="n">2.79px</td><td class="n">2.80px</td><td>0.01px</td></tr>
+<tr><td>−10 段</td><td class="n">2.32px</td><td class="n">2.32px</td><td>なし</td></tr>
+</table>
+<div class="note star">
+<b>⭐ 実測の意味</b>：<code>S-49</code>（<code>minShapeWidth</code> 6px）の床は<b>予定の形状にだけ</b>掛かり、
+実績バーには掛かっていない。⇒ <b>ダミーのインクと着手済の 1 日の実績は、どの倍率でも同じ幅で縮む。</b><br>
+⇒ 案 ① を採ったとき低倍率で掴みにくくなるのは事実だが、<b>それは着手済の 1 日の実績で既に起きていることと同一であり、
+そちらには苦情が出ていない。</b>
+</div>
+
+<div class="card q">
+<h3 style="margin-top:0">裁定 ① <span class="pill rec">推し = 案 ①</span></h3>
+<p><b>推す理由 3 つ</b></p>
+<ul>
+<li><code>R-36</code> のほうが<b>新しく</b>、しかも「<b>横幅</b>」を名指しで裁いている</li>
+<li>低倍率で入力できない代償には<b>他の道がある</b> ——
+プロパティパネルの <code>PR-4</code>（実績開始日）／<code>PR-5</code>（実績期間）が直接編集できる。
+⭐ <code>R-28</code> のとき<b>ご自身が</b>「拡大すれば予定は編集できる」と同じ形で裁いておられる</li>
+<li>低倍率での掴みにくさは<b>着手済の 1 日の実績と寸分違わない</b>（上の表、実測）</li>
+</ul>
+<div class="note stop" style="margin-bottom:0"><b>⛔ 代償を正直に書く</b>：案 ① を採ると、
+<b>1 日が 3px を切る倍率では、ダミーを掴んで実績を入れる道は事実上閉じる。</b>
+（同じ倍率で着手済の実績も掴めないので、新たに失うものではない。）
+案 ② を採ると、<b>「混乱する」と仰った形の違いが既定倍率で残る。</b></div>
+</div>
+
+<h2>裁定 ② 動かさない 1 回のクリックで、ダミーは書くべきか</h2>
+<p class="lede">この巡で私が入れた<b>副作用</b>である。⛔ 直したことの代償なので、是非を仰いでいただきたい。</p>
+
+<h3>直した不具合（<code>D-423</code>）</h3>
+<p>未着手のダミーを<b>ダブルクリック</b>すると、パネルが開くと同時に<b>タスクが着手済になっていた</b>。
+書いていたのは <b>1 回目</b>のクリックで、答えていた行は <code>GR-17</code> であった。
+⇒ 引いていないので長さが 0 になり、<b>幅 0px の実績バー</b>が書かれていた。</p>
+
+<figure>
+<svg viewBox="0 0 1000 290" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="13">
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#b3261e">直す前 —— ダブルクリック</text>
+  <rect x="120" y="30" width="240" height="80" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="46" width="24" height="48" fill="#3d5f96" opacity=".38"/>
+  <circle cx="132" cy="70" r="10" fill="none" stroke="#cf1288" stroke-width="3"/>
+  <text x="400" y="50" fill="#b3261e" font-weight="700">1 回目 → 実績を書いた（幅 0px）</text>
+  <text x="400" y="72" fill="#48566d">2 回目 → パネルが開く</text>
+  <text x="400" y="94" fill="#b3261e">⛔ 印が、押した直後に消えていた</text>
+
+  <text x="0" y="166" font-size="14" font-weight="700" fill="#12734a">直したあと</text>
+  <rect x="120" y="180" width="240" height="80" fill="#bccbe2" stroke="#7e96bd" opacity=".55"/>
+  <rect x="120" y="196" width="24" height="48" fill="#3d5f96" opacity=".38"/>
+  <circle cx="132" cy="220" r="10" fill="none" stroke="#12734a" stroke-width="3"/>
+  <text x="400" y="200" fill="#12734a" font-weight="700">1 回目 → 何も書かない</text>
+  <text x="400" y="222" fill="#48566d">2 回目 → パネルが開く（名称の欄に焦点＋全選択）</text>
+  <text x="400" y="244" fill="#12734a">⭐ 印は残ったまま</text>
+</svg>
+</figure>
+
+<h3>どう直したか、と その副作用</h3>
+<blockquote><code>S-208</code>（6px）を超えて動いていない解放は、<code>MK-13</code> が宛先を持つ行に対して何も書かない</blockquote>
+<div class="note warn">
+<b>⚠️ 副作用</b>：<b>動かさない 1 回のクリックでも、ダミーは実績を書かなくなった。</b>
+⭐ 引いたときは今も書く（実測 48px）。<br>
+⭐ 根拠は <code>FR-001</code> の<b>「タスクはドラッグ必須」</b>（ご裁定 2026-09-07）と同じ形である ——
+同じ手の動きに同じ値（<code>S-208</code>）を使い、別に持たない。
+</div>
+<p>⭐ 体が全行を数えたところ、<b>13 行</b>が距離 0 の解放で書いており、<b>7 行</b>を黙らせた
+（<code>GR-5</code> / <code>GR-6</code> / <code>GR-9</code> / <code>GR-12</code> / <code>GR-15</code> / <code>GR-17</code> / <code>GR-18</code>）。
+残る 6 行は <code>MK-13</code> が宛先を持たない行なので触っていない。</p>
+
+<div class="card q">
+<h3 style="margin-top:0">裁定 ② <span class="pill rec">推し = 現状を是とする</span></h3>
+<table>
+<tr><th style="width:150px">案</th><th>中身</th><th style="width:290px">代償</th></tr>
+<tr><td><b>案 A</b> <span class="pill rec">推し</span></td><td>現状のまま。<b>引かないと書かない</b></td>
+<td>1 クリックで実績を入れていた方には手数が 1 つ増える</td></tr>
+<tr><td><b>案 B</b></td><td>クリックでも書く。ダブルクリックのときだけ取り消す</td>
+<td>⛔ 「押した直後に取り消される」絵が見える。⛔ 造りも複雑になる</td></tr>
+</table>
+</div>
+
+<h2>裁定 ③ 「20px 往復で入れ替わり 2 回以下」を条項にするか</h2>
+<p class="lede">前回の見本が掲げた受け入れ項目のうち、<b>これだけ届かなかった</b>。</p>
+
+<table>
+<tr><th>測ったこと</th><th class="n">直す前</th><th class="n">いま</th><th class="n">見本の合格</th></tr>
+<tr><td>タスクの上をポインタが 20px 往復したとき、掴む対象が入れ替わる回数</td>
+<td class="n">22 回</td><td class="n">最大 6 回</td><td class="n">2 回以下</td></tr>
+</table>
+<p>60 か所（横 57・縦 3）を各 41 点で測り、入れ替わりは <code>{0 回:48, 2 回:7, 4 回:3, 6 回:2}</code>。
+<b>ちらつきは無い</b> —— どの往復も 1 つの連続した塊で、戻りは行きを正確に鏡写しにしている。</p>
+
+<h3>なぜ 6 回になるのか —— 幾何であって、ぶれではない</h3>
+<figure>
+<svg viewBox="0 0 1000 250" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="13">
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#b4530a">予定の開始日が、実績の開始日の 1 日前にあるとき</text>
+  <rect x="120" y="34" width="52" height="56" fill="rgba(14,124,134,.22)" stroke="#0e7c86"/>
+  <rect x="172" y="34" width="20" height="56" fill="#bccbe2" stroke="#7e96bd"/>
+  <rect x="192" y="34" width="52" height="56" fill="rgba(207,18,136,.28)" stroke="#cf1288"/>
+  <rect x="140" y="24" width="80" height="76" fill="none" stroke="#0f1720" stroke-dasharray="5 4" stroke-width="2"/>
+  <text x="118" y="112" fill="#0e7c86" font-weight="700">GR-3 (13px)</text>
+  <text x="160" y="130" fill="#48566d">GR-12 (5px)</text>
+  <text x="212" y="112" fill="#a30c69" font-weight="700">GR-5 (13px)</text>
+  <text x="290" y="50" fill="#0f1720" font-weight="700">20px の窓（点線）に 3 つの領域が入る ⇒ 往復で 4〜6 回</text>
+  <text x="290" y="72" fill="#48566d">31px の中に 3 領域が並ぶので、窓のほうが狭い</text>
+
+  <text x="0" y="180" font-size="14" font-weight="700" fill="#12734a">予定と実績の開始日が 同じ 日のとき</text>
+  <rect x="120" y="192" width="52" height="40" fill="rgba(14,124,134,.22)" stroke="#0e7c86"/>
+  <rect x="172" y="192" width="52" height="40" fill="rgba(207,18,136,.28)" stroke="#cf1288"/>
+  <text x="290" y="208" fill="#12734a" font-weight="700">2 領域だけ ⇒ ちょうど 2 回（実測、task 964）</text>
+  <text x="290" y="230" fill="#48566d">⭐ 見本が想定していたのは、こちらの形である</text>
+</svg>
+</figure>
+
+<div class="card q">
+<h3 style="margin-top:0">裁定 ③ <span class="pill rec">推し = 見本の数を取り下げる</span></h3>
+<div class="note">
+<b>⛔ 事実</b>：この数を縛る条項は <code>docs/spec</code> に<b>1 つも無い</b>。
+⭐ <b>見本は仕様ではない</b>（<code>R-40</code> がそう定めている）。
+</div>
+<table>
+<tr><th style="width:150px">案</th><th>中身</th><th style="width:290px">代償</th></tr>
+<tr><td><b>案 A</b> <span class="pill rec">推し</span></td>
+<td>見本の「2 回以下」を取り下げる。<b>22 回 → 6 回</b>という改善を記録として残す</td>
+<td>次に増えても機械が捕まえない</td></tr>
+<tr><td><b>案 B</b></td><td>条項を立てる（例：「20px の窓に 3 つ以上の掴みシロを並べてはならない」）</td>
+<td>⛔ <code>GR-3</code>／<code>GR-12</code>／<code>GR-5</code> のどれかを削るしかなく、<b>裁定 ① と衝突する</b></td></tr>
+</table>
+</div>
+
+<h2>まとめ —— この 3 件が決まれば、既知の不具合は 0 になる</h2>
+<table>
+<tr><th style="width:56px"></th><th>問い</th><th style="width:230px">推し</th><th style="width:210px">代償</th></tr>
+<tr><td><b>①</b></td><td>ダミーの掴み代を、印の 2 半分だけにするか</td>
+<td><span class="pill rec">案 ①（<code>R-36</code> を採る）</span></td>
+<td>1 日が 3px を切る倍率で、掴んで入れる道が閉じる</td></tr>
+<tr><td><b>②</b></td><td>動かさない 1 回のクリックで、ダミーは書くべきか</td>
+<td><span class="pill rec">現状を是とする（引かないと書かない）</span></td>
+<td>1 クリック派には手数が 1 つ増える</td></tr>
+<tr><td><b>③</b></td><td>「20px で 2 回以下」を条項にするか</td>
+<td><span class="pill rec">見本の数を取り下げる</span></td>
+<td>次に増えても機械が捕まえない</td></tr>
+</table>
+
+<div class="note stop">
+<b>⛔ 触っていない行が 1 つある</b> —— <code>D-311</code>（第 8・9・10 章が空の器のまま）。
+2026-09-06 に<b>「試験の章は一旦そのまま」</b>と裁定されているので、この巡でも 1 文字も触っていない。
+⚠️ <b>章が空でも試験が無いわけではない</b> —— 実際には 197 ファイル・7447 件が動いている。空なのは仕様書の章だけである。
+</div>
+
+<p class="foot">
+出典はすべて実物。数は 2026-09-11 に <code>dist/index.html</code> を Chromium で開き、
+<code>FR-102</code>／<code>IC-76</code> の記録（<code>down</code> の次の <code>done</code> 行の <code>grab=</code>）を証人として採った。
+1 押しにつき盤面を 1 つ作り直している（規則 04 の 6.10）。
+設定値は <code>_assets/tbl-settings.md</code>（S-4 28px ／ S-5 0.5715 ／ S-6 16px ／ S-22 16px ／
+S-49 6px ／ S-90 12px ／ S-91 12px ／ S-93 30px ／ S-129 1 稼働日 ／ S-137 線の左右に 6px ／ S-180 30px ／ S-208 6px）。
+優先順位と操作は 表 T-023d、ダミーの描き方は <code>FR-043</code>。
+裁定の逐語は <code>docs/development-records/rulings.md</code>、問いは同 <code>pending-decisions.md</code> の <code>PD-444</code>。
+</p>
+</div>
