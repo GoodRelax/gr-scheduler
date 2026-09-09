@@ -49,7 +49,13 @@
 // ---------------------------------------------------------------------------
 //   - What a press on the LANE OUTSIDE the grip does. GR-21 says of itself
 //     「つまみの外の帯を押したときの振る舞いは、本行は定めない（未決）」.
-//   - The grip's exact length. `tests/unit/uf-61.test.ts` holds that half.
+//   - The grip's exact length.
+//     `tests/unit/d-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
+//     that half. ⚠️ THIS LINE USED TO NAME `tests/unit/uf-61.test.ts`, AND THAT
+//     WAS FALSE (台帳 D-405, measured 2026-09-08): that file asserts only that
+//     the grip is wider and taller than nought, so halving the length, taking
+//     the floor away and returning the grip to the whole lane each took ZERO
+//     cases red.
 //   - How far one pixel of pointer carries the picture. That is the
 //     translator's gearing, and no row of docs/spec fixes a number for it --
 //     these cases assert only THAT the picture moved and that it moved ONCE.

@@ -61,6 +61,16 @@
 //      position as a date and a row id, not as a fraction, and neither reaches
 //      this function. So the grip is asserted to sit inside its lane and to be
 //      grabbable, and never at a length.
+//      ⛔⛔ THAT PARAGRAPH IS NO LONGER TRUE OF THE SPECIFICATION, and it is
+//      left standing only as the record of when it was: `GR-21` of table T-023d
+//      now states the length outright (「見えている範囲 ÷ 全体」, floored at
+//      `S-205`) and `ScreenSession.scrollExtent` brings both numbers to this
+//      function. ⚠️ Nothing here was widened, because rule 04 section 1 keeps
+//      the writing of these cases with a party that reads docs/spec alone;
+//      `tests/unit/d-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
+//      the length and
+//      `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+//      the place.
 
 import { describe, expect, it } from 'vitest'
 
