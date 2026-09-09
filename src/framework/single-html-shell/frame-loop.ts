@@ -1621,6 +1621,14 @@ type NoticeReason =
   // `REFUSAL_SITUATIONS` below is that road; ⚠️ each row's 正 is what the road
   // is keyed on, so a refusal is matched by the rule that refused it.
   | 'RS-55'
+  // ⭐ `RS-56` 「同じ `Task` を、依存の先行と後続の両方にしようとした」, seated
+  // 2026-09-09. ⚠️ IT WAS LEFT OUT WHEN THE OTHER THREE WERE SEATED, and the
+  // reason was measured rather than guessed: its 正 is FR-009, which forbids
+  // THREE dependencies in one sentence, so `command` and `rule` alone could not
+  // tell this one from the other two. ⭐ `Refusal.reasonCategory` (AG-9a of
+  // table T-035) is what tells them apart now, and `REFUSAL_SITUATIONS` below
+  // reads it.
+  | 'RS-56'
   | 'RS-57'
   | 'RS-58'
 
@@ -1713,11 +1721,11 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // taken here: the person's input was not accepted, and nothing of ours
   // failed -- which is the line `NT-1` and `NT-3a` are drawn along.
   'RS-54': 'NT-1',
-  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR ALL THREE, not a reading
-  // taken here: the three name an input that was not accepted, and nothing of
-  // ours failed. ⚠️ `RS-56` HAS NO ENTRY BECAUSE IT HAS NO SEAT ABOVE, and the
-  // note over `RS-55` in that union says why the seat is owed rather than taken.
+  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR ALL FOUR, not a reading
+  // taken here: the four name an input that was not accepted, and nothing of
+  // ours failed.
   'RS-55': 'NT-1',
+  'RS-56': 'NT-1',
   'RS-57': 'NT-1',
   'RS-58': 'NT-1',
 }
@@ -1800,16 +1808,18 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
  * crosses the seam on `Refusal.command`, and this side compares the string it
  * is handed.
  *
- * ⛔⛔ `RS-56` IS NOT BELOW, AND ITS ABSENCE IS A THING MEASURED RATHER THAN AN
- * OMISSION (2026-09-09). That row is 「同じ `Task` を、依存の先行と後続の両方に
- * しようとした」 and its 正 is FR-009 -- but FR-009 forbids THREE dependencies in
- * one sentence and gives none of the three a row ID, so `edit-dependency.ts`
- * spells all four of its refusals `CM-36` against `FR-009` (three of them there,
- * plus `CM-38`'s missing dependency). ⛔ Command and rule together therefore
- * cannot tell 「両端が同じ」 from 「同じ対の重複」 or 「端点がタスクでない」, and
- * an entry keyed on the pair would hand `RS-56`'s words to the other two. ⭐ What
- * is owed is either row IDs for FR-009's three prohibitions or a finer 「理由の
- * 区分」 on `Refusal` (AG-9a of table T-035); neither is this file's to invent.
+ * ⭐⭐ AND `reasonCategory` NARROWS IT WHERE THE PAIR ITSELF REFUSES FOR MORE
+ * THAN ONE SITUATION, which is what `RS-56` needed (2026-09-09). That row is
+ * 「同じ `Task` を、依存の先行と後続の両方にしようとした」 and its 正 is FR-009 --
+ * but FR-009 forbids THREE dependencies in ONE sentence and gives none of the
+ * three a row ID, so `edit-dependency.ts` spells all four of its refusals
+ * `CM-36` against `FR-009` (three of them there, plus `CM-38`'s missing
+ * dependency). ⛔ Command and rule together therefore cannot tell 「両端が同じ」
+ * from 「同じ対の重複」 or 「端点がタスクでない」, and an entry keyed on the pair
+ * alone would hand `RS-56`'s words to the other two. ⭐ `Refusal.reasonCategory`
+ * is AG-9a's 「理由の区分」, written by the side that knows which prohibition it
+ * refused, and read here; the SPELLING is the use-case layer's own, because the
+ * specification names no categories.
  */
 interface RefusalSituation {
   /** The row of table T-233 this situation is told on. */
@@ -1818,6 +1828,14 @@ interface RefusalSituation {
   readonly command: string | null
   /** The requirement, table row or settings row named in that reason's 正. */
   readonly rule: string
+  /**
+   * AG-9a's 「理由の区分」, or absent where command and rule already settle it.
+   *
+   * ⛔ A SITUATION THAT NAMES ONE MATCHES ONLY A REFUSAL CARRYING THE SAME ONE.
+   * The four entries that name none are unaffected: no rule appears in both
+   * halves of this table, so nothing here reads a refusal two ways.
+   */
+  readonly reasonCategory?: Refusal['reasonCategory']
 }
 
 const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
@@ -1833,6 +1851,16 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   // 来ており、理由も 1 つ」, and HM-4 is that one prohibition. Both roads spell it
   // (`CM-73` for the row tree, `CM-18` for the WBS parent) and both are this row.
   { reason: 'RS-55', command: null, rule: 'HM-4' },
+  // `RS-56`, 正 `FR-009` -- 「同じ `Task` を、依存の先行と後続の両方にしようとし
+  // た」. ⛔ THE ONLY ENTRY OF THIS TABLE THAT NAMES A CATEGORY, and the reason
+  // is FR-009's own shape: 「次の依存を作ってはならない（MUST NOT）」 lists three
+  // prohibitions in one sentence -- 自己参照, the duplicate pair, and an end that
+  // is neither task nor milestone -- and table T-233 gives a row to the FIRST
+  // alone. ⭐ The other two keep `RS-10` 「命令が拒否されたので、束ごと落とした」,
+  // whose next step 「拒まれた変更を取り除いて、もう一度」 is true of them, and a
+  // row of table T-233 for either is the specification's to give rather than
+  // this file's to guess.
+  { reason: 'RS-56', command: 'CM-36', rule: 'FR-009', reasonCategory: 'bothEndsAreOneTask' },
   // `RS-57`, 正 Chapter 6.1 の 表 T-220 の `IV-1` -- 「同じ id を持つものが、この
   // 文書に既に在る」. ⭐ NO COMMAND EITHER: IV-1 is a uniqueness invariant over a
   // primary key, so every refusal that names it is the same reason whichever
@@ -1862,7 +1890,14 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
 function situationReasonOf(one: Refusal): NoticeReason | null {
   for (const situation of REFUSAL_SITUATIONS) {
     if (situation.rule !== one.rule) continue
-    if (situation.command === null || situation.command === one.command) return situation.reason
+    if (situation.command !== null && situation.command !== one.command) continue
+    // ⛔ AN EXACT MATCH AND NOT A FALLBACK. A situation that names a category
+    // refuses a refusal that carries a different one -- or none at all -- which
+    // is what keeps `RS-56`'s words off FR-009's other two prohibitions.
+    if (situation.reasonCategory !== undefined && situation.reasonCategory !== one.reasonCategory) {
+      continue
+    }
+    return situation.reason
   }
   return null
 }
@@ -6136,21 +6171,31 @@ export function frameLoop(
    * NT-8 (MUST): 「通知が 2 つ以上立っているときは、いちばん新しいものから消す
    * こと」 -- the answer for a key, which names no telling of its own.
    *
-   * ⭐ THE LAST OF THE LIST IS THE NEWEST, because `raiseNotice` appends and
+   * ⭐ THE LAST IS THE NEWEST, because `raiseNotice` appends and
    * `noticesFromSession` (UF-67) shows them 「in the order they were raised」.
    * ⛔ NO CLOCK IS READ AND NO NUMBER IS MINTED: the order of the list IS the
    * order they arrived in, which is the same fact `dismissKeyOf` refuses to
    * replace with an index.
    *
-   * ⛔ NOTHING IS PUT AWAY WHEN NOTHING STANDS, which NT-8 (MUST NOT) requires:
-   * the caller has already read `isNoticeStanding`, and answering here as well
-   * is what keeps a press that reached this line by any other road from
-   * shortening an empty list.
+   * ⛔ NOTHING IS PUT AWAY WHEN NOTHING STOOD ON ARRIVAL, which NT-8 (MUST NOT)
+   * requires: the caller has already read `isNoticeStanding`, which is now the
+   * same moment this reads, and answering here as well is what keeps a press
+   * that reached this line by any other road from shortening the list.
    *
    * @purity non-pure
    */
   function dismissNewestNotice(): void {
-    if (raisedNotices.length === 0) return
+    // ⛔⛔ THE NEWEST OF THE TELLINGS THAT WERE STANDING WHEN THE KEY ARRIVED,
+    // and not the newest of the list as it stands now. SK-19 gives this stage
+    // 「出ている通知があるとき」 and NT-8 explains 「いちばん新しいもの」 as 「いま
+    // 行った操作への答え」 -- so it is an answer the person has already been shown
+    // and is now putting away, never the answer this very press just raised.
+    // ⚠️ Measured 2026-09-09: with `spendFieldCommit` raising at the head of the
+    // happening, the list's own end was the telling the press had just made, and
+    // an `Enter` on a refused settling left ZERO tellings on the description.
+    const standing = raisedNotices.filter((one) => noticeReasonsOnArrival.has(one.reason))
+    const newest = standing[standing.length - 1]
+    if (newest === undefined) return
     // ⛔⛔ ONE TELLING, NOT EVERY TELLING THAT SHARES ITS KEY. `dismissKeyOf`
     // names a telling by its manner and its reason, so two failures of the same
     // kind carry the same key -- and filtering by it put BOTH away on one press.
@@ -6161,7 +6206,7 @@ export function frameLoop(
     // it was drawn under, and that name has to survive the frames between the
     // draw and the release. A key press names none, so the list's own end is
     // what 「いちばん新しい」 means and no name is needed.
-    raisedNotices = raisedNotices.slice(0, -1)
+    raisedNotices = raisedNotices.filter((one) => one !== newest)
     ask()
   }
 
@@ -7148,6 +7193,36 @@ export function frameLoop(
   let addedRowOwedSight: string | null = null
 
   /**
+   * The reasons a telling was standing on when the happening being carried out
+   * now ARRIVED -- before `spendFieldCommit` settled anything.
+   *
+   * ⭐⭐ SK-19 ASKS ABOUT THE MOMENT OF THE PRESS, in as many words: 「出ている
+   * 通知があるときは、それを 1 つ消すこと（MUST）... ほかに何も出ていないときは、
+   * その場の編集を確定する」. ⛔ 出ている is a question about the instant the key
+   * arrived, and `raisedNotices` by the time either ladder is read may hold a
+   * telling THIS press raised -- `spendFieldCommit` runs at the head of every
+   * happening and a refused settling raises one there.
+   * ⛔⛔ THE MEASURED DEFECT (2026-09-09, before this was held): settling a
+   * refused value with `Enter` left ZERO tellings on the description, while the
+   * same value spent on a pointer move left the one raised. The press raised the
+   * answer to its own operation and then put it away again, so nobody could read
+   * it. ⚠️ NT-8's closing MUST NOT is the same reading from the other side --
+   * 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならな
+   * い」 -- and at the instant that key arrived there was nothing to put away.
+   * ⛔ HELD FOR ONE HAPPENING, written at the head of every one that arrives over
+   * IF-2 and read within it, exactly like `didSettleFieldEntry` below and for the
+   * same reason.
+   * ⭐ REASONS AND NOT THE TELLINGS THEMSELVES: `raiseNotice` gathers a repeat of
+   * one reason into a NEW object (NT-3 of table T-037), so an identity taken at
+   * arrival would stop naming the telling it was taken from. The reason is the
+   * whole of a telling's identity -- that member's own note says why.
+   * ⚠️ TYPED AS `string` AND NOT AS `NoticeReason`, because that is what
+   * `RaisedNotice.reason` is on the seam this reads from (PI-33) -- narrowing it
+   * here would be this file asserting a shape the value does not carry.
+   */
+  let noticeReasonsOnArrival: ReadonlySet<string> = new Set<string>()
+
+  /**
    * Whether the happening being carried out now arrived with an in-place edit
    * standing, which `spendFieldCommit` settled at its head.
    *
@@ -7170,7 +7245,17 @@ export function frameLoop(
    *
    * @purity semi-pure-b
    */
-  function collectInputContext(frame: FrameValues): InputContext {
+  function collectInputContext(
+    frame: FrameValues,
+    // ⭐ STATED BY THE CALLER THAT KNOWS THE MOMENT, and defaulted to the list as
+    // it stands for the two callers that are asked BEFORE anything of the
+    // happening has run -- `isBrowserDefaultStopped` (which the watcher asks
+    // ahead of `receiveInput`) and `spendFieldCommit` (which raises nothing
+    // before it asks). ⛔ `receiveInput` states it instead, because by the time
+    // it builds this context `spendFieldCommit` may have raised a telling of its
+    // own -- see `noticeReasonsOnArrival`.
+    isNoticeStanding: boolean = raisedNotices.length > 0,
+  ): InputContext {
     // ⭐ THE CUT, MADE ONCE. Two members of the context are this array and its
     // ids, and `ScreenSession.rowBoxes` is the same call again a few lines
     // away -- CS-1 of table T-066 froze the frame, so one reading is what both
@@ -7233,7 +7318,9 @@ export function frameLoop(
       // the holder is the one party that can answer whether anything is left.
       // ⚠️ A COUNT AND NEVER THE LIST: `InputContext.isNoticeStanding` says why
       // -- which telling is the newest is answered where it is put away.
-      isNoticeStanding: raisedNotices.length > 0,
+      // ⛔ ASKED OF THE MOMENT THE HAPPENING ARRIVED, which the parameter above
+      // says: 出ている is a question about the instant the key was pressed.
+      isNoticeStanding,
       // ⭐⭐ THE PICTURE, off the very cut the renderer is handed. FR-029 (MUST)
       // counts a spent entrance's targets 「画面に描かれている側で」 and (MUST)
       // has that press tell its reason, so the side that DRAWS an entrance
@@ -10330,6 +10417,13 @@ export function frameLoop(
       return
     }
 
+    // ⛔ BEFORE `spendFieldCommit`, AND THAT ORDER IS THE WHOLE POINT. SK-19's
+    // first stage and IN-4's first level both ask 「出ている通知があるとき」, which
+    // is a question about the instant this key arrived -- and the settling below
+    // can raise a telling of its own. `noticeReasonsOnArrival` says what was
+    // measured when it was read after.
+    noticeReasonsOnArrival = new Set(raisedNotices.map((one) => one.reason))
+
     spendFieldCommit(frame)
 
     // ⭐ THE OUTSIDE IS READ ONCE, HERE, BEFORE ANYTHING IS DECIDED (R7.4). Two
@@ -10472,7 +10566,7 @@ export function frameLoop(
     // same value goes to all three members -- rebuilding it between them would
     // read the clock again (`semi-pure-b`), and the three would then be
     // answering about different moments.
-    const context = collectInputContext(frame)
+    const context = collectInputContext(frame, noticeReasonsOnArrival.size > 0)
     // IN-4 of table T-028 -- the four levels of the `Esc` ladder that are the
     // shell's, because LY-5 of table T-060 leaves it holding all four: the
     // press in flight, the Dual Cursor mode, the question below, and the

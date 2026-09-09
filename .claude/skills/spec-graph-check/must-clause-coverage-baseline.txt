@@ -1,4 +1,9 @@
-977
+975
+#
+# LOWERED 977 -> 975 ON 2026-09-09. Two more clauses gained an anchor while
+# RS-56 was given its road: table T-037's closing MUST (a row added to T-233
+# needs a road that reaches it) and SK-19's own wording about what an Enter
+# does when a telling is standing.
 #
 # LOWERED 991 -> 977 ON 2026-09-09, PAYING BACK THE WHOLE OF THE ENTRY BELOW.
 # tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts holds every clause

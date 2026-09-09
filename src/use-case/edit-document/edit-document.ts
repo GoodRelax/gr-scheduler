@@ -138,6 +138,28 @@ export interface Refusal {
   readonly command: string
   /** The requirement, table row or settings row doing the refusing. */
   readonly rule: string
+  /**
+   * 「理由の区分」 (AG-9a of table T-035), for a rule that refuses for more than
+   * one reason and gives none of them a row ID of its own.
+   *
+   * ⭐ WHY IT EXISTS, AND IT IS THE CLOSING PARAGRAPH OF TABLE T-037 (MUST):
+   * 「本表に行を足す者は、その行へ振り分ける道が在ることまで確かめること」, beside
+   * ⛔ 「拒否の理由を 1 つの行へ潰してはならない（MUST NOT）」. The shell picks a
+   * row of table T-233 out of a refused bundle by `command` and `rule`, and
+   * FR-009 forbids THREE dependencies in ONE sentence -- so those two fields
+   * cannot tell 「両端が同じ」 (`RS-56`) from the other two, and a road keyed on
+   * them alone would hand `RS-56`'s words to refusals that do not mean it.
+   * ⛔ OPTIONAL, AND EVERY OTHER REFUSAL LEAVES IT OUT. A rule that refuses for
+   * one reason is already told apart by `rule`; adding a category there would be
+   * a second name for a thing that already has one (rule 03 section 1).
+   * ⛔ NOT A ROW OF TABLE T-233. The rows are the SCREEN's words and this layer
+   * knows nothing of the screen (LY-4 of table T-061); the join from a category
+   * to a row is the shell's table, and it reads this string.
+   * ⚠️ THE SPELLINGS ARE THIS LAYER'S OWN. The specification names no
+   * categories -- AG-9a asks for 「区分」 and enumerates none -- so rule 03
+   * section 2 governs the name and nothing is copied from a table.
+   */
+  readonly reasonCategory?: 'bothEndsAreOneTask'
   readonly what: string
 }
 

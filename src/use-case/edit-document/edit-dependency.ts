@@ -90,9 +90,22 @@ function linkTypeOf(from: DependencyEdge, into: DependencyEdge): number {
   return into === 'finish' ? 2 : 3 //                       DP-2 SF / DP-4 SS
 }
 
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
+/**
+ * ⚠️ THE FOURTH ARGUMENT IS THE ONE THING THIS FILE'S `reject` HAS THAT THE
+ * OTHER SEVEN AGGREGATES' DO NOT: 「理由の区分」 (AG-9a of table T-035), left
+ * out by every refusal whose `rule` already tells it apart.
+ *
+ * @purity pure
+ */
+function reject(
+  command: string,
+  rule: string,
+  what: string,
+  reasonCategory?: Refusal['reasonCategory'],
+): Refusal {
+  return reasonCategory === undefined
+    ? { command, rule, what }
+    : { command, rule, reasonCategory, what }
 }
 
 /**
@@ -125,8 +138,19 @@ export function editDependency(document: Document, command: DependencyCommand): 
       // told WHICH item is wrong and why, and answering one at a time makes
       // the caller learn the list one round trip at a time.
       if (command.predecessorUid === command.successorUid) {
+        // ⭐ THE ONE REFUSAL OF THIS FILE THAT CARRIES A 「理由の区分」 (AG-9a of
+        // table T-035), and table T-233 is why: `RS-56` 「同じ `Task` を、依存の
+        // 先行と後続の両方にしようとした」 is a row of its own, and the closing
+        // paragraph of table T-037 (MUST) has a row added there be given a road
+        // to be routed by. ⛔ `CM-36` AND `FR-009` CANNOT BE THAT ROAD -- the
+        // three refusals below spell the same pair -- so the category is what
+        // separates this one, and only this one has a row to be separated for.
+        // ⛔ NO ROW ID IS SPELLED HERE (LY-4 of table T-061): the rows are the
+        // screen's words, and the join from this category to `RS-56` belongs to
+        // the side that composes tellings.
         refusals.push(
-          reject('CM-36', 'FR-009', `one task may not be both ends: UID ${command.predecessorUid}`),
+          reject('CM-36', 'FR-009', `one task may not be both ends: UID ${command.predecessorUid}`,
+                 'bothEndsAreOneTask'),
         )
       }
       // The duplicate rule. Its 組 is the pair of ends and NOT the kind of
