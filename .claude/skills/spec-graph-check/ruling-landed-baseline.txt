@@ -1,4 +1,14 @@
-2
+3
+#
+# RAISED 2 -> 3 ON 2026-09-09, and the third is a question, not a ruling.
+# R-33 is the front session asking the user which of two of their OWN MUSTs
+# governs: FR-043's value clause (2026-09-02, the day the hand let go decides
+# the actual start) or table T-023d's GR-17 row (the finish handle leaves the
+# start at GR-9's day). They were reconcilable until R-29 gave every pixel of
+# the one drawn mark to GR-17 on 2026-09-09. Measured: at the opening zoom
+# GR-9 answers none of the 67 pixels around the mark, so honouring GR-17's row
+# would leave no way at all to place an actual start by grabbing.
+# ⛔ Its 逐語 cell is not a quotation -- the user has not spoken yet.
 #
 # LOWERED 6 -> 2 ON 2026-09-09. The four specification rulings landed in one
 # pass, and each row's 着地先 now names the段 it was written into:
