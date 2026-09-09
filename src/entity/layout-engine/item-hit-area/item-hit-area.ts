@@ -506,12 +506,20 @@ const TABLE_T_023D: readonly HitRow[] = [
   //
   // ⛔⛔ AND NOT ON A MILESTONE (MUST NOT, 利用者の裁定 2026-09-09): 「⭐⭐
   // マイルストーンに再開アイコン（`GR-8`）を当ててはならない（MUST NOT）—— 点は
-  // 期間を持たないので、中断も再開も無い」. ⚠️ THE SHAPE IS REFUSED HERE AND THE
-  // DRAWING IS LEFT ALONE: the MUST NOT is written about 当たり判定 in table
-  // T-023d, and LF-13 of table T-221 carries no milestone exception for the
+  // 期間を持たないので、中断も再開も無い」. ⚠️ KEPT THOUGH THE FIGURE IS NOW GONE
+  // TOO: `schedule-geometry.ts` refuses to PLACE the icon on a milestone, which
+  // is LF-11 of table T-221 -- 「⛔ **`resume` を持つマイルストーンでも描かない
+  // （MUST NOT）**」 -- so `task.resume` is already null here. ⭐ The line stays
+  // because the two MUST NOTs are written in two tables and each side answers
+  // its own: this row is 当たり判定 in table T-023d, and a hit test that leaned
+  // on the drawing side's null would go quiet the day that side changed.
+  // ⛔⛔ THE NOTE THAT STOOD HERE UNTIL 2026-09-10 SAID THE OPPOSITE AND WAS
+  // FALSE: it read 「LF-13 of table T-221 carries no milestone exception for the
   // figure -- so a milestone that names a `resume` day still shows the icon and
-  // nothing grabs it. ⭐ That direction is the safe one: FR-016 forbids hitting
-  // what was not drawn, never the reverse.
+  // nothing grabs it」 and called that 「the safe direction」. LF-13 indeed carries
+  // none; LF-11 does, and had since 2026-09-09. ⚠️ Measured on the shipped build
+  // 2026-09-10: task 9, a milestone, drew `task-9-resume` at (1538, 388) and its
+  // own middle answered `grab=-`.
   //
   // ⚠️ GR-7 STANDS ABOVE THIS ROW AND STILL DOES. The table's order is what
   // settles the ground the two share: the marker answers there, the icon

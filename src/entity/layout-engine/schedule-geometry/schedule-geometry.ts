@@ -1554,7 +1554,26 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     marker,
     // FR-044's icon follows the STATE, not the symbol: a suspended Task that
     // is also late shows (!) and must still say that it is suspended.
-    resume: marker !== null && suspended ? resumeOf(inputs, task, marker, settings) : null,
+    //
+    // ⛔⛔ AND NEVER ON A MILESTONE. LF-11 of table T-221 (MUST NOT, 利用者の裁定
+    // 2026-09-09, 逐語 「マイルストーンは再開が無い。」):
+    // 「⭐⭐ **マイルストーンには再開アイコンを置かないこと（MUST NOT）**（利用者の裁定 2026-09-09、逐語「マイルストーンは再開が無い。」） —— **点は期間を持たないので、中断も再開も無い。**⛔ **`resume` を持つマイルストーンでも描かない（MUST NOT）**」
+    // ⭐ REFUSED HERE, WHERE THE FIGURE IS PLACED, AND NOT IN THE RENDERER. LF-11
+    // is a row of 表 T-221 「レイアウトの算式」, so 置く is this file's word: a
+    // `ResumeGeometry` that exists is a figure placed, and every side downstream
+    // -- the painter, the hit test, the picture drawn while a press is held --
+    // reads this one member. ⛔ A guard in `svg-renderer.ts` alone would leave
+    // the geometry claiming a place no row of the specification gives it.
+    // ⚠️ MEASURED ON THE SHIPPED BUILD 2026-09-10, BEFORE THIS LINE CARRIED THE
+    // SHAPE: one press on task 9's GR-7 (a milestone) drew `task-9-resume` at
+    // (1538, 388, 6.9 × 8px), and a press on its own middle answered `grab=-`.
+    // ⇒ a mark that can be seen and not grabbed, which is what LF-11 gives
+    // as its own reason for the MUST NOT (its sentence spells the verb with
+    // a different character, so it is pointed at here rather than quoted).
+    resume:
+      marker !== null && suspended && placed.shapeKind !== 'milestone'
+        ? resumeOf(inputs, task, marker, settings)
+        : null,
     dummies,
     // GR-1 then GR-2, at the plan bar's top-left and bottom-right corners.
     // Two conditions gate them, and both are answered here.

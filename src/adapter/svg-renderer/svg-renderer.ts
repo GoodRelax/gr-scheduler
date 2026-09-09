@@ -2293,6 +2293,13 @@ export function svgFromSchedule(
       // ⛔ NOT FAINT AND NOT DARKENED BY THE HAND. FR-013's MUST names the
       // not-started marker and FR-043's dummies, and PM-1a never holds on a
       // suspended Task -- so there is no strength for this figure to carry.
+      // ⛔ NO SHAPE TEST HERE, AND THAT IS NOT AN OVERSIGHT. LF-11 of table
+      // T-221 (MUST NOT) 「マイルストーンには再開アイコンを置かないこと」, and
+      // 置く is the geometry's word -- `schedule-geometry.ts` leaves `resume`
+      // null for a milestone, so this side paints the points it was handed and
+      // asks nothing about the shape. ⛔ A second reading of `shapeKind` here
+      // would be the same condition in two places, which is the drift this file
+      // refuses just above for `progressMarkerVisible`.
       if (task.resume !== null) {
         ;(isPinnedTask ? markerPartsPinned : markerParts).push(
           resumeSvg(task.resume.arm, task.resume.head, themed('S-161'), settings,

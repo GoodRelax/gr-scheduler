@@ -1533,6 +1533,32 @@ const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: fal
 /** Assigned, and consumed by a member other than `commandFromInput`. */
 const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
+/**
+ * The rows of table T-023d that MK-13 of table T-023 gives a double click a
+ * destination for AND that also carry a plain-press operation.
+ *
+ * ⭐ READ OFF MK-13's OWN 対象 LIST, one row of table T-023d each:
+ *   本体                            -> GR-12
+ *   実績（実績バー）                 -> GR-5 / GR-6, and GR-15 for a milestone
+ *   実績（未着手のダミー）           -> GR-9 / GR-17 / GR-18
+ *   コメントボックス                 -> GR-14
+ * ⛔ GR-10（名称ラベル）AND GR-11（担当ラベル）ARE DELIBERATELY ABSENT. MK-13
+ * names them too, but table T-023d's closing rule (MUST NOT) already keeps a
+ * double-click-only row out of a plain press -- `item-hit-area.ts` never
+ * answers them for one -- so a row here would be a condition that can never be
+ * true. ⛔ 行見出し IS ABSENT FOR THE OTHER REASON: its press answers
+ * `chooseRow` and writes nothing to the document, so there is nothing for this
+ * set to hold back.
+ *
+ * ⚠️ A SET AND NOT A SECOND COPY OF `isNameEntrance`. That list is 「which rows
+ * reach the TASK's name field」 and holds GR-10; this one is 「which rows must
+ * not act on a press that never travelled」 and holds GR-14, which is not a
+ * Task at all. The two overlap and are not the same question.
+ */
+const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
+  'GR-5', 'GR-6', 'GR-9', 'GR-12', 'GR-14', 'GR-15', 'GR-17', 'GR-18',
+])
+
 /** @purity pure */
 function acted(action: InputAction): TranslatedInput {
   return { action, isBrowserDefaultStopped: true }
@@ -7217,6 +7243,51 @@ function commandFromGrab(
     // (SL-2 of table T-023c), and the body is written by the panel field's own
     // commit.
     return acted({ kind: 'editInPlace', target: { kind: 'commentBoxText', id: item.id } })
+  }
+
+  // ⛔⛔ THE OTHER HALF OF THAT SAME MUST, AND THE HALF THAT WAS MISSING.
+  // Table T-023d's closing rule (MUST, 利用者の裁定 2026-09-08):
+  // 「⚠️⚠️ **ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）**（利用者の裁定 2026-09-08）—— ⛔ **本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。**」
+  // ⭐ A DOUBLE CLICK IS TWO RELEASES, NOT ONE, and the branch above only ever
+  // sees the second: `clickCount` is 1 on the first release and 2 on the
+  // second, so the first release fell straight through to the switch below and
+  // the table's order decided a destination for it after all.
+  // ⚠️⚠️ MEASURED ON THE SHIPPED BUILD 2026-09-10, with FR-102's record (IC-76)
+  // reading the `done` line after each `in.pointer down`. One double click on
+  // the mark of an unstarted Task, at the point the app itself answered
+  // `grab=GR-17` for:
+  //     up   clicks=1  ->  act=changeDocument  doc=changed
+  //     up   clicks=2  ->  act=editInPlace     doc=same
+  // The dummy count went 1 -> 0 and an actual bar 0px wide was written where
+  // the mark had stood -- GR-17's arm counting a length from a drag of nothing.
+  // ⇒ The gesture reached TWO destinations, one of them chosen by this table's
+  // order, which is what the MUST NOT forbids.
+  //
+  // ⭐ WHAT SEPARATES THE FIRST HALF OF A DOUBLE CLICK FROM A DRAG: the travel.
+  // FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02) 「`S-208` を超えて動いたときを
+  // ドラッグとし、超えないときをクリックとすること」, and its own note says the
+  // value is one for the whole tool -- 「同じ手の動きに同じ値を使い、行の掴みと
+  // 別に持たない」 -- so `hasDraggedPastThreshold` is asked here rather than a
+  // second distance minted. ⛔ NOTHING IS GUESSED ABOUT THE FUTURE: a release
+  // cannot know whether a second click is coming, and it does not need to --
+  // every half of every double click is a press that did not travel.
+  //
+  // ⭐ ONLY THE ROWS MK-13 NAMES. The rule is about the double click's
+  // destination, and a row MK-13 gives no destination to keeps the table's
+  // order for both its clicks: that is why GR-3 / GR-4 (the plan's ends), GR-7
+  // (the marker's cycle, which FR-013 makes one step per release whatever the
+  // distance), GR-8, GR-13, GR-16 and GR-21 are absent here exactly as they are
+  // absent from `isNameEntrance` above. ⛔ GR-10 and GR-11 need no arm: table
+  // T-023d's closing rule already keeps them out of a plain press entirely.
+  //
+  // ⭐ `CONSUMED_ELSEWHERE` AND NOT AN EMPTY BUNDLE: the press stays this
+  // tool's (MK-10, MUST NOT -- the browser must not get it back mid-gesture)
+  // and no `DocumentCommand` leaves. ⛔ THE SELECTION IS NOT TOUCHED HERE and
+  // must not be: `selectionFromInput` is the side that answers SL-2 of table
+  // T-023c, so the first click still chooses what it pressed and MK-13's panel
+  // opens on it.
+  if (MK_13_GRAB_ROWS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
+    return CONSUMED_ELSEWHERE
   }
 
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
