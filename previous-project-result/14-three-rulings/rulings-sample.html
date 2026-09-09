@@ -65,8 +65,8 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 <b>この 3 件だけが、私では裁けずに残っていた。</b>
 </div>
 
-<div class="note stop">
-<b>⛔ 2026-09-10 改訂</b>：3 件とも裁定が下りた。⭐ <b>ただし 裁定 ① は、同時にいただいた不具合 2 と 8 に影響する</b>ので、仰せのとおり<b>再度の最適案（案 ①′）</b>を出した。⛔ <b>さらに、いただいた不具合 8 件のうち 1 件は「造りの誤りではなく、いまの仕様どおり」であった</b> —— そこだけ、もう一度だけ裁いていただく必要がある。<b>下の 3 つの節が新しい。</b>
+<div class="note star">
+<b>⭐ 2026-09-10 —— 4 件とも裁定が下りた</b>：裁定 ① は <b>案 ①′</b>（インク＋1 稼働日の下限）、② と ③ は推奨どおり、そして<b>不具合 1 も、いただいた読みで解けた</b> —— <b>「ダミーを実績にして幅を変更せず」</b>。⛔ <b>裁定待ちは 0 件になった。</b><b>下の 3 つの節が新しい。</b>
 </div>
 
 <div class="note">
@@ -291,14 +291,14 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 </table>
 </div>
 
-<h2>⛔ 2026-09-10 —— 裁定は下りた。だが ① は不具合 2 と衝突した</h2>
+<h2>2026-09-10 —— 裁定 ① は不具合 2 と衝突したので、案 ①′ に替えた</h2>
 <p class="lede">3 件とも裁定をいただいた。⭐ <b>そのうち ① だけが、同時にいただいた不具合と衝突する。</b>
 仰せのとおり <b>再度の最適案（案 ①′）</b>をここに書く。</p>
 
 <table>
 <tr><th style="width:44px"></th><th>下りた裁定（逐語）</th><th style="width:320px">この見本での扱い</th></tr>
 <tr><td><b>①</b></td><td>今回の推奨通り 9/9 の裁定に合わせろ。ただし上記不具合に影響するなら、再度最適案をサンプルの html に書け</td>
-<td>⛔ <b>影響した</b>（不具合 <b>2</b> と <b>8</b>）⇒ 下に <b>案 ①′</b> を出す</td></tr>
+<td>⛔ <b>影響した</b>（不具合 <b>2</b> と <b>8</b>）⇒ <b>案 ①′</b> に替え、<b>2026-09-10 に承認された</b></td></tr>
 <tr><td><b>②</b></td><td>推奨通り、勝手に動かないようにしろ</td>
 <td>✅ 確定。<b>引かないと書かない</b>を仕様に 1 行足す</td></tr>
 <tr><td><b>③</b></td><td>推奨通りとせよ。これは俺の決めた仕様ではない</td>
@@ -333,7 +333,7 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 </figure>
 
 <div class="card q">
-<h3 style="margin-top:0">⭐ 案 ①′ <span class="pill rec">これを最適案として出す</span></h3>
+<h3 style="margin-top:0">⭐ 案 ①′ <span class="pill rec">2026-09-10 裁定済 —— これで進める</span></h3>
 <ol style="margin:8px 0 8px 20px;padding:0">
 <li><b>掴み代は、描かれたインクそのものとする。</b>インクの中央で左右に割り、左を <code>GR-9</code>／<code>GR-5</code>、右を <code>GR-17</code>／<code>GR-6</code> とする（＝ 案 ①、<code>R-36</code>）</li>
 <li>⭐ <b>着手済の実績の長さの下限を 1 稼働日（<code>S-129</code>）とする。</b>0 日には縮められない</li>
@@ -363,7 +363,7 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 <td>⛔ <b>これは造りの誤りではない。</b><code>GR-7</code>（進捗マーカー）を押すと 表 T-021a の <code>PV-1</code> が働き、
 <b>未着手 → 完了</b>で <code>actualStart</code>＝<code>start</code>、<code>actualFinish</code>＝<code>finish</code>、<code>actualDuration</code>＝予定の期間 を置く。
 これが「実績が延びる」の正体である</td>
-<td>⛔⛔ <b>裁定が要る</b>（下の問い）</td></tr>
+<td>⭐ <b>2026-09-10 裁定済</b> —— 表 T-021a の <code>PV-1</code> の 1 語（下の節）</td></tr>
 
 <tr><td><b>2</b></td><td>実績を 0 日にすると変更できない</td>
 <td><code>schedule-layout.ts:1262</code> が幅 0 を返し、<code>item-hit-area.ts</code> の
@@ -378,7 +378,7 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 <tr><td><b>4</b></td><td>ログ 4 の操作で実績が延びる場合がある</td>
 <td>⚠️ <b>まだ切り分けていない。</b>記録には <code>GR-7</code> の押下が混ざっており、
 ① と同じ根の可能性が高い。⛔ <b>断定しない</b> —— 直す前に、壊して赤を出して確かめる</td>
-<td>① の裁定しだい</td></tr>
+<td>① の直しに従う</td></tr>
 
 <tr><td><b>5</b></td><td>実績に触れてもカーソルが矢印のまま。<b>スライドにしろ</b></td>
 <td><code>frame-loop.ts:774-809</code> の表で <code>GR-9</code>／<code>GR-17</code>／<code>GR-18</code> が
@@ -474,55 +474,114 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 輪郭をその箱へ貼るので円が縦に伸びる。⭐ 直しは<b>マイルストーンのときだけ、本物の実績と同じ正方形の箱にする</b>こと。</figcaption>
 </figure>
 
-<h2>⛔⛔ 1 つだけ、まだ裁いていただく必要が残った</h2>
+<h2>⭐ 不具合 1 —— いただいた読みで解けた</h2>
 
-<div class="card q">
-<h3 style="margin-top:0">不具合 1 —— 「ステータスマークで実績を変更するな」は、既存の MUST 2 つと真正面から衝突する</h3>
-<p><b>記録が示した事実</b>：<code>GR-7</code>（進捗マーカー）を 1 回押すと <code>changeDocument</code> が立ち、
-実績が予定と同じ長さになる。⛔ <b>これは造りの暴走ではなく、いまの仕様そのものである。</b></p>
-<table>
-<tr><th style="width:120px">原典</th><th>逐語</th></tr>
-<tr><td><code>FR-013</code></td>
-<td><blockquote style="margin:0"><b>未着手のタスクを 1 押しで完了にできること（MUST）</b> —— 1 日で終わる作業は日程表で頻出するので、2 手を要求すると道具として重い</blockquote></td></tr>
-<tr><td>表 T-021a の <code>PV-1</code></td>
-<td><blockquote style="margin:0">未着手 → 完了：<code>actualStart</code> ＝ <code>start</code>、<code>actualFinish</code> ＝ <code>finish</code>、<b><code>actualDuration</code> ＝ 予定の期間</b></blockquote></td></tr>
-</table>
-<p>⇒ <b>「完了」は実績を持つ状態である</b>（表 T-019）。実績を書かずに完了にすることはできない。
-⇒ 仰せの「実績を変更するな」を字義どおり通すと、<b><code>FR-013</code> の MUST が消える。</b></p>
-<table style="margin-bottom:0">
-<tr><th style="width:120px">案</th><th>中身</th><th style="width:280px">代償</th></tr>
-<tr><td><b>案 A</b></td><td><b>仰せを採る。</b><code>FR-013</code> の「1 押しで完了」を取り下げ、<code>PV-1</code> を消す。
-未着手のタスクでは進捗マーカーを<b>押しても何も起きない</b>（押せることも示さない）</td>
-<td>⛔ 1 日で終わる作業を完了にする手数が <b>1 → 2</b> に増える（まずダミーを掴んで実績を立て、それから巡らせる）</td></tr>
-<tr><td><b>案 B</b></td><td><code>PV-1</code> が置く実績を<b>予定の全期間ではなく 1 稼働日</b>に変える。
-「延びる」を止めつつ「1 押しで完了」を残す</td>
-<td>⚠️ 完了なのに実績が予定より短い絵になる。⛔ <code>PV-1</code> の逐語を書き換える</td></tr>
-<tr><td><b>案 C</b></td><td>いまのまま（<code>PV-1</code> どおり）。<b>不具合ではないと記録して閉じる</b></td>
-<td>⛔ 仰せに反する</td></tr>
-</table>
+<p class="lede">仰せ：<b>「ステータスマークだけを変更して、実績の幅を変更せず or ダミーを実績にして幅を変更せず でよいのでは？」</b></p>
+
+<div class="note star">
+<b>⭐ 2 つ目の読みが成り立つ。</b>1 つ目は成り立たない —— <b>理由は下の表</b>。
+⇒ <b>採るのは「ダミーを実績にして幅を変更せず」</b>である。
 </div>
 
-<div class="note warn">
-⚠️ <b>前に立つ者が案を選ばない理由</b>：これは造りの誤りではなく、
-<b>2026-09-10 の仰せが、既に立っている MUST を 1 つ取り下げるかどうか</b>の問いだからである。
-⛔ 勝手に取り下げると、<code>FR-013</code> がなぜ消えたかを辿れなくなる。
+<h3>なぜ 1 つ目（実績を書かずに印だけ変える）は成り立たないか</h3>
+<p>この造りでは<b>状態を保存していない</b>。<b>列の組み合わせから毎回導いている</b>（表 T-019a）。</p>
+<table>
+<tr><th style="width:70px"></th><th style="width:60px">順</th><th>条件</th><th style="width:170px">導かれる状態</th></tr>
+<tr><td><code>PS-1</code></td><td>1</td><td><code>actualStart</code> が空</td><td><b>未着手</b></td></tr>
+<tr><td><code>PS-2</code></td><td>2</td><td><code>actualFinish</code> がある</td><td><b>完了</b></td></tr>
+<tr><td><code>PS-5</code></td><td>5</td><td>上のどれにも当たらない</td><td>進行中</td></tr>
+</table>
+<p>⇒ <b>実績を 1 つも書かなければ、その task は <code>PS-1</code> で「未着手」に導かれ続ける。</b>
+印だけ <code>(✓)</code> に変えても、<b>次に描いた瞬間 <code>( )</code> に戻る。</b>
+⛔ 状態を別に保存すると、<b>列と印が食い違ったまま保存できる文書</b>ができてしまう（`FR-041` が禁じる導出値の保存）。</p>
+
+<h3>⭐ 採る形 —— <code>PV-1</code> の 1 語だけを変える</h3>
+<table>
+<tr><th style="width:120px"></th><th>表 T-021a の <code>PV-1</code>（未着手 → 完了）が置く値</th></tr>
+<tr><td><b>いま</b></td><td><code>actualStart</code> ＝ <code>start</code>、<code>actualFinish</code> ＝ <code>finish</code>、
+<b><code>actualDuration</code> ＝ 予定の期間</b>、<code>resumeValid</code> ＝ <code>false</code></td></tr>
+<tr><td><b>直したあと</b></td><td><code>actualStart</code> ＝ <code>start</code>、
+<b><code>actualDuration</code> ＝ <code>S-129</code>（1 稼働日）</b>、
+<code>actualFinish</code> はそこから導く、<code>resumeValid</code> ＝ <code>false</code></td></tr>
+</table>
+<p>⭐ <b>変わるのは 1 語だけである</b> —— 「予定の期間」→「<code>S-129</code>」。</p>
+
+<figure>
+<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="13">
+  <text x="0" y="16" font-size="14" font-weight="700" fill="#b3261e">いま —— 10 日の予定を 1 押し ⇒ 実績が 10 日に伸びる</text>
+  <rect x="120" y="30" width="480" height="112" fill="#bccbe2" stroke="#7e96bd"/>
+  <rect x="120" y="54" width="480" height="64" fill="#3d5f96"/>
+  <circle cx="640" cy="86" r="18" fill="none" stroke="#b3261e" stroke-width="3"/>
+  <text x="632" y="92" fill="#b3261e" font-weight="700" font-size="18">✓</text>
+  <text x="690" y="70" fill="#b3261e" font-weight="700">⛔ 押しただけで実績が 10 日ぶん立つ</text>
+  <text x="690" y="92" fill="#48566d">actualDuration = 予定の期間</text>
+  <text x="690" y="114" fill="#48566d">「意図せず実績が延びる」の正体</text>
+
+  <text x="0" y="188" font-size="14" font-weight="700" fill="#12734a">直したあと —— ダミーがそのまま実績になる（幅は変えない）</text>
+  <rect x="120" y="202" width="480" height="112" fill="#bccbe2" stroke="#7e96bd"/>
+  <rect x="144" y="226" width="24" height="64" fill="#3d5f96"/>
+  <rect x="144" y="226" width="24" height="64" fill="none" stroke="#12734a" stroke-width="2" stroke-dasharray="4 3"/>
+  <circle cx="640" cy="258" r="18" fill="none" stroke="#12734a" stroke-width="3"/>
+  <text x="632" y="264" fill="#12734a" font-weight="700" font-size="18">✓</text>
+  <text x="690" y="242" fill="#12734a" font-weight="700">⭐ 実績は 1 稼働日（S-129）のまま</text>
+  <text x="690" y="264" fill="#48566d">ダミーが立っていた所に、同じ幅で立つ</text>
+  <text x="690" y="286" fill="#48566d">伸ばしたいときは右端（GR-6）を掴んで引く</text>
+</svg>
+<figcaption><b>×4。</b>破線はダミーが立っていた位置。<b>幅は 1 画素も変わらない。</b></figcaption>
+</figure>
+
+<div class="note star">
+<b>⭐⭐ 同じ数が 3 つの道で使われることになる</b> —— <code>S-129</code>（1 稼働日）は
+<b>①</b> ダミーを掴んだときに置く実績期間（<code>FR-043</code>）、
+<b>②</b> 案 ①′ が置く実績の長さの下限、
+<b>③</b> ステータスマークの 1 押しが置く実績期間。
+⇒ <b>どの道から入っても、最初に立つ実績は同じ 1 日である。</b>
 </div>
 
-<h2>まとめ</h2>
+<div class="note star">
+<b>⭐ この直しは <code>FR-013</code> の理由の側とも合う</b> —— 同要求は
+<b>「1 日で終わる作業は日程表で頻出するので、2 手を要求すると道具として重い」</b>と書いている。
+⇒ <b>1 押しが置くべきは「1 日ぶん」であって「予定の全期間」ではない。</b>
+⛔ <b>いまの <code>PV-1</code> は、自分の要求の理由と食い違っていた。</b>
+</div>
+
+<div class="note stop">
+<b>⛔ 代償を正直に書く</b>：<b>「10 日の予定が、予定どおり 10 日かかって終わった」を 1 押しで言う道は無くなる。</b>
+1 押しで完了にしたあと、<b>実績の右端（<code>GR-6</code>）を掴んで引く</b>か、
+プロパティパネルの <code>PR-5</code> に日数を入れることになる。
+⚠️ <b>これが重いと感じられたら仰ってください</b> —— そのときは「1 押しで <code>S-129</code>、もう 1 押しで予定の全期間」の 2 段にできる。
+</div>
+
+<h2>まとめ —— 裁定待ちは 0 件。直す順は 3 波</h2>
+
 <table>
-<tr><th style="width:44px"></th><th>件</th><th style="width:250px">どうするか</th><th style="width:170px">要る裁定</th></tr>
-<tr><td><b>①</b></td><td>ダミーの掴み代</td><td><span class="pill rec">案 ①′（インク＋1 稼働日の下限）</span></td><td>⭐ この見本の承認</td></tr>
-<tr><td><b>②</b></td><td>動かさない 1 回のクリック</td><td><span class="pill rec">確定（引かないと書かない）</span></td><td>済</td></tr>
-<tr><td><b>③</b></td><td>20px 往復の入れ替わり</td><td><span class="pill rec">確定（数を取り下げる）</span></td><td>済</td></tr>
-<tr><td><b>1</b></td><td>ステータスマークで実績が延びる</td><td>案 A / B / C から選ぶ</td><td>⛔⛔ <b>要</b></td></tr>
-<tr><td><b>2</b></td><td>実績 0 日で触れない</td><td>案 ①′ が解く</td><td>①′ に含む</td></tr>
-<tr><td><b>3</b></td><td>Enter で非アクティブ化</td><td>表 T-036 に 1 行足して実装</td><td>不要</td></tr>
-<tr><td><b>4</b></td><td>ログ 4 で実績が延びる</td><td>⚠️ 切り分けてから直す</td><td>1 に従う</td></tr>
-<tr><td><b>5</b></td><td>カーソルが矢印のまま</td><td><code>IN-2</code> にダミーを足す</td><td>不要</td></tr>
-<tr><td><b>6</b></td><td>ダミーが予定にかぶる</td><td>ダミーの <code>y</code> を実績と同じ式に</td><td>不要</td></tr>
-<tr><td><b>7</b></td><td>ダミーが真円でない</td><td>マイルストーンの箱を正方形に</td><td>不要</td></tr>
-<tr><td><b>8</b></td><td><code>*---*</code> の予定を掴めない</td><td>案 ①′ が解く（<code>S-93</code> 廃止）</td><td>①′ に含む</td></tr>
+<tr><th style="width:44px">波</th><th style="width:44px">件</th><th>直すこと</th><th style="width:230px">動かす原典</th></tr>
+
+<tr><td rowspan="4"><b>1</b><br><span style="font-size:12px;color:#48566d">独立</span></td>
+<td><b>5</b></td><td>ダミーの上でカーソルを<b>スライド</b>にする</td><td>表 T-028 の <code>IN-2</code> に 1 行</td></tr>
+<tr><td><b>6</b></td><td>ダミーの <code>y</code> を、本物の実績と<b>同じ式</b>にする</td><td>なし（造りだけ）</td></tr>
+<tr><td><b>7</b></td><td>マイルストーンのダミーの箱を<b>正方形</b>にする</td><td><code>FR-043</code> の「大きさは例外ではない」を撤回</td></tr>
+<tr><td><b>3</b></td><td><code>Enter</code> で確定してアクティブを解く</td><td>表 T-036 に 1 行、表 T-028 に確定の意味</td></tr>
+
+<tr><td rowspan="3"><b>2</b><br><span style="font-size:12px;color:#48566d">案 ①′</span></td>
+<td><b>①</b></td><td>掴み代をインクに合わせ、<code>S-93</code> を廃す</td><td>表 T-023d の結び、<code>S-93</code> の行</td></tr>
+<tr><td><b>2</b></td><td>着手済の実績の下限を <code>S-129</code> にする</td><td><code>FR-043</code>／<code>FR-011</code> に下限を 1 行</td></tr>
+<tr><td><b>8</b></td><td><code>*---*</code> の予定の端点が掴めるようになる</td><td>①・2 の結果（追加の条項は無い）</td></tr>
+
+<tr><td rowspan="2"><b>3</b><br><span style="font-size:12px;color:#48566d"><code>PV-1</code></span></td>
+<td><b>1</b></td><td><code>PV-1</code> の <code>actualDuration</code> を <code>S-129</code> に</td><td>表 T-021a の <code>PV-1</code> の 1 語</td></tr>
+<tr><td><b>4</b></td><td>⚠️ <b>切り分けてから</b>直す（1 と同根の疑い）</td><td>1 の結果しだい</td></tr>
 </table>
+
+<div class="note">
+<b>⭐ 進め方</b>：各波の頭で<b>まず赤を出す</b>（いまの造りが本当に間違っていることを測る）。
+そのあと直し、<code>layers</code> → <code>vitest</code> → <code>check.sh</code>、
+<b>ブラウザの実測はすべての実装が終わってから 1 度にまとめて</b>行う。
+</div>
+
+<div class="note star">
+<b>⭐ この 3 波が通れば、既知の不具合は <code>D-311</code> を除いて 0 になる。</b>
+</div>
 
 <div class="note stop">
 <b>⛔ 触っていない行が 1 つある</b> —— <code>D-311</code>（第 8・9・10 章が空の器のまま）。
