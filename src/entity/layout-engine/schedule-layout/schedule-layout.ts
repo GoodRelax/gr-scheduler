@@ -157,6 +157,27 @@ export interface TaskPlacement {
    */
   readonly actualReach: number | null
   /**
+   * How far right FR-043's dummies reach on a Task NOT started -- `null` while
+   * none is drawn, which is every Task that has an actual.
+   *
+   * ⭐⭐ THE HOLD'S RIGHT EDGE, NOT THE MARK'S. Table T-023d's GR-7 sends the
+   * marker 「未着手のときは終了点の掴みシロの外側」, and the closing rule of
+   * table T-038 (MUST, 利用者の裁定 2026-09-09) says which width that is --
+   * 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とする
+   * こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）」.
+   *
+   * ⭐⭐ SETTLED HERE AND CARRIED, for the reason `actualReach` above gives in
+   * the same words: LC-7 puts the name label past this and `markerAnchorX`
+   * hangs the marker off it, and the heading of table T-038 forbids the two
+   * counting separately (MUST NOT). ⛔ IT IS ALSO WHY `S-93` DOES NOT CROSS
+   * OUT OF THIS FOLDER -- what crosses is the answer, on a type table T-064
+   * already publishes.
+   * ⚠️ Measured 2026-09-09 on the shipped build, before the two were joined:
+   * of GR-17's 30 hit pixels, GR-7 answered 16 at 6, 15 and 36 px a day
+   * (defect D-408).
+   */
+  readonly dummyReach: number | null
+  /**
    * FD-6 / FD-6b of table T-012a in pixels, already clamped -- the fade drawn
    * at each end of the plan bar.
    *
@@ -1246,9 +1267,57 @@ function actualSpanOf(
 }
 
 /**
- * How far right FR-043's dummy reaches -- GR-17's end point, or GR-18's single
- * point on a milestone. `Number.NEGATIVE_INFINITY` where no dummy is drawn, so
- * that a `Math.max` against it is the whole of the test.
+ * S-93's width -- the grab hold table T-023d gives GR-9, GR-17 and GR-18, taken
+ * from the left edge of the day each of them stands on.
+ *
+ * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THIS AND NOT THE DRAWN MARK (MUST,
+ * 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロを持つものについては
+ * その掴みシロの幅とすること（MUST）。描いた印の幅で数えてはならない（MUST
+ * NOT）」, and the row names the two values apart -- 「実績のダミー（表 T-023d の
+ * `GR-9` / `GR-17` / `GR-18`）の掴みシロは `_assets/tbl-settings.md` の 表 T-206
+ * の `S-93` であり、描く幅の `S-180` ではない」.
+ *
+ * ⛔⛔ STOP -- HAND-WRITTEN, AND IT MUST NOT STAY THAT WAY. Every other value of
+ * table T-206 reaches `src/` out of a generated block, and rule 03 section 1
+ * forbids typing one in for the reason this comment cannot repair: the day
+ * `settings.json` changes S-93, this number goes on saying 30 and nothing in
+ * the build notices. S-93 IS already generated -- as `NOT_STORED_SIZES` in
+ * `item-hit-area.ts` -- but that unit imports ScheduleGeometry, which imports
+ * this file, so reading it from here would be the cycle LR-3 forbids.
+ * ⭐ THE ONE-LINE REPAIR, for whoever owns `tools/`: add
+ * `not_stored_block('NOT_STORED_SIZES')` to this file's entry in
+ * `TARGETS` (`tools/generate_entity_types.py`, beside the entry that already
+ * writes `NOT_STORED_ROW_CONTROL_OUTER_SIZES` here), run `npm run gen`, and
+ * replace this declaration with `NOT_STORED_SIZES['S-93'][0]`. Check 30 counts
+ * a set of names and `NOT_STORED_SIZES` is already on it, so nothing else moves.
+ * ⚠️ The block is already written into two files (`NOT_STORED_SCROLLBAR_SIZES`),
+ * so a second home for one is not a new shape.
+ */
+const DUMMY_GRAB_WIDTH_PX = 30
+
+/**
+ * A reach that is really a reach. `dummyReachOf` answers negative infinity for
+ * a Task FR-043 draws no dummy on, which `Math.max` reads correctly and a
+ * reader of `TaskPlacement.dummyReach` should never see.
+ *
+ * @purity pure
+ */
+function finiteOrNull(reach: number): number | null {
+  return Number.isFinite(reach) ? reach : null
+}
+
+/**
+ * How far right FR-043's dummy reaches -- the RIGHT EDGE of GR-17's grab hold,
+ * or of GR-18's on a milestone. `Number.NEGATIVE_INFINITY` where no dummy is
+ * drawn, so that a `Math.max` against it is the whole of the test.
+ *
+ * ⛔ THE GRAB HOLD AND NOT THE MARK. Until 2026-09-09 this answered the left
+ * edge of the day the dummy stands on, which is where FR-043 aligns the ink --
+ * and the ink is `min(1 day, S-180)` across while the grab hold is S-93's 30,
+ * so the marker that hangs off this number stood INSIDE GR-17's own box at
+ * every zoom. ⚠️ Measured on the shipped build 2026-09-09, before and after:
+ * of GR-17's 30 hit pixels, GR-7 answered 16 at 6, 15 and 36 px a day; none
+ * once this counted the hold (defect D-408).
  *
  * ⭐ SPELLED HERE BECAUSE THE ORDER OF TABLE T-038 IS DECIDED HERE. The dummy
  * is the thing the marker hangs off while nothing is started (`markerAnchorX`,
@@ -1279,7 +1348,11 @@ function dummyReachOf(
   // GR-15: a milestone holds no actual BAR, so FR-043 shows ONE point on it and
   // there is no GR-17 further along.
   const at = shapeKind === 'milestone' ? from : reader.walk(from, settings.actualInitialDuration)
-  return xOnTimeAxis(originSerial, pxPerDay, originX, at)
+  // ⭐ The hold runs RIGHT from the day's left edge, which is the closing rule
+  // of table T-023d: 「その日の列の左端を起点に、右へ `_assets/tbl-settings.md`
+  // の `S-93` の幅で取ること（MUST）」, with 「起点を中心にしてはならない
+  // （MUST NOT）」 beside it.
+  return xOnTimeAxis(originSerial, pxPerDay, originX, at) + DUMMY_GRAB_WIDTH_PX
 }
 
 /**
@@ -1575,11 +1648,16 @@ export function layoutFromSchedule(
       // narrows the anchor (the plan alone, a milestone's figure), never widens
       // it, and a label further out than it needs to be still overlaps nothing.
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
-      const outwardX = Math.max(
-        x + width,
-        actualReach ??
-          dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
-      )
+      // FR-043 draws its pair only where there is no actual at all, which is
+      // the same test `dummiesOf` opens with -- so the two reaches are never
+      // both a number, and `null` here reads as "no dummy was drawn".
+      const dummyReach =
+        actualReach !== null
+          ? null
+          : finiteOrNull(
+              dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
+            )
+      const outwardX = Math.max(x + width, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       // ⛔ MEASURED FROM `outwardX`, NOT FROM THE SHAPE, and the room for the
       // two marks is held clear whether or not they are drawn (`markRoomOf`).
@@ -1622,7 +1700,8 @@ export function layoutFromSchedule(
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
-               actualReach, fade, outsideLabel, outsideLabelWidth, occupiedX0, occupiedX1 }
+               actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
+               occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -1764,6 +1843,7 @@ export function layoutFromSchedule(
         actualX: item.actual === null ? null : item.actual.x,
         actualWidth: item.actual === null ? 0 : item.actual.width,
         actualReach: item.actualReach,
+        dummyReach: item.dummyReach,
         labelPlacement: item.placement,
         labelX: item.labelX,
         label: item.label,

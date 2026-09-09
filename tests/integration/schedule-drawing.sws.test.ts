@@ -106,6 +106,9 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
+// S-93, the hold table T-023d gives GR-9 / GR-17 / GR-18, out of the block the
+// manuscript generates rather than out of the unit under test.
+import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 
 // ---------------------------------------------------------------------------
 // The declaration every case carries (table T-219, TW-2)
@@ -1854,12 +1857,21 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // side of it are all worked in this fixture's calendar, so one worked day
       // and one calendar day coincide here; the arithmetic is written out
       // rather than folded so that a calendar change is visible.
-      const dummyRight = xOfDay(
-        2 + 1 + drawn.settings.actualInitialDuration,
-        drawn.regions,
-        drawn.layout.pxPerDay,
-      )
-      expect(marker.centre.x - marker.radius - dummyRight).toBeCloseTo(
+      // ⭐⭐ AND THE HOLD, NOT THE DAY'S OWN EDGE (defect D-408, measured on the
+      // shipped build 2026-09-09: the marker covered 16 of GR-17's 30 hit pixels
+      // at 6, 15 and 36 px a day). GR-7 says 「未着手のときは終了点の掴みシロの
+      // 外側」 and table T-038's order (MUST, 利用者の裁定 2026-09-09) says what
+      // that hold is worth: 「本並びで数える幅は、掴みシロを持つものについては
+      // その掴みシロの幅とすること（MUST）。描いた印の幅で数えてはならない（MUST
+      // NOT）… 実績のダミーの掴みシロは `S-93` であり、描く幅の `S-180` ではない」.
+      // ⛔ `S-93` is read from the generated block, never typed in.
+      const holdRight =
+        xOfDay(
+          2 + 1 + drawn.settings.actualInitialDuration,
+          drawn.regions,
+          drawn.layout.pxPerDay,
+        ) + NOT_STORED_SIZES['S-93'][0]
+      expect(marker.centre.x - marker.radius - holdRight).toBeCloseTo(
         drawn.settings.markerGap,
         6,
       )

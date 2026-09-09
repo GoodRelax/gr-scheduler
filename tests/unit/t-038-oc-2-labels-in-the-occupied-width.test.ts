@@ -71,6 +71,9 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 // D-400's cases ask the PICTURE, not the geometry -- see their own note.
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+// S-93, the hold table T-023d gives GR-9 / GR-17 / GR-18, read out of the block
+// the manuscript generates rather than out of either unit under test.
+import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 
 // ---------------------------------------------------------------------------
 // The fixture
@@ -853,5 +856,121 @@ describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', (
     expect({ anchored: tag.includes('text-anchor="end"') }).toEqual({ anchored: true })
     const drawnX = Number(/ x="([-\d.]+)"/.exec(tag)?.[1] ?? 'NaN')
     expect(drawnX).toBeCloseTo(rightEdge, 1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// D-408 -- the marker stood INSIDE the hold it is supposed to be outside of.
+//
+//   T-023d GR-7 (01-04-requirements.md)
+//     「実績バーの右端の外側。**未着手のときは終了点の掴みシロの外側**」
+//
+//   the closing rule of table T-038 (MUST / MUST NOT, 利用者の裁定 2026-09-09)
+//     「**本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とする
+//      こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）**……実績のダミー
+//      （表 T-023d の `GR-9` / `GR-17` / `GR-18`）の掴みシロは `S-93` であり、
+//      描く幅の `S-180` ではない」
+//
+// ⚠️ Measured 2026-09-09 on the shipped build, one board rebuilt per pixel and
+// the answer read back through the Agent API: of GR-17's 30 hit pixels, GR-7
+// answered 16 at 6, 15 and 36 px a day.
+// ⛔ TWO UNITS HAD TO MOVE, and the heading of table T-038 is why -- 「2 か所で
+// 別々に数え上げてはならない（MUST NOT）」. ScheduleGeometry anchors OC-3 and
+// ScheduleLayout measures where OC-1 begins; a repair to one alone parts them.
+
+describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', () => {
+  const sceneOf = (part: Record<string, unknown>): { placed: TaskPlacement; drawn: TaskGeometry } => {
+    const settings = markSettings(true)
+    const schedule = rowOf([
+      taskOf({ uid: 1, name: 'n', start: '2026-02-02', finish: '2026-02-20', percentComplete: 0,
+               ...part }),
+    ])
+    const layout = layoutFromSchedule(schedule, settings, REGIONS)
+    const placed = taskPlacement(layout, 1)
+    if (placed === null) throw new Error('the Task was not drawn at this zoom')
+    const drawn = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+      .tasks.find((one) => one.taskUid === 1)
+    if (drawn === undefined) throw new Error('the Task has no picture')
+    return { placed, drawn }
+  }
+
+  /**
+   * Nothing entered, so FR-043 draws GR-9 and GR-17 and no actual bar.
+   *
+   * ⛔ THE PLAN IS SHORT ON PURPOSE. LC-7 measures OC-1 from whichever reaches
+   * further, the shape's own right edge or the reach the marker hangs off, so
+   * on a long plan the dummy's hold never decides anything and a case built on
+   * one proves nothing (measured 2026-09-09: taking the hold out of
+   * ScheduleLayout turned 0 cases red while this scene ran nineteen days long).
+   * ⚠️ Two days at this zoom is narrower than S-93, which is the state the
+   * ruling of 2026-09-09 is about -- 「Zoom Out して 1 日の表示が潰れても、
+   * ダミーの実績を入力できること」.
+   */
+  const notStartedScene = () => sceneOf({ finish: '2026-02-06' })
+  /**
+   * The same Task run to its planned end, so the marker hangs off the ACTUAL
+   * bar and that bar is also what LC-7 measures OC-1 from.
+   *
+   * ⚠️ THE ACTUAL HAS TO REACH THE PLAN'S OWN END. LC-7 takes whichever reaches
+   * further, so an actual that stopped short would leave OC-1 measured from the
+   * plan's right edge and the marker measured from the actual's -- and the run
+   * between them would carry that difference rather than the constant room.
+   */
+  const startedScene = () => sceneOf({ actualStart: '2026-02-02', actualDuration: 15 })
+
+  /**
+   * How far OC-1 begins past the marker's right edge.
+   *
+   * ⭐ THE ONE NUMBER THAT SAYS THE TWO UNITS READ THE SAME REACH, and stated as
+   * a difference rather than as pixels -- the closing paragraph of table T-038
+   * holds the room for OC-3 and OC-4 clear whether or not either is drawn, so
+   * the run is a constant and no case here may name it.
+   */
+  const runOf = (scene: { placed: TaskPlacement; drawn: TaskGeometry }): number => {
+    const marker = scene.drawn.marker
+    if (marker === null) throw new Error('no marker')
+    return scene.placed.labelX - (marker.centre.x + marker.radius)
+  }
+
+  /** GR-17's own hold: S-93 wide, from the left edge of the day it stands on. */
+  const holdRightOf = (drawn: TaskGeometry): number => {
+    const endpoint = drawn.dummies.find((one) => one.grab === 'GR-17')
+    if (endpoint === undefined) throw new Error('FR-043 drew no GR-17 to hang the marker off')
+    return endpoint.at.x + NOT_STORED_SIZES['S-93'][0]
+  }
+
+  it('draws both dummies and no actual bar, or nothing below is proved', () => {
+    const { placed, drawn } = notStartedScene()
+    expect(placed.actualX).toBeNull()
+    expect(drawn.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
+    expect(drawn.marker).not.toBeNull()
+  })
+
+  it('⛔ MUST: OC-3 stands outside GR-17’s hold, not on it', () => {
+    const { drawn } = notStartedScene()
+    const marker = drawn.marker
+    if (marker === null) throw new Error('no marker')
+    expect({ clear: marker.centre.x - marker.radius >= holdRightOf(drawn) })
+      .toEqual({ clear: true })
+  })
+
+  it('⛔ MUST NOT: OC-1 is measured from that same hold, and not from the mark', () => {
+    // ⚠️ THE OTHER HALF, AND THE ONE NO CASE READ BEFORE (measured 2026-09-09:
+    // taking the hold back out of ScheduleLayout alone turned 0 cases red, and
+    // this one turns red for it).
+    // ⭐ THE HEADING OF TABLE T-038 IS WHAT IS ASSERTED -- 「2 か所で別々に数え
+    // 上げてはならない（MUST NOT）」. ScheduleLayout puts OC-1 down and
+    // ScheduleGeometry anchors OC-3, so the run between them is the same
+    // constant on a Task that is started and on one that is not; a layout that
+    // measured the drawn mark loses S-93 of it on the not-started one alone.
+    // ⛔ Never a count of pixels: the row forbids minting a new setting, and
+    // the closing paragraph makes the room a constant this file may not name.
+    const started = startedScene()
+    const fresh = notStartedScene()
+    // The two scenes really do anchor on different things, or the case is vacuous.
+    expect(started.placed.actualX).not.toBeNull()
+    expect(fresh.placed.actualX).toBeNull()
+    expect(runOf(fresh)).toBeCloseTo(runOf(started), 6)
+    expect({ clear: fresh.placed.labelX >= holdRightOf(fresh.drawn) }).toEqual({ clear: true })
   })
 })

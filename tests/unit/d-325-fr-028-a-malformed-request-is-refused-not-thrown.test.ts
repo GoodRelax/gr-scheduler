@@ -320,6 +320,27 @@ const MALFORMED: ReadonlyArray<{ readonly what: string; readonly request: unknow
     what: 'a command naming no row of table T-108',
     request: { readStamp: { ...STARTING_STAMP }, commands: [{ kind: 'no such row' }] },
   },
+  // ⭐⭐ THE SHAPE MEASURED ON THE SHIPPED BUILD 2026-09-09: a row of table
+  // T-108 named correctly, with its field spelled wrong -- CM-3's field is
+  // `date`, not `statusDate` -- so the field arrives `undefined` and
+  // `edit-project.ts` read `.trim()` off it. ⛔ THE KIND IS RIGHT, WHICH IS WHY
+  // NO EARLIER ROW CAUGHT IT: `ROUTES.get(command.kind)` answers a route, and
+  // every guard above stops at the request's own two members.
+  // ⚠️ 9 of table T-108's 71 kinds threw when handed `{ kind }` and nothing
+  // else -- createTask, reorderTaskGroupSiblings, createCommentBox,
+  // createHighlightBox, deleteResource, setProjectProfile, setStatusDate,
+  // setDualCursor, setScrollPosition -- and 0 do now.
+  {
+    what: 'a command of a real row whose field is spelled wrong',
+    request: {
+      readStamp: { ...STARTING_STAMP },
+      commands: [{ kind: 'setStatusDate', statusDate: '2026-08-21T00:00:00' }],
+    },
+  },
+  {
+    what: 'a command of a real row with every field missing',
+    request: { readStamp: { ...STARTING_STAMP }, commands: [{ kind: 'createTask' }] },
+  },
   // ⭐ THE NEIGHBOUR THAT PASSES, kept so the red above is read as the narrow
   // fact it is: a command that is a string is refused correctly, because
   // reading `.kind` off it is merely `undefined`.

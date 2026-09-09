@@ -484,7 +484,18 @@ function stage(): Stage {
   }
 }
 
-/** The middle of the Task's plan bar -- the 本体 half of MK-13's Task entry. */
+/**
+ * A point on the Task's plan bar BODY -- the 本体 half of MK-13's Task entry.
+ *
+ * ⚠️ NOT SIMPLY THE MIDDLE SINCE 2026-09-09. This Task is not started, so GR-7
+ * hangs the progress marker off GR-17's hold rather than off the dummy's drawn
+ * edge (「未着手のときは終了点の掴みシロの外側」, with table T-038's order giving
+ * that hold S-93's width), and the square landed on the middle of this fixture's
+ * bar. ⛔ GR-7 IS ABOVE GR-12 IN TABLE T-023d and is not one of MK-13's
+ * destinations, so a press there is a state cycle and not the panel -- which is
+ * the behaviour these cases are not about. The point is taken from the part of
+ * the body the marker does not stand on.
+ */
 function middleOfTheBar(built: Stage): { readonly x: number; readonly y: number } {
   const values = built.loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
@@ -497,10 +508,14 @@ function middleOfTheBar(built: Stage): { readonly x: number; readonly y: number 
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  return {
-    x: (Math.min(...xs) + Math.max(...xs)) / 2,
-    y: (Math.min(...ys) + Math.max(...ys)) / 2,
-  }
+  const right = Math.max(...xs)
+  const marker = drawn.marker
+  const left =
+    marker === null
+      ? Math.min(...xs)
+      : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+  if (left >= right) throw new Error(`Task ${THE_TASK} has no body the marker leaves free`)
+  return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
 /**

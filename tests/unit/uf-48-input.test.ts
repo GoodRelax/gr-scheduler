@@ -530,10 +530,20 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
   }
   const xs = drawn.plan.points.map((onePoint) => onePoint.x)
   const ys = drawn.plan.points.map((onePoint) => onePoint.y)
-  return {
-    x: (Math.min(...xs) + Math.max(...xs)) / 2,
-    y: (Math.min(...ys) + Math.max(...ys)) / 2,
-  }
+  // ⚠️ THE MARKER'S SQUARE IS STEPPED AROUND SINCE 2026-09-09. These Tasks are
+  // not started, so GR-7 hangs off GR-17's hold rather than off the dummy's
+  // drawn edge (「未着手のときは終了点の掴みシロの外側」, and table T-038's order
+  // gives that hold S-93's width) -- and GR-7 stands above GR-12 in table
+  // T-023d, so a press on the square is a state cycle and never the body drag
+  // this helper exists to start.
+  const right = Math.max(...xs)
+  const marker = drawn.marker
+  const left =
+    marker === null
+      ? Math.min(...xs)
+      : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+  if (left >= right) throw new Error(`Task ${uid} has no body the marker leaves free`)
+  return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
 /** How wide that bar is, so a drag can be stated in bar-widths and not in days. */

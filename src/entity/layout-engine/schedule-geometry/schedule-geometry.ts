@@ -847,18 +847,42 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
  *
  * @purity pure
  */
-function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement,
-                       dummies: readonly DummyGeometry[]): number | null {
+function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | null {
   const planRight = placed.x + placed.width
   // FR-013's MUST: the plan alone is being displayed.
   if (!inputs.showActual) return inputs.showPlan ? planRight : null
   // GR-7's milestone clause: outside the FIGURE, and a milestone carries two.
+  //
+  // ⛔ STOP -- THE MILESTONE IS LEFT ON ITS FIGURE ON PURPOSE, AND IT OVERLAPS.
+  // GR-18's hold is S-93 like every other dummy's, and a not-started milestone
+  // stands it on the working day AFTER the planned start, so the hold reaches
+  // further right than the figure does. ⚠️ Measured 2026-09-09 with the default
+  // settings: the marker covers 11 of GR-18's 30 hit pixels, which is the same
+  // shape as defect D-408.
+  // ⛔ NOT REPAIRED HERE, because no clause says to. The ruling of 2026-09-09
+  // states its own reach -- 「表 T-023d の GR-7 は既に「未着手のときは終了点の
+  // 掴みシロの外側」と定めている。本規則は、その外側がどこかを数える側へ与える
+  // ものであり、同行を 1 文字も変えない」 -- and GR-7's milestone clause is a
+  // different sentence (「マイルストーンのときは図形の外側」) that names no hold.
+  // Widening it would be this file deciding a row of table T-023d.
   if (placed.shapeKind === 'milestone') {
     return placed.actualReach === null ? planRight : Math.max(planRight, placed.actualReach)
   }
-  // GR-7's not-started clause.
-  const endpoint = dummies.find((one) => one.grab === 'GR-17')
-  if (endpoint !== undefined) return endpoint.at.x
+  // ⭐⭐ GR-7's NOT-STARTED CLAUSE, AND THE HOLD IS WHAT IT CLEARS. 「未着手の
+  // ときは終了点の掴みシロの外側」, with table T-038's order (MUST, 利用者の裁定
+  // 2026-09-09) saying what that hold is worth: 「本並びで数える幅は、掴みシロを
+  // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
+  // ならない（MUST NOT）」. So the outside is the RIGHT edge of S-93's box, and
+  // `DummyGeometry.at` -- where FR-043 aligns the ink -- is its LEFT edge.
+  // ⚠️ Measured on the shipped build 2026-09-09: reading the ink's own edge put
+  // the marker over 16 of GR-17's 30 hit pixels at 6, 15 and 36 px a day
+  // (defect D-408).
+  // ⭐⭐ READ OFF THE PLACEMENT AND NOT WORKED OUT HERE, which is the bargain
+  // `actualReach` above already keeps: the heading of table T-038 forbids the
+  // stacking and the label counting separately (MUST NOT), and ScheduleLayout
+  // is where LC-7 puts the name label past this same number. ⛔ S-93 therefore
+  // stays inside the folder that holds it.
+  if (placed.dummyReach !== null) return placed.dummyReach
   // FR-013's own first clause, and the only arm that reads the actual bar.
   if (placed.actualReach !== null) return placed.actualReach
   // Nothing is started and FR-043 drew no dummy, which happens only where the
@@ -872,21 +896,24 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement,
  *
  * ⛔ The clearance is `markerGap` alone, which is every distance the document
  * holds: S-23 states it as the least distance that does not overlap the end
- * point's grab allowance, and forbids going any further. The dummy's own grab
- * allowance is the one S-93 holds, and table T-206 keeps it OUT of the
- * document on purpose -- it reaches ItemHitArea as an
- * argument and never reaches this layer -- so where that allowance is wider
- * than `markerGap` plus the marker's radius, GR-7 still covers part of GR-17
- * and GR-7 is the higher row. Squaring S-23 against S-93 changes the
- * specification; it is not a value to pick here.
+ * point's grab allowance, and forbids going any further.
+ *
+ * ⚠️⚠️ THAT CLEARANCE IS MEASURED FROM THE ANCHOR, AND THE ANCHOR IS WHAT
+ * MOVED. This note used to end 「Squaring S-23 against S-93 changes the
+ * specification; it is not a value to pick here」, and on 2026-09-09 the
+ * specification said which of the two gives: table T-038's order now counts a
+ * grab hold's width rather than a drawn mark's (MUST), so `markerAnchorX`
+ * hands back the right edge of S-93's box and `markerGap` clears THAT.
+ * ⭐ Nothing here reads S-93. `markerAnchorX` does, so the gap stays the one
+ * distance the document holds and no second value is squared against it.
  *
  * @purity pure
  */
-function markerOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
-                  dummies: readonly DummyGeometry[]): MarkerGeometry | null {
+function markerOf(inputs: GeometryInputs, task: Task,
+                  placed: TaskPlacement): MarkerGeometry | null {
   const settings = inputs.settings
   if (!settings.progressMarkerVisible) return null
-  const anchorX = markerAnchorX(inputs, placed, dummies)
+  const anchorX = markerAnchorX(inputs, placed)
   if (anchorX === null) return null
   const radius = settings.markerSize / 2
   return {
@@ -1438,10 +1465,11 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     }
   }
 
-  // GR-7 reads the dummies (its 未着手 clause hangs the marker off GR-17), so
-  // they are settled once here rather than counted through the calendar twice.
+  // ⚠️ GR-7's 未着手 clause hangs the marker off GR-17, but off its HOLD rather
+  // than off the ink -- and `TaskPlacement.dummyReach` is where ScheduleLayout
+  // settled that, so `markerOf` does not read this list.
   const dummies = dummiesOf(inputs, task, placed, actualHeight)
-  const marker = markerOf(inputs, task, placed, dummies)
+  const marker = markerOf(inputs, task, placed)
   const outsideLabel = outsideLabelBoxOf(inputs, placed)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'

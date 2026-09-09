@@ -793,6 +793,37 @@ function viewThatShowsTask(
  * pointer runs through, so "the same validation and the same limits" is not a
  * claim this file has to make good on.
  *
+ * ⛔⛔ THE ONE PLACE THE UNTYPED WORLD IS TURNED INTO A VALUE. FR-028's MUST NOT
+ * -- 「受理したか否かを値で返すこと。例外を投げてはならない」 -- is
+ * unconditional, and `DocumentCommand` is a compile-time promise that a caller
+ * outside this build never made: every field of every row of table T-108 is
+ * simply absent when someone spells one wrong. ⚠️ Measured on the shipped build
+ * 2026-09-09: of table T-108's 71 kinds, 9 threw out of the page when handed
+ * `{ kind }` and nothing else -- `createTask`, `reorderTaskGroupSiblings`,
+ * `createCommentBox`, `createHighlightBox`, `deleteResource`,
+ * `setProjectProfile`, `setStatusDate`, `setDualCursor`, `setScrollPosition`
+ * (the reported one was `{ kind: 'setStatusDate', statusDate }`, whose field is
+ * named `date`, ending in `TypeError: ... reading 'trim'`).
+ *
+ * ⭐ REFUSED, NOT SWALLOWED, AND ON THE ROAD THAT ALREADY EXISTS.
+ * `malformedRequest` is the category this file already answers a caller whose
+ * argument is not the shape table T-107 declares with, and AG-9a's 「理由の区分」
+ * is met by it; what the throw said travels in `what`, which is where AM-14 and
+ * AM-15 already put a fault's own words. ⛔ No new reason row is minted here --
+ * that is the specification's to write, not this file's.
+ *
+ * ⭐ AG-3's atomicity survives it. Every one of the nine threw while the change
+ * was still being PLANNED, and `applyDocumentChange` replaces the held document
+ * only once a plan has come back whole -- measured after the fix: a refused
+ * bundle leaves the stamp and the document as they stood.
+ *
+ * ⚠️ ST-7's own note argues against catching as a safety valve -- 「投げると捕ま
+ * える者が要り、FR-028 が Agent API に課した禁止と同じ安全弁が 2 つの機構を持つ
+ * ことになる」 -- and it is right about the INSIDE: a rule that can refuse should
+ * refuse with a value where it stands, as ST-7 now does. ⛔ This is not that
+ * place. It is the seam where a value of unknown shape enters a typed tree, and
+ * no rule below it is written to expect one.
+ *
  * @purity non-pure
  */
 function writeThroughTheOnePath(
@@ -802,7 +833,70 @@ function writeThroughTheOnePath(
   readStamp: DocumentStamp,
   commands: readonly DocumentCommand[],
 ): AgentWriteOutcome {
-  const outcome = applyDocumentChange(
+  let outcome
+  try {
+    outcome = planAndApply(wiring, snapshot, readStamp, commands)
+  } catch (thrown) {
+    return {
+      accepted: false,
+      refusal: agentRefusal(
+        target,
+        'malformedRequest',
+        snapshot,
+        `a command of the bundle is not the shape table T-108 declares: ${messageOf(thrown)}`,
+        [],
+      ),
+    }
+  }
+
+  if (!outcome.accepted) {
+    const { refusal } = outcome
+    return {
+      accepted: false,
+      refusal: agentRefusal(
+        target,
+        reasonOfPlanRefusal(refusal),
+        snapshot,
+        `${refusal.step} refused it; the rule is ${ruleOfPlanRefusal(refusal)}`,
+        refusal.step === 'WS-3' ? refusal.refusals : [],
+      ),
+    }
+  }
+
+  return {
+    accepted: true,
+    stamp: frozenCopy(outcome.document.documentStamp),
+    hasMovedSchedule: outcome.hasMovedSchedule,
+  }
+}
+
+/**
+ * What a thrown value said, as one line, whatever it was thrown as.
+ *
+ * ⭐ AG-9a asks a refusal to carry 「理由の区分」 and this is not it -- the
+ * category is `malformedRequest`. This is the sentence beside it, so that a
+ * caller can see WHICH field it spelled wrong rather than only that one is
+ * wrong. ⛔ Never printed to a person: FR-038 keeps every word a person reads
+ * in the one dictionary, and `what` is not read out of it.
+ *
+ * @purity pure
+ */
+function messageOf(thrown: unknown): string {
+  return thrown instanceof Error ? thrown.message : String(thrown)
+}
+
+/**
+ * The write itself, split out so the guard above reads as one line.
+ *
+ * @purity non-pure
+ */
+function planAndApply(
+  wiring: AgentApiWiring,
+  snapshot: AgentSnapshot,
+  readStamp: DocumentStamp,
+  commands: readonly DocumentCommand[],
+): ReturnType<typeof applyDocumentChange> {
+  return applyDocumentChange(
     {
       readStamp,
       commands,
@@ -827,26 +921,6 @@ function writeThroughTheOnePath(
     wiring.holder,
     wiring.audience,
   )
-
-  if (!outcome.accepted) {
-    const { refusal } = outcome
-    return {
-      accepted: false,
-      refusal: agentRefusal(
-        target,
-        reasonOfPlanRefusal(refusal),
-        snapshot,
-        `${refusal.step} refused it; the rule is ${ruleOfPlanRefusal(refusal)}`,
-        refusal.step === 'WS-3' ? refusal.refusals : [],
-      ),
-    }
-  }
-
-  return {
-    accepted: true,
-    stamp: frozenCopy(outcome.document.documentStamp),
-    hasMovedSchedule: outcome.hasMovedSchedule,
-  }
 }
 
 /**

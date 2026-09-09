@@ -999,6 +999,14 @@ const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
 // re-typed, so moving either value moves these cases with it.
 const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') / 2
 
+// ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-038's order (MUST,
+// 利用者の裁定 2026-09-09) says what that hold is worth: 「本並びで数える幅は、
+// 掴みシロを持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で
+// 数えてはならない（MUST NOT）… 実績のダミー（GR-9 / GR-17 / GR-18）の掴みシロは
+// `S-93` であり、描く幅の `S-180` ではない」. ⛔ Read from the generated block, so
+// the manuscript's own number is what these cases stand on. Defect D-408.
+const DUMMY_MARKER_OFFSET = NOT_STORED_SIZES['S-93'][0] + MARKER_OFFSET
+
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
   scheduleOf({
@@ -1179,13 +1187,19 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // started has no actual bar, so FR-043's GR-17 stands in for its right end
     // and the marker leaves the plan's own right end alone.
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
-    expect(fresh.marker!.centre.x).toBeCloseTo(fresh.dummies[1]!.at.x + MARKER_OFFSET, 6)
+    expect(fresh.marker!.centre.x).toBeCloseTo(
+      fresh.dummies[1]!.at.x + DUMMY_MARKER_OFFSET,
+      6,
+    )
     // ⚠️ THE DAY MOVED WITH CR-275, THE RULE DID NOT. FR-043 now starts the
     // dummy on the working day AFTER the plan start (2026-01-01 is a Thursday,
     // so GR-9 is the Friday) and GR-17 stands S-129 along from GR-9, which puts
     // the marker one day further right than it stood. GR-7 still hangs off
     // GR-17 and off nothing else, which is what this case is for.
-    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(2) + MARKER_OFFSET, 6)
+    // ⚠️ AND OFF THE OUTSIDE OF ITS HOLD SINCE 2026-09-09, not off the day's own
+    // edge: the ink is `min(1 day, S-180)` across and the hold is S-93's 30, and
+    // GR-7 says 掴みシロの外側.
+    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(2) + DUMMY_MARKER_OFFSET, 6)
   })
 
   it('GR-7 keeps a milestone on its figure, which has no GR-17 to follow', () => {
@@ -1461,7 +1475,14 @@ describe('ItemHitArea (PI-7)', () => {
   const middleY = REGIONS.rowArea.y + 14
 
   it('GR-12 answers the plan bar body', () => {
-    expect(itemAtPointer(oneTask(), xOf(10), middleY, SLOP)).toEqual({
+    // ⚠️ PROBED AT DAY 15 AND NOT AT DAY 10 SINCE 2026-09-09. Nothing about
+    // GR-12 changed; the MARKER moved. This Task is not started, so GR-7 hangs
+    // off GR-17's hold (S-93, 30px from the dummy's day) rather than off the
+    // day's own edge, which walks the square over day 10 -- and GR-7 stands
+    // above GR-12 in table T-023d, so it wins there, exactly as the case below
+    // shows it winning over the actual bar's body. Day 15 is clear of the
+    // square and still the plan's own body, which is what this case reads.
+    expect(itemAtPointer(oneTask(), xOf(15), middleY, SLOP)).toEqual({
       item: { kind: 'task', taskUid: 1 },
       grab: 'GR-12',
     })
@@ -1580,7 +1601,19 @@ describe('ItemHitArea (PI-7)', () => {
   it('GR-7 follows the end-point dummy while the Task is not started', () => {
     // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
     // end and joins the two faint dummies at the head of the bar.
-    expect(itemAtPointer(oneTask(), xOf(1) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    // ⭐ OUTSIDE THE HOLD, which is what 「掴みシロの外側」 says and what table
+    // T-038's order (MUST, 利用者の裁定 2026-09-09) gives a width to. GR-17
+    // stands on day 2 here, so its hold ends S-93 further along.
+    expect(itemAtPointer(oneTask(), xOf(2) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe(
+      'GR-7',
+    )
+    // ⛔ AND NOT INSIDE IT (defect D-408): every pixel of GR-17's own hold
+    // answers GR-17, which the ruling of 2026-09-09 states in as many words --
+    // 「その 1 つの印のどの画素を押しても `GR-17` を掴むこと（MUST）」.
+    expect(itemAtPointer(oneTask(), xOf(2) + 1, middleY, SLOP)?.grab).toBe('GR-17')
+    expect(
+      itemAtPointer(oneTask(), xOf(2) + NOT_STORED_SIZES['S-93'][0] - 1, middleY, SLOP)?.grab,
+    ).toBe('GR-17')
   })
 
   it('GR-9 beats GR-17 where the two dummies overlap', () => {
