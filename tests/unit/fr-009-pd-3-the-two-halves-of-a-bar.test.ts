@@ -541,6 +541,9 @@ describe('表 T-018 -- 引く向きで依存の種別が決まる', () => {
     // ⛔ DRIVEN FROM THE TABLE, one case walking every row (Chapter 1.9, :275).
     // 「引き出した辺と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する
     // （MUST）」, so each row is produced by its own pair and by no other.
+    // ⭐ And the same clause whole on one line, because a quotation broken
+    // across two comment lines carries a `// ` inside it and latches nothing:
+    // 「引き出した辺と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する（MUST）」
     const table = specTable('T-018')
     expect(table.rows.length, 'table T-018 no longer has four rows').toBe(4)
 

@@ -31,11 +31,14 @@
 //        （MUST）」 -- 「行と辞書の項が揃っていても、運ぶ側が別を捨てていれば、
 //        届くのは古い語である」
 //
-//   FR-009: 「次の依存を作ってはならない（MUST NOT）」, and what follows that
-//     clause in the same sentence is THREE prohibitions with NO row ids -- the
-//     self-reference (「自己参照」), the pair that already has a dependency, and
-//     an end that is neither task nor milestone. Table T-233 gives the FIRST of
-//     the three a row of its own and the other two none.
+//   FR-009: 「表 T-018b が並べる依存を作ってはならない（MUST NOT）」, and table
+//     T-018b holds the three -- `DN-1` the self-reference (「自己参照」), `DN-2`
+//     the pair that already has a dependency, `DN-3` an end that is neither
+//     task nor milestone. Table T-233 gives `DN-1` a row of its own and the
+//     other two none.
+//     ⚠️ RE-CUT 2026-09-10: until that day the three sat in ONE sentence with
+//     no row IDs, and this header quoted that sentence. FR-009 itself now
+//     records the change, and names this file's row RS-56 as its reason.
 //
 //   T-035 AG-9a: 「拒否の値には、拒否された対象・理由の区分・現在の刻印を含める
 //     こと（MUST）」 -- 「理由の区分」 is what `Refusal.reasonCategory` carries.

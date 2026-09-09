@@ -79,8 +79,16 @@
 //   T-023d  「上の行ほど優先すること（MUST）」 and the printed order, in which
 //           GR-3 stands above the dummies, GR-17 above GR-9 (swapped by the
 //           user's ruling of 2026-09-08), and all of them above GR-12
-//   T-023d  GR-3 「予定の開始点 | 予定バーの左端 | `start` を変える」
-//   T-023d  GR-4 「予定の終了点 | 予定バーの右端 | `finish` を変える」
+//   T-023d  GR-3 「予定の開始点 | 予定バーの左端。**掴み代は端の外側だけである**
+//           （規則は本表の結びが持つ。値は `_assets/tbl-settings.md` の 表 T-206
+//           の `S-90`）| `start` を変える」
+//   T-023d  GR-4 「予定の終了点 | 予定バーの右端。**掴み代は端の外側だけである**
+//           （規則は本表の結びが持つ。値は `_assets/tbl-settings.md` の 表 T-206
+//           の `S-90`）| `finish` を変える」
+//           ⚠️ RE-CUT 2026-09-10: until 2026-09-09 both rows carried nothing
+//           between the end of the bar and the action column. The sentence
+//           they now carry is the one that gives the outside of the end to the
+//           plan; nothing in this file reads a side off these two rows.
 //   T-023d  GR-7 「進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点
 //           の掴みシロの外側**、マイルストーンのときは図形の外側」
 //   T-023d  GR-9 / GR-17 / GR-18, the three dummies
@@ -859,8 +867,10 @@ describe('table T-023d GR-9 / GR-17 (D-56): the dummy stands one working day alo
 
   it('leaves GR-9 far enough from GR-3 that S-90 cannot reach it', () => {
     // ⭐ THIS IS THE USER'S COMPLAINT AS A NUMBER. S-90 is 「バーの上下と、端点
-    // の左右に」 an allowance; while GR-9 shares GR-3's day the allowance covers
-    // it entirely, and GR-3 stands above GR-9 in table T-023d.
+    // の外側に 12px」 an allowance; while GR-9 shares GR-3's day the allowance
+    // covers it entirely, and GR-3 stands above GR-9 in table T-023d.
+    // ⚠️ RE-CUT 2026-09-10: the row said 「端点の左右に」 until 2026-09-09 gave
+    // the outside of the end to the plan and the inside to the actual.
     const drawn = draw(notStarted())
     const planLeft = boxOfBar(taskDrawn(drawn).plan).x0
     const start = dummyNamed(taskDrawn(drawn), 'GR-9')

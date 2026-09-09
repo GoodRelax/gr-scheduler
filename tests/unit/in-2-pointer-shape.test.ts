@@ -78,8 +78,13 @@
 //   T-109's 構え column: 「⭐ `構え` の欄は、その入口が押されたときポインタが
 //             入る 表 T-023b の行である」 -- read at read time to find an entry
 //             that arms AR-2.
-//   T-206 S-90  「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」
-//   T-206 S-91  「実績の端点の掴み代 | 実績バーの帯と、端点の左右に 12px 🔎」
+//   T-206 S-90  「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」
+//   T-206 S-91  「実績の端点の掴み代 | 実績バーの帯と、端点の内側に 12px 🔎」
+//             ⚠️ RE-CUT 2026-09-10. Both rows read 「端点の左右に」 until the
+//             grab-area rulings of 2026-09-09 split the sides -- S-90 keeps
+//             only the outside of the end, S-91 only the inside -- and S-90's
+//             number moved with them. Nothing here reads either number from
+//             this comment; the two constants below take them off table T-206.
 //             ⭐ Both are read at read time, and the body probe is placed so
 //             that it clears each of them; a premise measures the margin.
 //   T-028 IN-1  「ポインタ操作は押した時点で実行せず、離した時点で確定すること」

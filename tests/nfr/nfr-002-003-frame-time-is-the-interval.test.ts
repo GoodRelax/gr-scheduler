@@ -1774,8 +1774,11 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     // / 単一 `.html` 2,034,321 / SVG 395,400 / PNG 269,097 bytes).
     // ⚠️ `D-356` PREDICTED THIS INVERSION IN AS MANY WORDS: 「直すと同じ `it` の
     // 別の条項が反転する —— `unwritableFormats` が…`notAvailable` から数えて
-    // いるので、本行を直すと `m.unwritable` が空になり「`FR-029` を押せなかった」
-    // が立つ」. ⭐ `D-186` keeps `RS-40` for the next format that cannot be
+    // いるので、本行を直すと `m.unwritable` が空になり」, and `D-356` ends
+    // 「`FR-029` を押せなかった」が立つ.
+    // ⚠️ RE-CUT 2026-09-10: the row's nested quotation used to sit far enough
+    // from the `D-356` that attributes it that check 42 read it as a citation
+    // of docs/spec, where no such sentence stands. The words are the ledger's. ⭐ `D-186` keeps `RS-40` for the next format that cannot be
     // written; when one appears, this branch stops being taken on its own.
     recorded.push(
       'FR-029 had no occasion: every format of table T-024 answered through the Agent API, so ' +

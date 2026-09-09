@@ -509,6 +509,12 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // こと（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
   // （`GR-17`）とすること（MUST）」 -- so the sweep is now two sweeps, and a
   // build that hands the whole mark to either row fails one of them.
+  // ⭐ The two clauses the cases in this section press, whole on one line each
+  // (a wrapped quotation latches nothing -- see section 8):
+  // 「人が印を押したときに掴むのは、印の左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側（同表の `GR-17`）とすること（MUST）」
+  // 「⭐ **印より右に残る当たり判定は終了側とすること（MUST）」 -- the two cases
+  // above press right OF the ink and still answer the finish, which is that
+  // clause and not the split one.
   it('the ONE drawn mark answers the start on its left half and the finish on its right', () => {
     const inkFrom = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY
     const inkTo = inkFrom + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP)
@@ -547,9 +553,18 @@ describe('every answer above names the Task the press was on', () => {
 // cases build their own. It draws the plan finish 300px from the fence and
 // hands in no fade handles at all, so `GR-4` and `GR-1` never answer anywhere
 // near the dummies -- the two rows the manuscript records as the ones that
-// swallowed them: 「`GR-4` の `S-90`（端点の外側へ 12px）と、選ばれているあいだ
+// swallowed them: 「`GR-4` の `S-90`（端点の左右へ 6px）と、選ばれているあいだ
 // 現れる `GR-1` の `S-92` の半分（7.5px）が、描かれているダミーの印を丸ごと
 // 飲んでいた」. A SHORT plan at a LOW zoom is where the three rows meet.
+//
+// ⚠️ RE-CUT 2026-09-10. This comment had been carrying S-90's outside-only
+// allowance, which is how that row reads TODAY. The manuscript's sentence
+// here is a MEASUREMENT
+// taken on 2026-09-08, and it keeps the value S-90 carried on that day; the
+// 2026-09-09 rulings that gave the plan only the outside of the end are what
+// changed the number, and the same paragraph records that the swallowing
+// 「これで構造から消える」. Restating a dated measurement in today's numbers is
+// how a citation stops being one.
 //
 // ⚠️ `fadeHandles` IS THE WHOLE OF WHAT SELECTION MEANS HERE. FR-075 spends
 // its MUST where the list is built, so a Task carrying two points IS a
@@ -831,6 +846,9 @@ const ICON_CENTRE_X = ICON_LEFT_X + (ICON_ARM + ICON_HEAD) / 2
 const ICON_CENTRE_Y = (MID_Y - ICON_HEAD + MID_Y + MARKER_RADIUS) / 2
 
 describe('GR-8 takes S-22 about the icon, not the icon\'s own outline', () => {
+  // ⭐ FR-043's own sentence for this row, whole on one line (see section 8 for
+  // why a wrapped quotation latches nothing):
+  // 「再開アイコンの当たり判定は `_assets/tbl-settings.md` の 表 T-201 の `S-22`（進捗マーカーと同寸）とすること（MUST）」
   // ⭐ CONTROL. `S-22` is 16 wide and the drawn arrow's box is about 13 by the
   // manuscript's own measurement; a build tracing the outline answers null
   // inside the box the row asks for.
@@ -900,6 +918,14 @@ describe('GR-8 takes S-22 about the icon, not the icon\'s own outline', () => {
 // （MUST NOT）」, whose reason is 「点は期間を持たないので、中断も再開も無い」, and
 // beside it ⭐ 「`GR-18` は 1 か所とすること（MUST）。開始側と終了側に分けては
 // ならない（MUST NOT）」.
+//
+// ⭐⭐ THE FOUR CLAUSES AGAIN, EACH WHOLE ON ONE LINE. A quotation broken across
+// two comment lines has a `// ` inside it, so it latches nothing; the wrapped
+// copies above are for reading and these are for holding (measured 2026-09-10).
+// 「マイルストーンに再開アイコン（`GR-8`）を当ててはならない（MUST NOT）」
+// 「⭐ **`GR-18` は 1 か所とすること（MUST）。開始側と終了側に分けてはならない（MUST NOT）」
+// 「⭐⭐ **本行は 1 か所である。開始側と終了側に分けてはならない（MUST NOT）」
+// 「下の段の「印を左右に割る」は、マイルストーンのダミーには当てないこと（MUST NOT）」
 //
 // ⚠️ THE FIGURE IS HANDED IN, NOT DERIVED. This section asks what a press
 // answers when a resume figure IS present on a milestone -- which is the shape
@@ -985,6 +1011,8 @@ describe('R-39: a milestone has no GR-8, and one GR-18 rather than two ends', ()
 // 実績の縦幅より狭くしろ。」⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
 // こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
 // （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
+// ⭐ Whole on one line, for the reason given in section 8 above:
+// 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置くこと（MUST）」
 //
 // ⚠️ WHY THE FIGURE IS ASSEMBLED HERE. Table T-222's router keeps its routes
 // off the plan bodies, so a real layout does not stage this contest; measured
@@ -1376,6 +1404,8 @@ describe('the plan\'s ends reach outside the bar and never inside it', () => {
   // ならない（MUST NOT）」. ⭐ Inside the bar is the actual's ground and the
   // body's -- 「端の外は予定、端の内は実績とすること（MUST）」 -- and this Task
   // carries no actual bar, so what is left there is `GR-12`.
+  // ⭐ The whole clause on one line, since the half above latches nothing:
+  // 「境目はバーの端であること（MUST）。端の外は予定、端の内は実績とすること（MUST）」
   it('leaves the pixels inside the finish to GR-12, not to GR-4', () => {
     expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_FINISH_X - A_FEW_PX)).toBe('GR-12')
   })

@@ -1,4 +1,97 @@
-975
+983
+#
+# RAISED 975 -> 983 ON 2026-09-10, AFTER PAYING BACK SIXTEEN OF THE TWENTY-FOUR
+# THE GRAB-AREA RULINGS BORROWED. ⚠️ MEASURED, NOT SUBTRACTED: this check
+# printed 999 before the round and 983 after, and the two hit sets were diffed
+# against the run at commit c2e58be (the commit that wrote 975) to separate the
+# clauses this wave ADDED from the ones other rounds happened to close. The
+# wave added 34 unheld markers and other work closed 10 elsewhere, so 975 + 34
+# - 10 = 999; sixteen of the 34 are now held, leaving eighteen and 983.
+#
+# ⭐⭐ FIFTEEN OF THE SIXTEEN WERE ALREADY PRESSED, AND ONLY THE QUOTATION WAS
+# BROKEN. ⛔ THIS IS WORTH MORE THAN THE NUMBER, because it is a trap the next
+# round will fall into as well: this check matches a TAIL of the manuscript's
+# own characters, and a quotation wrapped across two comment lines carries a
+# `// ` inside the run, so it latches NOTHING. Every test named below already
+# quoted its clause -- wrapped. The repair was to write the same words a second
+# time, whole, on ONE line, beside the case that presses them. ⛔ No new test
+# was written and no assertion was touched (R-13: 新規のテストは要らない);
+# `git diff` shows no changed line that is not a comment, and vitest ran 7434
+# passed / 1 skipped either side of the round.
+#
+# ⭐ WHAT WAS PAID BACK, and the case that presses each (all in tests/unit/):
+#   layout-engine.test.ts, R-35 / R-36 / R-38 -- `GR-5` / `GR-6` の掴み代は端の
+#     内側だけ（MUST）; 実績の端点を端の外側へ伸ばしてはならない（MUST NOT）;
+#     未着手のダミーと着手済の実績は同じ形の掴みシロ（MUST）; 線の掴み代の縦幅
+#     が `S-6` より狭いこと（MUST）
+#   t-023d-the-plan-start-is-the-boundary.test.ts -- 端の外は予定、端の内は実績
+#     （MUST）; `GR-13` を `GR-12` より上に置くこと（MUST）; `GR-8` をマイルス
+#     トーンに当ててはならない（MUST NOT）; `GR-18` は 1 か所（MUST）と 開始側
+#     と終了側に分けてはならない（MUST NOT）（本行 / GR-18 の 2 か所）; 印を
+#     左右に割る規則はマイルストーンに当てない（MUST NOT）; 印の左半分は `GR-9`
+#     右半分は `GR-17`（MUST）; 印より右に残る当たり判定は終了側（MUST）;
+#     再開アイコンの当たり判定は `S-22`（MUST）
+#   t-023d-gr-5-relays-the-actual-duration.test.ts -- `GR-5` の 実績バーを平行
+#     移動させてはならない（MUST NOT）
+#   fr-009-pd-3-the-two-halves-of-a-bar.test.ts -- 引き出した辺と引き入れた辺の
+#     組合せは 4 つの種別と 1 対 1（MUST）
+# ⚠️ THE LAST TWO WERE HELD BEFORE THIS WAVE AND LOST IT TO A RE-WRAP, not to a
+# ruling -- more evidence that the wrap, not the wording, is what breaks a tie.
+#
+# ⛔ THE EIGHTEEN THIS ENTRY BUYS, NAMED BY THE ROW THAT OWNS THEM, and why
+# each is left rather than latched:
+#   FR-043 x2 -- 「印は、長さ 1 稼働日の実績と同じ形で描くこと（MUST）」 and
+#     「未着手と着手済で形を変えてはならない（MUST NOT）」. ⛔ NOT LATCHED ON
+#     PURPOSE: fr-043-dummy-drawn.test.ts presses the dummy's WIDTH, its band,
+#     its colours and (for a milestone) its figure, but no case compares the
+#     bar dummy's FORM against a one-working-day actual's. Quoting the clause
+#     there would be a copy made to quiet the machine.
+#   表 T-023d の `GR-9` x1 -- 「押して状態を巡らせない（MUST NOT）」. The only
+#     cases about 巡らせる are t-023d-follows-the-pointer.test.ts's, and they
+#     are about `GR-7`, which is the row that DOES cycle.
+#   表 T-023d の結び x4, HISTORICAL -- the four clauses the closing paragraph
+#     records as withdrawn on 2026-09-08 / 09 (「描かれたダミーの印の画素も、
+#     同じく終了側（`GR-17`）を掴むこと（MUST）」, 「その 1 つの印のどの画素を
+#     押しても `GR-17` を掴むこと（MUST）」, 「印の一部を `GR-9` に割り当てて
+#     掴み分けてはならない（MUST NOT）」, 「人が印を押したときに掴むのは終了側
+#     とすること（MUST）」). ⛔ A test may not hold these: the tree is required
+#     to do the OPPOSITE of all four. This is the same shape A-appendix.md is
+#     excluded for -- a dated quotation is a record, not a rule.
+#   表 T-023d の結び x4, AUTHORING -- 「見本そのものを仕様として読んではならない
+#     （MUST NOT）」, 「ここに書き写してはならない（MUST NOT）」, 「当たり判定は
+#     本段の対象ではない（MUST NOT）」, 「別の規則として書き起こしてはならない
+#     （MUST NOT）」. These rule how the MANUSCRIPT is written, which is the
+#     distinction Chapter 1 is skipped for; a test quoting them would be a
+#     second place holding one rule.
+#   表 T-023d の結び x2, `S-90` / `S-91` -- 「予定の端点と実績の端点の掴み代の
+#     横幅を揃えること（MUST）」 and 「横幅で予定と実績を見分けさせてはならない
+#     （MUST NOT）」. ⚠️ NOTHING ASSERTS THE TWO NUMBERS ARE EQUAL. Both rows
+#     are read at run time by in-2-pointer-shape.test.ts and layout-engine
+#     .test.ts, and both happen to be 12px today, but no case would go red if
+#     one moved. ⭐ This is the one of the eighteen that a case could honestly
+#     close, and it is a REAL gap, not a wrapping accident.
+#   表 T-023d の結び x1, `S-137` -- 「読む人が `S-137` を広げたときに、道具の側
+#     で切り詰めてはならない（MUST NOT）」. No case hands the hit test an
+#     enlarged `S-137`.
+#   表 T-023d の結び x1, `GR-16` -- 「基準日線（`GR-16`）を同じように上げては
+#     ならない（MUST NOT）」. The R-38 cases press `GR-13`; none presses the
+#     status line's own place in the order.
+#   表 T-023d の結び x1, 「境目はバーの端であること（MUST）」. ⛔⛔ THIS ONE
+#     CANNOT BE HELD AT ALL, and it is a fact about the check rather than the
+#     tree: even the 28-character tail reaches back across a BLANK LINE in the
+#     manuscript, so the run a test would have to carry contains two newlines
+#     and no comment can hold it. ⭐ The clause's own words ARE latched one
+#     sentence later (「端の外は予定、端の内は実績とすること（MUST）」), and the
+#     cases in section 12 of the boundary file press exactly this rule. The
+#     file already carries two constants marked 「HELD AT 28」 for the same
+#     reason, so the shape was known before this round found a third.
+#   05-07-design.md 表 T-221 の `LF-11` x2 -- 「マイルストーンには再開アイコンを
+#     置かないこと（MUST NOT）」 and 「`resume` を持つマイルストーンでも描かない
+#     （MUST NOT）」. ⛔ THE DRAWING SIDE HAS NO CASE AT ALL: the boundary file
+#     presses that a milestone answers no `GR-8` when a resume figure IS handed
+#     in, which is the hit side; r-28-the-resume-icon-beats-the-plan-bar.test.ts
+#     draws no milestone. ⭐ These two and the FR-043 pair are the honest debt
+#     of this round -- four clauses that want a case, not a quotation.
 #
 # LOWERED 977 -> 975 ON 2026-09-09. Two more clauses gained an anchor while
 # RS-56 was given its road: table T-037's closing MUST (a row added to T-233

@@ -911,9 +911,12 @@ function markerSvg(
  * shrinks THIS drawing while `resumeValid` is false and leaves the box alone.
  *
  * ⚠️ THE ARM IS DASHED, at `resumeDashOn` (S-28) and `resumeDashOff` (S-29).
- * Those two rows exist for no other figure -- table T-101's K-28 / K-29 gloss
- * them as 「再開アイコンへ繋ぐ破線の実部 / 空部」 -- and LF-13's arm is the part
- * that runs from the marker's own bottom to the head.
+ * Those two rows exist for no other figure -- K-28 glosses the first as
+ * 「再開アイコンへ繋ぐ破線の実部」 and K-29 the second as 「再開アイコンへ繋ぐ
+ * 破線の空部」 -- and LF-13's arm is the part that runs from the marker's own
+ * bottom to the head.
+ * ⚠️ RE-CUT 2026-09-10: the two glosses were folded into one 「… 実部 / 空部」,
+ * and a sentence welded out of two rows is in neither of them.
  *
  * ⚠️ THE STROKE IS `markerStroke` (S-24), WHICH IS A JUDGEMENT. FR-011 (MUST
  * NOT) forbids this file holding a dimension of its own, and S-24 is the only

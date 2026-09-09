@@ -1,4 +1,22 @@
-9
+0
+#
+# LOWERED 9 -> 0 ON 2026-09-10. Every ruling the book carries is now written
+# into the tree, and check 43 finds all 22 適用済 verbatims where their 着地先
+# says they are. ⭐ THIS IS THE GROUND THE RAISE BELOW WAS BORROWED AGAINST,
+# and it is paid back in the same round it was taken, which is the only way a
+# raise of this file is meant to end.
+#
+#   R-31 / R-32  landed in 05-working-method.md section 10 and handoff.md
+#                section 9 -- both process rulings, both already procedures
+#   R-34 … R-40  landed in docs/spec (specification 1.97): table T-023d's
+#                closing rules, FR-043, LF-11 of table T-221, and S-5 / S-90 /
+#                S-91 / S-93 / S-180 of tbl-settings
+#
+# ⛔ DO NOT RAISE THIS AGAIN WITHOUT NAMING THE ROWS. The note kept below is
+# the record of the raise this line pays off; it is left verbatim so the next
+# reader can see what a raise costs and how it was returned.
+#
+# ---- the note written when this file was raised 3 -> 9 on 2026-09-10 ----
 #
 # RAISED 3 -> 9 ON 2026-09-10, deliberately, and here are the nine.
 # ⛔ SEVEN RULINGS CAME DOWN IN ONE SITTING and none is written into docs/spec

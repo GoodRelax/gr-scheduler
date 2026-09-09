@@ -59,9 +59,13 @@
 //           算術を、始点の側から行うものである —— 新しい算術を起こさない。
 //           ⚠️ 本表でただ 1 行、2 つの列を変える行である —— それを承知の裁定
 //           である」
-//   T-023d GR-6   「実績の終了点 | 実績バーの右端 | `actualDuration` を変える
-//           （置いた日付から稼働日数を算出する）」 -- the arithmetic GR-5 says
-//           it reuses.
+//   T-023d GR-6   「実績の終了点 | 実績バーの右端。**掴み代は端の内側だけである**
+//           （規則は本表の結びが持つ。値は `_assets/tbl-settings.md` の 表 T-206
+//           の `S-91`）| `actualDuration` を変える（置いた日付から稼働日数を
+//           算出する）」 -- the arithmetic GR-5 says it reuses.
+//           ⚠️ RE-CUT 2026-09-10: the middle column carried nothing after
+//           「実績バーの右端」 until 2026-09-09 gave the inside of the end to
+//           the actual. The arithmetic this file drives is unchanged.
 //   T-023d GR-15  「実績のマイルストーン | 実績の図形の上 | `actualStart` を
 //           動かす。マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
 //           `GR-17` に当たらない」 -- and GR-5's own 「本表でただ 1 行、2 つの
@@ -579,6 +583,10 @@ describe('表 T-023d -- the rows this file is driven by', () => {
   })
 
   it('GR-5 still forbids moving the actual bar bodily (MUST NOT)', () => {
+    // ⭐ The row's own emphasis included, whole on one line: check 39 matches a
+    // tail of the manuscript's characters, and the tail reaches back past the
+    // 「⛔ **」 that opens the clause.
+    // 「⛔ **実績バーを平行移動させてはならない（MUST NOT）」
     expect(GR_5).toContain('実績バーを平行移動させてはならない（MUST NOT）')
   })
 

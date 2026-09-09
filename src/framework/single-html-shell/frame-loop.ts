@@ -1854,10 +1854,17 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   { reason: 'RS-55', command: null, rule: 'HM-4' },
   // `RS-56`, 正 `FR-009` -- 「同じ `Task` を、依存の先行と後続の両方にしようとし
   // た」. ⛔ THE ONLY ENTRY OF THIS TABLE THAT NAMES A CATEGORY, and the reason
-  // is FR-009's own shape: 「次の依存を作ってはならない（MUST NOT）」 lists three
-  // prohibitions in one sentence -- 自己参照, the duplicate pair, and an end that
-  // is neither task nor milestone -- and table T-233 gives a row to the FIRST
-  // alone. ⭐ The other two keep `RS-10` 「命令が拒否されたので、束ごと落とした」,
+  // is FR-009's own shape: 「表 T-018b が並べる依存を作ってはならない（MUST NOT）」
+  // forbids three, and table T-018b now gives them row IDs -- `DN-1` 自己参照,
+  // `DN-2` the duplicate pair, `DN-3` an end that is neither task nor milestone
+  // -- and table T-233 gives a row to `DN-1` alone.
+  // ⚠️ RE-CUT 2026-09-10. Until that day FR-009 opened the prohibition with
+  // the word 次 and put all three in ONE sentence with no row IDs, which is
+  // what this comment quoted and reasoned from; the manuscript records the
+  // change itself, naming RS-56's want of a row to point at as the reason.
+  // ⛔ The dead sentence is not quoted here -- a comment that keeps a withdrawn
+  // wording in 「」 is exactly what check 42 counts.
+  // ⭐ The other two keep `RS-10` 「命令が拒否されたので、束ごと落とした」,
   // whose next step 「拒まれた変更を取り除いて、もう一度」 is true of them, and a
   // row of table T-233 for either is the specification's to give rather than
   // this file's to guess.

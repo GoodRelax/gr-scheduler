@@ -1763,6 +1763,13 @@ describe('ItemHitArea (PI-7)', () => {
   // 取ること（MUST）。実績の端点（`GR-5` / `GR-6`）の掴み代は端の内側だけに取ること
   // （MUST）」, with ⛔ 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）。実績の
   // 端点を端の外側へ伸ばしてはならない（MUST NOT）」.
+  //
+  // ⭐⭐ AND THE SAME TWO CLAUSES AGAIN, EACH WHOLE ON ONE LINE. Check 39 looks
+  // for a tail of the manuscript's own characters, and the wrapped copies above
+  // hold nothing -- every wrap puts a `// ` inside the run. Measured 2026-09-10:
+  // the three cases below press these words; the lines are what latch them.
+  // 「実績の端点（`GR-5` / `GR-6`）の掴み代は端の内側だけに取ること（MUST）」
+  // 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）。実績の端点を端の外側へ伸ばしてはならない（MUST NOT）」
 
   it('R-35 ⭐ MUST: outside the left end is the PLAN\'s, inside it is the ACTUAL\'s', () => {
     // ⚠️ STARTED ON PURPOSE, so no dummy stands on these pixels and the only
@@ -1838,6 +1845,8 @@ describe('ItemHitArea (PI-7)', () => {
   // ⛔ THE DEFECT, in 利用者's own words: 「未着手のつかみシロが着手済と形状が違い
   // 混乱する。 形状を合わせろ。」 ⇒ 「未着手のダミーと着手済の実績は、同じ形の掴み
   // シロを持つこと（MUST）」, and the vertical is where the two used to part:
+  // ⭐ THE CLAUSE WHOLE ON ONE LINE, for the reason given under R-35 above:
+  // 「未着手のダミーと着手済の実績は、同じ形の掴みシロを持つこと（MUST）」
   // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）—— 横は同表の `S-93` が
   // 持つ」, with ⛔ 「2026-09-09 まで `S-93` が縦をみずから持っており、実績の帯より
   // 高かった」.
@@ -1871,6 +1880,11 @@ describe('ItemHitArea (PI-7)', () => {
   // の縦幅より狭くしろ。」 ⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
   // こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
   // （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
+  // ⭐ The half THIS unit presses, whole on one line (see R-35 above for why):
+  // 「ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」
+  // ⛔ The other half -- the line standing above the plan body -- is pressed in
+  // tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts, and is latched
+  // there rather than here, where no case asks it.
 
   it('R-38 ⭐ MUST: the line\'s own allowance is narrower than the actual\'s floor', () => {
     // `S-137` is a reach to EITHER side of the line, so the band it makes is

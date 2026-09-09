@@ -202,7 +202,10 @@ describe('EditDependency (UF-13) -- CM-36 createDependency', () => {
   })
 
   it('FR-009 refuses a self-reference', () => {
-    // MUST NOT: 「同じタスクを先行と後続の両方にするもの（自己参照）」.
+    // MUST NOT: 表 T-018b の `DN-1` 「同じ `Task` を先行と後続の両方にするもの」
+    // （自己参照）. ⚠️ RE-CUT 2026-09-10: the three forbidden dependencies were
+    // one sentence with no row IDs until that day, and it wrote タスク where
+    // the table now writes `Task`.
     const result = editDependency(documentOf(PLAIN()), draw(1, 1, 'finish', 'start'))
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.refusals[0]!.rule).toBe('FR-009')
@@ -233,8 +236,9 @@ describe('EditDependency (UF-13) -- CM-36 createDependency', () => {
   })
 
   it('FR-009 refuses an endpoint that is neither Task nor milestone', () => {
-    // MUST NOT: 「タスクでもマイルストーンでもないものを端点にするもの」. A
-    // uid that names no row of `tasks` names neither.
+    // MUST NOT: 表 T-018b の `DN-3` 「`Task` でもマイルストーンでもないものを
+    // 端点にするもの」. A uid that names no row of `tasks` names neither.
+    // ⚠️ RE-CUT 2026-09-10 with `DN-1` above, for the same reason.
     for (const command of [draw(9, 2, 'finish', 'start'), draw(1, 9, 'finish', 'start')]) {
       const result = editDependency(documentOf(PLAIN()), command)
       expect(result.ok).toBe(false)

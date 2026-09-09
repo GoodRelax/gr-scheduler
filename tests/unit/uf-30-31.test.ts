@@ -2385,7 +2385,7 @@ describe('表 T-023d -- what a grab does', () => {
     // （`actualDuration`）と `resumeValid`（`true`）を置くこと」。The same three
     // columns whichever handle was taken, so ONE command -- ⛔ AND NOT THE SAME
     // VALUES: 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだ
-    // ときは開始点を予定の開始日の翻稼働日で確定させること（MUST）」, which is
+    // ときは開始点を予定の開始日の翌稼働日で確定させること（MUST）」, which is
     // why the row taken travels on the command below. ⭐ And -- and 「掴んで置く値は、実績
     // 開始日 ＝ 掴みシロを離した日」（MUST、利用者の裁定 2026-09-02）, so that
     // one command carries the day the pointer was let go on. ⛔ 「離した日を

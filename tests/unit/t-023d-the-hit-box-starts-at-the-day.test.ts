@@ -32,10 +32,13 @@
 //
 //   T-023d  the closing rule quoted above, and the printed order in which GR-3
 //           stands above GR-9, GR-9 above GR-17, and all of them above GR-12
-//   T-023d  GR-3 「予定の開始点 | 予定バーの左端 | `start` を変える」 -- the row
-//           that makes the plan bar's left edge the plan start day's column
-//           edge, which is how the day columns below are counted without
-//           reading a coordinate out of `src/`
+//   T-023d  GR-3 「予定の開始点 | 予定バーの左端。**掴み代は端の外側だけである**
+//           （規則は本表の結びが持つ。値は `_assets/tbl-settings.md` の 表 T-206
+//           の `S-90`）| `start` を変える」 -- the row that makes the plan bar's
+//           left edge the plan start day's column edge, which is how the day
+//           columns below are counted without reading a coordinate out of
+//           `src/`. ⚠️ RE-CUT 2026-09-10: the middle column gained its
+//           sentence on 2026-09-09; the left edge it names did not move.
 //   T-023d  GR-9 「未着手のタスクの上、**予定の開始日の翌稼働日** …」
 //   T-023d  GR-17 「`GR-9` の日から `S-129` ぶん進んだ稼働日 …」
 //   T-023d  GR-18 「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ場所である」

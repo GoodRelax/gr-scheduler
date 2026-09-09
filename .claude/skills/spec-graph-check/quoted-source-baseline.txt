@@ -1,4 +1,39 @@
-473
+471
+#
+# LOWERED 486 -> 471 ON 2026-09-10, and the shape is the one the entry below
+# predicted word for word: the grab-area rulings of 2026-09-09/10 landed, and
+# fifteen comments that had quoted the sentences those rulings replaced became
+# false citations in one day. ⭐ NOT ONE WAS A FABRICATION WHEN IT WAS WRITTEN.
+# ⚠️ Measured, not counted by hand: 486 with docs/spec/output/ copied in (rule
+# 04 §6.7 -- a worktree without it reads 3 too high), the fifteen found by
+# running this check's own detector against the manuscripts as commit 6442b29
+# left them and diffing the two hit sets, and 471 after. The 473 the baseline
+# held is 471 plus two the repair wave of 2026-09-08 had already mended
+# without lowering the file.
+# ⭐ THE FOUR SHAPES THIS ROUND MET, worth naming because none is a typo:
+#   1. A TABLE ROW GREW A MIDDLE COLUMN. 表 T-023d's GR-3 / GR-4 / GR-6 each
+#      gained 「掴み代は端の外側だけである」 (or 内側), so every comment quoting
+#      the row as 「予定の開始点 | 予定バーの左端 | `start` を変える」 stopped
+#      being a quotation. Six comments, all re-cut to the new row.
+#   2. A SENTENCE WAS GIVEN ROW IDS. FR-009's three forbidden dependencies were
+#      one sentence until 2026-09-10; they are now 表 T-018b's DN-1 / DN-2 /
+#      DN-3, and the manuscript says so in its own words. Three comments.
+#   3. A DATED MEASUREMENT WAS RESTATED IN TODAY'S NUMBERS. A comment had
+#      "helpfully" updated 「`GR-4` の `S-90`（端点の左右へ 6px）…」 to today's
+#      12px. ⛔ THAT IS A FABRICATION, not an update: the manuscript's sentence
+#      is a measurement of 2026-09-08 and keeps the value S-90 carried that
+#      day. The same paragraph says the swallowing 「これで構造から消える」.
+#   4. TWO ROWS WELDED INTO ONE QUOTATION. `svg-renderer.ts` glossed K-28 and
+#      K-29 together as one 実部 / 空部 sentence; a sentence made out of two
+#      rows is in neither of them.
+# ⚠️ AND ONE THAT IS NOT A SPEC QUOTATION AT ALL. `nfr-002-003` quotes ledger
+# row D-356, which itself quotes 「`FR-029` を押せなかった」 -- the nested
+# quotation had drifted more than the 120 characters this check looks back for
+# an attribution, so it read as a citation of docs/spec. The words are the
+# ledger's; the fix was to put `D-356` next to them again.
+# ⛔ THE BEHAVIOUR WAS NOT CHANGED, AND NEITHER WAS docs/. Comment lines only:
+# `git diff` shows no changed line that is not a comment, and vitest ran 7434
+# passed / 1 skipped either side.
 #
 # LOWERED 486 -> 473 ON 2026-09-08 across the repair wave. Thirteen more, and
 # not one of them was written as a fabrication -- every one was TRUE when it
