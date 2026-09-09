@@ -993,14 +993,23 @@ SUBTRACTED_WHERE_IT_STANDS = [
     ' * its own -- so these are not values a screen may hold alone.',
 ]
 
-# ⛔ THE SAME THIRD SEAM, WITH A DIFFERENT GROUND. S-180 is read by the unit
-# that draws with it, exactly as S-138 and S-140 are -- but the sentence that
-# tells a reader their picture does not change is NOT the same sentence. The
-# entrance is absent from an export because EP-1 and EP-4 draw no entrance at
-# all; the dummy is absent because EP-14 says so of U-52 alone, and that row
-# adds that no place is reserved for it (it lies over the task bar). ⛔ Sharing
-# one paragraph would print the wrong row ID in the one place a reader looks
-# for it, which is the copied-value defect rule 03 section 3 names.
+# ⛔ THE SAME THIRD SEAM, WITH A DIFFERENT GROUND. S-180 belongs to the mark
+# FR-043 draws, the way S-138 and S-140 belong to what draws with them -- but
+# the sentence that tells a reader their picture does not change is NOT the same
+# sentence. The entrance is absent from an export because EP-1 and EP-4 draw no
+# entrance at all; the dummy is absent because EP-14 says so of U-52 alone, and
+# that row adds that no place is reserved for it (it lies over the task bar).
+# ⛔ Sharing one paragraph would print the wrong row ID in the one place a
+# reader looks for it, which is the copied-value defect rule 03 section 3 names.
+#
+# ⛔⛔ AND THE DRAWING UNIT IS NO LONGER THE ONLY READER (2026-09-09). This
+# paragraph used to say 「read by the unit that draws with it」 and the block
+# went to `svg-renderer.ts` alone. Table T-023d's closing rule (MUST) then sent
+# 「描かれたダミーの印の画素」 to GR-17, which makes the drawn rectangle a fact
+# the HIT TEST needs -- so `schedule-geometry.ts` solves 「1 日ぶんと `S-180` の
+# 小さい方」 once onto `DummyGeometry.ink` and both sides read that. ⭐ What did
+# NOT change is why the document does not keep the row, which is all the
+# paragraph below claims.
 DRAWN_FOR_THE_SCREEN_ALONE = [
     ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
     ' * setting and may not become one: table T-206 is where the',
@@ -1039,8 +1048,9 @@ DRAWN_INSIDE_THE_COMMAND_PALETTE = [
 ]
 
 # ⛔ A FIFTH GROUND, AND THE ONLY ONE WHOSE PICTURE LEAVES THE TOOL. S-194 is
-# read by the unit that draws with it, as S-138 and S-180 are -- but all
-# three of their closing sentences say some form of "the export does not show
+# read by the unit that draws with it, as S-138 is (and as S-180 was until the
+# hit test came to need the drawn rectangle too) -- but all three of their
+# closing sentences say some form of "the export does not show
 # this", and EP-6 of table T-076 puts the Dual Cursor's two lines INTO the
 # exported picture. What table T-206 records here is narrower: the document
 # keeps the two DATES (S-65) and never the width they are drawn at.
@@ -2240,8 +2250,17 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The name label's lift, in the unit that decides where the label goes.
     # The label column of table T-012 is what chooses whether the gap applies.
+    # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS NOW READ TWICE. Table
+    # T-023d's closing rule (MUST, 利用者の裁定 2026-09-09) sends 「描かれたダミー
+    # の印の画素」 to GR-17, so the hit test has to know the rectangle the mark
+    # was drawn in -- and FR-043 states that rectangle as 「1 日ぶんと `S-180` の
+    # 小さい方」, which only a unit holding `layout.pxPerDay` can solve. ⇒ This
+    # unit solves it once, onto `DummyGeometry.ink`, and the renderer and the
+    # hit test both read that one rectangle. ⛔ Solving it in the renderer and
+    # again in the hit test is the copied-value defect rule 03 section 1 names.
     (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_LABEL_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DUMMY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-3's SECOND FLOOR, IN THE UNIT THAT DECIDES THE BAND. Table T-221's
     # LF-3 (MUST) and table T-051's HF-19 (MUST NOT) hold a row's band at or
@@ -2252,8 +2271,17 @@ TARGETS = [
     # keeps a Framework file out of the Entity layer's reach anyway -- what
     # crosses is the number, generated twice from the one manuscript, which is
     # the same bargain S-218 already stands on in two units.
+    # ⭐⭐ S-93 STANDS HERE AS WELL AS IN `item-hit-area.ts`, on the bargain the
+    # note above states: table T-038's closing rule (MUST, 利用者の裁定
+    # 2026-09-09) counts 「掴みシロを持つものについてはその掴みシロの幅」, and
+    # this is the unit that measures that order -- but `item-hit-area.ts`
+    # imports ScheduleGeometry, which imports this file, so reading the constant
+    # from there would be the cycle LR-3 forbids. ⇒ The number is generated
+    # twice from the one manuscript, which is what `NOT_STORED_SCROLLBAR_SIZES`
+    # already does. ⛔ Until 2026-09-09 this file typed the 30 in by hand.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
-     lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES'),
+     lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
     # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors
@@ -2344,8 +2372,11 @@ TARGETS = [
     # ⭐ The dummy's drawn width joins them, in its own constant: FR-043's three
     # grab handles are drawn by this unit and by no other, and S-180 is the only
     # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
-    # S-131 is the faintness, and S-93 is the reader's hit area, which table
-    # T-206 routes to item-hit-area.ts alone).
+    # S-131 is the faintness, and S-93 is the reader's hit area).
+    # ⚠️ S-180 NOW LANDS IN `schedule-geometry.ts` AS WELL, for the reason that
+    # entry states: table T-023d's closing rule made the drawn rectangle a fact
+    # the hit test needs, so the geometry solves it once and this unit reads the
+    # answer off `DummyGeometry.ink` instead of the row.
     # ⭐ The Dual Cursor's own line width joins them, in a constant of its own
     # for the reason the entry in NOT_STORED_TARGETS gives: CU-2's two lines
     # are drawn by this unit and by no other, and S-194 is the only row that

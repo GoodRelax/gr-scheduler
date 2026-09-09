@@ -29,6 +29,7 @@ import {
   compareDays,
   dateFromWorkingDays,
   dayOf,
+  nextWorkingDay,
   planActualState,
   taskByUid,
   textOfDay,
@@ -130,6 +131,31 @@ export type TaskCommand =
   | {
       readonly kind: 'beginTaskActual'
       readonly uid: number
+      /**
+       * WHICH of FR-043's two grab handles the hand was on, as the row of table
+       * T-023d it is.
+       *
+       * ⭐⭐ THE TWO DO NOT WRITE THE SAME THING, and the table says so in as
+       * many words: GR-9 「掴めば `actualStart` と `actualDuration` を置く」,
+       * GR-17 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
+       * 確定。`FR-043`）」, and the closing rule spells the pair out --
+       * 「`GR-9` は開始日と期間の両方を置き、`GR-17` は開始日を `GR-9` の日に
+       * 据えて期間を置く」.
+       * FR-043 states it a second time from the other side (MUST): 「開始点を
+       * 掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点を予定の
+       * 開始日の翌稼働日で確定させること」.
+       *
+       * ⚠️ FR-043's 「実績開始日 ＝ 掴みシロを離した日」 is the GENERAL sentence
+       * and this is the PARTICULAR one; the particular governs. ⛔ Until
+       * 2026-09-09 no end was carried at all and CM-14 wrote the general answer
+       * for both, so grabbing the finish moved the start instead of giving the
+       * actual a length -- the very thing the closing rule's 「終了を掴めば、
+       * そこから引いて長さを与えられる」 exists to make possible.
+       *
+       * ⚠️ GR-18 IS THE MILESTONE'S SINGLE HANDLE and behaves as GR-9 does: its
+       * own row says 「掴めば `actualStart` を置く。`actualDuration` は `S-130`」.
+       */
+      readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
       /**
        * FR-043's 掴みシロを離した日 (MUST, 利用者の裁定 2026-09-02): the day the
        * hand let the grab-hold go on, which is what the actual starts on.
@@ -320,6 +346,26 @@ function planSpanOf(within: WorkingCalendar, task: Task): number | null {
   const finish = dayOf(task.finish)
   if (start === null || finish === null) return null
   return workingDaysBetween(within, start, finish)
+}
+
+/**
+ * GR-9's day -- 「予定の開始日の翌稼働日」 -- or null where the Task names no
+ * planned start.
+ *
+ * ⭐⭐ THE DAY FR-043 PINS THE START AT WHEN THE FINISH HANDLE IS GRABBED
+ * (MUST): 「終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定させること」,
+ * which table T-023d's GR-17 row names as 「`GR-9` の日」.
+ * ⛔ NOT THE DAY THE HAND LET GO ON -- that is what the START handle writes,
+ * and FR-043 (MUST NOT) forbids its two rules being read as one.
+ * ⚠️ 翌稼働日 follows the calendar (FR-054): stepping a calendar day would land
+ * on a day nobody works. ⭐ `dummiesOf` in ScheduleGeometry places the drawn
+ * handle by this same walk, so the day written is the day the mark stood on.
+ *
+ * @purity pure
+ */
+function dummyStartOf(within: WorkingCalendar, task: Task): CalendarDay | null {
+  const start = dayOf(task.start)
+  return start === null ? null : nextWorkingDay(within, start)
 }
 
 /**
@@ -949,8 +995,9 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // grabbed: どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
       // `resumeValid`（`true`）を置くこと（MUST）。開始点を掴んだときは終了点を
       // その既定の位置で、終了点を掴んだときは開始点を … 確定させること（MUST）
-      // -- neither end is left undecided, so only the DAY the hand chose comes
-      // in from outside, and it comes in once for both handles.
+      // -- neither end is left undecided. ⭐ WHICH of the two the hand was on
+      // decides which column the dropped day feeds, and that is what `grab`
+      // carries; the columns themselves are the same three either way.
       const visual = visualOf(schedule, task.uid)
       const isDrawnAsMilestone = isMilestone(task, visual)
       // S-129 by default; S-130 for a milestone, which 実績バーを持たない (点なの
@@ -982,10 +1029,39 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // ⭐ WHAT STAYS AN EXCEPTION IS THE SPAN ALONE (`duration` above, S-130),
       // and the ONE point FR-043 draws in place of a pair -- neither of which
       // is a day.
+      // ⭐⭐ THE FINISH HANDLE PINS THE START AND PULLS THE LENGTH (MUST).
+      // FR-043: 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだ
+      // ときは開始点を予定の開始日の翌稼働日で確定させること（MUST）」, and table
+      // T-023d's GR-17 row: 「掴めば `actualDuration` を置く（`actualStart` は
+      // `GR-9` の日で確定。`FR-043`）」. ⭐ The closing rule of that table states
+      // the pair: 「`GR-9` は開始日と期間の両方を置き、`GR-17` は開始日を `GR-9`
+      // の日に据えて期間を置く」, and says what it is for -- 「終了を掴めば、そこ
+      // から引いて長さを与えられる」.
+      // ⛔ FR-043's 「実績開始日 ＝ 掴みシロを離した日」 IS NOT CONTRADICTED: it
+      // is the general sentence, and these are the particular one for the
+      // finish handle. The particular governs, and both are MUST.
+      // ⚠️ Measured on the shipped build 2026-09-09, before this: a drag on
+      // GR-17 pulled five days along wrote actualStart = the day it was let go
+      // on and actualDuration = 1, exactly as a drag on GR-9 did -- so grabbing
+      // the finish gave no length at all.
+      // ⭐ THE COUNT IS GR-6's OWN, not a new one: 「置いた日付から稼働日数を算出
+      // する」, which is `workingDaysBetween` from the pinned start to the day
+      // the hand let go on -- the inverse of FR-011's picture, the pair
+      // `actualEndPlacement` already reads from the other side.
+      // ⚠️ A finish dragged back onto the start counts 0, and FR-043 accepts it:
+      // 「終了点を開始点の位置まで動かして長さを 0 にすることは受け入れる」.
+      const pinned = command.grab === 'GR-17' ? dummyStartOf(within, task) : null
+      if (command.grab === 'GR-17' && pinned === null) {
+        // FR-013 (MUST NOT) keeps a Task with no planned start off the screen,
+        // so there is no dummy to have been grabbed -- but the column is
+        // nullable and the refusal is told rather than guessed at.
+        return refused([reject('CM-14', 'FR-043', 'the task names no planned start')])
+      }
       const begun: Task = {
         ...task,
-        actualStart: textOfDay(dropped.day),
-        actualDuration: duration,
+        actualStart: pinned === null ? textOfDay(dropped.day) : textOfDay(pinned),
+        actualDuration:
+          pinned === null ? duration : workingDaysBetween(within, pinned, dropped.day),
         resumeValid: true,
       }
       // ⭐ The carried `Stop` is let go of -- see CM-13 and `actualsEdited`.

@@ -429,8 +429,13 @@ const TASK_ROWS: readonly TaskRow[] = [
   // ⭐ EITHER STILL ENTERS AN ACTUAL (FR-043): GR-9 sets the start day and the
   // duration, GR-17 sets the duration with the start pinned at GR-9's day, so
   // preferring the finish never leaves the person unable to record one.
+  // ⭐⭐ AND THE DRAWN MARK'S PIXELS ARE GR-17's TOO (MUST, 利用者の裁定
+  // 2026-09-09): 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）を掴むこと
+  // （MUST）」, ⛔ 「その 1 つの印のどの画素を押しても `GR-17` を掴むこと
+  // （MUST）。印の一部を `GR-9` に割り当てて掴み分けてはならない（MUST NOT）」.
   { grab: 'GR-17', reach: 'anyPress',
-    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-17', x, y, slop) },
+    isClaimedBy: ({ task }, x, y, slop) =>
+      isOnDummy(task, 'GR-17', x, y, slop) || isOnTheDrawnMark(task, x, y) },
   { grab: 'GR-9', reach: 'anyPress',
     isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
   // GR-10 -- the name label, wherever LC-6 put it.
@@ -610,12 +615,20 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
  * zoom; the comparison is written anyway because the rule is stated about the
  * boundary and a reader must be able to see the boundary in the code.
  *
+ * ⭐ THE DRAWN MARK YIELDS WITH THE BOXES (2026-09-09). The closing rule hands
+ * the ink's pixels to GR-17, so a pixel of the ink is a pixel the dummies hold
+ * -- and 「予定側のどの行よりも先に成立させること（MUST）」 is about the dummies
+ * and not about which of them. ⚠️ It is very nearly the boxes already: the ink
+ * stands on GR-9's own day and is at most `S-180` across against S-93's 30, so
+ * what this adds is the part of the mark taller than S-93's height.
+ *
  * @purity pure
  */
 function standsOnADummyRightOfThePlanStart(boxed: BoxedTask, x: number, y: number,
                                            slop: PointerSlop): boolean {
   const plan = boxed.plan
   if (plan === null || x <= plan.x) return false
+  if (isOnTheDrawnMark(boxed.task, x, y)) return true
   return DUMMY_ROWS.some((grab) => isOnDummy(boxed.task, grab, x, y, slop))
 }
 
@@ -754,6 +767,46 @@ function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: numb
     width: slop.dummyWidth,
     height: slop.dummyHeight,
   })
+}
+
+/**
+ * The ONE mark FR-043 draws on a Task not started, as a hit area of its own.
+ *
+ * ⭐⭐ THE THIRD PLACE THE FINISH WINS (MUST, 利用者の裁定 2026-09-09). Table
+ * T-023d's closing rule: 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）を
+ * 掴むこと（MUST）」, and beside it ⛔ 「その 1 つの印のどの画素を押しても
+ * `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けては
+ * ならない（MUST NOT）」 -- because FR-043 draws ONE mark and a single mark that
+ * answered two rows would have to be told apart by pixel position.
+ *
+ * ⛔ THIS IS NOT S-93's BOX AND MAY NOT BECOME IT. The hit band is `isOnDummy`
+ * above, anchored on each dummy's OWN day; the mark is drawn on GR-9's day
+ * (== GR-18's) at 「1 日ぶんと `S-180` の小さい方」. The two are different
+ * widths on different days, which is exactly why GR-17 answered no pixel of the
+ * mark at all: measured on the shipped build 2026-09-09, 0 of 6 ink pixels at
+ * 6px a day, 0 of 12 at 12.9 and at 27.6 (defect D-415).
+ *
+ * ⛔ AND GR-9 IS NOT REMOVED. Its row still carries its own operation, and
+ * outside the mark -- where its S-93 band runs on past the ink -- it is still
+ * the row that answers. The ruling speaks of 「印の 画素」 and 「印の 一部」,
+ * which is the ink and not the band.
+ *
+ * ⛔ AND A MILESTONE IS NOT REACHED, which is GR-15's row (「マイルストーンは実績
+ * バーを持たないので `GR-5` / `GR-6` / `GR-17` に当たらない」): FR-043 draws ONE
+ * point on a milestone, GR-18 is the only handle there is, and the mark's
+ * pixels can no more go to GR-17 than the handle can. ⇒ The mark answers only
+ * where the Task actually carries a GR-17.
+ *
+ * ⚠️ THE RECTANGLE IS READ, NEVER REBUILT. `DummyGeometry.ink` is the very one
+ * the renderer draws, and its note says why both sides must read the one
+ * record. ⭐ Every dummy of a Task carries the same rectangle, so the row that
+ * is looked up answers for the drawing as a whole.
+ *
+ * @purity pure
+ */
+function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
+  const finish = task.dummies.find((one) => one.grab === 'GR-17')
+  return finish !== undefined && isInsideBoxInclusive(x, y, finish.ink)
 }
 
 /**

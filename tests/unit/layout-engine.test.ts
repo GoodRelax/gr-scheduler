@@ -1202,16 +1202,35 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(fresh.marker!.centre.x).toBeCloseTo(xOf(2) + DUMMY_MARKER_OFFSET, 6)
   })
 
-  it('GR-7 keeps a milestone on its figure, which has no GR-17 to follow', () => {
+  it("GR-7 keeps a milestone outside its figure AND outside GR-18's hold", () => {
     // マイルストーンのときは図形の外側. GR-15 gives it no actual bar and so no
     // end-point dummy either; LF-10 already makes the plan figure's right edge
     // the outside of the figure.
+    // ⭐⭐ AND THE HOLD IS COUNTED TOO, WHICH IS TABLE T-038's ORDER AND NOT
+    // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロ
+    // を持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数え
+    // てはならない（MUST NOT）」. GR-18 HAS a hold -- its own row gives it S-93
+    // and forbids a milestone a narrower one -- so the same MUST reaches it.
+    // ⛔ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE FIGURE'S
+    // EDGE ALONE, and it was measured wrong on the shipped build: the marker
+    // stood on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9, which is
+    // defect D-408's shape on the shape D-408 was not repaired for.
+    // ⭐ GR-7's own row is untouched: it says what the marker stands outside OF,
+    // and this says which width the order counts. The marker clears both.
     const milestone = geometryOf(
       oneRow([taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true })]),
     ).tasks[0]!
     expect(milestone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
-    // The figure is 42 across and centred on day 10, so its right edge is at 21.
-    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(10) + 21 + MARKER_OFFSET, 6)
+    // 2026-01-01 is a Thursday, so 2026-01-11 is a Sunday and GR-18 stands on
+    // Monday the 12th -- day 11. Its hold runs S-93 right of that day's edge.
+    expect(milestone.dummies[0]!.at.x).toBeCloseTo(xOf(11), 6)
+    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(11) + DUMMY_MARKER_OFFSET, 6)
+    // ⛔ THE CONTRAST. The figure is 42 across and centred on day 10, so its own
+    // right edge is at 21 -- and a marker placed there stands INSIDE the hold.
+    expect(milestone.marker!.centre.x).not.toBeCloseTo(xOf(10) + 21 + MARKER_OFFSET, 6)
+    expect(milestone.marker!.centre.x - milestone.marker!.radius).toBeGreaterThanOrEqual(
+      xOf(11) + NOT_STORED_SIZES['S-93'][0],
+    )
   })
 
   it('S-63 takes the marker away', () => {
@@ -1616,12 +1635,39 @@ describe('ItemHitArea (PI-7)', () => {
     ).toBe('GR-17')
   })
 
-  it('GR-9 beats GR-17 where the two dummies overlap', () => {
-    // Both are 30 x 20 and one worked day apart -- 6px here -- so they do. The
-    // probe stands clear of GR-3, which is above BOTH of them in the table and
-    // would otherwise win at the plan's own start, and clear of GR-7, which
-    // GR-7's own 未着手 clause has just brought within 8px of GR-17.
-    expect(itemAtPointer(oneTask(), xOf(0) + 8, middleY, SLOP)?.grab).toBe('GR-9')
+  it('GR-17 beats GR-9 on the drawn mark, where the two dummies overlap', () => {
+    // ⭐⭐ THE EXPECTATION HERE WAS `GR-9` UNTIL 2026-09-09, and two rulings
+    // made it stale. The first (2026-09-08) put GR-17 ABOVE GR-9 in table
+    // T-023d -- 「実績の開始と終了のどちらを掴んだか決められないときは、終了を
+    // 優先すること（MUST）」 -- and the second (2026-09-09) settled the pixels
+    // this probe stands on: 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）
+    // を掴むこと（MUST）」, with 「その 1 つの印のどの画素を押しても `GR-17` を
+    // 掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けてはならない
+    // （MUST NOT）」 beside it.
+    // ⚠️ x = xOf(0) + 8 IS INSIDE THE DRAWN MARK: GR-9's day is one worked day
+    // along (6px here) and FR-043 draws the one mark 「1 日ぶんと `S-180` の
+    // 小さい方」 from that day's left edge, so the ink runs 6..12.
+    // ⭐ The probe still stands clear of GR-3, which is above both of them and
+    // would otherwise win at the plan's own start, and clear of GR-7.
+    expect(itemAtPointer(oneTask(), xOf(0) + 8, middleY, SLOP)?.grab).toBe('GR-17')
+  })
+
+  it('⛔ GR-9 keeps its own band OUTSIDE the mark -- the ruling is about the ink', () => {
+    // ⛔ THE CONTRAST, and the thing the MUST NOT does NOT say. Table T-023d
+    // still gives GR-9 its own operation, and the ruling speaks of 「印の 画素」
+    // and 「印の 一部」 -- so past the ink's right edge, where GR-9's S-93 band
+    // runs on and GR-17's own band has not yet begun, GR-9 is what answers.
+    // ⚠️ At 6px a day the ink is a whole day wide and GR-17's band opens where
+    // it ends, so this is asked at a magnification where the two part: the ink
+    // is capped at S-180's 12 and GR-9's band runs to 30.
+    const wide = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]), settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      pxPerDayAt1x: 24,
+    }))
+    const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
+    expect(gr9.ink.width, 'FR-043: 1 日ぶんと `S-180` の小さい方').toBe(12)
+    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GR-17')
+    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab).toBe('GR-9')
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {

@@ -553,13 +553,43 @@ const ANCHORED = [
   { grab: 'GR-18', day: DUMMY_START_DAY, schedule: milestone },
 ] as const
 
+/**
+ * Which row answers ON each box's own origin, once the one drawn mark is taken
+ * into account (利用者の裁定 2026-09-09).
+ *
+ * ⭐ FR-043 draws ONE mark, aligned to GR-9's day column -- so GR-9's origin is
+ * the mark's first pixel and the closing rule of table T-023d sends it to the
+ * finish. ⚠️ GR-17's own origin lies `S-129` working days further on, where no
+ * ink is drawn, so that row answers for itself; and a milestone carries no
+ * GR-17 at all (GR-15: 「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
+ * `GR-17` に当たらない」), so GR-18 keeps its own mark.
+ */
+const ANSWERS_AT_THE_DAY_EDGE: Readonly<Record<(typeof ANCHORED)[number]['grab'], string>> = {
+  'GR-9': 'GR-17',
+  'GR-17': 'GR-17',
+  'GR-18': 'GR-18',
+}
+
 describe('table T-023d (MUST): the hit box starts at the day column and runs S-93 right', () => {
   for (const { grab, day, schedule } of ANCHORED) {
     it(`${grab}: a press at the day column's left edge is inside the box`, () => {
       // 「その日の列の左端を起点に」 -- the origin itself belongs to the box.
+      //
+      // ⭐⭐ WHAT ANSWERS THERE IS NOT ALWAYS THE ROW WHOSE BOX IT IS, and that
+      // is a second MUST rather than a hole in this one. FR-043 draws its ONE
+      // mark from GR-9's day column, and the ruling of 2026-09-09 gives every
+      // pixel of that mark to the finish: 「描かれたダミーの印の画素も、同じく
+      // 終了側（`GR-17`）を掴むこと（MUST）」, and 「その 1 つの印のどの画素を押
+      // しても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分
+      // けてはならない（MUST NOT）」. ⇒ On GR-9's own origin the answer is
+      // GR-17, and GR-9's box is still the box that begins there -- the case
+      // below, a whole S-93 along, is where that box's extent is asked.
+      // ⛔ NOT LOOSENED TO "some dummy": the expected row is named exactly, so a
+      // build that handed the origin to GR-3 or GR-12 still fails.
       const drawn = draw(schedule())
       const dummy = dummyNamed(drawn, grab)
-      expect(grabAt(drawn, xOfDay(drawn, day) + A_HAIR, dummy.at.y), grab).toBe(grab)
+      expect(grabAt(drawn, xOfDay(drawn, day) + A_HAIR, dummy.at.y), grab)
+        .toBe(ANSWERS_AT_THE_DAY_EDGE[grab])
     })
 
     it(`${grab}: a press a hair inside the RIGHT edge, S-93 along, is still inside`, () => {

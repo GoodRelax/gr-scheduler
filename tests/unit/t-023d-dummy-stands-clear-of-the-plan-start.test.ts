@@ -365,6 +365,18 @@ const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
 
 /**
+ * How far the FINISH handle is pulled, in worked days past GR-9's own day.
+ *
+ * ⭐ FOUR, AND NOT `S-129`: table T-023d's closing rule says what grabbing the
+ * finish is FOR -- 「終了を掴めば、そこから引いて長さを与えられる」 -- so a
+ * release at the default length could not tell the repair from the defect.
+ * ⚠️ Counted with this file's own calendar, so the half-open span from GR-9's
+ * day to the release is exactly this number.
+ */
+const PULLED_WORKED_DAYS = 4
+const PULLED_TO = workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS)
+
+/**
  * A milestone that has not been started -- table T-023d's GR-18.
  *
  * ⭐ A FRIDAY, for the same reason `PLAN_START` is one: since 2026-09-02 GR-18
@@ -625,13 +637,32 @@ const grabAt = (drawn: Drawn, x: number, y: number): string | null =>
  * A press on a dummy's OWN point -- both axes taken from the picture.
  *
  * ⭐ NOT the plan bar's middle. `S-93` is a box around the dummy's point, and
- * `DummyGeometry.height` says the vertical belongs to the ACTUAL bar's band,
- * which table T-012 draws inside the plan's for SH-1. Pressing the plan's
- * middle instead would make every case below turn on how far apart those two
- * middles are -- a distance no row of the specification fixes.
+ * `DummyGeometry.ink` says the vertical of the drawing belongs to the ACTUAL
+ * bar's band, which table T-012 draws inside the plan's for SH-1. Pressing the
+ * plan's middle instead would make every case below turn on how far apart those
+ * two middles are -- a distance no row of the specification fixes.
  */
 const grabOn = (drawn: Drawn, dummy: DummyGeometry): string | null =>
   grabAt(drawn, dummy.at.x, dummy.at.y)
+
+/**
+ * A press on GR-9's own band PAST the one drawn mark.
+ *
+ * ⭐⭐ THE MARK IS THE FINISH's SINCE 2026-09-09 (MUST): 「描かれたダミーの印の
+ * 画素も、同じく終了側（`GR-17`）を掴むこと」, ⛔ 「印の一部を `GR-9` に割り当て
+ * て掴み分けてはならない（MUST NOT）」. ⇒ GR-9's own point is inside the mark
+ * and answers GR-17, so a case about GR-9 being REACHABLE has to press the part
+ * of its band the ruling did not speak of -- 「印の 画素」, 「印の 一部」.
+ * ⚠️ It exists only where a day is wider than the mark: FR-043 caps the drawing
+ * at `S-180` and this fixture's magnification is well past that, which the
+ * assertion inside checks rather than assumes.
+ */
+const grabPastTheMark = (drawn: Drawn, dummy: DummyGeometry): string | null => {
+  const past = dummy.ink.x + dummy.ink.width + 1
+  expect(past, 'the day must be wider than the drawn mark for this press to exist')
+    .toBeLessThan(dummy.at.x + SLOP.dummyWidth)
+  return grabAt(drawn, past, dummy.at.y)
+}
 
 const xOfDay = (drawn: Drawn, iso: string): number => xFromDay(drawn.layout, dayNamed(iso))
 
@@ -818,13 +849,37 @@ describe('table T-023d GR-9 / GR-17 (D-56): the dummy stands one working day alo
 describe('table T-023 MK-9a: a press on each point answers a different row', () => {
   const drawn = (): Drawn => draw(notStarted())
 
-  it('answers GR-9 at the dummy\'s own point, not GR-3 (MK-9a)', () => {
-    // ⛔ RED TODAY. Both rows claim the same x, and 「上の行ほど優先すること
-    // （MUST）」 gives it to GR-3 -- so there is no point at all where GR-9 can
-    // be reached at its own place, which is what the user reported.
+  it('answers GR-9 on its own band, not GR-3 (MK-9a)', () => {
+    // ⛔ RED WHEN THIS WAS WRITTEN. Both rows claimed the same x, and 「上の行ほ
+    // ど優先すること（MUST）」 gave it to GR-3 -- so there was no point at all
+    // where GR-9 could be reached at its own place, which is what the user
+    // reported (D-56).
+    // ⚠️ THE PRESS MOVED ON 2026-09-09, THE CLAIM DID NOT. GR-9's own POINT is
+    // the first pixel of the one drawn mark, and the ruling of that day gives
+    // every pixel of that mark to GR-17 -- so the press moved past the mark, to
+    // the part of GR-9's S-93 band the ruling says nothing about. What is asked
+    // is still that GR-9 can be reached at its own place, and GR-3 must still
+    // not answer there.
     const built = drawn()
     const task = taskDrawn(built)
-    expect(grabOn(built, dummyNamed(task, 'GR-9'))).toBe('GR-9')
+    expect(grabPastTheMark(built, dummyNamed(task, 'GR-9'))).toBe('GR-9')
+  })
+
+  it('⛔ answers GR-17 on the one drawn mark, GR-9\'s own point included (MUST)', () => {
+    // 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）を掴むこと（MUST）」
+    // （利用者の裁定 2026-09-09）, and beside it 「その 1 つの印のどの画素を押し
+    // ても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けて
+    // はならない（MUST NOT）」. ⚠️ Measured on the shipped build before this: 0 of 6 ink
+    // pixels answered GR-17 at 6px a day, 0 of 12 at 12.9 and at 27.6 (D-415).
+    const built = drawn()
+    const mark = dummyNamed(taskDrawn(built), 'GR-9').ink
+    expect(mark.width).toBeGreaterThan(0)
+    // ⭐ EVERY pixel, edges included -- the MUST NOT is about splitting the one
+    // mark, so a build that gave GR-17 the far half alone fails here.
+    for (let x = mark.x; x <= mark.x + mark.width; x += 1) {
+      expect(grabAt(built, x, mark.y + mark.height / 2), `x = ${x - mark.x} into the mark`)
+        .toBe('GR-17')
+    }
   })
 
   it('still answers GR-3 on the plan bar\'s left end -- the other half of the pair', () => {
@@ -885,7 +940,12 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     // `WORKED_DAY_AFTER_START`, and reading the drawing rule as the value gives
     // the same. Neither can pass here.
     const task = taskIn(
-      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      run(notStarted(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        grab: 'GR-9',
+        droppedDay: stored(DROPPED_DAY),
+      }),
       UNDER_TEST,
     )
     expect(dayOf(task.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日').toEqual(
@@ -899,19 +959,74 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     expect(task.resumeValid).toBe(true)
   })
 
-  it('places the same three values from GR-17, because one end is never decided alone', () => {
-    // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
-    // を … 確定させること（MUST）—— 片端だけが決まった状態を作らない」. Both
-    // handles route to one placement, so the document cannot tell which was
-    // grabbed -- and neither can this case, which is the point.
+  it('pins the start at GR-9\'s day from GR-17 and pulls the length from the release', () => {
+    // ⭐⭐ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE OTHER
+    // READING, and the ruling of that day made it stale rather than wrong-headed.
+    // It read 「片端だけが決まった状態を作らない」 as "both handles place the
+    // same three values", and asserted that the document could not tell which
+    // handle was grabbed. ⛔ The clause it quotes says the opposite of that in
+    // its own second half: 「開始点を掴んだときは終了点をその既定の位置で、終了点
+    // を掴んだときは開始点を予定の開始日の翌稼働日で確定させること（MUST）」 --
+    // the two handles fix DIFFERENT ends. Table T-023d's GR-17 row states it as
+    // 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。
+    // `FR-043`）」 and its closing rule as 「`GR-9` は開始日と期間の両方を置き、
+    // `GR-17` は開始日を `GR-9` の日に据えて期間を置く」.
+    // ⭐ SO THE CASE IS POINTED AT THE NEW CLAUSE, not loosened: what it asks
+    // is now the whole of that MUST, and neither end is left undecided.
     const built = draw(notStarted())
     expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
     const after = taskIn(
-      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
+      run(notStarted(), {
+        kind: 'beginTaskActual',
+        uid: UNDER_TEST,
+        grab: 'GR-17',
+        droppedDay: stored(PULLED_TO),
+      }),
       UNDER_TEST,
     )
-    expect(dayOf(after.actualStart)).toEqual(dayNamed(DROPPED_DAY))
-    expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    // 「終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定させること」
+    expect(dayOf(after.actualStart), 'FR-043: 開始点は予定の開始日の翌稼働日').toEqual(
+      dayNamed(WORKED_DAY_AFTER_START),
+    )
+    expect(dayOf(after.actualStart), 'GR-17 は離した日を開始に置かない').not.toEqual(
+      dayNamed(PULLED_TO),
+    )
+    // 「終了を掴めば、そこから引いて長さを与えられる」 -- the length is counted
+    // from the pinned start to the day the hand let go on, which is GR-6's own
+    // arithmetic (「置いた日付から稼働日数を算出する」).
+    // ⚠️ COUNTED WITH THIS FILE'S OWN CALENDAR, never `workingDaysBetween`:
+    // `workedDaysAfter`'s note says why a case may not walk the calendar with
+    // the member the unit walks it with.
+    expect(after.actualDuration, 'T-023d: `GR-17` は期間を置く').toBe(PULLED_WORKED_DAYS)
+    expect(after.actualDuration, '既定の `S-129` ではない').not.toBe(ACTUAL_INITIAL_DURATION)
+    expect(after.resumeValid).toBe(true)
+  })
+
+  it('⛔ tells GR-9 and GR-17 apart -- the two write different values (MUST)', () => {
+    // ⛔ THE CONTRAST. A build that routes both handles to one answer passes
+    // every case that asks about one of them; two handles at one release day do
+    // not. ⚠️ Measured on the shipped build 2026-09-09, before the repair: both
+    // wrote `actualDuration` 1 and `actualStart` = the release day.
+    const command = (grab: 'GR-9' | 'GR-17') =>
+      taskIn(
+        run(notStarted(), {
+          kind: 'beginTaskActual',
+          uid: UNDER_TEST,
+          grab,
+          droppedDay: stored(PULLED_TO),
+        }),
+        UNDER_TEST,
+      )
+    const start = command('GR-9')
+    const finish = command('GR-17')
+    expect(dayOf(start.actualStart), 'GR-9 は離した日').toEqual(dayNamed(PULLED_TO))
+    expect(dayOf(finish.actualStart), 'GR-17 は `GR-9` の日').toEqual(
+      dayNamed(WORKED_DAY_AFTER_START),
+    )
+    expect(dayOf(start.actualStart)).not.toEqual(dayOf(finish.actualStart))
+    expect(start.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    expect(finish.actualDuration).toBe(PULLED_WORKED_DAYS)
+    expect(start.actualDuration).not.toBe(finish.actualDuration)
   })
 
   it('starts the actual bar where the hand let go, NOT where GR-9 is drawn', () => {
@@ -926,6 +1041,9 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     const begun = run(notStarted(), {
       kind: 'beginTaskActual',
       uid: UNDER_TEST,
+      // ⭐ THE START HANDLE, which is the one this MUST NOT is about: FR-043
+      // sends GR-9 to 「掴みシロを離した日」 and GR-17 to a day of its own.
+      grab: 'GR-9',
       droppedDay: stored(DROPPED_DAY),
     })
     const actualStart = taskIn(begun, UNDER_TEST).actualStart
@@ -1022,6 +1140,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       run(milestone(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
+        grab: 'GR-18',
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -1043,6 +1162,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       run(milestone(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
+        grab: 'GR-18',
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -1067,6 +1187,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
           run(milestone(), {
             kind: 'beginTaskActual',
             uid: UNDER_TEST,
+            grab: 'GR-18',
             droppedDay: stored(iso),
           }),
           UNDER_TEST,

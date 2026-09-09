@@ -156,18 +156,28 @@ export interface DummyGeometry {
   readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
   readonly at: Point
   /**
-   * How tall the mark drawn on this point is: the ACTUAL bar's own band.
+   * The ONE mark FR-043 draws for this Task (MUST): 「ダミーの印は 1 つだけ描く
+   * こと（MUST）。開始の側と終了の側に別々の印を描いてはならない（MUST NOT）」.
+   *
+   * ⭐⭐ THE SAME RECTANGLE ON EVERY DUMMY OF ONE TASK, and that is the point:
+   * two sides read it and neither may work it out again. The renderer draws
+   * this rectangle, and table T-023d's closing rule (MUST, 利用者の裁定
+   * 2026-09-09) hands its PIXELS to GR-17 -- 「描かれたダミーの印の画素も、同じ
+   * く終了側（`GR-17`）を掴むこと」 -- so `item-hit-area.ts` reads it too.
+   * ⛔ Solving 「1 日ぶんと `S-180` の小さい方」 on each side is the copied-value
+   * defect rule 03 section 1 names, and the mark's own day would then be a
+   * second thing to keep in step.
    *
    * ⭐ S-180 IS A WIDTH AND SAYS SO. Its note settles the horizontal alone and
    * sends the vertical to the actual bar's band -- the same split S-91 makes
-   * for the actual endpoint's grab allowance. So the two are stated in two
-   * places on purpose, and this member is the second one.
+   * for the actual endpoint's grab allowance. ⇒ The height here is the ACTUAL
+   * bar's own band, which `taskGeometryOf` has already solved for the bar.
    *
-   * ⚠️ It is carried on the geometry rather than recomputed by the renderer so
-   * that the band's height stays written in ONE place. `taskGeometryOf` has
-   * already solved it for the bar itself.
+   * ⚠️ THE LEFT EDGE IS THE DAY COLUMN'S, not `at` of whichever dummy holds
+   * this record: FR-043 (MUST) aligns the drawing 「日の列の左端」 to ONE day,
+   * which is GR-9's (== GR-18's), and GR-17 stands `S-129` working days along.
    */
-  readonly height: number
+  readonly ink: ScreenRect
 }
 
 export interface TaskGeometry {
@@ -853,20 +863,25 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   if (!inputs.showActual) return inputs.showPlan ? planRight : null
   // GR-7's milestone clause: outside the FIGURE, and a milestone carries two.
   //
-  // ⛔ STOP -- THE MILESTONE IS LEFT ON ITS FIGURE ON PURPOSE, AND IT OVERLAPS.
-  // GR-18's hold is S-93 like every other dummy's, and a not-started milestone
-  // stands it on the working day AFTER the planned start, so the hold reaches
-  // further right than the figure does. ⚠️ Measured 2026-09-09 with the default
-  // settings: the marker covers 11 of GR-18's 30 hit pixels, which is the same
-  // shape as defect D-408.
-  // ⛔ NOT REPAIRED HERE, because no clause says to. The ruling of 2026-09-09
-  // states its own reach -- 「表 T-023d の GR-7 は既に「未着手のときは終了点の
-  // 掴みシロの外側」と定めている。本規則は、その外側がどこかを数える側へ与える
-  // ものであり、同行を 1 文字も変えない」 -- and GR-7's milestone clause is a
-  // different sentence (「マイルストーンのときは図形の外側」) that names no hold.
-  // Widening it would be this file deciding a row of table T-023d.
+  // ⭐⭐ AND OUTSIDE GR-18's HOLD AS WELL, WHICH IS TABLE T-038's ORDER AND NOT
+  // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロを
+  // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
+  // ならない（MUST NOT）」. GR-18 HAS a hold -- its own row gives it S-93 and
+  // forbids a milestone being given a narrower one -- so the same MUST reaches
+  // it. ⛔ GR-7's row is not touched: 「マイルストーンのときは図形の外側」 says
+  // what the marker stands outside OF, and this says what width the order
+  // counts; the two are different faces and the marker clears both.
+  // ⚠️ Measured on the shipped build 2026-09-09, before this: the marker stood
+  // on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9 -- the same shape
+  // as defect D-408, which the bar-shaped arm below had already been repaired
+  // for.
+  // ⚠️ `dummyReach` IS ALREADY GR-18's ON A MILESTONE: `dummyReachOf` reads the
+  // shape and answers the milestone's single day, so nothing new is measured
+  // here. ⭐ It and `actualReach` are never both a number (FR-043 draws a dummy
+  // only where there is no actual at all), which is why they simply join the
+  // maximum rather than choosing.
   if (placed.shapeKind === 'milestone') {
-    return placed.actualReach === null ? planRight : Math.max(planRight, placed.actualReach)
+    return Math.max(planRight, placed.actualReach ?? planRight, placed.dummyReach ?? planRight)
   }
   // ⭐⭐ GR-7's NOT-STARTED CLAUSE, AND THE HOLD IS WHAT IT CLEARS. 「未着手の
   // ときは終了点の掴みシロの外側」, with table T-038's order (MUST, 利用者の裁定
@@ -1265,15 +1280,29 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   if (from === null) return []
   const middle = placed.y + placed.planHeight / 2
   const fromX = xFromDay(inputs.layout, from)
+  // ⭐⭐ THE ONE MARK, SOLVED ONCE. FR-043 (MUST): 「ダミーを描く幅は、1 日ぶん
+  // と `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方とすること
+  // （MUST）。日の列の左端に揃えること（MUST）」, ⛔ 「`S-180` を幅そのものと
+  // してはならない（MUST NOT）」 -- S-180 is a fixed px and a day is not, so at
+  // the magnification FR-055 opens a document at, taking S-180 for the width
+  // covered two day columns and the mark pointed at a day it did not stand on.
+  // ⛔ NO FLOOR IS INVENTED: no row gives one, and a day is `layout.pxPerDay`
+  // whatever the zoom has made of it.
+  const ink: ScreenRect = {
+    x: fromX,
+    y: middle - actualHeight / 2,
+    width: Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180']),
+    height: actualHeight,
+  }
   // GR-15: a milestone holds no actual BAR, so there is no second end for
   // GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
   if (placed.actualPlacement === 'sideways') {
-    return [{ grab: 'GR-18', at: point(fromX, middle), height: actualHeight }]
+    return [{ grab: 'GR-18', at: point(fromX, middle), ink }]
   }
   const end = dummyEndOf(inputs, from)
   return [
-    { grab: 'GR-9', at: point(fromX, middle), height: actualHeight },
-    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), height: actualHeight },
+    { grab: 'GR-9', at: point(fromX, middle), ink },
+    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), ink },
   ]
 }
 
@@ -1951,5 +1980,27 @@ export const NOT_STORED_LABEL_SIZES: {
   readonly 'S-196': number
 } = {
   'S-196': 2,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it, and EP-14
+ * of table T-076 keeps the dummy out of the exported picture without
+ * reserving its place -- so a reader handed this document sees the
+ * same picture whatever this value is.
+ */
+export const NOT_STORED_DUMMY_SIZES: {
+  /** S-180, in px */
+  readonly 'S-180': number
+} = {
+  'S-180': 12,
 }
 // </generated>

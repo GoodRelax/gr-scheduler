@@ -1277,23 +1277,29 @@ function actualSpanOf(
  * `GR-9` / `GR-17` / `GR-18`）の掴みシロは `_assets/tbl-settings.md` の 表 T-206
  * の `S-93` であり、描く幅の `S-180` ではない」.
  *
- * ⛔⛔ STOP -- HAND-WRITTEN, AND IT MUST NOT STAY THAT WAY. Every other value of
- * table T-206 reaches `src/` out of a generated block, and rule 03 section 1
- * forbids typing one in for the reason this comment cannot repair: the day
- * `settings.json` changes S-93, this number goes on saying 30 and nothing in
- * the build notices. S-93 IS already generated -- as `NOT_STORED_SIZES` in
- * `item-hit-area.ts` -- but that unit imports ScheduleGeometry, which imports
- * this file, so reading it from here would be the cycle LR-3 forbids.
- * ⭐ THE ONE-LINE REPAIR, for whoever owns `tools/`: add
- * `not_stored_block('NOT_STORED_SIZES')` to this file's entry in
- * `TARGETS` (`tools/generate_entity_types.py`, beside the entry that already
- * writes `NOT_STORED_ROW_CONTROL_OUTER_SIZES` here), run `npm run gen`, and
- * replace this declaration with `NOT_STORED_SIZES['S-93'][0]`. Check 30 counts
- * a set of names and `NOT_STORED_SIZES` is already on it, so nothing else moves.
- * ⚠️ The block is already written into two files (`NOT_STORED_SCROLLBAR_SIZES`),
- * so a second home for one is not a new shape.
+ * ⭐⭐ GENERATED, NOT TYPED IN (2026-09-09). Until that day this file held a
+ * bare `30`, and rule 03 section 1 forbids it for the reason no comment can
+ * repair: the day `settings.json` changes S-93, a hand-written number goes on
+ * saying 30 and nothing in the build notices.
+ * ⚠️ S-93 IS ALSO GENERATED INTO `item-hit-area.ts`, and that is not a
+ * duplicated VALUE but a second printing of the one manuscript row -- the
+ * bargain `NOT_STORED_SCROLLBAR_SIZES` already stands on. ⛔ Reading the
+ * constant out of `item-hit-area.ts` instead would be the cycle LR-3 forbids:
+ * that unit imports ScheduleGeometry, which imports this file.
+ * ⚠️ The row carries a PAIR (width, height); the order of table T-038 is
+ * horizontal, so it is the first of the two.
+ *
+ * ⛔ A FUNCTION AND NOT A BINDING, and the reason is the file's own shape: the
+ * generated block stands at the FOOT of this file, so a module-level `const`
+ * reading it would be evaluated before the block exists (a temporal dead zone
+ * on import). ⭐ `rowControlHeightFloor` below already reads its own generated
+ * block from inside a function for the same reason.
+ *
+ * @purity pure
  */
-const DUMMY_GRAB_WIDTH_PX = 30
+function dummyGrabWidthPx(): number {
+  return NOT_STORED_SIZES['S-93'][0]
+}
 
 /**
  * A reach that is really a reach. `dummyReachOf` answers negative infinity for
@@ -1352,7 +1358,7 @@ function dummyReachOf(
   // of table T-023d: 「その日の列の左端を起点に、右へ `_assets/tbl-settings.md`
   // の `S-93` の幅で取ること（MUST）」, with 「起点を中心にしてはならない
   // （MUST NOT）」 beside it.
-  return xOnTimeAxis(originSerial, pxPerDay, originX, at) + DUMMY_GRAB_WIDTH_PX
+  return xOnTimeAxis(originSerial, pxPerDay, originX, at) + dummyGrabWidthPx()
 }
 
 /**
@@ -2645,5 +2651,37 @@ export const NOT_STORED_ROW_CONTROL_OUTER_SIZES: {
   readonly rowControlOuterHeightPx: number
 } = {
   rowControlOuterHeightPx: 24,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ Reading this is NOT the same as taking it: the value still
+ * arrives as an argument, because table T-206 keeps these out of the
+ * document on purpose (the environment may hold a larger one). This
+ * is what a caller passes when it has nothing better.
+ */
+export const NOT_STORED_SIZES: {
+  /** S-90, in px */
+  readonly 'S-90': number
+  /** S-91, in px */
+  readonly 'S-91': number
+  /** S-92, in px */
+  readonly 'S-92': readonly [number, number]
+  /** S-93, in px */
+  readonly 'S-93': readonly [number, number]
+  /** S-137, in px */
+  readonly 'S-137': number
+} = {
+  'S-90': 6,
+  'S-91': 12,
+  'S-92': [15, 15],
+  'S-93': [30, 20],
+  'S-137': 6,
 }
 // </generated>

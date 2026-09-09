@@ -258,6 +258,31 @@ const SLOP: PointerSlop = {
 const TASK_UID = 41
 
 /**
+ * S-180 -- ⛔ THE UPPER BOUND ON THE DRAWN MARK, NEVER THE MARK'S WIDTH.
+ * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること」.
+ * ⚠️ Written here rather than imported: this file builds a geometry BY HAND so
+ * that the fence can be pressed at pixels a real document would not put a dummy
+ * at, and the number is stated in the manuscript this fixture is read against.
+ */
+const DRAWN_WIDTH_CAP = 12
+
+/**
+ * A pixel that is GR-9's ALONE at the high zoom: past the drawn mark's right
+ * edge and short of GR-17's own day.
+ *
+ * ⭐⭐ IT USED TO BE THREE PIXELS INTO GR-9's DAY, AND THAT PIXEL IS NOW THE
+ * FINISH's (利用者の裁定 2026-09-09): 「描かれたダミーの印の画素も、同じく終了側
+ * （`GR-17`）を掴むこと（MUST）」. ⛔ The two cases that stand on this are NOT
+ * loosened by moving it -- what they ask is that GR-9 remains reachable at all,
+ * and the ruling is about the ink and not about GR-9's band: 「印の 画素」,
+ * 「印の 一部」. ⇒ The probe moves to the part of the band the ruling did not
+ * speak of, which is where GR-9 is still the answer.
+ * ⚠️ At 24px a day the mark is capped at `S-180`'s 12 and GR-17's day opens at
+ * 24, so 12..24 past GR-9's day belongs to GR-9 alone.
+ */
+const ONLY_GR_9_X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + DRAWN_WIDTH_CAP + 3
+
+/**
  * One rectangle-shaped Task, not started: a plan bar, no actual bar, and the
  * two dummies of `FR-043`.
  *
@@ -271,9 +296,13 @@ const TASK_UID = 41
 function notStartedTask(pxPerDay: number): ScheduleGeometry {
   const gr9X = PLAN_START_X + pxPerDay
   const gr17X = gr9X + pxPerDay
+  // ⭐ THE ONE MARK FR-043 DRAWS, on GR-9's day and 「1 日ぶんと `S-180` の
+  // 小さい方」 across. ⚠️ The same record on both dummies, which is what
+  // `DummyGeometry.ink` is: the two grab targets share one drawing.
+  const ink = { x: gr9X, y: MID_Y - 4, width: Math.min(pxPerDay, DRAWN_WIDTH_CAP), height: 8 }
   const dummies: readonly DummyGeometry[] = [
-    { grab: 'GR-17', at: { x: gr17X, y: MID_Y }, height: 8 },
-    { grab: 'GR-9', at: { x: gr9X, y: MID_Y }, height: 8 },
+    { grab: 'GR-17', at: { x: gr17X, y: MID_Y }, ink },
+    { grab: 'GR-9', at: { x: gr9X, y: MID_Y }, ink },
   ]
   return {
     tasks: [
@@ -376,8 +405,7 @@ describe('the plan start is the fence between the plan side and the actual side'
   // are separable. A build that answers `GR-3` or `GR-12` here has lost the
   // dummy the pointer is actually on.
   it('a press on the actual start dummy alone answers it, at the high zoom', () => {
-    const onlyGr9X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
-    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, onlyGr9X)).toBe('GR-9')
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, ONLY_GR_9_X)).toBe('GR-9')
   })
 
   // ⭐ CONTROL. The plan bar's middle still answers well right of the dummies'
@@ -416,8 +444,20 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // `GR-17` everywhere would leave no way to place the actual start alone.
   // That build passes both cases above and fails this one.
   it('the finish winning the tie does not take the start dummy off the figure', () => {
-    const onlyGr9X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
-    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, onlyGr9X)).toBe('GR-9')
+    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, ONLY_GR_9_X)).toBe('GR-9')
+  })
+
+  // ⭐ CONTROL FOR THE OTHER HALF OF THE SAME RULING. Every pixel of the drawn
+  // mark answers `GR-17`, including the mark's own first and last -- 「その 1 つ
+  // の印のどの画素を押しても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に
+  // 割り当てて掴み分けてはならない（MUST NOT）」. A build that split the mark
+  // between the two rows passes the two cases above and fails this one.
+  it('every pixel of the ONE drawn mark answers the finish, at the high zoom', () => {
+    const inkFrom = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY
+    const inkTo = inkFrom + DRAWN_WIDTH_CAP
+    for (let x = inkFrom; x <= inkTo; x += 1) {
+      expect(grabAt(HIGH_ZOOM_PX_PER_DAY, x), `x = ${x - inkFrom} into the mark`).toBe('GR-17')
+    }
   })
 })
 

@@ -2135,30 +2135,22 @@ export function svgFromSchedule(
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
       // storing a derived one, so there is no second formula and no key here.
-      // ⛔ `drawnWidth`, never `dummyWidth`: `item-hit-area.ts` spells S-93's
-      // HIT width that way, and S-180's own note is that the two differ.
-      // ⭐ FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md`
-      // の 表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に
-      // 揃えること（MUST）」. ⛔ S-180 IS THE UPPER BOUND AND NOT THE WIDTH
-      // (MUST NOT) -- it is a fixed px and a day is not, so at the zoom FR-055
-      // opens a whole document at, one mark covered two day columns and the day
-      // it pointed at was not the day it stood on. Capping it keeps the mark
-      // from fattening to a whole day where the day is the wider of the two.
-      // ⛔ NO FLOOR IS INVENTED HERE: no row gives one, and a day's width is
-      // `layout.pxPerDay` whatever the zoom has made of it.
-      // ⚠️ S-180 IS STILL READ FROM THE GENERATED BLOCK, never typed in, and
-      // the day comes from the layout because S-180 is DRAWN_FOR_THE_SCREEN_
-      // ALONE -- the entity may not read it, so the two meet here and nowhere
-      // else.
-      const drawnWidth = Math.min(layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
+      // ⭐⭐ THE RECTANGLE IS READ, NOT WORKED OUT (2026-09-09). FR-043's
+      // 「1 日ぶんと `S-180` の小さい方」 and its 「日の列の左端に揃えること」
+      // are both solved once, in `dummiesOf`, onto `DummyGeometry.ink` -- and
+      // they have to be, because table T-023d's closing rule (MUST) now hands
+      // 「描かれたダミーの印の画素」 to GR-17 and `item-hit-area.ts` must test
+      // the very rectangle this draws. ⛔ Until that day the width was solved
+      // here and the hit test knew nothing of it, so the ink was a subset of
+      // GR-9's box at every magnification and GR-17 answered none of its
+      // pixels (defect D-415, measured on the shipped build: 0 of 6 at 6px a
+      // day, 0 of 12 at 12.9 and at 27.6).
+      // ⛔ `ink`, never `dummyWidth`: `item-hit-area.ts` spells S-93's HIT
+      // width that way, and S-180's own note is that the two differ.
       // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d: 「`GR-9`
-      // と同じ場所である」), never GR-17's -- FR-043's alignment MUST (「日の列の
-      // 左端に揃えること」) names ONE day column, and GR-17 stands a further
-      // `S-129` working days to the right of it. ⛔ `dummiesOf` always puts
-      // GR-9 or GR-18 first and GR-17 (when present) second, but this reads by
-      // `grab` rather than by position so a reordering upstream could not
-      // silently swap which one gets drawn.
-      const anchor = task.dummies.find((one) => one.grab !== 'GR-17') ?? task.dummies[0]!
+      // と同じ場所である」), never GR-17's -- which is why the rectangle is the
+      // same on every dummy of one Task and this need not choose between them.
+      const ink = task.dummies[0]!.ink
       // ⭐ THE FIGURE, WHICH IS THE ONLY THING FR-043's THIRD MILESTONE
       // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
       // but a milestone, and the milestone's own glyph for one -- carried on
@@ -2167,9 +2159,9 @@ export function svgFromSchedule(
       const marks = barSvg(
         dummyFigure(
           task.milestoneFigure,
-          centreFromLeftEdge(anchor.at, drawnWidth),
-          drawnWidth,
-          anchor.height,
+          { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
+          ink.width,
+          ink.height,
         ),
         actual,
         `${taskKey}-dummies`,
@@ -2198,7 +2190,7 @@ export function svgFromSchedule(
       // are table T-023d's and S-93's, and FR-043's own MUST NOT keeps them out
       // of the drawing rule.
       const faintness = task.dummies.some((one) =>
-        handInside(centreFromLeftEdge(one.at, drawnWidth), drawnWidth, one.height),
+        handInside(centreFromLeftEdge(one.at, ink.width), ink.width, ink.height),
       )
         ? 1
         : settings.dummyOpacity
