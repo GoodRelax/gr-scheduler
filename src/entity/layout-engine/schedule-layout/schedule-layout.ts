@@ -1286,8 +1286,11 @@ function actualSpanOf(
  * bargain `NOT_STORED_SCROLLBAR_SIZES` already stands on. ⛔ Reading the
  * constant out of `item-hit-area.ts` instead would be the cycle LR-3 forbids:
  * that unit imports ScheduleGeometry, which imports this file.
- * ⚠️ The row carries a PAIR (width, height); the order of table T-038 is
- * horizontal, so it is the first of the two.
+ * ⭐ THE ROW IS A WIDTH AND NOTHING ELSE SINCE 2026-09-09, so nothing is picked
+ * out of it here: 「⭐ 本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」,
+ * ⚠️ 「2026-09-09 まで本行が再開アイコンにも当たり判定を与えており、縦を自分で
+ * 持っていた」. ⇒ The order of table T-038 is horizontal, which is now the whole
+ * of what the row states.
  *
  * ⛔ A FUNCTION AND NOT A BINDING, and the reason is the file's own shape: the
  * generated block stands at the FOOT of this file, so a module-level `const`
@@ -1298,7 +1301,7 @@ function actualSpanOf(
  * @purity pure
  */
 function dummyGrabWidthPx(): number {
-  return NOT_STORED_SIZES['S-93'][0]
+  return NOT_STORED_SIZES['S-93']
 }
 
 /**

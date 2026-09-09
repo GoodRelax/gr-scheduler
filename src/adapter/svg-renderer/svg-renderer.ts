@@ -901,9 +901,14 @@ function markerSvg(
  * table T-236 holds a second colour or a strength for the invalid case, so
  * inventing one would be this file writing a settings row.
  *
- * ⭐ GR-8's HIT BOX IS CENTRED ON THIS INK. ItemHitArea takes S-93's box about
+ * ⭐ GR-8's HIT BOX IS CENTRED ON THIS INK. ItemHitArea takes S-22's box about
  * the centre of `[...arm, ...head]`'s bounding box, so drawing exactly those
- * two paths is what makes the picture and the grab agree.
+ * two paths is what makes the picture and the grab agree. ⛔ It read S-93's box
+ * until 2026-09-09, when the row was shrunk to the progress marker's size --
+ * 「⭐ 新しい設定値を立てない —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う」.
+ * ⚠️ THE DRAWN SQUARE AND THE HIT SQUARE ARE NOW DIFFERENT SIZES, and that is
+ * the row's own MUST NOT (「図形の素の輪郭を当たり判定にしてはならない」): S-25
+ * shrinks THIS drawing while `resumeValid` is false and leaves the box alone.
  *
  * ⚠️ THE ARM IS DASHED, at `resumeDashOn` (S-28) and `resumeDashOff` (S-29).
  * Those two rows exist for no other figure -- table T-101's K-28 / K-29 gloss
@@ -1726,20 +1731,25 @@ export function svgFromSchedule(
    * control 「その行の名前にポインタが乗っているあいだだけ」 -- the condition is
    * the pointer being over the thing, and no order of precedence enters it.
    *
-   * ⛔ WHY THE DUMMIES MAY NOT BE ASKED THROUGH `handOn`, MEASURED. Table
-   * T-023d prints GR-3 and GR-4 (the plan's two ends) ABOVE GR-9 / GR-17, and
-   * 「上の行ほど優先すること（MUST）」, so once a day is drawn narrower than
-   * S-90's 6px the plan's end claims the point the dummy stands on. At the
-   * magnification FR-055 opens with, 21 of 21 dummies on screen answered GR-3
-   * or GR-4 and 0 of 21 darkened, while the same dummies darken 2 of 2 eight
-   * notches in. ⚠️ THAT ORDER IS NOT DISTURBED HERE and must not be: which row
-   * a PRESS goes to is table T-023d's, and MK-9a scopes its 優先順位 to
-   * 「掴む対象が重なった」. This decides only what is drawn.
+   * ⛔ WHY THE DUMMIES ARE NOT ASKED THROUGH `handOn`. The reading is the
+   * requirement's own: 「乗っている」 is a question about a DRAWN FIGURE, and
+   * HF-6 is the 作法 FR-013 points at. ⚠️ THE ORDER IS NOT DISTURBED HERE and
+   * must not be: which row a PRESS goes to is table T-023d's, and MK-9a scopes
+   * its 優先順位 to 「掴む対象が重なった」. This decides only what is drawn.
+   * ⚠️⚠️ THE MEASUREMENT THAT FIRST FORCED IT NO LONGER HOLDS, and the honest
+   * thing is to say so: it read 「table T-023d prints GR-3 and GR-4 above GR-9 /
+   * GR-17」, and at the magnification FR-055 opens with, 21 of 21 dummies on
+   * screen answered GR-3 or GR-4 and 0 of 21 darkened. ⭐ The printed order was
+   * reversed on 2026-09-10 -- 「⭐ 重なったら実績が勝つ —— 本表で `GR-5` / `GR-6`
+   * が `GR-3` / `GR-4` より上に在る」, and the dummies rose with them -- so the
+   * two readings would now agree at that magnification. ⛔ THE CODE IS NOT
+   * CHANGED BACK ON THAT ACCOUNT: no clause asks the drawing to follow the
+   * priority order, and swapping the reading again would be a change with
+   * nothing behind it. @provisional PD-360
    *
    * ⚠️ The marker is still asked through `handOn`, and that is a measurement
-   * and not a second reading: GR-7 sits above every row that can reach the
-   * marker's square, so the two conditions coincide there -- 21 of 21 markers
-   * darkened. Changing it would be a change with nothing behind it.
+   * and not a second reading: 21 of 21 markers darkened. Changing it would be a
+   * change with nothing behind it either.
    *
    * @purity pure
    */
@@ -2180,10 +2190,11 @@ export function svgFromSchedule(
       // either -- there is no per-target strength to invent, and the hand is
       // on one of a Task's dummies or on none. @provisional PD-351
       // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON. `handInside`'s note
-      // carries the measurement: the plan's ends (GR-3 / GR-4) stand above
-      // GR-9 / GR-17 in table T-023d, so below S-90's reach in a day's width
-      // the answer `handOn` gives is the plan's end and this MUST went unmet at
-      // every magnification a whole document is read at. @provisional PD-360
+      // carries why, and carries what changed under it on 2026-09-10: the
+      // plan's ends no longer stand above GR-9 / GR-17 in table T-023d, so the
+      // measurement that first forced the reading has gone -- and the reading
+      // stands on FR-013's own 「乗っている」 rather than on that order.
+      // @provisional PD-360
       // ⚠️ THE SAME RECTANGLE THE MARK WAS DRAWN AS, edge and all: FR-043's
       // alignment moved the ink, and a hand tested against the old centred box
       // would darken a mark it is not on. ⛔ This is NOT the grab band -- those
@@ -2892,13 +2903,15 @@ export function svgFromSchedule(
  * ⛔ `DUMMY_GRAB_ROWS` STOOD HERE AND IS GONE, and the reason is a measurement
  * rather than a tidy-up. It named GR-9 / GR-17 / GR-18 so that FR-013's
  * 「ポインタが乗っているあいだ」 could be asked of the row table T-023d awarded
- * the point to. That row is never one of those three below the magnification at
- * which a day is drawn wider than S-90: the plan's ends (GR-3 / GR-4) are
- * printed above them and 「上の行ほど優先すること（MUST）」. `handInside` in
+ * the point to. Below the magnification at which a day is drawn wider than S-90
+ * that row was never one of those three, because the plan's ends (GR-3 / GR-4)
+ * were printed above them and 「上の行ほど優先すること（MUST）」. `handInside` in
  * `svgFromSchedule` carries the figures measured and asks the drawn shape
  * instead, the way HF-6 of table T-051 asks it. ⚠️ Which row a PRESS goes to is
  * untouched -- that is table T-023d's, and MK-9a scopes its 優先順位 to
- * 「掴む対象が重なった」.
+ * 「掴む対象が重なった」. ⚠️ THE ORDER MOVED ON 2026-09-10 and the plan's ends now
+ * stand BELOW the dummies; `handInside`'s own note says why the reading is left
+ * as it is all the same.
  */
 
 /**

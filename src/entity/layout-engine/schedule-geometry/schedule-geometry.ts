@@ -148,6 +148,31 @@ export interface ResumeGeometry {
   readonly head: Path
   /** False when `resumeValid` is false, which is when S-25 has shrunk it. */
   readonly valid: boolean
+  /**
+   * Half of GR-8's hit square, which table T-023d's GR-8 row now sizes at S-22
+   * (MUST): 「当たり判定は `_assets/tbl-settings.md` の 表 T-201 の `S-22` の
+   * 大きさとすること（MUST）」, ⛔ 「図形の素の輪郭を当たり判定にしてはならない
+   * （MUST NOT）」.
+   *
+   * ⭐⭐ CARRIED HERE BECAUSE S-22 IS A DOCUMENT SETTING. The reaches
+   * `PointerSlop` holds are table T-206's, which that table keeps OUT of the
+   * document on purpose; S-22 is table T-201's `markerSize` and the document
+   * stores it, so it may not travel by the same road. ⭐ GR-7's marker already
+   * reaches `item-hit-area.ts` this way -- `MarkerGeometry.radius` is the same
+   * setting halved -- so this is the road that exists rather than a new one.
+   *
+   * ⭐ NO NEW SETTING IS RAISED, which the row states: 「新しい設定値を立てない
+   * —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う。」
+   * ⛔⛔ UNTIL 2026-09-09 THE ICON READ S-93, the dummy's hit box, and the
+   * user's ruling shrank it to the marker's size. S-93's own row now says so
+   * from the other side: 「再開アイコン（表 T-023d の `GR-8`）は本行を読まない」.
+   *
+   * ⚠️ S-25 (`resumeScaleInvalid`) DOES NOT ENTER IT. That row shrinks the
+   * DRAWING while `resumeValid` is false, and no clause makes the hit box
+   * follow the drawing -- the row forbids the drawn outline being the hit box
+   * at all.
+   */
+  readonly hitHalf: number
 }
 
 /** GR-9 / GR-17 / GR-18: where FR-043's faint handles sit on a Task not started. */
@@ -980,6 +1005,10 @@ function resumeOf(inputs: GeometryInputs, task: Task, marker: MarkerGeometry,
       point(x + arm, middle + head),
     ],
     valid,
+    // ⭐ S-22 UNSCALED, which is `marker.radius` doubled and halved again -- the
+    // marker is the very figure GR-8's row sends the size to. ⛔ `side` above is
+    // the DRAWN square and carries S-25; the hit box does not follow it.
+    hitHalf: settings.markerSize / 2,
   }
 }
 

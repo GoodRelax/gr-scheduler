@@ -1018,16 +1018,17 @@ function isPreviewedPress(press: PointerPress | null): boolean {
  * which `tools/generate_entity_types.py` prints from the manuscript, so a
  * change to table T-206 reaches this file rather than being silently ignored
  * (rule 03 section 1).
- * ⚠️ `S-92` and `S-93` are each stated as a width and a height, while
- * `PointerSlop.fadeHandle` is documented as a HALF-width -- which is why S-92's
- * width is halved here and S-93's pair is passed through as it stands.
+ * ⚠️ `S-92` is stated as a width and a height while `PointerSlop.fadeHandle` is
+ * documented as a HALF-width, which is why S-92's width is halved here.
+ * ⭐ `S-93` IS A WIDTH ALONE SINCE 2026-09-09 -- 「⭐ 本行が定めるのは横だけで
+ * ある —— 縦の広がりは実績の帯に従う」 -- so it is passed through as it stands and
+ * the height field that stood beside it is gone.
  */
 const POINTER_SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
   line: NOT_STORED_SIZES['S-137'],
 }
 
