@@ -165,7 +165,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'actualGap': 2,
   'actualInitialDuration': 1,
   'actualMin': 16,
-  'actualOfPlan': 0.73,
+  'actualOfPlan': 0.5715,
   'actualVisible': true,
   'appHeaderMaxHeight': 56,
   'arrowHeadOfSpan': 0.4,

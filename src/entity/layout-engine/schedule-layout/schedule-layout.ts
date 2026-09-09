@@ -2674,14 +2674,14 @@ export const NOT_STORED_SIZES: {
   /** S-92, in px */
   readonly 'S-92': readonly [number, number]
   /** S-93, in px */
-  readonly 'S-93': readonly [number, number]
+  readonly 'S-93': number
   /** S-137, in px */
   readonly 'S-137': number
 } = {
-  'S-90': 6,
+  'S-90': 12,
   'S-91': 12,
   'S-92': [15, 15],
-  'S-93': [30, 20],
+  'S-93': 30,
   'S-137': 6,
 }
 // </generated>

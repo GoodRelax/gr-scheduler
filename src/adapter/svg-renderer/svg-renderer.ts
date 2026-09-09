@@ -2981,7 +2981,7 @@ export const NOT_STORED_DUMMY_SIZES: {
   /** S-180, in px */
   readonly 'S-180': number
 } = {
-  'S-180': 12,
+  'S-180': 30,
 }
 
 /**
