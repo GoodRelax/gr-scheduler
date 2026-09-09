@@ -1,4 +1,40 @@
-3
+9
+#
+# RAISED 3 -> 9 ON 2026-09-10, deliberately, and here are the nine.
+# ⛔ SEVEN RULINGS CAME DOWN IN ONE SITTING and none is written into docs/spec
+# yet. They are the whole subject of the next round: the user redesigned the
+# grab areas over five rounds of proposals, and the design they accepted is
+# previous-project-result/13-grab-areas/ (README.md plus the sample HTML).
+#
+#   R-31  process -- refute "no clause covers this" BEFORE the user sees it
+#   R-32  process -- harvest 実測済 and 取下げ out of defects.md every round
+#   R-34  do NOT split the rectangles into upper/lower lanes (MUST NOT); the
+#         mechanism is area division plus priority order, and the plan bar may
+#         be taller than the actual bar
+#   R-35  ⭐ THE CENTRE OF THE WHOLE DESIGN. The boundary is the bar's own
+#         edge: OUTSIDE is the plan, INSIDE is the actual, and the inner one
+#         wins where they meet. Widens R-19 (which already put the boundary at
+#         the plan start) to the plan's two ends and to milestones.
+#   R-36  the dummy and a started actual take the SAME shape of grab, and the
+#         grab widths match (S-90 6px -> 12px); only the heights differ
+#   R-37  split the drawn dummy mark left/right ⇒ ⛔ OVERTURNS R-29, and ⭐
+#         dissolves R-33's question at the same time
+#   R-38  raise the dependency line above the plan bar body, on condition its
+#         grab band stays narrower than the actual bar. ⚠️ Measured: S-137 is
+#         12px against S-6's 16px, so the values already satisfy it -- what
+#         lands is the CONDITION as a MUST, not a new number
+#   R-39  a milestone has no resume; its dummy is ONE place, not two; the
+#         resume icon's hit box becomes S-22 (16 x 16px, the marker's size)
+#
+# ⛔ R-33 IS GONE FROM THIS COUNT AND WAS NOT LANDED -- it was a question the
+# front session asked, and R-37 answered it by removing the situation. Its 状態
+# now says so. ⛔ Do not ask the user about D-415 again.
+#
+# ⛔⛔ THIS NUMBER MUST REACH 0 IN THE NEXT ROUND. Nine is the highest this
+# file has ever held. It is high because the user ruled a great deal at once,
+# not because anything rotted -- but the rot starts the moment a round closes
+# without lowering it.
+#
 #
 # RAISED 2 -> 3 ON 2026-09-09, and the third is a question, not a ruling.
 # R-33 is the front session asking the user which of two of their OWN MUSTs
