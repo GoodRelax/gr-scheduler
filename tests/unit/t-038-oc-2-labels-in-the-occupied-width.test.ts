@@ -936,7 +936,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   const holdRightOf = (drawn: TaskGeometry): number => {
     const endpoint = drawn.dummies.find((one) => one.grab === 'GR-17')
     if (endpoint === undefined) throw new Error('FR-043 drew no GR-17 to hang the marker off')
-    return endpoint.at.x + NOT_STORED_SIZES['S-93'][0]
+    return endpoint.at.x + NOT_STORED_SIZES['S-93']
   }
 
   it('draws both dummies and no actual bar, or nothing below is proved', () => {

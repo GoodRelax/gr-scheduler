@@ -106,6 +106,7 @@ import type {
   DummyGeometry,
   ScheduleGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import { specTable } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The clauses, verbatim, and the manuscript they were cut from
@@ -158,13 +159,19 @@ const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
 const THE_DUMMY_STAYS_GRABBABLE_AT_A_LOW_ZOOM =
   'いる** —— **Zoom Out して 1 日の表示が潰れても、ダミーの実績を入力できることである。**⇒ ⛔ **低倍率でダミーが掴めなくなってはならない（MUST NOT）'
 
-/** Held at 90 characters. */
-const GR_8_TAKES_S_93_AND_NOT_THE_OUTLINE =
-  'assets/tbl-settings.md` の 表 T-206 の `S-93` の大きさとすること（MUST）。図形の素の輪郭を当たり判定にしてはならない（MUST NOT）'
+/**
+ * Held at 90 characters.
+ *
+ * ⛔⛔ IT NAMED `S-93` OF TABLE T-206 UNTIL 2026-09-09, and the ruling of that
+ * day shrank the box to the progress marker's own size -- 表 T-201's `S-22`.
+ * The window below is the row's own words as the manuscript now prints them.
+ */
+const GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE =
+  'assets/tbl-settings.md` の 表 T-201 の `S-22` の大きさとすること（MUST）。図形の素の輪郭を当たり判定にしてはならない（MUST NOT）'
 
 /** Held at 90 characters. */
 const GR_8_IS_CENTRED_ON_THE_ICON =
-  'いのではなく狙えない。**⭐ **新しい設定値を立てない** —— **同じ行が実績のダミーに与えている大きさをそのまま使う。**⭐ **起点はアイコンの中心とすること（MUST）'
+  'は本表の結びが持つ。**⛔⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
 
 // ---------------------------------------------------------------------------
 // ⭐ ADDED WITH THE ROUND THAT MEASURED D-395. The closing rule of 2026-09-08
@@ -188,6 +195,18 @@ const IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS =
 const NOT_BECAUSE_THE_START_STANDS_HIGHER =
   '実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）。**⛔ **開始側が本表で上に在ることを理由に、開始側を掴ませてはならない（MUST NOT）'
 
+// ---------------------------------------------------------------------------
+// ⭐ ADDED WITH THE ROUND OF 2026-09-10, WHICH BROUGHT THE RULINGS OF 09-09
+// DOWN INTO THE MANUSCRIPT. Section 6a stands on these two: the holds are not
+// cut into an upper and a lower lane, and the vertical is nested instead.
+// ---------------------------------------------------------------------------
+
+/** ⚠️ HELD AT 28 -- longer windows cross the blank line above the paragraph. */
+const NO_UPPER_AND_LOWER_LANES = 'シロを上下のレーンに割ってはならない（MUST NOT）'
+
+/** ⚠️ HELD AT 28 -- longer windows cross the blank line above the paragraph. */
+const THE_OVERLAPPING_BANDS_ARE_NESTED = '⭐ **重なる掴み代の縦幅は入れ子とすること（MUST）'
+
 const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['the plan start is the fence', BOUNDARY_IS_THE_PLAN_START],
   ['left is the plan, right is a dummy', LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY],
@@ -197,11 +216,13 @@ const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['a dummy beats every plan-side row right of the fence', THE_DUMMY_BEATS_EVERY_PLAN_ROW],
   ['no plan-side slop inside the dummy box', NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX],
   ['the dummy stays grabbable at a low zoom', THE_DUMMY_STAYS_GRABBABLE_AT_A_LOW_ZOOM],
-  ['GR-8 takes S-93 and not the drawn outline', GR_8_TAKES_S_93_AND_NOT_THE_OUTLINE],
+  ['GR-8 takes S-22 and not the drawn outline', GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE],
   ['GR-8 is centred on the icon', GR_8_IS_CENTRED_ON_THE_ICON],
   ['the finish wins where two ends share a day', THE_FINISH_WINS_WHEN_TWO_ENDS_SHARE_A_DAY],
   ['and it applies to the actual\'s two ends', IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS],
   ['not because the start stands higher in the table', NOT_BECAUSE_THE_START_STANDS_HIGHER],
+  ['the holds are not cut into an upper and a lower lane', NO_UPPER_AND_LOWER_LANES],
+  ['the overlapping bands are nested instead', THE_OVERLAPPING_BANDS_ARE_NESTED],
 ]
 
 describe('the clauses this file holds are still the manuscript\'s own words', () => {
@@ -240,6 +261,31 @@ const MID_Y = 110
 const LOW_ZOOM_PX_PER_DAY = 1
 const HIGH_ZOOM_PX_PER_DAY = 24
 
+/**
+ * The ACTUAL bar's own band, which is where table T-023d's closing rule sends
+ * the vertical of the dummies' hold (MUST, 利用者の裁定 2026-09-09) and where
+ * `S-93`'s own remark in 表 T-206 sends it too.
+ *
+ * ⚠️ A FIXTURE VALUE like every other in this section: the figures below are
+ * assembled by hand so the fence can be pressed at pixels no document would
+ * put a dummy at, and this is the band the mark is drawn in.
+ */
+const ACTUAL_BAND_HEIGHT = 8
+
+/**
+ * A line inside BOTH the fade handle's square and the actual bar's band.
+ *
+ * ⭐⭐ WHY IT IS NOT THE PLAN BAND'S TOP EDGE ANY MORE. Until 2026-09-09 the
+ * dummies' hold carried its own height and stood taller than the actual bar,
+ * so a press one pixel below the plan bar's top met both the fade handle and a
+ * dummy. The ruling of that day nests the bands instead -- 「重なる掴み代の縦幅
+ * は入れ子とすること（MUST）」 -- and sends the dummies' vertical to the actual
+ * band, which leaves the plan's own margin to the plan's rows. ⇒ The contest
+ * this file measures now lives where the two bands MEET, and a press on the
+ * plan's margin is no longer a contest at all.
+ */
+const WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND = MID_Y - ACTUAL_BAND_HEIGHT / 2 + 1
+
 /** Table T-206, through the generated block `item-hit-area.ts` publishes. */
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
@@ -250,8 +296,13 @@ const SLOP: PointerSlop = {
   // the whole 15 and so measured a grab twice the one that ships -- the very
   // fault the fence cases below exist to catch, with the yardstick wrong.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
+  // ⭐⭐ NOT `S-93`'s SECOND NUMBER -- that row is one number and a WIDTH since
+  // 2026-09-09: 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
+  // (表 T-206, S-93), and table T-023d's closing rule says the same of the hold:
+  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」. ⇒ The band is this
+  // fixture's own, stated once below and used for the ink as well.
+  dummyHeight: ACTUAL_BAND_HEIGHT,
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -264,23 +315,22 @@ const TASK_UID = 41
  * that the fence can be pressed at pixels a real document would not put a dummy
  * at, and the number is stated in the manuscript this fixture is read against.
  */
-const DRAWN_WIDTH_CAP = 12
+const DRAWN_WIDTH_CAP = 30
 
 /**
- * A pixel that is GR-9's ALONE at the high zoom: past the drawn mark's right
- * edge and short of GR-17's own day.
+ * A pixel that is GR-9's ALONE at the high zoom: inside the LEFT HALF of the
+ * one mark FR-043 draws, and nowhere near GR-17's own day.
  *
- * ⭐⭐ IT USED TO BE THREE PIXELS INTO GR-9's DAY, AND THAT PIXEL IS NOW THE
- * FINISH's (利用者の裁定 2026-09-09): 「描かれたダミーの印の画素も、同じく終了側
- * （`GR-17`）を掴むこと（MUST）」. ⛔ The two cases that stand on this are NOT
- * loosened by moving it -- what they ask is that GR-9 remains reachable at all,
- * and the ruling is about the ink and not about GR-9's band: 「印の 画素」,
- * 「印の 一部」. ⇒ The probe moves to the part of the band the ruling did not
- * speak of, which is where GR-9 is still the answer.
- * ⚠️ At 24px a day the mark is capped at `S-180`'s 12 and GR-17's day opens at
- * 24, so 12..24 past GR-9's day belongs to GR-9 alone.
+ * ⭐⭐ THE RULING OF 2026-09-09 CUTS THE MARK DOWN THE MIDDLE (MUST): 「1 つの
+ * ダミーの印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側
+ * （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」. ⇒ The left half
+ * is where GR-9 answers, and it is the half a person aims at to place an
+ * actual start. ⛔ 2026-09-09 まで the same manuscript handed EVERY pixel of the
+ * mark to the finish, and this probe had to stand past the mark's right edge to
+ * find GR-9 at all -- ⚠️ which it can no longer do, because `S-180` rose from
+ * 12 to 30 the same day and the mark now covers the whole of a 24px day.
  */
-const ONLY_GR_9_X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + DRAWN_WIDTH_CAP + 3
+const ONLY_GR_9_X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
 
 /**
  * One rectangle-shaped Task, not started: a plan bar, no actual bar, and the
@@ -299,7 +349,12 @@ function notStartedTask(pxPerDay: number): ScheduleGeometry {
   // ⭐ THE ONE MARK FR-043 DRAWS, on GR-9's day and 「1 日ぶんと `S-180` の
   // 小さい方」 across. ⚠️ The same record on both dummies, which is what
   // `DummyGeometry.ink` is: the two grab targets share one drawing.
-  const ink = { x: gr9X, y: MID_Y - 4, width: Math.min(pxPerDay, DRAWN_WIDTH_CAP), height: 8 }
+  const ink = {
+    x: gr9X,
+    y: MID_Y - ACTUAL_BAND_HEIGHT / 2,
+    width: Math.min(pxPerDay, DRAWN_WIDTH_CAP),
+    height: ACTUAL_BAND_HEIGHT,
+  }
   const dummies: readonly DummyGeometry[] = [
     { grab: 'GR-17', at: { x: gr17X, y: MID_Y }, ink },
     { grab: 'GR-9', at: { x: gr9X, y: MID_Y }, ink },
@@ -447,15 +502,21 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
     expect(grabAt(HIGH_ZOOM_PX_PER_DAY, ONLY_GR_9_X)).toBe('GR-9')
   })
 
-  // ⭐ CONTROL FOR THE OTHER HALF OF THE SAME RULING. Every pixel of the drawn
-  // mark answers `GR-17`, including the mark's own first and last -- 「その 1 つ
-  // の印のどの画素を押しても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に
-  // 割り当てて掴み分けてはならない（MUST NOT）」. A build that split the mark
-  // between the two rows passes the two cases above and fails this one.
-  it('every pixel of the ONE drawn mark answers the finish, at the high zoom', () => {
+  // ⭐ CONTROL FOR THE OTHER HALF OF THE SAME RULING, AND IT TURNED OVER ON
+  // 2026-09-09. The manuscript first gave EVERY pixel of the one mark to the
+  // finish and forbade splitting it; a later ruling the same day cut the mark
+  // down its own middle -- 「1 つのダミーの印は、その横幅の中央で左右に割る
+  // こと（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
+  // （`GR-17`）とすること（MUST）」 -- so the sweep is now two sweeps, and a
+  // build that hands the whole mark to either row fails one of them.
+  it('the ONE drawn mark answers the start on its left half and the finish on its right', () => {
     const inkFrom = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY
-    const inkTo = inkFrom + DRAWN_WIDTH_CAP
-    for (let x = inkFrom; x <= inkTo; x += 1) {
+    const inkTo = inkFrom + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP)
+    const middle = (inkFrom + inkTo) / 2
+    for (let x = inkFrom; x < middle; x += 1) {
+      expect(grabAt(HIGH_ZOOM_PX_PER_DAY, x), `x = ${x - inkFrom} into the mark`).toBe('GR-9')
+    }
+    for (let x = middle + 1; x <= inkTo; x += 1) {
       expect(grabAt(HIGH_ZOOM_PX_PER_DAY, x), `x = ${x - inkFrom} into the mark`).toBe('GR-17')
     }
   })
@@ -486,7 +547,7 @@ describe('every answer above names the Task the press was on', () => {
 // cases build their own. It draws the plan finish 300px from the fence and
 // hands in no fade handles at all, so `GR-4` and `GR-1` never answer anywhere
 // near the dummies -- the two rows the manuscript records as the ones that
-// swallowed them: 「`GR-4` の `S-90`（端点の左右へ 6px）と、選ばれているあいだ
+// swallowed them: 「`GR-4` の `S-90`（端点の外側へ 12px）と、選ばれているあいだ
 // 現れる `GR-1` の `S-92` の半分（7.5px）が、描かれているダミーの印を丸ごと
 // 飲んでいた」. A SHORT plan at a LOW zoom is where the three rows meet.
 //
@@ -550,7 +611,11 @@ describe('right of the fence a dummy beats every plan-side row', () => {
   // GR-3 and GR-4 and left the fade handle alone passes the case above and
   // fails this one.
   it('the fade-in handle does not claim the dummy either, pressed on the band the handle stands on', () => {
-    const answer = grabOnShortPlan(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + 1, BAND_TOP + 1)
+    const answer = grabOnShortPlan(
+      LOW_ZOOM_PX_PER_DAY,
+      PLAN_START_X + 1,
+      WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND,
+    )
     expect(answer).not.toBe('GR-1')
     expect(ACTUAL_DUMMY_ROWS).toContain(answer)
   })
@@ -581,9 +646,9 @@ describe('right of the fence a dummy beats every plan-side row', () => {
   // ink is drawn on. The press is on the ink.
   it.each([
     [1, MID_Y],
-    [1, BAND_TOP + 1],
+    [1, WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND],
     [2, MID_Y],
-    [2, BAND_TOP + 1],
+    [2, WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND],
   ])('the dummy answers on its own day column at %ipx a day (y = %i)', (pxPerDay, y) => {
     const onTheDayColumn = PLAN_START_X + pxPerDay
     const answer = grabOnShortPlan(pxPerDay, onTheDayColumn, y)
@@ -592,13 +657,67 @@ describe('right of the fence a dummy beats every plan-side row', () => {
 })
 
 // ===========================================================================
+// 6a. ⭐ R-34 -- the holds are NESTED, not cut into an upper and a lower lane
+// ===========================================================================
+//
+// ⛔ THE DEFECT THIS SECTION IS THE ANCHOR FOR. The round of 2026-09-09 that
+// settled the fence considered splitting the plan band into two lanes, one for
+// the plan's rows and one for the actual's, and 利用者 rejected the shape:
+// 「レクタングル系を上下に分けるのは却下。」 ⇒ The vertical is NESTED instead --
+// the plan's band holds the actual's, which holds the line's -- so the plan
+// keeps a margin at the TOP and at the BOTTOM of its own band, and neither
+// margin belongs to the actual.
+//
+// ⭐ WHAT MAKES THIS RED IF THE LANES COME BACK. A lane split gives one of the
+// two margins to the actual rows: press the top margin and the bottom margin
+// on the same figure and one of them answers a dummy. Nesting answers a
+// plan-side row at both, and the actual row only between them.
+
+describe('R-34: the overlapping holds are nested, so the plan keeps both margins', () => {
+  /** Above the actual band and inside the plan's -- 「外側の縁が必ず残る」. */
+  const TOP_MARGIN_Y = MID_Y - ACTUAL_BAND_HEIGHT / 2 - 2
+  const BOTTOM_MARGIN_Y = MID_Y + ACTUAL_BAND_HEIGHT / 2 + 2
+
+  it('⭐ the fixture really has a margin on both sides of the actual band', () => {
+    // ⚠️ A PREMISE. Without it the two cases below could pass on a figure whose
+    // actual band filled the plan's, where no margin exists to be claimed.
+    expect(TOP_MARGIN_Y).toBeGreaterThan(BAND_TOP)
+    expect(BOTTOM_MARGIN_Y).toBeLessThan(BAND_BOTTOM)
+    expect(ACTUAL_BAND_HEIGHT).toBeLessThan(BAND_BOTTOM - BAND_TOP)
+  })
+
+  it('⛔ MUST NOT: neither margin answers a dummy row', () => {
+    const onTheDummysDay = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
+    for (const y of [TOP_MARGIN_Y, BOTTOM_MARGIN_Y]) {
+      const answer = itemAtPointer(
+        notStartedTask(HIGH_ZOOM_PX_PER_DAY),
+        onTheDummysDay,
+        y,
+        SLOP,
+      )?.grab ?? null
+      expect(ACTUAL_DUMMY_ROWS, `y = ${y}`).not.toContain(answer)
+    }
+  })
+
+  it('⭐ and the same column between the two margins does answer a dummy', () => {
+    // ⚠️ THE CONTRAST. Without it the case above would pass on a build that had
+    // lost the dummies altogether, which is the opposite defect.
+    const onTheDummysDay = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
+    expect(ACTUAL_DUMMY_ROWS).toContain(grabAt(HIGH_ZOOM_PX_PER_DAY, onTheDummysDay))
+  })
+})
+
+// ===========================================================================
 // 7. GR-8 -- the resume icon is aimed at, not traced
 // ===========================================================================
 //
-// ⚠️ WHY THIS ROW IS ANSWERED IN THIS FILE. It belongs to the same ruling of
-// 2026-09-08 and to the same table, and `S-93` is the same row of table T-206
-// that the dummies above take their box from -- GR-8's own words are 「新しい
-// 設定値を立てない —— 同じ行が実績のダミーに与えている大きさをそのまま使う」.
+// ⚠️ WHY THIS ROW IS ANSWERED IN THIS FILE. It belongs to the same table and to
+// the same round of rulings as the fence above, and it takes its box from a row
+// the file already has to read -- GR-8's own words are 「新しい設定値を立てない
+// —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う」.
+// ⛔⛔ THE ROW IT READS MOVED ON 2026-09-09. Until then GR-8 took the dummies'
+// own `S-93` of table T-206; the ruling shrank it to the progress marker's own
+// 表 T-201 `S-22` -- 「再開矢印のつかみシロが広い 進捗マーカーとサイズを合わせろ。」
 // ⛔ No new file was raised for it, and no new style of case: the fixture is
 // fixed data copied from the tables, the way section 2's is.
 //
@@ -606,8 +725,32 @@ describe('right of the fence a dummy beats every plan-side row', () => {
 // arrow and `S-25` shrinks it when the resume day is undecided; this file is
 // handed a figure and asks only which row a press on it answers.
 
+/**
+ * `S-22` (`markerSize`) of 表 T-201, read out of the manuscript rather than
+ * typed: it is the marker's own side AND, since 2026-09-09, GR-8's hit box.
+ */
+const MARKER_SIZE = ((): number => {
+  const row = specTable('T-201').rows.find((one) => one.id === 'S-22')
+  if (row === undefined) throw new Error('table T-201 has no row S-22')
+  const found = (row.by['既定値'] ?? '').match(/\d+(?:\.\d+)?/)
+  if (found === null) throw new Error(`table T-201 row S-22 has no number: ${row.cells.join(' ')}`)
+  return Number(found[0])
+})()
+
+/**
+ * `S-6` (`actualMin`) of 表 T-201 -- the actual bar's own floor, which section
+ * 9 measures the dependency line's band against.
+ */
+const ACTUAL_MIN = ((): number => {
+  const row = specTable('T-201').rows.find((one) => one.id === 'S-6')
+  if (row === undefined) throw new Error('table T-201 has no row S-6')
+  const found = (row.by['既定値'] ?? '').match(/\d+(?:\.\d+)?/)
+  if (found === null) throw new Error(`table T-201 row S-6 has no number: ${row.cells.join(' ')}`)
+  return Number(found[0])
+})()
+
 /** The marker's circle -- `S-22` across, so this is its half. */
-const MARKER_RADIUS = 8
+const MARKER_RADIUS = MARKER_SIZE / 2
 const MARKER_CENTRE_X = 600
 
 /**
@@ -662,29 +805,41 @@ function grabOnSuspended(x: number, y: number): GrabArea | null {
 const ICON_CENTRE_X = ICON_LEFT_X + (ICON_ARM + ICON_HEAD) / 2
 const ICON_CENTRE_Y = (MID_Y - ICON_HEAD + MID_Y + MARKER_RADIUS) / 2
 
-describe('GR-8 takes S-93 about the icon, not the icon\'s own outline', () => {
-  // ⭐ CONTROL. `S-93` is 30 wide and the drawn arrow is about 13; a build
-  // tracing the outline answers null well inside the box the row asks for.
+describe('GR-8 takes S-22 about the icon, not the icon\'s own outline', () => {
+  // ⭐ CONTROL. `S-22` is 16 wide and the drawn arrow's box is about 13 by the
+  // manuscript's own measurement; a build tracing the outline answers null
+  // inside the box the row asks for.
   // ⚠️ Pressed to the RIGHT of the icon, because the left half of the box lies
   // under `GR-7`, which stands above this row in the printed order.
-  it('reaches past the drawn figure, out to half of S-93 on the right', () => {
-    const halfWidth = NOT_STORED_SIZES['S-93'][0] / 2
+  it('reaches past the drawn figure, out to half of S-22 on the right', () => {
+    const halfWidth = MARKER_SIZE / 2
     expect(grabOnSuspended(ICON_CENTRE_X + halfWidth - 1, ICON_CENTRE_Y)).toBe('GR-8')
   })
 
-  // ⭐ CONTROL. And stops there. A build that grew the box, or that centred a
-  // box of some other size, answers `GR-8` past the row's own figure.
-  it('and stops at S-93, so nothing beyond the row answers', () => {
-    const halfWidth = NOT_STORED_SIZES['S-93'][0] / 2
+  // ⭐ CONTROL, AND THE HALF THAT THE RULING OF 2026-09-09 IS ABOUT. The box
+  // stops at `S-22`. ⛔ A build still handing GR-8 the dummies' own `S-93` --
+  // the row it read until that day -- answers `GR-8` here, because 30 is very
+  // nearly twice 16 and this press stands well outside the smaller box.
+  it('and stops at S-22, so nothing beyond the row answers', () => {
+    const halfWidth = MARKER_SIZE / 2
     expect(grabOnSuspended(ICON_CENTRE_X + halfWidth + 2, ICON_CENTRE_Y)).not.toBe('GR-8')
   })
 
-  // ⭐ CONTROL. The vertical is the row's too: `S-93` is 20 tall, and the drawn
-  // arrow is a few pixels. A build tracing the outline answers null here.
-  it('reaches half of S-93 up and down as well', () => {
-    const halfHeight = NOT_STORED_SIZES['S-93'][1] / 2
+  // ⭐ CONTROL. The vertical is the same row's: `S-22` is a SQUARE (「進捗マー
+  // カーと同寸」), and the drawn arrow is a few pixels tall.
+  it('reaches half of S-22 up and down as well', () => {
+    const halfHeight = MARKER_SIZE / 2
     expect(grabOnSuspended(ICON_CENTRE_X, ICON_CENTRE_Y - halfHeight + 1)).toBe('GR-8')
     expect(grabOnSuspended(ICON_CENTRE_X, ICON_CENTRE_Y + halfHeight - 1)).toBe('GR-8')
+  })
+
+  // ⛔ THE OTHER HALF OF THE SAME RULING, VERTICALLY. A build on the old `S-93`
+  // reached 10px up and down (half of the 20 that row used to carry); the
+  // square the row now names reaches 8.
+  it('⛔ and stops there vertically too, where the old S-93 box did not', () => {
+    const halfHeight = MARKER_SIZE / 2
+    expect(grabOnSuspended(ICON_CENTRE_X, ICON_CENTRE_Y - halfHeight - 2)).not.toBe('GR-8')
+    expect(grabOnSuspended(ICON_CENTRE_X, ICON_CENTRE_Y + halfHeight + 2)).not.toBe('GR-8')
   })
 
   // ⭐ CONTROL, AND THE BOUNDARY WITH `GR-7`. The bigger box reaches back over
@@ -695,6 +850,154 @@ describe('GR-8 takes S-93 about the icon, not the icon\'s own outline', () => {
   it('the progress marker keeps its own circle, and GR-8 begins past it', () => {
     expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS, MID_Y)).toBe('GR-7')
     expect(grabOnSuspended(MARKER_CENTRE_X + MARKER_RADIUS + 1, MID_Y)).toBe('GR-8')
+  })
+})
+
+// ===========================================================================
+// 8. ⭐ R-39 -- a milestone carries no resume icon at all
+// ===========================================================================
+//
+// 利用者の裁定 2026-09-09, 逐語「マイルストーンは再開が無い。 マイルストーンは未着手
+// でも選択は1か所(開始・終了で分けない) 再開矢印のつかみシロが広い 進捗マーカーと
+// サイズを合わせろ。」⇒ ⛔ 「マイルストーンに再開アイコン（`GR-8`）を当ててはならない
+// （MUST NOT）」, whose reason is 「点は期間を持たないので、中断も再開も無い」, and
+// beside it ⭐ 「`GR-18` は 1 か所とすること（MUST）。開始側と終了側に分けては
+// ならない（MUST NOT）」.
+//
+// ⚠️ THE FIGURE IS HANDED IN, NOT DERIVED. This section asks what a press
+// answers when a resume figure IS present on a milestone -- which is the shape
+// a build that had not read the MUST NOT would produce. A fixture that simply
+// left the figure out would pass on any build at all.
+
+/** A milestone carrying a marker and a resume figure, and its single dummy. */
+function milestoneWithAResumeFigure(): ScheduleGeometry {
+  const base = suspendedTask()
+  const task = base.tasks[0]!
+  return {
+    ...base,
+    tasks: [
+      {
+        ...task,
+        shapeKind: 'milestone',
+        plan: null,
+        milestoneFigure: {
+          form: 'outline',
+          points: [
+            { x: PLAN_START_X, y: MID_Y - ACTUAL_BAND_HEIGHT },
+            { x: PLAN_START_X + ACTUAL_BAND_HEIGHT, y: MID_Y },
+            { x: PLAN_START_X, y: MID_Y + ACTUAL_BAND_HEIGHT },
+            { x: PLAN_START_X - ACTUAL_BAND_HEIGHT, y: MID_Y },
+          ],
+        },
+        dummies: [
+          {
+            grab: 'GR-18',
+            at: { x: PLAN_START_X + HIGH_ZOOM_PX_PER_DAY, y: MID_Y },
+            ink: {
+              x: PLAN_START_X + HIGH_ZOOM_PX_PER_DAY,
+              y: MID_Y - ACTUAL_BAND_HEIGHT / 2,
+              width: Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP),
+              height: ACTUAL_BAND_HEIGHT,
+            },
+          },
+        ],
+      },
+    ],
+  }
+}
+
+describe('R-39: a milestone has no GR-8, and one GR-18 rather than two ends', () => {
+  const grabOnMilestone = (x: number, y: number): GrabArea | null =>
+    itemAtPointer(milestoneWithAResumeFigure(), x, y, SLOP)?.grab ?? null
+
+  it('⛔ MUST NOT: no press anywhere on the resume figure answers GR-8', () => {
+    // ⭐ SWEPT, not sampled at one pixel: the MUST NOT is about the row being
+    // reachable at all on this shape, so a build that kept a smaller box would
+    // still be caught.
+    const half = MARKER_SIZE / 2
+    for (let x = ICON_CENTRE_X - half; x <= ICON_CENTRE_X + half; x += 1) {
+      for (const y of [ICON_CENTRE_Y - half + 1, ICON_CENTRE_Y, ICON_CENTRE_Y + half - 1]) {
+        expect(grabOnMilestone(x, y), `x = ${x}, y = ${y}`).not.toBe('GR-8')
+      }
+    }
+  })
+
+  it('⭐ the same sweep DOES answer GR-8 on a bar-shaped Task -- the contrast', () => {
+    // ⚠️ Without this the case above would pass on a build that had lost GR-8
+    // everywhere, which is the opposite fault.
+    const answers: string[] = []
+    const half = MARKER_SIZE / 2
+    for (let x = ICON_CENTRE_X - half; x <= ICON_CENTRE_X + half; x += 1) {
+      const grab = grabOnSuspended(x, ICON_CENTRE_Y)
+      if (grab !== null) answers.push(grab)
+    }
+    expect(answers).toContain('GR-8')
+  })
+
+  it('⭐ MUST: the milestone carries exactly one dummy, not a start and a finish', () => {
+    const dummies = milestoneWithAResumeFigure().tasks[0]!.dummies
+    expect(dummies.map((one) => one.grab)).toEqual(['GR-18'])
+  })
+})
+
+// ===========================================================================
+// 9. ⭐ R-38 -- a dependency line beats the plan body it is drawn over
+// ===========================================================================
+//
+// 利用者の裁定 2026-09-09, 逐語「依存線の優先度を上げてよい。ただし、依存線の縦幅は
+// 実績の縦幅より狭くしろ。」⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
+// こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
+// （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
+//
+// ⚠️ WHY THE FIGURE IS ASSEMBLED HERE. Table T-222's router keeps its routes
+// off the plan bodies, so a real layout does not stage this contest; measured
+// on this tree, RP-1, RP-3, RP-4 and RP-5 all clear every bar of the unit
+// fixtures. The rule is still a rule about what a press answers where the two
+// DO meet, and this figure puts them there.
+
+describe('R-38: the dependency line answers where it runs over a plan body', () => {
+  const withALineAcrossTheBar = (): ScheduleGeometry => {
+    const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
+    return {
+      ...base,
+      tasks: [{ ...base.tasks[0]!, dummies: [], fadeHandles: [] }],
+      dependencies: [
+        {
+          predecessorUid: TASK_UID,
+          successorUid: TASK_UID + 1,
+          linkType: 1,
+          pattern: 'RP-1',
+          points: [
+            { x: PLAN_START_X + 100, y: MID_Y },
+            { x: PLAN_FINISH_X + 100, y: MID_Y },
+          ],
+        },
+      ],
+    }
+  }
+
+  it('⭐ MUST: a press on the line answers the dependency, not the plan body', () => {
+    // ⛔ RED BEFORE THE RULING: GR-13 stood below GR-12, so a line drawn over a
+    // bar could not be picked up at all -- 「タスクと重なっていない部分を掴む」
+    // was the only way, and there is none here.
+    const hit = itemAtPointer(withALineAcrossTheBar(), PLAN_START_X + 150, MID_Y, SLOP)
+    expect(hit?.item).toEqual({
+      kind: 'dependency',
+      predecessorUid: TASK_UID,
+      successorUid: TASK_UID + 1,
+    })
+    expect(hit?.grab).toBe('GR-13')
+  })
+
+  it('⭐ MUST: and the line\'s band is narrower than the actual bar\'s floor', () => {
+    // `S-137` reaches to EITHER side of the line, so its band is twice the row.
+    // ⚠️ Measured against `S-6` itself, which is what the clause names.
+    expect(NOT_STORED_SIZES['S-137'] * 2).toBeLessThan(ACTUAL_MIN)
+    // ⭐ THE CONTRAST, as a press: a hair outside that band the plan body has
+    // the ground back, so the line has not swallowed the bar.
+    const geometry = withALineAcrossTheBar()
+    const justOutside = MID_Y + NOT_STORED_SIZES['S-137'] + 2
+    expect(itemAtPointer(geometry, PLAN_START_X + 150, justOutside, SLOP)?.grab).toBe('GR-12')
   })
 })
 

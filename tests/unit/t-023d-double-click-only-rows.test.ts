@@ -128,11 +128,18 @@ import { specTable } from '../contract/spec-table'
  * the panel, were quietly saying it about 19 of the 21. ⭐ Nothing caught that,
  * because no case compared the copy with the manuscript; one below now does,
  * the way tests/unit/uf-30-31.test.ts does for its own copy.
+ * ⭐⭐ AND IT MOVED AGAIN ON 2026-09-09. The plan's own points fell BELOW the
+ * dummies: table T-023d's closing rule states the fence plainly -- 「境目より右
+ * では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
+ * 成立させること（MUST）」 -- and the printed order was moved to match, so
+ * `GR-3` / `GR-4` / `GR-7` / `GR-12` now stand after `GR-13` / `GR-14`, and
+ * `GR-8` dropped to just under `GR-11`.
  */
 const T_023D = [
   'GR-19',
-  'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-17', 'GR-9',
-  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-20', 'GR-16', 'GR-21',
+  'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
+  'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
+  'GR-20', 'GR-16', 'GR-21',
 ] as const
 
 /**
@@ -433,8 +440,14 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // S-92 is a square, and this member is its half-width.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
+  // ⭐⭐ NOT `S-93`'s SECOND NUMBER. Since 2026-09-09 that row is one number
+  // and a WIDTH -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
+  // (表 T-206) -- and table T-023d's closing rule sends the hold's vertical to
+  // the same place: 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」.
+  // ⭐ The band is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`).
+  dummyHeight: Number(SETTINGS_DEFAULTS['basePlanHeight']) *
+    Number(SETTINGS_DEFAULTS['actualOfPlan']),
   line: NOT_STORED_SIZES['S-137'],
 }
 

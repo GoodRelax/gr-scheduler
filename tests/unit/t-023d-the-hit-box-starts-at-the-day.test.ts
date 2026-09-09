@@ -41,8 +41,9 @@
 //   T-023d  GR-18 「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ場所である」
 //           （利用者の裁定 2026-09-02。CR-332）
 //   T-206   S-93 「実績のダミーの当たり判定（表 T-023d の `GR-9` / `GR-17` /
-//           `GR-18`）| 30 × 20px」 -- read out of the manuscript at run time
-//   T-206   S-90 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」
+//           `GR-18`）」 -- one number and a width, read out of the manuscript
+//           at run time
+//   T-206   S-90 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
 //           product of the two
 //   T-209   S-106 / S-107, the default calendar 「翌稼働日」 is counted through
@@ -54,10 +55,10 @@
 //
 //   * ⛔ THE VERTICAL. The ruling anchors the horizontal and nothing else:
 //     「その日の列の左端を起点に、右へ … `S-93` の幅で取る」 names a left edge
-//     and a WIDTH. `S-93` is 30 × 20px, and no row says which pixel the 20px is
-//     measured from -- S-180's own note gives the DRAWN dummy its vertical from
-//     the actual bar's band, but says outright that S-93 is 「別の値である」 and
-//     the band rule is written of the ink. So every press below is made at the
+//     and a WIDTH, and since 2026-09-09 the row itself says the same in as many
+//     words -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」.
+//     ⚠️ The band the vertical follows is the ACTUAL BAR's, which this file
+//     hands in rather than asserts. So every press below is made at the
 //     dummy's own y, and the y is never the claim. ⚠️ Reported as a gap.
 //   * WHICH row answers where a dummy does not. The cases say a press outside
 //     the box is not one of the three dummies; they do not say it is GR-12,
@@ -142,18 +143,21 @@ const GR_18 = rowOf('T-023d', 'GR-18')
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
 
 /**
- * `S-93`, as 表 T-206 states it: 「30 × 20px」.
+ * `S-93`, as 表 T-206 states it -- ⭐⭐ ONE NUMBER, AND A WIDTH, since the
+ * ruling of 2026-09-09: 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に
+ * 従う」. ⛔ It used to be a pair, 「30 × 20px」, and the height it carried
+ * stood taller than the actual bar's own band.
  *
  * ⛔ NOT TYPED IN AND NOT TAKEN FROM `src/`. Rule 04 section 2 asks the
  * acceptance of a value that travels from a manuscript to be "change the one
  * value and watch the case fall", and a number written here would not fall.
  */
-const [HIT_WIDTH, HIT_HEIGHT] = ((): readonly [number, number] => {
+const HIT_WIDTH = ((): number => {
   const numbers = numbersOf(S_93['既定'] ?? '')
-  if (numbers.length !== 2 || numbers[0]! <= 0 || numbers[1]! <= 0) {
-    throw new Error(`table T-206 row S-93: the default is not two sizes, it is ${S_93['既定']}`)
+  if (numbers.length !== 1 || numbers[0]! <= 0) {
+    throw new Error(`table T-206 row S-93: the default is not one width, it is ${S_93['既定']}`)
   }
-  return [numbers[0]!, numbers[1]!] as const
+  return numbers[0]!
 })()
 
 const settingNumber = (key: string): number => {
@@ -161,6 +165,15 @@ const settingNumber = (key: string): number => {
   if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
   return value
 }
+
+/**
+ * The vertical the hold takes, which `S-93` no longer carries. Table T-023d's
+ * closing rule (MUST, 利用者の裁定 2026-09-09) sends it to the actual bar's own
+ * band -- 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」 -- and the band
+ * is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`), which is where
+ * these fixtures' one-lane rows stand.
+ */
+const HIT_HEIGHT = settingNumber('basePlanHeight') * settingNumber('actualOfPlan')
 
 /** `S-1`, the width of one day at 1x (FR-017). */
 const PX_PER_DAY_AT_1X = settingNumber('pxPerDayAt1x')
@@ -557,14 +570,35 @@ const ANCHORED = [
  * Which row answers ON each box's own origin, once the one drawn mark is taken
  * into account (利用者の裁定 2026-09-09).
  *
- * ⭐ FR-043 draws ONE mark, aligned to GR-9's day column -- so GR-9's origin is
- * the mark's first pixel and the closing rule of table T-023d sends it to the
- * finish. ⚠️ GR-17's own origin lies `S-129` working days further on, where no
- * ink is drawn, so that row answers for itself; and a milestone carries no
- * GR-17 at all (GR-15: 「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
- * `GR-17` に当たらない」), so GR-18 keeps its own mark.
+ * ⭐⭐ FR-043 draws ONE mark, aligned to GR-9's day column, and table T-023d's
+ * closing rule now CUTS THAT MARK IN HALF (MUST): 「左半分を実績の開始側
+ * （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」. ⇒ GR-9's origin
+ * is the mark's FIRST pixel, which is in the left half, so that row answers for
+ * itself. ⛔ 2026-09-09 まで the same manuscript handed every pixel of the mark
+ * to the finish, and this map read 'GR-17' here.
+ * ⚠️ GR-17's own origin lies `S-129` working days further on, where no ink is
+ * drawn, so that row answers for itself; and a milestone carries no GR-17 at
+ * all (GR-15: 「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` / `GR-17`
+ * に当たらない」), while the closing rule keeps the halving off it altogether --
+ * 「下の段の「印を左右に割る」は、マイルストーンのダミーには当てないこと（MUST
+ * NOT）」 -- so GR-18 keeps the whole of its own mark.
  */
 const ANSWERS_AT_THE_DAY_EDGE: Readonly<Record<(typeof ANCHORED)[number]['grab'], string>> = {
+  'GR-9': 'GR-9',
+  'GR-17': 'GR-17',
+  'GR-18': 'GR-18',
+}
+
+/**
+ * And which row answers a hair inside the box's far edge, one whole `S-93`
+ * along. ⭐ At this file's magnification a day is wider than `S-180`, so
+ * FR-043's mark is `S-180` across -- the same 30 as `S-93` since the ruling of
+ * 2026-09-09 evened the two defaults -- and the far edge of GR-9's box is the
+ * far edge of the mark, which the halving gives to the FINISH.
+ */
+const ANSWERS_A_HAIR_INSIDE_THE_RIGHT_EDGE: Readonly<
+  Record<(typeof ANCHORED)[number]['grab'], string>
+> = {
   'GR-9': 'GR-17',
   'GR-17': 'GR-17',
   'GR-18': 'GR-18',
@@ -577,12 +611,11 @@ describe('table T-023d (MUST): the hit box starts at the day column and runs S-9
       //
       // ⭐⭐ WHAT ANSWERS THERE IS NOT ALWAYS THE ROW WHOSE BOX IT IS, and that
       // is a second MUST rather than a hole in this one. FR-043 draws its ONE
-      // mark from GR-9's day column, and the ruling of 2026-09-09 gives every
-      // pixel of that mark to the finish: 「描かれたダミーの印の画素も、同じく
-      // 終了側（`GR-17`）を掴むこと（MUST）」, and 「その 1 つの印のどの画素を押
-      // しても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分
-      // けてはならない（MUST NOT）」. ⇒ On GR-9's own origin the answer is
-      // GR-17, and GR-9's box is still the box that begins there -- the case
+      // mark from GR-9's day column, and the ruling of 2026-09-09 cuts that
+      // mark down the middle: 「1 つのダミーの印は、その横幅の中央で左右に割る
+      // こと（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
+      // （`GR-17`）とすること（MUST）」. ⇒ On GR-9's own origin -- the mark's
+      // first pixel, in the left half -- the answer is GR-9, and the case
       // below, a whole S-93 along, is where that box's extent is asked.
       // ⛔ NOT LOOSENED TO "some dummy": the expected row is named exactly, so a
       // build that handed the origin to GR-3 or GR-12 still fails.
@@ -597,7 +630,8 @@ describe('table T-023d (MUST): the hit box starts at the day column and runs S-9
       const drawn = draw(schedule())
       const dummy = dummyNamed(drawn, grab)
       const rightEdge = xOfDay(drawn, day) + HIT_WIDTH
-      expect(grabAt(drawn, rightEdge - A_HAIR, dummy.at.y), grab).toBe(grab)
+      expect(grabAt(drawn, rightEdge - A_HAIR, dummy.at.y), grab)
+        .toBe(ANSWERS_A_HAIR_INSIDE_THE_RIGHT_EDGE[grab])
     })
 
     it(`⛔ ${grab}: a press just LEFT of the day column is outside the box (MUST NOT centred)`, () => {
@@ -652,13 +686,25 @@ describe('table T-023d (MUST NOT): at 6px per day the centred box would eat 2.5 
   it('is the magnification the ruling names, and the centred box really would reach past GR-3', () => {
     // ⚠️ A PREMISE, NOT THE CLAIM. 「⚠️ 実測（2026-09-02、出荷ビルド、6px/日）で
     // 左へ 2.5 日ぶんに当たる」. This case says the fixture reproduces the
-    // arithmetic that sentence is about: half of S-93 is more than S-90's reach
-    // plus one whole day, so the centred box would cover ground that belongs to
-    // no dummy and lies outside GR-3's own allowance.
+    // arithmetic that sentence is about: half of S-93 is more than one whole
+    // day, so a box taken around GR-9's day would reach back past the plan
+    // start itself -- 「中心に取ると左へ食い込み、予定の開始点（`GR-3`）を飲む」.
+    //
+    // ⛔⛔ IT USED TO ASK FOR ONE DAY *PLUS* `S-90`, and the ruling of
+    // 2026-09-09 made that arithmetic false without making the harm false:
+    // `S-90` went from 6px either side of the end to 12px OUTSIDE it, so the
+    // plan start's own allowance now ends AT the plan start. ⇒ The centred box
+    // no longer has to clear that allowance to do what the clause names -- it
+    // eats GR-3 by reaching the plan start at all. The clause asks for 飲む,
+    // and 飲む is what is measured here.
     const drawn = drawAt(notStarted(), AT_S_1)
     expect(drawn.layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X, 6)
     expect(HIT_WIDTH / 2 / drawn.layout.pxPerDay, 'S-93 / 2, in days').toBeGreaterThan(2)
-    expect(HIT_WIDTH / 2).toBeGreaterThan(drawn.layout.pxPerDay + PLAN_ENDPOINT_SLOP)
+    expect(HIT_WIDTH / 2, 'half of S-93 reaches back past the plan start')
+      .toBeGreaterThan(drawn.layout.pxPerDay)
+    // ⭐ AND THE PLAN START'S OWN ALLOWANCE IS OUTSIDE THE BAR ONLY, so the
+    // ground the centred box would eat is ground GR-3 answers on.
+    expect(PLAN_ENDPOINT_SLOP).toBeGreaterThan(0)
   })
 
   it('⛔ leaves the ground just outside GR-3 to nobody, not to a dummy', () => {

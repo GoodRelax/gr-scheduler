@@ -53,7 +53,8 @@
 //   T-206 S-180  「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` /
 //             `GR-18`）」 = 12px, whose note says 「⭐ 本行が定めるのは横だけで
 //             ある —— 縦の広がりは実績バーの帯に従う」
-//   T-206 S-93   the READER'S hit box, 30 × 20px -- S-180's note: 「⛔ `S-93`
+//   T-206 S-93   the READER'S hit box, one number and a width -- S-180's note:
+//             「⛔ `S-93`
 //             とは別の値である —— あちらは読む人の当たり判定であって、環境が
 //             大きく取ってよい」. ⛔ NOTHING BELOW ASSERTS S-93 OF A DRAWING.
 //   T-023d GR-3 「予定の開始点 | 予定バーの左端」 -- and GR-9's own row,
@@ -221,8 +222,15 @@ const drawnWidthAt = (zoomX: number): number =>
 
 /** A magnification at which ONE DAY is the smaller of the two. */
 const NARROW_DAY_ZOOM = 1
-/** A magnification at which `S-180` is the smaller of the two. */
-const WIDE_DAY_ZOOM = 4
+/**
+ * A magnification at which `S-180` is the smaller of the two.
+ *
+ * ⛔⛔ IT WAS 4 UNTIL 2026-09-09, when `S-180`'s default rose from 12 to 30 so
+ * that the drawn mark and the hold `S-93` gives it would be the same size --
+ * 「既定を `S-93` と同じ大きさに揃えた」（利用者の裁定 2026-09-09）. A day at zoom 4
+ * is 24px, which fell to the NARROW side of the new bound.
+ */
+const WIDE_DAY_ZOOM = 8
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.

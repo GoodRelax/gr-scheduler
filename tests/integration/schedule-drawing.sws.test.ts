@@ -1870,7 +1870,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           2 + 1 + drawn.settings.actualInitialDuration,
           drawn.regions,
           drawn.layout.pxPerDay,
-        ) + NOT_STORED_SIZES['S-93'][0]
+        ) + NOT_STORED_SIZES['S-93']
       expect(marker.centre.x - marker.radius - holdRight).toBeCloseTo(
         drawn.settings.markerGap,
         6,

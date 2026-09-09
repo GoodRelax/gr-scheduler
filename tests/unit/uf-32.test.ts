@@ -1240,10 +1240,16 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /**
    * ⭐ TWO MAGNIFICATIONS, ONE ON EACH SIDE OF `S-180`. FR-043 asks for the
    * SMALLER of two numbers, so a case run at one magnification proves half the
-   * rule: at 6px a day the DAY is smaller, at 24px a day `S-180` is.
+   * rule: at 6px a day the DAY is smaller, at 48px a day `S-180` is.
+   *
+   * ⛔⛔ THE WIDE ONE WAS 4 UNTIL 2026-09-09, when `S-180`'s default rose from
+   * 12 to 30 so that the drawn mark and the hold `S-93` gives it would be the
+   * same size -- 「既定を `S-93` と同じ大きさに揃えた」. A day at zoom 4 is 24px,
+   * which fell to the NARROW side of the new bound, and the case below is what
+   * said so rather than the pair quietly proving one half twice.
    */
   const NARROW_DAY_ZOOM = 1
-  const WIDE_DAY_ZOOM = 4
+  const WIDE_DAY_ZOOM = 8
 
   it('⭐ the two magnifications below really do fall on opposite sides of S-180', () => {
     // ⛔ Without this the pair could drift onto the same side of 「小さい方」 and

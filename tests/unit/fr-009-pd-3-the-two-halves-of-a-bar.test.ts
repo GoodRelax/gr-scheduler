@@ -113,8 +113,14 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
+  // ⭐⭐ NOT `S-93`'s SECOND NUMBER. Since 2026-09-09 that row is one number
+  // and a WIDTH -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
+  // (表 T-206) -- and table T-023d's closing rule sends the hold's vertical to
+  // the same place: 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」.
+  // ⭐ The band is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`).
+  dummyHeight: Number(SETTINGS_DEFAULTS['basePlanHeight']) *
+    Number(SETTINGS_DEFAULTS['actualOfPlan']),
   line: NOT_STORED_SIZES['S-137'],
 }
 

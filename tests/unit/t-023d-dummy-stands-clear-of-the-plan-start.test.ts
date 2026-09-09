@@ -102,7 +102,7 @@
 //   T-209   S-106 「稼働する曜日 | 月・火・水・木・金」, S-107 「例外日 | 無し」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
 //           product of the two, which is how the zoom below is chosen
-//   T-206   S-90 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」
+//   T-206   S-90 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」
 //   T-206   S-93 「実績のダミーの当たり判定（表 T-023d の `GR-9` / `GR-17` /
 //           `GR-18`）」
 //   T-221   LF-11, which places the marker off the right end of the bar FR-013
@@ -286,13 +286,25 @@ const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
  */
 const ZOOM_X = 6
 
+/**
+ * The vertical of the dummies' hold, which `S-93` no longer carries: since
+ * 2026-09-09 that row is ONE number and a width -- 「本行が定めるのは横だけで
+ * ある —— 縦の広がりは実績の帯に従う」 -- and table T-023d's closing rule sends
+ * the hold's vertical to the same place: 「ダミーの当たり判定の縦幅は、実績の帯
+ * に従うこと（MUST）—— 横は同表の `S-93` が持つ」.
+ *
+ * ⭐ The band is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`), which
+ * is where the one-lane rows of these fixtures stand.
+ */
+const ACTUAL_BAND = settingNumber('basePlanHeight') * settingNumber('actualOfPlan')
+
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
+  dummyHeight: ACTUAL_BAND,
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -634,22 +646,29 @@ const grabOn = (drawn: Drawn, dummy: DummyGeometry): string | null =>
   grabAt(drawn, dummy.at.x, dummy.at.y)
 
 /**
- * A press on GR-9's own band PAST the one drawn mark.
+ * A press inside the LEFT half of the one drawn mark -- the half that is
+ * GR-9's.
  *
- * ⭐⭐ THE MARK IS THE FINISH's SINCE 2026-09-09 (MUST): 「描かれたダミーの印の
- * 画素も、同じく終了側（`GR-17`）を掴むこと」, ⛔ 「印の一部を `GR-9` に割り当て
- * て掴み分けてはならない（MUST NOT）」. ⇒ GR-9's own point is inside the mark
- * and answers GR-17, so a case about GR-9 being REACHABLE has to press the part
- * of its band the ruling did not speak of -- 「印の 画素」, 「印の 一部」.
- * ⚠️ It exists only where a day is wider than the mark: FR-043 caps the drawing
- * at `S-180` and this fixture's magnification is well past that, which the
- * assertion inside checks rather than assumes.
+ * ⭐⭐ THE MARK IS CUT DOWN THE MIDDLE SINCE 2026-09-09 (MUST): 「1 つのダミーの
+ * 印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側（`GR-9`）、
+ * 右半分を実績の終了側（`GR-17`）とすること（MUST）」. ⛔ Until that day the same
+ * manuscript handed every pixel of the mark to the finish and forbade splitting
+ * it, and this helper had to press PAST the mark to find GR-9 at all.
+ * ⚠️ That press no longer exists at this magnification: `S-180` rose to `S-93`'s
+ * own 30 on the same day, so the mark fills the hold and there is nothing past
+ * it. ⇒ The half is where the row now answers, and it is where a person aims.
  */
-const grabPastTheMark = (drawn: Drawn, dummy: DummyGeometry): string | null => {
-  const past = dummy.ink.x + dummy.ink.width + 1
-  expect(past, 'the day must be wider than the drawn mark for this press to exist')
-    .toBeLessThan(dummy.at.x + SLOP.dummyWidth)
-  return grabAt(drawn, past, dummy.at.y)
+const grabOnTheStartHalfOfTheMark = (drawn: Drawn, dummy: DummyGeometry): string | null => {
+  const mark = dummy.ink
+  expect(mark.width, 'FR-043 draws one mark, so it has a width to halve').toBeGreaterThan(1)
+  return grabAt(drawn, mark.x + mark.width / 4, mark.y + mark.height / 2)
+}
+
+/** And the RIGHT half, which is GR-17's by the same clause. */
+const grabOnTheFinishHalfOfTheMark = (drawn: Drawn, dummy: DummyGeometry): string | null => {
+  const mark = dummy.ink
+  expect(mark.width, 'FR-043 draws one mark, so it has a width to halve').toBeGreaterThan(1)
+  return grabAt(drawn, mark.x + (mark.width * 3) / 4, mark.y + mark.height / 2)
 }
 
 const xOfDay = (drawn: Drawn, iso: string): number => xFromDay(drawn.layout, dayNamed(iso))
@@ -738,7 +757,7 @@ describe('the fixture stands where these cases think it does', () => {
     ).toBeGreaterThan(SLOP.dummyWidth)
   })
 
-  it('prints GR-3 above the dummies, GR-17 above GR-9, and all of them above GR-12 (MUST)', () => {
+  it('prints the dummies above GR-3, GR-17 above GR-9, and all of them above GR-12 (MUST)', () => {
     // 「上の行ほど優先すること（MUST）」. ⭐ Read out of the table, not copied:
     // a list written here would go on passing after the order had been changed,
     // and the order is exactly what D-56 turns on.
@@ -753,12 +772,18 @@ describe('the fixture stands where these cases think it does', () => {
       if (found < 0) throw new Error(`table T-023d no longer prints ${row}`)
       return found
     }
-    expect(at('GR-3')).toBeLessThan(at('GR-17'))
+    // ⛔⛔ AND THE PLAN'S TWO ENDS DROPPED BELOW THE DUMMIES ON 2026-09-09.
+    // The closing rule states the fence in the plainest terms -- 「境目より右で
+    // は、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
+    // 成立させること（MUST）」 -- and the printed order was moved to match, so
+    // GR-3 and GR-4 now stand BELOW GR-17 and GR-9 rather than above.
     expect(at('GR-17')).toBeLessThan(at('GR-9'))
-    expect(at('GR-9')).toBeLessThan(at('GR-12'))
-    // GR-4 is the row that wins for a one-day plan, where the plan's two ends
-    // are a day apart and GR-4 stands above every dummy as well.
-    expect(at('GR-4')).toBeLessThan(at('GR-17'))
+    expect(at('GR-9')).toBeLessThan(at('GR-3'))
+    expect(at('GR-3')).toBeLessThan(at('GR-12'))
+    // ⭐ GR-4 fell the same way and for the same clause: a one-day plan puts its
+    // finish a day from its start, which is exactly where the dummies stand.
+    expect(at('GR-17')).toBeLessThan(at('GR-4'))
+    expect(at('GR-4')).toBeLessThan(at('GR-12'))
   })
 
   it('carries an S-129 of at least one worked day, which the dummy\'s length assumes', () => {
@@ -842,33 +867,69 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
     // ど優先すること（MUST）」 gave it to GR-3 -- so there was no point at all
     // where GR-9 could be reached at its own place, which is what the user
     // reported (D-56).
-    // ⚠️ THE PRESS MOVED ON 2026-09-09, THE CLAIM DID NOT. GR-9's own POINT is
-    // the first pixel of the one drawn mark, and the ruling of that day gives
-    // every pixel of that mark to GR-17 -- so the press moved past the mark, to
-    // the part of GR-9's S-93 band the ruling says nothing about. What is asked
-    // is still that GR-9 can be reached at its own place, and GR-3 must still
-    // not answer there.
+    // ⚠️ THE PRESS MOVED TWICE, THE CLAIM DID NOT. On 2026-09-09 the manuscript
+    // first handed every pixel of the one mark to GR-17 and the press moved
+    // past the mark; later the same day it cut the mark down the middle
+    // instead, and the LEFT half is GR-9's own. What is asked is still that
+    // GR-9 can be reached at its own place, and GR-3 must still not answer
+    // there.
     const built = drawn()
     const task = taskDrawn(built)
-    expect(grabPastTheMark(built, dummyNamed(task, 'GR-9'))).toBe('GR-9')
+    expect(grabOnTheStartHalfOfTheMark(built, dummyNamed(task, 'GR-9'))).toBe('GR-9')
   })
 
-  it('⛔ answers GR-17 on the one drawn mark, GR-9\'s own point included (MUST)', () => {
-    // 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）を掴むこと（MUST）」
-    // （利用者の裁定 2026-09-09）, and beside it 「その 1 つの印のどの画素を押し
-    // ても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けて
-    // はならない（MUST NOT）」. ⚠️ Measured on the shipped build before this: 0 of 6 ink
-    // pixels answered GR-17 at 6px a day, 0 of 12 at 12.9 and at 27.6 (D-415).
+  // =========================================================================
+  // ⭐ D-415 -- the one mark answers BOTH ends, split at its own middle
+  // =========================================================================
+  //
+  // ⛔ THE DEFECT. Until 2026-09-09 the manuscript said the whole mark was the
+  // finish's; before that the shell drew two marks. Either way a person had one
+  // drawing in front of them and no way to read, from the drawing, which end a
+  // press would take. The ruling of that day settles it by geometry: 「1 つの
+  // ダミーの印は、その横幅の中央で左右に割ること（MUST）」.
+  //
+  // ⚠️ Measured on the tree this file stands in: 0 of 6 ink pixels answered
+  // GR-9 at 6px a day, 0 of 12 at 12.9 and at 27.6 -- the whole mark was the
+  // finish's, which is what these two cases now refuse.
+
+  it('D-415 ⭐ MUST: the LEFT half of the one mark answers the actual START', () => {
     const built = drawn()
     const mark = dummyNamed(taskDrawn(built), 'GR-9').ink
-    expect(mark.width).toBeGreaterThan(0)
-    // ⭐ EVERY pixel, edges included -- the MUST NOT is about splitting the one
-    // mark, so a build that gave GR-17 the far half alone fails here.
-    for (let x = mark.x; x <= mark.x + mark.width; x += 1) {
+    expect(mark.width, 'FR-043 draws one mark').toBeGreaterThan(1)
+    // ⭐ EVERY pixel of the left half, so a build that gave GR-9 one edge pixel
+    // and the finish the rest still fails.
+    for (let x = mark.x; x < mark.x + mark.width / 2; x += 1) {
+      expect(grabAt(built, x, mark.y + mark.height / 2), `x = ${x - mark.x} into the mark`)
+        .toBe('GR-9')
+    }
+  })
+
+  it('D-415 ⭐ MUST: the RIGHT half of the same mark answers the actual FINISH', () => {
+    // ⚠️ THE CONTRAST. Without it a build that had simply given the whole mark
+    // to GR-9 -- the mirror of the fault -- would pass the case above.
+    const built = drawn()
+    const mark = dummyNamed(taskDrawn(built), 'GR-9').ink
+    for (let x = Math.ceil(mark.x + mark.width / 2) + 1; x <= mark.x + mark.width; x += 1) {
       expect(grabAt(built, x, mark.y + mark.height / 2), `x = ${x - mark.x} into the mark`)
         .toBe('GR-17')
     }
+    expect(grabOnTheFinishHalfOfTheMark(built, dummyNamed(taskDrawn(built), 'GR-9')))
+      .toBe('GR-17')
   })
+
+  // ⛔⛔ WHAT D-415's SECOND HALF ASKS AND WHY NO CASE STANDS FOR IT HERE.
+  // Table T-023d's GR-17 row (MUST) wants the finish handle to pin `actualStart`
+  // at GR-9's day -- 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の
+  // 日で確定。`FR-043`）」 -- and FR-043 records that the ruling of 2026-09-09
+  // ENDED the collision that clause used to have with 「掴んで置く値は、実績開始
+  // 日 ＝ 掴みシロを離した日」: 「左半分を掴めば `GR-9` が答え、離した日が実績開始
+  // 日になるからである」. ⇒ The two halves of the mark must write DIFFERENT
+  // values, and which half was grabbed has to reach the document.
+  // ⛔ `EditDocument`'s `beginTaskActual` carries `uid` and `droppedDay` and
+  // nothing that says which end was taken, so a case asking for the finish
+  // half's value could only be written by inventing a field. ⇒ It is not
+  // written. The half that IS reachable -- which row a press on each half of
+  // the mark answers -- is the pair of cases above.
 
   it('still answers GR-3 on the plan bar\'s left end -- the other half of the pair', () => {
     // ⭐ THE CASE THAT MUST NOT REGRESS. 「実績開始部の左側が予定、右側がダミー

@@ -85,17 +85,17 @@
 //
 // R-29, in the same table's paragraph about which end of an actual is grabbed:
 //
-//   8 「描かれたダミーの印の画素も、同じく終了側（`GR-17`）を掴むこと（MUST）
-//   9 「その 1 つの印のどの画素を押しても `GR-17` を掴むこと（MUST）
-//  10 「その 1 つの印のどの画素を押しても `GR-17` を掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けてはならない（MUST NOT）
+//   8 「1 つのダミーの印は、その横幅の中央で左右に割ること（MUST）
+//   9 「左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）
+//  10 「印より右に残る当たり判定は終了側とすること（MUST）
 //
-// ⛔ MEASURED HERE, 2026-09-09, and the tree does not obey it either. The one
-// mark FR-043 draws stands on `GR-9`'s day (x=380 in the same fixture) and is
-// `S-180` = 12px wide, so its pixels are x=380..392; `GR-17`'s box begins at
-// x=416, a whole day further on. Pressed at x=380, 382, 385 and 391 the answer
-// is `GR-9` every time, which is the very split clause 10 forbids -- the mark a
-// person sees hands back the START. ⛔ Red for the same reason as R-27, and
-// left unpressed for the same reason.
+// ⛔⛔ THESE THREE REPLACED WHAT R-29 USED TO SAY. Until 2026-09-09 the same
+// paragraph handed EVERY pixel of the one mark to the finish and forbade
+// splitting it; a later ruling the same day cut the mark down its middle
+// instead, so a person can read from the drawing which end a press will take.
+// ⭐ THE PRESS IS ASKED, and not here: the cases stand in
+// tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts, which walks
+// every pixel of each half. This file is about GR-8 and keeps to it.
 //
 // R-30, in `FR-003`, `FR-041` and `FR-039`:
 //
@@ -212,16 +212,23 @@ const ENV: ScreenEnvironment = {
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
 /**
- * `S-93` as the hit test reads it -- 30 x 20px, and `PointerSlop` carries the
- * two sides as the WHOLE box, which `itemAtPointer` halves about the point.
+ * `S-93` as the hit test reads it -- one number and a WIDTH since 2026-09-09 --
+ * and `PointerSlop` carries the two sides as the WHOLE box, which
+ * `itemAtPointer` halves about the point.
  */
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'][0],
-  dummyHeight: NOT_STORED_SIZES['S-93'][1],
+  dummyWidth: NOT_STORED_SIZES['S-93'],
+  // ⭐⭐ NOT `S-93`'s SECOND NUMBER. Since 2026-09-09 that row is one number
+  // and a WIDTH -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
+  // (表 T-206) -- and table T-023d's closing rule sends the hold's vertical to
+  // the same place: 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」.
+  // ⭐ The band is `basePlanHeight` (`S-4`) times `actualOfPlan` (`S-5`).
+  dummyHeight: Number(SETTINGS_DEFAULTS['basePlanHeight']) *
+    Number(SETTINGS_DEFAULTS['actualOfPlan']),
   line: NOT_STORED_SIZES['S-137'],
 }
 

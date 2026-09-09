@@ -155,11 +155,18 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * つまみ）joined on 2026-09-07, at the table's TAIL rather than its head --
  * 「⚠️ 帯は `Row Area` の外にあるので、他の行と同じ画素を争わない —— だから
  * 本行は優先順の上ではなく末尾に置いてある」.
+ * ⭐⭐ AND IT MOVED AGAIN ON 2026-09-09. The plan's own points fell BELOW the
+ * dummies: table T-023d's closing rule states the fence plainly -- 「境目より右
+ * では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
+ * 成立させること（MUST）」 -- and the printed order was moved to match, so
+ * `GR-3` / `GR-4` / `GR-7` / `GR-12` now stand after `GR-13` / `GR-14`, and
+ * `GR-8` dropped to just under `GR-11`.
  */
 const T_023D = [
   'GR-19',
-  'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-17', 'GR-9',
-  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-20', 'GR-16', 'GR-21',
+  'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
+  'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
+  'GR-20', 'GR-16', 'GR-21',
 ] as const
 
 /** 表 T-028 -- the input manners (FR-040). */

@@ -54,7 +54,8 @@
 //     against itself.
 //
 //     ⭐ So every pointer below is computed from the specification instead:
-//       T-206 S-93   the dummies' 当たり判定, 「30 × 20px」, which is what
+//       T-206 S-93   the dummies' 当たり判定, one number and a WIDTH since
+//                    2026-09-09 (「本行が定めるのは横だけである」), which is what
 //                    「乗っている」 has to be judged inside;
 //       T-023d GR-3  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
 //                    start day's column begins;
@@ -67,16 +68,18 @@
 //     GR-9 one is inside the ink under FR-043's width as well. ⭐ A case below
 //     asserts that containment rather than assuming it.
 //
-//   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」, which at
+//   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」, which at
 //   a low magnification covers both dummies; the second describe below is built
-//   on that overlap.
+//   on that overlap. ⚠️ The row reached to EITHER side of the end, and half as
+//   far, until 2026-09-09: the ruling of that day took it to the end's outside
+//   alone and doubled the number.
 //
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
 //   * HOW DARK 濃く IS. FR-013 fixes the FAINT value (S-131) and no row anywhere
 //     fixes the other one, so every case below asks only that the figure under
 //     the pointer has LEFT S-131 -- never what it arrived at.
-//   * WHERE S-93's 30 × 20px IS CENTRED. T-206 gives the hit box a SIZE and
+//   * WHERE S-93's WIDTH IS CENTRED. T-206 gives the hit box a SIZE and
 //     T-023d gives GR-9 a DAY; no row says which pixel of the day the box is
 //     centred on. ⭐ So no case below asserts the edge of a hit box: they assert
 //     only that the point they use is one every reading covers.
@@ -139,11 +142,11 @@ const leadingNumberOf = (cell: string | undefined, row: string): number => {
   return first
 }
 
-/** `S-93` -- 「実績のダミーの当たり判定 … 30 × 20px」. The width is the first. */
+/** `S-93` -- 「実績のダミーの当たり判定」, which is one number and a width. */
 const DUMMY_HIT_WIDTH = leadingNumberOf(S_93['既定'], 'S-93')
 /** `S-180` -- ⛔ FR-043's UPPER BOUND on the drawn width, never the width itself. */
 const DUMMY_WIDTH_UPPER_BOUND = leadingNumberOf(S_180['既定'], 'S-180')
-/** `S-90` -- 「予定の端点の掴み代 | バーの上下と、端点の左右に 6px」. */
+/** `S-90` -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」. */
 const PLAN_ENDPOINT_SLOP = leadingNumberOf(S_90['既定'], 'S-90')
 
 const FLAT = SETTINGS_DEFAULTS as unknown as Record<string, number>
@@ -233,13 +236,21 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
  * so a task with an actual bar would leave this file with nothing faint to
  * point at.
  *
- * ⭐ 2026-02-02 IS A MONDAY, so GR-9 (「予定の開始日の翌稼働日」) and GR-17 (a
+ * ⭐ 2026-01-05 IS A MONDAY, so GR-9 (「予定の開始日の翌稼働日」) and GR-17 (a
  * further `S-129` worked days on) fall on the Tuesday and the Wednesday: the
  * default calendar's weekend (表 T-209) never comes between them, and one
  * worked day is one column of the axis.
+ *
+ * ⛔⛔ IT WAS 2026-02-02, FIVE WEEKS PAST `scrollDate`, UNTIL 2026-09-09. That
+ * standoff cost 32 day columns before the bar began, and the wide describe
+ * below had to move to 48px a day when `S-180` rose to 30 -- at which point
+ * the whole figure stood off the right of the `Row Area` and nothing was
+ * drawn to point at. ⭐ 2026-01-05 is the first Monday on or after `scrollDate`,
+ * so it keeps the property this fixture is chosen for and stands in view at
+ * every magnification the file uses.
  */
 const IDLE = scheduleOf({
-  tasks: [taskOf({ uid: 1, start: '2026-02-02', finish: '2026-02-22', name: 'idle' })],
+  tasks: [taskOf({ uid: 1, start: '2026-01-05', finish: '2026-01-25', name: 'idle' })],
   taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
   taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
 })
@@ -490,11 +501,17 @@ const isStillFaint = (svg: string, ink: Ink): boolean => {
 
 describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   // ⭐ A MAGNIFICATION AT WHICH `S-180` IS THE SMALLER OF FR-043'S TWO NUMBERS
-  // (`S-1` × 2.5 = 15px a day, against S-180's 12). The second describe runs at
+  // (`S-1` × 8 = 48px a day, against S-180's 30). The second describe runs at
   // one where the DAY is the smaller, so between them the file exercises both
   // sides of 「1 日ぶんと … `S-180` の小さい方」 -- and the point put under the
   // pointer is a different distance from the day's left edge in each.
-  const ZOOM = 2.5
+  //
+  // ⛔⛔ IT WAS 2.5 UNTIL 2026-09-09, when `S-180`'s default rose from 12 to 30
+  // so that the drawn mark and the hold `S-93` gives it would be the same size
+  // -- 「既定を `S-93` と同じ大きさに揃えた」（利用者の裁定 2026-09-09）. 15px a day
+  // fell to the NARROW side of the new bound, and this describe would have
+  // proved the same half of the rule as the one below.
+  const ZOOM = 8
   const SETTINGS = settingsAt(ZOOM)
 
   it('S-93 is still the row that says how big the dummies are to point at', () => {
@@ -676,7 +693,7 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
   it('⛔ and the dummies really do stand inside the plan endpoints\' slop at this zoom', () => {
     // ⚠️ Without this the case above would be green at any zoom at all, and the
     // condition it means to reproduce would never have been built. ⭐ S-90 is
-    // read from the manuscript, not typed: 「端点の左右に 6px」.
+    // read from the manuscript, not typed: 「端点の外側に 12px」.
     const left = planStartOf(LOW)
     const right = left + ((): number => {
       const placed = layoutFromSchedule(IDLE, LOW, regionsFromScreen(ENV, LOW)).placements[0]
