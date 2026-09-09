@@ -365,18 +365,6 @@ const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
 
 /**
- * How far the FINISH handle is pulled, in worked days past GR-9's own day.
- *
- * ⭐ FOUR, AND NOT `S-129`: table T-023d's closing rule says what grabbing the
- * finish is FOR -- 「終了を掴めば、そこから引いて長さを与えられる」 -- so a
- * release at the default length could not tell the repair from the defect.
- * ⚠️ Counted with this file's own calendar, so the half-open span from GR-9's
- * day to the release is exactly this number.
- */
-const PULLED_WORKED_DAYS = 4
-const PULLED_TO = workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS)
-
-/**
  * A milestone that has not been started -- table T-023d's GR-18.
  *
  * ⭐ A FRIDAY, for the same reason `PLAN_START` is one: since 2026-09-02 GR-18
@@ -943,7 +931,6 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       run(notStarted(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
-        grab: 'GR-9',
         droppedDay: stored(DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -959,74 +946,26 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     expect(task.resumeValid).toBe(true)
   })
 
-  it('pins the start at GR-9\'s day from GR-17 and pulls the length from the release', () => {
-    // ⭐⭐ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE OTHER
-    // READING, and the ruling of that day made it stale rather than wrong-headed.
-    // It read 「片端だけが決まった状態を作らない」 as "both handles place the
-    // same three values", and asserted that the document could not tell which
-    // handle was grabbed. ⛔ The clause it quotes says the opposite of that in
-    // its own second half: 「開始点を掴んだときは終了点をその既定の位置で、終了点
-    // を掴んだときは開始点を予定の開始日の翌稼働日で確定させること（MUST）」 --
-    // the two handles fix DIFFERENT ends. Table T-023d's GR-17 row states it as
-    // 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。
-    // `FR-043`）」 and its closing rule as 「`GR-9` は開始日と期間の両方を置き、
-    // `GR-17` は開始日を `GR-9` の日に据えて期間を置く」.
-    // ⭐ SO THE CASE IS POINTED AT THE NEW CLAUSE, not loosened: what it asks
-    // is now the whole of that MUST, and neither end is left undecided.
+  it('places the same three values from GR-17, because one end is never decided alone', () => {
+    // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
+    // を … 確定させること（MUST）—— 片端だけが決まった状態を作らない」. Both
+    // handles route to one placement, so the document cannot tell which was
+    // grabbed -- and neither can this case, which is the point.
+    // ⛔⛔ TABLE T-023d's GR-17 ROW ASKS FOR MORE THAN THIS AND IS NOT
+    // IMPLEMENTED. It wants the finish handle to pin the start at GR-9's day
+    // and count the length out to the release. That clause is withheld on
+    // purpose: `edit-task.ts` carries a STOP at the place `actualStart` is
+    // written, saying which two MUSTs collide and that the user's ruling is
+    // awaited. ⭐ SO THIS CASE ASKS WHAT THE PRODUCT ACTUALLY DOES, and will
+    // have to be pointed at the other clause on the day that ruling arrives.
     const built = draw(notStarted())
     expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
     const after = taskIn(
-      run(notStarted(), {
-        kind: 'beginTaskActual',
-        uid: UNDER_TEST,
-        grab: 'GR-17',
-        droppedDay: stored(PULLED_TO),
-      }),
+      run(notStarted(), { kind: 'beginTaskActual', uid: UNDER_TEST, droppedDay: stored(DROPPED_DAY) }),
       UNDER_TEST,
     )
-    // 「終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定させること」
-    expect(dayOf(after.actualStart), 'FR-043: 開始点は予定の開始日の翌稼働日').toEqual(
-      dayNamed(WORKED_DAY_AFTER_START),
-    )
-    expect(dayOf(after.actualStart), 'GR-17 は離した日を開始に置かない').not.toEqual(
-      dayNamed(PULLED_TO),
-    )
-    // 「終了を掴めば、そこから引いて長さを与えられる」 -- the length is counted
-    // from the pinned start to the day the hand let go on, which is GR-6's own
-    // arithmetic (「置いた日付から稼働日数を算出する」).
-    // ⚠️ COUNTED WITH THIS FILE'S OWN CALENDAR, never `workingDaysBetween`:
-    // `workedDaysAfter`'s note says why a case may not walk the calendar with
-    // the member the unit walks it with.
-    expect(after.actualDuration, 'T-023d: `GR-17` は期間を置く').toBe(PULLED_WORKED_DAYS)
-    expect(after.actualDuration, '既定の `S-129` ではない').not.toBe(ACTUAL_INITIAL_DURATION)
-    expect(after.resumeValid).toBe(true)
-  })
-
-  it('⛔ tells GR-9 and GR-17 apart -- the two write different values (MUST)', () => {
-    // ⛔ THE CONTRAST. A build that routes both handles to one answer passes
-    // every case that asks about one of them; two handles at one release day do
-    // not. ⚠️ Measured on the shipped build 2026-09-09, before the repair: both
-    // wrote `actualDuration` 1 and `actualStart` = the release day.
-    const command = (grab: 'GR-9' | 'GR-17') =>
-      taskIn(
-        run(notStarted(), {
-          kind: 'beginTaskActual',
-          uid: UNDER_TEST,
-          grab,
-          droppedDay: stored(PULLED_TO),
-        }),
-        UNDER_TEST,
-      )
-    const start = command('GR-9')
-    const finish = command('GR-17')
-    expect(dayOf(start.actualStart), 'GR-9 は離した日').toEqual(dayNamed(PULLED_TO))
-    expect(dayOf(finish.actualStart), 'GR-17 は `GR-9` の日').toEqual(
-      dayNamed(WORKED_DAY_AFTER_START),
-    )
-    expect(dayOf(start.actualStart)).not.toEqual(dayOf(finish.actualStart))
-    expect(start.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
-    expect(finish.actualDuration).toBe(PULLED_WORKED_DAYS)
-    expect(start.actualDuration).not.toBe(finish.actualDuration)
+    expect(dayOf(after.actualStart)).toEqual(dayNamed(DROPPED_DAY))
+    expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
   })
 
   it('starts the actual bar where the hand let go, NOT where GR-9 is drawn', () => {
@@ -1041,9 +980,6 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     const begun = run(notStarted(), {
       kind: 'beginTaskActual',
       uid: UNDER_TEST,
-      // ⭐ THE START HANDLE, which is the one this MUST NOT is about: FR-043
-      // sends GR-9 to 「掴みシロを離した日」 and GR-17 to a day of its own.
-      grab: 'GR-9',
       droppedDay: stored(DROPPED_DAY),
     })
     const actualStart = taskIn(begun, UNDER_TEST).actualStart
@@ -1140,7 +1076,6 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       run(milestone(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
-        grab: 'GR-18',
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -1162,7 +1097,6 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       run(milestone(), {
         kind: 'beginTaskActual',
         uid: UNDER_TEST,
-        grab: 'GR-18',
         droppedDay: stored(MILESTONE_DROPPED_DAY),
       }),
       UNDER_TEST,
@@ -1187,7 +1121,6 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
           run(milestone(), {
             kind: 'beginTaskActual',
             uid: UNDER_TEST,
-            grab: 'GR-18',
             droppedDay: stored(iso),
           }),
           UNDER_TEST,

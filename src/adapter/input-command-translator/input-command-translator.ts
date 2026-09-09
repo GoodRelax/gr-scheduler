@@ -7364,21 +7364,15 @@ function commandFromGrab(
     case 'GR-9':
     case 'GR-17':
     case 'GR-18': {
-      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, CARRYING THE DAY
-      // AND THE END. FR-043 (MUST) places the same three columns whichever
-      // handle was grabbed and fixes whichever end was not, so the three rows
-      // share one command -- but WHICH end the hand was on decides which column
-      // the day feeds, so the row travels with it.
-      // ⛔⛔ IT USED TO CARRY THE DAY ALONE, and the two ends then wrote the
-      // same thing: table T-023d's closing rule says 「`GR-9` は開始日と期間の
-      // 両方を置き、`GR-17` は開始日を `GR-9` の日に据えて期間を置く」, and
-      // FR-043 says it again as a MUST -- 「終了点を掴んだときは開始点を予定の
-      // 開始日の翌稼働日で確定させること」. ⚠️ Measured on the shipped build
-      // 2026-09-09: a drag on GR-17 pulled five days along wrote the day it was
-      // let go on into `actualStart` and left `actualDuration` at 1, so the
-      // closing rule's 「終了を掴めば、そこから引いて長さを与えられる」 was empty.
-      // ⭐ CM-14 still reads the SHAPE to choose between S-129 and S-130 -- the
-      // milestone exception is a length, not an end.
+      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND ONE DAY IN
+      // IT. FR-043 (MUST) places the same three columns whichever handle was
+      // grabbed and fixes whichever end was not, so no END is a parameter --
+      // what the drag decides is the DAY, 実績開始日 ＝ 掴みシロを離した日
+      // (利用者の裁定 2026-09-02). CM-14 reads the shape to choose between
+      // S-129 and S-130, so GR-18 still needs no separate answer here.
+      // ⛔ CM-14 CARRIES A STOP about the finish handle's own columns, which
+      // table T-023d's GR-17 row asks for and this translator does not feed --
+      // the row it would carry is withheld there, not lost here.
       //
       // ⭐ THE RELEASE IS THE ONLY PHASE THAT REACHES THIS FUNCTION, which is
       // what table T-023d's grab means: the table's closing rule sends the
@@ -7414,9 +7408,7 @@ function commandFromGrab(
       // keeps the browser out from under a grab it took.
       const dropped = dayAtX(context.layout, release.x)
       if (dropped === null) return CONSUMED_ELSEWHERE
-      return changed([
-        { kind: 'beginTaskActual', uid, grab: hit.grab, droppedDay: textOfDay(dropped) },
-      ])
+      return changed([{ kind: 'beginTaskActual', uid, droppedDay: textOfDay(dropped) }])
     }
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days

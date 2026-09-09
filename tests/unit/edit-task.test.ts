@@ -884,8 +884,6 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
         uid: 1,
-        // GR-9 -- the START handle, whose row writes the day the hand let go of.
-        grab: 'GR-9',
         droppedDay: jan(8),
       }),
     )
@@ -934,8 +932,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const next = accepted(
       run(
         notStarted({ start: jan(9), finish: jan(9), milestone: true }, { shapeKind: 'milestone' }),
-        // GR-18 -- a milestone shows ONE handle (FR-043), so there is no other.
-        { kind: 'beginTaskActual', uid: 1, grab: 'GR-18', droppedDay: jan(17) },
+        { kind: 'beginTaskActual', uid: 1, droppedDay: jan(17) },
       ),
     )
     const task = taskIn(next, 1)
