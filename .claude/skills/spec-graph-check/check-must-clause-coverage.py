@@ -95,11 +95,24 @@ right thing.
 
 WHY THE RULING WENT THAT WAY, measured 2026-09-10. The 431 settled rows of
 `fixed-defects.md` each name how the defect was found: `vitest` found 4.9% of
-them, against 74.9% for pressing the shipped build. Meanwhile 28.2% of the
-lines added under tests/ came from rounds that moved neither docs/spec nor
-src/, and two of those rounds say what they were doing in their own subject
-line -- 408ec98 `Repay the NFR-004 debt, and close undo, redo and align` and
-73c1986 `Read the four new reasons against their words, and repay the debt`.
+them, against 74.9% for pressing the shipped build.
+
+Meanwhile the lines added under tests/ by rounds that moved NEITHER docs/spec
+NOR src/ ran at 26.8% over the last forty commits before `Before-Cleanup`
+(2,004 of 7,471), and two of those rounds say what they were doing in their own
+subject line -- 408ec98 `Repay the NFR-004 debt, and close undo, redo and
+align` and 73c1986 `Read the four new reasons against their words, and repay
+the debt`.
+
+⚠️ THAT PERCENTAGE NEEDS ITS WINDOW, AND THE HANDOVER GAVE IT WITHOUT ONE.
+Measured 2026-09-11 with `git log --numstat --no-merges`, counting a commit as
+idle when it touched no path under `docs/spec` and none under `src/`: 26.8%
+over the last forty commits, but only 8.6% over the whole history (19,457 of
+225,001). The handover said a bare 28.2%; the recent window is what it meant,
+and the lifetime figure is a third of it. ⇒ The habit is RECENT and growing,
+which is the reading that supports the ruling -- but anyone quoting 28.2% as
+this project's lifetime behaviour is quoting a number that is three times too
+large.
 ⇒ Repayment was buying the least productive of the six ways this product is
 observed to find a defect.
 
