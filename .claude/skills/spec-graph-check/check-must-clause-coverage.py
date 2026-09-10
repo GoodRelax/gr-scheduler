@@ -83,16 +83,34 @@ CORRECT OR EVEN ABOUT THE RIGHT THING -- as `spec-table.ts`'s own convention
 says of itself, only that some file under tests/ carries the clause's own
 words, which is the one fact D-254 measured as absent for its seven clauses.
 
-⛔⛔ A DEBT BASELINE, NOT A DEMAND FOR ZERO. 1,634 marked clauses is far more
-than any round could write tests for at once (measured 2026-09-05: 470 held,
-1,164 not). The number held against `must-clause-coverage-baseline.txt` is the
-UNHELD count, in the same shape as `decided-spec-baseline.txt` and
-`stale-blocked-baseline.txt`: it may fall freely (a round that adds a
-verbatim-holding test for a previously bare clause lowers it and should), and
-it may only RISE if someone deliberately raises the baseline and says why --
-which happens automatically the moment a new MUST/MUST NOT clause is written
-into the manuscript without a test quoting it, exactly as D-254 found for its
-seven.
+⛔⛔ A BOLT, NOT A DEBT -- the user's ruling, 2026-09-11. The number in
+`must-clause-coverage-baseline.txt` is the UNHELD count, and it has exactly one
+job: to fail the round that writes a NEW MUST / MUST NOT clause with nothing
+under tests/ quoting it, exactly as D-254 found for its seven. ⛔ THE STANDING
+COUNT IS NOT OWED. No round may write a test whose purpose is to lower this
+number. A test written to close a clause nobody pressed holds WORDS, not
+behaviour -- this check says so about itself two paragraphs above, where it
+disclaims any knowledge that the test's assertion is correct or even about the
+right thing.
+
+WHY THE RULING WENT THAT WAY, measured 2026-09-10. The 431 settled rows of
+`fixed-defects.md` each name how the defect was found: `vitest` found 4.9% of
+them, against 74.9% for pressing the shipped build. Meanwhile 28.2% of the
+lines added under tests/ came from rounds that moved neither docs/spec nor
+src/, and two of those rounds say what they were doing in their own subject
+line -- 408ec98 `Repay the NFR-004 debt, and close undo, redo and align` and
+73c1986 `Read the four new reasons against their words, and repay the debt`.
+⇒ Repayment was buying the least productive of the six ways this product is
+observed to find a defect.
+
+⭐ THE RATCHET STAYS, AND IT IS NOT REPAYMENT. When a round moves the
+specification or src/ and the count falls out of that work, lower the baseline
+so the ground cannot be given back. The rule is about the REASON a test is
+written, not about the direction the number moves.
+
+⚠️ THE ENTRIES BELOW LINE 1 OF THE BASELINE FILE ARE RECORDS, NOT ORDERS. They
+were written while the number was read as a debt, and several of them tell a
+later round to pay something back. ⛔ Do not obey them.
 
     python .claude/skills/spec-graph-check/check-must-clause-coverage.py
 
@@ -264,9 +282,9 @@ def main():
     if unheld > held_baseline:
         sample = unheld_sample[:12]
         print('FAIL     docs/spec/: clauses with no verbatim tie under '
-              'tests/ went %d -> %d. ⛔ A MUST/MUST NOT clause may not be '
-              'added or left bare without raising %s deliberately and saying '
-              'why in the commit.' % (held_baseline, unheld, REL_BASELINE))
+              'tests/ went %d -> %d. ⛔ A NEW MUST/MUST NOT clause may not be '
+              'written bare. ⛔ Do not close an OLD one to make room -- raise '
+              '%s deliberately and say why in the commit.' % (held_baseline, unheld, REL_BASELINE))
         for line in sample:
             print('         %s' % line)
         if len(unheld_sample) > len(sample):

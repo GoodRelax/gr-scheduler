@@ -1,5 +1,15 @@
 983
 #
+# ⛔⛔ THIS NUMBER IS A BOLT, NOT A DEBT -- the user's ruling, 2026-09-11.
+# It fails the round that writes a NEW MUST / MUST NOT clause with nothing
+# under tests/ quoting it. ⛔ THE STANDING COUNT IS NOT OWED: no round may
+# write a test whose purpose is to lower it. See the docstring of
+# check-must-clause-coverage.py for what was measured and why.
+#
+# ⚠️ EVERY ENTRY BELOW IS A RECORD OF A DAY, NOT AN ORDER FOR TODAY. They were
+# written while this number was read as a debt, and several of them tell a
+# later round to pay something back. ⛔ Do not obey them. Only line 1 is read
+# by the machine.
 # RAISED 975 -> 983 ON 2026-09-10, AFTER PAYING BACK SIXTEEN OF THE TWENTY-FOUR
 # THE GRAB-AREA RULINGS BORROWED. ⚠️ MEASURED, NOT SUBTRACTED: this check
 # printed 999 before the round and 983 after, and the two hit sets were diffed
