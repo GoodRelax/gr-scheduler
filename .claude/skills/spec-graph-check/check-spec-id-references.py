@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 41 -- a specification ID cited from src/ or tests/ that the
+"""Check 44 -- a specification ID cited from src/ or tests/ that the
 specification retired, or that it never defined at all.
 
 ⛔⛔ WHY THIS EXISTS, AND WHY IT IS THE FIRST OF ITS KIND. Every one of the
@@ -275,6 +275,21 @@ def scan(defined, retired, elsewhere):
         for lineno, line in enumerate(text.split('\n'), 1):
             for found in ID_TOKEN.finditer(line):
                 token = found.group(1)
+                # ⛔ AN APOSTROPHE-LESS POSSESSIVE IS NOT A DEAD ID. This
+                # project writes 「HM-4s own row」 for 「HM-4's own row」, and the
+                # trailing [a-z] that lets T-005a and SK-11a match swallows that
+                # `s`. Measured 2026-09-11 by a body reading its own findings:
+                # HM-4s, IV-10s and PI-17s were faulted while HM-4, IV-10 and
+                # PI-17 are all live rows -- and two of the three sit in a TEST
+                # NAME, which a cleanup may not edit, so they could never have
+                # been repaired at all.
+                # ⭐ THE TRAILING LETTER IS DROPPED ONLY WHEN KEEPING IT
+                # RESOLVES TO NOTHING AND DROPPING IT RESOLVES TO SOMETHING.
+                # Widening ID_BODY to forbid the suffix outright would stop
+                # matching T-005a, PD-4a and SK-11a, which are real ids.
+                if (token not in resolvable and token[-1].isalpha()
+                        and token[:-1] in resolvable):
+                    continue
                 if token in retired:
                     hits.append((rel, lineno, token, 'retired'))
                 elif token not in resolvable and token.split('-')[0] in prefixes:
