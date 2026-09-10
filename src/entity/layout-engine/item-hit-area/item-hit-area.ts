@@ -181,17 +181,6 @@ export interface PointerSlop {
   /** S-92: the fade handle's square, as its half-width. */
   readonly fadeHandle: number
   /**
-   * S-93: the box GR-9 / GR-17 / GR-18 take from their day's left edge.
-   *
-   * ⭐⭐ A WIDTH AND NOTHING ELSE SINCE 2026-09-09. The row: 「⭐ 本行が定める
-   * のは横だけである —— 縦の広がりは実績の帯に従う」, ⚠️ 「2026-09-09 まで本行が
-   * 再開アイコンにも当たり判定を与えており、縦を自分で持っていた」. ⇒ The
-   * height field that stood beside this one is gone, and `isOnDummy` takes the
-   * band off the geometry; GR-8 reads `ResumeGeometry.hitHalf` (S-22) instead
-   * -- 「⛔ 再開アイコン（表 T-023d の `GR-8`）は本行を読まない」.
-   */
-  readonly dummyWidth: number
-  /**
    * S-137: how near a line counts as on it -- GR-13's dependency line and
    * GR-16's status line.
    *
@@ -409,12 +398,12 @@ const TABLE_T_023D: readonly HitRow[] = [
   // 端点 in as many words. What still binds them is the fence below, which the
   // closing rule of 2026-09-08 states about all four plan-side rows.
   taskRow('GR-1', 'anyPress', (boxed, x, y, slop) => {
-    if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
+    if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
     const corner = boxed.task.fadeHandles[0]
     return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
   }),
   taskRow('GR-2', 'anyPress', (boxed, x, y, slop) => {
-    if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
+    if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
     const corner = boxed.task.fadeHandles[1]
     return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
   }),
@@ -440,15 +429,24 @@ const TABLE_T_023D: readonly HitRow[] = [
   // ⭐⭐ AND THE DRAWN MARK IS NOW SPLIT DOWN THE MIDDLE (MUST, 利用者の裁定
   // 2026-09-09): 「⭐⭐ 1 つのダミーの印は、その横幅の中央で左右に割ること
   // （MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）と
-  // すること（MUST）」, and 「⭐ 印より右に残る当たり判定は終了側とすること
-  // （MUST）」. ⛔⛔ UNTIL THAT DAY EVERY PIXEL OF THE MARK WAS GR-17's -- 「その
+  // すること（MUST）」. ⛔⛔ UNTIL THAT DAY EVERY PIXEL OF THE MARK WAS GR-17's -- 「その
   // 1 つの印のどの画素を押しても `GR-17` を掴むこと」 -- and the same day's later
   // ruling overturned it (逐語「ダミーの印を左右に割れ」). `isOnTheDrawnMarkHalf`
   // is where the middle is read.
-  taskRow('GR-17', 'anyPress', ({ task }, x, y, slop) =>
-    isOnDummy(task, 'GR-17', x, y, slop) || isOnTheDrawnMarkHalf(task, x, y, 'right')),
-  taskRow('GR-9', 'anyPress', ({ task }, x, y, slop) =>
-    isOnDummy(task, 'GR-9', x, y, slop) || isOnTheDrawnMarkHalf(task, x, y, 'left')),
+  // ⭐⭐ AND THE MARK IS ALL THERE IS, AS OF 2026-09-10 (MUST): 「`GR-9` /
+  // `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること
+  // （MUST）。印の外へ広げてはならない（MUST NOT）」.
+  // ⛔⛔ S-93's BOX IS GONE FROM THESE TWO ROWS. The closing rule read 「`GR-9` /
+  // `GR-17` / `GR-18` の当たり判定は、その日の列の左端を起点に、右へ
+  // `_assets/tbl-settings.md` の `S-93` の幅で取ること（MUST）」 until that day, and
+  // 「その規則は同じ裁定と衝突しており、2026-09-10 の裁定が前者を取り下げた」.
+  // ⚠️ 「実測（2026-09-10、出荷ビルド）: `S-93` の 30px は既定の倍率で 5 日ぶんあ
+  // り、3 日のタスクでは予定の終了点（`GR-4`）を丸ごと飲んでいた」 -- which is the
+  // ledger row this closes.
+  taskRow('GR-17', 'anyPress', ({ task }, x, y) =>
+    isOnTheDrawnMarkHalf(task, x, y, 'right')),
+  taskRow('GR-9', 'anyPress', ({ task }, x, y) =>
+    isOnTheDrawnMarkHalf(task, x, y, 'left')),
   // GR-10 -- the name label, wherever LC-6 put it.
   //
   // ⛔ `doubleClickOnly`, because the row's operation column now holds a double
@@ -493,8 +491,9 @@ const TABLE_T_023D: readonly HitRow[] = [
   //
   // ⛔⛔ IT READ S-93 UNTIL 2026-09-09 and the user's ruling shrank it to the
   // progress marker's own size -- 「⭐ 新しい設定値を立てない —— 進捗マーカー
-  // （`GR-7`）と同じ寸法をそのまま使う」, and S-93's row now says the same from
-  // the far side: 「⛔ 再開アイコン（表 T-023d の `GR-8`）は本行を読まない」.
+  // （`GR-7`）と同じ寸法をそのまま使う」. ⚠️ S-93's row is itself gone as of
+  // 2026-09-10 -- 「その `S-93` は 2026-09-10 に廃した」 -- so there is no
+  // longer a second size for this icon to be confused with.
   // ⭐ The size travels on `ResumeGeometry.hitHalf`, because S-22 is a stored
   // setting and `PointerSlop` carries only what table T-206 keeps out.
   //
@@ -547,11 +546,11 @@ const TABLE_T_023D: readonly HitRow[] = [
   // は 1 か所とすること（MUST）。開始側と終了側に分けてはならない（MUST NOT）——
   // 終了が無いのだから割る先も無い」, ⇒ 「⛔ 下の段の「印を左右に割る」は、
   // マイルストーンのダミーには当てないこと（MUST NOT）」. ⭐ Which is why this row
-  // asks `isOnDummy` and nothing else, while GR-9 and GR-17 above also ask the
-  // mark's halves: `isOnTheDrawnMarkHalf` answers only for a Task that carries
-  // the row it is asked about, and a milestone carries GR-18 alone.
+  // asks for the WHOLE mark while GR-9 and GR-17 above ask its halves:
+  // `isOnTheDrawnMark` answers only for a Task that carries the row it is asked
+  // about, and a milestone carries GR-18 alone.
   taskRow('GR-18', 'anyPress',
-    ({ task }, x, y, slop) => isOnDummy(task, 'GR-18', x, y, slop)),
+    ({ task }, x, y) => isOnTheDrawnMark(task, x, y)),
   // GR-13 -- a dependency line.
   //
   // ⭐⭐ LIFTED ABOVE THE PLAN BAR'S BODY ON 2026-09-09 (MUST): 「依存線（`GR-13`）
@@ -685,10 +684,10 @@ const TABLE_T_023D: readonly HitRow[] = [
  * RIGHT of it to fall through to the actual dummies (MUST). S-90's own reach is
  * still spent, but on the left hand alone.
  *
- * ⛔ THE CLAMP IS HERE AND NOT ON `isOnDummy`, and the geometry is why. A dummy
- * stands on a day AFTER the plan's start (GR-9's row, GR-18's row), and
- * `xFromDay` rises with the day, so its S-93 box already begins at or right of
- * the boundary at every zoom -- there is nothing on that side to clamp. The one
+ * ⛔ THE CLAMP IS HERE AND NOT ON THE DUMMY SIDE, and the geometry is why. A
+ * dummy stands on a day AFTER the plan's start (GR-9's row, GR-18's row), and
+ * `xFromDay` rises with the day, so the ink already begins at or right of the
+ * boundary at every zoom -- there is nothing on that side to clamp. The one
  * member that crossed the boundary was this one: GR-3 spread S-90 to BOTH sides
  * of the plan start and stands above the dummies, so it swallowed the first
  * S-90 of their reach. ⚠️ One clamp only: the ruling's own note calls the two
@@ -749,7 +748,7 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   if (boxed.task.shapeKind === 'milestone') return false
   const box = boxed.plan
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
-  if (standsOnADummyRightOfThePlanStart(boxed, x, y, slop)) return false
+  if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
   // ⭐⭐ OUTWARDS ONLY, BOTH HANDS. The finish claims from its own edge
   // RIGHTWARDS and the start from its own edge LEFTWARDS -- 「端の外は予定」 --
   // so the two ends turn their backs on each other and the bar's whole inside
@@ -790,10 +789,12 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
  * で重なったときは本規則が勝つ（MUST）」. So the four rows stand down HERE, over
  * the dummy's own box, and keep every other pixel the order gives them.
  *
- * ⭐ THE BOX IS THE DUMMY'S OWN, asked of `isOnDummy` rather than restated. A
- * second copy of S-93's arithmetic is the thing that goes out of step, and the
- * rule the two share -- 「`S-93` の幅は、境目の右側でだけ使うこと（MUST）」 -- is
- * one answer with two faces, as the manuscript itself says.
+ * ⭐ THE GROUND IS THE DUMMY'S OWN INK, asked of `isOnTheDrawnMark` rather than
+ * restated. A second copy of the mark's arithmetic is the thing that goes out
+ * of step, and the rule the two share -- 「ダミーの当たり判定は、境目の右側でだけ
+ * 使うこと（MUST）」 -- is one answer with two faces, as the manuscript itself
+ * says. ⛔⛔ IT READ 「`S-93` の幅は、境目の右側でだけ使うこと（MUST）」 UNTIL
+ * 2026-09-10, when the hold became the ink and that row was retired.
  *
  * ⚠️ ONE TASK'S OWN DUMMIES, AND ITS OWN PLAN START. The boundary the rule
  * names is 「予定の開始日の位置」 -- a Task's own -- so a Task's plan rows yield
@@ -805,25 +806,22 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
  * zoom; the comparison is written anyway because the rule is stated about the
  * boundary and a reader must be able to see the boundary in the code.
  *
- * ⭐ THE DRAWN MARK YIELDS WITH THE BOXES. Its pixels belong to the dummy side
+ * ⭐ THE DRAWN MARK IS THE WHOLE OF IT. Its pixels belong to the dummy side
  * whichever half of it is pressed -- 「予定側のどの行よりも先に成立させること
  * （MUST）」 is about the dummies and not about which of them -- so the whole ink
- * is asked here and the middle is nobody's business at this point. ⚠️ It is
- * very nearly the boxes already: the ink stands on GR-9's own day and is at
- * most `S-180` across against S-93's own width.
+ * is asked here and the middle is nobody's business at this point.
+ * ⛔⛔ AND THERE IS NOTHING ELSE TO ASK AS OF 2026-09-10 (MUST): 「`GR-9` /
+ * `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること
+ * （MUST）。印の外へ広げてはならない（MUST NOT）」. Until that day this member
+ * also asked S-93's box for each of the three rows.
  *
  * @purity pure
  */
-function standsOnADummyRightOfThePlanStart(boxed: BoxedTask, x: number, y: number,
-                                           slop: PointerSlop): boolean {
+function standsOnADummyRightOfThePlanStart(boxed: BoxedTask, x: number, y: number): boolean {
   const plan = boxed.plan
   if (plan === null || x <= plan.x) return false
-  if (isOnTheDrawnMark(boxed.task, x, y)) return true
-  return DUMMY_ROWS.some((grab) => isOnDummy(boxed.task, grab, x, y, slop))
+  return isOnTheDrawnMark(boxed.task, x, y)
 }
-
-/** The three rows of table T-023d the fence hands the right-hand side to. */
-const DUMMY_ROWS = ['GR-17', 'GR-9', 'GR-18'] as const
 
 /**
  * GR-5 and GR-6, INSIDE the actual bar's own two edges and never outside them
@@ -952,50 +950,6 @@ function actualEndsStandOnOneDay(box: ScreenRect): boolean {
   return box.width === 0
 }
 
-/**
- * GR-9 / GR-17 / GR-18, anchored where table T-023d's closing rule anchors
- * them: 「その日の列の左端を起点に、右へ `_assets/tbl-settings.md` の
- * `S-93` の幅で取ること」 (MUST), and
- * ⛔ 「起点を中心にしてはならない」 (MUST NOT).
- *
- * ⭐ THE POINT THE GEOMETRY CARRIES IS THAT LEFT EDGE (`xFromDay`), so the box
- * runs rightwards from it and the drawn ink starts on the same pixel --
- * `svg-renderer.ts` builds the mark from the same edge, which is what FR-043's
- * 「日の列の左端に揃える」 asks of the drawing.
- *
- * ⛔ CENTRING IS WHAT THE RULE FORBIDS, and the reason is measured: half of
- * S-93's width is 2.5 days at 6px a day, so a centred box reaches back over
- * the plan's own start point -- the very thing FR-043 moved this handle a day
- * along to keep separate. Where GR-3 stands above it the reach is merely
- * hidden rather than harmless (measured on the shipped build at 6px a day: 3px
- * of it stuck out to the left of GR-3's own band), and GR-18 has no GR-3 above
- * it at all.
- *
- * ⭐⭐ THE VERTICAL IS THE ACTUAL BAR'S OWN BAND, AND NO LONGER S-93's (MUST,
- * 利用者の裁定 2026-09-09): 「⭐ ダミーの当たり判定の縦幅は、実績の帯に従うこと
- * （MUST）—— 横は同表の `S-93` が持つ」, ⛔ 「2026-09-09 まで `S-93` が縦をみずから
- * 持っており、実績の帯より高かった」. ⭐ The band arrives on `DummyGeometry.ink`,
- * whose height `dummiesOf` set from the very expression the actual bar is drawn
- * at -- so the grab and the drawing share one figure instead of two.
- * ⛔ NOT `slop`, WHICH NO LONGER HAS IT: S-93 is a width now, and the row that
- * held the pair is the one the ruling split.
- *
- * ⚠️ GR-9's own note: the box is S-93 across and NOT the whole Task, or a Task
- * not started would have no middle left for GR-12 to move.
- *
- * @purity pure
- */
-function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: number, y: number,
-                   slop: PointerSlop): boolean {
-  const mark = task.dummies.find((one) => one.grab === grab)
-  if (mark === undefined) return false
-  return isInsideBoxInclusive(x, y, {
-    x: mark.at.x,
-    y: mark.ink.y,
-    width: slop.dummyWidth,
-    height: mark.ink.height,
-  })
-}
 
 /**
  * The ONE mark FR-043 draws on a Task not started, whole -- what the fence
@@ -1031,12 +985,15 @@ function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
  * 位置で覚えるしかなかったのが、割る位置を印の中央と決めたことで、押した側から
  * 読めるようになった」.
  *
- * ⭐⭐ AND IT IS WHAT CLOSED D-415. The hit band is `isOnDummy` above, anchored
- * on each dummy's OWN day; the mark is drawn on GR-9's day (== GR-18's) at
- * 「1 日ぶんと `S-180` の小さい方」. The two are different widths on different
- * days, which is why GR-17 answered no pixel of the mark at all -- measured on
- * the shipped build 2026-09-09, 0 of 6 ink pixels at 6px a day, 0 of 12 at 12.9
- * and at 27.6. ⚠️ The manuscript carries that measurement too.
+ * ⭐⭐ AND IT IS WHAT CLOSED D-415. The hit band used to be a box of S-93's own
+ * width, anchored on each dummy's OWN day, while the mark was drawn on GR-9's
+ * day (== GR-18's) at 「1 日ぶんと `S-180` の小さい方」. The two were different
+ * widths on different days, which is why GR-17 answered no pixel of the mark at
+ * all -- measured on the shipped build 2026-09-09, 0 of 6 ink pixels at 6px a
+ * day, 0 of 12 at 12.9 and at 27.6. ⚠️ The manuscript carries that measurement
+ * too. ⭐⭐ THE TWO BECAME ONE ON 2026-09-10: 「掴みシロが印そのものになった以上、
+ * 2 つは同じ 1 つの幅であり、区別は消えた」, so the state D-415 named can no
+ * longer be reached at all.
  *
  * ⛔⛔ A MILESTONE IS NOT SPLIT (MUST NOT, same ruling): 「⭐ `GR-18` は 1 か所と
  * すること（MUST）。開始側と終了側に分けてはならない（MUST NOT）—— 終了が無いの
@@ -1052,9 +1009,12 @@ function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
  * （MUST）」. ⛔ Splitting the interval one way or the other would be this file
  * writing a rule the manuscript does not state.
  *
- * ⛔ AND NEITHER ROW IS REDUCED TO ITS HALF. Outside the ink -- where S-93's
- * band runs on past it -- `isOnDummy` still answers, and the rule says so:
- * 「⭐ 印より右に残る当たり判定は終了側とすること（MUST）」.
+ * ⛔⛔ AND THERE IS NOTHING OUTSIDE THE INK TO ASSIGN. This note used to end
+ * 「⭐ 印より右に残る当たり判定は終了側とすること（MUST）」, because S-93's band
+ * ran on past the mark. ⭐ The manuscript retired that clause on 2026-09-10 with
+ * its own reason -- 「割り当てる相手が消えた」 -- and 「印の外へ広げてはならない
+ * （MUST NOT）」 is what stands in its place. ⇒ The two halves are the whole of
+ * both rows, which is why neither is reduced by saying so.
  *
  * @purity pure
  */
@@ -1285,15 +1245,12 @@ export const NOT_STORED_SIZES: {
   readonly 'S-91': number
   /** S-92, in px */
   readonly 'S-92': readonly [number, number]
-  /** S-93, in px */
-  readonly 'S-93': number
   /** S-137, in px */
   readonly 'S-137': number
 } = {
   'S-90': 12,
   'S-91': 12,
   'S-92': [15, 15],
-  'S-93': 30,
   'S-137': 6,
 }
 // </generated>

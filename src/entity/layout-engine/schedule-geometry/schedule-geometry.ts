@@ -164,8 +164,9 @@ export interface ResumeGeometry {
    * ⭐ NO NEW SETTING IS RAISED, which the row states: 「新しい設定値を立てない
    * —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う。」
    * ⛔⛔ UNTIL 2026-09-09 THE ICON READ S-93, the dummy's hit box, and the
-   * user's ruling shrank it to the marker's size. S-93's own row now says so
-   * from the other side: 「再開アイコン（表 T-023d の `GR-8`）は本行を読まない」.
+   * user's ruling shrank it to the marker's size. ⚠️ That row is itself gone
+   * as of 2026-09-10 -- 「その `S-93` は 2026-09-10 に廃した」 -- so nothing
+   * anywhere reads it, and this icon is the size of the marker either way.
    *
    * ⚠️ S-25 (`resumeScaleInvalid`) DOES NOT ENTER IT. That row shrinks the
    * DRAWING while `resumeValid` is false, and no clause makes the hit box
@@ -891,18 +892,24 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   // ⭐⭐ AND OUTSIDE GR-18's HOLD AS WELL, WHICH IS TABLE T-038's ORDER AND NOT
   // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロを
   // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
-  // ならない（MUST NOT）」. GR-18 HAS a hold -- its own row gives it S-93 and
-  // forbids a milestone being given a narrower one -- so the same MUST reaches
-  // it. ⛔ GR-7's row is not touched: 「マイルストーンのときは図形の外側」 says
-  // what the marker stands outside OF, and this says what width the order
-  // counts; the two are different faces and the marker clears both.
+  // ならない（MUST NOT）」. GR-18 HAS a hold, so the same MUST reaches it.
+  // ⭐⭐ AND THAT HOLD IS THE DRAWN SQUARE ITSELF AS OF 2026-09-10 (MUST): the
+  // closing rule of table T-023d now reads 「`GR-9` / `GR-17` / `GR-18` の当たり
+  // 判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはなら
+  // ない（MUST NOT）」, and the same row says the distinction the order used to
+  // turn on is gone: 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅で
+  // あり、区別は消えた」. ⛔ GR-7's row is not touched: 「マイルストーンのときは
+  // 図形の外側」 says what the marker stands outside OF, and this says what
+  // width the order counts; the two are different faces and the marker clears
+  // both.
   // ⚠️ Measured on the shipped build 2026-09-09, before this: the marker stood
   // on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9 -- the same shape
   // as defect D-408, which the bar-shaped arm below had already been repaired
-  // for.
+  // for. ⛔ Those 30 pixels were S-93's box, and 「その `S-93` は 2026-09-10 に
+  // 廃した」 -- the square a reader can see is all there is now.
   // ⚠️ `dummyReach` IS ALREADY GR-18's ON A MILESTONE: `dummyReachOf` reads the
-  // shape and answers the milestone's single day, so nothing new is measured
-  // here. ⭐ It and `actualReach` are never both a number (FR-043 draws a dummy
+  // shape and answers half that square past the day it stands on, so nothing
+  // new is measured here. ⭐ It and `actualReach` are never both a number (FR-043 draws a dummy
   // only where there is no actual at all), which is why they simply join the
   // maximum rather than choosing.
   if (placed.shapeKind === 'milestone') {
@@ -912,16 +919,20 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   // ときは終了点の掴みシロの外側」, with table T-038's order (MUST, 利用者の裁定
   // 2026-09-09) saying what that hold is worth: 「本並びで数える幅は、掴みシロを
   // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
-  // ならない（MUST NOT）」. So the outside is the RIGHT edge of S-93's box, and
-  // `DummyGeometry.at` -- where FR-043 aligns the ink -- is its LEFT edge.
-  // ⚠️ Measured on the shipped build 2026-09-09: reading the ink's own edge put
-  // the marker over 16 of GR-17's 30 hit pixels at 6, 15 and 36 px a day
-  // (defect D-408).
+  // ならない（MUST NOT）」. ⭐⭐ AND THE HOLD IS THE INK AS OF 2026-09-10 (MUST,
+  // the closing rule of table T-023d): 「`GR-9` / `GR-17` / `GR-18` の当たり判定
+  // は、`FR-043` が描いた印そのものとすること（MUST）」. So the outside is the
+  // right edge of the drawn mark, which is a day column wide at most.
+  // ⛔⛔ IT WAS THE RIGHT EDGE OF S-93's BOX UNTIL THAT DAY -- 30px beginning a
+  // whole worked day further right -- and 「その `S-93` は 2026-09-10 に廃した」.
+  // ⚠️ Measured on the shipped build 2026-09-09, while that box stood: reading
+  // the ink's own edge put the marker over 16 of GR-17's 30 hit pixels at 6, 15
+  // and 36 px a day (defect D-408). ⭐ The two edges are now ONE edge, so that
+  // measurement can no longer come apart.
   // ⭐⭐ READ OFF THE PLACEMENT AND NOT WORKED OUT HERE, which is the bargain
   // `actualReach` above already keeps: the heading of table T-038 forbids the
   // stacking and the label counting separately (MUST NOT), and ScheduleLayout
-  // is where LC-7 puts the name label past this same number. ⛔ S-93 therefore
-  // stays inside the folder that holds it.
+  // is where LC-7 puts the name label past this same number.
   if (placed.dummyReach !== null) return placed.dummyReach
   // FR-013's own first clause, and the only arm that reads the actual bar.
   if (placed.actualReach !== null) return placed.actualReach
@@ -939,13 +950,16 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
  * point's grab allowance, and forbids going any further.
  *
  * ⚠️⚠️ THAT CLEARANCE IS MEASURED FROM THE ANCHOR, AND THE ANCHOR IS WHAT
- * MOVED. This note used to end 「Squaring S-23 against S-93 changes the
- * specification; it is not a value to pick here」, and on 2026-09-09 the
- * specification said which of the two gives: table T-038's order now counts a
- * grab hold's width rather than a drawn mark's (MUST), so `markerAnchorX`
- * hands back the right edge of S-93's box and `markerGap` clears THAT.
- * ⭐ Nothing here reads S-93. `markerAnchorX` does, so the gap stays the one
- * distance the document holds and no second value is squared against it.
+ * MOVED -- twice. This note used to end 「Squaring S-23 against S-93 changes the
+ * specification; it is not a value to pick here」; on 2026-09-09 table T-038's
+ * order was made to count a grab hold's width rather than a drawn mark's
+ * (MUST), and on 2026-09-10 the closing rule of table T-023d made the two ONE
+ * width -- 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は
+ * 消えた」. ⇒ `markerAnchorX` hands back the right edge of the drawn mark and
+ * `markerGap` clears THAT.
+ * ⭐ Nothing here reads a second width, and there is no longer a second width to
+ * read: S-93's row is gone, so the gap stays the one distance the document
+ * holds and nothing is squared against it.
  *
  * @purity pure
  */
@@ -1288,8 +1302,11 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
  * milestone's exceptions. ⭐ The figure itself has not moved -- LF-10 of table
  * T-221 still centres it on `start` -- so what parts here is the handle from
  * the shape, which is what keeps 「掴む所」 from reading as part of the figure.
- * ⚠️ TWO EXCEPTIONS REMAIN AND BOTH ARE ELSEWHERE: a milestone shows ONE point
- * rather than a pair (below), and its actual span is S-130 (`edit-task.ts`).
+ * ⚠️ THE SIZE, THE SHAPE AND THE COLOUR ARE THE MILESTONE'S OWN EXCEPTIONS
+ * (FR-043, MUST, 利用者の裁定 2026-09-08 / 2026-09-10) -- a milestone shows ONE
+ * point rather than a pair, its own figure rather than a rectangle, and now
+ * its own SQUARE rather than the bar dummies' box (below). Its actual span is
+ * S-130 (`edit-task.ts`).
  *
  * ⚠️ A milestone WITHOUT a planned start now draws no dummy either, for the
  * same reason a bar without one draws none: the row names a day counted from
@@ -1298,7 +1315,10 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
  *
  * ⚠️ `actualHeight` is HANDED IN, the way `guidesOf` is handed the same value:
  * the actual bar's band is one expression and `taskGeometryOf` has already
- * solved it. Recomputing it here would put it in two places.
+ * solved it. Recomputing it here would put it in two places. ⭐ It DOUBLES as
+ * the milestone's own square side below -- `taskGeometryOf`'s `'sideways'`
+ * arm reads the very same `placed.planHeight * settings.actualOfPlan` for
+ * that side, so the two figures are one expression apart rather than two.
  *
  * @purity pure
  */
@@ -1307,27 +1327,61 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   if (placed.actualX !== null) return []
   const from = dummyFromOf(inputs, task.start)
   if (from === null) return []
-  const middle = placed.y + placed.planHeight / 2
   const fromX = xFromDay(inputs.layout, from)
-  // ⭐⭐ THE ONE MARK, SOLVED ONCE. FR-043 (MUST): 「ダミーを描く幅は、1 日ぶん
-  // と `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方とすること
-  // （MUST）。日の列の左端に揃えること（MUST）」, ⛔ 「`S-180` を幅そのものと
-  // してはならない（MUST NOT）」 -- S-180 is a fixed px and a day is not, so at
-  // the magnification FR-055 opens a document at, taking S-180 for the width
-  // covered two day columns and the mark pointed at a day it did not stand on.
-  // ⛔ NO FLOOR IS INVENTED: no row gives one, and a day is `layout.pxPerDay`
-  // whatever the zoom has made of it.
-  const ink: ScreenRect = {
-    x: fromX,
-    y: middle - actualHeight / 2,
-    width: Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180']),
-    height: actualHeight,
-  }
-  // GR-15: a milestone holds no actual BAR, so there is no second end for
-  // GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
+  const planMiddle = placed.y + placed.planHeight / 2
+
+  // GR-15 / GR-18: a milestone holds no actual BAR, so there is no second end
+  // for GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
   if (placed.actualPlacement === 'sideways') {
-    return [{ grab: 'GR-18', at: point(fromX, middle), ink }]
+    // ⭐⭐ THE SAME SQUARE THE ACTUAL FIGURE WOULD DRAW (FR-043, MUST, 利用者の
+    // 裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、そのマイルストーン
+    // の実績の図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい
+    // 方を横幅としてはならない（MUST NOT）」. `taskGeometryOf`'s `'sideways'`
+    // arm draws that figure in a square of side `actualHeight`, centred on the
+    // day's x and on the plan's own mid-line -- the same side and the same two
+    // centres are read here rather than reworked, so a circle glyph fit to
+    // this box stays a circle instead of the ellipse a wider, shorter box (the
+    // bar dummies' own shape) would make of it.
+    const side = actualHeight
+    const ink: ScreenRect = {
+      x: fromX - side / 2,
+      y: planMiddle - side / 2,
+      width: side,
+      height: side,
+    }
+    // ⚠️ `at` STAYS THE DAY COLUMN'S OWN CENTRE, NOT THE SQUARE'S EDGE. It is
+    // the day the dummy stands on, which FR-043 places at 「予定の開始日の
+    // 翌稼働日」, and the renderer centres the figure on it.
+    // ⛔⛔ IT IS NO LONGER A HIT BAND'S ORIGIN. Until 2026-09-10 the closing
+    // rule of table T-023d ran a box of its own right from this point; it now
+    // reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印
+    // そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」,
+    // so `item-hit-area.ts` reads `ink` and this point no longer decides what
+    // can be grabbed.
+    return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink }]
   }
+
+  // GR-9 / GR-17's own width, unmoved by the milestone's exception above.
+  // FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
+  // 表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に揃えること
+  // （MUST）」, ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」 -- S-180
+  // is a fixed px and a day is not, so at the magnification FR-055 opens a
+  // document at, taking S-180 for the width covered two day columns and the
+  // mark pointed at a day it did not stand on. ⛔ NO FLOOR IS INVENTED: no row
+  // gives one, and a day is `layout.pxPerDay` whatever the zoom has made of it.
+  const width = Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
+  // ⭐⭐ THE BAND FOLLOWS `actualPlacement`, NOT THE PLAN'S OWN MID-LINE. Table
+  // T-012's SH-3 / SH-4 push their actual bar 「下へずらす」, and
+  // `taskGeometryOf` already reads the same test to choose between
+  // `planTop + (planHeight - actualHeight) / 2` (inside) and
+  // `planTop + planHeight + settings.actualGap` (below) -- a dummy that always
+  // took the plan's centre line sat back on top of the plan a started SH-3 /
+  // SH-4 Task had already moved its actual bar out from under.
+  const top = placed.actualPlacement === 'below'
+    ? placed.y + placed.planHeight + inputs.settings.actualGap
+    : planMiddle - actualHeight / 2
+  const middle = top + actualHeight / 2
+  const ink: ScreenRect = { x: fromX, y: top, width, height: actualHeight }
   const end = dummyEndOf(inputs, from)
   return [
     { grab: 'GR-9', at: point(fromX, middle), ink },

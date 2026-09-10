@@ -111,8 +111,14 @@
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
 //           product of the two, which is how the zoom below is chosen
 //   T-206   S-90 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」
-//   T-206   S-93 「実績のダミーの当たり判定（表 T-023d の `GR-9` / `GR-17` /
-//           `GR-18`）」
+//   ⛔⛔ T-206   S-93 「実績のダミーの当たり判定（表 T-023d の `GR-9` / `GR-17` /
+//           `GR-18`）」 STOOD HERE UNTIL 2026-09-10. Table T-023d's closing rule
+//           now reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が
+//           描いた印そのものとすること（MUST）。印の外へ広げてはならない
+//           （MUST NOT）」（利用者の裁定 2026-09-10）, and S-93's own row in
+//           `_assets/tbl-settings.md` says the field emptied out: 「その `S-93`
+//           は 2026-09-10 に廃した」. The row is gone from the manuscript;
+//           `DummyGeometry.ink` is what the cases below rest on now.
 //   T-221   LF-11, which places the marker off the right end of the bar FR-013
 //           names
 //
@@ -121,22 +127,29 @@
 // ---------------------------------------------------------------------------
 //
 //   * HOW FAR the not-started marker stands from GR-17. GR-7 says 「終了点の
-//     掴みシロの外側」 -- outside the grab ALLOWANCE, which is `S-93` wide --
-//     while LF-11 measures `markerGap` from a BAR'S END. The two readings
-//     differ by half of S-93 and no row settles which applies, so the case
+//     掴みシロの外側」 -- outside the grab allowance -- while LF-11 measures
+//     `markerGap` from a BAR'S END. ⛔⛔ UNTIL 2026-09-10 that allowance was
+//     `S-93`, a fixed width, and the two readings differed by half of it; since
+//     that ruling the allowance IS `DummyGeometry.ink`, which is
+//     `Math.min(pxPerDay, S-180)` and so moves with the zoom instead of holding
+//     still. No row settles which of the two readings applies, so the case
 //     below asserts only the RELATION: the marker hangs off GR-17 rather than
 //     off the plan's right end, and by the same amount whatever the plan's
 //     length. ⚠️ Reported as a gap; not decided here.
 //   * The drawn width of the dummy (`S-180`) and its opacity (`S-131`).
 //     tests/unit/fr-043-dummy-drawn.test.ts owns both, and nothing here repeats
 //     a case of that file.
-//   * WHERE THE HIT BOX BEGINS -- 「その日の列の左端を起点に、右へ `S-93` の幅で
-//     取ること（MUST）」 and ⛔ 「起点を中心にしてはならない（MUST NOT）」, the
-//     closing rule table T-023d gained on 2026-09-02.
-//     tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts owns it. The
-//     cases below press a dummy at its own point and ask WHICH row answers;
-//     they say nothing about how far the box reaches, and the zoom here is
-//     chosen for D-56 rather than for that rule.
+//   * ⛔⛔ WHERE THE HIT BOX BEGINS -- 「その日の列の左端を起点に、右へ `S-93` の
+//     幅で取ること（MUST）」 and ⛔ 「起点を中心にしてはならない（MUST NOT）」,
+//     the closing rule table T-023d gained on 2026-09-02, STOOD UNTIL
+//     2026-09-10. Table T-023d's closing rule now reads 「`GR-9` / `GR-17` /
+//     `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。
+//     印の外へ広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10） -- there
+//     is no more origin-plus-width to own separately; the box IS the drawn ink.
+//     tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts's subject
+//     narrowed with it. The cases below still press a dummy at its own point
+//     and ask WHICH row answers; they say nothing about how far the ink itself
+//     reaches, and the zoom here is chosen for D-56 rather than for that rule.
 //   * ⛔ THE ONE-DAY PLAN, where the fix trades one swallowing for another.
 //     A plan whose `start` and `finish` are the same day is drawn at `S-49`'s
 //     floor (`minShapeWidth`, 6px) whatever the zoom, so its RIGHT end -- GR-4,
@@ -170,9 +183,12 @@
 // weigh the cases against that:
 //   - `xFromDay`'s two lines, to learn that the axis answers the LEFT edge of a
 //     day's column and that `originX` already carries S-177's fraction;
-//   - `itemAtPointer`'s row walk and the one line that tests a dummy, to learn
-//     that `PointerSlop.dummyWidth` / `dummyHeight` are read as a HALF-box
-//     around the point (which is what `SLOP` below has to be built to match);
+//   - `itemAtPointer`'s row walk and the one line that tests a dummy -- ⛔⛔
+//     UNTIL 2026-09-10 this read `PointerSlop.dummyWidth` / `dummyHeight` as a
+//     HALF-box around the point, which is what `SLOP` below had to be built to
+//     match. `PointerSlop` carries no dummy figure at all now; the row walk
+//     tests `DummyGeometry.ink` directly, which is what `SLOP` below no longer
+//     needs to match;
 //   - `frame-loop.ts`'s `PREVIEWED_GRABS`, to learn that the held picture for
 //     GR-9 exists at all and that `previewOfHeldPress` is a closure with no
 //     seam a unit case could reach -- which is why the held picture is reported
@@ -275,22 +291,25 @@ const PX_PER_DAY_AT_1X = settingNumber('pxPerDayAt1x')
 const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
 
 /**
- * `zoomX` (`S-75`), chosen so that ONE DAY is wider than `S-90` AND than `S-93`.
+ * `zoomX` (`S-75`), chosen so that ONE DAY is wider than `S-90`.
  *
  * ⭐ WHY THE ZOOM HAS TO BE STATED. At the default `zoomX` of 1 a day is
  * exactly `S-1` = `S-90` px, and the two grab points a day apart would still be
  * within one another's allowance -- the case would then be judged on the zoom
  * rather than on where the dummy stands.
  *
- * ⚠️ AND WHY IT MOVED ON 2026-09-02 (CR-332). Table T-023d now takes the hit box
- * 「その日の列の左端を起点に、右へ … `S-93` の幅で」, so GR-9's box runs `S-93`
- * to the RIGHT and reaches GR-17's own day whenever a day is no wider than
- * `S-93`. At the zoom this file used before, a day was exactly `S-93` wide and
- * GR-17's anchor fell on GR-9's far edge -- where 「上の行ほど優先すること
- * （MUST）」 gives the press to GR-9. ⛔ THAT IS THE TABLE WORKING, NOT A DEFECT,
- * but it made the cases below turn on the zoom instead of on the rule. A
- * premise re-derives both widths from the layout rather than trusting this
- * number.
+ * ⛔⛔ AND WHY IT ALSO NAMED `S-93` UNTIL 2026-09-10 (CR-332). From 2026-09-02
+ * table T-023d took the hit box 「その日の列の左端を起点に、右へ … `S-93` の幅
+ * で」, so GR-9's box ran `S-93` to the RIGHT and reached GR-17's own day
+ * whenever a day was no wider than `S-93`. Table T-023d's closing rule now
+ * reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印その
+ * ものとすること（MUST）」（利用者の裁定 2026-09-10）, and the drawn ink is
+ * `Math.min(pxPerDay, S-180)` -- never wider than one day by construction --
+ * so there is no fixed width left that could overrun a neighbour's day. What
+ * the zoom still has to leave room for is the ink itself being wide enough to
+ * split into two distinguishable halves (GR-9's and GR-17's); the case that
+ * measures that re-derives it from the drawn `ink.width` rather than trusting
+ * this number.
  */
 const ZOOM_X = 6
 
@@ -312,7 +331,13 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'],
+  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
+  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
+  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
+  // row in `_assets/tbl-settings.md` says the field emptied out: 「その `S-93`
+  // は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が 1 人も
+  // 残らなかったからである」. `PointerSlop` carries no dummy figure at all.
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -657,11 +682,15 @@ const grabAt = (drawn: Drawn, x: number, y: number): string | null =>
 /**
  * A press on a dummy's OWN point -- both axes taken from the picture.
  *
- * ⭐ NOT the plan bar's middle. `S-93` is a box around the dummy's point, and
- * `DummyGeometry.ink` says the vertical of the drawing belongs to the ACTUAL
- * bar's band, which table T-012 draws inside the plan's for SH-1. Pressing the
- * plan's middle instead would make every case below turn on how far apart those
- * two middles are -- a distance no row of the specification fixes.
+ * ⭐ NOT the plan bar's middle. ⛔⛔ UNTIL 2026-09-10 `S-93` was a box around
+ * the dummy's point, wider than the drawn ink; table T-023d's closing rule now
+ * reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印その
+ * ものとすること（MUST）」（利用者の裁定 2026-09-10）, so the hold IS
+ * `DummyGeometry.ink` and nothing wider. `ink` says the vertical of the drawing
+ * belongs to the ACTUAL bar's band, which table T-012 draws inside the plan's
+ * for SH-1. Pressing the plan's middle instead would make every case below turn
+ * on how far apart those two middles are -- a distance no row of the
+ * specification fixes.
  */
 const grabOn = (drawn: Drawn, dummy: DummyGeometry): string | null =>
   grabAt(drawn, dummy.at.x, dummy.at.y)
@@ -756,13 +785,18 @@ describe('the fixture stands where these cases think it does', () => {
     expect(isWorkedDay(CALENDAR_DAY_AFTER_START)).toBe(false)
     expect(WORKED_DAY_AFTER_START).not.toBe(CALENDAR_DAY_AFTER_START)
     const drawn = draw(notStarted())
+    // ⛔⛔ COMPARED AGAINST `SLOP.dummyWidth` UNTIL 2026-09-10. The allowance
+    // that had to be outrun was the fixed `S-93`; table T-023d's closing rule
+    // now makes the allowance the drawn ink itself (`DummyGeometry.ink`), so the
+    // width to outrun is read from THAT rather than from a retired constant.
+    const inkWidth = dummyNamed(taskDrawn(drawn), 'GR-9').ink.width
     expect(
       Math.abs(xOfDay(drawn, WORKED_DAY_AFTER_START) - xOfDay(drawn, CALENDAR_DAY_AFTER_START)),
-      'the two readings must be far enough apart that no allowance covers both',
-    ).toBeGreaterThan(SLOP.dummyWidth)
+      'the two readings must be far enough apart that the drawn ink cannot cover both',
+    ).toBeGreaterThan(inkWidth)
   })
 
-  it('draws one day wider than S-90 and than S-93, so each grab point stands alone', () => {
+  it('draws one day wider than S-90, and ink wide enough to split into two halves', () => {
     // FR-017 makes one day `pxPerDayAt1x` times `zoomX` (S-1 and S-75). ⭐ The
     // width is re-derived from the layout rather than trusted from ZOOM_X.
     const { layout } = draw(notStarted())
@@ -771,11 +805,26 @@ describe('the fixture stands where these cases think it does', () => {
       layout.pxPerDay,
       'S-90 reaches this far to either side of GR-3, so one day must be wider than it',
     ).toBeGreaterThan(PLAN_ENDPOINT_SLOP)
+    // ⛔⛔ UNTIL 2026-09-10 THIS SECOND ASSERTION COMPARED `layout.pxPerDay`
+    // AGAINST `SLOP.dummyWidth` (`S-93`), asking that a day be wider than the
+    // fixed hit box or GR-9 would swallow GR-17's own point -- 「その日の列の
+    // 左端を起点に、右へ … `S-93` の幅で取ること（MUST）」（利用者の裁定
+    // 2026-09-02）. Table T-023d's closing rule retired that premise on
+    // 2026-09-10: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた
+    // 印そのものとすること（MUST）」, and the drawn ink is `Math.min(pxPerDay,
+    // S-180)`. Since the ink can never be wider than one day BY CONSTRUCTION,
+    // "one day is wider than the hold" is now trivially true and asserting it
+    // again would test the formula, not the rule. What remains a genuine
+    // constraint at this zoom is that the ink is wide enough for its own two
+    // halves (GR-9's and GR-17's, split at its own middle per the 2026-09-09
+    // ruling) to land on distinguishable pixels -- below 2px the halves would
+    // collapse onto the same pixel and MK-9a's grab-apart guarantee would be
+    // unmeasurable.
+    const ink = dummyNamed(taskDrawn(draw(notStarted())), 'GR-9').ink
     expect(
-      layout.pxPerDay,
-      'the hit box runs S-93 rightwards from the day column (表 T-023d, 2026-09-02), ' +
-        'so a day must be wider than S-93 or GR-9 would swallow GR-17\'s own point',
-    ).toBeGreaterThan(SLOP.dummyWidth)
+      ink.width,
+      'the drawn ink must be at least 2px wide, so its left and right halves are distinguishable pixels',
+    ).toBeGreaterThanOrEqual(2)
   })
 
   it('prints the dummies above GR-3, GR-17 above GR-9, and all of them above GR-12 (MUST)', () => {
@@ -980,17 +1029,28 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
     expect(grabAt(built, (box.x0 + box.x1) / 2, middleOf(box))).toBe('GR-12')
   })
 
-  it('leaves the dummy no wider than S-93, so GR-12 begins again just past it', () => {
-    // The same warning, measured. A point one whole S-93 to the right of GR-17
-    // is past both dummies' allowances, and nothing above GR-12 stands there.
-    // ⚠️ A HAIR PAST THE EDGE, NOT ON IT. Since 2026-09-02 the box runs from the
-    // day column 「右へ `S-93` の幅で」, so `at.x + S-93` IS the far edge -- and
-    // whether a press exactly on an edge falls in or out is a rounding question
-    // no row of docs/spec answers. ⛔ Where the edge IS is asserted in
-    // tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts.
+  it('leaves neither dummy past its own ink, so nothing answers GR-9 or GR-17 beyond it', () => {
+    // The same warning under table T-023d, measured. ⛔⛔ UNTIL 2026-09-10 this
+    // pressed one whole `S-93` to the right of GR-17's `at.x` -- 「その日の列の
+    // 左端を起点に、右へ … `S-93` の幅で取ること（MUST）」（利用者の裁定
+    // 2026-09-02） -- because the hold ran `S-93` past the day column whatever
+    // the drawn ink looked like, and a point past THAT reached open ground
+    // (GR-12, per the sibling case above). `GR-17.at.x` was never where the ink
+    // sat either (`schedule-geometry.ts`'s `dummiesOf`: `GR-17.at` names its OWN
+    // day, `S-129` worked days past GR-9's, while the shared `ink` this pair
+    // draws sits at GR-9's day) -- so that press measured the wrong anchor even
+    // under the old rule.
+    //
+    // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+    // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
+    // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10） -- there is no
+    // more allowance past the ink for EITHER row (previously the leftover band
+    // past the ink answered GR-17; now nothing does). The press below is a hair
+    // past the ink's OWN right edge, `end.ink.x + end.ink.width`, which is where
+    // that edge actually is regardless of which grab's `.at` is read.
     const built = drawn()
     const end = dummyNamed(taskDrawn(built), 'GR-17')
-    const past = grabAt(built, end.at.x + SLOP.dummyWidth + 0.5, end.at.y)
+    const past = grabAt(built, end.ink.x + end.ink.width + 1, end.ink.y + end.ink.height / 2)
     expect(past).not.toBe('GR-9')
     expect(past).not.toBe('GR-17')
   })
@@ -1053,8 +1113,21 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     // days past that Monday; and `PLAN_START` itself is neither. ⛔ A build that
     // sent GR-17 down GR-9's arm writes the RELEASE day and `S-129`, and both
     // halves of that answer are refused here.
+    //
+    // ⛔⛔ `grabOn(built, dummyNamed(..., 'GR-17'))` STOOD ON THIS LINE UNTIL
+    // 2026-09-10 AND WAS ALREADY MEASURING THE WRONG ANCHOR. `grabOn` presses
+    // `dummy.at.x` / `.at.y`, and GR-17's OWN `.at.x` is `S-129` worked days
+    // PAST GR-9's day (`schedule-geometry.ts`'s `dummiesOf`) -- a different day
+    // from the one the shared `ink` is drawn on. Before 2026-09-10 that still
+    // answered 'GR-17' because the fixed `S-93` hold ran far enough right of the
+    // day column to reach it; now that the hold IS the ink (表 T-023d の結び、
+    // 利用者の裁定 2026-09-10), nothing stands at GR-17's own `.at.x` at all.
+    // The press below lands in the RIGHT half of the one drawn mark instead --
+    // GR-17's actual hold since the 2026-09-09 ruling split it there.
     const built = draw(notStarted())
-    expect(grabOn(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe('GR-17')
+    expect(grabOnTheFinishHalfOfTheMark(built, dummyNamed(taskDrawn(built), 'GR-17'))).toBe(
+      'GR-17',
+    )
     const after = taskIn(
       run(notStarted(), {
         kind: 'beginTaskActual',
@@ -1310,6 +1383,12 @@ describe('table T-023d GR-7: the not-started marker hangs off GR-17, not off the
     const built = draw(notStarted())
     const task = taskDrawn(built)
     expect(grabOn(built, dummyNamed(task, 'GR-9'))).not.toBe('GR-7')
-    expect(grabOn(built, dummyNamed(task, 'GR-17'))).not.toBe('GR-7')
+    // ⛔⛔ `grabOn(built, dummyNamed(task, 'GR-17'))` STOOD ON THIS LINE UNTIL
+    // 2026-09-10. GR-17's own `.at.x` sits `S-129` worked days past GR-9's day
+    // (`schedule-geometry.ts`'s `dummiesOf`), off the shared `ink` the closing
+    // rule now makes the whole hold (利用者の裁定 2026-09-10) -- so that point
+    // now answers GR-7's marker instead. The press below is GR-17's own half of
+    // the drawn mark, which is where the ruling of 2026-09-09 put it.
+    expect(grabOnTheFinishHalfOfTheMark(built, dummyNamed(task, 'GR-17'))).not.toBe('GR-7')
   })
 })

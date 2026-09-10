@@ -2757,8 +2757,8 @@
   {
    "rowId": "SK-19",
    "text": {
-    "ja": "その場の編集を確定する。確定するものが無ければプロパティパネルを閉じる",
-    "en": "Commit the edit in place; with nothing left to commit, close the Properties Panel"
+    "ja": "その場の編集を確定する。確定するものが無ければプロパティパネルを閉じ、それも出ていなければ選択を解く",
+    "en": "Commit the edit in place; with nothing left to commit, close the Properties Panel; with that closed too, clear the selection"
    }
   },
   {

@@ -552,6 +552,64 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 ⚠️ <b>これが重いと感じられたら仰ってください</b> —— そのときは「1 押しで <code>S-129</code>、もう 1 押しで予定の全期間」の 2 段にできる。
 </div>
 
+<h2>結果 —— 8 件すべて直り、出荷ビルドで測った（2026-09-10）</h2>
+
+<div class="note star">
+<b>⭐ 3 波とも通った。</b>自動試験は <b>202 ファイル・7478 件が緑</b>（1 件 skip）、
+<code>npx tsc --noEmit</code> は 0 件、<code>npm run layers</code> は 299/299、
+<code>check.sh</code> は終了コード 0。
+</div>
+
+<p>下の表は <b>出荷ビルドを押して測った値</b>である。
+条件は <code>dist/index.html</code> を <code>file://</code> で開き、1600 × 1000、既定の倍率（1 日 6px）、
+<code>IC-20</code> で <code>Agent API</code> を出し、<code>uid 7</code> を 2027-12-20 〜 2028-01-20 の未着手のタスク、
+<code>uid 12</code> を 2027-12-27 の未着手のマイルストーンに仕立てた。
+探り針は <code>scratch/d2026-09-10-eight.mjs</code>。</p>
+
+<table>
+<tr><th style="width:44px">件</th><th style="width:250px">いただいた申し立て</th><th>押して測った値</th></tr>
+
+<tr><td><b>1</b></td><td>ステータスマークで実績が延びる</td>
+<td>1 回押すと <code>actualDuration</code> ＝ <b>1 稼働日</b>（予定は 23 稼働日）。<b>予定の全長は入らない。</b></td></tr>
+
+<tr><td><b>2</b></td><td>実績 0 日で掴めなくなる</td>
+<td>0 を書くと <b>1</b> で返り、実績バーは <b>6px</b> 幅で描かれる。<b>0px にならない。</b></td></tr>
+
+<tr><td><b>3</b></td><td><code>Enter</code> で何も起きない</td>
+<td>予定バーを押すと選択 1 件、<code>Enter</code> で <b>0 件</b>。</td></tr>
+
+<tr><td><b>4</b></td><td>ログ 4 の操作で実績が延びる</td>
+<td>印は x ＝ 1046〜1052。その <b>2px 右</b>（x ＝ 1054）を押して引いても
+<b>実績は入らない</b>（予定バー本体が答える）。印の右半分（x ＝ 1050.5）を押せば従来どおり実績が立つ。</td></tr>
+
+<tr><td><b>5</b></td><td>カーソルが矢印のまま</td>
+<td>印の上は <b><code>ew-resize</code></b>、予定の端も <code>ew-resize</code>、予定の本体は <code>grab</code>。</td></tr>
+
+<tr><td><b>6</b></td><td>ダミーが予定にかぶる</td>
+<td><code>*---*</code> と <code>---&gt;</code> のダミーの上端 <b>141</b>、予定の下端 <b>132</b> ⇒ <b>下に出た</b>。
+矩形と矢羽根は従来どおり帯の中。</td></tr>
+
+<tr><td><b>7</b></td><td>○型ダミーが真円でない</td>
+<td>ダミーの箱は <b>24 × 24（縦横比 1）</b>。○・◇・△・□ のどれでも同じ。</td></tr>
+
+<tr><td><b>8</b></td><td><code>*---*</code> の予定が変えられない</td>
+<td>予定の終点を掴んで引くと <code>finish</code> が <b>2028-01-20 → 2028-02-09</b>。<b>実績には触れない。</b></td></tr>
+</table>
+
+<div class="note">
+<b>⭐ 意図して上げた基準が 2 つある</b>（どちらもコミットに理由を書いた）。
+① <b>重複検出</b>（<code>docs/review/duplication-baseline.txt</code>）を 3 群ぶん —— 廃した文を
+<b>撤回の記録として逐語で残した</b>ため、同じ文が 2 か所に立つ。
+② <b>検査 37 の対応表</b> —— <code>SK-19</code> と <code>GR-9</code> ／ <code>GR-17</code> ／ <code>GR-18</code> の
+行と表示語を読み直した。
+</div>
+
+<div class="note stop">
+<b>⛔ <code>S-93</code> の行は廃した。</b><code>_source/settings.json</code> から消え、
+<code>PointerSlop.dummyWidth</code> も <code>NOT_STORED_SIZES</code> の <code>S-93</code> も無くなった。
+⭐ <b>読む者が 1 人も残らなかったから</b>である —— 掴み代が印そのものになった。
+</div>
+
 <h2>まとめ —— 裁定待ちは 0 件。直す順は 3 波</h2>
 
 <table>
@@ -586,15 +644,15 @@ ul{margin:8px 0 8px 20px;padding:0}li{margin:4px 0}
 <div class="note stop">
 <b>⛔ 触っていない行が 1 つある</b> —— <code>D-311</code>（第 8・9・10 章が空の器のまま）。
 2026-09-06 に<b>「試験の章は一旦そのまま」</b>と裁定されているので、この巡でも 1 文字も触っていない。
-⚠️ <b>章が空でも試験が無いわけではない</b> —— 実際には 195 ファイル・7411 件が動いている。空なのは仕様書の章だけである。
+⚠️ <b>章が空でも試験が無いわけではない</b> —— 実際には 202 ファイル・7478 件が動いている（2026-09-10 の実測）。空なのは仕様書の章だけである。
 </div>
 
 <p class="foot">
-出典はすべて実物。掴みシロの数は 2026-09-11 に <code>dist/index.html</code> を Chromium で開いて測った。
+出典はすべて実物。掴みシロの数は 2026-09-10 に <code>dist/index.html</code> を Chromium で開いて測った。
 不具合 8 件の根っこは、いただいた <code>FR-102</code> の記録（<code>down</code> の次の <code>done</code> 行の <code>grab=</code>）と、
 <code>src/</code> の当該行を突き合わせて特定した。行番号は本文中に書いてある。
 設定値は <code>_assets/tbl-settings.md</code>（S-4 28px ／ S-5 0.5715 ／ S-6 16px ／ S-22 16px ／
-S-49 6px ／ S-90 12px ／ S-91 12px ／ S-93 30px ／ S-129 1 稼働日 ／ S-130 0 稼働日 ／ S-180 30px ／ S-208 6px）。
+S-49 6px ／ S-90 12px ／ S-91 12px ／ S-129 1 稼働日 ／ S-130 0 稼働日 ／ S-180 30px ／ S-208 6px。⛔ <b><code>S-93</code>（30px）は 2026-09-10 に廃した</b> —— 本文中の数はその日までのものである）。
 優先順位と操作は 表 T-023d、ダミーの描き方は <code>FR-043</code>、状態の巡回は 表 T-021a、カーソルは 表 T-028 の <code>IN-2</code>。
 裁定の逐語は <code>docs/development-records/rulings.md</code>。
 </p>

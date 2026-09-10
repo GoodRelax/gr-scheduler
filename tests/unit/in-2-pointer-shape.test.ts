@@ -40,11 +40,17 @@
 //             上は横方向の伸縮の合図、タスクの本体とマイルストーンの図形の上は
 //             掴めることの合図**（利用者の裁定 2026-08-27）—— ⛔ **掴めるものの
 //             上で形が変わらないと、選べるのかどうかを押してみるまで確かめられ
-//             ない**）。⚠️ **形の綴りそのものは閉覧環境が持つ** —— 本行が定める
-//             のはどの場所がどの意味を担うかだけである」
-//             ⭐ FIVE PLACES, read out of the manuscript at read time by
-//             `placesNamedByIn2()` rather than counted here, so that a sixth
+//             ない**）」, and then, since 2026-09-10, ⭐⭐ 「**実績のダミー
+//             （表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮
+//             の合図とすること（MUST）**」（利用者の裁定、逐語「実績タスクを
+//             触れるならマウスカーソルの形状をスライドに変更しろ」）, closing
+//             with 「⚠️ **形の綴りそのものは閉覧環境が持つ** —— 本行が定める
+//             のはどの場所がどの意味を担うかだけである」.
+//             ⭐ THE PLACES ARE READ OUT OF THE MANUSCRIPT at read time by
+//             `placesNamedByIn2()` rather than counted here, so that a new
 //             ruling makes the count fail instead of passing unnoticed.
+//             ⛔⛔ THERE WERE FIVE UNTIL 2026-09-10; the dummies' own clause
+//             made six, and the count is asserted rather than written.
 //   T-023a    「上から評価し、最初に成立した行で確定すること（MUST）」 with
 //             PD-1 パン, PD-2 `Dual Cursor`, PD-3 何かに当たった, PD-4 構えて
 //             いるものを作る, PD-4a 構えが依存線, PD-5 範囲選択.

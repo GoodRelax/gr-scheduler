@@ -71,9 +71,13 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 // D-400's cases ask the PICTURE, not the geometry -- see their own note.
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
-// S-93, the hold table T-023d gives GR-9 / GR-17 / GR-18, read out of the block
-// the manuscript generates rather than out of either unit under test.
-import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+// ⛔⛔ THIS FILE USED TO ALSO IMPORT `NOT_STORED_SIZES` FROM item-hit-area.ts,
+// for `S-93`, the fixed 30px hold. Table T-023d's closing rule retired that
+// row on 2026-09-10: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が
+// 描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」
+// （利用者の裁定 2026-09-10）, and the mark's own width -- 1 day and `S-180`'s
+// smaller -- is now the hold as well, read out of `NOT_STORED_DUMMY_SIZES`
+// above, the same generated block ScheduleLayout uses for `dummyGrabWidthPx`.
 
 // ---------------------------------------------------------------------------
 // The fixture
@@ -867,9 +871,7 @@ describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', (
 //
 //   the closing rule of table T-038 (MUST / MUST NOT, 利用者の裁定 2026-09-09)
 //     「**本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とする
-//      こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）**……実績のダミー
-//      （表 T-023d の `GR-9` / `GR-17` / `GR-18`）の掴みシロは `S-93` であり、
-//      描く幅の `S-180` ではない」
+//      こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）**」
 //
 // ⚠️ Measured 2026-09-09 on the shipped build, one board rebuilt per pixel and
 // the answer read back through the Agent API: of GR-17's 30 hit pixels, GR-7
@@ -877,10 +879,29 @@ describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', (
 // ⛔ TWO UNITS HAD TO MOVE, and the heading of table T-038 is why -- 「2 か所で
 // 別々に数え上げてはならない（MUST NOT）」. ScheduleGeometry anchors OC-3 and
 // ScheduleLayout measures where OC-1 begins; a repair to one alone parts them.
+//
+// ⛔⛔ THE HOLD ITSELF CHANGED ON 2026-09-10, though the D-408 defect and the
+// two units it moved did not: table T-023d's closing rule retired the fixed
+// `S-93` (30px) both sides read from, and replaced it with `FR-043`'s own
+// mark -- 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印その
+// ものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
+// 2026-09-10）, whose width is 「1 日ぶんと … `S-180` の小さい方」. The two
+// units still have to agree on ONE width, which is now this one.
 
 describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', () => {
-  const sceneOf = (part: Record<string, unknown>): { placed: TaskPlacement; drawn: TaskGeometry } => {
-    const settings = markSettings(true)
+  // ⭐⭐ ZOOMED IN TO x2 SINCE 2026-09-10, and `notStartedScene`'s finish moved
+  // with it. Before that day the dummy hold was `S-93`'s FIXED 30px, wider
+  // than a 4-day plan at this file's zoom regardless of `zoomX` -- table
+  // T-023d's closing rule now makes the hold `FR-043`'s own mark, 「1 日ぶんと
+  // …`S-180` の小さい方」, which SHRINKS to `pxPerDay` at this zoom. A 4-day
+  // plan's own right edge then reaches past a hold that thin, so
+  // `notStartedScene` is cut to 2 days and the zoom doubled to keep the
+  // Task's width at `taskLevelOfDetailReadablePx` (24px) -- any narrower and
+  // `sceneOf` throws before either case below can press it.
+  const sceneOf = (
+    part: Record<string, unknown>,
+  ): { placed: TaskPlacement; drawn: TaskGeometry; pxPerDay: number } => {
+    const settings = settingsOf({ ...(markSettings(true) as unknown as Record<string, unknown>), zoomX: 2 })
     const schedule = rowOf([
       taskOf({ uid: 1, name: 'n', start: '2026-02-02', finish: '2026-02-20', percentComplete: 0,
                ...part }),
@@ -891,7 +912,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     const drawn = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
       .tasks.find((one) => one.taskUid === 1)
     if (drawn === undefined) throw new Error('the Task has no picture')
-    return { placed, drawn }
+    return { placed, drawn, pxPerDay: layout.pxPerDay }
   }
 
   /**
@@ -902,11 +923,12 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * on a long plan the dummy's hold never decides anything and a case built on
    * one proves nothing (measured 2026-09-09: taking the hold out of
    * ScheduleLayout turned 0 cases red while this scene ran nineteen days long).
-   * ⚠️ Two days at this zoom is narrower than S-93, which is the state the
-   * ruling of 2026-09-09 is about -- 「Zoom Out して 1 日の表示が潰れても、
-   * ダミーの実績を入力できること」.
+   * ⛔⛔ TWO DAYS, NOT FOUR, SINCE 2026-09-10 -- see the describe block's own
+   * note. The hold is `FR-043`'s mark now, which is `pxPerDay` wide at this
+   * zoom (well under the retired `S-93`'s fixed 30px), so the plan has to be
+   * short enough that its own right edge still falls short of it.
    */
-  const notStartedScene = () => sceneOf({ finish: '2026-02-06' })
+  const notStartedScene = () => sceneOf({ finish: '2026-02-04' })
   /**
    * The same Task run to its planned end, so the marker hangs off the ACTUAL
    * bar and that bar is also what LC-7 measures OC-1 from.
@@ -932,11 +954,32 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     return scene.placed.labelX - (marker.centre.x + marker.radius)
   }
 
-  /** GR-17's own hold: S-93 wide, from the left edge of the day it stands on. */
+  /**
+   * GR-17's own hold, and since 2026-09-10 this IS the drawn mark's own width:
+   * table T-023d's closing rule reads 「`GR-9` / `GR-17` / `GR-18` の当たり
+   * 判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げては
+   * ならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `FR-043` gives the
+   * mark's own width as 「1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の
+   * `S-180` の小さい方」.
+   *
+   * ⛔⛔ UNTIL THAT DAY THIS WAS `S-93`'S FIXED 30PX, and table T-038's closing
+   * paragraph named the two apart -- 「実績のダミーの掴みシロは `S-93` であり、
+   * 描く幅の `S-180` ではない」. That distinction is retired along with the
+   * row: 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別
+   * は消えた」 -- so this reads the very function `dummyGrabWidthPx` in
+   * `schedule-layout.ts` builds the mark's width from.
+   */
   const holdRightOf = (drawn: TaskGeometry): number => {
     const endpoint = drawn.dummies.find((one) => one.grab === 'GR-17')
     if (endpoint === undefined) throw new Error('FR-043 drew no GR-17 to hang the marker off')
-    return endpoint.at.x + NOT_STORED_SIZES['S-93']
+    // ⭐⭐ THE HOLD IS THE DRAWN MARK ITSELF (MUST, the closing rule of table
+    // T-023d, 利用者の裁定 2026-09-10), so its right edge is the rectangle's.
+    // ⛔⛔ IT READ `at.x` PLUS THE MARK'S WIDTH UNTIL 2026-09-10, which is one
+    // whole worked day too far right: FR-043 draws ONE mark on GR-9's day and
+    // GR-17 merely STANDS `S-129` days further on, so `at.x` is not a corner of
+    // anything drawn. ⚠️ The old arithmetic happened to name where S-93's box
+    // began, and that box is gone with its row.
+    return endpoint.ink.x + endpoint.ink.width
   }
 
   it('draws both dummies and no actual bar, or nothing below is proved', () => {
@@ -962,7 +1005,10 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     // 上げてはならない（MUST NOT）」. ScheduleLayout puts OC-1 down and
     // ScheduleGeometry anchors OC-3, so the run between them is the same
     // constant on a Task that is started and on one that is not; a layout that
-    // measured the drawn mark loses S-93 of it on the not-started one alone.
+    // measured the drawn mark instead of the hold would come up short on the
+    // not-started one alone (they are the same width since 2026-09-10, but a
+    // build that read the mark from the wrong place -- e.g. before the day's
+    // ink is centred on GR-9's day -- would still drift here).
     // ⛔ Never a count of pixels: the row forbids minting a new setting, and
     // the closing paragraph makes the room a constant this file may not name.
     const started = startedScene()
@@ -971,6 +1017,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     expect(started.placed.actualX).not.toBeNull()
     expect(fresh.placed.actualX).toBeNull()
     expect(runOf(fresh)).toBeCloseTo(runOf(started), 6)
-    expect({ clear: fresh.placed.labelX >= holdRightOf(fresh.drawn) }).toEqual({ clear: true })
+    expect({ clear: fresh.placed.labelX >= holdRightOf(fresh.drawn) })
+      .toEqual({ clear: true })
   })
 })

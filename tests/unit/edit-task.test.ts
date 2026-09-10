@@ -12,10 +12,16 @@
 // ⚠️ The commands are reached through `edit-document.ts`, the public entry of
 // the component (Chapter 5.3, MUST NOT import any other file of the folder).
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import {
   planActualState,
   type Schedule,
@@ -59,6 +65,12 @@ const settingDefault = (rowId: string): number => {
 
 /** `S-129` — 「掴みシロを掴んだときに置く実績期間」, in worked days (`FR-043`). */
 const ACTUAL_INITIAL_DURATION = settingDefault('S-129')
+
+/** The manuscript itself, for the rows these cases hold verbatim. */
+const REQUIREMENTS = readFileSync(
+  join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+  'utf8',
+)
 
 /** `S-130` — a milestone is a point, so it carries this length instead. */
 const MILESTONE_ACTUAL_DURATION = settingDefault('S-130')
@@ -845,14 +857,24 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     // ⭐ ZERO IS NOT REFUSED. S-130 is 0 and FR-043 (MUST) gives it to every
     // milestone's actual, so a gate that turned zero away would refuse the one
     // length the manuscript hands out.
+    //
+    // ⚠️⚠️ WHO KEEPS THE ZERO NARROWED ON 2026-09-10. FR-011 now floors a
+    // started actual -- 「掴んで 0 稼働日まで縮められるようにしてはならない
+    // （MUST NOT）」 -- so a BAR written at zero comes back at `S-129`, and the
+    // point that carries `S-130` is what still keeps its zero. ⭐ The floor
+    // itself is held by
+    // tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts; what
+    // this case still says is that the AT-39 gate above does not turn zero away.
     const flat = accepted(
-      run(before(started), {
+      run(before({ ...started, milestone: true }), {
         kind: 'setTaskPlanActualState',
         uid: 1,
         place: { row: 'PA-2', actualStart: jan(5), actualDuration: 0 },
       }),
     )
-    expect(taskIn(flat, 1).actualDuration).toBe(0)
+    expect(flat).toBeDefined()
+    expect(taskIn(flat, 1).actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
+    expect(MILESTONE_ACTUAL_DURATION).toBe(0)
     expect(taskIn(flat, 1).percentComplete).toBe(0)
   })
 })
@@ -969,14 +991,52 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
   const cycled = (document: Document): Task =>
     taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1 })), 1)
 
+  it('PV-1 still reads the way these cases drive it', () => {
+    // ⭐ THE ROW ITSELF, HELD VERBATIM. 1.9 asks a case that verifies a
+    // requirement pointing at a table to be driven by data copied from that
+    // table; the cases below copy the FIGURES, and this copies the SENTENCE
+    // they came from -- so a later edit to the row fails here, naming the
+    // row, instead of leaving the figures quietly standing for something
+    // else.
+    // ⚠️ Every clause of it is one this file drives: the length placed
+    // (`S-129`, and `S-130` on a milestone), the ban on the plan's own span,
+    // the ban on choosing that length a second way, and the right end being
+    // read the way PV-2 reads it.
+    const PV_1 =
+      '`actualStart` ＝ `start`、⭐⭐ **`actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）**（マイルストーンは同表の `S-130`。⭐ **`FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT）**）（利用者の裁定 2026-09-10、逐語「ステータスマークだけを変更して、実績の幅を変更せず or ダミーを実績にして幅を変更せず でよいのでは？」）、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた日）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`**'
+    expect(REQUIREMENTS).toContain(PV_1)
+  })
+
   it('PV-1 takes a task that has not started straight to finished', () => {
     // One press, because a job that takes a day is common enough that two would
-    // make the tool heavy. Monday to Friday is four worked days.
+    // make the tool heavy (FR-013's own reason).
+    // ⭐⭐ AND THE PRESS PLACES ONE WORKED DAY, NOT THE PLAN'S SPAN (MUST, 利用者
+    // の裁定 2026-09-10): 「`actualDuration` ＝ ... `S-129`（MUST）。予定の期間を
+    // 置いてはならない（MUST NOT）」.
+    // ⛔⛔ IT READ `actualFinish` jan(9) AND `actualDuration` 4 UNTIL THAT DAY --
+    // the plan is Monday to Friday, so one press stretched the actual over the
+    // whole of it, and 「意図せず実績が延びる」 is the申し立て that closed.
     const task = cycled(at({}))
     expect(task.actualStart).toBe(jan(5))
-    expect(task.actualFinish).toBe(jan(9))
-    expect(task.actualDuration).toBe(4)
+    expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.actualInitialDuration)
+    expect(task.actualDuration).toBe(1)
+    // PV-2's reading of the right end, which this row is told to share.
+    expect(task.actualFinish).toBe(jan(6))
     expect(task.resumeValid).toBe(false)
+    expect(planActualState(task)).toBe('finished')
+  })
+
+  it('PV-1 places S-130 on a milestone, the same way CM-14 chooses it', () => {
+    // 「マイルストーンは同表の `S-130`」 -- 点なので長さを持たない.
+    const document = documentOf({
+      tasks: [taskOf({ uid: 1, name: 'Ship', start: jan(5), finish: jan(5) })],
+      taskGroups: [groupOf({ id: 'g1' })],
+      taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
+      taskVisuals: [visualOf({ taskUid: 1, shapeKind: 'milestone' })],
+    })
+    const task = taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1 })), 1)
+    expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.milestoneActualDuration)
+    expect(task.actualDuration).toBe(0)
     expect(planActualState(task)).toBe('finished')
   })
 

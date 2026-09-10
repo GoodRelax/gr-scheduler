@@ -113,13 +113,14 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'],
-  // ⭐⭐ AND NO SECOND NUMBER TO STATE. Since 2026-09-09 that row is one
-  // number and a WIDTH -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
-  // (表 T-206) -- and table T-023d's closing rule sends the hold's vertical to
-  // the same place: 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」.
-  // ⛔ `PointerSlop` CARRIED THAT BAND UNTIL 2026-09-10, and the hold now
-  // takes it off `DummyGeometry.ink` -- so a caller states nothing for it.
+  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
+  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
+  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
+  // row in `_assets/tbl-settings.md` says the field emptied out: 「その `S-93`
+  // は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が 1 人も
+  // 残らなかったからである」. `PointerSlop` no longer carries a dummy figure
+  // at all, so a caller states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
 }
 

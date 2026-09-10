@@ -915,6 +915,35 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       }
       if (faults.length > 0) return refused(faults)
 
+      // ⭐⭐ AND THE FLOOR UNDER A STARTED ACTUAL STANDS HERE FOR THE SAME REASON
+      // (MUST, FR-011): 「着手しているタスクの `actualDuration` は、
+      // `_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと
+      // （MUST）。掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）」
+      // (利用者の裁定 2026-09-10). ⚠️ ⚠️ The verbatim complaint it answers is
+      // 「実績を 0 日にしたら実績の変更ができなくなる」, and the reason it can
+      // is the closing rule of table T-023d: the hold IS the ink now, so ink of
+      // zero width is a hold of zero width.
+      //
+      // ⛔ THE COUNT IS IN WORKED DAYS AND NOT IN PIXELS, which is what makes
+      // 「未着手のダミー ＝ 着手済の最小の実績」 hold at every zoom -- `S-129`
+      // is the same figure CM-14 places when a hand grabs the dummy.
+      //
+      // ⛔ A MILESTONE IS NOT FLOORED AT `S-129`. Table T-023d's GR-15 gives it
+      // no actual bar and 表 T-012 の `SH-5` makes it a point, so the length it
+      // carries is `S-130` ＝ 0. ⭐ Reading the pair the way FR-043 reads it --
+      // and not inventing a second reading here -- is what PV-1 of table T-021a
+      // demands in as many words: 「ここで別の選び方をしてはならない（MUST NOT）」.
+      //
+      // ⛔ `S-49` IS NOT USED (MUST NOT, FR-011) -- that is the PLAN shape's
+      // floor, and FR-094 already bars a second floor over the actual.
+      //
+      // ⚠️ `PA-1` KEEPS ITS `null`: 未着手 is not a started task, and FR-011
+      // says the road that empties the actual is not the one it closes.
+      const floorOfActual = isMilestone(task, visualOf(schedule, task.uid))
+        ? settings.milestoneActualDuration
+        : settings.actualInitialDuration
+      const heldDuration = laid === null ? null : Math.max(laid, floorOfActual)
+
       let placed: Task
       switch (place.row) {
         case 'PA-1': // 未着手 -- four columns 空.
@@ -926,7 +955,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: place.actualDuration,
+            actualDuration: heldDuration,
             actualFinish: null,
             resume: null,
             resumeValid: true,
@@ -939,7 +968,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: place.actualDuration,
+            actualDuration: heldDuration,
             actualFinish: null,
             resume: place.resume,
             resumeValid: true,
@@ -949,7 +978,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: place.actualDuration,
+            actualDuration: heldDuration,
             actualFinish: null,
             resume: null,
             resumeValid: false,
@@ -959,7 +988,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: place.actualDuration,
+            actualDuration: heldDuration,
             actualFinish: place.actualFinish,
             resume: null,
             resumeValid: false,
@@ -1108,20 +1137,37 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       let turned: Task
       switch (state) {
         case 'notStarted': { // PV-1: 未着手 → 完了
-          // `actualStart` ＝ `start`、`actualFinish` ＝ `finish`、`actualDuration`
-          // ＝ 予定の期間、`resumeValid` ＝ `false`.
-          // ⚠️ FR-011 requires this one press to be possible: 未着手のタスクを
-          // 1 押しで完了にできること（MUST）.
-          const span = planSpanOf(within, task)
-          if (span === null) {
+          // 「`actualStart` ＝ `start`、⭐⭐ `actualDuration` ＝
+          // `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を
+          // 置いてはならない（MUST NOT）」 (利用者の裁定 2026-09-10),
+          // 「マイルストーンは同表の `S-130`」.
+          // ⛔⛔ IT WROTE THE PLAN'S SPAN UNTIL 2026-09-10, and 「押しただけで実績
+          // が予定の全長まで伸びると、人はそれを「意図せず実績が延びる」と読む」
+          // is the ledger row that closed (利用者の申し立て 2026-09-10).
+          // ⭐ FR-013 STILL GETS ITS ONE PRESS: 「未着手のタスクを 1 押しで完了に
+          // できること（MUST）」 is untouched -- only the LENGTH the press places
+          // changed, and the requirement's own reason 「1 日で終わる作業は日程表で
+          // 頻出する」 is what says one day is the right length.
+          // ⛔ THE SELECTION IS NOT INVENTED HERE: 「`FR-043` がダミーを掴んだとき
+          // と同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT）」, so
+          // it is spelled exactly as CM-14 spells it.
+          const from = dayOf(task.start)
+          if (from === null) {
             return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
           }
-          // Both plan dates are copied as text -- the same reason as CM-14.
+          const visual = visualOf(schedule, task.uid)
+          const duration = isMilestone(task, visual)
+            ? settings.milestoneActualDuration
+            : settings.actualInitialDuration
+          // ⚠️ THE RIGHT END IS READ THE WAY PV-2 READS IT, and by the same
+          // expression -- the row says 「`actualFinish` ＝ `PV-2` と同じ読み
+          // （`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた
+          // 日）」, ⛔ 「本行が独自の読み方を持ってはならない（MUST NOT）」.
           turned = {
             ...task,
             actualStart: task.start,
-            actualFinish: task.finish,
-            actualDuration: span,
+            actualFinish: textOfDay(dateFromWorkingDays(within, from, duration)),
+            actualDuration: duration,
             resumeValid: false,
           }
           break

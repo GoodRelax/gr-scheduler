@@ -1267,30 +1267,26 @@ function actualSpanOf(
 }
 
 /**
- * S-93's width -- the grab hold table T-023d gives GR-9, GR-17 and GR-18, taken
- * from the left edge of the day each of them stands on.
+ * How wide FR-043's mark is -- 「その印の幅は 1 日ぶんと `_assets/tbl-settings.md`
+ * の 表 T-206 の `S-180` の小さい方である」, which is the hold as well as the ink
+ * as of 2026-09-10.
  *
- * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THIS AND NOT THE DRAWN MARK (MUST,
- * 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロを持つものについては
- * その掴みシロの幅とすること（MUST）。描いた印の幅で数えてはならない（MUST
- * NOT）」, and the row names the two values apart -- 「実績のダミー（表 T-023d の
- * `GR-9` / `GR-17` / `GR-18`）の掴みシロは `_assets/tbl-settings.md` の 表 T-206
- * の `S-93` であり、描く幅の `S-180` ではない」.
+ * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THE HOLD (MUST, 利用者の裁定 2026-09-09):
+ * 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること
+ * （MUST）。描いた印の幅で数えてはならない（MUST NOT）」 -- and for these three
+ * rows the two are now ONE width, which the same row says in as many words:
+ * 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
  *
- * ⭐⭐ GENERATED, NOT TYPED IN (2026-09-09). Until that day this file held a
- * bare `30`, and rule 03 section 1 forbids it for the reason no comment can
- * repair: the day `settings.json` changes S-93, a hand-written number goes on
- * saying 30 and nothing in the build notices.
- * ⚠️ S-93 IS ALSO GENERATED INTO `item-hit-area.ts`, and that is not a
- * duplicated VALUE but a second printing of the one manuscript row -- the
- * bargain `NOT_STORED_SCROLLBAR_SIZES` already stands on. ⛔ Reading the
- * constant out of `item-hit-area.ts` instead would be the cycle LR-3 forbids:
- * that unit imports ScheduleGeometry, which imports this file.
- * ⭐ THE ROW IS A WIDTH AND NOTHING ELSE SINCE 2026-09-09, so nothing is picked
- * out of it here: 「⭐ 本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」,
- * ⚠️ 「2026-09-09 まで本行が再開アイコンにも当たり判定を与えており、縦を自分で
- * 持っていた」. ⇒ The order of table T-038 is horizontal, which is now the whole
- * of what the row states.
+ * ⛔⛔ IT READ S-93's FLAT 30 UNTIL 2026-09-10, and the row itself is gone with
+ * it -- 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者
+ * が 1 人も残らなかったからである」. ⚠️ Because the ink is 「1 日ぶんと `S-180` の
+ * 小さい方」, this width now MOVES WITH THE ZOOM where the retired one did not.
+ *
+ * ⚠️ S-180 IS ALSO GENERATED INTO `schedule-geometry.ts` AND THE RENDERER, and
+ * that is not a duplicated VALUE but a second printing of the one manuscript
+ * row -- the bargain `NOT_STORED_SCROLLBAR_SIZES` already stands on. ⛔ Reading
+ * it out of ScheduleGeometry instead would be the cycle LR-3 forbids: that unit
+ * imports this file.
  *
  * ⛔ A FUNCTION AND NOT A BINDING, and the reason is the file's own shape: the
  * generated block stands at the FOOT of this file, so a module-level `const`
@@ -1300,8 +1296,8 @@ function actualSpanOf(
  *
  * @purity pure
  */
-function dummyGrabWidthPx(): number {
-  return NOT_STORED_SIZES['S-93']
+function dummyGrabWidthPx(pxPerDay: number): number {
+  return Math.min(pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
 }
 
 /**
@@ -1316,24 +1312,30 @@ function finiteOrNull(reach: number): number | null {
 }
 
 /**
- * How far right FR-043's dummy reaches -- the RIGHT EDGE of GR-17's grab hold,
- * or of GR-18's on a milestone. `Number.NEGATIVE_INFINITY` where no dummy is
- * drawn, so that a `Math.max` against it is the whole of the test.
+ * How far right FR-043's dummy reaches -- the RIGHT EDGE of the ink, which is
+ * the right edge of the hold as well. `Number.NEGATIVE_INFINITY` where no dummy
+ * is drawn, so that a `Math.max` against it is the whole of the test.
  *
- * ⛔ THE GRAB HOLD AND NOT THE MARK. Until 2026-09-09 this answered the left
- * edge of the day the dummy stands on, which is where FR-043 aligns the ink --
- * and the ink is `min(1 day, S-180)` across while the grab hold is S-93's 30,
- * so the marker that hangs off this number stood INSIDE GR-17's own box at
- * every zoom. ⚠️ Measured on the shipped build 2026-09-09, before and after:
- * of GR-17's 30 hit pixels, GR-7 answered 16 at 6, 15 and 36 px a day; none
- * once this counted the hold (defect D-408).
+ * ⭐⭐ THE INK IS THE HOLD AS OF 2026-09-10 (MUST), which is the closing rule of
+ * table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた
+ * 印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」.
+ * ⭐ Table T-038's order therefore counts this same number -- 「本並びで数える
+ * 幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）」 --
+ * and the row itself says the distinction is gone: 「掴みシロが印そのものになった
+ * 以上、2 つは同じ 1 つの幅であり、区別は消えた」.
  *
- * ⭐ SPELLED HERE BECAUSE THE ORDER OF TABLE T-038 IS DECIDED HERE. The dummy
- * is the thing the marker hangs off while nothing is started (`markerAnchorX`,
- * GR-7's not-started clause), so the name label cannot be placed without it.
- * ⚠️ `dummiesOf` in ScheduleGeometry draws them, and reads the same two
- * calendar walks FR-043 states -- 「予定の開始日の翌稼働日」 then
- * `actualInitialDuration` worked days along from THAT day.
+ * ⛔⛔ IT ANSWERED S-93's BOX UNTIL 2026-09-10, and that box began at `GR-17`'s
+ * OWN day -- one worked day further right than the ink -- so this reach stood a
+ * whole day column plus 30px past what a reader could see. ⚠️ The row that
+ * carried it is gone: 「その `S-93` は 2026-09-10 に廃した」.
+ *
+ * ⚠️ A MILESTONE'S DUMMY IS A SQUARE, NOT A DAY COLUMN (FR-043, MUST, 利用者の
+ * 裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、そのマイルストーン
+ * の実績の図形と同じ正方形とすること（MUST）」, drawn CENTRED on the day --
+ * so half a side of it stands right of that day, exactly as `actualReachOf`
+ * above already answers for the started figure. ⭐ The two are spelled the same
+ * way on purpose: the dummy and the actual figure it stands in for must reach
+ * the same distance, or the marker moves the moment an actual is entered.
  *
  * ⚠️ Only asked while the Task has no actual at all: FR-043 draws the pair then
  * and not otherwise, which is the same test `dummiesOf` opens with.
@@ -1353,15 +1355,16 @@ function dummyReachOf(
   // FR-013 (MUST NOT) keeps a Task with no planned start off the screen, and
   // FR-043 draws no dummy without one either.
   if (start === null) return Number.NEGATIVE_INFINITY
-  const from = reader.after(start)
-  // GR-15: a milestone holds no actual BAR, so FR-043 shows ONE point on it and
-  // there is no GR-17 further along.
-  const at = shapeKind === 'milestone' ? from : reader.walk(from, settings.actualInitialDuration)
-  // ⭐ The hold runs RIGHT from the day's left edge, which is the closing rule
-  // of table T-023d: 「その日の列の左端を起点に、右へ `_assets/tbl-settings.md`
-  // の `S-93` の幅で取ること（MUST）」, with 「起点を中心にしてはならない
-  // （MUST NOT）」 beside it.
-  return xOnTimeAxis(originSerial, pxPerDay, originX, at) + dummyGrabWidthPx()
+  // 「ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）」, and
+  // 「日の列の左端に揃えること（MUST）」 is where the ink starts.
+  const inkX = xOnTimeAxis(originSerial, pxPerDay, originX, reader.after(start))
+  // GR-15: a milestone holds no actual BAR, so FR-043 shows ONE point on it --
+  // and `dummiesOf` draws that point in a square of side `planHeight *
+  // actualOfPlan`, centred on `inkX`.
+  if (actualPlacementOf(shapeKind) === 'sideways') {
+    return inkX + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
+  }
+  return inkX + dummyGrabWidthPx(pxPerDay)
 }
 
 /**
@@ -2676,15 +2679,34 @@ export const NOT_STORED_SIZES: {
   readonly 'S-91': number
   /** S-92, in px */
   readonly 'S-92': readonly [number, number]
-  /** S-93, in px */
-  readonly 'S-93': number
   /** S-137, in px */
   readonly 'S-137': number
 } = {
   'S-90': 12,
   'S-91': 12,
   'S-92': [15, 15],
-  'S-93': 30,
   'S-137': 6,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it, and EP-14
+ * of table T-076 keeps the dummy out of the exported picture without
+ * reserving its place -- so a reader handed this document sees the
+ * same picture whatever this value is.
+ */
+export const NOT_STORED_DUMMY_SIZES: {
+  /** S-180, in px */
+  readonly 'S-180': number
+} = {
+  'S-180': 30,
 }
 // </generated>

@@ -206,7 +206,17 @@ RETIRED = {'FR-050', 'T-030',
            # still reachable through the Agent API, so the notice requirement
            # that names it is not stranded -- but ledger row D-273, which asked
            # for the human path, is answered by the ruling, not by a row.
-           'AS-11'}
+           'AS-11',
+           # S-93 (the dummies' own hit box, 30px) went on 2026-09-10 with the
+           # user's ruling that the hit area of GR-9 / GR-17 / GR-18 IS the mark
+           # FR-043 draws -- 「印の外へ広げてはならない（MUST NOT）」 -- which left
+           # the row with no reader at all. Its 30px had swallowed the plan's own
+           # end point (GR-4) on any task shorter than five days at the default
+           # magnification. The closing rule of table T-023d, S-180's note, FR-043
+           # and the appendix all record the withdrawal by naming the row, and
+           # those records are true of the day they were written, so the seat
+           # stays burnt like every other retirement here.
+           'S-93'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

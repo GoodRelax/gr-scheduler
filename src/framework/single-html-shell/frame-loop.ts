@@ -762,21 +762,38 @@ type GrabbedArea = Grabbed['grab']
  * `Record<GrabbedArea, ...>` makes a row added to table T-023d a compile error
  * that names itself, where the `ReadonlySet` this replaced let a new row
  * default silently into 「no shape」.
- * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names five
- * cases and no more, of which only two are a row of this table -- the two bars'
- * ends, and the task body together with a milestone's figure. The fade handles,
- * the progress marker, the resume icon, the three dummies that stand on the
- * working day after a plan start, the labels, a dependency line, the boxes, the
- * status line and the palette band are all pressable and IN-2 gives none of them
- * a shape. ⚠️ A shape invented for one of them would be this build writing a
+ * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row named five
+ * cases until 2026-09-10 and now names six: the two bars' ends, the task
+ * body together with a milestone's figure, and -- since the ruling below --
+ * the three actual dummies. The fade handles, the progress marker, the
+ * resume icon, the labels, a dependency line, the boxes, the status line and
+ * the palette band are still all pressable and IN-2 still gives none of them
+ * a shape. ⚠️ A shape invented for one of THOSE would be this build writing a
  * requirement.
+ *
+ * ⭐⭐ GR-9 / GR-17 / GR-18 JOINED THE ENDS' MEANING ON 2026-09-10 (MUST,
+ * 利用者の裁定, 逐語「実績タスクを触れるならマウスカーソルの形状をスライドに
+ * 変更しろ」): IN-2 now reads 「実績のダミー（表 T-023d の `GR-9` / `GR-17` /
+ * `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）」 -- the same clause
+ * `GR-3` .. `GR-6` already carry below. ⛔⛔ UNTIL THAT DAY ALL THREE WERE
+ * `null` HERE, on the ground that IN-2 named no dummy at all; the ruling
+ * above is what named them, and the ground the null rested on is gone.
+ * ⚠️ MEASURED ON THE SHIPPED BUILD OF THAT DAY (before this fix): pressing on
+ * an unstarted Task's dummy left the pointer an arrow, matching the report
+ * this ruling answers -- a Task the user can grab that gave no visual sign
+ * of it.
  */
 const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
-  // IN-2:「予定バーと実績バーの端点の上は横方向の伸縮の合図」.
+  // IN-2:「予定バーと実績バーの端点の上は横方向の伸縮の合図」, and (2026-09-10)
+  // 「実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、
+  // 横方向の伸縮の合図とすること（MUST）」 -- one meaning, six rows.
   'GR-3': 'ew-resize',
   'GR-4': 'ew-resize',
   'GR-5': 'ew-resize',
   'GR-6': 'ew-resize',
+  'GR-9': 'ew-resize',
+  'GR-17': 'ew-resize',
+  'GR-18': 'ew-resize',
   // IN-2:「タスクの本体とマイルストーンの図形の上は掴めることの合図」(利用者の
   // 裁定 2026-08-27). ⚠️ GR-12 IS ALSO A MILESTONE'S PLAN FIGURE, because a
   // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
@@ -786,7 +803,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-2': null,
   'GR-7': null,
   'GR-8': null,
-  'GR-9': null,
   'GR-10': null,
   // ⚠️ IN-2 NAMES NO SHAPE FOR A LABEL, and GR-11 is one -- the note above
   // already counts 「the labels」 among the pressable things it gives none to.
@@ -795,17 +811,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-13': null,
   'GR-14': null,
   'GR-16': null,
-  'GR-17': null,
-  // ⚠️ GR-18 IS ONE OF THE THREE DUMMIES AND NOT A MILESTONE'S FIGURE, WHICH IS
-  // A CHANGE OF 2026-09-02 (台帳 D-200). Table T-023d used to place it 「未着手
-  // のマイルストーンの図形の上」, and this row carried `grab` on that ground;
-  // the row now places it 「予定の開始日の翌稼働日」 -- 「`GR-9` と同じ場所であ
-  // る」 in the table's own words. ⛔ IN-2 of table T-028 gives the grab hand to
-  // 「タスクの本体とマイルストーンの図形の上」 and names no dummy, which is
-  // exactly why GR-9 and GR-17 are null; GR-18 left the figure, so IN-2 no
-  // longer reaches it. ⭐ IN-2's own sentence is unchanged -- only what it
-  // reaches moved.
-  'GR-18': null,
 }
 
 /**
@@ -1020,15 +1025,15 @@ function isPreviewedPress(press: PointerPress | null): boolean {
  * (rule 03 section 1).
  * ⚠️ `S-92` is stated as a width and a height while `PointerSlop.fadeHandle` is
  * documented as a HALF-width, which is why S-92's width is halved here.
- * ⭐ `S-93` IS A WIDTH ALONE SINCE 2026-09-09 -- 「⭐ 本行が定めるのは横だけで
- * ある —— 縦の広がりは実績の帯に従う」 -- so it is passed through as it stands and
- * the height field that stood beside it is gone.
+ * ⛔⛔ `S-93` LEFT THIS CONSTANT ON 2026-09-10, WITH THE ROW ITSELF. Table
+ * T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
+ * `FR-043` が描いた印そのものとすること（MUST）」, so the dummies read the
+ * rectangle `dummiesOf` solved and this side hands them no width at all.
  */
 const POINTER_SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'],
   line: NOT_STORED_SIZES['S-137'],
 }
 

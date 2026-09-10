@@ -23,6 +23,7 @@ import {
   layoutFromSchedule,
   rulerTierOf,
   taskPlacement,
+  NOT_STORED_DUMMY_SIZES,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
@@ -1008,13 +1009,18 @@ const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
 // re-typed, so moving either value moves these cases with it.
 const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') / 2
 
-// ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-038's order (MUST,
-// 利用者の裁定 2026-09-09) says what that hold is worth: 「本並びで数える幅は、
-// 掴みシロを持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で
-// 数えてはならない（MUST NOT）… 実績のダミー（GR-9 / GR-17 / GR-18）の掴みシロは
-// `S-93` であり、描く幅の `S-180` ではない」. ⛔ Read from the generated block, so
-// the manuscript's own number is what these cases stand on. Defect D-408.
-const DUMMY_MARKER_OFFSET = NOT_STORED_SIZES['S-93'] + MARKER_OFFSET
+// ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-023d's closing rule
+// says what that hold is now: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
+// `FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない
+// （MUST NOT）」（利用者の裁定 2026-09-10）, and the mark's own width is 「1 日ぶんと
+// … `S-180` の小さい方」. At this file's pxPerDay of 6 (well under `S-180`'s 30),
+// that width IS `pxPerDay`. ⛔ Read from the generated block, so the
+// manuscript's own number is what these cases stand on. Defect D-408.
+// ⛔⛔ UNTIL 2026-09-10 THIS WAS `NOT_STORED_SIZES['S-93']` -- the fixed 30px
+// hold -- and table T-038's order named the two apart: 「実績のダミーの掴みシロ
+// は `S-93` であり、描く幅の `S-180` ではない」. That distinction is retired:
+// 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
+const DUMMY_MARKER_OFFSET = Math.min(6, NOT_STORED_DUMMY_SIZES['S-180']) + MARKER_OFFSET
 
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
@@ -1202,19 +1208,30 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // started has no actual bar, so FR-043's GR-17 stands in for its right end
     // and the marker leaves the plan's own right end alone.
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
+    // ⛔⛔ READ OFF `dummies[0]` (GR-9), NOT `dummies[1]` (GR-17), SINCE
+    // 2026-09-10. `DummyGeometry.at` for GR-17 is still GR-17's OWN day --
+    // `S-129` past GR-9's -- but the hold is `FR-043`'s one mark now, drawn on
+    // GR-9's day alone (「ダミーの印は 1 つだけ描くこと」), so the ink's own left
+    // edge is GR-9's `at.x`, not GR-17's. Reading `dummies[1]!.at.x` here
+    // matched only while the hold was the retired `S-93`'s box, which began a
+    // whole day column past the ink at GR-17's own day.
     expect(fresh.marker!.centre.x).toBeCloseTo(
-      fresh.dummies[1]!.at.x + DUMMY_MARKER_OFFSET,
+      fresh.dummies[0]!.at.x + DUMMY_MARKER_OFFSET,
       6,
     )
     // ⚠️ THE DAY MOVED WITH CR-275, THE RULE DID NOT. FR-043 now starts the
     // dummy on the working day AFTER the plan start (2026-01-01 is a Thursday,
-    // so GR-9 is the Friday) and GR-17 stands S-129 along from GR-9, which puts
-    // the marker one day further right than it stood. GR-7 still hangs off
-    // GR-17 and off nothing else, which is what this case is for.
+    // so GR-9 is the Friday, day index 1) and GR-17 stands S-129 along from
+    // GR-9. GR-7 still hangs off GR-17 and off nothing else, which is what
+    // this case is for.
     // ⚠️ AND OFF THE OUTSIDE OF ITS HOLD SINCE 2026-09-09, not off the day's own
-    // edge: the ink is `min(1 day, S-180)` across and the hold is S-93's 30, and
-    // GR-7 says 掴みシロの外側.
-    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(2) + DUMMY_MARKER_OFFSET, 6)
+    // edge, and since 2026-09-10 the hold IS the ink -- `min(pxPerDay, S-180)`
+    // across -- rather than the retired `S-93`'s fixed 30. GR-7 says
+    // 掴みシロの外側.
+    // ⛔⛔ THIS PROBED `xOf(2)` (GR-17's OWN day) UNTIL 2026-09-10, because the
+    // retired `S-93` box began there. The hold now begins on GR-9's day (index
+    // 1), where the one mark is actually drawn, so this probes `xOf(1)`.
+    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(1) + DUMMY_MARKER_OFFSET, 6)
   })
 
   it("GR-7 keeps a milestone outside its figure AND outside GR-18's hold", () => {
@@ -1224,27 +1241,50 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // ⭐⭐ AND THE HOLD IS COUNTED TOO, WHICH IS TABLE T-038's ORDER AND NOT
     // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロ
     // を持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数え
-    // てはならない（MUST NOT）」. GR-18 HAS a hold -- its own row gives it S-93
-    // and forbids a milestone a narrower one -- so the same MUST reaches it.
+    // てはならない（MUST NOT）」. GR-18 HAS a hold -- since 2026-09-10 its own
+    // row makes that hold `FR-043`'s own mark -- and forbids a milestone a
+    // narrower one, so the same MUST reaches it.
     // ⛔ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE FIGURE'S
     // EDGE ALONE, and it was measured wrong on the shipped build: the marker
     // stood on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9, which is
     // defect D-408's shape on the shape D-408 was not repaired for.
     // ⭐ GR-7's own row is untouched: it says what the marker stands outside OF,
     // and this says which width the order counts. The marker clears both.
-    const milestone = geometryOf(
-      oneRow([taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true })]),
-    ).tasks[0]!
+    // ⛔⛔ ZOOMED IN (`zoomX: 3`) SINCE 2026-09-10, and the reason is the ruling
+    // of that same day: 「マイルストーンのダミーを描く箱は、そのマイルストーンの
+    // 実績の図形と同じ正方形とすること（MUST）」, so GR-18's hold is no longer a
+    // day column of the retired `S-93`'s fixed 30 -- it is a square half as
+    // constant in px as the plan FIGURE's own half, while the DAY the ink
+    // stands on (one working day past the figure's own day) only moves further
+    // from it as `pxPerDay` grows. At this file's ordinary 6px a day the
+    // figure's own edge already reaches further right than the hold, which
+    // proves nothing about the hold at all -- zooming in is what makes the
+    // hold the one that has to be cleared, the way it did in every other case
+    // in this suite.
+    const zoomedSettings = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      zoomX: 3,
+    })
+    const scheduleM = oneRow([taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true })])
+    const layoutM = layoutFromSchedule(scheduleM, zoomedSettings, REGIONS)
+    const placedM = taskPlacement(layoutM, 1)!
+    const milestone = geometryFromLayout(scheduleM, zoomedSettings, layoutM, REGIONS, emptySelection())
+      .tasks[0]!
     expect(milestone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
-    // 2026-01-01 is a Thursday, so 2026-01-11 is a Sunday and GR-18 stands on
-    // Monday the 12th -- day 11. Its hold runs S-93 right of that day's edge.
-    expect(milestone.dummies[0]!.at.x).toBeCloseTo(xOf(11), 6)
-    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(11) + DUMMY_MARKER_OFFSET, 6)
-    // ⛔ THE CONTRAST. The figure is 42 across and centred on day 10, so its own
-    // right edge is at 21 -- and a marker placed there stands INSIDE the hold.
-    expect(milestone.marker!.centre.x).not.toBeCloseTo(xOf(10) + 21 + MARKER_OFFSET, 6)
+    const ink = milestone.dummies[0]!.ink
+    const figureRight = placedM.x + placedM.width
+    // ⭐ THE HOLD NOW REACHES FURTHER THAN THE FIGURE, which is the whole point
+    // of zooming in: the ink's own day stands one working day right of the
+    // figure's, and that gap grows with `pxPerDay` while both halves (the
+    // figure's and the ink's) stay fixed in px.
+    expect(ink.x + ink.width, 'the hold must be the one under test here')
+      .toBeGreaterThan(figureRight)
+    expect(milestone.marker!.centre.x).toBeCloseTo(ink.x + ink.width + MARKER_OFFSET, 6)
+    // ⛔ THE CONTRAST: a marker placed at the FIGURE's own edge instead would
+    // stand INSIDE the hold, which table T-038's order (MUST) forbids.
+    expect(milestone.marker!.centre.x).not.toBeCloseTo(figureRight + MARKER_OFFSET, 6)
     expect(milestone.marker!.centre.x - milestone.marker!.radius).toBeGreaterThanOrEqual(
-      xOf(11) + NOT_STORED_SIZES['S-93'],
+      ink.x + ink.width,
     )
   })
 
@@ -1494,16 +1534,18 @@ describe('ItemHitArea (PI-7)', () => {
   // same way EditHistory takes S-94 / S-95: table T-206 keeps these values out
   // of the document because they belong to the reader's environment. So the
   // cases below state them, at the numbers table T-206 records.
+  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
+  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げ
+  // てはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own row
+  // says the field emptied out: 「その `S-93` は 2026-09-10 に廃した —— 掴み
+  // シロが印そのものになり、読む者が 1 人も残らなかったからである」.
+  // `PointerSlop` carries no dummy figure at all now, for width or height.
   const SLOP: PointerSlop = {
     planEndpoint: NOT_STORED_SIZES['S-90'], // S-90 -- above and below the plan bar, and outside its ends
     actualEndpoint: NOT_STORED_SIZES['S-91'], // S-91 -- the actual bar's own band
     // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
     fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the 15 x 15 square
-    dummyWidth: NOT_STORED_SIZES['S-93'], // S-93 -- ⭐ one number, and a WIDTH, since 2026-09-09
-    // ⭐⭐ AND NOTHING FOR THE VERTICAL: S-93's row now reads
-    // 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」, and
-    // `PointerSlop` stopped carrying a `dummyHeight` on 2026-09-10 -- the hold
-    // takes the band off `DummyGeometry.ink` instead.
     // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
     line: NOT_STORED_SIZES['S-137'],
   }
@@ -1514,11 +1556,12 @@ describe('ItemHitArea (PI-7)', () => {
   it('GR-12 answers the plan bar body', () => {
     // ⚠️ PROBED AT DAY 15 AND NOT AT DAY 10 SINCE 2026-09-09. Nothing about
     // GR-12 changed; the MARKER moved. This Task is not started, so GR-7 hangs
-    // off GR-17's hold (S-93, 30px from the dummy's day) rather than off the
-    // day's own edge, which walks the square over day 10 -- and GR-7 stands
-    // above GR-12 in table T-023d, so it wins there, exactly as the case below
-    // shows it winning over the actual bar's body. Day 15 is clear of the
-    // square and still the plan's own body, which is what this case reads.
+    // off GR-17's hold (`FR-043`'s own mark, `pxPerDay` wide since 2026-09-10 --
+    // the retired `S-93` was a fixed 30) rather than off the day's own edge,
+    // which walks the square over day 10 -- and GR-7 stands above GR-12 in
+    // table T-023d, so it wins there, exactly as the case below shows it
+    // winning over the actual bar's body. Day 15 is clear of the square and
+    // still the plan's own body, which is what this case reads.
     expect(itemAtPointer(oneTask(), xOf(15), middleY, SLOP)).toEqual({
       item: { kind: 'task', taskUid: 1 },
       grab: 'GR-12',
@@ -1643,20 +1686,29 @@ describe('ItemHitArea (PI-7)', () => {
   it('GR-7 follows the end-point dummy while the Task is not started', () => {
     // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
     // end and joins the two faint dummies at the head of the bar.
-    // ⭐ OUTSIDE THE HOLD, which is what 「掴みシロの外側」 says and what table
-    // T-038's order (MUST, 利用者の裁定 2026-09-09) gives a width to. GR-17
-    // stands on day 2 here, so its hold ends S-93 further along.
-    expect(itemAtPointer(oneTask(), xOf(2) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe(
+    // ⭐ OUTSIDE THE HOLD, which is what 「掴みシロの外側」 says. Since
+    // 2026-09-10 the hold IS `FR-043`'s own mark (table T-023d's closing rule),
+    // 「1 日ぶんと … `S-180` の小さい方」 -- `pxPerDay` here, well under `S-180`'s
+    // 30 -- drawn on GR-9's OWN day (index 1; 2026-01-01 is a Thursday, so
+    // GR-9 is the Friday). The ink runs `xOf(1)`..`xOf(1) + pxPerDay`, which is
+    // `xOf(2)` at this file's 6px-a-day, and the marker hangs off its right
+    // edge.
+    // ⛔⛔ UNTIL 2026-09-10 THIS PROBED `xOf(2)` (GR-17's OWN day, one further
+    // along) PLUS THE RETIRED `S-93`'S FIXED 30, because the hold was a box of
+    // its own beginning there -- not the ink. Table T-038's order (MUST,
+    // 利用者の裁定 2026-09-09) was what gave that box its width; the row is
+    // gone with it.
+    expect(itemAtPointer(oneTask(), xOf(1) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe(
       'GR-7',
     )
-    // ⛔ AND NOT INSIDE IT (defect D-408): GR-17's own hold answers GR-17 across
-    // its whole width, and no ink is drawn on its day -- FR-043 draws the one
-    // mark on GR-9's column alone, so the halving of 2026-09-09 never reaches
-    // this row's own band.
-    expect(itemAtPointer(oneTask(), xOf(2) + 1, middleY, SLOP)?.grab).toBe('GR-17')
-    expect(
-      itemAtPointer(oneTask(), xOf(2) + NOT_STORED_SIZES['S-93'] - 1, middleY, SLOP)?.grab,
-    ).toBe('GR-17')
+    // ⛔ AND NOT INSIDE THE INK (defect D-408, still): a press on the mark's
+    // own right half answers GR-17 -- 「印の右半分を実績の終了側とすること」 --
+    // and NOT the finish's OWN band running on past the ink, which no longer
+    // exists (MUST NOT, 利用者の裁定 2026-09-10): 「印の外へ広げてはならない」.
+    expect(itemAtPointer(oneTask(), xOf(1) + 5, middleY, SLOP)?.grab).toBe('GR-17')
+    // ⛔⛔ AND ONE STEP PAST THE INK'S OWN RIGHT EDGE, GR-17 GIVES UP THE GROUND
+    // ENTIRELY -- see the dedicated case below for what answers there instead.
+    expect(itemAtPointer(oneTask(), xOf(2) + 1, middleY, SLOP)?.grab).not.toBe('GR-17')
   })
 
   it('the drawn mark is cut down its middle: left half GR-9, right half GR-17', () => {
@@ -1677,25 +1729,33 @@ describe('ItemHitArea (PI-7)', () => {
     expect(itemAtPointer(oneTask(), xOf(0) + 11, middleY, SLOP)?.grab).toBe('GR-17')
   })
 
-  it('⛔ past the mark, the rest of GR-9\'s own band is the FINISH\'s', () => {
-    // ⛔ THE CONTRAST, and it is the manuscript's own: the mark is halved, but
-    // 「印より右に残る当たり判定は終了側とすること（MUST）」 -- the ground the ink
-    // does not cover goes to the finish, by the same rule that gives the finish
-    // an undecidable press. ⇒ GR-9 answers on the mark's left half AND NOWHERE
-    // ELSE, which is what makes the halving readable from the drawing.
-    // ⚠️ Asked at a magnification where the two part: `S-180` caps the ink and
-    // `S-93` is the hold, and at 24px a day a day is the narrower of the pair.
+  it('⛔⛔ past the mark, GR-9 and GR-17 give up the ground entirely', () => {
+    // ⛔⛔ UNTIL 2026-09-10 THIS CASE WAS TITLED "the rest of GR-9's own band is
+    // the FINISH's", and it pressed 1px past `gr9.ink.x + gr9.ink.width` and
+    // expected `GR-17` -- because the hold was `S-93`'s FIXED 30px, wider than
+    // the ink wherever `S-180` capped it, and 「印より右に残る当たり判定は終了側
+    // とすること（MUST）」 sent the leftover band to the finish. Table T-023d's
+    // closing rule retired both the row and the leftover band on that day:
+    // 「⭐⭐ `GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
+    // とすること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
+    // 2026-09-10）. There is no ground past the ink for either row to hold any
+    // more -- a press there answers whatever else stands underneath it,
+    // measured below to be the plan bar's own body (GR-12).
+    // ⭐ THE MARK IS HALVED (GR-9 left, GR-17 right), but the halving is now
+    // spent ENTIRELY inside the ink -- 「印を中央で左右に割る」 divides the one
+    // box the mark draws, and there is no wider hold left to divide.
     const wide = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]), settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
       pxPerDayAt1x: 24,
     }))
     const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
     expect(gr9.ink.width, 'FR-043: 1 日ぶんと `S-180` の小さい方').toBe(24)
-    expect(gr9.ink.width, 'and the hold is wider than the ink here')
-      .toBeLessThan(NOT_STORED_SIZES['S-93'])
     expect(itemAtPointer(wide, gr9.ink.x + 1, middleY, SLOP)?.grab).toBe('GR-9')
     expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GR-17')
-    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab).toBe('GR-17')
+    // ⭐ MEASURED, NOT ASSUMED: this Task's plan bar stands right where the
+    // dummy's ink does, so the ground the dummies gave up falls straight
+    // through to GR-12 rather than to open ground with no answer at all.
+    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab).toBe('GR-12')
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {

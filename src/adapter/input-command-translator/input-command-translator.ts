@@ -4023,9 +4023,22 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     // settle a name again.
     if (context.isNoticeStanding === true) return acted({ kind: 'dismissNotice' })
     if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
-    return context.isPropertiesPanelShowing === true
-      ? acted({ kind: 'settleTextEntry' })
-      : UNASSIGNED
+    if (context.isPropertiesPanelShowing === true) return acted({ kind: 'settleTextEntry' })
+    // ⭐⭐ SK-19's LAST STAGE, NEW AT THE FOOT OF THE ROW (利用者の裁定
+    // 2026-09-10): 「プロパティパネルも出していないときは、選ばれているものがあ
+    // ればその選択を解くこと（MUST）」.
+    // ⛔ CONSUMED_ELSEWHERE AND NOT A KIND OF ITS OWN, exactly the way the Esc
+    // ladder's 選択 rung is: UN-9 keeps the selection out of the undo record, so
+    // letting it go is a `Selection` value and never a `DocumentCommand`.
+    // `selectionFromInput` is the member that answers it, and this answer
+    // carries the other half -- MK-10's, that the browser must not act on the
+    // key as well.
+    // ⛔ AND ONLY WHILE SOMETHING IS SELECTED (MUST NOT): the row says 「選ばれ
+    // ているものが 1 つも無いときは、この段も無い」 and gives MK-10's reason,
+    // 「割り当てていない組合せを止めてはならない（MUST NOT）」 -- stopping every
+    // bare `Enter` would take keyboard activation away from every control a
+    // person has tabbed to.
+    return context.selection.items.length > 0 ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
 
   // SK-8 -- the rule is IN-4, and the consuming is `screenStateFromInput`'s.
@@ -9142,6 +9155,25 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       isCombo(input.modifiers, false, false, false) &&
       input.key === KEY.escape &&
       escapeTarget(context.screenState, escapeContextOf(context)) === 'selection'
+    ) {
+      return emptySelection()
+    }
+    // SK-19's LAST STAGE (MUST, 利用者の裁定 2026-09-10). ⭐ SPENT HERE FOR THE
+    // REASON THE Esc RUNG ABOVE IS: this is the member that answers the
+    // selection, and UN-9 keeps it out of the undo record.
+    // ⛔ THE THREE STAGES ABOVE IT COME FIRST, and the row is what orders them:
+    // a standing telling, then 確定していないその場の編集, then 「プロパティパ
+    // ネルを出しているならば出すのをやめること（MUST）」. This arm asks for all
+    // three to be absent, so ONE press spends ONE stage.
+    // ⭐ WHICH IS ALSO FR-072's 「パネルを出すのをやめても、選択を解いてはならな
+    // い（MUST NOT）」: the press that puts the panel away finds
+    // `isPropertiesPanelShowing` true and never reaches here.
+    if (
+      isCombo(input.modifiers, false, false, false) &&
+      input.key === KEY.enter &&
+      context.isNoticeStanding !== true &&
+      !context.isTextEntryUnsettled &&
+      context.isPropertiesPanelShowing !== true
     ) {
       return emptySelection()
     }

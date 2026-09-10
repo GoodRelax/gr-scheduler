@@ -99,9 +99,16 @@
 //     MUST reaches GR-18 with nothing left to decide.
 //     ⚠️ LF-10 DID NOT MOVE: 「図形そのものは `start` の位置に中央で置かれた
 //     ままである …… 動いたのはダミーであって図形ではない」（FR-043）.
-//   * GR-18's vertical. A milestone has no actual bar (table T-023d, GR-15),
-//     so S-180's 「縦の広がりは実績バーの帯に従う」 reaches GR-9 and GR-17 and
-//     stops. Nothing here claims a height for GR-18.
+//   * ⛔⛔ GR-18'S VERTICAL WAS UNCLAIMED UNTIL 2026-09-10. A milestone has no
+//     actual bar (table T-023d, GR-15), so S-180's 「縦の広がりは実績バーの帯に
+//     従う」 reaches GR-9 and GR-17 and stops, and until 2026-09-10 nothing
+//     here claimed a height for GR-18 either.
+//     ⭐⭐ THE GAP IS NOW CLOSED, by a different row: 「⭐⭐ 大きさも例外とすること
+//     （MUST）。マイルストーンのダミーを描く箱は、そのマイルストーンの実績の
+//     図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を横幅と
+//     してはならない（MUST NOT）」（利用者の裁定 2026-09-10）. GR-18's box is a
+//     SQUARE now, so its height is pinned along with its width, and the GR-18
+//     cases below measure both.
 //   * ⛔ THE PAINT ORDER. Table T-020 has ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4 and
 //     ZO-5, and NOT ONE of them names `Actual Operation Dummy` (U-52). The
 //     dummy overlaps the plan bar (EP-14: 「タスクバーに重なる」), so which of
@@ -408,6 +415,24 @@ const ACTUAL_INITIAL_DURATION = ((): number => {
 const DUMMY_OPACITY = ((): number => {
   const value = SETTINGS_DEFAULTS['dummyOpacity']
   if (typeof value !== 'number') throw new Error('S-131 is not a number')
+  return value
+})()
+
+/**
+ * `S-5`, 表 T-201 -- the ratio a plan height is scaled by to become an
+ * actual's height (LF-9 / LF-10 of table T-221).
+ *
+ * ⭐⭐ THE SAME RATIO GR-18'S SQUARE NOW USES. FR-043's third milestone
+ * exception (利用者の裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、
+ * そのマイルストーンの実績の図形と同じ正方形とすること（MUST）」, and
+ * `schedule-geometry.ts`'s `taskGeometryOf` names that square's side
+ * `actualHeight` = `placed.planHeight * settings.actualOfPlan` -- the very
+ * product this constant and `gr18SquareSideOf` below compose, read from the
+ * settings rather than a pixel this file typed in.
+ */
+const ACTUAL_OF_PLAN = ((): number => {
+  const value = SETTINGS_DEFAULTS['actualOfPlan']
+  if (typeof value !== 'number') throw new Error('S-5 is not a number')
   return value
 })()
 
@@ -848,6 +873,24 @@ const gr18ColumnLeftOf = (fresh: Drawn, zoomX: number): number =>
   planBoxOf(fresh, 2).x0 + dayWidthAt(zoomX)
 
 /**
+ * The side of GR-18's square dummy box (利用者の裁定 2026-09-10): the
+ * milestone's own plan height times `S-5` (`ACTUAL_OF_PLAN`) -- the same
+ * product `schedule-geometry.ts`'s `taskGeometryOf` names `actualHeight` and,
+ * since that ruling, hands to both the milestone's own actual figure (LF-10)
+ * and GR-18's dummy box.
+ *
+ * ⭐ READ OFF THE PLAN FIGURE'S OWN BOX, not a pixel typed in here: `planBoxOf`
+ * is the same reader every other alignment case in this file already trusts,
+ * and a milestone's plan figure (`barOf`'s `milestone` arm) is drawn the full
+ * `planHeight` tall, so its box's own height IS `planHeight` without this file
+ * reworking `taskGeometryOf`'s formula a second time.
+ */
+const gr18SquareSideOf = (fresh: Drawn): number => {
+  const plan = planBoxOf(fresh, UNDER_TEST)
+  return (plan.y1 - plan.y0) * ACTUAL_OF_PLAN
+}
+
+/**
  * The ink of a not-started milestone's ONE dummy (table T-023d's GR-18).
  *
  * ⭐ SELECTED WITHOUT USING AN x, so a case may measure one. What the fresh
@@ -1212,27 +1255,35 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
     const days = `${dayWidthAt(zoomX)}px/day`
 
-    it(`GR-18 (MUST): a milestone not started draws one dummy, min(1 day, S-180) wide at ${days}`, () => {
+    it(`GR-18 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
       // FR-043: 「⚠️ **マイルストーンの例外は 3 つである** —— 実績バーを持たない
       // ので（表 T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。
-      // 実績期間は `S-130` とすること（MUST）**」. The width MUST is written of
-      // 「ダミー」 with no exception, and S-180's row names GR-18 among the three
-      // it bounds -- and the third exception is a FIGURE, not a size: 「⚠️ **大き
-      // さは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方のままである**
-      // （本要求の上の段）。**変わったのは形と色だけである。**」 ⇒ this case measures
-      // the width and is untouched by it.
+      // 実績期間は `S-130` とすること（MUST）**」.
+      // ⛔⛔ THE WIDTH MUST WAS READ, UNTIL 2026-09-10, AS REACHING GR-18 TOO:
+      // 「⚠️ **大きさは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方の
+      // ままである**（本要求の上の段）。**変わったのは形と色だけである。**」 The
+      // same day's ruling withdrew it: 「⭐⭐ **大きさも例外とすること（MUST）。
+      // マイルストーンのダミーを描く箱は、そのマイルストーンの実績の図形と同じ
+      // 正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を横幅としては
+      // ならない（MUST NOT）**」（利用者の裁定 2026-09-10）.
+      // ⭐⭐ SO THE VERTICAL IS NOW ASSERTED TOO. A milestone still has no
+      // actual BAR (table T-023d, GR-15), but its dummy box is no longer
+      // bounded by S-180's bar-shaped rule either -- it is a SQUARE the size
+      // of the milestone's own actual figure (`actualHeight` in
+      // `schedule-geometry.ts`, read here off the plan figure's own box via
+      // `gr18SquareSideOf` rather than retyped as a pixel).
       // ⛔ THE COUNT WAS 2 UNTIL 2026-09-08 and this citation still said so.
-      // ⛔ NO VERTICAL IS ASSERTED -- a milestone has no actual bar, so S-180's
-      // 「縦の広がりは実績バーの帯に従う」 reaches GR-9 and GR-17 and stops.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const dummies = geometryOf(fresh, UNDER_TEST).dummies
       expect(dummies.map((one) => one.grab)).toEqual(['GR-18'])
       const box = unionOf(gr18InkOf(fresh, started))
-      expect(onGrid(box.x1 - box.x0)).toBeCloseTo(onGrid(drawnWidthAt(zoomX)), 2)
+      const side = gr18SquareSideOf(fresh)
+      expect(onGrid(box.x1 - box.x0), 'GR-18 width').toBeCloseTo(onGrid(side), 2)
+      expect(onGrid(box.y1 - box.y0), 'GR-18 height').toBeCloseTo(onGrid(side), 2)
     })
 
-    it(`⭐ GR-18 (MUST) begins at the day column AFTER the milestone's own day at ${days}`, () => {
+    it(`⭐ GR-18 (MUST) is centred on the day column AFTER the milestone's own day at ${days}`, () => {
       // ⛔ RED WHILE THE DUMMY STANDS ON THE FIGURE. CR-332 (利用者の裁定
       // 2026-09-02) settled the reading this file used to refuse:
       //   表 T-023d GR-18  「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ
@@ -1244,10 +1295,18 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       // at the milestone's own day column (T-023d GR-3), this document's calendar
       // works every day so 「翌稼働日」 is the next day, and one day is `S-1` ×
       // `zoomX` (FR-017).
+      // ⛔⛔ "BEGINS AT" WAS THE READING UNTIL 2026-09-10, good only while
+      // GR-18's box was the same left-aligned day column GR-9 and GR-17 draw.
+      // The same day's ruling (quoted in the case above this pair, in the
+      // description of `gr18SquareSideOf`) made GR-18's box a SQUARE instead,
+      // and `schedule-geometry.ts`'s `dummiesOf` centres that square on this
+      // same x rather than starting there -- its own comment on the
+      // `sideways` arm says the day's x stays the square's centre, not its
+      // edge. So this case now asks for the CENTRE.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const box = unionOf(gr18InkOf(fresh, started))
-      expect(onGrid(box.x0), `GR-18 left edge at ${days}`).toBeCloseTo(
+      expect(onGrid((box.x0 + box.x1) / 2), `GR-18 centre at ${days}`).toBeCloseTo(
         onGrid(gr18ColumnLeftOf(fresh, zoomX)),
         2,
       )
@@ -1284,17 +1343,32 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(shapeOf(verticesOf(ink[0]!))).toBe(actualMilestoneShapeOf(started))
     })
 
-    it(`⚠️ FR-043 leaves GR-18's own box where it was at ${days}`, () => {
-      // 「⚠️ **大きさは例外ではない** —— **描く幅は 1 日ぶんと `S-180` の小さい方の
-      // ままである**（本要求の上の段）。**変わったのは形と色だけである。**」
-      // ⭐ So the figure that replaced the rectangle occupies the rectangle's
-      // extent exactly: the day column's left edge, `min(1 day, S-180)` across.
-      // ⛔ The vertical is NOT asserted, for the reason the width case gives.
+    it(`⚠️ FR-043 centres GR-18's own box on the plan's own middle at ${days}`, () => {
+      // ⛔⛔ UNTIL 2026-09-10 THIS CASE ASKED FOR: 「⚠️ **大きさは例外ではない**
+      // —— **描く幅は 1 日ぶんと `S-180` の小さい方のままである**（本要求の上の
+      // 段）。**変わったのは形と色だけである。**」 -- the rectangle's own extent,
+      // unmoved: the day column's left edge, `min(1 day, S-180)` across, with
+      // no claim on the vertical.
+      // ⭐⭐ THE SAME RULING THAT SQUARED THE BOX (quoted in the first case of
+      // this trio) also gives it a vertical: 「マイルストーンのダミーを描く箱は、
+      // そのマイルストーンの実績の図形と同じ正方形とすること（MUST）」
+      // （利用者の裁定 2026-09-10）, and `schedule-geometry.ts`'s `dummiesOf`
+      // centres that square on `planMiddle` -- the plan figure's own vertical
+      // centre (LF-10 of table T-221 leaves the plan figure at `start`,
+      // unmoved). So this case now asks for the WHOLE box, all four edges at
+      // once, rather than the width or the horizontal centre alone -- the two
+      // things the pair of cases above this one already check separately.
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const box = unionOf(gr18InkOf(fresh, started))
-      expect(onGrid(box.x0)).toBeCloseTo(onGrid(gr18ColumnLeftOf(fresh, zoomX)), 2)
-      expect(onGrid(box.x1 - box.x0)).toBeCloseTo(onGrid(drawnWidthAt(zoomX)), 2)
+      const plan = planBoxOf(fresh, UNDER_TEST)
+      const side = gr18SquareSideOf(fresh)
+      const cx = gr18ColumnLeftOf(fresh, zoomX)
+      const cy = (plan.y0 + plan.y1) / 2
+      expect(onGrid(box.x0), 'GR-18 left').toBeCloseTo(onGrid(cx - side / 2), 2)
+      expect(onGrid(box.x1), 'GR-18 right').toBeCloseTo(onGrid(cx + side / 2), 2)
+      expect(onGrid(box.y0), 'GR-18 top').toBeCloseTo(onGrid(cy - side / 2), 2)
+      expect(onGrid(box.y1), 'GR-18 bottom').toBeCloseTo(onGrid(cy + side / 2), 2)
     })
 
   }

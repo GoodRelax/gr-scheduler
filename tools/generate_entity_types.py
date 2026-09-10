@@ -1273,7 +1273,11 @@ STORED_WHERE_IT_STANDS = [
     ' * start is the whole of what is held.',
 ]
 NOT_STORED_TARGETS = {
-    'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-93', 'S-137'], ARRIVES_AS_ARGUMENT),
+    # ⛔ S-93 LEFT THIS LIST ON 2026-09-10, with the row itself: table T-023d's
+    # closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
+    # が描いた印そのものとすること（MUST）」, so the dummies' hit width IS the ink's
+    # and S-180 is the only row that states it.
+    'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the
@@ -2279,9 +2283,18 @@ TARGETS = [
     # from there would be the cycle LR-3 forbids. ⇒ The number is generated
     # twice from the one manuscript, which is what `NOT_STORED_SCROLLBAR_SIZES`
     # already does. ⛔ Until 2026-09-09 this file typed the 30 in by hand.
+    # ⭐ S-180 STANDS HERE AS WELL AS IN `schedule-geometry.ts` AND THE RENDERER,
+    # on the same bargain the entry above states: it is one manuscript row
+    # printed into each unit that consumes it, not a duplicated value. This unit
+    # needs it because table T-038's order counts 「掴みシロの幅」 and the closing
+    # rule of table T-023d made that width the ink's -- 「その印の幅は 1 日ぶんと
+    # `S-180` の小さい方である」 -- so `dummyReachOf` can no longer read a fixed 30.
+    # ⛔ IT MAY NOT REACH ScheduleGeometry FOR IT: that unit imports this one, and
+    # LR-3 forbids the cycle.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SIZES'),
+     + not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DUMMY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
     # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors

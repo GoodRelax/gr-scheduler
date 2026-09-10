@@ -215,22 +215,20 @@ const ENV: ScreenEnvironment = {
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
 /**
- * `S-93` as the hit test reads it -- one number and a WIDTH since 2026-09-09 --
- * and `PointerSlop` carries the two sides as the WHOLE box, which
- * `itemAtPointer` halves about the point.
+ * ⛔⛔ THIS DOC COMMENT DESCRIBED `dummyWidth` UNTIL 2026-09-10, when the
+ * field left `PointerSlop` entirely: table T-023d's closing rule now reads
+ * 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものと
+ * すること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
+ * 2026-09-10）, and `S-93`'s own row in `_assets/tbl-settings.md` says the
+ * same from the far side: 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが
+ * 印そのものになり、読む者が 1 人も残らなかったからである」. `PointerSlop`
+ * now carries no dummy figure at all.
  */
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'],
-  // ⭐⭐ AND NO SECOND NUMBER TO STATE. Since 2026-09-09 that row is one
-  // number and a WIDTH -- 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
-  // (表 T-206) -- and table T-023d's closing rule sends the hold's vertical to
-  // the same place: 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」.
-  // ⛔ `PointerSlop` CARRIED THAT BAND UNTIL 2026-09-10, and the hold now
-  // takes it off `DummyGeometry.ink` -- so a caller states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -546,8 +544,11 @@ describe('table T-023d closing (R-28): GR-8 beats GR-12, and takes what it takes
     // T-206 until the user's ruling shrank it to the progress marker's size --
     // 「再開矢印のつかみシロが広い 進捗マーカーとサイズを合わせろ。」 -- and
     // GR-8's row now says 「新しい設定値を立てない —— 進捗マーカー（`GR-7`）と
-    // 同じ寸法をそのまま使う」, with `S-93`'s row saying the same from the far
-    // side: 「⛔ 再開アイコン（表 T-023d の `GR-8`）は本行を読まない」.
+    // 同じ寸法をそのまま使う」.
+    // ⛔⛔ AND `S-93`'s ROW IS GONE ALTOGETHER as of 2026-09-10 -- 「その `S-93`
+    // は 2026-09-10 に廃した」 -- so the sentence this note used to cite from
+    // the far side (that the resume icon does not read that row) has no row
+    // left to sit in, and there is no second size to be confused with.
     const geometry = drawn(suspendedMidPlan())
     const task = taskDrawn(geometry)
     const centre = iconCentre(task)
@@ -558,9 +559,16 @@ describe('table T-023d closing (R-28): GR-8 beats GR-12, and takes what it takes
     expect(taken, `S-22 is ${MARKER_SIZE}px wide and the icon took ${taken}px`)
       .toBeGreaterThan(MARKER_SIZE - 1)
     expect(taken).toBeLessThanOrEqual(MARKER_SIZE)
-    // ⛔ AND IT IS NOT `S-93`. The two are 16 and 30, so a build still reading
-    // the dummies' box answers here as well as failing the bound above.
-    expect(taken, 'GR-8 must not read S-93').toBeLessThan(NOT_STORED_SIZES['S-93'])
+    // ⛔⛔ AND IT IS NOT THE RETIRED `S-93` (30PX). Table T-206's `S-93` row
+    // was 30 wide and was read out of `NOT_STORED_SIZES['S-93']` here until
+    // 2026-09-10, when the row -- and the field -- were retired: 「その
+    // `S-93` は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が
+    // 1 人も残らなかったからである」. Nothing in `src/` can read it any more,
+    // so the old figure is kept here as a literal purely to keep this guard
+    // from going quiet: a build that reverted GR-8's hit box to the old
+    // dummies' size would still answer here as well as failing the bound
+    // above.
+    expect(taken, 'GR-8 must not read the retired S-93 (30px)').toBeLessThan(30)
     // ⭐ AND ALL OF IT CAME OUT OF THE PLAN BAR'S MIDDLE. Both edges of what was
     // taken stand inside the bar, so nothing was won from empty ground.
     const plan = boxOfBar(task.plan)

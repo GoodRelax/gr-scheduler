@@ -28,20 +28,28 @@
 //            ⚠️ It is not fenced the way GR-3 is -- see section 6.
 //   GR-7     the progress marker, whose circle stands above GR-8 in the
 //            printed order and keeps its ground where the two now overlap.
-//   GR-8     the resume icon, taking `S-93` about its own centre.
+//   GR-8     the resume icon, taking `S-22` (the progress marker's own size)
+//            about its own centre. ⛔ Took `S-93` until 2026-09-09; see
+//            section 7 for the ruling and the historical quote.
 //   GR-9     the actual start's dummy, standing on the working day AFTER the
-//            plan start, with `S-93` for its hit box.
-//   GR-17    the actual finish's dummy, `S-129` further on again, with the same
-//            hit box, and now ABOVE `GR-9` in the printed order.
+//            plan start, with FR-043's own drawn ink for its hit box -- its
+//            LEFT half. ⛔ Took a fixed `S-93` box until 2026-09-10; `S-93`
+//            itself is retired now (see section 1's clauses).
+//   GR-17    the actual finish's dummy, `S-129` further on again, with the
+//            SAME ink as GR-9 -- its RIGHT half -- and now ABOVE `GR-9` in the
+//            printed order.
 //   GR-12    the plan bar's middle -- the row that stands to lose its ground if
 //            an endpoint is allowed to swell.
 //   GR-15    a milestone carries no actual bar, so `GR-5` / `GR-6` / `GR-17` do
 //            not reach it. See the note on `GR-18` below.
-//   T-023d's closing notes -- the ten clauses of section 1.
+//   T-023d's closing notes -- the clauses of section 1.
 //   T-206    `S-90` (the plan endpoint's reach to either side), `S-92` (the
-//            fade handle's square), `S-93` (the box shared by the dummies and
-//            by the resume icon), `S-1` (`pxPerDayAt1x`), `S-54` / `S-55` (the
-//            zoom's floor and ceiling), `S-22` (the marker's own size).
+//            fade handle's square), `S-1` (`pxPerDayAt1x`), `S-54` / `S-55`
+//            (the zoom's floor and ceiling), `S-22` (the marker's own size,
+//            and GR-8's hit box since 2026-09-09). ⛔ `S-93` (the box once
+//            shared by the dummies and the resume icon) is RETIRED as of
+//            2026-09-10 -- the dummies' own row moved to `S-180` (FR-043's
+//            drawn width, in `schedule-geometry.ts`), and GR-8 to `S-22`.
 //   S-129    the working days between `GR-9`'s day and `GR-17`'s.
 //   FR-043   what each dummy writes when it is grabbed -- which is why both
 //            answers are usable and the tie may be broken either way.
@@ -131,9 +139,20 @@ const LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY =
 const ZOOM_DOES_NOT_MOVE_THE_BOUNDARY =
   '位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）。**⛔ **倍率によってこの境目を動かしてはならない（MUST NOT）'
 
-/** Held at 120 characters. */
-const S_93_ONLY_RIGHT_OF_THE_BOUNDARY =
-  'るので、幅で分けている限り、どこかの倍率で実績側が掴めなくなる。**⭐ **境目は日ではなく位置である** —— **1 日ぶんの幅が 1 画素を切っても、左右は残る。**⚠️ **`S-93` の幅は、境目の右側でだけ使うこと（MUST）'
+/**
+ * Held at 120 characters.
+ *
+ * ⛔⛔ THE WINDOW ITSELF MOVED ON 2026-09-10, and the string this constant held
+ * before that day is GONE from the manuscript as live text -- it survives only
+ * inside a historical citation the same paragraph now carries: 「2026-09-10 まで、
+ * ここは「`S-93` の幅は、境目の右側でだけ使うこと（MUST）」と書いていた」 —— 「当時は
+ * 印とは別に `S-93` の箱が在り、その箱が食い込むことを禁じていた。その箱は同日に
+ * 廃したので、いま食い込みうるのは印だけである」. The rule's own words dropped
+ * `S-93` and now name the dummy's hit area in general, since the box and the
+ * ink used to be two different things and are now one.
+ */
+const THE_DUMMYS_HIT_AREA_ONLY_RIGHT_OF_THE_BOUNDARY =
+  'るので、幅で分けている限り、どこかの倍率で実績側が掴めなくなる。**⭐ **境目は日ではなく位置である** —— **1 日ぶんの幅が 1 画素を切っても、左右は残る。**⚠️ **ダミーの当たり判定は、境目の右側でだけ使うこと（MUST）'
 
 /** ⚠️ HELD AT 40 -- longer windows cross the blank line above the paragraph. */
 const THE_FINISH_WINS_WHEN_UNDECIDABLE =
@@ -147,9 +166,19 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
 // cut out of the manuscript by script and never retyped.
 // ---------------------------------------------------------------------------
 
-/** Held at 90 characters. */
+/**
+ * Held at 90 characters.
+ *
+ * ⚠️ THE WINDOW MOVED ON 2026-09-10, though the clause it holds did not. The
+ * text immediately BEFORE this MUST changed when the paragraph above it was
+ * rewritten for the retirement of `S-93` (section 1's own note on
+ * `THE_DUMMYS_HIT_AREA_ONLY_RIGHT_OF_THE_BOUNDARY` above carries that edit),
+ * so the trailing 90 characters ending at this same MUST are cut fresh from
+ * where the manuscript now reads 「…いま食い込みうるのは印だけである。」 just
+ * before it.
+ */
 const THE_DUMMY_BEATS_EVERY_PLAN_ROW =
-  '1 つの答えの別の面である。**⭐⭐ **境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
+  'い込みうるのは印だけである。**⭐⭐ **境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
 
 /** Held at 90 characters. */
 const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
@@ -211,7 +240,8 @@ const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['the plan start is the fence', BOUNDARY_IS_THE_PLAN_START],
   ['left is the plan, right is a dummy', LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY],
   ['the zoom does not move the fence', ZOOM_DOES_NOT_MOVE_THE_BOUNDARY],
-  ['S-93 is spent on the right side only', S_93_ONLY_RIGHT_OF_THE_BOUNDARY],
+  ['the dummy\'s hit area is spent on the right side only (S-93 retired 2026-09-10)',
+    THE_DUMMYS_HIT_AREA_ONLY_RIGHT_OF_THE_BOUNDARY],
   ['the finish wins the tie', THE_FINISH_WINS_WHEN_UNDECIDABLE],
   ['a dummy beats every plan-side row right of the fence', THE_DUMMY_BEATS_EVERY_PLAN_ROW],
   ['no plan-side slop inside the dummy box', NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX],
@@ -264,7 +294,12 @@ const HIGH_ZOOM_PX_PER_DAY = 24
 /**
  * The ACTUAL bar's own band, which is where table T-023d's closing rule sends
  * the vertical of the dummies' hold (MUST, 利用者の裁定 2026-09-09) and where
- * `S-93`'s own remark in 表 T-206 sends it too.
+ * `S-180`'s own remark in 表 T-206 sends it too: 「⭐ **本行が定めるのは横だけで
+ * ある** —— 縦の広がりは実績バーの帯に従う」.
+ *
+ * ⛔ `S-93` CARRIED THE SAME REMARK UNTIL 2026-09-10 -- 利用者の裁定 2026-09-10
+ * retired that row once the hit area became the drawn ink itself, and left
+ * `S-180` (FR-043's own drawn width) as the one place it stands now.
  *
  * ⚠️ A FIXTURE VALUE like every other in this section: the figures below are
  * assembled by hand so the fence can be pressed at pixels no document would
@@ -296,13 +331,14 @@ const SLOP: PointerSlop = {
   // the whole 15 and so measured a grab twice the one that ships -- the very
   // fault the fence cases below exist to catch, with the yardstick wrong.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  dummyWidth: NOT_STORED_SIZES['S-93'],
-  // ⭐⭐ AND NO SECOND NUMBER -- that row is one number and a WIDTH since
-  // 2026-09-09: 「本行が定めるのは横だけである —— 縦の広がりは実績の帯に従う」
-  // (表 T-206, S-93), and table T-023d's closing rule says the same of the hold:
-  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）」. ⛔ `PointerSlop`
-  // carried that band until 2026-09-10; the hold reads `DummyGeometry.ink` now,
-  // so this fixture's own band (below) reaches the ink alone.
+  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
+  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
+  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
+  // row in `_assets/tbl-settings.md` says the field emptied out: 「その `S-93`
+  // は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が 1 人も
+  // 残らなかったからである」. `PointerSlop` no longer carries a dummy figure
+  // at all, so this fixture states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -413,12 +449,16 @@ const ACTUAL_DUMMY_ROWS: readonly GrabArea[] = ['GR-17', 'GR-9', 'GR-18']
 // ===========================================================================
 
 describe('the plan start is the fence between the plan side and the actual side', () => {
-  // ⭐ CONTROL. A build that let the dummies' `S-93` box grow leftwards from
-  // their day -- the shape the 2026-09-02 MUST NOT forbids, and the shape a
-  // build would fall into if it centred the box on the day instead of starting
-  // at the day's left edge -- answers a dummy row here and fails this case.
-  // A build that claims everything for the plan still passes it, which is why
-  // the case below it exists.
+  // ⭐ CONTROL. A build that let the dummies' ink grow leftwards from their own
+  // day -- the shape the 2026-09-02 MUST NOT forbids, and the shape a build
+  // would fall into if it centred the ink on the day instead of drawing it
+  // from the day's left edge -- answers a dummy row here and fails this case.
+  // ⛔ UNTIL 2026-09-10 the box in question was `S-93`'s own, held apart from
+  // the drawn ink and reaching a fixed 30px; the ruling of that day retired
+  // the box and made the ink itself the whole of the hit area (section 1's
+  // clauses), so this control now reasons about the ink alone. A build that
+  // claims everything for the plan still passes it, which is why the case
+  // below it exists.
   it('a press LEFT of the plan start answers the plan start, at the low zoom', () => {
     expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X - 3)).toBe('GR-3')
   })
@@ -434,7 +474,13 @@ describe('the plan start is the fence between the plan side and the actual side'
   // here and fails. A build that prefers the START over the finish still
   // passes this one, which is what section 4 is for.
   it('a press RIGHT of the plan start answers an actual dummy at a zoom low enough that the two stand within a few pixels', () => {
-    const hit = press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + 3)
+    // ⛔⛔ THE PRESS MOVED ON 2026-09-10. It used to stand 3px right of the
+    // plan start, comfortably inside `S-93`'s old, fixed 30px box. That box is
+    // retired: the ink at 1px a day is only `Math.min(pxPerDay, S-180)` == 1px
+    // wide, so a press 3px out now clears it and falls on `GR-12` instead. The
+    // only ground left to press at this zoom is the ink's own day column --
+    // `GR-9`'s day, one pixel right of the plan start.
+    const hit = press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY)
     expect(hit).not.toBeNull()
     expect(hit?.grab).not.toBe('GR-3')
     expect(ACTUAL_DUMMY_ROWS).toContain(hit?.grab)
@@ -482,16 +528,40 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // fails. So does a build that sorted table T-023d by row number, which would
   // put `GR-9` above `GR-17` again.
   it('at the low zoom the two dummies are one pixel apart and the finish takes the press', () => {
-    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + 3)).toBe('GR-17')
+    // ⛔⛔ THE PRESS MOVED ON 2026-09-10, for the same reason as section 3's own
+    // control: at 1px a day the shared ink is only `Math.min(pxPerDay, S-180)`
+    // == 1px wide, not `S-93`'s old fixed 30px box, so the only pixel left to
+    // press is the ink's own -- and its right half (inclusive of the ink's own
+    // right edge) is `GR-17`'s. The two dummies' OWN days are still exactly
+    // one pixel apart (`GR-9`'s at `PLAN_START_X + 1`, `GR-17`'s one further),
+    // which is what the title names; the finish still takes the one pixel of
+    // ink there is.
+    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY + 1)).toBe('GR-17')
   })
 
-  // ⭐ CONTROL. The same preference where the overlap is deliberate rather than
-  // forced by the zoom: at 24px per day the boxes are `S-93`'s 30px wide and
-  // 24px apart, so they still share ground, and the finish must win there too.
-  // A build that only broke the tie at low zoom answers `GR-9` here.
-  it('at the high zoom the boxes still overlap and the finish takes the press', () => {
-    const insideBothX = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY * 2 + 2
-    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, insideBothX)).toBe('GR-17')
+  // ⛔⛔ THIS CASE'S OWN PREMISE ENDED ON 2026-09-10. Until then `GR-9` and
+  // `GR-17` each grew their OWN `S-93` box (a fixed 30px) from their own day,
+  // so at a high enough zoom the two boxes ran past the drawn ink and still
+  // overlapped near `GR-17`'s day -- this case pressed there and asked for the
+  // finish. `S-93` is retired now (`_assets/tbl-settings.md`, its own row):
+  // 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が
+  // 1 人も残らなかったからである」, and table T-023d's closing rule: 「`GR-9` /
+  // `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること
+  // （MUST）。印の外へ広げてはならない（MUST NOT）」. There is no box past
+  // the shared ink left for the two to overlap in any more, so the true
+  // question past the ink is whether ANY plan-side row picks the ground up --
+  // and the closing rule's own fence (`standsOnADummyRightOfThePlanStart`)
+  // only bars them from the ink itself, not from the ground beyond it.
+  it('past the shared ink, right of the fence, neither dummy answers any more', () => {
+    const pastTheInk =
+      PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP) + 2
+    const answer = grabAt(HIGH_ZOOM_PX_PER_DAY, pastTheInk)
+    expect(ACTUAL_DUMMY_ROWS).not.toContain(answer)
+    // ⭐ AND SPECIFICALLY GR-12, not nothing: the fence bars the plan-side rows
+    // from the ink alone, so past the ink the plan bar's own middle is what is
+    // left underneath -- the same ground section 3's control presses to prove
+    // the fence does not swallow the whole Task for the plan either.
+    expect(answer).toBe('GR-12')
   })
 
   // ⭐ CONTROL. The tie-break must not swallow `GR-9` altogether -- `FR-043`
@@ -509,12 +579,21 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // こと（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
   // （`GR-17`）とすること（MUST）」 -- so the sweep is now two sweeps, and a
   // build that hands the whole mark to either row fails one of them.
-  // ⭐ The two clauses the cases in this section press, whole on one line each
-  // (a wrapped quotation latches nothing -- see section 8):
+  // ⭐ The clause this case presses, whole on one line (a wrapped quotation
+  // latches nothing -- see section 8):
   // 「人が印を押したときに掴むのは、印の左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側（同表の `GR-17`）とすること（MUST）」
-  // 「⭐ **印より右に残る当たり判定は終了側とすること（MUST）」 -- the two cases
-  // above press right OF the ink and still answer the finish, which is that
-  // clause and not the split one.
+  // ⛔⛔ AND A SECOND CLAUSE STOOD HERE UNTIL 2026-09-10, cited as the reason
+  // the two cases above could press right OF the ink and still answer the
+  // finish: 「印より右に残る当たり判定は終了側とすること（MUST）」. It is retired,
+  // and the manuscript records it as retired rather than live -- 「⛔⛔ **2026-
+  // 09-10 まで、ここに「印より右に残る当たり判定は終了側とすること（MUST）」が
+  // 在った** —— **同日の裁定が当たり判定を印そのものと定め（本表の結びの上の段）、
+  // 印より右に当たり判定が残らなくなったので、割り当てる相手が消えた。**」. ⇒ There
+  // is no ground right of the ink for either dummy to answer on, which is what
+  // the case above it now measures instead: past the ink, `GR-12`.
+  // ⚠️ A CITATION THAT SURVIVES ONLY INSIDE A ⛔⛔ RETIREMENT NOTE STILL PASSES
+  // check 42, because the words are still somewhere in `docs/spec` -- so the
+  // check cannot catch this class of staleness and a reader has to.
   it('the ONE drawn mark answers the start on its left half and the finish on its right', () => {
     const inkFrom = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY
     const inkTo = inkFrom + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP)
@@ -534,11 +613,19 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
 
 describe('every answer above names the Task the press was on', () => {
   it('the plan side and the actual side both answer the same Task', () => {
+    // ⛔⛔ THE RIGHT-HAND PRESS MOVED ON 2026-09-10. It used to stand 3px right
+    // of the plan start, inside `S-93`'s old fixed 30px box, which was still
+    // the actual side. That box is retired and the ink at 1px a day is only
+    // `Math.min(pxPerDay, S-180)` == 1px wide, so a press 3px out now clears
+    // it and lands on `GR-12` -- the PLAN side -- which would make this case
+    // pass without ever pressing the actual side at all. The ink's own day
+    // column (`GR-9`'s day, one pixel right of the plan start) is where the
+    // actual side still stands at this zoom.
     expect(press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X - 3)?.item).toEqual({
       kind: 'task',
       taskUid: TASK_UID,
     })
-    expect(press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + 3)?.item).toEqual({
+    expect(press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY)?.item).toEqual({
       kind: 'task',
       taskUid: TASK_UID,
     })
@@ -659,9 +746,13 @@ describe('right of the fence a dummy beats every plan-side row', () => {
     // and the finish's own ground is OUTSIDE its own edge.
     // ⚠️ AND A ONE-DAY PLAN HAS NONE OF IT AT THIS ZOOM: `GR-9` stands on the
     // working day after the plan start, which for a one-day plan is the very
-    // column the finish's edge falls on, and its `S-93` box covers everything
-    // the finish would otherwise reach. ⇒ The plan is drawn out to the longest
-    // the manuscript measured, where the finish stands past both boxes.
+    // column the finish's edge falls on, and its drawn ink covers everything
+    // the finish would otherwise reach there. ⛔ UNTIL 2026-09-10 THIS WAS
+    // `S-93`'s OWN FIXED 30px BOX, wider than the ink and reaching further
+    // still; the box is retired now and the ink alone stands in its place, but
+    // a one-day plan's finish edge falls inside either one just the same. ⇒
+    // The plan is drawn out to the longest the manuscript measured, where the
+    // finish stands past both dummies' ink.
     const finishX = PLAN_START_X + 6 * LONGEST_MEASURED_PLAN_DAYS
     expect(grabOnShortPlan(6, finishX + 3, MID_Y, LONGEST_MEASURED_PLAN_DAYS)).toBe('GR-4')
   })
@@ -1270,9 +1361,11 @@ const FLOORED_PLAN_PX = 6
  * two ends stand on one day.
  *
  * ⚠️ THE DUMMIES COME FROM THE BASE AT THE HIGH ZOOM, so `GR-9` stands a whole
- * day's width right of the plan start and its `S-93` box begins well past every
- * press below. Section 3 is where the fence between them is measured; a dummy
- * under one of these presses would measure that rule instead of this one.
+ * day's width right of the plan start and its drawn ink begins well past every
+ * press below (⛔ `S-93`'s old fixed 30px box did the same until it was
+ * retired on 2026-09-10 -- the ink always stood inside it). Section 3 is where
+ * the fence between them is measured; a dummy under one of these presses would
+ * measure that rule instead of this one.
  */
 function planEndingWhereItBegan(widthPx: number, oneDay: boolean): ScheduleGeometry {
   const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)

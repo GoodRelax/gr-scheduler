@@ -474,14 +474,20 @@ function cornersAround(centre: Point, width: number, height: number): Path {
  * copied from would then drift away from. ⇒ The figure is taken from the one
  * the geometry already made for this Task and moved onto the dummy's box.
  *
- * ⛔ THE BOX IS NOT NEGOTIATED. FR-043 says of the same exception 「⚠️ 大きさは
- * 例外ではない —— 描く幅は 1 日ぶんと `S-180` の小さい方のままである（本要求の
- * 上の段）。変わったのは形と色だけである」, so the ink keeps exactly the extent
- * the rectangle had -- `min(1 day, S-180)` across, the actual band down, the
- * day column's left edge on the left -- and only the outline inside it changes.
- * ⚠️ A figure whose box is not square therefore comes out stretched. That is
- * the consequence of a width MUST and a height that follows the band, both of
- * which the requirement leaves untouched; nothing here may pick one to break.
+ * ⛔ THE BOX IS NOT NEGOTIATED HERE EITHER -- IT ARRIVES. `dummiesOf` builds
+ * `DummyGeometry.ink`, and this only maps an outline onto it.
+ *
+ * ⭐⭐ AND THAT BOX BECAME A SQUARE ON A MILESTONE ON 2026-09-10 (FR-043,
+ * MUST, 利用者の裁定): 「マイルストーンのダミーを描く箱は、そのマイルストー
+ * ンの実績の図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を
+ * 横幅としてはならない（MUST NOT）」.
+ * ⛔⛔ THE REQUIREMENT SAID 「大きさは例外ではない」 UNTIL THAT DAY, and this
+ * comment used to reason from it -- that a figure whose box is not square
+ * comes out stretched was stated here as a consequence to be lived with.
+ * ⚠️ It was met: a circle glyph came out an ellipse (利用者の申し立て
+ * 2026-09-10, 逐語「○型マイルストーンの実績ダミーの形状が真円でない」).
+ * ⭐ The bar shapes' own box did not move: 「バーの形状のダミー（`GR-9` /
+ * `GR-17`）は例外ではない」, so a rectangle still fills the day column.
  *
  * @purity pure
  */
@@ -552,26 +558,6 @@ function dummyFigure(
     // for the reason `BarGeometry.marks` gives at full size.
     marks: (milestone.marks ?? []).map((one) => pathFitted(one, from, box)),
   }
-}
-
-/**
- * The centre of a rectangle whose LEFT EDGE stands on this point, so that a
- * mark aligned to an edge can still be stated -- and hit -- as a centred one.
- *
- * ⭐ FR-043 (MUST) asks the dummy's ink to be 「日の列の左端に揃える」, and the
- * point the geometry carries IS that edge (`xFromDay`). ⛔ The alignment is
- * NOT written as `+ width / 2` at the two places that need it: the drawn
- * corners and the question of whether the hand is on that drawing have to
- * describe the SAME rectangle, and two spellings of one offset part company.
- *
- * ⚠️ The vertical is untouched. FR-043 settles the horizontal alone and sends
- * the height to the actual bar's band (`DummyGeometry.height`), which stays
- * centred on the point the way every other mark in this file is.
- *
- * @purity pure
- */
-function centreFromLeftEdge(leftEdge: Point, width: number): Point {
-  return { x: leftEdge.x + width / 2, y: leftEdge.y }
 }
 
 /**
@@ -906,6 +892,8 @@ function markerSvg(
  * two paths is what makes the picture and the grab agree. ⛔ It read S-93's box
  * until 2026-09-09, when the row was shrunk to the progress marker's size --
  * 「⭐ 新しい設定値を立てない —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う」.
+ * ⚠️ That row is gone altogether as of 2026-09-10 -- 「その `S-93` は 2026-09-10
+ * に廃した」 -- so S-22 is the only box this icon has ever to answer to now.
  * ⚠️ THE DRAWN SQUARE AND THE HIT SQUARE ARE NOW DIFFERENT SIZES, and that is
  * the row's own MUST NOT (「図形の素の輪郭を当たり判定にしてはならない」): S-25
  * shrinks THIS drawing while `resumeValid` is false and leaves the box alone.
@@ -1621,8 +1609,9 @@ function watermarkSvg(
  * has one reading per happening, and the Framework already asks `itemAtPointer`
  * (PI-7) once per move for IN-2's pointer shape and for FR-048's judgement --
  * a walk repeated here would be a second moment as well as a second walk, and
- * this unit holds no `PointerSlop` (table T-206 keeps S-90 .. S-93 out of the
- * document, so they reach the hit test as an argument and never as a constant).
+ * this unit holds no `PointerSlop` (table T-206 keeps S-90 .. S-92 and S-137 out
+ * of the document, so they reach the hit test as an argument and never as a
+ * constant. ⚠️ The range ran to S-93 until that row was retired on 2026-09-10).
  * ⚠️ IT IS THE HIT AND NOT A BOOLEAN: the marker and the dummies of ONE Task
  * darken, so both the row and the thing it claimed have to arrive.
  *
@@ -2142,8 +2131,16 @@ export function svgFromSchedule(
     // の実績の図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）」.
     // ⛔ Until that day GR-18 on a milestone was drawn with the SAME rectangle
     // outline as GR-9 / GR-17, which is the thing that MUST NOT now forbids.
-    // `dummyFigure` below is where the figure is chosen; the box it is drawn in
-    // did not move, because 「大きさは例外ではない」.
+    // `dummyFigure` below is where the figure is chosen.
+    // ⭐⭐ AND THE BOX MOVED TOO, ON 2026-09-10, WHICH MAKES THE EXCEPTION FOUR
+    // (MUST, 利用者の裁定, 逐語「○型マイルストーンの実績ダミーの形状が真円でな
+    // い。 真円にしろ」): 「⭐⭐ **大きさも例外とすること（MUST）。マイルストーン
+    // のダミーを描く箱は、そのマイルストーンの実績の図形と同じ正方形とすること
+    // （MUST）。1 日ぶんと `S-180` の小さい方を横幅としてはならない（MUST NOT）**」.
+    // ⛔⛔ IT SAID 「大きさは例外ではない」 UNTIL THAT DAY, and a circle fitted
+    // to a box of `min(1 day, S-180)` by the actual band came out an ellipse --
+    // ⚠️ measured 6 x 16.002px against the actual figure's 16.002 x 16.002.
+    // ⭐ `dummiesOf` builds that square, so nothing is reshaped here.
     if (picture === 'screen' && task.dummies.length > 0) {
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
@@ -2158,8 +2155,10 @@ export function svgFromSchedule(
       // GR-9's box at every magnification and GR-17 answered none of its
       // pixels (defect D-415, measured on the shipped build: 0 of 6 at 6px a
       // day, 0 of 12 at 12.9 and at 27.6).
-      // ⛔ `ink`, never `dummyWidth`: `item-hit-area.ts` spells S-93's HIT
-      // width that way, and S-180's own note is that the two differ.
+      // ⛔ `ink` IS THE HIT WIDTH AS WELL AS OF 2026-09-10, and the member that
+      // held the other one is gone with its row: `item-hit-area.ts` spelled
+      // S-93's box as `PointerSlop.dummyWidth` until then, and S-180's note now
+      // reads 「本行が描く幅であり、掴みシロでもある」.
       // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d: 「`GR-9`
       // と同じ場所である」), never GR-17's -- which is why the rectangle is the
       // same on every dummy of one Task and this need not choose between them.
@@ -2200,11 +2199,25 @@ export function svgFromSchedule(
       // @provisional PD-360
       // ⚠️ THE SAME RECTANGLE THE MARK WAS DRAWN AS, edge and all: FR-043's
       // alignment moved the ink, and a hand tested against the old centred box
-      // would darken a mark it is not on. ⛔ This is NOT the grab band -- those
-      // are table T-023d's and S-93's, and FR-043's own MUST NOT keeps them out
-      // of the drawing rule.
-      const faintness = task.dummies.some((one) =>
-        handInside(centreFromLeftEdge(one.at, ink.width), ink.width, ink.height),
+      // would darken a mark it is not on.
+      // ⭐⭐ AND IT IS THE GRAB BAND TOO SINCE 2026-09-10 (MUST), which is the
+      // closing rule of table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定
+      // は、`FR-043` が描いた印そのものとすること（MUST）」. ⛔⛔ The picture
+      // and the hold could differ until then -- the band was S-93's box and the
+      // ink was `min(1 day, S-180)` -- and FR-043's MUST NOT kept the band out
+      // of the drawing rule for exactly that reason. ⭐ One rectangle answers
+      // both questions now, so the darkening cannot part company with the grab.
+      // ⛔⛔ TESTED ON THE INK'S OWN CENTRE, NOT ON `at` PLUS HALF A WIDTH. A
+      // milestone's dummy is a SQUARE CENTRED ON ITS DAY (FR-043, 2026-09-10),
+      // so its `ink.x` is half a side LEFT of `at` and the old arithmetic put
+      // the tested box a whole half-side right of the mark. ⭐ The very centre
+      // `dummyFigure` was drawn about is read instead, so the two cannot differ.
+      // ⚠️ One rectangle, so one test: every dummy of one Task carries the same
+      // `ink` (the mark is drawn once), and asking it per dummy asked it twice.
+      const faintness = handInside(
+        { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
+        ink.width,
+        ink.height,
       )
         ? 1
         : settings.dummyOpacity
