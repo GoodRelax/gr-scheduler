@@ -2519,10 +2519,10 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
  * are the screen's own state and `ScreenState` (PI-36) already owns them, which
  * is why they arrive here through `screenState` rather than through a key.
  *
- * ⚠️ THE PREFIX IS SHARED, NOT COPIED. FR-026's RATIONALE requires every key
- * this tool writes to carry one, because LM-6 says the store is shared by every
- * local page on the machine -- so the constant is imported from the unit that
- * already declares it (CP-29) rather than typed a second time (R4).
+ * ⚠️ THE PREFIX IS SHARED, NOT COPIED. LM-6 is why every key this tool writes
+ * carries one: the store is shared by every local page on the machine. ⛔ So
+ * the prefix is declared ONCE, immediately below, and every key here is built
+ * from that one constant rather than typed a second time (R4).
  *
  * ⛔ THE KEY SPELLINGS AFTER THE PREFIX ARE NOT IN THE SPECIFICATION. It names
  * the rows and the store and stops there, so these are this file's, chosen to

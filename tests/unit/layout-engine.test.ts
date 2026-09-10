@@ -1537,8 +1537,8 @@ describe('ItemHitArea (PI-7)', () => {
   // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
   // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
   // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げ
-  // てはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own row
-  // says the field emptied out: 「その `S-93` は 2026-09-10 に廃した —— 掴み
+  // てはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-180`'s row says
+  // the field emptied out: 「その `S-93` は 2026-09-10 に廃した —— 掴み
   // シロが印そのものになり、読む者が 1 人も残らなかったからである」.
   // `PointerSlop` carries no dummy figure at all now, for width or height.
   const SLOP: PointerSlop = {
@@ -1778,8 +1778,9 @@ describe('ItemHitArea (PI-7)', () => {
     expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + MARKER_OFFSET, 6)
     // ⛔⛔ PRESSED ON THE MARKER'S LEFT EDGE RATHER THAN ITS CENTRE SINCE
     // 2026-09-10, and the printed order is why. Task 2 is 未着手, so it carries
-    // GR-9 and GR-17 -- both ABOVE GR-7 in table T-023d -- and their `S-93`
-    // boxes begin on the working day after Task 2's plan start, one day (6px)
+    // GR-9 and GR-17 -- both ABOVE GR-7 in table T-023d -- and their holds
+    // (table T-023d's closing rule: `FR-043`'s own mark, capped by `S-180`)
+    // begin on the working day after Task 2's plan start, one day (6px)
     // along. The marker's own centre stands 12px along, INSIDE those boxes, so
     // a press there answers GR-17 and measures the dummies' rule instead of
     // this one. ⭐ The circle reaches back `markerSize`/2 from its centre, and
@@ -1907,8 +1908,10 @@ describe('ItemHitArea (PI-7)', () => {
   // シロを持つこと（MUST）」, and the vertical is where the two used to part:
   // ⭐ THE CLAUSE WHOLE ON ONE LINE, for the reason given under R-35 above:
   // 「未着手のダミーと着手済の実績は、同じ形の掴みシロを持つこと（MUST）」
-  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）—— 横は同表の `S-93` が
-  // 持つ」, with ⛔ 「2026-09-09 まで `S-93` が縦をみずから持っており、実績の帯より
+  // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）—— 横は `FR-043` が描く
+  // 印の幅であり、その上限は 表 T-206 の `S-180` が持つ」 -- ⛔ THE SECOND HALF WAS
+  // RE-CUT ON 2026-09-10; this file quoted the older 「横は同表の …」 until then.
+  // With ⛔ 「2026-09-09 まで `S-93` が縦をみずから持っており、実績の帯より
   // 高かった」.
 
   it('R-36 ⭐ MUST: the dummy\'s hold is no taller than the started actual\'s band', () => {

@@ -219,8 +219,8 @@ const REGIONS = regionsFromScreen(ENV, SETTINGS)
  * field left `PointerSlop` entirely: table T-023d's closing rule now reads
  * 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものと
  * すること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
- * 2026-09-10）, and `S-93`'s own row in `_assets/tbl-settings.md` says the
- * same from the far side: 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが
+ * 2026-09-10）, and `S-180`'s row in `_assets/tbl-settings.md` says the same
+ * from the far side: 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが
  * 印そのものになり、読む者が 1 人も残らなかったからである」. `PointerSlop`
  * now carries no dummy figure at all.
  */

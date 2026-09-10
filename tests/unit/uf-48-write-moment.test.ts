@@ -520,10 +520,10 @@ describe('the premises these cases rest on', () => {
     // ⛔ A premise of the PD-5 case: 何にも当たらない has to be true of the
     // point, or the case would be driving PD-3 (そのものへの操作) instead.
     // Table T-023d gives every grab a reach, so mere clearance of the ink is
-    // not enough. The widest of those reaches is S-93's 30 × 20px box (実績の
-    // ダミーの当たり判定), which is 10px above or below what was drawn; S-92 is
-    // 15 × 15px, and S-90 / S-91 / S-137 are 6px. This asks for more than three
-    // times the widest of them.
+    // not enough. ⭐ The dummies reach no further than the ink itself since
+    // 2026-09-10 (table T-023d's closing rule), so the widest of the reaches
+    // left here is S-92's 15 × 15px; S-90 / S-91 / S-137 are 6px. This asks for
+    // more than twice the widest of them.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
 

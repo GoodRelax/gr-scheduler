@@ -1182,9 +1182,9 @@ export type InputAction =
    * them would tell a person that a working entrance is dead. ⇒ This kind is
    * raised only where the drawing side is ALSO drawing the entrance faint, and
    * the nine such entrances this file can reach are all answered here: IC-8 /
-   * IC-9 (S-59's pair, `commandStateOf`), IC-58 / IC-59 / IC-77 (`expanderOf`),
-   * IC-74 / IC-78 (`rowTitlePanelFromSchedule`) and IC-37 / IC-38
-   * (`isEntryUsable` of UF-65).
+   * IC-9 (S-227 / S-228, `commandStateOf`), IC-58 / IC-59 / IC-77
+   * (`expanderOf`), IC-74 / IC-78 (`rowTitlePanelFromSchedule`) and IC-37 /
+   * IC-38 (`isEntryUsable` of UF-65).
    *
    * ⚠️ IC-18 IS THE TENTH AND IS NOT ANSWERED HERE. FR-066 draws the dialogue
    * field only while the `Agent API` is on, and whether it is on is a current
@@ -1607,7 +1607,7 @@ function changedAndCreated(
  * condition is the same one, read on the two sides of the frame from the same
  * document -- `expanderOf` (UF-63) for the three drawn per row,
  * `rowTitlePanelFromSchedule` for the two the panel draws for itself,
- * `commandStateOf` (UF-62) for S-59's pair and `isEntryUsable` (UF-65) for
+ * `commandStateOf` (UF-62) for S-227 / S-228 and `isEntryUsable` (UF-65) for
  * FR-034's two.
  * ⭐ THE SITUATION IS THE CALLER'S TO NAME, and every caller has one: FR-029
  * (MUST NOT) forbids carrying the fallback where a row of 表 T-233 fits, so a
@@ -9611,9 +9611,9 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //   ① this file already answers the same operation for a row of table T-036, or
 //   ② it opens a surface whose name table T-103 has settled, or
 //   ③ its own row names the value the press writes and the setting it goes into
-//      -- FR-049's five toggles and S-59's two halves, FR-039's two-valued
-//      theme, and FR-048's four exclusive modes, none of which needs a decision
-//      this file would have to make up
+//      -- FR-049's five toggles and its plan/actual pair (S-227 / S-228),
+//      FR-039's two-valued theme, and FR-048's four exclusive modes, none of
+//      which needs a decision this file would have to make up
 // -- plus FR-083's arming, which is the whole point of the seam member that
 // brought the press here, and plus the three entrances table T-109 draws once
 // per ROW, which `ScreenPart.rowGroupId` made reachable.
@@ -9636,8 +9636,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // unit had already written end to end. Then its closing paragraph called twelve
 // rows undecidable and named CM-61 and CM-66 as the commands they wanted --
 // neither of which has anything to do with a display setting (they clear the
-// Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
-// CM-59 and CM-63, and all four are now written above.
+// Dual Cursor and move the scroll position). The twelve wanted CM-58, CM-59,
+// CM-63 and CM-57; the first three are written above, and the fourth has since
+// retired with the three-valued row it existed to write -- the `planDisplay`
+// case above records what took its place.
 //
 // ⭐ GROUP ONE -- ANSWERED, AND DELIBERATELY NOT HERE. What each of these
 // presses needs is a value of `ScreenSession`, a surface, or a question, and

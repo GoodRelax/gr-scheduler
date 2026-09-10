@@ -1,4 +1,25 @@
-445
+370
+#
+# LOWERED 445 -> 370 ON 2026-09-11, the day this check was written, by
+# repairing 75 references across eleven files in src/ and tests/. ⛔ NOT ONE
+# LINE OF EXECUTABLE CODE CHANGED: the diff over all eleven files carries no
+# changed line that is not a comment, vitest ran 7478 passed / 1 skipped on
+# both sides, and tsc reported 0 either way.
+#
+# ⚠️ 370 IS NOT A DEBT AND 0 IS NOT THE TARGET. A floor exists and it is not
+# zero, because some references to a burnt seat are CORRECT:
+#   - a test named for the withdrawal itself -- the case called 「table T-109
+#     holds neither IC-46 nor IC-49, and the seats are left empty」 guards the
+#     retirement, and its name has to say which seats
+#   - an assertion that PINS the manuscript's own withdrawal record, so that a
+#     manuscript quietly restoring the old rule turns the test red
+#     (t-023d-the-hit-box-starts-at-the-day.test.ts:497)
+#   - fixture data that merely looks like an id -- the projectId values P-001
+#     and P-002, ten occurrences in uf-41-42.test.ts, which are not
+#     specification ids at all
+# ⇒ Read a RISE as "new code was written against a burnt seat". ⛔ Do not read
+# the standing number as work owed, for the same reason check 39 stopped being
+# read that way on this day.
 #
 # SET AT 445 ON 2026-09-11, THE DAY check-spec-id-references.py WAS WRITTEN AND
 # THE FIRST DAY ANY CHECK IN THIS DIRECTORY OPENED A FILE UNDER src/ OR tests/.

@@ -6,20 +6,8 @@
 //   ⭐  「`GR-9` と `GR-17` は、その印を中央で左右に割った半分をそれぞれ受け持ち、
 //        `GR-18` は印の全体を受け持つ」
 //
-// ⛔⛔ WHAT THIS FILE ASKED FOR UNTIL 2026-09-10, AND WHY IT NO LONGER DOES.
-// The rule it was written for was the ruling of 2026-09-02: 「その日の列の左端を
-// 起点に、右へ `_assets/tbl-settings.md` の `S-93` の幅で取ること（MUST）」, with
-// 「起点を中心にしてはならない（MUST NOT）」 beside it. The manuscript now records
-// that rule as withdrawn -- 「その規則は同じ裁定と衝突しており、2026-09-10 の裁定
-// が前者を取り下げた」 -- and the row it reached with is gone: 「その `S-93` は
-// 2026-09-10 に廃した」.
-// ⚠️ WHAT THE OLD RULE COST, MEASURED: 「`S-93` の 30px は既定の倍率で 5 日ぶん
-// あり、3 日のタスクでは予定の終了点（`GR-4`）を丸ごと飲んでいた」. A person met
-// both ends of that on the shipped build -- an actual that grew from a press
-// meant for the plan's end, and a plan whose end could not be dragged at all.
-//
-// ⭐ SO THE SUBJECT IS THE SAME QUESTION WITH A NEW ANSWER: which pixels the
-// three rows answer on. The cases below press against `DummyGeometry.ink` --
+// ⭐ THE SUBJECT: which pixels the three rows answer on. The cases below press
+// against `DummyGeometry.ink` --
 // the rectangle ScheduleGeometry DREW -- because 「印そのもの」 is a statement
 // about those two units agreeing, and one of them has to be read to say so.
 // ⛔ The ink's own width is not asserted here: 「1 日ぶんと `S-180` の小さい方」
@@ -199,10 +187,9 @@ const ZOOM_X = 8
 /**
  * The pointer allowances.
  *
- * ⛔⛔ THERE IS NO `dummyWidth` ANY MORE, and its absence is the ruling of
- * 2026-09-10 in the type system: the three dummies answer on the ink and on
- * nothing else, so no allowance of their own reaches the hit test. `S-93`, the
- * row this member carried, is gone with it.
+ * ⛔ THERE IS NO `dummyWidth`: table `T-023d`'s closing rule has the three
+ * dummies answer on the ink and on nothing else, so no allowance of their own
+ * reaches the hit test.
  */
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
@@ -654,10 +641,9 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
     // interaction record's own witness -- the `done` line that follows the press
     // -- read `grab=GR-17` for a press a whole day column right of the mark, and
     // the drag that followed wrote an actual nobody asked for.
-    // ⛔ The reason it answered there was the box the ruling withdrew: GR-17's
-    // own day is 「`GR-9` の日から `S-129` ぶん進んだ稼働日」, and S-93's 30px
-    // began at THAT day. ⇒ With the hold cut back to the ink, the row has no
-    // pixels out there at all.
+    // ⛔ GR-17's own day is `S-129` worked days past GR-9's (`T-023d`), which
+    // lies outside the mark. ⇒ With the hold being the ink itself, the row has
+    // no pixels out there at all.
     // ⚠️ The day is still where GR-17 STANDS (the case in the premises above
     // asserts that); what changed is that standing there no longer grants a
     // hold there.
@@ -675,11 +661,9 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
   it('⭐⭐ the plan\'s own end point is reachable on a task the old box would have eaten', () => {
     // ⭐⭐ THE OTHER LEDGER ROW (利用者の申し立て 2026-09-10, 逐語「`*---*` の
     // タスクの予定を変更したいのに、実績だけが変わって予定を変更できない。 予定を
-    // 変更可能とせよ」), and the manuscript's own measurement of the cause:
-    // 「`S-93` の 30px は既定の倍率で 5 日ぶんあり、3 日のタスクでは予定の終了点
-    // （`GR-4`）を丸ごと飲んでいた」.
-    // ⚠️ MEASURED AT `S-1`'s OWN MAGNIFICATION, which is the one that sentence
-    // names -- a day is `S-1` there, and the withdrawn box was five of them.
+    // 変更可能とせよ」). The rule the plan's end is reachable under is table
+    // `T-023d`'s closing rule, with `FR-043` for the mark it names.
+    // ⚠️ MEASURED AT `S-1`'s OWN MAGNIFICATION -- a day is `S-1` there.
     const shortPlan = scheduleOf({
       tasks: [
         taskOf({

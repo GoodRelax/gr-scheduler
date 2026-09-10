@@ -77,7 +77,7 @@
 // ⛔ One value this file needs has no row anywhere: how near the pointer counts
 // as on a LINE (GR-13's dependency line, GR-16's status line). Table T-023d
 // sends every 掴み代 and 当たり判定 to table T-206, and table T-206 records
-// S-90 to S-93 and nothing for a line. `PointerSlop.line` carries the mark.
+// S-90 to S-92 and nothing for a line. `PointerSlop.line` carries the mark.
 //
 // The signature of what this file publishes is owned here, not in the
 // specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
@@ -132,7 +132,7 @@ export type PointerResolution = 'press' | 'doubleClick'
 /**
  * How far past the drawn edge a grab still counts.
  *
- * ⚠️ The values table T-206 DOES record -- S-90 to S-93 -- it keeps out of the
+ * ⚠️ The values table T-206 DOES record -- S-90 to S-92 -- it keeps out of the
  * document on purpose: "掴み領域は読む人のアクセシビリティに属する。手が震える
  * 人には大きな掴み代が要る。文書が強制してよい値ではない". So they arrive as an
  * argument, exactly the way S-94 and S-95 reach EditHistory's `HistoryLimits`,
@@ -469,7 +469,7 @@ const TABLE_T_023D: readonly HitRow[] = [
   // the table states it, not because this row would otherwise do damage.
   //
   // ⛔ NO GRAB ALLOWANCE. Table T-023d sends every 掴み代 to table T-206, and
-  // that table records S-90 to S-93 and nothing for a label -- GR-10 above is
+  // that table records S-90 to S-92 and nothing for a label -- GR-10 above is
   // read the same way. The box is the drawn label's own.
   //
   // ⭐⭐ THE ROWS ABOVE NO LONGER REACH ACROSS IT, and that is S-91 becoming

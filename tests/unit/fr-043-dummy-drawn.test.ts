@@ -53,10 +53,10 @@
 //   T-206 S-180  「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` /
 //             `GR-18`）」 = 12px, whose note says 「⭐ 本行が定めるのは横だけで
 //             ある —— 縦の広がりは実績バーの帯に従う」
-//   T-206 S-93   the READER'S hit box, one number and a width -- S-180's note:
-//             「⛔ `S-93`
-//             とは別の値である —— あちらは読む人の当たり判定であって、環境が
-//             大きく取ってよい」. ⛔ NOTHING BELOW ASSERTS S-93 OF A DRAWING.
+//   T-023d の結び  the hold of `GR-9` / `GR-17` / `GR-18`, which since
+//             2026-09-10 IS the mark `FR-043` draws -- so no reader's hit box
+//             stands beside the drawn width any more, and the two are one.
+//             ⛔ NOTHING BELOW ASSERTS A HIT BOX.
 //   T-023d GR-3 「予定の開始点 | 予定バーの左端」 -- and GR-9's own row,
 //             「⭐ 予定の開始日そのものには置かない —— そこは `GR-3` が持つ」.
 //   T-023d GR-9 / GR-17 / GR-18   where the three dummies sit
@@ -1045,7 +1045,11 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     expect(S_180['値']).toContain('GR-17')
     expect(S_180['値']).toContain('GR-18')
     expect(S_180['値']).toContain('描く幅')
-    // 「⛔ `S-93` とは別の値である」 -- so this file never measures S-93.
+    // ⛔ THIS ONE NOW MATCHES A WITHDRAWAL RECORD, NOT A LIVE DISTINCTION:
+    // `S-180`'s note carries the retired row's name only inside its 「同日まで
+    // …と述べていた」, the hold having become the drawn mark itself on
+    // 2026-09-10. The line is left exactly as it stands; what a guard asks for
+    // is not a comment cleanup's to change.
     expect(S_180['保存しない理由']).toContain('S-93')
     // T-023d, the two rows the alignment cases count days between.
     expect(GR_3['場所']).toContain('予定バーの左端')
