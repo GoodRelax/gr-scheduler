@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 40 mechanical checks for the gr-scheduler specification.
+# All 41 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -15,6 +15,8 @@
 # ⭐ Recounted 2026-09-09 when check 43 was added: the heading still said 38
 # and the ranges added to 39 -- check 42 went in without recounting, which is
 # the failure this note keeps happening to. 39 -> 40.
+# ⭐ Recounted 2026-09-11 when check 44 was added: 40 -> 41. The ranges are
+# 1 + 4 + 7 + 4 + 25, and 40 was right before this one went in.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -144,9 +146,26 @@
 #          the nine manuscript files (the same set check 37 reads), and holds
 #          a clause verbatim-tied only if a trailing slice of its own text
 #          (>=28 characters, ending at the marker) is quoted somewhere under
-#          tests/. Held against must-clause-coverage-baseline.txt the same
-#          way check 29 and check 31 are: the UNHELD count (1,164 of 1,634 on
-#          2026-09-05) may fall freely and may only rise deliberately
+#          tests/, WITH THAT FILE'S COMMENT LINES STRUCK OUT -- measured
+#          2026-09-11, 367 of the 718 clauses this check used to call held
+#          (51.1%) were held by nothing but a comment, and a comment cannot
+#          go red when the clause it quotes is rewritten. Held against
+#          must-clause-coverage-baseline.txt: the UNHELD count (1,350 of
+#          1,701 on 2026-09-11). ⛔ IT IS A BOLT, NOT A DEBT (the user's
+#          ruling, 2026-09-11): it fails the round that writes a NEW bare
+#          MUST, and ⛔ no round may write a test whose purpose is to lower
+#          the standing count
+#   44     ⛔⛔ THE FIRST CHECK IN THIS SUITE THAT READS src/ AND tests/ AT
+#          ALL. Every check above it reads only docs/, which is how a
+#          requirement id could be withdrawn from the manuscript and go on
+#          being cited by the code for months with every gate green.
+#          check-spec-id-references.py faults a reference from src/ or tests/
+#          to an id the specification RETIRED (a burnt seat) or never
+#          defined. ⚠️ It matches ids OUTSIDE backticks too: measured
+#          2026-09-11, 263 of the 445 references it finds carry no code span,
+#          and every reader in this suite before it required one --
+#          specindex.py's REF_TOKEN does -- so those references were
+#          invisible rather than absent
 #   40     check-ruled-elsewhere.py : a defects.md row still reading as
 #          un-ruled -- ステータス at 未検討 / 裁定待ち / 仕様待ち, or its
 #          対応方針・決定仕様 cell holding 未検討 / 裁定待ち / 利用者の裁定が
@@ -421,6 +440,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-changelog-ve
 echo ""
 echo "===== 39  MUST / MUST NOT clauses held verbatim by a test ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-coverage.py || fail=1
+
+echo ""
+echo "===== 44  src/ and tests/ against a burnt or unknown specification ID ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-spec-id-references.py || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="

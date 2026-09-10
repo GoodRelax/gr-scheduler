@@ -1,0 +1,56 @@
+445
+#
+# SET AT 445 ON 2026-09-11, THE DAY check-spec-id-references.py WAS WRITTEN AND
+# THE FIRST DAY ANY CHECK IN THIS DIRECTORY OPENED A FILE UNDER src/ OR tests/.
+#
+# WHAT THE NUMBER COUNTS. Occurrences, not lines: every place in the 295 files
+# under src/ and tests/ (.ts, .tsx, .js, .mjs; node_modules skipped -- all 295
+# are .ts today) where an ID-shaped token names a row the specification retired
+# on purpose, or names nothing at all. Backticked and bare alike; inside string
+# literals and comments alike. The split on the day it was set:
+#
+#     328  retired   -- 24 distinct IDs out of the 54 md-checks.py records
+#     117  undefined -- 33 distinct IDs that resolve nowhere
+#     445  total, over 405 distinct lines
+#
+# 263 of the 445 sit OUTSIDE any code span, which is why this check does not
+# require backticks the way specindex.py's REF_TOKEN does; a backtick-only rule
+# would have seen 182 and called the other 263 clean.
+#
+# ⭐ THE TWENTY-FOUR RETIRED IDS AND WHAT THEY COST, measured 2026-09-11:
+#     S-93 175, IC-46 22, S-59 17, IC-49 17, S-82 15, FR-061 11, BT-3 11,
+#     S-139 10, CM-70 10, RD-5 7, CM-57 5, RS-17 4, IF-4 3, IC-57 3,
+#     S-209 3, U-28 2, IC-55 2, FR-026 2, CP-29 2, CP-23 2, FR-050 2,
+#     S-112 1, S-52 1, K-88 1
+# S-93 alone is 39.3% of the whole number. It left table T-023d on 2026-09-10,
+# one day before this baseline was set, and 175 places under src/ and tests/
+# still name it.
+#
+# ⚠️ THE UNDEFINED HALF IS NOT ALL DEFECT, and the module docstring names the
+# three false-positive classes kept on purpose rather than narrowed away: an
+# English possessive written without its apostrophe (FR-085s, HF-17s, NT-1s and
+# six more, 17 occurrences), fixture data shaped like an ID (projectId 'P-001' /
+# 'P-002' in tests/unit/uf-41-42.test.ts, 10 occurrences), and a prose example
+# of a prefix that must NOT match (FR-04, HF-120, UF-6n, 3 occurrences). ⛔ DO
+# NOT ADD AN EXEMPTION FOR THEM. The narrowing that would remove the first class
+# -- dropping the optional trailing letter from the token pattern -- also stops
+# matching the manuscript's own suffixed rows (T-005a, PD-4a, SK-11a) and takes
+# the count to 424, hiding real hits to remove 17 harmless ones.
+#
+# ⭐ THE REST OF THE UNDEFINED HALF IS THE THING THIS CHECK WAS BUILT FOR:
+# withdrawals that were never recorded as retirements. IC-69 (13) and IC-70 (9)
+# were taken out of table T-109 by CR-327 on 2026-09-02 and are named in six
+# source files and four test files, one of them as a live Playwright selector
+# ([data-icon="IC-69"], tests/system/nfr-004-file-scheme-sweep.sws.test.ts).
+# RS-45 (18), U-29 (9), S-185 (8), UF-72 (8), IC-94 (3), SK-11a (3), RS-47 (2),
+# IC-51, T-055, T-100, MK-14 and F-3 are the same shape. ⛔ NONE OF THEM IS IN
+# md-checks.py's RETIRED SET, so no check in this directory has ever seen them.
+# ⚠️ Some of those may deserve a seat in RETIRED rather than a repair in the
+# code -- that is a judgement for whoever repairs them, not for this file.
+#
+# ⛔ THIS IS A RATCHET, NOT A DEBT SCHEDULE. Its one job is to fail the round
+# that writes NEW code against a burnt seat. It does not order anyone to pay the
+# 445 down, and no round should write a repair whose only purpose is to lower
+# the number -- the same ruling that governs must-clause-coverage-baseline.txt.
+# ⭐ When a round moves docs/spec or src/ and the count falls out of that work,
+# lower this number so the ground cannot be given back.
