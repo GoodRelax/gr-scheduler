@@ -696,7 +696,7 @@ describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => 
 // unit (UF-65 of table T-075) handed a point and no rectangle cannot say which
 // part the pointer is on. IF-9 of table T-065 supplies that answer from the
 // side that DREW the parts, so the case is owed by the bench of the unit that
-// implements it -- UF-72, `tests/unit/uf-72-screen-part.test.ts`.
+// implements it -- UF-71, `tests/unit/uf-72-screen-part.test.ts`.
 // ⚠️ The third of them ('never reads the faintness off a selection') was still
 // GREEN when the other two went red, because every answer it compared had
 // become `undefined`. A case that passes by comparing absences is the "green

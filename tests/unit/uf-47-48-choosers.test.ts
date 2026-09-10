@@ -29,9 +29,8 @@
 //         discard in silence (MUST NOT); joining is exempt in as many words.
 //   U-55  of table T-103 and NT-7 of table T-037: the surface that question
 //         stands on, and that row's two WORD BUTTONS, its two answers (MUST).
-//         ⚠️ They were IC-69 / IC-70 of table T-109 until CR-327, which took
-//         both rows out of that table -- NT-7 (MUST NOT) refuses a word button
-//         a row there.
+//         ⚠️ CR-327 took their two entries out of table T-109 -- NT-7 (MUST
+//         NOT) refuses a word button a row there.
 //   OP-9  of table T-024a: what goes into the overlay frame is only what the
 //         current document has a `UID` for (MUST).
 //   RD-3 / RD-4 of table T-230: where each answer lands, and what becomes of
@@ -2817,7 +2816,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
 
   it('⭐ IO-4 writes the bytes IF-6 painted, at the size the picture asks for', async () => {
     // FR-025 (MUST): the pixels ARE the picture's size -- a scale is forbidden
-    // (MUST NOT) and S-82 retired with the idea. The fake
+    // (MUST NOT), so there is no multiplier to carry anywhere. The fake
     // above folds the height it was asked for into its last byte, so a route
     // that asked for a different size answers with a different file.
     const { written } = await pressWithSeams('IO-4', { rasterizer: paintingRasterizer() })

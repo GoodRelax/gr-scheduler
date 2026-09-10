@@ -630,13 +630,9 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // S-92 is a square, and this member is its half-width.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
-  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
-  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
-  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
-  // row says the field emptied out: 「その `S-93` は 2026-09-10 に廃した ——
-  // 掴みシロが印そのものになり、読む者が 1 人も残らなかったからである」.
-  // `PointerSlop` carries no dummy figure at all now.
+  // ⛔ NO DUMMY FIGURE. Table T-023d's closing rule makes the hit area of
+  // `GR-9` / `GR-17` / `GR-18` the mark `FR-043` draws, so the dummies have no
+  // reach of their own for `PointerSlop` to carry.
   line: NOT_STORED_SIZES['S-137'],
 }
 

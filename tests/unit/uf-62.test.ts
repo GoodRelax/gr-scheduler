@@ -35,8 +35,9 @@
 //   T-109    the whole of the icons. Its surface column IS the placement, and the
 //            table counts itself -- so the roster below is a fixed copy of that
 //            column's `App Header` rows, in the table's own printed order
-//   FR-049   the three values of S-59, and the MUST NOT that forbids hiding
-//            both halves
+//   FR-049   the plan and the actual are two independent booleans -- S-227
+//            (planVisible) and S-228 (actualVisible) -- and the MUST NOT that
+//            keeps one entry from reaching the other's row or its look
 //   FR-015   the overlay of the plan before the change (S-69), which IC-4 shows
 //            and hides
 //   FR-053   the entry that shows and hides the palette sits OUTSIDE the
@@ -429,12 +430,12 @@ describe('UF-62 documentTitle', () => {
 // ---------------------------------------------------------------------------
 // U-58 `Opened File Name` and U-59 `File Saved At` -- FR-101.
 //
-// ⚠️ U-28 `Autosave Status` used to stand here, and FR-061 told its three
-// states apart. CR-280 retired autosave: FR-061 is gone from Chapter 4, the row
-// left table T-103, and BT-3 left table T-034 with the note 「行 ID は席の番号で
-// あり、詰めない —— BT-3 は自動保存された文書の席で、CR-280 で退いた」. The four
-// cases that drove the three states are deleted rather than rewritten: there is
-// no requirement left for them to answer to.
+// ⚠️ A third row, the autosave status, used to stand here with a requirement of
+// its own telling its three states apart. CR-280 retired autosave outright: the
+// requirement left Chapter 4, the row left table T-103, and its seat in table
+// T-034 is held open rather than closed up (「行 ID は席の番号であり、詰めない」).
+// The four cases that drove the three states are deleted rather than rewritten:
+// there is no requirement left for them to answer to.
 // ---------------------------------------------------------------------------
 
 describe('UF-62 openedFileName / fileSavedAt', () => {

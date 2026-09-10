@@ -793,8 +793,9 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and carr
     )
   }
 
-  // 05）—— **入口は 表 T-109 の `IC-94`。**⛔ **選択肢だけを出してはならない（MUST NOT）
-  // 選択肢だけを出してはならない（MUST NOT）。選ばせる前に、対応するかもしれないタスクを並べて見せること（MUST）
+  // 05）—— **選ばせる面は 表 T-103 の `U-61`（`Difference Review`）とすること（MUST）。
+  // 独立したアイコンの入口は持たない。**⛔ **選択肢だけを出してはならない（MUST NOT）。
+  // 選ばせる前に、対応するかもしれないタスクを並べて見せること（MUST）
   //
   // ⭐ HOW "CHOICES ONLY" IS MEASURED: a surface that carries the four row IDs
   // of table T-032a, or their words, but names not one of the tasks that could

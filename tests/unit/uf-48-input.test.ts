@@ -530,10 +530,10 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
   }
   const xs = drawn.plan.points.map((onePoint) => onePoint.x)
   const ys = drawn.plan.points.map((onePoint) => onePoint.y)
-  // ⚠️ THE MARKER'S SQUARE IS STEPPED AROUND SINCE 2026-09-09. These Tasks are
-  // not started, so GR-7 hangs off GR-17's hold rather than off the dummy's
-  // drawn edge (「未着手のときは終了点の掴みシロの外側」, and table T-038's order
-  // gives that hold S-93's width) -- and GR-7 stands above GR-12 in table
+  // ⚠️ THE MARKER'S SQUARE IS STEPPED AROUND. These Tasks are not started, so
+  // GR-7 hangs off GR-17's hold (「未着手のときは終了点の掴みシロの外側」), and
+  // table T-023d's closing rule makes that hold `FR-043`'s drawn mark itself
+  // -- and GR-7 stands above GR-12 in table
   // T-023d, so a press on the square is a state cycle and never the body drag
   // this helper exists to start.
   const right = Math.max(...xs)

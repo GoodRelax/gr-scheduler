@@ -6,13 +6,10 @@
 // `CommandItem.isArmed`, which is the member the drawing side reads to fill the
 // glyph's box with `S-183` -- 表 T-237's `EN-1`.
 //
-// ⚠️ REWRITTEN BY CR-311 (2026-08-30). The head of this file used to quote
-// FR-053 as stating a rim (`S-183` の色、`S-185` の太さ). ⛔ The specification
-// no longer says that: FR-053 now hands the whole question to 表 T-237, `S-183`
-// is 「構えている入口の**塗り**の色」, and `S-185` (the rim's thickness) has been
-// retired with its seat left vacant. ⭐ NO CASE IN THIS FILE MOVED: every one of
-// them is about WHICH entrance `CommandItem.isArmed` stands on, and that is the
-// same question it always was. How the drawing side says it is held by
+// ⭐ NO CASE IN THIS FILE IS ABOUT HOW THE ARMED ENTRANCE IS DRAWN. FR-053
+// hands that question whole to 表 T-237, where `S-183` is the fill colour;
+// every case here is about WHICH entrance `CommandItem.isArmed` stands on. How
+// the drawing side says it is held by
 // tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node

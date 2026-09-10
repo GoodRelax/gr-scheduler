@@ -108,10 +108,10 @@
 //      whole-view reading could only reach the three manners table T-233 writes
 //      a row against. `tests/unit/uf-67.test.ts` is where that member is held.
 //   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Row Title
-//      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 ..
-//      IC-57 are left out for a different reason: table T-109 says in as many
-//      words that they are not entries a person presses, so no `CommandItem`
-//      carries their word.
+//      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 and
+//      IC-54 are left out for a different reason: table T-109 marks each of
+//      them 「ボタンではない」 in as many words, so no `CommandItem` carries
+//      their word.
 //   4. THE `構え` GROUP OF THE COMMAND PALETTE (keyed `IC-54`). Table T-109
 //      marks IC-54 「ボタンではない」 and no other row sits in that group, so the
 //      group holds no entry and `CommandPalette` publishes no member that
@@ -523,10 +523,9 @@ const U_55_CONFIRMATION = bare(T103.rows.find((row) => row.id === 'U-55')?.cells
  *
  * ⛔⛔ EMPTY, AND THAT IS NT-7's OWN MUST NOT (CR-327): 「答えの入口に 表 T-109
  * の行を与えてはならない（MUST NOT）」 -- that table and figure F-019 hold the
- * entrances that are SHAPES, and NT-7's two answers are word buttons. ⚠️ It held
- * IC-69 and IC-70 until 2026-09-02, and their words were then the `icons`
- * section's; the words of the two answers are now the `confirmation` section's
- * alone, which is what the case below holds the manuscript to.
+ * entrances that are SHAPES, and NT-7's two answers are word buttons. ⚠️ The
+ * words of the two answers are the `confirmation` section's alone, which is
+ * what the case below holds the manuscript to.
  */
 const ON_U_55: readonly string[] = T109.rows
   .filter((row) => surfacesOf(row.id).includes(U_55_CONFIRMATION))

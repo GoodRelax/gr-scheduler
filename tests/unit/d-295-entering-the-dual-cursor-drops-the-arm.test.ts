@@ -469,12 +469,11 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
     // ある。**」 -- so the guide-cursor entrances are the nearest neighbours of
     // IC-45 that must NOT drop the arm, and they are what stops "any cursor
     // entrance clears it" from passing.
-    // ⭐ TWO, NOT FOUR, SINCE CR-369 (2026-09-06): 表 T-109 retired IC-46 (set
-    // `'none'`) and IC-49 (`'double-vertical'`) with the mode itself, so the
-    // pair below is the whole guide-cursor family. ⛔ THIS IS A REMOVAL OF ROWS
-    // THAT NO LONGER EXIST, NOT A RELAXATION -- every entrance table T-109 still
-    // gives to FR-048 is still driven, and each is still held to `—` and to an
-    // untouched arm.
+    // ⭐ TWO, NOT FOUR: 表 T-109 gives FR-048 exactly the pair below, because
+    // FR-048 has an entrance switch its own mode off on a second press rather
+    // than putting a separate entrance beside it. ⛔ THE PAIR IS NOT A
+    // RELAXATION -- every entrance table T-109 gives to FR-048 is driven, and
+    // each is still held to `—` and to an untouched arm.
     // ⭐ READ, NOT TYPED: the family is every row of 表 T-109 the 正 column hands
     // to FR-048, so a retired or added mode reaches this case by itself. The
     // count guard is what stops a re-worded column from emptying the loop.

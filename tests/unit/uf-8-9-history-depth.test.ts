@@ -371,10 +371,10 @@ function writeNames(one: Bench, nth: number): void {
  * nothing to do with table T-027. The cases assert the change before they
  * assert the absence of the 段.
  *
- * ⚠️ CM-70 USED TO BE AN EXCEPTION HERE, because the key it wrote
- * had gone while the command itself stayed. Both are retired now, so the
- * roster below is CM-67 alone (FR-025 / table T-108, 2026-09-06) and
- * every command in it really does write.
+ * ⚠️ AN EXCEPTION USED TO STAND HERE, for a command whose key the
+ * specification had already taken away while the command itself stayed. Both
+ * are retired now, so the roster below is CM-67 alone (FR-025 / table T-108)
+ * and every command in it really does write.
  */
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
   setPanelWidths: { kind: 'setPanelWidths', rowTitlePanelWidth: 200, propertyPanelWidth: 300 },
@@ -529,8 +529,9 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
   // whose row an undo removes. CM-68 / CM-69 therefore leave this file's scope,
   // and the 対象 half of their behaviour is owed a home (D-102).
   // ⚠️ THE ROW STILL NAMES `FR-025`, BUT ONLY TO SAY THE SCALE LEFT IT.
-  // FR-025 (MUST NOT) took the PNG scale away on 2026-09-06 and CM-70 retired
-  // with it, so the pair of requirements is answered by one command now.
+  // FR-025 (MUST NOT) took the PNG scale away and the command that used to
+  // write it retired with the scale, so the pair of requirements is answered
+  // by one command now.
   it('UN-16 names two requirements, and table T-108 gives them one command', () => {
     expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052'])
     expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67'])

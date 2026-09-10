@@ -34,7 +34,7 @@
 //                      intake is opened for FR-023
 //   FR-025             (:3132) the output size is fixed at S-81 (MUST NOT let it
 //                      be chosen per export) and the export MUST NOT hold a
-//                      scale at all -- S-82 retired with the idea on 2026-09-06.
+//                      scale at all.
 //                      Every one of its rules -- the fixed width, the height
 //                      grown to S-217, the blank remainder, the refusal to draw
 //                      a part of a picture -- is settled BEFORE the call
@@ -148,11 +148,10 @@ const T_024_ROWS = [
  * build the sizes a real caller would pass and to prove this unit does not read
  * it: the seam already carries the finished size.
  *
- * ⛔ S-82 (`exportPngScale`) IS GONE. FR-025 (MUST NOT) forbids the export
- * holding a scale at all (the reader's ruling of 2026-09-06), so the only
- * sizes a caller now builds are S-81's width and a height grown within S-217.
- * `heights` are the two this file passes in its stead -- the unchanged one and
- * a grown one -- so the cases still walk more than a single size.
+ * ⛔ THE EXPORT HOLDS NO SCALE. FR-025 (MUST NOT) forbids one, so the only
+ * sizes a caller builds are S-81's width and a height grown within S-217.
+ * `heights` are the two this file passes in a scale's stead -- the unchanged
+ * one and a grown one -- so the cases still walk more than a single size.
  */
 const T_204 = {
   s81: { id: 'S-81', key: 'exportCanvas', width: 1600, height: 900 },

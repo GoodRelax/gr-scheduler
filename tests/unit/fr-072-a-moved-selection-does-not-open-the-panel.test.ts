@@ -507,11 +507,10 @@ function stage(): Stage {
 /**
  * A point on one Task's plan bar BODY -- the 本体 half of MK-13's Task entry.
  *
- * ⚠️ NOT SIMPLY THE MIDDLE SINCE 2026-09-09. These Tasks are not started, so
- * GR-7 hangs the progress marker off GR-17's hold rather than off the dummy's
- * drawn edge (「未着手のときは終了点の掴みシロの外側」, with table T-038's order
- * giving that hold S-93's width), and the square landed on the middle of these
- * bars. ⛔ GR-7 IS ABOVE GR-12 IN TABLE T-023d and is none of MK-13's
+ * ⚠️ NOT SIMPLY THE MIDDLE. These Tasks are not started, so GR-7 hangs the
+ * progress marker outside GR-17's hold (「未着手のときは終了点の掴みシロの
+ * 外側」), and the square landed on the middle of these bars. ⛔ GR-7 IS ABOVE
+ * GR-12 IN TABLE T-023d and is none of MK-13's
  * destinations, so a press there cycles the state instead of moving the
  * selection -- which is not what these cases are about. The point is taken from
  * the part of the body the marker does not stand on.

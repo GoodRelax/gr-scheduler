@@ -141,7 +141,7 @@
 //
 // ⭐ The unit was corrected to read both values, and the four cases are green.
 // ⚠️ THE OTHER READING IS WRITTEN DOWN HERE BECAUSE IT IS NOT ABSURD: GAP 5
-// below says no row names the member that carries `EN-5`, and UF-72 already
+// below says no row names the member that carries `EN-5`, and UF-71 already
 // refuses to fill a faint entrance
 // (tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts), so nothing would
 // have been MISDRAWN. What would have been wrong is the description claiming

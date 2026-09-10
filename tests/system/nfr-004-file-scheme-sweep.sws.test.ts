@@ -716,8 +716,17 @@ interface Probe {
 async function calm(page: Page): Promise<void> {
   // ⚠️ A telling left standing covers the palette, and the next probe's press
   // then times out on a control that is there but unreachable -- measured on
-  // SK-1 after SK-21. IC-69 is NT-7's yes, IC-52 closes a surface, and
-  // `[data-notice]` is NT-8's own put-away, which carries no row of table T-109.
+  // SK-1 after SK-21. IC-52 closes a surface and `[data-notice]` is NT-8's own
+  // put-away, which carries no row of table T-109.
+  // ⛔⛔ THE FIRST `data-icon` SELECTOR BELOW -- the one aimed at NT-7's yes --
+  // IS DEAD, and has been since CR-327:
+  // NT-7 (MUST NOT) refuses its two answers a row of table T-109 at all, so
+  // the yes is the word button `Yes` from FR-038's `confirmation` dictionary,
+  // or the `y` key. ⇒ That entry matches nothing, so its inner loop breaks on
+  // the first read and the sweep goes straight on; a standing NT-7 question is
+  // put away by the two Escapes below, never here.
+  // ⛔ REPORTED AS A DEFECT rather than repaired -- changing what a probe
+  // presses is not a comment's business. See the SK-3 row for the twin site.
   for (const selector of ['[data-notice]', '[data-icon="IC-69"]', '[data-icon="IC-52"]']) {
     for (let guard = 0; guard < 4; guard += 1) {
       const control = await page.$(selector)
@@ -1213,7 +1222,15 @@ const PROBES: readonly Probe[] = [
     act: async (p) => {
       await p.keyboard.press('Delete')
       await p.waitForTimeout(500)
-      // ⚠️ NT-7 of table T-037 asks before a row goes; the Yes is IC-69.
+      // ⛔⛔ THIS SELECTOR IS DEAD AND THE CLICK NEVER HAPPENS. NT-7 of table
+      // T-037 asks before a row goes, but since CR-327 it (MUST NOT) gives its
+      // two answers a row of table T-109 -- the yes is the word button `Yes`
+      // from FR-038's `confirmation` dictionary, or the `y` key. So `p.$` is
+      // always null here and the question is never answered: what this row
+      // proves is that Delete on a selected bar MOVES THE SCREEN, which the
+      // question itself satisfies, and NOT that the row went. ⛔ REPORTED AS A
+      // DEFECT, not repaired -- making the probe live again would change what
+      // the sweep presses, which is a ruling and not a cleanup.
       const yes = await p.$('[data-icon="IC-69"]')
       if (yes !== null) await yes.click()
       return null

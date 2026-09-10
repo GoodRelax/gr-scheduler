@@ -2,8 +2,8 @@
 // every surface, with at least `S-141` between it and the entrance's frame --
 // and the pair is tuned so that the entrance's own outer box does not move.
 //
-// Unit under test: UF-72 of table T-075 (`dom-screen-surface.ts`, component
-// CP-27 of table T-062), plus the two settings rows themselves.
+// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
+// CP-38 of table T-062), plus the two settings rows themselves.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
 // in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
@@ -43,7 +43,7 @@
 // ---------------------------------------------------------------------------
 //
 // docs/spec/ for every sentence above, and of `src/` nothing but the exported
-// declarations these cases must call or name. ⛔ No function body of UF-72 was
+// declarations these cases must call or name. ⛔ No function body of UF-71 was
 // read, and no existing test's expectations were read. Both numbers are read
 // out of 表 T-206 at run time rather than typed here.
 //

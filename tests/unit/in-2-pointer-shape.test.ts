@@ -70,7 +70,8 @@
 //             both ranked above GR-12 -- which is why the bar Task below is
 //             STARTED.
 //   T-023d GR-18  「未着手のマイルストーンのダミー | **予定の開始日の翌稼働日**
-//             （暦に従う。`FR-054`。当たり判定の大きさは `S-93`）… ⭐⭐ **`GR-9`
+//             （暦に従う。`FR-054`。当たり判定は `FR-043` が描いた印そのもので
+//             あり、規則は本表の結びが持つ）… ⭐⭐ **`GR-9`
 //             と同じ場所である**」 -- it is ranked ABOVE GR-12 but no longer
 //             stands ON the figure, which the row says of itself: 「⛔⛔
 //             **2026-09-02 まで「未着手のマイルストーンの図形の上」と定めていた**」
@@ -238,7 +239,8 @@ const NEW_STONE_ROW = '33333333-3333-4333-8333-333333333333'
  * 「タスクの本体」 has a middle.
  *
  * ⛔ IT IS STARTED ON PURPOSE. FR-043 puts GR-9 and GR-17 on a Task that is
- * 未着手, table T-023d ranks both above GR-12, and their hit box is S-93 -- so a
+ * 未着手, table T-023d ranks both above GR-12, and its closing rule gives them
+ * the drawn mark itself as their hit area -- so a
  * not-started bar would answer about a dummy where this file means to ask about
  * the body. A premise counts the dummies rather than trusting this.
  * ⚠️ AND ITS NAME IS NULL ON PURPOSE. GR-10 is drawn inside the shape (NL-1 of
@@ -1078,8 +1080,8 @@ describe('T-028 IN-2 names five places and no more', () => {
 //   どうかを押してみるまで確かめられない」.
 //
 //   T-023d GR-18 no longer claims that point. Its 場所 column now reads
-//   「**予定の開始日の翌稼働日**（暦に従う。`FR-054`。当たり判定の大きさは
-//   `_assets/tbl-settings.md` の `S-93`）。⭐⭐ **`GR-9` と同じ場所である**（利用
+//   「**予定の開始日の翌稼働日**（暦に従う。`FR-054`。当たり判定は `FR-043` が
+//   描いた印そのものであり、規則は本表の結びが持つ）。⭐⭐ **`GR-9` と同じ場所である**（利用
 //   者の裁定 2026-09-02「マイルストーンは中心が配置する場所。ただし、実績のダミー
 //   は翌日」）」, and the row states the change against itself: 「⛔⛔ **2026-09-02
 //   まで「未着手のマイルストーンの図形の上」と定めていた** —— **ダミーが図形に重

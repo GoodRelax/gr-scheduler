@@ -35,10 +35,10 @@
 //   FR-025      the output size is never asked for (MUST NOT); the width is
 //               fixed at S-81's (MUST) and the height grows until the picture
 //               fits (MUST), as far as S-217 and no further (MUST); the PNG's
-//               pixels ARE that size -- a scale is forbidden (MUST NOT) and
-//               S-82 retired with the idea; the ratio is never changed to
-//               make the picture fit (MUST NOT); a picture shorter than S-81
-//               leaves the rest blank (MUST) and no row is added to fill it
+//               pixels ARE that size -- a scale is forbidden (MUST NOT); the
+//               ratio is never changed to make the picture fit (MUST NOT); a
+//               picture shorter than S-81 leaves the rest blank (MUST) and no
+//               row is added to fill it
 //               (MUST NOT); and -- CR-337 -- a picture that will not fit UNDER
 //               S-217 even once grown is NOT WRITTEN AT ALL (MUST), no part of
 //               it may be drawn (MUST NOT), and a reason is told (MUST)
@@ -1452,10 +1452,9 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
   })
 
   it('asks for exactly S-81 pixels -- FR-025 admits no scale (MUST NOT)', async () => {
-    // ⛔ THE MULTIPLIER IS GONE, NOT PINNED TO ONE. FR-025 (MUST NOT) forbids
-    // the export holding a scale at all (the reader's ruling of 2026-09-06
-    // 「PNGはいつも原則 1600x900 のままとする」), so `S-82` left table T-204 and
-    // this case walks no values: the pixels ARE the picture's own size.
+    // ⛔ THERE IS NO MULTIPLIER TO PIN TO ONE. FR-025 (MUST NOT) forbids the
+    // export holding a scale at all, so this case walks no values: the pixels
+    // ARE the picture's own size.
     const { rasterizer, calls } = watchedRasterizer()
     const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS })
     const result = await pngOf(rasterizer, scene)

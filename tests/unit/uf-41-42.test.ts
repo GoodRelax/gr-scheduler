@@ -115,9 +115,8 @@ const extensionOfForm = (form: SaveFileForm): string => {
 /**
  * Table T-024, the two rows that reach no file. IO-6 answers to IF-5, so it may
  * not appear among the forms this component writes; IO-5 (localStorage) reaches
- * no file either. ⚠️ IO-5 used to answer to IF-4 `DocumentStore`; CR-280
- * retired the autosave and table T-065 no longer holds that row, so IO-5 now
- * names no seam at all -- table T-206 keeps its four settings and nothing else.
+ * no file either. ⚠️ IO-5 names no seam at all -- table T-065 holds no row
+ * for it -- while table T-206 keeps its four settings and nothing else.
  */
 const T_024_ROWS_THAT_ARE_NOT_FILES = [
   { id: 'IO-5', seam: null },

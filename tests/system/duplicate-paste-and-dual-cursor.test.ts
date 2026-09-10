@@ -210,7 +210,7 @@ const GUIDE_CURSOR_NONE = GUIDE_CURSOR_VALUES[0] ?? ''
  * one puts up.
  *
  * ⛔ NOT WRITTEN OUT HERE. Table T-109's purpose column is the one home of the
- * pairing, so an entrance retired there (as `IC-46` was) drops out of this run
+ * pairing, so an entrance retired there drops out of this run
  * without this file being touched.
  *
  * @purity pure

@@ -34,10 +34,9 @@
 //
 //   | RD-6 | 起動時の文書 | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
 //
-// ⚠️ ONE ROW, NOT TWO, SINCE CR-280. 「自動保存」 was taken out of the
-// specification in as many words, and RD-5 「自動保存からの復帰」 left the table
-// with it -- so 「呼び手が持って来る」 now names a single row, and every case
-// below that hands over a whole document stands in it.
+// ⚠️ ONE ROW, NOT TWO. 「呼び手が持って来る」 names exactly one row of table
+// T-230, so every case below that hands over a whole document stands in it and
+// there is no second caller for such a case to be confused with.
 //
 // ⛔ SO THE CASES BELOW THAT HAND OVER A WHOLE DOCUMENT NAME THEIR ROW, AND
 // THE HISTORY THEY EXPECT AFTERWARDS IS THE TABLE'S 履歴 COLUMN AND NOT WHAT THE
@@ -659,7 +658,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
   })
 
   it('does not hold when the stored place is good: that day and that zoom are kept', () => {
-    // The other side of OP-10. S-77 and S-78 are what FR-050 saved, and WY-1
+    // The other side of OP-10. S-77 and S-78 are what FR-051 writes, and WY-1
     // wants the same JSON to come back looking the same, so a place the person
     // did choose is used as it stands.
     const placed = twoRowDocument((draft) => {
@@ -1624,8 +1623,8 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     // る。」 `HeldDocumentCall` is declared as exactly these rows, so this is the
     // case that keeps the declaration and the manuscript pinned to each other.
     //
-    // ⚠️ ONE ROW SINCE CR-280 TOOK 「自動保存」 OUT. RD-5 「自動保存からの復帰」
-    // stood here beside RD-6 and left the table with the mechanism it named.
+    // ⚠️ ONE ROW, AND THE LIST IS SINGLETON FOR THAT REASON: RD-6 is the only
+    // row of table T-230 whose WS-3 column says the caller brings the document.
     expect(HELD_ROWS).toEqual(['RD-6'])
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
     // ⛔ And the four this member does NOT offer are not in that column: RD-1

@@ -108,10 +108,9 @@ import {
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 // S-180, the width FR-043's mark is drawn at, out of the block the
-// manuscript generates rather than out of the unit under test. ⛔⛔ Until
-// 2026-09-10 the hold this test measured against was `S-93` -- a fixed 30px
-// read from item-hit-area.ts -- and the ruling of that day retired it: 「その
-// `S-93` は 2026-09-10 に廃した」.
+// manuscript generates rather than out of the unit under test. ⛔ Table
+// T-023d's closing rule makes the dummies' hold that same mark, so the width
+// this test measures against and the width the mark is drawn at are one.
 
 // ---------------------------------------------------------------------------
 // The declaration every case carries (table T-219, TW-2)
@@ -1868,19 +1867,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の
       // 裁定 2026-09-10）, and the mark's own width is 「1 日ぶんと
       // `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」 (FR-043).
-      // ⛔⛔ UNTIL 2026-09-10 THE HOLD WAS `S-93`'S FIXED 30PX, READ FROM
-      // item-hit-area.ts's generated block, and table T-038's order named the
-      // two apart: 「実績のダミーの掴みシロは `S-93` であり、描く幅の `S-180`
-      // ではない」. That distinction is gone -- 「掴みシロが印そのものになった
-      // 以上、2 つは同じ 1 つの幅であり、区別は消えた」 -- so this test now reads
-      // the same width the mark is drawn at.
       // ⛔ `S-180` is read from the generated block, never typed in.
       // ⛔⛔ AND THE MARK STANDS ON GR-9's DAY, NOT ON GR-17's. FR-043 draws
       // ONE mark -- 「ダミーの印は 1 つだけ描くこと（MUST）」 -- aligned to the
       // working day after the plan start, and GR-17 merely STANDS `S-129` days
-      // further on. ⚠️ While the hold was S-93's box that day was where the
-      // box began, so this arithmetic started there; with the hold cut back to
-      // the ink there is nothing out at GR-17's own day at all.
+      // further on. ⚠️ The hold is that ink, so there is nothing out at
+      // GR-17's own day at all and this arithmetic starts where the mark does.
       const holdRight =
         xOfDay(2 + 1, drawn.regions, drawn.layout.pxPerDay) +
         Math.min(drawn.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])

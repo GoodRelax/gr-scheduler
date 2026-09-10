@@ -46,10 +46,10 @@
 //     this file's only question is whether a SCALE reaches the picture.
 //  2. WHETHER `documentFromJson` OR THE SCHEMA REFUSES AN OUT-OF-BOUNDS KNOWN
 //     VALUE. That is `clampedSettings`' own ground and it is not this file's.
-//  3. THE COMMAND / KEY-TABLE ROW RETIREMENTS (`CM-70`, `K-88`). Those are
-//     tests/unit/t-027-outside-the-history.test.ts's and tests/unit/
-//     uf-34-35.test.ts's own record; this file is about the VALUE, not the
-//     roster rows that used to write it.
+//  3. THE COMMAND ROW AND THE KEY-TABLE ROW THAT USED TO WRITE THIS VALUE,
+//     both of which the specification retired alongside the scale itself.
+//     This file is about the VALUE reaching the picture, not about the roster
+//     rows that used to carry it there.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

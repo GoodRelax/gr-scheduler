@@ -179,11 +179,11 @@ const GEOMETRY: ScheduleGeometry = geometryFromLayout(
   emptySelection(),
 )
 
-// ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10 --
-// table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
-// 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げ
-// てはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93` is retired,
-// so `PointerSlop` carries no dummy figure at all.
+// ⛔⛔ NO DUMMY WIDTH BELONGS IN THIS SLOP. Table T-023d's closing rule reads
+// 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものと
+// すること（MUST）。印の外へ広げてはならない（MUST NOT）」, so a dummy's hold is
+// the mark the renderer already drew and never a slop of its own --
+// `PointerSlop` carries no dummy figure at all.
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],

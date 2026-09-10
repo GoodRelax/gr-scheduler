@@ -573,17 +573,13 @@ const KEYED_CASES: readonly OutsideCase[] = [
   // ⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE (D-102). It was
   // deliberately not written here by the session that moved the row -- rule 05
   // section 7 forbids that -- so it is recorded as owed rather than invented.
-  // ⛔⛔ CM-70 (`setExportPngScale`) USED TO STAND HERE, WRITING `S-82`
-  // (`exportPngScale`) TO 2. It cannot any more: FR-025 (MUST NOT) forbids the
-  // export holding a scale at all (the reader's ruling of 2026-09-06
-  // 「PNGはいつも原則 1600x900 のままとする」), so `S-82` left table T-204 and
-  // the key left `DocumentSettings`. Every case in this list asserts that a
-  // command WROTE a key and left no 段; with no key to write, there is nothing
-  // for this row to assert.
-  // ⚠️ CM-70 ITSELF IS STILL A ROW OF TABLE T-108, so the command kind is still
-  // declared and still 対象外 -- what is gone is only the value it wrote. ⇒ The
-  // gap is reported, not invented over: whether CM-70 retires with S-82 is the
-  // specification's to say.
+  // ⛔⛔ THE PNG EXPORT CONTRIBUTES NO CASE TO THIS LIST, and that is not an
+  // omission. FR-025 (MUST NOT) forbids the export holding a scale at all
+  // 「PNGはいつも原則 1600x900 のままとする」, and UN-16 of this very table says
+  // the command that wrote one went with it -- so table T-204 holds no scale
+  // row, `DocumentSettings` holds no such key, and table T-108 holds no
+  // command that writes one. Every case in this list asserts that a command
+  // WROTE a key and left no 段; here there is neither a command nor a key.
 ]
 
 const OUTSIDE_CASES: readonly OutsideCase[] = [...UN_7_CASES, ...KEYED_CASES]
@@ -622,9 +618,7 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
     // S-65 is the one 多値 row that belongs to UN-12 rather than UN-13; the
-    // rest are the three UN-13 names below. ⭐ S-59 left this list on
-    // 2026-09-07 by splitting into the booleans S-227 and S-228, which UN-7
-    // now covers with every other toggle (the user's ruling).
+    // rest are the three UN-13 names below.
     expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-58', 'S-65', 'S-66', 'S-70'])
   })
 })

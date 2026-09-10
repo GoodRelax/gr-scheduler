@@ -69,14 +69,12 @@ const purityTagsIn = (text: string): readonly string[] =>
   [...text.matchAll(/@purity\s+([a-z/-]+)/g)].map((hit) => hit[1] ?? '')
 
 describe('table T-075 -- the unit inventory', () => {
-  // ⚠️ CR-280 retired the autosave whole, and with it CP-23 `AutosaveGateway`,
-  // CP-29 `LocalStorageDocumentStore` and every unit they owned: table T-075
-  // fell from 71 rows to 68 and table T-062 from 38 components to 36. The
-  // numbers below are the tables' own, counted at read time.
-  // ⭐ THE PROSE HAS SINCE FOLLOWED (CR-288, recounted 2026-09-03): SU-1 of
-  // table T-074 now reads 「**36。** 全数は 表 T-062」 and SU-3 「**68。** 全数は
-  // 表 T-075」, so the two sides agree and the cases below are no longer the
-  // only place either number is stated correctly.
+  // ⚠️ WHERE THE TWO NUMBERS COME FROM: table T-075 holds the units and table
+  // T-062 the components, and each side of a case below is counted out of the
+  // table at read time rather than trusted.
+  // ⭐ SU-1 of table T-074 reads 「**36。** 全数は 表 T-062」 and SU-3 「**68。**
+  // 全数は 表 T-075」, so the prose agrees with the rows and these cases are not
+  // the only place either number is stated correctly.
   it('counts the 68 units table T-075 states', () => {
     expect(units).toHaveLength(68)
   })

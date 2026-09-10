@@ -888,10 +888,10 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
   it('paints it in front of the name label, the row directly below it (ZO-5)', () => {
     // ⭐ MEASURED AGAINST `ZO-5` AND NOT AGAINST "the last element of the
     // string". 表 T-020 orders SIX things and the time ruler is none of them --
-    // it stands in its own region (`TimeRuler`, table T-055) above the
-    // `Row Area`, and nothing in the specification says where a region is
-    // painted with respect to another. What `ZO-6` claims is that the rectangle
-    // is in front of `ZO-1` 〜 `ZO-5`, and `ZO-5` (名称ラベル) is the frontmost
+    // it stands in its own region (`Time Ruler`, `U-19` of table T-103) above
+    // the `Row Area` (`U-50`), and nothing in the specification says where a
+    // region is painted with respect to another. What `ZO-6` claims is that the
+    // rectangle is in front of `ZO-1` 〜 `ZO-5`, and `ZO-5` (名称ラベル) is the frontmost
     // of those -- so the label is the element the claim reduces to.
     const built = stage()
     const before = built.picture()

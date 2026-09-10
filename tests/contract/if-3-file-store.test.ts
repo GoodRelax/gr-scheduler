@@ -725,8 +725,8 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
 
   // ⛔ CS-4's LANDING CLAUSE IS NOT REACHABLE FROM THIS SEAM. The row also says
   // the landing is done through `replaceDocument` (MUST), and the caller-by-
-  // caller treatment is table T-230's -- RD-6 for the startup document, RD-5
-  // for the autosave. Neither is observable here: IF-3 carries bytes, and no
+  // caller treatment is table T-230's -- RD-6 for the startup document, the
+  // rest for the other callers. None is observable here: IF-3 carries bytes, and no
   // member of it names a row of table T-230. Holding it would mean driving the
   // shell, and the shell's file-open path does not land at all today -- OP-3 of
   // table T-024a has no surface to ask its three-way question on. See the

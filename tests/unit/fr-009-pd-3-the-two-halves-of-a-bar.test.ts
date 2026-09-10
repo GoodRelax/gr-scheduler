@@ -113,14 +113,12 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
-  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
+  // ⛔⛔ NO DUMMY FIGURE HERE, AND THAT IS THE RULE RATHER THAN AN OVERSIGHT.
+  // Table T-023d's closing rule reads 「`GR-9` / `GR-17` / `GR-18` の
   // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
-  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
-  // row in `_assets/tbl-settings.md` says the field emptied out: 「その `S-93`
-  // は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が 1 人も
-  // 残らなかったからである」. `PointerSlop` no longer carries a dummy figure
-  // at all, so a caller states nothing for it.
+  // 広げてはならない（MUST NOT）」, so the dummy's grab area IS the width
+  // `S-180` draws and there is no separate slop to state. `PointerSlop`
+  // carries no dummy field at all, and a caller states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
 }
 
@@ -358,9 +356,10 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     // same requirement's 「依存線は予定の幾何に付くこと（MUST）。予定を表示して
     // いないときに限り、実績の幾何に付ける」.
     //
-    // ⭐ `S-59` = `'actual-only'` is how a Task comes to have no plan bar at
-    // all: `FR-001`'s floor (`S-49`) means a Task with no dates still draws one,
-    // so hiding the plan is the case the clause describes. ⚠️ The actual is put
+    // ⭐ `S-227` (`planVisible`) set false is how a Task comes to have no plan
+    // bar at all: `FR-001`'s floor (`S-49`) means a Task with no dates still
+    // draws one, so hiding the plan is the case the clause describes. ⚠️ `S-228`
+    // (`actualVisible`) is the other, independent switch, and the actual is put
     // WELL AFTER the plan on purpose -- if the split still followed the plan,
     // both probes would land on the same side of it.
     const schedule = oneRowOf({

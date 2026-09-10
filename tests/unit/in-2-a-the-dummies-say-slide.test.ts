@@ -335,8 +335,9 @@ const drawnTask = (loop: FrameLoop, uid: number) => {
 /**
  * A point inside FR-043's one drawn mark that the row named lands on.
  *
- * ⭐ NOT `DummyGeometry.at`. Since 2026-09-09 `item-hit-area.ts` no longer
- * gives GR-9 / GR-17 the day-column box S-93 used to: `isOnTheDrawnMarkHalf`
+ * ⭐ NOT `DummyGeometry.at`. Table T-023d's closing rule gives GR-9 / GR-17 the
+ * drawn mark itself and nothing wider, so `item-hit-area.ts` holds no box of
+ * its own for them: `isOnTheDrawnMarkHalf`
  * reads GR-9 and GR-17's SHARED `ink` rectangle (both carry the very same
  * object out of `dummiesOf` in `schedule-geometry.ts`) and splits it at its
  * own horizontal middle, left half GR-9 and right half GR-17 -- so GR-17's

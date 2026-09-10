@@ -1,4 +1,18 @@
-248
+163
+#
+# LOWERED 248 -> 163 ON 2026-09-11 by wave 3 of P1-3: three bodies, 45 files.
+# Across all three waves 445 -> 163 over 78 files, and ⛔ NOT ONE LINE OF
+# EXECUTABLE CODE CHANGED in any of them. tsc 0, vitest 7478 passed /
+# 1 skipped, layers 299/299, parity OK -- identical either side, every wave.
+#
+# ⛔ 163 IS NEAR THE FLOOR, NOT NEAR ZERO. Wave 3's bodies classified 39 of
+# their own findings as CORRECT references that must never be removed:
+# a case named 'T-034 ... never answers with the seat CR-280 retired'; an
+# assertion reading expect(rows.find(one => one.id === 'S-139')).toBeUndefined();
+# a fixture literally named documentWithRetiredKey whose whole purpose is to
+# prove a retired key stays inert; and prose anti-examples (FR-04, HF-120,
+# UF-6n) that exist to show what a regex must NOT match. ⇒ A RISE is the
+# fault. ⛔ The standing number is not work owed.
 #
 # LOWERED 370 -> 248 ON 2026-09-11 by wave 2 of P1-3: five bodies over
 # disjoint file sets, plus one repair to this check itself.

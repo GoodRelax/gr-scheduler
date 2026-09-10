@@ -856,29 +856,25 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 // rather than tells -- and for NT-5, the manner OP-11 of table T-024a sends its
 // telling to. Written against docs/spec only; the unit's body was not read.
 //
-// ⭐ WHAT MOVED, AND IN WHICH DIRECTION. These cases were written when a
-// question reached the screen exactly as it had been raised, and they asserted
-// deep equality against the raised value itself. Version 0.88 of the
-// specification (CR-211) then gave the two answers ENTRANCES -- `IC-69` and
-// `IC-70` of table T-109 -- and CR-327 (2026-09-02) took both rows away again:
-// NT-7 now reads
+// ⭐ WHY THE EXPECTED VALUE IS NOT THE RAISED VALUE. A deep equality against
+// what was raised would be the obvious reading and it is the wrong one, because
+// NT-7 has the surface add the two answers itself out of the dictionary:
 //
 //     ⭐⭐ 答えの入口は、図形ではなく語のボタンとすること（MUST）——
 //     `FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No`
 //     と綴ること（MUST）。⛔ 答えの入口に 表 T-109 の行を与えてはならない
 //     （MUST NOT）
 //
-// -- so WHICH two answers stand on the `Confirmation` surface is now the
+// -- so WHICH two answers stand on the `Confirmation` surface is the
 // `confirmation` section's answer and not the asker's, and not table T-109's
-// either. What reaches the screen is still wider than what was raised.
+// either. What reaches the screen is wider than what was raised.
 //
-// ⛔ THAT IS THE MANUSCRIPT MOVING, NOT THESE EXPECTATIONS BEING BENT TO THE
-// CODE. Nothing below was relaxed: every case still demands that the raised
+// ⛔ THAT IS NOT A RELAXATION. Every case below still demands that the raised
 // half comes back WHOLE and UNTOUCHED, and the MUST NOT is asserted rather than
-// quietly dropped -- the first case below reads table T-109's own 面 column and
-// fails if any row names U-55 again. What changed is that the expected value is
-// now "what was raised, PLUS the two word buttons the dictionary holds, in its
-// print order" -- read out of that dictionary, never typed here.
+// quietly assumed -- the first case below reads table T-109's own 面 column and
+// fails if any row names U-55 again. The expected value is "what was raised,
+// PLUS the two word buttons the dictionary holds, in its print order" -- read
+// out of that dictionary, never typed here.
 //
 // ⚠️ HONEST NOTE ON WHAT WAS SEEN. `notices.ts` was not opened at all. What was
 // read is `screen-renderer.ts` -- the file table T-064 makes the contract -- for

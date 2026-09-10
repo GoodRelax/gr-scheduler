@@ -42,7 +42,7 @@
 //
 //   FR-049 (MUST NOT): the whole of table T-202 may not be treated as toggles
 //   -- "the target is the rows whose type is boolean, and those only (MUST)";
-//   the multi-valued rows (S-59 / S-66) and the rows that carry a value of
+//   the multi-valued rows (S-66) and the rows that carry a value of
 //   their own (the stacking direction, the font size, the Dual Cursor's two
 //   dates) are outside it.
 //
@@ -85,9 +85,9 @@
 //   stated reason rather than by omission: its cell names no settings row.
 //
 //   GAP 3 -- AN EXCLUSIVE CHOICE HAS NO ROW IN TABLE T-237. The guide-cursor
-//   entrances set S-66 (since CR-369, 2026-09-06: IC-47 and IC-48, to one of the
-//   two values that still have an entrance -- IC-46 and IC-49 were retired with
-//   `'double-vertical'` and with `'none'`'s own entrance), and FR-048 asks to be
+//   entrances IC-47 and IC-48 each set S-66 to one of its three values (a
+//   second press on the entrance itself returns the row to `'none'`, which is
+//   why no third entrance stands beside them), and FR-048 asks to be
 //   able to choose among them -- but table T-237's five rows say what a fill
 //   may mean, and none of them is "this entrance is the one that is current
 //   among an exclusive set". FR-029 (MUST) binds the fill to that table. So the
@@ -169,13 +169,12 @@ const T_109_AUTHORITY_COLUMN = '正'
  * other guide-cursor entrances into the walk below; a derivation that only
  * looked for a settings row per cell would silently hold all but the head.
  *
- * ⛔ SINCE CR-369 (2026-09-06) THE GUIDE-CURSOR FAMILY HAS NO HEAD. IC-46 was
- * the only row of table T-109 that named `S-66`, and it was retired with
- * `'none'`'s entrance; IC-47 and IC-48 still open with "same," but the row
- * printed above them is now IC-44, which is about the status date. So no row of
- * table T-109 names `S-66` any more and the inheritance carries nothing. The
- * premise case below is the guard that catches exactly that, and it is red for
- * that reason. ⛔ DO NOT RELAX IT -- the manuscript is what has to move.
+ * ⛔ THE HEAD OF THE GUIDE-CURSOR FAMILY IS IC-47, whose cell writes `S-66`
+ * out in full 「ガイドカーソルを `'crosshair'` にする（`S-66`。3 値排他）」;
+ * IC-48 opens with "same," and inherits it. ⚠️ WHICH ROW IS THE HEAD IS NOT
+ * FIXED -- the head is simply whichever row of the family table T-109 prints
+ * first, so a re-ordering of the table moves it. The premise case below is the
+ * guard that catches a family left with no head at all. ⛔ DO NOT RELAX IT.
  */
 const SAME_AS_THE_ROW_ABOVE = '同・'
 
@@ -508,10 +507,10 @@ describe('the manuscripts still say what these cases read', () => {
     // settings row once and then says "same, `'crosshair'`" for the rest of the
     // family, so a re-worded -- or retired -- head cell quietly takes the rest
     // out of the walk below and leaves the family unmeasured.
-    // ⛔ RED SINCE CR-369, AND CORRECTLY SO: retiring IC-46 took `S-66`'s only
-    // mention out of table T-109, so IC-47 and IC-48 inherit from IC-44 (the
-    // status date) and reach no settings row at all. This is a defect in the
-    // manuscript, not in the derivation.
+    // ⚠️ THIS CASE IS WIDER THAN ONE FAMILY, and knowingly so: it asks only
+    // that SOME family still writes a "same as above" cell and that SOME
+    // settings row is reached by more than one entrance. A single family losing
+    // its head passes here and shows up as a shortfall in the walks below.
     const sameAsAbove = T_109_PALETTE.filter((row) =>
       (row.by[T_109_ENTRANCE_COLUMN] ?? '').startsWith(SAME_AS_THE_ROW_ABOVE),
     )
