@@ -1,0 +1,67 @@
+91
+#
+# 91 IS A COUNT AT FLOOR 20, NOT AT FLOOR 10. The same tree gives 460 at
+# floor 10. A count at one floor says nothing about another, so the check
+# pins its gate to FLOOR in its own source and refuses to read this file at
+# any other -- see check-repeated-expressions.py.
+#
+# WHY 20 AND NOT THE FLOOR THE CHECK WAS BUILT FOR. Measured 2026-09-11 by
+# reading ten RANDOM groups at each floor: 6 of 10 were real duplication at
+# floor 10, 9 of 10 at floor 20. A gate that is wrong four times in ten
+# teaches people to ignore a red gate, which costs more than the duplication
+# it would have caught.
+#
+# WHAT FLOOR 20 DOES NOT SEE, and it is the case this check was built for:
+# the FR-093 width estimate is a 10-token expression standing in FOUR places
+# in src/, so it is invisible here. Run it by hand to see that band:
+#   python .claude/skills/spec-graph-check/check-repeated-expressions.py --floor 10
+# which prints and does not gate.
+#
+# Check 41 -- how many runs of at least 10 tokens are written out in two or
+# more places under src/. Held by check-repeated-expressions.py. Line 1 is the
+# number; every other line is commentary and is ignored.
+#
+# THE NUMBER IS A DEBT, NOT A PERMISSION. 460 whole expressions stand written
+# twice or more in src/ today. The check goes red when that rises, and invites
+# a lower baseline when it falls -- so folding a copy is a change that must
+# LOWER this file, in the same commit, or the ground is not held.
+#
+# ⭐ WHAT WAS MEASURED, 2026-09-11, so a later reader can refute it rather
+# than trust it. src/: 68 files, 158,995 tokens after comments, imports and
+# the generated blocks are struck out; 460 groups at the floor of 10 tokens.
+# tests/: 227 files, 3,525 groups -- ADVISORY and NOT in this number, because
+# a test case in this project states its own arrangement so it reads alone
+# and is written by an agent that never saw the other cases. Both counts are
+# printed on every run, so overruling that split needs no edit to the script.
+# Wall clock for the gating run: 2.3 s.
+#
+# ⛔ THIS IS NOT YET A GATE, AND THE MEASUREMENT SAYS WHY. Ten of the 460
+# groups, drawn at random and read by hand, named one expression genuinely
+# written twice 6 times out of 10. The same reading at `--floor 20` (91
+# groups) gave 9 out of 10. Precision rises with the length of the run, and a
+# rise in this number is most likely to be a short group -- the band where
+# the check is least sure. ⇒ Run it and read it; think twice before letting
+# it stop a commit at floor 10. `--floor 20` is the run to gate on if a gate
+# is wanted before the tail is tightened.
+#
+# ⭐ THE CASE IT WAS BUILT FOR IS IN THE REPORT, and it is why the floor is
+# 10 rather than the cleaner 20. `FR-093`'s counting,
+# `charCodeAt(0) < 0x100 ? 1 : 2`, is exactly 10 tokens and stands in FOUR
+# places: row-title-panel.ts:188, schedule-geometry.ts:1813, and
+# schedule-layout.ts:516 and :693. The comment at row-title-panel.ts:51 says
+# it lives in TWO, and the one at schedule-geometry.ts:1808 says a fourth
+# would mean the rule has earned a home. Both were true when written; a
+# comment cannot count, so neither knows it is now wrong. ⛔ Nothing in that
+# is fixed by this check -- it only makes the number impossible to lose.
+#
+# THE FINDINGS-PER-FLOOR CURVE the floor was chosen from (`--curve`):
+#     floor  6 : 1129     floor 16 :  158
+#     floor  8 :  700     floor 20 :   91
+#     floor 10 :  460     floor 24 :   67
+#     floor 12 :  298     floor 30 :   32
+#     floor 14 :  209     floor 40 :   18
+# At floor 12 the FR-093 group is one of THREE places, not four.
+#
+# RAISING THIS NUMBER IS A DECISION, not a way to get green. Say in the commit
+# which copy was added and why it could not be folded -- the two comments
+# above are what happens when that reason is written only beside the code.

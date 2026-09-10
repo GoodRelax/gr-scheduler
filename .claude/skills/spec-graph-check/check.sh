@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 41 mechanical checks for the gr-scheduler specification.
+# All 42 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -17,6 +17,7 @@
 # the failure this note keeps happening to. 39 -> 40.
 # ⭐ Recounted 2026-09-11 when check 44 was added: 40 -> 41. The ranges are
 # 1 + 4 + 7 + 4 + 25, and 40 was right before this one went in.
+# ⭐ Recounted 2026-09-11 again when check 45 was added: 41 -> 42.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -166,6 +167,17 @@
 #          and every reader in this suite before it required one --
 #          specindex.py's REF_TOKEN does -- so those references were
 #          invisible rather than absent
+#   45     check-repeated-expressions.py : one expression, normalised, written
+#          in two or more places in src/. ⛔ GATED AT A TOKEN FLOOR OF 20 AND
+#          NOT AT THE FLOOR IT WAS BUILT FOR, because a body read ten random
+#          groups at each on 2026-09-11 and found 9 of 10 real at 20 against
+#          6 of 10 at 10 -- a gate wrong four times in ten teaches people to
+#          ignore a red gate. ⚠️ So it does NOT see the case it was built for:
+#          the FR-093 width estimate is 10 tokens standing in four places.
+#          `--floor 10` prints that band and deliberately does not gate, since
+#          a count at one floor says nothing about another. tests/ is measured
+#          on every run and never counted -- 1,519 groups at floor 20 -- because
+#          a case that states its own arrangement is right to repeat itself
 #   40     check-ruled-elsewhere.py : a defects.md row still reading as
 #          un-ruled -- ステータス at 未検討 / 裁定待ち / 仕様待ち, or its
 #          対応方針・決定仕様 cell holding 未検討 / 裁定待ち / 利用者の裁定が
@@ -444,6 +456,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-
 echo ""
 echo "===== 44  src/ and tests/ against a burnt or unknown specification ID ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-spec-id-references.py || fail=1
+
+echo ""
+echo "===== 45  one expression written in two or more places in src/ ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-repeated-expressions.py || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
