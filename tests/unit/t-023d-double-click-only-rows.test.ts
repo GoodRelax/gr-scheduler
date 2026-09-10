@@ -333,7 +333,8 @@ const TASK_NAMED = taskOf({
  * The Task the GR-11 case presses beside.
  *
  * ⚠️ IT CARRIES AN ACTUAL ON PURPOSE. FR-043 draws the two dummies of GR-9 and
- * GR-17 on a Task that has not started, and their hit box is S-93 -- which
+ * GR-17 on a Task that has not started, and their hit box is the mark FR-043
+ * draws (table T-023d's closing rule, sized by S-180 of table T-206) -- which
  * reaches further to the left of the plan start than the assignee label sits.
  * With an actual recorded there is no dummy, so what the probe left of the bar
  * answers is about GR-11 and nothing else.
@@ -431,7 +432,7 @@ const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE
  * The reach each row of table T-023d is grabbed by.
  *
  * ⭐ READ FROM THE GENERATED CONSTANT, not typed out. Table T-206 keeps S-90 to
- * S-93 and S-137 out of the document because they belong to the reader's
+ * S-92 and S-137 out of the document because they belong to the reader's
  * environment, so `itemAtPointer` ships no default and takes them as an
  * argument; `NOT_STORED_SIZES` is what the manuscript prints into `src/`.
  */

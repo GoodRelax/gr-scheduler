@@ -178,8 +178,7 @@ const WATERMARK_UNLOCK = 'Watermark Unlock'
  * IC-73 on U-56. What this surface needs a branch for is the half that is NOT an
  * entrance: the tasks FR-022 (MUST) lays out before anyone is asked.
  * ⛔ IT HAS NO INDEPENDENT ENTRANCE OF ITS OWN (FR-022): it rises from the
- * opening road, OP-3 of table T-024a, and IC-94 was withdrawn from table T-109
- * on 2026-09-05 for saying otherwise.
+ * opening road, OP-3 of table T-024a.
  */
 const DIFFERENCE_REVIEW = 'Difference Review'
 

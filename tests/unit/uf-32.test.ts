@@ -1242,11 +1242,9 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
    * SMALLER of two numbers, so a case run at one magnification proves half the
    * rule: at 6px a day the DAY is smaller, at 48px a day `S-180` is.
    *
-   * ⛔⛔ THE WIDE ONE WAS 4 UNTIL 2026-09-09, when `S-180`'s default rose from
-   * 12 to 30 so that the drawn mark and the hold `S-93` gives it would be the
-   * same size -- 「既定を `S-93` と同じ大きさに揃えた」. A day at zoom 4 is 24px,
-   * which fell to the NARROW side of the new bound, and the case below is what
-   * said so rather than the pair quietly proving one half twice.
+   * ⛔ THE WIDE ONE HAS TO CLEAR `S-180`, and 24px a day does not: it falls to
+   * the NARROW side of the bound and the pair then proves one half twice. The
+   * case below is what says so rather than letting it pass quietly.
    */
   const NARROW_DAY_ZOOM = 1
   const WIDE_DAY_ZOOM = 8
@@ -1335,8 +1333,6 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
         mark.to - mark.from,
         `the ダミー is drawn 「1 日ぶんと S-180 の小さい方」 at ${days}`,
       ).toBeCloseTo(drawnWidthAt(zoomX), 6)
-      // ⛔ 「`S-93` とは別の値である —— あちらは読む人の当たり判定であって、
-      // 環境が大きく取ってよい」. Nothing here measures S-93.
       expect(
         mark.from,
         `the ダミー begins at its day column's left edge at ${days}`,

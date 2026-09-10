@@ -3584,8 +3584,8 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     //
     // ⭐ AND HF-5 (MUST) NOW LEVELS THE CONTROLS WITH THE TOP OF THE NAME,
     // forbidding both centring them and setting them down from it (MUST NOT).
-    // Nothing on IF-9 carries a set-down any more (S-139 of 表 T-206 is
-    // retired), so the two things this side can be held to are asserted below:
+    // Nothing on IF-9 carries a set-down, so the two things this side can be
+    // held to are asserted below:
     // no control carries a top offset of its own, and the row that holds them
     // starts them at its top rather than centring them.
     const built = wire({ 'App Header': 37 })

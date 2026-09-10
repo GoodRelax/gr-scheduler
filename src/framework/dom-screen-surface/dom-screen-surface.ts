@@ -1260,12 +1260,11 @@ type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
  * FR-029 (MUST) draws faint the entrance that cannot be used and closes the fill
  * paragraph with 「上の薄く描く入口には当ててはならない（MUST NOT）」 -- 「効いて
  * いて、かついま何も変えられない入口が濃くなると、薄さの意味が消える」. An entry
- * can be both at once (S-59 at `'plan-only'` leaves IC-8 on and unusable, and
- * S-59 at `'actual-only'` does the same to IC-9, which is where this was
- * measured), so an entrance that is in effect and unusable reports only that it
- * cannot be used. ⚠️ THAT NOW REACHES THE ARMED ENTRY TOO: while the rim was a
- * rule of FR-053 alone it was drawn on the faint entry as well, and the MUST NOT
- * that governs the fill is FR-029's and reaches every row of table T-237.
+ * can be both at once, so an entrance that is in effect and unusable reports
+ * only that it cannot be used. ⚠️ THAT NOW REACHES THE ARMED ENTRY TOO: while
+ * the rim was a rule of FR-053 alone it was drawn on the faint entry as well,
+ * and the MUST NOT that governs the fill is FR-029's and reaches every row of
+ * table T-237.
  * ⛔ The caller decides it, not this function -- `commandEntry` never offers a
  * row for an entrance it drew faint.
  *
@@ -2566,9 +2565,9 @@ function panelEdge(
  *
  * ⭐ WHY THE DRAWING SIDE CONVERTS AND THE SEAM DOES NOT. `AutosaveStatus.at`
  * goes on carrying the spelling AT-129 fixes -- ISO 8601, UTC, to the second --
- * so nothing on IF-9 moves and no value of table T-065 changes shape. FR-061
- * (MUST) asks only that the saved state be shown 「時刻を併記」 and settles
- * neither a zone nor a spelling, which leaves what a READER is shown to this
+ * so nothing on IF-9 moves and no value of table T-065 changes shape. FR-101
+ * (MUST) keeps what is STORED in UTC and settles no spelling for what is SHOWN
+ * -- 「時刻の綴りそのものは本書が定めない」 -- which leaves the reading to this
  * side.
  * ⭐ AND THE ZONE IS THE READER'S BECAUSE THAT IS WHAT THE ONE ROW WHICH DOES
  * SETTLE A ZONE ASKS FOR: FR-046 (MUST) has today's date be 「読む人の機のロー
@@ -2981,11 +2980,10 @@ function fillScreenFrame(
  * row levels the controls with the name's top edge and forbids both centring
  * them and setting them down from it (MUST NOT), so nothing is added here: the
  * row's own `align-items:flex-start` is the whole of the placement.
- * ⛔ THE SET-DOWN THIS FUNCTION USED TO TAKE IS GONE, and the STOP that stood
- * here with it. That amount was a proportion of a size the drawn name does not
- * have -- `STYLE.rowLabel` sets none, so a name is drawn in the environment's
- * text size -- and the row it came from (S-139) is retired (利用者の裁定,
- * 2026-08-25).
+ * ⛔ NO SET-DOWN MAY BE ADDED AS A PROPORTION OF THE NAME'S SIZE: the drawn name
+ * has none of its own -- `STYLE.rowLabel` sets no size, so it is drawn in the
+ * environment's text size -- so such an amount would resolve against a base
+ * this function cannot see.
  *
  * @purity non-pure
  */
@@ -7105,8 +7103,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // ⛔ NO ANCHOR MAP IS ASKED FOR, and that is not an omission: table T-029a
       // hangs a tooltip on a row of table T-109, and NT-7 (MUST NOT) refuses this
       // surface's two answers such a row -- so nothing drawn here can be keyed
-      // by one. ⚠️ It was asked for until 2026-09-02, while the two answers were
-      // IC-69 and IC-70.
+      // by one.
       confirmationLayer.replaceChildren(
         ...(asked === null ? [] : [confirmationElement(host, asked)]),
       )

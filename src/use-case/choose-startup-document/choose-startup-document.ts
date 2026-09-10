@@ -12,11 +12,10 @@
 //     BT-2  the document handed at startup           (path R-1 of table T-008)
 //     BT-4  the template for the first screen        (FR-027)
 //
-// ⚠️ BT-3, the autosaved document, was the third rank until CR-280 retired the
-// autosave on the user's ruling (2026-08-29). Its seat number stays burnt, so
-// the rows below run BT-1, BT-2, BT-4 and the order is still the table's.
-// FR-062 now states the order and nothing else: what becomes of a rank that
-// lost belongs to that rank's own requirement.
+// ⚠️ THE TABLE'S THIRD SEAT IS BURNT -- no rank stands between BT-2 and BT-4.
+// The rows below run BT-1, BT-2, BT-4 for that reason, and the order is still
+// the table's. FR-062 states the order and nothing else: what becomes of a
+// rank that lost belongs to that rank's own requirement.
 //
 // ⚠️ Nothing here reads a file, storage, the clock or the DOM. LY-5 leaves every
 // outside value to the Framework, so all three candidates ARRIVE AS VALUES,

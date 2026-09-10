@@ -183,9 +183,10 @@ const SIGN_BY_CODE: Readonly<Record<string, string>> = {
  * How near in time and place a second press has to be to count as the second
  * of a double click (MK-13).
  *
- * ⛔ NO table holds either figure. Table T-206 collects 掴み代 and 当たり判定
- * and stops there; table T-201's only millisecond rows are the icon hint
- * (S-124) and the autosave idle (S-112), and neither is about a click.
+ * ⛔ NO table holds either figure. The three millisecond rows the
+ * manuscript does settle are all WAITS -- the icon hint (S-124) and the
+ * press-and-hold pair (S-172 / S-173) -- and the gap between two presses
+ * is not one of them.
  * ⚠️ `input-source.ts` puts the counting here on purpose (a pure function
  * cannot time a gap), so a figure is needed rather than avoidable. The
  * recommendation is the interval a desktop host uses for its own double click,

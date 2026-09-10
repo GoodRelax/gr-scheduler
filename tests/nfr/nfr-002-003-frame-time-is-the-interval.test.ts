@@ -183,10 +183,9 @@ const EXPORT_CANVAS = sizeOf(rowOf(T204, 'S-81'))
 /** `S-217` `exportCanvasHeightCap` -- how far the height may be stretched. */
 const EXPORT_HEIGHT_CAP = numberIn(rowOf(T204, 'S-217').by['既定値'] ?? '')
 
-// ⛔ THERE IS NO SCALE TO READ. `S-82` (`exportPngScale`) left table T-204 on
-// 2026-09-06: FR-025 (MUST NOT) forbids the export holding a scale at all (the
-// reader's ruling 「PNGはいつも原則 1600x900 のままとする」), so one picture is
-// asked for and its width must be `S-81`'s own.
+// ⛔ THERE IS NO SCALE TO READ. FR-025 (MUST NOT) forbids the export holding a
+// scale at all (the reader's ruling 「PNGはいつも原則 1600x900 のままとする」), so
+// one picture is asked for and its width must be `S-81`'s own.
 
 /** `TP-6` -- how many `Task` the startup template holds. */
 const TEMPLATE_TASKS = numberIn(rowOf(T226, 'TP-6').cells[1] ?? '')

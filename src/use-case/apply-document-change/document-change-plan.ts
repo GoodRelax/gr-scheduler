@@ -159,9 +159,7 @@ function isUndoable(command: DocumentCommand): boolean {
     // UN-7: the eight boolean rows of table T-202.
     case 'setElementVisible':
       return false
-    // UN-16: where you look, and nothing else any more. ⚠️ The row used to
-    // name the PNG scale too; FR-025 took the scale away on 2026-09-06 and
-    // CM-70 (`setExportPngScale`) retired with it.
+    // UN-16: where you look, and nothing else.
     case 'setPanelWidths':
       return false
     // UN-8: the zoom and the position. ⭐ `fitScheduleToScreen` IS here now.
@@ -227,11 +225,9 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
   return {
     // UN-7 -- the ten boolean rows of table T-202, every one of them written
     // by `setElementVisible` (CM-58) and by nothing else.
-    // ⭐ `planVisible` (S-227) and `actualVisible` (S-228) JOINED THEM ON
-    // 2026-09-07 (the user's ruling): FR-049 split the one three-valued row
-    // S-59 into two independent booleans, and a boolean row of table T-202 is
-    // what UN-7 rules on. ⛔ CM-57, the command that wrote the enumeration,
-    // retired with it.
+    // ⭐ `planVisible` (S-227) and `actualVisible` (S-228) ARE AMONG THEM:
+    // FR-049 makes each an INDEPENDENT boolean, and a boolean row of table
+    // T-202 is what UN-7 rules on.
     // ⚠️ THE MULTI-VALUED ROWS OF THAT TABLE STAY INSIDE THE HISTORY (UN-13,
     // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
     // `guideCursorMode` (S-66) and `fontScale` (S-70) are absent by ruling and
@@ -255,11 +251,10 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
 
-    // UN-16 -- where you look and what you export. `setPanelWidths` (CM-67)
-    // writes the pair. ⛔ THE SCALE IS GONE: FR-025 (MUST NOT) forbids the
-    // export holding one at all (the reader's ruling of 2026-09-06), so `S-82`
-    // / `exportPngScale` was retired and there is no key here to carry over.
-    // ⚠️ A saved document that still holds the key is not broken by this: OP-6
+    // UN-16 -- where you look. `setPanelWidths` (CM-67) writes the pair.
+    // ⛔ NO EXPORT SCALE IS CARRIED: FR-025 (MUST NOT) forbids the export
+    // holding one at all, so there is no third key here.
+    // ⚠️ A saved document that still holds one is not broken by this: OP-6
     // of table T-024a keeps a key it does not know rather than dropping it, and
     // a retired key is an unknown key from the day it retires.
     rowTitlePanelWidth: current.rowTitlePanelWidth,
@@ -359,8 +354,8 @@ function utf8Length(text: string): number {
  * this applies it to the whole document a step holds: the packed `GRS JSON`
  * form -- no indent, no line breaks -- encoded as UTF-8, counted in bytes.
  *
- * ⚠️ The packed form is built to be COUNTED and is stored nowhere; FR-024 and
- * FR-061 write the indented one. So `JSON.stringify` is called with no spacing
+ * ⚠️ The packed form is built to be COUNTED and is stored nowhere; FR-024
+ * writes the indented one. So `JSON.stringify` is called with no spacing
  * argument, which is that form exactly.
  *
  * @purity pure
@@ -671,9 +666,8 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
 /**
  * The six callers of table T-230, each carrying only what its own row needs.
  *
- * ⚠️ RD-5 was 「自動保存からの復帰」 until CR-280 retired the autosave on the
- * user's ruling (2026-08-29). Its seat number stays burnt, which is why the six
- * run RD-1 to RD-4 and then RD-6, RD-7.
+ * ⚠️ THE TABLE'S FIFTH SEAT IS BURNT, which is why the six run RD-1 to RD-4
+ * and then RD-6, RD-7.
  *
  * ⛔ THE ROW IS AN ARGUMENT, NEVER A GUESS. T-230 requires a caller to name its
  * own row (MUST) and forbids accepting a replacement that names none (MUST

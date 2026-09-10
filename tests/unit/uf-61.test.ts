@@ -46,7 +46,7 @@
 //   1. How wide the grab band is and how thick the boundary line is. Searched
 //      FR-051 and FR-052 (both say where the boundary is and what a drag does,
 //      neither sizes it), table T-206 (every settled grab margin -- S-90 to
-//      S-93 -- and no row for this one), table T-023d, tables T-201 / T-203 /
+//      S-92 -- and no row for this one), table T-023d, tables T-201 / T-203 /
 //      T-212, and EP-9 of table T-076, which forbids a settings key for the
 //      line. ⚠️ The cases below therefore assert only that the band and the
 //      line COVER the boundary, at whatever width. ⛔ But see the last group:
@@ -659,7 +659,7 @@ describe('UF-61 -- ⛔ LEFT FAILING: FR-051 calls the divider a grab band', () =
   // the drawing area". FR-052 (:2379) then has the person DRAG that boundary.
   //
   // ⚠️ The requirement never gives the width a number -- table T-206 holds every
-  // settled grab margin (S-90 to S-93) and has no row for this one -- so no
+  // settled grab margin (S-90 to S-92) and has no row for this one -- so no
   // case here asserts one. But zero is not a width the specification leaves
   // open: a band of zero width holds no point under the half-open convention
   // R3.4 sets, so nothing can be grabbed and FR-052's drag has no target.

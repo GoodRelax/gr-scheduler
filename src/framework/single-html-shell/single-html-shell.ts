@@ -58,7 +58,7 @@
 //
 // ⭐ THE FIGURES THAT MADE THIS POSSIBLE ARRIVE GENERATED, none of them typed
 // anywhere in `src/`: the zoom step (S-96), its bounds (S-97 / S-98), the grab
-// slop of table T-023d (S-90 .. S-93 and S-137) and the history bounds (S-94 /
+// slop of table T-023d (S-90 .. S-92 and S-137) and the history bounds (S-94 /
 // S-95) all reach the loop through NOT_STORED_* constants that
 // `tools/generate_entity_types.py` prints from the manuscript.
 //
@@ -998,17 +998,16 @@ function boot(): void {
   const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
 
   // ---- BO-2 ---------------------------------------------------------------
-  // Table T-034's order. BT-1 IS READ NOW; the two after it are still missing
-  // something different, and neither absence is a stand-in:
+  // Table T-034's order. BT-1 IS READ NOW; BT-2 is still missing something,
+  // and that absence is not a stand-in:
   //
   //   BT-2  ⛔ IF-3 HAS NO MEMBER FOR IT AND CANNOT. Table T-034 sends this
   //         rank to R-1 of table T-008 -- a file chooser or a drop -- and
   //         neither has happened at the moment BO-2 runs. `readFileToOpen`
   //         answers for a gesture the person has just made; nothing on that
   //         seam answers for a file the host handed the page as it started.
-  //   BT-3  AutosaveGateway (IF-4) is not built in this build.
   //
-  // ⛔ Saying `none` for those two is what is true of this build, and FR-067
+  // ⛔ Saying `none` for that rank is what is true of this build, and FR-067
   // already says a rank that yields nothing descends rather than starting empty.
   //
   // ⚠️ THE TEMPLATE IS BUILT ONCE AND HELD, because three things read it: BT-4
@@ -1045,9 +1044,9 @@ function boot(): void {
   // `startupTemplateDocument` records for the same file: the template is
   // BUNDLED, so a fault in it is a build that shipped broken, and
   // `npm run gen:check` is where that is caught rather than at boot.
-  // ⛔ WHAT IS OWED WHEN THE OTHER TWO RANKS GAIN PRODUCERS. BT-2's handed file
-  // and BT-3's autosave are each R-1 / R-3 of table T-008 -- untrusted -- and
-  // each of them needs this same gate before it may be handed over as `read`.
+  // ⛔ WHAT IS OWED WHEN BT-2 GAINS A PRODUCER. Its handed file is R-1 of
+  // table T-008 -- untrusted -- so it needs this same gate before it may be
+  // handed over as `read`.
 
   // ⛔⛔ NO STARTUP OFFER IS OWED, AND MAKING ONE WOULD BREAK TWO MUST NOTs.
   // A STOP stood here reading 「FR-060's SECOND MUST IS NOT KEPT」 and naming

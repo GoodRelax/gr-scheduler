@@ -59,8 +59,7 @@
 // ⚠️ Every write needs a user gesture, in every browser. ⛔ That is never
 // hidden in a promise that does not settle: a refused gesture comes back as
 // `permissionLost` when a file is remembered, and as `unavailable` otherwise,
-// so the caller can act on it. See PD-102 for the reason vocabulary this
-// stretches.
+// so the caller can act on it.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -91,7 +90,7 @@ export type FilePermissionState = 'granted' | 'denied' | 'prompt'
 /** One file as the browser hands it over, before anything is read. */
 export interface ReadableFile {
   readonly name: string
-  /** ⚠️ Bytes, and the number S-113's ceiling is stated in. See PD-103. */
+  /** ⚠️ Bytes, and the number S-113's ceiling is stated in. */
   readonly size: number
   arrayBuffer(): Promise<ArrayBuffer>
 }
@@ -822,12 +821,11 @@ export function fileSystemAccessFileStore(
      * ⛔ The whole file is read into memory, and nothing here checks S-113's
      * ceiling first. FileGateway states the division -- it reports
      * `byteLength` and ValidateImportedDocument (CP-13) rules on it under
-     * FR-023 -- and refusing here would need a reason IF-3 does not have. See
-     * PD-103.
+     * FR-023 -- and refusing here would need a reason IF-3 does not have.
      *
      * ⛔ Whichever route succeeds becomes the file FR-060 overwrites, and a
      * file the codecs later refuse stays that file: IF-3 has no member for
-     * "the document was accepted". See PD-101.
+     * "the document was accepted".
      *
      * @purity non-pure
      */
@@ -871,10 +869,7 @@ export function fileSystemAccessFileStore(
      * ⛔ DO NOT INVENT A SECOND STORE to make a handle survive a reload. The
      * same requirement now states it: 「そのためにファイルの取っ手を
      * `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）—— 覚えないと
-     * いう裁定そのものを破ることになる」. ⚠️ This used to point at PD-100 as the
-     * open question about where to keep a handle; that row is gone from
-     * docs/development-records/pending-decisions.md (measured 2026-09-07),
-     * because the requirement above answered it.
+     * いう裁定そのものを破ることになる」.
      *
      * @purity non-pure
      */
@@ -973,7 +968,7 @@ export function fileSystemAccessFileStore(
             return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
           }
           // ⚠️ A refused gesture lands here with nothing remembered to call
-          // `permissionLost` about. See PD-102.
+          // `permissionLost` about.
           return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
         }
 

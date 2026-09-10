@@ -163,10 +163,6 @@ export interface ResumeGeometry {
    *
    * ⭐ NO NEW SETTING IS RAISED, which the row states: 「新しい設定値を立てない
    * —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う。」
-   * ⛔⛔ UNTIL 2026-09-09 THE ICON READ S-93, the dummy's hit box, and the
-   * user's ruling shrank it to the marker's size. ⚠️ That row is itself gone
-   * as of 2026-09-10 -- 「その `S-93` は 2026-09-10 に廃した」 -- so nothing
-   * anywhere reads it, and this icon is the size of the marker either way.
    *
    * ⚠️ S-25 (`resumeScaleInvalid`) DOES NOT ENTER IT. That row shrinks the
    * DRAWING while `resumeValid` is false, and no clause makes the hit box
@@ -902,11 +898,6 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   // 図形の外側」 says what the marker stands outside OF, and this says what
   // width the order counts; the two are different faces and the marker clears
   // both.
-  // ⚠️ Measured on the shipped build 2026-09-09, before this: the marker stood
-  // on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9 -- the same shape
-  // as defect D-408, which the bar-shaped arm below had already been repaired
-  // for. ⛔ Those 30 pixels were S-93's box, and 「その `S-93` は 2026-09-10 に
-  // 廃した」 -- the square a reader can see is all there is now.
   // ⚠️ `dummyReach` IS ALREADY GR-18's ON A MILESTONE: `dummyReachOf` reads the
   // shape and answers half that square past the day it stands on, so nothing
   // new is measured here. ⭐ It and `actualReach` are never both a number (FR-043 draws a dummy
@@ -923,12 +914,6 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   // the closing rule of table T-023d): 「`GR-9` / `GR-17` / `GR-18` の当たり判定
   // は、`FR-043` が描いた印そのものとすること（MUST）」. So the outside is the
   // right edge of the drawn mark, which is a day column wide at most.
-  // ⛔⛔ IT WAS THE RIGHT EDGE OF S-93's BOX UNTIL THAT DAY -- 30px beginning a
-  // whole worked day further right -- and 「その `S-93` は 2026-09-10 に廃した」.
-  // ⚠️ Measured on the shipped build 2026-09-09, while that box stood: reading
-  // the ink's own edge put the marker over 16 of GR-17's 30 hit pixels at 6, 15
-  // and 36 px a day (defect D-408). ⭐ The two edges are now ONE edge, so that
-  // measurement can no longer come apart.
   // ⭐⭐ READ OFF THE PLACEMENT AND NOT WORKED OUT HERE, which is the bargain
   // `actualReach` above already keeps: the heading of table T-038 forbids the
   // stacking and the label counting separately (MUST NOT), and ScheduleLayout
@@ -949,17 +934,15 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
  * holds: S-23 states it as the least distance that does not overlap the end
  * point's grab allowance, and forbids going any further.
  *
- * ⚠️⚠️ THAT CLEARANCE IS MEASURED FROM THE ANCHOR, AND THE ANCHOR IS WHAT
- * MOVED -- twice. This note used to end 「Squaring S-23 against S-93 changes the
- * specification; it is not a value to pick here」; on 2026-09-09 table T-038's
- * order was made to count a grab hold's width rather than a drawn mark's
- * (MUST), and on 2026-09-10 the closing rule of table T-023d made the two ONE
- * width -- 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は
- * 消えた」. ⇒ `markerAnchorX` hands back the right edge of the drawn mark and
- * `markerGap` clears THAT.
- * ⭐ Nothing here reads a second width, and there is no longer a second width to
- * read: S-93's row is gone, so the gap stays the one distance the document
- * holds and nothing is squared against it.
+ * ⚠️⚠️ THAT CLEARANCE IS MEASURED FROM THE ANCHOR, AND THE ANCHOR IS THE
+ * RIGHT EDGE OF THE DRAWN MARK. The closing rule of table T-023d makes a
+ * dummy's hit area the mark FR-043 draws and says the two widths are now
+ * one -- 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は
+ * 消えた」 -- so `markerAnchorX` hands back that edge and `markerGap`
+ * clears THAT.
+ * ⛔ THERE IS NO SECOND WIDTH TO READ, so nothing is squared against
+ * `markerGap` here: reaching for a second distance would be changing the
+ * specification rather than picking a value.
  *
  * @purity pure
  */

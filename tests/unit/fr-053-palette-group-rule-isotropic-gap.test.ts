@@ -1036,10 +1036,9 @@ describe('S-143 (利用者の裁定 2026-08-29) -- the gap reaches every side of
 // ---------------------------------------------------------------------------
 // ⚠️ NO COLOUR CASE. Searched: FR-053's full statement (the paragraph that
 // carries S-143, and the rest of the requirement) and S-143's own row in table
-// T-206. Neither names a row of table T-236 for this line -- the two T-236
-// references FR-053's text does carry are for OTHER lines/marks (`S-183`, the
-// colour 表 T-237's `EN-1` fills the armed entry's glyph box with; ⚠️ CR-311
-// retired `S-185`, the rim thickness this note used to name alongside it), not
+// T-206. Neither names a row of table T-236 for this line -- the T-236
+// reference FR-053's text does carry is for ANOTHER mark (`S-183`, the colour
+// 表 T-237's `EN-1` fills the armed entry's glyph box with), not
 // for the group boundary. S-143's remark states, in as many words, that the row holds
 // a thickness and a gap and nothing else (⚠️ 図形でもない…). Per the task's own
 // rule ("if neither names one, say so and write no colour case"), none is

@@ -265,8 +265,7 @@ interface QuotedReason {
  * Every reason ID quoted in the product tree.
  *
  * ⛔ QUOTED, NOT MENTIONED. A row ID inside a comment is the manuscript being
- * talked about, and `src/framework/single-html-shell/frame-loop.ts` deliberately
- * names the retired `RS-45` in three comments to record that it left. What a
+ * talked about, and a comment may name a row the table no longer holds. What a
  * notice can actually carry is what the code writes as a string, so that is what
  * is collected -- and it is judged against table T-233, never the other way
  * about.

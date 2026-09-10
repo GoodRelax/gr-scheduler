@@ -28,12 +28,10 @@
 // ⭐ THE RULE THESE CASES ARE DRIVEN BY:
 //
 //   表 T-230 「まるごと差し替えるときの呼び手ごとの扱い」, every row it prints
-//             (RD-1 .. RD-4, RD-6 and RD-7 -- RD-5 「自動保存からの復帰」 left
-//             the table with CR-280, which took 「自動保存」 out of the
-//             manuscript, and RD-7 「`FR-095` の初期化」 was seated on
-//             2026-09-07 and its road landed the same day, so its cells AND
-//             its behaviour are both driven, section 12 at the foot of this
-//             file being where the behaviour is),
+//             (RD-1 .. RD-4, RD-6 and RD-7 -- the gap is a burnt seat, since
+//             行 ID は席の番号であり、詰めない; and RD-7 「`FR-095` の初期化」
+//             has both its cells AND its behaviour driven, section 12 at the
+//             foot of this file being where the behaviour is),
 //             read out of docs/spec/05-07-design.md at load time through
 //             `specTable` rather than copied. Chapter 1.9 (:275) asks that a
 //             test of a requirement pointing at a table be driven by the table,
@@ -681,22 +679,19 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
 // 4. 表 T-230 itself, before anything is driven by it.
 //    「本表の …… が、まるごと差し替える呼び手の全数である。」
 //
-// ⭐ THE COUNT IN THAT SENTENCE AGREES WITH THE TABLE (recounted 2026-09-07).
-// It has been wrong before and been corrected twice: CR-280 took RD-5 out with
-// the mechanism it named and left the sentence saying six over a five-row
-// table, CR-288 corrected it to five, and seating RD-7 on 2026-09-07 moved both
-// the table and the sentence back to six. ⛔ So the number is not typed here:
-// the case below reads the row IDs, counts them, and then looks for that very
-// count in the closing sentence -- which is the only shape that survives the
-// next row.
+// ⭐ THE COUNT IN THAT SENTENCE HAS DRIFTED FROM THE TABLE BEFORE -- a row
+// leaving or arriving moves the table while the prose stays put, and it has had
+// to be corrected twice. ⛔ So the number is not typed here: the case below
+// reads the row IDs, counts them, and then looks for that very count in the
+// closing sentence -- which is the only shape that survives the next row.
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 -- the whole set of callers, before any of them is driven', () => {
   it('GIVEN the manuscript WHEN its rows are read THEN this file has a drive for every one', () => {
     expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6', 'RD-7'])
-    // 「本表の 6 つが …… 全数である」 -- the prose and the table say one number,
-    // and both moved on 2026-09-07 when RD-7 was seated. ⚠️ RD-5 is a retired
-    // seat, so the count is six over rows numbered up to seven.
+    // 「本表の 6 つが …… 全数である」 -- the prose and the table say one number.
+    // ⚠️ RD-5 is a retired seat, so the count is six over rows numbered up to
+    // seven.
     expect(ROWS).toHaveLength(6)
     const closing = readFileSync(join(SPEC, '05-07-design.md'), 'utf8')
     expect(closing, 'the prose under table T-230 counts the rows it prints').toContain(

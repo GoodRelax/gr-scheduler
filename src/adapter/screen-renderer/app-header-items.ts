@@ -103,9 +103,9 @@ const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
 const UNDO_ENTRY: IconId = 'IC-5'
 /** The forward half of `UNDO_ENTRY`; that note holds both. */
 const REDO_ENTRY: IconId = 'IC-6'
-/** S-59, the plan half (FR-049). */
+/** S-227 (FR-049). */
 const PLAN_DISPLAY_ENTRY: IconId = 'IC-8'
-/** S-59, the actual half (FR-049). */
+/** S-228 (FR-049). */
 const ACTUAL_DISPLAY_ENTRY: IconId = 'IC-9'
 /** S-99f (FR-071). */
 const FULL_SCREEN_ENTRY: IconId = 'IC-11'
@@ -196,9 +196,10 @@ const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
  * them against the table has to be a walk in one direction, or a reader cannot
  * tell an omission from a re-ordering.
  *
- * ⚠️ The spellings of S-59's three values are not copied so much as checked:
- * they are the generated `DocumentSettings` type's own, so a change to that row
- * fails the compiler here instead of going stale in silence.
+ * ⚠️ The settings read below are not copied so much as checked:
+ * `planVisible` (S-227), `actualVisible` (S-228) and the rest are members
+ * of the GENERATED `DocumentSettings` type, so a change to one of those
+ * rows fails the compiler here instead of going stale in silence.
  *
  * @purity pure
  */

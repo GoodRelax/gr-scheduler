@@ -236,8 +236,6 @@ export interface ScreenPart {
    * `noticeDismissKey` above gives and with the same requirement behind it:
    * NT-7 (MUST NOT) refuses these two answers a row of table T-109, so
    * answering one as an `IconId` would name a row that does not exist.
-   * ⚠️ It DID travel as one until 2026-09-02, while table T-109 still held
-   * IC-69 and IC-70 (CR-327).
    *
    * ⛔⛔ OPTIONAL, AND ABSENT READS AS 「on neither answer」, the same bargain
    * `isRowGrabStrip` above keeps and for the same reason: a `ScreenPart` literal

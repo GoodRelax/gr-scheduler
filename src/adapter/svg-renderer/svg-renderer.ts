@@ -889,12 +889,9 @@ function markerSvg(
  *
  * ⭐ GR-8's HIT BOX IS CENTRED ON THIS INK. ItemHitArea takes S-22's box about
  * the centre of `[...arm, ...head]`'s bounding box, so drawing exactly those
- * two paths is what makes the picture and the grab agree. ⛔ It read S-93's box
- * until 2026-09-09, when the row was shrunk to the progress marker's size --
- * 「⭐ 新しい設定値を立てない —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う」.
- * ⚠️ That row is gone altogether as of 2026-09-10 -- 「その `S-93` は 2026-09-10
- * に廃した」 -- so S-22 is the only box this icon has ever to answer to now.
- * ⚠️ THE DRAWN SQUARE AND THE HIT SQUARE ARE NOW DIFFERENT SIZES, and that is
+ * two paths is what makes the picture and the grab agree. ⛔ S-22 is the only
+ * box this icon has to answer to.
+ * ⚠️ THE DRAWN SQUARE AND THE HIT SQUARE ARE DIFFERENT SIZES, and that is
  * the row's own MUST NOT (「図形の素の輪郭を当たり判定にしてはならない」): S-25
  * shrinks THIS drawing while `resumeValid` is false and leaves the box alone.
  *
@@ -1611,7 +1608,7 @@ function watermarkSvg(
  * a walk repeated here would be a second moment as well as a second walk, and
  * this unit holds no `PointerSlop` (table T-206 keeps S-90 .. S-92 and S-137 out
  * of the document, so they reach the hit test as an argument and never as a
- * constant. ⚠️ The range ran to S-93 until that row was retired on 2026-09-10).
+ * constant).
  * ⚠️ IT IS THE HIT AND NOT A BOOLEAN: the marker and the dummies of ONE Task
  * darken, so both the row and the thing it claimed have to arrive.
  *
@@ -2155,10 +2152,9 @@ export function svgFromSchedule(
       // GR-9's box at every magnification and GR-17 answered none of its
       // pixels (defect D-415, measured on the shipped build: 0 of 6 at 6px a
       // day, 0 of 12 at 12.9 and at 27.6).
-      // ⛔ `ink` IS THE HIT WIDTH AS WELL AS OF 2026-09-10, and the member that
-      // held the other one is gone with its row: `item-hit-area.ts` spelled
-      // S-93's box as `PointerSlop.dummyWidth` until then, and S-180's note now
-      // reads 「本行が描く幅であり、掴みシロでもある」.
+      // ⛔ `ink` IS THE HIT WIDTH AS WELL, which is S-180's note in as many
+      // words -- 「本行が描く幅であり、掴みシロでもある」 -- so `item-hit-area.ts`
+      // has no width of its own to keep in step with this one.
       // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d: 「`GR-9`
       // と同じ場所である」), never GR-17's -- which is why the rectangle is the
       // same on every dummy of one Task and this need not choose between them.
@@ -2200,13 +2196,10 @@ export function svgFromSchedule(
       // ⚠️ THE SAME RECTANGLE THE MARK WAS DRAWN AS, edge and all: FR-043's
       // alignment moved the ink, and a hand tested against the old centred box
       // would darken a mark it is not on.
-      // ⭐⭐ AND IT IS THE GRAB BAND TOO SINCE 2026-09-10 (MUST), which is the
-      // closing rule of table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定
-      // は、`FR-043` が描いた印そのものとすること（MUST）」. ⛔⛔ The picture
-      // and the hold could differ until then -- the band was S-93's box and the
-      // ink was `min(1 day, S-180)` -- and FR-043's MUST NOT kept the band out
-      // of the drawing rule for exactly that reason. ⭐ One rectangle answers
-      // both questions now, so the darkening cannot part company with the grab.
+      // ⭐⭐ AND IT IS THE GRAB BAND TOO (MUST), which is the closing rule of
+      // table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が
+      // 描いた印そのものとすること（MUST）」. ⭐ One rectangle answers both
+      // questions, so the darkening cannot part company with the grab.
       // ⛔⛔ TESTED ON THE INK'S OWN CENTRE, NOT ON `at` PLUS HALF A WIDTH. A
       // milestone's dummy is a SQUARE CENTRED ON ITS DAY (FR-043, 2026-09-10),
       // so its `ink.x` is half a side LEFT of `at` and the old arithmetic put
@@ -2240,8 +2233,9 @@ export function svgFromSchedule(
         ...(task.plan === null ? [] : cornersOfBar(task.plan)),
         ...(task.actual === null ? [] : cornersOfBar(task.actual)),
       ])
-      // A Task neither half of which was drawn (S-59's plan-only / actual-only)
-      // has no extent, and a frame around nothing would sit at the origin.
+      // A Task neither half of which was drawn (S-227 planVisible and S-228
+      // actualVisible both false, which those two rows allow) has no extent,
+      // and a frame around nothing would sit at the origin.
       if (box !== null) {
         selectionParts.push(selectionFrameSvg(box, themed('S-151'), `${taskKey}-frame`))
       }
@@ -2672,13 +2666,12 @@ export function svgFromSchedule(
         // 縦 1 本.
         linkParts.push(vertical(pointer.x))
       }
-      // ⛔⛔ AND THERE IS NO THIRD BRANCH SINCE 2026-09-06. A 縦 2 本 pair was
-      // drawn here, at the gap S-209 stated, until CU-3 of table T-029 took the
-      // value away: 「「縦 2 本」を持ってはならない（MUST NOT）」, because
-      // 「測るための 2 本（`CU-2`）と見分けが付かない」. S-209 went with it -- the
-      // row it dimensioned no longer exists -- so both the branch and the
-      // constant are gone rather than left unreachable. ⭐ PD-343, which asked
-      // whether the gap was decided, is closed by the retirement.
+      // ⛔⛔ AND THERE IS NO THIRD BRANCH, WHICH IS CU-3 OF TABLE T-029:
+      // 「「縦 2 本」を持ってはならない（MUST NOT）」, because 「測るための 2 本
+      // （`CU-2`）と見分けが付かない」. ⛔ So a 縦 2 本 pair is not to be drawn
+      // here, nor left unreachable behind a mode nothing can select.
+      // ⭐ PD-343, which asked how far apart such a pair would stand, is closed
+      // by that MUST NOT.
       // ⚠️ CU-2's own pair is UNAFFECTED: it is drawn elsewhere, off `dualCursor`
       // (S-65) at S-194 / S-195, and FR-048 (MUST NOT) forbids one entrance
       // taking two cursors down together.

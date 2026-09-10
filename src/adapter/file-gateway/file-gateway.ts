@@ -30,9 +30,7 @@
 //   4. WHETHER TWO DOCUMENTS ARE ONE AND THE SAME, and therefore whether a
 //      write over an existing file has to be asked about. Table T-227 is the
 //      whole rule (DI-1 .. DI-6); `isSameDocument` and `askToWriteOver` below
-//      are the whole of its implementation. ⛔ FR-061 forbids the autosave key
-//      being built out of DI-1 (MUST NOT), so `DocumentIdentity` never leaves
-//      this act -- see the type's own note.
+//      are the whole of its implementation.
 //
 // ---- ⛔ what this component does NOT do ------------------------------------
 //
@@ -178,10 +176,10 @@ export type DocumentFileOpening =
 /**
  * The rows of table T-024 whose output is a file.
  *
- * ⛔ IO-5 and IO-6 are absent on purpose: Web Storage is AutosaveGateway's
- * (IF-4) and the clipboard is ClipboardGateway's (IF-5). Neither reaches a
- * file, and putting them here would give two components a route to the same
- * destination.
+ * ⛔ IO-5 and IO-6 are absent on purpose: `localStorage` is the shell's, where
+ * the rows table T-206 keeps outside the document live, and the clipboard is
+ * ClipboardGateway's (IF-5). Neither reaches a file, and putting them here would
+ * give two components a route to the same destination.
  *
  * ⚠️ Named for what they are rather than by row ID, matching `ImportFormat`.
  */
@@ -217,12 +215,6 @@ export interface ProjectIdentity {
 
 /**
  * The three values DI-1 compares, for one document.
- *
- * ⛔ NOT AN AUTOSAVE KEY. FR-061 forbids building the key that keeps two
- * documents apart in autosave out of DI-1 (MUST NOT), and states the reason: a
- * document that has never been in a file has no file name, and autosave runs on
- * it all the same. ⚠️ FR-061's key is still undecided; nothing in this folder
- * may be handed to AutosaveGateway as one.
  */
 export interface DocumentIdentity extends ProjectIdentity {
   /**

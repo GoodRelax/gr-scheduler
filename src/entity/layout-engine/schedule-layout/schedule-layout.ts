@@ -169,7 +169,7 @@ export interface TaskPlacement {
    * ⭐⭐ SETTLED HERE AND CARRIED, for the reason `actualReach` above gives in
    * the same words: LC-7 puts the name label past this and `markerAnchorX`
    * hangs the marker off it, and the heading of table T-038 forbids the two
-   * counting separately (MUST NOT). ⛔ IT IS ALSO WHY `S-93` DOES NOT CROSS
+   * counting separately (MUST NOT). ⛔ IT IS ALSO WHY NO SETTINGS ROW CROSSES
    * OUT OF THIS FOLDER -- what crosses is the answer, on a type table T-064
    * already publishes.
    * ⚠️ Measured 2026-09-09 on the shipped build, before the two were joined:
@@ -1277,10 +1277,8 @@ function actualSpanOf(
  * rows the two are now ONE width, which the same row says in as many words:
  * 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
  *
- * ⛔⛔ IT READ S-93's FLAT 30 UNTIL 2026-09-10, and the row itself is gone with
- * it -- 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者
- * が 1 人も残らなかったからである」. ⚠️ Because the ink is 「1 日ぶんと `S-180` の
- * 小さい方」, this width now MOVES WITH THE ZOOM where the retired one did not.
+ * ⚠️ Because the ink is 「1 日ぶんと `S-180` の小さい方」, this width MOVES WITH
+ * THE ZOOM: `pxPerDay` is one of the two the `Math.min` chooses between.
  *
  * ⚠️ S-180 IS ALSO GENERATED INTO `schedule-geometry.ts` AND THE RENDERER, and
  * that is not a duplicated VALUE but a second printing of the one manuscript
@@ -1323,11 +1321,6 @@ function finiteOrNull(reach: number): number | null {
  * 幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）」 --
  * and the row itself says the distinction is gone: 「掴みシロが印そのものになった
  * 以上、2 つは同じ 1 つの幅であり、区別は消えた」.
- *
- * ⛔⛔ IT ANSWERED S-93's BOX UNTIL 2026-09-10, and that box began at `GR-17`'s
- * OWN day -- one worked day further right than the ink -- so this reach stood a
- * whole day column plus 30px past what a reader could see. ⚠️ The row that
- * carried it is gone: 「その `S-93` は 2026-09-10 に廃した」.
  *
  * ⚠️ A MILESTONE'S DUMMY IS A SQUARE, NOT A DAY COLUMN (FR-043, MUST, 利用者の
  * 裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、そのマイルストーン

@@ -36,8 +36,8 @@
 //     anotherOpenInProgress        the shell: another open or import is running
 //                                  (OP-8). A pure function cannot see it.
 //     unsavedEditsDiscardConfirmed the person answered OP-4's confirmation, or
-//                                  there was nothing unsaved (`AutosaveGateway`
-//                                  (CP-23) is what knows which)
+//                                  there was nothing unsaved -- the shell is
+//                                  what knows which
 //     format                       which of OP-1's two formats was read. MG-8
 //                                  and MG-8a differ ONLY by this.
 //     defaultSettings              the defaults of `_assets/tbl-settings.md`,

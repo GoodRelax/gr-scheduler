@@ -33,8 +33,7 @@
  * ⭐ Pixels, and named so, because they are NOT the picture's own units: the
  * SVG that crosses this seam is `exportCanvas` (S-81) wide and as tall as
  * FR-025 grew it, and these are that same size in device pixels. ⚠️ There is
- * no multiplier: FR-025 (MUST NOT) forbids the export holding a scale at all
- * (the reader's ruling of 2026-09-06), and `S-82` was retired with the idea.
+ * no multiplier: FR-025 (MUST NOT) forbids the export holding a scale at all.
  */
 export interface RasterSizePx {
   readonly widthPx: number

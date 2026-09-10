@@ -354,8 +354,9 @@ function textSvg(x: number, y: number, fontSizePx: number, text: string): string
 /**
  * EP-1: the band and the `Document Title`, and nothing else of the header.
  *
- * ⛔ `Branding`, `Header Commands` (U-35) and `Autosave Status` (U-28) are not
- * drawn -- an image has no hands to press them and no state left to report.
+ * ⛔ `Branding`, `Header Commands` (U-35), `Opened File Name` (U-58) and
+ * `File Saved At` (U-59) are not drawn -- an image has no hands to press them,
+ * and where the picture came from is not part of the picture.
  * ⭐ The band keeps the height it has on the screen (MUST) because the
  * rectangle is the screen's own: everything below it would rise if this drew a
  * shorter one.
@@ -615,12 +616,11 @@ export function exportSvg(scene: ExportScene): SvgExport {
  * reaching `Rasterizer`. ⚠️ The SECOND failure is `RasterFault` (IF-6): the
  * picture exists and only painting it did not succeed.
  *
- * ⭐ The pixel size IS the picture's own size -- there is no multiplier any
- * more. FR-025 (MUST NOT) forbids the export holding a scale at all (the
- * reader's ruling of 2026-09-06 「PNGはいつも原則1600x900のままとする」), so
- * `S-82` was retired with the idea; whoever needs finer output is handed an
- * exchange format instead (IO-2 / IO-7 / IO-1 / IO-3 of table T-024). The
- * width is S-81's and the height is the one `exportSvg` grew to within S-217
+ * ⭐ The pixel size IS the picture's own size, and there is no multiplier.
+ * FR-025 (MUST NOT) forbids the export holding a scale at all (the reader's
+ * ruling 「PNGはいつも原則1600x900のままとする」); whoever needs finer output is
+ * handed an exchange format instead (IO-2 / IO-7 / IO-1 / IO-3 of table T-024).
+ * The width is S-81's and the height is the one `exportSvg` grew to within S-217
  * (CR-333). Both come from the document, so the same JSON in the same screen
  * gives the same output -- which is the reason FR-025's RATIONALE gives for
  * saving the size at all.

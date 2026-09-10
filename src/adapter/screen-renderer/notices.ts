@@ -34,8 +34,8 @@
 // ⭐ HOW A PENDING-AT-STARTUP NOTICE IS RECOGNISED. `Notice` carries no mark of
 // when it was raised, and none is needed: `manner` is the row of table T-037 the
 // notice follows, and NT-4 IS the row for what is pending at startup. So the
-// manner is the join, and a raiser that means FR-060's offer, FR-026's recovery,
-// FR-065's enabling or FR-086's watermark name says NT-4.
+// manner is the join, and a raiser that means FR-060's offer, FR-065's
+// enabling or FR-086's watermark name says NT-4.
 //
 // ⛔ NO WORDS ARE WRITTEN HERE, and none are asked of a raiser either. FR-038
 // (MUST) makes one generated dictionary the whole store of translated strings,

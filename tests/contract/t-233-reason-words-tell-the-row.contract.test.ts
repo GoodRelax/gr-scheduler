@@ -199,12 +199,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // message: the 場面 and the three fields of the dictionary were read side by
   // side first, and this note records what that reading found.
   //
-  // ⛔⛔ `RS-45` LEFT THE TABLE ON 2026-09-04 (CR-347 §2.7, ledger row D-202,
-  //   利用者の裁定 2026-09-03 「html の読み戻しは不要。ユーザーは .html をダブル
-  //   クリックして開けばよい」). 表 T-233 no longer holds the row, and the
-  //   manuscript no longer holds its 項, so its pairing is not left behind here
-  //   -- 「一度退いた行の指紋を残さない」 is the second half of the case below.
-  //   ⚠️ 行 ID は席の番号であり、詰めない: no other row moved up into it.
   // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja 「これ以上深い段には行を
   //   足せません」 is again the same sentence, en 「A row cannot be added any
   //   deeper than this」 says the same, and the next step 「もっと浅い行に足して
@@ -212,24 +206,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
   //   CR-340 was written to keep. ⇒ the words tell the scene.
-  //
-  // ⛔⛔ `RS-47` LEFT THE TABLE ON 2026-09-04, THE SAME DAY IT ARRIVED (CR-349
-  //   §1, ledger row 1.81 of 表 T-100). It was added by CR-347 for 場面 「渡され
-  //   た日程が読めなかった」 with 作法 `NT-3a` and 正 `FR-087`, and the reading
-  //   recorded here on the morning of 2026-09-04 argued the two rows were kept
-  //   apart. ⛔ THAT READING WAS WRONG, and the entry is withdrawn rather than
-  //   corrected: `RS-26` 「起動時に渡された文書が読めなかった」 is the SAME
-  //   scene told the OTHER way (`NT-1`, 正 表 T-024a の `OP-14`), so the
-  //   specification held two manners for one situation and contradicted itself.
-  //   ⭐ 表 T-024a の `OP-14` has held the whole rule since before CR-347 --
-  //   「黙って捨てずに通知すること（MUST）。作法は 表 T-037 の `NT-1`… 運ぶ理由は
-  //   表 T-233 の `RS-26` とする。そのうえで 表 T-034 の次の順位へ降りること
-  //   （MUST）。空で起動してはならない（MUST NOT）」 -- and `FR-087` now points
-  //   at it instead of restating it. ⇒ 表 T-233 no longer holds the row and the
-  //   manuscript no longer holds its 項, so its pairing is not left behind here.
-  //   ⚠️ 行 ID は席の番号であり、詰めない: no other row moved up into it, and the
-  //   42 pairings above are untouched -- not one of them was re-keyed, because
-  //   not one of their pairs moved.
   // ---------------------------------------------------------------------
   'RS-46': '1dc2be62612383ad',
   //

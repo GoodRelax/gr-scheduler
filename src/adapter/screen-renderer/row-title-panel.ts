@@ -102,9 +102,6 @@ interface PanelIndex {
    * (MUST NOT) forbids a surface of its own for it: 「戻すための専用の面や札を
    * 設けてはならない —— `HR-2` が頭を段 0 と定めた以上、隠すことは親へ 1 歩
    * 畳み込むことであり、戻すのは親を 1 階層開くことである」.
-   * ⚠️ 2026-08-30 まで the way back was 非表示グループタブ (U-29), 「そのタブは
-   * 実装に 1 つも無く、入口の無い戻り道であった」 -- U-29 is gone from the
-   * manuscript with that ruling.
    *
    * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) since
    * 2026-08-31 takes THIS row's fold off in the same press, so a folded parent
@@ -241,10 +238,9 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  *
  * and nothing here HIDES a row either, which is the
  * third such hole. HR-6 states the hiding, AT-57 holds `TaskGroup.isHidden`,
- * U-29 names the tab that brings one back and UN-14 counts the change among
- * what undo covers -- and AT-57's own note says the entrance HR-6 has is the
- * one that RESTORES. ⭐ The user's answer on 2026-08-30 was to give that job to
- * the single chevron, which retires the tab along with it.
+ * HF-13 of table T-051 is the way back (HR-7 pressed on the parent) and UN-14
+ * counts the change among what undo covers -- and AT-57's own note says the
+ * entrance HR-6 has is the one that RESTORES.
  *
  * and how the folded state is HELD is not settled. ⛔
  * Measured in the prototype that day: folding a row without folding its subtree

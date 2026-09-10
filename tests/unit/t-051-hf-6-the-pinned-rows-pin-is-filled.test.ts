@@ -2,8 +2,8 @@
 // and that fill does not disturb the single sheet of ground HF-6 lays under
 // all of the row's controls.
 //
-// Unit under test: UF-72 of table T-075 (`dom-screen-surface.ts`, component
-// CP-27 of table T-062). It is the unit that turns a `ScreenView` into the
+// Unit under test: UF-71 of table T-075 (`dom-screen-surface.ts`, component
+// CP-38 of table T-062). It is the unit that turns a `ScreenView` into the
 // tree, so it is the one that paints.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
@@ -47,7 +47,7 @@
 // ---------------------------------------------------------------------------
 //
 // docs/spec/ for every sentence above, and of `src/` nothing but the exported
-// declarations these cases must call or name. ⛔ No function body of UF-72 was
+// declarations these cases must call or name. ⛔ No function body of UF-71 was
 // read, and no existing test's expectations were read. Every colour below is
 // read out of the manuscript at run time rather than typed here.
 //

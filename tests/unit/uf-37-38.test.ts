@@ -96,13 +96,11 @@ const T_024 = [
  * table T-034 -- the order startup decides the first document in. BT-1 is the
  * embedded document, and it is the only rank this writer feeds.
  *
- * ⚠️ THREE ROWS, NOT FOUR, SINCE CR-280. The table's own closing note says what
- * happened: 「⚠️ **行 ID は席の番号であり、詰めない** —— BT-3 は自動保存された文
- * 書の席で、CR-280 で退いた。」 So the row ID BT-3 is gone while BT-4 keeps its
- * name -- and the 順 column DID close up, which is the half a copy keyed by row
- * ID loses: BT-4 stands at rank 3. ⛔ This copy carried the retired row and the
- * old rank until 2026-09-03; the case below now holds it against the table at
- * read time so it cannot fall behind again in silence.
+ * ⚠️ THREE ROWS, NOT FOUR. The table's own closing note keeps a retired row's ID
+ * as a burnt seat rather than closing the numbering up, so BT-4 keeps its name
+ * -- while the 順 column DID close up, which is the half a copy keyed by row ID
+ * loses: BT-4 stands at rank 3. ⛔ A hand copy falls behind in silence, so the
+ * case below holds this one against the table at read time.
  */
 const T_034 = [
   { row: 'BT-1', rank: 1, isFedByThisUnit: true },
@@ -399,9 +397,8 @@ describe('the rosters these cases walk are the ones the tables state', () => {
 
   // ⛔ WHY THIS ONE READS THE MANUSCRIPT INSTEAD OF TRUSTING THE COPY. A hand
   // copy of a table is what Chapter 1.9 (:275) asks for, and a hand copy is also
-  // what falls behind: this one still held BT-3 and put BT-4 at rank 4 for the
-  // five days after CR-280 retired the autosave, and every case that walked it
-  // stayed green while doing so. So the copy is held against 表 T-034 itself,
+  // what falls behind -- a stale row ID and a stale 順 let every case that walks
+  // it stay green while doing so. So the copy is held against 表 T-034 itself,
   // row for row and rank for rank.
   it('⭐ holds that copy of table T-034 against the table, ID and 順 both', () => {
     const table = specTable('T-034')

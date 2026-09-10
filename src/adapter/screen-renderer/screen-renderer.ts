@@ -710,7 +710,7 @@ export interface RowTitle {
  * ⛔ NO MEMBER CARRIES A SET-DOWN, and none may be added. HF-5 of table T-051
  * (MUST) levels a row's controls WITH THE TOP OF ITS NAME and forbids both
  * centring them and setting them down (MUST NOT), so there is no amount left
- * for a row to state. ⚠️ S-139 held that amount and is retired.
+ * for a row to state.
  */
 
 /**

@@ -229,9 +229,9 @@ const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 // ⭐ Smallest thing that cannot be wrong: name it by row id -- the only join
 // that table admits.
 //
-// ⭐ ONE ROW SINCE CR-273, AND THE TABLE IS WHAT CHOSE. Until 2026-08-28 this
-// list held IC-50 AND IC-51, an opener and a folder, both offered on every
-// frame -- and what that cost was measured that day: the shapes figure F-019
+// ⭐ ONE ROW SINCE CR-273, AND THE TABLE IS WHAT CHOSE. This list once held a
+// SECOND entrance beside IC-50, an opener and a folder both offered on every
+// frame -- and what that cost was measured: the shapes figure F-019
 // drew for the two were IDENTICAL, element for element and attribute for
 // attribute (compared in `icon-glyphs.json`, not read off the drawing), so the
 // palette offered two entrances nobody could tell apart, one of which did
@@ -465,10 +465,8 @@ function drawnTaskUids(
  * Header (UF-62), not the Command Palette, and is answered there already.
  * ⛔ IC-45, IC-47 and IC-48 are NOT among FR-049's toggles and are not in this
  * map either -- FR-049 (MUST NOT) refuses to treat a many-valued row as one,
- * and S-65 / S-66 are those. ⚠️ THE RANGE USED TO READ 「IC-45 to IC-49」: IC-46
- * and IC-49 left table T-109 on 2026-09-06 with the 'double-vertical' mode and
- * with 'none''s own entrance (CU-3 / FR-048), and their seats stay empty.
- * ⭐ The three that remain each answer to a SECOND press on themselves
+ * and S-65 / S-66 are those.
+ * ⭐ Those three each answer to a SECOND press on themselves
  * (FR-048, MUST), which is a different thing from FR-049's booleans.
  */
 const SETTINGS_KEY_BY_ROW: Readonly<Record<string, keyof DocumentSettings>> = {
@@ -503,17 +501,10 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
  * neither reading masks the other because no row is named by both.
  * ⛔ IC-45, IC-47 and IC-48 are counted with neither: FR-049 (MUST NOT) refuses
  * to treat a many-valued row (S-65 / S-66) as a toggle, so both readings answer
- * `false` for them and this member does not either. ⚠️ The range read 「IC-45 to
- * IC-49」 until 2026-09-06; IC-46 and IC-49 are retired rows now.
+ * `false` for them and this member does not either.
  * @provisional PD-417 -- an exclusive choice does NOT draw its own entrance
  * on here, because table T-237 holds no row meaning "this is the one now
- * chosen" and FR-029 (MUST) binds every fill to that table. ⛔ THE HEADER
- * DISAGREES: it draws S-59's pair on its own reading, so the same kind of
- * fact is drawn two ways. One of the two has to give.
- * ⚠️ Whether an exclusive
- * value draws its own entrance on is not settled anywhere and is not settled
- * here either -- the header does it for S-59's pair (IC-8 / IC-9) on its own
- * reading.
+ * chosen" and FR-029 (MUST) binds every fill to that table.
  * ⭐ THIS COULD NOT BE ANSWERED BEFORE 2026-08-31 BECAUSE THE ARGUMENT DID NOT
  * ARRIVE. The "nine unit contracts" section of `screen-renderer.ts` fixed
  * UF-65 at three arguments and none of them reached `DocumentSettings` -- the

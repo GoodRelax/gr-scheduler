@@ -72,16 +72,6 @@
 //   manuscript, and a case below asserts that the picture's own ink begins and
 //   ends where that arithmetic says.
 //
-//   ⛔⛔ UNTIL 2026-09-10 THIS FILE HELD THE OPPOSITE READING -- 「当たり判定は
-//   本段の対象ではない（MUST NOT）」 (FR-043, still standing) sent the hold away
-//   from the drawing rule, and the row it was sent to gave the dummies a hit box
-//   of their own, one whole day apart for the two rows. So the pointer was
-//   computed from that row and deliberately never from the ink, and the two
-//   points stood on two different day columns. ⭐ The ruling of 2026-09-10 struck
-//   that row -- 「**その `S-93` は 2026-09-10 に廃した**」 (表 T-206 の `S-180`) --
-//   and made the drawn mark the hold, so nothing below reads it and the two
-//   points now stand on the two halves of one mark.
-//
 //   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」, which at
 //   a low magnification covers the whole mark; the second describe below is
 //   built on that overlap. ⚠️ The row reached to EITHER side of the end, and
@@ -152,10 +142,10 @@ const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>>
 
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-// ⛔⛔ `S-93` WAS READ HERE UNTIL 2026-09-10, for the dummies' own hit box. The
-// ruling of that day struck the row -- 「**その `S-93` は 2026-09-10 に廃した**」
-// (表 T-206 の `S-180`) -- and `rowOf` now throws for it, which is the check
-// this file wants: the hold is the drawn mark, and `S-180` states it.
+// ⛔ ONE ROW ANSWERS BOTH QUESTIONS: the hold IS the drawn mark, and `S-180` is
+// the row that states it. ⚠️ `rowOf` throws for a row table T-206 does not hold,
+// which is the check this file wants -- nothing here may read a second row for
+// the hold.
 const S_180 = rowOf('T-206', 'S-180')
 const S_90 = rowOf('T-206', 'S-90')
 
@@ -541,20 +531,16 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   // sides of 「1 日ぶんと … `S-180` の小さい方」 -- and the point put under the
   // pointer is a different distance from the day's left edge in each.
   //
-  // ⛔⛔ IT WAS 2.5 UNTIL 2026-09-09, when `S-180`'s default rose from 12 to 30
-  // -- 「**既定を `S-93` と同じ大きさに揃えた**」（利用者の
-  // 裁定, 表 T-206 の `S-180`）. 15px a day fell to the NARROW side of the new
-  // bound, and this describe would have proved the same half of the rule as the
-  // one below.
+  // ⛔ THE MAGNIFICATION MUST KEEP THE DAY WIDER THAN `S-180`: at 15px a day the
+  // day falls to the NARROW side of the bound and this describe proves the same
+  // half of the rule as the one below.
   const ZOOM = 8
   const SETTINGS = settingsAt(ZOOM)
 
   it('S-180 is the row that says how wide the one mark is, and how wide it is held by', () => {
-    // ⚠️ A GUARD, NOT THE CLAIM. Since 2026-09-10 one row answers both: the
-    // closing rule of table T-023d makes the hold 「`FR-043` が描いた印そのもの」,
-    // and `S-180`'s own note says 「**本行が描く幅であり、掴みシロでもある**」.
-    // ⛔⛔ IT READ `S-93` HERE UNTIL THAT DAY, when the two were different
-    // things; the row was struck the same day and `rowOf` no longer finds it.
+    // ⚠️ A GUARD, NOT THE CLAIM. One row answers both: the closing rule of
+    // table T-023d makes the hold 「`FR-043` が描いた印そのもの」, and `S-180`'s
+    // own note says 「**本行が描く幅であり、掴みシロでもある**」.
     expect(S_180['値']).toContain('GR-9')
     expect(S_180['値']).toContain('GR-17')
     expect(S_180['値']).toContain('GR-18')

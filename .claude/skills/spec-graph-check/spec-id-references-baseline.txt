@@ -1,4 +1,32 @@
-370
+248
+#
+# LOWERED 370 -> 248 ON 2026-09-11 by wave 2 of P1-3: five bodies over
+# disjoint file sets, plus one repair to this check itself.
+#
+# ⛔ NOT ONE LINE OF EXECUTABLE CODE CHANGED, over any of the 33 files the
+# two waves have touched. tsc 0, vitest 7478 passed / 1 skipped, layers
+# 299/299, parity OK -- all identical either side.
+#
+# 21 OF THE 122 WERE NEVER REFERENCES AT ALL. This check faulted HM-4s,
+# IV-10s, PI-17s, FR-085s, NT-1s and six more -- the project writing
+# 「HM-4s own row」 for 「HM-4's own row」, with the trailing [a-z] that lets
+# T-005a and SK-11a match swallowing the possessive. ⛔ Two sat in a TEST
+# NAME, which a cleanup may not edit, so they would have sat here forever
+# being counted as debt that was never owed.
+#
+# ⭐ FOUR IDS THIS CHECK CALLS "not defined" ARE DELIBERATE RETIREMENTS THAT
+# NEVER REACHED md-checks.py's RETIRED SET: U-29 (CR-320), IC-51 (CR-273),
+# IC-94 (CR-366) and S-185 (CR-311), plus IC-69 / IC-70 (CR-327) and RS-45
+# (CR-347). Booking them changes what a check decides, so ruling 9 holds them
+# for a ruling rather than letting a cleanup make it in passing.
+#
+# ⚠️ PD-100 .. PD-103 WERE NOT WITHDRAWN -- THEY WERE NEVER WRITTEN.
+# pending-decisions.md runs 95, 104, 105; git log -S over the whole history
+# returns 0 commits for each of the four. Six comments in
+# file-system-access-file-store.ts pointed at them, and one claimed to have
+# MEASURED that a row 「is gone from pending-decisions.md (measured
+# 2026-09-07)」. It was never in that file. A fabricated measurement is worse
+# than no comment: it tells the next reader the checking has been done.
 #
 # LOWERED 445 -> 370 ON 2026-09-11, the day this check was written, by
 # repairing 75 references across eleven files in src/ and tests/. ⛔ NOT ONE
