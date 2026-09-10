@@ -1,4 +1,26 @@
-983
+1350
+#
+# RAISED 983 -> 1350 ON 2026-09-11 BY INVERTING WHAT COUNTS AS A HOLD -- the
+# user's ruling. ⛔ NOT ONE CLAUSE CHANGED AND NOT ONE TEST WAS TOUCHED. The
+# corpus this check searches now has its COMMENT LINES REMOVED, so a clause is
+# held only if its words appear in the test's own code.
+#
+# ⭐ THE 367 THE RAISE IS MADE OF WERE NEVER HELD. Measured 2026-09-11, both
+# ways, in one pass over the same 1701 markers: 718 held against the corpus
+# as it stood, 351 against the same corpus with comment lines struck out.
+# ⇒ 367 clauses (51.1% of everything this check called held) were held by
+# NOTHING BUT A COMMENT. The raise books what was already true; it does not
+# take on anything new.
+#
+# ⚠️ WHY A COMMENT-ONLY HOLD IS WORSE THAN NO HOLD AT ALL. An unheld clause
+# is honestly unheld and this check says so. A comment-only hold reads as
+# covered, and when the clause is later rewritten the test beside it goes on
+# asserting whatever it always asserted and goes on printing green -- so the
+# one thing the count exists for, knowing which clauses a change would break,
+# is exactly what it destroys. Nothing presses the words; nothing ever did.
+#
+# ⛔ THE RAISE IS NOT A DEBT. See line 1's head and the docstring: no round
+# may write a test whose purpose is to lower this number.
 #
 # ⛔⛔ THIS NUMBER IS A BOLT, NOT A DEBT -- the user's ruling, 2026-09-11.
 # It fails the round that writes a NEW MUST / MUST NOT clause with nothing

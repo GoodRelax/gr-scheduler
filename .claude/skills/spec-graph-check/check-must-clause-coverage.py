@@ -159,9 +159,48 @@ MARKER_RE = re.compile(r'[（(]MUST(?:\s*NOT)?[）)]')
 TRY_LENS = (120, 90, 60, 40, 28)
 
 
+# A comment line: `//`, or `*` / `/*` inside a block comment. ⛔ THE LINE'S OWN
+# FIRST NON-SPACE CHARACTERS, not a parse -- a test file that opened a block
+# comment and continued without a leading `*` would keep those lines in the
+# corpus. Measured 2026-09-11: no such run was found while the 367 comment-only
+# holds were being separated, and this is the same rule the cleanup counts
+# comment lines by, so the two numbers can be compared.
+COMMENT_RE = re.compile(r'^\s*(?://|\*|/\*)')
+
+
+def strip_comments(text):
+    """The same text with every comment line replaced by a NUL.
+
+    ⛔ A NUL, NOT AN EMPTY LINE. The separator has to survive so that removing
+    a comment cannot let the code above it and the code below it match as one
+    run -- the same reason whole files are joined with NUL below."""
+    return chr(0).join(
+        '' if COMMENT_RE.match(line) else line
+        for line in text.split(chr(10)))
+
+
 def load_test_corpus():
-    """Every file under tests/, concatenated with a NUL separator so a match
-    can never straddle two files (source text never contains a raw NUL)."""
+    """Every file under tests/ with its COMMENT LINES REMOVED, concatenated
+    with a NUL separator so a match can never straddle two files (source text
+    never contains a raw NUL).
+
+    ⛔⛔ COMMENTS DO NOT HOLD A CLAUSE -- the user's ruling, 2026-09-11.
+    Measured the same day, against the corpus as it stood: of the 718 clauses
+    this check called held, 367 (51.1%) were held by NOTHING BUT A COMMENT. The
+    test beside them asserts something else, or nothing, and the count read as
+    though the clause were pressed.
+
+    ⭐ WHY THIS IS WORSE THAN AN UNHELD CLAUSE, AND WORSE THAN THE SAME LIE IN
+    src/. A wrong comment in src/ can be caught by pressing the shipped build.
+    A wrong comment in a test cannot: when the clause it quotes is rewritten,
+    the test goes on asserting whatever it always asserted and goes on printing
+    green, and this check goes on counting the clause as covered. ⇒ The one
+    thing the count is for -- knowing which clauses a change would break -- is
+    exactly what a comment-only hold destroys.
+
+    ⚠️ THIS IS NOT A JUDGEMENT THAT THE REMAINING 351 ASSERT THE RIGHT THING.
+    The disclaimer in the docstring above still stands in full; this only
+    removes the holds that could not possibly have been assertions."""
     parts = []
     if not os.path.isdir(TESTS):
         return ''
@@ -170,7 +209,7 @@ def load_test_corpus():
             path = os.path.join(dirpath, name)
             try:
                 with io.open(path, encoding='utf-8', errors='ignore') as handle:
-                    parts.append(handle.read())
+                    parts.append(strip_comments(handle.read()))
             except OSError:
                 continue
     return chr(0).join(parts)
