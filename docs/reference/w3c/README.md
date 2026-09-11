@@ -1,4 +1,4 @@
-# Canonical XML の正本（入手手順）
+# W3C の正本（入手手順）
 
 **このフォルダの実体は git 管理外である。** `docs/reference/mspdi/` と `docs/reference/wcag/` と
 同じ扱いで、**第三者の著作物をこのリポジトリで再配布しない**という方針による。
@@ -30,6 +30,7 @@
 mkdir -p docs/reference/w3c
 curl -sS -L -o docs/reference/w3c/xml-c14n10.html "https://www.w3.org/TR/xml-c14n10/"
 curl -sS -L -o docs/reference/w3c/xml-c14n11.html "https://www.w3.org/TR/xml-c14n11/"
+curl -sS -L -o docs/reference/w3c/xmlschema-2.html "https://www.w3.org/TR/xmlschema-2/"
 ```
 
 > ⛔ **短縮名 `xml-c14n` で 1.0 は取れない。** 実測（2026-08-22）で
@@ -51,6 +52,22 @@ curl -sS -L -o docs/reference/w3c/xml-c14n11.html "https://www.w3.org/TR/xml-c14
 > ⚠️ **ハッシュは上の取得日時点のものである。** W3C が改訂すると短縮名の中身は変わり、
 > ハッシュも一致しなくなる。**一致しなかったら「改訂された」と読む**（壊れたと読まない）。
 > 日付入り URL なら一致する。
+
+## `xmlschema-2.html` —— 型付きの値の綴り
+
+表 T-228 の `NR-4` が「`XML Schema Part 2` がその型に定める**標準字句表現**へ揃える」と定めており、**その原文である。**
+⚠️ **`PD-163` はこの原文の 3.2.6 を読んで閉じた** —— `xsd:duration` には標準字句表現が無い。
+
+| 事項 | 値 |
+|---|---|
+| 取得した版 | **W3C Recommendation 2004-10-28**（Second Edition）|
+| 版を固定する URL | `https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/` |
+| 取得に使った URL | `https://www.w3.org/TR/xmlschema-2/` |
+| バイト数 | 644,011 |
+| SHA-256 | `980de872aa2c50013d5202176eb85eef3f183a7df635fdcb6b4aa34c1c12eb72` |
+
+> ⚠️ **バイト数とハッシュは手元の複製を 2026-09-12 に測った値である。**
+> ⭐ **短縮名が返すのは Second Edition であり、上の日付入り URL と同じ版である。**
 
 ## どちらの版を採るか
 
