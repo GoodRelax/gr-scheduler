@@ -1,4 +1,15 @@
-1350
+1349
+#
+# LOWERED 1350 -> 1349 ON 2026-09-11, and the one clause is not a clause that
+# got covered -- it is a clause that stopped existing. 05-07-design.md quoted
+# the rule 「表の第 1 列は行 ID とする（MUST）」 verbatim while attributing it to
+# section 1.9, and commit ee9f5c4 moved that rule out of the specification
+# entirely. The quotation outlived the rule it quoted, so it went; the sentence
+# now points at spec-writing-rules.md and carries no marker of its own.
+#
+# ⭐ THE RATCHET, NOT REPAYMENT. Ground that falls out of real work on the
+# specification is booked so it cannot be given back. ⛔ This is not an
+# invitation to close the standing 1349 -- see line 1's head.
 #
 # RAISED 983 -> 1350 ON 2026-09-11 BY INVERTING WHAT COUNTS AS A HOLD -- the
 # user's ruling. ⛔ NOT ONE CLAUSE CHANGED AND NOT ONE TEST WAS TOUCHED. The

@@ -626,7 +626,7 @@ stateDiagram-v2
 
 **本節は設計の判断を記録する。採番は ADR-000 から始め、前プロジェクトの記録番号は引き継がない**（`previous-project-result/README.md` の §0-4）。**書式は `docs/development-rules/08-spec-template/spec-template.md` の 4 項目（`Context` / `Decision` / `Status` / `Consequences`）に従う。**
 
-⚠️ **4 項目は散文で書き、表にしない。** 1.9 が「表の第 1 列は行 ID とする（MUST）」と定めており、**`項目` / `内容` の 2 列表は行 ID を持てない。** 数え上げられる中身だけを番号付きの表にする。
+⚠️ **4 項目は散文で書き、表にしない。** **`項目` / `内容` の 2 列表は行 ID を持てず、`docs/development-rules/08-spec-template/spec-writing-rules.md` の「1.9 の表と図の参照の規則」が表の第 1 列に課す条件を満たせないからである。**⛔ **同書の文をここへ写さない。** 数え上げられる中身だけを番号付きの表にする。
 
 **`R2.18`（MUST）が ADR-000「最小構成との比較」を本節に置くことを求めている** —— 同規約は、**無ければ即違反**と明記している。
 

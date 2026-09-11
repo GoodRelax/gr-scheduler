@@ -164,4 +164,28 @@ RETIRED = {'FR-050', 'T-030',
            # that fault at all. The reason count went 46 -> 45 with it; RS-44 and
            # RS-46 are both still live rows, which is what makes this a seat rather
            # than an off-by-one.
-           'RS-45'}
+           'RS-45',
+           # T-006（EARS 構文パターン）held the six sentence shapes a requirement
+           # may take. It was not withdrawn but SENT HOME: commit ee9f5c4 on
+           # 2026-09-11 moved §1.9's writing rules out of the product's own
+           # specification and into spec-writing-rules.md, whose Chapter 4.1
+           # already carried this very table -- which is why that move collapsed
+           # copies instead of appending them. The seat is booked because the
+           # rule the same commit carried away is itself the reason: 「番号は席番号
+           # とする（MUST）。…途中の表や図を削っても残りの番号を詰め直しては
+           # ならない（MUST NOT）」. Leave it unbooked and a later table takes a
+           # used number, and T-006 names two different things across the history.
+           # ⛔ THE TABLE IS BOOKED, NOT ITS ROWS. E-1..E-6 were rows OF this
+           # table and went with it, but they have no seat register of their own
+           # and must not be given one here: `E-` is short enough that booking it
+           # would swallow real misses everywhere else. ⚠️ Do not "complete" this
+           # entry. ⚠️ WR-1 / WR-2 are not part of it either -- they were rows of
+           # a separate unnumbered table in the same section, and they are LIVE in
+           # the rule file today.
+           # ⛔ T-006a and T-006b are LIVE tables that stayed behind in 1.9, so a
+           # search for this seat must exclude them: measured 2026-09-11, a naive
+           # `T-006` matches 62 occurrences over 31 files under docs/spec, src/
+           # and tests/, and every one of them is the suffixed pair. What still
+           # names the bare number is change-request/CR-106 and four files under
+           # docs/review, and those records are true of the day they were written.
+           'T-006'}
