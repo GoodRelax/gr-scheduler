@@ -38,7 +38,7 @@ graph RL
     classDef framework fill:#87CEEB,stroke:#333,color:#000
 ```
 
-**矢印は依存の向きを表し、ラベルはその依存が何のためかを表す。外向きの辺は 1 本も無い。** 本図は層の凡例であり、**コンポーネントどうしの辺は Chapter 5.2 が持つ。** 層を飛び越す例（`LR-1`）—— SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通らずに `layoutEngine` を直接読む。
+**矢印は依存の向きを表し、ラベルはその依存が何のためかを表す。外向きの辺は 1 本も無い。** 本図は層の凡例であり、**コンポーネントどうしの辺は Chapter 5.2 が持つ。** 層を飛び越す例（`LR-1`）は 図 F-015 が持つ。
 
 **表 T-060 — 層**
 
@@ -67,11 +67,11 @@ graph RL
 
 ⚠️ **この方針の代償は `LM-2a` が持つ。** レイアウトを純粋に保てることと、`LM-2a` が適合範囲を絞っていることは、**同じ 1 つの決定の表と裏である。** 片方だけを変えることはできない。
 
-**文書への書き込みの経路は 1 本である。** 人が UI で行えることを `Agent API` でも行えることは `FR-028` が要求し、**双方が同じ経路を通る形は表 T-042 の `MS-1` が定めている。** **入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる。**
+**文書への書き込みの経路は 1 本である**（`FR-028` ／ 表 T-042 の `MS-1`。1 本にした理由は 表 T-070 の `MN-4`）。
 
 **描画はその経路を通らない。** 描画は文書を読むだけで変えないので、書き込みの経路に載せる理由が無い。**載せると、画面を描くたびに書き込みの経路が起動する。**
 
-**設計の合否は `docs/development-rules/07-review-standards.md` の `R2` で判定する**（`FR-092` の `EZ-5`）。**同書は `R7`（純粋性・構造）も Chapter 5 〜 6 を対象と定めている。** `R2.6`（DIP）は `LR-5` が満たす。
+**設計の合否は `docs/development-rules/07-review-standards.md` の `R2` で判定する**（`FR-092` の `EZ-5`）。
 
 ### 5.2 Components (コンポーネント)
 
@@ -79,7 +79,7 @@ graph RL
 
 **コンポーネントを 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す。** 層の定義と依存の規則は 5.1 が持つ。
 
-**コンポーネントはすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載るコンポーネントは 1 つも無い。
+**コンポーネントはすべて機器 `D-1` に載る**（表 T-007）。
 
 **コンポーネントを分ける基準は 1 つである** —— **同じ表・同じ要求が寸法と規則を持っているなら 1 コンポーネント、別々の要求が持っているなら別コンポーネントとする。** `ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 7 コンポーネントが分かれているのは、実装するインターフェースが別だからである。
 
@@ -188,15 +188,15 @@ graph RL
 
 ⚠️ **本設計にモジュールは 1 つも無い。** 表 T-075 のとおり `ScreenRenderer` と `EditDocument` が最も多くのユニットを持つが、**どちらも平らに並べている。** 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
 
-**コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）** —— 読めてしまうと、`LR-2` の「他のコンポーネントの内部へ直に触れてはならない」を検査できない。記法は 表 T-006a の `W-11` である。
+**コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）** —— 読めてしまうと、`LR-2` を検査できない。記法は 表 T-006a の `W-11` である。
 
-**どのコンポーネントもインスタンスを作らない。公開するのは型と関数だけである。** 表 T-060 の `LY-5` が「現在値を保持するのは `Framework` だけである」と定めたことの帰結であり、**内側の 3 層には漏らせる可変状態がそもそも無い。**
+**どのコンポーネントもインスタンスを作らない。公開するのは型と関数だけである。** 表 T-060 の `LY-5` の帰結であり、**内側の 3 層には漏らせる可変状態がそもそも無い。**
 
 **ユニットを割る基準は純粋性である**（`R7.9`）—— **純粋な側と非純粋な側が同じコンポーネントにあるとき、別のファイルへ出す。** それ以外の理由で割ったものは 表 T-063 が行ごとに理由を持つ。**ユニットの全数と、どのコンポーネントに属するかは 表 T-075 が持つ。**
 
 **`UseCase` のコンポーネント名は動詞句であり**（`R2.1` の層別表）、**そのコンポーネントが公開する操作はコンポーネント名を camelCase にしたものとする** —— 同じ概念に 2 つの語を与えないためである。**記法が違うだけで、食い違いではない**（表 T-006a の `W-1` と `W-2`）。⚠️ **外側の状態を読むメンバだけは動詞＋目的語とする** —— 名詞にすると、遅さと失敗しうることが名前から消える。
 
-**`main.ts` を作らない。** Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` が「起動と結線」を負う。**テストコードの置き場は Chapter 7 が持つ。本節は `src/` だけを持つ。**
+**`main.ts` を作らない。** Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` が負う。**テストコードの置き場は Chapter 7 が持つ。本節は `src/` だけを持つ。**
 
 **ディレクトリ構成を次に示す。36 のフォルダは 表 T-062 の 36 コンポーネントと 1 対 1 である。**
 
@@ -221,18 +221,18 @@ src/
 
 **ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、36 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
 
-**表 T-063 が持つのは、割った理由だけである。** ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。**ユニットの全数を数える表は 表 T-075 である。**
+**表 T-063 が持つのは、割った理由だけである。** ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。
 
 **表 T-063 — ユニットを割った理由**
 
 | 行 ID | コンポーネント | ユニット | 割った理由 |
 | --- | --- | --- | --- |
-| UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性。** 表 T-060 の `LY-3` が「操作と検証は `pure`、確定と通知は `non-pure`」と定めている |
+| UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
 | UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル | **純粋性ではない** —— 表 T-075 のとおり 9 つとも同じである。**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。値だけで決まる |
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である** |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
-| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。** ⚠️ **割らないと 1 つのユニットが 8 つの事柄を負い、`R2.2` に反する** —— 5.2 の分割基準「別々の要求が寸法と規則を持っているなら別コンポーネントとする」が、ユニットの側でも同じことを言う |
+| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。** ⚠️ **割らないと 1 つのユニットが 8 つの事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 
 **ユニットの全数を 表 T-075 に示す。行は 表 T-062 の `CP-n` の順に並べ、コンポーネントの中では公開エントリを先に置く。**
@@ -327,7 +327,7 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）／ `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／ `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**（利用者の裁定 2026-09-03）。**同行は「立てた行が落ちる深さになるなら、描かれるまで詳しさの段を開くこと（MUST）」と定めるので、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。**⛔ **式を写して持たせてはならない（MUST NOT）** —— **`groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。**／ `rowPlacesAtZoomY`（その倍率での行の位置。`FR-016` の行の軸の錨）—— ⭐ **`FR-016` が「その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと」と定めるために公開した**（利用者の裁定 2026-09-07）。**行の軸は `zoomY` に対して線形ではないので**（`FR-094` の下限・`LF-3` の第 2 の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）、**呼ぶ側は倍率から位置を算で求められない。**⛔ **Adapter に自前の割付けをさせないことは、表 T-070 の `MN-6` が既に定めている**|
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）／ `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／ `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**（利用者の裁定 2026-09-03）。**同行の定めにより、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。**⛔ **式を写して持たせてはならない（MUST NOT）** —— **`groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。**／ `rowPlacesAtZoomY`（その倍率での行の位置。`FR-016` の行の軸の錨）—— ⭐ **`FR-016` が本行に置くことを MUST で定めるために公開した**（利用者の裁定 2026-09-07）。**行の軸は `zoomY` に対して線形ではないので**（理由は同要求）、**呼ぶ側は倍率から位置を算で求められない。**⛔ **Adapter に自前の割付けをさせないことは、表 T-070 の `MN-6` が既に定めている**|
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） ／ `dependencyEndAtPointer`（`FR-009` の「左半分 / 右半分」を答える。⛔ **構えが依存線のときだけ呼ぶ** —— 同要求が `itemAtPointer` に構えを渡すことを禁じている） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。命令の列で書き込む）／ `replaceDocument`（`non-pure`。`ApplyDocumentChange` の外で組み立てた文書を現在値にする。手順は 表 T-067、呼び手ごとの扱いは 表 T-230） |
@@ -341,7 +341,7 @@ src/
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
 | PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`）／ `SpentEntranceSituation`（型。押された入口が何を持たないのかを名乗る。⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない） |
-| PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`）／ `colourOf`（表 T-236 の行 ID と、いまの色の好みから 1 色を返す。`EP-9` が書き出しに畫面と同じ線を引けと定めるので、`ImageExporter` が同じ色を問えなければならない。⚠️ **直値は 2026-09-06 まで 3 つに割れていた**）／ `GROUP_GRID_LINE_WIDTH_PX`（`Group Grid Lines` の罫の太さ。`EP-9` が、仕切りの線の太さを 1 か所から読むことと、画面と書き出しがその同じ 1 か所を読むことを定めているので、**色と同じ理由でこの数も問えなければならない**。⭐ **描く当の本人が持つ** —— `U-18` を引くのはこのユニットである） |
+| PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`）／ `colourOf`（表 T-236 の行 ID と、いまの色の好みから 1 色を返す。`EP-9` が書き出しに画面と同じ線を引けと定めるので、`ImageExporter` が同じ色を問えなければならない。⚠️ **直値は 2026-09-06 まで 3 つに割れていた**）／ `GROUP_GRID_LINE_WIDTH_PX`（`Group Grid Lines` の罫の太さ。`EP-9` が、仕切りの線の太さを 1 か所から読むことと、画面と書き出しがその同じ 1 か所を読むことを定めているので、**色と同じ理由でこの数も問えなければならない**。⭐ **描く当の本人が持つ** —— `U-18` を引くのはこのユニットである） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。規則は 表 T-024a の `OP-12`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。⛔ 高さの天井に収まらないときは絵を返さず、拒みを返す —— 規則は `FR-025`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
