@@ -3625,8 +3625,8 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
 // パネルの項目名は `W-2` に従うこと（MUST）** …… ⛔⛔ **同じ面が文書の設定を出す
 // ときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
 // （MUST NOT）**」, and the preamble of table T-016 says where the names live:
-// 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は言語
-// ごとの辞書 1 つに持つ」と定めるので、表示名は `_source/display-words.json` の
+// 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語
+// ごとの辞書として 1 か所に持つこと（MUST）」と定めるので、表示名は `_source/display-words.json` の
 // `properties` 節が同じ行 ID で持つ」.
 //
 // ⭐ THE DICTIONARY IS WALKED WHOLE rather than asked for one section: the

@@ -471,8 +471,8 @@ describe('UF-62 openedFileName / fileSavedAt', () => {
 
   it('says so in the chosen display language (FR-038, MUST)', () => {
     // FR-038 (MUST) shows menus and panels in the chosen language, and FR-036
-    // adds the rule those words obey: 「画面に刷る語は言語ごとの辞書 1 つに
-    // 持つ」. These words are screen words, so the two languages differ.
+    // adds the rule those words obey: 「画面に刷る語は、言語ごとの辞書として 1 か所に
+    // 持つこと（MUST）」. These words are screen words, so the two languages differ.
     const said = S_99_LANGUAGES.map(
       (language) => itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language })).fileNeverSavedText,
     )
