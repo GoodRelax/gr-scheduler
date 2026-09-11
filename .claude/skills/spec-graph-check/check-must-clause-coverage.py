@@ -232,10 +232,23 @@ def load_test_corpus():
 # distinction: its clauses rule how the SPECIFICATION is written, not what
 # the product does. Measured 2026-09-05: 43 unheld clauses sat under
 # 「Chapter 1. Foundation」, and they read like 「要求は必ず「〜すること。」
-# で終える（MUST）」 and 「条件は主語より先に書く（MUST）」. ⭐ Checks 5
-# to 15 already read the manuscript for exactly those, so a test quoting
-# them would be a second place holding one rule -- which is the thing this
-# specification most consistently forbids.
+# で終える（MUST）」 and 「条件は主語より先に書く（MUST）」.
+#
+# ⛔⛔ THE SECOND HALF OF THIS REASON WAS FALSE AND IS WITHDRAWN (2026-09-11).
+# It used to say 「⭐ Checks 5 to 15 already read the manuscript for exactly
+# those, so a test quoting them would be a second place holding one rule」.
+# They do not. Checks 5-10 and 15 read undefined table references, duplicate
+# row ids, nonexistent row/UID references, row-belongs-to-table, prose count
+# against row count, column count and figure seat numbers -- not one of them
+# reads a requirement's wording. Measured 2026-09-11 by grepping every script
+# under .claude/skills/ and tools/ for 「すること。」: the only file that
+# contains it is THIS one, in the sentence above.
+#
+# ⭐ THE EXCLUSION IS STILL RIGHT, on the first half of the reason alone: these
+# clauses are satisfied or broken by the AUTHOR of the document, never by the
+# shipped build, so not one of the six ways this product is observed to find a
+# defect reaches them. ⚠️ A rule nothing enforces is not the same as a rule
+# something else enforces, and this comment had been claiming the second.
 SKIP_SECTIONS = (
     ('01-04-requirements.md', 'Chapter 1. Foundation'),
 )
