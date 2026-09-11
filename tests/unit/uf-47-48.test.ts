@@ -1739,6 +1739,7 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
           scheduleUpdatedUtc: '2026-01-02T03:04:05Z',
           settingsUpdatedUtc: '2026-01-02T03:04:05Z',
           lastEditedBy: 'whoever wrote the file',
+          fileSavedUtc: null,
         }
         const brought = twoRowDocument((draft) => {
           draft.schedule.project.title = 'Brought'

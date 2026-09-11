@@ -49,6 +49,7 @@ erDiagram
         文字列 scheduleUpdatedUtc "日程が動いた刻"
         文字列 lastEditedBy "最後に書いた者"
         文字列 settingsUpdatedUtc "時刻"
+        文字列 fileSavedUtc "保存した刻"
     }
     changeLog {
         整数 ordinal "文書の中での出現順"

@@ -4347,6 +4347,10 @@ def build():
             'scheduleUpdatedUtc': STAMPED_AT,
             'lastEditedBy': STAMP_AUTHOR,
             'settingsUpdatedUtc': STAMPED_AT,
+            # AT-140, FR-101: the time the document was last written to
+            # a file. A bundled template has never been written to one,
+            # so it is null and the screen says so rather than a time.
+            'fileSavedUtc': None,
         },
         'changeLog': [],
     }

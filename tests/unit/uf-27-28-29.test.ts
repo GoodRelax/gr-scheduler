@@ -252,6 +252,7 @@ const STARTING_STAMP = {
   scheduleUpdatedUtc: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
   settingsUpdatedUtc: '2026-08-19T10:00:00Z',
+  fileSavedUtc: null,
 } as const
 
 /** The same root with nothing in the schedule: the empty boundary. */
@@ -744,14 +745,17 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     expect(one.document.schemaVersion).not.toBe('tampered')
   })
 
-  it('AM-4 answers a frozen copy of the stamp, with the three fields DR-4 names', () => {
+  it('AM-4 answers a frozen copy of the stamp, with the four fields DR-4 names', () => {
     const one = bench()
     const stamp = one.api.readStamp()
 
     expect(stamp).toEqual(one.document.documentStamp)
     expect(stamp).not.toBe(one.document.documentStamp)
     expect(Object.isFrozen(stamp)).toBe(true)
+    // ⭐ `fileSavedUtc` (AT-140) joined the stamp on 2026-09-11, so DR-4 now
+    // names four fields rather than three. The copy must carry it too.
     expect([...Object.keys(stamp)].sort()).toEqual([
+      'fileSavedUtc',
       'lastEditedBy',
       'scheduleUpdatedUtc',
       'settingsUpdatedUtc',

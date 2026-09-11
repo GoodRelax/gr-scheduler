@@ -194,6 +194,7 @@ const OPENED_STAMP = {
   scheduleUpdatedUtc: '2026-03-04T05:06:07Z',
   settingsUpdatedUtc: '2026-03-04T05:06:07Z',
   lastEditedBy: 'template',
+  fileSavedUtc: null,
 } as const
 
 /**

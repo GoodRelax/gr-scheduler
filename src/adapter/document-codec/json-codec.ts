@@ -795,7 +795,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   documentStamp: {
     type: ['object'],
-    required: ['scheduleUpdatedUtc', 'lastEditedBy', 'settingsUpdatedUtc'],
+    required: ['scheduleUpdatedUtc', 'lastEditedBy', 'settingsUpdatedUtc', 'fileSavedUtc'],
     closed: true,
     properties: {
       scheduleUpdatedUtc: {
@@ -806,6 +806,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       settingsUpdatedUtc: {
         type: ['string'],
+      },
+      fileSavedUtc: {
+        type: ['string', 'null'],
       },
     },
   },

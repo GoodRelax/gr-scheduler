@@ -181,6 +181,7 @@ erDiagram
         文字列 scheduleUpdatedUtc "GRS・ISO 8601・UTC・秒"
         文字列 lastEditedBy "GRS"
         文字列 settingsUpdatedUtc "GRS・ISO 8601・UTC・秒"
+        文字列 fileSavedUtc "GRS・ISO 8601・UTC・秒"
     }
     changeLog {
         整数 **ordinal** PK "GRS"
@@ -250,7 +251,7 @@ erDiagram
 | ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
 | ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
 | ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
-| ET-16 | `documentStamp` | 2 つの刻と、最後に書いた者 | — （文書に 1 つしか無い） | **書き出さない** | — |
+| ET-16 | `documentStamp` | 3 つの刻と、最後に書いた者 | — （文書に 1 つしか無い） | **書き出さない** | — |
 | ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `ordinal` | **書き出さない** | — |
 | ET-18 | `BaselineTask` | 変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ | `uid` | **書き出さない** | — |
 
@@ -431,6 +432,7 @@ erDiagram
 | AT-127 | `documentStamp` | `scheduleUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** |
 | AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。書く語の全数は 表 T-229 が持つ |
 | AT-129 | `documentStamp` | `settingsUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える） |
+| AT-140 | `documentStamp` | `fileSavedUtc` | 文字列（`ISO 8601`・UTC・秒） | 可 | — | GRS | — | 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— **保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。** |
 | AT-130 | `changeLog` | `ordinal` | 整数 | 否 | PK | GRS | — | 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である |
 | AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
 | AT-132 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |

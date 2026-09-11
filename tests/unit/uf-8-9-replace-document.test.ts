@@ -267,6 +267,7 @@ const stampOf = (part: Partial<DocumentStamp> = {}): DocumentStamp => ({
   scheduleUpdatedUtc: '2026-08-20T09:00:00Z',
   lastEditedBy: 'the person at the keyboard',
   settingsUpdatedUtc: '2026-08-20T09:00:00Z',
+  fileSavedUtc: null,
   ...part,
 })
 

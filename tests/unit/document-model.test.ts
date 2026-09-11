@@ -162,17 +162,21 @@ describe('DocumentStamp (PI-3)', () => {
     scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
     lastEditedBy: 'human',
     settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    fileSavedUtc: null,
   }
 
   it('FR-063 moves the schedule-data instant for a schedule-data write', () => {
     // 「日程データの群の刻を動かすのは、日程データの群を変える更新とすること
     // （MUST）」, and 「どちらの群であれ動いた刻と、最後に書いた者は … 更新
-    // すること（MUST）」 -- so all three fields move together here.
+    // すること（MUST）」 -- so those three fields move together here.
+    // ⚠️ `fileSavedUtc` (AT-140) is the FOURTH field and does NOT move: an
+    // edit is not a write to a file, and FR-101 owns when that one moves.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: true })
     expect(next).toEqual({
       scheduleUpdatedUtc: '2026-08-17T00:01:00Z',
       lastEditedBy: 'agent',
       settingsUpdatedUtc: '2026-08-17T00:01:00Z',
+      fileSavedUtc: null,
     })
   })
 

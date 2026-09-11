@@ -19,9 +19,13 @@
 //
 //   FR-101 「**画面に出す時刻は、読む人のローカル時刻とすること（MUST）。保管は
 //          UTC のままとすること（MUST）**（利用者の指示 2026-08-27）—— **保管の綴り
-//          は 図 F-011 の `AT-127` が持ち、本要求は動かさない。**⛔ **画面に UTC を
-//          そのまま出してはならない（MUST NOT）** —— **書いたのが何時かを読むための
-//          時刻であり、読む人の時計と違う時刻はその問いに答えていない。**」
+//          は 表 T-058 の `AT-140`（`documentStamp.fileSavedUtc`）が持ち、本要求は
+//          動かさない。**」 —— ⚠️ re-anchored 2026-09-11: the column the sentence
+//          points at was `AT-127` until the ruling of that day gave the document
+//          its own `AT-140`. The rule these cases test is unchanged.
+//   FR-101 「⛔ **画面に UTC をそのまま出してはならない（MUST NOT）** —— **書いた
+//          のが何時かを読むための時刻であり、読む人の時計と違う時刻はその問いに
+//          答えていない。**」
 //   FR-101 「**更新日時の字の大きさは `_assets/tbl-settings.md` の 表 T-206 の
 //          `S-210` が定める係数で決めること（MUST）。px で持ってはならない（MUST
 //          NOT）**（`NFR-007` の WCAG 1.4.4）。」

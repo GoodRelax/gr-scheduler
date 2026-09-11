@@ -305,6 +305,9 @@
      },
      {
       "ja": "時刻"
+     },
+     {
+      "ja": "保存した刻"
      }
     ]
    },
@@ -2833,8 +2836,8 @@
    "seat": 16,
    "name": "documentStamp",
    "description": {
-    "ja": "2 つの刻と、最後に書いた者",
-    "en": "The two instants, and who last wrote the document."
+    "ja": "3 つの刻と、最後に書いた者",
+    "en": "The three instants, and who last wrote the document."
    },
    "export": false,
    "carry": false,
@@ -2890,6 +2893,23 @@
      "exchange": "",
      "meaning": {
       "ja": "どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える）"
+     }
+    },
+    {
+     "seat": 140,
+     "name": "fileSavedUtc",
+     "type": "文字列（`ISO 8601`・UTC・秒）",
+     "nullable": "可",
+     "json": {
+      "kind": "string",
+      "format": "iso8601Seconds",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— **保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。**"
      }
     }
    ]

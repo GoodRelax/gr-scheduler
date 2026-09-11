@@ -41,16 +41,21 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            126, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            127, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            139, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            140, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
-                 'Project.outlineBase (AT-139) is one more 整数 / 否.'),
+                 'Project.outlineBase (AT-139) is one more 整数 / 否. '
+                 '⭐ 126->127 / 139->140 on 2026-09-11: '
+                 'documentStamp.fileSavedUtc (AT-140) is one more '
+                 '文字列（`ISO 8601`・UTC・秒） / 可 -- both values already '
+                 'sat in the file, so the count rose and the '
+                 'distinct set did not.'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '

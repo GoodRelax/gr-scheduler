@@ -38,6 +38,8 @@ export interface DocumentStamp {
   readonly lastEditedBy: string
   /** AT-129 */
   readonly settingsUpdatedUtc: string
+  /** AT-140 */
+  readonly fileSavedUtc: string | null
 }
 
 /** ET-17 of table T-056. */
@@ -83,6 +85,9 @@ export function advancedStamp(
     scheduleUpdatedUtc: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedUtc,
     lastEditedBy: editedBy,
     settingsUpdatedUtc: updatedUtc,
+    // AT-140 is the moment the document was last written to a FILE, so an
+    // edit carries it through unchanged. FR-101 owns when it moves.
+    fileSavedUtc: stamp.fileSavedUtc,
   }
 }
 

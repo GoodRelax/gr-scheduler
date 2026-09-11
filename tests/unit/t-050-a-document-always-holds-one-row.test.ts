@@ -181,6 +181,7 @@ const STAMP: DocumentStamp = {
   scheduleUpdatedUtc: '2026-09-01T00:00:00Z',
   lastEditedBy: 'user',
   settingsUpdatedUtc: '2026-09-01T00:00:00Z',
+  fileSavedUtc: null,
 }
 
 const documentOf = (schedule: Partial<Schedule>, settings: Record<string, unknown> = {}): Document =>

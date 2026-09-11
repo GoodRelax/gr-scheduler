@@ -1794,11 +1794,12 @@
   },
   "documentStamp": {
    "type": "object",
-   "description": "The two instants, and who last wrote the document.",
+   "description": "The three instants, and who last wrote the document.",
    "required": [
     "scheduleUpdatedUtc",
     "lastEditedBy",
-    "settingsUpdatedUtc"
+    "settingsUpdatedUtc",
+    "fileSavedUtc"
    ],
    "additionalProperties": false,
    "properties": {
@@ -1812,6 +1813,14 @@
     },
     "settingsUpdatedUtc": {
      "type": "string",
+     "format": "date-time",
+     "$comment": "ISO 8601, UTC, to the second."
+    },
+    "fileSavedUtc": {
+     "type": [
+      "string",
+      "null"
+     ],
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."
     }
