@@ -198,13 +198,13 @@ const FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL =
 // -- Ruling B: a bar-shaped task needs a drag ------------------------------
 
 const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
-  '用者の裁定 2026-09-02）—— **同じ手の動きに同じ値を使い、行の掴みと別に持たない。**⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
+  '**⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
 
 const FR_001_A_CLICK_MAKES_NO_BAR_TASK =
-  '別に持たない。**⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）。**⛔⛔ **クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
+  '**⛔⛔ **クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
 
 const FR_001_TELLS_IT_MADE_NOTHING =
-  'を作らないこと（MUST NOT）**（利用者の裁定 2026-09-07、逐語「タスクはドラッグ必須」）—— **タスクは期間を持つものであり、引いていない押下はその期間を言っていない。**⭐ **作らなかったことを告げること（MUST）'
+  '**⭐ **作らなかったことを告げること（MUST）'
 
 // ⛔ FR-083's SECOND COPY OF FR-001's PROHIBITION IS GONE, AND THAT IS THE
 // MANUSCRIPT MOVING, NOT COVERAGE BEING DROPPED (2026-09-08). FR-083's
@@ -219,10 +219,10 @@ const FR_001_TELLS_IT_MADE_NOTHING =
 // -- Ruling B's control half: the milestone is exempt, both ways ------------
 
 const MILESTONE_IS_PLACED_BY_A_PRESS_ALONE =
-  ' **これは欠陥ではない** —— **`FR-091` が作った直後に名前を打てることを求めており、欄に焦点が在るあいだ `Delete` が文字に効くのはその求めの裏側である。**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）'
+  '**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）'
 
 const MILESTONE_LANDS_ON_THE_PRESSED_POINT =
-  'FR-091` が作った直後に名前を打てることを求めており、欄に焦点が在るあいだ `Delete` が文字に効くのはその求めの裏側である。**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと（MUST）'
+  '**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと（MUST）'
 
 const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
   'MUST）。引いても、押した点に置くこと（MUST）**（同裁定「マイルストーンはクリックだけとする」）—— **マイルストーンは長さを持たないので、引いた長さに意味が無い。**⛔ **引いたことを理由に拒んではならない（MUST NOT）'
