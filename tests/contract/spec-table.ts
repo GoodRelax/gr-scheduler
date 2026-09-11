@@ -62,8 +62,19 @@ const FILES = [
  */
 const ROW_ID_HEADING = '行 ID'
 
+// ⛔ A row is one line, so a wrapped cell carries `<br>` where a paragraph
+// would have a newline (the user's ruling, 2026-09-12). It is a line break in
+// the SOURCE, not a word of the rule, so it reads here as the space it stands
+// for. It was inserted at a sentence boundary where the text had no
+// character, so dropping it restores the bytes the tests quote -- otherwise
+// every cell a wrap touched would stop matching them.
 const cells = (line: string): string[] =>
-  line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((c) => c.replace(/<br\s*\/?>/gi, '').trim())
 
 const isSeparator = (line: string): boolean => /^\|[\s:|-]+\|$/.test(line.trim())
 

@@ -12,14 +12,18 @@
 
 **Type**: SECTION
 
-> 未記入。標準規格と外部資料へのリンクを書く。MSPDI の正は公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` を引き、ローカル複製のパスを正として書かない（複製は cache であって正ではない。  
+> 未記入。  
+> 標準規格と外部資料へのリンクを書く。  
+> MSPDI の正は公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` を引き、ローカル複製のパスを正として書かない（複製は cache であって正ではない。  
 > `docs/reference/README.md`）。
 
 ## A.2 Licenses (ライセンス)
 
 **Type**: SECTION
 
-> 未記入。依存ライブラリのライセンスを書く。単一 HTML に同梱される実行時依存は、出力にコードが載るので全数を挙げる。
+> 未記入。  
+> 依存ライブラリのライセンスを書く。  
+> 単一 HTML に同梱される実行時依存は、出力にコードが載るので全数を挙げる。
 
 ## A.3 Changelog (変更履歴)
 
