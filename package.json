@@ -52,7 +52,9 @@
     "mspdi:check": "python tools/generate_mspdi_custom_fields.py --check",
     "formats": "python tools/generate_exchange_formats.py",
     "formats:check": "python tools/generate_exchange_formats.py --check",
-    "parity": "node tools/parity/check.mjs"
+    "parity": "node tools/parity/check.mjs",
+    "sweep": "python tools/sweep_strictdoc_output.py",
+    "stats": "python tools/collect_stats.py"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

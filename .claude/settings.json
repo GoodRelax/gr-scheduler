@@ -6,5 +6,18 @@
       "Bash(git push:*)",
       "Bash(git fetch:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python tools/sweep_strictdoc_output.py; python tools/collect_stats.py; exit 0",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
   }
 }
