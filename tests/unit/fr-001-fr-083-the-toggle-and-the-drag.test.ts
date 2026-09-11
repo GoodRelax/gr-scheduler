@@ -198,13 +198,13 @@ const FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL =
 // -- Ruling B: a bar-shaped task needs a drag ------------------------------
 
 const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
-  '**⭐ **バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
+  '⭐ バーの形状（表 T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを作ること（MUST）'
 
 const FR_001_A_CLICK_MAKES_NO_BAR_TASK =
-  '**⛔⛔ **クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
+  '⛔⛔ クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
 
 const FR_001_TELLS_IT_MADE_NOTHING =
-  '**⭐ **作らなかったことを告げること（MUST）'
+  '⭐ 作らなかったことを告げること（MUST）'
 
 // ⛔ FR-083's SECOND COPY OF FR-001's PROHIBITION IS GONE, AND THAT IS THE
 // MANUSCRIPT MOVING, NOT COVERAGE BEING DROPPED (2026-09-08). FR-083's
@@ -219,10 +219,10 @@ const FR_001_TELLS_IT_MADE_NOTHING =
 // -- Ruling B's control half: the milestone is exempt, both ways ------------
 
 const MILESTONE_IS_PLACED_BY_A_PRESS_ALONE =
-  '**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）'
+  '⛔⛔ マイルストーンは押すだけで置くこと（MUST）'
 
 const MILESTONE_LANDS_ON_THE_PRESSED_POINT =
-  '**⛔⛔ **マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと（MUST）'
+  '⛔⛔ マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと（MUST）'
 
 const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
   'MUST）。引いても、押した点に置くこと（MUST）**（同裁定「マイルストーンはクリックだけとする」）—— **マイルストーンは長さを持たないので、引いた長さに意味が無い。**⛔ **引いたことを理由に拒んではならない（MUST NOT）'
