@@ -727,7 +727,7 @@ bash .claude/skills/spec-graph-check/check.sh > /dev/null 2>&1; echo "exit=$?"
 | 門 | 所要 | 打ち方 |
 |---|---|---|
 | `npx tsc --noEmit` | 数秒 | 誤りの数だけ数える |
-| `npx vitest run` | 21.7 秒 | 末尾 3 行だけ |
+| `npx vitest run` | 21.7 秒 | ⛔⛔ **仕様書を触る巡は必須。**正は「⛔⛔⛔ そして `vitest` を走らせろ —— 原稿を読む試験が在る」の節であり、**本表はその打ち方だけを持つ** —— `Tests ` の行だけを `grep` で受ける。⛔ **「この巡はコードを触らない」を理由に飛ばすな** —— **原稿を実行時に読む試験が在り、仕様書を 1 文畳むだけで落ちる。**⚠️ **前の巡は飛ばし、`check.sh` が 42 本とも緑のまま 6 件が赤になり、そのまま 4 回 push した。** |
 | `check.sh` | 37 秒 | 上のとおり |
 | `npm run layers` ／ `npm run parity` | 数秒〜数十秒 | 末尾 2〜3 行 |
 | `npx playwright test` | **8 分 17 秒** | ⚠️ **フェーズの最後に 1 度だけ** |
