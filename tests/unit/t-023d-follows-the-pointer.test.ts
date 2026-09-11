@@ -65,10 +65,15 @@
 //           追従させて描いて示すこと（MUST）……⚠️ `GR-12` は縦にも追従すること
 //           （MUST）—— 行の載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの
 //           なので、縦を止めるとどの行へ載るのかが見えない。⚠️ 確定は 表 T-028 の
-//           `IN-1` に従う（離した時点）。⛔ 掴んでいるあいだ値を文書へ書いては
-//           ならない（MUST NOT）（`FR-031`）—— 追従は絵であって編集ではない」
+//           `IN-1` に従う（離した時点）」
 //           ⭐ THE TEN ROW IDS ARE READ OUT OF THE MANUSCRIPT, NOT COPIED --
 //           see `closingRuleRows()`.
+//   T-023d  the write ban the closing now states ONCE for every following row,
+//           instead of once per following rule (D-466, 利用者の裁定 2026-09-11):
+//           「`GR-1` / `GR-2` / `GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` /
+//           `GR-12` / `GR-14` / `GR-15` / `GR-16` / `GR-21` を掴んでいるあいだ値を
+//           文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵であって
+//           編集ではない。⚠️ `GR-1` / `GR-2` の日数も値である」
 //   T-023d  the paragraph after it: 「本表の 操作 の欄が「動かす」「変える」
 //           「ずらす」と述べる行は、上の 3 つの規則のいずれかで必ず追従する。
 //           ⛔ 追従しない行を残してはならない（MUST NOT）……⭐ 残る行が追従しない
@@ -221,6 +226,23 @@ function closingRuleLine(): string {
   )
   if (found === undefined) {
     throw new Error('table T-023d no longer states the closing rule this file is about')
+  }
+  return found
+}
+
+/**
+ * The closing sentence that forbids a write while ANY following row is held.
+ *
+ * ⭐ ITS OWN SEAT SINCE D-466 (利用者の裁定 2026-09-11). The ban used to be
+ * restated at the tail of each following rule; the closing now states it once,
+ * for every row the three rules name, so this file reads it from there.
+ */
+function writeBanLine(): string {
+  const found = REQUIREMENTS.find((line) =>
+    line.includes('を掴んでいるあいだ値を文書へ書いてはならない'),
+  )
+  if (found === undefined) {
+    throw new Error('table T-023d no longer forbids a write while a grab is held')
   }
   return found
 }
@@ -861,9 +883,21 @@ describe('the manuscript still states the rule this file is about', () => {
   it('is a MUST, and forbids a write while the button is down (MUST NOT)', () => {
     const line = closingRuleLine()
     expect(line, 'table T-023d: ……描いて示すこと（MUST）').toContain('（MUST）')
-    expect(line, 'table T-023d: 掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）').toContain(
-      '掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）',
-    )
+    // ⭐ READ FROM THE CLOSING'S OWN SEAT, not from the rule above: D-466 folded
+    // the ban out of the two rules that restated it and gave it one sentence
+    // that names every following row. ⛔ The expectation itself is unchanged.
+    expect(
+      writeBanLine(),
+      'table T-023d: 掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）',
+    ).toContain('掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）')
+    expect(writeBanLine(), 'table T-023d: the ban cites `FR-031`').toContain('`FR-031`')
+    // ⛔ AND IT MUST STILL BIND EVERY ROW THIS RULE NAMES -- a fold that dropped
+    // a row would leave that row free to write while it is held.
+    for (const row of closingRuleRows()) {
+      expect(writeBanLine(), `table T-023d: the write ban no longer names ${row}`).toContain(
+        `\`${row}\``,
+      )
+    }
     expect(line, 'table T-023d: 確定は 表 T-028 の `IN-1` に従う（離した時点）').toContain(
       '表 T-028 の `IN-1`',
     )
