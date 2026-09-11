@@ -54,6 +54,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 SPEC = os.path.join(ROOT, 'docs', 'spec')
+CHANGELOG = os.path.join(ROOT, 'docs', 'development-records', 'changelog.md')
 BASELINE = os.path.join(HERE, 'quoted-source-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/quoted-source-baseline.txt'
 
@@ -128,7 +129,17 @@ def comment_blocks(source):
 
 
 def manuscripts():
-    """Every manuscript under docs/spec, flattened, one string each."""
+    """Every manuscript under docs/spec, flattened, one string each.
+
+    ⭐⭐ AND THE CHANGELOG, WHICH IS NO LONGER UNDER docs/spec. Cleanup P2-1
+    (2026-09-11, ruling 5) moved the A.3 Changelog section of A-appendix.md to
+    docs/development-records/changelog.md unchanged -- 183,208 characters, a
+    record rather than a requirement. Measured the same day: 50 quotations in
+    `src/` and `tests/` have their source in those rows and nowhere else, so
+    dropping the file from this haystack would have taken the count from 469 to
+    519 and called fifty honest citations fabricated. The sentence a comment
+    quotes is the same sentence it was; only its address changed.
+    """
     found = []
     for base, _dirs, names in os.walk(SPEC):
         for name in sorted(names):
@@ -141,6 +152,13 @@ def manuscripts():
                 continue
             found.append((os.path.relpath(path, ROOT).replace('\\', '/'),
                           flatten(text)))
+    try:
+        moved = io.open(CHANGELOG, encoding='utf-8', errors='replace').read()
+    except OSError:
+        moved = None
+    if moved is not None:
+        found.append((os.path.relpath(CHANGELOG, ROOT).replace('\\', '/'),
+                      flatten(moved)))
     return found
 
 

@@ -122,7 +122,9 @@
 #          142 are held in crossing-names-baseline.txt so the run starts at
 #          new 0 and a NEW unlisted crossing is red the day it appears
 #   38     check-changelog-versions.py : the A.3 Changelog table in
-#          docs/spec/A-appendix.md names each version number once. D-246 found
+#          docs/development-records/changelog.md names each version number
+#          once. ⭐ It sat in docs/spec/A-appendix.md until 2026-09-11,
+#          when cleanup P2-1 moved the whole table out of the manuscript. D-246 found
 #          two rows both claiming 1.33 -- CR-348 renamed the stray one, so
 #          this holds the count at zero rather than a baseline of known debt.
 #          Ordering (D-246 also found a descending stretch after an ascending

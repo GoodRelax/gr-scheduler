@@ -21,7 +21,8 @@ The repository is the current working directory, on branch \`restart\`.
 # What is where
 - \`docs/spec/\` -- the specification. \`01-04-requirements.md\` (requirements and
   their tables), \`05-07-design.md\` (Chapter 5 architecture, Chapter 6 data),
-  \`08-10-test.md\`, \`A-appendix.md\` (the changelog), \`_assets/\` (generated
+  \`08-10-test.md\`, \`A-appendix.md\` (the appendix; its changelog moved to
+  \`docs/development-records/changelog.md\` on 2026-09-11), \`_assets/\` (generated
   tables: \`tbl-glossary.md\`, \`tbl-settings.md\`), \`_source/\` (the manuscripts
   everything is generated FROM: \`erd.json\`, \`settings.json\`,
   \`display-words.json\`, \`components.json\`, \`mspdi-custom-fields.json\`).

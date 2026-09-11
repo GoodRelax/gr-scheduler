@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Check 38 -- the revision history in docs/spec/A-appendix.md names each
-version number once.
+"""Check 38 -- the revision history in docs/development-records/changelog.md
+names each version number once.
 
 WHY THIS EXISTS. D-246 measured the A.3 Changelog table on 2026-09-04 and
 found two rows both claiming version 1.33: the row for 2026-08-29 and a row
@@ -38,8 +38,13 @@ from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-APPENDIX = os.path.join(ROOT, 'docs', 'spec', 'A-appendix.md')
-REL = 'docs/spec/A-appendix.md'
+# ⭐ THE TABLE MOVED ON 2026-09-11 (cleanup P2-1, ruling 5). It was the A.3
+# Changelog section of docs/spec/A-appendix.md -- 183,208 of that file's
+# 183,705 characters -- and it is a RECORD, not a requirement, so it now lives
+# with the other records. Nothing about the table changed; only its address.
+# A-appendix.md keeps the A.3 heading and one line pointing here.
+APPENDIX = os.path.join(ROOT, 'docs', 'development-records', 'changelog.md')
+REL = 'docs/development-records/changelog.md'
 
 SECTION_START = re.compile(r'^## A\.3 Changelog')
 ANY_HEADING = re.compile(r'^## ')

@@ -88,9 +88,16 @@ def main():
         # several at once. ⛔ Check 43 is the one that reads it, and it asks
         # whether each ruling reached docs/spec rather than whether a folder
         # of units is accounted for.
+        # ⭐ changelog.md is the seventh, added 2026-09-11 by cleanup P2-1
+        # (ruling 5). It is the specification's own A.3 Changelog table, moved
+        # here whole out of docs/spec/A-appendix.md because its version
+        # numbering is the specification's and exists nowhere in git. It is
+        # keyed by version and date, not by a folder of units. ⛔ Check 38 is
+        # the one that reads it, and it asks whether each version number
+        # appears once and above the next.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
-            'fixed-defects.md', 'rulings.md'
+            'fixed-defects.md', 'rulings.md', 'changelog.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

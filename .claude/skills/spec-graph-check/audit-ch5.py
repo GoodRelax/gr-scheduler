@@ -11,6 +11,11 @@ import sys
 DESIGN = "docs/spec/05-07-design.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
 MODEL = "docs/spec/_source/components.json"
+# ⭐ THE RECORD THIS FILE READS TWICE. Until 2026-09-11 the A.3 Changelog was a
+# section of docs/spec/A-appendix.md; cleanup P2-1 (ruling 5) moved it here
+# unchanged, because a dated 「…を置いた」 sentence is a record, not a
+# requirement. Both reads below want the record, never the appendix.
+CHANGELOG = "docs/development-records/changelog.md"
 
 design = open(DESIGN, encoding="utf-8").read()
 glossary = open(GLOSSARY, encoding="utf-8").read()
@@ -80,10 +85,15 @@ check("T-063 rows", len(ut), 7)
 SPEC = ("01-04-requirements", "05-07-design", "08-10-test", "A-appendix")
 check("T-074 SU-1 defines a component by its entry",
       design.count("フォルダの外へ見せる公開エントリを 1 つ持つもの"), 1)
+# ⭐ THE RECORD IS NO LONGER ONE OF THE MANUSCRIPTS. Every manuscript must hold
+# the abandoned wording zero times and the changelog exactly once -- the same
+# two claims as before P2-1, now that the changelog is a file of its own.
 check("the abandoned definition survives only in the record",
-      {d: open("docs/spec/%s.md" % d, encoding="utf-8").read().count("外へインターフェースを公開")
-       for d in SPEC},
-      {"01-04-requirements": 0, "05-07-design": 0, "08-10-test": 0, "A-appendix": 1})
+      dict({d: open("docs/spec/%s.md" % d, encoding="utf-8").read().count("外へインターフェースを公開")
+            for d in SPEC},
+           changelog=open(CHANGELOG, encoding="utf-8").read().count("外へインターフェースを公開")),
+      {"01-04-requirements": 0, "05-07-design": 0, "08-10-test": 0,
+       "A-appendix": 0, "changelog": 1})
 
 # the directory tree in 5.3 must hold one folder per component
 tree = design[design.index("```text"):design.index("```", design.index("```text") + 5)]
@@ -224,7 +234,7 @@ if missed:
 
 # the changelog names the components holding more than two units.  That claim
 # went stale once already, so derive it from T-075 and compare it exactly.
-appendix = open("docs/spec/A-appendix.md", encoding="utf-8").read()
+appendix = open(CHANGELOG, encoding="utf-8").read()
 sentence = appendix[appendix.index("2 つより多いユニットを持つのは"):]
 sentence = sentence[:sentence.index("。")]
 check("changelog's >2-unit claim matches T-075",
