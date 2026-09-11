@@ -216,7 +216,56 @@ RETIRED = {'FR-050', 'T-030',
            # and the appendix all record the withdrawal by naming the row, and
            # those records are true of the day they were written, so the seat
            # stays burnt like every other retirement here.
-           'S-93'}
+           'S-93',
+           # U-29 (the hidden-group tab) went on 2026-08-30 with CR-320, when the
+           # row controls were matched to the sample the user approved. It was the
+           # only entrance that brought a hidden row back, and HR-6 (hide this row)
+           # now gets its way back from the parent's 1 階層開く -- HR-7, reached
+           # through HF-13 -- which left U-29 with no reader at all. Appendix 1.74
+           # says so in as many words: 「U-29（非表示グループタブ）を廃止した」.
+           'U-29',
+           # IC-51 (畳む) merged into IC-50 (一覧を開く) on 2026-08-28 with CR-273:
+           # 図 F-019 was handing both of them a byte-identical three-dot glyph, so
+           # a reader saw two indistinguishable entrances of which one did nothing
+           # in either state. One row now toggles, as IC-11 / IC-60 already did.
+           # ⚠️ An EARLIER changelog row -- appendix 1.15, CR-263, 2026-08-26 --
+           # says 「⚠️ **IC-51 は廃していない**」. That was true of 1.15, where only
+           # the glyph changed; version 1.25 SUPERSEDES it and is what retired the
+           # row. ⛔ Do not read 1.15 as evidence that this booking is a mistake:
+           # 1.25 is the later record, and the seat stays burnt.
+           'IC-51',
+           # IC-69 (丸囲みの ✓) and IC-70 (丸囲みの ✕) were the two glyphs a
+           # confirmation was answered with. CR-327 replaced them with word buttons
+           # on the user's 2026-09-01 instruction, because a spelled Yes / No is
+           # what lets the leading letter name the y / n key that also answers.
+           # Both rows left table T-109 and 図 F-019, and NT-7 of table T-037 now
+           # forbids their return: 「答えの入口に 表 T-109 の行を与えてはならない
+           # （MUST NOT）」. A reference to either number is therefore a reference to
+           # a deliberate withdrawal, not to an invented icon.
+           'IC-69', 'IC-70',
+           # S-185 (構えている入口の縁の太さ) went on 2026-08-30 with CR-311, when
+           # the user settled for the third time that an armed entrance is shown by
+           # filling it, not by rimming it: FR-029 and table T-237 now forbid 「縁の
+           # 色や太さ」 outright, so nothing was left to read a rim thickness.
+           # Appendix 1.65 records the withdrawal and the seat in one sentence --
+           # 「S-185（縁の太さ）を廃止した … 番号は席番号なので S-185 は欠番のまま
+           # 残す」 -- naming FR-050 as the precedent it follows.
+           'S-185',
+           # IC-94 was an icon on the difference-review surface, withdrawn on
+           # 2026-09-05 in commit bb8afbd. CR-366, which builds the merge face
+           # over that same surface, stops to say the seat is deliberately vacant
+           # rather than the next free number: 「⛔ 席は詰めない —— IC-94 は退役済み
+           # なので空けたまま」. IC-93 and IC-95 are both live rows, so anything that
+           # renumbers into this gap would silently reuse a used seat.
+           'IC-94',
+           # RS-45 was a refusal reason -- 「この画面を動かす本体が、このファイルの
+           # 中に見つからない」 -- retired by CR-347 section 2.7 on 2026-09-03 on the
+           # user's ruling that a single .html is made to be handed out and opened,
+           # not read back by the application, so the shipped build has no route to
+           # that fault at all. The reason count went 46 -> 45 with it; RS-44 and
+           # RS-46 are both still live rows, which is what makes this a seat rather
+           # than an off-by-one.
+           'RS-45'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):
