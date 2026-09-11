@@ -107,19 +107,19 @@ this properly needs the other two documents' ID sets, which belong to a check
 that reads them; ⛔ do not "fix" it by comparing the NUMBER against the highest
 defined one, which would hide a real typo like `S-999`.
 
-WHERE THE RETIREMENT SET COMES FROM -- and which path this file took.
-A sibling body is separately building `check-spec-id-references.py`, which owns
-"is this ID withdrawn or undefined". This file prefers it: if that file
-exists, its `RETIRED` / `WITHDRAWN` literal is lifted out of the source with
-`ast.literal_eval`. ⛔ LIFTED, NOT IMPORTED -- every `check-*.py` in this
-directory runs its checks at import time and would print and exit. ⭐ THE PATH
-ACTUALLY TAKEN, 2026-09-11: the fallback named in the brief -- the `RETIRED`
-set literal of `md-checks.py` (54 entries, lifted the same way), with the
-defined-ID set from `specindex.build(root)`. The sibling landed in the tree
-while this file was being measured, but it holds no `RETIRED` literal of its
-own: its `load_retired()` lifts the SAME literal out of `md-checks.py`, so the
-two agree by construction and the fallback costs nothing. The summary line
-prints which file the set came from, so a later reader never has to guess.
+WHERE THE RETIREMENT SET COMES FROM: `retired.py`, imported, with the
+defined-ID set still from `specindex.build(root)`.
+⛔ IT WAS LIFTED WITH `ast` UNTIL 2026-09-11, and the reason is worth keeping
+because it is the reason the module exists. This file first preferred
+`check-spec-id-references.py` and fell back to `md-checks.py`, parsing whichever
+it found and evaluating the literal, because every `check-*.py` and `md-checks.py`
+in this directory runs its checks at import time and would have printed its own
+report and exited on the way to one set. That workaround also had to choose
+between two `RETIRED` sets that disagreed -- 61 entries against a subset of 8
+frozen since 2026-08-25. ⭐ Both problems went away together: the set moved into
+`retired.py`, which holds data and runs nothing, so there is one list and it can
+simply be imported. The summary line still names where the set came from, so a
+later reader never has to guess.
 
 ⚠️ THE SIBLING SOLVES THE COLLISION BELOW AND THIS FILE DOES NOT. It carries a
 `load_elsewhere()` that reads `docs/development-records/` and
@@ -194,7 +194,6 @@ summary stays visible. ⛔ Never calls a model and never touches the network:
 `re` only. A non-deterministic listing could not be reproduced, and this file
 exists to produce a number that is tracked across the cleanup.
 """
-import ast
 import io
 import os
 import re
@@ -204,8 +203,11 @@ import collections
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-SIBLING = os.path.join(HERE, 'check-spec-id-references.py')
-MD_CHECKS = os.path.join(HERE, 'md-checks.py')
+# ⛔ Imported, not parsed out of a sibling: the docstring above records why the
+# two set literals this file used to choose between could not be imported, and
+# why neither exists any more.
+sys.path.insert(0, HERE)
+from retired import RETIRED                         # noqa: E402
 
 TREES = ('src', 'tests')
 SUFFIXES = ('.ts', '.tsx', '.js', '.mjs')
@@ -277,41 +279,13 @@ EN_ASSERT_RE = re.compile(
     re.IGNORECASE)
 
 
-def lift_literal(path, names):
-    """The value of the first module-level assignment to one of `names`.
-
-    ⛔ Lifted with `ast`, never imported: every check in this directory runs
-    its checks at import time and would print its own report and exit."""
-    try:
-        source = io.open(path, encoding='utf-8').read()
-    except OSError:
-        return None
-    try:
-        tree = ast.parse(source)
-    except SyntaxError:
-        return None
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Assign):
-            continue
-        for target in node.targets:
-            if getattr(target, 'id', None) in names:
-                try:
-                    return set(ast.literal_eval(node.value))
-                except (ValueError, SyntaxError):
-                    return None
-    return None
-
-
 def load_withdrawn():
-    """(withdrawn set, which file it came from). Prefers the sibling."""
-    if os.path.exists(SIBLING):
-        got = lift_literal(SIBLING, ('RETIRED', 'WITHDRAWN'))
-        if got:
-            return got, 'check-spec-id-references.py'
-    got = lift_literal(MD_CHECKS, ('RETIRED', 'WITHDRAWN'))
-    if got:
-        return got, 'md-checks.py'
-    return None, None
+    """(withdrawn set, which file it came from).
+
+    The pair is still returned so the summary keeps naming its source: a reader
+    who distrusts the number has to be able to find the list without reading
+    this code."""
+    return RETIRED, 'retired.py'
 
 
 def load_defined():
@@ -402,8 +376,8 @@ def main(argv):
 
     withdrawn, from_file = load_withdrawn()
     if not withdrawn:
-        print('PROBLEM  no retirement set could be lifted from either '
-              'check-spec-id-references.py or md-checks.py')
+        print('PROBLEM  retired.py holds an empty retirement set, so every '
+              'withdrawn ID would read as live')
         return 1
     try:
         defined = load_defined()

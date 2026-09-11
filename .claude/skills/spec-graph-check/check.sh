@@ -482,6 +482,24 @@ echo "   a 30-line sample, 19 were really stale, so a gate would stop better"
 echo "   than one round in three for nothing. Run it by hand in a cleanup:"
 echo "     python .claude/skills/spec-graph-check/list-asserted-claims.py"
 
+# ⛔ A WARNING, NEVER A FAILURE -- `fail` is untouched on purpose. The tree
+# below appears because somebody OPENED the specification, and a gate that goes
+# red for that teaches people that red means nothing.
+if [ -d docs/spec/output ]; then
+    echo ""
+    echo "   ⚠️ docs/spec/output/ EXISTS, so docs/spec is no longer only the"
+    echo "   manuscript. The StrictDoc server regenerates its whole tree there,"
+    echo "   INSIDE the manuscript folder, and anything that greps docs/spec"
+    echo "   then reads a stale generated copy as if it were the source."
+    echo "   Measured 2026-09-11: CM-70 appeared 0 times in the source"
+    echo "   _assets/tbl-glossary.md and once in the copy under output/, whose"
+    echo "   files were 25 days old. A subagent grepped, concluded the row was"
+    echo "   live, and wrote a false claim into a test. That tree was 790 MB;"
+    echo "   deleting it is safe and it comes back whenever StrictDoc is opened."
+    echo "   Sweep it before grepping, and before trusting anything you grepped:"
+    echo "     python tools/sweep_strictdoc_output.py"
+fi
+
 echo ""
 if [ "$fail" -eq 0 ]; then
     echo "ALL GREEN -- which proves references resolve, not that the"

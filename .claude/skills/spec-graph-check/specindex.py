@@ -15,6 +15,15 @@ import os
 import re
 import collections
 
+# ⛔ Imported, never restated. This file held its own eight-entry copy of the
+# retired set from 2026-08-13 until 2026-09-11; md-checks.py's copy reached 61
+# in the same span, and `known` below -- which graph.py and induced.py classify
+# every seed with -- read the short one the whole time. A plain import works
+# from every caller: a caller that reached `specindex` as a top-level module
+# already has this directory on sys.path.
+from retired import RETIRED
+
+
 def discover(root='.'):
     """Every specification source file, found rather than listed.
 
@@ -45,10 +54,6 @@ TABLE_HEAD = re.compile(r'^\*\*表 (T-[0-9]+[a-z]?) —')
 SEPARATOR = re.compile(r'^\|[\s:|-]+\|\s*$')
 UID_LINE = re.compile(r'^\*\*UID\*\*:\s*(\S+)')
 SECTION_LINE = re.compile(r'^(#+)\s+(.*)')
-
-# Retired on purpose; the reduction-candidate table records the retirement,
-# so a reference to either is correct and must not be reported as dangling.
-RETIRED = {'FR-050', 'T-030', 'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139'}
 
 REF_TABLE = re.compile(r'表 (T-[0-9]+[a-z]?)')
 REF_TOKEN = re.compile(r'`([A-Z]{1,3}-[0-9]+[a-z]?)`')

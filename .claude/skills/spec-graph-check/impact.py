@@ -201,8 +201,11 @@ def report_node(idx, uid):
     print('## `%s`' % uid)
     print('')
     if uid not in idx.uids:
+        # The id asked about, not a fixed example: until 2026-09-11 the set
+        # reachable here held eight entries and FR-050 was the one anybody met,
+        # so a hardcoded name read as true. It now holds 61.
         print('**そのノードは存在しない。**'
-              + ('（`FR-050` は廃止済み。欠番のまま残す）'
+              + ('（`%s` は廃止済み。欠番のまま残す）' % uid
                  if uid in specindex.RETIRED else ''))
         return
 

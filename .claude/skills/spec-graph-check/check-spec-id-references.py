@@ -12,9 +12,19 @@ the manuscript and the code that names the row is never looked at again: the
 comment above the function goes on explaining behaviour by a row number that
 means nothing, and the test beside it goes on printing green while quoting a
 seat that was burnt months ago. Measured 2026-09-11, the day this file was
-written: 328 places under `src/` and `tests/` name one of the 54 IDs the
+written: 328 places under `src/` and `tests/` named one of the IDs the
 specification has retired on purpose, over 24 distinct retired IDs, and 117
 more name an ID that resolves nowhere at all.
+
+⚠️ THE NUMBERS IN THE PARAGRAPH ABOVE ARE OF 2026-09-11 BEFORE THE ROUND, AND
+THE ROUND MOVED THEM. They are kept as the measurement that motivated this
+check, not as a description of today. Re-measured after the cleanup's own
+repairs and after seven deliberate retirements were booked into the set:
+the set holds 61 IDs, and the live references are 145 over 23 distinct
+retired IDs plus 18 over 8 IDs the manuscript never defined. ⭐ Run the check
+for today's numbers rather than reading them here -- a count written into
+prose is a claim, and this is the file that exists because such claims
+rot.
 
 ⭐⭐ WHY BACKTICKS ARE NOT REQUIRED, WHICH IS THE WHOLE POINT. `specindex.py`'s
 `REF_TOKEN` is `` `([A-Z]{1,3}-[0-9]+[a-z]?)` `` -- a reference only counts when
@@ -49,19 +59,22 @@ as `**表 T-019 —` defines a table, and without them `F-019` alone accounted f
 111 references that resolve perfectly well. Check 15 of `md-checks.py` reads
 figure headings with the same pattern.
 
-⭐ WHERE THE RETIRED LIST IS READ FROM, AND WHY NOT THE OBVIOUS PLACE. There
-are TWO `RETIRED` sets in this directory and they disagree. `md-checks.py`
-holds 54 entries with a written reason beside each retirement; `specindex.py`
-holds 8, a stale subset, and every check that imports `specindex` and asks
-`idx.known` is therefore reading the short one. ⛔ THAT DUPLICATION IS A REAL
-DEFECT AND THIS FILE DOES NOT FIX IT -- neither of those files is this check's
-to edit, and copying either one here would make a THIRD copy, which is the
-thing the disagreement is made of. So the authoritative 54-entry set is read
-out of `md-checks.py` AS DATA: the file is parsed with `ast` and the `RETIRED`
-assignment is evaluated with `ast.literal_eval`. ⛔ IT IS NOT IMPORTED.
-`md-checks.py` runs its checks at module level -- importing it would execute
-every one of checks 5 through 15 as a side effect of asking a question about a
-set literal.
+⭐ WHERE THE RETIRED LIST IS READ FROM: `retired.py`, imported like any other
+module. It was not always so, and the history is why this paragraph is long.
+Until 2026-09-11 there were TWO `RETIRED` sets in this directory and they
+disagreed -- `md-checks.py` held the current one, `specindex.py` an eight-entry
+subset frozen since 2026-08-25 -- so this check could neither import the short
+one nor copy the long one without making a THIRD, which is the thing the
+disagreement was made of. It lifted the literal out of `md-checks.py` with
+`ast.literal_eval` instead, because `md-checks.py` runs checks 5 through 15 at
+module level and importing it to reach one set would have executed and printed
+every one of them. ⭐ THE SET NOW LIVES ALONE IN `retired.py`, which holds data
+and runs nothing, so the parsing workaround has no reason left and a plain
+import replaced it. ⛔ DO NOT RESTATE THE SET HERE, in any form -- a copy is
+what the 29-day divergence was made of, and `retired.py`'s own docstring
+records what that cost. A missing or unparseable `retired.py` now raises at
+import instead of being diagnosed at run time; a traceback naming the file
+says more than the sentence that used to be printed.
 
 HOW "RESOLVES NOWHERE" IS DECIDED, AND THE TWO NARROWINGS THAT WERE TAKEN. A
 token is faulted as undefined only when BOTH of these hold, and each one exists
@@ -130,7 +143,6 @@ and invites lowering the number so the ground cannot be given back.
 
 Exit 0 green, 1 red.
 """
-import ast
 import io
 import os
 import re
@@ -139,9 +151,9 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import specindex                                              # noqa: E402
+from retired import RETIRED                                   # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-MD_CHECKS = os.path.join(HERE, 'md-checks.py')
 BASELINE = os.path.join(HERE, 'spec-id-references-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/spec-id-references-baseline.txt'
 
@@ -170,29 +182,6 @@ def say(message):
     """The cp932 guard every check in this tree carries."""
     enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
-
-
-def load_retired():
-    """The authoritative retired set, read out of md-checks.py as data.
-
-    ⛔ PARSED, NOT IMPORTED. md-checks.py performs checks 5 through 15 at module
-    level, so importing it to reach one set literal would run every one of them
-    and print their findings into this check's output."""
-    try:
-        with io.open(MD_CHECKS, encoding='utf-8') as handle:
-            tree = ast.parse(handle.read())
-    except (OSError, SyntaxError):
-        return None
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Assign):
-            continue
-        for target in node.targets:
-            if isinstance(target, ast.Name) and target.id == 'RETIRED':
-                try:
-                    return set(ast.literal_eval(node.value))
-                except ValueError:
-                    return None
-    return None
 
 
 def load_defined():
@@ -308,12 +297,6 @@ def read_baseline():
 
 
 def main():
-    retired = load_retired()
-    if not retired:
-        say('PROBLEM  the RETIRED set could not be read out of md-checks.py; '
-            'this check will not copy a second one, so it cannot run')
-        return 1
-
     defined = load_defined()
     if not defined:
         say('PROBLEM  specindex found no IDs under docs/spec -- the manuscript '
@@ -321,7 +304,7 @@ def main():
             'undefined')
         return 1
 
-    hits = scan(defined, retired, load_elsewhere())
+    hits = scan(defined, RETIRED, load_elsewhere())
     count = len(hits)
     n_retired = sum(1 for h in hits if h[3] == 'retired')
     n_undefined = count - n_retired

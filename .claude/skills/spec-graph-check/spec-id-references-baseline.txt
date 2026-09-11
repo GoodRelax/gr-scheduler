@@ -72,7 +72,8 @@
 # on purpose, or names nothing at all. Backticked and bare alike; inside string
 # literals and comments alike. The split on the day it was set:
 #
-#     328  retired   -- 24 distinct IDs out of the 54 md-checks.py records
+#     328  retired   -- 24 distinct IDs out of the 54 then recorded
+#                       (the set holds 61 since 2026-09-11; see retired.py)
 #     117  undefined -- 33 distinct IDs that resolve nowhere
 #     445  total, over 405 distinct lines
 #
@@ -80,7 +81,9 @@
 # require backticks the way specindex.py's REF_TOKEN does; a backtick-only rule
 # would have seen 182 and called the other 263 clean.
 #
-# ⭐ THE TWENTY-FOUR RETIRED IDS AND WHAT THEY COST, measured 2026-09-11:
+# ⭐ THE TWENTY-FOUR RETIRED IDS AND WHAT THEY COST, measured 2026-09-11
+# BEFORE the round. ⚠️ Today it is 23 distinct over 145 references -- run
+# the check rather than reading this list as current:
 #     S-93 175, IC-46 22, S-59 17, IC-49 17, S-82 15, FR-061 11, BT-3 11,
 #     S-139 10, CM-70 10, RD-5 7, CM-57 5, RS-17 4, IF-4 3, IC-57 3,
 #     S-209 3, U-28 2, IC-55 2, FR-026 2, CP-29 2, CP-23 2, FR-050 2,
