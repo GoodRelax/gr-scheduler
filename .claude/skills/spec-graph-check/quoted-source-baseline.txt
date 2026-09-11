@@ -1,4 +1,27 @@
-471
+469
+#
+# LOWERED 471 -> 469 ON 2026-09-11, to make the file say what the practice
+# already was. Through the whole of phase 2's section 4.1 -- 99 requirements,
+# 56 deletions across six bundles -- and the repair round after it, every body
+# was handed "the count on entry is 469; if it moves, revert byte for byte".
+# They obeyed that number, not this file: bundles 1, 3, 4 and 5 each reverted
+# deletions the moment the count reached 470 or 471, never letting it stand.
+# ⛔ SO THE TWO OF SLACK GUARDED NOTHING. It was the remainder of the
+# 2026-09-10 lowering, and in one day it would have let two false citations
+# through: the count rose four times on 2026-09-11 (repairing D-451, folding
+# D-466, and twice inside bodies), and one of those was 471 exactly -- green
+# under the old baseline, caught only because the entry measurement was taken.
+# ⚠️ THE POPULATION IS WHY THIS MATTERS. Measured the same day: comments in
+# src/ and tests/ carry 6,716 quotations of ten characters or more containing
+# CJK, of which 469 have no source -- so roughly 6,247 DO resolve to docs/spec
+# and any one of them can be orphaned by editing the manuscript. The rest of
+# phase 2 (05-07-design.md, 78,428 characters) and the tests/ pass will move
+# this check dozens of times.
+# ⛔ WHEN A LEGITIMATE DELETION CANNOT AVOID RAISING IT, send the sentence to
+# the tests/ pass instead of raising the baseline -- the same handling D-456
+# was ruled into on the same day.
+# ⭐ THE FLOOR IS STILL NOT ZERO, for the reason the 2026-09-08 entries give:
+# a comment may honestly quote something that is not the specification.
 #
 # LOWERED 486 -> 471 ON 2026-09-10, and the shape is the one the entry below
 # predicted word for word: the grab-area rulings of 2026-09-09/10 landed, and
