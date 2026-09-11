@@ -585,8 +585,11 @@ function embeddedStartupDocument(): {
  * ⚠️ A HOST WITH OVERLAY SCROLLBARS MEASURES 0, AND HALF OF 0 IS 0. That is
  * the environment's honest answer and it is NOT one this tool can use: a band
  * 0 thick cannot be pointed at or grabbed, so FR-037 (the reading a scrollbar
- * carries) and table T-031 (「スクロールバーの操作でも表示位置を変えられること」,
- * MUST) both go unkept. ⛔ THE NOTE HERE USED TO CALL IT "not a fault"; the
+ * carries) and FR-051's own MUST that the scrollbar moves the view both go
+ * unkept. ⚠️ THIS NOTE USED TO ATTRIBUTE THAT MUST TO TABLE T-031 and quote it;
+ * the table carries no such clause -- the MUST is FR-051's STATEMENT, and the
+ * specification's own misattribution was corrected as D-451 on 2026-09-11.
+ * ⛔ THE NOTE HERE USED TO CALL IT "not a fault"; the
  * user reported it as one (D-115) and they were right.
  * ⭐ FR-051 (MUST) now puts a floor under it -- S-205 -- and the order is the
  * requirement's: halve first, then floor, so a host with a thick default is
