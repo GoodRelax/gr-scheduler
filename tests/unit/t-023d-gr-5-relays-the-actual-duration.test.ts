@@ -597,7 +597,12 @@ describe('表 T-023d -- the rows this file is driven by', () => {
   })
 
   it('GR-5 still borrows GR-6 arithmetic rather than raising its own', () => {
-    expect(GR_5).toContain('`GR-6` の「置いた日付から稼働日数を算出する」と同じ算術')
+    // ⚠️ GR-5 no longer REPEATS GR-6's parenthesis inside 「」; it names the row
+    // and says it raises nothing new. So the pair is read as a pair: GR-5 must
+    // still point at GR-6 and refuse its own arithmetic, and GR-6 must still
+    // state that arithmetic word for word.
+    expect(GR_5).toContain('`GR-6` と同じ算術')
+    expect(GR_5).toContain('新しい算術を起こさない')
     expect(GR_6).toContain('置いた日付から稼働日数を算出する')
   })
 

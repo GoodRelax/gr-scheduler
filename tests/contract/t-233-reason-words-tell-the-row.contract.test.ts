@@ -167,7 +167,23 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // but the row is never told while that is so, and these are the words
   // wanted the day the road is built. ⛔ If the road lands and this pair is
   // still dormant, that is the moment to read them again.
-  'RS-19': 'b221c6186d413ef1',
+  //
+  // ⭐⭐ RE-READ 2026-09-11, and the pair still holds. The scene LOST its last
+  // sentence: a dated 2026-09-05 note saying `frame-loop.ts` never called this
+  // row in its roll of reasons, because the road that would tell it was never
+  // built. The cleanup of 9f359cd folded that out as an implementation RECORD
+  // whose original is the ledger -- `D-258` of
+  // docs/development-records/fixed-defects.md, the row for there being no way
+  // to write `FR-086`'s watermark name. (⛔ Neither sentence is re-quoted here:
+  // check 42 forbids a comment putting words in docs/spec's mouth that
+  // docs/spec no longer carries.)
+  // ⭐ THE SCENE ITSELF DID NOT MOVE: the row still opens on the watermark name
+  // not yet being set, and still carries the 2026-09-05 ruling that the row is
+  // not to be told while no road exists -- which is the half the words answer.
+  // ⚠️ The sentence that went was about `src/`, never about the scene, and no
+  // word was drawn from it, so the words are left exactly as they were and only
+  // the fingerprint is re-recorded.
+  'RS-19': '264f8c16d46b1129',
   'RS-20': '9660f89d7f3c1a5b',
   'RS-21': '320caa7b7c536e85',
   'RS-22': '2ed14dc8b74a9021',

@@ -142,11 +142,25 @@ const EP_9_SAME_LINE_MEANS_SAME_THICKNESS =
 const EP_9_THICKNESS_NOT_ZERO =
   '作らない。⭐⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
 
+/**
+ * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-9's own dated
+ * measurement -- the 2026-09-07 reading that found the divider drawn at
+ * thickness 0 on screen and in the export alike -- which the cleanup of
+ * 9f359cd folded out of the manuscript as a RECORD rather than a rule. ⛔ IT
+ * WAS NOT LOST: its original is the row this file's section 2 comment already
+ * names, `D-363` of `docs/development-records/fixed-defects.md`, and the
+ * quotation is deliberately NOT repeated here -- check 42 forbids a comment
+ * putting words in docs/spec's mouth that docs/spec no longer carries.
+ * ⛔ The MUST itself never moved, only the sentence in front of it, so the
+ * window is re-cut against the manuscript as it now stands, at the same 120
+ * characters check 39 reads back from the marker.
+ */
 const EP_9_ONE_PLACE_READS_THE_THICKNESS =
-  '6-09-07 の実測では、画面でも書き出しでも 0 であった** —— **境界が 1 本も引かれていなかった。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）'
+  '。⭐⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）'
 
+/** ⚠️ RE-CUT 2026-09-11 for the same reason as the marker above it. */
 const EP_9_NO_SECOND_NUMBER =
-  'あった** —— **境界が 1 本も引かれていなかった。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
+  'MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
 
 const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
   '。番号を 2 か所に置いてはならない（MUST NOT）** —— **同じ数が 2 か所に載ると、必ず離れていく。**⭐ **画面と書き出しも同じ 1 か所を読むこと（MUST）'

@@ -622,9 +622,17 @@ describe('the manuscript still states the rule this file is about', () => {
     expect(result, 'table T-023a PD-1: 構えと当たりによらず優先する').toContain(
       '構えと当たりによらず優先する',
     )
-    expect(result, 'table T-023a PD-1: 距離は 表 T-023d の「パンは等倍とすること（MUST）」のまま').toContain(
-      'パンは等倍とすること（MUST）',
+    // ⚠️ PD-1 no longer QUOTES the sentence inside 「」; it points at the seat
+    // that states it. So the pair is read as a pair: the cell must still defer
+    // the travel to 表 T-023d, and 表 T-023d must still state it word for word
+    // -- `equalTravelLine()` throws if that seat is gone.
+    expect(result, 'table T-023a PD-1: 距離は 表 T-023d の等倍の定めのままである').toContain(
+      '距離は 表 T-023d の等倍の定めのままである',
     )
+    expect(
+      equalTravelLine(),
+      'table T-023d, the seat PD-1 points at: パンは等倍とすること（MUST）',
+    ).toContain('パンは等倍とすること（MUST）')
     expect(result, 'and it says why: 追従は絵の話であって、距離の規則を変えるものではない').toContain(
       '追従は絵の話であって、距離の規則を変えるものではない',
     )

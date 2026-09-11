@@ -198,8 +198,23 @@ const EP_1_ONE_ROW_FOR_SIZE_AND_INSET =
 const EP_1_NO_EXPORT_ONLY_CONSTANT =
   '026-09-07）—— **`_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。**⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
 
+/**
+ * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-1's own dated
+ * measurement -- the 2026-09-07 reading of how far the exported Document
+ * Title stood from the screen's own font size and inset -- which the cleanup
+ * of 9f359cd folded out of the manuscript as a RECORD rather than a rule.
+ * ⛔ IT WAS NOT LOST: the same measurement stands in the two settings rows
+ * EP-1 itself points at, `S-225` and `S-226` of 表 T-206 in
+ * `_assets/tbl-settings.md`, and in `D-276` of
+ * `docs/development-records/fixed-defects.md`. The quotation is deliberately
+ * NOT repeated here -- check 42 forbids a comment putting words in docs/spec's
+ * mouth that docs/spec no longer carries. ⛔ The MUST NOT itself never moved,
+ * only the sentence in front of it did, so the window is re-cut against the
+ * manuscript as it now stands, at the same 120 characters check 39 reads back
+ * from the marker.
+ */
 const EP_1_DOES_NOT_MEASURE_THE_DOM =
-  ': 画面 = 字 16px・左 12px に対し、書き出し = 字 14.8px・左 18.5px** —— **7.5% 小さく 6.5px 右であり、本行に反していた。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
+  '（左の余白）である。**⛔ **書き出し専用の定数を持ってはならない（MUST NOT）** —— **別の値を持てば、本行の MUST NOT を守っているかを問えない。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
 
 // -- FR-060, the file that is not remembered -------------------------------
 
