@@ -99,7 +99,7 @@ const FR_025_NO_SCALE =
 
 /** ⛔ FR-025 (MUST), the retired key kept rather than dropped, verbatim. */
 const FR_025_KEEP_RETIRED_KEY =
-  'exportPngScale`）は同日に退役した** —— **倍率という考えそのものを廃したので、値だけを残す意味が無い。**⛔ **保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）'
+  '**⛔ **保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）'
 
 describe('FR-025 -- the manuscript this file is driven by', () => {
   it('still forbids a scale, and still asks a retired key be kept', () => {
