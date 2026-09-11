@@ -12,7 +12,8 @@
 
 **Type**: SECTION
 
-> 未記入。標準規格と外部資料へのリンクを書く。MSPDI の正は公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` を引き、ローカル複製のパスを正として書かない（複製は cache であって正ではない。`docs/reference/README.md`）。
+> 未記入。標準規格と外部資料へのリンクを書く。MSPDI の正は公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` を引き、ローカル複製のパスを正として書かない（複製は cache であって正ではない。  
+> `docs/reference/README.md`）。
 
 ## A.2 Licenses (ライセンス)
 
