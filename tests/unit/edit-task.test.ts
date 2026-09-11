@@ -922,7 +922,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
 
   it('FR-043 gives a milestone S-130 for its length and still writes the day let go of', () => {
     // ⭐ THE LENGTH IS AN EXCEPTION AND THE DAY IS NOT. FR-043 (MUST):
-    // 「⚠️ **マイルストーンの例外は 3 つである** —— 実績バーを持たないので（表
+    // 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たないので（表
     // T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。実績期間
     // は `S-130` とすること（MUST）**」, and then ⛔⛔ 「**位置は例外ではない
     // （MUST NOT）**」（利用者の裁定 2026-09-02「**マイルストーンは中心が配置する

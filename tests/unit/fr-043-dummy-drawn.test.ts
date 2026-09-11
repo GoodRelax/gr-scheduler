@@ -1260,7 +1260,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const days = `${dayWidthAt(zoomX)}px/day`
 
     it(`GR-18 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
-      // FR-043: 「⚠️ **マイルストーンの例外は 3 つである** —— 実績バーを持たない
+      // FR-043: 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たない
       // ので（表 T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。
       // 実績期間は `S-130` とすること（MUST）**」.
       // ⛔⛔ THE WIDTH MUST WAS READ, UNTIL 2026-09-10, AS REACHING GR-18 TOO:
