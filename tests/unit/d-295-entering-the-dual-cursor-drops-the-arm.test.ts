@@ -128,7 +128,7 @@ import { specTable } from '../contract/spec-table'
 // the selection), so the anchor now starts at the exclusivity sentence -- which
 // is still the same paragraph, and still what makes 「入るとき」 legible.
 const THE_CLAUSE =
-  '構えの各値は排他であり、依存線を構えれば図形の構えは外れる。**`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）'
+  '構えの各値は排他であり、依存線を構えれば図形の構えは外れる。`Dual Cursor` モード（表 T-029a）に入るときも構えを外すこと（MUST）'
 
 /** The reason the same paragraph gives, which is why 「入るとき」 is not 「出るとき」. */
 const THE_REASON = '同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も起きない構えが残る'

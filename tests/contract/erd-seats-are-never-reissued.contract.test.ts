@@ -202,7 +202,7 @@ const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md
  * cases about the specification rather than about this file's memory.
  */
 const THE_CLAUSE =
-  '⭐⭐ **`ET-` / `AT-` / `RL-` / `DV-` の番号は席番号である。一度与えた番号を振り直してはならない（MUST NOT）。**'
+  '⭐⭐ `ET-` / `AT-` / `RL-` / `DV-` の番号は席番号である。一度与えた番号を振り直してはならない（MUST NOT）。'
 
 const FROM_THE_MANUSCRIPT =
   '原稿（`_source/erd.json`）の行がそれぞれ自分の `seat` を持ち、生成器はそれを印字する。'

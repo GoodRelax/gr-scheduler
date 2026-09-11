@@ -156,11 +156,11 @@ const REQUIREMENTS = readFileSync(
  * sentence and stopped before the marker would hold nothing at all.
  */
 const FR_044_ERASING_SENDS_IT_BACK =
-  ' 置かないと表 T-019a の `PS-3` が先に当たり、日付を置いても状態が変わらない。**再開日を未定のままにもできること。** **置いた再開日を消したときは、`resumeValid` を `false` に戻すこと（MUST）'
+  ' 置かないと表 T-019a の `PS-3` が先に当たり、日付を置いても状態が変わらない。**再開日を未定のままにもできること。** 置いた再開日を消したときは、`resumeValid` を `false` に戻すこと（MUST）'
 
 /** The other half of the same pair -- putting a date puts `true`. */
 const FR_044_PUTTING_ONE_SETS_IT =
-  '**STATEMENT**: `Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること。**再開予定日を置いたとき、`resumeValid` を `true` にすること（MUST）'
+  'STATEMENT**: `Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること。再開予定日を置いたとき、`resumeValid` を `true` にすること（MUST）'
 
 /** The failure the requirement names for itself, and the one D-286 measured. */
 const FR_044_THE_NAMED_FAILURE = '戻さないと表 T-019a の `PS-5` に落ち、**日付を消しただけで中断が黙って解ける。**'

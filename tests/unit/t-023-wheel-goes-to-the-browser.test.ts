@@ -148,7 +148,7 @@ const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').s
 
 /** The one line that carries the closing rule, found by the words it opens with. */
 function closingRuleLine(): string {
-  const found = REQUIREMENTS.find((line) => line.startsWith('**`Confirmation`（`U-55`）または'))
+  const found = REQUIREMENTS.find((line) => line.startsWith('`Confirmation`（`U-55`）または'))
   if (found === undefined) {
     throw new Error('table T-023 no longer states the closing rule this file is about')
   }

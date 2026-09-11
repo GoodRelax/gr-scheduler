@@ -1003,7 +1003,7 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     // the ban on choosing that length a second way, and the right end being
     // read the way PV-2 reads it.
     const PV_1 =
-      '`actualStart` ＝ `start`、⭐⭐ **`actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）**（マイルストーンは同表の `S-130`。⭐ **`FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT）**）（利用者の裁定 2026-09-10、逐語「ステータスマークだけを変更して、実績の幅を変更せず or ダミーを実績にして幅を変更せず でよいのでは？」）、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた日）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`**'
+      '`actualStart` ＝ `start`、⭐⭐ `actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））（利用者の裁定 2026-09-10、逐語「ステータスマークだけを変更して、実績の幅を変更せず or ダミーを実績にして幅を変更せず でよいのでは？」）、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた日）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
     expect(REQUIREMENTS).toContain(PV_1)
   })
 

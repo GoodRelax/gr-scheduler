@@ -150,11 +150,11 @@ const REQUIREMENTS = readFileSync(
  * would hold nothing at all.
  */
 const FR_029_TELL_ON_A_PRESS =
-  '金が消える。 **押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
+  '金が消える。 押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
 
 /** ⭐ The closing rule of 表 T-233, which is what makes `RS-27` a row and not a sentence. */
 const T_233_ONLY_ITS_OWN_ROWS =
-  ' **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
+  ' 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
 
 /** FR-029's own fall-through -- why these three gates land on `RS-27`. */
 const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'

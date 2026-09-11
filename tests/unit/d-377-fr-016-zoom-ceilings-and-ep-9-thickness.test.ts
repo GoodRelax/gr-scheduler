@@ -132,12 +132,12 @@ const FR_016_ROW_POSITION_NOT_BY_ARITHMETIC =
   '` の下限・`LF-3` の第 2 の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
 
 const FR_016_ROW_POSITION_MEMBER_IS_PI_5 =
-  'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ **その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
+  'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
 
 // -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
 
 const EP_9_SAME_LINE_MEANS_SAME_THICKNESS =
-  'es`（`U-18`）と同じ線を 1 本引くこと（MUST）** —— 新しい確定名も新しい設定値のキーも作らない。⭐⭐ **同じ線とは太さも同じであるということである（MUST）'
+  'es`（`U-18`）と同じ線を 1 本引くこと（MUST） —— 新しい確定名も新しい設定値のキーも作らない。⭐⭐ **同じ線とは太さも同じであるということである（MUST）'
 
 const EP_9_THICKNESS_NOT_ZERO =
   '作らない。⭐⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
@@ -156,14 +156,14 @@ const EP_9_THICKNESS_NOT_ZERO =
  * characters check 39 reads back from the marker.
  */
 const EP_9_ONE_PLACE_READS_THE_THICKNESS =
-  '。⭐⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）'
+  '。⭐⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
 
 /** ⚠️ RE-CUT 2026-09-11 for the same reason as the marker above it. */
 const EP_9_NO_SECOND_NUMBER =
-  'MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ **描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
+  'MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
 
 const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
-  '。番号を 2 か所に置いてはならない（MUST NOT）** —— **同じ数が 2 か所に載ると、必ず離れていく。**⭐ **画面と書き出しも同じ 1 か所を読むこと（MUST）'
+  '。番号を 2 か所に置いてはならない（MUST NOT） —— **同じ数が 2 か所に載ると、必ず離れていく。**⭐ **画面と書き出しも同じ 1 か所を読むこと（MUST）'
 
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [

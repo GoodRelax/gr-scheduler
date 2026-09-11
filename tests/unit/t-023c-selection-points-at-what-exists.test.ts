@@ -149,7 +149,7 @@ const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').s
  */
 function closingRuleLine(): string {
   const found = REQUIREMENTS.find((line) =>
-    line.startsWith('**選択は、文書に実在する対象だけを指すこと'),
+    line.startsWith('選択は、文書に実在する対象だけを指すこと'),
   )
   if (found === undefined) {
     throw new Error('table T-023c no longer states the closing rule this file is about')

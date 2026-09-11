@@ -175,13 +175,17 @@ const IN_2 = rowOf('T-028', 'IN-2').cells.join(' ')
  * ⭐ READ AND NOT COUNTED HERE. The row carried three places until 2026-08-25,
  * four until 2026-08-27 and five after it; a file that hard-coded five would go
  * on passing through the sixth ruling while asserting nothing about it.
- * ⚠️ The clauses sit in ONE bold run separated by 、, each naming a place to the
- * left of は and a meaning to the right.
+ * ⚠️ The clauses sit in ONE parenthesis separated by 、, each naming a place to
+ * the left of は and a meaning to the right. ⛔ It used to be found by the bold
+ * run around it; bold is not structure, so the words bound it now.
  */
 function placesNamedByIn2(): readonly string[] {
-  const bold = /\*\*([^*]*合図[^*]*)\*\*/.exec(IN_2)
-  if (bold === null) throw new Error(`IN-2 no longer writes its places in one bold run: ${IN_2}`)
-  return (bold[1] ?? '')
+  const open = IN_2.indexOf('（')
+  const stop = IN_2.indexOf('（利用者の裁定')
+  if (open < 0 || stop <= open) {
+    throw new Error(`IN-2 no longer writes its places in one parenthesis: ${IN_2}`)
+  }
+  return IN_2.slice(open + 1, stop)
     .split('、')
     .map((one) => one.trim())
     .filter((one) => one.length > 0)

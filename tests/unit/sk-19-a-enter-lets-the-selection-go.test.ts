@@ -69,7 +69,7 @@ import { emptyScreenState } from '../../src/entity/document-model/screen-state/s
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
 const SK_19_LAST_STAGE =
-  '**プロパティパネルも出していないときは、選ばれているものがあればその選択を解くこと（MUST）**'
+  'プロパティパネルも出していないときは、選ばれているものがあればその選択を解くこと（MUST）'
 
 /** The same row's MUST NOT, which is what the second case below is for. */
 const SK_19_NO_SELECTION_NO_STAGE =

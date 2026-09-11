@@ -881,7 +881,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         // 6. ST-2 -- two siblings that ended up on the SAME row.
         // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
         // text ending at its own marker:
-        // 「た位置で決めてはならない（MUST NOT）** —— **ピン留め（`FR-098`）と畳みは画面から行を動かすが、書き出しは動かない。**⭐ **同じ行に兄弟が複数いるときは 表 T-014 の `ST-2` の順とすること（MUST）」
+        // 「た位置で決めてはならない（MUST NOT）** —— **ピン留め（`FR-098`）と畳みは画面から行を動かすが、書き出しは動かない。**⭐ 同じ行に兄弟が複数いるときは 表 T-014 の `ST-2` の順とすること（MUST）」
         if (moved.length >= 2) {
           const pair = moved
             .map((uid) => (after?.tasks ?? []).find((task) => task.uid === uid))

@@ -87,9 +87,9 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     // the three reasons are one clause, and a rewrite that keeps the number but
     // swaps a reason would slip past three separate substring checks.
     expect(REQUIREMENTS).toContain(
-      '**ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015 の `HR-1a`）と、' +
-        '隠した行の配下にあるとき（同表の `HR-6`）と、**帯が `Row Area` に収まらず入りきらないとき**' +
-        'の 3 つに限ること（MUST）。それ以外の理由で描くのをやめてはならない（MUST NOT）。**',
+      'ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015 の `HR-1a`）と、' +
+        '隠した行の配下にあるとき（同表の `HR-6`）と、帯が `Row Area` に収まらず入りきらないとき' +
+        'の 3 つに限ること（MUST）。それ以外の理由で描くのをやめてはならない（MUST NOT）。',
     )
   })
 

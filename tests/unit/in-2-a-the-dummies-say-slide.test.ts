@@ -81,7 +81,7 @@ import { specTable } from '../contract/spec-table'
  * against the manuscript below so a further edit to IN-2 fails this file
  * instead of leaving a stale quote.
  */
-const IN_2_DUMMY_MUST = '**掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない**）。⭐⭐ **実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）'
+const IN_2_DUMMY_MUST = '掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない）。⭐⭐ 実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）'
 
 const IN_2_ROW = specTable('T-028').rows.find((row) => row.id === 'IN-2')
 if (IN_2_ROW === undefined) throw new Error('table T-028 has no row IN-2')

@@ -141,7 +141,7 @@ const FR_033_REFUSE_AT_THE_VALVE =
 
 /** 表 T-233's closing rule -- what a telling may carry at all. */
 const T_233_ONLY_ITS_OWN_ROWS =
-  ' **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
+  ' 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）'
 
 const T_036: SpecTable = specTable('T-036')
 const T_037: SpecTable = specTable('T-037')

@@ -149,13 +149,13 @@ const FR_012_RECOUNT_ON_CALENDAR_EDIT =
   ' − start) × 100)`（いずれも稼働日）で算出して格納し、**人に直接入力させないこと（MUST NOT）。** 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
 
 const FR_012_TELL_WITH_A_COUNT =
-  'T）**（利用者の裁定 2026-09-07）—— **分子も分母も稼働日で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。**⛔ **数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
+  'T）**（利用者の裁定 2026-09-07）—— 分子も分母も稼働日で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
 
 const FR_012_SAME_WRITE =
-  '直したことを、値が変わった `Task` の件数を添えて告げること（MUST）** —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ **暦の変更と同じ書き込みの中で行うこと（MUST）'
+  '直したことを、値が変わった `Task` の件数を添えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）'
 
 const FR_012_NOT_A_SECOND_WRITE =
-  'えて告げること（MUST）** —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ **暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）'
+  'えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）。別の書き込みに分けてはならない（MUST NOT）'
 
 // -- T-233 RS-52, the reason the telling carries ---------------------------
 
@@ -165,10 +165,10 @@ const RS_52_NEVER_SILENTLY =
 // -- T-023d GR-21 and FR-051, the grip ------------------------------------
 
 const GR_21_LENGTH_IS_THE_VISIBLE_FRACTION =
-  'は `FR-051` が環境から確定させ、下限は `_assets/tbl-settings.md` の 表 T-206 の `S-205` が持つ）。⭐ **長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST）'
+  'は `FR-051` が環境から確定させ、下限は `_assets/tbl-settings.md` の 表 T-206 の `S-205` が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST）'
 
 const GR_21_FLOOR_IS_S_205 =
-  ' が持つ）。⭐ **長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST）** —— **新しい設定値を立てない（割合は既にある値から導ける）。**⭐ **ただし長さの下限を `S-205` とすること（MUST）'
+  ' が持つ）。⭐ 長さは、帯の長さに対する「見えている範囲 ÷ 全体」の割合とすること（MUST） —— **新しい設定値を立てない（割合は既にある値から導ける）。**⭐ **ただし長さの下限を `S-205` とすること（MUST）'
 
 const FR_051_SCROLLBAR_MOVES_THE_VIEW =
   'TATEMENT**: `GRS` は、画面の各部を**表 T-031 の規則**でスクロールさせること。**スクロールバーの操作でも表示位置を変えられるようにすること（MUST）'
@@ -179,7 +179,7 @@ const FR_020_THE_PLACE_IS_QN_9 =
   '**透かしがアクセス制御ではなく証跡であることを画面上でも示すこと（MUST）** —— 見えているものを守っていると誤解させない。⭐⭐ **示す場所は 表 T-234 の `QN-9` の文とすること（MUST）'
 
 const FR_020_NO_SECOND_DISPLAY_WORD =
-  '文とすること（MUST）**（利用者の裁定 2026-09-07）—— **誤解が起きるのは「消せない」に会ったときであり、その場で読む文がすでに 1 つ決まっている。**⛔ **このために新しい表示語を立ててはならない（MUST NOT）'
+  '文とすること（MUST）**（利用者の裁定 2026-09-07）—— 誤解が起きるのは「消せない」に会ったときであり、その場で読む文がすでに 1 つ決まっている。⛔ **このために新しい表示語を立ててはならない（MUST NOT）'
 
 // -- T-076 EP-1, the band and the title it carries -------------------------
 
@@ -190,13 +190,13 @@ const EP_1_NOT_COMPRESSED =
   'File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）'
 
 const EP_1_TITLE_DOES_NOT_MOVE =
-  '描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）** —— 詰めると帯より下の全部が上へずれる。**`Document Title` の位置を動かしてはならない（MUST NOT）'
+  '描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）** —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）'
 
 const EP_1_ONE_ROW_FOR_SIZE_AND_INSET =
-  'UST NOT）** —— 詰めると帯より下の全部が上へずれる。**`Document Title` の位置を動かしてはならない（MUST NOT）**⭐⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
+  'UST NOT）** —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）⭐⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 
 const EP_1_NO_EXPORT_ONLY_CONSTANT =
-  '026-09-07）—— **`_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。**⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
+  '026-09-07）—— `_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
 
 /**
  * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-1's own dated
@@ -214,7 +214,7 @@ const EP_1_NO_EXPORT_ONLY_CONSTANT =
  * from the marker.
  */
 const EP_1_DOES_NOT_MEASURE_THE_DOM =
-  '（左の余白）である。**⛔ **書き出し専用の定数を持ってはならない（MUST NOT）** —— **別の値を持てば、本行の MUST NOT を守っているかを問えない。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
+  '（左の余白）である。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）** —— **別の値を持てば、本行の MUST NOT を守っているかを問えない。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
 
 // -- FR-060, the file that is not remembered -------------------------------
 
@@ -232,7 +232,7 @@ const FR_060_THE_PERSON_CHOOSES_AGAIN =
   '2026-09-07）。⇒ **起動時に権限の復帰を申し出てもならない（MUST NOT）** —— **覚えていないので、申し出る相手が存在しない。**⭐ **起動した直後の最初の保存で、人がファイルを選び直すのが本仕様である（MUST）'
 
 const FR_060_NO_HANDLE_IN_BROWSER_STORAGE =
-  'ある（MUST）** —— 上書きが成り立つのは、**同じ起動のうちに一度保存先を決めたあと**である。⛔ **そのためにファイルの取っ手を `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）'
+  'ある（MUST）** —— 上書きが成り立つのは、**同じ起動のうちに一度保存先を決めたあと**である。⛔ そのためにファイルの取っ手を `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）'
 
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [

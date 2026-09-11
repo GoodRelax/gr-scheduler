@@ -183,10 +183,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⚠️ The sentence that went was about `src/`, never about the scene, and no
   // word was drawn from it, so the words are left exactly as they were and only
   // the fingerprint is re-recorded.
-  'RS-19': '264f8c16d46b1129',
+  'RS-19': '4a911c8b5b5da54e',
   'RS-20': '9660f89d7f3c1a5b',
   'RS-21': '320caa7b7c536e85',
-  'RS-22': '2ed14dc8b74a9021',
+  'RS-22': '1b8ded119f138b08',
   'RS-23': '35646140a764e5e2',
   'RS-24': '11ab639df811d590',
   'RS-25': '0ede3e728aff5d5c',
@@ -248,7 +248,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // carry the count). The row is FR-008's, and the pairing was read the way
   // this file asks: the 場面 against the three dictionary fields, before
   // anything was recorded.
-  'RS-49': '72cb83eccb85ea1f',
+  'RS-49': 'c75934e3b3e35415',
   // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
   // tells). Read together before anything was recorded, the way this file
   // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
@@ -277,7 +277,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // keep the original file, because nothing is written back until SK-11.
   // ⚠️ It stays clear of RS-48, which is a NEWER FORMAT and keeps what it could
   // not read. This one is a value this build understands and refuses to leave.
-  'RS-51': '58cbcc420820f165',
+  'RS-51': 'dfce4d30e0992bf4',
   // ⭐ ADDED 2026-09-07, on the ruling that editing the working-day calendar
   // recounts the STORED percent complete (FR-012). The row, both languages and
   // the next step were read against each other BEFORE this fingerprint was
@@ -302,7 +302,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar with no working weekday, where this row is the consequence of
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
-  'RS-52': '501f1fa746835622',
+  'RS-52': '046c4301cd3bd708',
   // RS-53 -- 「バーの形状を構えたまま、引かずに離した」, 作法 `NT-1`, 正 `FR-001`.
   //   Read against the words before the fingerprint was taken: the text says a
   //   task has a span and so is not made without a drag, and the next step names
@@ -319,7 +319,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⚠️ IT STAYS CLEAR OF `RS-27`, the fallback: that row is about an ENTRANCE
   //   with nothing to do, where this is a press on the schedule that had a
   //   perfectly good arm and only lacked the drag.
-  'RS-53': '8097f1bf0378f6ca',
+  'RS-53': 'ae22f7d077250374',
   'RS-15': 'c85a8bb4ca6b676b',
   // RS-54 -- 「構えた形状が、選んでいるものに当てられない」, 作法 `NT-1`, 正
   //   `FR-083` (利用者の裁定 2026-09-08). Read against the words before the
@@ -364,7 +364,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   the scene still say the same thing; the change was a pointer replacing a
   //   copy, which no machine check on either side could have told apart from a
   //   rewrite.
-  'RS-54': '05e77fef91404b02',
+  'RS-54': 'c74301f2856e3258',
   // -----------------------------------------------------------------------
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-09 (the four write refusals table
   // T-233 gained with 表 T-015a の `HM-4` / `FR-009` / `IV-1` / `IV-10` for
@@ -393,7 +393,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   nowhere left in that direction). Those refuse a move that would be fine
   //   but for a limit; this one refuses a move that can never be well formed.
   // ⇒ the words tell the scene.
-  'RS-55': '130684b2b5f94e5d',
+  'RS-55': 'aead1f05c2da7df1',
   //
   // RS-56 -- 場面 「同じ `Task` を、依存の先行と後続の両方にしようとした」,
   //   作法 `NT-1`, 正 `FR-009`.

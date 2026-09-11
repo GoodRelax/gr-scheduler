@@ -129,15 +129,15 @@ const BOUNDARY_IS_THE_PLAN_START = '始日の位置が、予定側と実績側�
 
 /** Held at 120 characters. */
 const LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY =
-  '定開始日の左が予定側を、右側は実績側をつかめるようにしろ」）—— **その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）'
+  '定開始日の左が予定側を、右側は実績側をつかめるようにしろ」）—— その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）'
 
 /** Held at 120 characters. */
 const ZOOM_DOES_NOT_MOVE_THE_BOUNDARY =
-  '位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）。**⛔ **倍率によってこの境目を動かしてはならない（MUST NOT）'
+  '位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）。⛔ **倍率によってこの境目を動かしてはならない（MUST NOT）'
 
 /** Held at 120 characters. */
 const THE_DUMMYS_HIT_AREA_ONLY_RIGHT_OF_THE_BOUNDARY =
-  'るので、幅で分けている限り、どこかの倍率で実績側が掴めなくなる。**⭐ **境目は日ではなく位置である** —— **1 日ぶんの幅が 1 画素を切っても、左右は残る。**⚠️ **ダミーの当たり判定は、境目の右側でだけ使うこと（MUST）'
+  'るので、幅で分けている限り、どこかの倍率で実績側が掴めなくなる。⭐ **境目は日ではなく位置である** —— **1 日ぶんの幅が 1 画素を切っても、左右は残る。**⚠️ **ダミーの当たり判定は、境目の右側でだけ使うこと（MUST）'
 
 /** ⚠️ HELD AT 40 -- longer windows cross the blank line above the paragraph. */
 const THE_FINISH_WINS_WHEN_UNDECIDABLE =
@@ -153,15 +153,15 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
 
 /** Held at 90 characters. */
 const THE_DUMMY_BEATS_EVERY_PLAN_ROW =
-  'い込みうるのは印だけである。**⭐⭐ **境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
+  'い込みうるのは印だけである。⭐⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
 
 /** Held at 90 characters. */
 const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
-  '—— ⛔ **予定側の点の掴み代（`GR-1` / `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ伸ばしてはならない（MUST NOT）'
+  '—— ⛔ 予定側の点の掴み代（`GR-1` / `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ伸ばしてはならない（MUST NOT）'
 
 /** Held at 90 characters. */
 const THE_DUMMY_STAYS_GRABBABLE_AT_A_LOW_ZOOM =
-  'いる** —— **Zoom Out して 1 日の表示が潰れても、ダミーの実績を入力できることである。**⇒ ⛔ **低倍率でダミーが掴めなくなってはならない（MUST NOT）'
+  'いる** —— Zoom Out して 1 日の表示が潰れても、ダミーの実績を入力できることである。⇒ ⛔ **低倍率でダミーが掴めなくなってはならない（MUST NOT）'
 
 /** Held at 90 characters. */
 const GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE =
@@ -187,11 +187,11 @@ const THE_FINISH_WINS_WHEN_TWO_ENDS_SHARE_A_DAY =
 
 /** Held at 120 characters. */
 const IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS =
-  'ら終了日をつかめるようにしろ」）—— **予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）'
+  'ら終了日をつかめるようにしろ」）—— 予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）'
 
 /** Held at 120 characters. */
 const NOT_BECAUSE_THE_START_STANDS_HIGHER =
-  '実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）。**⛔ **開始側が本表で上に在ることを理由に、開始側を掴ませてはならない（MUST NOT）'
+  '実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）。⛔ 開始側が本表で上に在ることを理由に、開始側を掴ませてはならない（MUST NOT）'
 
 // ---------------------------------------------------------------------------
 // ⭐ ADDED WITH THE ROUND OF 2026-09-10, WHICH BROUGHT THE RULINGS OF 09-09
