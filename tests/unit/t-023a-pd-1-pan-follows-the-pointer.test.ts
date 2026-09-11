@@ -207,11 +207,18 @@ function equalTravelLine(): string {
   // it -- `PD-1`'s own cell carries the same words inside 「」 to say that the
   // travel is unchanged, and a search that took the first hit would be reading
   // the quotation back to itself.
-  const found = REQUIREMENTS.find((line) => line.startsWith('**パンは等倍とすること（MUST）**'))
-  if (found === undefined) {
+  const at = REQUIREMENTS.findIndex((line) =>
+    line.startsWith('**パンは等倍とすること（MUST）**'))
+  if (at < 0) {
     throw new Error('table T-023d no longer states that a pan travels 等倍')
   }
-  return found
+  // The rule is a paragraph, broken at every sentence; read to the blank line.
+  const said: string[] = []
+  for (const line of REQUIREMENTS.slice(at)) {
+    if (line.trim() === '') break
+    said.push(line.trim())
+  }
+  return said.join('')
 }
 
 // ===========================================================================

@@ -146,13 +146,21 @@ import { validateDocument } from '../fixtures/grs-document'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').split('\n')
 
-/** The one line that carries the closing rule, found by the words it opens with. */
+/** The paragraph that carries the closing rule, found by the words it opens with. */
 function closingRuleLine(): string {
-  const found = REQUIREMENTS.find((line) => line.startsWith('`Confirmation`（`U-55`）または'))
-  if (found === undefined) {
+  const at = REQUIREMENTS.findIndex((line) =>
+    line.startsWith('`Confirmation`（`U-55`）または'))
+  if (at < 0) {
     throw new Error('table T-023 no longer states the closing rule this file is about')
   }
-  return found
+  // The rule is broken at every sentence (two trailing spaces), and the break
+  // stands where the text had no character, so the pieces join with nothing.
+  const said: string[] = []
+  for (const line of REQUIREMENTS.slice(at)) {
+    if (line.trim() === '') break
+    said.push(line.trim())
+  }
+  return said.join('')
 }
 
 /** The half of the rule that names what is handed over -- everything before 「を当てず」. */

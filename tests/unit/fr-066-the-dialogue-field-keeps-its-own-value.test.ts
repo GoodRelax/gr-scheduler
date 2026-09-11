@@ -209,9 +209,18 @@ function statementOf(uid: string): string {
   const lines = CHAPTER_1_4.split('\n')
   const at = lines.findIndex((line) => line.trim() === `**UID**: ${uid}`)
   if (at < 0) throw new Error(`Chapter 1-4 has no requirement ${uid}`)
-  const said = lines.slice(at).find((line) => line.startsWith('**STATEMENT**:'))
-  if (said === undefined) throw new Error(`${uid} has no STATEMENT`)
-  return plain(said)
+  const from = lines.slice(at).findIndex((line) => line.startsWith('**STATEMENT**:'))
+  if (from < 0) throw new Error(`${uid} has no STATEMENT`)
+  // A STATEMENT is a paragraph, not a line: the manuscript breaks it at every
+  // sentence (two trailing spaces), so read to the blank line and put it back
+  // together. The break stands where the text had no character, so the pieces
+  // join with nothing between them.
+  const said: string[] = []
+  for (const line of lines.slice(at + from)) {
+    if (line.trim() === '') break
+    said.push(line.trim())
+  }
+  return plain(said.join(''))
 }
 
 const FR_066 = statementOf('FR-066')
