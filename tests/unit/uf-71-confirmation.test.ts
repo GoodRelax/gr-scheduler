@@ -161,12 +161,14 @@ import {
 // falling behind a row.
 import { specTable, bare, bareAll } from '../contract/spec-table'
 
+import { unbroken } from '../contract/spec-table'
+
 // ---------------------------------------------------------------------------
 // What the tables say, read at load time.
 // ---------------------------------------------------------------------------
 
 const specText = (...parts: string[]): string =>
-  readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8')
+  unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', ...parts), 'utf8'))
 
 /** The row of table T-103 that settles the name of this surface. */
 const U_55 = 'U-55'

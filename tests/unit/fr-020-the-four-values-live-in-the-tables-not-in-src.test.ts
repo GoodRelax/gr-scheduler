@@ -63,16 +63,16 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at run time rather than trusted to memory
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const FR_020_LAYS_IT_ON =
   '開いた者の名前と実行時の日時を、`Row Area`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'

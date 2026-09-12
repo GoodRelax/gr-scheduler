@@ -106,7 +106,7 @@ import {
   type FrameEnvironment,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 import {
   descendants,
   oneByRole,
@@ -133,10 +133,10 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** ⛔ THE GROUND OF THIS FILE, read rather than typed. */
 const FR_006_STATEMENT =

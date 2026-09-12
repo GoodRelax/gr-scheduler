@@ -95,7 +95,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 import {
   descendants,
   oneByRole,
@@ -175,10 +175,10 @@ function settledName(id: string): string {
 /** `U-25` -- the `Properties Panel`. */
 const U_25 = settledName('U-25')
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // ---------------------------------------------------------------------------
 // The description these cases draw

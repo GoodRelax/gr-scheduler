@@ -130,7 +130,7 @@ import {
   type ReadableFile,
   type WritableFileStream,
 } from '../../src/framework/file-system-access-file-store/file-system-access-file-store'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -138,10 +138,10 @@ import { bare, specTable } from '../contract/spec-table'
 // 1. The eighteen clauses, verbatim, and the manuscript they came from
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // -- FR-012, the percent complete a calendar edit moves --------------------
 

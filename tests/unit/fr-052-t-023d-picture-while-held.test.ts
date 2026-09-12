@@ -147,7 +147,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at read time rather than copied
@@ -187,7 +187,7 @@ function pointNamedBy(grabRow: string): number {
  * still read out of the manuscript rather than copied, for the same reason.
  */
 function fadeOutlinePoints(): Map<number, { readonly x: string; readonly y: string }> {
-  const text = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').split('\n')
+  const text = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
   const at = text.findIndex((line) => line.startsWith('**表 T-012a —'))
   if (at < 0) throw new Error('the specification has no table T-012a')
   const points = new Map<number, { x: string; y: string }>()

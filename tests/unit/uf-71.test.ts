@@ -148,7 +148,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that
 // takes the copy from the .md at read time, which is what keeps the two rosters
 // below from falling behind a row.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1839,10 +1839,10 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     // dictionary FR-038 keeps. ⛔ Nothing here types 「No name」: the two names
     // that ARE typed are the two the manuscript itself spells, and the word is
     // whatever the dictionary holds under them.
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     const pointer = /名前は `FR-038` の辞書の `([A-Za-z]+)` の `([A-Za-z]+)` の語とすること（MUST）/.exec(
       requirements,
     )
@@ -3348,10 +3348,10 @@ describe('the manuscript still says what the S-138 cases copy', () => {
   })
 
   it('FR-029 still points at S-138 and still forbids the surface to change it', () => {
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     expect(requirements).toContain(FR_029_THE_BOX)
     expect(requirements).toContain('S-138')
     expect(requirements).toContain(FR_029_NOT_BY_SURFACE)
@@ -3368,10 +3368,10 @@ describe('the manuscript still says what the S-138 cases copy', () => {
   })
 
   it("FR-029 still forbids the gap to follow the reader's text size", () => {
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     expect(requirements).toContain('S-141')
     expect(requirements).toContain(
       'その隙間を読む人の文字サイズに追随させてはならない（MUST NOT）',

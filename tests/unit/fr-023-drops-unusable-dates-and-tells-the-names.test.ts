@@ -81,7 +81,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -89,10 +89,10 @@ import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** ⭐⭐ 利用者の裁定 2026-09-06: drop the row and take the rest in, never ask. */
 const FR_023_DROP_AND_TAKE_IN =

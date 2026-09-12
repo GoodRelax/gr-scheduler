@@ -140,7 +140,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1990,10 +1990,10 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
     expect(T_023D.rows.length, '表 T-023d has no rows').toBeGreaterThan(1)
     expect(T_023D_TOP_ROW?.id, '表 T-023d no longer opens with the palette band').toBe('GR-19')
 
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     expect(requirements, '表 T-023d no longer says the upper row wins').toContain(
       T_023D_PRIORITY_PREAMBLE,
     )

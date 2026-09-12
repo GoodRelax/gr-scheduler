@@ -152,7 +152,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -160,10 +160,10 @@ import { bare, specTable } from '../contract/spec-table'
 // 1. The clauses, verbatim, and the manuscript they were cut from
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // -- Ruling A: the palette entrance is a toggle ----------------------------
 

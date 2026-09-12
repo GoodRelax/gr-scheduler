@@ -80,7 +80,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { specTable, type SpecRow } from './spec-table'
+import { specTable, type SpecRow, unbroken } from './spec-table'
 
 // ===========================================================================
 // 1. The manuscript
@@ -193,7 +193,7 @@ const printedOf = (family: Family): ReadonlyMap<number, SpecRow> => {
 // 2. The sentence, read out of the manuscript rather than believed
 // ===========================================================================
 
-const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
+const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /**
  * ⚠️ A Japanese literal in code. Rule 03 section 5 keeps code English and ASCII

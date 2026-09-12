@@ -204,7 +204,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // What the manuscript says, read at read time rather than copied
@@ -212,7 +212,7 @@ import { specTable } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
-const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').split('\n')
+const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 const rowIdsIn = (text: string): readonly string[] => text.match(/GR-\d+/g) ?? []
 

@@ -35,7 +35,7 @@ import {
   type PlanActualPlacement,
   type TaskCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The settings this file spends, read out of the manuscript rather than copied
@@ -67,10 +67,10 @@ const settingDefault = (rowId: string): number => {
 const ACTUAL_INITIAL_DURATION = settingDefault('S-129')
 
 /** The manuscript itself, for the rows these cases hold verbatim. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** `S-130` — a milestone is a point, so it carries this length instead. */
 const MILESTONE_ACTUAL_DURATION = settingDefault('S-130')

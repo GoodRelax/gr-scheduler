@@ -58,7 +58,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -91,10 +91,10 @@ const DEFAULT_PASSWORD = bare(rowOf('T-207', 'S-100').by[VALUE_COLUMN] ?? '')
 const PROCEED = 'proceed'
 
 /** FR-020's sentences these cases stand on, quoted from the manuscript. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 const FR_020_ONE_ENTRANCE_BOTH_WAYS =
   '同じ入口（表 T-109 の `IC-41`）が両方向を担うこと（MUST）'
 const FR_020_THE_WAY_BACK_IS_NOT_ASKED = '透かしを出し直す側は問わないこと（MUST）'

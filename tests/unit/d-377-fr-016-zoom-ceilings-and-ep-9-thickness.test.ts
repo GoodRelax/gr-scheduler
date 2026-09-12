@@ -106,10 +106,12 @@ import type {
 import { GROUP_GRID_LINE_WIDTH_PX } from '../../src/adapter/svg-renderer/svg-renderer'
 import { exportSvg, type ExportScene, type SvgExport } from '../../src/adapter/image-exporter/image-exporter'
 
-const REQUIREMENTS = readFileSync(
+import { unbroken } from '../contract/spec-table'
+
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // ===========================================================================
 // 1. The nine clauses, verbatim, and the manuscript they came from

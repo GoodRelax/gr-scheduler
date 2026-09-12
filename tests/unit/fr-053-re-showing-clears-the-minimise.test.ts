@@ -70,7 +70,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -130,10 +130,10 @@ const PALETTE_KEY = ((): string => {
 })()
 
 /** FR-053's sentence these cases stand on, quoted from the manuscript. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 const FR_053_RE_SHOWING_CLEARS_IT =
   '`S-99e` が非表示から表示へ変わったとき、`S-200` を最小化していない側へ戻すこと（MUST）'
 

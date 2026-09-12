@@ -68,7 +68,7 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { bare, specTable, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -170,7 +170,7 @@ const TASK_SHAPE_KIND = (() => {
  * @purity pure
  */
 const PICTURE_TO_CLIPBOARD_ENTRANCE = (() => {
-  const said = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const said = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const found = /`IO-6`[^\n]{0,80}?T-109 [^\n]{0,10}?`(IC-\d+)`/.exec(said)
   if (found === null) {
     throw new Error(

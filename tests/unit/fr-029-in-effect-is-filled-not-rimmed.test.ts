@@ -101,7 +101,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a row that moves in the specification
 // moves here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -120,10 +120,10 @@ const rowOf = (table: string, id: string) => {
  * requirements, so a premise below asks that a sentence is still IN it rather
  * than which UID holds it.
  */
-const CHAPTER_1_4 = readFileSync(
+const CHAPTER_1_4 = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** 表 T-237's own columns. */
 const STATE_COLUMN = '何が効いているか'

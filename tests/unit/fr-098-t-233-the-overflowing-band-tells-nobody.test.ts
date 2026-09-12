@@ -51,12 +51,12 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** The ruling itself, so the sentences below cannot read as an editor's flourish. */
 const RULING_2026_09_06 =

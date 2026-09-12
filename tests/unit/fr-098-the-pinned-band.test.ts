@@ -95,16 +95,16 @@ import {
   type ScreenEnvironment,
   type ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at run time rather than copied
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const LF_14 = (() => {
   const row = specTable('T-221').rows.find((one) => one.id === 'LF-14')

@@ -70,7 +70,7 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Inputs. A whole DocumentSettings is 100+ keys, so a case pins the ones it
@@ -601,10 +601,10 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
 // ---------------------------------------------------------------------------
 
 /** The closing rule of table T-051, read out of the manuscript rather than typed. */
-const T_051_CLOSING = readFileSync(
+const T_051_CLOSING = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 describe('UF-63 -- table T-051: the three controls of the expander', () => {
   const kid = (id: string, part: Record<string, unknown> = {}): TaskGroup =>

@@ -1,19 +1,10 @@
 # check 46 -- sentence ends that carry no break, per file.
 # The rule and the exemption are in check-line-breaks.py.
 # This may go DOWN freely; a rise has to be explained.
-#
-# What the numbers are, measured 2026-09-12:
-#   387 of them sit inside a quotation a test or a comment reads back, so
-#       breaking there would change bytes the suite compares.
-#   27 are in the two GENERATED tables, where the pass that breaks the prose
-#       leaves a line alone in two cases it cannot get right: a line directly
-#       under a table row (markdown would read the second half as a row) and
-#       one whose sentence ends on a closing ** the renderer will not accept
-#       at the start of a line.
-docs/spec/01-04-requirements.md 338
-docs/spec/05-07-design.md 34
+docs/spec/01-04-requirements.md 2
+docs/spec/05-07-design.md 0
 docs/spec/08-10-test.md 0
 docs/spec/A-appendix.md 0
-docs/spec/_assets/tbl-settings.md 24
-docs/spec/_assets/tbl-glossary.md 15
-docs/spec/_assets/tbl-property-items.md 3
+docs/spec/_assets/tbl-settings.md 0
+docs/spec/_assets/tbl-glossary.md 0
+docs/spec/_assets/tbl-property-items.md 0

@@ -95,7 +95,7 @@ import {
   wiringOf,
   type Stage,
 } from '../fixtures/fake-browser'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // `readScreenPartAt` (UF-71) walks a press up through `Element.parentElement`,
 // which the shared fixture's `FakeElement` does not carry -- it was built for
@@ -127,10 +127,10 @@ const U_62 = (() => {
 const RS_50 = specTable('T-233').rows.find((one) => one.id === 'RS-50')
 
 /** The manuscript text, read so FR-023 naming RS-50 can be checked at run time. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // ---------------------------------------------------------------------------
 // Building the modal and the schedule/session it is drawn from

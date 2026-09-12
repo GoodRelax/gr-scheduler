@@ -131,7 +131,7 @@ import {
   type HeldDocumentCall,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bareAll, specTable } from '../contract/spec-table'
+import { bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -141,7 +141,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // ===========================================================================
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').split('\n')
+const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 /**
  * The one line of the manuscript that carries the closing rule, found by the

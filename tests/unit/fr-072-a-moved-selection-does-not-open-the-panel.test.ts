@@ -148,7 +148,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -175,10 +175,10 @@ const SK_19 = rowOf('T-036', 'SK-19').cells.join(' ')
 const SK_3 = rowOf('T-036', 'SK-3').cells.join(' ')
 
 /** `FR-072`'s STATEMENT and the closing rule of table T-036, as the file holds them. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * `FR-072`'s own STATEMENT, cut out of the manuscript.

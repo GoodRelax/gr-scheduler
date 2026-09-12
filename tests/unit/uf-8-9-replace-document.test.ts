@@ -105,7 +105,7 @@ import {
 import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { validateImportedDocument } from '../../src/use-case/validate-imported-document/validate-imported-document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // 1. The manuscript, read at load time rather than copied.
@@ -694,7 +694,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     // ⚠️ RD-5 is a retired seat, so the count is six over rows numbered up to
     // seven.
     expect(ROWS).toHaveLength(6)
-    const closing = readFileSync(join(SPEC, '05-07-design.md'), 'utf8')
+    const closing = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
     expect(closing, 'the prose under table T-230 counts the rows it prints').toContain(
       `本表の ${ROWS.length} つが、まるごと差し替える呼び手の全数である`,
     )

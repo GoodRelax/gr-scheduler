@@ -70,7 +70,7 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
 
@@ -78,10 +78,10 @@ const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as Docume
 // The manuscript, read at run time rather than copied
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** The sentence the 2026-09-01 ruling put into FR-053. */
 const BAND_ALONE = '最小化しているあいだに出すのは掴み帯だけとし、ほかは何も出さないこと（MUST）'

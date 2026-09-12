@@ -110,16 +110,16 @@ import type {
   DummyGeometry,
   ScheduleGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The clauses, verbatim, and the manuscript they were cut from
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * ⚠️ HELD AT 28 CHARACTERS, CHECK 39's FLOOR: every longer window of this

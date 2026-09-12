@@ -111,7 +111,7 @@ import {
   type PointerPress,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The sentence, read out of the manuscript rather than believed
@@ -133,10 +133,10 @@ const THE_CLAUSE =
 /** The reason the same paragraph gives, which is why 「入るとき」 is not 「出るとき」. */
 const THE_REASON = '同モードは作成・移動・編集を受け付けないので、構えたまま入れると何も起きない構えが残る'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const T_109 = specTable('T-109')
 

@@ -1055,7 +1055,7 @@ const ASSIGNEE_FIELD: PropertyField = {
   controls: [
     controlOf({
       // ⛔ THE KEY IS MINTED, AND IT HAS TO BE. 表 T-016's own remark on PR-16
-      // says 「`Task` の列ではない —— 実体は `Assignment` であり」, and no member of
+      // says 「`Task` の列ではない** —— 実体は `Assignment` であり」, and no member of
       // `PropertyFieldKey` can name one. That absence is already reported by
       // tests/unit/t-225-choosing-who-is-on-a-task.test.ts; nothing below turns
       // on which key rides along.

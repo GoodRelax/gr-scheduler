@@ -86,16 +86,16 @@ import {
   wire,
   type FakeElement,
 } from '../fixtures/fake-browser'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** ⛔ The two sentences this file rests on, read rather than trusted. */
 const THE_LOCAL_MUST = '画面に出す時刻は、読む人のローカル時刻とすること（MUST）'

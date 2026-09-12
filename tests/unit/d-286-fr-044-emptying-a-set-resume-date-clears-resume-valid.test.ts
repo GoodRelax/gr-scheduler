@@ -131,7 +131,7 @@ import {
   type DocumentCommand,
   type TaskCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -139,10 +139,10 @@ import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-
 // 1. The clause, read out of the manuscript rather than believed
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * ⚠️ A Japanese literal in code. Rule 03 section 5 keeps code English and ASCII

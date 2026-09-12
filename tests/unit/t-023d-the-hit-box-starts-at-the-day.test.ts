@@ -101,7 +101,7 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // The rows, read out of the manuscript rather than copied (Chapter 1.9, :275)
@@ -110,7 +110,7 @@ import { specTable } from '../contract/spec-table'
 const SPEC_DIR = join(process.cwd(), 'docs', 'spec')
 
 /** Chapter 1-4 as written, for the closing rules a table's ROWS do not carry. */
-const REQUIREMENTS = readFileSync(join(SPEC_DIR, '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = unbroken(readFileSync(join(SPEC_DIR, '01-04-requirements.md'), 'utf8'))
 
 const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
   const found = specTable(tableId).rows.find((row) => row.id === rowId)

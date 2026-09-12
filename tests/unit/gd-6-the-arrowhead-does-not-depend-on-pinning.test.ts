@@ -82,10 +82,12 @@ import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const REQUIREMENTS = readFileSync(
+import { unbroken } from '../contract/spec-table'
+
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 // ⚠️ GD-6's cell bolds two separate spans with a plain clause between them
 // («**依存線は…（MUST）。**色だけで…。**太さと…（MUST NOT）**»), so the row is

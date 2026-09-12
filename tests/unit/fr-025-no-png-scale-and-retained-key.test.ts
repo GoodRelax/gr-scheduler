@@ -80,7 +80,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -88,10 +88,10 @@ import { specTable } from '../contract/spec-table'
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** ⛔⛔ FR-025 (MUST NOT), verbatim, ending at its own marker. */
 const FR_025_NO_SCALE =

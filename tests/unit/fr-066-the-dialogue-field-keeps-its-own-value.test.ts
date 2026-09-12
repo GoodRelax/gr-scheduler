@@ -188,7 +188,7 @@ import type {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
 import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // The manuscript, read at run time. Chapter 1.9 (:275) asks a test of a
@@ -196,10 +196,10 @@ import { bare, specTable } from '../contract/spec-table'
 // rule 03 section 1 forbids re-typing a value the specification holds.
 // ===========================================================================
 
-const CHAPTER_1_4 = readFileSync(
+const CHAPTER_1_4 = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** A manuscript cell or line with its emphasis marks taken off. */
 const plain = (text: string): string => text.replace(/\*/g, '')

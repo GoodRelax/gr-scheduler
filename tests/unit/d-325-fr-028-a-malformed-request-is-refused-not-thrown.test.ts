@@ -103,7 +103,7 @@ import type {
   ChangeStep,
   SettingsLimits,
 } from '../../src/use-case/apply-document-change/apply-document-change'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The sentences, read out of the manuscript rather than believed
@@ -120,15 +120,15 @@ const FR_028_NEVER_THROWS =
 const AG_9A_WHAT_A_REFUSAL_CARRIES =
   'ードのダイアログを出さずに値で返せること |\n| AG-8 | 画像化に失敗したときも、呼び出した側が**失敗を値で受け取れること** |\n| AG-9a | **拒否の値には、拒否された対象・理由の区分・現在の刻印を含めること（MUST）'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
-const GLOSSARY = readFileSync(
+const GLOSSARY = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'),
   'utf8',
-)
+))
 
 // ===========================================================================
 // 2. The bench: one Agent API over one document

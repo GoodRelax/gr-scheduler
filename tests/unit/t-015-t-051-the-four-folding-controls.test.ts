@@ -105,7 +105,7 @@ import {
   wire,
   type FakeElement,
 } from '../fixtures/fake-browser'
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -123,10 +123,10 @@ const rowOf = (table: string, id: string) => {
 /** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** 表 T-103's settled English names, which W-4 of 表 T-006a puts into `data-role`. */
 const partName = (row: string): string => bare(rowOf('T-103', row).by['確定名（英）'] ?? '')
@@ -665,10 +665,10 @@ describe('the manuscript still says what these cases read', () => {
   it('⛔ the two columns that decide whether a row is drawn are still AT-56 and AT-57', () => {
     // The closing paragraph names them: 「**その行自身が描かれないこと**（`AT-57`）
     // と、**その行の配下が描かれないこと**（`AT-56`）」.
-    const detail = readFileSync(
+    const detail = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
-    )
+    ))
     expect(detail).toContain('| AT-56 | `TaskGroup` | `isCollapsed` |')
     expect(detail).toContain('| AT-57 | `TaskGroup` | `isHidden` |')
     // 段 0 has the first and not the second -- 表 T-206 の `S-211`.

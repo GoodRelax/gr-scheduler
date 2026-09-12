@@ -34,16 +34,16 @@ import {
   type PlanActualPlacement,
   type TaskCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscript, and the sentence these cases exist for
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** `FR-011`'s floor, held verbatim (利用者の裁定 2026-09-10). */
 const THE_FLOOR =

@@ -59,7 +59,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -105,10 +105,10 @@ const RS_44_MANNER = ((): string => {
 })()
 
 /** FR-019's sentence these cases stand on, quoted from the manuscript. */
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 const FR_019_REFUSES_AND_SAYS_WHY =
   '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らずに理由を告げること（MUST）'
 

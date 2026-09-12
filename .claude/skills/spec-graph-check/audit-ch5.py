@@ -17,7 +17,13 @@ MODEL = "docs/spec/_source/components.json"
 # requirement. Both reads below want the record, never the appendix.
 CHANGELOG = "docs/development-records/changelog.md"
 
-design = open(DESIGN, encoding="utf-8").read()
+# ⛔ EVERY SENTENCE ENDS A LINE in docs/spec (check 46): `<br>` inside a table
+# row, a hard break everywhere else. Both stand where the text had NO
+# character, so they come out before anything here is counted -- otherwise a
+# rule that a break runs through stops being found.
+_BREAK = re.compile(u"<br[ ]*/?>", re.I)
+_HARD = re.compile(u"  " + chr(10) + u"(?:[ ]*>[ ]?)?")
+design = _HARD.sub(u"", _BREAK.sub(u"", open(DESIGN, encoding="utf-8").read()))
 glossary = open(GLOSSARY, encoding="utf-8").read()
 model = json.load(open(MODEL, encoding="utf-8"))
 nodes = [n["name"] for n in model["nodes"]]

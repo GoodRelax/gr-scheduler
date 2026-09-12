@@ -35,7 +35,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { paragraphsOf } from '../contract/spec-table'
+import { paragraphsOf, unbroken } from '../contract/spec-table'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
@@ -67,10 +67,10 @@ import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 // 1. The manuscript, read rather than copied.
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** The one paragraph of docs/spec this whole file is about. */
 const INVARIANT = (() => {

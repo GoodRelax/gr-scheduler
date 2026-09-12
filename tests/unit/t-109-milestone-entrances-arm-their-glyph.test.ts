@@ -128,7 +128,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, bareAll, paragraphsOf, specTable } from '../contract/spec-table'
+import { bare, bareAll, paragraphsOf, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // The manuscripts, read at run time rather than copied (Chapter 1.9 :275)
@@ -168,7 +168,7 @@ const MARKS: readonly string[] = ((): readonly string[] => {
  * 印との対応だけである」.
  */
 const NOTE_PAIRING: ReadonlyMap<string, string> = ((): ReadonlyMap<string, string> => {
-  const text = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const lines = paragraphsOf(text).filter(
     (one) => one.includes('`SH-5`') && one.includes('milestoneGlyph') && one.includes('＝'),
   )

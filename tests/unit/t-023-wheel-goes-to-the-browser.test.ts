@@ -134,7 +134,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -144,7 +144,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // ===========================================================================
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
-const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').split('\n')
+const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')).split('\n')
 
 /** The paragraph that carries the closing rule, found by the words it opens with. */
 function closingRuleLine(): string {

@@ -119,7 +119,7 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a value that moves in a table moves
 // here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -141,10 +141,10 @@ const HF_6 = rowOf('T-051', 'HF-6').cells.join(' ')
  * nothing here parses it into requirements, so a premise below asks that the
  * sentences are still IN it rather than which UID holds them.
  */
-const FR_029_TEXT = readFileSync(
+const FR_029_TEXT = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** The rows of table T-109 these cases stand an entrance on, one per surface. */
 const IC_HEADER = 'IC-20'

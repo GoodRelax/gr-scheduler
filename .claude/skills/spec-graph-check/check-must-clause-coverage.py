@@ -192,6 +192,22 @@ def strip_comments(text):
         for line in text.split(chr(10)))
 
 
+BREAK_RE = re.compile(u'<br[ ]*/?>', re.I)
+HARD_RE = re.compile(u'  ' + chr(10) + u'(?:[ ]*>[ ]?)?')
+
+
+def unbroken(text):
+    """The manuscript with its line breaks read as the breaks they are.
+
+    ⛔ EVERY SENTENCE ENDS A LINE (check 46): `<br>` inside a table row, a
+    hard break everywhere else. Both stand where the text had NO character, so
+    a clause that a break runs through is still one clause, and a test holding
+    it verbatim still holds it. tests/contract/spec-table.ts reads the
+    manuscript the same way.
+    """
+    return HARD_RE.sub(u'', BREAK_RE.sub(u'', text))
+
+
 def load_test_corpus():
     """Every file under tests/ with its COMMENT LINES REMOVED, concatenated
     with a NUL separator so a match can never straddle two files (source text
@@ -285,7 +301,7 @@ def find_markers():
             continue
         found_any_file = True
         with io.open(path, encoding='utf-8') as handle:
-            text = handle.read()
+            text = unbroken(handle.read())
         spans = skipped_spans(rel, text)
         for m in MARKER_RE.finditer(text):
             if any(a <= m.start() < b for a, b in spans):

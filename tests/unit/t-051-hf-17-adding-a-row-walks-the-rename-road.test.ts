@@ -113,7 +113,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -130,10 +130,10 @@ const rowOf = (table: string, id: string) => {
 /** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** 表 T-103's settled English name for U-22 -- the 面 both entrances sit on. */
 const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
@@ -173,10 +173,10 @@ const ADD_CHILD_ROW = entranceFor('HF-14')
  * of typing `AT-53` and going quiet the day the ERD is renumbered.
  */
 const ROW_NAME_FIELD = ((): string => {
-  const detail = readFileSync(
+  const detail = unbroken(readFileSync(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
-  )
+  ))
   const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `label`'))
   if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`label` row')
   const id = line.split('|')[1]?.trim() ?? ''
@@ -546,10 +546,10 @@ describe('the manuscript still says what these cases read', () => {
     // own child, also order 0) can share an order value because AT-55 scopes it
     // per parent -- so 「末子」 for a press at 段 0 is read against the OTHER
     // ROOTS only, never against a deeper row that happens to share a number.
-    const at55 = readFileSync(
+    const at55 = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
-    )
+    ))
     expect(at55).toContain('| AT-55 | `TaskGroup` | `order` |')
     expect(at55).toContain('同じ親の下での並び')
   })

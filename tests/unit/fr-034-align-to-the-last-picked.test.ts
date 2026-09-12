@@ -117,7 +117,7 @@ import {
   type PointerInput,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // What the manuscript says, read at run time rather than copied
@@ -128,10 +128,10 @@ const T_108 = specTable('T-108')
 const T_233 = specTable('T-233')
 const T_023C = specTable('T-023c')
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const rowOf = (table: ReturnType<typeof specTable>, id: string) => {
   const found = table.rows.find((one) => one.id === id)

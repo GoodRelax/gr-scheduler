@@ -111,16 +111,16 @@ import {
   type SettingsLimits,
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The three clauses, verbatim, and the manuscript they were cut from
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * The ruling itself. ⚠️ Held at 40 characters: every longer window reaches

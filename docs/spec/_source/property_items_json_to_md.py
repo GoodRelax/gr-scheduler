@@ -52,12 +52,42 @@ def prose(cell):
     return cell.get(LANG, '')
 
 
+STOP = u'\u3002'
+QUOTE_OPEN = u'\u300c\u300e'
+QUOTE_SHUT = u'\u300d\u300f'
+
+
+def _break_points(body):
+    """Where this line may be split.
+
+    Just past a sentence end -- and past a closing ** that follows it, because
+    a closer may not START a line (the renderer leaves the asterisks on the
+    page) though it may end one. A quotation is never split.
+    """
+    out, quoted = [], 0
+    for i, ch in enumerate(body):
+        if ch in QUOTE_OPEN:
+            quoted += 1
+            continue
+        if ch in QUOTE_SHUT:
+            quoted = max(0, quoted - 1)
+            continue
+        if ch != STOP or quoted:
+            continue
+        at = i + 1
+        if body[at:].lstrip().startswith('**') and body[:at].count('**') % 2:
+            at = body.index('**', at) + 2
+        if body[at:].strip().strip('*'):
+            out.append(at)
+    return out
+
+
 def broken_prose(text):
     """The built document with every prose sentence on its own line.
 
-    \u26d4 THE RULE (check 46): outside a table a sentence break is a HARD
-    break -- two trailing spaces, and the line ends. A table row, a heading and
-    a fenced block are left alone; a blockquote keeps its `> ` on each piece.
+    THE RULE (check 46): outside a table a sentence break is a HARD break --
+    two trailing spaces, and the line ends. A table row, a heading and a
+    fenced block are left alone; a blockquote keeps its `> ` on each piece.
     """
     out = []
     fenced = False
@@ -85,24 +115,16 @@ def broken_prose(text):
                 cut += 1
             lead += body[:cut]
             body = body[cut:]
-        pieces, held, quoted = [], [], 0
-        for i, ch in enumerate(body):
-            held.append(ch)
-            if ch in u'\u300c\u300e':
-                quoted += 1
-            elif ch in u'\u300d\u300f':
-                quoted = max(0, quoted - 1)
-            elif ch == u'\u3002' and not quoted and body[i + 1:].strip().strip('*'):
-                # A CLOSING ** may not start a line -- the renderer leaves
-                # the asterisks on the page. Carry the break past it; an
-                # opening ** is fine where it is.
-                if (body[i + 1:].lstrip().startswith('**')
-                        and body[:i + 1].count('**') % 2):
-                    continue
-                pieces.append(''.join(held))
-                held = []
-        pieces.append(''.join(held))
-        pieces = [p for p in pieces if p]
+        spots = _break_points(body)
+        if not spots:
+            out.append(line)
+            continue
+        pieces, prev = [], 0
+        for at in spots:
+            pieces.append(body[prev:at])
+            prev = at
+        pieces.append(body[prev:])
+        pieces = [p for p in pieces if p.strip()]
         if len(pieces) < 2:
             out.append(line)
             continue
@@ -110,7 +132,6 @@ def broken_prose(text):
             out.append(lead + piece.strip() + '  ')
         out.append(lead + pieces[-1].strip())
     return '\n'.join(out)
-
 
 def broken(cell):
     """A cell with every sentence on its own line.

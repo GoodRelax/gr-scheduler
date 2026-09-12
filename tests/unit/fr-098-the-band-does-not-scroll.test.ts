@@ -167,16 +167,18 @@ import {
   type ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 
+import { unbroken } from '../contract/spec-table'
+
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at run time rather than trusted to memory
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
-const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
+const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /**
  * ⭐ THE TWO CLAUSES OF 2026-09-06, quoted long enough that they cannot drift

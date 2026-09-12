@@ -56,7 +56,7 @@
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { specTable, type SpecTable } from '../contract/spec-table'
+import { specTable, type SpecTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -301,7 +301,7 @@ const INSTANT = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
 
 /** `FR-020`'s statement, as the manuscript writes it. @purity semi-pure-b */
 function statementOfFr020(): string {
-  const text = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const text = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
   const lines = text.split('\n')
   const at = lines.indexOf('**UID**: FR-020')
   if (at < 0) throw new Error('01-04-requirements.md holds no requirement FR-020')

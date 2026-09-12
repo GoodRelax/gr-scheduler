@@ -85,7 +85,7 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -100,10 +100,10 @@ const rowOf = (table: string, id: string) => {
 /** Everything HF-6 writes, as one string. */
 const HF_6 = rowOf('T-051', 'HF-6').cells.join(' ')
 
-const CHAPTER_1_4 = readFileSync(
+const CHAPTER_1_4 = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 interface PaintRow {
   readonly id: string

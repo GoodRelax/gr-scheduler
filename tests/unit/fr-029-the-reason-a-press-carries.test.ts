@@ -140,7 +140,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -190,10 +190,10 @@ function surfaceOf(icon: string): string {
   return first
 }
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知すること（MUST）'
 const FR_029_THE_MATCHING_ROW =

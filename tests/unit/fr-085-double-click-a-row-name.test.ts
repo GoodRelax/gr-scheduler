@@ -81,7 +81,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -107,10 +107,10 @@ const ROW_TITLE_PANEL = ((): string => {
 /** Everything MK-13 writes, as one string. */
 const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** FR-085's sentence these cases stand on, quoted from the manuscript. */
 const FR_085_THE_RENAME_PATH =
@@ -129,10 +129,10 @@ const THE_OVERRIDDEN_SENTENCE =
  * is read from the table that owns it and asserted to be `TaskGroup.label`.
  */
 const ROW_NAME_FIELD = ((): string => {
-  const detail = readFileSync(
+  const detail = unbroken(readFileSync(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
-  )
+  ))
   const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `label`'))
   if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`label` row')
   const id = line.split('|')[1]?.trim() ?? ''

@@ -109,7 +109,7 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The sentences, read out of the manuscript rather than believed
@@ -134,12 +134,12 @@ const SK_19_SETTLES_THE_IN_PLACE_EDIT =
 /** IF-9's widening, the ruling CR-361 rests on. Its file is Chapter 5-7. */
 const IF_9_THE_FIELD_NAMES_U_27 = 'ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
-const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
+const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /** `U-27` of 表 T-103 -- the row the header's field names itself by. */
 const U_27 = 'U-27'

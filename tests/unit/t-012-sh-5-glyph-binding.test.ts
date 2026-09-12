@@ -85,7 +85,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { bare, bareAll, paragraphsOf, specTable } from '../contract/spec-table'
+import { bare, bareAll, paragraphsOf, specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // List one -- the marks 表 T-012 prints for SH-5
@@ -121,10 +121,10 @@ const MARKS: readonly string[] = ((): readonly string[] => {
 // List two -- the spellings `_source/erd.json` settles
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const GLYPHS: readonly string[] = ((): readonly string[] => {
   const erd = JSON.parse(

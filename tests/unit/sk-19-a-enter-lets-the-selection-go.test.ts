@@ -58,6 +58,8 @@ import {
 } from '../../src/entity/document-model/selection/selection'
 import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 
+import { unbroken } from '../contract/spec-table'
+
 // ===========================================================================
 // 1. The sentences, read out of the manuscript rather than believed
 // ===========================================================================
@@ -75,10 +77,10 @@ const SK_19_LAST_STAGE =
 const SK_19_NO_SELECTION_NO_STAGE =
   '**選ばれているものが 1 つも無いときは、この段も無い**'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 describe('the clauses are still written', () => {
   it('SK-19 still carries the stage these cases hold', () => {

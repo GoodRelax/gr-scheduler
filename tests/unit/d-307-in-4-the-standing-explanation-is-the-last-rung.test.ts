@@ -134,7 +134,7 @@ import {
   selectionWith,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The sentences, read out of the manuscript rather than believed
@@ -181,10 +181,10 @@ const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォ�
 const IN_4_WHY_LAST =
   '説明を最後に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * The ladder, as IN-4 prints it -- read from the manuscript at run time so that

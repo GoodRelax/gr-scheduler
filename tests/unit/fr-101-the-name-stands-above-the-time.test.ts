@@ -92,18 +92,18 @@ import {
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // its copy from the .md at read time, so a name that moves in table T-103 moves
 // here too instead of going stale.
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
-const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8')
+const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 /** ⛔ THE GROUND OF THIS WHOLE FILE, read rather than typed. */
 const THE_ORDER_MUST = '名前を時刻の上に置くこと（MUST）'

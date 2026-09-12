@@ -121,14 +121,16 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 
+import { unbroken } from '../contract/spec-table'
+
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at run time rather than trusted to memory
 // ---------------------------------------------------------------------------
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const FR_098_NOT_UNDER = 'スクロールする行を帯の下へ潜らせてはならない（MUST NOT）'
 const FR_098_EVERY_FIGURE = 'この禁止は、その行のために描くものすべてに当たる（MUST）'

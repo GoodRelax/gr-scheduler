@@ -236,6 +236,32 @@ const JOINERS: readonly string[] = ['/', '／', '、', '・', 'と', 'または'
  *
  * A table row, a heading and a fence line each stay a block of their own.
  */
+/**
+ * One specification document with its line breaks read as the breaks they are.
+ *
+ * ⛔ EVERY SENTENCE ENDS A LINE in docs/spec (check 46): inside a table row
+ * the break is `<br>`, everywhere else the line ends with two spaces. Both
+ * stand where the text had NO character, so a quotation that spans one stops
+ * matching the raw file -- which is why 387 sentence ends were left unbroken
+ * until this existed. Read the manuscript through here and quote it whole.
+ *
+ * A blockquote's `> ` on a continued line is part of the break, not of the
+ * sentence, so it comes off with it.
+ */
+export function unbroken(text: string): string {
+  const out: string[] = []
+  for (const raw of text.split('\n')) {
+    const line = raw.replace(/<br\s*\/?>/gi, '')
+    const previous = out[out.length - 1]
+    if (previous !== undefined && previous.endsWith('  ')) {
+      out[out.length - 1] = previous.trimEnd() + line.replace(/^(?:\s*>)+\s?/, '')
+      continue
+    }
+    out.push(line)
+  }
+  return out.join('\n')
+}
+
 export function paragraphsOf(text: string): readonly string[] {
   const out: string[] = []
   let held: string[] = []

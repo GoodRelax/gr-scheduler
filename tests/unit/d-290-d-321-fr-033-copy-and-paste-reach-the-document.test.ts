@@ -105,7 +105,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -113,10 +113,10 @@ import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-
 // 1. The manuscript, read at run time rather than copied
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /**
  * ⚠️ Japanese literals in code. Rule 03 section 5 keeps code English and ASCII

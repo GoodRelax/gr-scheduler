@@ -92,16 +92,16 @@ import {
   MSPDI_NAMESPACE,
 } from '../../src/adapter/document-codec/mspdi-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ===========================================================================
 // 1. The sentence, read out of the manuscript rather than believed
 // ===========================================================================
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 const FR_021 = ((): string => {
   const at = REQUIREMENTS.indexOf('**UID**: FR-021')

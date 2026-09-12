@@ -97,7 +97,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -115,10 +115,10 @@ function rowOf(table: SpecTable, id: string): SpecRow {
   return found
 }
 
-const REQUIREMENTS = readFileSync(
+const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
-)
+))
 
 /** `FR-060`'s ⭐ clause -- the reason the KEY and not the icon is pressed here. */
 const THE_FAST_ROAD_MUST = 'その速い道は 表 T-036 の `SK-11` である（MUST）'

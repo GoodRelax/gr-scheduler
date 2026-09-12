@@ -138,7 +138,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 // ---------------------------------------------------------------------------
@@ -1220,10 +1220,10 @@ describe('FR-018 -- holding a zoom entrance down', () => {
     // FR-018 (MUST): 「繰り返す入口は … 表 T-109 の `IC-12` 〜 `IC-15` に限ること
     // （MUST）」 —— 「`IC-10`（全体表示）と `IC-11`（全画面）は繰り返しても
     // 同じ結果にしかならない」.
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     expect(requirements).toContain('繰り返す入口は')
     expect(requirements).toContain('S-172')
     expect(requirements).toContain('S-173')
@@ -1347,10 +1347,10 @@ describe('the tables these ten entrances are driven by', () => {
     // FR-048 (MUST NOT): 「消すための別の入口を置いてはならない」. ⭐ Read as
     // the whole of table T-109 rather than as the guide-cursor group alone,
     // because the MUST covers カーソル 3 種.
-    const requirements = readFileSync(
+    const requirements = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
       'utf8',
-    )
+    ))
     expect(requirements).toContain('もう一度押せば消えること（MUST）')
     expect(requirements).toContain('消すための別の入口を置いてはならない（MUST NOT）')
     for (const one of specTable('T-109').rows) {
