@@ -35,7 +35,7 @@
 //                     whole of table T-109, the generated file matches the
 //                     manuscript cell for cell, no entry is passed over in
 //                     silence, group 1's filled copy really covers every cell,
-//                     and the claim PD-160's row asks for: 「原稿の 1 語を埋め
+//                     and the claim PND-160's row asks for: 「原稿の 1 語を埋め
 //                     ると画面に届く試験」-- a word that IS written is printed.
 //                     ⚠️ While every cell was empty that claim could only be
 //                     made as a guard that FELL the moment a word appeared
@@ -51,7 +51,7 @@
 // T-026 row RC-13, T-037 row NT-7, T-058 row AT-17, Chapter 6.2),
 // docs/review/rulings-2026-08-22/, change-request/
 // CR-194-*.md and CR-218-*.md, docs/development-records/pending-decisions.md
-// (PD-160, PD-175), the two `display-words.json` AS DATA, and -- in the five
+// (PND-160, PND-175), the two `display-words.json` AS DATA, and -- in the five
 // owning units and `screen-renderer.ts` -- the head comment, the exported types
 // and the signatures (version 0.70 of the appendix says the specification
 // deliberately does not write the confirmation's member names and types, and
@@ -849,7 +849,7 @@ const drop = (section: string, key: string, why: string): void => {
  *
  * ⚠️ THE POINT DOES NOT NAME THE ICON, and cannot: no member of `ScreenView`
  * carries an entry's rectangle, which is the whole reason
- * `ScreenSession.iconUnderPointer` exists (PD-141). What the point is for is a
+ * `ScreenSession.iconUnderPointer` exists (PND-141). What the point is for is a
  * session that holds together -- `pointer: null` means the pointer is outside
  * the window, which cannot be true while it rests on an entry.
  */
@@ -1510,7 +1510,7 @@ const CASES: readonly Case[] = PLACES.flatMap((at) =>
 
 /**
  * The cells with no word yet. ⚠️ This was every cell a place is named for
- * (PD-160) and is now none of them -- no cell of the dictionary stands empty at
+ * (PND-160) and is now none of them -- no cell of the dictionary stands empty at
  * all. ⭐ The group below therefore has no case today and gets one the moment a
  * cell is emptied or a new roster entry appears unwritten.
  */
@@ -1637,14 +1637,14 @@ const framesPrinting = (
  * The dictionary this group drives the units with: the generated one with a
  * word that names its own cell in place of every cell. ⛔ It is built here and
  * never written to `_source/display-words.json` -- the words are the user's
- * decision (PD-160), and a test that wrote one would be making it for them.
+ * decision (PND-160), and a test that wrote one would be making it for them.
  */
 const FILLED = fillEveryWord(GENERATED)
 
 describe('FR-038 -- a word the dictionary holds is the word the screen prints', () => {
   /**
    * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. It was built when every cell
-   * this group has a place for was empty (PD-160), so a group that stood by
+   * this group has a place for was empty (PND-160), so a group that stood by
    * until a word was written asserted nothing at all -- 272 cases that returned
    * on their first line, and three deliberate breaks of the road each turned
    * exactly ONE of them red. ⚠️ THE WORDS HAVE SINCE BEEN WRITTEN, and the
@@ -1720,7 +1720,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     (one: Case) => {
       // ⭐ THE SAME CLAIM AGAINST THE DICTIONARY AS IT STANDS, and the word
       // comes from the file rather than from here. ⚠️ It had no case at all
-      // while PD-160 left every cell empty; it now has one per written cell,
+      // while PND-160 left every cell empty; it now has one per written cell,
       // and each is asked in EACH language -- which is what makes it, and not
       // the acceptance group, the place a placed cell's language claim is made.
       // ⛔ A cell the user leaves empty drops out here and is picked up by the
@@ -1737,7 +1737,7 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
 // 2. THE FALLBACK -- what stands there while the word is not written.
 // ---------------------------------------------------------------------------
 
-describe('PD-160 -- an entry with no word still leaves something at its place', () => {
+describe('PND-160 -- an entry with no word still leaves something at its place', () => {
   it.each(EMPTY)(
     '$section $key $field is empty in $language -> the view is built -> $what still prints a string',
     (one: Case) => {
@@ -1797,7 +1797,7 @@ describe('PD-160 -- an entry with no word still leaves something at its place', 
 // 3. THE ACCEPTANCE -- CR-194 section 5, which ruling 06 asks for.
 // ---------------------------------------------------------------------------
 
-describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it reaches the screen', () => {
+describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it reaches the screen', () => {
   it('offers a word per language -> the languages are read from the dictionary -> they are FR-038 s two', () => {
     // FR-038: 「対象は `ja` と `en` の 2 言語とする」.
     expect(new Set(LANGUAGES)).toEqual(new Set(['ja', 'en']))
@@ -1948,7 +1948,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
 
     // FR-017 (MUST): the fourth tier holds a 段 that prints 曜日. ⛔ An empty cell here
     // leaves that MUST unmet the way FR-032's mark does -- a weekday with no
-    // word prints no weekday -- and NOT the way PD-160 leaves a label to the
+    // word prints no weekday -- and NOT the way PND-160 leaves a label to the
     // user, which the fallback group is for. ⚠️ Held against the MANUSCRIPT,
     // which Chapter 6.2 (MUST) makes the source; the case above already holds
     // the generated file to it cell for cell.
@@ -2005,7 +2005,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
   })
 
   it('FR-032 (MUST) shows its mark as a word -> the manuscript is read and every frame this file can build is put on the screen -> that word is written, and every word that IS written is printed on one of them in its own language', () => {
-    // ⭐ THE HALF RULING 06 ASKS FOR, and PD-160's row words it: 「原稿の 1 語
+    // ⭐ THE HALF RULING 06 ASKS FOR, and PND-160's row words it: 「原稿の 1 語
     // を埋めると画面に届く試験」. ⛔ While every cell was empty the only way to
     // say that was a guard that FELL the moment a word appeared (CR-194 section
     // 5 item 2). A word has appeared, so the guard is now stated as the claim
@@ -2021,7 +2021,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
 
     // FR-032 (MUST): a `Task` that goes with the row but is drawn on another
     // row is SHOWN as such, and CR-218 settles the medium as a word. ⛔ Unlike
-    // the cells PD-160 leaves to the user, an empty cell here leaves that MUST
+    // the cells PND-160 leaves to the user, an empty cell here leaves that MUST
     // unmet -- an empty word shows nothing.
     const mark = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'confirmationMarks')
     expect(
@@ -2030,7 +2030,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     ).toBe(LANGUAGES.length)
     expect(
       mark.filter((cell) => cell.word === '').map((cell) => `${cell.key}.${cell.field}.${cell.language}`),
-      'FR-032 (MUST): the medium is a word (CR-218), so this cell cannot stand empty the way PD-160 leaves the others',
+      'FR-032 (MUST): the medium is a word (CR-218), so this cell cannot stand empty the way PND-160 leaves the others',
     ).toEqual([])
 
     const written = MANUSCRIPT_CELLS.filter((cell) => cell.word !== '')
@@ -2095,7 +2095,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +
-          'file can build prints it -- that word is reaching nowhere (PD-160, CR-194 section 5 item 2). ' +
+          'file can build prints it -- that word is reaching nowhere (PND-160, CR-194 section 5 item 2). ' +
           'Run `npm run gen` first; if it still fails, the road from the dictionary to the screen is cut, ' +
           'or the word is printed by a frame this file does not know how to raise.',
       ).toBeGreaterThan(0)

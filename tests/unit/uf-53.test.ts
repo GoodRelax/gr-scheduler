@@ -34,7 +34,7 @@
 //   table T-024 IO-6  (:2834) write only. ⛔ The row says the current screen
 //                     goes to another app AS AN IMAGE; the seam hands a picture
 //                     over as an SVG string and no browser CN-2 admits takes
-//                     SVG as a clipboard image. The gap is PD-120 and is
+//                     SVG as a clipboard image. The gap is PND-120 and is
 //                     declared in the unit's head comment; the cases below
 //                     assert the string that the seam actually carries and
 //                     claim nothing about an image
@@ -84,7 +84,7 @@
 // which browser signal is which (searched: the whole of docs/spec for
 // `NotAllowedError`, `DOMException`, `QuotaExceeded` and `AbortError` -- no
 // hit). The last describe block pins the recommended reading recorded as
-// PD-121, per docs/development-rules/06-pending-decisions.md section 3, which
+// PND-121, per docs/development-rules/06-pending-decisions.md section 3, which
 // asks for the test that falls when a provisional value is overturned to be
 // written in advance. Every other block holds whatever that decision turns out
 // to be.
@@ -327,7 +327,7 @@ function namedError(name: string, message: string): Error {
 /**
  * Every shape a browser -- or a host standing in for one -- might refuse with.
  * ⛔ What each MEANS is not in docs/spec; these cases assert only that each
- * becomes one of the three values. The mapping itself is PD-121, pinned in the
+ * becomes one of the three values. The mapping itself is PND-121, pinned in the
  * last block alone.
  */
 const EVERY_REFUSAL: readonly { readonly why: string; readonly reason: unknown }[] = [
@@ -721,12 +721,12 @@ describe('table T-037 -- the refusal carries what the notice needs', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-121 -- WHICH browser signal is read as which fault. PROVISIONAL.
+// PND-121 -- WHICH browser signal is read as which fault. PROVISIONAL.
 //
 // ⛔ docs/spec fixes the three values and their meanings and says nothing about
 // the signals: searched the whole of docs/spec for `NotAllowedError`,
 // `DOMException`, `QuotaExceeded` and `AbortError`, with no hit, and neither
-// FR-028 nor NT-3a nor IF-5 names one. The recommendation recorded as PD-121 is
+// FR-028 nor NT-3a nor IF-5 names one. The recommendation recorded as PND-121 is
 // pinned here alone -- rule 06 section 3 asks for the test that falls when a
 // provisional value is overturned to be written in advance, and this is it.
 // ⚠️ If the decision is overturned, THIS BLOCK is what to change; nothing above
@@ -775,7 +775,7 @@ const PD_121_MAPPING: readonly {
   { why: 'null', reason: null, fault: 'writeFailed' },
 ]
 
-describe('PD-121 (provisional) -- NotAllowedError is the refusal read as notPermitted', () => {
+describe('PND-121 (provisional) -- NotAllowedError is the refusal read as notPermitted', () => {
   it('walks the whole mapping for a rejected promise', async () => {
     expect(PD_121_MAPPING.filter((one) => one.fault === 'notPermitted')).toHaveLength(2)
     for (const { why, reason, fault } of PD_121_MAPPING) {

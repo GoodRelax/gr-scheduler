@@ -272,7 +272,7 @@ export type ImageExport =
  * picture, so a bar scrolled past the `Row Area`'s left edge cannot show
  * through the row names.
  *
- * @provisional PD-50
+ * @provisional PND-50
  */
 const CHROME_GROUND = '#f3f4f6'
 const CHROME_INK = '#111111'

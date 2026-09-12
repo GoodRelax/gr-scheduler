@@ -499,7 +499,7 @@ const NO_ASSIGNEE_MARK = '-'
  * fixes what is shown -- 「資源名の昇順で先頭 1 名と残りの人数」 -- and no row
  * anywhere spells how the two are joined. A digit behind `+` is language
  * neutral, so FR-038 has nothing to translate.
- * @provisional PD-346
+ * @provisional PND-346
  */
 const MORE_ASSIGNEES_MARK = '+'
 
@@ -1360,7 +1360,7 @@ function rowControlLatticeFloorPx(): number {
  * leaving it out gives.
  * ⚠️ Adding it moves no published member: table T-064's own header leaves
  * arguments and return values to `src/` and keeps only the names.
- * @provisional PD-206
+ * @provisional PND-206
  *
  * ⭐ `isLevelZeroFolded` IS S-211 OF TABLE T-206 -- 「段 0（行見出しパネルの頭）が
  * 畳まれているか」 -- and it is an argument for the reason that row gives: the
@@ -1651,7 +1651,7 @@ export function layoutFromSchedule(
         // ⛔ AND NOTHING IS 「重ねて押し込」まれた (MUST NOT): the item that found
         // no lane is not pushed into one that is already taken. It is simply
         // not drawn, along with the rest of its row.
-        // @provisional PD-430 -- `S-89` is the LARGEST NUMBER OF STACKS ALLOWED,
+        // @provisional PND-430 -- `S-89` is the LARGEST NUMBER OF STACKS ALLOWED,
         // so the test is made before a further lane is opened: `stackSafetyCap`
         // lanes stand and the one that would exceed it is refused.
         if (lanes.length >= settings.stackSafetyCap) {
@@ -2223,7 +2223,7 @@ export interface NotStoredZoom {
  * which is what FR-055's 「無用に縦幅を増やすな」 reading asks, and it puts ONE
  * press of the vertical zoom-in control exactly on depth 2 rather than a hair
  * under it. ⛔ FR-055's RATIONALE does not say this; it is a choice.
- * @provisional PD-204
+ * @provisional PND-204
  *
  * @purity pure
  */
@@ -2293,14 +2293,14 @@ function clampedZoom(value: number, zoom: NotStoredZoom): number {
  * zoom the fit itself writes would make the answer a recurrence again. Unity is
  * also the conservative base: nothing is dropped by S-86 there, so the extent
  * fitted to is the fullest one. ⛔ No row names the base.
- * @provisional PD-203
+ * @provisional PND-203
  *
  * ⚠️ IT CLAMPS THE HORIZONTAL. FR-016 puts the range on the zoom operation and
  * CM-71 applies it, but a fit that measured the vertical at a zoomX the write
  * then clamped would draw a picture it never measured. ⛔ The vertical is not
  * clamped and must not be: every landing zoom lies strictly inside S-97 and
  * S-98, and moving one off its threshold would answer a different depth.
- * @provisional PD-205
+ * @provisional PND-205
  *
  * ⛔ Its MAY for a held position of null (fall back on the day this runs) is
  * NOT taken: reading a clock here would break `@purity pure`, and FR-055 warns
@@ -2387,7 +2387,7 @@ export function fitZoom(
     // all; something has to be answered now, and refusing the run is the
     // conservative half -- FR-055 falls back to depth 1, which is the shallowest
     // picture and the least likely to reach the valve again.
-    // ⛔ NO ROW SAYS THIS, and no `PD-` number holds it yet -- the reading is
+    // ⛔ NO ROW SAYS THIS, and no `PND-` number holds it yet -- the reading is
     // written out here so the next reader can refute it rather than guess it.
     if (run.stackSafetyCapReached !== null) return false
     const remainderTop = run.scrollAreaY ?? regions.rowArea.y
@@ -2426,7 +2426,7 @@ export function fitZoom(
       // LEFT, so the leftmost edge moves with zoomY solely through LF-10's
       // figure, which is half a plan height wide. ⛔ No row says which run
       // answers it.
-      // @provisional PD-207
+      // @provisional PND-207
       chosen = atFloor[depth - 1]!
     }
   }

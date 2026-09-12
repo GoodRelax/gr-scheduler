@@ -117,7 +117,6 @@
 | `OR` | Order | 形状の外へ出すものの左右の並びの条 | 仕様書 | `T-243` | 6 |
 | `P` | Property | 画面に出すプロパティの語 | 仕様書 | `T-102` | 23 |
 | `PA` | Plan and Actual | 予定と実績が取りうる状態 | 仕様書 | `T-019` | 5 |
-| `PD` | Pending Decision | まだ裁定されていない決めごと（CR-371 の巡 1 で仕様書側は PTD へ移り、本接頭辞は台帳だけのものになった。<br>巡 2 が PND へ改め、本行ごと消える） | 台帳 | `docs/development-records/pending-decisions.md` | 212 |
 | `PF` | Profile | 文書の基本情報の項目 | 仕様書 | `T-224` | 10 |
 | `PG` | — | 節目ごとに測るものと、それがゲートかどうか | 仕様書（台帳にも 13 行。写しとして申告済み） | `T-043` | 13 |
 | `PI` | Public Interface | コンポーネントが公開するメンバの組 | 仕様書 | `T-064` | 36 |
@@ -169,7 +168,7 @@
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
 | `WR` | — | 要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である | 規則 | `docs/development-rules/08-spec-template/spec-writing-rules.md` | 2 |
 | `PTD` | Pointer Down | ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである） | 仕様書 | `T-023a` | 6 |
-| `PND` | Pending Decision | まだ裁定されていない決めごと。<br>CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い | 台帳 | —（登録のみ） | 0 |
+| `PND` | Pending Decision | まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである） | 台帳 | `docs/development-records/pending-decisions.md` | 212 |
 
 **⛔ 抑止している衝突 —— 2 件**
 

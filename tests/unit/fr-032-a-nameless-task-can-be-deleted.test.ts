@@ -267,7 +267,7 @@ describe('FR-032 / FR-038 -- the word the default name is settled to', () => {
   it('FR-032 leaves the word to FR-038 -> the manuscript is read -> the row s default is written in both languages', () => {
     // ⛔ GOES RED IF: the `defaultNames` entry keyed `use: "row"` leaves
     // `docs/spec/_source/display-words.json`, is re-keyed, or has a cell
-    // emptied. ⭐ An empty cell is not a cell PD-160 leaves to the user here:
+    // emptied. ⭐ An empty cell is not a cell PND-160 leaves to the user here:
     // FR-032 (MUST) settles the row TO this word, and settling a row to the
     // empty string leaves a row that shows no name at all, which is the state
     // AT-54 exists to forbid.

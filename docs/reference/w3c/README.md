@@ -56,7 +56,7 @@ curl -sS -L -o docs/reference/w3c/xmlschema-2.html "https://www.w3.org/TR/xmlsch
 ## `xmlschema-2.html` —— 型付きの値の綴り
 
 表 T-228 の `NR-4` が「`XML Schema Part 2` がその型に定める**標準字句表現**へ揃える」と定めており、**その原文である。**
-⚠️ **`PD-163` はこの原文の 3.2.6 を読んで閉じた** —— `xsd:duration` には標準字句表現が無い。
+⚠️ **`PND-163` はこの原文の 3.2.6 を読んで閉じた** —— `xsd:duration` には標準字句表現が無い。
 
 | 事項 | 値 |
 |---|---|
@@ -103,5 +103,5 @@ W3C の文書は **W3C Software and Document License** による。
 | `docs/review/c14n-vs-fr021-2026-08-22.md` | **4 項目の突き合わせ・1.0 と 1.1 の差・SVG と PNG の側・利用者への問い 7 件** |
 | `docs/spec/05-07-design.md` の `SWS-6` | 正規化の規則そのもの（`FR-021` を親に取る）|
 | `docs/spec/01-04-requirements.md` の `FR-021` | 往復の要求と、揺れる 4 つの列挙 |
-| `docs/spec/01-04-requirements.md` の `FR-080` | SVG と PNG の側。正規化と丸めを Chapter 6.1 へ委任している（`PD-161`）|
+| `docs/spec/01-04-requirements.md` の `FR-080` | SVG と PNG の側。正規化と丸めを Chapter 6.1 へ委任している（`PND-161`）|
 | `change-request/CR-198-the-boundaries-a-hand-runs-into.md` | この置き場を作った変更要求 |

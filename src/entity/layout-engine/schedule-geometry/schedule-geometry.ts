@@ -30,7 +30,7 @@
 //     document alone.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
 // ⚠️ The corners of the milestone figures are this file's own and not the
-// specification's: see PD-2.
+// specification's: see PND-2.
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
@@ -449,7 +449,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
  * point IS 「時間軸の上の『ある日』そのもの」, and FD-5 lets the fade replace the
  * notch depth with `max(fadeIn, fadeOut)` -- so on a chevron whose two fades
  * differ the notch stands at a day this handle must not report.
- * @provisional PD-252
+ * @provisional PND-252
  *
  * @purity pure
  */
@@ -523,7 +523,7 @@ function regularCorners(
  * carries a path and nothing else. Adding an arc form would change a type two
  * accepted units already build against, for one figure.
  *
- * @provisional PD-2
+ * @provisional PND-2
  */
 const CIRCLE_CORNERS = 24
 
@@ -1452,7 +1452,7 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
  * The gap is `labelGap` (S-32), which S-135's own row reserves for a label put
  * outside the shape -- the card is outside the shape.
  *
- * ⛔ DOWN THE BAND, NO ROW SETTLES IT -- AND THIS IS THE ONE THIRD OF PD-347
+ * ⛔ DOWN THE BAND, NO ROW SETTLES IT -- AND THIS IS THE ONE THIRD OF PND-347
  * THE RULING DID NOT REACH. FR-090 now fixes the order (inside one string), the
  * separator and the across position, so two of that row's three questions are
  * answered; the VERTICAL is not. Table T-012's 名称ラベルの縦位置 column is
@@ -1460,7 +1460,7 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
  * taken is LF-11's -- the one row that does place something outside the bar
  * puts it on the plan bar's centre, and the marker it places is OC-3, OC-2's
  * neighbour in the same table.
- * @provisional PD-347
+ * @provisional PND-347
  *
  * @purity pure
  */
@@ -1754,7 +1754,7 @@ function labelUnits(text: string): number {
  * leaves an over-long word to the author, reads the other way. Breaking
  * anywhere is the reading that makes the count mean the same thing in a script
  * with no spaces, which is the case S-182's default (全角 64) is stated for.
- * @provisional PD-237
+ * @provisional PND-237
  *
  * @purity pure
  */
@@ -1818,7 +1818,7 @@ function commentGeometry(
     // ⚠️ AT-114 admits a null row and AT-113 a null date, so a box with either
     // becomes invisible and therefore unselectable -- a value in the document
     // with no way left to reach it. That is the honest consequence of the same
-    // rule, and it is reported rather than papered over. @provisional PD-234
+    // rule, and it is reported rather than papered over. @provisional PND-234
     if (day === null || row === undefined) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     let widest = 0
@@ -1826,19 +1826,19 @@ function commentGeometry(
     // ⛔ An empty body is the state CM-46 creates EVERY box in, and it has no
     // width of its own: 2 x S-181 alone is a box too small to aim at, which
     // would leave the commonest case unreachable. One full-width character is
-    // the smallest extent FR-093's own count can name. @provisional PD-236
+    // the smallest extent FR-093's own count can name. @provisional PND-236
     if (widest === 0) widest = 2
     // FR-019 holds the offset in SCREEN px, so it is added after the axis and
     // never scaled -- the distance stays the same at every zoom.
     // ⭐ A box never dragged has no distance, which is why the fallback is zero
     // rather than a gap: any other default would put the body somewhere the
-    // author did not. @provisional PD-232
+    // author did not. @provisional PND-232
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
     // ⭐ FR-019 pins the box to a date and a ROW; a row is a band, and its
     // centre is the only point in it no other rule has already spoken for.
     // ⛔ Not the band's edges -- `highlightGeometry` takes those because FR-019
     // asks a highlight to ENCLOSE a range, which is a different rule.
-    // @provisional PD-233
+    // @provisional PND-233
     const anchor = point(xFromDay(layout, day), row.y + row.height / 2)
     // FR-039's fontScale through table T-215, and S-181. Read here rather than
     // at the head, for the reason the loop's own note gives.

@@ -52,7 +52,7 @@ impact.py   IC-52
 | # | 対象 | 何を書くか |
 |---|---|---|
 | 1 | 表 T-109 の `IC-52` | 面の欄に ` / \`Open Chooser\`` を足す |
-| 2 | `_source/display-words.json` | `surfaces` に `Open Chooser` の行（語は空。`PD-160`）|
+| 2 | `_source/display-words.json` | `surfaces` に `Open Chooser` の行（語は空。`PND-160`）|
 | 3 | A-appendix | 変更履歴に 1 行 |
 
 ⛔ **`IN-4` も 表 T-028 も 1 文字も動かさない。**

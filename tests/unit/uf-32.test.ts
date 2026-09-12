@@ -1428,7 +1428,7 @@ describe('UF-32 -- FR-075 / S-111: 掴み点は選択しているタスクにだ
     // 出すと、フェードを使っていないタスクにも点が並ぶ」。S-111 of 表 T-210
     // records the condition; 表 T-023d gives them the two corners of the plan.
     // ⚠️ Neither Task of the scene holds a fade day. That is deliberate:
-    // PD-191 ruled the points are how a fade is CREATED, so gating them on a
+    // PND-191 ruled the points are how a fade is CREATED, so gating them on a
     // fade already being there leaves nothing to drag.
     expect(grabPointsOf(drawn(scene())), 'nothing selected, no point').toHaveLength(0)
     const picked = drawn(scene(), SETTINGS, selectionWith(emptySelection(), { kind: 'task', uid: 2 }))

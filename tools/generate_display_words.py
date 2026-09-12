@@ -21,7 +21,7 @@ would go stale in silence, which is the drift rule 03 section 1 forbids.
 
 ⛔ NO WORD IS INVENTED HERE, and none is invented in the manuscript either.
 Every entry is `{"ja": "", "en": ""}` until the user fills it (ruling
-2026-08-21, PD-160). Table T-109 refuses an English column in as many words --
+2026-08-21, PND-160). Table T-109 refuses an English column in as many words --
 one would settle dozens of names the glossary has not settled -- and a word
 written by a machine settles exactly the same names.
 

@@ -698,7 +698,7 @@ const GUIDE_SINGLE_VERTICAL = guideMode('single-vertical')
  * ⭐ Found by where they are rather than by how they look. `CU-3` calls the
  * guide cursor a line that follows the pointer, so standing exactly on the
  * pointer IS the thing being looked for; its colour and thickness are still
- * pending decisions (PD-341 / PD-342) and nothing here reads them.
+ * pending decisions (PND-341 / PND-342) and nothing here reads them.
  *
  * @purity semi-pure-b
  */

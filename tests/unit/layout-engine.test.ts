@@ -798,7 +798,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     const capped = settingsOf({ ...LAYOUT_SETTINGS, stackSafetyCap: 2 })
     // Until 2026-09-06 this threw. ST-7 forbids exactly that: the valve must
     // stop, and hand back a value the caller can tell the stop by, so that
-    // RS-24 can be told (the ruling of PD-178, 2026-08-23).
+    // RS-24 can be told (the ruling of PND-178, 2026-08-23).
     const layout = layoutFromSchedule(oneRow(many), capped, REGIONS)
     expect(layout.stackSafetyCapReached).not.toBeNull()
     expect(layout.stackSafetyCapReached!.cap).toBe(2)
@@ -1569,7 +1569,7 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   // -------------------------------------------------------------------------
-  // PD-191 -- FR-075's MUST, read as a hit test.
+  // PND-191 -- FR-075's MUST, read as a hit test.
   //
   // ⭐ WRITTEN FROM docs/spec, NOT FROM THE UNIT (04-verification.md, 1.). What
   // was read of `src/`: the published signatures of PI-6 and PI-7 and the
@@ -1611,11 +1611,11 @@ describe('ItemHitArea (PI-7)', () => {
     ).toBe('GR-2')
   })
 
-  it('PD-191: pressing the corner of a Task that is NOT selected does not answer GR-1', () => {
+  it('PND-191: pressing the corner of a Task that is NOT selected does not answer GR-1', () => {
     // Same corner, nothing selected. FR-075 forbids the point being there at
     // all, so the next row of table T-023d that claims it wins: GR-3 at 「予定
     // バーの左端」 and GR-4 at 「右端」. ⛔ An answer of GR-1 here is the defect
-    // PD-191 was raised for -- GR-1 and GR-2 are asked of EVERY Task before
+    // PND-191 was raised for -- GR-1 and GR-2 are asked of EVERY Task before
     // GR-3 is asked of any, so one stray pair takes a neighbour's end away.
     const schedule = oneRow([spanning(1, '2026-01-01', 20)])
     const bare = geometryOf(schedule)

@@ -95,7 +95,7 @@
 //   1. THE SHAPE the entrance is drawn with. 図 F-019 is the sole authority for
 //      every shape and FR-029 (MUST NOT) forbids writing one out in words.
 //   2. WHERE ON THE PANEL it sits. No table holds a rectangle for an entry --
-//      `ScreenSession.iconUnderPointer`'s own note records that gap (PD-141) --
+//      `ScreenSession.iconUnderPointer`'s own note records that gap (PND-141) --
 //      so "at the top right" is not a claim the manuscript can be quoted for.
 //   3. THAT `Esc` ALSO CLOSES THE PANEL. ⛔ TWO ROWS NOW DISAGREE, so no case
 //      here picks between them. Table T-109's entry stands on the panel among

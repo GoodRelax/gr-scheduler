@@ -47,7 +47,7 @@ turns that record into a claim about today. ⛔ MEASURED FOUR TIMES before this
 line existed (`D-344`, `D-347`, check 40, check 31), and the handoff had said
 to change how these checks are written when a third appeared.
 
-⭐ THE USER RULED ON 2026-09-07 (`PD-441`, proposal ①): a sentence that begins
+⭐ THE USER RULED ON 2026-09-07 (`PND-441`, proposal ①): a sentence that begins
 「⚠️ 実測（<date>）」 is to be read as a RECORD, not as a present claim. ⛔ No
 new mark was invented -- rule 03 already defines ⚠️ as 「注意・過去に実際に踏
 んだ罠」, so a dated 実測 under that mark is a record BY DEFINITION. The

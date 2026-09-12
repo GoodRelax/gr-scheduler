@@ -2114,7 +2114,7 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
     const built = drawn(viewWith({}))
 
     // ⭐ EZ-2 shows the explanation OF THAT ICON, so "no icon" has to be tellable
-    // from "some icon" -- `ScreenSession.iconUnderPointer` (PD-141) is filled
+    // from "some icon" -- `ScreenSession.iconUnderPointer` (PND-141) is filled
     // from this and is `IconId | null` for the same reason.
     expect(ask(built, AT.headerNoEntry.x, AT.headerNoEntry.y)).toEqual({
       part: 'App Header',
@@ -4308,7 +4308,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
 // nothing centres the control (MUST NOT), nothing sets it down (MUST NOT), and
 // the line the controls sit in starts them at its top (MUST).
 //
-// ⭐ WHICH PROPERTY CARRIES A PLACEMENT IS STILL NOT ASSERTED -- PD-151 records
+// ⭐ WHICH PROPERTY CARRIES A PLACEMENT IS STILL NOT ASSERTED -- PND-151 records
 // the choice of CSS property as display only. What IS asserted is the forbidden
 // shape and the asked-for one, because HF-5 names both: 中央 and 名前の上端.
 // ===========================================================================

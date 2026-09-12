@@ -55,7 +55,7 @@ status: plan
 
 ```
 SPEC   PTD-1 = 中ボタンドラッグ、または Ctrl だけを伴う左ドラッグ → パン
-LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固定色 2 つの値
+LEDGER PND-1 = themeHue から実際の色を解く彩度と明度、および固定色 2 つの値
 ```
 
 ⇒ ⛔ **仕様書そのものは綺麗である。**直すのは `PD-` の 1 件でよい。
@@ -109,7 +109,7 @@ LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固
 | **4** | **コードの型の値である** | `export type PressRow = 'PTD-1' \| … \| 'PTD-5'` ⇒ **製品コードの変更。掃除の巡では触れない** |
 | **5** | **生成の経路に入っている** | `_source/display-words.json` が `"rowId": "PTD-1"` を持ち、**roster は `docs/spec` から毎回読む** ⇒ **片方だけ変えると `npm run gen:check` が落ちる** |
 
-⚠️ さらに: **`docs/spec/_source/*.json` の `$comment` が台帳側の `PD-51` / `PD-160` を引いている。**
+⚠️ さらに: **`docs/spec/_source/*.json` の `$comment` が台帳側の `PND-51` / `PND-160` を引いている。**
 ⇒ **SSOT の中に台帳の ID が在る。**これは `PND-` 側である。
 
 ---
@@ -172,7 +172,7 @@ LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固
    ⛔⛔ **3 を同じ手でやらないと検査 25 が赤になる**
 4. 他の台帳（`fixed-defects.md` `defects.md` ほか）からの参照
 5. `docs/development-rules/05-working-method.md:301` の `// @provisional PD-n` の記述
-6. `docs/spec/_source/*.json` の `$comment` の `PD-51` `PD-160`
+6. `docs/spec/_source/*.json` の `$comment` の `PND-51` `PND-160`
 
 **門**: `npm run guard:commit`。⛔ **検査 25 を名指しで確かめる** —— 「every provisional mark matches its row」。
 

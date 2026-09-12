@@ -139,10 +139,10 @@ def is_generated(relative, lines):
 
 
 # ---------------------------------------------------------------- trap 1
-# `CR-nnn` and `PD-nnn` inside docs/spec read as row ids that do not resolve.
+# `CR-nnn` and `PND-nnn` inside docs/spec read as row ids that do not resolve.
 # ⚠️ PTD-1 .. PTD-5 ARE rows -- table T-023a's press decision order -- so only
 # three digits and up is the pending-decision namespace that collides.
-BACKTICKED_ID = re.compile(r'`(CR-\d+|PD-\d{3,})`')
+BACKTICKED_ID = re.compile(r'`(CR-\d+|PND-\d{3,})`')
 
 
 # ⛔ A path that starts at a drive letter or at a home folder is a path that

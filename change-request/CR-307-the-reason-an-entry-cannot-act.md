@@ -2,7 +2,7 @@
 
 > **ファイル名の案**: `change-request/CR-307-faint-was-not-enough.md`
 >
-> **閉じるもの**: 台帳 D-142 の残り（薄さが誤解される／理由が汎用すぎる）と、裁定待ち **PD-319**。
+> **閉じるもの**: 台帳 D-142 の残り（薄さが誤解される／理由が汎用すぎる）と、裁定待ち **PND-319**。
 > **開けるもの**: 図形の線の太さの値（利用者の裁定が要る。§6 (a)）。
 >
 > ⭐ **本 CR は CR-306 の続きである。** CR-306 は 2026-08-30 に仕様へ入り（版 1.60）、
@@ -147,13 +147,13 @@
 
 ### (f) ⭐⭐ ①は **新しい裁定待ちを開かない。既に開いているものを閉じる**
 
-⛔ **`docs/development-records/pending-decisions.md` の `PD-319` が、まさにこの問いである**（逐語）:
+⛔ **`docs/development-records/pending-decisions.md` の `PND-319` が、まさにこの問いである**（逐語）:
 「**行の操作子は、押しても絵が変わらないとき構えるべきか**」。
-⭐ **前に立つ者が 2026-08-27 に「構えない」を暫定で採り、実装済である。**`src/adapter/screen-renderer/row-title-panel.ts` に `@provisional PD-319` の印が立っている。
+⭐ **前に立つ者が 2026-08-27 に「構えない」を暫定で採り、実装済である。**`src/adapter/screen-renderer/row-title-panel.ts` に `@provisional PND-319` の印が立っている。
 ⛔ **利用者はまだ見ていない、というのがその行の状態であった。**
-⇒ ⭐⭐ **2026-08-30 の裁定が、実物を見たうえでそれを追認した。** **`PD-319` は `裁定済` へ動かせる。**
+⇒ ⭐⭐ **2026-08-30 の裁定が、実物を見たうえでそれを追認した。** **`PND-319` は `裁定済` へ動かせる。**
 
-⚠️ **ただし `PD-319` の暫定裁定は `HR-6`（隠した行）にしか当たっていない。**
+⚠️ **ただし `PND-319` の暫定裁定は `HR-6`（隠した行）にしか当たっていない。**
 ⛔ **葉の行の場合には当たっていない**（`expanderOf` の注記が逐語で「**NEITHER HALF ASKS WHETHER THE CHILDREN WERE DRAWN**」と書いている）。
 ⇒ **本 CR が広げるのはそこである。**
 
@@ -362,8 +362,8 @@ RS-35  text ja: 対話欄は Agent API が入っているあいだだけ出せ�
 | `NFR-007` | ⭐ **コントラストを測る試験があれば、`S-149` で赤くなる** —— **除外の文を足すまでは正しく赤い。**⛔ **試験の側を先に緩めない** |
 | 検査 22 本 | ⚠️ **`rows` が 1730 から 1738 へ動く。** 予測と実測を突き合わせること。⛔ **緑は「参照が解ける」の証拠であって「合っている」の証拠ではない** |
 | 検査 12（値の表に MUST を書かない）| ⚠️ **`S-149` の備考に 1 文字も書かないこと。**⛔ **「薄い入口にも使う」と備考へ書くと落ちる。規則は `FR-029` が持つ** |
-| 検査 7（改訂履歴）| ⚠️ **台帳 D-142 / D-146 / D-149 と `PD-319` を backtick で書かない** |
-| 検査 25（裁定待ちの印）| ⭐ **①は新しい裁定待ちを開かない** —— **`PD-319` を閉じる**（§1 (f)）。⛔ **③の値が裁定を得られないまま進むなら新しい裁定待ちが 1 つ開き、その `@provisional PD-nnn` の印は前に立つ者が `src/` に置くこと** —— **本 CR を書いた体は `src/` を書けない** |
+| 検査 7（改訂履歴）| ⚠️ **台帳 D-142 / D-146 / D-149 と `PND-319` を backtick で書かない** |
+| 検査 25（裁定待ちの印）| ⭐ **①は新しい裁定待ちを開かない** —— **`PND-319` を閉じる**（§1 (f)）。⛔ **③の値が裁定を得られないまま進むなら新しい裁定待ちが 1 つ開き、その `@provisional PD-nnn` の印は前に立つ者が `src/` に置くこと** —— **本 CR を書いた体は `src/` を書けない** |
 
 ---
 
@@ -373,7 +373,7 @@ RS-35  text ja: 対話欄は Agent API が入っているあいだだけ出せ�
 | --- | --- |
 | **①構えを決めている所** | `src/adapter/screen-renderer/row-title-panel.ts` の `expanderOf`（`canOpen` / `canClose` / `canCloseBelow`）と、同ファイルの `canOpenEveryRow` / `canCloseEveryRow` |
 | ⭐ **①の穴が前から書いてある所** | 同関数の注記が逐語で「**NEITHER HALF ASKS WHETHER THE CHILDREN WERE DRAWN**」と述べ、その理由に `FR-018` と `HF-7` を挙げている。⛔ **推測せずに書いてあり、本 CR がその読みを覆す** |
-| ⭐ **①の裁定待ちの印** | 同関数の直前の `// @provisional PD-319`。⭐ **裁定が下りたので外せる** |
+| ⭐ **①の裁定待ちの印** | 同関数の直前の `// @provisional PND-319`。⭐ **裁定が下りたので外せる** |
 | **②薄く描いている所** | `src/framework/dom-screen-surface/dom-screen-surface.ts` の `entryFaintStyle` と `STYLE.rowControlFaintInk`（`PAINT.quiet` を使う）。使う所は `item.isEnabled ? entryStyle() : entryFaintStyle()` と `canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk` |
 | **③太さの出どころ** | ⭐⭐ **`docs/spec/_assets/fig-icons.svg` の `<style>` の `.s` 類、ただ 1 か所**（`stroke-width: 1.6`）。`tools/generate_icon_glyphs.py` が `src/adapter/screen-renderer/icon-glyphs.json` へ運び、**185 か所**に写る。⛔ **`src/` にも `docs/spec/_source/settings.json` にも `1.6` は 1 つも無い**（実測）|
 | **③図形の箱の一辺** | 同ファイルの `NOT_STORED_ICON_SIZES['S-138']`（12）。⛔ **本 CR は触らない** |

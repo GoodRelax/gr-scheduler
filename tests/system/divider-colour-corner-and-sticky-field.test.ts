@@ -2,7 +2,7 @@
 // 「試験待ち」 on 2026-09-06: the build landed and nothing automated holds it
 // down.
 //
-//   D-277  the `Panel Divider`'s line colour. `PD-51` (2026-09-06) ruled that
+//   D-277  the `Panel Divider`'s line colour. `PND-51` (2026-09-06) ruled that
 //          no literal is laid down and `SvgRenderer` is asked instead, so what
 //          is judged here is the colour table T-236 row `S-149` states.
 //   D-314  the road from the manuscript's `S-132` (table T-217) into the tree.
@@ -677,7 +677,7 @@ async function dividerLines(page: Page): Promise<Painted[]> {
 // colour table T-236 row `S-149` states, resolved at the hue the OPEN DOCUMENT
 // carries (`AT-19`). That row is marked 色相追随, which is guarded below, and
 // D-277 was three different colours standing where that one row should be --
-// `PD-51` (2026-09-06) ruled that no literal is laid down and the colour is
+// `PND-51` (2026-09-06) ruled that no literal is laid down and the colour is
 // asked for instead.
 //
 // ⚠️ THE HUE IS THE DOCUMENT'S AND NOT A NUMBER WRITTEN HERE, and the

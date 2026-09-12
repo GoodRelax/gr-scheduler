@@ -77,7 +77,7 @@
 // THE CODE. FR-029 (MUST) has this product tell what a menu is for 「言葉では
 // なくアイコンで」 and makes 図 F-019 the authority for every icon's shape
 // (MUST). Until that figure was carried into `src/` there was nothing to draw,
-// and PD-154 wrote down the retreat taken meanwhile: 「行 ID を `data-icon` に
+// and PND-154 wrote down the retreat taken meanwhile: 「行 ID を `data-icon` に
 // 置き、図形は描かない」 -- so an entry printed its ROW ID as its body, three
 // cases below measured that text, and two more counted the members the host was
 // asked for. ⛔ The figure is generated into `src/` now
@@ -88,10 +88,10 @@
 //     T-040 needs it, and IF-9's `readScreenPartAt` walks it);
 //   - the WORD is the entry's accessible name, which is what
 //     `CommandItem.label` is declared to be, taken from FR-038's per-language
-//     dictionary -- with the row id as the fallback while PD-160 leaves every
+//     dictionary -- with the row id as the fallback while PND-160 leaves every
 //     cell of that dictionary empty;
 //   - the SHAPE is the figure's, carried and not invented.
-// ⚠️ PD-154 in docs/development-records/pending-decisions.md still records the
+// ⚠️ PND-154 in docs/development-records/pending-decisions.md still records the
 // retreat as its provisional decision. A record is not the specification, and
 // FR-029 is a MUST; where the two disagree the requirement is followed here.
 //
@@ -104,7 +104,7 @@
 //   - what a measured height ABOVE S-116's bound does here -- FR-051 makes
 //     S-116 the bound and 表 T-077's BO-1 puts the clamp in `ScreenRegions`,
 //     so this unit's share is only that the number is the measurement
-//   - which CSS property carries a place (PD-151 records the choice as display
+//   - which CSS property carries a place (PND-151 records the choice as display
 //     only); the cases below assert that the numbers the description carries
 //     REACH the drawn node, never which property spells them
 //   - what the `Row Title Tree` draws for a row whose `label` is `null`
@@ -113,7 +113,7 @@
 //   - whether the entry keeps what was typed across a frame in which the field
 //     is down; FR-066 settles only that the field is not up
 //   - what the `Row Title Panel` draws when the frame lists no `Panel Divider`
-//     for it. PD-155's fallback (the window's edge and the contents' width) is
+//     for it. PND-155's fallback (the window's edge and the contents' width) is
 //     a provisional decision, and SC-3 of 表 T-031 speaks of the panel not
 //     scrolling away rather than of a background, so nothing here decides it
 
@@ -1902,7 +1902,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     expect(surface.readDialogueInput()).toBeNull()
   })
 
-  it('⛔ reports a half-typed line as unsettled, with no moment to name (PD-156)', () => {
+  it('⛔ reports a half-typed line as unsettled, with no moment to name (PND-156)', () => {
     const { surface } = typed('half a thou')
 
     const read = surface.readDialogueInput()
@@ -1922,7 +1922,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     expect(read === null ? null : dialogueMessageFromInput(read)).toBeNull()
   })
 
-  it('PD-150: a plain Enter settles it, with the author and the clock of that moment', () => {
+  it('PND-150: a plain Enter settles it, with the author and the clock of that moment', () => {
     const { built, surface, entry } = typed('please wait')
     built.author = 'Reader'
     const at = Date.UTC(2026, 7, 20, 9, 30, 0)
@@ -1941,7 +1941,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     expect(read?.settledAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
   })
 
-  it('PD-150: ⛔ an Enter an input method is confirming settles nothing', () => {
+  it('PND-150: ⛔ an Enter an input method is confirming settles nothing', () => {
     const { surface, entry } = typed('half a thou')
 
     keyPress(entry, 'Enter', { isComposing: true })
@@ -1949,7 +1949,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     expect(surface.readDialogueInput()?.isSettled).toBe(false)
   })
 
-  it('PD-150: an Enter with a modifier settles nothing', () => {
+  it('PND-150: an Enter with a modifier settles nothing', () => {
     const { surface, entry } = typed('half a thou')
 
     keyPress(entry, 'Enter', { shiftKey: true })
@@ -2103,7 +2103,7 @@ describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be u
     // tell what a menu is for 「言葉ではなくアイコンで」, and `CommandItem.label`
     // is declared as 「The accessible name of the entry, in the display language
     // already」. ⚠️ This case used to read `entry.textContent`, which was true
-    // only while PD-154's retreat left the row id standing in for a shape.
+    // only while PND-154's retreat left the row id standing in for a shape.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(disabledView)
 
@@ -2158,13 +2158,13 @@ describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be u
   it('an entry whose dictionary cell is empty is NAMED by its row of 表 T-109', () => {
     // ⭐ THE FALLBACK MOVED WITH THE WORD, AND ONLY WITH IT. `CommandItem.label`
     // 「is declared as the accessible name of the entry」 and comes from FR-038's
-    // dictionary, whose every cell is empty today (PD-160) -- so the unit that
+    // dictionary, whose every cell is empty today (PND-160) -- so the unit that
     // fills the member hands over the empty string, and something still has to
     // name the entry. ⛔ The row id is what names it, in the same place the word
     // would have gone: an entry with NO accessible name at all is the 「無反応」
     // FR-029's RATIONALE is about, and printing the id as the body would put a
     // word where FR-029 (MUST) says a shape goes.
-    // ⚠️ PD-154 said 「行 ID を `data-icon` に置き、図形は描かない」 while there
+    // ⚠️ PND-154 said 「行 ID を `data-icon` に置き、図形は描かない」 while there
     // was no figure in `src/`. There is one now, so the id keeps only the half
     // FR-029 and EZ-2 need of it.
     const built = wire({ 'App Header': 37 })
@@ -2240,7 +2240,7 @@ describe('EZ-2 of 表 T-040 -- the entry the pointer rests on can be found', () 
   // ⚠️ NOT ASSERTED: how a tooltip NAMES the entry it hangs on. EZ-2 fixes that
   // the explanation is the one for that icon and 表 T-078's FT-4 puts the WAIT
   // (S-124) in the shell, but no table spells the link, so nothing here checks
-  // one. What is checked is PD-141's premise: the DOM can be read back.
+  // one. What is checked is PND-141's premise: the DOM can be read back.
   it('gives every drawn entry its row of 表 T-109 in data-icon', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
@@ -2474,7 +2474,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   })
 
   it('sets a row in by the `indentPx` its description carries, and by no measure of its own', () => {
-    // ⭐ PD-152 is closed (CR-287): `RowTitle` carries `indentPx`, so the screen,
+    // ⭐ PND-152 is closed (CR-287): `RowTitle` carries `indentPx`, so the screen,
     // the export and `FR-085`'s truncation all read ONE number. ⛛ The `1em` per
     // level this unit used to invent is gone -- an em is the reader's font size
     // and `S-37` is px, so the two drifted apart at every font size but one.
@@ -2679,7 +2679,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     expect(style).toContain('overflow-y:auto')
   })
 
-  it('PD-155: the Properties Panel starts at the line of its own Panel Divider', () => {
+  it('PND-155: the Properties Panel starts at the line of its own Panel Divider', () => {
     const at = (lineX: number): number => {
       const built = wire({ 'App Header': 37 })
       surfaceOf(built).showScreenView(
@@ -2703,7 +2703,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     }
 
     // ⚠️ Which side of the one-pixel line the panel begins on is display only
-    // (PD-151), so the case asks only that the edge comes FROM the line: drag
+    // (PND-151), so the case asks only that the edge comes FROM the line: drag
     // the divider 506 px and the panel's edge moves 506 px.
     expect(at(806) - at(300)).toBe(506)
     expect(Math.abs(at(806) - 806)).toBeLessThanOrEqual(1)

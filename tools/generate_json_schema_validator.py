@@ -46,7 +46,7 @@ there is now exactly the type and the enumeration of each key.
 datetimes and 10 uuids. The dates and datetimes are already held as a condition
 by `IV-14` of table T-220, so honouring `format` here would be the second key
 for one thing. ⛔ THE 10 uuid COLUMNS ARE THEREFORE CHECKED BY NOBODY -- see
-the list this tool prints, and PD-189, which has not been ruled on.
+the list this tool prints, and PND-189, which has not been ruled on.
 
 Only what sits between the two markers belongs to this generator; everything a
 person writes around it is left alone, exactly as tools/generate_entity_types.py
@@ -432,7 +432,7 @@ def main():
         # file uses in its prose cannot be encoded there, which killed the run
         # rather than printing the warning.
         say('UNCHECKED  %d column(s) carry "format": "uuid". Nothing judges '
-            'them; PD-189 is unruled:' % len(unchecked))
+            'them; PND-189 is unruled:' % len(unchecked))
         for at in unchecked:
             say('     %s' % at)
 

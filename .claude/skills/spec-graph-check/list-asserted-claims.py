@@ -94,7 +94,7 @@ comment meant:
 
     D-    `D-1` .. `D-5` are spec rows;  `D-254` is a ledger row of
           docs/development-records/defects.md          (380 tokens dropped)
-    PD-   `PTD-1` .. `PTD-5` are spec rows; `PD-442` is a pending decision
+    PD-   `PTD-1` .. `PTD-5` are spec rows; `PND-442` is a pending decision
                                                        (319 tokens dropped)
     R-    `R-1` .. `R-9` are spec rows;  `R-27` .. `R-40` are rulings of
           docs/development-records/rulings.md           (56 tokens dropped)
@@ -123,7 +123,7 @@ later reader never has to guess.
 
 ⚠️ THE SIBLING SOLVES THE COLLISION BELOW AND THIS FILE DOES NOT. It carries a
 `load_elsewhere()` that reads `docs/development-records/` and
-`change-request/`, which is the right answer to `D-` / `PD-` / `R-`. ⭐ When
+`change-request/`, which is the right answer to `D-` / `PND-` / `R-`. ⭐ When
 it settles, replace FOREIGN_PREFIXES here with a call into it rather than
 copying the reader.
 
@@ -228,7 +228,7 @@ TOKEN_RE = re.compile(r'(?<![0-9A-Za-z_-])([A-Z]{1,3}-[0-9]{1,4}[a-z]?)(?![0-9A-
 # token carrying one cannot be resolved without knowing which document the
 # comment meant. See the docstring's PREFIX COLLISIONS paragraph -- this is a
 # measured loss, not a tidy-up.
-FOREIGN_PREFIXES = {'D', 'PD', 'R'}
+FOREIGN_PREFIXES = {'D', 'PND', 'R'}
 
 # ⭐ specindex indexes `**表 T-nnn —` and row IDs and UIDs, and NOTHING ELSE --
 # the eleven figures are defined by their own heading and are invisible to it.
@@ -462,7 +462,7 @@ def main(argv):
              counts['unclassified'], len(hits), len({h[0] for h in hits}),
              withdrawn_refs, undefined_refs, len(withdrawn), from_file))
     print('NOTE     %d token(s) dropped for a prefix docs/spec never defines '
-          '(%s); D-*, PD-* and R-* dropped whole because they number rows in '
+          '(%s); D-*, PND-* and R-* dropped whole because they number rows in '
           'two documents at once -- see PREFIX COLLISIONS. Wall clock %.1fs.'
           % (sum(dropped.values()), top or 'none', time.time() - started))
     return 0

@@ -15,7 +15,7 @@
 ⭐ **`CH-4`（説明を読まずに操作できるようにする）を進める。受ける目標は `GL-006`。**
 
 ⛔ **`FR-038` は「メニューとパネルの文字をその言語で示すこと」を MUST で求めるのに、翻訳された文字列を持つ表が
-1 つも無かった。** そのため `ScreenRenderer` の 5 ユニットが**語の在るべき場所に空文字を置いている**（`PD-3` / `PD-4`）。
+1 つも無かった。** そのため `ScreenRenderer` の 5 ユニットが**語の在るべき場所に空文字を置いている**（`PND-3` / `PND-4`）。
 ⭐ **アイコンだけで用途を伝える設計（`FR-029`）は、`EZ-2` の説明が出ることを前提にしている** ——
 **説明が空文字であるかぎり `CH-4` は成り立たない。**
 
@@ -47,7 +47,7 @@
 | 3 | 原稿自身のスキーマ（`display-words.schema.json`）は**置かない** | ⭐ **生成器が仕様の名簿と突き合わせるほうが強い** —— スキーマは形しか見ないが、生成器は**鍵の全数が表と一致するか**を見る。⚠️ `jsonschema` が入っていない環境では検証が丸ごと飛ぶ（`settings_json_to_md.py` の `NOTE`）ことも理由である |
 | 4 | 群の鍵を**その群の最初の行 ID** にした | ⚠️ **行が並べ替わると鍵が変わる。** ⛔ それでも番号の発明よりましだと判断した —— **生成器が毎回計算し直すので、ずれれば黙らずに落ちる** |
 | 5 | 表 T-075 の `UF-60` の欄に「表示言語を運ぶ」を足した | ⭐ **CR-193 が `UF-67` に対してした形をそのまま当てた** —— **`ScreenView` のメンバが 1 つ増える根拠は、その表の欄そのものである。** ⛔ **新しいユニットは作らない**（検査 18）|
-| 6 | `open-modals.ts` の `NO_WORDS` に `@provisional PD-4` の印を足した | ⛔ **同じ暫定値が印無しで置かれていた** —— `PD-4` の行は本文で「同じ穴に `open-modals.ts` が同じ答えを置いている」と述べているのに、**印が無いので検査 25 から見えなかった** |
+| 6 | `open-modals.ts` の `NO_WORDS` に `@provisional PND-4` の印を足した | ⛔ **同じ暫定値が印無しで置かれていた** —— `PND-4` の行は本文で「同じ穴に `open-modals.ts` が同じ答えを置いている」と述べているのに、**印が無いので検査 25 から見えなかった** |
 
 ---
 
@@ -73,7 +73,7 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-038 
 
 ## 2. 何が足りなかったか
 
-### #1 —— 語の置き場が無い（`PD-3` / `PD-4`）
+### #1 —— 語の置き場が無い（`PND-3` / `PND-4`）
 
 `FR-038`（`01-04-requirements.md:3748`）:
 
@@ -85,13 +85,13 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-038 
 ⛔ **どの表も翻訳された文字列を 1 つも持たない。** 実物が置いているもの:
 
 ```
-app-header-items.ts   CommandItem.label   = ''        @provisional PD-4
-command-palette.ts    CommandItem.label   = ''        @provisional PD-4
+app-header-items.ts   CommandItem.label   = ''        @provisional PND-4
+command-palette.ts    CommandItem.label   = ''        @provisional PND-4
                       PaletteGroup.name   = 表 T-109 の 群 の欄（日本語のまま）
 open-modals.ts        OpenModal.heading   = ''        ⛔ 印が無かった
                       CommandItem.label   = ''
 properties-panel.ts   PropertiesPanel.heading = 'selection' / 'documentSettings' / 'selection (none)'
-tooltips.ts           Tooltip.text        = 表 T-023 の行 ID（`MK-1` / `MK-5`）@provisional PD-3
+tooltips.ts           Tooltip.text        = 表 T-023 の行 ID（`MK-1` / `MK-5`）@provisional PND-3
 ```
 
 ### #2 —— 表示言語を宣言している値が `ScreenView` に無い
@@ -164,7 +164,7 @@ FR-038  :3752  日程表の出力に言語は含まれない
 
 ⛔ **`NT-1` が「色や枠だけで示してはならない（MUST NOT）」と定め、`NT-5` が「`NT-1` と見分けがつく形にすること（MUST）」
 と定めている。** ⭐ **この 2 つを同時に満たす手は、作法を語で言うことしか残らない。**
-⚠️ **`PD-157` が同じことを別の面から記録している** —— 件数に添える語が無いので数だけを描いている。
+⚠️ **`PND-157` が同じことを別の面から記録している** —— 件数に添える語が無いので数だけを描いている。
 
 ### ⛔ 載せなかったもの（**理由つき**）
 
@@ -208,7 +208,7 @@ FR-074 / FR-088 の見出し ⛔ 表 T-103 が名を与えていないので、�
 | 9 | `UF-60` | `screen-renderer.ts` | `ScreenView` に `language` を足し（**10 → 11 メンバ**）、`screenViewFromRegions` が `session.language` から埋める。3 つの注記が語の置き場を指すようにする |
 | 10 | `UF-62` | `app-header-items.ts` | 入口の語を辞書から引く（空なら今の代役）|
 | 11 | `UF-65` | `command-palette.ts` | 入口の語と群の名を辞書から引く（空なら今の代役）|
-| 12 | `UF-66` | `open-modals.ts` | 面の見出しと入口の語を辞書から引く。`@provisional PD-4` の印を足し、`NT-7` について偽になった注記を直す |
+| 12 | `UF-66` | `open-modals.ts` | 面の見出しと入口の語を辞書から引く。`@provisional PND-4` の印を足し、`NT-7` について偽になった注記を直す |
 | 13 | `UF-64` | `properties-panel.ts` | 見出し 3 つを辞書から引く（空なら今の 3 つの字句）|
 | 14 | `UF-69` | `tooltips.ts` | `EZ-2` の説明と、スクロールバーのヒント本文を辞書から引く（空なら今の代役）|
 
@@ -218,7 +218,7 @@ FR-074 / FR-088 の見出し ⛔ 表 T-103 が名を与えていないので、�
 
 | # | オブジェクト | 何を書くか |
 |---|---|---|
-| 15 | `docs/development-records/pending-decisions.md` | `PD-3` / `PD-4` の文言を**新しい真実**に書き換え、**`PD-160` を足す**（語そのものが未記入であること）|
+| 15 | `docs/development-records/pending-decisions.md` | `PND-3` / `PND-4` の文言を**新しい真実**に書き換え、**`PND-160` を足す**（語そのものが未記入であること）|
 | 16 | `docs/development-records/W4-adapter.md` | 記録表に段ごとに追記 |
 
 ### 数の予測
@@ -272,7 +272,7 @@ FR-074 / FR-088 の見出し ⛔ 表 T-103 が名を与えていないので、�
 
 | | |
 |---|---|
-| **語そのもの** | ⭐ **利用者が埋める**（裁定 2026-08-21）。`PD-160` として記録し、生成器に印を置いた |
+| **語そのもの** | ⭐ **利用者が埋める**（裁定 2026-08-21）。`PND-160` として記録し、生成器に印を置いた |
 | ⛔ **`HelpModal.language` が重複になる** | `ScreenView.language` が立った時点で、同じ値が 2 か所に在る。⚠️ **消すと `dom-screen-surface.ts`（`:745`）が型検査で落ちる**が、**そのファイルは同じ回に別のエージェントが書いている**（規則 05 の 3.）。⭐ **次に `UF-71` を触る回に、`modal.language` を `view.language` へ移して消すこと** |
 | `FR-036` のヘルプの中身 | 62 行。⭐ **同じ型紙で足せる**が、面そのものが組み立てられていない |
 | `FR-074` / `FR-088` の面の見出し | ⛔ **表 T-103 が名を与えていないので鍵が無い。** 名の裁定である |

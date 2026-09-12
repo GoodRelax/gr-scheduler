@@ -1181,7 +1181,7 @@ export type InputAction =
    * range undefined, and a drag across the panel is not one of table T-023a's
    * six gestures either.
    *
-   * @provisional PD-142
+   * @provisional PND-142
    */
   | {
       readonly kind: 'chooseRow'
@@ -1205,7 +1205,7 @@ export type InputAction =
    * (MUST NOT) forbids two same-named resources being made one -- so a list of
    * names could not tell a referenced person from an unreferenced twin.
    *
-   * @provisional PD-143
+   * @provisional PND-143
    */
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
   /**
@@ -1215,7 +1215,7 @@ export type InputAction =
    * ⭐ WHICH WAY ROUND IS THE HOLDER'S, not this file's and not the drawn
    * entry's. See the two rows in `ENTRY` for why the picture may not be read.
    *
-   * @provisional PD-143
+   * @provisional PND-143
    */
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
   /**
@@ -1228,7 +1228,7 @@ export type InputAction =
    * T-060 leaves with the Framework, which is why this says only that the
    * entrance was pressed.
    *
-   * @provisional PD-144
+   * @provisional PND-144
    */
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   /**
@@ -1536,7 +1536,7 @@ function browserKept(answer: TranslatedInput): TranslatedInput {
  * Searched: table T-023, table T-023a, table T-036, FR-016, FR-070, table
  * T-028, `_assets/tbl-settings.md`. Nothing else names `Cmd`.
  *
- * @provisional PD-10
+ * @provisional PND-10
  * @purity pure
  */
 function isCtrlHeld(modifiers: InputModifiers): boolean {
@@ -2065,7 +2065,7 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
  * table T-023 gives it 「縦スクロール（ズームではない）」 and no distance at
  * all, and a wheel is a detent rather than a hand.
  * ⛔ BUT THE FLOOR IS NO LONGER FORCED, AND SAYING OTHERWISE WOULD BE FALSE.
- * PD-176 was decided on the ground that ZERO is the one answer 「縦スクロール」
+ * PND-176 was decided on the ground that ZERO is the one answer 「縦スクロール」
  * rules out and one row was the smallest movement S-78 could express. ⚠️ The
  * second half of that ground is now gone: S-176 can express any part of a row,
  * so scrolling the wheel by the distance the device reported is open too, and
@@ -2080,8 +2080,8 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
  * floor under a distance that still comes from the device, and every turn long
  * enough to reach a further row still reaches it.
  *
- * @provisional PD-176
- * @provisional PD-177
+ * @provisional PND-176
+ * @provisional PND-177
  *
  * ⚠️ THE TWO ENDS ARE NOT ALIKE, and the difference is what each one can be
  * known to mean. Above the first row there is provably nothing -- S-78 anchors
@@ -2131,7 +2131,7 @@ function isOnRowArea(context: InputContext, x: number, y: number): boolean {
  * Searched: table T-023, table T-023a and its 面 table, FR-016, FR-051, table
  * T-103.
  *
- * @provisional PD-12
+ * @provisional PND-12
  * @purity pure
  */
 function isWheelHere(context: InputContext, x: number, y: number): boolean {
@@ -2545,8 +2545,8 @@ const ENTRY = {
    * ⛔ ONLY THE HIDING DIRECTION IS WRITTEN TODAY. The STOP at
    * `screenStateFromEntry`'s arm for this entry names the row that is missing.
    *
-   * @provisional PD-418 -- ⛔ THE HALF THAT RULING DID NOT REACH. CR-329 settled
-   * what a PRESS on this row does; PD-418 also asks whether EN-2 of table T-237
+   * @provisional PND-418 -- ⛔ THE HALF THAT RULING DID NOT REACH. CR-329 settled
+   * what a PRESS on this row does; PND-418 also asks whether EN-2 of table T-237
    * (「機能が ON なら塗る」) paints this entrance while the watermark is showing.
    * ⭐ Nothing here paints anything -- the pressed state is UF-65's -- and no
    * reading of EN-2 is taken: the row stays open, and the entrance is drawn as
@@ -2750,7 +2750,7 @@ const ENTRY = {
    *
    * ⭐ ONE ROW GOES, AND IT IS THE ROW THE CONTROL WAS DRAWN ON. FR-085 (MUST)
    * has rows chosen in the panel and names FR-032 among the requirements that
-   * read that set, but nothing STORES it (PD-142) and no row settles what a
+   * read that set, but nothing STORES it (PND-142) and no row settles what a
    * press on one row means while another row is chosen -- so this entrance
    * names its own row, which is the shape IC-60 already takes.
    * ⛔ NO CHAIN IS WORKED OUT HERE. CD-2 of table T-050 holds what goes with a
@@ -3938,7 +3938,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
  * though, so MK-10 still silences the browser: letting the page scroll under a
  * drag is the very thing being refused.
  *
- * @provisional PD-13
+ * @provisional PND-13
  * @purity pure
  */
 function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput {
@@ -5023,7 +5023,7 @@ function commandFromDualCursorEntry(
   // that can name neither day leaves the press taken and the mode down rather
   // than up over an empty setting. ⚠️ It happens only before the axis has an
   // origin, which BO-1 of table T-077 already forbids drawing in.
-  // @provisional PD-313
+  // @provisional PND-313
   if (onPointer === null || atCentre === null) return CONSUMED_ELSEWHERE
   return acted({
     kind: 'setDualCursorFollowing',
@@ -5063,7 +5063,7 @@ function commandFromDualCursorPress(
   // is only reached while a side is following, and DC-1 leaves a pair standing
   // whenever one is. ⚠️ The press is still taken -- the mode is up, so the
   // browser must not act under it (MK-10).
-  // @provisional PD-314
+  // @provisional PND-314
   if (following === null || standing === null || day === null) return CONSUMED_ELSEWHERE
   const fixed = textOfDay(day)
   const placed: SetDualCursor = {
@@ -5312,7 +5312,7 @@ function commandFromRowEntry(
     // `TaskGroup` を畳むこと（MUST）」 ⇒ 「その直下の子から下が描かれなくなる」.
     // ⛔ IT FOLDED ONLY THE SUBTREE UNTIL THEN, and the user measured the
     // result: the DIRECT children stayed drawn where the sample left the row
-    // alone -- one level shallower than the sample, which is what PD-413
+    // alone -- one level shallower than the sample, which is what PND-413
     // recorded.
     // ⛔ THE ROW IS NOT HIDDEN (HR-4, MUST NOT): 「その行自身を隠してはならない
     // —— 隠すのは `HR-6` である」, whose entrance is IC-59.
@@ -5378,7 +5378,7 @@ function commandFromRowEntry(
       // why, quoting the retired 台帳 D-339 wording in order to deny it:
       // RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
       // would tell the reader something untrue, and the fallback RS-27 was all
-      // that fitted. ⚠️ The manuscript closed that gap; PD-411 goes with it.
+      // that fitted. ⚠️ The manuscript closed that gap; PND-411 goes with it.
       return nothingToDo('rowIsOpenWithNoHiddenChild')
     }
     return foldsOrNothing(
@@ -6601,7 +6601,7 @@ function commandFromRowGrab(
  * ⭐⭐ THE ROW ITSELF IS WHAT MOVES THE PICTURE, since 2026-08-31: HR-4 (MUST)
  * 「選択した `TaskGroup` を畳むこと」 ⇒ 「その直下の子から下が描かれなくなる」.
  * ⛔ IT WROTE THE SUBTREE ALONE UNTIL THEN and left the direct children drawn,
- * which PD-413 recorded as one level shallower than the sample; HR-2 (「本行と
+ * which PND-413 recorded as one level shallower than the sample; HR-2 (「本行と
  * `HR-4` は同じ動作の範囲違い」) and HF-1 (「`HR-4` を 1 度押せば同じ絵になる」)
  * are true for the first time with the row included.
  * ⛔ NOTHING IS HIDDEN HERE (HR-4, MUST NOT): 「その行自身を隠してはならない」.
@@ -7126,7 +7126,7 @@ function commandFromGrab(
     // ⭐ FOUND WITH A LOOKUP HERE RATHER THAN THROUGH A NEW MEMBER of
     // `schedule.ts`: PI-1 of table T-064 is the full count of what that unit
     // publishes, and one read this file needs once does not earn a row on it.
-    // @provisional PD-316
+    // @provisional PND-316
     const box = context.document.schedule.commentBoxes.find((one) => one.id === item.id)
     // ⚠️ The box is gone from under the press. ⛔ Still this tool's press: MK-10
     // keeps the browser out from under a grab it took.
@@ -7373,7 +7373,7 @@ function commandFromGrab(
       // ⚠️ A suspension carrying no actual leaves PA-3's row unwritable -- the
       // same arm `actualEndPlacement` takes where the columns it must carry are
       // not there. ⛔ Still this tool's press: MK-10 keeps the browser out from
-      // under a grab it took. @provisional PD-318
+      // under a grab it took. @provisional PND-318
       if (task.actualStart === null || task.actualDuration === null) return CONSUMED_ELSEWHERE
       return changed([
         {
@@ -7464,7 +7464,7 @@ function commandFromGrab(
  * carry a whole selection. ⛔ THE SPECIFICATION DOES NOT DECIDE THIS -- no row
  * of `FR-034` or of table T-108 says whether the other end follows or holds
  * still.
- * @provisional PD-406
+ * @provisional PND-406
  *
  * ⚠️ A Task with no `start` or no `finish` is passed over rather than half
  * written: CM-11 puts both, and FR-012 has no meaning for one alone.
@@ -8060,7 +8060,7 @@ function compareDay(a: CalendarDay, b: CalendarDay): number {
  * Searched: table T-036 SK-16 / SK-16a, table T-201 S-53, table T-203 S-75 /
  * S-76, FR-016.
  *
- * @provisional PD-11
+ * @provisional PND-11
  * @purity pure
  */
 function keyZoomFactor(context: InputContext, isIn: boolean): number {
@@ -9176,10 +9176,10 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // ⚠️ 台帳 D-295 WAS THIS CASE BEING ABSENT: `IC-45` has no key in
     // `ARMED_BY_ENTRY` either, so the press fell past the switch, `armedByEntry`
     // answered null, and the state came back untouched with the arm still held.
-    // ⚠️ ONE CORNER IS DELIBERATELY NOT MIRRORED: PD-313 lets
+    // ⚠️ ONE CORNER IS DELIBERATELY NOT MIRRORED: PND-313 lets
     // `commandFromDualCursorEntry` take the press WITHOUT raising the mode when
     // the axis can name no day, and the arm is dropped here all the same.
-    // Re-reading `dayAtX` here would put PD-313's rule in a second place, and
+    // Re-reading `dayAtX` here would put PND-313's rule in a second place, and
     // that corner is one BO-1 of table T-077 already forbids drawing in.
     case ENTRY.dualCursor:
       return context.dualCursorFollowing === null
@@ -9562,7 +9562,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
 // far side of this file rather than one of the 10 above:
 //
-//   [ANSWERED 2026-09-06, PD-345] DC-7's clear stood here and no longer does.
+//   [ANSWERED 2026-09-06, PND-345] DC-7's clear stood here and no longer does.
 //                ⛔⛔ THE OLD NOTE ASKED FOR THE WRONG THING. It read: 「置いた
 //                2 本を消す入口を、モードを出る入口とは別に置くこと (MUST)」 ...
 //                what is missing is the ENTRANCE -- and went looking for a
@@ -9581,7 +9581,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                `frame-loop.ts`, which is where that way out lives: the level
 //                belongs to a holder this file cannot reach, so no action ever
 //                comes back for it. ⭐ DC-3's day count is untouched beside it
-//                as PD-344.
+//                as PND-344.
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
 // table T-203, table T-206, table T-234, table T-037, table T-026, table

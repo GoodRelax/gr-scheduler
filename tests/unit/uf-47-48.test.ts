@@ -1435,7 +1435,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // case may do is ask PI-37 for the roster of each language and hold the
     // picture against it. ⛔ The second half of the old comment -- that the
     // dictionary is empty and both languages print the same empty strings --
-    // is false as well: PD-160 records 「2026-08-24 実測: 枠は 242、記入も 242」.
+    // is false as well: PND-160 records 「2026-08-24 実測: 枠は 242、記入も 242」.
     // ⛔⛔ THE PICTURE CARRIES A WALL CLOCK, AND THIS CASE DRAWS TWO PICTURES.
     // `frameLoop` reads the watermark's instant ONCE per instance (FR-020 /
     // FR-063 stamp it, truncated to the second), and the renderer tiles

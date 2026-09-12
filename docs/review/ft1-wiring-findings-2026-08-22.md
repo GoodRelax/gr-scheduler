@@ -142,7 +142,7 @@ press ... when `escapeTarget` names its level.
 
 ⛔ **`pressRowOf` は `press.hit !== null` だけで `PTD-3` を返し、`context.screenState.armed` を見ていない。**
 ⚠️ **`PTD-1` と `PTD-2` は同じ関数が守っているのに、`PTD-3` の例外だけが無い。** ⛔ **STOP も無い。**
-⭐ **いまは到達しない** —— この版では依存線を構える道が無い（`armedText` が `PD-160` 待ちで空）。
+⭐ **いまは到達しない** —— この版では依存線を構える道が無い（`armedText` が `PND-160` 待ちで空）。
 ⛔ **レーン G が同じファイルを触るので、そこで閉じること。**
 
 ---

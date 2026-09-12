@@ -166,7 +166,7 @@ const ESCAPE_KEY = 'Esc'
  * them `+`, `-` and `0` -- which is right for SK-17 (`Ctrl` ＋ `0` is the
  * host's own reset key everywhere) and a guess for the rest.
  *
- * @provisional PD-93
+ * @provisional PND-93
  */
 const SIGN_BY_CODE: Readonly<Record<string, string>> = {
   Equal: '+',
@@ -192,10 +192,10 @@ const SIGN_BY_CODE: Readonly<Record<string, string>> = {
  * recommendation is the interval a desktop host uses for its own double click,
  * with a few pixels of tolerance so that a shaking hand still counts.
  *
- * @provisional PD-90
+ * @provisional PND-90
  */
 const DOUBLE_CLICK_WITHIN_MS = 500
-/** @provisional PD-90 */
+/** @provisional PND-90 */
 const DOUBLE_CLICK_WITHIN_PX = 4
 
 /**
@@ -208,12 +208,12 @@ const DOUBLE_CLICK_WITHIN_PX = 4
  * that reports lines does not say how tall a line is. These two figures are
  * the common ones, not measured ones.
  *
- * @provisional PD-91
+ * @provisional PND-91
  */
 const PIXELS_PER_LINE = 40
-/** @provisional PD-91 */
+/** @provisional PND-91 */
 const PIXELS_PER_NOTCH = 100
-/** @provisional PD-91 */
+/** @provisional PND-91 */
 const LINES_PER_NOTCH = 3
 
 /**
@@ -226,10 +226,10 @@ const LINES_PER_NOTCH = 3
  * is null on a hover, and `commandFromInput` answers a move with UNASSIGNED
  * before either is looked at.
  *
- * @provisional PD-92
+ * @provisional PND-92
  */
 const HOVER_BUTTON: PointerButton = 'left'
-/** @provisional PD-92 */
+/** @provisional PND-92 */
 const HOVER_CLICK_COUNT = 0
 
 // ------------------------------------------------------- what is held on ----
@@ -251,7 +251,7 @@ interface Gesture {
    * not take is lost outside the window, no `pointercancel` need arrive.
    * ⭐ Nothing settles which of the two risks to carry.
    *
-   * @provisional PD-94
+   * @provisional PND-94
    */
   readonly isHeld: boolean
 }
@@ -313,7 +313,7 @@ function modifiersOf(event: {
  * (`ArrowUp`, `Control`), which the seam's declaration would rather it did not;
  * the alternative is to drop those presses, which costs a copy of the table.
  *
- * @provisional PD-95
+ * @provisional PND-95
  * @purity pure
  */
 function keyOf(event: { readonly key: string; readonly code: string }): string {

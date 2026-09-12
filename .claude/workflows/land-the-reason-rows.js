@@ -93,7 +93,7 @@ the \`reasons\` section exists and every cell of it is written.
    an empty text breaks NT-1 (MUST) and an empty next step breaks NT-3a (MUST).
    ⚠️ Write the lookup so that a row PRESENT but EMPTY is told apart from a row
    ABSENT, the way \`mannerText\` and \`answerLabel\` already do it (\`=== ''\`, never
-   \`||\` or \`??\`) -- the difference is what PD-160 records. Today no cell is empty,
+   \`||\` or \`??\`) -- the difference is what PND-160 records. Today no cell is empty,
    so the empty branch is a guard against a hand-edited generated file.
 4. ⚠️ The gathered surface \`NT-4\` builds must carry every text AND every next step
    of what it gathered -- losing one would break NT-3a (MUST NOT) on the way in.

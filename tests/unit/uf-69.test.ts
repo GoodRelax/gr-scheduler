@@ -52,7 +52,7 @@
 // case here invents one. The third is kept with the answer it has since been
 // given:
 //   * WHICH icon the pointer rests on -- ⚠️ ANSWERED SINCE, and the cases below
-//     were rewritten for it. `ScreenSession.iconUnderPointer` (PD-141) now
+//     were rewritten for it. `ScreenSession.iconUnderPointer` (PND-141) now
 //     carries the row of 表 T-109 the pointer is resting on, which is EZ-2's
 //     PLACE condition, so a case may and does assert that the icons the pointer
 //     is NOT on are left unexplained.
@@ -365,7 +365,7 @@ const RESTED = sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1
 
 /**
  * A pointer resting ON one row of 表 T-109 -- EZ-2's PLACE condition, which
- * `ScreenSession.iconUnderPointer` (PD-141) carries -- for a rest of `restedMs`,
+ * `ScreenSession.iconUnderPointer` (PND-141) carries -- for a rest of `restedMs`,
  * which is its TIME condition.
  */
 const restingOn = (icon: IconId, restedMs: number = WAIT_MS + 1): ScreenSession =>

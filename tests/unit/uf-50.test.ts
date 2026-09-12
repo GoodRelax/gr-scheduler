@@ -108,7 +108,7 @@ import { specTable } from '../contract/spec-table'
  * ⚠️ `hostKey` / `hostCode` are what a common layout actually reports, which is
  * the whole difficulty of `SK-16` and `SK-16a`: `Shift`＋`-` arrives as `_` and
  * `Alt`＋`+` arrives as `=`, so only the physical key is the same in both
- * (PD-93).
+ * (PND-93).
  */
 const T_036_KEYS = [
   { row: 'SK-19', hostKey: 'Enter', hostCode: 'Enter', mods: {}, key: 'Enter' },
@@ -141,7 +141,7 @@ const T_036_KEYS = [
 ] as const
 
 /**
- * The same three signs off the numeric keypad. PD-93 recognises `+` / `-` / `0`
+ * The same three signs off the numeric keypad. PND-93 recognises `+` / `-` / `0`
  * by the physical key, and the keypad is the second physical key that produces
  * each of them.
  */
@@ -173,7 +173,7 @@ const T_023_BUTTONS = [
  * which is why one happening carries BOTH magnitudes: `notches` for the zoom
  * rows (`MK-2` 〜 `MK-4`, whose step S-53 is stated per notch) and `scrollPx`
  * for the scroll rows (`MK-1` / `MK-5`, for which no row gives a day per
- * notch). ⚠️ The divisors that recover one from the other are PD-91's
+ * notch). ⚠️ The divisors that recover one from the other are PND-91's
  * recommendation, not a decided value: 40 px per line, 100 px per notch, 3
  * lines per notch, and the host's own `innerWidth` / `innerHeight` for a page.
  * These cases are the ones that fail if that recommendation is reversed.
@@ -240,7 +240,7 @@ const WHEEL_TURNS = [
  *     either: `MK-3` assigns `Shift`＋ホイール to the horizontal zoom, whose
  *     step S-53 is stated per notch, and a common host reports a shifted wheel
  *     turn in `deltaX` rather than `deltaY`.
- *   - BY THE PAGE. PD-91 recommends a figure for pixels-per-line and
+ *   - BY THE PAGE. PND-91 recommends a figure for pixels-per-line and
  *     pixels-per-notch and states that a page is measured in the host's own
  *     `innerWidth` / `innerHeight` -- it names no pages-per-notch figure, and
  *     neither does any table.
@@ -285,7 +285,7 @@ const TURNS_WHOSE_DETENTS_NO_ROW_STATES = [
  * the gap in milliseconds and the distance in pixels from the press before it,
  * with the count each press must answer.
  *
- * ⚠️ Neither figure is in the specification. PD-90 recommends 500 ms and 4 px,
+ * ⚠️ Neither figure is in the specification. PND-90 recommends 500 ms and 4 px,
  * measured press-to-press and kept per button; `500` and `4` below are the two
  * places that fail if that is reversed.
  */
@@ -897,12 +897,12 @@ describe('IN-1 -- a pointer operation settles on release, not on press', () => {
     expect(run.fake.captureCalls).toContain('release:7')
   })
 
-  it('holds only a press this tool assigned, and still settles one it did not (PD-94)', () => {
+  it('holds only a press this tool assigned, and still settles one it did not (PND-94)', () => {
     // ⚠️ Which of the two risks to carry is undecided. Holding a press this
     // tool did not assign would send the compatibility mouse events to the
     // holder instead of to what was pressed, and the in-place editing of
     // `SK-19` needs that click to reach a text field; not holding it leaves
-    // IN-1a's abort resting on the host's implicit capture. PD-94 recommends
+    // IN-1a's abort resting on the host's implicit capture. PND-94 recommends
     // not holding it, and this is the case that fails if that is reversed.
     const run = harness()
     run.answer((input) => input.kind === 'pointer' && input.button === 'left')
@@ -1456,7 +1456,7 @@ describe('表 T-036 -- the key is spelled as the assignment column spells it', (
     ])
   })
 
-  it('reports a key no row assigns rather than swallowing it (PD-95)', () => {
+  it('reports a key no row assigns rather than swallowing it (PND-95)', () => {
     const run = harness()
     run.watch()
     run.fake.send('keydown', hostKey({ key: 'ArrowUp', code: 'ArrowUp' }))

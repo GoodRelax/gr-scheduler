@@ -163,7 +163,7 @@ def read(rel, table_id):
             elif table.headings != headings:
                 # ⭐ A SECOND PIPE BLOCK OF A DIFFERENT SHAPE IS AN ASIDE, NOT
                 # A FAULT. Table T-023a is the measured case: its caption owns
-                # the six PD rows and then a 面 / 何が定めるか list that carries
+                # the six PTD rows and then a 面 / 何が定めるか list that carries
                 # no row id at all. Its rows are not this table's roster, and
                 # refusing here would stop a run over a document that is right.
                 # ⚠️ COUNTED RATHER THAN DROPPED IN SILENCE, so a block that

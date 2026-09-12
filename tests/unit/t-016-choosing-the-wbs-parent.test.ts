@@ -55,7 +55,7 @@
 //      forbids that table to hold a roster of candidates, `wbsParentUid` gets
 //      no enumeration from `_source/grs-document.schema.json` (its candidates
 //      are the document's own tasks), and the question is on the pending list
-//      as PD-272, 未裁定. So the cases below ask only what no reading of the
+//      as PND-272, 未裁定. So the cases below ask only what no reading of the
 //      manuscript can deny: that a roster exists, that it can reach another
 //      `Task`, and that nothing in it names a `Task` the document has lost.
 //   2. WHETHER `CM-18` MAY REFUSE A MOVE FOR BEING TOO DEEP. ⛔ THE
@@ -539,7 +539,7 @@ describe('表 T-016 PR-15 -- the chooser the Properties Panel offers', () => {
     // choose a value for is not the editable item FR-006 requires.
     //
     // ⛔ WHAT IS IN THE ROSTER IS NOT ASKED. The paragraph under 表 T-016 (MUST
-    // NOT) forbids that table to hold the candidates and PD-272 records the
+    // NOT) forbids that table to hold the candidates and PND-272 records the
     // question as 未裁定.
     const control = parentControlOf()
     expect(control.choices, 'a 選択 control publishes what it offers').not.toBe(null)
@@ -576,7 +576,7 @@ describe('表 T-016 PR-15 -- the chooser the Properties Panel offers', () => {
     //
     // ⚠️ ONLY THE CANDIDATES THAT READ AS A `uid` ARE JUDGED. `AT-25` writes
     // 「`null` = 根」 and no row says how the panel spells that candidate
-    // (PD-272), so a candidate that is not a number is left alone here.
+    // (PND-272), so a candidate that is not a number is left alone here.
     const held = new Set(THREE_ROOTS.tasks.map((task) => task.uid))
     for (const value of committedBy(parentControlOf())) {
       if (!/^-?\d+$/.test(value)) continue

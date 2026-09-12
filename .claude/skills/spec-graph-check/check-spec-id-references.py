@@ -87,7 +87,7 @@ because without it the count drowns:
      ADR, B, CR, FNV, ISO, PRJ, RE, SHA, UTC and UTF. `CR-nnn` is the bulk of
      it and is a change-request number, which resolves to `change-request/`.
   2. ⚠️ IT IS NOT DEFINED BY ONE OF THE THREE REGISTRIES OUTSIDE THE
-     MANUSCRIPT that code legitimately cites: a `D-nnn` or `PD-nnn` row of the
+     MANUSCRIPT that code legitimately cites: a `D-nnn` or `PND-nnn` row of the
      ledgers under `docs/development-records/` (read as the first cell of a
      markdown table row, the same way `check-stale-blocked.py` reads a row),
      and a `CR-nnn` from a filename under `change-request/`. ⛔ THE ACCEPTANCE
@@ -130,7 +130,7 @@ occurrence is the unit that cannot hide a half-finished line.
 ⚠️ WHAT A DIFFERENT RESOLUTION RULE WOULD HAVE COUNTED, so the number above can
 be read against something. If nothing but the manuscript could resolve a token
 -- no ledger, no change request, prefix gate still on -- the count is 2,790,
-almost all of it `D-nnn` and `PD-nnn` references to the defect ledger, which
+almost all of it `D-nnn` and `PND-nnn` references to the defect ledger, which
 resolve perfectly well and are not this check's business.
 
 ⭐ THE BASELINE IS A RATCHET, in the shape `must-clause-coverage-baseline.txt`

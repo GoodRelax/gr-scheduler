@@ -71,7 +71,7 @@ RETIRED = {'FR-050', 'T-030',
            'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',
            'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139',
            # S-59 (planActualDisplay) and K-74, its key, split into two
-           # independent booleans on 2026-09-07 (the user's ruling, PD-442):
+           # independent booleans on 2026-09-07 (the user's ruling, PND-442):
            # S-227 planVisible and S-228 actualVisible, K-122 and K-123. The
            # changelog names S-59, so the seat stays burnt.
            'S-59', 'K-74',

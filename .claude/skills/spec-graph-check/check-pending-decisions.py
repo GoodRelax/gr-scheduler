@@ -30,8 +30,8 @@ LIST = os.path.join(RECORDS, 'pending-decisions.md')
 # is walked; docs carry the list itself and would match their own examples.
 TREES = ('src', 'tests', 'tools')
 
-MARK = re.compile(r'@provisional\s+(PD-\d+)')
-ROW = re.compile(r'^\|\s*(PD-\d+)\s*\|([^|]*)\|([^|]*)\|\s*([A-H])\s*\|'
+MARK = re.compile(r'@provisional\s+(PND-\d+)')
+ROW = re.compile(r'^\|\s*(PND-\d+)\s*\|([^|]*)\|([^|]*)\|\s*([A-H])\s*\|'
                  r'([^|]*)\|([^|]*)\|([^|]*)\|\s*(未裁定|裁定済)\s*\|')
 DEFER_OK = ('A', 'B', 'C')
 # A record whose state table has no unfinished row is a closed wave.
@@ -61,7 +61,7 @@ def rows_in_list():
 
     ⚠️ A malformed row is INVISIBLE to a regular expression, so a row missing
     its class or its state would simply not be counted -- and a decision with
-    no mark anywhere would then pass unnoticed. Lines that name a PD but do not
+    no mark anywhere would then pass unnoticed. Lines that name a PND but do not
     parse are reported rather than skipped.
     """
     if not os.path.exists(LIST):
@@ -74,7 +74,7 @@ def rows_in_list():
             rows[m.group(1)] = {'class': m.group(4),
                                 'wave': m.group(5).strip().strip('`'),
                                 'state': m.group(8)}
-        elif re.match(r'^\|\s*PD-\d+\s*\|', line):
+        elif re.match(r'^\|\s*PND-\d+\s*\|', line):
             malformed.append(line.strip()[:90])
     return rows, malformed
 
@@ -102,7 +102,7 @@ def main():
         return 1
 
     marks = marks_in_tree()
-    problems = ['a row names a PD but does not carry all eight cells, so '
+    problems = ['a row names a PND but does not carry all eight cells, so '
                 'nothing can be held against it: %s' % line
                 for line in malformed]
 

@@ -1182,7 +1182,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
   it('does not move the Document Title when the items beside it go away', async () => {
     // EP-1 of table T-076 (MUST NOT): the `Document Title` may not be moved,
     // and FR-080 forbids closing up the room of what is not drawn.
-    // ⚠️ WHERE it stands is not in any table (recorded as PD-52), so this case
+    // ⚠️ WHERE it stands is not in any table (recorded as PND-52), so this case
     // asserts only that it does not MOVE -- which is what the row states.
     const withItems = await exportedOf(TALL_SCENE)
     const withoutItems = await exportedOf(

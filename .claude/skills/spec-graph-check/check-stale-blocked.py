@@ -42,7 +42,7 @@ WHAT COUNTS AS A HIT. Both of these true in the SAME row:
          build.
 
 ⭐⭐ NEITHER SIDE OF THAT PAIRING IS LOOKED FOR INSIDE A DATED RECORD
-(`D-367`, the user's ruling of 2026-09-07 on `PD-441`). A sentence opening
+(`D-367`, the user's ruling of 2026-09-07 on `PND-441`). A sentence opening
 「⚠️ 実測（YYYY-MM-DD）」 states what was true ON THAT DAY. Its words are struck
 from cell 5 -- blocked phrases and settled phrases alike -- before either list
 is looked for. The notation is written down in `docs/development-rules/
@@ -160,7 +160,7 @@ def find_stale(ledger_path):
         # else's words -- a verbatim requirement, the name of a state, or the
         # row dating its own older text as history -- and a marker inside a
         # sentence opening 「⚠️ 実測（日付）」 is what was true ON THAT DAY, not
-        # a claim about today (the user's ruling of 2026-09-07, `PD-441`; the
+        # a claim about today (the user's ruling of 2026-09-07, `PND-441`; the
         # notation is written down in rule 04 section 6.6). Neither is this
         # row's claim to be blocked. Three misfires were absorbed into the
         # baseline before the first of these lines existed; rule 04 section

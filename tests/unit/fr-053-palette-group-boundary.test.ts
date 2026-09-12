@@ -67,7 +67,7 @@
 //
 // ⛔ WHAT COUNTS AS A LINE, AND WHY IT IS A LIST RATHER THAN ONE PROPERTY.
 // FR-053 states 「線で示すこと」 and S-143 states its thickness and its side
-// gaps; ⛔ NO TABLE NAMES A CSS PROPERTY, and PD-151 already records that the
+// gaps; ⛔ NO TABLE NAMES A CSS PROPERTY, and PND-151 already records that the
 // choice of property belongs to the drawing side. So `isRule` below accepts
 // every spelling of a hairline that states S-143's thickness -- a one-sided
 // border, a painted box that is that thin, or an `hr` -- and a rule spelled

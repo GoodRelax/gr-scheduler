@@ -693,7 +693,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     expect(Number.isFinite(version)).toBe(true)
   })
 
-  it('AM-1 is 1 -- the tripwire rule 06 asks PD-60 to leave behind', () => {
+  it('AM-1 is 1 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
     // pending decision is settled the other way.
@@ -1125,7 +1125,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.document.documentSettings.scrollGroupId).not.toBeNull()
   })
 
-  it('puts the task at the corner of the Row Area -- the tripwire PD-61 asks for', () => {
+  it('puts the task at the corner of the Row Area -- the tripwire PND-61 asks for', () => {
     // Nothing in FR-055, table T-203 or table T-107 states WHERE in the view a
     // focused task should land. This case is what falls over when the pending
     // decision is settled another way.
@@ -1378,7 +1378,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices[0]?.mark.seenSequence).toBe(1)
   })
 
-  it('is told only what happens from now on -- the tripwire PD-62 asks for', () => {
+  it('is told only what happens from now on -- the tripwire PND-62 asks for', () => {
     // AG-6 says only "what I have not received yet", and nothing states what a
     // watcher that has never received anything is owed. This case is what falls
     // over when the pending decision is settled the other way.

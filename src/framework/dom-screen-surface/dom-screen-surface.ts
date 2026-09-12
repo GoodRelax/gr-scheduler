@@ -119,7 +119,7 @@
 //     entry is the side that answers where it is -- which is this unit, and is
 //     why the answer leaves through the seam rather than being read out of this
 //     markup by whoever holds the page.
-//     `ScreenSession.iconUnderPointer` (PD-141) is the shell's, and the shell
+//     `ScreenSession.iconUnderPointer` (PND-141) is the shell's, and the shell
 //     fills it from this member.
 //   - ⚠️ `data-format` IS NOT A THIRD SPELLING OF `data-icon`. FR-096 (MUST)
 //     allows the whole act of writing a document out ONE entrance and forbids
@@ -329,7 +329,7 @@ const ROLE = {
  * holds no row for a control that would, which is the same hole `AiExportModal`
  * records for its copy control.
  *
- * @provisional PD-150
+ * @provisional PND-150
  */
 const HOST_ENTER = 'Enter'
 
@@ -437,7 +437,7 @@ const ADD_TOP_ROW_ENTRY = 'IC-93'
  * a control drawn at rest would sit over the row's name for ever.
  * ⚠️ HF-6 IS TABLE T-051'S, AND THAT TABLE IS THE FOLDING FACE -- deleting is
  * not folding, so this is the pin's precedent (FR-098 has no such row either)
- * carried one step further. @provisional PD-353
+ * carried one step further. @provisional PND-353
  */
 const DELETE_ROW_ENTRY = 'IC-82'
 
@@ -589,13 +589,13 @@ const PAINT_ROW = {
   // ⛔ A FILL AND NEVER A RIM: nothing here may argue for 縁 again.
   armed: 'S-183',
   // ⭐ THE ROW IS THE SPECIFICATION'S NOW, WHICH IS WHAT CHANGED. This member
-  // used to be a borrowed colour under `@provisional PD-340`, because FR-072
+  // used to be a borrowed colour under `@provisional PND-340`, because FR-072
   // (MUST) had the panel's contents shown 「入口の押下状態で」 and FR-049 made a
   // toggle of every boolean row of table T-202 while table T-236 held no colour
   // for either. ⭐ Table T-237 is that row's home: EN-2 (the entrance's own
   // feature is ON) and EN-4 (the properties panel is showing it) both state
   // S-183, and FR-072 (MUST) sends its pressed state to EN-4 by name. ⛔ SO THE
-  // MARK IS GONE -- what PD-340 asked for exists, and a mark left standing would
+  // MARK IS GONE -- what PND-340 asked for exists, and a mark left standing would
   // claim an open question that has been answered.
   // ⚠️ IT IS NOT THE ARMED MEMBER UNDER A SECOND NAME, even though the two rows
   // resolve to one colour. EN-1 and EN-2 are two rows of table T-237 with two
@@ -1100,7 +1100,7 @@ function entryStyle(): string {
  * ⛔ `aria-disabled` AND NOT `disabled` is what `commandEntry` writes beside
  * this: a disabled control leaves the accessibility tree and stops taking the
  * pointer, which would take away both the tooltip IN-3 lets a person point at
- * and the answer PD-141 reads out of `data-icon`.
+ * and the answer PND-141 reads out of `data-icon`.
  *
  * @purity pure
  */
@@ -1287,7 +1287,7 @@ function documentTitleStyle(): string {
  * part of it: S-197 and S-198 are the `Properties Panel`'s and FR-006 is what
  * places them there, and S-116 caps the header's HEIGHT and says nothing about
  * its letters. FR-061 (MUST) asks for the time to be shown beside the saved
- * state and settles no size for it either. PD-326 names the row that must exist
+ * state and settles no size for it either. PND-326 names the row that must exist
  * and what it must say; until it does, this value is not the specification's.
  *
  * ⛔ A COEFFICIENT AND NEVER A px, for the reason `propertiesPanelStyle` gives
@@ -1299,7 +1299,7 @@ function documentTitleStyle(): string {
  * in as many words for the frame AROUND the schedule -- and the header is that
  * frame rather than part of the schedule, the same ground S-197 stands on.
  *
- * @provisional PD-326
+ * @provisional PND-326
  */
 const FILE_STATUS_TEXT_SCALE = 0.75
 
@@ -1313,7 +1313,7 @@ const FILE_STATUS_TEXT_SCALE = 0.75
  * specification does not say they look alike; what they share is the reason for
  * the place, so a change to it is meant to reach both.
  *
- * @provisional PD-151
+ * @provisional PND-151
  */
 const STOPPING_BOX =
   'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
@@ -1332,7 +1332,7 @@ const STOPPING_BOX =
  * chosen here because `ScreenView` leaves them to the surface in as many words;
  * they leave no trace in the saved form.
  *
- * @provisional PD-151
+ * @provisional PND-151
  */
 const STYLE = {
   root:
@@ -1763,7 +1763,7 @@ const STYLE = {
   confirmationNames: 'flex:1 1 auto;min-height:0;overflow:auto;',
   // NT-7 (MUST): the names of what would go, one element each.
   confirmationItem: 'display:block;line-height:1.6;',
-  // FR-032's mark (PD-175), held off the name it follows. ⛔ Nothing but the gap
+  // FR-032's mark (PND-175), held off the name it follows. ⛔ Nothing but the gap
   // is declared here: the word carries the meaning, and NT-1 (MUST NOT) forbids
   // colour or a border from being what does.
   confirmationMark: 'margin-left:0.5em;',
@@ -2433,7 +2433,7 @@ function panelEdge(
  * ⛔ THE TRAILING `Z` IS DROPPED BECAUSE IT IS A CLAIM AND NOT A DECORATION:
  * that letter says "this is UTC", and after the conversion the claim is false.
  * ⚠️ An offset is not put in its place either -- that is the other half of the
- * same undecided spelling (PD-325), and writing one would settle it here.
+ * same undecided spelling (PND-325), and writing one would settle it here.
  *
  * ⛔ NO WORD IS PRINTED, IN EITHER DISPLAY LANGUAGE. FR-038 (MUST NOT) keeps one
  * dictionary as the only store of translated strings, and a month or a weekday
@@ -2447,7 +2447,7 @@ function panelEdge(
  * zero) and not a figure of the specification's -- the same note `readToday`
  * carries.
  *
- * @provisional PD-325
+ * @provisional PND-325
  * @purity semi-pure-b
  */
 function readableStamp(utc: string): string {
@@ -2572,7 +2572,7 @@ function fillEntry(
  * purpose told by an icon rather than by a word, and `CommandItem.label` is
  * declared as the ACCESSIBLE name of the entry -- so the word leaves through
  * `aria-label` and figure F-019 is what is seen. ⚠️ The row id is the name
- * while the dictionary holds no word (PD-160), which is the same fallback the
+ * while the dictionary holds no word (PND-160), which is the same fallback the
  * body took while there were no shapes.
  * ⚠️ WHAT USED TO STAND HERE ADDED 'every cell is still empty', AND THAT WAS
  * MEASURED FALSE ON 2026-08-28: `display-words.json` carries a word in both
@@ -2580,7 +2580,7 @@ function fillEntry(
  * fallback stays for the reason UF-65 keeps its own -- a generated file edited
  * by hand -- and no count is written here, which is what went stale.
  *
- * ⭐ PD-154'S MARK IS GONE FROM THIS FILE, because both halves of what held it
+ * ⭐ PND-154'S MARK IS GONE FROM THIS FILE, because both halves of what held it
  * here are answered. ⛔ What the row itself records -- that figure F-019 is not
  * generated into `src/` -- stopped being so when `icon-glyphs.json` arrived, the
  * way that row said would let the drawing side be swapped; and the box a shape
@@ -2621,7 +2621,7 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   if (item.isEnabled && item.isPressed) standing.push('EN-2')
   const entry = made(host, 'button', base + entranceStateFill(standing))
   entry.setAttribute('type', 'button')
-  // The join table T-109 admits, and what PD-141 has the shell read back.
+  // The join table T-109 admits, and what PND-141 has the shell read back.
   entry.setAttribute('data-icon', item.icon)
   entry.setAttribute('data-enabled', String(item.isEnabled))
   entry.setAttribute('data-pressed', String(item.isPressed))
@@ -2638,7 +2638,7 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   if (item.isPressed) entry.setAttribute('aria-pressed', 'true')
   // ⛔ WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, the same way UF-65 writes
   // the fallback it reads out of the dictionary: those two read an empty word
-  // as absent, which PD-160 says are different things. ⚠️ What used to stand
+  // as absent, which PND-160 says are different things. ⚠️ What used to stand
   // here said empty was the state every cell is in today; measured against
   // `display-words.json` on 2026-08-28, no cell is.
   entry.setAttribute('aria-label', item.label === '' ? item.icon : item.label)
@@ -2658,7 +2658,7 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
  *
  * ⭐ THE CODE IS PRINTED AS IT ARRIVES, IN LOWER CASE. `DisplayLanguage` admits
  * `ja` and `en` and nothing else, and those are the values S-99 of table T-206
- * holds -- ⛔ not words of the screen, so the dictionary's empty cells (PD-160)
+ * holds -- ⛔ not words of the screen, so the dictionary's empty cells (PND-160)
  * do not reach this and nothing is upper-cased, expanded or translated here.
  *
  * ⚠️ THE ACCESSIBLE NAME IS LEFT ALONE. `CommandItem.label` is declared as the
@@ -2878,10 +2878,10 @@ function fillScreenFrame(
  * of seven reached from x=24 to x=192 across a panel 170px wide and covered the
  * grab strip GR-20 lays at the row's left edge (HF-6 MUST NOT).
  * ⚠️ IT IS STILL A STEP AND NOT A WIDTH -- what a step means is where the NEXT
- * control starts, and the two are one number only for as long as PD-348 leaves
+ * control starts, and the two are one number only for as long as PND-348 leaves
  * the gap between two controls at nothing.
  *
- * @provisional PD-348
+ * @provisional PND-348
  *
  * @purity pure
  */
@@ -2903,7 +2903,7 @@ function rowControlStepPx(): number {
  * measured in two units would place the seven controls by neither -- the reading
  * `leftToRightBy` makes of them says so in as many words.
  *
- * @provisional PD-348
+ * @provisional PND-348
  */
 const ROW_CONTROL_EDGE_PX = 4
 
@@ -2927,7 +2927,7 @@ function rowControlRight(stepsFromEdge: number): string {
  * ⭐ ONE ARITHMETIC AND NOT TWO. HF-6 (MUST) runs the ground 「いちばん左の操作子
  * の左端から行の右端まで」, so where that control stands and how wide the ground
  * is are two readings of one number -- and a second copy of it would drift the
- * day PD-348 is ruled on.
+ * day PND-348 is ruled on.
  *
  * @purity pure
  */
@@ -3099,7 +3099,7 @@ const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
  * a control would.
  * ⛔ NO GAP BETWEEN THE CONTROLS IS WRITTEN HERE (MUST NOT), and none is needed:
  * the width is read out of where the leftmost control was placed, so whatever
- * PD-348 is ruled to be, the band follows it without being told.
+ * PND-348 is ruled to be, the band follows it without being told.
  *
  * ⛔ IT TAKES NO ROOM. S-140 of table T-206 is 0 and stays 0: this is an
  * out-of-flow box like the controls it stands behind, so FR-085's cut of the
@@ -3164,7 +3164,7 @@ function rowControlBoxPx(): number {
  *
  * ⭐ NAMED BECAUSE IT IS READ TWICE. The ground reaches the leftmost control's
  * left edge and HF-1's lattice gives each of its two columns the same width --
- * ⛔ and a second spelling of it would drift the day PD-348 is ruled on, which
+ * ⛔ and a second spelling of it would drift the day PND-348 is ruled on, which
  * is the drift `rowControlRightPx` was named to stop.
  *
  * @purity pure
@@ -3611,7 +3611,7 @@ function rowControlElement(
  * @purity non-pure
  */
 function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HTMLElement {
-  // PD-152 closed: the indent is `RowTitle.indentPx`, which is the very product
+  // PND-152 closed: the indent is `RowTitle.indentPx`, which is the very product
   // FR-085 subtracted before cutting the name, so the cut and the indent are one
   // number. It used to be one em worked out here, which agreed with neither the
   // cut nor the export -- the same row was set in three different ways.
@@ -3640,7 +3640,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
       // FR-098 (MUST), added 2026-08-31: 「留めた行そのものにも地を敷くこと
       // （MUST）。色は 表 T-236 の `S-151`、濃さは 表 T-206 の `S-214`」, because
       // 「入口の塗りだけでは、留めた行が先頭へ上げられたのか、もともと先頭に在るの
-      // かを読めない」. ⛔ PD-414 IS CLOSED BY THAT SENTENCE -- the note that
+      // かを読めない」. ⛔ PND-414 IS CLOSED BY THAT SENTENCE -- the note that
       // stood here recorded a pinned row taking no ground of its own, on the
       // reading that FR-098 sent the whole rule to HF-6 (the pin's own EN-3
       // fill); the requirement now asks for both, and says why one is not
@@ -4098,7 +4098,7 @@ function openEveryRowElement(host: Document): HTMLElement {
  * ⚠️ `stepsFromEdge` IS THE ROW CONTROLS' STEP, and it is the same quantity:
  * how far apart two controls of one glyph box (S-138) stand. ⛔ Not a new
  * number -- see `rowControlStepPx` for what it is measured in and for the
- * pending decision it is held under (PD-348).
+ * pending decision it is held under (PND-348).
  *
  * @purity non-pure
  */
@@ -4481,7 +4481,7 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
  * be SEEN any more -- a surface with `透明` and 「テーマに従う」 on it is what
  * table T-016 would have to gain a row for, and it now carries both halves.
  *
- * @provisional PD-270
+ * @provisional PND-270
  * @purity non-pure
  */
 function controlElement(
@@ -4798,7 +4798,7 @@ function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): 
  *
  * STOP -- ⛔ STILL NOT DECIDED BY THE SPECIFICATION: WHERE ON THE PANEL IT
  * SITS. No table holds a rectangle for an entry -- `ScreenSession.iconUnderPointer`
- * records that gap (PD-141) -- so no row can be quoted for a corner. Searched:
+ * records that gap (PND-141) -- so no row can be quoted for a corner. Searched:
  * FR-006, FR-029, FR-072, table T-109, table T-103 and the S-186 .. S-198 run of
  * table T-206, which gives the panel's fields their lengths and gives its header
  * none. ⭐ What is followed instead is the user's own instruction of 2026-08-27,
@@ -4808,8 +4808,8 @@ function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): 
  * ⚠️ With no field to ride on it stands alone, because a surface a reader
  * cannot put away would be the worse failure.
  *
- * @provisional PD-327
- * @provisional PD-271
+ * @provisional PND-327
+ * @provisional PND-271
  * @purity non-pure
  */
 function fillPropertiesPanel(
@@ -5043,7 +5043,7 @@ function paletteElement(
     anchors,
   )
   // EZ-2 of table T-040 (MUST) shows THAT icon's explanation, and IC-53 is now a
-  // row the pointer can rest on -- `readScreenPartAt` answers it, so PD-141
+  // row the pointer can rest on -- `readScreenPartAt` answers it, so PND-141
   // reports it and a tooltip raised for it has to be placed against the node it
   // was drawn on, exactly as an entry's is.
   anchors.set(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY }), band)
@@ -5085,7 +5085,7 @@ function paletteElement(
  *
  * ⭐ THE ROW ID IS THAT NAME, the same fallback `rowControlElement` takes and for
  * the same reason: an entrance drawn once per person is reached by no
- * `CommandItem`, so no word of the dictionary reaches it either (PD-160).
+ * `CommandItem`, so no word of the dictionary reaches it either (PND-160).
  *
  * ⛔ NOT DECIDED BY THE SPECIFICATION: where on the line it stands. HF-4 of
  * table T-051 fixes the edge for the row title controls and reaches nothing on
@@ -5185,7 +5185,7 @@ function modalElement(
     // entry (IC-21) now draws the same reading beside its shape, out of
     // `AppHeaderItems.language`, so neither half of that MUST rests on a label.
     // ⚠️ The reason given for that used to be that every cell of the
-    // dictionary is still empty (PD-160), and it was measured false on
+    // dictionary is still empty (PND-160), and it was measured false on
     // 2026-08-28. ⭐ Neither half rests on a label all the same: FR-038 asks for
     // the reading to be legible BEFORE the entry is pressed, and an accessible
     // name is not read before pressing.
@@ -5303,7 +5303,7 @@ function modalElement(
       // ⛔ AND THE DICTIONARY HAS NO WORD FOR ONE. FR-038 (MUST) keeps every
       // word of the screen in the one generated dictionary, which holds no group
       // for these, so the row id is the body and the accessible name alike --
-      // the same fallback `commandEntry` takes for a cell PD-160 left empty.
+      // the same fallback `commandEntry` takes for a cell PND-160 left empty.
       // ⛔ The format column of table T-024 is NOT read in its place: that
       // column is the manuscript's own wording, in one language, and printing it
       // would be the second store of translated words FR-038 forbids (MUST NOT).
@@ -5600,7 +5600,7 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
   const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
   dismiss.setAttribute('type', 'button')
   dismiss.setAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE, 'true')
-  // ⚠️ Empty only while the dictionary holds no word (PD-160), and ⛔ nothing is
+  // ⚠️ Empty only while the dictionary holds no word (PND-160), and ⛔ nothing is
   // printed in its place: a row id on the screen is a string FR-038 (MUST) does
   // not hold. The frame `entryStyle` gives keeps the entrance visible meanwhile.
   dismiss.textContent = modal.dismissText
@@ -5654,10 +5654,10 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
     //
     // ⛔ THE NUMBER STANDS ALONE, WITH NO WORD BESIDE IT. FR-038 (MUST) asks
     // for the display language and no table holds a word to say what the count
-    // counts -- the same hole PD-3 and PD-4 already record -- so a word written
+    // counts -- the same hole PND-3 and PND-4 already record -- so a word written
     // here would be one this specification has not settled. ⭐ The digits are
     // the part NT-3 does settle, and they are drawn.
-    // @provisional PD-157
+    // @provisional PND-157
     const count = made(host, 'div', '')
     count.textContent = String(notice.affectedCount)
     drawn.append(count)
@@ -5691,7 +5691,7 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
   // reports about it: `NOTICE_DISMISS_KEY_ATTRIBUTE` says why it is on an
   // attribute of its own and which file closes the loop.
   dismiss.setAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE, notice.dismissKey)
-  // ⚠️ Empty only while the dictionary holds no word (PD-160), and ⛔ the key is
+  // ⚠️ Empty only while the dictionary holds no word (PND-160), and ⛔ the key is
   // NOT printed in its place: a row id on the screen is a string FR-038 (MUST)
   // does not hold, the same in both display languages. The frame `entryStyle`
   // gives keeps the entrance pressable meanwhile.
@@ -5717,7 +5717,7 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
  * a word that has no tail.
  *
  * ⛔ AND NOTHING IS PRINTED IN THE PLACE OF A WORD THE DICTIONARY DOES NOT HOLD
- * (PD-160). `answer` is the join and never a word of the screen: printing it
+ * (PND-160). `answer` is the join and never a word of the screen: printing it
  * would put on the screen a string FR-038 (MUST) does not hold, the same in both
  * display languages. ⚠️ The frame `entryStyle` gives keeps the answer pressable
  * meanwhile, which is what `noticeElement` relies on for the same case.
@@ -5771,7 +5771,7 @@ function confirmationAnswerElement(
  *
  * ⭐ FR-032's MARK IS A WORD AND IT IS DRAWN. A `Task` that goes with the row
  * being deleted but is drawn on ANOTHER row -- HM-10 of table T-015a is what
- * puts it there -- has to be shown as such (MUST), and PD-175 settled that the
+ * puts it there -- has to be shown as such (MUST), and PND-175 settled that the
  * showing is a word. ⛔ No shape is raised for it: table T-109 is the whole of
  * the icons (FR-029 MUST) and RC-13 of table T-026 keeps a new one the user's
  * decision. The word itself is UF-67's, read out of the one dictionary FR-038
@@ -6209,7 +6209,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // the wheel nor the scrollbar moves it (measured 2026-08-30 on the shipped
   // build: forty turns moved `scrollTop` by 0, and a drag down the scrollbar
   // moved it by 0). Both are stopped by `preventDefault`, which the input seam
-  // calls because `isWheelHere` (PD-12) reads the pointer against the SCHEDULE's
+  // calls because `isWheelHere` (PND-12) reads the pointer against the SCHEDULE's
   // regions and cannot know a surface floats above them, and because a press
   // anywhere carries an assignment.
   // ⛔ MK-10 IS NOT WHAT ASKS FOR THAT. Verbatim, its subject is 「**本ツールが
@@ -6228,7 +6228,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // `frame-loop.ts` is another body's this round.
   // ⭐ WHAT IS FIXED HERE IS NT-7's OWN MUST: the two answers no longer ride
   // inside the scrolling region, so 「続ける」 can be reached and pressed however
-  // long the list is. ⚠️ PD-380 RECORDS THE REST AND NOTHING HERE IMPLEMENTS IT
+  // long the list is. ⚠️ PND-380 RECORDS THE REST AND NOTHING HERE IMPLEMENTS IT
   // -- the row is class F (wait for a ruling), so no provisional mark is claimed.
 
   let lastKeys: Readonly<Record<string, string>> = {}
@@ -6599,7 +6599,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // surface's to stand against, and `anchorFor` below would put it in the
     // top-left corner. ⚠️ Read rather than measured, for the reason the icons
     // are: the side that drew the bar is the side that can say where it is.
-    // @provisional PD-391
+    // @provisional PND-391
     if (tip.at !== undefined) {
       // STOP -- ⚠️ IN-3 of table T-028 GRANTS EVERY TOOLTIP 「ポインタを乗せ
       // られること」, AND THIS ONE REFUSES THE POINTER. Measured on the shipped
@@ -6614,7 +6614,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // grants cannot be reached here whatever this line says. ⛔ The other two
       // raisers keep it: they stand against an element of their own, away from
       // the point, and this branch is not theirs.
-      // ⚠️ REPORTED, NOT SETTLED HERE -- see PD-391.
+      // ⚠️ REPORTED, NOT SETTLED HERE -- see PND-391.
       drawn.setAttribute(
         'style',
         tooltipStyle() + `pointer-events:none;left:${tip.at.x}px;top:${tip.at.y}px;`,
@@ -6647,7 +6647,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * window and sized by its contents, which will NOT agree with the width
    * `regionsFromScreen` reserved for it (`propertyPanelWidth`, S-80).
    *
-   * @provisional PD-155
+   * @provisional PND-155
    * @purity non-pure
    */
   function placePanels(view: ScreenView): void {
@@ -6679,7 +6679,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * SC-4 keeps both scrollbars drawn at all times, so the field is kept clear of
    * the lane the frame gave them rather than covering one.
    *
-   * @provisional PD-151
+   * @provisional PND-151
    * @purity non-pure
    */
   function placeDialogueField(view: ScreenView): void {
@@ -6781,9 +6781,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // ⚠️ WHICH ELEMENT CARRIES IT IS UNDECIDED, NOT THE FACT THAT ONE DOES.
     // FR-038 settles the state and WCAG 2.1 asks about the page and about its
     // parts in two separate rules, and no row of the manuscript says which of
-    // the two this is -- PD-323 holds the question and the recommendation.
+    // the two this is -- PND-323 holds the question and the recommendation.
     //
-    // @provisional PD-323
+    // @provisional PND-323
     if (view.language !== langShown) {
       langShown = view.language
       root.setAttribute('lang', view.language)
@@ -7043,7 +7043,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // moment to name. ⚠️ It is never read in this state: `dialogueMessageFromInput`
     // answers `null` before it looks. Nothing in the specification says what an
     // unsettled line should carry there.
-    // @provisional PD-156
+    // @provisional PND-156
     return { text: typed, isSettled: false, author: readAuthor(), settledAt: '' }
   }
 
@@ -7540,7 +7540,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * -- letting go here would leave the person with the focus nowhere at all,
    * which is worse than where they started. ⛔ No row settles this corner; only
    * 「欄の外」 is ruled on.
-   * @provisional PD-352
+   * @provisional PND-352
    *
    * @purity non-pure
    */
@@ -7602,7 +7602,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     isHeldTextTakenBack = false
 
-    // PD-352: another field of this panel keeps the person's place.
+    // PND-352: another field of this panel keeps the person's place.
     if (textEntryControlOf(pressedOn) !== null) return
 
     // ⚠️ Guarded rather than assumed, the reason IN-4's listener gives: table

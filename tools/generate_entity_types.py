@@ -1569,7 +1569,7 @@ COLOUR_TARGETS = {
     # what is secondary. ⛔ NOT A NEW VALUE -- the row already stands, and the
     # colour it lends is deliberately neither S-163's nor S-195's, which is what
     # FR-048's closing MUST asks of a line that carries no date. @provisional
-    # PD-341
+    # PND-341
     'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
@@ -2421,7 +2421,7 @@ TARGETS = [
     # ⭐ D-276: the two numbers EP-1 writes the `Document Title` with, in the
     # one unit that assembles a picture that goes out. ⛔ Until 2026-09-07 this
     # file held `TITLE_FONT_OF_BAND` and `TITLE_INSET_OF_BAND`, two fractions
-    # of the band's own height invented here (PD-52) -- and EP-1 (MUST NOT)
+    # of the band's own height invented here (PND-52) -- and EP-1 (MUST NOT)
     # forbids an export a constant of its own, because a second value is how
     # the title on the screen and the title in the picture came to stand 6.5px
     # apart.

@@ -198,7 +198,7 @@
 #          two books together, and the same question lands in both. ⚠️
 #          Measured 2026-09-06: four items were handed out as unexamined and
 #          re-worked when they had already been ruled -- D-270 for thirteen
-#          days, against a PD-178 that named the very test that had to fall.
+#          days, against a PND-178 that named the very test that had to fall.
 #          Held against ruled-elsewhere-baseline.txt (7) the way check 31 is.
 #          ⚠️ It prints, without gating, the rows whose only link to a ruling
 #          is a change request: a CR routinely cites the row that RAISED it,

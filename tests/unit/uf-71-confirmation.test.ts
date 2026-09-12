@@ -107,7 +107,7 @@
 //     its reason being "it is not visible on that row on the screen", so the
 //     mark is owed to the reader and not only to the markup. That was recorded
 //     here as UNMET while the dictionary held no entry a mark on an item could
-//     be read from (PD-160). ⛔ The manuscript has since grown one, CR-218
+//     be read from (PND-160). ⛔ The manuscript has since grown one, CR-218
 //     having settled the medium as a WORD, so the case below reads that word and
 //     asks whether it is on the surface -- and asks that nothing wears it where
 //     the flag is not set.
@@ -1812,7 +1812,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // silently while the mark itself was still waiting on a word.
     // ⚠️ WHAT IT NO LONGER SAYS. Its title used to end by calling FR-032's MUST
     // unmet, on the ground that the dictionary held no entry a mark on
-    // an item could be read from (PD-160). ⛔ THAT GROUND IS GONE: the
+    // an item could be read from (PND-160). ⛔ THAT GROUND IS GONE: the
     // manuscript has since grown the section that answers for it, and the case
     // below reads the word out of that section and finds it on the drawn
     // surface. ⛔ NOTHING IS INVENTED HERE EITHER WAY -- the word is READ, and

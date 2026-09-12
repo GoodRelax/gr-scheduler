@@ -53,7 +53,7 @@
 # (CR-347). Booking them changes what a check decides, so ruling 9 holds them
 # for a ruling rather than letting a cleanup make it in passing.
 #
-# ⚠️ PD-100 .. PD-103 WERE NOT WITHDRAWN -- THEY WERE NEVER WRITTEN.
+# ⚠️ PND-100 .. PND-103 WERE NOT WITHDRAWN -- THEY WERE NEVER WRITTEN.
 # pending-decisions.md runs 95, 104, 105; git log -S over the whole history
 # returns 0 commits for each of the four. Six comments in
 # file-system-access-file-store.ts pointed at them, and one claimed to have

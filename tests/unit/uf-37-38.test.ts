@@ -39,11 +39,11 @@
 //   NT-1 / NT-3a of table T-037   a refusal says which item is wrong in words; a
 //              failure notice carries a next step, which is why three reasons
 //              are told apart here and none is told apart in `AppShellReading`
-//   PD-70 / PD-71   the container's markup, its placement, what happens when
+//   PND-70 / PND-71   the container's markup, its placement, what happens when
 //              there is more than one, and the shape of element id accepted
 //              across IF-8. ⛔ Not decided by docs/spec, but both are now
-//              SETTLED (CR-353): PD-70 kept its recommendation as the ruling,
-//              PD-71 did not -- the ruling rejects only characters that would
+//              SETTLED (CR-353): PND-70 kept its recommendation as the ruling,
+//              PND-71 did not -- the ruling rejects only characters that would
 //              break the start tag, rather than requiring a leading ASCII
 //              letter. The cases below are pinned to the ruling now, the way
 //              docs/development-rules/06-pending-decisions.md section 3 asks:
@@ -163,7 +163,7 @@ const EXECUTABLE_SCRIPT_TYPES = [
 ] as const
 
 /**
- * PD-71's RULING (CR-353, 2026-09-05, "ruling 1: b"): reject only the
+ * PND-71's RULING (CR-353, 2026-09-05, "ruling 1: b"): reject only the
  * characters that would break the start tag this file writes -- everything
  * else is a usable id, a leading digit, dash or underscore included. This
  * replaced the earlier recommendation of an ASCII letter followed by
@@ -185,7 +185,7 @@ const USABLE_IDS = [
 ] as const
 
 /**
- * The characters PD-71's ruling still refuses, because each would break the
+ * The characters PND-71's ruling still refuses, because each would break the
  * start tag `<script type="..." id="${elementId}">` or the scan that finds
  * it again: an empty id names no element; every kind of whitespace would
  * begin a second attribute; `"` and `'` would close the attribute value;
@@ -408,7 +408,7 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     )
   })
 
-  it('carries the id rosters PD-71 draws the line between', () => {
+  it('carries the id rosters PND-71 draws the line between', () => {
     expect(USABLE_IDS.length).toBeGreaterThan(0)
     expect(UNUSABLE_IDS.length).toBeGreaterThan(0)
     expect(EXECUTABLE_SCRIPT_TYPES.length).toBeGreaterThan(0)
@@ -672,10 +672,10 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
 })
 
 // ---------------------------------------------------------------------------
-// Where the container goes (PD-70; the reason is CN-5)
+// Where the container goes (PND-70; the reason is CN-5)
 // ---------------------------------------------------------------------------
 
-describe('the container goes at the end of the body (PD-70, grounds CN-5)', () => {
+describe('the container goes at the end of the body (PND-70, grounds CN-5)', () => {
   it('puts it immediately before the last `</body>`, changing nothing before it', async () => {
     const html = await exported(PLAIN_SHELL, ID, SMALL)
     const container = onlyContainer(html, ID)
@@ -761,7 +761,7 @@ describe('FR-067 -- a file this writer wrote carries exactly one entry', () => {
   it('refuses when the shell already carries two entries, and says which id', async () => {
     // ⛔ Refused rather than tidied: FR-067 has the reader complain when the
     // entry is not exactly one, and this side cannot know which of two the
-    // reader would take. (PD-70)
+    // reader would take. (PND-70)
     const one = await exported(PLAIN_SHELL, ID, SMALL)
     const container = onlyContainer(one, ID)
     const twoEntries =
@@ -932,10 +932,10 @@ describe('FR-028 -- a failure is a value, never a throw (AG-8 of table T-035)', 
 })
 
 // ---------------------------------------------------------------------------
-// PD-71 -- the shape of element id accepted across IF-8
+// PND-71 -- the shape of element id accepted across IF-8
 // ---------------------------------------------------------------------------
 
-describe('PD-71 -- the element id this component accepts from the shell', () => {
+describe('PND-71 -- the element id this component accepts from the shell', () => {
   it('accepts every plain ASCII id of the roster and writes it into the start tag', async () => {
     for (const elementId of USABLE_IDS) {
       const html = await exported(PLAIN_SHELL, elementId, SMALL)
@@ -1053,13 +1053,13 @@ describe('@purity semi-pure-b -- one external read, then pure assembly', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-70 -- SETTLED (CR-353): the ruling kept the markup, still pinned exactly
+// PND-70 -- SETTLED (CR-353): the ruling kept the markup, still pinned exactly
 // ---------------------------------------------------------------------------
 
-describe('PD-70 -- the container markup, now SETTLED (CR-353; docs/development-rules/06 section 3)', () => {
+describe('PND-70 -- the container markup, now SETTLED (CR-353; docs/development-rules/06 section 3)', () => {
   it('writes `<script type="application/json" id="...">` and closes it', async () => {
     // ⛔ Nothing in docs/spec names the container. This was the recommendation
-    // of PD-70; the ruling kept it as-is, so this case did not fall. ⭐ Still
+    // of PND-70; the ruling kept it as-is, so this case did not fall. ⭐ Still
     // pinned to the exact string -- only a later ruling that changes the
     // markup should make it fall next.
     const html = await exported(PLAIN_SHELL, ID, SMALL)

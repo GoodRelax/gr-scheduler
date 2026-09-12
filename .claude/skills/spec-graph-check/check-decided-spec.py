@@ -60,9 +60,9 @@ REL_HARVEST = 'docs/development-records/fixed-defects.md'
 NEEDS_SPEC = ('実装待ち', '試験待ち', '実測待ち', '実測済')
 
 # ⛔ WHAT A SPEC MANAGEMENT NUMBER IS -- and what only looks like one. `D-` is
-# this ledger's own id, `PD-` the pending-decision list's, `CR-` a change
+# this ledger's own id, `PND-` the pending-decision list's, `CR-` a change
 # request; none of the three is a place in the specification.
-NOT_SPEC = ('D', 'PD', 'CR')
+NOT_SPEC = ('D', 'PND', 'CR')
 NUMBERED = re.compile(r'`([A-Z]{1,3})-(\d+[a-z]?)`')
 TABLE = re.compile(r'表 T-\d+|図 F-\d+|Chapter \d')
 

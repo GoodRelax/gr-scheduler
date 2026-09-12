@@ -351,7 +351,7 @@ export interface FrameValues {
    * sum. ⭐ Carried beside the three rather than read again for the same reason
    * `readSnapshot` reads `values` into a local: the frame the picture came from
    * and the frame the bounds are measured against have to be one frame.
-   * @provisional PD-254
+   * @provisional PND-254
    */
   readonly settingsMeasuredWith: DocumentSettings
   /**
@@ -675,7 +675,7 @@ export interface ScreenWiring {
  * ⛔ THE REQUIREMENT DID NOT MOVE WITH IT -- 何にも当たらない場所 is still IN-2's
  * place and still carries 範囲選択の合図; only the host's word for that meaning
  * changed, which is the one thing IN-2 leaves to this side.
- * @provisional PD-337
+ * @provisional PND-337
  * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
  * as "the thing under the pointer can be moved", which is 「掴めることの合図」
  * word for word. ⚠️ It is the RESTING shape and not `grabbing`, which IN-2
@@ -793,7 +793,7 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
  * `Record<GrabbedArea, boolean>` makes a row added to table T-023d a compile
  * error here that names itself, where the `ReadonlySet` above would let it
  * default silently into 「no picture」.
- * @provisional PD-250
+ * @provisional PND-250
  */
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-1': true,
@@ -1157,7 +1157,7 @@ const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
  * a `DocumentCommand`; this one IS -- CM-42 of table T-108, which table T-109
  * names in the row itself. What keeps it out of `input-command-translator.ts`
  * is the ARGUMENT and not the road: CM-42 is handed the `uid`s the choice
- * holds, that choice is `ScreenSession.selectedResourceUids` (PD-143) which
+ * holds, that choice is `ScreenSession.selectedResourceUids` (PND-143) which
  * LY-5 of table T-060 leaves with the Framework, and `InputContext` carries no
  * member for it. ⚠️ THE SAME SHAPE `DIALOGUE_FIELD_ENTRY` ABOVE HAS, whose own
  * note ends on the same sentence.
@@ -2376,7 +2376,7 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
  * project settled (previous-project-result/09-architecture/
  * architecture-entry-ja.md section 3).
  *
- * @provisional PD-110
+ * @provisional PND-110
  */
 const WEB_STORAGE_KEY_PREFIX = 'grsched.'
 
@@ -2819,8 +2819,8 @@ interface SessionHeld {
  * ⭐ NOTHING IS DECIDED HERE ANY MORE except the palette's corner, which
  * `paletteCornerOf` answers because its default is a rectangle of THIS frame.
  * The five members that used to be frozen at empty -- `isAgentApiEnabled`,
- * `selectedGroupIds` (PD-142), `selectedResourceUids` (PD-143),
- * `propertiesShowing` and `propertiesSubject` (PD-144) -- are values the loop
+ * `selectedGroupIds` (PND-142), `selectedResourceUids` (PND-143),
+ * `propertiesShowing` and `propertiesSubject` (PND-144) -- are values the loop
  * moves as presses arrive, so they are handed in like the notices and the
  * question beside them.
  *
@@ -2887,7 +2887,7 @@ function sessionOf(
     // D-280 closed, and that was measured false: S-99i names no identifier at
     // all -- it is one value with one default (「表示」) and no key column, so
     // `BrowserStoredRow` has no row for it and nothing is written.
-    // ⚠️ LEFT WHERE IT STANDS RATHER THAN GIVEN FR-065's ANSWER: PD-419 is
+    // ⚠️ LEFT WHERE IT STANDS RATHER THAN GIVEN FR-065's ANSWER: PND-419 is
     // 未裁定 and asks what S-99i does when the capability goes down and comes
     // back, and borrowing the row above's scope would decide that here.
     isDialogueFieldVisible,
@@ -2912,7 +2912,7 @@ function sessionOf(
     // the loop and neither of them decidable here.
     // ⭐ THE PLACE IS IF-9's OWN ANSWER, not a rectangle worked out a second
     // time: the rule Chapter 5.3 states under table T-065 is that the side
-    // which DREW an entry is the side that answers where it is, and PD-141
+    // which DREW an entry is the side that answers where it is, and PND-141
     // recommends exactly this road. ⚠️ So it carries whatever
     // `readScreenPartAt` reports, IC-53 included -- `ScreenPart.entry` says why
     // that row is answered although table T-109 calls it no button, and no
@@ -2980,18 +2980,18 @@ function sessionOf(
     // of that one and admits no resource at all, so `Selection` (PI-32) can hold
     // neither. ⭐ Both are moved by presses `commandFromEntry` answers with an
     // `InputAction` of its own kind; `carryOutAction` is where they land.
-    // @provisional PD-142
+    // @provisional PND-142
     selectedGroupIds,
-    // @provisional PD-143
+    // @provisional PND-143
     selectedResourceUids,
     // FR-072: which of the two the LAST operation chose, and what it chose.
-    // ⭐ THE SUBJECT AND NOT THE DRAWN FIELDS, which is the whole of PD-144:
+    // ⭐ THE SUBJECT AND NOT THE DRAWN FIELDS, which is the whole of PND-144:
     // that requirement has a second press of IC-17 return the panel to
     // 「直前の選択物」, so what has to be kept is what was chosen -- keeping the
     // fields would go on showing values an edit has already made untrue.
-    // @provisional PD-144
+    // @provisional PND-144
     propertiesShowing,
-    // @provisional PD-144
+    // @provisional PND-144
     propertiesSubject,
     // FR-076 (MUST): what has been raised to tell, each carrying a row of table
     // T-233 and no words at all.
@@ -4539,7 +4539,7 @@ export function frameLoop(
   // ⚠️ Lost with the page, because nothing keeps it: table T-203 has no key and
   // table T-206 no row, which is what leaves it a current value LY-5 of table
   // T-060 puts here.
-  // @provisional PD-142
+  // @provisional PND-142
   let selectedGroupIds: readonly string[] = []
   /**
    * FR-033's 「複製に使う置き場」 -- SK-4 put something here and SK-5 takes it.
@@ -4569,7 +4569,7 @@ export function frameLoop(
   // FR-099 (MUST) -- who is chosen in the `Resource Roster` (U-49), by
   // `Resource.uid` (AT-85), which AS-6 of table T-225 makes the key a document
   // writes while a person is shown the name. ⛔ SL-1 admits no resource either.
-  // @provisional PD-143
+  // @provisional PND-143
   let selectedResourceUids: readonly number[] = []
   // FR-072 -- which of the two the last operation chose, and what it chose.
   //
@@ -4578,7 +4578,7 @@ export function frameLoop(
   // one there is no last. ⚠️ Nothing else moves it back to `null` -- that
   // requirement (MUST) keeps the previous contents standing when a selection
   // goes away, and says the heading is what tells the person so.
-  // @provisional PD-144
+  // @provisional PND-144
   let propertiesShowing: PropertiesShowing = null
   let propertiesSubject: PropertiesSubject | null = null
   // Whether the reader has put the `Properties Panel` (U-25) away.
@@ -4598,7 +4598,7 @@ export function frameLoop(
   // which that row spells as 「閉じている」 all by itself, and this value is
   // about a panel a reader TOOK AWAY -- IN-4's level and IC-52's press are its
   // only two writers.
-  // @provisional PD-338
+  // @provisional PND-338
   let isPropertiesPanelPutAway = false
   // FR-065 -- whether the person has turned the `Agent API` on at this origin.
   // ⭐ SEEDED FROM S-99b, exactly as `language` two declarations down is seeded
@@ -4619,7 +4619,7 @@ export function frameLoop(
   // `isAgentApiEnabled` JUST ABOVE, and S-99i (MUST NOT) says so in as many
   // words: one is the capability, this is what the reader chose to see. ⛔ AND
   // NO LONGER CARRIED THE SAME WAY. The one above is seeded from S-99b and
-  // written back; this one is not, because PD-419 (未裁定) asks what S-99i does
+  // written back; this one is not, because PND-419 (未裁定) asks what S-99i does
   // across the capability going down and coming back, and `BrowserStoredRow`
   // holds no row for it -- see `sessionOf` for the false claim that stood here.
   let isDialogueFieldVisible = true
@@ -5451,7 +5451,7 @@ export function frameLoop(
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
     // Task alone, and `itemAtPointer` can only be as narrow as the geometry it
     // reads. Two different answers here would put a grab where no point is
-    // drawn (PD-191).
+    // drawn (PND-191).
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = {
       regions,
@@ -6597,7 +6597,7 @@ export function frameLoop(
    * unchanged one. ⚠️ Keeping the last accepted preview instead would break the
    * property the note on `previewDocument` leans on and would show a width the
    * release will not produce.
-   * @provisional PD-253
+   * @provisional PND-253
    *
    * @purity semi-pure-b
    */
@@ -8831,7 +8831,7 @@ export function frameLoop(
       // press this twice and the second press names `uid`s the document no
       // longer holds, which CM-42 refuses and `writeDocument` tells with the
       // refusal's own reason. ⚠️ Told rather than silent, so no MUST of FR-029
-      // is broken; whether the set should be cleared is PD-143's, which is
+      // is broken; whether the set should be cleared is PND-143's, which is
       // 未裁定 and says nothing about a deletion.
       const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
       const owedQuestion = confirmationOwedByResourceDeletion(chosen, held.document)
@@ -8977,11 +8977,11 @@ export function frameLoop(
     // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the save path
     // has, and for the reason CS-4 gives: the operation spans frames, and the
     // flag above is what keeps the next press from starting a second one.
-    // ⛔ WAITING ON PD-187, and so are the other two of this shape below. That
+    // ⛔ WAITING ON PND-187, and so are the other two of this shape below. That
     // record states the gap exactly: `.finally` does not consume a rejection,
     // and all three of these declare a rejection to be a breach of IF-3's
     // contract -- so a rejected one is neither swallowed on purpose nor told.
-    // ⛔ NOT SETTLED HERE. The three answers PD-187 weighs (swallow it, leave
+    // ⛔ NOT SETTLED HERE. The three answers PND-187 weighs (swallow it, leave
     // it, give it a row of table T-233) are a ruling, and a row invented in
     // this file would be the reason FR-076 (MUST NOT) bars from outside that
     // table. ⚠️ Not the same question as LM-14 of table T-004, which is a write
@@ -9291,7 +9291,7 @@ export function frameLoop(
         // save path has, and for the same reason CS-4 gives: the operation
         // spans frames, and the flag above is what keeps the next press from
         // starting a second one.
-        // ⛔ WAITING ON PD-187, the second of the three: see the note on the
+        // ⛔ WAITING ON PND-187, the second of the three: see the note on the
         // export path above for what is undecided.
         void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(endFileOperationWait)
         return
@@ -9397,7 +9397,7 @@ export function frameLoop(
         // happening is settled before the chooser has even opened -- CS-4 says
         // in as many words that the operation spans frames -- and the flag
         // above is what keeps the next press from starting a second one.
-        // ⛔ WAITING ON PD-187, the third of the three: see the note on the
+        // ⛔ WAITING ON PND-187, the third of the three: see the note on the
         // export path above for what is undecided.
         void saveHeldDocumentToFile(store).finally(endFileOperationWait)
         return
@@ -9799,7 +9799,7 @@ export function frameLoop(
         // FR-042 (MUST) reads this same set -- the band colour (AT-58) and
         // height (AT-59) it puts up are the chosen row's -- and FR-072 decides
         // the panel by the last operation, which this is.
-        // @provisional PD-142
+        // @provisional PND-142
         showPropertiesOfChoice()
         return
       }
@@ -9810,7 +9810,7 @@ export function frameLoop(
         // ⛔ NOT SHOWN IN THE PROPERTIES PANEL: FR-072 speaks of 「選択」, and
         // SL-1 of table T-023c does not admit a resource -- so a roster press is
         // not one of the operations that requirement decides the panel by.
-        // @provisional PD-143
+        // @provisional PND-143
         selectedResourceUids = action.uids
         return
       case 'toggleChosenResource': {
@@ -9818,7 +9818,7 @@ export function frameLoop(
         // themselves (「同じ入口で解く」 / 「同じ入口で選ぶ」). ⚠️ Which way it
         // goes is decided from what is HELD and never from the entry that was
         // drawn, for the reason `chooseRow` gives above.
-        // @provisional PD-143
+        // @provisional PND-143
         const chosen = selectedResourceUids
         selectedResourceUids = chosen.includes(action.uid)
           ? chosen.filter((one) => one !== action.uid)
@@ -9844,7 +9844,7 @@ export function frameLoop(
         // UP, and no row says what this entrance means to a panel that is not.
         // The turn is left alone rather than given a second rule.
         isPropertiesPanelPutAway = false
-        // @provisional PD-144
+        // @provisional PND-144
         propertiesShowing =
           propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
         return
@@ -9900,7 +9900,7 @@ export function frameLoop(
         // IC-18 -- FR-066 / S-99i (D-149). ⭐ ONE ENTRANCE BOTH WAYS, the same
         // shape `toggleAgentApi` just above has and for the same reason: table
         // T-109 words IC-18 「表示する・非表示にする」 on the one entrance.
-        // @provisional PD-419 -- turning the API off does NOT put S-99i back
+        // @provisional PND-419 -- turning the API off does NOT put S-99i back
         // to its default; what the reader chose to see is remembered, so
         // enabling the API again restores it. Table T-206 states the default
         // and says nothing about a capability going away and coming back. ⛔ REACHED ONLY
@@ -9922,7 +9922,7 @@ export function frameLoop(
    * moved selection is not one of them, so a caller that is not `MK-13` or
    * `IC-17` may reach this only while the panel is already standing.
    *
-   * ⭐ THE SUBJECT AND NOT THE FIELDS (PD-144). FR-072 (MUST) keeps the previous
+   * ⭐ THE SUBJECT AND NOT THE FIELDS (PND-144). FR-072 (MUST) keeps the previous
    * contents standing when the selection goes away and has a second press of
    * IC-17 return to 「直前の選択物」, so what is kept is WHAT was chosen -- kept
    * fields would go on showing values an edit had already made untrue, and
@@ -9945,7 +9945,7 @@ export function frameLoop(
    * いこと（MUST NOT）」: with the settings up, an emptying leaves them up, and
    * nothing here can move to them either.
    *
-   * @provisional PD-144
+   * @provisional PND-144
    * @purity non-pure
    */
   function showPropertiesOfChoice(): void {
@@ -10672,13 +10672,13 @@ export function frameLoop(
     // this line is where the press opened it. ⚠️ `propertiesShowingNow` and not
     // `propertiesShowing`, because a panel that was put away is not standing --
     // reading the raw value would let the next press bring back a panel the
-    // person closed, which is exactly the answer PD-339 settled against.
+    // person closed, which is exactly the answer PND-339 settled against.
     // ⛔ COMPARED BY IDENTITY, which is the comparison PI-18 declares for this
     // member: `selectionFromInput` answers the SAME value it was handed when
     // nothing moved, so a press that changed nothing does not count as an
     // operation here. ⚠️ `context.selection` is what was held before the three
     // members ran, and `owesFrame` compares the same pair for the same reason.
-    // @provisional PD-144
+    // @provisional PND-144
     if (selection !== context.selection && propertiesShowingNow() !== null) {
       showPropertiesOfChoice()
     }

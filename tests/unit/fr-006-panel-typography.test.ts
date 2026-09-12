@@ -105,7 +105,7 @@
 //      NOT protects (FR-039, WCAG 1.4.4).
 //
 // ⭐ WHAT IS DELIBERATELY NOT ASSERTED:
-//   1. WHICH PROPERTY carries the size. No table names one, and PD-151 already
+//   1. WHICH PROPERTY carries the size. No table names one, and PND-151 already
 //      records that the choice of property is the drawing side's; the cases ask
 //      what the panel COMPUTES TO under a base, which is the question FR-006
 //      asks.

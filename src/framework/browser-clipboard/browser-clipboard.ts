@@ -112,7 +112,7 @@ function textFromContent(content: ClipboardContent): string {
  * least, which is the reading `writeClipboard` already applies to a seam that
  * breaks its promise.
  *
- * @provisional PD-121
+ * @provisional PND-121
  * @purity pure
  */
 function faultFromThrown(thrown: unknown): ClipboardFault {

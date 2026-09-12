@@ -175,7 +175,7 @@ export interface PointerSlop {
    * ⭐ 「掴み代がバーの外へ 1px も出ないので、担当ラベル（表 T-023d の `GR-11`）の
    * 端に乗ることがない」. `isOnActualEnd` spends it and applies the half.
    *
-   * @provisional PD-167
+   * @provisional PND-167
    */
   readonly actualEndpoint: number
   /** S-92: the fade handle's square, as its half-width. */
@@ -196,7 +196,7 @@ export interface PointerSlop {
    * ROW ANYWHERE says where such a value is to be caught or what is to happen
    * then -- so nothing is invented here to catch it.
    *
-   * @provisional PD-168
+   * @provisional PND-168
    */
   readonly line: number
 }
@@ -589,7 +589,7 @@ const TABLE_T_023D: readonly HitRow[] = [
   // inside a highlight box's range, and if the enclosing box won, the inner one
   // could never be grabbed -- the very trap GR-19's own remark spells out
   // (「掴めない位置へ置けてしまうと二度と動かせなくなる」). Table T-023d gives
-  // both kinds one row and states no order between them. @provisional PD-235
+  // both kinds one row and states no order between them. @provisional PND-235
   //
   // ⭐ THIS ROW MOVED UP WITH GR-13 (2026-09-10). The table prints the two
   // together, above GR-3, and this list is the table straight down -- so the

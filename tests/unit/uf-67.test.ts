@@ -55,7 +55,7 @@
 //     together.
 //   * ⛔ WHAT STANDS IN FOR A ROW THAT IS PRESENT BUT WHOSE CELL IS EMPTY. The
 //     specification settles the ABSENT row (FR-076 sends it to the fallback row)
-//     and says nothing about a written row whose word was emptied. PD-160 is
+//     and says nothing about a written row whose word was emptied. PND-160 is
 //     what makes the two different cases at all. So the case below asks only
 //     what NT-1 (MUST) and NT-3a (MUST) ask -- that words and a next step still
 //     arrive -- and fixes no wording.
@@ -807,7 +807,7 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
     // ⚠️ NO CELL IS EMPTY TODAY, so this stands guard over a generated file
     // someone has edited by hand -- which Chapter 6.2 forbids (MUST NOT) and
     // cannot prevent. It is also what tells an ABSENT row apart from a PRESENT
-    // but empty one, which is the difference PD-160 records.
+    // but empty one, which is the difference PND-160 records.
     // ⛔ WHAT the stand-in says is not asserted: FR-076 settles where an ABSENT
     // row falls and says nothing about a present row whose word was emptied, so
     // only what NT-1 and NT-3a demand is asked for here.
@@ -895,7 +895,7 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 //   FR-038   「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」--
 //             so an entry's word is the dictionary's, keyed by its row id, and
 //             「対象は `ja` と `en` の 2 言語とする」. ⚠️ Every word in that
-//             dictionary WAS empty when these cases were written (PD-160), so a
+//             dictionary WAS empty when these cases were written (PND-160), so a
 //             case that read it and compared could not fail. The words have
 //             since been written, and the built dictionary is kept because it
 //             is still the only thing that tells a word READ from a word MINTED
@@ -1161,7 +1161,7 @@ const OP_11_TELLING = raisedOf('NT-5', reasonWrittenAgainst('NT-5'), 2)
 
 /**
  * ⛔ WHY A DICTIONARY IS BUILT AT ALL. Every word in the one FR-038 names WAS the
- * empty string when these cases were written (PD-160: the manuscript was
+ * empty string when these cases were written (PND-160: the manuscript was
  * unwritten and an agent may not invent a word), so a case that READ that
  * dictionary and held the answer against it would have been holding '' against
  * '' -- which is equally true of a unit that keys by the wrong row, of one that

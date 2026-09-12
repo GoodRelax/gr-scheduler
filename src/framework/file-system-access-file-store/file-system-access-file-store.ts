@@ -116,7 +116,7 @@ export interface FileHandle {
   createWritable(options?: { keepExistingData?: boolean }): Promise<WritableFileStream>
   /**
    * ⚠️ Optional because not every browser that has handles has these two, and
-   * because a test has no use for them. What their absence means is PD-105.
+   * because a test has no use for them. What their absence means is PND-105.
    */
   queryPermission?(descriptor: { mode: 'readwrite' }): Promise<FilePermissionState>
   requestPermission?(descriptor: { mode: 'readwrite' }): Promise<FilePermissionState>
@@ -404,7 +404,7 @@ function firstDroppedFile(items: DroppedItems): DroppedItem | null {
  * Searched: FR-060, LM-14 of table T-004, CN-2 of table T-003, IF-3 of table
  * T-065, NT-4 of table T-037.
  *
- * @provisional PD-105
+ * @provisional PND-105
  *
  * @purity semi-pure-b
  */
@@ -678,7 +678,7 @@ export function fileSystemAccessFileStore(
       // refused.
       // Searched: OP-1 of table T-024a, table T-024, CN-5 of table T-003,
       // `_assets/tbl-glossary.md`.
-      // @provisional PD-104
+      // @provisional PND-104
       chosen = await picker({ multiple: false })
     } catch (thrown) {
       if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }

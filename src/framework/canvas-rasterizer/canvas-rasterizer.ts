@@ -280,7 +280,7 @@ type SizedPicture =
  * picture. ⚠️ The SVG the PERSON receives (IO-3) is untouched: it is the near
  * side's, and this is a copy made for the decoder.
  *
- * @provisional PD-132
+ * @provisional PND-132
  * @purity pure
  */
 function sizedSvg(svg: string, sizePx: RasterSizePx): SizedPicture {
@@ -379,7 +379,7 @@ function pngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
  * -- one reason per branch, and nothing is saved. ⚠️ The three next steps the
  * seam's declaration gives are what each branch was chosen against.
  *
- * @provisional PD-130
+ * @provisional PND-130
  * @purity semi-pure-b
  */
 async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Promise<Rastering> {
@@ -429,7 +429,7 @@ async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Prom
   // to choose -- what an export shows is FR-080's and table T-076's -- so the
   // parts the picture leaves clear stay clear in the PNG. ⚠️ NOT IN THE
   // SPECIFICATION: no row says whether IO-4's PNG keeps a transparent ground.
-  // Class C -- one line to add, and nothing is saved. @provisional PD-134
+  // Class C -- one line to add, and nothing is saved. @provisional PND-134
   try {
     const blob = await pngBlob(canvas)
     if (blob === null) return failedRastering('rasterFailed', WHAT_NO_BYTES)

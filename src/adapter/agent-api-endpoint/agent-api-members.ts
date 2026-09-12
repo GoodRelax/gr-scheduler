@@ -587,7 +587,7 @@ export interface AgentApiWiring {
  * FR-073's version is a date string, but that one orders documents, not APIs.
  * Searched: table T-035, table T-107, `_assets/tbl-settings.md`, Chapter 6.1.
  *
- * @provisional PD-60
+ * @provisional PND-60
  */
 const AGENT_API_VERSION = 1
 
@@ -776,7 +776,7 @@ function handedDocument(
  * a task with only an actual is still drawn and still has somewhere to be.
  * Searched: FR-055, table T-203, table T-051, table T-107 AM-16.
  *
- * @provisional PD-61
+ * @provisional PND-61
  * @purity pure
  */
 function viewThatShowsTask(
@@ -1471,7 +1471,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         // that caller, and it chooses "only what happens from now on", spelled
         // out of two public values (PI-3 and PI-33). Searched: table T-035
         // AG-6, table T-107 AM-17, Chapter 6.1.
-        // @provisional PD-62
+        // @provisional PND-62
         since: {
           seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedUtc,
           seenSequence: latestSequence(snapshot.dialogue),

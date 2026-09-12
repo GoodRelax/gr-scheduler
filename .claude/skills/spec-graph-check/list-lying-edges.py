@@ -78,7 +78,7 @@ SAYS = re.compile(
 # The other books a comment may honestly quote instead of the manuscripts.
 ATTRIBUTION = 120
 OTHER_BOOKS = re.compile(
-    u'D-[0-9]+|CR-[0-9]+|PD-[0-9]+|利用者の|逐語|'
+    u'D-[0-9]+|CR-[0-9]+|PND-[0-9]+|利用者の|逐語|'
     u'台帳|changelog|fixed-defects|rulings')
 
 # How far back from a quotation a seat token still counts as naming it.

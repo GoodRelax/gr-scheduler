@@ -54,7 +54,7 @@
 //              is a rectangle -- so the test is made in this file.
 //   icon       EZ-2 of table T-040 states a TIME condition and a PLACE
 //              condition, and the session answers both: `pointerRestedMs` for
-//              the wait, `iconUnderPointer` (PD-141) for which entry is under
+//              the wait, `iconUnderPointer` (PND-141) for which entry is under
 //              the pointer. ⚠️ The place is READ and not measured -- no entry
 //              carries a rectangle, so the side that drew them answers.
 //   task       EZ-6 of table T-040 states the SAME two conditions and (MUST)
@@ -291,7 +291,7 @@ function dateText(stored: string | null): string {
  * has an item with no value leave its place empty, and collapsing the joins
  * would move the dates into the name's place.
  *
- * @provisional PD-390
+ * @provisional PND-390
  * @purity pure
  */
 function taskHint(task: Task): string {
@@ -372,7 +372,7 @@ export function tooltipsFromScreenView(
 
   // ⭐ EZ-2'S PLACE CONDITION IS ANSWERED OFF-SEAM, NOT MEASURED HERE. Which
   // entry the pointer rests on arrives as `ScreenSession.iconUnderPointer`
-  // (PD-141): no `CommandItem` carries a rectangle and `ScreenRegions` is not an
+  // (PND-141): no `CommandItem` carries a rectangle and `ScreenRegions` is not an
   // argument of this unit, so the side that DREW the entries (PI-38) is the one
   // side that can say, and it hands the answer over in the session. ⛔ Guessing
   // a rectangle here would be an invented layout, which is what that member
@@ -453,7 +453,7 @@ export function tooltipsFromScreenView(
       // assignment is EZ-2's own MUST, and table T-023's rows assign gestures
       // rather than rows of table T-109, so there is nothing to put here.
       assignment: null,
-      // @provisional PD-391 -- see `Tooltip.at`.
+      // @provisional PND-391 -- see `Tooltip.at`.
       at: pointer,
     })
   }

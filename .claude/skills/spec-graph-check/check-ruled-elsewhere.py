@@ -5,14 +5,14 @@ it names has already been ruled.
 
 ⛔ WHY THIS EXISTS. The same question lands in TWO books.
 `docs/development-records/defects.md` (the ledger) holds it as a `D-` row, and
-`docs/development-records/pending-decisions.md` holds it as a `PD-` row. Rule
-06 section 3 makes the PD row the place the ruling is RECORDED -- 「裁定を受け
+`docs/development-records/pending-decisions.md` holds it as a `PND-` row. Rule
+06 section 3 makes the PND row the place the ruling is RECORDED -- 「裁定を受け
 たら … 行の状態を 裁定済 にする（⛔ 行は消さない。記録である）」 -- but nothing
 carries that back to the ledger cell, and nothing reads the two books together.
 
 ⚠️ MEASURED 2026-09-06: four items were handed out to bodies as un-ruled and
 re-worked from scratch when they had already been ruled. `D-270` is one of
-them. Its 対応方針・決定仕様 cell opened 「⛔ 未検討。」 while `PD-178` had
+them. Its 対応方針・決定仕様 cell opened 「⛔ 未検討。」 while `PND-178` had
 stood at 裁定済 since 2026-08-23 -- thirteen days -- carrying the answer
 (「値で返す。表 T-233 に行を新設する」) AND the name of the test that had to
 fall (`tests/unit/layout-engine.test.ts` の 512 行). A whole round of work was
@@ -40,12 +40,12 @@ WHAT COUNTS AS A HIT. Both of these true for the SAME `D-` row:
   1. The row READS AS UN-RULED -- either its ステータス cell is 未検討 /
      裁定待ち / 仕様待ち, or its 対応方針・決定仕様 cell contains one of
      未検討, 裁定待ち, 利用者の裁定が要る, 裁定を待つ, 未定, 仕様に行が無い.
-  2. The row NAMES a `PD-nnn` whose 状態 in pending-decisions.md is 裁定済.
+  2. The row NAMES a `PND-nnn` whose 状態 in pending-decisions.md is 裁定済.
 
 ⭐ CONDITION 1 IS READ OUTSIDE QUOTATION AND OUTSIDE A DATED RECORD, through
 the same `asserts_any()` check 31 uses. A sentence opening 「⚠️ 実測（YYYY-MM-
 DD）」 records what was true on that day and is struck before the phrases are
-looked for (`D-367`, the user's ruling of 2026-09-07 on `PD-441`; the notation
+looked for (`D-367`, the user's ruling of 2026-09-07 on `PND-441`; the notation
 is written down in `docs/development-rules/04-verification.md` section 6.6).
 ⚠️ MEASURED 2026-09-07: this check's count did not move (3), because the three
 rows it still holds date their history in prose that does not carry the mark.
@@ -60,9 +60,9 @@ the fix is different -- check 31 asks you to reword a cell, this one asks you
 to go and read a ruling you already have.
 
 ⚠️⚠️ WHAT THIS DOES NOT COVER, and the measurement that says so. The link is
-NOT only `PD- -> D-`:
+NOT only `PND- -> D-`:
 
-  - A ruling may be recorded ONLY in the ledger cell (no PD row at all). That
+  - A ruling may be recorded ONLY in the ledger cell (no PND row at all). That
     is check 31's axis, and check 31's STILL_BLOCKED list does not hold 未検討
     nor its SETTLED list 裁定された -- so `D-301`, one of this session's four,
     is caught by NEITHER check. Widening check 31's vocabulary is the fix
@@ -76,9 +76,9 @@ NOT only `PD- -> D-`:
     are COUNTED AND PRINTED on every run instead, so the gap is visible rather
     than silent.
 
-⭐ The `PD- -> D-` direction is not usable either: 197 PD rows, and only 11 of
+⭐ The `PND- -> D-` direction is not usable either: 197 PND rows, and only 11 of
 them name a `D-nnn` in any cell (measured 2026-09-06). The ledger row naming
-its PD is the link that actually exists in the data.
+its PND is the link that actually exists in the data.
 
     python .claude/skills/spec-graph-check/check-ruled-elsewhere.py [ledger ...]
 
@@ -124,18 +124,18 @@ UNRULED_IN_CELL = (u'未検討', u'裁定待ち', u'利用者の裁定が要る'
 # 「裁定は下りた。⚠ まだ仕様書に書かれていない」. ⇒ 仕様待ち is what a row
 # MOVES TO when its ruling comes down, so flagging it as un-ruled fires on
 # exactly the rows that did the right thing. Eight rows went red the moment
-# PD-431..PD-441 were ruled and their ledger rows were advanced.
+# PND-431..PND-441 were ruled and their ledger rows were advanced.
 UNRULED_STATUS = (u'未検討', u'裁定待ち')
 
 # ⭐ The one state rule 06 step 3 writes when the ruling has come down.
 SETTLED_STATE = u'裁定済'
 
 LEDGER_CELLS = 11        # | ID | 不具合内容 | ... | 実物確認 |  -> 9 columns
-PENDING_CELLS = 10       # | PD | 何が未決か | ... | 状態 |      -> 8 columns
+PENDING_CELLS = 10       # | PND | 何が未決か | ... | 状態 |      -> 8 columns
 
 
 # 「表 T-023a の PTD-n」 -- the table row, not the pending decision. See D-468.
-TABLE_ROW_PD = re.compile(u'表 T-023a の [`]?PTD-\\d+[`]?')
+TABLE_ROW_PTD = re.compile(u'表 T-023a の [`]?PTD-\\d+[`]?')
 
 
 def say(message):
@@ -145,13 +145,13 @@ def say(message):
 
 
 def settled_decisions(path):
-    """Every PD id whose 状態 cell is 裁定済."""
+    """Every PND id whose 状態 cell is 裁定済."""
     settled = set()
     total = 0
     if not os.path.exists(path):
         return settled, total
     for line in io.open(path, encoding='utf-8'):
-        if not line.startswith('| PD-'):
+        if not line.startswith('| PND-'):
             continue
         cells = line.rstrip('\n').split('|')
         if len(cells) != PENDING_CELLS:
@@ -184,8 +184,8 @@ def crs_naming_row(row_id):
 def scan(ledger_path, settled):
     """(hits, cr_only) for one ledger file.
 
-    hits    -- rows reading un-ruled that name a 裁定済 PD  (the gate)
-    cr_only -- rows reading un-ruled with no such PD, but naming a CR that
+    hits    -- rows reading un-ruled that name a 裁定済 PND  (the gate)
+    cr_only -- rows reading un-ruled with no such PND, but naming a CR that
                names them back  (printed, never gated -- 38-row noise floor)
     """
     hits = []
@@ -210,19 +210,22 @@ def scan(ledger_path, settled):
         if not reads_unruled:
             continue
 
-        # ⛔ `PD-` NUMBERS TWO THINGS. docs/spec's table T-023a has rows
-        # PTD-1..PTD-5, and pending-decisions.md has PD-1..PD-213, so a ledger
-        # row writing 「表 T-023a の `PTD-5`」 reads here as naming pending
-        # decision PD-5 and the row is judged against a ruling that has
-        # nothing to do with it. That is D-468, and the session that wrote
-        # the row recording the trap fell into it half an hour later.
-        # ⚠️ MEASURED 2026-09-12, before this line went in: 0 rows of the open
-        # ledger and 5 of the closed one carry that spelling, and all five
-        # name a real PD as well -- so this changes no verdict today. It stops
-        # the next one.
-        # ⛔ Renaming the table's rows was measured and refused: PTD-1..PTD-5 are
-        # cited 526 times across 74 files, one of which is a test's file name.
-        named = set(re.findall(r'PD-\d+', TABLE_ROW_PD.sub('', '|'.join(cells))))
+        # ⭐ ONE SPELLING ONCE NUMBERED TWO THINGS, and this strip is what is
+        # left of it. Until CR-371, docs/spec's table T-023a and
+        # pending-decisions.md both wrote their rows `PD-n`, so a ledger row
+        # saying 「表 T-023a の `PD-5`」 read here as naming pending decision
+        # PD-5, and the row was judged against a ruling with nothing to do
+        # with it. That is D-468, and the session that wrote the row recording
+        # the trap fell into it half an hour later.
+        # ⚠️ MEASURED 2026-09-12: 0 rows of the open ledger and 5 of the closed
+        # one carried that spelling, and all five named a real pending
+        # decision as well -- so it changed no verdict that day.
+        # ⭐ CR-371 then renamed both sides (表 T-023a -> `PTD-`, the ledger ->
+        # `PND-`), so the two can no longer be read for each other and the
+        # strip can no longer take anything the findall would have kept. It
+        # stays as the second lock: it costs one regex per row, and the defect
+        # it stops cost a session.
+        named = set(re.findall(r'PND-\d+', TABLE_ROW_PTD.sub('', '|'.join(cells))))
         ruled = sorted(named & settled)
         if ruled:
             hits.append((row_id, status, ruled))
@@ -287,12 +290,12 @@ def main():
         return 1
 
     if count < held:
-        say('OK       %s: %d row(s) read as un-ruled while a PD they name is '
-            '裁定済 (was %d, of %d PD rows) -- ⭐ lower the baseline in %s to '
+        say('OK       %s: %d row(s) read as un-ruled while a PND they name is '
+            '裁定済 (was %d, of %d PND rows) -- ⭐ lower the baseline in %s to '
             'hold the ground' % (REL, count, held, pd_total, REL_BASELINE))
     else:
-        say('OK       %s: %d row(s) read as un-ruled while a PD they name is '
-            '裁定済, which is the baseline (%d PD rows read)'
+        say('OK       %s: %d row(s) read as un-ruled while a PND they name is '
+            '裁定済, which is the baseline (%d PND rows read)'
             % (REL, count, pd_total))
     if listing:
         say('         %s' % listing)

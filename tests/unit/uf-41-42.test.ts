@@ -729,7 +729,7 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
 // ---------------------------------------------------------------------------
 
 describe('table T-024 direction column -- what may become the file FR-060 overwrites', () => {
-  // PD-20: whether a save to a file the person chose REDEFINES FR-060's target
+  // PND-20: whether a save to a file the person chose REDEFINES FR-060's target
   // is not settled anywhere in docs/spec -- FR-060 names the file that was
   // opened and FR-096 names a chosen destination, and no row joins the two. So
   // this walk asserts only the half the direction column does settle: a form

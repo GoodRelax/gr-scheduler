@@ -51,7 +51,7 @@
 // words that this is NOT the set table T-023c governs, because SL-1 leaves rows
 // out of the drawing area's selection -- and `Selection` (PI-32) could not hold
 // them anyway, its `SelectableKind` being T-023c's five.
-// ⛔ Still nothing STORES it (PD-142) -- it is lost with the page.
+// ⛔ Still nothing STORES it (PND-142) -- it is lost with the page.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/schedule'
@@ -123,7 +123,7 @@ interface PanelIndex {
    * below it. ⭐ The second is taken, so that a row counts what the head counts
    * at 段 0 (HF-12) and the two are one arithmetic rather than two.
    * ⚠️ Measured: an OPEN parent of a folded child reports 1.
-   * @provisional PD-412
+   * @provisional PND-412
    */
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   /** HF-12's count (MUST): what the head is holding folded, 段 0 included. */
@@ -190,7 +190,7 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
  *
- * @provisional PD-397
+ * @provisional PND-397
  */
 
 /**
@@ -591,12 +591,12 @@ function rowTitleOf(
     canAddChildRow: depth < settings.maxGroupDepth,
     isPinned,
     // FR-085 (MUST): rows are chosen in this panel, and the set is
-    // `ScreenSession.selectedGroupIds` (PD-142).
+    // `ScreenSession.selectedGroupIds` (PND-142).
     //
     // ⚠️ A `Set` and not a scan: this runs once per row on every frame, and
     // rule 04 section 5 forbids a linear search on that path (NFR-013).
     //
-    // @provisional PD-142
+    // @provisional PND-142
     isSelected: chosenGroupIds.has(group.id),
     // HF-18 (MUST): 「配下に畳み込んでいる行があるとき、その行数を行に示すこと」.
     // ⛔ Answered on every row, zero included -- 「配下に畳み込んでいる行がある

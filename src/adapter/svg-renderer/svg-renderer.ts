@@ -63,7 +63,7 @@ export type { SvgSurface } from './svg-surface'
  * each once and for a stated reason; it is not a general "export mode" that a
  * third row may be folded into without one.
  *
- * @provisional PD-210
+ * @provisional PND-210
  */
 export type SchedulePicture = 'screen' | 'export'
 
@@ -97,10 +97,10 @@ export interface DualCursorFollow {
    * is the very reading the click will fix (`dateAtX` is what the translator
    * asks too), so what a person sees under the hand is where the cursor lands
    * -- an unsnapped line would sit up to a whole day's width from it at a wide
-   * zoom. @provisional PD-310
+   * zoom. @provisional PND-310
    * ⛔ WITH NO POINTER THE LINE STANDS AT ITS STORED DATE. DC-7 (MUST NOT) keeps
    * a placed pair standing until it is cleared, so a hand leaving the window
-   * may not take half a measurement away with it. @provisional PD-311
+   * may not take half a measurement away with it. @provisional PND-311
    */
   readonly x: number | null
 }
@@ -169,7 +169,7 @@ interface Paint {
  * means choosing a colour, which this unit may not do -- so it stands, and the
  * gap is reported instead of papered over.
  *
- * @provisional PD-1
+ * @provisional PND-1
  */
 const ANNOTATION_COLOUR = '#b45309'
 
@@ -185,10 +185,10 @@ const ANNOTATION_COLOUR = '#b45309'
  * the row -- one for the face and one for the outline, the way S-161 and
  * S-162 split the Progress Marker's ink from its backing.
  *
- * @provisional PD-1
+ * @provisional PND-1
  */
 const FADE_HANDLE_FILL_COLOUR = '#ffffff'
-/** The other half of the same missing row. See `FADE_HANDLE_FILL_COLOUR`. @provisional PD-1 */
+/** The other half of the same missing row. See `FADE_HANDLE_FILL_COLOUR`. @provisional PND-1 */
 const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
 /**
@@ -687,7 +687,7 @@ function paintOf(
  *
  * ⚠️ The five symbols of table T-021 are drawn as strokes inside that circle.
  * ⛔ Their exact figures are not in the specification, the way the milestone
- * figures are not; PD-2 covers the same kind of gap.
+ * figures are not; PND-2 covers the same kind of gap.
  *
  * ⭐ PM-1a IS DRAWN FAINT, and only PM-1a. FR-013 carries a MUST that the
  * not-started marker and FR-043's dummies are drawn faint and darkened only
@@ -1565,7 +1565,7 @@ export function svgFromSchedule(
    * its 優先順位 to 「掴む対象が重なった」. This decides only what is drawn.
    * ⛔ THE CODE IS NOT MADE TO FOLLOW THE PRIORITY ORDER: no clause asks the
    * drawing to, so the reading stands on FR-013's own 「乗っている」 and not
-   * on which row of table T-023d a press would go to. @provisional PD-360
+   * on which row of table T-023d a press would go to. @provisional PND-360
    *
    * ⚠️ The marker is still asked through `handOn`, which is the other
    * reading and is left as it stands for the same reason.
@@ -1647,7 +1647,7 @@ export function svgFromSchedule(
   // labels: NFR-007 makes 4.5:1 a MUST for the comment box's own text, and a
   // label painted across the body would put unmeasured ink on the ground that
   // MUST is met against. The same reading `handleParts` and the ruler take.
-  // @provisional PD-238
+  // @provisional PND-238
   const annotationParts: string[] = []
   // ⭐ Neither of these is a row of table T-020, and neither is an omission
   // from it: the fade grab points are an overlay FR-075 puts on the SELECTED
@@ -1674,7 +1674,7 @@ export function svgFromSchedule(
   // `actualParts`. That keeps them behind ZO-3's progress marker and behind
   // ZO-5's name label, which are the two orderings the table does state.
   // ⛔ A Task has dummies exactly when it has NO actual bar, so the one array
-  // never has to hold both. @provisional PD-209
+  // never has to hold both. @provisional PND-209
   //
   // ⭐ THE HOVER HALF OF FR-013 IS DRAWN, off `hovered` -- see `handOn` above
   // and the two places it is asked.
@@ -1798,7 +1798,7 @@ export function svgFromSchedule(
   // ⛔ COLOUR: S-149, the rule colour of table T-236 (「区切りの線」), which the
   // ruler's own rules already take. No row of that table names the date grid
   // line, and this is display only with no trace in the saved form.
-  // @provisional PD-315
+  // @provisional PND-315
   if (settings.dateGridLinesVisible) {
     const gridFrom = dateAtX(layout, area.x)
     if (gridFrom !== null) {
@@ -1987,9 +1987,9 @@ export function svgFromSchedule(
       // as separate things a hand can be on even though only one mark is
       // drawn for them, so the group's own opacity darkens together for
       // either -- there is no per-target strength to invent, and the hand is
-      // on one of a Task's dummies or on none. @provisional PD-351
+      // on one of a Task's dummies or on none. @provisional PND-351
       // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON -- `handInside`'s
-      // note carries why. @provisional PD-360
+      // note carries why. @provisional PND-360
       // ⭐⭐ AND THE RECTANGLE IS THE GRAB BAND TOO (MUST), which is the
       // closing rule of table T-023d, so the darkening cannot part company
       // with the grab.
@@ -2059,7 +2059,7 @@ export function svgFromSchedule(
       // while the hand is on it. GR-7 of table T-023d is the row that claims
       // the progress marker, so that is the row asked about; `markerSvg` still
       // decides WHICH symbol the faintness reaches, and a marker that is not
-      // PM-1a was never faint for this to undo. @provisional PD-351
+      // PM-1a was never faint for this to undo. @provisional PND-351
       ;(isPinnedTask ? markerPartsPinned : markerParts).push(
         markerSvg(
           task.marker,
@@ -2279,7 +2279,7 @@ export function svgFromSchedule(
     // (the band's shift for a pinned Task, the scroll offset for the other),
     // so clipping the polyline as one piece only trims the stretch that has
     // scrolled into the band -- it does not have to be cut at the join.
-    // @provisional PD-416 -- an endpoint clipped clear off the top is NOT
+    // @provisional PND-416 -- an endpoint clipped clear off the top is NOT
     // treated as RT-4a's 「描かれていない」, so the line stays and is cut.
     // ⛔ No row decides that yet: RT-4a drops a line whose endpoint is not
     // drawn and RT-6 keeps one whose endpoint is pinned, and a row cut away
@@ -2352,11 +2352,11 @@ export function svgFromSchedule(
     // T-020 holds no row for either cursor, so the place is chosen here, and
     // the two rows of table T-029 are put together rather than one above the
     // other: a reader measuring against the status date is comparing them.
-    // @provisional PD-312
+    // @provisional PND-312
     const colour = themed('S-195')
     // DC-1: the following side is drawn at the day under the pointer, which is
     // the reading the click will fix. The other stands where the document put
-    // it. See `DualCursorFollow` for PD-310 and PD-311.
+    // it. See `DualCursorFollow` for PND-310 and PND-311.
     const followedDay =
       following === null || following.x === null ? null : dateAtX(layout, following.x)
     const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
@@ -2388,9 +2388,9 @@ export function svgFromSchedule(
   // session, so the rule is obeyed in the one place rather than in a second.
   //
   // ⭐ PAINTED INTO `linkParts`, BESIDE THE OTHER TWO CURSORS, for the reason
-  // PD-312 records for CU-2: table T-020 holds no row for any of the three, and
+  // PND-312 records for CU-2: table T-020 holds no row for any of the three, and
   // putting the rows of table T-029 in one layer is what lets a reader compare
-  // them. The layer is carried by PD-342 below, with the region.
+  // them. The layer is carried by PND-342 below, with the region.
   if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
     const inside =
@@ -2407,7 +2407,7 @@ export function svgFromSchedule(
       // no date, and a reader who has the status line or a measurement up must
       // still be able to tell which line is which -- which is the same worry
       // FR-048's own closing ⚠️ states about the two "縦 2 本". The width is the
-      // typed 1 the status line already stands at. @provisional PD-341
+      // typed 1 the status line already stands at. @provisional PND-341
       const guideColour = themed('S-148')
       const guideWidth = 1
       // ⛔ THE REGION IS THE `Row Area`, THE SAME TWO EDGES CU-1 AND CU-2 RUN
@@ -2415,7 +2415,7 @@ export function svgFromSchedule(
       // pointer is also required to BE in that area: nothing says what a guide
       // cursor does while the hand is over the ruler or a panel, and a line
       // striking the schedule from a pointer that is not on it guides the eye
-      // to a place the eye is not. @provisional PD-342
+      // to a place the eye is not. @provisional PND-342
       const vertical = (x: number): string =>
         `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
@@ -2507,7 +2507,7 @@ export function svgFromSchedule(
     // dark, while ANNOTATION_COLOUR as INK is 3.58:1 on the dark ground and
     // FAILS -- so it is the outline alone, where 1.4.11's 3:1 is what applies.
     // ⚠️ The fill hides whatever is behind the body. That is the price of the
-    // MUST, not an oversight. @provisional PD-231
+    // MUST, not an oversight. @provisional PND-231
     annotationParts.push(
       `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
         ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
@@ -2521,7 +2521,7 @@ export function svgFromSchedule(
       // its own, and S-179 is the RULER's row -- rule 03 forbids borrowing it.
       // ⚠️ The last line's descenders eat into S-181's padding. That is the
       // honest consequence of the foot and is worth a row of its own.
-      // @provisional PD-230
+      // @provisional PND-230
       annotationParts.push(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +

@@ -3,7 +3,7 @@
 # HELD AT 50 ON 2026-09-07 WHEN THE RECORD NOTATION LANDED (`D-367`), AND THE
 # NUMBER NOT MOVING IS THE MEASUREMENT, NOT AN OMISSION.
 #
-# The user ruled on 2026-09-07 (`PD-441`, proposal ①) that a sentence opening
+# The user ruled on 2026-09-07 (`PND-441`, proposal ①) that a sentence opening
 # 「⚠️ 実測（YYYY-MM-DD）」 is a RECORD, not a present claim. The notation is
 # written down in docs/development-rules/04-verification.md section 6.6 and
 # implemented in ledger_quotes.py (outside_record / spoken_now); this check now
@@ -14,7 +14,7 @@
 # the reason is that almost nothing is written in the ruled form yet. Of the
 # 377 full-shape rows, exactly ONE cell 5 carries 「⚠️ 実測（日付）」 -- D-318 --
 # and that one sits inside 「…」, so outside_quotation had already removed it.
-# ⚠️ SO `PD-441`'s own sentence 「いま書かれている行はほぼ全部すでにこの形で
+# ⚠️ SO `PND-441`'s own sentence 「いま書かれている行はほぼ全部すでにこの形で
 # ある」 IS FALSE, measured. The notation buys nothing today; it buys the rows
 # written after it. Check 40's count did not move either (3).
 #
@@ -40,7 +40,7 @@
 # decision, outside the ruling, and D-367 says not to take it alone.
 #
 # LOWERED 51 -> 50 ON 2026-09-07, AND THE DEBT THE RAISE BOOKED IS PAID, NOT
-# ABSORBED. PD-431..PD-441 were all ruled on 2026-09-07 (the user's 「裁定は
+# ABSORBED. PND-431..PND-441 were all ruled on 2026-09-07 (the user's 「裁定は
 # すべて提案通りでよい。」), so the four cells that still opened 裁定が要る --
 # D-268, D-357, D-363, D-366 -- were stating a block that had ended. Each
 # opening is now dated as the record it is (⭐ かつての問い（… に下りた）) and

@@ -157,7 +157,7 @@ json に在って原稿に無い  → ⛔ エラー（死んだ登録）
 | **4** | **コードの型の値である** —— `export type PressRow = 'PTD-1' \| … \| 'PTD-5'` |
 | **5** | **生成の経路** —— `_source/display-words.json` の `rowId`。⇒ 片方だけ変えると `gen:check` が落ちる |
 
-⚠️ さらに **`_source/*.json` の `$comment` が台帳側の `PD-51` / `PD-160` を引いている。**
+⚠️ さらに **`_source/*.json` の `$comment` が台帳側の `PND-51` / `PND-160` を引いている。**
 
 ---
 

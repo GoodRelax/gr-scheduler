@@ -13,7 +13,7 @@
 // `CR-364` (2026-09-06) chose "write the remaining measurements". These are
 // the remaining measurements. ⭐⭐ The `RISK-001` gate that used to stand in
 // front of a real performance run was opened by the user on 2026-09-07
-// (`PD-425`): the harness is to be written and run now.
+// (`PND-425`): the harness is to be written and run now.
 //
 // ⛔ EVERY CASE PRINTS ITS RAW MEASUREMENT, not merely pass or fail. A green
 // test that prints nothing cannot be refuted later, and this project has twice

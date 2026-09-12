@@ -502,7 +502,7 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
  * ⛔ IC-45, IC-47 and IC-48 are counted with neither: FR-049 (MUST NOT) refuses
  * to treat a many-valued row (S-65 / S-66) as a toggle, so both readings answer
  * `false` for them and this member does not either.
- * @provisional PD-417 -- an exclusive choice does NOT draw its own entrance
+ * @provisional PND-417 -- an exclusive choice does NOT draw its own entrance
  * on here, because table T-237 holds no row meaning "this is the one now
  * chosen" and FR-029 (MUST) binds every fill to that table.
  * ⭐ THIS COULD NOT BE ANSWERED BEFORE 2026-08-31 BECAUSE THE ARGUMENT DID NOT
@@ -794,7 +794,7 @@ function armedEntry(armed: ScreenState['armed']): ArmedEntry {
  * named anywhere -- the empty string stands in as the one thing neither rule
  * forbids, and it is the same stand-in `entryLabel` makes.
  *
- * @provisional PD-221
+ * @provisional PND-221
  * @purity pure
  */
 function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): string {

@@ -413,7 +413,7 @@ function questionText(question: string, language: DisplayLanguage): string {
  * ⭐ WHY THERE IS A WORD TO READ AT ALL. FR-032 requires a `Task` that goes with
  * the row being deleted but is DRAWN on another row -- HM-10 of table T-015a is
  * what puts it there -- to be shown as such on the question NT-7 raises, and
- * PD-175 settled that the showing is a WORD. ⛔ Nothing here may raise a shape
+ * PND-175 settled that the showing is a WORD. ⛔ Nothing here may raise a shape
  * instead: table T-109 is the whole of the icons and RC-13 of table T-026 makes
  * a new one the user's decision.
  *
@@ -741,7 +741,7 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * raiser and never written out here. The mark joins them for the same reason:
  * WHICH items wear it is the raiser's to know
  * (`ConfirmationItem.isShownOnAnotherRow`), and what it is CALLED is the
- * dictionary's (PD-175). ⛔ Neither is a word this file writes.
+ * dictionary's (PND-175). ⛔ Neither is a word this file writes.
  *
  * ⛔ AND NO ENTRANCE TO PUT IT AWAY, which NT-8 states as a MUST NOT. A telling
  * is read past and this one waits for an answer, so a third way out would be an

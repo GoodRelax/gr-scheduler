@@ -103,7 +103,7 @@
 //      repeated here: FR-029 (MUST NOT) makes them one operation with two ways
 //      in -- a keystroke and an entrance -- and one rule in two files rots.
 //   3. WHETHER THE PANEL COMES BACK on the next selection. ⭐ NO LONGER A HOLE:
-//      `PD-339` was settled on 2026-08-30 (CR-304) and the answer is that it
+//      `PND-339` was settled on 2026-08-30 (CR-304) and the answer is that it
 //      does not -- 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」.
 //      ⛔ Still not asked HERE, because it is FR-072's rule and not IN-4's:
 //      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts holds it, along

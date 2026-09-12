@@ -87,7 +87,7 @@ CJK = re.compile(u'[぀-ヿ一-鿿]')
 ATTRIBUTION = 120
 
 OTHER_BOOKS = re.compile(
-    u'D-\\d+|PD-\\d+|CR-\\d+|規則 \\d|利用者の|defects\\.md|'
+    u'D-\\d+|PND-\\d+|CR-\\d+|規則 \\d|利用者の|defects\\.md|'
     u'development-rules|development-records|pending-decisions')
 
 

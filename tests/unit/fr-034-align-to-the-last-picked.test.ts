@@ -53,7 +53,7 @@
 // ⭐⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
 //  1. ⛔ WHAT BECOMES OF THE OTHER END OF AN ALIGNED TASK. The manuscript does
-//     not decide it -- it is PD-406 of docs/development-records/
+//     not decide it -- it is PND-406 of docs/development-records/
 //     pending-decisions.md, 未裁定: 「`FR-034` の整列で、揃えないほうの端がどう
 //     なるかをどの行も述べていない」. Every fixture below is therefore built so
 //     that BOTH readings are lawful: the anchor's dates lie strictly INSIDE the
@@ -184,7 +184,7 @@ const CM_11 = bare(rowOf(T_108, 'CM-11').by['確定名'] ?? '')
 //
 // ⭐ THE ANCHOR LIES STRICTLY INSIDE THE FOLLOWER. That is the whole reason for
 // these particular figures, and it is what makes every case below indifferent
-// to PD-406 (see note 1 at the head):
+// to PND-406 (see note 1 at the head):
 //
 //     FOLLOWER (uid 1)   |==========================|   02-10 .. 02-20
 //     ANCHOR   (uid 2)        |==============|            02-12 .. 02-16
@@ -557,7 +557,7 @@ describe('FR-034 -- 選ばれたタスクの…日付を、最後に選んだタ
 
   it('IV-10: no write it asks for puts a `finish` before its `start`', () => {
     // 「`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start`
-    // より前でないこと」. ⚠️ This holds whichever way PD-406 is settled, which is
+    // より前でないこと」. ⚠️ This holds whichever way PND-406 is settled, which is
     // why the fixture puts the anchor strictly inside the follower.
     for (const one of ALIGN_ENTRANCES) {
       const answer = pressPaletteEntry(one.row, pickedInTurn(taskRef(FOLLOWER_UID), taskRef(ANCHOR_UID)))

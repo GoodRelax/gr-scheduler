@@ -2478,7 +2478,7 @@ describe('表 T-023d -- what a grab does', () => {
   // `setTaskFadeInDays` and CM-17 `setTaskFadeOutDays`, both taking a number of
   // days. FR-075 (MUST) hands the author these two points 「作成者がその日数を…
   // 編集できるようにすること」, so a release that produces no command leaves the
-  // one path to a fade shut -- which is the same shape of defect PD-191 was
+  // one path to a fade shut -- which is the same shape of defect PND-191 was
   // raised for, one step further along.
   //
   // ⚠️ The sample keeps to one week (Monday 2026-01-05 to Wednesday 2026-01-07)

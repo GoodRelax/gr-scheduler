@@ -75,11 +75,11 @@
 // block at the foot of this file, per docs/development-rules/
 // 06-pending-decisions.md section 3, which asks for the test that falls when a
 // provisional value is overturned to be written in advance:
-//   PD-130  which `RasterFaultReason` each way of refusing maps onto (provisional)
-//   PD-131  a picture that would make the decoder fetch is refused (SETTLED, CR-353)
-//   PD-132  what the root <svg> tag's own width and height become (provisional)
-//   PD-133  a pixel size that is not a whole number of pixels is refused (SETTLED, CR-353)
-//   PD-134  nothing is painted under the picture (provisional)
+//   PND-130  which `RasterFaultReason` each way of refusing maps onto (provisional)
+//   PND-131  a picture that would make the decoder fetch is refused (SETTLED, CR-353)
+//   PND-132  what the root <svg> tag's own width and height become (provisional)
+//   PND-133  a pixel size that is not a whole number of pixels is refused (SETTLED, CR-353)
+//   PND-134  nothing is painted under the picture (provisional)
 // Every block outside those five holds whatever those decisions turn out to be.
 
 import { describe, expect, it } from 'vitest'
@@ -379,7 +379,7 @@ function fakeHost(script: HostScript = {}): FakeHost {
           const how = script.drawImage ?? 'ok'
           if (how !== 'ok' && 'throws' in how) throw how.throws
         },
-        // PD-134: nothing may be painted under the picture. These exist so that
+        // PND-134: nothing may be painted under the picture. These exist so that
         // a call to one of them is recorded rather than being a TypeError that
         // FR-028 would turn into an indistinguishable value.
         fillRect(): void {
@@ -798,7 +798,7 @@ describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => 
   })
 
   it('invents no ceiling of its own -- a huge size a machine accepts is painted', async () => {
-    // PD-130's grounds: a maximum would be a number no table holds, and it
+    // PND-130's grounds: a maximum would be a number no table holds, and it
     // differs per browser and per machine. The probe replaces it.
     const huge: RasterSizePx = { widthPx: 1_000_000, heightPx: 1_000_000 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, huge)
@@ -926,7 +926,7 @@ describe('WY-2 of table T-041 -- two calls with the same arguments agree', () =>
 
 /**
  * Every way a host can refuse, from the API simply being absent to a promise
- * rejecting. What each MEANS is PD-130 and is pinned in its own block; these
+ * rejecting. What each MEANS is PND-130 and is pinned in its own block; these
  * cases assert only that each ends as a VALUE and names something.
  */
 const EVERY_REFUSAL: readonly { readonly why: string; readonly script: HostScript }[] = [
@@ -1157,13 +1157,13 @@ describe('the boundaries of what may arrive', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-130 (provisional) -- which reason each way of refusing maps onto
+// PND-130 (provisional) -- which reason each way of refusing maps onto
 //
 // docs/spec names the three reasons (the seam's own declaration, from NT-3a of
 // table T-037) but nowhere says which browser signal is which. Searched: the
 // whole of docs/spec for `SecurityError`, `getContext`, `toBlob`, `canvas` and
 // `tainted` -- no hit. The mapping below is the recommendation recorded as
-// PD-130, chosen against the three next steps the seam gives each reason.
+// PND-130, chosen against the three next steps the seam gives each reason.
 // Overturning it fails exactly these assertions and nothing else.
 // ---------------------------------------------------------------------------
 
@@ -1234,7 +1234,7 @@ const PD_130_MAPPING: readonly {
   },
 ]
 
-describe('PD-130 (provisional) -- the three reasons and what each is read from', () => {
+describe('PND-130 (provisional) -- the three reasons and what each is read from', () => {
   it('walks the whole mapping', async () => {
     expect(new Set(PD_130_MAPPING.map((one) => one.reason)).size).toBe(3)
     for (const { why, script, reason } of PD_130_MAPPING) {
@@ -1281,7 +1281,7 @@ describe('PD-130 (provisional) -- the three reasons and what each is read from',
 })
 
 // ---------------------------------------------------------------------------
-// PD-131 -- SETTLED (CR-353) -- a picture that would make the decoder fetch is
+// PND-131 -- SETTLED (CR-353) -- a picture that would make the decoder fetch is
 // refused
 //
 // docs/spec does not say whether an external reference is refused or painted
@@ -1345,7 +1345,7 @@ const PD_131_SELF_CONTAINED: readonly { readonly why: string; readonly inner: st
   { why: 'no reference at all', inner: '<rect width="8" height="8"/>' },
 ]
 
-describe('PD-131 -- SETTLED (CR-353) -- a picture that would have to fetch is refused', () => {
+describe('PND-131 -- SETTLED (CR-353) -- a picture that would have to fetch is refused', () => {
   it('walks every kind of outside reference and names it', async () => {
     expect(PD_131_FETCHES.length).toBeGreaterThan(0)
     for (const { why, inner, named } of PD_131_FETCHES) {
@@ -1371,7 +1371,7 @@ describe('PD-131 -- SETTLED (CR-353) -- a picture that would have to fetch is re
 })
 
 // ---------------------------------------------------------------------------
-// PD-132 (provisional) -- the root tag's own width and height
+// PND-132 (provisional) -- the root tag's own width and height
 //
 // Table T-024 has IO-3 and IO-4 as two rows and no row says what the second
 // does with the first's root tag. The recommendation: rewrite the pair to the
@@ -1414,7 +1414,7 @@ const PD_132_ROOTS: readonly {
   },
 ]
 
-describe('PD-132 (provisional) -- what becomes of the root <svg> tag', () => {
+describe('PND-132 (provisional) -- what becomes of the root <svg> tag', () => {
   it('walks every shape a root tag can arrive in', async () => {
     const sizePx: RasterSizePx = { widthPx: 3200, heightPx: 1800 }
     for (const { why, svg, outcome } of PD_132_ROOTS) {
@@ -1465,7 +1465,7 @@ describe('PD-132 (provisional) -- what becomes of the root <svg> tag', () => {
 })
 
 // ---------------------------------------------------------------------------
-// PD-133 -- SETTLED (CR-353) -- a pixel size that is not whole pixels is
+// PND-133 -- SETTLED (CR-353) -- a pixel size that is not whole pixels is
 // refused
 //
 // A canvas truncates what it is given, so a fractional size comes back as a
@@ -1487,7 +1487,7 @@ const PD_133_SIZES: readonly { readonly why: string; readonly sizePx: RasterSize
   { why: 'a width without end', sizePx: { widthPx: Number.POSITIVE_INFINITY, heightPx: 900 } },
 ]
 
-describe('PD-133 -- SETTLED (CR-353) -- a size a canvas cannot be is refused, not rounded', () => {
+describe('PND-133 -- SETTLED (CR-353) -- a size a canvas cannot be is refused, not rounded', () => {
   it('walks every size that is not whole pixels', async () => {
     for (const { why, sizePx } of PD_133_SIZES) {
       const { fake, settled } = await raster({}, EXPORT_PICTURE, sizePx)
@@ -1515,14 +1515,14 @@ describe('PD-133 -- SETTLED (CR-353) -- a size a canvas cannot be is refused, no
 })
 
 // ---------------------------------------------------------------------------
-// PD-134 (provisional) -- nothing is painted under the picture
+// PND-134 (provisional) -- nothing is painted under the picture
 //
 // What an export shows is FR-080's and table T-076's, and no key of table T-204
 // holds a ground colour for the export. Choosing one here would be this unit
 // deciding what the export looks like.
 // ---------------------------------------------------------------------------
 
-describe('PD-134 (provisional) -- the picture is the only thing drawn', () => {
+describe('PND-134 (provisional) -- the picture is the only thing drawn', () => {
   it('touches `drawImage` on the context and no other way of painting', async () => {
     const { fake, settled } = await raster({}, EXPORT_PICTURE, SIZE_AT_SCALE_1)
     bytesOf(settled, 'the ordinary path')

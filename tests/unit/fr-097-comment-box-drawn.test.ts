@@ -963,7 +963,7 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 // ⭐ THREE THINGS THE SENTENCE SETTLES. The three cases below are those three.
 //
 //   1. 「本文が空、**または `null`** のときも」 -- BOTH states are named, so the
-//      never-typed box is now reached and the case `PD-236` asks for (「`text`
+//      never-typed box is now reached and the case `PND-236` asks for (「`text`
 //      が `null` の箱が描かれ、掴める試験」) belongs here. ⚠️ It did not belong
 //      before: what changed is the sentence, not the reasoning that kept it out.
 //   2. 「下回ってはならない（MUST NOT）」 -- a FLOOR. ⛔ SO EVERY CASE BELOW
@@ -987,7 +987,7 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 // 「下回ってはならない」, so the cases below pass under either and name neither.
 // ⚠️ Nor does any row bound these two states from ABOVE, so no case can.
 //
-// ⛔ AND THE OTHER HALF OF `PD-236`'S TEST -- 「掴める」 -- IS STILL NOT REACHABLE.
+// ⛔ AND THE OTHER HALF OF `PND-236`'S TEST -- 「掴める」 -- IS STILL NOT REACHABLE.
 // GR-14's grab region is on no surface `PI-6` or `PI-19` publishes (see the head
 // of this file). What stands in for it is the floor itself, which is the clause's
 // own reason for existing: 「置いた本人にも掴めず消せもしない」.

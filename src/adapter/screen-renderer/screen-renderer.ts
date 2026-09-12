@@ -1407,7 +1407,7 @@ export interface ExportChooser extends OpenSurface {
  * discriminant is comparable to every literal, so TypeScript keeps the last
  * member in every comparison.
  *
- * @provisional PD-140
+ * @provisional PND-140
  */
 export type OpenModal =
   | HelpModal
@@ -2034,7 +2034,7 @@ export interface Tooltip {
    * explanation is raised by the pointer having stopped; where it is then
    * drawn is settled nowhere, so the pointer's own point is used and marked.
    *
-   * @provisional PD-391
+   * @provisional PND-391
    */
   readonly at?: { readonly x: number; readonly y: number }
 }
@@ -2247,7 +2247,7 @@ export interface ScreenSession {
    * rule Chapter 5.3 states under table T-065 is the same one this note argues
    * from -- the side that drew the entry is the side that answers.
    *
-   * @provisional PD-141
+   * @provisional PND-141
    */
   readonly iconUnderPointer: IconId | null
   /**
@@ -2512,7 +2512,7 @@ export interface ScreenSession {
    * selection is not part of the document (UN-9 of table T-027). ⚠️ It is lost
    * with the page.
    *
-   * @provisional PD-142
+   * @provisional PND-142
    */
   readonly selectedGroupIds: readonly string[]
   /**
@@ -2524,7 +2524,7 @@ export interface ScreenSession {
    * as above. Empty is "none chosen"; a roster that is not open leaves it empty
    * too, because S-99g already says which surface is up.
    *
-   * @provisional PD-143
+   * @provisional PND-143
    */
   readonly selectedResourceUids: readonly number[]
   /**
@@ -2597,7 +2597,7 @@ export interface ScreenSession {
    * table T-203 keeps a width for the panel (S-80) and no key for its subject,
    * and table T-206 has no row for one.
    *
-   * @provisional PD-144
+   * @provisional PND-144
    */
   readonly propertiesSubject: PropertiesSubject | null
   /**

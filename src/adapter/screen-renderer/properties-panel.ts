@@ -783,7 +783,7 @@ interface Candidates {
  * thing left to show is the key. ⛔ There is no row for this; it is chosen here
  * and said aloud rather than hidden.
  *
- * @provisional PD-272
+ * @provisional PND-272
  * @purity pure
  */
 function parentCandidates(schedule: Schedule, subjectUid: number): Candidates {
@@ -1404,7 +1404,7 @@ function onlyGroupId(groupIds: readonly string[]): string | null {
  * item's fields first, table T-016 being the roster FR-072 resolves to for a
  * selection, with FR-042's two appended.
  *
- * @provisional PD-142
+ * @provisional PND-142
  * @purity pure
  */
 function fieldsOfSubject(
@@ -1529,7 +1529,7 @@ function settingsFields(
  * ⛔ The memory is still the shell's, not the document's: table T-203 keeps only
  * this panel's width (S-80) and table T-206 has no row for its subject.
  *
- * @provisional PD-144
+ * @provisional PND-144
  * @purity pure
  */
 export function propertiesPanelFromSelection(

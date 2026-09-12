@@ -24,7 +24,7 @@
 //              and breed numbered copies of one name
 //   FR-087     (:3161) one entry for opening, ruled by table T-024a
 //   表 T-024a  OP-1 the two accepted formats -- and no extension, no media
-//              type anywhere in the specification (PD-104); OP-2 the two
+//              type anywhere in the specification (PND-104); OP-2 the two
 //              routes, chooser and drop, and NO second entry (MUST NOT);
 //              OP-3 the person is asked one question about one read content;
 //              OP-4 unsaved edits are confirmed before being discarded (MUST),
@@ -314,7 +314,7 @@ interface HandleSpec {
   readonly queried?: FilePermissionState
   /** What `requestPermission` answers. */
   readonly requested?: FilePermissionState
-  /** ⚠️ PD-105: a browser that has handles but neither permission member. */
+  /** ⚠️ PND-105: a browser that has handles but neither permission member. */
   readonly withoutPermissionApi?: boolean
   readonly getFileFails?: Failure
   readonly queryFails?: Failure
@@ -623,7 +623,7 @@ describe('construction -- the drop surface (OP-2, OP-4)', () => {
 // ---------------------------------------------------------------------------
 
 describe("readFileToOpen('chooser') -- the ordinary path", () => {
-  it('asks for one file and applies no filter (OP-3; PD-104)', async () => {
+  it('asks for one file and applies no filter (OP-3; PND-104)', async () => {
     // OP-1 names `GRS JSON` and MSPDI XML but no extension and no media type
     // exists anywhere in docs/spec, so there is nothing to filter by. OP-3
     // asks the person ONE question about ONE read content -> multiple: false.
@@ -781,8 +781,8 @@ describe('readOpenedFileState -- what may be overwritten right now', () => {
     expect(log).toContain('plan.json.queryPermission(readwrite)')
   })
 
-  it('answers writable where the browser has handles but no queryPermission (PD-105)', async () => {
-    // ⚠️ This is PD-105's failing test -- the case that flips if the ruling
+  it('answers writable where the browser has handles but no queryPermission (PND-105)', async () => {
+    // ⚠️ This is PND-105's failing test -- the case that flips if the ruling
     // goes the other way. The mark itself belongs at the implementation site
     // (rule 06, §3), not here. The specification does not say what such a
     // browser should be told: the pessimistic answer would put FR-060's
@@ -858,8 +858,8 @@ describe('restoreOpenedFilePermission -- FR-060 offers the way back', () => {
     expect(state.kind).toBe('permissionLost')
   })
 
-  it('answers writable where the browser has no requestPermission either (PD-105)', async () => {
-    // ⚠️ PD-105 again, from the other member: with no way to ask, the store
+  it('answers writable where the browser has no requestPermission either (PND-105)', async () => {
+    // ⚠️ PND-105 again, from the other member: with no way to ask, the store
     // can only find out by trying to write, and a refused write still comes
     // back as `permissionLost`.
     const { store } = await opened({ name: 'plan.json', withoutPermissionApi: true })

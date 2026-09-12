@@ -95,7 +95,7 @@
 //     marker's own ring (表 T-021's PM-1a) leaves it at S-131 when no won grab
 //     row is handed over -- only the dummy answers to the pointer alone. A case
 //     asserting the marker's half is therefore NOT written here: it would be
-//     red, and PD-360 -- 「`FR-013` の「ポインタが乗っている」が、描いた図形の上の
+//     red, and PND-360 -- 「`FR-013` の「ポインタが乗っている」が、描いた図形の上の
 //     ことか、表 T-023d が点を与えた行のことか」 -- is 未裁定. ⭐ REPORTED, not
 //     guessed at in either direction.
 //   * ⛔⛔ WHETHER A POINTER ON GR-17'S OLD DAY COLUMN DARKENS THE ONE MARK was
@@ -111,7 +111,7 @@
 //     off the drawing. FR-043 cuts the mark in half for GR-9 and GR-17, and the
 //     cases below put a point in each half, ⭐ but they assert only what FR-013
 //     owes -- the mark leaves S-131 -- because the picture darkens one mark and
-//     the specification gives no second 濃さ per half. PD-351 is 未裁定.
+//     the specification gives no second 濃さ per half. PND-351 is 未裁定.
 
 import { describe, expect, it } from 'vitest'
 
