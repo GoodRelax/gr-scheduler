@@ -134,6 +134,10 @@ LEDGER_CELLS = 11        # | ID | 不具合内容 | ... | 実物確認 |  -> 9 c
 PENDING_CELLS = 10       # | PD | 何が未決か | ... | 状態 |      -> 8 columns
 
 
+# 「表 T-023a の PD-n」 -- the table row, not the pending decision. See D-468.
+TABLE_ROW_PD = re.compile(u'表 T-023a の [`]?PD-\\d+[`]?')
+
+
 def say(message):
     """The cp932 guard every check in this tree carries."""
     enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
@@ -206,7 +210,19 @@ def scan(ledger_path, settled):
         if not reads_unruled:
             continue
 
-        named = set(re.findall(r'PD-\d+', '|'.join(cells)))
+        # ⛔ `PD-` NUMBERS TWO THINGS. docs/spec's table T-023a has rows
+        # PD-1..PD-5, and pending-decisions.md has PD-1..PD-213, so a ledger
+        # row writing 「表 T-023a の `PD-5`」 reads here as naming pending
+        # decision PD-5 and the row is judged against a ruling that has
+        # nothing to do with it. That is D-468, and the session that wrote
+        # the row recording the trap fell into it half an hour later.
+        # ⚠️ MEASURED 2026-09-12, before this line went in: 0 rows of the open
+        # ledger and 5 of the closed one carry that spelling, and all five
+        # name a real PD as well -- so this changes no verdict today. It stops
+        # the next one.
+        # ⛔ Renaming the table's rows was measured and refused: PD-1..PD-5 are
+        # cited 526 times across 74 files, one of which is a test's file name.
+        named = set(re.findall(r'PD-\d+', TABLE_ROW_PD.sub('', '|'.join(cells))))
         ruled = sorted(named & settled)
         if ruled:
             hits.append((row_id, status, ruled))
