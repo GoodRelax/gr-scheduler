@@ -507,6 +507,17 @@ strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
 }
 PYTHONIOENCODING=utf-8 python "$HERE/check-render.py" scratch/spec-html-probe || fail=1
 
+echo "===== 50  表 T-023a and the PressRow type name the same rows ====="
+# ⛔ Wired in 2026-09-13, BEFORE the rename CR-371 orders, and green on
+# arrival. The press table's rows ARE the values of a TypeScript type, and
+# measured the same day, `grep -rn PressRow tools/ .claude/` returned NOTHING
+# -- the manuscript could be renamed and the code would stay green. These
+# strings never leave the product, so pressing the build cannot show a drift
+# either. ⭐ A check added AFTER the rename would be born guarding
+# something already broken, which is why this one goes in first.
+PYTHONIOENCODING=utf-8 python "$HERE/check-press-row-ids.py" || fail=1
+
+
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
 # ⛔ Printed on every run, green or red. A suite that names only what it
