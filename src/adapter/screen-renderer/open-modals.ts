@@ -854,7 +854,7 @@ export function openModalFromScreenState(
   // 「表 T-109 の `IC-52`」 and ⛔ 「新しい行を足してはならない（MUST NOT）」, and
   // that row is already in `commands` above because table T-109 places it on
   // this surface. What a press of it spends belongs to the layer that owns the
-  // clipboard seam (R-9 of table T-008), which is the shell.
+  // clipboard seam (CHN-9 of table T-008), which is the shell.
   if (surface === AI_EXPORT_MODAL && session.aiExportDocument !== undefined) {
     return {
       surface: AI_EXPORT_MODAL,

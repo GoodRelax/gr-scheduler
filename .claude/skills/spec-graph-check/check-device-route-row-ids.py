@@ -4,9 +4,9 @@
 ⛔ WHY THIS EXISTS. Two of the specification's tables have their row ids written
 into the test suite as data, not as prose:
 
-    tests/unit/uf-45-46.test.ts   const T_008_R9 = { id: 'R-9', from: 'D-1', ... }
+    tests/unit/uf-45-46.test.ts   const T_008_R9 = { id: 'CHN-9', from: 'DEV-1', ... }
     tests/unit/uf-53.test.ts      the same fixture again
-    tests/unit/fr-033-...test.ts  specTable('T-008').rows.find((r) => r.id === 'R-9')
+    tests/unit/fr-033-...test.ts  specTable('T-008').rows.find((r) => r.id === 'CHN-9')
 
 The last one READS THE MANUSCRIPT AT RUN TIME and matches on the id. Rename the
 row in the manuscript alone and `find` returns `undefined`; rename it in the code

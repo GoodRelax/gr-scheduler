@@ -10,7 +10,7 @@
 // member obeys stays with the requirement that states it.
 //
 // ⭐ WHY THE COMPONENT EXISTS. The clipboard is a destination that is neither a
-// file nor the document: table T-008 gives it a row of its own (R-9) as the
+// file nor the document: table T-008 gives it a row of its own (CHN-9) as the
 // far end of a route, and reaching it needs the browser, which LR-6 keeps out
 // of the inner layers. IF-5 puts that reach on the far side of this
 // declaration, so everything on this side stays a value.
@@ -18,12 +18,12 @@
 // ⛔ ONE WAY, AND NO READ SIDE MAY BE ADDED. FR-033 says the buffer a
 // duplication uses is the app's own and forbids reading the OS clipboard
 // (MUST NOT); the reason it gives is that text from outside cannot be read as
-// task data. Table T-008 carries the consequence -- R-9 is an outbound route
+// task data. Table T-008 carries the consequence -- CHN-9 is an outbound route
 // and therefore not one of the intakes FR-023 validates. ⚠️ A read member here
 // would open an intake that nothing checks, which is why the absence is stated
 // rather than left to be noticed.
 //
-// ⭐ WHY EVERY CONTENT IS A STRING. R-9 names the things that leave this way,
+// ⭐ WHY EVERY CONTENT IS A STRING. CHN-9 names the things that leave this way,
 // and `_source/components.json` draws this component's two inbound edges to
 // match: "text out" from DocumentCodec and "picture out" from
 // SvgRenderer. Both of those publish a string (PI-19 / PI-20). ⭐ The third,
@@ -43,14 +43,14 @@
 // picture (FR-080) -- and it requires FR-020's choice to be put on this route
 // too, because LM-8 reaches an outbound route. Those belong where the picture
 // is made. This component receives one already made and cannot tell whether
-// they were applied. Searched: FR-025, FR-020, table T-076, table T-008 R-9.
+// they were applied. Searched: FR-025, FR-020, table T-076, table T-008 CHN-9.
 //
 // ⚠️ The DOM library declares a global `Clipboard` as well. Table T-065 fixes
 // this name, so it stays; the implementing component (CP-30) has to import
 // this one rather than let the global win.
 
 /**
- * What leaves through this route. The two variants are table T-008 R-9's own
+ * What leaves through this route. The two variants are table T-008 CHN-9's own
  * two, in the order that row names them.
  *
  * ⭐ Discriminated rather than one string with a media type beside it: the two
@@ -91,8 +91,8 @@ export type ClipboardContent =
        * FR-102: the record of the happenings and the frames a person asked for
        * and then stopped, handed over so that it can be PASTED into a report.
        *
-       * ⭐ THE THIRD THING R-9 CARRIES, AND NOT A NEW ROUTE. FR-102 (MUST)
-       * sends the record this way in as many words, and table T-008's R-9 names
+       * ⭐ THE THIRD THING CHN-9 CARRIES, AND NOT A NEW ROUTE. FR-102 (MUST)
+       * sends the record this way in as many words, and table T-008's CHN-9 names
        * it in its own contents column beside the picture and the document -- so
        * the route is the one that was already there. ⛔ A second seam for it
        * would be the duplication rule 03 forbids.

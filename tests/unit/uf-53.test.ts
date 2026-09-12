@@ -26,7 +26,7 @@
 // was ever touched -- not merely that a value came back.
 //
 // The rules these cases answer to:
-//   table T-008 R-9   (:421) the clipboard is the far end of an OUTBOUND route
+//   table T-008 CHN-9   (:421) the clipboard is the far end of an OUTBOUND route
 //                     and the row names exactly two things that leave by it,
 //                     the picture and the document handed to an AI (FR-068), in
 //                     that order. Send only, and expressly NOT subject to the
@@ -39,7 +39,7 @@
 //                     assert the string that the seam actually carries and
 //                     claim nothing about an image
 //   FR-033            (:1750) the OS clipboard MUST NOT be read; the sentence
-//                     says only the read is forbidden and points at R-9 for the
+//                     says only the read is forbidden and points at CHN-9 for the
 //                     outbound route. So the seam has one member and no read
 //                     side, and no name here may offer one
 //   FR-068            (:3570) the document a person has read on the AI Export
@@ -111,12 +111,12 @@ import type {
 // ---------------------------------------------------------------------------
 
 /**
- * Table T-008 row R-9 -- the route whose far end is the OS clipboard.
+ * Table T-008 row CHN-9 -- the route whose far end is the OS clipboard.
  * `carries` is the row's own order: the picture first, then the document
  * FR-068 hands to an AI.
  */
 const T_008_R9 = {
-  id: 'R-9',
+  id: 'CHN-9',
   carries: ['picture', 'document'],
   /** The row's fifth column: write out. */
   isOutboundOnly: true,
@@ -205,7 +205,7 @@ const T_037_ROWS: readonly {
 //
 // ⚠️ No cap: table T-220 (Chapter 6.1) holds no invariant for this route and
 // `_assets/tbl-settings.md` no size for it, so a long payload is a case rather
-// than a limit. R-9 is send only and expressly not subject to the checking, so
+// than a limit. CHN-9 is send only and expressly not subject to the checking, so
 // nothing here expects a refusal on the ground of what the string is.
 //
 // ⚠️ No `null` payload and no empty-collection payload: neither variant of
@@ -218,7 +218,7 @@ const T_037_ROWS: readonly {
  * One payload of characters outside ASCII, written from its code points so
  * that the source file stays ASCII while the payload does not. U+65E5 U+7A0B
  * are two the app must carry, U+2014 U+00DC U+2713 three more from other
- * scripts. R-9 is send only and sets no rule about what a string may hold.
+ * scripts. CHN-9 is send only and sets no rule about what a string may hold.
  */
 const OUTSIDE_ASCII = String.fromCodePoint(0x65e5, 0x7a0b, 0x20, 0x2014, 0x20, 0xdc, 0x6e,
   0x69, 0x63, 0x6f, 0x64, 0x65, 0x20, 0x2713)
@@ -238,7 +238,7 @@ const BOUNDARY_TEXTS: readonly { readonly why: string; readonly text: string }[]
 ]
 
 /**
- * One case per payload of every kind R-9 names, kept in the row's order so a
+ * One case per payload of every kind CHN-9 names, kept in the row's order so a
  * walk over this roster is a walk over the row.
  */
 const EVERY_CONTENT: readonly { readonly why: string; readonly content: ClipboardContent }[] = [
@@ -352,7 +352,7 @@ const EVERY_REFUSAL: readonly { readonly why: string; readonly reason: unknown }
 describe('the rosters these cases walk are the ones the tables state', () => {
   // ⛔ A walk over an empty roster passes without asserting anything. These
   // pin the counts so a vacuous case cannot go green.
-  it("carries R-9's two payloads, the three faults, and both T-037 rows", () => {
+  it("carries CHN-9's two payloads, the three faults, and both T-037 rows", () => {
     expect(T_008_R9.carries).toHaveLength(2)
     expect(CLIPBOARD_FAULTS).toHaveLength(3)
     expect(new Set(CLIPBOARD_FAULTS).size).toBe(3)
@@ -361,7 +361,7 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(EVERY_REFUSAL.length).toBeGreaterThan(0)
   })
 
-  it("builds one content of every kind R-9 names, in the row's order", () => {
+  it("builds one content of every kind CHN-9 names, in the row's order", () => {
     const kinds = EVERY_CONTENT.map(({ content }) => content.kind)
     expect([...new Set(kinds)]).toEqual([...T_008_R9.carries])
   })
@@ -488,10 +488,10 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
 })
 
 // ---------------------------------------------------------------------------
-// R-9 of table T-008, IO-6 of table T-024, FR-025 -- what goes out, unchanged
+// CHN-9 of table T-008, IO-6 of table T-024, FR-025 -- what goes out, unchanged
 // ---------------------------------------------------------------------------
 
-describe("R-9 of table T-008 -- both payloads leave as the string they arrived as", () => {
+describe("CHN-9 of table T-008 -- both payloads leave as the string they arrived as", () => {
   it('hands every payload of both kinds to the browser (one case walks the row)', async () => {
     for (const { why, content } of EVERY_CONTENT) {
       const fake = accepting()
@@ -522,7 +522,7 @@ describe("R-9 of table T-008 -- both payloads leave as the string they arrived a
     }
   })
 
-  it('refuses nothing of its own -- R-9 is send only, so FR-023 does not reach it', async () => {
+  it('refuses nothing of its own -- CHN-9 is send only, so FR-023 does not reach it', async () => {
     expect(T_008_R9.isValidatedIntake).toBe(false)
     // ⛔ The empty string and the long one are the boundaries an invented
     // length rule would have caught; both must go out untouched.

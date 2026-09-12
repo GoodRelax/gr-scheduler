@@ -4546,7 +4546,7 @@ export function frameLoop(
    *
    * ⭐⭐ IN THE APP AND NOT THE OS's, WHICH IS FR-033's OWN SENTENCE (MUST /
    * MUST NOT): 「複製に使う置き場はアプリの中に持つこと（MUST）。OS のクリップ
-   * ボードから読み込んではならない（MUST NOT）」. ⭐ R-9 of table T-008 marks the
+   * ボードから読み込んではならない（MUST NOT）」. ⭐ CHN-9 of table T-008 marks the
    * clipboard route 「送信のみ・読まない」, so `ClipboardGateway` (PI-24) -- which
    * IS built and IS handed to this loop -- publishes `writeClipboard` and nothing
    * that reads. ⇒ SK-4 and SK-5 never belonged to it; they want this binding.
@@ -5321,7 +5321,7 @@ export function frameLoop(
    * record and stops it.
    *
    * ⭐ STOPPING HANDS THE RECORD OVER (FR-102, MUST), and the route is the
-   * one table T-008's R-9 already carries: `writeClipboard` over IF-5, the
+   * one table T-008's CHN-9 already carries: `writeClipboard` over IF-5, the
    * same seam IC-3 sends the picture out through. ⛔ A route of its own
    * would be the second way to one place that rule 03 forbids.
    * ⚠️ STARTING CLEARS WHAT STOOD, so that one record is one sitting: a
@@ -8652,7 +8652,7 @@ export function frameLoop(
       // 新しい行を足してはならない（MUST NOT）」 —— 「その行は既にこの面に在る」.
       //
       // ⭐⭐ SO THE COPY RIDES ON THE ROW THAT WAS ALREADY THERE, and this is
-      // the whole of why it is done in this layer: R-9 of table T-008 puts the
+      // the whole of why it is done in this layer: CHN-9 of table T-008 puts the
       // clipboard outside the components that draw, `ClipboardContent` already
       // carries a `document` variant named for FR-068, and no row of table
       // T-108 makes this a `DocumentCommand` -- nothing is written to the
@@ -8999,7 +8999,7 @@ export function frameLoop(
    * cascade out of the document when the paste lands. ⇒ A store holding ROWS
    * would paste a document that has since been edited away.
    * ⛔ NOTHING IS SENT TO THE OS. FR-033 (MUST NOT) forbids READING the OS
-   * clipboard, and R-9 of table T-008 leaves the write route to FR-025's picture
+   * clipboard, and CHN-9 of table T-008 leaves the write route to FR-025's picture
    * -- neither says a Task copy goes out, so it does not.
    *
    * ⭐ FR-033 NAMES TWO SUBJECTS and this reads both: 「選ばれた `Task` とその WBS

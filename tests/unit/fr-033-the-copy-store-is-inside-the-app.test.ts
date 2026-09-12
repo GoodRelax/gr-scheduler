@@ -11,7 +11,7 @@
 //    読み込んではならない（MUST NOT）**」——「外から来た文字列をタスクとして解釈
 //    すると、データの正確性を保証できない。」
 //   「⚠️ **禁じているのは読むことだけである** —— クリップボードへ送る経路は表
-//    T-008 の `R-9` が持つ」
+//    T-008 の `CHN-9` が持つ」
 //
 //   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれ
 //   た `Task` とその WBS の子孫を部分木ごと**複製すること。行見出しパネルでは、
@@ -200,8 +200,8 @@ describe('FR-033 -- 複製に使う置き場はアプリの中に持つこと（
     expect(copies.map((one) => one.name).sort()).toEqual(['Design', 'Draft'])
   })
 
-  it('the ClipboardGateway publishes a way OUT and no way IN (PI-24, table T-008 R-9)', () => {
-    // 表 T-008 の `R-9`（OS のクリップボード）: 「**送信のみ・読まない**（検証の対象
+  it('the ClipboardGateway publishes a way OUT and no way IN (PI-24, table T-008 CHN-9)', () => {
+    // 表 T-008 の `CHN-9`（OS のクリップボード）: 「**送信のみ・読まない**（検証の対象
     // にならない）」, and 表 T-064 の `PI-24` publishes 「`Clipboard`（表 T-065）／
     // `writeClipboard`」 -- a write and nothing else. A published reader would be
     // the entrance the MUST NOT refuses, whether or not anyone called it.
@@ -212,9 +212,9 @@ describe('FR-033 -- 複製に使う置き場はアプリの中に持つこと（
     }
   })
 
-  it('table T-008 R-9 states the route is send-only', () => {
-    const row = specTable('T-008').rows.find((one) => one.id === 'R-9')
-    expect(row, 'table T-008 has no row R-9').toBeDefined()
+  it('table T-008 CHN-9 states the route is send-only', () => {
+    const row = specTable('T-008').rows.find((one) => one.id === 'CHN-9')
+    expect(row, 'table T-008 has no row CHN-9').toBeDefined()
     expect(JSON.stringify(row!.cells)).toContain('送信のみ')
     expect(JSON.stringify(row!.cells)).toContain('読まない')
   })

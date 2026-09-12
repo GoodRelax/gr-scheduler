@@ -6,8 +6,8 @@
 // @publishes table T-064 row PI-13
 //
 // FR-023 / NFR-009: the strict check of untrusted input, and the one place the
-// three import routes share (CP-13). Table T-008 marks R-1 (a file), R-3 (what
-// came back out of Web Storage) and R-5 (the Agent API) untrusted, and OP-5 of
+// three import routes share (CP-13). Table T-008 marks CHN-1 (a file), CHN-3 (what
+// came back out of Web Storage) and CHN-5 (the Agent API) untrusted, and OP-5 of
 // table T-024a sends every one of them through this BEFORE OP-3 asks the person
 // what to do with the document they already have -- asking first would throw
 // that document away for an input that is then refused, which is the partial
@@ -139,9 +139,9 @@ export interface ImportCandidate {
    */
   readonly document: Document
   /**
-   * How many BYTES the source occupied as it arrived: the file's size (R-1 of
-   * table T-008), the length of the stored text (R-3), or of the call's payload
-   * (R-5). A pure function cannot measure it, so the caller states it, the way
+   * How many BYTES the source occupied as it arrived: the file's size (CHN-1 of
+   * table T-008), the length of the stored text (CHN-3), or of the call's payload
+   * (CHN-5). A pure function cannot measure it, so the caller states it, the way
    * `historyWithStep` is told the size of a step.
    *
    * ⚠️ Bytes. S-113 states its limit in megabytes, and states the factor that

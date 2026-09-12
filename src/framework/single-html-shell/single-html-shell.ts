@@ -461,7 +461,7 @@ const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeRea
  * same file for the same reason (`moreThanOneEntry` in `embedded-html-codec.ts`).
  *
  * ⭐ FR-088's GATE IS HELD HERE AND NOWHERE LATER. BT-1 is untrusted intake --
- * R-1 and R-3 of table T-008 -- and a calendar that works no weekday leaves
+ * CHN-1 and CHN-3 of table T-008 -- and a calendar that works no weekday leaves
  * every count of working days with no day to reach, so the document has to be
  * turned away BEFORE it becomes the current one. `noWorkingWeekdayReason` is
  * where the invariant row and the notice row are joined, so neither is spelled
@@ -1005,7 +1005,7 @@ function boot(): void {
   // and that absence is not a stand-in:
   //
   //   BT-2  ⛔ IF-3 HAS NO MEMBER FOR IT AND CANNOT. Table T-034 sends this
-  //         rank to R-1 of table T-008 -- a file chooser or a drop -- and
+  //         rank to CHN-1 of table T-008 -- a file chooser or a drop -- and
   //         neither has happened at the moment BO-2 runs. `readFileToOpen`
   //         answers for a gesture the person has just made; nothing on that
   //         seam answers for a file the host handed the page as it started.
@@ -1047,7 +1047,7 @@ function boot(): void {
   // `startupTemplateDocument` records for the same file: the template is
   // BUNDLED, so a fault in it is a build that shipped broken, and
   // `npm run gen:check` is where that is caught rather than at boot.
-  // ⛔ WHAT IS OWED WHEN BT-2 GAINS A PRODUCER. Its handed file is R-1 of
+  // ⛔ WHAT IS OWED WHEN BT-2 GAINS A PRODUCER. Its handed file is CHN-1 of
   // table T-008 -- untrusted -- so it needs this same gate before it may be
   // handed over as `read`.
 

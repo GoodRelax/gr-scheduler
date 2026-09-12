@@ -9,7 +9,7 @@
 // nothing else. The order is table T-034 itself:
 //
 //     BT-1  the document embedded in the file        (FR-067)
-//     BT-2  the document handed at startup           (path R-1 of table T-008)
+//     BT-2  the document handed at startup           (path CHN-1 of table T-008)
 //     BT-4  the template for the first screen        (FR-027)
 //
 // ⚠️ THE TABLE'S THIRD SEAT IS BURNT -- no rank stands between BT-2 and BT-4.
@@ -20,7 +20,7 @@
 // ⚠️ Nothing here reads a file, storage, the clock or the DOM. LY-5 leaves every
 // outside value to the Framework, so all three candidates ARRIVE AS VALUES,
 // already decoded and already through FR-023's validation (table T-008 marks
-// R-1 untrusted, and BT-1 rides in on the file itself). A candidate that
+// CHN-1 untrusted, and BT-1 rides in on the file itself). A candidate that
 // could not be read arrives as `unreadable` / `entryCountNotOne`, never as
 // `read`.
 //
@@ -66,7 +66,7 @@ export type EmbeddedCandidate =
   | { readonly kind: 'entryCountNotOne'; readonly entryCount: number }
 
 /**
- * BT-2 -- the document handed at startup. The path is R-1 of table T-008 and
+ * BT-2 -- the document handed at startup. The path is CHN-1 of table T-008 and
  * what happens to it after it is opened is FR-087's.
  *
  * ⚠️ `unreadable` descends to BT-4 and raises a notice, the same way BT-1 does.

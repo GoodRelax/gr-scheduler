@@ -967,7 +967,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   })
 
   // Goes red if the application ever asks the host for its clipboard -- the
-  // MUST NOT FR-033 states, and the reason table T-008 row `R-9` gives for the
+  // MUST NOT FR-033 states, and the reason table T-008 row `CHN-9` gives for the
   // route being outward only.
   test('nothing in a copy or a paste reads the clipboard of the host', () => {
     const seen = readingsOfTheSweep()

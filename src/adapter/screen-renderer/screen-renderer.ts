@@ -1289,7 +1289,7 @@ export interface AiExportModal extends OpenSurface {
    * already on this surface -- and (MUST NOT) forbids adding a new one, so
    * `commandsOnSurface` already emits it and a `CommandItem` minted here would
    * be the second entrance FR-029 forbids.
-   * ⚠️ What a press of it SPENDS is not this component's: R-9 of table T-008
+   * ⚠️ What a press of it SPENDS is not this component's: CHN-9 of table T-008
    * puts the clipboard outside, and the shell owns that seam.
    */
   readonly documentText: string

@@ -63,11 +63,11 @@
 //
 // ⛔ NOT CHECKABLE HERE, and stated so it is not looked for: FR-025 puts
 // FR-020's watermark choice on this route as well (LM-8 reaches an outbound
-// route, and table T-008's R-9 is one). It is applied where the picture is
+// route, and table T-008's CHN-9 is one). It is applied where the picture is
 // made. `clipboard.ts` says this on the declaring side and it stays true on
 // this one -- a picture that arrives already made cannot be inspected for it.
 //
-// ⛔ Nothing here validates the string. Table T-008's R-9 is send-only and its
+// ⛔ Nothing here validates the string. Table T-008's CHN-9 is send-only and its
 // own remark says it is not subject to the checking -- FR-023's intakes are
 // the other direction. A length or emptiness rule invented here would be a
 // boundary the specification did not draw.

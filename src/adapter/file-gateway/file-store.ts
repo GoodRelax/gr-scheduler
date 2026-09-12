@@ -52,7 +52,7 @@
  * second member, and there is nowhere to put one.
  *
  * ⚠️ `BT-2` of table T-034 -- a document handed to the app as it starts -- is
- * not a third route. Table T-034 sends it to R-1 of table T-008, the same file
+ * not a third route. Table T-034 sends it to CHN-1 of table T-008, the same file
  * route these two use, and hands what happens next to FR-087.
  */
 export type OpenRoute = 'chooser' | 'drop' | 'reopen'

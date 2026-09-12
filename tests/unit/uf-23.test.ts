@@ -47,7 +47,7 @@ const documentOf = (name: string): Document =>
  */
 const T_034 = [
   { row: 'BT-1', order: 1, source: 'the document embedded in the file (FR-067)' },
-  { row: 'BT-2', order: 2, source: 'the document handed at startup (R-1 of table T-008, FR-087)' },
+  { row: 'BT-2', order: 2, source: 'the document handed at startup (CHN-1 of table T-008, FR-087)' },
   { row: 'BT-4', order: 3, source: 'the template for the first screen (FR-027)' },
 ] as const satisfies readonly { row: StartupRow; order: number; source: string }[]
 

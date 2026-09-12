@@ -10,7 +10,7 @@
 //   T-037 NT-1    「入力を受け付けないとき | どの項目が、なぜ誤りかを文字で示すこと
 //                 （MUST）。訂正の手がかりを添えること。色や枠だけで示してはならない
 //                 （MUST NOT）」
-//   T-034 BT-2    「起動時に渡された文書。渡す経路は表 T-008 の `R-1`、開いた後の
+//   T-034 BT-2    「起動時に渡された文書。渡す経路は表 T-008 の `CHN-1`、開いた後の
 //                 扱いは `FR-087`」
 //   FR-062        「起動したとき、`GRS` は、表 T-034 の順で最初に開く文書を決める
 //                 こと」
@@ -51,7 +51,7 @@
 // `{ kind: 'none' }` for the handed candidate unconditionally, so link 1 never
 // fires in the shipped build. ⛔ THAT IS A DEFECT AND NOT A REASON TO WEAKEN A
 // CASE: FR-062 (MUST) makes the startup follow table T-034, BT-2 is a row of
-// that table with a route of its own (R-1 of table T-008), and OP-14 (MUST)
+// that table with a route of its own (CHN-1 of table T-008), and OP-14 (MUST)
 // says what to do when it fails -- a requirement that can never fire is a
 // requirement that is not met. No case below pretends otherwise; they hold the
 // two links that are reachable and name the one that is not.

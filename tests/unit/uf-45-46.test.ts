@@ -16,7 +16,7 @@
 // expectation below comes from a requirement or a table, never from the code.
 //
 // The rules these cases answer to:
-//   table T-008 R-9   the clipboard is the far end of an outbound route, and
+//   table T-008 CHN-9   the clipboard is the far end of an outbound route, and
 //                     the row names exactly two things that leave by it -- the
 //                     picture and the document handed to an AI (FR-068), in
 //                     that order. The row also records that the route is send
@@ -103,13 +103,13 @@ import { specTable } from '../contract/spec-table'
 // ---------------------------------------------------------------------------
 
 /**
- * Table T-008 row R-9 -- the route whose far end is the OS clipboard.
+ * Table T-008 row CHN-9 -- the route whose far end is the OS clipboard.
  * `carries` is the row's own order: the picture first, then the document
  * FR-068 hands to an AI.
  */
 const T_008_R9 = {
-  id: 'R-9',
-  from: 'D-1',
+  id: 'CHN-9',
+  from: 'DEV-1',
   to: 'the OS clipboard',
   carries: ['picture', 'document'],
   isOutboundOnly: true,
@@ -205,7 +205,7 @@ const BOUNDARY_TEXTS: readonly { readonly why: string; readonly text: string }[]
 ]
 
 /**
- * One case per payload of every kind R-9 names, kept in the row's order so a
+ * One case per payload of every kind CHN-9 names, kept in the row's order so a
  * walk over this roster is a walk over the row.
  */
 const EVERY_CONTENT: readonly { readonly why: string; readonly content: ClipboardContent }[] = [
@@ -303,7 +303,7 @@ const EVERY_REASON: readonly { readonly why: string; readonly reason: unknown }[
 describe('the rosters these cases walk are the ones the tables state', () => {
   // ⛔ A walk over an empty roster passes without asserting anything. These
   // pin the counts so a vacuous case cannot go green.
-  it('carries R-9\'s two payloads, the three faults, and both T-037 rows', () => {
+  it('carries CHN-9\'s two payloads, the three faults, and both T-037 rows', () => {
     expect(T_008_R9.carries).toHaveLength(2)
     expect(CLIPBOARD_FAULTS).toHaveLength(3)
     expect(new Set(CLIPBOARD_FAULTS).size).toBe(3)
@@ -312,7 +312,7 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(EVERY_REASON.length).toBeGreaterThan(0)
   })
 
-  it('builds one content of every kind R-9 names, in the row\'s order', () => {
+  it('builds one content of every kind CHN-9 names, in the row\'s order', () => {
     const kinds = EVERY_CONTENT.map(({ content }) => content.kind)
     expect([...new Set(kinds)]).toEqual([...T_008_R9.carries])
   })
@@ -371,7 +371,7 @@ describe('FR-033 -- the OS clipboard is written and never read', () => {
     expect(received).toHaveLength(2)
   })
 
-  it('refuses nothing of its own -- R-9 is send only, so FR-023 does not reach it', async () => {
+  it('refuses nothing of its own -- CHN-9 is send only, so FR-023 does not reach it', async () => {
     expect(T_008_R9.isValidatedIntake).toBe(false)
     for (const { why, content } of EVERY_CONTENT) {
       const { clipboard, received } = answeringClipboard({ ok: true })
@@ -383,10 +383,10 @@ describe('FR-033 -- the OS clipboard is written and never read', () => {
 })
 
 // ---------------------------------------------------------------------------
-// R-9 of table T-008 and IO-6 of table T-024 -- what goes out, unchanged
+// CHN-9 of table T-008 and IO-6 of table T-024 -- what goes out, unchanged
 // ---------------------------------------------------------------------------
 
-describe('R-9 of table T-008 -- both payloads leave, exactly as they arrived', () => {
+describe('CHN-9 of table T-008 -- both payloads leave, exactly as they arrived', () => {
   it('hands every payload of both kinds to the seam (one case walks the row)', async () => {
     for (const { why, content } of EVERY_CONTENT) {
       const { clipboard, received } = answeringClipboard({ ok: true })
@@ -541,7 +541,7 @@ describe('table T-037 -- the refusal carries what the notice needs', () => {
 //
 // ⛔ These cases do NOT claim that this unit builds a picture. It does not, and
 // the case above ("nothing is made again here") is what pins that. What they
-// pin is the other half: the string that goes out on R-9 is IO-3's own output,
+// pin is the other half: the string that goes out on CHN-9 is IO-3's own output,
 // unaltered, and the gateway is the one place all three routes meet.
 // ---------------------------------------------------------------------------
 

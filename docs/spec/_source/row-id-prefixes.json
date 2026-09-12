@@ -6,45 +6,14 @@
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "THIS FILE HOLDS NO ROSTER. Which prefixes exist, where each is defined and how many rows it has are read on every run from THREE trees -- docs/spec, docs/development-records and docs/development-rules -- as every `| XX-n |` row of their Markdown and the table caption it sits under. Do NOT write an owning table or a row count here: the join between this file and that walk IS the check, and a copy of either side would be the thing that drifts. A prefix a tree uses and this file does not carry fails the run (unregistered); a prefix this file carries and no tree uses fails it too (dead registration). There is no separate checker.",
   "THE WALK COVERS ALL THREE TREES BECAUSE THE DEFECT IT EXISTS FOR SPANS THEM. `PD-` named a row of table T-023a and an un-ruled decision of the ledger, and a register that walked only docs/spec could not see the second one -- it would have gone green on the very collision that cost the round of 2026-09-12. Measured that day: docs/spec 124 prefixes / 1,891 rows, docs/development-records 12 / 856, docs/development-rules 1 / 2.",
-  "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the eight real mirrors from the prefixes that mean two different things. MEASURED 2026-09-12 there were three -- D, PD and R, whose ledger rows were 494, 208 and 44 ids the specification never defined. THERE ARE TWO SINCE 2026-09-13: CR-371 pulled PD's two meanings apart into PTD (spec, table T-023a, 6 rows) and PND (records, 212 rows), so no spelling of it stands in two trees and neither half is foreign to the other. The 208 was those 212 minus the 4 that stood in both trees -- the ledger's four lowest-numbered rows, which the press table numbered too -- and it reproduces from the renamed rosters. D and R are held for a later CR by the user's ruling of 2026-09-13, and `collisions_suppressed` below still carries both.",
+  "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the eight real mirrors from the prefixes that mean two different things. MEASURED 2026-09-12 there were three -- D, PD and R, whose ledger rows were 494, 208 and 44 ids the specification never defined. THERE ARE TWO SINCE 2026-09-13: CR-371 pulled PD's two meanings apart into PTD (spec, table T-023a, 6 rows) and PND (records, 212 rows), so no spelling of it stands in two trees and neither half is foreign to the other. The 208 was those 212 minus the 4 that stood in both trees -- the ledger's four lowest-numbered rows, which the press table numbered too -- and it reproduces from the renamed rosters. D and R were the two that remained, and the CR that renames them struck both in its wave 1 -- the moment the specification side became `DEV-` and `CHN-`, neither prefix stood in two trees any more. `collisions_suppressed` is empty for the first time.",
   "`collisions_suppressed` IS A DEBT, NOT A PERMISSION. Each entry names the prefix, the trees it is used in, the day the suppression was written, why, and what removes it. The printed table shows every one of them, so the count cannot grow in silence, and the generator fails on an entry whose prefix no longer collides -- a suppression cannot outlive its reason.",
   "`words` MAY BE EMPTY, and an empty one is not a gap to be filled by guessing. It says the letters' origin could not be read out of the documents themselves. The defect CR-371 exists to remove is a spelling that two readers expand two ways, so an invented expansion here would be that same defect with a registry around it. Write `means` and leave `words` empty.",
   "`pending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; the printed table shows such an entry as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason. No entry carries it: PTD and PND both carried it until CR-371 wrote their rows, in waves 1 and 2.",
   "One line per prefix, on purpose: a registry is read as a list, and a 128-entry file broken over six lines each cannot be scanned.",
   "The `means` cells are Japanese because they are printed prose of a Japanese specification, held per language the way Chapter 6.2 requires (check 23). `words` is Latin letters and belongs to no language."
  ],
- "collisions_suppressed": [
-  {
-   "prefix": "D",
-   "trees": [
-    "spec",
-    "records"
-   ],
-   "since": "2026-09-12",
-   "why": {
-    "ja": "仕様書の `D-1` は機器（利用者の PC のブラウザ）であり、台帳の D-01 は欠陥である。494 の綴りが台帳だけのもので、機器を指すものは 1 つも無い。いま綴りが衝突していないのは台帳が 0 詰めで書いているからにすぎず、読み手はその差に頼れない"
-   },
-   "until": {
-    "ja": "⭐ **後回しと裁定された（利用者の裁定 2026-09-13）** —— 別の CR を立て、CR-371 の `PD` が終わってから裁く。⛔ 方針を決めずに送ったのではなく、**順を決めた**のである —— `PD` は実害が出た（生きた指し先を 3 箇所剥がした）が、`D` と `R` は 0 詰めで偶然分かれている。⚠️ **本行が残る限り忘れられない。**"
-   },
-   "ruled": "2026-09-13"
-  },
-  {
-   "prefix": "R",
-   "trees": [
-    "spec",
-    "records"
-   ],
-   "since": "2026-09-12",
-   "why": {
-    "ja": "仕様書の `R-1` は機器と機器のあいだの経路であり、台帳の R-01 は利用者の裁定である。44 の綴りはすべて台帳だけのものである。D と同じ形であり、綴りを分けているのは 0 詰めだけである"
-   },
-   "until": {
-    "ja": "⭐ **後回しと裁定された（利用者の裁定 2026-09-13）** —— 別の CR を立て、CR-371 の `PD` が終わってから裁く。⛔ 方針を決めずに送ったのではなく、**順を決めた**のである —— `PD` は実害が出た（生きた指し先を 3 箇所剥がした）が、`D` と `R` は 0 詰めで偶然分かれている。⚠️ **本行が残る限り忘れられない。**"
-   },
-   "ruled": "2026-09-13"
-  }
- ],
+ "collisions_suppressed": [],
  "prefixes": [
   {
    "prefix": "A",
@@ -146,6 +115,14 @@
    }
   },
   {
+   "prefix": "CHN",
+   "words": "Channel",
+   "owner": "spec",
+   "means": {
+    "ja": "機器と機器のあいだのデータの経路と、その信頼境界（CR の巡 1 で `R-` から改めた。⛔ `RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった）"
+   }
+  },
+  {
    "prefix": "CL",
    "words": "",
    "owner": "spec",
@@ -178,6 +155,14 @@
    }
   },
   {
+   "prefix": "CR",
+   "words": "Change Request",
+   "owner": "records",
+   "means": {
+    "ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"
+   }
+  },
+  {
    "prefix": "CS",
    "words": "Consistency",
    "owner": "spec",
@@ -203,10 +188,10 @@
   },
   {
    "prefix": "D",
-   "words": "Device",
-   "owner": "spec",
+   "words": "Defect",
+   "owner": "records",
    "means": {
-    "ja": "配置図に載る機器"
+    "ja": "台帳の欠陥（CR により `DFC-` へ改める途中であり、巡 1 で仕様書側は `DEV-` へ移った）"
    }
   },
   {
@@ -215,6 +200,14 @@
    "owner": "spec",
    "means": {
     "ja": "`Dual Cursor` の操作の条"
+   }
+  },
+  {
+   "prefix": "DEV",
+   "words": "Device",
+   "owner": "spec",
+   "means": {
+    "ja": "配置図に載る機器（CR の巡 1 で `D-` から改めた綴りである。`words` は登録簿が `D` について既に持っていた語であり、発明ではない）"
    }
   },
   {
@@ -716,6 +709,14 @@
    }
   },
   {
+   "prefix": "PND",
+   "words": "Pending Decision",
+   "owner": "records",
+   "means": {
+    "ja": "まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである）"
+   }
+  },
+  {
    "prefix": "PO",
    "words": "Policy",
    "owner": "spec",
@@ -740,6 +741,14 @@
    }
   },
   {
+   "prefix": "PTD",
+   "words": "Pointer Down",
+   "owner": "spec",
+   "means": {
+    "ja": "ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである）"
+   }
+  },
+  {
    "prefix": "PV",
    "words": "",
    "owner": "spec",
@@ -758,9 +767,9 @@
   {
    "prefix": "R",
    "words": "",
-   "owner": "spec",
+   "owner": "records",
    "means": {
-    "ja": "機器と機器のあいだのデータの経路"
+    "ja": "利用者の裁定（CR により `JDG-` へ改める途中であり、巡 1 で仕様書側は `CHN-` へ移った）"
    }
   },
   {
@@ -1015,6 +1024,14 @@
    }
   },
   {
+   "prefix": "WR",
+   "words": "",
+   "owner": "rules",
+   "means": {
+    "ja": "要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である"
+   }
+  },
+  {
    "prefix": "WS",
    "words": "Write Step",
    "owner": "spec",
@@ -1052,38 +1069,6 @@
    "owner": "spec",
    "means": {
     "ja": "重ね順（背面から前面へ）の段"
-   }
-  },
-  {
-   "prefix": "CR",
-   "words": "Change Request",
-   "owner": "records",
-   "means": {
-    "ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"
-   }
-  },
-  {
-   "prefix": "WR",
-   "words": "",
-   "owner": "rules",
-   "means": {
-    "ja": "要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である"
-   }
-  },
-  {
-   "prefix": "PTD",
-   "words": "Pointer Down",
-   "owner": "spec",
-   "means": {
-    "ja": "ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである）"
-   }
-  },
-  {
-   "prefix": "PND",
-   "words": "Pending Decision",
-   "owner": "records",
-   "means": {
-    "ja": "まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである）"
    }
   }
  ]
