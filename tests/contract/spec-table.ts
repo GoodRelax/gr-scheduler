@@ -224,6 +224,38 @@ const JOINERS: readonly string[] = ['/', '／', '、', '・', 'と', 'または'
  *
  * ⛔ A cell with no code span at all is returned whole, exactly as `bare` does.
  */
+/**
+ * The manuscript in paragraphs, each put back together from the lines it was
+ * broken into.
+ *
+ * ⛔ A RULE IS A PARAGRAPH, NOT A LINE. Every sentence ends a line in
+ * docs/spec (check 46), so a reader that took one line would see the first
+ * sentence and miss the rest -- which is how three files came to depend on a
+ * rule being written on a single line. The break stands where the text had no
+ * character, so the pieces join with nothing between them.
+ *
+ * A table row, a heading and a fence line each stay a block of their own.
+ */
+export function paragraphsOf(text: string): readonly string[] {
+  const out: string[] = []
+  let held: string[] = []
+  const flush = (): void => {
+    if (held.length > 0) out.push(held.join(''))
+    held = []
+  }
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim()
+    if (trimmed === '' || trimmed.startsWith('|') || trimmed.startsWith('#')) {
+      flush()
+      if (trimmed !== '') out.push(trimmed)
+      continue
+    }
+    held.push(trimmed)
+  }
+  flush()
+  return out
+}
+
 export function bareAll(cell: string): readonly string[] {
   const values: string[] = []
   let rest = cell

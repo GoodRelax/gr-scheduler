@@ -217,13 +217,32 @@ const REQUIREMENTS = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').s
 const rowIdsIn = (text: string): readonly string[] => text.match(/GR-\d+/g) ?? []
 
 /**
- * The one line of the manuscript that carries the closing rule this file is
+ * The paragraph that holds a rule, found by words the rule itself uses.
+ *
+ * ⛔ A RULE IS A PARAGRAPH, NOT A LINE. The manuscript breaks it at every
+ * sentence (two trailing spaces), so a reader that took one line would see the
+ * first sentence only. The break stands where the text had no character, so
+ * the pieces join with nothing between them.
+ */
+function paragraphHolding(words: string): string | undefined {
+  const at = REQUIREMENTS.findIndex((line) => line.includes(words))
+  if (at < 0) return undefined
+  let from = at
+  while (from > 0 && (REQUIREMENTS[from - 1] ?? '').trim() !== '') from -= 1
+  const said: string[] = []
+  for (const line of REQUIREMENTS.slice(from)) {
+    if (line.trim() === '') break
+    said.push(line.trim())
+  }
+  return said.join('')
+}
+
+/**
+ * The paragraph of the manuscript that carries the closing rule this file is
  * about, found by the words the rule itself uses rather than by a line number.
  */
 function closingRuleLine(): string {
-  const found = REQUIREMENTS.find((line) =>
-    line.includes('を掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと'),
-  )
+  const found = paragraphHolding('を掴んでいるあいだ、置くことになる姿を、ポインタに追従させて描いて示すこと')
   if (found === undefined) {
     throw new Error('table T-023d no longer states the closing rule this file is about')
   }
@@ -238,9 +257,7 @@ function closingRuleLine(): string {
  * for every row the three rules name, so this file reads it from there.
  */
 function writeBanLine(): string {
-  const found = REQUIREMENTS.find((line) =>
-    line.includes('を掴んでいるあいだ値を文書へ書いてはならない'),
-  )
+  const found = paragraphHolding('を掴んでいるあいだ値を文書へ書いてはならない')
   if (found === undefined) {
     throw new Error('table T-023d no longer forbids a write while a grab is held')
   }
@@ -256,14 +273,17 @@ function writeBanLine(): string {
  * exactly the regression this file exists to catch.
  */
 function closingRuleRows(): readonly string[] {
-  const line = closingRuleLine()
-  const head = line.slice(0, line.indexOf('を掴んでいるあいだ'))
+  const rule = closingRuleLine()
+  // ⛔ The SENTENCE, not the paragraph: a row named by a neighbouring
+  // sentence is not a row this rule names.
+  const at = rule.indexOf('を掴んでいるあいだ')
+  const head = rule.slice(rule.lastIndexOf('。', at) + 1, at)
   return rowIdsIn(head)
 }
 
 /** The line after the rule -- 「本表の 操作 の欄が……」 -- and its exempt list. */
 function exemptLine(): string {
-  const found = REQUIREMENTS.find((line) => line.includes('本表の 操作 の欄が'))
+  const found = paragraphHolding('本表の 操作 の欄が')
   if (found === undefined) {
     throw new Error('table T-023d no longer states which rows follow and which do not')
   }

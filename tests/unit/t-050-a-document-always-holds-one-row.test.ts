@@ -35,6 +35,8 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { paragraphsOf } from '../contract/spec-table'
+
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
@@ -72,8 +74,8 @@ const REQUIREMENTS = readFileSync(
 
 /** The one paragraph of docs/spec this whole file is about. */
 const INVARIANT = (() => {
-  const found = REQUIREMENTS.split('\n').find((line) =>
-    line.includes('文書は、`TaskGroup` を必ず 1 つ以上持つこと'),
+  const found = paragraphsOf(REQUIREMENTS).find((one) =>
+    one.includes('文書は、`TaskGroup` を必ず 1 つ以上持つこと'),
   )
   if (found === undefined) {
     throw new Error('01-04-requirements.md no longer states the invariant of table T-050')

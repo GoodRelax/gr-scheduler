@@ -81,22 +81,54 @@ def read(rel):
     return io.open(path, encoding='utf-8').read().splitlines()
 
 
+def paragraphs_by_line(lines):
+    """For each line, the whole block it belongs to.
+
+    ⛔ A rule is a paragraph, not a line (check 46). A table row is its own
+    block; so is a heading and a blank line.
+    """
+    out = [None] * len(lines)
+    held = []
+    def flush():
+        text = ' '.join(held)
+        for k in held_at:
+            out[k] = text
+    held_at = []
+    for i, line in enumerate(lines):
+        t = line.strip()
+        if not t or t.startswith(('|', '#', '```')):
+            if held_at:
+                flush()
+            held, held_at = [], []
+            out[i] = line
+            continue
+        held.append(t)
+        held_at.append(i)
+    if held_at:
+        flush()
+    return out
+
+
 # ------------------------------------------------------- check 12
 
 for rel in (SETTINGS, GLOSSARY):
-    for i, line in enumerate(read(rel), 1):
+    lines = list(read(rel))
+    blocks = paragraphs_by_line(lines)
+    for i, line in enumerate(lines, 1):
         if not MUST.search(line):
             continue
+        # The rule is the paragraph; the line is only where it is reported.
+        rule = blocks[i - 1] or line
         rid = row_id(line)
         if rid in CHECK12_ALLOWED:
             continue
-        if any(x in line for x in CHECK12_ALLOWED_TEXT):
+        if any(x in rule for x in CHECK12_ALLOWED_TEXT):
             continue
-        # A line that only points at where the rule lives is fine.
-        stripped = MUST.sub('', line)
-        if POINTS_AWAY.search(line) and not STATES_RULE.search(stripped):
+        # A rule that only points at where it lives is fine.
+        stripped = MUST.sub('', rule)
+        if POINTS_AWAY.search(rule) and not STATES_RULE.search(stripped):
             continue
-        if rel == GLOSSARY and NAMING_RULE.search(line):
+        if rel == GLOSSARY and NAMING_RULE.search(rule):
             continue        # a rule about what to CALL a thing is the
                             # glossary's own subject: it is the name owner
         what = 'value table' if rel == SETTINGS else 'name table'

@@ -91,9 +91,17 @@ OTHER_BOOKS = re.compile(
     u'development-rules|development-records|pending-decisions')
 
 
+# ⛔ `<br>` is a LINE BREAK in a table cell, not a word of the rule (the
+# user's ruling, 2026-09-12: a row is one line, so a wrapped cell carries <br>
+# where a paragraph would have a newline). tests/contract/spec-table.ts drops
+# it for the same reason. Without this, wrapping a cell would fault every
+# comment that quotes it.
+BREAK = re.compile(u'<br\s*/?>', re.I)
+
+
 def flatten(text):
     """One text with the marks that differ between the two sides removed."""
-    return NOISE.sub(u'', text)
+    return NOISE.sub(u'', BREAK.sub(u'', text))
 
 
 def comment_blocks(source):

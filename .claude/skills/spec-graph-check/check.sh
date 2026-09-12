@@ -464,6 +464,10 @@ echo "===== 45  one expression written in two or more places in src/ ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-repeated-expressions.py || fail=1
 
 echo ""
+echo "===== 46  every sentence ends a line ====="
+PYTHONIOENCODING=utf-8 python "$HERE/check-line-breaks.py" || fail=1
+
+echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
 # ⛔ Printed on every run, green or red. A suite that names only what it
 # checked gets read as having checked everything, which is how a gate that saw

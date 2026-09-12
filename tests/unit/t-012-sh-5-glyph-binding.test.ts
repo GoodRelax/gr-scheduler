@@ -85,7 +85,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, paragraphsOf, specTable } from '../contract/spec-table'
 
 // ===========================================================================
 // List one -- the marks 表 T-012 prints for SH-5
@@ -164,12 +164,12 @@ const PAIRS = '＝'
  * the honest answer -- the MUST would then have nowhere to live.
  */
 const NOTE_PAIRING: ReadonlyMap<string, string> = ((): ReadonlyMap<string, string> => {
-  const lines = REQUIREMENTS.split('\n').filter(
-    (line) => line.includes('`SH-5`') && line.includes('milestoneGlyph') && line.includes(PAIRS),
+  const lines = paragraphsOf(REQUIREMENTS).filter(
+    (one) => one.includes('`SH-5`') && one.includes('milestoneGlyph') && one.includes(PAIRS),
   )
   if (lines.length !== 1) {
     throw new Error(
-      `01-04-requirements.md holds ${lines.length} lines pairing SH-5's marks to ` +
+      `01-04-requirements.md holds ${lines.length} paragraphs pairing SH-5's marks to ` +
         '`milestoneGlyph` spellings, and exactly one must',
     )
   }

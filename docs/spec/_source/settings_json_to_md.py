@@ -133,6 +133,91 @@ def text(value, field=None):
 PAIR_SEPARATOR = ' × '
 
 
+def broken_prose(text):
+    """The built document with every prose sentence on its own line.
+
+    \u26d4 THE RULE (check 46): outside a table a sentence break is a HARD
+    break -- two trailing spaces, and the line ends. A table row, a heading and
+    a fenced block are left alone; a blockquote keeps its `> ` on each piece.
+    """
+    out = []
+    fenced = False
+    under_a_row = False
+    for line in text.split('\n'):
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            fenced = not fenced
+            out.append(line)
+            continue
+        if fenced or not stripped or stripped.startswith(('|', '#')):
+            under_a_row = stripped.startswith('|')
+            out.append(line)
+            continue
+        # A line directly under a table row belongs to that table as far as
+        # markdown is concerned; splitting it would hand the table a row.
+        if under_a_row:
+            out.append(line)
+            continue
+        lead = ''
+        body = line
+        while body.lstrip().startswith('>'):
+            cut = body.index('>') + 1
+            if body[cut:cut + 1] == ' ':
+                cut += 1
+            lead += body[:cut]
+            body = body[cut:]
+        pieces, held, quoted = [], [], 0
+        for i, ch in enumerate(body):
+            held.append(ch)
+            if ch in u'\u300c\u300e':
+                quoted += 1
+            elif ch in u'\u300d\u300f':
+                quoted = max(0, quoted - 1)
+            elif ch == u'\u3002' and not quoted and body[i + 1:].strip().strip('*'):
+                # A CLOSING ** may not start a line -- the renderer leaves
+                # the asterisks on the page. Carry the break past it; an
+                # opening ** is fine where it is.
+                if (body[i + 1:].lstrip().startswith('**')
+                        and body[:i + 1].count('**') % 2):
+                    continue
+                pieces.append(''.join(held))
+                held = []
+        pieces.append(''.join(held))
+        pieces = [p for p in pieces if p]
+        if len(pieces) < 2:
+            out.append(line)
+            continue
+        for piece in pieces[:-1]:
+            out.append(lead + piece.strip() + '  ')
+        out.append(lead + pieces[-1].strip())
+    return '\n'.join(out)
+
+
+def broken(cell):
+    """A cell with every sentence on its own line.
+
+    ⛔ THE RULE (check 46, the user's ruling 2026-09-12): inside a table row a
+    sentence break is written `<br>`. A row is one line, so this is the only
+    break a cell can carry.
+
+    ⚠️ A quotation is never split: a `<br>` inside 「…」 would put a line break
+    in the middle of a verbatim, which is what ruling R-05's check caught.
+    """
+    out = []
+    quoted = 0
+    for i, ch in enumerate(cell):
+        out.append(ch)
+        if ch in u'\u300c\u300e':
+            quoted += 1
+        elif ch in u'\u300d\u300f':
+            quoted = max(0, quoted - 1)
+        elif ch == u'\u3002' and not quoted:
+            rest = cell[i + 1:]
+            if rest.strip() and not rest.startswith('<br>'):
+                out.append('<br>')
+    return ''.join(out)
+
+
 def markdown_row(cells):
     """One Markdown row.
 
@@ -140,7 +225,7 @@ def markdown_row(cells):
     two spaces there and the round trip would stop being byte for byte -- which
     is how this was found: rows S-122 and S-123 leave their last column blank.
     """
-    return '|' + ''.join((' %s |' % c) if c else ' |' for c in cells)
+    return '|' + ''.join((' %s |' % broken(c)) if c else ' |' for c in cells)
 
 
 def row_line(fields, row):
@@ -320,7 +405,7 @@ def main():
             say('  %s' % p)
         say('settings.json is not valid; nothing was written')
         return 1
-    built = build(doc)
+    built = broken_prose(build(doc))
     rel = os.path.relpath(OUT, os.path.dirname(os.path.dirname(HERE)))
     rel = rel.replace('\\', '/')
     if '--check' in sys.argv:

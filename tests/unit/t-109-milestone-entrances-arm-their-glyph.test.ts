@@ -128,7 +128,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, bareAll, specTable } from '../contract/spec-table'
+import { bare, bareAll, paragraphsOf, specTable } from '../contract/spec-table'
 
 // ===========================================================================
 // The manuscripts, read at run time rather than copied (Chapter 1.9 :275)
@@ -169,14 +169,12 @@ const MARKS: readonly string[] = ((): readonly string[] => {
  */
 const NOTE_PAIRING: ReadonlyMap<string, string> = ((): ReadonlyMap<string, string> => {
   const text = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-  const lines = text
-    .split('\n')
-    .filter(
-      (line) => line.includes('`SH-5`') && line.includes('milestoneGlyph') && line.includes('＝'),
-    )
+  const lines = paragraphsOf(text).filter(
+    (one) => one.includes('`SH-5`') && one.includes('milestoneGlyph') && one.includes('＝'),
+  )
   if (lines.length !== 1) {
     throw new Error(
-      `01-04-requirements.md holds ${lines.length} lines pairing SH-5's marks to ` +
+      `01-04-requirements.md holds ${lines.length} paragraphs pairing SH-5's marks to ` +
         '`milestoneGlyph` spellings, and exactly one must',
     )
   }
