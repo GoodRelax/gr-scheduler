@@ -1,4 +1,4 @@
-// D-170 -- FR-098's ban on drawing a scrolling row where the pinned band is,
+// DFC-170 -- FR-098's ban on drawing a scrolling row where the pinned band is,
 // read of the PICTURE rather than of the layout.
 //
 // Unit under test: `svgFromSchedule` (PI-19 of table T-064). ⭐ IT IS THE
@@ -818,7 +818,7 @@ describe('the premises every case below stands on', () => {
 })
 
 // ===========================================================================
-// (b) D-170 -- nothing drawn for a scrolling row reaches the band
+// (b) DFC-170 -- nothing drawn for a scrolling row reaches the band
 // ===========================================================================
 
 describe('FR-098 (MUST NOT) -- no figure of a scrolling row is drawn where the band is', () => {

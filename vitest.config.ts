@@ -49,7 +49,7 @@ import { defineConfig } from 'vitest/config'
 // ⛔ SO DO NOT "FIX" THOSE SEVEN BY LOOSENING THEM, and do not turn concurrency
 // off in this file either -- it was never on. ⭐ AND THE MODE BUYS NOTHING:
 // MEASURED 2026-09-07 on the same tree, 19.15s by file alone against 20.03s and
-// 20.09s with `--sequence.concurrent`. See `D-352`.
+// 20.09s with `--sequence.concurrent`. See `DFC-352`.
 export default defineConfig({
   test: {
     environment: 'node',

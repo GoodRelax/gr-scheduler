@@ -96,7 +96,7 @@
 //      fixes 107 of the presentation group's 113 keys; `carryMaxDepth`,
 //      `commentBoxPad`, `commentBoxWrapUnits`, `exportCanvasHeightCap`,
 //      `scrollDayOffset` and `scrollGroupOffset` have no row, which is the
-//      ledger's D-238. ⛔ NO ROW ID AND NO NAME IS INVENTED FOR THEM HERE: the
+//      ledger's DFC-238. ⛔ NO ROW ID AND NO NAME IS INVENTED FOR THEM HERE: the
 //      cases count them and hold the other 107 to the row the table does fix.
 //      ⚠️ Eight rows go the other way -- `themeHue` (DR-5 of table T-052 keeps
 //      the hue on `Project`), `language` (FR-038's RATIONALE keeps the chosen
@@ -176,7 +176,7 @@ import { bare, specTable } from '../contract/spec-table'
  * ⛔ NOT THE NAME THE SCREEN SHOWS, AND THAT IS THE CHANGE CR-278 MADE. Table
  * T-016 carried an 項目名（英語・画面表示） column until 2026-08-28 and the panel
  * drew it verbatim, which is how `strokeColor` and `fadeInDays` reached a
- * reader (the user's reports D-81 and D-84). FR-038 (MUST NOT) now keeps the
+ * reader (the user's reports DFC-81 and DFC-84). FR-038 (MUST NOT) now keeps the
  * shown name in the dictionary, under the same row id -- `SHOWN_NAME` below.
  */
 const NAME_COLUMN = '列（`GRS JSON`）'
@@ -353,7 +353,7 @@ const T_104 = specTable('T-104').rows.map((row) => ({
 
 /**
  * The row of table T-104 that fixes a settings key, or `undefined` when the
- * table fixes none (the ledger's D-238; omission 4 above).
+ * table fixes none (the ledger's DFC-238; omission 4 above).
  *
  * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS. `SETTINGS_DEFAULTS` is printed
  * with the dotted keys `_assets/tbl-settings.md` writes, while table T-104
@@ -393,7 +393,7 @@ const SETTINGS_WORD = wordsOfSection('settings')
 const SETTINGS_KEYS = Object.keys(SETTINGS_DEFAULTS)
 
 /**
- * ⚠️ THE KEYS TABLE T-104 FIXES NO ROW FOR -- the ledger's D-238, six of the 113
+ * ⚠️ THE KEYS TABLE T-104 FIXES NO ROW FOR -- the ledger's DFC-238, six of the 113
  * measured on 2026-09-03. ⛔ Counted from the table rather than listed here: a
  * row the specification adds takes one off this list by itself, and nothing
  * below has to be edited for it.
@@ -767,8 +767,8 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
   })
 
   it('⛔ MUST NOT show a GRS JSON column name where the two differ', () => {
-    // The half of the split with a defect behind it: D-81 (「`Color` を省略しろ」)
-    // and D-84 (「1 行で入るように `fade in/out days` としろ」) are both rows whose
+    // The half of the split with a defect behind it: DFC-81 (「`Color` を省略しろ」)
+    // and DFC-84 (「1 行で入るように `fade in/out days` としろ」) are both rows whose
     // shown name the manuscript deliberately makes unlike the column.
     // ⚠️ Where the two agree this says nothing -- most rows show their own
     // column name and always did.
@@ -1186,7 +1186,7 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     // the two fall off the panel unnoticed.
     //
     // ⛔ THE SIX KEYS THE TABLE FIXES NO ROW FOR ARE COUNTED, NOT NAMED
-    // (D-238, omission 4): the case holds their number against the table's own
+    // (DFC-238, omission 4): the case holds their number against the table's own
     // answer, and invents neither a row id nor a name for them.
     const rows = settingsPanel().fields.map((field) => field.row)
     const named = rows.filter((row) => T_104.some((item) => item.row === row))
@@ -1199,7 +1199,7 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     )
     expect(
       rows.length - named.length,
-      'the keys of the group that table T-104 fixes no row for (D-238)',
+      'the keys of the group that table T-104 fixes no row for (DFC-238)',
     ).toBe(KEYS_WITH_NO_ROW.length)
   })
 
@@ -1211,7 +1211,7 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     for (const field of settingsPanel().fields) expect(field.row.length, field.name).toBeGreaterThan(0)
   })
 
-  it('⛔ MUST NOT put the internal spelling of a key on the screen (the reader\'s report D-233)', () => {
+  it('⛔ MUST NOT put the internal spelling of a key on the screen (the reader\'s report DFC-233)', () => {
     // ⛔ THE RULE, VERBATIM (docs/spec/01-04-requirements.md:316, under table
     // T-006a): 「⛔⛔ **同じ面が文書の設定を出すときも、これに従うこと（MUST）。
     // 内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」, measured on the
@@ -1274,7 +1274,7 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     // of 表 T-104, not of 表 T-016. ⇒ it follows the language, and the words are
     // the dictionary's -- read from the manuscript here, never retyped.
     //
-    // ⚠️ THE SIX OF D-238 ARE PASSED OVER (omission 4): the dictionary holds no
+    // ⚠️ THE SIX OF DFC-238 ARE PASSED OVER (omission 4): the dictionary holds no
     // entry for a key table T-104 gives no row, so there is no word to hold the
     // field to and this case invents none.
     const inJapanese = settingsPanel().fields
@@ -1432,7 +1432,7 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
     expect(rows).toEqual(T_016_ON_A_ROW.map((item) => attributeRowOf(item.columns)))
   })
 
-  it('⭐ carries the name the dictionary holds, not the GRS JSON column (D-185)', () => {
+  it('⭐ carries the name the dictionary holds, not the GRS JSON column (DFC-185)', () => {
     // ⛔ THE USER S REPORT OF 2026-09-01: the shipped panel drew `label` /
     // `color` / `height` -- the column names themselves -- where FR-038 (MUST)
     // puts the shown name in the dictionary under table T-016 s row id.

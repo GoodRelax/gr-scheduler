@@ -3,25 +3,25 @@
 // were handed to this file; nineteen of them are held down here, and the four
 // that are not say why in prose below.
 //
-//   D-24   a fit throws the folds away, and what it lands on fits
-//   D-43   double-clicking a task opens the panel with the name field ready
-//   D-52   the written picture carries no trace of what was selected
-//   D-65   the header's time is written small, and in the reader's own clock
-//   D-66   a second save writes again, and asks no second time where to
-//   D-82   nothing stands in front of a colour control showing its value
-//   D-91   the weekday tier is ticked exactly where the day tier is
-//   D-92   the ruler band keeps its height and divides it evenly
-//   D-97   the save key writes GRS JSON, and the second press asks nothing
-//   D-98   with no file open, the reload key does nothing
-//   D-103  the minimise entrance rides the palette's grab band, not a group
-//   D-105  a help item reads shape, description, assignment -- at S-203
-//   D-106  the words a tooltip puts up are drawn at S-204
-//   D-126  the file's name stands above the time it was written
-//   D-130  a value settled in the panel reaches the document
-//   D-152  settling the same value twice writes nothing
-//   D-166  the reason a row gives for refusing is the reason that row holds
-//   D-210  a click on the month tier lands on the end of the month
-//   D-220  a picture too tall to draw is refused, and the other formats write
+//   DFC-24   a fit throws the folds away, and what it lands on fits
+//   DFC-43   double-clicking a task opens the panel with the name field ready
+//   DFC-52   the written picture carries no trace of what was selected
+//   DFC-65   the header's time is written small, and in the reader's own clock
+//   DFC-66   a second save writes again, and asks no second time where to
+//   DFC-82   nothing stands in front of a colour control showing its value
+//   DFC-91   the weekday tier is ticked exactly where the day tier is
+//   DFC-92   the ruler band keeps its height and divides it evenly
+//   DFC-97   the save key writes GRS JSON, and the second press asks nothing
+//   DFC-98   with no file open, the reload key does nothing
+//   DFC-103  the minimise entrance rides the palette's grab band, not a group
+//   DFC-105  a help item reads shape, description, assignment -- at S-203
+//   DFC-106  the words a tooltip puts up are drawn at S-204
+//   DFC-126  the file's name stands above the time it was written
+//   DFC-130  a value settled in the panel reaches the document
+//   DFC-152  settling the same value twice writes nothing
+//   DFC-166  the reason a row gives for refusing is the reason that row holds
+//   DFC-210  a click on the month tier lands on the end of the month
+//   DFC-220  a picture too tall to draw is refused, and the other formats write
 //
 // ⭐ FIVE MORE ROWS WERE ADDED WITH CR-344, and they are of a different kind:
 // four of them are lines that landed in the specification on 2026-09-03, and
@@ -29,17 +29,17 @@
 // one of them was found by a person pressing the shipped build while 6,009 unit
 // cases, 23 System cases and 32 machine checks were green.
 //
-//   D-232  a task drawn on empty ground leaves a name field under the keyboard
-//          (found here; the case since MOVED -- see "D-232" in the prose below)
-//   D-233  the settings surface prints dictionary words, and no raw identifier
-//   D-234  an added row is brought into view, not just the field that names it
-//   D-235  the bound document names the language the screen is in
-//   D-236  one sheet per reason, counted up, with no ceiling on the sheets
+//   DFC-232  a task drawn on empty ground leaves a name field under the keyboard
+//          (found here; the case since MOVED -- see "DFC-232" in the prose below)
+//   DFC-233  the settings surface prints dictionary words, and no raw identifier
+//   DFC-234  an added row is brought into view, not just the field that names it
+//   DFC-235  the bound document names the language the screen is in
+//   DFC-236  one sheet per reason, counted up, with no ceiling on the sheets
 //
 // ⛔ FIVE ROWS ARE NOT HELD HERE. Four of them are the finding rather than a
-// gap; the fifth, D-232, is a different shape -- it WAS held here, and moved.
+// gap; the fifth, DFC-232, is a different shape -- it WAS held here, and moved.
 //
-//   D-15 asks that `FD-6` (table T-012a) and `IV-12` (table T-220) count the
+//   DFC-15 asks that `FD-6` (table T-012a) and `IV-12` (table T-220) count the
 //   same days. `FD-6` is a truncation rule and `IV-12` is an invariant; ⛔ the
 //   shipped build puts NEITHER on the screen. Measured 2026-09-03: typing 999
 //   into the fade field of `PR-14` on a task running 2026-05-01..2027-03-31
@@ -52,7 +52,7 @@
 //   out of the drawing's geometry, and no row of the specification says the
 //   drawn fade edge is the truncated value.
 //
-//   D-124 asks that a document handed at start-up which cannot be read raises
+//   DFC-124 asks that a document handed at start-up which cannot be read raises
 //   `RS-26` of table T-233. ⛔ The shipped build has no way to be handed one:
 //   opened as a file, nothing hands it a document, so `OP-14` of table T-024a
 //   is never reached and `RS-26`'s words are never printed. The ledger row
@@ -60,7 +60,7 @@
 //   a start-up route that hands a document in -- `BT-2` of table T-034 -- and
 //   that route is not wired in this build.
 //
-//   D-202 asks that the application, when the body that runs the screen cannot
+//   DFC-202 asks that the application, when the body that runs the screen cannot
 //   be found inside the file it is running from, says `RS-45` of table T-233
 //   rather than `RS-42` (both are sourced to `FR-102`). ⛔ The shipped build has
 //   no route to that fault. Measured 2026-09-03: the deliverable carries
@@ -72,7 +72,7 @@
 //   no press from outside can make it missing. A System case here could only
 //   assert that the normal route succeeds, which is not what the row is about.
 //
-//   D-211 asks that a highlight box whose `startDate` is after its `endDate`,
+//   DFC-211 asks that a highlight box whose `startDate` is after its `endDate`,
 //   or whose `topGroupId` is below its `bottomGroupId`, is refused -- `IV-19`
 //   of table T-220. ⛔ Nothing that can be pressed reaches it. The row is one of
 //   the document invariants, and Chapter 6.1 gives that table exactly one
@@ -89,13 +89,13 @@
 //   agreement can be watched, and
 //   `tests/contract/document-invariants.contract.test.ts` already watches it.
 //
-//   D-232 asks that a name can be typed the moment a task is drawn. This file
+//   DFC-232 asks that a name can be typed the moment a task is drawn. This file
 //   DID measure it (144x28px polygon count +1, typable-field count staying 0,
 //   Properties Panel `display:none`, focus on `BODY`) and DID write a case for
 //   it, and the case could not be made to pass: `FR-091` (MUST) has the field,
 //   but nothing anywhere makes a just-drawn task the selection
 //   `showPropertiesOfChoice()` needs to advance past, and that missing line is
-//   ledger row D-228, still `裁定待ち`. Rule 05's "止まるときは緑で止まる" means a
+//   ledger row DFC-228, still `裁定待ち`. Rule 05's "止まるときは緑で止まる" means a
 //   case that cannot pass belongs to `tests/system/open-defect-pins.test.ts`'s
 //   `PINNED` / `test.fail()` machinery and not to a plain assertion left red in
 //   this file, so the case moved there. It stays in `HELD` just below: this
@@ -103,7 +103,7 @@
 //   `裁定待ち`; `HELD`'s own gate only checks that the row is still in the
 //   ledger, not that the case still lives in this file.
 //
-// ⛔ ONE HALF OF D-66 IS ALSO NOT SETTLED HERE, and it is named at that case:
+// ⛔ ONE HALF OF DFC-66 IS ALSO NOT SETTLED HERE, and it is named at that case:
 // the run below writes through a REPLACED host save dialogue, so it proves
 // what the application does once it holds a handle. It does not prove that the
 // real dialogue's handle is accepted -- telling those apart means reading
@@ -126,9 +126,9 @@
 // disturb the document last: reading cases, then the panel, then the rename,
 // then the zoom, then the notice, then the ruler, then the fit. ⛔ SIX CASES
 // CANNOT SHARE THAT PAGE. The clock a page reads, the host dialogue it calls
-// and the size of the screen are all fixed when the context is made, so D-52,
-// D-65's second half, D-66, D-97 and D-220 each run on a further context of the
-// SAME browser, one fresh page each; D-210 takes one as well because it makes
+// and the size of the screen are all fixed when the context is made, so DFC-52,
+// DFC-65's second half, DFC-66, DFC-97 and DFC-220 each run on a further context of the
+// SAME browser, one fresh page each; DFC-210 takes one as well because it makes
 // four tasks of its own and a fresh document is cheaper than putting them back.
 // A browser launch costs a second or two and this file pays it once.
 //
@@ -618,7 +618,7 @@ interface Stubbed {
  * setting fails loudly rather than passing on a coincidence.
  *
  * ⚠️ THE SCREEN IS A PARAMETER, and every caller but one leaves it at `MC-6`.
- * The one that does not is the case for D-220: what makes a picture too tall to
+ * The one that does not is the case for DFC-220: what makes a picture too tall to
  * write is the SHAPE OF THE SCREEN and not the document (the ledger's own
  * measurement, and `FR-025` says as much -- the width is fixed and the height
  * follows `FR-080`'s ratio), so that case has to be judged on a screen shaped to
@@ -730,7 +730,7 @@ async function readWrites(page: Page): Promise<Wrote> {
  * write itself -- measured 2026-09-03: nothing at 1.5s, the name and the stamp
  * both there by 5.5s. A fixed pause either wastes the difference on every run
  * or reports a working header as broken, and this project has already made the
- * second mistake once (the ledger's D-66).
+ * second mistake once (the ledger's DFC-66).
  *
  * @purity non-pure
  */
@@ -1058,7 +1058,7 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
 }
 
 // ---------------------------------------------------------------------------
-// D-103 -- where the minimise entrance stands
+// DFC-103 -- where the minimise entrance stands
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the entrance that minimises the command palette is drawn inside
@@ -1073,7 +1073,7 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
 // answers the band, not a glyph inside it, and the minimise entrance is one of
 // its children. A reading that took the innermost marked node would report the
 // two as unrelated.
-test('D-103: the minimise entrance rides the palette grab band, right of its mark, in no group', async () => {
+test('DFC-103: the minimise entrance rides the palette grab band, right of its mark, in no group', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
@@ -1123,7 +1123,7 @@ test('D-103: the minimise entrance rides the palette grab band, right of its mar
 })
 
 // ---------------------------------------------------------------------------
-// D-126 -- the file's name above the time
+// DFC-126 -- the file's name above the time
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the two header parts stop being stacked, or the time is put
@@ -1135,7 +1135,7 @@ test('D-103: the minimise entrance rides the palette grab band, right of its mar
 // ⭐ THE STACKING IS ASKED FOR AS WELL AS THE ORDER. Two parts side by side
 // would satisfy 「first in the box」 and satisfy nothing a reader would call
 // 「above」, so both the box's own direction and the two boxes' tops are read.
-test('D-126: the header stands the file name above the time it was written', async () => {
+test('DFC-126: the header stands the file name above the time it was written', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
@@ -1177,7 +1177,7 @@ test('D-126: the header stands the file name above the time it was written', asy
 })
 
 // ---------------------------------------------------------------------------
-// D-65, first half -- how the header's stamp is written
+// DFC-65, first half -- how the header's stamp is written
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the stamp stops being drawn at `S-210` times the host's ground
@@ -1188,10 +1188,10 @@ test('D-126: the header stands the file name above the time it was written', asy
 // 書いていないときは、時刻の代わりにその旨を示すこと（MUST）」; `S-210` says
 // 「ファイルの名前には掛けない」 in as many words.
 //
-// ⭐ THE SECOND HALF OF D-65 -- that the time shown is the reader's own and not
+// ⭐ THE SECOND HALF OF DFC-65 -- that the time shown is the reader's own and not
 // UTC -- needs a file to have been written, and is judged further down, on the
 // page whose save dialogue is answered.
-test('D-65: the header stamp is drawn at S-210 of the ground text, and says so before any write', async () => {
+test('DFC-65: the header stamp is drawn at S-210 of the ground text, and says so before any write', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
@@ -1233,7 +1233,7 @@ test('D-65: the header stamp is drawn at S-210 of the ground text, and says so b
 })
 
 // ---------------------------------------------------------------------------
-// D-98 -- the reload key with no file open
+// DFC-98 -- the reload key with no file open
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: pressing the reload key with nothing open changes the drawing,
@@ -1246,7 +1246,7 @@ test('D-65: the header stamp is drawn at S-210 of the ground text, and says so b
 // ⛔ THE CONTROL IS NOT DECORATION. "Nothing happened" is also what a page
 // answers when the key never reached it, so the case first presses the key of
 // table T-036 row `SK-14`, watches the palette go, and presses it back.
-test('D-98: with no file open, the reload key of SK-21 does nothing', async () => {
+test('DFC-98: with no file open, the reload key of SK-21 does nothing', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
@@ -1312,7 +1312,7 @@ test('D-98: with no file open, the reload key of SK-21 does nothing', async () =
 })
 
 // ---------------------------------------------------------------------------
-// D-106 -- the size of a tooltip's words
+// DFC-106 -- the size of a tooltip's words
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the words a tooltip puts up are drawn at the ground size, or at
@@ -1326,7 +1326,7 @@ test('D-98: with no file open, the reload key of SK-21 does nothing', async () =
 // measured is every LEAF that carries text -- the nodes that actually draw.
 // ⚠️ Measured 2026-09-03: a run that waited 2.5s when `S-124` was 3000ms saw no
 // tooltip at all, which is why the wait is read from the table and not written.
-test('D-106: the words a tooltip puts up are drawn at S-204 of the ground text', async () => {
+test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1368,7 +1368,7 @@ test('D-106: the words a tooltip puts up are drawn at S-204 of the ground text',
 })
 
 // ---------------------------------------------------------------------------
-// D-105 -- how a help item is built
+// DFC-105 -- how a help item is built
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: a help item stops holding exactly three places, or its shape
@@ -1384,7 +1384,7 @@ test('D-106: the words a tooltip puts up are drawn at S-204 of the ground text',
 // is a bare key must have that key, character for character, in the item's
 // third place. Twenty of the twenty-three rows qualify; `SK-8` and the two that
 // carry no key do not, and are named in `keyedShortcutRows` above.
-test('D-105: a help item reads shape, description, assignment, drawn at S-203', async () => {
+test('DFC-105: a help item reads shape, description, assignment, drawn at S-203', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1477,7 +1477,7 @@ test('D-105: a help item reads shape, description, assignment, drawn at S-203', 
 })
 
 // ---------------------------------------------------------------------------
-// D-43 -- what a double click on a task does
+// DFC-43 -- what a double click on a task does
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: double-clicking a task's body leaves the panel closed, or puts
@@ -1487,10 +1487,10 @@ test('D-105: a help item reads shape, description, assignment, drawn at S-203', 
 // できる状態にして焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）」.
 //
 // ⭐ THE SELECTION IS THE HALF THE LEDGER SAYS WAS NEVER MEASURED. The 実物確認
-// column of D-43 records a run of 2026-09-01 that watched the panel open and
+// column of DFC-43 records a run of 2026-09-01 that watched the panel open and
 // the focus move and stopped there. What that run could not say is read below:
 // `selectionStart` at 0 and `selectionEnd` at the whole length.
-test('D-43: double-clicking a task opens the panel with all of the name selected', async () => {
+test('DFC-43: double-clicking a task opens the panel with all of the name selected', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1528,7 +1528,7 @@ test('D-43: double-clicking a task opens the panel with all of the name selected
 })
 
 // ---------------------------------------------------------------------------
-// D-82 -- nothing in front of a colour control
+// DFC-82 -- nothing in front of a colour control
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: anything standing before a colour control in its own field row
@@ -1540,7 +1540,7 @@ test('D-43: double-clicking a task opens the panel with all of the name selected
 // ⭐ WHICH FIELDS ARE COLOURS IS TAKEN FROM TABLE T-016's OWN INPUT-KIND COLUMN,
 // so a property that becomes a colour is swept without touching this file.
 // ⚠️ The panel is left open by the case above, and this one only reads.
-test('D-82: nothing standing before a colour control shows the colour it holds', async () => {
+test('DFC-82: nothing standing before a colour control shows the colour it holds', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
@@ -1616,7 +1616,7 @@ test('D-82: nothing standing before a colour control shows the colour it holds',
 })
 
 // ---------------------------------------------------------------------------
-// D-130 -- a value settled in the panel reaches the document
+// DFC-130 -- a value settled in the panel reaches the document
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: typing a name into the panel's `PR-1` and settling it with the
@@ -1628,7 +1628,7 @@ test('D-82: nothing standing before a colour control shows the colour it holds',
 // ⛔ THIS CASE CHANGES THE DOCUMENT, which is why it and the two after it stand
 // at the end of the page's order. The name it writes is put back by the case
 // below, through the undo the specification already has.
-test('D-130: a name settled in the panel reaches the drawing', async () => {
+test('DFC-130: a name settled in the panel reaches the drawing', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1664,7 +1664,7 @@ test('D-130: a name settled in the panel reaches the drawing', async () => {
 })
 
 // ---------------------------------------------------------------------------
-// D-152 -- settling the same value twice
+// DFC-152 -- settling the same value twice
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: settling a value that has not changed writes a second time --
@@ -1679,14 +1679,14 @@ test('D-130: a name settled in the panel reaches the drawing', async () => {
 //
 // ⛔ IT LEANS ON THE CASE ABOVE having left the drawing renamed, and it puts the
 // document back: after it the drawing reads what it read at start-up.
-test('D-152: settling the same value again writes nothing, so one undo puts the name back', async () => {
+test('DFC-152: settling the same value again writes nothing, so one undo puts the name back', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
   const now = 'SweptName-D130'
   expect(
     await drawnTextsReading(page, now),
-    'the case for D-130 did not leave its name on the drawing, so there is nothing to settle twice',
+    'the case for DFC-130 did not leave its name on the drawing, so there is nothing to settle twice',
   ).toBe(1)
 
   // The same value again, through the same key -- table T-036 row `SK-19`.
@@ -1709,7 +1709,7 @@ test('D-152: settling the same value again writes nothing, so one undo puts the 
 })
 
 // ---------------------------------------------------------------------------
-// D-92 -- the ruler band's height, and how it is shared
+// DFC-92 -- the ruler band's height, and how it is shared
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the ruler band changes height when the granularity changes, or a
@@ -1739,7 +1739,7 @@ test('D-152: settling the same value again writes nothing, so one undo puts the 
 // Neither half alone separates all four; the pair does, and the case checks the
 // four keys are still distinct in the table before it leans on them. Both halves
 // are read out of table T-238 at read time. `tests/unit/uf-32-ruler-band.test.ts`
-// reached the same answer for the drawing helper and D-210 below takes it too;
+// reached the same answer for the drawing helper and DFC-210 below takes it too;
 // 「月を語で書いてはならない（MUST NOT）」 keeps both shapes digits and a hyphen in
 // either language, so no display word moves them.
 //
@@ -1757,13 +1757,13 @@ test('D-152: settling the same value again writes nothing, so one undo puts the 
 // ⚠️ WIDENING THE SWEEP TO REACH `TM-1` WAS WEIGHED AND DROPPED. `S-53` steps the
 // zoom by 1.1 and `S-83` puts the `TM-1` boundary at 1.4 px/day against `S-1`'s
 // 6, so it is another six presses at least, and it would leave the shared page so
-// far out that D-91 below has to climb all the way back before it finds its three
+// far out that DFC-91 below has to climb all the way back before it finds its three
 // 行. It would buy one thing -- the height MUST asked across two different 行
 // counts -- and `tests/unit/uf-32-ruler-band.test.ts` already asks the band's
 // height at all four 段. ⛔ It would NOT buy the guard: `TM-1` is a boundary this
 // sweep does not cross, and proving a different crossing says nothing about the
 // one the readings below actually walk.
-test('D-92: the ruler band keeps its height across stages and splits it evenly', async () => {
+test('DFC-92: the ruler band keeps its height across stages and splits it evenly', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1849,7 +1849,7 @@ test('D-92: the ruler band keeps its height across stages and splits it evenly',
   }
 
   const seen: Array<{ height: number; lines: Array<{ top: number; words: string[] }>; tier: string | null }> = []
-  // ⚠️ THE TICKS ARRIVE BEFORE THE WORDS -- D-91 below measured a frame with all
+  // ⚠️ THE TICKS ARRIVE BEFORE THE WORDS -- DFC-91 below measured a frame with all
   // its 行 ticked and not one word in any of them -- and every reading here turns
   // on the words, so the drawing is settled before the first one as well as
   // before each of the eight that follow.
@@ -1908,7 +1908,7 @@ test('D-92: the ruler band keeps its height across stages and splits it evenly',
 })
 
 // ---------------------------------------------------------------------------
-// D-166 -- the reason a refusal carries
+// DFC-166 -- the reason a refusal carries
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: pressing an entrance that has nothing to do says something other
@@ -1921,7 +1921,7 @@ test('D-92: the ruler band keeps its height across stages and splits it evenly',
 // reason of the forty-two the dictionary holds is what the screen said, and that
 // it is `RS-30`. ⚠️ A machine check will not catch this: it asks whether a row's
 // word reached the screen, never whether that word is true of the row.
-test('D-166: pressing the open-one-level entrance with nothing to bring back tells RS-30', async () => {
+test('DFC-166: pressing the open-one-level entrance with nothing to bring back tells RS-30', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -1986,7 +1986,7 @@ test('D-166: pressing the open-one-level entrance with nothing to bring back tel
 })
 
 // ---------------------------------------------------------------------------
-// D-91 -- where the weekday tier is ticked
+// DFC-91 -- where the weekday tier is ticked
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the tier that prints weekdays is ticked anywhere other than
@@ -2004,7 +2004,7 @@ test('D-166: pressing the open-one-level entrance with nothing to bring back tel
 // entrance until the band stands on three tiers rather than a fixed number of
 // times: measured 2026-09-03, this build needs eighteen presses from start-up
 // and the case reaches it from wherever the case above left the zoom.
-test('D-91: the weekday tier of the ruler is ticked exactly where the day tier is', async () => {
+test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier is', async () => {
   test.setTimeout(240_000)
   const page = shared()
 
@@ -2080,7 +2080,7 @@ test('D-91: the weekday tier of the ruler is ticked exactly where the day tier i
 })
 
 // ---------------------------------------------------------------------------
-// D-24 -- what a fit throws away, and what it lands on
+// DFC-24 -- what a fit throws away, and what it lands on
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: a fit leaves a row folded that a person had folded, or the rows
@@ -2104,7 +2104,7 @@ test('D-91: the weekday tier of the ruler is ticked exactly where the day tier i
 // words 「ただし必ず収まることを保証しない。収まらない軸にはスクロールを残す
 // こと」, and the depth it may not go below is one -- so what is asserted is that
 // the rows fit OR that the drawing is already at depth 1.
-test('D-24: a fit throws away what a person folded, and the rows it lands on fit', async () => {
+test('DFC-24: a fit throws away what a person folded, and the rows it lands on fit', async () => {
   test.setTimeout(240_000)
   const page = shared()
 
@@ -2134,7 +2134,7 @@ test('D-24: a fit throws away what a person folded, and the rows it lands on fit
   if (before === null) return
 
   // ⛔ A ROW'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
-  // (table T-051 row `HF-6`), which the case for D-166 records as well.
+  // (table T-051 row `HF-6`), which the case for DFC-166 records as well.
   await page.mouse.move(before.nameX, before.nameY)
   await page.waitForTimeout(500)
   const at = await page.evaluate(
@@ -2200,7 +2200,7 @@ test('D-24: a fit throws away what a person folded, and the rows it lands on fit
 })
 
 // ---------------------------------------------------------------------------
-// D-52, D-66 and the second half of D-65 -- the page whose dialogue is answered
+// DFC-52, DFC-66 and the second half of DFC-65 -- the page whose dialogue is answered
 // ---------------------------------------------------------------------------
 
 // ⛔ WHY THESE THREE STAND APART. A page's clock and the dialogue it calls are
@@ -2221,7 +2221,7 @@ test('D-24: a fit throws away what a person folded, and the rows it lands on fit
 // cannot be looked for by tag, and only a difference between two productions
 // catches it. The same comparison covers the dashed frame, the thickened line
 // and anything a later round hangs off the selection.
-test('D-52: the written picture is the same whether or not something is selected', async () => {
+test('DFC-52: the written picture is the same whether or not something is selected', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -2308,7 +2308,7 @@ test('D-52: the written picture is the same whether or not something is selected
 // host's own handle is accepted is a question about `src/`, which the writer of
 // a test may not read (rule 04 section 1); the ledger's own note asks the user
 // to press it, and that request stands.
-test('D-66: a second save writes again to the same file, and asks no second time', async () => {
+test('DFC-66: a second save writes again to the same file, and asks no second time', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -2374,7 +2374,7 @@ test('D-66: a second save writes again to the same file, and asks no second time
 // are an hour and minute of the reader's clock in the last few minutes, and are
 // none of the same minutes read in UTC. The case first makes the page say what
 // its offset is and refuses to judge on a machine where it is zero.
-test('D-65: the time the header prints is the reader own clock, not UTC', async () => {
+test('DFC-65: the time the header prints is the reader own clock, not UTC', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -2440,15 +2440,15 @@ test('D-65: the time the header prints is the reader own clock, not UTC', async 
 // 定めにより `GRS JSON` で書く。上書き先は `FR-060`」, and table T-227 row `DI-5`
 // (MUST) has the route of `FR-060` ask nothing.
 //
-// ⭐ WHAT THIS ADDS OVER D-66, which presses the same key. That case is about
+// ⭐ WHAT THIS ADDS OVER DFC-66, which presses the same key. That case is about
 // the header catching up with the write; this one is about WHAT IS IN THE FILE
 // and about the question that must not be asked -- the ledger's own reading of
-// D-97 is that the path existed and 「誰も試していなかった」, because every
+// DFC-97 is that the path existed and 「誰も試していなかった」, because every
 // earlier test drove the arm that sends `FR-096` to the chooser instead.
 // ⛔ IT PROVES ONE HALF, for the reason `openStubbedPage` gives: the dialogue is
 // a replacement, so what is measured is what the build does once it holds a
 // handle.
-test('D-97: the save key writes GRS JSON, and a second press overwrites with no question', async () => {
+test('DFC-97: the save key writes GRS JSON, and a second press overwrites with no question', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -2533,7 +2533,7 @@ test('D-97: the save key writes GRS JSON, and a second press overwrites with no 
 //
 // ⚠️ `IO-6` IS NOT PRESSED. It writes to the clipboard, which a driven browser
 // has no answer for, and the two pictures that go to a file settle the rule.
-test('D-220: a picture too tall to draw is refused as RS-43, and the other formats still write', async () => {
+test('DFC-220: a picture too tall to draw is refused as RS-43, and the other formats still write', async () => {
   test.setTimeout(300_000)
   const width = 600
   const height = Math.ceil(width * (EXPORT_HEIGHT_CAP / EXPORT_WIDTH)) + 64
@@ -2657,7 +2657,7 @@ function tierLine(rowId: string, column: number): string {
 // falls on no item at all, and which heights are free depends on what the
 // document draws; the first one where a drag makes a shape is taken, and every
 // later press in this case is made at that same height.
-test('D-210: a bar shape needs a drag, a milestone needs only a press', async () => {
+test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
   try {
@@ -2827,7 +2827,7 @@ test('D-210: a bar shape needs a drag, a milestone needs only a press', async ()
 })
 
 // ---------------------------------------------------------------------------
-// D-49 -- one indent, for the screen and for the written picture
+// DFC-49 -- one indent, for the screen and for the written picture
 // ---------------------------------------------------------------------------
 
 /** One drawn row: the tier it stands at, the word it shows, and that word's left edge. */
@@ -2916,7 +2916,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 
 // GOES RED IF: the screen and the written picture stop setting a row in by the
 // same amount per tier, or either of them stops using `S-37` for it. The ledger
-// row D-49 was opened by the user's instruction of 2026-08-26 -- 「1 階層下がる
+// row DFC-49 was opened by the user's instruction of 2026-08-26 -- 「1 階層下がる
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
 // picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
 // the number out for itself. `FR-085` (MUST) names one indent for both:
@@ -2942,7 +2942,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // wording 「全角 1 文字ぶん」 measures 13.0px against `S-37`'s 16, and moving a
 // settings value is a change request, not a disagreement between the two sides.
 // Nothing here reads a font size, and every number comes from the manuscript.
-test('D-49: the screen and the picture set a row in by the same one tier of S-37', async () => {
+test('DFC-49: the screen and the picture set a row in by the same one tier of S-37', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -3036,7 +3036,7 @@ test('D-49: the screen and the picture set a row in by the same one tier of S-37
     expect(
       Math.abs(screenStep - pictureStep) <= room,
       `the screen moves a row in by ${screenStep}px per tier and the picture by ${pictureStep}px; ` +
-        'D-49 is exactly the two sides parting company',
+        'DFC-49 is exactly the two sides parting company',
     ).toBe(true)
   } finally {
     await opened.close()
@@ -3044,7 +3044,7 @@ test('D-49: the screen and the picture set a row in by the same one tier of S-37
 })
 
 // ---------------------------------------------------------------------------
-// D-229 -- the written picture carries the rows a person left standing
+// DFC-229 -- the written picture carries the rows a person left standing
 // ---------------------------------------------------------------------------
 
 /** One line of the row title panel: the word, where it starts, how far down it stands. */
@@ -3158,7 +3158,7 @@ function panelLinesInPicture(picture: string, right: number, below: number): Pan
  * ⭐ THE TIER IS A RANK AND NOT A LENGTH: how many distinct indents stand
  * shallower than this one. Neither side's own numbers are compared, so this
  * reading is free of both `S-37` and of the ratio -- which is what keeps this
- * case out of D-49's business. Measured 2026-09-03 on the shipped build: the
+ * case out of DFC-49's business. Measured 2026-09-03 on the shipped build: the
  * screen puts tier 1 at 36px and the picture at the equivalent of 16px, a
  * standing difference in the left inset that has nothing to do with which rows
  * are drawn, and an absolute comparison would report it here instead.
@@ -3188,7 +3188,7 @@ function tiered(lines: readonly PanelLine[]): string[] {
 // （MUST NOT）」 -- which is why the two sides may be compared by the words
 // themselves, cut short or not.
 //
-// ⛔ WHAT IS *NOT* CLAIMED: that scrolling puts it right. The ledger's D-229
+// ⛔ WHAT IS *NOT* CLAIMED: that scrolling puts it right. The ledger's DFC-229
 // records that it does, and that reading is a symptom rather than a rule -- no
 // row of the specification says a picture becomes true once a wheel is turned.
 // What is asserted is only `FR-080`'s own agreement.
@@ -3208,7 +3208,7 @@ function tiered(lines: readonly PanelLine[]): string[] {
 // left drawing no row at all, and a picture that carries any row after it
 // carries a row the screen does not. `HF-10` presses it open again, and the
 // second half of this case is that the picture comes back with it.
-test('D-229: the written picture draws the rows the screen draws after a fold, with no scroll', async () => {
+test('DFC-229: the written picture draws the rows the screen draws after a fold, with no scroll', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
   try {
@@ -3610,13 +3610,13 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
 }
 
 // ---------------------------------------------------------------------------
-// D-232 -- MOVED to `tests/system/open-defect-pins.test.ts` (see prose above,
-// under "FIVE ROWS ARE NOT HELD HERE"). `focusedTypableField` stays: D-43 and
+// DFC-232 -- MOVED to `tests/system/open-defect-pins.test.ts` (see prose above,
+// under "FIVE ROWS ARE NOT HELD HERE"). `focusedTypableField` stays: DFC-43 and
 // the two cases beside it still call it.
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// D-233 -- the settings surface prints words, not spellings
+// DFC-233 -- the settings surface prints words, not spellings
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the surface that shows the document's drawing settings prints an
@@ -3636,10 +3636,10 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
 //
 // ⚠️ THE SECOND HALF IS NOT THE SAME CLAIM AS THE FIRST. A name may be absent
 // from the dictionary without being an identifier, and an identifier may be
-// printed beside a name that is perfectly good; the ledger's D-233 measured
+// printed beside a name that is perfectly good; the ledger's DFC-233 measured
 // both at once (113 rows of internal spellings, and one raw UUID among the
 // values).
-test('D-233: the settings surface prints dictionary words and no raw identifier', async () => {
+test('DFC-233: the settings surface prints dictionary words and no raw identifier', async () => {
   test.setTimeout(180_000)
   const opened = await openStubbedPage()
   try {
@@ -3681,7 +3681,7 @@ test('D-233: the settings surface prints dictionary words and no raw identifier'
 })
 
 // ---------------------------------------------------------------------------
-// D-234 -- the added row is brought into view, not just its field
+// DFC-234 -- the added row is brought into view, not just its field
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: a row added at the shallowest tier, or added under a row standing
@@ -3701,7 +3701,7 @@ test('D-233: the settings surface prints dictionary words and no raw identifier'
 // ⚠️ BOTH HALVES ARE PRESSED, and `HF-17`'s own last sentence is why: the two
 // entrances differ only in where the row lands, and the row says in as many
 // words that `HF-14` is held to the same thing.
-test('D-234: a row added at the head, and one added under the last row, are both brought into view', async () => {
+test('DFC-234: a row added at the head, and one added under the last row, are both brought into view', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -3783,7 +3783,7 @@ test('D-234: a row added at the head, and one added under the last row, are both
 })
 
 // ---------------------------------------------------------------------------
-// D-235 -- the bound document names the language the screen is in
+// DFC-235 -- the bound document names the language the screen is in
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the display language is changed and the document goes on naming
@@ -3794,7 +3794,7 @@ test('D-234: a row added at the head, and one added under the last row, are both
 // 「対象は `ja` と `en` の 2 言語とする」.
 //
 // ⛔ WHAT THE DOCUMENT NAMES ITS LANGUAGE WITH IS NOT SETTLED BY A REQUIREMENT,
-// and the ledger's D-235 names the one place a bound HTML document has for it --
+// and the ledger's DFC-235 names the one place a bound HTML document has for it --
 // the root element's `lang`. Nothing else in the deliverable declares a
 // language, and it is what a screen reader and an automatic translation read,
 // which is the reason the requirement gives.
@@ -3804,7 +3804,7 @@ test('D-234: a row added at the head, and one added under the last row, are both
 // case that assumed one language would report a build opened in the other as
 // broken. The witness is the dictionary's own pair of spellings for the word
 // `FR-101` puts in the header while nothing has been written to a file.
-test('D-235: changing the display language changes the language the document names', async () => {
+test('DFC-235: changing the display language changes the language the document names', async () => {
   test.setTimeout(180_000)
   const opened = await openStubbedPage()
   try {
@@ -3859,7 +3859,7 @@ test('D-235: changing the display language changes the language the document nam
 })
 
 // ---------------------------------------------------------------------------
-// D-236 -- one sheet per reason, and no ceiling on the sheets
+// DFC-236 -- one sheet per reason, and no ceiling on the sheets
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: pressing one dead entrance again puts a second sheet up instead
@@ -3886,7 +3886,7 @@ test('D-235: changing the display language changes the language the document nam
 // ⚠️ THE PRESSES ARE SPACED. Table T-023 row `MK-13` gives a double click its
 // own meaning, and two presses of one entrance inside the interval a browser
 // calls a double click are not two presses of it.
-test('D-236: pressing one dead entrance again counts on the standing notice instead of stacking', async () => {
+test('DFC-236: pressing one dead entrance again counts on the standing notice instead of stacking', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -3980,32 +3980,32 @@ test('D-236: pressing one dead entrance again counts on the standing notice inst
 
 /** The ledger rows the cases above hold down. */
 const HELD: readonly string[] = [
-  'D-24',
-  'D-43',
-  'D-49',
-  'D-52',
-  'D-65',
-  'D-66',
-  'D-82',
-  'D-91',
-  'D-92',
-  'D-97',
-  'D-98',
-  'D-103',
-  'D-105',
-  'D-106',
-  'D-126',
-  'D-130',
-  'D-152',
-  'D-166',
-  'D-210',
-  'D-220',
-  'D-229',
-  'D-232',
-  'D-233',
-  'D-234',
-  'D-235',
-  'D-236',
+  'DFC-24',
+  'DFC-43',
+  'DFC-49',
+  'DFC-52',
+  'DFC-65',
+  'DFC-66',
+  'DFC-82',
+  'DFC-91',
+  'DFC-92',
+  'DFC-97',
+  'DFC-98',
+  'DFC-103',
+  'DFC-105',
+  'DFC-106',
+  'DFC-126',
+  'DFC-130',
+  'DFC-152',
+  'DFC-166',
+  'DFC-210',
+  'DFC-220',
+  'DFC-229',
+  'DFC-232',
+  'DFC-233',
+  'DFC-234',
+  'DFC-235',
+  'DFC-236',
 ]
 
 /**

@@ -745,7 +745,7 @@ export function openModalFromScreenState(
   // STOP -- ⛔⛔ FR-020's 「透かしがアクセス制御ではなく証跡であることを画面上でも
   // 示すこと（MUST）」 IS NOT KEPT ANYWHERE, and this surface is where a reader
   // meets the misreading it guards against -- they have just been asked for a
-  // password (D-304, measured 2026-09-07). ⛔ It cannot be kept here: every word
+  // password (DFC-304, measured 2026-09-07). ⛔ It cannot be kept here: every word
   // this unit prints comes out of the generated dictionary, and no entry of it
   // says the mark is a trail. What is owed is a row of the manuscript's own
   // dictionary; ⛔ writing the sentence in this file would be the second store
@@ -839,7 +839,7 @@ export function openModalFromScreenState(
   // だけにしてはならない（MUST NOT）」, and the document is settled --
   // 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」.
   //
-  // ⭐ CARRIED RATHER THAN CHOSEN (D-268). The STOP that stood in the note below
+  // ⭐ CARRIED RATHER THAN CHOSEN (DFC-268). The STOP that stood in the note below
   // said no row spelled the text and there was no door to hand one through;
   // both halves were closed on 2026-09-07 -- the requirement names the row of
   // table T-024, and `ScreenSession.aiExportDocument` is the door, filled by the
@@ -883,7 +883,7 @@ export function openModalFromScreenState(
   //   FR-088, no settled name: the working weekdays, the exception days and the
   //     week's first day. ⚠️ They are the calendar FR-054 RESOLVES for the
   //     document, and nothing in this component resolves one.
-  // ⭐⭐ FR-068 IS NO LONGER ON THIS LIST (D-268, closed 2026-09-07). What stood
+  // ⭐⭐ FR-068 IS NO LONGER ON THIS LIST (DFC-268, closed 2026-09-07). What stood
   // here said no row spelled the text and `ScreenSession` had no member to hand
   // one through; the requirement now names the row of table T-024 and the member
   // exists, and the branch above fills the surface. ⛔ The ground it gave was

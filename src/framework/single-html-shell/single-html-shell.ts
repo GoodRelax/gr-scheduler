@@ -69,7 +69,7 @@
 // ⭐⭐ THE COUNTERPART IS NO LONGER OWED. UF-47's other half -- `AppShellSource`
 // (IF-8) -- is `appShellSource` below, so this build can WRITE an embedded
 // document as well as read one, and IO-7 of table T-024 goes out as a file
-// (D-173). ⚠️ index.html still ships no container, so the first export takes
+// (DFC-173). ⚠️ index.html still ships no container, so the first export takes
 // the writer's 「there is none yet, add one」 branch.
 //
 // ⭐ THE PUBLIC POINT IS PLACED HERE, which is the other half of UF-47's row:
@@ -90,7 +90,7 @@ import { browserClipboard } from '../browser-clipboard/browser-clipboard'
 // ⭐ CP-31, THE ONE IMPLEMENTATION OF `Rasterizer` (IF-6), and this is its first
 // caller. ⛔ It has been written since the unit was filled in and nothing in
 // `src/` imported it, which is why IO-4 of table T-024 was offered on FR-096's
-// chooser and wrote nothing (D-173, measured 2026-09-01). ⚠️ Framework reaching
+// chooser and wrote nothing (DFC-173, measured 2026-09-01). ⚠️ Framework reaching
 // Framework, through the folder's public entry: LR-1 of table T-061 forbids an
 // outward arrow, not a sideways one, and this file is the one that may hand the
 // loop a host.
@@ -189,7 +189,7 @@ const SCROLLBAR_PROBE_PX = 100
  * table T-206 kept in `localStorage`; AG-6 of table T-035 selects on
  * 「自分以外の書き手」 and never says where THIS side's name comes from.
  * ⚠️ Empty is 「no name is held」 rather than a name invented here.
- * ⭐ S-99a HAS A READER SINCE D-195 WAS CLOSED, and it is not this one:
+ * ⭐ S-99a HAS A READER SINCE DFC-195 WAS CLOSED, and it is not this one:
  * `frame-loop.ts` asks the store for it so that FR-020's watermark has a name,
  * and falls back to that row's own default. ⛔ IT MAY NOT BE BORROWED FOR THIS
  * LINE. FR-086 (MUST) says who S-99a is -- the one who OPENED the document --
@@ -391,7 +391,7 @@ const AGENT_API_WRITER = 'agent'
  * @purity semi-pure-a
  */
 function startupTemplateDocument(): Document {
-  // ⭐ FR-073's comparison runs on BT-4 as well (D-282), and it necessarily
+  // ⭐ FR-073's comparison runs on BT-4 as well (DFC-282), and it necessarily
   // answers `known`: `GREATEST_KNOWN_SCHEMA_VERSION` IS this file's own
   // `schemaVersion`, so the two are equal and FR-073 counts equal as readable.
   // ⛔ Passed rather than skipped because the reason is arithmetic and not a
@@ -532,10 +532,10 @@ function embeddedStartupDocument(): {
   // character's own JSON escape so that no `</script>` can end the tag early --
   // so the reader below gives the character back and a step here would corrupt
   // it.
-  // ⭐ FR-073's comparison, given the number it is against (D-282). A single
+  // ⭐ FR-073's comparison, given the number it is against (DFC-282). A single
   // .html written by an older build carries the version IT knew, so BT-1 is the
   // road where `newerThanKnown` can really come back.
-  // ⭐⭐ THE READING IS CARRIED NOW (D-357), AND ONE HALF OF THE DUTY IS KEPT.
+  // ⭐⭐ THE READING IS CARRIED NOW (DFC-357), AND ONE HALF OF THE DUTY IS KEPT.
   // `JsonDecoding.unreadColumns` names what this build could not read, so the
   // caller raises `RS-48` of table T-233 when BT-1 wins -- FR-073's telling.
   // ⛔ THE OTHER HALF CANNOT BE KEPT ON THIS ROAD, AND IT IS AN ABSENCE RATHER
@@ -588,9 +588,9 @@ function embeddedStartupDocument(): {
  * carries) and FR-051's own MUST that the scrollbar moves the view both go
  * unkept. ⚠️ THIS NOTE USED TO ATTRIBUTE THAT MUST TO TABLE T-031 and quote it;
  * the table carries no such clause -- the MUST is FR-051's STATEMENT, and the
- * specification's own misattribution was corrected as D-451 on 2026-09-11.
+ * specification's own misattribution was corrected as DFC-451 on 2026-09-11.
  * ⛔ THE NOTE HERE USED TO CALL IT "not a fault"; the
- * user reported it as one (D-115) and they were right.
+ * user reported it as one (DFC-115) and they were right.
  * ⭐ FR-051 (MUST) now puts a floor under it -- S-205 -- and the order is the
  * requirement's: halve first, then floor, so a host with a thick default is
  * still halved.
@@ -982,7 +982,7 @@ function boot(): void {
       // place that judges whether the size CHANGED. ⛔ NFR-010 forbids waking a
       // frame on anything the table does not name.
       // ⚠️⚠️ `loop` IS NULL FOR THE FIRST TWO CALLS AND NOT ONLY THE FIRST, and
-      // the note that stood here said otherwise (D-230). The first is BO-1's
+      // the note that stood here said otherwise (DFC-230). The first is BO-1's
       // own measurement, which no loop is waiting for; the SECOND is BO-5's
       // frame filling the header from inside `frameLoop`'s factory, and that
       // one IS a change. Neither is lost: the line after `loop = running` hands
@@ -1054,7 +1054,7 @@ function boot(): void {
   // ⛔⛔ NO STARTUP OFFER IS OWED, AND MAKING ONE WOULD BREAK TWO MUST NOTs.
   // A STOP stood here reading 「FR-060's SECOND MUST IS NOT KEPT」 and naming
   // NT-4 of table T-037 as where the offer would stand; that requirement was
-  // rewritten on 2026-09-07 (台帳 D-278, 利用者の裁定) and now forbids BOTH
+  // rewritten on 2026-09-07 (台帳 DFC-278, 利用者の裁定) and now forbids BOTH
   // halves: ⛔ 「前回開いていたファイルを覚えてはならない（MUST NOT）」 ⇒ 「起動時
   // に権限の復帰を申し出てもならない（MUST NOT）」. ⭐ What stands instead is a
   // MUST this build already keeps by doing nothing: 「起動した直後の最初の保存
@@ -1158,7 +1158,7 @@ function boot(): void {
     canvasRasterizer(document),
     // IF-8 (UF-47). ⭐ THE COUNTERPART THIS FILE OWED: BT-1 could READ an
     // embedded document and nothing could WRITE one, so IO-7 of table T-024
-    // stood on FR-096's chooser and wrote nothing (D-173).
+    // stood on FR-096's chooser and wrote nothing (DFC-173).
     appShellSource(),
     // FR-095 (MUST): 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻す
     // こと」 -- the state IC-98 returns to is this document, and FR-095's own
@@ -1174,7 +1174,7 @@ function boot(): void {
   loop = running
 
   // ⛔⛔ BO-5's FRAME RAN BEFORE THIS BINDING EXISTED, AND WHAT IT MEASURED WAS
-  // THROWN AWAY (D-230). `frameLoop` runs table T-077's first frame inside its
+  // THROWN AWAY (DFC-230). `frameLoop` runs table T-077's first frame inside its
   // own factory, and that frame is what fills the `App Header` and draws the
   // first row lattice -- so `onAppHeaderHeightPx` and `onRowControlsHeightPx`
   // both fire while `loop` is still null, and the `loop?.resize` each of them
@@ -1255,7 +1255,7 @@ function boot(): void {
   // on working, `installAgentApi` says the same from its side, and the loop
   // raises RS-20 of table T-233 in NT-5's manner as the press is accepted.
   //
-  // ⭐⭐ REMEMBERED PER ORIGIN SINCE D-280 CLOSED, which is FR-065's other MUST:
+  // ⭐⭐ REMEMBERED PER ORIGIN SINCE DFC-280 CLOSED, which is FR-065's other MUST:
   // 「有効化はブラウザ（オリジン）ごとに記憶すること」. `frame-loop.ts` holds both
   // halves -- `startupAgentApiEnabled` reads S-99b of table T-206 and
   // `setAgentApiEnabled` writes it -- so this file asks for and stores nothing.

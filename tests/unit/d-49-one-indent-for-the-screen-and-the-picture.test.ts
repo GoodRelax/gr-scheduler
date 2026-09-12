@@ -1,4 +1,4 @@
-// D-49 of `docs/development-records/defects.md` -- the row that read
+// DFC-49 of `docs/development-records/defects.md` -- the row that read
 // 「行のインデントが、画面と書き出しで違う値を使っている」, closed by CR-287 and
 // left with nothing holding it down. The user's instruction of 2026-08-26 that
 // opened the row asked for one indent per tier on BOTH sides, and the fix was
@@ -257,7 +257,7 @@ const DEPTHS = [1, 2, 3, 4, 5] as const
 // The panel: one product, put where both sides can read it
 // ---------------------------------------------------------------------------
 
-describe('D-49 / FR-085 -- the row title panel works the indent out once', () => {
+describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () => {
   // GOES RED IF: the panel stops multiplying the depth by `S-37`, or starts
   // counting tiers from zero again -- the second of the two mismatches the
   // ledger measured, 「`(depth - 1)` と `depth` のずれ」.
@@ -475,7 +475,7 @@ const pictureOf = (scene: ExportScene): string => {
   return answer.svg
 }
 
-describe('D-49 -- the picture sets a row in by the `indentPx` it was handed', () => {
+describe('DFC-49 -- the picture sets a row in by the `indentPx` it was handed', () => {
   /**
    * What FR-080 scales a picture by: `S-81`'s width over the screen's.
    *

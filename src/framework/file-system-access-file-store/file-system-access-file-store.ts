@@ -256,7 +256,7 @@ const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
  * What the chooser is told the file is, or `undefined` where nothing can be
  * told.
  *
- * ⭐⭐ THIS IS THE WHOLE OF D-172. Measured 2026-09-01: the suggested name
+ * ⭐⭐ THIS IS THE WHOLE OF DFC-172. Measured 2026-09-01: the suggested name
  * arrived at the chooser already correct -- `{"suggestedName":"Three-Year
  * Product Plan.json"}` -- and the file still landed without its extension,
  * because a chooser given no `types` treats the tail of the name as decoration

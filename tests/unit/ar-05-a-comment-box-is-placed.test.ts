@@ -1,5 +1,5 @@
 // AR-5 of table T-023b: an armed comment box entrance, and the press that
-// places one. The seam D-06 was open on -- a press that planned no command at
+// places one. The seam DFC-06 was open on -- a press that planned no command at
 // all -- runs from `pressRowOf` / `commandFromInput` (UF-30 / UF-31,
 // `InputCommandTranslator`, CP-18 of table T-062, published as PI-18 of table
 // T-064) through CM-46 in `EditAnnotation` (UF-14) and out into the drawn
@@ -55,7 +55,7 @@
 //                padding and the wrap.
 //
 // ⛔⛔ TWO THINGS THE SPECIFICATION DOES NOT DECIDE, AND SO HAVE NO CASE HERE.
-// Both are recorded as D-193 of docs/development-records/defects.md.
+// Both are recorded as DFC-193 of docs/development-records/defects.md.
 //
 //   1. WHAT A BOX PLACED ON GROUND BELOW THE LAST ROW ANCHORS TO. PTD-4 says the
 //      armed thing is made; FR-019 (MUST) and RL-18 need a row identifier; no
@@ -800,13 +800,13 @@ describe('FR-097 -- the placed box is drawn, and does not fall below its floor',
   const SCALES = ['S', 'M', 'L'] as const
 
   it('the box the press placed reaches the picture at all', () => {
-    // ⛔ THIS IS WHAT D-06 WAS. The press planned nothing, so nothing was
+    // ⛔ THIS IS WHAT DFC-06 WAS. The press planned nothing, so nothing was
     // created and nothing was drawn -- the census of the shipped build was byte
     // for byte identical before and after.
     const schedule = placedSchedule()
     expect(schedule.commentBoxes.map((one) => one.id)).toEqual([NEW_COMMENT_BOX_ID])
     // `placedBoxDrawnWith` throws when the picture carries none, so reaching
-    // the assertion is itself the half of this case that D-06 failed.
+    // the assertion is itself the half of this case that DFC-06 failed.
     expect(placedBoxDrawnWith(schedule).body.width).toBeGreaterThan(0)
   })
 

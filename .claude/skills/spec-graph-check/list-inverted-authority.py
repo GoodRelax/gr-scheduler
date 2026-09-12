@@ -3,7 +3,7 @@
 
 ⛔⛔ NOT A GATE. Measure its precision before anyone adds it to check.sh.
 
-⭐ WHY. `D-470`: a MUST NOT in `05-07-design.md` reads
+⭐ WHY. `DFC-470`: a MUST NOT in `05-07-design.md` reads
 
     ⛔ 式を写して持たせてはならない（MUST NOT）
        —— `groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。
@@ -22,7 +22,7 @@ manuscripts name code identifiers constantly and legitimately -- `actualStart`,
 `wbsParentUid`, `documentSettings` -- because the ERD defines them. Flagging
 "an identifier that also exists in src/" would flag hundreds of honest lines.
 
-⭐ THE TELL IS NOT THE IDENTIFIER. IT IS THE DEFERRAL. What makes D-470 wrong
+⭐ THE TELL IS NOT THE IDENTIFIER. IT IS THE DEFERRAL. What makes DFC-470 wrong
 is that the sentence hands its authority to that identifier: 「…の注が自ら
 禁じている」. So a hit needs all three:
 
@@ -50,7 +50,7 @@ sentence that defers to a name must first INTRODUCE it and then DEFER to it:
        —— `groupDepthThresholdOf` の注が自ら 2 つ目の写しを禁じている。
 
 ⇒ THE COUNT MUST EXCLUDE THE DEFERRING LINE ITSELF. With that one change the
-pre-fix tree yields 3 hits and `D-470` is one of them; before it, 2 and it was
+pre-fix tree yields 3 hits and `DFC-470` is one of them; before it, 2 and it was
 not. ⚠️ 1 true of 3 is 33%, which is below `list-asserted-claims.py`'s 63% --
 and that one was kept out of check.sh. ⛔ SO THIS IS NOT GATE MATERIAL, and
 the corpus is now empty besides: `3b7fdf6` fixed the only instance.
@@ -114,7 +114,7 @@ def main():
     # ⛔ ANCHOR ON THE DEFERRAL, NOT THE IDENTIFIER. Measured on the first
     # run: this document introduces an identifier early in a very long line
     # and defers to it much later in the same line, so "identifier then a
-    # verb within N characters" missed D-470, the case the tool exists for.
+    # verb within N characters" missed DFC-470, the case the tool exists for.
     # ⭐ It also removes a false positive: 「…は `FR-080` が持つ」 has a spec
     # id as its subject, and looking backward finds that id and skips it.
     for path, text in sorted(books.items()):

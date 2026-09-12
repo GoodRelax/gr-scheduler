@@ -269,7 +269,7 @@ const ALIGN_REQUIREMENT = 'FR-034'
  * of it; IC-75 is a button with no 群 -- FR-053 puts the minimise toggle on the
  * grab band, beside IC-53 -- so a row with nothing in that column has no group
  * to be printed in. ⛔ NOTHING HERE ASSERTS WHERE IC-75 GOES INSTEAD, which is
- * a hole this file has and D-103 records: `grabBandHeight` is all the band
+ * a hole this file has and DFC-103 records: `grabBandHeight` is all the band
  * carries across IF-9 today.
  */
 const PALETTE_ENTRY_ROWS = T_109_PALETTE.filter((entry) => entry.isButton && entry.group !== '')

@@ -64,7 +64,7 @@
 // ---------------------------------------------------------------------------
 //
 //   GAP 1 -- WHERE `DocumentSettings` ENTERS UF-65 IS NOWHERE WRITTEN DOWN. The
-//   ruling of 2026-08-31 (defect D-158) says only "pass DocumentSettings to
+//   ruling of 2026-08-31 (defect DFC-158) says only "pass DocumentSettings to
 //   UF-65 and read the boolean rows of table T-202"; no row of table T-064,
 //   T-075 or T-065 writes the argument list, so the place it takes is a
 //   decision the specification leaves to whoever implements it.
@@ -400,7 +400,7 @@ const SESSION: ScreenSession = {
   isAgentApiEnabled: false,
   // FR-066: the dialogue field stands only while the `Agent API` is on, which
   // FR-065 makes the reader's own act -- so it is down here, as the line above
-  // says the API is off. (The member arrived with defect D-149 while this file
+  // says the API is off. (The member arrived with defect DFC-149 while this file
   // was being written; twenty session literals across tests/ are behind it.)
   isDialogueFieldVisible: false,
   pointer: null,
@@ -585,7 +585,7 @@ describe('the manuscripts still say what these cases read', () => {
 })
 
 // ===========================================================================
-// The settings reach the unit at all -- the wiring D-158 says is missing.
+// The settings reach the unit at all -- the wiring DFC-158 says is missing.
 // ===========================================================================
 
 describe('FR-029 EN-2 (MUST) -- the document settings reach UF-65', () => {
@@ -716,7 +716,7 @@ describe('FR-102 (MUST NOT) -- IC-76 does not answer to the document', () => {
     // Whether a recording is running is S-206, a row of table T-206 -- the
     // table of what is NOT saved -- and FR-102 (MUST NOT) forbids the recording
     // being saved into the document. So no value the document carries may move
-    // this entrance, and the wiring that D-158 asks for must not sweep it up.
+    // this entrance, and the wiring that DFC-158 asks for must not sweep it up.
     //
     // WHAT WOULD HAVE TO CHANGE FOR THIS TO FAIL: IC-76 reading a row of table
     // T-202 -- for instance a fix that pressed every palette entrance whose

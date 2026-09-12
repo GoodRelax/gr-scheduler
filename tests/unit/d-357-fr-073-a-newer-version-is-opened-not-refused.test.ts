@@ -1,4 +1,4 @@
-// The anchor for D-357's first half: a document written by a build newer than
+// The anchor for DFC-357's first half: a document written by a build newer than
 // this one is OPENED and its unreadable columns are COUNTED, rather than the
 // whole document being turned away over them.
 //
@@ -79,7 +79,7 @@ function handed(version: string): string {
   return JSON.stringify(root)
 }
 
-describe('D-357 / FR-073 -- a version newer than this build is opened, not refused', () => {
+describe('DFC-357 / FR-073 -- a version newer than this build is opened, not refused', () => {
   it('sanity: the fixture is newer than the version this build knows', () => {
     expect(NEWER_THAN_KNOWN > GREATEST_KNOWN).toBe(true)
   })

@@ -3,10 +3,10 @@
 // 04-verification.md section 3.5: a unit case is written to STOP A FIX COMING
 // BACK, and only for something that was measured).
 //
-//   D-298 -- GR-21's grip had no START. It was laid at the lane's own corner
+//   DFC-298 -- GR-21's grip had no START. It was laid at the lane's own corner
 //            whatever the display position was, so a document scrolled to its
 //            far end drew the grip at the near one.
-//   D-420 -- the picture did not FOLLOW while the grip was held. Measured with
+//   DFC-420 -- the picture did not FOLLOW while the grip was held. Measured with
 //            FR-102's own record (IC-76), shipped build, 1920x1080: three moves
 //            of 40px each answered `act=changeDocument doc=same notices=1` --
 //            every mid-drag write was refused and a telling raised in its place
@@ -52,7 +52,7 @@
 //   - The grip's exact length.
 //     `tests/unit/d-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
 //     that half. ⚠️ THIS LINE USED TO NAME `tests/unit/uf-61.test.ts`, AND THAT
-//     WAS FALSE (台帳 D-405, measured 2026-09-08): that file asserts only that
+//     WAS FALSE (台帳 DFC-405, measured 2026-09-08): that file asserts only that
 //     the grip is wider and taller than nought, so halving the length, taking
 //     the floor away and returning the grip to the whole lane each took ZERO
 //     cases red.
@@ -94,7 +94,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 
 // ---------------------------------------------------------------------------
-// Part one -- UF-61: where along the lane the 区間 begins (D-298)
+// Part one -- UF-61: where along the lane the 区間 begins (DFC-298)
 // ---------------------------------------------------------------------------
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({
@@ -153,7 +153,7 @@ const barOf = (session: any, axis: 'horizontal' | 'vertical') => {
   return found
 }
 
-describe('D-298 -- GR-21 is 帯の中の、いま見えている範囲を表す区間, so it has a start', () => {
+describe('DFC-298 -- GR-21 is 帯の中の、いま見えている範囲を表す区間, so it has a start', () => {
   // Four times the lane, so a quarter of the lane is on screen and three
   // quarters of the travel is available to be somewhere in.
   const WHOLE_WIDTH = ROW_AREA.width * 4
@@ -229,7 +229,7 @@ describe('D-298 -- GR-21 is 帯の中の、いま見えている範囲を表す�
 })
 
 // ---------------------------------------------------------------------------
-// Part two -- UF-48: the picture follows while the grip is held (D-420)
+// Part two -- UF-48: the picture follows while the grip is held (DFC-420)
 // ---------------------------------------------------------------------------
 
 const TEMPLATE_PATH = join(
@@ -392,7 +392,7 @@ function gripCentreOf(shown: Pane, axis: 'horizontal' | 'vertical'): { x: number
   return { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
 }
 
-describe('D-420 -- table T-023d has GR-21 follow the pointer while it is held', () => {
+describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held', () => {
   const TRAVEL = 60
 
   it.each(['horizontal', 'vertical'] as const)(
@@ -431,7 +431,7 @@ describe('D-420 -- table T-023d has GR-21 follow the pointer while it is held', 
       // second move of 60 carries the picture 120 further and the grip runs
       // away ahead of the pointer (180 instead of 120).
       // ⚠️ THIS IS ALSO WHY THE TWO ROWS ARE ANCHORED IN ONE FILE: without
-      // D-298's start there is no grip position to measure D-420's follow by.
+      // DFC-298's start there is no grip position to measure DFC-420's follow by.
       const along = (point: { x: number; y: number }): number =>
         axis === 'horizontal' ? point.x : point.y
       const to = (from: { x: number; y: number }, by: number) =>

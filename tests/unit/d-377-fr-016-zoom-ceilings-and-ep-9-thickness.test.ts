@@ -1,4 +1,4 @@
-// Ledger row D-377 -- the eighteen MUST / MUST NOT clauses commit 381c2ef
+// Ledger row DFC-377 -- the eighteen MUST / MUST NOT clauses commit 381c2ef
 // ("Publish the built deliverable, and cap both zoom axes", 2026-09-07) wrote
 // into FR-016 (the two zoom ceilings) and T-076 EP-9 (the Panel Divider's
 // thickness), which raised check 39's baseline (check-must-clause-coverage.py)
@@ -150,7 +150,7 @@ const EP_9_THICKNESS_NOT_ZERO =
  * thickness 0 on screen and in the export alike -- which the cleanup of
  * 9f359cd folded out of the manuscript as a RECORD rather than a rule. ⛔ IT
  * WAS NOT LOST: its original is the row this file's section 2 comment already
- * names, `D-363` of `docs/development-records/fixed-defects.md`, and the
+ * names, `DFC-363` of `docs/development-records/fixed-defects.md`, and the
  * quotation is deliberately NOT repeated here -- check 42 forbids a comment
  * putting words in docs/spec's mouth that docs/spec no longer carries.
  * ⛔ The MUST itself never moved, only the sentence in front of it, so the
@@ -180,7 +180,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-076 EP-9 (MUST) -- screen and export read that same one place', EP_9_SCREEN_AND_EXPORT_SAME_PLACE],
 ]
 
-describe('D-377 -- the manuscript these cases are driven by', () => {
+describe('DFC-377 -- the manuscript these cases are driven by', () => {
   it.each(CLAUSES)('still says it, word for word: %s', (_name, clause) => {
     // ⛔ THE ONLY THING THAT KEEPS THE COPIES ABOVE HONEST. A clause reworded
     // in the manuscript takes this case red, which is what tells the next
@@ -201,7 +201,7 @@ describe('D-377 -- the manuscript these cases are driven by', () => {
 // ===========================================================================
 //
 // ⭐ `screen-frame.ts`'s own head comment on `dividerAt` (read as a published
-// contract, not a body) names D-363 and quotes all five EP-9 clauses above,
+// contract, not a body) names DFC-363 and quotes all five EP-9 clauses above,
 // saying `GROUP_GRID_LINE_WIDTH_PX` -- svg-renderer.ts's own export, spent a
 // second time nowhere -- is the "one place" EP-9's last three sentences ask
 // for. The cases below press that from the outside: call the two published
@@ -266,7 +266,7 @@ describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」
   it('the one published thickness is not zero', () => {
     // GOES RED IF: GROUP_GRID_LINE_WIDTH_PX is ever set to 0 -- which is
     // exactly the fault screen-frame.ts's head comment records as measured,
-    // before D-363, on both the screen and the export.
+    // before DFC-363, on both the screen and the export.
     expect(GROUP_GRID_LINE_WIDTH_PX).toBeGreaterThan(0)
   })
 
@@ -289,7 +289,7 @@ describe('T-076 EP-9 (MUST) -- 「同じ線とは太さも同じであるとい�
     for (const divider of frame.dividers as readonly PanelDivider[]) {
       // GOES RED IF: screen-frame.ts stops importing GROUP_GRID_LINE_WIDTH_PX
       // and spells its own figure instead -- the "second number" EP-9 (MUST
-      // NOT) forbids, and the fault D-363's own measurement found (thickness
+      // NOT) forbids, and the fault DFC-363's own measurement found (thickness
       // 0, because nothing sized the line at all).
       expect(divider.line.width, `${divider.panel}'s line width`).toBe(GROUP_GRID_LINE_WIDTH_PX)
     }

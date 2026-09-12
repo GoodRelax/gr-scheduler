@@ -1,6 +1,6 @@
 50
 #
-# HELD AT 50 ON 2026-09-07 WHEN THE RECORD NOTATION LANDED (`D-367`), AND THE
+# HELD AT 50 ON 2026-09-07 WHEN THE RECORD NOTATION LANDED (`DFC-367`), AND THE
 # NUMBER NOT MOVING IS THE MEASUREMENT, NOT AN OMISSION.
 #
 # The user ruled on 2026-09-07 (`PND-441`, proposal ①) that a sentence opening
@@ -12,7 +12,7 @@
 #
 # ⛔ COUNTED BEFORE AND AFTER, both ledger files: 50 -> 50. Nothing moved, and
 # the reason is that almost nothing is written in the ruled form yet. Of the
-# 377 full-shape rows, exactly ONE cell 5 carries 「⚠️ 実測（日付）」 -- D-318 --
+# 377 full-shape rows, exactly ONE cell 5 carries 「⚠️ 実測（日付）」 -- DFC-318 --
 # and that one sits inside 「…」, so outside_quotation had already removed it.
 # ⚠️ SO `PND-441`'s own sentence 「いま書かれている行はほぼ全部すでにこの形で
 # ある」 IS FALSE, measured. The notation buys nothing today; it buys the rows
@@ -26,27 +26,27 @@
 # The same words fail unmarked and pass marked, and the WRONG mark fails --
 # which is what says the check is reading the notation and not just going soft.
 #
-# ⛔⛔ THE SHAPE `D-367` WAS OPENED FOR IS NOT FIXED BY THIS RULING, and saying
+# ⛔⛔ THE SHAPE `DFC-367` WAS OPENED FOR IS NOT FIXED BY THIS RULING, and saying
 # so is the honest outcome. That shape is 対応方針 saying 「裁定が要る」 (true,
 # in the row's own voice, today) beside a 実物確認 opening ✅ (also true --
 # somebody pressed the shipped build). The ✅ cannot carry the ⚠️ mark, because
 # the 実物確認 column's convention is to open with ✅. ⚠️ MEASURED 2026-09-07:
-# zero rows stand in that shape now (D-268 was reworded), and the ✅ arm's whole
+# zero rows stand in that shape now (DFC-268 was reworded), and the ✅ arm's whole
 # reachable population is rows whose ステータス has not reached a testing state
 # -- it is an `elif` after the status arm, and today it accounts for 1 of the
-# 50 (D-159, 取下げ). ⭐ The falsified premise is already recorded further down
-# this file under D-262: under 押してから問え, pressing is what RAISES a ruling.
+# 50 (DFC-159, 取下げ). ⭐ The falsified premise is already recorded further down
+# this file under DFC-262: under 押してから問え, pressing is what RAISES a ruling.
 # ⛔ Retiring or status-gating that arm was NOT done here -- it is a second
-# decision, outside the ruling, and D-367 says not to take it alone.
+# decision, outside the ruling, and DFC-367 says not to take it alone.
 #
 # LOWERED 51 -> 50 ON 2026-09-07, AND THE DEBT THE RAISE BOOKED IS PAID, NOT
 # ABSORBED. PND-431..PND-441 were all ruled on 2026-09-07 (the user's 「裁定は
 # すべて提案通りでよい。」), so the four cells that still opened 裁定が要る --
-# D-268, D-357, D-363, D-366 -- were stating a block that had ended. Each
+# DFC-268, DFC-357, DFC-363, DFC-366 -- were stating a block that had ended. Each
 # opening is now dated as the record it is (⭐ かつての問い（… に下りた）) and
 # the ruling it received stands at the end of the same cell.
 # ⚠️ The count lands at 50 and not 47 because those four were not four fresh
-# hits: three of them were the raise, and one (D-268) was already inside the
+# hits: three of them were the raise, and one (DFC-268) was already inside the
 # 50 from earlier rounds.
 # ⭐ CHECK 40 WAS ALSO NARROWED THE SAME DAY, and that one WAS the check's
 # fault: 仕様待ち sat in its UNRULED_STATUS while the ledger's own status
@@ -56,28 +56,28 @@
 # 40's baseline did not move (3).
 
 #
-# RAISED 50 -> 51 ON 2026-09-07, and the debt is booked as D-367.
-# D-268 went from 仕様待ち to 裁定待ち when a body measured that no table
+# RAISED 50 -> 51 ON 2026-09-07, and the debt is booked as DFC-367.
+# DFC-268 went from 仕様待ち to 裁定待ち when a body measured that no table
 # spells the text the AI Export surface hands over, so its 対応方針 now
 # says 裁定が要る -- truthfully. Its 実物確認 still opens ✅ because the
 # surface WAS pressed, by hand, on 2026-09-05. ⛔ Both cells are correct;
 # the check reads the second as evidence that the first is stale.
 # ⚠️ THIS IS THE FOURTH TIME a prose-reading check has read a RECORD as a
-# current claim (D-344, D-347, check 40 today, and this). The handoff said
-# to revisit how these checks are written when a third appeared. D-367
+# current claim (DFC-344, DFC-347, check 40 today, and this). The handoff said
+# to revisit how these checks are written when a third appeared. DFC-367
 # carries that work; lower this number in the commit that lands it.
 #
 # LOWERED 52 -> 50 ON 2026-09-06, AND THE HEURISTIC IS WHAT CHANGED, NOT THE
-# LEDGER. `D-344` landed: a still-blocked marker is now read OUTSIDE
+# LEDGER. `DFC-344` landed: a still-blocked marker is now read OUTSIDE
 # QUOTATION only -- the contents of 「…」, 『…』 and a `code span` are
 # removed before the phrases are looked for (ledger_quotes.py).
 #
 # ⭐ MEASURED ACROSS BOTH LEDGER FILES BEFORE AND AFTER. Exactly two rows
 # stop matching, and both are the misfires this file already named:
-#   D-286 (defects.md)       「再開日を未定のままにもできること」 -- a verbatim
+#   DFC-286 (defects.md)       「再開日を未定のままにもできること」 -- a verbatim
 #                            quote of FR-044, which is the third misfire the
 #                            note below says to fix by changing the heuristic
-#   D-135 (fixed-defects.md) ⛔ 上の「未定」はもう真でない -- the row
+#   DFC-135 (fixed-defects.md) ⛔ 上の「未定」はもう真でない -- the row
 #                            quoting its OWN older word to date it as history,
 #                            which is the append-only rot being CLEANED UP
 # ⛔ Nothing else moves. No row was reworded to dodge the substring, and no
@@ -95,10 +95,10 @@
 # 裁定された, which is the phrase this round's own rulings are written in.
 #
 # ⭐ WHY: this round handed four items to bodies as unexamined that had
-# already been ruled -- one of them thirteen days earlier. D-301 was one, and
+# already been ruled -- one of them thirteen days earlier. DFC-301 was one, and
 # neither check 31 nor the new check 40 saw it, because its ruling came from a
 # CR and its cell said 裁定された beside an older 裁定が要る. The two words
-# close exactly that hole: D-301 is now caught.
+# close exactly that hole: DFC-301 is now caught.
 #
 # ⚠️ MEASURED BOTH WAYS BEFORE SETTLING. Adding 未検討 to STILL_BLOCKED as
 # well took the count 48 -> 115: most cells keep their opening 未検討 as the
@@ -106,30 +106,30 @@
 # 67 new hits on a 48 baseline is noise, and noise is how a check gets
 # ignored. 未検討 was therefore NOT added.
 #
-# ⭐ ONE OF THE FIVE THE WIDENING FOUND WAS FIXED, NOT ABSORBED: D-318 held
+# ⭐ ONE OF THE FIVE THE WIDENING FOUND WAS FIXED, NOT ABSORBED: DFC-318 held
 # 裁定が要る and 裁定された in the same cell within an hour of each other --
 # the front session's own contradiction. The older sentence is now dated as
 # the record it is, which is why this lands at 52 and not 53.
 #
 # LOWER THIS by rewording the four, not by narrowing the words back.
 #
-# RAISED 47 -> 48 ON 2026-09-06 for D-286, and this one is the check's fault,
+# RAISED 47 -> 48 ON 2026-09-06 for DFC-286, and this one is the check's fault,
 # not the row's. The marker it matched is 「未定」 inside a VERBATIM QUOTE of
 # FR-044 -- 「再開日を未定のままにもできること」 -- which is why PA-4 is a state
 # at all. The row is not blocked; it is quoting the requirement that explains
 # it, which is exactly what this ledger's style asks for.
 #
 # ⛔ THIS IS THE THIRD MISFIRE and the note taken on the second said what to
-# do about a third: change the heuristic, not the number. D-344 opens for it.
+# do about a third: change the heuristic, not the number. DFC-344 opens for it.
 # LOWER THIS when that row lands.
 #
 #
-# LOWERED 48 -> 47 ON 2026-09-06. The exemption was taken for D-306 while its
+# LOWERED 48 -> 47 ON 2026-09-06. The exemption was taken for DFC-306 while its
 # ruling was pending; the ruling landed (CR-363), the band is cut, and the
 # sentence that read as blocked is now dated as the record it is.
 #
 #
-# RAISED 47 -> 48 ON 2026-09-06 for D-306, deliberately.
+# RAISED 47 -> 48 ON 2026-09-06 for DFC-306, deliberately.
 # Its tick records MEASURING the defect -- five pins, the cap the
 # specification itself sets, already overrun the Row Area -- not a fix. The
 # row genuinely waits on a ruling: FR-098 needs a value to hold the band's
@@ -141,12 +141,12 @@
 #
 #
 # LOWERED 48 -> 47 ON 2026-09-06, the same day it was raised. The debt the
-# raise took on was D-322 waiting for a ruling; the ruling landed (CR-361,
+# raise took on was DFC-322 waiting for a ruling; the ruling landed (CR-361,
 # the user's (b)), the field is built, and the shipped page was pressed.
 # The exemption is spent, so the number goes back.
 #
 #
-# RAISED 47 -> 48 ON 2026-09-06, deliberately, for D-322.
+# RAISED 47 -> 48 ON 2026-09-06, deliberately, for DFC-322.
 # The check reads a leading tick in 実物確認 as "the block is over". On that
 # row the tick records measuring the DEFECT -- F2 pressed on the shipped
 # build, nothing stands up -- not a fix. The row really is waiting on a
@@ -177,11 +177,11 @@
 # ⚠️ SOME OF THESE 61 ARE THE HONEST EXCEPTION THE CHECK CANNOT TELL APART:
 # "the first question was ruled, a second one is now open" in the same cell
 # reads identically to append-only staleness under a plain substring match.
-# D-04 is one of these -- the width question closed at 決着 → S-180, and a
+# DFC-04 is one of these -- the width question closed at 決着 → S-180, and a
 # separate, later opacity question opened its own 仕様に行が無い further down
 # the same cell. It stays in this baseline rather than being special-cased.
 #
-# D-131 is a confirmed true past-positive kept honest by the ledger itself:
+# DFC-131 is a confirmed true past-positive kept honest by the ledger itself:
 # its cell now says outright it was one of "5 行" the 2026-09-01 review found
 # reading as blocked, right next to the still-present 仕様に行が無い /
 # 利用者の裁定が要る text that makes it match here too.
@@ -194,15 +194,15 @@
 #
 # ⛔ 61 -> 62。⚠️ **この +1 は付け替えではない。** 付け替えの前後で測って
 # 確かめた —— 直前のコミットの台帳では 61、付け替え前の作業ツリーの台帳では
-# すでに 62 だった。増えたのは **D-129** の 1 行で、この巡の先の作業で
+# すでに 62 だった。増えたのは **DFC-129** の 1 行で、この巡の先の作業で
 # ステータスが試験の段まで進んだ結果、欄の頭に残ったままの
 # 「⛔ 未定。⚠️ 図形は 表 T-026 の `RC-13` により利用者の裁定が要る」が
 # 追記された決着の文と並んだためである —— この検査がまさに名指すために在る
 # 追記型の腐りそのものである。
-# ⭐ **借りを取り込んだのであって、直したのではない。** D-129 の欄を書き直せば
+# ⭐ **借りを取り込んだのであって、直したのではない。** DFC-129 の欄を書き直せば
 # 62 は 61 へ戻る。
 #
-# 2026-09-01: 62 -> 60. D-128 and D-129 both opened with 「未定。図形は RC-13 に
+# 2026-09-01: 62 -> 60. DFC-128 and DFC-129 both opened with 「未定。図形は RC-13 に
 # より利用者の裁定が要る」 while figure F-019 already held all 89 shapes and the
 # table already held all 89 rows -- the ruling was never outstanding. The front
 # session had asked the user to rule on shapes that were already drawn, on the
@@ -211,14 +211,14 @@
 #
 # 2026-09-02: 60 -> 59. Three cells were rewritten at the HEAD so that a reader
 # of the opening is not told the row is blocked when its own end records the
-# ruling: D-72, D-135 and D-148. All three had been settled on 2026-08-30 and
+# ruling: DFC-72, DFC-135 and DFC-148. All three had been settled on 2026-08-30 and
 # still opened with 未定. ⚠️ The count is now taken across BOTH files of the
 # ledger -- defects.md and fixed-defects.md -- because the harvest of this day
 # moved 85 finished rows out of the first, and most rotten openings travel with
 # a finished row. A check reading one file would have printed a large fall as
 # ground won.
 #
-# 2026-09-03: 49 -> 46. Three heads rewritten: D-27, D-49, D-116, all of them
+# 2026-09-03: 49 -> 46. Three heads rewritten: DFC-27, DFC-49, DFC-116, all of them
 # in defects.md. ⚠️ MEASURED THE SAME DAY, AND IT CHANGES WHAT THIS NUMBER IS
 # WORTH: of the 49, only 3 stood in defects.md and 46 stood in fixed-defects.md.
 # A rotten opening on a FINISHED row costs a later round nothing -- nobody
@@ -229,7 +229,7 @@
 # nothing. ⭐ The count is still taken across both files, because a row that is
 # harvested must not make the total fall as if ground had been won.
 # 2026-09-05: 46 -> 47. ⛔ THIS ONE IS NOT APPEND-ONLY ROT, AND THE ROW IS NOT
-# REWORDED TO DODGE THE SUBSTRING. D-262 carries 利用者の裁定が要る in cell 5
+# REWORDED TO DODGE THE SUBSTRING. DFC-262 carries 利用者の裁定が要る in cell 5
 # AND a ✅ 実物確認, which is what this check reads as a contradiction. It is
 # not one here: the user ruled on 2026-09-05 「押してから問え」 for exactly
 # this row -- press it first, and raise the question ONLY if it breaks. It

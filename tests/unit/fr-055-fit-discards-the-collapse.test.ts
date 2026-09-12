@@ -331,7 +331,7 @@ describe('the fixture these cases are driven by', () => {
 })
 
 describe('FR-055 -- what the fit measures', () => {
-  // ⛔ FINDING (D-25). FR-055's own RATIONALE: 「本要求は、人が畳んだ状態を
+  // ⛔ FINDING (DFC-25). FR-055's own RATIONALE: 「本要求は、人が畳んだ状態を
   // すべて捨てる（表 T-051 の `HF-8`）—— 捨てないと、畳まれた行のぶんだけ
   // 「全体」が縮み、収める対象が人の操作で変わってしまう」. The rule printed
   // after table T-068 says the same thing as an order of work -- pass 1 is

@@ -9,7 +9,7 @@
 //
 // THE CLAUSES, VERBATIM
 //
-//   D-417  FR-094 (`docs/spec/01-04-requirements.md`)
+//   DFC-417  FR-094 (`docs/spec/01-04-requirements.md`)
 //          「`GRS` は、日程表を描くときの寸法 …… 進捗マーカーと再開アイコン ……
 //          を、`_assets/tbl-settings.md` の表 T-201 に従って決めること（MUST）。
 //          同表に無い寸法を実装が独自に持ってはならない（MUST NOT）」
@@ -18,13 +18,13 @@
 //          typed at 1 and its three symbols at 1.5, so turning S-24 moved none
 //          of them.
 //
-//   D-407  FR-043 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイル
+//   DFC-407  FR-043 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイル
 //          ストーンの実績の図形と同じとすること（MUST）。矩形で描いてはならない
 //          （MUST NOT）」（利用者の裁定 2026-09-08）
 //          ⛔ Measured 2026-09-08: with the plan hidden the dummy fell back to
 //          a four-cornered rectangle, which is the figure that MUST NOT names.
 //
-//   D-418  表 T-108 の `AG-5` 「UI と同じ検証・同じ制限を通ること（MUST）」,
+//   DFC-418  表 T-108 の `AG-5` 「UI と同じ検証・同じ制限を通ること（MUST）」,
 //          and FR-078's roster, 表 T-012 の `SH-5`.
 //          ⛔ Measured 2026-09-08: `'NOT-A-GLYPH'` came back `accepted: true`.
 //
@@ -211,7 +211,7 @@ const dummyPointCount = (svg: string): number => {
 
 // ---------------------------------------------------------------------------
 
-describe('D-417: the progress marker reads S-24 for its stroke (FR-094)', () => {
+describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () => {
   const started = (): Schedule =>
     scheduleOf(
       [task({
@@ -241,7 +241,7 @@ describe('D-417: the progress marker reads S-24 for its stroke (FR-094)', () => 
   })
 })
 
-describe("D-407: a not-started milestone's dummy is its own figure (FR-043)", () => {
+describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", () => {
   const milestone = (glyph: string): Schedule =>
     scheduleOf(
       [task({ uid: 1, start: day(5), finish: day(5), milestone: true })],
@@ -267,7 +267,7 @@ describe("D-407: a not-started milestone's dummy is its own figure (FR-043)", ()
   })
 })
 
-describe('D-418: the write path judges the figure (AG-5, FR-078)', () => {
+describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
   const document = (): Document =>
     ({
       schedule: scheduleOf(

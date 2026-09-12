@@ -27,7 +27,7 @@
 // that the lookup finds exactly one row.
 //
 // ⚠️ This is a live risk and not an imagined one: `docs/development-records/
-// defects.md` row D-36 prescribes 「表 T-109 に `App Header` の入口を 1 行足す」
+// defects.md` row DFC-36 prescribes 「表 T-109 に `App Header` の入口を 1 行足す」
 // -- adding a row for a function table T-109 already carries at IC-7.
 //
 // ---------------------------------------------------------------------------
@@ -415,7 +415,7 @@ describe('FR-029 (MUST NOT) -- one function, one entrance', () => {
 
 describe('UF-62 -- FR-053 (MUST): the entrance is on the `App Header`', () => {
   it('carries it, and carries it once', () => {
-    // ⭐ THIS IS WHAT REFUTES D-36 FROM THE SPECIFICATION ALONE: the row exists,
+    // ⭐ THIS IS WHAT REFUTES DFC-36 FROM THE SPECIFICATION ALONE: the row exists,
     // its 面 is the header, and the unit that builds the header carries it.
     const icons = headerIcons(headerOf())
     expect(timesIn(icons, theOneEntrance()), `the header carried ${icons.join(', ')}`).toBe(1)

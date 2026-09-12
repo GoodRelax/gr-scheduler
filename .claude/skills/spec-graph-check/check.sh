@@ -142,10 +142,10 @@
 #   38     check-changelog-versions.py : the A.3 Changelog table in
 #          docs/development-records/changelog.md names each version number
 #          once. ⭐ It sat in docs/spec/A-appendix.md until 2026-09-11,
-#          when cleanup P2-1 moved the whole table out of the manuscript. D-246 found
+#          when cleanup P2-1 moved the whole table out of the manuscript. DFC-246 found
 #          two rows both claiming 1.33 -- CR-348 renamed the stray one, so
 #          this holds the count at zero rather than a baseline of known debt.
-#          Ordering (D-246 also found a descending stretch after an ascending
+#          Ordering (DFC-246 also found a descending stretch after an ascending
 #          one) is a separate claim and not checked here
 #   37     check-dictionary-table-covariance.py : the 12 groups of
 #          display-words.json keyed by a table row id (every one but
@@ -153,15 +153,15 @@
 #          t-233-reason-words-tell-the-row.contract.test.ts already guards)
 #          are fingerprinted against that row's cells, the same latch as that
 #          precedent widened to a whole row instead of one named column.
-#          D-145: nothing but T-233 had this, so a table cell could be
+#          DFC-145: nothing but T-233 had this, so a table cell could be
 #          rewritten out from under its display word -- the exact shape of
-#          D-166 -- on any of the other 323 pairings and every check here
+#          DFC-166 -- on any of the other 323 pairings and every check here
 #          would stay green. Held against dictionary-table-pairing.txt, a
 #          fingerprint snapshot and not a debt count: FAIL means either side
 #          moved and nobody re-read the pair, not that a number rose
-#   39     check-must-clause-coverage.py : D-254 measured that moving seven
+#   39     check-must-clause-coverage.py : DFC-254 measured that moving seven
 #          MUST/MUST NOT clauses in docs/spec/ rang zero tests, the same day
-#          D-257 and D-260 showed the opposite for five other clauses -- the
+#          DFC-257 and DFC-260 showed the opposite for five other clauses -- the
 #          cover is mottled, not absent, and nothing before this counted
 #          which was which. Counts every `（MUST）` / `（MUST NOT）` marker in
 #          the nine manuscript files (the same set check 37 reads), and holds
@@ -206,7 +206,7 @@
 #          is intra-row and check 25 reads the marks in src/; NOTHING read the
 #          two books together, and the same question lands in both. ⚠️
 #          Measured 2026-09-06: four items were handed out as unexamined and
-#          re-worked when they had already been ruled -- D-270 for thirteen
+#          re-worked when they had already been ruled -- DFC-270 for thirteen
 #          days, against a PND-178 that named the very test that had to fall.
 #          Held against ruled-elsewhere-baseline.txt (7) the way check 31 is.
 #          ⚠️ It prints, without gating, the rows whose only link to a ruling
@@ -214,8 +214,8 @@
 #          so gating there is a 38-row noise floor on a 7-row signal
 #   42     check-quoted-source.py : a 「…」 quotation inside a comment of
 #          src/ or tests/ that NO manuscript under docs/spec contains -- a
-#          paraphrase hardened into a citation. ⛔ `D-339`: one such sentence
-#          was quoted as a row of 表 T-051 and kept `D-318` open for a round.
+#          paraphrase hardened into a citation. ⛔ `DFC-339`: one such sentence
+#          was quoted as a row of 表 T-051 and kept `DFC-318` open for a round.
 #          Held against quoted-source-baseline.txt (283); `--list` prints them
 #   43     check-ruling-landed.py : a row of
 #          docs/development-records/rulings.md that says 適用済 while NEITHER

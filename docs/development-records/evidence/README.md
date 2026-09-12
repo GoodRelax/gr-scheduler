@@ -24,17 +24,17 @@
 
 | ファイル | 台帳 | 何を決めたか |
 |---|---|---|
-| `d074-seven-marks-at-three-sizes.png` | D-74 | 特殊形状のマイルストーン 7 つを、96px / 24px（パレット）/ 13px（日程の実寸）で並べた案。⛔ **13px で線画が潰れること**が、この絵で見えた |
-| `d074-fifteen-marks-on-the-schedule.png` | D-74 | 15 の印を実際に日程へ置いたところ |
-| `d094-group-rule-0px.png` / `d094-group-rule-6px.png` | D-94 | パレットの群の罫の上下の空き。**0px（現状）と 6px** を並べて決めた |
-| `d110-marquee-nothing-drawn.png` | D-110 | ⛔ **現状** —— 握っているあいだ何も出ない |
-| `d110-marquee-dashed.png` | D-110 | 案 a: 選択枠と同じ 2px の破線 |
-| `d110-marquee-thin-line.png` | D-110 | 案 b: 1px の実線。⛔ **ハイライトボックスの上でほぼ見えないことが、この絵で分かった** |
-| `d110-marquee-dashed-with-fill.png` | D-110 | 案 c: 破線 ＋ 薄い塗り |
-| `d110-marquee-as-shipped.png` | D-110 | 措置後、実際に握っているところ |
-| `d134-confirmation-names.png` | D-134 | 消える `Task` の名前が 9,341 文字あり、下端で切れている確認の面 |
-| `d137-divider-grab-band.png` | D-137 | 境目の 8px の掴み帯（赤く塗ってある）。⛔ **「ポインタが何も答えない」が誤測だった**ことがこれで分かった |
-| `d170-pinned-row-over-the-scrolled-rows.png` | D-170 | ⛔⛔ **ピン止めした行の帯に、別の行のバーが載っている** —— **`Whole Product` を留めてホイールで 4 ノッチ送ったところ。**⭐ **パネルは `Whole Product` / `Phone Sign In` を並べているのに、帯は `Deliver the whole product` / `Phone App workstream` / `Phone Sign In` を並べる** —— **1 段ずれている** |
+| `d074-seven-marks-at-three-sizes.png` | DFC-74 | 特殊形状のマイルストーン 7 つを、96px / 24px（パレット）/ 13px（日程の実寸）で並べた案。⛔ **13px で線画が潰れること**が、この絵で見えた |
+| `d074-fifteen-marks-on-the-schedule.png` | DFC-74 | 15 の印を実際に日程へ置いたところ |
+| `d094-group-rule-0px.png` / `d094-group-rule-6px.png` | DFC-94 | パレットの群の罫の上下の空き。**0px（現状）と 6px** を並べて決めた |
+| `d110-marquee-nothing-drawn.png` | DFC-110 | ⛔ **現状** —— 握っているあいだ何も出ない |
+| `d110-marquee-dashed.png` | DFC-110 | 案 a: 選択枠と同じ 2px の破線 |
+| `d110-marquee-thin-line.png` | DFC-110 | 案 b: 1px の実線。⛔ **ハイライトボックスの上でほぼ見えないことが、この絵で分かった** |
+| `d110-marquee-dashed-with-fill.png` | DFC-110 | 案 c: 破線 ＋ 薄い塗り |
+| `d110-marquee-as-shipped.png` | DFC-110 | 措置後、実際に握っているところ |
+| `d134-confirmation-names.png` | DFC-134 | 消える `Task` の名前が 9,341 文字あり、下端で切れている確認の面 |
+| `d137-divider-grab-band.png` | DFC-137 | 境目の 8px の掴み帯（赤く塗ってある）。⛔ **「ポインタが何も答えない」が誤測だった**ことがこれで分かった |
+| `d170-pinned-row-over-the-scrolled-rows.png` | DFC-170 | ⛔⛔ **ピン止めした行の帯に、別の行のバーが載っている** —— **`Whole Product` を留めてホイールで 4 ノッチ送ったところ。**⭐ **パネルは `Whole Product` / `Phone Sign In` を並べているのに、帯は `Deliver the whole product` / `Phone App workstream` / `Phone Sign In` を並べる** —— **1 段ずれている** |
 
 ---
 

@@ -66,7 +66,7 @@
 // its word) and `EN-2` / `EN-4` through `isPressed` (FR-072 says 「押下状態」 in
 // as many words). ⭐ THIS COSTS THE CASES NOTHING: 表 T-237 gives all three the
 // same colour, so no case here has to tell `EN-2` from `EN-4`.
-// ⚠️ `EN-5` JOINED THEM WITH DEFECT D-149 (利用者の裁定 2026-08-31) and is the
+// ⚠️ `EN-5` JOINED THEM WITH DEFECT DFC-149 (利用者の裁定 2026-08-31) and is the
 // same picture again -- `isPressed`, `S-183`. It reaches no PALETTE entrance,
 // so the count above is unchanged: the entrances it stands on (`IC-18`, and
 // `IC-7` by the row's own words) are both `App Header` rows of 表 T-109.
@@ -355,7 +355,7 @@ describe('the manuscripts still say what these cases read', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
     // CASE BELOW AGREE WITH ANYTHING -- rule 04 section 2: a mechanism is not
     // verified until it has been broken on purpose and seen to fail.
-    // ⚠️ `EN-5` ARRIVED WITH DEFECT D-149 (利用者の裁定 2026-08-31): 「その入口が
+    // ⚠️ `EN-5` ARRIVED WITH DEFECT DFC-149 (利用者の裁定 2026-08-31): 「その入口が
     // 表示・非表示を切り替えるものを、いま表示している（表 T-206）」, in `S-183`. It
     // reaches the screen through `isPressed`, the same member `EN-2` and `EN-4`
     // use, so the cases below cover its picture without knowing it by name;

@@ -285,7 +285,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       // AR-5 keeps null until this is called.
       //
       // ⭐ The same one-field test the other nine arms of this file keep, and
-      // the one arm that was missing it (ledger row D-378). FR-020 (MUST)
+      // the one arm that was missing it (ledger row DFC-378). FR-020 (MUST)
       // forbids re-stamping the trail for a write that changed nothing, and
       // FR-063 moves the schedule instant only for a write that moved that
       // group -- both are read off the reference this line refuses to rebuild.

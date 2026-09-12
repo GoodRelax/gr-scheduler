@@ -2,7 +2,7 @@
 """Check 38 -- the revision history in docs/development-records/changelog.md
 names each version number once.
 
-WHY THIS EXISTS. D-246 measured the A.3 Changelog table on 2026-09-04 and
+WHY THIS EXISTS. DFC-246 measured the A.3 Changelog table on 2026-09-04 and
 found two rows both claiming version 1.33: the row for 2026-08-29 and a row
 added the same day, which should have been 1.79. Nothing had ever counted the
 version column, so the collision sat unnoticed until someone needed the next
@@ -11,7 +11,7 @@ stray row (1.33 -> 1.79, with the following row becoming 1.80), so the count
 this check enforces is not a baseline of known debt -- it is the true state,
 held at zero going forward.
 
-AND THE OTHER HALF. D-246 also found a stretch of rows running in descending
+AND THE OTHER HALF. DFC-246 also found a stretch of rows running in descending
 order after a long ascending run. Measured 2026-09-05: 21 steps went
 backwards, from 1.78 down to 1.32, before climbing again. The rows were
 sorted by version that day -- moved, never edited, with the multiset of lines

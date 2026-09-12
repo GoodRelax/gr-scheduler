@@ -62,7 +62,7 @@
 // this note used to say it was not. FR-017 (MUST, 決めた 2026-08-27) settled it
 // -- 「段が 3 つに満たない段階では、帯の高さを段の数で等分すること（MUST）」 with
 // ⛔「余りをどこかへ寄せてはならない（MUST NOT）」-- and the last describe of this
-// file is that rule. ⚠️ It was written against defect D-92, which is the row
+// file is that rule. ⚠️ It was written against defect DFC-92, which is the row
 // that asked for the ruling in the first place.
 //   `S-179`（`rulerLabelBottomPad`）is what makes it readable off the picture:
 // with `S-136` it pins a baseline's offset inside its own 段, so two baselines
@@ -689,7 +689,7 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
     // text size. What this case keeps is the relation between tiers, which is
     // FR-017's monotonicity and is nobody else's.
     // ⭐ WHAT THE BAND DOES WITH THE HEIGHT once a tier stands in fewer than
-    // three 段 IS asserted, in the last describe of this file (D-92).
+    // three 段 IS asserted, in the last describe of this file (DFC-92).
     for (const scale of FONT_SCALES) {
       let previous = 0
       for (const sample of TIER_SAMPLE) {
@@ -707,7 +707,7 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
 })
 
 // ---------------------------------------------------------------------------
-// D-92 -- how a tier standing in FEWER THAN THREE 段 spends the band's height.
+// DFC-92 -- how a tier standing in FEWER THAN THREE 段 spends the band's height.
 //
 // ⭐ THE RULE EXISTS NOW, and it is FR-017's own (MUST, 決めた 2026-08-27):
 //   「⭐ **段が 3 つに満たない段階では、帯の高さを段の数で等分すること（MUST）**

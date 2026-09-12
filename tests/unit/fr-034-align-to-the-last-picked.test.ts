@@ -13,7 +13,7 @@
 // in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
 // tests/unit/.
 //
-// ⚠️ Until 2026-08-30 this entrance was measured DEAD -- 台帳 D-146 of
+// ⚠️ Until 2026-08-30 this entrance was measured DEAD -- 台帳 DFC-146 of
 // docs/development-records/defects.md: two Tasks chosen, IC-37 pressed, and not
 // one bar moved. These cases exist to say whether it now does what the
 // manuscript says, and they were written to be indifferent to how it does it.

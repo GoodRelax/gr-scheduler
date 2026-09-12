@@ -335,7 +335,7 @@ const isHeadRule = (authority: string): boolean =>
  *
  * ⚠️ `bareAll`, not `bare`: 表 T-109's 面 column enumerates -- `IC-52` names
  * six surfaces in one cell -- so membership is `includes`, never `===` on a
- * first span that would answer for one surface of six (`D-351`).
+ * first span that would answer for one surface of six (`DFC-351`).
  */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
   (one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')),
@@ -442,7 +442,7 @@ const T_051_HF1_FOUR_CONTROLS =
   '隠す操作子と、配下を 1 階層開く操作子と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ'
 const T_051_HF1_IS_A_LATTICE = '並びは 2 × 2 の格子とすること（MUST）'
 // ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
-// the old wording read as four controls in a line -- see D-260.
+// the old wording read as four controls in a line -- see DFC-260.
 const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層開く'
 
 /**
@@ -2514,7 +2514,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     // WAS READING THE SEAM, NOT THE MANUSCRIPT. `RowTitle.expander` was nullable
     // then, and this file took that to mean a row with nothing under it carries
     // no per-row entrance at all. ✅ THE SEAM HAS SINCE BEEN CORRECTED (2026-08-30,
-    // 台帳 D-161): the member is not nullable, and a row with nothing to fold
+    // 台帳 DFC-161): the member is not nullable, and a row with nothing to fold
     // carries the three with none armed (`NOTHING_TO_FOLD`). 表 T-051 decided it,
     // twice over:
     //

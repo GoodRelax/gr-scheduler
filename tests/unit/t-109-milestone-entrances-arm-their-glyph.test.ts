@@ -755,7 +755,7 @@ describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () 
     // reach the NEW Task. ⛔ No case here was softened to make it pass: the two
     // requirements settle the answer between them.
     // ⭐ THE SAME FAULT IS ALREADY WRITTEN DOWN, and this case is the machine
-    // record the ledger says it has not got: D-140 of
+    // record the ledger says it has not got: DFC-140 of
     // `docs/development-records/defects.md` (「パレットから置いたマイルストーンが、
     // 構えた図形にならず必ず菱形になる」, 試験の欄 「⛔ 未」), left unfixed on
     // purpose by CR-303 because how the new `Task`'s `uid` reaches CM-21 is a

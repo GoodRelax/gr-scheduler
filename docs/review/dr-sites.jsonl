@@ -3522,10 +3522,6 @@
 {"path": "docs/spec/_source/property_items_json_to_md.py", "line": 16, "col": 35, "token": "D-81", "target": "DFC", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
 {"path": "docs/spec/_source/property_items_json_to_md.py", "line": 16, "col": 44, "token": "D-84", "target": "DFC", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
 {"path": "docs/spec/_source/property_items_json_to_md.py", "line": 165, "col": 55, "token": "R-05", "target": "JDG", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
-{"path": "docs/spec/_source/row-id-prefixes.json", "line": 25, "col": 18, "token": "D-1", "target": "DEV", "kind": "spec", "evidence": "a row of the specification table", "confidence": "rule"}
-{"path": "docs/spec/_source/row-id-prefixes.json", "line": 25, "col": 49, "token": "D-01", "target": "DFC", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
-{"path": "docs/spec/_source/row-id-prefixes.json", "line": 40, "col": 18, "token": "R-1", "target": "CHN", "kind": "spec", "evidence": "a row of the specification table", "confidence": "rule"}
-{"path": "docs/spec/_source/row-id-prefixes.json", "line": 40, "col": 44, "token": "R-01", "target": "JDG", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
 {"path": "docs/spec/_source/settings_json_to_md.py", "line": 246, "col": 55, "token": "R-05", "target": "JDG", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
 {"path": "docs/spec/_source/settings_json_to_md.py", "line": 377, "col": 10, "token": "D-335", "target": "DFC", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}
 {"path": "docs/spec/_source/settings_json_to_md.py", "line": 386, "col": 12, "token": "D-335", "target": "DFC", "kind": "ledger", "evidence": "the ledger roster holds it; the spec does not", "confidence": "rule"}

@@ -69,7 +69,7 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-// D-400's cases ask the PICTURE, not the geometry -- see their own note.
+// DFC-400's cases ask the PICTURE, not the geometry -- see their own note.
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 // ⛔⛔ THE HOLD IS NOT A SIZE OF ITS OWN, so this file reads no hit-area row out
 // of item-hit-area.ts. Table T-023d's closing rule makes the dummies' hit area
@@ -291,7 +291,7 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
   })
 
   // -------------------------------------------------------------------------
-  // R-09 of docs/development-records/rulings.md, 逐語 「担当 完了率の順にどちら
+  // JDG-09 of docs/development-records/rulings.md, 逐語 「担当 完了率の順にどちら
   // も右寄せで並べる。 下記を参照とせよ。 previous-project-result/08-poc/
   // poc-integrated.html」, landed in FR-090 and in OC-2's own cell.
   //
@@ -408,7 +408,7 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 })
 
 // ---------------------------------------------------------------------------
-// D-394 -- the marker and the task name were drawn on top of one another.
+// DFC-394 -- the marker and the task name were drawn on top of one another.
 //
 // THE ROWS THESE CASES REST ON (both sit under table T-038, requirements.md)
 //
@@ -513,7 +513,7 @@ const bandOfPoints = (what: string, points: readonly { readonly x: number }[]): 
   x1: Math.max(...points.map((one) => one.x)),
 })
 
-describe('table T-038, D-394 -- the order stands side by side, and the label does not move', () => {
+describe('table T-038, DFC-394 -- the order stands side by side, and the label does not move', () => {
   it('draws every one of them, or every case below proves nothing', () => {
     const { placed, drawn } = drawnWithMarks(true)
     expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
@@ -595,7 +595,7 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
   })
 
   it('⭐ holds the room open -- the label no longer starts one gap past the bar', () => {
-    // ⛔ THE DEFECT ITSELF. Before D-394 the label began at 「形状の右端 +
+    // ⛔ THE DEFECT ITSELF. Before DFC-394 the label began at 「形状の右端 +
     // labelGap」, which is inside the marker; the room the row (MUST) asks to be
     // held clear is what pushes it past.
     const { placed } = drawnWithMarks(true)
@@ -604,7 +604,7 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
 })
 
 // ---------------------------------------------------------------------------
-// D-400 -- OC-4 was BUILT and never DRAWN.
+// DFC-400 -- OC-4 was BUILT and never DRAWN.
 //
 // ⛔⛔ WHY THIS CASE IS HERE AND NOT ONE LAYER UP. Every case above reads
 // `TaskGeometry`, and `TaskGeometry.resume` was correct the whole time -- so
@@ -628,7 +628,7 @@ describe('table T-038, D-394 -- the order stands side by side, and the label doe
 // settings row. The case asks only that the ink EXISTS and stands where the
 // geometry put it.
 
-describe('FR-044, D-400 -- the resume icon reaches the picture, not just the geometry', () => {
+describe('FR-044, DFC-400 -- the resume icon reaches the picture, not just the geometry', () => {
   const svgWithMarks = (marksVisible: boolean): string => {
     const settings = markSettings(marksVisible)
     const schedule = rowOf([SUSPENDED])
@@ -676,7 +676,7 @@ describe('FR-044, D-400 -- the resume icon reaches the picture, not just the geo
 })
 
 // ---------------------------------------------------------------------------
-// D-400 -- a milestone's marker was drawn ON its own actual figure.
+// DFC-400 -- a milestone's marker was drawn ON its own actual figure.
 //
 //   T-023d GR-7 (01-04-requirements.md)
 //     「| GR-7 | 進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点の
@@ -781,9 +781,9 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
   })
 })
 // ---------------------------------------------------------------------------
-// R-09 -- OC-2 was drawn as TWO boxes, and they overlapped.
+// JDG-09 -- OC-2 was drawn as TWO boxes, and they overlapped.
 //
-// ⛔⛔ WHY THIS CASE IS HERE AND NOT ONE LAYER UP, for the reason the D-400
+// ⛔⛔ WHY THIS CASE IS HERE AND NOT ONE LAYER UP, for the reason the DFC-400
 // case above gives in the same words: every case in the first section reads
 // `TaskPlacement`, and the placement's arithmetic was self-consistent the whole
 // time. What was wrong was the PICTURE -- two `<text>` elements, each begun at
@@ -803,7 +803,7 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
 // and are answered by the name label's own cases; a number here would be this
 // file deciding a row of table T-236.
 
-describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', () => {
+describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text', () => {
   const OC2_FIGURE = 'data-figure="task-1-oc2-label"'
 
   const svgOf = (): string => {
@@ -865,7 +865,7 @@ describe('FR-090, R-09 -- OC-2 reaches the picture as ONE right-aligned text', (
 })
 
 // ---------------------------------------------------------------------------
-// D-408 -- the marker stood INSIDE the hold it is supposed to be outside of.
+// DFC-408 -- the marker stood INSIDE the hold it is supposed to be outside of.
 //
 //   T-023d GR-7 (01-04-requirements.md)
 //     「実績バーの右端の外側。**未着手のときは終了点の掴みシロの外側**」

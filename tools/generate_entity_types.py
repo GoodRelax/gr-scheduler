@@ -182,7 +182,7 @@ def date_columns_block(erd):
 # carries 対象 `HighlightBox`, so FR-006 (MUST NOT -- 「対象の違う行を出しては
 # ならない」) leaves this panel nothing to draw for one, and a shape for its
 # seven columns would be the very roster the paragraph above refuses. ⚠️ AND IT
-# WOULD NOT CLOSE D-314 EITHER: what is broken there is the DEFAULT of S-132
+# WOULD NOT CLOSE DFC-314 EITHER: what is broken there is the DEFAULT of S-132
 # (table T-217), and erd.json states no default, no minimum and no maximum for
 # `HighlightBox.cornerRadiusPx` -- so nothing this constant can carry would
 # reach it. That road is the settings one (NOT_STORED_TARGETS), not this one.
@@ -1148,7 +1148,7 @@ READ_WHERE_IT_STANDS = [
     ' * still not a document setting and must not become one.',
 ]
 # ⛔ A SEAM OF ITS OWN, BECAUSE THE ONE ABOVE NAMES A COUNT THAT MOVED. UF-61
-# takes FOUR arguments since D-298 -- `ScreenSession` joined them so GR-21 of
+# takes FOUR arguments since DFC-298 -- `ScreenSession` joined them so GR-21 of
 # table T-023d could reach the extents the grip's length is a fraction of -- so
 # the sentence "fixes UF-61 at three arguments" is no longer true of the two
 # constants that stand in the frame's own units. ⭐ The ground did not move with
@@ -1302,7 +1302,7 @@ NOT_STORED_TARGETS = {
     # the thickness to be a setting -- it is measured off the environment at
     # BO-1 -- and S-205 is the least this tool will draw whatever that
     # measurement says, because a host with overlay scrollbars answers 0 and
-    # half of 0 is 0 (D-115).
+    # half of 0 is 0 (DFC-115).
     # ⭐⭐ AND IT IS WRITTEN INTO TWO UNITS, which is the bargain S-218 already
     # stands on a few entries below: one manuscript row read by two units that
     # may not import one another. `frame-loop.ts` floors the LANE'S THICKNESS
@@ -1403,7 +1403,7 @@ NOT_STORED_TARGETS = {
     # document keeps the DATES and never the width their labels take.
     'NOT_STORED_RULER_WEEKDAY_SIZES': (['S-219'],
                                        DRAWN_INTO_THE_EXPORTED_PICTURE),
-    # ⭐ D-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
     # unit that assembles an exported picture. ⛔ NOT FOLDED INTO ANY LINE
     # ABOVE -- every one of them is read by a unit that draws the schedule,
     # and these two are read where the CHROME around it is drawn.
@@ -1718,7 +1718,7 @@ def not_stored_block(name):
 # NAME SAYS. That function reads table T-206, whose whole point is a row
 # where the document does NOT keep a value at all. S-132 is not that kind of
 # row: table T-217's own paragraph says its value LANDS in the schedule data,
-# as a `HighlightBox`'s own `cornerRadiusPx` column (D-314) -- so the document
+# as a `HighlightBox`'s own `cornerRadiusPx` column (DFC-314) -- so the document
 # DOES keep the number once a box exists. What was missing from src/ was
 # never a place to keep it; it was the STARTING number a newly created box is
 # given, which is table T-217's own default cell and answers to no row of
@@ -1885,7 +1885,7 @@ def derived_block(name):
 # S-223 as the values it is drawn with and (MUST NOT) forbids them in
 # `src/`, so the values were carried here first and the drawing arrived
 # after -- the alternative is the drawing side typing -30.
-# ⭐ THE READER EXISTS SINCE D-195 WAS CLOSED: `watermarkSvg` in
+# ⭐ THE READER EXISTS SINCE DFC-195 WAS CLOSED: `watermarkSvg` in
 # svg-renderer.ts spends all four, and until it did the whole block was
 # dropped from the build as dead code -- a value that reaches no reader
 # is a value the artifact does not carry.
@@ -2368,7 +2368,7 @@ TARGETS = [
     # 出しが同じ 1 つの行を読むこと」. `image-exporter.ts` reads the same pair a
     # few entries below; ⛔ this is NOT a duplicated decision -- the decision is
     # the ROW, and two readers of one row is what the requirement asks for,
-    # while a second value would be what it forbids (D-276).
+    # while a second value would be what it forbids (DFC-276).
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_GRAB_STRIP_SIZES') + NEWLINE * 2
@@ -2418,7 +2418,7 @@ TARGETS = [
      # compared against an answer the shell hashes, and these are drawn.
      + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
      ['docs/spec/_source/settings.json (tables T-206, T-207 and T-236)']),
-    # ⭐ D-276: the two numbers EP-1 writes the `Document Title` with, in the
+    # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
     # one unit that assembles a picture that goes out. ⛔ Until 2026-09-07 this
     # file held `TITLE_FONT_OF_BAND` and `TITLE_INSET_OF_BAND`, two fractions
     # of the band's own height invented here (PND-52) -- and EP-1 (MUST NOT)
@@ -2463,7 +2463,7 @@ TARGETS = [
     (os.path.join(ADAPTER, 'screen-renderer', 'properties-panel.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
-    # ⭐ D-314: the one call site FR-019 gives a fixed radius, reading table
+    # ⭐ DFC-314: the one call site FR-019 gives a fixed radius, reading table
     # T-217's own default rather than a copy typed at the use-case that
     # creates a `HighlightBox`.
     (os.path.join(USECASE, 'edit-document', 'edit-annotation.ts'),

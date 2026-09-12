@@ -17,7 +17,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-130: 「⛔⛔ **プロパティパネルで確定した
+// `docs/development-records/defects.md` DFC-130: 「⛔⛔ **プロパティパネルで確定した
 // 値が、文書に届かない**」, whose 期待値 column is 「`FR-006` が定めるとおり、表
 // T-016 の読み取り専用でない項目を編集すると文書が変わる」. The row records what
 // was measured on the shipped build -- 「`PR-1` … の値を `Survey phase` から
@@ -188,7 +188,7 @@ function settledName(id: string): string {
 /** `U-25` -- the `Properties Panel`. */
 const U_25 = settledName('U-25')
 
-/** The two rows D-130 measured as not arriving, and the only two this file drives. */
+/** The two rows DFC-130 measured as not arriving, and the only two this file drives. */
 const TYPED_ROWS = ['PR-1', 'PR-2'] as const
 /** `PR-9` -- the row 表 T-016 DOES mark 読み取り専用, so the mark can be seen to exist. */
 const READ_ONLY_ROW = 'PR-9'
@@ -527,7 +527,7 @@ describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', ()
 
   for (const row of TYPED_ROWS) {
     it(`⛔ ${row}: typing and pressing SK-19 hands the value back with its row`, () => {
-      // ⭐⭐ THE CASE D-130 ASKS FOR, at the end of the road it broke on. 表 T-065's
+      // ⭐⭐ THE CASE DFC-130 ASKS FOR, at the end of the road it broke on. 表 T-065's
       // `IF-9`: 「**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID とともに
       // 返し**」. ⛔ 「`readFieldCommit` は永久に `null`」 is exactly this answer
       // never arriving.

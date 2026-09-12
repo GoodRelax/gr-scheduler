@@ -187,7 +187,7 @@ const ARMING_IS_NOT_REFUSED_FOR_A_SELECTION =
   'T）**（利用者の指示 2026-09-07、逐語「アイコンを押すと必ずその構えに入る」）—— ⛔ **選んでいるものが在ることを理由に、構えを拒んではならない（MUST NOT）'
 
 /**
- * ⭐ THE CLAUSE D-389 / D-402 ARE MEASURED AGAINST (2026-09-08). A palette press
+ * ⭐ THE CLAUSE DFC-389 / DFC-402 ARE MEASURED AGAINST (2026-09-08). A palette press
  * that could not give its shape to the selection still ARMS -- and the telling
  * that goes with it is table T-233's `RS-54`, whose own row forbids `RS-10`.
  * ⚠️ HELD AT 90 -- the 120-character window crosses the paragraph break.
@@ -230,7 +230,7 @@ const MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG =
 // -- Ruling C: the picture a held press owes, and the one press that ends it --
 //
 // ⭐⭐ THE SAME 2026-09-07 INSTRUCTION AS RULINGS A AND B, given in one breath.
-// 利用者の逐語 (docs/development-records/defects.md, D-372): 「アイコンを押すと必ず
+// 利用者の逐語 (docs/development-records/defects.md, DFC-372): 「アイコンを押すと必ず
 // その構えに入り、ドラッグ中は形がポインタに付いて伸び、離すとプロパティパネルが
 // `Name` を出し、`Enter` で閉じて選択が外れ、構えは続き、`Esc` で構えも解けること」.
 // Ruling A is its first clause; the constants below are its second and fourth.
@@ -416,7 +416,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
     expect(wordsOf(RS_54).en.length).toBeGreaterThan(0)
     // ⛔ THE ASSERTIONS OF SECTION 5 WOULD BE VACUOUS if the dictionary gave the
     // two rows the same words: telling `RS-54` and telling `RS-10` would then be
-    // indistinguishable, and D-389 is precisely that they must not be.
+    // indistinguishable, and DFC-389 is precisely that they must not be.
     expect(wordsOf(RS_54).ja).not.toBe(wordsOf(RS_10).ja)
     expect(wordsOf(RS_54).en).not.toBe(wordsOf(RS_10).en)
   })
@@ -1039,17 +1039,17 @@ describe('FR-029 / table T-233: the telling carries RS-53 and not the fallback',
 })
 
 // ===========================================================================
-// 5. D-389 / D-402 -- an armed shape the selection cannot take (RS-54)
+// 5. DFC-389 / DFC-402 -- an armed shape the selection cannot take (RS-54)
 // ===========================================================================
 //
-// ⭐⭐ WHAT THE USER MEASURED (D-389, 2026-09-08). Pressing a shape in the
+// ⭐⭐ WHAT THE USER MEASURED (DFC-389, 2026-09-08). Pressing a shape in the
 // palette answered with `RS-10`'s words, and the next step that row's dictionary
 // entry carries is 「拒まれた変更を取り除いて、もう一度」. ⛔ A palette press
 // holds ONE change, so there is nothing to take out: the reader was handed a
 // step they could not take. Table T-233's `RS-54` row now forbids the pairing in
 // as many words -- 「`RS-10` を当ててはならない（MUST NOT）」.
 //
-// ⭐⭐ WHY THE ROW ALONE DID NOT FIX IT (D-402). `frame-loop.ts` mapped the
+// ⭐⭐ WHY THE ROW ALONE DID NOT FIX IT (DFC-402). `frame-loop.ts` mapped the
 // whole of WS-3's `refused` onto `RS-10` from ONE line, keyed on the reason, and
 // every command's refusal spells that same reason -- so table T-233 could gain
 // `RS-54` and the screen would not move. The branch is what moved it.
@@ -1173,7 +1173,7 @@ describe('table T-023a PTD-4: the held press draws what it would place', () => {
   })
 
   it('⭐⭐ THE RULING: a bar shape held past S-208 stands in the PICTURE', () => {
-    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 D-372 ②). Measured
+    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 DFC-372 ②). Measured
     // 2026-09-08 on the shipped build, 1920x1080: a rectangle armed and empty
     // ground dragged 100px left the schedule's SVG at 67081 bytes for all
     // eleven samples between the press and the release -- 0 bytes of spread --
@@ -1228,7 +1228,7 @@ describe('table T-023a PTD-4: the held press draws what it would place', () => {
   })
 })
 
-describe('table T-023a PTD-4 / 台帳 D-373: the draft is the ARMED shape', () => {
+describe('table T-023a PTD-4 / 台帳 DFC-373: the draft is the ARMED shape', () => {
   const TRAVEL = DRAG_THRESHOLD * 10
 
   it('⭐ a bar shape armed draws table T-012s bar spelling', () => {
@@ -1239,7 +1239,7 @@ describe('table T-023a PTD-4 / 台帳 D-373: the draft is the ARMED shape', () =
     expect(built.picture().layout.placements[0].shapeKind).toBe(RECTANGLE_SPELLING)
   })
 
-  it('⭐⭐ THE DEFECT D-373 IS ABOUT: a milestone armed does NOT draw a bar', () => {
+  it('⭐⭐ THE DEFECT DFC-373 IS ABOUT: a milestone armed does NOT draw a bar', () => {
     // ⛔ 「置こうとしている物と違う形が出る」 is the row's own reason, word for
     // word. A build that drew the bar spelling here would be drawing the thing
     // it is not about to place.
@@ -1288,7 +1288,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
   })
 
   it('⭐⭐ THE RULING: one Enter closes it', () => {
-    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 D-372 ③). Measured
+    // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR (台帳 DFC-372 ③). Measured
     // 2026-09-08 on the shipped build, 1920x1080: a rectangle drawn, a name
     // typed, `Enter` -- the panel was still 279px wide, and a further `Esc` was
     // what closed it. 「2 度押させてはならない（MUST NOT）」.

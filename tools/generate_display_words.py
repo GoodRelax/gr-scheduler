@@ -82,13 +82,13 @@ ASSIGNMENT_TABLE = 'T-023'
 # ⛔ What the pointer is armed with. Table T-023b is the whole count of the
 # arms FR-053's palette can put the pointer in, so an arm with no row here
 # cannot be armed -- and until this section existed the screen printed the
-# row id itself (D-10).
+# row id itself (DFC-10).
 ARM_TABLE = 'T-023b'
 # ⛔ The name a property item shows. Table T-016 carries the COLUMN of the
 # file and no longer a shown name: FR-038 (MUST NOT) keeps every printed
 # word in this dictionary, and until 2026-08-28 the panel drew the column
 # name itself -- which is how `strokeColor` and `fadeInDays` reached the
-# screen (the user's reports D-81 and D-84).
+# screen (the user's reports DFC-81 and DFC-84).
 # ⚠️ ONE WORD PER ROW, NOT PER COLUMN. PR-14 carries two columns and the
 # user asked for one word over both (「1 行で入るように」), so the word is
 # the row's and is never built by joining the columns'.
@@ -98,7 +98,7 @@ PROPERTY_TABLE = 'T-016'
 # NAME, and the paragraph under table T-006a (MUST) holds the surface that
 # prints those settings to the same rule as the one that prints a property:
 # the word on the screen is this dictionary's, and the internal spelling is
-# (MUST NOT) never printed as it is -- which is what it was printing (D-233).
+# (MUST NOT) never printed as it is -- which is what it was printing (DFC-233).
 # ⚠️ ONE WORD PER ROW, NOT PER KEY, the same move PROPERTY_TABLE records.
 # `K-103` names two keys and `K-105` names three, and a word per key would
 # settle names table T-104 has not settled.
@@ -118,7 +118,7 @@ GRAB_AREA_TABLE = 'T-023d'
 SHORTCUT_TABLE = 'T-036'
 # ⛔ The name of a format the export chooser offers. FR-096 (MUST) has the
 # chooser show the format by the word this dictionary holds and forbids the
-# row id on the screen (MUST NOT) -- which is what it was printing (D-118).
+# row id on the screen (MUST NOT) -- which is what it was printing (DFC-118).
 # ⚠️ THE NAME ONLY, NEVER THE EXTENSION. FR-096 (MUST NOT) keeps the
 # extension in table T-024 alone, so it travels from the table and a second
 # copy is never made here.

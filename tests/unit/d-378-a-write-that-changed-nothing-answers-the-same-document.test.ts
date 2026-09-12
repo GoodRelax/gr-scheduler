@@ -1,4 +1,4 @@
-// Unit tests for the rule ledger row D-378 was raised against: an accepted
+// Unit tests for the rule ledger row DFC-378 was raised against: an accepted
 // write that changed no value answers the document it was handed, so that
 // nothing downstream reads it as a change.
 //
@@ -36,7 +36,7 @@
 //
 //   ① the value ALREADY HELD  -> the SAME object comes back.
 //      ⛔ Red on the build being fixed, which answers a new document for every
-//         write. That build is what D-378 measured.
+//         write. That build is what DFC-378 measured.
 //   ② a value that MOVES      -> a DIFFERENT object comes back, holding it.
 //      ⛔ Red on the opposite wrong build -- an arm that answers the document
 //         it was handed whatever it was asked. A fix that stops the trail
@@ -194,7 +194,7 @@ const settings = (document: Document, command: DocumentSettingsCommand) =>
   editDocumentSettings(document, command, LIMITS)
 
 describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when nothing moves', () => {
-  it('CM-1 setProjectTitle -- the row D-378 was measured on', () => {
+  it('CM-1 setProjectTitle -- the row DFC-378 was measured on', () => {
     bothWays(
       project as never,
       { kind: 'setProjectTitle', title: 'Three-Year Product Plan' },
@@ -446,7 +446,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
 
 describe('FR-063 -- what the write path reads off the reference the arms keep', () => {
   it('a no-op CM-1 moves neither hasMovedSchedule nor the schedule instant', () => {
-    // ⭐ THE MEASUREMENT D-378 RECORDED, as a case. The shipped build answered
+    // ⭐ THE MEASUREMENT DFC-378 RECORDED, as a case. The shipped build answered
     // `hasMovedSchedule: true` for this very write, because the arm rebuilt
     // `document.schedule` and `hasMovedScheduleGroup` compares that reference.
     // ⛔ Control: the ② case below must stay true, or an arm that answered the
@@ -472,7 +472,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
   })
 
   it('a no-op on the presentation group leaves the schedule instant alone either way', () => {
-    // ⚠️ `hasMovedSchedule` was already false for this arm before D-378 -- the
+    // ⚠️ `hasMovedSchedule` was already false for this arm before DFC-378 -- the
     // presentation group is not the schedule group -- so what this case adds is
     // the DOCUMENT reference: FR-020's trail is read off that one, not off the
     // schedule's. ⛔ Control: the ② half is the case above it in this file.

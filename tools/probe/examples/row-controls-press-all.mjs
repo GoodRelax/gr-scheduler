@@ -1,7 +1,7 @@
 // Press EVERY entry of the row title panel, one per fresh page, and say which
 // ones did nothing.
 //
-// ⭐⭐ WHAT THIS FOUND (2026-08-30, the ledger's D-142). Six of the thirty-five
+// ⭐⭐ WHAT THIS FOUND (2026-08-30, the ledger's DFC-142). Six of the thirty-five
 // presses moved nothing, and all six were the "open" control -- IC-58 on five
 // rows and IC-74 at the panel's head. ⛔ THE FIRST SUSPICION WAS WRONG: the
 // wiring was not stale. Fold something first and the very same control works.

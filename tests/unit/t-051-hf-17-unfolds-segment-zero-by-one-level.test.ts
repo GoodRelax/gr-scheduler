@@ -36,7 +36,7 @@
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//  1. THE NAME FIELD / RENAME-ROAD HALF OF HF-17 (D-243). tests/unit/
+//  1. THE NAME FIELD / RENAME-ROAD HALF OF HF-17 (DFC-243). tests/unit/
 //     t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts already asks that;
 //     this file's one question is the fold, S-211 alone.
 //  2. HF-14's OWN "open the pressed ancestor" MUST. That is a different fold

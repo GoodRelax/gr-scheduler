@@ -80,8 +80,8 @@
 //   表 T-036 SK-6  「元に戻す」 `Ctrl+Z` -- FR-070 makes the shell accept both,
 //                 and they are the only entrance a test has to a shell that
 //                 publishes no history
-//   表 T-230 RD-1 取り消し: 「履歴 = 問う先が答えたものを据える」「刻印 = 入って
-//                 きたまま」「取り消しの 1 段 = 積まない」 -- which is why an
+//   表 T-230 RD-1 取り消し: 履歴 = 「問う先が答えたものを据える」、刻印 =
+//                 「入ってきたまま」、取り消しの 1 段 = 「積まない」 -- which is why an
 //                 undone document may be compared byte for byte with the one it
 //                 returns to
 //   表 T-034 BT-4 the bundled template FR-027 keeps exactly one of -- the
@@ -597,7 +597,7 @@ describe('FR-031 / S-94 / S-95 -- the bound the REAL shell holds the REAL startu
 
   it('GIVEN S-94 changes written through the real shell WHEN every 段 is undone THEN the document is byte-identical to the one the writes started from', () => {
     // 「直前の編集を取り消し」 all the way back, and RD-1 of table T-230 makes
-    // the comparison a byte-for-byte one: 「刻印 = 入ってきたまま」, so the
+    // the comparison a byte-for-byte one: 刻印 = 「入ってきたまま」, so the
     // document that comes back carries the stamp it left with.
     const { loop } = drive(START, S_94)
     for (let undone = 1; undone <= S_94; undone += 1) loop.receiveInput(SK_6)

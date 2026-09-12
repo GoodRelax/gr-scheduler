@@ -1880,7 +1880,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // than counted. ⚠️ THE REASON IS NO LONGER ONE REASON (measured 2026-09-01,
     // and each of the three was driven through this file's own loop to see it):
     //   IO-3 `.svg` and IO-7 単一 `.html` -- nothing is written and a notice IS
-    //        raised, which is the state D-173 left them in.
+    //        raised, which is the state DFC-173 left them in.
     //   IO-4 `.png` -- nothing is written AND nothing is said. The picture is
     //        drawn by a rasteriser the host supplies, and this file's loop runs
     //        in `node`, where there is none. ⛔ No rasteriser is invented to
@@ -1888,7 +1888,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // ⭐ The case below fails if the roster stops carrying one of them, so this
     // exclusion cannot outlive the state that earns it.
     // ⇒ What each of the three DOES answer a press with is asserted in
-    // `FR-029 / D-173 -- a format that cannot be written says so` below.
+    // `FR-029 / DFC-173 -- a format that cannot be written says so` below.
     const cannotBeWritten = ['IO-3', 'IO-4', 'IO-7']
     for (const id of cannotBeWritten) {
       expect(
@@ -1959,11 +1959,11 @@ describe('FR-096 -- the name the chooser proposes', () => {
     //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
     //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
     //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
-    //   使うこと（MUST）。**」（`FR-096`。D-172）
+    //   使うこと（MUST）。**」（`FR-096`。DFC-172）
     //
     // ⭐ WHY THE PROPOSED NAME IS NOT ENOUGH, AND WHY THIS CASE IS SEPARATE FROM
     // THE TWO ABOVE. Those two read `suggestedFileName` and were green through
-    // the whole of D-172: the name was always right. What was missing was a
+    // the whole of DFC-172: the name was always right. What was missing was a
     // second value beside it, saying WHICH form the file is, so that the host
     // holds the saved name to that form instead of treating the extension as
     // decoration. ⚠️ THE PERSON MAY OVERRULE THE NAME AND MAY NOT OVERRULE THE
@@ -1975,7 +1975,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // row's rather than one row's for all five.
     //
     // ⛔ WHAT WOULD MAKE THIS GO RED: a loop that hands the store a name and
-    // nothing else -- the build D-172 was raised against. ⭐ Demonstrated by
+    // nothing else -- the build DFC-172 was raised against. ⭐ Demonstrated by
     // making this file's stand-in store drop `extension` off every write it
     // records, which is that build seen from IF-3's far side: the case failed
     // with 「expected undefined to be '.json'」 on the first row, and the two
@@ -2012,7 +2012,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 })
 
 // ===========================================================================
-// FR-029 / D-173 -- a format that cannot be written says so
+// FR-029 / DFC-173 -- a format that cannot be written says so
 // ===========================================================================
 //
 // 「**押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の
@@ -2029,7 +2029,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 // answer with silence, and whatever it does answer with is a row of 表 T-233
 // told in the words FR-038's dictionary holds for it (表 T-233 の結び, MUST /
 // MUST NOT).
-describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
+describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
   /**
    * Press one format on the export chooser and answer with what happened.
    *
@@ -2052,7 +2052,7 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
   }
 
   it('a press on an offered format either writes or says why -- never neither', async () => {
-    // ⭐ THE WHOLE OF D-173 SAID AS ONE RULE. 「⛔⛔ **書き出しの 5 形式のうち 3
+    // ⭐ THE WHOLE OF DFC-173 SAID AS ONE RULE. 「⛔⛔ **書き出しの 5 形式のうち 3
     //   つは、押しても何も保存されない** …… **ファイルも通知も 0 件で戻る。**」
     // ⚠️ 「**選択面には 5 つとも並んでおり、押せる** —— 「効かない入口」ではなく
     //   「効いたように見えて何も起きない入口」である。」 FR-029's RATIONALE names
@@ -2069,7 +2069,7 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
     //
     // ⛔⛔ AND IT IS RED TODAY, ON `IO-4` ALONE (measured 2026-09-01). `.svg`
     // and 単一 `.html` now answer a press with a notice; `.png` writes nothing
-    // and says nothing. ⚠️ D-173's own record says the picture itself works --
+    // and says nothing. ⚠️ DFC-173's own record says the picture itself works --
     // 「⭐ **同日のうちに `.png` が配線され、実測で 256,367 バイトの本物の PNG が
     // 書き出せている**」 -- so what is red is the case where the host supplies no
     // rasteriser, which is this file's `node` and is also any host that has
@@ -2077,13 +2077,13 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
     // the row for it -- RS-3 「書き込みを試みたが、この環境では行えなかった」,
     // whose 正 is LM-14 of 表 T-004 -- so nothing has to be invented to say it,
     // and narrowing the walk to the rows that happen to pass would put the hole
-    // back where D-173 found it.
+    // back where DFC-173 found it.
     for (const rowId of fileBearingOutDirectionRows()) {
       const { written, view } = await press(rowId)
       expect(
         `${written} written, ${view.notices.length} told`,
         `FR-029 (MUST): table T-024 row ${rowId} is offered on the ${EXPORT_CHOOSER}, and ` +
-          'pressing it wrote nothing and said nothing -- which is the outcome D-173 names',
+          'pressing it wrote nothing and said nothing -- which is the outcome DFC-173 names',
       ).not.toBe('0 written, 0 told')
     }
   })
@@ -2153,9 +2153,9 @@ describe('FR-029 / D-173 -- a format that cannot be written says so', () => {
 // `RS-15` である**」 -- so `RS-15` is the landing place for a reason the table
 // has NO row for, and a reason the table now HOLDS a row for may not land there.
 //
-// ⚠️ THE DEFECT THESE CASES ANSWER TO IS D-186. Measured on the shipped build of
+// ⚠️ THE DEFECT THESE CASES ANSWER TO IS DFC-186. Measured on the shipped build of
 // 2026-09-02, before this: choosing `.svg` or 単一 `.html` on the export chooser
-// told 「操作を終えられませんでした」 with 「もう一度行ってください。続くときは、
+// told, as DFC-186 records, 「操作を終えられませんでした」 with 「もう一度行ってください。続くときは、
 // 直前の操作を控えてください」 -- `RS-15`'s words, whose next step cannot be
 // taken, since pressing the same format again writes nothing again.
 //
@@ -2692,7 +2692,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
 // pictures say WHY when they cannot be
 // ===========================================================================
 //
-// ⛔⛔ THE DEFECT THESE CASES ANSWER TO IS D-173. Measured on the shipped build
+// ⛔⛔ THE DEFECT THESE CASES ANSWER TO IS DFC-173. Measured on the shipped build
 // of 2026-09-01: `.html`, `.svg` and `.png` were all offered on FR-096's
 // chooser, and pressing any of them wrote no file and said nothing. FR-096
 // (MUST) has GRS 「選ばれた形式の規約に従って書き出すこと」 for every row of
@@ -2781,7 +2781,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
   const textOf = (write: ChosenFileWrite | undefined): string =>
     write === undefined ? '' : new TextDecoder().decode(write.bytes)
 
-  it('⭐ IO-3 writes the picture PI-21 assembled (D-173: it wrote nothing)', async () => {
+  it('⭐ IO-3 writes the picture PI-21 assembled (DFC-173: it wrote nothing)', async () => {
     // FR-096 (MUST): 「選ばれた形式の規約に従って書き出すこと」, and IO-3's
     // convention is an SVG document. WY-2 of table T-041 makes it the same
     // drawing IO-4 is painted from, which is why the root is the export's.
@@ -2869,7 +2869,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
       // OUT FROM UNDER IT A SECOND TIME. CR-340 had given this one situation a
       // seat of its own; CR-347 §2.7 (利用者の裁定 2026-09-03 「html の読み戻し
       // は不要。ユーザーは .html をダブルクリックして開けばよい」, ledger row
-      // D-202) took that seat away again, and 表 T-233 no longer holds `RS-45`
+      // DFC-202) took that seat away again, and 表 T-233 no longer holds `RS-45`
       // -- nor does FR-038's dictionary, which is why naming it here threw.
       //
       // ⛔ WHAT REMAINS TRUE IS THE CLOSING OF 表 T-037, VERBATIM:
@@ -2941,7 +2941,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
 
 // ===========================================================================
 // FR-025 -- a picture too tall to draw is refused with `RS-43`, and the roads
-// that are not pictures still write (ledger row D-220)
+// that are not pictures still write (ledger row DFC-220)
 // ===========================================================================
 //
 // ⛔ WHAT WAS UNCOVERED. The block above maps `RasterFaultReason` -- what the
@@ -3148,7 +3148,7 @@ describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-
     // ⭐ THE HALF THAT COSTS MOST: a plan too tall to picture must still be
     // saveable and still be handed on, or the ceiling takes the document with it.
     // GOES RED IF: the refusal is raised for the whole chooser rather than for
-    // the picture rows -- which is the shape of D-173's defect turned inside out.
+    // the picture rows -- which is the shape of DFC-173's defect turned inside out.
     const rs43 = wordsFor('RS-43')
 
     for (const rowId of ['IO-2', 'IO-1', 'IO-7']) {

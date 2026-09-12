@@ -1013,7 +1013,7 @@ function propertyControlsStyle(): string {
  * rather than assumed: at S-171, with S-189 and S-190 taking their share and at
  * the base a host gives by default, each of PR-3's two controls ALREADY has more
  * room than FR-093 estimates for a date -- and the user still reports the dates
- * cut off (D-58 of docs/development-records/defects.md). ⚠️ At a base a reader
+ * cut off (DFC-58 of docs/development-records/defects.md). ⚠️ At a base a reader
  * has enlarged, the same arithmetic turns the other way and the estimate is the
  * larger of the two, so FR-093 is part of the answer and not the whole of it.
  * What is missing is a row for the room a control's own frame and the host's own
@@ -2773,7 +2773,7 @@ function fillScreenFrame(
     track.setAttribute(SCROLLBAR_AXIS_ATTRIBUTE, bar.axis)
     // GR-21 of table T-023d -- the grip, which SC-4 keeps drawn even when
     // everything fits.
-    // ⛔ PLACED AGAINST THE LANE AND NOT AGAINST THE WINDOW (D-368). The lane is
+    // ⛔ PLACED AGAINST THE LANE AND NOT AGAINST THE WINDOW (DFC-368). The lane is
     // `position:absolute`, so it IS the grip's containing block whatever the
     // grip's own numbers say; `boxStyleWithin` carries the measurement that
     // proved a window-numbered grip lands at twice the lane's corner.
@@ -4735,7 +4735,7 @@ function fieldElement(
   for (const control of field.controls) {
     // ⛔ NO SWATCH IN FRONT OF A COLOUR CONTROL. FR-006 (MUST NOT) forbids the
     // current value to be drawn over the front of the control that shows that
-    // value (the user's report of 2026-08-27, D-82) -- the host's colour control
+    // value (the user's report of 2026-08-27, DFC-82) -- the host's colour control
     // paints the colour it holds, so a span in front of it drew the same colour
     // twice.
     // ⚠️ S-188 has NOT moved and is not retired: that row holds a swatch's side
@@ -4802,7 +4802,7 @@ function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): 
  * FR-006, FR-029, FR-072, table T-109, table T-103 and the S-186 .. S-198 run of
  * table T-206, which gives the panel's fields their lengths and gives its header
  * none. ⭐ What is followed instead is the user's own instruction of 2026-08-27,
- * recorded as D-57 in docs/development-records/defects.md: bring the way out
+ * recorded as DFC-57 in docs/development-records/defects.md: bring the way out
  * onto the line the first item is on. So the entry stands at the far end of the
  * FIRST field's line, which is table T-016's first printed row.
  * ⚠️ With no field to ride on it stands alone, because a surface a reader
@@ -4880,7 +4880,7 @@ function fillPropertiesPanel(
  *     words -- 「掴み帯の右端に ... `IC-53` を置き」. ⚠️ It was centred until
  *     2026-09-02, on the reading that no row said where in the band it stood;
  *     CR-273 wrote that row on 2026-08-28 and this side had not caught up
- *     (ledger D-68). ⛔ HOW FAR IN FROM THE EDGE IS STILL UNSTATED, and nothing
+ *     (ledger DFC-68). ⛔ HOW FAR IN FROM THE EDGE IS STILL UNSTATED, and nothing
  *     is written for it: `STYLE.paletteGrabBand` records where that was
  *     searched for.
  *   - THE CURSOR (`STYLE.paletteGrabBand`), which is the environment's own way
@@ -5158,7 +5158,7 @@ function modalElement(
       ('entries' in modal ? helpStyle() : '') +
       // U-62 is laid out as a column so that its one entrance stays reachable
       // however long the list is -- `STYLE.importReportBox` says why, and the
-      // measurement behind it is the confirmation's own (D-134).
+      // measurement behind it is the confirmation's own (DFC-134).
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
@@ -5315,7 +5315,7 @@ function modalElement(
       choice.setAttribute('data-format', format.row)
       // FR-096 (MUST): the format is shown by the word the description brought,
       // with the extension table T-024 gives it. ⛔ THE ROW ID IS NOT DRAWN
-      // (MUST NOT) -- printing it is what the user reported as D-118 -- and it
+      // (MUST NOT) -- printing it is what the user reported as DFC-118 -- and it
       // stays on `data-format`, which is where a press reads it back from.
       const shown = `${format.name} ${format.extension}`
       choice.setAttribute('aria-label', shown)
@@ -5579,7 +5579,7 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
     lines.push(line)
   }
   // ⛔⛔ THE LIST SCROLLS AND THE ENTRANCE DOES NOT (the confirmation's own
-  // measurement, D-134): a way out pushed off the bottom by a long list is no
+  // measurement, DFC-134): a way out pushed off the bottom by a long list is no
   // way out, and U-62 has exactly one -- 「入口は `OK` の 1 つだけである」.
   const names = made(host, 'div', STYLE.confirmationNames)
   names.replaceChildren(...lines)
@@ -5844,7 +5844,7 @@ function confirmationElement(host: Document, confirmation: Confirmation): HTMLEl
     answers.append(confirmationAnswerElement(host, answer))
   }
 
-  // ⛔⛔ THE WORDS AND THE NAMES SCROLL; THE TWO ANSWERS DO NOT (D-134). NT-7
+  // ⛔⛔ THE WORDS AND THE NAMES SCROLL; THE TWO ANSWERS DO NOT (DFC-134). NT-7
   // (MUST) has the person choose between going on and calling it off, and a
   // choice that has been pushed off the bottom of the screen is no choice --
   // measured on the shipped build 2026-08-30: deleting one row named 9,341
@@ -6474,7 +6474,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * who "fixed" the code to agree with the old sentence would break S-138.
    * ⭐ Found 2026-09-06 by check 42, which holds every 「…」 in a comment against
    * the manuscripts. This is the second time a paraphrase quoted as a citation
-   * hid something: the first kept D-318 open.
+   * hid something: the first kept DFC-318 open.
    * ⚠️ MEASURABLE EVEN WHILE THE CONTROLS ARE NOT SHOWN. HF-6 draws them 「その
    * 行の名前にポインタが乗っているあいだだけ」 and `ROW_CONTROL_SHOWN_CSS` does
    * that with `visibility`, which leaves the boxes laid out -- so the answer
@@ -6734,7 +6734,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
      * What was actually PUT ON THE SCREEN this frame, which is what the next
      * frame compares against.
      *
-     * ⛔⛔ NOT `keys`, AND THE DIFFERENCE IS A DEFECT THAT WAS MEASURED (D-133).
+     * ⛔⛔ NOT `keys`, AND THE DIFFERENCE IS A DEFECT THAT WAS MEASURED (DFC-133).
      * One part -- the `Properties Panel` -- may decline to redraw on a frame
      * whose description DID change, because a control of it is held and a
      * rebuild would take the characters and the caret with it. Recording the
@@ -6806,7 +6806,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // places everything below the header against this measurement, and the
       // band the person is typing in is the band that is on the screen.
       if (documentTitleEntry !== null) {
-        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
+        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (DFC-133).
         // See `drawnKeys`: recording it is what left the panel showing a reading
         // the document no longer held, for good.
         drawnKeys.appHeaderItems = lastKeys.appHeaderItems ?? ''
@@ -6908,7 +6908,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // map, and a frame that leaves the drawn header alone would then have
       // thrown away the anchor of an entry still on the screen.
       if (isFieldHeld) {
-        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (D-133).
+        // ⛔ THE DESCRIPTION THAT WAS NOT DRAWN IS NOT RECORDED AS DRAWN (DFC-133).
         // See `drawnKeys`: putting `keys` here is what left the panel showing a
         // reading the document no longer held, for good.
         drawnKeys.propertiesPanel = lastKeys.propertiesPanel ?? ''
@@ -7256,7 +7256,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * panel came away on the same press, because the shell read `false` from a
    * flag this listener had just cleared.
    * ⛔ IT DOES NOT OUTLIVE THE PRESS. `releaseTakenBackText` lets the control
-   * go as soon as the press has been reckoned -- see its own note, and D-267
+   * go as soon as the press has been reckoned -- see its own note, and DFC-267
    * for what an answer that outlived the press cost.
    *
    * ⛔ `Enter` DOES NOT USE THIS FLAG, AND MUST NOT BE FOLDED INTO IT. That key
@@ -7268,7 +7268,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * Let a cancelled control go, once the press that cancelled it has been
    * reckoned.
    *
-   * ⛔⛔ THIS IS D-267, AND THE TWO HALVES PULL OPPOSITE WAYS. IF-9 answers
+   * ⛔⛔ THIS IS DFC-267, AND THE TWO HALVES PULL OPPOSITE WAYS. IF-9 answers
    * 「入力中か」 with ONE truth value (利用者の裁定 2026-08-27) and three rules
    * read it: IN-4's first rung, IN-5a's swallowing of single-character keys,
    * and WS-2 of table T-067 taking AG-9 of table T-035. IN-4 needs the answer
@@ -7294,7 +7294,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * levels for one press IN-4 forbids (1 階層, MUST).
    *
    * ⛔ NOT `isHeldTextTakenBack` LEFT STANDING WITH THE FIELD FOCUSED EITHER.
-   * That was tried and the ledger's D-152 records what it cost: with the caret
+   * That was tried and the ledger's DFC-152 records what it cost: with the caret
    * still in a field and this answer `false`, typing `p` opens the Command
    * Palette.
    *
@@ -7357,7 +7357,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * cleared here is the value the shell reads, and the ladder then took the
    * `Properties Panel` away on the very press that cancelled the edit -- two
    * levels for one press, which IN-4 forbids (1 階層, MUST).
-   * ⛔⛔ IT IS LET GO ONE TURN LATER, AND THAT IS D-267. Kept past the press,
+   * ⛔⛔ IT IS LET GO ONE TURN LATER, AND THAT IS DFC-267. Kept past the press,
    * this side went on answering 「入力中」 to WS-2 of table T-067 as well, so
    * `Ctrl+Z` after a cancelled edit was refused with RS-8 -- 「1 回だけ押した人
    * は、そのあと取り消しが効かない文書を持つことになる」.
@@ -7667,7 +7667,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /**
    * Whether an `Esc` has already taken the characters back and nothing has been
    * typed since -- the same flag, and the same one-turn dance, that
-   * `isHeldTextTakenBack` keeps for the panel's own control (D-267).
+   * `isHeldTextTakenBack` keeps for the panel's own control (DFC-267).
    */
   let isDocumentTitleTakenBack = false
 
@@ -7898,7 +7898,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     })
     field.addEventListener('focusout', () => {
       if (!isStanding()) return
-      // ⛔ THE FIELD MAY NOT OUTLIVE THE FOCUS, AND D-152 / D-267 ARE WHY.
+      // ⛔ THE FIELD MAY NOT OUTLIVE THE FOCUS, AND DFC-152 / DFC-267 ARE WHY.
       // `hasUnsettledTextEntry` answers 「入力中」 from this field standing, and
       // one left standing with the caret gone would go on answering `true`:
       // IN-5a would swallow every single-character key with nowhere to put it,
@@ -7925,7 +7925,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // host raises `change` on the way out only where the value differs from
       // the one the field was focused with, so a restored value raises none.
       // ⛔ THE FIELD IS NOT TAKEN DOWN ON THIS PRESS, and that is measured rather
-      // than preferred (D-267): this listener runs BEFORE the shell's, so a
+      // than preferred (DFC-267): this listener runs BEFORE the shell's, so a
       // field let go here would have the ladder take a second level on the one
       // press -- IN-4 forbids it (1 階層, MUST).
       entry.value = documentTitleValueAtFocus
@@ -8107,10 +8107,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // reads, and the ladder would take the SURFACE away on the very press that
     // cleared the field -- two levels for one press, which IN-4 forbids
     // (1 階層, MUST).
-    // ⛔⛔ THE CONTROL IS NOT LET GO FROM INSIDE THIS LISTENER EITHER, ON D-267'S
+    // ⛔⛔ THE CONTROL IS NOT LET GO FROM INSIDE THIS LISTENER EITHER, ON DFC-267'S
     // TERMS: kept held past the press, `isWatermarkUnlockHeld` still answered
     // 「入力中」 to `hasUnsettledTextEntry` after the `Esc` that cancelled it, so
-    // one press did not release it (`D-319`) -- the same cost D-267 measured
+    // one press did not release it (`DFC-319`) -- the same cost DFC-267 measured
     // for `isHeldTextTakenBack` left standing. `releaseTakenBackWatermarkUnlock`
     // below holds both halves; its own note carries the reasoning, and it is not
     // queued with `Promise.resolve().then` for the same measured reason
@@ -8137,8 +8137,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
     /**
      * Where the cancelled watermark unlock field is let go, on the release of
-     * the same `Esc` that cancelled it -- `D-319`, fixed on the same terms as
-     * `releaseTakenBackText` (D-267) keeps for the panel's own control.
+     * the same `Esc` that cancelled it -- `DFC-319`, fixed on the same terms as
+     * `releaseTakenBackText` (DFC-267) keeps for the panel's own control.
      *
      * @purity non-pure
      */
@@ -8152,8 +8152,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   /**
    * Let a cancelled watermark unlock field go, once the press that cancelled
-   * it has been reckoned -- `D-319`, shaped after `releaseTakenBackText`
-   * (D-267): the control has to keep answering 「入力中」 for the length of the
+   * it has been reckoned -- `DFC-319`, shaped after `releaseTakenBackText`
+   * (DFC-267): the control has to keep answering 「入力中」 for the length of the
    * cancelling press (IN-4, 1 階層, MUST) and stop answering it the moment the
    * edit is gone (WS-2 of table T-067), and the release moves in time between
    * the two rather than splitting `isWatermarkUnlockHeld` into a second flag.

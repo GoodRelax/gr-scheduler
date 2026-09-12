@@ -20,7 +20,7 @@
 // others. Its row of table T-075 names FR-051, FR-052 and FR-071, and the
 // signature published here is the one the "nine unit contracts" section of
 // screen-renderer.ts fixes.
-// ⚠️ IT IS FOUR ARGUMENTS SINCE D-298 (2026-09-08), and only `scrollExtent` is
+// ⚠️ IT IS FOUR ARGUMENTS SINCE DFC-298 (2026-09-08), and only `scrollExtent` is
 // read off the fourth: GR-21 of table T-023d sizes the scrollbar grip as a
 // fraction of an extent that is ScheduleLayout's, and this component has no edge
 // to reach it by. ⛔ Nothing else on `ScreenSession` is touched here -- the
@@ -52,9 +52,9 @@
 // ⛔ ONE STOP NOTE IS LEFT BELOW, and it says what is open: which side of the
 // gap the lane sits on. ⭐ Nothing of the divider is open any more -- the BAND
 // was closed when table T-206 gained S-134, and the LINE'S THICKNESS by EP-9 of
-// table T-076 on 2026-09-07 (D-363), which is read from
+// table T-076 on 2026-09-07 (DFC-363), which is read from
 // `GROUP_GRID_LINE_WIDTH_PX` where the divider is built.
-// ⭐⭐ AND GR-21 IS CLOSED WHOLE (D-298, 2026-09-08). Its LENGTH is 「見えている
+// ⭐⭐ AND GR-21 IS CLOSED WHOLE (DFC-298, 2026-09-08). Its LENGTH is 「見えている
 // 範囲 ÷ 全体」 and its START is where that range stands in the same whole; both
 // halves are the row's own arithmetic, and the three numbers they need travel on
 // `ScreenSession.scrollExtent`. ⚠️ The STOP that stood here for the start was
@@ -67,7 +67,7 @@ import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-// ⭐ D-363: EP-9's one place for the rule's thickness. The import lands on the
+// ⭐ DFC-363: EP-9's one place for the rule's thickness. The import lands on the
 // public entry of the component that draws `Group Grid Lines` (LR-2), and adds
 // no cycle -- SvgRenderer imports no other adapter.
 import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
@@ -97,7 +97,7 @@ import type {
  * without asking the `Row Area` for any of it.
  *
  * ⭐⭐ THE LINE'S THICKNESS IS SETTLED, AND THE STOP THAT STOOD HERE IS GONE
- * (D-363). What it said -- that no clause sizes the line, so zero was chosen --
+ * (DFC-363). What it said -- that no clause sizes the line, so zero was chosen --
  * was measured true on the screen AND in the export: nothing was drawn at all.
  * EP-9 of table T-076 now says 「同じ線とは太さも同じであるということである
  * （MUST）」 and ⛔ 「太さを 0 で描いてはならない（MUST NOT）」, and it says where
@@ -140,7 +140,7 @@ function dividerAt(
 /**
  * One lane and its grip.
  *
- * ⭐⭐ THE GRAB IS OPEN, AND SO IS THE LENGTH (D-298 closed on 2026-09-08).
+ * ⭐⭐ THE GRAB IS OPEN, AND SO IS THE LENGTH (DFC-298 closed on 2026-09-08).
  * `ScreenPart.scrollbarAxis` reports a press on a lane and
  * `input-command-translator.ts` turns a drag on it into FR-051's change of the
  * display position -- measured on the shipped build, a 100px drag on each lane
@@ -174,7 +174,7 @@ function dividerAt(
  * twice rather than being imported.
  *
  * ⭐⭐ AND THE START IS GR-21's TOO, WHICH IS THE HALF THE STOP HERE USED TO
- * HOLD (D-298, closed 2026-09-08). That row calls the grip 「帯の中の、いま見え
+ * HOLD (DFC-298, closed 2026-09-08). That row calls the grip 「帯の中の、いま見え
  * ている範囲を表す区間」, and a 区間 has a start as well as a length -- so the
  * same 「見えている範囲 ÷ 全体」 that fixes the length fixes where the interval
  * begins, measured with the SAME denominator. ⛔ What was missing was never the

@@ -1,4 +1,4 @@
-// The first frame the shipped build lets a person see -- ledger row D-230 of
+// The first frame the shipped build lets a person see -- ledger row DFC-230 of
 // `docs/development-records/defects.md`.
 //
 // ⭐ WHAT IS ASSERTED, IN ONE LINE: on a cold page, the FIRST tree that can be
@@ -77,7 +77,7 @@
 // states that this holds; marking it expected-to-fail would make the suite
 // assert that the product is broken. While the row is open the case is red, and
 // red is the correct report. `tests/system/open-defect-pins.test.ts` carries
-// D-230 on its ledger gate, so the day the row leaves the ledger that gate says
+// DFC-230 on its ledger gate, so the day the row leaves the ledger that gate says
 // so.
 //
 // ⭐ WHAT WOULD MAKE IT GO RED: any frame drawn before the App Header's height
@@ -251,7 +251,7 @@ test.afterAll(async () => {
 // settled -- `BO-1` of table T-077 (MUST NOT), quoted at the head of this file.
 // The first tree a person could have seen is then not the tree the run settles
 // on, and both are printed.
-test('D-230: the first tree the shipped build draws is the tree it settles on', async () => {
+test('DFC-230: the first tree the shipped build draws is the tree it settles on', async () => {
   test.setTimeout(300_000)
   if (browser === null) throw new Error('the reference browser was not opened')
   // ⛔ THE FIRST PAGE OF THIS BROWSER PROCESS, and the ledger row says that is

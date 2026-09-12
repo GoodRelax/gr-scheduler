@@ -42,7 +42,7 @@ const layerOf = (component: string): string => {
  * 表 T-064 が持つ」. `UF-41` and `UF-51` are 「`semi-pure-b` ／ `non-pure`」, and
  * the same section settles that this is no violation: 「`semi-pure-b` と
  * `non-pure` が同じユニットに載ることは `R7.9` に反しない」. Reading the first
- * span alone asked for half of what those two rows state (`D-351`).
+ * span alone asked for half of what those two rows state (`DFC-351`).
  */
 const puritiesOf = (row: (typeof T075.rows)[number]): readonly string[] => {
   const stated = bareAll(row.by['純粋性'] ?? '')

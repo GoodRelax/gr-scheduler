@@ -606,7 +606,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // says it in as many words -- 「拒まれた書き込みや、何も変えなかった書き込みでは
   // 打ち直さない」 -- and until 2026-09-08 this line advanced it for every
   // accepted write, which made the watermark move on a press that changed no
-  // value (ledger D-378; measured on the shipped build, 8 seconds forward for
+  // value (ledger DFC-378; measured on the shipped build, 8 seconds forward for
   // writing the title the document already held).
   // ⭐ THE TEST IS IDENTITY AND NOT A VALUE COMPARISON, and that is what makes it
   // affordable here: every arm of `edit-document/` now answers the document it

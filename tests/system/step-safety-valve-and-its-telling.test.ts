@@ -6,7 +6,7 @@
 // nothing thrown, nothing squeezed or dropped) and
 // `tests/unit/d-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts`
 // asks the shell's half over hand-wired seams. ⛔ NEITHER OF THEM OPENS THE
-// APPLICATION. The ledger rows D-270, D-271 and D-345 each close with 「押して
+// APPLICATION. The ledger rows DFC-270, DFC-271 and DFC-345 each close with 「押して
 // いない」, and rule 04 section 3 of `docs/development-rules/` says in as many
 // words that a green test is not a working application. ⇒ What is new here is
 // the MEASUREMENT: `dist/index.html` over `file://`, driven through the entrances

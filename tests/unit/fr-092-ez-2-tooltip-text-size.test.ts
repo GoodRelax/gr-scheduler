@@ -14,7 +14,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-106: 「Tips のフォントが大きい」（利用者の
+// `docs/development-records/defects.md` DFC-106: 「Tips のフォントが大きい」（利用者の
 // 指摘 2026-08-29）. The user's ruling of the same day settled what 「2 段階」 meant
 // -- 「仮に 16pt なら 14pt ぐらいに小さくしろ」 -- CR-282 turned that into `S-204`
 // (0.875 = 14 / 16) and hung it on the tooltip, and the row has stood at
@@ -70,7 +70,7 @@
 //      that produced `S-204` is a RATIO against the host's own base, which is
 //      what the cases below drive; 「2 段階」 names no other part of the screen.
 //   4. THE WAIT BEFORE IT APPEARS. `S-124` holds it (「⚠️ `S-124` は 3000ms なの
-//      で、2.5 秒しか待たない測り方では 1 度も出なかった」, D-106's own note), and
+//      で、2.5 秒しか待たない測り方では 1 度も出なかった」, DFC-106's own note), and
 //      that is a rule about UF-69, which decides WHETHER a tooltip stands.
 
 import { readFileSync } from 'node:fs'
@@ -401,7 +401,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⛔ S-204 is the tooltip’s own ratio, and not the help’s', () => {
     // ⚠️ TWO RATIOS ARRIVED IN THE SAME CHANGE REQUEST (CR-282) FOR TWO
-    // SURFACES, and the ledger's D-106 closes with 「⭐ `D-105` と同じ面の話では
+    // SURFACES, and the ledger's DFC-106 closes with 「⭐ `DFC-105` と同じ面の話では
     // ない（あちらはヘルプ、こちらはツールチップ）」. A unit that applied one to
     // both would be wrong on one surface, and these cases could not see it if
     // the two numbers were equal.
@@ -410,7 +410,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 // ===========================================================================
-// D-106 -- the size nobody asked for
+// DFC-106 -- the size nobody asked for
 // ===========================================================================
 
 describe('EZ-2 (MUST) -- the tooltip’s text is S-204 of the base the host gives', () => {
@@ -420,7 +420,7 @@ describe('EZ-2 (MUST) -- the tooltip’s text is S-204 of the base the host give
     // it -- so the only way a tooltip can satisfy this at every base is to
     // state a ratio and let the browser do the multiplying.
     // GOES RED IF: the tooltip is drawn at the host's own size, or at any other
-    // ratio of it -- which is the defect D-106 names.
+    // ratio of it -- which is the defect DFC-106 names.
     //
     // ⚠️ EVERY NODE THAT DRAWS WORDS IS ASKED, and no box is asked by name: no
     // row of the specification says which node of a tooltip states the size,
@@ -478,7 +478,7 @@ describe('EZ-2 (MUST) -- the tooltip’s text is S-204 of the base the host give
 
   it('⛔ MUST NOT: 「2 段階」 is not a step of table T-215', () => {
     // ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言で「フォントサイズ
-    //   のことだ」と述べている」（`S-204`'s own note）. ⭐ D-106 records that the
+    //   のことだ」と述べている」（`S-204`'s own note）. ⭐ DFC-106 records that the
     // question was open before the ruling: 「表 T-215 の `fontScaleSizes` の段か、
     // `S-197` のような係数か。問う前に測ること」 -- and the ruling chose the ratio.
     // ⭐ The base below is deliberately none of table T-215's own numbers, so a

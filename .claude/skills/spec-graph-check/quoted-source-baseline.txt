@@ -1,4 +1,23 @@
-412
+411
+#
+# LOWERED 412 -> 411 ON 2026-09-13, by the CR that abolished `D-` and `R-`.
+# ⛔ NOT A TIDY-UP, AND NOT A CONSEQUENCE OF THE RENAME EITHER. The rename
+# exposed an over-broad exemption: `OTHER_BOOKS` listed `D-\d+` with no
+# lookbehind, so it matched the TAIL of every id ending in `D-<digits>` --
+# `RD-1` and `RD-2` of 表 T-230 among them. Six quotations beside those two
+# rows had been excused by that accident, never by a citation, and under them
+# were two rows' CELLS welded into one quotation with the column heading
+# inside the 「」. A seventh, in uf-47-48-choosers, quoted the display
+# dictionary -- which is not in the haystack -- and was green only because
+# `D-186` sat at EXACTLY the 120-character attribution boundary; `DFC-186`
+# needs 122.
+# ⭐ All seven were CORRECTED, not excused: every 「」 still holds a verbatim
+# cell, the headings moved outside the quotation, and the dictionary
+# quotation got its attribution beside it. 419 -> 411.
+# ⚠️ The 412 it replaces had been carrying an unknown number of accidentally
+# excused quotations for as long as `D-\d+` was in that regex. These six are
+# the ones that surfaced; a sweep for other `...D-<digits>`-tailed row ids in
+# src/ and tests/ would say whether more are hiding.
 #
 # LOWERED 435 -> 412 ON 2026-09-12, stage 2 section 1: three bodies, one
 # section each of the three largest files (frame-loop, input-command-
@@ -30,7 +49,7 @@
 # 1A -10, 1B -19, 1C -3 = -32, which reconciles exactly with 467 -> 435.
 # ⚠️ Bodies that skip that step will each claim the whole drop.
 # ⭐⭐ FIVE OF THE FOLDED QUOTATIONS WERE FABRICATIONS, not normalization
-# misses -- a paraphrase hardened into a citation, the D-339 pattern still
+# misses -- a paraphrase hardened into a citation, the DFC-339 pattern still
 # running. Three sat in properties-panel.ts: FR-006's 「対象は 表 T-016 の
 # `対象` の欄が持つ。」 had 「`Task` か `TaskGroup` のいずれかである」 appended
 # INSIDE the quote marks -- and the very next line of the manuscript reads
@@ -41,7 +60,7 @@
 # it is LF-1's own wording WITHDRAWN on 2026-09-04.
 #
 #
-# LOWERED 469 -> 467 ON 2026-09-12, mending D-483 / D-484 / D-486. All three
+# LOWERED 469 -> 467 ON 2026-09-12, mending DFC-483 / DFC-484 / DFC-486. All three
 # were comments arguing from a sentence the manuscript had WITHDRAWN -- FR-001
 # on 2026-09-02, HF-11 on 2026-08-31, FR-038 on 2026-09-04 -- and this check
 # saw none of them. ⛔ IT CANNOT: a withdrawal record keeps the retired words
@@ -67,8 +86,8 @@
 # deletions the moment the count reached 470 or 471, never letting it stand.
 # ⛔ SO THE TWO OF SLACK GUARDED NOTHING. It was the remainder of the
 # 2026-09-10 lowering, and in one day it would have let two false citations
-# through: the count rose four times on 2026-09-11 (repairing D-451, folding
-# D-466, and twice inside bodies), and one of those was 471 exactly -- green
+# through: the count rose four times on 2026-09-11 (repairing DFC-451, folding
+# DFC-466, and twice inside bodies), and one of those was 471 exactly -- green
 # under the old baseline, caught only because the entry measurement was taken.
 # ⚠️ THE POPULATION IS WHY THIS MATTERS. Measured the same day: comments in
 # src/ and tests/ carry 6,716 quotations of ten characters or more containing
@@ -77,7 +96,7 @@
 # phase 2 (05-07-design.md, 78,428 characters) and the tests/ pass will move
 # this check dozens of times.
 # ⛔ WHEN A LEGITIMATE DELETION CANNOT AVOID RAISING IT, send the sentence to
-# the tests/ pass instead of raising the baseline -- the same handling D-456
+# the tests/ pass instead of raising the baseline -- the same handling DFC-456
 # was ruled into on the same day.
 # ⭐ THE FLOOR IS STILL NOT ZERO, for the reason the 2026-09-08 entries give:
 # a comment may honestly quote something that is not the specification.
@@ -109,10 +128,10 @@
 #      K-29 together as one 実部 / 空部 sentence; a sentence made out of two
 #      rows is in neither of them.
 # ⚠️ AND ONE THAT IS NOT A SPEC QUOTATION AT ALL. `nfr-002-003` quotes ledger
-# row D-356, which itself quotes 「`FR-029` を押せなかった」 -- the nested
+# row DFC-356, which itself quotes 「`FR-029` を押せなかった」 -- the nested
 # quotation had drifted more than the 120 characters this check looks back for
 # an attribution, so it read as a citation of docs/spec. The words are the
-# ledger's; the fix was to put `D-356` next to them again.
+# ledger's; the fix was to put `DFC-356` next to them again.
 # ⛔ THE BEHAVIOUR WAS NOT CHANGED, AND NEITHER WAS docs/. Comment lines only:
 # `git diff` shows no changed line that is not a comment, and vitest ran 7434
 # passed / 1 skipped either side.
@@ -152,7 +171,7 @@
 # ⭐ Five copies deliberately REMAIN, every one of them quoted in order to
 # deny it -- and those five is why this lands at 493 and not lower.
 # ⭐ THE BEHAVIOUR WAS STILL NOT CHANGED TO MATCH ANY COMMENT. What did
-# change is D-385, and it changed the other way: the pressing side now
+# change is DFC-385, and it changed the other way: the pressing side now
 # reads what the drawing side reads, which is HF-13's own MUST.
 #
 # LOWERED 502 -> 501 ON 2026-09-08 by repairing a FABRICATED CITATION that was
@@ -164,6 +183,6 @@
 # entry says the same; neither mentions being unfolded, so the danger the
 # comment described does not exist and the reasoning was void.
 # ⭐ THE BEHAVIOUR WAS NOT CHANGED TO MATCH THE COMMENT. Whether a folded
-# childless row should still arm that entrance is now ledger row D-385, to be
+# childless row should still arm that entrance is now ledger row DFC-385, to be
 # settled from HF-13's own row -- this file already records a case where the
 # code was right and only its stated reason was wrong.

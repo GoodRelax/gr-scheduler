@@ -1445,7 +1445,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // matches, but `labelsInOrder` keeps it, the stamp lands in `moved`, and a
     // timestamp holds no 曜日. ⇒ the `slot` assertion goes red on a picture
     // nothing is wrong with.
-    // ⚠️ MEASURED 2026-09-12 (D-506): the odds are the gap between the two
+    // ⚠️ MEASURED 2026-09-12 (DFC-506): the odds are the gap between the two
     // constructions over 1000ms -- 7.49ms mean idle (~0.5%), 19.11ms mean and
     // 212.37ms worst under two competing full runs (~20% that run). That is
     // why it reads as "always green" alone and drew two reds in six under load.

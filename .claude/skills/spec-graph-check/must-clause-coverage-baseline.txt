@@ -75,12 +75,12 @@
 # `// ` inside the run, so it latches NOTHING. Every test named below already
 # quoted its clause -- wrapped. The repair was to write the same words a second
 # time, whole, on ONE line, beside the case that presses them. ⛔ No new test
-# was written and no assertion was touched (R-13: 新規のテストは要らない);
+# was written and no assertion was touched (JDG-13: 新規のテストは要らない);
 # `git diff` shows no changed line that is not a comment, and vitest ran 7434
 # passed / 1 skipped either side of the round.
 #
 # ⭐ WHAT WAS PAID BACK, and the case that presses each (all in tests/unit/):
-#   layout-engine.test.ts, R-35 / R-36 / R-38 -- `GR-5` / `GR-6` の掴み代は端の
+#   layout-engine.test.ts, JDG-35 / JDG-36 / JDG-38 -- `GR-5` / `GR-6` の掴み代は端の
 #     内側だけ（MUST）; 実績の端点を端の外側へ伸ばしてはならない（MUST NOT）;
 #     未着手のダミーと着手済の実績は同じ形の掴みシロ（MUST）; 線の掴み代の縦幅
 #     が `S-6` より狭いこと（MUST）
@@ -134,7 +134,7 @@
 #     で切り詰めてはならない（MUST NOT）」. No case hands the hit test an
 #     enlarged `S-137`.
 #   表 T-023d の結び x1, `GR-16` -- 「基準日線（`GR-16`）を同じように上げては
-#     ならない（MUST NOT）」. The R-38 cases press `GR-13`; none presses the
+#     ならない（MUST NOT）」. The JDG-38 cases press `GR-13`; none presses the
 #     status line's own place in the order.
 #   表 T-023d の結び x1, 「境目はバーの端であること（MUST）」. ⛔⛔ THIS ONE
 #     CANNOT BE HELD AT ALL, and it is a fact about the check rather than the
@@ -160,7 +160,7 @@
 #
 # LOWERED 991 -> 977 ON 2026-09-09, PAYING BACK THE WHOLE OF THE ENTRY BELOW.
 # tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts holds every clause
-# R-27 / R-28 / R-29 / R-30 wrote, verbatim, and the run before it printed 991
+# JDG-27 / JDG-28 / JDG-29 / JDG-30 wrote, verbatim, and the run before it printed 991
 # not held against the run after's 977.
 # ⛔⛔ THE DEBT WAS FOURTEEN, NOT ELEVEN, AND THE ENTRY BELOW IS WRONG ABOUT IT.
 # Measured this round by running this check against the manuscript as commit
@@ -178,29 +178,29 @@
 # among the 977. The brief handed down named those rows as one of the four
 # places the debt sat, and they were not one of them.
 # ⭐ WHAT IS AND IS NOT PRESSED, stated so the number is not read as coverage:
-# four of the fourteen are pressed against the build (R-28, `itemAtPointer`
+# four of the fourteen are pressed against the build (JDG-28, `itemAtPointer`
 # answering GR-8 over GR-12 and the span it takes growing 1:1 with S-93). The
-# other ten are QUOTED ONLY, and the file says why for each: R-27 and R-29 are
+# other ten are QUOTED ONLY, and the file says why for each: JDG-27 and JDG-29 are
 # measured NOT to hold in the tree today (the marker covers all but 4px of the
 # GR-17 dummy's box; the drawn mark's pixels answer GR-9, not GR-17), so a case
-# would be red, and R-30's Command Palette entrance has no row in 表 T-109 to
+# would be red, and JDG-30's Command Palette entrance has no row in 表 T-109 to
 # ask for.
 #
 # RAISED 980 -> 991 ON 2026-09-09, and it is meant to come back down in this
-# same round. Landing R-27 / R-28 / R-29 / R-30 and the four refusal-reason
+# same round. Landing JDG-27 / JDG-28 / JDG-29 / JDG-30 and the four refusal-reason
 # rows RS-55..RS-58 wrote eleven new MUST / MUST NOT clauses, and the body
 # that wrote them was forbidden tests/ on purpose -- a specification body that
 # writes its own anchor writes the anchor its own reading needs.
 # ⛔ MEASURED, not predicted: the specification body expected thirteen; the
 # trunk measured eleven after the merge.
 # ⚠️ THE HONEST FINDING that came with them, and it is worth more than the
-# number: the SUBSTANCE of R-27 and R-28 is held by nothing mechanical. The
+# number: the SUBSTANCE of JDG-27 and JDG-28 is held by nothing mechanical. The
 # body reversed each rule in place, keeping the verbatim, and measured ZERO
 # reds either way -- a specification saying the opposite of what the user
 # ruled passes every check and every test. Only the verbatim is latched, by
 # check 43, and only because rulings.md names it.
 #
-# LOWERED 991 -> 980 ON 2026-09-09, PAYING BACK PART OF D-377's DEBT.
+# LOWERED 991 -> 980 ON 2026-09-09, PAYING BACK PART OF DFC-377's DEBT.
 # tests/unit/d-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts holds nine
 # of the eighteen clauses commit 381c2ef raised 934 -> 951 on 2026-09-07 (the
 # two zoom ceilings of FR-016, T-076 EP-9's Panel Divider thickness): four of
@@ -221,11 +221,11 @@
 # ⚠️ MEASURED, NOT ASSUMED: the run immediately before this file existed
 # printed 990 not held (the baseline above still read 991 -- some other
 # round's work had already lowered the true count without updating this file);
-# the run immediately after printed 980. ⛔ D-377's debt is not closed: this
+# the run immediately after printed 980. ⛔ DFC-377's debt is not closed: this
 # entry pays back only the nine named above. FR-016's STATEMENT block carries
 # well over a hundred MUST/MUST NOT markers in all (table T-023a/T-023b/T-023d
 # among them), most of them unrelated to the 2026-09-07 raise and untouched by
-# this entry -- D-377 itself is the eighteen this round was scoped to, not the
+# this entry -- DFC-377 itself is the eighteen this round was scoped to, not the
 # whole requirement.
 #
 # LOWERED 995 -> 991 ON 2026-09-09 by three rulings landing at once.
@@ -240,7 +240,7 @@
 # It fell twenty-one. ⭐ THE PREDICTION HELD, and it held because the repair
 # bodies were told to make their anchors quote the clause verbatim rather
 # than paraphrase it -- one line in each brief, and it paid for itself.
-# ⚠️ It is still 31 above where the round opened (964). D-377 owns the rest.
+# ⚠️ It is still 31 above where the round opened (964). DFC-377 owns the rest.
 # ⛔ Do not close that row while this number stands above 964.
 #
 # RAISED 964 -> 1016 ON 2026-09-08, DELIBERATELY, AND THE USER SET THE PRICE.
@@ -257,7 +257,7 @@
 # ⭐ EXPECT THIS TO FALL AGAIN IN THE SAME ROUND. Every anchor that quotes its
 # clause verbatim pays some of it back -- 966 -> 965 -> 964 all happened that
 # way, in hours, without anyone setting out to do it.
-# ⚠️ The debt is D-377's. ⛔ Do not close that row while this number stands
+# ⚠️ The debt is DFC-377's. ⛔ Do not close that row while this number stands
 # above 964.
 #
 # LOWERED 965 -> 964 ON 2026-09-08. The nineteen tests that held FR-043's
@@ -269,7 +269,7 @@
 # LOWERED 966 -> 965 ON 2026-09-08. Not a test written for the purpose -- an
 # existing test grew the clause verbatim while a body was mending a fabricated
 # citation beside it, so the ground came for free.
-# ⭐ This is the direction D-377 owes: the debt went 934 -> 976, was walked
+# ⭐ This is the direction DFC-377 owes: the debt went 934 -> 976, was walked
 # back to 972, then to 966, now 965. Every clause an anchor takes verbatim
 # pays a little of it back. ⛔ Never raise this to make a wave pass.
 #
@@ -289,7 +289,7 @@
 # 不具合は対応不要。とにかく既知の不具合をすべて直せ」 (2026-09-08).
 # ⭐ THE DEBT IS STILL BOOKED, and the handoff names it: a spec-only body pays
 # it back in the round that implements those clauses, which is the same round
-# that closes ledger rows D-393 and D-396.
+# that closes ledger rows DFC-393 and DFC-396.
 # ⚠️ THE OTHER HALF OF THAT INSTRUCTION WAS NOT TAKEN THE SAME WAY. The
 # quoted-source check (comments citing sentences docs/spec does not contain) is
 # held at its baseline, because on this one day it caught two fabricated
@@ -321,26 +321,26 @@
 # were quoted -- a clause held by a case that does not drive it pays this
 # check in appearance only, and the body that wrote them refused to do that.
 #
-# LOWERED 976 -> 972 ON 2026-09-07, part of the debt D-377 booked. The wave
-# that built FR-016's ceiling for the DATE axis (ledger row D-375) wrote its
+# LOWERED 976 -> 972 ON 2026-09-07, part of the debt DFC-377 booked. The wave
+# that built FR-016's ceiling for the DATE axis (ledger row DFC-375) wrote its
 # anchor in tests/system/user-reported-fixes.test.ts, and that anchor carries
 # four of the clauses raised that day in the manuscript's own characters: the
 # range S-75 / S-76 holds, 「拡大の側には、軸ごとに導かれる上限を置くこと」,
 # 「固定の倍率で止めてはならない」 and 「日数を `src/` に打ち込んではならない」.
-# ⛔ THE REST OF D-377'S DEBT IS STILL OWED, and deliberately: FR-016's ceiling
-# for the ROW axis (D-374) and its row anchor (D-366) are not built in this
+# ⛔ THE REST OF DFC-377'S DEBT IS STILL OWED, and deliberately: FR-016's ceiling
+# for the ROW axis (DFC-374) and its row anchor (DFC-366) are not built in this
 # tree, so their clauses are not quoted -- a clause held by a test that does
 # not exercise it pays this check in appearance only.
 #
 # RAISED AGAIN 951 -> 976 THE SAME DAY, by the creation flow (FR-083's SP-2 /
 # SP-3, the press order of table T-023a, FR-091) and by the two Agent API
-# rulings (FR-068, FR-022). ⛔ Same debt, same holder: the ledger row D-377.
+# rulings (FR-068, FR-022). ⛔ Same debt, same holder: the ledger row DFC-377.
 #
 # RAISED 934 -> 951 ON 2026-09-07 by the two zoom ceilings (FR-016) and the
 # Panel Divider's thickness (EP-9), both written from the user's rulings of
-# that day. ⛔ THE DEBT IS OWED BACK THE SAME ROUND: the ledger row D-377
+# that day. ⛔ THE DEBT IS OWED BACK THE SAME ROUND: the ledger row DFC-377
 # holds it, and the anchors land with the code, in the wave that implements
-# them. A clause written today and tested tomorrow is the exact shape D-254
+# them. A clause written today and tested tomorrow is the exact shape DFC-254
 # measured, so it is recorded rather than left to be noticed.
 #
 # LOWERED 935 -> 934 ON 2026-09-07 by the plan/actual split (FR-049, the
@@ -349,7 +349,7 @@
 # went out with the enumeration they described.
 #
 # LOWERED 959 -> 935 ON 2026-09-07, THE SAME DAY IT WAS RAISED. The debt
-# booked as D-355 is paid: tests/unit/d-355-the-four-rulings-of-2026-09-07
+# booked as DFC-355 is paid: tests/unit/d-355-the-four-rulings-of-2026-09-07
 # holds all eighteen clauses of that day's four rulings verbatim, plus four
 # neighbours caught in the same windows -- 22 markers, 20 constants,
 # 31 cases. ⭐ Nine of the eighteen are also PRESSED against the build
@@ -376,7 +376,7 @@
 #           and no second display word may be minted for it
 #   GR-21   (4) the grip's length is the visible fraction, its floor is S-205,
 #           plus FR-051's own MUST that the grip must be draggable
-# ⛔ THE DEBT IS BOOKED. Ledger row D-355 carries it and names the four tests
+# ⛔ THE DEBT IS BOOKED. Ledger row DFC-355 carries it and names the four tests
 # that pay it back; lower this number in the commit that lands them.
 #
 # LOWERED 952 -> 941 ON 2026-09-06. Eleven clauses of this round are now held
@@ -429,7 +429,7 @@
 # refused paste or an empty store, and does not ask the non-picture exports
 # to stay silent. ⭐ Those are holes, not coverage.
 # RAISED 948 -> 952 ON 2026-09-06, DELIBERATELY. FR-009 gained four marked
-# clauses when the user's ruling on D-346 was written down: where the half
+# clauses when the user's ruling on DFC-346 was written down: where the half
 # splits (the bar's own midpoint, not table T-038's occupied width), which
 # side the exact midpoint falls on, that the answer must be reachable from a
 # published name, and that the existing hit test may not take the arm.
@@ -612,7 +612,7 @@
 # check-must-clause-coverage.py reads -- see its own docstring) with no
 # verbatim tie to any file under tests/.
 #
-# ⭐ MEASURED 2026-09-05, THE DAY D-254 WAS FILED: 1,634 marked clauses total,
+# ⭐ MEASURED 2026-09-05, THE DAY DFC-254 WAS FILED: 1,634 marked clauses total,
 # 470 held (some part of the clause, at least 28 characters ending at the
 # marker, quoted verbatim in some file under tests/), 1,164 not. This is the
 # FIRST measurement -- nobody had counted this before, so 1,164 is simply

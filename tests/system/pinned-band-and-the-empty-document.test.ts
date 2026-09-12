@@ -2,14 +2,14 @@
 // at 「試験待ち」 on 2026-09-07: the fix is in and was measured by hand on the
 // shipped build, and nothing automated holds it down.
 //
-//   D-318  a document with no row drawn at all -- pressing the head's entrance
+//   DFC-318  a document with no row drawn at all -- pressing the head's entrance
 //          that adds a row at the shallowest tier put the row in the document
 //          and drew nothing, and told nobody
-//   D-319  the watermark unlock field -- one `Esc` took the edit back but did
+//   DFC-319  the watermark unlock field -- one `Esc` took the edit back but did
 //          not let the field go, so the field went on taking what was typed
 //          after the tier that owned it had been consumed
 //
-// ⛔⛔ D-306 IS NOT HERE, AND THAT IS A FINDING RATHER THAN AN OMISSION. The
+// ⛔⛔ DFC-306 IS NOT HERE, AND THAT IS A FINDING RATHER THAN AN OMISSION. The
 // row asked for the pinned band, and it is already held down:
 // `tests/unit/fr-098-the-band-does-not-scroll.test.ts` carries seventeen cases
 // over `FR-098`'s two clauses of 2026-09-06 -- the band staying inside the
@@ -52,11 +52,11 @@
 // ⭐⭐ AND EACH OF THE TWO WAS WATCHED GOING RED, which rule 04 section 2 asks
 // for before a check counts as holding anything (2026-09-07, without touching
 // `src/`: the tree was taken out with `git archive` and built beside this one).
-//   D-318  `frame-loop.ts` as it stood at `1024dbd`, the commit before the fix:
+//   DFC-318  `frame-loop.ts` as it stood at `1024dbd`, the commit before the fix:
 //          folding every row then pressing the head's add entrance drew 0 rows
 //          and raised 0 notices, and the properties panel carried no name
 //          field. Two readings below go red on that build.
-//   D-319  the whole tree at `82b69d8`, the commit before the fix: the face
+//   DFC-319  the whole tree at `82b69d8`, the commit before the fix: the face
 //          still closed on the second `Esc`, so THAT reading tells the builds
 //          apart not at all. What does is the character typed after the first
 //          `Esc` -- 「z」 landed in the field on the broken build and nowhere on
@@ -445,7 +445,7 @@ test('the rows these cases are read from are still the rows that carry them', ()
 })
 
 // ---------------------------------------------------------------------------
-// D-318 -- HF-17: a row added while nothing at all is drawn
+// DFC-318 -- HF-17: a row added while nothing at all is drawn
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the entrance table T-051 row `HF-17` puts at the head adds a row
@@ -577,7 +577,7 @@ test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_ROW} opens eve
 })
 
 // ---------------------------------------------------------------------------
-// D-319 -- IN-4: `Esc` in the watermark unlock field
+// DFC-319 -- IN-4: `Esc` in the watermark unlock field
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the first `Esc` in the unlock field takes the typing back but
@@ -591,7 +591,7 @@ test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_ROW} opens eve
 // `FR-020` and table T-103 row `U-60` make the watermark unlock face one of
 // `IN-4`'s faces. The order asserted is read out of `IN-4` itself.
 //
-// ⛔⛔ THE THIRD READING IS THE ONE THAT HOLDS `D-319` DOWN, AND THAT WAS
+// ⛔⛔ THE THIRD READING IS THE ONE THAT HOLDS `DFC-319` DOWN, AND THAT WAS
 // MEASURED RATHER THAN REASONED. Built from the commit before the fix
 // (`82b69d8`) and driven exactly as below, the face still closed on the second
 // `Esc` -- so a case that read only the closing would have been green on the

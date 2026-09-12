@@ -1,4 +1,4 @@
-// FR-020 (MUST, 利用者の裁定 2026-09-02, CR-335, ledger row D-196): 「同じ入口
+// FR-020 (MUST, 利用者の裁定 2026-09-02, CR-335, ledger row DFC-196): 「同じ入口
 // （表 T-109 の `IC-41`）が両方向を担うこと …… 透かしが出ているときは押すと面が
 // 立ち、消えているときは押すと問わずに戻す」, together with the two MUST NOTs it
 // stands between -- 「透かしを出し直す側は問わないこと（MUST）」 and

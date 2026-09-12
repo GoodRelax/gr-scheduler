@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """What a ledger cell ASSERTS, as opposed to what it QUOTES.
 
-⛔ WHY THIS EXISTS (`D-344`). Checks 31 and 40 read a `defects.md` cell for the
+⛔ WHY THIS EXISTS (`DFC-344`). Checks 31 and 40 read a `defects.md` cell for the
 words that mean 「this row is waiting on a ruling」 -- 未定, 裁定を待つ, and the
 rest -- with a plain substring match over the whole cell. A substring match
 cannot tell an ASSERTION from a QUOTATION, and the ledger's own house style
 asks rows to quote:
 
-  - a verbatim quote of the requirement that explains the row. `D-286` carries
+  - a verbatim quote of the requirement that explains the row. `DFC-286` carries
     「再開日を未定のままにもできること」, which is the FR-044 clause that makes
     `PA-4` a state at all. The row is not blocked; it is citing its evidence.
   - the NAME of a state or a value, which may itself contain the word --
     「中断・再開日未定」 is what that state is called.
-  - the row quoting its OWN older text to date it as history. `D-135` reads
+  - the row quoting its OWN older text to date it as history. `DFC-135` reads
     ⛔ 上の「未定」はもう真でない, which is the append-only rot being CLEANED
     UP, and the cleanup is what the check then faults.
 
@@ -20,8 +20,8 @@ Each of those cost a round: the baseline was raised, or the row was reworded
 to dodge the substring. ⛔ Rule 04 section 6.3 forbids the first
 (「基準線を上げて黙らせるな」), and the second makes the ledger worse to read
 to keep a tool quiet. The note taken on the second misfire said a third should
-change the heuristic rather than the number; `D-344` is that third, and check
-40's misfire on `D-301` (a row writing its own history) is a fourth.
+change the heuristic rather than the number; `DFC-344` is that third, and check
+40's misfire on `DFC-301` (a row writing its own history) is a fourth.
 
 ⭐ SO THE MARKERS ARE READ OUTSIDE QUOTATION ONLY. `「…」`, `『…』` and a
 `code span` all mean 「these are somebody else's words, not this row's claim」,
@@ -32,19 +32,19 @@ is the cell speaking in its own voice.
 not weaken a marker. A row that is genuinely blocked says so in its own words
 -- ⛔ **未検討。** -- and that text is untouched here. ⭐ MEASURED 2026-09-06
 across both ledger files: of the rows check 31 matched, exactly two stop
-matching, and both are the misfires named above (`D-286`, `D-135`). Nothing
+matching, and both are the misfires named above (`DFC-286`, `DFC-135`). Nothing
 else moves.
 
 ⛔ It also does not remove the EMPHASIS marks. 「**未定**」 inside a quote is
 still inside the quote; ⛔ **未定** outside one is still an assertion. Only
 the quotation delimiters decide.
 
-⭐⭐ A SECOND THING A CELL CAN BE, ADDED FOR `D-367`: A DATED RECORD.
+⭐⭐ A SECOND THING A CELL CAN BE, ADDED FOR `DFC-367`: A DATED RECORD.
 Quotation was the first misreading; the second is TIME. A cell may state, in
 its own voice, something that WAS true on a day -- 「the surface was pressed
 and it was empty」, 「a ruling was outstanding」 -- and a prose-reading check
 turns that record into a claim about today. ⛔ MEASURED FOUR TIMES before this
-line existed (`D-344`, `D-347`, check 40, check 31), and the handoff had said
+line existed (`DFC-344`, `DFC-347`, check 40, check 31), and the handoff had said
 to change how these checks are written when a third appeared.
 
 ⭐ THE USER RULED ON 2026-09-07 (`PND-441`, proposal ①): a sentence that begins

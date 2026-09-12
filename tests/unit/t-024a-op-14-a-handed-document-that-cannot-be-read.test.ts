@@ -1,4 +1,4 @@
-// OP-14 of table T-024a (CR-299, ledger row D-124):
+// OP-14 of table T-024a (CR-299, ledger row DFC-124):
 //
 //   「**起動時に渡された文書が読めなかったとき**（表 T-034 の `BT-2`） | **黙って
 //    捨てずに通知すること（MUST）。** 作法は 表 T-037 の `NT-1`（入力を受け付けない
@@ -44,10 +44,10 @@
 // WHICH EXPORTS NOTHING -- the module has no public member, so no Vitest case
 // can import the map, call it, or watch it being used. What holds it today is
 // the type alone (`StartupNoticeCode` -> `StartupNoticeReason` is a `Record`),
-// which is what ledger row D-124 already records. ⇒ Showing link 2 needs a case
+// which is what ledger row DFC-124 already records. ⇒ Showing link 2 needs a case
 // that drives the page itself: table T-218's TS-1 / TS-3, under Playwright.
 //
-// ⚠️ AND THE ROW'S OWN CAVEAT STANDS. D-124 records that the shell hands
+// ⚠️ AND THE ROW'S OWN CAVEAT STANDS. DFC-124 records that the shell hands
 // `{ kind: 'none' }` for the handed candidate unconditionally, so link 1 never
 // fires in the shipped build. ⛔ THAT IS A DEFECT AND NOT A REASON TO WEAKEN A
 // CASE: FR-062 (MUST) makes the startup follow table T-034, BT-2 is a row of
@@ -277,7 +277,7 @@ describe('OP-14 -- the notice it raises is table T-233 row RS-26', () => {
     // ⛔ WITHOUT THIS, the case above would be green over a loop that answered
     // with the same sentence for every row of table T-233 -- which is exactly
     // what `src/` did before CR-299: `handedUnreadable` pointed at `RS-15`, the
-    // 落ち先 for a reason with no row of its own (ledger D-124).
+    // 落ち先 for a reason with no row of its own (ledger DFC-124).
     const pen = host()
     const screen = screenPane('ja')
     const loop = frameLoop(pen.surface, templateDocument(), SCREEN, screen.wiring)

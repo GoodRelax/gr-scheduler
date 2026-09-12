@@ -1,4 +1,4 @@
-// The two guards CR-280 put in when the autosave went (ledger row D-98):
+// The two guards CR-280 put in when the autosave went (ledger row DFC-98):
 //
 //   FR-100 (MUST)      未保存の編集を持ったままページを離れようとしたとき、宿主の
 //                      警告が出るようにすること。⛔ 未保存の編集が無いときに出させ

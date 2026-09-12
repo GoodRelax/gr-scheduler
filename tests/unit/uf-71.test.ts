@@ -2509,7 +2509,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   })
 
   // -------------------------------------------------------------------------
-  // D-116 -- the room the row's name is ACTUALLY given
+  // DFC-116 -- the room the row's name is ACTUALLY given
   //
   // ⛔ THE DEFECT THESE CASES STAND IN FOR. Measured on the shipped build of
   // 2026-08-30: the row's three controls sat in the row's own flow with
@@ -2573,7 +2573,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   const isOutOfFlow = (element: FakeElement): boolean =>
     styleOf(element).includes('position:absolute')
 
-  it('⛔ D-116 / HF-6 (MUST): every row control is laid OVER the name, not beside it', () => {
+  it('⛔ DFC-116 / HF-6 (MUST): every row control is laid OVER the name, not beside it', () => {
     // 「⭐ **操作子は、行の名前の上へ重ねて描くこと（MUST）** —— 確保する場所は 0
     // だからである」, with `S-140` read out of 表 T-206 to hold that 0 to the
     // manuscript rather than to this comment.

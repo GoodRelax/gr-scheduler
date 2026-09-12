@@ -209,7 +209,7 @@ describe('FR-053 (MUST NOT): a minimised palette carries no armed reading', () =
     // ⭐ THE USER'S RULING, MEASURED AT THE UNIT. Before it, a minimised palette
     // still carried 「マイルストーン形状」 / 「なし（既定）」 / 「依存線」 -- the
     // three words a live probe read off the shipped page on 2026-09-01, which is
-    // the defect the ledger's D-178 names.
+    // the defect the ledger's DFC-178 names.
     // GOES RED IF: the reading comes back while minimised, in any arm.
     for (const { what, armed } of EVERY_ARM) {
       expect(minimisedWith(armed).armedText, `${what}: minimised, so nothing is read`).toBeNull()

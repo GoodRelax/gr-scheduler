@@ -35,7 +35,7 @@ WHAT IS EXEMPT, AND WHY IT IS MEASURED RATHER THAN DECLARED
     Two things, and both are looked up rather than listed.
 
     A sentence end inside a quotation the manuscript itself writes -- 「A。B」 --
-    is not a place to break: a break inside a verbatim is what ruling R-05's
+    is not a place to break: a break inside a verbatim is what ruling JDG-05's
     own check catches.
 
     A sentence end inside a run that some file under `src/` or `tests/` quotes
@@ -157,7 +157,7 @@ def ends(line):
     """Every full stop on this line that more text follows.
 
     ⛔ One inside 「…」 is not a place to break: splitting a verbatim there
-    is the defect ruling R-05's check exists to catch."""
+    is the defect ruling JDG-05's check exists to catch."""
     out = []
     depth = 0
     for i, ch in enumerate(line):

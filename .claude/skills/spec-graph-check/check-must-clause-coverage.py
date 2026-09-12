@@ -2,19 +2,19 @@
 """Check 39 -- how many of the specification's MUST / MUST NOT clauses are
 held, verbatim, by some test under tests/.
 
-WHY THIS EXISTS -- ledger row D-254. The person who had just written CR-350
+WHY THIS EXISTS -- ledger row DFC-254. The person who had just written CR-350
 moved seven places in the specification that each carry the literal marker
 `（MUST）` or `（MUST NOT）` (FR-038's translation exemption and FR-032's old
 "notify what was deleted" MUST among them) and reran `npm test`: zero cases
-went red. ⛔ The 33 checks this script joins (35 by the time D-254 was
+went red. ⛔ The 33 checks this script joins (35 by the time DFC-254 was
 written; the count has moved since) all ask whether the specification agrees
 with ITSELF -- undefined references, duplicate row ids, drifted generated
 artifacts. Not one of them asks whether a TEST agrees with the specification.
 
-⭐⭐ THE SAME DAY, A COUNTEREXAMPLE. D-257 moved `S-220` / `S-221` / `S-222` /
+⭐⭐ THE SAME DAY, A COUNTEREXAMPLE. DFC-257 moved `S-220` / `S-221` / `S-222` /
 `S-102` (FR-020's four generated-constant values) and `S-223` (its ink
 colour): four cases in `tests/unit/fr-020-the-four-values-live-in-the-tables-
-not-in-src.test.ts` went red, each naming the row it caught. D-260 moved the
+not-in-src.test.ts` went red, each naming the row it caught. DFC-260 moved the
 `HF-4` wording (the order of the four TaskGroup grab-band icons) and nine
 cases in `tests/unit/uf-72-screen-part.test.ts` shifted with it. ⇒ The cover
 is not ABSENT -- it is MOTTLED: some clauses are held tight, most are not, and
@@ -46,7 +46,7 @@ long physical line, and a markdown table row is one physical line by
 construction. Counting lines would either undercount (one line, several
 distinct MUST clauses, counted once) or misreport coverage (one line held
 because SOME clause on it is tested, when the other nine on the same line are
-not -- exactly the "mottled" fact D-254/D-257 are about). So the unit counted
+not -- exactly the "mottled" fact DFC-254/DFC-257 are about). So the unit counted
 here is the MARKER ITSELF: 1,634 occurrences, measured 2026-09-05. This is a
 literal count of the marker text, including any case where the specification
 cites its own earlier requirement's MUST wording a second time elsewhere (the
@@ -81,12 +81,12 @@ the reverse, since the match is always checked for real, byte for byte,
 against the actual test corpus. ⛔ NOT A CLAIM THAT THE TEST'S ASSERTION IS
 CORRECT OR EVEN ABOUT THE RIGHT THING -- as `spec-table.ts`'s own convention
 says of itself, only that some file under tests/ carries the clause's own
-words, which is the one fact D-254 measured as absent for its seven clauses.
+words, which is the one fact DFC-254 measured as absent for its seven clauses.
 
 ⛔⛔ A BOLT, NOT A DEBT -- the user's ruling, 2026-09-11. The number in
 `must-clause-coverage-baseline.txt` is the UNHELD count, and it has exactly one
 job: to fail the round that writes a NEW MUST / MUST NOT clause with nothing
-under tests/ quoting it, exactly as D-254 found for its seven. ⛔ THE STANDING
+under tests/ quoting it, exactly as DFC-254 found for its seven. ⛔ THE STANDING
 COUNT IS NOT OWED. No round may write a test whose purpose is to lower this
 number. A test written to close a clause nobody pressed holds WORDS, not
 behaviour -- this check says so about itself two paragraphs above, where it
@@ -146,7 +146,7 @@ REL_BASELINE = '.claude/skills/spec-graph-check/must-clause-coverage-baseline.tx
 # as "the specification" -- copied rather than imported so this check has no
 # import-time dependency on that module.
 # ⛔⛔ A-appendix.md IS NOT READ, AND THE REASON IS THE ONE HF-14 WAS
-# CORRECTED FOR ON THE SAME DAY (D-259): a dated quotation is a RECORD, not
+# CORRECTED FOR ON THE SAME DAY (DFC-259): a dated quotation is a RECORD, not
 # a rule. Measured 2026-09-05: every one of its 165 marked clauses sits
 # under A.3 Changelog, where they read 「FR-020 に「〜すること（MUST）」を
 # 置いた」 -- a past tense sentence describing a change that was made. A

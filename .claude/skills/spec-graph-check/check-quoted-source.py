@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Check 42 -- a comment quoting a sentence the manuscripts do not contain.
 
-⛔ WHY THIS EXISTS (`D-339`). A comment in `src/` quoted 「`HF-17`（段 0 へ
+⛔ WHY THIS EXISTS (`DFC-339`). A comment in `src/` quoted 「`HF-17`（段 0 へ
 足す）には親が無いので当たらない」 as though it were a row of 表 T-051, and
 built on it: the code did not unfold 段 0 because "the specification says the
 rule does not apply here". ⚠️ NO SUCH SENTENCE IS IN `docs/spec`. It was a
 paraphrase that had travelled out of the ledger and hardened into a citation,
-and it kept `D-318` open -- a row a person could add and never see.
+and it kept `DFC-318` open -- a row a person could add and never see.
 
 ⭐⭐ THE RULE THIS ENFORCES IS ALREADY WRITTEN, and only as a principle:
 「原稿を写すな、指させ」. A rule nothing measures is a rule that decays (the
@@ -17,7 +17,7 @@ WHAT COUNTS AS A HIT. A 「…」 or 『…』 quotation, inside a comment of `s
 found in any manuscript under `docs/spec/`.
 
 ⛔⛔ THE FALSE POSITIVES ARE THE WHOLE JOB, and a naive sweep is unusable --
-`D-339` records one being written and thrown away. Four shapes defeat it, and
+`DFC-339` records one being written and thrown away. Four shapes defeat it, and
 each is answered here:
 
   1. THE COMMENT WRAPS. A quotation crosses three `//` lines, so no single
@@ -87,7 +87,7 @@ CJK = re.compile(u'[぀-ヿ一-鿿]')
 ATTRIBUTION = 120
 
 OTHER_BOOKS = re.compile(
-    u'D-\\d+|PND-\\d+|CR-\\d+|規則 \\d|利用者の|defects\\.md|'
+    u'DFC-\\d+|PND-\\d+|CR-\\d+|規則 \\d|利用者の|defects\\.md|'
     u'development-rules|development-records|pending-decisions')
 
 
@@ -265,7 +265,7 @@ def main():
         say('FAIL     comments quoting a sentence docs/spec does not contain '
             'went %d -> %d. ⛔ A comment may POINT at a row (表 T-051 の '
             '`HF-17`) but may not put words in the specification\'s mouth: a '
-            'paraphrase quoted as a citation is what kept D-318 open. Fix the '
+            'paraphrase quoted as a citation is what kept DFC-318 open. Fix the '
             'quotation, or raise %s deliberately and say why in the commit.'
             % (held, count, REL_BASELINE))
         say('         %s' % shown)

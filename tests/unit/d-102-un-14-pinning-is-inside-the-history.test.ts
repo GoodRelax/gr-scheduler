@@ -23,7 +23,7 @@
 //
 // ⛔ THE CASES ARE LEFT DISAGREEING (docs/development-rules/04-verification.md
 // §1). Tuning them to what the build does would file pinning back under a row
-// the manuscript no longer has it in, and would make D-102 look closed while the
+// the manuscript no longer has it in, and would make DFC-102 look closed while the
 // 対象 half is still unguarded -- which is the exact state that row was raised
 // to record.
 //
@@ -31,7 +31,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-102: 「ピン止めが『取り消しの対象』で
+// `docs/development-records/defects.md` DFC-102: 「ピン止めが『取り消しの対象』で
 // あることを測る試験がどこにも無い」, whose 期待値 column reads 「`CM-68` /
 // `CM-69` の書き込みが、無関係な編集の取り消しで巻き戻ることを測る」.
 //
@@ -41,7 +41,7 @@
 // two cases that stood in tests/unit/t-027-outside-the-history.test.ts were then
 // measuring a retired rule and were dropped; that file records the debt at its
 // line 560 (「⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE
-// (D-102)」) and tests/unit/uf-8-9-history-depth.test.ts records the same at its
+// (DFC-102)」) and tests/unit/uf-8-9-history-depth.test.ts records the same at its
 // line 510. ⛔ Neither wrote the replacement, because rule 05 section 7 forbids
 // the session that moved a row from writing the test of the value it moved.
 // This file is that replacement, written from docs/spec alone.
@@ -443,7 +443,7 @@ describe('FR-031 / 表 T-027 UN-14 -- an undo takes a pin back', () => {
     expect(pinnedIn(after)).toEqual([FIRST_GROUP_ID])
   })
 
-  // ⭐⭐ THE CASE D-102 ASKS FOR, AND THE ONE THAT TELLS 対象 FROM 対象外 APART.
+  // ⭐⭐ THE CASE DFC-102 ASKS FOR, AND THE ONE THAT TELLS 対象 FROM 対象外 APART.
   // For a 対象外 column the writing of it leaves no 段 at all, so an undo of the
   // edit AFTER it hands back a document that never held the value -- which is
   // why tests/unit/t-027-outside-the-history.test.ts asserts the value SURVIVES.

@@ -38,11 +38,11 @@ about what it has not yet confirmed.
 ⛔⛔ WHERE THE WORDS ARE LOOKED FOR. `docs/spec/` always, plus the place the
 row's own 着地先 names when that cell names a file. ⚠️ MEASURED 2026-09-09:
 of the eight 適用済 rows, three landed OUTSIDE docs/spec and say so in their
-own 着地先 -- `R-01` in `docs/development-rules/05-working-method.md`, `R-12`
-and `R-13` in `docs/development-records/handoff.md`. A check that read only
+own 着地先 -- `JDG-01` in `docs/development-rules/05-working-method.md`, `JDG-12`
+and `JDG-13` in `docs/development-records/handoff.md`. A check that read only
 docs/spec would fault all three for landing exactly where the row says they
 did. ⭐ 「同上」 in a 着地先 inherits the row above it, which is how the file
-writes `R-13`.
+writes `JDG-13`.
 
 ⛔ `docs/spec/output/` IS SKIPPED, deliberately and unlike check 42. It is a
 StrictDoc HTML export, it is gitignored, and it holds four `.md` copies of
@@ -76,14 +76,14 @@ CORRECTLY and still leave no verbatim anywhere, because the user did not speak
 a sentence a document could carry. ⚠️ MEASURED 2026-09-09, both cases in the
 book already:
 
-  - `R-08` 「A：場所を常に空ける（体が書いたもの）」 -- the user chose an
+  - `JDG-08` 「A：場所を常に空ける（体が書いたもの）」 -- the user chose an
     option by its letter. 表 T-038 does hold the ruling (`OC-3`/`OC-4` are
     excluded so that toggling display cannot move a task), but no manuscript
     can contain the word "A".
-  - `R-06` -- the user quoted the clause BACK in their own spacing, and
+  - `JDG-06` -- the user quoted the clause BACK in their own spacing, and
     `FR-055` already carried it; the ruling was that nothing changes.
 
-⇒ A line reading `HELD R-06  <reason>` in the baseline file exempts that one
+⇒ A line reading `HELD JDG-06  <reason>` in the baseline file exempts that one
 row. This is the shape check 26b already uses (published-members-baseline.txt)
 and it is held the same way in BOTH directions: an unheld miss is red, and a
 HELD row that is no longer a miss is ALSO red, so an exemption cannot rot into
@@ -133,7 +133,7 @@ QUOTE_ENDS = u'「」『』'          # 「」『』
 # A path written in the 着地先 cell, with or without backticks.
 PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml)')
 
-HELD_LINE = re.compile(u'^HELD\\s+(R-\\d+)\\s*(.*)$')
+HELD_LINE = re.compile(u'^HELD\\s+(JDG-\\d+)\\s*(.*)$')
 
 
 def say(message):
@@ -185,11 +185,11 @@ def named_places(cell, book_path, own_line):
             continue
         seen.add(candidate)
         places.append((candidate, flatten(read(path))))
-    # ⭐ 「本書」 is rulings.md itself. `R-02` -- the ruling that this book
+    # ⭐ 「本書」 is rulings.md itself. `JDG-02` -- the ruling that this book
     # should exist -- landed as the book, and there is nowhere else it could.
     # ⛔ THE ROW'S OWN LINE IS STRUCK FIRST. Without that, any row could name
     # 本書 as its 着地先 and pass on its own 逐語 cell, which proves nothing.
-    # `R-02` passes because the file's PREAMBLE quotes the instruction as the
+    # `JDG-02` passes because the file's PREAMBLE quotes the instruction as the
     # reason the book exists -- a second, independent copy.
     if THIS_BOOK in cell:
         lines = io.open(book_path, encoding='utf-8').read().split('\n')
@@ -204,11 +204,11 @@ def rows(path):
 
     Yields (row id, verbatim, 着地先 cell, 状態 cell or None, line number).
     ⭐ 「同上」 inherits the 着地先 of the row above, which is how the file
-    writes `R-13`.
+    writes `JDG-13`.
     """
     previous_where = u''
     for number, line in enumerate(io.open(path, encoding='utf-8'), start=1):
-        if not line.startswith('| R-'):
+        if not line.startswith('| JDG-'):
             continue
         cells = line.rstrip('\n').split('|')
         if len(cells) == DATED_CELLS:

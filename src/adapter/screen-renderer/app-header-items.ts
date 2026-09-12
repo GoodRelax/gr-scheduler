@@ -84,7 +84,7 @@ const APP_HEADER = 'App Header'
 /**
  * S-99e (FR-053). ⭐ FIRST BECAUSE TABLE T-109 PRINTS IT FIRST: CR-272 gave
  * IC-7 a 群 of its own at the head of the `App Header` block on the user's
- * instruction of 2026-08-27 (D-87), and that column is the only thing that
+ * instruction of 2026-08-27 (DFC-87), and that column is the only thing that
  * orders the entries -- so this case moved with the row rather than by a
  * judgement made here.
  */
@@ -94,7 +94,7 @@ const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
 /**
  * FR-031's two entrances -- RD-1 and RD-2 of table T-230.
  *
- * ⭐ THEY MOVED OUT OF THE DEFAULT'S STOP NOTE ON 2026-09-05 (D-265). That note
+ * ⭐ THEY MOVED OUT OF THE DEFAULT'S STOP NOTE ON 2026-09-05 (DFC-265). That note
  * said the stack was 「neither an argument here nor a member of `ScreenSession`」,
  * which was true and is not any more: `ScreenSession.canUndo` / `canRedo` are
  * the two questions FR-029 asks about them, and the note beside those members
@@ -280,7 +280,7 @@ function commandStateOf(
       // and while it is off FR-066 (⚠️) has this entry drawn faint and RS-35 of
       // table T-233 is the reason a press on it is told (`frame-loop.ts`).
       //
-      // ⭐ `isPressed` IS NOW ITS OWN VALUE (D-149, EN-5 of table T-237), since
+      // ⭐ `isPressed` IS NOW ITS OWN VALUE (DFC-149, EN-5 of table T-237), since
       // `ScreenSession` gained `isDialogueFieldVisible` for S-99i. ⛔ NOT
       // `isAgentApiEnabled` ANY MORE: that was the defect -- IC-20 turning the
       // API on made this entry read as pressed although IC-18 had never been
@@ -317,7 +317,7 @@ function commandStateOf(
       //     itself says that permission can be lost and is offered back at
       //     startup. Whether it is held now is the shell's to know.
       // ⭐⭐ IC-5 AND IC-6 STOOD HERE UNTIL 2026-09-05 AND HAVE THEIR OWN CASES
-      // NOW (D-265). What this note said of them -- 「whether anything is on the
+      // NOW (DFC-265). What this note said of them -- 「whether anything is on the
       // undo or the redo stack ... is neither an argument here nor a member of
       // `ScreenSession`」 -- was true and stopped being true when that type
       // gained `canUndo` / `canRedo`. ⚠️ Measured before the change, on the

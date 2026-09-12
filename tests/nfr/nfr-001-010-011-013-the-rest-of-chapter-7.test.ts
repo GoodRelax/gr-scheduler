@@ -7,9 +7,9 @@
 // in `tests/nfr/` and is driven by Playwright, and the performance gates of
 // table T-043 are run from here.
 //
-// ⭐ WHY THIS FILE EXISTS. Ledger row `D-313` said no measuring harness was in
+// ⭐ WHY THIS FILE EXISTS. Ledger row `DFC-313` said no measuring harness was in
 // the repository at all. Half of that was refuted on 2026-09-06 -- the frame
-// time file exists and produced `D-330`'s numbers -- and the ruling of
+// time file exists and produced `DFC-330`'s numbers -- and the ruling of
 // `CR-364` (2026-09-06) chose "write the remaining measurements". These are
 // the remaining measurements. ⭐⭐ The `RISK-001` gate that used to stand in
 // front of a real performance run was opened by the user on 2026-09-07
@@ -62,7 +62,7 @@
 // here are the ones the System files already lean on (`[data-role]`,
 // `[data-icon]`) plus `data-figure`, which the shipped picture carries on
 // every figure. ⚠️ `data-figure` IS NOT SETTLED BY THE SPECIFICATION -- it is
-// `SvgRenderer`'s own marking, added for `D-316` -- and it is used here only to
+// `SvgRenderer`'s own marking, added for `DFC-316` -- and it is used here only to
 // find a bar to grab for `PG-8`. Nothing is judged on its spelling.
 //
 // ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
@@ -157,7 +157,7 @@ const SCALE_RUNS = 3
  * ⭐ THE CEILING IS COMPUTED, NEVER TYPED. Going from `n` to `8n` under
  * `O(n log n)` costs at most `(8n log 8n) / (n log n)` = `8 * log(8n)/log(n)`
  * times as much. Typing a number here would hide which `n` it was derived
- * from, and `D-330` recites a "10.7x" whose `n` nobody recorded.
+ * from, and `DFC-330` recites a "10.7x" whose `n` nobody recorded.
  *
  * @purity pure
  */
@@ -726,7 +726,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
   // not driven because "finding a task bar in the drawing needs a handle the
   // specification does not settle", so `PG-8` got no number from it. The
   // shipped picture now carries `data-figure` on every figure (added for
-  // `D-316`), which gives a bar's own rectangle. ⚠️ That marking is
+  // `DFC-316`), which gives a bar's own rectangle. ⚠️ That marking is
   // `SvgRenderer`'s and not the specification's; it is used to FIND a bar and
   // nothing here is judged on its spelling.
   //
@@ -745,7 +745,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       if (svg === null) return null
       const leaf = new Set(leaves)
       const area = svg.getBoundingClientRect()
-      // ⚠️ A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. D-316 lets one bar
+      // ⚠️ A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. DFC-316 lets one bar
       // take more than one SVG element under the same data-figure key -- a
       // thin bar is a line, a head polygon and its dot marks, all sharing one
       // key -- and measured across 1000 tasks, a repeated key always repeats as

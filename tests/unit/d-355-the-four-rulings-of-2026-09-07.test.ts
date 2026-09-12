@@ -1,4 +1,4 @@
-// Ledger row D-355 -- the eighteen MUST / MUST NOT clauses four of the user's
+// Ledger row DFC-355 -- the eighteen MUST / MUST NOT clauses four of the user's
 // rulings of 2026-09-07 wrote into the specification, none of which had a
 // verbatim tie under tests/ when the baseline of check 39
 // (`check-must-clause-coverage.py`) was raised from 941 to 959.
@@ -205,7 +205,7 @@ const EP_1_NO_EXPORT_ONLY_CONSTANT =
  * of 9f359cd folded out of the manuscript as a RECORD rather than a rule.
  * ⛔ IT WAS NOT LOST: the same measurement stands in the two settings rows
  * EP-1 itself points at, `S-225` and `S-226` of 表 T-206 in
- * `_assets/tbl-settings.md`, and in `D-276` of
+ * `_assets/tbl-settings.md`, and in `DFC-276` of
  * `docs/development-records/fixed-defects.md`. The quotation is deliberately
  * NOT repeated here -- check 42 forbids a comment putting words in docs/spec's
  * mouth that docs/spec no longer carries. ⛔ The MUST NOT itself never moved,
@@ -258,7 +258,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-060 (MUST NOT) -- no handle in localStorage or IndexedDB', FR_060_NO_HANDLE_IN_BROWSER_STORAGE],
 ]
 
-describe('D-355 -- the manuscript these cases are driven by', () => {
+describe('DFC-355 -- the manuscript these cases are driven by', () => {
   it.each(CLAUSES)('still says it, word for word: %s', (_name, clause) => {
     // ⛔ THE ONLY THING THAT KEEPS THE COPIES ABOVE HONEST. A clause reworded
     // in the manuscript takes this case red, which is what tells the next round
@@ -480,7 +480,7 @@ function settingsRowValue(rowId: string): number {
 const S_225_TITLE_FONT_PX = settingsRowValue('S-225')
 const S_226_TITLE_INSET_PX = settingsRowValue('S-226')
 
-const TITLE = 'D-355 fixture title'
+const TITLE = 'DFC-355 fixture title'
 
 /**
  * The regions for a screen exactly as wide as `exportCanvas` (S-81), so the

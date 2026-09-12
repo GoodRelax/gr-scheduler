@@ -1002,7 +1002,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     // 2026-09-01 this case said it was. It read 「hands the chooser the
     // suggested name, and nothing else」 and was green only because the request
     // it built carried no extension at all, so the store could find no media
-    // type to name. D-172 is what that hid: a save chooser told nothing but a
+    // type to name. DFC-172 is what that hid: a save chooser told nothing but a
     // name lets the person save `plan` where `plan.json` was proposed, and
     // FR-096 (MUST) now forbids that outcome outright -- 「書き出した先の名前が、
     // 選んだ行の拡張子で終わることを保証すること（MUST）」.
@@ -1044,7 +1044,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
     //   使うこと（MUST）。**」（`FR-096`）
     //
-    // ⭐ THIS IS THE FIX FOR D-172, AND NOTHING ELSE ASSERTED IT. The proposed
+    // ⭐ THIS IS THE FIX FOR DFC-172, AND NOTHING ELSE ASSERTED IT. The proposed
     // name was already right; what was missing was the second thing the host is
     // handed, which is what makes the host hold the saved name to the extension.
     // A case that only reads `suggestedName` cannot tell the two builds apart.
@@ -1058,7 +1058,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     // extension of the chosen row is named to the host, on a type of its own.
     //
     // ⛔ WHAT WOULD MAKE THIS GO RED: a store that hands over `suggestedName`
-    // alone -- which is the build D-172 was raised against. Demonstrated by
+    // alone -- which is the build DFC-172 was raised against. Demonstrated by
     // making this file's own stand-in chooser record `{ suggestedName }` and
     // drop everything else, which is that build seen from the host's side: the
     // case failed with 「expected [ 'suggestedName' ] to include 'types' 」 and
@@ -1082,7 +1082,7 @@ describe('writeChosenFile -- a file the person points at', () => {
       expect(
         Object.keys(options),
         `FR-096 (MUST): the chooser was told ${extension} only as part of a name, which is the ` +
-          'build D-172 was raised against',
+          'build DFC-172 was raised against',
       ).toContain('types')
       expect(
         extensionsNamedTo(options),

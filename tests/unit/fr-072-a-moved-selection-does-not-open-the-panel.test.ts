@@ -444,7 +444,7 @@ const DELETE_SELECTION = (): HumanInput => key(deleteSpelling())
 function deleteSpelling(): string {
   // ⚠️ SK-3's cell enumerates 「`Delete` / `Backspace`」, so it is read as the
   // list it is. Splitting the FIRST span on '/' looked like it took the first
-  // of two and in fact took the whole of one (`D-351`).
+  // of two and in fact took the whole of one (`DFC-351`).
   const spellings = bareAll(rowOf('T-036', 'SK-3').by['割当'] ?? '')
   const first = spellings[0]?.trim() ?? ''
   if (first === '') throw new Error('table T-036 SK-3 states no assignment')

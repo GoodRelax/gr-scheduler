@@ -49,7 +49,7 @@
 //   表 T-221  `LF-1`「目盛の刻みの間隔」-- ⭐⭐「刻むのは段ではなく行であり、その
 //            行が刷る単位に 1 つ刻むこと（MUST）」, which hands the roster of 行
 //            to 表 T-238, with ⛔「これ以外の間隔を採ってはならない（MUST NOT）」
-//            (ledger row D-91). ⛔⛔ THE PER-段 ENUMERATION THIS FILE USED TO
+//            (ledger row DFC-91). ⛔⛔ THE PER-段 ENUMERATION THIS FILE USED TO
 //            QUOTE（「年の段は 1 年、年と月の段は 1 か月、…」）WAS WITHDRAWN ON
 //            2026-09-04: 表 T-238 split the 月の段 into two 行 that tick at
 //            different units（実測: 年の行 1 回 / 月の行 12 回）, so no sentence
@@ -1007,7 +1007,7 @@ describe('UF-32 -- FR-038: the display language reaches the 曜日 and nothing e
 })
 
 // ---------------------------------------------------------------------------
-// 表 T-221 の `LF-1` -- the 刻み of the 曜日の段 (ledger row D-91)
+// 表 T-221 の `LF-1` -- the 刻み of the 曜日の段 (ledger row DFC-91)
 //
 // ⛔ THE HOLE THIS CLOSES. CR-268 gave the 曜日 a 段 of its own and ruled that
 // `LF-1` would not move -- 「刻みの間隔は段の組み方と別である」 -- which left the
@@ -1114,7 +1114,7 @@ describe('UF-32 -- 表 T-221 の `LF-1`: the 曜日の段 keeps the 日の段の
     // keep -- (1) the ruling is stated over the 行, not over the 段, and defers
     // to 表 T-238 for what each 行 prints; (2) wherever the row hands the 曜 an
     // interval, that same clause hands it to the 日 as well, which is the one
-    // consequence D-91 exists for. Both survive a rewording; neither survives
+    // consequence DFC-91 exists for. Both survive a rewording; neither survives
     // the 曜 being given an interval of its own.
     const lf1 = specTable('T-221').rows.find((row) => row.id === 'LF-1')
     if (lf1 === undefined) throw new Error('表 T-221 no longer has row LF-1')
@@ -1151,7 +1151,7 @@ describe('UF-32 -- 表 T-221 の `LF-1`: the 曜日の段 keeps the 日の段の
     const weekdayIntervals = clauses.filter((one) => one.includes('曜') && anInterval.test(one))
     expect(
       weekdayIntervals.length,
-      '表 T-221 の `LF-1`: 曜を刷る行にも刻みが与えられている（D-91）',
+      '表 T-221 の `LF-1`: 曜を刷る行にも刻みが与えられている（DFC-91）',
     ).toBeGreaterThan(0)
     for (const clause of weekdayIntervals) {
       expect(clause, `表 T-221 の \`LF-1\`: 曜の刻みは 1 日である —— ${clause}`).toMatch(/1\s*日/)

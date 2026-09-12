@@ -19,7 +19,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-152: 「⛔ **同じ `Enter` を繰り返すと、
+// `docs/development-records/defects.md` DFC-152: 「⛔ **同じ `Enter` を繰り返すと、
 // 誰も編集していない取り消しの段が積まれる**」, 期待値 「値が変わっていなければ
 // 何も書かない」. Its 詳細状況 column names the rule verbatim -- 「**表 T-028 の
 // `IN-6` が逐語で「始めた値と同じ値を書いてはならない」と定めている。**」 -- and
@@ -52,7 +52,7 @@
 //            defect and not a waste: it costs a 段, and `Ctrl+Z` then takes two
 //            presses to undo one edit
 //   表 T-016 `PR-1` `name` and `PR-2` `notes` -- the two rows that are settled by
-//            typing, which is where D-152 was measured
+//            typing, which is where DFC-152 was measured
 //
 // ---------------------------------------------------------------------------
 // ⛔ WHAT WAS READ OF `src/`: NOT ONE FILE. The unit is reached through
@@ -220,7 +220,7 @@ const controlOf = (
   ...patch,
 })
 
-/** The two rows of 表 T-016 that are settled by typing, which is where D-152 was measured. */
+/** The two rows of 表 T-016 that are settled by typing, which is where DFC-152 was measured. */
 const TYPED_ROWS = ['PR-1', 'PR-2'] as const
 
 /** ⭐ THE VALUE THE PERSON STARTED WITH -- what `IN-6`'s MUST NOT is about. */
@@ -452,7 +452,7 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
 
     it(`⭐ ${row}: a DIFFERENT value is still handed back (the control for both above)`, () => {
       // ⛔ Without this, a unit that never handed anything back at all would pass
-      // the two cases above -- which is the state D-130 measured.
+      // the two cases above -- which is the state DFC-130 measured.
       const built = drawnPanel()
       const control = enterField(built, row)
       const wanted = SOMETHING_ELSE[row] ?? ''
@@ -490,7 +490,7 @@ describe('IN-6 (MUST NOT) -- settling an unchanged field raises nothing', () => 
 describe('IN-5a (MUST NOT) -- the unchanged value does not open the single-key gate', () => {
   for (const row of TYPED_ROWS) {
     it(`⛔ ${row}: with the caret in the field and nothing typed, text stands unsettled`, () => {
-      // ⭐⭐ THE OTHER SIDE OF D-152, AND THE ONE ITS 補足 COLUMN WARNS ABOUT:
+      // ⭐⭐ THE OTHER SIDE OF DFC-152, AND THE ONE ITS 補足 COLUMN WARNS ABOUT:
       // 「**同じ答えを 表 T-028 の `IN-5a` が単文字キーの門にも使っており、偽にする
       //   と名称の欄で `p` と打っただけでパレットが開く。**」 So an implementation
       // that made the first section pass by answering 「確定していない文字入力は

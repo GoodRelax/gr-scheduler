@@ -53,7 +53,7 @@
 // `Status Line` and `Dual Cursor`. Those three are drawn by SvgRenderer from
 // what ScheduleGeometry (CP-6) measured.
 //
-// ⭐ EP-7 THE `Watermark` IS AMONG THEM SINCE D-195 WAS CLOSED, and this file
+// ⭐ EP-7 THE `Watermark` IS AMONG THEM SINCE DFC-195 WAS CLOSED, and this file
 // still adds nothing: `watermarkSvg` in `svg-renderer.ts` lays the layer inside
 // the `Row Area`, and the shell hands the same name and the same UTC stamp to
 // the exported picture that it hands the screen. ⛔ IT COULD NOT BE ADDED HERE
@@ -76,7 +76,7 @@
 // longer among the things that could arrive: told which picture it is making,
 // that file now refuses both the selection outline (FR-030) and DC-8's mark
 // for the side of the `Dual Cursor` that is following, whatever it is handed
-// (D-52). ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a gain
+// (DFC-52). ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a gain
 // rather than a loss: EP-6 (MUST) wants them IN the export. CU-3's guide
 // cursor is still not carried at all.
 // ⛔ So the picture handed to an export MUST STILL be one rendered for the
@@ -159,7 +159,7 @@ export interface ExportScene {
   readonly settings: DocumentSettings
   /**
    * The document's theme hue (`Project.themeHue`, AT-19) -- the number table
-   * T-236 writes `H` for (D-277).
+   * T-236 writes `H` for (DFC-277).
    *
    * ⛔ HANDED IN, BECAUSE IT CANNOT BE READ HERE AND MUST NOT BE GUESSED.
    * DR-5 of table T-052 keeps the hue at `Project`, so it is in neither
@@ -228,7 +228,7 @@ interface SvgPicture {
  * row or a cut height any more -- either the whole screen is in the picture, or
  * there is no picture. ⛔ Until CR-337 this carried `droppedGroupIds`, the rows
  * FR-025 cut from the bottom; that rule is gone (2026-09-02) and so is the
- * field it existed for. D-201 ("落とした件数を 2 つ運べない") closes for the
+ * field it existed for. DFC-201 ("落とした件数を 2 つ運べない") closes for the
  * same reason: nothing is dropped, so there is no count left to carry.
  */
 export type SvgExport =
@@ -373,7 +373,7 @@ function appHeaderSvg(
   // FR-035 fixes a substitute for the BROWSER TAB and says nothing about a
   // header with no title, so a document without one shows none.
   if (documentTitle === null || documentTitle === '') return ground
-  // ⭐ D-276: THE SIZE AND THE INSET ARE THE SCREEN'S OWN ROWS, S-225 and
+  // ⭐ DFC-276: THE SIZE AND THE INSET ARE THE SCREEN'S OWN ROWS, S-225 and
   // S-226 of table T-206 (the reader's ruling of 2026-09-07). EP-1 of table
   // T-076 (MUST) has the screen and the export read one row for each and
   // (MUST NOT) lets the export hold a value of its own. ⛔ Until this, two
@@ -457,14 +457,14 @@ function rowTitleSvg(
  * FR-080 (MUST) writes the properties panel as closed and gives its room to the
  * schedule, so an export's frame is the one that holds with it closed.
  *
- * ⭐ D-277: THE COLOUR IS S-149, table T-236's rule colour (「区切りの線」) --
+ * ⭐ DFC-277: THE COLOUR IS S-149, table T-236's rule colour (「区切りの線」) --
  * `dom-screen-surface.ts` paints this same `Panel Divider` with `PAINT.rule`
  * (S-149, FR-029), so the export reads the identical row rather than a second
  * number of its own. ⛔ NOT S-165 -- that row is `Group Grid Lines`' own
  * colour (a horizontal line inside the schedule, drawn by `SvgRenderer`), a
  * different line from the vertical `Panel Divider` this function draws.
  *
- * ⭐⭐ THE HUE IS THE DOCUMENT'S, AND ARRIVES WITH THE REQUEST (D-277 closed
+ * ⭐⭐ THE HUE IS THE DOCUMENT'S, AND ARRIVES WITH THE REQUEST (DFC-277 closed
  * 2026-09-07). ⛔ A literal 0 stood here until then, on the ground that
  * `_source/components.json` drew this component no edge that reaches
  * `Project.themeHue` (AT-19) -- and the ground was measured false in the

@@ -63,10 +63,10 @@
 | `CS` | Consistency | 文書の見え方を一貫させる単位 | 仕様書 | `T-066` | 4 |
 | `CT` | Contrast | テーマ色が満たすコントラストの条件 | 仕様書 | `T-017a` | 5 |
 | `CU` | Cursor | 画面に立てるカーソルの種別 | 仕様書 | `T-029` | 3 |
-| `D` | Defect | 台帳の欠陥（CR により `DFC-` へ改める途中であり、巡 1 で仕様書側は `DEV-` へ移った） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 527 |
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（CR の巡 1 で `D-` から改めた綴りである。<br>`words` は登録簿が `D` について既に持っていた語であり、発明ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
+| `DFC` | Defect | 台帳に載る欠陥（CR の巡 2 で `D-` から改めた綴りである） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 527 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 13 |
@@ -96,6 +96,7 @@
 | `IO` | Input / Output | 読み書きする入出力の形式 | 仕様書 | `T-024` | 7 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 20 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
+| `JDG` | Judgement | 利用者の裁定（CR の巡 2 で `R-` から改めた。<br>⛔ `RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 44 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 116 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 3 |
 | `LC` | Layout Calculation | レイアウトを求める計算の段 | 仕様書 | `T-068` | 11 |
@@ -133,7 +134,6 @@
 | `PTD` | Pointer Down | ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである） | 仕様書 | `T-023a` | 6 |
 | `PV` | — | 印を押して状態を確定したときに置く値 | 仕様書 | `T-021a` | 4 |
 | `QN` | Question | 問いが示す文 | 仕様書 | `T-234` | 7 |
-| `R` | — | 利用者の裁定（CR により `JDG-` へ改める途中であり、巡 1 で仕様書側は `CHN-` へ移った） | 台帳 | `docs/development-records/rulings.md` | 44 |
 | `RC` | Reduction Candidate | 削減・見直しの候補 | 仕様書 | `T-026` | 11 |
 | `RD` | — | 文書をまるごと差し替えるときの、呼び手ごとの扱い | 仕様書 | `T-230` | 6 |
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |

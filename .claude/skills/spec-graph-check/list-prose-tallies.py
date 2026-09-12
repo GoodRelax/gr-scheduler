@@ -4,8 +4,8 @@
 ⛔⛔ NOT A GATE. Measure its precision before anyone adds it to check.sh.
 
 ⭐ WHY THIS EXISTS. The cleanup round of 2026-09-11 found five false
-completeness claims and four false prose tallies (`D-457`, `D-461`, `D-463`,
-`D-471`, `D-475` among them). Every one of them is the same accident: a
+completeness claims and four false prose tallies (`DFC-457`, `DFC-461`, `DFC-463`,
+`DFC-471`, `DFC-475` among them). Every one of them is the same accident: a
 sentence states how many of something there are, the table underneath it
 gains or loses a row, and NOTHING CONNECTS THE TWO.
 

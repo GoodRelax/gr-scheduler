@@ -50,7 +50,7 @@ CHALLENGE = re.compile(r'`?(CH-[1-5]|GL-00[1-7])`?')
 # real group -- docs/development-rules/07-review-standards.md opens with
 # "R1: 要求品質レビュー観点（仕様書 Ch1-4 対象）" and carries R1.1 .. R1.6 --
 # so a change request that held only R1 clauses against itself was told it had
-# held none. Ledger row D-323.
+# held none. Ledger row DFC-323.
 STANDARD = re.compile(r'review-standards|`?R[1-7](\.\d+)?`?')
 # Rule ⑧: what did the author settle without asking?
 # A fixed phrase, so the section can be found rather than guessed at.

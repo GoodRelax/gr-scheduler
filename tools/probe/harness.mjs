@@ -122,7 +122,7 @@ export async function pressAt(x, y) {
  * Press twice at a point, which is the gesture MK-13 of table T-028 names.
  *
  * ⛔ IT IS THE ONE WAY INTO THE PROPERTIES PANEL FROM THE PICTURE. Measured
- * 2026-09-03: no key opens it (the ledger's D-222), so a probe that wants an
+ * 2026-09-03: no key opens it (the ledger's DFC-222), so a probe that wants an
  * editable field has to come through here.
  */
 export async function doublePressAt(x, y) {
@@ -239,13 +239,13 @@ export const PANEL = '[data-role="Properties Panel"]'
  *
  * ⛔⛔ THIS FUNCTION USED TO PRESS `p`, WHICH THE NOTE ABOVE ALREADY SAID WAS
  * THE COMMAND PALETTE. Measured 2026-09-03 on the shipped build (the ledger's
- * D-222): `p` leaves 0 field rows and 0 inputs, a double press on a row name
+ * DFC-222): `p` leaves 0 field rows and 0 inputs, a double press on a row name
  * gives 6 field rows and 1 input, and one on a task gives 37 and 3. The ledger
  * also claimed the task gesture did not work, and that was false.
  *
  * ⭐ THE PREDICATE COUNTS INPUTS, NOT FIELD ROWS. A probe wants this function
  * because it is about to type; a panel that has filled with rows carrying no
- * editable field is the state D-222 was reported from.
+ * editable field is the state DFC-222 was reported from.
  *
  * @param at the point to press. Defaults to the name of the topmost row --
  *   pass a task's `mid` from `shapes()` for the 37-field picture instead.
@@ -340,7 +340,7 @@ export const CANVAS = '[data-role="Schedule Canvas"]'
  * ⛔ IT IS THE CANVAS'S OWN `style.cursor` AND NOT THE PAGE'S. A `Panel
  * Divider` or a floating surface carries its own, and reading only this one is
  * how a session concluded that the pointer "answered nothing" over a band that
- * was answering `col-resize` -- the ledger's D-137. Ask `partAt` as well when
+ * was answering `col-resize` -- the ledger's DFC-137. Ask `partAt` as well when
  * the answer is empty.
  */
 export async function cursorAt(x, y) {
@@ -455,7 +455,7 @@ export async function notices() {
  *
  * ⚠️ THE PITCH IS NOT THE HEIGHT. Measured 2026-08-29: every pitch is the band
  * plus 8px, and that gap is where a vertical pan used to lose its travel
- * (the ledger's D-138). A probe that reads `height` where it means `pitch`
+ * (the ledger's DFC-138). A probe that reads `height` where it means `pitch`
  * measures the defect rather than the picture.
  */
 export async function rowBands() {
@@ -473,7 +473,7 @@ export async function rowBands() {
 /**
  * Drag with a real pointer, reporting what the picture did at every step.
  *
- * ⭐⭐ THIS IS THE MEASUREMENT THAT FOUND D-138. A drag reported in ONE jump
+ * ⭐⭐ THIS IS THE MEASUREMENT THAT FOUND DFC-138. A drag reported in ONE jump
  * hides a quantisation; the same drag swept in small steps showed the picture
  * overshoot by exactly the gap between two bands at one boundary and nowhere
  * else. ⛔ Never conclude 等倍 from a single long drag.
@@ -570,7 +570,7 @@ export async function panelEntries(rowTopPx = null, { panelRightPx = null } = {}
           role: entry.getAttribute('data-role'),
           // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. Measured
           // 2026-08-30: a disarmed entry and an armed one match on opacity,
-          // colour, cursor and `disabled` -- the ledger's D-142.
+          // colour, cursor and `disabled` -- the ledger's DFC-142.
           arming: entry.getAttributeNames()
             .filter((name) => name.startsWith('data-can') || name === 'data-pinned')
             .map((name) => name + '=' + entry.getAttribute(name)).join(' '),

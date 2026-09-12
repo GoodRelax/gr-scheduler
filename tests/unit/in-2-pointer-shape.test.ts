@@ -75,7 +75,7 @@
 //             と同じ場所である**」 -- it is ranked ABOVE GR-12 but no longer
 //             stands ON the figure, which the row says of itself: 「⛔⛔
 //             **2026-09-02 まで「未着手のマイルストーンの図形の上」と定めていた**」
-//             (D-192). See the last describe.
+//             (DFC-192). See the last describe.
 //   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
 //             いるタスクにだけ出すこと（MUST）」 for GR-1 / GR-2 -- the fixture
 //             below keeps all four out of the way, and premises measure that.

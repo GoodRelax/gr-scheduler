@@ -144,7 +144,7 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
   'の開始と終了のどちらを掴んだか決められないときは、終了を優先すること（MUST）'
 
 // ---------------------------------------------------------------------------
-// ⭐ ADDED 2026-09-08, WITH THE ROUND THAT CLOSED D-393 AND D-400. The ruling
+// ⭐ ADDED 2026-09-08, WITH THE ROUND THAT CLOSED DFC-393 AND DFC-400. The ruling
 // of that day rewrote table T-023d's closing rules and GR-8's row; the five
 // clauses above were already held, and these five were not. Every one is a
 // trailing window of 90 characters ending at its own MUST / MUST NOT marker,
@@ -172,7 +172,7 @@ const GR_8_IS_CENTRED_ON_THE_ICON =
   'は本表の結びが持つ。⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
 
 // ---------------------------------------------------------------------------
-// ⭐ ADDED WITH THE ROUND THAT MEASURED D-395. The closing rule of 2026-09-08
+// ⭐ ADDED WITH THE ROUND THAT MEASURED DFC-395. The closing rule of 2026-09-08
 // that names the two ends standing on ONE DAY was held by nothing under
 // tests/: measured on this tree, making the unit's gate on the ACTUAL's two
 // ends (`actualEndsStandOnOneDay`) never fire at all left 7223 cases green and
@@ -725,7 +725,7 @@ describe('right of the fence a dummy beats every plan-side row', () => {
 })
 
 // ===========================================================================
-// 6a. ⭐ R-34 -- the holds are NESTED, not cut into an upper and a lower lane
+// 6a. ⭐ JDG-34 -- the holds are NESTED, not cut into an upper and a lower lane
 // ===========================================================================
 //
 // ⛔ THE DEFECT THIS SECTION IS THE ANCHOR FOR. The round of 2026-09-09 that
@@ -741,7 +741,7 @@ describe('right of the fence a dummy beats every plan-side row', () => {
 // on the same figure and one of them answers a dummy. Nesting answers a
 // plan-side row at both, and the actual row only between them.
 
-describe('R-34: the overlapping holds are nested, so the plan keeps both margins', () => {
+describe('JDG-34: the overlapping holds are nested, so the plan keeps both margins', () => {
   /** Above the actual band and inside the plan's -- 「外側の縁が必ず残る」. */
   const TOP_MARGIN_Y = MID_Y - ACTUAL_BAND_HEIGHT / 2 - 2
   const BOTTOM_MARGIN_Y = MID_Y + ACTUAL_BAND_HEIGHT / 2 + 2
@@ -938,7 +938,7 @@ describe('GR-8 takes S-22 about the icon, not the icon\'s own outline', () => {
 })
 
 // ===========================================================================
-// 8. ⭐ R-39 -- a milestone carries no resume icon at all
+// 8. ⭐ JDG-39 -- a milestone carries no resume icon at all
 // ===========================================================================
 //
 // 利用者の裁定 2026-09-09, 逐語「マイルストーンは再開が無い。 マイルストーンは未着手
@@ -998,7 +998,7 @@ function milestoneWithAResumeFigure(): ScheduleGeometry {
   }
 }
 
-describe('R-39: a milestone has no GR-8, and one GR-18 rather than two ends', () => {
+describe('JDG-39: a milestone has no GR-8, and one GR-18 rather than two ends', () => {
   const grabOnMilestone = (x: number, y: number): GrabArea | null =>
     itemAtPointer(milestoneWithAResumeFigure(), x, y, SLOP)?.grab ?? null
 
@@ -1033,7 +1033,7 @@ describe('R-39: a milestone has no GR-8, and one GR-18 rather than two ends', ()
 })
 
 // ===========================================================================
-// 9. ⭐ R-38 -- a dependency line beats the plan body it is drawn over
+// 9. ⭐ JDG-38 -- a dependency line beats the plan body it is drawn over
 // ===========================================================================
 //
 // 利用者の裁定 2026-09-09, 逐語「依存線の優先度を上げてよい。ただし、依存線の縦幅は
@@ -1049,7 +1049,7 @@ describe('R-39: a milestone has no GR-8, and one GR-18 rather than two ends', ()
 // fixtures. The rule is still a rule about what a press answers where the two
 // DO meet, and this figure puts them there.
 
-describe('R-38: the dependency line answers where it runs over a plan body', () => {
+describe('JDG-38: the dependency line answers where it runs over a plan body', () => {
   const withALineAcrossTheBar = (): ScheduleGeometry => {
     const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
     return {

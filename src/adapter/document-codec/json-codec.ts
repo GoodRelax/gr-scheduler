@@ -87,7 +87,7 @@ export type JsonRefusalReason = 'RS-25'
  * TELLING -- the columns that could not be read shown on `U-61`
  * (`Difference Review`, table T-103) carrying `RS-48` of table T-233, and the
  * person asked whether to go on.
- * ⭐ THE COLUMNS ARE COUNTED NOW (D-357): `unreadColumns` on the decoding below
+ * ⭐ THE COLUMNS ARE COUNTED NOW (DFC-357): `unreadColumns` on the decoding below
  * is the list, and this reading is what turns it on. ⚠️ An earlier note here
  * said no member counted them; it was true when it was written and is not now.
  * STOP -- ⛔ THAT TELLING IS STILL NOT DRAWN, and it is not this unit's to
@@ -1605,7 +1605,7 @@ export function documentFromJson(
   }
 
   // ⭐⭐ FR-073 / OP-7 IS JUDGED BEFORE THE FAULTS ARE, AND THAT ORDER IS THE
-  // REQUIREMENT (D-357). A document of a version this build does not know is
+  // REQUIREMENT (DFC-357). A document of a version this build does not know is
   // one 「受けて開くこと（MUST）」 and 「拒んではならない（MUST NOT）」, so the
   // reading has to be in hand at the moment the faults are weighed -- weighing
   // them first is what refused every newer document outright.

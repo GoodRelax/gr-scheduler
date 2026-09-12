@@ -375,7 +375,7 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
  * entries turn on and off lives in `DocumentSettings`, which the fixed
  * signature does not carry.
  *
- * ⭐⭐ THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (D-281). FR-029
+ * ⭐⭐ THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (DFC-281). FR-029
  * (MUST) says 「その対象を、画面に描かれている側で数えること」 and (MUST NOT)
  * 「描かれていないものの上に残る状態を数えてはならない」; `Selection` is not cut
  * when a fold, a hiding or FR-018's depth limit takes a Task out of the picture
@@ -390,7 +390,7 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
  * measured a box for it this frame.
  * ⛔ `null` IS "THE PICTURE WAS NOT HANDED OVER" AND NEVER "NOTHING IS DRAWN".
  * A caller that passes no `Schedule` gets the reading this member made before
- * D-281 -- every chosen Task counted -- because a false faint tells the reader
+ * DFC-281 -- every chosen Task counted -- because a false faint tells the reader
  * an entrance is broken, which is the very reading FR-029 exists to prevent
  * (the same discipline `app-header-items.ts` states for its own STOP notes).
  * ⚠️ An EMPTY set is a different answer and is honoured: it says the picture

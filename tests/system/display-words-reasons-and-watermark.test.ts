@@ -1,25 +1,25 @@
 // Four rows of the defect ledger whose build had landed and whose test had not,
 // measured by a reader who was allowed `docs/spec/` and nothing else.
 //
-//   D-308  a word the screen prints must not shorten `Comment Boxes` the way
+//   DFC-308  a word the screen prints must not shorten `Comment Boxes` the way
 //          `U-14` of table T-103 (`_assets/tbl-glossary.md`) forbids. `FR-038`
 //          (MUST) makes `_source/display-words.json` the one home of every word
 //          the screen prints, so the whole of the answer is countable there.
 //
-//   D-340  the question `IC-66` raises stands for the WHOLE of what is chosen.
+//   DFC-340  the question `IC-66` raises stands for the WHOLE of what is chosen.
 //          Table T-234 row `QN-3` settles the scene, `FR-099` (MUST) has the
 //          released assignments' task names shown and (MUST NOT) forbids a bare
 //          count, and table T-037 row `NT-7` (MUST) has the two answers spelled
 //          `Yes` / `No` in every display language.
 //
-//   D-341  every reason the product can carry is a row of table T-233. The rule
+//   DFC-341  every reason the product can carry is a row of table T-233. The rule
 //          is the sentence that closes table T-037: 通知が運ぶ理由は 表 T-233 の
 //          行とすること（MUST）。同表に無い理由を運んではならない（MUST NOT）,
 //          with `RS-15` named there as the seat for a reason that has no row.
 //          `RS-45` left table T-233 on 2026-09-04 and is the row this case is
 //          really about.
 //
-//   D-354  the watermark's instant is stamped when the document is opened and
+//   DFC-354  the watermark's instant is stamped when the document is opened and
 //          when it changes, and at no other moment. `FR-020` (MUST) names those
 //          two moments and (MUST NOT) forbids reading the clock every frame.
 //
@@ -153,7 +153,7 @@ function dictionaryTextOf(section: string, rowId: string, language: string): str
 }
 
 // ---------------------------------------------------------------------------
-// D-308 -- the abbreviation `U-14` bans
+// DFC-308 -- the abbreviation `U-14` bans
 // ---------------------------------------------------------------------------
 
 // ⚠️ Three Japanese punctuation marks, built from their code points rather than
@@ -235,7 +235,7 @@ function shortens(text: string, ban: BannedShortening): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// D-341 -- the reasons a notice may carry
+// DFC-341 -- the reasons a notice may carry
 // ---------------------------------------------------------------------------
 
 /** Every row ID table T-233 holds today. @purity pure */
@@ -284,7 +284,7 @@ function quotedReasons(): QuotedReason[] {
 }
 
 // ---------------------------------------------------------------------------
-// D-354 -- the watermark's instant
+// DFC-354 -- the watermark's instant
 // ---------------------------------------------------------------------------
 
 /**
@@ -441,7 +441,7 @@ async function readDrawingWithoutWatermark(page: Page): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
-// D-308 -- no word the screen prints shortens `Comment Boxes`
+// DFC-308 -- no word the screen prints shortens `Comment Boxes`
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: a word of the dictionary, or a word the running application puts
@@ -451,7 +451,7 @@ async function readDrawingWithoutWatermark(page: Page): Promise<string> {
 // the run fails rather than passing on a mis-parse); the dictionary, which
 // `FR-038` makes the whole of what the product can ever print; and the screen,
 // which has to be showing Japanese words for the walk to mean anything.
-test('D-308: no word the screen can print shortens the term U-14 settles', async ({ baseURL }) => {
+test('DFC-308: no word the screen can print shortens the term U-14 settles', async ({ baseURL }) => {
   test.setTimeout(180_000)
 
   // Table T-103 holds two cells after the row ID -- the settled English name and
@@ -497,7 +497,7 @@ test('D-308: no word the screen can print shortens the term U-14 settles', async
 })
 
 // ---------------------------------------------------------------------------
-// D-340 -- the question asked of a whole selection
+// DFC-340 -- the question asked of a whole selection
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the sentence shown when the chosen resources are deleted stops
@@ -508,7 +508,7 @@ test('D-308: no word the screen can print shortens the term U-14 settles', async
 // `Yes` / `No` (table T-037 row `NT-7` MUST), or if the roster holds one
 // resource or none -- in which case the press never reached a selection at all
 // and the case would be proving nothing about number.
-test('D-340: the question IC-66 raises is QN-3, asked of the whole selection', async ({
+test('DFC-340: the question IC-66 raises is QN-3, asked of the whole selection', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -591,7 +591,7 @@ test('D-340: the question IC-66 raises is QN-3, asked of the whole selection', a
 })
 
 // ---------------------------------------------------------------------------
-// D-341 -- every reason the product carries is a row of table T-233
+// DFC-341 -- every reason the product carries is a row of table T-233
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the product tree writes a reason ID table T-233 does not hold --
@@ -600,7 +600,7 @@ test('D-340: the question IC-66 raises is QN-3, asked of the whole selection', a
 // sentence that closes table T-037: 同表に無い理由を運んではならない（MUST NOT）
 // and 行を足すときは、辞書の原稿にも項を足すこと（MUST）. A run that finds no
 // quoted reason at all fails as well, since the walk would then prove nothing.
-test('D-341: no reason the product can carry is missing from table T-233', () => {
+test('DFC-341: no reason the product can carry is missing from table T-233', () => {
   const quoted = quotedReasons()
   expect(
     quoted.length,
@@ -647,7 +647,7 @@ test('D-341: no reason the product can carry is missing from table T-233', () =>
 })
 
 // ---------------------------------------------------------------------------
-// D-354 -- the watermark's instant is stamped twice, and not per frame
+// DFC-354 -- the watermark's instant is stamped twice, and not per frame
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the watermark carries no instant of the shape `FR-020` names; or
@@ -658,7 +658,7 @@ test('D-341: no reason the product can carry is missing from table T-233', () =>
 // spelling the shape it is matched against, and when the press that is supposed
 // to change the document leaves the drawing untouched -- in which case the third
 // assertion would be proving nothing.
-test('D-354: the watermark is stamped when the document opens and when it changes', async ({
+test('DFC-354: the watermark is stamped when the document opens and when it changes', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)

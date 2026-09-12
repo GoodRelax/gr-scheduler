@@ -48,7 +48,7 @@ import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the second floor under a band
-// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row D-225).
+// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row DFC-225).
 //
 //   `LF-3`  「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051
 //           の `HF-1` の格子）が縦に取る高さも下回らない**」
@@ -1015,7 +1015,7 @@ const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') /
 // （MUST NOT）」（利用者の裁定 2026-09-10）, and the mark's own width is 「1 日ぶんと
 // … `S-180` の小さい方」. At this file's pxPerDay of 6 (well under `S-180`'s 30),
 // that width IS `pxPerDay`. ⛔ Read from the generated block, so the
-// manuscript's own number is what these cases stand on. Defect D-408.
+// manuscript's own number is what these cases stand on. Defect DFC-408.
 // ⛔⛔ UNTIL 2026-09-10 THIS WAS `NOT_STORED_SIZES['S-93']` -- the fixed 30px
 // hold -- and table T-038's order named the two apart: 「実績のダミーの掴みシロ
 // は `S-93` であり、描く幅の `S-180` ではない」. That distinction is retired:
@@ -1247,7 +1247,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // ⛔ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE FIGURE'S
     // EDGE ALONE, and it was measured wrong on the shipped build: the marker
     // stood on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9, which is
-    // defect D-408's shape on the shape D-408 was not repaired for.
+    // defect DFC-408's shape on the shape DFC-408 was not repaired for.
     // ⭐ GR-7's own row is untouched: it says what the marker stands outside OF,
     // and this says which width the order counts. The marker clears both.
     // ⛔⛔ ZOOMED IN (`zoomX: 3`) SINCE 2026-09-10, and the reason is the ruling
@@ -1701,7 +1701,7 @@ describe('ItemHitArea (PI-7)', () => {
     expect(itemAtPointer(oneTask(), xOf(1) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe(
       'GR-7',
     )
-    // ⛔ AND NOT INSIDE THE INK (defect D-408, still): a press on the mark's
+    // ⛔ AND NOT INSIDE THE INK (defect DFC-408, still): a press on the mark's
     // own right half answers GR-17 -- 「印の右半分を実績の終了側とすること」 --
     // and NOT the finish's OWN band running on past the ink, which no longer
     // exists (MUST NOT, 利用者の裁定 2026-09-10): 「印の外へ広げてはならない」.
@@ -1812,7 +1812,7 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   // =========================================================================
-  // ⭐ R-35 -- the plan's ends reach OUTSIDE, the actual's ends reach INSIDE
+  // ⭐ JDG-35 -- the plan's ends reach OUTSIDE, the actual's ends reach INSIDE
   // =========================================================================
   //
   // ⛔ THE DEFECT. Until 2026-09-09 both `S-90` and `S-91` reached to EITHER
@@ -1832,7 +1832,7 @@ describe('ItemHitArea (PI-7)', () => {
   // 「実績の端点（`GR-5` / `GR-6`）の掴み代は端の内側だけに取ること（MUST）」
   // 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）。実績の端点を端の外側へ伸ばしてはならない（MUST NOT）」
 
-  it('R-35 ⭐ MUST: outside the left end is the PLAN\'s, inside it is the ACTUAL\'s', () => {
+  it('JDG-35 ⭐ MUST: outside the left end is the PLAN\'s, inside it is the ACTUAL\'s', () => {
     // ⚠️ STARTED ON PURPOSE, so no dummy stands on these pixels and the only
     // rows in the contest are the four the ruling names.
     const geometry = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
@@ -1849,7 +1849,7 @@ describe('ItemHitArea (PI-7)', () => {
       .toBe('GR-5')
   })
 
-  it('R-35 ⛔ MUST NOT: neither allowance crosses the end it belongs to', () => {
+  it('JDG-35 ⛔ MUST NOT: neither allowance crosses the end it belongs to', () => {
     // ⛔ THE CONTRAST, at the far reach of each row rather than one pixel in.
     // A build still spreading `S-90` both ways answers GR-3 well inside the
     // bar; one still spreading `S-91` both ways answers GR-5 well outside it.
@@ -1862,7 +1862,7 @@ describe('ItemHitArea (PI-7)', () => {
     expect(itemAtPointer(geometry, outside, middleY, SLOP)?.grab).not.toBe('GR-5')
   })
 
-  it('R-35 ⛔ MUST NOT: an allowance ten times the row still does not cross the end', () => {
+  it('JDG-35 ⛔ MUST NOT: an allowance ten times the row still does not cross the end', () => {
     // ⭐⭐ THE MEASUREMENT THAT MAKES THE TWO CASES ABOVE MORE THAN A COINCIDENCE
     // OF DEFAULTS. `itemAtPointer` takes the allowances as an argument, so the
     // side each one reaches on can be asked directly: hand it a `planEndpoint`
@@ -1882,7 +1882,7 @@ describe('ItemHitArea (PI-7)', () => {
     ).not.toBe('GR-5')
   })
 
-  it('R-35 ⭐ MUST: the actual end\'s allowance stops at half the actual bar', () => {
+  it('JDG-35 ⭐ MUST: the actual end\'s allowance stops at half the actual bar', () => {
     // 「実績の端点の掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の
     // 2 端が同じ画素を争う」. ⚠️ ONE worked day long, so the bar is narrower than
     // twice `S-91` and the clamp is the only thing that can part the two ends.
@@ -1900,13 +1900,13 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   // =========================================================================
-  // ⭐ R-36 -- the not-started dummy and the started actual hold alike
+  // ⭐ JDG-36 -- the not-started dummy and the started actual hold alike
   // =========================================================================
   //
   // ⛔ THE DEFECT, in 利用者's own words: 「未着手のつかみシロが着手済と形状が違い
   // 混乱する。 形状を合わせろ。」 ⇒ 「未着手のダミーと着手済の実績は、同じ形の掴み
   // シロを持つこと（MUST）」, and the vertical is where the two used to part:
-  // ⭐ THE CLAUSE WHOLE ON ONE LINE, for the reason given under R-35 above:
+  // ⭐ THE CLAUSE WHOLE ON ONE LINE, for the reason given under JDG-35 above:
   // 「未着手のダミーと着手済の実績は、同じ形の掴みシロを持つこと（MUST）」
   // 「ダミーの当たり判定の縦幅は、実績の帯に従うこと（MUST）—— 横は `FR-043` が描く
   // 印の幅であり、その上限は 表 T-206 の `S-180` が持つ」 -- ⛔ THE SECOND HALF WAS
@@ -1914,7 +1914,7 @@ describe('ItemHitArea (PI-7)', () => {
   // With ⛔ 「2026-09-09 まで `S-93` が縦をみずから持っており、実績の帯より
   // 高かった」.
 
-  it('R-36 ⭐ MUST: the dummy\'s hold is no taller than the started actual\'s band', () => {
+  it('JDG-36 ⭐ MUST: the dummy\'s hold is no taller than the started actual\'s band', () => {
     const started = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
     const actualYs = outlinePoints(started.tasks[0]!.actual).map((one) => one.y)
     const band = Math.max(...actualYs) - Math.min(...actualYs)
@@ -1936,26 +1936,26 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   // =========================================================================
-  // ⭐ R-38 -- the dependency line beats the plan body, and stays thin
+  // ⭐ JDG-38 -- the dependency line beats the plan body, and stays thin
   // =========================================================================
   //
   // 利用者の裁定 2026-09-09: 「依存線の優先度を上げてよい。ただし、依存線の縦幅は実績
   // の縦幅より狭くしろ。」 ⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
   // こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
   // （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
-  // ⭐ The half THIS unit presses, whole on one line (see R-35 above for why):
+  // ⭐ The half THIS unit presses, whole on one line (see JDG-35 above for why):
   // 「ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」
   // ⛔ The other half -- the line standing above the plan body -- is pressed in
   // tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts, and is latched
   // there rather than here, where no case asks it.
 
-  it('R-38 ⭐ MUST: the line\'s own allowance is narrower than the actual\'s floor', () => {
+  it('JDG-38 ⭐ MUST: the line\'s own allowance is narrower than the actual\'s floor', () => {
     // `S-137` is a reach to EITHER side of the line, so the band it makes is
     // twice the row's number; `S-6` is the actual bar's floor.
     expect(NOT_STORED_SIZES['S-137'] * 2).toBeLessThan(settingNumber('actualMin'))
   })
 
-  // ⛔ WHERE THE PRESS HALF OF R-38 IS ASKED, AND WHY NOT HERE. Table T-222's
+  // ⛔ WHERE THE PRESS HALF OF JDG-38 IS ASKED, AND WHY NOT HERE. Table T-222's
   // router keeps every route of this unit's own fixtures OFF the plan bodies --
   // measured on this tree: RP-1, RP-3, RP-4 and RP-5 all clear them -- so a
   // real layout cannot be made to stage the contest without asking the router

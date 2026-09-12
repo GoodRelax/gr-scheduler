@@ -1,10 +1,10 @@
-// The four rulings of 2026-09-09 (R-27, R-28, R-29, R-30 of
+// The four rulings of 2026-09-09 (JDG-27, JDG-28, JDG-29, JDG-30 of
 // docs/development-records/rulings.md), and the fourteen MUST / MUST NOT
 // clauses they wrote into docs/spec/01-04-requirements.md.
 //
 // ⛔ NOT A NEW SUITE and not a hunt for defects: rule 04 section 3.5 admits a
 // unit case only as a 戻り止め for something already measured. What is measured
-// here is R-28 -- the resume icon beating the plan bar's body, and the middle
+// here is JDG-28 -- the resume icon beating the plan bar's body, and the middle
 // it takes having no ceiling. The other three rulings are QUOTED and NOT
 // pressed, and the reason for each is written out below beside its own
 // measurement, so that a reader can tell a clause nothing holds from a clause
@@ -15,7 +15,7 @@
 // TS-6, tests/unit/.
 //
 // ---------------------------------------------------------------------------
-// THE CLAUSES, VERBATIM -- R-28, WHICH THE CASES BELOW PRESS
+// THE CLAUSES, VERBATIM -- JDG-28, WHICH THE CASES BELOW PRESS
 // ---------------------------------------------------------------------------
 //
 // Table T-023d's closing paragraph, docs/spec/01-04-requirements.md:
@@ -42,12 +42,12 @@
 // with `git checkout -- docs/spec/` after each. The numbers are what the runs
 // printed, not what was expected of them.
 //
-//   1 R-27 reversed in place -- 「掴みシロの幅」 and 「描いた印の幅」 swapped, so
+//   1 JDG-27 reversed in place -- 「掴みシロの幅」 and 「描いた印の幅」 swapped, so
 //     the rule says the opposite of the ruling, the 逐語 left standing.
 //     ⇒ `npx vitest run`: 191 files, 7327 passed, ZERO red.
 //     ⇒ check 39: FAIL, 977 -> 979 unheld, because the two clauses this file
 //       quotes stopped matching the manuscript.
-//   2 R-28 reversed in place -- 「`GR-8` が勝つ」 and the priority sentence
+//   2 JDG-28 reversed in place -- 「`GR-8` が勝つ」 and the priority sentence
 //     turned round to name `GR-12` as the winner.
 //     ⇒ `npx vitest run`: ZERO red, again.
 //     ⇒ check 39: FAIL, 977 -> 979 unheld, for the same reason.
@@ -65,10 +65,10 @@
 // as prose is held by its words alone.
 //
 // ---------------------------------------------------------------------------
-// THE CLAUSES, VERBATIM -- R-27, R-29 AND R-30, WHICH THIS FILE ONLY HOLDS
+// THE CLAUSES, VERBATIM -- JDG-27, JDG-29 AND JDG-30, WHICH THIS FILE ONLY HOLDS
 // ---------------------------------------------------------------------------
 //
-// R-27, in table T-038's ordering paragraph:
+// JDG-27, in table T-038's ordering paragraph:
 //
 //   5 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）
 //   6 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えてはならない（MUST NOT）
@@ -86,13 +86,13 @@
 // section 3.5 does not admit a unit case written for a rule the tree has not
 // been given yet, so none is written and the measurement stands here instead.
 //
-// R-29, in the same table's paragraph about which end of an actual is grabbed:
+// JDG-29, in the same table's paragraph about which end of an actual is grabbed:
 //
 //   8 「1 つのダミーの印は、その横幅の中央で左右に割ること（MUST）
 //   9 「左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）
 //  10 「印より右に残る当たり判定は終了側とすること（MUST）
 //
-// ⛔⛔ THESE THREE REPLACED WHAT R-29 USED TO SAY. Until 2026-09-09 the same
+// ⛔⛔ THESE THREE REPLACED WHAT JDG-29 USED TO SAY. Until 2026-09-09 the same
 // paragraph handed EVERY pixel of the one mark to the finish and forbade
 // splitting it; a later ruling the same day cut the mark down its middle
 // instead, so a person can read from the drawing which end a press will take.
@@ -100,7 +100,7 @@
 // tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts, which walks
 // every pixel of each half. This file is about GR-8 and keeps to it.
 //
-// R-30, in `FR-003`, `FR-041` and `FR-039`:
+// JDG-30, in `FR-003`, `FR-041` and `FR-039`:
 //
 //  11 「その入口を `Command Palette` に置くこと（MUST）
 //  12 「モノクロを選ぶ入口を `Command Palette` に置くこと（MUST）
@@ -109,7 +109,7 @@
 //
 // ⛔ NOT MEASURABLE AT ALL TODAY, AND THE SPECIFICATION IS WHY. An entrance in
 // the Command Palette is a row of 表 T-109 with a figure in 図 F-019, and the
-// commit that landed R-30 says in as many words that it raised neither: 「表
+// commit that landed JDG-30 says in as many words that it raised neither: 「表
 // T-109 の行と 図 F-019 の図形は起こしていない —— 図形の決定は利用者の裁定であ
 // る」. `src/adapter/screen-renderer/icon-roster.json` is generated from that
 // table, so there is no name a case could ask for. ⭐ The three COMMANDS do
@@ -294,7 +294,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
 const scheduleOf = (part: Record<string, unknown>): Schedule =>
   ({
     project: {
-      title: 'R-28',
+      title: 'JDG-28',
       calendarUid: null,
       statusDate: null,
       startDate: null,
@@ -447,7 +447,7 @@ const MARKER_SIZE = ((): number => {
  * The same picture with the resume icon's HIT BOX multiplied, and nothing else
  * touched -- the drawn paths stand exactly where they stood.
  *
- * ⭐ THE ONE INPUT THE CEILING CASE VARIES. R-28 forbids a cap on how much of
+ * ⭐ THE ONE INPUT THE CEILING CASE VARIES. JDG-28 forbids a cap on how much of
  * the plan bar's middle GR-8 takes, and what it takes is that box; growing it
  * on the geometry asks the hit test the question without asking the layout to
  * hold a `markerSize` outside the 適合範囲 表 T-201 gives that row.
@@ -471,14 +471,14 @@ const iconCentre = (task: TaskGeometry): Point => {
 }
 
 // ===========================================================================
-// R-28 -- the resume icon beats the plan bar's body
+// JDG-28 -- the resume icon beats the plan bar's body
 // ===========================================================================
 
 /**
  * Which of two rows the manuscript says wins where both claim a point.
  *
  * ⭐⭐ READ OUT OF TABLE T-023d, NOT TYPED HERE, and that is the whole reason
- * this helper exists rather than a bare `'GR-8'` in each case. R-28's own
+ * this helper exists rather than a bare `'GR-8'` in each case. JDG-28's own
  * sentence says the priority is already in the printed order -- 「本表の順は
  * 既にそうなっている —— `GR-8` は `GR-12` より上に在り」 -- and 表 T-023d's rule
  * is 「上の行ほど優先すること（MUST）」. ⛔ So a round that swaps the two rows in
@@ -493,7 +493,7 @@ const higherOf = (left: GrabArea, right: GrabArea): GrabArea => {
   return atLeft < atRight ? left : right
 }
 
-describe('table T-023d closing (R-28): GR-8 beats GR-12, and takes what it takes', () => {
+describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it takes', () => {
   it('answers GR-8 on the icon a person aims at, mid plan bar (MUST)', () => {
     // 「再開アイコン（`GR-8`）は、予定バー本体（`GR-12`）に優先すること（MUST）」
     // ⭐ THE POINTS PRESSED ARE THE PICTURE'S OWN VERTICES -- where LF-13 drew

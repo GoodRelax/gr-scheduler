@@ -19,7 +19,7 @@
 // ⚠️ Compared BY VALUE and one field at a time. The arm knows which column it
 // is about, so nothing here walks the document: NFR-013 governs the every-frame
 // road that the reference test protects, and a deep comparison would undo it.
-// ⛔ Ledger row D-378: measured on the shipped build 2026-09-08 -- CM-1 with
+// ⛔ Ledger row DFC-378: measured on the shipped build 2026-09-08 -- CM-1 with
 // the title the document already held moved the watermark eight seconds and
 // answered `hasMovedSchedule: true`. `withProject` was the one `with...` helper
 // of this folder with no such test (`withTask` and `withVisual` have carried

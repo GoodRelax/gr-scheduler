@@ -176,7 +176,7 @@ export type TaskCommand =
        * reading its two rules as one: 予定の開始日の翌稼働日 says where the
        * dummy STANDS before it is grabbed, not what is written when it is let
        * go. Reading them as one is what made a drop of +3 and a drop of +8
-       * write the same day (ledger D-182).
+       * write the same day (ledger DFC-182).
        */
       readonly droppedDay: string
     }
@@ -676,7 +676,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         // 「導出元の `Task` が名前を持たないときは、行の名前を既定の名前に確定
         // させること」, and (MUST NOT): 「名前が無いことを理由に削除を拒んでは
         // ならない」. ⛔ THIS BRANCH USED TO REFUSE ON `IV-8`, and that refusal
-        // is the whole of D-171: FR-001 draws a nameless Task on empty space and
+        // is the whole of DFC-171: FR-001 draws a nameless Task on empty space and
         // makes the new row derive its name from it, so EVERY task drawn that
         // way walked into the refusal, WS-3 of table T-067 threw the bundle away,
         // and no drawn task could be deleted at all. ⚠️ The row still comes out
@@ -1029,7 +1029,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // requirement now states as the rule for WHERE THE DUMMY IS DRAWN and
       // forbids being read as one rule with this one (MUST NOT). Reading them
       // as one is what wrote the same day for a drop 3 days along and 8 days
-      // along (ledger D-182, measured on the shipped build 2026-09-02).
+      // along (ledger DFC-182, measured on the shipped build 2026-09-02).
       // ⚠️ IV-14 still bounds it, the way every other stored date is bounded.
       const dropped = checkDay(settings, command.droppedDay)
       if (!dropped.ok) {
@@ -1114,7 +1114,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // ⚠️ GR-18 COMES HERE BECAUSE ITS ROW IS ONE PLACE (MUST NOT): 「本行は 1 か
       // 所である。開始側と終了側に分けてはならない」, and its own cell writes the
       // start -- 「掴めば `actualStart` を置く。`actualDuration` は `S-130`」.
-      // ⭐ THIS ARM IS WHAT KEEPS LEDGER D-182 CLOSED: the system case at
+      // ⭐ THIS ARM IS WHAT KEEPS LEDGER DFC-182 CLOSED: the system case at
       // tests/system/open-defect-pins.test.ts drops the hold 3 steps and 8 steps
       // along and requires two different days, and it presses the middle of the
       // mark, which the split above gives to GR-9.
@@ -1331,7 +1331,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // the order of their areas.
       //
       // ⛔⛔ THE WORD IS JUDGED HERE AND NOT LEFT TO `TaskMilestoneGlyph`
-      // (D-418, measured 2026-09-08: `'NOT-A-GLYPH'` came back
+      // (DFC-418, measured 2026-09-08: `'NOT-A-GLYPH'` came back
       // `accepted: true`). A type is gone at run time, and AM-7 of table T-107
       // hands this path commands a caller wrote -- so AG-5 of table T-108
       // (MUST), 「UI と同じ検証・同じ制限を通ること」, went unmet: the pointer's

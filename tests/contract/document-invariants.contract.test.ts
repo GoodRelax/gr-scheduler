@@ -670,7 +670,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
     }),
 
   // A highlight box drawn backwards in time. Table T-220's IV-19 (CR-341,
-  // ledger row D-211): 「ハイライトボックスの `startDate` が `endDate` より後で
+  // ledger row DFC-211): 「ハイライトボックスの `startDate` が `endDate` より後で
   // ないこと、および `topGroupId` が `bottomGroupId` より下でないこと」, 対象 「その
   // 4 列」, 種別 「組合せ」 -- read off the table, never typed here.
   //

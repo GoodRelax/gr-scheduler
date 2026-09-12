@@ -18,7 +18,7 @@
 // grants nothing; it REQUIRES (MUST) that an explanation can be put away
 // 「ポインタもフォーカスも動かさずに」, and IN-4 of the same table names the ONE
 // means: its last rung, 出ている説明. Measured 2026-09-05 on the shipped build:
-// with an explanation standing over IC-7, `Esc` left it standing, twice (D-307).
+// with an explanation standing over IC-7, `Esc` left it standing, twice (DFC-307).
 //
 // ⭐ THE THREE PARTS THAT CLOSE IT, AND WHY ONLY THE LAST IS HERE:
 //   the rung      `escapeTarget` (screen-state.ts) answers `'tooltip'` as

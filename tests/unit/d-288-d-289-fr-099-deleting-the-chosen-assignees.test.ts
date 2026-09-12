@@ -21,13 +21,13 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROWS IT STANDS IN FOR
 // ---------------------------------------------------------------------------
-// D-288: 「⛔ **担当者を消す道が 1 つも繋がっていない** …… `IC-66`（選んだ担当者を
+// DFC-288: 「⛔ **担当者を消す道が 1 つも繋がっていない** …… `IC-66`（選んだ担当者を
 // 消す）に応える所が無い」, and its repair note: 「⭐ **何も選ばれていなければ書かず、
 // `RS-27` を告げる**（体の判断。空で書き通すと、何も言わずに「編集あり」になる）」.
-// D-289: 「⛔ **担当者を消す前の確認（`QN-3`）を上げる道が無い**」, repaired in the
-// same hand -- 「⭐ **`D-288` と 1 つの手で入れること**」 -- which is why one file
+// DFC-289: 「⛔ **担当者を消す前の確認（`QN-3`）を上げる道が無い**」, repaired in the
+// same hand -- 「⭐ **`DFC-288` と 1 つの手で入れること**」 -- which is why one file
 // holds both.
-// ⚠️ D-340 records a wording mismatch that is NOT this file's to fix: 「`QN-3` の
+// ⚠️ DFC-340 records a wording mismatch that is NOT this file's to fix: 「`QN-3` の
 // 文は「この担当者を削除しますか？」と**単数**だが、`IC-66` が消すのは**集合**で
 // ある」. ⛔ No case below asserts the sentence; they assert the ROW and the ITEMS,
 // which is what FR-099 and 表 T-234 rule on.
@@ -93,11 +93,11 @@
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   1. THE SENTENCE `QN-3` SHOWS. FR-038 (MUST NOT) keeps the words in one
-//      dictionary and D-340 is open against that very sentence; these cases
+//      dictionary and DFC-340 is open against that very sentence; these cases
 //      assert the ROW id and the ITEMS, which are the document's own values.
 //   2. `IC-65` (choosing the unreferenced ones). FR-099 makes the sweep 「2 手」
 //      -- a choosing step and this deleting step -- and only the deleting step
-//      is what D-288 and D-289 are about.
+//      is what DFC-288 and DFC-289 are about.
 //   3. WHETHER THE ENTRANCE IS DRAWN FAINT while nobody is chosen. That is
 //      FR-029's other half and the renderer's;
 //      tests/unit/fr-029-the-reason-a-press-carries.test.ts owns the family.
@@ -573,7 +573,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 5. D-288 -- 「**選んだ担当者を消すこと**の 2 つとすること（MUST）」
+// 5. DFC-288 -- 「**選んだ担当者を消すこと**の 2 つとすること（MUST）」
 // ===========================================================================
 
 describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
@@ -638,7 +638,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
 })
 
 // ===========================================================================
-// 6. D-289 -- 「そのタスクの名前を示して確認を求めること（MUST）。
+// 6. DFC-289 -- 「そのタスクの名前を示して確認を求めること（MUST）。
 //     件数だけを示してはならない（MUST NOT）」
 // ===========================================================================
 

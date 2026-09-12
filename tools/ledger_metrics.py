@@ -134,7 +134,7 @@ def tool_test_debt(*named_texts):
     debt = 0
     for rel, text in named_texts:
         for line in text.splitlines():
-            if not line.startswith('| D-'):
+            if not line.startswith('| DFC-'):
                 continue
             cells = line.split('|')
             status = cells[6].strip().strip('`')
@@ -209,7 +209,7 @@ def counts(*named_texts):
     where = {}
     for rel, text in named_texts:
         for line in text.splitlines():
-            if not line.startswith('| D-'):
+            if not line.startswith('| DFC-'):
                 continue
             cells = line.split('|')
             if len(cells) != 11:

@@ -14,7 +14,7 @@ THE RULE IT APPLIES (the user's ruling, 2026-09-12)
 WHAT IT WILL NOT BREAK, EACH LEARNED BY BREAKING IT
 
     - A full stop inside a quotation the manuscript writes -- 「A。B」. Ruling
-      R-05's own check catches a verbatim split there.
+      JDG-05's own check catches a verbatim split there.
     - A full stop the line already ends on, or one followed only by emphasis
       markers. Splitting there leaves a whitespace-only line, which markdown
       reads as BLANK: the paragraph splits and every bold run open across it
@@ -252,7 +252,7 @@ def rendered(lines, allowed, carry):
 def mend(text):
     """What has to happen after a break, wherever a break was made."""
     text = text.replace('****', '')
-    # ⛔ A <br> inside 「…」 splits a verbatim. Ruling R-05's check catches it.
+    # ⛔ A <br> inside 「…」 splits a verbatim. Ruling JDG-05's check catches it.
     text, _n = re.subn(u'「[^「」\n]{0,600}」',
                        lambda m: m.group(0).replace('<br>', ''), text)
     return text

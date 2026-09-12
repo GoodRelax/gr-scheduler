@@ -22,9 +22,9 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
-// D-337: 「⛔ **開く・読み直す・保存の 3 つの門が、待ちの最中に黙って戻る**」, with
+// DFC-337: 「⛔ **開く・読み直す・保存の 3 つの門が、待ちの最中に黙って戻る**」, with
 // 「実測: 待ちの最中に `Ctrl`＋`O` / `Ctrl`＋`S` を 2 度押しても、通知は 0 件」.
-// ⭐ D-334 had already closed the FOURTH gate of the same family -- the export
+// ⭐ DFC-334 had already closed the FOURTH gate of the same family -- the export
 // one -- and its ⚠️ column said 「同じ「黙って戻る」門が、開く・読み直す・保存にも
 // 在る。⇒ 次の巡でまとめて閉じること」. ⛔ THE ROW ALSO CORRECTED ITSELF ABOUT THE
 // KEYS: 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、先の実測が打った 3 つの鍵では
@@ -83,7 +83,7 @@
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   1. THE FAINT HALF OF FR-029. The same requirement asks the entrance to be
-//      DRAWN faint while it can do nothing; D-334's ledger row records that half
+//      DRAWN faint while it can do nothing; DFC-334's ledger row records that half
 //      as not built (「薄く描く半分（案②）は入っていない」), and it is the
 //      renderer's, not this unit's.
 //   2. WHICH ROW OF 表 T-233 A GATE "OUGHT" TO HAVE. FR-029 (MUST NOT) forbids
@@ -174,7 +174,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
  *
- * ⭐ READ AND NOT TYPED, which is exactly what D-337's own correction was about:
+ * ⭐ READ AND NOT TYPED, which is exactly what DFC-337's own correction was about:
  * the first measurement pressed three keys and 「読み直しの門に届いていなかった」
  * because one of them was not the key the table assigns.
  * ⚠️ Copied from tests/unit/uf-47-48-choosers.test.ts.
@@ -183,7 +183,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
  * token, and `SK-21`'s 割当 is 「`Ctrl` ＋ `R`」 -- so `bare` turns the reload key
  * into `Ctrl` alone. ⚠️ Measured here on 2026-09-06: a first draft of this file
  * used `bare` and pressed a bare `Ctrl` at the reload gate, which is the SAME
- * shape of mistake D-337's ledger row records against the measurement before it.
+ * shape of mistake DFC-337's ledger row records against the measurement before it.
  */
 function keyOf(id: string): KeyInput {
   const parts = ((rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
@@ -267,7 +267,7 @@ interface StoreProbe {
 
 /**
  * ⭐⭐ EVERY ROAD THAT CAN BE WAITED ON RETURNS A PROMISE NOBODY RESOLVES, which
- * is the whole of the fixture: D-337's 場面 is 「別のファイル操作が待ちの最中」 and
+ * is the whole of the fixture: DFC-337's 場面 is 「別のファイル操作が待ちの最中」 and
  * the only way to hold a loop there is a seam that never answers.
  *
  * ⚠️ `readOpenedFileState` DOES answer, and has to. `OP-13` (MUST) makes a
@@ -438,7 +438,7 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
     expect(wordsFor(RS_27).text.en).not.toBe(mine)
   })
 
-  it('表 T-036 still assigns the three keys D-337 corrected itself about', () => {
+  it('表 T-036 still assigns the three keys DFC-337 corrected itself about', () => {
     expect(keyOf('SK-10')).toEqual({
       kind: 'key',
       key: 'O',

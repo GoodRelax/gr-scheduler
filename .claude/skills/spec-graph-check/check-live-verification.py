@@ -7,7 +7,7 @@ WHY THIS EXISTS, MEASURED ON 2026-08-29. The user asked why defects need more
 than one session. The ledger answered: of 70 rows they had reported, 31 closed
 in one day and 39 did not -- and of 28 rows standing at `テスト完了`, only 6
 carried any evidence that the application had been opened and looked at. One of
-them (D-69) had been reported to the user as finished on green tests alone and
+them (DFC-69) had been reported to the user as finished on green tests alone and
 was not fixed at all; the user found it in a screenshot.
 
 ⛔ THE LEDGER ALREADY SAID SO AND COULD NOT KEEP ITS WORD. Its own preamble
@@ -93,7 +93,7 @@ def rows():
         if not os.path.exists(path):
             continue
         for line in io.open(path, encoding='utf-8'):
-            if not line.startswith('| D-'):
+            if not line.startswith('| DFC-'):
                 continue
             cells = [c.strip() for c in line.split('|')]
             if len(cells) < 11:

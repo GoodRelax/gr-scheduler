@@ -37,10 +37,10 @@
 // ⇒ The half nobody asks is the half the two ledger rows were actually raised
 // about -- the KEYS reaching the DOCUMENT:
 //
-//   D-321 「⛔ **コピーと貼り付けが何も起こさない**（`NFR-004` の掃引 2026-09-05）
+//   DFC-321 「⛔ **コピーと貼り付けが何も起こさない**（`NFR-004` の掃引 2026-09-05）
 //         …… 実測 2026-09-05（出荷ビルド、`file://` と `http://`）—— **押しても
 //         文書も絵も動かない。**」
-//   D-290 「⛔ **複製したものを貼る道が無い** …… `pasteTaskSubtree` /
+//   DFC-290 「⛔ **複製したものを貼る道が無い** …… `pasteTaskSubtree` /
 //         `pasteTaskGroupSubtree` の発行元が `src/` に 0 件」
 //
 // ⛔ NOTHING THAT FILE ASKS IS ASKED AGAIN HERE. The key assignments, the
@@ -69,12 +69,12 @@
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. `FR-033` says 「貼り付けを
-//     受け付けずに通知すること（MUST）」 and names NO row; D-290's own record says
+//     受け付けずに通知すること（MUST）」 and names NO row; DFC-290's own record says
 //     the choice was the body's and not the user's. So the case below asks only
 //     what 表 T-233's closing rule requires -- that whatever is told IS a row of
 //     that table, in the words `FR-038`'s dictionary holds for it.
 //  2. WHAT AN EMPTY STORE TELLS. Same reason: `FR-033` states no reason row for
-//     it, and D-321's record marks `RS-27` as a fill-in by the front session.
+//     it, and DFC-321's record marks `RS-27` as a fill-in by the front session.
 //     The case below asks only that the document does not move.
 //  3. 表 T-223's cascade in detail. `DU-1` / `DU-2` have cases in
 //     tests/unit/edit-task.test.ts and the file named above.
@@ -496,12 +496,12 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 5. D-321 / D-290 -- the two keys reach the document
+// 5. DFC-321 / DFC-290 -- the two keys reach the document
 // ===========================================================================
 
 describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates its subtree', () => {
   it('⭐⭐ the pair of keys leaves two more Tasks in the document', () => {
-    // ⛔ D-321's measurement on the shipped build: 「押しても文書も絵も動かない」.
+    // ⛔ DFC-321's measurement on the shipped build: 「押しても文書も絵も動かない」.
     // The STATEMENT: 「選ばれた `Task` とその WBS の子孫を部分木ごと複製すること」,
     // and 表 T-223 の `DU-1` names 「その `Task` の WBS の子孫」 as what travels.
     const built = stage(documentOfTwoRows())

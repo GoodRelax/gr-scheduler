@@ -1413,7 +1413,7 @@ describe('the specification still says what these cases copy', () => {
       // The heading of the surface column, in the table's own language.
       // ⚠️ `bareAll`, not `bare`: IC-52 names six surfaces in that one cell,
       // and reading only the first would answer this MUST NOT for one of six
-      // (`D-351`).
+      // (`DFC-351`).
       .rows.filter((one) => bareAll(one.by['面'] ?? one.cells[0] ?? '').includes(CONFIRMATION))
       .map((one) => one.id)
 

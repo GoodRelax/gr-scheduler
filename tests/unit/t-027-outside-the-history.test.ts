@@ -137,7 +137,7 @@
 //     `call: { row: 'RD-2' }` on the same `replaceDocument` -- so the hole is
 //     purely a hole in the manuscript, not in what can be driven. ⛔ It is
 //     still not written: no row says what a redo owes table T-027, and RD-2's
-//     three columns (「問う先が答えたものを据える／入ってきたまま／積まない」)
+//     three columns (「問う先が答えたものを据える」「入ってきたまま」「積まない」)
 //     rule on the history, the stamp and the 段, none of them on the columns.
 //   - CM-61 `clearDualCursor`. UN-12 reads 「`Dual Cursor` の位置の変更」 and
 //     DC-6 of 表 T-029 repeats 「位置の変更は取り消しの対象としない」. ⛔ Both
@@ -216,7 +216,7 @@ const T_027_INSIDE_ROWS = specTable('T-027')
  *
  * ⚠️ The 型 column enumerates where a setting takes one of several words --
  * `S-58` is 「`'up'` / `'down'`」 -- so the whole cell is read and a toggle is
- * the row whose type is 真偽 and nothing else (`D-351`).
+ * the row whose type is 真偽 and nothing else (`DFC-351`).
  */
 const isBooleanRow = (row: { readonly by: Readonly<Record<string, string>> }): boolean => {
   const types = bareAll(row.by['型'] ?? '')
@@ -395,8 +395,8 @@ function bench(): Bench {
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           // ⛔ 表 T-230 forbids a replacement that names no row (MUST NOT), and
-          // RD-1 is the undo row: 「問う先が答えたものを据える／入ってきたまま
-          // ／積まない」.
+          // RD-1 is the undo row: 「問う先が答えたものを据える」「入ってきたまま」
+          // 「積まない」.
           call: { row: 'RD-1' },
         },
         holder,
@@ -570,7 +570,7 @@ const KEYED_CASES: readonly OutsideCase[] = [
   // against IV-3 of table T-220 -- a pin kept across an undo can name a row
   // that undo removed. CR-277 moved pinning to UN-14, so it is 対象: an undo
   // IS meant to rewind it, and every case in this list asserts the opposite.
-  // ⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE (D-102). It was
+  // ⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE (DFC-102). It was
   // deliberately not written here by the session that moved the row -- rule 05
   // section 7 forbids that -- so it is recorded as owed rather than invented.
   // ⛔⛔ THE PNG EXPORT CONTRIBUTES NO CASE TO THIS LIST, and that is not an

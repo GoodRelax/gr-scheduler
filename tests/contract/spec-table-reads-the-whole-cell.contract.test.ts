@@ -9,11 +9,11 @@
 // ⛔ WHY THIS FILE EXISTS -- THE TWO LEDGER ROWS IT PINS
 // ---------------------------------------------------------------------------
 //
-// `D-343`: 「仕様の表を読む補助が、複数の語を持つ升の最初の 1 語しか返さない」 --
+// `DFC-343`: 「仕様の表を読む補助が、複数の語を持つ升の最初の 1 語しか返さない」 --
 // 「`Ctrl` ＋ `R`」 came back as 'Ctrl' and 「`resumeValid` が `false`」 as
 // 'resumeValid'. A premise read that way is silently half true.
 //
-// `D-351`: 「仕様の表を読む試験が、升の半分しか読んでいない」 -- the same hole for
+// `DFC-351`: 「仕様の表を読む試験が、升の半分しか読んでいない」 -- the same hole for
 // the ENUMERATING joiners. MEASURED 2026-09-07: closing it turned 19 unit files
 // and 1 contract file red, on live cells, every one of them a case that named a
 // whole column and read one value of it.
@@ -73,7 +73,7 @@ describe('bareAll -- every value a cell states', () => {
   })
 
   it('gives all six surfaces 表 T-109 IC-52 stands on', () => {
-    // ⭐ THE CELL `D-351` WAS RAISED ON. Sixteen files filtered this column with
+    // ⭐ THE CELL `DFC-351` WAS RAISED ON. Sixteen files filtered this column with
     // `===` on a first span, so each of them answered for one surface of six.
     const surfaces = bareAll(rowOf('T-109', 'IC-52')['面'] ?? '')
     expect(surfaces).toHaveLength(6)
@@ -92,7 +92,7 @@ describe('bareAll -- every value a cell states', () => {
     ])
   })
 
-  it('⛔ REFUSES a welded cell, where two spans are ONE value (D-343)', () => {
+  it('⛔ REFUSES a welded cell, where two spans are ONE value (DFC-343)', () => {
     // 表 T-036 SK-20 -- 「`Ctrl` ＋ `Shift` ＋ `D`」. No list of strings says
     // that faithfully, so the reader hands it back to the caller rather than
     // pretending it is three assignments.
@@ -108,13 +108,13 @@ describe('bare -- the single value a cell states', () => {
     expect(bare('**対象外**')).toBe('対象外')
   })
 
-  it('⛔ REFUSES an enumerating cell rather than returning the first of several (D-351)', () => {
+  it('⛔ REFUSES an enumerating cell rather than returning the first of several (DFC-351)', () => {
     expect(() => bare(rowOf('T-109', 'IC-52')['面'] ?? '')).toThrow(/states 6 values/)
     expect(() => bare(rowOf('T-036', 'SK-3')['割当'] ?? '')).toThrow(/states 2 values/)
     expect(() => bare(rowOf('T-075', 'UF-41')['純粋性'] ?? '')).toThrow(/states 2 values/)
   })
 
-  it('⛔ REFUSES a welded cell (D-343)', () => {
+  it('⛔ REFUSES a welded cell (DFC-343)', () => {
     expect(() => bare('`Ctrl` ＋ `R`')).toThrow(/welded by/)
   })
 

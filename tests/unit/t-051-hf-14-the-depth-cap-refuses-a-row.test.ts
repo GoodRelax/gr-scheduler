@@ -1,5 +1,5 @@
 // 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-340 then CR-348,
-// ledger row D-206): the entrance that adds a child row is drawn FAINT on a row
+// ledger row DFC-206): the entrance that adds a child row is drawn FAINT on a row
 // that has reached `FR-085`'s depth cap, and a press on it is answered with a
 // reason instead of a row.
 //

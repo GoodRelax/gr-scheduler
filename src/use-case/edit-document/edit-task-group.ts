@@ -521,7 +521,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         // ⭐ AND THE DEFAULT NAME WHEN NEITHER IS THERE. FR-032 (MUST) settles
         // it 「既定の名前」 when the derivation source has no name of its own,
         // and (MUST NOT) forbids refusing the deletion for want of one. ⛔ THIS
-        // BRANCH USED TO REFUSE, and that refusal is the whole of D-171: a row
+        // BRANCH USED TO REFUSE, and that refusal is the whole of DFC-171: a row
         // FR-001 raised on empty space derives from a Task FR-001 left nameless,
         // so the ordinary case walked straight into it, WS-3 of table T-067
         // threw the bundle away, and nothing the author drew could be deleted.

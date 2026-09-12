@@ -527,7 +527,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
   // WHERE THAT SHOWS. CR-277 moved pinning to UN-14 -- 対象, inside the history
   // -- because UN-16 and IV-3 of table T-220 stated opposite things about a pin
   // whose row an undo removes. CM-68 / CM-69 therefore leave this file's scope,
-  // and the 対象 half of their behaviour is owed a home (D-102).
+  // and the 対象 half of their behaviour is owed a home (DFC-102).
   // ⚠️ THE ROW STILL NAMES `FR-025`, BUT ONLY TO SAY THE SCALE LEFT IT.
   // FR-025 (MUST NOT) took the PNG scale away and the command that used to
   // write it retired with the scale, so the pair of requirements is answered

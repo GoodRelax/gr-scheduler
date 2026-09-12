@@ -40,9 +40,9 @@
 // raises no reason while no row reached the valve」 -- the NEGATIVE half only.
 // ⇒ Nothing anywhere asks the two things the ledger rows below are about:
 //
-//   D-271 「段数の安全弁に達しても、人に何も告げない」 -- that a telling carrying
+//   DFC-271 「段数の安全弁に達しても、人に何も告げない」 -- that a telling carrying
 //         `RS-24` actually STANDS when a row reaches the valve.
-//   D-345 「止まった書き出しが人に告げるかを、どの条項も定めていない」 -- settled
+//   DFC-345 「止まった書き出しが人に告げるかを、どの条項も定めていない」 -- settled
 //         by CR-368 with the MUST NOT / MUST quoted above, and its own record
 //         closes with 「⛔ 試験はまだ無い」.
 //
@@ -77,7 +77,7 @@
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//  1. HOW OFTEN the screen road tells. D-271's record says 「告げるのは `null`
+//  1. HOW OFTEN the screen road tells. DFC-271's record says 「告げるのは `null`
 //     から止まりに変わった回だけ」, and NOTHING IN docs/spec SAYS SO: `RS-24`'s
 //     作法 names `NT-3a` alone, and the one rule about piling the same reason up
 //     stands on `NT-3`, whose 場面 is 「破壊的な結果を伴うとき」. Asserting a
@@ -151,7 +151,7 @@ const ST_7_STOP_AND_TELL_ON_A_VALUE =
 
 const ST_7_NO_EXCEPTION = '例外を投げてはならない（MUST NOT）'
 
-/** ⭐⭐ THE CLAUSE CR-368 ADDED, which is the whole of D-345. */
+/** ⭐⭐ THE CLAUSE CR-368 ADDED, which is the whole of DFC-345. */
 const ST_7_NOT_ONLY_THE_SCREEN_ROAD =
   '通知先を画面を描く経路に限ってはならない（MUST NOT）'
 
@@ -580,7 +580,7 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
   })
 
   it('⭐⭐ still forbids the telling being the screen road’s alone, and asks for it after an export', () => {
-    // ⛔ THE WHOLE OF D-345. CR-368 put both halves on `ST-7` on 2026-09-06; a
+    // ⛔ THE WHOLE OF DFC-345. CR-368 put both halves on `ST-7` on 2026-09-06; a
     // manuscript that lost them would make every case in section 7 an invention.
     expect(REQUIREMENTS).toContain(ST_7_NOT_ONLY_THE_SCREEN_ROAD)
     expect(REQUIREMENTS).toContain(ST_7_TELL_AFTER_THE_EXPORT)
@@ -631,13 +631,13 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 6. D-271 -- the screen road: 「達したことを…人に通知すること（MUST）」
+// 6. DFC-271 -- the screen road: 「達したことを…人に通知すること（MUST）」
 // ===========================================================================
 
 describe('ST-7 (MUST) -- a row that reaches the valve is TOLD, not merely stopped', () => {
   it('⭐⭐ a document past the cap puts a telling carrying RS-24 on the screen', async () => {
     // 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること
-    //  （MUST）」 -- the second verb. ⛔ D-271: 「段数の安全弁に達しても、人に何も
+    //  （MUST）」 -- the second verb. ⛔ DFC-271: 「段数の安全弁に達しても、人に何も
     // 告げない」, measured as 「`grep -rn "RS-24" src/` は 0 件」.
     const built = stage(documentOfOverlaps(CAP + 1))
 
@@ -686,7 +686,7 @@ describe('ST-7 (MUST) -- a row that reaches the valve is TOLD, not merely stoppe
 })
 
 // ===========================================================================
-// 7. D-345 -- 「通知先を画面を描く経路に限ってはならない（MUST NOT）」
+// 7. DFC-345 -- 「通知先を画面を描く経路に限ってはならない（MUST NOT）」
 // ===========================================================================
 //
 // ⭐ HOW THE TWO ROADS ARE TOLD APART. A telling left standing from the screen

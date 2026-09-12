@@ -236,7 +236,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
     audience: { deliver: () => undefined },
     dialogueHolder: { read: () => dialogue, replace: () => undefined },
     dialogueAudience: { deliver: () => undefined },
-    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 D-356). `AgentApiWiring`
+    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
     // requires both fields and lets either be `undefined`, which is the shape a
     // loop that touches no picture runs in; this bench is one of those, so
     // AM-14 and AM-15 answer `notAvailable`.

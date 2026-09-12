@@ -14,7 +14,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-126: 「`FR-101` の『名前を時刻の上に置く
+// `docs/development-records/defects.md` DFC-126: 「`FR-101` の『名前を時刻の上に置く
 // こと（MUST）』を、誰も主張できない」. CR-280 put `Opened File Name` (U-58) and
 // `File Saved At` (U-59) into the `EP-1` row of 表 T-076 and FR-101 states the
 // order as a MUST, but `AppHeaderItems` carries no member for an order -- so
@@ -265,7 +265,7 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('⭐ the design still hands that MUST to UF-71, which is the unit driven here', () => {
-    // ⚠️ CR-299 CHOSE THE OWNER. D-126 offered two ways to close: a member on
+    // ⚠️ CR-299 CHOSE THE OWNER. DFC-126 offered two ways to close: a member on
     // `AppHeaderItems` that carried an order, or the drawing side owning the
     // rule. The second was taken, and 表 T-075's 責務 for UF-71 records it --
     // so a case placed on UF-62 instead would be asserting the way that was
@@ -287,7 +287,7 @@ describe('the manuscripts still say what these cases read', () => {
 })
 
 // ===========================================================================
-// D-126 -- the MUST nobody could assert
+// DFC-126 -- the MUST nobody could assert
 // ===========================================================================
 
 describe('FR-101 (MUST) -- the name stands above the time', () => {

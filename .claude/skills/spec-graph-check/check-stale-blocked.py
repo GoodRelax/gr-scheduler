@@ -14,7 +14,7 @@ deleted, so it outlives the ruling that overturns it.
 Measured on 2026-09-01: five rows read as blocked when they were not, and
 three of those five were finished work. A read-only agent surveying the ledger
 reported six rows as needing the user's ruling; every one of them had already
-been ruled. That is a whole review cycle spent on nothing. D-131 is one of the
+been ruled. That is a whole review cycle spent on nothing. DFC-131 is one of the
 five, and it now says so in its own cell: 「2026-09-01 の棚卸しで、本欄が
 『塞がっている』と読める 5 行のうちの 1 つとして見つかった」 -- while the same
 cell still carries the two phrases that made it read that way, 「仕様に行が
@@ -42,16 +42,16 @@ WHAT COUNTS AS A HIT. Both of these true in the SAME row:
          build.
 
 ⭐⭐ NEITHER SIDE OF THAT PAIRING IS LOOKED FOR INSIDE A DATED RECORD
-(`D-367`, the user's ruling of 2026-09-07 on `PND-441`). A sentence opening
+(`DFC-367`, the user's ruling of 2026-09-07 on `PND-441`). A sentence opening
 「⚠️ 実測（YYYY-MM-DD）」 states what was true ON THAT DAY. Its words are struck
 from cell 5 -- blocked phrases and settled phrases alike -- before either list
 is looked for. The notation is written down in `docs/development-rules/
 04-verification.md` section 6.6 and implemented in `ledger_quotes.py`.
 
 ⛔⛔ WHAT THAT RULING DOES NOT REACH, MEASURED 2026-09-07 BEFORE IT WAS
-IMPLEMENTED. The shape `D-367` was opened for is a row whose cell 5 says 「裁定
+IMPLEMENTED. The shape `DFC-367` was opened for is a row whose cell 5 says 「裁定
 が要る」 (true, in its own voice, today) beside a cell 9 that opens ✅ (also
-true -- somebody pressed the shipped build). `D-268` stood exactly there on
+true -- somebody pressed the shipped build). `DFC-268` stood exactly there on
 2026-09-07. ⛔ The notation cannot date that cell 9, because the 実物確認
 column's own convention is to open with ✅ and not with ⚠️ -- so the third arm
 above still reads that record as evidence, and this check still faults the
@@ -60,7 +60,7 @@ absent: measured across both ledger files on 2026-09-07, ZERO rows now stand
 in it, and the ✅ arm's whole reachable population is rows whose ステータス has
 NOT reached a testing state (it is an `elif` after the status arm). ⭐ The
 baseline file already carries the falsified premise this rests on -- under the
-user's 押してから問え order (`D-262`), pressing is what RAISES a ruling, so a
+user's 押してから問え order (`DFC-262`), pressing is what RAISES a ruling, so a
 ✅ is not evidence that one has come down. ⛔ Retiring or gating that arm is a
 second change, not this ruling, and it was NOT taken here on one body's own
 judgement.
@@ -145,7 +145,7 @@ def find_stale(ledger_path):
     text = io.open(ledger_path, encoding='utf-8').read()
     hits = []
     for line in text.split('\n'):
-        if not line.startswith('| D-'):
+        if not line.startswith('| DFC-'):
             continue
         cells = line.split('|')
         if len(cells) != 11:
@@ -155,8 +155,8 @@ def find_stale(ledger_path):
         status = cells[6].strip().strip('`')
         seen = cells[9].strip()
 
-        # ⛔ READ OUTSIDE QUOTATION (`D-344`) AND OUTSIDE A DATED RECORD
-        # (`D-367`). A marker inside 「…」, 『…』 or a `code span` is somebody
+        # ⛔ READ OUTSIDE QUOTATION (`DFC-344`) AND OUTSIDE A DATED RECORD
+        # (`DFC-367`). A marker inside 「…」, 『…』 or a `code span` is somebody
         # else's words -- a verbatim requirement, the name of a state, or the
         # row dating its own older text as history -- and a marker inside a
         # sentence opening 「⚠️ 実測（日付）」 is what was true ON THAT DAY, not
@@ -173,13 +173,13 @@ def find_stale(ledger_path):
         # 「利用者の裁定が要る」 holds 「裁定」, which SETTLED_IN_CELL lists.
         # Without this, a row could not state its block in the words this check
         # itself indexes without also reading as settled -- measured 2026-09-06
-        # on D-278, the first row to reach 裁定待ち since the check was written.
+        # on DFC-278, the first row to reach 裁定待ち since the check was written.
         # ⭐ IT DOES NOT WEAKEN THE CHECK: a row that really was ruled writes the
         # settlement SOMEWHERE ELSE in the cell (裁定が下りた, 決着, 書いた先は),
         # and those survive the strike-out whole.
         #
         # ⭐ THE SETTLED PHRASES ARE READ THE SAME WAY AS THE BLOCKED ONES
-        # (`D-367`): a 決着 sitting inside 「⚠️ 実測（日付）…」 records that an
+        # (`DFC-367`): a 決着 sitting inside 「⚠️ 実測（日付）…」 records that an
         # EARLIER question closed on that day, which is not evidence that the
         # question this cell is open on today has closed. Reading one side of
         # the pairing outside records and the other side inside them would

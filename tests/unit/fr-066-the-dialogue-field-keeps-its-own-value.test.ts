@@ -3,7 +3,7 @@
 // whether the field is up, and `IC-20` says whether the API is on, and neither
 // answers for the other.
 //
-// ⛔ THIS FILE IS THE COVER FOR DEFECT D-149. What was measured on 2026-08-30:
+// ⛔ THIS FILE IS THE COVER FOR DEFECT DFC-149. What was measured on 2026-08-30:
 // `IC-18` and `IC-20` read ONE value, so pressing `IC-20` raised `IC-18`'s
 // pressed state, and `IC-18` had no working 「非表示にする」 half at all. The
 // ruling of 2026-08-31 gave the visibility its own row -- `S-99i` of 表 T-206 --
@@ -24,7 +24,7 @@
 // UNDER src/ AT ALL (docs/development-rules/04-verification.md, section 1 --
 // this bench was fenced tighter than that section requires). What was read:
 // docs/spec/ for every rule named below, docs/development-records/defects.md
-// for what D-149 measured, and the neighbouring tests for the argument lists
+// for what DFC-149 measured, and the neighbouring tests for the argument lists
 // and the member names. ⚠️ That last one is the honest weak point, and GAP 1
 // below says so: no row of the specification writes `ScreenSession`'s members.
 //
@@ -65,7 +65,7 @@
 //     その入口を薄く描くこと（MUST）」／「押されたときに限り、行えない理由を通知する
 //     こと（MUST）…運ぶ理由は…表 T-233 の行とすること（MUST）」
 //   表 T-233 の `RS-35` 「`Agent API` が入っていないので、対話欄を出せない」, 作法
-//     `NT-1`, 正 `FR-066` -- the half of D-149 that was never broken.
+//     `NT-1`, 正 `FR-066` -- the half of DFC-149 that was never broken.
 //   表 T-109 の `IC-18` 「AI との対話欄を表示する・非表示にする」（正 `FR-066`）と
 //     `IC-20` 「`Agent API` を有効にする・無効にする」（正 `FR-065`）
 //     ⚠️ THE WORDING IS NEW. Thirteen rows of 表 T-109 read 「出す・しまう」 until
@@ -87,7 +87,7 @@
 //   GAP 1. THE MEMBER NAME IS NOWHERE IN THE SPECIFICATION. `S-99i` says what
 //     is remembered and 表 T-064's `PI-37` does not enumerate `ScreenSession`'s
 //     members at all, so no row of docs/spec/ spells the key. `defects.md`'s
-//     D-149 row says only 「`ScreenSession` に行が要り」 and the ruling asks for
+//     DFC-149 row says only 「`ScreenSession` に行が要り」 and the ruling asks for
 //     the 「`Visible`」 vocabulary and the `xxxVisible` settings-key shape. This
 //     file therefore writes `isDialogueFieldVisible`, which is the name the
 //     neighbouring tests already use -- NOT a name the manuscript states.
@@ -145,7 +145,7 @@
 // refuses to fill a faint entrance
 // (tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts), so nothing would
 // have been MISDRAWN. What would have been wrong is the description claiming
-// 「いま表示している」 of a field that is not up -- and that claim is what D-149 was.
+// 「いま表示している」 of a field that is not up -- and that claim is what DFC-149 was.
 //
 // ---------------------------------------------------------------------------
 // ⛔ A CASE THIS FILE REPLACES
@@ -157,7 +157,7 @@
 //        the field', ...)   expect(entry.isPressed).toBe(isAgentApiEnabled)
 //
 // That WAS a correct reading of FR-066 before the ruling of 2026-08-31 -- the
-// requirement then stated one condition -- and it is exactly the wiring D-149
+// requirement then stated one condition -- and it is exactly the wiring DFC-149
 // measured. It is now the thing FR-066's MUST NOT forbids. ⭐ That case has
 // been rewritten to the requirement as it now reads; the four-state walk lives
 // here, and uf-62.test.ts keeps only the one entry it owns.
@@ -246,7 +246,7 @@ const FR_065_SHOW_THAT_IT_IS_ON = '有効であるあいだ、そのことを画
 
 const S_99I = specTable('T-206').rows.find((row) => row.id === 'S-99i')
 if (S_99I === undefined) {
-  throw new Error('表 T-206 has no row S-99i: the row D-149 added is gone')
+  throw new Error('表 T-206 has no row S-99i: the row DFC-149 added is gone')
 }
 const S_99B = specTable('T-206').rows.find((row) => row.id === 'S-99b')
 if (S_99B === undefined) throw new Error('表 T-206 has no row S-99b')
@@ -338,7 +338,7 @@ function t237(enRow: string): { readonly by: Readonly<Record<string, string>> } 
 const EN_5_SHOWS_IT_NOW = 'その入口が表示・非表示を切り替えるものを、いま表示している'
 
 // ---------------------------------------------------------------------------
-// 表 T-233 の `RS-35` -- the half of D-149 that already worked.
+// 表 T-233 の `RS-35` -- the half of DFC-149 that already worked.
 // ---------------------------------------------------------------------------
 
 const RS_35 = specTable('T-233').rows.find((row) => row.id === 'RS-35')
@@ -384,7 +384,7 @@ const STATE: ScreenState = emptyScreenState()
  * Every member of `ScreenSession` is spelled out, so that a case which means to
  * vary one of them varies exactly one.
  *
- * ⭐ THE TWO THAT MATTER ARE THE FIRST TWO OF THE PAIR BELOW, and D-149 is that
+ * ⭐ THE TWO THAT MATTER ARE THE FIRST TWO OF THE PAIR BELOW, and DFC-149 is that
  * they used to be one. `isAgentApiEnabled` is `S-99b` (the capability, which
  * FR-065 makes the reader's own act) and `isDialogueFieldVisible` is `S-99i`
  * (the look). Both start OFF here so that a case turning one on is adding the
@@ -436,7 +436,7 @@ const LOG: DialogueLog = [
 ].reduce(logWithMessage, emptyDialogueLog())
 
 // ---------------------------------------------------------------------------
-// The four states the two values can stand in. ⭐ THE WHOLE OF D-149 IS THAT
+// The four states the two values can stand in. ⭐ THE WHOLE OF DFC-149 IS THAT
 // ONE VALUE CANNOT TELL FOUR STATES APART.
 // ---------------------------------------------------------------------------
 
@@ -598,7 +598,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 // ===========================================================================
-// UF-62 -- `IC-18` and `IC-20` read two values, not one. (D-149)
+// UF-62 -- `IC-18` and `IC-20` read two values, not one. (DFC-149)
 // ===========================================================================
 
 describe('UF-62 IC-20: the Agent API, and only the Agent API (FR-065, MUST)', () => {
@@ -620,7 +620,7 @@ describe('UF-62 IC-20: the Agent API, and only the Agent API (FR-065, MUST)', ()
 })
 
 describe('UF-62 IC-18: pressing IC-20 does not press it (FR-066, MUST NOT)', () => {
-  it('⛔⛔ turning the Agent API on does not by itself press IC-18 -- THIS IS D-149', () => {
+  it('⛔⛔ turning the Agent API on does not by itself press IC-18 -- THIS IS DFC-149', () => {
     // ⛔ THE REPORTED DEFECT, IN ONE CASE. FR-066: 「兼ねると `Agent API` を有効に
     // しただけで `IC-18` が押された状態になる」（実測 2026-08-30）, and 表 T-206 の
     // `S-99i`: 「兼ねていたので、`Agent API` を有効にしただけで `IC-18` の押下状態が
@@ -658,7 +658,7 @@ describe('UF-62 IC-18: pressing IC-20 does not press it (FR-066, MUST NOT)', () 
     // capability and DISAGREE on `S-99i`, so a wiring with one value is forced
     // to answer `IC-18` alike in both -- and FR-066 requires it to answer
     // differently. ⛔ No single-value wiring can satisfy this case, whatever
-    // else it does; it is red for the whole family D-149 belongs to.
+    // else it does; it is red for the whole family DFC-149 belongs to.
     const on = PAIRS.filter((pair) => pair.apiEnabled)
     expect(on).toHaveLength(2)
 
@@ -700,7 +700,7 @@ describe('UF-62 IC-18: pressing IC-20 does not press it (FR-066, MUST NOT)', () 
   })
 
   it('⭐ has a working 「非表示にする」 half: hiding the field lifts the press', () => {
-    // 表 T-109 の `IC-18`: 「AI との対話欄を表示する・非表示にする」. D-149's ledger
+    // 表 T-109 の `IC-18`: 「AI との対話欄を表示する・非表示にする」. DFC-149's ledger
     // row says which half was dead -- 「死んでいるのは「しまう」の半分である」 -- so
     // the two states below are the halves, and the entry has to tell them apart.
     const shown = sessionWith({ isAgentApiEnabled: true, isDialogueFieldVisible: true })
@@ -713,7 +713,7 @@ describe('UF-62 IC-18: pressing IC-20 does not press it (FR-066, MUST NOT)', () 
 
 describe('UF-62 IC-18: faint while the API is off (FR-066 ⚠️, through FR-029)', () => {
   it('⭐ is faint exactly while the capability is off -- the half that never broke', () => {
-    // FR-066: 「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」. D-149's ledger
+    // FR-066: 「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」. DFC-149's ledger
     // row records this half as working（「壊れていなかった半分」）, so these cases
     // are a guard against losing it while the other half is repaired.
     for (const pair of PAIRS) {
@@ -868,7 +868,7 @@ describe('the default of `S-99i` -- one press, not two (表 T-206)', () => {
 // ⛔ THE CASES ABOVE ARE SHOWN TO BITE.
 //
 // Rule 04 section 2: a check is not verified until it has been broken on
-// purpose and seen to fail. The wiring D-149 measured is reconstructed here --
+// purpose and seen to fail. The wiring DFC-149 measured is reconstructed here --
 // ONE value read by both entrances and by the field -- and the same predicates
 // the cases above assert are run against it. ⭐ A predicate that the pre-fix
 // wiring satisfies is a predicate that would have passed on the defect, and
@@ -879,7 +879,7 @@ describe('the default of `S-99i` -- one press, not two (表 T-206)', () => {
 // （`isAgentApiEnabled`）を読んでいる」.
 // ===========================================================================
 
-describe('the wiring D-149 measured fails these cases', () => {
+describe('the wiring DFC-149 measured fails these cases', () => {
   /** `IC-18`'s pressed state before the fix: the capability, read twice. */
   const pressedUnderTheDefect = (pair: Pair): boolean => pair.apiEnabled
 

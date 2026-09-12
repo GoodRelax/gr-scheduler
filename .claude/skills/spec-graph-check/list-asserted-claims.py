@@ -87,24 +87,32 @@ and their commonest prefixes is printed on the NOTE line, so the choice can be
 refuted. `CR-` needs no entry -- the specification defines no `CR` prefix, so
 the universe drops it already.
 
-⚠️⚠️ PREFIX COLLISIONS, AND THE ONE PLACE THIS TOOL IS KNOWINGLY BLIND.
-Three prefixes number rows in BOTH `docs/spec` and a document outside it, and
-a token carrying one cannot be resolved without knowing which document the
-comment meant:
+⭐⭐ PREFIX COLLISIONS -- THE PLACE THIS TOOL WAS KNOWINGLY BLIND, AND IS NOT
+ANY MORE. Three prefixes used to number rows in BOTH `docs/spec` and a
+document outside it, so a token carrying one could not be resolved without
+knowing which document the comment meant, and all three were dropped whole:
 
-    D-    `D-1` .. `D-5` are spec rows;  `D-254` is a ledger row of
-          docs/development-records/defects.md          (380 tokens dropped)
-    PD-   `PTD-1` .. `PTD-5` are spec rows; `PND-442` is a pending decision
-                                                       (319 tokens dropped)
-    R-    `R-1` .. `R-9` are spec rows;  `R-27` .. `R-40` are rulings of
+    D-    `D-1` .. `D-5` were spec rows;  `D-254` a ledger row of defects.md
+                                                       (380 tokens dropped)
+    PD-   its low-numbered ids were rows of 表 T-023a; the rest were
+          pending decisions of the ledger              (319 tokens dropped)
+    R-    `R-1` .. `R-9` were spec rows;  `R-27` .. `R-40` rulings of
           docs/development-records/rulings.md           (56 tokens dropped)
 
-⛔ ALL THREE PREFIXES ARE DROPPED WHOLE, which means a genuinely dangling
-`D-3` or `R-5` in a comment is invisible here. ⭐ The alternative -- keeping
-them -- was measured on 2026-09-11 and cost 8 of the first 155 hits as pure
-noise, every one of them a ruling or ledger row correctly cited. Resolving
-this properly needs the other two documents' ID sets, which belong to a check
-that reads them; ⛔ do not "fix" it by comparing the NUMBER against the highest
+⛔ A dangling `D-3` or `R-5` in a comment was therefore invisible here.
+⭐ CR-371 split the first (`PTD-` / `PND-`) and the CR after it split the other
+two (`DEV-` / `CHN-` for the specification, `DFC-` / `JDG-` for the ledgers),
+so FOREIGN_PREFIXES is empty and none of the three is dropped whole any more.
+A dangling `DEV-9` IS visible now.
+
+⚠️ WHAT DROPPING THEM WHOLE USED TO COST, kept because it is why the split was
+worth doing. Keeping them was measured on 2026-09-11 and cost 8 of the first
+155 hits as pure noise, every one a ruling or ledger row correctly cited --
+so dropping was right while one spelling meant two things. ⛔ The price was
+that a genuinely dangling spec row id went unseen. ⭐ Neither cost is paid now:
+the ledgers' ids are dropped by the ordinary path (a prefix docs/spec never
+defines), and the specification's own are resolved.
+⛔ Do not "fix" anything here by comparing the NUMBER against the highest
 defined one, which would hide a real typo like `S-999`.
 
 WHERE THE RETIREMENT SET COMES FROM: `retired.py`, imported, with the
@@ -224,11 +232,20 @@ ROW_ID_RE = re.compile(r'^[A-Z]{1,3}-[0-9]+[a-z]?$')
 # exactly the ones a backticked pattern cannot see.
 TOKEN_RE = re.compile(r'(?<![0-9A-Za-z_-])([A-Z]{1,3}-[0-9]{1,4}[a-z]?)(?![0-9A-Za-z_])')
 
-# Prefixes that ALSO number the rows of a document outside docs/spec, so a
-# token carrying one cannot be resolved without knowing which document the
-# comment meant. See the docstring's PREFIX COLLISIONS paragraph -- this is a
-# measured loss, not a tidy-up.
-FOREIGN_PREFIXES = {'D', 'PND', 'R'}
+# ⭐ EMPTY SINCE 2026-09-13, AND THAT IS THE RESULT, NOT A TIDY-UP. This set
+# subtracted prefixes from the SPECIFICATION's own prefix set, so that a token
+# carrying one was dropped rather than resolved. It held D, R and PD because
+# docs/spec really did define the low-numbered ids of all three while another
+# book numbered its rows the same way. CR-371 and the CR that abolished D- and
+# R- split all three: the specification now defines DEV, CHN and PTD, the
+# ledgers define DFC, JDG and PND, and no prefix stands in both. Every ledger
+# token is dropped by the ordinary path instead -- measured the day this was
+# emptied: 857 dropped, DFC-* x360 and PND-* x136 among them, all through
+# "a prefix docs/spec never defines".
+# ⛔ Do not refill it to silence a prefix. A prefix that needs silencing is a
+# collision, and a collision belongs in row-id-prefixes.json where the
+# generator can fail on it.
+FOREIGN_PREFIXES = set()
 
 # ⭐ specindex indexes `**表 T-nnn —` and row IDs and UIDs, and NOTHING ELSE --
 # the eleven figures are defined by their own heading and are invisible to it.
@@ -462,8 +479,8 @@ def main(argv):
              counts['unclassified'], len(hits), len({h[0] for h in hits}),
              withdrawn_refs, undefined_refs, len(withdrawn), from_file))
     print('NOTE     %d token(s) dropped for a prefix docs/spec never defines '
-          '(%s); D-*, PND-* and R-* dropped whole because they number rows in '
-          'two documents at once -- see PREFIX COLLISIONS. Wall clock %.1fs.'
+          '(%s). ⭐ Nothing is dropped whole any more -- see PREFIX COLLISIONS. '
+          'Wall clock %.1fs.'
           % (sum(dropped.values()), top or 'none', time.time() - started))
     return 0
 

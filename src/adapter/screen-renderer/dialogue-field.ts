@@ -17,10 +17,10 @@
 // of 2026-09-05), and S-99b of table T-206 keeps that record in the
 // environment, so it reaches this unit as `ScreenSession.isAgentApiEnabled`
 // rather than through `Schedule`.
-// ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (D-280): that was the
+// ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (DFC-280): that was the
 // requirement's own wording until 2026-09-05, and it was withdrawn because
 // nothing in the specification points at one document.
-// ⭐⭐ A SECOND FLAG SINCE 2026-08-31 (D-149). FR-066 also has a MUST of its own
+// ⭐⭐ A SECOND FLAG SINCE 2026-08-31 (DFC-149). FR-066 also has a MUST of its own
 // -- the reader may put the field away with IC-18 while the API stays on -- and
 // S-99i of table T-206 (MUST NOT) keeps that choice out of `isAgentApiEnabled`,
 // because one is a capability and the other is what is shown. It reaches this

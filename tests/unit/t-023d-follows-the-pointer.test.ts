@@ -69,7 +69,7 @@
 //           ⭐ THE TEN ROW IDS ARE READ OUT OF THE MANUSCRIPT, NOT COPIED --
 //           see `closingRuleRows()`.
 //   T-023d  the write ban the closing now states ONCE for every following row,
-//           instead of once per following rule (D-466, 利用者の裁定 2026-09-11):
+//           instead of once per following rule (DFC-466, 利用者の裁定 2026-09-11):
 //           「`GR-1` / `GR-2` / `GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` /
 //           `GR-12` / `GR-14` / `GR-15` / `GR-16` / `GR-21` を掴んでいるあいだ値を
 //           文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵であって
@@ -145,7 +145,7 @@
 //         a press as GR-21's.
 //     ⭐ The block at the foot of this file pins those measurements, so the day
 //     the thumb starts to follow they fail and this exemption has to go.
-//     ⚠️ THE FIRST OF THE THREE IS SPENT (D-298, 2026-09-08): GR-21's LENGTH
+//     ⚠️ THE FIRST OF THE THREE IS SPENT (DFC-298, 2026-09-08): GR-21's LENGTH
 //     landed, so the thumb is no longer the whole lane -- on `wideFixtureDocument`
 //     it now measures 216.7px of a 976px horizontal lane and 153.6px of a 628px
 //     vertical one. ⛔ THE EXEMPTION STILL STANDS, because what it is about is
@@ -252,7 +252,7 @@ function closingRuleLine(): string {
 /**
  * The closing sentence that forbids a write while ANY following row is held.
  *
- * ⭐ ITS OWN SEAT SINCE D-466 (利用者の裁定 2026-09-11). The ban used to be
+ * ⭐ ITS OWN SEAT SINCE DFC-466 (利用者の裁定 2026-09-11). The ban used to be
  * restated at the tail of each following rule; the closing now states it once,
  * for every row the three rules name, so this file reads it from there.
  */
@@ -903,7 +903,7 @@ describe('the manuscript still states the rule this file is about', () => {
   it('is a MUST, and forbids a write while the button is down (MUST NOT)', () => {
     const line = closingRuleLine()
     expect(line, 'table T-023d: ……描いて示すこと（MUST）').toContain('（MUST）')
-    // ⭐ READ FROM THE CLOSING'S OWN SEAT, not from the rule above: D-466 folded
+    // ⭐ READ FROM THE CLOSING'S OWN SEAT, not from the rule above: DFC-466 folded
     // the ban out of the two rules that restated it and gave it one sentence
     // that names every following row. ⛔ The expectation itself is unchanged.
     expect(
@@ -1657,13 +1657,13 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
   // them. ⚠️ WHAT STOOD HERE IS OUT OF DATE AND IS CORRECTED RATHER THAN LEFT
   // (2026-09-08): it said `scrollbarIn` (`screen-frame.ts`) draws
-  // `thumb: track`, which stopped being true when D-298's length landed on
+  // `thumb: track`, which stopped being true when DFC-298's length landed on
   // 2026-09-08 and stopped being true of the START on the same day. The press
   // point is still taken from the thumb's own rectangle (`thumbCentre`),
   // which is now a point on the GRIP rather than anywhere on the lane -- and
   // that is the stronger reading, since GR-21 is the grip.
   //
-  // ⚠️ AND THE SECOND GAP THIS BLOCK NAMED IS CLOSED (D-420, 2026-09-08). What
+  // ⚠️ AND THE SECOND GAP THIS BLOCK NAMED IS CLOSED (DFC-420, 2026-09-08). What
   // it recorded was true when it was written: `isDocumentChangingPress`
   // (`frame-loop.ts`) answered `true` for a press the surface had claimed with
   // no entry, so AG-9 of table T-035 refused the write `scrollbarFollow` asks
@@ -1721,7 +1721,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
 
   for (const axis of ['vertical', 'horizontal'] as const) {
     it(`follows the pointer through the ${axis} drag, while it is held`, () => {
-      // ⭐⭐ THIS CASE WAS THE PIN, AND THE PIN WENT OFF (D-420, 2026-09-08). It
+      // ⭐⭐ THIS CASE WAS THE PIN, AND THE PIN WENT OFF (DFC-420, 2026-09-08). It
       // asserted the reading did NOT move and carried its own instruction for
       // the day it stopped holding -- 「this pin is out of date」 -- so it is
       // FLIPPED here rather than deleted: the same fixture, the same reading,

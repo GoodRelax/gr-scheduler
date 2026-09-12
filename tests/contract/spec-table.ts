@@ -88,7 +88,7 @@ const isSeparator = (line: string): boolean => /^\|[\s:|-]+\|$/.test(line.trim()
  *
  * ⛔ THE HEADING ROW IS SEARCHED FOR, NOT ASSUMED TO BE THE FIRST ONE. Taking
  * the first markdown row as the heading is what made table T-012a unreadable
- * (the ledger's D-216): its caption is followed by a four-vertex table headed
+ * (the ledger's DFC-216): its caption is followed by a four-vertex table headed
  * 「点」 before the row-ID one, so the helper threw on the vertex table's
  * heading while its own rows were being read correctly. ⚠️ Chapter 1.9 (:274)
  * makes 「行 ID」 the first column of EVERY numbered table, which is what makes
@@ -106,7 +106,7 @@ export function specTable(id: string): SpecTable {
     // FALSE red that looks like a defect in whichever table was asked for.
     // ⚠️ It does not take an edit. This repository sits under a syncing
     // folder, and the sync holds a file open for its own moment too, which
-    // is the likeliest reading of D-255's rare unreproducible failure.
+    // is the likeliest reading of DFC-255's rare unreproducible failure.
     // ⭐ So the read is caught and named, and the suite is not run while
     // anything is writing docs/spec.
     let text: string
@@ -168,7 +168,7 @@ export function specTable(id: string): SpecTable {
         `${unreadable.join('; ')}. That is not a defect in the ` +
         'specification and not a defect in this table -- the file was held ' +
         'open by something else while this run read it. Re-run with nothing ' +
-        'writing docs/spec, and give the syncing folder a moment. See D-255.',
+        'writing docs/spec, and give the syncing folder a moment. See DFC-255.',
     )
   }
   throw new Error(`the specification has no table ${id}`)
@@ -200,10 +200,10 @@ const WELDS: readonly string[] = ['', '＋', '+', '＝', '=', '→', 'が']
  * A caller that wants the whole answer calls `bareAll`; `bare` REFUSES such a
  * cell rather than handing back the first of six with nothing saying so.
  *
- * ⛔⛔ THE LIST IS A MEASUREMENT, NOT A GUESS (`D-351`). Widening `bare` with
+ * ⛔⛔ THE LIST IS A MEASUREMENT, NOT A GUESS (`DFC-351`). Widening `bare` with
  * these joiners turned 19 unit files and 1 contract file red on live cells --
  * every one of them a premise that was silently half read. All 20 now read the
- * whole cell; the two reads that were really drifting are named in `D-351`.
+ * whole cell; the two reads that were really drifting are named in `DFC-351`.
  * ⚠️ Re-measure before adding a joiner: 「と」 and 「または」 also occur as
  * ordinary prose, and only the between-spans position keeps them honest.
  */
@@ -220,7 +220,7 @@ const JOINERS: readonly string[] = ['/', '／', '、', '・', 'と', 'または'
  *
  * ⛔ IT STILL REFUSES A WELDED PAIR. 「`Ctrl` ＋ `R`」 is one value spelled in
  * two spans, and no list of strings can say that faithfully -- the caller has
- * to read the cell raw and say what it means (`D-343`).
+ * to read the cell raw and say what it means (`DFC-343`).
  *
  * ⛔ A cell with no code span at all is returned whole, exactly as `bare` does.
  */
@@ -303,7 +303,7 @@ export function bareAll(cell: string): readonly string[] {
           `${JSON.stringify(between)}: ${JSON.stringify(cell)}. ` +
           `${JSON.stringify(span[1] ?? '')} and ` +
           `${JSON.stringify(next[1] ?? '')} are ONE value spelled in two ` +
-          `spans, not two values -- see D-343. Read the cell raw ` +
+          `spans, not two values -- see DFC-343. Read the cell raw ` +
           `(row.by['…'] / row.cells[n]) and say in the test what the whole ` +
           `cell means.`,
       )
@@ -315,8 +315,8 @@ export function bareAll(cell: string): readonly string[] {
 /**
  * The single value a cell states.
  *
- * ⛔⛔ IT REFUSES A CELL THAT STATES MORE THAN ONE (the ledger's `D-343` and
- * `D-351`). Returning the first span out of 「`Ctrl` ＋ `R`」 is 'Ctrl', out of
+ * ⛔⛔ IT REFUSES A CELL THAT STATES MORE THAN ONE (the ledger's `DFC-343` and
+ * `DFC-351`). Returning the first span out of 「`Ctrl` ＋ `R`」 is 'Ctrl', out of
  * 「`resumeValid` が `false`」 is 'resumeValid', and out of 表 T-109's
  * 「`Help Modal` / `AI Export Modal` / …」 is one surface of six -- HALF the
  * cell, handed back with no sign that anything was dropped. A premise read
@@ -325,7 +325,7 @@ export function bareAll(cell: string): readonly string[] {
  *
  * ⚠️ THIS HAS MISLED A MEASUREMENT TWICE, which is why it throws rather than
  * warns:
- *   - `D-337`: 「先の実測が打った 3 つの鍵では読み直しの門に届いていなかった」
+ *   - `DFC-337`: 「先の実測が打った 3 つの鍵では読み直しの門に届いていなかった」
  *     -- the keys came out of a cell that spelled them across two spans.
  *   - `mk-13-the-name-field-is-armed.test.ts`: a regex of the same shape took
  *     the FIRST `PR-n` of a cell, and returned `PR-21` the moment an unrelated
@@ -347,7 +347,7 @@ export function bare(cell: string): string {
       `bare() was given a cell that states ${values.length} values, not one: ` +
         `${JSON.stringify(cell)}. Returning ${JSON.stringify(values[0] ?? '')} ` +
         `would drop ${JSON.stringify(values.slice(1).join(', '))} and nothing ` +
-        `would say so -- see D-351. Call bareAll() and say in the test what ` +
+        `would say so -- see DFC-351. Call bareAll() and say in the test what ` +
         `the whole cell means.`,
     )
   }

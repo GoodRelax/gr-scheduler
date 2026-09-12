@@ -42,7 +42,7 @@
 // nothing selected -- character for character. That one case covers every shape
 // the selection can add, INCLUDING ones no reader has thought to name: the
 // dashed frame of SL-8, the fade grab points of FR-016, and whatever a later
-// row adds. Ledger row D-52 records the cost of naming them one at a time --
+// row adds. Ledger row DFC-52 records the cost of naming them one at a time --
 // the two thicknesses were closed and four more shapes were still leaking.
 //
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, and why:

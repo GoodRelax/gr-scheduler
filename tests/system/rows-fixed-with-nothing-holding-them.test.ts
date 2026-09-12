@@ -2,15 +2,15 @@
 // stood at 「試験待ち」 on 2026-09-03: the fix is in and was measured by hand on
 // the shipped build, and nothing automated holds it down.
 //
-//   D-27   the panel width does not come back when an unrelated edit is undone
-//   D-115  the scrollbars are drawn no thinner than the floor `FR-051` gives
-//   D-133  committing a field moves the panel as well as the row
-//   D-157  a collapsed row's descendants are collapsed too, and open one tier
-//   D-180  a row's name is edited by pressing it twice
-//   D-209  a highlight box is placed by a drag and never by a click
-//   D-215  this file IS the road -- see below
+//   DFC-27   the panel width does not come back when an unrelated edit is undone
+//   DFC-115  the scrollbars are drawn no thinner than the floor `FR-051` gives
+//   DFC-133  committing a field moves the panel as well as the row
+//   DFC-157  a collapsed row's descendants are collapsed too, and open one tier
+//   DFC-180  a row's name is edited by pressing it twice
+//   DFC-209  a highlight box is placed by a drag and never by a click
+//   DFC-215  this file IS the road -- see below
 //
-// ⭐⭐ D-215 IS WHY THIS FILE EXISTS AT ALL, AND WHY IT IS A PLAYWRIGHT FILE.
+// ⭐⭐ DFC-215 IS WHY THIS FILE EXISTS AT ALL, AND WHY IT IS A PLAYWRIGHT FILE.
 // The row asked for 「`UF-47` に在る規則を測る道」 -- the rules that live in the
 // shell and in no unit, so that `keyof typeof Shell` is `never` and no Vitest
 // can reach them. Its two candidates were ① measure them through table T-218's
@@ -18,7 +18,7 @@
 // was never available: `PI-25` of Chapter 5.3 states that `SingleHtmlShell`
 // 「他のコンポーネントから呼ばれるメンバを持たない」, so publishing one would
 // break the manuscript rather than satisfy it. ⇒ ①, which is this file. Two of
-// the cases below can be measured NOWHERE ELSE and are D-215's own evidence:
+// the cases below can be measured NOWHERE ELSE and are DFC-215's own evidence:
 //   * `FR-051`'s floor on the scrollbars (`S-205`) -- the halving and the floor
 //     are applied against a thickness the HOST reports, and no host reports one
 //     to a Vitest.
@@ -404,7 +404,7 @@ const REACH_PX = 160
  *
  * ⛔ Ground BELOW the last row is no good: `FR-019` (MUST) holds an annotation's
  * position 「日付と行の識別子で」, and ground no row covers points at no row --
- * which is a different rule of the same requirement, and not what D-209 is
+ * which is a different rule of the same requirement, and not what DFC-209 is
  * about. ⭐ Emptiness is the PRODUCT's own answer: `PTD-5` gives ground that hit
  * nothing the plain arrow, read with nothing armed.
  *
@@ -478,7 +478,7 @@ async function commitField(page: Page, kind: string, value: string): Promise<voi
 }
 
 // ---------------------------------------------------------------------------
-// D-115 and D-215 -- the rules that live in the shell
+// DFC-115 and DFC-215 -- the rules that live in the shell
 // ---------------------------------------------------------------------------
 
 /** One scrollbar, as the page drew it. */
@@ -527,7 +527,7 @@ async function hostScrollbarThickness(page: Page): Promise<number> {
 // two cases below -- table T-031 row `SC-4` (MUST) 「横・縦とも常時表示する。
 // 内容が収まっていても消さない」, and neither case beneath it means anything if
 // the bar it measures is not on the screen at all.
-test('control for D-115: both scrollbars are on the screen (SC-4 of table T-031)', async ({
+test('control for DFC-115: both scrollbars are on the screen (SC-4 of table T-031)', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -539,13 +539,13 @@ test('control for D-115: both scrollbars are on the screen (SC-4 of table T-031)
   }
 })
 
-// GOES RED IF: the floor of `FR-051` is taken out again. ⭐ THIS IS D-215's
-// EVIDENCE AS MUCH AS D-115's: the halving is applied to a thickness the HOST
+// GOES RED IF: the floor of `FR-051` is taken out again. ⭐ THIS IS DFC-215's
+// EVIDENCE AS MUCH AS DFC-115's: the halving is applied to a thickness the HOST
 // reports, which no Vitest can be given, and the shell publishes no member that
 // would let one ask. Measured 2026-09-03 in the reference browser: the host
 // answers 0 for an overlay scrollbar, so the halving gives 0 and the floor is
 // the only thing between that and a band nobody can point at.
-test('D-115: neither scrollbar is drawn thinner than `S-205`, the floor FR-051 states', async ({
+test('DFC-115: neither scrollbar is drawn thinner than `S-205`, the floor FR-051 states', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -577,7 +577,7 @@ test('D-115: neither scrollbar is drawn thinner than `S-205`, the floor FR-051 s
 // ない」). `FR-051` (MUST) has the position changeable 「スクロールバーの操作でも」
 // and table T-031 row `SC-4` has it 「掴んで動かす」 -- neither is possible
 // against a thumb of no thickness.
-test('D-115: the thumb inside each scrollbar is as thick as the bar', async ({ baseURL }) => {
+test('DFC-115: the thumb inside each scrollbar is as thick as the bar', async ({ baseURL }) => {
   const opened = await openTheApp(baseURL)
   try {
     for (const bar of await drawnScrollbars(opened.page)) {
@@ -598,12 +598,12 @@ test('D-115: the thumb inside each scrollbar is as thick as the bar', async ({ b
 })
 
 // GOES RED IF: the shell stops registering the host's warning, or starts asking
-// for it with nothing to lose. ⭐ D-215's SECOND piece of evidence, and the
+// for it with nothing to lose. ⭐ DFC-215's SECOND piece of evidence, and the
 // second rule that lives only in the shell: `FR-100` (MUST) 「未保存の編集を
 // 持ったまま作成者がページを離れようとしたとき…離れる前に宿主の警告が出るように
 // すること」, (MUST NOT) 「未保存の編集が無いときに出させてはならない」. Both
 // halves are asked of one page, so neither can pass by the page being broken.
-test('D-215: FR-100 -- the host warning is asked for only once the document is dirty', async ({
+test('DFC-215: FR-100 -- the host warning is asked for only once the document is dirty', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -627,7 +627,7 @@ test('D-215: FR-100 -- the host warning is asked for only once the document is d
 })
 
 // ---------------------------------------------------------------------------
-// D-180 -- the road to a row's name
+// DFC-180 -- the road to a row's name
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: pressing a row's name twice stops opening the panel, stops
@@ -637,7 +637,7 @@ test('D-215: FR-100 -- the host warning is asked for only once the document is d
 // 焦点を置き、既にある文字をすべて選んだ状態にすること」（利用者の裁定
 // 2026-09-01）. ⭐ The field is found by the column table T-058 gives it, so the
 // case follows a renumbering of the manuscript.
-test('D-180: pressing a row name twice opens the panel with the name field focused and all of it selected', async ({
+test('DFC-180: pressing a row name twice opens the panel with the name field focused and all of it selected', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -683,7 +683,7 @@ test('D-180: pressing a row name twice opens the panel with the name field focus
 })
 
 // ---------------------------------------------------------------------------
-// D-133 -- what a confirmed field moves
+// DFC-133 -- what a confirmed field moves
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the panel keeps the reading it had while the field was held, so
@@ -693,7 +693,7 @@ test('D-180: pressing a row name twice opens the panel with the name field focus
 // and nothing in `docs/spec` allows a redraw to be skipped because a control is
 // still held. Both faces are asked in one case, so it cannot pass by the value
 // reaching neither.
-test('D-133: confirming the height field moves the panel and the row together', async ({
+test('DFC-133: confirming the height field moves the panel and the row together', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -723,7 +723,7 @@ test('D-133: confirming the height field moves the panel and the row together', 
 // ledger's own measurement of 2026-09-03 (「続けて改名 → パネルも行見出しも
 // 新しい名前」). The panel and the row heading are the two faces `FR-006`
 // forbids to part company.
-test('D-133: confirming the name field moves the panel and the row heading together', async ({
+test('DFC-133: confirming the name field moves the panel and the row heading together', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -747,7 +747,7 @@ test('D-133: confirming the name field moves the panel and the row heading toget
 })
 
 // ---------------------------------------------------------------------------
-// D-27 -- what an undo may not give back
+// DFC-27 -- what an undo may not give back
 // ---------------------------------------------------------------------------
 
 /** Drag the panel boundary this far to the right. */
@@ -763,7 +763,7 @@ const WIDEN_BY_PX = 90
 // ⭐ THE UNDO HAS TO REACH SOMETHING, or the case would pass on a keystroke that
 // did nothing at all. The rename is 表 T-027 row `UN-14`, 対象, and its coming
 // back is asserted FIRST -- that assertion is this case's own control.
-test('D-27: an undo of an unrelated edit leaves the panel width where the reader put it', async ({
+test('DFC-27: an undo of an unrelated edit leaves the panel width where the reader put it', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -807,7 +807,7 @@ test('D-27: an undo of an unrelated edit leaves the panel width where the reader
 })
 
 // ---------------------------------------------------------------------------
-// D-157 -- a collapsed row's descendants
+// DFC-157 -- a collapsed row's descendants
 // ---------------------------------------------------------------------------
 
 /**
@@ -846,7 +846,7 @@ function rowWithAGrandchild(rows: readonly DrawnRow[]): number {
 // ⭐ The row is CHOSEN by the drawing having a grandchild under it, and that
 // choice is asserted first -- a document with no second tier would make the
 // rest of the case say nothing.
-test('D-157: a folded row hides every tier below it, and opens exactly one back', async ({
+test('DFC-157: a folded row hides every tier below it, and opens exactly one back', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -891,14 +891,14 @@ test('D-157: a folded row hides every tier below it, and opens exactly one back'
 })
 
 // ---------------------------------------------------------------------------
-// D-209 -- how a highlight box is placed
+// DFC-209 -- how a highlight box is placed
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the pointer this file drives stops reaching the canvas, or the
 // highlight box stops being placeable at all. `FR-019` (MUST)
 // 「ハイライトボックスはドラッグでのみ置くこと」 -- the control for the case
 // below, which would otherwise pass on a page where nothing can be placed.
-test('control for D-209: with the highlight box armed, a drag on empty ground places one', async ({
+test('control for DFC-209: with the highlight box armed, a drag on empty ground places one', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -937,7 +937,7 @@ test('control for D-209: with the highlight box armed, a drag on empty ground pl
 // `FR-019` (MUST NOT) 「クリックでは置かないこと」（利用者の裁定 2026-09-02
 // 「ハイライトボックスはクリックで置かない。ドラッグのみ」）, with the reason
 // given in the same paragraph: 「押した 1 点はその範囲を言えない」.
-test('D-209: with the highlight box armed, a press that does not travel places nothing', async ({
+test('DFC-209: with the highlight box armed, a press that does not travel places nothing', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -967,7 +967,7 @@ test('D-209: with the highlight box armed, a press that does not travel places n
 // ない —— 裁定の逐語はハイライトボックスだけを名指しており、コメントボックスは
 // 1 点に置くもので、囲う範囲を持たない」. 表 T-023b row `AR-5` places one 「その
 // 位置に」, which is a press and not a travel.
-test('D-209: the comment box is outside that MUST NOT -- one press still places one', async ({
+test('DFC-209: the comment box is outside that MUST NOT -- one press still places one', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)

@@ -2,7 +2,7 @@
 // the user pressed out of the shipped build on 2026-09-01, every one of which
 // passed all 5570 automated tests on its way through.
 //
-//   ⛔ D-147 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//   ⛔ DFC-147 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
 //     held it is an ordinary assertion now: `ENTRY` in the input command
 //     translator had no key for `IC-41`, so the press reached every member and
 //     every member answered with the screen untouched -- 0 bytes of DOM and 0
@@ -15,7 +15,7 @@
 //     IS NOT DRAWN AT ALL in this build -- measured 2026-09-02, zero elements
 //     before and after -- so no case here can watch it disappear, and that gap
 //     belongs to FR-020's drawing half rather than to this row.
-//   ⛔ D-06 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//   ⛔ DFC-06 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
 //     held it is an ordinary assertion now: AR-5 of table T-023b reached no
 //     branch of `commandFromArmed`, so an armed comment box entrance planned no
 //     command at all. `InputContext` now carries `newCommentBoxId` beside
@@ -31,7 +31,7 @@
 //     FR-058 forbid. ⇒ The pair presses on empty ground a drawn row COVERS,
 //     which is the ground the specification decides. Off-the-rows placement is
 //     reported as a missing row, not tested here.
-//   ⛔ D-181 WAS PINNED HERE AND IS NOT ANY MORE. Measured 2026-09-02: it was
+//   ⛔ DFC-181 WAS PINNED HERE AND IS NOT ANY MORE. Measured 2026-09-02: it was
 //     never a defect. The row bands do not move -- read before, during and
 //     after the grab, all eight stand at the same y and the same height. What
 //     exchanges is two LANES INSIDE one band, which is table T-014's ST-2
@@ -41,16 +41,16 @@
 //     the exchange belongs to the document and not to the holding of the grab.
 //     ⚠️ A case asserting the bands DO hold still is worth writing from the
 //     specification; it is not this file's job, because nothing here is open.
-//   ⛔ D-182 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
+//   ⛔ DFC-182 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
 //     held it is an ordinary assertion now: the user's ruling of 2026-09-02
 //     settled the two rows that disagreed (CR-328), FR-043 now writes 掴みシロ
 //     を離した日 rather than a day derived from the plan, and `edit-task.ts`
 //     and `input-command-translator.ts` carry the dropped day between them.
 //     ⭐ Its control stays where it was: the pinned case is gone, the thing
 //     that proves the pointer reaches the hold at all is still worth running.
-//   ⛔ D-232 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case
+//   ⛔ DFC-232 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case
 //     that held it is an ordinary assertion now. What was missing was the
-//     branch ledger row D-228 named: nothing made a just-drawn task the
+//     branch ledger row DFC-228 named: nothing made a just-drawn task the
 //     selection, so `showPropertiesOfChoice()` never advanced and the keyboard
 //     stayed on `BODY`. FR-001 (MUST, 利用者の裁定 2026-09-03) now has the
 //     drawn task become the selection, and the placement carries the new
@@ -128,7 +128,7 @@ interface Pin {
 }
 
 const D230: Pin = {
-  ledger: 'D-230',
+  ledger: 'DFC-230',
   wrong:
     'the first frame is drawn with the App Header measured as 0 high, so the whole tree ' +
     'stands 24px too high and a ninth row leaks into the drawing area -- table T-077 row ' +
@@ -136,12 +136,12 @@ const D230: Pin = {
 }
 
 /**
- * ⚠️ D-230's CASE IS NOT IN THIS FILE. It is
+ * ⚠️ DFC-230's CASE IS NOT IN THIS FILE. It is
  * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
  * file of its own: the fault it watches shows only on the first page of a
  * browser process, so the case must own the launch. It is a plain assertion and
  * not `test.fail()` -- it was red while the row was open, which is the correct
- * report -- so D-230 sits in this list only for the gate at the bottom of this
+ * report -- so DFC-230 sits in this list only for the gate at the bottom of this
  * file: a row named here must still be a row of the ledger, so a System case
  * written for it cannot outlive the row it was written for.
  * ⭐⭐ THE ROW SETTLED ON 2026-09-03 AND MOVED TO `fixed-defects.md` on
@@ -149,11 +149,11 @@ const D230: Pin = {
  * is now the CONTROL for that fix, and the gate below reads both files so that
  * the move is not mistaken for a deletion.
  *
- * ⭐ D-232's CASE IS IN THIS FILE, moved here from
+ * ⭐ DFC-232's CASE IS IN THIS FILE, moved here from
  * `tests/system/measured-sweep.test.ts` where it was found and could not be
  * closed: `FR-091` (MUST) has the field, but the one line that would put a
  * just-drawn task into the selection so `showPropertiesOfChoice()` can reach
- * it is missing everywhere, and that gap is `D-228`, an open row of its own
+ * it is missing everywhere, and that gap is `DFC-228`, an open row of its own
  * awaiting a ruling. Nothing here can turn green before that ruling lands, so
  * it is pinned by `test.fail()` -- the shape "HOW A PIN IS BUILT HERE" above
  * describes -- rather than left red with nothing watching for the day it goes
@@ -162,8 +162,8 @@ const D230: Pin = {
 const PINNED: readonly Pin[] = [D230]
 
 // ⛔ THERE WAS AN `announce` HELPER HERE AND THERE IS NOT ANY MORE. It printed
-// `[OPEN DEFECT D-nnn]` on the run's own output, and D-232's case was its last
-// caller; unpinning that case on 2026-09-04 left it with none. D-230 is still
+// `[OPEN DEFECT D-nnn]` on the run's own output, and DFC-232's case was its last
+// caller; unpinning that case on 2026-09-04 left it with none. DFC-230 is still
 // pinned, but its case stands in another file.
 //
 // ⭐ WHATEVER PINS THE NEXT CASE HERE SHOULD BRING IT BACK, and this is the
@@ -302,7 +302,7 @@ async function censusOf(page: Page): Promise<{ shapes: string; notice: string }>
  * drawing, and whatever the notification area is saying.
  *
  * ⛔⛔ WIDER THAN `censusOf` ON PURPOSE, AND THE WIDTH IS THE LEDGER'S OWN
- * WORDING. D-147 read 「pressing it changes nothing on the screen」, and the
+ * WORDING. DFC-147 read 「pressing it changes nothing on the screen」, and the
  * drawing inside the `Schedule Canvas` is not the whole screen: a surface opened
  * OVER it (S-99g) leaves every shape in the canvas exactly where it was. ⚠️ The
  * case that pinned that row asked `censusOf` and would have gone on failing
@@ -426,7 +426,7 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
 
 
 
-/** How far along the row the second half of each D-06 gesture reaches. */
+/** How far along the row the second half of each DFC-06 gesture reaches. */
 const REACH_PX = 160
 
 /**
@@ -582,14 +582,14 @@ const HIDE_WATERMARK = 'IC-41'
 const DATE_RULES = 'IC-42'
 
 // ---------------------------------------------------------------------------
-// D-147 -- the entrance that hides the watermark is inert (FIXED 2026-09-02)
+// DFC-147 -- the entrance that hides the watermark is inert (FIXED 2026-09-02)
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the neighbouring entrance stops answering a press -- either the
 // entrance moved, or the pointer this file drives stopped reaching the palette.
-// It has nothing to say about D-147 itself; it is here so that the case below
+// It has nothing to say about DFC-147 itself; it is here so that the case below
 // cannot pass by failing to press anything.
-test('control for D-147: a neighbouring entrance of the same palette group answers a press', async ({
+test('control for DFC-147: a neighbouring entrance of the same palette group answers a press', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -600,16 +600,16 @@ test('control for D-147: a neighbouring entrance of the same palette group answe
   expect(
     after.shapes,
     `pressing ${DATE_RULES} left the drawing untouched, so this file is not reaching the palette ` +
-      'at all and the case on D-147 below would be worthless',
+      'at all and the case on DFC-147 below would be worthless',
   ).not.toBe(before.shapes)
   await app.close()
 })
 
 // GOES RED IF: the entrance that hides the watermark stops answering a press --
-// which is what D-147 was, and it is what happens again if `ENTRY` in the input
+// which is what DFC-147 was, and it is what happens again if `ENTRY` in the input
 // command translator loses its key for `IC-41`, if `screenStateFromEntry` stops
 // raising U-60, or if UF-66 stops describing that surface.
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-147.
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-147.
 // Measured on the shipped build: the drawing was byte for byte identical after
 // the press and the notification area was empty, with the entrance reporting
 // `data-enabled=true`.
@@ -618,7 +618,7 @@ test('control for D-147: a neighbouring entrance of the same palette group answe
 // surface instead, so 「the screen changed OR something was said」 is the whole
 // of what this case knows -- and it is the same sentence the pinned case
 // carried, so nothing was loosened to make it pass.
-test('D-147: pressing the entrance that hides the watermark either does something or says why not', async ({
+test('DFC-147: pressing the entrance that hides the watermark either does something or says why not', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -643,14 +643,14 @@ test('D-147: pressing the entrance that hides the watermark either does somethin
 })
 
 // ---------------------------------------------------------------------------
-// D-06 -- a comment box cannot be placed at all (FIXED 2026-09-02)
+// DFC-06 -- a comment box cannot be placed at all (FIXED 2026-09-02)
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the canvas stops answering an armed entrance at all, or the spot
 // this file presses on stops being empty ground. It says nothing about the
 // comment box; it proves that the point, the arming and the gesture below are
 // ones the product does respond to.
-test('control for D-06: with the rectangle entrance armed, the same drag on the same spot draws', async ({
+test('control for DFC-06: with the rectangle entrance armed, the same drag on the same spot draws', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -673,21 +673,21 @@ test('control for D-06: with the rectangle entrance armed, the same drag on the 
   const after = await censusOf(app.page)
   expect(
     after.shapes,
-    'an armed entrance and a drag on empty canvas drew nothing, so the case on D-06 below ' +
+    'an armed entrance and a drag on empty canvas drew nothing, so the case on DFC-06 below ' +
       'reaches nothing',
   ).not.toBe(before.shapes)
   await app.close()
 })
 
 // GOES RED IF: an armed comment box entrance stops planning CM-46 -- which is
-// what D-06 was, and it is what happens again if `newCommentBoxId` stops
+// what DFC-06 was, and it is what happens again if `newCommentBoxId` stops
 // reaching `commandFromArmed`, if AR-5 falls back out of that member, or if the
 // identifier stops being minted afresh per happening (the second press would
 // then be refused by IV-1 and draw nothing).
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-06.
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-06.
 // Measured on the shipped build: the census was byte for byte identical after
 // both a press and a drag, with the entrance reporting `data-armed=true`.
-test('D-06: with the comment box entrance armed, a press on empty canvas places one', async ({
+test('DFC-06: with the comment box entrance armed, a press on empty canvas places one', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -734,7 +734,7 @@ test('D-06: with the comment box entrance armed, a press on empty canvas places 
 })
 
 // ---------------------------------------------------------------------------
-// D-182 -- a bar's dummy ignores where it is dropped
+// DFC-182 -- a bar's dummy ignores where it is dropped
 // ---------------------------------------------------------------------------
 
 interface Dropped {
@@ -862,8 +862,8 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   // GR-9. ⇒ Pressing the exact middle takes the FINISH hold, which pins the
   // actual start at GR-9's day and writes only a length -- so the day the hand
   // let go on stops being what the actual starts on, and this case would report
-  // D-182 open again over a build that closed it.
-  // ⭐ WHAT D-182 IS ABOUT IS THE START HOLD, and the quarter is squarely inside
+  // DFC-182 open again over a build that closed it.
+  // ⭐ WHAT DFC-182 IS ABOUT IS THE START HOLD, and the quarter is squarely inside
   // its half: 「左半分を実績の開始側（`GR-9`）」. The window measured above --
   // +9px to +15px on a 6px day, out of a mark 6px wide standing at +6 -- is the
   // same ground, and a quarter of the mark's own width lands in it at any zoom.
@@ -889,7 +889,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
 // GOES RED IF: the dummy stops being reachable, or letting go of it stops
 // writing anything. It says nothing about WHERE the actual lands; it proves
 // that the drag below is a gesture the product accepts and acts on.
-test('control for D-182: dropping the dummy of an unstarted task writes an actual bar', async ({
+test('control for DFC-182: dropping the dummy of an unstarted task writes an actual bar', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -924,10 +924,10 @@ test('control for D-182: dropping the dummy of an unstarted task writes an actua
 //     write the same day.
 // ⭐ BOTH ARE COLLECTED AND ASSERTED TOGETHER, so that a run shows both rather
 // than stopping at the first.
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row D-182.
+// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-182.
 // Measured on the shipped build with one day 6px wide: +3 steps and +8 steps
 // both put the actual at x=254 before, and put it at two different x's after.
-test('D-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
+test('DFC-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
   test.setTimeout(240_000)
   const near = await openTheApp(baseURL)
   const short = await dropTheDummy(near.page, 3)
@@ -955,7 +955,7 @@ test('D-182: where the dummy is dropped decides where the actual starts', async 
 })
 
 // ---------------------------------------------------------------------------
-// D-232 -- a task drawn on empty ground leaves the keyboard nowhere to go
+// DFC-232 -- a task drawn on empty ground leaves the keyboard nowhere to go
 // ---------------------------------------------------------------------------
 
 /** How far the drag below carries, wide enough to be read as a drag and not a click. */
@@ -1008,7 +1008,7 @@ async function focusedTypableField(page: Page): Promise<TypedInto | null> {
 // drag stopped being read as one. It says nothing about the keyboard; it
 // proves that the gesture the pinned case below drives is one the product
 // still acts on.
-test('control for D-232: a task dragged onto empty ground below the last row is drawn', async ({
+test('control for DFC-232: a task dragged onto empty ground below the last row is drawn', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -1033,13 +1033,13 @@ test('control for D-232: a task dragged onto empty ground below the last row is 
   const after = await censusOf(app.page)
   expect(
     after.shapes,
-    'dragging on empty ground below the last row drew nothing, so the pinned case on D-232 ' +
+    'dragging on empty ground below the last row drew nothing, so the pinned case on DFC-232 ' +
       'below would reach nothing',
   ).not.toBe(before.shapes)
   await app.close()
 })
 
-// GOES RED IF: D-232 is fixed. Playwright then reports "expected to fail, but
+// GOES RED IF: DFC-232 is fixed. Playwright then reports "expected to fail, but
 // passed" and this entry has to be taken out. Nothing else makes it pass: some
 // field that takes text must hold the keyboard the instant the drag lets go,
 // and what is typed into it must reach it.
@@ -1054,10 +1054,10 @@ test('control for D-232: a task dragged onto empty ground below the last row is 
 // `frame-loop.ts`'s `showPropertiesOfChoice()` (paired with `nameFieldWantedRow`)
 // is the road `FR-085`/`MK-13` already uses for a double-click. It used to
 // advance only when something was already selected, and nothing made a
-// just-drawn task the selection -- that was ledger row `D-228`, settled by the
+// just-drawn task the selection -- that was ledger row `DFC-228`, settled by the
 // user on 2026-09-03 and written into FR-001 (MUST). The case is an ordinary
 // assertion now.
-test('D-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
+test('DFC-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -1125,7 +1125,7 @@ test('D-232: a task drawn on empty ground leaves a name field under the keyboard
  * `docs/development-records/defects.md`, the paragraphs above its count table.
  *
  * ⛔⛔ THIS GATE READ ONLY `defects.md` AND WENT RED ON 2026-09-08, when the
- * rows that had reached `実測済` were moved across. D-230 had not been deleted
+ * rows that had reached `実測済` were moved across. DFC-230 had not been deleted
  * and its case had not gone stale: the row was settled and had walked next door.
  * ⇒ The tool was the defect, which is the very thing the ledger's opening warns
  * about, so it is the tool that was mended and not the pin.
@@ -1140,7 +1140,7 @@ const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 // keeping apart:
 //   * an OPEN row -- the case beside it is measuring a defect that is still
 //     there, and it must not go green by accident.
-//   * a SETTLED row -- the case has become a CONTROL. D-230's is exactly that:
+//   * a SETTLED row -- the case has become a CONTROL. DFC-230's is exactly that:
 //     `tests/system/first-frame-is-the-settled-frame.test.ts` asserts the
 //     CORRECT behaviour plainly -- its own comment says it is deliberately not
 //     `test.fail()` -- so the day the fix landed it went from red to green on

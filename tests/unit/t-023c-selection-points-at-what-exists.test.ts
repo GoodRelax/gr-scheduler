@@ -181,7 +181,7 @@ const SL_1_KINDS: readonly { readonly kind: SelectableKind; readonly word: strin
  *
  * ⚠️ A LIST, because the column enumerates: SK-3 is 「`Delete` / `Backspace`」
  * and SK-7 is 「`Ctrl+Y` / `Ctrl+Shift+Z`」. Reading only the first span
- * answered for one spelling of two and nothing said so (`D-351`).
+ * answered for one spelling of two and nothing said so (`DFC-351`).
  */
 const assignmentOf = (row: string): readonly string[] => {
   const found = specTable('T-036').rows.find((one) => one.id === row)
@@ -564,7 +564,7 @@ describe('the manuscript still says what these cases read', () => {
   it('the keys these cases press are still the ones table T-036 assigns', () => {
     expect(assignmentOf('SK-2')).toEqual(['Ctrl+A'])
     // ⭐ BOTH spellings, not the first: SK-3 and SK-7 each assign two, and the
-    // whole cell is what these cases stand on (`D-351`).
+    // whole cell is what these cases stand on (`DFC-351`).
     expect(assignmentOf('SK-3')).toEqual(['Delete', 'Backspace'])
     expect(assignmentOf('SK-6')).toEqual(['Ctrl+Z'])
     expect(assignmentOf('SK-7')).toEqual(['Ctrl+Y', 'Ctrl+Shift+Z'])

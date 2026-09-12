@@ -160,7 +160,7 @@ export function screenStateWithWatermark(state: ScreenState, visible: boolean): 
  * AND NOT A GAP, and the row records the measurement: 「タスクを選ぶと `FR-006`
  * によりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目は消費する
  * 対象が無いものとして `IN-4a` によりブラウザへ落ちていた。」 ⇒ 「選択を解く
- * 手立てが `Esc` に 1 つも無かった。」 (D-398).
+ * 手立てが `Esc` に 1 つも無かった。」 (DFC-398).
  * ⛔ `'propertiesPanel'` IS THE MEMBER WITH NO LEVEL OF ITS OWN. Table T-109
  * puts the panel on this ladder and IN-4 gives it no rung, so the rung is chosen
  * where the answer is given rather than claimed here. ⚠️ IN-4 NOW SAYS WHERE IT
@@ -174,7 +174,7 @@ export function screenStateWithWatermark(state: ScreenState, visible: boolean): 
  * を果たす手立てがほかに 1 つも無いからである」. ⛔ SO ITS ABSENCE WAS NOT A
  * REPORT BUT A BREACH: with no rung here, IN-3's 「消せること」 -- 「ポインタも
  * フォーカスも動かさずに消す手立てがあること」 -- had no way to be met at all
- * (D-307). ⚠️ IT IS OPTIONAL FOR THE REASON THE THREE MEMBERS BELOW IT ARE: the
+ * (DFC-307). ⚠️ IT IS OPTIONAL FOR THE REASON THE THREE MEMBERS BELOW IT ARE: the
  * explanations are a current value the Framework holds (LY-5 of table T-060),
  * so a caller that cannot see them leaves it out and absence reads as
  * 「出ていない」 -- which keeps IN-4a, because the press then reaches the

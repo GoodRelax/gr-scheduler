@@ -309,7 +309,7 @@ describe('表 T-206 (`S-138` / `S-141`) -- the glyph grew and the entrance did n
     // ⭐ 「図形は 1.33 倍になり、入口は 1px も動かない。」 A pair that satisfied the
     // sum by shrinking the glyph instead would pass the first case and defeat
     // the ruling, which was about the glyph being too small for its frame
-    // (defect `D-75`).
+    // (defect `DFC-75`).
     expect(S_138).toBeGreaterThan(S_141 * 2)
   })
 })

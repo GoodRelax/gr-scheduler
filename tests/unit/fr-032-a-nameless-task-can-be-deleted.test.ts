@@ -1,4 +1,4 @@
-// Unit tests for the sentence FR-032 gained on 2026-09-01, which defect D-171
+// Unit tests for the sentence FR-032 gained on 2026-09-01, which defect DFC-171
 // is the report of.
 //
 // ⭐ THE SENTENCE, verbatim from docs/spec/01-04-requirements.md (FR-032):
@@ -237,7 +237,7 @@ const documentOf = (schedule: Record<string, unknown> = {}): Document =>
  * The document an accepted edit answers with.
  *
  * ⭐ THE MESSAGE CARRIES THE REFUSING RULE, which is what makes a red here read
- * as D-171 rather than as "something went wrong": the defect's own measurement
+ * as DFC-171 rather than as "something went wrong": the defect's own measurement
  * is that `CM-7` / `IV-8` refused, and the plan was then dropped whole.
  */
 const accepted = (result: EditResult, what: string): Document => {
@@ -282,10 +282,10 @@ describe('FR-032 / FR-038 -- the word the default name is settled to', () => {
 })
 
 // ---------------------------------------------------------------------------
-// D-171 itself: draw a task onto empty space, then delete it.
+// DFC-171 itself: draw a task onto empty space, then delete it.
 // ---------------------------------------------------------------------------
 
-describe('FR-032 (D-171) -- a Task drawn onto empty space can be deleted', () => {
+describe('FR-032 (DFC-171) -- a Task drawn onto empty space can be deleted', () => {
   /**
    * The document FR-001 leaves behind after a drag onto empty space: the task
    * it made carries no name, and the row it made for it takes its name from
@@ -314,7 +314,7 @@ describe('FR-032 (D-171) -- a Task drawn onto empty space can be deleted', () =>
     expect(task, 'FR-001 (MUST) makes a Task for the drag, and none is in the document').toBeDefined()
     // ⛔ THE PRECONDITION OF EVERY CASE BELOW, asserted rather than assumed: if
     // FR-001 ever gave the drawn task a name, or gave the row a label of its
-    // own, D-171's shape would not arise and the cases would be testing air.
+    // own, DFC-171's shape would not arise and the cases would be testing air.
     expect(task!.name, 'FR-001 (MUST): a task drawn onto empty space carries no name').toBeNull()
     const row = groupIn(made, 'drawn')
     expect(row?.label, 'FR-001 (MUST): 「その場で作った行は名前の指定を持たない」').toBeNull()
@@ -326,7 +326,7 @@ describe('FR-032 (D-171) -- a Task drawn onto empty space can be deleted', () =>
   }
 
   it('⛔ MUST NOT refuse the delete for want of a name -> the drawn task is deleted -> the edit is accepted and the task is gone', () => {
-    // ⛔ GOES RED IF: the refusal D-171 measured comes back -- `deleteTask`
+    // ⛔ GOES RED IF: the refusal DFC-171 measured comes back -- `deleteTask`
     // asking for 「group.label ?? source?.name ?? null」 and finding neither, so
     // that `CM-7` / `IV-8` rejects and 表 T-067's `WS-3` drops the whole plan.
     // ⭐ THIS IS THE DEFECT AS THE READER MET IT: 「⛔⛔ **拒むと、そうして描いた
@@ -397,7 +397,7 @@ describe('FR-032 (D-171) -- a Task drawn onto empty space can be deleted', () =>
 // CM-27: the same shape reached through the cascade of table T-050's CD-2.
 // ---------------------------------------------------------------------------
 
-describe('FR-032 (D-171) -- the cascade of a deleted row takes a nameless Task the same way', () => {
+describe('FR-032 (DFC-171) -- the cascade of a deleted row takes a nameless Task the same way', () => {
   /**
    * `g1` is the row about to go; `kept` is a row that survives it but takes its
    * name from a `Task` the cascade carries off.
@@ -408,7 +408,7 @@ describe('FR-032 (D-171) -- the cascade of a deleted row takes a nameless Task t
    * takes task 4 off `kept`, and `kept` loses its derivation source without
    * being deleted itself.
    * ⚠️ Task 4 carries NO NAME, which is the only difference from the case
-   * `edit-task-group.test.ts` already holds, and the whole of D-171: 「⛔ **同じ
+   * `edit-task-group.test.ts` already holds, and the whole of DFC-171: 「⛔ **同じ
    * 判断が `edit-task-group.ts` の `CM-27` にもあり、2 か所を一緒に直す。**」
    */
   const before = documentOf({
@@ -419,7 +419,7 @@ describe('FR-032 (D-171) -- the cascade of a deleted row takes a nameless Task t
   })
 
   it('⛔ MUST NOT refuse the row delete for want of a name -> g1 is deleted -> the edit is accepted', () => {
-    // ⛔ GOES RED IF: `CM-27` keeps the refusal D-171 found in it. ⚠️ This is
+    // ⛔ GOES RED IF: `CM-27` keeps the refusal DFC-171 found in it. ⚠️ This is
     // the second of the two places the defect names, and it is reached by a
     // different entrance -- FR-032 makes the row delete ask a confirmation and
     // the task delete not, so a repair made in one aggregate alone leaves the
@@ -459,7 +459,7 @@ describe('FR-032 (D-171) -- the cascade of a deleted row takes a nameless Task t
 describe('FR-032 -- a source Task that HAS a name still settles the row to that name', () => {
   it('FR-058 gives the row the source Task s name -> a named task is deleted -> the row holds that name and not the default', () => {
     // ⛔ GOES RED IF: the repair over-reaches and settles every row to the
-    // default -- the cheapest wrong fix for D-171, and one that would silently
+    // default -- the cheapest wrong fix for DFC-171, and one that would silently
     // throw away every derived row name in the document.
     // ⭐ FR-058 is the sentence being protected: 「器の名前を指定しなかった行は、
     // その行の導出元となったタスクの名前を表示する」, and FR-032's new sentence
@@ -487,7 +487,7 @@ describe('FR-032 -- a source Task that HAS a name still settles the row to that 
 
   it('the same through the cascade -> a row is deleted -> a surviving row keeps its named source s name', () => {
     // ⛔ GOES RED IF: the repair in `CM-27` settles to the default whenever it
-    // settles at all. ⚠️ The two aggregates are repaired together (D-171), so
+    // settles at all. ⚠️ The two aggregates are repaired together (DFC-171), so
     // the guard is owed to both.
     const document = documentOf({
       taskGroups: [groupOf({ id: 'g1' }), groupOf({ id: 'kept', label: null, derivedFromTaskUid: 4 })],

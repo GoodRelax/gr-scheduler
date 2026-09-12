@@ -441,14 +441,14 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 
 // ---------------------------------------------------------------------------
 // FR-012 -- 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）」
-//           （利用者の裁定 2026-09-07。台帳 D-353）
+//           （利用者の裁定 2026-09-07。台帳 DFC-353）
 //
 // ⭐ THE ONE FIXTURE ALL FOUR CASES SHARE. A plan of 2026-09-07 (Mon) to
 // 2026-09-14 (Mon) with 3 worked days behind it, counted once by 表 T-209's
 // S-106 calendar (月〜金) and once by that calendar with Saturday added.
 //
 // ⛔⛔ THE LEDGER'S OWN ARITHMETIC FOR THIS EXAMPLE IS WRONG, AND THE
-// SPECIFICATION SAYS SO. D-353 records 「月〜金の暦では 6 稼働日で 50%、土曜を
+// SPECIFICATION SAYS SO. DFC-353 records 「月〜金の暦では 6 稼働日で 50%、土曜を
 // 足すと 7 稼働日で 43%」, which counts 2026-09-14 as a worked day of the plan.
 // FR-012 forbids exactly that: 「期間は開始日と終了日の差とし、端を含む日数と取り
 // 違えないこと（MUST NOT）—— 含めると期間 0 が存在しなくなり、この規定が空振り
@@ -490,7 +490,7 @@ const documentWithAPricedTask = (): Document =>
     ],
   })
 
-describe('FR-012 -- 暦を編集したときの完了率の数え直し (D-353)', () => {
+describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353)', () => {
   it('GIVEN a plan of 9/7 to 9/14 with 3 worked days WHEN Saturday becomes a worked day THEN the stored 完了率 is counted again', () => {
     // FR-012 (MUST): 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと
     // （MUST）」. The requirement's own reason: both the numerator and the
@@ -510,7 +510,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (D-353)'
 
     // eslint-disable-next-line no-console
     console.log(
-      `FR-012 / D-353: 2026-09-07 to 2026-09-14, ${WORKED_DAYS} worked days -- `
+      `FR-012 / DFC-353: 2026-09-07 to 2026-09-14, ${WORKED_DAYS} worked days -- `
         + `月〜金 = ${percentOf(document, 10)}% , 土曜を足すと = ${percentOf(result.document, 10)}%`,
     )
     expect(percentOf(result.document, 10)).toBe(PERCENT_WITH_SATURDAY)
@@ -654,7 +654,7 @@ const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
     updatedUtc: '2026-08-17T01:00:00Z',
   })
 
-describe('FR-012 -- the controls on the recount (D-353)', () => {
+describe('FR-012 -- the controls on the recount (DFC-353)', () => {
   it('ⓐ GIVEN a calendar command that moves only the week start WHEN it lands THEN nothing is counted again', () => {
     // ⭐ THE WEEK START IS NOT AN INPUT TO 稼働日. FR-054 counts the working days
     // by the document's `Calendar`; AT-17's `Project.weekStartDay` is where the

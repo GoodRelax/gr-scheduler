@@ -7,7 +7,7 @@ for a detector deliberately kept out of the suite (63% precision, measured over
 a 30-line sample), and check 45 is the precedent for one let in (9/10).
 
 ⭐ WHY THIS EXISTS. The cleanup round of 2026-09-11 found 32 false statements
-in the specification (`D-445`..`D-476`). Eighteen of them are an edge that
+in the specification (`DFC-445`..`DFC-476`). Eighteen of them are an edge that
 lies, and NINE are one shape: a seat cites another seat for a sentence that
 seat does not carry. `FR-013` cited its own RATIONALE for a sentence living in
 `FR-011`; `FR-017` cited `FR-039` for typography `FR-039` never mentions;
@@ -78,7 +78,7 @@ SAYS = re.compile(
 # The other books a comment may honestly quote instead of the manuscripts.
 ATTRIBUTION = 120
 OTHER_BOOKS = re.compile(
-    u'D-[0-9]+|CR-[0-9]+|PND-[0-9]+|利用者の|逐語|'
+    u'DFC-[0-9]+|CR-[0-9]+|PND-[0-9]+|利用者の|逐語|'
     u'台帳|changelog|fixed-defects|rulings')
 
 # How far back from a quotation a seat token still counts as naming it.

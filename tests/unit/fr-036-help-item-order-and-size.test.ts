@@ -16,7 +16,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-105: 「ヘルプのフォントが大きすぎ、並び順
+// `docs/development-records/defects.md` DFC-105: 「ヘルプのフォントが大きすぎ、並び順
 // も違う」（利用者の指摘 2026-08-29）. CR-282 closed the specification side on
 // 2026-08-29 -- FR-036 now states the user's own order and sends the size to
 // `S-203` -- and the ledger's own note says what is left: 「残るのは実物での 1 画面
@@ -78,7 +78,7 @@
 //      the glyph 「持たない行はその場所を空ける」, with the same silence.
 //   3. THE NUMBER OF COLUMNS AND THE SHARE OF THE SCREEN THE HELP TAKES.
 //      `S-201` and `S-202` hold those, and they are a different question from
-//      the one D-105 names.
+//      the one DFC-105 names.
 //   4. WHAT AN ITEM CARRYING BOTH A KEY AND A MOUSE OPERATION SHOWS. ⛔ No row
 //      settles it. FR-036 says the assignment 「キー ... とマウス操作 ... の両方を
 //      指す」, which says what COUNTS as an assignment, not that a row holding
@@ -191,7 +191,7 @@ const U_30_HELP = ((): string => {
   if (row === undefined) throw new Error('table T-103 no longer has row U-30')
   // ⚠️ U-30's cell enumerates -- 「`Help Modal` / `AI Export Modal`」 -- so it
   // is read as the list it is. Splitting the FIRST span on '/' read one name
-  // and called it two (`D-351`).
+  // and called it two (`DFC-351`).
   const written = bareAll(row.by['確定名（英）'] ?? '')
   const found = written.find((one) => one.includes('Help'))
   if (found === undefined) {
@@ -549,7 +549,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 // ===========================================================================
-// D-105, first half -- the order of the three parts inside one item
+// DFC-105, first half -- the order of the three parts inside one item
 // ===========================================================================
 
 describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
@@ -604,7 +604,7 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
 })
 
 // ===========================================================================
-// D-105, second half -- the size the list is drawn at
+// DFC-105, second half -- the size the list is drawn at
 // ===========================================================================
 
 describe('FR-036 (MUST) -- the list’s text is S-203 of the base the host gives', () => {

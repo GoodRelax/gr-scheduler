@@ -2470,7 +2470,7 @@ const ENTRY = {
   /**
    * IC-18 -- FR-066, S-99i of table T-206.
    *
-   * ⭐ WRITABLE SINCE 2026-08-31 (D-149): S-99i gave the field its own switch,
+   * ⭐ WRITABLE SINCE 2026-08-31 (DFC-149): S-99i gave the field its own switch,
    * `ScreenSession.isDialogueFieldVisible`, so this entrance now turns THAT
    * value and not `isAgentApiEnabled` (which stays IC-20's alone, above).
    * ⚠️ The faint-and-tell half of this entrance -- FR-029's reason while the
@@ -4007,7 +4007,7 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   // ALREADY IN FORCE BACK OVER ITSELF, once per detent, and zeroed S-176 with
   // it -- a fraction no detent had moved. MEASURED 2026-09-05 on the shipped
   // build, 1920x1080: forty sideways turns raised forty frames, wrote no
-  // markup and changed no pixel of the drawn picture (D-329).
+  // markup and changed no pixel of the drawn picture (DFC-329).
   // ⚠️ UNASSIGNED AND NOT CONSUMED, because MK-10's subject is 「本ツールが割り
   // 当てた修飾キーの付いた入力」 and a bare wheel carries no modifier -- the same
   // reading `isWheelHere` already writes down.
@@ -4066,7 +4066,7 @@ function isScrollPositionInForce(
   )
 }
 
-// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (2026-09-07, the ledger's `D-366`),
+// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (2026-09-07, the ledger's `DFC-366`),
 // AND WHAT CLOSED IT WAS A RULING RATHER THAN A DISCOVERY. FR-016 (MUST):
 // 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」, and
 // 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
@@ -4465,7 +4465,7 @@ function commandFromEntry(
   // ⭐ BEFORE THE ENTRY IS READ, AND FOR THE REASON THE BAND ABOVE IS. U-21
   // `Scrollbars` has no row in table T-109 either, so `entry` is null on a lane
   // and the press would otherwise fall through as "on a part, on no entry" and
-  // write nothing -- which is what D-298 measured.
+  // write nothing -- which is what DFC-298 measured.
   if (on.scrollbarAxis !== undefined) {
     return commandFromScrollbar(on.scrollbarAxis, release, press, context)
   }
@@ -4521,7 +4521,7 @@ function commandFromEntry(
     // assigned to it -- this branch is the one that writes nothing at all -- so
     // stopping it takes a behaviour away from the person and puts none back.
     // ⛔⛔ WHAT STOOD HERE ANSWERED `CONSUMED_ELSEWHERE` AND WAS MEASURED WRONG
-    // (D-338, on the shipped build 2026-09-07). The `App Header` is a face this
+    // (DFC-338, on the shipped build 2026-09-07). The `App Header` is a face this
     // surface draws, so EVERY release over it took this road, FR-035's standing
     // name field included -- and a click inside that field left the caret where
     // it was: four presses at 20%, 40%, 60% and 80% of the text all read back
@@ -4788,7 +4788,7 @@ function commandFromEntry(
       // 束は取り消しの 1 段である）」. ⛔ A command of its own would write with a
       // second name what CM-11 already writes, which R3.4 refuses.
       // ⚠️ Until 2026-08-30 this branch answered the usable press with
-      // `CONSUMED_ELSEWHERE` and the entrance moved no bar by 1px (台帳 D-146).
+      // `CONSUMED_ELSEWHERE` and the entrance moved no bar by 1px (台帳 DFC-146).
       //
       // ⭐ THE ANCHOR IS THE LAST TASK PICKED. FR-034 (MUST) lines the rest up
       // 「最後に選んだタスクの日付へ」, and SL-7b keeps `items` in the order they
@@ -4805,7 +4805,7 @@ function commandFromEntry(
       // (MUST) forbids either way round. ⭐ `isEntryUsable` (UF-65) counts the
       // same two.
       //
-      // ⭐⭐ AND THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (D-265),
+      // ⭐⭐ AND THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (DFC-265),
       // which is the sentence above kept rather than a new rule: FR-029 (MUST)
       // counts an entrance's targets 「画面に描かれている側で」 and (MUST NOT)
       // 「描かれていないものの上に残る状態を数えてはならない」. ⛔ `Selection` IS
@@ -5002,7 +5002,7 @@ function commandFromDualCursorEntry(
   // never reaches this file: `escapeTarget` names that level for a holder the
   // Framework keeps (LY-5 of table T-060), so `frame-loop.ts` drops the mode
   // itself at `escapeLevel === 'dualCursorMode'`. ⭐ IT MAKES THIS SAME WRITE
-  // THERE (D-301) -- one command for DC-4's two ways out, so neither can drift
+  // THERE (DFC-301) -- one command for DC-4's two ways out, so neither can drift
   // from DC-7.
   if (context.dualCursorFollowing !== null) {
     return acted({
@@ -5375,7 +5375,7 @@ function commandFromRowEntry(
       // る子が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- which is the
       // very question `wouldMoveARow` asks of the picture above.
       // ⛔ THE SITUATION WAS `null` UNTIL THEN, and the note that stood here said
-      // why, quoting the retired 台帳 D-339 wording in order to deny it:
+      // why, quoting the retired 台帳 DFC-339 wording in order to deny it:
       // RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
       // would tell the reader something untrue, and the fallback RS-27 was all
       // that fitted. ⚠️ The manuscript closed that gap; PND-411 goes with it.
@@ -5491,7 +5491,7 @@ function commandFromRowEntry(
   // （MUST NOT）」.
   // ⛔⛔ THIS QUOTATION READ 「あわせて、その行の配下を…」 UNTIL 2026-09-06 -- the
   // wording the row itself carried for part of 2026-08-31 and no longer does
-  // (台帳 D-339). ⭐ It is the very reading the foot of this member records as
+  // (台帳 DFC-339). ⭐ It is the very reading the foot of this member records as
   // broken, and quoting it HERE said the pressed row's own fold was out of
   // scope while the code twelve lines down writes it. The code was right and
   // this sentence was the stale one.
@@ -5507,7 +5507,7 @@ function commandFromRowEntry(
   // member. ⛔ The sentence that stood here said the opposite ("HR-6 asks for
   // the CONFIGURATION of its 配下, and a row that is not drawn has no fold to
   // read") and was written against the wording the row carried for part of
-  // 2026-08-31 (台帳 D-339).
+  // 2026-08-31 (台帳 DFC-339).
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
   // ⚠️ Gone, or already hidden: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
@@ -6387,11 +6387,11 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
  * about `parentGroupId` alone rather than by relying on that.
  *
  * ⛔⛔ `null` IS 段 0 AND THIS MEMBER CANNOT ANSWER FOR IT, WHICH IS A DEFECT
- * AND NOT A READING (台帳 D-318). The sentence that stood here -- 「`HF-17`
+ * AND NOT A READING (台帳 DFC-318). The sentence that stood here -- 「`HF-17`
  * （段 0 へ足す）には親が無いので当たらない」, quoted as though it were a row of
  * table T-051 -- is in no manuscript under `docs/spec/`; it was a paraphrase
  * written in `defects.md`, and citing it as a rule is what closed this question
- * without anyone deciding it (台帳 D-339).
+ * without anyone deciding it (台帳 DFC-339).
  * ⭐ WHAT THE TABLE ACTUALLY SAYS POINTS THE OTHER WAY. The footnote under table
  * T-051: 「`HF-17` は `HF-14` を ... 段 0 に対して行うものである」, so 段 0 IS the
  * parent HF-14's MUST is about; and 「パネルの頭は段 0 であり、行ではない」, so
@@ -6659,10 +6659,10 @@ function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
  * pressed row is out of the picture -- HR-1a's fold, HR-6's hiding and FR-018's
  * drop are all already settled in it, and any one of them is a row this press
  * puts back.
- * ⛔⛔ IT READ `isCollapsed || 隠れている子` UNTIL 2026-09-08 (台帳 D-385), which
+ * ⛔⛔ IT READ `isCollapsed || 隠れている子` UNTIL 2026-09-08 (台帳 DFC-385), which
  * armed a FOLDED row with no child at all: the drawing side drew that entrance
  * faint and the press still wrote a fold, so an `aria-disabled` control acted.
- * ⚠️ THE REASON THE OLD NOTE GAVE WAS A FABRICATED CITATION (台帳 D-339): it
+ * ⚠️ THE REASON THE OLD NOTE GAVE WAS A FABRICATED CITATION (台帳 DFC-339): it
  * put 「その行は畳まれておらず、隠れている子も無い」 into `RS-30` of table T-233,
  * which reads 「直下に、画面へ戻せる子が 1 つも無い」 and names no fold at all.
  * ⇒ The telling is true of a folded childless row, so nothing was holding the
@@ -7003,7 +7003,7 @@ function commandFromGrab(
     // (GR-15) stands over it in table T-023d -- so a double click on a milestone
     // that has an actual would otherwise reach nothing at all.
     //
-    // ⭐⭐ THE ACTUAL IS ON THIS LIST SINCE 2026-09-08 (利用者の裁定, D-399).
+    // ⭐⭐ THE ACTUAL IS ON THIS LIST SINCE 2026-09-08 (利用者の裁定, DFC-399).
     // MK-13 gained an entry for it -- 「実績（実績バー、および未着手のダミー） ＝
     // **タスクの項と同じとすること（MUST）**」 -- and gives the reason itself:
     // 「実績はタスクの一部であり、自分の面を持たない。」 ⇒ the six grab regions
@@ -7302,7 +7302,7 @@ function commandFromGrab(
       // forbids its two rules being read as one: 予定の開始日の翌稼働日 places
       // the dummy BEFORE it is grabbed, and reading that as the value made
       // every drop write the same day. ⚠️ Measured on the shipped build
-      // 2026-09-02, ledger D-182: the hold carried 3 steps and 8 steps wrote
+      // 2026-09-02, ledger DFC-182: the hold carried 3 steps and 8 steps wrote
       // the actual at the same x both times, because no day left this arm.
       //
       // ⚠️ `null` where the pointer came down on no day at all -- the same arm
@@ -7486,7 +7486,7 @@ function commandFromGrab(
  *
  * ⛔ ABSENT MEANS "NO PICTURE WAS HANDED OVER" AND NEVER "NOTHING IS DRAWN",
  * which is the reading `drawnRowGroupIds` fixes for itself: a caller that
- * carries none gets the wider count this branch made before D-265, because a
+ * carries none gets the wider count this branch made before DFC-265, because a
  * false faint tells the reader an entrance is broken -- the very reading FR-029
  * exists to prevent. ⚠️ An EMPTY array is a different answer and is honoured.
  *
@@ -7787,7 +7787,7 @@ function commandFromArmed(
     // AT-101's default for 「選ばれていないとき」 -- which this is not, because a
     // figure was armed and then placed. Without the second command the armed
     // figure was dropped on the way to the document and every placement came out
-    // as AT-101's default (ledger D-140).
+    // as AT-101's default (ledger DFC-140).
     //
     // ⛔ WHY THE UID CAN BE NAMED BEFORE THE COMMAND RUNS, and why this is not
     // the `groupId` line above wearing another hat. `groupId` is handed in as a
@@ -8278,7 +8278,7 @@ function zoomYCeiling(context: InputContext): number | null {
  * derived from different things and share nothing but this line: the day axis
  * counts days across the `Row Area`'s width, the row axis measures the tallest
  * band against its height. ⛔ Until that date only the day half stood, and the
- * ledger's `D-374` recorded the row half as owed.
+ * ledger's `DFC-374` recorded the row half as owed.
  *
  * @purity pure
  */
@@ -8328,13 +8328,13 @@ function zoomCommand(
  * the same bargain `collapsesDiscarded` keeps with CM-72: that side decides
  * what to DRAW while no place is named, this side decides whether a press
  * still has one to name. If OP-10's condition is ever re-ruled, both move.
- * ⛔⛔ AND THE BT-4 EXCEPTION IS WRITTEN ONCE, on that side alone (D-358).
+ * ⛔⛔ AND THE BT-4 EXCEPTION IS WRITTEN ONCE, on that side alone (DFC-358).
  * 「表 T-034 の `BT-4` から開いた文書には働かせてはならない（MUST NOT）」 turns
  * on where the document came from, which nothing reachable from here records --
  * so a second copy could only be a guess. ⚠️ THIS MEMBER IS THEREFORE NOT THE
  * ONE TO ASK WHAT IS DRAWN: `zoomOnScreen` reads
  * `InputContext.isPictureAtStoredZoom` for that, and asking here instead is
- * exactly the defect D-358 recorded.
+ * exactly the defect DFC-358 recorded.
  * ⚠️ BOTH HALVES, because the row states both -- 「表示位置が `null`、または指す
  * 行が存在しないとき」. A `scrollGroupId` still pointing at a row CD-2 of table
  * T-050 has deleted is as unplaced as a `null`, so a test on the day alone
@@ -8540,7 +8540,7 @@ function dayHeldStill(
 /**
  * FR-016's zoom centre, ROW half (MUST): 「ズームはポインタ位置を中心とし、カーソル
  * 下の日付と行が動かないこと」 -- the half that stood unwritten until 2026-09-07
- * and was the ledger's `D-366`.
+ * and was the ledger's `DFC-366`.
  *
  * ⭐⭐ WHY IT NEEDS A SECOND LAYOUT WHERE THE DAY HALF NEEDED NONE. FR-016
  * (MUST NOT): 「行の軸は `zoomY` に対して線形ではない」 ... 「倍率から位置を算で
@@ -8805,7 +8805,7 @@ function fittedNow(context: InputContext) {
  * ⭐ Running the fit again is exact, because the fit is what drew the frame.
  *
  * ⛔⛔ WHICH BRANCH OF OP-10 DREW THE FRAME IS ASKED OF THE DRAWING SIDE AND
- * NOT DECIDED HERE (D-358) -- see `InputContext.isPictureAtStoredZoom`, which
+ * NOT DECIDED HERE (DFC-358) -- see `InputContext.isPictureAtStoredZoom`, which
  * carries the BT-4 exception this side has no way to see.
  *
  * @purity pure
@@ -8953,7 +8953,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     // ⛔ THE ROW IS WHAT SAYS THE RUNG WAS MISSING RATHER THAN OPTIONAL: 「タスク
     // を選ぶと `FR-006` によりパネルが立つので、1 度目の `Esc` はパネルの段が
     // 食い、2 度目は消費する対象が無いものとして `IN-4a` によりブラウザへ落ちて
-    // いた。」 ⇒ 「選択を解く手立てが `Esc` に 1 つも無かった。」 (D-398).
+    // いた。」 ⇒ 「選択を解く手立てが `Esc` に 1 つも無かった。」 (DFC-398).
     // ⚠️ ONE PRESS, ONE RUNG: `escapeContextOf` reports the panel, so the press
     // that puts the panel away answers `'propertiesPanel'` here and leaves the
     // selection exactly as it was -- which is FR-072's 「パネルを出すのをやめて
@@ -9061,7 +9061,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  * IN-4's 1 階層 per press is spent twice.
  * ⚠️ SO A CALLER THAT HOLDS IT MUST NOT ASK THE MEMBERS THIS FEEDS about a
  * press at that level. `frame-loop.ts` is where the rule is kept.
- * ⭐⭐ THE PANEL IS NO LONGER AMONG THE UNSET ONES, and D-398 is why it may not
+ * ⭐⭐ THE PANEL IS NO LONGER AMONG THE UNSET ONES, and DFC-398 is why it may not
  * be. IN-4 gained its 選択 rung (利用者の裁定 2026-09-08) and `selectionFromInput`
  * is the one member that can spend it, so this side now answers a press below
  * the panel's rung -- and with the panel left unset the very press that put the
@@ -9094,7 +9094,7 @@ function escapeContextOf(context: InputContext): EscapeContext {
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
     // S-99h of table T-206, read off the context the shell filled from
-    // `isPropertiesPanelOnScreen()`. ⛔ REPORTED AND NOT LEFT UNSET SINCE D-398,
+    // `isPropertiesPanelOnScreen()`. ⛔ REPORTED AND NOT LEFT UNSET SINCE DFC-398,
     // for the reason stated above: the 選択 rung sits BELOW the panel's, so an
     // unset panel would let the press that closed it clear the selection too.
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
@@ -9173,7 +9173,7 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // table T-060), which `commandFromDualCursorEntry` answers with
     // `setDualCursorFollowing`. This member owns `armed` and only that.
     //
-    // ⚠️ 台帳 D-295 WAS THIS CASE BEING ABSENT: `IC-45` has no key in
+    // ⚠️ 台帳 DFC-295 WAS THIS CASE BEING ABSENT: `IC-45` has no key in
     // `ARMED_BY_ENTRY` either, so the press fell past the switch, `armedByEntry`
     // answered null, and the state came back untouched with the arm still held.
     // ⚠️ ONE CORNER IS DELIBERATELY NOT MIRRORED: PND-313 lets
@@ -9204,7 +9204,7 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // comparison against something a person typed, which no pure member can
     // either read or compute (LR-6, and CS-1 of table T-066). ⇒ That write
     // belongs to the side that asked, and `frame-loop.ts` carries it.
-    // ⚠️ 台帳 D-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
+    // ⚠️ 台帳 DFC-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
     // arrived, `on.entry` said `IC-41`, and every member answered with the
     // state untouched -- so the DOM did not change by one byte and FR-029
     // (MUST) went unkept as well, for want of anything to say.
@@ -9213,11 +9213,11 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // T-064 publishes `screenStateWithWatermark` (S-144) since 2026-09-02 --
     // added for exactly this, because the row moved from table T-202 to table
     // T-206 and the screen's own value has to be writable from the side that
-    // reads the press. ⚠️ 台帳 D-204 was this split standing in `frame-loop.ts`
+    // reads the press. ⚠️ 台帳 DFC-204 was this split standing in `frame-loop.ts`
     // instead: the shell put the watermark back in the same happening this
     // member raised the surface in, so two members had to move together for one
     // direction to change.
-    // ⚠️ 台帳 D-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
+    // ⚠️ 台帳 DFC-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
     // arrived, `on.entry` said `IC-41`, and every member answered with the
     // state untouched -- so the DOM did not change by one byte and FR-029
     // (MUST) went unkept as well, for want of anything to say.
@@ -9362,7 +9362,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
         // press: unset reads as 「not standing」, so this member would answer for
         // the NEXT level down and close the surface behind the question.
         // `frame-loop.ts` states the same rule where it skips the call.
-        // ⭐⭐ `'propertiesPanel'` DOES ARRIVE HERE SINCE D-398, and that is a
+        // ⭐⭐ `'propertiesPanel'` DOES ARRIVE HERE SINCE DFC-398, and that is a
         // repair rather than a widening: `escapeContextOf` now reports the panel
         // off `InputContext.isPropertiesPanelShowing`, so the press that puts
         // the panel away answers `'propertiesPanel'` on this road too and leaves
@@ -9398,7 +9398,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // are disjoint), and the two groups that follow name every member of it. So the
 // note goes stale only when a ROW ID here stops being one of them -- which is
 // what the groups themselves record, one entry at a time.
-// ⛔⛔ NO FIGURE IS WRITTEN HERE, AND THAT IS THE WHOLE OF WHAT D-365 CHANGED.
+// ⛔⛔ NO FIGURE IS WRITTEN HERE, AND THAT IS THE WHOLE OF WHAT DFC-365 CHANGED.
 // This headline carried five numbers and every one of them rotted, twice: it
 // read 「15 ... 74 ... 44 and 15 ... 6 + 9」 until 2026-09-06 and 「10 ... 89 ...
 // 57 ... 22 ... 79 ... 4 + 6」 until 2026-09-07, and the last of those was the
@@ -9470,7 +9470,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                that FR-099 (MUST) requires the names of the tasks the
 //                deletion would unassign to be shown and confirmed first and
 //                that 「no road in this build raises that question」 -- 台帳
-//                D-288 / D-289 built that road, and `frame-loop.ts` now raises
+//                DFC-288 / DFC-289 built that road, and `frame-loop.ts` now raises
 //                QN-3 of table T-234 there and writes CM-42 on the answer.
 //                ⛔ STILL NOT THIS FILE'S: the write waits on a question, and a
 //                pure member can neither ask one nor hold the answer.
@@ -9492,7 +9492,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // (2026-09-02) and IC-66 (2026-09-06) each left because the obstacle named here
 // was measured to be gone, not because a way round it was found.
 //
-//   [WRITTEN 2026-08-31, D-149 of the defect ledger] IC-18 stood here and no
+//   [WRITTEN 2026-08-31, DFC-149 of the defect ledger] IC-18 stood here and no
 //                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED
 //                AROUND. It said NOTHING HELD THE FIELD'S OWN SWITCH, so an
 //                entry answered here would be a SECOND way to take the SAME
@@ -9507,7 +9507,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                answers the press with RS-35's reason while the `Agent API`
 //                is off, for the reason `commandFromEntry`'s own case says --
 //                `isAgentApiEnabled` is not a member of `InputContext`.
-//   [WRITTEN 2026-08-30, 台帳 D-146] IC-37 / IC-38 stood here and no longer do.
+//   [WRITTEN 2026-08-30, 台帳 DFC-146] IC-37 / IC-38 stood here and no longer do.
 //                ⛔⛔ THE SECOND HALF OF THE OLD NOTE WAS FALSE. It read 「table
 //                T-108 holds NO command for it, so there is nothing to plan even
 //                with the press in hand」; the first half is true and the second
@@ -9516,7 +9516,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                recorded the same reading for the folds. ⚠️ Measured before the
 //                fix: two Tasks chosen, `IC-37` armed, and not one bar moved by
 //                1px. ⭐ `alignWrites` now plans the bundle.
-//   [WRITTEN 2026-09-02, 台帳 D-147] IC-41 stood here and no longer does.
+//   [WRITTEN 2026-09-02, 台帳 DFC-147] IC-41 stood here and no longer does.
 //                ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED AROUND. It said
 //                nothing carries a password back from a person -- table T-037
 //                has no row for asking for one, and `ScreenPart` (IF-9) reports
@@ -9532,7 +9532,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                MORE. The SHA-256 comparison and the write that follows a
 //                match are `frame-loop.ts`'s: a pure member can neither read a
 //                field nor hash one (LR-6, and CS-1 of table T-066).
-//   [ANSWERED 2026-09-06, 台帳 D-288 / D-289] IC-66 stood here and no longer
+//   [ANSWERED 2026-09-06, 台帳 DFC-288 / DFC-289] IC-66 stood here and no longer
 //                does -- it is in the first group above now.
 //   IC-54        ⛔ NOT AN ENTRY. Table T-109 says so in its own column: the row
 //                shows the figure the palette is holding (table T-023b) and
@@ -9553,7 +9553,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                which LY-5 leaves with the Framework, and FR-095 puts a
 //                confirmation in front of it -- the same shape as IC-66 above.
 //                ⛔⛔ AND IT IS BLOCKED ON A ROW OF THE SPECIFICATION rather
-//                than on work (台帳 D-364, blocked on 台帳 D-284): table T-230
+//                than on work (台帳 DFC-364, blocked on 台帳 DFC-284): table T-230
 //                closes with 「本表の 5 つが、まるごと差し替える呼び手の全数で
 //                ある。呼び手は、自分がどの行かを名乗ること（MUST）」 and none of
 //                the five names `FR-095`. ⭐ `frame-loop.ts` carries the whole
@@ -9577,7 +9577,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                the pair. ⭐ NOTHING IS OPEN HERE ANY LONGER: DC-7's own text
 //                HAS since been edited to match (it now reads 「モードを出たら、
 //                置いた 2 本を消すこと（MUST）」), and DC-4's OTHER way out
-//                -- 「`Esc`」 -- writes the same CM-61 as of D-301, in
+//                -- 「`Esc`」 -- writes the same CM-61 as of DFC-301, in
 //                `frame-loop.ts`, which is where that way out lives: the level
 //                belongs to a holder this file cannot reach, so no action ever
 //                comes back for it. ⭐ DC-3's day count is untouched beside it

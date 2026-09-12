@@ -88,7 +88,7 @@
 //      STATES IT. GR-19 states where the BAND goes 「パレットの上端に敷く帯」 and
 //      表 T-206's `S-135a` how far down it reaches; table T-109 gives IC-53 an
 //      em dash for its 群, so not even the ordering column speaks for it. ⚠️ This
-//      is the row `docs/development-records/defects.md` D-68 turns on -- the
+//      is the row `docs/development-records/defects.md` DFC-68 turns on -- the
 //      user asked for it at the TOP RIGHT on 2026-08-27 -- and it is exactly
 //      what a tester reading only docs/spec cannot assert. Reported, not
 //      invented.

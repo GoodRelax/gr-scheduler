@@ -11,7 +11,7 @@
 //   `resumeValid` を `false` に戻すこと（MUST）** —— 戻さないと表 T-019a の `PS-5`
 //   に落ち、**日付を消しただけで中断が黙って解ける。**
 //
-// ⭐⭐ THE REQUIREMENT NAMES ITS OWN FAILURE, AND THE FAILURE IS WHAT D-286
+// ⭐⭐ THE REQUIREMENT NAMES ITS OWN FAILURE, AND THE FAILURE IS WHAT DFC-286
 // MEASURED: 「戻さないと表 T-019a の `PS-5` に落ち、日付を消しただけで中断が黙って
 // 解ける」. `PS-5` is 表 T-019a's last row -- 「上のどれにも当たらない | 進行中」 --
 // so a suspended task whose date is erased and whose `resumeValid` stays `true`
@@ -162,7 +162,7 @@ const FR_044_ERASING_SENDS_IT_BACK =
 const FR_044_PUTTING_ONE_SETS_IT =
   'STATEMENT**: `Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること。再開予定日を置いたとき、`resumeValid` を `true` にすること（MUST）'
 
-/** The failure the requirement names for itself, and the one D-286 measured. */
+/** The failure the requirement names for itself, and the one DFC-286 measured. */
 const FR_044_THE_NAMED_FAILURE = '戻さないと表 T-019a の `PS-5` に落ち、**日付を消しただけで中断が黙って解ける。**'
 
 // ===========================================================================
@@ -589,9 +589,9 @@ describe('FR-044 (MUST) -- erasing a resume date that was put', () => {
 //
 //   current 表 T-019 row | settled text | row the command places
 //   ---------------------+--------------+------------------------
-//   PA-3 中断・再開予定あり | ''           | PA-4   ⭐ D-286's fix, kept
+//   PA-3 中断・再開予定あり | ''           | PA-4   ⭐ DFC-286's fix, kept
 //   PA-3                 | a date       | PA-3, resume moved  ⭐ kept
-//   PA-2 進行中           | ''           | PA-2   ⭐ D-286's ⭐ half, kept
+//   PA-2 進行中           | ''           | PA-2   ⭐ DFC-286's ⭐ half, kept
 //   PA-2                 | a date       | PA-3   ⭐ kept
 //   PA-4 中断・再開日未定  | ''           | PA-4   ⭐ kept
 //   ⛔ PA-4              | a date       | PA-4 -- THE DATE IS DROPPED
@@ -609,7 +609,7 @@ describe('FR-044 (MUST) -- erasing a resume date that was put', () => {
 // works, above) and from `PA-2` it is not a suspension the person asked for.
 // ⇒ the entrance FR-044's first MUST exists for is the one that does not work.
 //
-// ⚠️ THIS IS NOT D-286. That row is 「再開予定日を空にしても `resumeValid` が真の
+// ⚠️ THIS IS NOT DFC-286. That row is 「再開予定日を空にしても `resumeValid` が真の
 // まま残り」 -- the ERASE half -- and its repair holds, as the four ⭐ rows above
 // show. This is its mirror, and no ledger row was found for it.
 

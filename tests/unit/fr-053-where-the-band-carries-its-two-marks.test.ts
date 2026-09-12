@@ -15,7 +15,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE TWO LEDGER ROWS IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-68 and D-103. Both marks are proved
+// `docs/development-records/defects.md` DFC-68 and DFC-103. Both marks are proved
 // to EXIST on the band and neither is proved to be anywhere in particular:
 //
 //   tests/unit/uf-71.test.ts:2611          the minimised band carries IC-53 and
@@ -31,7 +31,7 @@
 //                                          DELIBERATELY NOT ASSERTED」, that
 //                                          WHERE the marker sits inside the
 //                                          band is what no row stated when that
-//                                          file was written, and names D-68.
+//                                          file was written, and names DFC-68.
 //
 // ⭐ A ROW NOW STATES IT. CR-273 put the sentence quoted below into FR-053 on
 // 2026-08-28, so the refusal that file records is spent and this file is what
@@ -385,13 +385,13 @@ describe('the manuscripts still say what these cases read', () => {
 })
 
 // ===========================================================================
-// D-68 -- where the two marks sit on the band
+// DFC-68 -- where the two marks sit on the band
 // ===========================================================================
 
 describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', () => {
   it('⭐ both marks are drawn, on ONE band, which is a child of the palette', () => {
     // 「帯には ... `IC-53` と、最小化の入口（同表の `IC-75`）が載ったままである」.
-    // ⭐ THIS IS ALSO WHAT D-103 OWES: nothing anywhere asked where IC-75 is
+    // ⭐ THIS IS ALSO WHAT DFC-103 OWES: nothing anywhere asked where IC-75 is
     // DRAWN. `CommandPalette.minimise` carries it in the description
     // (tests/unit/fr-053-minimised-shows-the-band-alone.test.ts:229) and
     // tests/unit/uf-65.test.ts holds it OUT of `groups` -- so until this case,
@@ -408,7 +408,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     )
   })
 
-  it('⛔ IC-75 rides on the band and not among the palette’s entries (D-103)', () => {
+  it('⛔ IC-75 rides on the band and not among the palette’s entries (DFC-103)', () => {
     // 「掴み帯の右端で、パレットを最小化し」（表 T-109 の `IC-75`）. ⚠️ 表 T-109
     // gives IC-75 no 群, and FR-053 keeps the entries out of the band -- so the
     // minimise entrance may not be drawn inside the box the entries are laid in.

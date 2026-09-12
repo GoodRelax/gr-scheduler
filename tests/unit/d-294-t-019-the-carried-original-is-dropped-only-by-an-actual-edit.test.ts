@@ -13,7 +13,7 @@
 //   最終列の値へ置き換える** —— `FR-012` の完了率と同じ規則である。
 //
 // ⚠️ THE LEDGER ROW THAT ASKED FOR THIS FILE NAMED THE WRONG PLACE, and the body
-// that repaired it said so in as many words: D-294's 仕様の場所 column read 「表
+// that repaired it said so in as many words: DFC-294's 仕様の場所 column read 「表
 // T-016 と `FR-072`」, and neither of those settles this. The clause above is the
 // note UNDER 表 T-019, and it is the one quoted here.
 //

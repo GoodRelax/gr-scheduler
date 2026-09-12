@@ -42,7 +42,7 @@
 //             （MUST）。掴み点はポインタが決める日に置くこと（MUST）……⚠️ 確定は
 //             表 T-028 の `IN-1` に従う（離した時点）」,
 //   T-023d    and the write ban the closing states once for every following
-//             row (D-466, 利用者の裁定 2026-09-11): 「`GR-1` / `GR-2` / `GR-3`
+//             row (DFC-466, 利用者の裁定 2026-09-11): 「`GR-1` / `GR-2` / `GR-3`
 //             ……を掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）
 //             （`FR-031`）……⚠️ `GR-1` / `GR-2` の日数も値である」,
 //             and the rule after it: 「`GR-1` / `GR-2` の日数は、ポインタの下の
@@ -926,7 +926,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     // pointer well inside a day, where 四捨五入 and a plain truncation answer
     // alike -- so the quantum itself was unwatched, and the boundary could move
     // half a day in either direction without a case noticing. ⚠️ This is the
-    // family of 台帳 D-138 (a vertical pan that skips the gap between rows): a
+    // family of 台帳 DFC-138 (a vertical pan that skips the gap between rows): a
     // quantum hides inside one long gesture and only shows at its edges.
     //
     // ⛔ WHAT MAKES THE TWO PRESSES DIFFER. A day's own edge is the tie of

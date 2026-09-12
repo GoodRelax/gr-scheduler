@@ -208,7 +208,7 @@ for num, owners in sorted(defaults.items(), key=lambda kv: -len(kv[1])):
 #
 # ⚠️ WHY IT IS HERE. Until 2026-09-03 the word was counted only by
 # audit-ch5.py, which check.sh does not run -- so the count sat red for a whole
-# round and nobody was told (the ledger's D-227).  A check nothing runs is not
+# round and nobody was told (the ledger's DFC-227).  A check nothing runs is not
 # a check.
 FORBIDDEN_WORD = '部品'
 NAMES_THE_BAN = re.compile(r'A-17|T-006b|禁止語')

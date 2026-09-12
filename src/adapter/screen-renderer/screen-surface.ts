@@ -282,7 +282,7 @@ export interface ScreenPart {
    * T-023a keeps that table's decision order off everything this surface drew.
    * ⇒ Without this member a press on a lane falls through as "on a part, on no
    * entry and on no row" and writes nothing, which is what was measured
-   * (D-298, 2026-09-07: a press on the vertical lane's centre and 120px of
+   * (DFC-298, 2026-09-07: a press on the vertical lane's centre and 120px of
    * travel moved neither the picture nor one byte of the document).
    *
    * ⭐ THE AXIS AND NOT A TRUTH VALUE, which is where it parts from

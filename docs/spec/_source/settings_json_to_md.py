@@ -243,7 +243,7 @@ def broken(cell):
     break a cell can carry.
 
     ⚠️ A quotation is never split: a `<br>` inside 「…」 would put a line break
-    in the middle of a verbatim, which is what ruling R-05's check caught.
+    in the middle of a verbatim, which is what ruling JDG-05's check caught.
     """
     out = []
     quoted = 0
@@ -374,7 +374,7 @@ def same_type(settings_type, erd_type):
 
 
 def type_stated_twice(doc):
-    """⛔ D-335: a value whose type is written in BOTH manuscripts.
+    """⛔ DFC-335: a value whose type is written in BOTH manuscripts.
 
     Measured 2026-09-06: three of the settings keys are also ERD columns, and
     one of the three -- themeHue -- already disagreed in wording while nothing
@@ -383,7 +383,7 @@ def type_stated_twice(doc):
     ⚠️ IT DOES NOT REMOVE THE DUAL MANAGEMENT, and is not meant to look as if
     it does. The type still stands in two places; what changes is that the two
     can no longer drift in silence. Removing the second copy is the other
-    repair D-335 records, and it is larger.
+    repair DFC-335 records, and it is larger.
     """
     columns = erd_column_types()
     found = []
@@ -400,7 +400,7 @@ def type_stated_twice(doc):
                     found.append(
                         '%s row %s: 型 is %r here and %r on %s.%s in erd.json '
                         '-- one value, two manuscripts, and they disagree '
-                        '(ledger row D-335)'
+                        '(ledger row DFC-335)'
                         % (block['id'], row['id'], settings_type, erd_type,
                            entity, key))
     return found

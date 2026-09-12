@@ -53,7 +53,7 @@ def stated(pattern):
     Nothing here may expect a number of its own.  Every absolute this file used
     to hold went stale the day a row moved -- 12 of the 14 mismatches of
     2026-09-03 were this file expecting 38 components, 9 interfaces and 71
-    units of a chapter that had come to hold 36, 8 and 68 (the ledger's D-227).
+    units of a chapter that had come to hold 36, 8 and 68 (the ledger's DFC-227).
     A relation between two things READ cannot go stale that way.
     """
     return sorted({int(n) for n in re.findall(pattern, design)})
@@ -129,7 +129,7 @@ print("== landing: every edge target declares a member ==")
 # pattern demanded 「 |」 at the end of the line, and PI-5 (`ScheduleLayout`)
 # ends 「**）|」 -- so one row of a 36-row table silently failed to parse and
 # the component was reported as declaring no member at all, with its row
-# sitting in table T-064 the whole time (the ledger's D-227). ⭐ The
+# sitting in table T-064 the whole time (the ledger's DFC-227). ⭐ The
 # manuscript is right; a reader that depends on trailing whitespace is not.
 member_cells = re.findall(
     r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+?)\s*\|$", design, re.M)

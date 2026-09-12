@@ -772,12 +772,12 @@ describe('UF-62 IC-20: the Agent API (FR-065, MUST)', () => {
   })
 })
 
-// ⛔⛔ THE CASE THAT STOOD HERE PINNED DEFECT D-149, AND HAS BEEN REWRITTEN.
+// ⛔⛔ THE CASE THAT STOOD HERE PINNED DEFECT DFC-149, AND HAS BEEN REWRITTEN.
 //
 // It read 「follows the Agent API, which is the only condition FR-066 states for
 // the field」 and asserted `entry.isPressed === isAgentApiEnabled`. That WAS a
 // correct reading of FR-066 when this file was written -- the requirement then
-// stated one condition -- and it is exactly the wiring D-149 measured on
+// stated one condition -- and it is exactly the wiring DFC-149 measured on
 // 2026-08-30: 「`IC-20` を押すと `IC-18` の `data-pressed` が立つ」.
 //
 // ⭐ The ruling of 2026-08-31 gave the field's visibility a value of its own
@@ -815,7 +815,7 @@ describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
   })
 
   it('is faint exactly while the Agent API is off (FR-066 ⚠️, through FR-029)', () => {
-    // 「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」 -- the half of D-149 that
+    // 「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」 -- the half of DFC-149 that
     // never broke, and the one FR-066 still ties to the capability alone.
     for (const isAgentApiEnabled of [true, false]) {
       const entry = commandFor(

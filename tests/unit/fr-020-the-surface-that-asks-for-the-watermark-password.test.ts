@@ -1,6 +1,6 @@
 // Unit tests for the surface FR-020 (MUST) raises before the watermark may be
 // hidden -- U-60 `Watermark Unlock` of table T-103 (利用者の裁定 2026-08-31,
-// CR-329, ledger row D-147).
+// CR-329, ledger row DFC-147).
 //
 // The units driven are UF-66 `open-modals.ts` (`ScreenRenderer`, CP-19 of table
 // T-062) and UF-71 `dom-screen-surface.ts` (`DomScreenSurface`, CP-38), plus

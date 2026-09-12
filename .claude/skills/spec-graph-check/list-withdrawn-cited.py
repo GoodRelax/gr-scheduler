@@ -31,7 +31,7 @@ a withdrawal ONLY by putting the old rule in brackets and a past-tense verb
 after it. So the harvest anchors there.
 
 ⚠️ WHAT IT WILL NOT CATCH, honestly. Of the four instances the 2026-09-11
-round found, `D-452` and `D-460` are NOT verbatim re-quotations -- the later
+round found, `DFC-452` and `DFC-460` are NOT verbatim re-quotations -- the later
 seat paraphrased the withdrawn rule. No string comparison reaches those. This
 tool addresses the verbatim half of the shape and says so.
 

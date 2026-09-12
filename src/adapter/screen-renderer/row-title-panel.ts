@@ -93,7 +93,7 @@ interface PanelIndex {
    * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) takes
    * THIS row's fold off in the same press, so a folded parent with a hidden
    * child draws both again.
-   * ⚠️ RS-30 of table T-233 names no fold (台帳 D-339) -- 「直下に、画面へ
+   * ⚠️ RS-30 of table T-233 names no fold (台帳 DFC-339) -- 「直下に、画面へ
    * 戻せる子が 1 つも無い」 -- which is why the arming below is
    * `groupIdsWithAChildOutOfThePicture` and not this set.
    */
@@ -355,7 +355,7 @@ function rowDepth(
  * table T-015 refuses to draw a folded row's descendants and HR-6 refuses to
  * draw a hidden row's, so the fold that remains on those rows is a fold no
  * reader can see undone -- and an armed half that moves no pixel reproduces the
- * very complaint D-76 was opened with: that none of the row panel's controls do
+ * very complaint DFC-76 was opened with: that none of the row panel's controls do
  * anything. ⚠️ The grounds are FR-029, whose RATIONALE opens by saying that a
  * thing which does not respond looks broken, and the user's ruling of
  * 2026-08-30, taken after watching a press write the document and leave the
@@ -567,7 +567,7 @@ function rowTitleOf(
     // 1 つも無いときは、`FR-029` に従って薄く描くこと」, and RS-30 of table
     // T-233 counts the same thing for the telling: 「直下に、画面へ戻せる子が
     // 1 つも無い」. ⛔ NEITHER NAMES THIS ROW'S OWN FOLD, which is why the
-    // arming is not read off it (台帳 D-339).
+    // arming is not read off it (台帳 DFC-339).
     // ⛔ HR-7 (MUST NOT) leaves the grandchildren's folds alone, so what comes
     // off is this row's own AT-56.
     // ⛔⛔ AND A ROW WITH NO CHILD AT ALL IS SPENT, WHATEVER ITS OWN FOLD SAYS.

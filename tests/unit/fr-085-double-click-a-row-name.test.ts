@@ -30,7 +30,7 @@
 // exactly two fields, `AT-58` and `AT-59`. No name. Nothing focused
 // (`document.activeElement` was BODY). ⇒ The gap was a MISSING FIELD first, and
 // the missing focus and the missing commit followed from it. That is the
-// ledger's D-180.
+// ledger's DFC-180.
 //
 // ---------------------------------------------------------------------------
 // The rules these cases answer to

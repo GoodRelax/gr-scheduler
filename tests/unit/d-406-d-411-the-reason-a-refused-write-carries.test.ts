@@ -1,10 +1,10 @@
 // Anchors for two ledger rows about ONE line of the shell: which row of table
 // T-233 a refused write is told on (`reasonOfWriteRefusal` of `frame-loop.ts`).
 //
-//   D-411 -- table T-233 gained four rows for write refusals (`RS-55` .. `RS-58`)
+//   DFC-411 -- table T-233 gained four rows for write refusals (`RS-55` .. `RS-58`)
 //            and nothing routed to them, so every one of those situations still
 //            reached the reader as `RS-10` 「命令が拒否されたので、束ごと落とした」.
-//   D-406 -- the WIDE half of that same line was unguarded. Measured 2026-09-08:
+//   DFC-406 -- the WIDE half of that same line was unguarded. Measured 2026-09-08:
 //            widening the shape's test to EVERY WS-3 refusal, so that `RS-10`
 //            became unreachable from this road altogether, took ZERO cases red
 //            in the whole suite.
@@ -116,7 +116,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
  *
  * ⚠️ `bareAll` AND NOT `bare`, because one panel item can edit two columns at
  * once: `PR-3` prints 「`start` / `finish`」 and taking the first would drop the
- * second in silence (D-351).
+ * second in silence (DFC-351).
  */
 const columnsOf = (id: string): readonly string[] => bareAll(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
 
@@ -298,7 +298,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
 
   it('⛔ the dictionary gives no two of these rows the same words', () => {
     // ⚠️ WITHOUT THIS EVERY CASE BELOW IS VACUOUS: telling `RS-55` and telling
-    // `RS-10` would be indistinguishable, which is the whole of D-411.
+    // `RS-10` would be indistinguishable, which is the whole of DFC-411.
     const spelled = [RS_10, RS_55, RS_56, RS_57, RS_58].map((row) => wordsOf(row).ja)
     expect(new Set(spelled).size).toBe(spelled.length)
   })
@@ -310,10 +310,10 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
 })
 
 // ===========================================================================
-// D-411 -- the rows a press can actually reach
+// DFC-411 -- the rows a press can actually reach
 // ===========================================================================
 
-describe('D-411 / table T-037: a write refusal is told its own row and not RS-10', () => {
+describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-10', () => {
   it('⭐⭐ RS-55: a WBS parent that is the task itself is told HM-4s own row', () => {
     // ⛔⛔ THE DEFECT. Table T-233 gained `RS-55` and the dictionary gained its
     // words, and the reader was still told `RS-10` -- 「命令が拒否されたので、束
@@ -373,10 +373,10 @@ describe('D-411 / table T-037: a write refusal is told its own row and not RS-10
 })
 
 // ===========================================================================
-// D-406 -- the wide half: what is NOT one of those rows stays RS-10
+// DFC-406 -- the wide half: what is NOT one of those rows stays RS-10
 // ===========================================================================
 
-describe('D-406 / table T-233: a refusal the table names no row for keeps RS-10', () => {
+describe('DFC-406 / table T-233: a refusal the table names no row for keeps RS-10', () => {
   it('⭐⭐ a WBS parent naming a uid the document does not hold is told RS-10', () => {
     // ⛔⛔ THE HALF THAT WAS UNGUARDED (measured 2026-09-08). Widening the
     // shell's test until `RS-10` became unreachable took ZERO cases red, so

@@ -1943,7 +1943,7 @@ const INVARIANTS: readonly Invariant[] = [
     /**
      * ⚠️ The rule itself is not written in table T-220 -- it sits under table
      * T-050, and T-220 is the seat that ENUMERATES the invariants so that
-     * something can walk them. The row was added on 2026-09-12 (D-487): the
+     * something can walk them. The row was added on 2026-09-12 (DFC-487): the
      * table called itself the whole set for months while the twin of IV-7 --
      * the same "one or more" shape, for rows instead of calendars -- had no
      * row at all.

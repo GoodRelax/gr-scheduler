@@ -2,9 +2,9 @@
 """Check 37 -- a table's row and the display word carried for it were read
 together, and neither has moved since without the other being re-read.
 
-WHY THIS EXISTS -- ledger row D-145. `tests/contract/
+WHY THIS EXISTS -- ledger row DFC-145. `tests/contract/
 t-233-reason-words-tell-the-row.contract.test.ts` built exactly this latch for
-table T-233 alone, after ledger row D-166: the 場面 of `RS-30` was rewritten,
+table T-233 alone, after ledger row DFC-166: the 場面 of `RS-30` was rewritten,
 the dictionary word for it was not, and a person who pressed a spent `IC-90`
 was told the row was already folded when the row it named was NOT folded.
 ⛔ EVERY MACHINE CHECK STAYED GREEN, because every one of them asks whether a
@@ -60,11 +60,11 @@ catches everything a single hand-picked column would and generally more.
 header says of itself (see its lines under "WHAT docs/spec DOES AND DOES NOT
 SAY"). While this check was being written (2026-09-05) every one of the 12
 groups was printed row by row beside its table's cells and read; none showed
-a D-166-shaped contradiction (a full sample is in the commit that added this
+a DFC-166-shaped contradiction (a full sample is in the commit that added this
 file). Recording that reading as a fingerprint does not certify the 323 pairs
 correct forever -- it only means a LATER change to either side is forced back
 through a person instead of sliding past silently, which is the whole of what
-D-166 asks for.
+DFC-166 asks for.
 
 ⛔ ZERO KNOWN CONTRADICTIONS, NOT A DEBT BASELINE. Unlike
 decided-spec-baseline.txt or stale-blocked-baseline.txt (a COUNT of known,

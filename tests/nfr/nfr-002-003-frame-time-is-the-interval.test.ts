@@ -38,8 +38,8 @@
 // anchor that keeps ringing until those are built.
 // ⛔ DO NOT LOWER AN EXPECTATION TO MAKE IT GREEN.
 //
-// ⭐⭐ AND THEY WERE BUILT. `D-356` (2026-09-07) wired `AM-14` / `AM-15` and
-// `D-357` (2026-09-07) wired `AM-8`; measured again 2026-09-10 on the shipped
+// ⭐⭐ AND THEY WERE BUILT. `DFC-356` (2026-09-07) wired `AM-14` / `AM-15` and
+// `DFC-357` (2026-09-07) wired `AM-8`; measured again 2026-09-10 on the shipped
 // build, none of the four answers `notAvailable` any more. ⛔ THREE OF THIS
 // FILE'S OWN JUDGEMENTS WERE STALE AGAINST THAT, and each was measured before
 // being changed -- the change is in the harness, not in a bar:
@@ -48,7 +48,7 @@
 //   * the member sweep read `notAvailable` as a SUBSTRING of the whole answer,
 //     and `AM-15`'s answer is this application's own build, which contains that
 //     literal. So IO-7 was counted unwritable and `FR-029` then demanded `RS-40`
-//     for a format that writes -- the false reason `D-334` refuses to raise.
+//     for a format that writes -- the false reason `DFC-334` refuses to raise.
 //   * `AM-8` takes `AgentImportSource`; MSPDI text is none of its three shapes,
 //     and by `FR-022` (MUST, 2026-09-07) every call waits for a person on
 //     `U-61`. So an unattended round trip through it has no road at all.
@@ -833,7 +833,7 @@ async function sweep(
       // 2,036,280-character answer read as `notAvailable`, IO-7 was counted a
       // format this build cannot write, and the FR-029 judgement below then
       // demanded RS-40 for a format that writes -- ⛔ the very false reason
-      // `D-334` refuses to raise (「5 形式とも書けるので、立てれば偽の理由に
+      // `DFC-334` refuses to raise (「5 形式とも書けるので、立てれば偽の理由に
       // なる」).
       const envelope = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
       const refusal =
@@ -1069,14 +1069,14 @@ async function measureEmbeddedHtml(
     if (typeof fn !== 'function') return { text: '', note: `${member} is ${typeof fn}` }
     try {
       const value = await (fn as () => unknown).call(api)
-      // ⭐⭐ THE `.html` COMES OUT OF THE ENVELOPE (`D-356`, 2026-09-07). `AM-15`
+      // ⭐⭐ THE `.html` COMES OUT OF THE ENVELOPE (`DFC-356`, 2026-09-07). `AM-15`
       // is `exportEmbeddedHtml(): Promise<AgentExport<string>>` --
       // `src/adapter/agent-api-endpoint/agent-api-members.ts:457` -- and table
       // T-107's preamble puts that signature there and not in the table:
       // 「引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が
       // 持つ。本表は名前と、何を担うかだけを持つ」.
       // ⛔ THIS FILE USED TO INSIST ON A BARE STRING, which is the shape the
-      // member had before `D-356` wired it, so a written 2-million-character
+      // member had before `DFC-356` wired it, so a written 2-million-character
       // `.html` was reported as 「wrote no .html」. ⚠️ A bare string is still
       // taken, so this reads either face.
       if (typeof value === 'string') return { text: value, note: '' }
@@ -1725,7 +1725,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     //      (MUST), the ruling of 2026-09-07, verbatim:
     //      **`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答えるまで待つこと（MUST）**
     //      `takeInHandedDocument` passes `choice: 'merge'`, so every call raises
-    //      U-61 -- 「無人運転はできない」 is the cost the ruling names, and `D-357`
+    //      U-61 -- 「無人運転はできない」 is the cost the ruling names, and `DFC-357`
     //      records it.
     //
     // ⇒ ⭐ FR-021's round trip is pressed where it lives, at the codec seam:
@@ -1763,21 +1763,21 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     // 理由**を通知すること（MUST）」 -- and `RS-40` is 「この形式は、この
     // ビルドではまだ書けない」. When every format of table T-024 writes, there
     // is no 行えない理由 for this entrance to carry and the row has no occasion.
-    // ⛔ RAISING IT ANYWAY IS WHAT WOULD BREAK THE REQUIREMENT: `D-334`, verbatim:
+    // ⛔ RAISING IT ANYWAY IS WHAT WOULD BREAK THE REQUIREMENT: `DFC-334`, verbatim:
     // 「⛔⛔ `RS-40`（この形式はまだ書けない）を立ててはならない —— 5 形式とも
     // 書けるので、立てれば偽の理由になる」.
     // ⛔ SO THIS IS NOT AN EXPECTATION LOWERED. The expectation removed was that
     // this build HAVE a format it cannot write, which no row of the
     // specification asks for -- table T-024 lists all of them as 書出 formats,
-    // and `D-320` measured all five written (`GRS JSON` 895,422 / MSPDI 645,459
+    // and `DFC-320` measured all five written (`GRS JSON` 895,422 / MSPDI 645,459
     // / 単一 `.html` 2,034,321 / SVG 395,400 / PNG 269,097 bytes).
-    // ⚠️ `D-356` PREDICTED THIS INVERSION IN AS MANY WORDS: 「直すと同じ `it` の
+    // ⚠️ `DFC-356` PREDICTED THIS INVERSION IN AS MANY WORDS: 「直すと同じ `it` の
     // 別の条項が反転する —— `unwritableFormats` が…`notAvailable` から数えて
-    // いるので、本行を直すと `m.unwritable` が空になり」, and `D-356` ends
+    // いるので、本行を直すと `m.unwritable` が空になり」, and `DFC-356` ends
     // 「`FR-029` を押せなかった」が立つ.
     // ⚠️ RE-CUT 2026-09-10: the row's nested quotation used to sit far enough
-    // from the `D-356` that attributes it that check 42 read it as a citation
-    // of docs/spec, where no such sentence stands. The words are the ledger's. ⭐ `D-186` keeps `RS-40` for the next format that cannot be
+    // from the `DFC-356` that attributes it that check 42 read it as a citation
+    // of docs/spec, where no such sentence stands. The words are the ledger's. ⭐ `DFC-186` keeps `RS-40` for the next format that cannot be
     // written; when one appears, this branch stops being taken on its own.
     recorded.push(
       'FR-029 had no occasion: every format of table T-024 answered through the Agent API, so ' +

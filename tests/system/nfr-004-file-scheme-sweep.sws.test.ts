@@ -356,7 +356,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // filter the same 22 preceding probes leave the dashed count 11 -> 11 -> 12 and
   // IC-37 enabled.
   //
-  // WARNING: A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. D-316 lets one bar
+  // WARNING: A KEY NAMES A CONTIGUOUS RUN, NOT ONE ELEMENT. DFC-316 lets one bar
   // take more than one SVG element under the same data-figure key -- a thin bar
   // is a line, a head polygon and its dot marks, all sharing one key -- and a
   // run's elements sit next to each other in document order, never apart.
@@ -1282,7 +1282,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
-    // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (D-382). Table T-036's
+    // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (DFC-382). Table T-036's
     // row reads 「その場の編集を確定する」 and then 「確定していないその場の編集が
     // 1 つも無いときは、プロパティパネルを出しているならば出すのをやめること
     // （MUST）」. The MUST is the second one, so the panel has to be UP before the

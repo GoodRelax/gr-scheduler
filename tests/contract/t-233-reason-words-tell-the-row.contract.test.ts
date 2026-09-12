@@ -6,7 +6,7 @@
 // table T-233 read at run time.
 //
 // ---------------------------------------------------------------------------
-// WHY THIS FILE EXISTS -- ledger row D-166
+// WHY THIS FILE EXISTS -- ledger row DFC-166
 // ---------------------------------------------------------------------------
 //
 // On 2026-08-31 the 場面 of `RS-30` was rewritten and the dictionary was not.
@@ -35,7 +35,7 @@
 //    本表から名簿を起こすので、片方だけを書けば黙らずに落ちる。」
 //
 // ⛔ THAT IS AN OBLIGATION ABOUT ADDING A ROW, NOT ABOUT REWRITING ONE, and
-// ledger row D-166 says as much: 「足すときは守られたが、書き換えるときのことは
+// ledger row DFC-166 says as much: 「足すときは守られたが、書き換えるときのことは
 // 書かれていなかった」. ⛔ MISSING FROM docs/spec: any row saying that the word
 // the dictionary holds for a reason must tell the 場面 that reason's row states.
 // The nearest thing is 表 T-037's `NT-1` 「どの項目が、なぜ誤りかを文字で示すこと
@@ -46,7 +46,7 @@
 // as they were last read against each other. Either side moving fails the row
 // and asks a person to read the pair again. ⛔ It does not, and cannot, assert
 // that the words are true; ⭐ it makes it impossible for one side to move in
-// silence, which is the whole of what happened in D-166.
+// silence, which is the whole of what happened in DFC-166.
 //
 // ⚠️ WHEN THIS FAILS, THE FIX IS NOT TO PASTE THE NEW FINGERPRINT IN. Read the
 // row's 場面 and the dictionary's three fields together, decide whether the
@@ -141,7 +141,7 @@ const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
  *
  * ⭐ A fingerprint and not the words themselves: FR-038 (MUST NOT) admits ONE
  * store of printed words, and a second copy of them in a test file is a second
- * store that goes stale exactly the way the dictionary did in D-166.
+ * store that goes stale exactly the way the dictionary did in DFC-166.
  */
 const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-1': 'a1f303801978cd0b',
@@ -172,7 +172,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // sentence: a dated 2026-09-05 note saying `frame-loop.ts` never called this
   // row in its roll of reasons, because the road that would tell it was never
   // built. The cleanup of 9f359cd folded that out as an implementation RECORD
-  // whose original is the ledger -- `D-258` of
+  // whose original is the ledger -- `DFC-258` of
   // docs/development-records/fixed-defects.md, the row for there being no way
   // to write `FR-086`'s watermark name. (⛔ Neither sentence is re-quoted here:
   // check 42 forbids a comment putting words in docs/spec's mouth that
@@ -210,8 +210,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-43': '1033e6a435341a3e',
   'RS-44': '5aeba9325454b1ad',
   // ---------------------------------------------------------------------
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows D-202 and
-  // D-206). ⛔ The fingerprints below were NOT pasted in from a failure
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows DFC-202 and
+  // DFC-206). ⛔ The fingerprints below were NOT pasted in from a failure
   // message: the 場面 and the three fields of the dictionary were read side by
   // side first, and this note records what that reading found.
   //
@@ -225,7 +225,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ---------------------------------------------------------------------
   'RS-46': '1dc2be62612383ad',
   //
-  // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row D-282,
+  // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row DFC-282,
   //   利用者の裁定 「② ただし、具体的に差分を表示してユーザーの確認を受ける」).
   // `RS-48` -- 場面 「文書の形式の版が、この造りが知る最大の版より新しく、読め
   //   なかった項目がある」; ja 「この文書は新しい形式で書かれており、読めなかった
@@ -359,7 +359,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   still carried -- the text says the armed shape does not land on what is
   //   selected, and the next step says the arm is still usable before it names
   //   the road. ⇒ nothing needed correcting, so only the record was re-keyed.
-  // ⚠️ THE HAZARD THIS FILE EXISTS FOR IS THE OPPOSITE ONE -- D-166, where the
+  // ⚠️ THE HAZARD THIS FILE EXISTS FOR IS THE OPPOSITE ONE -- DFC-166, where the
   //   scene turned into its own opposite and the word stayed. Here the word and
   //   the scene still say the same thing; the change was a pointer replacing a
   //   copy, which no machine check on either side could have told apart from a
@@ -517,7 +517,7 @@ describe('table T-233 -- the word and the row it is carried for were read togeth
     '%s: the 場面 and the words it is answered with have not moved apart',
     (rowId) => {
       // ⚠️ NOT A CLAIM THAT THE WORDS ARE TRUE -- see the head of this file. It
-      // is the latch D-166 asks for: the row was rewritten, the word was not,
+      // is the latch DFC-166 asks for: the row was rewritten, the word was not,
       // and nothing said so.
       const entry = entryOf(rowId)
       expect(

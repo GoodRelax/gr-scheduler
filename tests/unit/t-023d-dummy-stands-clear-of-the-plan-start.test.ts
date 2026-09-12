@@ -1,7 +1,7 @@
-// D-56: telling the plan's start point apart from the actual's dummy.
+// DFC-56: telling the plan's start point apart from the actual's dummy.
 //
 // The user's report of 2026-08-27, in the ledger at
-// docs/development-records/defects.md row D-56: with 9/1..9/10 planned and no
+// docs/development-records/defects.md row DFC-56: with 9/1..9/10 planned and no
 // actual recorded, the dummy must stand at 9/2, one day along, so that the
 // LEFT of that pair is the plan's start (GR-3, 「予定を左に広げる」) and the
 // RIGHT is the actual's start (GR-9, 「実績の開始を入力する」). Standing both
@@ -53,7 +53,7 @@
 //
 // ⛔ AND THE DROPPED DAY IS NO LONGER A MILESTONE EXCEPTION. A case added to
 // this file on the morning of 2026-09-02 asserted 「マイルストーンは落とした日を
-// 無視する」 -- the branch `D-182` put in on the reasoning that the dummy stood on
+// 無視する」 -- the branch `DFC-182` put in on the reasoning that the dummy stood on
 // the figure and had no `GR-3` to collide with. CR-332 withdrew that reasoning
 // with the place it rested on. What is left is the two claims FR-043 now names.
 //
@@ -65,7 +65,7 @@
 // ⛔⛔ THE PICTURE AND THE VALUE ARE TWO RULES, AND FR-043 FORBIDS READING THEM
 // AS ONE (MUST NOT, 利用者の裁定 2026-09-02). 予定の開始日の翌稼働日 places the
 // dummy BEFORE it is grabbed; what is written when it is let go is 掴みシロを
-// 離した日. ⚠️ Reading them as one is ledger D-182: measured on the shipped
+// 離した日. ⚠️ Reading them as one is ledger DFC-182: measured on the shipped
 // build 2026-09-02, a hold carried 3 days along and one carried 8 days along
 // wrote the same day, so pulling the hold meant nothing.
 //
@@ -138,7 +138,7 @@
 //     tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts owns that.
 //     The cases below press a dummy at its own point and ask WHICH row
 //     answers; they say nothing about how far the ink itself reaches, and the
-//     zoom here is chosen for D-56 rather than for that rule.
+//     zoom here is chosen for DFC-56 rather than for that rule.
 //   * ⛔ THE ONE-DAY PLAN, where the fix trades one swallowing for another.
 //     A plan whose `start` and `finish` are the same day is drawn at `S-49`'s
 //     floor (`minShapeWidth`, 6px) whatever the zoom, so its RIGHT end -- GR-4,
@@ -147,14 +147,14 @@
 //     `S-49` + `S-90` the dummy lands inside GR-4's allowance, and GR-4 takes
 //     the press exactly as GR-3 does today. ⚠️ At the DEFAULT zoom one day is
 //     `S-1` = 6px, so this is the ordinary case, not a corner. ⭐ REPORTED, NOT
-//     ASSERTED: the closing warning D-56 asks for must name GR-4 as well as
+//     ASSERTED: the closing warning DFC-56 asks for must name GR-4 as well as
 //     GR-3, or no row settles which of the two wins there, and a case written
 //     here would be inventing the ruling. The fixture below is deliberately
-//     zoomed clear of it, so that the cases measure what D-56 is about.
+//     zoomed clear of it, so that the cases measure what DFC-56 is about.
 //   * The picture drawn while a dummy is HELD -- table T-023d's 「`GR-9` /
 //     `GR-17` / `GR-18` を掴んでいるあいだ、置くことになる実績を描いて示すこと
 //     （MUST）」. It lives in the shell's frame loop, not in these three units,
-//     and asking it needs the whole `frameLoop` stage. ⭐ It matters to D-56 and
+//     and asking it needs the whole `frameLoop` stage. ⭐ It matters to DFC-56 and
 //     is reported as unwritten: the held picture must be the actual FR-043
 //     PLACES, which since the 2026-08-27 ruling starts on 予定の開始日の翌稼働日
 //     -- the day GR-9 itself is drawn on.
@@ -364,7 +364,7 @@ const workedDaysAfter = (iso: string, count: number): string => {
 const PLAN_START = '2026-01-02'
 const PLAN_FINISH = '2026-01-23'
 
-/** What D-56 asks for: the dummy stands here, not on `PLAN_START`. */
+/** What DFC-56 asks for: the dummy stands here, not on `PLAN_START`. */
 const WORKED_DAY_AFTER_START = workedDaysAfter(PLAN_START, 1)
 
 /** The reading FR-043 rejects for the other handle: 「暦日で進めると非稼働日に置く」. */
@@ -530,7 +530,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
 const scheduleOf = (part: Record<string, unknown>): Schedule =>
   ({
     project: {
-      title: 'D-56',
+      title: 'DFC-56',
       calendarUid: null,
       statusDate: null,
       startDate: null,
@@ -692,7 +692,7 @@ const grabOnTheFinishHalfOfTheMark = (drawn: Drawn, dummy: DummyGeometry): strin
 const xOfDay = (drawn: Drawn, iso: string): number => xFromDay(drawn.layout, dayNamed(iso))
 
 // ===========================================================================
-// EditDocument, for the half of D-56 that must NOT move
+// EditDocument, for the half of DFC-56 that must NOT move
 // ===========================================================================
 
 const documentOf = (schedule: Schedule): Document =>
@@ -732,7 +732,7 @@ describe('the fixture stands where these cases think it does', () => {
     // ⚠️ A GUARD, NOT THE CLAIM. `workedDaysAfter` above walks Saturday and
     // Sunday past; if table T-209 stopped saying that, every day constant in
     // this file would be the wrong day and the cases would fail for a reason
-    // that has nothing to do with D-56.
+    // that has nothing to do with DFC-56.
     const worked = cellOf(S_106, '値')
     for (const weekday of ['月', '火', '水', '木', '金']) {
       expect(worked, 'table T-209 S-106 no longer names the five weekdays').toContain(weekday)
@@ -793,7 +793,7 @@ describe('the fixture stands where these cases think it does', () => {
   it('prints the dummies above GR-3, GR-17 above GR-9, and all of them above GR-12 (MUST)', () => {
     // 「上の行ほど優先すること（MUST）」. ⭐ Read out of the table, not copied:
     // a list written here would go on passing after the order had been changed,
-    // and the order is exactly what D-56 turns on.
+    // and the order is exactly what DFC-56 turns on.
     // ⚠️ GR-17 AND GR-9 SWAPPED ON 2026-09-08, by the user's ruling 「実績の
     // 開始日と実績の終了日のどちらをつかむか難しいことになるが、実績の終了日を
     // 優先しろ」. The table used to close GR-17's row with 「重なったら開始点
@@ -835,14 +835,14 @@ describe('the fixture stands where these cases think it does', () => {
 })
 
 // ===========================================================================
-// ⛔ D-56 -- where the dummy stands
+// ⛔ DFC-56 -- where the dummy stands
 // ===========================================================================
 
-describe('table T-023d GR-9 / GR-17 (D-56): the dummy stands one working day along', () => {
+describe('table T-023d GR-9 / GR-17 (DFC-56): the dummy stands one working day along', () => {
   it('puts GR-9 on the working day AFTER the plan start, not on the plan start itself', () => {
     // ⛔ RED, AND FOR TWO REASONS. Table T-023d GR-9 still reads 「未着手の
     // タスクの上、予定の開始日」, so the tree draws it on the plan's own start
-    // day -- where GR-3 already stands. D-56 (2026-08-27): 「9/2〜9/2 で実績の
+    // day -- where GR-3 already stands. DFC-56 (2026-08-27): 「9/2〜9/2 で実績の
     // ダミーが表示され、これをつかめるはず。1 日ずらしてあるのは予定を左に
     // 広げるのと実績の開始を入力するので掴み点を組み分けるためだ」.
     const drawn = draw(notStarted())
@@ -891,7 +891,7 @@ describe('table T-023d GR-9 / GR-17 (D-56): the dummy stands one working day alo
 })
 
 // ===========================================================================
-// ⛔ D-56 -- telling the two grab points apart (MK-9a of table T-023)
+// ⛔ DFC-56 -- telling the two grab points apart (MK-9a of table T-023)
 // ===========================================================================
 
 describe('table T-023 MK-9a: a press on each point answers a different row', () => {
@@ -901,7 +901,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
     // ⛔ RED WHEN THIS WAS WRITTEN. Both rows claimed the same x, and 「上の行ほ
     // ど優先すること（MUST）」 gave it to GR-3 -- so there was no point at all
     // where GR-9 could be reached at its own place, which is what the user
-    // reported (D-56).
+    // reported (DFC-56).
     // ⚠️ THE PRESS MOVED TWICE, THE CLAIM DID NOT. On 2026-09-09 the manuscript
     // first handed every pixel of the one mark to GR-17 and the press moved
     // past the mark; later the same day it cut the mark down the middle
@@ -914,7 +914,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
   })
 
   // =========================================================================
-  // ⭐ D-415 -- the one mark answers BOTH ends, split at its own middle
+  // ⭐ DFC-415 -- the one mark answers BOTH ends, split at its own middle
   // =========================================================================
   //
   // ⛔ THE DEFECT. Until 2026-09-09 the manuscript said the whole mark was the
@@ -927,7 +927,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
   // GR-9 at 6px a day, 0 of 12 at 12.9 and at 27.6 -- the whole mark was the
   // finish's, which is what these two cases now refuse.
 
-  it('D-415 ⭐ MUST: the LEFT half of the one mark answers the actual START', () => {
+  it('DFC-415 ⭐ MUST: the LEFT half of the one mark answers the actual START', () => {
     const built = drawn()
     const mark = dummyNamed(taskDrawn(built), 'GR-9').ink
     expect(mark.width, 'FR-043 draws one mark').toBeGreaterThan(1)
@@ -939,7 +939,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
     }
   })
 
-  it('D-415 ⭐ MUST: the RIGHT half of the same mark answers the actual FINISH', () => {
+  it('DFC-415 ⭐ MUST: the RIGHT half of the same mark answers the actual FINISH', () => {
     // ⚠️ THE CONTRAST. Without it a build that had simply given the whole mark
     // to GR-9 -- the mirror of the fault -- would pass the case above.
     const built = drawn()
@@ -952,7 +952,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
       .toBe('GR-17')
   })
 
-  // ⛔⛔ WHAT D-415's SECOND HALF ASKS AND WHY NO CASE STANDS FOR IT HERE.
+  // ⛔⛔ WHAT DFC-415's SECOND HALF ASKS AND WHY NO CASE STANDS FOR IT HERE.
   // Table T-023d's GR-17 row (MUST) wants the finish handle to pin `actualStart`
   // at GR-9's day -- 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の
   // 日で確定。`FR-043`）」 -- and FR-043 records that the ruling of 2026-09-09
@@ -1017,7 +1017,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 
 describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 and resumeValid', () => {
   it('places the actual start on the day the hold was let go on, unmoved', () => {
-    // ⭐ THE ASSERTION D-182 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 掴みシロ
+    // ⭐ THE ASSERTION DFC-182 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 掴みシロ
     // を離した日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid` ＝
     // `true` とすること（MUST）」（利用者の裁定 2026-09-02）, with ⛔ 「離した日
     // を稼働日へ寄せてはならない（MUST NOT）」 under table T-023d and ⛔ 「この
@@ -1047,7 +1047,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
   })
 
   it('pins the start at GR-9 の日 from GR-17, and counts the length out to the release', () => {
-    // ⭐⭐ LEDGER D-415, AND THIS IS THE CASE THAT CLOSES IT. Table T-023d's
+    // ⭐⭐ LEDGER DFC-415, AND THIS IS THE CASE THAT CLOSES IT. Table T-023d's
     // GR-17 row: 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
     // 確定。`FR-043`）」, and FR-043 asks the same from the other side (MUST):
     // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
@@ -1128,7 +1128,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
   it('starts the actual bar where the hand let go, NOT where GR-9 is drawn', () => {
     // ⛔⛔ THE TWO RULES ARE SEPARATE AND THIS IS WHERE THAT IS ASKED. Until
     // 2026-09-02 the write took the day GR-9 is DRAWN on, so the actual bar came
-    // out in the same place wherever the hold was let go (ledger D-182). FR-043
+    // out in the same place wherever the hold was let go (ledger DFC-182). FR-043
     // now forbids that reading outright (MUST NOT). Asked as a comparison of
     // two x's rather than of two dates: the bar is drawn where the hand was, and
     // the handle it came from is somewhere else.
@@ -1271,7 +1271,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
   })
 
   it('answers a different day for a different release, so pulling the hold means something', () => {
-    // ⚠️ LEDGER D-182, MEASURED ON A MILESTONE. 「実測（2026-09-02、出荷ビルド）:
+    // ⚠️ LEDGER DFC-182, MEASURED ON A MILESTONE. 「実測（2026-09-02、出荷ビルド）:
     // 同じに読んだ実装は ＋3 歩でも ＋8 歩でも同じ日を書いており、掴んで引く意味
     // が消えていた」. A branch that answers the figure's day passes every
     // single-release case that happens to release there; two releases do not.
@@ -1323,7 +1323,7 @@ describe('table T-023d GR-7: the not-started marker hangs off GR-17, not off the
     const longTask = taskDrawn(long)
     expect(boxOfBar(shortTask.plan).x1).not.toBeCloseTo(boxOfBar(longTask.plan).x1, 6)
     expect(shortTask.marker!.centre.x).toBeCloseTo(longTask.marker!.centre.x, 6)
-    // And the constant gap is measured from the dummy, so it travels with D-56.
+    // And the constant gap is measured from the dummy, so it travels with DFC-56.
     expect(shortTask.marker!.centre.x - dummyNamed(shortTask, 'GR-17').at.x).toBeCloseTo(
       longTask.marker!.centre.x - dummyNamed(longTask, 'GR-17').at.x,
       6,

@@ -147,7 +147,7 @@
 //      test, which can name the band; asking it here would be asking this file
 //      to disprove the scope it declared. ⭐ WHAT IS ASSERTED INSTEAD is the
 //      roster: the seven, in AT-17's order, each with a word in each language.
-//   7. WHETHER `defaultNames` ARRIVES ON A FRAME (D-171, 2026-09-01). ⛔ It is
+//   7. WHETHER `defaultNames` ARRIVES ON A FRAME (DFC-171, 2026-09-01). ⛔ It is
 //      the ONE section whose word the screen never prints AS A WORD: FR-032
 //      (MUST) 「行の名前を既定の名前に確定させること」 WRITES it into
 //      `TaskGroup.label`, so from that moment it is document data, and FR-038
@@ -275,7 +275,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // ⭐ THE NAME EACH ROW OF TABLE T-016 SHOWS (CR-278). Until 2026-08-28 that
   // table carried an 項目名（英語・画面表示） column and the panel drew it
   // verbatim, which is how a GRS JSON column name reached a reader (the user's
-  // reports D-81 and D-84). FR-038 (MUST NOT) admits one store of printed
+  // reports DFC-81 and DFC-84). FR-038 (MUST NOT) admits one store of printed
   // words, so the name moved here and the table kept the column.
   // ⚠️ Keyed by the row and not by the column: a row may carry several columns
   // and still show ONE name -- PR-14 is 「fade in/out days」 over two.
@@ -286,7 +286,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // property panel's own rule -- 「⛔⛔ **同じ面が文書の設定を出すときも、これに
   // 従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない（MUST NOT）**」
   // -- so the keys of `DocumentSettings` show a WORD now instead of the spelling
-  // of the key (the reader's report D-233: 「設定の面は 113 行を出し、日本語の項目名
+  // of the key (the reader's report DFC-233: 「設定の面は 113 行を出し、日本語の項目名
   // は 0、生の識別子が 1 つ混じっていた」).
   // ⚠️ Keyed by the row of table T-104 and not by the key it edits, exactly as
   // `properties` is keyed by the row of table T-016: one row can fix several keys
@@ -321,7 +321,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
   // forbids the 形式 column of that table being carried to the screen.
   fileStatus: 'state',
-  // ⭐ THE SECTION D-171 RAISED. `FR-032` (MUST) settles the name of a row whose
+  // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a row whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
   // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を
   // 既定の名前に確定させること（MUST）。名前が無いことを理由に削除を拒んでは
@@ -1004,7 +1004,7 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
  * (MUST NOT) keeps its shown name in the dictionary alone, so this is the one
  * road between the two -- and it is the road that was missing until CR-278,
  * when the panel drew the GRS JSON column name instead (the user's reports
- * D-81 and D-84).
+ * DFC-81 and DFC-84).
  * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
  * uf-64 is where that is held, so a reordering must not make this file fall too.
  */
@@ -1179,7 +1179,7 @@ const T104 = specTable('T-104').rows.map((row) => ({
 
 /**
  * The row of table T-104 that fixes a settings key, or `undefined` when it fixes
- * none -- six of the 113 keys, which is the ledger's D-238.
+ * none -- six of the 113 keys, which is the ledger's DFC-238.
  *
  * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS: the group's keys are dotted, and
  * the table fixes some leaves by name (`fontScaleSizes.S` is K-105) and some
@@ -1409,7 +1409,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 }
 
 // -- defaultNames: the one word the dictionary holds that no frame prints,
-//    because FR-032 makes it DOCUMENT DATA rather than screen text (D-171)
+//    because FR-032 makes it DOCUMENT DATA rather than screen text (DFC-171)
 
 // ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
 // FR-032 (MUST) does not put this word on the screen; it puts it in the
@@ -2148,7 +2148,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   // 2026-09-05: this case costs 9.13s when the file runs alone, so twenty
   // seconds is barely twice its own cost, and in a full run -- where every
   // other file is competing for the same cores -- it timed out. That is the
-  // third shape D-255 takes: not a torn read and not an empty one, just a
+  // third shape DFC-255 takes: not a torn read and not an empty one, just a
   // read that does not finish in time. ⭐ The budget is four times the
   // measured solo cost now, which is room for a loaded machine rather than
   // a wish that the machine will be idle.

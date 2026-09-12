@@ -14,7 +14,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-97, from the reader's ruling of
+// `docs/development-records/defects.md` DFC-97, from the reader's ruling of
 // 2026-08-27: 「その代わり Ctrl+S で簡単保存してもらう。」 The row was written as
 // a thing to build and then measured to be already built -- 「足す必要が無かった
 // …… `Ctrl` ＋ `S` は 表 T-036 の `SK-11`「保存する」として既に仕様に在る」 -- so
@@ -219,7 +219,7 @@ interface Bench {
 /**
  * IF-3's far side, with a document that HAS a file.
  *
- * ⭐ THIS IS THE ONE DIFFERENCE FROM THE `D-66` BENCH: `readOpenedFileState`
+ * ⭐ THIS IS THE ONE DIFFERENCE FROM THE `DFC-66` BENCH: `readOpenedFileState`
  * answers `writable`, which is the state `FR-060` is about. `writeChosenFile`
  * still works, so a road that took the chooser would land a file and be seen --
  * it is not stubbed out into silence.
@@ -383,7 +383,7 @@ describe('FR-060 -- `Ctrl` ＋ `S` on a document that is already in a file', () 
     expect(back.ok, 'FR-096 (MUST): the bytes on the opened file are not GRS JSON').toBe(true)
   })
 
-  it('⛔ D-66 lives on the other side of this: a second press writes again', async () => {
+  it('⛔ DFC-66 lives on the other side of this: a second press writes again', async () => {
     // `FR-060`'s RATIONALE: 「往復が同じファイルで閉じないと、どれが最新かを人が管
     // 理することになる。」 A road that overwrites once and then falls back to the
     // chooser -- or to nothing -- does not close the round trip.

@@ -47,11 +47,11 @@
 //               that such a read would lead to.
 //
 // ⛔ TWO OF THE EIGHTEEN CANNOT BE WIRED YET, and each says so at its own
-// member: AM-9 and AM-10. ⚠️ IT WAS THREE UNTIL 台帳 D-357 CLOSED (2026-09-07):
+// member: AM-9 and AM-10. ⚠️ IT WAS THREE UNTIL 台帳 DFC-357 CLOSED (2026-09-07):
 // AM-8 is wired now, because FR-022 (MUST NOT) forbids the refusal outright --
 // 「合流を拒んではならない」 -- and the two grounds the member gave for it were
-// the same false claim about table T-107 that D-356 struck, plus a telling
-// FR-073 owes that refusing never supplied. ⚠️ IT WAS FIVE UNTIL 台帳 D-356 CLOSED
+// the same false claim about table T-107 that DFC-356 struck, plus a telling
+// FR-073 owes that refusing never supplied. ⚠️ IT WAS FIVE UNTIL 台帳 DFC-356 CLOSED
 // (2026-09-07). AM-14 and AM-15 were blocked on a seam that did not reach here
 // -- `Rasterizer` (IF-6) and `AppShellSource` (IF-8) -- and `AgentApiWiring`
 // carries both now, so both are wired below. ⛔⛔ THE OTHER HALF OF THAT ROW WAS
@@ -198,7 +198,7 @@ export type AgentRefusalReason =
    * caller outside this build can hand a member an argument that is not the
    * shape table T-107 declares. ⭐ AG-9a asks a refusal to carry 「理由の区分」
    * and does not enumerate the categories, which is what leaves room for both.
-   * ⚠️ Measured 2026-09-06 (ledger row D-325): `applyCommands` with no
+   * ⚠️ Measured 2026-09-06 (ledger row DFC-325): `applyCommands` with no
    * `readStamp` threw where this answers.
    */
   | 'malformedRequest'
@@ -290,7 +290,7 @@ export type AgentWriteOutcome =
  * What AM-8 is handed: the document to take in, in any of the three shapes a
  * caller naturally has it in.
  *
- * ⭐⭐ THE MERGE CHOICES ARE NOT HERE, AND THAT IS THE REQUIREMENT (D-357).
+ * ⭐⭐ THE MERGE CHOICES ARE NOT HERE, AND THAT IS THE REQUIREMENT (DFC-357).
  * FR-022 (MUST): 「呼ぶ側が機械であっても、選ぶのは人であること」 —— ⛔
  * 「`Agent API` の呼び出しに、選択肢をあらかじめ渡させてはならない（MUST NOT）」.
  * So a wider face would have been the wrong widening: what AM-8 needs is the
@@ -401,7 +401,7 @@ export interface AgentApi {
   /**
    * AM-8. Intake and merge.
    *
-   * ⭐⭐ A PROMISE, AND FR-022 IS WHY (D-357): 「`AM-8`（`importDocument`）が
+   * ⭐⭐ A PROMISE, AND FR-022 IS WHY (DFC-357): 「`AM-8`（`importDocument`）が
    * 合流にあたるときは、`U-61` を立て、人が答えるまで待つこと（MUST）」. The wait
    * is the requirement, so the answer cannot be a value settled at the call.
    * ⭐ The signature is this file's to settle, on AM-14's authority and table
@@ -719,7 +719,7 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
  * parse would be the duplication chapter 5.3 refuses. ⚠️ A text it turns away
  * comes back `null`, which the member answers `malformedRequest` for.
  *
- * ⛔⛔ AND THE VERSION IT IS READ AGAINST TRAVELS WITH IT (D-357). FR-073 (MUST)
+ * ⛔⛔ AND THE VERSION IT IS READ AGAINST TRAVELS WITH IT (DFC-357). FR-073 (MUST)
  * settles 「読めない版」 as strictly newer than the greatest version this build
  * knows, and says of one 「そのときは、受けて開くこと（MUST）」 and
  * 「拒んではならない（MUST NOT）」;
@@ -989,7 +989,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // reached `documentStamp`'s comparison and threw
       // `Cannot read properties of undefined (reading 'scheduleUpdatedUtc')`.
       // ⭐ The well-formed shape was never broken; `tests/unit/uf-27-28-29.test.ts`
-      // has covered it since AM-7 was built. Ledger row D-325.
+      // has covered it since AM-7 was built. Ledger row DFC-325.
       if (request === null || typeof request !== 'object'
         || (request.readStamp as unknown) === null
         || typeof request.readStamp !== 'object'
@@ -1026,7 +1026,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     async importDocument(handedSource: AgentImportSource): Promise<AgentWriteOutcome> {
-      // ⭐⭐ WIRED (台帳 D-357). This member refused until 2026-09-07, and FR-022
+      // ⭐⭐ WIRED (台帳 DFC-357). This member refused until 2026-09-07, and FR-022
       // now forbids that refusal outright: 「呼ぶ側が機械であっても、選ぶのは
       // 人であること（MUST）」, 「`AM-8`（`importDocument`）が合流にあたる
       // ときは、`U-61` を立て、人が答えるまで待つこと（MUST）」 ——
@@ -1055,7 +1055,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // not where it can be put. That requirement (MUST) has the columns a newer
       // version could not be read as laid out on U-61, with RS-48 of table T-233
       // for the reason.
-      // ⭐ ONE HALF LANDED (D-357): `documentFromJson` (PI-20) is now handed the
+      // ⭐ ONE HALF LANDED (DFC-357): `documentFromJson` (PI-20) is now handed the
       // greatest version this build knows on the `{ text }` road above, and its
       // `unreadColumns` is the list FR-073 has laid out. ⚠️ An earlier note here
       // said no caller passed that version; it was true when written and is not
@@ -1085,7 +1085,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       if (incoming === null) {
         // FR-028 (MUST NOT): 「例外を投げてはならない」, so a caller outside
         // this build who hands something that is not a document is REFUSED and
-        // not thrown at -- the shape D-325 closed for AM-7.
+        // not thrown at -- the shape DFC-325 closed for AM-7.
         return {
           accepted: false,
           refusal: agentRefusal(
@@ -1278,7 +1278,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     async exportPng(): Promise<AgentExport<Uint8Array>> {
-      // ⭐ WIRED (台帳 D-356). This member refused until now because
+      // ⭐ WIRED (台帳 DFC-356). This member refused until now because
       // `AgentApiWiring` carried no implementor of `Rasterizer` (IF-6); it
       // carries one, and the whole of the work is handing it to PI-21's entry.
       // ⛔ AND NO RULING WAS NEEDED TO MAKE THE SIGNATURE A PROMISE. The note
@@ -1366,7 +1366,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     async exportEmbeddedHtml(): Promise<AgentExport<string>> {
-      // ⭐ WIRED (台帳 D-356), on AM-14's terms: what blocked this was IF-8 not
+      // ⭐ WIRED (台帳 DFC-356), on AM-14's terms: what blocked this was IF-8 not
       // reaching the wiring, and it reaches it now. IO-7 of table T-024 and
       // FR-067 stay DocumentCodec's to answer, and this member adds nothing to
       // them -- exactly as AM-11 and AM-12 add nothing to theirs.

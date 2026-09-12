@@ -1,6 +1,6 @@
 // Anchor for one ledger row about the LENGTH of GR-21's grip.
 //
-//   D-405 -- measured 2026-09-08 by breaking the unit on purpose: halving the
+//   DFC-405 -- measured 2026-09-08 by breaking the unit on purpose: halving the
 //            grip's length took ZERO cases red, taking the floor away took ZERO
 //            red, and returning the grip to the whole lane took ZERO red. Only
 //            a length of nought turned anything red (two cases), so the ONE
@@ -163,10 +163,10 @@ describe('the row this file is driven by is still in the manuscript', () => {
 })
 
 // ===========================================================================
-// D-405 -- the three things about the length that nothing held
+// DFC-405 -- the three things about the length that nothing held
 // ===========================================================================
 
-describe('D-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of its lane', () => {
+describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of its lane', () => {
   it('⭐⭐ ① an overflowing document gets a grip of exactly that fraction', () => {
     // ⛔⛔ THE TWO BREAKAGES THIS CASE IS WRITTEN FOR, both measured as taking
     // ZERO cases red on 2026-09-08: HALVING the length, and giving the grip the

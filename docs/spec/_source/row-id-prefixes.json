@@ -187,14 +187,6 @@
    }
   },
   {
-   "prefix": "D",
-   "words": "Defect",
-   "owner": "records",
-   "means": {
-    "ja": "台帳の欠陥（CR により `DFC-` へ改める途中であり、巡 1 で仕様書側は `DEV-` へ移った）"
-   }
-  },
-  {
    "prefix": "DC",
    "words": "Dual Cursor",
    "owner": "spec",
@@ -216,6 +208,14 @@
    "owner": "spec",
    "means": {
     "ja": "文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか"
+   }
+  },
+  {
+   "prefix": "DFC",
+   "words": "Defect",
+   "owner": "records",
+   "means": {
+    "ja": "台帳に載る欠陥（CR の巡 2 で `D-` から改めた綴りである）"
    }
   },
   {
@@ -454,6 +454,14 @@
    "owner": "spec",
    "means": {
     "ja": "画像の書き出しの規則の条"
+   }
+  },
+  {
+   "prefix": "JDG",
+   "words": "Judgement",
+   "owner": "records",
+   "means": {
+    "ja": "利用者の裁定（CR の巡 2 で `R-` から改めた。⛔ `RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
    }
   },
   {
@@ -762,14 +770,6 @@
    "owner": "spec",
    "means": {
     "ja": "問いが示す文"
-   }
-  },
-  {
-   "prefix": "R",
-   "words": "",
-   "owner": "records",
-   "means": {
-    "ja": "利用者の裁定（CR により `JDG-` へ改める途中であり、巡 1 で仕様書側は `CHN-` へ移った）"
    }
   },
   {

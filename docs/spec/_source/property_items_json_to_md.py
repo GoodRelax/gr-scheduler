@@ -13,7 +13,7 @@ overwritten, and --check catches one before it can be committed.
 FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per
 language; until 2026-08-28 table T-016 carried an 項目名 column that the panel
 drew verbatim, which is why `strokeColor` and `fadeInDays` reached the screen
-as themselves (the user's reports D-81 and D-84). The shown name is now
+as themselves (the user's reports DFC-81 and DFC-84). The shown name is now
 display-words.json's `properties` section, keyed by the same PR row id, and
 what this table carries is the COLUMN -- the name in the file, which FR-006
 (MUST) keeps out of the reader's way.
@@ -162,7 +162,7 @@ def broken(cell):
     break a cell can carry.
 
     ⚠️ A quotation is never split: a `<br>` inside 「…」 would put a line break
-    in the middle of a verbatim, which is what ruling R-05's check caught.
+    in the middle of a verbatim, which is what ruling JDG-05's check caught.
     """
     out = []
     quoted = 0

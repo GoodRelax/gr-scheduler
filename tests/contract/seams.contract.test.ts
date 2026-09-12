@@ -180,7 +180,7 @@ describe('the values table T-206 keeps out of the document', () => {
     published.set(row.id, numbersOf(statedBy(row.by['既定'] ?? '')))
   }
 
-  // ⛔ EVERY `NOT_STORED_*` THIS SIDE OF IF-9, NOT A SAMPLE OF THEM. D-93 of the
+  // ⛔ EVERY `NOT_STORED_*` THIS SIDE OF IF-9, NOT A SAMPLE OF THEM. DFC-93 of the
   // defect ledger was raised as "S-140 has no test", and S-140 was one of 44
   // rows of table T-206 that nothing held: two constants were spread here and
   // eighteen were not, so a manuscript value could move and reach nothing while
@@ -189,7 +189,7 @@ describe('the values table T-206 keeps out of the document', () => {
   // ⚠️ The four in `dom-screen-surface.ts` and the three in `frame-loop.ts` are
   // NOT here: those units are Framework and reach for the DOM at module scope,
   // so importing them into a node-environment test loads a browser they do not
-  // have. They are the remaining debt of D-93, and the count below is what says
+  // have. They are the remaining debt of DFC-93, and the count below is what says
   // how much of the table is now held.
   const generated: Record<string, number | readonly [number, number]> = {
     ...NOT_STORED_SIZES,

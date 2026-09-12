@@ -5,33 +5,33 @@
 //
 // The first five the user reported, and all five are visible on the screen:
 //
-//   D-34   the retired word for a notice is gone from every word the screen prints
-//   D-45   resting on a task bar tells its name and its two dates
-//   D-72   the guide cursor can be switched to a crosshair and to one vertical line
-//   D-87   the palette-visibility entrance stands at the left end of the header
-//   D-160  the entrances at the head of the row title panel do not sit on top of each other
+//   DFC-34   the retired word for a notice is gone from every word the screen prints
+//   DFC-45   resting on a task bar tells its name and its two dates
+//   DFC-72   the guide cursor can be switched to a crosshair and to one vertical line
+//   DFC-87   the palette-visibility entrance stands at the left end of the header
+//   DFC-160  the entrances at the head of the row title panel do not sit on top of each other
 //
 // The last three stood at 「試験待ち」 on 2026-09-07 -- the build had landed and
 // been measured by hand, and the anchor was the only thing missing:
 //
-//   D-277  the `Panel Divider` line is one colour, on the screen and in the picture
-//   D-282  a loaded document's format version is compared with the greatest one known
-//   D-297  a zoom holds the date under the pointer, and the middle date without one
+//   DFC-277  the `Panel Divider` line is one colour, on the screen and in the picture
+//   DFC-282  a loaded document's format version is compared with the greatest one known
+//   DFC-297  a zoom holds the date under the pointer, and the middle date without one
 //
 // The last three were written against clauses of `FR-016` that were settled on
 // 2026-09-07, one for each axis of the zoom and one for the row anchor:
 //
-//   D-375  magnifying the date axis stops with `S-229` days still on the screen
-//   D-374  magnifying the row axis stops before one row fills the `Row Area`
-//   D-366  a row-axis zoom leaves the row under the pointer where it was
+//   DFC-375  magnifying the date axis stops with `S-229` days still on the screen
+//   DFC-374  magnifying the row axis stops before one row fills the `Row Area`
+//   DFC-366  a row-axis zoom leaves the row under the pointer where it was
 //
-// ⚠️ D-277 HAS NO CASE IN THE FILE THAT NAMES IT.
+// ⚠️ DFC-277 HAS NO CASE IN THE FILE THAT NAMES IT.
 // `tests/system/divider-colour-corner-and-sticky-field.test.ts` judges the
 // SCREEN half of that row and declines the two-sided one in its own header,
 // citing a line of `image-exporter.ts` that has since moved: the hue now
 // travels to the exporter with the request. The two-sided case is here.
 //
-// ⛔ THE SIXTH ROW, D-116, HAS NO CASE HERE, AND THAT IS DELIBERATE. It asks
+// ⛔ THE SIXTH ROW, DFC-116, HAS NO CASE HERE, AND THAT IS DELIBERATE. It asks
 // that a row's name be given "the width the specification gives it", and two
 // MUSTs of the specification give it two different widths:
 //
@@ -162,7 +162,7 @@ const SOURCE_COLUMN = 3
  *
  * ⛔ THE WHOLE CELL IS READ, NOT ITS FIRST SPAN. An entrance may stand on
  * SEVERAL surfaces -- table T-109 has one row naming six of them -- and `bare`
- * refuses such a cell on purpose (`D-351`), which is what turned the two cases
+ * refuses such a cell on purpose (`DFC-351`), which is what turned the two cases
  * below red once that row grew its sixth surface. ⭐ Membership is the right
  * reading: the row belongs to every surface its cell names.
  *
@@ -272,7 +272,7 @@ interface Opened {
  * ⚠️ `locale` reaches `FR-038`: the requirement (MUST) has the application open
  * in the language chosen last and, when it cannot read one, in the language the
  * browser asks for. A context opened here has chosen none, so the locale
- * decides -- which is how the case for D-34 gets a Japanese screen.
+ * decides -- which is how the case for DFC-34 gets a Japanese screen.
  *
  * @purity non-pure
  */
@@ -374,7 +374,7 @@ async function readScreenTexts(page: Page): Promise<string[]> {
 }
 
 // ---------------------------------------------------------------------------
-// D-34 -- the word for a notice
+// DFC-34 -- the word for a notice
 // ---------------------------------------------------------------------------
 
 // ⚠️ The two Japanese words this row is about, built from their code points
@@ -441,7 +441,7 @@ function isJapanese(text: string): boolean {
 // which is 0 today and is what `FR-038` makes the whole of the answer, and the
 // screen, which has to be showing Japanese words for the walk to mean anything
 // (a run that found none fails as well).
-test('D-34: no word the screen can print, and none it does print, carries the retired word', async ({
+test('DFC-34: no word the screen can print, and none it does print, carries the retired word', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -508,7 +508,7 @@ test('D-34: no word the screen can print, and none it does print, carries the re
 })
 
 // ---------------------------------------------------------------------------
-// D-45 -- resting on a task bar
+// DFC-45 -- resting on a task bar
 // ---------------------------------------------------------------------------
 
 /** What `FR-092` row `EZ-6` (MUST) asks a rested pointer to be told, taken apart. */
@@ -601,7 +601,7 @@ async function restOnBar(
 // for, or it does not go away when the pointer moves, or two different tasks
 // are told the same thing. Table T-212 row `S-124` (2000 ms as this is written)
 // drives both waits: raise it in the manuscript and the case waits longer.
-test('D-45: resting on a task bar tells the task name and its two dates, and moving clears it', async ({
+test('DFC-45: resting on a task bar tells the task name and its two dates, and moving clears it', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -663,7 +663,7 @@ test('D-45: resting on a task bar tells the task name and its two dates, and mov
 })
 
 // ---------------------------------------------------------------------------
-// D-72 -- switching the guide cursor
+// DFC-72 -- switching the guide cursor
 // ---------------------------------------------------------------------------
 
 /** The cell of table T-202 row `S-66` that lists the modes `CU-3` allows. */
@@ -683,7 +683,7 @@ function guideMode(name: string): string {
 //
 // ⚠️ A FOURTH USED TO STAND. `S-66` records that `'double-vertical'` was
 // retired on 2026-09-06 by the user's ruling, and `CU-3` now forbids it (MUST
-// NOT) for the reason `docs/development-records/defects.md` row D-72 had
+// NOT) for the reason `docs/development-records/defects.md` row DFC-72 had
 // already given: nothing told it apart from `CU-2`. `guideMode` above is what
 // keeps this file honest -- a mode `S-66` does not offer cannot be named here.
 const GUIDE_NONE = guideMode('none')
@@ -753,7 +753,7 @@ async function movePointerTo(page: Page, at: { x: number; y: number }): Promise<
 // vertical line is one -- and the two entrances are looked up in table T-109 by
 // the value of `S-66` each one sets, so renaming or renumbering them moves the
 // case.
-test('D-72: the guide cursor can be switched to a crosshair and to a single vertical line', async ({
+test('DFC-72: the guide cursor can be switched to a crosshair and to a single vertical line', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -829,7 +829,7 @@ test('D-72: the guide cursor can be switched to a crosshair and to a single vert
 })
 
 // ---------------------------------------------------------------------------
-// D-87 -- where the palette-visibility entrance stands in the header
+// DFC-87 -- where the palette-visibility entrance stands in the header
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the entrance that shows and hides the command palette stops
@@ -840,7 +840,7 @@ test('D-72: the guide cursor can be switched to a crosshair and to a single vert
 // at the left end of the `App Header` -- the user's instruction of 2026-08-27,
 // "move it to the far left, to the left of the file reading and writing". So
 // moving the row in the manuscript moves this case with it.
-test('D-87: the header stands its entrances in the order of table T-109, palette first', async ({
+test('DFC-87: the header stands its entrances in the order of table T-109, palette first', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -851,7 +851,7 @@ test('D-87: the header stands its entrances in the order of table T-109, palette
     expect(
       listed[0],
       'table T-109 no longer lists the palette-visibility entrance first among the header rows, so ' +
-        'the manuscript and this case disagree about what D-87 asked for',
+        'the manuscript and this case disagree about what DFC-87 asked for',
     ).toBe(palette)
 
     const boxes = await readEntranceBoxes(app.page, listed)
@@ -875,7 +875,7 @@ test('D-87: the header stands its entrances in the order of table T-109, palette
 })
 
 // ---------------------------------------------------------------------------
-// D-160 -- the entrances at the head of the row title panel
+// DFC-160 -- the entrances at the head of the row title panel
 // ---------------------------------------------------------------------------
 
 /**
@@ -906,7 +906,7 @@ function doBoxesOverlap(one: Box, two: Box): boolean {
 // level, close all, open all, add. What the user hit on 2026-08-30 was two of
 // them 6px on top of each other, which is precisely what a pitch shorter than
 // that width means.
-test('D-160: the entrances at the head of the row title panel stand apart, in order', async ({
+test('DFC-160: the entrances at the head of the row title panel stand apart, in order', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -915,7 +915,7 @@ test('D-160: the entrances at the head of the row title panel stand apart, in or
     // ⛔ THE HEAD'S FOUR, NOT EVERY ENTRANCE TABLE T-109 PUTS ON THE PANEL.
     // Table T-051 (below `HF-18`) says the head holds four entrances and a row
     // holds seven, and names the four: `HF-16`, `HF-12`, `HF-10`, `HF-17`. The
-    // seven a row holds are drawn beside each row's name and are not what D-160
+    // seven a row holds are drawn beside each row's name and are not what DFC-160
     // is about.
     const head = PANEL_HEAD_ORDER.map(entranceRuledBy)
     const onPanel = entrancesOnSurface('Row Title Panel')
@@ -1008,7 +1008,7 @@ async function openTheAgentApi(page: Page): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// D-277 -- the Panel Divider's line is ONE colour, screen and picture alike
+// DFC-277 -- the Panel Divider's line is ONE colour, screen and picture alike
 // ---------------------------------------------------------------------------
 
 /** One `Panel Divider` line, as the screen paints it and as the picture paints it. */
@@ -1144,7 +1144,7 @@ async function dividerColoursOnBothSides(
 
 // GOES RED IF: the shape the exported picture draws where the screen draws a
 // `Panel Divider` line is filled with anything but the colour the screen paints
-// that same line with, for the SAME open document -- which is what D-277 was:
+// that same line with, for the SAME open document -- which is what DFC-277 was:
 // measured 2026-09-07 through `AM-13`, the screen painted `rgb(217, 221, 226)`
 // and the picture filled `hsl(0 14% 87%)`, because the hue never reached the
 // exporter. It also goes red if the picture holds no shape at all where the
@@ -1156,14 +1156,14 @@ async function dividerColoursOnBothSides(
 // `WY-2` of table T-041 ask of a written picture.
 //
 // ⛔ THE CASE REFUSES TO RUN AT A HUE OF 0, and that is deliberate: the whole of
-// D-277 was a zero standing in for `AT-19`, so at a document whose own hue is 0
+// DFC-277 was a zero standing in for `AT-19`, so at a document whose own hue is 0
 // the broken build and the fixed one paint the same thing and this case would
 // pass on either.
 //
-// ⚠️ THE LINE'S THICKNESS IS A DIFFERENT ROW (`D-363`) and nothing here reads
+// ⚠️ THE LINE'S THICKNESS IS A DIFFERENT ROW (`DFC-363`) and nothing here reads
 // it: the shapes are paired by geometry, so a thickness the two sides agree on
 // is all this case needs of it.
-test('D-277: the picture fills the Panel Divider line with the colour the screen paints it', async ({
+test('DFC-277: the picture fills the Panel Divider line with the colour the screen paints it', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1186,7 +1186,7 @@ test('D-277: the picture fills the Panel Divider line with the colour the screen
       reading.hue,
       'the open document carries a hue of 0, and at that hue the build that dropped AT-19 on the ' +
         'way to the exporter paints exactly what the fixed one paints -- this case would pass on ' +
-        'either, so it refuses to stand as an anchor for D-277',
+        'either, so it refuses to stand as an anchor for DFC-277',
     ).not.toBe(0)
     expect(
       reading.pairs.length,
@@ -1210,7 +1210,7 @@ test('D-277: the picture fills the Panel Divider line with the colour the screen
 })
 
 // ---------------------------------------------------------------------------
-// D-282 -- a loaded document's schemaVersion is compared with something
+// DFC-282 -- a loaded document's schemaVersion is compared with something
 // ---------------------------------------------------------------------------
 
 /** The bundled startup template, whose own `schemaVersion` is the greatest version this build knows. */
@@ -1226,7 +1226,7 @@ const STARTUP_TEMPLATE = join(
  * The one module `FR-073`'s comparison lives in, as the dev server serves it.
  *
  * ⛔ REACHED THROUGH THE PAGE AND NOT IMPORTED HERE, and that is not a
- * convenience. What D-282 built is a road with two ends -- the version the
+ * convenience. What DFC-282 built is a road with two ends -- the version the
  * build knows, which only the running application can hand over (`AM-2`), and
  * the reading the codec answers with -- and pressing the codec from Node would
  * judge one end against a version this file chose. The dev server serves the
@@ -1315,7 +1315,7 @@ async function versionReadings(
 
 // GOES RED IF: a document whose format version is later than the greatest one
 // this build knows is read as anything but `newerThanKnown`, or one that is not
-// later is read as anything but `known` -- which is what D-282 was: nothing
+// later is read as anything but `known` -- which is what DFC-282 was: nothing
 // under `tests/` pressed any of it, and until 2026-09-07 all four callers left
 // the version out altogether, so every road answered `notCompared`. It also
 // goes red if `AM-2` stops answering with the bundled startup template's own
@@ -1325,7 +1325,7 @@ async function versionReadings(
 // has the columns that could not be read shown and the reader asked whether to
 // go on; nothing counts those columns yet, and that is a different wave and a
 // different row of the ledger.
-test('D-282: a document later than the build reads as newerThanKnown, and one that is not reads as known', async ({
+test('DFC-282: a document later than the build reads as newerThanKnown, and one that is not reads as known', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1373,7 +1373,7 @@ test('D-282: a document later than the build reads as newerThanKnown, and one th
 })
 
 // ---------------------------------------------------------------------------
-// D-297 -- the centre a zoom is taken about
+// DFC-297 -- the centre a zoom is taken about
 // ---------------------------------------------------------------------------
 
 /** One tick of the time ruler: the day it stands on, and where it stands. */
@@ -1490,13 +1490,13 @@ function dayUnder(axis: TimeAxis, x: number): string {
 // names the row under the cursor as well, and the row axis is not written: it
 // is not linear in the zoom, so the row a zoom lands on cannot be had without
 // running the placement again, which table T-068 allows only for `FR-055`. That
-// half is `D-366` of the ledger and is waiting on a ruling.
+// half is `DFC-366` of the ledger and is waiting on a ruling.
 //
 // ⚠️ THE POINTER IS PARKED AWAY FROM THE MIDDLE for the keyboard half, so that
 // a build which centred every zoom on the pointer would move the middle's date
 // and be caught. The wheel half asks for the opposite: its x is a day's middle
 // well away from the `Row Area`'s own middle.
-test('D-297: a zoom holds the date under the pointer, and the middle date when there is no pointer', async ({
+test('DFC-297: a zoom holds the date under the pointer, and the middle date when there is no pointer', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1615,7 +1615,7 @@ async function visibleDaysNow(page: Page, canvas: string, what: string): Promise
 // both windows and show FEWER than `S-229` days on the narrower one.
 //
 // ⭐⭐ THE CLAUSES THIS CASE HOLDS, IN THE MANUSCRIPT'S OWN CHARACTERS. `FR-016`
-// gained them on 2026-09-07 and the ledger row `D-377` booked the debt of
+// gained them on 2026-09-07 and the ledger row `DFC-377` booked the debt of
 // having written them with no test carrying their words; each line below is the
 // text of `docs/spec/01-04-requirements.md` ending at the marker, copied and
 // not paraphrased, so that moving any of them moves this file too:
@@ -1627,10 +1627,10 @@ async function visibleDaysNow(page: Page, canvas: string, what: string): Promise
 //   る。**⛔ **日数を `src/` に打ち込んではならない（MUST NOT）
 //
 // ⛔ THE ROW AXIS'S OWN CEILING IS NOT AMONG THEM AND MUST NOT BE ADDED UNTIL IT
-// IS BUILT: `D-374` is not fixed in this tree, and a clause quoted by a test
+// IS BUILT: `DFC-374` is not fixed in this tree, and a clause quoted by a test
 // that does not exercise it is the debt this check was raised against, paid in
 // appearance only.
-test('D-375: magnifying the date axis stops with S-229 days still on the screen', async ({
+test('DFC-375: magnifying the date axis stops with S-229 days still on the screen', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1772,7 +1772,7 @@ async function canvasBoxNow(page: Page): Promise<
  * as the panel's remaining height and stops moving -- 977px on a 1080px window
  * and 597px on a 700px one, on a build with NO ceiling at all. A case built on
  * this number is green against the very defect it was written for, which is how
- * the first draft of `D-374`'s case passed against the unfixed tree.
+ * the first draft of `DFC-374`'s case passed against the unfixed tree.
  *
  * @purity pure
  */
@@ -1917,8 +1917,8 @@ function rowAreaSpanOf(
 //
 // ⛔ THE CLAUSES THIS CASE DOES NOT REACH ARE NOT QUOTED: 「字の大きさを 2 つ比べ
 // て決めてはならない」 cannot be told apart from any other formula by what reaches
-// the screen, and the ROW-anchor clauses belong to `D-366` below.
-test('D-374: magnifying the row axis stops before one row fills the Row Area', async ({
+// the screen, and the ROW-anchor clauses belong to `DFC-366` below.
+test('DFC-374: magnifying the row axis stops before one row fills the Row Area', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -2117,7 +2117,7 @@ const TRANSLATOR_SOURCE = join(
 // ⛔ AND ONE IT DOES NOT: 「その倍率での行の位置を答えるメンバを、表 T-064 の
 // `PI-5` に置くこと（MUST）」 says WHERE a member sits, and nothing that reaches
 // this case can see a table of published names. Check 26b is what holds it.
-test('D-366: one notch of the row-axis zoom leaves the row under the pointer where it was', async ({
+test('DFC-366: one notch of the row-axis zoom leaves the row under the pointer where it was', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -2198,17 +2198,17 @@ test('D-366: one notch of the row-axis zoom leaves the row under the pointer whe
 
 /** The ledger rows the cases above hold down. */
 const HELD: readonly string[] = [
-  'D-34',
-  'D-45',
-  'D-72',
-  'D-87',
-  'D-160',
-  'D-277',
-  'D-282',
-  'D-297',
-  'D-366',
-  'D-374',
-  'D-375',
+  'DFC-34',
+  'DFC-45',
+  'DFC-72',
+  'DFC-87',
+  'DFC-160',
+  'DFC-277',
+  'DFC-282',
+  'DFC-297',
+  'DFC-366',
+  'DFC-374',
+  'DFC-375',
 ]
 
 /**

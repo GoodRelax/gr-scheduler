@@ -14,7 +14,7 @@
 // ⚠️ THIS COMMENT USED TO SAY 「64..148px (FR-042)」 AND THAT WAS NOT IN THE
 // SPECIFICATION. `FR-042` states one thing about the number a row carries --
 // 「指定した高さは下限として扱うこと（MUST）」 -- and no range at all. The
-// invented range hid D-225 for a round: a row holding no `Task` is 22..28px,
+// invented range hid DFC-225 for a round: a row holding no `Task` is 22..28px,
 // which is smaller than the 48px lattice of `HF-1` standing on it, and a
 // reader who believed the floor was 64 would not look for that case.
 import { chromium, openSample, openApp, SAMPLE_TREE } from './sample-and-app.mjs'
@@ -480,16 +480,16 @@ const whyKnown = (what) =>
  * ⚠️ EMPTY TODAY, AND MEASURED SO. All four of the defects the user pressed out
  * of the shipped build on 2026-09-01 have since been closed:
  *
- *   D-06   a comment box could not be placed. One seam was missing: the armed
+ *   DFC-06   a comment box could not be placed. One seam was missing: the armed
  *          comment-box entrance planned no command at all. Fixed and measured.
- *   D-147  the watermark entrance was inert -- `ENTRY` had no key for IC-41, so
+ *   DFC-147  the watermark entrance was inert -- `ENTRY` had no key for IC-41, so
  *          the press reached every member and changed nothing. FR-020 now
  *          raises U-60 `Watermark Unlock` and the press writes the setting.
- *   D-181  never a defect. The row bands do not move; two LANES inside one band
+ *   DFC-181  never a defect. The row bands do not move; two LANES inside one band
  *          trade, which is table T-014's ST-2 ordering and ST-3's greedy pass
  *          doing what they say, and Ctrl+Y reproduces the trade with no pointer
  *          in it -- so it belongs to the document, not to holding the grab.
- *   D-182  a bar's dummy ignored where it was dropped. FR-043 now says the
+ *   DFC-182  a bar's dummy ignored where it was dropped. FR-043 now says the
  *          dropped day is the actual start, and the code writes it.
  *
  * ⛔ SO THEY ARE NOT PINNED ANYWHERE ANY MORE. `PINNED` in
@@ -511,7 +511,7 @@ const KNOWN_DEFECTS = [
   // {
   //   move: 'Phone App:hideSelf',  // spelled exactly as `say(step)` spells it
   //   reading: 'rows  ',           // one of READINGS
-  //   ledger: 'D-000',             // the row of docs/development-records/defects.md
+  //   ledger: 'DFC-000',             // the row of docs/development-records/defects.md
   //   wrong: 'one line saying what the product does instead',
   // },
 ]
@@ -549,7 +549,7 @@ function theMechanismWorks() {
   const pretend = [{
     move: 'head:headOne',
     reading: 'counts',
-    ledger: 'D-000',
+    ledger: 'DFC-000',
     wrong: 'a pretend entry, used by this self-check and nowhere else',
   }]
   const complaints = []
@@ -590,7 +590,7 @@ function theDefectListIsUsable() {
   const complaints = []
   for (const one of KNOWN_DEFECTS) {
     const who = `${one.ledger ?? '(no ledger row)'} ${one.move ?? '(no move)'}`
-    if (typeof one.ledger !== 'string' || /^D-\d+$/.test(one.ledger) === false) {
+    if (typeof one.ledger !== 'string' || /^DFC-\d+$/.test(one.ledger) === false) {
       complaints.push(`${who} names no row of docs/development-records/defects.md`)
     }
     if (typeof one.wrong !== 'string' || one.wrong.trim() === '') {

@@ -18,7 +18,7 @@
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROW IT STANDS IN FOR
 // ---------------------------------------------------------------------------
 //
-// `docs/development-records/defects.md` D-66: 「GRS の JSON を 2 回目に保存でき
+// `docs/development-records/defects.md` DFC-66: 「GRS の JSON を 2 回目に保存でき
 // ない」（利用者の指摘 2026-08-27）, whose 詳細状況 column records that the save
 // itself was never broken -- 「2 回目は保存できている —— 見えないだけである」 --
 // and that the one line at fault threw the answer away: 「`saveHeldDocument
@@ -405,7 +405,7 @@ describe('FR-101 (MUST) -- a document that has never been in a file', () => {
 
 describe('FR-101 (MUST) -- once one save has succeeded', () => {
   it('⛔ the header names the very file that was written', async () => {
-    // ⭐⭐ THE CASE D-66 ASKS FOR. 「いま開いているファイルの名前 … を画面上に示す
+    // ⭐⭐ THE CASE DFC-66 ASKS FOR. 「いま開いているファイルの名前 … を画面上に示す
     // こと（MUST）」. The store answered the save with the file it wrote; an
     // implementation that returns as soon as the write succeeded -- 「`if
     // (saving.ok) return` が `DocumentFileSaving.openedFile` を捨てていた」 --

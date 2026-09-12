@@ -1,5 +1,5 @@
 // 表 T-051 の `HF-17` and `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-346 then
-// CR-348, ledger row D-243): 「行を足す操作が、行の名前を変える操作と同じ操作感で
+// CR-348, ledger row DFC-243): 「行を足す操作が、行の名前を変える操作と同じ操作感で
 // あること」 -- adding a row at 段 0 (the panel's head, `HF-17`) must feel exactly
 // like renaming one already on the panel (`FR-085`'s double-click path).
 //
@@ -66,7 +66,7 @@
 //   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new row is
 //      visible. Those are `HF-14`'s OWN separate MUSTs (「その行が描かれるまで
 //      詳しさの段を開くこと」 and 「立てた行が…畳んだ親の下に入るときは、その親を
-//      開くこと」), argued and measured independently (`D-237`); they are not
+//      開くこと」), argued and measured independently (`DFC-237`); they are not
 //      part of what makes the OPERATION feel like a rename, which is this
 //      file's one question.
 //   2. THE DEPTH-CAP REFUSAL (`RS-46`, faint entrance). That is
@@ -596,7 +596,7 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
   })
 
   it('⛔ neither press needs a second input to create the row -- one press is the whole operation', () => {
-    // ⚠️ THE DEFECT THIS GUARDS AGAINST (D-237 / the withdrawn model): a press
+    // ⚠️ THE DEFECT THIS GUARDS AGAINST (DFC-237 / the withdrawn model): a press
     // used to open an input box that created nothing until a later `Enter`.
     // `press()` above sends only pointer down and up -- if a case needed more
     // than that to see the row count change, this line would have said so.
@@ -608,10 +608,10 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
 })
 
 // ===========================================================================
-// The core of D-243: the road is FR-085s own -- same ask, same editable field
+// The core of DFC-243: the road is FR-085s own -- same ask, same editable field
 // ===========================================================================
 
-describe('D-243 (利用者の裁定 2026-09-03): adding a row feels exactly like renaming one', () => {
+describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly like renaming one', () => {
   it('⭐⭐ HF-17: the press opens the panel already turned to the new row, asking to focus AT-53', () => {
     const built = stage()
     expect(built.panel(), 'nothing is open before the press').toBeNull()
@@ -642,7 +642,7 @@ describe('D-243 (利用者の裁定 2026-09-03): adding a row feels exactly like
   })
 
   it('⭐⭐⭐ the literal comparison: HF-17s press and FR-085s rename ask the SAME thing of the SAME field', () => {
-    // ⭐ THIS IS D-243 ITSELF, MADE OBSERVABLE: two different presses, on two
+    // ⭐ THIS IS DFC-243 ITSELF, MADE OBSERVABLE: two different presses, on two
     // different rows, land on identical shapes at this seam -- which is what
     // 「操作感を合わせろ」 asks for at the one seam a Unit test can read it at.
     const added = stage()

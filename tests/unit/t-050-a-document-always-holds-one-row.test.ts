@@ -1,5 +1,5 @@
 // Unit tests for the invariant printed under table T-050 of
-// docs/spec/01-04-requirements.md (利用者の指示 2026-09-01, ledger row D-175):
+// docs/spec/01-04-requirements.md (利用者の指示 2026-09-01, ledger row DFC-175):
 //
 //   「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」
 //   「ある操作の結果として行が 0 になるときは、その操作の一部として、深さ `L1`

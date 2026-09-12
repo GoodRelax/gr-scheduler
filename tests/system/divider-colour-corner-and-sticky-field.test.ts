@@ -2,12 +2,12 @@
 // 「試験待ち」 on 2026-09-06: the build landed and nothing automated holds it
 // down.
 //
-//   D-277  the `Panel Divider`'s line colour. `PND-51` (2026-09-06) ruled that
+//   DFC-277  the `Panel Divider`'s line colour. `PND-51` (2026-09-06) ruled that
 //          no literal is laid down and `SvgRenderer` is asked instead, so what
 //          is judged here is the colour table T-236 row `S-149` states.
-//   D-314  the road from the manuscript's `S-132` (table T-217) into the tree.
+//   DFC-314  the road from the manuscript's `S-132` (table T-217) into the tree.
 //          The row asks that moving the manuscript move the drawn corner.
-//   D-349  the comment box's body field, `PR-21` of table T-016, and the
+//   DFC-349  the comment box's body field, `PR-21` of table T-016, and the
 //          control `FR-006` (MUST) gives it.
 //
 // ⛔ NO SENTENCE OF THE MANUSCRIPT IS QUOTED OR TRANSLATED HERE. Rule 03
@@ -31,7 +31,7 @@
 //
 // ⛔ WHAT WAS READ OF `src/`: the GENERATED block that holds
 // `NOT_STORED_ANNOTATION_SIZES`, which `tools/generate_entity_types.py` writes
-// out of `_source/settings.json`, and nothing else. D-314 is about whether that
+// out of `_source/settings.json`, and nothing else. DFC-314 is about whether that
 // road exists at all, so the constant IS the thing under judgement and not a
 // source of expectations; its expected value comes from table T-217. ⚠️ Read as
 // text rather than imported, the way
@@ -47,7 +47,7 @@
 // not `dist/index.html`: this checkout carries no build, and a file that throws
 // in `beforeAll` holds nothing down.
 //
-// ⚠️⚠️ ONE CASE THIS FILE DELIBERATELY DOES NOT CARRY. D-277 asks that the
+// ⚠️⚠️ ONE CASE THIS FILE DELIBERATELY DOES NOT CARRY. DFC-277 asks that the
 // screen, the exported picture and the grid lines read ONE colour. Measured
 // 2026-09-07 on the dev server, through `AM-13` of table T-107: the screen
 // resolves `S-149` at the open document's own hue and paints
@@ -312,7 +312,7 @@ function generatedNumber(file: string, constant: string, rowId: string): number 
   if (holding.length !== 1) {
     throw new Error(
       `${file} has ${holding.length} generated blocks declaring ${constant}, and this file ` +
-        'needs exactly one -- the road D-314 is about is not there',
+        'needs exactly one -- the road DFC-314 is about is not there',
     )
   }
   const found = new RegExp(`'${rowId}':\\s*(-?\\d+(?:\\.\\d+)?)`).exec(holding[0] ?? '')
@@ -554,11 +554,11 @@ async function openTheAgentApi(page: Page): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// D-314 -- the road from the manuscript's S-132 into the tree
+// DFC-314 -- the road from the manuscript's S-132 into the tree
 // ---------------------------------------------------------------------------
 
 // GOES RED IF: the corner radius the tree carries stops being the one table
-// T-217 row `S-132` states -- which is what D-314 was. The row's own reading on
+// T-217 row `S-132` states -- which is what DFC-314 was. The row's own reading on
 // 2026-09-05 was that `S-132` reached `src/` through no road at all and the
 // number was a copy cut off from the manuscript, so this case judges the ROAD:
 // the constant `tools/generate_entity_types.py` writes out of
@@ -580,7 +580,7 @@ test(`S-132: the tree carries the corner radius table T-217 states (${CORNER_RAD
 // one table T-217 row `S-132` states. `FR-019` (MUST) sends that radius to
 // table T-217 and has it drawn the same at every zoom.
 //
-// ⭐ THIS IS THE SECOND HALF OF D-314's ROAD, and it is pressed on the DEV
+// ⭐ THIS IS THE SECOND HALF OF DFC-314's ROAD, and it is pressed on the DEV
 // SERVER. `tests/system/three-rows-read-from-the-spec-alone.test.ts` judges the
 // same requirement on `dist/index.html`, which a checkout without a build does
 // not have -- and a case that cannot run holds nothing down (rule 04 section
@@ -630,7 +630,7 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
 })
 
 // ---------------------------------------------------------------------------
-// D-277 -- the colour the Panel Divider's line is drawn with
+// DFC-277 -- the colour the Panel Divider's line is drawn with
 // ---------------------------------------------------------------------------
 
 /** What one element of the screen is painted with. */
@@ -676,7 +676,7 @@ async function dividerLines(page: Page): Promise<Painted[]> {
 // GOES RED IF: the screen paints a `Panel Divider`'s line with anything but the
 // colour table T-236 row `S-149` states, resolved at the hue the OPEN DOCUMENT
 // carries (`AT-19`). That row is marked 色相追随, which is guarded below, and
-// D-277 was three different colours standing where that one row should be --
+// DFC-277 was three different colours standing where that one row should be --
 // `PND-51` (2026-09-06) ruled that no literal is laid down and the colour is
 // asked for instead.
 //
@@ -752,7 +752,7 @@ test('S-149: the screen paints the Panel Divider line with the colour table T-23
 })
 
 // ---------------------------------------------------------------------------
-// D-349 -- the comment box's body field, and the control FR-006 gives it
+// DFC-349 -- the comment box's body field, and the control FR-006 gives it
 // ---------------------------------------------------------------------------
 
 /** One field the Properties Panel is drawing, and the controls inside it. */
@@ -770,7 +770,7 @@ interface Field {
  * The fields the Properties Panel is drawing right now.
  *
  * ⭐ A CONTROL IS `[data-field-kind]` INSIDE `[data-field-row]`, which is the
- * marking the neighbouring System files already lean on. D-349 was a field that
+ * marking the neighbouring System files already lean on. DFC-349 was a field that
  * stood with none.
  *
  * ⭐ MULTI-LINE IS ASKED OF THE ELEMENT AND NOT OF ITS SPELLING: what table
@@ -806,7 +806,7 @@ async function panelFields(page: Page): Promise<Field[]> {
 }
 
 // GOES RED IF: the comment box's body field stands in the Properties Panel with
-// no control, which is what D-349 was, or with a control of the wrong form.
+// no control, which is what DFC-349 was, or with a control of the wrong form.
 // `FR-006` (MUST) has the panel show the rows of table T-016 whose 対象 matches
 // what is selected, (MUST NOT) show any other, and (MUST) give each the form
 // its 入力の型 column names; `S-193` of table T-206 fixes how many lines a
@@ -873,7 +873,7 @@ test(`PR-21 / FR-006: the comment box's field carries the control table T-016 na
       const drawn = field as Field
       expect(
         drawn.controls.length,
-        `FR-006 / D-349: table T-016 row ${row} marks no read-only, so its field carries a ` +
+        `FR-006 / DFC-349: table T-016 row ${row} marks no read-only, so its field carries a ` +
           `control; what it carried was ${JSON.stringify(drawn)}`,
       ).toBeGreaterThan(0)
 

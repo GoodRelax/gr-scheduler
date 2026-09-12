@@ -103,7 +103,7 @@ RETIRED = {'FR-050', 'T-030',
            # true of the day it was written.
            # ⚠️ CM-41 is once again a command no human entrance reaches. It is
            # still reachable through the Agent API, so the notice requirement
-           # that names it is not stranded -- but ledger row D-273, which asked
+           # that names it is not stranded -- but ledger row DFC-273, which asked
            # for the human path, is answered by the ruling, not by a row.
            'AS-11',
            # S-93 (the dummies' own hit box, 30px) went on 2026-09-10 with the

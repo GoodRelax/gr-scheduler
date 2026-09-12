@@ -699,7 +699,7 @@ function thinStroke(planHeight: number, settings: DocumentSettings): number {
  * How far SH-3's head or SH-4's end dot reaches above (or below) the
  * stroke's own middle -- the same two formulas `lineBar` draws the picture
  * with, read again here because `labelTopOf` needs the shape's outer edge
- * and not a `BarGeometry` to measure it from (D-55, 裁定 C1).
+ * and not a `BarGeometry` to measure it from (DFC-55, 裁定 C1).
  *
  * @purity pure
  */

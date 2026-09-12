@@ -10,7 +10,7 @@
 //
 //   IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**」
 //
-// ⚠️⚠️ 選択 JOINED THE LADDER ON 2026-09-08 (利用者の裁定, ledger D-398), between
+// ⚠️⚠️ 選択 JOINED THE LADDER ON 2026-09-08 (利用者の裁定, ledger DFC-398), between
 // 構え and `Dual Cursor` モード. The rung above the foot therefore moved, and the
 // premise cases below were red until this file was re-read against the row.
 // ⛔ THE ROW PUTS ITS PLACE AS A MUST NOT -- 「構えより前に置いてはならない
@@ -19,7 +19,7 @@
 // ⭐⭐ THE TWO ROWS ARE ONE RULE. IN-4's own reason says the explanation is put
 // last BECAUSE IN-3's 「消せること」 has no other way to be met -- so a build
 // where the rung exists but nothing spends it satisfies neither, and that is
-// precisely what ledger row D-307 measured on the shipped build (2026-09-05:
+// precisely what ledger row DFC-307 measured on the shipped build (2026-09-05:
 // with an explanation standing over IC-7, `Esc` left it standing, twice).
 //
 // ---------------------------------------------------------------------------
@@ -30,7 +30,7 @@
 //   `tooltipsFromScreenView`   (UF-69 of table T-075, component
 //                              `ScreenRenderer`, CP-19 of table T-062)
 //                              -- whether an explanation is still answered.
-// ⛔ ONE WITHOUT THE OTHER PROVES NOTHING, and D-307's own record is the
+// ⛔ ONE WITHOUT THE OTHER PROVES NOTHING, and DFC-307's own record is the
 // argument: the rung was added on 2026-09-05 and the behaviour did not change,
 // because the raiser answered the same explanation from the same rest and the
 // same place on the very next frame. A file that only asked `escapeTarget`
@@ -85,7 +85,7 @@
 //     tests/unit/uf-69.test.ts drives them; a case here that compared text
 //     would be measuring the wrong member.
 //   - IN-3's other two thirds (ポインタを乗せられること / 引き金が外れるまで
-//     出ていること). D-307 is about the first, and the third is a geometry and
+//     出ていること). DFC-307 is about the first, and the third is a geometry and
 //     a rest that uf-69.test.ts already holds.
 //   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against 選択. IN-4
 //     gives the panel no rung of its own, and asserting an order the manuscript
@@ -156,7 +156,7 @@ const IN_4_THE_LADDER =
   'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 
 /**
- * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ D-398 is the
+ * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ DFC-398 is the
  * ledger row it closes, and the row gives the reason in the same breath.
  */
 const IN_4_SELECTION_NOT_ABOVE_THE_ARM =
@@ -174,7 +174,7 @@ const IN_4_NO_PANEL_CONDITION =
 const IN_4A_TO_THE_BROWSER =
   '\n| IN-4a | **消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**'
 
-/** The half of IN-3 D-307 is about, quoted as the row writes it. */
+/** The half of IN-3 DFC-307 is about, quoted as the row writes it. */
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること'
 
 /** The reason IN-4 gives for putting it last, which is why the two rows travel together. */
@@ -316,7 +316,7 @@ const shownFor = (session: ScreenSession): readonly Tooltip[] =>
 // 4. The premises every case below stands on
 // ===========================================================================
 
-describe('D-307 -- the manuscript these cases are driven by', () => {
+describe('DFC-307 -- the manuscript these cases are driven by', () => {
   it('still asks (MUST) that a standing explanation can be put away', () => {
     expect(REQUIREMENTS).toContain(IN_3_THE_THREE)
     expect(REQUIREMENTS).toContain(IN_3_CAN_BE_PUT_AWAY)
@@ -332,12 +332,12 @@ describe('D-307 -- the manuscript these cases are driven by', () => {
     expect(at.every((where) => where >= 0), IN_4_THE_LADDER).toBe(true)
     expect([...at].sort((a, b) => a - b)).toEqual([...at])
     expect(LADDER_AS_PRINTED[LADDER_AS_PRINTED.length - 1]).toBe('出ている説明')
-    // 「`Dual Cursor` モード → 出ている説明」 -- the one adjacency D-307 turns on.
+    // 「`Dual Cursor` モード → 出ている説明」 -- the one adjacency DFC-307 turns on.
     expect(IN_4_THE_LADDER).toContain('`Dual Cursor` モード → 出ている説明')
   })
 
   it('still puts 選択 between 構え and the Dual Cursor mode, and still forbids it above 構え', () => {
-    // ⭐ D-398. The rung joined the row on 2026-09-08 and the two clauses below
+    // ⭐ DFC-398. The rung joined the row on 2026-09-08 and the two clauses below
     // are what fix its place; a re-wording of either takes this file red before
     // any behaviour case runs.
     expect(IN_4_THE_LADDER).toContain('構え → 選択 → `Dual Cursor` モード')
@@ -431,7 +431,7 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
 })
 
 // ===========================================================================
-// 9. ⭐ D-398 -- 選択 is a rung, it sits below 構え, and it is above the mode
+// 9. ⭐ DFC-398 -- 選択 is a rung, it sits below 構え, and it is above the mode
 // ===========================================================================
 //
 // Exported declarations read for this section and section 10, and nothing else:
@@ -513,7 +513,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
     // the ORDER, not by a second question.
     const withPanel = contextOf({ isSelectionStanding: true, isPropertiesPanelOpen: true })
     expect(escapeTarget(emptyScreenState(), withPanel)).toBe('propertiesPanel')
-    // ⭐ AND THE SELECTION IS STILL THERE FOR THE NEXT PRESS -- D-398's whole
+    // ⭐ AND THE SELECTION IS STILL THERE FOR THE NEXT PRESS -- DFC-398's whole
     // measurement was that the second press found nothing and fell to IN-4a.
     expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
       'selection',
@@ -528,7 +528,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
 
   it('and the rung is actually SPENT: the press that names it clears the selection', () => {
     // ⛔ WITHOUT THIS THE FIVE CASES ABOVE PROVE ONLY THAT A NAME WAS ANSWERED.
-    // D-307's own record is the argument: a rung was added there in 2026-09-05
+    // DFC-307's own record is the argument: a rung was added there in 2026-09-05
     // and the behaviour did not change, because nobody spent it.
     // ⭐ `selectionFromInput` is the member that answers the selection (UN-9
     // keeps it out of the document), so this is where the rung is spent.
@@ -556,12 +556,12 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
 })
 
 // ===========================================================================
-// 10. ⭐ D-399 -- a double click on the ACTUAL reaches MK-13, not the grab
+// 10. ⭐ DFC-399 -- a double click on the ACTUAL reaches MK-13, not the grab
 // ===========================================================================
 //
 // ⚠️ A SECOND LEDGER ROW IN THIS FILE, AND THE REASON IS THE SAME RULING DAY.
-// D-398 and D-399 were measured together on 2026-09-08 and the manuscript
-// answered both in one pass; this section is D-399's anchor, and nothing above
+// DFC-398 and DFC-399 were measured together on 2026-09-08 and the manuscript
+// answered both in one pass; this section is DFC-399's anchor, and nothing above
 // it depends on anything below.
 //
 // THE ROWS THESE CASES REST ON
@@ -592,7 +592,7 @@ const T_023D_NOT_BY_THE_ORDER =
 /** ⭐ The regions table T-023d gives the actual, in the row order it prints them. */
 const THE_ACTUALS_GRABS = ['GR-5', 'GR-6', 'GR-15', 'GR-9', 'GR-17', 'GR-18'] as const
 
-/** GR-12, the body -- the entry MK-13 already sent to the name before D-399. */
+/** GR-12, the body -- the entry MK-13 already sent to the name before DFC-399. */
 const THE_BODY = 'GR-12'
 
 const pointerAt = (phase: PointerInput['phase'], clicks: number): PointerInput =>

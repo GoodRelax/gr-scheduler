@@ -11,7 +11,7 @@ it names has already been ruled.
 carries that back to the ledger cell, and nothing reads the two books together.
 
 ⚠️ MEASURED 2026-09-06: four items were handed out to bodies as un-ruled and
-re-worked from scratch when they had already been ruled. `D-270` is one of
+re-worked from scratch when they had already been ruled. `DFC-270` is one of
 them. Its 対応方針・決定仕様 cell opened 「⛔ 未検討。」 while `PND-178` had
 stood at 裁定済 since 2026-08-23 -- thirteen days -- carrying the answer
 (「値で返す。表 T-233 に行を新設する」) AND the name of the test that had to
@@ -45,7 +45,7 @@ WHAT COUNTS AS A HIT. Both of these true for the SAME `D-` row:
 ⭐ CONDITION 1 IS READ OUTSIDE QUOTATION AND OUTSIDE A DATED RECORD, through
 the same `asserts_any()` check 31 uses. A sentence opening 「⚠️ 実測（YYYY-MM-
 DD）」 records what was true on that day and is struck before the phrases are
-looked for (`D-367`, the user's ruling of 2026-09-07 on `PND-441`; the notation
+looked for (`DFC-367`, the user's ruling of 2026-09-07 on `PND-441`; the notation
 is written down in `docs/development-rules/04-verification.md` section 6.6).
 ⚠️ MEASURED 2026-09-07: this check's count did not move (3), because the three
 rows it still holds date their history in prose that does not carry the mark.
@@ -64,10 +64,10 @@ NOT only `PND- -> D-`:
 
   - A ruling may be recorded ONLY in the ledger cell (no PND row at all). That
     is check 31's axis, and check 31's STILL_BLOCKED list does not hold 未検討
-    nor its SETTLED list 裁定された -- so `D-301`, one of this session's four,
+    nor its SETTLED list 裁定された -- so `DFC-301`, one of this session's four,
     is caught by NEITHER check. Widening check 31's vocabulary is the fix
     there; it is not this check's job.
-  - A ruling may be recorded ONLY in a `change-request/CR-*.md`. `D-301` was
+  - A ruling may be recorded ONLY in a `change-request/CR-*.md`. `DFC-301` was
     ruled by `CR-364`, and its row names it. ⛔ MEASURED 2026-09-06: gating on
     "the row names a CR whose file names this D-row back" flags 38 rows, and a
     CR naming a `D-` row does not mean that row's question was RULED -- a CR
@@ -77,7 +77,7 @@ NOT only `PND- -> D-`:
     than silent.
 
 ⭐ The `PND- -> D-` direction is not usable either: 197 PND rows, and only 11 of
-them name a `D-nnn` in any cell (measured 2026-09-06). The ledger row naming
+them name a `DFC-nnn` in any cell (measured 2026-09-06). The ledger row naming
 its PND is the link that actually exists in the data.
 
     python .claude/skills/spec-graph-check/check-ruled-elsewhere.py [ledger ...]
@@ -134,7 +134,7 @@ LEDGER_CELLS = 11        # | ID | 不具合内容 | ... | 実物確認 |  -> 9 c
 PENDING_CELLS = 10       # | PND | 何が未決か | ... | 状態 |      -> 8 columns
 
 
-# 「表 T-023a の PTD-n」 -- the table row, not the pending decision. See D-468.
+# 「表 T-023a の PTD-n」 -- the table row, not the pending decision. See DFC-468.
 TABLE_ROW_PTD = re.compile(u'表 T-023a の [`]?PTD-\\d+[`]?')
 
 
@@ -191,7 +191,7 @@ def scan(ledger_path, settled):
     hits = []
     cr_only = []
     for line in io.open(ledger_path, encoding='utf-8'):
-        if not line.startswith('| D-'):
+        if not line.startswith('| DFC-'):
             continue
         cells = line.rstrip('\n').split('|')
         if len(cells) != LEDGER_CELLS:
@@ -200,7 +200,7 @@ def scan(ledger_path, settled):
         decided = cells[5]
         status = cells[6].strip().strip(u'` *')
 
-        # ⛔ READ OUTSIDE QUOTATION (`D-344`), the same way check 31 does.
+        # ⛔ READ OUTSIDE QUOTATION (`DFC-344`), the same way check 31 does.
         # A marker inside 「…」, 『…』 or a `code span` is a quoted
         # requirement, the name of a state, or the row dating its own older
         # text -- not this row's claim to be un-ruled. ⭐ The ステータス test
@@ -215,7 +215,7 @@ def scan(ledger_path, settled):
         # pending-decisions.md both wrote their rows `PD-n`, so a ledger row
         # saying 「表 T-023a の `PD-5`」 read here as naming pending decision
         # PD-5, and the row was judged against a ruling with nothing to do
-        # with it. That is D-468, and the session that wrote the row recording
+        # with it. That is DFC-468, and the session that wrote the row recording
         # the trap fell into it half an hour later.
         # ⚠️ MEASURED 2026-09-12: 0 rows of the open ledger and 5 of the closed
         # one carried that spelling, and all five named a real pending

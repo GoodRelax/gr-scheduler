@@ -4,10 +4,10 @@
 # 対応方針 still opened 「⛔ 未検討。」 long after the same cell went on to
 # name the clause -- the opener was a relic, not a claim, and it was struck
 # from 85 rows whose status is no longer 未検討. ⭐ The three that remain
-# (D-61, D-48, D-156) are 実測済 rows naming a PND that was ruled later; they
-# are records, and the check reads a record as a claim -- see D-367.
+# (DFC-61, DFC-48, DFC-156) are 実測済 rows naming a PND that was ruled later; they
+# are records, and the check reads a record as a claim -- see DFC-367.
 #
-# LOWERED 8 -> 7 ON 2026-09-06, the same day it was raised. D-301 was the
+# LOWERED 8 -> 7 ON 2026-09-06, the same day it was raised. DFC-301 was the
 # eighth: it named PND-343, which became 裁定済 when the guide cursor's second
 # vertical retired. The row now opens by saying the ruling landed and the
 # build followed, and that the 未検討 below it is the record of before --
@@ -15,7 +15,7 @@
 # RAISED 7 -> 8 ON 2026-09-06, DELIBERATELY. PND-343 (where the guide
 # cursor's two vertical lines stand) became 裁定済 that day -- and the
 # ruling was that the mode itself retires, so the question was not
-# answered, it was removed. D-301 [実装待ち] names PND-343 and now reads as
+# answered, it was removed. DFC-301 [実装待ち] names PND-343 and now reads as
 # the eighth. ⛔ The row was read against the ruling before this number
 # moved, and the ruling is recorded in it: the specification carries the
 # new MUST (FR-048's re-press), the spelling left S-66, and IC-46/IC-49
@@ -32,22 +32,22 @@
 # The seven, as printed (row [status] -> the 裁定済 PND it names):
 #
 #   docs/development-records/defects.md
-#     D-252 [取下げ]   -> PND-70, PND-71
-#     D-269 [未検討]   -> PND-70, PND-71, PND-80, PND-81, PND-82, PND-131, PND-133
-#     D-270 [試験待ち] -> PND-178
-#     D-292 [試験待ち] -> PND-3
+#     DFC-252 [取下げ]   -> PND-70, PND-71
+#     DFC-269 [未検討]   -> PND-70, PND-71, PND-80, PND-81, PND-82, PND-131, PND-133
+#     DFC-270 [試験待ち] -> PND-178
+#     DFC-292 [試験待ち] -> PND-3
 #   docs/development-records/fixed-defects.md
-#     D-48  [実測済]   -> PND-319
-#     D-61  [実測済]   -> PND-339
-#     D-156 [実測済]   -> PND-400
+#     DFC-48  [実測済]   -> PND-319
+#     DFC-61  [実測済]   -> PND-339
+#     DFC-156 [実測済]   -> PND-400
 #
-# ⭐⭐ D-270 IS THE ROW THIS CHECK WAS WRITTEN FOR. Its 対応方針・決定仕様 cell
+# ⭐⭐ DFC-270 IS THE ROW THIS CHECK WAS WRITTEN FOR. Its 対応方針・決定仕様 cell
 # opened 「⛔ 未検討。」 while PND-178 had stood at 裁定済 since 2026-08-23 --
 # thirteen days -- holding both the answer and the name of the test that had to
 # fall. It was handed to a body as unexamined and re-worked from nothing. Had
 # this check existed, the row would have been red the day PND-178 was ruled.
 #
-# ⚠️ D-269 is the largest hit and it is a real one: the row is still 未検討
+# ⚠️ DFC-269 is the largest hit and it is a real one: the row is still 未検討
 # while all seven PND rows it names are 裁定済 -- PND-428 is the row that says
 # those seven were MISCLASSIFIED and are already implemented behind
 # @provisional marks. That is precisely the ledger and the pending book

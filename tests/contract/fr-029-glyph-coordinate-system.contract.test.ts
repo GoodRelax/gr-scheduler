@@ -45,7 +45,7 @@
 // What was read: docs/spec/ -- FR-029, 表 T-206 (`S-138` / `S-141`), 表 T-109
 // and §8 of `_assets/tbl-glossary.md`, 図 F-019 AS DATA, 表 T-026 row `RC-13`
 // -- docs/development-rules/, and docs/development-records/defects.md row
-// `D-75`. Of `src/`: the published generated declaration these cases name,
+// `DFC-75`. Of `src/`: the published generated declaration these cases name,
 // `NOT_STORED_ICON_SIZES`, and the shape of `icon-glyphs.json` AS DATA.
 //
 // ⚠️ AND, WHILE FINDING WHERE THE COORDINATE SYSTEM REACHES THE SCREEN, the
@@ -63,8 +63,8 @@
 // ---------------------------------------------------------------------------
 //
 // 1. ⛔ THAT THE VISIBLE MARGIN EQUALS THE CORNER RADIUS OF AN ENTRANCE'S
-//    FRAME. That is D-75's own wording （「アイコンの角の R が曲がり始めるところ
-//    と同じぐらいの余白」）, and D-75's own row records 「角丸の半径を持つ行が
+//    FRAME. That is DFC-75's own wording （「アイコンの角の R が曲がり始めるところ
+//    と同じぐらいの余白」）, and DFC-75's own row records 「角丸の半径を持つ行が
 //    在るかは未確認」. What docs/spec holds is one REMARK, in `S-141`'s cell of
 //    表 T-206: 「6px は入口の枠の角の R と同じ値である」（利用者の実測）. That
 //    is a rationale for why the gap is 6px, not a rule that fixes the radius --

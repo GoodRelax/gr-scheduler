@@ -177,7 +177,7 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
 
 // ---------------------------------------------------------------------------
 // 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the SECOND floor under a band
-// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row D-225).
+// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row DFC-225).
 //
 //   `LF-3`  「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051
 //           の `HF-1` の格子）が縦に取る高さも下回らない**」
@@ -1859,7 +1859,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // side of it are all worked in this fixture's calendar, so one worked day
       // and one calendar day coincide here; the arithmetic is written out
       // rather than folded so that a calendar change is visible.
-      // ⭐⭐ AND THE HOLD, NOT THE DAY'S OWN EDGE (defect D-408, measured on the
+      // ⭐⭐ AND THE HOLD, NOT THE DAY'S OWN EDGE (defect DFC-408, measured on the
       // shipped build 2026-09-09: the marker covered 16 of GR-17's 30 hit pixels
       // at 6, 15 and 36 px a day). GR-7 says 「未着手のときは終了点の掴みシロの
       // 外側」, and table T-023d's closing rule now says what that hold is:

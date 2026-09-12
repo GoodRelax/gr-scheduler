@@ -179,7 +179,7 @@ export function editDocumentSettings(
   // re-stamping the trail for a write that changed nothing, and `frame-loop.ts`
   // reads that off the DOCUMENT reference -- so an arm that rebuilds the
   // presentation group for a value already held moves the trail with nothing
-  // behind it (ledger row D-378, measured on the shipped build 2026-09-08).
+  // behind it (ledger row DFC-378, measured on the shipped build 2026-09-08).
   //
   // ⚠️ BY VALUE, AND ONLY THE KEYS THE ARM IS WRITING. `part` carries between
   // one and six of them, so this is the per-field comparison each arm would

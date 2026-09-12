@@ -326,7 +326,7 @@ const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScree
 // 3. The premises every case below stands on
 // ===========================================================================
 
-describe('D-295 -- the manuscript this file is driven by', () => {
+describe('DFC-295 -- the manuscript this file is driven by', () => {
   it("still closes table T-023b with the sentence about entering the mode", () => {
     expect(REQUIREMENTS).toContain(THE_CLAUSE)
     expect(REQUIREMENTS).toContain(THE_REASON)

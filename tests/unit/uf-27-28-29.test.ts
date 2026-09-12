@@ -144,7 +144,7 @@ const T_107 = [
  * what the call takes) and are unchanged. See AM-12's own describe block below
  * for the claim that replaces this one.
  *
- * ⚠️ AM-14 AND AM-15 ARE WIRED IN `src/` SINCE 2026-09-07 (台帳 D-356), and
+ * ⚠️ AM-14 AND AM-15 ARE WIRED IN `src/` SINCE 2026-09-07 (台帳 DFC-356), and
  * they are still on this roster for a reason that is now the BENCH's rather
  * than the component's: `wiring` below hands neither IF-6 nor IF-8, which is
  * the environment a loop touching no picture runs in, and both members answer
@@ -435,7 +435,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         notifyChangeWatchers({ document: state.document, hasMovedSchedule: false, dialogue: log })
       },
     },
-    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 D-356). `AgentApiWiring`
+    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
     // requires both fields and lets either be `undefined`, which is the shape a
     // loop that touches no picture runs in; this bench is one of those, so
     // AM-14 and AM-15 answer `notAvailable`.
@@ -604,7 +604,7 @@ function callEveryMember(api: AgentApi): void {
   api.exportMspdi()
   api.exportSvg()
   // ⚠️ `void`, not awaited: this walk asks whether a call THROWS, and these two
-  // answer promises (台帳 D-356). Neither rejects -- the case just below pins
+  // answer promises (台帳 DFC-356). Neither rejects -- the case just below pins
   // that -- so nothing is left unhandled.
   void api.exportPng()
   void api.exportEmbeddedHtml()
@@ -1276,7 +1276,7 @@ describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () =>
   // ⭐ AM-12 (exportMspdi) left this roster 2026-09-05 -- see the note on
   // `T_035_UNWIRED` above. It is answered for separately below.
   // ⭐ EVERY CALL IS AWAITED SINCE AM-14 AND AM-15 BECAME PROMISES (台帳
-  // D-356). The three that are not promises are awaited too, because `await` on
+  // DFC-356). The three that are not promises are awaited too, because `await` on
   // a plain value answers that value -- so one shape walks all five rows, which
   // is what Chapter 1.9 asks of a table-driven case.
   const callOf: Record<
@@ -1551,7 +1551,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     expect(() => callEveryMember(one.api)).not.toThrow()
   })
 
-  // ⛔⛔ THIS CASE COVERED ALL FIFTEEN CALLS UNTIL 2026-09-07 (台帳 D-356), AND
+  // ⛔⛔ THIS CASE COVERED ALL FIFTEEN CALLS UNTIL 2026-09-07 (台帳 DFC-356), AND
   // ITS BLANKET CLAIM WAS NOT THE SPECIFICATION'S. FR-028 (MUST NOT) forbids the
   // THROW -- 「受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）」 --
   // and says nothing about waiting; AG-7 asks an export to come back as a value
@@ -1562,7 +1562,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   // can be painted -- so a synchronous AM-14 could only ever answer that it had
   // not been built, which is the opposite of FR-028's own point that the two
   // entrances are equals.
-  // ⛔⛔ AND AM-8 LEFT THE ROSTER ON 2026-09-07 (台帳 D-357), FOR A REASON THAT
+  // ⛔⛔ AND AM-8 LEFT THE ROSTER ON 2026-09-07 (台帳 DFC-357), FOR A REASON THAT
   // IS NOT FR-028's AT ALL. FR-022 (MUST) now says 「`AM-8`（`importDocument`）が
   // 合流にあたるときは、`U-61` を立て、人が答えるまで待つこと」, and that
   // requirement's own note names the cost -- 「エージェントが「取り込んで」と
@@ -1602,7 +1602,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   // ⭐ AND THE THREE THAT DO WAIT SETTLE RATHER THAN REJECT, which is the half of
   // FR-028 that survives the widening: a rejected promise is an exception the
   // caller has to catch, and AG-8 asks for the failure as a VALUE.
-  // ⚠️ AM-8 JOINED THEM ON 2026-09-07 (台帳 D-357) -- see the note above -- and it
+  // ⚠️ AM-8 JOINED THEM ON 2026-09-07 (台帳 DFC-357) -- see the note above -- and it
   // is judged on `accepted` rather than on `ok`, because AG-9a's shape for a
   // write is `AgentWriteOutcome` and not `AgentExport`.
   it('AM-8, AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {

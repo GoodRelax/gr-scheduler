@@ -48,7 +48,7 @@
 //   * WHICH OF THE TWO PASSES ANSWERED. The rule after table T-068 fixes the
 //     number of runs, not an observable; FR-055 fixes the answer. Only the
 //     answer is asserted.
-//     ⭐ THE LAST THREE BLOCKS OF THIS FILE NARROW THAT (ledger row D-24,
+//     ⭐ THE LAST THREE BLOCKS OF THIS FILE NARROW THAT (ledger row DFC-24,
 //     2026-09-03). They still count no runs -- what they measure is what the
 //     passes leave behind: that the ordinary layout cannot fit at all, that a
 //     tier the FLOOR measurement admits is refused anyway (which only a second
@@ -784,7 +784,7 @@ describe('FR-055 / FR-018 -- the fit follows S-125 rather than a tier number of 
 
 // ---------------------------------------------------------------------------
 // The rule printed after table T-068 -- the two passes, and the third that is
-// forbidden (ledger row D-24)
+// forbidden (ledger row DFC-24)
 //
 //   「⭐ **全体を収める表示（`FR-055`）と、`FR-016` の行の軸の錨（`PI-5` の `rowPlacesAtZoomY`）だけが本表を 2 回まで走らせる。**」
 //   | 1 | 人が畳んだ状態をすべて捨て…**帯の高さが `FR-094` の床に達する倍率で、
@@ -884,7 +884,7 @@ describe('T-068 pass 2 -- the tier the floor admits and the fit refuses', () => 
     // 実寸を見て、**収まらなければ 1 つ浅い段へ退く**」.
     // GOES RED IF: the fit answers from the floor measurement alone -- it would
     // then keep tier 5, whose rows fit at the floor and overflow at their rung,
-    // and write a picture that does not fit. That is the state D-24 records
+    // and write a picture that does not fit. That is the state DFC-24 records
     // (「`frame-loop.ts` は 1 回走らせて無条件に採る」).
     const deepest = Math.min(FOUR_IS_DEEPEST.depths, MAX_GROUP_DEPTH)
     const drawn = drawnAfterFit(scheduleOf(FOUR_IS_DEEPEST))
@@ -919,7 +919,7 @@ describe('T-068 (MUST NOT) -- and no third run', () => {
 
   it('⛔ so one press is already the end of it: pressing again moves nothing', () => {
     // The MUST NOT's own reason, stated as what a reader would see:
-    // 「表示量が行き来すると振動する」. ⭐ The measurement D-24 records for the
+    // 「表示量が行き来すると振動する」. ⭐ The measurement DFC-24 records for the
     // naive second pass was 1.0 → 0.4291 → 0.7322 → 0.3785 → …, a sequence that
     // never settles; what stops it is that there is no third run.
     // GOES RED IF: the fit becomes an iteration -- the second press then answers

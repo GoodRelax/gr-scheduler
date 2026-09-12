@@ -1,5 +1,5 @@
 // `FR-023` (利用者の裁定 2026-09-06「その様な無効なデータは削除して残りを取り込
-// め」, CR-368, ledger row D-275): a `Task` whose date column names no day, or
+// め」, CR-368, ledger row DFC-275): a `Task` whose date column names no day, or
 // falls outside table T-214, is DROPPED and the rest of the file is taken in --
 // never a whole-file refusal, and never a question put to a person. What was
 // dropped is told afterwards, by NAME, never by count, and never translated.

@@ -246,7 +246,7 @@ describe('FR-016 (MUST) -- 「ズームの倍率は表 T-203 の S-75 / S-76 が
 })
 
 describe('CM-71 alone -- the fit is not exempt from FR-016', () => {
-  // ⛔ FINDING (D-23). The two cases below are the same sentence as the walk
+  // ⛔ FINDING (DFC-23). The two cases below are the same sentence as the walk
   // above, said of `fitScheduleToScreen` on its own, so that a red run names
   // the command rather than the roster.
   //

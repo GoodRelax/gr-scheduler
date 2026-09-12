@@ -247,7 +247,7 @@ function rounded(value: number): string {
 
 /**
  * WHAT ONE DRAWN FIGURE IS, written on the figure itself so that the same
- * figure can be recognised in the next frame's picture (D-316).
+ * figure can be recognised in the next frame's picture (DFC-316).
  *
  * ⭐ WHAT THE KEY IS BUILT FROM: the identifier the DOCUMENT gives the thing
  * (a `Task`'s UID, a `TaskGroup`'s id, a box's id, a day's serial) and the
@@ -353,7 +353,7 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
   return (
     `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
     ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"` +
-    // D-316: the mask's rectangles are rebuilt with everything else, so they
+    // DFC-316: the mask's rectangles are rebuilt with everything else, so they
     // are named after the bar each one covers.
     `${figureKey(key)}/>`
   )
@@ -586,7 +586,7 @@ function achromatic(colour: string): string {
  * the two lines are held off the theme, so letting the theme's own monochrome
  * switch move them would be following it after all.
  *
- * ⭐ EXPORTED FOR D-277: `ImageExporter` draws the `Panel Divider` boundary
+ * ⭐ EXPORTED FOR DFC-277: `ImageExporter` draws the `Panel Divider` boundary
  * line (EP-9) in the same colour the screen's own divider is painted in --
  * S-149, `PAINT.rule` in `dom-screen-surface.ts` (FR-029) -- and reading this
  * one function is how the two stay one decision instead of a second guess of
@@ -609,7 +609,7 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
 /**
  * How thick the `Group Grid Lines` (U-18) rule is drawn, in CSS px.
  *
- * ⭐ EXPORTED FOR D-363, AND THIS IS THE ONE PLACE. EP-9 of table T-076 says of
+ * ⭐ EXPORTED FOR DFC-363, AND THIS IS THE ONE PLACE. EP-9 of table T-076 says of
  * the `Panel Divider` boundary line 「描く側は、罫の太さを 1 か所から読むこと
  * （MUST）。番号を 2 か所に置いてはならない（MUST NOT）」 and 「画面と書き出しも
  * 同じ 1 か所を読むこと（MUST）」, because 「`Group Grid Lines`（`U-18`）と同じ線
@@ -724,7 +724,7 @@ function markerSvg(
   key: string,
 ): string {
   const { centre, radius } = marker
-  // D-316: the disc and the symbol are ONE figure and carry one key. The
+  // DFC-316: the disc and the symbol are ONE figure and carry one key. The
   // wrapping group carries it too, because in the PM-1a case that group is
   // what a differ finds first.
   const named = figureKey(key)
@@ -810,7 +810,7 @@ function resumeSvg(
   settings: DocumentSettings,
   key: string,
 ): string {
-  // D-316: the arm and the head are ONE figure and carry one key.
+  // DFC-316: the arm and the head are ONE figure and carry one key.
   const named = figureKey(key)
   return (
     `<polyline points="${pointsOf(arm)}" fill="none" stroke="${ink}"` +
@@ -864,7 +864,7 @@ function labelSvg(
    * them clear of the bar.
    */
   padLeft: number,
-  /** D-316: which label this is, kept from frame to frame. */
+  /** DFC-316: which label this is, kept from frame to frame. */
   key: string,
   /**
    * Which edge of the box the glyphs are pinned to.
@@ -900,7 +900,7 @@ function labelSvg(
 
 /** @purity pure */
 function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
-  // D-316: one bar is one figure, however many elements its form takes.
+  // DFC-316: one bar is one figure, however many elements its form takes.
   const named = figureKey(key)
   if (bar.form === 'outline') {
     const marks = bar.marks ?? []
@@ -1195,7 +1195,7 @@ function rulerSvg(
   out.push(
     `<rect x="${rounded(band.x)}" y="${rounded(band.y)}"` +
       ` width="${rounded(band.width)}" height="${rounded(band.height)}"` +
-      // ⭐ D-316: the ruler's own figures are named by the ROW of the tier and
+      // ⭐ DFC-316: the ruler's own figures are named by the ROW of the tier and
       // by the DAY a tick stands on, never by their number in the walk -- a
       // sideways scroll drops ticks off one end and adds them at the other,
       // which is exactly the move that renumbers every one of them.
@@ -1314,7 +1314,7 @@ function rulerSvg(
  * stops at DomScreenSurface's own root and answers `null` for any point this
  * layer's markup is under, so a mark here cannot be mistaken for a part a
  * person can press. The attribute is what makes the layer nameable from
- * outside -- which is how D-195 was measured in the first place.
+ * outside -- which is how DFC-195 was measured in the first place.
  */
 const WATERMARK_ROLE = 'Watermark'
 
@@ -1698,7 +1698,7 @@ export function svgFromSchedule(
   // to. ⚠️ `scrollAreaY` is optional and reads as the area's top where no row is
   // pinned, which is the one ceiling every row had before a band existed.
   const scrollTop = layout.scrollAreaY ?? area.y
-  // D-170: which rows are pinned, so a Task's figures (not only its row's
+  // DFC-170: which rows are pinned, so a Task's figures (not only its row's
   // ground, cut per-row just below) can be asked the same question. Keyed by
   // `groupId` because that is what `TaskPlacement` (`placedOf` above) carries
   // and `RowPlacement.groupId` is the same identifier.
@@ -1759,7 +1759,7 @@ export function svgFromSchedule(
     if (bottom <= top) continue
     const chosen = colourOfGroup.get(row.groupId) ?? null
     const band = chosen === null ? themed(bandRowOf(row.depth, position)) : chosen
-    // D-316: the row's own identifier, never its position -- a delete above
+    // DFC-316: the row's own identifier, never its position -- a delete above
     // this row moves the position and leaves the row the same row.
     const rowKey = `row-${row.groupId}`
     bandParts.push(
@@ -1775,7 +1775,7 @@ export function svgFromSchedule(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
         ` stroke="${themed('S-165')}"` +
-        // ⛔ THE NUMBER IS NOT WRITTEN HERE (D-363). EP-9 of table T-076 asks
+        // ⛔ THE NUMBER IS NOT WRITTEN HERE (DFC-363). EP-9 of table T-076 asks
         // for one place and forbids two, and the divider's line takes the very
         // same constant through `screen-frame.ts`.
         ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
@@ -1825,7 +1825,7 @@ export function svgFromSchedule(
           `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
             ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
             ` stroke="${themed('S-149')}" stroke-width="1"` +
-            // D-316: the DAY, not the tick's number in the run -- scrolling
+            // DFC-316: the DAY, not the tick's number in the run -- scrolling
             // sideways drops ticks off one end and adds them at the other.
             `${figureKey(`date-grid-${serialOf(day)}`)}/>`,
         )
@@ -1835,7 +1835,7 @@ export function svgFromSchedule(
 
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
-    // D-170: which bucket this Task's figures go into. `placedOf` maps a
+    // DFC-170: which bucket this Task's figures go into. `placedOf` maps a
     // `taskUid` to its `TaskPlacement`, which carries the `groupId` of the
     // row it stands on -- the same identifier `pinnedGroupIds` above was
     // built from. ⚠️ Read once here and reused below (at the label and the
@@ -1876,7 +1876,7 @@ export function svgFromSchedule(
         continue
       }
     }
-    // D-316: the stem every figure of this Task is named from. `taskUid` is
+    // DFC-316: the stem every figure of this Task is named from. `taskUid` is
     // the document's own identifier for it (MSPDI's UID, table T-058), so it
     // survives a delete anywhere else in the schedule.
     const taskKey = `task-${task.taskUid}`
@@ -1916,7 +1916,7 @@ export function svgFromSchedule(
         `<polyline points="${pointsOf(guide)}" fill="none" stroke="${actual.stroke}"` +
           ` stroke-width="${rounded(settings.planActualGuideWeight)}"` +
           ` stroke-dasharray="${rounded(settings.planActualGuidePattern.on)}` +
-          // ⚠️ D-316: BOTH guides of one Task carry the one key. A guide is
+          // ⚠️ DFC-316: BOTH guides of one Task carry the one key. A guide is
           // the line that leaves the actual bar (S-105) and there are at most
           // two of them, so which is which is the run's own order -- an index
           // would say more than the geometry does.
@@ -1965,7 +1965,7 @@ export function svgFromSchedule(
       // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
       // but a milestone, and the milestone's own glyph for one -- carried on
       // `TaskGeometry.milestoneFigure`, which the geometry builds whether or
-      // not either bar is drawn (D-407), never minted here.
+      // not either bar is drawn (DFC-407), never minted here.
       const marks = barSvg(
         dummyFigure(
           task.milestoneFigure,
@@ -2043,7 +2043,7 @@ export function svgFromSchedule(
           `<rect x="${rounded(foundAt.x - half)}" y="${rounded(foundAt.y - half)}"` +
             ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
             ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
-            // ⚠️ D-316: the three grab points of one Task share its key, for
+            // ⚠️ DFC-316: the three grab points of one Task share its key, for
             // the reason the guides do -- FD-5 decides how many there are, so
             // a number here would move when the shape does.
             ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"` +
@@ -2149,7 +2149,7 @@ export function svgFromSchedule(
           themed('S-168'),
           themed('S-169'),
           0,
-          // D-316: one figure, one key -- and the key names the ROW of table
+          // DFC-316: one figure, one key -- and the key names the ROW of table
           // T-038 rather than one of the two readings inside the card, because
           // there is no longer a figure per reading to tell apart.
           `${taskKey}-oc2-label`,
@@ -2272,7 +2272,7 @@ export function svgFromSchedule(
       settings.dependencyWidth,
       selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
     )
-    // D-170: a dependency line is pinned only when BOTH ends are -- one drawn
+    // DFC-170: a dependency line is pinned only when BOTH ends are -- one drawn
     // between a pinned Task and a scrolling one still has a scrolling end,
     // which can carry it above `scrollTop` exactly the way a bar can, so it
     // needs the clip. `points` already carries each end's CURRENT position
@@ -2302,7 +2302,7 @@ export function svgFromSchedule(
     // region computed here.
     const points = pointsOf(link.points)
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
-    // D-316: a dependency IS its two ends, so the two UIDs are its name --
+    // DFC-316: a dependency IS its two ends, so the two UIDs are its name --
     // and the halo and the line under it are one figure and share it.
     const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
     ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
@@ -2318,7 +2318,7 @@ export function svgFromSchedule(
     linkParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
         ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +
-        // ⚠️ D-316: one per picture, so the name of the thing is the key.
+        // ⚠️ DFC-316: one per picture, so the name of the thing is the key.
         `${figureKey('progress-line')}/>`,
     )
   }
@@ -2371,7 +2371,7 @@ export function svgFromSchedule(
         `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
           ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
           ` stroke="${colour}" stroke-width="${rounded(width)}"` +
-          // ⭐ D-316: `date1` and `date2` are S-65's own two members, so the
+          // ⭐ DFC-316: `date1` and `date2` are S-65's own two members, so the
           // two lines are told apart by the value each stands on and never by
           // which of them is following (DC-8, which an export never sees).
           `${figureKey(`dual-cursor-${side}`)}/>`,
@@ -2526,7 +2526,7 @@ export function svgFromSchedule(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
           ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
-          // ⭐ D-316: the line's number IS its identity here, and it is not an
+          // ⭐ DFC-316: the line's number IS its identity here, and it is not an
           // array position standing in for one -- FR-097 wraps the box's own
           // text, so line 3 stays line 3 of this box whatever happens to any
           // other box.
@@ -2544,7 +2544,7 @@ export function svgFromSchedule(
     }
   }
 
-  // D-170: the band-crossing figures, clipped to the scrolling remainder
+  // DFC-170: the band-crossing figures, clipped to the scrolling remainder
   // (`S-78`'s own rectangle, minted above as `scrollClipId`) -- and left
   // unwrapped whenever nothing is pinned, so an unpinned document's markup is
   // untouched by this whole change (`hasPinnedRows` is false, the pinned
@@ -2616,7 +2616,7 @@ export function svgFromSchedule(
     // ⛔ NOTHING IS DRAWN FOR AN EXPORT, and no guard here says so: EP-12 of
     // table T-076 keeps operation state out of a picture, and the export road
     // simply does not pass a rectangle -- the default is what answers it.
-    // ⚠️ D-316: there is at most ONE marquee, so its key is simply what it
+    // ⚠️ DFC-316: there is at most ONE marquee, so its key is simply what it
     // is -- there is nothing to tell it apart from.
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
     // ⭐ FR-020's layer, over everything the `Row Area` holds -- 「重ねる」 is

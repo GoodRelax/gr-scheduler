@@ -840,7 +840,7 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
     // 残る」.
     //
     // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-08 AND THE SEAM NOW CARRIES IT.
-    // Ruling R-07 (逐語 「差し替えでOK。 担当を変える場合はすでにプロパティー
+    // Ruling JDG-07 (逐語 「差し替えでOK。 担当を変える場合はすでにプロパティー
     // パネルから切り替え可能。 削除も担当者一覧から削除可能。」) landed on AS-7 as
     // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を解く
     // こと（MUST）」, so this call carries CM-45 as well whenever exactly one
@@ -1058,7 +1058,7 @@ describe('表 T-225 AS-2 -- the glyph that keeps GR-11 reachable', () => {
 // 編集できる状態にして焦点を置くこと（MUST）」 with 「その場で打ち換える器を置いて
 // はならない（MUST NOT）」 beside it, while MK-13's 担当ラベル entry now says only
 // 「表 T-225 の `AS-1` の宛先とすること（MUST）」. ⛔ A case still asserting the
-// retired MUST NOT would be exactly the drift D-166 records.
+// retired MUST NOT would be exactly the drift DFC-166 records.
 // ---------------------------------------------------------------------------
 
 describe('表 T-225 AS-1 -- the panel the assignee label opens', () => {

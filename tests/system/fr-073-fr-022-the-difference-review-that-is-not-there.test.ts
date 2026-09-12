@@ -354,7 +354,7 @@ interface Finished {
  * of it that is missing one task and carries a column no build can read, then
  * look at what stands, answer it, and see what a write still holds.
  *
- * ⛔⛔ THREE VISITS, AND `FR-022` IS WHY (D-357). The requirement reads
+ * ⛔⛔ THREE VISITS, AND `FR-022` IS WHY (DFC-357). The requirement reads
  * 「`AM-8`（`importDocument`）が合流にあたるときは、`U-61` を立て、人が答える
  * まで待つこと（MUST）」 -- so `AM-8`'s answer CANNOT arrive until a person has
  * pressed something, and a person cannot press anything while a `page.evaluate`

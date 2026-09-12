@@ -2410,7 +2410,7 @@ describe('表 T-023d -- what a grab does', () => {
       // The two spellings of one day differ (`textOfDay` writes the exchange
       // partner's own type), so the comparison is of the day, not the text.
       expect(String(asked['droppedDay']).slice(0, 10), row).toBe(releasedOn)
-      // ⭐⭐ AND WHICH HOLD WAS TAKEN TRAVELS WITH IT (ledger D-415). The two
+      // ⭐⭐ AND WHICH HOLD WAS TAKEN TRAVELS WITH IT (ledger DFC-415). The two
       // rows write DIFFERENT columns -- table T-023d GR-9 「掴めば `actualStart`
       // と `actualDuration` を置く」, GR-17 「掴めば `actualDuration` を置く
       // （`actualStart` は `GR-9` の日で確定。`FR-043`）」 -- and ⛔ NOTHING

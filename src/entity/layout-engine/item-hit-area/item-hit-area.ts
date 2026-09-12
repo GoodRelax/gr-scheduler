@@ -912,7 +912,7 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
  * 掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の 2 端が同じ画素を
  * 争う」. ⇒ The two allowances no longer cross, so there is nothing left to
  * prefer, and the finish's preference stays where the manuscript writes it --
- * about the dummies. ⚠️ That reading was re-checked for ledger row D-416 and
+ * about the dummies. ⚠️ That reading was re-checked for ledger row DFC-416 and
  * held: the clause's own reason (「`GR-9` と `GR-17` は `S-129` ぶんしか離れて
  * いない」), its own mechanism (「`GR-17` を `GR-9` より上に置いた」) and its own
  * consolation (「どちらを掴んでも実績は立つ」, which is FR-043 about the dummies
@@ -985,14 +985,14 @@ function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
  * 位置で覚えるしかなかったのが、割る位置を印の中央と決めたことで、押した側から
  * 読めるようになった」.
  *
- * ⭐⭐ AND IT IS WHAT CLOSED D-415. The hit band used to be a box of S-93's own
+ * ⭐⭐ AND IT IS WHAT CLOSED DFC-415. The hit band used to be a box of S-93's own
  * width, anchored on each dummy's OWN day, while the mark was drawn on GR-9's
  * day (== GR-18's) at 「1 日ぶんと `S-180` の小さい方」. The two were different
  * widths on different days, which is why GR-17 answered no pixel of the mark at
  * all -- measured on the shipped build 2026-09-09, 0 of 6 ink pixels at 6px a
  * day, 0 of 12 at 12.9 and at 27.6. ⚠️ The manuscript carries that measurement
  * too. ⭐⭐ THE TWO BECAME ONE ON 2026-09-10: 「掴みシロが印そのものになった以上、
- * 2 つは同じ 1 つの幅であり、区別は消えた」, so the state D-415 named can no
+ * 2 つは同じ 1 つの幅であり、区別は消えた」, so the state DFC-415 named can no
  * longer be reached at all.
  *
  * ⛔⛔ A MILESTONE IS NOT SPLIT (MUST NOT, same ruling): 「⭐ `GR-18` は 1 か所と

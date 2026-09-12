@@ -10,7 +10,7 @@
 //    （MUST）。**」
 //
 // ⭐⭐ THE MUST NOT IS UNCONDITIONAL, AND THAT IS THE WHOLE OF LEDGER ROW
-// D-325. The sentence does not say 「正しい形の引数を渡されたとき」; it says the
+// DFC-325. The sentence does not say 「正しい形の引数を渡されたとき」; it says the
 // API answers with a value. ⇒ A caller outside this build that hands `AM-7` a
 // shape 表 T-107 does not declare must be TOLD SO, not have an exception thrown
 // at it -- and `AG-9a` already says what being told looks like.
@@ -22,7 +22,7 @@
 // ---------------------------------------------------------------------------
 // ⛔ THE LEDGER'S OWN DIAGNOSIS WAS WRONG, AND THIS FILE IS SHAPED BY THAT
 // ---------------------------------------------------------------------------
-// D-325 was filed as 「どの引数の形でも例外を投げる」. A later body measured that
+// DFC-325 was filed as 「どの引数の形でも例外を投げる」. A later body measured that
 // as false: `{readStamp, commands}` was always accepted, and only the missing
 // `readStamp` threw. ⇒ Section 5 below is not decoration. A file that only
 // asked about malformed shapes could pass on a build where `AM-7` refused
@@ -39,7 +39,7 @@
 // path. ⭐ NOTHING HERE IS SOFTENED TO MAKE IT GREEN: FR-028's MUST NOT admits
 // no exceptions, and a case rewritten to expect a throw would be this file
 // agreeing with the build against the manuscript.
-// ⇒ The ledger's account of D-325's 2026-09-06 repair -- 「壊れた引数でも投げずに
+// ⇒ The ledger's account of DFC-325's 2026-09-06 repair -- 「壊れた引数でも投げずに
 // 答える」 -- holds for thirteen of the fourteen shapes and fails for that one.
 //
 // ---------------------------------------------------------------------------
@@ -244,7 +244,7 @@ function bench(): Bench {
         state.dialogue = log
       },
     },
-    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 D-356). `AgentApiWiring`
+    // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
     // requires both fields and lets either be `undefined`, which is the shape a
     // loop that touches no picture runs in; this bench is one of those, so
     // AM-14 and AM-15 answer `notAvailable`.
@@ -277,7 +277,7 @@ const MALFORMED: ReadonlyArray<{ readonly what: string; readonly request: unknow
   { what: 'nothing at all', request: undefined },
   { what: 'null', request: null },
   { what: 'a request with neither member', request: {} },
-  // ⭐⭐ THE ONE D-325 MEASURED: 「`readStamp` が無いまま素通しされ、
+  // ⭐⭐ THE ONE DFC-325 MEASURED: 「`readStamp` が無いまま素通しされ、
   // `document-stamp.ts` の比較が `Cannot read properties of undefined` を
   // 投げていた」.
   { what: 'commands without a readStamp', request: { commands: [] } },
@@ -359,7 +359,7 @@ const applying = (api: AgentApi, request: unknown): AgentWriteOutcome =>
 // 4. The premises every case below stands on
 // ===========================================================================
 
-describe('D-325 -- the manuscript these cases are driven by', () => {
+describe('DFC-325 -- the manuscript these cases are driven by', () => {
   it('still forbids the Agent API to throw, without qualifying it', () => {
     expect(REQUIREMENTS).toContain(FR_028_NEVER_THROWS)
     // ⭐ THE UNCONDITIONALITY, ASSERTED AND NOT ASSUMED. The clause carries no

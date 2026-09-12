@@ -27,7 +27,7 @@
 //            T-012a の `FD-6` がフェードの単位として定め、`IV-12` が同じ数え方に
 //            従う）」
 //
-// ⭐ THE FIXTURE SPANS THREE WEEKENDS ON PURPOSE. Ledger row D-15 is the
+// ⭐ THE FIXTURE SPANS THREE WEEKENDS ON PURPOSE. Ledger row DFC-15 is the
 // disagreement itself: 「非稼働日をまたぐ予定で、`FD-6` が許すフェードを `IV-12`
 // が拒む」. On a task that spans no non-working day the two counts coincide and
 // every case below would pass over a unit that counted either way -- which is
@@ -330,7 +330,7 @@ describe('FD-6 and IV-12 -- a Task that spans non-working days', () => {
   it('the fixture really spans them, or nothing below discriminates', () => {
     // ⚠️ 04-verification section 2. If the two counts were equal here, every
     // case in this file would be green over a unit that counted worked days --
-    // which is the defect (ledger D-15), not the absence of one.
+    // which is the defect (ledger DFC-15), not the absence of one.
     expect(CALENDAR_SPAN).toBeGreaterThan(WORKED_SPAN)
   })
 

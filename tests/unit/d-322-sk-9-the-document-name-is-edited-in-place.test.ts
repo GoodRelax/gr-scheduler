@@ -18,7 +18,7 @@
 // ---------------------------------------------------------------------------
 // ⛔⛔ WHAT THIS FILE DOES NOT ASSERT, AND WHY -- READ THIS FIRST
 // ---------------------------------------------------------------------------
-// The ledger's summary of D-322 says the field opens 「焦点が入り、既存の文字が
+// The ledger's summary of DFC-322 says the field opens 「焦点が入り、既存の文字が
 // 全選択され」. ⛔ NO ROW OF THE SPECIFICATION SAYS THAT ABOUT THE DOCUMENT
 // NAME. Searched 2026-09-06 for 全選択 / 焦点を置 across 01-04-requirements.md,
 // 05-07-design.md and _assets/: the clause 「編集できる状態にして焦点を置き、
@@ -43,7 +43,7 @@
 //                             arriving back with the row id its field names.
 //   `editProject`             PI-9 `EditDocument` -- the aggregate that owns
 //                             `CM-1` and FR-035's MUST NOT.
-// ⭐ ALL THREE, BECAUSE THE ROW IS ABOUT A PATH AND NOT A FUNCTION. D-322's
+// ⭐ ALL THREE, BECAUSE THE ROW IS ABOUT A PATH AND NOT A FUNCTION. DFC-322's
 // two measurements (2026-09-05 and 2026-09-06) are of a key press producing a
 // field and a typed name reaching `Project.title`; a case that stopped at the
 // translator would have gone green on the very build the sweep found broken,
@@ -303,7 +303,7 @@ const titleAfterCommitting = (text: string, from: string | null = NAME_BEFORE): 
 // 3. The premises every case below stands on
 // ===========================================================================
 
-describe('D-322 -- the manuscript these cases are driven by', () => {
+describe('DFC-322 -- the manuscript these cases are driven by', () => {
   it('still asks FR-035 for an in-place edit of the document name', () => {
     expect(REQUIREMENTS).toContain(FR_035_STATEMENT)
   })

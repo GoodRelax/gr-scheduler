@@ -62,12 +62,12 @@ NEEDS_SPEC = ('実装待ち', '試験待ち', '実測待ち', '実測済')
 # ⛔ WHAT A SPEC MANAGEMENT NUMBER IS -- and what only looks like one. `D-` is
 # this ledger's own id, `PND-` the pending-decision list's, `CR-` a change
 # request; none of the three is a place in the specification.
-NOT_SPEC = ('D', 'PND', 'CR')
+NOT_SPEC = ('DFC', 'JDG', 'PND', 'CR')
 NUMBERED = re.compile(r'`([A-Z]{1,3})-(\d+[a-z]?)`')
 TABLE = re.compile(r'表 T-\d+|図 F-\d+|Chapter \d')
 
 # ⭐ A ROW WHOSE FIX IS NOT IN docs/spec CAN STILL SAY WHERE IT LANDED.
-# ⚠️ Added 2026-08-31 for the first row that met this honestly: D-168's fix is
+# ⚠️ Added 2026-08-31 for the first row that met this honestly: DFC-168's fix is
 # a list in docs/development-rules and a check beside it, and the specification
 # is not touched by one character. Without this the row had three bad choices --
 # keep a status it had outgrown, claim a place it does not occupy, or push the
@@ -89,7 +89,7 @@ def main():
         if not os.path.exists(path):
             continue
         for line in io.open(path, encoding='utf-8').read().splitlines():
-            if not line.startswith('| D-'):
+            if not line.startswith('| DFC-'):
                 continue
             cells = line.split('|')
             if len(cells) != 11:

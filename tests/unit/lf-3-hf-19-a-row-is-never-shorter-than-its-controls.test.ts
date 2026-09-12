@@ -1,5 +1,5 @@
 // 表 T-221 の `LF-3` and 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03,
-// CR-339, ledger row D-225): a row's band is never shorter than the lattice of
+// CR-339, ledger row DFC-225): a row's band is never shorter than the lattice of
 // controls that stands on it.
 //
 // ⭐ THE TWO ROWS THIS FILE IS WRITTEN FROM, verbatim.
