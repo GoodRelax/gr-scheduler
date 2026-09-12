@@ -14,144 +14,1101 @@
   "The `means` cells are Japanese because they are printed prose of a Japanese specification, held per language the way Chapter 6.2 requires (check 23). `words` is Latin letters and belongs to no language."
  ],
  "collisions_suppressed": [
-  {"prefix": "PD", "trees": ["spec", "records"], "since": "2026-09-12",
-   "why": {"ja": "仕様書の `PD-1` は中ボタンドラッグによるパンであり、台帳の PD-1 は themeHue の彩度と明度である。4 つの綴り（PD-1 〜 PD-4）が両方の木に立って別のものを指し、残る 208 は台帳だけのものである。CR-371 が書かれた理由そのものである"},
-   "until": {"ja": "CR-371 の巡 1 が仕様書側を PTD へ、巡 2 が台帳側を PND へ改める。両方が済んだとき、本行も接頭辞 PD も消える"}},
-  {"prefix": "D", "trees": ["spec", "records"], "since": "2026-09-12",
-   "why": {"ja": "仕様書の `D-1` は機器（利用者の PC のブラウザ）であり、台帳の D-01 は欠陥である。494 の綴りが台帳だけのもので、機器を指すものは 1 つも無い。いま綴りが衝突していないのは台帳が 0 詰めで書いているからにすぎず、読み手はその差に頼れない"},
-   "until": {"ja": "⛔ 未裁定。CR-371 が名指すのは PD だけであり、本件は登録簿が 2026-09-12 に見つけたものである。片側を改名するか、対のままと決めるかは裁定を要する"}},
-  {"prefix": "R", "trees": ["spec", "records"], "since": "2026-09-12",
-   "why": {"ja": "仕様書の `R-1` は機器と機器のあいだの経路であり、台帳の R-01 は利用者の裁定である。44 の綴りはすべて台帳だけのものである。D と同じ形であり、綴りを分けているのは 0 詰めだけである"},
-   "until": {"ja": "⛔ 未裁定。D と同じ"}}
+  {
+   "prefix": "PD",
+   "trees": [
+    "spec",
+    "records"
+   ],
+   "since": "2026-09-12",
+   "why": {
+    "ja": "仕様書の `PD-1` は中ボタンドラッグによるパンであり、台帳の PD-1 は themeHue の彩度と明度である。4 つの綴り（PD-1 〜 PD-4）が両方の木に立って別のものを指し、残る 208 は台帳だけのものである。CR-371 が書かれた理由そのものである"
+   },
+   "until": {
+    "ja": "CR-371 の巡 1 が仕様書側を PTD へ、巡 2 が台帳側を PND へ改める。両方が済んだとき、本行も接頭辞 PD も消える"
+   }
+  },
+  {
+   "prefix": "D",
+   "trees": [
+    "spec",
+    "records"
+   ],
+   "since": "2026-09-12",
+   "why": {
+    "ja": "仕様書の `D-1` は機器（利用者の PC のブラウザ）であり、台帳の D-01 は欠陥である。494 の綴りが台帳だけのもので、機器を指すものは 1 つも無い。いま綴りが衝突していないのは台帳が 0 詰めで書いているからにすぎず、読み手はその差に頼れない"
+   },
+   "until": {
+    "ja": "⭐ **後回しと裁定された（利用者の裁定 2026-09-13）** —— 別の CR を立て、CR-371 の `PD` が終わってから裁く。⛔ 方針を決めずに送ったのではなく、**順を決めた**のである —— `PD` は実害が出た（生きた指し先を 3 箇所剥がした）が、`D` と `R` は 0 詰めで偶然分かれている。⚠️ **本行が残る限り忘れられない。**"
+   },
+   "ruled": "2026-09-13"
+  },
+  {
+   "prefix": "R",
+   "trees": [
+    "spec",
+    "records"
+   ],
+   "since": "2026-09-12",
+   "why": {
+    "ja": "仕様書の `R-1` は機器と機器のあいだの経路であり、台帳の R-01 は利用者の裁定である。44 の綴りはすべて台帳だけのものである。D と同じ形であり、綴りを分けているのは 0 詰めだけである"
+   },
+   "until": {
+    "ja": "⭐ **後回しと裁定された（利用者の裁定 2026-09-13）** —— 別の CR を立て、CR-371 の `PD` が終わってから裁く。⛔ 方針を決めずに送ったのではなく、**順を決めた**のである —— `PD` は実害が出た（生きた指し先を 3 箇所剥がした）が、`D` と `R` は 0 詰めで偶然分かれている。⚠️ **本行が残る限り忘れられない。**"
+   },
+   "ruled": "2026-09-13"
+  }
  ],
  "prefixes": [
-  {"prefix": "A", "words": "", "owner": "spec", "means": {"ja": "単独で使ってはならない曖昧な日本語の語"}},
-  {"prefix": "AC", "words": "Actor", "owner": "spec", "means": {"ja": "本ソフトウェアを使う人と、外から使う外部システム"}},
-  {"prefix": "AG", "words": "Agent API", "owner": "spec", "means": {"ja": "`Agent API` が満たす規約の条"}},
-  {"prefix": "AM", "words": "Agent API Member", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "`Agent API` が公開するメンバ 1 つ"}},
-  {"prefix": "AR", "words": "Armed shape", "owner": "spec", "means": {"ja": "パレットで選んでいる構えの種別"}},
-  {"prefix": "AS", "words": "", "owner": "spec", "means": {"ja": "担当者を割り当てる入口と規則の条"}},
-  {"prefix": "AT", "words": "Attribute", "owner": "spec", "means": {"ja": "エンティティの列 1 つと、その型・交換相手の対応"}},
-  {"prefix": "BO", "words": "", "owner": "spec", "means": {"ja": "起動のときに行うことの順序の段"}},
-  {"prefix": "BT", "words": "", "owner": "spec", "means": {"ja": "起動時に開く文書の出どころと、その優先順位"}},
-  {"prefix": "CA", "words": "Cache", "owner": "spec", "means": {"ja": "キャッシュについての取り決めの条"}},
-  {"prefix": "CD", "words": "Cascade Delete", "owner": "spec", "means": {"ja": "あるものを消したときに一緒に消えるものの条"}},
-  {"prefix": "CH", "words": "Challenge", "owner": "spec", "means": {"ja": "本製品が解く課題"}},
-  {"prefix": "CL", "words": "", "owner": "spec", "means": {"ja": "パレットが持つ色と線の太さの区分"}},
-  {"prefix": "CM", "words": "Command", "owner": "spec", "means": {"ja": "文書を変える命令（`DocumentCommand`）1 つ"}},
-  {"prefix": "CN", "words": "Constraint", "owner": "spec", "means": {"ja": "製品が従う制約事項"}},
-  {"prefix": "CP", "words": "Component", "owner": "spec", "means": {"ja": "設計上のコンポーネント 1 つ"}},
-  {"prefix": "CS", "words": "Consistency", "owner": "spec", "means": {"ja": "文書の見え方を一貫させる単位"}},
-  {"prefix": "CT", "words": "Contrast", "owner": "spec", "means": {"ja": "テーマ色が満たすコントラストの条件"}},
-  {"prefix": "CU", "words": "Cursor", "owner": "spec", "means": {"ja": "画面に立てるカーソルの種別"}},
-  {"prefix": "D", "words": "Device", "owner": "spec", "means": {"ja": "配置図に載る機器"}},
-  {"prefix": "DC", "words": "Dual Cursor", "owner": "spec", "means": {"ja": "`Dual Cursor` の操作の条"}},
-  {"prefix": "DF", "words": "", "owner": "spec", "means": {"ja": "文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか"}},
-  {"prefix": "DI", "words": "Document Identity", "owner": "spec", "means": {"ja": "同じ文書かどうかの見分け方と、上書きの確認の条"}},
-  {"prefix": "DL", "words": "Delay", "owner": "spec", "means": {"ja": "遅れの量の数え方の場合分け"}},
-  {"prefix": "DM", "words": "Dummy", "owner": "spec", "means": {"ja": "実績のダミーの規則の条"}},
-  {"prefix": "DN", "words": "", "owner": "spec", "means": {"ja": "作ってはならない依存の形"}},
-  {"prefix": "DP", "words": "Dependency", "owner": "spec", "means": {"ja": "依存の種別と、線を着ける位置"}},
-  {"prefix": "DR", "words": "Document Root", "owner": "spec", "means": {"ja": "文書ルートに置く群と、その中身の条"}},
-  {"prefix": "DU", "words": "Duplicate", "owner": "spec", "means": {"ja": "複製したときに一緒に複製されるものの条"}},
-  {"prefix": "DV", "words": "Derived Value", "owner": "spec", "means": {"ja": "書き出すときに作る値（文書は持たず、書き出しで導く）"}},
-  {"prefix": "ED", "words": "", "owner": "spec", "means": {"ja": "最後に編集した者として書く語"}},
-  {"prefix": "EN", "words": "", "owner": "spec", "means": {"ja": "入口を塗って示す状態"}},
-  {"prefix": "EP", "words": "Export Part", "owner": "spec", "means": {"ja": "書き出す絵に描く UI パーツと、描かない UI パーツ"}},
-  {"prefix": "ET", "words": "Entity", "owner": "spec", "means": {"ja": "エンティティ 1 つ"}},
-  {"prefix": "EX", "words": "Export", "owner": "spec", "means": {"ja": "書き出しの規約の条"}},
-  {"prefix": "EZ", "words": "Easy", "owner": "spec", "means": {"ja": "マニュアルを読まずに使えるようにする手立て"}},
-  {"prefix": "FD", "words": "Fade", "owner": "spec", "means": {"ja": "フェードの形の場合分け"}},
-  {"prefix": "FT", "words": "Frame Trigger", "owner": "spec", "means": {"ja": "フレームが走る契機"}},
-  {"prefix": "FU", "words": "Future", "owner": "spec", "means": {"ja": "いま作らないが、後から足せるようにしておくもの"}},
-  {"prefix": "G", "words": "Glossary", "owner": "spec", "means": {"ja": "本書を読むための語"}},
-  {"prefix": "GD", "words": "Guide", "owner": "spec", "means": {"ja": "予実の補助線の条"}},
-  {"prefix": "GR", "words": "Grab region", "owner": "spec", "means": {"ja": "掴み領域 1 つと、その優先順位の段"}},
-  {"prefix": "HF", "words": "", "owner": "spec", "means": {"ja": "行ごとの折り畳みと隠しの操作面の条"}},
-  {"prefix": "HM", "words": "Hierarchy Move", "owner": "spec", "means": {"ja": "階層の移動の規則の条"}},
-  {"prefix": "HR", "words": "Hierarchy", "owner": "spec", "means": {"ja": "階層の操作（展開・畳み・隠し）の種別"}},
-  {"prefix": "IC", "words": "Icon", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "画面に出すアイコン 1 つ"}},
-  {"prefix": "IF", "words": "Interface", "owner": "spec", "means": {"ja": "層をまたぐインターフェース 1 本"}},
-  {"prefix": "IN", "words": "Input", "owner": "spec", "means": {"ja": "入力の作法の条"}},
-  {"prefix": "IO", "words": "Input / Output", "owner": "spec", "means": {"ja": "読み書きする入出力の形式"}},
-  {"prefix": "IV", "words": "Invariant", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "文書が満たす不変条件"}},
-  {"prefix": "IX", "words": "Image eXport", "owner": "spec", "means": {"ja": "画像の書き出しの規則の条"}},
-  {"prefix": "K", "words": "Key", "owner": "spec", "means": {"ja": "設定値のキー 1 つ"}},
-  {"prefix": "L", "words": "Level of Detail", "owner": "spec", "means": {"ja": "表示量の増減（LOD）の種別"}},
-  {"prefix": "LC", "words": "Layout Calculation", "owner": "spec", "means": {"ja": "レイアウトを求める計算の段"}},
-  {"prefix": "LF", "words": "Layout Formula", "owner": "spec", "means": {"ja": "レイアウトの算式の条"}},
-  {"prefix": "LM", "words": "Limitation", "owner": "spec", "means": {"ja": "製品が引き受ける制限事項"}},
-  {"prefix": "LR", "words": "Layer Rule", "owner": "spec", "means": {"ja": "層と層のあいだの依存の規則"}},
-  {"prefix": "LY", "words": "Layer", "owner": "spec", "means": {"ja": "設計上の層 1 つ"}},
-  {"prefix": "MC", "words": "Measurement Condition", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "性能を測る環境の条件"}},
-  {"prefix": "MG", "words": "Merge", "owner": "spec", "means": {"ja": "取り込んだ文書を合流させるときの規則の条"}},
-  {"prefix": "MK", "words": "", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "ポインタとキーボードの割当 1 つ"}},
-  {"prefix": "MM", "words": "", "owner": "spec", "means": {"ja": "合流のときに示す対応付けの選択肢"}},
-  {"prefix": "MN", "words": "Minimum", "owner": "spec", "means": {"ja": "最小構成に対して増やしたものと、その理由"}},
-  {"prefix": "MS", "words": "Milestone", "owner": "spec", "means": {"ja": "開発の節目"}},
-  {"prefix": "N", "words": "", "owner": "spec", "means": {"ja": "データの語 —— エンティティと列の日本語の呼び名"}},
-  {"prefix": "NF", "words": "No Figure", "owner": "spec", "means": {"ja": "描かなかった図と、描かなかった理由"}},
-  {"prefix": "NL", "words": "Name Label", "owner": "spec", "means": {"ja": "名称ラベルの配置の決定順"}},
-  {"prefix": "NR", "words": "", "owner": "spec", "means": {"ja": "交換形式を比べる前に当てる正規化の条"}},
-  {"prefix": "NS", "words": "", "owner": "spec", "means": {"ja": "書き出した絵を比べる前に当てる正規化と、一致の判定の条"}},
-  {"prefix": "NT", "words": "Notification", "owner": "spec", "means": {"ja": "通知するときの作法の条"}},
-  {"prefix": "OC", "words": "Occupancy", "owner": "spec", "means": {"ja": "形状の占有幅に算入するもの"}},
-  {"prefix": "OP", "words": "Open", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "文書を開くときの規則の条"}},
-  {"prefix": "OR", "words": "Order", "owner": "spec", "means": {"ja": "形状の外へ出すものの左右の並びの条"}},
-  {"prefix": "P", "words": "Property", "owner": "spec", "means": {"ja": "画面に出すプロパティの語"}},
-  {"prefix": "PA", "words": "Plan and Actual", "owner": "spec", "means": {"ja": "予定と実績が取りうる状態"}},
-  {"prefix": "PD", "words": "Pointer Down", "owner": "spec", "means": {"ja": "ポインタを押したときの判定順序の段（台帳の未裁定の決めごとが同じ綴りを使っており、CR-371 が PTD へ改める）"}},
-  {"prefix": "PF", "words": "Profile", "owner": "spec", "means": {"ja": "文書の基本情報の項目"}},
-  {"prefix": "PG", "words": "", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "節目ごとに測るものと、それがゲートかどうか"}},
-  {"prefix": "PI", "words": "Public Interface", "owner": "spec", "means": {"ja": "コンポーネントが公開するメンバの組"}},
-  {"prefix": "PL", "words": "Progress Line", "owner": "spec", "means": {"ja": "イナズマ線の頂点の打ち方"}},
-  {"prefix": "PLM", "words": "", "owner": "spec", "means": {"ja": "いまの日程表の作り方が抱えている問題"}},
-  {"prefix": "PM", "words": "Progress Marker", "owner": "spec", "means": {"ja": "進捗マーカーの記号"}},
-  {"prefix": "PO", "words": "Policy", "owner": "spec", "means": {"ja": "単一 HTML の内容セキュリティ方針の指令"}},
-  {"prefix": "PR", "words": "Property", "owner": "spec", "means": {"ja": "プロパティパネルが出す項目 1 つ"}},
-  {"prefix": "PS", "words": "", "owner": "spec", "means": {"ja": "予実の状態を判別する順の段"}},
-  {"prefix": "PV", "words": "", "owner": "spec", "means": {"ja": "印を押して状態を確定したときに置く値"}},
-  {"prefix": "QN", "words": "Question", "owner": "spec", "means": {"ja": "問いが示す文"}},
-  {"prefix": "R", "words": "", "owner": "spec", "means": {"ja": "機器と機器のあいだのデータの経路"}},
-  {"prefix": "RC", "words": "Reduction Candidate", "owner": "spec", "means": {"ja": "削減・見直しの候補"}},
-  {"prefix": "RD", "words": "", "owner": "spec", "means": {"ja": "文書をまるごと差し替えるときの、呼び手ごとの扱い"}},
-  {"prefix": "RL", "words": "Relation", "owner": "spec", "means": {"ja": "エンティティのあいだの関係 1 本"}},
-  {"prefix": "RP", "words": "", "owner": "spec", "means": {"ja": "依存線の経路の分岐"}},
-  {"prefix": "RS", "words": "", "owner": "spec", "means": {"ja": "通知が運ぶ理由"}},
-  {"prefix": "RT", "words": "", "owner": "spec", "means": {"ja": "依存線の経路が満たす規則"}},
-  {"prefix": "RV", "words": "", "owner": "spec", "means": {"ja": "描くときに求める値（文書は持たず、描くたびに導く）"}},
-  {"prefix": "S", "words": "Setting", "owner": "spec", "means": {"ja": "設定値 1 つ。一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない"}},
-  {"prefix": "SC", "words": "Scroll", "owner": "spec", "means": {"ja": "何がスクロールし、何がしないか"}},
-  {"prefix": "SH", "words": "Shape", "owner": "spec", "means": {"ja": "タスクの形状（`shapeKind`）"}},
-  {"prefix": "SK", "words": "Shortcut Key", "owner": "spec", "means": {"ja": "ショートカットキーの割当"}},
-  {"prefix": "SL", "words": "Selection", "owner": "spec", "means": {"ja": "選択の規則の条"}},
-  {"prefix": "SO", "words": "Scope", "owner": "spec", "means": {"ja": "製品の範囲（含むもの・含まないもの）"}},
-  {"prefix": "SP", "words": "", "owner": "spec", "means": {"ja": "パレットの形状を押したときの意味を、選択の状態ごとに定める条"}},
-  {"prefix": "ST", "words": "Stack", "owner": "spec", "means": {"ja": "積み順の自動割当の規則"}},
-  {"prefix": "SU", "words": "Structure Unit", "owner": "spec", "means": {"ja": "構造の単位（コンポーネント・モジュール・ユニット）"}},
-  {"prefix": "TC", "words": "Task Creation", "owner": "spec", "means": {"ja": "タスクを作る手つきの規則の条"}},
-  {"prefix": "TE", "words": "", "owner": "spec", "means": {"ja": "実績の端点を掴み分ける規則の条"}},
-  {"prefix": "TM", "words": "", "owner": "spec", "means": {"ja": "目盛の段が刷るもの"}},
-  {"prefix": "TP", "words": "Template", "owner": "spec", "means": {"ja": "初期テンプレートの中身"}},
-  {"prefix": "TR", "words": "Trade-off", "owner": "spec", "means": {"ja": "意図して払う代償と、その代わりに得るもの"}},
-  {"prefix": "TS", "words": "", "owner": "spec", "means": {"ja": "テストの系統"}},
-  {"prefix": "TW", "words": "", "owner": "spec", "means": {"ja": "章ごとのテストの方針と合格基準"}},
-  {"prefix": "U", "words": "UI part", "owner": "spec", "means": {"ja": "画面の UI パーツ 1 つ"}},
-  {"prefix": "UF", "words": "", "owner": "spec", "mirrored_in": ["records"], "means": {"ja": "ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主"}},
-  {"prefix": "UN", "words": "Undo", "owner": "spec", "means": {"ja": "取り消しの対象と対象外"}},
-  {"prefix": "UT", "words": "", "owner": "spec", "means": {"ja": "ユニットを割った理由"}},
-  {"prefix": "V", "words": "", "owner": "spec", "means": {"ja": "ユースケースと、前プロジェクトの要望との対応"}},
-  {"prefix": "VK", "words": "", "owner": "spec", "means": {"ja": "価値のことば —— 目標が述べる状態を 1 語で指すことば"}},
-  {"prefix": "W", "words": "", "owner": "spec", "means": {"ja": "面ごとの記法"}},
-  {"prefix": "WM", "words": "Watermark", "owner": "spec", "means": {"ja": "透かしの規則の条"}},
-  {"prefix": "WS", "words": "Write Step", "owner": "spec", "means": {"ja": "文書を変える手順の段"}},
-  {"prefix": "WY", "words": "WYSIWYG", "owner": "spec", "means": {"ja": "画面と成果物が同じであることの達成判定"}},
-  {"prefix": "X", "words": "eXception", "owner": "spec", "means": {"ja": "直訳しない語（訳語の例外）"}},
-  {"prefix": "XO", "words": "", "owner": "spec", "means": {"ja": "本製品が持たないもの"}},
-  {"prefix": "ZO", "words": "Z-Order", "owner": "spec", "means": {"ja": "重ね順（背面から前面へ）の段"}},
-  {"prefix": "CR", "words": "Change Request", "owner": "records", "means": {"ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"}},
-  {"prefix": "WR", "words": "", "owner": "rules", "means": {"ja": "要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である"}},
-  {"prefix": "PTD", "words": "Pointer Down", "owner": "spec", "pending": true, "means": {"ja": "ポインタを押したときの判定順序の段。CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い"}},
-  {"prefix": "PND", "words": "Pending Decision", "owner": "records", "pending": true, "means": {"ja": "まだ裁定されていない決めごと。CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い"}}
+  {
+   "prefix": "A",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "単独で使ってはならない曖昧な日本語の語"
+   }
+  },
+  {
+   "prefix": "AC",
+   "words": "Actor",
+   "owner": "spec",
+   "means": {
+    "ja": "本ソフトウェアを使う人と、外から使う外部システム"
+   }
+  },
+  {
+   "prefix": "AG",
+   "words": "Agent API",
+   "owner": "spec",
+   "means": {
+    "ja": "`Agent API` が満たす規約の条"
+   }
+  },
+  {
+   "prefix": "AM",
+   "words": "Agent API Member",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "`Agent API` が公開するメンバ 1 つ"
+   }
+  },
+  {
+   "prefix": "AR",
+   "words": "Armed shape",
+   "owner": "spec",
+   "means": {
+    "ja": "パレットで選んでいる構えの種別"
+   }
+  },
+  {
+   "prefix": "AS",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "担当者を割り当てる入口と規則の条"
+   }
+  },
+  {
+   "prefix": "AT",
+   "words": "Attribute",
+   "owner": "spec",
+   "means": {
+    "ja": "エンティティの列 1 つと、その型・交換相手の対応"
+   }
+  },
+  {
+   "prefix": "BO",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "起動のときに行うことの順序の段"
+   }
+  },
+  {
+   "prefix": "BT",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "起動時に開く文書の出どころと、その優先順位"
+   }
+  },
+  {
+   "prefix": "CA",
+   "words": "Cache",
+   "owner": "spec",
+   "means": {
+    "ja": "キャッシュについての取り決めの条"
+   }
+  },
+  {
+   "prefix": "CD",
+   "words": "Cascade Delete",
+   "owner": "spec",
+   "means": {
+    "ja": "あるものを消したときに一緒に消えるものの条"
+   }
+  },
+  {
+   "prefix": "CH",
+   "words": "Challenge",
+   "owner": "spec",
+   "means": {
+    "ja": "本製品が解く課題"
+   }
+  },
+  {
+   "prefix": "CL",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "パレットが持つ色と線の太さの区分"
+   }
+  },
+  {
+   "prefix": "CM",
+   "words": "Command",
+   "owner": "spec",
+   "means": {
+    "ja": "文書を変える命令（`DocumentCommand`）1 つ"
+   }
+  },
+  {
+   "prefix": "CN",
+   "words": "Constraint",
+   "owner": "spec",
+   "means": {
+    "ja": "製品が従う制約事項"
+   }
+  },
+  {
+   "prefix": "CP",
+   "words": "Component",
+   "owner": "spec",
+   "means": {
+    "ja": "設計上のコンポーネント 1 つ"
+   }
+  },
+  {
+   "prefix": "CS",
+   "words": "Consistency",
+   "owner": "spec",
+   "means": {
+    "ja": "文書の見え方を一貫させる単位"
+   }
+  },
+  {
+   "prefix": "CT",
+   "words": "Contrast",
+   "owner": "spec",
+   "means": {
+    "ja": "テーマ色が満たすコントラストの条件"
+   }
+  },
+  {
+   "prefix": "CU",
+   "words": "Cursor",
+   "owner": "spec",
+   "means": {
+    "ja": "画面に立てるカーソルの種別"
+   }
+  },
+  {
+   "prefix": "D",
+   "words": "Device",
+   "owner": "spec",
+   "means": {
+    "ja": "配置図に載る機器"
+   }
+  },
+  {
+   "prefix": "DC",
+   "words": "Dual Cursor",
+   "owner": "spec",
+   "means": {
+    "ja": "`Dual Cursor` の操作の条"
+   }
+  },
+  {
+   "prefix": "DF",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか"
+   }
+  },
+  {
+   "prefix": "DI",
+   "words": "Document Identity",
+   "owner": "spec",
+   "means": {
+    "ja": "同じ文書かどうかの見分け方と、上書きの確認の条"
+   }
+  },
+  {
+   "prefix": "DL",
+   "words": "Delay",
+   "owner": "spec",
+   "means": {
+    "ja": "遅れの量の数え方の場合分け"
+   }
+  },
+  {
+   "prefix": "DM",
+   "words": "Dummy",
+   "owner": "spec",
+   "means": {
+    "ja": "実績のダミーの規則の条"
+   }
+  },
+  {
+   "prefix": "DN",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "作ってはならない依存の形"
+   }
+  },
+  {
+   "prefix": "DP",
+   "words": "Dependency",
+   "owner": "spec",
+   "means": {
+    "ja": "依存の種別と、線を着ける位置"
+   }
+  },
+  {
+   "prefix": "DR",
+   "words": "Document Root",
+   "owner": "spec",
+   "means": {
+    "ja": "文書ルートに置く群と、その中身の条"
+   }
+  },
+  {
+   "prefix": "DU",
+   "words": "Duplicate",
+   "owner": "spec",
+   "means": {
+    "ja": "複製したときに一緒に複製されるものの条"
+   }
+  },
+  {
+   "prefix": "DV",
+   "words": "Derived Value",
+   "owner": "spec",
+   "means": {
+    "ja": "書き出すときに作る値（文書は持たず、書き出しで導く）"
+   }
+  },
+  {
+   "prefix": "ED",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "最後に編集した者として書く語"
+   }
+  },
+  {
+   "prefix": "EN",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "入口を塗って示す状態"
+   }
+  },
+  {
+   "prefix": "EP",
+   "words": "Export Part",
+   "owner": "spec",
+   "means": {
+    "ja": "書き出す絵に描く UI パーツと、描かない UI パーツ"
+   }
+  },
+  {
+   "prefix": "ET",
+   "words": "Entity",
+   "owner": "spec",
+   "means": {
+    "ja": "エンティティ 1 つ"
+   }
+  },
+  {
+   "prefix": "EX",
+   "words": "Export",
+   "owner": "spec",
+   "means": {
+    "ja": "書き出しの規約の条"
+   }
+  },
+  {
+   "prefix": "EZ",
+   "words": "Easy",
+   "owner": "spec",
+   "means": {
+    "ja": "マニュアルを読まずに使えるようにする手立て"
+   }
+  },
+  {
+   "prefix": "FD",
+   "words": "Fade",
+   "owner": "spec",
+   "means": {
+    "ja": "フェードの形の場合分け"
+   }
+  },
+  {
+   "prefix": "FT",
+   "words": "Frame Trigger",
+   "owner": "spec",
+   "means": {
+    "ja": "フレームが走る契機"
+   }
+  },
+  {
+   "prefix": "FU",
+   "words": "Future",
+   "owner": "spec",
+   "means": {
+    "ja": "いま作らないが、後から足せるようにしておくもの"
+   }
+  },
+  {
+   "prefix": "G",
+   "words": "Glossary",
+   "owner": "spec",
+   "means": {
+    "ja": "本書を読むための語"
+   }
+  },
+  {
+   "prefix": "GD",
+   "words": "Guide",
+   "owner": "spec",
+   "means": {
+    "ja": "予実の補助線の条"
+   }
+  },
+  {
+   "prefix": "GR",
+   "words": "Grab region",
+   "owner": "spec",
+   "means": {
+    "ja": "掴み領域 1 つと、その優先順位の段"
+   }
+  },
+  {
+   "prefix": "HF",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "行ごとの折り畳みと隠しの操作面の条"
+   }
+  },
+  {
+   "prefix": "HM",
+   "words": "Hierarchy Move",
+   "owner": "spec",
+   "means": {
+    "ja": "階層の移動の規則の条"
+   }
+  },
+  {
+   "prefix": "HR",
+   "words": "Hierarchy",
+   "owner": "spec",
+   "means": {
+    "ja": "階層の操作（展開・畳み・隠し）の種別"
+   }
+  },
+  {
+   "prefix": "IC",
+   "words": "Icon",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "画面に出すアイコン 1 つ"
+   }
+  },
+  {
+   "prefix": "IF",
+   "words": "Interface",
+   "owner": "spec",
+   "means": {
+    "ja": "層をまたぐインターフェース 1 本"
+   }
+  },
+  {
+   "prefix": "IN",
+   "words": "Input",
+   "owner": "spec",
+   "means": {
+    "ja": "入力の作法の条"
+   }
+  },
+  {
+   "prefix": "IO",
+   "words": "Input / Output",
+   "owner": "spec",
+   "means": {
+    "ja": "読み書きする入出力の形式"
+   }
+  },
+  {
+   "prefix": "IV",
+   "words": "Invariant",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "文書が満たす不変条件"
+   }
+  },
+  {
+   "prefix": "IX",
+   "words": "Image eXport",
+   "owner": "spec",
+   "means": {
+    "ja": "画像の書き出しの規則の条"
+   }
+  },
+  {
+   "prefix": "K",
+   "words": "Key",
+   "owner": "spec",
+   "means": {
+    "ja": "設定値のキー 1 つ"
+   }
+  },
+  {
+   "prefix": "L",
+   "words": "Level of Detail",
+   "owner": "spec",
+   "means": {
+    "ja": "表示量の増減（LOD）の種別"
+   }
+  },
+  {
+   "prefix": "LC",
+   "words": "Layout Calculation",
+   "owner": "spec",
+   "means": {
+    "ja": "レイアウトを求める計算の段"
+   }
+  },
+  {
+   "prefix": "LF",
+   "words": "Layout Formula",
+   "owner": "spec",
+   "means": {
+    "ja": "レイアウトの算式の条"
+   }
+  },
+  {
+   "prefix": "LM",
+   "words": "Limitation",
+   "owner": "spec",
+   "means": {
+    "ja": "製品が引き受ける制限事項"
+   }
+  },
+  {
+   "prefix": "LR",
+   "words": "Layer Rule",
+   "owner": "spec",
+   "means": {
+    "ja": "層と層のあいだの依存の規則"
+   }
+  },
+  {
+   "prefix": "LY",
+   "words": "Layer",
+   "owner": "spec",
+   "means": {
+    "ja": "設計上の層 1 つ"
+   }
+  },
+  {
+   "prefix": "MC",
+   "words": "Measurement Condition",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "性能を測る環境の条件"
+   }
+  },
+  {
+   "prefix": "MG",
+   "words": "Merge",
+   "owner": "spec",
+   "means": {
+    "ja": "取り込んだ文書を合流させるときの規則の条"
+   }
+  },
+  {
+   "prefix": "MK",
+   "words": "",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "ポインタとキーボードの割当 1 つ"
+   }
+  },
+  {
+   "prefix": "MM",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "合流のときに示す対応付けの選択肢"
+   }
+  },
+  {
+   "prefix": "MN",
+   "words": "Minimum",
+   "owner": "spec",
+   "means": {
+    "ja": "最小構成に対して増やしたものと、その理由"
+   }
+  },
+  {
+   "prefix": "MS",
+   "words": "Milestone",
+   "owner": "spec",
+   "means": {
+    "ja": "開発の節目"
+   }
+  },
+  {
+   "prefix": "N",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "データの語 —— エンティティと列の日本語の呼び名"
+   }
+  },
+  {
+   "prefix": "NF",
+   "words": "No Figure",
+   "owner": "spec",
+   "means": {
+    "ja": "描かなかった図と、描かなかった理由"
+   }
+  },
+  {
+   "prefix": "NL",
+   "words": "Name Label",
+   "owner": "spec",
+   "means": {
+    "ja": "名称ラベルの配置の決定順"
+   }
+  },
+  {
+   "prefix": "NR",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "交換形式を比べる前に当てる正規化の条"
+   }
+  },
+  {
+   "prefix": "NS",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "書き出した絵を比べる前に当てる正規化と、一致の判定の条"
+   }
+  },
+  {
+   "prefix": "NT",
+   "words": "Notification",
+   "owner": "spec",
+   "means": {
+    "ja": "通知するときの作法の条"
+   }
+  },
+  {
+   "prefix": "OC",
+   "words": "Occupancy",
+   "owner": "spec",
+   "means": {
+    "ja": "形状の占有幅に算入するもの"
+   }
+  },
+  {
+   "prefix": "OP",
+   "words": "Open",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "文書を開くときの規則の条"
+   }
+  },
+  {
+   "prefix": "OR",
+   "words": "Order",
+   "owner": "spec",
+   "means": {
+    "ja": "形状の外へ出すものの左右の並びの条"
+   }
+  },
+  {
+   "prefix": "P",
+   "words": "Property",
+   "owner": "spec",
+   "means": {
+    "ja": "画面に出すプロパティの語"
+   }
+  },
+  {
+   "prefix": "PA",
+   "words": "Plan and Actual",
+   "owner": "spec",
+   "means": {
+    "ja": "予定と実績が取りうる状態"
+   }
+  },
+  {
+   "prefix": "PD",
+   "words": "Pointer Down",
+   "owner": "spec",
+   "means": {
+    "ja": "ポインタを押したときの判定順序の段（台帳の未裁定の決めごとが同じ綴りを使っており、CR-371 が PTD へ改める）"
+   }
+  },
+  {
+   "prefix": "PF",
+   "words": "Profile",
+   "owner": "spec",
+   "means": {
+    "ja": "文書の基本情報の項目"
+   }
+  },
+  {
+   "prefix": "PG",
+   "words": "",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "節目ごとに測るものと、それがゲートかどうか"
+   }
+  },
+  {
+   "prefix": "PI",
+   "words": "Public Interface",
+   "owner": "spec",
+   "means": {
+    "ja": "コンポーネントが公開するメンバの組"
+   }
+  },
+  {
+   "prefix": "PL",
+   "words": "Progress Line",
+   "owner": "spec",
+   "means": {
+    "ja": "イナズマ線の頂点の打ち方"
+   }
+  },
+  {
+   "prefix": "PLM",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "いまの日程表の作り方が抱えている問題"
+   }
+  },
+  {
+   "prefix": "PM",
+   "words": "Progress Marker",
+   "owner": "spec",
+   "means": {
+    "ja": "進捗マーカーの記号"
+   }
+  },
+  {
+   "prefix": "PO",
+   "words": "Policy",
+   "owner": "spec",
+   "means": {
+    "ja": "単一 HTML の内容セキュリティ方針の指令"
+   }
+  },
+  {
+   "prefix": "PR",
+   "words": "Property",
+   "owner": "spec",
+   "means": {
+    "ja": "プロパティパネルが出す項目 1 つ"
+   }
+  },
+  {
+   "prefix": "PS",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "予実の状態を判別する順の段"
+   }
+  },
+  {
+   "prefix": "PV",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "印を押して状態を確定したときに置く値"
+   }
+  },
+  {
+   "prefix": "QN",
+   "words": "Question",
+   "owner": "spec",
+   "means": {
+    "ja": "問いが示す文"
+   }
+  },
+  {
+   "prefix": "R",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "機器と機器のあいだのデータの経路"
+   }
+  },
+  {
+   "prefix": "RC",
+   "words": "Reduction Candidate",
+   "owner": "spec",
+   "means": {
+    "ja": "削減・見直しの候補"
+   }
+  },
+  {
+   "prefix": "RD",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "文書をまるごと差し替えるときの、呼び手ごとの扱い"
+   }
+  },
+  {
+   "prefix": "RL",
+   "words": "Relation",
+   "owner": "spec",
+   "means": {
+    "ja": "エンティティのあいだの関係 1 本"
+   }
+  },
+  {
+   "prefix": "RP",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "依存線の経路の分岐"
+   }
+  },
+  {
+   "prefix": "RS",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "通知が運ぶ理由"
+   }
+  },
+  {
+   "prefix": "RT",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "依存線の経路が満たす規則"
+   }
+  },
+  {
+   "prefix": "RV",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "描くときに求める値（文書は持たず、描くたびに導く）"
+   }
+  },
+  {
+   "prefix": "S",
+   "words": "Setting",
+   "owner": "spec",
+   "means": {
+    "ja": "設定値 1 つ。一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない"
+   }
+  },
+  {
+   "prefix": "SC",
+   "words": "Scroll",
+   "owner": "spec",
+   "means": {
+    "ja": "何がスクロールし、何がしないか"
+   }
+  },
+  {
+   "prefix": "SH",
+   "words": "Shape",
+   "owner": "spec",
+   "means": {
+    "ja": "タスクの形状（`shapeKind`）"
+   }
+  },
+  {
+   "prefix": "SK",
+   "words": "Shortcut Key",
+   "owner": "spec",
+   "means": {
+    "ja": "ショートカットキーの割当"
+   }
+  },
+  {
+   "prefix": "SL",
+   "words": "Selection",
+   "owner": "spec",
+   "means": {
+    "ja": "選択の規則の条"
+   }
+  },
+  {
+   "prefix": "SO",
+   "words": "Scope",
+   "owner": "spec",
+   "means": {
+    "ja": "製品の範囲（含むもの・含まないもの）"
+   }
+  },
+  {
+   "prefix": "SP",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "パレットの形状を押したときの意味を、選択の状態ごとに定める条"
+   }
+  },
+  {
+   "prefix": "ST",
+   "words": "Stack",
+   "owner": "spec",
+   "means": {
+    "ja": "積み順の自動割当の規則"
+   }
+  },
+  {
+   "prefix": "SU",
+   "words": "Structure Unit",
+   "owner": "spec",
+   "means": {
+    "ja": "構造の単位（コンポーネント・モジュール・ユニット）"
+   }
+  },
+  {
+   "prefix": "TC",
+   "words": "Task Creation",
+   "owner": "spec",
+   "means": {
+    "ja": "タスクを作る手つきの規則の条"
+   }
+  },
+  {
+   "prefix": "TE",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "実績の端点を掴み分ける規則の条"
+   }
+  },
+  {
+   "prefix": "TM",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "目盛の段が刷るもの"
+   }
+  },
+  {
+   "prefix": "TP",
+   "words": "Template",
+   "owner": "spec",
+   "means": {
+    "ja": "初期テンプレートの中身"
+   }
+  },
+  {
+   "prefix": "TR",
+   "words": "Trade-off",
+   "owner": "spec",
+   "means": {
+    "ja": "意図して払う代償と、その代わりに得るもの"
+   }
+  },
+  {
+   "prefix": "TS",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "テストの系統"
+   }
+  },
+  {
+   "prefix": "TW",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "章ごとのテストの方針と合格基準"
+   }
+  },
+  {
+   "prefix": "U",
+   "words": "UI part",
+   "owner": "spec",
+   "means": {
+    "ja": "画面の UI パーツ 1 つ"
+   }
+  },
+  {
+   "prefix": "UF",
+   "words": "",
+   "owner": "spec",
+   "mirrored_in": [
+    "records"
+   ],
+   "means": {
+    "ja": "ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主"
+   }
+  },
+  {
+   "prefix": "UN",
+   "words": "Undo",
+   "owner": "spec",
+   "means": {
+    "ja": "取り消しの対象と対象外"
+   }
+  },
+  {
+   "prefix": "UT",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "ユニットを割った理由"
+   }
+  },
+  {
+   "prefix": "V",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "ユースケースと、前プロジェクトの要望との対応"
+   }
+  },
+  {
+   "prefix": "VK",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "価値のことば —— 目標が述べる状態を 1 語で指すことば"
+   }
+  },
+  {
+   "prefix": "W",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "面ごとの記法"
+   }
+  },
+  {
+   "prefix": "WM",
+   "words": "Watermark",
+   "owner": "spec",
+   "means": {
+    "ja": "透かしの規則の条"
+   }
+  },
+  {
+   "prefix": "WS",
+   "words": "Write Step",
+   "owner": "spec",
+   "means": {
+    "ja": "文書を変える手順の段"
+   }
+  },
+  {
+   "prefix": "WY",
+   "words": "WYSIWYG",
+   "owner": "spec",
+   "means": {
+    "ja": "画面と成果物が同じであることの達成判定"
+   }
+  },
+  {
+   "prefix": "X",
+   "words": "eXception",
+   "owner": "spec",
+   "means": {
+    "ja": "直訳しない語（訳語の例外）"
+   }
+  },
+  {
+   "prefix": "XO",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "本製品が持たないもの"
+   }
+  },
+  {
+   "prefix": "ZO",
+   "words": "Z-Order",
+   "owner": "spec",
+   "means": {
+    "ja": "重ね順（背面から前面へ）の段"
+   }
+  },
+  {
+   "prefix": "CR",
+   "words": "Change Request",
+   "owner": "records",
+   "means": {
+    "ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"
+   }
+  },
+  {
+   "prefix": "WR",
+   "words": "",
+   "owner": "rules",
+   "means": {
+    "ja": "要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である"
+   }
+  },
+  {
+   "prefix": "PTD",
+   "words": "Pointer Down",
+   "owner": "spec",
+   "pending": true,
+   "means": {
+    "ja": "ポインタを押したときの判定順序の段。CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い"
+   }
+  },
+  {
+   "prefix": "PND",
+   "words": "Pending Decision",
+   "owner": "records",
+   "pending": true,
+   "means": {
+    "ja": "まだ裁定されていない決めごと。CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い"
+   }
+  }
  ]
 }
