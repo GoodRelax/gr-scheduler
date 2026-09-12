@@ -3,8 +3,8 @@
 **UID**: DOC-FIG-ERD-DETAIL
 **Version**: 0.1
 
-> ⛔ **本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。**
-> **唯一の正は `_source/erd.json` であり、本書はそれを `_source/erd_json_to_md.py` が書き出したものである。**
+> ⛔ 本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。
+> 唯一の正は `_source/erd.json` であり、本書はそれを `_source/erd_json_to_md.py` が書き出したものである。
 > **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。説明の散文は `05-07-design.md` が持つ。
 
 ## 1. 詳細 ERD
@@ -309,9 +309,9 @@ erDiagram
 | AT-5 | `Project` | `category` | 文字列 | 可 | — | Own | `Project/Category` | 分類 |
 | AT-6 | `Project` | `company` | 文字列 | 可 | — | Own | `Project/Company` | 会社名 |
 | AT-7 | `Project` | `manager` | 文字列 | 可 | — | Own | `Project/Manager` | 管理者名 |
-| AT-8 | `Project` | `author` | 文字列 | 可 | — | Own | `Project/Author` | **作成者。最後に書いた者ではない** |
+| AT-8 | `Project` | `author` | 文字列 | 可 | — | Own | `Project/Author` | 作成者。最後に書いた者ではない |
 | AT-9 | `Project` | `created` | 日時 | 可 | — | Own | `Project/CreationDate` | 作成日時 |
-| AT-10 | `Project` | `revision` | 整数 | 可 | — | Own | `Project/Revision` | ⚠️ **交換相手の保存回数。`documentStamp` の 2 つの刻とは別物** |
+| AT-10 | `Project` | `revision` | 整数 | 可 | — | Own | `Project/Revision` | ⚠️ 交換相手の保存回数。`documentStamp` の 2 つの刻とは別物 |
 | AT-11 | `Project` | `lastSaved` | 日時 | 可 | — | Own | `Project/LastSaved` | 最後に保存した日時 |
 | AT-12 | `Project` | `startDate` | 日付 | 可 | — | Own | `Project/StartDate` | プロジェクトの開始日 |
 | AT-13 | `Project` | `statusDate` | 日付 | 可 | — | Own | `Project/StatusDate` | 基準日線が立つ日 |
@@ -337,7 +337,7 @@ erDiagram
 | AT-32 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
 | AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | 交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`） |
 | AT-34 | `Task` | `actualStart` | 日時 | 可 | — | Own | `Task/ActualStart` | 実績の開始。空 = 未着手 |
-| AT-35 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Consume | `Task/ActualDuration` | 実績バーの長さ。**交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す**（`FR-054`） |
+| AT-35 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Consume | `Task/ActualDuration` | 実績バーの長さ。交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す（`FR-054`） |
 | AT-36 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
 | AT-37 | `Task` | `resume` | 日時 | 可 | — | Own | `Task/Resume` | 中断中に、残りが始まる予定の日 |
 | AT-38 | `Task` | `resumeValid` | 真偽 | 可 | — | Own | `Task/ResumeValid` | 偽 = 再開日が未定の中断 |
@@ -384,7 +384,7 @@ erDiagram
 | AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
 | AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
 | AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
-| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | **繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる**（`FR-088`）。**`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし**（正は Chapter 6.2 が指す公式 XSD） |
+| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる（`FR-088`）。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD） |
 | AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
 | AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
@@ -402,7 +402,7 @@ erDiagram
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
 | AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は 表 T-013 が決める**（`FR-002`）—— そちらは自動配置の順であって、この格子ではない |
 | AT-99 | `TaskVisual` | `nameAlign` | 列挙（3 値） | 可 | — | GRS | — | 名前の揃え |
-| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
+| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | 描画の形だけを決める。`Task.milestone` を変えない（表 T-012） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。**輪郭と同時に透明にできない**（`FR-030`） |
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
@@ -414,7 +414,7 @@ erDiagram
 | AT-109 | `TaskOrigin` | `importSessionId` | 文字列 | 可 | — | GRS | — | 取り込み 1 回の識別子 |
 | AT-110 | `CommentBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
 | AT-111 | `CommentBox` | `leaderShapeKind` | 列挙（2 値） | 可 | — | GRS | — | 引き出し線の形 |
-| AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | **本文。「コメント」と略さない**（`U-14`） |
+| AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | 本文。「コメント」と略さない（`U-14`） |
 | AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
 | AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
 | AT-115 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文の左下隅までのずれ（`FR-019`） |
@@ -425,14 +425,14 @@ erDiagram
 | AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
 | AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色 |
 | AT-122 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
-| AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
+| AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。所有者とこれで一意になる。これで元の位置に戻す |
 | AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
 | AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
-| AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ**（`FR-023`）—— ⚠️ **信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である** |
+| AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ（`FR-023`）—— ⚠️ 信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である |
 | AT-127 | `documentStamp` | `scheduleUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** |
 | AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。書く語の全数は 表 T-229 が持つ |
 | AT-129 | `documentStamp` | `settingsUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える） |
-| AT-140 | `documentStamp` | `fileSavedUtc` | 文字列（`ISO 8601`・UTC・秒） | 可 | — | GRS | — | 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— **保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。** |
+| AT-140 | `documentStamp` | `fileSavedUtc` | 文字列（`ISO 8601`・UTC・秒） | 可 | — | GRS | — | 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。 |
 | AT-130 | `changeLog` | `ordinal` | 整数 | 否 | PK | GRS | — | 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である |
 | AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
 | AT-132 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |

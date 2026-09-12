@@ -176,7 +176,7 @@ const FR_051_SCROLLBAR_MOVES_THE_VIEW =
 // -- FR-020, where the trail is said to be a trail -------------------------
 
 const FR_020_THE_PLACE_IS_QN_9 =
-  '**透かしがアクセス制御ではなく証跡であることを画面上でも示すこと（MUST）** —— 見えているものを守っていると誤解させない。⭐⭐ **示す場所は 表 T-234 の `QN-9` の文とすること（MUST）'
+  '**透かしがアクセス制御ではなく証跡であることを画面上でも示すこと（MUST）** —— 見えているものを守っていると誤解させない。⭐ **示す場所は 表 T-234 の `QN-9` の文とすること（MUST）'
 
 const FR_020_NO_SECOND_DISPLAY_WORD =
   '文とすること（MUST）**（利用者の裁定 2026-09-07）—— 誤解が起きるのは「消せない」に会ったときであり、その場で読む文がすでに 1 つ決まっている。⛔ **このために新しい表示語を立ててはならない（MUST NOT）'
@@ -184,16 +184,16 @@ const FR_020_NO_SECOND_DISPLAY_WORD =
 // -- T-076 EP-1, the band and the title it carries -------------------------
 
 const EP_1_BAND_KEEPS_THE_SCREEN_HEIGHT =
-  '`（`U-35`）／ `Opened File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）'
+  '`（`U-35`）／ `Opened File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）'
 
 const EP_1_NOT_COMPRESSED =
-  'File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）'
+  'File Name`（`U-58`）・`File Saved At`（`U-59`） | 帯と `Document Title` を描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）'
 
 const EP_1_TITLE_DOES_NOT_MOVE =
-  '描く。ほかは描かない | **帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT）** —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）'
+  '描く。ほかは描かない | 帯の高さを画面のまま保つこと（MUST）。詰めてはならない（MUST NOT） —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）'
 
 const EP_1_ONE_ROW_FOR_SIZE_AND_INSET =
-  'UST NOT）** —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）⭐⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
+  'UST NOT） —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 
 const EP_1_NO_EXPORT_ONLY_CONSTANT =
   '026-09-07）—— `_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'

@@ -95,7 +95,7 @@ const REQUIREMENTS = readFileSync(
 
 /** ⛔⛔ FR-025 (MUST NOT), verbatim, ending at its own marker. */
 const FR_025_NO_SCALE =
-  '出力サイズは表 T-204 の `S-81` に固定し、書き出しのたびに選ばせてはならない（MUST NOT）。 ⛔⛔ **倍率を持ってはならない（MUST NOT）'
+  '出力サイズは表 T-204 の `S-81` に固定し、書き出しのたびに選ばせてはならない（MUST NOT）。 ⛔ **倍率を持ってはならない（MUST NOT）'
 
 /** ⛔ FR-025 (MUST), the retired key kept rather than dropped, verbatim. */
 const FR_025_KEEP_RETIRED_KEY =

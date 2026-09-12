@@ -185,9 +185,9 @@ const DESIGN = readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md
  * so a rewrite of either neighbour is caught here rather than in an assertion.
  */
 const FR_098_NOT_FITTING_NOT_DRAWN =
-  'ピン止めした行どうしに優劣を設けてはならない（MUST NOT）** —— 固定した順に上から並べる。⭐⭐ ピン止めした行が画面に収まらないときは、入りきらない行を描かないこと（MUST）'
+  'ピン止めした行どうしに優劣を設けてはならない（MUST NOT）** —— 固定した順に上から並べる。⭐ ピン止めした行が画面に収まらないときは、入りきらない行を描かないこと（MUST）'
 const FR_098_BAND_DOES_NOT_SCROLL =
-  '固定した順に上から並べる。⭐⭐ ピン止めした行が画面に収まらないときは、入りきらない行を描かないこと（MUST）。帯を縦にスクロールできるようにしてはならない（MUST NOT）'
+  '固定した順に上から並べる。⭐ ピン止めした行が画面に収まらないときは、入りきらない行を描かないこと（MUST）。帯を縦にスクロールできるようにしてはならない（MUST NOT）'
 
 /** The ruling itself, so the pair above cannot be read as an editor's flourish. */
 const RULING_2026_09_06 =

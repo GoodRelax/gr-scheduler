@@ -183,7 +183,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⚠️ The sentence that went was about `src/`, never about the scene, and no
   // word was drawn from it, so the words are left exactly as they were and only
   // the fingerprint is re-recorded.
-  'RS-19': '4a911c8b5b5da54e',
+  'RS-19': '23b990701d8b5422',
   'RS-20': '9660f89d7f3c1a5b',
   'RS-21': '320caa7b7c536e85',
   'RS-22': '1b8ded119f138b08',

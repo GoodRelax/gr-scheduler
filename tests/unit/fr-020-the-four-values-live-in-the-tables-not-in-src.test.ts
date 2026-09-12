@@ -210,7 +210,7 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
     // when at least 28 characters ending at the marker appear verbatim
     // under tests/, so the row's own scene is quoted with it.
     expect(REQUIREMENTS).toContain(
-      '名前が、まだ設定されていない⛔⛔ **いまは告げてはならない（MUST NOT）',
+      '名前が、まだ設定されていない⛔ **いまは告げてはならない（MUST NOT）',
     )
   })
 

@@ -151,7 +151,7 @@ const SCALE_RUNS = 3
  * `NFR-013`, verbatim:
  *
  *   `GRS` は、タスク数 `n` に対して、レイアウトの算出・当たり判定・依存線の経
- *   路の計算量を **`O(n log n)` 以下**とすること。**`O(n²)` の算法を用いては
+ *   路の計算量を **`O(n log n)` 以下**とすること。`O(n²)` の算法を用いては
  *   ならない（MUST NOT）。**
  *
  * ⭐ THE CEILING IS COMPUTED, NEVER TYPED. Going from `n` to `8n` under

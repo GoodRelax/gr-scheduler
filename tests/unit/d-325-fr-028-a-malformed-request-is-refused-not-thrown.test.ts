@@ -115,7 +115,7 @@ import { specTable } from '../contract/spec-table'
  * clauses, quoted to the character.
  */
 const FR_028_NEVER_THROWS =
-  'TEMENT**: `Agent API` が有効化されているとき、`GRS` は、人が UI で行える編集・確認・出力と同じことを関数の呼び出しで行えるようにし、**受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）'
+  'TEMENT**: `Agent API` が有効化されているとき、`GRS` は、人が UI で行える編集・確認・出力と同じことを関数の呼び出しで行えるようにし、受理したか否かを値で返すこと。例外を投げてはならない（MUST NOT）'
 
 const AG_9A_WHAT_A_REFUSAL_CARRIES =
   'ードのダイアログを出さずに値で返せること |\n| AG-8 | 画像化に失敗したときも、呼び出した側が**失敗を値で受け取れること** |\n| AG-9a | **拒否の値には、拒否された対象・理由の区分・現在の刻印を含めること（MUST）'

@@ -187,7 +187,7 @@ const OP_10_WHEN = OP_10_ROW.by[SUBJECT_COLUMN] ?? ''
  * below cases about the specification rather than about this file's memory.
  */
 const A_CHOICE_IS_THE_PLACE =
-  '⛔⛔ **人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）**'
+  '⛔ **人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）**'
 
 const NOT_EVERY_FRAME = '⛔ **本行を毎フレームやり直してはならない（MUST NOT）**'
 

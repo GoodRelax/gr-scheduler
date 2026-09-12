@@ -468,6 +468,10 @@ echo "===== 46  every sentence ends a line ====="
 PYTHONIOENCODING=utf-8 python "$HERE/check-line-breaks.py" || fail=1
 
 echo ""
+echo "===== 47  the marks are used once, and bold marks a phrase ====="
+PYTHONIOENCODING=utf-8 python "$HERE/check-marks.py" || fail=1
+
+echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
 # ⛔ Printed on every run, green or red. A suite that names only what it
 # checked gets read as having checked everything, which is how a gate that saw

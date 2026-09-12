@@ -153,7 +153,7 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
 
 /** Held at 90 characters. */
 const THE_DUMMY_BEATS_EVERY_PLAN_ROW =
-  'い込みうるのは印だけである。⭐⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
+  'い込みうるのは印だけである。⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
 
 /** Held at 90 characters. */
 const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
@@ -169,7 +169,7 @@ const GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE =
 
 /** Held at 90 characters. */
 const GR_8_IS_CENTRED_ON_THE_ICON =
-  'は本表の結びが持つ。**⛔⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
+  'は本表の結びが持つ。⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
 
 // ---------------------------------------------------------------------------
 // ⭐ ADDED WITH THE ROUND THAT MEASURED D-395. The closing rule of 2026-09-08

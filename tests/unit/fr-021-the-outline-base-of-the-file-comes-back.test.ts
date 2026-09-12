@@ -116,7 +116,7 @@ const FR_021 = ((): string => {
  * clause, and matching it against the manuscript is what makes the cases below
  * cases about the specification.
  */
-const THE_CLAUSE = '⛔⛔ **段の起点は、取り込んだファイルのものを保つこと（MUST）**'
+const THE_CLAUSE = '⛔ **段の起点は、取り込んだファイルのものを保つこと（MUST）**'
 
 const WHERE_THE_BASE_LIVES = '起点は 表 T-058 の `Project.outlineBase` が持ち、既定は 1 とする'
 
