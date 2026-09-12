@@ -1,4 +1,12 @@
-163
+161
+#
+# LOWERED 163 -> 161 ON 2026-09-12, stage 1 of the src/ comment cleanup.
+# Both were IC-69 / IC-70 in screen-renderer.ts -- UNDEFINED, not retired --
+# and both sat inside a retraction record that 6-1 ① removes anyway. The
+# retired count is unchanged at 143; 18 undefined stands.
+# ⛔ 0 IS STILL NOT THE TARGET (裁定 8). Naming a burnt ID is correct in
+# three shapes, and this floor is close.
+#
 #
 # LOWERED 248 -> 163 ON 2026-09-11 by wave 3 of P1-3: three bodies, 45 files.
 # Across all three waves 445 -> 163 over 78 files, and ⛔ NOT ONE LINE OF

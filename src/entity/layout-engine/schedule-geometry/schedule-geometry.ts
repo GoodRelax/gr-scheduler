@@ -20,10 +20,6 @@
 //   - the deadline mark (FR-045) and the days-late label (FR-047). Table T-042
 //     puts them at M4, and ScheduleLayout carries the matching gap in its
 //     occupancy (OC-9 and OC-8 of table T-038).
-//     ⭐ OC-2's CARD IS NO LONGER AMONG THEM: the assignee (FR-059, with AS-2
-//     of table T-225 for the Task nobody is on) and the percent (FR-090) are
-//     placed as ONE card, and `assigneeLabel` is what gives GR-11 of table
-//     T-023d the target `item-hit-area.ts` had no row for.
 //   - the comment box's LEADER, AT-111's `calloutBox` and `polyline`. The body
 //     is drawn now that FR-097 states the sizing rule and S-181 / S-182 hold
 //     the padding and the wrap, but no row anywhere says what either leader
@@ -31,23 +27,10 @@
 //     user. `commentGeometry` carries the anchor for whoever draws it.
 //   - the guide cursor (CU-3 of table T-029). It follows the pointer, and no
 //     stage below is handed one -- ADR-001 runs table T-068 from the frozen
-//     document alone. ⭐ The DUAL cursor is drawn now: its two dates are the
-//     document's (S-65) and `dualCursorGeometry` places them.
+//     document alone.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
-// ⭐ The eight milestone figures are no longer among them. All eight of
-// AT-101's are drawn, from one inscribed circle, and `TaskPlacement` now
-// carries the chosen one -- until it did, picking ☆ drew a ◇ in silence.
-// FR-078 sends an unchosen figure to AT-101's default, which is `diamond` and
-// reaches code as `COLUMN_DEFAULTS` (CR-177), so the ◇ is still not a value
-// this file chose. ⚠️ The corners themselves are this file's: see PD-2.
-//
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// ⚠️ The corners of the milestone figures are this file's own and not the
+// specification's: see PD-2.
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
@@ -110,10 +93,9 @@ export type BarGeometry =
        * table T-012 and eight of the fifteen marks of SH-5.
        *
        * ⭐⭐ MADE FROM THE SAME `side` THE SILHOUETTE IS, which is the whole
-       * reason this member may exist at all: 「日程も他のマイルストーンとサイズ
-       * を合わせろ。つまり動的に変更可能としろ」 (the user's ruling of
-       * 2026-08-29). Nothing here holds a length of its own, so a mark grows
-       * and shrinks with the bar exactly as the outline around it does.
+       * reason this member may exist at all -- see `share` below. Nothing here
+       * holds a length of its own, so a mark grows and shrinks with the bar
+       * exactly as the outline around it does.
        * ⛔ NOT PART OF WHAT IS GRABBED. `itemAtPointer` tests the silhouette,
        * and a hole in the middle of a milestone that could not be picked up
        * would be a grab area no row of table T-023d describes.
@@ -150,9 +132,7 @@ export interface ResumeGeometry {
   readonly valid: boolean
   /**
    * Half of GR-8's hit square, which table T-023d's GR-8 row now sizes at S-22
-   * (MUST): 「当たり判定は `_assets/tbl-settings.md` の 表 T-201 の `S-22` の
-   * 大きさとすること（MUST）」, ⛔ 「図形の素の輪郭を当たり判定にしてはならない
-   * （MUST NOT）」.
+   * (MUST) and forbids the shape's own outline to be the hit box (MUST NOT).
    *
    * ⭐⭐ CARRIED HERE BECAUSE S-22 IS A DOCUMENT SETTING. The reaches
    * `PointerSlop` holds are table T-206's, which that table keeps OUT of the
@@ -161,8 +141,8 @@ export interface ResumeGeometry {
    * reaches `item-hit-area.ts` this way -- `MarkerGeometry.radius` is the same
    * setting halved -- so this is the road that exists rather than a new one.
    *
-   * ⭐ NO NEW SETTING IS RAISED, which the row states: 「新しい設定値を立てない
-   * —— 進捗マーカー（`GR-7`）と同じ寸法をそのまま使う。」
+   * ⭐ NO NEW SETTING IS RAISED, which the row states: the progress marker's
+   * own size (`GR-7`) is used as it stands.
    *
    * ⚠️ S-25 (`resumeScaleInvalid`) DOES NOT ENTER IT. That row shrinks the
    * DRAWING while `resumeValid` is false, and no clause makes the hit box
@@ -178,17 +158,15 @@ export interface DummyGeometry {
   readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
   readonly at: Point
   /**
-   * The ONE mark FR-043 draws for this Task (MUST): 「ダミーの印は 1 つだけ描く
-   * こと（MUST）。開始の側と終了の側に別々の印を描いてはならない（MUST NOT）」.
+   * The ONE mark FR-043 draws for this Task (MUST) -- not a separate one on the
+   * start side and the finish side (MUST NOT).
    *
    * ⭐⭐ THE SAME RECTANGLE ON EVERY DUMMY OF ONE TASK, and that is the point:
    * two sides read it and neither may work it out again. The renderer draws
-   * this rectangle, and table T-023d's closing rule (MUST, 利用者の裁定
-   * 2026-09-09) hands its PIXELS to GR-17 -- 「描かれたダミーの印の画素も、同じ
-   * く終了側（`GR-17`）を掴むこと」 -- so `item-hit-area.ts` reads it too.
-   * ⛔ Solving 「1 日ぶんと `S-180` の小さい方」 on each side is the copied-value
-   * defect rule 03 section 1 names, and the mark's own day would then be a
-   * second thing to keep in step.
+   * this rectangle, and table T-023d's closing rule (MUST) hands its PIXELS to
+   * GR-17, so `item-hit-area.ts` reads it too. ⛔ Solving the width on each side
+   * is the copied-value defect rule 03 section 1 names, and the mark's own day
+   * would then be a second thing to keep in step.
    *
    * ⭐ S-180 IS A WIDTH AND SAYS SO. Its note settles the horizontal alone and
    * sends the vertical to the actual bar's band -- the same split S-91 makes
@@ -209,31 +187,28 @@ export interface TaskGeometry {
   readonly plan: BarGeometry | null
   readonly actual: BarGeometry | null
   /**
-   * The milestone's own figure, for FR-043's third milestone exception --
-   * 「ダミーの図形は、そのマイルストーンの実績の図形と同じとすること（MUST）。
-   * 矩形で描いてはならない（MUST NOT）」 (利用者の裁定 2026-09-08). Null on
-   * every other shape, which is the only shape the exception is about.
+   * The milestone's own figure, for FR-043's third milestone exception (MUST):
+   * a milestone's dummy is drawn as that milestone's actual figure and never as
+   * a rectangle (MUST NOT). Null on every other shape.
    *
    * ⭐⭐ CARRIED SEPARATELY BECAUSE `plan` AND `actual` BOTH GO MISSING. A Task
    * not started has no actual bar at all (`dummiesOf` only emits a dummy while
    * `actualX` is null), and `planVisible` false takes `plan` with it -- so on a
    * milestone drawn with the plan hidden there was no figure left on this type
    * to copy, and the drawing fell back to a rectangle, which is exactly what
-   * that MUST NOT forbids (D-407, measured 2026-09-08).
+   * that MUST NOT forbids.
    *
    * ⭐ IT IS THE ACTUAL'S FIGURE AND NOT A THIRD ONE. `barOf` builds a
    * milestone's plan and actual from the one `placed.milestoneGlyph`, and only
-   * the side they are drawn on differs, so this is 「そのマイルストーンの実績の
-   * 図形」 with nothing invented. ⛔ Its BOX is not the dummy's -- the drawn
-   * width is S-180 against a day, which is `DRAWN_FOR_THE_SCREEN_ALONE` and
-   * therefore the renderer's to apply; this member carries the OUTLINE that
-   * gets fitted into it.
+   * the side they are drawn on differs, so nothing is invented. ⛔ Its BOX is
+   * not the dummy's -- the drawn width is S-180 against a day, which is
+   * `DRAWN_FOR_THE_SCREEN_ALONE` and therefore the renderer's to apply; this
+   * member carries the OUTLINE that gets fitted into it.
    */
   readonly milestoneFigure: BarGeometry | null
   /**
    * Whether the PLAN's two ends stand on one day -- table T-023d's closing rule
-   * of 2026-09-08, 「2 つの端点が同じ日に立つときは、終了側を掴むこと（MUST）」,
-   * which binds 「予定の 2 端（`GR-3` と `GR-4`）」 as well as the actual's pair.
+   * (MUST) grabs the finish side then, for the plan's pair as for the actual's.
    *
    * ⭐⭐ CARRIED, NOT DERIVED FROM `plan` ABOVE. The bar's own box cannot answer
    * it: S-49's floor (FR-001's RATIONALE) draws a Task of zero duration at
@@ -271,16 +246,17 @@ export interface TaskGeometry {
   readonly label: ScreenRect | null
   /**
    * GR-11's target: OC-2's card -- the assignee (FR-059) and the percent
-   * (FR-090) as ONE label (「2 枚ではなく 1 枚である」), jutting out past the
-   * LEFT of the bar with its RIGHT edge one `labelGap` from the plan bar.
+   * (FR-090) as ONE label, jutting out past the LEFT of the bar with its RIGHT
+   * edge one `labelGap` from the plan bar.
    *
    * Null while S-60 and S-61 both have it hidden -- and never null merely
    * because nobody is on the Task, which is what AS-2 of table T-225 (MUST NOT)
-   * is about: 「何も描かないと `GR-11` に当たる図形がそのタスクだけ存在せず」.
+   * is about: a Task with nothing drawn there would be the one Task with no
+   * shape for `GR-11` to hit.
    *
-   * ⭐ THE NAME IS THE ASSIGNEE'S because GR-11 is the row that claims this
-   * box, and GR-11 is 「担当ラベル」. The percent rides inside the same card
-   * now, so there is one box and one grab area rather than two.
+   * ⭐ THE NAME IS THE ASSIGNEE'S because GR-11 is the row that claims this box.
+   * The percent rides inside the same card, so there is one box and one grab
+   * area rather than two.
    */
   readonly assigneeLabel: ScreenRect | null
 }
@@ -304,10 +280,6 @@ export interface HighlightGeometry {
   /**
    * AT-122's `cornerRadiusPx`, carried through so the drawing side can round
    * the corners. Null when the box states none, and then no rounding is drawn.
-   *
-   * ⛔ Until now this interface held `id` and `box` alone, so the radius the
-   * document stores reached no `<rect>` and every highlight box was drawn with
-   * square corners (D-299).
    *
    * ⚠️ IN PIXELS, NOT IN DAYS. FR-019 draws the radius at a constant size
    * whatever the zoom, so it is passed through untouched -- the two numbers
@@ -408,16 +380,14 @@ interface GeometryInputs {
    * The two days FR-043's dummies stand on, worked out once per distinct
    * `Task.start` instead of once per Task.
    *
-   * ⭐⭐ WHY THIS IS HERE AT ALL, MEASURED. `nextWorkingDay` and
-   * `dateFromWorkingDays` read the calendar through an index that
-   * `schedule.ts` builds AGAIN ON EVERY CALL and deliberately never holds
-   * between calls -- its own note says so, and gives the reason: R2.20 would
-   * make a held index a cache, and Chapter 5.6 records none. Building it parses
-   * every `Exception` date with a regular expression. Measured 2026-09-07 on
-   * the built page at MC-7 scale (1000 `Task`, 706 of them with no actual, one
-   * calendar with 7 exceptions), that came to about 1,700 index builds and
-   * ~24,000 `dayOf` calls per frame, and `dayOf` alone held 3.58ms of a 21.5ms
-   * frame -- against NFR-003's 16.7ms for the whole of one.
+   * ⭐⭐ WHY THIS IS HERE AT ALL. `nextWorkingDay` and `dateFromWorkingDays`
+   * read the calendar through an index that `schedule.ts` builds AGAIN ON EVERY
+   * CALL and deliberately never holds between calls -- its own note says so, and
+   * gives the reason: R2.20 would make a held index a cache, and Chapter 5.6
+   * records none. Building it parses every `Exception` date with a regular
+   * expression. At MC-7 scale that runs to a thousand-odd index builds and tens
+   * of thousands of `dayOf` calls per frame, and `dayOf` alone takes a fifth of
+   * the 16.7ms NFR-003 gives the whole frame.
    *
    * ⛔ THIS IS NOT A CACHE AND MUST NOT BECOME ONE. It is made inside
    * `geometryFromLayout`, filled by that one call and dropped with it, so
@@ -823,10 +793,6 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
 /**
  * RV-5: table T-021, with PM-4 winning whenever it holds.
  *
- * ⚠️ NOT exported. Table T-064's PI-6 declares two members -- the
- * `ScheduleGeometry` type and `geometryFromLayout` -- and this is neither.
- * It leaves the component as `MarkerGeometry.symbol`.
- *
  * @purity pure
  */
 function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressSymbol {
@@ -860,14 +826,12 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
  * further the marker walked from the actual bar it is named against.
  *
  * ⚠️ A milestone has no actual BAR (GR-15 says GR-5, GR-6 and GR-17 do not
- * apply to one), so GR-7 sends it to 「図形の外側」. ⛔⛔ THAT IS WHICHEVER OF
+ * apply to one), so GR-7 sends it outside the FIGURE. ⛔⛔ THAT IS WHICHEVER OF
  * ITS FIGURES REACHES FURTHEST, NOT THE PLAN FIGURE'S RIGHT EDGE. LF-10 draws
  * the actual as a second figure CENTRED on the actual day, so where the actual
  * day is at or past the planned one that figure stands to the right of the
  * plan's edge -- and a marker anchored on the plan is drawn ON it, which table
- * T-038's 「この 4 つを重ねて描いてはならない（MUST NOT）」 forbids and 「図形の
- * 外側」 already refused. ⚠️ Measured 2026-09-08 on the shipped build: the
- * marker overlapped the sideways actual figure by 16.00px.
+ * T-038 (MUST NOT) forbids and which GR-7's own wording already refused.
  * ⭐ `TaskPlacement.actualReach` IS THE ONE PLACE THE REACH IS WORKED OUT.
  * ScheduleLayout measures table T-038's order from that same number, so the
  * marker and the name label cannot part company.
@@ -886,34 +850,27 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
   // GR-7's milestone clause: outside the FIGURE, and a milestone carries two.
   //
   // ⭐⭐ AND OUTSIDE GR-18's HOLD AS WELL, WHICH IS TABLE T-038's ORDER AND NOT
-  // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロを
-  // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
-  // ならない（MUST NOT）」. GR-18 HAS a hold, so the same MUST reaches it.
-  // ⭐⭐ AND THAT HOLD IS THE DRAWN SQUARE ITSELF AS OF 2026-09-10 (MUST): the
-  // closing rule of table T-023d now reads 「`GR-9` / `GR-17` / `GR-18` の当たり
-  // 判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはなら
-  // ない（MUST NOT）」, and the same row says the distinction the order used to
-  // turn on is gone: 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅で
-  // あり、区別は消えた」. ⛔ GR-7's row is not touched: 「マイルストーンのときは
-  // 図形の外側」 says what the marker stands outside OF, and this says what
-  // width the order counts; the two are different faces and the marker clears
-  // both.
+  // GR-7's ROW (MUST): that order counts the width of a hold where one exists
+  // and never the drawn mark's (MUST NOT), and GR-18 HAS a hold. ⭐⭐ AND THAT
+  // HOLD IS THE DRAWN SQUARE ITSELF: the closing rule of table T-023d (MUST)
+  // makes the hit area of GR-9 / GR-17 / GR-18 the mark FR-043 draws and forbids
+  // widening past it (MUST NOT), so the two widths the order used to turn on are
+  // now one. ⛔ GR-7's row is not touched: it says what the marker stands
+  // outside OF, and the closing rule says what width the order counts; the two
+  // are different faces and the marker clears both.
   // ⚠️ `dummyReach` IS ALREADY GR-18's ON A MILESTONE: `dummyReachOf` reads the
   // shape and answers half that square past the day it stands on, so nothing
-  // new is measured here. ⭐ It and `actualReach` are never both a number (FR-043 draws a dummy
-  // only where there is no actual at all), which is why they simply join the
-  // maximum rather than choosing.
+  // new is measured here. ⭐ It and `actualReach` are never both a number
+  // (FR-043 draws a dummy only where there is no actual at all), which is why
+  // they simply join the maximum rather than choosing.
   if (placed.shapeKind === 'milestone') {
     return Math.max(planRight, placed.actualReach ?? planRight, placed.dummyReach ?? planRight)
   }
-  // ⭐⭐ GR-7's NOT-STARTED CLAUSE, AND THE HOLD IS WHAT IT CLEARS. 「未着手の
-  // ときは終了点の掴みシロの外側」, with table T-038's order (MUST, 利用者の裁定
-  // 2026-09-09) saying what that hold is worth: 「本並びで数える幅は、掴みシロを
-  // 持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数えては
-  // ならない（MUST NOT）」. ⭐⭐ AND THE HOLD IS THE INK AS OF 2026-09-10 (MUST,
-  // the closing rule of table T-023d): 「`GR-9` / `GR-17` / `GR-18` の当たり判定
-  // は、`FR-043` が描いた印そのものとすること（MUST）」. So the outside is the
-  // right edge of the drawn mark, which is a day column wide at most.
+  // ⭐⭐ GR-7's NOT-STARTED CLAUSE, AND THE HOLD IS WHAT IT CLEARS: outside the
+  // end point's hold, which table T-038's order (MUST) counts as the hold's own
+  // width and which the closing rule of table T-023d (MUST) makes the drawn mark
+  // itself. So the outside is the right edge of that mark, a day column wide at
+  // most.
   // ⭐⭐ READ OFF THE PLACEMENT AND NOT WORKED OUT HERE, which is the bargain
   // `actualReach` above already keeps: the heading of table T-038 forbids the
   // stacking and the label counting separately (MUST NOT), and ScheduleLayout
@@ -936,10 +893,8 @@ function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | 
  *
  * ⚠️⚠️ THAT CLEARANCE IS MEASURED FROM THE ANCHOR, AND THE ANCHOR IS THE
  * RIGHT EDGE OF THE DRAWN MARK. The closing rule of table T-023d makes a
- * dummy's hit area the mark FR-043 draws and says the two widths are now
- * one -- 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は
- * 消えた」 -- so `markerAnchorX` hands back that edge and `markerGap`
- * clears THAT.
+ * dummy's hit area the mark FR-043 draws and the two widths one, so
+ * `markerAnchorX` hands back that edge and `markerGap` clears THAT.
  * ⛔ THERE IS NO SECOND WIDTH TO READ, so nothing is squared against
  * `markerGap` here: reaching for a second distance would be changing the
  * specification rather than picking a value.
@@ -1280,16 +1235,16 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
  * `actualInitialDuration` along FROM GR-9's day, not from the plan's.
  *
  * ⛔ GR-18 STANDS ON THAT SAME DAY, NOT ON THE MILESTONE'S FIGURE. Table
- * T-023d gives it 「予定の開始日の翌稼働日」, 「`GR-9` と同じ場所である」, and
- * FR-043 (MUST NOT) says in as many words that the POSITION is not one of the
- * milestone's exceptions. ⭐ The figure itself has not moved -- LF-10 of table
- * T-221 still centres it on `start` -- so what parts here is the handle from
- * the shape, which is what keeps 「掴む所」 from reading as part of the figure.
+ * T-023d puts it on the working day after the planned start, where GR-9 also
+ * stands, and FR-043 (MUST NOT) says in as many words that the POSITION is not
+ * one of the milestone's exceptions. ⭐ The figure itself has not moved -- LF-10
+ * of table T-221 still centres it on `start` -- so what parts here is the
+ * handle from the shape, which is what keeps the grab from reading as part of
+ * the figure.
  * ⚠️ THE SIZE, THE SHAPE AND THE COLOUR ARE THE MILESTONE'S OWN EXCEPTIONS
- * (FR-043, MUST, 利用者の裁定 2026-09-08 / 2026-09-10) -- a milestone shows ONE
- * point rather than a pair, its own figure rather than a rectangle, and now
- * its own SQUARE rather than the bar dummies' box (below). Its actual span is
- * S-130 (`edit-task.ts`).
+ * (FR-043, MUST) -- ONE point rather than a pair, its own figure rather than a
+ * rectangle, and its own SQUARE rather than the bar dummies' box (below). Its
+ * actual span is S-130 (`edit-task.ts`).
  *
  * ⚠️ A milestone WITHOUT a planned start now draws no dummy either, for the
  * same reason a bar without one draws none: the row names a day counted from
@@ -1316,15 +1271,13 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   // GR-15 / GR-18: a milestone holds no actual BAR, so there is no second end
   // for GR-17 to stand for -- FR-043 (MUST) shows ONE point on it.
   if (placed.actualPlacement === 'sideways') {
-    // ⭐⭐ THE SAME SQUARE THE ACTUAL FIGURE WOULD DRAW (FR-043, MUST, 利用者の
-    // 裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、そのマイルストーン
-    // の実績の図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい
-    // 方を横幅としてはならない（MUST NOT）」. `taskGeometryOf`'s `'sideways'`
-    // arm draws that figure in a square of side `actualHeight`, centred on the
-    // day's x and on the plan's own mid-line -- the same side and the same two
-    // centres are read here rather than reworked, so a circle glyph fit to
-    // this box stays a circle instead of the ellipse a wider, shorter box (the
-    // bar dummies' own shape) would make of it.
+    // ⭐⭐ THE SAME SQUARE THE ACTUAL FIGURE WOULD DRAW (FR-043, MUST): the box
+    // is that milestone's actual figure's square, and not a day measured against
+    // `S-180` (MUST NOT). `taskGeometryOf`'s `'sideways'` arm draws that figure
+    // in a square of side `actualHeight`, centred on the day's x and on the
+    // plan's own mid-line -- the same side and the same two centres are read
+    // here rather than reworked, so a circle glyph fit to this box stays a
+    // circle instead of the ellipse a wider, shorter box would make of it.
     const side = actualHeight
     const ink: ScreenRect = {
       x: fromX - side / 2,
@@ -1333,25 +1286,21 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
       height: side,
     }
     // ⚠️ `at` STAYS THE DAY COLUMN'S OWN CENTRE, NOT THE SQUARE'S EDGE. It is
-    // the day the dummy stands on, which FR-043 places at 「予定の開始日の
-    // 翌稼働日」, and the renderer centres the figure on it.
-    // ⛔⛔ IT IS NO LONGER A HIT BAND'S ORIGIN. Until 2026-09-10 the closing
-    // rule of table T-023d ran a box of its own right from this point; it now
-    // reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印
-    // そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」,
-    // so `item-hit-area.ts` reads `ink` and this point no longer decides what
-    // can be grabbed.
+    // the day the dummy stands on, which FR-043 places at the working day after
+    // the planned start, and the renderer centres the figure on it.
+    // ⛔⛔ IT IS NOT A HIT BAND'S ORIGIN: the closing rule of table T-023d (MUST)
+    // makes the hit area the drawn mark itself, so `item-hit-area.ts` reads
+    // `ink` and this point does not decide what can be grabbed.
     return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink }]
   }
 
   // GR-9 / GR-17's own width, unmoved by the milestone's exception above.
-  // FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
-  // 表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に揃えること
-  // （MUST）」, ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」 -- S-180
-  // is a fixed px and a day is not, so at the magnification FR-055 opens a
-  // document at, taking S-180 for the width covered two day columns and the
-  // mark pointed at a day it did not stand on. ⛔ NO FLOOR IS INVENTED: no row
-  // gives one, and a day is `layout.pxPerDay` whatever the zoom has made of it.
+  // FR-043 (MUST): the lesser of one day and `S-180`, aligned to the day
+  // column's left edge; ⛔ `S-180` alone may not be the width (MUST NOT) -- it is
+  // a fixed px and a day is not, so at the magnification FR-055 opens a document
+  // at, taking S-180 for the width covered two day columns and the mark pointed
+  // at a day it did not stand on. ⛔ NO FLOOR IS INVENTED: no row gives one, and
+  // a day is `layout.pxPerDay` whatever the zoom has made of it.
   const width = Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
   // ⭐⭐ THE BAND FOLLOWS `actualPlacement`, NOT THE PLAN'S OWN MID-LINE. Table
   // T-012's SH-3 / SH-4 push their actual bar 「下へずらす」, and
@@ -1403,13 +1352,12 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
  * the shape and is not what the row names. The label's height comes off the
  * font, which is why the row holds the gap alone.
  *
- * ⭐ D-55 (裁定 C1, 2026-08-27): SH-3's head and SH-4's end dots reach higher
- * than the stroke alone -- the head is `arrowHeadOfStroke` times the stroke
- * tall and the dots have `spanDotOfStroke` for a radius -- so the row's edge
- * is the LARGER of the stroke's own half-weight and that head/dot half-height,
- * both centred on the same middle `lineBar` draws from. ⛔ Reading the stroke
- * alone (the pre-裁定 reading) left the label 1.08px into the arrow's head at
- * the defaults, because the head reaches well above the stroke's edge.
+ * ⭐ SH-3's head and SH-4's end dots reach higher than the stroke alone -- the
+ * head is `arrowHeadOfStroke` times the stroke tall and the dots have
+ * `spanDotOfStroke` for a radius -- so the row's edge is the LARGER of the
+ * stroke's own half-weight and that head/dot half-height, both centred on the
+ * same middle `lineBar` draws from. ⛔ Reading the stroke alone puts the label
+ * inside the arrow's head, which reaches well above the stroke's edge.
  *
  * @purity pure
  */
@@ -1472,10 +1420,9 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
         height,
       }
     : {
-        // ⛔⛔ READ, NOT REBUILT. The left edge used to be spelled here as the
-        // shape's right edge plus `labelGap`, which put table T-038's order in
-        // two places -- and it ran the name label straight over OC-3's marker,
-        // which is what the user reported (D-394). `TaskPlacement.labelX` is
+        // ⛔⛔ READ, NOT REBUILT. Spelling the left edge here as the shape's
+        // right edge plus `labelGap` puts table T-038's order in two places and
+        // runs the name label over OC-3's marker. `TaskPlacement.labelX` is
         // where NL-3's label begins, held clear of OC-3 and OC-4 whether or not
         // they are drawn, and LC-7 counted `occupiedX1` from that very number.
         x: placed.labelX,
@@ -1487,36 +1434,32 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
 
 /**
  * OC-2's ONE box: the card holding the assignee and the percent, jutting out
- * to the LEFT -- 「左（バーの外側へ張り出す）」.
+ * to the LEFT of the bar.
  *
- * ⭐⭐ ONE BOX, NOT TWO (FR-090, MUST, 利用者の裁定 2026-09-08): 「担当ラベル
- * （`FR-059`）と完了率ラベルは、2 枚の札ではなく 1 枚の札として描くこと
- * （MUST）。2 枚を別々に置いてはならない（MUST NOT）」. ⛔ Two boxes stood here
- * until that ruling landed, and FR-090 records what they cost: 「実測
- * （2026-09-08、出荷ビルド）: 40 タスクすべてで 2 枚が重なり、`70%佐藤` と
- * 繋がって読めた」 -- two estimates placed edge to edge cannot help but collide
- * the moment either one under-reads its own glyphs.
+ * ⭐⭐ ONE BOX, NOT TWO (FR-090, MUST): the assignee label (FR-059) and the
+ * percent label are drawn as one card and may not be placed separately
+ * (MUST NOT). Two estimates placed edge to edge cannot help but collide the
+ * moment either one under-reads its own glyphs, and FR-090 records what the two
+ * boxes that stood here cost.
  *
- * ⭐ WHERE IT STANDS IS THE REQUIREMENT'S OWN SENTENCE: 「予定バーの左端から
- * `_assets/tbl-settings.md` の `S-32` だけ左へ離した位置に、札の右端を揃えて
- * 置くこと（MUST）」 -- so the
- * RIGHT edge is the fixed one and the box grows leftward, and 「左端は揃え
- * ない」 says so from the other side.
+ * ⭐ WHERE IT STANDS IS THE REQUIREMENT'S OWN SENTENCE (MUST): the card's RIGHT
+ * edge is set `S-32` left of the plan bar's left edge, so the right edge is the
+ * fixed one and the box grows leftward; the left edge is not aligned.
  *
  * ⭐ THE ROOM IS LC-7'S, NOT MEASURED AGAIN. `ScheduleLayout` estimated the
  * card with FR-093 at the size LC-5 used and counted the occupancy from it;
  * re-estimating here would draw glyphs the stacking never reserved room for.
- * The gap is `labelGap` (S-32), which S-135's own row calls 「形状の外へ出す
- * ラベル用」 -- the card is outside the shape.
+ * The gap is `labelGap` (S-32), which S-135's own row reserves for a label put
+ * outside the shape -- the card is outside the shape.
  *
  * ⛔ DOWN THE BAND, NO ROW SETTLES IT -- AND THIS IS THE ONE THIRD OF PD-347
  * THE RULING DID NOT REACH. FR-090 now fixes the order (inside one string), the
  * separator and the across position, so two of that row's three questions are
- * answered; the VERTICAL is not. Table T-012's 「名称ラベルの縦位置」 column is
+ * answered; the VERTICAL is not. Table T-012's 名称ラベルの縦位置 column is
  * about the NAME label and table T-221 has no row for this card, so the reading
- * taken is LF-11's -- the one row that does place something outside the bar puts
- * it on 「予定バーの中心」, and the marker it places is OC-3, OC-2's neighbour in
- * the same table.
+ * taken is LF-11's -- the one row that does place something outside the bar
+ * puts it on the plan bar's centre, and the marker it places is OC-3, OC-2's
+ * neighbour in the same table.
  * @provisional PD-347
  *
  * @purity pure
@@ -1574,7 +1517,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     shapeKind: placed.shapeKind,
     plan,
     actual,
-    // D-407. ⭐ BUILT WHETHER OR NOT EITHER BAR IS DRAWN, because FR-043's
+    // ⭐ BUILT WHETHER OR NOT EITHER BAR IS DRAWN, because FR-043's
     // third milestone exception is about the DUMMY's figure and a dummy only
     // exists where the actual bar does not. The arguments are the plan's box
     // because `barOf`'s milestone branch reads only its centre and height, and
@@ -1592,21 +1535,17 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // FR-044's icon follows the STATE, not the symbol: a suspended Task that
     // is also late shows (!) and must still say that it is suspended.
     //
-    // ⛔⛔ AND NEVER ON A MILESTONE. LF-11 of table T-221 (MUST NOT, 利用者の裁定
-    // 2026-09-09, 逐語 「マイルストーンは再開が無い。」):
-    // 「⭐⭐ **マイルストーンには再開アイコンを置かないこと（MUST NOT）**（利用者の裁定 2026-09-09、逐語「マイルストーンは再開が無い。」） —— **点は期間を持たないので、中断も再開も無い。**⛔ **`resume` を持つマイルストーンでも描かない（MUST NOT）**」
+    // ⛔⛔ AND NEVER ON A MILESTONE (LF-11 of table T-221, MUST NOT): a point has
+    // no duration, so it has neither suspension nor resumption, and a milestone
+    // holding a `resume` still draws none.
     // ⭐ REFUSED HERE, WHERE THE FIGURE IS PLACED, AND NOT IN THE RENDERER. LF-11
-    // is a row of 表 T-221 「レイアウトの算式」, so 置く is this file's word: a
+    // is a row of the layout-formula table, so placing is this file's word: a
     // `ResumeGeometry` that exists is a figure placed, and every side downstream
     // -- the painter, the hit test, the picture drawn while a press is held --
     // reads this one member. ⛔ A guard in `svg-renderer.ts` alone would leave
     // the geometry claiming a place no row of the specification gives it.
-    // ⚠️ MEASURED ON THE SHIPPED BUILD 2026-09-10, BEFORE THIS LINE CARRIED THE
-    // SHAPE: one press on task 9's GR-7 (a milestone) drew `task-9-resume` at
-    // (1538, 388, 6.9 × 8px), and a press on its own middle answered `grab=-`.
-    // ⇒ a mark that can be seen and not grabbed, which is what LF-11 gives
-    // as its own reason for the MUST NOT (its sentence spells the verb with
-    // a different character, so it is pointed at here rather than quoted).
+    // ⇒ A mark that can be seen and not grabbed is what LF-11 gives as its own
+    // reason for the MUST NOT.
     resume:
       marker !== null && suspended && placed.shapeKind !== 'milestone'
         ? resumeOf(inputs, task, marker, settings)
@@ -1623,10 +1562,9 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // FR-075 gives is that handles left out at all times put a row of dots on
     // tasks that use no fade -- selecting one is what asks for them.
     //
-    // ⛔ NOT ALSO GATED ON THE TASK ALREADY HOLDING A FADE DAY. It was, for one
-    // round, and PD-191 is the ruling that took it out: a Task with no fade yet
-    // then had nothing to drag, so a fade could never be CREATED -- and FR-075
-    // hands the author these two points precisely to set the days with.
+    // ⛔ NOT ALSO GATED ON THE TASK ALREADY HOLDING A FADE DAY (PD-191): a Task
+    // with no fade yet would have nothing to drag, so a fade could never be
+    // CREATED -- and FR-075 hands the author these two points to set the days.
     //
     // ⚠️ WHY THE SELECTION HAS TO BE THE GATE AND NOT THE DRAWING'S ALONE.
     // `itemAtPointer` gives GR-1 / GR-2 the TOP of table T-023d and asks every

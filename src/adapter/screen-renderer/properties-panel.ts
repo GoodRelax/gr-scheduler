@@ -4,10 +4,6 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
-// UF-64 fills one member of ScreenView -- `propertiesPanel` -- and reads none of
-// the others. The signature published here is the one the "nine unit contracts"
-// section of screen-renderer.ts fixes.
-//
 // ⭐ WHICH OF THE TWO IS SHOWING IS NOT DECIDED HERE. FR-072 makes the LAST
 // operation decide, and nothing in this component sees an operation, so the
 // answer arrives as `ScreenSession.propertiesShowing` and is carried through
@@ -15,131 +11,29 @@
 // selection cannot move the panel to the settings, because this unit never
 // chooses `showing` -- an empty selection moves `isSubjectGone`, never `showing`.
 //
-// ⭐ WHAT THE SUBJECT IS. FR-006 speaks of one task and FR-009 of one dependency
-// line, while SL-7b of table T-023c forbids relying on the order of a selection
-// that was made all at once. So the subject is the single item when exactly one
-// is held, and the one picked last otherwise -- `lastPicked` answers `null` for
-// a marquee, and then the panel describes nothing.
-//
 // ⭐ THE SUBJECT HAS TWO HALVES, because a row is picked apart from everything
-// else: SL-1 of table T-023c leaves `TaskGroup` out of the drawing area's
-// selection and FR-085 gives rows their own set. `PropertiesSubject` is that
-// pair, and FR-042 (MUST) puts the picked row's name, colour and height on this
-// same panel -- both halves are described, and both are `showing: 'selection'`.
+// else (SL-1 of table T-023c, FR-085). `PropertiesSubject` is that pair, and
+// both halves are `showing: 'selection'`.
 //
-// ⛔ AND EACH HALF PRINTS ONLY ITS OWN ROWS OF TABLE T-016. That table gained a
-// 対象 column on 2026-09-02 (CR-325) and FR-006 (MUST) prints only the rows
-// whose 対象 matches what is selected, forbidding the others (MUST NOT) -- the
-// ruling's own reason being that the table's ORDER is the print order, so a
-// panel that did not look at 対象 would put a row's `height` on a task's panel.
-// ⭐ `TASK_ITEMS` and `GROUP_ITEMS` are that split, made once from the roster.
-//
-// ⭐ A FIELD PER ROW OF TABLE T-016, NOT PER COLUMN. Four rows hold several
-// columns, and the table writes their item names into ONE cell with " / "
-// between them. A field carries one name, one text and one `isEditable`, and the
-// table's read-only mark is per row -- so the row is the field, and its value is
-// written with the same separator the name cell uses, part answering part.
-//
-// ⭐ A CONTROL PER COLUMN, WHICH IS WHY THE TWO COUNTS DIFFER. A person edits
-// one column at a time, so `PropertyField.controls` runs per column while the
-// name, the text and the read-only mark stay per row. ⛔ The form each takes is
-// table T-016's 入力の型 column, and the paragraph under that table (MUST NOT)
-// forbids the choices, the numeric bounds and the date columns to be written
-// into it -- `COLUMN_SHAPES` and `DATE_COLUMNS` are where those come from. Two
-// answers the table itself holds are written out (which columns are colours and
-// which are multi-line), and one more that no manuscript can hold: `PR-15` is
-// 選択 over the document's own tasks, so the column reads as an integer.
+// ⭐ A FIELD PER ROW OF TABLE T-016, A CONTROL PER COLUMN, WHICH IS WHY THE TWO
+// COUNTS DIFFER. Four rows hold several columns; a field carries one name, one
+// text and one `isEditable`, and the table's read-only mark is per row -- so the
+// row is the field. A person edits one column at a time, so `controls` runs per
+// column.
 //
 // ⛔ THE ITEM NAMES ARE NOT TYPED OUT. Every item of table T-016 but the
 // assignee's is a column of `Task` or of `TaskVisual`, and the dependency and
-// row rosters are columns too, so each holds `keyof` the type that owns it and
-// builds the name from that: a column the specification renames stops compiling
-// here instead of going stale in silence (rule 03 of docs/development-rules).
+// row rosters are columns too, so each holds `keyof` the type that owns it: a
+// column the specification renames stops compiling here instead of going stale
+// in silence (rule 03 of docs/development-rules).
 // ⚠️ The roster keeps table T-016's own printed order, which is NOT the numeric
-// order of its row ids: that table is ordered by how often a value is touched
-// (利用者の裁定 2026-08-26), so PR-16 stands third and PR-15 last.
+// order of its row ids -- that table is ordered by how often a value is touched,
+// so PR-16 stands third and PR-15 last.
 //
 // ⚠️ ONLY THE ENTRY NAMES ARE TRANSLATED. FR-038 leaves the item names of table
-// T-016 alone, as it leaves task and row names alone, and that table says why
-// they stay in English; the values are the document's own. What FR-038 reaches
-// on this panel is the accessible name of each entry table T-109 places here,
-// read from the dictionary below.
-// ⚠️ IT USED TO REACH A HEADING AS WELL. FR-072 (MUST NOT) forbids a heading row
-// at the head of this panel since 2026-08-27 (CR-272), so the `panelHeadings`
-// section of the dictionary has no reader left here.
-//
-// ⛔ ONE ROW IS READ-ONLY. Table T-016 marks PR-9 alone, because FR-012 derives
-// it. ⚠️ PR-16 is NOT one of them any more: CR-186 gave the assignee a surface,
-// and AS-5 of table T-225 makes the panel's assignee editable (MUST).
-//
-// ⭐ THE ASSIGNEE IS THE ONE ITEM WITH NO COLUMN OF ITS OWN. AS-6 (MUST) shows
-// the person a name and writes a uid, so the field carries the names the task's
-// assignments reach through `Resource` -- which is also the lookup AS-9 requires
-// -- and never a uid.
-//
-// ⭐ AND IT NOW CARRIES THE FORM THE TABLE NAMES FOR IT. Table T-016 writes
-// PR-16's 入力の型 as 選択 and the paragraph under it (MUST) has the form follow
-// that column, so the field offers one `choice` control over the roster --
-// `assigneeChoices` walks the document's own `Resource` rows the way
-// `parentCandidates` walks its tasks for PR-15.
-//
-// ⭐ AND THE SEARCH HALF OF AS-5 (MUST) IS NOW STATED AS WELL. That row asks for
-// TWO things to be attached -- 「ドロップダウンと部分一致の検索を添えること」 --
-// so the control carries `searchWords` beside `choices`, and the drawing side
-// hangs the host's own roster entry on it. ⛔ THE CHOOSER IS NOT REPLACED BY IT:
-// a search settles a NAME and two same-named people share one, so a surface that
-// were search-only would close AS-9's (MUST) only route. ⚠️ Whether the host
-// narrows on a FRAGMENT is the host's answer and not this side's -- FR-029's
-// 「環境の作法に従う」 puts the drawn control past IF-9, and nothing here could
-// narrow a list it does not draw.
-// ⛔ THE WORDS ARE OFFERED ONCE EACH, where `choices` offers a candidate per
-// person: what a person types is what they settle, and AS-8 (MUST) is the row
-// that settles a name two people carry -- 「`uid` の小さいほうへ割り当てる」.
-// ⭐ AS-9 IS MET, AND THE READING THAT SAID IT COULD NOT BE WAS WRONG. This
-// note used to hold that choosing a `uid` needed the uid ON the screen, which
-// AS-6 (MUST NOT) forbids -- but AS-9's trigger is 「プロパティパネルで `uid`
-// を選んだ」 and its rule is 「その `uid` の `Resource` へ割り当て、担当者名は
-// 名簿から引き当てて示すこと」: CHOOSING and SHOWING are two acts, and AS-6
-// bans only the second. A candidate that carries the `uid` and shows the name
-// answers both (`PropertyControl.choiceValues`), so two people of one name are
-// two candidates here -- which AS-9 calls the only route there is, and which
-// MG-5 of table T-032 (MUST NOT) keeps the screen from folding.
-//
-// ⛔ AS-2's `-` DOES NOT REACH THIS PANEL'S VALUE. That row belongs to the
-// assignee LABEL, and AS-3 makes `-` the signal that CLEARS an assignment:
-// writing it into this panel's value would spell "clear me" at the very surface
-// that edits it. ⚠️ It is not among the candidates either -- AS-4 (MUST NOT)
-// keeps `-` out of the roster -- but the write side still reads it as AS-3's
-// signal, because AS-5's search box is a place a person can type it.
-//
-// ⭐ THE WBS PARENT IS THE SECOND CHOOSER THAT SHOWS ONE THING AND COMMITS
-// ANOTHER. PR-15 has offered a `choice` since it was built, but its words were
-// the candidates' uids, and AT-24 of table T-058 says a uid is a key whose
-// 値から意味を読まない -- so the person was asked to pick a parent by a number
-// the specification calls meaningless. `parentCandidates` shows the task's name
-// and carries its uid, which is the shape `assigneeControl` already takes.
-// ⛔ WHAT THE USER ASKED FOR IS A DEPTH AND THIS IS A PARENT. D-78 asks for the
-// LEVEL to be settable, while table T-016's PR-15 holds the PARENT with the
-// remark that the depth is DERIVED from it -- no row maps a depth back to a
-// parent, and D-78 itself records the choice between the two as undecided.
-// ⛔ Nothing here invents that map.
-// ⛔ NO CANDIDATE IS FILTERED OUT. FR-004 (MUST NOT) forbids the WBS depth to
-// be clamped and states that `S-125` is the `TaskGroup` depth rather than this
-// one, and HM-4 of table T-015a puts the cycle rule on the write side (CM-18) --
-// so neither a depth cap nor a descendant test belongs to the chooser.
-//
-// ⭐ HOW A DATE IS WRITTEN. FR-054 (MUST) takes the lexical date part of a date
-// column and (MUST NOT) converts no zone; `dayOf` is where that happens once for
-// the whole product. The spelling is the date part of what `textOfDay` writes
-// (EX-7 of table T-033), so no second date format is minted here.
-//
-// ⭐ THE WAY OUT IS READ FROM THE GENERATED ROSTER, NOT LISTED HERE. FR-029
-// (MUST) makes the roster of icons AND where each one is placed follow table
-// T-109, and that table's 面 column IS the placement -- it stands one row on
-// this panel, among six surfaces, on the authority of IN-4 of table T-028.
-// `icon-roster.json` is that table generated into `src/`, so `panelCommands`
-// below reads the placement where it lives instead of naming a row here, which
-// is the shape `app-header-items.ts` and `open-modals.ts` already take.
+// T-016 alone, as it leaves task and row names alone; the values are the
+// document's own. What FR-038 reaches on this panel is the accessible name of
+// each entry table T-109 places here, read from the dictionary below.
 //
 // ⛔ Every STOP note below says what the specification leaves open. The loudest
 // is the settings side, which has no row ids to name.
@@ -209,15 +103,10 @@ const DAY_TIME_SEPARATOR = 'T'
 
 // ⛔ NO HEADING IS BUILT HERE, AND THAT IS A REQUIREMENT RATHER THAN AN
 // OMISSION. FR-072 (MUST NOT) forbids a heading row at the head of this panel
-// (the user's instruction of 2026-08-27, carried by CR-272) and makes the
-// pressed state of the entrance the one thing that says which of the two is
-// showing -- which `showing` already carries and which `app-header-items.ts`
-// reads for IC-17. ⚠️ So the `panelHeadings` section of the dictionary has no
-// reader in `src/` any more.
-// ⚠️ Reading `displayWords` does not make this unit `semi-pure-a`: it is a
-// module constant compiled into the program, the way `DEFAULT_CALENDAR` is in
-// `schedule.ts`, not external state read while running. Table T-075 fixes UF-64
-// as `pure`.
+// and makes the pressed state of the entrance the one thing that says which of
+// the two is showing -- which `showing` already carries and which
+// `app-header-items.ts` reads for IC-17. ⚠️ So the `panelHeadings` section of
+// the dictionary has no reader in `src/` any more.
 
 // ------------------------------------------------ the way out (table T-109) --
 
@@ -242,13 +131,9 @@ const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowI
 /**
  * The name each row of table T-016 shows, keyed by that row's id.
  *
- * ⭐ THE WHOLE POINT OF THE SPLIT (the user's instruction of 2026-08-27:
- * 「別のデータとして紐づけて管理しろ」). The panel drew the GRS JSON column names
- * themselves until 2026-08-28, so `strokeColor` reached the screen carrying a
- * noun the control beside it already says (D-81) and `fadeInDays / fadeOutDays`
- * did not fit on a line (D-84). The column names have not changed by one
- * character; what changed is that the SHOWN name is a second, linked piece of
- * data -- and FR-038 (MUST NOT) makes the dictionary the one place it may live.
+ * ⭐ THE SHOWN NAME IS A SECOND, LINKED PIECE OF DATA. The GRS JSON column
+ * names have not changed by one character; what FR-038 (MUST NOT) settles is
+ * that the dictionary is the one place the SHOWN name may live.
  *
  * ⚠️ ONE NAME PER ROW, NOT PER COLUMN. PR-3 and PR-14 each carry two columns
  * and PR-12 three; FR-006 (MUST NOT) forbids building the name by joining the
@@ -261,9 +146,7 @@ const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.ro
  *
  * ⭐ THE SAME SPLIT AGAIN, ONE SURFACE LATER. The paragraph under table T-006a
  * (MUST) holds this panel's SETTINGS side to the rule its properties side
- * already keeps -- 「⛔⛔ 同じ面が文書の設定を出すときも、これに従うこと（MUST）。
- * 内部の綴りや識別子をそのまま出してはならない（MUST NOT）」 -- and until that
- * landed the surface printed all 113 keys as they are spelled inside (D-233).
+ * already keeps, and (MUST NOT) forbids the internal spelling on the screen.
  *
  * ⚠️ KEYED BY THE KEY, HELD BY THE ROW. The dictionary is keyed by `K-n`
  * because that is where table T-104 settles a name, and one row may name
@@ -339,10 +222,9 @@ function settingsWordOf(key: string): (typeof displayWords.settings)[number] | u
  * The name one settings key shows, in the display language (FR-038).
  *
  * ⛔ THE KEY IS NOT THE FALLBACK, for the reason `itemName` gives one line up
- * and the paragraph under table T-006a (MUST NOT) puts in as many words:
- * 「内部の綴りや識別子をそのまま出してはならない」. A key whose row of table
- * T-104 nobody has written -- or which that table has no row for at all -- shows
- * no name, and `settingsFields` names the six that are in that state.
+ * and the paragraph under table T-006a (MUST NOT) puts in as many words. A key
+ * whose row of table T-104 nobody has written -- or which that table has no row
+ * for at all -- shows no name, and `settingsFields` names the six in that state.
  *
  * @purity pure
  */
@@ -356,12 +238,10 @@ function settingsName(key: string, language: DisplayLanguage): string {
  * The entries table T-109 places on this panel, in that table's own order.
  *
  * ⭐ ONE PASS OVER THE GENERATED ROSTER RATHER THAN A LIST WRITTEN HERE, which
- * is the shape the two units that already draw a surface's entries take --
- * `headerCommands` in `app-header-items.ts` and `commandsOnSurface` in
- * `open-modals.ts`. FR-029 (MUST) makes both the roster and the
- * placement follow table T-109, and its 面 column IS the placement -- so
- * membership, print order and count all come from the table and rule 03 section
- * 1's ban on re-typing a value the specification holds is kept.
+ * is the shape `headerCommands` in `app-header-items.ts` and `commandsOnSurface`
+ * in `open-modals.ts` already take: FR-029 (MUST) sends both the roster and the
+ * placement to table T-109, whose 面 column IS the placement, so membership,
+ * print order and count all come from the table.
  *
  * ⛔ NO ROW ID IS NAMED. The one row the column places here today closes an open
  * surface on IN-4's authority, and naming it would be the copy that goes stale
@@ -376,11 +256,6 @@ function settingsName(key: string, language: DisplayLanguage): string {
  * ⛔ `isArmed` IS FALSE AND IS NOT A GAP: the 構え column -- which FR-053 makes
  * the authority for which entrance is which arm -- holds an em dash for every
  * row of every surface but the `Command Palette`.
- *
- * ⚠️ Reading `iconRoster` does not make this unit `semi-pure-a`: it is a module
- * constant compiled into the program, the way `DEFAULT_CALENDAR` is in
- * `schedule.ts`, not external state read while running. Table T-075 fixes UF-64
- * as `pure`.
  *
  * @purity pure
  */
@@ -402,10 +277,6 @@ function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
  * One row of table T-016. `columns` carries the names the row's item-name cell
  * holds, and `heldBy` says where their values live -- PR-16 is the only row
  * whose substance is not a column, which that table states in as many words.
- *
- * ⭐ `appliesTo` IS THAT TABLE'S 対象 COLUMN, read off the generated roster.
- * FR-006 (MUST) prints only the rows whose 対象 matches what is selected, so it
- * is what tells a row of the `Task` panel from a row of the picked row's.
  */
 type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
   | { readonly heldBy: 'task'; readonly columns: readonly (keyof Task)[] }
@@ -431,14 +302,10 @@ type CommentBoxPropertyItem = Extract<PropertyItem, { heldBy: 'commentBox' }>
  * The values table T-016's 対象 column takes, spelled as that table spells them
  * -- a settled name copied spelling and all (rule 03 section 1).
  *
- * ⚠️ THREE SINCE 2026-09-06, WHERE FR-006 STILL SAYS TWO. That requirement's
- * 対象 paragraph reads 「対象は 表 T-016 の `対象` の欄が持ち、`Task` か
- * `TaskGroup` のいずれかである」 while the table it names now holds `PR-21` with
- * 対象 `CommentBox` (the user's ruling of 2026-09-06, carried into
- * `_source/property-items.json`). ⛔ The TABLE is what that same paragraph makes
- * the source of the 対象 value, so the table is followed and the sentence
- * counting them is reported as one revision behind -- ⛔ this file does not
- * choose between them.
+ * ⭐ THE VALUES ARE THE TABLE'S AND ARE NOT COUNTED IN PROSE. FR-006 makes
+ * table T-016's 対象 column the source (MUST) and forbids the requirement's own
+ * text from enumerating that column's values (MUST NOT), so this arm follows
+ * the table -- `CommentBox` among them -- and nothing here chooses.
  */
 type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox'
 
@@ -456,13 +323,6 @@ const APPLIES_TO_COMMENT_BOX: AppliesTo = 'CommentBox'
  * derived from the assignment. ⚠️ Keyed by row id, the only join that table
  * admits, so a row added to the manuscript arrives below and fails HERE by
  * name rather than being drawn against the wrong entity.
- *
- * ⛔ THE `TaskGroup` ROWS ARE NOT HERE, AND LEAVING THEM OUT IS THE POINT. Their
- * 対象 already answers the question this map answers: a row's items are that
- * row's own columns, so `PR-18` .. `PR-20` would be this file re-typing the
- * value the manuscript holds, which rule 03 section 1 forbids. ⚠️ The three
- * arms above are all `Task`-side, and no value of 対象 could tell them apart --
- * which is why the `Task` side still needs a map and the row side does not.
  */
 const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-1': 'task',
@@ -486,17 +346,13 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
 /**
  * Which entity holds one row's values.
  *
- * ⛔ THE GUARD IS KEPT AND IS NOT WEAKENED. A row of 対象 `Task` that nobody has
- * placed still stops the panel here by name rather than being drawn against the
- * wrong entity -- ⚠️ what changed on 2026-09-02 is that a row of 対象
- * `TaskGroup` no longer needs placing, its 対象 being the answer.
- *
- * ⭐ `CommentBox` ANSWERS THE SAME WAY, AND FOR THE SAME REASON (2026-09-06).
- * The map exists only because the `Task` side has THREE holders -- `task`,
+ * ⛔ THE MAP EXISTS ONLY BECAUSE THE `Task` SIDE HAS THREE HOLDERS -- `task`,
  * `taskVisual` and `assignment` -- that one value of 対象 cannot tell apart. A
- * box's items are the box's own columns (ET-13 of table T-056), so writing
- * `PR-21` into the map would be this file re-typing 対象, which rule 03
- * section 1 forbids.
+ * row of 対象 `TaskGroup` or `CommentBox` needs no placing: its items are its
+ * own columns (ET-13 of table T-056), so writing them into the map would be this
+ * file re-typing 対象, which rule 03 section 1 forbids.
+ * ⛔ THE GUARD IS KEPT: a row of 対象 `Task` that nobody has placed stops the
+ * panel here by name rather than being drawn against the wrong entity.
  *
  * @purity pure
  */
@@ -513,22 +369,16 @@ function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
 /**
  * Table T-016's rows, in the order the table prints them.
  *
- * ⭐ READ OFF THE GENERATED ROSTER SINCE CR-278, AND NO LONGER TYPED HERE. The
- * manuscript is `docs/spec/_source/property-items.json` and
- * `tools/generate_property_items.py` carries it into `src/`, the same road
- * `icon-roster.json` takes. ⛔ A hand copy stood here until 2026-08-28 -- the
- * rows, their columns and the read-only list all written out beside the table
- * they came from -- which is the drift rule 03 section 1 forbids and which the
- * user named as the defect behind D-81 and D-84.
+ * ⭐ READ OFF THE GENERATED ROSTER, NOT TYPED HERE. The manuscript is
+ * `docs/spec/_source/property-items.json` and `tools/generate_property_items.py`
+ * carries it into `src/`, the same road `icon-roster.json` takes -- a hand copy
+ * beside the table it came from is the drift rule 03 section 1 forbids.
  *
  * ⛔ THE PRINTED ORDER IS A MUST AND IT IS NOT THE NUMERIC ONE. FR-006 (MUST)
  * requires the items in the order the table prints them and (MUST NOT) forbids
  * the values touched most often to be reached by scrolling -- so the ARRAY's
  * order is the specification, and re-sorting it by row id would silently undo
  * that ruling. ⚠️ `PR-16` stands third and `PR-15` last.
- *
- * ⛔ THE SHOWN NAME IS NOT ON IT. FR-038 (MUST NOT) keeps every printed word in
- * one dictionary, so a row's name is looked up by row id -- see `itemName`.
  */
 const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
   const appliesTo = item.appliesTo as AppliesTo
@@ -544,9 +394,8 @@ const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) =
  * The rows a selected `Task` puts up, and the rows a selected row puts up, each
  * in table T-016's own printed order.
  *
- * ⛔ FR-006 (MUST): 「いま選ばれているものと同じ「対象」を持つ行だけを出すこと」,
- * and (MUST NOT) 「対象の違う行を出してはならない」 (the user's ruling of
- * 2026-09-02). ⛔ Without this split the printed order alone would put a row's
+ * ⛔ FR-006 (MUST / MUST NOT): only the rows whose 対象 matches what is
+ * selected. ⛔ Without this split the printed order alone would put a row's
  * `height` on a task's panel, which is the reason that ruling gives.
  * ⭐ FILTERED AND NEVER SORTED: the same requirement (MUST) keeps the printed
  * order and says in as many words that the relative order of two rows of one
@@ -566,10 +415,6 @@ const GROUP_ITEMS: readonly GroupPropertyItem[] = PROPERTY_ITEMS.filter(
 
 /**
  * The rows a selected comment box puts up -- `PR-21` alone today.
- *
- * ⭐ THE SAME FILTER AND NOT A SPECIAL CASE. FR-006 (MUST) prints the rows whose
- * 対象 matches what is selected and (MUST NOT) the ones whose does not, so the
- * third 対象 is served by the third split rather than by a rule of its own.
  */
 const COMMENT_BOX_ITEMS: readonly CommentBoxPropertyItem[] = PROPERTY_ITEMS.filter(
   (item): item is CommentBoxPropertyItem => item.appliesTo === APPLIES_TO_COMMENT_BOX,
@@ -579,8 +424,7 @@ const COMMENT_BOX_ITEMS: readonly CommentBoxPropertyItem[] = PROPERTY_ITEMS.filt
  * The rows table T-016 marks read-only.
  *
  * ⭐ READ OFF THE SAME ROSTER, so a row the table stops marking loses its mark
- * in the manuscript and nowhere else. ⚠️ PR-16 was one of these until CR-186
- * and is not any more.
+ * in the manuscript and nowhere else.
  */
 const READ_ONLY_ROWS: readonly string[] = propertyItems.items
   .filter((item) => item.isReadOnly)
@@ -632,10 +476,9 @@ const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}
 /**
  * A settings value written out for the screen, with no identifier in it.
  *
- * ⛔ THE PARAGRAPH UNDER TABLE T-006a (MUST NOT) FORBIDS BOTH HALVES:
- * 「内部の綴りや識別子をそのまま出してはならない」 -- the spelling of the key,
- * which `settingsName` answers, and the identifier itself, which is this. The
- * surface was printing `scrollGroupId`'s raw UUID (D-233, measured 2026-09-03).
+ * ⛔ THE PARAGRAPH UNDER TABLE T-006a (MUST NOT) FORBIDS BOTH HALVES: the
+ * spelling of the key, which `settingsName` answers, and the identifier itself,
+ * which is this.
  *
  * STOP -- ⛔ NO LINE SAYS WHAT STANDS IN ITS PLACE. Looked in table T-104 (which
  * names `scrollGroupId` 「表示の上端が指す行」 and `pinnedGroupIds` 「ピン止めの
@@ -780,15 +623,9 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
  * route the specification gives. The two carry the same word and different
  * values: AS-6 (MUST NOT) keeps the `uid` out of the word, and `choiceValues`
  * is what carries it instead.
- * ⚠️ A resource with no name is left out for the reason `assigneesOf` gives:
- * there is no name to show and AS-6 forbids the uid in its place.
- * ⛔ FR-059's work-resource filter is NOT borrowed, for the reason `assigneesOf`
- * gives as well: it keeps materials and costs off the DRAWING, and this is the
- * surface that edits the assignment.
- * ⚠️ The order of two unlike names is by code unit, as it is in `assigneesOf`:
- * no row fixes a collation, and a locale-dependent one would order the same
- * document differently on two machines. Two of one name stand smaller uid first,
- * which is AS-8's own tie-break.
+ * ⚠️ A resource with no name is left out, FR-059's work-resource filter is not
+ * borrowed, and two unlike names stand by code unit -- all three for the reasons
+ * `assigneesOf` gives. Two of one name stand smaller uid first (AS-8).
  *
  * @purity pure
  */
@@ -823,12 +660,9 @@ function assigneeChoices(schedule: Schedule): readonly Assignee[] {
 const COLOUR_COLUMNS: readonly string[] = ['strokeColor', 'fillColor', 'color']
 
 /**
- * Table T-016's 複数行 -- `PR-2` `notes` and, since 2026-09-06, `PR-21` `text`.
+ * Table T-016's 複数行 -- `PR-2` `notes` and `PR-21` `text`.
  *
- * ⭐ `text` REACHES `PR-21` NOW (D-349, 2026-09-06): `COLUMN_SHAPES` carries
- * `CommentBox`, so `controlKindOf` can be asked about the column and this line
- * is what turns table T-016's 複数行 into the control's kind. ⛔ It was written
- * here before it reached anything, for the reason that still holds: leaving it
+ * ⛔ BOTH ARE LISTED WHETHER OR NOT EACH REACHES A CONTROL TODAY: leaving one
  * out would make this roster a partial copy of the table's 入力の型 column,
  * which is the drift rule 03 section 1 forbids.
  */
@@ -924,9 +758,8 @@ interface Candidates {
  *
  * ⭐ THE NAME IS THE WORD AND THE `uid` IS THE VALUE, which is the same shape
  * `assigneeControl` takes for PR-16. AT-24 of table T-058 says a `uid` is a key
- * whose 値から意味を読まない, so a chooser whose words were uids asked a person
- * to pick a parent by a number the specification itself calls meaningless --
- * that is what left the item unusable (the user's report of 2026-08-27, D-78).
+ * whose 値から意味を読まない, so a chooser whose words were uids would ask a
+ * person to pick a parent by a number the specification itself calls meaningless.
  * ⛔ TWO TASKS OF ONE NAME ARE TWO CANDIDATES, never one: `uid` is the primary
  * key (AT-24) and folding on the word would put a parent out of reach. They
  * carry the same word and different values, which is what `choiceValues` is for.
@@ -1095,50 +928,26 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
  *
  * ⭐ WHAT A SETTLED CANDIDATE DOES IS 割り当てる: AS-7 (MUST) creates the person
  * and assigns, AS-10 (MUST) only forbids a second assignment of someone already
- * on the task, and no row of table T-225 speaks of releasing the one who was
- * there -- 解除 has its own row and its own signal (AS-3).
- * ⚠️ HALF OF THAT NOTE WAS OVERTAKEN ON 2026-09-08 AND IS CORRECTED HERE. It
- * used to read 「a chooser that already shows somebody READS LIKE A REPLACEMENT
- * AND IS NOT ONE: no row settles that」. AS-7 now settles the naming half in as
- * many words -- 「そのタスクに担当者が既に就いていても、同じように振る舞うこと
- * （MUST）。就いている担当者の改名として扱ってはならない（MUST NOT）」 -- and the
- * ruling behind it names THIS surface as the road for changing who is seated
- * (逐語 「担当を変える場合はすでにプロパティーパネルから切り替え可能」), which is
- * AS-5's chooser and AS-9's uid. ⛔ SO NOTHING HERE RENAMES A `Resource`: the row
- * forbids reading a new name as a rename, whoever is seated.
- * ⭐ THE RELEASE WAS SETTLED ON 2026-09-08 TOO, FOR ONE CASE AND NO OTHER, and
- * the note that used to call it wholly unsettled is corrected here. AS-7 (MUST)
- * now ends 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当
- * を解くこと」 -- 表 T-108's `CM-45`, the same word AS-3 uses -- so a name the
- * roster does NOT hold, settled on a task exactly one person is on, both seats
- * the new person and takes the old one off, in one call.
- * ⛔ WHAT IS STILL UNSETTLED IS WHICH OF SEVERAL IS RELEASED, and it is reported
- * rather than invented: AS-7 says in as many words 「2 人以上が就いているタスク
- * でどれを解くかは、本表のどの行も定めていない」, and AS-3 stands on the same gap
- * with 解除's own signal.
+ * on the task, and 解除 has its own row and its own signal (AS-3). ⛔ SO NOTHING
+ * HERE RENAMES A `Resource`: AS-7 (MUST NOT) forbids reading a new name as a
+ * rename, whoever is seated.
  * ⚠️ NEITHER HALF IS THIS FILE'S WORK. The commands are written by
  * `commandsFromAssignee` of `input-command-translator.ts`; this surface only
  * hands the settled value back with `PR-16` on it (IF-9).
  *
- * ⭐⭐ THIS FIELD IS NOW THE DESTINATION OF AN ENTRANCE, WHICH IT WAS NOT WHEN IT
- * WAS BUILT. AS-1 was rewritten on 2026-09-08 (利用者の裁定 「パネルへ（条項を書き
- * 換える）」) and reads 「プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を
- * 編集できる状態にして焦点を置くこと（MUST）」 with 「その場で打ち換える器を置いては
- * ならない（MUST NOT）」 beside it -- so a double click on the assignee label
- * arrives HERE, the way MK-13's コメントボックス entry arrives at `PR-21`.
- * ⛔ NOTHING IS ADDED FOR IT ON THIS SIDE, and that is not an omission: IF-9 has
- * the focus asked for by 「その欄が名乗る行 ID」, which is `PropertyField.row`,
- * and the field this control stands in already names `PR-16` and already carries
- * `isEditable`. What the row asks for beyond that is not this unit's to give --
- * raising the panel is the shell's and putting a person into a drawn control is
- * the surface's (Chapter 5.3 under table T-065).
- * ⚠️ MEASURED 2026-09-08 AND HANDED ON RATHER THAN WORKED AROUND: the surface
- * reaches a row's control through the ones a person types INTO, and a 選択 is not
- * one of those -- so the entrance this row's own 入力の型 fixes cannot itself be
- * the thing focused, and the typed entrance of this row is the search box AS-5
- * (MUST) has attached beside the chooser. ⛔ NO SECOND CONTROL IS MINTED HERE TO
- * SUIT THAT: the paragraph under table T-016 (MUST) makes the form follow the
- * 入力の型 column, and 選択 is what that column says.
+ * ⭐⭐ THIS FIELD IS THE DESTINATION OF AN ENTRANCE. AS-1 (MUST) sends a double
+ * click on the assignee label to this row, the way MK-13's comment-box entry
+ * arrives at `PR-21`. ⛔ NOTHING IS ADDED FOR IT ON THIS SIDE, and that is not an
+ * omission: IF-9 has the focus asked for by the row a field declares, which is
+ * `PropertyField.row`, and the field this control stands in already names
+ * `PR-16` and already carries `isEditable`. What the row asks for beyond that is
+ * not this unit's to give -- raising the panel is the shell's and putting a
+ * person into a drawn control is the surface's (Chapter 5.3 under table T-065).
+ * ⚠️ A 選択 is not a control a person types INTO, so the entrance this row's own
+ * 入力の型 fixes cannot itself be the thing focused; the typed entrance of this
+ * row is the search box AS-5 (MUST) has attached beside the chooser. ⛔ NO SECOND
+ * CONTROL IS MINTED HERE TO SUIT THAT: the paragraph under table T-016 (MUST)
+ * makes the form follow the 入力の型 column, and 選択 is what that column says.
  *
  * @purity pure
  */
@@ -1155,13 +964,12 @@ function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number)
     // first. ⚠️ Spelled the way every other value crosses this seam, as text:
     // `FieldCommit.text` is one string whatever the control was.
     choiceValues: people.map((person) => String(person.uid)),
-    // ⭐ AS-5 (MUST): 「ドロップダウンと部分一致の検索を添えること」-- the second
-    // of the two, as the words a person may type a fragment of. ⛔ ONE ENTRY PER
-    // NAME AND NOT PER PERSON, which is the opposite of `choices` above and for
-    // a stated reason: a typed word settles a NAME, and AS-8 (MUST) already says
-    // what a name two people carry means -- 「`uid` の小さいほうへ割り当てる」 --
-    // so offering it twice would put two identical words in the roster that
-    // could not be told apart by the act of typing one of them.
+    // ⭐ AS-5 (MUST) attaches a partial-match search beside the dropdown, as the
+    // words a person may type a fragment of. ⛔ ONE ENTRY PER NAME AND NOT PER
+    // PERSON, which is the opposite of `choices` above and for a stated reason: a
+    // typed word settles a NAME, and AS-8 (MUST) already says what a name two
+    // people carry means, so offering it twice would put two identical words in
+    // the roster that typing one of them could not tell apart.
     searchWords: [...new Set(people.map((person) => person.name))],
     min: null,
     max: null,
@@ -1343,13 +1151,6 @@ function subjectOf(selection: Selection): ItemRef | null {
  * The fields of one picked item, or `null` when it is no longer in the document
  * -- which is one of the two states FR-072 calls the selection having gone.
  *
- * ⭐⭐ THE COMMENT BOX LEFT THE STOP BELOW ON 2026-09-06 (D-283). Table T-016
- * gained `PR-21` -- 対象 `CommentBox`, column `text`, 入力の型 複数行 -- and
- * `MK-13` (MUST) now reads 「コメントボックス ＝ プロパティパネルを出し、本文の欄
- * （表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと」 with 「図の上で打ち
- * 換える器を置いてはならない（MUST NOT）」 beside it. So the roster is the
- * table's, exactly as a task's and a row's are, and nothing is invented here.
- *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what this panel shows for a
  * highlight box or the status line. FR-009 covers the dependency line, and
  * nothing states items for those two of the kinds SL-1 of table T-023c admits.
@@ -1403,31 +1204,22 @@ type CommentBox = Schedule['commentBoxes'][number]
  *
  * ⭐ THE FIELD DECLARES ITS `PR-n`, WHERE FR-042's THREE DECLARE AN `AT-n`.
  * That difference is the two rows' own wording and not a choice made here:
- * table T-016's note for `PR-18` sends `MK-13` to 「実体は ... `AT-53` である」,
- * while `MK-13`'s comment-box entry names 「本文の欄（表 T-016 の `PR-21`）」 in
- * as many words and `PR-21`'s own note calls that row 「`MK-13` の言う「本文の
- * 編集」の入口である」. ⛔ IF-9 has the shell ask for a field BY THE ROW IT
- * DECLARES, so declaring anything else would put that entrance out of reach.
+ * table T-016's note for `PR-18` sends `MK-13` to `AT-53`, while `MK-13`'s
+ * comment-box entry names `PR-21` and `PR-21`'s own note calls that row the
+ * entrance to editing the body. ⛔ IF-9 has the shell ask for a field BY THE ROW
+ * IT DECLARES, so declaring anything else would put that entrance out of reach.
  *
  * ⚠️ `isEditable` IS THE TABLE'S MARK AND `PR-21` CARRIES NONE, so the field is
  * editable; the CONTROL is a separate statement, and FR-006 (MUST) is what asks
- * for it -- 「同表の 入力の型 の欄が名指す形とすること」, which for `PR-21` reads
- * `複数行`.
- *
- * ⭐⭐ THE TWO ABSENCES THE STOP HERE RECORDED ARE BOTH CLOSED (D-349,
- * 2026-09-06). `PropertyFieldKey` has a `commentBox` arm now -- `id`, not `uid`,
- * because AT-110 makes a box's key a `string` -- and `SHAPED_ENTITIES` in
- * `tools/generate_entity_types.py` carries `CommentBox`, so `COLUMN_SHAPES` has
- * an entity for `controlKindOf` to be asked about `text` under. Nothing is
- * spelled out here: the FORM comes off `MULTILINE_COLUMNS` and the shape, both
- * of which already stood.
+ * for it -- the form follows the 入力の型 column, which for `PR-21` reads 複数行.
+ * Nothing is spelled out here: the form comes off `MULTILINE_COLUMNS` and the
+ * shape, and `PropertyFieldKey`'s `commentBox` arm keys by `id` and not `uid`
+ * because AT-110 makes a box's key a `string`.
  *
  * STOP -- ⛔ THE WRITE SIDE IS NOT WIRED YET, and it is one case:
  * `commandFromFieldCommit` (`input-command-translator.ts`) has no `commentBox`
  * arm, so a settled value reaches no command. ⭐ The command itself is already
- * standing -- CM-48 `setCommentBoxText` in `edit-annotation.ts` -- so what is
- * left is that one case. ⛔ Not done here: that unit was out of this round's
- * reach.
+ * standing -- CM-48 `setCommentBoxText` in `edit-annotation.ts`.
  *
  * @purity pure
  */
@@ -1494,13 +1286,11 @@ type TaskGroup = Schedule['taskGroups'][number]
  * `TaskGroup` rows edit -- which is what `PropertyField.row` carries for them.
  *
  * ⛔ TWO TABLES NAME THESE ITEMS, AND EACH FIELD CAN DECLARE ONLY ONE. Table
- * T-016 gained `PR-18` .. `PR-20` on 2026-09-02 (CR-325) and its note for
- * `PR-18` settles which of the two the field names: 「実体は
- * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
- * であり、本行はその値をパネルに出す項目のほうである」. ⭐ `MK-13` is the double
- * click FR-085 (MUST) makes the one route to renaming a row, and IF-9 has the
- * shell ask for the field BY THE ROW IT DECLARES -- so a field declaring
- * `PR-18` would be a field that entrance could no longer find.
+ * T-016's note for `PR-18` settles which of the two the field names: the entity
+ * is `AT-53` of `fig-erd-detail.md`, which is what `MK-13` of table T-023 names.
+ * ⭐ `MK-13` is the double click FR-085 (MUST) makes the one route to renaming a
+ * row, and IF-9 has the shell ask for the field BY THE ROW IT DECLARES -- so a
+ * field declaring `PR-18` would be a field that entrance could no longer find.
  * ⚠️ THE ITEM'S OWN ROW IS STILL THE JOIN TO EVERYTHING ELSE: the shown name,
  * the print order, the 対象 and the read-only mark all arrive under the `PR-n`,
  * and only what the field DECLARES is the attribute row.
@@ -1541,18 +1331,6 @@ function declaredRowOf(item: GroupPropertyItem): string {
  * The rows of table T-016 whose 対象 is `TaskGroup`, which is FR-042's name,
  * colour and height -- all editable, because that requirement (MUST) asks for
  * them to be edited here and the table marks none of them read-only.
- *
- * ⭐ THE NAMES COME FROM THE DICTIONARY SINCE 2026-09-02, and that is the defect
- * the user reported on 2026-09-01 (D-185): this panel drew `label` / `color` /
- * `height` -- the `GRS JSON` column names themselves -- where FR-038 (MUST) puts
- * the shown name in the dictionary under the row id. ⛔ It could not do
- * otherwise until CR-325, because table T-016 held no row for any of the three
- * and the dictionary is keyed by that table's row ids.
- *
- * ⭐ THE ROSTER, THE ORDER AND THE READ-ONLY MARK ARE THE TABLE'S. `PR-18`
- * stands first for the reason FR-072's RATIONALE gives -- the most frequently
- * touched item goes at the top -- and that is the manuscript's order, not a
- * choice made here.
  *
  * ⚠️ A row that specifies neither colour nor height writes neither: `AT-58`'s
  * `null` means the band colour is resolved from the theme and `AT-59`'s means
@@ -1669,26 +1447,24 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
 /**
  * The document's drawing settings, as IC-17 of table T-109 puts them here.
  *
- * ⭐ TABLE T-104 NOW REACHES THIS FILE, and the note that stood here saying it
- * did not is gone with it: `tools/generate_display_words.py` reads that table
- * every run and carries each row's id, the keys it names and the word the
- * screen shows into the dictionary, so `PropertyField.row` is the real `K-n`
- * and `name` is the dictionary's word rather than the key spelled again.
+ * ⭐ TABLE T-104 REACHES THIS FILE THROUGH THE DICTIONARY:
+ * `tools/generate_display_words.py` reads that table every run and carries each
+ * row's id, the keys it names and the word the screen shows into
+ * `display-words.json`, so `PropertyField.row` is the real `K-n` and `name` is
+ * the dictionary's word rather than the key spelled again.
  *
  * STOP -- ⛔ SIX KEYS HAVE NO ROW IN TABLE T-104, so no word of theirs is
  * settled and this surface shows none: `carryMaxDepth`, `commentBoxPad`,
  * `commentBoxWrapUnits`, `exportCanvasHeightCap`, `scrollDayOffset` and
- * `scrollGroupOffset` (measured 2026-09-03: 113 keys against that table's 110
- * rows). All six stand in `_source/settings.json` and are printed into
- * `_assets/tbl-settings.md`, which holds VALUES and says in as many words that
- * 「名前の正は `tbl-glossary.md` の表 T-104 が持つ」. ⛔ A name written here
- * would settle six names the glossary has not settled, which is the very thing
- * table T-109's refusal of an English column protects; the row is drawn with
- * its value and no name, the same thing an unwritten dictionary cell says
- * everywhere else in this file (PD-160). ⚠️ Eight rows go the other way and are
- * never shown, having no settings key: `themeHue`, `zoomStep`, `zoomMin`,
- * `zoomMax`, `importSeq`, `planActualGuideColor`, `watermarkOpacity`,
- * `language`.
+ * `scrollGroupOffset`. All six stand in `_source/settings.json` and are printed
+ * into `_assets/tbl-settings.md`, which holds VALUES and sends the name to
+ * table T-104. ⛔ A name written here would settle six names the glossary has
+ * not settled, which is the very thing table T-109's refusal of an English
+ * column protects; the row is drawn with its value and no name, the same thing
+ * an unwritten dictionary cell says everywhere else in this file (PD-160).
+ * ⚠️ Eight rows go the other way and are never shown, having no settings key:
+ * `themeHue`, `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`,
+ * `planActualGuideColor`, `watermarkOpacity`, `language`.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which settings this panel shows,
  * and in what order. IC-17 says the entry puts "the document's drawing settings"
@@ -1780,18 +1556,10 @@ export function propertiesPanelFromSelection(
     }
   }
 
-  // ⭐⭐ THIS IS WHERE FR-072's 「出しているあいだは、選択が動けば中身がそれに移
-  // る」 IS KEPT, and it was measured rather than argued (D-274, 2026-09-07): the
-  // subject below is built from the LIVE `selection` and `session.selectedGroupIds`
-  // whenever either holds anything, and the remembered one is reached for only
-  // when both are empty. ⚠️ The ledger row reported a panel that stayed on a
-  // row's three fields after a Task was pressed; calling this function directly
-  // for the three states gives AT-53 / AT-58 / AT-59 for a row alone, sixteen
-  // PR-* rows for a Task alone, and those sixteen FOLLOWED by the three when the
-  // row is still picked as well. ⇒ No arrangement of the arguments makes this
-  // unit answer the row's three once a Task stands in `selection.items`, so
-  // whatever the ledger measured is upstream of here -- either the `Selection`
-  // this is handed, or the surface declining to redraw the part.
+  // ⭐⭐ THIS IS WHERE FR-072's rule that the contents follow the selection while
+  // the panel is up IS KEPT: the subject below is built from the LIVE
+  // `selection` and `session.selectedGroupIds` whenever either holds anything,
+  // and the remembered one is reached for only when both are empty.
   //
   // Nothing picked in either of the two sets SL-1 and FR-085 keep apart. That is
   // FR-072's "the selection was cleared", and it is when the remembered subject

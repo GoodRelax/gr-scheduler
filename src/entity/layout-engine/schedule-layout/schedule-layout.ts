@@ -9,21 +9,6 @@
 // detail and the fit-to-screen zoom (CP-5). Table T-068 fixes the order these
 // run in: LC-1 to LC-9 here, LC-10 and LC-11 in ScheduleGeometry.
 //
-// ⚠️ T-068 says the stages run top to bottom ONCE, and that no later stage may
-// feed an earlier one (MUST NOT) -- placing a label, measuring occupancy,
-// assigning a stack and then testing interference would close a loop. Nothing
-// below reads a value produced after it.
-//
-// ⚠️ The task level of detail measures the width a DURATION produced, and drops
-// nothing whose width came from somewhere else (FR-018, CR-174). Two shapes get
-// their width from somewhere else: a Task of zero duration, whose width is the
-// `minShapeWidth` floor (S-49), and a milestone, whose width is the figure side
-// LF-10 gives it. Neither shrinks as the zoom falls, so neither is evidence
-// that the Task is too short to read. Before CR-174 the floor was measured
-// against S-86 like any other width, and since 6 < 24 a zero-duration rectangle
-// -- the thing UC-001's extension 2a creates by a plain click -- was dropped at
-// EVERY zoom.
-//
 // ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1, OC-2 and OC-5 of table
 // T-038. The rows still missing measure things this milestone does not draw
 // yet -- the days-late label (OC-8) and the deadline mark (OC-9). Table T-042
@@ -31,12 +16,6 @@
 // test and FR-055's fit both read low until they arrive. Add them here, not at
 // the call sites: table T-038's preamble makes stacking and the fit measurement
 // share this one count (MUST).
-//
-// ⭐ OC-2 IS NO LONGER AMONG THEM. The assignee (FR-059, with AS-2 of table
-// T-225 for the Task nobody is on) and the percent (FR-090) are settled and
-// measured here as ONE card -- 「2 枚ではなく 1 枚である」 -- and OC-2's own
-// MUST / MUST NOT -- count it only while it is shown -- is why S-60 and S-61
-// are read at the measurement and not at the drawing.
 //
 // ⚠️ OC-7, the plan-against-actual guide, needs no term of its own: GD-5 of
 // table T-020a draws it from the actual's near end to the plan's near end, so
@@ -49,10 +28,6 @@
 // OC-6 takes the horizontal off in as many words. Both can sit far from the
 // plan, so FR-055 can fit and still leave them off screen. ⚠️ Do not invent a
 // term for either -- it takes a change request against table T-038.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
@@ -112,14 +87,9 @@ export interface TaskPlacement {
   readonly x: number
   readonly width: number
   /**
-   * Whether the plan's two ends stand on ONE DAY -- table T-023d's closing rule
-   * of 2026-09-08, 「2 つの端点が同じ日に立つときは、終了側を掴むこと（MUST）」.
-   *
-   * ⭐⭐ CARRIED BECAUSE `width` ABOVE CANNOT BE ASKED. That member is what is
-   * DRAWN, and its own note says so: a shape shorter than `minShapeWidth` is
-   * drawn at S-49's width, so a plan of one day arrives at the hit test
-   * indistinguishable from a plan that really spans S-49. `planEndsStandOnOneDay`
-   * decides the question in days, where the days are.
+   * Whether the plan's two ends stand on ONE DAY -- the fact table T-023d's
+   * closing rule turns on. ⭐⭐ CARRIED BECAUSE `width` ABOVE CANNOT BE ASKED:
+   * that member is what is DRAWN. `planEndsStandOnOneDay` below says why.
    */
   readonly planEndsStandOnOneDay: boolean
   readonly y: number
@@ -144,27 +114,16 @@ export interface TaskPlacement {
    * How far right the actual FIGURE's ink reaches -- `null` while there is none.
    *
    * ⭐⭐ SETTLED HERE AND CARRIED, the bargain `labelX` and `labelFontSize`
-   * already keep. ⛔ It is NOT `actualX + actualWidth`: the pair above is the
-   * span of the DATES, and LF-10 of table T-221 draws a milestone's actual as a
-   * figure CENTRED on its day, whose own span is zero wide (S-130). Two rows read
-   * this number -- GR-7 of table T-023d anchors the progress marker 「実績バーの
-   * 右端の外側」 (「マイルストーンのときは図形の外側」) and table T-038's
-   * order puts the name label past 実績バーと実績のダミー -- so the moment it is
-   * spelled twice they part company. ⚠️ Measured 2026-09-08 on the shipped
-   * build, they had: a milestone's marker was drawn 16.00px INSIDE its own
-   * sideways actual figure, which table T-038's 「この 4 つを重ねて描いては
-   * ならない（MUST NOT）」 forbids.
+   * already keep. ⛔ It is NOT `actualX + actualWidth`: `actualReachOf` below
+   * says why, and why one function answers it rather than two spellings.
    */
   readonly actualReach: number | null
   /**
    * How far right FR-043's dummies reach on a Task NOT started -- `null` while
    * none is drawn, which is every Task that has an actual.
    *
-   * ⭐⭐ THE HOLD'S RIGHT EDGE, NOT THE MARK'S. Table T-023d's GR-7 sends the
-   * marker 「未着手のときは終了点の掴みシロの外側」, and the closing rule of
-   * table T-038 (MUST, 利用者の裁定 2026-09-09) says which width that is --
-   * 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とする
-   * こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）」.
+   * ⭐⭐ THE HOLD'S RIGHT EDGE, NOT THE MARK'S -- GR-7 of table T-023d hangs
+   * the marker off it, and table T-038 counts the hold and not the drawn ink.
    *
    * ⭐⭐ SETTLED HERE AND CARRIED, for the reason `actualReach` above gives in
    * the same words: LC-7 puts the name label past this and `markerAnchorX`
@@ -172,9 +131,6 @@ export interface TaskPlacement {
    * counting separately (MUST NOT). ⛔ IT IS ALSO WHY NO SETTINGS ROW CROSSES
    * OUT OF THIS FOLDER -- what crosses is the answer, on a type table T-064
    * already publishes.
-   * ⚠️ Measured 2026-09-09 on the shipped build, before the two were joined:
-   * of GR-17's 30 hit pixels, GR-7 answered 16 at 6, 15 and 36 px a day
-   * (defect D-408).
    */
   readonly dummyReach: number | null
   /**
@@ -224,8 +180,8 @@ export interface TaskPlacement {
   /**
    * OC-2's card -- ONE card and not two (FR-090, MUST, 利用者の裁定
    * 2026-09-08): the assignee (FR-059, with AS-2's single `-` where nobody is
-   * on the Task) and the percent, 「担当 → 区切り → 完了率 → 百分率の記号 の順
-   * に繋いだ 1 つの文字列」. `''` while S-60 and S-61 have both hidden, which
+   * on the Task) and the percent, joined into one string in FR-090's own order.
+   * `''` while S-60 and S-61 have both hidden, which
    * is the state OC-2 (MUST NOT) keeps out of the occupied width; with one of
    * the two shown it is that one alone and no separator appears.
    *
@@ -236,9 +192,8 @@ export interface TaskPlacement {
    * FR-059's filter or its ordering moved.
    *
    * ⛔ AND THAT IS WHY IT IS ONE FIELD AND NOT TWO. Two strings measured apart
-   * are two boxes placed apart, and FR-090's own RATIONALE records what that
-   * cost: 「実測（2026-09-08、出荷ビルド）: 40 タスクすべてで 2 枚が重なり、
-   * `70%佐藤` と繋がって読めた」. One string is measured once and drawn once.
+   * are two boxes placed apart, which FR-090's own RATIONALE records the cost
+   * of. One string is measured once and drawn once.
    */
   readonly outsideLabel: string
   /** FR-093's estimate of `outsideLabel` at `labelFontSize`. Zero when it is `''`. */
@@ -342,9 +297,8 @@ export interface ScheduleLayout {
    *
    * ⛔⛔ OPTIONAL, for the reason `RowPlacement.isPinned` gives, and `undefined`
    * reads as zero everywhere. ⚠️ FR-055's fit is the reader that cannot do
-   * without it: 「描くものが `Row Area` から ピン止めした行の帯を除いた残りに収ま
-   * る最も深い段を採る（MUST）」, so the height it fits against is the `Row
-   * Area`'s less this and less one `rowGap`.
+   * without it: the height it fits against is the `Row Area`'s less this and
+   * less one `rowGap`.
    */
   readonly pinnedBandHeight?: number
   /**
@@ -352,17 +306,17 @@ export interface ScheduleLayout {
    * no pin reached the band, and one `rowGap` below the band otherwise.
    *
    * ⛔ THIS IS WHAT S-78 AND S-176 POINT AT (FR-098, MUST), and the band's top
-   * edge is forbidden (MUST NOT) -- 「帯は流れないので、そこを指すと表示位置が二
-   * 度と動かない」. ⛔⛔ OPTIONAL, and `undefined` reads as `regions.rowArea.y`,
+   * edge is forbidden (MUST NOT) -- a band does not flow, so an anchor on it
+   * would never move. ⛔⛔ OPTIONAL, and `undefined` reads as `regions.rowArea.y`,
    * which is what every caller meant before a band existed.
    */
   readonly scrollAreaY?: number
   /**
    * ST-7's safety valve: the row that reached it, or `null` while no row did.
    *
-   * ⭐⭐ THIS IS 「達したことを判別できる値」 (ST-7, MUST), and the layout that
-   * carries it is a layout that STOPPED: 「達したらそこで処理を止め」, so the row
-   * named here is NOT in `rows`, none of its `Task` is in `placements`, and
+   * ⭐⭐ THIS IS ST-7's value for "the valve was reached" (MUST), and the layout
+   * that carries it is a layout that STOPPED, so the row named here is NOT in
+   * `rows`, none of its `Task` is in `placements`, and
    * neither is any row after it. ⚠️ So `contentWidth`, `contentHeight` and
    * `contentX0` measure what was laid out BEFORE the valve and not the document.
    *
@@ -373,9 +327,9 @@ export interface ScheduleLayout {
    * 「黙って切り捨て」 ST-7 forbids (MUST NOT). A required member makes the
    * compiler put it in front of every reader.
    *
-   * ⭐ WHAT THE READER OWES: 「人に通知すること（MUST）」, as `RS-24` of table
-   * T-233 -- 「1 つの `TaskGroup` の段数が安全弁に達したので、これ以上積めない」 --
-   * in the manner that row names, `NT-3a`. ⛔ NOT RAISED HERE. Table T-060's
+   * ⭐ WHAT THE READER OWES: the telling ST-7 (MUST) requires -- `RS-24` of
+   * table T-233, in the manner that row names, `NT-3a`.
+   * ⛔ NOT RAISED HERE. Table T-060's
    * LY-5 leaves a current value to the Framework and this unit is `pure`; the
    * shell is where `layoutFromSchedule` is called and where `RaisedNotice` is
    * appended, so the telling is raised there, off this member.
@@ -387,13 +341,10 @@ export interface ScheduleLayout {
  * ST-7's safety valve, once it has been reached -- what `ScheduleLayout`
  * carries back in place of the exception this used to be.
  *
- * ⭐⭐ A VALUE AND NOT A THROW, WHICH IS ST-7's OWN SENTENCE (MUST / MUST NOT):
- * 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること
- * （MUST）。例外を投げてはならない（MUST NOT）」. ⛔ The row states its own reason
- * in the same breath -- 「投げると捕まえる者が要り、`FR-028` が `Agent API` に課
- * した禁止と同じ安全弁が 2 つの機構を持つことになる」 -- so catching the throw
+ * ⭐⭐ A VALUE AND NOT A THROW, WHICH IS ST-7's OWN SENTENCE (MUST / MUST NOT).
+ * ⛔ The row states its own reason in the same breath, so catching the throw
  * somewhere up the stack and raising the telling from the catch would do the
- * very thing the sentence argues against. The return type and the side that
+ * very thing that reason argues against. The return type and the side that
  * reads it are one change.
  *
  * ⭐ THE TWO MEMBERS ARE THE TWO THE EXCEPTION CARRIED, and nothing was minted
@@ -428,15 +379,13 @@ function serialOf(day: CalendarDay): number {
  * The two calendar questions LC-2 asks per `Task`, each answered once per
  * distinct argument for the length of ONE run of `layoutFromSchedule`.
  *
- * ⭐⭐ WHY, MEASURED. Every road into the calendar in `schedule.ts` builds its
- * index again, and that index parses every `Exception` date with a regular
+ * ⭐⭐ WHY. Every road into the calendar in `schedule.ts` builds its index
+ * again, and that index parses every `Exception` date with a regular
  * expression; the file says so itself and gives the reason it will not hold one
  * (R2.20 would make it a cache, and Chapter 5.6 records none). This pass asks
  * `dayOf` three times per `Task` and `dateFromWorkingDays` once per `Task` that
- * holds an actual. Measured 2026-09-07 on the built page at MC-7 scale (1000
- * `Task`, 294 with an actual, 465 distinct stored starts, one calendar with 7
- * exceptions), `dayOf` alone held 3.58ms of a 21.5ms frame, against the 16.7ms
- * NFR-003 allows a whole frame.
+ * holds an actual, which at MC-7 scale is a measurable share of the frame
+ * NFR-003 allows.
  *
  * ⛔ NOT A CACHE, AND MUST NOT BECOME ONE. One of these is made inside
  * `layoutFromSchedule`, filled by that call and dropped with it, so there is
@@ -526,17 +475,15 @@ function labelWidth(text: string, fontSize: number, settings: DocumentSettings):
  * `Resource/Type` as AT-87 codes it: 0 = 材料, 1 = 作業, 2 = 費用.
  *
  * ⛔ WRITTEN HERE RATHER THAN IMPORTED, and neither copy is the odd one out.
- * `edit-resource.ts` holds the same number for FR-008's 「新しく作る担当者は
- * 作業資源として作ること」 and is a USE CASE -- table T-062's layers forbid
- * this one reaching it. Publishing it from `schedule.ts` instead would mint a
- * crossing table T-064's PI-1 does not hold. Both copies name AT-87, which is
- * the one place the code is written down.
+ * `edit-resource.ts` holds the same number for FR-008 and is a USE CASE --
+ * table T-062's layers forbid this one reaching it. Publishing it from
+ * `schedule.ts` instead would mint a crossing table T-064's PI-1 does not hold.
+ * Both copies name AT-87, which is the one place the code is written down.
  */
 const WORK_RESOURCE = 1
 
 /**
- * AS-2 of table T-225 (MUST / MUST NOT): 「担当ラベルを出しているあいだは、
- * 担当者名の代わりに `-` の 1 文字を出すこと。空欄にしてはならない」.
+ * AS-2 of table T-225 (MUST / MUST NOT).
  *
  * ⛔ NOT A WORD (FR-038): it is the same mark in every language, the bargain
  * `TRUNCATION_MARK` already strikes. ⚠️ It is the SAME character AS-3 reads as
@@ -567,9 +514,8 @@ const PERCENT_MARK = '%'
 /**
  * FR-059's assignee label for every Task somebody is on, by Task uid.
  *
- * The requirement (MUST) keeps 作業資源 alone -- 「材料資源・費用資源・名前が
- * 空の資源を出さないこと」 -- and where more than one is left it prints
- * 「資源名の昇順で先頭 1 名と残りの人数（同名は `UID` の昇順）」.
+ * The requirement (MUST) keeps 作業資源 alone, and where more than one is left
+ * it prints the first name in resource-name order and how many remain.
  *
  * ⚠️ A Task ABSENT from the answer is one nobody is on. AS-2 of table T-225
  * settles that case with a mark rather than with nothing, and the caller
@@ -621,10 +567,9 @@ function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> {
 /**
  * FR-090's percent label, or `''` where the requirement draws none.
  *
- * ⛔ THE STORED VALUE, UNTOUCHED (MUST / MUST NOT): 「`FR-012` が格納した値を
- * そのまま出すこと。丸めてはならない」 -- AT-39 keeps it an integer with no
- * upper bound, so 120 is printed as 120.
- * ⛔ 「未着手のタスクにラベルを出してはならない（MUST NOT）」 -- a zero there
+ * ⛔ THE STORED VALUE, UNTOUCHED (MUST / MUST NOT) -- AT-39 keeps it an integer
+ * with no upper bound, so 120 is printed as 120.
+ * ⛔ AND NO LABEL ON A TASK NOT BEGUN (MUST NOT) -- a zero there
  * would read as a measurement rather than as "not begun", and FR-043's
  * entrance is what says the Task has not started.
  *
@@ -637,7 +582,7 @@ function percentLabelOf(task: Task): string {
 }
 
 /**
- * FR-090's 「区切り」 (MUST): 「半角コロンの前後に空白を 1 つずつ置いたもの」.
+ * FR-090's 「区切り」, whose spelling that requirement (MUST) fixes.
  *
  * ⛔ NOT A WORD (FR-038), for the reason `PERCENT_MARK` gives, and it is the
  * requirement's own spelling rather than a choice made here.
@@ -645,15 +590,13 @@ function percentLabelOf(task: Task): string {
 const OC2_SEPARATOR = ' : '
 
 /**
- * OC-2's ONE card (FR-090, MUST, 利用者の裁定 2026-09-08, 逐語 「担当 完了率の
- * 順にどちらも右寄せで並べる」): 「札の中身は 担当 → 区切り → 完了率 → 百分率の
- * 記号 の順に繋いだ 1 つの文字列とし」.
+ * OC-2's ONE card (FR-090, MUST, 利用者の裁定 2026-09-08): the assignee, the
+ * separator, the percent and the percent sign joined into one string.
  *
- * ⛔ 「2 枚の札ではなく 1 枚の札として描くこと（MUST）。2 枚を別々に置いては
- * ならない（MUST NOT）」 -- so the join happens HERE, before LC-7 measures, and
- * every side downstream reads one string. ⭐ 「`S-60` と `S-61` の片方だけを
- * 出しているときは、その片方だけが札の中身になり、区切りは現れない。どちらも
- * 出していないときは札そのものが無い」 -- which is the two guards below and the
+ * ⛔ ONE CARD AND NOT TWO (MUST / MUST NOT) -- so the join happens HERE, before
+ * LC-7 measures, and every side downstream reads one string. ⭐ With one of
+ * S-60 and S-61 shown the card is that one alone and no separator appears, and
+ * with neither shown there is no card -- which is the two guards below and the
  * `''` they answer with.
  *
  * @purity pure
@@ -708,12 +651,8 @@ function truncate(text: string, limit: number): string {
 }
 
 /**
- * The height one Task reserves. ⚠️ Not this table's own rule: table T-012's
- * "how the actual sits" column decides it -- laid inside (SH-1, SH-2) or a
- * milestone (SH-5, which shifts sideways) reserves the plan height alone;
- * pushed below (SH-3, SH-4) reserves the plan, actualGap and the actual.
- * FR-094 puts the floor on the plan height once, BEFORE the shape ratio, and
- * forbids a second floor on the actual.
+ * The height one Task reserves. ⚠️ Table T-012's last column decides it, and
+ * FR-094 floors the plan height once, before the shape ratio.
  *
  * @purity pure
  */
@@ -733,10 +672,7 @@ function laidBelow(shapeKind: ShapeKind): boolean {
  * Table T-012's last column: where the actual sits relative to the plan.
  *
  * ⭐ Resolved in one place because LC-7 and the placement below both need it,
- * and because it is what decides whether OC-5 of table T-038 applies: only the
- * actual laid INSIDE the plan (SH-1, SH-2) is counted left and right. OC-6
- * takes the horizontal off the one pushed below (SH-3, SH-4), and GR-15 of
- * table T-023d says a milestone has no actual bar for OC-5 to be about.
+ * and because it is what decides whether OC-5 of table T-038 applies.
  *
  * @purity pure
  */
@@ -759,13 +695,10 @@ function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways
  * side wide on either side of it.
  *
  * ⭐ WHY IT IS ONE FUNCTION AND NOT TWO SPELLINGS. Two rows read this: GR-7 of
- * table T-023d anchors the progress marker 「実績バーの右端の外側」 (and
- * 「マイルストーンのときは図形の外側」), and table T-038's order puts the name
- * label past 実績バーと実績のダミー. ScheduleGeometry answers the first and this
- * file answers the second, so written twice they part company -- which is
- * exactly what a person met: measured 2026-09-08 on the shipped build, a
- * milestone's marker was drawn 16.00px INSIDE its own sideways actual figure,
- * which table T-038's 「この 4 つを重ねて描いてはならない（MUST NOT）」 forbids.
+ * table T-023d anchors the progress marker off the actual's right edge, and
+ * table T-038's order puts the name label past the actual bar and its dummy.
+ * ScheduleGeometry answers the first and this file answers the second, so
+ * written twice they part company and the marker lands inside the figure.
  *
  * ⚠️ `planHeightOf` rather than a carried height, so the two callers cannot
  * disagree: `TaskPlacement.planHeight` is built from this very call, and
@@ -797,9 +730,8 @@ function planHeightFloor(settings: DocumentSettings): number {
 }
 
 /**
- * The zoomY at which the bands REACH FR-094's floor -- 「帯の高さが `FR-094`
- * の床に達する倍率」, the zoom the first of the two passes printed after table
- * T-068 measures every depth at.
+ * The zoomY at which the bands REACH FR-094's floor -- the zoom the first of
+ * the two passes printed after table T-068 measures every depth at.
  *
  * ⭐ WHY IT IS THE RIGHT ZOOM TO MEASURE AT: at and below it the `Math.max`
  * in `planHeightOf` answers the floor whatever the zoom is, so no band, no
@@ -869,11 +801,8 @@ const DAYS_PER_WEEK = 7
  *
  * ⛔ THE INTERVAL IS THE TIER'S OWN AND IS NOT COMPUTED FROM ANY WIDTH. LF-1
  * fixes one per tier -- a year, a month, seven days, a day -- and FR-017 (MUST
- * NOT) forbids thinning any of them. ⚠️ THIS FUNCTION USED TO DIVIDE the label's
- * estimated width by `pxPerDay` and keep one tick every ceil of that, which is
- * what LF-1 asked for until 2026-08-27; the user ruled that a stride of two or
- * three days makes a reader count the unit afresh at every zoom. Measured
- * before the change: a two-day stride held from zoomX 1.667 to 3.333.
+ * NOT) forbids thinning any of them. ⚠️ A stride of two or three days makes a
+ * reader count the unit afresh at every zoom, which is the thinning it closed.
  *
  * ⭐ WHERE A WHOLE DAY'S LABEL WILL NOT FIT, THE TIER ITSELF STEPS COARSER --
  * FR-017 says so, and `rulerTierOf` above is where that happens, because the
@@ -954,17 +883,12 @@ export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
  * to be squared up against a real screen. Until that happens each stays where
  * its own row put it.
  *
- * ⛔ FD-5 IS APPLIED HERE AND NOT ASSUMED: 「適用する形状 | 矩形と矢羽根のみ
- * （表 T-012 の SH-1 / SH-2）」. The note that stood here said the two columns
- * are null on every other shape and that nothing therefore had to test the
- * kind. ⛔ THAT WAS FALSE. Nothing keeps them off SH-3 / SH-4 / SH-5 -- the
- * columns belong to `Task` and not to the shape, FR-023's import test (FD-7)
- * and IV-12 speak of the days against the DURATION and never of the shape, and
- * a shape may be changed after the days are set. Measured on the shipped page
- * with `fadeInDays: 20` at 6px a day: the name label of an arrow (SH-3) and of
- * an endpointSpan (SH-4) moved 120px, and a milestone's (SH-5) turned over
- * from NL-1 to NL-3 -- while `ScheduleGeometry` drew no fade on any of the
- * three, so the room was taken away for a mark that was never there.
+ * ⛔ FD-5 IS APPLIED HERE AND NOT ASSUMED. Nothing keeps FD-6 / FD-6b off
+ * SH-3 / SH-4 / SH-5: the columns belong to `Task` and not to the shape,
+ * FR-023's import test (FD-7) and IV-12 speak of the days against the DURATION
+ * and never of the shape, and a shape may be changed after the days are set.
+ * ⇒ Without the guard below, a shape that carries no fade loses room to one,
+ * and its name label moves for a mark `ScheduleGeometry` never draws.
  *
  * ⭐ The paragraph after table T-013 opens with 「フェードを持つ形状では」, and
  * FD-5 is what says which shapes those are -- so the three without one are left
@@ -996,10 +920,9 @@ function drawnGroups(
   isLevelZeroFolded: boolean,
 ): readonly (TaskGroup & { depth: number })[] {
   // ⭐⭐ LEVEL 0 IS THE PANEL'S HEAD, AND FOLDING IT TAKES EVERY ROW. HR-2 of
-  // table T-015 (MUST) has 「すべての `TaskGroup` を閉じる」 reach 「最も浅い段の
-  // 行」 as well, and says why a row's own fold cannot carry it: 「行の畳みが隠す
-  // のはその配下であり、最も浅い段の行は親を持たないので誰にも隠されない」.
-  // ⇒ 「押すと行が 1 つも描かれない状態になりうる」, which is this one line.
+  // table T-015 (MUST) reaches the shallowest rows too, and says why a row's
+  // own fold cannot carry them: they have no parent, so nobody hides them.
+  // ⇒ the picture can hold no row at all, which is this one line.
   // ⛔ NOT A COLUMN ON `TaskGroup`. The same row (MUST NOT) forbids moving AT-56
   // or AT-57 for it; S-211 of table T-206 holds the state, the shell keeps it
   // (it is not saved), and it arrives here as an argument.
@@ -1028,9 +951,8 @@ function drawnGroups(
  * LC-9's order: a preorder walk, so a row's own subtree sits directly under it
  * and siblings follow AT-55.
  *
- * Sorting by depth instead put every root first, which is what kept depth 2 and
- * below off the first screen entirely -- seven roots filled the Row Area on
- * their own. The paragraph under table T-068 forbids that ordering outright.
+ * ⛔ NOT A SORT BY DEPTH: the paragraph under table T-068 forbids that ordering
+ * outright, and it puts every root first.
  *
  * A row whose parent is missing is a root here, and anything a parent cycle
  * makes unreachable is appended rather than dropped: the walk decides ORDER,
@@ -1157,9 +1079,7 @@ function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
 
 /**
  * Whether the plan's two ends stand on ONE DAY -- the fact table T-023d's
- * closing rule of 2026-09-08 turns on: 「2 つの端点が同じ日に立つときは、終了側
- * を掴むこと（MUST）」, which names 「予定の 2 端（`GR-3` と `GR-4`）」 among the
- * three pairs it binds.
+ * closing rule turns on, the plan's two ends being one of the pairs it binds.
  *
  * ⭐⭐ A TRUTH ABOUT DAYS, AND DELIBERATELY NOT A WIDTH. `spanWidthOf` above
  * answers the same two dates in PIXELS, and `shapeWidthOf` then floors that at
@@ -1267,9 +1187,8 @@ function actualSpanOf(
 }
 
 /**
- * How wide FR-043's mark is -- 「その印の幅は 1 日ぶんと `_assets/tbl-settings.md`
- * の 表 T-206 の `S-180` の小さい方である」, which is the hold as well as the ink
- * as of 2026-09-10.
+ * How wide FR-043's mark is: one day's width or `S-180`, whichever is the
+ * smaller -- which is the hold as well as the ink.
  *
  * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THE HOLD (MUST, 利用者の裁定 2026-09-09):
  * 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること
@@ -1317,16 +1236,13 @@ function finiteOrNull(reach: number): number | null {
  * ⭐⭐ THE INK IS THE HOLD AS OF 2026-09-10 (MUST), which is the closing rule of
  * table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた
  * 印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」.
- * ⭐ Table T-038's order therefore counts this same number -- 「本並びで数える
- * 幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）」 --
- * and the row itself says the distinction is gone: 「掴みシロが印そのものになった
- * 以上、2 つは同じ 1 つの幅であり、区別は消えた」.
+ * ⭐ Table T-038's order counts this same number -- the hold and not the drawn
+ * mark -- and for this row the two are one width, the distinction gone.
  *
  * ⚠️ A MILESTONE'S DUMMY IS A SQUARE, NOT A DAY COLUMN (FR-043, MUST, 利用者の
- * 裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、そのマイルストーン
- * の実績の図形と同じ正方形とすること（MUST）」, drawn CENTRED on the day --
- * so half a side of it stands right of that day, exactly as `actualReachOf`
- * above already answers for the started figure. ⭐ The two are spelled the same
+ * 裁定 2026-09-10): the box is the same square as that milestone's actual
+ * figure, drawn CENTRED on the day -- so half a side of it stands right of that
+ * day, exactly as `actualReachOf` above already answers for the started figure.
  * way on purpose: the dummy and the actual figure it stands in for must reach
  * the same distance, or the marker moves the moment an actual is entered.
  *
@@ -1411,11 +1327,9 @@ const ROW_CONTROL_LATTICE_RANKS = 2
  * LF-3 of table T-221 (MUST) and HF-19 of table T-051 (MUST NOT): the least a
  * row's band may be, because HF-1's lattice of controls stands on it.
  *
- * ⭐⭐ THIS LAYER HOLDS IT (利用者の裁定 2026-09-03, CR-342). Until that ruling
- * the floor reached this unit only as an argument, measured by the side that
- * drew the lattice -- so a caller that passed nothing dropped HF-19's MUST NOT
- * in silence, and every row of the parity board came out at 22px against a 48px
- * lattice. ⇒ A rule that only holds when a caller remembers is not a rule.
+ * ⭐⭐ THIS LAYER HOLDS IT (利用者の裁定 2026-09-03, CR-342): a floor that reaches
+ * this unit only as an argument is dropped in silence by a caller that passes
+ * nothing. ⇒ A rule that only holds when a caller remembers is not a rule.
  * ⛔ THE NUMBER IS NOT WRITTEN HERE: `rowControlOuterHeightPx` is generated out
  * of S-138 and S-141 of table T-206, which is what FR-029 composes one
  * entrance's outer height from, and HF-1's lattice is `ROW_CONTROL_LATTICE_RANKS`
@@ -1455,12 +1369,9 @@ function rowControlLatticeFloorPx(): number {
  * may hold a current value (LY-5 of table T-060). ⛔ Absent reads as NOT folded,
  * which is that row's own default, so no caller is forced to answer it.
  *
- * ⭐⭐ `rowControlsHeightPx` IS A MEASURED LATTICE, AND IT IS NO LONGER WHAT
- * PUTS LF-3's SECOND FLOOR UNDER THE BAND. That row (MUST, 利用者の裁定
- * 2026-09-03) has the band 「その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
- * 高さも下回らない」, and the ruling of 2026-09-03 (CR-342) gives this layer the
- * floor of its own: `rowControlLatticeFloorPx` derives it from S-138 and S-141,
- * so a caller that hands in nothing still gets a band HF-19 (MUST NOT) allows.
+ * ⭐⭐ `rowControlsHeightPx` IS A MEASURED LATTICE AND NOT LF-3's SECOND FLOOR:
+ * `rowControlLatticeFloorPx` holds that floor here (CR-342), so a caller that
+ * hands in nothing still gets a band HF-19 (MUST NOT) allows.
  * ⭐ WHAT AN ARGUMENT IS STILL FOR: the drawn lattice may be TALLER than the
  * two rows compose -- HF-6 (MUST NOT) leaves the gap between two controls
  * unstated -- so a measurement taken where the lattice is drawn is passed in
@@ -1635,9 +1546,8 @@ export function layoutFromSchedule(
       const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       // ---- table T-038's order: what the name label has to clear ----------
-      // 「並びは 担当と完了率の札（OC-2）→ 実績バーと実績のダミー（FR-043）→
-      // 進捗マーカー（OC-3）→ 名称ラベル（OC-1）とすること（MUST）」, and 「この
-      // 4 つを重ねて描いてはならない（MUST NOT）」.
+      // The order is OC-2, then FR-043's bar and dummy, then OC-3, then OC-1
+      // (MUST), and the four may not overlap (MUST NOT).
       // ⛔ THE RESUME ICON IS NOT ONE OF THE FOUR: 「再開アイコン（OC-4）は本
       // 並びに従わないこと（MUST NOT）。立てる場所は 表 T-221 の LF-11 が定める
       // 日付位置（resume の日）とすること（MUST）」. ⭐ Its room is still held
@@ -1689,16 +1599,13 @@ export function layoutFromSchedule(
         ? (assigneeLabels.get(task.uid) ?? NO_ASSIGNEE_MARK)
         : ''
       const percentLabel = settings.percentCompleteVisible ? percentLabelOf(task) : ''
-      // ⭐⭐ ONE CARD, SO ONE WIDTH (FR-090, MUST). The row itself says what is
-      // counted: 「1 枚に繋いであるので、算入するのも 1 枚ぶんの幅である」.
-      // ⛔ THIS USED TO BE TWO WIDTHS AND TWO GAPS, which is the arithmetic two
-      // separate boxes need -- and two boxes is exactly what the ruling struck.
+      // ⭐⭐ ONE CARD, SO ONE WIDTH (FR-090, MUST): one card is counted as one
+      // card's width, which is why one gap is added below and not two.
       const outsideLabel = outsideLabelOf(assigneeLabel, percentLabel)
       const outsideLabelWidth = labelWidth(outsideLabel, font, settings)
-      // ⚠️ THE GAP IS S-32 AND NOT A NEW VALUE: its own row under S-135 says
-      // 「`labelGap`（`S-32`）は形状の外へ出すラベル用」, and FR-090 (MUST) puts
-      // the card 「予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ
-      // 左へ離した位置に、札の右端を揃えて」 -- one gap, because there is one card.
+      // ⚠️ THE GAP IS S-32 AND NOT A NEW VALUE: that row is the gap for a label
+      // put outside the shape, and FR-090 (MUST) sets the card off the plan
+      // bar's left edge by it -- one gap, because there is one card.
       const outsideWidth = outsideLabel === '' ? 0 : settings.labelGap + outsideLabelWidth
       const labelledX0 = x - outsideWidth
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
@@ -1747,9 +1654,7 @@ export function layoutFromSchedule(
         // not drawn, along with the rest of its row.
         // @provisional PD-430 -- `S-89` is the LARGEST NUMBER OF STACKS ALLOWED,
         // so the test is made before a further lane is opened: `stackSafetyCap`
-        // lanes stand and the one that would exceed it is refused. ST-7 spells
-        // this out since 2026-09-06; before that a spec-only body read
-        // 「達したら」 the other way and measured the difference.
+        // lanes stand and the one that would exceed it is refused.
         if (lanes.length >= settings.stackSafetyCap) {
           capStop = { groupId: row.id, cap: settings.stackSafetyCap }
           break
@@ -1791,19 +1696,13 @@ export function layoutFromSchedule(
     const stacked = laneHeights.reduce((sum, h) => sum + h + settings.stackGap, 0)
     const packed = Math.max(0, stacked - settings.stackGap)
     // FR-042 reads a stated height as a floor, never as a cap.
-    // ⭐⭐ AND LF-3 CARRIES A SECOND FLOOR SINCE 2026-09-03 (MUST): 「帯高は矩形が
-    // 縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が
-    // 縦に取る高さも下回らない」. ⛔ Without it the lattice's lower rank stands on
-    // the NEXT row's band and takes that row's presses -- HF-19 (MUST NOT) states
-    // the consequence, and it was measured: a row holding no `Task` came out
-    // 22..28px against a 48px lattice, and its own IC-90 and IC-58 answered for
-    // the row below.
-    // ⛔ THE BAND GIVES WAY AND NEVER THE LATTICE (HF-19, MUST NOT): 「格子の側を
-    // 縮めて合わせてはならない」, because HF-5 (MUST) draws every control the same
-    // size 「行の名前の文字サイズにかかわらず」.
-    // ⭐⭐ AND THE FLOOR IS THIS UNIT'S OWN SINCE CR-342, not the caller's to
-    // remember: `rowControlLatticeFloorPx` composes it out of S-138 and S-141,
-    // and a measured lattice can only RAISE it -- see the note on the argument.
+    // ⭐⭐ AND LF-3 CARRIES A SECOND FLOOR (MUST): the band is never shorter
+    // than a rectangle, and never shorter than HF-1's lattice of row controls.
+    // ⛔ Without it the lattice's lower rank stands on the NEXT row's band and
+    // takes that row's presses -- HF-19 (MUST NOT) states the consequence.
+    // ⛔ THE BAND GIVES WAY AND NEVER THE LATTICE (HF-19, MUST NOT), because
+    // HF-5 (MUST) draws every control the same size whatever the row name is.
+    // ⭐ The floor is this unit's own (CR-342); a measured lattice only RAISES it.
     const latticeFloor = Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0)
     const height = Math.max(packed, emptyLane, row.height ?? 0, latticeFloor)
 
@@ -1950,12 +1849,6 @@ export function layoutFromSchedule(
  * band stops at the `Row Area`'s bottom edge and a pin that does not fit inside
  * it is dropped from the picture. ⛔ THE PERSON RECOVERS BY UNPINNING and is
  * told nothing: 「通知は出さない（同裁定）—— 表 T-233 に行を足さない」.
- * ⚠️ MEASURED BEFORE THIS BOUND EXISTED (2026-09-06, 1920x1080, the standing
- * document with five of its tallest rows pinned -- five IS `S-127`'s default):
- * the band stood 986 tall in a `Row Area` of 958, its bottom edge fell at 1090
- * against the area's own 1062, and the remainder began at 1098, OUTSIDE the
- * area, so not one of the 63 scrolling rows had anywhere on screen to stand.
- * ⛔ That is the cap's own count and not an abusive way to hold the tool.
  *
  * ⭐ 「入りきらない」 IS READ AS "does not fit ENTIRELY". -きる is the completive,
  * so a row whose band would fall PARTLY below the area's bottom edge has not
@@ -1976,9 +1869,9 @@ export function layoutFromSchedule(
  * one that does not fit is not drawn -- putting it back at its natural place
  * would be drawing it, and would draw it where the band already stands.
  *
- * ⛔ STOP -- ONE OF FR-098's RULES IS STILL NOT ANSWERED HERE. 「帯が `Row Area`
- * を埋め尽くし、スクロールする行が 1 行も描けなくなってはならない（MUST NOT）」 has
- * no remedy anywhere in docs/spec: `S-127` caps the COUNT at five and no row
+ * ⛔ STOP -- ONE OF FR-098's RULES IS STILL NOT ANSWERED HERE. The band may not
+ * fill the `Row Area` and leave no scrolling row drawable (MUST NOT), and that
+ * has no remedy anywhere in docs/spec: `S-127` caps the COUNT at five and no row
  * says how much of the area a band has to leave behind. Cutting at the bottom
  * edge narrows the breach but does not close it -- a band whose last row ends
  * within one `rowGap` of that edge still leaves a remainder of zero or less.
@@ -2042,7 +1935,7 @@ function pinnedBandOf(
     // ⛔ ONCE ONE ROW IS OUT, EVERY LATER PIN IS OUT. Reading the test as a
     // filter -- skipping the tall row and admitting the next short one --
     // would put that short one above a row fixed before it, which FR-098
-    // (MUST NOT) forbids: 「優劣を設けてはならない —— 固定した順に上から並べる」.
+    // (MUST NOT) forbids -- pinned rows line up in the order they were fixed.
     if (dropped.size > 0 || bandY + row.height > rowAreaBottom) {
       dropped.add(row.groupId)
       continue
@@ -2056,7 +1949,7 @@ function pinnedBandOf(
   // subtracts alongside the band's own height.
   // ⚠️ `inBand` AND NOT `banded`: when every pin was dropped there is no band,
   // so the remainder starts at the area's own top edge and takes no gap -- the
-  // same picture as 「留めた行が 1 つも無い」, which is what the screen shows.
+  // same picture as a document with no pin at all, which the screen shows.
   const scrollAreaY = regions.rowArea.y + (inBand.size === 0 ? 0 : height + settings.rowGap)
 
   let scrollY = scrollAreaY
@@ -2130,10 +2023,9 @@ function liftedRows(
  * ⛔ AND THE FIGURES OF A DROPPED PIN LEFT OUT ALTOGETHER. 「入りきらない行を
  * 描かないこと（MUST）」 is about the row, and FR-098 spells elsewhere how wide
  * 「その行のために描くもの」 reaches: 「行の地だけでなく、その行のバー・ラベル・
- * 進捗マーカー・依存線を含めて」. ⚠️ Cutting the row's ground alone and leaving
- * its bars is the very fault measured on 2026-08-31 -- 「読む人には、留めた行の
- * 中へ別の行のバーが入り込んで見える」 -- and here they would float over the
- * scrolling rows with no row of their own anywhere on screen.
+ * 進捗マーカー・依存線を含めて」. ⚠️ Cutting the row's ground alone and
+ * leaving its bars puts another row's bars inside the pinned one, and here they
+ * would float over the scrolling rows with no row of their own on screen.
  *
  * @purity pure
  */
@@ -2275,10 +2167,6 @@ export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlac
  * `viewSettings` for OP-10 of table T-024a -- and a fraction left standing
  * from the pan before cannot slide the fitted picture by up to one row and one
  * day.
- * ⚠️ `fitScheduleToScreen` (CM-71) DOES carry the pair; the note that once
- * stood here saying it carried the anchors only was written before CR-260 and
- * was stale. Searched: `edit-document-settings.ts` (CM-66, CM-71), table
- * T-108, table T-203 S-176 / S-177, OP-10 and OP-10a of table T-024a.
  */
 export interface FitToScreen {
   readonly zoomX: number
@@ -2438,7 +2326,7 @@ export function fitZoom(
   const floorZoomY = zoomYAtPlanHeightFloor(settings)
   const deepest = deepestDrawnDepth(schedule, settings)
   // ⛔ THE SAME FLOOR THE PICTURE WILL BE DRAWN WITH, and it is carried rather
-  // than left out: the fit measures 「描くものが `Row Area` に収まる」 against
+  // than left out: the fit measures whether the picture fits against
   // these very runs, so a run without LF-3's row-control floor would measure
   // bands shorter than the ones the frame then draws and seat a depth that does
   // not fit.
@@ -2483,15 +2371,15 @@ export function fitZoom(
   // takes once -- NFR-013's growth is unchanged and this happens per press.
   const atFloor: ScheduleLayout[] = []
   for (let cap = 1; cap <= deepest; cap++) atFloor.push(runAt(zoomX, floorZoomY, cap))
-  // ⭐ THE REMAINDER AND NOT THE WHOLE `Row Area` (FR-055, MUST): 「描くものが
-  // `Row Area` から ピン止めした行の帯（`FR-098`）を除いた残りに収まる最も深い段
-  // を採る」, and LF-14 makes that remainder the area's height less the band and
+  // ⭐ THE REMAINDER AND NOT THE WHOLE `Row Area` (FR-055, MUST): the deepest
+  // tier is chosen against the area less the pinned band (`FR-098`),
+  // and LF-14 makes that remainder the area's height less the band and
   // less one `rowGap`. ⚠️ Each run measures its OWN band, because a deeper cap
   // can put a taller row in it.
   const fits = (run: ScheduleLayout): boolean => {
     // ⛔⛔ A RUN THAT REACHED ST-7's VALVE DOES NOT FIT, WHATEVER IT MEASURED.
-    // FR-055 takes 「描くものが `Row Area` から ピン止めした行の帯を除いた残りに
-    // 収まる最も深い段」, and a run that stopped never laid 描くもの out: the row
+    // FR-055 takes the deepest tier whose picture fits the remainder,
+    // and a run that stopped never laid that picture out: the row
     // that reached the valve and every row after it are missing, so its
     // `contentHeight` is short of the picture by an unknown amount and seating a
     // depth on it would fit the screen to a document nobody has measured.
@@ -2506,8 +2394,8 @@ export function fitZoom(
     const remainderTop = run.scrollAreaY ?? regions.rowArea.y
     return run.contentHeight <= regions.rowArea.y + regions.rowArea.height - remainderTop
   }
-  // 「その文書が持つ最も深い段から順に見て、描くものが Row Area に収まる最も深
-  // い段を採る」. Depth 1 when none of them does -- FR-055 leaves the vertical
+  // Deepest first, taking the first tier whose picture fits the `Row Area`.
+  // Depth 1 when none of them does -- FR-055 leaves the vertical
   // scroll standing rather than shrinking further.
   let depth = 1
   for (let candidate = deepest; candidate >= 1; candidate--) {

@@ -21,8 +21,6 @@
 // leave the panel without this unit judging any of them, and it is why `titles`
 // keeps the order `rowBoxes` arrived in rather than sorting by `TaskGroup.order`
 // (AT-55): a second ordering would be a second answer to the same question.
-// ⚠️ WHICH ROWS CARRY A TITLE is what that says, and since 2026-08-30 it is no
-// longer the only question the drawn rows answer here -- see below.
 //
 // ⭐⭐ WHY THE EXPANDER PAIR IS NOW READ OFF THE DRAWN ROWS AND NOT OFF
 // `TaskGroup.isCollapsed` (AT-56) ALONE. The closing rule under table T-051
@@ -33,12 +31,8 @@
 // 描かれていないものの上に残る状態を数えてはならない（MUST NOT）」. A reader
 // judges by the picture, so a control armed by a fold the picture does not hold
 // is a control that answers a press with nothing anyone can see.
-// ⛔ THE NOTE THAT STOOD HERE ARGUED THE OPPOSITE, and it was measured wrong on
-// the shipped build (CR-307 §1(a), the user's own recording: a press wrote the
-// document and the next frame was byte-identical to the one before it). It read
-// the pair as a question about AT-56 alone, because HF-2 and HF-3 write that
-// column and nothing else. That is still true of what a press WRITES; what the
-// rows above narrow is what a press CHANGES, which is the question FR-029 asks.
+// ⛔ NOT A QUESTION ABOUT AT-56 ALONE. What a press WRITES is that column;
+// what the rows above narrow is what a press CHANGES, which is what FR-029 asks.
 // ⚠️ FR-018 AND HF-7 ARE NOT OVERTURNED BY THIS. The zoom still never writes
 // AT-56 and the person's fold still outranks it; a row the zoom left out is
 // simply one more row that is not in the picture, and the rule above counts the
@@ -58,10 +52,7 @@
 // `Selection`. FR-085 (MUST) has rows chosen in this panel and says in as many
 // words that this is NOT the set table T-023c governs, because SL-1 leaves rows
 // out of the drawing area's selection -- and `Selection` (PI-32) could not hold
-// them anyway, its `SelectableKind` being T-023c's five. ⚠️ A STOP stood here
-// saying no argument carried the set and that every row was therefore described
-// as not chosen; the shell holds it now and `isSelected` below reads it, so
-// that note had become the reason a chosen row was drawn as unchosen.
+// them anyway, its `SelectableKind` being T-023c's five.
 // ⛔ Still nothing STORES it (PD-142) -- it is lost with the page.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -97,21 +88,16 @@ interface PanelIndex {
    * one-level-open control (IC-90) would put a row back into the picture by
    * UNHIDING it rather than by unfolding anything.
    *
-   * ⭐⭐ HR-6 (MUST) NAMES THAT CONTROL AS THE WAY BACK: 「隠した行は、親の行の
-   * 「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の `HF-13` である」, and
-   * (MUST NOT) forbids a surface of its own for it: 「戻すための専用の面や札を
-   * 設けてはならない —— `HR-2` が頭を段 0 と定めた以上、隠すことは親へ 1 歩
-   * 畳み込むことであり、戻すのは親を 1 階層開くことである」.
+   * ⭐⭐ HR-6 (MUST) NAMES THAT CONTROL AS THE WAY BACK -- the parent's
+   * 「配下を 1 階層開く」 control, `HF-13` of table T-051 -- and (MUST NOT)
+   * forbids a surface of its own for it.
    *
-   * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) since
-   * 2026-08-31 takes THIS row's fold off in the same press, so a folded parent
-   * with a hidden child draws both again. ⛔ The narrowing that stood here
-   * refused a folded parent, which was right while the press wrote the
-   * CHILDREN's folds and is wrong now.
-   * ⚠️ A NOTE HERE USED TO CALL 「その行は畳まれておらず、隠れている子も無い」
-   * the wording of RS-30 of table T-233. That row reads 「直下に、画面へ戻せる子
-   * が 1 つも無い」 and names no fold (台帳 D-339), which is why the arming
-   * below is `groupIdsWithAChildOutOfThePicture` and not this set.
+   * ⭐ THE PARENT'S OWN FOLD IS NOT ASKED ABOUT BESIDE IT. HR-7 (MUST) takes
+   * THIS row's fold off in the same press, so a folded parent with a hidden
+   * child draws both again.
+   * ⚠️ RS-30 of table T-233 names no fold (台帳 D-339) -- 「直下に、画面へ
+   * 戻せる子が 1 つも無い」 -- which is why the arming below is
+   * `groupIdsWithAChildOutOfThePicture` and not this set.
    */
   readonly groupIdsWithHiddenChild: ReadonlySet<string>
   /**
@@ -132,9 +118,6 @@ interface PanelIndex {
    * is anything under it: HF-18 counts 「畳み込んでいる」 rows, and hiding is the
    * other operation -- HR-6 puts the row away by itself and the parent's
    * one-level-open is what brings it back.
-   * ⚠️ THE DISPLAY AMOUNT (FR-018) IS NOT TOLD APART FROM A FOLD HERE:
-   * ScheduleLayout settles that and Chapter 5.3 keeps this component away from
-   * it, so a row the zoom dropped is counted as folded away.
    */
   /**
    * ⚠️ HF-18's 「配下に畳み込んでいる行があるとき、その行数」 READS TWO WAYS:
@@ -209,11 +192,6 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
  *
- * ⚠️ PD-398 STOOD HERE AND IS SETTLED. CR-311 made an entrance in effect say
- * so by a FILL rather than a rim, and table T-237 of FR-029 now holds which
- * colour each of the four states takes. Nothing on this side is provisional
- * for it any more.
- *
  * @provisional PD-397 -- the whole set of row controls is up for
  * re-organising. ⭐ Measured from the user's own FR-102 record: forty seconds
  * of hovering across all seven, three presses. ⛔ THE PRESSES ALL WORKED --
@@ -222,12 +200,9 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * the folding shapes split across three metaphors, and the count changing
  * between 2 and 5 on neighbouring rows.
  *
- * ⛔ PD-399 STOOD HERE AND IS SETTLED. It read 「nothing here ADDS a row ... not
- * one of table T-109's 85 icons performs it」, which was measured true; the
- * ruling of 2026-08-30 became HR-8 of table T-015 and HF-14 of table T-051, and
- * table T-109 now holds IC-91 for it. ⭐ The two questions that row left open
- * are answered by HF-14 itself: the child lands as the LAST child (末子) and it
- * is named by the person, with no default name allowed (MUST NOT).
+ * ⭐ HF-14 of table T-051 and HR-8 of table T-015 settle the adding of a row,
+ * and table T-109 holds IC-91 for it: the child lands as the LAST child (末子)
+ * and is named by the person, with no default name allowed (MUST NOT).
  * ⚠️ WHERE IT LANDS IS NOT THIS UNIT'S ANSWER -- `canAddChildRow` below says
  * only whether the entrance has anything left to do.
  *
@@ -265,18 +240,12 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * keep -- U-47 `Row Expander` and U-48 `Row Pin`, whose amount FR-085 puts at
  * S-140 of table T-206 -- less the room the row's grab strip keeps.
  *
- * ⭐⭐ THE GRAB STRIP'S TERM IS FR-085's OWN, ADDED 2026-09-02 (利用者の裁定):
- * 「…行の掴み代（表 T-023d の `GR-20`）に確保した場所（… 表 T-206 の `S-138`）と
- * その隔たり（同表の `S-218`）を引いた残りとすること（MUST）」. ⛔ UNTIL CR-336
- * THIS SUBTRACTION HAD THREE TERMS AND THE DRAWN ROW HAD FOUR. GR-20 stands in
- * the row's own flow, just before the name (HF-15 of table T-051 draws it
- * ALWAYS, so it is never absent), and it took S-138 + S-218 of the name's box
- * that this arithmetic never took off -- measured on the shipped build of
- * 2026-09-02 at 1920x1080, the box was 134 / 118 / 102px at depths 1 / 2 / 3
- * while this function answered 154 / 138 / 122. ⇒ The cut was judged on 20px
- * the name never had, and the browser's own `text-overflow` ate the difference
- * in silence -- silently, because `isLabelTruncated` records THIS cut and not
- * that one, so no row was reported as cut when only the browser had cut it.
+ * ⭐⭐ THE GRAB STRIP'S TERM IS FR-085's OWN (利用者の裁定 2026-09-02): the room
+ * GR-20 of table T-023d keeps (`S-138`) and the gap after it (`S-218`) come off
+ * the name's width too. ⛔ GR-20 stands in the row's own flow, just before the
+ * name, and HF-15 of table T-051 draws it ALWAYS -- so a subtraction that leaves
+ * it out judges the cut on room the name never had, and the browser cuts the
+ * rest in silence: `isLabelTruncated` records THIS cut and not that one.
  * ⚠️ The gap is subtracted as well as the strip, and that is the ruling's own
  * word 「その隔たり」: the strip is a flex item with the name after it, so the
  * room it takes from the name is its width AND the gap that follows it.
@@ -291,8 +260,6 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * T-051 draws them only while the pointer is on the row's name, so a room that
  * followed them would cut the name in a different place in each of those three
  * -- and would move the cut under the reader's own hand.
- * ⚠️ This subtracted a zero behind a STOP until S-140 reached `src/`, and
- * CR-245 records that the zero is what made the controls collide with the name.
  *
  * ⚠️ The indent is the depth's own multiple, not one step fewer. S-79's lower
  * bound is `rowTitleIndent` x `maxGroupDepth` -- the deepest row's indent -- so
@@ -350,9 +317,6 @@ function rowTitleFontPx(depth: number, settings: DocumentSettings): number {
  * ⚠️ A width too small to hold even the mark still gets the mark and no
  * characters: FR-085 states no exception, and dropping it there would hide the
  * cut precisely on the narrowest panels, where cutting is likeliest.
- * ⚠️ THE NOTE THAT STOOD HERE SAID NOTHING WAS APPENDED, on the reading that no
- * row spelled a mark and the whole name was reachable in a tooltip instead.
- * CR-257 took that tooltip away and spelled the mark into FR-085 itself.
  *
  * @purity pure
  */
@@ -403,14 +367,10 @@ function rowDepth(
   return depth
 }
 
-// ⛔ `isRowHidden` STOOD HERE AND IS GONE, WITH NOTHING PUT IN ITS PLACE. It
-// climbed a row's parents for AT-57 so that the expander pair could keep HR-6's
-// rows out of its own two counts, back when the counts were taken over the
-// document's whole roster. Since CR-307 those counts are taken over the rows
-// this frame DREW, and HR-6 (MUST NOT) is one of the reasons a row is not among
-// them -- so reading AT-57 here as well would be the same rule answered twice,
-// which rule 03 section 1 of docs/development-rules refuses.
-// ⚠️ AT-57 IS STILL READ IN `src/`, on the side that decides what is drawn.
+// ⚠️ AT-57 IS READ IN `src/` ON THE SIDE THAT DECIDES WHAT IS DRAWN, never
+// here: HR-6 (MUST NOT) keeps a hidden row and its subtree out of the picture,
+// so the counts below -- taken over the rows this frame DREW -- already carry
+// it, and reading AT-57 again would answer one rule twice (rule 03 section 1).
 
 /**
  * HF-1 of table T-051: every row carries the four folding controls, of which
@@ -425,13 +385,7 @@ function rowDepth(
  *
  * ⭐ ALL THREE HALVES ANSWER WHAT THEIR OPERATION WOULD CHANGE IN THE PICTURE,
  * which is what FR-029 (MUST) asks of every entrance and what the closing rule
- * under table T-051 (MUST) states for these controls by name. `canClose` is
- * HF-3 hiding THIS row, which always takes at least this row away -- HF-3
- * (MUST): 「描かれている行はいつでも隠せるので、本操作子を薄く描く場面は無い」.
- * `canCloseBelow` is HF-11 folding THIS row (HR-4), so it is spent where the
- * picture holds no child of it to take away. `canOpen` is HF-2 opening this row
- * and its whole subtree (HR-3), so it is spent where nothing at or below it is
- * folded or hidden -- and HF-2 words that as HF-18's own number.
+ * under table T-051 (MUST) states for these controls by name.
  *
  * ⛔⛔ AND THE COUNT IS THE DIFFERENCE IN THE PICTURE, NOT THE ROWS BELOW
  * (CR-309). The closing rule (MUST) finishes 「その操作で、描かれる行が 1 行も
@@ -447,12 +401,8 @@ function rowDepth(
  * thing which does not respond looks broken, and the user's ruling of
  * 2026-08-30, taken after watching a press write the document and leave the
  * frame byte-identical.
- * ⛔ THE NOTE THAT STOOD HERE COUNTED THOSE ROWS IN, on the ground that HF-2
- * unfolds them with the rest -- and it kept HR-6 out by a reading of its own,
- * which is the narrowing PD-319 was opened for. ⭐ THAT DECISION IS SETTLED
- * (2026-08-30) AND WIDENED: the rule is no longer about who hid the row but
- * about whether the picture holds it, so one test answers HR-1a, HR-6 and the
- * display amount at once.
+ * ⭐ ONE TEST ANSWERS HR-1a, HR-6 AND THE DISPLAY AMOUNT AT ONCE: the question
+ * is not who put the row away but whether the picture holds it (PD-319).
  *
  * ⚠️ `RowExpander` in screen-renderer.ts still spells `canOpen` as "there is a
  * level below that is not open" and `canClose` as "something below is open",
@@ -467,41 +417,32 @@ function rowDepth(
  */
 function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   // ⭐⭐ EVERY ROW CARRIES THE THREE, AND A CHILDLESS ONE CARRIES THEM WITH NO
-  // HALF ARMED. HF-1 (MUST) says 「行見出しパネルの各行に、開く操作子と、その行
-  // 自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ置く」 -- 各行, with
-  // no exception -- and FR-029 (MUST) has a spent entrance drawn 薄く rather
-  // than taken away, adding 「載る面によって薄くしない入口があってはならない
-  // (MUST NOT)」.
+  // HALF ARMED. HF-1 (MUST) puts the opener, this row's own closer and the
+  // close-everything-below on 各行, with no exception -- and FR-029 (MUST) has
+  // a spent entrance drawn 薄く rather than taken away, and (MUST NOT) lets no
+  // surface it sits on skip the fading.
   //
-  // ⛔⛔ IT USED TO ANSWER `null` FOR A ROW WITH NO CHILDREN, and that was
-  // measured wrong on 2026-08-30: a leaf row in the shipped app drew no IC-58,
-  // IC-59 or IC-77 at all. ⭐ THE DECIDING EVIDENCE IS 表 T-233: `RS-28`
-  // 「配下に、開ける行が 1 つも無い」 is that row's own situation, and a control
-  // that is not drawn can never be pressed, so that reason could never be told
-  // to anyone. FR-029 makes the telling a MUST and (MUST NOT) forbids
-  // disabling the entrance for the same reason -- the press is the trigger.
+  // ⛔⛔ NOT `null` FOR A ROW WITH NO CHILDREN. `RS-28` of 表 T-233 -- 「配下に、
+  // 開ける行が 1 つも無い」 -- is that row's own situation, and a control that
+  // is not drawn can never be pressed, so that reason could never be told to
+  // anyone. FR-029 makes the telling a MUST and (MUST NOT) forbids disabling.
   //
   // ⭐ THE PICTURE NARROWS THE FOLDING HALF, which is the one that takes rows
   // away: `groupIdsWithDrawnChildren` is marked from the rows this frame drew.
   // ⚠️ A row none of whose children the picture holds therefore carries the
   // control unarmed -- HF-1 still places it, since HF-1 places all four on 各行.
   return {
-    // HF-2 (MUST) TIES THIS HALF TO THE NUMBER HF-18 SHOWS: 「その行が抱えている
-    // 畳み込みが 0 のときは、`FR-029` に従って薄く描くこと —— その数を示すのが
-    // `HF-18` であり、示す数と構えの条件は同じ 1 つである」.
+    // HF-2 (MUST) TIES THIS HALF TO THE NUMBER HF-18 SHOWS: a row holding 0 is
+    // drawn 薄く, and the number shown and the arming are one condition.
     // ⭐ THE ROW'S OWN FOLD IS INSIDE THAT NUMBER, which is what HR-3 needs since
     // 2026-08-31: it opens 「選択した `TaskGroup` と、その配下のすべて」, so a
     // folded row with a child of its own arms this half by holding that child
-    // away. ⛔ `groupIdsWithCollapsedBelow` STOOD HERE AND COULD NOT SEE IT --
-    // that set was about the rows BELOW, which is the range HR-3 left behind.
     // ⭐⭐ AND THE HIDING IS INSIDE THAT NUMBER TOO, which is what keeps 「示す数
     // と構えの条件は同じ 1 つ」 true: HR-3 (MUST NOT) 「畳みだけを解いて隠しを残し
     // てはならない」, so a row put away by HF-3 comes back with this press and has
-    // to be one of the rows the number counts. ⛔ A SECOND TEST BESIDE THE NUMBER
-    // STOOD HERE and broke that MUST -- the entrance armed while the row showed 0.
     canOpen: (index.foldedRowCountByGroupId.get(group.id) ?? 0) > 0,
-    // HF-3 (MUST) IS NOW HR-6: 「隠す操作子は、その行を隠すこと —— 表 T-015 の
-    // `HR-6` である」（利用者の裁定 2026-08-30）. ⭐ ALWAYS ARMED ON A DRAWN ROW:
+    // HF-3 (MUST) IS NOW HR-6 -- the closing control hides the row itself
+    // (利用者の裁定 2026-08-30). ⭐ ALWAYS ARMED ON A DRAWN ROW:
     // HR-6 (MUST NOT) refuses to draw a hidden row or anything under it, so the
     // press always takes at least this row out of the picture and the closing
     // rule under table T-051 always counts one.
@@ -516,10 +457,6 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
     // row's DRAWN children out of the picture, and where the picture holds none
     // it takes nothing -- the closing rule under table T-051 (MUST), 「その操作の
     // 前後で描かれる行の差」.
-    // ⛔ `groupIdsWithUnfoldedBelow` STOOD HERE and asked whether some row BELOW
-    // was still unfolded, which was HR-4's range until that ruling. A row whose
-    // own children were leaves answered `false` there and answers `true` here,
-    // because folding it now hides those leaves.
     canCloseBelow: index.groupIdsWithDrawnChildren.has(group.id),
   }
 }
@@ -579,9 +516,8 @@ function rowTitleOf(
   chosenGroupIds: ReadonlySet<string>,
   held: HeldRow | null,
 ): RowTitle {
-  // HF-15 of table T-051 (MUST): 「握っているあいだ、行をポインタに追従させる
-  // こと」, and the step of that follow is 「段送りの刻みは 表 T-201 の `S-37` と
-  // 同じとすること（MUST）」 -- which is the very product this unit indents by.
+  // HF-15 of table T-051 (MUST) has the row follow the pointer while it is
+  // held, stepping by `S-37` -- the very product this unit indents by.
   //
   // ⭐⭐ THE DEPTH IS DRAWN AND NOT WRITTEN. Table T-023d (MUST NOT) forbids the
   // document to be written while the strip is held -- 「追従は絵であって編集では
@@ -609,13 +545,11 @@ function rowTitleOf(
   return {
     groupId: group.id,
     depth,
-    // HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」, read on
-    // the axis that changes the row's PLACE -- so the row is drawn at the edge
-    // of the place the hand stands at (「その段に置ける場所を描く順にたどる」).
+    // HF-15 (MUST) has the row follow the pointer, read on the axis that
+    // changes the row's PLACE -- drawn at the edge of the place the hand is at.
     //
-    // ⛔⛔ DRAWN AND NOT WRITTEN, which table T-023d states as a MUST NOT:
-    // 「掴んでいるあいだ値を文書へ書いてはならない —— 追従は絵であって編集では
-    // ない」. `TaskGroup.order` still says where the row IS; this says where the
+    // ⛔⛔ DRAWN AND NOT WRITTEN, which table T-023d states as a MUST NOT.
+    // `TaskGroup.order` still says where the row IS; this says where the
     // hand has carried it, and the release settles CM-73.
     // ⚠️ THE OTHER ROWS DO NOT MOVE OUT OF ITS WAY. No row opens a gap for a
     // held row and none draws a mark for the place -- table T-103 gives no part
@@ -623,9 +557,9 @@ function rowTitleOf(
     // ⛔ `null` IS NOT ZERO: zero is the top of the `Row Area`, and `null` is a
     // grab on the depth axis, which 「段を変えてはならない」 read the other way
     // round leaves standing where the layout put it.
-    // ⭐ AND THE REFUSED AXIS MOVES IT A LITTLE FURTHER (HF-15, MUST):
-    // 「拒まれた向きへの追従は途中で止めること —— 止める割合は ... `S-212`」, with
-    // (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせてはならない」. ⛔ The
+    // ⭐ AND THE REFUSED AXIS MOVES IT A LITTLE FURTHER (HF-15, MUST): the
+    // follow on the refused axis stops partway, at the share `S-212` names, and
+    // (MUST NOT) the row may not simply follow the pointer there. ⛔ The
     // amount is not decided here: `ScreenSession.rowGrabbedAt.resistedPx` is
     // already S-212 times one step of the axis that was refused, and this only
     // says which way that step lies -- the refused axis is the OTHER one, so a
@@ -673,19 +607,14 @@ function rowTitleOf(
     // ⭐⭐ AND THE SPENT SIDE IS HF-13's OWN SENTENCE (MUST): 「開ける直下の子が
     // 1 つも無いときは、`FR-029` に従って薄く描くこと」, and RS-30 of table
     // T-233 counts the same thing for the telling: 「直下に、画面へ戻せる子が
-    // 1 つも無い」. ⛔ NEITHER NAMES THIS ROW'S OWN FOLD -- a note here used to
-    // put 「その行は畳まれておらず、隠れている子も無い」 into RS-30 and read the
-    // arming off the fold, which is words that row does not carry (台帳 D-339).
-    // ⛔ `groupIdsWithFoldedChildToOpen` STOOD HERE and asked about the CHILDREN's
-    // folds, which is the reading HR-7 retired: 「孫より下の畳みに触れてはならない
-    // （MUST NOT）」, so what comes off is this row's own AT-56.
+    // 1 つも無い」. ⛔ NEITHER NAMES THIS ROW'S OWN FOLD, which is why the
+    // arming is not read off it (台帳 D-339).
+    // ⛔ HR-7 (MUST NOT) leaves the grandchildren's folds alone, so what comes
+    // off is this row's own AT-56.
     // ⛔⛔ AND A ROW WITH NO CHILD AT ALL IS SPENT, WHATEVER ITS OWN FOLD SAYS.
     // Taking the fold off a childless row draws no row, and FR-029 (MUST) counts
     // an entrance's targets 「画面に描かれている側で」 -- the closing rule under
     // table T-051 says the same in its own words.
-    // ⚠️ MEASURED AGAINST THE SAMPLE, 2026-08-31: five childless rows drew this
-    // entrance armed here and faint there, across three of nineteen scripted
-    // presses. ⭐ `RS-30` was reworded with this, so the telling still fits.
     // ⭐ ONE SENTENCE: armed exactly when this row has a DIRECT CHILD that the
     // picture does not hold.
     canOpenOneLevel: index.groupIdsWithAChildOutOfThePicture.has(group.id),
@@ -704,12 +633,6 @@ function rowTitleOf(
     isPinned,
     // FR-085 (MUST): rows are chosen in this panel, and the set is
     // `ScreenSession.selectedGroupIds` (PD-142).
-    //
-    // ⛔ THIS READ `false` UNCONDITIONALLY, behind a STOP saying no argument
-    // carried the set. That was true when written; the shell began holding the
-    // set on 2026-08-24 and the argument this unit already takes carries it, so
-    // the note had quietly become the reason a chosen row would not be drawn as
-    // chosen.
     //
     // ⚠️ A `Set` and not a scan: this runs once per row on every frame, and
     // rule 04 section 5 forbids a linear search on that path (NFR-013).
@@ -730,8 +653,7 @@ function rowTitleOf(
  * Where a held row is DRAWN: at the place the hand has carried it to on the
  * live axis, and a little way along the axis that was refused.
  *
- * ⛔ A PICTURE AND NEVER A WRITE, which table T-023d states as a MUST NOT --
- * 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵であって編集ではない」.
+ * ⛔ A PICTURE AND NEVER A WRITE, which table T-023d states as a MUST NOT.
  * ⚠️ `atY` IS `null` ON THE DEPTH AXIS, where 「上下は ... 段を変えてはならない」
  * read the other way round leaves the row at the y the layout gave it.
  *
@@ -750,10 +672,6 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
 }
 
 /**
- * ⚠️ NO `DocumentSettings` IS TAKEN ANY MORE. The one thing this member read out
- * of them was `maxGroupDepth` (S-125), which bounded `isRowHidden`'s climb; that
- * climb went with the rows this index no longer counts (see where it stood).
- *
  * @purity pure
  */
 function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
@@ -808,10 +726,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   // because a child may be printed before its parent and the map has to be whole
   // first.
   //
-  // ⛔ TWO CLIMBS STOOD HERE AND ARE GONE WITH THE RANGE THEY ANSWERED. They
-  // marked, for every row, whether a row BELOW it was folded or unfolded -- which
-  // was HF-2's and HF-11's question while those two reached only below a row.
-  // ⭐ HR-3 and HR-4 now write the pressed row, so both answers are one hop:
+  // ⭐ HR-3 and HR-4 write the PRESSED row, so both answers are one hop:
   // HF-11 asks this set, and HF-2 asks HF-18's own number.
   const groupIdsWithDrawnChildren = new Set<string>()
   for (const group of schedule.taskGroups) {
@@ -847,9 +762,8 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   // only buried descendant was hidden showed 0 and armed its opener anyway.
   // ⚠️ THE DISPLAY AMOUNT IS STILL NEVER COUNTED (HF-18, MUST NOT) -- what is
   // read here is AT-56 and AT-57, never `boxByGroupId`.
-  // ⚠️ `visited` IS THE RING GUARD, the same one the two climbs above keep:
-  // `schedule.ts` REPORTS a `parentId` ring (IV-18) rather than refusing the
-  // document, so this walk is handed one.
+  // ⚠️ `visited` IS THE RING GUARD: `schedule.ts` REPORTS a `parentId` ring
+  // (IV-18) rather than refusing the document, so this walk is handed one.
   const foldedRowCountByGroupId = new Map<string, number>()
   const subtreeSizeByGroupId = new Map<string, number>()
   // ⭐ THE ROWS DEEPEST FIRST, so that a row's own two numbers are already
@@ -878,11 +792,6 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
       // 畳んだ覚えの無いものを探すことになる」. ⭐ Both a fold (AT-56) and a
       // hiding (AT-57) are the person's doing; FR-018's drop is not, and is not
       // read here.
-      // ⛔ IT READ `boxByGroupId` UNTIL 2026-08-30, i.e. "was this child drawn",
-      // and FR-018's group level of detail drops rows for its own reasons: an
-      // OPEN row whose children the zoom had dropped reported them as folded
-      // away. ⭐ Measured by the user on the shipped build -- a row nobody had
-      // folded carried a count.
       // ⭐ THE TWO WAYS A CHILD IS HELD AWAY: this row's own fold holds every
       // child's whole subtree, and the child's own hiding holds that one's --
       // otherwise the child holds away whatever it holds away.
@@ -904,9 +813,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
     // ⛔ THE SAME RULE THE ROWS TAKE: what 段 0 holds away is what its own fold
     // and the rows' own hidings hold away, never what FR-018's display amount
-    // dropped. ⚠️ `!boxByGroupId.has(root.id)` stood here until 2026-08-30 and
-    // made the head report the rows the zoom had left out -- 92 of 100 on the
-    // startup document, none of which anybody had folded.
+    // dropped.
     foldedRowCountAtLevelZero +=
       session.isLevelZeroFolded === true || root.isHidden === true
         ? subtreeSize
@@ -1029,9 +936,6 @@ export function rowTitlePanelFromSchedule(
     // closing rule under table T-051 (MUST) makes 「いま描かれている行」 what
     // HF-10 and HF-12 act on, and (MUST NOT) refuses to count the fold that
     // remains on a row the picture does not hold.
-    // ⛔ THE NOTE THAT STOOD HERE READ THE DOCUMENT'S WHOLE ROSTER, on the
-    // reading these entrances write AT-56 and nothing else. CR-307 overturned
-    // it -- what a press writes is not what a reader sees.
     // ⛔ AND NARROWED AGAIN BY CR-309, in the same words the three halves of
     // `expanderOf` are: 「その操作で、描かれる行が 1 行も増減しないときは、対象
     // が 1 つも無いものとして扱うこと（MUST）」. A drawn folded row with nothing

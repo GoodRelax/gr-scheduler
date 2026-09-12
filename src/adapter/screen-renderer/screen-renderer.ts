@@ -21,29 +21,18 @@
 // ScheduleLayout and gives this component no edge to ScheduleLayout at all. The
 // same file is why `Rows` (U-1) and everything inside them are absent here.
 //
-// ⭐ WHAT MAY ARRIVE AS AN ARGUMENT is fixed by that same file. This component's
-// outgoing edges are ScreenRegions, ScreenState, Schedule, DocumentSettings,
-// Selection, DialogueLog and PostDialogueMessage, and the imports from outside
-// this folder are one per edge -- the nine beside them are this folder's own
-// units, which are not edges. ⛔ Nothing here may reach ScheduleLayout or
-// ScheduleGeometry, which is why what only they can measure arrives as plain
-// rectangles in `ScreenSession`.
+// ⭐ WHAT MAY ARRIVE AS AN ARGUMENT is fixed by that same file: one import
+// per outgoing edge, and the nine beside them are this folder's own units.
+// ⛔ Nothing here may reach ScheduleLayout or ScheduleGeometry, which is why
+// what only they can measure arrives as plain rectangles in `ScreenSession`.
 //
 // ⭐ WHERE A RECTANGLE APPEARS. A part carries one only where a requirement
-// fixes its geometry: the scrollbar lanes and the divider bands (FR-051 /
-// FR-052 / SC-4 of table T-031), the row titles SC-1 keeps in step with the
-// drawn rows, and the palette the person drags (FR-053). Every other part names
-// itself and its state and leaves the placing to the surface. ⛔ Whichever side
-// judges a width does it with FR-093's estimate (FR-085 makes that a MUST) --
-// measuring the glyphs is forbidden there in as many words.
+// fixes its geometry; every other part names itself and its state and leaves
+// the placing to the surface. ⛔ Whichever side judges a width does it with
+// FR-093's estimate (FR-085, MUST) and never by measuring the glyphs.
 //
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
-//
-// The seam declared in this folder is re-exported here because
-// the layer that implements it may not reach past this file
-// (Chapter 5.3, MUST).
+// Chapter 5.3 (MUST NOT) keeps every other file in this folder unimportable
+// from outside, so every published name -- the seam included -- leaves here.
 //
 // ⚠️ Table T-064 names four members for PI-37. The other names below are the
 // parts of `ScreenView` and the arguments of its two functions: 5.3 puts the
@@ -78,8 +67,7 @@ import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './not
 // telling the key on the pressed entrance names. ⛔ It may not rebuild the key
 // itself: that would be the same arithmetic in two places (rule 03 section 4),
 // and the two spellings would drift the day NT-4's gathering changes.
-// ⚠️ Published through this entry rather than reached into `notices.ts`, and
-// named by table T-064's PI-37 accordingly.
+// ⚠️ Named by table T-064's PI-37.
 export { dismissKeyOf }
 import { openModalFromScreenState } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
@@ -95,32 +83,19 @@ export type { DialogueInput, FieldCommit, ScreenPart, ScreenSurface } from './sc
 /**
  * A row of table T-109, e.g. `IC-7`.
  *
- * ⭐ The row id is the only join that table admits: it says in as many words
- * that the figure lives in figure F-019 and that the table never writes one out
- * in words. ⛔ So an icon is carried by its row id and never by a name invented
- * here -- table T-109 deliberately has no English column, because having one
- * would mint dozens of settled names that the glossary has not settled.
- *
- * ⛔ NOT A ROSTER. Nothing below enumerates the rows of table T-109. Rule 03 of
- * docs/development-rules forbids re-typing a value the specification holds, and
- * that table is not generated into `src/` the way `settings.json` is -- see the
- * note on `AppHeaderItems.commands` for what that leaves open.
+ * ⛔ AN ICON IS CARRIED BY ITS ROW ID AND NEVER BY A NAME INVENTED HERE.
+ * Table T-109 deliberately has no English column, so a name minted here would
+ * settle one the glossary has not.
  */
 export type IconId = string
 
 /**
  * A row of table T-024, e.g. `IO-2`.
  *
- * ⭐ THE ROW ID IS THE ONLY JOIN THAT TABLE ADMITS EITHER, for the reason
- * `IconId` is a row id: table T-024 has no English column, so a format named
- * here would settle a name the glossary has not.
- * `src/adapter/document-codec/exchange-formats.json` -- that table generated
- * into `src/` -- keeps the same bargain, and its banner says so.
- *
- * ⛔ NOT A ROSTER, and NOT `IconId` under a second name. An entry is a row of
- * table T-109 and a format is a row of table T-024; the two tables number their
- * rows independently, so one type for both would let `IO-1` be passed where a
- * table T-109 row is meant and neither side could tell.
+ * ⛔ NOT `IconId` UNDER A SECOND NAME. An entry is a row of table T-109 and
+ * a format is a row of table T-024; the two tables number their rows
+ * independently, so one type for both would let `IO-1` be passed where a table
+ * T-109 row is meant and neither side could tell.
  */
 export type ExportFormatId = string
 
@@ -136,11 +111,7 @@ export type DisplayLanguage = 'ja' | 'en'
  */
 export interface CommandItem {
   readonly icon: IconId
-  /**
-   * FR-029 (MUST): what cannot be used is drawn faint and gives its reason
-   * through a tooltip, rather than going quiet -- an entry that does nothing
-   * reads as a fault.
-   */
+  /** FR-029 (MUST): what cannot be used is drawn faint, not made quiet. */
   readonly isEnabled: boolean
   /**
    * A toggle that is on. FR-065 shows that the `Agent API` is open this way
@@ -149,23 +120,19 @@ export interface CommandItem {
    */
   readonly isPressed: boolean
   /**
-   * Whether this entry is the one that is ARMED. FR-053 (MUST) requires the
-   * armed entrance to be told apart from the entrances that are not.
+   * Whether this entry is the one that is ARMED (FR-053, MUST).
    *
    * ⛔ A MEMBER OF ITS OWN AND NEVER `isPressed`, which FR-053 (MUST NOT)
-   * refuses in as many words 「押されている形にしてはならない」 -- its ground is
-   * that table T-109 says of IC-54 「ボタンではない」. `isPressed` is a toggle
-   * that is on, and it is what writes `aria-pressed`; an arm announced through
-   * it would be announced as a pressed button, which is the very thing the
-   * requirement forbids.
+   * refuses in as many words. `isPressed` is a toggle that is on and is what
+   * writes `aria-pressed`; an arm announced through it would be announced as a
+   * pressed button, which is the very thing the requirement forbids.
    *
-   * ⭐ WHICH ENTRY IS WHICH ARM IS TABLE T-109'S OWN FACT. FR-053 says so:
-   * 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」. That column reaches
-   * `src/` as the `arms` field of `icon-roster.json`, so the join is the
-   * generated roster and nothing is minted here.
+   * ⭐ WHICH ENTRY IS WHICH ARM IS TABLE T-109'S OWN FACT, and FR-053 says
+   * so. That column reaches `src/` as the `arms` field of `icon-roster.json`,
+   * so the join is the generated roster and nothing is minted here.
    *
    * ⚠️ ONLY A PALETTE ENTRY CAN EVER BE ARMED, and that is the table's fact
-   * too -- its 構え column holds an em dash for every row of every other
+   * too -- its arm column holds an em dash for every row of every other
    * surface. The entries the other builders describe carry `false`.
    *
    * ⛔ THE COLUMN IS HALF THE JOIN, AND THE OTHER HALF IS DERIVED BESIDE IT.
@@ -173,16 +140,12 @@ export interface CommandItem {
    * entries (IC-23 .. IC-26) and AR-3 against eight (IC-27 .. IC-34) -- so on
    * that column alone, arming one task shape marks all four and one milestone
    * glyph all eight, which is not the one entrance the MUST above asks for.
-   * ⭐ `icon-roster.json` carries `armsShape` as well: which shape of the kind
-   * an entrance arms, derived from table T-012 and from the spellings
+   * ⭐ `icon-roster.json` carries `armsShape` as well: which shape of the
+   * kind an entrance arms, derived from table T-012 and from the spellings
    * `_source/erd.json` settles for `TaskVisual.shapeKind` and
    * `TaskVisual.milestoneGlyph`. UF-65 joins on the pair, so exactly one
    * entrance is armed.
-   * ⚠️ WHAT USED TO STAND HERE SAID NO FINER JOIN EXISTED, on the ground that
-   * the spellings `Armed` carries for a shape and a glyph were unsettled
-   * (CR-172). ⛔ MEASURED FALSE 2026-08-27: all thirteen stand in
-   * `_source/erd.json`, and PD-291 records the ruling that one entrance and not
-   * a group of them is what is to be marked.
+   *
    * ⚠️ `CommandPalette.armedText` IS still no finer, and that one is the
    * table's own doing rather than a gap: the dictionary holds a word per ROW of
    * table T-023b, and those rows are the kinds of arm.
@@ -251,14 +214,13 @@ export interface Scrollbar {
 }
 
 /**
- * What GR-21 of table T-023d divides to get the grip's length: 「見えている範囲
- * ÷ 全体」, per axis.
+ * What GR-21 of table T-023d divides to get the grip's length, per axis.
  *
- * ⭐ THE SHELL'S NUMBERS, CARRIED AND NOT MEASURED. All three are read straight
- * off the `ScheduleLayout` the loop already built this frame -- see
+ * ⭐ THE SHELL'S NUMBERS, CARRIED AND NOT MEASURED. All three are read
+ * straight off the `ScheduleLayout` the loop already built this frame -- see
  * `ScreenSession.scrollExtent` for why they travel rather than being computed
  * where they are used. ⛔ Nothing here is a settings row and none may become
- * one: GR-21 (MUST NOT) 「新しい設定値を立てない」.
+ * one: GR-21 (MUST NOT) refuses a new one, the ratio being derivable.
  */
 export interface ScrollExtent {
   /** `ScheduleLayout.contentWidth` -- everything drawn, by table T-038's occupancy. */
@@ -288,27 +250,26 @@ export interface ScrollExtent {
   /**
    * How far INTO the content the visible range begins, sideways then downwards.
    *
-   * ⭐⭐ WHY THE PAIR IS HERE (D-298, 2026-09-08). GR-21 of table T-023d calls
-   * the grip 「帯の中の、いま見えている範囲を表す区間」, and a 区間 has a start as
-   * well as a length: the two members above answer 「見えている範囲 ÷ 全体」 and
-   * say nothing about WHERE in the whole that range stands. ⛔ UF-61 cannot
-   * work it out for itself -- `ScheduleLayout.rows` and `placements` arrive
-   * already slid while `contentWidth` / `contentHeight` / `contentX0` are
-   * measured before the slide, and S-77 / S-78 / S-176 / S-177 of table T-203
-   * name the place in DAYS and ROWS, which that component has neither a
-   * calendar nor a row list to turn into a fraction.
+   * ⭐⭐ WHY THE PAIR IS HERE. GR-21 of table T-023d calls the grip an
+   * INTERVAL inside the lane, and an interval has a start as well as a length:
+   * the two members above answer how much of the whole is visible and say
+   * nothing about WHERE in the whole that range stands. ⛔ UF-61 cannot work
+   * it out for itself -- `ScheduleLayout.rows` and `placements` arrive already
+   * slid while `contentWidth` / `contentHeight` / `contentX0` are measured
+   * before the slide, and S-77 / S-78 / S-176 / S-177 of table T-203 name the
+   * place in DAYS and ROWS, which that component has neither a calendar nor a
+   * row list to turn into a fraction.
    *
-   * ⭐ READ BACK OFF THE LAYOUT THE SHELL ALREADY BUILT, never measured again --
-   * the same bargain the three members above are carried by (ADR-001 runs table
-   * T-068 once a frame). ⛔ NO SETTINGS ROW IS OWED: GR-21 (MUST NOT) says
-   * 「新しい設定値を立てない（割合は既にある値から導ける）」, and both are a
-   * difference between two numbers the layout publishes.
+   * ⭐ READ BACK OFF THE LAYOUT THE SHELL ALREADY BUILT, never measured
+   * again -- the same bargain the three members above are carried by (ADR-001
+   * runs table T-068 once a frame). ⛔ NO SETTINGS ROW IS OWED: GR-21
+   * (MUST NOT) refuses one, and both are a difference between two numbers the
+   * layout publishes.
    *
-   * ⛔⛔ OPTIONAL, AND THE READING IS FIXED HERE: absent means NOT SCROLLED, and
-   * zero is the same answer -- a document at its content's top left corner puts
-   * the grip at its lane's start, which is where UF-61 laid it before this pair
-   * existed. ⚠️ So a caller that fills neither gets exactly the old picture
-   * rather than a wrong one.
+   * ⛔⛔ OPTIONAL, AND THE READING IS FIXED HERE: absent means NOT
+   * SCROLLED, and zero is the same answer -- a document at its content's top
+   * left corner puts the grip at its lane's start. ⚠️ So a caller that fills
+   * neither gets exactly that picture rather than a wrong one.
    */
   readonly offsetX?: number
   /** The downwards half of `offsetX`; that member's note holds both. */
@@ -399,32 +360,31 @@ export interface RowTitlePanel {
    * Whether IC-74 -- HF-10 of table T-051, HR-1 of table T-015 -- has anything
    * left to do: some row of the DOCUMENT is folded.
    *
-   * ⭐ FR-029 (MUST) DRAWS FAINT 「押しても、いま文書にも画面にも何も
-   * 変えられないときの入口」 and says the rule reaches 「表 T-109 の全行」
-   * with 「載る面によって薄くしない入口があってはならない（MUST NOT）」 --
-   * so the two entrances the PANEL draws for itself are judged exactly as the
-   * three `RowExpander` draws per row are.
-   * ⛔ THE DOCUMENT'S ROWS AND NOT THE DRAWN ONES. HR-1 opens every row there
-   * is, however the display amount (FR-018) left the picture, and the command it
-   * plans reaches the same set -- so a judgement made on what happens to be
-   * drawn would call the entrance spent while rows it acts on stand folded.
+   * ⭐ FR-029 (MUST) draws faint an entrance a press would change nothing
+   * by, and says the rule reaches every row of table T-109 with no surface
+   * exempt (MUST NOT) -- so the two entrances the PANEL draws for itself are
+   * judged exactly as the three `RowExpander` draws per row are.
+   * ⛔ THE DOCUMENT'S ROWS AND NOT THE DRAWN ONES. HR-1 opens every row
+   * there is, however the display amount (FR-018) left the picture, and the
+   * command it plans reaches the same set -- so a judgement made on what
+   * happens to be drawn would call the entrance spent while rows it acts on
+   * stand folded.
    *
-   * ⛔⛔ ABSENT WHERE THIS PANEL DESCRIBES NO ROW AT ALL, and that is the same
-   * shape the pair already has on the drawing side: `data-corner-band` is left
-   * off then too, because there is no first row to measure the band from. With
-   * no row on the screen there is nothing for either entrance to reach that a
-   * person can see, and claiming either way would be a claim about a picture
-   * with nothing in it.
-   * ⚠️ ABSENT IS NOT 「使えない」. A reader of this member draws the entrance
-   * as usable when it is missing -- `commandStateOf` states the same rule for
-   * the header: faint is a claim that pressing would achieve nothing, and a
-   * false claim of that is the worse error.
+   * ⛔⛔ ABSENT WHERE THIS PANEL DESCRIBES NO ROW AT ALL, and that is the
+   * same shape the pair already has on the drawing side: `data-corner-band` is
+   * left off then too, because there is no first row to measure the band from.
+   * With no row on the screen there is nothing for either entrance to reach
+   * that a person can see, and claiming either way would be a claim about a
+   * picture with nothing in it.
+   * ⚠️ ABSENT IS NOT "spent". A reader of this member draws the entrance as
+   * usable when it is missing -- `commandStateOf` states the same rule for the
+   * header: faint is a claim that pressing would achieve nothing, and a false
+   * claim of that is the worse error.
    *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30). It is
-   * declared optional so that the `RowTitlePanel` literals already written go on
-   * compiling; the cost is that a builder which never fills it leaves both
-   * entrances drawn as usable with nothing to say so. ⭐ The tests written from
-   * the specification are what watch it.
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT. It is declared optional
+   * so that the `RowTitlePanel` literals already written go on compiling; the
+   * cost is that a builder which never fills it leaves both entrances drawn as
+   * usable with nothing to say so.
    */
   readonly canOpenEveryRow?: boolean
   /**
@@ -435,12 +395,11 @@ export interface RowTitlePanel {
    * its own pair: a document whose rows are partly folded leaves BOTH entrances
    * with something to do, and one with no rows at all leaves NEITHER.
    *
-   * ⚠️ IT NOW READS S-211 AS WELL. HR-2 of table T-015 (MUST) has this entrance
-   * fold 段 0 itself, so it is spent where level 0 is ALREADY folded -- and,
-   * 段 0 answering exactly as a row does (「その入口は各行の入口と同じ論理で働く
-   * こと」), where the picture holds no row of the shallowest level for the head
-   * to take away. ⭐ That second half is `RowExpander.canCloseBelow` read one
-   * level up.
+   * ⚠️ IT NOW READS S-211 AS WELL. HR-2 of table T-015 (MUST) has this
+   * entrance fold level 0 itself, so it is spent where level 0 is ALREADY
+   * folded -- and, level 0 answering exactly as a row does, where the picture
+   * holds no row of the shallowest level for the head to take away. ⭐ That
+   * second half is `RowExpander.canCloseBelow` read one level up.
    */
   readonly canCloseEveryRow?: boolean
   /**
@@ -449,28 +408,29 @@ export interface RowTitlePanel {
    * row of the shallowest level is hidden and would come back.
    *
    * ⭐ TWO THINGS ONE PRESS DOES, and both come from the rows that name it.
-   * HR-2 (MUST): 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」; HR-6
-   * (MUST): 「親を持たない最上位の行は、段 0 の同じ操作子で戻せること」 -- so the
-   * head's one-level-open is the way back from BOTH the head's fold and the
-   * hiding of a row that has no parent to open it.
-   * ⛔ IT IS NOT `canOpenEveryRow` NARROWED. HF-16 (MUST NOT): 「`HF-10`（すべて
-   * 開く）に兼ねさせてはならない」, for HF-13's reason -- 「押すたびに違う量が開く
-   * 入口は、何が起きるかを押す前に読めない」.
+   * HR-2 (MUST) sends the head's one-level-open back to the shallowest level,
+   * and HR-6 (MUST) makes it the way back for a top-level row with no parent --
+   * so it undoes BOTH the head's fold and the hiding of such a row.
+   * ⛔ IT IS NOT `canOpenEveryRow` NARROWED. HF-16 (MUST NOT) refuses to let
+   * HF-10 carry it, for HF-13's reason: an entrance that opens a different
+   * amount each press cannot be read before it is pressed.
    *
-   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, the same bargain the two above take.
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, the same bargain the two above
+   * take.
    */
   readonly canOpenLevelZero?: boolean
   /**
-   * HF-12 of table T-051 (MUST): 「そのときは、頭にいま何行を畳み込んでいるかを
-   * 示すこと」 -- how many rows the head is holding folded away right now.
+   * HF-12 of table T-051 (MUST): how many rows the head is holding folded away
+   * right now.
    *
-   * ⭐ WHY IT EXISTS, in that row's own words: 「示さないと、行が消えたのか
-   * 畳まれたのかが読めない」. With 段 0 folded the panel can stand empty, and an
-   * empty panel and a document with no rows look exactly alike without this.
-   * ⛔ NOT SUBJECT TO HF-6 (MUST): the count is not a control and is not drawn
-   * only while the pointer is on a row -- HF-18 states that exemption for the
-   * row's own count and this is the same number one level up.
-   * ⚠️ ZERO IS 「nothing is folded away」 and is not drawn as a count; the
+   * ⭐ WHY IT EXISTS, in that row's own words: without it a reader cannot
+   * tell a row that went away from one that was folded. With level 0 folded the
+   * panel can stand empty, and an empty panel and a document with no rows look
+   * exactly alike.
+   * ⛔ NOT SUBJECT TO HF-6 (MUST): the count is not a control and is not
+   * drawn only while the pointer is on a row -- HF-18 states that exemption for
+   * the row's own count and this is the same number one level up.
+   * ⚠️ ZERO IS "nothing is folded away" and is not drawn as a count; the
    * drawing side decides that, and `undefined` is a description that did not
    * answer.
    */
@@ -572,63 +532,50 @@ export interface RowTitle {
   readonly isLabelTruncated: boolean
   /**
    * U-47 `Row Expander` -- the three controls HF-1 of table T-051 (MUST) puts
-   * on 各行, every one of them, always.
+   * on every row, every one of them, always.
    *
-   * ⛔⛔ IT WAS `RowExpander | null` UNTIL 2026-08-30, AND THE NULL WAS THIS
-   * SEAM'S OWN INVENTION. 「expander」 is not a word the manuscript uses for a
-   * member at all -- `docs/spec` names only the PART, `U-47` -- and no row
-   * anywhere spells 「この行には操作子が無い」. What the manuscript says instead:
-   * HF-1 places the three on 各行 with no exception; the closing paragraph under
-   * table T-051 (MUST) reads an empty target as 「対象が 1 つも無いもの」, which
-   * is a STATE OF THE THREE and not their absence; FR-029 (MUST) then draws that
-   * state faint and (MUST NOT) forbids disabling it, because the press is what
-   * raises `RS-28` / `RS-29` / `RS-30` of table T-233; and FR-085 (MUST NOT)
-   * refuses to change the room kept for them 「操作子を描くかどうかで」.
-   *
-   * ⭐ THE NULL COST A LIVE DEFECT (台帳 D-161): a leaf row in the shipped app
-   * drew no IC-58, IC-59 or IC-77 at all, so `RS-28` -- whose whole situation IS
-   * that row -- could never be told to anybody. ⭐ Non-nullable puts HF-1's
-   * 各行 into the type, where it cannot be forgotten a second time.
+   * ⛔⛔ NON-NULLABLE, AND THE ABSENCE OF A NULL IS THE POINT. HF-1
+   * places the three on every row with no exception; the closing paragraph
+   * under table T-051 (MUST) reads an empty target as a STATE OF THE THREE and
+   * not as their absence; FR-029 (MUST) then draws that state faint and
+   * (MUST NOT) forbids disabling it, because the press is what raises `RS-28` /
+   * `RS-29` / `RS-30` of table T-233; and FR-085 (MUST NOT) refuses to change
+   * the room kept for them by whether they are drawn.
+   * ⭐ A NULLABLE MEMBER COSTS A LIVE DEFECT: a leaf row draws no IC-58,
+   * IC-59 or IC-77 at all, so `RS-28` -- whose whole situation IS that row --
+   * can never be told to anybody.
    */
   readonly expander: RowExpander
   /**
    * Whether IC-90 -- HF-13 of table T-051, HR-7 of table T-015 -- has anything
    * left to do on this row: a DIRECT child of it is out of the picture, which
-   * this press would put back. ⭐ HF-13 (MUST) words the spent side itself,
-   * 「開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと」, and
-   * table T-233's RS-30 tells it in those words: 「直下に、画面へ戻せる子が 1
-   * つも無い」.
+   * this press would put back. ⭐ HF-13 (MUST) words the spent side itself
+   * and table T-233's RS-30 tells it in the same words.
    *
-   * ⛔⛔ NOT A FOURTH MEMBER OF `RowExpander`, AND THE REASON IS THE ROW IT
-   * COMES FROM. Those three are HF-1's and are written by HF-2 / HF-3 / HF-11;
-   * this one is HF-13's, which (MUST) makes it a separate entrance from HF-2
-   * and (MUST NOT) lets one control be both. ⚠️ A leaf row carries BOTH -- the
-   * three with none armed, and this one false -- since 2026-08-30, when the
-   * null that used to stand in for a leaf was taken out of this seam.
+   * ⛔⛔ NOT A FOURTH MEMBER OF `RowExpander`, AND THE REASON IS THE ROW
+   * IT COMES FROM. Those three are HF-1's and are written by HF-2 / HF-3 /
+   * HF-11; this one is HF-13's, which (MUST) makes it a separate entrance from
+   * HF-2 and (MUST NOT) lets one control be both. ⚠️ A leaf row carries
+   * BOTH -- the three with none armed, and this one false.
    *
-   * ⭐ ONE LEVEL AND NOT THE SUBTREE, which is the whole of why HF-13 (MUST) is
-   * a separate entrance from HF-2 and (MUST NOT) lets one control be both:
-   * 「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」. So this is
-   * not `RowExpander.canOpen` narrowed -- the two answer different questions and
-   * a row can leave one with work and the other without.
+   * ⭐ ONE LEVEL AND NOT THE SUBTREE, which is the whole of why HF-13 (MUST)
+   * is a separate entrance from HF-2: an entrance that opens a different amount
+   * each press cannot be read before it is pressed. So this is not
+   * `RowExpander.canOpen` narrowed -- the two answer different questions and a
+   * row can leave one with work and the other without.
    *
-   * ⛔ IT IS THE ROW'S OWN FOLD THAT COMES OFF, NOT ITS CHILDREN'S. HR-7 (MUST)
-   * since 2026-08-31: 「選択した `TaskGroup` の畳みだけを解くこと」, and (MUST
-   * NOT) 「孫より下の畳みに触れてはならない」 -- HR-1a has already left every
-   * descendant folded, so one fold taken off reveals exactly one level.
-   * ⛔⛔ A FOLDED ROW WITH NO CHILD AT ALL IS SPENT ALL THE SAME. Taking the
-   * fold off it puts no row into the picture, and the closing rule under table
-   * T-051 (MUST) counts 「その操作の前後で描かれる行の差」 and not the flag.
-   * ⚠️ A NOTE HERE ARGUED THE OPPOSITE from a fabricated citation (台帳 D-339):
-   * it read RS-30 as 「その行は畳まれておらず」 and concluded that narrowing the
-   * arm would make the telling untrue on a folded row. ⇒ RS-30 says no such
-   * thing, so nothing was holding the wider arm up, and the press side that had
-   * followed the note now asks the picture as this member does (台帳 D-385).
+   * ⛔ IT IS THE ROW'S OWN FOLD THAT COMES OFF, NOT ITS CHILDREN'S. HR-7
+   * (MUST) unfolds the chosen `TaskGroup` alone and (MUST NOT) touches anything
+   * below its grandchildren -- HR-1a has already left every descendant folded,
+   * so one fold taken off reveals exactly one level.
+   * ⛔⛔ A FOLDED ROW WITH NO CHILD AT ALL IS SPENT ALL THE SAME. Taking
+   * the fold off it puts no row into the picture, and the closing rule under
+   * table T-051 (MUST) counts the difference in drawn rows and not the flag.
    *
    * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, the same bargain
    * `RowTitlePanel.canOpenEveryRow` takes and for the same reason: the
    * `RowTitle` literals already written go on compiling. ⚠️ ABSENT IS NOT
-   * 「使えない」 -- a reader draws the entrance as usable when it is missing,
+   * "spent" -- a reader draws the entrance as usable when it is missing,
    * because a false claim of faint is the worse error.
    */
   readonly canOpenOneLevel?: boolean
@@ -638,62 +585,58 @@ export interface RowTitle {
    * allows.
    *
    * ⭐ THE ONLY THING THAT SPENDS IT. FR-029 (MUST) draws an entrance faint
-   * 「押しても、いま文書にも画面にも何も変えられないとき」, and adding a row
-   * always changes the DOCUMENT -- so this entrance is spent only where the
-   * write itself is refused. FR-085 (MUST NOT) is the one such refusal:
-   * 「上限に達している親の下に作らせてはならない」, which `createTaskGroup`
-   * already answers on its own account. ⛔ HR-8 (MUST NOT) forbids restating the
-   * cap itself here -- 「深さの上限の扱いは `FR-085` が持つ ... ここでは繰り返さ
-   * ない」 -- so what is read is that requirement's own value and no second rule.
+   * where a press would change neither the document nor the picture, and adding
+   * a row always changes the DOCUMENT -- so this entrance is spent only where
+   * the write itself is refused. FR-085 (MUST NOT) is the one such refusal, at
+   * the depth cap, which `createTaskGroup` already answers on its own account.
+   * ⛔ HR-8 (MUST NOT) forbids restating the cap here, so what is read is
+   * FR-085's own value and no second rule.
    *
-   * ⚠️ A FOLDED ROW STILL ARMS IT. The row added under a folded parent is not
-   * drawn (HR-1a), but the document changed, and FR-029 spends an entrance only
-   * where NEITHER moved. ⛔ So the closing rule under table T-051 does not reach
-   * this one: that rule names HF-2 / HF-3 / HF-10 / HF-11 / HF-12 / HF-13 and
-   * not HF-14, because those six move rows in and out of the picture and this
-   * one makes a row.
+   * ⚠️ A FOLDED ROW STILL ARMS IT. The row added under a folded parent is
+   * not drawn (HR-1a), but the document changed, and FR-029 spends an entrance
+   * only where NEITHER moved. ⛔ So the closing rule under table T-051 does
+   * not reach this one: that rule names the six entrances that move rows in and
+   * out of the picture, and this one makes a row.
    *
    * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel` above.
    */
   readonly canAddChildRow?: boolean
   /**
-   * HF-18 of table T-051 (MUST): 「配下に畳み込んでいる行があるとき、その行数を
-   * 行に示すこと」 -- how many rows this one is holding folded away.
+   * HF-18 of table T-051 (MUST): how many rows this one is holding folded away.
    *
-   * ⭐ THE SAME NUMBER `RowTitlePanel.foldedRowCount` HOLDS FOR 段 0, and HF-18
-   * says so: 「`HF-12` が段 0 について定めるものを、行について定めたもの」.
-   * ⭐ THE ROW IS ALSO MARKED, which that row makes a second MUST -- 「数だけでは、
-   * どの行が抱えているかを目で追うのに読む必要がある」 -- and the colour is S-153
-   * of table T-236, 「注意であって不良ではない」. ⛔ Both are the drawing side's
+   * ⭐ THE SAME NUMBER `RowTitlePanel.foldedRowCount` HOLDS FOR LEVEL 0, and
+   * HF-18 says so. ⭐ THE ROW IS ALSO MARKED, which that row makes a second
+   * MUST -- a count alone leaves a reader searching for which row carries it --
+   * and the colour is S-153 of table T-236. ⛔ Both are the drawing side's
    * to lay out; what crosses here is the count, and a count above zero IS the
    * row that carries the mark.
-   * ⛔ NOT SUBJECT TO HF-6 (MUST NOT): 「ポインタが乗っているあいだだけでは、
-   * 抱えている行を探して回ることになる」.
+   * ⛔ NOT SUBJECT TO HF-6 (MUST NOT): drawn only under the pointer, the
+   * count would have to be hunted for row by row.
    *
-   * ⚠️ A ROW HR-6 HID IS NOT ONE OF THEM. HF-18 counts 「畳み込んでいる」 rows,
-   * and hiding is the other operation -- a hidden row is not folded away by
-   * this row, it was put away by itself.
+   * ⚠️ A ROW HR-6 HID IS NOT ONE OF THEM. HF-18 counts rows folded AWAY BY
+   * THIS ROW, and hiding is the other operation -- a hidden row put itself
+   * away.
    *
-   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel` above.
+   * ⛔⛔ OPTIONAL AND SILENTLY FORGOTTEN, exactly as `canOpenOneLevel`
+   * above.
    */
   readonly foldedRowCount?: number
   /**
    * Which axis GR-20's grab has settled on while THIS row is the one held, or
    * `null`/absent on every row that is not held.
    *
-   * ⭐ WHAT IT IS FOR, IN HF-15's OWN WORDS (MUST): 「いまどちらの軸が生きて
-   * いるかを、掴んでいる行に描くこと —— 上下の軸が生きているときは行の左右の辺
-   * に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと」, in
-   * S-151 (上下) and S-152 (左右) of table T-236. ⭐ The same row also has a
-   * ground laid under the held row (MUST), and this is what says which row that
-   * is -- 「どれを持っているかが読めなくなる」.
-   * ⛔ WHY IT IS DRAWN AT ALL: 「描かないと、動かせない向きへ引いたときに壊れた
-   * 操作子と見分けがつかない」 -- FR-029's RATIONALE, read on a drag.
+   * ⭐ WHAT IT IS FOR (HF-15, MUST): the held row is drawn with a band along
+   * the two edges that say which axis is live -- S-151 for up and down, S-152
+   * for left and right, both of table T-236. ⭐ The same row also lays a
+   * ground under the held row (MUST), and this is what says which row that is.
+   * ⛔ WHY IT IS DRAWN AT ALL: undrawn, a drag against an axis that cannot
+   * move is indistinguishable from a broken control -- FR-029's rationale, read
+   * on a drag.
    *
-   * ⚠️ SPELLED OUT RATHER THAN IMPORTED. `RowGrabAxis` is the translator's name
-   * and Chapter 5.3 keeps this component out of that one; the two spellings are
-   * the same two words, and the seam that carries them (`ScreenSession
-   * .rowGrabbedAt`) is where they meet.
+   * ⚠️ SPELLED OUT RATHER THAN IMPORTED. `RowGrabAxis` is the translator's
+   * name and Chapter 5.3 keeps this component out of that one; the two
+   * spellings are the same two words, and the seam that carries them
+   * (`ScreenSession.rowGrabbedAt`) is where they meet.
    */
   readonly heldOnAxis?: 'position' | 'depth' | null
   /** U-48 `Row Pin` (FR-098). Its control sits on every row, and the same one lets go. */
@@ -715,27 +658,22 @@ export interface RowTitle {
 
 /**
  * HF-1 of table T-051: every row carries a control that HIDES it, one that
- * opens everything under it, and one that closes everything under it. ⚠️ They
- * are not one control in three states: HF-2 opens the whole subtree (HR-3 of
- * table T-015), HF-3 hides the row ITSELF (HR-6) and HF-11 folds the subtree
- * (HR-4), so any of the three can be spent while the others are not.
- * ⚠️ The third arrived with the ruling of 2026-08-30 (CR-294); until then HR-4
- * had no entrance at all.
- *
- * ⛔⛔ HF-3 WAS HR-5 (「自分を畳む」) UNTIL 2026-08-30 AND IS NOW HR-6 (「隠す」).
- * That row states the change itself -- 「本行は 2026-08-30 まで `HR-5` であった
- * —— 利用者の裁定で `HR-6` が受け取った」 -- and HF-1 records why HR-5 keeps no
- * entrance: 「`HR-4` を 1 度押せば同じ絵になることを実測しており（版 1.67）」.
+ * opens everything under it, and one that closes everything under it.
+ * ⚠️ They are not one control in three states: HF-2 opens the whole subtree
+ * (HR-3 of table T-015), HF-3 hides the row ITSELF (HR-6) and HF-11 folds the
+ * subtree (HR-4), so any of the three can be spent while the others are not.
+ * ⚠️ HR-4 has no entrance of its own; HF-1 records why -- one press of HF-11
+ * reaches the same picture.
  */
 export interface RowExpander {
   /**
    * HF-2: this row is holding something folded away, or a row below it is
-   * hidden -- HR-3 of table T-015 reaches 「選択した `TaskGroup` と、その配下の
-   * すべて」 since 2026-08-31, so the row's OWN fold counts.
+   * hidden -- HR-3 of table T-015 reaches the chosen `TaskGroup` and everything
+   * under it, so the row's OWN fold counts.
    *
-   * ⭐ HF-2 (MUST) TIES IT TO HF-18's NUMBER: 「その行が抱えている畳み込みが 0 の
-   * ときは ... 薄く描くこと —— その数を示すのが `HF-18` であり、示す数と構えの
-   * 条件は同じ 1 つである」.
+   * ⭐ HF-2 (MUST) TIES IT TO HF-18's NUMBER: a row holding nothing folded
+   * is drawn faint, and the number HF-18 shows and the arm here stand on the
+   * one same condition.
    */
   readonly canOpen: boolean
   /**
@@ -744,18 +682,17 @@ export interface RowExpander {
    * ⭐ TRUE ON EVERY ROW THE PANEL DRAWS, and that is not a member left
    * unfilled. Hiding a drawn row takes that row -- and everything under it --
    * out of the picture (HR-6, MUST NOT), so the closing rule under table T-051
-   * 「その操作の前後で描かれる行の差」 is at least one on any row that is drawn.
-   * ⛔ THE OLD READING (「this row is not folded, and something under it is in
-   * the picture」) WAS HR-5's and is gone with it.
+   * counts at least one row of difference on any row that is drawn.
    */
   readonly canClose: boolean
   /**
    * HF-11: the picture holds a child of this row, so folding THIS row (HR-4)
    * would take one away.
    *
-   * ⛔ ONE HOP AND NOT A SUBTREE SINCE 2026-08-31. HR-4 (MUST) 「選択した
-   * `TaskGroup` を畳むこと」 ⇒ 「その直下の子から下が描かれなくなる」, so the
-   * question is this row's own children and not the folds of the rows below.
+   * ⛔ ONE HOP AND NOT A SUBTREE. HR-4 (MUST) folds the chosen `TaskGroup`,
+   * which stops its direct children and everything under them being drawn, so
+   * the question is this row's own children and not the folds of the rows
+   * below.
    * ⛔ NOT THE INVERSE OF `canOpen`. That one asks whether anything is folded
    * away at or below this row, and a row can hold a folded descendant and a
    * drawn child at once -- so on most rows the two are true together.
@@ -772,11 +709,10 @@ export interface PropertiesPanel {
    * shows. ⚠️ Clearing the selection does not move it to the settings (MUST
    * NOT).
    *
-   * ⛔ AND IT IS NOW THE ONLY MEMBER THAT SAYS WHICH OF THE TWO IS UP. FR-072
+   * ⛔ AND IT IS THE ONLY MEMBER THAT SAYS WHICH OF THE TWO IS UP. FR-072
    * (MUST) has the pressed state of the entrance tell a reader that, and (MUST
-   * NOT) forbids a heading row at the head of the panel -- so no word is carried
-   * for one and the two entrances read this member instead. ⚠️ A heading member
-   * stood here until 2026-08-27; CR-272 is where it went.
+   * NOT) forbids a heading row at the head of the panel -- so no word is
+   * carried for one and the two entrances read this member instead.
    */
   readonly showing: 'selection' | 'documentSettings'
   /**
@@ -805,11 +741,11 @@ export interface PropertiesPanel {
    * All three are `showing: 'selection'` except the last -- FR-072 knows only
    * two panels.
    *
-   * ⭐ THE FIRST TWO ARE NOW BOTH TABLE T-016's. That table gained a 対象 column
-   * on 2026-09-02 (CR-325) and rows PR-18 .. PR-20 for a row's three, so FR-006
-   * (MUST) prints only the rows whose 対象 matches what is selected and (MUST
-   * NOT) forbids the others -- which is what keeps a row's `height` off a task's
-   * panel now that one table holds both.
+   * ⭐ THE FIRST TWO ARE BOTH TABLE T-016's. That table carries a subject
+   * column and rows PR-18 .. PR-20 for a row's three, so FR-006 (MUST) prints
+   * only the rows whose subject matches what is selected and (MUST NOT) forbids
+   * the others -- which is what keeps a row's `height` off a task's panel now
+   * that one table holds both.
    */
   readonly fields: readonly PropertyField[]
   /**
@@ -835,28 +771,23 @@ export interface PropertyField {
    * `AT-58` / `AT-59` of table T-058 (a row's colour and height, FR-042), or
    * `K-n` of table T-104 (the settings).
    *
-   * ⚠️ FR-042's THREE NAME THEIR ATTRIBUTE ROW AND NOT THEIR `PR-n`, though
-   * table T-016 has held a row for each since 2026-09-02 (CR-325). That table's
-   * own note for PR-18 settles it -- 「実体は `fig-erd-detail.md` の `AT-53` で
-   * ある —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに
-   * 出す項目のほうである」 -- and FR-085 (MUST) calls the field 「名前の欄
-   * （`AT-53`）」 where it says the double click focuses it. ⛔ The shell asks for
-   * a field BY THE ROW IT DECLARES (IF-9), so declaring the `PR-n` would put
-   * that entrance's target out of reach.
+   * ⚠️ FR-042's THREE NAME THEIR ATTRIBUTE ROW AND NOT THEIR `PR-n`. Table
+   * T-016's own note for PR-18 settles it -- the item is the panel's way of
+   * showing `AT-53`, and table T-023's `MK-13` names the attribute row -- and
+   * FR-085 (MUST) calls the field by that row where it says the double click
+   * focuses it. ⛔ The shell asks for a field BY THE ROW IT DECLARES (IF-9),
+   * so declaring the `PR-n` would put that entrance's target out of reach.
    * ⚠️ THE `PR-n` IS STILL THE JOIN TO EVERYTHING ELSE about the item -- its
-   * shown name, its print order, its 対象 and its read-only mark are all keyed
-   * by it. Only what the FIELD declares is the attribute row.
+   * shown name, its print order, its subject and its read-only mark are all
+   * keyed by it. Only what the FIELD declares is the attribute row.
    */
   readonly row: string
   /**
    * The name table T-016's row shows, which FR-038 (MUST NOT) keeps in the
    * dictionary under that row's id and NOT in the table.
    *
-   * ⚠️ IT IS TRANSLATED, and the note that used to stand here said the opposite.
-   * Table T-016 required 「項目名は英語表記とすること」 until CR-278 moved the
-   * shown name into the dictionary; FR-038 (MUST) then puts every printed word
-   * in the reader's own language. ⛔ Task names and row names are still the
-   * document's own and are never translated.
+   * ⚠️ IT IS TRANSLATED (FR-038, MUST). ⛔ Task names and row names are
+   * the document's own and are never translated.
    */
   readonly name: string
   /** The value written out for the screen. */
@@ -948,12 +879,12 @@ export interface PropertyControl {
    * What each candidate of `choices` COMMITS, one per candidate and in the same
    * order -- absent where every candidate commits the word it shows.
    *
-   * ⭐ AS-9 OF TABLE T-225 (MUST) IS WHERE IT CAME FROM: 「プロパティパネルで
-   * `uid` を選んだ」 assigns to THAT `uid`, while AS-6 (MUST NOT) forbids making
-   * a person read one -- so the value has to ride beside the word rather than
-   * inside it. ⚠️ AS-8 (MUST NOT) forbids two same-named people to be merged,
-   * and AS-9 calls this panel the only place they can be told apart, so two
-   * candidates may legitimately show the same word while carrying different
+   * ⭐ AS-9 OF TABLE T-225 (MUST) IS WHERE IT CAME FROM: choosing a person
+   * in the panel assigns to THAT `uid`, while AS-6 (MUST NOT) forbids making a
+   * person read one -- so the value has to ride beside the word rather than
+   * inside it. ⚠️ AS-8 (MUST NOT) forbids two same-named people to be
+   * merged, and AS-9 calls this panel the only place they can be told apart, so
+   * two candidates may legitimately show the same word while carrying different
    * values.
    *
    * ⭐ TWO ITEMS USE IT NOW, AND THE SECOND STANDS ON A DIFFERENT ROW. PR-15's
@@ -973,10 +904,10 @@ export interface PropertyControl {
    * The words a PARTIAL-MATCH SEARCH standing beside this chooser offers --
    * absent on every control that has none.
    *
-   * ⭐ AS-5 OF TABLE T-225 (MUST) IS THE WHOLE OF IT: 「名簿から選ばせる形とし、
-   * ドロップダウンと部分一致の検索を添えること」. The dropdown is `choices`, and
-   * this is the second of the two things that row attaches -- 添える, so it
-   * stands BESIDE the chooser rather than replacing it. ⛔ Replacing it would
+   * ⭐ AS-5 OF TABLE T-225 (MUST) IS THE WHOLE OF IT: the panel chooses from
+   * a roster, with a dropdown and a partial-match search ATTACHED. The dropdown
+   * is `choices`, and this is the second of the two -- attached, so it stands
+   * BESIDE the chooser rather than replacing it.
    * take AS-9 (MUST) away: a search settles a NAME, and a name is what two
    * same-named people share, so the chooser carrying `choiceValues` is the only
    * surface that can still tell them apart.
@@ -993,9 +924,9 @@ export interface PropertyControl {
    * where `choices` offers a candidate per person.
    *
    * ⚠️ WHETHER THE MATCH IS ON A FRAGMENT IS THE HOST'S ANSWER, not this
-   * component's: FR-029's 「環境の作法に従う」 has the drawing side reach for the
-   * host's own roster control, and no rule of this side could narrow a list it
-   * does not draw.
+   * component's: FR-029 has the drawing side follow the environment's own
+   * conventions and reach for the host's roster control, and no rule of this
+   * side could narrow a list it does not draw.
    */
   readonly searchWords?: readonly string[]
   /** A `number` control's bounds, where the schema states them. */
@@ -1006,8 +937,8 @@ export interface PropertyControl {
    *
    * ⭐ FR-006 (MUST NOT) forbids giving a control less room than its value
    * needs, and states that room as FR-093's estimate plus S-199 of table
-   * T-206 -- 「全角 2・半角 1 で数えた単位数 × フォントサイズ × `labelCoef`」
-   * plus what the frame, the padding and the host's own input aids take.
+   * T-206 -- FR-093's unit count times the font size times `labelCoef`, plus
+   * what the frame, the padding and the host's own input aids take.
    *
    * ⛔ A MULTIPLE AND NEVER A PIXEL COUNT, which is the whole shape of this
    * member. Both terms of that sum are proportional to the font size, and
@@ -1031,8 +962,8 @@ export interface PropertyControl {
 /**
  * Which column of which thing one control edits.
  *
- * ⭐ THE SUBJECT RIDES ALONG, and it has to. IF-9 (「その欄が名乗る行 ID とともに
- * 返し」) fixes the row id as what comes back, and a row id alone says `PR-1`
+ * ⭐ THE SUBJECT RIDES ALONG, and it has to. IF-9 fixes the declared row id
+ * as what comes back, and a row id alone says `PR-1`
  * without saying whose name it is -- the side that turns a commit into a
  * command would have to work the subject out a second time from the selection,
  * which is the rule FR-072 and table T-023c hold and which this component
@@ -1074,18 +1005,16 @@ export type PropertyFieldKey =
        * The document's own `Project` -- the one holder that carries no id,
        * because a document holds exactly one of them.
        *
-       * ⭐⭐ WHY THERE IS A FIFTH ARM AT ALL (利用者の裁定 2026-09-06, CR-361).
-       * IF-9 of table T-065 now reads 「編集できる欄で確定した値を、その欄が名乗る
-       * 行 ID とともに返し」 with 「⭐ 行 ID は 表 T-016 の行に限らない。ヘッダの
-       * 文書名の欄は 表 T-103 の `U-27` を名乗る」 -- so a field that is NOT on
-       * the `Properties Panel` settles on that seam, and the subject it names is
-       * the document itself. FR-035 (MUST) is what draws it: 「作成者が文書名を
-       * 選んだとき、`GRS` は、その場で編集できるようにすること」.
-       * ⛔ NOT A ROW OF TABLE T-016, AND NO ROW IS ADDED TO IT. The document
-       * name is not an item of the `Properties Panel` -- FR-074 (MUST NOT)
-       * keeps it out of 文書の基本情報 in as many words, naming FR-035 as its
-       * one entrance -- so what names this field is the row of table T-103 the
-       * header draws, which is the very widening the ruling made.
+       * ⭐⭐ WHY THERE IS A FIFTH ARM AT ALL. IF-9 of table T-065 returns
+       * the settled value with the ROW ID the field declares, and says that row
+       * id is not confined to table T-016 -- the header's document-name field
+       * declares `U-27` of table T-103. So a field that is NOT on the
+       * `Properties Panel` settles on that seam, and the subject it names is
+       * the document itself; FR-035 (MUST) is what draws it.
+       * ⛔ NOT A ROW OF TABLE T-016, AND NO ROW IS ADDED TO IT. FR-074
+       * (MUST NOT) keeps the document name out of the basic-information surface
+       * in as many words, naming FR-035 as its one entrance -- so what names
+       * this field is the row of table T-103 the header draws.
        */
       readonly holder: 'project'
       readonly column: keyof Schedule['project'] & string
@@ -1095,15 +1024,13 @@ export type PropertyFieldKey =
        * One `CommentBox`, named by the `string` id AT-110 of table T-058 makes
        * its primary key -- the same id `ItemRef` names a picked box by.
        *
-       * ⭐⭐ WHY THERE IS A SIXTH ARM (表 T-016 の `PR-21`, CR-368). That row
-       * carries 対象 `CommentBox`, column `text`, 入力の型 `複数行`, and `MK-13`
-       * of table T-023 (MUST) sends a double click on a box to it: 「コメント
-       * ボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の `PR-21`）を
-       * 編集できる状態にして焦点を置くこと」, with 「⛔ 図の上で打ち換える器を
-       * 置いてはならない（MUST NOT）」 beside it. FR-006 (MUST) then puts a
-       * control of that 入力の型 on the field, and a control carries this key --
-       * so without an arm that can name a box, the row could be drawn but never
-       * typed into (D-349).
+       * ⭐⭐ WHY THERE IS A SIXTH ARM: `PR-21` of table T-016, whose
+       * subject is `CommentBox` and whose column is `text`. `MK-13` of table
+       * T-023 (MUST) sends a double click on a box to that field and (MUST NOT)
+       * allows a typing box over the figure itself; FR-006 (MUST) then puts a
+       * control of that input kind on the field, and a control carries this key
+       * -- so without an arm that can name a box, the row could be drawn but
+       * never typed into.
        * ⛔ AN `id` AND NOT A `uid`: a comment box has no integer key. AT-110
        * makes the id a `string`, which is why this arm is shaped like the
        * `taskGroup` one rather than like the `task` one.
@@ -1147,44 +1074,42 @@ export interface CommandPalette {
   readonly at: { readonly x: number; readonly y: number }
   /**
    * How far down the grab band reaches -- the band GR-19 of table T-023d lays
-   * along the palette's TOP EDGE, whose height is S-135a of table T-206. `null`
-   * while that value has not reached `src/`.
+   * along the palette's TOP EDGE, whose height is S-135a of table T-206.
    *
-   * ⭐ A HEIGHT AND NOT A RECTANGLE, which is the whole of the shape decision.
-   * GR-19 states WHERE the band goes -- along the top edge, and `at` is already
-   * that edge's corner -- and S-135a states the one number GR-19 does not: how
-   * far down it reaches. The remaining two numbers of a rectangle cannot be
-   * stated on this side at all, because FR-053 (MUST) has the palette's size
-   * follow its contents: how wide the entries came out is known only where they
-   * were laid out, past IF-9. ⛔ So the band's WIDTH is the palette's own,
-   * spread by the side that laid the contents out. A rectangle here would be
-   * the second lie CR-235 took out of this very type -- the surface read the
-   * zero extent it used to carry as an extent someone had measured, and drew a
-   * box of that size.
+   * ⭐ A HEIGHT AND NOT A RECTANGLE, which is the whole of the shape
+   * decision. GR-19 states WHERE the band goes -- along the top edge, and `at`
+   * is already that edge's corner -- and S-135a states the one number GR-19
+   * does not. The remaining two cannot be stated on this side at all, because
+   * FR-053 (MUST) has the palette's size follow its contents: how wide the
+   * entries came out is known only where they were laid out, past IF-9.
+   * ⛔ So the band's WIDTH is the palette's own, spread by the side that
+   * laid the contents out. A rectangle here would repeat the mistake `at`
+   * records -- a zero extent read as one somebody had measured, and a box drawn
+   * of that size.
    *
-   * ⛔ NOT AN ENTRY, AND SO NOT IN `groups`. Table T-109 says of IC-53
-   * 「掴んで動かせることを示す。ボタンではない」, which is why UF-65 keeps that
-   * row out of the `CommandItem`s. It is a thing to SHOW and a thing to GRAB,
-   * and this member is how both reach the screen.
+   * ⛔ NOT AN ENTRY, AND SO NOT IN `groups`. Table T-109 says of IC-53 that
+   * it shows the palette can be dragged and is not a button, which is why UF-65
+   * keeps that row out of the `CommandItem`s. It is a thing to SHOW and a thing
+   * to GRAB, and this member is how both reach the screen.
    *
    * ⛔ ALWAYS A NUMBER, AND NEVER ONE TYPED HERE. GR-19 is a MUST and stands
    * FIRST in table T-023d, so a palette drawn without a band breaks that row --
    * there is no state in which this member has nothing to say. Table T-206
-   * states the height at S-135a and it arrives generated, which is the road rule
-   * 03 section 1 requires; ⛔ zero is not a value it may take, being a band no
-   * one can grab, and GR-19 says in as many words that a palette that cannot be
-   * grabbed can never be moved again.
+   * states the height at S-135a and it arrives generated, which is the road
+   * rule 03 section 1 requires; ⛔ zero is not a value it may take, being a
+   * band no one can grab, and GR-19 says a palette that cannot be grabbed can
+   * never be moved again.
    *
    * ⭐ WHAT THE DRAWING SIDE OWES IT. The band is drawn INSIDE the part that
    * carries the palette's own role and never beside it: FR-053 (MUST) judges
    * the faintness by which PART the pointer is on, and the band IS part of the
    * palette -- drawn as a sibling it would leave the palette faint at the very
    * moment it is being grabbed. And it is marked with IC-53 the way an entry is
-   * marked, so that `ScreenSurface.readScreenPartAt` answers `IC-53` for a point
-   * on it (see `ScreenPart.entry`) and a press on it has somewhere to arrive.
-   * ⚠️ GR-19 also gives the band the topmost claim on a point 「帯の下に何が描か
-   * れていても帯が勝つ」, which for a palette floating over the schedule is what
-   * the topmost drawn node at that point already answers.
+   * marked, so that `ScreenSurface.readScreenPartAt` answers `IC-53` for a
+   * point on it (see `ScreenPart.entry`) and a press on it has somewhere to
+   * arrive. ⚠️ GR-19 also gives the band the topmost claim on a point, which
+   * for a palette floating over the schedule is what the topmost drawn node at
+   * that point already answers.
    */
   readonly grabBandHeight: number
   /**
@@ -1200,10 +1125,8 @@ export interface CommandPalette {
    * ⚠️ IT IS DRAWN IN BOTH STATES. FR-053 (MUST) keeps the grab band while the
    * palette is minimised -- without it the palette could never be moved again
    * (GR-19) -- and the band carries IC-53 and this entrance.
-   * ⛔ THE ARMED READING IS NOT KEPT ANY MORE. The 2026-08-28 ruling that held
-   * both was overridden on 2026-09-01: 「コマンドパレットを最小化した時は、コ
-   * マンドパレットの掴みどころ `::` と `-` の部分 だけを表示しろ」. What
-   * minimising withdraws is `groups` AND `armedText`.
+   * ⛔ MINIMISING WITHDRAWS `groups` AND `armedText`, and leaves the grab
+   * band with IC-53 and this entrance standing (the user's ruling).
    */
   readonly minimise: CommandItem
   /**
@@ -1360,11 +1283,11 @@ export interface AiExportModal extends OpenSurface {
    * FR-068: the document that would be handed to an AI. One value, because the
    * requirement shows and copies the same thing.
    *
-   * ⭐ THE ENTRY FOR THE COPY IS ONE OF `commands` AND NOT A MEMBER OF ITS OWN.
-   * FR-068 (MUST) settles which row it is -- 「複写の入口は 表 T-109 の `IC-52`
-   * とすること（MUST）。新しい行を足してはならない（MUST NOT）」 -- and
-   * 「その行は既にこの面に在る」, so `commandsOnSurface` already emits it and a
-   * `CommandItem` minted here would be the second entrance FR-029 forbids.
+   * ⭐ THE ENTRY FOR THE COPY IS ONE OF `commands` AND NOT A MEMBER OF ITS
+   * OWN. FR-068 (MUST) settles which row it is -- `IC-52` of table T-109,
+   * already on this surface -- and (MUST NOT) forbids adding a new one, so
+   * `commandsOnSurface` already emits it and a `CommandItem` minted here would
+   * be the second entrance FR-029 forbids.
    * ⚠️ What a press of it SPENDS is not this component's: R-9 of table T-008
    * puts the clipboard outside, and the shell owns that seam.
    */
@@ -1419,8 +1342,8 @@ export interface ExportFormatChoice {
   readonly row: ExportFormatId
   /**
    * FR-096 (MUST): the word `display-words.json` holds for the row, in the
-   * language the session is on. ⛔ NEVER the row id (MUST NOT) -- printing it
-   * is what the user reported as D-118.
+   * language the session is on. ⛔ NEVER the row id (MUST NOT): printed, it
+   * tells the reader nothing they can use.
    */
   readonly name: string
   /**
@@ -1461,31 +1384,23 @@ export interface ExportChooser extends OpenSurface {
  * The surface open over the screen, described as the requirement that opens it
  * asks for (UF-66).
  *
- * ⭐ DISCRIMINATED ON THE SURFACE, so a reader can tell from the type which one
- * carries what. Five requirements open one -- FR-036, FR-074, FR-099, FR-088 and
- * FR-068, the UF-66 row of table T-075 -- and the name of each is what
- * `ScreenState.surface` carries (S-99g).
- *
- * ⛔ THE UF-66 ROW OF TABLE T-075 IS SHORT BY TWO, and the two are named
- * surfaces: FR-096 opens U-54 `Export Chooser` and OP-3 of table T-024a opens
- * U-56 `Open Chooser`, both of which S-99g holds and IN-4's first level closes.
- * The row's roster of requirements has not been widened to say so. ⛔ Nothing
- * here reads that row, so the omission costs this file nothing; it is recorded
- * because the row is what a reader counts the surfaces from.
+ * ⭐ DISCRIMINATED ON THE SURFACE, so a reader can tell from the type which
+ * one carries what, and the name of each is what `ScreenState.surface` carries
+ * (S-99g).
  *
  * ⛔ FOUR NAMES ARE SETTLED AND TWO ARE NOT. Table T-103 spells `Help Modal`
  * and `AI Export Modal` (U-30), `Resource Roster` (U-49) and `Export Chooser`
  * (U-54), copied here spelling and all. FR-074's surface and FR-088's have no
- * row in that table, so
- * ⛔ no name is minted for either: each is carried by the one thing the
- * specification does give it, its requirement's own UID -- the move `IconId`
- * makes with `IC-7` and `Notice.manner` with `NT-1`.
+ * row in that table, so ⛔ no name is minted for either: each is carried by
+ * the one thing the specification does give it, its requirement's own UID --
+ * the move `IconId` makes with `IC-7` and `Notice.manner` with `NT-1`.
  *
- * ⚠️ THE LAST MEMBER TAKES ANY OTHER NAME, and it is not a spare shape: S-99g
- * holds a name rather than a choice among six, so a name outside the six has
- * to stay describable. ⛔ It is also why this type cannot by itself force the
- * six payloads to be filled -- a bare `{ surface, heading, commands }` lands
- * there whatever its name. What requires them is the requirement, not the type.
+ * ⚠️ THE LAST MEMBER TAKES ANY OTHER NAME, and it is not a spare shape:
+ * S-99g holds a name rather than a choice among six, so a name outside the six
+ * has to stay describable. ⛔ It is also why this type cannot by itself
+ * force the six payloads to be filled -- a bare `{ surface, heading, commands }`
+ * lands there whatever its name. What requires them is the requirement, not the
+ * type.
  * ⚠️ For the same reason, a caller narrows by what a member carries
  * (`'resources' in modal`) rather than by comparing the name: a `string`
  * discriminant is comparable to every literal, so TypeScript keeps the last
@@ -1538,13 +1453,13 @@ export type OpenModal =
   // U-60 `Watermark Unlock` of table T-103 -- the surface FR-020 (MUST) raises
   // before the watermark may be hidden.
   //
-  // ⭐ A SURFACE AND NOT A `Confirmation`. U-55's answer is one of NT-7's two
-  // and nothing else; this one is a password, and U-60's own row says so --
-  // 「答えが 2 択ではなく、打ち込む文字である」. ⛔ So it is a name S-99g holds
-  // (FR-020, MUST), which is what puts it on IN-4's surface rung.
-  // ⚠️ THE GATE STANDS ON THE HIDING SIDE ALONE (FR-020, MUST NOT): putting the
-  // watermark back is never asked, and a symmetric toggle 「切り替えは 2 つの
-  // 向きを見分けられないので、消す側の門をすり抜ける」.
+  // ⭐ A SURFACE AND NOT A `Confirmation`. U-55's answer is one of NT-7's
+  // two and nothing else; this one is a password, and U-60's own row says so.
+  // ⛔ So it is a name S-99g holds (FR-020, MUST), which is what puts it on
+  // IN-4's surface rung.
+  // ⚠️ THE GATE STANDS ON THE HIDING SIDE ALONE (FR-020, MUST NOT): a
+  // symmetric toggle cannot tell the two directions apart and would slip past
+  // the gate on the side that hides.
   | (OpenSurface & {
       readonly surface: 'Watermark Unlock'
       /**
@@ -1559,8 +1474,8 @@ export type OpenModal =
       readonly question: string
       /**
        * The two answers, as WORD BUTTONS (MUST) -- FR-020 sends their manner to
-       * 「表 T-037 の `NT-7` が語のボタンについて定めるもの」, so they are the
-       * very two `Confirmation.answers` carries and are read out of the same
+       * `NT-7` of table T-037, so they are the very two `Confirmation.answers`
+       * carries and are read out of the same
        * `confirmation` section of FR-038's dictionary.
        *
        * ⛔ NEITHER HAS A ROW OF TABLE T-109 (MUST NOT, FR-020 and NT-7 alike):
@@ -1590,9 +1505,9 @@ export type OpenModal =
        * FR-022 (MUST): the tasks that could correspond, gathered by `UID` match
        * -- laid out before the choice is offered.
        *
-       * ⛔ NOT A COUNT (FR-022, MUST NOT: 「選択肢だけを出してはならない」). A
-       * number would leave a person unable to judge what they are about to lose,
-       * which is the reason that MUST NOT gives for itself.
+       * ⛔ NOT A COUNT (FR-022, MUST NOT). A number would leave a person
+       * unable to judge what they are about to lose, which is the reason that
+       * MUST NOT gives for itself.
        * ⚠️ NAMES AND UIDS AND NOTHING TRANSLATED: a task's name is its own value
        * (AT-27) and FR-038 leaves a document's values alone, so these cross as
        * the document wrote them -- ⛔ a name it never carried is `null` and is
@@ -1600,16 +1515,14 @@ export type OpenModal =
        */
       readonly candidates: readonly MergeCandidateLine[]
       /**
-       * FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを
-       * 問うこと」 —— the columns a document of a newer format version
-       * carried that this build could not read, on the surface that
-       * requirement names: 「面は 表 T-103 の `U-61`」.
+       * FR-073 (MUST): the columns a document of a newer format version carried
+       * that this build could not read, laid out one by one on `U-61` of table
+       * T-103 before anyone is asked whether to go on.
        *
-       * ⛔ NOT A COUNT, for the reason `candidates` above is not one: a tally
-       * leaves a person unable to judge what they are about to accept, and the
-       * requirement asks for them 「具体的に並べて」.
-       * ⚠️ UNTRANSLATED. A column this build has never heard of has no row in
-       * any dictionary, and FR-038 (MUST NOT) leaves a document's own words
+       * ⛔ NOT A COUNT, for the reason `candidates` above is not one: a
+       * tally leaves a person unable to judge what they are about to accept.
+       * ⚠️ UNTRANSLATED. A column this build has never heard of has no row
+       * in any dictionary, and FR-038 (MUST NOT) leaves a document's own words
        * alone -- so these cross exactly as the file spelled them.
        * ⛔ CARRIED EVEN WHEN EMPTY, the same reading `candidates` takes: an
        * empty list is an intake with nothing unread rather than one this side
@@ -1621,10 +1534,10 @@ export type OpenModal =
        * surface says about the list above, or the empty string where this
        * intake read every column it was given.
        *
-       * ⭐ A ROW READ, NEVER A SENTENCE WRITTEN, and the shape is U-62's own:
-       * FR-073 names the surface and the reason in one breath -- 「面は 表 T-103
-       * の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」 -- exactly as FR-023
-       * names U-62 and `RS-50`. ⛔ So it is not a notice beside the surface.
+       * ⭐ A ROW READ, NEVER A SENTENCE WRITTEN, and the shape is U-62's
+       * own: FR-073 names the surface and the reason in one breath, exactly as
+       * FR-023 names U-62 and `RS-50`. ⛔ So it is not a notice beside the
+       * surface.
        * ⚠️ EMPTY WHERE `unreadColumns` IS EMPTY: a merge of a document this
        * build reads in full still raises U-61, and a sentence about columns
        * that were all read would be a telling about nothing.
@@ -1636,11 +1549,11 @@ export type OpenModal =
   // U-62 `Import Report` of table T-103 -- the surface FR-023 (MUST) sends the
   // names of the `Task` rows an import dropped to.
   //
-  // ⭐ A SURFACE AND NOT A TELLING, WHICH U-62's OWN ROW SETTLES: 「`Notification
-  // Area`（`U-57`）でもない —— 表 T-037 の `NT-9` が通知を 1 行に限っており、落と
-  // した名前の列挙が入らない」. ⛔ AND NOT A `Confirmation` (U-55) either -- 「答え
-  // を求めない。入口は `OK` の 1 つだけである」 -- so nothing here carries a second
-  // answer for a person to weigh.
+  // ⭐ A SURFACE AND NOT A TELLING, WHICH U-62's OWN ROW SETTLES: `NT-9` of
+  // table T-037 holds a notice to one line, which a list of dropped names will
+  // not fit. ⛔ AND NOT A `Confirmation` (U-55) either -- that row asks for
+  // no answer and gives one way out -- so nothing here carries a second answer
+  // for a person to weigh.
   // ⚠️ NO ROW OF TABLE T-109 NAMES IT, exactly as none names U-60: the way out
   // is a WORD and a word has no shape, so `commands` comes back empty and the
   // one entrance travels as `dismissText` below.
@@ -1650,10 +1563,10 @@ export type OpenModal =
        * The names of the `Task` rows the import dropped, in the order the file
        * carried them -- or `null` for one the file gave no name (AT-27).
        *
-       * ⛔ NOT A COUNT (FR-023, MUST NOT: 「件数だけを告げて済ませてはならない」).
-       * That requirement gives its own reason: 「どれが落ちたかを人が知らなければ、
-       * 元のファイルを直すことができない」.
-       * ⚠️ UNTRANSLATED (FR-023, MUST NOT: 「名前は文書の値であるので訳さない」),
+       * ⛔ NOT A COUNT (FR-023, MUST NOT), and that requirement gives its
+       * own reason: without knowing WHICH rows fell out, a person cannot mend
+       * the file they came from.
+       * ⚠️ UNTRANSLATED (FR-023, MUST NOT -- a name is a document value),
        * which is why these cross as strings of the file rather than as rows of
        * any dictionary -- ⛔ and a name the file never carried stays `null`
        * rather than being filled in here.
@@ -1671,9 +1584,9 @@ export type OpenModal =
       /** NT-3a's next step for the same row, or the empty string where none. */
       readonly nextStep: string
       /**
-       * The word on the one entrance, which FR-023 sends to NT-8 (「閉じる入口の
-       * 語は `FR-076` の `NT-8` が持つ」) -- the same word every told notice is
-       * put away with, read out of the same section of the dictionary.
+       * The word on the one entrance, which FR-023 sends to NT-8 -- the same
+       * word every told notice is put away with, read out of the same section
+       * of the dictionary.
        */
       readonly dismissText: string
     })
@@ -1831,9 +1744,8 @@ export interface Notice {
    * ⛔ A KIND CANNOT SAY WHICH. `ScreenView.notices` is a list, so several
    * tellings stand at once and `manner` is a row of table T-037 that any number
    * of them may wear -- a press answered by the manner alone would put away
-   * every telling wearing it. This member is what tells one of the list from
-   * the next, which is the whole of what NT-8's 「その場で消せること」 needs
-   * from the description.
+   * the next, which is the whole of what NT-8 needs from the description: a
+   * telling has to be removable where it stands.
    *
    * ⭐ MADE OF THE ROWS THE TELLING ALREADY CARRIES, and of nothing minted:
    * `RaisedNotice` hands over a row of table T-037 and a row of table T-233, so
@@ -1925,10 +1837,9 @@ export interface RaisedConfirmation {
  * section of FR-038's dictionary -- so UF-67 reads them there and this type is
  * not what a caller raises: `ScreenSession.confirmation` takes
  * `RaisedConfirmation`, and the answers are added on the way to the screen.
- * ⛔ NEITHER ANSWER HAS A ROW OF TABLE T-109 (MUST NOT, NT-7): that table and
- * figure F-019 hold the entrances that are SHAPES, and a word button has no
- * shape. ⚠️ IC-69 and IC-70 stood here until 2026-09-02 (CR-327) and the roster
- * no longer holds them -- so nothing on this surface is a `CommandItem`.
+ * ⛔ NEITHER ANSWER HAS A ROW OF TABLE T-109 (MUST NOT, NT-7): that table
+ * and figure F-019 hold the entrances that are SHAPES, and a word button has no
+ * shape, so nothing on this surface is a `CommandItem`.
  *
  * ⛔ NT-8's ENTRANCE MAY NOT STAND HERE (MUST NOT), which is why this type does
  * not extend `Notice` and carries neither `dismissText` nor `dismissKey`. That
@@ -1987,8 +1898,9 @@ export interface Confirmation extends RaisedConfirmation {
    * display language (FR-038), or the empty string while the dictionary holds
    * no word for it (PD-160).
    *
-   * ⭐ A WORD, NEVER A SHAPE. FR-032 (MUST) asks for the mark and PD-175 settled
-   * what it is made of: table T-109 is the whole of the icons and RC-13 of table
+   * ⭐ A WORD, NEVER A SHAPE. FR-032 (MUST) asks for the mark, and what it
+   * is made of follows: table T-109 is the whole of the icons and RC-13 of
+   * table
    * T-026 keeps a new one the user's own decision, so the mark is read out of
    * the one dictionary FR-038 names, the way every other word on the screen is.
    *
@@ -2047,10 +1959,11 @@ export interface ConfirmationAnswer {
    * The word on the button, in the display language (FR-038) -- or the empty
    * string while the dictionary holds no word for the row (PD-160).
    *
-   * ⭐ SPELLED THE SAME IN EVERY DISPLAY LANGUAGE, which NT-7 (MUST) states and
-   * (MUST NOT) forbids translating: 「頭文字が下の打鍵を指さなくなる」. ⛔ So the
-   * first character of this word is not decoration -- it is what names the key
-   * that answers, and the drawing side is what draws it bold (NT-7, MUST).
+   * ⭐ SPELLED THE SAME IN EVERY DISPLAY LANGUAGE, which NT-7 (MUST) states
+   * and (MUST NOT) forbids translating -- translated, the first letter would
+   * stop naming the key below it. ⛔ So that first character is not
+   * decoration: it is what names the key that answers, and the drawing side is
+   * what draws it bold (NT-7, MUST).
    */
   readonly text: string
 }
@@ -2097,8 +2010,8 @@ export interface Tooltip {
    *
    * ⛔ BESIDE `text` AND NOT INSIDE IT. The explanation is the word FR-038
    * keeps in the dictionary, and a reader holding this description to that
-   * word has to find the word ITSELF here -- gluing the assignment on made
-   * 62 such readings fail, and they were right to.
+   * word has to find the word ITSELF here -- glued together, the two make every
+   * such reading fail, and rightly.
    * ⚠️ A key is not a word (`Ctrl+S` reads the same in every language) and a
    * mouse gesture is; which of the two this is has already been resolved by
    * the side that filled it.
@@ -2162,8 +2075,8 @@ export type TooltipAnchor =
  * first. Each of the nine units reads none of the others' members, which is the
  * whole reason the shape is what it is: the nine can be written at once.
  *
- * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 reads 「通知と確認（FR-076。
- * 作法は 表 T-037）」, and NT-7 -- the row that says how a question is put -- is
+ * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 gives it both notices and
+ * confirmations, and NT-7 -- the row that says how a question is put -- is
  * a row of that same table. ⛔ A tenth FILE would need a tenth row in table
  * T-075 (check 18 holds `src/` against it); one more manner asked for one more
  * member, not one more unit.
@@ -2250,30 +2163,27 @@ export interface ScreenSession {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   /**
-   * FR-065. ⚠️ S-99b keeps the record in the environment, and remembers it PER
-   * BROWSER ORIGIN: 「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」
-   * (the user's ruling of 2026-09-05). Turning the API on is the reader's
+   * FR-065. ⚠️ S-99b (MUST) keeps the record in the environment and
+   * remembers it PER BROWSER ORIGIN. Turning the API on is the reader's
    * judgement about their own tooling, not the document's content.
-   * ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (D-280). That reading
-   * was the requirement's until 2026-09-05, and the paragraph that replaced it
-   * records why it could not be built: nothing in the specification points at
-   * one document -- AT-1 (`Project.id`) admits `null` and is no primary key.
-   * ⚠️ The requirement calls the wider scope a price knowingly paid, which is
-   * why the MUST above it -- showing on screen that the API is on -- carries
-   * more weight, not less.
+   * ⛔ A PER-DOCUMENT SCOPE CANNOT BE BUILT: nothing in the specification
+   * points at one document -- AT-1 (`Project.id`) admits `null` and is no
+   * primary key. ⚠️ The requirement calls the wider scope a price knowingly
+   * paid, which is why the MUST above it -- showing on screen that the API is
+   * on -- carries more weight, not less.
    */
   readonly isAgentApiEnabled: boolean
   /**
    * S-99i of table T-206 (FR-066) -- whether the reader has put the `Dialogue
    * Field` (U-44) away while the `Agent API` stays on.
    *
-   * ⭐ A SEPARATE VALUE FROM `isAgentApiEnabled`, and S-99i (⛔ MUST NOT) says so
-   * in as many words: 「1 つの値で兼ねてはならない —— あちらは能力であり、本行は見え方
-   * である」. `dialogue-field.ts` reads both -- the field is up only while the
-   * API is on AND this stays true -- and IC-18 (table T-109) moves only this
-   * one; IC-20 moves only `isAgentApiEnabled`, above.
+   * ⭐ A SEPARATE VALUE FROM `isAgentApiEnabled`, which S-99i (MUST NOT)
+   * refuses to let one value carry: that one is a capability and this one is a
+   * way of appearing. `dialogue-field.ts` reads both -- the field is up only
+   * while the API is on AND this stays true -- and IC-18 (table T-109) moves
+   * only this one; IC-20 moves only `isAgentApiEnabled`, above.
    *
-   * ⭐ DEFAULT `true`, which is S-99i's own default (「表示」). ⚠️ Not in the
+   * ⭐ DEFAULT `true`, which is S-99i's own default. ⚠️ Not in the
    * document, the same as `isAgentApiEnabled` just above and for the same
    * reason: table T-206 keeps this in the environment, not in `Schedule`.
    */
@@ -2282,17 +2192,13 @@ export interface ScreenSession {
    * FR-068 -- the document that would be handed to an AI, for the `AI Export
    * Modal` (U-30) to show. `undefined` while that surface is not standing.
    *
-   * ⭐ HANDED IN AND NOT BUILT HERE. FR-068 (MUST) says which document it is --
-   * 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」 -- and ⛔
-   * and its next clause forbids a new exchange format for this face (MUST NOT).
-   * ⚠️ THAT ONE IS POINTED AT AND NOT QUOTED: the manuscript's own sentence
-   * carries a broken character where 「鋳る」 belongs, and quoting it mended
-   * would be putting words in the specification's mouth (check 42). Reported.
-   * Table T-024's
-   * `GRS JSON` is DocumentCodec's (IO-2), a component chapter 5.3 gives
-   * ScreenRenderer no edge to, and `Schedule` alone is not the document that
-   * codec writes. So the shell that holds the whole `Document` fills this, the
-   * way it fills `openedFileName` and `isAgentApiEnabled` beside it.
+   * ⭐ HANDED IN AND NOT BUILT HERE. FR-068 (MUST) names table T-024's
+   * `GRS JSON` as the document handed over, and (MUST NOT) forbids a new
+   * exchange format for this face. That format is DocumentCodec's (IO-2), a
+   * component chapter 5.3 gives ScreenRenderer no edge to, and `Schedule` alone
+   * is not the document that codec writes. So the shell that holds the whole
+   * `Document` fills this, the way it fills `openedFileName` and
+   * `isAgentApiEnabled` beside it.
    *
    * ⚠️ OPTIONAL, AND THAT IS THE COST OF THE SURFACE BEING ONE OF SIX. A caller
    * that never opens U-30 has nothing to put here, and the surface cannot be
@@ -2366,16 +2272,14 @@ export interface ScreenSession {
   readonly taskUnderPointer?: Task | null
   /**
    * Whether the reader has put the standing explanation away -- IN-3 of table
-   * T-028's 「消せること」, spent through the last rung of IN-4's ladder
-   * (出ている説明).
+   * T-028's dismissal, spent through the last rung of IN-4's ladder.
    *
-   * ⛔ WITHOUT THIS MEMBER THE RUNG CANNOT BE SPENT AT ALL, which is what 台帳
-   * D-307 was. EZ-2 and EZ-6 of table T-040 raise an explanation purely from
-   * the rest (`pointerRestedMs`) and the place (`iconUnderPointer`,
-   * `taskUnderPointer`), so a press taken on the far side would be undone by
-   * the very next frame -- it would raise the same explanation from the same
-   * two unchanged answers. Measured 2026-09-05 on the shipped build: with an
-   * explanation standing over IC-7, `Esc` left it standing, twice.
+   * ⛔ WITHOUT THIS MEMBER THE RUNG CANNOT BE SPENT AT ALL. EZ-2 and EZ-6 of
+   * table T-040 raise an explanation purely from the rest (`pointerRestedMs`)
+   * and the place (`iconUnderPointer`, `taskUnderPointer`), so a press taken on
+   * the far side is undone by the very next frame -- it raises the same
+   * explanation from the same two unchanged answers, and `Esc` leaves the
+   * explanation standing however often it is pressed.
    *
    * ⭐ THE SIDE THAT HOLDS IT IS THE SHELL, for the reason every member of this
    * type is here: LY-5 of table T-060 leaves a current value with the
@@ -2403,8 +2307,8 @@ export interface ScreenSession {
    * ground painted and forbids (MUST NOT) leaving it to the environment's own
    * system colours, which follow the OPERATING SYSTEM rather than the reader's
    * choice -- and the side that paints is across IF-9 from every unit that can
-   * read a setting. Measured 2026-08-25: nothing carried either number across,
-   * which is the whole reason a reader could choose dark and stay light.
+   * read a setting. Carried nowhere else, a reader could choose dark and the
+   * screen would stay light.
    *
    * ⭐ THE HUE TRAVELS AS A NUMBER, ONCE. Table T-236 writes `H` wherever a
    * colour follows the theme, so the painting side substitutes this one value
@@ -2419,7 +2323,7 @@ export interface ScreenSession {
    * ⛔ FR-053 (MUST) keeps the eight milestone shapes out of the palette until
    * this is on, so that the entrances a person rarely uses do not hide the
    * schedule underneath (GL-002). IC-50 both opens and folds it -- one entrance
-   * in two states since CR-273 (FR-053, MUST NOT: not a second one).
+   * in two states, and FR-053 (MUST NOT) refuses a second one.
    *
    * ⭐ HELD BY THE SHELL, like every other member here: it is the way the
    * screen is being used and not part of the document, which is why table
@@ -2474,20 +2378,20 @@ export interface ScreenSession {
    * The row GR-20's strip is being held by and the depth it is to be DRAWN at
    * while held, or `null` while no row is held.
    *
-   * ⭐ WHAT IT IS FOR, IN HF-15's OWN WORDS: 「握っているあいだ、行をポインタに
-   * 追従させること（MUST）。段送りの刻みは 表 T-201 の `S-37` と同じとすること
-   * （MUST）」. A row's place on that axis IS its depth, and the panel already
-   * draws a depth as `depth x rowTitleIndent` (`RowTitle.indentPx`) -- so the
-   * follow is this one number and the pixels are the ones the panel was
-   * indenting by all along.
-   * ⛔⛔ NOT A TRAVEL IN PIXELS, WHICH IS A MUST NOT: 「刻みを別に持ってはならない」
-   * -- measured wrong at 刻み 26px against 段送り 16px, where a 64px drag moved
-   * the row 22px and 「1 段ごとに離れていった」.
+   * ⭐ WHAT IT IS FOR (HF-15, MUST): while the row is held it follows the
+   * pointer, and the step on the depth axis is `S-37` of table T-201. A row's
+   * place on that axis IS its depth, and the panel already draws a depth as
+   * `depth x rowTitleIndent` (`RowTitle.indentPx`) -- so the follow is this one
+   * number and the pixels are the ones the panel was indenting by all along.
+   * ⛔⛔ NOT A TRAVEL IN PIXELS, WHICH IS A MUST NOT: a step of its own
+   * is forbidden, and one that differs from the indent leaves the row drifting
+   * further from the tree with every level.
    *
-   * ⛔ A PICTURE AND NEVER A WRITE. Table T-023d (MUST NOT): 「掴んでいるあいだ
-   * 値を文書へ書いてはならない ... 追従は絵であって編集ではない」, so this member
-   * is what a held row LOOKS like and `TaskGroup.parentId` is untouched until
-   * the release settles CM-73 (IN-1 of table T-028).
+   * ⛔ A PICTURE AND NEVER A WRITE. Table T-023d (MUST NOT) forbids writing
+   * to the document while the row is held -- the follow is a picture and not an
+   * edit -- so this member is what a held row LOOKS like and
+   * `TaskGroup.parentId` is untouched until the release settles CM-73 (IN-1 of
+   * table T-028).
    *
    * ⭐ HELD BY THE SHELL, for the reason `commandPaletteAt` gives: it is a
    * current value and LY-5 of table T-060 leaves those with the Framework. No
@@ -2503,23 +2407,24 @@ export interface ScreenSession {
     readonly groupId: string
     readonly depth: number
     /**
-     * Which axis HF-15 (MUST) settled on -- 「掴んでから最初に閾値を超えた向きで
-     * 軸が決まり、離すまで変わらないこと」 -- so that the held row can be drawn
-     * with the band that says which one is live. See `RowTitle.heldOnAxis`.
+     * Which axis HF-15 (MUST) settled on -- the first direction past the
+     * threshold after the grab, held until the release -- so that the held row
+     * can be drawn with the band that says which one is live. See
+     * `RowTitle.heldOnAxis`.
      */
     readonly axis: 'position' | 'depth'
     /**
      * How far the row still follows the hand on the axis that was REFUSED, in
      * pixels, signed the way the hand went.
      *
-     * ⭐ HF-15 (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める割合は
-     * ... `S-212`」, and (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせては
-     * ならない —— 手応えが返らないと、木から離れて滑っていくだけに見える」. So the
-     * row moves a little that way and no further: the hand is answered, and the
-     * refusal is still legible.
-     * ⛔ THE RATIO IS NOT APPLIED HERE. S-212 multiplies 「その軸の 1 歩ぶん」 and
-     * the translator is where both the ratio and the step stand; this member is
-     * the product, in the pixels the panel draws in.
+     * ⭐ HF-15 (MUST) stops the follow part way on the refused axis, at the
+     * ratio `S-212` names, and (MUST NOT) lets the row go on following the
+     * pointer after a refusal -- with no resistance the row reads as sliding
+     * free of the tree. So it moves a little that way and no further: the hand
+     * is answered, and the refusal is still legible.
+     * ⛔ THE RATIO IS NOT APPLIED HERE. S-212 multiplies one step of that
+     * axis and the translator is where both the ratio and the step stand; this
+     * member is the product, in the pixels the panel draws in.
      */
     readonly resistedPx: number
     /**
@@ -2527,9 +2432,10 @@ export interface ScreenSession {
      * of the place the hand stands at -- or `null` while the grab is the depth
      * axis's and the row keeps the y the layout gave it.
      *
-     * ⭐ A PLACE'S OWN EDGE. HF-15 (MUST) has up and down 「その段に置ける
-     * 場所を描く順にたどる」, so the row follows the hand ONTO a place; drawn at
-     * that place's edge, the picture says where it lands.
+     * ⭐ A PLACE'S OWN EDGE. HF-15 (MUST) walks up and down through the
+     * places the row can take at that level, in drawing order, so the row
+     * follows the hand ONTO a place; drawn at that place's edge, the picture
+     * says where it lands.
      * ⛔ NOT A GAP OPENED FOR IT, AND NOT A MARK BESIDE IT. No row of table
      * T-103 gives a part for a place-to-land and no row of table T-109 an
      * entrance, so nothing of the sort is invented -- the held row is simply
@@ -2539,21 +2445,23 @@ export interface ScreenSession {
     readonly atY: number | null
   } | null
   /**
-   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+   * S-211 of table T-206 -- whether level 0, the head of the row title panel,
+   * is folded.
    *
-   * ⭐⭐ WHY LEVEL 0 HAS A STATE OF ITS OWN. HR-2 of table T-015 (MUST) folds
-   * 「最も浅い段の行」 as well, and says why no row's own column can carry it:
-   * 「行の畳みが隠すのはその配下であり、最も浅い段の行は親を持たないので誰にも
-   * 隠されない」 -- so 段 0 itself has to be foldable for 「押すと行が 1 つも
-   * 描かれない状態」 to exist at all. ⛔ AT-56 AND AT-57 ARE NOT MOVED FOR IT
-   * (MUST NOT), because a column either way changes the shape of the saved
+   * ⭐⭐ WHY LEVEL 0 HAS A STATE OF ITS OWN. HR-2 of table T-015 (MUST)
+   * folds the shallowest level as well, and says why no row's own column can
+   * carry it: a row's fold hides what is UNDER it, and the shallowest rows have
+   * no parent to hide them -- so level 0 itself has to be foldable for a state
+   * with no row drawn to exist at all. ⛔ AT-56 AND AT-57 ARE NOT MOVED FOR
+   * IT (MUST NOT), because a column either way changes the shape of the saved
    * document.
-   * ⛔ NOT SAVED, which S-211 states outright -- 「`S-99g` と同じ立場であり、
-   * 画面の状態であって日程の内容ではない」 -- so the shell holds it and it is
-   * lost with the page. ⭐ Two roads back, and that row names both: HF-16 (IC-92,
-   * one level) and HF-10 (IC-74, everything).
+   * ⛔ NOT SAVED, which S-211 states outright: it stands where `S-99g` does,
+   * screen state and not schedule content -- so the shell holds it and it is
+   * lost with the page. ⭐ Two roads back, and that row names both: HF-16
+   * (IC-92, one level) and HF-10 (IC-74, everything).
    *
-   * ⚠️ OPTIONAL, and absent reads as NOT folded, which is that row's default.
+   * ⚠️ OPTIONAL, and absent reads as NOT folded, which is that row's
+   * default.
    */
   readonly isLevelZeroFolded?: boolean
   /**
@@ -2621,8 +2529,7 @@ export interface ScreenSession {
   /**
    * FR-022 (MUST): the tasks that could correspond in the merge U-61 is asking
    * about -- laid out BEFORE the three answers are offered, which the same
-   * requirement's MUST NOT (「選択肢だけを出してはならない」) is what forbids
-   * skipping.
+   * requirement's MUST NOT forbids skipping.
    *
    * ⭐ HELD HERE FOR THE REASON `selectedResourceUids` ABOVE IS. LY-5 of table
    * T-060 leaves the Framework as the only layer that may hold a current value,
@@ -2639,8 +2546,7 @@ export interface ScreenSession {
   /**
    * FR-073 (MUST): the columns the intake U-61 is asking about could not be
    * read, because it declares a format version newer than the greatest this
-   * build knows -- what that requirement has 「具体的に並べて見せ」
-   * before anyone is asked whether to go on.
+   * build knows -- laid out one by one before anyone is asked to go on.
    *
    * ⭐ HELD HERE FOR THE REASON `mergeCandidates` ABOVE IS. The names are keys
    * of the file being read and of no document this build holds -- nothing in
@@ -2744,43 +2650,41 @@ export interface ScreenSession {
   /**
    * How much there is to scroll through, and how much of it is on screen.
    *
-   * ⭐⭐ WHY IT IS HERE (D-298). GR-21 of table T-023d (MUST) fixes the
-   * scrollbar grip's length as 「帯の長さに対する『見えている範囲 ÷ 全体』の割
-   * 合」, and 「全体」 is `ScheduleLayout`'s -- which UF-61 cannot read for
-   * itself, because `_source/components.json` gives ScreenRenderer no edge to
-   * ScheduleLayout. ⛔ It may not be measured again here either: ADR-001 has the
-   * shell run the layout once a frame, and a second computation of an extent
-   * this component cannot see would be the duplication chapter 5.3 refuses.
-   * ⇒ It arrives the way `rowBoxes` does, as bare numbers the shell reads off
-   * the layout it already built.
+   * ⭐⭐ WHY IT IS HERE. GR-21 of table T-023d (MUST) fixes the scrollbar
+   * grip's length as the visible range over the whole, and the whole is
+   * `ScheduleLayout`'s -- which UF-61 cannot read for itself, because
+   * `_source/components.json` gives ScreenRenderer no edge to ScheduleLayout.
+   * ⛔ It may not be measured again here either: ADR-001 has the shell run
+   * the layout once a frame, and a second computation of an extent this
+   * component cannot see would be the duplication chapter 5.3 refuses.
+   * ⇒ It arrives the way `rowBoxes` does, as bare numbers the shell reads
+   * off the layout it already built.
    *
-   * ⚠️ NOT ON `ScreenState` (refuted 2026-09-08). LY-1 replaces that value whole
-   * through the `screenStateWith*` writers PI-36 of table T-064 enumerates, so a
-   * new writer could not be called from the shell until that cell named it; and
-   * the loop decides whether a wheel or a move owes a picture by
+   * ⚠️ NOT ON `ScreenState`. LY-1 replaces that value whole through the
+   * `screenStateWith*` writers PI-36 of table T-064 enumerates, so a new writer
+   * could not be called from the shell until that cell named it; and the loop
+   * decides whether a wheel or a move owes a picture by
    * `screenState !== before.screenState`, so an extent rewritten every frame
-   * would make that test answer true forever (D-329 measured 13.3ms a frame).
+   * makes that test answer true forever and costs a redraw every frame.
    * ⚠️ NOT ON `ScreenRegions` either: the shell builds the regions FIRST and
    * hands them to `layoutFromSchedule`, so the layout is computed FROM them and
    * its extents cannot be inside them.
    *
-   * ⛔ NO SETTINGS ROW IS OWED FOR ANY OF THIS: GR-21 says so in as many words
-   * (「新しい設定値を立てない（割合は既にある値から導ける）」).
+   * ⛔ NO SETTINGS ROW IS OWED FOR ANY OF THIS: GR-21 refuses one, the ratio
+   * being derivable from values that already exist.
    */
   readonly scrollExtent: ScrollExtent
   /**
    * Whether the history holds a step to go back to, and one to come forward to
    * (FR-031, and RD-1 / RD-2 of table T-230).
    *
-   * ⭐⭐ WHY THEY ARE HERE AT ALL (D-265, measured 2026-09-05 on the shipped
-   * build). FR-029 (MUST) draws an entrance faint 「その入口を押しても、いま文書
-   * にも画面にも何も変えられないとき」 and (MUST NOT) allows a surface to hold an
-   * entrance out of that rule -- 「本規則は 表 T-109 の全行に当たる ... 載る面に
-   * よって薄くしない入口があってはならない」. IC-5 and IC-6 are two of those
-   * rows; with an empty history a press on either moved no row, no glyph and no
-   * label, and raised no telling. ⛔ The STOP note in `app-header-items.ts` said
-   * these two could not be answered because the stack 「is neither an argument
-   * here nor a member of `ScreenSession`」 -- these are that member.
+   * ⭐⭐ WHY THEY ARE HERE AT ALL. FR-029 (MUST) draws faint an entrance
+   * a press would change nothing by, and (MUST NOT) allows any surface to hold
+   * an entrance out of that rule -- it reaches every row of table T-109. IC-5
+   * and IC-6 are two of those rows, and with an empty history a press on either
+   * moves no row, no glyph and no label, and raises no telling. ⛔ Without
+   * these two members the history is neither an argument here nor a member of
+   * `ScreenSession`, which is what the header's STOP note says.
    *
    * ⭐ HELD BY THE SHELL, for the reason every value beside them is: LY-5 of
    * table T-060 leaves the Framework as the only layer that may hold a current
@@ -2793,11 +2697,10 @@ export interface ScreenSession {
    * as 「nothing to undo」 -- a false faint tells the reader an entrance is
    * broken, which is the very reading FR-029 exists to prevent, and the head of
    * `app-header-items.ts` states that discipline for all four of its STOPs.
-   * ⚠️ SO THIS IS THE DRAWING HALF ALONE. FR-029's second MUST -- 「押されたとき
-   * に限り、行えない理由を通知すること」, with `RS-27` of table T-233 as the
-   * fall-back FR-029 names for 「どの入口にも当たる行が無いとき」 -- is owed by the
-   * side that receives the press, and neither this component nor this type can
-   * discharge it.
+   * ⚠️ SO THIS IS THE DRAWING HALF ALONE. FR-029's second MUST -- telling
+   * the reason only when the entrance is pressed, with `RS-27` of table T-233
+   * as the fall-back where no row fits -- is owed by the side that receives the
+   * press, and neither this component nor this type can discharge it.
    */
   readonly canUndo?: boolean
   /** The forward half of `canUndo`; that member's note holds both. */
@@ -2806,129 +2709,14 @@ export interface ScreenSession {
 
 // ------------------------------------------------- the nine unit contracts ---
 //
-// ⭐ THE CONTRACT THE NINE INTERNAL UNITS ARE WRITTEN AGAINST. Each reads none
-// of the other units' members -- except UF-69, which is handed the nine members
-// built before it. All nine are written, and `screenViewFromRegions` below
-// calls them in the order the UF-69 note at the foot of this section fixes.
-// ⚠️ UF-67 fills TWO members, one per manner of table T-037 it answers to; every
-// other unit fills one.
-//
-//   UF-61  screen-frame.ts
-//     export function screenFrameFromRegions(
-//       regions: ScreenRegions,
-//       settings: DocumentSettings,
-//       state: ScreenState,
-//       session: ScreenSession,
-//     ): ScreenFrame
-//     ⚠️ The scrollbar thickness is not an argument and must not become a
-//     setting (FR-051, MUST NOT). It is the gap between the `Row Area`'s right
-//     edge and the `Properties Panel`, less `canvasPadding` (S-56) -- which is
-//     the same arithmetic FR-052 states, read backwards.
-//     ⭐ THE FOURTH ARGUMENT IS GR-21's (D-298, 2026-09-08) and only its
-//     `scrollExtent` is read. The grip's length is 「見えている範囲 ÷ 全体」 and
-//     「全体」 is `ScheduleLayout`'s, which this component has no edge to -- so
-//     the shell carries it, exactly as it carries `rowBoxes` for UF-63.
-//
-//   UF-62  app-header-items.ts
-//     export function appHeaderItemsFromDocument(
-//       schedule: Schedule,
-//       settings: DocumentSettings,
-//       state: ScreenState,
-//       session: ScreenSession,
-//     ): AppHeaderItems
-//
-//   UF-63  row-title-panel.ts
-//     export function rowTitlePanelFromSchedule(
-//       schedule: Schedule,
-//       settings: DocumentSettings,
-//       selection: Selection,
-//       session: ScreenSession,
-//     ): RowTitlePanel
-//
-//   UF-64  properties-panel.ts
-//     export function propertiesPanelFromSelection(
-//       schedule: Schedule,
-//       settings: DocumentSettings,
-//       selection: Selection,
-//       session: ScreenSession,
-//     ): PropertiesPanel | null
-//     ⚠️ `showing` is NOT worked out here from what happened last -- nothing in
-//     this component sees an operation. It arrives as
-//     `ScreenSession.propertiesShowing`, whose note says where FR-072's answer
-//     is meant to be kept and is not.
-//
-//   UF-65  command-palette.ts
-//     export function commandPaletteFromScreenState(
-//       state: ScreenState,
-//       settings: DocumentSettings,
-//       selection: Selection,
-//       session: ScreenSession,
-//       schedule?: Schedule,
-//     ): CommandPalette | null
-//     ⭐ `schedule` WAS ADDED 2026-09-05 (D-281), widening this contract from
-//     four arguments to five. FR-029 (MUST) counts an entrance's target 「画面
-//     に描かれている側で」 and (MUST NOT) forbids counting what is not drawn;
-//     `Selection` is never pruned when a fold or a hiding takes a Task out of
-//     the picture, so which row each Task sits in (`Schedule.taskGroupMembers`,
-//     ET-5) is the second half of that reading -- `ScreenSession.rowBoxes` being
-//     the first.
-//     ⚠️ IT IS THE LAST ARGUMENT AND OPTIONAL, which is not the shape the other
-//     eight take. An argument added in the middle would have re-typed every
-//     caller of the unit, and the callers that are not this file are the
-//     spec-only tests -- which the author of a unit may not edit (rule 05).
-//     ⛔ ABSENT MEANS "THE PICTURE WAS NOT HANDED OVER", never "nothing is
-//     drawn": `isEntryUsable` falls back to the pre-D-281 count rather than
-//     drawing an entrance faint on a caller's omission, because FR-029's whole
-//     point is that a false faint reads as a broken entrance.
-//     ⚠️ Table T-023c's SL-1 does not admit the palette, so FR-053 warns against
-//     writing its faintness as a selection -- there would be no state that
-//     clears it.
-//     ⛔ NOR IS THE FAINTNESS ANSWERED HERE AT ALL. FR-053 (MUST) judges it by
-//     which PART the pointer is on, and the only side that can say is the one
-//     that drew the parts (IF-9's fourth member). So `CommandPalette` carries a
-//     corner and no extent, and this unit never asks where the pointer is.
-//     ⭐ `settings` WAS ADDED 2026-08-31, BY THE USER'S RULING (「提案通り」), so
-//     that table T-237's `EN-2` could be answered for the seven toggles of
-//     table T-202 FR-049 makes of it -- see `SETTINGS_KEY_BY_ROW` in
-//     command-palette.ts for the join and why it cannot be shared with
-//     `input-command-translator.ts`'s own copy of it.
-//
-//   UF-66  open-modals.ts
-//     export function openModalFromScreenState(
-//       state: ScreenState,
-//       schedule: Schedule,
-//       session: ScreenSession,
-//     ): OpenModal | null
-//
-//   UF-67  notices.ts
-//     export function noticesFromSession(session: ScreenSession): readonly Notice[]
-//     export function confirmationFromSession(session: ScreenSession): Confirmation | null
-//     ⚠️ NT-4 (MUST) gathers what is pending at startup into ONE surface rather
-//     than showing them one after another, so this is where several become one.
-//     ⭐ The second member is NT-7's -- the manner for ASKING, which table T-037
-//     gained on 2026-08-21. Table T-075 gives this unit 「通知と確認」, so both
-//     manners are one unit's, and neither reads the other's member.
-//     ⚠️ BOTH WIDEN what they are given. The session holds a `RaisedNotice` and
-//     a `RaisedConfirmation`; the answers are a `Notice` and a `Confirmation`,
-//     because the words FR-038 (MUST) keeps in the one dictionary and the
-//     entries table T-109 places on U-55 are both this component's to read and
-//     neither is the raiser's to supply.
-//
-//   UF-68  dialogue-field.ts
-//     export function dialogueFieldFromLog(
-//       log: DialogueLog,
-//       session: ScreenSession,
-//     ): DialogueField | null
-//
-//   UF-69  tooltips.ts
-//     export function tooltipsFromScreenView(
-//       shown: Omit<ScreenView, 'tooltips'>,
-//       settings: DocumentSettings,
-//       session: ScreenSession,
-//     ): readonly Tooltip[]
-//     ⭐ Takes everything already built, because what a tooltip explains is one
-//     of the parts those members hold. That fixes the order
-//     `screenViewFromRegions` builds in: the rest, then this one.
+// ⭐ EACH OF THE NINE READS NONE OF THE OTHER UNITS' MEMBERS -- except
+// UF-69, which is handed the nine members built before it. That is the whole
+// reason the shape is what it is: the nine can be written at once, and it is
+// what fixes the order `screenViewFromRegions` builds in.
+// ⚠️ UF-67 fills TWO members, one per manner of table T-037 it answers to;
+// every other unit fills one.
+// ⛔ The signatures are not restated here: each unit file holds its own, and
+// so does the type checker.
 
 /**
  * The description of one frame's UI parts outside the schedule.
@@ -2972,10 +2760,10 @@ export function screenViewFromRegions(
       settings,
       selection,
       session,
-      // FR-029 (MUST): the target is counted 「画面に描かれている側で」, and
+      // FR-029 (MUST): the target is counted on the side that is DRAWN, and
       // ET-5's member rows are the half of that reading `ScreenSession.rowBoxes`
-      // does not carry. ⛔ Never omitted here -- see UF-65's note above for what
-      // omitting it would mean.
+      // does not carry. ⛔ Never omitted here -- `command-palette.ts` says
+      // what omitting it would mean.
       schedule,
     ),
     openModal: openModalFromScreenState(state, schedule, session),
@@ -3023,18 +2811,16 @@ export function dialogueMessageFromInput(input: DialogueInput): SettledUtterance
  * (`FR-017`, MUST), in the order `AT-17` fixes -- index 0 is Sunday, rising to
  * 6 for Saturday.
  *
- * ⭐ THE ORDER IS THE MODEL'S AND NOT A CHOICE MADE HERE. `AT-17` numbers the
- * weekdays that way and `Project.weekStartDay` (`S-108`) is stored against that
- * numbering, so a caller may index this list with a weekday number and no
- * second table is needed to say how the two line up. ⛔ The generator writes
- * the manuscript's entries in the same order for the same reason, and check 27
- * refuses to write when the two disagree.
+ * ⭐ THE ORDER IS THE MODEL'S AND NOT A CHOICE MADE HERE. `AT-17` numbers
+ * the weekdays that way and `Project.weekStartDay` (`S-108`) is stored against
+ * that numbering, so a caller may index this list with a weekday number and no
+ * second table is needed to say how the two line up.
  *
  * ⛔ WHY IT STANDS IN THIS FILE. Chapter 6.2 (MUST) allows the words ONE
  * generated destination in `src/`, and it is `display-words.json` beside this
- * one; UF-60's row already gives this unit 「画面全体に効く表示言語を運ぶ」, so
- * the language and the dictionary meet here and nowhere else. ⚠️ A second file
- * for the seven would have been a 72nd unit table T-075 does not hold.
+ * one; UF-60's row already carries the display language, so the language and
+ * the dictionary meet here and nowhere else. ⚠️ A second file for the seven
+ * would have been a 72nd unit table T-075 does not hold.
  *
  * ⛔ WHY A FUNCTION AND NOT A CONSTANT: `FR-038` (MUST) keeps the display
  * language out of the document, so which column to read is a question about the

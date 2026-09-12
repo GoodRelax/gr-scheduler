@@ -1,4 +1,26 @@
-467
+435
+#
+# LOWERED 467 -> 435 ON 2026-09-12, by stage 0 and stage 1 of the src/ comment
+# cleanup: four bodies over six files (svg-renderer, screen-renderer,
+# schedule-layout, row-title-panel, properties-panel, schedule-geometry).
+# ⭐ NOT ONE QUOTATION WAS TRIMMED. Every one was folded to a pointer or
+# deleted whole, which is why the drop is real rather than a re-cut.
+# ⛔ THE SHARES WERE MEASURED IN ISOLATION, NOT READ OFF THIS GATE. Three
+# bodies wrote in the same window, so the tree-wide number attributes to
+# nobody. Each ran the checker's own extractor against its own files:
+# 1A -10, 1B -19, 1C -3 = -32, which reconciles exactly with 467 -> 435.
+# ⚠️ Bodies that skip that step will each claim the whole drop.
+# ⭐⭐ FIVE OF THE FOLDED QUOTATIONS WERE FABRICATIONS, not normalization
+# misses -- a paraphrase hardened into a citation, the D-339 pattern still
+# running. Three sat in properties-panel.ts: FR-006's 「対象は 表 T-016 の
+# `対象` の欄が持つ。」 had 「`Task` か `TaskGroup` のいずれかである」 appended
+# INSIDE the quote marks -- and the very next line of the manuscript reads
+# ⛔ 本文がその欄の値を数え上げてはならない（MUST NOT）, with the same drift
+# recorded as measured on 2026-09-06. An eight-line argument stood on it.
+# One sat in svg-renderer.ts: 「間隔は 表 T-221の `LF-1` が段階ごとに持つ
+# 1 つの値とすること」 attributed to FR-089, which never says it --
+# it is LF-1's own wording WITHDRAWN on 2026-09-04.
+#
 #
 # LOWERED 469 -> 467 ON 2026-09-12, mending D-483 / D-484 / D-486. All three
 # were comments arguing from a sentence the manuscript had WITHDRAWN -- FR-001
