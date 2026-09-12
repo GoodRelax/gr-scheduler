@@ -574,10 +574,15 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
 //   HF-3 (MUST) 「閉じる操作子は、その行自身を畳むこと」 -- HR-5. The picture
 //        shrinks by this row's own drawn descendants, so the control is armed
 //        exactly where this row has one.
-//   HF-11 (MUST) 「配下をすべて閉じる操作子は、その行の配下をすべて畳むこと」 --
-//        HR-4, and ⛔ 「その行自身を畳んではならない（MUST NOT）」. The picture
-//        shrinks by what the rows UNDER this one are showing, so a subtree with
-//        no grandchild drawn arms nothing.
+//   HF-11 (MUST) 「配下をすべて閉じる操作子は、表 T-015 の `HR-4` を行うこと」 --
+//        and `HR-4` (MUST) is 「選択した `TaskGroup` を畳むこと」 —— ⇒ 「その直下
+//        の子から下が描かれなくなる」. The picture shrinks by THIS ROW'S OWN
+//        drawn children, so a row with no drawn child of its own arms nothing.
+//        ⛔⛔ 2026-08-31 まで `HF-11` は「その行自身を畳んではならない」と定めて
+//        いた（利用者の指示「サンプルと同じ動作にしろ」が撤回した）—— ⛔ その句
+//        はもう規則ではない。`HR-4` の行がその撤回を記録しており、「実測で、押し
+//        ても直下の子が描かれたまま残り、見本では消えた」がその理由である。
+//        ⭐ 下の期待値はすべて撤回後の `HR-4` に対して書かれている。
 //   HF-7 (MUST NOT) 「人が畳んだ状態は、表示量の増減（`FR-018`）より優先する。
 //        人の指定を倍率が上書きしてはならない」. The zoom never writes AT-56, so a
 //        row the group level of detail stopped drawing is still an OPEN row --

@@ -28,6 +28,4 @@ tbl-settings.md/T:T-203 S-75 + tbl-settings.md/T:T-203 S-76
 tbl-glossary.md/T:T-109 IC-71 + tbl-glossary.md/T:T-109 IC-72
 01-04-requirements.md/FR-024 + 01-04-requirements.md/UC-011
 01-04-requirements.md/FR-083 SP-2 + 01-04-requirements.md/FR-083 SP-3
-01-04-requirements.md/T:T-015 HR-1a + 01-04-requirements.md/T:T-015 HR-6
-01-04-requirements.md/T:T-238 + tbl-settings.md/T:T-206 S-219
 tbl-settings.md/T:T-206 S-204 + tbl-settings.md/T:T-206 S-210

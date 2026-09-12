@@ -444,8 +444,18 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
     expect(kept?.derivedFromTaskUid).toBeNull()
   })
 
-  it('FR-032 can leave the document with no rows at all', () => {
-    // FR-001 states it plainly: 「FR-032 は行を 1 つも無い状態にできる」。
+  it('the use-case layer can leave the document with no rows at all (FR-032 deleteTaskGroup)', () => {
+    // ⛔⛔ THIS IS THE SEAM, NOT A RULE OF THE PRODUCT. 2026-09-02 まで `FR-001`
+    // はこの節の理由を「FR-032 は行を 1 つも無い状態にできる」と書いていたが、同日
+    // の利用者の裁定が 表 T-050 の直下に不変条件を置いてそれを偽にした ——
+    // 「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」。
+    // ⭐ `FR-001` のいまの本文はその撤回を記録しており、引ける規則ではない。
+    // ⭐ WHY `[]` IS STILL THE RIGHT ANSWER HERE: `run(...)` はユースケース層で
+    // あり、下限を戻すのは 1 段下の計画層である。⇒ この継ぎ目で行が 0 になるのは
+    // 正しく、ここで 1 行を立てると二重に立つ。
+    // ⭐ 製品としての振る舞いは tests/unit/t-050-a-document-always-holds-one-row.test.ts
+    // が `planOf(...)` で押さえている（拒まれない／L1 の行を 1 つ持って終わる／
+    // その行は消した行ではない）。
     const document = documentOf({
       schedule: {
         taskGroups: [groupOf({ id: 'g1' })],
@@ -775,7 +785,9 @@ describe('EditTaskGroup (UF-12) -- CM-33 / CM-34, collapse and hidden', () => {
     expect(hidden.ok).toBe(true)
     if (!hidden.ok) return
     expect(groupById(hidden.document.schedule, 'g1')?.isHidden).toBe(true)
-    // HR-6 (MUST NOT): 配下の Task を親の行に載せ替えてはならない。
+    // HR-1a (MUST NOT): 「配下の `Task` を親の行に載せ替えて描いてはならない」 --
+    // HR-6 folded its own copy of this on 2026-09-12 and now points here;
+    // it still reaches a hidden row because HR-6 requires the collapsed state.
     expect(idsOf(hidden.document.schedule.taskGroups).sort()).toEqual(['g1', 'g2'])
     expect(hidden.document.schedule.taskGroupMembers.find((one) => one.taskUid === 2)?.groupId)
       .toBe('g2')

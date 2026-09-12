@@ -1419,14 +1419,17 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // is written it is the row's name, indistinguishable from a name a person
 // typed: the screen shows it the way it shows every other 行名.
 //
-// ⛔ AND FR-038 SAYS IN AS MANY WORDS THAT A 行名 IS NOT TRANSLATED: 「**タスク名
-// と行名、および表 T-016 の項目名は翻訳の対象ではない**」. ⇒ The arrival claim
-// the acceptance case makes -- "asked for in `ja` a frame prints the `ja` word,
-// and asked for in `en` it does not" -- is the OPPOSITE of what this word owes.
-// A view that answered 「名前なし」 to a `ja` reader and "No name" to an `en`
-// reader, for one and the same document, would be translating a row name, which
-// that sentence excludes. The document keeps whichever word was settled into
-// it, and every reader sees that one.
+// ⛔⛔ DO NOT REACH FOR THE WITHDRAWN SENTENCE OF FR-038 HERE. 2026-09-04 まで
+// `FR-038` の本文は「表 T-016 の項目名は翻訳の対象ではない」と書いており、この注は
+// かつてそれを根拠にしていた。⛔ 同日の利用者の裁定がそれを撤回し、いまの本文は
+// 逆を定める ——「タスク名と行名、および 表 T-016 の項目名も、他の語と同じく表示
+// 言語に従うこと（MUST）」。⇒ 「行名は訳さない」はもう引ける規則ではない。
+// ⭐ WHAT HOLDS THIS OMISSION IS `FR-032` ALONE, and it is enough: the word is
+// settled INTO the document before any frame could print it, so what a reader
+// sees is a `TaskGroup.label` this file would have had to write itself. The
+// arrival claim the acceptance case makes -- "asked for in `ja` a frame prints
+// the `ja` word, and asked for in `en` it does not" -- has no frame to make it
+// against, because no frame prints this word at all.
 //
 // ⛔ NOR COULD A FRAME BE RAISED THAT WOULD PRINT IT HONESTLY. To put the word
 // on the screen this file would first have to write it into `SCHEDULE` as a
@@ -1455,8 +1458,9 @@ for (const entry of GENERATED['defaultNames'] ?? []) {
     'defaultNames',
     keyOf('defaultNames', entry),
     'FR-032 (MUST) settles it into TaskGroup.label, so it is document data and not screen text -- and ' +
-      'FR-038 says a 行名 is not translated, so no frame this file can raise prints it in the reader s ' +
-      'language; a frame that did would be printing a label this file had put in the document itself',
+      'no frame this file can raise prints it at all, because the word is settled into the document ' +
+      'before any frame could -- ⛔ NOT because 行名 is untranslatable: FR-038 withdrew that sentence ' +
+      'on 2026-09-04 and now puts row names under the display language like every other word',
   )
 }
 

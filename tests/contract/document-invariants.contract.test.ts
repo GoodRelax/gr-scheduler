@@ -702,6 +702,27 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // S-42 name each other, so the pair below breaks whichever way the bound is
   // read -- inclusive or not.
   'IV-16': () => withSettings({ thinStrokeMin: settingNumber('thinStrokeMax') + 1 }),
+
+  // A document holding no row at all -- the state IV-20 forbids, whose origin
+  // the row names as the sentence under table T-050 of Chapter 1.4.
+  //
+  // ⚠️ EMPTYING THE ROWS ALONE WOULD BREAK MORE THAN ONE ROW, so everything
+  // that leans on a row or on a task goes with them: `TaskGroupMember` would
+  // name a group that is gone (IV-2) and its tasks would then be housed by
+  // nobody (IV-6), and `TaskVisual`, `TaskOrigin` and `Assignment` each point
+  // at a `Task` (IV-2 again). With all six arrays empty, every other row of the
+  // table is judged over nothing. The calendar, the project and the settings
+  // group are left as the sound document has them, so IV-7, IV-17, IV-3 and the
+  // settings rows all still stand -- IV-20 is the only row left to break.
+  'IV-20': () =>
+    withSchedule({
+      taskGroups: [],
+      taskGroupMembers: [],
+      tasks: [],
+      taskVisuals: [],
+      taskOrigins: [],
+      assignments: [],
+    }),
 }
 
 /** The case filed under one row of table T-220. @purity pure */

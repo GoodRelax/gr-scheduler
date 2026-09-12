@@ -264,7 +264,7 @@ if orphan:
                                        ' '.join(d['rows'])))
     print('')
 
-for c in ['5', '6', '7', '8', '9', '10', '15']:
+for c in ['5', '6', '7', '8', '9', '10', '15', '48']:
     print('check %-2s : %d' % (c, by_check.get(c, 0)))
 print('tables=%d  figures=%d  rows=%d  uids=%d'
       % (len(tables), len(figures), len(all_rows), len(uids)))

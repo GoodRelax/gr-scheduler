@@ -1,4 +1,22 @@
-469
+467
+#
+# LOWERED 469 -> 467 ON 2026-09-12, mending D-483 / D-484 / D-486. All three
+# were comments arguing from a sentence the manuscript had WITHDRAWN -- FR-001
+# on 2026-09-02, HF-11 on 2026-08-31, FR-038 on 2026-09-04 -- and this check
+# saw none of them. ⛔ IT CANNOT: a withdrawal record keeps the retired words
+# in 「」 for ever (裁定 E of the cleanup), so the quotation always resolves.
+# list-withdrawn-cited.py is what found them, and it is deliberately not a
+# gate. ⇒ The two this check DID hold were the ones that resolved nowhere:
+# HF-11's retired wording, quoted as if current, and 「タスク名と行名、および
+# 表 T-016 の項目名は…」, which was never the manuscript's sentence in any
+# generation -- the withdrawal record holds only the second half of it.
+# ⭐ NOT ONE VERBATIM WAS DELETED. Every quotation was re-framed as 「…まで…と
+# 定めていた」 and its anchor re-driven at the live seat, which is why check
+# 39's hold count did not move (345 either side).
+# ⭐ THE SAME ROUND FOLDED A COPY AND THE COUNT DID NOT MOVE: HR-6's copy of
+# HR-1a's MUST NOT became a pointer (裁定 F), and the one comment quoting the
+# folded sentence was re-cut to HR-1a's wording in the same commit. ⛔ THAT IS
+# THE ORDER -- fold and re-anchor together, never fold and measure later.
 #
 # LOWERED 471 -> 469 ON 2026-09-11, to make the file say what the practice
 # already was. Through the whole of phase 2's section 4.1 -- 99 requirements,

@@ -3,6 +3,7 @@
 
     python tools/precheck.py              # whatever git reports as changed
     python tools/precheck.py <path> ...   # those files
+    python tools/precheck.py --unpushed   # everything a push would publish
 
 Run with PYTHONIOENCODING=utf-8. Exit code 1 when anything is found.
 
@@ -83,6 +84,43 @@ def changed_files():
             continue
         found.append(name)
     return found
+
+
+def upstream_of():
+    """The commit a push would add to, or None when there is nothing to add to."""
+    for argv in (['git', 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'],
+                 ['git', 'rev-parse', '--verify', '--quiet', 'origin/main']):
+        out = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True,
+                             encoding='utf-8', errors='replace')
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    return None
+
+
+def unpushed_files():
+    """Everything a push would publish: the working tree AND the unpushed commits.
+
+    ⛔ THE WORKING TREE IS NOT THE PUSH, and trap 5 is the one trap where that
+    difference publishes something. `changed_files()` reads what is dirty right
+    now, so a file committed three commits ago and never pushed carries an
+    address or an account name into a PUBLIC repository with nothing having
+    read it. This reads the same files as they stand on disk -- which is what
+    the push carries -- plus every path the unpushed commits touch.
+
+    ⚠️ A path a commit DELETED comes back in this list and is skipped by
+    read_lines, which is right: a deletion publishes nothing.
+    """
+    base = upstream_of()
+    names = list(changed_files())
+    if base is None:
+        say('PRECHECK  no upstream and no origin/main -- only the working tree was read')
+        return names
+    out = subprocess.run(['git', 'diff', '--name-only', base + '...HEAD'],
+                         cwd=ROOT, capture_output=True, text=True,
+                         encoding='utf-8', errors='replace')
+    names.extend(one.strip() for one in out.stdout.splitlines() if one.strip())
+    say('PRECHECK  reading what a push would add to %s' % base)
+    return sorted(set(names))
 
 
 def read_lines(relative):
@@ -316,7 +354,12 @@ TRAPS = (
 
 def main():
     wanted = [one for one in sys.argv[1:] if not one.startswith('--')]
-    files = wanted if wanted else changed_files()
+    if wanted:
+        files = wanted
+    elif '--unpushed' in sys.argv[1:]:
+        files = unpushed_files()
+    else:
+        files = changed_files()
     goals = challenge_goals()
     found = []
     looked = 0

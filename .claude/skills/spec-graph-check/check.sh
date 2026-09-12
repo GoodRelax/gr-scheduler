@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 42 mechanical checks for the gr-scheduler specification.
+# All 46 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -18,6 +18,15 @@
 # ⭐ Recounted 2026-09-11 when check 44 was added: 40 -> 41. The ranges are
 # 1 + 4 + 7 + 4 + 25, and 40 was right before this one went in.
 # ⭐ Recounted 2026-09-11 again when check 45 was added: 41 -> 42.
+# ⭐ Recounted 2026-09-12 while the tool inventory was being written: 42 -> 45.
+# Checks 46 and 47 went in without recounting -- the same failure this note
+# keeps happening to -- and check 48 had no heading at all: md-checks.py
+# reported it while the heading still read "5-10, 15". The heading now names
+# it, which is what makes it countable. The ranges are 1 + 4 + 8 + 4 + 28.
+# ⭐ Recounted 2026-09-12 when check 49 was added: 45 -> 46. The ranges are
+# 1 + 4 + 8 + 4 + 29. ⚠️ Counted BEFORE the heading went in this time, which
+# is the order the failures above kept getting wrong. 46, 47 and 48 are still
+# the last three with no entry in the index below; 49 is not one either.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -318,7 +327,7 @@ jq -r '([.DOCUMENTS[] | recurse(.NODES[]?)
     + (if ($gap|length)==0 then "none" else ($gap|map(tostring)|join(",")) end)' "$J"
 
 echo ""
-echo "===== 5-10, 15  Markdown source ====="
+echo "===== 5-10, 15, 48  Markdown source ====="
 python "$HERE/md-checks.py" "$REPO" || fail=1
 
 echo ""
@@ -470,6 +479,33 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-line-breaks.py" || fail=1
 echo ""
 echo "===== 47  the marks are used once, and bold marks a phrase ====="
 PYTHONIOENCODING=utf-8 python "$HERE/check-marks.py" || fail=1
+
+echo ""
+echo "===== 49  the published HTML: bold and captions actually arrived ====="
+# ⛔ Wired in 2026-09-12. check-render.py is the ONLY check that opens the page
+# a reader sees; every other one reads the manuscript or the JSON export. It
+# had no caller and could not go red -- it printed `RESULT: FAIL` and returned
+# 0. Measured green on the tree of that day BEFORE being wired: 0 literal `**`
+# across all four documents, 0 missing captions (79/79 + 29/29 tables, 1/1 +
+# 7/7 figures). A gate that is born red teaches people to ignore gates.
+#
+# ⚠️ This needs an HTML export, which is NOT the JSON export of checks 1-4.
+# ⛔ Folding html into that one was tried and is SLOWER: check 1-4 does
+# `rm -rf "$SD"` every run, which throws away StrictDoc's cache, so a combined
+# json,html export there is always cold. Measured 2026-09-12, two runs each:
+# one combined export 9s / 6s, against 6s / 5s for the JSON export plus a
+# separate HTML export into a directory that is NOT wiped and stays warm.
+# $HTMLOUT is therefore kept between runs. It does not grow -- the export
+# overwrites in place, 43MB across four exports -- and scratch/ is gitignored.
+HTMLOUT="$REPO/scratch/spec-html-probe"   # the path rule 04 section 4 names
+strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
+    --no-parallelization >/dev/null 2>&1 || {
+    echo "HTML EXPORT FAILED -- rerun for the reason:"
+    strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
+        --no-parallelization 2>&1 | grep -iE 'error' | head -3
+    fail=1
+}
+PYTHONIOENCODING=utf-8 python "$HERE/check-render.py" scratch/spec-html-probe || fail=1
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="

@@ -159,12 +159,14 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 | | |
 |---|---|
 | ⭐ **事前チェッカー** | `PYTHONIOENCODING=utf-8 python tools/precheck.py`（`npm run precheck`）。⛔ **編集の「前」に走らせる。** 差分に対して 1 秒で、往復を生んでいた 4 つの罠を落とす —— `docs/spec` の中のバッククォート付き `CR-nnn` / `PD-nnn`、空行 2 連続、生成物への直接編集、変更要求の `CH-` と `GL-` の対応違い。⚠️ **最後の 1 つは、ほかのどの検査も捕まえない** |
-| **機械検査（33 本）** | `bash .claude/skills/spec-graph-check/check.sh`。⭐ **検査 0 が最初に走り、`docs/development-rules/` の索引を刷る** —— この規則が読まれるのは、読めと書いたからではなく、**最初の命令が出すから**である |
+| **機械検査（番号付き 46 本）** | `bash .claude/skills/spec-graph-check/check.sh`（`npm run check`）。⭐ **検査 0 が最初に走り、`docs/development-rules/` の索引を刷る** —— この規則が読まれるのは、読めと書いたからではなく、**最初の命令が出すから**である |
 | ~~Chapter 5 の自己検算~~ | ⭐ **2026-09-03 から 検査 33 として `check.sh` の中に在る。別に走らせる必要は無い**（3.8 節が理由を持つ）|
 | 刊行物の描画 | ⚠️ **先に** `strictdoc export docs/spec --formats=html --output-dir scratch/spec-html-probe`、その後 `check-render.py` |
 | 影響範囲 / 閉路 | `impact.py` ／ `induced.py`（[02](02-changing-the-spec.md)）|
 | 再生成 | `npm run gen`（ズレの検出は `npm run gen:check`）|
 | その他 | `npm run typecheck` ／ `test` ／ `e2e` ／ `build` ／ `layers` ／ `tree:check` ／ `types:check` |
+| ⭐ **束ねた口** | ⛔ **上を 1 本ずつ思い出すな。** 用途ごとに `npm run guard:start` ／ `guard:spec` ／ `guard:gen` ／ `guard:commit` ／ `guard:publish` ／ `guard:cleanup` が在る（どれも 1 分未満）|
+| ⭐ **道具の目録** | [09](09-tools.md) が、66 本それぞれの**何を赤にするか**と**何が見えないか**を持つ。⛔ **本節は道具の一覧を持たない** —— 二重の正を作らないため |
 
 ### ⭐ 何が何を強制するか
 
