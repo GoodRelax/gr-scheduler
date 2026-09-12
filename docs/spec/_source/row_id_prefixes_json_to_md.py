@@ -35,8 +35,18 @@ specification defines -- its UF-32 IS the specification's UF-32 -- so
 `mirrored_in` is held against the ids: every id in the mirroring tree must be
 one the owner defines. Measured 2026-09-12, that test separates the eight real
 mirrors (AM IC IV MC MK OP PG UF, not one foreign id between them) from the
-three prefixes that mean two different things (D, PD and R, with 494, 208 and
-44 ids the specification never defined).
+prefixes that mean two different things -- three that day (D, PD and R, with
+494, 208 and 44 ids the specification never defined).
+
+⭐ TWO SINCE 2026-09-13. CR-371 pulled PD's two meanings apart -- table
+T-023a became `PTD-` (6 rows, owned by the spec) and the pending decisions
+became `PND-` (212 rows, owned by records) -- so the spelling no longer
+stands in two trees and neither half is foreign to the other. ⚠️ The 208
+above was those 212 minus the 4 that stood in both trees, the ledger's four
+lowest-numbered rows, which the press table numbered too; it reproduces from
+the renamed rosters, which is what says the old measurement was read right.
+D and R are held for a later CR (the user's ruling of 2026-09-13) and both
+are still suppressed below.
 
 ⚠️ docs/spec/output/ is NOT walked. It is an untracked StrictDoc export: its
 copies of the manuscripts would double every count and it goes stale between
