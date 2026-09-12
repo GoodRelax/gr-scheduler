@@ -158,7 +158,7 @@ export interface CommandItem {
    * prints in one per-language dictionary, and Chapter 6.2 fixes its manuscript
    * as `_source/display-words.json`; `display-words.json` beside this file is
    * that dictionary generated into `src/`, keyed by the row of table T-109.
-   * ⛔ THE WORDS ARE NOT WRITTEN YET (PD-160) -- every entry is empty, and the
+   * ⛔ THE WORDS ARE NOT WRITTEN YET -- every entry is empty, and the
    * unit that fills this member falls back to the empty string while it is.
    * ⚠️ The explanation EZ-2 shows is a SECOND word (`hint` of that dictionary),
    * not this one: UF-69 raises it and reads it for itself.
@@ -338,7 +338,7 @@ export interface AppHeaderItems {
    * (S-99), the same value UF-60 puts in `ScreenView.language`.
    * ⭐ It is also what makes the header REDRAW on a switch: the header is
    * rebuilt from this member's description alone, and while every word is empty
-   * (PD-160) a switch moves no label.
+   * a switch moves no label.
    */
   readonly language: DisplayLanguage
 }
@@ -719,10 +719,10 @@ export interface PropertiesPanel {
    * FR-072 (MUST): when the selection went away the panel KEEPS the fields it
    * had. True is that state.
    *
-   * ⚠️ NOTHING ON THE SCREEN SAYS SO ANY MORE, and FR-072's RATIONALE records
-   * that as the price the ruling of 2026-08-27 knowingly paid: the panel goes on
-   * showing what it had without marking it as the previous subject. This member
-   * stays because it is still the state, and a check reads it back.
+   * ⚠️ NOTHING ON THE SCREEN SAYS SO ANY MORE -- FR-072's RATIONALE records
+   * that as the price knowingly paid: the panel goes on showing what it had
+   * without marking it as the previous subject. This member stays because it
+   * is still the state, and a check reads it back.
    *
    * ⭐ WHAT IS KEPT IS THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also says that
    * pressing the same entry again brings the panel back to what was selected
@@ -1126,7 +1126,8 @@ export interface CommandPalette {
    * palette is minimised -- without it the palette could never be moved again
    * (GR-19) -- and the band carries IC-53 and this entrance.
    * ⛔ MINIMISING WITHDRAWS `groups` AND `armedText`, and leaves the grab
-   * band with IC-53 and this entrance standing (the user's ruling).
+   * band with IC-53 and this entrance standing -- FR-053 draws nothing else
+   * while minimised.
    */
   readonly minimise: CommandItem
   /**
@@ -1152,8 +1153,8 @@ export interface CommandPalette {
    * row like every other one.
    *
    * ⛔ `null` IS THE ONE STATE THAT READS NOTHING, AND IT IS ONLY THE MINIMISED
-   * ONE. FR-053 excepts a minimised palette from that MUST since the user's
-   * 2026-09-01 ruling, so this is `null` exactly when `isMinimised` is true and
+   * ONE. FR-053 excepts a minimised palette from that MUST, so this is `null`
+   * exactly when `isMinimised` is true and
    * a word in every other state. ⚠️ NOT AN EMPTY STRING: an empty reading is a
    * hole the drawing side would still lay out a box for, and the requirement's
    * MUST NOT is that nothing but the band is drawn there.
@@ -1464,7 +1465,7 @@ export type OpenModal =
       readonly surface: 'Watermark Unlock'
       /**
        * QN-9 of table T-234 (MUST), in the display language (FR-038) -- or the
-       * empty string while the dictionary holds no word for the row (PD-160).
+       * empty string while the dictionary holds no word for the row.
        *
        * ⭐ THE SHOWN HALF OF A ROW, exactly as `Confirmation.text` is: FR-076
        * (MUST) makes what a question shows a row of that table and (MUST NOT)
@@ -1599,9 +1600,9 @@ export type OpenModal =
  * One pair U-61 lays out -- a task of the document standing now and a task of
  * the file being merged in, which share a `UID` (FR-022, MUST).
  *
- * ⭐ BOTH SIDES, NEVER ONE. The question is which file the duplicated thing is
- * taken from (利用者の裁定 2026-09-06), and a person cannot answer it while
- * seeing only one of the two.
+   * ⭐ BOTH SIDES, NEVER ONE. FR-022's three choices on `U-61` ask which file
+   * the duplicated thing is taken from, and a person cannot answer that while
+   * seeing only one of the two.
  */
 export interface MergeCandidateLine {
   /**
@@ -1686,7 +1687,7 @@ export interface Notice {
   readonly manner: string
   /**
    * What that row of table T-037 is CALLED, in the display language (FR-038),
-   * or the empty string while the dictionary holds no word for it (PD-160).
+   * or the empty string while the dictionary holds no word for it.
    *
    * ⛔ NOT A SECOND SPELLING OF `manner`, and it does not replace it. That
    * member is the row id, which is the join and what NT-5 (MUST) is told apart
@@ -1711,7 +1712,7 @@ export interface Notice {
    * ⚠️ A LIST BECAUSE NT-4 GATHERS, not because one reason has several steps:
    * table T-233 gives a row one, so a notice standing on its own carries one and
    * the gathered surface carries what it gathered. Empty only while the
-   * dictionary holds no step to read (PD-160).
+   * dictionary holds no step to read.
    */
   readonly nextSteps: readonly string[]
   /**
@@ -1722,15 +1723,14 @@ export interface Notice {
   /**
    * NT-8 (MUST): what the entrance that puts this telling away is CALLED, in
    * the display language (FR-038), or the empty string while the dictionary
-   * holds no word for it (PD-160).
+   * holds no word for it.
    *
    * ⭐ A WORD AND NEVER A SHAPE, the bargain `Confirmation.shownOnAnotherRowMark`
    * already keeps: FR-029 (MUST) makes table T-109 the whole of the icons and
    * RC-13 of table T-026 keeps a new one the user's own decision, so nothing
    * here may raise one. ⚠️ NT-8 (MUST) has this one word spelled the same in
-   * BOTH display languages, which is the user's ruling of 2026-08-25 and not a
-   * translation this side may skip: the dictionary still holds a cell per
-   * language, and both cells hold it.
+   * BOTH display languages -- not a translation this side may skip: the
+   * dictionary still holds a cell per language, and both cells hold it.
    *
    * ⛔ READ ON THE WAY TO THE SCREEN AND NEVER ASKED OF THE RAISER, the move
    * `mannerText` makes above: `RaisedNotice` carries no words at all, because
@@ -1821,9 +1821,9 @@ export interface RaisedConfirmation {
    * rather than instead of them.
    *
    * ⚠️ EMPTY IS A REAL ANSWER, not a missing one. A question can be asked about
-   * something that takes nothing with it -- overwriting a file is the case the
-   * user settled on 2026-08-21 -- and NT-7 asks for names only "where there is
-   * something that goes".
+   * something that takes nothing with it -- table T-227's DI-4 (overwrite) is
+   * that case -- and NT-7 asks for names only "where there is something that
+   * goes".
    */
   readonly items: readonly ConfirmationItem[]
 }
@@ -1852,7 +1852,7 @@ export interface RaisedConfirmation {
 export interface Confirmation extends RaisedConfirmation {
   /**
    * What NT-7 is CALLED, in the display language (FR-038), or the empty string
-   * while the dictionary holds no word for it (PD-160).
+   * while the dictionary holds no word for it.
    *
    * ⭐ THE ONE WORD THAT NAMES THIS SURFACE. U-55 is a row of table T-103, but
    * the `surfaces` section of `display-words.json` holds no heading for it --
@@ -1867,7 +1867,7 @@ export interface Confirmation extends RaisedConfirmation {
   /**
    * NT-7 (MUST): what is about to happen, in words, in the display language
    * (FR-038) -- or the empty string while the dictionary holds no word for the
-   * row (PD-160).
+   * row.
    *
    * ⭐ THE SHOWN HALF OF `question`, the way `Notice.text` is the shown half of
    * `RaisedNotice.reason` -- and named the same, because it is the same thing:
@@ -1896,7 +1896,7 @@ export interface Confirmation extends RaisedConfirmation {
   /**
    * What an item whose `isShownOnAnotherRow` is true is marked WITH, in the
    * display language (FR-038), or the empty string while the dictionary holds
-   * no word for it (PD-160).
+   * no word for it.
    *
    * ⭐ A WORD, NEVER A SHAPE. FR-032 (MUST) asks for the mark, and what it
    * is made of follows: table T-109 is the whole of the icons and RC-13 of
@@ -1957,7 +1957,7 @@ export interface ConfirmationAnswer {
   readonly answer: string
   /**
    * The word on the button, in the display language (FR-038) -- or the empty
-   * string while the dictionary holds no word for the row (PD-160).
+   * string while the dictionary holds no word for the row.
    *
    * ⭐ SPELLED THE SAME IN EVERY DISPLAY LANGUAGE, which NT-7 (MUST) states
    * and (MUST NOT) forbids translating -- translated, the first letter would
@@ -2468,7 +2468,8 @@ export interface ScreenSession {
    * Which of `dualCursor`'s two dates (S-65) is following the pointer, or
    * `null` while table T-029a's mode is not up.
    *
-   * ⭐ HERE BY THE USER'S RULING OF 2026-08-26, and the ruling names this type.
+   * ⭐ HERE BECAUSE `DC-2` OF TABLE T-029a NAMES THIS TYPE, and PI-36 of table
+   * T-064 publishes it under that name.
    * ⛔ IT IS NOT A THIRD KEY OF `documentSettings`, which is the other half of
    * the same ruling: FR-021 round-trips those keys, and which side is following
    * is a passing state of one reading -- DC-8 (MUST NOT) keeps its very mark out
@@ -2583,8 +2584,8 @@ export interface ScreenSession {
    * FR-072 (MUST): what the panel was showing when the selection went away, so
    * that it can go on showing it. `null` while no operation has chosen a subject
    * yet. ⚠️ It is no longer SAID that this is the previous subject: FR-072
-   * (MUST NOT) took the heading row away on 2026-08-27 and its RATIONALE records
-   * that as the price.
+   * (MUST NOT) forbids the heading row, and its RATIONALE records that as the
+   * price.
    *
    * ⭐ THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also requires a second press of
    * the same entry to bring the panel back to what was selected before, so what

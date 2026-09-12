@@ -24,13 +24,11 @@
 //
 // ⭐⭐ WHY THE EXPANDER PAIR IS NOW READ OFF THE DRAWN ROWS AND NOT OFF
 // `TaskGroup.isCollapsed` (AT-56) ALONE. The closing rule under table T-051
-// states it outright since CR-307: 「`HF-2` / `HF-3` / `HF-10` / `HF-11` /
-// `HF-12` が対象とするのは、いま描かれている行である（MUST）。描かれていない行の
-// 畳みを数えてはならない（MUST NOT）」, and FR-029 says the same thing for every
-// entrance at once -- 「その対象を、画面に描かれている側で数えること（MUST）。
-// 描かれていないものの上に残る状態を数えてはならない（MUST NOT）」. A reader
-// judges by the picture, so a control armed by a fold the picture does not hold
-// is a control that answers a press with nothing anyone can see.
+// states it outright since CR-307 (MUST / MUST NOT): `HF-2` / `HF-3` / `HF-10`
+// / `HF-11` / `HF-12` count only a row the picture currently draws, and
+// FR-029 says the same thing for every entrance at once. A reader judges by
+// the picture, so a control armed by a fold the picture does not hold is a
+// control that answers a press with nothing anyone can see.
 // ⛔ NOT A QUESTION ABOUT AT-56 ALONE. What a press WRITES is that column;
 // what the rows above narrow is what a press CHANGES, which is what FR-029 asks.
 // ⚠️ FR-018 AND HF-7 ARE NOT OVERTURNED BY THIS. The zoom still never writes
@@ -192,46 +190,7 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
  * them. The user asked on 2026-08-30 for a pinned row to say so at rest; that
  * needs an exception to HF-6, and the colour question rides on it.
  *
- * @provisional PD-397 -- the whole set of row controls is up for
- * re-organising. ⭐ Measured from the user's own FR-102 record: forty seconds
- * of hovering across all seven, three presses. ⛔ THE PRESSES ALL WORKED --
- * what fails is reading them. ⭐ Four discrepancies were named on 2026-08-30:
- * one shape carrying two meanings, the head's order reversed against the row's,
- * the folding shapes split across three metaphors, and the count changing
- * between 2 and 5 on neighbouring rows.
- *
- * ⭐ HF-14 of table T-051 and HR-8 of table T-015 settle the adding of a row,
- * and table T-109 holds IC-91 for it: the child lands as the LAST child (末子)
- * and is named by the person, with no default name allowed (MUST NOT).
- * ⚠️ WHERE IT LANDS IS NOT THIS UNIT'S ANSWER -- `canAddChildRow` below says
- * only whether the entrance has anything left to do.
- *
- * and nothing here REORDERS one either. Table T-023d is
- * the full count of what can be grabbed and holds no row for a row of this
- * panel, so a drag would need a row of its own; two arrows would need two more
- * controls and could not change depth at all.
- *
- * and nothing here HIDES a row either, which is the
- * third such hole. HR-6 states the hiding, AT-57 holds `TaskGroup.isHidden`,
- * HF-13 of table T-051 is the way back (HR-7 pressed on the parent) and UN-14
- * counts the change among what undo covers -- and AT-57's own note says the
- * entrance HR-6 has is the one that RESTORES.
- *
- * and how the folded state is HELD is not settled. ⛔
- * Measured in the prototype that day: folding a row without folding its subtree
- * left every descendant reading 「開いている」, invisible only because an
- * ancestor was, so restoring the ancestor opened every level at once. The
- * invariant proposed is that a folded row's descendants are folded too.
- *
- * and whether the panel head's 「すべて畳む」 folds L1
- * with everything else. Table T-015 pairs HR-1/HR-3 and HR-2/HR-4 by SCOPE, so
- * the head is level 0; folding L1 too makes its four entrances read exactly as
- * a row's, at the cost of a panel that can stand empty.
- *
- * and the folding shapes do not read as one family.
- * Table T-015 already pairs them by SCOPE (HR-1/HR-3, HR-2/HR-4), so the panel
- * head is level 0; figure F-019 draws that pair as `+` and `>`, which share
- * nothing. ⛔ The shapes are the user's ruling to make, not this file's.
+ * @provisional PD-397
  */
 
 /**
@@ -402,7 +361,7 @@ function rowDepth(
  * 2026-08-30, taken after watching a press write the document and leave the
  * frame byte-identical.
  * ⭐ ONE TEST ANSWERS HR-1a, HR-6 AND THE DISPLAY AMOUNT AT ONCE: the question
- * is not who put the row away but whether the picture holds it (PD-319).
+ * is not who put the row away but whether the picture holds it.
  *
  * ⚠️ `RowExpander` in screen-renderer.ts still spells `canOpen` as "there is a
  * level below that is not open" and `canClose` as "something below is open",

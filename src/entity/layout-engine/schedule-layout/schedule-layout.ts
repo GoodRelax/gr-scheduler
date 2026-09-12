@@ -1190,10 +1190,9 @@ function actualSpanOf(
  * How wide FR-043's mark is: one day's width or `S-180`, whichever is the
  * smaller -- which is the hold as well as the ink.
  *
- * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THE HOLD (MUST, 利用者の裁定 2026-09-09):
- * 「本並びで数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること
- * （MUST）。描いた印の幅で数えてはならない（MUST NOT）」 -- and for these three
- * rows the two are now ONE width, which the same row says in as many words:
+ * ⭐⭐ THE ORDER OF TABLE T-038 COUNTS THE HOLD (MUST, 利用者の裁定 2026-09-09) --
+ * and for these three rows the two are now ONE width, which the same row says
+ * in as many words:
  * 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
  *
  * ⚠️ Because the ink is 「1 日ぶんと `S-180` の小さい方」, this width MOVES WITH
@@ -1234,8 +1233,8 @@ function finiteOrNull(reach: number): number | null {
  * is drawn, so that a `Math.max` against it is the whole of the test.
  *
  * ⭐⭐ THE INK IS THE HOLD AS OF 2026-09-10 (MUST), which is the closing rule of
- * table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた
- * 印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」.
+ * table T-023d: `GR-9` / `GR-17` / `GR-18`'s hit test is the mark `FR-043`
+ * drew, never widened past it (MUST NOT).
  * ⭐ Table T-038's order counts this same number -- the hold and not the drawn
  * mark -- and for this row the two are one width, the distinction gone.
  *
@@ -1281,9 +1280,9 @@ function dummyReachOf(
  * measured from whatever the marker hangs off.
  *
  * ⛔⛔ HELD CLEAR WHETHER OR NOT THE TWO ARE DRAWN, which is table T-038's own
- * MUST: 「名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
- * 同じ位置とすること（MUST）。`OC-3` / `OC-4` のぶんの場所は、描かないときも
- * 空けること（MUST）。描いたときだけ空けてはならない（MUST NOT）」.
+ * MUST: the name label's left edge sits at the same place, and the room for
+ * `OC-3` / `OC-4` stays reserved, whether or not either is drawn (MUST NOT
+ * space it only when drawn).
  * ⭐ WHY. `OC-1` IS counted in the occupied width and `OC-3` / `OC-4` are
  * forbidden from it, so that flipping ONE switch -- S-63, which holds both --
  * cannot move a Task. Put the name label outside the marker and let it slide
@@ -1548,9 +1547,9 @@ export function layoutFromSchedule(
       // ---- table T-038's order: what the name label has to clear ----------
       // The order is OC-2, then FR-043's bar and dummy, then OC-3, then OC-1
       // (MUST), and the four may not overlap (MUST NOT).
-      // ⛔ THE RESUME ICON IS NOT ONE OF THE FOUR: 「再開アイコン（OC-4）は本
-      // 並びに従わないこと（MUST NOT）。立てる場所は 表 T-221 の LF-11 が定める
-      // 日付位置（resume の日）とすること（MUST）」. ⭐ Its room is still held
+      // ⛔ THE RESUME ICON IS NOT ONE OF THE FOUR (FR-043, MUST NOT): its place
+      // is fixed by table T-221's LF-11, the resume day (MUST), not by this
+      // order. ⭐ Its room is still held
       // clear in the order below (`markRoomOf`) -- the paragraph after the
       // order requires that even though nothing is drawn in it.
       // ⭐ The marker does not hang off the plan bar: `markerAnchorX` in
@@ -1590,8 +1589,8 @@ export function layoutFromSchedule(
       // display toggle is flipped.
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
       // ---- LC-7: OC-2 is the pair of labels that jut out to the LEFT -------
-      // ⭐ THIS ROW IS THE ONE THAT SAYS 「表示しているときだけ算入すること
-      // （MUST）。非表示のときは算入してはならない（MUST NOT）」, so S-60 and
+      // ⭐ THIS ROW IS THE ONE THAT COUNTS THEM ONLY WHILE SHOWN (MUST / MUST
+      // NOT), so S-60 and
       // S-61 are read HERE and the width is nothing at all while they are off.
       // ⚠️ AS-2 makes the empty Task a label too -- a `-` is drawn and is
       // therefore counted, which FR-059's RATIONALE states in as many words.
@@ -1638,8 +1637,8 @@ export function layoutFromSchedule(
       }
       if (lane < 0) {
         // ---- ST-7: the safety valve, and it STOPS rather than throwing ------
-        // ⭐⭐ 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知
-        // すること（MUST）。例外を投げてはならない（MUST NOT）」. ⛔ THE STOP IS
+        // ⭐⭐ ST-7 (MUST) has this stop with a value the caller can tell apart
+        // from success, and (MUST NOT) forbids throwing one. ⛔ THE STOP IS
         // TAKEN BEFORE THIS ROW IS PLACED, which is what 「そこで」 asks for: the
         // row's `placements` and its `RowPlacement` are pushed further down, so
         // breaking here leaves the offending row -- and every row after it --
@@ -1844,8 +1843,8 @@ export function layoutFromSchedule(
  * remainder then begins one `rowGap` below the band.
  *
  * ⭐⭐ WHAT HAPPENS WHEN THE PINS DO NOT FIT (利用者の裁定 2026-09-06, CR-363).
- * FR-098 states 「ピン止めした行が画面に収まらないときは、入りきらない行を描かない
- * こと（MUST）。帯を縦にスクロールできるようにしてはならない（MUST NOT）」 —— so the
+ * FR-098 (MUST) refuses to draw a pinned row that does not fit, and (MUST
+ * NOT) forbids scrolling the band vertically to make room -- so the
  * band stops at the `Row Area`'s bottom edge and a pin that does not fit inside
  * it is dropped from the picture. ⛔ THE PERSON RECOVERS BY UNPINNING and is
  * told nothing: 「通知は出さない（同裁定）—— 表 T-233 に行を足さない」.
@@ -1876,12 +1875,12 @@ export function layoutFromSchedule(
  * edge narrows the breach but does not close it -- a band whose last row ends
  * within one `rowGap` of that edge still leaves a remainder of zero or less.
  * ⛔ A height to reserve is NOT invented here; it would be a number the
- * specification does not hold, and PD-396's 「数で切る案」 was not the one taken.
+ * specification does not hold.
  *
  * ⛔ ONE MORE SENTENCE OF FR-098 NOW CONTRADICTS THE RULING AND IS NOT OBEYED
- * HERE. 「ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（`HR-1a`）と、
- * 隠した行の配下にあるとき（`HR-6`）に限ること（MUST）。それ以外の理由で描くのを
- * やめてはならない（MUST NOT）」 admits no third reason, and 「入りきらない」 is a
+ * HERE. That sentence (MUST) limits a pinned row's absence to two causes --
+ * folded under `HR-1a` or hidden under `HR-6` -- and (MUST NOT) forbids any
+ * other reason; 「入りきらない」 is a
  * third reason. ⭐ The 2026-09-06 ruling is the later and the more specific of
  * the two, and CR-363 exists to overturn a MUST, so it is what is built. ⚠️ The
  * older sentence is a manuscript defect to be reported, not one to be settled
@@ -2454,22 +2453,23 @@ export function fitZoom(
 
 /**
  * Where the rows stand at a zoom nobody is drawing yet -- the member FR-016
- * (MUST) asks table T-064's `PI-5` for: 「その倍率での行の位置を答えるメンバを、
- * 表 T-064 の `PI-5` に置くこと（MUST）。」
+ * (MUST) asks table T-064's `PI-5` for, and this is that member.
  *
  * ⭐⭐ WHY IT CANNOT BE ARITHMETIC IN THE CALLER, which is the whole reason the
  * name exists. The same requirement (MUST NOT): 「行の軸は `zoomY` に対して線形
- * ではない」 ... 「倍率から位置を算で求めてはならない（MUST NOT）。」 Four things
- * move under a zoom and none of them is a scale factor -- FR-094's floor holds
- * the bands still below it, LF-3 puts a second floor under them, table T-014's
- * lanes decide how many bands are stacked, and FR-018 changes WHICH rows are
- * drawn at all. ⛔ An Adapter that multiplied a y by a ratio would be inventing
- * the answer, and 表 T-070's `MN-6` forbids it laying out for itself besides.
+ * ではない」 -- and forbids deriving the position from the ratio by arithmetic.
+ * Four things move under a zoom and none of them is a scale factor -- FR-094's
+ * floor holds the bands still below it, LF-3 puts a second floor under them,
+ * table T-014's lanes decide how many bands are stacked, and FR-018 changes
+ * WHICH rows are drawn at all. ⛔ An Adapter that multiplied a y by a ratio
+ * would be inventing the answer, and 表 T-070の `MN-6` forbids it laying out
+ * for itself besides.
  *
  * ⭐⭐ THE SECOND RUN IS WHAT TABLE T-068 NOW ALLOWS, and only here. The rule
  * printed after that table (MUST): 「どちらも `layoutEngine`（`CP-5`）の中でのみ
- * 走らせること（MUST）」 -- 「行の高さと縦位置を決める `LC-9` は本表の中にあるので、
- * 候補の倍率での行の位置は本表をもう 1 度走らせることでしか得られない。」 So the
+ * 走らせること（MUST）」 -- because LC-9, which settles a row's height and
+ * vertical position, lives inside this same table, so a candidate zoom's row
+ * positions can only be had by running it a second time. So the
  * run happens inside this unit, exactly as `fitZoom` above does its own, and
  * what leaves is places rather than a layout.
  *

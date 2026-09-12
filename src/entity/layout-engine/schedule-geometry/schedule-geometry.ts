@@ -442,7 +442,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
  * point 2 through `clampedFade`, so calling the same function here keeps FD-6
  * and FD-6b from drifting between the drawn vertex and the □ that marks it.
  * ⭐ `item-hit-area.ts` reads these very points, so the grab follows the
- * drawing without a second edit -- the property PD-191's note already leans on.
+ * drawing without a second edit.
  *
  * ⚠️ ON THE TIME AXIS, NEVER ON A CHEVRON'S DRAWN NOTCH VERTEX. Table T-023d's
  * closing rule takes the days from the day under the pointer and says the grab
@@ -1562,7 +1562,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // FR-075 gives is that handles left out at all times put a row of dots on
     // tasks that use no fade -- selecting one is what asks for them.
     //
-    // ⛔ NOT ALSO GATED ON THE TASK ALREADY HOLDING A FADE DAY (PD-191): a Task
+    // ⛔ NOT ALSO GATED ON THE TASK ALREADY HOLDING A FADE DAY: a Task
     // with no fade yet would have nothing to drag, so a fade could never be
     // CREATED -- and FR-075 hands the author these two points to set the days.
     //
@@ -1719,14 +1719,14 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
  * Full-width counts two, half-width counts one. FR-093 forbids measuring the
  * glyphs (MUST NOT) and forbids keeping what a measurement returned (MUST NOT).
  *
- * ⚠️ THE THIRD COPY of this two-line rule. `schedule-layout.ts` holds one for
- * LC-5 and `row-title-panel.ts` holds the other for FR-085, and that one's note
- * gives the reason: one rule must keep one answer.
+ * ⚠️ This two-line rule also lives in `schedule-layout.ts` (LC-5) and
+ * `row-title-panel.ts` (FR-085); that one's note gives the reason: one rule
+ * must keep one answer.
  * ⛔ Not imported. Neither copy is on its component's published member list in
  * table T-064 -- PI-5 does not publish `labelUnits` -- and Chapter 5.3 forbids
  * reaching past a folder's public entry, so importing it would mean widening a
  * published table for two lines. Rule 03's DRY points the other way; the copy
- * is the smaller wrong, and a fourth would mean the rule has earned a home.
+ * is the smaller wrong.
  *
  * @purity pure
  */
@@ -1908,7 +1908,7 @@ function dualCursorGeometry(
  * grab points on the selected Task alone, and the hit test can only be as
  * narrow as what this file emitted -- so a caller that forgot to say what is
  * selected would hand `itemAtPointer` a GR-1 on every Task, which is the very
- * occlusion PD-191 was raised for. ⭐ A caller that draws no selection says so
+ * occlusion this file was written to keep out. ⭐ A caller that draws no selection says so
  * with `emptySelection()`: the export does exactly that, because EP-12 of
  * table T-076 keeps the selection out of an exported picture.
  *

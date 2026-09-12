@@ -160,7 +160,7 @@ const SETTINGS_WORDS_BY_KEY = new Map(
   ),
 )
 
-/** What an entry says while the dictionary holds no word for its row (PD-160). */
+/** What an entry says while the dictionary holds no word for its row. */
 const NO_ENTRY_WORDS = ''
 
 /**
@@ -168,7 +168,7 @@ const NO_ENTRY_WORDS = ''
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those two
  * read "the dictionary holds no word yet" and "the word is the empty string" as
- * one thing, and PD-160 is precisely the difference: an empty cell means the
+ * one thing, and that gap is precisely the difference: an empty cell means the
  * word has not been settled, which is not an instruction to print nothing.
  * ⚠️ The cell is written today, so this stands in for nothing.
  *
@@ -184,7 +184,7 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * The name one row of table T-016 shows, in the display language (FR-038).
  *
  * ⛔ THE COLUMN NAME IS NOT THE FALLBACK. `entryLabel` reads an unwritten cell
- * as 「not settled yet」 (PD-160) and so does this: falling back to the column
+ * as 「not settled yet」 and so does this: falling back to the column
  * would put the very string this split exists to keep off the screen back on
  * it, and it would do so silently -- a row whose word nobody wrote would look
  * finished. ⚠️ Every row is written today, so this stands in for nothing.
@@ -486,7 +486,7 @@ const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}
  * in FR-006, in table T-016 and in `_assets/tbl-settings.md`; none of them says
  * whether the row a settings key points at may be shown by its NAME, and
  * resolving one would be a rule invented here. Chose nothing, which is what
- * this file prints everywhere a word is unsettled (PD-160) -- and it is the one
+ * this file prints everywhere a word is unsettled -- and it is the one
  * choice the MUST NOT above certainly allows.
  *
  * @purity pure
@@ -1461,7 +1461,7 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
  * table T-104. ⛔ A name written here would settle six names the glossary has
  * not settled, which is the very thing table T-109's refusal of an English
  * column protects; the row is drawn with its value and no name, the same thing
- * an unwritten dictionary cell says everywhere else in this file (PD-160).
+ * an unwritten dictionary cell says everywhere else in this file.
  * ⚠️ Eight rows go the other way and are never shown, having no settings key:
  * `themeHue`, `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`,
  * `planActualGuideColor`, `watermarkOpacity`, `language`.
