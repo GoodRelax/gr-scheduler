@@ -68,18 +68,18 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
-| 門 | **30** | `.claude/skills/spec-graph-check/` に 26、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
+| 門 | **31** | `.claude/skills/spec-graph-check/` に 27、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
 | 生成器 | **17** | `tools/` に 12、`docs/spec/_source/` に 5 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **11** | `.claude/skills/spec-graph-check/` に 8、`tools/` に 1、`tools/probe/` に 1、`tools/parity/` に 1 |
 | 部品・走者 | **5** | `.claude/skills/spec-graph-check/` に 4、`tools/` に 1 |
-| **合計** | **67** | `.py` 63 ＋ `.sh` 1 ＋ `.mjs` 3 |
+| **合計** | **68** | `.py` 64 ＋ `.sh` 1 ＋ `.mjs` 3 |
 
 ⚠️ **`.mjs` 3 本は前の巡の数え（62 本）から漏れていた。** ⛔ **目録は拡張子で数えるな。**
 
 ---
 
-## 4. 門 —— 赤にする道具（30 本）
+## 4. 門 —— 赤にする道具（31 本）
 
 | 検査 | 道具 | 何を赤にするか | ⛔ 何が見えないか | 呼ぶ人 | 基準 |
 |---|---|---|---|---|---|
@@ -113,6 +113,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 49 | `check-render.py` | scratch/spec-html-probe/html/spec/*.html に素の `**…**`（`<code>` の外）が残っている、または原稿の `**表 T-nnn —`／`**図 F-nnn —` の表題が HTML に届いていないと `RESULT: FAIL` と印字する。 | 比べるのは表題と太字だけで、列を失った表も、段が変わった見出しも、切れた link も素通りする。⛔ 表題の照合は 01-04-requirements と 05-07-design の 2 本だけで、08-10-test と A-appendix は素の ** しか見ず、_assets の 3 本はどちらの走査にも入らない。素の ** は 1〜80 字で改行を含まない走りだけを数える。⚠️ export が今の原稿のものかも見ない —— check.sh は直前に export し直すが、人が手で走らせるときは自分で確かめること。 | `npm run render:check`／`check.sh` | — |
 | 50 | `check-press-row-ids.py` | 表 T-023a の行 ID の集合と、`input-command-translator.ts` の `export type PressRow` の値の集合が食い違うか。⛔ **仕様の行が型の値である**のに、実測 2026-09-13 で `grep -rn PressRow tools/ .claude/` が **0 件**だった —— 結ぶ機械が無く、しかもこの文字列は製品の外へ出ないので**押しても分からない**。⭐ CR-371 の改名（`PD-` → `PTD-`）の**前に、緑のまま入れた** —— 後から入れると「赤にならない改名」を 1 度通してしまう。⚠️ 比べるのは**集合だけ**で、順は原稿の持ち分（試験が見る）|
 | 51 | `check-pd-prefix-gone.py` | git が追う全ファイルで、`PD-` のあとに数字が続く綴り（大文字小文字を問わない）が 1 つでも在ると赤。⭐⭐ **除外を毎回刷る** —— 木 2 つ・ファイル 7 つ・行 4 つを、それぞれの理由と一緒に名指しで出す —— **黙って腐るのは数ではなく、誰も読まない除外だからである**。⚠️ 初回の走行で**検査 50 の docstring を自分で捕まえた** | 素の `PD`（数字が続かない綴り）は見ない —— 英文の散文にも立ち、門にすると正しい文で赤になる。`PTD-` と `PND-` のどちらが正しいかも見ない（検査 50 と 25 の持ち分） | `check.sh` | — |
+| 52 | `check-device-route-row-ids.py` | 表 T-007（機器）・表 T-008（経路）の行 ID と、`tests/` が**値として**持つ ID（`T_008_R9` の写し取りと、実行時に原稿を読む `specTable(...).id === ...`）が食い違うか。⭐ CR（`D-` `R-` の廃止）の**前に、緑のまま入れた** —— 検査 50 と同じ理由。⚠️ 初回の走行で**書いた者の誤りを先に捕まえた**（経路の `from` は自表でなく表 T-007 の機器である） | 値だけで、コメントは見ない（検査 42/44 の持ち分）。写し取った他の欄が行の言うことと合うかも見ない（検査 37 の軸） | `check.sh` | — |
 | — | `check.mjs` | サンプル(previous-project-result/11-row-controls/row-controls-sample.html)と dist/index.html の両方に同じ 75 手を打ち、1 手ごとに rows / counts / arming / pinned の 4 読みを比べて、KNOWN_DIVERGENCES(仕様が勝つ差)にも KNOWN_DEFECTS(開いている不具合)にも載っていない食い違い、押せなかった手、盤が組み上がらないこと、名前が省略されたまま比べられないこと、そして『もう落ちなくなった KNOWN_DEFECTS の行』を赤にする。 | 問えるのは行操作の 4 読みだけで、サンプルが持たないもの —— タスクバー、スケジュール画布、透かし —— は原理的に比べられず、S-127(pinnedRowMax=5)のピン上限も『読み単位でしか効かない除外では表せない』として意図的に問わない(最大 4 本まで)。さらに比べる相手は `file://` で開いた dist/index.html なので、ビルドし直していなければ古い成果物を測る。 | `npm run parity` | — |
 
 ---
@@ -187,7 +188,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 道具 | 何を提供するか | ⛔ 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
-| `check.sh` | 番号付き検査 48 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 16 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 落ちた検査の名前が終わりに残らない —— 終端は `FAILURES ABOVE` の 1 行だけで、どれが赤かは見出しまで遡らないと分からず、走行そのものの記録もファイルに残らない(stdout だけ。残るのは scratch/spec-check/dup-report.txt と sd-out の export 木)。番号付き 46 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
+| `check.sh` | 番号付き検査 49 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 16 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 落ちた検査の名前が終わりに残らない —— 終端は `FAILURES ABOVE` の 1 行だけで、どれが赤かは見出しまで遡らないと分からず、走行そのものの記録もファイルに残らない(stdout だけ。残るのは scratch/spec-check/dup-report.txt と sd-out の export 木)。番号付き 46 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
 | `ledger_quotes.py` | 台帳の 1 セルから引用（「」『』とコードスパン）と「⚠️ 実測（日付）…」で始まる記録の文を取り除き、そのセルが今日について自分の声で言っていることだけを返す（outside_quotation / outside_record / spoken_now / asserts_any）。 | 引用かどうかの判断は区切り記号だけなので、括弧を閉じ忘れたセルは丸ごと素通りし、括弧を使わない引用は引用と見なされない。記録の印は「⚠️ 実測（YYYY-MM-DD」という 1 つの綴りに固定で、全角括弧の無い「実測 2026-09-07」も、⭐ や ⛔ で始まる記録も記録として扱わない。文の切れ目は 。と ⭐ ⛔ ⇒ ⚠️ の 4 つだけなので、1 文の中に記録と現在の主張が混ざっているとどちらか一方しか正しく扱えない。 | 2 本が import |
 | `retired.py` | 意図して退役させた仕様 ID の集合 RETIRED（1 つの set リテラル）と、各エントリの「何が・いつ・誰の裁定で抜け、どの文書がまだ名指しているか」の理由を提供する。 | ただの set リテラルなので、中の ID が本当に退役済みかを検証するものは何も無い —— 席を 1 つ足せば、その ID への参照は検査 7 でも list-asserted-claims でも永久に黙る。表を booking しても表の中の行は booking しない（T-006 は在るが E-1..E-6 は意図的に不在）ので、退役した表の行への参照は「未定義」として出続ける。「まだ何かが名指している ID」だけを持つ設計なので、退役の全数ではない。 | 4 本が import |
 | `spec_tables.py` | docs/spec下のMarkdown表を、キャプション（**表 T-nnn —**）から次のキャプション・章見出し・ファイル末尾までの範囲として解析し、行を見出し名でセルアクセスできるRow/Tableオブジェクトとして返す共有リーダーを提供する。generate_display_words.py・generate_exchange_formats.py・generate_help_roster.py・generate_icon_glyphs.py・generate_icon_roster.py・generate_unit_tree.pyの6本がimportしている。 | 見出し形状が最初のpipeブロックと異なる2番目以降のブロックは『aside』として数えるだけで、本来ロスターに含まれるべき行がasideに誤分類されても、このリーダー自身は『本当はロスターの一部だったのに漏れている』ことまでは判定しない（コード自身が『counted, not dropped in silence』とだけ述べ、正誤の判定はしないと認めている）。 | 6 本が import |

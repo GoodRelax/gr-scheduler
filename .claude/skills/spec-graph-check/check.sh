@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 48 mechanical checks for the gr-scheduler specification.
+# All 49 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -33,6 +33,9 @@
 # 1 + 4 + 8 + 4 + 31. 46, 47, 48, 49, 50 and 51 have no entry in the index
 # below; the index is for the checks a session reads first, and these six are
 # read from their own docstrings.
+# ⭐ Recounted 2026-09-13 again when check 52 was added: 48 -> 49. The ranges
+# are 1 + 4 + 8 + 4 + 32. ⚠️ Counted BEFORE the heading went in, which is the
+# order the failures above kept getting wrong.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -530,6 +533,15 @@ echo "===== 51  the PD- prefix, followed by a number, is gone ====="
 # count -- it is an exclusion nobody reads. ⚠️ It caught check 50's own
 # docstring on its first run; that line is now on the list, by name.
 PYTHONIOENCODING=utf-8 python "$HERE/check-pd-prefix-gone.py" || fail=1
+
+echo "===== 52  表 T-007 / T-008 and the row ids the tests hold as values ====="
+# ⛔ Wired in 2026-09-13, BEFORE the CR that abolishes `D-` and `R-`, and
+# green on arrival -- the same reason check 50 went in before 表 T-023a moved.
+# Two tests transcribe 表 T-008 into a fixture and a third reads the manuscript
+# at run time and matches on the id, so a one-sided rename either reddens them
+# or, worse, leaves `find` returning undefined. ⭐ Measured the day it went in:
+# putting one fixture's id to `CHN-9` turns it red and names both halves.
+PYTHONIOENCODING=utf-8 python "$HERE/check-device-route-row-ids.py" || fail=1
 
 
 echo ""
