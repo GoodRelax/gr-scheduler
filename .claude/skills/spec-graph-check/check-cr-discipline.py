@@ -44,7 +44,10 @@ CRS = os.path.join(ROOT, 'change-request')
 CR_FROM = 175
 
 # Rule ①: which challenge or goal does this advance?
-CHALLENGE = re.compile(r'`?(CH-[1-5]|GL-00[1-7])`?')
+# ⚠️ CR-372 widened both: 表 T-054 gained CH-6 (it receives GL-007, which
+# no challenge had received) and 1.3 gained GL-008. ⛔ Leaving the old range
+# would read a change request that names GL-008 as naming nothing at all.
+CHALLENGE = re.compile(r'`?(CH-[1-6]|GL-00[1-8])`?')
 # Rule ②: which clauses of the review standard were held against it?
 # ⛔ R1 WAS OUT OF THIS RANGE UNTIL 2026-09-06 and nothing said why. It is a
 # real group -- docs/development-rules/07-review-standards.md opens with

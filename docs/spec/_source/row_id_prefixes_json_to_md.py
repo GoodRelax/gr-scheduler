@@ -407,6 +407,9 @@ def build(doc, rosters, suppressed):
         '> ⛔ 本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。',
         '> **行 ID の接頭辞の唯一の正は `_source/row-id-prefixes.json` である。**'
         ' 本書はそれを `_source/row_id_prefixes_json_to_md.py` が印字したものである。',
+        '> ⚠️ **行数は登録簿の中に無い** —— `docs/spec`、`docs/development-records`、`docs/development-rules` の'
+        ' 3 つの木を毎回歩いて数えるので、'
+        '**`01-04-requirements.md` など原稿が動けば本書も動く。**',
         '> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
         '',
         '本書は表の行 ID の接頭辞の全数である。'
