@@ -120,7 +120,7 @@ const AGENT_API_ENTRY: IconId = 'IC-20'
  * What an entry says while the dictionary holds no word for its row.
  *
  * ⛔ NOT "PRINT NOTHING". An empty cell of `display-words.json` says that no
- * word has been SETTLED for that row yet (PD-160) -- which is true of all 176
+ * word has been SETTLED for that row yet -- which is true of all 176
  * of them today -- and this is exactly what UF-62 printed before the dictionary
  * was wired, so opening the road moved nothing on the screen.
  * ⚠️ Here the stand-in and an unwritten word are the same string, and that is a
@@ -160,7 +160,7 @@ const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, ent
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * thing: an empty cell is UNSETTLED, not
  * an instruction to print nothing. The day a word is written this line stops
  * standing in without being edited.
  * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
@@ -452,7 +452,7 @@ export function appHeaderItemsFromDocument(
     fileSavedAt: session.fileSavedAt,
     // FR-101 (MUST): 「時刻の代わりにその旨を示すこと」. The word is the
     // dictionary's, in the language the session is on (FR-038).
-    // ⚠️ An unwritten word arrives as the empty string (PD-160), which is what
+    // ⚠️ An unwritten word arrives as the empty string, which is what
     // every other reader of this dictionary treats as "no word yet".
     fileNeverSavedText:
       FILE_STATUS_BY_STATE.get('neverSaved')?.text[session.language] ?? '',

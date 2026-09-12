@@ -272,7 +272,7 @@ const DISMISS_KEY_NOTICE_SEPARATOR = '+'
  * What an entry says while the dictionary holds no word for it.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
- * has been SETTLED yet, which is what PD-160 records.
+ * has been SETTLED yet.
  */
 const NO_WORDS = ''
 
@@ -286,8 +286,7 @@ const NO_WORDS = ''
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
  * reason `open-modals.ts` gives at the same line: those read "the dictionary
- * holds no word yet" and "the word is the empty string" as one thing, and
- * PD-160 is precisely the difference.
+ * holds no word yet" and "the word is the empty string" as one thing.
  *
  * @purity pure
  */
@@ -327,8 +326,8 @@ function mannerText(manner: string, language: DisplayLanguage): string {
  *
  * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
  * for the reason `answerText` gives above: a row the dictionary does not hold
- * at all and a cell it holds empty are different things, and PD-160 is precisely
- * that difference. ⚠️ Neither can happen while `npm run gen:check` passes -- the
+ * at all and a cell it holds empty are different things.
+ * ⚠️ Neither can happen while `npm run gen:check` passes -- the
  * generator builds its roster from table T-233 every run and every cell of it is
  * written -- so what both branches guard is a generated file edited by hand.
  *
@@ -371,8 +370,8 @@ function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage)
  *
  * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
  * for the reason `reasonCell` gives just above: a row the dictionary does not
- * hold at all and a cell it holds empty are different things, and PD-160 is
- * precisely that difference. ⚠️ Neither can happen while `npm run gen:check`
+ * hold at all and a cell it holds empty are different things.
+ * ⚠️ Neither can happen while `npm run gen:check`
  * passes -- the generator builds its roster from table T-234 every run -- so
  * what both branches guard is a generated file edited by hand.
  *
@@ -420,8 +419,7 @@ function questionText(question: string, language: DisplayLanguage): string {
  *
  * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
  * for the reason `answerText` gives just above: those read "the dictionary
- * holds no word yet" and "the word is the empty string" as one thing, and
- * PD-160 is precisely the difference. ⚠️ No substitute is invented for the empty
+ * holds no word yet" and "the word is the empty string" as one thing.
  * case -- U-55 is a surface of words and there is nothing else here to say.
  *
  * @purity pure
@@ -565,7 +563,7 @@ const GATHERED_TEXT_SEPARATOR = '\n'
  * reason to.
  *
  * ⛔ NOT "NOTHING CAN BE DONE". It says that no next step has been SETTLED yet,
- * which is the same thing an empty cell of `display-words.json` says (PD-160).
+ * which is the same thing an empty cell of `display-words.json` says.
  * ⚠️ Out of reach while `npm run gen:check` passes: every row of table T-233 is
  * written, and a reason outside that table falls to one of them.
  */
@@ -605,7 +603,7 @@ function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
     // ⛔ A step that is no word is not listed at all: an entry holding the empty
     // string would draw a place for a step with nothing in it, which tells a
     // reader no more than the bare failure NT-3a (MUST NOT) refuses. ⚠️ Told
-    // apart from a step that IS a word, never merged with it (PD-160).
+    // apart from a step that IS a word, never merged with it.
     nextSteps: nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep],
     affectedCount: raised.affectedCount,
     // NT-8 (MUST): every told notice can be put away where it stands, so the

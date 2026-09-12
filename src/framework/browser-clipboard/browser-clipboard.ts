@@ -40,8 +40,7 @@
 // EZ-4 says to stay close to. ⚠️ What it costs: an app that only understands
 // images gets markup and shows it as such. ⛔ Closing the gap means a new
 // variant on `ClipboardContent` and a new component edge -- the declaring
-// side's decision, not this one's. Recorded as PD-120, class E; nothing is
-// implemented on it here.
+// side's decision, not this one's; nothing is implemented on it here.
 //
 // ⛔ WHAT WAS HARD (2): THE PERMISSION AND THE GESTURE ARE THE CALLER'S. The
 // browser settles both after the call is made and reports a denied permission,

@@ -503,8 +503,8 @@ function embeddedStartupDocument(): {
   // `getElementById`. The escape is here because THIS is the only consumer of
   // the id that builds a CSS selector out of it: a CSS identifier may not begin
   // with a digit, and `#2024-plan` is a parse error that throws rather than
-  // returning nothing. The writing side (`embedded-html-codec.ts`,
-  // PD-71 -- settled) refuses only the characters that would BREAK A START TAG
+  // returning nothing. The writing side (`embedded-html-codec.ts`) refuses
+  // only the characters that would BREAK A START TAG
   // -- whitespace, quotes, `<`, `>`, `&` -- and lets a leading digit, `.` and
   // `:` through, precisely because the reader's side takes care of the CSS
   // grammar here. ⛔ Do not "simplify" this to `getElementById`: that returns
@@ -626,7 +626,7 @@ function measuredScrollbarThickness(): number {
  * no path settles a new display language yet -- `input-command-translator.ts`
  * records IC-21's press among the entries it cannot answer for. So a first run
  * follows the host, and a later run will follow the person only once that path
- * exists (PD-173).
+ * exists.
  *
  * @purity semi-pure-b
  */

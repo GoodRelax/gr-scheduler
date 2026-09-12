@@ -289,7 +289,7 @@ function exportFormatChoices(
  * What an entry or a heading says while the dictionary holds no word for it.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
- * has been SETTLED yet (PD-160), which is a different thing from a settled word
+ * has been SETTLED yet, which is a different thing from a settled word
  * that happens to be empty.
  * ⚠️ NOTHING FALLS BACK TO IT TODAY -- the manuscript is filled and no cell the
  * sections below are keyed on is empty. It stays because a row added to table
@@ -305,7 +305,7 @@ const NO_WORDS = ''
 // T-109 and headings by the settled name of the surface, which are the two joins
 // the specification admits -- so nothing here is minted. ⭐ The manuscript is
 // filled, so the words this unit reads reach the screen and the stand-in below
-// no longer answers for any of them (PD-160 is settled). Reading `displayWords`
+// no longer answers for any of them. Reading `displayWords`
 // no more makes this unit `semi-pure-a` than reading `iconRoster` does: both are
 // module constants compiled into the program, not state read while running.
 // Table T-075 fixes UF-66 as `pure`.
@@ -336,7 +336,7 @@ const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * thing: an empty cell is UNSETTLED, not
  * an instruction to print nothing. ⭐ The words are written now, so this line
  * hands the dictionary's own word on and stands in for nothing -- which is what
  * it did the day they were written, with no edit here.
@@ -397,8 +397,8 @@ const HELP_WORDS_BY_ROW = new Map(
  * two stores are not merged: an entry's `label` is what its entrance says, and
  * a row of table T-023d has no entrance at all.
  *
- * ⛔ A ROW WHOSE WORD IS UNWRITTEN SHOWS NOTHING RATHER THAN ITS ROW ID, the
- * reading PD-160 fixes for every other surface. ⚠️ Every row is written today.
+ * ⛔ A ROW WHOSE WORD IS UNWRITTEN SHOWS NOTHING RATHER THAN ITS ROW ID.
+ * ⚠️ Every row is written today.
  *
  * @purity pure
  */
@@ -422,12 +422,11 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
 
 /**
  * What one row of table T-234 says, in the display language (FR-038), or the
- * stand-in while the dictionary holds no word for it (PD-160).
+ * stand-in while the dictionary holds no word for it.
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
  * reason `entryLabel` gives above: those read 「the dictionary holds no word
- * yet」 and 「the word is the empty string」 as one thing, and PD-160 is
- * precisely the difference.
+ * yet」 and 「the word is the empty string」 as one thing.
  * ⛔ AND NEVER THE ROW ID IN ITS PLACE. Printing it would put on the screen a
  * string FR-038 (MUST) does not hold, the same in both display languages.
  * ⚠️ NO FALL-BACK ROW IS TAKEN HERE, where `notices.ts` takes QN-8: this unit
@@ -738,7 +737,7 @@ export function openModalFromScreenState(
   // of code, model and output, and a description is what goes into an export
   // (table T-076) -- so the comparing is the shell's and nothing about it
   // reaches this side.
-  // ⚠️ `heading` IS EMPTY TODAY AND THAT IS PD-160 AND NOT A FAULT. Table T-103
+  // ⚠️ `heading` IS EMPTY TODAY AND NOT A FAULT. Table T-103
   // names U-60 and the `surfaces` section of the dictionary holds no heading for
   // it, exactly as it holds none for U-55 -- ⛔ and one written here would be
   // the second store of translated words FR-038 forbids (MUST NOT).

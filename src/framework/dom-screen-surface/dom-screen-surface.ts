@@ -38,49 +38,44 @@
 //      `onAppHeaderHeightPx` BEFORE that factory returns -- so a caller that
 //      wires this unit up first has the number BO-1 asks for before it computes
 //      one `ScreenRegions`. ⛔ Nothing is SHOWN then: the root carries
-//      `visibility:hidden` until the first `showScreenView`, which is BO-1's
-//      「寸法が確定するまで 1 枚も描かない」 read as strictly as it can be read
-//      on this side. ⚠️ `visibility:hidden` and not `display:none`, because a
-//      box that is not laid out has no height to measure.
+//      `visibility:hidden` until the first `showScreenView`, which is BO-1 read
+//      as strictly as it can be read on this side. ⚠️ `visibility:hidden` and
+//      not `display:none`, because a box that is not laid out has no height to
+//      measure.
 //   1a. ⛔ 0 IS HANDED BACK LIKE ANY OTHER ANSWER. A host that lays the header
-//      out at 0 has answered, and NFR-011's rationale names 「寸法が確定する前
-//      の 1 フレームで 0×0 の窓が出ること」 as one of the two events the startup
-//      order exists to stop -- so 0 is the case that matters most, not the one
-//      to skip. ⚠️ Withholding it would leave BO-1 waiting on a step that can
-//      never finish, and NFR-011 forbids 「空白のまま残る画面」 in the same
-//      MUST NOT as the one that forbids the half-drawn one. ⭐ WHAT to draw at
-//      that size is not settled here: BO-1's 「寸法が確定するまで 1 枚も描かな
-//      い」 is kept by the root staying out of sight until a description
-//      arrives, and the caller decides what its regions are worth showing.
+//      out at 0 has answered, and NFR-011 names the 0x0 window as one of the two
+//      events the startup order exists to stop -- so 0 is the case that matters
+//      most, not the one to skip. ⚠️ Withholding it would leave BO-1 waiting on
+//      a step that can never finish, and the same MUST NOT forbids the screen
+//      left blank as well as the half-drawn one. ⭐ WHAT to draw at that size is
+//      not settled here: BO-1 is kept by the root staying out of sight until a
+//      description arrives, and the caller decides what its regions are worth
+//      showing.
 //   2. THE HEIGHT COMES FROM THE ENVIRONMENT'S OWN TEXT METRICS. The header's
 //      box is fixed by `line-height` and a padding written in `em`, so what it
 //      measures to is whatever the machine's text size makes it -- which is
 //      exactly the quantity FR-051 refuses to let a settings number stand in
 //      for. ⛔ How LONG the content is cannot change it (`overflow:hidden` and a
 //      header that does not wrap).
-//   2a. ⛔⛔ WHETHER THERE IS ANY CONTENT AT ALL DOES CHANGE IT, and the line
-//      that stood here said the number settled at BO-1 stays true (D-230). An
-//      empty flex box lays out no line at all, and the parts drawn into the
-//      header carry boxes of their own that can be taller than one line -- so
-//      the measurement taken before the first description is the height of an
-//      EMPTY header and not of the `App Header`. ⚠️ Measured on the shipped
-//      build: 13px empty against 37px drawn at a 16px text size, and 10px
-//      against 34px at 12px, where one line is 18px. ⭐ The redraw below
-//      re-measures and reports, which is what settles it -- BO-5's own frame is
-//      the first caller of that path, so the caller has the true number before
-//      the environment paints anything (see the note after `loop = running` in
-//      the shell).
+//   2a. ⛔⛔ WHETHER THERE IS ANY CONTENT AT ALL DOES CHANGE IT. An empty flex
+//      box lays out no line at all, and the parts drawn into the header carry
+//      boxes of their own that can be taller than one line -- so the
+//      measurement taken before the first description is the height of an EMPTY
+//      header and not of the `App Header`. ⭐ The redraw below re-measures and
+//      reports, which is what settles it -- BO-5's own frame is the first
+//      caller of that path, so the caller has the true number before the
+//      environment paints anything (see the note after `loop = running` in the
+//      shell).
 //   3. A LATER CHANGE IS REPORTED THE SAME WAY. `onAppHeaderHeightPx` is called
 //      again only when a redraw of the header measured a DIFFERENT height. That
-//      is FT-3 of table T-078 -- 「画面の寸法が変わったこと」 -- and the caller
-//      is the shell, which is the party table T-078 names as observing it.
-//      ⛔ The callback must do nothing but record the number and let the shell's
-//      own resize path decide: waking a frame on anything else would break
-//      NFR-010's MUST NOT.
+//      is FT-3 of table T-078, and the caller is the shell, which that table
+//      names as observing it. ⛔ The callback must do nothing but record the
+//      number and let the shell's own resize path decide: waking a frame on
+//      anything else would break NFR-010's MUST NOT.
 //
 // ⛔ WHAT MAY WAKE A FRAME, AND WHY NOTHING HERE DOES. NFR-010 forbids running
-// a frame on a trigger table T-078 does not name (MUST NOT). FOUR listeners are
-// registered below and not one of them schedules anything:
+// a frame on a trigger table T-078 does not name (MUST NOT). No listener
+// registered below schedules anything:
 //
 //   - `keydown` on the dialogue entry only REMEMBERS that the person settled a
 //     line. The frame that carries it away is FT-1's: the same press reaches
@@ -97,9 +92,8 @@
 //     `document.activeElement` because `ScreenSurfaceWiring` says only
 //     `createElement` is called on the host.
 //
-// ⚠️ There WAS a second, on the control that put a tooltip away, and it is gone
-// with that control -- `tooltipElement` carries the STOP that says why, and
-// where IN-3's 「消せること」 belongs now.
+// ⚠️ Nothing listens on a tooltip: `tooltipElement` carries the STOP that says
+// why, and where IN-3's rule belongs now.
 //
 // ⛔ There is no timer here. FT-4 counts three waits -- `iconHintDelayMs`
 // (S-124) for EZ-2, NT-2's expiry and the autosave's -- and the note under table
@@ -132,18 +126,18 @@
 //     one per format (MUST NOT), so the choices on `Export Chooser` (U-54) are
 //     not rows of table T-109 and cannot travel as ones. They carry the row of
 //     table T-024 instead, which is the only join that table admits.
-//   - ⚠️ `data-notice` IS NOT A FOURTH SPELLING OF IT EITHER, and for the same
-//     reason: NT-8 of table T-037 (MUST) has a person put a telling away where
-//     it stands, CR-259 settled that its entrance is a WORD and gets no row of
-//     table T-109, so what a press there says is WHICH telling
-//     (`Notice.dismissKey`) and not which entry. ⛔ THE WALK DOES NOT READ IT
-//     BACK YET -- `ScreenPart` holds a member for each of the five above and
-//     none for this one, and that declaration is `screen-surface.ts`'s. The
-//     entrance is drawn and marked all the same, because the alternative is a
-//     MUST with no entrance at all; `frame-loop.ts` is where the press is spent.
-//   - IN-5a's 「文字入力を確定していない間」 is answerable the same way: the
-//     entry is the only `input` inside `[data-role="Dialogue Field"]`, so the
-//     shell can tell from `activeElement` that text is being entered.
+//   - ⚠️ `data-notice` IS NOT A FOURTH SPELLING OF IT EITHER: NT-8 of table
+//     T-037 (MUST) has a person put a telling away where it stands and its
+//     entrance is a WORD with no row of table T-109, so a press there says WHICH
+//     telling (`Notice.dismissKey`) and not which entry. ⛔ THE WALK DOES NOT
+//     READ IT BACK YET -- `ScreenPart` holds a member for each of the attributes
+//     above and none for this one, and that declaration is `screen-surface.ts`'s.
+//     The entrance is drawn and marked all the same, because the alternative is
+//     a MUST with no entrance at all; `frame-loop.ts` is where the press is
+//     spent.
+//   - IN-5a's condition is answerable the same way: the entry is the only
+//     `input` inside `[data-role="Dialogue Field"]`, so the shell can tell from
+//     `activeElement` that text is being entered.
 //   - the live DOM can be read back and checked against the description, which
 //     rule 04 asks for after anything that draws.
 //
@@ -195,9 +189,7 @@
 //     ⭐ AND IT RESOLVES THE PAGE'S GROUND FOR THE ONE UNIT THAT MAY WRITE IT:
 //     `pageGroundStyle` below is exported for SingleHtmlShell, so the row and
 //     the rendering are read in ONE place while the element is written by the
-//     party that owns it. ⛔ It was painted by nobody until 2026-08-25 -- no
-//     file in `src/` wrote a background on `documentElement` or on `body` --
-//     and FR-041 makes painting it a MUST.
+//     party that owns it -- FR-041 makes painting it a MUST.
 //
 // ⭐ THE ENTRIES ARE DRAWN AS SHAPES, AND THE SHAPES ARRIVE THE WAY THE ROSTER
 // DOES. FR-029 (MUST) has this product tell what a menu is for with an icon
@@ -213,8 +205,7 @@
 //     the ACCESSIBLE name of the entry, so it leaves through `aria-label` and
 //     the shape is what is seen. ⚠️ The shape is hidden from the accessibility
 //     tree (`aria-hidden`) precisely so the name still comes from the word,
-//     with the row id as the fallback the dictionary's empty cells (PD-160)
-//     leave in use today.
+//     with the row id as the fallback where the dictionary has no word.
 //   - THE COLOUR IS THE APP'S. The figure paints `currentColor` and switches its
 //     own `color` on the viewer's light / dark preference; ⛔ that media query
 //     is NOT carried -- FR-041 (MUST NOT) forbids the environment to decide the
@@ -228,11 +219,10 @@
 //     with the same tag and the same attributes is enough for it to be read
 //     back.
 //
-// ⭐ TWO THINGS ARE NOT INLINE DECLARATIONS, AND ONLY TWO. Both are rules about
-// where the pointer is, and a `style` attribute can state neither: HF-6's
-// 「その行の名前にポインタが乗っているあいだだけ描く」 and FR-053's
-// 「ポインタが乗っていないあいだは薄く透明に描く」. So the unit hangs ONE `style`
-// element off its own root (`hoverCss`), scoped by the root's `data-unit`.
+// ⭐ SOME RULES ARE NOT INLINE DECLARATIONS. Each is a rule about where the
+// pointer is, and a `style` attribute can state none of them (HF-6, FR-053 and
+// FR-029's hover ground). So the unit hangs ONE `style` element off its own
+// root (`hoverCss`), scoped by the root's `data-unit`.
 // ⛔ It is built from constants and never from a description, it paints nothing
 // itself, and nothing else in this file is placed or painted by a sheet.
 //   - ⭐ `:hover` IS THE PART UNDER THE POINTER, WHICH IS WHAT FR-053 (MUST)
@@ -250,9 +240,7 @@
 // rather than being reached for (R7.3, and LY-5 again), which is also why this
 // unit can be exercised where there is no DOM to reach for.
 //
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// Every name the component publishes leaves through here (Chapter 5.3).
 
 import type {
   AppHeaderItems,
@@ -303,11 +291,8 @@ const UNIT_ROW = 'UF-71'
  * carry the member name PI-37 publishes for them on `ScreenView` -- `notices` --
  * which is also a settled name, of the seam rather than of the glossary. ⛔ No
  * third spelling is minted for it.
- * ⭐ Tooltips used to be the second. Table T-103 settled `Tooltip` (U-53) on
- * 2026-08-21, so the layer now carries the glossary's own spelling and rule 03
- * of docs/development-rules is satisfied where it was not. `Confirmation`
- * (U-55) arrived already named, and is the spelling `ScreenPart.part` answers
- * a point on that surface with.
+ * ⭐ `Confirmation` (U-55) arrived already named, and is the spelling
+ * `ScreenPart.part` answers a point on that surface with.
  */
 const ROLE = {
   appHeader: 'App Header',
@@ -337,7 +322,7 @@ const ROLE = {
  * The one key the host and the tool spell differently is not here: this unit
  * hears only the key that settles an entry.
  *
- * SK-19 of table T-036 assigns `Enter` to 「その場の編集を確定する」. ⚠️ Its
+ * SK-19 of table T-036 assigns `Enter` to settling an edit in place. ⚠️ Its
  * list -- name, assignee, row name, document title, a property -- does not name
  * the `Dialogue Field`, so this is the nearest settled assignment rather than
  * one written for this field. ⛔ Nothing else settles an utterance: table T-109
@@ -362,8 +347,8 @@ const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
 
 /**
  * IC-53 of table T-109 -- the row GR-19 of table T-023d lays along the top edge
- * of U-26, and the one row this unit draws that is NOT an entry: that table says
- * of it 「掴んで動かせることを示す。ボタンではない」.
+ * of U-26, and the one row this unit draws that is NOT an entry: that table
+ * says it shows the palette can be dragged and is no button.
  *
  * ⭐ Carried as a row id, which is the only join table T-109 admits, and named
  * here for the same reason `DISPLAY_LANGUAGE_ENTRY` is: this unit has to put
@@ -416,26 +401,23 @@ const COLLAPSE_EVERY_ROW_ENTRY = 'IC-78'
 
 /**
  * IC-92 of table T-109 -- the entrance HF-16 of table T-051 (MUST) puts in the
- * same lineup as IC-74: 「最も浅い段を 1 階層だけ開く」, which is HR-7 of table
- * T-015 pressed at 段 0.
+ * same lineup as IC-74, which is HR-7 of table T-015 pressed at 段 0.
  *
- * ⭐ IT IS THE WAY BACK FROM TWO THINGS, and both rows name it: HR-2 (「`HR-7`
- * を頭で押せば最も浅い段が戻る」) and HR-6 (「親を持たない最上位の行は、段 0 の
- * 同じ操作子で戻せること」).
- * ⛔ NOT IC-74 UNDER A SECOND NAME (HF-16, MUST NOT): 「`HF-10`（すべて開く）に
- * 兼ねさせてはならない」.
+ * ⭐ IT IS THE WAY BACK FROM TWO THINGS, and both HR-2 and HR-6 name it.
+ * ⛔ NOT IC-74 UNDER A SECOND NAME: HF-16 (MUST NOT) refuses to let HF-10 be
+ * made to do this as well.
  */
 const OPEN_LEVEL_ZERO_ENTRY = 'IC-92'
 
 /**
- * IC-93 of table T-109 -- HF-17 of table T-051 (MUST): 「最も浅い段へ行を 1 つ
- * 足す」, which is HR-8 pressed at 段 0.
+ * IC-93 of table T-109 -- HF-17 of table T-051 (MUST), which is HR-8 pressed at
+ * 段 0.
  *
  * ⭐⭐ WITHOUT IT A DOCUMENT WITH NO ROWS CAN NEVER GET ONE, which is that row's
- * own reason: HR-8 adds 「配下に」 and 「行が 1 つも無い文書では押す相手が存在
- * しない」, while FR-085 requires a top-level row to be creatable.
- * ⚠️ THE NAME IS TYPED IN PLACE, exactly as IC-91's is -- 「名前の扱いは `HF-14`
- * に従う」 -- so this entrance opens the same field.
+ * own reason: HR-8 adds a row UNDER another, and FR-085 requires a top-level row
+ * to be creatable.
+ * ⚠️ THE NAME IS TYPED IN PLACE, exactly as IC-91's is (HF-17 sends its
+ * handling to HF-14), so this entrance opens the same field.
  */
 const ADD_TOP_ROW_ENTRY = 'IC-93'
 
@@ -460,14 +442,12 @@ const ADD_TOP_ROW_ENTRY = 'IC-93'
 const DELETE_ROW_ENTRY = 'IC-82'
 
 /**
- * IC-91 -- HF-14 of table T-051 (MUST): 「配下に行を足す操作子を、行ごとに 1 つ
- * 置くこと」, which is HR-8 of table T-015.
+ * IC-91 -- HF-14 of table T-051 (MUST), which is HR-8 of table T-015.
  *
  * ⭐ NAMED BESIDE `DELETE_ROW_ENTRY` BECAUSE IT IS THE SAME KIND OF ENTRANCE,
- * and HF-14 says so in its own last sentence: 「枠の有無で分ける先例は `IC-52`
- * と `IC-82` が既に持っている」. Table T-103 names no part for it either -- it
- * MAKES a row rather than folding one -- so the rule below reaches it by
- * `data-icon`, exactly as it reaches IC-82.
+ * and HF-14 says so in its own last sentence. Table T-103 names no part for it
+ * either -- it MAKES a row rather than folding one -- so the rule below reaches
+ * it by `data-icon`, exactly as it reaches IC-82.
  * ⛔ NOT IC-74's BARE `＋`. HF-14 (MUST NOT) refuses that shape here and the
  * figure gives this one a frame; the shapes are figure F-019's and nothing is
  * chosen in this file.
@@ -475,13 +455,12 @@ const DELETE_ROW_ENTRY = 'IC-82'
 const ADD_CHILD_ROW_ENTRY = 'IC-91'
 
 /**
- * IC-90 -- HF-13 of table T-051 (MUST): 「1 階層だけ開く操作子を、行ごとに 1 つ
- * 置くこと」, which is HR-7 of table T-015.
+ * IC-90 -- HF-13 of table T-051 (MUST), which is HR-7 of table T-015.
  *
  * ⭐ IT IS PART OF U-47 `Row Expander` AND SO NEEDS NO RULE OF ITS OWN: it
  * carries that part's `data-role`, and HF-6's rule above reaches it with the
  * three HF-1 counts. ⛔ WHAT IT DOES NOT SHARE IS WHEN IT IS DRAWN -- HF-13
- * places it 「行ごとに」 without HF-1's condition, so it stands on a leaf row
+ * places one on EVERY row without HF-1's condition, so it stands on a leaf row
  * where those three do not, drawn faint (FR-029).
  */
 const OPEN_ONE_LEVEL_ENTRY = 'IC-90'
@@ -492,7 +471,7 @@ const OPEN_ONE_LEVEL_ENTRY = 'IC-90'
  *
  * ⛔ NOT `data-icon`, AND FOR THE REASON `data-format` IS NOT EITHER. That
  * attribute carries a row of table T-109, FR-029 (MUST) makes that table the
- * whole of the icons, and CR-259 settled that NT-8's entrance gets NO row of it
+ * whole of the icons, and NT-8's entrance gets NO row of it
  * -- it is a word, exactly as NT-7's two answers are answered in words. So this
  * entrance is not a row of that table and cannot travel as one: a reading side
  * handed both on one attribute could not say which table it had been given.
@@ -515,9 +494,8 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
  *
  * ⛔ NOT `data-icon`, FOR THE REASON THE ATTRIBUTE ABOVE IS NOT EITHER, and here
  * the requirement says it outright: NT-7 (MUST NOT) refuses these two answers a
- * row of table T-109, 「同表と 図 F-019 が持つのは図形の入口であり、語のボタンは
- * 図形を持たない」. So an answer is not a row of that table and cannot travel as
- * one.
+ * row of table T-109, because a word button carries no shape. So an answer is
+ * not a row of that table and cannot travel as one.
  * ⛔ NOR IS THE WORD ITSELF WHAT TRAVELS. `Yes` and `No` are what the person
  * READS (FR-038), and a reading side keyed on them would be keyed on the
  * dictionary; the key the manuscript spells is what joins the two sides.
@@ -542,8 +520,8 @@ const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
 /**
- * The one entrance U-62 `Import Report` of table T-103 carries -- 「入口は `OK`
- * の 1 つだけである」 -- whose WORD FR-023 sends to NT-8 of table T-037.
+ * The one entrance U-62 `Import Report` of table T-103 carries, whose WORD
+ * FR-023 sends to NT-8 of table T-037.
  *
  * ⛔ NOT `data-icon`, AND THAT IS TABLE T-109's ANSWER RATHER THAN A CHOICE OF
  * THIS UNIT'S: no row of that table names U-62, so there is no `IconId` this
@@ -570,52 +548,32 @@ const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
  * ⭐ THE ROW ID IS THE JOIN, exactly as `data-icon` is for table T-109: the
  * value itself is generated into `SCREEN_COLOURS` at the foot of this file, so
  * ⛔ no colour is written here and none can go stale. The mapping IS a judgement
- * and is declared as one -- table T-236 names what each colour is FOR in prose
- * (「地」「主たる文字」「区切りの線」「行見出しパネル・プロパティパネル・パレットの地」
- * 「パレットと面」) and no table joins a row of T-236 to a row of table T-103.
+ * and is declared as one -- table T-236 names what each colour is FOR in prose,
+ * and no table joins a row of T-236 to a row of table T-103.
  *
- * ⛔ THREE ROWS OF `SCREEN_COLOURS` ARE NOT USED HERE, AND THAT IS NOT AN
- * OVERSIGHT. S-152 / S-153 / S-154 (良 / 注意 / 不良) reach no part this unit
- * draws -- no part of it reports a SCHEDULE'S state, and NT-1 (MUST NOT)
- * forbids colour alone from carrying a meaning.
- * ⚠️ WHAT USED TO STAND HERE SAID NOTHING ON THIS SIDE REPORTS A STATE IN
- * COLOUR AT ALL, and S-183 made that false: table T-237 of FR-029 gives the
- * armed entrance a FILL of S-183 (EN-1) and FR-053 (MUST) points at that row.
- * ⛔ It is not the counter-example NT-1 refuses either, and the ground is now
- * the requirement's own: FR-029 has the glyph knocked out in S-146 while the
- * box behind it is filled, so 「塗ると地と図形の明暗が入れ替わるので、色の差を
- * 読めない人にも反転として読める」 -- the second signal is the REVERSAL, not a
- * thickness. ⚠️ S-183 borrows S-152's pair and is still its own row, so the
- * count above did not change.
- * ⚠️ `pressed` AND `pinned` REPORT A STATE THE SAME WAY, and by the same
- * paragraph of the same requirement: table T-237 holds four rows, they take the
- * one shape `entranceStateFill` draws, and only the colour differs between them
- * (「形は 1 つ、意味は色」).
+ * ⛔ A ROW OF `SCREEN_COLOURS` WITH NO MEMBER HERE IS NOT AN OVERSIGHT. A row
+ * that reports a SCHEDULE'S state reaches no part this unit draws, and
+ * `tools/generate_entity_types.py` routes those to SvgRenderer. ⛔ Which rows
+ * those are is counted against that generated block, never assumed.
+ * ⚠️ A STATE IS REPORTED IN COLOUR ON THIS SIDE TOO: table T-237 of FR-029
+ * gives an entrance a FILL, FR-053 (MUST) points at that row, and `pressed` and
+ * `pinned` report theirs by the same paragraph -- one shape
+ * (`entranceStateFill`), with only the colour differing between them.
+ * ⛔ It is not the counter-example NT-1 refuses: FR-029 has the glyph knocked
+ * out in S-146 while the box behind it is filled, so the second signal is the
+ * REVERSAL of ground and shape rather than a thickness.
  *
- * ⚠️ AN EARLIER NOTE HERE COUNTED SIX AND PUT S-151, S-168 AND S-169 AMONG
- * THEM, AND WAS REFUTED AGAINST THE GENERATED BLOCK -- at the time none of the
- * three stood in it. ⭐ S-151 STANDS IN IT AGAIN SINCE CR-311, and not because
- * the old note was right: EN-3 of table T-237 fills a PINNED row's `Row Pin`
- * with that row and HF-6 of table T-051 (MUST) sends the pin there, so a part
- * this unit draws reads it now. S-168 and S-169 still have no reader here --
- * `tools/generate_entity_types.py` routes both to SvgRenderer.
- * ⛔ Counted against that block, not assumed.
+ * ⚠️ S-170 IS A COLOUR AND NOT A SHADOW. Table T-236 gives that row its paint
+ * and says where it falls, and no row anywhere states an offset, a blur or a
+ * spread -- so those are this unit's, under the same `@provisional` mark the
+ * rest of its placing carries, and only the colour comes from the
+ * specification. Searched: table T-236, table T-201, table T-206 and FR-041.
  *
- * ⚠️ S-170 IS A COLOUR AND NOT A SHADOW. Table T-236 gives 「浮いた層の影」 its
- * paint and 「パレットと面」 as where it falls, and no row anywhere states an
- * offset, a blur or a spread -- so those are this unit's, under the same
- * `@provisional` mark the rest of its placing carries, and only the colour comes
- * from the specification. Searched: table T-236, table T-201, table T-206 and
- * FR-041.
- *
- * ⛔ NO `var()` HERE CARRIES A FALLBACK, AND THE ABSENCE IS THE REQUIREMENT.
- * Each one used to name the system colour this file painted with before
- * (`Canvas` / `CanvasText` / `GrayText` / `ButtonFace` / `ButtonText`), and a
- * system colour follows the OPERATING SYSTEM rather than S-72 -- which is what
- * FR-041 (MUST NOT) forbids in as many words, and why a reader who chose dark
- * stayed light. ⭐ They can go because the properties are now always written:
- * `readTheme` is required and the root carries the declaration from the moment
- * it is made.
+ * ⛔ NO `var()` HERE CARRIES A FALLBACK, AND THE ABSENCE IS THE REQUIREMENT. A
+ * fallback can only be a system colour, which follows the OPERATING SYSTEM
+ * rather than S-72 -- which is what FR-041 (MUST NOT) forbids in as many words,
+ * and why a reader who chose dark stayed light. ⭐ None is needed: `readTheme`
+ * is required and the root carries the declaration from the moment it is made.
  */
 const PAINT_ROW = {
   ground: 'S-146',
@@ -624,13 +582,11 @@ const PAINT_ROW = {
   rule: 'S-149',
   panel: 'S-150',
   shadow: 'S-170',
-  // ⭐ NOT A JUDGEMENT MADE HERE, WHICH IS WHAT PARTS IT FROM THE SIX ABOVE.
-  // Table T-236 names S-183 「構えている入口の塗りの色」 and EN-1 of table T-237
-  // fills the armed entrance with it, which FR-053 (MUST) points at -- so the
-  // row and the part it paints are joined by the specification, not by this
-  // file. ⚠️ THAT ROW'S NAME SAID 「縁の色」 UNTIL 2026-08-30 and every faithful
-  // implementation drew a rim; CR-311 renamed the row and the requirement, and
-  // nothing here may say 「縁」 again.
+  // ⭐ NOT A JUDGEMENT MADE HERE, WHICH IS WHAT PARTS IT FROM THE ROWS ABOVE.
+  // Table T-236 names S-183 as the armed entrance's FILL and EN-1 of table
+  // T-237 fills it with that row, which FR-053 (MUST) points at -- so the row
+  // and the part it paints are joined by the specification, not by this file.
+  // ⛔ A FILL AND NEVER A RIM: nothing here may argue for 縁 again.
   armed: 'S-183',
   // ⭐ THE ROW IS THE SPECIFICATION'S NOW, WHICH IS WHAT CHANGED. This member
   // used to be a borrowed colour under `@provisional PD-340`, because FR-072
@@ -648,57 +604,48 @@ const PAINT_ROW = {
   // order away the day either colour moves.
   pressed: 'S-183',
   // ⭐ EN-3 OF TABLE T-237, AND IT REACHES THIS UNIT THROUGH HF-6 OF TABLE
-  // T-051 (MUST): 「ピン止めしている行の `IC-60` は、`FR-029` の 表 T-237 の
-  // `EN-3` に従って塗ること」. ⛔ Not the per-control ground the same row's MUST
-  // NOT forbids -- that row says so itself: 「地は上の 1 枚（`S-150`）のままで
-  // あり、`EN-3` の塗りはその地の上に載る状態の印である」.
-  // ⚠️ S-151 IS 「強調の色」 (selection and the current position) and is shared
-  // with the unit that draws the picture; ONE row of table T-236 read by two
-  // units is not the copy rule 03 section 1 forbids.
+  // T-051 (MUST). ⛔ Not the per-control ground the same row's MUST NOT forbids
+  // -- the panel's own S-150 stays the ground and this fill rides on it.
+  // ⚠️ S-151 is shared with the unit that draws the picture; ONE row of table
+  // T-236 read by two units is not the copy rule 03 section 1 forbids.
   pinned: 'S-151',
-  // ⭐ FR-029 (MUST), ADDED 2026-08-31: 「構えている入口にポインタが乗っている
-  // あいだ、その入口の下に地を敷くこと（MUST）—— 色は 表 T-236 の `S-147`」.
+  // ⭐ FR-029 (MUST): a ground laid under the armed entrance while a pointer
+  // rests on it, in S-147.
   // ⛔ NOT `ink` UNDER A SECOND READING, though S-147 is the row both name.
-  // That member is 主たる文字 -- what every word and every shape on this surface
-  // is written in -- and this is a GROUND laid under one entrance while a
-  // pointer rests on it. ⚠️ The two would move together today and there is no
-  // rule saying they must: joining them would make the day either one changes
-  // a day the other changes in silence, which is what the notes on `pinned` and
+  // That member is the 主たる文字 every word and every shape on this surface is
+  // written in. ⚠️ The two would move together today and there is no rule
+  // saying they must: joining them would make the day either one changes a day
+  // the other changes in silence, which is what the notes on `pinned` and
   // `grabAxisPosition` below already refuse for S-151.
   hoveredEntrance: 'S-147',
-  // ⭐ FR-098 (MUST), ADDED THE SAME DAY: 「留めた行そのものにも地を敷くこと
-  // （MUST）—— 色は 表 T-236 の `S-151`」, because 「入口の塗りだけでは、留めた行が
-  // 先頭へ上げられたのか、もともと先頭に在るのかを読めない」.
+  // ⭐ FR-098 (MUST): a ground under the pinned row itself, in S-151, because
+  // the entrance's fill alone cannot say whether the row was RAISED to the top
+  // or was always there.
   // ⛔ NOT `pinned`, WHICH IS THE VERY DISTINCTION THAT REQUIREMENT DRAWS. That
   // member is EN-3's fill on the pinned row's IC-60 -- one control -- and this
   // is the ground under the whole row; FR-098 states them as two rules and says
   // in as many words that the first is not enough on its own.
   pinnedRow: 'S-151',
-  // ⭐ HF-15's TWO BANDS (MUST): 「上下の軸が生きているときは行の左右の辺に、
-  // 左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと。色は 表
-  // T-236 の `S-151`（上下）と `S-152`（左右）とする」. ⛔ NOT `pinned` UNDER A
-  // SECOND READING, though S-151 is the row both name: that member is EN-3's
-  // fill on a pinned row's IC-60 and this is the axis a held row is moving on,
-  // and one member for two rules would join what the specification keeps apart.
+  // ⭐ HF-15's TWO BANDS (MUST), one along each pair of the row's edges, saying
+  // which axis a held row is moving on. ⛔ NOT `pinned` UNDER A SECOND READING,
+  // though S-151 is the row both name: that member is EN-3's fill on a pinned
+  // row's IC-60, and one member for two rules would join what the specification
+  // keeps apart.
   grabAxisPosition: 'S-151',
   grabAxisDepth: 'S-152',
-  // ⭐ HF-15's OTHER TWO MUSTS ABOUT THE ROW A HAND IS HOLDING, both added
-  // 2026-08-31 and both S-151: 「掴んでいる行には地を敷くこと（MUST）。色は 表
-  // T-236 の `S-151`」 and 「握っているあいだ、掴み代の印を 表 T-236 の `S-151`
-  // で描くこと（MUST）」.
+  // ⭐ HF-15's OTHER TWO MUSTS ABOUT THE ROW A HAND IS HOLDING, both S-151.
   // ⭐ ONE MEMBER FOR THE TWO, unlike every other pair kept apart here: they are
-  // not two rules that happen to share a row but ONE state -- 「いま手が持って
-  // いる行」 -- drawn in two places by two sentences of the same row, and the
-  // second gives that as its reason (「色が変わること自体が『いま掴んでいる』の
-  // 印になる」). ⛔ Splitting them would let the ground and the mark be recoloured
-  // apart, and the mark would then no longer be saying what the ground says.
+  // not two rules that happen to share a row but ONE state -- the row a hand is
+  // holding -- drawn in two places by two sentences of the same row, and the
+  // second gives that as its reason. ⛔ Splitting them would let the ground and
+  // the mark be recoloured apart, and the mark would then no longer be saying
+  // what the ground says.
   // ⛔ NOT `grabAxisPosition`, though S-151 is the row it names too: that one is
   // the band saying WHICH AXIS is live and it has a sibling in S-152, so a row
   // held on the depth axis draws that band in green while these two stay S-151.
   heldRow: 'S-151',
-  // ⭐ HF-18 (MUST): 「色は 表 T-236 の `S-153` とする —— 注意であって不良では
-  // ない」, for the count a row shows of the rows it holds folded, and for the
-  // same count at 段 0 (HF-12).
+  // ⭐ HF-18 (MUST): S-153 for the count a row shows of the rows it holds
+  // folded, and for the same count at 段 0 (HF-12).
   caution: 'S-153',
 } as const
 
@@ -708,31 +655,28 @@ function painted(name: keyof typeof PAINT_ROW): string {
 }
 
 /**
- * ⚠️ SIX OF THESE ARE NOT NINE. An entrance's ground and an entrance's word
- * used to stand as members of their own, because table T-236 has one 地 and one
- * 文字の色 while the system colours had a separate pair for a button
- * (`ButtonFace` / `ButtonText`). ⛔ With the fallbacks gone the two pairs are
- * the same string, and rule 03 section 1 forbids one concept two names.
+ * ⚠️ AN ENTRANCE'S GROUND AND AN ENTRANCE'S WORD ARE NOT MEMBERS OF THEIR
+ * OWN. Table T-236 has one 地 and one 文字の色, and with no system-colour
+ * fallback left there is nothing to tell a button's pair from the surface's --
+ * rule 03 section 1 forbids one concept two names.
  *
  * ⭐ `armed`, `pressed` AND `pinned` ARE TABLE T-237'S, and they joined for one
  * reason: that table gives a state of an entrance a FILL, and a fill is a colour
- * this unit has to hold. `armed` came on 2026-08-26 (then as a rim), `pressed`
- * on 2026-08-28 and `pinned` with CR-311 on 2026-08-30. Each reads a row like
- * the rest, so `themeStyle` repaints all three in both renderings without a
- * second path. ⚠️ Two of them resolve to one colour today (S-183 stands on EN-1,
- * EN-2 and EN-4); they are kept apart because table T-237 keeps them apart, and
- * `entranceStateFill` is what reads the order between them.
+ * this unit has to hold. Each reads a row like the rest, so `themeStyle`
+ * repaints them in both renderings without a second path. ⚠️ Some resolve to
+ * one colour today (S-183 stands on EN-1, EN-2 and EN-4); they are kept apart
+ * because table T-237 keeps them apart, and `entranceStateFill` is what reads
+ * the order between them.
  *
- * ⭐ `hoveredEntrance`, `pinnedRow` AND `heldRow` ARE THE GROUNDS, added
- * 2026-08-31 with the rules that ask for them (FR-029, FR-098 and HF-15 of table
- * T-051). ⛔ A GROUND IS NOT A FILL, which is why they are not folded into the
- * three above: a fill REPLACES an entrance's paint and knocks its shape out in
- * S-146, and a ground is laid UNDER something and left to show through at the
- * depth table T-206 states (`stateGround`). ⚠️ FOUR MEMBERS RESOLVE TO S-151
- * TODAY -- `pinned`, `pinnedRow`, `grabAxisPosition` and `heldRow` -- and each
- * one's note says which rule made its own join. ⛔ None of them may borrow
- * another's: table T-236 holding one row for four drawings is not licence to
- * hold one member for four rules.
+ * ⭐ `hoveredEntrance`, `pinnedRow` AND `heldRow` ARE THE GROUNDS, with the
+ * rules that ask for them (FR-029, FR-098 and HF-15 of table T-051). ⛔ A
+ * GROUND IS NOT A FILL, which is why they are not folded into the three above:
+ * a fill REPLACES an entrance's paint and knocks its shape out in S-146, and a
+ * ground is laid UNDER something and left to show through at the depth table
+ * T-206 states (`stateGround`). ⚠️ SEVERAL MEMBERS RESOLVE TO S-151 TODAY, and
+ * each one's note says which rule made its own join. ⛔ None of them may borrow
+ * another's: table T-236 holding one row for several drawings is not licence to
+ * hold one member for several rules.
  */
 const PAINT = {
   ground: painted('ground'),
@@ -786,25 +730,22 @@ function stateGround(paint: string, depthRow: 'S-214' | 'S-215'): string {
  * The room one entrance keeps around the shape it holds.
  *
  * ⭐ WHAT THIS IS FOR. FR-029 (MUST) asks for a minimum gap between the shape
- * and the ENTRANCE'S FRAME, and S-141 of table T-206 says of that gap 「枠の側は
- * 動かさない —— 定めるのは隙間だけである」: the row settles the clearance and not
- * the outline. ⛔ The way an entrance was built before could not keep either
- * promise. The shape is an `inline-block` of S-138 on a side sitting in the
- * entrance's LINE BOX, so the line box grows to hold it as soon as the reader's
- * text gets small -- the frame moves, which is the one thing S-141 says does
- * not happen -- and until it does the clearance is whatever the leading happens
- * to leave, which is not a minimum at all.
+ * and the ENTRANCE'S FRAME, and S-141 of table T-206 settles the clearance and
+ * not the outline. ⛔ A shape left in the entrance's LINE BOX keeps neither
+ * promise: the line box grows to hold it as soon as the reader's text gets
+ * small -- the frame moves, which is the one thing S-141 says does not happen --
+ * and until it does the clearance is whatever the leading happens to leave,
+ * which is not a minimum at all.
  *
  * ⭐ SO THE SHAPE IS TAKEN OUT OF THE LINE BOX AND CENTRED, and the box the
  * entrance keeps around it is S-138 with S-141 on each side of it, on both axes
  * and in no other unit. ⛔ NOTHING RELATIVE IS LEFT IN EITHER LENGTH, and that
- * is the whole of what FR-029 (MUST NOT) added: the shape's side is fixed at
- * S-138, so a gap stated in the reader's own text size is the only thing left
- * that can grow, and it grew alone -- ⚠️ measured in the live tree, a reader at
- * twice the machine's text size had twice the gap the row states while the
- * shape stayed the size it is. Both lengths now come from the generated block
- * at the foot of this file, so the entrance measures the same whatever text the
- * page is read at.
+ * is the whole of what FR-029 (MUST NOT) added: with the shape's side fixed at
+ * S-138, a gap stated in the reader's own text size is the only thing left that
+ * can grow, and it grows alone -- twice the gap the row states at twice the
+ * machine's text size. Both lengths come from the generated block at the foot
+ * of this file, so the entrance measures the same whatever text the page is
+ * read at.
  * ⚠️ THE FRAME IS NOT TOUCHED HERE, which S-141 requires: its border and its
  * corner stay `entryStyle`'s, and an entrance is a `button`, whose box the
  * environment measures border-and-all -- so the height below is the frame's
@@ -877,21 +818,14 @@ function fieldSizes(): {
 } {
   const [panelPadY, panelPadX] = NOT_STORED_PROPERTY_FIELD_SIZES['S-192']
   return {
-    /** S-186: the least a control may be tall. */
     controlMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-186'],
-    /** S-187: the same for a colour control, which that row keeps apart. */
     colorMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-187'],
-    /** S-189: the share of the width the name column takes. */
     namePercent: NOT_STORED_PROPERTY_FIELD_SIZES['S-189'],
-    /** S-190: across, between the name and the control. */
     nameGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-190'],
-    /** S-191: down, between one field and the next. */
     rowGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-191'],
     panelPadY,
     panelPadX,
-    /** S-193: how many lines a multi-line control shows. */
     multilineRows: NOT_STORED_PROPERTY_FIELD_SIZES['S-193'],
-    /** S-197: what the host's own base text size is multiplied by. */
     textScale: NOT_STORED_PROPERTY_FIELD_SIZES['S-197'],
     /** S-198: what an item name is multiplied by ON TOP of S-197. */
     nameTextScale: NOT_STORED_PROPERTY_FIELD_SIZES['S-198'],
@@ -904,14 +838,14 @@ function fieldSizes(): {
  * ⭐ THIS IS THE ONE DECLARATION THAT CARRIES THE PANEL'S TEXT SIZE, and it is
  * on the panel's own box because `font-size` is an inherited property: every
  * descendant that states none of its own computes from this one. FR-006 (MUST)
- * has the size be S-197 times 「宿主が与える地の文字の大きさ」, and `em` on this
+ * has the size be S-197 times the host's own base text size, and `em` on this
  * box is exactly that -- it resolves against the box's parent, which states no
  * size of its own, so what it multiplies IS the host's base.
  * ⛔ NOT `fontScaleSizes[fontScale]` OF TABLE T-215, which FR-006 rules out in
  * as many words: `fontScale` sizes the SCHEDULE's letters (S-3's `rulerFont` and
  * the labels of table T-201), and this panel is the frame around the schedule
- * rather than part of it. Multiplied by that roster the largest step would come
- * out at 11.2px and the smallest at 8.4px.
+ * rather than part of it -- that roster would letter this panel smaller than
+ * any step of its own.
  * ⛔ AND NOT A PX CONSTANT (MUST NOT), which is why the ratio is written with
  * `em` after it rather than solved here: a reader who makes the browser's text
  * bigger has to take this panel with them (WCAG 2.1's 1.4.4, carried by
@@ -924,9 +858,6 @@ function fieldSizes(): {
  *     `propertyCheckStyle` each open with `font:inherit` -- a form control does
  *     NOT inherit by default, the host gives it a font of its own, and that
  *     declaration is what takes this one instead.
- * ⚠️ There were three until 2026-08-27: an `h2` heading carried the host's own
- * `1.5em` and had to put `font-size:inherit` back over it. FR-072 (MUST NOT)
- * took that row away (CR-272), so the case is gone with it.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
  * `entryStyle` gives: the values arrive in the generated block, and `STYLE`
@@ -971,9 +902,9 @@ function propertyWayOutStyle(): string {
 /**
  * One field of U-25: the name across from its controls.
  *
- * ⭐ S-190 ACROSS AND S-191 DOWN, which S-190's own row insists on ("`S-190` が
- * 横で `S-191` が縦である"): a field lays its name and its controls out side by
- * side and the fields stack, so the two gaps are on different axes.
+ * ⭐ S-190 ACROSS AND S-191 DOWN, which S-190's own row insists on: a field
+ * lays its name and its controls out side by side and the fields stack, so the
+ * two gaps are on different axes.
  * ⛔ `align-items:flex-start` because a multi-line control (S-193) is taller
  * than its name, and centring would set the name down beside it -- a reader
  * scans the names down a column, so each stays at the top of its own field.
@@ -995,16 +926,13 @@ function propertyFieldStyle(): string {
  * person drag this panel wider (S-80), so a name column held in px would leave
  * every pixel gained to the controls.
  *
- * ⭐ RIGHT-ALIGNED, WHICH FR-006 (MUST) ASKS FOR IN AS MANY WORDS 「項目名は値の
- * 欄の左に置き、右詰めにすること」 (利用者の裁定 2026-08-27). Where the name STANDS
- * needs nothing here -- `fieldElement` appends it before the controls -- so what
- * was missing was only the alignment, and the requirement's ground is that a
- * border between name and value which is not straight makes the eye hunt for it
- * once per field.
+ * ⭐ RIGHT-ALIGNED, WHICH FR-006 (MUST) ASKS FOR IN AS MANY WORDS. Where the
+ * name STANDS needs nothing here -- `fieldElement` appends it before the
+ * controls -- and the requirement's ground is that a border between name and
+ * value which is not straight makes the eye hunt for it once per field.
  *
  * ⭐ S-198 IS MULTIPLIED ON TOP OF S-197, NOT INSTEAD OF IT, which that row
- * states: 「掛ける相手は `S-197` を適用したあとの大きさであって、`fontScaleSizes`
- * ではない」. `em` here resolves against the panel's own computed size, which
+ * states. `em` here resolves against the panel's own computed size, which
  * `propertiesPanelStyle` has already set to S-197 of the host's base -- so the
  * two ratios compound exactly as the two rows describe, and neither is solved
  * into a px number this side has no right to know.
@@ -1019,10 +947,9 @@ function propertyFieldNameStyle(): string {
   )
 }
 
-/** What the controls of one field stand in -- a row of table T-016 can hold three. @purity pure */
 /**
  * EZ-2 of table T-040 (MUST): the tooltip letters itself at S-204's
- * coefficient of the host's own text -- 「2 段階」 read as 14 ÷ 16.
+ * coefficient of the host's own text.
  *
  * ⛔ A COEFFICIENT AND NEVER A px, for the reason `helpStyle` gives.
  *
@@ -1047,22 +974,19 @@ function helpStyle(): string {
   // follow a resize, and a number measured once would not.
   // ⛔ A SIZE AND NOT A MAXIMUM ON BOTH AXES. FR-036 (MUST) has the help OPEN
   // at that share of the width AND the height, so a height the contents fall
-  // short of would not be the share the requirement names -- measured
-  // 2026-08-29 at 1920x1080, where a maximum left it 0.885 tall. ⚠️ Scrolling
-  // is still allowed and still reached: the same requirement permits it below
-  // MC-6 of table T-025, which `overflow` is what serves.
+  // short of would not be the share the requirement names. ⚠️ Scrolling is
+  // still allowed and still reached: the same requirement permits it below MC-6
+  // of table T-025, which `overflow` is what serves.
   // ⛔ THE TWO MAXIMA OF `STOPPING_BOX` ARE OVERRIDDEN AND THAT IS THE POINT.
-  // Every other surface is capped at 92% of the screen; FR-036 gives THIS one a
-  // share of its own, and a cap left standing would silently win over it --
-  // measured 2026-08-29 at 1920x1080, where the box came out 0.92 wide against
-  // the 0.95 the requirement asks for.
+  // Every other surface is capped at a share of the screen; FR-036 gives THIS
+  // one a share of its own, and a cap left standing would silently win over it.
   const share = NOT_STORED_HELP_SIZES['S-201'] * 100
   // FR-036 (MUST): the size of the letters is S-203's coefficient of the
   // host's own text. ⛔ NOT A px (MUST NOT) -- NFR-007 carries WCAG 2.1's
   // 1.4.4, and a fixed size leaves behind the reader who enlarged the
   // browser's text. ⚠️ It is set on the BOX, so the entries inherit it and
-  // the shapes -- drawn in `em` -- come down with the words, which is what
-  // 「アイコンと合わせろ」 asks for.
+  // the shapes -- drawn in `em` -- come down with the words, which is what the
+  // requirement asks for.
   return (
     `width:${share}vw;max-width:${share}vw;` +
     `height:${share}vh;max-height:${share}vh;overflow:auto;` +
@@ -1165,16 +1089,13 @@ function entryStyle(): string {
  * The same frame for an entrance FR-029 (MUST) draws faint, which is the one
  * declaration that differs.
  *
- * ⭐ THE COLOUR IS S-149 (`PAINT.rule`) AND IS NOT THIS FILE'S CHOICE. FR-029
- * (MUST) names the row: 「薄さは … 表 T-236 の `S-149` の色で示すこと」.
- * ⛔ IT WAS S-148 (`PAINT.quiet`) UNTIL 2026-08-30 AND THAT WAS MEASURED WRONG
- * ON THE SHIPPED BUILD -- 5.91 : 1 against the panel's ground, which the user
- * read as a usable entrance (CR-307). S-149 is the same table's rule colour,
- * chosen to be present without asserting itself, and it is what the requirement
- * now points at.
+ * ⭐ THE COLOUR IS S-149 (`PAINT.rule`) AND IS NOT THIS FILE'S CHOICE: FR-029
+ * (MUST) names the row. S-149 is the same table's rule colour, present without
+ * asserting itself -- ⛔ a quieter one reads as a usable entrance, which is the
+ * harm the requirement moved to avoid.
  * ⚠️ SO THE FRAME AND THE SHAPE ARE ONE COLOUR HERE, where `entryStyle` has
- * them two. ⛔ 「枠」 and never 「縁」: what CR-311 retired is the ARM's rim, and
- * this is the entrance's own border, which every entrance has always had. That follows from the row FR-029 names and is not a second decision.
+ * them two. ⛔ It is the entrance's own border and not an ARM's rim; that
+ * follows from the row FR-029 names and is not a second decision.
  *
  * ⛔ `aria-disabled` AND NOT `disabled` is what `commandEntry` writes beside
  * this: a disabled control leaves the accessibility tree and stops taking the
@@ -1195,20 +1116,17 @@ function entryFaintStyle(): string {
  * The four states of an entrance table T-237 of FR-029 gives a FILL, in that
  * table's own order, with the colour each row states.
  *
- * ⭐ THE ORDER IS THE TABLE'S AND IS LOAD-BEARING. That table closes with 「1 つ
- * の入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）」, so this list is
- * read from the top and the first row that stands wins. ⛔ Written as an ordered
- * list and never as an object read with `Object.keys`: the precedence would then
- * be a property of how the host enumerates keys rather than of what the table
- * prints.
- * ⚠️ THE SAME TABLE (MUST NOT) REFUSES TO SAY THE ROWS CANNOT MEET -- 「同時に
- * 当たることはない」とは書かない -- so nothing here may take a pair for
- * impossible and skip the comparison.
+ * ⭐ THE ORDER IS THE TABLE'S AND IS LOAD-BEARING: where two of its rows stand
+ * on one entrance the upper wins (MUST), so this list is read from the top and
+ * the first row that stands wins. ⛔ Written as an ordered list and never as an
+ * object read with `Object.keys`: the precedence would then be a property of
+ * how the host enumerates keys rather than of what the table prints.
+ * ⚠️ THE SAME TABLE (MUST NOT) REFUSES TO SAY THE ROWS CANNOT MEET, so
+ * nothing here may take a pair for impossible and skip the comparison.
  *
- * ⭐ TWO ROWS RESOLVE TO ONE COLOUR TODAY (EN-1, EN-2 and EN-4 all state S-183)
- * AND ARE STILL FOUR ROWS. The table's own note says why: 「`S-183` が 3 行に
- * 立つのは、いずれも「いま効いている」を意味するからである」 -- one meaning, three
- * places it can arise, and a colour that may move for one of them alone.
+ * ⭐ ROWS THAT RESOLVE TO ONE COLOUR TODAY ARE STILL SEPARATE ROWS. The
+ * table's own note says why: one meaning, several places it can arise, and a
+ * colour that may move for one of them alone.
  */
 const ENTRANCE_STATE_FILL = [
   ['EN-1', PAINT.armed],
@@ -1224,54 +1142,45 @@ type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
  * What FR-029 (MUST) draws on an entrance that is IN EFFECT, so that it can be
  * told from the entrances that are not.
  *
- * ⭐ A FILL AND NEVER A RIM, WHICH IS THE WHOLE OF THIS FUNCTION. FR-029 (MUST):
- * 「図形を描く箱を塗りつぶし、図形そのものを 表 T-236 の `S-146`（地の色）で抜く
- * こと」, and the same sentence (MUST NOT) 「縁の色や太さで示してはならない」.
- * ⚠️ UNTIL 2026-08-30 THIS FILE DREW A RIM AND WAS RIGHT TO: table T-236 named
- * S-183 「構えている入口の縁の色」 and FR-053 named the rim, so three rounds of a
- * faithful implementation drew one. CR-311 moved the specification, S-185 (the
- * rim's thickness) has no row any more, and ⛔ nothing here may argue for a
- * width again.
+ * ⭐ A FILL AND NEVER A RIM, WHICH IS THE WHOLE OF THIS FUNCTION. FR-029
+ * (MUST) fills the box the shape is drawn in and knocks the shape out in
+ * S-146, and the same sentence (MUST NOT) refuses a rim's colour or thickness.
+ * ⛔ Nothing here may argue for a width: no row of table T-206 states one.
  *
  * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS. `data-armed`,
  * `data-pressed` and `data-pinned` are written beside every entry for the shell
  * to read back, and there is no `.css` file anywhere under `src/` for a selector
  * to live in -- every rule this unit draws is an inline declaration. So a state
- * that is only an attribute is a state nobody can see. ⚠️ `data-pinned` is the
- * one that went unpainted longest: it was written on IC-60 and read by nothing.
+ * that is only an attribute is a state nobody can see.
  *
- * ⭐ THE KNOCK-OUT COLOUR IS S-146 AND NOT WHITE, and that is stated rather than
- * chosen: FR-029 (MUST NOT) 「抜き色に白を使ってはならない」 because the dark
- * rendering's fill is a LIGHT green (`#6fc98d`), on which white does not stand.
+ * ⭐ THE KNOCK-OUT COLOUR IS S-146 AND NOT WHITE, and that is stated rather
+ * than chosen: FR-029 (MUST NOT) refuses white, because the dark rendering's
+ * fill is a LIGHT colour on which white does not stand.
  * ⭐ `PAINT.ground` is that row, so both renderings separate themselves.
  * ⚠️ ONE DECLARATION COLOURS THE WHOLE GLYPH: figure F-019 paints
  * `currentColor` and chooses no colour of its own (`fillEntry`), so `color:`
  * here is what knocks the shape out of the box `background:` filled.
  *
- * ⛔ NOT A CASE OF SHOWING A STATE 「色だけで」. FR-029 answers that itself --
- * 「塗ると地と図形の明暗が入れ替わるので、色の差を読めない人にも反転として読める」
- * -- so the second signal is the REVERSAL of ground and shape and no width is
- * needed beside the colour. ⚠️ `aria-pressed` carries it in the other tree, and
- * `commandEntry` has always written it; ⛔ never on the ARMED entry, which table
- * T-109 says of IC-54 「ボタンではない」 and FR-053 (MUST NOT) refuses to draw
- * 「押されている形」.
+ * ⛔ NOT A CASE OF SHOWING A STATE BY COLOUR ALONE. FR-029 answers that
+ * itself: filling reverses the light and dark of ground and shape, so the
+ * second signal is the REVERSAL and no width is needed beside the colour.
+ * ⚠️ `aria-pressed` carries it in the other tree, and `commandEntry` writes
+ * it; ⛔ never on the ARMED entry, which table T-109 says of IC-54 is not a
+ * button and which FR-053 (MUST NOT) refuses to draw as pressed.
  *
  * ⛔ APPENDED ONLY TO AN ENTRANCE THAT CAN BE USED, AND THE ORDER IS THE RULE.
- * FR-029 (MUST) draws faint the entrance that cannot be used and closes the fill
- * paragraph with 「上の薄く描く入口には当ててはならない（MUST NOT）」 -- 「効いて
- * いて、かついま何も変えられない入口が濃くなると、薄さの意味が消える」. An entry
- * can be both at once, so an entrance that is in effect and unusable reports
- * only that it cannot be used. ⚠️ THAT NOW REACHES THE ARMED ENTRY TOO: while
- * the rim was a rule of FR-053 alone it was drawn on the faint entry as well,
- * and the MUST NOT that governs the fill is FR-029's and reaches every row of
+ * FR-029 (MUST) draws faint the entrance that cannot be used and (MUST NOT)
+ * refuses the fill on top of that faintness -- an entrance that is in effect but
+ * can change nothing would otherwise darken, and the faintness would stop
+ * meaning anything. An entry can be both at once, so it reports only that it
+ * cannot be used, and that reaches the armed entry like every other row of
  * table T-237.
  * ⛔ The caller decides it, not this function -- `commandEntry` never offers a
  * row for an entrance it drew faint.
  *
- * ⭐ ONE SHAPE FOR ALL FOUR ROWS, WHICH IS THE RULING'S OWN WORDS: 「形は 1 つ、
- * 意味は色」. ⛔ So there is no second function beside this one -- the two that
- * used to stand here (`entryArmedRim` and `entryPressedInk`) drew two different
- * pictures for what table T-237 now says is one.
+ * ⭐ ONE SHAPE FOR EVERY ROW, WHICH IS THE RULING'S OWN: one shape, the meaning
+ * in the colour. ⛔ So there is no second function beside this one -- two of
+ * them would draw two different pictures for what table T-237 says is one.
  *
  * ⚠️ AN EMPTY STRING WHEN NO ROW STANDS, so a caller may append the answer
  * unconditionally and no combination needs a style of its own.
@@ -1300,18 +1209,12 @@ function entranceStateFill(standing: readonly EntranceStateRow[]): string {
  * ⛔ No row gives this rule a colour of its own, and inventing one would put a
  * second paint against the one already settled for a separating line.
  *
- * ⭐ THE SECOND NUMBER REACHES ALL FOUR SIDES, which is what that row now says
- * of itself -- 「線の太さとまわりの空き」, and 「2 つ目の数は上下左右のすべてに
- * 当たる」 (the user's ruling of 2026-08-29). ⛔ IT IS NOT A SECOND NUMBER
- * INVENTED FOR THE VERTICAL: the ruling was 「上下も左右と同じ 6px」, so the
- * clearance is one value applied four ways and the row stays a pair.
- * ⚠️ UNTIL THAT RULING THE CLEARANCE WAS SIDEWAYS ONLY, and the measurement is
- * what settled it: the rules came out 1px tall with 0px above and below, so a
- * group's buttons touched the line on both sides. ⚠️ A `margin-bottom:0.5em`
- * used to stand in for the rule while it could not be drawn; it went with this
- * function, because a made-up gap kept beside the real boundary reads as a rule
- * that was measured. ⭐ The 6px that replaced it is measured -- it is the same
- * number the sides already had.
+ * ⭐ THE SECOND NUMBER REACHES ALL FOUR SIDES, which is what that row says of
+ * itself. ⛔ IT IS NOT A SECOND NUMBER INVENTED FOR THE VERTICAL: the clearance
+ * is one value applied four ways and the row stays a pair.
+ * ⛔ AND NO GAP STANDS IN FOR THE RULE. A made-up margin kept beside the real
+ * boundary reads as a rule that was measured, and the row already holds the
+ * only clearance there is.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle`
  * gives: it reads the generated block at the foot of this file, which a `const`
@@ -1334,20 +1237,17 @@ function paletteGroupRuleStyle(): string {
 /**
  * The band U-27 `Document Title` stands in, with S-226's inset on its left.
  *
- * ⭐⭐ EP-1 of table T-076 (MUST): 「字の大きさと左の余白は、画面と書き出しが同じ
- * 1 つの行を読むこと」, with (MUST NOT) 「書き出し専用の定数を持ってはならない」.
- * `image-exporter.ts` reads S-225 and S-226 out of the same generated block, so
- * the two sides now read one row each and neither holds a figure. ⛔ Until
- * 2026-09-07 the export held two fractions of the band's height instead and the
- * screen held none at all, and the two agreed only by accident -- which is the
- * very thing that MUST forbids (D-276).
+ * ⭐⭐ EP-1 of table T-076 (MUST): the screen and the export read ONE row for
+ * the text size and the left inset, and (MUST NOT) the export holds no constant
+ * of its own. `image-exporter.ts` reads S-225 and S-226 out of the same
+ * generated block, so the two sides read one row each and neither holds a
+ * figure.
  *
  * ⛔ ONLY THE LEFT INSET IS THE ROW'S. The vertical padding and the padding on
  * the right are what FR-051 has BO-1 measure the band's height from, and no row
  * of table T-206 states either -- so they stay relative and are not restated as
- * figures here. ⚠️ THE PIXELS DO NOT MOVE: S-226 was taken from this very
- * declaration's own measurement (16px base, 0.75em = 12px), which is what the
- * row's note records.
+ * figures here. ⚠️ S-226 was taken from this declaration's own measurement,
+ * which is what that row's note records, so the pixels do not move.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle` and
  * `paletteGroupRuleStyle` give: it reads the generated block at the foot of this
@@ -1390,8 +1290,6 @@ function documentTitleStyle(): string {
  * state and settles no size for it either. PD-326 names the row that must exist
  * and what it must say; until it does, this value is not the specification's.
  *
- * ⚠️ IT WAS `AUTOSAVE_STATUS_TEXT_SCALE` until CR-280 retired the autosave;
- * the same box now carries FR-101's two cues and the same ruling is owed.
  * ⛔ A COEFFICIENT AND NEVER A px, for the reason `propertiesPanelStyle` gives
  * for S-197: NFR-007 carries WCAG 2.1's 1.4.4, and a size fixed in px leaves the
  * reader who enlarged the browser's own text behind. What this multiplies is
@@ -1441,7 +1339,7 @@ const STYLE = {
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `visibility:hidden;font:inherit;color:${PAINT.ink};`,
   // The same box once a description has arrived. ⛔ BO-1 of table T-077 is the
-  // whole difference between the two: 「寸法が確定するまで 1 枚も描かない」.
+  // whole difference between the two.
   rootShown:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `font:inherit;color:${PAINT.ink};`,
@@ -1455,8 +1353,7 @@ const STYLE = {
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
-  // FR-035 (MUST): 「作成者が文書名を選んだとき、`GRS` は、その場で編集できるよ
-  // うにすること」 -- the field SK-9 opens where the name stands.
+  // FR-035 (MUST): the field SK-9 opens where the name stands.
   // ⛔⛔ EVERY DECLARATION HERE IS THE BOX STAYING THE BOX IT WAS, and FR-051 is
   // why: what that requirement (MUST) settles at BO-1 is the height this header
   // MEASURES to, and it is measured on the frames that redraw the header -- not
@@ -1469,8 +1366,8 @@ const STYLE = {
   // ⚠️ THE PAINT IS INHERITED RATHER THAN STATED: the band already carries
   // `PAINT.ground` and `PAINT.ink`, and a value restated here would part company
   // with the theme FR-041 (MUST) repaints on IC-16.
-  // ⛔ THE FOCUS RING IS THE HOST'S OWN AND IS NOT TOUCHED (FR-029, 「環境の作法
-  // に従う」) -- it is what says the person is typing in it.
+  // ⛔ THE FOCUS RING IS THE HOST'S OWN AND IS NOT TOUCHED (FR-029) -- it is
+  // what says the person is typing in it.
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
@@ -1514,38 +1411,32 @@ const STYLE = {
   scrollbarTrack: `background:${PAINT.panel};pointer-events:auto;`,
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
   rowTitlePanel: `position:absolute;background:${PAINT.panel};`,
-  // HF-10 of table T-051 (MUST): 「行見出しパネルの最上部の右端」. ⛔ The two
-  // edges are the whole of what that row states about the place, and nothing is
-  // added: no inset, no margin, no size.
+  // HF-10 of table T-051 (MUST): the top right of the `Row Title Panel`. ⛔ The
+  // two edges are the whole of what that row states about the place, and nothing
+  // is added: no inset, no margin, no size.
   //
   // ⛔ `pointer-events:auto` IS NOT DECORATION. The root is `pointer-events:none`
   // and the panel does not take the pointer back -- only the rows do
   // (`STYLE.rowTitle`) -- so without this the one entrance HF-10 requires could
   // be neither pressed nor answered by IF-9's fourth member.
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
-  // HF-5 of table T-051 (MUST NOT): the row's controls are not levelled with the
-  // middle of the name. ⛔ `align-items:center` is what that row forbids in as
-  // many words, and `flex-start` is the whole of what it asks for instead --
-  // that row now LEVELS the controls with the top of the name (MUST) and
-  // forbids setting them down from it (MUST NOT), so no control carries an
+  // HF-5 of table T-051: the controls are LEVELLED with the top of the name
+  // (MUST) and may not be centred or set down from it (MUST NOT), so
+  // `flex-start` is the whole of what this states and no control carries an
   // offset of its own.
   //
-  // ⚠️ WHAT THIS MOVES. In a band taller than one line of the name -- which is
-  // every band with a bar in it, since a plan bar's own height (S-4) already
-  // exceeds a line of it -- the name stood in the middle and now stands at the
-  // top. ⛔ That is not a choice made freely: nothing on IF-9 carries how tall
-  // the name is drawn or where in the band it sits, so a set-down measured from
-  // a name held in the middle is a length this side cannot state at all.
-  // ⛔ NO `gap` HERE SINCE CR-336, AND NOT BECAUSE THE ROW HAS NONE. The one
-  // gap this row lays is the one between GR-20's grab strip and the name, and
-  // it is S-218 of table T-206 -- a value that arrives in the generated block at
-  // the foot of this file, which this object is evaluated before. It stands in
+  // ⛔ NOT A CHOICE MADE FREELY. Nothing on IF-9 carries how tall the name is
+  // drawn or where in the band it sits, so a set-down measured from a name held
+  // in the middle is a length this side cannot state at all.
+  // ⛔ NO `gap` HERE, AND NOT BECAUSE THE ROW HAS NONE. The one gap this row
+  // lays is the one between GR-20's grab strip and the name, and it is S-218 of
+  // table T-206 -- a value that arrives in the generated block at the foot of
+  // this file, which this object is evaluated before. It stands in
   // `rowTitleElement`, for the reason `entryStyle` gives at length.
-  // ⚠️ IT WAS `gap:0.25em`, WHICH WAS THE SAME 4px AT THE DEFAULT TEXT SIZE AND
-  // THE ONLY HOME THAT VALUE HAD. FR-085 (MUST) now subtracts it before cutting
-  // the name (CR-336), so the drawn gap and the subtracted gap have to be one
-  // number -- ⛔ in `em` the drawn one grew with the reader's text size (FR-039)
-  // while the subtracted one did not, and the difference came out of the name.
+  // ⚠️ IT MUST BE THAT ONE NUMBER AND NOT A RELATIVE ONE: FR-085 (MUST)
+  // subtracts this gap before cutting the name, and a gap in `em` grows with the
+  // reader's text size (FR-039) while the subtracted one does not -- the
+  // difference comes out of the name.
   rowTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
     `overflow:hidden;white-space:nowrap;background:${PAINT.panel};color:${PAINT.ink};` +
@@ -1555,86 +1446,76 @@ const STYLE = {
   // -- `flex:1` is the whole of that, and the controls drawn after it are held
   // at the edge by what is left. ⚠️ The row's own left padding carries the
   // depth (`RowTitle.indentPx`), so an indented row moves its name and not its
-  // controls, which is what HF-4's 「名前ごとに位置が変わると狙えない」 asks for
-  // on the other axis.
+  // controls, which is what HF-4 asks for on the other axis: a control whose
+  // place moves with the name cannot be aimed at.
   rowLabel: 'flex:1;overflow:hidden;text-overflow:ellipsis;',
-  // HF-6 of table T-051, AS THAT ROW NOW READS: 「操作子は、その行の名前にポインタ
-  // が乗っているあいだだけ描くこと（MUST）」. ⚠️ It used to read 「薄く描き、乗って
-  // いるあいだだけ濃く」 and the row records the change itself (利用者の裁定,
-  // 2026-08-25) -- so this declaration no longer paints anything faint, and the
+  // HF-6 of table T-051 (MUST): the controls are drawn only while the pointer is
+  // on that row's name -- so this declaration paints nothing faint and the
   // control takes the ordinary ink like the rest of the panel. WHETHER it is
   // drawn is `ROW_CONTROL_SHOWN_CSS` below, because ⛔ an inline declaration
   // cannot state a rule about where the pointer is. FR-098 sends the `Row Pin`
-  // to this same row rather than restating it, so one declaration covers all
-  // three controls.
+  // to this same row rather than restating it, so one declaration covers them
+  // all.
   //
   // ⛔ `entryGlyphRoom` IS NOT ADDED HERE, AND THE REASON IS THE FRAME. FR-029
-  // fixes a gap 「図形と入口の枠のあいだ」 and this control has no frame at all
-  // (`border:none`), so there is no edge for the shape to be held off. ⚠️ It is
-  // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
-  // centres its own content reads as exactly that to anyone holding the drawn
-  // control against that row. ⭐ WHAT THAT ROW ASKS FOR INSTEAD (MUST, 利用者の
-  // 裁定 2026-09-03) is 「コマンドパレットの入口と同じ考え方」 -- the same two rows
-  // composing the same box -- and `rowControlBoxStyle` is where that is built,
-  // beside the note saying which half of it may not be declared on the control.
+  // fixes a gap between the shape and the entrance's FRAME, and this control has
+  // no frame at all (`border:none`), so there is no edge for the shape to be
+  // held off. ⚠️ It is also the one entrance HF-5 (MUST NOT) forbids to be
+  // centred, and a box that centres its own content reads as exactly that to
+  // anyone holding the drawn control against that row. ⭐ WHAT THAT ROW ASKS FOR
+  // INSTEAD (MUST) is the palette entrance's own composition -- the same two
+  // rows composing the same box -- and `rowControlBoxStyle` is where that is
+  // built, beside the note saying which half of it may not be declared on the
+  // control.
   // ⭐ AND NO BOX IS STATED FOR THE FILL EN-3 OF TABLE T-237 PUTS ON THE PIN
-  // EITHER, WHICH WAS MEASURED RATHER THAN ASSUMED. A stated box was written
-  // and taken out again: HF-5 (MUST NOT) 「中央で揃えてはならない。上端から
-  // 下げてはならない」 refuses every declaration that would give this control a
-  // box of its own without moving the shape inside it -- a centring, a
+  // EITHER. HF-5 (MUST NOT) refuses every declaration that would give this
+  // control a box of its own without moving the shape inside it -- a centring, a
   // `margin-top`, a `padding-top`, a `top`. ⛔ So the fill takes the box the
-  // control already has, and since CR-346 that box is `rowControlBoxPx` on both
-  // axes -- S-138 with S-141 on either side of the shape -- a filled icon, not
-  // a band across the row. ⚠️ Measured before that change it was 20 x 24px at
-  // the host's own 16px text and 24 x 48px at 32px, because the height was the
-  // line box the reader's own text made.
-  // ⛔ OUT OF THE FLOW, AND THAT IS THE POINT. These three are drawn only while
-  // the pointer is on the row's name (HF-6), and S-140 of table T-206 -- the
-  // room FR-085 subtracts before cutting that name -- is 0px. Left in the flex
-  // row they still held a box each, so the name was given 48px less than
-  // FR-085 had judged it against and the browser's own ellipsis cut it. That
-  // cut left `isLabelTruncated` false, so the tooltip FR-085 (MUST) raises for
-  // a cut name could never be raised for it: the rest of the name was
-  // unreachable. Reported by the user with a screenshot: 「Whole Product って
-  // 表示するスペースはあるよね？ あらかじめ操作子が出る部分を確保していて、
-  // その分が無駄になっている」.
-  // ⭐ HF-4 IS UNTOUCHED: 「行の名前の長さにかかわらず、操作子を行見出しパネルの
-  // 右端に揃えること（MUST）」 -- pinned to the row's right edge here, which is
-  // that edge, and no longer moved by the name's length at all.
-  // ⚠️ FR-085's MUST NOT is kept too. It forbids the reserved room CHANGING with
-  // whether the controls are drawn; the room is now 0 whether they are drawn,
-  // not drawn, or absent (EP-4 draws none in the export), which is one amount
-  // in all three -- and it is the amount S-140 states.
+  // control already has, `rowControlBoxPx` on both axes -- S-138 with S-141 on
+  // either side of the shape -- a filled icon, not a band across the row.
+  // ⚠️ Left to the line box the reader's own text makes, the height grows with
+  // that text and the icon becomes a band.
+  // ⛔ OUT OF THE FLOW, AND THAT IS THE POINT. The controls are drawn only while
+  // the pointer is on the row's name (HF-6), and the room FR-085 subtracts
+  // before cutting that name is S-140 of table T-206. Left in the flex row they
+  // still hold a box each, so the name is given less than FR-085 judged it
+  // against and the browser's own ellipsis cuts it -- a cut that leaves
+  // `isLabelTruncated` false, so the tooltip FR-085 (MUST) raises for a cut name
+  // can never be raised for it and the rest of the name is unreachable.
+  // ⭐ HF-4 IS UNTOUCHED: the controls are pinned to the row's right edge here,
+  // which is that edge, and are not moved by the name's length at all.
+  // ⚠️ FR-085's MUST NOT is kept too. It forbids the reserved room CHANGING
+  // with whether the controls are drawn; the room is the same whether they are
+  // drawn, not drawn, or absent (EP-4 draws none in the export) -- and it is the
+  // amount S-140 states.
   rowControl:
     // ⛔ NO `top` IS STATED, AND THAT IS HF-5 OF TABLE T-051 (MUST NOT): an
     // out-of-flow box with no vertical offset keeps its STATIC position, which
-    // for a child of this flex row is the row's content top -- 「名前の上端に
-    // 揃えること（MUST）。中央で揃えてはならない（MUST NOT）」. Writing
-    // `top:0` would say the same thing and take the decision away from the row.
-    // ⛔ THE CONTROL ITSELF STAYS TRANSPARENT, AND THAT IS HF-6 (MUST NOT):
-    // 「操作子ごとに別々の地を敷いてはならない」. Painting `PAINT.panel` here
-    // would be a box per control and the row's name would show through the
-    // steps between them, which is the very drawing the ruling of 2026-08-30
-    // threw out. The one ground the row (MUST) lays instead is
-    // `rowControlGroundStyle`, and it is a box of its own behind all five.
-    // ⭐ `pointer-events:auto` AND NOT INHERITANCE, since CR-336. The four
-    // folding controls stand inside HF-1's lattice, and that box takes no
-    // pointer of its own (`rowFoldingGridStyle` says why), so a control that
-    // merely inherited the row's `auto` would inherit the lattice's `none`
-    // instead and stop being pressable.
+    // for a child of this flex row is the row's content top -- which is where
+    // that row puts it. Writing `top:0` would say the same thing and take the
+    // decision away from the row.
+    // ⛔ THE CONTROL ITSELF STAYS TRANSPARENT, AND THAT IS HF-6 (MUST NOT): no
+    // ground per control. Painting `PAINT.panel` here would be a box per control
+    // and the row's name would show through the steps between them. The one
+    // ground the row (MUST) lays instead is `rowControlGroundStyle`, a box of its
+    // own behind them all.
+    // ⭐ `pointer-events:auto` AND NOT INHERITANCE. The folding controls stand
+    // inside HF-1's lattice, and that box takes no pointer of its own
+    // (`rowFoldingGridStyle` says why), so a control that merely inherited the
+    // row's `auto` would inherit the lattice's `none` instead and stop being
+    // pressable.
     // ⛔ THE BOX ITSELF IS NOT HERE, AND `STYLE`'s own note says why: every
-    // length in this object is relative, and since CR-346 the control's box is
-    // a number of pixels S-138 and S-141 compose. `rowControlBoxStyle` carries
-    // it, appended where the control is made.
+    // length in this object is relative, and the control's box is a number of
+    // pixels S-138 and S-141 compose. `rowControlBoxStyle` carries it, appended
+    // where the control is made.
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
     'border:none;cursor:pointer;pointer-events:auto;',
-  // FR-029 (MUST), as that requirement now reads: an entrance that can change
-  // nothing right now is drawn faint, in table T-236's S-149 -- which is
-  // `PAINT.rule`, the same colour `entryFaintStyle` takes for the entrances
-  // that stand in a frame. ⚠️ 「載る面によって薄くしない入口があってはならない
-  // （MUST NOT）」, so the row's controls take the palette's answer rather than
-  // one of their own. ⛔ IT WAS S-148 UNTIL 2026-08-30 -- see `entryFaintStyle`
-  // for what the shipped build measured and why the requirement moved.
+  // FR-029 (MUST): an entrance that can change nothing right now is drawn
+  // faint, in table T-236's S-149 -- which is `PAINT.rule`, the same colour
+  // `entryFaintStyle` takes for the entrances that stand in a frame. ⚠️ The
+  // same requirement (MUST NOT) refuses to let the faintness differ by the
+  // surface an entrance sits on, so the row's controls take the palette's
+  // answer rather than one of their own.
   //
   // ⭐ APPENDED AND NEVER A SECOND WHOLE DECLARATION, the move `commandEntry`
   // makes with `entranceStateFill`: whether a control can act is one fact about
@@ -1663,9 +1544,9 @@ const STYLE = {
   heading: 'font-weight:600;margin:0 0 0.5em 0;',
   // ⚠️ THE LINE EVERY OTHER SURFACE LAYS A NAME AND A VALUE OUT ON, and NOT the
   // property panel's own field: FR-006's fields are drawn at S-189 .. S-191 of
-  // table T-206, which are px and which `propertyFieldStyle` states. ⛔ The two
-  // were one declaration until the rows existed, and joining them again would
-  // put FR-006's lengths on the resource roster and on FR-088's weekdays.
+  // table T-206, which are px and which `propertyFieldStyle` states. ⛔ Joining
+  // the two would put FR-006's lengths on the resource roster and on FR-088's
+  // weekdays.
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
   // ⛔ NO WIDTH AND NO HEIGHT, AND NOT BECAUSE NONE ARRIVED. FR-053 (MUST) has
@@ -1692,8 +1573,8 @@ const STYLE = {
   // ⚠️ A scroll box or a bound would each answer a question no requirement asks.
   //
   // ⛔ NO PADDING ON THIS BOX EITHER, AND THAT ONE IS GR-19 OF TABLE T-023d.
-  // The grab band is 「パレットの上端に敷く帯」, and a padding here would inset it
-  // on three sides -- a strip floating inside the palette rather than a band
+  // The grab band is laid along the palette's TOP EDGE, and a padding here would
+  // inset it on three sides -- a strip floating inside the palette rather than a
   // along its edge. So the room the entries sit in moved one box further in
   // (`paletteContents`), where it still counts towards the size FR-053 (MUST)
   // makes follow the contents.
@@ -1702,7 +1583,7 @@ const STYLE = {
     `border:1px solid ${PAINT.rule};border-radius:0.25em;` +
     `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`,
   // GR-19 of table T-023d, which stands FIRST in that table under a preamble
-  // reading 「上の行ほど優先すること（MUST）」. Laid as the palette's first child,
+  // making the upper row win (MUST). Laid as the palette's first child,
   // so its width is whatever the entries measured out to and no width is
   // written -- FR-053 (MUST) makes the size follow the contents and (MUST NOT)
   // keeps any table from holding one. ⛔ Its HEIGHT is not here either: it
@@ -1725,13 +1606,12 @@ const STYLE = {
   // is the state that keyword names -- the same distinction `col-resize` makes
   // for the band FR-052 has a person drag.
   //
-  // ⛔ `justify-content:flex-end` IS FR-053 ITSELF AND NOT A LOOK: 「掴み帯の
-  // 右端に、掴めることを示す 表 T-109 の `IC-53` を置き、その右に最小化の入口
-  // （同表の `IC-75`）を置くこと（MUST）」. The band's two marks are laid in the
-  // flow in that order, so ending the flow at the right edge is what puts the
-  // mark at 右端 with the toggle beyond it. ⚠️ `center` stood here until
-  // 2026-09-02 and was measured wrong: on the shipped build the mark landed at
-  // x=334 on a band running 171..513, which is its middle (ledger D-68).
+  // ⛔ `justify-content:flex-end` IS FR-053 ITSELF AND NOT A LOOK: that
+  // requirement (MUST) puts IC-53 at the band's RIGHT END with the minimise
+  // entrance (IC-75) to its right. The band's two marks are laid in the flow in
+  // that order, so ending the flow at the right edge is what puts the mark there
+  // with the toggle beyond it. ⚠️ Centring the flow instead leaves the mark in
+  // the band's middle, which is what the requirement forbids.
   // ⛔ NO GAP AND NO PADDING IS WRITTEN BESIDE IT. No row states how far apart
   // the two marks stand or what room the band keeps at its edge -- searched:
   // FR-053, FR-029, GR-19 and the preamble of 表 T-023d, 表 T-109, 表 T-206
@@ -1744,12 +1624,11 @@ const STYLE = {
   // puts IC-53 at the band's right end and the minimise entrance to ITS right,
   // and the flow above ends at that edge -- so the pair reads mark-then-toggle
   // and the toggle needs nothing of its own to be placed by.
-  // ⚠️ AN OUT-OF-FLOW TOGGLE (`position:absolute;right:0`) STOOD HERE UNTIL
-  // 2026-09-02 AND BROKE BOTH STATES. Shown, it pinned itself to the right edge
-  // and left IC-53 centred, which is what FR-053 forbids; minimised, nothing
-  // else gave the palette a width, so it hung off a band only IC-53 wide --
-  // measured at x=161 on a palette whose left edge was x=170, to the LEFT of
-  // the mark the requirement puts it to the right of.
+  // ⚠️ AN OUT-OF-FLOW TOGGLE (`position:absolute;right:0`) BREAKS BOTH STATES:
+  // shown, it pins itself to the right edge and leaves IC-53 centred, which is
+  // what FR-053 forbids; minimised, nothing else gives the palette a width, so
+  // it hangs off a band only IC-53 wide and lands to the LEFT of the mark the
+  // requirement puts it to the right of.
   // ⭐ In the flow, the minimised band measures IC-53 + IC-75 and the palette's
   // width follows its contents, which is the same requirement's rule for the
   // size.
@@ -1763,14 +1642,10 @@ const STYLE = {
   // `data-role`, so `readScreenPartAt` walks straight past it to the palette --
   // it is the box the entries always sat in, one level down.
   paletteContents: 'padding:0.5em;',
-  // ⛔ THE GROUP'S CAPTION HAD A DECLARATION HERE AND NO LONGER DOES. FR-053
-  // (MUST NOT) stopped the caption being printed, and a style kept for a node
-  // nothing makes is a rule that reads as in force.
-  // ⛔ AND NEITHER DOES THE GAP THAT STOOD IN FOR THE BOUNDARY. A
-  // `margin-bottom:0.5em` sat here while S-143's line could not be drawn; the
-  // line is drawn now (`paletteGroupRuleStyle`), and a made-up gap left beside
-  // it would be a second boundary that no row states. ⚠️ So a group carries no
-  // declaration of its own, and the empty string is what says so.
+  // ⛔ A GROUP CARRIES NO DECLARATION OF ITS OWN, and the empty string is what
+  // says so. FR-053 (MUST NOT) prints no caption for a group, and the boundary
+  // is S-143's line (`paletteGroupRuleStyle`) -- a made-up gap left beside it
+  // would be a second boundary that no row states.
   paletteGroup: '',
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
   // ⚠️ S-147 AND NOT S-151. 強調の色 is 「選択と現在位置」 by table T-236's own
@@ -1780,23 +1655,20 @@ const STYLE = {
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
   // A heading with the entries table T-109 places on that surface beside it.
-  // ⚠️ THE PROPERTIES PANEL IS NO LONGER ONE OF THEM. It shared this row until
-  // 2026-08-27, when FR-072 (MUST NOT) forbade a heading at the head of U-25
-  // (CR-272); the surfaces table T-103 names still carry one, and `modalElement`
-  // is now the only caller. ⛔ The name stays `surfaceHeader` all the same --
-  // the row belongs to a SURFACE and not to the modals, and renaming it back
-  // would have to be undone the next time a surface gains one.
+  // ⚠️ NOT THE PROPERTIES PANEL: FR-072 (MUST NOT) forbids a heading at the
+  // head of U-25. ⛔ The name stays `surfaceHeader` all the same -- the row
+  // belongs to a SURFACE and not to the modals, and renaming it to the one
+  // caller would have to be undone the next time a surface gains one.
   surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
-  // ⭐ ONE LINE PER ROW OF THE SIX TABLES FR-036 NAMES, laid out so that the
-  // column break can never fall inside one: `break-inside:avoid` is what makes
-  // the multi-column list above a list of ENTRIES rather than of lines.
-  // ⚠️ THE LINE HEIGHT IS WHAT MAKES THE LIST FIT, and it was measured rather
+  // ⭐ ONE LINE PER ROW OF THE TABLES FR-036 NAMES, laid out so that the column
+  // break can never fall inside one: `break-inside:avoid` is what makes the
+  // multi-column list above a list of ENTRIES rather than of lines.
+  // ⚠️ THE LINE HEIGHT IS WHAT MAKES THE LIST FIT, and it is measured rather
   // than chosen: FR-036 (MUST) asks the whole of it to stand without scrolling
-  // at MC-6 of table T-025 (1920 x 1080), and at 1.6 the 110 entries came out
-  // 998px against the 1024px the surface has -- which left no room for the
-  // heading above them and scrolled. ⛔ Nothing smaller than this is warranted
-  // either: NFR-007 refuses to let text be cut off, and the entries carry two
-  // scripts.
+  // at MC-6 of table T-025, and the ordinary 1.6 leaves the list taller than the
+  // surface, so the heading above it is pushed out and the box scrolls.
+  // ⛔ Nothing smaller than this is warranted either: NFR-007 refuses to let
+  // text be cut off, and the entries carry two scripts.
   helpEntry: 'display:flex;align-items:baseline;gap:0.5em;break-inside:avoid;line-height:1.35;',
   // The description. ⭐ It takes the room that is left, so the keys and the
   // shape keep their places at the right however long the words come out --
@@ -1820,19 +1692,18 @@ const STYLE = {
   // stand in: they are drawn in the order the description carries, which is
   // table T-024's own.
   formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
-  // NT-9 of table T-037 (MUST, 利用者の指示 2026-08-31): 「箱の幅は中身に合わせて
-  // 変えること」, so the LAYER takes the whole window and only centres what stands
-  // on it -- the width of a telling is then its own contents'.
+  // NT-9 of table T-037 (MUST): the box's width follows its contents, so the
+  // LAYER takes the whole window and only centres what stands on it.
   //
-  // ⛔ `left:50%` WITH A TRANSFORM IS GONE, AND THAT IS A MUST NOT RATHER THAN
+  // ⛔ NO `left:50%` WITH A TRANSFORM, AND THAT IS A MUST NOT RATHER THAN
   // TIDYING. A box placed absolutely and offset to the middle shrinks to fit the
-  // space LEFT of it, which is half the window -- so the words wrapped at a
+  // space LEFT of it, which is half the window -- so the words would wrap at a
   // percentage of the screen even with no `max-width` written at all, and NT-9
   // forbids capping by a percentage of the screen (MUST NOT).
-  // ⛔ AND `max-width:60%` IS GONE FOR THE SAME ROW, IN AS MANY WORDS: 「頭打ちに
-  // すると語が折り返し、`NT-8` の入口が語の下へ落ちて 1 行に収まらない」.
-  // ⚠️ NOTHING TAKES ITS PLACE. The one wrap NT-9 allows is 「画面の幅に収まら
-  // ないとき」, and a flex item's own limit is the line it stands on -- so the
+  // ⛔ AND NO `max-width`, FOR THE SAME ROW IN AS MANY WORDS: a cap wraps the
+  // words and drops NT-8's entrance below them, off the telling's one line.
+  // ⚠️ NOTHING TAKES ITS PLACE. The one wrap NT-9 allows is the screen's own
+  // width, and a flex item's own limit is the line it stands on -- so the
   // wrapping point is MEASURED off the window and not chosen here.
   //
   // ⛔ `pointer-events:none` IS NOT DECORATION, and it was not needed while the
@@ -1843,8 +1714,8 @@ const STYLE = {
   notices:
     'position:absolute;left:0;right:0;pointer-events:none;' +
     'display:flex;flex-direction:column;align-items:center;',
-  // NT-9 (MUST): 「通知が示すものと `NT-8` の入口を、1 行に並べること」 -- the
-  // words, NT-3's count, NT-3a's next steps and the entrance are laid in a row
+  // NT-9 (MUST): what the telling shows and NT-8's entrance stand on ONE line --
+  // the words, NT-3's count, NT-3a's next steps and the entrance are laid in a
   // rather than stacked. ⚠️ `flex-wrap` is the one allowance the row makes, and
   // it is the whole of it: with the window too narrow the line breaks, which is
   // what keeps NT-8's entrance on the screen and pressable.
@@ -1853,10 +1724,9 @@ const STYLE = {
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;` +
     'display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',
   // NT-8's entrance, on the SAME line as everything the telling says (NT-9,
-  // MUST). ⛔ THE `margin-top:0.5em` THAT STOOD HERE IS GONE: it held the
-  // entrance under the words, which is exactly the placement NT-9 names as the
-  // harm. ⚠️ What separates it from the words is the box's own `gap` above, so
-  // no second size is invented here.
+  // MUST). ⛔ NO `margin-top`: it would hold the entrance under the words, which
+  // is exactly the placement NT-9 names as the harm. ⚠️ What separates it from
+  // the words is the box's own `gap` above, so no second size is invented here.
   // ⛔ `flex:none` KEEPS THE WORD WHOLE. A flex item may be shrunk below the
   // width of its contents, and an entrance whose word has been squeezed out
   // cannot be read -- NT-8 (MUST) has the person put the telling away, which
@@ -1866,27 +1736,25 @@ const STYLE = {
   noticeDismiss: 'flex:none;',
   // NT-3a's next step, which stands on the telling's one line (NT-9, MUST).
   //
-  // ⛔ IT WAS `STYLE.fieldName` UNTIL NT-9, AND THAT ROW IS WHY IT NO LONGER IS.
-  // That declaration carries `min-width:9em` for the panel's own labels, and a
-  // fixed width inside the box is exactly what NT-9 (MUST NOT) refuses -- a
-  // three-letter step would have held 9em of the box open. ⭐ What is kept is
-  // the only part that was ever this line's: the quiet colour, so the step reads
-  // as what can be done rather than as more of what happened.
+  // ⛔ NOT `STYLE.fieldName`, AND NT-9 IS WHY. That declaration carries a fixed
+  // `min-width` for the panel's own labels, and a fixed width inside the box is
+  // exactly what NT-9 (MUST NOT) refuses -- a three-letter step would hold the
+  // box open. ⭐ Only the quiet colour is kept, so the step reads as what can be
+  // done rather than as more of what happened.
   noticeNextStep: `color:${PAINT.quiet};`,
   // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
   // answer (IF-9) never sees this surface, the press falls through to the
   // schedule underneath, and NT-7's two answers cannot be pressed at all.
-  // ⛔⛔ THE COLUMN IS WHAT KEEPS NT-7's CHOICE REACHABLE (MUST), and it was
-  // measured rather than preferred (D-134). `STOPPING_BOX` caps the box at 92%
-  // of the screen and lets the whole of it scroll -- so with FR-032's names
-  // filling 7050px of content the two answers sat at y = 7054 on a screen 1080
-  // tall, outside the box and outside the window, and no pointer could reach
-  // 「続ける」 at all. Laying the box out as a column, with the names in a
-  // region that scrolls and the answers in one that does not, is what puts them
-  // back on the screen whatever the list's length. ⛔ NO NEW SIZE IS INVENTED:
-  // every length here is still `STOPPING_BOX`'s, and the specification holds no
-  // row that gives this surface one (searched: table T-206's S- rows, table
-  // T-212, table T-103, FR-032, NT-7).
+  // ⛔⛔ THE COLUMN IS WHAT KEEPS NT-7's CHOICE REACHABLE (MUST), and it is
+  // measured rather than preferred. `STOPPING_BOX` caps the box and lets the
+  // whole of it scroll -- so a long enough list of FR-032's names pushes the two
+  // answers past the foot of the box and off the window, where no pointer can
+  // reach them. Laying the box out as a column, with the names in a region that
+  // scrolls and the answers in one that does not, is what puts them back on the
+  // screen whatever the list's length. ⛔ NO NEW SIZE IS INVENTED: every length
+  // here is still `STOPPING_BOX`'s, and the specification holds no row that gives
+  // this surface one (searched: table T-206's S- rows, table T-212, table
+  // T-103, FR-032, NT-7).
   confirmation: STOPPING_BOX + 'display:flex;flex-direction:column;',
   // The half of the surface that MAY scroll: what would happen, in words, and
   // FR-032's names. ⛔ `min-height:0` is not decoration -- without it a flex
@@ -1911,30 +1779,29 @@ const STYLE = {
   // read -- NT-7 (MUST) has the person CHOOSE between the two.
   confirmationAnswer: 'flex:none;',
   // U-62 `Import Report`, laid out as a COLUMN over `STYLE.modal` for the one
-  // reason `confirmation` above is, and it is the same measurement (D-134) that
-  // settles it rather than a preference: the box is capped and scrolls as a
-  // whole, so a list long enough to fill it pushes what stands under the list
-  // out of reach -- and U-62 has 「入口は `OK` の 1 つだけである」, which an
-  // entrance nobody can reach empties. ⛔ NO NEW LENGTH IS INVENTED: every one
-  // here is still `STYLE.modal`'s, and the specification holds no row that gives
-  // this surface a size of its own (searched: table T-103, table T-206's S-
-  // rows, table T-212, FR-023).
+  // reason `confirmation` above is, and it is the same measurement that settles
+  // it rather than a preference: the box is capped and scrolls as a whole, so a
+  // list long enough to fill it pushes what stands under the list out of reach
+  // -- and U-62 has ONE entrance, which nobody being able to reach it empties.
+  // ⛔ NO NEW LENGTH IS INVENTED: every one here is still `STYLE.modal`'s, and
+  // the specification holds no row that gives this surface a size of its own
+  // (searched: table T-103, table T-206's S- rows, table T-212, FR-023).
   importReportBox: 'display:flex;flex-direction:column;',
   // ⚠️ THE SCROLLING HALF AND THE ENTRANCE BESIDE IT ARE `confirmationNames`
   // AND `confirmationAnswers`, REUSED RATHER THAN COPIED -- the job is the same
   // one (a list that may scroll, and the way out held out of it), and a second
   // declaration would be a second set of lengths to keep in step.
-  // NT-7 (MUST): 「頭の 1 文字（`Y` と `N`）を太字にすること」. ⛔ THE WEIGHT IS
-  // THE WHOLE OF WHAT IS DECLARED -- the row asks for bold and nothing else, and
-  // a colour or a size here would be a second signifier nobody stated.
+  // NT-7 (MUST): the first letter of each answer is bold. ⛔ THE WEIGHT IS THE
+  // WHOLE OF WHAT IS DECLARED -- the row asks for bold and nothing else, and a
+  // colour or a size here would be a second signifier nobody stated.
   // ⚠️ `font-weight` AND NOT A `<strong>` LEFT TO THE BROWSER: `entryStyle`
   // declares `font:inherit` on the button, which resets the weight a host
   // stylesheet would have given the element -- so the bold has to be said.
   confirmationAnswerInitial: 'font-weight:bold;',
-  // FR-020 (MUST): 「答えは打ち込む文字とし、伏せて描くこと」. ⛔ THE MASKING
-  // ITSELF IS NOT HERE -- it is the field's own `type`, which is what a browser
-  // masks by; this declares only that the field fills the box it stands in, so
-  // that a long password is not typed into a slot two characters wide.
+  // FR-020 (MUST): the answer is typed and drawn masked. ⛔ THE MASKING ITSELF
+  // IS NOT HERE -- it is the field's own `type`, which is what a browser masks
+  // by; this declares only that the field fills the box it stands in, so that a
+  // long password is not typed into a slot two characters wide.
   // ⚠️ `font:inherit` FOR THE REASON `entryStyle` DECLARES IT: a host gives an
   // input a font of its own, and the surface's own text would then be one size
   // and the field another.
@@ -1950,9 +1817,6 @@ const STYLE = {
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
   // IN-3 of table T-028: it can be pointed at, so it takes the pointer.
-  // ⚠️ NOTHING LAYS TWO THINGS OUT SIDE BY SIDE HERE ANY MORE -- the flex row
-  // was for the control that used to sit beside the reading, and `tooltipElement`
-  // says why that control is gone.
   // ⚠️ THE SIZE IS NOT HERE. EZ-2 of table T-040 (MUST) sets it from S-204,
   // which lives in the generated block below and is not in scope while this
   // object is being built -- `tooltipStyle` is where it is added, the shape
@@ -2077,9 +1941,8 @@ function themeStyle(theme: ScreenTheme): string {
 }
 
 /**
- * FR-041 (MUST): 「地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねては
- * ならない（MUST NOT）」 and 「選んだ明暗を `color-scheme` として閲覧環境へ伝える
- * こと（MUST）」, for the one box that lies BEHIND the schedule.
+ * FR-041 (MUST), both halves -- paint the ground, tell the environment the
+ * `color-scheme` -- for the one box that lies BEHIND the schedule.
  *
  * ⭐ RESOLVED HERE AND WRITTEN BY THE SHELL, which is the only split that keeps
  * both rules. The row and the two renderings are table T-236's and reach `src/`
@@ -2116,14 +1979,13 @@ export function pageGroundStyle(theme: ScreenTheme): string {
 }
 
 /**
- * HF-6 of table T-051 (MUST): 「操作子は、その行の名前にポインタが乗っている
- * あいだだけ描くこと」, which FR-098 binds the `Row Pin` to as well.
+ * HF-6 of table T-051 (MUST), which FR-098 binds the `Row Pin` to as well.
  *
- * ⭐ `visibility` AND NOT `display`, WHICH IS THE MUST NOT OF THE SAME ROW.
- * 「描かないあいだも、確保する場所を変えてはならない」, and FR-085 holds the rule
- * and the reason: the room kept for the controls (S-140) is what the row's name
- * was cut against, so a control that stopped taking up room would move the cut
- * every time the pointer crossed a row. ⛔ `display:none` takes the room away;
+ * ⭐ `visibility` AND NOT `display`, WHICH IS THE MUST NOT OF THE SAME ROW: the
+ * room kept while nothing is drawn may not change. FR-085 holds the reason --
+ * the room kept for the controls (S-140) is what the row's name was cut against,
+ * so a control that stopped taking up room would move the cut every time the
+ * pointer crossed a row. ⛔ `display:none` takes the room away;
  * `visibility:hidden` keeps the box and draws nothing in it. ⚠️ It also stops
  * the control taking the pointer, which is right: an undrawn control is not one
  * a person can press, and IF-9's fourth member answers what `elementFromPoint`
@@ -2142,7 +2004,7 @@ export function pageGroundStyle(theme: ScreenTheme): string {
  * whenever `RowTitlePanel`'s description changed, and the press that opens a
  * level changes it -- so the fresh node would stand undrawn under a pointer that
  * never moved, which is the one state HF-6 is about. ⭐ `:hover` is the
- * environment's own answer to 「乗っているあいだ」 and survives the rebuild.
+ * environment's own answer to that row's condition, and survives the rebuild.
  * ⚠️ It also wakes nothing: NFR-010 (MUST NOT) forbids running a frame on a
  * trigger table T-078 does not name, and FR-048 names HF-6 among the four it
  * excuses from its own MUST NOT -- an excuse this side does not have to spend,
@@ -2188,11 +2050,11 @@ const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 
 /**
  * What marks the ONE column HF-4 of table T-051 (MUST) stands the deletion and
- * the addition in, 「消すと足すの縦の対」.
+ * the addition in, one above the other.
  *
  * ⛔ NOT A `data-role` AND NOT A `data-icon`, for the reason the lattice above
  * carries none: it is an arrangement of two entrances and not a third one.
- * ⭐ A mark of its own is what lets HF-4's 「縦の対」 -- and the MUST NOT that
+ * ⭐ A mark of its own is what lets that pairing -- and the MUST NOT that
  * nothing stands between the two -- be read back off the drawn page (rule 04).
  */
 const ROW_CONTROL_PAIR_MARK = 'data-row-control-pair'
@@ -2269,23 +2131,20 @@ const ROW_CONTROL_SHOWN_CSS =
 /**
  * How faint the palette stands while the pointer is not on it.
  *
- * STOP -- ⛔ NOT HELD ANYWHERE: how faint 「薄く透明に」 is. FR-053 states the
+ * STOP -- ⛔ NOT HELD ANYWHERE: how faint the palette stands. FR-053 states the
  * state and no degree of it, and no settings row carries one -- S-131's
  * `dummyOpacity` is FR-013's and FR-043's value for the schedule's own faint
  * marks and belongs to the surface that draws those, so borrowing it here would
  * give this unit a number its requirement does not have. Searched: FR-053,
  * FR-029, table T-031, table T-051 (HF-6) and `_assets/tbl-settings.md`.
- * ⭐ Carried over unchanged from the inline declaration this rule replaces, so
- * that moving WHERE the judgement is made changes nothing about how it looks.
- * ⚠️ It is a transparency and not a colour, which is where FR-053 parts company
- * with FR-029's 「薄く描く」: that one takes table T-236's 控えめな文字の色
- * (S-149, `PAINT.rule`), and FR-053 asks
- * for something a colour cannot state.
+ * ⚠️ It is a transparency and not a colour, which is where FR-053 parts
+ * company with FR-029's faint entrance: that one takes table T-236's S-149
+ * (`PAINT.rule`), and FR-053 asks for something a colour cannot state.
  */
 const PALETTE_FAINTNESS = '0.6'
 
 /**
- * FR-053 (MUST): 「ポインタが乗っていないあいだは薄く透明に描く」.
+ * FR-053 (MUST): the palette stands faint while the pointer is not on it.
  *
  * ⭐ WHY THIS IS A RULE AND NOT A MEMBER OF THE DESCRIPTION. FR-053 (MUST)
  * requires the judgement to be made on WHICH PART the pointer is on, and this
@@ -2300,7 +2159,7 @@ const PALETTE_FAINTNESS = '0.6'
  * ⚠️ THE PARTS INSIDE THE PALETTE COUNT AS THE PALETTE. `:hover` matches an
  * ancestor of the node under the pointer, so a pointer on `Palette Groups` or
  * `Palette Commands` (U-34) -- or on an entry inside them -- keeps the palette
- * bright, which is what 「乗っている」 means for a part that holds other parts.
+ * bright, which is what that condition means for a part that holds others.
  *
  * ⛔ NO `!important` HERE EITHER. Nothing paints the palette's transparency
  * inline, so there is no inline declaration for a selector to be outranked by --
@@ -2316,34 +2175,34 @@ const PALETTE_FAINT_CSS =
   `{opacity:${PALETTE_FAINTNESS};}`
 
 /**
- * FR-029 (MUST): 「構えている入口にポインタが乗っているあいだ、その入口の下に地を
- * 敷くこと」, in S-147 at the depth of S-214.
+ * FR-029 (MUST): a ground under the armed entrance while a pointer rests on it,
+ * in S-147 at the depth of S-214.
  *
  * ⭐ A RULE AND NOT AN INLINE DECLARATION, for the reason `ROW_CONTROL_SHOWN_CSS`
- * is one: an inline declaration cannot state anything about where the pointer is,
- * and the requirement is 「乗っているあいだ」 -- 「ポインタが離れれば消える」.
+ * is one: an inline declaration cannot state anything about where the pointer
+ * is, and the ground has to go the moment the pointer leaves.
  *
  * ⛔ `button[data-icon]` IS THE SELECTOR, AND BOTH HALVES ARE MEASURED. Every
  * entrance this unit draws is a `button` carrying its row of table T-109 --
  * `commandEntry`, `rowControlElement`, `panelCornerEntryElement` and
  * `rosterSelectionEntry` are all four of them -- and the one `data-icon` that is
- * NOT a button is IC-53's grab band, which table T-109 states is 「ボタンではない」
- * and which is a place to take hold of rather than an entrance standing ready.
+ * NOT a button is IC-53's grab band, which table T-109 states is no button at
+ * all but a place to take hold of rather than an entrance standing ready.
  * ⚠️ It also settles the nesting: IC-75 is drawn INSIDE that band, `:hover`
  * matches an ancestor, and a rule keyed on `[data-icon]` alone would tint the
  * whole band whenever the pointer reached the entry inside it.
  *
  * ⛔ THE FAINT ENTRANCE IS EXCLUDED, AND THAT IS THE MUST NOT OF THE SAME
- * PARAGRAPH: 「薄く描いた入口には敷いてはならない」 -- 「押せない入口が手応えを
- * 返すと、押せるものと見分けがつかなくなる」. `aria-disabled` is how that state is
+ * PARAGRAPH: an entrance that cannot be pressed but answers the pointer becomes
+ * indistinguishable from one that can. `aria-disabled` is how that state is
  * written, because FR-029 (MUST NOT) forbids the host's own `disabled`
  * (`entryFaintStyle` says why at length), so it is also the only thing there is
  * to test.
  *
  * ⛔ AND SO IS EVERY ENTRANCE TABLE T-237 HAS FILLED. FR-029 (MUST) fills the
  * entrance that is in effect and knocks its shape out in S-146, and a ground laid
- * over that fill would take the fill away -- the state that says 「いま効いて
- * いる」 would be lost for as long as a pointer rested on it. ⚠️ The three
+ * over that fill would take the fill away -- the state that says the entrance
+ * is in effect would be lost for as long as a pointer rested on it. ⚠️ The three
  * attributes are the ones `commandEntry` and the pin write beside the fill
  * `entranceStateFill` paints, so the two agree by construction. ⭐ The sample
  * settles it the same way (`.e.fill:hover` keeps the fill).
@@ -2367,14 +2226,14 @@ function entranceHoverGroundCss(): string {
 
 /**
  * Everything this unit states as a rule rather than as an inline declaration --
- * three requirements about where the pointer is, and nothing else.
+ * the requirements about where the pointer is, and nothing else.
  *
  * ⛔ BUILT FROM CONSTANTS AND NEVER FROM A DESCRIPTION, so the sheet is written
  * once and never rewritten: no rule in it depends on what is on the screen.
  *
- * ⛔ A FUNCTION AND NOT A `const` SINCE 2026-08-31, for the reason `rowBandPx`
- * gives: FR-029's ground reads its depth out of the generated block at the foot
- * of this file, which a `const` evaluated above it cannot see.
+ * ⛔ A FUNCTION AND NOT A `const`, for the reason `rowBandPx` gives: FR-029's
+ * ground reads its depth out of the generated block at the foot of this file,
+ * which a `const` evaluated above it cannot see.
  *
  * @purity pure
  */
@@ -2456,15 +2315,12 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
 /**
  * The same four numbers, for a box drawn INSIDE another absolutely placed one.
  *
- * ⛔⛔ WHY A THIRD PLACING FUNCTION, AND IT WAS MEASURED (D-368, on the shipped
- * build at 1920x1080). `boxStyle` above speaks in window coordinates, which is
- * right for every layer -- they span the root and the root is pinned to the
- * viewport. It is NOT right inside a `position:absolute` box: that box becomes
- * the containing block, so the window numbers are added to ITS corner and the
- * drawn result stands at twice the corner. The horizontal lane came out at
- * (200, 1062) with its grip at (400, 2124), and the vertical lane at (1902, 85)
- * with its grip at (3804, 170) -- both exactly doubled, and both outside the
- * window, so GR-21's grip could be neither seen nor grabbed.
+ * ⛔⛔ WHY A THIRD PLACING FUNCTION, AND IT WAS MEASURED. `boxStyle` above
+ * speaks in window coordinates, which is right for every layer -- they span the
+ * root and the root is pinned to the viewport. It is NOT right inside a
+ * `position:absolute` box: that box becomes the containing block, so the window
+ * numbers are added to ITS corner and the drawn result stands at twice the
+ * corner -- far enough out that GR-21's grip can be neither seen nor grabbed.
  *
  * ⭐ THE CONTAINER IS SUBTRACTED HERE RATHER THAN THE CHILD BEING MOVED OUT.
  * The alternative -- drawing the grip as a sibling of the lane -- would take it
@@ -2566,14 +2422,13 @@ function panelEdge(
  * ⭐ WHY THE DRAWING SIDE CONVERTS AND THE SEAM DOES NOT. `AutosaveStatus.at`
  * goes on carrying the spelling AT-129 fixes -- ISO 8601, UTC, to the second --
  * so nothing on IF-9 moves and no value of table T-065 changes shape. FR-101
- * (MUST) keeps what is STORED in UTC and settles no spelling for what is SHOWN
- * -- 「時刻の綴りそのものは本書が定めない」 -- which leaves the reading to this
- * side.
+ * (MUST) keeps what is STORED in UTC and settles no spelling for what is SHOWN,
+ * which leaves the reading to this side.
  * ⭐ AND THE ZONE IS THE READER'S BECAUSE THAT IS WHAT THE ONE ROW WHICH DOES
- * SETTLE A ZONE ASKS FOR: FR-046 (MUST) has today's date be 「読む人の機のロー
- * カルの暦の日」 and (MUST NOT) forbids UTC's. `readToday` in the shell is built
- * from the local getters for that row; this is the same reading of the same
- * question, one requirement over.
+ * SETTLE A ZONE ASKS FOR: FR-046 (MUST) has today's date be the reader's own
+ * local calendar day and (MUST NOT) forbids UTC's. `readToday` in the shell is
+ * built from the local getters for that row; this is the same reading of the
+ * same question, one requirement over.
  *
  * ⛔ THE TRAILING `Z` IS DROPPED BECAUSE IT IS A CLAIM AND NOT A DECORATION:
  * that letter says "this is UTC", and after the conversion the claim is false.

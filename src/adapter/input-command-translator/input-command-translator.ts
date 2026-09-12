@@ -19,12 +19,9 @@
 // comment makes the generator treat the comment as the region and inject the
 // block into the middle of it. The marker must occur exactly once per file.
 //
-// ⭐ WHY THIS COMPONENT EXISTS. CP-18 of table T-062 gives it one job -- 「画面
-// の入力を操作へ変える」 -- and names FR-016 and FR-070 as the requirements it
-// answers. Everything else in this tree can draw a schedule and change a
-// document; nothing else turns a press or a key into the change. Table T-023
-// and table T-036 are the two assignment tables, and this file is where they
-// are read.
+// ⭐ WHY THIS COMPONENT EXISTS. CP-18 of table T-062 gives it one job, and
+// names FR-016 and FR-070 as the requirements it answers. Table T-023 and table
+// T-036 are the two assignment tables, and this file is where they are read.
 //
 // ⭐ THREE PURE FUNCTIONS, NOT A LISTENER. UF-30 is `pure` in table T-075, so
 // none of the three may remember anything between two happenings. Every value
@@ -51,61 +48,27 @@
 //
 // ⭐ THE HARD DECISIONS, and why they went this way:
 //
-//   1. `commandFromInput` answers a RECORD, not a command. MK-10 is a row of
-//      table T-023 -- the very table PI-18 names -- and it is a MUST about the
-//      browser's own behaviour: stop it for what this tool assigned, and do NOT
-//      stop it for what it did not. Only this component knows which is which,
-//      so the answer travels beside the action. It is keyed on ASSIGNMENT, not
-//      on whether an action came out: `Ctrl+A` is assigned though its whole
-//      effect is a selection, and a wheel turn mid-drag is assigned though the
-//      rule under table T-023d refuses it (MUST NOT).
-//   2. `InputAction` is wider than `DocumentCommand`. Half of table T-036 asks
-//      for something that is not an edit at all -- open, save, copy, undo --
-//      and CP-18 says 操作, not 命令. A `changeDocument` action carries a LIST
-//      because one gesture can be several rows of table T-108 that have to
-//      settle together: FR-031 requires one document-changing drag to be one
-//      undo step (MUST), and `PlanInput.commands` is the bundle that makes it
-//      one write.
-//   3. The press arrives in the context, hit and all. IN-1 settles a pointer
-//      operation on RELEASE, and CS-2 of table T-066 freezes a gesture's
-//      document at the moment of the press -- so what was under the pointer
-//      THEN is what the gesture is about, and re-running `itemAtPointer` on
-//      release would answer about a screen that has since moved.
-//   4. What the SCREEN SURFACE drew at the press arrives the same way
-//      (`PointerPress.on`), and it is read BEFORE table T-023a. The note under
-//      that table limits its decision order to the schedule's drawing area
-//      (MUST), and the floating palette, the open surface, the notices and the
-//      dialogue field are drawn over that area while `ScreenRegions` (PI-35)
-//      holds a rectangle for none of them -- so `regionAtPointer` alone answers
-//      `rowArea` for a point on any of them, and a press on an entry would
-//      become a marquee on the schedule underneath. ⭐ The answer comes from
-//      the side that DREW the entry, which Chapter 5.3 makes a MUST under table
-//      T-065; nothing here recomputes a rectangle it cannot see.
-//   5. Which ROW of table T-023a a press began travels ON the press
-//      (`PointerPress.pressRow`), decided when the press is recorded. AG-9 of
-//      table T-035 refuses an Agent API write while a gesture is in flight but
-//      spares the two gestures table T-027 keeps out of the undo history -- the
-//      pan (UN-8, which is PD-1) and the range selection (UN-9, which is PD-5)
-//      -- and the party that answers AG-9 holds the press and nothing else.
-//      ⛔ That party may not read table T-023a a second time (R2.7), and the
-//      note under the table binds the decision order to the schedule's drawing
-//      area (MUST) besides. So `pressRowOf` is published and its answer is
-//      carried. ⭐ CS-2 of table T-066 is why the answer rides on the press
-//      rather than being asked for later: it makes one gesture the unit of
-//      consistency and the press its moment, so the row's life is the press's.
+//   1. `commandFromInput` answers a RECORD, not a command. MK-10 is a MUST
+//      about the browser's own behaviour -- stop it for what this tool
+//      assigned and not for what it did not -- and only this component knows
+//      which is which, so the answer travels beside the action. It is keyed on
+//      ASSIGNMENT and not on whether an action came out; see `TranslatedInput`.
+//   2. `InputAction` is wider than `DocumentCommand`, and a `changeDocument`
+//      action carries a LIST. `InputAction` states both reasons on itself.
+//   3. The press arrives in the context -- its hit, what the screen surface had
+//      drawn there, and the row of table T-023a it began. `PointerPress` states
+//      on each member why the CALLER resolves it and why it rides on the press.
+//      ⭐ AG-9 of table T-035 refuses an Agent API write while a gesture is in
+//      flight, but spares the two gestures table T-027 keeps out of the undo
+//      history -- the pan (UN-8, which is PD-1) and the range selection (UN-9,
+//      which is PD-5).
 //
 // ⛔ WHAT THIS FILE MAY NOT DO. It never invents a value the specification
 // owns: where a row is missing, a STOP note names the row that is missing and
-// the member stays unwritten. The marked places are collected in the report for
-// this unit, and each one says what would have to be settled first.
+// the member stays unwritten.
 //
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
-//
-// The seam declared in this folder is re-exported here because
-// the layer that implements it may not reach past this file
-// (Chapter 5.3, MUST).
+// Chapter 5.3 (MUST / MUST NOT): every name this component publishes, and the
+// seam declared in this folder, leaves through this file and no other.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -167,14 +130,12 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
-// ⚠️ A VALUE AND NOT ONLY A TYPE, which HF-14 (MUST NOT) forces: 「既定の名前は
-// 表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST
-// NOT）」, and Chapter 6.2 gives the words ONE destination in `src/`. Reading the
-// word here is the alternative to spelling it, which is the thing forbidden.
-// ⚠️ THE PROHIBITION IS ABOUT A RULE, not about every appearance of the spelling:
-// HF-14 says as much in its own 2026-09-05 note, and its dated quotations of the
-// 利用者の裁定 print the default name. This comment quoted the older, narrower
-// wording until 2026-09-06.
+// ⚠️ A VALUE AND NOT ONLY A TYPE, which HF-14 (MUST NOT) forces: the
+// specification may not print the default name as a rule, and Chapter 6.2 gives
+// the words ONE destination in `src/`. Reading the word here is the alternative
+// to spelling it, which is the thing forbidden.
+// ⚠️ THE PROHIBITION IS ABOUT A RULE, not about every appearance of the
+// spelling -- HF-14's own note says so.
 import { DEFAULT_ROW_NAME } from '../../use-case/edit-document/edit-document'
 import type {
   DocumentCommand,
@@ -224,18 +185,11 @@ export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
 type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
 /**
- * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST):
- * 「軸を 1 本に固定すること（MUST）。掴んでから最初に閾値を超えた向きで軸が決ま
- * り、離すまで変わらないこと（MUST）」.
+ * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST).
  *
  * ⭐ TWO NAMES AND NOT `x` / `y`, because the row names the two by what they
- * CHANGE and not by which way the hand went: 「上下は位置を変え、段を変えては
- * ならない（MUST NOT）」 and 「左右は段を変えること（MUST）」. A pair of axis
- * names would leave the reader to remember which way round that is.
- *
- * ⛔ WHY IT IS FIXED AT ALL, in the row's own words: 「軸を固定しないと、1 画素
- * ごとに『動かすのか、親を変えるのか』を道具が推し量ることになり、境目で答えが
- * 反転する」.
+ * CHANGE and not by which way the hand went; a pair of axis names would leave
+ * the reader to remember which way round that is.
  */
 export type RowGrabAxis = 'position' | 'depth'
 
@@ -337,16 +291,12 @@ export interface PointerPress {
    * point until it has applied one, and with the pointer of each travel it
    * applies after that -- gets the picture following, and the same total,
    * because the parts telescope.
-   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS, which is what makes FR-053's
-   * MUST reached on the one road this build has: `collectPress` puts the
-   * press's own point here, and the travel each applied `moveCommandPalette`
-   * carries advances it.
-   * ⛔ STILL OPTIONAL, AND THAT IS THE WHOLE OF WHAT IS LEFT OF THE SEAM.
-   * Required is the honest shape and costs one character here; what holds it
-   * open is that presses built outside the shell do not carry the member yet,
-   * and until they do the meaning above is what an absent one means -- never a
-   * silent zero, which would report the whole travel from the press on every
-   * move and send the palette running by the sum.
+   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS: `collectPress` puts the press's
+   * own point here, and the travel each applied `moveCommandPalette` carries
+   * advances it.
+   * ⛔ STILL OPTIONAL because presses built outside the shell do not carry the
+   * member yet. Until they do, absent means the meaning above -- never a silent
+   * zero.
    */
   readonly followedTo?: { readonly x: number; readonly y: number }
   /**
@@ -421,15 +371,11 @@ export interface InputContext {
    * T-024a, answered by the side that DREW it.
    *
    * ⛔⛔ IT CANNOT BE WORKED OUT HERE, WHICH IS THE WHOLE REASON THE MEMBER
-   * EXISTS (D-358). OP-10 has three branches that draw the stored pair or the
-   * fit, and the second of them -- 「表 T-034 の `BT-4`（起動テンプレート）から
-   * 開いた文書には働かせてはならない（MUST NOT）」 -- turns on where the
-   * document CAME FROM, which no value reachable from here records. ⛔ The
-   * condition must not be written a second time to reach it: it was written
-   * twice already, only one copy carried the exception, and the shipped build
-   * at 1920x1080 answered a first press of IC-12 with `zoomX` 1 -> 0.2285 and
-   * the IC-13 that followed with 0.2765 -- a zoom IN that came out 3.6 times
-   * smaller than where it started.
+   * EXISTS. OP-10's second branch turns on where the document CAME FROM -- a
+   * `BT-4` startup template is excepted (MUST NOT) -- and no value reachable
+   * from here records that. ⛔ The condition must not be written a second time
+   * to reach it: a copy that misses the exception makes a first press of IC-12
+   * answer a zoom IN that comes out several times smaller than where it started.
    *
    * ⚠️ ABSENT READS AS 「nobody said」, and then the base half of the condition
    * is read here as it always was -- a document that names a place is at its
@@ -453,10 +399,7 @@ export interface InputContext {
    * is measured where the lattice is drawn and travels as a value.
    * ⛔⛔ THE FLOOR DOES NOT FOLLOW THE READER'S FONT SIZE. `S-138`, `HF-19` and
    * `LF-3` all say so, and `HF-19` adds that `FR-039` moves the size of a row's
-   * NAME but not the size of a control (表 T-051 の `HF-5`). ⚠️ Until 2026-09-06
-   * this comment cited, as `HF-19`'s own words, a sentence saying the opposite --
-   * that the reader's font size moves the control height. NO SUCH SENTENCE IS IN
-   * `docs/spec`, and what is there says the floor does not follow it.
+   * NAME but not the size of a control (表 T-051 の `HF-5`).
    * ⚠️ Wanted by FR-055's fit alone, which measures the bands the frame is about
    * to draw; absent reads as no floor, which is what a caller drawing no row
    * control has.
@@ -493,11 +436,9 @@ export interface InputContext {
    * ⚠️ ONE TRUTH VALUE AND NOT WHICH SURFACE. The rule names no surface in
    * particular -- it asks only whether one stands -- and naming them here
    * would be a second census against table T-103's.
-   * ⛔ IT IS A CLOSING RULE AND NOT A ROW, and calling it `MK-14` (as two
-   * lines here did until 2026-08-29) names something table T-023 does not
-   * hold: the manuscript says in as many words why it is not a row --
-   * 「行ではなく結びの規則としたのは、これが操作ではないからである」 -- because
-   * that table's rows are printed into FR-036's help as things a person can DO.
+   * ⛔ IT IS A CLOSING RULE AND NOT A ROW: table T-023 holds no `MK-14`, and
+   * the manuscript says why -- that table's rows are printed into FR-036's help
+   * as things a person can DO, and this is not an operation.
    */
   readonly isSurfaceStanding: boolean
   /**
@@ -516,9 +457,9 @@ export interface InputContext {
    * operation state -- DC-8 (MUST NOT) even keeps the mark for it out of an
    * export, so it could not be a saved key without going on the round trip.
    *
-   * ⚠️ THE NOTE THAT STOOD HERE ALSO CALLED THIS A THING `EscapeContext` HAD
-   * SETTLED. That value asks a narrower question (whether the mode is up at
-   * all) and `escapeContextOf` answers it from this one.
+   * ⚠️ NOT A THING `EscapeContext` HAS SETTLED. That value asks a narrower
+   * question (whether the mode is up at all) and `escapeContextOf` answers it
+   * from this one.
    */
   readonly dualCursorFollowing: DualCursorSide | null
   /**
@@ -547,9 +488,8 @@ export interface InputContext {
    * `id` as a value it is handed rather than one it makes.
    * ⛔ NOT OPTIONAL, and that is deliberate. `isPropertiesPanelShowing` below is
    * optional and says what that costs -- a caller which forgets it is never
-   * told. Forgetting THIS one is the whole of ledger row D-06: a placement that
-   * reaches the document with no identifier reaches it not at all, and silence
-   * is exactly the symptom that took two measured rounds to name.
+   * told. Forgetting THIS one costs more: a placement that reaches the document
+   * with no identifier reaches it not at all, and it fails silently.
    */
   readonly newCommentBoxId: string
   /**
@@ -563,20 +503,19 @@ export interface InputContext {
    */
   readonly newHighlightBoxId: string
   /**
-   * S-99h of table T-206 -- 「プロパティパネルを出しているか」 -- or `undefined`
-   * where the caller carried no answer.
+   * S-99h of table T-206, or `undefined` where the caller carried no answer.
    *
    * ⭐ WHAT IT IS FOR, AND IT IS ONE ROW ONLY. SK-19's second stage (MUST) puts
-   * the `Properties Panel` away on a plain `Enter` with 「確定していないその場の
-   * 編集が 1 つも無いとき」, and adds 「焦点が名称の欄の外にあるときも同じである」
-   * -- so the press has to be ASSIGNED with no field held, and until this row
+   * the `Properties Panel` away on a plain `Enter` when no in-place edit is
+   * unsettled -- focus outside the name field included -- so the press has to be
+   * ASSIGNED with no field held, and until this row
    * crossed, `commandFromKey` had nothing to tell that press apart from every
    * other `Enter` a person may have tabbed onto an entry to raise. ⛔ Assigning
    * every plain `Enter` was the alternative and is refused: MK-10 would then
    * stop the browser's default on all of them, which takes keyboard activation
    * away from every entry.
    *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30). It is
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT. It is
    * declared optional so that the callers already holding an `InputContext`
    * literal go on compiling; the cost is that a caller which never sets it gets
    * `undefined`, which reads here as 「出していない」 and simply leaves the
@@ -598,17 +537,15 @@ export interface InputContext {
    * has `Enter` and `Esc` both put one telling away, and (MUST) puts that
    * ahead of every level of both ladders -- SK-19's first stage and IN-4's
    * first level. Both are decided in this file, so both need the answer.
-   * ⛔ THE TELLINGS THEMSELVES DO NOT COME. Which one is 「いちばん新しいもの」 is
-   * the holder's to say: the list is a current value LY-5 of table T-060 leaves
-   * with the Framework, and a copy carried here would be a second roster.
+   * ⛔ THE TELLINGS THEMSELVES DO NOT COME. Which one is the newest is the
+   * holder's to say: the list is a current value LY-5 of table T-060 leaves with
+   * the Framework, and a copy carried here would be a second roster.
    *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS 「立っていない」, for the reason
-   * `isPropertiesPanelShowing` above gives -- the `InputContext` literals
-   * already written go on compiling. ⭐ THAT IS THE DIRECTION NT-8 (MUST NOT)
-   * REQUIRES: 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費
-   * してはならない」, so a forgotten answer costs a dismissal and never takes a
-   * press away from the rung below -- the properties panel still closes and a
-   * task name still settles.
+   * ⛔⛔ OPTIONAL, AND ABSENT READS AS NOT STANDING, for the reason
+   * `isPropertiesPanelShowing` above gives. ⭐ THAT IS THE DIRECTION NT-8 (MUST
+   * NOT) REQUIRES: with nothing to dismiss, this rung may not consume the press,
+   * so a forgotten answer costs a dismissal and never takes a press away from
+   * the rung below.
    */
   readonly isNoticeStanding?: boolean
   /**
@@ -617,14 +554,13 @@ export interface InputContext {
    * the `Row Area` with the rows the cut empties dropped.
    *
    * ⭐⭐ WHY THE PRESS SIDE NEEDS THE PICTURE AT ALL. FR-029 (MUST) draws an
-   * entrance faint 「その入口を押しても、いま文書にも画面にも何も変えられない
-   * とき」 and counts the target 「画面に描かれている側で」; the second MUST of
-   * the same requirement then has THAT press tell its reason. The two are one
-   * reading, so an entrance the panel drew faint must answer the press with a
-   * row of 表 T-233 and never with a silent write. ⛔ UNTIL THIS MEMBER EXISTED
-   * THIS FILE JUDGED OFF THE WHOLE ROSTER, and the two sides disagreed exactly
-   * where HR-1a and HR-6 keep a fold out of the picture: a control drawn faint
-   * wrote the document and told nobody.
+   * entrance faint when pressing it would change nothing, and counts the target
+   * on the side that is DRAWN; the second MUST of the same requirement then has
+   * THAT press tell its reason. The two are one reading, so an entrance the panel
+   * drew faint must answer the press with a row of 表 T-233 and never with a
+   * silent write. ⛔ JUDGING OFF THE DOCUMENT'S WHOLE ROSTER INSTEAD disagrees
+   * with the picture exactly where HR-1a and HR-6 keep a fold out of it: a
+   * control drawn faint writes the document and tells nobody.
    *
    * ⛔ THE SET IS NOT REBUILT HERE FROM `layout` AND `regions`, though both are
    * in hand. The cut that makes it lives in the shell beside the one place the
@@ -645,14 +581,12 @@ export interface InputContext {
    * The same rows, with the boxes the panel draws them in -- what HF-15's up
    * and down walk needs and the ids alone cannot carry.
    *
-   * ⭐⭐ WHY A BOX AND NOT A DISTANCE. HF-15 (MUST) has up and down 「その段に
-   * 置ける場所を描く順にたどる」 -- a rule about the ORDER OF THE PLACES, not
-   * about how far a hand travels for one. ⛔ A 刻み would be the wrong shape
-   * as well as an invention: FR-042 lets every row carry its own height (64,
-   * 96, 101, 108 and 148px stand on one measured screen), so one distance
-   * would drift against the drawn rows after two or three places -- the very
-   * harm the note beside the 段送り clause records for the other axis. ⇒ Which
-   * place the hand stands at is read off the boxes, and no constant is needed.
+   * ⭐⭐ WHY A BOX AND NOT A DISTANCE. HF-15 (MUST) walks up and down the PLACES
+   * a row can sit in, in drawing order -- a rule about their ORDER, not about how
+   * far a hand travels for one. ⛔ A 刻み would be the wrong shape as well as an
+   * invention: FR-042 lets every row carry its own height, so one distance would
+   * drift against the drawn rows after two or three places. ⇒ Which place the
+   * hand stands at is read off the boxes, and no constant is needed.
    *
    * ⛔ THE ARRAY IS NOT REBUILT HERE, which is the rule `drawnRowGroupIds`
    * above states for itself: the cut lives in the shell beside the one place
@@ -672,7 +606,8 @@ export interface InputContext {
    */
   readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
   /**
-   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+   * S-211 of table T-206: whether 段 0, the head of the row title panel, is
+   * folded.
    *
    * ⭐ WHY THIS SIDE NEEDS IT. HR-2 of table T-015 (MUST) folds 段 0 with
    * everything else, so IC-78 is spent exactly where the head is already folded
@@ -681,7 +616,7 @@ export interface InputContext {
    * folded head or a document with no rows, and the two owe different answers.
    *
    * ⛔ NOT A DOCUMENT SETTING AND IT MAY NOT BECOME ONE. That row keeps it out
-   * of the saved document (「`S-99g` と同じ立場」) and HR-2 (MUST NOT) refuses to
+   * of the saved document, on `S-99g`'s footing, and HR-2 (MUST NOT) refuses to
    * move AT-56 or AT-57 for it, so the shell holds it and hands it here.
    *
    * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, for the reason the two members
@@ -696,10 +631,10 @@ export interface InputContext {
  * WHAT is to be edited and from which row. MK-13 and SK-9 are the two
  * entrances.
  *
- * ⚠️ NOT ALL THREE OPEN IN THE SAME PLACE SINCE 2026-08-30 (CR-304). MK-13's
- * Task entry now opens in the `Properties Panel`'s name field (表 T-016 の
- * `PR-1`) while the other two still open where the value is drawn; the shell
- * decides that, because where a field is drawn is not this side's to know.
+ * ⚠️ NOT ALL THREE OPEN IN THE SAME PLACE. MK-13's Task entry opens in the
+ * `Properties Panel`'s name field (表 T-016 の `PR-1`) while the other two open
+ * where the value is drawn; the shell decides that, because where a field is
+ * drawn is not this side's to know.
  */
 export type InPlaceTarget =
   /** SK-9 (`F2`), whose one entrance is FR-035. */
@@ -707,33 +642,23 @@ export type InPlaceTarget =
   /**
    * MK-13's Task entry -- the name label OR the body, both editing the name --
    * and MK-13's 実績 entry with it, which that row (MUST) sends to the same
-   * destination: 「実績（実績バー、および未着手のダミー） ＝ **タスクの項と同じと
-   * すること（MUST）**」, 「実績はタスクの一部であり、自分の面を持たない。」 ⇒
-   * reached through GR-10 and GR-12 of table T-023d, and through the actual's
-   * own six regions (GR-5, GR-6, GR-15, GR-9, GR-17, GR-18).
+   * destination. ⇒ reached through GR-10 and GR-12 of table T-023d, and through
+   * the actual's own regions (GR-5, GR-6, GR-15, GR-9, GR-17, GR-18).
    *
    * ⭐ STILL ONE KIND FOR EVERY ONE OF THOSE PLACES, because MK-13 names one
    * destination for all of them. Which grab it came in by is not carried:
    * nothing downstream could use it without the same operation meaning two
    * things.
    *
-   * ⚠️ THE DESTINATION IS THE PANEL'S NAME FIELD since 2026-08-30, and the uid
+   * ⚠️ THE DESTINATION IS THE PANEL'S NAME FIELD, and the uid
    * is carried all the same -- MK-13 says which Task was double clicked and the
    * selection is not the place to read that back from.
    */
   | { readonly kind: 'taskName'; readonly uid: number }
   /**
    * MK-13's 担当ラベル entry, reached through GR-11 of table T-023d. That entry
-   * carries no destination of its own since 2026-09-08 (利用者の裁定): it reads
-   * 「担当ラベル ＝ **表 T-225 の `AS-1` の宛先とすること（MUST）**」, with
-   * 「その宛先をここに書き写してはならない（MUST NOT）」 beside it -- and AS-1
-   * (MUST) is 「**プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を編集
-   * できる状態にして焦点を置くこと（MUST）**」, 「その場で打ち換える器を置いては
-   * ならない（MUST NOT）」.
-   * ⚠️⚠️ WHAT WAS QUOTED HERE UNTIL 2026-09-08 (台帳 D-399) WAS THE ROW'S
-   * RETIRED WORDING, and the row itself records the change: 「2026-09-08 まで
-   * 本行は「担当者名の変更」とだけ書いており、宛先は `AS-1` と読み合わせるほかな
-   * かった。」
+   * carries no destination of its own, and (MUST NOT) may not copy one: it points
+   * at 表 T-225 の `AS-1`, which is where the destination is stated.
    *
    * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 sends 担当ラベル to AS-1's
    * destination, the panel's 担当者 field (表 T-016 の `PR-16`), where it sends
@@ -747,23 +672,19 @@ export type InPlaceTarget =
    * this file's, as CR-146 leaves it: no row of the specification settles one.
    */
   | { readonly kind: 'assignee'; readonly uid: number }
-  // ⛔⛔ `newRowName` STOOD HERE AND IS GONE (利用者の裁定 2026-09-04). HF-14 of
-  // table T-051 read 「名前は空で立て、その場で打たせること（MUST）」, 「既定の名を
-  // 与えてはならない（MUST NOT）」 and 「名前が空のまま確定されたときは、その行を
-  // 立てないこと（MUST）」; all three were withdrawn, and the row now reads 「押さ
-  // れた瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを出
-  // し、名前の欄で名づけさせること（MUST）」 with 「改名と別の道を作ってはならない
-  // （MUST NOT）」 beside it. ⇒ IC-91 and IC-93 plan CM-26 and carry the row out
-  // as `CreatedSubject`; the naming is `rowName`'s road, one entry below, which
-  // is the very sameness that MUST NOT demands.
+  // ⛔⛔ NO `newRowName` KIND, AND HF-14 OF TABLE T-051 IS WHY. A pressed
+  // entrance stands the row up under the default name (MUST) and names it in the
+  // properties panel, with no road separate from renaming (MUST NOT). ⇒ IC-91
+  // and IC-93 plan CM-26 and carry the row out as `CreatedSubject`; the naming
+  // is `rowName`'s road, one entry below, which is the sameness that MUST NOT
+  // demands.
   /**
    * MK-13's 行見出し entry -- a double click on a row's NAME in the
    * `Row Title Panel`, which FR-085 (MUST) makes the one path to renaming a row
-   * that already stands (user's ruling 2026-09-01): 「タスクグループ名をダブル
-   * クリックしたら、プロパティパネルを開き、タスクグループ名編集モードとせよ」.
+   * that already stands.
    *
-   * ⭐ THE SAME SHAPE AS `taskName`, WHICH IS THE RULING'S OWN WORD FOR IT --
-   * 「(タスク名編集モードと同様の動作)」. The destination is the panel's name
+   * ⭐ THE SAME SHAPE AS `taskName`, WHICH IS THE RULING'S OWN WORD FOR IT.
+   * The destination is the panel's name
    * field again; only the row of that panel differs, AT-53 against PR-1, and
    * which row a field is is the shell's join to make.
    *
@@ -773,21 +694,18 @@ export type InPlaceTarget =
    */
   | { readonly kind: 'rowName'; readonly groupId: string }
   /**
-   * MK-13's コメントボックス entry, as that row reads since the user's ruling of
-   * 2026-09-06: 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
-   * `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」, with 「図の上で打ち換え
-   * る器を置いてはならない（MUST NOT）」 beside it. FR-097 (MUST) sends its
-   * entrance here and nowhere else.
+   * MK-13's コメントボックス entry: that row (MUST) sends it to the panel's
+   * 本文 field (表 T-016 の `PR-21`) and (MUST NOT) forbids an editor on the
+   * figure itself. FR-097 (MUST) sends its entrance here and nowhere else.
    *
    * ⭐ THE SAME SHAPE AS `taskName` AND `rowName`, WHICH IS WHAT THAT MUST NOT
    * SETTLED. All three end in the `Properties Panel`'s own field; only the row
    * differs -- `PR-21` against `PR-1` and `AT-53` -- and which row a field is is
    * the shell's join to make.
    *
-   * ⛔ NO 全選択 IS ASKED FOR, AND THAT IS THE ROW'S OWN SILENCE. `MK-13` says
-   * 「既にある文字をすべて選んだ状態にすること（MUST）」 of its Task entry and of
-   * its 行見出し entry, and says it of the comment box NOWHERE -- so nothing is
-   * carried here for it.
+   * ⛔ NO 全選択 IS ASKED FOR, AND THAT IS THE ROW'S OWN SILENCE. `MK-13` asks
+   * for it (MUST) on its Task and 行見出し entries and NOWHERE on the comment box
+   * -- so nothing is carried here for it.
    *
    * ⛔ THE BOX IS CARRIED AND NOT READ BACK OFF THE SELECTION, for the reason
    * `rowName` gives: the first click of the double click chose it, and several
@@ -795,37 +713,18 @@ export type InPlaceTarget =
    */
   | { readonly kind: 'commentBoxText'; readonly id: string }
 
-// ⚠️ WHAT USED TO STAND HERE WAS A STOP SAYING 「行見出し」 COULD NOT BE REACHED,
-// on the ground that the Row Title Panel lies outside table T-023a's decision
-// order. That ground was true and is not the whole of it: a press the SURFACE
-// claimed arrives with `ScreenPart.rowGroupId`, which is the very road
-// `commandFromEntry` already takes to FR-085's choosing of a row. The kind
-// above is produced from there, so the vocabulary it declares is reachable.
+// ⭐ 行見出し AND 担当ラベル ARE BOTH REACHABLE. A press the SURFACE claimed
+// arrives with `ScreenPart.rowGroupId`, which is the road `commandFromEntry`
+// already takes to FR-085's choosing of a row; and `item-hit-area.ts` gives
+// GR-11 its row, so a `Hit` can name the assignee label for AS-1.
 //
-// ⚠️ 「担当ラベル」 IS NO LONGER ONE OF THEM. ScheduleGeometry places the label
-// and `item-hit-area.ts` gives GR-11 its row, so a `Hit` can name it and AS-1
-// has its destination above.
-//
-// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (台帳 D-283, 利用者の裁定 2026-09-06).
-// It measured two roads on 2026-09-06 and found both shut: the PANEL's, on the
-// ground that 「`_source/property-items.json` ... carries 19 items, none of them
-// a comment box」 and that table T-016 is 「`Task` の属性表」; and the IN-PLACE
-// one, on the ground that nothing draws an editable field over the schedule.
-// ⛔ THE FIRST GROUND EXPIRED THE SAME DAY AND THE SECOND WAS WITHDRAWN:
-//   * The manuscript now carries `PR-21` -- 対象 `CommentBox`, column `text`,
-//     入力の型 複数行 -- so the count is 20 and the panel's road is open.
-//   * MK-13 now reads 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表
-//     T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（MUST）」 and 「図の上
-//     で打ち換える器を置いてはならない（MUST NOT）」 -- so the in-place road is not
-//     merely unbuilt, it is forbidden, and 「neither names WHERE the typing
-//     happens」 is no longer true of MK-13.
-// ⇒ `commentBoxText` above is the kind that note predicted, and the branch of
-// `commandFromGrab` beside GR-14's move is where it is raised.
-// ⛔ NO CM-48 IS PLANNED FROM THAT BRANCH, WHICH IS WHERE THIS SIDE PARTS FROM
-// THE OLD NOTE'S PLAN. The destination is a FIELD now, so the value is written
-// by that field's own commit through `commandFromFieldCommit` -- exactly as
-// `taskName` and `rowName` write nothing on the press. CM-48
-// (`setCommentBoxText`) is standing in `edit-annotation.ts` for that commit.
+// ⛔ NO CM-48 IS PLANNED WHERE `commentBoxText` IS RAISED (the branch of
+// `commandFromGrab` beside GR-14's move). MK-13 sends the comment box to the
+// panel's 本文 field (表 T-016 の `PR-21`) and forbids an in-place editor
+// (MUST NOT), so the value is written by that field's own commit through
+// `commandFromFieldCommit` -- exactly as `taskName` and `rowName` write nothing
+// on the press. CM-48 (`setCommentBoxText`) is standing in `edit-annotation.ts`
+// for that commit.
 // STOP -- ⛔ THE COMMIT CANNOT REACH IT YET, AND NOT FROM THIS FILE. A commit is
 // named by `PropertyFieldKey` (`screen-renderer.ts`), whose five arms name a
 // task, a task visual, a row, a dependency and the project, and none of which
@@ -833,14 +732,11 @@ export type InPlaceTarget =
 // side, together with `COLUMN_SHAPES` having no `CommentBox`. ⇒ Until an arm is
 // added there, `commandFromFieldCommit` below has no case to gain.
 //
-// ⛔⛔ THE TWO ARE ONE ROAD SINCE 2026-09-04, AND THAT IS A MUST NOT. HF-14 of
-// table T-051: 「改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が
-// 改名について定めるものと同じものとすること（MUST）」, and FR-091 says the same of a
-// Task: 「入口の道は `FR-085`（行の名前）と同じものとすること（MUST）」.
-// ⭐ So a press that MAKES a row plans CM-26 and carries the row out as
-// `CreatedSubject`; what happens next is `rowName`'s road and no other. ⚠️ The
-// note that stood here kept them apart, which was right while HF-14 asked for
-// an in-place field, and is the very thing the ruling withdrew.
+// ⛔⛔ MAKING A ROW AND NAMING IT ARE ONE ROAD, AND THAT IS A MUST NOT. HF-14
+// of table T-051 and FR-091 both send the entrance down the road FR-085 defines
+// for renaming, and both forbid a second one. ⭐ So a press that MAKES a row
+// plans CM-26 and carries the row out as `CreatedSubject`; what happens next is
+// `rowName`'s road and no other.
 
 /**
  * CM-60, which is the one road into `dualCursor` (S-65).
@@ -862,7 +758,7 @@ type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }
 type ClearDualCursor = Extract<DocumentCommand, { readonly kind: 'clearDualCursor' }>
 
 /**
- * Which 場面 a pressed entrance was spent in -- FR-029's 「押された入口の場面」.
+ * Which 場面 a pressed entrance was spent in -- FR-029's own word for it.
  *
  * ⭐⭐ A SITUATION AND NOT A ROW OF 表 T-233, WHICH IS THE WHOLE POINT OF THE
  * TYPE. FR-029 (MUST) has the telling carry the row of that table the pressed
@@ -890,22 +786,10 @@ export type SpentEntranceSituation =
    * HF-13 (IC-90): no DIRECT child of this row is out of the picture, so
    * opening one level puts nothing into it.
    *
-   * ⭐ RS-30 OF TABLE T-233 IS THE ROW, WORD FOR WORD: 「直下に、画面へ戻せる子
-   * が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- and HF-13 (MUST)
-   * words the spent side the same way: 「開ける直下の子が 1 つも無いときは、
-   * `FR-029` に従って薄く描くこと」.
-   * ⚠️⚠️ THE NAME IS OLDER THAN THE ROW IT CARRIES, and neither half of it is
-   * what RS-30 asks. Both of the next two sentences are quoted IN ORDER TO DENY
-   * THEM, and neither is in `docs/spec`: the first is the row's retired wording
-   * and the second a fabrication this file itself made (台帳 D-339). It was
-   * `rowAlreadyFolded` while the retired 台帳 D-339 wording 「その行は既に畳まれ
-   * ている」 stood in RS-30 and it belonged to HF-3; it was renamed to this while
-   * notes in this file, per 台帳 D-339, put 「その行は畳まれておらず、隠れている
-   * 子も無い」 into RS-30 -- words that row does not carry.
-   * ⛔ WHAT MAPS THE NAME TO RS-30 is
-   * the roster in `frame-loop.ts` and not the spelling, so the spelling is left
-   * alone here. ⚠️ PD-411 recorded that the old row had no press left that
-   * could raise it; the row as it now reads is raised here.
+   * ⭐ RS-30 OF TABLE T-233 IS THE ROW, with 表 T-051 の `HF-13` for its 正,
+   * and HF-13 (MUST) words the spent side the same way.
+   * ⚠️ THE NAME DOES NOT MATCH THE ROW IT CARRIES. What maps it to RS-30 is the
+   * roster in `frame-loop.ts` and not the spelling, so the spelling stands.
    */
   | 'rowIsOpenWithNoHiddenChild'
   /** HF-10 (IC-74): no row anywhere is folded. */
@@ -920,12 +804,8 @@ export type SpentEntranceSituation =
    * HF-15 (GR-20): the held row has no sibling immediately above it, so there
    * is no row for it to become the last child of.
    *
-   * ⭐ THE ROW'S OWN CONSEQUENCE, AND THE CLAUSE IS QUOTED WHOLE: 「左右は段を
-   * 変えること（MUST）。右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は親の
-   * 次の兄弟になること（MUST）」 ⇒ 「すぐ上に兄弟が無い行は右へ動かせない」.
-   * ⚠️ IT WAS CUT DOWN TO ITS RIGHT-HAND HALF UNTIL 2026-09-08, which check 42
-   * counts as a fabrication: the half that was dropped is the one saying the
-   * pair is one rule about depth.
+   * ⭐ THE ROW'S OWN CONSEQUENCE. HF-15 (MUST) makes one step right the last
+   * child of the sibling immediately above, so a row with none cannot go right.
    */
   | 'noSiblingAboveToNestUnder'
   /** HF-15: the held row is already at the shallowest level, so it cannot go left. */
@@ -933,8 +813,7 @@ export type SpentEntranceSituation =
   /**
    * HF-15: a step to the right would carry the row's subtree past the depth cap.
    *
-   * ⛔ THE CAP IS `FR-085`'s AND IS NOT RESTATED -- HF-15 says so: 「深さの上限を
-   * 超える右移動を受け付けてはならない（MUST NOT）—— 上限は `FR-085` が持つ」.
+   * ⛔ THE CAP IS `FR-085`'s AND IS NOT RESTATED -- HF-15 (MUST NOT) says so.
    * What this side owes is the ROW OF TABLE T-233 the press is told with, which
    * CM-73's own refusal cannot carry: that command answers a `Refusal` naming
    * HM-3a, and FR-029 (MUST NOT) forbids the fallback where a row fits.
@@ -954,15 +833,8 @@ export type SpentEntranceSituation =
    * at points at no `TaskGroup`, so there is no row identifier to hold its
    * position by.
    *
-   * ⭐ THE NAME IS RS-44's OWN 場面 -- 「注記を置こうとした所に、指す行が無い」
-   * -- and that row's 正 is FR-019, which gained the ruling this member serves
-   * on 2026-09-02: 「指す `TaskGroup` が無い縦位置で置こうとしたときは、作らずに
-   * 理由を告げること（MUST）」, with 「作法は `FR-029` に従い、理由は 表 T-233 の
-   * `RS-44` とする。」 beside it.
-   * ⚠️ THE WORD 「注記を」 STOOD INSIDE THAT QUOTATION UNTIL 2026-09-08 and the
-   * clause does not carry it -- the subject is already 注記 from the sentence
-   * before it in FR-019, and inserting it made the citation a paraphrase.
-   * ⛔ NOT AN ENTRANCE OF TABLE T-109 LIKE THE TEN ABOVE, AND THAT IS THE ROW'S
+   * ⭐ THE NAME IS RS-44's OWN 場面, whose 正 is FR-019.
+   * ⛔ NOT AN ENTRANCE OF TABLE T-109, AND THAT IS THE ROW'S
    * DOING. FR-029 is the 作法 FR-019 names, and 表 T-233 is keyed on 場面 rather
    * than on entrances -- so a press on the schedule with a palette arm standing
    * owes the same telling a pressed entrance does.
@@ -972,13 +844,10 @@ export type SpentEntranceSituation =
    * HF-14 (IC-91): this row already stands at FR-085's depth cap, so no child
    * row can be added under it.
    *
-   * ⭐ THE NAME IS RS-46's OWN 場面 -- 「これ以上深い段には行を足せない」, whose
-   * 正 is FR-085 -- and it reads as the mirror of `rowIsAtTheShallowestLevel`
-   * above, which is the other end of the same axis.
-   * ⛔ NOT `groupDepthLimitReached`, WHICH THE RULING OF 2026-09-03 SEPARATES BY
-   * NAME: that situation is HF-15's move, its row is `RS-38` (「動かせない」), and
-   * 「あちらは `HF-15` の移動のためであり、足す押しには真でない」. Two 場面 that
-   * both end at the cap are still two 場面, and 表 T-233 is keyed on 場面.
+   * ⭐ THE NAME IS RS-46's OWN 場面, whose 正 is FR-085, and it reads as the
+   * mirror of `rowIsAtTheShallowestLevel` above.
+   * ⛔ NOT `groupDepthLimitReached`: that situation is HF-15's MOVE and its row
+   * is `RS-38`. Two 場面 that both end at the cap are still two 場面.
    */
   | 'rowIsAtTheDeepestLevel'
   /**
@@ -986,13 +855,10 @@ export type SpentEntranceSituation =
    * the press was released without travelling past `S-208`, so there is no span
    * to make a task out of.
    *
-   * ⭐ THE NAME IS RS-53's OWN 場面 -- 「バーの形状を構えたまま、引かずに離した」,
-   * whose 正 is FR-001, granted on 2026-09-07 with the user's ruling 「タスクは
-   * ドラッグ必須。」
-   * ⛔ NOT THE FALLBACK `RS-27`: the row states its own reason for existing --
-   * 「`RS-27`（押した入口が、いま行えることを持たない）では、何をすればよいかが
-   * 読めない。」 -- and the census beside `NOTICE_REASON_OF_SPENT_ENTRANCE` forbids
-   * reaching for the fallback where a row of one's own exists.
+   * ⭐ THE NAME IS RS-53's OWN 場面, whose 正 is FR-001.
+   * ⛔ NOT THE FALLBACK `RS-27`: that row cannot say what to do instead, and the
+   * census beside `NOTICE_REASON_OF_SPENT_ENTRANCE` forbids reaching for the
+   * fallback where a row of one's own exists.
    * ⛔ NOT AN ENTRANCE OF TABLE T-109, for the same reason
    * `noRowToPutTheAnnotationOn` above is not: 表 T-233 is keyed on 場面, and a
    * press on the schedule with an arm standing owes the same telling.
@@ -1006,14 +872,10 @@ export type SpentEntranceSituation =
  * The one thing a write brought into being, for the two requirements that leave
  * the person standing on what they just made.
  *
- * ⭐ TWO MEMBERS BECAUSE TWO REQUIREMENTS ASK, and they ask for the same two
- * moves: FR-001 (MUST) makes a drawn `Task` the selection and FR-091 (MUST)
- * has it namable 「作った直後に」; HF-14 (MUST) stands a row up and 「その行の
- * プロパティパネルを出し、名前の欄で名づけさせること」. Both roads end at
- * FR-085's -- the `Properties Panel`, its name field, focused, all selected --
- * and FR-091 (MUST) says so outright: 「入口の道は `FR-085`（行の名前）と同じもの
- * とすること」. ⛔ 「その道をここに書き写してはならない（MUST NOT）」 is why this
- * carries WHAT was made and not what is to be done about it.
+ * ⭐ TWO MEMBERS BECAUSE TWO REQUIREMENTS ASK: FR-001 (MUST) makes a drawn
+ * `Task` the selection, and HF-14 (MUST) stands a row up and has it named. Both
+ * roads end at FR-085's, which FR-091 (MUST) says outright and (MUST NOT)
+ * forbids copying here -- so this carries WHAT was made and nothing else.
  *
  * ⛔ NOT `Selection`. A row is not a member of SL-1 of table T-023c -- that row
  * puts 行 outside the drawing area's selection on purpose -- so the two are
@@ -1065,10 +927,9 @@ export type InputAction =
        * nothing, which is nearly all of them.
        *
        * ⭐⭐ WHY THE ACTION CARRIES IT AND THE SHELL DOES NOT WORK IT OUT.
-       * FR-001 (MUST, 利用者の裁定 2026-09-03): 「作ったタスクを選択にすること」,
-       * and HF-14 of table T-051 (MUST, 利用者の裁定 2026-09-04): 「押された瞬間
-       * に、既定の名前で行を立てること。その行のプロパティパネルを出し、名前の欄
-       * で名づけさせること」. Neither identity can be read back off the pointer
+       * FR-001 (MUST) and HF-14 of table T-051 (MUST) both leave the person
+       * standing on what the press just made. Neither identity can be read back
+       * off the pointer
        * -- `selectionFromInput` answers what was UNDER the press, and empty
        * ground is under a drawn Task -- so the party that PLANNED the creation
        * is the only one that knows what was made.
@@ -1096,7 +957,7 @@ export type InputAction =
    *
    * ⭐ THREE ENTRANCES REACH IT: IC-78 folds the head (HF-12), IC-74 opens it
    * with everything else (HF-10), and IC-92 opens the head alone (HF-16) --
-   * S-211's own note names the last two as 「戻す道は 2 つある」.
+   * S-211's own note names the last two as the two roads back.
    * ⚠️ `writes` MAY BE EMPTY, and then the press changes the screen alone: the
    * head's fold takes no row of the document with it when every row is already
    * folded.
@@ -1146,25 +1007,20 @@ export type InputAction =
    * FR-029 (MUST): the entrance that was pressed has nothing it can do now, so
    * the reason is told, in 表 T-037's manner `NT-1`.
    *
-   * ⭐ RAISED ONLY ON THE PRESS, which is that requirement's own 「押されたときに
-   * 限り」 (利用者の裁定 2026-08-30). ⛔ A pointer merely resting on such an
+   * ⭐ RAISED ONLY ON THE PRESS, which is that requirement's own limit. ⛔ A
+   * pointer merely resting on such an
    * entrance raises nothing at all: what comes up then is EZ-2's explanation of
    * what the entrance is FOR, and FR-029 (MUST NOT) refuses to put the reason
    * under the pointer.
    *
-   * ⭐⭐ THE SITUATION TRAVELS, AND SINCE 2026-08-30 IT MUST. FR-029 now reads
-   * 「運ぶ理由は、押された入口の場面に当たる 表 T-233 の行とすること（MUST）」 and
-   * (MUST NOT) forbids carrying the fallback where a row of that table fits
-   * (利用者の裁定: 「通知は『行えることがありません』じゃ意味がないだろ。できない
-   * 理由を表示しろよ」). ⛔ THE NOTE THAT STOOD HERE SAID THE OPPOSITE -- 「NO ROW
-   * OF TABLE T-233 TRAVELS ON THIS KIND, and none may be added」 -- and it was
-   * right while that table held ONE row for every spent entrance at once. It
-   * now holds eight situations beside the fallback.
+   * ⭐⭐ THE SITUATION TRAVELS, AND IT MUST. FR-029 (MUST) has the telling carry
+   * the row of 表 T-233 the pressed entrance's situation falls under, and (MUST
+   * NOT) forbids carrying the fallback where a row of that table fits.
    * ⛔ A SITUATION AND NEVER A ROW ID. `frame-loop.ts` stays the one place in
    * `src/` where a row of 表 T-233 is spelled: it keeps `NoticeReason`, the
    * manner census and the map from these situations to those rows, exactly as
    * it already does for `DocumentFileFaultReason`. ⚠️ `null` is the fallback,
-   * `RS-27`, which FR-029 keeps for 「どの入口にも当たる行が無いとき」.
+   * `RS-27`, which FR-029 keeps for an entrance no row of that table fits.
    * ⛔ AND NO WORDS. FR-038's one dictionary is what turns the row into the
    * sentence NT-1 asks for; a message composed here would be the second store
    * of translated strings that requirement forbids (MUST NOT).
@@ -1181,23 +1037,18 @@ export type InputAction =
    * screen, IN-4's close). Those DO change the screen, so telling a reason for
    * them would tell a person that a working entrance is dead. ⇒ This kind is
    * raised only where the drawing side is ALSO drawing the entrance faint, and
-   * the nine such entrances this file can reach are all answered here: IC-8 /
+   * every such entrance this file can reach is answered here: IC-8 /
    * IC-9 (S-227 / S-228, `commandStateOf`), IC-58 / IC-59 / IC-77
    * (`expanderOf`), IC-74 / IC-78 (`rowTitlePanelFromSchedule`) and IC-37 /
    * IC-38 (`isEntryUsable` of UF-65).
    *
-   * ⚠️ IC-18 IS THE TENTH AND IS NOT ANSWERED HERE. FR-066 draws the dialogue
-   * field only while the `Agent API` is on, and whether it is on is a current
-   * value LY-5 of table T-060 leaves with the Framework -- no member of
-   * `InputContext` carries it. `frame-loop.ts` tells that one in
-   * `answerSettledEntry`, beside the six other entries it spends for itself.
-   * ⛔ STILL NOT AN ENTRANCE THIS `tellEntryHasNothingToDo` CAN ANSWER, for that
-   * one reason alone (⚠️ NOT because nothing holds the field's own switch any
-   * more -- S-99i of table T-206 gave it one, `ScreenSession.isDialogueFieldVisible`,
-   * and `commandFromEntry`'s `ENTRY.dialogueFieldVisible` case answers the
-   * PRESS with `toggleDialogueFieldVisible` since 2026-08-31, D-149). The two
-   * halves of one entrance stay split across the same seam `isAgentApiEnabled`
-   * already splits IC-20 and IC-17 across.
+   * ⚠️ IC-18 IS NOT ANSWERED HERE. FR-066 draws the dialogue field only while
+   * the `Agent API` is on, and whether it is on is a current value LY-5 of table
+   * T-060 leaves with the Framework -- no member of `InputContext` carries it.
+   * `frame-loop.ts` tells that one in `answerSettledEntry`, beside the other
+   * entries it spends for itself. ⛔ So the two halves of one entrance stay
+   * split across the same seam `isAgentApiEnabled` already splits IC-20 and
+   * IC-17 across.
    */
   | {
       readonly kind: 'tellEntryHasNothingToDo'
@@ -1205,16 +1056,11 @@ export type InputAction =
     }
   /** SK-9 and MK-13. */
   | { readonly kind: 'editInPlace'; readonly target: InPlaceTarget }
-  // ⛔ `openPropertiesPanel` WAS HERE, IS STILL GONE, AND THE REASON HAS
-  // CHANGED. It was deleted because MK-13 forbade a route that opens the
-  // properties panel (MUST NOT); that ruling of 2026-08-27 was overturned on
-  // 2026-08-30 (CR-304) and the row now REQUIRES that route for a Task.
-  // ⭐ NO MEMBER COMES BACK ALL THE SAME. MK-13's Task entry is 「タスク ... ＝
-  // プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を ... 編集できる状態に
-  // して」, which is the destination `editInPlace` with a `taskName` target
-  // already names -- what moved is where that edit opens, and where it opens is
-  // the shell's to know. ⛔ A second member for the same operation would put one
-  // row of table T-023 in two places in this vocabulary.
+  // ⛔ NO `openPropertiesPanel` MEMBER, THOUGH MK-13 (MUST) NOW REQUIRES THAT
+  // ROUTE FOR A TASK. Its destination is the one `editInPlace` with a `taskName`
+  // target already names; what MK-13 moved is where that edit opens, and where
+  // it opens is the shell's to know. ⛔ A second member for the same operation
+  // would put one row of table T-023 in two places in this vocabulary.
   /**
    * GR-19 of table T-023d -- the band on top of the `Command Palette` was
    * dragged, so FR-053's palette moves by what the pointer travelled.
@@ -1235,8 +1081,8 @@ export type InputAction =
    * table T-203 or table T-206 keeps it -- so this file has no corner to add
    * to, and answering with the travel alone leaves the one holder holding it.
    *
-   * ⚠️ THE SHAPE IS MK-7's PAN AND THE ROAD IS NOT. That row's rule reads
-   * 「パンは等倍とすること（MUST）」, which is why nothing is scaled here
+   * ⚠️ THE SHAPE IS MK-7's PAN AND THE ROAD IS NOT. That row makes a pan 等倍
+   * (MUST), which is why nothing is scaled here
    * either. ⛔ But `scrolledAnchor` is not reused: it answers a day and a row
    * with a fraction of each, because S-77 / S-78 / S-176 / S-177 hold the
    * schedule's place as an anchor in the document, and the palette's place is
@@ -1254,30 +1100,26 @@ export type InputAction =
    * GR-20 of table T-023d -- the strip on a row's left edge is being held, so
    * HF-15's row follows the pointer and the axis it settled on is reported.
    *
-   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE, for two reasons that
-   * both make it a MUST. HF-15: 「握っているあいだ、行をポインタに追従させる
-   * こと（MUST）」 -- a picture, so it is reported per move the way FR-053's
-   * palette is; and the axis 「離すまで変わらない（MUST）」, which no pure
-   * function can promise on its own (see `PointerPress.rowGrabAxis`).
+   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE, because HF-15 (MUST)
+   * makes the follow a PICTURE -- reported per move the way FR-053's palette is
+   * -- and fixes the axis until the release, which no pure function can promise
+   * on its own (see `PointerPress.rowGrabAxis`).
    *
-   * ⛔⛔ NOT A DOCUMENT CHANGE, AND THAT IS A MUST NOT. Table T-023d: 「掴んで
-   * いるあいだ値を文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵で
-   * あって編集ではない」. The write is CM-73 and it is planned on the RELEASE,
-   * in `commandFromRowGrab`.
+   * ⛔⛔ NOT A DOCUMENT CHANGE, AND THAT IS TABLE T-023d's MUST NOT: the follow
+   * is a picture and not an edit. The write is CM-73 and it is planned on the
+   * RELEASE, in `commandFromRowGrab`.
    *
    * ⚠️ A DEPTH AND NOT A TRAVEL, which is where it parts from
    * `moveCommandPalette`. That one answers a distance because the corner it
    * moves is a pair of screen numbers nobody else holds; a row's place on this
-   * axis is its DEPTH, and the pixels it is drawn in are `RowTitle.indentPx` --
-   * 「段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）」, and that
-   * product is already what the panel indents by. ⛔⛔ Answering pixels here
-   * would be the second holder of the step HF-15 forbids in as many words:
-   * 「刻みを別に持ってはならない（MUST NOT）」 -- measured wrong at 刻み 26px
-   * against 段送り 16px, where a 64px drag moved the row 22px.
+   * axis is its DEPTH, and the pixels it is drawn in are `RowTitle.indentPx`,
+   * which HF-15 (MUST) ties to `S-37`. ⛔⛔ Answering pixels here would be the
+   * second holder of that step, which the same row forbids (MUST NOT) -- and a
+   * second holder drifts, so the row lands short of the hand.
    *
    * ⚠️ THE DEPTH IS THE ROW'S OWN WHILE THE AXIS IS `position`, so a caller
-   * that draws by it draws no sideways movement on that axis -- which is what
-   * 「上下は ... 段を変えてはならない（MUST NOT）」 asks for.
+   * that draws by it draws no sideways movement on that axis -- which is the
+   * MUST NOT HF-15 puts on the up-and-down axis.
    */
   | {
       readonly kind: 'followRowGrab'
@@ -1293,26 +1135,23 @@ export type InputAction =
        * axis, where the row keeps the y the picture gave it.
        *
        * ⭐ A PLACE'S BOUNDARY AND NOT THE POINTER'S y. HF-15 (MUST) has up and
-       * down 「その段に置ける場所を描く順にたどる」, so what the row follows the
-       * hand ONTO is a place; drawn at the place's own edge, the picture says
-       * where the row lands rather than where the finger is.
-       * ⛔ `null` IS NOT ZERO. Zero is the top of the `Row Area`; `null` is
-       * 「this axis does not move the row vertically」, which is the MUST NOT on
-       * the other axis (「上下は位置を変え、段を変えてはならない」) read the
-       * other way round.
+       * down walk the PLACES a row can sit in, in drawing order, so what the row
+       * follows the hand ONTO is a place; drawn at the place's own edge, the
+       * picture says where the row lands rather than where the finger is.
+       * ⛔ `null` IS NOT ZERO. Zero is the top of the `Row Area`; `null` is "this
+       * axis does not move the row vertically", which is the MUST NOT on the
+       * other axis read the other way round.
        */
       readonly atY: number | null
       /**
        * How far the row still follows the hand on the axis that was REFUSED, in
        * pixels, signed the way the hand went.
        *
-       * ⭐ HF-15 (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める割合は
-       * ... `S-212`」, with (MUST NOT) 「拒んだうえに行をポインタへ付いて行かせて
-       * はならない —— 手応えが返らないと、木から離れて滑っていくだけに見える」. So
-       * the answer is neither 0 nor the hand's whole travel: it is the travel
-       * held to S-212 of one step of that axis.
-       * ⭐ WHAT ONE STEP IS, IN S-212's OWN WORDS: 「掛ける相手は、その軸の 1 歩
-       * ぶんである —— 左右なら 表 T-201 の `S-37`、上下ならその行が占める送り」.
+       * ⭐ HF-15 (MUST) stops the follow part way on the axis it refused, and
+       * (MUST NOT) forbids both refusing the move and letting the row trail the
+       * pointer anyway. So the answer is neither 0 nor the whole travel: it is the
+       * travel held to `S-212` of ONE STEP of that axis -- `S-37` sideways, and
+       * the row's own 送り vertically.
        */
       readonly resistedPx: number
     }
@@ -1336,8 +1175,8 @@ export type InputAction =
    * SPELLS. That requirement asks for several rows at once and for letting one
    * go (MUST) and states that the order and the range are the implementation's
    * (実装の裁量); the modifier is not named anywhere. SL-4 of table T-023c is
-   * the product's own convention for 「広げる」 -- 「クリックなら 1 つずつ増減
-   * し」 -- so it is followed rather than a second convention invented, which is
+   * the product's own convention for 広げる -- a click adds or removes one -- so
+   * it is followed rather than a second convention invented, which is
    * what R4's POLA asks for. ⛔ SL-3's range is NOT answered: FR-085 leaves the
    * range undefined, and a drag across the panel is not one of table T-023a's
    * six gestures either.
@@ -1396,21 +1235,16 @@ export type InputAction =
    * IC-20 -- FR-065, so `ScreenSession.isAgentApiEnabled` turns round.
    *
    * ⛔ NOT A DOCUMENT CHANGE. S-99b of table T-206 keeps the record OUT of the
-   * document in as many words -- 「有効化は読む人の判断であって文書の内容では
-   * ない」 -- so table T-108 has no row for it and there is nothing to plan.
+   * document, so table T-108 has no row for it and there is nothing to plan.
    */
   | { readonly kind: 'toggleAgentApi' }
   /**
    * IC-18 -- FR-066 / S-99i, so `ScreenSession.isDialogueFieldVisible` turns
    * round.
    *
-   * ⭐ WRITABLE SINCE 2026-08-31 (D-149, 台帳). The STOP that stood here said
-   * this entrance could not be answered because nothing held the field's own
-   * switch and `isAgentApiEnabled` was the only thing that decided whether the
-   * field was drawn -- so a second way to take it away would have duplicated
-   * FR-029's (MUST NOT). S-99i of table T-206 now gives the field its own
-   * switch, so this is that switch turning and nothing else's: IC-20 still
-   * turns `isAgentApiEnabled` alone, on the entry above.
+   * ⭐ S-99i of table T-206 gives the field its own switch, so this is that
+   * switch turning and nothing else's: IC-20 turns `isAgentApiEnabled` alone, on
+   * the entry above.
    *
    * ⛔ NOT A DOCUMENT CHANGE, for the same reason `toggleAgentApi` above is
    * not: S-99i keeps the record OUT of the document (「見え方」 is the reader's,
@@ -1421,15 +1255,12 @@ export type InputAction =
    * IC-50 -- FR-053 (MUST) keeps the milestone glyph entrances off the palette
    * until the list is opened, so `ScreenSession.isMilestoneListOpen` moves.
    *
-   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE. Table T-109's IC-50 reads
-   * 「同じ入口で開閉する」 since CR-273 and FR-053 (MUST NOT) forbids a second
+   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE. Table T-109's IC-50 opens
+   * and closes by the SAME entrance, and FR-053 (MUST NOT) forbids a second
    * entrance -- the shape IC-11 and IC-67 / IC-68 have. ⛔ WHICH IS WHY NO
    * `isOpen` IS SENT: the value that stands is `ScreenSession`'s, which lives
    * past this seam, so naming a direction here would need this file to hold a
    * copy of it. The shell turns it.
-   * ⚠️ It was two rows until 2026-08-28, an opener and a folder, each naming
-   * its own direction -- and figure F-019 drew both with the same shape, so one
-   * of the two did nothing in each state.
    *
    * ⛔ NOT A DOCUMENT CHANGE. S-142 of table T-206 keeps the state out of the
    * document -- that row is where the specification says so -- and table T-108
@@ -1495,12 +1326,10 @@ export type InputAction =
    * `edit-document-settings.ts` is where IV-13 is judged, and the commands are
    * what it judges.
    *
-   * ⭐⭐ THE WAY OUT CARRIES CM-61 SINCE 利用者の裁定 2026-09-06 (CR-364, B-2):
-   * 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
-   * Dual Cursor が消えるべきだろ？」. Before it, leaving wrote nothing at all,
-   * because DC-7 read 「モードを出ただけで消してはならない（MUST NOT）」.
-   * ⛔ THAT SENTENCE IS THE ONE THE RULING OVERTURNS, and it still stands
-   * unedited in the manuscript -- see `commandFromDualCursorEntry`.
+   * ⭐⭐ THE WAY OUT CARRIES CM-61, which is the 利用者の裁定 CR-364 records:
+   * leaving the mode clears the pair. ⛔ DC-7 still reads the other way in the
+   * manuscript -- leaving may not clear it (MUST NOT) -- and that sentence is the
+   * one the ruling overturns. See `commandFromDualCursorEntry`.
    */
   | {
       readonly kind: 'setDualCursorFollowing'
@@ -1631,9 +1460,9 @@ function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput 
  * ⚠️ THE SITUATION STILL COMES FROM THE CALLER, because the five are five rows
  * of 表 T-233 and not one: an empty open is not an empty fold.
  * ⛔ AND ONE OF THE FIVE HAS NO ROW OF THAT TABLE AT ALL, which is why `null` is
- * admitted here as well as by `nothingToDo`: HF-13's situation (「開ける直下の子
- * が 1 つも無い」) is not among 表 T-233's rows, and RS-28 -- 「配下に、開ける行が
- * 1 つも無い」, HF-2's -- would be untrue on a row whose grandchild is folded.
+ * admitted here as well as by `nothingToDo`: HF-13's situation is not among
+ * 表 T-233's rows, and RS-28 (HF-2's) would be untrue on a row whose
+ * grandchild is folded.
  * ⛔ NOT FOLDED INTO `changed`. That member answers `CONSUMED_ELSEWHERE` for an
  * empty bundle and has callers that are not entrances at all -- a key press
  * that deletes nothing is not an entrance with nothing to do, and FR-029 speaks
@@ -1853,7 +1682,8 @@ const PROPERTIES_PANEL = 'Properties Panel'
  * happens to assign today.
  *
  * ⚠️ IN-5 asks a single-character shortcut to satisfy ONE of three properties,
- * and the one this build meets is the third -- 「フォーカスがあるときだけ有効」.
+ * and the one this build meets is the third: valid only while the host has
+ * focus.
  * It is met OUTSIDE this file: a happening only arrives through `InputSource`,
  * and CP-27 registers with the host that has the focus. ⛔ Neither of the other
  * two is met: nothing anywhere lets a reader switch a shortcut off or move it,
@@ -1872,13 +1702,10 @@ const MS_PER_DAY = 86400000
 /**
  * A day as a count of days.
  *
- * ⚠️ A THIRD copy of this arithmetic in the tree -- `schedule.ts` and
- * `schedule-layout.ts` each keep a private one. It is not the counting FR-054
- * forbids writing three times: that MUST is about 稼働日 (worked days), which
- * only `workingDaysBetween` may count, and this is the plain calendar. ⛔ What
- * is missing is a published member that adds calendar days to a day: PI-1
- * publishes `dayOf`, `textOfDay`, `compareDays` and the two worked-day members,
- * and none of them can move a date by a drag's worth of days.
+ * ⚠️ NOT THE COUNTING FR-054 FORBIDS DUPLICATING: that MUST is about 稼働日
+ * (worked days), which only `workingDaysBetween` may count, and this is the
+ * plain calendar. ⛔ What is missing is a published member that adds calendar
+ * days to a day -- PI-1 publishes none that can move a date by a drag's worth.
  *
  * @purity pure
  */
@@ -1898,14 +1725,13 @@ function dayShifted(day: CalendarDay, days: number): CalendarDay {
 }
 
 /**
- * FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02): whether the hand DRAGGED --
- * 「`S-208` を超えて動いたときをドラッグとし、超えないときをクリックとすること」.
+ * FR-001 / FR-019 (MUST): whether the hand DRAGGED -- `S-208` is the distance
+ * that divides a drag from a click.
  *
- * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE, for the reason
- * `rowGrabAxisAt` states above: it stands in the generated block at the foot of
- * this file. ⭐ IT IS THE SAME ROW HF-15's grab reads, and that is the point of
- * the ruling -- 「同じ手の動きに同じ値を使う」 -- so a second constant here would
- * be exactly the drift the row's own note forbids.
+ * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE: it stands in the generated
+ * block at the foot of this file, and it is the same row `rowGrabAxisAt` reads
+ * for HF-15's grab, so a second constant here would be exactly the drift the
+ * row's own note forbids.
  *
  * ⚠️ READ PER AXIS, the way `rowGrabAxisAt` reads it, and not as a diagonal
  * distance: the row is one distance, and measuring it two ways in one file gives
@@ -2021,21 +1847,6 @@ function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | n
  * ⭐ FOUR VALUES AND NOT TWO. The anchors alone can only name the start of a
  * day and the top of a band, so a movement shorter than either had nowhere to
  * be written at all.
- *
- * ⛔⛔ THE STOP THAT STOOD HERE IS CLOSED, AND EVERY CLAIM IT MADE IS NOW FALSE
- * (measured 2026-09-06). It read: 「`setScrollPosition` (CM-66) CARRIES ONLY THE
- * TWO ANCHORS ... the command's own type in `edit-document-settings.ts` has no
- * member for either and its CM-66 branch puts only `scrollDate` and
- * `scrollGroupId`. Until that use-case type gains `scrollDayOffset` and
- * `scrollGroupOffset` -- and `fitScheduleToScreen` (CM-71) with it -- this file
- * does not compile and nothing reaches S-176 or S-177」.
- * ⭐ CR-260 GAVE THE COMMAND BOTH MEMBERS: `DocumentSettingsCommand`'s
- * `setScrollPosition` arm carries `scrollDayOffset` and `scrollGroupOffset`,
- * `fitScheduleToScreen` carries them too, and the CM-66 branch of
- * `editDocumentSettings` puts all four. ⚠️ THE FILE HAS COMPILED SINCE.
- * ⛔ A STOP LEFT STANDING AFTER ITS OBSTACLE IS GONE IS WORSE THAN NO STOP: the
- * blocker it named was cited again as the reason FR-016's zoom centre could not
- * be written (台帳 D-297), and it was not the reason.
  */
 interface ScrollAnchor {
   /** S-77. */

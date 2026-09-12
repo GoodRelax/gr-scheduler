@@ -122,7 +122,7 @@ import helpRoster from './help-roster.json'
 // manuscript generated into `src/`. This unit reads two of its sections: the
 // `hint` of a row of table T-109 -- the explanation EZ-2 of table T-040 shows --
 // and the assignments of table T-023, which is what FR-037 puts on a scrollbar.
-// ⚠️ Every one of the 176 cells is still empty (PD-160), so what reaches the
+// ⚠️ Every one of the 176 cells is still empty, so what reaches the
 // screen today is the stand-in beside each lookup. Reading `displayWords` does
 // not make this unit `semi-pure-a`: it is a module constant compiled into the
 // program, not state read while running. Table T-075 fixes UF-69 as `pure`.
@@ -166,7 +166,7 @@ const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', 
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * thing: an empty cell is UNSETTLED, not
  * an instruction to print nothing. The day a word is written this line stops
  * standing in without being edited.
  * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
@@ -231,7 +231,7 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
  *
  * ⛔ THE FALLBACKS ARE WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * thing: an empty cell is UNSETTLED, not
  * an instruction to print nothing.
  * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
  * with the row id -- the stand-in `assignmentText` gives its reason for. It

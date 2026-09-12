@@ -156,9 +156,8 @@ import {
 // The drag preview below folds a release's writes onto a COPY of the held
 // document with it, and PI-9 is pure -- so no stamp is advanced (`advancedStamp`
 // is called nowhere in this component's folder), no undo step is pushed (WS-4
-// pushes on `applyDocumentChange`'s road only) and nothing is autosaved. That
-// FR-031's 「身振り 1 つ ＝ 取り消し 1 段」 survives a mid-drag picture is
-// therefore true by construction rather than by care.
+// pushes on `applyDocumentChange`'s road only) and nothing is autosaved. FR-031's
+// bound on one gesture therefore survives a mid-drag picture by construction.
 import {
   editDocument,
   NOT_STORED_ZOOM_BOUNDS,
@@ -285,16 +284,14 @@ import {
 import startupTemplate from './startup-template.json'
 
 /**
- * FR-073's 「この造りが知る最大の版」 -- the greatest `GRS JSON` format version
- * this build knows, which every read of a document is judged against (OP-7 of
- * table T-024a).
+ * FR-073's greatest `GRS JSON` format version this build knows, which every
+ * read of a document is judged against (OP-7 of table T-024a).
  *
- * ⛔ IT HAS TO TRAVEL AS AN ARGUMENT (D-282). `documentFromJson` takes it and
- * says why in as many words: the version is not DocumentCodec's to hold -- an
- * Adapter reaching for the Framework's bundled template would be `LR-6` broken
- * -- so a caller that leaves it out gets `notCompared`, which is FR-073's
- * comparison not running at all. ⚠️ Every caller in this build passed nothing
- * until 2026-09-07, so the judgement was `notCompared` on all four roads.
+ * ⛔ IT HAS TO TRAVEL AS AN ARGUMENT. `documentFromJson` takes it and says why
+ * in as many words: the version is not DocumentCodec's to hold -- an Adapter
+ * reaching for the Framework's bundled template would be `LR-6` broken -- so a
+ * caller that leaves it out gets `notCompared`, which is FR-073's comparison
+ * not running at all.
  *
  * ⭐ EXPORTED FOR `single-html-shell.ts`, which reads BT-1 and BT-4 and needs
  * the same number. ⛔ It cannot live there instead: that file already imports
@@ -323,14 +320,10 @@ export interface FrameEnvironment {
    * arithmetic to LF-3 and (MUST NOT) forbids copying the values S-138 and
    * S-141 hold -- so the side that drew the lattice answers it and the layout is
    * handed the answer.
-   * ⛔⛔ THIS FLOOR DOES NOT FOLLOW THE READER'S TEXT SIZE, and the note here
-   * said the opposite until 2026-09-07 (台帳 D-339): it quoted a sentence
-   * `docs/spec` does not contain, giving 「読む人の文字サイズが動かす（`FR-039`）」
-   * as the reason for measuring. ⛔ HF-19 forbids exactly that (MUST NOT) and
-   * LF-3 says the same, and FR-039 moves the size of a row's NAME and not of the
-   * controls (HF-5). ⚠️ The measuring is right; only the reason was wrong, so
-   * anyone who had "fixed" the code to agree with the quotation would have
-   * broken HF-19.
+   * ⛔⛔ THIS FLOOR DOES NOT FOLLOW THE READER'S TEXT SIZE. HF-19 forbids it
+   * (MUST NOT) and LF-3 says the same, and FR-039 moves the size of a row's NAME
+   * and not of the controls (HF-5) -- so measuring here is right, and a "fix"
+   * that made the floor follow the text size would break HF-19.
    * ⚠️ It is NOT part of `ScreenEnvironment`: `regionsFromScreen` cuts
    * rectangles out of the window and this settles no rectangle.
    * ⚠️ ABSENT UNTIL THE FIRST PANEL HAS BEEN DRAWN -- there is no lattice to
@@ -366,7 +359,7 @@ export interface FrameValues {
    * (`S-73` / `S-74`) rather than at FR-055's fit -- OP-10 of table T-024a,
    * decided once in `viewSettings` and carried rather than asked again.
    *
-   * ⛔ THE PRESS SIDE CANNOT WORK IT OUT (D-358). Two of OP-10's three branches
+   * ⛔ THE PRESS SIDE CANNOT WORK IT OUT. Two of OP-10's three branches
    * draw the stored pair -- a document that names a place, and the BT-4
    * exception for the bundled template (MUST NOT) -- and only this side knows
    * the second, because only this side is told the document came from BT-4.
@@ -396,10 +389,10 @@ export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }
 type AgentApiWiring = Parameters<typeof installAgentApi>[0]
 
 /**
- * A document handed straight in, with no file behind it -- AM-8's road (D-357).
+ * A document handed straight in, with no file behind it -- AM-8's road.
  *
- * ⭐ WHAT THE MACHINE MAY SAY AND WHAT IT MAY NOT. FR-022 (MUST NOT):
- * 「`Agent API` の呼び出しに、選択肢をあらかじめ渡させてはならない」, so table
+ * ⭐ WHAT THE MACHINE MAY SAY AND WHAT IT MAY NOT. FR-022 (MUST NOT) refuses a
+ * call of the `Agent API` that is handed the choices in advance, so table
  * T-032a's mapping is NOT here -- it is answered on U-61 by a person. What IS
  * here is what a file would otherwise have carried: the document, which row of
  * table T-024 it came in as, and how big it was, because OP-5's judgement is
@@ -461,9 +454,6 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
  * first rank reads one -- a single `.html` carries whatever version the build
  * that wrote it knew. ⛔ ONLY THE TELLING REACHES THIS ROAD; what FR-073 also
  * asks for is recorded at the raiser in `single-html-shell.ts`.
- * ⛔ `RS-17` STOOD HERE UNTIL D-214. CR-280 retired that row with the auto-save
- * it belonged to, and FR-076 (MUST NOT) forbids carrying a reason table T-233
- * does not hold -- so the seat was an offer of a telling no caller could make.
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
@@ -495,7 +485,7 @@ export interface FrameLoop {
   resize(env: FrameEnvironment): void
   /**
    * BO-1's measurements as BO-5's OWN FRAME settled them, and the one road that
-   * runs the frame they change without asking for one (D-230).
+   * runs the frame they change without asking for one.
    *
    * ⛔ NOT FT-3, WHICH IS WHY IT IS NOT `resize`. Table T-078's FT-3 is 「画面の
    * 寸法が変わったこと」 -- something that HAPPENS to a screen already up -- and
@@ -572,8 +562,8 @@ export interface FrameLoop {
    * trigger and no requirement asks for more than one listener; a second caller
    * would be a second holder of the public point.
    * ⭐⭐ TOLD AT ONCE WHEN THE VALUE IS ALREADY ON, and that is a MUST rather
-   * than a convenience since D-280 closed. FR-065 (MUST): 「有効化はブラウザ
-   * （オリジン）ごとに記憶すること」, so a page opened at an origin where the
+   * than a convenience. FR-065 (MUST) has the enabling remembered per browser
+   * origin, so a page opened at an origin where the
    * person turned it on starts ON -- and a watcher that only heard TURNS would
    * never place the public point, which is the remembering not being kept at
    * all. ⛔ NOTHING IS SAID WHEN IT IS OFF: FR-028 (MUST) keeps it unexposed by
@@ -587,9 +577,8 @@ export interface FrameLoop {
    * to tell it on.
    *
    * ⚠️ RAISED AND NOT TOLD, exactly as every other reason this loop raises is:
-   * the row goes onto `ScreenSession.notices` and the words are the
-   * dictionary's (FR-038, MUST NOT). ⭐ NT-4 of table T-037 -- 「起動時の保留中
-   * の用件を 1 枚に集約」 -- is kept by that list being one list.
+   * the row goes onto `ScreenSession.notices` and the words are the dictionary's
+   * (FR-038, MUST NOT). ⭐ NT-4 of table T-037 is kept by that list being one list.
    *
    * ⭐ `affectedCount` IS THE RAISER'S MEASUREMENT OR `null`, exactly as it is
    * on the loop's own `raiseNotice`: `RS-51` is told with the number of settings
@@ -622,10 +611,10 @@ export interface ScreenWiring {
    * MK-13's second half -- a way to put the person into the field the surface
    * drew for one row, with everything already in it selected.
    *
-   * ⭐ THE ROW IS NOT ALWAYS ONE OF TABLE T-016 SINCE 2026-09-06 (CR-361).
-   * IF-9 reads 「行 ID は 表 T-016 の行に限らない。ヘッダの文書名の欄は 表 T-103
-   * の `U-27` を名乗る」, and SK-9 asks for that one -- FR-035 (MUST): 「作成者が
-   * 文書名を選んだとき、`GRS` は、その場で編集できるようにすること」. ⛔ WHICH
+   * ⭐ THE ROW IS NOT ALWAYS ONE OF TABLE T-016. IF-9 admits a row ID that is
+   * not of that table -- the header's document-name field names `U-27` of table
+   * T-103 -- and SK-9 asks for that one, which FR-035 (MUST) has editable where
+   * it stands. ⛔ WHICH
    * FIELD A ROW NAMES IS THE DRAWING SIDE'S ANSWER AND NOT THIS ONE'S (LR-6,
    * and Chapter 5.3 under table T-065): the caller names the row, and the side
    * that drew it decides whether that means focusing a control it has already
@@ -643,14 +632,6 @@ export interface ScreenWiring {
    * written from the specification are what watch it.
    */
   readonly focusPropertyField?: (row: string) => void
-  // ⛔⛔ `openNewRowName` AND `holdNewRowNameSettled` STOOD HERE AND ARE GONE
-  // (利用者の裁定 2026-09-04). The pair carried HF-14's empty field on the screen
-  // and the name settled in it back again, which the row asked for while it read
-  // 「名前は空で立て、その場で打たせること（MUST）」. That row now reads 「押さ
-  // れた瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを
-  // 出し、名前の欄で名づけさせること（MUST）」 with 「改名と別の道を作ってはなら
-  // ない（MUST NOT）」 beside it — so the naming goes out on `focusPropertyField`
-  // above, at `AT-53`, and this seam has nothing left to carry.
   /**
    * FR-020 (MUST) -- a way to read what stands in the masked field U-60
    * `Watermark Unlock` draws, at the moment one of that surface's two answers
@@ -679,13 +660,8 @@ export interface ScreenWiring {
  * IN-2 of table T-028 -- the five meanings that row gives a place, spelled the
  * way the host spells them.
  *
- * ⛔ THE COUNT IN THIS NOTE WAS FALSE and is recorded as such: it opened with
- * 「the four meanings」 while its own next paragraph said 「TWO OF THE FIVE」.
- * IN-2 has named five places since the ruling of 2026-08-27.
- *
  * ⭐ THE SPELLING IS THE HOST'S AND THE MEANING IS THE ROW'S, which is what
- * IN-2's own ⚠️ says in as many words: 「形の綴りそのものは閲覧環境が持つ ——
- * 本行が定めるのはどの場所がどの意味を担うかだけである」. So the five names below are
+ * IN-2's own ⚠️ says in as many words. So the five names below are
  * standard keywords of the viewing environment, chosen against their own
  * published meanings, and no sixth is minted.
  *
@@ -695,12 +671,10 @@ export interface ScreenWiring {
  * 範囲選択; `copy` is published as "a new thing will be made here", which is the
  * nearest published meaning to arming a figure and placing it. ⛔ A ruling that
  * disagrees moves these two names and nothing else.
- * ⚠️ THE FIRST OF THE TWO HAS ALREADY BEEN MOVED ONCE, by exactly such a ruling
- * (D-62 of the defect ledger, 利用者の指摘 2026-08-27): 「背景の上でカーソルが
- * `+` のまま。正しくはデフォルトの矢印カーソル」. ⛔ THE REQUIREMENT DID NOT MOVE
- * WITH IT -- 何にも当たらない場所 is still IN-2's place and still carries
- * 範囲選択の合図; only the host's word for that meaning changed, which is the one
- * thing IN-2 leaves to this side.
+ * ⚠️ THE FIRST OF THE TWO HAS ALREADY BEEN MOVED ONCE, by exactly such a ruling.
+ * ⛔ THE REQUIREMENT DID NOT MOVE WITH IT -- 何にも当たらない場所 is still IN-2's
+ * place and still carries 範囲選択の合図; only the host's word for that meaning
+ * changed, which is the one thing IN-2 leaves to this side.
  * @provisional PD-337
  * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
  * as "the thing under the pointer can be moved", which is 「掴めることの合図」
@@ -762,31 +736,17 @@ type GrabbedArea = Grabbed['grab']
  * `Record<GrabbedArea, ...>` makes a row added to table T-023d a compile error
  * that names itself, where the `ReadonlySet` this replaced let a new row
  * default silently into 「no shape」.
- * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row named five
- * cases until 2026-09-10 and now names six: the two bars' ends, the task
- * body together with a milestone's figure, and -- since the ruling below --
- * the three actual dummies. The fade handles, the progress marker, the
- * resume icon, the labels, a dependency line, the boxes, the status line and
- * the palette band are still all pressable and IN-2 still gives none of them
- * a shape. ⚠️ A shape invented for one of THOSE would be this build writing a
- * requirement.
+ * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names the two
+ * bars' ends, the task body together with a milestone's figure, and the three
+ * actual dummies. The fade handles, the progress marker, the resume icon, the
+ * labels, a dependency line, the boxes, the status line and the palette band are
+ * all pressable too and IN-2 gives none of them a shape. ⚠️ A shape invented
+ * for one of THOSE would be this build writing a requirement.
  *
- * ⭐⭐ GR-9 / GR-17 / GR-18 JOINED THE ENDS' MEANING ON 2026-09-10 (MUST,
- * 利用者の裁定, 逐語「実績タスクを触れるならマウスカーソルの形状をスライドに
- * 変更しろ」): IN-2 now reads 「実績のダミー（表 T-023d の `GR-9` / `GR-17` /
- * `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）」 -- the same clause
- * `GR-3` .. `GR-6` already carry below. ⛔⛔ UNTIL THAT DAY ALL THREE WERE
- * `null` HERE, on the ground that IN-2 named no dummy at all; the ruling
- * above is what named them, and the ground the null rested on is gone.
- * ⚠️ MEASURED ON THE SHIPPED BUILD OF THAT DAY (before this fix): pressing on
- * an unstarted Task's dummy left the pointer an arrow, matching the report
- * this ruling answers -- a Task the user can grab that gave no visual sign
- * of it.
  */
 const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
-  // IN-2:「予定バーと実績バーの端点の上は横方向の伸縮の合図」, and (2026-09-10)
-  // 「実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、
-  // 横方向の伸縮の合図とすること（MUST）」 -- one meaning, six rows.
+  // IN-2 gives the two bars' endpoints and the actual dummies one meaning --
+  // the sign of horizontal resizing.
   'GR-3': 'ew-resize',
   'GR-4': 'ew-resize',
   'GR-5': 'ew-resize',
@@ -794,8 +754,8 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-9': 'ew-resize',
   'GR-17': 'ew-resize',
   'GR-18': 'ew-resize',
-  // IN-2:「タスクの本体とマイルストーンの図形の上は掴めることの合図」(利用者の
-  // 裁定 2026-08-27). ⚠️ GR-12 IS ALSO A MILESTONE'S PLAN FIGURE, because a
+  // IN-2 gives the task body and a milestone's figure the sign of a thing that
+  // can be grabbed. ⚠️ GR-12 IS ALSO A MILESTONE'S PLAN FIGURE, because a
   // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
   'GR-12': 'grab',
   'GR-15': 'grab',
@@ -824,14 +784,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
  * `GR-15` / `GR-16`. All three add that 確定 still follows IN-1 of table T-028,
  * so a `true` here settles nothing and only draws.
  *
- * ⭐ `GR-8` IS TRUE SINCE CR-276, AND THE CONDITION THIS NOTE SET IS THE ONE
- * THAT WAS MET. It stood false while LF-11 of table T-221 pinned the resume
- * icon to the marker, which hangs off the actual bar's end (`markerAnchorX` in
- * `schedule-geometry.ts`) -- nothing drawn took a position from `resume`, so
- * folding the release's write cost its walk and moved no picture. ⛔ That was
- * never an exemption from the closing rule, and this note said so: 「it turns
- * true when a row gives the resume icon a place of its own」. LF-11 now puts it
- * on the `resume` day, so the fold moves what it draws.
  * ⛔ THE REST ARE FALSE BECAUSE NO CLOSING RULE ASKS: `GR-7` is a press that
  * cycles rather than a drag, `GR-10` cannot arrive by a plain press at all, and
  * `GR-13` selects. Turning one on would be this file inventing a requirement
@@ -855,8 +807,8 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-9': true,
   'GR-10': false,
   // GR-11 is the other row that cannot arrive by a plain press at all, and the
-  // closing rule that lists the exemptions names it beside GR-10 -- 「`GR-10` /
-  // `GR-11`（ダブルクリックだけを持つ）」. No drag begins here, so none is drawn.
+  // closing rule that lists the exemptions names it beside GR-10. No drag
+  // begins here, so none is drawn.
   'GR-11': false,
   'GR-12': true,
   'GR-13': false,
@@ -934,9 +886,7 @@ function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
 }
 
 /**
- * Table T-023c's closing rule (MUST / MUST NOT), applied to one selection:
- * 「選択は、文書に実在する対象だけを指すこと。実在しなくなった対象を選択に残して
- * はならない」 (the user's ruling of 2026-08-29).
+ * Table T-023c's closing rule (MUST / MUST NOT), applied to one selection.
  *
  * ⭐ THE ORDER IS KEPT AND SO IS `ordered`. SL-7b makes the order part of the
  * value and FR-034 lines things up against it, so dropping what is gone must
@@ -965,47 +915,37 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
  * those -- U-24 has no entry in table T-109, which is why `commandFromEntry`
  * tests `dividerPanel` before it reads `entry`.
  *
- * ⛔ PD-1 IS NOT HERE, AND THIS IS THE MEASUREMENT THAT KEPT IT OUT. Its own
- * rule now asks for the picture in as many words -- 「握っているあいだ、縦横の
- * 両方向でポインタに追従させること（MUST）」 (the user's ruling of 2026-08-29) --
- * and a line here answering `true` looked like the whole of it. ⛔ It compounds:
- * `scrolledAnchor` measures its travel against `context.layout`, which is built
- * from the picture this fold produced, so every frame applies the whole travel
- * again to a layout that already carries it. Measured 2026-08-29 with that line
- * in: a Ctrl drag of -240 across left the leftmost bar at -790 rather than -70.
+ * ⛔ PD-1 IS NOT HERE, AND ITS OWN RULE LOOKS LIKE IT ASKS TO BE. Answering
+ * `true` for a pan compounds: `scrolledAnchor` measures its travel against
+ * `context.layout`, which is built from the picture this fold produced, so every
+ * frame applies the whole travel again to a layout that already carries it, and
+ * the picture runs away by a multiple of the drag.
  * ⭐ A PAN THEREFORE REPORTS ON THE MOVE, the way FR-053's palette does, and for
- * the reason UN-8 of table T-027 gives -- 「ズーム・スクロール・パン」 is outside
- * the history, so a write per move pushes no step. `panFollow` is that road, and
+ * the reason UN-8 of table T-027 gives: a pan is outside the history, so a write
+ * per move pushes no step. `panFollow` is that road, and
  * `PointerPress.followedTo` is what keeps the pieces from adding up.
  *
  * ⭐⭐ PD-4 IS HERE, AND IT IS NOT A GRAB. Table T-023a's PD-4 asks for the
- * picture in its own words since 2026-09-07 (the user's instruction): 「押して
- * いるあいだ、置くことになる姿を、表 T-023d の閉じの規則と同じ作法で描くこと
- * （MUST）」, 「伸びる向きは、引いた向きとすること（MUST）」 -- and the row says
- * why it has to state it for itself: 「あちらは掴み領域の規則であり、本行は掴んで
- * いないので自分で述べる必要がある」. ⛔ THE ROW IS READ OFF THE PRESS AND NOT
- * WORKED OUT AGAIN: `PointerPress.pressRow` is what `pressRowOf` answered at the
- * moment of the press, and CS-2 of table T-066 wants that moment.
+ * picture in its own words, and says why it has to state it for itself rather
+ * than lean on table T-023d's closing rules: those govern a GRAB, and PD-4 is
+ * not holding anything. ⛔ THE ROW IS READ OFF THE PRESS AND NOT WORKED OUT
+ * AGAIN: `PointerPress.pressRow` is what `pressRowOf` answered at the moment of
+ * the press, and CS-2 of table T-066 wants that moment.
  * ⭐⭐ AND THE SHAPE IS NOT DECIDED HERE, WHICH IS THE HALF THAT MATTERS. PD-4
- * (MUST NOT): 「形状を 2 か所に持たせてはならない —— 描く側と置く側が同じ表を引く
- * こと（MUST）」. `previewOfHeldPress` folds THE RELEASE'S OWN WRITES onto a copy,
- * so the drawn figure is table T-012's row `commandFromArmed` chose, reached by
- * the one road; nothing in this file names a shape.
- * ⛔ NOTHING REACHES THE DOCUMENT, and PD-4 says so in its own words:
- * 「押しているあいだ値を文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵で
- * あって編集ではない」, which the note on `previewDocument` states from the far
- * side.
+ * (MUST NOT) forbids the shape being held in two places and (MUST) has the side
+ * that draws and the side that places read one table. `previewOfHeldPress` folds
+ * THE RELEASE'S OWN WRITES onto a copy, so the drawn figure is table T-012's row
+ * `commandFromArmed` chose, reached by the one road; nothing in this file names
+ * a shape.
+ * ⛔ NOTHING REACHES THE DOCUMENT, which PD-4 (MUST NOT) says in its own words
+ * and the note on `previewDocument` states from the far side: following is a
+ * picture and not an edit.
  * ⚠️ A BAR THAT HAS NOT TRAVELLED DRAWS NOTHING, AND NO LINE HERE SAYS SO.
- * FR-001 (MUST NOT) 「クリックでは、バーの形状のタスクを作らないこと」, so
+ * FR-001 (MUST NOT) refuses a bar-shaped task made by a click, so
  * `commandFromArmed` answers with FR-029's telling rather than a write and the
  * fold below finds no `changeDocument` -- the draft appears on the very travel
  * that would make one. ⭐ A milestone is placed by the press alone, so its draft
  * stands from the press, which is what that road already writes.
- * ⚠️ MEASURED 2026-09-08 ON THE SHIPPED BUILD, WITHOUT THIS LINE: a rectangle
- * armed and empty ground dragged 100px left the schedule's SVG at 67081 bytes
- * for all 11 samples between the press and the release -- 0 bytes of spread --
- * and 243 pieces of ink throughout. The row's own ⚠️ records the same shape of
- * measurement (「空所を押して 147px 引いても絵が 1 バイトも動かない」).
  *
  * @purity pure
  */
@@ -1025,10 +965,9 @@ function isPreviewedPress(press: PointerPress | null): boolean {
  * (rule 03 section 1).
  * ⚠️ `S-92` is stated as a width and a height while `PointerSlop.fadeHandle` is
  * documented as a HALF-width, which is why S-92's width is halved here.
- * ⛔⛔ `S-93` LEFT THIS CONSTANT ON 2026-09-10, WITH THE ROW ITSELF. Table
- * T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
- * `FR-043` が描いた印そのものとすること（MUST）」, so the dummies read the
- * rectangle `dummiesOf` solved and this side hands them no width at all.
+ * ⛔⛔ `S-93` IS NOT HERE: table T-023d's closing rule (MUST) makes the dummies'
+ * hit area the mark FR-043 drew, so they read the rectangle `dummiesOf` solved
+ * and this side hands them no width at all.
  */
 const POINTER_SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
@@ -1044,28 +983,20 @@ const BYTES_PER_MEGABYTE = 1024 * 1024
  * FR-031's two bounds on the undo history, by the rows table T-206 states them
  * at.
  *
- * ⭐ S-95 IS PRINTED IN MEGABYTES and FR-031 measures a step in BYTES -- 「1 段
- * の大きさは、その段の文書を詰めた `GRS JSON`（字下げも改行も持たない形）へ直列
- * 化し、UTF-8 で符号化した長さ（バイト）で測ること（MUST）」.
- * ⛔⛔ THE QUOTATION ABOVE SAID 「その段の保存形を」 UNTIL 2026-09-06, WHICH IS A
- * WORD THE REQUIREMENT ITSELF REFUSES (台帳 D-339): FR-031 warns in the next
- * breath 「詰めた形は、保存する形とは別である」 -- 書き出しが書くのは字下げのある
- * 形であり（`FR-024`）、詰めた形はどこにも保存されない. ⭐ The measuring side was
- * never wrong -- `stepSizeBytes` in `document-change-plan.ts` is
- * `JSON.stringify`, which IS the packed form -- so what the misquotation
- * endangered was the next reader, not the number.
- * ⚠️ THE SAME ROW ALSO FORBIDS COUNTING CHARACTERS (MUST NOT), 「和文は 1 文字が
- * 3 バイトになるので、文字数で測ると上限が 3 倍に緩む」, which is why the length is
- * taken in UTF-8 bytes and not in `String.length`. The two halves have to be
- * brought into one unit before
- * `historyWithStep` compares them. ⛔ The factor is not chosen here: S-95's own
- * remark states it, and CR-173 already put the same one beside the same shape of
- * bound in `validate-imported-document.ts` (S-113). ⚠️ Left unconverted the
- * bound was 64 BYTES, which is smaller than any document, so every write
- * collapsed the history to a single step and S-94's fifty were unreachable.
+ * ⭐ S-95 IS PRINTED IN MEGABYTES and FR-031 measures a step in BYTES, so the
+ * two halves have to be brought into one unit before `historyWithStep` compares
+ * them. ⛔ The factor is not chosen here: S-95's own remark states it, and
+ * `validate-imported-document.ts` puts the same one beside S-113's bound.
+ * ⚠️ Left unconverted the bound is 64 BYTES, which is smaller than any
+ * document, so every write collapses the history to a single step and S-94's
+ * fifty become unreachable.
+ * ⛔ FR-031 also forbids measuring a step in CHARACTERS (MUST NOT), because a
+ * Japanese character is three bytes and a character count loosens the bound
+ * threefold -- which is why the length is taken in UTF-8 bytes and not in
+ * `String.length`.
  * ⛔ The generated constant carries the number and the unit exactly as the
- * published cell prints them (CR-178), so the conversion belongs in the unit
- * that applies the bound and nowhere upstream.
+ * published cell prints them, so the conversion belongs in the unit that
+ * applies the bound and nowhere upstream.
  */
 const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
@@ -1078,9 +1009,8 @@ const HISTORY_LIMITS: HistoryLimits = {
  * ⛔ THE SEAM DOES NOT PUBLISH THE SPELLING. `KeyInput.key` is a plain string,
  * so the name has to be written wherever a row of table T-036 is recognised:
  * `dom-input-source.ts` normalises the host's `Escape` to it, and
- * `input-command-translator.ts` keys its own rows on it. ⚠️ This is the THIRD
- * copy of it in `src/`; publishing one takes a change request, not a choice
- * here.
+ * `input-command-translator.ts` keys its own rows on it. ⚠️ Publishing one
+ * spelling takes a change request, not a choice here.
  */
 const ESCAPE_KEY = 'Esc'
 
@@ -1116,10 +1046,10 @@ const EDITED_BY_SCREEN = 'user'
  * (S-99); IC-50 opens and folds FR-053's milestone glyph list (S-142);
  * IC-71 .. IC-73 are OP-3's
  * three, and what each of them settles is a whole-document replacement the
- * Framework is the only layer that may hold. ⚠️ NT-7's two answers stood in
- * this list until 2026-09-02; they are word buttons now (CR-327) and have no
- * row of table T-109 at all, so they are spent by the two constants further
- * down rather than by a row id. ⛔ None of them is a
+ * Framework is the only layer that may hold. ⚠️ NT-7's two answers are not in
+ * this list: they are word buttons with no row of table T-109 at all, so they
+ * are spent by the two constants further down rather than by a row id.
+ * ⛔ None of them is a
  * `DocumentCommand`, so there is no road through table T-108 for any of them.
  * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
  */
@@ -1127,13 +1057,10 @@ const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
 /**
  * The entry that turns S-142 of table T-206.
  *
- * ⭐ ONE ENTRY IN TWO STATES SINCE CR-273, which is what table T-109 now draws:
- * IC-50 reads 「同じ入口で開閉する」 and FR-053 (MUST NOT) forbids a second
- * entrance. ⛔ IT WAS TWO ROWS UNTIL 2026-08-28, an opener and a folder, and
- * figure F-019 drew them with a byte-identical shape -- so one of the two did
- * nothing in each state and no reader could tell which. ⚠️ It is now the same
- * shape as the `Resource Roster`'s IC-67 / IC-68 and as IC-11, which is why it
- * is read off what is HELD rather than off the entry.
+ * ⭐ ONE ENTRY IN TWO STATES, which is what table T-109 draws: IC-50 opens and
+ * folds at the same entrance and FR-053 (MUST NOT) forbids a second one.
+ * ⚠️ It is the same shape as the `Resource Roster`'s IC-67 / IC-68 and as
+ * IC-11, which is why it is read off what is HELD rather than off the entry.
  */
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
 /**
@@ -1174,15 +1101,15 @@ const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
 const CONFIRMATION_PROCEED_ANSWER = 'proceed'
 
 /**
- * NT-7 (MUST, 利用者の指示 2026-09-01): 「`y` と `n` の打鍵でも答えられること」
- * -- the two keys, spelled the way `keyOf` in `dom-input-source.ts` reports a
- * single character (upper case, the spelling table T-036 prints).
+ * NT-7 (MUST) has the two answers given by the `y` and `n` keys -- spelled the
+ * way `keyOf` in `dom-input-source.ts` reports a single character (upper case,
+ * the spelling table T-036 prints).
  *
  * ⭐⭐ AND THEY ARE THE HEADS OF THE TWO WORDS, WHICH IS THE WHOLE POINT. NT-7
- * has the first letter of each answer drawn bold 「打鍵で答えられることを、
- * ボタン自身に名乗らせるためである」 and (MUST NOT) forbids translating `Yes` /
- * `No` 「頭文字が下の打鍵を指さなくなる」 -- so the bold head and the key are
- * one fact stated twice by the row itself, not two facts this file joined.
+ * has the first letter of each answer drawn bold so that the button names the
+ * key itself, and (MUST NOT) forbids translating `Yes` / `No` because the head
+ * would stop pointing at the key -- so the bold head and the key are one fact
+ * stated twice by the row itself, not two facts this file joined.
  * ⚠️ WRITTEN HERE RATHER THAN DERIVED FROM THE WORD, because the word is
  * FR-038's and this layer may not read the dictionary (the words live in
  * `ScreenRenderer`): what this file copies is NT-7's own row, which is what
@@ -1208,12 +1135,11 @@ function isConfirmationAnswerKey(key: string): boolean {
 /**
  * IC-18 -- FR-066's dialogue field.
  *
- * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT, AND SINCE 2026-08-31 (D-149) NOT
- * FOR THE OTHER HALF ANY MORE. The other half -- what a press on it DOES while
- * the `Agent API` is on -- is answered by `input-command-translator.ts` now
- * that `ScreenSession.isDialogueFieldVisible` (S-99i) gives the field its own
- * switch; that action reaches `carryOutAction` as `toggleDialogueFieldVisible`
- * and this file is not asked about it. ⭐ WHAT STAYS HERE is the half that
+ * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT AND NOT FOR THE OTHER. What a press
+ * on it DOES while the `Agent API` is on is answered by
+ * `input-command-translator.ts`, because `ScreenSession.isDialogueFieldVisible`
+ * (S-99i) gives the field its own switch and that action reaches `carryOutAction`
+ * as `toggleDialogueFieldVisible`. ⭐ WHAT STAYS HERE is the half that
  * cannot move: `commandStateOf` (UF-62) draws this entrance faint while the
  * API is off, and FR-029 (MUST) has a press on a faint entrance told why.
  * ⚠️ THAT SWITCH IS THIS FILE'S: `isAgentApiEnabled` is a current value LY-5 of
@@ -1249,14 +1175,13 @@ const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 /**
  * IC-98 of table T-109 -- FR-095's 「文書を新しく始める」, on the `App Header`.
  *
- * ⭐ FR-095 IS THE WHOLE OF WHAT THE PRESS OWES: 「開いている文書を捨てて表 T-034
- * の `BT-4` と同じ状態に戻すこと。捨てる前に、未保存の編集について表 T-024a の
- * `OP-4` と同じ確認を行うこと（MUST）」 -- so the question is `DISCARD_QUESTION`
- * (QN-5) and the landing is table T-230's `RD-7`.
+ * ⭐ FR-095 IS THE WHOLE OF WHAT THE PRESS OWES: the open document is discarded
+ * back to BT-4's state, and the unsaved edits are asked about first with the
+ * same confirmation OP-4 of table T-024a asks. So the question is
+ * `DISCARD_QUESTION` (QN-5) and the landing is table T-230's `RD-7`.
  * ⭐ THE QUESTION IS QN-5 AND NOT A ROW OF ITS OWN, which table T-234's closing
- * note settles in as many words: 「`FR-095` も行を持たない —— 同要求は「表 T-024a
- * の `OP-4` と同じ確認を行うこと（MUST）」と自ら定めており、同じ問いに 2 つ目の
- * 鍵を作らない」.
+ * note settles in as many words: FR-095 sends the asking to OP-4 itself, so one
+ * question does not get a second key.
  *
  * ⛔⛔ HERE FOR THE REASON `ROSTER_DELETE_ENTRY` IS AND NOT FOR THE ONE THE
  * ENTRIES ABOVE IT HAVE. This press does reach a write, but the write is
@@ -1267,9 +1192,8 @@ const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
  * over IF-9, so the translator is not in this road at all.
  *
  * ⛔ AND THE QUESTION MAY NOT BE RAISED WITHOUT THE LANDING. A branch that put
- * QN-5 up and discarded nothing on 「続ける」 is the defect 規則 04 section 3.6
- * records from a real press -- 「消す確認が嘘をつく」 -- which is why this stood
- * as a STOP until `ReplacementCall` carried RD-7 (台帳 D-364 / D-284).
+ * QN-5 up and discarded nothing on the "go on" answer is the lying confirmation
+ * 規則 04 section 3.6 records from a real press.
  */
 const NEW_DOCUMENT_ENTRY: IconId = 'IC-98'
 
@@ -1340,24 +1264,19 @@ const WATERMARK_UNLOCK_SURFACE = 'Watermark Unlock'
  *
  * ⛔ NOT `RS-15`. That row is FR-076's landing place for a reason the table has
  * none for, and carrying it while a row exists is what that requirement forbids
- * (MUST NOT) -- it would also print 「もう一度行ってください」 as the next step,
- * which is D-186's own lie in every case but this one.
- * ⭐ HERE THAT STEP IS TRUE, WHICH IS WHY THE ROW EXISTS: FR-020 (MUST NOT)
- * puts no cap on the tries -- 「透かしはアクセス制御ではなく証跡であり、回数を
- * 絞ると守っているように見せることになる」 -- so trying again is exactly what a
- * person can do next, and `RS-41` says so.
+ * (MUST NOT) -- its next step would also be untrue in every case but this one.
+ * ⭐ HERE THAT STEP IS TRUE, WHICH IS WHY THE ROW EXISTS: FR-020 (MUST NOT) puts
+ * no cap on the tries, so trying again is exactly what a person can do next.
  */
 const WATERMARK_UNLOCK_MISMATCH_REASON: NoticeReason = 'RS-41'
 
 /**
  * The entrances a held press repeats on -- FR-018 (MUST).
  *
- * ⛔ FOUR AND NOT SIX, WHICH IS THE REQUIREMENT'S OWN LIMIT (MUST):
- * 「繰り返す入口は ... 表 T-109 の `IC-12` 〜 `IC-15` に限ること」. It gives its
- * reason for keeping IC-10 and IC-11 out where they stand -- 「繰り返しても同じ
- * 結果にしかならない」 -- the fit and the full screen answer the same picture
- * however many times they are asked, so a repeat on either would be presses
- * spent for nothing.
+ * ⛔ FOUR AND NOT SIX, WHICH IS THE REQUIREMENT'S OWN LIMIT (MUST): it names
+ * `IC-12` .. `IC-15` and no others. It gives its reason for keeping IC-10 and
+ * IC-11 out where they stand -- repeating either answers the same picture -- so
+ * a repeat on the fit or the full screen would be presses spent for nothing.
  * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else
  * in this file; `PALETTE_GRAB_BAND_ENTRY` above names its row the same way.
  * ⛔ NOT A SECOND ROSTER OF WHAT THE PRESSES DO. What each of the four writes
@@ -1416,15 +1335,15 @@ const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
  * The row SK-9 names as the field `F2` puts the person into -- `U-27` of table
  * T-103, the `Document Title` the `App Header` draws.
  *
- * ⭐⭐ NOT A ROW OF TABLE T-016, AND THAT IS THE WHOLE OF CR-361 (利用者の裁定
- * 2026-09-06). IF-9 now reads 「編集できる欄で確定した値を、その欄が名乗る行 ID
- * とともに返し」 with 「⭐ 行 ID は 表 T-016 の行に限らない。ヘッダの文書名の欄は
- * 表 T-103 の `U-27` を名乗る」 -- so the two constants above are property rows
- * and this one is a UI part, and the road they travel is the same road.
+ * ⭐⭐ NOT A ROW OF TABLE T-016. IF-9 has an editable field answer with the row
+ * ID it names itself, and that ID is not held to table T-016 -- the header's
+ * document-name field names `U-27` of table T-103. So the two constants above
+ * are property rows and this one is a UI part, and the road they travel is the
+ * same road.
  * ⛔ NO ROW IS ADDED TO THE PROPERTY TABLE FOR IT. FR-074 (MUST NOT) keeps the
  * document name out of 文書の基本情報 and names FR-035 as its one entrance, and
- * FR-035 asks for 「その場で」 -- so the panel is not where this field is drawn
- * and the panel's rows are not what it can be named by.
+ * FR-035 asks for the name to be edited where it stands -- so the panel is not
+ * where this field is drawn and the panel's rows are not what it can name it by.
  */
 const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
 
@@ -1439,27 +1358,8 @@ const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
  * one: a raiser that supplied a sentence would be the second store of
  * translated strings FR-038 forbids (MUST NOT).
  *
- * ⛔⛔ A NOTE STOOD HERE NAMING TWO ROWS AS MISSING FROM THIS UNION, and on
- * 2026-09-06 BOTH HALVES OF IT WERE MEASURED AND BOTH WERE WRONG:
- *
- *   QN-3  FR-099's unassignment. ⭐ WRITTEN NOW (台帳 D-288 with D-289): table
- *         T-109 places IC-66 on U-49, `answerSettledEntry` answers that press,
- *         and `confirmationOwedByResourceDeletion` is the raiser the old note
- *         called absent. ⛔ THE ROAD AND THE QUESTION LANDED TOGETHER, because
- *         either alone is a breach: a press answered without the question runs
- *         the deletion unasked, which is the MUST half of FR-099, and a
- *         question with no press behind it would be asked about nothing.
- *   QN-5  the confirmation before unsaved edits are thrown away and replaced.
- *         ⛔ THE OLD NOTE READ 「CR-280 gave it a second caller in SK-21
- *         (`Ctrl` + `R`), and neither road raises it yet」, AND IT WAS ALREADY
- *         UNTRUE OF BOTH ROADS. `askToDiscardCurrentDocument` raises it,
- *         `openDocumentIntoHold` asks it on every replace, and OP-13 sends
- *         SK-21 down that same road with the choice fixed to `replace` -- so
- *         the second caller reaches it through the first. ⚠️ The row was in
- *         this union the whole time it was called missing from it.
- *
- * ⛔ NO CALLER IS INVENTED FOR A ROW ALL THE SAME. What changed for QN-3 is
- * that the road exists, not that the rule about inventing one moved.
+ * ⛔ NO CALLER IS INVENTED FOR A ROW. A row of table T-234 is seated here when
+ * a road exists to ask it, never so that the union looks complete.
  *
  * ⚠️ `QN-9` IS NOT HERE AND IS NOT MISSING. FR-020's question is drawn on U-60
  * `Watermark Unlock`, which is a name S-99g holds and `open-modals.ts` reads
@@ -1518,21 +1418,10 @@ const UNASSIGNMENT_QUESTION: ConfirmationQuestion = 'QN-3'
  * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」) and a clipboard
  * write that would not go through. ⛔ A third raiser is a third reason to write
  * those rows, not a third use of this one.
- * ⭐ THERE WERE THREE UNTIL CR-333. A rastering that failed used to land here
- * with all three of its reasons at once; table T-233 now holds `RS-42` and
- * `RS-43` for them, and `NOTICE_REASON_OF_RASTER_FAULT` is where the two are
- * told apart.
- * ⭐ THERE WERE FOUR UNTIL CR-325. A form of table T-024 this build cannot yet
- * write got a row of its own then -- `RS-40` -- and no form of this build
- * reaches it any more; the note where its constant stood says why it is kept.
- *
- * ⛔ `RS-17` IS NOT BELOW, AND IT IS THE ONE SEAT THIS UNION EVER HELD THAT
- * TABLE T-233 DID NOT (D-214). CR-280 retired it with the auto-save whose
- * telling it was; keeping the seat left this type offering a reason FR-076
- * (MUST NOT) forbids a telling to carry. ⚠️ NOTHING GENERATES THIS UNION, so
- * a row retired in that table has to be struck here by hand -- the same
- * standing cost `NOTICE_MANNER_OF_REASON` records just below.
- * ⭐ Retiring it changed no behaviour: no raiser named it.
+ * ⚠️ NOTHING GENERATES THIS UNION, so a row retired from table T-233 has to
+ * be struck here by hand -- the same standing cost `NOTICE_MANNER_OF_REASON`
+ * records just below. ⛔ A seat left standing for a retired row would let a
+ * telling carry a reason FR-076 (MUST NOT) forbids.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1575,60 +1464,50 @@ type NoticeReason =
   | 'RS-42'
   | 'RS-43'
   | 'RS-44'
-  // ⛔ `RS-45` IS NOT HERE, on the same terms `RS-17` states above. Table
-  // T-233 retired the seat CR-340 gave it, and nothing generates this union,
-  // so a row struck from the table has to be struck here by hand -- keeping
-  // it would let a telling carry a reason FR-076 (MUST NOT) forbids.
-  // `appShellUnavailable` (`NOTICE_REASON_OF_EMBEDDED_HTML_FAULT` below) is
-  // the one raiser that named it and now falls to `RS-15`.
+  // ⛔ `RS-45` IS NOT HERE: table T-233 holds no such row, and a seat for one it
+  // does not hold would let a telling carry a reason FR-076 (MUST NOT) forbids.
   | 'RS-46'
   // ⭐ THE ROW A DOCUMENT OF A NEWER FORMAT VERSION IS TOLD ON (`RS-48`).
-  // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」
-  // —— 「面は 表 T-103 の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」. So the row is
-  // named here and the columns travel to `U-61` beside it; ⛔ neither half is a
-  // substitute for the other.
-  // ⚠️ ITS COUNT IS `null` AND NOT THE NUMBER OF COLUMNS. That requirement
-  // (MUST) has the columns 「具体的に並べて」 laid out, and `affectedCount` can
-  // only ever carry a tally -- which is the very thing the surface is for.
+  // FR-073 (MUST) has the unreadable columns laid out one by one and the reader
+  // asked whether to go on, on `U-61` of table T-103 and with this row for its
+  // reason. So the row is named here and the columns travel to `U-61` beside it;
+  // ⛔ neither half is a substitute for the other.
+  // ⚠️ ITS COUNT IS `null` AND NOT THE NUMBER OF COLUMNS: that requirement asks
+  // for the columns themselves, and `affectedCount` can only ever carry a tally.
   | 'RS-48'
-  // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). The ruling of 2026-09-06
-  // took choice ⓑ -- a setting outside its own bounds is brought INSIDE on the
-  // road that reads the document, and the person is told how many keys moved --
-  // so the telling is `NT-5`'s "accepted, with a caution" rather than a refusal.
+  // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). A setting outside its own
+  // bounds is brought INSIDE on the road that reads the document and the person
+  // is told how many keys moved, so the telling is `NT-5`'s "accepted, with a
+  // caution" rather than a refusal.
   // ⚠️ THE SEATS BETWEEN `RS-46` AND THIS ONE ARE NOT ALL THIS FILE'S. `RS-47`,
   // `RS-49` and `RS-50` are rows of table T-233 no raiser here reaches, and a
-  // seat offered for a reason nothing raises is what D-214 struck `RS-17` for.
-  // ⭐ `RS-48` IS NOW ONE OF THIS FILE'S and stands above; an earlier writing of
-  // this note counted it among the four, which was true until FR-073's telling
-  // had a raiser.
+  // seat offered for a reason nothing raises is a seat this union may not hold.
   | 'RS-51'
-  // ⭐ THE ROW A CALENDAR EDIT'S RECOUNT IS TOLD ON (`RS-52`). FR-012 (MUST):
-  // 「数え直したことを、値が変わった `Task` の件数を添えて告げること」 -- the
-  // recount itself happens inside the write (`EditReport.recountedTaskUids`),
-  // and this seat is what lets `writeDocument` say it happened.
+  // ⭐ THE ROW A CALENDAR EDIT'S RECOUNT IS TOLD ON (`RS-52`). The recount itself
+  // happens inside the write (`EditReport.recountedTaskUids`), and this seat is
+  // what lets `writeDocument` say it happened.
   // ⚠️ THE SEATS BETWEEN `RS-51` AND THIS ONE ARE STILL NOT THIS FILE'S, on the
   // terms the note above `RS-51` states.
   | 'RS-52'
   | 'RS-53'
   // ⭐ THE ROW A SHAPE THAT COULD NOT BE APPLIED IS TOLD ON (`RS-54`). Its 正 is
-  // FR-083, which holds 「形状の変更が拒まれたときも、構えは立てること（MUST）」,
-  // and the table's own row carries 「`RS-10` を当ててはならない（MUST NOT）」 --
-  // so this seat is not a nicety but the one way that MUST NOT can be kept.
+  // FR-083, which holds that a refused shape change still arms the figure, and
+  // the table's own row forbids `RS-10` being used instead (MUST NOT) -- so this
+  // seat is not a nicety but the one way that MUST NOT can be kept.
   // ⚠️ IT IS REACHED BY READING THE REFUSALS, not by a reason of its own: the
   // road that raises it is WS-3's `refused`, the same road `RS-10` rides, and
   // `reasonOfWriteRefusal` below is where the two are told apart.
   | 'RS-54'
-  // ⭐ THE THREE ROWS OF 2026-09-09 THAT A WS-3 BUNDLE CAN NOW BE TOLD ON
-  // (`RS-55`, `RS-57`, `RS-58`). Each stands here for the same reason `RS-54`
-  // does: table T-233 holds the row, and the closing paragraph of FR-076's
-  // table T-037 (MUST) says holding it is not enough -- 「本表に行を足す者は、
-  // その行へ振り分ける道が在ることまで確かめること（MUST）」, with
-  // ⛔ 「拒否の理由を 1 つの行へ潰してはならない（MUST NOT）」 beside it.
+  // ⭐ THE THREE ROWS A WS-3 BUNDLE CAN ALSO BE TOLD ON (`RS-55`, `RS-57`,
+  // `RS-58`). Each stands here for the same reason `RS-54` does: table T-233
+  // holds the row, and the closing paragraph of FR-076's table T-037 (MUST) says
+  // holding it is not enough -- whoever adds a row must check that a road sorts
+  // into it, and (MUST NOT) that no two refusals are flattened onto one row.
   // `REFUSAL_SITUATIONS` below is that road; ⚠️ each row's 正 is what the road
   // is keyed on, so a refusal is matched by the rule that refused it.
   | 'RS-55'
-  // ⭐ `RS-56` 「同じ `Task` を、依存の先行と後続の両方にしようとした」, seated
-  // 2026-09-09. ⚠️ IT WAS LEFT OUT WHEN THE OTHER THREE WERE SEATED, and the
+  // ⭐ `RS-56` IS THE ROW FOR A DEPENDENCY WHOSE TWO ENDS ARE ONE `Task`.
+  // ⚠️ IT WAS LEFT OUT WHEN THE OTHER THREE WERE SEATED, and the
   // reason was measured rather than guessed: its 正 is FR-009, which forbids
   // THREE dependencies in one sentence, so `command` and `rule` alone could not
   // tell this one from the other two. ⭐ `Refusal.reasonCategory` (AG-9a of
@@ -1699,10 +1578,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   // 所ではなかった」. ⚠️ The three rows above it are `NT-3a` because a raster or
   // a record DID fail, which is the line the two manners are drawn along.
   'RS-44': 'NT-1',
-  // `RS-45`, the other row CR-340 gained on 2026-09-03, retired 2026-09-04
-  // (see the union above) and has no entry here any more. `RS-46` is FR-085's
-  // cap, `NT-3a` in the table's own manner column, which the table settles as
-  // a telling rather than a refusal of an input.
+  // `RS-46` is FR-085's cap, `NT-3a` in the table's own manner column, which the
+  // table settles as a telling rather than a refusal of an input.
   'RS-46': 'NT-3a',
   // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR THIS ROW, not a reading
   // taken here. ⚠️ It reads oddly beside `RS-51`, which is `NT-5` for a
@@ -1863,12 +1740,6 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   // forbids three, and table T-018b now gives them row IDs -- `DN-1` 自己参照,
   // `DN-2` the duplicate pair, `DN-3` an end that is neither task nor milestone
   // -- and table T-233 gives a row to `DN-1` alone.
-  // ⚠️ RE-CUT 2026-09-10. Until that day FR-009 opened the prohibition with
-  // the word 次 and put all three in ONE sentence with no row IDs, which is
-  // what this comment quoted and reasoned from; the manuscript records the
-  // change itself, naming RS-56's want of a row to point at as the reason.
-  // ⛔ The dead sentence is not quoted here -- a comment that keeps a withdrawn
-  // wording in 「」 is exactly what check 42 counts.
   // ⭐ The other two keep `RS-10` 「命令が拒否されたので、束ごと落とした」,
   // whose next step 「拒まれた変更を取り除いて、もう一度」 is true of them, and a
   // row of table T-233 for either is the specification's to give rather than
@@ -1928,16 +1799,6 @@ function situationReasonOf(one: Refusal): NoticeReason | null {
  * holding even one other refusal -- or two situations at once -- was dropped for
  * more than that one thing, and `RS-10` is then the true word for it.
  *
- * ⚠️ THE WIDE HALF WAS UNGUARDED WHEN THIS WAS ONE PAIR (measured 2026-09-08,
- * 台帳 D-406): widening the test to every WS-3 refusal, so that `RS-10` became
- * unreachable from this road altogether, took ZERO cases red in the whole suite.
- * ⭐ It is guarded now --
- * `tests/unit/d-406-d-411-the-reason-a-refused-write-carries.test.ts` drives a
- * WS-3 refusal that is NOT one of the situations (a WBS parent naming a uid the
- * document does not hold, `CM-18` against `IV-2`) and holds it to `RS-10`'s
- * words. ⛔ The narrow half was already guarded and still is (two cases
- * of `tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts` go red when the
- * shape's entry is taken out).
  *
  * @purity pure
  */
@@ -2008,8 +1869,7 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
 /**
  * The row of table T-233 FR-025 raises when the picture will not fit S-217's
- * ceiling even grown to it (CR-337, the reader's ruling of 2026-09-02
- * 「1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」).
+ * ceiling even grown to it (FR-025).
  *
  * ⭐ ONE ROW FOR BOTH SIDES OF THE SAME REFUSAL. `ImageExporter.exportSvg` and
  * `exportPng` answer `{ ok: false, fault: { reason: 'tooTall' } }` before
@@ -2028,16 +1888,9 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 
 /**
- * ⛔ `RS-40` HAS NO RAISER IN THIS BUILD, AND THAT IS THE ROW DOING ITS JOB.
- * It reads 「この形式は、このビルドではまだ書けない」 against 表 T-024, and
- * `UNWRITTEN_FORM_REASON` stood here until CR-333's round carried it for the
- * two forms that were offered and written nothing -- `.svg` and the single
- * `.html`. Both are written now (`exportPictureContent`), so the constant went
- * with them rather than being kept pointing at nothing.
- * ⚠️ THE ROW ITSELF STAYS, which is what CR-325 wrote it for: the landing
- * place for the NEXT form table T-024 offers before this build can write it.
- * ⭐ Reinstating it is one line at the press that cannot act -- the row is
- * still in `NoticeReason` above and the dictionary still holds its words.
+ * ⚠️ `RS-40` HAS NO RAISER IN THIS BUILD, AND THAT IS THE ROW DOING ITS JOB:
+ * table T-233 keeps it as the landing place for the NEXT form of table T-024
+ * offered before this build can write it.
  */
 
 /**
@@ -2046,21 +1899,16 @@ const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
  * ⭐ A census the compiler keeps: a reason added to `RasterFaultReason` is a
  * compile error here rather than a picture that fails and tells nobody.
  *
- * ⭐⭐ TWO ROWS FOR THREE REASONS SINCE CR-333, AND THE SPLIT IS THE READER'S
- * OWN. Their ruling of 2026-09-02 is 「それ以外は、エラーが出ないようにすべき
- * だし、エラーが出た場合は原因不明のエラーが発生しました。デバッグボタンを押し
- * て再度実行してログを取って... って話にすればいいだろ？」 -- so a failure a
- * person cannot name is told as one, and the next step is the recording FR-102
- * already has (`IC-76`). `RS-42` is that row and `unsupported` and
- * `rasterFailed` are both it: neither has a next step of its own that a reader
- * could take, and offering one that does not exist is what NT-3a forbids.
+ * ⭐⭐ TWO ROWS FOR THREE REASONS, AND THE SPLIT IS THE READER'S OWN: a failure
+ * a person cannot name is told as one, and the next step is the recording FR-102
+ * already has (`IC-76`). `RS-42` is that row and `unsupported` and `rasterFailed`
+ * are both it: neither has a next step of its own that a reader could take, and
+ * offering one that does not exist is what NT-3a forbids.
  * ⛔ `tooLarge` IS NOT ONE OF THEM. Its cause IS known -- FR-025 grew the
  * picture to S-217 and the machine still would not paint it -- so `RS-43`
  * (「伸ばしても描ける大きさを超えた」) carries it, and its next step is the one
  * the reader can act on: fold rows, or narrow the period.
- * ⚠️ ALL THREE LANDED ON `RS-15` UNTIL CR-333, which FR-076 reserves for
- * reasons the table holds no row for; the table holds two now.
- * ⭐ SINCE CR-337, `RS-43` HAS A SECOND RAISER BESIDE THIS CENSUS:
+ * ⭐ `RS-43` HAS A SECOND RAISER BESIDE THIS CENSUS:
  * `HEIGHT_CEILING_REASON` above, for the picture that never reached a
  * rasterizer at all because `exportSvg` itself refused it. Both name the same
  * row on purpose -- table T-233 gives the reader one sentence for "too many
@@ -2093,19 +1941,15 @@ type EmbeddedHtmlFaultReason = Exclude<
  *
  * ⭐ A census the compiler keeps, on the same terms as the rastering above: a
  * reason added to `EmbeddedHtmlFaultReason` is a compile error here.
- * ⛔ `RS-45` NO LONGER SEATS `appShellUnavailable`. CR-340 gave it a row on
- * 2026-09-03 and the ruling of 2026-09-04 retired that row from table T-233
- * again (see `NoticeReason` above); measured against the current 44 rows, none
- * names this reason. It falls to `RS-15` instead, on the same terms
- * `single-html-shell.ts`'s `STARTUP_NOTICE_REASON` already uses for
- * `embeddedEntryCountNotOne` -- a row for it is owed and not yet written.
+ * ⛔ `appShellUnavailable` FALLS TO `RS-15`: table T-233 names no row for it, on
+ * the same terms `single-html-shell.ts`'s `STARTUP_NOTICE_REASON` already uses
+ * for `embeddedEntryCountNotOne` -- a row for it is owed and not yet written.
  * ⛔ THE OTHER TWO STAY ON `RS-42`, unchanged by this. Neither has a cause the
  * reader can be told nor a different step to take -- the source read carries a
  * container this build cannot aim at -- so 「原因の分からない失敗」 is what the
  * situation IS from the side that is told about it.
- * ⚠️ `app-shell-source.ts` reaches the same place from the other side: it
- * declares ONE failure without a reason enum because 「there is one next step
- * here whatever went wrong」.
+ * ⚠️ `app-shell-source.ts` reaches the same place from the other side, and for
+ * the same reason: one next step, whatever went wrong.
  * ⛔ NOT `RS-40`. That row says this build cannot write the form, and since
  * CR-333's round it can -- saying so would be untrue of every host where the
  * write works.
@@ -2206,20 +2050,17 @@ const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
  * other row of that table fits -- FR-029's 「どの入口にも当たる行が無いときの
  * 落ち先が `RS-27` である」.
  *
- * ⛔ THE FALLBACK AND NOT THE ANSWER. Until 2026-08-30 table T-233 held one row
- * for every spent entrance at once and this constant WAS the answer; the user
- * threw that reading out in as many words (「通知は『行えることがありません』
- * じゃ意味がないだろ。できない理由を表示しろよ」), the table gained eight
- * situations, and FR-029 (MUST NOT) now forbids carrying this row where one of
- * those fits. ⚠️ It is kept for the same reason `RS-15` is kept: the next
- * entrance to be drawn faint needs something to say before its own row exists,
- * and NT-1 (MUST) has a press told in words either way.
+ * ⛔ THE FALLBACK AND NOT THE ANSWER. FR-029 (MUST NOT) forbids carrying this
+ * row where a row of table T-233 fits the situation. ⚠️ It is kept for the
+ * same reason `RS-15` is kept: the next entrance to be drawn faint needs
+ * something to say before its own row exists, and NT-1 (MUST) has a press told
+ * in words either way.
  */
 const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 
 /**
- * Which row of table T-233 each situation the translator can measure is --
- * FR-029's 「押された入口の場面に当たる 表 T-233 の行」.
+ * Which row of table T-233 each situation the translator can measure is
+ * (FR-029).
  *
  * ⭐⭐ THE JOIN LIVES HERE AND NOWHERE ELSE, which is why the seam carries a
  * situation rather than a row id: `NoticeReason` and the manner census are this
@@ -2263,10 +2104,9 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   // ⛔ NOT `RS-38` BESIDE IT, WHICH THE RULING SEPARATES BY NAME: 「あちらは
   // `HF-15` の移動のためであり、足す押しには真でない」.
   rowIsAtTheDeepestLevel: 'RS-46',
-  // FR-001's refusal, whose row table T-233 gained on 2026-09-07 with the
-  // user's ruling 「タスクはドラッグ必須。」 ⭐ Like `noRowToPutTheAnnotationOn`
-  // above, the 場面 is a press on the schedule rather than a pressed entrance --
-  // 表 T-233 is keyed on the situation, not on the entrance.
+  // FR-001's refusal. ⭐ Like `noRowToPutTheAnnotationOn` above, the 場面 is a
+  // press on the schedule rather than a pressed entrance -- 表 T-233 is keyed on
+  // the situation, not on the entrance.
   barShapeReleasedWithoutADrag: 'RS-53',
 }
 
@@ -2531,11 +2371,6 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
 /**
  * The prefix every key this page keeps in `localStorage` stands under.
  *
- * ⚠️ IT MOVED HERE FROM `local-storage-document-store.ts`, which CR-280
- * retired with the autosave. Its note there had already said this would
- * happen: 「when they get an owner, this constant moves to a place both can
- * read rather than being typed a second time」, and the four rows of table
- * T-206 below are now its only reader.
  *
  * ⛔ THE SPELLING IS NOT THE SPECIFICATION'S. It is the fragment the previous
  * project settled (previous-project-result/09-architecture/
@@ -2555,13 +2390,13 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
 /**
  * The four rows of table T-206 LM-14 counts, as a census the compiler keeps.
  *
- * STOP -- ⛔ TWO OF THE FOUR HAVE A PRODUCER IN THIS BUILD. The other two are
- * named so the set is visible and so the next owner has one place to add to,
- * and nothing WRITES them: S-99c is the unlock password's digest, which nothing
- * asks a person for -- `input-command-translator.ts` records that table T-037
- * has no row for asking.
+ * STOP -- ⛔ NOT EVERY ROW HERE HAS A PRODUCER IN THIS BUILD. The rest are named
+ * so the set is visible and so the next owner has one place to add to, and
+ * nothing WRITES them: S-99c is the unlock password's digest, which nothing asks
+ * a person for -- `input-command-translator.ts` records that table T-037 has no
+ * row for asking.
  * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
- * ⭐ S-99a IS READ SINCE D-195 WAS CLOSED, and is still not written: FR-020's
+ * ⭐ S-99a IS READ AND STILL NOT WRITTEN: FR-020's
  * watermark lays the name over the Row Area every frame, so `watermarkOpenedBy`
  * below asks the store for it and falls back to the row's own default. ⛔ THE
  * PRODUCER IS STILL MISSING and is FR-086's, not this loop's -- that
@@ -2569,14 +2404,9 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
  * schedule be drawn before they have. ⚠️ So every reader is drawn under the
  * SAME name until it lands, which is a weaker trail than GL-007 asks for and
  * is recorded here rather than papered over.
- * ⭐ S-99b IS READ AND WRITTEN SINCE D-280 WAS CLOSED. FR-065 (MUST) reads
- * 「有効化はブラウザ（オリジン）ごとに記憶すること」 and S-99b's own note says
- * 「オリジンごとに 1 つ」置く, so one key with no second half is the whole of it:
+ * ⭐ S-99b IS READ AND WRITTEN. FR-065 (MUST) has the enabling remembered per
+ * browser origin, so one key with no second half is the whole of it:
  * `startupAgentApiEnabled` reads it and `setAgentApiEnabled` writes it.
- * ⛔ THE KEY WAS `…agentApiDocuments` UNTIL THEN, and the plural was the shape
- * of a rule that is gone -- FR-065 asked for the record PER DOCUMENT until
- * 2026-09-05 and now records in its own words why that form could not stand
- * (「文書を一意に指す手立てが仕様のどこにも無い」).
  */
 type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
@@ -2678,10 +2508,6 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
  *     this function is not handed.
  *   `singleHtml` -- the file is `exportEmbeddedHtml`'s (PI-20) and needs the
  *     application's own HTML, which only the shell can read (IF-8).
- * ⚠️ THE `null` IS NO LONGER A REFUSAL. Until CR-333's round, two of the three
- * were not written at all and the press said so through
- * `UNWRITTEN_FORM_REASON`; that row is kept for the next form offered before it
- * can be written, and no form of this build reaches it.
  *
  * @purity pure
  */

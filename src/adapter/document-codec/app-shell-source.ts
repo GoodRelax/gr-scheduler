@@ -105,8 +105,8 @@ export interface AppShell {
    * reads it, but it does not get to pick it -- the header comment carries the
    * contract that fixes the value and why it is not free.
    *
-   * ⛔ The type stays `string` and is not narrowed to that one literal. PD-71
-   * -- what shape of id this seam admits -- is SETTLED (CR-353): the accepted
+   * ⛔ The type stays `string` and is not narrowed to that one literal. What
+   * shape of id this seam admits is SETTLED (CR-353): the accepted
    * shape is the one `isUsableElementId` in `embedded-html-codec.ts` checks.
    * ⚠️ A narrower type would still be wrong, because this seam carries
    * whatever id `AppShell.html` was actually assembled with, not only ids

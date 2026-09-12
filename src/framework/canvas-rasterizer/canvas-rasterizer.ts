@@ -163,7 +163,7 @@ function failedRastering(reason: RasterFaultReason, what: string): Rastering {
  * ⛔ NOT IN THE SPECIFICATION: no row says what a rasterizer does with a size
  * that is not a whole number of pixels.
  *
- * ⭐ SETTLED (CR-353, PD-133). This is a BOUNDARY OF ACCEPTANCE, not a value
+ * ⭐ SETTLED (CR-353). This is a BOUNDARY OF ACCEPTANCE, not a value
  * that could be tuned: refusing is what keeps an export's size the one FR-025
  * fixed, and it is what makes a raster reproducible instead of silently
  * rounded. The ruling keeps the refusal.
@@ -192,7 +192,7 @@ function isPaintableSize(sizePx: RasterSizePx): boolean {
  * ⚠️ The picture that crosses this seam today holds one reference and it is
  * `url(#...)`, which is internal.
  *
- * ⭐ SETTLED (CR-353, PD-131). This is a BOUNDARY OF ACCEPTANCE, not a value:
+ * ⭐ SETTLED (CR-353). This is a BOUNDARY OF ACCEPTANCE, not a value:
  * a picture that has to fetch cannot be rastered reproducibly, so WY-2 and
  * FR-080 would be comparing something nobody can reproduce. The ruling keeps
  * the refusal.

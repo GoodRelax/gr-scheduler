@@ -1924,7 +1924,7 @@ function deepestAncestorRow(
  * the task's own UID, which IV-1 already makes unique, in the variant-1
  * version-4 layout.
  *
- * ⭐ SETTLED (CR-353, PD-80). This identifier is written into the exchanged
+ * ⭐ SETTLED (CR-353). This identifier is written into the exchanged
  * file, so it is not an internal value that could be swapped later: deriving it
  * from the UID is what makes an export deterministic and reproducible, and that
  * determinism is the ground the ruling stands on.
@@ -2308,7 +2308,7 @@ function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedC
  * tool. The type is `xsd:integer` with no further restriction (:232), so a
  * major version is valid there.
  *
- * ⭐ SETTLED (CR-353, PD-81). The value goes into every exchanged file, so it
+ * ⭐ SETTLED (CR-353). The value goes into every exchanged file, so it
  * is not an internal choice; the schema's own documentation is what fixes both
  * what is valid and what 12 would falsely claim, and the ruling keeps `0`.
  */
@@ -2325,7 +2325,7 @@ const GRS_SAVE_VERSION = '0'
  * ⛔ A real currency is not written: no column of table T-058 holds an amount
  * of money, so naming one would state a fact the document does not have.
  *
- * ⭐ SETTLED (CR-353, PD-82). The value goes into every exchanged file, so it
+ * ⭐ SETTLED (CR-353). The value goes into every exchanged file, so it
  * is not an internal choice; ISO 4217 and the schema's own documentation are
  * what make `XXX` the one honest code here, and the ruling keeps it.
  */

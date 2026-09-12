@@ -1,4 +1,23 @@
-435
+412
+#
+# LOWERED 435 -> 412 ON 2026-09-12, stage 2 section 1: three bodies, one
+# section each of the three largest files (frame-loop, input-command-
+# translator, dom-screen-surface).
+# ⭐ THE SHARES RECONCILE EXACTLY: -9, -6, -8 = -23, measured by each body
+# against its own file with the rest of the tree held constant. ⛔ The gate's
+# own number attributes to nobody while three bodies write.
+# ⛔⛔ EVERY ONE OF THE 23 WAS A REAL FABRICATION, not a normalization miss:
+# a quotation spliced or trimmed INSIDE its own 「」. Specimens --
+#   「タスクはドラッグ必須。」   TC-7 has no 。; a character was added inside the marks.
+#   「運ぶ理由は…表 T-233 の行とすること（MUST）」   drops 同要求の, making it a paraphrase.
+#   「足す押し」 appears NOWHERE in docs/spec, yet was cited as a 2026-09-03 ruling.
+# ⚠️ Two more are absent from the manuscripts entirely and are unfiled:
+#   「図形を描く箱を… 表 T-236 の `S-146`（地の色）で抜くこと」 attributed to FR-029
+#   「行見出しパネルの最上部の右端」 attributed to HF-10
+# ⭐ AND ONE IS THE MANUSCRIPT'S OWN TYPO: a comment wrote 閲覧環境 where
+# 01-04-requirements.md:6010 writes 閉覧環境. 閲覧 occurs 29 times there, 閉覧 once.
+# The comment had silently corrected the manuscript.
+#
 #
 # LOWERED 467 -> 435 ON 2026-09-12, by stage 0 and stage 1 of the src/ comment
 # cleanup: four bodies over six files (svg-renderer, screen-renderer,

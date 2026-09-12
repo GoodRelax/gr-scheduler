@@ -1941,7 +1941,7 @@ export function svgFromSchedule(
     // and dropping that dummy would take EP-5's marker with it (WY-3 of table
     // T-041 measures it), and table T-023d still keeps GR-17 as a grab
     // target (only the drawn ink was ever two).
-    // ⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED, AND PD-208 WITH IT:
+    // ⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED:
     // FR-043's milestone exception covers the figure, the colour and the box,
     // so a milestone's dummy is its own actual figure in a square and never a
     // rectangle. `dummyFigure` below is where the figure is chosen, and
@@ -2436,8 +2436,7 @@ export function svgFromSchedule(
       }
       // ⛔⛔ AND THERE IS NO THIRD BRANCH, WHICH IS CU-3 OF TABLE T-029
       // (MUST NOT): a 縦 2 本 pair is not to be drawn here, nor left
-      // unreachable behind a mode nothing can select. ⭐ PD-343, which asked
-      // how far apart such a pair would stand, is closed by that MUST NOT.
+      // unreachable behind a mode nothing can select.
       // ⚠️ CU-2's own pair is UNAFFECTED: it is drawn elsewhere, off `dualCursor`
       // (S-65) at S-194 / S-195, and FR-048 (MUST NOT) forbids one entrance
       // taking two cursors down together.

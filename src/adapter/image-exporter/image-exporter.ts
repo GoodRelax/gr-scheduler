@@ -377,7 +377,7 @@ function appHeaderSvg(
   // S-226 of table T-206 (the reader's ruling of 2026-09-07). EP-1 of table
   // T-076 (MUST) has the screen and the export read one row for each and
   // (MUST NOT) lets the export hold a value of its own. ⛔ Until this, two
-  // fractions of the BAND's height stood here (0.4 and 0.5, PD-52): measured
+  // fractions of the BAND's height stood here (0.4 and 0.5): measured
   // on the shipped build at 1920x1080, they drew the title at 14.8px and
   // 18.5px from the left where the screen draws it at 16px and 12px -- 7.5%
   // smaller and 6.5px to the right, against a row that forbids moving it.

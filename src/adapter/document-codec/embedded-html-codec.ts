@@ -120,7 +120,7 @@ export type EmbeddedHtmlFaultReason =
    * reader's behalf. ⚠️ This build cannot produce such a file; one means the
    * HTML was assembled by something else.
    *
-   * ⭐ SETTLED (CR-353, PD-70). This refusal is the boundary of what the writer
+ * ⭐ SETTLED (CR-353). This refusal is the boundary of what the writer
    * accepts, not a value that can be tuned later: it is the half of FR-067 the
    * writing side keeps.
    */
@@ -142,7 +142,7 @@ export type EmbeddedHtmlExport =
  * ⛔ Not in docs/spec, and not free either: it has to be a type no browser
  * treats as a script, or point 3 of the header comment stops holding.
  *
- * ⭐ SETTLED (CR-353, PD-70). This value is written into every single .html the
+ * ⭐ SETTLED (CR-353). This value is written into every single .html the
  * tool exports, so it is part of the exchanged file rather than an internal
  * choice, and it is kept as it stands.
  */
@@ -151,7 +151,7 @@ const CONTAINER_TYPE = 'application/json'
 /**
  * The characters an element id may NOT contain.
  *
- * ⭐ SETTLED (CR-353, PD-71). The rule is stated as what is REFUSED, because
+ * ⭐ SETTLED (CR-353). The rule is stated as what is REFUSED, because
  * the reason is refusal: each of these would break the start tag this file
  * writes, `<script type="..." id="${elementId}">`, or the string scan that
  * finds it again.
@@ -298,7 +298,7 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
  * fragment with neither `</body>` nor `</html>` takes it at the end, which is
  * the same position by another route.
  *
- * ⭐ SETTLED (CR-353, PD-70). The position is written into the exported file
+ * ⭐ SETTLED (CR-353). The position is written into the exported file
  * and the charset reason is what fixes it, so it is not a value to revisit.
  *
  * @purity pure

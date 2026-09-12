@@ -1,4 +1,15 @@
-161
+153
+#
+# LOWERED 161 -> 153 ON 2026-09-12, stage 2 section 1 plus the ruling-13
+# sweep. 136 retired + 17 undefined.
+# ⚠️ THE SHARES DO NOT RECONCILE EXACTLY: the four bodies claimed -6, -1,
+# -1 and -1 in isolation, which is -9, and the tree moved -8. One is
+# unaccounted for and is NOT chased here -- the direction is safe (a gate
+# that reads lower than the sum of its parts cannot hide a rise) and the
+# baseline is set from the MEASURED tree, not from the sum of reports.
+# ⛔ Do not read this as a reconciliation. Check 42's -23 did reconcile
+# exactly; this one did not, and saying so is the point.
+#
 #
 # LOWERED 163 -> 161 ON 2026-09-12, stage 1 of the src/ comment cleanup.
 # Both were IC-69 / IC-70 in screen-renderer.ts -- UNDEFINED, not retired --

@@ -245,7 +245,7 @@ const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
  * What an entry says while the dictionary holds no word for its row.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
- * has been SETTLED for that row yet (PD-160), and this is exactly what UF-65
+ * has been SETTLED for that row yet, and this is exactly what UF-65
  * printed before the dictionary was wired.
  */
 const NO_WORDS = ''
@@ -258,8 +258,8 @@ const NO_WORDS = ''
 // T-023b for the arms -- which is the only join those tables admit, since they
 // deliberately have no English column. So nothing here is minted and nothing is
 // read off another column.
-// ⚠️ WHAT USED TO STAND HERE SAID ALL 176 CELLS WERE STILL EMPTY. PD-160
-// records that the count and the claim both went stale: the manuscript now
+// ⚠️ WHAT USED TO STAND HERE SAID ALL 176 CELLS WERE STILL EMPTY. That claim
+// has gone stale: the manuscript now
 // holds a word in both languages for every row these three lookups ask for, so
 // the stand-ins beside them are reached only by a generated file edited by
 // hand. ⛔ No count is written here, for the reason the same row gives -- a
@@ -300,7 +300,7 @@ const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, 
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * thing: an empty cell is UNSETTLED, not
  * an instruction to print nothing. The day a word is written this line stops
  * standing in without being edited.
  * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
@@ -324,7 +324,7 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * and the empty string would throw away the one word there is. So an unwritten
  * cell falls back to that column as the roster carries it -- what UF-65 printed
  * before the dictionary was wired. ⚠️ For a reader on `en` it is the Japanese
- * cell, which is the hole PD-160 closes and not a translation claimed here.
+ * cell, which is an accepted gap and not a translation claimed here.
  *
  * ⚠️ WHY A WORD IS STILL RESOLVED FOR A CAPTION NOBODY PRINTS. What used to
  * stand here said that falling back to nothing would HIDE a group that has a
