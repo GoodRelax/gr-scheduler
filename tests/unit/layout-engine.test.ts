@@ -624,7 +624,7 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
   })
 
   it('FR-018 drops the deeper rows as zoomY falls, and never depth 1', () => {
-    // threshold(d) = 0.32 x 1.875^(d-2), so depth 4 wants 1.125 and misses at 1.
+    // threshold(d) = 0.32 x 1.875^(dfc-2), so depth 4 wants 1.125 and misses at 1.
     expect(groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 1 }))).toBe(3)
     expect(groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 1.125 }))).toBe(4)
     expect(groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 0.32 }))).toBe(2)

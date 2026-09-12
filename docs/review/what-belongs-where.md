@@ -134,7 +134,7 @@ A 類（規則・理由の重複）30 群、うち基準線に無い新規は **
 `src/entity/layout-engine/schedule-layout/schedule-layout.ts:1320`、
 `src/framework/single-html-shell/frame-loop.ts:1029`、
 `tests/unit/fr-013-pointer-on-the-figure.test.ts:342`、
-`tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts:220`、
+`tests/unit/jdg-28-the-resume-icon-beats-the-plan-bar.test.ts:220`、
 `tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts:146` / `:305` / `:687`、
 `tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts:505`、
 `tests/unit/t-038-oc-2-labels-in-the-occupied-width.test.ts:959`、
@@ -154,7 +154,7 @@ A 類（規則・理由の重複）30 群、うち基準線に無い新規は **
 逐語「…で数える幅は、掴みシロを持つものについてはその掴みシロの幅とすること（MUST）」:
 `docs/spec/01-04-requirements.md:1271`、`docs/spec/A-appendix.md:221`、
 `src/entity/layout-engine/schedule-layout/schedule-layout.ts:166` / `:1275` / `:1322`（**同一ファイル内に 3 度**）、
-`tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts:73` / `:74`
+`tests/unit/jdg-28-the-resume-icon-beats-the-plan-bar.test.ts:73` / `:74`
 
 ### 1.4 引用の量 —— ⚠️ ここでもブリーフの見立ては外れる
 

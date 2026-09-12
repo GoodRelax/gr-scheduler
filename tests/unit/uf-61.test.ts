@@ -67,9 +67,9 @@
 //      `S-205`) and `ScreenSession.scrollExtent` brings both numbers to this
 //      function. ⚠️ Nothing here was widened, because rule 04 section 1 keeps
 //      the writing of these cases with a party that reads docs/spec alone;
-//      `tests/unit/d-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
+//      `tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` holds
 //      the length and
-//      `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+//      `tests/unit/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
 //      the place.
 
 import { describe, expect, it } from 'vitest'

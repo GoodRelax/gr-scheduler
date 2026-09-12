@@ -34,7 +34,7 @@ import { defineConfig } from 'vitest/config'
 // leaks between files. Three mechanisms, none of which has a per-test form:
 //
 //   1. `globalThis.requestAnimationFrame`. A bench installs a fake frame pump
-//      on the global and takes it off at the end (d-66-fr-101, uf-47-48-
+//      on the global and takes it off at the end (dfc-66-fr-101, uf-47-48-
 //      choosers, fr-052-t-023d-picture-while-held). Two benches at once
 //      overwrite each other's pump.
 //   2. `vi.resetModules()` / `vi.doMock`. The module registry is per FILE.

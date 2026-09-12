@@ -70,7 +70,7 @@
 // raised; every expectation below is `ST-7`'s, 表 T-233's and `FR-025`'s.
 // ⭐ THE HOST, THE FAKE SURFACE, THE FAKE STORE AND THE FAKE CLIPBOARD ARE
 // COPIED, NOT INVENTED: tests/unit/uf-47-48-choosers.test.ts drives this same
-// unit through the export chooser, tests/unit/d-337-fr-029-the-three-file-gates-
+// unit through the export chooser, tests/unit/dfc-337-fr-029-the-three-file-gates-
 // say-why-on-a-second-press.test.ts drives it for a telling, and
 // tests/unit/uf-45-46.test.ts is where a `Clipboard` seam is stood in for.
 //
@@ -189,7 +189,7 @@ const MANNER_OF_RS_24 = bare(rowOf(T_233, RS_24).by['作法'] ?? '')
 
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/unit/d-337-....test.ts, including its warning against
+ * ⚠️ Copied from tests/unit/dfc-337-....test.ts, including its warning against
  * `bare`: `SK-21`'s 割当 is 「`Ctrl` ＋ `R`」 and `bare` would answer `Ctrl`.
  */
 function keyOf(id: string): KeyInput {

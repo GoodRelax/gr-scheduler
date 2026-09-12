@@ -157,7 +157,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
- * ⚠️ Copied from tests/unit/d-337-....test.ts, including its warning against
+ * ⚠️ Copied from tests/unit/dfc-337-....test.ts, including its warning against
  * `bare`, which would answer `Ctrl` for an assignment spelt 「`Ctrl` ＋ `R`」.
  */
 function keyOf(id: string): KeyInput {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 49 mechanical checks for the gr-scheduler specification.
+# All 50 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -36,6 +36,8 @@
 # ⭐ Recounted 2026-09-13 again when check 52 was added: 48 -> 49. The ranges
 # are 1 + 4 + 8 + 4 + 32. ⚠️ Counted BEFORE the heading went in, which is the
 # order the failures above kept getting wrong.
+# ⭐ Recounted 2026-09-13 a third time when check 53 was added: 49 -> 50.
+# The ranges are 1 + 4 + 8 + 4 + 33. ⚠️ Counted before the heading went in.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -542,6 +544,17 @@ echo "===== 52  表 T-007 / T-008 and the row ids the tests hold as values =====
 # or, worse, leaves `find` returning undefined. ⭐ Measured the day it went in:
 # putting one fixture's id to `CHN-9` turns it red and names both halves.
 PYTHONIOENCODING=utf-8 python "$HERE/check-device-route-row-ids.py" || fail=1
+
+echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
+# ⛔ Wired in 2026-09-13, after the CR that abolished both. ⭐ It prints its
+# exclusions ON EVERY RUN, each with the reason: two trees, six files, the
+# twenty-four LOCAL series a document numbers for itself, and eleven lines.
+# ⛔ The local series are written out one by one rather than computed --
+# "any document with three or more is exempt" would quietly cover the NEXT
+# document that starts numbering `D-1`, which is what the ruling asked to stop.
+# ⚠️ Its first run found 25 test FILE NAMES the inventory never saw, because
+# the inventory scanned upper case only and the names are `d-102-...`.
+PYTHONIOENCODING=utf-8 python "$HERE/check-dr-prefix-gone.py" || fail=1
 
 
 echo ""

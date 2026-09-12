@@ -205,7 +205,7 @@ interface Loop {
 /**
  * UF-48, driven with a surface that answers one settled value and then nothing.
  *
- * ⭐ THE SAME SHAPE `tests/unit/d-130-pr-1-pr-2-reach-the-document.test.ts`
+ * ⭐ THE SAME SHAPE `tests/unit/dfc-130-pr-1-pr-2-reach-the-document.test.ts`
  * DRIVES THIS UNIT WITH -- the road a person walks: a value is typed into a
  * field of the `Properties Panel`, the host reports it settled on IF-9, and the
  * shell writes the document.

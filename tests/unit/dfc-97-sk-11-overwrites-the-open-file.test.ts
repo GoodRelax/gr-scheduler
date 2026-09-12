@@ -23,7 +23,7 @@
 // ⛔ THE HALF THAT WAS UNCOVERED. tests/unit/uf-50.test.ts holds the KEY (that a
 // host press of `Ctrl` ＋ `S` becomes `SK-11`), tests/unit/uf-30-31.test.ts holds
 // the COMMAND, and tests/unit/uf-47-48-choosers.test.ts and
-// tests/unit/d-66-fr-101-a-save-names-the-file-it-wrote.test.ts both drive
+// tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts both drive
 // `SK-11` on a document that has NEVER been in a file -- the arm FR-096 sends to
 // the chooser. Nothing pressed it on a document that HAS one, which is the whole
 // of FR-060 and the only place DI-5's MUST can be read.
@@ -53,7 +53,7 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHAT WAS READ OF `src/`: NOT ONE BODY (docs/development-rules/
 // 04-verification.md, section 1). The loop is reached through the declarations
-// tests/unit/d-66-fr-101-a-save-names-the-file-it-wrote.test.ts already imports,
+// tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts already imports,
 // and the bench below is that file's with one difference that is the whole
 // subject: `readOpenedFileState` answers `writable`, so the document HAS a file.
 // ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@
 //      asked here is that what landed on the file reads back as a document, so
 //      that "wrote something" cannot pass for "wrote the document".
 //   2. WHAT THE HEADER SHOWS AFTERWARDS. `FR-101` is
-//      tests/unit/d-66-fr-101-a-save-names-the-file-it-wrote.test.ts's.
+//      tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts's.
 //   3. WHETHER THE SAVE REPAINTS. That file's head comment records the gap in
 //      the manuscript, and it is not reopened here.
 

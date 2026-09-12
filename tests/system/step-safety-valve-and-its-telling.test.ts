@@ -4,7 +4,7 @@
 // `tests/unit/st-7-rs-24-the-stack-safety-valve-returns-a-value.test.ts` asks the
 // layout's half (the member is always there, null up to `S-89`, named past it,
 // nothing thrown, nothing squeezed or dropped) and
-// `tests/unit/d-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts`
+// `tests/unit/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts`
 // asks the shell's half over hand-wired seams. ⛔ NEITHER OF THEM OPENS THE
 // APPLICATION. The ledger rows DFC-270, DFC-271 and DFC-345 each close with 「押して
 // いない」, and rule 04 section 3 of `docs/development-rules/` says in as many

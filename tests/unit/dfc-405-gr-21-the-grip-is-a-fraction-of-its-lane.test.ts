@@ -40,7 +40,7 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //   - WHERE along the lane the grip sits. That is the 区間's start, and
-//     `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+//     `tests/unit/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
 //     it. ⛔ These cases read `thumb.width` / `thumb.height` and never a corner.
 //   - What a press on the LANE OUTSIDE the grip does. GR-21 says of itself
 //     「つまみの外の帯を押したときの振る舞いは、本行は定めない（未決）」.

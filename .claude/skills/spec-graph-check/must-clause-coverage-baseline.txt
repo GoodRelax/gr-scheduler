@@ -149,7 +149,7 @@
 #     置かないこと（MUST NOT）」 and 「`resume` を持つマイルストーンでも描かない
 #     （MUST NOT）」. ⛔ THE DRAWING SIDE HAS NO CASE AT ALL: the boundary file
 #     presses that a milestone answers no `GR-8` when a resume figure IS handed
-#     in, which is the hit side; r-28-the-resume-icon-beats-the-plan-bar.test.ts
+#     in, which is the hit side; jdg-28-the-resume-icon-beats-the-plan-bar.test.ts
 #     draws no milestone. ⭐ These two and the FR-043 pair are the honest debt
 #     of this round -- four clauses that want a case, not a quotation.
 #
@@ -159,7 +159,7 @@
 # does when a telling is standing.
 #
 # LOWERED 991 -> 977 ON 2026-09-09, PAYING BACK THE WHOLE OF THE ENTRY BELOW.
-# tests/unit/r-28-the-resume-icon-beats-the-plan-bar.test.ts holds every clause
+# tests/unit/jdg-28-the-resume-icon-beats-the-plan-bar.test.ts holds every clause
 # JDG-27 / JDG-28 / JDG-29 / JDG-30 wrote, verbatim, and the run before it printed 991
 # not held against the run after's 977.
 # ⛔⛔ THE DEBT WAS FOURTEEN, NOT ELEVEN, AND THE ENTRY BELOW IS WRONG ABOUT IT.
@@ -201,7 +201,7 @@
 # check 43, and only because rulings.md names it.
 #
 # LOWERED 991 -> 980 ON 2026-09-09, PAYING BACK PART OF DFC-377's DEBT.
-# tests/unit/d-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts holds nine
+# tests/unit/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts holds nine
 # of the eighteen clauses commit 381c2ef raised 934 -> 951 on 2026-09-07 (the
 # two zoom ceilings of FR-016, T-076 EP-9's Panel Divider thickness): four of
 # FR-016's and all five of EP-9's. The other nine of the eighteen were ALREADY
@@ -349,7 +349,7 @@
 # went out with the enumeration they described.
 #
 # LOWERED 959 -> 935 ON 2026-09-07, THE SAME DAY IT WAS RAISED. The debt
-# booked as DFC-355 is paid: tests/unit/d-355-the-four-rulings-of-2026-09-07
+# booked as DFC-355 is paid: tests/unit/dfc-355-the-four-rulings-of-2026-09-07
 # holds all eighteen clauses of that day's four rulings verbatim, plus four
 # neighbours caught in the same windows -- 22 markers, 20 constants,
 # 31 cases. ⭐ Nine of the eighteen are also PRESSED against the build

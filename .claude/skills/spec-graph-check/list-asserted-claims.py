@@ -170,7 +170,7 @@ fitting the tool to its own measurement:
      `stood here`, `wanted`, `landed`. The classifier holds a closed list of
      history markers, and English has more verbs than that.
   2. A DATED measurement whose date sits in the PREVIOUS sentence, so the date
-     rule never sees it. `r-28-the-resume-icon-beats-the-plan-bar.test.ts:77`
+     rule never sees it. `jdg-28-the-resume-icon-beats-the-plan-bar.test.ts:77`
      is the type: 「⛔ MEASURED HERE, 2026-09-09」 ends one sentence and the
      measurement itself runs on into the next.
   3. A true present-tense statement about a retirement (the 5 above).

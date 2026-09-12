@@ -59,7 +59,7 @@
 //               earlier for one entrance. ⭐ Its own reason is the one FR-031
 //               now widens: writing the value already held would leave two 段
 //               for one edit. That entrance is a screen surface and is held by
-//               tests/unit/d-152-in-6-the-same-value-writes-nothing.test.ts;
+//               tests/unit/dfc-152-in-6-the-same-value-writes-nothing.test.ts;
 //               this file holds the write path underneath every entrance.
 //   表 T-067    `WS-4` -- the 段 is pushed by the write path and nowhere else.
 //   表 T-108    `CM-9` (the 対象 command) and `CM-67` (the 対象外 one).

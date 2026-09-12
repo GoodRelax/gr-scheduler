@@ -68,18 +68,18 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
-| 門 | **31** | `.claude/skills/spec-graph-check/` に 27、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
+| 門 | **32** | `.claude/skills/spec-graph-check/` に 28、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
 | 生成器 | **17** | `tools/` に 12、`docs/spec/_source/` に 5 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **11** | `.claude/skills/spec-graph-check/` に 8、`tools/` に 1、`tools/probe/` に 1、`tools/parity/` に 1 |
 | 部品・走者 | **5** | `.claude/skills/spec-graph-check/` に 4、`tools/` に 1 |
-| **合計** | **68** | `.py` 64 ＋ `.sh` 1 ＋ `.mjs` 3 |
+| **合計** | **69** | `.py` 65 ＋ `.sh` 1 ＋ `.mjs` 3 |
 
 ⚠️ **`.mjs` 3 本は前の巡の数え（62 本）から漏れていた。** ⛔ **目録は拡張子で数えるな。**
 
 ---
 
-## 4. 門 —— 赤にする道具（31 本）
+## 4. 門 —— 赤にする道具（32 本）
 
 | 検査 | 道具 | 何を赤にするか | ⛔ 何が見えないか | 呼ぶ人 | 基準 |
 |---|---|---|---|---|---|
@@ -114,6 +114,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 50 | `check-press-row-ids.py` | 表 T-023a の行 ID の集合と、`input-command-translator.ts` の `export type PressRow` の値の集合が食い違うか。⛔ **仕様の行が型の値である**のに、実測 2026-09-13 で `grep -rn PressRow tools/ .claude/` が **0 件**だった —— 結ぶ機械が無く、しかもこの文字列は製品の外へ出ないので**押しても分からない**。⭐ CR-371 の改名（`PD-` → `PTD-`）の**前に、緑のまま入れた** —— 後から入れると「赤にならない改名」を 1 度通してしまう。⚠️ 比べるのは**集合だけ**で、順は原稿の持ち分（試験が見る）|
 | 51 | `check-pd-prefix-gone.py` | git が追う全ファイルで、`PD-` のあとに数字が続く綴り（大文字小文字を問わない）が 1 つでも在ると赤。⭐⭐ **除外を毎回刷る** —— 木 2 つ・ファイル 7 つ・行 4 つを、それぞれの理由と一緒に名指しで出す —— **黙って腐るのは数ではなく、誰も読まない除外だからである**。⚠️ 初回の走行で**検査 50 の docstring を自分で捕まえた** | 素の `PD`（数字が続かない綴り）は見ない —— 英文の散文にも立ち、門にすると正しい文で赤になる。`PTD-` と `PND-` のどちらが正しいかも見ない（検査 50 と 25 の持ち分） | `check.sh` | — |
 | 52 | `check-device-route-row-ids.py` | 表 T-007（機器）・表 T-008（経路）の行 ID と、`tests/` が**値として**持つ ID（`T_008_R9` の写し取りと、実行時に原稿を読む `specTable(...).id === ...`）が食い違うか。⭐ CR（`D-` `R-` の廃止）の**前に、緑のまま入れた** —— 検査 50 と同じ理由。⚠️ 初回の走行で**書いた者の誤りを先に捕まえた**（経路の `from` は自表でなく表 T-007 の機器である） | 値だけで、コメントは見ない（検査 42/44 の持ち分）。写し取った他の欄が行の言うことと合うかも見ない（検査 37 の軸） | `check.sh` | — |
+| 53 | `check-dr-prefix-gone.py` | git が追う全ファイルで、`D-` または `R-` のあとに数字が続く綴り（大文字小文字を問わない）が 1 つでも在ると赤。⭐⭐ **除外を毎回刷る** —— 木 2・ファイル 6・**文書が自分の行を番号付けている名簿 24**・行 11 を理由と共に名指す。⛔ 名簿を**規則ではなく一つずつ書く** —— 「3 件以上なら免除」にすると**次に `D-1` から振り始める文書を黙って覆う**。⚠️ 初回の走行で**試験のファイル名 25 本**を見つけた（目録の走査が大文字だけだった） | 素の `D` `R`（数字が続かない綴り）は見ない。`DEV-` `CHN-` `DFC-` `JDG-` のどれが正しいかも見ない（検査 52 と 44 の持ち分） | `check.sh` | — |
 | — | `check.mjs` | サンプル(previous-project-result/11-row-controls/row-controls-sample.html)と dist/index.html の両方に同じ 75 手を打ち、1 手ごとに rows / counts / arming / pinned の 4 読みを比べて、KNOWN_DIVERGENCES(仕様が勝つ差)にも KNOWN_DEFECTS(開いている不具合)にも載っていない食い違い、押せなかった手、盤が組み上がらないこと、名前が省略されたまま比べられないこと、そして『もう落ちなくなった KNOWN_DEFECTS の行』を赤にする。 | 問えるのは行操作の 4 読みだけで、サンプルが持たないもの —— タスクバー、スケジュール画布、透かし —— は原理的に比べられず、S-127(pinnedRowMax=5)のピン上限も『読み単位でしか効かない除外では表せない』として意図的に問わない(最大 4 本まで)。さらに比べる相手は `file://` で開いた dist/index.html なので、ビルドし直していなければ古い成果物を測る。 | `npm run parity` | — |
 
 ---
@@ -173,7 +174,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `harness.mjs` | live probe が毎回書き直していた 30 行を 1 か所に集めて人に渡す —— Chromium を 1 度だけ起こして dist/index.html を開き最初の 1 フレームを待つ open()、本物のポインタで押す press / hold / doublePressAt、条件が真になるまで待つ until、そして census / roles / rows / rowBands / shapes / cursorAt / partAt / styleSignature / treeOrder / ancestry / sweep といった読み。各関数の docstring が『この読み方で誤った回』を名指しで持つ。 | 何一つ判定しない —— 期待値も baseline も持たず、読みを生やすだけなので、probe が誤った問いを立てれば静かに誤った数を返す。測る相手は `file://` で開いた dist/index.html に固定されており、`npm run build` をしていなければ古い成果物を、dev サーバの木は決して測らない。 | ほかの道具が import |
 | `impact.py` | 表番号・行 ID・UID を 1 つ与えると、それを指している要求の一覧と、その要求を指す 2 次の要求と、CLUSTERS の 6 塊のどれに属するかを Markdown で人に見せる。 | 塊は CLUSTERS に手で書いた 6 組が全部で、表を足しても自動では入らない。参照は docs/spec と docs/spec/_assets の 2 階層の .md の 1 行に閉じた文字列一致だけなので、src/ や tests/ や change-request/ からの参照も、行をまたぐ参照も、図 F-nnn も 1 件も数えない。 | 人が手で |
 | `induced.py` | これから触る対象を全部並べると、その誘導部分グラフの中の閉路（＝1 つの計画・1 パスで書かねばならない組）を人に見せる。 | 辺は graph.build_graph が張るので、種が specindex.known（行 ID・UID・表番号・RETIRED）に無ければ live から落ちて黙って無視され、図 F-nnn も src/ の識別子も台帳の D-nnn も種にすらならない。閉路の有無は scratch/spec-check/sd-out/json/index.json の Parent 関係に依るので、その export が古ければ古いグラフの閉路を何も言わずに答える。 | 人が手で |
-| `list-asserted-claims.py` | src/ と tests/ の .ts/.tsx/.js/.mjs のコメントのうち、現在形で言い切っていて、しかも退役済みまたは未定義の仕様 ID を名指している文を（既定 40 件まで）人に見せる。 | D- / PND- / R- の 3 接頭辞を丸ごと捨てるので、コメント中の宙に浮いた D-3 や R-5 は 1 件も出ない。記録か主張かの判定は 1 文の中の正規表現だけで、日付が前の文にあると記録だと気づけず、逆に日付さえ在れば嘘でも記録として黙る。走査は src/ と tests/ だけで、docs/ のコメントも .py も 1 行も読まない。 | `npm run guard:cleanup` |
+| `list-asserted-claims.py` | src/ と tests/ の .ts/.tsx/.js/.mjs のコメントのうち、現在形で言い切っていて、しかも退役済みまたは未定義の仕様 ID を名指している文を（既定 40 件まで）人に見せる。 | ⭐ **2026-09-13 より丸ごと捨てる接頭辞は 0 である** —— CR-371 と `D-`/`R-` の廃止で三つとも分かれ、台帳の ID は「仕様書が定義しない接頭辞」の経路で落ちる。宙に浮いた仕様の行 ID は**見えるようになった。**記録か主張かの判定は 1 文の中の正規表現だけで、日付が前の文にあると記録だと気づけず、逆に日付さえ在れば嘘でも記録として黙る。走査は src/ と tests/ だけで、docs/ のコメントも .py も 1 行も読まない。 | `npm run guard:cleanup` |
 | `list-inverted-authority.py` | docs/spec の 1 文が、原稿の他の場所に 1 度も出てこない src/ の識別子に権威を委ねている箇所（「`groupDepthThresholdOf` の注が自ら禁じている」の形）を挙げる。 | 委譲の動詞の手前 60 文字にバッククォート付きの識別子が要るので、行をまたぐ委譲も、動詞が識別子より先に来る文も、6 文字未満の識別子も全部落ちる。識別子が原稿の他行に 1 回でも出れば無条件に除外するので、ERD や設定値表が定める名に権威を委ねた逆転は原理的に見えない。 | `npm run guard:cleanup` |
 | `list-lying-edges.py` | 「…」で引いて「と定めている」と現在形で言い、その文が名指した席（行 ID・表・UID）の本文には入っていない引用を挙げる（検査 42 が構造上通してしまう形）。 | 引用の直前 60 文字に席が綴られていないと拾わず、SAYS は現在形 9 語の閉じた一覧なので「〜としている」「〜が示す」は落ちる。席の本文は specindex が知る範囲＝docs/spec と _assets の 2 階層だけで、src/ や台帳を名指した引用は席が None になって黙って飛ばされる。引用の前 120 文字に D- / CR- / PND- / 台帳 等が在るとその 1 件を丸ごと除外する。 | `npm run guard:cleanup` |
 | `list-prose-tallies.py` | 散文が自分で数を抱えている完全性の主張（「拡張領域を使う 2 つはこれだけである」）を挙げ、表を名指しているものは specindex の行数と突き合わせて一致するかを併記する。 | 完全性の語は「全数／これだけである／これで全部／他に無い／他にない／以外に無い／以外にない」の閉じた一覧で、言い換えた完全性の主張は 1 件も出ない。走査の単位は 。｜改行 で切った断片なので、数と主張が別の文に分かれていると「数を持っていない」と判定する。「本表／同表／本節／同節」を含むと表との突き合わせを自分で止める（数だけ出して比べない）。 | `npm run guard:cleanup` |
@@ -188,7 +189,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 道具 | 何を提供するか | ⛔ 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
-| `check.sh` | 番号付き検査 49 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 16 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 落ちた検査の名前が終わりに残らない —— 終端は `FAILURES ABOVE` の 1 行だけで、どれが赤かは見出しまで遡らないと分からず、走行そのものの記録もファイルに残らない(stdout だけ。残るのは scratch/spec-check/dup-report.txt と sd-out の export 木)。番号付き 46 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
+| `check.sh` | 番号付き検査 50 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 16 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 落ちた検査の名前が終わりに残らない —— 終端は `FAILURES ABOVE` の 1 行だけで、どれが赤かは見出しまで遡らないと分からず、走行そのものの記録もファイルに残らない(stdout だけ。残るのは scratch/spec-check/dup-report.txt と sd-out の export 木)。番号付き 46 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
 | `ledger_quotes.py` | 台帳の 1 セルから引用（「」『』とコードスパン）と「⚠️ 実測（日付）…」で始まる記録の文を取り除き、そのセルが今日について自分の声で言っていることだけを返す（outside_quotation / outside_record / spoken_now / asserts_any）。 | 引用かどうかの判断は区切り記号だけなので、括弧を閉じ忘れたセルは丸ごと素通りし、括弧を使わない引用は引用と見なされない。記録の印は「⚠️ 実測（YYYY-MM-DD」という 1 つの綴りに固定で、全角括弧の無い「実測 2026-09-07」も、⭐ や ⛔ で始まる記録も記録として扱わない。文の切れ目は 。と ⭐ ⛔ ⇒ ⚠️ の 4 つだけなので、1 文の中に記録と現在の主張が混ざっているとどちらか一方しか正しく扱えない。 | 2 本が import |
 | `retired.py` | 意図して退役させた仕様 ID の集合 RETIRED（1 つの set リテラル）と、各エントリの「何が・いつ・誰の裁定で抜け、どの文書がまだ名指しているか」の理由を提供する。 | ただの set リテラルなので、中の ID が本当に退役済みかを検証するものは何も無い —— 席を 1 つ足せば、その ID への参照は検査 7 でも list-asserted-claims でも永久に黙る。表を booking しても表の中の行は booking しない（T-006 は在るが E-1..E-6 は意図的に不在）ので、退役した表の行への参照は「未定義」として出続ける。「まだ何かが名指している ID」だけを持つ設計なので、退役の全数ではない。 | 4 本が import |
 | `spec_tables.py` | docs/spec下のMarkdown表を、キャプション（**表 T-nnn —**）から次のキャプション・章見出し・ファイル末尾までの範囲として解析し、行を見出し名でセルアクセスできるRow/Tableオブジェクトとして返す共有リーダーを提供する。generate_display_words.py・generate_exchange_formats.py・generate_help_roster.py・generate_icon_glyphs.py・generate_icon_roster.py・generate_unit_tree.pyの6本がimportしている。 | 見出し形状が最初のpipeブロックと異なる2番目以降のブロックは『aside』として数えるだけで、本来ロスターに含まれるべき行がasideに誤分類されても、このリーダー自身は『本当はロスターの一部だったのに漏れている』ことまでは判定しない（コード自身が『counted, not dropped in silence』とだけ述べ、正誤の判定はしないと認めている）。 | 6 本が import |

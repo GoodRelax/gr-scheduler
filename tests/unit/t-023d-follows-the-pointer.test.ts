@@ -1654,7 +1654,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // above are judged on.
   //
   // ⛔⛔ NOT THE DRAWN THUMB'S OWN SHAPE OR POSITION -- those are UF-61's, and
-  // `tests/unit/d-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
+  // `tests/unit/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` holds
   // them. ⚠️ WHAT STOOD HERE IS OUT OF DATE AND IS CORRECTED RATHER THAN LEFT
   // (2026-09-08): it said `scrollbarIn` (`screen-frame.ts`) draws
   // `thumb: track`, which stopped being true when DFC-298's length landed on
