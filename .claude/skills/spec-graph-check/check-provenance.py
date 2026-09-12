@@ -28,6 +28,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 # artifact -> the manuscript path its banner has to name.
 ARTIFACTS = [
     ('docs/spec/_assets/tbl-settings.md', 'settings.json'),
+    # The register of row-ID prefixes (CR-371). ⚠️ Its manuscript holds the
+    # MEANINGS ONLY: which prefixes exist, which table defines each and how
+    # many rows it has are read out of docs/spec on every run, which is why a
+    # hand edit here is worth even less than usual -- half the document is not
+    # in the manuscript at all.
+    ('docs/spec/_assets/tbl-row-id-prefixes.md', 'row-id-prefixes.json'),
     ('docs/spec/_assets/fig-erd-detail.md', 'erd.json'),
     ('docs/spec/_assets/fig-erd-overview.md', 'erd.json'),
     ('docs/spec/_source/grs-document.schema.json', 'erd.json'),
