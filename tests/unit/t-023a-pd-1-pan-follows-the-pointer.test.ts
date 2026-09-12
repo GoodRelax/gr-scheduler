@@ -203,22 +203,24 @@ function conditionOf(rowId: string): string {
  * regression a specification-driven case exists to catch.
  */
 function equalTravelLine(): string {
-  // ⚠️ The sentence has to be found where it is STATED, not where `PD-1` quotes
-  // it -- `PD-1`'s own cell carries the same words inside 「」 to say that the
-  // travel is unchanged, and a search that took the first hit would be reading
-  // the quotation back to itself.
-  const at = REQUIREMENTS.findIndex((line) =>
-    line.startsWith('**パンは等倍とすること（MUST）**'))
-  if (at < 0) {
+  // ⚠️ The sentence has to be found where it is STATED, not where `PD-1`
+  // quotes it -- `PD-1`'s own cell carries the same words inside 「」 to say
+  // that the travel is unchanged, and a search that took the first hit would
+  // be reading the quotation back to itself. A table row starts with `|`; the
+  // rule's own paragraph does not.
+  //
+  // ⛔ NOT `startsWith`. The manuscript breaks every sentence onto its own
+  // line (check 46) and unbroken() joins them back, so the rule sits INSIDE
+  // its paragraph rather than at the head of a line.
+  const found = REQUIREMENTS.find(
+    (line) =>
+      !line.trimStart().startsWith('|') &&
+      line.includes('**パンは等倍とすること（MUST）**'),
+  )
+  if (found === undefined) {
     throw new Error('table T-023d no longer states that a pan travels 等倍')
   }
-  // The rule is a paragraph, broken at every sentence; read to the blank line.
-  const said: string[] = []
-  for (const line of REQUIREMENTS.slice(at)) {
-    if (line.trim() === '') break
-    said.push(line.trim())
-  }
-  return said.join('')
+  return found
 }
 
 // ===========================================================================
