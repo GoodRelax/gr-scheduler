@@ -1,0 +1,443 @@
+{
+ "schemaVersion": "2026-08-20",
+ "schedule": {
+  "project": {
+   "id": null,
+   "name": "Product Development Programme",
+   "title": "Three-Year Product Plan",
+   "subject": "Building and delivering the product over three years",
+   "category": "Software Development",
+   "company": "Product Organization",
+   "manager": "Programme Manager A",
+   "author": "Planner A",
+   "created": "2026-03-06T00:00:00",
+   "revision": 37,
+   "lastSaved": "2027-06-14T00:00:00",
+   "startDate": "2026-04-01T00:00:00",
+   "statusDate": null,
+   "minutesPerDay": null,
+   "minutesPerWeek": null,
+   "daysPerMonth": null,
+   "weekStartDay": 1,
+   "calendarUid": 1,
+   "themeHue": 214,
+   "uidHighWaterMark": 1960,
+   "importSeq": 0,
+   "outlineBase": 1,
+   "carry": {},
+   "carryElements": []
+  },
+  "calendars": [
+   {
+    "uid": 1,
+    "name": "Standard",
+    "isBaseCalendar": true,
+    "baseCalendarUid": null,
+    "ordinal": 0,
+    "carry": {},
+    "carryElements": [],
+    "weekDays": [
+     {
+      "ordinal": 0,
+      "dayType": 1,
+      "dayWorking": false,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 1,
+      "dayType": 2,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 2,
+      "dayType": 3,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 3,
+      "dayType": 4,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 4,
+      "dayType": 5,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 5,
+      "dayType": 6,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 6,
+      "dayType": 7,
+      "dayWorking": false,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "exceptions": [
+     {
+      "ordinal": 0,
+      "name": "Year-end shutdown",
+      "fromDate": "2026-12-24T00:00:00",
+      "toDate": "2027-01-01T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 1,
+      "name": "Mid-year shutdown",
+      "fromDate": "2027-08-16T00:00:00",
+      "toDate": "2027-08-20T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 2,
+      "name": "Year-end shutdown, second year",
+      "fromDate": "2027-12-24T00:00:00",
+      "toDate": "2027-12-31T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 3,
+      "name": "Whole-company meeting day",
+      "fromDate": "2028-04-28T00:00:00",
+      "toDate": "2028-04-28T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 4,
+      "name": "Mid-year shutdown, second year",
+      "fromDate": "2028-08-14T00:00:00",
+      "toDate": "2028-08-18T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 5,
+      "name": "Year-end shutdown, third year",
+      "fromDate": "2028-12-22T00:00:00",
+      "toDate": "2029-01-01T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 6,
+      "name": "Whole-company meeting day, second year",
+      "fromDate": "2029-02-23T00:00:00",
+      "toDate": "2029-02-23T00:00:00",
+      "dayWorking": false,
+      "recurrenceKind": 9,
+      "carry": {},
+      "carryElements": []
+     }
+    ]
+   }
+  ],
+  "tasks": [],
+  "resources": [
+   {
+    "uid": 1001,
+    "name": "Analyst A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1002,
+    "name": "Analyst B",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1003,
+    "name": "Architect A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1004,
+    "name": "Designer A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1005,
+    "name": "Designer B",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1006,
+    "name": "Developer A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1007,
+    "name": "Developer B",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1008,
+    "name": "Developer C",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1009,
+    "name": "Developer D",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1010,
+    "name": "Developer C",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1011,
+    "name": "Tester A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1012,
+    "name": "Tester B",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1013,
+    "name": "Writer A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1014,
+    "name": "Release Engineer A",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   }
+  ],
+  "assignments": [],
+  "taskGroups": [
+   {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "parentId": null,
+    "label": "No name",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "isCollapsed": null,
+    "isHidden": null,
+    "color": null,
+    "height": null
+   }
+  ],
+  "taskGroupMembers": [],
+  "taskVisuals": [],
+  "commentBoxes": [],
+  "highlightBoxes": [],
+  "taskOrigins": [],
+  "baselineTasks": []
+ },
+ "documentSettings": {
+  "actualGap": 2,
+  "actualInitialDuration": 1,
+  "actualMin": 16,
+  "actualOfPlan": 0.73,
+  "appHeaderMaxHeight": 56,
+  "arrowHeadOfSpan": 0.4,
+  "arrowHeadOfStroke": 3.2,
+  "assigneeVisible": false,
+  "basePlanHeight": 28,
+  "baselineVisible": false,
+  "canvasPadding": 10,
+  "carryMaxDepth": 16,
+  "chevronNotchOfHeight": 0.45,
+  "chevronNotchOfWidth": 0.35,
+  "commentBoxPad": 3,
+  "commentBoxWrapUnits": 128,
+  "dateGridLinesVisible": false,
+  "dependencyArrowLength": 7,
+  "dependencyLagDefault": 0,
+  "dependencyRunOfArrow": 2,
+  "dependencyVisible": true,
+  "dependencyWidth": 1.5,
+  "dualCursor": null,
+  "dummyOpacity": 0.2,
+  "exportCanvas": {
+   "height": 900,
+   "width": 1600
+  },
+  "exportCanvasHeightCap": 4096,
+  "exportPngScale": 1,
+  "fadeHandleHalfPx": 4.5,
+  "fadeHandleStrokePx": 1.5,
+  "fontMin": 12,
+  "fontOfActual": 0.8,
+  "fontScale": "M",
+  "fontScaleSizes": {
+   "L": 16,
+   "M": 14,
+   "S": 12
+  },
+  "groupGridLinesVisible": true,
+  "groupLevelOfDetailBase": 0.32,
+  "groupLevelOfDetailRatio": 1.875,
+  "guideCursorMode": "none",
+  "iconHintDelayMs": 2000,
+  "importMaxBytes": 32,
+  "importMaxDate": "2200-12-31",
+  "importMaxDepth": 64,
+  "importMaxItems": 20000,
+  "importMinDate": "1970-01-01",
+  "labelBaseline": 0.35,
+  "labelCoef": 0.5,
+  "labelGap": 8,
+  "labelHaloOfFont": 0.17,
+  "labelPad": 6,
+  "markerGap": 4,
+  "markerSize": 16,
+  "markerStroke": 1.3,
+  "maxGroupDepth": 5,
+  "milestoneActualDuration": 0,
+  "minShapeWidth": 6,
+  "percentCompleteVisible": false,
+  "pinnedGroupIds": [],
+  "pinnedRowMax": 5,
+  "planActualDisplay": "both",
+  "planActualGuidePattern": {
+   "off": 2,
+   "on": 2
+  },
+  "planActualGuideWeight": 1,
+  "planStroke": 1,
+  "progressLineOverhang": 6,
+  "progressLineVisible": false,
+  "progressLineWidth": 2,
+  "progressMarkerVisible": true,
+  "propertyPanelWidth": 0,
+  "pxPerDayAt1x": 6,
+  "resumeArmOfMarker": 0.62,
+  "resumeDashOff": 2,
+  "resumeDashOn": 3,
+  "resumeHeadOfMarker": 0.22,
+  "resumeScaleInvalid": 0.7,
+  "rowGap": 8,
+  "rowTitleFont": 13,
+  "rowTitleIndent": 16,
+  "rowTitlePanelWidth": 200,
+  "rowTitleTopScale": 1.3,
+  "rulerFont": 14,
+  "rulerHeight": 48,
+  "rulerLabelBottomPad": 3,
+  "rulerLabelGap": 2,
+  "rulerLabelPad": 2,
+  "rulerTierPxPerDayDay": 17.5,
+  "rulerTierPxPerDayMonth": 1.4,
+  "rulerTierPxPerDayWeek": 4.3,
+  "scrollDate": null,
+  "scrollDayOffset": 0,
+  "scrollGroupId": null,
+  "scrollGroupOffset": 0,
+  "shapeHeightOf": {
+   "arrow": 0.5,
+   "chevron": 1,
+   "endpointSpan": 0.5,
+   "milestone": 1.5,
+   "rectangle": 1
+  },
+  "spanDotOfStroke": 1.15,
+  "stackDirection": "up",
+  "stackGap": 12,
+  "stackSafetyCap": 255,
+  "starInnerOfOuter": 0.45,
+  "taskLevelOfDetailReadablePx": 24,
+  "themeMonochrome": false,
+  "themePreference": "light",
+  "thinFontScale": 0.85,
+  "thinStrokeMax": 4,
+  "thinStrokeMin": 1.2,
+  "thinStrokeOfPlan": 0.2,
+  "truncateUnits": 48,
+  "zoomX": 1,
+  "zoomY": 1
+ },
+ "documentStamp": {
+  "scheduleUpdatedUtc": "2026-09-06T08:45:16Z",
+  "lastEditedBy": "user",
+  "settingsUpdatedUtc": "2026-09-06T08:45:16Z"
+ },
+ "changeLog": []
+}

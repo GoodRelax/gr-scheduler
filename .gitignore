@@ -78,6 +78,9 @@ npm-debug.log*
 scratch/
 tmp/
 
-# Documents saved out of the running app. These are the reader's own
-# schedules, not the project's -- and this repository is public.
-sample-schedule/
+# Documents saved out of the running app once lived here and were kept out of
+# the repository, because a reader's own schedule is not the project's and this
+# repository is public. sample-schedule/ is published from 2026-09-12 (the
+# user's ruling): its 64 addresses are all on example.com, its authors and
+# companies are invented, and it holds no secret. Anything a READER saves must
+# still stay out.
