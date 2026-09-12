@@ -215,6 +215,36 @@ for rel, lines in lines_by_file.items():
             if f not in figures:
                 report('15', rel, i, 'reference to undefined figure %s' % f)
 
+# ---------------------------------------------------------------- check 48
+
+# ⛔ A LINE DIRECTLY UNDER A TABLE ROW IS ABSORBED INTO THE TABLE. It renders
+# as a row whose 行 ID cell is empty -- found 2026-09-12 in 表 T-037, whose
+# closing prose came out as eight phantom rows. Nothing else in this suite can
+# see it: the line does not start with `|`, so every row parser walks past it.
+# The fix is a blank line, which is what markdown wants there anyway.
+
+for rel in FILES:
+    path = os.path.join(ROOT, rel)
+    if not os.path.exists(path):
+        continue
+    lines = io.open(path, encoding='utf-8').read().split(chr(10))
+    under_a_row = False
+    fenced = False
+    for i, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            fenced = not fenced
+            under_a_row = False
+            continue
+        if fenced:
+            continue
+        if under_a_row and stripped and not stripped.startswith('|'):
+            report('48', rel, i,
+                   'this line sits directly under a table row, so the table '
+                   'swallows it and renders it as a row with an empty first '
+                   'cell -- put a blank line between them')
+        under_a_row = stripped.startswith('|')
+
 # ---------------------------------------------------------------- output
 
 for f in sorted(findings):

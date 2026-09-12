@@ -57,6 +57,27 @@ QUOTE_OPEN = u'\u300c\u300e'
 QUOTE_SHUT = u'\u300d\u300f'
 
 
+def separate_tables(text):
+    """A blank line between a table and whatever follows it.
+
+    A line that is not a row but sits directly under one is absorbed into the
+    table -- it renders as a row whose first cell is empty. The caption of
+    表 T-236 did exactly that.
+    """
+    out = []
+    under_a_row = False
+    fenced = False
+    for line in text.split('\n'):
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            fenced = not fenced
+        if under_a_row and stripped and not stripped.startswith('|') and not fenced:
+            out.append('')
+        under_a_row = stripped.startswith('|') and not fenced
+        out.append(line)
+    return '\n'.join(out)
+
+
 def _break_points(body):
     """Where this line may be split.
 
@@ -264,7 +285,7 @@ def main():
             say('  %s' % p)
         say('property-items.json is not valid; nothing was written')
         return 1
-    built = broken_prose(build(doc))
+    built = broken_prose(separate_tables(build(doc)))
     rel = os.path.relpath(OUT, os.path.dirname(os.path.dirname(HERE)))
     rel = rel.replace('\\', '/')
     if '--check' in sys.argv:
