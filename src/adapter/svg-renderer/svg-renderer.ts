@@ -9,63 +9,8 @@
 // responsibility; the shapes themselves are ScheduleGeometry's and are not
 // recomputed here -- 表 T-068 LC-11 already made every vertex.
 //
-// ⭐ This unit reads `Schedule` as well as the geometry, and that edge is
-// CR-185's: colour lives in the schedule-data group (themeHue is AT-19, which
-// DR-5 keeps out of the presentation group) and the geometry carries none of
-// it. 5.1 puts drawing on this side of the line -- "layoutEngine holds nothing
-// past coordinates".
-//
-// ⭐ FR-042's band is drawn HERE and nowhere else, and that is not a choice
-// this file made. `_source/components.json` gives this component the edge to
-// ScheduleLayout ("the ruler and the row placement") and the edge to Schedule
-// that names "the row colour"; ScreenRenderer's own head note says in as many
-// words that it may reach neither layout nor geometry, and that `Rows` (U-1)
-// and everything in them are absent from it. ⛔ Until this round nothing drew
-// a band at all -- `layout.rows` reached no renderer.
-//
-// ⭐⭐ EP-7 `Watermark` IS DRAWN HERE, AND THE STOP THAT STOOD HERE IS SPENT
-// (D-195). FR-020 (MUST) lays the opener's name and an ISO-8601 UTC stamp
-// diagonally, repeatedly and faintly over the `Row Area` (U-50) and (MUST NOT)
-// outside it; EP-7 of table T-076 puts the same layer in the export, and
-// `watermarkSvg` below is the one place either picture gets one.
-//
-// ⭐ THE FIVE VALUES ARRIVE GENERATED, WHICH IS WHAT THE STOP WAS WAITING FOR.
-// FR-020 (MUST) names them and (MUST NOT) lets them be typed into `src/`:
-// the angle (S-220), the size (S-221) and the spacing (S-222) reach this unit
-// in `WATERMARK_MARKS` at the foot of this file, the opacity (S-102) rides in
-// the same block, and the ink (S-223) rides in `SCHEDULE_COLOURS` because a
-// colour is one decision with a light and a dark rendering. ⛔ NOT ONE OF THE
-// FIVE IS SPELLED IN THIS FILE'S OWN TEXT -- the angle and the opacity go into
-// the markup as the strings the generator printed, and only the two that are
-// RATIOS are read as numbers, because a ratio has to be multiplied by the
-// thing table T-207 names for it.
-//
-// ⭐ WHAT STILL ARRIVES AS AN ARGUMENT, AND WHY IT MUST. The name (S-99a) and
-// the moment are not values of a table: this unit is pure, so it may not read
-// a clock, and LM-14 puts S-99a in a store only the Framework can reach. They
-// come in together as `Watermark`, and `null` is "no watermark on this
-// picture" -- which is how S-144 of table T-206 reaches a unit that may not
-// read it either.
-//
-// ⭐⭐ EVERY FIGURE CARRIES `data-figure`, ITS OWN IDENTITY (D-316). Deleting
-// one `Task` measured 827 direct children of `<svg>` against 823 in the next
-// picture: 682 of them had a byte-identical twin, only 20 stood at the same
-// index, and the common prefix was 0 -- so the far side rebuilt 723 elements
-// for a change that touched one. ⛔ Nothing in the picture said which figure
-// was which (one `data-role` and three `id`s among 827), and identity is the
-// one thing a differ cannot recover after the fact. `figureKey` below states
-// what a key is built from and why it is never an index.
-// ⚠️ WHAT IS NOT HERE. This file still hands over one whole string, and
-// `SvgSurface` still takes one -- nothing about diffing is decided here or in
-// that seam. What is added is the identity, and nothing else.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
-//
-// The seam declared in this folder is re-exported here because
-// the layer that implements it may not reach past this file
-// (Chapter 5.3, MUST).
+// ⭐ Reads `Schedule` as well as the geometry, and draws FR-042's row band
+// and FR-020's watermark layer: `_source/components.json` draws those edges.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
@@ -98,9 +43,6 @@ export type { SvgSurface } from './svg-surface'
 /**
  * Which of table T-076's two pictures this frame is.
  *
- * ⛔ THE ONE THING IN THIS FILE THAT IS NOT A PROPERTY OF THE DOCUMENT. Every
- * other input describes what is drawn; this one says who it is drawn for.
- *
  * ⭐ WHY IT HAD TO BE ADDED. Table T-076 leaves several UI parts out of the
  * exported picture, and EP-14 is the row that no other argument can reach:
  * FR-043's dummies hang on the Task being unstarted -- a property of the
@@ -113,15 +55,9 @@ export type { SvgSurface } from './svg-surface'
  * breaks EP-5 (the Progress Marker IS drawn in the export) and is measured by
  * WY-3 of table T-041.
  *
- * ⭐ EP-12 IS THE SECOND ROW IT ANSWERS, and one line answers all of it --
- * `drawsOperationState` in `svgFromSchedule`. ⚠️ It was left to the caller
- * while `frame-loop.ts` was the only one, on the reading that an export hands
- * in an empty `Selection` and says nothing about which side follows. That is
- * true of that caller and is NOT a property of this unit: told it was the
- * export and handed a selection anyway, the picture carried a dependency line
- * at S-178 times its width and a thickened `Dual Cursor` line -- two marks
- * EP-12 says 描かない. A row of table T-076 is a rule about the PICTURE, so
- * the picture is where it is spent (D-52).
+ * ⭐ EP-12 is the second row it answers, and `drawsOperationState` in
+ * `svgFromSchedule` spends it -- a row of table T-076 is a rule about the
+ * PICTURE, so the picture is where it is spent.
  *
  * ⚠️ STILL DELIBERATELY NARROW. Two rows of table T-076 reach this argument,
  * each once and for a stated reason; it is not a general "export mode" that a
@@ -132,8 +68,7 @@ export type { SvgSurface } from './svg-surface'
 export type SchedulePicture = 'screen' | 'export'
 
 /**
- * The Dual Cursor mode as it stands THIS FRAME -- the second thing in this file
- * that is not a property of the document, and the only other one.
+ * The Dual Cursor mode as it stands THIS FRAME.
  *
  * ⭐ WHY IT IS A PARAMETER AND NOT PART OF THE GEOMETRY. Which side follows is
  * a current value, and LY-5 of table T-060 leaves those with the Framework;
@@ -141,9 +76,7 @@ export type SchedulePicture = 'screen' | 'export'
  * EP-6 still draws the two lines. So the PLACEMENT travels in the geometry,
  * where the document put it, and the MARK travels here -- and an export gets
  * the two lines and no mark whether or not it says anything, because
- * `drawsOperationState` drops this argument on that picture. ⚠️ Saying nothing
- * was the WHOLE of DC-8 until D-52: an export that named a following side was
- * drawn with the mark.
+ * `drawsOperationState` drops this argument on that picture.
  *
  * ⛔ `'date1' | 'date2'` IS WRITTEN OUT RATHER THAN IMPORTED. It is declared as
  * `DualCursorSide` in `screen-state.ts`, and `_source/components.json` gives
@@ -173,8 +106,7 @@ export interface DualCursorFollow {
 }
 
 /**
- * FR-020's trail, as the picture receives it -- the fourth thing in this file
- * that is not a property of the document, and the last.
+ * FR-020's trail, as the picture receives it.
  *
  * ⭐ WHY BOTH HALVES TRAVEL AND NEITHER IS REACHED FOR. This unit is pure. The
  * name is S-99a of table T-206, which that row keeps in `localStorage` -- a
@@ -194,22 +126,19 @@ export interface Watermark {
   /**
    * S-99a of table T-206 -- the name of the one who opened the document.
    *
-   * ⛔ NOT THE AUTHOR'S. FR-020's own RATIONALE says so in as many words: the
-   * trail is worth having because it records who had the schedule on screen,
-   * and a document's author showing up on someone else's screen would be the
-   * wrong name. ⚠️ Where it comes from is FR-086's, not this unit's.
+   * ⛔ NOT THE AUTHOR'S -- FR-020's own RATIONALE says why: the trail is
+   * worth having because it records who had the schedule on screen.
+   * ⚠️ Where it comes from is FR-086's, not this unit's.
    */
   readonly openedBy: string
   /**
    * The moment, spelled as FR-020 (MUST) requires: ISO 8601 (the RFC 3339
    * form, `YYYY-MM-DDThh:mm:ssZ`), UTC, to the second.
    *
-   * ⛔ SPELLED BY THE CALLER AND NOT HERE, and the string is drawn exactly as
-   * it arrives. FR-020 forbids a local reading (a screen copied in one zone
-   * and read in another would carry two different answers), and MSPDI's own
-   * dates are zoneless local time that the same sentence (MUST NOT) forbids
-   * confusing with this one -- so there is one speller for this moment and it
-   * is the side that read the clock.
+   * ⛔ SPELLED BY THE CALLER AND NOT HERE, and the string is drawn exactly
+   * as it arrives: FR-020 forbids a local reading, and (MUST NOT) forbids
+   * confusing this moment with MSPDI's zoneless local dates -- so there is
+   * one speller for it and it is the side that read the clock.
    */
   readonly stampedAt: string
 }
@@ -319,15 +248,6 @@ function rounded(value: number): string {
 /**
  * WHAT ONE DRAWN FIGURE IS, written on the figure itself so that the same
  * figure can be recognised in the next frame's picture (D-316).
- *
- * ⛔ WHY IT IS NEEDED, MEASURED (2026-09-05, and again 2026-09-07). Deleting
- * ONE `Task` took the direct children of `<svg>` from 827 to 823. 682 of them
- * (82.5%) had a byte-identical twin in the other picture, but only 20 (2.4%)
- * stood at the same INDEX, and the common prefix was 0 elements long -- so a
- * differ working by position, or by leading and trailing run, still had to
- * rewrite 723 of the 827. ⭐ Nothing in the picture said which figure was
- * which: one `data-role` (the watermark layer) and three `id`s (the arrowhead
- * marker and two clip paths) among 827.
  *
  * ⭐ WHAT THE KEY IS BUILT FROM: the identifier the DOCUMENT gives the thing
  * (a `Task`'s UID, a `TaskGroup`'s id, a box's id, a day's serial) and the
@@ -444,11 +364,9 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
  *
  * ⚠️ ITS ONE CALLER HANDS IT A MIDDLE IT WORKED OUT, never a day's edge:
  * `centreFromLeftEdge` turns FR-043's aligned point into the middle of the
- * mark. ⛔ The note that stood here said the hit box was centred on the same
- * point and that the two therefore shared a middle. That is no longer so --
- * table T-023d anchors GR-9 / GR-17 / GR-18 at the day column's LEFT EDGE
- * (MUST) and forbids centring them (MUST NOT) -- and the two now share that
- * EDGE instead, which is the thing FR-043 asks the drawing to align to.
+ * mark. ⛔ Table T-023d anchors GR-9 / GR-17 / GR-18 at the day column's
+ * LEFT EDGE (MUST) and forbids centring them, and the drawing and the hit
+ * box share that edge.
  *
  * @purity pure
  */
@@ -477,17 +395,8 @@ function cornersAround(centre: Point, width: number, height: number): Path {
  * ⛔ THE BOX IS NOT NEGOTIATED HERE EITHER -- IT ARRIVES. `dummiesOf` builds
  * `DummyGeometry.ink`, and this only maps an outline onto it.
  *
- * ⭐⭐ AND THAT BOX BECAME A SQUARE ON A MILESTONE ON 2026-09-10 (FR-043,
- * MUST, 利用者の裁定): 「マイルストーンのダミーを描く箱は、そのマイルストー
- * ンの実績の図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を
- * 横幅としてはならない（MUST NOT）」.
- * ⛔⛔ THE REQUIREMENT SAID 「大きさは例外ではない」 UNTIL THAT DAY, and this
- * comment used to reason from it -- that a figure whose box is not square
- * comes out stretched was stated here as a consequence to be lived with.
- * ⚠️ It was met: a circle glyph came out an ellipse (利用者の申し立て
- * 2026-09-10, 逐語「○型マイルストーンの実績ダミーの形状が真円でない」).
- * ⭐ The bar shapes' own box did not move: 「バーの形状のダミー（`GR-9` /
- * `GR-17`）は例外ではない」, so a rectangle still fills the day column.
+ * ⭐ FR-043 (MUST) makes a milestone's dummy box a SQUARE; `dummiesOf`
+ * builds it, so a circle glyph is not stretched into an ellipse here.
  *
  * @purity pure
  */
@@ -503,11 +412,8 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
 /**
  * The figure FR-043's one faint mark is drawn as, on this Task.
  *
- * ⭐⭐ THE MILESTONE EXCEPTION, THE THIRD ONE (FR-043, 利用者の裁定 2026-09-08,
- * 逐語「マイルストーンダミー形状は、マイルストーン実績の形状と合わせろ。
- * マイルストーン実績の色の薄い奴としろ。 つかみ判定も実測とあせろ。」):
- * 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイルストーンの実績の
- * 図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）」.
+ * ⭐ FR-043's THIRD MILESTONE EXCEPTION (MUST): the dummy takes the
+ * milestone's own actual figure, and MUST NOT be drawn as a rectangle.
  *
  * ⭐ WHERE THE FIGURE COMES FROM. A not-started Task has no actual bar at all
  * -- `dummiesOf` only emits a dummy while `actualX` is null -- so the actual
@@ -516,19 +422,14 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
  * from the one `placed.milestoneGlyph` and only their side differs, so that
  * outline IS 「そのマイルストーンの実績の図形」 with nothing invented.
  *
- * ⛔ NO COLOUR IS DECIDED HERE. The caller hands the paint the ACTUAL bar would
- * have taken, which is what FR-013 (「色は実績バーの色を継ぎ、独立した色を保存
- * しない」) and FR-041 (MUST NOT) already settle, and the faintness is S-131 on
- * the group around it. FR-043 spells the milestone half of the same rule:
- * 「同要求の『色は実績バーの色を継ぎ、独立した色を保存しない』を、マイルストーン
- * では実績のマイルストーンの図形の色として読むこと（MUST）。⛔ 新しい色の式を
- * 立ててはならない（MUST NOT）」.
+ * ⛔ NO COLOUR IS DECIDED HERE. The caller hands the paint the ACTUAL bar
+ * would have taken, which FR-013 and FR-041 (MUST NOT) already settle, and
+ * the faintness is S-131 on the group around it. FR-043 spells the
+ * milestone half of the same rule and forbids a new colour formula.
  *
- * ⛔ IT NO LONGER READS `task.plan` (D-407, measured 2026-09-08). A milestone
- * drawn while the PLAN is hidden (`planVisible` false) has neither bar on its
- * geometry, so reading the plan bar left that one case with nothing to copy and
- * it fell back to the rectangle the MUST NOT forbids. The geometry answers it
- * now, for every setting of that switch and in one place.
+ * ⛔ `task.plan` IS NOT READ. A milestone drawn while the plan is hidden
+ * (`planVisible` false) has no plan bar to copy, and would fall back to the
+ * rectangle FR-043's MUST NOT forbids; the geometry answers it in one place.
  *
  * @purity pure
  */
@@ -805,15 +706,12 @@ function paintOf(
  * translucent with the rest, which is a real loss against table T-020's opaque
  * backing; the MUST that says to draw it faint is the one that decides.
  *
- * ⭐ AND THE HOVER HALF IS DRAWN NOW. The same MUST darkens the marker while
- * the pointer is on it, and the answer arrives as `svgFromSchedule`'s own
- * `hovered` -- the hit the Framework already reads once per move (PI-7). ⛔ The
- * STOP that stood here said this unit was handed no pointer, and that had gone
- * stale: `pointer` was added for CU-3's guide cursor, and what was still
- * missing was not a position but WHICH ROW of table T-023d it fell on, which no
- * position alone can answer without the slop table T-206 keeps out of the
- * document. ⚠️ Being `pure` (table T-062) was never the obstacle -- an answer
- * handed IN is an argument like the others.
+ * ⭐ THE HOVER HALF OF THE SAME MUST: the marker darkens while the pointer
+ * is on it, and the answer arrives as `svgFromSchedule`'s own `hovered` --
+ * the hit the Framework already reads once per move (PI-7), because what is
+ * wanted is not a position but WHICH ROW of table T-023d it fell on.
+ * ⚠️ Being `pure` (table T-062) is no obstacle: an answer handed IN is an
+ * argument like the others.
  *
  * @purity pure
  */
@@ -830,12 +728,11 @@ function markerSvg(
   // wrapping group carries it too, because in the PM-1a case that group is
   // what a differ finds first.
   const named = figureKey(key)
-  // D-417. ⛔ THE STROKE IS `markerStroke` (S-24) FOR THE DISC AND FOR THE
-  // SYMBOL ALIKE. FR-094 (MUST NOT) forbids this file holding a dimension of
-  // its own, and S-24 is the only stroke width table T-201 keeps in the
-  // 進捗マーカー group -- the same reading `resumeSvg` below already takes for
-  // the resume icon's arm. ⚠️ Until this round the disc was typed at 1 and the
-  // three symbols at 1.5, so turning S-24 moved neither.
+  // ⛔ THE STROKE IS `markerStroke` (S-24) FOR THE DISC AND FOR THE SYMBOL
+  // ALIKE. FR-094 (MUST NOT) forbids this file holding a dimension of its
+  // own, and S-24 is the only stroke width table T-201 keeps in the
+  // 進捗マーカー group -- the same reading `resumeSvg` below takes for the
+  // resume icon's arm.
   const stroke = rounded(settings.markerStroke)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
@@ -866,26 +763,17 @@ function markerSvg(
 }
 
 /**
- * FR-044's resume icon (MUST): 「中断のあいだは再開アイコンを描くこと（MUST）」.
+ * FR-044's resume icon (MUST): drawn while the Task is suspended.
  *
- * ⛔⛔ NOTHING DREW IT UNTIL THIS ROUND. `ResumeGeometry` was built by
- * `resumeOf` and `TaskGeometry.resume` carried it, but `grep -rn "resume"` over
- * this folder answered 0 -- so on the shipped build a suspended Task showed the
- * marker's disc and no icon at all (measured 2026-09-08: 0 nodes in the band
- * right of the marker). ⚠️ ItemHitArea's GR-8 was already live against that
- * same geometry, which is the worse half: a person could grab an icon that had
- * never been drawn.
- *
- * ⭐ THE PATHS ARE READ, NOT REBUILT. LF-13 of table T-221 states the figure --
- * 「下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印」,
- * the arm at `resumeArmOfMarker` (S-26) and the head at `resumeHeadOfMarker`
- * (S-27) of the square, shrunk by `resumeScaleInvalid` (S-25) while
- * `resumeValid` is false -- and `resumeOf` has already solved all of it. ⛔ So
- * S-25's 「別の見た目」 (FR-044, MUST) arrives HERE as a smaller pair of paths
- * and is not a second condition on this side. ⚠️ `ResumeGeometry.valid` is
- * therefore read by nobody who draws: the size IS the difference, and no row of
- * table T-236 holds a second colour or a strength for the invalid case, so
- * inventing one would be this file writing a settings row.
+ * ⭐ THE PATHS ARE READ, NOT REBUILT. LF-13 of table T-221 states the
+ * figure, the arm at `resumeArmOfMarker` (S-26) and the head at
+ * `resumeHeadOfMarker` (S-27), shrunk by `resumeScaleInvalid` (S-25) while
+ * `resumeValid` is false -- and `resumeOf` has already solved all of it, so
+ * S-25's other look arrives HERE as a smaller pair of paths and is not a
+ * second condition on this side. ⚠️ `ResumeGeometry.valid` is therefore read
+ * by nobody who draws: the size IS the difference, and no row of table T-236
+ * holds a second colour or a strength for the invalid case, so inventing one
+ * would be this file writing a settings row.
  *
  * ⭐ GR-8's HIT BOX IS CENTRED ON THIS INK. ItemHitArea takes S-22's box about
  * the centre of `[...arm, ...head]`'s bounding box, so drawing exactly those
@@ -895,15 +783,11 @@ function markerSvg(
  * the row's own MUST NOT (「図形の素の輪郭を当たり判定にしてはならない」): S-25
  * shrinks THIS drawing while `resumeValid` is false and leaves the box alone.
  *
- * ⚠️ THE ARM IS DASHED, at `resumeDashOn` (S-28) and `resumeDashOff` (S-29).
- * Those two rows exist for no other figure -- K-28 glosses the first as
- * 「再開アイコンへ繋ぐ破線の実部」 and K-29 the second as 「再開アイコンへ繋ぐ
- * 破線の空部」 -- and LF-13's arm is the part that runs from the marker's own
- * bottom to the head.
- * ⚠️ RE-CUT 2026-09-10: the two glosses were folded into one 「… 実部 / 空部」,
- * and a sentence welded out of two rows is in neither of them.
+ * ⚠️ THE ARM IS DASHED, at `resumeDashOn` (S-28) and `resumeDashOff`
+ * (S-29); those two rows exist for no other figure, and LF-13's arm is the
+ * part that runs from the marker's own bottom to the head.
  *
- * ⚠️ THE STROKE IS `markerStroke` (S-24), WHICH IS A JUDGEMENT. FR-011 (MUST
+ * ⚠️ THE STROKE IS `markerStroke` (S-24), WHICH IS A JUDGEMENT. FR-094 (MUST
  * NOT) forbids this file holding a dimension of its own, and S-24 is the only
  * stroke width table T-201 keeps in the 進捗マーカー group the icon's own rows
  * (S-25 to S-29) sit in. ⛔ A number typed here would be exactly what that MUST
@@ -948,10 +832,7 @@ function resumeSvg(
  * hue cannot meet CT-1 and CT-2. It is drawn always, which is the safe side of
  * that note rather than a reading of it.
  *
- * ⭐ S-168 is the ink and S-169 the halo, both of table T-236. ⚠️ Until this
- * round the pair was typed in as a black glyph on a white outline, which is
- * the LIGHT rendering -- so the dark theme drew black text on the dark ground
- * and only the halo kept it readable. Reading the theme fixes both at once.
+ * ⭐ S-168 is the ink and S-169 the halo, both of table T-236.
  *
  * ⛔ The two are handed IN rather than read here, for the reason `rulerSvg`'s
  * call site states: `themed` is `svgFromSchedule`'s own closure over the hue
@@ -1132,31 +1013,12 @@ function pictureId(seed: string): string {
 type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday'
 
 /**
- * L-1 of table T-005a spells the four steps 年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
- * 年 ＋ 月 ＋ 日 ＋ 曜日, and table T-238 of FR-017 (MUST, 利用者の裁定
- * 2026-09-03) says line by line what each of those four steps prints. The rows
- * below are that table read straight down, one 段 per line, and the table's
- * 「刷らない」 is an ABSENT row rather than an empty one (MUST):
+ * The rows below are table T-238 of FR-017 (MUST) read straight down, one
+ * 段 per line; that table's 「刷らない」 is an ABSENT row, not an empty one.
  *
- *   TM-1 年   `yyyy`      --          --
- *   TM-2 月   `yyyy`      `m`         --
- *   TM-3 週   `yyyy-mm`   `d`         --
- *   TM-4 日   `yyyy-mm`   `d`         曜
- *
- * ⛔ THE FOLD IS NOT AT EVERY STEP THAT SHOWS BOTH -- THE NOTE THAT STOOD
- * HERE WAS WITHDRAWN. It read 「THE FOLD IS AT EVERY STEP THAT SHOWS BOTH」 and
- * called separate 段 for the year and the month a MUST NOT. That WAS FR-017 on
- * the ruling of 2026-08-27; table T-238 overturned it on 2026-09-03 for the
- * month step alone, where `TM-2` prints `yyyy` and `m` in two 段.
- * ⭐ THE ORIGINAL REASON STILL HOLDS FOR `TM-3` AND `TM-4`, and T-238 says so
- * itself: the band's height MUST NOT move with the step, so the step that puts
- * four things out has only three 段 and the year and the month must share one
- * there. The old sentence was simply written wider than its own reason.
- *
- * ⚠️ S-2's remark counts the 段 of the finest step -- （年 ＋ 月 / 日 / 曜日）,
- * three of them -- and that count did not move: `TM-4` stood in three 段 before
- * and stands in three now. `TM-2` grew from one 段 to two, which the equal
- * share below absorbs without the band growing.
+ * ⛔ THE FOLD IS NOT AT EVERY STEP THAT SHOWS BOTH. `TM-2` prints `yyyy`
+ * and `m` in two 段; `TM-3` and `TM-4` share one, because the band's height
+ * MUST NOT move with the step and the finest step already stands in three.
  */
 const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
   year: ['year'],
@@ -1253,11 +1115,9 @@ function ticksOfRow(
 }
 
 /**
- * FR-017's band, drawn. The band `regions.timeRuler` reserves is S-2 tall and
- * is where the year-and-month, week, day and weekday rows go; until this round
- * nothing put a glyph in it and nothing in `src/` read that member at all --
- * EP-2 of table T-076 calls the Time Ruler a MUST for the export, and a
- * schedule whose dates cannot be read is not a schedule.
+ * FR-017's band, drawn. The band `regions.timeRuler` reserves is S-2 tall
+ * and is where the year-and-month, week, day and weekday rows go; EP-2 of
+ * table T-076 makes the Time Ruler a MUST for the export too.
  *
  * ⭐ The grain is `layout.tier`, which is what `rulerTierOf` already answered
  * for this frame, and the thinning is `tickStrideOf`. Neither is worked out a
@@ -1269,10 +1129,7 @@ function ticksOfRow(
  * NOT) print any line the table does not hold. `ROWS_OF_TIER` above is that
  * table's shape and the label below is its contents. ⛔ The month is DIGITS
  * and never a word, so that S-83 can be one value in both languages.
- * ⚠️ THE NOTE THAT STOOD HERE IS SUPERSEDED. It said the ruling of 2026-08-27
- * 「folded the month into the year's row」 at every step; T-238 unfolded it at
- * the month step alone (`TM-2`: `yyyy` over `m`) and left `TM-3` and `TM-4`
- * folded. ⛔ The weekday is the only language-dependent thing in the
+ * ⛔ The weekday is the only language-dependent thing in the
  * picture, and it arrives as `weekdayWords` rather than being spelled here:
  * FR-038 (MUST) gives every printed word one dictionary and Chapter 6.2 gives
  * it one generated destination, neither of which is this file.
@@ -1543,12 +1400,6 @@ function watermarkSvg(
  * table T-068 once per frame and hand the result to everyone who needs it, so
  * this unit measures nothing of its own.
  *
- * ⛔ THE NOTE THAT STOOD HERE WAS FALSE. It said the layout "is not an
- * argument"; `layout` has been the third parameter all along, and the label
- * has always read its placements. FR-042's band now reads `layout.rows` as
- * well, which is the edge `_source/components.json` draws from this component
- * to ScheduleLayout and calls "the ruler and the row placement".
- *
  * ⭐ `picture` IS REQUIRED AND HAS NO DEFAULT. Two call sites in `src/` is a
  * small enough cost that a new caller should have to decide which picture it
  * is asking for, and a default would let a forgotten export draw FR-043's
@@ -1561,11 +1412,6 @@ function watermarkSvg(
  * Cursor mode means and what DC-8 (MUST NOT) requires of an export -- so the
  * forgetful caller lands on the conservative picture rather than the leaky one.
  *
- * ⚠️ BOTH ARE AT THE TAIL, AND THAT IS FORCED RATHER THAN CHOSEN:
- * `snapshot-source.ts` reads this list positionally as
- * `Parameters<typeof svgFromSchedule>[3]` and `[4]`, so a parameter inserted
- * before index 5 would silently re-point both to the wrong type.
- *
  * ⚠️ The argument list is `src/`'s to settle: table T-064's own heading assigns
  * arguments and return values to the public entry in `src/`, on the ground that
  * this is the only place a signature is type-checked. PI-19's published MEMBER
@@ -1577,10 +1423,6 @@ function watermarkSvg(
  * ⛔ NOTHING MAY BE INSERTED BEFORE INDEX 5. `snapshot-source.ts` reads
  * `Parameters<typeof svgFromSchedule>[3]` and `[4]` by position, so a parameter
  * inserted before those two re-points both without a word from the compiler.
- * ⚠️ THE NOTE HERE USED TO SAY `weekdayWords` MUST STAY LAST, which was the
- * same rule stated too narrowly: `pointer` now stands after it, both indices
- * are untouched, and the constraint the sentence was defending still holds.
- *
  * ⚠️ ITS DEFAULT IS THE EMPTY LIST, AND THAT IS NOT "no weekday is wanted".
  * FR-017 (MUST) puts the weekday on the fourth tier; the default is FR-038's
  * fallback for a word not yet written, which prints the day's digits alone. A
@@ -1591,10 +1433,9 @@ function watermarkSvg(
  * ⭐ `pointer` IS WHERE THE HAND IS, in the same screen px every region and
  * every geometry vertex is in, or `null` while no pointer has been heard of.
  * CU-3 of table T-029 calls the guide cursor 「ポインタに追従する補助線」, and
- * that position is a current value the document does not hold -- the third
- * thing in this file that is not a property of the document, beside `selection`
- * and `follow`, and it arrives the same way for the same reason (LY-5 of table
- * T-060 leaves current values with the Framework). ⛔ IT IS NOT `follow.x`:
+ * that position is a current value the document does not hold, and it
+ * arrives the same way the others do (LY-5 of table T-060 leaves current
+ * values with the Framework). ⛔ IT IS NOT `follow.x`:
  * that one is the Dual Cursor's, is an x alone, and is snapped to a day; the
  * guide cursor needs both axes and snaps to nothing.
  *
@@ -1667,11 +1508,9 @@ export function svgFromSchedule(
    * arguments and from nowhere else. Emptied here, the rule cannot be obeyed
    * in five places and forgotten in the sixth.
    *
-   * ⛔ IT MAY NOT BE LEFT TO THE CALLER. `frame-loop.ts` does hand the export
-   * an empty `Selection` and no following side, and while it was the only
-   * caller nothing leaked -- but a picture that has been TOLD it is the export
-   * states the rule itself, and this file's own head comment had already
-   * recorded the two marks that survived when it did not.
+   * ⛔ IT MAY NOT BE LEFT TO THE CALLER. `frame-loop.ts` does hand the
+   * export an empty `Selection` and no following side, but a picture that
+   * has been TOLD it is the export states the rule itself.
    *
    * ⚠️ NOT THE SAME THING AS EP-14's `picture` test further down. That one
    * turns off something the DOCUMENT asks for (`FR-043`'s dummies hang on the
@@ -1682,9 +1521,8 @@ export function svgFromSchedule(
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
   /**
-   * FR-013's other half: 「未着手のマーカーと、実績入力のダミー（`FR-043`）は
-   * 薄く描き、ポインタが乗っているあいだだけ濃くすること（MUST）」 -- the Task
-   * whose faint marks the hand is on, and which of the two kinds it is on.
+   * FR-013's other half (MUST) -- the Task whose faint marks the hand is on,
+   * and which of the two kinds it is on.
    *
    * ⭐ SPENT THROUGH `drawsOperationState` LIKE THE OTHER THREE. Where the hand
    * is IS operation state, and EP-12 of table T-076 keeps that out of an export
@@ -1725,20 +1563,12 @@ export function svgFromSchedule(
    * HF-6 is the 作法 FR-013 points at. ⚠️ THE ORDER IS NOT DISTURBED HERE and
    * must not be: which row a PRESS goes to is table T-023d's, and MK-9a scopes
    * its 優先順位 to 「掴む対象が重なった」. This decides only what is drawn.
-   * ⚠️⚠️ THE MEASUREMENT THAT FIRST FORCED IT NO LONGER HOLDS, and the honest
-   * thing is to say so: it read 「table T-023d prints GR-3 and GR-4 above GR-9 /
-   * GR-17」, and at the magnification FR-055 opens with, 21 of 21 dummies on
-   * screen answered GR-3 or GR-4 and 0 of 21 darkened. ⭐ The printed order was
-   * reversed on 2026-09-10 -- 「⭐ 重なったら実績が勝つ —— 本表で `GR-5` / `GR-6`
-   * が `GR-3` / `GR-4` より上に在る」, and the dummies rose with them -- so the
-   * two readings would now agree at that magnification. ⛔ THE CODE IS NOT
-   * CHANGED BACK ON THAT ACCOUNT: no clause asks the drawing to follow the
-   * priority order, and swapping the reading again would be a change with
-   * nothing behind it. @provisional PD-360
+   * ⛔ THE CODE IS NOT MADE TO FOLLOW THE PRIORITY ORDER: no clause asks the
+   * drawing to, so the reading stands on FR-013's own 「乗っている」 and not
+   * on which row of table T-023d a press would go to. @provisional PD-360
    *
-   * ⚠️ The marker is still asked through `handOn`, and that is a measurement
-   * and not a second reading: 21 of 21 markers darkened. Changing it would be a
-   * change with nothing behind it either.
+   * ⚠️ The marker is still asked through `handOn`, which is the other
+   * reading and is left as it stands for the same reason.
    *
    * @purity pure
    */
@@ -1788,8 +1618,8 @@ export function svgFromSchedule(
   const markerParts: string[] = []
   const linkParts: string[] = []
   const labelParts: string[] = []
-  // D-170 / FR-098's new sentence: 「スクロールする行を帯の下へ潜らせては
-  // ならない」 reaches every figure a Task draws, not only its row's ground --
+  // FR-098 (MUST NOT) reaches every figure a Task draws, not only its row's
+  // ground --
   // so each of the five arrays above (which the loop below fills, in document
   // order, for EVERY Task regardless of which row it stands on) gets a twin
   // that catches a PINNED Task's fragments instead. ⛔ The twins are drawn
@@ -1861,7 +1691,7 @@ export function svgFromSchedule(
   // otherwise be painted over the Time Ruler and the app header above it.
   const area = regions.rowArea
   const areaBottom = area.y + area.height
-  // ⛔ FR-098 (MUST NOT): 「スクロールする行を帯の下へ潜らせてはならない」. A row
+  // ⛔ FR-098 (MUST NOT). A row
   // that flows is cut at the top of the SCROLLING REMAINDER, which LF-14 puts
   // one `rowGap` below the pinned band, while a banded row is cut at the `Row
   // Area`'s own top edge -- the band stands there and is the one thing allowed
@@ -1884,15 +1714,13 @@ export function svgFromSchedule(
   const hasPinnedRows = pinnedGroupIds.size > 0
   /**
    * The vertical stretch a figure has to reach before it is worth drawing at
-   * all -- P-1 of the 2026-09-05 measurement, and the whole of what this
-   * change is.
+   * all.
    *
-   * ⭐⭐ WHY. Every frame serialises the picture to a string and re-parses it
-   * (`DomSvgSurface`, UF-49). Measured on the shipped document at 1000 `Task`:
-   * one write of 526,553 characters per scrolled frame, and 3,557 of the 5,038
-   * shapes in it stand WHOLLY outside the canvas -- 74% of those characters
-   * paint nothing. A shape that cannot reach a pixel is built, escaped,
-   * written, parsed, laid out and thrown away again on the next wheel notch.
+   * ⭐⭐ WHY. Every frame serialises the picture to a string and re-parses
+   * it (`DomSvgSurface`, UF-49), so a shape that cannot reach a pixel is
+   * still built, escaped, written, parsed, laid out and thrown away again on
+   * the next wheel notch -- and on a large document most of the picture is
+   * such a shape.
    *
    * ⛔ THIS IS NOT `FR-018`. The detail tier drops ROWS from the layout and is
    * decided in `schedule-layout.ts`; this drops nothing from the layout, from
@@ -1910,15 +1738,10 @@ export function svgFromSchedule(
    * nothing of one row overshoots it by a whole screen. A row taller than the
    * area is never dropped -- its band crosses the window by definition.
    *
-   * ⭐⭐ AND THE SAME QUESTION SIDEWAYS, which this cull did not ask until
-   * 2026-09-07 and which is where most of the waste was. Measured on the
-   * shipped document at 1000 `Task`, 1920x1080, the view a fresh start opens
-   * at: 1,317 keyed figures written, 264 of them touching the window, 870
-   * standing WHOLLY off its right-hand edge and 183 with no size at all. The
-   * up-and-down test above had already cut the picture to eight rows; every
-   * one of those 870 belongs to a row that IS drawn and to a bar the time axis
-   * has carried off the screen. ⛔ Judging a Task by its row alone is judging
-   * one axis of a two-axis picture.
+   * ⭐⭐ AND THE SAME QUESTION SIDEWAYS, which is where most of the waste
+   * is: a row that IS drawn can still hold a bar the time axis has carried
+   * off the screen. ⛔ Judging a Task by its row alone is judging one axis
+   * of a two-axis picture.
    *
    * ⛔ THE HORIZONTAL MARGIN IS NOT THE AREA'S OWN WIDTH. Sideways a figure
    * really does overshoot its bar -- see `OFF_SCREEN_SIDE_MARGIN`, which
@@ -1959,15 +1782,12 @@ export function svgFromSchedule(
     )
   }
 
-  // FR-089 -- the date grid lines. ⛔ THIS WAS DRAWN NOWHERE AT ALL until
-  // 2026-08-27: IC-42 toggled `dateGridLinesVisible`, S-67 held the value and
-  // table T-202 carried the row, and no path in this file put a line down. A
-  // spec-only test caught it (D-53).
+  // FR-089 -- the date grid lines.
   //
-  // ⭐ THE INTERVAL IS NOT WORKED OUT HERE. FR-089 (MUST) says 「間隔は 表 T-221
-  // の `LF-1` が段階ごとに持つ 1 つの値とすること」 and `tickStrideOf` is that
-  // value, already read above for the ruler -- so the lines stand exactly where
-  // the finest row of the band ticks, which is the whole of what FR-089 asks.
+  // ⭐ THE INTERVAL IS NOT WORKED OUT HERE. FR-089 (MUST) ties it to the step
+  // FR-017 settled, and `tickStrideOf` is that value, already read above for
+  // the ruler -- so the lines stand exactly where the finest row of the band
+  // ticks, which is the whole of what FR-089 asks.
   // ⛔ A second arithmetic here would part company with the band the moment a
   // tier boundary moved (R2.7).
   //
@@ -2113,51 +1933,33 @@ export function svgFromSchedule(
         barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
       }
     }
-    // FR-043 (MUST, 利用者の裁定 2026-09-08, 逐語「タスクのダミーは1日とする。
-    // だから = は1日」「1つだけにしろ」): ONE faint mark on a Task not started,
-    // whether it holds two grab targets (GR-9 / GR-17) or one (GR-18 on a
-    // milestone). ⛔ EP-14 of table T-076 keeps it out of the exported
-    // picture, and this is the only place that can obey it -- the geometry may
-    // NOT be stripped instead, because GR-7 hangs the not-started progress
-    // marker off GR-17 and dropping that dummy would take EP-5's marker with
-    // it (WY-3 of table T-041 measures it), and table T-023d still keeps GR-17
-    // as a grab target (only the drawn ink was ever two).
-    // ⭐⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED, AND PD-208 WITH IT
-    // (利用者の裁定 2026-09-08). FR-043's milestone exception went from two to
-    // three: 「⭐⭐ 3 つ目は図形と色である —— ダミーの図形は、そのマイルストーン
-    // の実績の図形と同じとすること（MUST）。矩形で描いてはならない（MUST NOT）」.
-    // ⛔ Until that day GR-18 on a milestone was drawn with the SAME rectangle
-    // outline as GR-9 / GR-17, which is the thing that MUST NOT now forbids.
-    // `dummyFigure` below is where the figure is chosen.
-    // ⭐⭐ AND THE BOX MOVED TOO, ON 2026-09-10, WHICH MAKES THE EXCEPTION FOUR
-    // (MUST, 利用者の裁定, 逐語「○型マイルストーンの実績ダミーの形状が真円でな
-    // い。 真円にしろ」): 「⭐⭐ **大きさも例外とすること（MUST）。マイルストーン
-    // のダミーを描く箱は、そのマイルストーンの実績の図形と同じ正方形とすること
-    // （MUST）。1 日ぶんと `S-180` の小さい方を横幅としてはならない（MUST NOT）**」.
-    // ⛔⛔ IT SAID 「大きさは例外ではない」 UNTIL THAT DAY, and a circle fitted
-    // to a box of `min(1 day, S-180)` by the actual band came out an ellipse --
-    // ⚠️ measured 6 x 16.002px against the actual figure's 16.002 x 16.002.
-    // ⭐ `dummiesOf` builds that square, so nothing is reshaped here.
+    // FR-043 (MUST): ONE faint mark on a Task not started, whether it holds
+    // two grab targets (GR-9 / GR-17) or one (GR-18 on a milestone).
+    // ⛔ EP-14 of table T-076 keeps it out of the exported picture, and this
+    // is the only place that can obey it -- the geometry may NOT be stripped
+    // instead, because GR-7 hangs the not-started progress marker off GR-17
+    // and dropping that dummy would take EP-5's marker with it (WY-3 of table
+    // T-041 measures it), and table T-023d still keeps GR-17 as a grab
+    // target (only the drawn ink was ever two).
+    // ⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED, AND PD-208 WITH IT:
+    // FR-043's milestone exception covers the figure, the colour and the box,
+    // so a milestone's dummy is its own actual figure in a square and never a
+    // rectangle. `dummyFigure` below is where the figure is chosen, and
+    // `dummiesOf` builds that square, so nothing is reshaped here.
     if (picture === 'screen' && task.dummies.length > 0) {
       // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
       // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
       // storing a derived one, so there is no second formula and no key here.
-      // ⭐⭐ THE RECTANGLE IS READ, NOT WORKED OUT (2026-09-09). FR-043's
-      // 「1 日ぶんと `S-180` の小さい方」 and its 「日の列の左端に揃えること」
-      // are both solved once, in `dummiesOf`, onto `DummyGeometry.ink` -- and
-      // they have to be, because table T-023d's closing rule (MUST) now hands
-      // 「描かれたダミーの印の画素」 to GR-17 and `item-hit-area.ts` must test
-      // the very rectangle this draws. ⛔ Until that day the width was solved
-      // here and the hit test knew nothing of it, so the ink was a subset of
-      // GR-9's box at every magnification and GR-17 answered none of its
-      // pixels (defect D-415, measured on the shipped build: 0 of 6 at 6px a
-      // day, 0 of 12 at 12.9 and at 27.6).
-      // ⛔ `ink` IS THE HIT WIDTH AS WELL, which is S-180's note in as many
-      // words -- 「本行が描く幅であり、掴みシロでもある」 -- so `item-hit-area.ts`
-      // has no width of its own to keep in step with this one.
-      // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d: 「`GR-9`
-      // と同じ場所である」), never GR-17's -- which is why the rectangle is the
-      // same on every dummy of one Task and this need not choose between them.
+      // ⭐⭐ THE RECTANGLE IS READ, NOT WORKED OUT. FR-043's width and its
+      // left-edge alignment are both solved once, in `dummiesOf`, onto
+      // `DummyGeometry.ink` -- and they have to be, because table T-023d's
+      // closing rule (MUST) hands the drawn mark's own pixels to GR-17 and
+      // `item-hit-area.ts` must test the very rectangle this draws.
+      // ⛔ `ink` IS THE HIT WIDTH AS WELL, which is what S-180's own note
+      // says, so `item-hit-area.ts` has no width of its own to keep in step.
+      // ⭐ THE ONE MARK STANDS ON GR-9'S DAY (== GR-18's, table T-023d),
+      // never GR-17's -- which is why the rectangle is the same on every
+      // dummy of one Task and this need not choose between them.
       const ink = task.dummies[0]!.ink
       // ⭐ THE FIGURE, WHICH IS THE ONLY THING FR-043's THIRD MILESTONE
       // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
@@ -2174,39 +1976,29 @@ export function svgFromSchedule(
         actual,
         `${taskKey}-dummies`,
       )
-      // FR-013 (MUST): 「実績入力のダミー（`FR-043`）は薄く描き、ポインタが
-      // 乗っているあいだだけ濃くすること」. ⭐ WHAT 「濃く」 IS: the mark drawn
-      // with no faintness on it at all. ⛔ No settings row carries a second
-      // degree -- S-131's own note calls it 「実績のダミーと未着手マーカーの
-      // 濃さ」 and the requirement names it as THE value -- so darkening is the
-      // taking away of that one attribute rather than a number invented here.
-      // ⚠️ HF-6's precedent reads the same way: the row control is hidden and
-      // then simply drawn, never drawn twice at two strengths.
+      // FR-013 (MUST): the dummy is drawn faint and darkens while the pointer
+      // is on it. ⭐ WHAT 「濃く」 IS: the mark drawn with no faintness on it at
+      // all. ⛔ No settings row carries a second degree -- S-131 is THE value
+      // -- so darkening is the taking away of that one attribute rather than a
+      // number invented here. ⚠️ HF-6's precedent reads the same way: the row
+      // control is hidden and then simply drawn, never drawn twice at two
+      // strengths.
       // ⭐ ONE MARK, TWO GRAB TARGETS. FR-043 keeps GR-9 and GR-17 (or GR-18)
       // as separate things a hand can be on even though only one mark is
       // drawn for them, so the group's own opacity darkens together for
       // either -- there is no per-target strength to invent, and the hand is
       // on one of a Task's dummies or on none. @provisional PD-351
-      // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON. `handInside`'s note
-      // carries why, and carries what changed under it on 2026-09-10: the
-      // plan's ends no longer stand above GR-9 / GR-17 in table T-023d, so the
-      // measurement that first forced the reading has gone -- and the reading
-      // stands on FR-013's own 「乗っている」 rather than on that order.
-      // @provisional PD-360
-      // ⚠️ THE SAME RECTANGLE THE MARK WAS DRAWN AS, edge and all: FR-043's
-      // alignment moved the ink, and a hand tested against the old centred box
-      // would darken a mark it is not on.
-      // ⭐⭐ AND IT IS THE GRAB BAND TOO (MUST), which is the closing rule of
-      // table T-023d: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が
-      // 描いた印そのものとすること（MUST）」. ⭐ One rectangle answers both
-      // questions, so the darkening cannot part company with the grab.
-      // ⛔⛔ TESTED ON THE INK'S OWN CENTRE, NOT ON `at` PLUS HALF A WIDTH. A
-      // milestone's dummy is a SQUARE CENTRED ON ITS DAY (FR-043, 2026-09-10),
-      // so its `ink.x` is half a side LEFT of `at` and the old arithmetic put
-      // the tested box a whole half-side right of the mark. ⭐ The very centre
-      // `dummyFigure` was drawn about is read instead, so the two cannot differ.
-      // ⚠️ One rectangle, so one test: every dummy of one Task carries the same
-      // `ink` (the mark is drawn once), and asking it per dummy asked it twice.
+      // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON -- `handInside`'s
+      // note carries why. @provisional PD-360
+      // ⭐⭐ AND THE RECTANGLE IS THE GRAB BAND TOO (MUST), which is the
+      // closing rule of table T-023d, so the darkening cannot part company
+      // with the grab.
+      // ⛔⛔ TESTED ON THE INK'S OWN CENTRE, NOT ON `at` PLUS HALF A WIDTH: a
+      // milestone's dummy is a SQUARE CENTRED ON ITS DAY (FR-043), so its
+      // `ink.x` is half a side LEFT of `at`. ⭐ The very centre `dummyFigure`
+      // was drawn about is read instead, so the two cannot differ.
+      // ⚠️ One rectangle, so one test: every dummy of one Task carries the
+      // same `ink`, because the mark is drawn once.
       const faintness = handInside(
         { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
         ink.width,
@@ -2278,35 +2070,25 @@ export function svgFromSchedule(
           `${taskKey}-marker`,
         ),
       )
-      // FR-044 (MUST): 「中断のあいだは再開アイコンを描くこと」. ⭐ NESTED INSIDE
-      // THE MARKER'S OWN TEST RATHER THAN GIVEN A SECOND ONE. S-63 is ONE
-      // switch for both figures -- table T-038's closing paragraph says so in
-      // as many words -- and `resumeOf` only builds an icon where a marker was
-      // built, so a second reading of `progressMarkerVisible` here would be the
-      // same condition in two places.
-      // ⛔ NOT PLACED BY TABLE T-038's ORDER. The closing text under that table
-      // takes this figure out of the order outright -- 「再開アイコン（`OC-4`）
-      // は本並びに従わないこと（MUST NOT）。立てる場所は 表 T-221 の `LF-11` が
-      // 定める日付位置（`resume` の日）とすること（MUST）」 (利用者の裁定
-      // 2026-09-08, 逐語 「レジューム A矢印は常に再開日の位置を正とする。」).
-      // `resumeOf` already puts the arm on that day, and this side only paints
-      // the points it was handed. ⚠️ A note here read 「PUSHED AFTER the
-      // marker, which is table T-038's order」 until 2026-09-08; the order no
-      // longer names OC-4 at all, and the push below is a paint order within
-      // one list, not a placement.
-      // ⭐ MEASURED 2026-09-08 on the shipped build, on a Task whose `resume`
-      // day is its own plan start: the icon's left edge stood 0.000px from the
-      // plan bar's left edge and 38.000px LEFT of the marker's right edge.
+      // FR-044 (MUST). ⭐ NESTED INSIDE THE MARKER'S OWN TEST RATHER THAN
+      // GIVEN A SECOND ONE. S-63 is ONE switch for both figures (table
+      // T-038's closing paragraph), and `resumeOf` only builds an icon where
+      // a marker was built, so a second reading of `progressMarkerVisible`
+      // here would be the same condition in two places.
+      // ⛔ NOT PLACED BY TABLE T-038's ORDER: its closing text takes OC-4 out
+      // of that order outright and sends the place to LF-11 of table T-221
+      // (MUST). `resumeOf` already puts the arm on that day, and this side
+      // only paints the points it was handed -- the push below is a paint
+      // order within one list, not a placement.
       // ⛔ NOT FAINT AND NOT DARKENED BY THE HAND. FR-013's MUST names the
       // not-started marker and FR-043's dummies, and PM-1a never holds on a
       // suspended Task -- so there is no strength for this figure to carry.
       // ⛔ NO SHAPE TEST HERE, AND THAT IS NOT AN OVERSIGHT. LF-11 of table
-      // T-221 (MUST NOT) 「マイルストーンには再開アイコンを置かないこと」, and
-      // 置く is the geometry's word -- `schedule-geometry.ts` leaves `resume`
-      // null for a milestone, so this side paints the points it was handed and
-      // asks nothing about the shape. ⛔ A second reading of `shapeKind` here
-      // would be the same condition in two places, which is the drift this file
-      // refuses just above for `progressMarkerVisible`.
+      // T-221 (MUST NOT) keeps the icon off a milestone, and 置く is the
+      // geometry's word -- `schedule-geometry.ts` leaves `resume` null for a
+      // milestone, so this side paints the points it was handed and asks
+      // nothing about the shape. ⛔ A second reading of `shapeKind` here would
+      // be the same condition in two places.
       if (task.resume !== null) {
         ;(isPinnedTask ? markerPartsPinned : markerParts).push(
           resumeSvg(task.resume.arm, task.resume.head, themed('S-161'), settings,
@@ -2378,9 +2160,7 @@ export function svgFromSchedule(
   }
 
   // ⛔ S-159 AND S-160 ARE TWO DIFFERENT COLOURS, and neither follows the
-  // theme (FR-041, MUST NOT, rewritten 2026-08-25). ⚠️ They shared one grey
-  // here until that day, because the earlier wording said "the same fixed
-  // colour" in the very sentence that also listed both as following the theme.
+  // theme (FR-041, MUST NOT).
   const width = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const height = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
   const arrowId = `grs-dependency-arrow-${pictureId(
@@ -2395,8 +2175,8 @@ export function svgFromSchedule(
   )}`
   const defsParts: string[] = []
 
-  // D-170 / FR-098's new ⛔⛔: 「スクロールする行を帯の下へ潜らせてはならない」
-  // reaches a Task's bar, label, marker and dependency line, not only the row's
+  // ⛔⛔ FR-098 (MUST NOT) reaches a Task's bar, label, marker and
+  // dependency line, not only the row's
   // own ground -- `bandParts` above already cuts the ground per row, but the
   // task loop draws every Task's figures into ONE array apiece, so the cut
   // there has to be a single clip-path rather than a per-row top/bottom pair.
@@ -2416,25 +2196,20 @@ export function svgFromSchedule(
     )
   }
 
-  // ⛔ GD-6 of table T-020a (MUST) asks for the head here and NOT on the guide
-  // above: 「依存線は実線で矢じりを持ち、補助線は点線で矢じりを持たない」.
-  // ⭐⭐ ONE HEAD, MINTED ONCE -- AND NOT BY COUNTING defsParts. D-256: this
-  // read `defsParts.length === 0`, and the pinned-row clip above is pushed
-  // into the same list, so pinning ANY row made the condition false and the
-  // <marker> was never written while every polyline kept its marker-end.
-  // Measured 2026-09-05 in the shipped build: one marker and 258 resolving
-  // references before pinning, zero and 258 dangling after. GD-6 of table
-  // T-020a (MUST) asks for the head, so that was a live violation.
-  // ⛔ The list is shared. Nothing may read its length to mean 'nobody has
-  // written anything yet' -- ask about the thing itself.
-  // FR-009 (MUST, ruling 2026-09-06): 「① 選ばれている依存線が常に手前である。
-  // ② そのほかは、後に作られた線が手前である」. `geometry.dependencies` is
-  // ALREADY back-to-front by ②: it is built by walking `schedule.tasks` and
-  // each Task's own `dependencies` in document order (RC-6's 「作られる順は
-  // 入力が決める」), so nothing here re-derives "created order" -- a stable
-  // sort on "is it selected" alone moves ①'s lines to the front while
-  // leaving every tie (both selected, or both not) in that same order.
-  // ⛔ `Array.prototype.sort` is stable (ES2019+), which ② depends on.
+  // ⛔ GD-6 of table T-020a (MUST) asks for the head here and NOT on the
+  // guide above.
+  // ⭐⭐ ONE HEAD, MINTED ONCE -- AND NOT BY COUNTING defsParts. ⛔ The list
+  // is shared: nothing may read its length to mean 'nobody has written
+  // anything yet' -- ask about the thing itself.
+  // FR-009 (MUST) puts a selected dependency line in front, and orders the
+  // rest by the order they were created in. `geometry.dependencies` is
+  // ALREADY back-to-front by that second half: it is built by walking
+  // `schedule.tasks` and each Task's own `dependencies` in document order
+  // (RC-6), so nothing here re-derives "created order" -- a stable sort on
+  // "is it selected" alone moves the selected lines to the front while
+  // leaving every tie in that same order.
+  // ⛔ `Array.prototype.sort` is stable (ES2019+), which the second half
+  // depends on.
   const orderedDependencies = [...geometry.dependencies].sort((a, b) => {
     const aFront = selectedLinks.has(`${a.predecessorUid}>${a.successorUid}`) ? 1 : 0
     const bFront = selectedLinks.has(`${b.predecessorUid}>${b.successorUid}`) ? 1 : 0
@@ -2554,9 +2329,8 @@ export function svgFromSchedule(
     // ⛔ SL-8 (MUST NOT): a selected status line is NOT framed either -- its
     // bounding rectangle runs the height of the Row Area and would strike
     // through everything behind it. It is drawn at S-178 times its own width.
-    // ⛔ THAT OWN WIDTH IS THE TYPED 1, and it is in no row. It stood before
-    // this change and is left where it stands rather than being made to look
-    // like a value the specification holds.
+    // ⛔ THAT OWN WIDTH IS THE TYPED 1, and it is in no row -- left as it
+    // stands rather than made to look like a value the specification holds.
     const statusWidth = selectedLineWidth(1, selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
@@ -2605,16 +2379,10 @@ export function svgFromSchedule(
     }
   }
 
-  // CU-3 of table T-029: 「`Guide Cursor`（ガイドカーソル） | ポインタに追従
-  // する補助線 | **3 モード排他** —— なし / 十字 / 縦 1 本」. ⛔ The row goes on
-  // 「**「縦 2 本」を持ってはならない（MUST NOT）**」 -- the fourth mode was taken
-  // away on 2026-09-06 and the citation here still counted four. The mode is
-  // S-66 of table T-202, and until this round nothing in `src/` read it but
-  // FrameLoop's "does this move owe a frame" test -- the setting reached the
-  // document and no line was ever drawn (D-72).
+  // CU-3 of table T-029: the guide cursor is a three-mode exclusive setting
+  // (none / crosshair / one vertical), held in S-66 of table T-202.
   //
-  // ⛔ NOT IN AN EXPORT. EP-6 of table T-076 is verbatim: 「`Status Line` と
-  // `Dual Cursor` を描く。`Guide Cursor` は描かない」, on the ground that a
+  // ⛔ NOT IN AN EXPORT. EP-6 of table T-076 says so, on the ground that a
   // pointer position has no meaning in a saved picture. `drawsOperationState`
   // is exactly that test and is already the gate for every other mark of the
   // session, so the rule is obeyed in the one place rather than in a second.
@@ -2666,12 +2434,10 @@ export function svgFromSchedule(
         // 縦 1 本.
         linkParts.push(vertical(pointer.x))
       }
-      // ⛔⛔ AND THERE IS NO THIRD BRANCH, WHICH IS CU-3 OF TABLE T-029:
-      // 「「縦 2 本」を持ってはならない（MUST NOT）」, because 「測るための 2 本
-      // （`CU-2`）と見分けが付かない」. ⛔ So a 縦 2 本 pair is not to be drawn
-      // here, nor left unreachable behind a mode nothing can select.
-      // ⭐ PD-343, which asked how far apart such a pair would stand, is closed
-      // by that MUST NOT.
+      // ⛔⛔ AND THERE IS NO THIRD BRANCH, WHICH IS CU-3 OF TABLE T-029
+      // (MUST NOT): a 縦 2 本 pair is not to be drawn here, nor left
+      // unreachable behind a mode nothing can select. ⭐ PD-343, which asked
+      // how far apart such a pair would stand, is closed by that MUST NOT.
       // ⚠️ CU-2's own pair is UNAFFECTED: it is drawn elsewhere, off `dualCursor`
       // (S-65) at S-194 / S-195, and FR-048 (MUST NOT) forbids one entrance
       // taking two cursors down together.
@@ -2682,13 +2448,11 @@ export function svgFromSchedule(
     // FR-019: the author's line colour, and the annotation's fixed one only
     // when they named none.
     //
-    // ⭐ THE CORNERS ARE ROUNDED (D-299). FR-019 makes the radius a MUST --
-    // 「ハイライトボックスの角の丸みは 表 T-217 が持ち、倍率によらず一定に
-    // 描くこと（MUST）」-- and the value rides on the box itself (AT-122).
-    // ⛔ Until now nothing wrote `rx`, so every box was square whatever the
-    // document held. ⚠️ NO SCALE IS APPLIED: `cornerRadiusPx` is already in
-    // screen pixels and the four numbers beside it are too, which is what
-    // makes the radius the same at every zoom.
+    // ⭐ THE CORNERS ARE ROUNDED. FR-019 makes the radius a MUST, table T-217
+    // holds it and the value rides on the box itself (AT-122).
+    // ⚠️ NO SCALE IS APPLIED: `cornerRadiusPx` is already in screen pixels and
+    // the four numbers beside it are too, which is what makes the radius the
+    // same at every zoom.
     // ⭐ `ry` is left off on purpose -- SVG defaults it to `rx`, so writing
     // both would be the same number in two places.
     const radius = box.cornerRadiusPx
@@ -2710,34 +2474,26 @@ export function svgFromSchedule(
   }
 
   for (const box of geometry.commentBoxes) {
-    // ⭐⭐ THE LEADER IS DRAWN, AND THE STOP THAT STOOD HERE IS SPENT
-    // (利用者の裁定 2026-09-07). FR-019 (MUST): 「⛔⛔ コメントボックスの引出しは
-    // 折れ線 1 種とすること（MUST）。2 種から選ばせてはならない（MUST NOT）」,
-    // and the figure it had no row for now has one: 「⭐⭐ 描き方はこうである
-    // （MUST）: 留めた点と、本文の箱の左下隅とを、1 本の線で結ぶこと。」
-    // ⛔ 「途中に曲がりを置いてはならない（MUST NOT）」 -- so ONE segment, not a
-    // polyline with a bend this unit would have to place. ⛔ 「吹き出しの尻尾に
-    // してはならない（MUST NOT）」.
-    // ⭐ Both ends are already settled elsewhere, which is why nothing is minted
-    // here: 「端点が 2 つとも既に決まっているので、この線は一意に定まる —— 留めた
-    // 点は本要求が日付と行の識別子で持ち、箱の基準隅は本要求の上の段が左下と
-    // 定めている。」 `CommentGeometry.anchor` is the first and `body`'s
-    // bottom-left corner the second (AT-113 / AT-114 and the bodyOffsetPx MUST).
+    // FR-019 (MUST): the comment box's leader is ONE straight segment from
+    // the anchor to the body's bottom-left corner -- ⛔ no bend in it, and
+    // not a speech bubble's tail.
+    // ⭐ Both ends are already settled elsewhere, which is why nothing is
+    // minted here: `CommentGeometry.anchor` is the first and `body`'s
+    // bottom-left corner the second (AT-113 / AT-114 and the bodyOffsetPx
+    // MUST).
     // ⭐ THE COLOUR IS THE ANNOTATION'S FIXED ONE, and not the author's line
-    // colour: 「線は注記の色で描くこと（MUST）。新しい設定値を立ててはならない
-    // （MUST NOT）—— 色は本段がハイライトボックスについて述べる固定色と同じで
-    // ある。」 ⚠️ NO ROW GIVES THE LINE A WEIGHT, and none is invented for it:
-    // it takes the same literal 1 the highlight box and the comment body beside
+    // colour; FR-019 (MUST NOT) forbids a new settings value for it.
+    // ⚠️ NO ROW GIVES THE LINE A WEIGHT, and none is invented for it: it
+    // takes the same literal 1 the highlight box and the comment body beside
     // it are already stroked at, so the three move together if a row ever
-    // arrives. ⛔ Reported rather than guessed -- a weight of its own would be
-    // a settings value this unit minted.
+    // arrives. ⛔ Reported rather than guessed -- a weight of its own would
+    // be a settings value this unit minted.
     // ⭐ PUSHED BEFORE THE BODY so the filled body covers the end of the line
     // rather than the line crossing the text -- the body's own fill is what
     // NFR-007 put there, and a leader drawn over it would undo that ground.
-    // ⚠️ `leaderShapeKind` STILL EXISTS on the document and is untouched here:
-    // FR-019 says so itself -- 「`leaderShapeKind` の列と列挙を退役させることは、
-    // 本段では行わない」 -- so the value is stored and no longer read by the
-    // drawing, which is what 「1 種とする」 means for this unit.
+    // ⚠️ `leaderShapeKind` STILL EXISTS on the document and is untouched here
+    // -- FR-019 defers retiring the column -- so the value is stored and no
+    // longer read by the drawing.
     annotationParts.push(
       `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
         ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
@@ -2806,8 +2562,8 @@ export function svgFromSchedule(
     ? [`<g clip-path="url(#${scrollClipId})">${labelParts.join('')}</g>`]
     : labelParts
 
-  // FR-020's 「`Row Area` の外へ重ねてはならない」 and EP-7's 「`Row Area` の中
-  // だけ描く」, as the rectangle both name. ⭐ No new value is minted: this IS
+  // FR-020's MUST NOT and EP-7's MUST, as the rectangle both name. ⭐ No new
+  // value is minted: this IS
   // `regions.rowArea`, which PI-35 already cut for U-50.
   //
   // ⛔ PUSHED HERE AND NOT BESIDE `scrollClipId` ABOVE, which is not tidiness:
@@ -2847,8 +2603,7 @@ export function svgFromSchedule(
     ...selectionParts,
     ...handleParts,
     // ZO-6 of table T-020 -- the range selection's rectangle, at the front of
-    // that table (the user's ruling of 2026-08-29). SL-3 (MUST): 「握っている
-    // あいだ、取ろうとしている矩形を描くこと」.
+    // that table. SL-3 (MUST) draws it while the grab is held.
     //
     // ⭐ IT IS `selectionFrameSvg`, NOT A SHAPE OF ITS OWN, and that is the
     // whole of why this row minted no value: the rectangle a marquee is taking
@@ -2873,10 +2628,9 @@ export function svgFromSchedule(
     // sentence below -- the band is drawn over everything -- stays true as
     // written.
     // ⭐ S-223 IS ASKED FOR THROUGH `themed` LIKE EVERY OTHER COLOUR. Its row
-    // is 「`S-147` に同じ」 in both renderings, which is exactly the automatic
-    // half of the user's ruling of 2026-09-04: the ink is the reading ink, so
-    // it is darker than the ground in the light theme and lighter in the dark
-    // one without either being chosen here.
+    // inherits S-147 in both renderings: the ink is the reading ink, so it is
+    // darker than the ground in the light theme and lighter in the dark one
+    // without either being chosen here.
     ...(watermark === null
       ? []
       : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)]),
@@ -2914,21 +2668,6 @@ export function svgFromSchedule(
     '</svg>'
   )
 }
-
-/**
- * ⛔ `DUMMY_GRAB_ROWS` STOOD HERE AND IS GONE, and the reason is a measurement
- * rather than a tidy-up. It named GR-9 / GR-17 / GR-18 so that FR-013's
- * 「ポインタが乗っているあいだ」 could be asked of the row table T-023d awarded
- * the point to. Below the magnification at which a day is drawn wider than S-90
- * that row was never one of those three, because the plan's ends (GR-3 / GR-4)
- * were printed above them and 「上の行ほど優先すること（MUST）」. `handInside` in
- * `svgFromSchedule` carries the figures measured and asks the drawn shape
- * instead, the way HF-6 of table T-051 asks it. ⚠️ Which row a PRESS goes to is
- * untouched -- that is table T-023d's, and MK-9a scopes its 優先順位 to
- * 「掴む対象が重なった」. ⚠️ THE ORDER MOVED ON 2026-09-10 and the plan's ends now
- * stand BELOW the dummies; `handInside`'s own note says why the reading is left
- * as it is all the same.
- */
 
 /**
  * The row of table T-023d that claims the progress marker -- GR-7, which is
