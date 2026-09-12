@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 46 mechanical checks for the gr-scheduler specification.
+# All 48 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -27,6 +27,12 @@
 # 1 + 4 + 8 + 4 + 29. ⚠️ Counted BEFORE the heading went in this time, which
 # is the order the failures above kept getting wrong. 46, 47 and 48 are still
 # the last three with no entry in the index below; 49 is not one either.
+# ⭐ Recounted 2026-09-13 when check 51 was added: 46 -> 48. ⚠️ TWO, not one:
+# check 50 went in the day before without recounting -- the same failure this
+# note keeps happening to, now six times over. The ranges are
+# 1 + 4 + 8 + 4 + 31. 46, 47, 48, 49, 50 and 51 have no entry in the index
+# below; the index is for the checks a session reads first, and these six are
+# read from their own docstrings.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -516,6 +522,14 @@ echo "===== 50  表 T-023a and the PressRow type name the same rows ====="
 # either. ⭐ A check added AFTER the rename would be born guarding
 # something already broken, which is why this one goes in first.
 PYTHONIOENCODING=utf-8 python "$HERE/check-press-row-ids.py" || fail=1
+
+echo "===== 51  the PD- prefix, followed by a number, is gone ====="
+# ⛔ Wired in 2026-09-13, after CR-371's waves 1 and 2 had moved all 1,768
+# live sites. ⭐ It prints its exclusions ON EVERY RUN, each with the reason
+# it is excluded, because the thing that would quietly rot here is not the
+# count -- it is an exclusion nobody reads. ⚠️ It caught check 50's own
+# docstring on its first run; that line is now on the list, by name.
+PYTHONIOENCODING=utf-8 python "$HERE/check-pd-prefix-gone.py" || fail=1
 
 
 echo ""
