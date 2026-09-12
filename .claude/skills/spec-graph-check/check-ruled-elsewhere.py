@@ -134,8 +134,8 @@ LEDGER_CELLS = 11        # | ID | 不具合内容 | ... | 実物確認 |  -> 9 c
 PENDING_CELLS = 10       # | PD | 何が未決か | ... | 状態 |      -> 8 columns
 
 
-# 「表 T-023a の PD-n」 -- the table row, not the pending decision. See D-468.
-TABLE_ROW_PD = re.compile(u'表 T-023a の [`]?PD-\\d+[`]?')
+# 「表 T-023a の PTD-n」 -- the table row, not the pending decision. See D-468.
+TABLE_ROW_PD = re.compile(u'表 T-023a の [`]?PTD-\\d+[`]?')
 
 
 def say(message):
@@ -211,8 +211,8 @@ def scan(ledger_path, settled):
             continue
 
         # ⛔ `PD-` NUMBERS TWO THINGS. docs/spec's table T-023a has rows
-        # PD-1..PD-5, and pending-decisions.md has PD-1..PD-213, so a ledger
-        # row writing 「表 T-023a の `PD-5`」 reads here as naming pending
+        # PTD-1..PTD-5, and pending-decisions.md has PD-1..PD-213, so a ledger
+        # row writing 「表 T-023a の `PTD-5`」 reads here as naming pending
         # decision PD-5 and the row is judged against a ruling that has
         # nothing to do with it. That is D-468, and the session that wrote
         # the row recording the trap fell into it half an hour later.
@@ -220,7 +220,7 @@ def scan(ledger_path, settled):
         # ledger and 5 of the closed one carry that spelling, and all five
         # name a real PD as well -- so this changes no verdict today. It stops
         # the next one.
-        # ⛔ Renaming the table's rows was measured and refused: PD-1..PD-5 are
+        # ⛔ Renaming the table's rows was measured and refused: PTD-1..PTD-5 are
         # cited 526 times across 74 files, one of which is a test's file name.
         named = set(re.findall(r'PD-\d+', TABLE_ROW_PD.sub('', '|'.join(cells))))
         ruled = sorted(named & settled)

@@ -65,7 +65,7 @@
 //   table T-023a   (MUST) the decision order is applied to the schedule's
 //                  drawing area ALONE -- the confirmation is drawn OVER that
 //                  area and holds no `ScreenRegions` rectangle, so a non-null
-//                  answer over it is what stops a press from becoming PD-5's
+//                  answer over it is what stops a press from becoming PTD-5's
 //                  marquee underneath
 //   table T-065 IF-9  the seam answers which UI part (table T-103) a point on
 //                  the screen is on, and -- on this surface -- WHICH of NT-7's
@@ -1942,7 +1942,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
 
 describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on the schedule", () => {
   it('GIVEN the confirmation stands over the schedule WHEN a point on it but on no entry is pressed THEN the surface is named and the entry is none', () => {
-    // ⛔ This is what stops PD-5. table T-023a applies its decision order to the
+    // ⛔ This is what stops PTD-5. table T-023a applies its decision order to the
     // schedule's drawing area ALONE (MUST), and `ScreenRegions` holds no
     // rectangle for this surface -- so "on the surface, off every entry" has to
     // be an answer,
@@ -1977,7 +1977,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
     })
   })
 
-  it('GIVEN the confirmation stands WHEN a point where the schedule is exposed is pressed THEN nothing is on it and PD-5 may run', () => {
+  it('GIVEN the confirmation stands WHEN a point where the schedule is exposed is pressed THEN nothing is on it and PTD-5 may run', () => {
     const built = drawn(asking(questionRow(0)))
 
     expect(ask(built, AT.scheduleExposed)).toBeNull()

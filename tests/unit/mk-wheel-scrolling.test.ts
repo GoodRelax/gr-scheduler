@@ -559,7 +559,7 @@ describe('S-176 / S-177 of 表 T-203 -- the fractions stay inside their bounds',
 describe('FR-016 (MUST NOT) -- no wheel zoom and no wheel scroll during a drag', () => {
   /**
    * A drag of the plan bar's body in flight -- `GR-12` of 表 T-023d, which
-   * `PD-3` of 表 T-023a put in charge of the press.
+   * `PTD-3` of 表 T-023a put in charge of the press.
    *
    * `on: null` says the screen surface had drawn nothing where the press
    * landed, which is what admits 表 T-023a at all.
@@ -568,7 +568,7 @@ describe('FR-016 (MUST NOT) -- no wheel zoom and no wheel scroll during a drag',
     at: pointerOf(context.regions.rowArea.x + 20, context.regions.rowArea.y + 20),
     hit: hitOf({ kind: 'task', taskUid: 1 }, 'GR-12'),
     on: null,
-    pressRow: 'PD-3' as const,
+    pressRow: 'PTD-3' as const,
   })
 
   it('refuses every one of MK-1 〜 MK-5 while a drag is in flight', () => {

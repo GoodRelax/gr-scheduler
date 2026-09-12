@@ -679,14 +679,14 @@ export interface ScreenWiring {
  * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
  * as "the thing under the pointer can be moved", which is 「掴めることの合図」
  * word for word. ⚠️ It is the RESTING shape and not `grabbing`, which IN-2
- * already spends on PD-1's pan; the two are the environment's own pair.
+ * already spends on PTD-1's pan; the two are the environment's own pair.
  */
 export type PointerShape =
-  /** 何にも当たらない場所 -- PD-5 of table T-023a. */
+  /** 何にも当たらない場所 -- PTD-5 of table T-023a. */
   | 'default'
-  /** 構えているとき -- PD-4 of table T-023a. */
+  /** 構えているとき -- PTD-4 of table T-023a. */
   | 'copy'
-  /** `Ctrl` 併用と中ボタンのパン中 -- PD-1 of table T-023a. */
+  /** `Ctrl` 併用と中ボタンのパン中 -- PTD-1 of table T-023a. */
   | 'grabbing'
   /** 予定バーと実績バーの端点の上 -- GR-3 .. GR-6 of table T-023d. */
   | 'ew-resize'
@@ -825,7 +825,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
 /**
  * The rectangle a range selection is taking, or `null` while none is.
  *
- * ⭐ PD-5 IS READ OFF THE PRESS AND NOT WORKED OUT AGAIN. `pressRowOf` answered
+ * ⭐ PTD-5 IS READ OFF THE PRESS AND NOT WORKED OUT AGAIN. `pressRowOf` answered
  * table T-023a once, at the moment the button went down, and `PointerPress`
  * carries that answer -- asking a second time would be a second reading of a
  * table whose inputs (the button, the modifiers, the hit) are frozen anyway.
@@ -844,7 +844,7 @@ function marqueeRect(
   at: { readonly x: number; readonly y: number } | null,
 ): ScreenRect | null {
   if (press === null || at === null) return null
-  if (press.on !== null || press.pressRow !== 'PD-5') return null
+  if (press.on !== null || press.pressRow !== 'PTD-5') return null
   const width = Math.abs(at.x - press.at.x)
   const height = Math.abs(at.y - press.at.y)
   if (width === 0 && height === 0) return null
@@ -915,7 +915,7 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
  * those -- U-24 has no entry in table T-109, which is why `commandFromEntry`
  * tests `dividerPanel` before it reads `entry`.
  *
- * ⛔ PD-1 IS NOT HERE, AND ITS OWN RULE LOOKS LIKE IT ASKS TO BE. Answering
+ * ⛔ PTD-1 IS NOT HERE, AND ITS OWN RULE LOOKS LIKE IT ASKS TO BE. Answering
  * `true` for a pan compounds: `scrolledAnchor` measures its travel against
  * `context.layout`, which is built from the picture this fold produced, so every
  * frame applies the whole travel again to a layout that already carries it, and
@@ -925,19 +925,19 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
  * per move pushes no step. `panFollow` is that road, and
  * `PointerPress.followedTo` is what keeps the pieces from adding up.
  *
- * ⭐⭐ PD-4 IS HERE, AND IT IS NOT A GRAB. Table T-023a's PD-4 asks for the
+ * ⭐⭐ PTD-4 IS HERE, AND IT IS NOT A GRAB. Table T-023a's PTD-4 asks for the
  * picture in its own words, and says why it has to state it for itself rather
- * than lean on table T-023d's closing rules: those govern a GRAB, and PD-4 is
+ * than lean on table T-023d's closing rules: those govern a GRAB, and PTD-4 is
  * not holding anything. ⛔ THE ROW IS READ OFF THE PRESS AND NOT WORKED OUT
  * AGAIN: `PointerPress.pressRow` is what `pressRowOf` answered at the moment of
  * the press, and CS-2 of table T-066 wants that moment.
- * ⭐⭐ AND THE SHAPE IS NOT DECIDED HERE, WHICH IS THE HALF THAT MATTERS. PD-4
+ * ⭐⭐ AND THE SHAPE IS NOT DECIDED HERE, WHICH IS THE HALF THAT MATTERS. PTD-4
  * (MUST NOT) forbids the shape being held in two places and (MUST) has the side
  * that draws and the side that places read one table. `previewOfHeldPress` folds
  * THE RELEASE'S OWN WRITES onto a copy, so the drawn figure is table T-012's row
  * `commandFromArmed` chose, reached by the one road; nothing in this file names
  * a shape.
- * ⛔ NOTHING REACHES THE DOCUMENT, which PD-4 (MUST NOT) says in its own words
+ * ⛔ NOTHING REACHES THE DOCUMENT, which PTD-4 (MUST NOT) says in its own words
  * and the note on `previewDocument` states from the far side: following is a
  * picture and not an edit.
  * ⚠️ A BAR THAT HAS NOT TRAVELLED DRAWS NOTHING, AND NO LINE HERE SAYS SO.
@@ -952,7 +952,7 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
 function isPreviewedPress(press: PointerPress | null): boolean {
   if (press === null) return false
   if (press.on !== null) return press.on.dividerPanel !== null
-  if (press.pressRow === 'PD-4') return true
+  if (press.pressRow === 'PTD-4') return true
   return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
 }
 
@@ -3495,13 +3495,13 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
  */
 const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
   // UN-8 -- the pan moves the viewport and no row of the file.
-  'PD-1': false,
-  'PD-2': true,
-  'PD-3': true,
-  'PD-4': true,
-  'PD-4a': true,
+  'PTD-1': false,
+  'PTD-2': true,
+  'PTD-3': true,
+  'PTD-4': true,
+  'PTD-4a': true,
   // UN-9 -- the range selection moves what is chosen, not what is written.
-  'PD-5': false,
+  'PTD-5': false,
 }
 
 /**
@@ -3513,7 +3513,7 @@ const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
  * the press is: `commandFromInput` branches to `commandFromEntry` before it
  * ever looks at the row, and that road CAN change the document. A press the
  * screen surface answered for is therefore in flight whatever its row is.
- * ⚠️ A press falling on an entry lands on PD-5 for want of a hit, which is
+ * ⚠️ A press falling on an entry lands on PTD-5 for want of a hit, which is
  * precisely the row that would otherwise be spared -- so reading the row first
  * would take AG-9 off every palette press there is.
  *
@@ -3522,7 +3522,7 @@ const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
  * 対象行と一致させる」. The only thing `commandFromEntry` writes for IC-12 ..
  * IC-15 is the zoom, and UN-8 of table T-027 puts 「ズーム・スクロール・パン」
  * outside the history -- so a press held on one of them changes no row AG-9
- * names, exactly as the pan (PD-1) and the marquee (PD-5) change none.
+ * names, exactly as the pan (PTD-1) and the marquee (PTD-5) change none.
  * ⛔ WITHOUT THIS, FR-018's REPEAT CANNOT LAND. That MUST has a held entrance
  * go on stepping while the button is DOWN, and the press is only dropped on
  * the release -- so every tick `repeatHeldEntry` raised was refused at WS-2 of
@@ -3563,7 +3563,7 @@ function isDocumentChangingPress(press: PointerPress | null): boolean {
     // and for GR-21 the picture IS the display position: FR-051 (MUST) then
     // requires 「表示位置が変わったときは ... `S-77` と `S-78` が新しい表示位置を
     // 指すようにすること」, so a followed picture that left those two behind
-    // would break a MUST rather than keep one. ⭐ PD-1's pan already stands on
+    // would break a MUST rather than keep one. ⭐ PTD-1's pan already stands on
     // exactly this reading (`panFollow`), and UN-8 is why neither leaves a step
     // behind for a release to take back.
     if (press.on.scrollbarAxis !== undefined) return false
@@ -6787,7 +6787,7 @@ export function frameLoop(
         ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving)
         : null
     // ⭐ ASKED OF THE SIDE THAT OWNS TABLE T-023a, AND CARRIED FROM HERE ON.
-    // `collectWriteMoment` needs to know a pan (PD-1) from a marquee (PD-5) to
+    // `collectWriteMoment` needs to know a pan (PTD-1) from a marquee (PTD-5) to
     // keep AG-9's exemption, and R2.7 forbids it to read that table a second
     // time -- so the answer rides on the press, exactly as `hit` does.
     // ⚠️ NARROWED ARGUMENTS ON PURPOSE: this runs BEFORE `collectInputContext`,
@@ -6848,7 +6848,7 @@ export function frameLoop(
     // ⛔ The `Schedule Canvas` is wider than the `Row Area`, and every target
     // of table T-023d is drawn inside the latter.
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    // ⛔ PD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
+    // ⛔ PTD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
     // is not asked at all rather than asked and its answer thrown away.
     if (dualCursorFollowing !== null) return null
     // ⭐ THE PRESS READING, by the default, and that is the right one: IN-2's
@@ -6871,7 +6871,7 @@ export function frameLoop(
    * ⚠️ THE LAST THREE REFUSALS BELOW ARE `grabAtPointer`'s AS WELL, and they
    * are restated rather than left to it: that function answers `null` for a
    * point it turned away, and `null` is also its answer for empty canvas, where
-   * PD-5 gives a shape. ⛔ A shape read off the hit alone would put PD-5's own
+   * PTD-5 gives a shape. ⛔ A shape read off the hit alone would put PTD-5's own
    * shape on the time ruler.
    * ⚠️ NO FRAME IS ASKED FOR HERE. The shape is not drawn content -- the host
    * paints the pointer -- so it is written straight out rather than through
@@ -6886,9 +6886,9 @@ export function frameLoop(
     on: ScreenPart | null,
     hit: Grabbed | null,
   ): PointerShape | null {
-    // PD-1, and IN-2 asks for it 「パン中」 -- so the press in flight is what is
+    // PTD-1, and IN-2 asks for it 「パン中」 -- so the press in flight is what is
     // read, not the modifiers of a move that presses nothing.
-    if (pressed !== null && pressed.pressRow === 'PD-1') return 'grabbing'
+    if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
     // STOP -- ⛔ IN-2 NAMES NO SHAPE FOR AN ENTRY. The note under table T-023a
     // binds that table to the schedule's drawing area (MUST), and a point the
     // screen surface answered for is on a part drawn OVER it.
@@ -6897,25 +6897,25 @@ export function frameLoop(
     // `Schedule Canvas` is wider than the `Row Area`, and every place IN-2
     // names is inside the latter.
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
+    // STOP -- ⛔ PTD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
     // `Dual Cursor` mode, so nothing is invented for it.
     if (dualCursorFollowing !== null) return null
-    // PD-3. ⭐ WHICH SHAPE IS THE TABLE'S ABOVE, not a test written here: IN-2
+    // PTD-3. ⭐ WHICH SHAPE IS THE TABLE'S ABOVE, not a test written here: IN-2
     // now names the bar's middle and a milestone's figure as well as the two
     // bars' ends, and the rows it still names nothing for answer `null` there.
     if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
-    // PD-5 -- nothing hit and nothing armed. ⚠️ THE SHAPE HERE IS THE HOST'S
+    // PTD-5 -- nothing hit and nothing armed. ⚠️ THE SHAPE HERE IS THE HOST'S
     // ORDINARY ONE AND THE PLACE IS STILL IN-2's: the row names 何にも当たらない
     // 場所 and gives it 範囲選択の合図, and `PointerShape` says which word this
     // side spells that meaning with. ⛔ Answering `null` instead would say IN-2
     // names no shape here, which is false.
     if (armed.kind === 'none') return 'default'
-    // STOP -- ⛔ PD-4a DOES NOTHING HERE, so 「作図の合図」 would be a lie. An
+    // STOP -- ⛔ PTD-4a DOES NOTHING HERE, so 「作図の合図」 would be a lie. An
     // armed dependency on empty canvas draws nothing and does not even disarm,
     // and IN-2 names no shape for that.
     if (armed.kind === 'dependency') return null
-    // PD-4 -- a figure or an annotation is armed, and a press would make it.
+    // PTD-4 -- a figure or an annotation is armed, and a press would make it.
     return 'copy'
   }
 
@@ -7226,7 +7226,7 @@ export function frameLoop(
    * ⭐ NARROWED TO WHAT AG-9 ACTUALLY ASKS. AG-9 refuses a write during a drag
    * that CHANGES THE DOCUMENT, and spares the two gestures table T-027 puts
    * outside the undo history because they change none of it -- the pan (UN-8)
-   * and the range selection (UN-9). Those are rows PD-1 and PD-5 of table
+   * and the range selection (UN-9). Those are rows PTD-1 and PTD-5 of table
    * T-023a, and the press now CARRIES which row it began (`pressRow`), so the
    * exemption is kept without reading that table a second time (R2.7).
    * ⛔ `on` IS READ FIRST, AND THE ROW ONLY WHERE IT IS NULL. The note under
@@ -7234,7 +7234,7 @@ export function frameLoop(
    * (MUST), so a press the screen surface answered for is not one of the six
    * gestures at all -- it is a press on an entry, and `commandFromEntry` may
    * well change the document. Reading the row first would hand every palette
-   * press PD-5's exemption and take AG-9's MUST off all of them.
+   * press PTD-5's exemption and take AG-9's MUST off all of them.
    * ⭐ `editingInPlace` IS IF-9's FIFTH ANSWER, WITH ONE EXEMPTION MEASURED
    * RATHER THAN ASSUMED. WS-2 refuses a write made 「編集入力の確定前」 -- and a
    * write that IS the settling is not one of those. `spendFieldCommit` runs on
@@ -10625,7 +10625,7 @@ export function frameLoop(
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)
 
-    // PD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」.
+    // PTD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」.
     //
     // ⭐ THE SAME TELESCOPING THE PALETTE USES, and it is here rather than in
     // `carryOutAction` because a pan's action is a `changeDocument` like any
@@ -10652,7 +10652,7 @@ export function frameLoop(
       input.phase === 'move' &&
       pressed !== null &&
       (pressed.on === null
-        ? pressed.pressRow === 'PD-1'
+        ? pressed.pressRow === 'PTD-1'
         : pressed.on.scrollbarAxis !== undefined) &&
       translated.action !== null
     ) {
@@ -10725,7 +10725,7 @@ export function frameLoop(
     //
     // ⭐ LAST, AND AFTER THE PRESS HAS BEEN DROPPED, because IN-2 asks for the
     // hand 「パン中」 and a release has ended the pan: read any earlier, the
-    // release would still find PD-1 in flight and leave the hand behind.
+    // release would still find PTD-1 in flight and leave the hand behind.
     // ⭐ ASKED FOR EVERY HAPPENING AND NOT ONLY FOR A MOVE -- 「構えているとき」
     // is a state a key press moves (SK-1 of table T-036) while the pointer
     // stands still, and a shape that only followed moves would go on promising

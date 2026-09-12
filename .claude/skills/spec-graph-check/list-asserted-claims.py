@@ -94,7 +94,7 @@ comment meant:
 
     D-    `D-1` .. `D-5` are spec rows;  `D-254` is a ledger row of
           docs/development-records/defects.md          (380 tokens dropped)
-    PD-   `PD-1` .. `PD-5` are spec rows; `PD-442` is a pending decision
+    PD-   `PTD-1` .. `PTD-5` are spec rows; `PD-442` is a pending decision
                                                        (319 tokens dropped)
     R-    `R-1` .. `R-9` are spec rows;  `R-27` .. `R-40` are rulings of
           docs/development-records/rulings.md           (56 tokens dropped)

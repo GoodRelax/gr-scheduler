@@ -1,6 +1,6 @@
 // The two background gestures, with a reference that does not move under the
 // reader: the leftmost date the ruler prints, and the count of selection
-// frames. An empty spot is found by asking the app itself (PD-5 puts the
+// frames. An empty spot is found by asking the app itself (PTD-5 puts the
 // default arrow where nothing is under the pointer).
 import { open, until, count, page, close } from '../harness.mjs'
 

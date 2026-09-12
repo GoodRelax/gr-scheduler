@@ -380,7 +380,7 @@ function barBody(loop: FrameLoop): Point {
 }
 
 /** The place nothing is hit -- the far corner of the `Row Area`, past every
- * bar, so a plain press there answers PD-5's own meaning. */
+ * bar, so a plain press there answers PTD-5's own meaning. */
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.rowArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
@@ -450,7 +450,7 @@ describe('T-028 IN-2 -- the dummies (GR-9 / GR-17 / GR-18) say the same thing th
     expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18'))).not.toBe(body)
   })
 
-  it('answers something OTHER than the empty-canvas meaning (PD-5)', () => {
+  it('answers something OTHER than the empty-canvas meaning (PTD-5)', () => {
     const built = stage()
     const empty = shapeAt(built, emptyCanvas(built.loop))
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))).not.toBe(empty)

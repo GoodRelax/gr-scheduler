@@ -9,25 +9,11 @@
   "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the eight real mirrors from the three prefixes that mean two different things -- D, PD and R, whose ledger rows are 494, 208 and 44 ids the specification never defined.",
   "`collisions_suppressed` IS A DEBT, NOT A PERMISSION. Each entry names the prefix, the trees it is used in, the day the suppression was written, why, and what removes it. The printed table shows every one of them, so the count cannot grow in silence, and the generator fails on an entry whose prefix no longer collides -- a suppression cannot outlive its reason.",
   "`words` MAY BE EMPTY, and an empty one is not a gap to be filled by guessing. It says the letters' origin could not be read out of the documents themselves. The defect CR-371 exists to remove is a spelling that two readers expand two ways, so an invented expansion here would be that same defect with a registry around it. Write `means` and leave `words` empty.",
-  "`pending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; the printed table shows such an entry as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason. Two entries carry it, both from CR-371.",
+  "`pending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; the printed table shows such an entry as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason. One entry carries it: PND, whose rows wave 2 of CR-371 writes. PTD carried it until wave 1 wrote its rows.",
   "One line per prefix, on purpose: a registry is read as a list, and a 128-entry file broken over six lines each cannot be scanned.",
   "The `means` cells are Japanese because they are printed prose of a Japanese specification, held per language the way Chapter 6.2 requires (check 23). `words` is Latin letters and belongs to no language."
  ],
  "collisions_suppressed": [
-  {
-   "prefix": "PD",
-   "trees": [
-    "spec",
-    "records"
-   ],
-   "since": "2026-09-12",
-   "why": {
-    "ja": "仕様書の `PD-1` は中ボタンドラッグによるパンであり、台帳の PD-1 は themeHue の彩度と明度である。4 つの綴り（PD-1 〜 PD-4）が両方の木に立って別のものを指し、残る 208 は台帳だけのものである。CR-371 が書かれた理由そのものである"
-   },
-   "until": {
-    "ja": "CR-371 の巡 1 が仕様書側を PTD へ、巡 2 が台帳側を PND へ改める。両方が済んだとき、本行も接頭辞 PD も消える"
-   }
-  },
   {
    "prefix": "D",
    "trees": [
@@ -680,10 +666,10 @@
   },
   {
    "prefix": "PD",
-   "words": "Pointer Down",
-   "owner": "spec",
+   "words": "Pending Decision",
+   "owner": "records",
    "means": {
-    "ja": "ポインタを押したときの判定順序の段（台帳の未裁定の決めごとが同じ綴りを使っており、CR-371 が PTD へ改める）"
+    "ja": "まだ裁定されていない決めごと（CR-371 の巡 1 で仕様書側は PTD へ移り、本接頭辞は台帳だけのものになった。巡 2 が PND へ改め、本行ごと消える）"
    }
   },
   {
@@ -1096,9 +1082,8 @@
    "prefix": "PTD",
    "words": "Pointer Down",
    "owner": "spec",
-   "pending": true,
    "means": {
-    "ja": "ポインタを押したときの判定順序の段。CR-371 が PD から改める綴りであり、改名の巡が来るまで行は 1 つも無い"
+    "ja": "ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである）"
    }
   },
   {

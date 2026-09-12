@@ -530,8 +530,8 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
 //
 //   MK-1  ホイール（修飾なし）        -> 縦スクロール
 //   MK-2  Ctrl + ホイール             -> 両軸ズーム
-//   MK-7  Ctrl を伴うドラッグ         -> 表 T-023a の PD-1（パン）
-//   MK-6  何にも当たらない場所での素の左ドラッグ -> 表 T-023a の PD-5（範囲選択）
+//   MK-7  Ctrl を伴うドラッグ         -> 表 T-023a の PTD-1（パン）
+//   MK-6  何にも当たらない場所での素の左ドラッグ -> 表 T-023a の PTD-5（範囲選択）
 //
 // ⛔ `MK-8` (dragging an item) IS NOT DRIVEN, and the reason is reported rather
 // than hidden: finding a task bar in the drawing needs a handle the

@@ -58,7 +58,7 @@
 //                 say which of the two a press is
 //   T-109 IC-45   「`Command Palette` | カーソル | デュアルカーソルの 2 本を
 //                 置く（`S-65`）| `FR-082` |」 -- the row that entrance is
-//   T-023a PD-2   「`Dual Cursor` モード中 | **当たり判定を行わない。**」 -- the
+//   T-023a PTD-2   「`Dual Cursor` モード中 | **当たり判定を行わない。**」 -- the
 //                 reason the clause gives, stated as its own row
 //   FR-083 SP-1 / SP-4  what a palette press means when nothing is selected:
 //                 arm it, and un-arm it on a second press. These are the
@@ -262,14 +262,14 @@ const partOf = (entry: string): ScreenPart => ({
 /**
  * ⚠️ `pressRow` IS INERT FOR EVERY CASE IN THIS FILE, and the reason is a rule
  * rather than convenience: 表 T-023a applies its order 「日程の描画領域だけ」
- * (MUST), and every press below lands on U-26. `PD-5` is written because the
+ * (MUST), and every press below lands on U-26. `PTD-5` is written because the
  * type demands one of the six, and no case reads it back.
  */
 const pressOn = (entry: string): PointerPress => ({
   at: pointerOf('down'),
   hit: null,
   on: partOf(entry),
-  pressRow: 'PD-5',
+  pressRow: 'PTD-5',
 })
 
 const BASE: InputContext = {

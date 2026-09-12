@@ -241,7 +241,7 @@ docs/review/duplication-baseline.txt   31 行 → 30 行
      ① 廃した文を「撤回の記録」として逐語のまま残したこと
         （表 T-023d の結び・T-038・FR-043 が、同じ「S-93 を採らない」を 3 か所で述べる）
      ② SK-19 と MK-12 が、別々の入口から 同じ結果（選択を解く）を持つようになったこと
-  ⚠️ 同じ書き換えで 4 群が消えた（NFR-006+NFR-009 / T-023a PD-4+T-023d /
+  ⚠️ 同じ書き換えで 4 群が消えた（NFR-006+NFR-009 / T-023a PTD-4+T-023d /
      IC-48+IC-49 / IC-69+IC-70）⇒ ⛔ 差引きは −1 である。「3 群ぶん上げた」ではない
 
 .claude/skills/spec-graph-check/dictionary-table-pairing.txt（検査 37）

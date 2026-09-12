@@ -426,7 +426,7 @@ const REACH_PX = 160
 /**
  * A column of empty ground that crosses the middles of both named rows.
  *
- * ⛔ Emptiness is the PRODUCT's own answer, not this file's: `PD-5` of table
+ * ⛔ Emptiness is the PRODUCT's own answer, not this file's: `PTD-5` of table
  * T-023a gives ground that hit nothing the plain arrow, so a point whose cursor
  * is the plain arrow is ground no item covers. A drag that starts on an item
  * would be that item's default operation instead (`AR-6`'s last column).

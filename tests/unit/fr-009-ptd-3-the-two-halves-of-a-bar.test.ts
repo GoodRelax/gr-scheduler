@@ -1,4 +1,4 @@
-// `FR-009` / 表 T-023a の `PD-3` / 表 T-018 -- what a press on a bar means while
+// `FR-009` / 表 T-023a の `PTD-3` / 表 T-018 -- what a press on a bar means while
 // a dependency is armed, and what it means while nothing is.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
@@ -7,7 +7,7 @@
 //
 // ⭐ THE CLAUSES, VERBATIM.
 //
-//   表 T-023a の `PD-3`（docs/spec/01-04-requirements.md:2278）:
+//   表 T-023a の `PTD-3`（docs/spec/01-04-requirements.md:2278）:
 //     「**何かに当たった**（判定の順と優先は MK-9a） | **そのものへの操作。**
 //      ⚠️ **構えが依存線のときは表 T-023d を適用せず**、当たったタスクの**左半分
 //      / 右半分**で依存の端点を決める（規則と理由は `FR-009`）」
@@ -234,11 +234,11 @@ const pointerAt = (x: number): Record<string, unknown> => ({
 })
 
 // ---------------------------------------------------------------------------
-// PD-3: a press that hit something is a press on that thing, armed or not
+// PTD-3: a press that hit something is a press on that thing, armed or not
 // ---------------------------------------------------------------------------
 
-describe('表 T-023a の PD-3 -- a hit beats the arming', () => {
-  it('PD-3 claims the press whenever something was hit, dependency armed or not', () => {
+describe('表 T-023a の PTD-3 -- a hit beats the arming', () => {
+  it('PTD-3 claims the press whenever something was hit, dependency armed or not', () => {
     const hit = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
     expect(hit, 'nothing was hit on the bar, so this file cannot ask its question').not.toBeNull()
     for (const screenState of [ARMED_NOTHING, ARMED_DEPENDENCY]) {
@@ -247,19 +247,19 @@ describe('表 T-023a の PD-3 -- a hit beats the arming', () => {
           screenState,
           dualCursorFollowing: null,
         } as never),
-      ).toBe('PD-3')
+      ).toBe('PTD-3')
     }
   })
 
-  it('PD-4a, not PD-3, takes a press on nothing while the dependency is armed', () => {
-    // 表 T-023a の `PD-4a`: 「何にも当たらない かつ **依存線を構えている**（AR-4）
+  it('PTD-4a, not PTD-3, takes a press on nothing while the dependency is armed', () => {
+    // 表 T-023a の `PTD-4a`: 「何にも当たらない かつ **依存線を構えている**（AR-4）
     // | **何もしない。** 引きかけの矢印があれば捨てる。構えは解かない」
     expect(
       pressRowOf({ at: pointerAt(IN_LEFT_HALF) as never, hit: null }, {
         screenState: ARMED_DEPENDENCY,
         dualCursorFollowing: null,
       } as never),
-    ).toBe('PD-4a')
+    ).toBe('PTD-4a')
   })
 })
 
@@ -438,7 +438,7 @@ describe('FR-009 -- SL-1 を答える公開名に構えを渡してはならな�
     // ⇒ The consequence that can be measured from outside: that name has no way
     // to be told the arming, so its answer for a point CANNOT vary with it, and
     // a wide bar's two quarters are both its body -- one grab of 表 T-023d, not
-    // two endpoints. ⭐ Whether PD-3 withholds table T-023d is settled by the
+    // two endpoints. ⭐ Whether PTD-3 withholds table T-023d is settled by the
     // CALLER, outside this name; `FR-009` puts the half on a name of its own.
     const left = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
     const right = itemAtPointer(GEOMETRY, IN_RIGHT_HALF, MIDDLE_Y, SLOP)

@@ -33,7 +33,7 @@
 //            `AT-101` が持つ既定に従うこと（MUST）」
 //   FR-001   「作成者がタスク形状を構えた状態で、どのアイテムにも当たらない場所を
 //            ドラッグしたとき、`GRS` は、構えている形状でその期間のタスクを作る
-//            こと（表 T-023a の PD-4）」、表 T-239 の `TC-1`「構えている形状が
+//            こと（表 T-023a の PTD-4）」、表 T-239 の `TC-1`「構えている形状が
 //            マイルストーンのときは `Task.milestone` を真……として作ること（MUST）」、
 //            「ドラッグせずに
 //            クリックしたとき……は、開始日と終了日が同じタスクを作ること（MUST）」
@@ -481,7 +481,7 @@ interface Stage {
   take(entry: string): void
   /** Click on the figure of the Task named. */
   clickOnTask(uid: number): void
-  /** Click where nothing has been drawn -- PD-4 of 表 T-023a. */
+  /** Click where nothing has been drawn -- PTD-4 of 表 T-023a. */
   clickEmptyCanvas(): void
 }
 

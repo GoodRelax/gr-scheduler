@@ -93,7 +93,7 @@
 #     再開アイコンの当たり判定は `S-22`（MUST）
 #   t-023d-gr-5-relays-the-actual-duration.test.ts -- `GR-5` の 実績バーを平行
 #     移動させてはならない（MUST NOT）
-#   fr-009-pd-3-the-two-halves-of-a-bar.test.ts -- 引き出した辺と引き入れた辺の
+#   fr-009-ptd-3-the-two-halves-of-a-bar.test.ts -- 引き出した辺と引き入れた辺の
 #     組合せは 4 つの種別と 1 対 1（MUST）
 # ⚠️ THE LAST TWO WERE HELD BEFORE THIS WAVE AND LOST IT TO A RE-WRAP, not to a
 # ruling -- more evidence that the wrap, not the wording, is what breaks a tie.

@@ -119,7 +119,7 @@
 # of a prefix that must NOT match (FR-04, HF-120, UF-6n, 3 occurrences). ⛔ DO
 # NOT ADD AN EXEMPTION FOR THEM. The narrowing that would remove the first class
 # -- dropping the optional trailing letter from the token pattern -- also stops
-# matching the manuscript's own suffixed rows (T-005a, PD-4a, SK-11a) and takes
+# matching the manuscript's own suffixed rows (T-005a, PTD-4a, SK-11a) and takes
 # the count to 424, hiding real hits to remove 17 harmless ones.
 #
 # ⭐ THE REST OF THE UNDEFINED HALF IS THE THING THIS CHECK WAS BUILT FOR:

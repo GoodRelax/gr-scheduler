@@ -60,8 +60,8 @@
 //      on each member why the CALLER resolves it and why it rides on the press.
 //      ⭐ AG-9 of table T-035 refuses an Agent API write while a gesture is in
 //      flight, but spares the two gestures table T-027 keeps out of the undo
-//      history -- the pan (UN-8, which is PD-1) and the range selection (UN-9,
-//      which is PD-5).
+//      history -- the pan (UN-8, which is PTD-1) and the range selection (UN-9,
+//      which is PTD-5).
 //
 // ⛔ WHAT THIS FILE MAY NOT DO. It never invents a value the specification
 // owns: where a row is missing, a STOP note names the row that is missing and
@@ -165,14 +165,14 @@ export type {
 // ---------------------------------------------------------------- context ---
 
 /**
- * The row of table T-023a a press falls on -- PD-1 the pan, PD-2 the Dual
- * Cursor's click, PD-3 the grab, PD-4 and PD-4a the armed press, PD-5 the
+ * The row of table T-023a a press falls on -- PTD-1 the pan, PTD-2 the Dual
+ * Cursor's click, PTD-3 the grab, PTD-4 and PTD-4a the armed press, PTD-5 the
  * range selection.
  *
  * ⭐ A ROW ID AND NOTHING ELSE. Table T-023a has no English column, so the row
  * id is the only join to it, the way `ENTRY` below joins table T-109.
  */
-export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
+export type PressRow = 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
 /**
  * Which of the two `Scrollbars` (U-21) a gesture is on -- GR-21 of table T-023d.
@@ -210,7 +210,7 @@ export interface PointerPress {
    * answered with table T-023d's priority at the moment of the press.
    *
    * ⚠️ Resolved by the CALLER, not here. The reason is the one `item-hit-area`
-   * gives on that member: table T-023a is applied first, and PD-1 and PD-2 mean
+   * gives on that member: table T-023a is applied first, and PTD-1 and PTD-2 mean
    * the hit is not always asked for at all. The shell already holds the
    * geometry for the frame (ADR-001), so it is the party that can answer at the
    * moment the press happens rather than one frame later.
@@ -256,7 +256,7 @@ export interface PointerPress {
    * ⭐ WHY THE PRESS CARRIES IT. AG-9 of table T-035 refuses an Agent API write
    * while a gesture is in flight, and spares the two gestures table T-027 keeps
    * out of the undo history because they change no document -- the pan (UN-8,
-   * which is PD-1) and the range selection (UN-9, which is PD-5). The party
+   * which is PTD-1) and the range selection (UN-9, which is PTD-5). The party
    * that answers AG-9 holds the press and nothing else, so with no row on it
    * the only thing it can do is refuse all six. ⛔ It may NOT read table T-023a
    * for itself: that is the duplication R2.7 refuses, and the note under the
@@ -449,7 +449,7 @@ export interface InputContext {
    * side could say the mode is up with no side following, and DC-1 (which puts
    * a side on the pointer the moment the mode is entered) and DC-2 (which
    * always hands the following to the other side) leave no such state to
-   * describe. PD-2 turns hit testing off while this is non-null, and IN-4 gives
+   * describe. PTD-2 turns hit testing off while this is non-null, and IN-4 gives
    * the mode the last level of `Esc`.
    *
    * ⛔ NOT IN `documentSettings`, and that is the user's ruling of 2026-08-26:
@@ -1514,7 +1514,7 @@ function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])
  * one flag: the row says the combination gets no assignment of this tool's AND
  * that table T-023a still decides what happens, so an action and a browser left
  * alone travel together. ⛔ MK-12 forbids answering "nothing happens" in as
- * many words (MUST NOT), because that would collide with PD-3.
+ * many words (MUST NOT), because that would collide with PTD-3.
  *
  * @purity pure
  */
@@ -1567,7 +1567,7 @@ function isCombo(
  * assignment of its own -- which is what MK-10 keys the browser on.
  *
  * ⭐ Three combinations carry one: nothing held (MK-6, MK-8, MK-11, MK-13),
- * `Ctrl` alone (MK-7), and `Shift` alone (SL-4 of table T-023c, which PD-5
+ * `Ctrl` alone (MK-7), and `Shift` alone (SL-4 of table T-023c, which PTD-5
  * names again for a marquee). MK-12 is every other combination, and it names
  * two of them.
  * ⚠️ THE UNIT IS THE COMBINATION, not the modifier: the same `Alt` that carries
@@ -2008,7 +2008,7 @@ function rowAnchorIn(
  * @purity pure
  */
 /**
- * PD-1's write: the display position moved by this many pixels.
+ * PTD-1's write: the display position moved by this many pixels.
  *
  * ⭐ ONE PLACE FOR THE FOUR MEMBERS, because two roads reach them now -- the
  * move that follows the pointer and the release that finishes the gesture --
@@ -2057,9 +2057,9 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
  * detent, so before CR-260 turn after turn moved nothing at all and MK-1's
  * 「**縦スクロール**」 did not scroll.
  *
- * ⚠️ WHY THE FLOOR STAYS HERE AND WAS TAKEN OFF PD-1. The two are held to
+ * ⚠️ WHY THE FLOOR STAYS HERE AND WAS TAKEN OFF PTD-1. The two are held to
  * different rules. 表 T-023d states 「パンは等倍とすること（MUST）」 of the pan
- * and of nothing else, so PD-1 must move the picture exactly as far as the
+ * and of nothing else, so PTD-1 must move the picture exactly as far as the
  * pointer went -- which S-176 and S-177 now let it write, so the floor there
  * was a defect the moment those two rows existed. MK-1 carries no such MUST:
  * table T-023 gives it 「縦スクロール（ズームではない）」 and no distance at
@@ -2074,7 +2074,7 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
  * floor is kept because it is what the record holds and no row forbids it;
  * ⛔ it is a choice awaiting adjudication, not a forced answer.
  * Searched: table T-023 MK-1, MK-5 and MK-7, table T-023a and its note and
- * PD-1, the paragraph under table T-023d, S-4, S-12, S-77, S-78, S-96, S-176,
+ * PTD-1, the paragraph under table T-023d, S-4, S-12, S-77, S-78, S-96, S-176,
  * S-177, FR-016, FR-051, FR-017, FR-080, OP-10 and OP-10a of table T-024a.
  * ⚠️ This invents no rows-per-notch and no rows-per-pixel figure -- it is a
  * floor under a distance that still comes from the device, and every turn long
@@ -2271,7 +2271,7 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
  * exist until this has answered -- and the caller records the press before it
  * builds the context that would hold it. What the decision reads is only the
  * button and the modifiers of the `down`, the hit the caller resolved, and the
- * two current values PD-2 and PD-4 / PD-4a turn on.
+ * two current values PTD-2 and PTD-4 / PTD-4a turn on.
  *
  * @purity pure
  */
@@ -2280,16 +2280,16 @@ export function pressRowOf(
   context: Pick<InputContext, 'screenState' | 'dualCursorFollowing'>,
 ): PressRow {
   const modifiers = press.at.modifiers
-  // PD-1: the middle button, or a left drag with Ctrl and nothing else. Beats
+  // PTD-1: the middle button, or a left drag with Ctrl and nothing else. Beats
   // both the arming and the hit, whatever lies under the pointer.
-  if (press.at.button === 'middle') return 'PD-1'
-  if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PD-1'
-  if (context.dualCursorFollowing !== null) return 'PD-2'
-  if (press.hit !== null) return 'PD-3'
+  if (press.at.button === 'middle') return 'PTD-1'
+  if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PTD-1'
+  if (context.dualCursorFollowing !== null) return 'PTD-2'
+  if (press.hit !== null) return 'PTD-3'
   const armed = context.screenState.armed
-  if (armed.kind === 'dependency') return 'PD-4a'
-  if (armed.kind !== 'none') return 'PD-4'
-  return 'PD-5'
+  if (armed.kind === 'dependency') return 'PTD-4a'
+  if (armed.kind !== 'none') return 'PTD-4'
+  return 'PTD-5'
 }
 
 // --------------------------------------------------------------- shapes ----
@@ -4139,18 +4139,18 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // drawn from the document, so what a move reports for it settles no value of
   // the schedule and pushes no undo step. Every other gesture's picture is the
   // renderer's to draw from the press it can see.
-  // ⭐ TWO GESTURES ANSWER A MOVE NOW. PD-1's pan is asked first because it is
+  // ⭐ TWO GESTURES ANSWER A MOVE NOW. PTD-1's pan is asked first because it is
   // the row table T-023a puts first -- 「構えと当たりによらず優先する」 -- and
   // the two cannot both answer anyway: a pan's press is on nothing the surface
   // drew and the palette's is on its own band.
   if (input.phase === 'move') {
     // ⭐ THREE GESTURES FOLLOW NOW. None of the three can answer for another:
-    // PD-1's pan is a press on nothing the surface drew, FR-053's palette is a
+    // PTD-1's pan is a press on nothing the surface drew, FR-053's palette is a
     // press on its own band, and HF-15's row is a press on GR-20's strip.
     const panning = panFollow(input, context)
     if (panning !== UNASSIGNED) return panning
     // GR-21 of table T-023d, the fourth: a press on one of the two lanes, which
-    // none of the other three can be -- PD-1's is on nothing the surface drew,
+    // none of the other three can be -- PTD-1's is on nothing the surface drew,
     // FR-053's is on the palette's band and HF-15's is on a row's strip.
     const scrolling = scrollbarFollow(input, context)
     if (scrolling !== UNASSIGNED) return scrolling
@@ -4176,8 +4176,8 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // 「担当ラベルをダブルクリックした」 (AS-1 of table T-225, MUST) was answered
   // by the coordinates rather than by the row that was grabbed, and a caller
   // that hands the row in -- which is what the row IS -- got nothing.
-  // ⚠️ The press with no hit still has to be placed: PD-4 creates a Task where
-  // nothing was struck and PD-5 opens a marquee, and neither may begin on the
+  // ⚠️ The press with no hit still has to be placed: PTD-4 creates a Task where
+  // nothing was struck and PTD-5 opens a marquee, and neither may begin on the
   // ruler or in the Row Title Panel (the note under table T-023a, MUST).
   if (press.hit === null && !isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
@@ -4186,13 +4186,13 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // there is one reading of table T-023a either way (R2.7 is about a second
   // READING, not a second call). ⚠️ And the answer cannot have drifted since:
   // the button, the modifiers and the hit are frozen on the press, while the
-  // two current values PD-2 and PD-4 / PD-4a turn on hold still for as long as
+  // two current values PTD-2 and PTD-4 / PTD-4a turn on hold still for as long as
   // a press does -- arming moves only on a press of a palette entry, which
   // REPLACES the press, or on `Esc`, which IN-4 spends at the gesture level
   // above `armed` while a gesture is in flight and the caller answers by
   // dropping the press.
   switch (pressRowOf(press, context)) {
-    case 'PD-1': {
+    case 'PTD-1': {
       // Pan. ⭐ 「パンは等倍とすること（MUST）」 -- the schedule moves exactly
       // as far as the pointer did, so the display position moves the opposite
       // way by the same number of pixels.
@@ -4217,7 +4217,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       const by = followingTravel(input, press)
       return panTo(context, -by.dx, -by.dy)
     }
-    case 'PD-2':
+    case 'PTD-2':
       // DC-2 of table T-029a: the click fixes the following side and hands the
       // following to the other.
       //
@@ -4229,9 +4229,9 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // was never the obstacle -- the missing thing was one bit, which side is
       // following, and it is `InputContext.dualCursorFollowing`.
       return commandFromDualCursorPress(press, context)
-    case 'PD-3':
+    case 'PTD-3':
       // ⭐⭐ THE ARMING SPLITS THIS ROW IN TWO, AND THE ROW ITSELF SAYS SO.
-      // PD-3 of table T-023a: 「構えが依存線のときは表 T-023d を適用せず、当たった
+      // PTD-3 of table T-023a: 「構えが依存線のときは表 T-023d を適用せず、当たった
       // タスクの左半分 / 右半分で依存の端点を決める（規則と理由は `FR-009`）」.
       // ⛔ ASKED HERE AND NOT INSIDE `commandFromGrab`, because what that member
       // IS is table T-023d -- every branch of it is one of that table's rows,
@@ -4243,14 +4243,14 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       return context.screenState.armed.kind === 'dependency'
         ? commandFromDependencyDrag(input, press, context)
         : commandFromGrab(input, press, context)
-    case 'PD-4':
+    case 'PTD-4':
       return commandFromArmed(input, press, context)
-    case 'PD-4a':
+    case 'PTD-4a':
       // 「何もしない。引きかけの矢印があれば捨てる。構えは解かない」 -- the
       // half-drawn arrow is the renderer's and the arming is untouched, so
       // there is nothing to write.
       return CONSUMED_ELSEWHERE
-    case 'PD-5':
+    case 'PTD-5':
       // Marquee, or a click on nothing. Either way it is the selection's
       // (SL-3 / MK-11), and `selectionFromInput` answers it.
       return CONSUMED_ELSEWHERE
@@ -4267,7 +4267,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
  * the caller reports: written twice, the two would drift apart the first time
  * `followedTo` changed meaning.
  *
- * ⭐ TWO GESTURES FOLLOW NOW, not one: FR-053's palette (GR-19) and PD-1's pan.
+ * ⭐ TWO GESTURES FOLLOW NOW, not one: FR-053's palette (GR-19) and PTD-1's pan.
  * ⛔ The reading is shared rather than copied because the trap is the same for
  * both -- a piece measured from the PRESS is right only for the first piece and
  * overshoots by more the more pieces one drag is reported in.
@@ -4283,7 +4283,7 @@ function followingTravel(
 }
 
 /**
- * PD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」
+ * PTD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」
  * (the user's ruling of 2026-08-29).
  *
  * ⭐ A WRITE PER MOVE IS ALLOWED HERE, which IN-1 would otherwise forbid: UN-8
@@ -4304,10 +4304,10 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
   if (press === null) return UNASSIGNED
   // ⛔ `on` FIRST, the order `isDocumentChangingPress` keeps: the note under
   // table T-023a limits that table to the schedule's drawing area (MUST), so a
-  // press the screen surface answered for carries no row of it -- and PD-1's
+  // press the screen surface answered for carries no row of it -- and PTD-1's
   // own row is what this reads.
   if (press.on !== null) return UNASSIGNED
-  if (press.pressRow !== 'PD-1') return UNASSIGNED
+  if (press.pressRow !== 'PTD-1') return UNASSIGNED
   // ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, the same
   // refusal `paletteFollow` makes and for the same reason: a caller that does
   // not record what it applied would add up travels all measured from the press
@@ -4324,7 +4324,7 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
 /**
  * FR-053 (MUST): while GR-19's band is held, the palette follows the pointer.
  *
- * ⛔ GR-19 IS NO LONGER THE ONLY GESTURE THAT REPORTS ON A MOVE -- PD-1's pan
+ * ⛔ GR-19 IS NO LONGER THE ONLY GESTURE THAT REPORTS ON A MOVE -- PTD-1's pan
  * does too, and `panFollow` above is asked first. The two cannot both answer:
  * this one wants a press ON the band and that one a press on nothing at all.
  *
@@ -4410,7 +4410,7 @@ function scrollbarTravel(
  * パン」 outside the history -- so a display position written on every move
  * pushes no step and settles nothing a release could take back.
  * ⛔ THE PICTURE MOVES THE SAME WAY THE POINTER DOES, which is where this parts
- * from PD-1's pan: a hand on the SCHEDULE drags the paper and the display
+ * from PTD-1's pan: a hand on the SCHEDULE drags the paper and the display
  * position moves the opposite way, while a hand on the GRIP drags the marker
  * and the display position follows it.
  *
@@ -5037,7 +5037,7 @@ function commandFromDualCursorEntry(
 }
 
 /**
- * PD-2 of table T-023a, which is DC-2: 「追従している側をクリックするとその位置で
+ * PTD-2 of table T-023a, which is DC-2: 「追従している側をクリックするとその位置で
  * 固定し、もう一方が追従に切り替わること」.
  *
  * ⭐ WHAT IS FIXED IS THE DAY UNDER THE POINTER, which is the same reading the
@@ -5059,7 +5059,7 @@ function commandFromDualCursorPress(
   const following = context.dualCursorFollowing
   const standing = context.document.documentSettings.dualCursor
   const day = dayAtX(context.layout, press.at.x)
-  // ⛔ ALL THREE ARE UNREACHABLE TOGETHER TODAY, and none is guessed at. PD-2
+  // ⛔ ALL THREE ARE UNREACHABLE TOGETHER TODAY, and none is guessed at. PTD-2
   // is only reached while a side is following, and DC-1 leaves a pair standing
   // whenever one is. ⚠️ The press is still taken -- the mode is up, so the
   // browser must not act under it (MK-10).
@@ -6913,13 +6913,13 @@ function commandFromArmingEntry(entry: string, context: InputContext): Translate
  * here -- the bar's extent, the middle, and the walk over the Tasks -- were
  * that copy.
  *
- * ⭐ TABLE T-023d IS STILL NOT APPLIED, WHICH IS PD-3's OWN SENTENCE: 「構えが
+ * ⭐ TABLE T-023d IS STILL NOT APPLIED, WHICH IS PTD-3's OWN SENTENCE: 「構えが
  * 依存線のときは表 T-023d を適用せず」. `itemAtPointer` (PI-7) IS that table;
  * the name called here is a different one and takes no `PointerSlop`.
  */
 
 /**
- * PD-3 while AR-4 is armed: UC-004's step 2, whole.
+ * PTD-3 while AR-4 is armed: UC-004's step 2, whole.
  *
  * ⭐ THE GESTURE IS ONE DRAG, which is what UC-004 describes: 「作成者が先行タスク
  * の左右どちらかの辺から矢印を引き出し、後続タスクの左右どちらかの辺へ引き入れる」.
@@ -6933,12 +6933,12 @@ function commandFromArmingEntry(entry: string, context: InputContext): Translate
  * would BE the entrance that sentence refuses.
  *
  * ⭐ THE PREDECESSOR IS NAMED BY THE PRESS'S `Hit` AND THE HALF BY THE BAR.
- * PD-3's CONDITION is 「何かに当たった（判定の順と優先は MK-9a）」, and MK-9a's
+ * PTD-3's CONDITION is 「何かに当たった（判定の順と優先は MK-9a）」, and MK-9a's
  * order is the one the shell already resolved into `press.hit`; what the row
  * withholds is the RESULT column, which is where table T-023d's operations live.
  * ⛔ So `hit.grab` is dropped and `hit.item` is kept.
  *
- * ⚠️ AN END THAT IS NOT A TASK ENDS THE GESTURE IN SILENCE, and that is PD-4a's
+ * ⚠️ AN END THAT IS NOT A TASK ENDS THE GESTURE IN SILENCE, and that is PTD-4a's
  * shape rather than an invention: 「何もしない。引きかけの矢印があれば捨てる。構えは
  * 解かない」 -- the half-drawn arrow is the renderer's and the arming is untouched,
  * so there is nothing to write. ⛔ NO TELLING IS COMPOSED HERE. FR-009's three
@@ -6955,7 +6955,7 @@ function commandFromDependencyDrag(
   context: InputContext,
 ): TranslatedInput {
   const hit = press.hit
-  // ⚠️ `pressRowOf` only answers PD-3 for a press that HIT, so the null is
+  // ⚠️ `pressRowOf` only answers PTD-3 for a press that HIT, so the null is
   // unreachable; it is tested rather than asserted because `Hit` is nullable.
   if (hit === null || hit.item.kind !== 'task') return CONSUMED_ELSEWHERE
   // The press's Task is MK-9a's answer already, so it is NAMED; the release has
@@ -6976,7 +6976,7 @@ function commandFromDependencyDrag(
 }
 
 /**
- * PD-3 -- what was grabbed, by the row of table T-023d that claimed it.
+ * PTD-3 -- what was grabbed, by the row of table T-023d that claimed it.
  *
  * ⚠️ MK-13 is read before the grab, because a double click means something
  * different from a drag on the same place: the row names the target, and two of
@@ -7691,7 +7691,7 @@ function actualEndPlacement(
 }
 
 /**
- * PD-4 -- nothing was hit and a figure is armed, so the drag makes one.
+ * PTD-4 -- nothing was hit and a figure is armed, so the drag makes one.
  *
  * ⭐ WHICH END OF THE DRAG NAMES THE ROW is FR-001's, in its STATEMENT: the
  * `TaskGroup` the vertical position the drag BEGAN at points at (MUST), and a
@@ -7827,7 +7827,7 @@ function commandFromArmed(
     // 「選択にしないと `FR-091`（作った直後に入力できること）が果たせない」, 「名前
     // を出す道は、何かが選ばれているときにしか進まないからである」.
     // ⛔ THE HOLDER CANNOT WORK THE UID OUT. `selectionFromInput` answers what
-    // was UNDER the pointer, and PD-4 is the row where nothing was; the Task
+    // was UNDER the pointer, and PTD-4 is the row where nothing was; the Task
     // does not exist until CM-6 has run, and by then the press is over.
     // ⭐ THE NUMBER IS READ AND NOT INVENTED, by the very reading the glyph
     // command above already rests on: FR-001 (MUST) takes `Task.uid` from
@@ -7846,7 +7846,7 @@ function commandFromArmed(
     // holds that position 「日付と行の識別子で」.
     //
     // ⭐ WHICH POSITION 「その位置」 IS: the PRESS. Table T-023a is titled 「ポイ
-    // ンタを押したときの判定順序」 and PD-4 is a row of it, so the point that
+    // ンタを押したときの判定順序」 and PTD-4 is a row of it, so the point that
     // decided a placement was owed is the point the placement stands at. ⛔ Not
     // the release, and a comment box has no second end for one to name: FR-097
     // sizes the body from its own text, so the length of the drag says nothing.
@@ -9008,7 +9008,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
   // the other of these two switches: one reading of table T-023a, and nothing
   // it reads can move while the press is in flight.
   switch (pressRowOf(press, context)) {
-    case 'PD-3': {
+    case 'PTD-3': {
       const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)
       if (ref === null) return held
       // SL-4 -- with Shift a click adds or removes one at a time. SL-2 --
@@ -9018,7 +9018,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       }
       return selectionWith(emptySelection(), ref)
     }
-    case 'PD-5': {
+    case 'PTD-5': {
       // MK-11 -- a bare click on nothing clears the selection. A drag is SL-3's
       // marquee instead.
       const rect = marqueeRect(press.at, input)
@@ -9038,7 +9038,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       return isAdding ? selectionOfAll([...held.items, ...caught]) : selectionOfAll(caught)
     }
     default:
-      // PD-1's pan, PD-2's fixed cursor and PD-4's creation leave the selection
+      // PTD-1's pan, PTD-2's fixed cursor and PTD-4's creation leave the selection
       // alone. ⚠️ FR-083's note records that a Task just drawn stays selected,
       // which is the aggregate's doing rather than this member's -- nothing
       // here can name a Task that does not exist yet.
@@ -9159,7 +9159,7 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // IC-45 -- table T-023b's closing paragraph (MUST): 「`Dual Cursor` モード
     // （表 T-029a）に入るときも構えを外すこと（MUST）」, with its own reason
     // beside it -- 「同モードは作成・移動・編集を受け付けないので、構えたまま
-    // 入れると何も起きない構えが残る」 (DC-5, which is PD-2 of table T-023a).
+    // 入れると何も起きない構えが残る」 (DC-5, which is PTD-2 of table T-023a).
     //
     // ⛔ THE WAY IN ONLY, WHICH IS WHY THIS IS NOT AN UNCONDITIONAL DISARM.
     // The same entry is DC-4's way OUT (`commandFromDualCursorEntry` reads the

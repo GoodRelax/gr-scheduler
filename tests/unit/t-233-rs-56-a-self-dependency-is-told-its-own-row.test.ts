@@ -43,7 +43,7 @@
 //   T-035 AG-9a: 「拒否の値には、拒否された対象・理由の区分・現在の刻印を含める
 //     こと（MUST）」 -- 「理由の区分」 is what `Refusal.reasonCategory` carries.
 //
-//   T-023a PD-3: 「構えが依存線のときは表 T-023d を適用せず、当たったタスクの
+//   T-023a PTD-3: 「構えが依存線のときは表 T-023d を適用せず、当たったタスクの
 //     左半分 / 右半分で依存の端点を決める」 -- the road these cases drive.
 //   T-023b AR-4 / T-109 IC-61: the entrance that arms the dependency line.
 //
@@ -319,7 +319,7 @@ describe('table T-037 / T-233: a dependency drawn onto its own task is told RS-5
     const bar = one.bars()[0] as { uid: number; box: Box }
     const before = one.dependencyCount()
 
-    // PD-3 with the dependency armed: the press names the predecessor by the
+    // PTD-3 with the dependency armed: the press names the predecessor by the
     // half of the bar it landed on, the release names the successor the same
     // way -- and both halves belong to the SAME bar, which is FR-009's 自己参照.
     one.drag(

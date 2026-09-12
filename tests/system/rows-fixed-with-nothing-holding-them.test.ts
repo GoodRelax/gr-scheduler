@@ -405,7 +405,7 @@ const REACH_PX = 160
  * ⛔ Ground BELOW the last row is no good: `FR-019` (MUST) holds an annotation's
  * position 「日付と行の識別子で」, and ground no row covers points at no row --
  * which is a different rule of the same requirement, and not what D-209 is
- * about. ⭐ Emptiness is the PRODUCT's own answer: `PD-5` gives ground that hit
+ * about. ⭐ Emptiness is the PRODUCT's own answer: `PTD-5` gives ground that hit
  * nothing the plain arrow, read with nothing armed.
  *
  * @purity non-pure

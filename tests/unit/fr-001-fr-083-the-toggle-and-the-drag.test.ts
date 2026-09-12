@@ -271,12 +271,12 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-001 (MUST) -- a milestone is placed by a press alone', MILESTONE_IS_PLACED_BY_A_PRESS_ALONE],
   ['FR-001 (MUST) -- a dragged milestone lands on the pressed point', MILESTONE_LANDS_ON_THE_PRESSED_POINT],
   ['FR-001 (MUST NOT) -- a milestone is not refused for having been dragged', MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG],
-  ['T-023a PD-4 (MUST) -- the held press draws what it would place', PD_4_DRAWS_WHAT_WOULD_BE_PLACED],
-  ['T-023a PD-4 (MUST) -- the draft stretches the way the pointer went', PD_4_STRETCHES_THE_WAY_THE_POINTER_WENT],
-  ['T-023a PD-4 (MUST) -- the draft is the armed row of table T-012', PD_4_THE_DRAFT_IS_THE_ARMED_SHAPE],
-  ['T-023a PD-4 (MUST NOT) -- no other shape is drawn', PD_4_NO_OTHER_SHAPE_IS_DRAWN],
-  ['T-023a PD-4 (MUST NOT) -- the shape is not kept in two places', PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES],
-  ['T-023a PD-4 (MUST NOT) -- nothing is written to the document while held', PD_4_NOTHING_IS_WRITTEN_WHILE_HELD],
+  ['T-023a PTD-4 (MUST) -- the held press draws what it would place', PD_4_DRAWS_WHAT_WOULD_BE_PLACED],
+  ['T-023a PTD-4 (MUST) -- the draft stretches the way the pointer went', PD_4_STRETCHES_THE_WAY_THE_POINTER_WENT],
+  ['T-023a PTD-4 (MUST) -- the draft is the armed row of table T-012', PD_4_THE_DRAFT_IS_THE_ARMED_SHAPE],
+  ['T-023a PTD-4 (MUST NOT) -- no other shape is drawn', PD_4_NO_OTHER_SHAPE_IS_DRAWN],
+  ['T-023a PTD-4 (MUST NOT) -- the shape is not kept in two places', PD_4_THE_SHAPE_IS_NOT_KEPT_IN_TWO_PLACES],
+  ['T-023a PTD-4 (MUST NOT) -- nothing is written to the document while held', PD_4_NOTHING_IS_WRITTEN_WHILE_HELD],
   ['FR-091 (MUST) -- one press closes the panel and lets that selection go', FR_091_ONE_PRESS_CLOSES_AND_LETS_GO],
 ]
 
@@ -754,7 +754,7 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
 
   it('⛔ THE CONTROL: with NOTHING armed the same press tells nothing', () => {
     // ⚠️ WITHOUT THIS, A BUILD THAT RAISED THE TELLING ON EVERY PRESS OF THE
-    // GROUND WOULD PASS ABOVE. With no arm, PD-5 of table T-023a makes the
+    // GROUND WOULD PASS ABOVE. With no arm, PTD-5 of table T-023a makes the
     // press a range selection, which is not an attempt to make anything.
     const bare = gesture({ screenState: emptyScreenState(), from: GROUND })
     expect(bare.action?.kind).not.toBe('tellEntryHasNothingToDo')
@@ -931,7 +931,7 @@ interface Stage {
   /** The same press, travelled past `S-208` -- which is what makes a bar task. */
   dragGround(from: { x: number; y: number }, to: { x: number; y: number }): void
   /**
-   * A press LEFT HELD -- the only moment `PD-4`'s picture can be looked at, and
+   * A press LEFT HELD -- the only moment `PTD-4`'s picture can be looked at, and
    * the reason ruling C needs three drivers where rulings A and B needed one.
    */
   holdGround(at: { x: number; y: number }): void
@@ -1134,11 +1134,11 @@ describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54'
 })
 
 // ===========================================================================
-// 6. RULING C -- the picture a held press owes (PD-4), and the one press that
+// 6. RULING C -- the picture a held press owes (PTD-4), and the one press that
 //    ends the naming it leads to (FR-091)
 // ===========================================================================
 //
-// ⭐⭐ WHY THESE RUN THROUGH THE WHOLE SHELL AND NOT THROUGH UF-30. What PD-4
+// ⭐⭐ WHY THESE RUN THROUGH THE WHOLE SHELL AND NOT THROUGH UF-30. What PTD-4
 // asks for is a PICTURE, and a picture is what UF-48 computes -- `current()`
 // answers `FrameValues`, whose `layout.placements` is 「置くことになる姿」 in the
 // only form anything outside the drawing side can read. UF-30 plans the RELEASE
@@ -1150,7 +1150,7 @@ describe('FR-083 / table T-233: a shape the selection cannot take is told RS-54'
 // picture against itself one move later, and the drawing side against the
 // placing side.
 
-describe('table T-023a PD-4: the held press draws what it would place', () => {
+describe('table T-023a PTD-4: the held press draws what it would place', () => {
   /** Far enough that `S-208` is passed on any machine: ten times the slop. */
   const TRAVEL = DRAG_THRESHOLD * 10
 
@@ -1164,7 +1164,7 @@ describe('table T-023a PD-4: the held press draws what it would place', () => {
 
   it('⛔ THE CONTROL: with NOTHING armed the same held drag draws no task', () => {
     // ⚠️ WITHOUT THIS, A BUILD THAT DREW A TASK FOR EVERY HELD PRESS WOULD PASS
-    // EVERY CASE BELOW. PD-5 is the row a press with no arm falls on, and its
+    // EVERY CASE BELOW. PTD-5 is the row a press with no arm falls on, and its
     // result is 範囲選択 -- not a task.
     const built = stage()
     built.holdGround(GROUND)
@@ -1228,7 +1228,7 @@ describe('table T-023a PD-4: the held press draws what it would place', () => {
   })
 })
 
-describe('table T-023a PD-4 / 台帳 D-373: the draft is the ARMED shape', () => {
+describe('table T-023a PTD-4 / 台帳 D-373: the draft is the ARMED shape', () => {
   const TRAVEL = DRAG_THRESHOLD * 10
 
   it('⭐ a bar shape armed draws table T-012s bar spelling', () => {

@@ -114,7 +114,7 @@ because without it the count drowns:
         `HF-17s`, `NT-1s`, `IV-10s` and five more, 17 occurrences. Dropping the
         optional trailing letter from the token pattern would take the count
         from 445 to 424, and would also stop matching the manuscript's own
-        suffixed rows (`T-005a`, `PD-4a`, `SK-11a`).
+        suffixed rows (`T-005a`, `PTD-4a`, `SK-11a`).
       * fixture data shaped like an ID -- `projectId: 'P-001'` in
         `tests/unit/uf-41-42.test.ts`, 10 occurrences.
       * a prose example of a prefix that must NOT match -- `FR-04`, `HF-120`
@@ -275,7 +275,7 @@ def scan(defined, retired, elsewhere):
                 # ⭐ THE TRAILING LETTER IS DROPPED ONLY WHEN KEEPING IT
                 # RESOLVES TO NOTHING AND DROPPING IT RESOLVES TO SOMETHING.
                 # Widening ID_BODY to forbid the suffix outright would stop
-                # matching T-005a, PD-4a and SK-11a, which are real ids.
+                # matching T-005a, PTD-4a and SK-11a, which are real ids.
                 if (token not in resolvable and token[-1].isalpha()
                         and token[:-1] in resolvable):
                     continue

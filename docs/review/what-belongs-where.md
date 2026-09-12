@@ -234,7 +234,7 @@ A 類（規則・理由の重複）30 群、うち基準線に無い新規は **
 
 | # | 場所 | 何が写しなのか |
 |---|---|---|
-| 1 | `tests/unit/fr-009-pd-3-the-two-halves-of-a-bar.test.ts:116`、`tests/unit/layout-engine.test.ts:1537`、`tests/unit/lf-11-a-milestone-gets-no-resume-icon.test.ts:182`、`tests/unit/t-023d-double-click-only-rows.test.ts:443`、`tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts:334`、`tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts:334`、`tests/unit/t-225-choosing-who-is-on-a-task.test.ts:633` | **7 つのファイルに同じ 1 文が貼られている** —— 消した行がここに在ったという届け。原本は Git にある。 |
+| 1 | `tests/unit/fr-009-ptd-3-the-two-halves-of-a-bar.test.ts:116`、`tests/unit/layout-engine.test.ts:1537`、`tests/unit/lf-11-a-milestone-gets-no-resume-icon.test.ts:182`、`tests/unit/t-023d-double-click-only-rows.test.ts:443`、`tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts:334`、`tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts:334`、`tests/unit/t-225-choosing-who-is-on-a-task.test.ts:633` | **7 つのファイルに同じ 1 文が貼られている** —— 消した行がここに在ったという届け。原本は Git にある。 |
 | 2 | `src/entity/layout-engine/schedule-layout/schedule-layout.ts:166` / `:1275` / `:1322` | **同一ファイル内に、表 T-038 の結びの逐語が 3 度**。原稿を 1 語直すと同じファイルを 3 か所直す。 |
 | 3 | `src/entity/layout-engine/schedule-layout/schedule-layout.ts:175`〜`:177` | **日付つきの実測と欠陥番号がコードに在る。** 同じ内容は `docs/development-records/fixed-defects.md:430` が持つ。台帳が原本である。 |
 | 4 | `src/adapter/input-command-translator/input-command-translator.ts:9590`〜`:9598` | **自分が腐った履歴を自分で語っている。** 見出しが 5 つの数を持ち、2 度とも古くなったと書いてある —— 数を写した罰を、さらに散文で記録している。 |

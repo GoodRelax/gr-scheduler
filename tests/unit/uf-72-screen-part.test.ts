@@ -50,7 +50,7 @@
 //                   日程の描画領域だけとすること -- the floating palette, the
 //                   open surface, the `Notification Area` and the dialogue
 //                   field hold no `ScreenRegions` rectangle, so a non-null
-//                   answer over them is what stops a press from becoming PD-5's
+//                   answer over them is what stops a press from becoming PTD-5's
 //                   marquee underneath
 //   表 T-023b       the arms, and the entries of 表 T-109 that set them
 //   表 T-023d GR-19 「`Command Palette` の掴み帯 | **パレットの上端に敷く帯**
@@ -1839,7 +1839,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
   // こと（MUST）」. The four parts below hold no `ScreenRegions` rectangle -- PI-35
   // has six and none of them is one of these -- so `regionAtPointer` answers
   // `rowArea` for a point on any of them. A non-null answer here is what stops
-  // PD-5's marquee from starting underneath an open surface.
+  // PTD-5's marquee from starting underneath an open surface.
   const overTheSchedule = [
     { part: 'Command Palette', at: AT.paletteNoEntry, why: 'FR-053 floats it' },
     { part: 'Help Modal', at: AT.modalOnly, why: 'S-99g opens it over the screen' },
@@ -1877,7 +1877,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
     })
   })
 
-  it('a press where the schedule is exposed answers null -- and PD-5 may run', () => {
+  it('a press where the schedule is exposed answers null -- and PTD-5 may run', () => {
     const built = drawn(viewWith({}))
 
     expect(ask(built, AT.bareSchedule.x, AT.bareSchedule.y)).toBeNull()
@@ -2021,7 +2021,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
   it('⛔ the band beats what is drawn under it -- the schedule below it never answers', () => {
     // GR-19: 「帯の下に何が描かれていても帯が勝つ —— パレットは日程の上へ浮くの
     // で、掴めない位置へ置けてしまうと二度と動かせなくなる」. The same point with
-    // NO palette drawn is bare schedule, and 表 T-023a would let PD-5 start a
+    // NO palette drawn is bare schedule, and 表 T-023a would let PTD-5 start a
     // marquee there; with the palette drawn it is the band's, first row of its
     // table.
     const bare = drawn(viewWith({}))

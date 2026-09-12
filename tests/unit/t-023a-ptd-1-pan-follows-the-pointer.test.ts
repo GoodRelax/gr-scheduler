@@ -1,4 +1,4 @@
-// `PD-1` of 表 T-023a, as the user's ruling of 2026-08-29 left it: while the
+// `PTD-1` of 表 T-023a, as the user's ruling of 2026-08-29 left it: while the
 // button is DOWN, the schedule follows the pointer in BOTH axes -- and the
 // distance it travels is still the one 表 T-023d states, 等倍.
 //
@@ -26,7 +26,7 @@
 // おらず、そこでも `Unit` は選べない」), and Chapter 7 says in as many words
 // that having no receptacle does not mean the case need not be written --
 // 「⚠️ 受け皿が無いことは、書かなくてよいという意味ではない」. So the case is
-// written here, where it can be measured honestly: what `PD-1` requires is that
+// written here, where it can be measured honestly: what `PTD-1` requires is that
 // the drawing move while the button is held, and `FrameLoop.current()` answers
 // the drawing this loop just made.
 //
@@ -59,15 +59,15 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   T-023a       「上から評価し、最初に成立した行で確定すること（MUST）」
-//   T-023a PD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
+//   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
 //           **パン。** 構えと当たりによらず優先する。**握っているあいだ、縦横の
 //           両方向でポインタに追従させること（MUST）**（利用者の裁定
 //           2026-08-29）—— ⛔ **離すまで動かないと、掴めていないのと見分けが
 //           つかない**（`FR-053` の掴み帯が同じ理由を持つ）。⚠️ **距離は
 //           表 T-023d の「パンは等倍とすること（MUST）」のままである** ——
 //           **追従は絵の話であって、距離の規則を変えるものではない**」
-//   T-023a PD-3  「**何かに当たった**（判定の順と優先は MK-9a）| **そのものへの
-//           操作。**」-- the row PD-1 outranks, which is what 構えと当たりに
+//   T-023a PTD-3  「**何かに当たった**（判定の順と優先は MK-9a）| **そのものへの
+//           操作。**」-- the row PTD-1 outranks, which is what 構えと当たりに
 //           よらず優先する means and what the last case below drives.
 //   T-023d  「**パンは等倍とすること（MUST）** —— ポインタが動いた距離だけ
 //           日程表が動く。倍率を掛けない。⛔ **錠の上にしか着地できない形に
@@ -85,7 +85,7 @@
 //           してはならない（MUST NOT）**」を破る」 and 「⭐ **横の軸の `S-176`
 //           である**」
 //   T-023 MK-7   「**`Ctrl` だけを伴う**ドラッグ / 中ボタンドラッグ | 表 T-023a
-//           の `PD-1`」 -- the two gestures every case below is run through.
+//           の `PTD-1`」 -- the two gestures every case below is run through.
 //
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED
@@ -93,7 +93,7 @@
 //   - WHAT THE DOCUMENT HOLDS DURING OR AFTER A PAN. `FR-031` says outright
 //     「文書を変えないドラッグ（パン・範囲選択）は段を作らない」 and `UN-8` of
 //     table T-027 puts the scroll position outside the history, so where the
-//     four scroll columns stand mid-drag is not a thing `PD-1` settles. What is
+//     four scroll columns stand mid-drag is not a thing `PTD-1` settles. What is
 //     asserted is the PICTURE, which is what the row speaks of.
 //   - WHAT HAPPENS AT THE EDGES OF THE DOCUMENT. Nothing in the specification
 //     states whether a pan is stopped at the first day or the first row, so the
@@ -103,7 +103,7 @@
 //   - THE PIXEL AT WHICH THE POINTER SHAPE CHANGES (`IN-2`), and whether the
 //     browser's own default is stopped (`MK-10`). Both have owners of their
 //     own and neither is what the 2026-08-29 ruling added.
-//   - WHERE THE RELEASE LEAVES THE VIEW. `PD-1` says nothing about the release
+//   - WHERE THE RELEASE LEAVES THE VIEW. `PTD-1` says nothing about the release
 //     and `IN-1` of table T-028 speaks of an operation SETTLING, which a pan
 //     has nothing to settle; a case asserting one would be inventing it.
 //
@@ -203,8 +203,8 @@ function conditionOf(rowId: string): string {
  * regression a specification-driven case exists to catch.
  */
 function equalTravelLine(): string {
-  // ⚠️ The sentence has to be found where it is STATED, not where `PD-1`
-  // quotes it -- `PD-1`'s own cell carries the same words inside 「」 to say
+  // ⚠️ The sentence has to be found where it is STATED, not where `PTD-1`
+  // quotes it -- `PTD-1`'s own cell carries the same words inside 「」 to say
   // that the travel is unchanged, and a search that took the first hit would
   // be reading the quotation back to itself. A table row starts with `|`; the
   // rule's own paragraph does not.
@@ -460,7 +460,7 @@ const pointer = (
 })
 
 /**
- * The two gestures `MK-7` sends to `PD-1`, each spelled as the pointer that
+ * The two gestures `MK-7` sends to `PTD-1`, each spelled as the pointer that
  * carries it.
  *
  * ⚠️ The modifier travels on EVERY happening of the gesture, not only the
@@ -550,7 +550,7 @@ const planBox = (loop: FrameLoop, uid: number): Box =>
 
 const midY = (box: Box): number => (box.y0 + box.y1) / 2
 
-/** Where the whole picture stands right now, in the two axes `PD-1` names. */
+/** Where the whole picture stands right now, in the two axes `PTD-1` names. */
 interface Where {
   readonly x: number
   readonly y: number
@@ -601,25 +601,25 @@ const ONE_TO_ONE_PX = 0.5
 // ===========================================================================
 
 describe('the manuscript still states the rule this file is about', () => {
-  it('makes PD-1 the first row of table T-023a, evaluated from the top', () => {
+  it('makes PTD-1 the first row of table T-023a, evaluated from the top', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
     expect(rows[0], 'table T-023a: 上から評価し、最初に成立した行で確定すること（MUST）').toBe(
-      'PD-1',
+      'PTD-1',
     )
   })
 
   it('names the two gestures MK-7 sends to it', () => {
-    const condition = conditionOf('PD-1')
-    expect(condition, 'table T-023a PD-1: 中ボタンドラッグ').toContain('中ボタンドラッグ')
-    expect(condition, 'table T-023a PD-1: `Ctrl` だけを伴う左ドラッグ').toContain('左ドラッグ')
+    const condition = conditionOf('PTD-1')
+    expect(condition, 'table T-023a PTD-1: 中ボタンドラッグ').toContain('中ボタンドラッグ')
+    expect(condition, 'table T-023a PTD-1: `Ctrl` だけを伴う左ドラッグ').toContain('左ドラッグ')
     expect(condition).toContain('Ctrl')
   })
 
   it('has the schedule follow the pointer in BOTH axes while it is held (MUST)', () => {
-    const result = resultOf('PD-1')
+    const result = resultOf('PTD-1')
     expect(
       result,
-      'table T-023a PD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
+      'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
     ).toContain('握っているあいだ、縦横の両方向でポインタに追従させること（MUST）')
     expect(result, 'and the reason it gives').toContain(
       '離すまで動かないと、掴めていないのと見分けがつかない',
@@ -627,29 +627,29 @@ describe('the manuscript still states the rule this file is about', () => {
   })
 
   it('outranks 構え and 当たり, and leaves the travel where table T-023d had it', () => {
-    const result = resultOf('PD-1')
-    expect(result, 'table T-023a PD-1: 構えと当たりによらず優先する').toContain(
+    const result = resultOf('PTD-1')
+    expect(result, 'table T-023a PTD-1: 構えと当たりによらず優先する').toContain(
       '構えと当たりによらず優先する',
     )
-    // ⚠️ PD-1 no longer QUOTES the sentence inside 「」; it points at the seat
+    // ⚠️ PTD-1 no longer QUOTES the sentence inside 「」; it points at the seat
     // that states it. So the pair is read as a pair: the cell must still defer
     // the travel to 表 T-023d, and 表 T-023d must still state it word for word
     // -- `equalTravelLine()` throws if that seat is gone.
-    expect(result, 'table T-023a PD-1: 距離は 表 T-023d の等倍の定めのままである').toContain(
+    expect(result, 'table T-023a PTD-1: 距離は 表 T-023d の等倍の定めのままである').toContain(
       '距離は 表 T-023d の等倍の定めのままである',
     )
     expect(
       equalTravelLine(),
-      'table T-023d, the seat PD-1 points at: パンは等倍とすること（MUST）',
+      'table T-023d, the seat PTD-1 points at: パンは等倍とすること（MUST）',
     ).toContain('パンは等倍とすること（MUST）')
     expect(result, 'and it says why: 追従は絵の話であって、距離の規則を変えるものではない').toContain(
       '追従は絵の話であって、距離の規則を変えるものではない',
     )
     // The row it outranks has to exist for that clause to mean anything.
-    expect(resultOf('PD-3'), 'table T-023a PD-3: そのものへの操作').toContain('そのものへの操作')
+    expect(resultOf('PTD-3'), 'table T-023a PTD-3: そのものへの操作').toContain('そのものへの操作')
   })
 
-  it('still states 等倍 where PD-1 points, and forbids landing only on the lock', () => {
+  it('still states 等倍 where PTD-1 points, and forbids landing only on the lock', () => {
     const line = equalTravelLine()
     expect(line, 'table T-023d: ポインタが動いた距離だけ日程表が動く。倍率を掛けない').toContain(
       'ポインタが動いた距離だけ日程表が動く',
@@ -670,7 +670,7 @@ describe('the fixture puts the view where a pan has room in every direction', ()
     expect(near.x1, 'Alpha is drawn').toBeGreaterThan(near.x0)
     expect(far.x1, 'Beta is drawn').toBeGreaterThan(far.x0)
     // ⛔ A PREMISE, NOT A DECORATION: if the press point stood on a bar, a case
-    // that failed would not say whether PD-1 was ignored or whether PD-3 had
+    // that failed would not say whether PTD-1 was ignored or whether PTD-3 had
     // simply been reached first.
     const at = emptySpot(built.loop)
     for (const uid of [NEAR_UID, FAR_UID]) {
@@ -698,13 +698,13 @@ describe('the fixture puts the view where a pan has room in every direction', ()
 // ===========================================================================
 
 describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
-  'table T-023a PD-1 (%s): the schedule follows the pointer while it is held',
+  'table T-023a PTD-1 (%s): the schedule follows the pointer while it is held',
   (_name, how) => {
     it('carries the drawing sideways with the pointer (MUST)', () => {
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
-      // ⭐ READ AFTER THE PRESS. `PD-1` speaks of 握っているあいだ, so the press
+      // ⭐ READ AFTER THE PRESS. `PTD-1` speaks of 握っているあいだ, so the press
       // is where the holding starts and the picture it left is what the pointer
       // is measured against.
       const held = whereIs(built.loop, NEAR_UID)
@@ -713,7 +713,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const now = whereIs(built.loop, NEAR_UID)
       expect(
         now.x,
-        'table T-023a PD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
+        'table T-023a PTD-1: 握っているあいだ、縦横の両方向でポインタに追従させること（MUST）',
       ).toBeGreaterThan(held.x)
       expect(
         Math.abs(now.x - held.x - travel.x),
@@ -733,7 +733,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const now = whereIs(built.loop, NEAR_UID)
       expect(
         now.y,
-        'table T-023a PD-1: 縦横の両方向で -- 縦を止めると、掴めていないのと見分けがつかない',
+        'table T-023a PTD-1: 縦横の両方向で -- 縦を止めると、掴めていないのと見分けがつかない',
       ).toBeGreaterThan(held.y)
       expect(
         Math.abs(now.y - held.y - travel.y),
@@ -836,7 +836,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       const back = whereIs(built.loop, NEAR_UID)
       expect(
         back.x,
-        'table T-023a PD-1: 追従 means the picture belongs to the POINTER, so it comes back with it',
+        'table T-023a PTD-1: 追従 means the picture belongs to the POINTER, so it comes back with it',
       ).toBeCloseTo(held.x, 6)
       expect(back.y).toBeCloseTo(held.y, 6)
     })
@@ -867,7 +867,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('pans even when the press lands on a Task (構えと当たりによらず優先する)', () => {
-      // `PD-1` is evaluated before `PD-3`, so a press on a bar with the pan
+      // `PTD-1` is evaluated before `PTD-3`, so a press on a bar with the pan
       // gesture is a pan. ⭐ The proof is that the OTHER Task moves too: a grab
       // (`GR-12`) would carry the pressed bar alone.
       const built = stage()
@@ -879,11 +879,11 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       built.send(pointer('move', at.x + travel.x, at.y + travel.y, how))
       expect(
         Math.abs(whereIs(built.loop, FAR_UID).x - far.x - travel.x),
-        'table T-023a PD-1: パン。構えと当たりによらず優先する',
+        'table T-023a PTD-1: パン。構えと当たりによらず優先する',
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
       expect(
         Math.abs(whereIs(built.loop, FAR_UID).y - far.y - travel.y),
-        'table T-023a PD-1: 縦横の両方向で',
+        'table T-023a PTD-1: 縦横の両方向で',
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
     })
   },

@@ -465,7 +465,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
  * this one: inside a row the topmost thing at any point is the row's own band,
  * so that reading is never the drawing itself and calling it "something is
  * drawn here" would rule out every point on every row. ⭐ THE APPLICATION IS
- * ASKED INSTEAD: PD-5 gives ground that hit nothing the plain arrow, so the
+ * ASKED INSTEAD: PTD-5 gives ground that hit nothing the plain arrow, so the
  * shape the canvas is showing IS the product's own answer to "is anything here",
  * and it is read with nothing armed so that no arming can colour it.
  *
@@ -714,8 +714,8 @@ test('D-06: with the comment box entrance armed, a press on empty canvas places 
   // ⭐ A SECOND ONE, AND THE ARMING IS NOT PRESSED AGAIN. Table T-023b's closing
   // rule keeps an arming standing (MUST), so a second press owes a second box --
   // and it owes a second IDENTIFIER, which is the half no single placement can
-  // show. ⛔ Off the first box, not on it: a press that hits one is PD-3's and
-  // not PD-4's.
+  // show. ⛔ Off the first box, not on it: a press that hits one is PTD-3's and
+  // not PTD-4's.
   await app.page.mouse.move(spot.x + REACH_PX, spot.y)
   await app.page.mouse.down()
   await app.page.mouse.up()

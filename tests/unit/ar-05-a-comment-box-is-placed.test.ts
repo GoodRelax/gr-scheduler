@@ -27,7 +27,7 @@
 //                second box, and therefore a second identifier.
 //   T-023a       表題 「ポインタを押したときの判定順序」 -- THE PRESS is what
 //                the order reads.
-//   T-023a PD-4  「何にも当たらない かつ **図形または注記を構えている**（表
+//   T-023a PTD-4  「何にも当たらない かつ **図形または注記を構えている**（表
 //                T-023b の AR-2 / AR-3 / AR-5 / AR-6） | 構えているものを
 //                **作る**」
 //   T-023a 第1分岐 「第 1 の分岐は「当たったか」であり、「構えているか」は
@@ -57,7 +57,7 @@
 // ⛔⛔ TWO THINGS THE SPECIFICATION DOES NOT DECIDE, AND SO HAVE NO CASE HERE.
 // Both are recorded as D-193 of docs/development-records/defects.md.
 //
-//   1. WHAT A BOX PLACED ON GROUND BELOW THE LAST ROW ANCHORS TO. PD-4 says the
+//   1. WHAT A BOX PLACED ON GROUND BELOW THE LAST ROW ANCHORS TO. PTD-4 says the
 //      armed thing is made; FR-019 (MUST) and RL-18 need a row identifier; no
 //      row of any table reconciles them. ⛔ FR-001's answer for a Task
 //      （「指す `TaskGroup` が無いときは行を 1 つ作ってそこへ載せること
@@ -484,13 +484,13 @@ const dayTextOf = (value: unknown): string => String(value).slice(0, 10)
 // ---------------------------------------------------------------------------
 
 describe('the rows these cases stand on', () => {
-  it('表 T-023a still evaluates the press, with PD-4 between PD-3 and PD-4a', () => {
+  it('表 T-023a still evaluates the press, with PTD-4 between PTD-3 and PTD-4a', () => {
     const order = specTable('T-023a').rows.map((row) => row.id)
-    expect(order).toEqual(['PD-1', 'PD-2', 'PD-3', 'PD-4', 'PD-4a', 'PD-5'])
+    expect(order).toEqual(['PTD-1', 'PTD-2', 'PTD-3', 'PTD-4', 'PTD-4a', 'PTD-5'])
     // 表題: 「ポインタを押したときの判定順序」 -- the press, not the release.
     expect(specTable('T-023a').caption).toContain('ポインタを押したとき')
-    // PD-4's condition names AR-5 among the armings it fires for.
-    expect(rowOf('T-023a', 'PD-4')['条件']).toContain('AR-5')
+    // PTD-4's condition names AR-5 among the armings it fires for.
+    expect(rowOf('T-023a', 'PTD-4')['条件']).toContain('AR-5')
   })
 
   it('表 T-023b still has AR-5, and it points at FR-019 and lets the existing win', () => {
@@ -548,27 +548,27 @@ describe('the rows these cases stand on', () => {
 })
 
 // ---------------------------------------------------------------------------
-// 表 T-023a PD-4 with 表 T-023b AR-5 -- the press plans CM-46
+// 表 T-023a PTD-4 with 表 T-023b AR-5 -- the press plans CM-46
 // ---------------------------------------------------------------------------
 
-describe('PD-4 / AR-5 -- an armed comment box entrance plans a placement', () => {
-  it('PD-4: a press that hit nothing while AR-5 is armed resolves to PD-4', () => {
+describe('PTD-4 / AR-5 -- an armed comment box entrance plans a placement', () => {
+  it('PTD-4: a press that hit nothing while AR-5 is armed resolves to PTD-4', () => {
     const row = pressRowFor(pointerOf('down', midXOfDay(PRESS_DAY), midYOfRow(PRESS_ROW_ID)), null, {
       screenState: armedWith(ARMED_COMMENT_BOX),
     })
-    expect(row).toBe('PD-4')
+    expect(row).toBe('PTD-4')
   })
 
-  it('PD-5: the same press with nothing armed (AR-1) is not PD-4', () => {
+  it('PTD-5: the same press with nothing armed (AR-1) is not PTD-4', () => {
     const row = pressRowFor(pointerOf('down', midXOfDay(PRESS_DAY), midYOfRow(PRESS_ROW_ID)), null)
-    expect(row).toBe('PD-5')
+    expect(row).toBe('PTD-5')
   })
 
   it('AR-5 (MUST): the gesture asks for exactly one CM-46 and for no Task', () => {
     const answer = placingGesture()
     expect(kindsOf(answer)).toContain(CM_46)
     expect(commandsOf(answer).filter((one) => one.kind === CM_46)).toHaveLength(1)
-    // PD-4 makes 「構えているもの」 and nothing else: AR-5 is not a shape row.
+    // PTD-4 makes 「構えているもの」 and nothing else: AR-5 is not a shape row.
     expect(kindsOf(answer)).not.toContain('createTask')
     // UN-11 keeps the arming outside the undo record, so no write touches it.
     expect(kindsOf(answer)).not.toContain('setArmed')

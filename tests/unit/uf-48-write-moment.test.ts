@@ -60,10 +60,10 @@
 //   表 T-027 UN-8   ズーム・スクロール・パン are outside the undo record, and
 //   表 T-027 UN-9   選択 is outside it -- the two AG-9 exempts, because neither
 //                   changes the document.
-//   表 T-023a PD-1  中ボタンドラッグ、または Ctrl だけを伴う左ドラッグ = パン。
+//   表 T-023a PTD-1  中ボタンドラッグ、または Ctrl だけを伴う左ドラッグ = パン。
 //                   構えと当たりによらず優先する -- a pan press, whatever it
 //                   landed on.
-//   表 T-023a PD-5  何にも当たらない かつ 構えていない = 範囲選択 -- a range
+//   表 T-023a PTD-5  何にも当たらない かつ 構えていない = 範囲選択 -- a range
 //                   selection press.
 //   表 T-028 IN-1   ポインタ操作は押した時点で実行せず、離した時点で確定する
 //                   こと。中断は `Esc` で行い -- a press ends EITHER by the
@@ -399,7 +399,7 @@ const pointsOfBar = (bar: BarGeometry | null): Point[] => {
 
 /**
  * A point inside the Row Area (U-50) that no drawn Task occupies, so that a
- * press there is PD-5 of table T-023a: 何にも当たらない かつ 構えていない,
+ * press there is PTD-5 of table T-023a: 何にも当たらない かつ 構えていない,
  * which is a range selection. The premise -- that it really does miss
  * everything drawn -- is asserted by a case of its own below.
  */
@@ -517,8 +517,8 @@ describe('the premises these cases rest on', () => {
   })
 
   it('the spot the range-selection case presses on is clear of everything drawn', () => {
-    // ⛔ A premise of the PD-5 case: 何にも当たらない has to be true of the
-    // point, or the case would be driving PD-3 (そのものへの操作) instead.
+    // ⛔ A premise of the PTD-5 case: 何にも当たらない has to be true of the
+    // point, or the case would be driving PTD-3 (そのものへの操作) instead.
     // Table T-023d gives every grab a reach, so mere clearance of the ink is
     // not enough. ⭐ The dummies reach no further than the ink itself since
     // 2026-09-10 (table T-023d's closing rule), so the widest of the reaches
@@ -764,8 +764,8 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
   // softened to green: an implementation wider than the specification is a
   // finding, not a chore.
 
-  it('a pan press (PD-1) is in flight -> SK-20 arrives -> the write lands', () => {
-    // PD-1 of table T-023a: 中ボタンドラッグ、または `Ctrl` だけを伴う左ドラッグ
+  it('a pan press (PTD-1) is in flight -> SK-20 arrives -> the write lands', () => {
+    // PTD-1 of table T-023a: 中ボタンドラッグ、または `Ctrl` だけを伴う左ドラッグ
     // = パン。構えと当たりによらず優先する. So this press is a pan even though
     // it landed on a Task's plan bar -- and a pan is UN-8, 対象外, which AG-9
     // names as not refused.
@@ -784,8 +784,8 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
     pane.runAnimationFrames()
   })
 
-  it('a range-selection press (PD-5) is in flight -> SK-20 arrives -> the write lands', () => {
-    // PD-5 of table T-023a: 何にも当たらない かつ 構えていない = 範囲選択. A
+  it('a range-selection press (PTD-5) is in flight -> SK-20 arrives -> the write lands', () => {
+    // PTD-5 of table T-023a: 何にも当たらない かつ 構えていない = 範囲選択. A
     // selection is UN-9, 対象外, which AG-9 names as not refused.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)

@@ -69,7 +69,7 @@ SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
 # ⭐ The four tables FR-036 (MUST) puts on the help that no section already
 # carried. Table T-023 is `assignments` and table T-023b is `arms`, both of
 # which were raised for other reasons and serve here too.
-PRESS_ORDER_ROW = re.compile(r'^\| (PD-\d+[a-z]?) \|')
+PRESS_ORDER_ROW = re.compile(r'^\| (PTD-\d+[a-z]?) \|')
 SELECTING_ROW = re.compile(r'^\| (SL-\d+[a-z]?) \|')
 GRAB_AREA_ROW = re.compile(r'^\| (GR-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')

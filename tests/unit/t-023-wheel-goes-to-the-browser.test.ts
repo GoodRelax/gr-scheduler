@@ -106,7 +106,7 @@
 //      behaviour is still stopped, which is MK-10's MUST and is untouched by
 //      this rule. Whether the save should be refused while a surface stands is
 //      not written anywhere and is not asserted.
-//   5. THE POINTER. The rule is about the wheel and the keys; PD-1 〜 PD-5 of
+//   5. THE POINTER. The rule is about the wheel and the keys; PTD-1 〜 PTD-5 of
 //      table T-023a are not in its subject and nothing here presses a button.
 
 import { readFileSync } from 'node:fs'

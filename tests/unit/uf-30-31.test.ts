@@ -16,7 +16,7 @@
 // a table, never from the implementation.
 //
 // The rows these cases answer to (rule 03: name the row, never copy its prose):
-//   T-023a  PD-1..PD-5 -- the press decision order, first row that holds wins
+//   T-023a  PTD-1..PTD-5 -- the press decision order, first row that holds wins
 //   T-023b  AR-1..AR-6 -- what may be armed
 //   T-023   MK-1..MK-13 -- the pointer and keyboard assignment
 //   T-023c  SL-1..SL-8 -- selection (FR-081)
@@ -97,7 +97,7 @@ import { specTable } from '../contract/spec-table'
 // ---------------------------------------------------------------------------
 
 /** 表 T-023a -- the press decision order, evaluated from the top (MUST). */
-const T_023A = ['PD-1', 'PD-2', 'PD-3', 'PD-4', 'PD-4a', 'PD-5'] as const
+const T_023A = ['PTD-1', 'PTD-2', 'PTD-3', 'PTD-4', 'PTD-4a', 'PTD-5'] as const
 
 /** 表 T-023b -- what the palette may have armed. */
 const T_023B = [
@@ -867,8 +867,8 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
     )
     // `on: null` is what admits table T-023a: the press landed on the
     // schedule's drawing area and on no drawn entry.
-    // PD-2 of table T-023a: in Dual Cursor mode the press hits nothing by rule.
-    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null, on: null, pressRow: 'PD-2' as const }
+    // PTD-2 of table T-023a: in Dual Cursor mode the press hits nothing by rule.
+    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null, on: null, pressRow: 'PTD-2' as const }
 
     // Level 1 -- the open surface.
     state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, dualCursorFollowing: 'date1' }))
@@ -1161,7 +1161,7 @@ describe('MK-10 / MK-12 of 表 T-023 -- the browser keeps what this tool did not
 
   it('MK-12 (MUST NOT): an unassigned modified drag still lands on 表 T-023a', () => {
     // Alt + drag and Ctrl + Shift + drag have no assignment of their own, and
-    // the row forbids answering "nothing": PD-3 decides, because something is
+    // the row forbids answering "nothing": PTD-3 decides, because something is
     // under the pointer.
     for (const mods of [modsOf({ alt: true }), modsOf({ ctrl: true, shift: true })]) {
       const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { modifiers: mods })
@@ -1515,8 +1515,8 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
       at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       hit: TASK_1_HIT,
       on: null,
-      // PD-3: the press landed on something, so it is an operation on that.
-      pressRow: 'PD-3' as const,
+      // PTD-3: the press landed on something, so it is an operation on that.
+      pressRow: 'PTD-3' as const,
     }
     for (const mods of [modsOf({ ctrl: true }), modsOf({ shift: true }), modsOf({ alt: true })]) {
       const answer = commandFromInput(wheelOf(X(), Y(), -1, mods), contextOf({ pressed }))
@@ -1546,7 +1546,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     const seen: Record<string, boolean> = {}
     for (const row of T_023A) {
       switch (row) {
-        case 'PD-1': {
+        case 'PTD-1': {
           // Ctrl alone, on top of something: still a pan.
           const mods = modsOf({ ctrl: true })
           const answer = gestureAction(
@@ -1559,7 +1559,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           seen[row] = true
           break
         }
-        case 'PD-2': {
+        case 'PTD-2': {
           // Dual Cursor mode: DC-5 refuses creation, movement and editing.
           const answer = gestureAction(
             pointerOf('down', from, y1),
@@ -1572,7 +1572,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           seen[row] = true
           break
         }
-        case 'PD-3': {
+        case 'PTD-3': {
           const answer = gestureAction(
             pointerOf('down', from, y1),
             pointerOf('up', to, y1),
@@ -1582,7 +1582,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           seen[row] = true
           break
         }
-        case 'PD-4': {
+        case 'PTD-4': {
           const answer = gestureAction(
             pointerOf('down', from, y3),
             pointerOf('up', to, y3),
@@ -1593,12 +1593,12 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           seen[row] = true
           break
         }
-        case 'PD-4a': {
+        case 'PTD-4a': {
           const armedLine = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
           const context = contextOf({
             screenState: armedLine,
-            // PD-4a: the dependency arm on ground that hit nothing.
-            pressed: { at: pointerOf('down', from, y3), hit: null, on: null, pressRow: 'PD-4a' as const },
+            // PTD-4a: the dependency arm on ground that hit nothing.
+            pressed: { at: pointerOf('down', from, y3), hit: null, on: null, pressRow: 'PTD-4a' as const },
           })
           const up = pointerOf('up', to, y3)
           expect(commandFromInput(up, context).action, row).toBeNull()
@@ -1607,7 +1607,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           seen[row] = true
           break
         }
-        case 'PD-5': {
+        case 'PTD-5': {
           const marquee = marqueeOverTask1()
           const picked = gestureSelection(marquee.from, marquee.to, null)
           expect(picked.items.map((one) => one.kind), row).toContain('task')
@@ -1619,7 +1619,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     expect(Object.keys(seen).sort()).toEqual([...T_023A].sort())
   })
 
-  it('PD-1: the middle button pans too', () => {
+  it('PTD-1: the middle button pans too', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { button: 'middle' }),
       pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1'), { button: 'middle' }),
@@ -1700,7 +1700,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     scrollDayOffset: SETTINGS.scrollDayOffset,
   }
 
-  /** `Ctrl` + drag is the pan of PD-1 / MK-7; `from` and `to` are the pointer. */
+  /** `Ctrl` + drag is the pan of PTD-1 / MK-7; `from` and `to` are the pointer. */
   const pannedBy = (dx: number, dy: number): Record<string, unknown> => {
     const mods = modsOf({ ctrl: true })
     const from = { x: xOfDay('2026-01-06'), y: midYOfRow('g3') }
@@ -1785,7 +1785,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
   })
 
   it('第 1 の分岐 (MUST): what was hit decides before what is armed', () => {
-    // PD-3 comes before PD-4, so an armed shape does not make a new Task on
+    // PTD-3 comes before PTD-4, so an armed shape does not make a new Task on
     // top of an existing one.
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
@@ -2049,11 +2049,11 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     expect(kindsOf(answer)).not.toContain('setTaskWbsParent')
   })
 
-  it('AR-4 / PD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
+  it('AR-4 / PTD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
     const context = contextOf({
       screenState: armedWith({ kind: 'dependency' }),
-      // PD-4a: the dependency arm on ground that hit nothing.
-      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null, pressRow: 'PD-4a' as const },
+      // PTD-4a: the dependency arm on ground that hit nothing.
+      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null, pressRow: 'PTD-4a' as const },
     })
     const up = pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3'))
     expect(commandFromInput(up, context).action).toBeNull()
@@ -2219,13 +2219,13 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
 
   it('MK-11 only bites when nothing is armed (FR-083 note)', () => {
     // 「`MK-11` は構えていないときにだけ効く」 -- with a shape armed, a click on
-    // empty ground is PD-4 and not PD-5, so the selection is not the answer
+    // empty ground is PTD-4 and not PTD-5, so the selection is not the answer
     // being asked for.
     // ⭐ THE DISCRIMINATION THIS BUYS, AND WHY IT NO LONGER READS `createTask`.
     // Until 2026-09-07 the armed click made a task, and that WAS the mark of
-    // PD-4; the ruling of that day took the task away but not the road. So the
-    // two roads are told apart by what PD-4 now owes -- FR-001's 「作らなかった
-    // ことを告げること（MUST）」 -- while a bare click on nothing (PD-5) is the
+    // PTD-4; the ruling of that day took the task away but not the road. So the
+    // two roads are told apart by what PTD-4 now owes -- FR-001's 「作らなかった
+    // ことを告げること（MUST）」 -- while a bare click on nothing (PTD-5) is the
     // selection's alone and answers no action at all. ⛔ An implementation that
     // let MK-11 swallow the armed press would answer `null` here and fail.
     const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
@@ -2632,7 +2632,7 @@ describe('MK-13 of 表 T-023 -- the double click', () => {
   })
 
   // MK-13 assigns the name edit to a DOUBLE click. A bare press on the same
-  // body is PD-3 of 表 T-023a and MK-8 of 表 T-023 -- 「そのものへの操作」, which
+  // body is PTD-3 of 表 T-023a and MK-8 of 表 T-023 -- 「そのものへの操作」, which
   // for a press that goes nowhere is the selection (SL-2 of 表 T-023c).
   // ⛔ WHAT THIS CASE USED TO SAY -- that a single click does not open the
   // properties panel -- states no rule any more: MK-13 forbids that route to
@@ -2702,7 +2702,7 @@ describe('表 T-027 -- undo carries the document, not the view', () => {
 // 表 T-029a の DC-5 -- the Dual Cursor refuses creation, movement and editing
 // ---------------------------------------------------------------------------
 
-describe('DC-5 of 表 T-029a / PD-2 -- the Dual Cursor mode is exclusive', () => {
+describe('DC-5 of 表 T-029a / PTD-2 -- the Dual Cursor mode is exclusive', () => {
   const dual = { dualCursorFollowing: 'date1' as const }
 
   it('refuses to create, move or edit while the mode is up (MUST NOT)', () => {

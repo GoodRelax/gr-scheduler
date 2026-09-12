@@ -27,7 +27,7 @@ status: plan
 **仕様書の表 T-023a の行を「閉じた決めごと」と判定した。**
 体がその一覧で掃き、**`item-hit-area.ts` から生きた指し先を 3 箇所剥がした。**うち 1 件は文字どおり:
 
-> `Table T-023a's PD-3 says the same from the other side`
+> `Table T-023a's PTD-3 says the same from the other side`
 
 ⇒ ファイルごと戻したが、⭐ **これは偶然ではなく構造が保証していた事故である。**
 **同じ分類器を次に誰が書いても、同じ判定をする。**
@@ -54,7 +54,7 @@ status: plan
 | 　└ 写し（記録が仕様の行を名指す。`UF-` 37・`PG-` 13 ほか）| 63 |
 
 ```
-SPEC   PD-1 = 中ボタンドラッグ、または Ctrl だけを伴う左ドラッグ → パン
+SPEC   PTD-1 = 中ボタンドラッグ、または Ctrl だけを伴う左ドラッグ → パン
 LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固定色 2 つの値
 ```
 
@@ -89,7 +89,7 @@ LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固
 ```
 74  src/adapter/input-command-translator/input-command-translator.ts
 41  src/framework/single-html-shell/frame-loop.ts
-38  tests/unit/t-023a-pd-1-pan-follows-the-pointer.test.ts
+38  tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts
 35  tests/unit/uf-30-31.test.ts
 25  docs/development-records/fixed-defects.md
 23  docs/development-records/pending-decisions.md
@@ -105,9 +105,9 @@ LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固
 |---|---|---|
 | **1** | **`PD-4` が `PD-4a` を食う** | `PD-4` の正規表現は `PD-4a` の頭に当たる。⛔ **必ず `\b` ではなく `(?![0-9a-z])` で止める** |
 | **2** | **`PD-1` が `PD-10` `PD-100` を食う** | 同上。**曖昧集合と明白集合を同じ走査で扱ってはならない** |
-| **3** | **試験ファイル名**に `pd-` が入っている | `t-023a-pd-1-…test.ts` / `fr-009-pd-3-…test.ts` ⇒ **`git mv` が要る** |
-| **4** | **コードの型の値である** | `export type PressRow = 'PD-1' \| … \| 'PD-5'` ⇒ **製品コードの変更。掃除の巡では触れない** |
-| **5** | **生成の経路に入っている** | `_source/display-words.json` が `"rowId": "PD-1"` を持ち、**roster は `docs/spec` から毎回読む** ⇒ **片方だけ変えると `npm run gen:check` が落ちる** |
+| **3** | **試験ファイル名**に `pd-` が入っている | `t-023a-ptd-1-…test.ts` / `fr-009-ptd-3-…test.ts` ⇒ **`git mv` が要る** |
+| **4** | **コードの型の値である** | `export type PressRow = 'PTD-1' \| … \| 'PTD-5'` ⇒ **製品コードの変更。掃除の巡では触れない** |
+| **5** | **生成の経路に入っている** | `_source/display-words.json` が `"rowId": "PTD-1"` を持ち、**roster は `docs/spec` から毎回読む** ⇒ **片方だけ変えると `npm run gen:check` が落ちる** |
 
 ⚠️ さらに: **`docs/spec/_source/*.json` の `$comment` が台帳側の `PD-51` / `PD-160` を引いている。**
 ⇒ **SSOT の中に台帳の ID が在る。**これは `PND-` 側である。
@@ -121,7 +121,7 @@ LEDGER PD-1 = themeHue から実際の色を解く彩度と明度、および固
 **成果物**: `docs/review/pd-sites.jsonl` —— 1,684 箇所すべてを 1 行 1 件で:
 
 ```json
-{"path":"src/...ts","line":175,"token":"PD-1","target":"PTD-1",
+{"path":"src/...ts","line":175,"token":"PTD-1","target":"PTD-1",
  "evidence":"PressRow type literal; 表 T-023a の行","confidence":"certain"}
 ```
 

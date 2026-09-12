@@ -43,7 +43,7 @@ copies of the manuscripts would double every count and it goes stale between
 runs.
 
 ⚠️ A ROW ID MAY BE WRAPPED. `| **`S-1`** |`, `| `S-1` |` and `| S-1 |` all
-occur, and the number may carry a letter (`PD-4a`). The pattern below matches
+occur, and the number may carry a letter (`PTD-4a`). The pattern below matches
 all of them and anchors on the FIRST cell, so a row that MENTIONS `MK-9a` in
 its prose is not read as defining it.
 

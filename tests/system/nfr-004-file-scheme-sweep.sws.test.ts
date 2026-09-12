@@ -305,7 +305,7 @@ interface RawGeometry {
 }
 
 interface Geometry {
-  /** Centre of the widest bar drawn -- GR-12, MK-8, PD-3, SL-1. */
+  /** Centre of the widest bar drawn -- GR-12, MK-8, PTD-3, SL-1. */
   readonly barBody: Spot
   /** Just inside that bar's left edge -- GR-3. */
   readonly barStart: Spot
@@ -313,7 +313,7 @@ interface Geometry {
   readonly barFinish: Spot
   /** A second bar, for SL-2 and SL-4. */
   readonly otherBar: Spot | null
-  /** A point in the schedule area with nothing drawn under it -- PD-4, PD-5, MK-6, MK-11. */
+  /** A point in the schedule area with nothing drawn under it -- PTD-4, PTD-5, MK-6, MK-11. */
   readonly empty: Spot | null
   /** The palette's grab band -- GR-19, and MK-9a's overlap with what is beneath it. */
   readonly paletteBand: Spot | null
@@ -577,7 +577,7 @@ async function reveal(page: Page, at: Spot): Promise<void> {
  * ⭐ THE HELD READING IS NOT A CONVENIENCE. ZO-6 of table T-020 has the rubber
  * band of SL-3 「握っているあいだだけ描き、離したら消すこと（MUST）」, so a
  * before/after pair is blind to it by the specification's own design: the
- * drawing is meant to come back. PD-1 and GR-19 put the same MUST on following
+ * drawing is meant to come back. PTD-1 and GR-19 put the same MUST on following
  * the pointer while held.
  */
 async function dragFrom(page: Page, from: Spot, dx: number, dy: number): Promise<number> {
@@ -688,8 +688,8 @@ interface Probe {
    *
    *   answers          the tool answers -- the drawing or the screen moves
    *   answersWhileHeld the answer is drawn only while the button is down
-   *                    (SL-3's rubber band, PD-1's and GR-19's following)
-   *   placesNothing    the row's answer IS "no shape is placed" -- PD-4a, MK-12
+   *                    (SL-3's rubber band, PTD-1's and GR-19's following)
+   *   placesNothing    the row's answer IS "no shape is placed" -- PTD-4a, MK-12
    *                    and SK-1 / SK-1a. ⛔ NOT "the screen stands still": those
    *                    rows keep an arm, and an arm's marking moves the screen.
    *   answersSilently  the row's answer is KEPT INSIDE THE TOOL and shows
@@ -849,7 +849,7 @@ async function stroke(page: Page, keys: string): Promise<null> {
  *
  * ⭐ ORDER MATTERS AND IS PART OF THE READING: SL-2 means "the previous
  * selection is replaced", which can only be seen after SL-1 has made one, and
- * PD-2 has to be left again before the rows after it can hit-test at all.
+ * PTD-2 has to be left again before the rows after it can hit-test at all.
  */
 const PROBES: readonly Probe[] = [
   // ---- table T-023: pointer and keyboard assignments -----------------------
@@ -861,15 +861,15 @@ const PROBES: readonly Probe[] = [
   {
     // SL-3's rubber band is drawn only while the button is down (ZO-6), so the
     // reading that judges this row is the held one.
-    rows: ['MK-6', 'PD-5', 'SL-3'],
+    rows: ['MK-6', 'PTD-5', 'SL-3'],
     expect: 'answersWhileHeld',
     act: async (p, g) => {
-      if (g.empty === null) throw new Error('PD-5 needs a place in the schedule area with nothing drawn under it')
+      if (g.empty === null) throw new Error('PTD-5 needs a place in the schedule area with nothing drawn under it')
       return dragFrom(p, g.empty, -260, -90)
     },
   },
   {
-    rows: ['MK-7', 'PD-1'],
+    rows: ['MK-7', 'PTD-1'],
     expect: 'answers',
     act: async (p, g) => {
       await p.keyboard.down('Control')
@@ -878,7 +878,7 @@ const PROBES: readonly Probe[] = [
       return held
     },
   },
-  { rows: ['MK-8', 'PD-3', 'GR-12', 'SL-7'], expect: 'answers', act: async (p, g) => dragFrom(p, g.barBody, 140, 0) },
+  { rows: ['MK-8', 'PTD-3', 'GR-12', 'SL-7'], expect: 'answers', act: async (p, g) => dragFrom(p, g.barBody, 140, 0) },
   { rows: ['MK-9'], expect: 'answers', act: async (p) => press(p, 'IC-12') },
   {
     // MK-9a: the one overlap this build can be pointed at without inventing
@@ -936,11 +936,11 @@ const PROBES: readonly Probe[] = [
 
   // ---- table T-023b: what the palette is arming ---------------------------
   {
-    rows: ['AR-2', 'PD-4'],
+    rows: ['AR-2', 'PTD-4'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-23') },
     act: async (p, g) => {
-      if (g.empty === null) throw new Error('PD-4 needs an empty place to draw a task in')
+      if (g.empty === null) throw new Error('PTD-4 needs an empty place to draw a task in')
       return dragFrom(p, g.empty, 220, 0)
     },
   },
@@ -952,14 +952,14 @@ const PROBES: readonly Probe[] = [
     act: async (p) => press(p, 'IC-27'),
   },
   {
-    // PD-4a: 「何もしない。引きかけの矢印があれば捨てる。構えは解かない」 -- so
+    // PTD-4a: 「何もしない。引きかけの矢印があれば捨てる。構えは解かない」 -- so
     // the drawing must NOT gain a shape. ⛔ The arm is taken in `setUp`, because
     // arming marks the palette and that marking is a screen change of its own.
-    rows: ['AR-4', 'PD-4a'],
+    rows: ['AR-4', 'PTD-4a'],
     expect: 'placesNothing',
     setUp: async (p) => { await press(p, 'IC-61') },
     act: async (p, g) => {
-      if (g.empty === null) throw new Error('PD-4a needs an empty place to drag in')
+      if (g.empty === null) throw new Error('PTD-4a needs an empty place to drag in')
       return dragFrom(p, g.empty, 200, 0)
     },
   },
@@ -1071,10 +1071,10 @@ const PROBES: readonly Probe[] = [
 
   // ---- table T-023a: the order a press is judged in -----------------------
   {
-    // PD-2: in `Dual Cursor` mode 「当たり判定を行わない」, so a press on a bar
+    // PTD-2: in `Dual Cursor` mode 「当たり判定を行わない」, so a press on a bar
     // must not be a press on the bar. IC-45 is that mode's entrance, and it is
     // taken in `setUp` so that what is read is the PRESS and not the entering.
-    rows: ['PD-2'],
+    rows: ['PTD-2'],
     expect: 'answers',
     setUp: async (p) => { await press(p, 'IC-45'); await p.waitForTimeout(400) },
     act: async (p, g) => {
@@ -1195,7 +1195,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['GR-1'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 2, y: g.barStart.y - 8 }, 60, 0) },
   { rows: ['GR-2'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
   {
-    // GR-14: AR-5 arms a comment box, PD-4 places one, and GR-14 moves it.
+    // GR-14: AR-5 arms a comment box, PTD-4 places one, and GR-14 moves it.
     rows: ['GR-14'],
     expect: 'answers',
     setUp: async (p, g) => {
@@ -1336,7 +1336,7 @@ const PROBES: readonly Probe[] = [
     // key that could plausibly place one.
     rows: ['SK-1', 'SK-1a'],
     expect: 'placesNothing',
-    // ⛔ THE POINTER SITS OVER THE EMPTY PLACE, not over a bar: PD-4 is the row
+    // ⛔ THE POINTER SITS OVER THE EMPTY PLACE, not over a bar: PTD-4 is the row
     // that would put a shape down, and it puts it down where nothing is drawn.
     // ⚠️ The panel is put away first -- `Enter` is also SK-19, which closes it,
     // and a closing panel widens the schedule area and redraws it with more
@@ -1684,7 +1684,7 @@ test(
   }),
   async () => {
     const population = [
-      ...rowsOf('T-023a').filter((id) => id.startsWith('PD-')),
+      ...rowsOf('T-023a').filter((id) => id.startsWith('PTD-')),
       ...rowsOf('T-023b'),
       ...rowsOf('T-023c'),
       ...rowsOf('T-023d'),

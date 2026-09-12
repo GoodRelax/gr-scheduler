@@ -79,8 +79,8 @@
 //           `_assets/tbl-settings.md` の 表 T-206 の `S-174` ／ `S-175`、色は
 //           同書の 表 T-236 の `S-151` が持つ」-- the row `SL-3` says it is
 //           reading, and therefore the row a colour can be compared against.
-//   T-023a PD-5  「何にも当たらない かつ 構えていない（AR-1）| **範囲選択**」
-//   T-023a PD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
+//   T-023a PTD-5  「何にも当たらない かつ 構えていない（AR-1）| **範囲選択**」
+//   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
 //           **パン。** 構えと当たりによらず優先する」-- the row evaluated first,
 //           which is why the last case below expects NO rectangle for it.
 //   T-206 S-174 「選択の枠の太さ（表 T-023c の `SL-8`）| 2px 🔎」
@@ -735,13 +735,13 @@ describe('the manuscript still states the two rules this file is about', () => {
     expect(rowOf('T-020', 'ZO-6')['順'], 'table T-020 ZO-6: 6（最前面）').toContain('最前面')
   })
 
-  it('leaves the range selection to a plain drag on empty ground (PD-5)', () => {
+  it('leaves the range selection to a plain drag on empty ground (PTD-5)', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
     expect(rows[0], 'table T-023a: 上から評価し、最初に成立した行で確定すること（MUST）').toBe(
-      'PD-1',
+      'PTD-1',
     )
-    const found = specTable('T-023a').rows.find((one) => one.id === 'PD-5')
-    expect(found?.by['結果'], 'table T-023a PD-5: 範囲選択').toContain('範囲選択')
+    const found = specTable('T-023a').rows.find((one) => one.id === 'PTD-5')
+    expect(found?.by['結果'], 'table T-023a PTD-5: 範囲選択').toContain('範囲選択')
   })
 })
 
@@ -753,7 +753,7 @@ describe('the fixture gives a drag empty ground to start on and a Task to enclos
     const at = pressPoint(built.loop)
     const inside = at.x >= box.x0 && at.x <= box.x1 && at.y >= box.y0 && at.y <= box.y1
     // ⛔ A PREMISE, NOT A DECORATION: a press that landed on the Task would be
-    // PD-3's, and every case below would be measuring a grab.
+    // PTD-3's, and every case below would be measuring a grab.
     expect(inside, 'the press point stands on the Task').toBe(false)
   })
 
@@ -964,9 +964,9 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
 // ===========================================================================
 
 describe('table T-023a: a pan is not a range selection, so it draws no rectangle', () => {
-  it('draws nothing of SL-3 for the `Ctrl` drag PD-1 takes first', () => {
-    // `PD-1` is the first row and 構えと当たりによらず優先する, so this gesture
-    // never reaches `PD-5`; a rectangle drawn for it would be one the
+  it('draws nothing of SL-3 for the `Ctrl` drag PTD-1 takes first', () => {
+    // `PTD-1` is the first row and 構えと当たりによらず優先する, so this gesture
+    // never reaches `PTD-5`; a rectangle drawn for it would be one the
     // specification never asked for.
     const built = stage()
     const before = built.picture()
@@ -976,7 +976,7 @@ describe('table T-023a: a pan is not a range selection, so it draws no rectangle
     built.send(pointer('move', to.x, to.y, { ctrl: true }))
     expect(
       dashedRectsIn(onlyIn(built.picture(), before)),
-      'table T-023a PD-1: パン。構えと当たりによらず優先する -- a pan drew a range-selection rectangle',
+      'table T-023a PTD-1: パン。構えと当たりによらず優先する -- a pan drew a range-selection rectangle',
     ).toEqual([])
   })
 
@@ -989,7 +989,7 @@ describe('table T-023a: a pan is not a range selection, so it draws no rectangle
     built.send(pointer('move', to.x, to.y, { button: 'middle' }))
     expect(
       dashedRectsIn(onlyIn(built.picture(), before)),
-      'table T-023a PD-1: 中ボタンドラッグ -- a pan drew a range-selection rectangle',
+      'table T-023a PTD-1: 中ボタンドラッグ -- a pan drew a range-selection rectangle',
     ).toEqual([])
   })
 })

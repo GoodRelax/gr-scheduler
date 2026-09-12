@@ -2716,7 +2716,7 @@ test('D-210: a bar shape needs a drag, a milestone needs only a press', async ()
     }
 
     // ① THE CLICK, which is also how free ground is found. ⭐ A press that hit
-    // an item is not PD-4 and raises no telling, so the telling itself is the
+    // an item is not PTD-4 and raises no telling, so the telling itself is the
     // reading that says the ground was clear.
     let ground: number | null = null
     for (const y of [700, 660, 620, 560, 500, 440, 380, 320, 260, 740, 800, 860, 900, 940]) {

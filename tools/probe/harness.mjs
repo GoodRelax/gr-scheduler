@@ -364,7 +364,7 @@ export async function partAt(x, y) {
  * ⭐⭐ ASK THE APP, DO NOT COMPUTE IT. Two probes of that round picked a point
  * by walking bounding boxes and both landed ON something -- once on the palette
  * floating over the canvas, once inside a task's grab slop -- and the runs that
- * followed measured nothing at all. PD-5 gives empty ground the default arrow,
+ * followed measured nothing at all. PTD-5 gives empty ground the default arrow,
  * so the app answers this question for free.
  */
 export async function emptyPoint({ x0 = 300, x1 = 1700, y0 = 300, y1 = 1000, step = 17 } = {}) {

@@ -436,7 +436,7 @@ const REACH_PX = 160
  *
  * ⛔ Ground BELOW the last row is no good for placing: `FR-019` (MUST) holds an
  * annotation's position by a date and a row identifier, and ground no row
- * covers points at no row. ⭐ Emptiness is the PRODUCT's own answer: `PD-5` of
+ * covers points at no row. ⭐ Emptiness is the PRODUCT's own answer: `PTD-5` of
  * table T-023a gives ground that hit nothing the plain arrow.
  *
  * @purity non-pure

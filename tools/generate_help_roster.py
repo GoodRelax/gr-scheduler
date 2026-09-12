@@ -76,7 +76,7 @@ CODE_FENCE = '`'
 # The tables FR-036 names, in the order it names them, with the row id shape of
 # each and the column that holds a key assignment where one exists.
 TABLES = [
-    ('T-023a', r'PD-\d+[a-z]?', None),
+    ('T-023a', r'PTD-\d+[a-z]?', None),
     ('T-023b', r'AR-\d+[a-z]?', None),
     ('T-023c', r'SL-\d+[a-z]?', None),
     ('T-023d', r'GR-\d+[a-z]?', None),

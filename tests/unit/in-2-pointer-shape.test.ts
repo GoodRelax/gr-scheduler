@@ -52,9 +52,9 @@
 //             ⛔⛔ THERE WERE FIVE UNTIL 2026-09-10; the dummies' own clause
 //             made six, and the count is asserted rather than written.
 //   T-023a    「上から評価し、最初に成立した行で確定すること（MUST）」 with
-//             PD-1 パン, PD-2 `Dual Cursor`, PD-3 何かに当たった, PD-4 構えて
-//             いるものを作る, PD-4a 構えが依存線, PD-5 範囲選択.
-//             ⚠️ SIX ROWS AND NOT FIVE -- PD-4a sits between PD-4 and PD-5.
+//             PTD-1 パン, PTD-2 `Dual Cursor`, PTD-3 何かに当たった, PTD-4 構えて
+//             いるものを作る, PTD-4a 構えが依存線, PTD-5 範囲選択.
+//             ⚠️ SIX ROWS AND NOT FIVE -- PTD-4a sits between PTD-4 and PTD-5.
 //   T-023a's note 「判定順序を適用するのは日程の描画領域だけとすること（MUST）」,
 //             with its own table of the faces it does not reach -- among them
 //             浮遊するコマンドパレット (`FR-053`) and タイムルーラー, whose cell
@@ -107,14 +107,14 @@
 //     IN-2 names 握った手 for the pan alone and gives the other four no hand at
 //     all, so nothing here pairs a shape with a name.
 //   * The shape over an armed DEPENDENCY line on empty canvas. IN-2 says
-//     「構えているときは作図の合図」 without qualification, while PD-4a says an
+//     「構えているときは作図の合図」 without qualification, while PTD-4a says an
 //     armed dependency on empty canvas 「何もしない。引きかけの矢印があれば捨て
 //     る。構えは解かない」. The row that fixes which place carries which meaning
 //     and the row that fixes what a press does disagree about this one point.
 //     ⛔ REPORTED AS A HOLE RATHER THAN GUESSED -- a case either way would be
 //     this file writing a requirement. The armed cases below therefore arm AR-2,
-//     which PD-4 settles without argument.
-//   * The shape while `Dual Cursor` mode is on (PD-2). IN-2 names no place for
+//     which PTD-4 settles without argument.
+//   * The shape while `Dual Cursor` mode is on (PTD-2). IN-2 names no place for
 //     it, and this file does not invent one.
 //   * WHERE or HOW a shape is written. The pointer is the host's to paint and no
 //     requirement says how.
@@ -516,9 +516,9 @@ const pointer = (phase: PointerPhase, at: Point, how: HowPressed = {}): PointerI
   clickCount: 1,
 })
 
-/** PD-1's first spelling: 「`Ctrl` だけを伴う左ドラッグ」. */
+/** PTD-1's first spelling: 「`Ctrl` だけを伴う左ドラッグ」. */
 const CTRL_DRAG: HowPressed = { modifiers: { ctrl: true } }
-/** PD-1's second spelling: 「中ボタンドラッグ」. */
+/** PTD-1's second spelling: 「中ボタンドラッグ」. */
 const MIDDLE_DRAG: HowPressed = { button: 'middle' }
 
 // ---------------------------------------------------------------------------
@@ -843,11 +843,11 @@ describe('T-028 IN-2: the five places carry five different meanings', () => {
 })
 
 // ===========================================================================
-// (b) 何にも当たらない場所は範囲選択の合図 -- PD-5 of table T-023a
+// (b) 何にも当たらない場所は範囲選択の合図 -- PTD-5 of table T-023a
 // ===========================================================================
 
 describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', () => {
-  it('answers a shape where nothing is hit and nothing is armed (PD-5)', () => {
+  it('answers a shape where nothing is hit and nothing is armed (PTD-5)', () => {
     const built = stage()
     expect(shapeAt(built, emptyCanvas(built.loop))).not.toBeNull()
   })
@@ -862,7 +862,7 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
     ).toBe(first)
   })
 
-  it('does not answer it on a bar body: PD-3 is reached before PD-5', () => {
+  it('does not answer it on a bar body: PTD-3 is reached before PTD-5', () => {
     const built = stage()
     expect(shapeAt(built, barBody(built.loop))).not.toBe(shapeAt(built, emptyCanvas(built.loop)))
   })
@@ -958,7 +958,7 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
 })
 
 // ===========================================================================
-// (e) `Ctrl` 併用と中ボタンのパン中は握った手 -- PD-1 of table T-023a
+// (e) `Ctrl` 併用と中ボタンのパン中は握った手 -- PTD-1 of table T-023a
 // ===========================================================================
 
 describe('T-028 IN-2: `Ctrl` 併用と中ボタンのパン中は握った手', () => {
@@ -982,7 +982,7 @@ describe('T-028 IN-2: `Ctrl` 併用と中ボタンのパン中は握った手', 
     expect(shapeWhilePanning(built, emptyCanvas(built.loop), CTRL_DRAG)).not.toBe(resting)
   })
 
-  it('answers it over a bar body too -- PD-1 「構えと当たりによらず優先する」', () => {
+  it('answers it over a bar body too -- PTD-1 「構えと当たりによらず優先する」', () => {
     const built = stage()
     const overEmpty = shapeWhilePanning(built, emptyCanvas(built.loop), CTRL_DRAG)
     expect(shapeWhilePanning(built, barBody(built.loop), CTRL_DRAG)).toBe(overEmpty)
@@ -1001,7 +1001,7 @@ describe('T-028 IN-2: `Ctrl` 併用と中ボタンのパン中は握った手', 
 })
 
 // ===========================================================================
-// (f) 構えているときは作図の合図 -- PD-4 of table T-023a
+// (f) 構えているときは作図の合図 -- PTD-4 of table T-023a
 // ===========================================================================
 
 describe('T-028 IN-2: 構えているときは作図の合図', () => {

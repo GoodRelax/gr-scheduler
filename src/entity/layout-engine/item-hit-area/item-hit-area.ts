@@ -1034,9 +1034,9 @@ function isOnTheDrawnMarkHalf(task: TaskGeometry, x: number, y: number,
  * here would put them back by another door (the same reason `HistoryLimits`
  * ships none for S-94 and S-95).
  *
- * ⚠️ The caller applies table T-023a FIRST. PD-1 makes a `Ctrl` drag a pan
- * whatever lies under it, PD-2 turns hit testing off entirely while the dual
- * cursor is up, and PD-3 replaces this whole table with a left-half /
+ * ⚠️ The caller applies table T-023a FIRST. PTD-1 makes a `Ctrl` drag a pan
+ * whatever lies under it, PTD-2 turns hit testing off entirely while the dual
+ * cursor is up, and PTD-3 replaces this whole table with a left-half /
  * right-half answer while a dependency is armed (FR-009). None of those three
  * is decided here.
  *
@@ -1107,7 +1107,7 @@ export interface DependencyEnd {
  * （MUST NOT）…⭐ 半分を答える名は別に置くこと（MUST）。構えが依存線のときだけ
  * 呼ぶ」. So `itemAtPointer` is untouched -- it neither takes the arming nor
  * answers the half -- and a caller that has read AR-4's arming asks this
- * instead. ⚠️ Table T-023a's PD-3 says the same from the other side: 「構えが
+ * instead. ⚠️ Table T-023a's PTD-3 says the same from the other side: 「構えが
  * 依存線のときは表 T-023d を適用せず」, and this function applies no row of it.
  *
  * ⛔⛔ THE BAR'S OWN MIDDLE, WHICH IS THE 2026-09-06 RULING WRITTEN INTO FR-009:
@@ -1136,7 +1136,7 @@ export interface DependencyEnd {
  *     GR-1 / GR-2's fade handles) still falls on the side of the middle it is on.
  *   - `null` -- the release, which no `Hit` precedes, so the bar's own
  *     silhouette says which Task the point is on. ⚠️ THE FIRST BAR IT FALLS IN:
- *     MK-9a's priority order is table T-023d's and PD-3 withholds that table, so
+ *     MK-9a's priority order is table T-023d's and PTD-3 withholds that table, so
  *     no order of its own is invented and the geometry's own order is taken.
  *
  * @purity pure

@@ -2914,42 +2914,42 @@
  ],
  "pressOrder": [
   {
-   "rowId": "PD-1",
+   "rowId": "PTD-1",
    "text": {
     "ja": "中ボタン、または Ctrl ＋ 左のドラッグで画面をパンする",
     "en": "Middle-drag, or Ctrl with left-drag, pans the view"
    }
   },
   {
-   "rowId": "PD-2",
+   "rowId": "PTD-2",
    "text": {
     "ja": "2 連カーソルの最中は、クリックがカーソルを固定する",
     "en": "While the dual cursor is on, a click pins a cursor"
    }
   },
   {
-   "rowId": "PD-3",
+   "rowId": "PTD-3",
    "text": {
     "ja": "何かに当たったときは、そのものへの操作になる",
     "en": "A press that lands on something operates on that thing"
    }
   },
   {
-   "rowId": "PD-4",
+   "rowId": "PTD-4",
    "text": {
     "ja": "図形や注記を構えて何もない場所を押すと、押しているあいだその形がポインタに付いて伸び、離すと作られる",
     "en": "Armed with a shape or a note, pressing empty space draws that shape following the pointer, and releasing creates it"
    }
   },
   {
-   "rowId": "PD-4a",
+   "rowId": "PTD-4a",
    "text": {
     "ja": "依存線を構えて何もない場所を押しても、構えは解けない",
     "en": "Armed with a dependency, pressing empty space keeps the arm"
    }
   },
   {
-   "rowId": "PD-5",
+   "rowId": "PTD-5",
    "text": {
     "ja": "構えずに何もない場所からドラッグすると範囲選択（Shift で追加）",
     "en": "With nothing armed, dragging from empty space selects a range; Shift adds"
