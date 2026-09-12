@@ -1,4 +1,21 @@
-1349
+1347
+#
+# LOWERED 1349 -> 1347 ON 2026-09-12, applying the user's rulings of that day,
+# and neither clause got covered: both stopped existing. 05-07-design.md said
+# 「`GRS JSON` には、どのエンティティも書き出す（`FR-024`）」 and 「辺のラベル
+# には、その線が何を表すかだけを書く」; the first named the wrong seat (table
+# T-052's DR-2 is what rules it) and became a pointer, and the second was
+# measured false -- 3 of the 30 labels carry a rule's pointer -- and was
+# loosened to match what the figure actually does.
+# ⚠️ THE HEADROOM IS WHY THIS IS WORTH WRITING DOWN. The round measured 1346
+# against a baseline of 1349 before it started: three. A body adding four MUST
+# clauses to the specification would have gone red without touching a test,
+# and the brief it was given warned only about check 42. ⇒ Read BOTH numbers
+# on entry when a round writes new rules.
+# ⛔ WHEN A ROUND LEGITIMATELY ADDS A MUST, take the debt deliberately: raise
+# this number in the same commit and say in the message which clause and why
+# no test holds it yet. Silently raising it is what turns a baseline into
+# permission.
 #
 # LOWERED 1350 -> 1349 ON 2026-09-11, and the one clause is not a clause that
 # got covered -- it is a clause that stopped existing. 05-07-design.md quoted
