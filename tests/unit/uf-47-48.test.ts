@@ -53,7 +53,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
@@ -391,6 +391,10 @@ function host(): Host {
 }
 
 afterEach(() => {
+  // ⚠️ Only the 曜日 case below pins the clock, and this is a no-op for every
+  // other one. It sits here rather than in a `finally` so that a case which
+  // fails still hands the real clock back.
+  vi.useRealTimers()
   if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
   else (globalThis as any).requestAnimationFrame = realRaf
 })
@@ -1432,6 +1436,26 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // picture against it. ⛔ The second half of the old comment -- that the
     // dictionary is empty and both languages print the same empty strings --
     // is false as well: PD-160 records 「2026-08-24 実測: 枠は 242、記入も 242」.
+    // ⛔⛔ THE PICTURE CARRIES A WALL CLOCK, AND THIS CASE DRAWS TWO PICTURES.
+    // `frameLoop` reads the watermark's instant ONCE per instance (FR-020 /
+    // FR-063 stamp it, truncated to the second), and the renderer tiles
+    // `openedBy` + that stamp across the Row Area as ordinary <text>. So when
+    // the two constructions below land in different seconds, every watermark
+    // label differs -- `withoutWords` drops the content and the skeleton still
+    // matches, but `labelsInOrder` keeps it, the stamp lands in `moved`, and a
+    // timestamp holds no 曜日. ⇒ the `slot` assertion goes red on a picture
+    // nothing is wrong with.
+    // ⚠️ MEASURED 2026-09-12 (D-506): the odds are the gap between the two
+    // constructions over 1000ms -- 7.49ms mean idle (~0.5%), 19.11ms mean and
+    // 212.37ms worst under two competing full runs (~20% that run). That is
+    // why it reads as "always green" alone and drew two reds in six under load.
+    // ⭐ Pinning the clock makes the two stamps identical BY CONSTRUCTION.
+    // ⛔ It weakens nothing: what this case measures is that the language moves
+    // the 曜日 and nothing else, and the stamp is language-independent.
+    // The real clock is handed back by the afterEach at the head of this file.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-09-12T00:00:00Z'))
+
     const pane = host()
     const japanese = screenPane('ja')
     const english = screenPane('en')
