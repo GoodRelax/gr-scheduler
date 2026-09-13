@@ -1,4 +1,13 @@
-0
+1
+#
+# RAISED 0 -> 1 on 2026-09-14, deliberately, for JDG-67 (a task's actual end
+# released on a non-working day becomes that non-working day). The ruling
+# cannot land yet: the actual is held as actualStart plus a count of working
+# days, and that shape has no way to end on a non-working day. The storage
+# options went to the front session, not into the repository. Lower this back
+# to 0 in the commit that lands JDG-67.
+# The other way out -- a 状態 word check 43 does not count -- was refused: it
+# would hide exactly the ruling this file exists to count.
 #
 # Check 43 -- rulings in docs/development-records/rulings.md whose 状態 still
 # holds 未着地: answered by the user and written nowhere the product is built
