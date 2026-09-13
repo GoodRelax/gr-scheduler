@@ -1107,11 +1107,13 @@ export const NOT_STORED_SIZES: {
   readonly 'S-91': number
   readonly 'S-92': readonly [number, number]
   readonly 'S-137': number
+  readonly 'S-230': number
 } = {
   'S-90': 12,
   'S-91': 12,
   'S-92': [15, 15],
   'S-137': 6,
+  'S-230': 6,
 }
 
 // see T-206

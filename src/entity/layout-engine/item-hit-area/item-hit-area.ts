@@ -29,14 +29,26 @@ export type GrabArea =
   | 'GR-9' | 'GR-10' | 'GR-11' | 'GR-12' | 'GR-13' | 'GR-14' | 'GR-15' | 'GR-16'
   | 'GR-17' | 'GR-18'
 
+// see GR-14
+export type BoxPart =
+  | { readonly kind: 'body' }
+  | { readonly kind: 'anchor' }
+  | {
+      readonly kind: 'corner'
+      readonly horizontal: 'left' | 'right'
+      readonly vertical: 'top' | 'bottom'
+    }
+
 export interface Hit {
   readonly item: Item
   readonly grab: GrabArea
+  // WHY: optional, not required: only GR-14 holds more than one place; an absent part reads as the body.
+  readonly boxPart?: BoxPart
 }
 
 export type PointerResolution = 'press' | 'doubleClick'
 
-// see S-90, S-91, S-92, S-137
+// see S-90, S-91, S-92, S-137, S-230
 export interface PointerSlop {
   readonly planEndpoint: number
   // STOP: spec does not decide S-91's sideways figure; table T-206 gives only the band. Looked in S-91, T-206, T-023d
@@ -46,6 +58,7 @@ export interface PointerSlop {
   // STOP: spec does not decide S-137's figure with a basis. Looked in S-137, T-206, T-023d, S-6
   // @provisional PND-168
   readonly line: number
+  readonly boxPoint: number
 }
 
 /** @purity pure */
@@ -231,15 +244,27 @@ const TABLE_T_023D: readonly HitRow[] = [
     grab: 'GR-14',
     reach: 'anyPress',
     /** @purity pure */
-    claim: ({ geometry }, x, y) => {
+    claim: ({ geometry }, x, y, slop) => {
+      // WHY: the point before the body: a corner stands on its body's edge, so a body read first takes half of S-230.
+      for (const box of geometry.commentBoxes) {
+        if (isNearPoint(x, y, box.anchor, slop.boxPoint, slop.boxPoint)) {
+          return { item: { kind: 'commentBox', id: box.id }, grab: 'GR-14', boxPart: { kind: 'anchor' } }
+        }
+      }
       for (const box of geometry.commentBoxes) {
         if (isInsideBoxInclusive(x, y, box.body)) {
-          return { item: { kind: 'commentBox', id: box.id }, grab: 'GR-14' }
+          return { item: { kind: 'commentBox', id: box.id }, grab: 'GR-14', boxPart: { kind: 'body' } }
+        }
+      }
+      for (const box of geometry.highlightBoxes) {
+        const corner = nearestCornerOf(box.box, x, y, slop.boxPoint)
+        if (corner !== null) {
+          return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart: corner }
         }
       }
       for (const box of geometry.highlightBoxes) {
         if (isInsideBoxInclusive(x, y, box.box)) {
-          return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14' }
+          return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart: { kind: 'body' } }
         }
       }
       return null
@@ -266,6 +291,29 @@ const TABLE_T_023D: readonly HitRow[] = [
     },
   },
 ]
+
+// see GR-14, S-230
+// WHY: the nearest corner, not the first: on a one-day, one-row box at low zoom the four reaches overlap.
+/** @purity pure */
+function nearestCornerOf(box: ScreenRect, x: number, y: number, reach: number): BoxPart | null {
+  let found: BoxPart | null = null
+  let nearest = Number.POSITIVE_INFINITY
+  for (const vertical of ['top', 'bottom'] as const) {
+    for (const horizontal of ['left', 'right'] as const) {
+      const corner = {
+        x: horizontal === 'left' ? box.x : box.x + box.width,
+        y: vertical === 'top' ? box.y : box.y + box.height,
+      }
+      if (!isNearPoint(x, y, corner, reach, reach)) continue
+      const distance = Math.hypot(x - corner.x, y - corner.y)
+      if (distance < nearest) {
+        nearest = distance
+        found = { kind: 'corner', horizontal, vertical }
+      }
+    }
+  }
+  return found
+}
 
 // see GR-3, GR-4
 /** @purity pure */
@@ -417,10 +465,12 @@ export const NOT_STORED_SIZES: {
   readonly 'S-91': number
   readonly 'S-92': readonly [number, number]
   readonly 'S-137': number
+  readonly 'S-230': number
 } = {
   'S-90': 12,
   'S-91': 12,
   'S-92': [15, 15],
   'S-137': 6,
+  'S-230': 6,
 }
 // </generated>

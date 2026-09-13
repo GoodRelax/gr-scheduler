@@ -197,6 +197,7 @@ const SLOP: PointerSlop = {
   // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 // ===========================================================================

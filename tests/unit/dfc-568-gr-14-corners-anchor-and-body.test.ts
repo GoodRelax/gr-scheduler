@@ -1,0 +1,693 @@
+// DFC-568: GR-14 splits by box kind; highlight corners and body write CM-54 per T-246, comment body CM-51 and anchor CM-50.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { afterEach, describe, expect, it } from 'vitest'
+
+import type {
+  HumanInput,
+  InputModifiers,
+  PointerInput,
+  PointerPhase,
+} from '../../src/adapter/input-command-translator/input-command-translator'
+import displayWords from '../../src/adapter/screen-renderer/display-words.json'
+import type {
+  Notice,
+  ScreenPart,
+  ScreenSurface,
+  ScreenView,
+} from '../../src/adapter/screen-renderer/screen-renderer'
+import type { Document } from '../../src/entity/document-model/document/document'
+import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
+import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  geometryFromLayout,
+  type Point,
+} from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  layoutFromSchedule,
+  type RowPlacement,
+} from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  regionsFromScreen,
+  type ScreenRect,
+} from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import {
+  frameLoop,
+  type FrameEnvironment,
+  type FrameLoop,
+  type ScreenWiring,
+} from '../../src/framework/single-html-shell/frame-loop'
+import { specTable, unbroken } from '../contract/spec-table'
+
+const SPEC = join(process.cwd(), 'docs', 'spec')
+
+const REQUIREMENTS_RAW = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')
+const REQUIREMENTS = unbroken(REQUIREMENTS_RAW)
+const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
+const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8')
+const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
+
+const GR_14_SPLIT = '⭐ `GR-14` の 3 つの場所は、箱の種類で分けること（MUST）。'
+const HIGHLIGHT_PARTS = 'ハイライトボックスは本体と四隅を持つ。'
+const HIGHLIGHT_CM_54 =
+  '本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。'
+const HIGHLIGHT_COLUMNS =
+  '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
+const COMMENT_PARTS = 'コメントボックスは本体とアンカーを持つ。'
+const COMMENT_COMMANDS = '本体を掴めば `CM-51` で、アンカーを掴めば `CM-50` で書くこと（MUST）。'
+const COMMENT_NO_CORNERS =
+  '⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは `FR-097` が本文に合わせて決めており、文書は大きさの列を持たない（`AT-110` 〜 `AT-115`）。'
+const GRAB_MARGIN = '⭐ 四隅とアンカーの掴み代は `_assets/tbl-settings.md` の 表 T-206 の `S-230` とすること（MUST）。'
+const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの本体と四隅を離したときに置く値は 表 T-246 が持つ。**'
+const T_246_NO_NEW_REFUSAL =
+  '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、告げる作法は `FR-029` に従う。'
+const IV_19 = 'ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。'
+
+const HB_1_ROW =
+  '| HB-1 | 四隅を向かいの隅へ寄せて縮める | 開始日 ＝ 終了日、上端の行 ＝ 下端の行まで縮められる。<br>別の下限は置かない |'
+const HB_1 = '開始日 ＝ 終了日、上端の行 ＝ 下端の行まで縮められる。'
+const HB_2_ROW =
+  '| HB-2 | 隅を向かいの隅の先まで引く | 拒まない。<br>`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。<br>上下は `FR-019` の「行の木における順位で判ずる」規則で判ずる |'
+const HB_2 = '`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。'
+const HB_2_TREE = '上下は `FR-019` の「行の木における順位で判ずる」規則で判ずる'
+const HB_3_ROW =
+  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれた行が無いときは動かさず、`RS-44` を告げる |'
+const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。'
+const HB_3_NO_ROW = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を告げる'
+const HB_3_FOLDED =
+  '⚠️ 畳んだ行やピン留めした行（`FR-098`）をまたぐと、保存される範囲が文書の行の数で伸び縮みする'
+const FR_019_TREE_ORDER = '⛔ その「下」は、行の木における順位で判ずること（MUST）。'
+const FR_019_WIDTH =
+  '⭐ **横は日の列で囲む** —— 箱の左端は `startDate` の日の列の左端、右端は `endDate` の日の列の右端とし、`startDate` ＝ `endDate` の箱は 1 日の幅で描くこと（MUST）。'
+const FR_019_ZERO_WIDTH = '⚠️ **幅 0 で描くと、本体（表 T-023d の `GR-14`）を掴む所が消える**'
+
+const CM_54_ROW = '| CM-54 | `HighlightBox` | `setHighlightBoxRange` |'
+const CM_50_ROW = '| CM-50 | `CommentBox` | `setCommentBoxAnchor` |'
+const CM_51_ROW = '| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` |'
+
+const CM_54_COLUMNS = ['startDate', 'endDate', 'topGroupId', 'bottomGroupId'] as const
+const CM_50_COLUMNS = ['anchorDate', 'anchorGroupId'] as const
+const CM_51_COLUMNS = ['bodyOffsetPx'] as const
+
+const t206Default = (rowId: string): string => {
+  const row = specTable('T-206').rows.find((one) => one.id === rowId)
+  if (row === undefined) throw new Error(`table T-206 has no row ${rowId}`)
+  const cell = row.by['既定']
+  if (cell === undefined) throw new Error(`table T-206 has no 既定 column; it has ${Object.keys(row.by).join(', ')}`)
+  return cell
+}
+
+const grabMarginPx = (): number => {
+  const pointed = /`(S-\d+)`/.exec(t206Default('S-230'))
+  const cell = pointed === null ? t206Default('S-230') : t206Default(pointed[1]!)
+  const numbers = cell.match(/\d+(?:\.\d+)?/g) ?? []
+  if (numbers.length !== 1) throw new Error(`S-230 does not resolve to one number: ${cell}`)
+  return Number(numbers[0])
+}
+
+const S_230 = grabMarginPx()
+
+const RS_44_WORDS = ((): string => {
+  const reasons = (displayWords as unknown as { reasons: { rowId: string; text: { en: string } }[] }).reasons
+  const found = reasons.find((one) => one.rowId === 'RS-44')
+  if (found === undefined) throw new Error('the dictionary holds no row RS-44')
+  return found.text.en
+})()
+
+const TEMPLATE = JSON.parse(
+  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+) as Record<string, Record<string, unknown>>
+
+const ROW_A = '3a000000-0000-4000-8000-000000000001'
+const ROW_B = '3a000000-0000-4000-8000-000000000002'
+const ROW_C = '3a000000-0000-4000-8000-000000000003'
+const ROW_D = '3a000000-0000-4000-8000-000000000004'
+const ROW_E = '3a000000-0000-4000-8000-000000000005'
+const ROW_F = '3a000000-0000-4000-8000-000000000006'
+const ROW_C1 = '3a000000-0000-4000-8000-000000000031'
+const ROW_C2 = '3a000000-0000-4000-8000-000000000032'
+
+const HIGHLIGHT_ID = '3b000000-0000-4000-8000-000000000001'
+const COMMENT_ID = '3c000000-0000-4000-8000-000000000001'
+
+const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
+
+const PX_PER_DAY_AT_1X = 20
+const TRAVEL_DAYS = 3
+
+const group = (id: string, order: number, part: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id,
+  parentId: null,
+  label: `row ${id.slice(-2)}`,
+  derivedFromTaskUid: null,
+  order,
+  isCollapsed: false,
+  isHidden: false,
+  color: null,
+  height: null,
+  ...part,
+})
+
+const FLAT_ROWS = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F].map((id, index) => group(id, index))
+
+const FOLDED_ROWS = [
+  group(ROW_A, 0),
+  group(ROW_B, 1),
+  group(ROW_C, 2, { isCollapsed: true }),
+  group(ROW_C1, 0, { parentId: ROW_C }),
+  group(ROW_C2, 1, { parentId: ROW_C }),
+  group(ROW_D, 3),
+  group(ROW_E, 4),
+  group(ROW_F, 5),
+]
+
+interface HighlightRange {
+  readonly startDate: string
+  readonly endDate: string
+  readonly topGroupId: string
+  readonly bottomGroupId: string
+}
+
+const DEFAULT_RANGE: HighlightRange = { startDate: day(6), endDate: day(16), topGroupId: ROW_B, bottomGroupId: ROW_D }
+
+interface Fixture {
+  readonly rows?: readonly Record<string, unknown>[]
+  readonly range?: HighlightRange
+  readonly pinned?: readonly string[]
+}
+
+function fixtureDocument(fixture: Fixture = {}): Document {
+  const template = structuredClone(TEMPLATE)
+  const schedule = template['schedule'] as Record<string, unknown>
+  return {
+    schemaVersion: template['schemaVersion'],
+    schedule: {
+      project: { ...(schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100 },
+      calendars: schedule['calendars'],
+      tasks: [],
+      resources: [],
+      assignments: [],
+      taskGroups: structuredClone(fixture.rows ?? FLAT_ROWS),
+      taskGroupMembers: [],
+      taskVisuals: [],
+      commentBoxes: [
+        {
+          id: COMMENT_ID,
+          leaderShapeKind: 'polyline',
+          text: 'Note',
+          anchorDate: day(22),
+          anchorGroupId: ROW_F,
+          bodyOffsetPx: { dx: 60, dy: -60 },
+        },
+      ],
+      highlightBoxes: [
+        {
+          id: HIGHLIGHT_ID,
+          ...(fixture.range ?? DEFAULT_RANGE),
+          strokeColor: null,
+          cornerRadiusPx: null,
+        },
+      ],
+      taskOrigins: [],
+      baselineTasks: [],
+    },
+    documentSettings: {
+      ...(template['documentSettings'] as Record<string, unknown>),
+      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      scrollDate: '2026-04-01',
+      scrollDayOffset: 0,
+      scrollGroupId: ROW_A,
+      scrollGroupOffset: 0,
+      pinnedGroupIds: [...(fixture.pinned ?? [])],
+    },
+    documentStamp: template['documentStamp'],
+    changeLog: [],
+  } as unknown as Document
+}
+
+const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
+
+const realRaf = (globalThis as Record<string, unknown>)['requestAnimationFrame']
+
+afterEach(() => {
+  if (realRaf === undefined) delete (globalThis as Record<string, unknown>)['requestAnimationFrame']
+  else (globalThis as Record<string, unknown>)['requestAnimationFrame'] = realRaf
+})
+
+interface Stage {
+  readonly loop: FrameLoop
+  send(input: HumanInput): void
+  noticeTexts(): readonly string[]
+}
+
+function stage(fixture: Fixture = {}): Stage {
+  const waiting: ((time: number) => void)[] = []
+  ;(globalThis as Record<string, unknown>)['requestAnimationFrame'] = (callback: (time: number) => void): number =>
+    waiting.push(callback)
+  const drain = (): void => {
+    for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
+      for (const callback of waiting.splice(0, waiting.length)) callback(turn)
+    }
+  }
+  const views: ScreenView[] = []
+  const surface: ScreenSurface = {
+    showScreenView: (view) => {
+      views.push(view)
+    },
+    readDialogueInput: () => null,
+    readFieldCommit: () => null,
+    hasUnsettledTextEntry: () => false,
+    readScreenPartAt: (): ScreenPart | null => null,
+  }
+  const wiring: ScreenWiring = { surface, language: 'en' }
+  const loop = frameLoop({ showSvg: () => undefined } as never, fixtureDocument(fixture), SCREEN, wiring)
+  drain()
+  return {
+    loop,
+    send: (input) => {
+      loop.receiveInput(input)
+      drain()
+    },
+    noticeTexts: () => (views[views.length - 1]?.notices ?? []).map((one: Notice) => one.text),
+  }
+}
+
+const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
+
+const pointer = (phase: PointerPhase, at: Point): PointerInput => ({
+  kind: 'pointer',
+  phase,
+  button: 'left',
+  x: at.x,
+  y: at.y,
+  modifiers: { ...NO_MODIFIERS },
+  clickCount: 1,
+})
+
+const frameOf = (loop: FrameLoop) => {
+  const values = loop.current()
+  if (values === null) throw new Error('the loop has run no frame')
+  return values
+}
+
+const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
+
+function dragTo(built: Stage, from: Point, dx: number, dy: number): void {
+  built.send(pointer('down', from))
+  built.send(pointer('move', { x: from.x + dx / 2, y: from.y + dy / 2 }))
+  built.send(pointer('move', { x: from.x + dx, y: from.y + dy }))
+  built.send(pointer('up', { x: from.x + dx, y: from.y + dy }))
+}
+
+function dragBy(built: Stage, from: Point, dx: number): void {
+  dragTo(built, from, dx, 0)
+}
+
+const highlightRect = (loop: FrameLoop): ScreenRect => {
+  const found = frameOf(loop).geometry.highlightBoxes.find((one) => one.id === HIGHLIGHT_ID)
+  if (found === undefined) throw new Error('the frame drew no highlight box')
+  return found.box
+}
+
+const commentDrawn = (loop: FrameLoop) => {
+  const found = frameOf(loop).geometry.commentBoxes.find((one) => one.id === COMMENT_ID)
+  if (found === undefined) throw new Error('the frame drew no comment box')
+  return found
+}
+
+const drawnRow = (loop: FrameLoop, groupId: string): RowPlacement => {
+  const found = frameOf(loop).layout.rows.find((one) => one.groupId === groupId)
+  if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
+  return found
+}
+
+const rowsApart = (loop: FrameLoop, from: string, to: string): number => drawnRow(loop, to).y - drawnRow(loop, from).y
+
+const storedOf = (loop: FrameLoop, list: 'highlightBoxes' | 'commentBoxes', id: string): Record<string, unknown> => {
+  const boxes = (loop.document().schedule as unknown as Record<string, readonly Record<string, unknown>[]>)[list]
+  const found = boxes?.find((one) => one['id'] === id)
+  if (found === undefined) throw new Error(`the document has no ${list} entry ${id}`)
+  return structuredClone(found)
+}
+
+const storedRange = (loop: FrameLoop): Record<string, unknown> => {
+  const stored = storedOf(loop, 'highlightBoxes', HIGHLIGHT_ID)
+  return Object.fromEntries(CM_54_COLUMNS.map((column) => [column, stored[column]]))
+}
+
+const changedColumns = (before: Record<string, unknown>, after: Record<string, unknown>): string[] =>
+  Object.keys({ ...before, ...after }).filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
+
+const serialDay = (stored: unknown): number => {
+  const text = String(stored)
+  return Date.UTC(Number(text.slice(0, 4)), Number(text.slice(5, 7)) - 1, Number(text.slice(8, 10))) / 86400000
+}
+
+const expectRange = (loop: FrameLoop, expected: { start: number; end: number; top: string; bottom: string }, what: string): void => {
+  const after = storedRange(loop)
+  expect(
+    { start: serialDay(after['startDate']), end: serialDay(after['endDate']), top: after['topGroupId'], bottom: after['bottomGroupId'] },
+    what,
+  ).toEqual({ start: serialDay(day(expected.start)), end: serialDay(day(expected.end)), top: expected.top, bottom: expected.bottom })
+}
+
+const expectNoRs44 = (built: Stage, what: string): void => {
+  expect(built.noticeTexts(), `${what}: RS-44 was told`).not.toContain(RS_44_WORDS)
+}
+
+type CornerName = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+
+interface Corner {
+  readonly name: CornerName
+  readonly at: (box: ScreenRect) => Point
+  readonly inward: Point
+  readonly dateColumn: 'startDate' | 'endDate'
+  readonly oppositeColumns: readonly string[]
+}
+
+const CORNERS: readonly Corner[] = [
+  { name: 'top-left', at: (b) => ({ x: b.x, y: b.y }), inward: { x: 1, y: 1 }, dateColumn: 'startDate', oppositeColumns: ['endDate', 'bottomGroupId'] },
+  { name: 'top-right', at: (b) => ({ x: b.x + b.width, y: b.y }), inward: { x: -1, y: 1 }, dateColumn: 'endDate', oppositeColumns: ['startDate', 'bottomGroupId'] },
+  { name: 'bottom-left', at: (b) => ({ x: b.x, y: b.y + b.height }), inward: { x: 1, y: -1 }, dateColumn: 'startDate', oppositeColumns: ['endDate', 'topGroupId'] },
+  { name: 'bottom-right', at: (b) => ({ x: b.x + b.width, y: b.y + b.height }), inward: { x: -1, y: -1 }, dateColumn: 'endDate', oppositeColumns: ['startDate', 'topGroupId'] },
+]
+
+const cornerNamed = (name: CornerName): Corner => CORNERS.find((one) => one.name === name)!
+
+const offsetFrom = (point: Point, direction: Point, by: number): Point => ({
+  x: point.x + direction.x * by,
+  y: point.y + direction.y * by,
+})
+
+const justInside = (loop: FrameLoop, name: CornerName): Point => {
+  const corner = cornerNamed(name)
+  return offsetFrom(corner.at(highlightRect(loop)), corner.inward, S_230 / 2)
+}
+
+function expectCornerResize(built: Stage, corner: Corner, press: Point): void {
+  const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  dragBy(built, press, TRAVEL_DAYS * pxPerDay(built.loop))
+  const after = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  const changed = changedColumns(before, after)
+  expect(changed, `${corner.name}: the release wrote nothing to the highlight box`).not.toEqual([])
+  for (const column of changed) {
+    expect(CM_54_COLUMNS as readonly string[], `${corner.name}: ${column} is not a column CM-54 writes`).toContain(column)
+  }
+  expect(serialDay(after[corner.dateColumn]), `${corner.name}: ${corner.dateColumn} did not follow the grabbed corner`).toBeGreaterThan(
+    serialDay(before[corner.dateColumn]),
+  )
+  for (const column of corner.oppositeColumns) {
+    expect(after[column], `${corner.name}: the opposite corner's ${column} moved`).toEqual(before[column])
+  }
+}
+
+function expectBodyMove(built: Stage, press: Point, what: string): void {
+  const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  dragBy(built, press, TRAVEL_DAYS * pxPerDay(built.loop))
+  const after = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  for (const column of changedColumns(before, after)) {
+    expect(CM_54_COLUMNS as readonly string[], `${what}: ${column} is not a column CM-54 writes`).toContain(column)
+  }
+  expect(serialDay(after['startDate']), `${what}: startDate did not move`).toBeGreaterThan(serialDay(before['startDate']))
+  expect(serialDay(after['endDate']) - serialDay(after['startDate']), `${what}: the span changed`).toBe(
+    serialDay(before['endDate']) - serialDay(before['startDate']),
+  )
+  expect(after['topGroupId'], `${what}: topGroupId moved`).toEqual(before['topGroupId'])
+  expect(after['bottomGroupId'], `${what}: bottomGroupId moved`).toEqual(before['bottomGroupId'])
+}
+
+const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly pxPerDay: number } => {
+  const document = fixtureDocument({ range })
+  const schedule = document.schedule as Schedule
+  const settings = document.documentSettings as DocumentSettings
+  const regions = regionsFromScreen(SCREEN, settings)
+  const layout = layoutFromSchedule(schedule, settings, regions)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const found = geometry.highlightBoxes.find((one) => one.id === HIGHLIGHT_ID)
+  if (found === undefined) throw new Error('the geometry drew no highlight box')
+  return { box: found.box, pxPerDay: layout.pxPerDay }
+}
+
+const WIDTH_SLACK = 0.05
+
+describe('DFC-568 premises: the clauses and the fixture still read this way', () => {
+  it('T-023d, T-108, AT-117..120 and IV-19 still hold the clauses verbatim', () => {
+    for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_COMMANDS, COMMENT_NO_CORNERS, GRAB_MARGIN]) {
+      expect(REQUIREMENTS).toContain(clause)
+    }
+    expect(GLOSSARY).toContain(CM_54_ROW)
+    expect(GLOSSARY).toContain(CM_50_ROW)
+    expect(GLOSSARY).toContain(CM_51_ROW)
+    for (const [row, column] of [['AT-117', 'startDate'], ['AT-118', 'endDate'], ['AT-119', 'topGroupId'], ['AT-120', 'bottomGroupId'], ['AT-113', 'anchorDate'], ['AT-114', 'anchorGroupId'], ['AT-115', 'bodyOffsetPx']]) {
+      expect(ERD_DETAIL).toMatch(new RegExp(`\\| ${row} \\| \`\\w+\` \\| \`${column}\` \\|`))
+    }
+    expect(DESIGN).toContain(IV_19)
+  })
+
+  it('T-246 HB-1..HB-3 and the FR-019 width and tree-order clauses still read verbatim', () => {
+    for (const clause of [T_246_HOLDS_THE_VALUES, T_246_NO_NEW_REFUSAL, HB_3_FOLDED, FR_019_TREE_ORDER, FR_019_WIDTH, FR_019_ZERO_WIDTH]) {
+      expect(REQUIREMENTS).toContain(clause)
+    }
+    for (const row of [HB_1_ROW, HB_2_ROW, HB_3_ROW]) {
+      expect(REQUIREMENTS_RAW).toContain(row)
+    }
+    for (const [row, clause] of [[HB_1_ROW, HB_1], [HB_2_ROW, HB_2], [HB_2_ROW, HB_2_TREE], [HB_3_ROW, HB_3], [HB_3_ROW, HB_3_NO_ROW]] as const) {
+      expect(row).toContain(clause)
+    }
+    expect(RS_44_WORDS.length).toBeGreaterThan(0)
+  })
+
+  it('S-230 resolves to one positive number through S-137', () => {
+    expect(t206Default('S-230')).toContain('`S-137`')
+    expect(S_230).toBeGreaterThan(0)
+  })
+
+  it('the highlight box is wider and taller than four margins, and the comment anchor stands two margins clear of its body', () => {
+    const built = stage()
+    const box = highlightRect(built.loop)
+    const area = frameOf(built.loop).regions.rowArea
+    const inside = (p: Point): boolean =>
+      p.x - S_230 > area.x && p.x + S_230 < area.x + area.width && p.y - S_230 > area.y && p.y + S_230 < area.y + area.height
+    for (const corner of CORNERS) {
+      expect(inside(corner.at(box)), `the highlight ${corner.name} corner is drawn inside the row area`).toBe(true)
+    }
+    expect(box.width).toBeGreaterThan(4 * S_230)
+    expect(box.height).toBeGreaterThan(4 * S_230)
+    const drawn = commentDrawn(built.loop)
+    expect(inside(drawn.anchor), 'the comment anchor is drawn inside the row area').toBe(true)
+    for (const corner of CORNERS) {
+      expect(inside(corner.at(drawn.body)), `the comment body ${corner.name} corner is drawn inside the row area`).toBe(true)
+    }
+    const gapX = Math.max(drawn.body.x - drawn.anchor.x, drawn.anchor.x - (drawn.body.x + drawn.body.width), 0)
+    const gapY = Math.max(drawn.body.y - drawn.anchor.y, drawn.anchor.y - (drawn.body.y + drawn.body.height), 0)
+    expect(Math.hypot(gapX, gapY)).toBeGreaterThan(2 * S_230)
+    expect(box.x + box.width + 2 * S_230).toBeLessThan(Math.min(drawn.body.x, drawn.anchor.x))
+  })
+
+  it('the rows are drawn one above the other in tree order, each taller than two margins', () => {
+    const built = stage()
+    const ys = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F].map((id) => drawnRow(built.loop, id).y)
+    expect([...ys].sort((a, b) => a - b)).toEqual(ys)
+    for (const id of [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]) {
+      expect(drawnRow(built.loop, id).height).toBeGreaterThan(2 * S_230)
+    }
+  })
+
+  it('the folded fixture hides C1 and C2 from the screen, and the pinned fixture draws F above A', () => {
+    const folded = stage({ rows: FOLDED_ROWS, range: { ...DEFAULT_RANGE, topGroupId: ROW_A, bottomGroupId: ROW_B } })
+    const drawnIds = frameOf(folded.loop).layout.rows.map((one) => one.groupId)
+    expect(drawnIds).not.toContain(ROW_C1)
+    expect(drawnIds).not.toContain(ROW_C2)
+    expect(drawnIds).toContain(ROW_D)
+    const pinned = stage({ pinned: [ROW_F] })
+    expect(drawnRow(pinned.loop, ROW_F).y).toBeLessThan(drawnRow(pinned.loop, ROW_A).y)
+  })
+})
+
+describe('DFC-568 highlight box: the four corners resize with CM-54', () => {
+  for (const corner of CORNERS) {
+    it(`本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも \`_assets/tbl-glossary.md\` の 表 T-108 の \`CM-54\` で書くこと（MUST）。 -- the ${corner.name} corner moves only itself`, () => {
+      const built = stage()
+      const box = highlightRect(built.loop)
+      expectCornerResize(built, corner, offsetFrom(corner.at(box), corner.inward, S_230 / 2))
+    })
+  }
+})
+
+describe('DFC-568 highlight box: the body moves with CM-54 and keeps its size', () => {
+  it('本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- the body moves and the span is kept', () => {
+    const built = stage()
+    const box = highlightRect(built.loop)
+    expectBodyMove(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 'body centre')
+  })
+})
+
+describe('DFC-568 highlight box: S-230 parts a corner from the body', () => {
+  for (const corner of CORNERS) {
+    it(`⭐ 四隅とアンカーの掴み代は \`_assets/tbl-settings.md\` の 表 T-206 の \`S-230\` とすること（MUST）。 -- just outside the ${corner.name} corner, within S-230, is the corner`, () => {
+      const built = stage()
+      const box = highlightRect(built.loop)
+      expectCornerResize(built, corner, offsetFrom(corner.at(box), corner.inward, -S_230 / 2))
+    })
+
+    it(`⭐ 四隅とアンカーの掴み代は \`_assets/tbl-settings.md\` の 表 T-206 の \`S-230\` とすること（MUST）。 -- inside the box two S-230 from the ${corner.name} corner is the body`, () => {
+      const built = stage()
+      const box = highlightRect(built.loop)
+      expectBodyMove(built, offsetFrom(corner.at(box), corner.inward, 2 * S_230), `two margins in from ${corner.name}`)
+    })
+  }
+})
+
+describe('DFC-568 T-246 HB-1: a corner shrinks the box down to one day and one row', () => {
+  it(`${HB_1} -- bottom-right onto top-left keeps the start day and the top row`, () => {
+    const built = stage()
+    const ppd = pxPerDay(built.loop)
+    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6) * ppd, -rowsApart(built.loop, ROW_B, ROW_D))
+    expectRange(built.loop, { start: 6, end: 6, top: ROW_B, bottom: ROW_B }, 'HB-1 bottom-right')
+    expectNoRs44(built, 'HB-1 bottom-right')
+  })
+
+  it(`${HB_1} -- top-left onto bottom-right keeps the end day and the bottom row`, () => {
+    const built = stage()
+    const ppd = pxPerDay(built.loop)
+    dragTo(built, justInside(built.loop, 'top-left'), (16 - 6) * ppd, rowsApart(built.loop, ROW_B, ROW_D))
+    expectRange(built.loop, { start: 16, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-1 top-left')
+    expectNoRs44(built, 'HB-1 top-left')
+  })
+})
+
+describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not refused', () => {
+  it(`${HB_2} -- top-left dragged three days past the right edge`, () => {
+    const built = stage()
+    dragTo(built, justInside(built.loop, 'top-left'), (16 - 6 + 3) * pxPerDay(built.loop), 0)
+    expectRange(built.loop, { start: 16, end: 19, top: ROW_B, bottom: ROW_D }, 'HB-2 left past right')
+    expectNoRs44(built, 'HB-2 left past right')
+  })
+
+  it(`${HB_2} -- bottom-right dragged three days past the left edge`, () => {
+    const built = stage()
+    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 3) * pxPerDay(built.loop), 0)
+    expectRange(built.loop, { start: 3, end: 6, top: ROW_B, bottom: ROW_D }, 'HB-2 right past left')
+  })
+
+  it(`${HB_2} -- top-left dragged down past the bottom row`, () => {
+    const built = stage()
+    dragTo(built, justInside(built.loop, 'top-left'), 0, rowsApart(built.loop, ROW_B, ROW_F))
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-2 top past bottom')
+    expectNoRs44(built, 'HB-2 top past bottom')
+  })
+
+  it(`${HB_2_TREE} -- bottom-left dragged onto a pinned row drawn above keeps the tree order`, () => {
+    const built = stage({ pinned: [ROW_F] })
+    dragTo(built, justInside(built.loop, 'bottom-left'), 0, rowsApart(built.loop, ROW_D, ROW_F))
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-2 onto a pinned row')
+  })
+
+  it(`${IV_19} -- the stored range still satisfies it after both axes are swapped`, () => {
+    const built = stage()
+    const ppd = pxPerDay(built.loop)
+    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 5) * ppd, -rowsApart(built.loop, ROW_A, ROW_D))
+    const after = storedRange(built.loop)
+    expect(serialDay(after['startDate'])).toBeLessThanOrEqual(serialDay(after['endDate']))
+    expectRange(built.loop, { start: 1, end: 6, top: ROW_A, bottom: ROW_B }, 'HB-2 both axes')
+  })
+})
+
+describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
+  it(`${HB_3} -- one drawn row down moves both edges one row`, () => {
+    const built = stage()
+    const box = highlightRect(built.loop)
+    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, rowsApart(built.loop, ROW_B, ROW_C))
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_E }, 'HB-3 one row')
+    expectNoRs44(built, 'HB-3 one row')
+  })
+
+  it(`${HB_3_FOLDED} -- two drawn rows down across a folded group lands on C and D`, () => {
+    const built = stage({ rows: FOLDED_ROWS, range: { ...DEFAULT_RANGE, topGroupId: ROW_A, bottomGroupId: ROW_B } })
+    const inRowB = drawnRow(built.loop, ROW_B)
+    const box = highlightRect(built.loop)
+    dragTo(built, { x: box.x + box.width / 2, y: inRowB.y + inRowB.height / 2 }, 0, rowsApart(built.loop, ROW_B, ROW_D))
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_D }, 'HB-3 across the fold')
+  })
+
+  it(`${HB_3_NO_ROW} -- two drawn rows down reaches the last row and is kept`, () => {
+    const built = stage()
+    const box = highlightRect(built.loop)
+    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, 2 * rowsApart(built.loop, ROW_B, ROW_C))
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-3 to the last row')
+    expectNoRs44(built, 'HB-3 to the last row')
+  })
+
+  it(`${HB_3_NO_ROW} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is told`, () => {
+    const built = stage()
+    const before = storedRange(built.loop)
+    const box = highlightRect(built.loop)
+    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
+    expect(storedRange(built.loop), 'HB-3: the box moved').toEqual(before)
+    expect(built.noticeTexts(), 'HB-3: RS-44 was not told').toContain(RS_44_WORDS)
+  })
+})
+
+describe('DFC-568 FR-019: the box is drawn by whole day columns', () => {
+  it(`${FR_019_WIDTH} -- startDate equal to endDate is one day wide`, () => {
+    const drawn = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(10) })
+    expect(drawn.pxPerDay).toBeGreaterThan(0)
+    expect(Math.abs(drawn.box.width - drawn.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
+  })
+
+  it(`${FR_019_WIDTH} -- one day apart is two days wide and starts at the same column`, () => {
+    const single = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(10) })
+    const pair = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(11) })
+    const next = drawnWidth({ ...DEFAULT_RANGE, startDate: day(11), endDate: day(11) })
+    expect(Math.abs(pair.box.width - 2 * pair.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
+    expect(Math.abs(pair.box.x - single.box.x)).toBeLessThanOrEqual(WIDTH_SLACK)
+    expect(Math.abs(next.box.x - single.box.x - single.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
+  })
+})
+
+describe('DFC-568 comment box: no corners, body CM-51, anchor CM-50', () => {
+  for (const corner of CORNERS) {
+    it(`⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは \`FR-097\` が本文に合わせて決めており、文書は大きさの列を持たない（\`AT-110\` 〜 \`AT-115\`）。 -- the ${corner.name} corner of the body resizes nothing`, () => {
+      const built = stage()
+      const drawn = commentDrawn(built.loop)
+      const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+      const press = offsetFrom(corner.at(drawn.body), corner.inward, S_230 / 2)
+      dragBy(built, press, TRAVEL_DAYS * pxPerDay(built.loop))
+      const now = commentDrawn(built.loop)
+      expect(now.body.width, `${corner.name}: the body width changed`).toBeCloseTo(drawn.body.width, 6)
+      expect(now.body.height, `${corner.name}: the body height changed`).toBeCloseTo(drawn.body.height, 6)
+      const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+      for (const column of changedColumns(before, after)) {
+        expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${corner.name}: ${column} was written`).toContain(column)
+      }
+    })
+  }
+
+  it('本体を掴めば `CM-51` で、アンカーを掴めば `CM-50` で書くこと（MUST）。 -- the body writes bodyOffsetPx and leaves the anchor', () => {
+    const built = stage()
+    const drawn = commentDrawn(built.loop)
+    const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+    dragBy(built, { x: drawn.body.x + drawn.body.width / 2, y: drawn.body.y + drawn.body.height / 2 }, TRAVEL_DAYS * pxPerDay(built.loop))
+    const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+    expect(changedColumns(before, after)).toEqual([...CM_51_COLUMNS])
+  })
+
+  for (const [label, shift] of [['on the anchor', 0], ['within S-230 of the anchor', -S_230 / 2]] as const) {
+    it(`本体を掴めば \`CM-51\` で、アンカーを掴めば \`CM-50\` で書くこと（MUST）。 -- a press ${label} writes the anchor`, () => {
+      const built = stage()
+      const drawn = commentDrawn(built.loop)
+      const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+      dragBy(built, { x: drawn.anchor.x + shift, y: drawn.anchor.y }, TRAVEL_DAYS * pxPerDay(built.loop))
+      const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+      const changed = changedColumns(before, after)
+      expect(changed.filter((column) => (CM_50_COLUMNS as readonly string[]).includes(column)), 'no CM-50 column was written').not.toEqual([])
+      expect(serialDay(after['anchorDate']), 'anchorDate did not follow the pointer').toBeGreaterThan(serialDay(before['anchorDate']))
+      for (const column of changed) {
+        expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} was written`).toContain(column)
+      }
+    })
+  }
+})

@@ -1076,7 +1076,7 @@ NOT_STORED_TARGETS = {
     # 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
     # とすること（MUST）」, so the dummies' hit width IS the ink's and S-180 is
     # the only row that states it.
-    'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-137'], ARRIVES_AS_ARGUMENT),
+    'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-137', 'S-230'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the

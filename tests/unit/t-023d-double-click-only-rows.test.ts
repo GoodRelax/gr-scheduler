@@ -449,6 +449,7 @@ const SLOP: PointerSlop = {
   // 掴みシロが印そのものになり、読む者が 1 人も残らなかったからである」.
   // `PointerSlop` carries no dummy figure at all now.
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 // ---------------------------------------------------------------------------

@@ -348,6 +348,7 @@ const POINTER_SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 const BYTES_PER_MEGABYTE = 1024 * 1024

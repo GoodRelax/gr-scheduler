@@ -2554,9 +2554,19 @@ function commandFromGrab(
     return CONSUMED_ELSEWHERE
   }
 
+  // see GR-14, CM-50
+  if (item.kind === 'commentBox' && hit.grab === 'GR-14' && hit.boxPart?.kind === 'anchor') {
+    return commentBoxAnchorWrite(context, press, release, item.id)
+  }
+
+  // see GR-14, CM-54
+  if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
+    return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
+  }
+
   // see GR-14, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    const box = context.document.schedule.commentBoxes.find((one) => one.id === item.id)
+    const box = boxById(context.document.schedule.commentBoxes, item.id)
     if (box === undefined) return CONSUMED_ELSEWHERE
     const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
     return changed([
@@ -2685,9 +2695,118 @@ function commandFromGrab(
       ])
     }
     default:
-      // DEVIATION: spec says GR-14 resizes a box by its corners; here no press resizes (DFC-568)
       return CONSUMED_ELSEWHERE
   }
+}
+
+// see GR-14
+/** @purity pure */
+function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box | undefined {
+  return boxes.find((one) => one.id === id)
+}
+
+// see HB-3, GR-12
+// TRAP: sort by y, not layout order: FR-098 lifts pinned rows, so layout order is not what is drawn.
+/** @purity pure */
+function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
+  return [...layout.rows].sort((a, b) => a.y - b.y)
+}
+
+// see HB-3
+// WHY: counts the row tops crossed, so a press on a box's edge and one inside the row move by the same rows.
+/** @purity pure */
+function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number {
+  const topsAtOrAbove = (y: number): number => rows.filter((row) => row.y <= y).length
+  return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
+}
+
+// see GR-14, CM-54, HB-1, HB-2, HB-3
+/** @purity pure */
+function highlightBoxRangeWrite(
+  context: InputContext,
+  press: PointerPress,
+  release: PointerInput,
+  id: string,
+  part: NonNullable<Hit['boxPart']>,
+): TranslatedInput {
+  const box = boxById(context.document.schedule.highlightBoxes, id)
+  const start = dayOf(box === undefined ? null : box.startDate)
+  const end = dayOf(box === undefined ? null : box.endDate)
+  const rows = drawnRowsOf(context.layout)
+  const firstRow = context.layout.rows[0]
+  const lastRow = context.layout.rows[context.layout.rows.length - 1]
+  if (box === undefined || start === null || end === null || firstRow === undefined || lastRow === undefined) {
+    return CONSUMED_ELSEWHERE
+  }
+  if (part.kind === 'anchor') return CONSUMED_ELSEWHERE
+
+  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
+  const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
+  const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
+  const upperAt = Math.min(topAt, bottomAt)
+  const lowerAt = Math.max(topAt, bottomAt)
+  const early = compareDay(start, end) <= 0 ? start : end
+  const late = compareDay(start, end) <= 0 ? end : start
+
+  const days = dayShift(context, press.at.x, release.x)
+  const crossed = drawnRowsCrossed(rows, press.at.y, release.y)
+  const isBody = part.kind === 'body'
+  const movesLeft = isBody || part.horizontal === 'left'
+  const movesRight = isBody || part.horizontal === 'right'
+  const movesTop = isBody || part.vertical === 'top'
+  const movesBottom = isBody || part.vertical === 'bottom'
+
+  const upper = rows[movesTop ? upperAt + crossed : upperAt]
+  const lower = rows[movesBottom ? lowerAt + crossed : lowerAt]
+  if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
+  const left = movesLeft ? dayShifted(early, days) : early
+  const right = movesRight ? dayShifted(late, days) : late
+
+  // TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
+  const rankById = taskGroupRankById(context.document.schedule.taskGroups)
+  const isUpperFirst = (rankById.get(upper.groupId) ?? 0) <= (rankById.get(lower.groupId) ?? 0)
+  const isLeftFirst = compareDay(left, right) <= 0
+  return changed([
+    {
+      kind: 'setHighlightBoxRange',
+      id,
+      range: {
+        startDate: textOfDay(isLeftFirst ? left : right),
+        endDate: textOfDay(isLeftFirst ? right : left),
+        topGroupId: (isUpperFirst ? upper : lower).groupId,
+        bottomGroupId: (isUpperFirst ? lower : upper).groupId,
+      },
+    },
+  ])
+}
+
+// see GR-14, CM-50, FR-019, RS-44
+// WHY: a released anchor is placed again, and FR-019 refuses a place with no row by RS-44.
+/** @purity pure */
+function commentBoxAnchorWrite(
+  context: InputContext,
+  press: PointerPress,
+  release: PointerInput,
+  id: string,
+): TranslatedInput {
+  const box = boxById(context.document.schedule.commentBoxes, id)
+  const day = dayOf(box === undefined ? null : box.anchorDate)
+  if (box === undefined || day === null) return CONSUMED_ELSEWHERE
+  const rows = drawnRowsOf(context.layout)
+  const at = rows.findIndex((row) => row.groupId === box.anchorGroupId)
+  if (at === -1) return CONSUMED_ELSEWHERE
+  const row = rows[at + drawnRowsCrossed(rows, press.at.y, release.y)]
+  if (row === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
+  return changed([
+    {
+      kind: 'setCommentBoxAnchor',
+      id,
+      anchor: {
+        date: textOfDay(dayShifted(day, dayShift(context, press.at.x, release.x))),
+        groupId: row.groupId,
+      },
+    },
+  ])
 }
 
 // see FR-029, FR-034

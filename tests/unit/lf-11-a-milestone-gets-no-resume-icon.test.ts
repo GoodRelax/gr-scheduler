@@ -189,6 +189,7 @@ const SLOP: PointerSlop = {
   actualEndpoint: NOT_STORED_SIZES['S-91'],
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 const geometryOf = (uid: number) => {

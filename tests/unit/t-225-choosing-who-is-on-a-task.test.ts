@@ -634,6 +634,7 @@ const SLOP: PointerSlop = {
   // `GR-9` / `GR-17` / `GR-18` the mark `FR-043` draws, so the dummies have no
   // reach of their own for `PointerSlop` to carry.
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 /**

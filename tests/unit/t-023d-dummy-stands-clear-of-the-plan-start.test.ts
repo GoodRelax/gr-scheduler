@@ -314,6 +314,7 @@ const SLOP: PointerSlop = {
   // ⛔ `PointerSlop` carries no dummy figure at all: table T-023d's closing
   // rule has the three dummies answer on the mark `FR-043` draws, and no wider.
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 // ===========================================================================

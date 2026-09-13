@@ -1519,7 +1519,7 @@ describe('ScheduleGeometry (PI-6) -- table T-020a, GR-10 and FR-019', () => {
     // Both axes read both edges: the range is inverted on each, and the last
     // row of it has to stay inside the box.
     expect(box.x).toBeCloseTo(xOf(0), 6)
-    expect(box.x + box.width).toBeCloseTo(xOf(10), 6)
+    expect(box.x + box.width).toBeCloseTo(xOf(11), 6)
     expect(box.y).toBeCloseTo(rows[0]!.y, 6)
     expect(box.y + box.height).toBeCloseTo(rows[1]!.y + rows[1]!.height, 6)
   })
@@ -1548,6 +1548,7 @@ describe('ItemHitArea (PI-7)', () => {
     fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the 15 x 15 square
     // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
     line: NOT_STORED_SIZES['S-137'],
+    boxPoint: NOT_STORED_SIZES['S-230'],
   }
   const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
     geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))

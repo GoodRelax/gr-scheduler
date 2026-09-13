@@ -120,6 +120,7 @@ const SLOP: PointerSlop = {
   // `S-180` draws and there is no separate slop to state. `PointerSlop`
   // carries no dummy field at all, and a caller states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 const taskOf = (part: Record<string, unknown>): Task =>

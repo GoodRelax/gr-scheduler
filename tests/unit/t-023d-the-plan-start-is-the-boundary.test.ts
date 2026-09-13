@@ -300,6 +300,7 @@ const SLOP: PointerSlop = {
   // has the three dummies answer on `FR-043`'s drawn mark and nothing wider, so
   // this fixture states nothing for them.
   line: NOT_STORED_SIZES['S-137'],
+  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 const TASK_UID = 41
