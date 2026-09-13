@@ -209,7 +209,7 @@
        "type": "number"
       },
       "plusFrom": {
-       "description": "What is added after multiplying, named as another key instead of written as a number. S-2 adds three rows' worth of rulerLabelPad this way. A literal here would be the padding written a second time, and CR-200 was spent taking one such copy back out.",
+       "description": "What is added after multiplying, named as another key instead of written as a number. S-2 adds three rows' worth of rulerLabelPad this way. A literal here would be the padding written a second time.",
        "type": "string",
        "minLength": 1
       },

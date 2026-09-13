@@ -63,7 +63,7 @@
    }
   },
   "printed": {
-   "description": "The fixed prose the generated documents print: the banner, the derived carry rows, and the words a boolean cell shows. ⛔ It used to live inside erd_json_to_md.py, where adding an edition meant editing Python (CR-183). The table HEADINGS sit on their own section, beside the caption they head.",
+   "description": "The fixed prose the generated documents print: the banner, the derived carry rows, and the words a boolean cell shows. ⛔ It lives here, not in erd_json_to_md.py, so that adding an edition never means editing Python. The table HEADINGS sit on their own section, beside the caption they head.",
    "type": "object",
    "required": [
     "banner",
@@ -144,7 +144,7 @@
  },
  "$defs": {
   "prose": {
-   "description": "PROSE the specification prints, held as a language dictionary. ⚠️ Adding English must be a fill-in, not a rewrite, so every printed sentence sits behind a language key from the start -- the manuscript itself belongs to no language (裁定 ㊹, CR-175). ⛔ NOT every Japanese string: \"type\" and \"nullable\" hold Japanese too and are NOT prose. They are a classification whose Japanese wording is a display decision, so wrapping them would burn 「可」 into the manuscript; the generator must print the classification per language instead. The same shape settings.json uses.",
+   "description": "PROSE the specification prints, held as a language dictionary. ⚠️ Adding English must be a fill-in, not a rewrite, so every printed sentence sits behind a language key from the start -- the manuscript itself belongs to no language. ⛔ NOT every Japanese string: \"type\" and \"nullable\" hold Japanese too and are NOT prose. They are a classification whose Japanese wording is a display decision, so wrapping them would burn 「可」 into the manuscript; the generator must print the classification per language instead. The same shape settings.json uses.",
    "type": "object",
    "required": [
     "ja"
@@ -310,7 +310,7 @@
      "description": "Identifier as it appears in the figure. Upper camel case for an entity, lower camel case for the two document stamps."
     },
     "description": {
-     "description": "What the entity is. ⚠️ A language dictionary: the Japanese specification prints \"ja\" in table T-056, and the GRS JSON schema -- which belongs to no language because machines and exchange partners read it -- prints \"en\" (CR-175).",
+     "description": "What the entity is. ⚠️ A language dictionary: the Japanese specification prints \"ja\" in table T-056, and the GRS JSON schema -- which belongs to no language because machines and exchange partners read it -- prints \"en\".",
      "type": "object",
      "required": [
       "ja",
@@ -461,7 +461,7 @@
     },
     "isDate": {
      "const": true,
-     "description": "This column is one table T-058 gives a date or a datetime type. ⚠️ NOT a format: EX-4 keeps whatever spelling the value arrived in, and this says nothing about that. It exists because IV-14 reaches these columns as a set without naming them, so without a marker the roster gets copied by hand and goes stale (F-3, CR-175)."
+     "description": "This column is one table T-058 gives a date or a datetime type. ⚠️ NOT a format: EX-4 keeps whatever spelling the value arrived in, and this says nothing about that. It exists because IV-14 reaches these columns as a set without naming them, so without a marker the roster gets copied by hand and goes stale (F-3)."
     },
     "values": {
      "type": "array",
