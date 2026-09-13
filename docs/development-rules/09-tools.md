@@ -46,6 +46,10 @@
 hook は `sweep` と `stats` を自動で走らせるので、Claude のセッションの中では `precheck` だけが新しい。
 ⛔ **hook はセッションの外では走らない。** Explorer や素の端末から始めるときは、束のほうを打つこと。
 
+⭐ **書いた直後の hook（JDG-59）:** `.claude/hooks/check-after-edit.py` は PostToolUse（Edit・Write・MultiEdit）で、書いたファイル 1 つだけを検査する —— `src/` と `tests/` の `.ts` は `check-comment-rules.py --file`、`docs/spec/_source/` の原稿は対応する生成器の `--check`。
+違反は exit 2 でモデルに知らせるだけで、編集は止めない。
+⚠️ Bash での書き換えには掛からないので、コミット前の門（`guard:commit`）が拾う。
+
 ### ⭐ `.bat` は皮である
 
 ⛔ **`.bat` に手順を書くな。** 6 本とも、動く行は `cd` と `npm run` と `pause` の 3 行だけで、
