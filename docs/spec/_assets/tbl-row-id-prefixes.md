@@ -97,7 +97,7 @@
 | `IO` | Input / Output | 読み書きする入出力の形式 | 仕様書 | `T-024` | 7 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 20 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 58 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 61 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 116 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 3 |
 | `LC` | Layout Calculation | レイアウトを求める計算の段 | 仕様書 | `T-068` | 11 |
