@@ -1,4 +1,16 @@
-2
+3
+#
+# RAISED 2 -> 3 on 2026-09-14, deliberately, for JDG-71 (DFC-568's corner
+# grab: which day boundary a released corner snaps to horizontally). The
+# ruling was answered (nearest boundary) but the DFC-568 row it lands under
+# (table T-246, still to be added) is not written yet -- the spec-only body's
+# draft sits in a worktree, not in docs/spec. R2's refutation also surfaced
+# two design holes this ruling does not settle: (1) reading the vertical
+# release point can fall in the row gap outside S-230 and be refused by
+# rowAt, and (2) a naive "crossed the opposite edge -> 1-day box" rule makes
+# the width jump 1 -> 3 days with no 2-day step. Those two holes are left to
+# the next round (defects.md's DFC-568 row). Lower this back to 2 in the
+# commit that lands JDG-71 in docs/spec.
 #
 # LOWERED 3 -> 2 on 2026-09-14, for JDG-70: the user's ruling landed at table
 # T-246's HB-3 (docs/spec/01-04-requirements.md) -- the top and bottom of a
