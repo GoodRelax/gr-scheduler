@@ -5,11 +5,9 @@
 // @purity    pure
 // @publishes table T-064 row PI-19
 //
-// Turns the geometry into an SVG string (FR-080, CP-19). No shape is
-// recomputed here: 表 T-068 LC-11 already made every vertex.
-//
-// ⭐ Reads `Schedule` as well as the geometry, and draws FR-042's row band
-// and FR-020's watermark layer: `_source/components.json` draws those edges.
+// Turns the geometry into an SVG string (FR-080, CP-19); no shape is
+// recomputed here (表 T-068 LC-11). Also reads `Schedule` for FR-042's row
+// band and FR-020's watermark (edges in `_source/components.json`).
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
@@ -18,9 +16,7 @@ import {
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
-// PI-7's own answer type. ⭐ The hit is READ here and never taken: this unit
-// only reads the answer handed in, so `Hit` arrives as a type and
-// `itemAtPointer` itself stays where it is.
+// PI-7's answer type only: this unit reads a hit handed in and never hit-tests.
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
@@ -42,71 +38,45 @@ export type { SvgSurface } from './svg-surface'
 /**
  * Which of table T-076's two pictures this frame is.
  *
- * ⭐ WHY IT EXISTS. EP-14 is the row no other argument can reach: FR-043's
- * dummies hang on the Task being unstarted, a property of the DOCUMENT. The
- * obvious shortcut -- emptying the geometry's dummies -- is a defect; the note
- * at the dummy site in `svgFromSchedule` says why.
- *
- * ⭐ EP-12 is spent through it as well (`drawsOperationState`).
- *
- * ⚠️ DELIBERATELY NARROW. Each row of table T-076 that reaches this argument
- * does so for a stated reason; it is not a general "export mode" that another
- * row may be folded into without one.
+ * Exists for EP-14: FR-043's dummies hang on the DOCUMENT (an unstarted Task),
+ * so emptying the geometry's dummies instead is a defect (see the dummy site in
+ * `svgFromSchedule`). EP-12 is spent through it too (`drawsOperationState`).
+ * Not a general export mode: a row of table T-076 reaches it only with a stated reason.
  *
  * @provisional PND-210
  */
 export type SchedulePicture = 'screen' | 'export'
 
 /**
- * The Dual Cursor mode as it stands THIS FRAME.
+ * A parameter, not geometry: which side follows is a current value (LY-5 of
+ * table T-060), and DC-8 of table T-029a keeps the mark out of an export while
+ * EP-6 still draws the lines.
  *
- * ⭐ WHY A PARAMETER AND NOT PART OF THE GEOMETRY. Which side follows is a
- * current value, which LY-5 of table T-060 leaves with the Framework, and DC-8
- * of table T-029a keeps its mark out of an export while EP-6 still draws the
- * lines. So the placement travels in the geometry and the mark travels here.
- *
- * ⛔ `'date1' | 'date2'` IS WRITTEN OUT RATHER THAN IMPORTED. It is declared as
- * `DualCursorSide` in `screen-state.ts`, and `_source/components.json` gives
- * this component no edge to ScreenState. ⚠️ The compiler keeps the two in
- * step: `frame-loop.ts` hands ONE value along both seams.
+ * `'date1' | 'date2'` is spelled out, not imported as `DualCursorSide`:
+ * `_source/components.json` gives no edge to ScreenState. `frame-loop.ts`
+ * hands one value along both seams, so the compiler keeps them in step.
  */
 export interface DualCursorFollow {
   /** DC-2. */
   readonly side: 'date1' | 'date2'
   /**
-   * Where the pointer is, in screen px, or `null` while it is outside the
-   * window.
-   *
-   * ⭐ The line is drawn at the day this point falls in, not at the point.
-   * @provisional PND-310
-   * ⛔ With no pointer the line stands at its stored date. @provisional PND-311
+   * Pointer x in screen px, or `null` while outside the window.
+   * The line stands at the day this point falls in. @provisional PND-310
+   * With no pointer the line stands at its stored date. @provisional PND-311
    */
   readonly x: number | null
 }
 
 /**
- * FR-020's trail, as the picture receives it.
- *
- * ⭐ WHY BOTH HALVES ARE HANDED IN. The name is S-99a of table T-206, kept in
- * `localStorage` (LY-5 of table T-060 leaves that with the Framework), and the
- * moment is a clock; a pure unit reads neither.
- *
- * ⭐ `null` is S-144 of table T-206, spent by the caller. ⛔ Not a default this
- * unit chose: inventing a name here would put one nobody entered into a
- * reader's exported file.
+ * FR-020's trail, handed in: the name (S-99a of table T-206) is in
+ * `localStorage` (LY-5 of table T-060) and the moment is a clock, neither
+ * readable by a pure unit. `null` is S-144, spent by the caller; a name
+ * invented here would land in a reader's exported file.
  */
 export interface Watermark {
-  /**
-   * S-99a of table T-206. ⛔ Not the author's (FR-020's RATIONALE).
-   * ⚠️ Where it comes from is FR-086's, not this unit's.
-   */
+  /** S-99a of table T-206; not the author's (FR-020's RATIONALE); sourced per FR-086. */
   readonly openedBy: string
-  /**
-   * The moment, spelled as FR-020 requires.
-   *
-   * ⛔ Spelled by the caller and drawn exactly as it arrives, so the one
-   * speller is the side that read the clock (FR-020 fixes how).
-   */
+  /** Spelled by the caller that read the clock (FR-020 fixes how); drawn as it arrives. */
   readonly stampedAt: string
 }
 
@@ -121,29 +91,18 @@ interface Paint {
 }
 
 /**
- * The one colour FR-019 (MUST) asks for that no table holds: the line an
- * annotation takes when the author named none.
- *
- * ⛔ NOT IN TABLE T-236, although FR-041 names the annotation beside the two
- * lines that table does settle. ⚠️ The fade grab point's pair below is typed
- * here for the same reason; every colour a row does hold arrives generated.
- *
- * ⛔ AND THIS VALUE IS MEASURABLY WRONG. FR-019 wants it kept away from the
- * theme hue, the dependency line and the progress line; `#b45309` is hue 26,
- * the hue S-159 gives the dependency line in the light theme. Correcting it
- * means choosing a colour, which this unit may not do.
+ * FR-019's line colour for an annotation the author gave none; no row of table
+ * T-236 holds it (nor the fade grab point's pair below).
+ * Known wrong: `#b45309` is hue 26, S-159's light dependency-line hue, which
+ * FR-019 wants avoided; choosing a replacement is not this unit's call.
  *
  * @provisional PND-1
  */
 const ANNOTATION_COLOUR = '#b45309'
 
 /**
- * The square FR-075 (MUST) shows on the selected Task, and its outline.
- *
- * ⛔ STOP -- NOT IN TABLE T-236. No row of it is the fade grab point: table
- * T-210 gives the point its half-side (S-109), its stroke (S-110) and the
- * condition for showing it (S-111), and stops there. Table T-236 is where the
- * face and outline rows would have to go.
+ * STOP -- FR-075's fade grab point face and outline are in no row. Looked in
+ * table T-210 (S-109, S-110, S-111) and table T-236.
  *
  * @provisional PND-1
  */
@@ -152,27 +111,12 @@ const FADE_HANDLE_FILL_COLOUR = '#ffffff'
 const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
 /**
- * How far past each side edge of the `Row Area` a figure still counts as worth
- * writing, as a multiple of that area's own width. The sideways half of the
- * cull `skipsOffScreen` states; the up-and-down half takes the area's own
- * HEIGHT and needs no number at all, because a row's figures stand in that
- * row's band.
- *
- * ⭐⭐ 0.25 IS THE AUTHOR'S OWN NUMBER: the drawn range is one and a half
- * windows in total -- a quarter of a window on either hand, not 1.5 on EACH
- * side. A quarter of a window still clears the assignee and the name by far
- * more than either can overhang.
- * ⛔ NO ROW OF docs/spec STATES A MARGIN OR AN OVERHANG. Sideways the band is
- * not the whole of a Task's ink -- NL-3 of table T-013 puts the name outside
- * the bar, GR-11 hangs the assignee off it, the percent sits beside it -- so
- * the bar's own rectangle is too tight a test, and how much to add is a choice.
- *
- * ⛔ NO SETTINGS ROW IS INVENTED FOR IT. The value decides nothing a reader can
- * see, and a document that carried it would let one machine's saved file
- * change how much another machine declines to write.
- *
- * ⚠️ A FRACTION OF THE WIDTH, NOT A FIXED PX: `MC-6` of table T-025 is one
- * screen and the application is drawn on others.
+ * Sideways cull margin for `skipsOffScreen`, as a fraction of the Row Area width.
+ * 0.25 is the author's own number (a quarter window each side; no row of
+ * docs/spec states one): it clears the name (NL-3 of table T-013), the assignee
+ * (GR-11) and the percent that overhang a bar.
+ * Not a settings row: a saved file would change what another machine writes.
+ * A fraction, not px: `MC-6` of table T-025 is one screen of many.
  */
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
@@ -193,31 +137,15 @@ function rounded(value: number): string {
 }
 
 /**
- * WHAT ONE DRAWN FIGURE IS, written on the figure itself so that the same
- * figure can be recognised in the next frame's picture.
- *
- * ⭐ BUILT FROM the identifier the DOCUMENT gives the thing (a `Task`'s UID, a
- * `TaskGroup`'s id, a box's id, a day's serial) and the part's name -- never an
- * index into an array, which a delete or a sideways scroll moves.
- *
- * ⛔ NOT `data-role`, which carries a UI part's settled name (W-4 of table
- * T-006a); none of these figures is one.
- *
- * ⚠️ NOT A DIFFING PROTOCOL. The seam still hands over one whole string; the
- * key is only the identity a differ on the far side cannot recover once lost.
- *
- * ⭐ ONE FIGURE MAY BE SEVERAL ELEMENTS, AND THEY ALL CARRY THE SAME KEY (a
- * line-form bar's line, head and dots; a marker's disc and symbol). ⛔ No
- * index apiece: the count varies with the shape, so it would move for the same
- * reason a position does.
- *
- * ⚠️ IT COSTS BYTES and the picture is serialised once a frame, so nothing
- * else (size, state, colour) is written into it.
- *
- * ⛔ THE EXPORT CARRIES IT TOO. Table T-076 says which parts an export draws,
- * not which attributes, and FR-080 with WY-2 of table T-041 asks for one
- * drawing; dropping it would be a rule this file invented. ⚠️ Not decided
- * here: the keys put `Task` UIDs and `TaskGroup` ids into a reader's picture.
+ * A figure's identity across frames: the DOCUMENT's id plus the part name, never
+ * an array index (a delete or sideways scroll moves it). All elements of one
+ * figure share it; no per-element index, since the count varies with shape.
+ * Not `data-role` (W-4 of table T-006a names UI parts). Not a diffing protocol,
+ * only what a far-side differ cannot recover; nothing else goes in, as it is
+ * serialised every frame.
+ * The export carries it too (table T-076, FR-080, WY-2 of table T-041 ask for
+ * one drawing). Not decided here: it puts `Task` UIDs and `TaskGroup` ids into
+ * a reader's picture.
  *
  * @purity pure
  */
@@ -231,9 +159,7 @@ function pointsOf(path: Path): string {
 }
 
 /**
- * ⚠️ `ScreenRect` rather than a shape of this file's own: `HighlightGeometry`
- * already carries one, and two names for the same four numbers would only make
- * them harder to put side by side.
+ * Returns `ScreenRect`, as `HighlightGeometry` does, so the two compare directly.
  *
  * @purity pure
  */
@@ -254,10 +180,7 @@ function boxOfPoints(path: Path): ScreenRect | null {
 }
 
 /**
- * Every point one bar reaches, in either of table T-012's two forms.
- *
- * ⛔ SH-3's head and SH-4's dots reach past `from` and `to`, so reading only
- * the two ends would put the frame inside the figure.
+ * Includes SH-3's head and SH-4's dots: they reach past `from` and `to`.
  *
  * @purity pure
  */
@@ -272,9 +195,8 @@ function cornersOfBar(bar: BarGeometry): Path {
 }
 
 /**
- * One rectangle for FR-009's bar-exclusion `<mask>` (black hides): the same
- * `boxOfPoints(cornersOfBar(...))` the selection frame reads, not a second
- * notion of "the bar".
+ * FR-009's bar-exclusion `<mask>` rectangle (black hides), from the same box the
+ * selection frame reads.
  *
  * @purity pure
  */
@@ -287,10 +209,7 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
 }
 
 /**
- * The four corners of a rectangle CENTRED on one point.
- *
- * ⚠️ The centre arrives already worked out from `DummyGeometry.ink`; table
- * T-023d's left-edge anchoring is solved in `dummiesOf`, not here.
+ * Centred on `centre`; table T-023d's left-edge anchoring is solved in `dummiesOf`.
  *
  * @purity pure
  */
@@ -306,15 +225,10 @@ function cornersAround(centre: Point, width: number, height: number): Path {
 }
 
 /**
- * One closed outline carried from the box it was drawn in onto another box.
- *
- * ⭐ WHY A MAP AND NOT A SECOND DRAWING. FR-043 gives the milestone dummy the
- * milestone's own actual figure, and the marks of table T-012's `SH-5` live
- * unexported inside `schedule-geometry.ts`; writing the glyphs again here would
- * be a second spelling of `SH-5` to drift. The box arrives from `dummiesOf`.
- *
- * ⚠️ x and y are scaled separately. That is safe only because both boxes are
- * square (FR-043); fed a non-square box, a circle glyph becomes an ellipse.
+ * Maps the milestone glyph onto another box rather than redrawing it, so `SH-5`
+ * (table T-012, unexported in `schedule-geometry.ts`) is spelled once (FR-043).
+ * x and y scale separately: safe only because both boxes are square (FR-043);
+ * a non-square box turns a circle into an ellipse.
  *
  * @purity pure
  */
@@ -328,18 +242,10 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
 }
 
 /**
- * The figure FR-043's one faint mark is drawn as, on this Task.
- *
- * ⭐ WHERE THE FIGURE COMES FROM. A not-started Task has no actual bar, so the
- * actual milestone figure is not on the geometry to copy.
- * `TaskGeometry.milestoneFigure` answers it: `barOf` builds a milestone's plan
- * and actual from one glyph and only their side differs.
- *
- * ⛔ NO COLOUR IS DECIDED HERE; the caller hands in the actual bar's paint.
- *
- * ⛔ `task.plan` IS NOT READ. A milestone drawn while the plan is hidden
- * (`planVisible` false) has no plan bar to copy, and would fall back to the
- * rectangle FR-043's MUST NOT forbids; the geometry answers it in one place.
+ * FR-043's faint mark on this Task, from `TaskGeometry.milestoneFigure` (a
+ * not-started Task has no actual bar). Not `task.plan`: absent while
+ * `planVisible` is false, it would fall back to the rectangle FR-043 forbids.
+ * The caller hands in the paint.
  *
  * @purity pure
  */
@@ -358,28 +264,21 @@ function dummyFigure(
   const rectangle: BarGeometry = { form: 'outline', points: cornersAround(centre, width, height) }
   if (milestone === null || milestone.form !== 'outline') return rectangle
   const from = boxOfPoints(milestone.points)
-  // ⛔ A silhouette with no extent on one axis cannot be carried onto a box:
-  // the ratio would be a division by zero. Nothing is invented for it.
+  // A zero-extent silhouette cannot be scaled (division by zero); keep the rectangle.
   if (from === null || from.width <= 0 || from.height <= 0) return rectangle
   return {
     form: 'outline',
     points: pathFitted(milestone.points, from, box),
-    // ⭐ The cut-out marks ride the SAME map as the silhouette, so `box` from
-    // `hexagon` and `smile` from `circle` stay told apart at the dummy's size
-    // for the reason `BarGeometry.marks` gives at full size.
+    // The marks ride the same map, so `box`/`hexagon` and `smile`/`circle` stay
+    // distinct at dummy size (`BarGeometry.marks`).
     marks: (milestone.marks ?? []).map((one) => pathFitted(one, from, box)),
   }
 }
 
 /**
- * SL-8 of table T-023c (MUST), the FRAMED half: a dashed rectangle on the
- * target's BOUNDING RECTANGLE.
- *
- * ⚠️ A target with no extent in one axis gets that side widened to S-174, the
- * frame's own width. ⛔ A rectangle of zero height draws no outline at all, so
- * a figure that collapsed to a single run -- a zero-span SH-3, whose head
- * shrinks with the span, or a milestone drawn at side 0 -- would carry no sign
- * rather than a thin one.
+ * SL-8 of table T-023c, the framed half: a dashed rectangle on the target's bounds.
+ * A zero-extent side is widened to S-174: a zero-height rect draws no outline, so
+ * a collapsed figure (zero-span SH-3, side-0 milestone) would show no sign.
  *
  * @purity pure
  */
@@ -398,20 +297,10 @@ function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string
 }
 
 /**
- * SL-8's other half: a selected line is drawn at S-178 times its own width.
- *
- * ⭐ The line is drawn thicker IN PLACE rather than over-painted. GD-6 (MUST)
- * keeps the arrowhead on the dependency line, and a second polyline laid on top
- * would leave that head at the thin line's weight.
- *
- * ⛔ THE COLOUR IS NOT CHANGED. Recolouring the dependency line would also need
- * a second arrowhead marker in the selection colour, and no table holds it.
- *
- * ⚠️ DC-8 of table T-029a spends it too, and passes whether a Dual Cursor line
- * is FOLLOWING, not selected -- SL-1 admits no cursor line.
- *
- * ⛔ No export test here: `drawsOperationState` has already made `selected`
- * false for an export.
+ * SL-8's other half. Thickened in place, not over-painted, so GD-6's arrowhead
+ * keeps the weight; not recoloured, as no row holds a selection-coloured head.
+ * DC-8 of table T-029a passes FOLLOWING here (SL-1 admits no cursor line).
+ * No export test: `drawsOperationState` already cleared `selected`.
  *
  * @purity pure
  */
@@ -420,16 +309,9 @@ function selectedLineWidth(own: number, selected: boolean): number {
 }
 
 /**
- * The same colour with the hue taken out, for FR-041's monochrome, applied
- * when drawing and never to the stored value.
- *
- * ⚠️ What survives is HSL's lightness, not WCAG's luminance. Monochrome shows
- * the same picture without hue, so the value kept is the one the colour was
- * WRITTEN with; luminance is the measure NFR-007 judges by, which is a
- * different question from how to draw.
- *
- * ⛔ A colour this cannot read comes back unchanged. Guessing at one would be
- * worse than leaving a single shape coloured, which a reader can see and say.
+ * FR-041's monochrome, applied when drawing only. Keeps HSL lightness (what the
+ * colour was written with), not WCAG luminance (NFR-007's measure). An
+ * unreadable colour returns unchanged: one visible coloured shape beats a guess.
  *
  * @purity pure
  */
@@ -446,19 +328,15 @@ function achromatic(colour: string): string {
 }
 
 /**
- * One row of table T-236, resolved for the theme in force.
- *
- * ⛔ Monochrome reaches only `followsHue` rows (FR-041, MUST NOT).
- *
- * ⭐ EXPORTED so that `ImageExporter` paints EP-9's divider line in S-149
- * through this one function rather than a second guess of the colour (LR-2).
+ * One row of table T-236 for the theme in force; monochrome reaches only
+ * `followsHue` rows (FR-041, MUST NOT). Exported so `ImageExporter` paints
+ * EP-9's divider in S-149 through it (LR-2).
  *
  * @purity pure
  */
 export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
   const row = SCHEDULE_COLOURS[rowId]
-  // The generator raises on a row table T-236 has not, so this can only fire
-  // when a row ID typed here is not one the block was asked for.
+  // Fires only for a row ID typed here that the generated block was not asked for.
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
   const written = dark ? row.dark : row.light
   if (!row.followsHue) return written
@@ -467,15 +345,9 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
 }
 
 /**
- * How thick the `Group Grid Lines` (U-18) rule is drawn, in CSS px.
- *
- * ⭐ EXPORTED: this is EP-9's one place.
- *
- * ⭐ WHY HERE AND NOT IN A TABLE. EP-9 forbids a settings key for the divider,
- * and no row of tables T-202 / T-203 / T-236 gives the group grid line a width
- * (S-68 is whether it is drawn, S-165 its colour). So the number is the
- * drawer's own: the band loop in `svgFromSchedule` takes it, and
- * `screen-frame.ts` takes it for the divider's line rectangle.
+ * `Group Grid Lines` (U-18) thickness in CSS px; EP-9's one place. The drawer's
+ * own number: EP-9 forbids a settings key and no row of tables T-202 / T-203 /
+ * T-236 gives a width. Also read by `screen-frame.ts`.
  */
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
@@ -485,10 +357,7 @@ function isDarkTheme(settings: DocumentSettings): boolean {
 }
 
 /**
- * FR-042's band colour for a row the author gave none: S-166 at depth 1,
- * S-164 and S-167 alternating below it.
- *
- * ⛔ Counted by the row's position (FR-042's RATIONALE).
+ * FR-042's default band colour, counted by row position (FR-042's RATIONALE).
  *
  * @purity pure
  */
@@ -513,10 +382,8 @@ function paintOf(
 ): Paint {
   const stroke = chosenStroke === null ? themedStroke : chosenStroke
   const fill = chosenFill === null ? themedFill : chosenFill
-  // ⭐ One call for both halves. A themed colour arrives achromatic already
-  // and `achromatic` is idempotent, so the chosen colour needs no branch of
-  // its own -- a second branch is where the author's colour gets thrown away
-  // instead of drained.
+  // One call for both halves: `achromatic` is idempotent, and a separate
+  // chosen-colour branch is where the author's colour gets dropped, not drained.
   return {
     stroke: monochrome ? achromatic(stroke) : stroke,
     fill: monochrome ? achromatic(fill) : fill,
@@ -525,20 +392,12 @@ function paintOf(
 }
 
 /**
- * ZO-3's marker: a filled disc in S-162 (table T-020's opaque backing) inked in
- * S-161, with table T-021's symbol stroked inside.
- * ⛔ The symbols' exact figures are not in the specification; PND-2 covers the
- * same kind of gap.
- *
- * ⭐ ONLY PM-1a IS FAINT (FR-013). PM-4 wins over PM-1a (table T-021), so
- * keying on the symbol is what the late marker's exemption reduces to.
- *
- * ⭐ ONE GROUP RATHER THAN AN ATTRIBUTE ON EACH SHAPE. The backing and the ink
- * overlap, and two translucent shapes composite to a third value where they
- * meet -- so per-shape opacity would draw the symbol darker than its own disc
- * and S-131 would no longer be the degree of anything. ⚠️ The backing goes
- * translucent with the rest, a real loss against table T-020's opaque backing;
- * FR-013's MUST decides.
+ * ZO-3's marker: an S-162 disc (table T-020's opaque backing) inked in S-161,
+ * with table T-021's symbol inside; the symbols' exact figures are unspecified
+ * (the gap PND-2 covers). Only PM-1a is faint (FR-013); PM-4 wins over PM-1a.
+ * Faintness is one group opacity, not per shape: overlapping translucent shapes
+ * would darken the symbol past S-131. The backing turns translucent too,
+ * against table T-020; FR-013's MUST decides.
  *
  * @purity pure
  */
@@ -551,12 +410,10 @@ function markerSvg(
   key: string,
 ): string {
   const { centre, radius } = marker
-  // The wrapping group carries the key too: in the PM-1a case it is what a
-  // differ finds first.
+  // The group carries the key too; for PM-1a it is what a differ finds first.
   const named = figureKey(key)
-  // ⛔ S-24 for the disc and the symbol alike: FR-094 (MUST NOT) forbids this
-  // file a dimension of its own, and S-24 is the only stroke width table T-201
-  // keeps in the 進捗マーカー group.
+  // S-24 for disc and symbol: FR-094 (MUST NOT) forbids a local dimension, and
+  // S-24 is table T-201's only stroke width in the 進捗マーカー group.
   const stroke = rounded(settings.markerStroke)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
@@ -587,20 +444,11 @@ function markerSvg(
 }
 
 /**
- * FR-044's resume icon.
- *
- * ⭐ THE PATHS ARE READ, NOT REBUILT. `resumeOf` has solved LF-13 of table
- * T-221, so S-25's invalid look arrives as smaller paths and is not a second
- * condition here. ⚠️ `ResumeGeometry.valid` is read by nobody who draws: the
- * size is the difference, and no row of table T-236 holds a second colour.
- *
- * ⭐ GR-8's hit box is S-22's box centred on `[...arm, ...head]`, so drawing
- * exactly those two paths makes the picture and the grab agree. ⚠️ The drawn
- * square and the hit square differ in size on purpose: S-25 shrinks only the
- * drawing.
- *
- * ⚠️ The stroke is S-24, for the reason `markerSvg` gives. S-161 is the ink:
- * table T-236 holds no row of its own for this icon.
+ * FR-044's resume icon, drawn from `resumeOf`'s paths (LF-13 of table T-221), so
+ * S-25's invalid look already is the smaller size; `ResumeGeometry.valid` goes
+ * unread, as no row of table T-236 holds a second colour. The same paths centre
+ * GR-8's S-22 hit box, so picture and grab agree (S-25 shrinks only the drawing).
+ * Stroke S-24 as in `markerSvg`; ink S-161, as no row is this icon's own.
  *
  * @purity pure
  */
@@ -622,17 +470,12 @@ function resumeSvg(
 }
 
 /**
- * ZO-5's name label, at the rectangle the geometry placed. ⭐ The size is read
- * off the placement: writing FR-077's formula a second time is how the
- * measured width stops matching the glyphs.
- *
- * ⚠️ `labelHaloOfFont` is the outline table T-017a's note reaches for when a
- * hue cannot meet CT-1 and CT-2. It is drawn always, which is the safe side of
- * that note rather than a reading of it.
- *
- * ⚠️ `paint-order="stroke"` puts the stroke UNDER the fill, so the fill is the
- * glyph (S-168) and the stroke is the halo behind it (S-169). Swapping the two
- * attributes paints the label in its own outline.
+ * ZO-5's name label. The size is read off the placement: recomputing FR-077's
+ * formula parts the measured width from the glyphs. The halo
+ * (`labelHaloOfFont`, table T-017a's note for CT-1 and CT-2) is always drawn,
+ * the safe side of that note.
+ * `paint-order="stroke"` puts the halo (S-169) under the glyph (S-168);
+ * swapping the attributes paints the label in its own outline.
  *
  * @purity pure
  */
@@ -644,32 +487,19 @@ function labelSvg(
   ink: string,
   halo: string,
   /**
-   * How far into its own box the glyphs start.
-   *
-   * ⭐ AN ARGUMENT BECAUSE THE TWO CALLERS ARE ANSWERING DIFFERENT ROWS. ZO-5's
-   * name label is boxed to the ROOM it may take -- the shape's width, or the
-   * run to `occupiedX1` -- so `labelPad` (S-31) is the inset that keeps it off
-   * the edge. OC-2's two labels are boxed to their own ESTIMATED WIDTH, which
-   * LC-7 counted the occupancy by, so an inset there would push the glyphs out
-   * of the very box the stacking reserved and across the `labelGap` that holds
-   * them clear of the bar.
+   * ZO-5's box is the room the label may take, so S-31 keeps it off the edge;
+   * OC-2's box is its estimated width (LC-7), where an inset would push the
+   * glyphs out of the reserved box and across `labelGap`.
    */
   padLeft: number,
   /** Which label this is, kept from frame to frame. */
   key: string,
-  /**
-   * Which edge of the box the glyphs are pinned to.
-   *
-   * ⭐ An argument for the same reason `padLeft` is one: OC-2's card is
-   * right-aligned (FR-090). ⚠️ `padLeft` means nothing at the far end, so an
-   * `end` caller passes 0.
-   */
+  /** OC-2's card is right-aligned (FR-090); an `end` caller passes `padLeft` 0. */
   anchor: 'start' | 'end' = 'start',
 ): string {
   const x = anchor === 'end' ? box.x + box.width : box.x + padLeft
-  // ⭐ S-33 MULTIPLIES THE FONT, NOT THE BOX: table T-012's closing paragraph
-  // makes it a shift inside the glyph, distinct from S-196's shape-to-label
-  // gap. Taken against the box, the drop would grow with the bar's band.
+  // S-33 multiplies the font, not the box (table T-012's closing paragraph);
+  // against the box the drop would grow with the bar's band.
   const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
   const haloWidth = fontSize * settings.labelHaloOfFont
   return (
@@ -691,13 +521,9 @@ function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
         ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"${named}/>`
       )
     }
-    // ⭐ ONE PATH AND ONE FILL RULE, not a polygon with shapes laid on top.
-    // `evenodd` is what cuts the marks OUT, so a milestone drawn on a coloured
-    // band shows the band through its eyes rather than a second paint that
-    // would have to guess what is behind it -- and no colour is minted here,
-    // which table T-236 would otherwise need a row for.
-    // ⛔ THE STROKE FOLLOWS EVERY SUBPATH, which is what makes a mark read at
-    // the sizes a milestone is drawn at: the outline of the eye is the eye.
+    // One path with `evenodd`, not shapes on top: the marks are cut out, so the
+    // band shows through with no guessed paint and no extra table T-236 row.
+    // The stroke follows every subpath: at milestone sizes the eye's outline is the eye.
     const subpaths = [bar.points, ...marks]
       .map((one) => `M${pointsOf(one).replace(/ /g, 'L')}Z`)
       .join('')
@@ -725,14 +551,9 @@ function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
 }
 
 /**
- * GD-6's arrowhead. LF-4 of table T-221 already ends every route on the
- * successor's edge, so the head only has to be put at the last vertex.
- *
- * ⭐ `markerUnits="userSpaceOnUse"` rather than the default `strokeWidth`:
- * the default would size the head by `dependencyWidth` instead of by S-19.
- *
- * ⚠️ S-19 is the head's length and base alike. LF-7 of table T-221 sizes the
- * arrow SHAPE's head and does not reach this line.
+ * GD-6's arrowhead at the last vertex (LF-4 of table T-221 ends routes on the
+ * successor's edge). `userSpaceOnUse` so S-19, not `dependencyWidth`, sizes it.
+ * S-19 is length and base alike; LF-7 sizes only the arrow SHAPE's head.
  *
  * @purity pure
  */
@@ -749,20 +570,14 @@ function dependencyArrowSvg(id: string, length: number, colour: string): string 
 }
 
 /**
- * A name for one emitted picture, so two pictures on the same page do not
- * share a marker ID: the export draws a second picture into the document the
- * screen is already showing, and an SVG ID is document-wide.
- *
- * ⚠️ Derived from what the picture IS rather than from a counter, because this
- * unit is `pure` (table T-062) and a counter would make two calls with equal
- * arguments answer differently. Two pictures that agree on every part of the
- * seed are the same picture, and their markers would be identical.
+ * A per-picture ID, so an export drawn into the screen's document shares no
+ * marker ID (SVG IDs are document-wide). From content, not a counter: this unit
+ * is `pure` (table T-062); equal seeds are the same picture.
  *
  * @purity pure
  */
 function pictureId(seed: string): string {
-  // FNV-1a over the seed. Any spread would do; this one is short and has no
-  // dependency, and the value is a name, never a measurement.
+  // FNV-1a: short, dependency-free; the value is a name, never a measurement.
   let hash = 0x811c9dc5
   for (const ch of seed) {
     hash ^= ch.charCodeAt(0)
@@ -772,10 +587,8 @@ function pictureId(seed: string): string {
 }
 
 /**
- * Which row of the Time Ruler's band prints what -- table T-006b's ⑤.
- *
- * ⭐ The spec names steps, not rows (table T-238): `yearMonth` is TM-3 / TM-4's
- * `yyyy-mm`, and TM-2's two lines are `year` and `month` standing apart.
+ * Time Ruler rows (table T-006b's ⑤). Table T-238 names steps, not rows:
+ * `yearMonth` is TM-3 / TM-4's `yyyy-mm`; TM-2's two lines are `year` and `month`.
  */
 type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday'
 
@@ -808,10 +621,8 @@ function weekdayOf(day: CalendarDay): number {
 }
 
 /**
- * The `MM` of FR-017's `YYYY-MM`. ⭐ The width the month costs is what S-83 was
- * derived from (table T-205's derivation reads the label as `2026-01`), so a
- * month printed one digit wide at ten months of the year would make the label
- * narrower than the threshold that admits it.
+ * Padded: S-83 was derived from a two-digit month (table T-205), so a one-digit
+ * month would print narrower than the threshold that admits it.
  *
  * @purity pure
  */
@@ -820,13 +631,9 @@ function twoDigits(value: number): string {
 }
 
 /**
- * The days one row of the band puts a label on, left to right.
- *
- * ⛔ Only the day and weekday rows take `tickStrideOf`'s number (LF-1 of table
- * T-221); every other row walks its own calendar unit, and `month` walks the
- * same months as `yearMonth`. ⚠️ The stride is anchored on the day serial
- * rather than on the day the left edge falls on, or every label would jump one
- * place to the side each time the view is panned by a day.
+ * Only the day and weekday rows take `tickStrideOf` (LF-1 of table T-221); the
+ * others walk their calendar unit. The stride is anchored on the day serial, not
+ * the left edge, or every label jumps on a one-day pan.
  *
  * @purity pure
  */
@@ -864,21 +671,13 @@ function ticksOfRow(
 }
 
 /**
- * FR-017's band, drawn (EP-2 draws it into the export too).
- *
- * ⭐ The grain is `layout.tier` and the thinning is `tickStrideOf`; neither is
- * worked out a second time, or it would part company with the layout the bars
- * were placed by. `ROWS_OF_TIER` is table T-238's shape and the label below is
- * its contents. The weekday arrives as `weekdayWords` because FR-038 gives
- * every printed word one dictionary, which is not this file.
- * ⛔ STOP -- no horizontal inset between a tick and its label: S-135 is the gap
- * between labels (LF-1's arithmetic) and S-136 the vertical pad, so the label
- * starts on its own rule until a row says otherwise.
- *
- * ⭐ THE BAND PAINTS ITS OWN GROUND (FR-041) in S-146, over the `band`
- * rectangle as handed in. ⛔ It goes FIRST so everything else sits on it, and
- * so what the Row Area lets past its top edge -- LF-12's overhang, a first-row
- * label -- is covered rather than showing through the band.
+ * FR-017's band (EP-2 exports it too). Grain and thinning come from
+ * `layout.tier` and `tickStrideOf`, never recomputed, so the band cannot part
+ * from the bars' layout. Weekday words are handed in: FR-038's dictionary is elsewhere.
+ * STOP -- no row gives a tick-to-label inset (looked in S-135, S-136), so the
+ * label starts on its rule.
+ * Paints its own ground first (FR-041, S-146), covering what the Row Area lets
+ * past its top (LF-12's overhang, a first-row label).
  *
  * @purity pure
  */
@@ -902,10 +701,8 @@ function rulerSvg(
   const rowHeight = band.height / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
-  // Every tick of every row sits at least one day after the one before it, so
-  // the days the band spans bound the walk. ⚠️ This thins nothing -- it only
-  // keeps the loop finite when pxPerDay is small enough to put thousands of
-  // years behind one band.
+  // Bounds the walk (each tick is at least a day on); thins nothing, only keeps
+  // the loop finite at a tiny pxPerDay.
   const cap = Math.ceil(band.width / Math.max(0.001, layout.pxPerDay)) + 1
   const out: string[] = []
   // Fill only: a stroke here would draw the foot rule twice.
@@ -917,11 +714,8 @@ function rulerSvg(
 
   for (const [index, row] of rows.entries()) {
     const top = band.y + index * rowHeight
-    // S-136 above the label, S-179 below it, taken out of the glyph box (S-179's
-    // note), so the row keeps its height.
-    // ⚠️ Without the subtraction the clearance is nil at the three-row tier:
-    // the baseline sits on the next row's rule, and on the foot rule for the
-    // last one.
+    // S-136 above, S-179 below, subtracted from the glyph box so the row keeps its
+    // height; without it the three-row tier's baseline sits on the next rule.
     const baseline =
       top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
     if (index > 0) {
@@ -933,13 +727,9 @@ function rulerSvg(
     }
     for (const day of ticksOfRow(row, layout, stride, weekStart, from, right, cap)) {
       const x = xFromDay(layout, day)
-      // ⭐ The rule is drawn only where the boundary really falls, but the
-      // label is held at the band's edge when its boundary is off to the left.
-      // ⚠️ Exactly one tick per row can be left of the edge -- every row starts
-      // at the tick containing `from` -- so no two labels are pinned together.
-      // ⛔ Dropping it instead leaves the year row EMPTY at most positions: S-1's
-      // note puts a year at about 2200px at 1x, more than one screen, so its
-      // boundary is off to the left nearly always.
+      // The rule only at a real boundary, but the label held at the band edge (one
+      // tick per row at most is left of it). Dropping it would empty the year row:
+      // a year is about 2200px at 1x (S-1's note).
       if (x >= band.x) {
         out.push(
           `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
@@ -948,11 +738,8 @@ function rulerSvg(
             `${figureKey(`ruler-${row}-tick-${serialOf(day)}`)}/>`,
         )
       }
-      // Table T-238, column by column; `m` and `d` are not padded.
-      // ⚠️ `weekdayOf` numbers from 0 for Sunday (AT-17) and `weekdayWords`
-      // arrives in that order, so no mapping stands here.
-      // ⛔ A weekday the dictionary lacks prints as nothing: neither FR-038 nor
-      // FR-017 names a substitute.
+      // Table T-238; `m` and `d` unpadded. `weekdayWords` arrives in AT-17's
+      // Sunday-0 order. A missing word prints nothing (FR-038, FR-017 name none).
       const label =
         row === 'year'
           ? String(day.year)
@@ -963,9 +750,8 @@ function rulerSvg(
               : row === 'weekday'
                 ? (weekdayWords[weekdayOf(day)] ?? '')
                 : String(day.day)
-      // The weekday row alone prints smaller, by S-219 (table T-238).
-      // ⚠️ The baseline does NOT move with it: the ratio applies to the size
-      // and nothing else, so a second offset would be a number with no row.
+      // Weekday row only, by S-219 (table T-238); the baseline stays, as no row
+      // gives a second offset.
       const fontSize =
         row === 'weekday'
           ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
@@ -989,45 +775,20 @@ function rulerSvg(
 }
 
 /**
- * The name table T-103 settles for the layer FR-020 lays down (U-20), written
- * on the group as `data-role`.
- *
- * ⛔ NOT kebab-case: W-4 of table T-006a sends a settled UI part name to W-6's
- * form.
- * ⚠️ It changes no hit test: `readScreenPartAt` stops at DomScreenSurface's own
- * root and answers `null` under this layer.
+ * Table T-103's name for FR-020's layer (U-20), as `data-role`; not kebab-case
+ * (W-4 of table T-006a sends it to W-6's form). No hit-test effect:
+ * `readScreenPartAt` stops at DomScreenSurface's root.
  */
 const WATERMARK_ROLE = 'Watermark'
 
 /**
- * FR-020's layer: the opener's name and the run's UTC stamp, laid diagonally,
- * repeatedly and faintly over the `Row Area` (U-50) and nowhere else.
- *
- * ⭐ S-220 is degrees; S-221 multiplies the picture's width and S-222 the
- * mark's size, on both axes (table T-207).
- * ⭐ WHY THE PICTURE'S OWN WIDTH AND NOT S-81's 1600. FR-080 draws an export
- * by scaling THIS picture to S-81's width, so a share of this width is the same
- * share of S-81's once scaled. ⛔ A constant 1600 would hold S-221's ratio at
- * one screen width only.
- *
- * ⭐ THE OPACITY IS ON THE GROUP AND NOT ON EACH MARK: a group is composited
- * once, so overlapping marks stay at S-102 instead of adding up to a darker
- * patch than any row states.
- *
- * ⚠️ THE GRID IS SQUARE AND CENTRED, AND ITS REACH IS THE HALF-DIAGONAL. The
- * marks are tiled in the ROTATED frame, so a grid the size of the Row Area
- * would leave the corners bare once it turned; half the diagonal is the least
- * radius that still covers the rectangle at every angle S-220 admits (-90..90).
- * ⛔ The covering grid deliberately runs outside; the clip cuts it back to the
- * Row Area (FR-020, MUST NOT).
- * ⚠️ It is a SEPARATE group from the rotated one so that the clip is read in
- * the picture's own coordinates: a clip-path and a transform on one element
- * would leave the rectangle turning with its contents.
- *
- * ⛔ NOTHING IS DRAWN WHERE THE ARITHMETIC WOULD NOT TERMINATE OR WOULD MEAN
- * NOTHING: a step of zero, a size of zero and an empty rectangle all answer
- * with no layer, which is also what a `NaN` from a value that is not a number
- * answers.
+ * FR-020's layer, over the `Row Area` (U-50) only. S-220 is degrees; S-221
+ * multiplies this picture's width and S-222 the mark size (table T-207).
+ * This width, not S-81's 1600: FR-080 scales this picture to S-81, so the share holds.
+ * Opacity on the group, so overlaps stay at S-102. Tiled square in the rotated
+ * frame out to the half-diagonal, which covers the rectangle at any S-220 angle
+ * (-90..90); the clip (FR-020, MUST NOT) sits on a separate unrotated group, or
+ * it would turn too. A zero step, zero size, empty area or `NaN` draws nothing.
  *
  * @purity pure
  */
@@ -1066,52 +827,28 @@ function watermarkSvg(
 }
 
 /**
- * The SVG for one frame (FR-080).
- *
- * ⭐ Every coordinate arrives already computed (ADR-001).
- *
- * ⭐ `picture` IS REQUIRED AND HAS NO DEFAULT. A new caller should have to
- * decide which picture it asks for; a default would let a forgotten export
- * draw FR-043's dummies into a reader's file in silence (EP-14).
- *
- * ⭐ `follow` DOES HAVE ONE, AND THE GROUND IS THE OPPOSITE. Saying nothing
- * means "no side is following", which is both what a caller outside the Dual
- * Cursor mode means and what DC-8 (MUST NOT) requires of an export -- so the
- * forgetful caller lands on the conservative picture rather than the leaky one.
- *
- * ⚠️ The argument list is `src/`'s to settle (table T-064's heading); PI-19's
- * published member does not move.
+ * The SVG for one frame (FR-080); every coordinate arrives computed (ADR-001).
+ * `picture` has no default, so a forgotten export cannot draw FR-043's dummies
+ * into a reader's file (EP-14). `follow` defaults to none, which is also what
+ * DC-8 (MUST NOT) requires of an export, so forgetting it is safe.
+ * The argument list is `src/`'s (table T-064's heading); PI-19's member is fixed.
  *
  * @purity pure
  */
 /**
- * ⛔ NOTHING MAY BE INSERTED BEFORE INDEX 5. `snapshot-source.ts` reads
- * `Parameters<typeof svgFromSchedule>[3]` and `[4]` by position, so a parameter
- * inserted before those two re-points both without a word from the compiler.
- * ⚠️ `weekdayWords` DEFAULTS TO THE EMPTY LIST, which leaves the weekday row
- * empty -- it does not mean "no weekday is wanted". A caller drawing for a
- * reader supplies the seven from `rulerWeekdayWords` (PI-37); only the fourth
- * tier reads them.
- *
- * ⭐ `pointer` is where the hand is, in screen px, or `null` while no pointer
- * has been heard of -- CU-3's guide cursor follows it, and LY-5 of table T-060
- * leaves current values with the Framework. ⛔ NOT `follow.x`: that one is an x
- * alone, snapped to a day; the guide cursor needs both axes and snaps to
- * nothing.
- *
- * ⭐ `hovered` is the hit under the pointer (PI-7), or null where there is none.
- * ⛔ NOT A SECOND HIT TEST, which is the whole reason it is a parameter. R7.4
- * has one reading per happening, the Framework already asks `itemAtPointer`
- * once per move, and this unit holds no `PointerSlop` (table T-206 keeps S-90 ..
- * S-92 and S-137 out of the document).
- * ⚠️ IT IS THE HIT AND NOT A BOOLEAN: only the marker and the dummies of ONE
- * Task darken, so the thing it claimed has to arrive too.
- *
- * ⭐ `watermark` IS FR-020's TRAIL, or `null` for a picture that carries none.
- * ⛔ NOT SPENT THROUGH `drawsOperationState`: EP-7 puts the layer in the export
- * too, and FR-020 removes it from both pictures together, so both ask the
- * same value. ⚠️ Which is also why WY-2 and WY-3 of table T-041 set this layer
- * aside: it changes with every run and machine.
+ * Insert nothing ahead of `regions`: `snapshot-source.ts` reads
+ * `Parameters<typeof svgFromSchedule>[3]` and `[4]` by position, so a shift
+ * re-points both.
+ * `weekdayWords` defaults to empty, which blanks the weekday row; a reader's
+ * caller supplies `rulerWeekdayWords` (PI-37).
+ * `pointer`: CU-3's guide cursor, both axes, unsnapped (LY-5 of table T-060);
+ * not `follow.x`, which is x alone snapped to a day.
+ * `hovered`: PI-7's hit, handed in so there is no second hit test (R7.4; this
+ * unit holds no S-90 .. S-92 or S-137). A hit, not a boolean: only one Task's
+ * marker and dummies darken.
+ * `watermark`: not spent through `drawsOperationState`, since EP-7 exports it
+ * and FR-020 removes it from both pictures; WY-2 and WY-3 of table T-041 set it
+ * aside as it changes per run and machine.
  */
 export function svgFromSchedule(
   schedule: Schedule,
@@ -1131,16 +868,9 @@ export function svgFromSchedule(
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
   const dark = isDarkTheme(settings)
-  /**
-   * One row of table T-236, under the theme this frame is drawn in.
-   *
-   * ⛔ The drawers below are handed their colours from here rather than
-   * reading table T-236 themselves: reaching it a second time in this file is
-   * the drift the generated block exists to stop.
-   */
+  /** The one reader of table T-236 here; a second is the drift the generated block stops. */
   const themed = (rowId: string): string => colourOf(rowId, hue, dark, monochrome)
-  // ZO-5's label needs the string and the size LC-5 measured it at, and both
-  // travel with the placement rather than the geometry.
+  // ZO-5's label string and LC-5's size travel with the placement, not the geometry.
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
   const strokeOfBox = new Map(
@@ -1149,39 +879,20 @@ export function svgFromSchedule(
   // FR-042's other half: the colour the author put on the row itself (AT-58).
   const colourOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
   /**
-   * EP-12 of table T-076, in ONE place; DC-8 of table T-029a sends the Dual
-   * Cursor's following mark out by the same row.
-   *
-   * ⭐ WHY ONE LINE AND NOT ONE PER KIND. Every mark EP-12 bars -- the dashed
-   * frames, S-178 on the two lines, FR-075's grab points, DC-8's cursor width,
-   * the hover, the guide cursor -- is read from this flag or from what it empties
-   * here, and from nowhere else, so the rule cannot be obeyed in some places and
-   * forgotten in another.
-   *
-   * ⛔ Not left to the caller: a picture told it is the export states the rule
-   * itself.
-   *
-   * ⚠️ NOT EP-14's `picture` test further down. That one turns off something
-   * the DOCUMENT asks for; this one turns off what the SESSION asks for.
+   * EP-12 of table T-076 (and DC-8 of table T-029a) in one place: every
+   * operation mark reads this flag or what it empties, so the rule cannot be
+   * half obeyed. Unlike EP-14's `picture` test below, this drops what the
+   * SESSION asks for, not the DOCUMENT.
    */
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
-  /**
-   * FR-013's hover, spent through `drawsOperationState` like `marks`: PM-1a is
-   * exported (EP-5), so a darkened marker in a saved picture would carry the
-   * reader's pointer into the file.
-   */
+  /** FR-013's hover; PM-1a is exported (EP-5), so a darkened marker would leak the pointer. */
   const hover = drawsOperationState ? hovered : null
-  /**
-   * Where the hand is, spent through `drawsOperationState` like `hover`.
-   */
   const hand = drawsOperationState ? pointer : null
   /**
-   * Whether the hand stands on one of `rows` of THIS Task.
-   *
-   * ⭐ The thing as well as the row, so one Task's marker does not darken
-   * because the pointer found another's.
+   * Matches the Task as well as the row, so one Task's marker does not darken
+   * for another's hit.
    *
    * @purity pure
    */
@@ -1191,12 +902,10 @@ export function svgFromSchedule(
     hover.item.taskUid === taskUid &&
     rows.includes(hover.grab)
   /**
-   * FR-013's pointer-on-it asked of a DRAWN FIGURE, the way HF-6 reads it,
-   * not of the row of table T-023d a press would go to: MK-9a scopes that
-   * priority to overlapping grabs, and this decides only what is drawn.
+   * FR-013's pointer-on-it asked of the drawn figure (as HF-6 reads it), not of
+   * the table T-023d row a press would take: MK-9a scopes that priority to
+   * overlapping grabs. The marker still goes through `handOn`.
    * @provisional PND-360
-   *
-   * ⚠️ The marker is still asked through `handOn`, the other reading.
    *
    * @purity pure
    */
@@ -1213,16 +922,10 @@ export function svgFromSchedule(
   )
   const selectedStatusLine = marks.some((one) => one.kind === 'statusLine')
   /**
-   * The dependency routes SL-1 has selected, keyed by both ends.
-   *
-   * ⚠️ The two sides name a dependency differently: `ItemRef` names it by its
-   * successor and its ORDINAL among that Task's links, while
-   * `DependencyGeometry` names it by both UIDs. `Task.dependencies` is the only
-   * place the two meet, and `input-command-translator.ts` resolves the same
-   * mapping in the same direction when it makes the ref.
-   * ⛔ The ordinal is NOT the route's index in `geometry.dependencies`: RT-4a
-   * drops a link whose endpoint is not drawn, so the two runs part company the
-   * moment one is dropped.
+   * SL-1's selected routes, keyed by both ends. `ItemRef` names a link by its
+   * successor and ordinal, `DependencyGeometry` by both UIDs; `Task.dependencies`
+   * joins them (as `input-command-translator.ts` does). The ordinal is not the
+   * index in `geometry.dependencies`: RT-4a drops undrawn links.
    */
   const selectedLinks = new Set<string>()
   const linksOfTask = new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
@@ -1232,10 +935,8 @@ export function svgFromSchedule(
     if (link !== undefined) selectedLinks.add(`${link.predecessorUid}>${item.successorUid}`)
   }
 
-  // ⛔ Table T-020 is the paint order, back to front, and in an SVG document
-  // order IS that order -- so writing the dependencies first would put them at
-  // the back. The bands are not a row of that table; they are the ground under
-  // all of it.
+  // SVG document order is paint order, so these arrays are joined in table
+  // T-020's back-to-front order; the bands are the ground under all of it.
   const bandParts: string[] = []
   const planParts: string[] = []
   const guideParts: string[] = []
@@ -1243,10 +944,9 @@ export function svgFromSchedule(
   const markerParts: string[] = []
   const linkParts: string[] = []
   const labelParts: string[] = []
-  // FR-098 reaches every figure a Task draws, not only its row's ground, so
-  // each array above gets a twin for a PINNED Task's fragments. ⛔ The twins
-  // are drawn unclipped -- a pinned row already stands inside the band (LF-14)
-  // -- and the plain arrays are clipped only when something is pinned.
+  // FR-098 reaches every Task figure, so each array has a PINNED twin, drawn
+  // unclipped (a pinned row is inside the band, LF-14); the plain arrays are
+  // clipped only when something is pinned.
   const planPartsPinned: string[] = []
   const guidePartsPinned: string[] = []
   const actualPartsPinned: string[] = []
@@ -1256,70 +956,45 @@ export function svgFromSchedule(
   // two rows crosses into the band exactly as a bar does.
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
-  // FR-009's bar-exclusion rectangles, collected as the task loop draws each
-  // bar and turned into one <mask> afterwards -- no separate pass and no
-  // per-crossing search.
+  // FR-009's bar-exclusion rects, collected in the task loop into one <mask>.
   const barMaskParts: string[] = []
-  // ⛔ TABLE T-020 HAS NO ROW FOR AN ANNOTATION. It goes over ZO-5's labels:
-  // NFR-007's 4.5:1 is met against the comment box's own ground, and a label
-  // painted across the body would put unmeasured ink on it.
+  // No table T-020 row for an annotation; it goes over ZO-5's labels, since
+  // NFR-007's 4.5:1 is met on the comment box's own ground.
   // @provisional PND-238
   const annotationParts: string[] = []
-  // ⭐ Not rows of table T-020 either: the fade grab points are FR-075's overlay
-  // and the ruler is U-19. Both go over the table's six so nothing painted in
-  // the Row Area covers them.
+  // Not table T-020 rows either (FR-075's overlay, U-19's ruler); drawn over its six.
   const handleParts: string[] = []
-  // SL-8's frames, for the same reason: a bar painted after the sign would hide
-  // it. Only the framed half of SL-1 arrives here (see `selectedLineWidth`).
+  // SL-8's frames, over the bars that would hide them (framed half of SL-1 only).
   const selectionParts: string[] = []
 
-  // ⭐ FR-043's dummies GET NO ARRAY OF THEIR OWN. Table T-020 holds no row for
-  // U-52, and they stand in for the ends of the actual bar a not-started Task
-  // lacks (as GR-7 hangs the not-started marker off GR-17), so they paint at
-  // ZO-2, behind ZO-3's marker and ZO-5's label. ⛔ A Task has dummies exactly
-  // when it has no actual bar, so the one array never holds both.
+  // FR-043's dummies share the actual arrays (no table T-020 row for U-52): they
+  // stand in for the missing actual bar (as GR-7 hangs off GR-17), so paint at
+  // ZO-2. A Task has dummies exactly when it has no actual bar.
   // @provisional PND-209
   //
-  // ⛔ STOP -- still not drawn: the actual FR-043 shows while the author is
-  // grabbing. That needs the PRESS in flight, and a hit under the pointer is
-  // not one.
+  // STOP -- the actual FR-043 while grabbing is not drawn: it needs the press in
+  // flight, which a hovered hit is not.
 
-  // FR-042's bands. ⛔ Clipped to the Row Area: S-78 slides the whole stack, so
-  // a scrolled row's band would otherwise paint over the Time Ruler and header.
+  // FR-042's bands, clipped to the Row Area: S-78 slides the stack under the ruler.
   const area = regions.rowArea
   const areaBottom = area.y + area.height
-  // ⛔ FR-098: a flowing row is cut at the scrolling remainder's top (LF-14), a
-  // banded row at the Row Area's own top. ⚠️ `scrollAreaY` is optional and
-  // reads as the area's top where no row is pinned.
+  // FR-098: a flowing row is cut at the scrolling top (LF-14), a banded row at the
+  // Row Area top; `scrollAreaY` is optional only in the type and equals the
+  // Row Area top when nothing is pinned.
   const scrollTop = layout.scrollAreaY ?? area.y
-  // Keyed by `groupId`, which `TaskPlacement` carries.
-  // ⛔ NOT GATED ON `scrollAreaY` ALONE. `pinnedBandOf` returns a number whether
-  // or not anything is pinned, so gating on it would wrap every document's
-  // figures in a no-op clip-path and change the bytes `npm run parity` compares.
+  // Not gated on `scrollAreaY` alone: `pinnedBandOf` always returns a number, which
+  // would add a no-op clip-path and change the bytes `npm run parity` compares.
   const pinnedGroupIds = new Set(
     layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId),
   )
   const hasPinnedRows = pinnedGroupIds.size > 0
   /**
-   * The vertical stretch a figure has to reach before it is worth drawing at
-   * all.
-   *
-   * ⭐⭐ WHY. Every frame serialises the picture to a string and re-parses it
-   * (`DomSvgSurface`, UF-49), so a shape that cannot reach a pixel is still
-   * built, escaped, written, parsed, laid out and thrown away -- and on a large
-   * document most of the picture is such a shape.
-   *
-   * ⛔ NOT `FR-018`: that drops rows from the layout. This drops nothing from
-   * the layout, the hit test or any answer; it only declines to WRITE.
-   *
-   * ⛔ ONLY THE SCREEN'S PICTURE. An export's canvas IS the content, and WY-2
-   * of table T-041 compares two exports.
-   *
-   * ⭐ Vertically the margin is the Row Area's own height: a row's figures stand
-   * in its band, so nothing of one row overshoots by a whole screen.
-   * ⛔ Sideways a figure really does overshoot its bar -- see
-   * `OFF_SCREEN_SIDE_MARGIN`. Judging a Task by its row alone is judging one
-   * axis of a two-axis picture.
+   * Cull, screen only: every frame is serialised and re-parsed (`DomSvgSurface`,
+   * UF-49), and most of a large document cannot reach a pixel. It only declines
+   * to WRITE; unlike `FR-018` it drops nothing from layout, hit test or answers.
+   * Not in an export: its canvas is the content and WY-2 of table T-041 compares
+   * exports. Vertical margin is the area height (a row's figures stay in its
+   * band); sideways see `OFF_SCREEN_SIDE_MARGIN`.
    */
   const skipsOffScreen = picture === 'screen'
   const drawnFrom = area.y - area.height
@@ -1349,14 +1024,9 @@ export function svgFromSchedule(
     )
   }
 
-  // FR-089 -- the date grid lines.
-  //
-  // ⭐ THE INTERVAL IS NOT WORKED OUT HERE: `tickStrideOf` is the step FR-017
-  // settled, so the lines stand where the band's finest row ticks. ⚠️ The
-  // finest row, not the day row -- the year tier has only a year row.
-  //
-  // ⛔ COLOUR: S-149, the rule colour the ruler takes; no row of table T-236
-  // names the date grid line. @provisional PND-315
+  // FR-089's date grid lines, at `tickStrideOf`'s step (FR-017): the finest
+  // ruler row, not the day row (the year tier has only a year row).
+  // Colour S-149, the ruler's rule; no table T-236 row names it. @provisional PND-315
   if (settings.dateGridLinesVisible) {
     const gridFrom = dateAtX(layout, area.x)
     if (gridFrom !== null) {
@@ -1375,9 +1045,8 @@ export function svgFromSchedule(
         gridCap,
       )) {
         const x = xFromDay(layout, day)
-        // ⚠️ Held to the area, unlike the band's labels: a rule drawn left of
-        // the Row Area would cross the row title panel, which SC-1 of table
-        // T-031 gives its own scroll.
+        // Held to the area, unlike ruler labels: left of it the rule would cross
+        // the row title panel (SC-1 of table T-031).
         if (x < area.x) continue
         bandParts.push(
           `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
@@ -1393,12 +1062,8 @@ export function svgFromSchedule(
     const visual = visualOf.get(task.taskUid)
     const placed = placedOf.get(task.taskUid)
     const isPinnedTask = placed !== undefined && pinnedGroupIds.has(placed.groupId)
-    // ⛔ A Task with no placement is never culled: `placedOf` is the only
-    // answer to where it stands.
-    // ⭐ Sideways, a Task is worth writing when EITHER shape reaches the range;
-    // `TaskPlacement` carries both spans in drawn px, so no date is read.
-    // ⛔ `actualX` null means no actual yet, not zero: taken as a number it
-    // would drag the left edge to the axis origin and the test would never fire.
+    // An unplaced Task is never culled (`placedOf` is its only position). Either
+    // span reaching counts; `actualX` null is no actual, and read as 0 would never cull.
     if (skipsOffScreen && placed !== undefined) {
       const barLeft =
         placed.actualX === null ? placed.x : Math.min(placed.x, placed.actualX)
@@ -1461,19 +1126,14 @@ export function svgFromSchedule(
         barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
       }
     }
-    // FR-043's one faint mark on a Task not started.
-    // ⛔ EP-14 keeps it out of the export, and this is the only place that can
-    // obey it -- the geometry may NOT be stripped instead: GR-7 hangs the
-    // not-started progress marker off GR-17, `markerAnchorX` answers nothing
-    // once the dummy list is empty, and EP-5's marker would go with it (WY-3 of
-    // table T-041 measures it); table T-023d still keeps GR-17 as a grab target.
+    // FR-043's faint mark. EP-14 can be obeyed only here: stripping the geometry's
+    // dummies would blank `markerAnchorX` (GR-7 hangs off GR-17) and lose EP-5's
+    // marker (WY-3 of table T-041); table T-023d keeps GR-17 as a grab target.
     if (picture === 'screen' && task.dummies.length > 0) {
-      // ⭐ `actual` is the paint the actual bar would have taken (FR-013, FR-041).
-      // ⭐⭐ THE RECTANGLE IS READ, NOT WORKED OUT: `dummiesOf` solves it once
-      // onto `DummyGeometry.ink`, because table T-023d's closing rule makes the
-      // drawn mark the grab target and `item-hit-area.ts` must test the very
-      // rectangle this draws. It stands on GR-9's day, so every dummy of one
-      // Task carries the same one.
+      // `actual` is the paint the actual bar would take (FR-013, FR-041).
+      // The rectangle is read from `DummyGeometry.ink`, not recomputed: table T-023d
+      // makes the drawn mark the grab target `item-hit-area.ts` tests.
+      // Every dummy of one Task shares `ink` (it stands on GR-9's day).
       const ink = task.dummies[0]!.ink
       const marks = barSvg(
         dummyFigure(
@@ -1485,15 +1145,11 @@ export function svgFromSchedule(
         actual,
         `${taskKey}-dummies`,
       )
-      // FR-013: faint, darkened while the pointer is on it. ⭐ Darkened means no
-      // faintness at all: S-131 is the only degree any row carries.
-      // ⭐ One mark for two grab targets (GR-9 and GR-17, or GR-18), so it
-      // darkens for either. @provisional PND-351
-      // ⛔ Asked of the figure, not of the row that won -- `handInside`'s note.
-      // @provisional PND-360
-      // ⛔⛔ TESTED ON THE INK'S OWN CENTRE, NOT ON `at` PLUS HALF A WIDTH: a
-      // milestone's dummy is a square centred on its day, so its `ink.x` is
-      // half a side left of `at`.
+      // FR-013: faint, fully opaque under the pointer (S-131 is the only degree).
+      // One mark for GR-9 and GR-17 (or GR-18), so either darkens it. @provisional PND-351
+      // Asked of the figure (`handInside`). @provisional PND-360
+      // Tested on the ink's centre, not `at` plus half a width: a milestone's
+      // dummy is centred on its day.
       const faintness = handInside(
         { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
         ink.width,
@@ -1506,18 +1162,13 @@ export function svgFromSchedule(
       )
     }
     if (selected.has(task.taskUid)) {
-      // ⭐ The box is the BARS' extent -- what SL-2 clicks and SL-7 drags. ⛔
-      // The name label is left out: LC-6 places it outside the bar and FR-014's
-      // overhang runs it further, so a frame that swallowed it would overlap the
-      // neighbouring rows. ⚠️ The marker and the fade handles are left out too:
-      // neither is the thing SL-1 names.
+      // The bars' extent (what SL-2 clicks, SL-7 drags): the label (LC-6, FR-014)
+      // would overlap neighbouring rows; marker and fade handles are not SL-1's.
       const box = boxOfPoints([
         ...(task.plan === null ? [] : cornersOfBar(task.plan)),
         ...(task.actual === null ? [] : cornersOfBar(task.actual)),
       ])
-      // A Task neither half of which was drawn (S-227 planVisible and S-228
-      // actualVisible both false, which those two rows allow) has no extent,
-      // and a frame around nothing would sit at the origin.
+      // No extent when S-227 and S-228 hide both halves; a frame would sit at the origin.
       if (box !== null) {
         selectionParts.push(selectionFrameSvg(box, themed('S-151'), `${taskKey}-frame`))
       }
@@ -1547,14 +1198,10 @@ export function svgFromSchedule(
           `${taskKey}-marker`,
         ),
       )
-      // FR-044. ⭐ NESTED INSIDE THE MARKER'S TEST: S-63 is one switch for both
-      // figures (table T-038's closing paragraph), and `resumeOf` builds an icon
-      // only where a marker was built.
-      // ⛔ Not placed by table T-038's order: LF-11 of table T-221 places it,
-      // and `resumeOf` has already done so.
-      // ⛔ Not faint and not darkened: PM-1a never holds on a suspended Task.
-      // ⛔ No shape test: `schedule-geometry.ts` leaves `resume` null for a
-      // milestone (LF-11, MUST NOT).
+      // FR-044, nested in the marker test: S-63 switches both (table T-038) and
+      // `resumeOf` builds an icon only with a marker. Placed by LF-11, not table
+      // T-038's order; never faint (PM-1a never holds on a suspended Task); no
+      // milestone test (LF-11 leaves `resume` null).
       if (task.resume !== null) {
         ;(isPinnedTask ? markerPartsPinned : markerParts).push(
           resumeSvg(task.resume.arm, task.resume.head, themed('S-161'), settings,
@@ -1576,13 +1223,9 @@ export function svgFromSchedule(
         ),
       )
     }
-    // OC-2 of table T-038: one `<text>` for the assignee and the percent
-    // (FR-090), placed by `outsideLabelBoxOf`.
-    // ⭐ The card is anchored at its END (FR-090), which makes FR-093's estimate safe: its error goes
-    // leftward, away from the bar, instead of across the `labelGap`.
-    // ⛔ S-60 AND S-61 ARE NOT READ HERE: LC-7 spent them (FR-049), and a hidden
-    // card arrives as a null box.
-    // ⭐ S-168 / S-169, as ZO-5: table T-236 holds no other pair for a label.
+    // OC-2 of table T-038 (FR-090), placed by `outsideLabelBoxOf`. End-anchored,
+    // so FR-093's estimate errs leftward, away from the bar. S-60 / S-61 were
+    // spent by LC-7 (FR-049): hidden arrives as a null box. S-168 / S-169 as ZO-5.
     if (placed !== undefined && task.assigneeLabel !== null && placed.outsideLabel !== '') {
       ;(isPinnedTask ? labelPartsPinned : labelParts).push(
         labelSvg(
@@ -1612,9 +1255,7 @@ export function svgFromSchedule(
   )}`
   const defsParts: string[] = []
 
-  // ⛔⛔ FR-098. The task loop draws every Task's figures into one array apiece,
-  // so the cut is one clip-path, not a per-row pair: the scrolling remainder
-  // `S-78` points at, from `scrollTop` to the Row Area's foot.
+  // FR-098: one clip-path over the scrolling remainder (S-78), `scrollTop` to the foot.
   const scrollClipId = `grs-scroll-clip-${pictureId(
     `${rounded(area.x)}x${rounded(scrollTop)}|${rounded(area.width)}x${rounded(
       areaBottom - scrollTop,
@@ -1627,21 +1268,16 @@ export function svgFromSchedule(
     )
   }
 
-  // ⭐⭐ ONE HEAD, MINTED ONCE -- AND NOT BY COUNTING defsParts. ⛔ The list
-  // is shared: nothing may read its length to mean 'nobody has written
-  // anything yet' -- ask about the thing itself.
-  // FR-009: selected lines in front, the rest in created order.
-  // `geometry.dependencies` is already in created order (built by walking
-  // `schedule.tasks` and each Task's `dependencies`), so a stable sort on "is
-  // it selected" alone is enough. ⛔ `Array.prototype.sort` is stable
-  // (ES2019+), which that depends on.
+  // Mint the head once via `arrowMinted`, never by reading `defsParts.length`
+  // (the list is shared).
+  // FR-009: selected lines in front, else created order, which
+  // `geometry.dependencies` already is; relies on `sort` being stable (ES2019+).
   const orderedDependencies = [...geometry.dependencies].sort((a, b) => {
     const aFront = selectedLinks.has(`${a.predecessorUid}>${a.successorUid}`) ? 1 : 0
     const bFront = selectedLinks.has(`${b.predecessorUid}>${b.successorUid}`) ? 1 : 0
     return aFront - bFront
   })
-  // ⚠️ S-224 multiplies the line's own thickness, not the width SL-8 thickens it
-  // to.
+  // S-224 multiplies the line's own width, not SL-8's thickened width.
   const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
   let arrowMinted = false
   for (const link of orderedDependencies) {
@@ -1651,8 +1287,7 @@ export function svgFromSchedule(
       defsParts.push(
         dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
       )
-      // Minted beside the arrowhead, for the same reason: both are shared by
-      // every dependency line and neither may be written more than once.
+      // Beside the head: shared by every line, written once.
       if (barMaskParts.length > 0) {
         defsParts.push(
           `<mask id="${dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
@@ -1663,12 +1298,9 @@ export function svgFromSchedule(
         )
       }
     }
-    // The cull `skipsOffScreen` states, asked of the polyline's own box on both
-    // axes. ⭐ Exact: a polyline never leaves the box its points make. ⛔ Never
-    // asked of the ends' rows: a line between two Tasks a screen apart crosses
-    // the window with neither end in it.
-    // ⚠️ AFTER the head is minted, so the `<marker>` exists whether or not the
-    // first line is culled.
+    // The cull on the polyline's own box, both axes (exact; never the ends' rows,
+    // as a line crosses the window with neither end in it). After minting, so
+    // the `<marker>` exists even if the first line is culled.
     if (skipsOffScreen) {
       let linkTop = Number.POSITIVE_INFINITY
       let linkBottom = Number.NEGATIVE_INFINITY
@@ -1687,24 +1319,18 @@ export function svgFromSchedule(
       settings.dependencyWidth,
       selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
     )
-    // A dependency line is pinned only when BOTH ends are: a scrolling end can
-    // carry it above `scrollTop` exactly as a bar can. `points` already carries
-    // each end's current position, so clipping the polyline as one piece trims
-    // only the stretch that scrolled into the band.
-    // @provisional PND-416 -- an endpoint scrolled clear off the top is NOT
-    // treated as RT-4a's undrawn endpoint, so the line stays and is cut.
-    // ⛔ No row decides that yet (RT-4a drops, RT-6 keeps a pinned one); dropping
-    // it would make dependencies blink on a small scroll.
+    // Pinned only when both ends are; `points` holds current positions, so one
+    // clip trims only the stretch scrolled into the band.
+    // @provisional PND-416 -- an end scrolled off the top is not RT-4a's undrawn
+    // end, so the line stays and is cut (dropping it would blink on small scrolls).
     const predecessorPlaced = placedOf.get(link.predecessorUid)
     const successorPlaced = placedOf.get(link.successorUid)
     const predecessorPinned =
       predecessorPlaced !== undefined && pinnedGroupIds.has(predecessorPlaced.groupId)
     const successorPinned =
       successorPlaced !== undefined && pinnedGroupIds.has(successorPlaced.groupId)
-    // FR-009's halo, pushed RIGHT BEFORE its own line into the same array:
-    // `orderedDependencies` is back-to-front, so a later halo lands over every
-    // earlier line and this line's own stroke restores its ink over its halo.
-    // ⛔ The shared `mask` keeps the halo off the bars, not a per-crossing region.
+    // FR-009's halo right before its own line: later halos cover earlier lines and
+    // the line restores its ink. The shared `mask` keeps halos off the bars.
     const points = pointsOf(link.points)
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
     // A dependency IS its two ends; the halo and the line share the key.
@@ -1728,9 +1354,7 @@ export function svgFromSchedule(
 
   const status = geometry.statusLine
   if (status !== null) {
-    // CU-1's line, in S-163.
-    // ⛔ Its own width is the typed 1, which is in no row -- left as it stands
-    // rather than made to look like a value the specification holds.
+    // CU-1's line in S-163; its width is the typed 1, which no row holds.
     const statusWidth = selectedLineWidth(1, selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
@@ -1742,9 +1366,8 @@ export function svgFromSchedule(
 
   const cursors = geometry.dualCursor
   if (cursors !== null) {
-    // CU-2's two lines (EP-6), both in S-195; DC-8 marks the follower by width.
-    // ⭐ Painted into `linkParts` with CU-1's line: table T-020 holds no row for
-    // either cursor. @provisional PND-312
+    // CU-2's two lines (EP-6) in S-195; DC-8 marks the follower by width. In
+    // `linkParts` with CU-1: no table T-020 row for either cursor. @provisional PND-312
     const colour = themed('S-195')
     // DC-1. See `DualCursorFollow` for PND-310 and PND-311.
     const followedDay =
@@ -1760,17 +1383,14 @@ export function svgFromSchedule(
         `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
           ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
           ` stroke="${colour}" stroke-width="${rounded(width)}"` +
-          // ⭐ Keyed by S-65's member, never by which line is following (an
-          // export never sees DC-8).
+          // Keyed by S-65's member, never by which line follows.
           `${figureKey(`dual-cursor-${side}`)}/>`,
       )
     }
   }
 
-  // CU-3 of table T-029, mode S-66.
-  // ⛔ Not in an export (EP-6): `drawsOperationState` is that gate.
-  // ⭐ Painted into `linkParts` beside the other two cursors, for PND-312's
-  // reason; the region is PND-342 below.
+  // CU-3 of table T-029, mode S-66; `drawsOperationState` keeps it out of an
+  // export (EP-6). In `linkParts` for PND-312's reason; region per PND-342 below.
   if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
     const inside =
@@ -1779,18 +1399,13 @@ export function svgFromSchedule(
       pointer.y >= area.y &&
       pointer.y <= area.y + area.height
     if (inside) {
-      // ⛔ NO ROW HOLDS EITHER OF THESE TWO: table T-236 has no guide cursor
-      // colour and table T-206 no guide cursor width. S-148 is the muted neutral
-      // for what is secondary, and deliberately neither cursor colour: the guide
-      // carries no date, and a reader with the status line or a measurement up
-      // must still tell which line is which. The width is the status line's
-      // typed 1. @provisional PND-341
+      // No row holds the guide colour (table T-236) or width (table T-206). S-148,
+      // the muted neutral, is neither cursor colour, since the guide carries no
+      // date; the width is the status line's typed 1. @provisional PND-341
       const guideColour = themed('S-148')
       const guideWidth = 1
-      // ⛔ THE REGION IS THE `Row Area`, between CU-1 and CU-2's edges, and the
-      // pointer must be in it: no row says what the guide does over the ruler or
-      // a panel, and a line from a pointer not on the schedule guides the eye
-      // to a place the eye is not. @provisional PND-342
+      // Only with the pointer over the `Row Area`: no row covers the ruler or a panel.
+      // @provisional PND-342
       const vertical = (x: number): string =>
         `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
@@ -1809,15 +1424,12 @@ export function svgFromSchedule(
         // 縦 1 本.
         linkParts.push(vertical(pointer.x))
       }
-      // ⛔⛔ NO THIRD BRANCH (CU-3, MUST NOT). CU-2's pair is drawn off
-      // `dualCursor` above.
+      // No third branch (CU-3, MUST NOT); CU-2's pair is drawn from `dualCursor` above.
     }
   }
 
   for (const box of geometry.highlightBoxes) {
-    // FR-019. ⚠️ No zoom scale on the radius: `cornerRadiusPx` is already in
-    // screen pixels, like the four numbers beside it.
-    // ⭐ `ry` is left off on purpose -- SVG defaults it to `rx`.
+    // FR-019. `cornerRadiusPx` is already screen px; `ry` defaults to `rx`.
     const radius = box.cornerRadiusPx
     const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
     linkParts.push(
@@ -1827,34 +1439,27 @@ export function svgFromSchedule(
         ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
         ` stroke-width="1"${figureKey(`box-${box.id}`)}/>`,
     )
-    // SL-8. ⭐ A separate rect although the box IS its bounding rectangle: the
-    // frame may not re-stroke the target's outline, and the dash has to survive
-    // the author's own line colour.
+    // SL-8 as a separate rect: the frame may not re-stroke the outline, and the
+    // dash must survive the author's line colour.
     if (selectedBoxes.has(box.id)) {
       selectionParts.push(selectionFrameSvg(box.box, themed('S-151'), `box-${box.id}-frame`))
     }
   }
 
   for (const box of geometry.commentBoxes) {
-    // FR-019's leader, from the anchor to the body's bottom-left corner.
-    // ⚠️ NO ROW GIVES THE LINE A WEIGHT: it takes the literal 1 the highlight
-    // box and the body are stroked at, so they move together if a row arrives.
-    // ⭐ PUSHED BEFORE THE BODY so the filled body covers the line's end rather
-    // than the line crossing the text.
-    // ⚠️ `leaderShapeKind` still exists on the document and is not read here --
-    // FR-019 defers retiring the column.
+    // FR-019's leader to the body's bottom-left. No row gives a weight: the literal
+    // 1 shared with the box and body. Pushed before the body, which covers its end.
+    // `leaderShapeKind` is unread (FR-019 defers retiring it).
     annotationParts.push(
       `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
         ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
         ` stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
         `${figureKey(`comment-${box.id}-leader`)}/>`,
     )
-    // ⭐ The body is FILLED: NFR-007's 4.5:1 for its text needs a known ground,
-    // and text over an arbitrary bar has none. S-162 is the precedent for S-146.
-    // ⚠️ By WCAG 2.1 on table T-236's values: S-147 on S-146 is 17.76:1 light and
-    // 14.94:1 dark, while ANNOTATION_COLOUR as ink is 3.58:1 on the dark ground
-    // and fails -- so it is the outline alone, where 1.4.11's 3:1 applies.
-    // ⚠️ The fill hides whatever is behind the body. @provisional PND-231
+    // The body is filled (S-146; S-162 is the precedent) so NFR-007's 4.5:1 has a
+    // known ground. ANNOTATION_COLOUR as ink fails on the dark ground (3.58:1,
+    // WCAG 2.1), so it only outlines (1.4.11's 3:1). The fill hides what is behind.
+    // @provisional PND-231
     annotationParts.push(
       `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
         ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
@@ -1862,17 +1467,14 @@ export function svgFromSchedule(
         `${figureKey(`comment-${box.id}`)}/>`,
     )
     for (const [index, line] of box.lines.entries()) {
-      // ⛔ The baseline sits at the FOOT of each em box: FR-097 makes a line as
-      // tall as the type and no row says where the baseline falls. S-179 is the
-      // ruler's row and is not borrowed here.
-      // ⚠️ The last line's descenders eat into S-181's padding.
-      // @provisional PND-230
+      // Baseline at the foot of each em box: FR-097 sets the line to the type
+      // height and no row places the baseline (S-179 is the ruler's). Descenders
+      // eat into S-181's padding. @provisional PND-230
       annotationParts.push(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
           ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
-          // ⭐ The line's number IS its identity: FR-097 wraps this box's own
-          // text, so line 3 stays line 3 whatever happens to other boxes.
+          // The line number is the identity: FR-097 wraps only this box's text.
           ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
           `${escaped(line)}</text>`,
       )
@@ -1912,9 +1514,7 @@ export function svgFromSchedule(
   const parts = [
     ...defsParts,
     ...bandParts,
-    // ⭐ PINNED FIRST, UNCLIPPED. The pinned and scrolling groups never occupy
-    // the same pixels (a scrolling row starts one `rowGap` below the band), so
-    // their order changes no pixel.
+    // Pinned first, unclipped; pinned and scrolling never share pixels (`rowGap`).
     ...planPartsPinned,
     ...guidePartsPinned,
     ...actualPartsPinned,
@@ -1928,34 +1528,26 @@ export function svgFromSchedule(
     ...annotationParts,
     ...selectionParts,
     ...handleParts,
-    // ZO-6 of table T-020 -- the range selection's rectangle, at the front of
-    // that table. SL-3 (MUST) draws it while the grab is held.
-    //
-    // ⭐ IT IS `selectionFrameSvg`, NOT A SHAPE OF ITS OWN: a second look would
-    // need a width, a dash and a colour no row states.
-    // ⚠️ BEFORE THE RULER: the band is not a row of table T-020, and a marquee
-    // dragged across it must not take the dates away.
-    // ⛔ No export guard: the export road passes no rectangle.
+    // ZO-6 of table T-020, SL-3's range rectangle while held. `selectionFrameSvg`:
+    // a look of its own needs values no row states. Before the ruler, so a
+    // marquee over the band keeps the dates visible. No export guard: the export
+    // passes none.
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
-    // ⭐ FR-020's layer, over everything the `Row Area` holds.
-    // ⛔ It cannot reach the band -- the clip is U-50's rectangle -- but stands
-    // before it so that "the band is drawn over everything" stays true.
+    // FR-020's layer over the Row Area; clipped to U-50, yet before the band so
+    // the band stays drawn over everything.
     ...(watermark === null
       ? []
       : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)]),
-    // FR-017's band last of all. The Row Area's own paint is clipped to it,
-    // but FR-014's overhang (LF-12) and a label that runs past the first row
-    // are not, and the Time Ruler does not scroll down (SC-2) -- so it is
-    // drawn over everything rather than trusting the rows to stay below it.
+    // FR-017's band last: LF-12's overhang and first-row labels escape the Row
+    // Area clip, and the Time Ruler does not scroll (SC-2).
     ...rulerSvg(
       layout,
       settings,
       regions.timeRuler,
       // S-108 is the day the week starts on when the document names none.
       schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108'],
-      // ⚠️ No `achromatic` wrapper around S-146, unlike the row bands: S-146
-      // follows the hue, so `colourOf` already applied monochrome. The bands
-      // need the wrapper because theirs may be an AUTHOR colour.
+      // No `achromatic` here: S-146 follows the hue, so `colourOf` applied
+      // monochrome; the row bands need it because theirs may be an author colour.
       themed('S-146'),
       themed('S-147'),
       themed('S-149'),
@@ -1972,10 +1564,7 @@ export function svgFromSchedule(
   )
 }
 
-/**
- * The row of table T-023d that claims the progress marker -- GR-7, which is
- * where FR-013's own not-started marker stands.
- */
+/** Table T-023d's row claiming the progress marker (FR-013's not-started marker). */
 const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GR-7']
 
 // <generated -- do not edit by hand>
