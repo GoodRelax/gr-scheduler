@@ -449,6 +449,14 @@ function unitFraction(value: number): number {
   return dropped < 1 ? dropped : 0
 }
 
+// see GR-1, GR-2, HB-4
+/** @purity pure */
+function pointerDaySerial(layout: ScheduleLayout, x: number): number | null {
+  const day = dayAtX(layout, x)
+  if (day === null) return null
+  return serialOfDay(day) + unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay)
+}
+
 /** @purity pure */
 function dayAnchorAt(
   context: InputContext,
@@ -2590,13 +2598,10 @@ function commandFromGrab(
       const task = taskByUid(context.document.schedule, uid)
       const start = dayOf(task === null ? null : task.start)
       const finish = dayOf(task === null ? null : task.finish)
-      const day = dayAtX(context.layout, release.x)
-      if (task === null || start === null || finish === null || day === null) {
+      const atPointer = pointerDaySerial(context.layout, release.x)
+      if (task === null || start === null || finish === null || atPointer === null) {
         return CONSUMED_ELSEWHERE
       }
-      const atPointer =
-        serialOfDay(day) +
-        unitFraction((release.x - xFromDay(context.layout, day)) / context.layout.pxPerDay)
       const pulled =
         hit.grab === 'GR-1'
           ? Math.round(atPointer - serialOfDay(start))
@@ -2720,7 +2725,26 @@ function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: num
   return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
 }
 
-// see GR-14, CM-54, HB-1, HB-2, HB-3
+// see HB-5
+/** @purity pure */
+function nearestDrawnRowBoundary(rows: readonly RowPlacement[], y: number): number {
+  let nearest = 0
+  let nearestDistance = Number.POSITIVE_INFINITY
+  for (let at = 0; at <= rows.length; at++) {
+    const above = rows[at - 1]
+    const below = rows[at]
+    const gapTop = above === undefined ? Number.NEGATIVE_INFINITY : above.y + above.height
+    const gapBottom = below === undefined ? Number.POSITIVE_INFINITY : below.y
+    const distance = Math.max(Math.min(gapTop, gapBottom) - y, 0, y - Math.max(gapTop, gapBottom))
+    if (distance <= nearestDistance) {
+      nearest = at
+      nearestDistance = distance
+    }
+  }
+  return nearest
+}
+
+// see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6
 /** @purity pure */
 function highlightBoxRangeWrite(
   context: InputContext,
@@ -2748,19 +2772,42 @@ function highlightBoxRangeWrite(
   const early = compareDay(start, end) <= 0 ? start : end
   const late = compareDay(start, end) <= 0 ? end : start
 
-  const days = dayShift(context, press.at.x, release.x)
-  const crossed = drawnRowsCrossed(rows, press.at.y, release.y)
-  const isBody = part.kind === 'body'
-  const movesLeft = isBody || part.horizontal === 'left'
-  const movesRight = isBody || part.horizontal === 'right'
-  const movesTop = isBody || part.vertical === 'top'
-  const movesBottom = isBody || part.vertical === 'bottom'
-
-  const upper = rows[movesTop ? upperAt + crossed : upperAt]
-  const lower = rows[movesBottom ? lowerAt + crossed : lowerAt]
+  let upper: RowPlacement | undefined
+  let lower: RowPlacement | undefined
+  let left: CalendarDay
+  let right: CalendarDay
+  if (part.kind === 'body') {
+    const days = dayShift(context, press.at.x, release.x)
+    const crossed = drawnRowsCrossed(rows, press.at.y, release.y)
+    upper = rows[upperAt + crossed]
+    lower = rows[lowerAt + crossed]
+    left = dayShifted(early, days)
+    right = dayShifted(late, days)
+  } else {
+    const atPointer = pointerDaySerial(context.layout, release.x)
+    if (atPointer === null) return CONSUMED_ELSEWHERE
+    // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
+    const dayBoundary = Math.round(atPointer)
+    const rowBoundary = nearestDrawnRowBoundary(rows, release.y)
+    const earlySerial = serialOfDay(early)
+    const lateSerial = serialOfDay(late)
+    // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
+    if (part.horizontal === 'left') {
+      left = dayFromSerial(Math.min(dayBoundary, lateSerial))
+      right = dayBoundary > lateSerial ? dayFromSerial(dayBoundary - 1) : late
+    } else {
+      left = dayBoundary <= earlySerial ? dayFromSerial(dayBoundary) : early
+      right = dayFromSerial(Math.max(dayBoundary - 1, earlySerial))
+    }
+    if (part.vertical === 'top') {
+      upper = rowBoundary > lowerAt ? rows[lowerAt] : rows[rowBoundary]
+      lower = rowBoundary > lowerAt ? rows[rowBoundary - 1] : rows[lowerAt]
+    } else {
+      upper = rowBoundary <= upperAt ? rows[rowBoundary] : rows[upperAt]
+      lower = rowBoundary <= upperAt ? rows[upperAt] : rows[rowBoundary - 1]
+    }
+  }
   if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
-  const left = movesLeft ? dayShifted(early, days) : early
-  const right = movesRight ? dayShifted(late, days) : late
 
   // TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
   const rankById = taskGroupRankById(context.document.schedule.taskGroups)

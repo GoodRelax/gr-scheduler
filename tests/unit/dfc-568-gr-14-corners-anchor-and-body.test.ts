@@ -79,6 +79,42 @@ const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれた行で
 const HB_3_NO_ROW = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を告げる'
 const HB_3_FOLDED =
   '⚠️ 畳んだ行やピン留めした行（`FR-098`）をまたぐと、保存される範囲が文書の行の数で伸び縮みする'
+const HB_4_HEAD = '| HB-4 | 四隅を横に動かす |'
+const HB_4_NEAREST = '離した点に一番近い日の列の境目へ、掴んだ隅を合わせる。'
+const HB_4_TIE = '左右の 2 つの境目から等しい距離のときは、後の日の側の境目を採る。'
+const HB_4_DAYS = '左の隅はその境目の右の日を `startDate` に、右の隅はその境目の左の日を `endDate` に置く。'
+const HB_4_KEEP = '向かいの辺の日は据え置く。'
+const HB_4_REACH = '境目が向かいの辺に届いたときは `HB-6` に従う'
+const HB_5_HEAD = '| HB-5 | 四隅を縦に動かす |'
+const HB_5_GAP =
+  '行の境目は、画面に描かれた行の帯と帯のあいだの隙間とする —— 行は `HB-3` と同じく画面に描かれた行で数え、ピン留めした行（`FR-098`）は上に描かれたとおりに数える。'
+const HB_5_DISTANCE = '境目までの距離は隙間の範囲までの距離とし、隙間の中では 0 とする。'
+const HB_5_ENDS = '最初に描かれた帯より上は最初の行の上の境目、最後に描かれた帯より下は最後の行の下の境目とする。'
+const HB_5_TIE = '上下の 2 つの境目から等しい距離のときは、下の境目を採る。'
+const HB_5_ROWS =
+  '上の隅はその境目のすぐ下に描かれた行を `topGroupId` に、下の隅はその境目のすぐ上に描かれた行を `bottomGroupId` に置く。'
+const HB_5_HORIZONTAL = '横にだけ引いて離したときは行が変わらない'
+const HB_5_NO_REFUSAL = '行が 1 つでも描かれていれば、どこで離しても一番近い境目が在るので、`RS-44` で拒む場面は生じない。'
+const HB_6_HEAD = '| HB-6 | 隅を向かいの辺に届くまで、または越えて引く |'
+const HB_6_RIGHT =
+  '右の隅を合わせた境目 b が s の左の境目か、それより左に在るときは、`startDate` ＝ b の右の日、`endDate` ＝ s とする。'
+const HB_6_LEFT =
+  '左の隅を合わせた境目 b が e の右の境目か、それより右に在るときは、`startDate` ＝ e、`endDate` ＝ b の左の日とする。'
+const HB_6_BOTTOM_UP =
+  '下の隅を合わせた境目が `topGroupId` の行の上の境目か、それより上に在るときは、`topGroupId` ＝ その境目のすぐ下の行、`bottomGroupId` ＝ 元の `topGroupId` の行とする。'
+const HB_6_TOP_DOWN =
+  '上の隅を合わせた境目が `bottomGroupId` の行の下の境目か、それより下に在るときは、`topGroupId` ＝ 元の `bottomGroupId` の行、`bottomGroupId` ＝ その境目のすぐ上の行とする。'
+const HB_6_NORMALISE = '離した時点で `HB-2` と同じく木の順位で持ち直す'
+const HB_6_EXAMPLE =
+  '例: 箱の日が 5 日 〜 7 日のとき、右の隅を 9 日の左の境目で離すと 5 日 〜 8 日、8 日の左で 5 日 〜 7 日、6 日の左で 5 日 〜 5 日、5 日の左で 5 日 〜 5 日、4 日の左で 4 日 〜 5 日、3 日の左で 3 日 〜 5 日となる。'
+const HB_6_WIDTHS = '幅は順に 4・3・1・1・2・3 日であり、どの幅にも届く位置が在る'
+
+const specRowLine = (head: string): string => {
+  const found = REQUIREMENTS_RAW.split(/\r?\n/).filter((line) => line.startsWith(head))
+  if (found.length !== 1) throw new Error(`expected one line starting ${head}; found ${found.length}`)
+  return found[0]!
+}
+
 const FR_019_TREE_ORDER = '⛔ その「下」は、行の木における順位で判ずること（MUST）。'
 const FR_019_WIDTH =
   '⭐ **横は日の列で囲む** —— 箱の左端は `startDate` の日の列の左端、右端は `endDate` の日の列の右端とし、`startDate` ＝ `endDate` の箱は 1 日の幅で描くこと（MUST）。'
@@ -346,12 +382,17 @@ const serialDay = (stored: unknown): number => {
   return Date.UTC(Number(text.slice(0, 4)), Number(text.slice(5, 7)) - 1, Number(text.slice(8, 10))) / 86400000
 }
 
+const ROW_LETTER: Readonly<Record<string, string>> = { [ROW_A]: 'A', [ROW_B]: 'B', [ROW_C]: 'C', [ROW_D]: 'D', [ROW_E]: 'E', [ROW_F]: 'F', [ROW_C1]: 'C1', [ROW_C2]: 'C2' }
+
+const rowLetter = (id: unknown): string => ROW_LETTER[String(id)] ?? String(id)
+
 const expectRange = (loop: FrameLoop, expected: { start: number; end: number; top: string; bottom: string }, what: string): void => {
   const after = storedRange(loop)
+  const dayZero = serialDay(day(1)) - 1
   expect(
-    { start: serialDay(after['startDate']), end: serialDay(after['endDate']), top: after['topGroupId'], bottom: after['bottomGroupId'] },
+    `${serialDay(after['startDate']) - dayZero}..${serialDay(after['endDate']) - dayZero} ${rowLetter(after['topGroupId'])}..${rowLetter(after['bottomGroupId'])}`,
     what,
-  ).toEqual({ start: serialDay(day(expected.start)), end: serialDay(day(expected.end)), top: expected.top, bottom: expected.bottom })
+  ).toBe(`${expected.start}..${expected.end} ${rowLetter(expected.top)}..${rowLetter(expected.bottom)}`)
 }
 
 const expectNoRs44 = (built: Stage, what: string): void => {
@@ -386,6 +427,22 @@ const justInside = (loop: FrameLoop, name: CornerName): Point => {
   const corner = cornerNamed(name)
   return offsetFrom(corner.at(highlightRect(loop)), corner.inward, S_230 / 2)
 }
+
+function releaseAt(built: Stage, press: Point, to: Point): void {
+  dragTo(built, press, to.x - press.x, to.y - press.y)
+}
+
+const dayLeftX = (built: Stage, startDay: number, d: number): number =>
+  highlightRect(built.loop).x + (d - startDay) * pxPerDay(built.loop)
+
+const bandTop = (loop: FrameLoop, groupId: string): number => drawnRow(loop, groupId).y
+
+const bandBottom = (loop: FrameLoop, groupId: string): number => {
+  const row = drawnRow(loop, groupId)
+  return row.y + row.height
+}
+
+const START_OF = (range: HighlightRange): number => Number(range.startDate.slice(8, 10))
 
 function expectCornerResize(built: Stage, corner: Corner, press: Point): void {
   const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
@@ -458,6 +515,35 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
       expect(row).toContain(clause)
     }
     expect(RS_44_WORDS.length).toBeGreaterThan(0)
+  })
+
+  it('T-246 HB-4..HB-6 still read verbatim, each clause on its own row', () => {
+    const rows: readonly (readonly [string, readonly string[]])[] = [
+      [HB_4_HEAD, [HB_4_NEAREST, HB_4_TIE, HB_4_DAYS, HB_4_KEEP, HB_4_REACH]],
+      [HB_5_HEAD, [HB_5_GAP, HB_5_DISTANCE, HB_5_ENDS, HB_5_TIE, HB_5_ROWS, HB_5_HORIZONTAL, HB_5_NO_REFUSAL, HB_4_REACH]],
+      [HB_6_HEAD, [HB_6_RIGHT, HB_6_LEFT, HB_6_BOTTOM_UP, HB_6_TOP_DOWN, HB_6_NORMALISE, HB_6_EXAMPLE, HB_6_WIDTHS]],
+    ]
+    for (const [head, clauses] of rows) {
+      const line = specRowLine(head)
+      for (const clause of clauses) {
+        expect(line, `${head} lost: ${clause}`).toContain(clause)
+      }
+    }
+  })
+
+  it('the bands do not touch, half a gap is narrower than S-230, and the pinned fixture leaves a gap under F', () => {
+    const built = stage()
+    const ids = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]
+    for (let index = 1; index < ids.length; index += 1) {
+      const gap = bandTop(built.loop, ids[index]!) - bandBottom(built.loop, ids[index - 1]!)
+      expect(gap, `no gap above row ${index}`).toBeGreaterThan(0)
+      expect(gap / 2, `half the gap above row ${index} is not narrower than S-230`).toBeLessThan(S_230)
+    }
+    expect(bandBottom(built.loop, ROW_F) + 4 * S_230).toBeLessThan(SCREEN.height)
+    expect(highlightRect(built.loop).y).toBe(bandTop(built.loop, ROW_B))
+    expect(highlightRect(built.loop).y + highlightRect(built.loop).height).toBe(bandBottom(built.loop, ROW_D))
+    const pinned = stage({ pinned: [ROW_F] })
+    expect(bandTop(pinned.loop, ROW_A) - bandBottom(pinned.loop, ROW_F)).toBeGreaterThan(0)
   })
 
   it('S-230 resolves to one positive number through S-137', () => {
@@ -560,30 +646,30 @@ describe('DFC-568 T-246 HB-1: a corner shrinks the box down to one day and one r
 })
 
 describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not refused', () => {
-  it(`${HB_2} -- top-left dragged three days past the right edge`, () => {
+  it(`${HB_6_LEFT} -- top-left released at the left boundary of day 19, three past the right edge, gives 16..18`, () => {
     const built = stage()
     dragTo(built, justInside(built.loop, 'top-left'), (16 - 6 + 3) * pxPerDay(built.loop), 0)
-    expectRange(built.loop, { start: 16, end: 19, top: ROW_B, bottom: ROW_D }, 'HB-2 left past right')
+    expectRange(built.loop, { start: 16, end: 18, top: ROW_B, bottom: ROW_D }, 'HB-2 left past right')
     expectNoRs44(built, 'HB-2 left past right')
   })
 
-  it(`${HB_2} -- bottom-right dragged three days past the left edge`, () => {
+  it(`${HB_6_RIGHT} -- bottom-right released at the left boundary of day 4, three past the left edge, gives 4..6`, () => {
     const built = stage()
     dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 3) * pxPerDay(built.loop), 0)
-    expectRange(built.loop, { start: 3, end: 6, top: ROW_B, bottom: ROW_D }, 'HB-2 right past left')
+    expectRange(built.loop, { start: 4, end: 6, top: ROW_B, bottom: ROW_D }, 'HB-2 right past left')
   })
 
-  it(`${HB_2} -- top-left dragged down past the bottom row`, () => {
+  it(`${HB_6_TOP_DOWN} -- top-left released in the top of row F takes the E/F boundary, so D..E`, () => {
     const built = stage()
     dragTo(built, justInside(built.loop, 'top-left'), 0, rowsApart(built.loop, ROW_B, ROW_F))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-2 top past bottom')
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_E }, 'HB-2 top past bottom')
     expectNoRs44(built, 'HB-2 top past bottom')
   })
 
-  it(`${HB_2_TREE} -- bottom-left dragged onto a pinned row drawn above keeps the tree order`, () => {
+  it(`${HB_2_TREE} -- bottom-left released in the bottom of a pinned row F takes the F/A boundary, so A..B`, () => {
     const built = stage({ pinned: [ROW_F] })
     dragTo(built, justInside(built.loop, 'bottom-left'), 0, rowsApart(built.loop, ROW_D, ROW_F))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-2 onto a pinned row')
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_B }, 'HB-2 onto a pinned row')
   })
 
   it(`${IV_19} -- the stored range still satisfies it after both axes are swapped`, () => {
@@ -592,7 +678,15 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
     dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 5) * ppd, -rowsApart(built.loop, ROW_A, ROW_D))
     const after = storedRange(built.loop)
     expect(serialDay(after['startDate'])).toBeLessThanOrEqual(serialDay(after['endDate']))
-    expectRange(built.loop, { start: 1, end: 6, top: ROW_A, bottom: ROW_B }, 'HB-2 both axes')
+    expectRange(built.loop, { start: 2, end: 6, top: ROW_B, bottom: ROW_B }, 'HB-2 both axes')
+  })
+
+  it(`${HB_6_NORMALISE} -- bottom-left released in the top of a pinned row F drawn above is held B..F in tree order`, () => {
+    const built = stage({ pinned: [ROW_F] })
+    const press = justInside(built.loop, 'bottom-left')
+    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, ROW_F) + 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-6 then HB-2 on a pinned row')
+    expectNoRs44(built, 'HB-6 then HB-2 on a pinned row')
   })
 })
 
@@ -628,6 +722,161 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
     dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
     expect(storedRange(built.loop), 'HB-3: the box moved').toEqual(before)
     expect(built.noticeTexts(), 'HB-3: RS-44 was not told').toContain(RS_44_WORDS)
+  })
+})
+
+describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nearest the release', () => {
+  it(`${HB_4_NEAREST} -- top-right released in the left third of day 12 takes the boundary left of 12, so endDate is 11`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-right')
+    releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 4, y: press.y })
+    expectRange(built.loop, { start: 6, end: 11, top: ROW_B, bottom: ROW_D }, 'HB-4 right corner, left third')
+    expectNoRs44(built, 'HB-4 right corner, left third')
+  })
+
+  it(`${HB_4_DAYS} -- top-left released in the left third of day 9 takes the boundary left of 9, so startDate is 9`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-left')
+    releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 4, y: press.y })
+    expectRange(built.loop, { start: 9, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-4 left corner, left third')
+  })
+
+  it(`${HB_4_NEAREST} -- the release position, not the travel, decides: pressed inside the corner, released just short of mid day 12`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'bottom-right')
+    releaseAt(built, press, { x: dayLeftX(built, 6, 12) + 0.45 * pxPerDay(built.loop), y: press.y })
+    expectRange(built.loop, { start: 6, end: 11, top: ROW_B, bottom: ROW_D }, 'HB-4 position not amount')
+  })
+
+  it(`${HB_4_TIE} -- top-right released at the exact middle of day 12 takes the later boundary, so endDate is 12`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-right')
+    releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 2, y: press.y })
+    expectRange(built.loop, { start: 6, end: 12, top: ROW_B, bottom: ROW_D }, 'HB-4 tie, right corner')
+  })
+
+  it(`${HB_4_TIE} -- bottom-left released at the exact middle of day 9 takes the later boundary, so startDate is 10`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'bottom-left')
+    releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 2, y: press.y })
+    expectRange(built.loop, { start: 10, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-4 tie, left corner')
+  })
+})
+
+describe('DFC-568 T-246 HB-5: a corner moved vertically takes the row gap nearest the release', () => {
+  it(`${HB_5_HORIZONTAL} -- top-left pressed and released in the gap above B, moved only sideways, keeps the rows and is not refused`, () => {
+    const built = stage()
+    const box = highlightRect(built.loop)
+    const gapY = (bandBottom(built.loop, ROW_A) + bandTop(built.loop, ROW_B)) / 2
+    const press = { x: box.x - 1, y: gapY }
+    expect(Math.hypot(press.x - box.x, press.y - box.y), 'the press is not within S-230 of the corner').toBeLessThan(S_230)
+    releaseAt(built, press, { x: dayLeftX(built, 6, 9), y: gapY })
+    expectRange(built.loop, { start: 9, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-5 sideways in the gap')
+    expectNoRs44(built, 'HB-5 sideways in the gap')
+  })
+
+  it(`${HB_5_ROWS} -- top-left released in the upper half of row C takes the B/C gap, so C..D`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-left')
+    const c = drawnRow(built.loop, ROW_C)
+    releaseAt(built, press, { x: press.x, y: c.y + c.height / 4 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_D }, 'HB-5 upper half')
+  })
+
+  it(`${HB_5_ROWS} -- top-left released in the lower half of row C takes the C/D gap, so D..D`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-left')
+    const c = drawnRow(built.loop, ROW_C)
+    releaseAt(built, press, { x: press.x, y: c.y + (3 * c.height) / 4 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-5 lower half')
+  })
+
+  it(`${HB_5_ROWS} -- bottom-right released in the lower half of row E takes the E/F gap, so B..E`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'bottom-right')
+    const e = drawnRow(built.loop, ROW_E)
+    releaseAt(built, press, { x: press.x, y: e.y + (3 * e.height) / 4 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_E }, 'HB-5 bottom corner lower half')
+  })
+
+  it(`${HB_5_TIE} -- top-left released at the exact middle of row C takes the lower gap, so D..D`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-left')
+    const c = drawnRow(built.loop, ROW_C)
+    releaseAt(built, press, { x: press.x, y: c.y + c.height / 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-5 tie')
+  })
+
+  it(`${HB_5_ENDS} -- top-left released above the first drawn band takes the upper boundary of A`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'top-left')
+    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, ROW_A) - 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_D }, 'HB-5 above the first band')
+    expectNoRs44(built, 'HB-5 above the first band')
+  })
+
+  it(`${HB_5_ENDS} -- bottom-right released well below the last drawn band takes the lower boundary of F`, () => {
+    const built = stage()
+    const press = justInside(built.loop, 'bottom-right')
+    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-5 below the last band')
+    expectNoRs44(built, 'HB-5 below the last band')
+  })
+
+  it(`${HB_5_GAP} -- top-left released in the bottom of a pinned row F drawn above takes the F/A gap, so A..D`, () => {
+    const built = stage({ pinned: [ROW_F] })
+    const press = justInside(built.loop, 'top-left')
+    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, ROW_F) - 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_D }, 'HB-5 pinned row drawn above')
+    expectNoRs44(built, 'HB-5 pinned row drawn above')
+  })
+})
+
+describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is read as the opposite corner', () => {
+  const EXAMPLE_RANGE: HighlightRange = { ...DEFAULT_RANGE, startDate: day(5), endDate: day(7) }
+
+  for (const [boundaryDay, start, end] of [[9, 5, 8], [8, 5, 7], [6, 5, 5], [5, 5, 5], [4, 4, 5], [3, 3, 5]] as const) {
+    it(`${HB_6_EXAMPLE} -- the right corner released at the left boundary of day ${boundaryDay} gives ${start}..${end}`, () => {
+      const built = stage({ range: EXAMPLE_RANGE })
+      const press = justInside(built.loop, 'top-right')
+      releaseAt(built, press, { x: dayLeftX(built, START_OF(EXAMPLE_RANGE), boundaryDay), y: press.y })
+      expectRange(built.loop, { start, end, top: ROW_B, bottom: ROW_D }, `HB-6 right corner at day ${boundaryDay}`)
+      expectNoRs44(built, `HB-6 right corner at day ${boundaryDay}`)
+    })
+  }
+
+  for (const [boundaryDay, start, end] of [[4, 4, 7], [5, 5, 7], [7, 7, 7], [8, 7, 7], [9, 7, 8], [10, 7, 9]] as const) {
+    it(`${HB_6_LEFT} -- mirrored: the left corner released at the left boundary of day ${boundaryDay} gives ${start}..${end}`, () => {
+      const built = stage({ range: EXAMPLE_RANGE })
+      const press = justInside(built.loop, 'bottom-left')
+      releaseAt(built, press, { x: dayLeftX(built, START_OF(EXAMPLE_RANGE), boundaryDay), y: press.y })
+      expectRange(built.loop, { start, end, top: ROW_B, bottom: ROW_D }, `HB-6 left corner at day ${boundaryDay}`)
+      expectNoRs44(built, `HB-6 left corner at day ${boundaryDay}`)
+    })
+  }
+
+  it(`${HB_6_BOTTOM_UP} -- bottom-right released in the gap above B gives B..B, and above the first band gives A..B`, () => {
+    const inGap = stage()
+    const pressGap = justInside(inGap.loop, 'bottom-right')
+    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, ROW_A) + bandTop(inGap.loop, ROW_B)) / 2 })
+    expectRange(inGap.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_B }, 'HB-6 bottom corner onto the top boundary')
+    const above = stage()
+    const pressAbove = justInside(above.loop, 'bottom-right')
+    releaseAt(above, pressAbove, { x: pressAbove.x, y: bandTop(above.loop, ROW_A) - 2 })
+    expectRange(above.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_B }, 'HB-6 bottom corner above the first band')
+    expectNoRs44(above, 'HB-6 bottom corner above the first band')
+  })
+
+  it(`${HB_6_TOP_DOWN} -- top-left released in the E/F gap gives D..E, and below the last band gives D..F`, () => {
+    const inGap = stage()
+    const pressGap = justInside(inGap.loop, 'top-left')
+    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, ROW_E) + bandTop(inGap.loop, ROW_F)) / 2 })
+    expectRange(inGap.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_E }, 'HB-6 top corner into the E/F gap')
+    const below = stage()
+    const pressBelow = justInside(below.loop, 'top-left')
+    releaseAt(below, pressBelow, { x: pressBelow.x, y: bandBottom(below.loop, ROW_F) + 4 * S_230 })
+    expectRange(below.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-6 top corner below the last band')
+    expectNoRs44(below, 'HB-6 top corner below the last band')
   })
 })
 
