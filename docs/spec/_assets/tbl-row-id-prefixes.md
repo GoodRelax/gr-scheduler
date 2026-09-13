@@ -67,7 +67,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（CR の巡 1 で `D-` から改めた綴りである。<br>`words` は登録簿が `D` について既に持っていた語であり、発明ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（CR の巡 2 で `D-` から改めた綴りである） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 527 |
+| `DFC` | Defect | 台帳に載る欠陥（CR の巡 2 で `D-` から改めた綴りである） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 528 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 13 |
@@ -128,7 +128,7 @@
 | `PL` | Progress Line | イナズマ線の頂点の打ち方 | 仕様書 | `T-022` | 5 |
 | `PLM` | — | いまの日程表の作り方が抱えている問題 | 仕様書 | `T-001` | 8 |
 | `PM` | Progress Marker | 進捗マーカーの記号 | 仕様書 | `T-021` | 5 |
-| `PND` | Pending Decision | まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである） | 台帳 | `docs/development-records/pending-decisions.md` | 212 |
+| `PND` | Pending Decision | まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである） | 台帳 | `docs/development-records/pending-decisions.md` | 213 |
 | `PO` | Policy | 単一 HTML の内容セキュリティ方針の指令 | 仕様書 | `T-232` | 6 |
 | `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 20 |
 | `PS` | — | 予実の状態を判別する順の段 | 仕様書 | `T-019a` | 5 |

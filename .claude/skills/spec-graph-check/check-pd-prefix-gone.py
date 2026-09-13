@@ -103,6 +103,11 @@ SITES = [
     ('.claude/skills/spec-graph-check/check-press-row-ids.py',
      u'表 T-023a: PD-2」)',
      u'the other half of what that run printed'),
+    ('docs/review/grab-bands-and-dangling-pnd-prompt.md',
+     u'改名前から `PD-5` `PD-7`',
+     u'the 2026-09-13 handover, recording that these numbers dangled BEFORE '
+     u'CR-371 renamed them. The old spellings are the history being described, '
+     u'not pointers at a row'),
 ]
 
 

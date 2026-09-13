@@ -291,6 +291,15 @@ def trap_generated_edit(relative, lines, dirty=()):
             continue
         if other in declaration or other.rsplit('/', 1)[-1] in declaration:
             return []
+        # ⚠️ A TREE CAN BE THE MANUSCRIPT. tbl-row-id-prefixes.md declares that
+        # it walks `docs/development-records` and counts its rows, so a new
+        # ledger row regenerates it with no named file dirty. Measured
+        # 2026-09-13: adding one pending decision fired this trap on a correct
+        # `npm run gen`. A directory counts only when written in backticks.
+        parts = other.split('/')
+        for depth in range(1, len(parts)):
+            if '`%s`' % '/'.join(parts[:depth]) in declaration:
+                return []
     return ['%s  is a generated artifact -- edit its manuscript and rerun '
             '`npm run gen`, or the next run erases this' % relative]
 
