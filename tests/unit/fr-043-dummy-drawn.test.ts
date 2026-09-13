@@ -1045,12 +1045,6 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     expect(S_180['値']).toContain('GR-17')
     expect(S_180['値']).toContain('GR-18')
     expect(S_180['値']).toContain('描く幅')
-    // ⛔ THIS ONE NOW MATCHES A WITHDRAWAL RECORD, NOT A LIVE DISTINCTION:
-    // `S-180`'s note carries the retired row's name only inside its 「同日まで
-    // …と述べていた」, the hold having become the drawn mark itself on
-    // 2026-09-10. The line is left exactly as it stands; what a guard asks for
-    // is not a comment cleanup's to change.
-    expect(S_180['保存しない理由']).toContain('S-93')
     // T-023d, the two rows the alignment cases count days between.
     expect(GR_3['場所']).toContain('予定バーの左端')
     expect(GR_9['場所']).toContain('予定の開始日の翌稼働日')

@@ -181,13 +181,11 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ the sentence the 2026-09-01 ruling replaced does not stand as a rule again', () => {
-    // ⚠️ THE OVERRIDE ITSELF, GUARDED. FR-053 records the old wording INSIDE
-    // quotation marks, as history -- what may not come back is the same
-    // sentence standing on its own as the ⛔-marked MUST it used to be.
-    // GOES RED IF: someone reads the recorded history as a live rule and
-    // restores it.
+    // ⚠️ THE OVERRIDE ITSELF, GUARDED. CR-375 dropped the old wording's record
+    // from the manuscript entirely -- what this guards against is that same
+    // sentence standing on its own again as the ⛔-marked MUST it used to be.
+    // GOES RED IF: the old sentence is restored as a live rule.
     expect(REQUIREMENTS).not.toContain(THE_OVERRIDDEN_2026_08_28)
-    expect(REQUIREMENTS, 'the override is recorded, with both dates').toContain('2026-08-28 の裁定')
   })
 
   it('⭐ the readable-armed MUST still stands, with the minimised state as its one exception', () => {

@@ -491,12 +491,19 @@ describe('the rules and the fixture these cases stand on', () => {
     ).toContain(
       '`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）',
     )
-    // ⛔ AND THE RULE THIS FILE USED TO ASK FOR IS RECORDED AS WITHDRAWN, so a
-    // manuscript that quietly put it back fails here rather than silently
-    // disagreeing with the cases below.
-    expect(REQUIREMENTS).toContain(
-      '2026-09-10 まで「`GR-9` / `GR-17` / `GR-18` の当たり判定は、その日の列の左端を起点に、右へ `_assets/tbl-settings.md` の `S-93` の幅で取ること（MUST）」と定め、「起点を中心にしてはならない（MUST NOT）」を添えていた',
-    )
+    // ⛔ AND THE RULE THIS FILE USED TO ASK FOR STAYS GONE, so a manuscript
+    // that quietly put it back fails here rather than silently disagreeing
+    // with the cases below.
+    expect(
+      REQUIREMENTS.includes(
+        'その日の列の左端を起点に、右へ `_assets/tbl-settings.md` の `S-93` の幅で取ること（MUST）',
+      ),
+      'the withdrawn origin-at-the-day-edge MUST is back in table T-023d',
+    ).toBe(false)
+    expect(
+      REQUIREMENTS.includes('起点を中心にしてはならない（MUST NOT）'),
+      'the withdrawn centred-origin MUST NOT is back in table T-023d',
+    ).toBe(false)
     // And S-180 is the row that now carries the one width.
     expect(S_180['値']).toContain('実績のダミーを描く幅')
     for (const row of ['GR-9', 'GR-17', 'GR-18']) expect(S_180['値']).toContain(row)

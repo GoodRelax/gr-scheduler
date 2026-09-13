@@ -285,7 +285,7 @@ const S_99I_DEFAULT = visibilityOf(S_99I_DEFAULT_CELL)
 const S_99I_NOT_ONE_VALUE =
   '`Agent API` が有効かどうか（`S-99b`）とは別の値として持つこと。1 つの値で兼ねてはならない'
 const S_99I_WHAT_WAS_MEASURED =
-  '兼ねていたので、`Agent API` を有効にしただけで `IC-18` の押下状態が立っていた'
+  '兼ねると、`Agent API` を有効にしただけで `IC-18` の押下状態が立つ'
 const S_99I_WHY_THE_DEFAULT =
   '既定が「表示」なのは、`FR-066` が有効なあいだ欄を表示すると定めているからである'
 

@@ -331,9 +331,8 @@ const baseOf = (document: Document): unknown =>
 // ===========================================================================
 
 describe('FR-021 -- the manuscript this file is driven by', () => {
-  it('still carries the ruling of 2026-09-06 about the outline base', () => {
+  it('still carries the MUST that keeps the imported outline base', () => {
     expect(FR_021).toContain(THE_CLAUSE)
-    expect(FR_021).toContain('（利用者の裁定 2026-09-06）')
   })
 
   it('still puts the base in one place, with 1 for its default', () => {

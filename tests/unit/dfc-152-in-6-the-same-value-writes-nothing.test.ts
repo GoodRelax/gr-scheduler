@@ -397,17 +397,17 @@ describe('the manuscript still says what these cases read', () => {
     expect(inSix, 'IN-6 lost the reason that survives FR-031').toContain(
       '何も変えない書き込みを、そもそも道に乗せない',
     )
-    // ⛔ THE RETIRED CONSEQUENCE MAY STILL BE PRINTED, BUT ONLY AS A DATED
-    // RECORD OF WHAT THE ROW USED TO SAY -- this project keeps those, and check
-    // 42 is why they must be quoted rather than paraphrased. ⭐ What this
-    // asserts is that it is not standing loose as the reason again: every
-    // occurrence in the row follows the words that mark it as retired.
+    // ⛔ THE RETIRED CONSEQUENCE MAY STILL BE PRINTED, BUT ONLY AS A NAMED
+    // NON-REASON -- this project keeps those, and check 42 is why they must
+    // be quoted rather than paraphrased. ⭐ What this asserts is that it is
+    // not standing loose as the reason again: every occurrence in the row is
+    // immediately followed by the words that forbid resting on it.
     const retired = '取り消しが 2 段になる'
     for (let at = inSix.indexOf(retired); at >= 0; at = inSix.indexOf(retired, at + 1)) {
       expect(
-        inSix.slice(0, at),
+        inSix.slice(at, at + 200),
         'IN-6 rests on a consequence FR-031 makes impossible',
-      ).toContain('まで、本行の理由は')
+      ).toContain('を本行の理由にしてはならない')
     }
   })
 

@@ -129,7 +129,7 @@ const BOUNDARY_IS_THE_PLAN_START = '始日の位置が、予定側と実績側�
 
 /** Held at 120 characters. */
 const LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY =
-  '定開始日の左が予定側を、右側は実績側をつかめるようにしろ」）—— その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）'
+  'の開始日の位置が、予定側と実績側の境目であること（MUST）**—— その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）'
 
 /** Held at 120 characters. */
 const ZOOM_DOES_NOT_MOVE_THE_BOUNDARY =
@@ -153,7 +153,7 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
 
 /** Held at 90 characters. */
 const THE_DUMMY_BEATS_EVERY_PLAN_ROW =
-  'い込みうるのは印だけである。⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
+  '食い込まないことを本規則が定める。**⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
 
 /** Held at 90 characters. */
 const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
@@ -161,7 +161,7 @@ const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
 
 /** Held at 90 characters. */
 const THE_DUMMY_STAYS_GRABBABLE_AT_A_LOW_ZOOM =
-  'いる** —— Zoom Out して 1 日の表示が潰れても、ダミーの実績を入力できることである。⇒ ⛔ **低倍率でダミーが掴めなくなってはならない（MUST NOT）'
+  '⭐ **目的** —— Zoom Out して 1 日の表示が潰れても、ダミーの実績を入力できることである。⇒ ⛔ **低倍率でダミーが掴めなくなってはならない（MUST NOT）'
 
 /** Held at 90 characters. */
 const GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE =
@@ -169,7 +169,7 @@ const GR_8_TAKES_S_22_AND_NOT_THE_OUTLINE =
 
 /** Held at 90 characters. */
 const GR_8_IS_CENTRED_ON_THE_ICON =
-  'は本表の結びが持つ。⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
+  'じ寸法をそのまま使う。**⛔ **マイルストーンには本行を当ててはならない（MUST NOT）** —— 理由は本表の結びが持つ。⭐ **起点はアイコンの中心とすること（MUST）'
 
 // ---------------------------------------------------------------------------
 // ⭐ ADDED WITH THE ROUND THAT MEASURED DFC-395. The closing rule of 2026-09-08
@@ -187,7 +187,7 @@ const THE_FINISH_WINS_WHEN_TWO_ENDS_SHARE_A_DAY =
 
 /** Held at 120 characters. */
 const IT_APPLIES_TO_THE_ACTUALS_TWO_ENDS =
-  'ら終了日をつかめるようにしろ」）—— 予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）'
+  'は、終了側を掴むこと（MUST）**—— 予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）'
 
 /** Held at 120 characters. */
 const NOT_BECAUSE_THE_START_STANDS_HIGHER =

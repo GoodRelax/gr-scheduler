@@ -5125,7 +5125,7 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a row, left to right', () =>
     // ⭐⭐ WHICH OF THE PAIR IS ON TOP IS THE ROW'S OWN, ruled 2026-09-05.
     expect(says).toContain(T_051_HF4_DELETE_ABOVE_ADD)
     // ⭐ AND THE BAN ON ANYTHING BETWEEN THEM IS READ VERTICALLY NOW.
-    expect(says).toContain('いまは縦に隣り合うので、この禁止は縦に読む')
+    expect(says).toContain('縦に隣り合うので、この禁止は縦に読む')
 
     // ⛔ AND THE RUN IS THE WHOLE ROSTER, so nothing on the row is left unplaced.
     expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_ROW.map((one) => one.row)].sort())

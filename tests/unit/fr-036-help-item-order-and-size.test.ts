@@ -137,9 +137,6 @@ const THE_ORDER_MUST =
 /** ⛔ The size, sent to a ratio and never to a px. */
 const THE_SIZE_MUST = '一覧の字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-203` が定める係数で決めること（MUST）'
 
-/** ⚠️ The order CR-279 had written, which the user's instruction overrode. */
-const THE_OVERRIDDEN_ORDER = 'CR-279 は「説明・キー・図形」の順と定めていた。利用者の指示がそれを覆した'
-
 const T_206 = specTable('T-206')
 const VALUE_COLUMN = '既定'
 
@@ -517,13 +514,9 @@ const BASES = [12, 16, 20, 24, 32]
 describe('the manuscript still says what these cases read', () => {
   it('⭐ FR-036 still states the order the user asked for on 2026-08-29', () => {
     // ⛔ THE GROUND OF HALF THIS FILE. CR-279 had written the opposite order a
-    // round earlier; CR-282 turned it round on the user's instruction. If it
-    // ever turns back, this line says so before any case below asserts it.
+    // round earlier; CR-282 turned it round on the user's instruction.
     // GOES RED IF: the sentence leaves the requirement.
     expect(REQUIREMENTS).toContain(THE_ORDER_MUST)
-    expect(REQUIREMENTS, 'the override is recorded, with the order it replaced').toContain(
-      THE_OVERRIDDEN_ORDER,
-    )
   })
 
   it('⭐ FR-036 still sends the list’s size to S-203', () => {

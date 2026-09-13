@@ -58,14 +58,14 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-/** The ruling itself, so the sentences below cannot read as an editor's flourish. */
+/** The rule itself, so the sentences below cannot read as an editor's flourish. */
 const RULING_2026_09_06 =
-  '特別な対応は要らない。ピンが多すぎてスクロールできなくなったら、ユーザーが自分でピンを抜く'
+  'ピンが多すぎてスクロールできなくなったら、人が自分でピンを抜けばよく、その状態が起きうることは前提である'
 
 describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   it('FR-098 says in as many words that no notice is raised and no row is added to table T-233', () => {
     expect(REQUIREMENTS).toContain(RULING_2026_09_06)
-    expect(REQUIREMENTS).toContain('通知は出さない（同裁定）')
+    expect(REQUIREMENTS).toContain('通知は出さない')
     expect(REQUIREMENTS).toContain('表 T-233 に行を足さない')
   })
 

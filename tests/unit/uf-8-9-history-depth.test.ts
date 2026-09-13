@@ -532,8 +532,8 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
   // FR-025 (MUST NOT) took the PNG scale away and the command that used to
   // write it retired with the scale, so the pair of requirements is answered
   // by one command now.
-  it('UN-16 names two requirements, and table T-108 gives them one command', () => {
-    expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052'])
+  it('UN-16 names one requirement, and table T-108 gives it one command', () => {
+    expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-052'])
     expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67'])
   })
 

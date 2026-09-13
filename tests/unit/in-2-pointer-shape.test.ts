@@ -178,10 +178,12 @@ const IN_2 = rowOf('T-028', 'IN-2').cells.join(' ')
  * ⚠️ The clauses sit in ONE parenthesis separated by 、, each naming a place to
  * the left of は and a meaning to the right. ⛔ It used to be found by the bold
  * run around it; bold is not structure, so the words bound it now.
+ * ⚠️ The list ends where the trailing MUST NOT clause opens with ——, not at a
+ * dated ruling citation -- CR-375 removed the citation, not the boundary.
  */
 function placesNamedByIn2(): readonly string[] {
   const open = IN_2.indexOf('（')
-  const stop = IN_2.indexOf('（利用者の裁定')
+  const stop = IN_2.indexOf('——', open)
   if (open < 0 || stop <= open) {
     throw new Error(`IN-2 no longer writes its places in one parenthesis: ${IN_2}`)
   }

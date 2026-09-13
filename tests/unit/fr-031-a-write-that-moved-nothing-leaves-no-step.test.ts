@@ -134,7 +134,7 @@ const NO_VALUE_MOVED_NO_STEP =
  * and this rule stands on top of it.
  */
 const THE_RULE_SITS_ON_TOP_OF_THE_TABLE =
-  'しの段を残さないこと（MUST）（利用者の裁定 2026-09-08）—— **段とは戻す先の文書であり、動いていない文書に戻す先は無い。**⭐ 本表の 対象／対象外 は命令の種類で決まる分類であり、本規則はその上に載る（MUST）'
+  'しの段を残さないこと（MUST）—— **段とは戻す先の文書であり、動いていない文書に戻す先は無い。**⭐ 本表の 対象／対象外 は命令の種類で決まる分類であり、本規則はその上に載る（MUST）'
 
 /**
  * The third clause, held at 120: the MUST NOT against re-deciding the table's

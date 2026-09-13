@@ -191,19 +191,19 @@ const FR_098_NOT_FITTING_NOT_DRAWN =
 const FR_098_BAND_DOES_NOT_SCROLL =
   '固定した順に上から並べる。⭐ ピン止めした行が画面に収まらないときは、入りきらない行を描かないこと（MUST）。帯を縦にスクロールできるようにしてはならない（MUST NOT）'
 
-/** The ruling itself, so the pair above cannot be read as an editor's flourish. */
+/** The rule itself, so the pair above cannot be read as an editor's flourish. */
 const RULING_2026_09_06 =
-  '特別な対応は要らない。ピンが多すぎてスクロールできなくなったら、ユーザーが自分でピンを抜く'
+  'ピンが多すぎてスクロールできなくなったら、人が自分でピンを抜けばよく、その状態が起きうることは前提である'
 
 /** ⛔ The measurement that says the overflow happens at `S-127`'s own default. */
 const FR_098_MEASURED =
-  '実測（2026-09-06、1920×1080、実績を重ねた高い行を `S-127` の既定の 5 本）: 帯 986px に対し `Row Area` は 958px'
+  '実測（1920×1080、実績を重ねた高い行を `S-127` の既定の 5 本）: 帯 986px に対し `Row Area` は 958px'
 
 /** ⛔ The MUST CR-363 withdrew. Nothing here may hold it. */
 const FR_098_WITHDRAWN_SCROLLABLE_BAND = 'ピン止めした行の並びを縦にスクロールできるようにすること'
 
 /** ⭐ 通知は出さない -- the half of the ruling table T-233 answers for. */
-const FR_098_NO_NOTICE = '通知は出さない（同裁定）'
+const FR_098_NO_NOTICE = '通知は出さない'
 
 // The neighbours that did NOT move, and that every case below must stay inside.
 const FR_098_BAND_INSIDE =

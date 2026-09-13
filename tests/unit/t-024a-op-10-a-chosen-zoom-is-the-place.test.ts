@@ -460,9 +460,8 @@ function boot(document: Document = fixtureDocument()): Booted {
 // ===========================================================================
 
 describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
-  it('still carries the ruling of 2026-09-06 that a choice becomes the place', () => {
+  it('still carries the rule that a choice becomes the place', () => {
     expect(OP_10).toContain(A_CHOICE_IS_THE_PLACE)
-    expect(OP_10).toContain('（利用者の裁定 2026-09-06）')
     expect(OP_10).toContain(BECAUSE_THE_CONDITION_STOPS_HOLDING)
   })
 
@@ -471,12 +470,7 @@ describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
     expect(OP_10).toContain('本行は結果を定めるものであって、頻度を定めるものではない。')
   })
 
-  it('still names the four entrances the measurement found dead, and keeps IC-14 out', () => {
-    // The measurement the ruling was made on, quoted so that a case pressing a
-    // fifth entrance would have to move this line first.
-    expect(OP_10).toContain(
-      '`IC-12` / `IC-13` / `IC-15` / `IC-10` の 4 つとも絵を 1 度も動かさなかった。',
-    )
+  it('still keeps IC-14 out of the four entrances this row names', () => {
     expect(OP_10).toContain('**`IC-14`（縮小）が動かないのは本行と別である**')
   })
 

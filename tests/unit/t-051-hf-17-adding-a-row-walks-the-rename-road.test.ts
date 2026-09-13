@@ -525,9 +525,13 @@ describe('the manuscript still says what these cases read', () => {
     )
   })
 
-  it('⭐ FR-072 now counts HF-14 among the rules allowed to put the panel up', () => {
+  it('⭐ FR-072 forbids enumerating the entrances that put the panel up', () => {
+    // CR-375 removed the dated enumeration (FR-091 / HF-14) this case used to
+    // read. FR-072 now states the opposite: it does not count entrances at
+    // all, and points at table T-103's U-47 instead. HF-14's own MUST to open
+    // the panel is unchanged and is still asserted elsewhere in this file.
     expect(REQUIREMENTS).toContain(
-      '`FR-091`（2026-09-03）と 表 T-051 の `HF-14`（2026-09-04）がさらに求めている。',
+      '⛔ **その入口を本要求が数え上げてはならない（MUST NOT）**',
     )
   })
 

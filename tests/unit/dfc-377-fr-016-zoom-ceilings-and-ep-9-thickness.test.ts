@@ -142,7 +142,7 @@ const EP_9_SAME_LINE_MEANS_SAME_THICKNESS =
   'es`（`U-18`）と同じ線を 1 本引くこと（MUST） —— 新しい確定名も新しい設定値のキーも作らない。⭐ **同じ線とは太さも同じであるということである（MUST）'
 
 const EP_9_THICKNESS_NOT_ZERO =
-  '作らない。⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
+  '作らない。⭐ **同じ線とは太さも同じであるということである（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
 
 /**
  * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-9's own dated
@@ -158,11 +158,11 @@ const EP_9_THICKNESS_NOT_ZERO =
  * characters check 39 reads back from the marker.
  */
 const EP_9_ONE_PLACE_READS_THE_THICKNESS =
-  '。⭐ **同じ線とは太さも同じであるということである（MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
+  '。⭐ **同じ線とは太さも同じであるということである（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
 
 /** ⚠️ RE-CUT 2026-09-11 for the same reason as the marker above it. */
 const EP_9_NO_SECOND_NUMBER =
-  'MUST）**（利用者の裁定 2026-09-07）—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
+  'MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）。番号を 2 か所に置いてはならない（MUST NOT）'
 
 const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
   '。番号を 2 か所に置いてはならない（MUST NOT） —— **同じ数が 2 か所に載ると、必ず離れていく。**⭐ **画面と書き出しも同じ 1 か所を読むこと（MUST）'

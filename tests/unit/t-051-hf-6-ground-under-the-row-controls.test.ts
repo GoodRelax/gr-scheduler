@@ -1024,10 +1024,10 @@ describe('the manuscripts still say what these cases read', () => {
   it('⛔ FR-029 still names S-149 for the faintness, and still forbids disabling', () => {
     const fr029 = FR_029_TEXT
     expect(fr029).toContain('`S-149` の色で示すこと（MUST）')
-    // ⛔ THE ROW THAT WAS TAKEN AWAY, PINNED TOO. CR-307 moved the faintness off
-    // S-148 on 2026-08-30, and a unit still painting S-148 would be painting the
-    // colour the user said reads as an entrance that CAN be used.
-    expect(fr029).toContain('`S-148` では地との隔たりが大きすぎ')
+    // ⛔ THE ROW THAT WAS TAKEN AWAY, PINNED TOO. A unit still painting S-148
+    // would be painting the colour the manuscript forbids for this purpose --
+    // it reads as an entrance that CAN be used.
+    expect(fr029).toContain('`S-148` を使ってはならない（MUST NOT）')
     expect(fr029).not.toContain('`S-148` の色で示すこと（MUST）')
     expect(S_149, '表 T-236: S-148 and S-149 are two colours').not.toBe(t236('S-148'))
     expect(fr029).toContain('薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）')
