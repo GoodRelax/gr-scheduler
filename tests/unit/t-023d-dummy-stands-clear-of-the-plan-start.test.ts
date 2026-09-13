@@ -1096,8 +1096,11 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       .not.toEqual(dayNamed(PULLED_TO_DAY))
     expect(dayOf(after.actualStart), 'nor the plan start itself')
       .not.toEqual(dayNamed(PLAN_START))
-    expect(after.actualDuration, 'T-023d GR-17: 掴めば `actualDuration` を置く')
-      .toBe(PULLED_WORKED_DAYS)
+    const releasedDayCountedAsFinishDay = PULLED_WORKED_DAYS + 1
+    expect(after.actualDuration, '⭐ 終了点（表 T-023d の `GR-17`）を離した日は、表 T-245 の `GO-3` と同じく実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）')
+      .toBe(releasedDayCountedAsFinishDay)
+    expect(after.actualDuration, 'the right-end reading counts one worked day fewer')
+      .not.toBe(PULLED_WORKED_DAYS)
     expect(after.actualDuration, 'and it is NOT S-129, which is GR-9\'s answer')
       .not.toBe(ACTUAL_INITIAL_DURATION)
     expect(after.resumeValid).toBe(true)
