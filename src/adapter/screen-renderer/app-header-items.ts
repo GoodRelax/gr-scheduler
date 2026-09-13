@@ -4,41 +4,20 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
-// UF-62 fills exactly one member of `ScreenView` -- `appHeaderItems` -- and
-// reads none of the others. The signature is the one the "nine unit contracts"
-// section of `screen-renderer.ts` fixes; this file does not own it.
+// Fills `ScreenView.appHeaderItems`. Only `commands` is worked out here -- of
+// each entry, whether it can be used and whether it is on; the title, the file
+// cues and the language are carried across untouched.
 //
-// ⭐ FOUR MEMBERS, FOUR OWNERS, AND ONLY ONE OF THEM IS DECIDED HERE.
-// `documentTitle` is the document's own value (AT-3), the two file cues are
-// the shell's reading (FR-101) and `language` is the session's (S-99); all of
-// them are carried across untouched. What this unit works out is `commands` -- and
-// of each entry, only whether it can be used and whether it is on.
+// Entries come from `icon-roster.json` (table T-109 generated), so membership,
+// order and count are never written here (rule 03 section 1). Only rows a
+// requirement keys a state on are named; the rest share one default, so a new
+// row reaches the header with no edit.
 //
-// ⭐ WHY THE ENTRIES ARE READ FROM THE GENERATED ROSTER RATHER THAN LISTED.
-// FR-029 (MUST) makes the roster of icons AND the placement of each follow
-// table T-109, and that table's surface column IS the placement.
-// `icon-roster.json` is that table generated into `src/`, so the membership,
-// the print order and the number of entries all reach this file from where
-// they live. ⛔ None of the three is written down here: table T-109 counts
-// itself (FR-029 forbids even the requirement to state the number), and rule
-// 03 section 1 of docs/development-rules forbids re-typing a value the
-// specification holds -- which is the drift `screen-renderer.ts` warns about on
-// `AppHeaderItems.commands` in as many words.
-// ⚠️ Only the rows a requirement keys a STATE on are named below. Every other
-// row falls through to one default, so a row added to table T-109 reaches the
-// header with no edit to this file.
+// `isEnabled: false` claims a press would do nothing (FR-029). Where the four
+// arguments cannot settle that, the entry stays usable: a false faint reads as
+// a broken entry. The STOP notes below name those entries.
 //
-// ⛔ WHAT A FAINT ENTRY CLAIMS. FR-029 (MUST) draws what cannot be used faint
-// and gives its reason through a tooltip rather than letting it go quiet, so
-// `isEnabled: false` is a claim that pressing the entry would achieve nothing.
-// Where the four arguments cannot settle that claim the entry is left usable:
-// a false faint tells the reader an entry is broken, which is the very reading
-// FR-029 exists to prevent. The STOP notes below say which entries those are,
-// and what would settle each.
-//
-// ⭐ U-35 of table T-103 names two things, `Header Commands` and `Branding`.
-// `AppHeaderItems` holds a member for the first only, so the second is not
-// described here and no member is invented for it.
+// U-35's `Branding` has no member in `AppHeaderItems`, so none is invented.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
@@ -56,9 +35,7 @@ import displayWords from './display-words.json'
 /**
  * FR-101's substitute for a time, by the state it stands for.
  *
- * ⚠️ A map rather than an index, the move `notices.ts` makes for the three
- * other sections held by a literal key: the section is the dictionary's and
- * its length is not this file's to assume.
+ * Keyed rather than indexed: the section's length is the dictionary's.
  */
 const FILE_STATUS_BY_STATE = new Map(
   displayWords.fileStatus.map((entry) => [entry.state, entry]),
@@ -66,39 +43,21 @@ const FILE_STATUS_BY_STATE = new Map(
 
 /**
  * The value table T-109's surface column carries for the `App Header` (U-31 of
- * table T-103).
- *
- * ⭐ A settled name copied spelling and all (rule 03 section 1), not a value
- * invented here: it is the join between this unit and the generated roster, and
- * the same spelling `icon-roster.json` prints in that column.
+ * table T-103), spelled as the generated roster spells it (rule 03 section 1).
  */
 const APP_HEADER = 'App Header'
 
-// ⭐ The rows of table T-109 whose `isEnabled` or `isPressed` a requirement
-// settles. ⛔ These identifiers are join keys, NOT names for the icons: table
-// T-109 has no English column on purpose (naming one would settle a word the
-// glossary has not), so each says which requirement's state the row carries and
-// never stands in for a word on the screen. ⚠️ They are also not a roster of
-// the header -- which rows the header holds is the generated roster's to say.
+// The rows of table T-109 whose `isEnabled` or `isPressed` a requirement
+// settles. Join keys, not names for the icons (table T-109 has no English
+// column), and not a roster of the header.
 
-/**
- * S-99e (FR-053). ⭐ FIRST BECAUSE TABLE T-109 PRINTS IT FIRST: CR-272 gave
- * IC-7 a 群 of its own at the head of the `App Header` block on the user's
- * instruction of 2026-08-27 (DFC-87), and that column is the only thing that
- * orders the entries -- so this case moved with the row rather than by a
- * judgement made here.
- */
+/** S-99e (FR-053). First because table T-109 prints it first. */
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 /** S-69, the overlay FR-015 draws. Its toggle is FR-049's. */
 const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
 /**
- * FR-031's two entrances -- RD-1 and RD-2 of table T-230.
- *
- * ⭐ THEY MOVED OUT OF THE DEFAULT'S STOP NOTE ON 2026-09-05 (DFC-265). That note
- * said the stack was 「neither an argument here nor a member of `ScreenSession`」,
- * which was true and is not any more: `ScreenSession.canUndo` / `canRedo` are
- * the two questions FR-029 asks about them, and the note beside those members
- * says why they are the shell's to answer and what an absent answer means.
+ * FR-031's two entrances -- RD-1 and RD-2 of table T-230. Answered from
+ * `ScreenSession.canUndo` / `canRedo`; see those members.
  */
 const UNDO_ENTRY: IconId = 'IC-5'
 /** The forward half of `UNDO_ENTRY`; that note holds both. */
@@ -119,55 +78,33 @@ const AGENT_API_ENTRY: IconId = 'IC-20'
 /**
  * What an entry says while the dictionary holds no word for its row.
  *
- * ⛔ NOT "PRINT NOTHING". An empty cell of `display-words.json` says that no
- * word has been SETTLED for that row yet -- which is true of all 176
- * of them today -- and this is exactly what UF-62 printed before the dictionary
- * was wired, so opening the road moved nothing on the screen.
- * ⚠️ Here the stand-in and an unwritten word are the same string, and that is a
- * coincidence of this member rather than the rule: `command-palette.ts` stands
- * in with the roster's own group word and `tooltips.ts` with the label, because
- * an empty string would be worse than what each printed before.
+ * An empty cell means no word is settled yet, not "print nothing"; here the
+ * stand-in happens to be the same empty string. Other readers stand in with a
+ * word of their own (`tooltips.ts` uses the label).
  *
- * Class C of rule 06: the words are display-only and leave no trace in the
- * saved form -- FR-038 (MUST NOT) keeps even the language out of the document,
- * so reversing this costs the one place that draws them.
+ * Class C of rule 06: display-only, and FR-038 keeps even the language out of
+ * the saved document.
  */
 const NO_WORDS = ''
 
 /**
  * The words of table T-109's rows, keyed by the row id.
  *
- * ⭐ A `Map` rather than a scan per entry: a description is built for every
- * frame, and rule 05 of docs/development-rules forbids a linear search on that
- * path (NFR-013).
- *
- * ⚠️ Reading `displayWords` no more makes this unit `semi-pure-a` than reading
- * `iconRoster` does: both are module constants compiled into the program, the
- * way `DEFAULT_CALENDAR` is in `schedule.ts`, and not external state read while
- * running. Table T-075 fixes UF-62 as `pure`.
+ * A `Map` rather than a scan per entry: a description is built every frame
+ * (R5 of docs/development-rules/07-review-standards.md, NFR-013).
+ * `displayWords` and `iconRoster` are module constants compiled into the
+ * program, so reading them keeps this unit `pure`.
  */
 const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 /**
  * The accessible name of one entry, in the display language (FR-038).
  *
- * ⭐ WHERE THE WORD COMES FROM. FR-038 (MUST) holds every word the screen prints
- * as one dictionary per language, and Chapter 6.2 fixes its manuscript as
- * `_source/display-words.json`; `display-words.json` beside this file is that
- * manuscript generated into `src/`. ⛔ It is keyed by the row of table T-109 --
- * the only join that table admits, because it deliberately has no English
- * column -- so no name is minted here and none is read off any other column.
- *
- * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
- * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing: an empty cell is UNSETTLED, not
- * an instruction to print nothing. The day a word is written this line stops
- * standing in without being edited.
- * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
- * answered separately, although with the same stand-in. It cannot happen while
- * `npm run gen:check` passes -- the generator builds its roster from table T-109
- * every run and refuses to write on a mismatch -- so what is guarded is the run
- * where someone edited the generated file by hand.
+ * Keyed by the row of table T-109, the only join that table admits.
+ * `=== ''` rather than `||` / `??`: an empty cell means "no word settled yet",
+ * so a word written later takes over without this line being edited.
+ * A row missing from the dictionary cannot happen while `npm run gen:check`
+ * passes; the guard covers a hand-edited generated file.
  *
  * @purity pure
  */
@@ -192,14 +129,8 @@ const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
 /**
  * Whether one entry of the header can be used, and whether it is on.
  *
- * ⭐ The order of the cases is table T-109's own (rule 03 section 4): reading
- * them against the table has to be a walk in one direction, or a reader cannot
- * tell an omission from a re-ordering.
- *
- * ⚠️ The settings read below are not copied so much as checked:
- * `planVisible` (S-227), `actualVisible` (S-228) and the rest are members
- * of the GENERATED `DocumentSettings` type, so a change to one of those
- * rows fails the compiler here instead of going stale in silence.
+ * The cases follow table T-109's order (rule 03 section 4), so an omission
+ * cannot pass for a re-ordering.
  *
  * @purity pure
  */
@@ -211,165 +142,93 @@ function commandStateOf(
 ): CommandState {
   switch (icon) {
     case COMMAND_PALETTE_ENTRY:
-      // FR-053 (MUST) puts this entry OUTSIDE the palette, which is why the
-      // header carries it at all: from inside, hiding the palette would take
-      // away the face that brings it back.
+      // FR-053 keeps this entry outside the palette: from inside, hiding the
+      // palette would take away the face that brings it back.
       return { isEnabled: true, isPressed: state.paletteShown }
 
     case BASELINE_OVERLAY_ENTRY:
-      // FR-049 makes a toggle of every boolean row of table T-202, and S-69 is
-      // the one FR-015 draws from. ⚠️ It stays usable in a document with
-      // nothing to overlay: no requirement conditions the toggle on what the
-      // overlay would hold, and FR-029 makes faint mean "cannot be used".
+      // FR-049 / FR-015. Usable even with nothing to overlay: no requirement
+      // conditions the toggle on the overlay's content.
       return { isEnabled: true, isPressed: settings.baselineVisible }
 
     case UNDO_ENTRY:
-      // FR-029 (MUST): 「その入口を押しても、いま文書にも画面にも何も変えられない
-      // ときは、その入口を薄く描くこと」. What IC-5's 職務 acts on is the history
-      // (FR-031, RD-1 of table T-230), and an empty one is 「対象が 1 つも無い」.
-      // ⛔ NOT LEFT OUT AS "THE HISTORY IS NOT DRAWN". The same requirement
-      // (MUST NOT) refuses a surface the right to keep an entrance out of the
-      // rule -- 「本規則は 表 T-109 の全行に当たる ... 載る面によって薄くしない
-      // 入口があってはならない」 -- so the sentence about counting on the drawn
-      // side is HOW a target is counted, not a licence to exempt a target that
-      // has no picture of its own.
-      // ⚠️ `!== false` AND NEVER `=== true`: an absent answer means the shell
-      // did not say, and an entrance whose answer is unknown stays usable (the
-      // head of this file, and the note on the member itself).
-      // ⛔ NOT DISABLED IN THE HOST'S SENSE EITHER -- FR-029 (MUST NOT) --
-      // which is the drawing side's affair; `isEnabled: false` is this
-      // component saying 薄く and nothing more, exactly as it is for IC-18.
+      // FR-029: faint when the history (FR-031, RD-1) is empty. The history
+      // not being drawn does not exempt it -- FR-029 reaches every row of
+      // table T-109.
+      // `!== false`, not `=== true`: an absent answer leaves the entry usable.
       return { isEnabled: session.canUndo !== false, isPressed: false }
 
     case REDO_ENTRY:
-      // The same rule read forward (RD-2). ⭐ Written to look like the case
-      // above because it IS the same rule (rule 03 section 4).
+      // The same rule read forward (RD-2).
       return { isEnabled: session.canRedo !== false, isPressed: false }
 
     case PLAN_DISPLAY_ENTRY:
-      // ⭐ FR-049 (the user's ruling 2026-09-07): S-227 and S-228 are two
-      // independent booleans, and hiding both is allowed. ⛔ So this entry is
-      // never faint, and its state MUST NOT be read from the other half --
-      // 'independent' means the place that reads one does not read the other.
+      // FR-049: S-227 and S-228 are independent and both may be off, so this
+      // entry is never faint and never reads the other half.
       return { isEnabled: true, isPressed: settings.planVisible }
 
     case ACTUAL_DISPLAY_ENTRY:
-      // The same rule read from the other side. ⭐ Written to look like the
-      // case above because it IS the same rule (rule 03 section 4): a reader
-      // who has to spot the difference twice will read a difference in meaning
-      // into it.
+      // The same rule read from the other side.
       return { isEnabled: true, isPressed: settings.actualVisible }
 
     case FULL_SCREEN_ENTRY:
-      // FR-071: the same entry leaves full screen again, so what a second press
-      // does is decided by this entry's own state rather than by a second entry
-      // (which FR-029 would forbid).
+      // FR-071: the same entry leaves full screen again.
       return { isEnabled: true, isPressed: state.fullScreen }
 
     case DOCUMENT_SETTINGS_ENTRY:
-      // FR-072 (MUST) says in as many words that which of the panel's two
-      // contents is up is shown in the pressed state of this entry. ⚠️ `null`
-      // is the panel closed, which is not the settings.
+      // FR-072. `null` is the panel closed, which is not the settings.
       return { isEnabled: true, isPressed: session.propertiesShowing === 'documentSettings' }
 
     case DIALOGUE_FIELD_ENTRY:
-      // FR-066 puts the field up only while the `Agent API` is on, so with the
-      // API off there is nothing for this entry to show or hide -- and turning
-      // the API on belongs to the entry below, which FR-029 (MUST NOT) forbids
-      // this one to duplicate. `isEnabled` stays tied to `isAgentApiEnabled`,
-      // and while it is off FR-066 (⚠️) has this entry drawn faint and RS-35 of
-      // table T-233 is the reason a press on it is told (`frame-loop.ts`).
-      //
-      // ⭐ `isPressed` IS NOW ITS OWN VALUE (DFC-149, EN-5 of table T-237), since
-      // `ScreenSession` gained `isDialogueFieldVisible` for S-99i. ⛔ NOT
-      // `isAgentApiEnabled` ANY MORE: that was the defect -- IC-20 turning the
-      // API on made this entry read as pressed although IC-18 had never been
-      // touched, and IC-18 had no working "hide" half at all. S-99i (MUST NOT)
-      // keeps the two values apart: one is the capability, the other is what
-      // the reader chose to see, and `dialogue-field.ts` reads both.
-      // ⛔ BOTH, NOT THE VISIBILITY ALONE. EN-5 of table T-237 is worded
-      // 「いま表示している」 -- present tense, what the screen is actually
-      // doing -- and while the API is off `dialogue-field.ts` describes no
-      // field whatever S-99i holds. FR-029 (MUST NOT) also forbids filling
-      // an entrance that is drawn faint, and this one is faint exactly then,
-      // so reading S-99i alone would draw it faint AND filled at once.
-      // ⚠️ S-99i is NOT cleared when the API goes off -- it is remembered,
-      // so turning the API back on restores what the reader last chose.
+      // FR-066: the field exists only while the `Agent API` is on, so the entry
+      // is faint while it is off (a press is told RS-35 of table T-233).
+      // `isPressed` reads S-99i AND the API (EN-5 of table T-237): S-99i alone
+      // would draw the entry faint and filled at once, which FR-029 forbids.
+      // S-99i is kept while the API is off, so turning it back on restores it.
       return {
         isEnabled: session.isAgentApiEnabled,
         isPressed: session.isAgentApiEnabled && session.isDialogueFieldVisible,
       }
 
     case AGENT_API_ENTRY:
-      // FR-065 (MUST) requires that the API's being on be readable on the
-      // screen, and table T-075 gives that display to this unit.
+      // FR-065; table T-075 gives that display to this unit.
       return { isEnabled: true, isPressed: session.isAgentApiEnabled }
 
     default:
-      // STOP -- ⚠️ NOT REACHABLE FROM THESE FOUR ARGUMENTS: whether two of the
-      // remaining entries can be used. Each is left usable, because FR-029
-      // makes faint a claim that the entry would do nothing and a false claim
-      // of that is the worse error.
-      //   IC-1, FR-087 (`OP-2` of table T-024a): OP-8 (MUST NOT) refuses an
-      //     open while an import or another open is under way, and nothing
-      //     among these four says one is.
-      //   IC-2, FR-060: overwriting needs the file that was opened, and FR-060
-      //     itself says that permission can be lost and is offered back at
-      //     startup. Whether it is held now is the shell's to know.
-      // ⭐⭐ IC-5 AND IC-6 STOOD HERE UNTIL 2026-09-05 AND HAVE THEIR OWN CASES
-      // NOW (DFC-265). What this note said of them -- 「whether anything is on the
-      // undo or the redo stack ... is neither an argument here nor a member of
-      // `ScreenSession`」 -- was true and stopped being true when that type
-      // gained `canUndo` / `canRedo`. ⚠️ Measured before the change, on the
-      // shipped build at 1920x1080: with an untouched document both entrances
-      // drew at `rgb(22, 24, 29)` -- the dark side -- and three presses on IC-5
-      // moved no row, no glyph and no label and raised no telling, which FR-029
-      // (MUST) forbids either way round.
+      // STOP -- NOT REACHABLE FROM THESE FOUR ARGUMENTS: whether two of the
+      // remaining entries can be used, so each stays usable.
+      //   IC-1, FR-087: OP-8 of table T-024a refuses an open while another
+      //     is under way, and nothing among these four says one is.
+      //   IC-2, FR-060: overwriting needs a file opened in this run, and
+      //     whether one is held is the shell's to know.
       // Searched: FR-087 (table T-024a), FR-060, `ScreenSession` and table
-      // T-206. ⭐ LY-5 of table T-060 is why the remaining two are absent rather
-      // than forgotten -- only the Framework may hold a current value, and
-      // `ScreenSession` is the list of what it hands over.
+      // T-206. Absent rather than forgotten: only the Framework holds a current
+      // value (LY-5 of table T-060), and `ScreenSession` is what it hands over.
       //
-      // STOP -- ⛔ NO CONSTANT HOLDS THE ZOOM BOUNDS: whether IC-12 .. IC-15
-      // (FR-018) are already at the end of their travel. `zoomX` / `zoomY`
-      // (S-75 / S-76) arrive in `DocumentSettings`, but their bounds are
-      // written as `zoomMin` / `zoomMax` -- S-97 / S-98 of table T-206, whose
-      // figures sit at S-54 / S-55 -- which table T-206 keeps OUT of the
-      // document, and no generator puts them into `src/`: `NOT_STORED_SIZES`
-      // and `NOT_STORED_LIMITS` carry other rows of that table and not these.
-      // Rule 03 section 1 forbids re-typing the two figures, so the comparison
-      // cannot be written at all and all four stay usable. Searched: FR-018,
-      // `_assets/tbl-settings.md` rows S-54 / S-55 / S-75 / S-76 / S-97 / S-98,
-      // both generated NOT_STORED constants, and `ScreenSession`.
+      // STOP -- ZOOM BOUNDS NOT READ: whether IC-12 .. IC-15 (FR-018) are at
+      // the end of their travel. `zoomX` / `zoomY` (S-75 / S-76) arrive in
+      // `DocumentSettings`; their bounds S-97 / S-98 of table T-206 (figures at
+      // S-54 / S-55) stay out of the document and are not an argument here,
+      // so all four stay usable. Searched: FR-018, `_assets/tbl-settings.md`
+      // rows S-54 / S-55 / S-75 / S-76 / S-97 / S-98, and `ScreenSession`.
+      // ⚠️ The figures ARE generated into `src/` as `NOT_STORED_ZOOM_BOUNDS`
+      // (edit-document.ts); this unit does not read them.
       //
-      // STOP -- ⚠️ ONE ENTRY HAS NO "OFF": IC-16 (FR-039, S-72) chooses between
-      // two values, and `isPressed` is declared as "a toggle that is on".
-      // `light`/`dark` has no off side, and picking one of the pair to call
-      // "on" would settle a reading no requirement states -- so it is reported
-      // not pressed.
-      // ⭐ IC-21 (FR-038, S-99) is the same shape of thing and is answered
-      // rather than left open: its reading now leaves through the `language`
-      // member of `AppHeaderItems`, filled below from `session.language`, the
-      // way `HelpModal.language` carries the other entrance's half. ⛔ Which is
-      // why it still reports not pressed here -- the member is the carrier, not
-      // `isPressed`.
+      // STOP -- ONE ENTRY HAS NO "OFF": IC-16 (FR-039, S-72) chooses between
+      // `light` and `dark`, and calling either "on" would settle a reading no
+      // requirement states, so it is reported not pressed.
+      // IC-21 (FR-038, S-99) is the same shape; its reading leaves through
+      // `AppHeaderItems.language` instead of `isPressed`.
       //
-      // ⭐ IC-3 (FR-025), IC-10 (FR-055), IC-19 (FR-068) and IC-22 (FR-036)
-      // need no case: none is a toggle -- what an open surface closes with is
-      // IC-52 (IN-4 of table T-028), not a second press of the entry that
-      // opened it -- and no requirement withholds any of them. FR-055 states
-      // its own answer for a document with nothing to draw rather than taking
-      // the entry away.
+      // IC-3, IC-10, IC-19 and IC-22 need no case: none is a toggle (an open
+      // surface closes with IC-52, IN-4 of table T-028) and no requirement
+      // withholds any of them.
       return USABLE_AND_OFF
   }
 }
 
 /**
  * One row of table T-109 as an entry of the header.
- *
- * ⭐ The row id is the whole of what identifies it (`CommandItem.icon`): the
- * table admits no other join, and figure F-019 -- not this file -- is where its
- * shape lives.
  *
  * @purity pure
  */
@@ -384,9 +243,7 @@ function commandItemFor(
     icon,
     isEnabled: commandState.isEnabled,
     isPressed: commandState.isPressed,
-    // ⛔ NOT A GAP: table T-109's 構え column, which FR-053 makes the authority
-    // for which entrance is which arm, holds an em dash for every `App Header`
-    // row. Nothing on this surface arms anything.
+    // Table T-109's 構え column (FR-053) is empty for every `App Header` row.
     isArmed: false,
     label: entryLabel(icon, session.language),
   }
@@ -395,15 +252,6 @@ function commandItemFor(
 /**
  * The entries table T-109 places in the `App Header`, in that table's own
  * order.
- *
- * ⭐ One pass over the generated roster rather than a list written here, so
- * membership, print order and count all come from the table (FR-029, MUST)
- * without this file holding any of the three.
- *
- * ⚠️ Reading `iconRoster` does not make this `semi-pure-a`: it is a module
- * constant compiled into the program, the way `DEFAULT_CALENDAR` is in
- * `schedule.ts`, not external state read while running. Table T-075 fixes
- * UF-62 as `pure`.
  *
  * @purity pure
  */
@@ -429,43 +277,23 @@ export function appHeaderItemsFromDocument(
   session: ScreenSession,
 ): AppHeaderItems {
   return {
-    // U-27 `Document Title` -- `Project.title` (AT-3), carried and never
-    // chosen. ⛔ `null` is passed on as `null`: FR-035 fixes `Untitled` for the
-    // BROWSER TAB and states nothing about the header, and the same substitute
-    // would stand for every unnamed document -- which FR-035 itself says it
-    // cannot tell apart. ⚠️ Not translated, because it is the document's own
-    // value and FR-038 translates menus and panels, not content.
-    // ⭐ Nothing is normalised on the way through, and nothing has to be:
-    // FR-035 (MUST NOT) refuses the empty string as a title, so "no title" has
-    // one spelling and no rule is needed for which of two wins. Whether a
-    // document may hold one anyway is FR-023's boundary, not the renderer's.
+    // U-27 (AT-3). `null` stays `null`: FR-035's `Untitled` is for the browser
+    // tab only. Not translated -- FR-038 translates the interface, not content.
     documentTitle: schedule.project.title,
 
-    // U-58 `Opened File Name` and U-59 `File Saved At` (FR-101). Both are the
-    // shell's reading -- only it knows which handle the last write went through
-    // -- and both are carried whole. ⛔ A `pure` unit has no clock (CS-1 of
-    // table T-066), so neither could be made here in any case.
-    // ⚠️ THE NAME IS NOT THE TITLE (FR-101, MUST NOT): `documentTitle` above is
-    // the document's own value and this is the file's, and the two differing is
-    // normal rather than a fault.
+    // U-58 / U-59 (FR-101): the shell's reading, since only it knows which
+    // handle the last write went through. The file name is not the title.
     openedFileName: session.openedFileName,
     fileSavedAt: session.fileSavedAt,
-    // FR-101 (MUST): 「時刻の代わりにその旨を示すこと」. The word is the
-    // dictionary's, in the language the session is on (FR-038).
-    // ⚠️ An unwritten word arrives as the empty string, which is what
-    // every other reader of this dictionary treats as "no word yet".
+    // FR-101, in the session's language (FR-038). An unwritten word is ''.
     fileNeverSavedText:
       FILE_STATUS_BY_STATE.get('neverSaved')?.text[session.language] ?? '',
 
     commands: headerCommands(settings, state, session),
 
-    // FR-038 (MUST): the entrance at the top of the screen is one of the two,
-    // and which language is on has to be readable BEFORE it is pressed. ⛔ Not
-    // chosen or normalised on the way through: S-99 is the session's, UF-60
-    // puts the same value in `ScreenView.language`, and two places deciding it
-    // would be two answers. ⚠️ The entry itself (IC-21) is already in
-    // `commands` -- this is the reading beside it, not a second entrance, which
-    // FR-029 (MUST NOT) would forbid.
+    // FR-038: the language must be readable before IC-21 is pressed. Carried,
+    // not decided -- UF-60 puts the same S-99 in `ScreenView.language`. This is
+    // the reading beside IC-21, not a second entrance.
     language: session.language,
   }
 }

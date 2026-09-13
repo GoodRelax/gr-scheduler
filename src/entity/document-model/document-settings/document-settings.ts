@@ -5,17 +5,8 @@
 // @purity    pure
 // @publishes table T-064 row PI-2
 //
-// Generated as an empty unit by tools/generate_unit_tree.py. Fill it in; the
-// generator never rewrites a file that exists.
-//
-// The keys are table T-104 of the glossary and the values are tbl-settings.md;
-// FR-063 says what belongs to this group. Both reach this file through the
-// generated GRS JSON schema, which check 17 keeps in step with those sources --
-// so the type and the bounds below are read from one place, not typed twice.
-
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// The type, defaults and bounds are generated from the settings sources, so
+// nothing below the fence is typed a second time.
 
 export {}
 
@@ -499,13 +490,9 @@ function replace(value: unknown, path: readonly string[], put: number): unknown 
 }
 
 /**
- * Bring every value inside the bounds its own row states, and say which ones
- * had to move. A value the sources give no numeric bound for is left alone.
- *
- * The bounds that hold BETWEEN two keys are NOT decided here. FR-052 says
- * the two panel widths may not be judged one at a time -- the Row Area has to
- * stay wider than zero -- and no per-key clamp can see that. It belongs where
- * the pair is validated, not here.
+ * Bring every value inside the closed bounds its own row states, and say which
+ * ones had to move. A bound over other keys is not decided here: no per-key
+ * clamp can see it (IV-16 of table T-220).
  *
  * @purity pure
  */

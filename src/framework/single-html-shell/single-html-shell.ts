@@ -5,108 +5,47 @@
 // @purity    non-pure
 // @publishes table T-064 row PI-25
 //
-// The entry Vite reads. 5.3 forbids a main.ts: booting is CP-25's job and this
-// is where it lives.
+// The entry Vite reads, and the boot of table T-077 (there is no main.ts).
+// PI-25 publishes nothing: what leaves this file leaves through the page.
 //
-// ⚠️ PI-25 publishes NOTHING to other components. What leaves this file leaves
-// through the page, not through an import.
-//
-// Boots in the order table T-077 fixes: BO-1 settles the screen, BO-2 picks
-// the document, BO-3 reads the zoom and the scroll out of it, BO-4 runs table
-// T-068 and BO-5 puts the first frame up. ⛔ NFR-011 makes the order a MUST --
-// skipping BO-1 draws a frame with no size and skipping BO-3 draws one in no
-// particular place.
-//
-// ⭐ WHY THE WIRING IS IN THE ORDER IT IS, and not some other. FR-051 (MUST)
-// settles the `App Header`'s height and the `Scrollbars`' thickness FROM THE
-// ENVIRONMENT at BO-1 and forbids a setting to hold either (MUST NOT) --
-// `appHeaderMaxHeight` (S-116) is their cap, not their value. Neither can be
-// measured before the thing that has them exists, so:
+// The wiring order follows from FR-051: the header's height and the scrollbar
+// thickness are measured, so neither exists before its owner is built:
 //
 //   1. the scrollbar probe is measured (it needs no part of this tool),
-//   2. BT-4 is read and the page's ground is painted (see the next paragraph),
+//   2. BT-4 is read and the page's ground is painted,
 //   3. DomScreenSurface (PI-38) is built, which mounts the header and hands its
 //      measured height back BEFORE its factory returns,
 //   4. only then is BO-1's `ScreenRegions` asked for.
 //
-// ⛔ Nothing is SHOWN by step 3: PI-38 keeps its root out of sight until the
-// first `showScreenView`, which is BO-1's 「寸法が確定するまで 1 枚も描かない」.
+// Step 3 shows nothing: PI-38 keeps its root hidden until the first
+// `showScreenView`.
 //
-// ⭐ WHY STEP 2 IS A STEP AT ALL. FR-041 (MUST) has this product paint the
-// page's own ground and (MUST NOT) forbids leaving it to the viewing
-// environment, whose colours follow the OPERATING SYSTEM and not the reader's
-// `themePreference` (S-72) -- and the page element is this unit's, because both
-// drawn layers stand `position:fixed` over it. So the ground is painted from
-// the earliest moment the two values can be read, which is as soon as BT-4's
-// bundled template is a `Document`, and again the moment BO-2 has chosen one.
-// ⛔ THE VALUE IS NOT THIS FILE'S: `pageGroundStyle` (DomScreenSurface) resolves
-// S-146 of table T-236 out of the one generated block that table reaches, so
-// nothing of the colour is typed here.
-// ⚠️ BT-4 BEING READ AT STEP 2 IS NOT BO-2 RUNNING EARLY -- BO-2 is the
-// choosing, and it still stands where table T-077 puts it.
+// Step 2 exists because both drawn layers are `position:fixed` over the page
+// element, which is this unit's, and the environment's own ground follows the
+// OS rather than `themePreference` (FR-041). Reading BT-4 there is not BO-2
+// running early: BO-2 is the choosing.
 //
-// ⭐ FT-1 OF TABLE T-078 IS WIRED HERE, in two statements and no more.
-// DomInputSource (PI-27) watches the window and hands each happening over; the
-// loop turns it into an operation, because LY-5 of table T-060 leaves the
-// Framework as the only layer that may hold a current value and ADR-001 has the
-// loop compute the frame's values. MK-10's answer travels the other way as the
-// factory argument PI-27 declares, and is asked BEFORE the watcher runs.
-// ⚠️ Started AFTER the loop exists, so `loop` is never null by the time a
-// happening can arrive. ⛔ One that arrives before the first frame is dropped
-// by the loop and not by this file: BO-1 has not settled the size, so there is
-// no frame of reference to read a coordinate against.
-//
-// ⭐ THE FIGURES THAT MADE THIS POSSIBLE ARRIVE GENERATED, none of them typed
-// anywhere in `src/`: the zoom step (S-96), its bounds (S-97 / S-98), the grab
-// slop of table T-023d (S-90 .. S-92 and S-137) and the history bounds (S-94 /
-// S-95) all reach the loop through NOT_STORED_* constants that
-// `tools/generate_entity_types.py` prints from the manuscript.
-//
-// ⭐ BT-1 OF TABLE T-034 IS READ HERE, out of the container CP-25's own
-// responsibility column says this component holds. FR-067's exactly-one check
-// and its notify-then-descend are `embeddedStartupDocument`'s, and the id it
-// looks for is fixed by the contract `app-shell-source.ts` carries.
-// ⭐⭐ THE COUNTERPART IS NO LONGER OWED. UF-47's other half -- `AppShellSource`
-// (IF-8) -- is `appShellSource` below, so this build can WRITE an embedded
-// document as well as read one, and IO-7 of table T-024 goes out as a file
-// (DFC-173). ⚠️ index.html still ships no container, so the first export takes
-// the writer's 「there is none yet, add one」 branch.
-//
-// ⭐ THE PUBLIC POINT IS PLACED HERE, which is the other half of UF-47's row:
-// `installAgentApi` (PI-17) builds the surface and refuses to place it, and
-// FR-065 / FR-028 decide when the name is there and when it is gone. The
-// section near the end of `boot` carries the whole of that reasoning.
-//
-// ⭐ IF-3 IS BUILT HERE AND USED IN THE LOOP. This file is the only one that
-// may touch the host, so it is where the two pickers and the drop surface are
-// gathered into `FileSystemAccessEnvironment` (PI-28) -- and the store then
-// goes straight to the loop, because SK-11 writes out the current value LY-5 of
-// table T-060 leaves with the loop alone. ⛔ This file keeps no copy of it: two
-// holders of one store is two answers to 「which file is open」.
+// This file is the only one that may touch the host, so the input source
+// (FT-1), the file store (IF-3), the clipboard, the rasterizer and the
+// `Agent API`'s global name are built or placed here and handed to the loop,
+// which holds the current values (LY-5 of table T-060). No copy is kept here:
+// two holders of one store would be two answers to which file is open.
+// An input arriving before the first frame is dropped by the loop, not here.
+// index.html ships no embedding container, so the first export of an embedded
+// document takes the writer's add-one branch.
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import { NOT_STORED_SCROLLBAR_SIZES } from './frame-loop'
 import { browserClipboard } from '../browser-clipboard/browser-clipboard'
-// ⭐ CP-31, THE ONE IMPLEMENTATION OF `Rasterizer` (IF-6), and this is its first
-// caller. ⛔ It has been written since the unit was filled in and nothing in
-// `src/` imported it, which is why IO-4 of table T-024 was offered on FR-096's
-// chooser and wrote nothing (DFC-173, measured 2026-09-01). ⚠️ Framework reaching
-// Framework, through the folder's public entry: LR-1 of table T-061 forbids an
-// outward arrow, not a sideways one, and this file is the one that may hand the
-// loop a host.
+// Framework to Framework through the folder's public entry: LR-1 of table T-061
+// forbids only outward arrows.
 import { canvasRasterizer } from '../canvas-rasterizer/canvas-rasterizer'
 import type { Document } from '../../entity/document-model/document/document'
-// ⭐ THE ENTRY ITSELF, because this file CALLS it: PI-17 of table T-064
-// publishes `installAgentApi`, and UF-47 of table T-075 gives 「公開点を置くこと」
-// to this unit. ⛔ Nothing else of that component is imported -- the wiring's
-// own shape is derived from this signature below, so no name crosses the folder
-// that table T-064 has no row for.
+// Only the entry: the wiring's shape is derived from its signature, so no name
+// without a row in table T-064 crosses the folder.
 import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
-// ⛔ `AppShellReading` IS NOT IMPORTED, AND THE ANSWER BELOW IS NOT ANNOTATED
-// WITH IT. Table T-064's PI-20 is the full count of what DocumentCodec may be
-// asked for and it names `AppShellSource` and not that type, so the name may not
-// cross this folder (check 26b). The seam's own member declares the return
-// type, and the object below is typed by it.
+// `AppShellReading` is not imported: PI-20 of table T-064 does not publish it
+// (check 26b), so the answer below is typed by the seam's own member.
 import {
   documentFromJson,
   type AppShellSource,
@@ -116,12 +55,8 @@ import type {
   ScreenSurface,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource } from '../dom-input-source/dom-input-source'
-// ⭐ TWO NAMES FROM ONE COMPONENT, AND THE SECOND IS THE COLOUR AND NOT THE
-// ELEMENT. FR-041 (MUST) has this product paint the page's own ground, table
-// T-236 holds it, and `SCREEN_COLOURS` is the one place that table reaches
-// `src/` -- so the row is RESOLVED by the unit that holds it and WRITTEN by this
-// one, which is the only unit that may touch the page element. ⛔ Neither half
-// is copied to the other side (rule 03 section 1).
+// The page ground's colour is resolved there (table T-236) and written here, the
+// one unit that may touch the page element.
 import {
   domScreenSurface,
   pageGroundStyle,
@@ -140,9 +75,7 @@ import {
   frameLoop,
   noWorkingWeekdayReason,
   startupDisplayLanguage,
-  // FR-073's 「この造りが知る最大の版」. ⭐ Read off `startup-template.json`
-  // there rather than typed out here -- see its own note for why it lives in
-  // that file and not in this one.
+  // FR-073. Derived in frame-loop.ts from startup-template.json, not typed here.
   GREATEST_KNOWN_SCHEMA_VERSION,
   type FrameEnvironment,
   type FrameLoop,
@@ -152,134 +85,72 @@ import {
 import startupTemplate from './startup-template.json'
 
 /**
- * U-32's settled name, spelled as `_assets/tbl-glossary.md` spells it.
- *
- * ⭐ Copied rather than minted, which rule 03 section 1 requires for a concept
- * the specification has named -- and it is the same spelling DomScreenSurface
- * writes for every part it draws, so the whole page names its parts one way.
+ * U-32's settled name, spelled as `_assets/tbl-glossary.md` spells it (rule 03
+ * section 1) -- the spelling DomScreenSurface writes for its parts too.
  */
 const SCHEDULE_CANVAS_ROLE = 'Schedule Canvas'
 
 /**
- * Both drawn layers stand at the window's own origin.
- *
- * ⭐ NOT decoration: `ScreenRegions` (PI-35), the SVG built from it and every
- * coordinate `PointerInput` will carry are one frame of reference -- the
- * window's. A layer left in the page's normal flow starts at whatever margin
- * the host gives the body, and then the picture and the rectangles that
- * describe it disagree by that much.
+ * Both drawn layers stand at the window's origin: `ScreenRegions` (PI-35), the
+ * SVG and every `PointerInput` coordinate share the window's frame, and a layer
+ * in normal flow would be offset by the body's margin.
  */
 const AT_WINDOW_ORIGIN = 'position:fixed;left:0;top:0;right:0;bottom:0;'
 
 /**
- * How big the box that measures the environment's scrollbar is.
- *
- * ⚠️ Not a value of this tool's: any box wider than a scrollbar answers the
- * same, because what is read is the DIFFERENCE between the two widths. ⛔ It is
- * named rather than written into the style so that it cannot be read as one of
- * table T-206's sizes.
+ * Any box wider than a scrollbar answers the same, since the difference of two
+ * widths is read. Named so it is not taken for one of table T-206's sizes.
  */
 const SCROLLBAR_PROBE_PX = 100
 
 /**
  * Who is speaking, for a line settled in the `Dialogue Field`.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: nothing holds the reader's own
- * name. S-99a names 「透かしに出す開いた者の名前」 and is one of the four rows of
- * table T-206 kept in `localStorage`; AG-6 of table T-035 selects on
- * 「自分以外の書き手」 and never says where THIS side's name comes from.
- * ⚠️ Empty is 「no name is held」 rather than a name invented here.
- * ⭐ S-99a HAS A READER SINCE DFC-195 WAS CLOSED, and it is not this one:
- * `frame-loop.ts` asks the store for it so that FR-020's watermark has a name,
- * and falls back to that row's own default. ⛔ IT MAY NOT BE BORROWED FOR THIS
- * LINE. FR-086 (MUST) says who S-99a is -- the one who OPENED the document --
- * and AG-6 tells writers apart, so a name kept for the trail is not evidence
- * that this side's writer is the same person. ⚠️ NOTHING WRITES S-99a YET
- * either, which is FR-086's road and not this file's.
- *
- * ⛔ IT IS READ IN THIS BUILD, WHICH IT WAS NOT BEFORE IC-20 LANDED. The note
- * here used to say the opposite and gave S-99b as the reason; that reason is
- * gone. FR-066 puts the field up while the `Agent API` is on, `dialogue-field.ts`
- * gates on `ScreenSession.isAgentApiEnabled`, and IC-20 turns that on -- so
- * every line a person settles now carries this empty name.
- * ⚠️ WHAT THAT COSTS, stated rather than papered over: AG-6 of table T-035
- * tells writers apart by the name alone, so a subscriber installed under an
- * equally empty name would be woken by the person's own utterances, which that
- * row forbids (MUST NOT). ⭐ A SUBSCRIBER CAN NOW BE INSTALLED -- AM-17 of table
- * T-107 is reachable the moment `installAgentApi` runs below -- and the two
- * still cannot collide, because it subscribes under `AGENT_API_WRITER` and that
- * name is not empty. Table T-229 does not settle this one either: it governs
- * `lastEditedBy`, and an utterance is not a write to the document (FR-066,
- * MUST NOT).
+ * STOP -- not decided by the specification: nothing holds the reader's own
+ * name. Looked in S-99a of table T-206 and AG-6 of table T-035. Empty means no
+ * name is held, not a name invented here.
+ * S-99a may not be borrowed: it names who OPENED the document (FR-086), which
+ * is no evidence of who is speaking.
+ * The cost: AG-6 tells writers apart by name alone, so a subscriber under an
+ * equally empty name would be woken by the person's own lines. The one this
+ * file installs subscribes as `AGENT_API_WRITER`, which is not empty. Table
+ * T-229 does not settle this either: it governs `lastEditedBy`.
  */
 const AUTHOR_NOT_HELD = ''
 
 /**
- * BT-1 of table T-034 -- the `id` of the element the embedded document is read
- * out of, which the shell owns because CP-25's own responsibility column says
- * it holds the embedding container.
+ * BT-1 of table T-034: the `id` the embedded document is read out of.
  *
- * ⭐ NOT MINTED HERE. The header of `app-shell-source.ts` carries the contract
- * that fixes this value, why it is not free to vary, and why it may not be a
- * constant exported from DocumentCodec instead -- section 5-1 of
- * previous-project-result/10-agent-interface/agent-interface-spec-ja.md is the
- * document it comes from, at rank 3 of section 6 of
- * docs/development-rules/03-implementation.md.
- * ⚠️ Written here rather than only being handed across IF-8, because BT-1 READS
- * it and IF-8 is the writing seam; the same spelling is what makes the writer
- * aim at the element the reader opens.
+ * Not minted here: `app-shell-source.ts` carries the contract that fixes it.
+ * Written here as well as handed across IF-8 (the writing seam) so the writer
+ * aims at the element the reader opens.
  */
 const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
 
 /**
- * What that container holds when nobody has embedded a document.
+ * What the container holds when nobody embedded a document: JSON `null`, the
+ * contract's own default (`app-shell-source.ts`).
  *
- * ⭐ THE CONTRACT'S OWN DEFAULT, not a convenience: the same section 5-1 ships
- * the artifact with the container in place holding the JSON literal `null`, and
- * its rule 7 makes 「入れ口が空かどうか」 the ONE test for 「誰かが意図して文書を
- * 入れた」. ⛔ So it may not be read as an unreadable document: `documentFromJson`
- * would refuse it (a `null` is not a `Document`) and FR-067's telling would then
- * fire on every ordinary run of an untouched artifact, which is a telling about
- * nothing.
+ * Not an unreadable document: `documentFromJson` would refuse it, and FR-067's
+ * telling would fire on every run of an untouched artifact.
  */
 const EMBEDDED_DOCUMENT_ABSENT = 'null'
 
 /**
- * The application as the host delivered it, taken before this file has built
- * anything -- IF-8's one value, and the other half of UF-47's row.
+ * The application as the host delivered it -- IF-8's one value.
  *
- * ⛔⛔ TAKEN AT THE HEAD OF `boot` AND NEVER AGAIN, WHICH IS THE WHOLE OF WHAT
- * MAKES IT THE DELIVERED APPLICATION. `AppShell.html` says in as many words
- * that a serialization of the LIVE DOM would carry a screen's worth of nodes
- * FR-067 never asked for and would grow with every export of an export. At the
- * first statement of `boot` the parser has finished and this file has appended
- * nothing, so what stands in the page is exactly what the host was given --
- * and re-exporting an export starts from that same delivered text, so the file
- * does not grow. ⚠️ Measured 2026-09-02: 1,753,785 characters once the screen
- * is drawn against the artifact's own 1,116,570 bytes, which is the size of the
- * mistake this timing avoids.
- *
- * ⛔ `fetch(location.href)` IS NOT USED, AND IT IS NOT A MATTER OF TASTE. It
- * answers with the artifact's own bytes where it works, and it is refused
- * outright for a page opened from disk -- measured 2026-09-02, Chromium on a
- * `file://` page: `TypeError: Failed to fetch`. That is LM-14's environment and
- * the one this tool is meant to be carried around in, so the road that fails
- * exactly there cannot be the road.
- *
- * ⚠️ WHAT IS GIVEN UP is byte-for-byte fidelity: this is the parsed document
- * serialized again, so quoting and empty-element spelling are the browser's
- * rather than the file's. ⛔ The two things that would BREAK are both kept: a
- * `<script>` element's text is serialized verbatim, so CN-8's `script-src`
- * hash still matches, and no character reference is introduced inside it.
+ * Taken at the head of `boot` and never again: a serialization of the live DOM
+ * would carry the drawn screen and grow with every export of an export.
+ * `fetch(location.href)` is not used: it fails on a `file://` page (LM-14).
+ * Given up: byte-for-byte fidelity, since this is the parsed page serialized
+ * again. Kept: a `<script>` element's text serializes verbatim, so CN-8's
+ * `script-src` hash still matches.
  */
 let deliveredAppShellHtml: string | null = null
 
 /**
- * The page as it stands, with the prologue `outerHTML` leaves out.
- *
- * ⚠️ THE DOCTYPE IS NOT DECORATION. `documentElement.outerHTML` begins at
- * `<html>`, and an exported file without the prologue is parsed in quirks
- * mode -- a different page from the one that was exported.
+ * The page as it stands, with the doctype `outerHTML` leaves out -- a file
+ * without it is parsed in quirks mode.
  *
  * @purity semi-pure-b
  */
@@ -289,17 +160,10 @@ function readDeliveredHtml(): string {
 }
 
 /**
- * IF-8's implementation (table T-065), which UF-47 of table T-075 gives to this
- * unit.
+ * IF-8's implementation (table T-065).
  *
- * ⭐ IT ANSWERS FROM WHAT WAS TAKEN, and asking the page again is exactly what
- * `AppShell.html` forbids -- see `deliveredAppShellHtml`. The member is still a
- * promise because the seam is: an implementation that had to fetch its own file
- * would need one, and the caller may not be made to know which kind it got.
- * ⛔ THE ID IS THE SHELL'S TO SUPPLY AND NOT THE SHELL'S TO CHOOSE. It is the
- * same constant BT-1 reads with, which is what makes the writer aim at the
- * element the reader opens; `app-shell-source.ts` carries the contract that
- * fixes the value.
+ * Answers from what `boot` took, never from the page again. Still a promise
+ * because the seam is: another implementation might have to fetch.
  *
  * @purity semi-pure-b
  */
@@ -309,9 +173,7 @@ function appShellSource(): AppShellSource {
     async readAppShell() {
       const delivered = deliveredAppShellHtml
       if (delivered === null || delivered === '') {
-        // ⚠️ Only reachable if this seam is asked before `boot` has run, which
-        // no road of this build takes. It is answered rather than thrown
-        // because FR-028 (MUST NOT) forbids the throw across the seam.
+        // Reachable only if asked before `boot`; answered, not thrown (FR-028).
         return { ok: false, what: 'the application was not read before the screen was built' }
       }
       return {
@@ -326,87 +188,42 @@ function appShellSource(): AppShellSource {
 }
 
 /**
- * Where the `Agent API` appears while it is on.
- *
- * ⭐ THE SETTLED IDENTIFIER, COPIED SPELLING AND ALL (rule 03 section 1):
- * section 3 of `_assets/tbl-glossary.md` fixes `grSchedulerAgentApi` on
- * `globalThis`, gives the reason for the product prefix, and forbids minting
- * another. ⛔ `installAgentApi` deliberately does not place it -- its own note
- * says choosing a place would be inventing a public name -- so the choosing is
- * this file's and the name is the glossary's.
- * ⚠️ `globalThis` and NOT `window`: the glossary says so, and a name bound to a
- * browser's own object would be a lie in any host that has no window.
+ * Where the `Agent API` appears while it is on: the name section 3 of
+ * `_assets/tbl-glossary.md` fixes on `globalThis`. `installAgentApi` does not
+ * place it, so the placing is this file's.
  */
 const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
 
 /**
- * The name every write and every utterance from the `Agent API` is recorded
- * under.
+ * The name every write and utterance from the `Agent API` is recorded under.
  *
- * STOP -- ⛔ ED-2 OF TABLE T-229 GIVES THIS NAME TO THE CALLER, and no member of
- * table T-107 lets a caller declare one: `installAgentApi` takes it once, at
- * install, and the eighteen members carry no place to say who is speaking. So
- * every caller of this build's API shares one name.
- * ⚠️ THE CONSEQUENCE IS ALREADY WRITTEN DOWN rather than being new here: LM-16
- * of table T-004 says two callers naming themselves alike cannot be told apart
- * and are woken by each other's writes, and records that closing it means
- * carrying an identity on the watching seam -- 「それは別の裁定である」.
- * ⛔ WHAT IS KEPT MEANWHILE. FR-063 (MUST) sends the word to table T-229, and
- * that table's MUST NOT forbids a caller to take the two words it reserves --
- * `user` for the screen (ED-1) and `template` for the shipped template (ED-3).
- * This is neither, so AG-6 tells this writer from both.
+ * STOP -- ED-2 of table T-229 gives the name to the caller, but no member of
+ * table T-107 lets a caller declare one, so every caller shares this one (LM-16
+ * of table T-004). It is neither `user` (ED-1) nor `template` (ED-3), so AG-6
+ * tells this writer from both.
  */
 const AGENT_API_WRITER = 'agent'
 
 /**
- * The key BT-1's document would be filed under if anything filed it.
+ * BT-4 of table T-034: the bundled template (FR-027), read as `GRS JSON`.
+ * tools/generate_startup_template.py writes it; `npm run gen:check` catches drift.
  *
- * STOP -- ⛔ NOTHING IN THIS BUILD DERIVES A DOCUMENT IDENTIFIER, and this file
- * does not invent one. `choose-startup-document.ts` carries the same STOP from
- * the far side: no requirement says what makes two documents the same one, and
- * `Project.id` is not it (AT-1 is nullable and is marked as no primary key).
- * ⚠️ NOTHING READS IT ANY MORE. UF-23 took a key only to tell a losing
- * autosave's document from the winner's, and CR-280 retired both, so the
- * constant went with them and only this note is kept.
- * ⭐⭐ AND THE ONE ROW THAT USED TO BE CITED HERE NO LONGER ASKS FOR ONE. S-99b
- * of table T-206 named 「文書の識別子」 until 2026-09-05 and now says the record
- * is kept 「オリジンごとに 1 つ」; FR-065 records why -- 「文書を一意に指す手立て
- * が仕様のどこにも無い」. ⇒ Nothing left in `src/` wants a document key.
- */
-
-/**
- * BT-4 of table T-034 -- the template FR-027 keeps exactly one of.
- *
- * ⭐ Bundled as a `GRS JSON` rather than assembled here, which FR-027 requires
- * in as many words, so the same reader the import path uses can be pointed at
- * it. tools/generate_startup_template.py writes it and `npm run gen:check`
- * fails when it drifts.
- *
- * ⭐ Read through `documentFromJson`, not asserted into shape: FR-023 calls
- * every intake untrusted, and a template that stopped being a document would
- * otherwise reach the layout as one. ⚠️ It is bundled, so a fault here is a
- * build that shipped broken -- there is nobody to tell, and nothing to fall
- * back to (FR-067 says a lost BT-1 descends, and BT-4 is the bottom).
+ * Read through `documentFromJson`, not asserted into shape (FR-023). A fault is
+ * a build that shipped broken, with nobody to tell and nothing below BT-4 to
+ * fall back to, so it throws.
  *
  * @purity semi-pure-a
  */
 function startupTemplateDocument(): Document {
-  // ⭐ FR-073's comparison runs on BT-4 as well (DFC-282), and it necessarily
-  // answers `known`: `GREATEST_KNOWN_SCHEMA_VERSION` IS this file's own
-  // `schemaVersion`, so the two are equal and FR-073 counts equal as readable.
-  // ⛔ Passed rather than skipped because the reason is arithmetic and not a
-  // rule -- a road that omits the number reports `notCompared`, and OP-7 would
-  // then have one road answering a hole for no stated reason.
+  // The version is passed although it always answers `known` (the template's
+  // own `schemaVersion` is the greatest known): omitting it reports `notCompared`.
   const read = documentFromJson(
     JSON.stringify(startupTemplate),
     GREATEST_KNOWN_SCHEMA_VERSION,
   )
-  // ⛔ `read.clampedCount` IS DROPPED HERE, DELIBERATELY. The template is
-  // BUNDLED, so a value of it outside its own bounds is a build that shipped
-  // wrong and not something the person did -- the paragraph above says the same
-  // of a fault here -- and `RS-51` tells a person about the file THEY handed
-  // over. ⚠️ The clamp itself still ran, so the template that reaches the layout
-  // is in range either way.
+  // `read.clampedCount` is dropped: the template is bundled, so an out-of-range
+  // value is a broken build, and `RS-51` tells a person about THEIR file. The
+  // clamp itself still ran.
   if (!read.ok) {
     throw new Error(
       'the bundled startup template is not a GRS JSON document: ' +
@@ -426,21 +243,12 @@ type EmbeddedCandidate = StartupCandidates['embedded']
 type StartupNoticeCode = ReturnType<typeof chooseStartupDocument>['notices'][number]['code']
 
 /**
- * Which row of table T-233 each thing BO-2 has to tell is told on.
+ * Which row of table T-233 each BO-2 notice is told on; a code added on UF-23's
+ * side fails to compile here.
  *
- * ⭐ A CENSUS THE COMPILER KEEPS, the move `frame-loop.ts` makes for every other
- * reason it raises: a code added on UF-23's side is a compile error here rather
- * than a startup that decides in silence.
- * ⛔ ONE OF THE THREE FALLS TO `RS-15`, and that is the row FR-076 provides for
- * exactly this -- 「行の無い理由に落ち先を与えるのが `RS-15` である」. Table T-233
- * holds nothing for 「入れ口が 1 つでない」: RS-4 and RS-11 .. RS-13 belong to
- * OP-12's dispatch of table T-024a, which BT-2 has not been through. ⚠️ A row
- * of that table for it is what is owed.
- * ⭐ THE OTHER TWO ARE ROWS OF THEIR OWN: RS-25 is 「読んだ `GRS JSON` の列が、
- * 決められた形に合わない」, which is what BT-1's container holds, and RS-26 is
- * 「起動時に渡された文書が読めなかった」 (table T-024a's `OP-14`), which is what
- * BT-2's own read failure holds -- CR-299 gave it table T-024a's `OP-14` and
- * table T-233's `RS-26` so it would stop falling to `RS-15`.
+ * `embeddedEntryCountNotOne` falls to `RS-15` (FR-076): table T-233 has no row
+ * for it, and RS-4 / RS-11 .. RS-13 belong to OP-12's dispatch, which BT-2 has
+ * not been through.
  */
 const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeReason>> = {
   embeddedUnreadable: 'RS-25',
@@ -449,30 +257,17 @@ const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeRea
 }
 
 /**
- * BT-1 of table T-034 -- the document embedded in this file, read out of its
- * container, with FR-088's gate held against it before it can win.
+ * BT-1 of table T-034: the embedded document, with FR-088's gate held before it
+ * can win and become the current document.
  *
- * ⭐ WHY ZERO CONTAINERS IS `none` AND NOT 「1 つでない」. FR-067's telling is
- * about a file whose embedding is ambiguous, and index.html in this repository
- * ships no container at all -- so zero is the ordinary first run of an ordinary
- * build, and reporting it as a fault would raise FR-067's notice on every one of
- * them. ⛔ TWO OR MORE IS THE REAL CASE that requirement names, and it descends
- * with a telling rather than picking a winner: the writer's side refuses the
- * same file for the same reason (`moreThanOneEntry` in `embedded-html-codec.ts`).
+ * Zero containers is `none`: index.html ships none, so that is an ordinary run.
+ * Two or more descends with a telling, as the writer refuses the same file
+ * (`moreThanOneEntry` in `embedded-html-codec.ts`).
+ * `noWorkingWeekdayReason` joins the invariant row to the notice row.
  *
- * ⭐ FR-088's GATE IS HELD HERE AND NOWHERE LATER. BT-1 is untrusted intake --
- * CHN-1 and CHN-3 of table T-008 -- and a calendar that works no weekday leaves
- * every count of working days with no day to reach, so the document has to be
- * turned away BEFORE it becomes the current one. `noWorkingWeekdayReason` is
- * where the invariant row and the notice row are joined, so neither is spelled
- * twice.
- *
- * STOP -- ⛔ FR-023's VALIDATION IS NOT RUN OVER IT, and that is not this
- * function's to fix. `validateImportedDocument` (PI-13) exists, but
- * `frame-loop.ts` records from the open path that its refusals reach nobody:
- * each names a row of table T-220, and `display-words.json` has no section keyed
- * on those, so there is nothing for the words to be read out of. ⚠️ The gate
- * above is the one check of the two that CAN be told.
+ * STOP -- FR-023's validation (`validateImportedDocument`, PI-13) is not run
+ * over BT-1: its refusals name table T-220 rows that no notice can word yet
+ * (see the open-path STOP in `frame-loop.ts`).
  *
  * @purity semi-pure-b
  */
@@ -481,35 +276,22 @@ function embeddedStartupDocument(): {
   /** FR-088's row when the gate turned BT-1 away, `null` otherwise. */
   readonly refusal: StartupNoticeReason | null
   /**
-   * How many settings keys the read road had to clamp in BT-1's own text --
-   * `RS-51`'s number, or `0` where there was nothing embedded to read.
-   *
-   * ⚠️ CARRIED EVEN WHEN BT-1 LOSES, and the caller is what decides: this
-   * function does not know which rank of table T-034 won, and telling a person
-   * about a document that was never opened would be worse than telling nothing.
+  /**
+   * `RS-51`'s number: settings keys the read had to clamp, or `0`. Carried even
+   * when BT-1 loses; the caller knows which rank won.
    */
   readonly clampedCount: number
   /**
-   * FR-073 (MUST): the columns of BT-1's own text this build could not read,
-   * because it declares a format version newer than the greatest one known --
-   * or empty where there was nothing embedded, or nothing unread.
-   *
-   * ⚠️ CARRIED EVEN WHEN BT-1 LOSES, for the reason `clampedCount` above is:
-   * this function does not know which rank of table T-034 won.
+  /**
+   * FR-073: the columns of BT-1's text this build could not read, or empty.
+   * Carried even when BT-1 loses, as `clampedCount` is.
    */
   readonly unreadColumns: readonly string[]
 } {
-  // ⛔ THROUGH `CSS.escape`, and `querySelectorAll` rather than
-  // `getElementById`. The escape is here because THIS is the only consumer of
-  // the id that builds a CSS selector out of it: a CSS identifier may not begin
-  // with a digit, and `#2024-plan` is a parse error that throws rather than
-  // returning nothing. The writing side (`embedded-html-codec.ts`) refuses
-  // only the characters that would BREAK A START TAG
-  // -- whitespace, quotes, `<`, `>`, `&` -- and lets a leading digit, `.` and
-  // `:` through, precisely because the reader's side takes care of the CSS
-  // grammar here. ⛔ Do not "simplify" this to `getElementById`: that returns
-  // one element or none, and FR-067 needs the COUNT to tell "not exactly one"
-  // apart from "none".
+  // `CSS.escape` because a CSS identifier may not begin with a digit and
+  // `#2024-plan` throws; the writer (`embedded-html-codec.ts`) lets such ids
+  // through, leaving the CSS grammar to this reader. Not `getElementById`:
+  // FR-067 needs the COUNT to tell "not exactly one" from "none".
   const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
   if (containers.length === 0) {
     return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
@@ -526,37 +308,21 @@ function embeddedStartupDocument(): {
   if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
     return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
   }
-  // ⛔ Through the same reader every other intake takes (FR-023 calls every one
-  // untrusted). ⚠️ NOTHING IS UN-ESCAPED FIRST: what the writer put in the
-  // container is still JSON -- `embeddedJson` replaces each `<` with that
-  // character's own JSON escape so that no `</script>` can end the tag early --
-  // so the reader below gives the character back and a step here would corrupt
-  // it.
-  // ⭐ FR-073's comparison, given the number it is against (DFC-282). A single
-  // .html written by an older build carries the version IT knew, so BT-1 is the
-  // road where `newerThanKnown` can really come back.
-  // ⭐⭐ THE READING IS CARRIED NOW (DFC-357), AND ONE HALF OF THE DUTY IS KEPT.
-  // `JsonDecoding.unreadColumns` names what this build could not read, so the
-  // caller raises `RS-48` of table T-233 when BT-1 wins -- FR-073's telling.
-  // ⛔ THE OTHER HALF CANNOT BE KEPT ON THIS ROAD, AND IT IS AN ABSENCE RATHER
-  // THAN AN OVERSIGHT. That requirement also asks 「続けてよいかを問う」 on
-  // `U-61` of table T-103, and every entrance table T-109 puts on that surface
-  // (IC-95 .. IC-97) is an answer to table T-032a's 「同じか別か」 -- a merge's
-  // question. BT-1 is not a merge and has nothing to merge against: BO-2 of
-  // table T-077 runs before there is a document to compare with, and 「やめる」
-  // at startup would leave table T-034 with no rank at all. ⛔ Nothing is minted
-  // for it. Searched: FR-073, FR-022, table T-103 `U-61`, table T-109,
-  // table T-032a, table T-034, table T-077 BO-2. Reported.
-  // ⚠️ AND THE COLUMNS ARE STILL CARRIED WHATEVER IS ASKED: 「読めなかった列は、
-  // 解釈せずに持ち回ること（MUST）」 is kept by the DOCUMENT, which
-  // `documentFromJson` hands back with every unknown key still on it.
+  // Nothing is un-escaped first: `embeddedJson` wrote JSON (each `<` as its JSON
+  // escape), so the reader gives the character back and a step here would
+  // corrupt it.
+  // The unread columns are carried so the caller can raise `RS-48` (FR-073).
+  // FR-073's question on `U-61` is not asked on this road: every entrance table
+  // T-109 puts on that surface (IC-95 .. IC-97) answers a merge's question, and
+  // BO-2 has no document to merge against. Searched: FR-073, FR-022, table
+  // T-103 `U-61`, table T-109, table T-032a, table T-034, table T-077 BO-2.
+  // The columns themselves stay on the document `documentFromJson` returns.
   const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) {
     return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0, unreadColumns: [] }
   }
   const refusal = noWorkingWeekdayReason(read.document)
-  // FR-067: a rank that yields nothing descends rather than starting empty, so
-  // a refused BT-1 hands `none` and the telling travels beside it.
+  // FR-067: a refused BT-1 descends as `none`, and the telling travels beside it.
   if (refusal !== null) {
     return {
       candidate: { kind: 'none' },
@@ -577,26 +343,11 @@ function embeddedStartupDocument(): {
 }
 
 /**
- * FR-051 (MUST): 「`Scrollbars` の太さは、起動時に環境から確定させること」, and
- * 「太さは環境の既定の半分とすること（MUST）」. So the environment's own default
- * is what is measured, and half of it is what the `Row Area` gives up (SC-4
- * keeps the lanes showing at all times, which is why they take the room).
+ * FR-051: half the environment's default scrollbar thickness, floored at S-205.
  *
- * ⚠️ A HOST WITH OVERLAY SCROLLBARS MEASURES 0, AND HALF OF 0 IS 0. That is
- * the environment's honest answer and it is NOT one this tool can use: a band
- * 0 thick cannot be pointed at or grabbed, so FR-037 (the reading a scrollbar
- * carries) and FR-051's own MUST that the scrollbar moves the view both go
- * unkept. ⚠️ THIS NOTE USED TO ATTRIBUTE THAT MUST TO TABLE T-031 and quote it;
- * the table carries no such clause -- the MUST is FR-051's STATEMENT, and the
- * specification's own misattribution was corrected as DFC-451 on 2026-09-11.
- * ⛔ THE NOTE HERE USED TO CALL IT "not a fault"; the
- * user reported it as one (DFC-115) and they were right.
- * ⭐ FR-051 (MUST) now puts a floor under it -- S-205 -- and the order is the
- * requirement's: halve first, then floor, so a host with a thick default is
- * still halved.
- *
- * ⭐ Measured ONCE. FR-051 settles it at BO-1 of table T-077, and the
- * environment's default does not change with the size of the window.
+ * Overlay scrollbars measure 0, and a band 0 thick cannot be pointed at or
+ * grabbed, hence the floor. Halve first, then floor, so a thick default is still
+ * halved. Measured once, at BO-1: the default does not change with the window.
  *
  * @purity non-pure
  */
@@ -614,19 +365,9 @@ function measuredScrollbarThickness(): number {
 }
 
 /**
- * FR-038 (MUST): 「起動したときは前回選ばれた言語で開き、それを読み出せないとき
- * はブラウザの言語設定に従うこと」.
- *
- * ⭐ BOTH HALVES RUN NOW. The stored choice is S-99, one of the four rows table
- * T-206 keeps in `localStorage`, and the loop holds those keys because they are
- * current values LY-5 leaves to this layer -- so the answer is asked for rather
- * than the keys being typed a second time here (R4).
- *
- * ⛔ STILL HALF DONE, AND ON THE OTHER SIDE: nothing WRITES S-99 back, because
- * no path settles a new display language yet -- `input-command-translator.ts`
- * records IC-21's press among the entries it cannot answer for. So a first run
- * follows the host, and a later run will follow the person only once that path
- * exists.
+ * FR-038: the stored choice (S-99), else the browser's language. The loop holds
+ * the `localStorage` keys, so the answer is asked for rather than the keys typed
+ * here again (R4).
  *
  * @purity semi-pure-b
  */
@@ -635,17 +376,12 @@ function displayLanguage(): DisplayLanguage {
 }
 
 /**
- * Where a drop lands (`DropSurface` of PI-28) -- the window, which is what OP-2
- * of table T-024a asks for: it treats a drop as ONE surface that does not apply
- * the schedule's hit-test order, and the window is the only surface the whole
- * app sits on.
+ * `DropSurface` of PI-28 on the window: OP-2 of table T-024a treats a drop as
+ * one surface, and the window is the only one the whole app sits on.
  *
- * ⛔ CAST RATHER THAN HANDED OVER DIRECTLY. PI-28 declares the happening as
- * plain data so that the unit runs under Node (its own header says so, and
- * LR-6 is the same rule read from the other side), and the host's `DragEvent`
- * is a different type carrying the same members. ⚠️ Nothing is narrowed by the
- * cast -- the store reads only `preventDefault`, `dataTransfer.types` and
- * `dataTransfer.items`, and a real drag event has every one.
+ * Cast because PI-28 declares the event as plain data so it runs under Node; the
+ * store reads only `preventDefault`, `dataTransfer.types` and
+ * `dataTransfer.items`, which a real drag event has.
  */
 const DROP_SURFACE: DropSurface = {
   /** @purity non-pure */
@@ -657,20 +393,11 @@ const DROP_SURFACE: DropSurface = {
 /**
  * What the host offers of the API PI-28 is built on.
  *
- * ⛔ THE HOST'S OWN DECLARATIONS DO NOT CARRY THESE TWO. `lib.dom` has the
- * handle types and not the two functions that hand one over, so the members are
- * read off the window as unknown values and admitted only where the host really
- * has a function there -- which is also exactly the question CN-2 of table
- * T-003 and LM-14 of table T-004 leave open: Chromium is the baseline, Firefox
- * is checked only, and Safari is out of scope.
- * ⚠️ `undefined` is 「this browser has none」, and the store turns it into
- * LM-14's `unavailable` rather than throwing.
- * ⛔ `bind` is not decoration: both are methods of the window and lose their
- * receiver the moment they are passed as values.
- *
- * ⚠️ REQUIRED KEYS HOLDING A POSSIBLY-MISSING VALUE, which is what
- * `FileSystemAccessEnvironment` asks for in as many words -- a shell that left
- * the key out would read as a browser that has the API.
+ * `lib.dom` does not declare the two pickers, so they are read as unknown and
+ * admitted only where the host has a function; `undefined` becomes LM-14's
+ * `unavailable`. The keys are required even when the value is missing: an
+ * absent key would read as a browser that has the API. `bind` is needed because
+ * both are window methods that lose their receiver when passed.
  *
  * @purity semi-pure-b
  */
@@ -691,12 +418,9 @@ function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
 }
 
 /**
- * What BO-1 has to settle before anything is drawn.
- *
- * ⚠️ The last two are MEASURED and may not be held as a setting (FR-051, MUST
- * NOT): they differ from one machine to the next. The header's height is
- * measured by the unit that DREW it (DomScreenSurface, over IF-9) and reaches
- * this file through that unit's callback; the thickness is measured above.
+ * What BO-1 settles before anything is drawn. The measured sizes differ between
+ * machines and may not be settings (FR-051); the header's height comes from the
+ * unit that drew the header.
  *
  * @purity semi-pure-b
  */
@@ -716,68 +440,42 @@ function environmentOf(
 
 /** @purity non-pure */
 function boot(): void {
-  // ⛔ THE FIRST STATEMENT, AND IT HAS TO STAY THE FIRST. IF-8 answers with the
-  // application AS DELIVERED, and the line below is where this file begins
-  // building a screen into the same page.
+  // Must stay the first statement: IF-8 answers with the application as
+  // delivered, and the lines below start building a screen into the page.
   deliveredAppShellHtml = readDeliveredHtml()
 
   const scheduleCanvas = document.createElement('div')
   scheduleCanvas.dataset.role = SCHEDULE_CANVAS_ROLE
   scheduleCanvas.setAttribute('style', AT_WINDOW_ORIGIN)
   const screenParts = document.createElement('div')
-  // The parts outside the schedule are drawn OVER it, so they are appended
-  // after it -- the note under table T-023a says the same thing from the
-  // reading side, which is why `readScreenPartAt` answers `null` for a point
-  // where this unit drew nothing and the schedule below is exposed.
+  // The screen parts are drawn over the schedule, so they are appended after it.
   document.body.append(scheduleCanvas, screenParts)
 
   // ---- BO-1 ---------------------------------------------------------------
   const scrollbarThickness = measuredScrollbarThickness()
   let appHeaderHeightPx = 0
-  // LF-3 of table T-221 (MUST): the floor HF-1's lattice puts under a row's
-  // band. ⛔ NOT MEASURED AT BO-1 LIKE THE THICKNESS ABOVE, because no row has
-  // been drawn yet -- the surface answers it after the first panel, the way it
-  // answers the header's height, and 0 until then is the floor every band had
-  // before the ruling.
+  // LF-3 of table T-221: not measurable at BO-1, since no row is drawn yet; the
+  // surface reports it after the first panel, as it does the header's height.
   let rowControlsHeightPx = 0
   let loop: FrameLoop | null = null
   const nowEnvironment = (): FrameEnvironment =>
     environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx)
 
-  // ⭐ BT-4 IS READ HERE, ABOVE BO-2, AND THAT IS NOT BO-2 HAPPENING EARLY.
-  // Table T-077's BO-2 is the CHOOSING, and that still stands below; this only
-  // turns the bundled `GRS JSON` into a `Document`, which needs no part of the
-  // screen. ⛔ IT HAS TO BE READABLE BY NOW because `readTheme` is asked for
-  // WHILE the surface is being built -- the header is made and measured inside
-  // that factory -- and until 2026-08-25 the answer named `chosen`, which is
-  // not initialised until BO-2. ⚠️ Measured, not reasoned about: the page threw
-  // `ReferenceError: Cannot access 'chosen' before initialization` at the first
-  // statement of `boot`, so NOTHING of this tool started at all.
-  // ⛔ A typed pair is what rule 03 section 1 forbids; the template carries
-  // S-72's and S-73's defaults because its own generator wrote them there.
+  // BT-4 is read above BO-2 (the choosing, below) because `readTheme` is asked
+  // while the surface factory runs, before `chosen` exists -- reading `chosen`
+  // there throws a ReferenceError that stops the whole boot. The template carries
+  // S-72's and S-73's defaults, so no pair is typed here.
   const template = startupTemplateDocument()
 
   /**
-   * The document FR-041's two values are read off while there is no loop to
-   * ask -- BT-4 until BO-2 has chosen, and BO-2's answer after that.
-   *
-   * ⛔ NOT A SECOND HOLDER OF THE CURRENT DOCUMENT, which this file refuses
-   * elsewhere for IF-3 and for the same reason. It is read ONLY while `loop`
-   * is null: the moment the loop exists it is the one answer, because LY-5 of
-   * table T-060 leaves the current value with it.
+   * The document FR-041's two values are read off while there is no loop: BT-4
+   * until BO-2 chooses, then BO-2's answer. Read only while `loop` is null.
    */
   let themeDocument: Document = template
 
   /**
-   * FR-041 (MUST): S-72 and S-73 as they stand at the moment of asking.
-   *
-   * ⛔ THE READER'S CHOICE, NOT THE ENVIRONMENT'S. S-72 is what the person
-   * picked and S-73 is the hue the document carries; the environment's own
-   * system colours follow the OPERATING SYSTEM, which is exactly why picking
-   * dark used to leave the screen light.
-   * ⚠️ Read at each call rather than captured: both move while the page is
-   * open (IC-16 switches S-72 with the document open), and a captured pair
-   * would paint the theme the document was opened with for ever.
+   * FR-041: S-72 and S-73 as they stand when asked -- read at each call, since
+   * both move while the page is open (IC-16).
    *
    * @purity semi-pure-b
    */
@@ -793,20 +491,9 @@ function boot(): void {
   let pageGroundWritten = ''
 
   /**
-   * FR-041 (MUST): 「地の色を自分で塗ること」, on the one box that lies behind the
-   * schedule instead of over it.
-   *
-   * ⭐ THE PAGE ELEMENT IS THIS UNIT'S AND THE COLOUR IS NOT. Both drawn layers
-   * are `position:fixed` at the window's origin (`AT_WINDOW_ORIGIN`), so a
-   * background on either would hide what is under it -- DomScreenSurface says
-   * the same from its side and hands the resolved declaration over instead.
-   * ⚠️ `color-scheme` rides along because FR-041 (MUST) says painting alone is
-   * not enough: the window's own scrollbars and the environment's default
-   * canvas are the page element's, not the surface's.
-   *
-   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the same bargain `onAppHeaderHeightPx`
-   * keeps in the other direction: this runs at the head of every frame, and
-   * NFR-010's care about the per-frame path is as good a reason here as R5's.
+   * FR-041: the ground on the page element, the one box behind the schedule;
+   * both drawn layers are fixed over it, so a background on either would hide
+   * what is under it. Written only when it changed: this runs every frame.
    *
    * @purity non-pure
    */
@@ -821,23 +508,9 @@ function boot(): void {
   let documentLanguageWritten = ''
 
   /**
-   * FR-038 (MUST): 「表示言語を替えたときは、綴じた文書自身が名乗る言語も同じもの
-   * に替えること」 -- 「読み上げと自動翻訳がそれを見る」.
-   *
-   * ⭐ WRITTEN ON THE SAME ELEMENT `paintPageGround` WRITES ON, AND BY THE SAME
-   * UNIT. The root element is the bound document's own, not the screen surface's
-   * (`DomScreenSurface` says so from its side), so the one file that already
-   * touches it is the one that names its language.
-   * ⭐ RIDES ON THE DRAWING RATHER THAN ON A TRIGGER OF ITS OWN, exactly as the
-   * ground does: the loop holds the chosen language (LY-5 of table T-060) and
-   * hands it over on `ScreenView.language`, and table T-078 names no trigger for
-   * a language either.
-   * ⚠️ FR-038 (MUST NOT) keeps the choice out of the document's contents -- this
-   * writes the ATTRIBUTE the bound file carries, which is what that requirement
-   * calls 「綴じた文書自身が名乗る言語」, not a settings key.
-   *
-   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the bargain `paintPageGround` keeps for the
-   * same reason: this runs at the head of every frame.
+   * FR-038: the root element's `lang`, written here because the root element is
+   * the bound document's, not the surface's. It rides on the drawing since table
+   * T-078 names no trigger for a language. Written only when it changed.
    *
    * @purity non-pure
    */
@@ -848,44 +521,25 @@ function boot(): void {
   }
 
   /**
-   * What FR-035 (MUST) calls 「タブの見出し」 for a document with no name:
-   * 「`title` が `null` のときは、タブの見出しを `Untitled` とすること」.
-   *
-   * ⛔ A CONSTANT OF THIS FILE'S AND NOT A KEY OF THE DICTIONARY. The same
-   * requirement says 「表示言語で切り替えない」 and gives its ground -- 「見出しに
-   * 出すのは文書の値の代わりであり、文書の値は訳さない」 -- so a word read out of
-   * `display-words.json` would be exactly the switching that MUST NOT happens.
+   * FR-035's tab heading for a document with no title. A constant, not a
+   * dictionary key: FR-035 forbids switching it with the display language.
    */
   const UNTITLED_TAB_HEADING = 'Untitled'
 
   /**
-   * What the tab already carries, so an unchanged frame writes nothing.
-   *
-   * ⚠️ `null` UNTIL THE FIRST FRAME, and not the empty string: FR-035 (MUST NOT)
-   * forbids `title` to be empty, but a sentinel that could BE a heading would
-   * leave the one document that carried it wearing the build's own tab heading.
+   * What the tab already carries. `null` until the first frame, not `''`: a
+   * sentinel that could be a heading would leave that document with the build's
+   * own tab heading.
    */
   let browserTabHeadingWritten: string | null = null
 
   /**
-   * FR-035 (MUST): 「ブラウザのタブにも、いま開いている日程表が判る文書名を出す
-   * こと」 -- 「同じ機で 2 つの文書を同時に開くことが実際に起きる構成なので、タブの
-   * 見出しが同じだと選べない」.
-   *
-   * ⭐ THE THIRD OF THE SAME SHAPE, beside `paintPageGround` and
-   * `nameDocumentLanguage`, and for their reason: the tab's heading belongs to
-   * the BOUND DOCUMENT, not to the drawing. ⛔ So it is not written in
-   * `dom-screen-surface.ts`: that file holds itself to the handful of host calls
-   * it names, and it may not reach for `document.title`.
-   * ⛔ AND NOT ON THE SCREEN RENDERER'S SIDE FOR A SECOND REASON: an in-place
-   * edit stops the redraw while it runs, so a heading written from the drawing
-   * would stop following the name at exactly the moment the name is being typed.
-   * ⭐ THE VALUE IS `ScreenView.appHeaderItems.documentTitle`, which is the
-   * document's own `title` column (AT-3) and arrives on EVERY frame -- so a
-   * rename, an undo, a re-open and a merge all move the heading with no trigger
-   * of this file's own (NFR-010, MUST NOT).
-   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the bargain both functions above keep for
-   * the same reason: this runs at the head of every frame.
+   * FR-035: the tab's heading, from `ScreenView.appHeaderItems.documentTitle`
+   * every frame, so a rename, undo, re-open or merge moves it with no trigger of
+   * its own (NFR-010). Not in `dom-screen-surface.ts`, which may not reach for
+   * `document.title`, and not on the renderer's side, whose redraw stops during
+   * an in-place edit -- exactly when the name is being typed. Written only when
+   * it changed.
    *
    * @purity non-pure
    */
@@ -896,190 +550,95 @@ function boot(): void {
     document.title = heading
   }
 
-  // ⭐ THE FIRST PAINT IS HERE, BEFORE ANYTHING IS BUILT. FR-041 (MUST) forbids
-  // the environment's colour to stand in, and every moment before this one is a
-  // moment it does -- BO-1 deliberately holds the first frame back until the
-  // size settles (NFR-011), so a ground painted only from the first frame is a
-  // page that opens in the OS's colour and changes under the reader.
+  // First paint before anything is built: BO-1 holds the first frame back until
+  // the size settles (NFR-011), and until then the page would show the OS colour.
   paintPageGround()
 
   /**
-   * What the screen surface handed over for MK-13, or `null` until it has.
-   *
-   * ⚠️ Filled while the factory below runs and never afterwards, the same
-   * moment `onAppHeaderHeightPx` reports BO-1's height.
+   * What the screen surface handed over for MK-13, or `null` until it has; filled
+   * while the factory below runs.
    */
   let focusPropertyFieldHeld: ((row: string) => void) | null = null
 
   /**
-   * What the screen surface handed over for FR-020, or `null` until it has --
-   * the way to read what stands in U-60's masked field.
-   *
-   * ⚠️ Filled while the factory below runs, the same moment the two above are.
-   * ⛔ THE ANSWER ITSELF IS NEVER HELD HERE. This is the way to ASK for it, and
-   * FR-020 (MUST NOT) keeps the raw password out of code, model and output --
-   * the characters live in the control the surface drew and nowhere else.
+   * The way to read U-60's masked field (FR-020), or `null` until handed over.
+   * The answer itself is never held here (FR-020).
    */
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
-  // ⛔ THE TWO HOLDERS FOR HF-14's FIELD STOOD HERE AND ARE GONE, with the seam
-  // they served: `openNewRowNameHeld` (the way to open an empty name field where
-  // a new row would stand) and `newRowNameSettledHeld` (where the settled name
-  // was to be taken). 利用者の裁定 2026-09-04 withdrew the three MUSTs that
-  // asked for that field, and the naming now goes out on `focusPropertyField`.
 
   const screenSurface = domScreenSurface({
     host: document,
     mount: screenParts,
     readAuthor: () => AUTHOR_NOT_HELD,
-    // ⚠️ The wall clock, and rightly so: what AT-129 spells is the moment a
-    // person settled a line, not an elapsed time (R3.6 sends only elapsed time
-    // to a monotonic clock).
+    // The wall clock: AT-129 is a moment, not an elapsed time (R3.6).
     readClockMs: () => Date.now(),
-    // FR-041 (MUST): the theme has to reach the side that paints, and this is
-    // the one road -- `ScreenView` carries no theme member, so the session
-    // cannot bring it across IF-9.
-    // ⛔ ASKED WHILE THIS FACTORY RUNS, which is why `heldTheme` may not depend
-    // on anything BO-2 settles: the surface builds and measures the header
-    // inside the call below and paints it in the rendering it is told. ⚠️ An
-    // earlier note here claimed the opposite -- 「no paint can reach this before
-    // there is a loop」 -- and the page threw on that claim.
+    // FR-041: `ScreenView` carries no theme, so this is the one road. Asked while
+    // this factory runs, so `heldTheme` may not depend on BO-2.
     readTheme: heldTheme,
-    // MK-13's second half (MUST, CR-304): the field the double click puts the
-    // person into is the surface's, so the surface hands over the way to reach
-    // it and this holds the handle for the loop.
-    // ⛔ IT DOES NOT TRAVEL ON IF-9. That cell of table T-065 names five
-    // supplies and every one is a question -- `screen-surface.ts` records the
-    // bargain, and the wiring is where FR-051's measured height already travels
-    // for the same reason.
+    // MK-13: the field is the surface's, so it hands over the way to reach it.
+    // Not on IF-9, whose supplies are all questions (`screen-surface.ts`).
     /** @purity non-pure */
     holdFocusPropertyField: (focus) => {
       focusPropertyFieldHeld = focus
     },
-    // FR-020 (MUST): the masked field U-60 asks the watermark unlock password
-    // into is the surface's, so the surface hands over the way to read it and
-    // this holds the handle for the loop. ⛔ It does not travel on IF-9 either,
-    // for the reason the two members above give.
+    // FR-020: the masked field is the surface's too; not on IF-9, as above.
     /** @purity non-pure */
     holdReadWatermarkUnlockAnswer: (read) => {
       readWatermarkUnlockAnswerHeld = read
     },
-    // LF-3's row-control floor, taken the way the header's height is and for the
-    // same reason: HF-19 (MUST NOT) keeps the number out of the manuscript, so
-    // the side that drew the lattice is the only one that can answer it.
+    // LF-3's row-control floor, taken like the header's height: HF-19 keeps the
+    // number out of the manuscript, so only the side that drew the lattice knows it.
     /** @purity non-pure */
     onRowControlsHeightPx: (heightPx) => {
       rowControlsHeightPx = heightPx
-      // FT-3 of table T-078, exactly as below: the number is recorded and the
-      // deciding is left to the shell's own resize path, which is the one place
-      // that judges whether anything CHANGED.
+      // FT-3 of table T-078: record, and let `resize` judge whether anything changed.
       loop?.resize(nowEnvironment())
     },
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx
-      // FT-3 of table T-078 and nothing else: this records the number and
-      // hands the deciding to the shell's own resize path, which is the one
-      // place that judges whether the size CHANGED. ⛔ NFR-010 forbids waking a
-      // frame on anything the table does not name.
-      // ⚠️⚠️ `loop` IS NULL FOR THE FIRST TWO CALLS AND NOT ONLY THE FIRST, and
-      // the note that stood here said otherwise (DFC-230). The first is BO-1's
-      // own measurement, which no loop is waiting for; the SECOND is BO-5's
-      // frame filling the header from inside `frameLoop`'s factory, and that
-      // one IS a change. Neither is lost: the line after `loop = running` hands
-      // the settled measurements over the moment there is somewhere to put them.
+      // FT-3 of table T-078: record, and let `resize` judge whether it changed.
+      // `loop` is null for the first TWO calls -- BO-1's measurement and BO-5's
+      // frame inside `frameLoop`'s factory; `settleFirstFrameEnvironment` below
+      // hands both on.
       loop?.resize(nowEnvironment())
     },
   })
 
   // ---- IF-3, BEFORE BO-2 --------------------------------------------------
-  // ⭐ BUILT THIS EARLY BECAUSE OF WHAT IT LISTENS FOR, not because BO-2 needs
-  // it. PI-28 declares this surface a drop target in its constructor, and
-  // without that the browser leaves the page on the first dropped file and
-  // takes the document with it -- which is precisely the silent discard OP-4 of
-  // table T-024a forbids (MUST NOT). ⚠️ The listeners live as long as the page,
-  // the same lifetime FT-1's watcher below takes.
+  // IF-3 before BO-2 for its listeners: PI-28 makes the window a drop target on
+  // construction, and without that a dropped file navigates away and discards
+  // the document (OP-4 of table T-024a). They live as long as the page.
   const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
 
   // ---- BO-2 ---------------------------------------------------------------
-  // Table T-034's order. BT-1 IS READ NOW; BT-2 is still missing something,
-  // and that absence is not a stand-in:
-  //
-  //   BT-2  ⛔ IF-3 HAS NO MEMBER FOR IT AND CANNOT. Table T-034 sends this
-  //         rank to CHN-1 of table T-008 -- a file chooser or a drop -- and
-  //         neither has happened at the moment BO-2 runs. `readFileToOpen`
-  //         answers for a gesture the person has just made; nothing on that
-  //         seam answers for a file the host handed the page as it started.
-  //
-  // ⛔ Saying `none` for that rank is what is true of this build, and FR-067
-  // already says a rank that yields nothing descends rather than starting empty.
-  //
-  // ⚠️ THE TEMPLATE IS BUILT ONCE AND HELD, because three things read it: BT-4
-  // is one, AM-2's `schemaVersion` below is another -- the greatest document
-  // format version this build knows is the one its own generator wrote into the
-  // bundled template, and rule 03 forbids typing a generated value again -- and
-  // FR-041's theme is the third, which is why it is read above BO-1 rather than
-  // here.
+  // BO-2. BT-2 is `none`: its file comes from a chooser or a drop (CHN-1 of
+  // table T-008), neither of which can have happened yet, and IF-3 has no member
+  // for a file handed over at startup.
   const embedded = embeddedStartupDocument()
   const chosen = chooseStartupDocument({
     embedded: embedded.candidate,
     handed: { kind: 'none' },
     template,
   })
-  // FR-041 (MUST): BO-2 may have chosen a document that carries a different
-  // S-72 or S-73 from BT-4's, so the ground is settled again the moment there
-  // is an answer -- and before the first frame, which BO-5 has not reached.
+  // FR-041: BO-2 may have chosen a document with a different S-72 or S-73.
   themeDocument = chosen.document
   paintPageGround()
 
-  // ⭐ FR-088's GATE IS ON THIS ROAD NOW, and both halves of 「受け付けずに通知
-  // すること（MUST）」 are kept for the one rank that has a producer. The note
-  // here used to say neither could be, and gave a reason for each; both reasons
-  // are gone:
-  //
-  //   受け付けず   `embeddedStartupDocument` hands `none` for a refused BT-1, so
-  //                FR-067's descent carries the boot to the next rank instead of
-  //                the gate leaving it with no document at all.
-  //   通知する     the telling waits for the loop and is raised below, which is
-  //                the only order table T-077 admits -- BO-1's size is not
-  //                settled here and nothing holds `ScreenSession.notices` yet.
-  //
-  // ⭐ BT-4 IS STILL NOT PUT THROUGH IT, and that is the judgement
-  // `startupTemplateDocument` records for the same file: the template is
-  // BUNDLED, so a fault in it is a build that shipped broken, and
-  // `npm run gen:check` is where that is caught rather than at boot.
-  // ⛔ WHAT IS OWED WHEN BT-2 GAINS A PRODUCER. Its handed file is CHN-1 of
-  // table T-008 -- untrusted -- so it needs this same gate before it may be
-  // handed over as `read`.
+  // FR-088's gate: `embeddedStartupDocument` hands `none` for a refused BT-1, and
+  // the telling is raised once the loop exists (table T-077). BT-4 is not gated:
+  // it is bundled, and `npm run gen:check` catches a broken one. When BT-2 gains a
+  // producer, its file (CHN-1, untrusted) needs this same gate.
 
-  // ⛔⛔ NO STARTUP OFFER IS OWED, AND MAKING ONE WOULD BREAK TWO MUST NOTs.
-  // A STOP stood here reading 「FR-060's SECOND MUST IS NOT KEPT」 and naming
-  // NT-4 of table T-037 as where the offer would stand; that requirement was
-  // rewritten on 2026-09-07 (台帳 DFC-278, 利用者の裁定) and now forbids BOTH
-  // halves: ⛔ 「前回開いていたファイルを覚えてはならない（MUST NOT）」 ⇒ 「起動時
-  // に権限の復帰を申し出てもならない（MUST NOT）」. ⭐ What stands instead is a
-  // MUST this build already keeps by doing nothing: 「起動した直後の最初の保存
-  // で、人がファイルを選び直すのが本仕様である」. Chapter 5.5 of the design
-  // records the same removal, and LM-14 of table T-004 carries it as a stated
-  // limitation rather than as a gap.
+  // No offer to restore a remembered file's permission at startup: FR-060 forbids it.
 
   // ---- BO-3, BO-4, BO-5 ---------------------------------------------------
-  // BO-3 is inside the document: zoomX / zoomY and scrollDate / scrollGroupId
-  // are stored (FR-024 keeps all four, WY-1 needs them), so the loop reads
-  // them off documentSettings rather than being told. BO-4 and BO-5 are the
-  // first frame, which the loop runs as soon as BO-1's size is settled.
-  // ⚠️ IF-3 IS HANDED OVER, NOT REACHED FOR. SK-11 writes out a value the loop
-  // holds, and LY-5 of table T-060 leaves that value with the loop -- so the
-  // store goes to the party that has the document rather than the boot file
-  // keeping it and asking for the document back.
+  // BO-3 reads zoom and scroll off `documentSettings` (FR-024); BO-4 and BO-5 are
+  // the first frame. IF-3 goes to the loop, which holds the document.
   //
-  // ⭐ FR-041 (MUST) RIDES ON THE DRAWING AND NOT ON A TRIGGER OF ITS OWN, which
-  // is the only place it can: the loop is what runs a frame when IC-16 switches
-  // S-72, and table T-078 names no trigger for a theme. ⛔ So the surface is
-  // handed over WRAPPED rather than a second listener being added -- one more
-  // watcher would be one more party deciding when a frame happened, which is
-  // exactly what NFR-010 keeps to the loop. ⚠️ The ground is painted BEFORE the
-  // frame it belongs to, so no frame is ever drawn over the previous theme's
-  // ground, and `paintPageGround` writes nothing when the pair did not move.
+  // FR-041 rides on the drawing, as table T-078 names no trigger for a theme: the
+  // surface is wrapped rather than given a second watcher (NFR-010), and the
+  // ground is painted before the frame it belongs to.
   const painting: ScreenSurface = {
     ...screenSurface,
     /** @purity non-pure */
@@ -1090,22 +649,13 @@ function boot(): void {
       screenSurface.showScreenView(view)
     },
   }
-  // IN-2 of table T-028 (MUST): the shape goes on the element that IS the
-  // `Schedule Canvas`, which is the element made at the head of this function.
-  //
-  // ⭐ THIS UNIT IS THE ONE THAT MAY TOUCH IT, the same rule `pageGroundStyle`
-  // above follows: the loop decides WHICH shape (it holds the frame, the press
-  // and the arming) and this side writes it, so neither half is duplicated.
-  // ⛔ NOT A MEMBER OF `SvgSurface`. IF-1 of table T-065 carries the picture and
-  // nothing else, and that table is a contract.
-  // ⚠️ Written only when it MOVED. A style write on every pointer move costs a
-  // style recalculation for a value that is the same as the one already there,
-  // and the pointer rests on one place for most of its moves.
+  // IN-2 of table T-028: the loop decides the shape, this unit writes it on the
+  // `Schedule Canvas` element. Not a member of `SvgSurface` (IF-1 carries the
+  // picture only). Written only when it moved: a style write per pointer move
+  // costs a style recalculation.
   let pointerShapeShown = ''
   const showPointerShape = (shape: PointerShape | null): void => {
-    // ⛔ The empty string is how the element is given the shape BACK to the
-    // host, which is what `null` means: IN-2 leaves a place it does not name
-    // alone, and removing the declaration is what leaving it alone is.
+    // The empty string hands the shape back to the host, which is what `null` means.
     const spelling = shape ?? ''
     if (spelling === pointerShapeShown) return
     pointerShapeShown = spelling
@@ -1119,159 +669,66 @@ function boot(): void {
     {
       surface: painting,
       language: displayLanguage(),
-      // MK-13's second half. ⚠️ THE MEMBER IS OPTIONAL ON BOTH SIDES, so a
-      // dropped line here would leave the name field unentered and nothing
-      // would say so -- see `ScreenWiring.focusPropertyField`.
+      // MK-13. Optional on both sides, so a dropped line here fails silently.
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
-      // ⛔⛔ HF-14's TWO HALVES WERE JOINED HERE AND ARE GONE (利用者の裁定
-      // 2026-09-04). They carried an empty name field onto the screen and the
-      // name settled in it back again, which that row asked for while it read
-      // 「名前は空で立て、その場で打たせること」. The row now stands up on the
-      // press and is named through `focusPropertyField` above, which is the road
-      // 「改名と別の道を作ってはならない（MUST NOT）」 leaves as the only one.
-      // FR-020's 「打ち込む文字」, joined here for the reason the bindings above
-      // give: the surface is built before the loop, so neither side can name the
-      // other directly. ⚠️ THE MEMBER IS OPTIONAL ON BOTH SIDES, so a dropped
-      // line here would leave every answer reading as the empty string -- which
-      // never matches, so the watermark would simply never be hidden.
+      // FR-020. Optional on both sides too: a dropped line reads every answer as
+      // '', which never matches, so the watermark would never be hidden.
       /** @purity semi-pure-b */
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
     },
     fileStore,
     showPointerShape,
-    // IF-5 (CP-30). ⭐ ITS FIRST CALLER: the seam has been written since
-    // CR-196 and nothing reached it until CR-281 gave IC-3 the clipboard.
-    // ⚠️ `navigator.clipboard` and not a wider handle: CP-30 takes the one
-    // member it uses, so a browser that has none hands `undefined` and the
-    // seam answers `unsupported` rather than throwing (FR-028, MUST NOT).
+    // IF-5 (CP-30). `navigator.clipboard` only: a browser without it hands
+    // `undefined`, and the seam answers `unsupported` rather than throwing (FR-028).
     browserClipboard(globalThis.navigator?.clipboard),
-    // OP-10 of table T-024a (MUST NOT). ⭐ `chosen.row` is BO-2's own answer,
-    // narrowed here to the one bit that row asks about.
+    // OP-10 of table T-024a: whether BO-2 fell to the template.
     chosen.row === 'BT-4',
-    // IF-6 (CP-31). ⭐ ITS FIRST CALLER, for the reason CP-30's line above
-    // gives: the unit was written and nothing reached it, so IO-4 of table
-    // T-024 stood on FR-096's chooser and wrote nothing.
-    // ⚠️ The document and nothing wider: `canvasRasterizer` calls
-    // `createElement` on it and nothing else, which is what lets that unit be
-    // tested where there is no browser.
+    // IF-6 (CP-31). The document and nothing wider: `canvasRasterizer` only calls
+    // `createElement`, so that unit is testable without a browser.
     canvasRasterizer(document),
-    // IF-8 (UF-47). ⭐ THE COUNTERPART THIS FILE OWED: BT-1 could READ an
-    // embedded document and nothing could WRITE one, so IO-7 of table T-024
-    // stood on FR-096's chooser and wrote nothing (DFC-173).
+    // IF-8 (UF-47).
     appShellSource(),
-    // FR-095 (MUST): 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻す
-    // こと」 -- the state IC-98 returns to is this document, and FR-095's own
-    // RATIONALE says it holds no other: 「出すものは `FR-027` のテンプレートで
-    // あり、本要求は別のテンプレートを持たない」.
-    // ⭐ THE ONE ALREADY READ ABOVE AND NOT A SECOND READING. FR-027 keeps
-    // 「1 つ」 of the template and `startupTemplateDocument` is the one reader of
-    // it in this build; handing the value over rather than the reader also keeps
-    // that function's `throw` at boot, where a broken bundle is a build that
-    // shipped wrong rather than a press that fails.
+    // FR-095's reset target: the template already read above, not a second
+    // reading, which also keeps a broken bundle's `throw` at boot.
     template,
   )
   loop = running
 
-  // ⛔⛔ BO-5's FRAME RAN BEFORE THIS BINDING EXISTED, AND WHAT IT MEASURED WAS
-  // THROWN AWAY (DFC-230). `frameLoop` runs table T-077's first frame inside its
-  // own factory, and that frame is what fills the `App Header` and draws the
-  // first row lattice -- so `onAppHeaderHeightPx` and `onRowControlsHeightPx`
-  // both fire while `loop` is still null, and the `loop?.resize` each of them
-  // ends with reaches nobody.
-  // ⚠️ MEASURED ON THE SHIPPED BUILD AT 1920x1080, TEN COLD BROWSER PROCESSES:
-  // BO-1 measured the header before anything was in it and got 13px, the drawn
-  // header is 37px, and the corrected number reached the loop only when some
-  // later happening read `nowEnvironment()` again -- 44ms to 1614ms afterwards,
-  // with the whole `Row Title Tree` standing 24px too high until then and a
-  // ninth row's 9px sliver inside the drawing area.
-  // ⛔ FR-051 (MUST) IS WHY IT CANNOT BE MEASURED EARLIER: the height is the
-  // environment's own, and an `App Header` with nothing in it is not the header
-  // -- its parts carry their own boxes (measured: at a 12px text size the drawn
-  // header is 24px of content where one line is 18px). So the first frame is
-  // what settles BO-1's second measurement, and this is where its answer is
-  // handed on.
-  // ⛔⛔ AND NOT `resize`, WHICH WOULD ASK FOR THE FRAME INSTEAD OF RUNNING IT.
-  // Measured, not reasoned about: handing these numbers to `resize` moved
-  // nothing at all -- the frame it asks for is a `requestAnimationFrame`
-  // callback, the environment ran it 44ms to 1614ms after this line in ten cold
-  // browser processes, and the page held the picture drawn against the
-  // unsettled header for the whole of that. `settleFirstFrameEnvironment` runs
-  // it here, inside `boot`'s own task, so no other party ever sees it.
-  // ⛔ NFR-010 IS NOT WIDENED. The member compares the five measurements
-  // against the ones in force and runs nothing when none moved, so a startup
-  // where the header measured the same twice costs one comparison.
+  // BO-5's frame ran inside `frameLoop`'s factory while `loop` was null, so the
+  // header and row-control heights it measured reached nobody. They are handed on
+  // here and the frame is RUN, not asked for: `resize` would schedule a
+  // `requestAnimationFrame` that landed 44 to 1614 ms later in ten cold browser
+  // processes, leaving the first picture drawn against the unmeasured header.
+  // Nothing runs when no measurement moved (NFR-010).
   loop.settleFirstFrameEnvironment(nowEnvironment())
 
-  // FR-076 (MUST): what BO-2 decided and could not tell, told now that there is
-  // somewhere to put it.
-  // ⭐ UF-23's ANSWER FIRST, THEN THIS FILE'S, which is table T-034's own order:
-  // a rank that could not be read is reported before the gate that turned a rank
-  // away, and only one of the two can be about BT-1 in any one run.
-  // ⚠️ NT-4 of table T-037 -- 「起動時の保留中の用件を 1 枚に集約」 -- is kept by
-  // there being one list of raised tellings and one place that draws it.
+  // FR-076: what BO-2 decided and could not tell. UF-23's notices first, then the
+  // gate's, in table T-034's order.
   for (const notice of chosen.notices) {
     running.raiseStartupNotice(STARTUP_NOTICE_REASON[notice.code])
   }
   if (embedded.refusal !== null) running.raiseStartupNotice(embedded.refusal)
-  // `RS-51`: BT-1's own text carried settings outside their bounds, the read
-  // road brought them inside, and the person is told how many moved.
-  // ⛔ ONLY WHEN BT-1 ACTUALLY WON. `StartupChoice.row` is table T-034's answer,
-  // and a count measured on a rank that lost describes a document nobody is
-  // looking at -- FR-076's telling is about the document that is open.
-  // ⚠️ BT-4 IS NOT TOLD ON EVEN WHEN IT WINS; `startupTemplateDocument` says why.
+  // `RS-51` only when BT-1 actually won: a count from a rank that lost describes a
+  // document nobody is looking at. BT-4 is never told (`startupTemplateDocument`).
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
   }
-  // `RS-48` (FR-073, MUST): BT-1's own text declares a format version newer than
-  // the greatest this build knows, and some of its columns could not be read.
-  //
-  // ⛔ ONLY WHEN BT-1 ACTUALLY WON, on the same terms the clamp above states:
-  // a reading taken on a rank that lost describes a document nobody is looking
-  // at. ⚠️ BT-4 CANNOT REACH IT -- `startupTemplateDocument` says why: the
-  // template's version IS `GREATEST_KNOWN_SCHEMA_VERSION`, so it is never newer.
-  // ⛔ NO COUNT: FR-073 asks for the columns 「具体的に並べて」 and a tally is
-  // what that forbids -- and `raiseStartupNotice` has nowhere else to put them,
-  // which is the absence the reader above records.
+  // `RS-48` (FR-073), only when BT-1 won, as above. No count: FR-073 asks for the
+  // columns themselves, which `raiseStartupNotice` has nowhere to put.
   if (chosen.row === 'BT-1' && embedded.unreadColumns.length > 0) {
     running.raiseStartupNotice('RS-48')
   }
 
   // ---- FR-065 and FR-028: the public point --------------------------------
   //
-  // ⭐ UF-47 OF TABLE T-075 GIVES THE PLACING TO THIS UNIT, and `installAgentApi`
-  // deliberately does not place what it builds: its own note says that choosing
-  // a global's name would be inventing a public name, so the component builds
-  // the surface and the shell that turned it on decides where the reference
-  // goes. Section 3 of `_assets/tbl-glossary.md` is what decided the name.
-  //
-  // ⛔ FR-028 (MUST): 「既定では公開しない」. Nothing has turned the enabling on
-  // at an origin the person has never turned it on at, so the name is absent
-  // until they press IC-20 -- and it is REMOVED again on the way back, which is
-  // the half a toggle that installed and never uninstalled would fail from the
-  // second press on.
-  // ⚠️ REMOVING THE NAME IS NOT TAKING THE API BACK, and FR-065 (MUST) has that
-  // said out loud rather than papered over: a reference already handed out goes
-  // on working, `installAgentApi` says the same from its side, and the loop
-  // raises RS-20 of table T-233 in NT-5's manner as the press is accepted.
-  //
-  // ⭐⭐ REMEMBERED PER ORIGIN SINCE DFC-280 CLOSED, which is FR-065's other MUST:
-  // 「有効化はブラウザ（オリジン）ごとに記憶すること」. `frame-loop.ts` holds both
-  // halves -- `startupAgentApiEnabled` reads S-99b of table T-206 and
-  // `setAgentApiEnabled` writes it -- so this file asks for and stores nothing.
-  // ⛔⛔ WHICH IS WHY THE SENTENCE ABOVE IS NARROWER THAN IT LOOKS. The loop can
-  // start with the enabling already ON, so 「既定では公開しない」 is kept by the
-  // STORE having nothing rather than by this watcher being late: the watcher is
-  // told the standing value the moment it is set (see `watchAgentApiEnabling`),
-  // and the name is placed then, before any input can arrive.
-  // ⛔ NOTHING PUTS IT BACK ON A NEW DOCUMENT. A `setAgentApiEnabled(false)`
-  // stood in `replaceHeldDocument` under a MUST NOT that was struck on
-  // 2026-09-05; FR-065 now states the cost of the wider scope itself.
-  //
-  // ⚠️ `globalThis` IS REACHED THROUGH ONE INDEX, because the host's own
-  // declarations carry no such member and there is nothing to narrow: what goes
-  // there is `installAgentApi`'s answer, whatever that is, and what is taken
-  // away is the same key.
+  // `installAgentApi` does not place what it builds, so the shell places it under
+  // the glossary's name when enabled and removes it when disabled. Removing the
+  // name does not revoke a reference already handed out (FR-065).
+  // The enabling is remembered per origin in `frame-loop.ts`, so the loop may
+  // start enabled; the watcher is told the standing value as soon as it is set,
+  // before any input can arrive.
+  // `globalThis` is reached through one index: the host declares no such member.
   const host = globalThis as unknown as Record<string, unknown>
   running.watchAgentApiEnabling((isEnabled) => {
     if (!isEnabled) {
@@ -1279,64 +736,40 @@ function boot(): void {
       return
     }
     host[AGENT_API_IDENTIFIER] = installAgentApi({
-      // IF-7 and the four seams PI-8 and PI-16 declare, all of them current
-      // values LY-5 of table T-060 leaves with the loop -- so they are asked
-      // for rather than a second holder of any of them being built here.
+      // IF-7 and the seams of PI-8 and PI-16, all held by the loop (LY-5).
       ...running.agentApiSeams(),
       writerName: AGENT_API_WRITER,
-      // AM-2 of table T-107. ⭐ Read off the bundled template rather than typed,
-      // because its generator is what holds this value (rule 03 section 1).
+      // AM-2 of table T-107, read off the bundled template (rule 03 section 1).
       schemaVersion: template.schemaVersion,
     })
   })
 
-  // FT-1 of table T-078 -- the person operating the tool.
-  // ⭐ `window` is what `InputHost` asks for: the seam names the five members
-  // it touches, and a real window has every one. ⚠️ MK-10's answer is handed to
-  // the FACTORY and the happenings to the WATCHER, because PI-27's
-  // `InputWatcher` returns nothing -- so the answer cannot come back the way it
-  // was asked, and the question has to be asked before the watcher runs.
-  // ⚠️ `unwatchInput` is never called, and that is not a leak left behind: the
-  // listeners live exactly as long as the page that boots this file, which is
-  // the same lifetime the two FT-3 observations below take. R3.5's pairing has
-  // nowhere else to end -- `boot` runs once and never returns a way to stop.
+  // FT-1 of table T-078. MK-10's answer goes to the factory and happenings to the
+  // watcher, since `InputWatcher` returns nothing. `unwatchInput` is never
+  // called: the listeners live exactly as long as the page, and `boot` returns no
+  // way to stop.
   const inputSource = domInputSource(
     window,
     (input) => loop?.isBrowserDefaultStopped(input) ?? false,
   )
   inputSource.watchInput((input) => loop?.receiveInput(input))
 
-  // FT-3 of table T-078 -- the shell observes the window itself, because the
-  // size is the host's value and not an input device's (IF-2 stays narrow).
+  // FT-3 of table T-078: the size is the host's value, not an input device's.
   window.addEventListener('resize', () => loop?.resize(nowEnvironment()))
 
-  // FR-100 (MUST): unsaved edits are not lost to one mistaken press on the
-  // tab. ⛔ THE WORDS ARE NOT OURS TO CHOOSE (MUST NOT) -- every current
-  // browser ignores a string handed to this event and prints its own, so
-  // `preventDefault` is the whole of what a page may say here and nothing is
-  // read out of the dictionary. ⚠️ `returnValue` is set as well because the
-  // older browsers of table T-003 gate the prompt on it rather than on
-  // `preventDefault`; it is the same request twice, not a second warning.
-  // ⛔ NOT A ROW OF TABLE T-234 (MUST NOT), and FR-100 says why: that table
-  // holds the questions GRS itself words, and this one is the host's.
+  // FR-100: `preventDefault` is all a page may do here, since browsers ignore a
+  // supplied string; `returnValue` too, because older browsers of table T-003
+  // gate the prompt on it. Not a row of table T-234: the question is the host's.
   window.addEventListener('beforeunload', (event) => {
-    // FR-100 (MUST NOT): nothing is raised when nothing would be lost.
     if (loop?.hasUnsavedEdits() !== true) return
     event.preventDefault()
     event.returnValue = ''
   })
 
-  // ⭐ THE SAME TRIGGER, WATCHED A SECOND WAY, and not a second trigger: table
-  // T-078 names the shell as the party that observes FT-3 and leaves the means
-  // to it, and `resize` alone misses the case NFR-011 is most emphatic about.
-  // A host can lay this page out at 0 x 0 and give it a size later without the
-  // window ever resizing -- a pane that was not visible when the page loaded
-  // does exactly that -- and BO-1 holds the first frame back until the size is
-  // settled, so the screen would stay 「空白のまま」, which NFR-011 forbids
-  // (MUST NOT).
-  // ⛔ NFR-010 is not widened by this: `FrameLoop.resize` compares the four
-  // measurements against the ones in force and returns without waking a frame
-  // when nothing changed, so an observation that moved nothing costs nothing.
+  // FT-3 watched a second way: a host can lay the page out at 0 x 0 and size it
+  // later without a resize event (a pane hidden at load), and BO-1 would then hold
+  // the first frame back for ever (NFR-011). `resize` returns without a frame
+  // when nothing changed.
   new ResizeObserver(() => loop?.resize(nowEnvironment())).observe(document.documentElement)
 }
 

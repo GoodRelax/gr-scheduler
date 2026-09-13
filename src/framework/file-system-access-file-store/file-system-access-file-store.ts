@@ -5,65 +5,26 @@
 // @purity    semi-pure-b
 // @publishes table T-064 row PI-28
 //
-// The implementation of FileStore (table T-065 IF-3). LR-5 of table T-061 has
-// the Framework implement what the inner layer declared, so every member below
-// is shaped by `adapter/file-gateway/file-store.ts` and nothing here widens it.
+// Implements FileStore (IF-3 of table T-065) as `adapter/file-gateway/file-store.ts`
+// shapes it (LR-5), widening nothing.
 //
-// ---- why this component exists ---------------------------------------------
+// A component rather than an Adapter function because it holds the opened file
+// handle (CP-28, FR-060) -- a current value that outlives a call, which LY-5 of
+// table T-060 gives to this layer alone.
 //
-// IF-3 carries one sentence of its own: the handle is held by the
-// implementation (CP-28), under FR-060. `openedHandle` below is that sentence,
-// and it is the whole reason a component exists here rather than a function
-// somewhere inside the Adapter. It is a current value that outlives a call,
-// which LY-5 of table T-060 makes this layer's alone to hold; the inner three
-// layers take what they need as arguments and never learn what a handle is.
+// Everything taken from the browser arrives in `FileSystemAccessEnvironment`
+// (R7.3), so the unit runs under Node with plain objects. ⛔ Do not reach for
+// `window`: the whole component would then need a browser to test.
 //
-// ---- what the caller supplies, and why it is not reached for ---------------
+// Where the File System Access API is absent (CN-2 of table T-003, LM-14 of
+// table T-004): absent pickers answer `unavailable`, and a drop that yields no
+// handle still returns the bytes but is not remembered.
+// ⛔ No download fallback: FR-060's RATIONALE rejects downloads as the problem
+// it solves.
 //
-// ⭐ Everything this file uses from the browser ARRIVES in
-// `FileSystemAccessEnvironment`. LY-5 already says the Framework is where such
-// things live, and R7.3 asks for the injection; the result is that this unit
-// runs under Node with plain objects standing in for the browser, which is
-// what lets somebody who did not write it test it against the specification.
-// ⛔ Do not reach for `window` here. The moment one member does, the whole
-// component needs a browser to say anything at all.
-//
-// ---- where the File System Access API is absent ----------------------------
-//
-// ⚠️ CN-2 of table T-003 makes Chromium the baseline, leaves Firefox at
-// "checked only" and puts Safari out of scope, and LM-14 of table T-004
-// already accepts that overwrite-save is one of the things that may simply not
-// work. So a browser without the API is not a case to paper over:
-//
-//   * `openFilePicker` / `saveFilePicker` absent  -> `unavailable`, the reason
-//     IF-3 documents as LM-14's landing place. The person still gets a next
-//     step out of NT-3a of table T-037, because the failure arrives as a value.
-//   * a drop that yields no handle -> the bytes still come back, and the file
-//     is NOT remembered. There is nothing to overwrite, and `readOpenedFileState`
-//     says `none` rather than naming a file that cannot be written.
-//
-// ⛔ No download fallback. FR-060's own RATIONALE is the argument against one:
-// it says downloads cannot control where the file lands and breed numbered
-// copies of the same name, which is the problem FR-060 exists to solve. Adding
-// one here would answer the requirement with the thing it rejected.
-//
-// ---- what was hard ---------------------------------------------------------
-//
-// ⚠️ A drop cannot be read later. The items a drop carries are alive only
-// while the event is being handled, so `readFileToOpen('drop')` cannot go and
-// look for one -- by then there is nothing to look at. The store therefore
-// watches the drop itself and keeps what it took, which is also the only way
-// the handle survives at all, and IF-3 says in as many words that a dropped
-// file that never passed the store leaves nothing to overwrite.
-//
-// ⚠️ Every write needs a user gesture, in every browser. ⛔ That is never
-// hidden in a promise that does not settle: a refused gesture comes back as
-// `permissionLost` when a file is remembered, and as `unavailable` otherwise,
-// so the caller can act on it.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// Every write needs a user gesture. ⛔ A refused gesture is never a promise that
+// does not settle: it returns `permissionLost` when a file is remembered, else
+// `unavailable`.
 
 import type {
   ChosenFileWrite,
@@ -79,18 +40,15 @@ import type {
 
 // ------------------------------------------- what the caller must supply ----
 //
-// ⭐ These are declared here rather than taken from the DOM library because a
-// test has to be able to build one. They are a subset of the real browser
-// types, so `window`, a `FileSystemFileHandle` and a `DataTransfer` satisfy
-// them without a cast.
+// Declared here rather than taken from the DOM library so a test can build one.
+// They are subsets of the browser types, which satisfy them without a cast.
 
-/** The three values a permission query answers with. */
 export type FilePermissionState = 'granted' | 'denied' | 'prompt'
 
 /** One file as the browser hands it over, before anything is read. */
 export interface ReadableFile {
   readonly name: string
-  /** ⚠️ Bytes, and the number S-113's ceiling is stated in. */
+  /** Bytes, the unit S-113's ceiling is stated in. */
   readonly size: number
   arrayBuffer(): Promise<ArrayBuffer>
 }
@@ -105,27 +63,21 @@ export interface WritableFileStream {
 /**
  * A handle to one file.
  *
- * ⛔ This type never crosses the seam. IF-3 is built so that the inner layers
- * cannot hold one, and the only value of this type outside this file is the
- * one the caller passes in through the two pickers.
+ * ⛔ Never crosses the seam: IF-3 is built so the inner layers cannot hold one.
  */
 export interface FileHandle {
   readonly kind: 'file'
   readonly name: string
   getFile(): Promise<ReadableFile>
   createWritable(options?: { keepExistingData?: boolean }): Promise<WritableFileStream>
-  /**
-   * ⚠️ Optional because not every browser that has handles has these two, and
-   * because a test has no use for them. What their absence means is PND-105.
-   */
+  /** Optional: not every browser with handles has these two. Their absence is PND-105. */
   queryPermission?(descriptor: { mode: 'readwrite' }): Promise<FilePermissionState>
   requestPermission?(descriptor: { mode: 'readwrite' }): Promise<FilePermissionState>
 }
 
-/** ⚠️ A drop can hand over a directory, which `kind` is how one is told apart. */
+/** A drop can hand over a directory; `kind` tells it apart. */
 export type DroppedHandle = FileHandle | { readonly kind: 'directory' }
 
-/** One thing the person let go of. */
 export interface DroppedItem {
   readonly kind: string
   getAsFile(): ReadableFile | null
@@ -149,11 +101,8 @@ export interface DropEvent {
 }
 
 /**
- * Where a drop lands. In the assembled app this is the window.
- *
- * ⭐ OP-2 of table T-024a treats a drop as one surface that does not apply the
- * schedule area's hit-test order, so one surface for the whole app is what the
- * rule asks for rather than a convenience.
+ * Where a drop lands; in the assembled app, the window. One surface for the
+ * whole app because OP-2 of table T-024a treats a drop as one surface.
  */
 export interface DropSurface {
   addEventListener(
@@ -171,23 +120,18 @@ export type OpenFilePicker = (options: {
 /**
  * One kind of file a save chooser may hold the person to.
  *
- * ⭐ The shape the host's own chooser takes: a media type, and the extensions
- * that stand for it. ⛔ NO `description`. That field is printed in the host's
- * dialog, and a word written here would be the second store of translated
- * strings FR-038 forbids (MUST NOT) -- the host names the kind from the media
- * type instead, in its own language, which is a language this file does not
- * know.
+ * ⛔ No `description`: it is printed in the host's dialog, and a word written
+ * here would be a second store of translated strings (FR-038, MUST NOT). The
+ * host names the kind from the media type.
  */
 export interface SaveFileType {
   readonly accept: Readonly<Record<string, readonly string[]>>
 }
 
 /**
- * ⚠️ The two members after the name are what FR-096's MUST turns on -- see
- * `saveFileTypesFor`. They are optional because a form whose extension this
- * file cannot name a media type for is offered without them, and a chooser
- * given an empty `types` beside `excludeAcceptAllOption` is one some hosts
- * refuse outright.
+ * `types` and `excludeAcceptAllOption` are optional because a form with no known
+ * media type is offered without them -- some hosts refuse an empty `types`
+ * beside `excludeAcceptAllOption`. See `saveFileTypesFor`.
  */
 export type SaveFilePicker = (options: {
   readonly suggestedName: string
@@ -198,9 +142,9 @@ export type SaveFilePicker = (options: {
 /**
  * What the store is given at construction.
  *
- * ⚠️ The two pickers are required KEYS holding a possibly-missing value, not
- * optional keys. The caller has to say which browser it is on; a shell that
- * forgot would otherwise read as a browser that has the API.
+ * ⚠️ The pickers are required keys holding a possibly-missing value, so a shell
+ * must say which browser it is on; a forgotten optional key would read as a
+ * browser that has the API.
  */
 export interface FileSystemAccessEnvironment {
   /** `window.showOpenFilePicker`, bound, or `undefined` where there is none. */
@@ -212,37 +156,19 @@ export interface FileSystemAccessEnvironment {
 
 // ------------------------------------------------------------------ pure ----
 //
-// R7.7's order: everything down to `firstDroppedFile` is `pure`, the three
-// readers after it are not, and the factory at the bottom is where the state
-// lives.
+// R7.7's order: pure down to `firstDroppedFile`, then the readers, then the
+// factory where the state lives.
 
 /**
- * The media type each extension table T-024 gives a file row stands for.
+ * The media type for each extension table T-024 gives a file row.
  *
- * ⭐⭐ THIS IS THE PLACE FR-096 NAMES, AND IT IS NAMED IN THE REQUIREMENT
- * ITSELF. That requirement has the written file's name end in the chosen row's
- * extension (MUST) and has the host be told 「その拡張子の形式である」 where
- * there is a way to tell it (MUST); it then forbids any table of the
- * specification carrying the media type that telling needs (MUST NOT) and sends
- * the value to the Framework layer, which is this file's layer. ⛔ So a column
- * for it may not be added to table T-024, and no inner layer may hold it.
+ * Held here because FR-096 (MUST NOT) keeps the media type out of every table
+ * and sends it to the Framework layer. The spellings are IANA registrations,
+ * not choices of this tool.
  *
- * ⭐ WHY IT IS NOT A VALUE OF THE PRODUCT. Every spelling here is registered
- * with IANA and none of them is this tool's to choose: `application/json` is
- * RFC 8259's, `application/xml` is RFC 7303's, `image/svg+xml` is the SVG
- * recommendation's, `image/png` is RFC 2083's and `text/html` is RFC 2854's.
- * They are the host's manners, and a host that stopped recognising one would
- * not thereby change anything the specification says.
- *
- * ⛔ KEYED ON THE EXTENSION AND NOT ON A FORM. `SaveFileForm` is FileGateway's
- * roster and does not reach this layer, and table T-024 already fixes the
- * extension as the one join between a row and a file name -- so the extension
- * that arrives on the write is what is looked up, and a row whose extension
- * moves needs nothing changed here.
- * ⚠️ An extension with no entry is not an error: the chooser is opened without
- * a type, exactly as it was before, and the suggestion is then the whole of
- * what is asked for. ⛔ Nothing is invented in its place -- a guessed media
- * type would have the host enforce an extension nothing chose.
+ * Keyed on the extension, table T-024's join between row and file name, since
+ * `SaveFileForm` does not reach this layer. ⛔ An unknown extension gets no type
+ * rather than a guessed one, which would enforce an extension nothing chose.
  */
 const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
   '.json': 'application/json',
@@ -253,23 +179,12 @@ const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
 }
 
 /**
- * What the chooser is told the file is, or `undefined` where nothing can be
- * told.
+ * What the chooser is told the file is, or `undefined`.
  *
- * ⭐⭐ THIS IS THE WHOLE OF DFC-172. Measured 2026-09-01: the suggested name
- * arrived at the chooser already correct -- `{"suggestedName":"Three-Year
- * Product Plan.json"}` -- and the file still landed without its extension,
- * because a chooser given no `types` treats the tail of the name as decoration
- * and enforces nothing. FR-096's 「保証すること（MUST）」 is not kept by
- * suggesting; it is kept by telling the host what kind of file this is, and
- * this is that telling.
- *
- * ⛔ `excludeAcceptAllOption` RIDES WITH THE TYPE AND IS NOT A SEPARATE
- * CHOICE. Left off, the host keeps an 「all files」 entry that puts the person
- * back where they started -- a name saved with no extension -- and the MUST
- * would hold for every path but one. ⚠️ It is set only where a type is
- * actually known: a chooser told to exclude everything and offered nothing is
- * a chooser with no kind at all.
+ * FR-096's extension is kept by this, not by the suggested name: a chooser given
+ * no `types` treats the name's tail as decoration and saves without it.
+ * ⛔ `excludeAcceptAllOption` rides with the type -- an "all files" entry would
+ * reopen the path to an extension-less name -- and only where a type is known.
  *
  * @purity pure
  */
@@ -285,11 +200,8 @@ function fault(reason: FileStoreFaultReason, what: string): FileStoreFault {
 }
 
 /**
- * The person stopped the chooser.
- *
- * ⚠️ Told apart from every other throw on purpose: IF-3 keeps `cancelled` in
- * the list so that it can be left un-notified, and somebody who closed a
- * dialog has not been failed and is owed no next step under NT-3a.
+ * The person stopped the chooser -- kept apart so `cancelled` is not notified
+ * (IF-3); a closed dialog owes no next step under NT-3a.
  *
  * @purity pure
  */
@@ -298,12 +210,8 @@ function isDismissal(thrown: unknown): boolean {
 }
 
 /**
- * The browser refused rather than failed.
- *
- * ⚠️ `SecurityError` is here with `NotAllowedError` because that is what a
- * call made outside a user gesture raises in part of the family, and the two
- * mean the same thing to the person: nothing was written, and the way back is
- * to ask again from a click.
+ * The browser refused rather than failed. `SecurityError` is included because
+ * some browsers raise it for a call outside a user gesture.
  *
  * @purity pure
  */
@@ -320,19 +228,9 @@ function whyOf(thrown: unknown): string {
 }
 
 /**
- * IF-3's three states, given a file and what may be done to it.
- *
- * ⭐ One place turns a permission into a state, so that the answer a read gets
- * and the answer a restore gets cannot drift apart. ⚠️ Anything but `granted`
- * is `permissionLost`: the browser's "not yet asked" and "refused" are the same
- * thing to the person, who in both cases cannot save over the file right now.
- *
- * ⛔ NOT A STARTUP OFFER, AND THERE IS NONE TO BE OWED. FR-060 (MUST NOT,
- * 利用者の裁定 2026-09-07) 「起動時に権限の復帰を申し出てもならない（MUST NOT）
- * —— 覚えていないので、申し出る相手が存在しない」. ⭐ What this state feeds is
- * `RS-1` of table T-233 -- 「覚えているファイルへ、いま書き込む権限が無い」 --
- * about a file opened WITHIN this run, which the same requirement keeps:
- * 「上書きが成り立つのは、同じ起動のうちに一度保存先を決めたあとである」.
+ * IF-3's states, given a file and its permission. One place, so a read and a
+ * restore cannot drift apart. Anything but `granted` is `permissionLost`: "not
+ * yet asked" and "refused" both mean the file cannot be saved over now.
  *
  * @purity pure
  */
@@ -343,15 +241,8 @@ function openedStateOf(fileName: string, permission: FilePermissionState): Opene
 }
 
 /**
- * How many of the things dropped were offered as files at all.
- *
- * ⭐ Counted while the drop is being handled rather than when somebody asks
- * for the file, for the same reason the file itself is taken there -- see
- * `takeDroppedFile`. What OP-11 of table T-024a puts a MUST on telling cannot
- * be worked out once the drop is over.
- *
- * ⚠️ Only the ones the browser calls files. A drag carries other kinds
- * beside them, and something never offered as a file was not left behind.
+ * How many dropped things were offered as files (OP-11 of table T-024a).
+ * Counted during the event, like the file itself -- see `takeDroppedFile`.
  *
  * @purity pure
  */
@@ -364,14 +255,10 @@ function countDroppedFiles(items: DroppedItems): number {
 }
 
 /**
- * The first file among the things dropped, or none. ⚠️ A folder is one of
- * these as far as the browser is concerned -- see `readDroppedFile`.
+ * The first dropped file, or none. A folder counts as one -- see `readDroppedFile`.
  *
- * ⛔ The rest are ignored rather than opened. OP-3 of table T-024a asks the
- * person one question about one read content and OP-8 forbids a second open
- * while one is running, so five files dropped at once are not five opens.
- * OP-11 is the row that settles which of them wins, and it is also why the
- * others are counted rather than merely passed over -- see `countDroppedFiles`.
+ * The rest are not opened: OP-3 asks one question about one content and OP-8
+ * forbids a second open; OP-11 settles that the first wins.
  *
  * @purity pure
  */
@@ -385,24 +272,15 @@ function firstDroppedFile(items: DroppedItems): DroppedItem | null {
 
 // ---------------------------------------------------------- semi-pure-b ----
 //
-// ⚠️ Below this line the answers come from outside and can differ between two
-// calls a moment apart. FR-060 is explicit that permission goes missing, which
-// is why IF-3 has the state ASKED for and never remembered.
+// Below this line answers come from outside and can differ a moment apart; IF-3
+// has permission asked for, never remembered (FR-060).
 
 /**
  * Whether the file behind this handle may be written right now.
  *
- * ⚠️ A browser with handles but no `queryPermission` is answered `granted`,
- * which is the optimistic side on purpose: the pessimistic side would report
- * `permissionLost` for a file this run opened itself every time nothing was
- * wrong, which would make FR-060's overwrite unreachable on such a host for
- * good -- and a write that does turn out to be refused comes back as
- * `permissionLost` anyway.
- * ⛔ NOT ABOUT A STARTUP PANEL ROW. Until 2026-09-07 this note claimed the
- * pessimistic side would put a restore offer onto NT-4 of table T-037; FR-060
- * now forbids the offer outright (MUST NOT), and NT-4 lists no such row.
- * Searched: FR-060, LM-14 of table T-004, CN-2 of table T-003, IF-3 of table
- * T-065, NT-4 of table T-037.
+ * A host without `queryPermission` is answered `granted`: the pessimistic answer
+ * would make FR-060's overwrite unreachable there for good, and a write that is
+ * refused still returns `permissionLost`.
  *
  * @provisional PND-105
  *
@@ -413,18 +291,14 @@ async function readWritePermission(handle: FileHandle): Promise<FilePermissionSt
   try {
     return await handle.queryPermission({ mode: 'readwrite' })
   } catch {
-    // ⛔ FR-028 (MUST NOT): a failure is a value. A query that itself failed
-    // tells us nothing, and 'prompt' is the state that asks before writing.
+    // FR-028: a failed query tells nothing, and 'prompt' asks before writing.
     return 'prompt'
   }
 }
 
 /**
- * IF-3's three states, for the handle we are holding.
- *
- * ⭐ Read rather than remembered, and read whole: this is the one place that
- * turns "we have a handle" plus "we may write it" into the single value the
- * caller switches on, which is why a `null` name can never meet a `true` flag.
+ * IF-3's states for the held handle, read whole so a `null` name never meets a
+ * writable state.
  *
  * @purity semi-pure-b
  */
@@ -434,28 +308,13 @@ async function readOpenedState(handle: FileHandle | null): Promise<OpenedFileSta
 }
 
 /**
- * What is standing where a chosen write is about to land.
+ * What stands where a chosen write is about to land, read once (CS-4 of table
+ * T-066) -- see `writeChosenFile`.
  *
- * ⭐ Read here and nowhere else, because only the side that opened the
- * destination can look into it. FR-096 sends what is standing there to table
- * T-227, and CS-4 of table T-066 makes this ONE reading the whole of what the
- * question is afterwards answered about -- see `writeChosenFile`.
- *
- * ⚠️ The name comes off the file that was read, not off the name that was
- * suggested to the chooser: DI-1 of table T-227 compares the name of the file
- * being written over, and the person may have overruled the suggestion.
- *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how a store is to tell a
- * place nothing ever occupied from a file that was standing there holding
- * nothing. A save chooser CREATES the file it names, so both hand back zero
- * bytes and the browser offers nothing else to tell them apart. Looked in
- * table T-227 (DI-3 turns on the destination already being there and rules on
- * nothing else), in FR-096, in table T-024a and in table T-024. ⚠️ Fell to
- * `empty`, because FR-096 sends only a file that is already there to table
- * T-227 at all -- but the choice is this file's, not the specification's.
- * ⛔ The seam declaration `adapter/file-gateway/file-store.ts` records the
- * OPPOSITE choice in its own STOP note on `ChosenWriteDestination`. The two
- * cannot both stand, and which of them goes is not this file's to settle.
+ * The name comes off the file read, not the suggestion: the person may have
+ * overruled it, and DI-1 of table T-227 compares the real name.
+ * A destination with no bytes reports `empty`; DI-6 of table T-227 treats a
+ * created file and one standing empty alike.
  *
  * @purity semi-pure-b
  */
@@ -468,15 +327,13 @@ async function readWriteDestination(handle: FileHandle): Promise<ChosenWriteDest
 
 // -------------------------------------------------------------- non-pure ----
 //
-// ⚠️ From here down the disk changes, permission prompts appear, and the
-// handle this component holds is replaced.
+// From here down the disk changes, permission prompts appear, and the held
+// handle is replaced.
 
 /**
- * Ask for write permission, from inside whatever gesture the caller is in.
- *
- * ⭐ Both FR-060's overwrite and its startup restore end here. They are not
- * two rules: the requirement is that the round trip closes on one file, and
- * asking twice in two different ways would be two answers to one question.
+ * Ask for write permission, inside the caller's gesture. The overwrite and
+ * `restoreOpenedFilePermission` both ask through here, so the question is asked
+ * one way.
  *
  * @purity non-pure
  */
@@ -485,8 +342,8 @@ async function requestWritePermission(handle: FileHandle): Promise<FilePermissio
   try {
     return await handle.requestPermission({ mode: 'readwrite' })
   } catch {
-    // ⚠️ This is the no-gesture case as well as the refusal case. Both leave
-    // the file unwritten, and both are answered by asking again from a click.
+    // The no-gesture case as well as the refusal: both are answered by asking
+    // again from a click.
     return 'denied'
   }
 }
@@ -494,19 +351,14 @@ async function requestWritePermission(handle: FileHandle): Promise<FilePermissio
 /**
  * Put the bytes into the file, or say why they are not there.
  *
- * ⛔ The bytes are written exactly as they arrived. CN-5 of table T-003 fixes
- * UTF-8 with no BOM and table T-024's note forbids adding one (MUST NOT) --
- * it points out that doing nothing is already correct, and the damage comes
- * from prepending one on purpose. ⚠️ Nothing may be put in front of `bytes`.
+ * ⛔ Nothing may be put in front of `bytes` (no BOM: CN-5 of table T-003, table
+ * T-024's note).
  *
- * ⛔ `keepExistingData: false` is stated rather than left to the default: it
- * is what truncates the file, and without it a document that got shorter would
- * leave the tail of the previous one behind and produce a file that is neither
- * of the two formats table T-024 admits.
+ * ⛔ `keepExistingData: false` is stated: it truncates, and without it a shorter
+ * document would leave the previous tail behind.
  *
- * ⚠️ A stream that failed part-way is aborted rather than dropped. An open
- * writable holds a lock on the file, so leaving one behind makes the NEXT save
- * fail too, on a file the person can see nothing wrong with.
+ * ⚠️ A stream that failed part-way is aborted: an open writable locks the file,
+ * and the next save would fail too.
  *
  * @purity non-pure
  */
@@ -524,12 +376,9 @@ async function writeBytesToFile(
   }
 
   try {
-    // ⚠️ Copied, not cast. A stream's chunk refuses a view onto a buffer that
-    // might be shared with another thread, and the seam's `Uint8Array` does not
-    // say it is not one; a buffer this function owns is the honest narrowing,
-    // and it also holds the content still for the length of an asynchronous
-    // write. ⛔ Not a reshaping of the content: same bytes, same order, and
-    // nothing added -- see the BOM note above.
+    // ⚠️ Copied, not cast: a stream chunk refuses a view onto a possibly shared
+    // buffer, and an owned copy also holds the content still during the write.
+    // Same bytes, same order.
     await writable.write(new Uint8Array(bytes))
     await writable.close()
     return null
@@ -540,31 +389,23 @@ async function writeBytesToFile(
 }
 
 /**
- * The one implementation of FileStore (PI-28).
- *
- * ⭐ A closure rather than a class: the state is two values and neither is
- * anyone else's business, and R7.5 keeps mutable state out of the pure side by
- * putting it exactly here.
+ * The one implementation of FileStore (PI-28). A closure: its state is two
+ * private values, and R7.5 puts mutable state here.
  *
  * @purity non-pure
  */
 export function fileSystemAccessFileStore(
   environment: FileSystemAccessEnvironment,
 ): FileStore {
-  /**
-   * The file FR-060 overwrites. ⛔ Never handed out and never compared: IF-3
-   * is built so that no one else can hold one, and one holder cannot be asked
-   * which of two is current.
-   */
+  /** The file FR-060 overwrites. ⛔ Never handed out: IF-3 lets no one else hold one. */
   let openedHandle: FileHandle | null = null
 
   /**
    * What the last drop left, waiting to be asked for.
    *
-   * ⚠️ All three are taken while the drop event is being handled, because
-   * that is the only moment they exist. The handle is a promise on purpose:
-   * `getAsFileSystemHandle` must be CALLED during the event but may be awaited
-   * afterwards.
+   * ⚠️ Taken while the drop event is handled, the only moment it exists. The
+   * handle is a promise because `getAsFileSystemHandle` must be CALLED during
+   * the event but may be awaited later.
    */
   let droppedFile: {
     readonly file: ReadableFile | null
@@ -574,27 +415,20 @@ export function fileSystemAccessFileStore(
   } | null = null
 
   /**
-   * Whether one of the three members that shows a chooser or writes is running.
+   * Whether a member that shows a chooser or writes is running.
    *
-   * ⚠️ Not OP-8. OP-8 is ImportDocument's rule about an import in flight, and
-   * this is the store's own: two reads at once would both set `openedHandle`
-   * and the loser could land last, making "the file that is open" depend on
-   * which chooser the person answered first. The browser refuses a second file
-   * picker as well, and a refusal shaped like the others beats a thrown one.
+   * ⚠️ The store's own guard, not OP-8: two concurrent reads would both set
+   * `openedHandle` and the loser could land last. The browser also refuses a
+   * second picker; a refusal shaped like the others beats a throw.
    */
   let isBusy = false
 
   /**
-   * Declare this surface a place a file may be let go of.
+   * Declare this surface a drop target.
    *
-   * ⛔ Without the refusal of the default here, the drop event never arrives at
-   * all: a surface that does not refuse it during the drag is not a drop
-   * target, and the browser goes on to leave the page and open the file
-   * itself, discarding the document and every unsaved edit in it without the
-   * confirmation OP-4 of table T-024a makes mandatory.
-   *
-   * ⚠️ Only a drag carrying files is intercepted, so dragging text within the
-   * app still behaves as the browser intends.
+   * ⛔ Without `preventDefault` here the drop event never arrives, and the browser
+   * navigates to the file, discarding unsaved edits without OP-4's confirmation.
+   * Only drags carrying files are intercepted.
    *
    * @purity non-pure
    */
@@ -607,17 +441,11 @@ export function fileSystemAccessFileStore(
   /**
    * Take what was dropped, before the browser takes it back.
    *
-   * ⚠️ Both `getAsFileSystemHandle` and `getAsFile` are CALLED here and not a
-   * tick later. What a drop carries is alive only while the event is being
-   * handled, so a store that waited to be asked would find nothing left.
-   *
-   * ⚠️ `.catch` is attached to the handle promise the moment it is made rather
-   * than where it is awaited: nothing may await it at all (the person can drop
-   * a file and never open it), and an unattended rejection is a warning nobody
-   * asked for on a path that is not a failure.
-   *
-   * ⭐ A drop nobody opened is simply replaced by the next one. Keeping a queue
-   * would mean the person's second drop opened their first file.
+   * ⚠️ `getAsFileSystemHandle` and `getAsFile` are called here, not a tick later:
+   * drop items are alive only during the event.
+   * ⚠️ `.catch` is attached at once: the promise may never be awaited, and an
+   * unattended rejection would warn on a path that is not a failure.
+   * A later drop replaces an unopened one; a queue would open the older file.
    *
    * @purity non-pure
    */
@@ -632,28 +460,22 @@ export function fileSystemAccessFileStore(
     droppedFile = {
       file: item.getAsFile(),
       handle,
-      // OP-11 of table T-024a: the one kept is the first, so every other file
-      // in the same hand-over is one that was left.
+      // OP-11 of table T-024a: the first is kept, so every other file was left.
       ignoredFileCount: countDroppedFiles(transfer.items) - 1,
     }
   }
 
-  // ⭐ The capture phase, so that the file is already taken by the time
-  // anything else in the app reacts to the same drop and asks for it. ⛔ Not a
-  // rule about who registers first: the caller's own drop handler is free to
-  // sit anywhere, because the capture phase reaches this surface before any of
-  // the bubbling ones. ⚠️ There is no matching removal -- the store lives as
-  // long as the page does, and a store that stopped listening would leave the
-  // page navigating away on the next drop.
+  // Capture phase, so the file is taken before any bubbling handler in the app
+  // asks for it. ⚠️ No matching removal: the store lives as long as the page, and
+  // a store that stopped listening would let the next drop navigate away.
   environment.dropSurface.addEventListener('dragover', allowFileDrag, { capture: true })
   environment.dropSurface.addEventListener('drop', takeDroppedFile, { capture: true })
 
   /**
-   * Read the chosen file whole, and remember where it came from.
+   * Read the chosen file whole, and remember it.
    *
-   * ⭐ The handle is adopted only after the bytes are in hand, so a chooser
-   * that was answered with a file that then could not be read leaves the
-   * previously opened file standing rather than replacing it with nothing.
+   * The handle is adopted only after the bytes are in hand, so an unreadable
+   * choice leaves the previously opened file standing.
    *
    * @purity non-pure
    */
@@ -668,14 +490,10 @@ export function fileSystemAccessFileStore(
 
     let chosen: readonly FileHandle[]
     try {
-      // ⛔ One file. OP-2 of table T-024a has one entry and OP-3 asks one
-      // question about one read content.
+      // One file: OP-2 of table T-024a has one entry and OP-3 one question.
       //
-      // ⛔ No type filter, although OP-1 admits exactly two formats: no table
-      // gives either of them a file extension or a media type, and inventing a
-      // pair here would hide a file whose name does not match from the person
-      // who knows what it is. FR-023's validation stays the place a file is
-      // refused.
+      // ⛔ No type filter although OP-1 admits two formats: no table gives them an
+      // extension or media type, and FR-023's validation is where a file is refused.
       // Searched: OP-1 of table T-024a, table T-024, CN-5 of table T-003,
       // `_assets/tbl-glossary.md`.
       // @provisional PND-104
@@ -701,16 +519,11 @@ export function fileSystemAccessFileStore(
   }
 
   /**
-   * OP-13 of table T-024a -- the file already open, read a second time.
+   * OP-13 of table T-024a: the open file read again, with no chooser.
    *
-   * ⛔ NO CHOOSER (MUST). The row forbids one in as many words: opening the
-   * picker again would make `Ctrl` + `R` the same act as SK-10.
-   * ⚠️ WITH NO FILE OPEN THIS DOES NOTHING, which is the last sentence of
-   * that row. `cancelled` is the fault that says so -- IF-3 keeps it apart
-   * from the three that are worth telling anyone about, which is exactly
-   * what "do nothing" needs.
-   * ⭐ THE HANDLE IS NOT REPLACED. It is the same file; re-assigning it
-   * would say something happened to the save target when nothing did.
+   * With no file open this does nothing, which `cancelled` expresses (IF-3 does
+   * not notify it). The handle is not re-assigned: nothing happened to the save
+   * target.
    *
    * @purity non-pure
    */
@@ -731,19 +544,12 @@ export function fileSystemAccessFileStore(
   /**
    * Read what the last drop left.
    *
-   * ⭐ Consumed once. A file the person dropped and never opened must not be
-   * handed to the open that comes minutes later from a different control --
-   * that would open a file nobody pointed at just then.
-   *
-   * ⛔ The handle is replaced even when the drop brought none. A dropped file
-   * that cannot be remembered has to CLEAR the previous one: leaving it would
-   * put the document from one file on the screen while the save icon wrote
-   * over another.
-   *
-   * ⚠️ A dropped FOLDER arrives here as well -- what the browser calls a
-   * dropped file covers both, and only the handle tells them apart. It is read
-   * like anything else and refused by FR-023's validation downstream, because
-   * nothing in this component judges what a file contains.
+   * Consumed once, so a later open from another control never opens a file nobody
+   * just pointed at.
+   * ⛔ The handle is replaced even when the drop brought none: keeping the old one
+   * would show one file's document while saving over another.
+   * A dropped folder is read like anything else and refused by FR-023's
+   * validation downstream.
    *
    * @purity non-pure
    */
@@ -751,8 +557,7 @@ export function fileSystemAccessFileStore(
     const drop = droppedFile
     droppedFile = null
     if (drop === null) {
-      // ⚠️ IF-3 puts "dropped nothing" under `cancelled` with the dismissed
-      // chooser: neither is a failure, and neither owes the person a step.
+      // IF-3 puts "dropped nothing" under `cancelled`: not a failure.
       return { ok: false, fault: fault('cancelled', 'nothing was dropped') }
     }
 
@@ -767,11 +572,8 @@ export function fileSystemAccessFileStore(
       const bytes = new Uint8Array(await file.arrayBuffer())
       openedHandle = handle
       const opened = { bytes, fileName: file.name }
-      // OP-11 of table T-024a (MUST): what was left behind is told, and its
-      // MUST NOT keeps this a success -- one file IS open, so the count rides
-      // beside it rather than turning the act into a refusal. ⛔ Omitted
-      // rather than sent as a zero: `FileReading` gives the absence exactly
-      // that meaning, and a drop that left nothing has nothing to tell.
+      // OP-11 of table T-024a: the count rides beside a success. Omitted rather
+      // than zero, which is what its absence means in `FileReading`.
       if (drop.ignoredFileCount === 0) return { ok: true, file: opened }
       return { ok: true, file: opened, ignoredFileCount: drop.ignoredFileCount }
     } catch (thrown) {
@@ -782,9 +584,8 @@ export function fileSystemAccessFileStore(
   /**
    * Write, and say what may be overwritten afterwards.
    *
-   * ⭐ A file just written is writable by the fact that it was written, so the
-   * state is stated rather than asked for again -- R7.4 keeps a new external
-   * read out of the middle of handling a result.
+   * A file just written is writable, so the state is stated rather than asked
+   * again (R7.4).
    *
    * @purity non-pure
    */
@@ -805,27 +606,21 @@ export function fileSystemAccessFileStore(
     }
   }
 
-  /** ⚠️ The store's own guard, not OP-8's. See `isBusy`. @purity pure */
+  /** The store's own guard, not OP-8's. See `isBusy`. @purity pure */
   function busyFault(): FileStoreFault {
     return fault('unavailable', 'the store is already reading or writing a file')
   }
 
   return {
     /**
-     * ⚠️ IF-3 annotates this `semi-pure-b`, which is what the CALLER may rely
-     * on: the answer is decided by the file and by the person, never by
-     * anything remembered here. The implementation ALSO remembers the handle,
-     * and R7.1 calls internal mutable state non-pure, so the tag below is the
-     * stricter of the two. Table T-075 gives UF-51 both values for this reason.
+     * IF-3 annotates this `semi-pure-b` for the caller; the implementation also
+     * remembers the handle, which R7.1 calls non-pure, so the stricter tag is
+     * used (table T-075 gives UF-51 both).
      *
-     * ⛔ The whole file is read into memory, and nothing here checks S-113's
-     * ceiling first. FileGateway states the division -- it reports
-     * `byteLength` and ValidateImportedDocument (CP-13) rules on it under
-     * FR-023 -- and refusing here would need a reason IF-3 does not have.
-     *
-     * ⛔ Whichever route succeeds becomes the file FR-060 overwrites, and a
-     * file the codecs later refuse stays that file: IF-3 has no member for
-     * "the document was accepted".
+     * ⛔ S-113's ceiling is not checked here: ValidateImportedDocument (CP-13)
+     * rules on it under FR-023.
+     * ⛔ The route that succeeds becomes the file FR-060 overwrites, even if the
+     * codecs later refuse it: IF-3 has no "accepted" member.
      *
      * @purity non-pure
      */
@@ -842,11 +637,8 @@ export function fileSystemAccessFileStore(
     },
 
     /**
-     * ⭐ The only member that changes nothing, which is why it keeps IF-3's
-     * `semi-pure-b` where `readFileToOpen` above could not: it asks the
-     * browser and answers, and the same question a second later may well get a
-     * different answer. That is the point -- FR-060 has permission going
-     * missing, so this is asked rather than remembered.
+     * Changes nothing, so it keeps IF-3's `semi-pure-b`; permission is asked
+     * each time because it can go missing (FR-060).
      *
      * @purity semi-pure-b
      */
@@ -855,21 +647,10 @@ export function fileSystemAccessFileStore(
     },
 
     /**
-     * Ask back the write permission for the file THIS RUN opened.
+     * Ask back write permission for the file THIS RUN opened. After a restart
+     * this answers `none`, as FR-060 requires.
      *
-     * ⭐ ONLY A FILE OPENED DURING THIS RUN, AND THAT IS THE SPECIFICATION.
-     * FR-060 (利用者の裁定 2026-09-07): 「前回開いていたファイルを覚えてはならない
-     * （MUST NOT）… 起動した直後の最初の保存で、人がファイルを選び直すのが本仕様で
-     * ある（MUST）—— 上書きが成り立つのは、同じ起動のうちに一度保存先を決めたあと
-     * である」. ⇒ after a restart this answers `none`, which is the required
-     * behaviour and not a shortfall. ⚠️ Until 2026-09-07 this comment called
-     * the member 「FR-060's second MUST, minus the part this unit cannot keep」,
-     * against a version of the requirement that asked for a startup offer.
-     *
-     * ⛔ DO NOT INVENT A SECOND STORE to make a handle survive a reload. The
-     * same requirement now states it: 「そのためにファイルの取っ手を
-     * `localStorage` や `IndexedDB` へ保存してはならない（MUST NOT）—— 覚えないと
-     * いう裁定そのものを破ることになる」.
+     * ⛔ Do not persist the handle to survive a reload (FR-060, MUST NOT).
      *
      * @purity non-pure
      */
@@ -880,21 +661,17 @@ export function fileSystemAccessFileStore(
     },
 
     /**
-     * ⭐ Permission is asked for here rather than left to the caller: the save
-     * the person just clicked IS the gesture a browser wants, and a store that
-     * only ever reported `permissionLost` would make the first save of every
-     * session fail on a file that is perfectly writable.
+     * Permission is requested here because the save click IS the gesture;
+     * only reporting `permissionLost` would fail every session's first save.
      *
-     * ⚠️ The fault names the file (NT-1 of table T-037 requires the notice to
-     * say WHICH item), and `notices.ts` (UF-67) turns the reason into the next
-     * step NT-3a requires.
+     * The fault names the file (NT-1 of table T-037); `notices.ts` (UF-67) adds
+     * the next step (NT-3a).
      *
      * @purity non-pure
      */
     async overwriteOpenedFile(bytes: Uint8Array): Promise<FileWriting> {
-      // ⚠️ Asked before the handle is looked at: a read that is running is
-      // about to decide what the opened file is, and `noOpenedFile` reported
-      // in the middle of one is an answer that stops being true a moment later.
+      // ⚠️ Checked before the handle: a running read is about to decide the opened
+      // file, so `noOpenedFile` reported now could stop being true a moment later.
       if (isBusy) return { ok: false, fault: busyFault() }
       const handle = openedHandle
       if (handle === null) {
@@ -919,17 +696,13 @@ export function fileSystemAccessFileStore(
     },
 
     /**
-     * ⛔ Whether the file just written becomes the one later overwrite-saves
-     * land on is the caller's ruling, carried in `shouldBecomeOpenedFile`.
-     * `file-gateway.ts` decides it from table T-024's direction column, and
-     * this side must not second-guess it.
+     * ⛔ Whether the written file becomes the overwrite target is the caller's
+     * ruling (`shouldBecomeOpenedFile`, from table T-024's direction column in
+     * `file-gateway.ts`); do not second-guess it.
      *
-     * ⛔ NEITHER DOES THIS SIDE JUDGE THE DESTINATION. Whether what is
-     * standing there is this same document is DI-1 .. DI-3 of table T-227 and
-     * belongs to the near side; all this member owes is the chance to answer,
-     * at the one moment when the destination and the unwritten bytes both
-     * exist. R7.4's consistency unit is this one call, and CS-4 of table
-     * T-066 is why the destination is read once and not looked at again.
+     * ⛔ Nor is the destination judged here: table T-227 belongs to the near side.
+     * This member reads it once (CS-4 of table T-066) while both the destination
+     * and the unwritten bytes exist (R7.4).
      *
      * @purity non-pure
      */
@@ -946,13 +719,9 @@ export function fileSystemAccessFileStore(
       try {
         let handle: FileHandle
         try {
-          // ⭐ FR-096 (MUST): the name is a suggestion, and the KIND is not.
-          // `saveFileTypesFor` is where that requirement's 「宿主に伝える手立て」
-          // lands and why the media type lives in this layer.
-          // ⚠️ THE TWO MEMBERS ARE LEFT OFF ENTIRELY where the extension names
-          // no media type, rather than passed as `undefined`: a chooser reading
-          // its own options sees the shape it had before, which is what keeps
-          // that path the one this store has always taken.
+          // FR-096: the name is a suggestion, the kind is not -- see `saveFileTypesFor`.
+          // The two members are omitted, not `undefined`, where no media type is
+          // known, so the chooser sees the plain shape.
           const types = saveFileTypesFor(write.extension)
           handle = await picker(
             types === undefined
@@ -967,35 +736,27 @@ export function fileSystemAccessFileStore(
           if (isDismissal(thrown)) {
             return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
           }
-          // ⚠️ A refused gesture lands here with nothing remembered to call
+          // A refused gesture lands here with nothing remembered to call
           // `permissionLost` about.
           return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
         }
 
-        // ⭐ THE ORDER IS THE RULE. IF-3 fixes it and table T-227 has no
-        // meaning in any other: the person points at the destination, what is
-        // standing there is read, the question is put, and only a `true`
-        // reaches the write. ⛔ No step may be skipped -- DI-4's MUST cannot
-        // be kept by the near side alone, and going straight from the chooser
-        // to the write is what leaves it unkept.
+        // ⛔ The order is IF-3's: point, read the destination, ask, and write only
+        // on `true`. Skipping to the write leaves DI-4 unkept.
         let mayWriteOver: boolean
         try {
           const destination = await readWriteDestination(handle)
           mayWriteOver = await write.askToWriteOver(destination)
         } catch (thrown) {
-          // ⚠️ A destination nobody could look into is not written over. The
-          // other way out is overwriting a file whose owner was never read,
-          // and DI-2's reasoning turns exactly on that being unrecoverable
-          // while one more question is not. NT-1 wants the name, so it is here.
+          // ⚠️ A destination nobody could read is not written over: overwriting is
+          // unrecoverable, one more failure is not (DI-2). NT-1 wants the name.
           return {
             ok: false,
             fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`),
           }
         }
         if (!mayWriteOver) {
-          // ⚠️ `cancelled`, not a failure: the person called the write off,
-          // as they may close the chooser, and IF-3 keeps that reason apart so
-          // that nothing is told to somebody who is owed nothing.
+          // `cancelled`, not a failure: the person called the write off.
           return {
             ok: false,
             fault: fault('cancelled', `${handle.name}: the overwrite was not agreed to`),

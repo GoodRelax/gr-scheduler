@@ -4,28 +4,18 @@
 // @component ApplyDocumentChange, layer UseCase (table T-062)
 // @purity    pure
 //
-// Steps WS-1 to WS-5 of table T-067: match the stamps, judge the moment,
-// validate and build, push one step of history, advance the stamp. Table
-// T-063's UT-1 splits this away from the other half because LY-3 fixes the
-// seam there -- "操作と検証は `pure`、確定と通知は `non-pure`".
+// Steps WS-1 to WS-5 of table T-067, split from the non-pure half by UT-1 of
+// table T-063 (LY-3).
 //
-// ⭐ BOTH ROADS THROUGH THOSE FIVE STEPS LIVE HERE. `planDocumentChange` is the
-// one that arrives as a list of table T-108 commands; `planDocumentReplacement`
-// is the one that replaces the document whole, whose six callers and their
-// three differences are table T-230. The five steps are the same five, so they
-// are not written twice: WS-1 and WS-2 are one shape and one judgement for both.
+// Both roads through those steps live here -- `planDocumentChange` for table
+// T-108 commands, `planDocumentReplacement` for table T-230 -- so WS-1 and WS-2
+// are one shape and one judgement for both.
 //
-// ⚠️ Nothing here replaces the current value or tells anybody. WS-6 and WS-7
-// are the other file's, in that order, and the order is a MUST: a notice sent
-// before the swap reaches subscribers that then read the OLD document.
+// ⚠️ WS-6 and WS-7 are the other file's, in that order: a notice sent before the
+// swap would reach subscribers that then read the OLD document.
 //
-// ⭐ THIS FILE IS THE ONE PLACE TABLE T-027 IS READ, and it reads it twice:
-// `isUndoable` for the writes that leave no step, and `columnsOutsideHistory`
-// for the columns those writes own -- which RD-1 and RD-2 keep through a
-// restore instead of rewinding. UndoEdit and RedoEdit say in their own headers
-// that they never read that table, so both readings have to live together here.
-//
-// ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
+// Table T-027 is read only here -- `isUndoable` and `columnsOutsideHistory` --
+// because UndoEdit and RedoEdit never read it.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -48,18 +38,14 @@ import {
   type Refusal,
   type SettingsLimits,
 } from '../edit-document/edit-document'
-// LR-2: the three components table T-230 names in the WS-3 column, each through
-// its own public entry. ⭐ The arrows run this way and not the other -- the
-// component figure has ApplyDocumentChange ask them, and A-appendix 0.86
-// settles it in words -- which is why `ChangeStep` and `HeldDocument` are
-// declared in UndoEdit and taken from there (LR-3).
+// LR-2: the components table T-230 names in its WS-3 column, each through its
+// public entry. This component asks them, not the reverse, which is why
+// `ChangeStep` and `HeldDocument` are declared in UndoEdit (LR-3).
 import { importDocument, type ImportRefusal, type ImportRequest } from '../import-document/import-document'
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
-// The one destination Chapter 6.2 gives the display words. ⚠️ A JSON import is
-// DATA, not a reach into ScreenRenderer: `check_layer_rules.py` reads a `.json`
-// specifier as data, and `edit-task-group.ts` already takes the same word from
-// the same file for the same requirement.
+// The display words' one destination (Chapter 6.2). A JSON import is data, not a
+// reach into ScreenRenderer: `check_layer_rules.py` reads a `.json` specifier as data.
 import displayWords from '../../adapter/screen-renderer/display-words.json'
 
 /** What WS-2 judges. All three are the caller's knowledge of the moment. */
@@ -83,17 +69,14 @@ export interface PlanInput {
   readonly settingsLimits: SettingsLimits
   /** WS-5's stamp fields. The clock belongs to the Framework (LY-5, CS-1). */
   readonly editedBy: string
-  /** The instant of this write. FR-063 spells it ISO 8601, UTC, to the second. */
+  /** The instant of this write (FR-063). */
   readonly updatedUtc: string
 }
 
-/**
- * WS-1 turned the write away. ⭐ One shape for both roads: table T-230 changes
- * three things about a whole-document replacement and WS-1 is not one of them.
- */
+/** WS-1 turned the write away. Shared by both roads (table T-230 does not change WS-1). */
 export type StampRefusal = { readonly step: 'WS-1'; readonly reason: 'staleStamp' }
 
-/** WS-2 turned the write away. One shape for both roads, for the same reason. */
+/** WS-2 turned the write away. Shared by both roads. */
 export type MomentRefusal = {
   readonly step: 'WS-2'
   readonly reason: 'gestureInFlight' | 'editingInPlace' | 'deliveringNotices'
@@ -112,23 +95,14 @@ export type ChangePlan =
       readonly document: Document
       readonly history: EditHistory<ChangeStep>
       /**
-       * WS-5's judgement: the schedule-data group moved, which is the only
-       * thing FR-063 moves `scheduleUpdatedUtc` for.
-       *
-       * ⭐ It travels on the answer because AG-6 selects live watchers by it
-       * (MUST) and says in as many words that WS-5 has already made the call.
-       * Deriving it a second time on the notifying side is the duplication
-       * R2.7 refuses, and two derivations are two chances to disagree.
+       * WS-5's judgement that the schedule-data group moved (FR-063). Carried
+       * because AG-6 selects watchers by it; deriving it again on the notifying
+       * side would be a second derivation (R2.7).
        */
       readonly hasMovedSchedule: boolean
       /**
-       * What WS-7 still has to TELL, gathered from every command of the bundle.
-       *
-       * ⭐ It travels for the same reason `hasMovedSchedule` does: the write
-       * measured it and the telling happens after the swap, so working it out
-       * again on the notifying side would be two derivations of one fact (R2.7)
-       * -- and the notifying side could not work this one out at all, because
-       * the figures it would compare have already been replaced.
+       * What WS-7 still has to tell, gathered from the bundle. Carried because
+       * the notifying side cannot re-derive it: the figures have been replaced.
        */
       readonly report: EditReport
     }
@@ -136,56 +110,36 @@ export type ChangePlan =
 /**
  * Whether table T-027 puts this command in the history.
  *
- * ⭐ The presentation-group commands that ARE undoable are the multi-valued
- * ones -- UN-13 holds them because FR-049 limits UN-7's "toggles" to the rows
- * whose type is boolean. So `setElementVisible` is the one presentation
- * command that leaves no step, along with the two UN-16 names.
+ * Multi-valued presentation rows stay undoable (UN-13; FR-049 limits UN-7 to
+ * booleans).
  *
- * ⛔ `pinTaskGroup` (CM-68) AND `unpinTaskGroup` (CM-69) ARE NOT AMONG THEM,
- * and their absence is a ruling rather than an omission. UN-16 named pinning
- * until 2026-08-27; that put it against IV-3 of table T-220, because a pin
- * carried across an undo can name a `TaskGroup` the undo removed. UN-14 holds
- * pinning now (利用者の裁定 2026-08-27), so the two commands each push one step
- * -- the cost UN-14 spells out in as many words -- and an undo rewinds S-126
- * with everything else in the snapshot. ⭐ That is what keeps IV-3 without a
- * single sweep rule: a snapshot's pins can only name rows that existed when it
- * was taken. `columnsOutsideHistory` below states the other half of the same
- * ruling, and the two MUST agree.
+ * `pinTaskGroup` / `unpinTaskGroup` push a step (UN-14), so a snapshot's pins
+ * can only name rows that existed then, which keeps IV-3 of table T-220 without
+ * a sweep. ⛔ Must agree with `columnsOutsideHistory`.
  *
  * @purity pure
  */
 function isUndoable(command: DocumentCommand): boolean {
   switch (command.kind) {
-    // UN-7: the eight boolean rows of table T-202.
+    // UN-7: the boolean rows of table T-202.
     case 'setElementVisible':
       return false
     // UN-16: where you look, and nothing else.
     case 'setPanelWidths':
       return false
-    // UN-8: the zoom and the position. ⭐ `fitScheduleToScreen` IS here now.
-    // FR-031 (MUST) splits one fit press into two writes: CM-71 puts the zoom
-    // and the place and leaves no step by this row, and CM-72
-    // (`expandAllTaskGroups`) pushes the one step UN-17 asks for -- it falls
-    // through to `default` below. ⛔ The order MUST NOT be swapped: WS-4 pushes
-    // the document as it stood BEFORE that write, so the step CM-72 pushes
-    // already holds the new zoom, and an undo gives back the new zoom with the
-    // old collapses. Written as one command, or as one bundle of the two, that
-    // step would carry the OLD zoom and the undo would rewind it, against this
-    // very row.
+    // UN-8: the zoom and the position.
+    // ⛔ FR-031 splits one fit press into CM-71 (no step) then CM-72
+    // (`expandAllTaskGroups`, one step via `default`). Do not swap or merge them:
+    // WS-4 pushes the document as it stood before the write, so CM-72's step must
+    // already hold the new zoom, or an undo would rewind it against UN-8.
     case 'setZoom':
     case 'setScrollPosition':
     case 'fitScheduleToScreen':
       return false
     // UN-12: where the two measuring lines stand.
-    // ⛔⛔ `clearDualCursor` IS HERE FOR CONSISTENCY, NOT FOR UN-12. That row
-    // rules on 「位置の変更」 and says nothing about clearing, so no sentence
-    // decides this one. What decides it is the other half of the same file:
-    // `columnsOutsideHistory` keeps `dualCursor` OUT of every step, so a step
-    // pushed by a clear restores nothing at all. ⚠️ Measured 2026-09-06, when
-    // CM-61 gained its first caller (CR-364, the ruling that leaving the mode
-    // clears the pair): every mode exit pushed an undo step that gave back
-    // nothing. Before that caller existed the command was dead and the fault
-    // was dormant. ⭐ The comment above already says the two halves MUST agree.
+    // ⛔ `clearDualCursor` is here for consistency, not by UN-12 (which rules only
+    // on the position): `columnsOutsideHistory` keeps `dualCursor` out of every
+    // step, so a step pushed by a clear would restore nothing.
     case 'setDualCursor':
     case 'clearDualCursor':
       return false
@@ -195,51 +149,27 @@ function isUndoable(command: DocumentCommand): boolean {
 }
 
 /**
- * The current value of every settings column table T-027 keeps OUTSIDE the
- * history -- what a restore has to KEEP rather than rewind.
+ * The current value of every settings column table T-027 keeps outside the
+ * history -- what a restore keeps rather than rewinds.
  *
- * ⭐ THE CENSUS HAS ONE HOME AND IT IS HERE, beside `isUndoable`, because the
- * two read the same table from opposite ends: that one says which WRITES leave
- * no step, this one says which COLUMNS those writes own. ⛔ UndoEdit and
- * RedoEdit MUST NOT grow a second one -- both headers state that they never
- * read table T-027, and that is exactly why the keeping happens on this side of
- * the seam.
+ * ⛔ The one census: UndoEdit and RedoEdit must not grow a second.
  *
- * ⚠️ WHY A RESTORE NEEDS THIS AT ALL. WS-4 of table T-067 pushes the document
- * as it stood BEFORE a write, so a step pushed by an unrelated edit made AFTER
- * one of these writes carries the column as it stood at that earlier moment.
- * Restoring that step verbatim hands the old value back -- the panel width
- * (FR-052) walks backwards on a Ctrl+Z although the drag pushed no step of its
- * own. ⭐ It is the trap the order of CM-71 and CM-72 already dodges for the
- * zoom (see `isUndoable`): ordering answers it for ONE press, this answers it
- * for every step already on the stack.
+ * Needed because WS-4 pushes the document as it stood BEFORE a write, so a step
+ * pushed by a later edit carries these columns' earlier values; restoring it
+ * verbatim would walk e.g. the panel width (FR-052) backwards on Ctrl+Z.
  *
- * ⭐ Read command by command off the arms of `editDocumentSettings`: one entry
- * per column the commands `isUndoable` refuses actually write. ⛔ A column no
- * row of table T-027 excludes MUST NOT be listed -- keeping one the history
- * owns would silently un-do the undo.
+ * ⛔ A column no row of table T-027 excludes must not be listed -- keeping one the
+ * history owns would silently undo the undo.
  *
  * @purity pure
  */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
   return {
-    // UN-7 -- the ten boolean rows of table T-202, every one of them written
-    // by `setElementVisible` (CM-58) and by nothing else.
-    // ⭐ `planVisible` (S-227) and `actualVisible` (S-228) ARE AMONG THEM:
-    // FR-049 makes each an INDEPENDENT boolean, and a boolean row of table
-    // T-202 is what UN-7 rules on.
-    // ⚠️ THE MULTI-VALUED ROWS OF THAT TABLE STAY INSIDE THE HISTORY (UN-13,
-    // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
-    // `guideCursorMode` (S-66) and `fontScale` (S-70) are absent by ruling and
-    // not by omission.
-    // ⛔⛔ `watermarkVisible` (S-144) IS NOT AMONG THEM SINCE 2026-09-02, and
-    // its absence is a ruling rather than an omission (利用者の裁定, CR-335):
-    // the row LEFT table T-202 for table T-206 that day, so UN-7 -- which rules
-    // on 表 T-202 の真偽の行 -- no longer reaches it, and there is no column of
-    // `DocumentSettings` left to keep. ⭐ Nothing is owed here in its place:
-    // the value is `ScreenState.watermarkVisible` now, and the history holds
-    // the DOCUMENT, so a value the document does not carry cannot be rewound
-    // by an undo in the first place.
+    // UN-7 -- the boolean rows of table T-202, written only by `setElementVisible`
+    // (CM-58). `planVisible` and `actualVisible` are independent booleans (FR-049).
+    // The multi-valued rows (`stackDirection`, `guideCursorMode`, `fontScale`)
+    // stay inside the history by UN-13. `watermarkVisible` is not a
+    // `DocumentSettings` column (table T-206), so there is nothing to keep.
     planVisible: current.planVisible,
     actualVisible: current.actualVisible,
     assigneeVisible: current.assigneeVisible,
@@ -251,31 +181,17 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
 
-    // UN-16 -- where you look. `setPanelWidths` (CM-67) writes the pair.
-    // ⛔ NO EXPORT SCALE IS CARRIED: FR-025 (MUST NOT) forbids the export
-    // holding one at all, so there is no third key here.
-    // ⚠️ A saved document that still holds one is not broken by this: OP-6
-    // of table T-024a keeps a key it does not know rather than dropping it, and
-    // a retired key is an unknown key from the day it retires.
+    // UN-16 -- `setPanelWidths` (CM-67) writes the pair. No export scale: FR-025
+    // (MUST NOT) forbids one.
     rowTitlePanelWidth: current.rowTitlePanelWidth,
     propertyPanelWidth: current.propertyPanelWidth,
-    // ⛔ `pinnedGroupIds` (S-126) IS NOT KEPT, AND THAT IS NOW WHAT THE ROWS
-    // SAY. UN-16 used to name it, which put it against IV-3 of table T-220
-    // (every pinned id names a `TaskGroup` THAT EXISTS): pin a row, undo the
-    // write that created it, and a kept id points at a row that is gone. No row
-    // ruled on that meeting, so this file reported it rather than choosing.
-    // ⭐ UN-14 now holds pinning, so the pins travel inside the history and
-    // IV-3 holds itself -- a snapshot's pins can only name rows that existed
-    // when it was taken, so no sweep rule is written anywhere.
+    // `pinnedGroupIds` (S-126) is not kept: UN-14 keeps pins in the history, so
+    // IV-3 of table T-220 holds itself.
 
-    // UN-8 -- the zoom and the place. `setZoom` (CM-65) writes the first pair,
-    // `setScrollPosition` (CM-66) the four anchors, `fitScheduleToScreen`
-    // (CM-71) all six.
-    // ⚠️ `scrollGroupId` (S-78) is ALSO written by `deleteTaskGroup` (CM-27),
-    // which is undoable (UN-14) and sends the anchor to `null` behind the row
-    // it deletes (CD-2). Keeping the current `null` through an undo is what
-    // UN-8 asks for -- where the view sits is not the schedule -- so the two
-    // rows agree here and nothing is owed.
+    // UN-8 -- `setZoom` (CM-65), `setScrollPosition` (CM-66), `fitScheduleToScreen`
+    // (CM-71).
+    // ⚠️ `scrollGroupId` is also written by the undoable `deleteTaskGroup` (CM-27,
+    // CD-2); keeping the current `null` through an undo is what UN-8 asks.
     zoomX: current.zoomX,
     zoomY: current.zoomY,
     scrollDate: current.scrollDate,
@@ -283,28 +199,21 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     scrollDayOffset: current.scrollDayOffset,
     scrollGroupOffset: current.scrollGroupOffset,
 
-    // UN-12 -- where the two measuring lines stand (`setDualCursor`, CM-60).
-    // ⚠️ `clearDualCursor` (CM-61) writes the SAME column and IS undoable --
-    // `isUndoable` does not name it -- so DC-7's clearing pushes a step, and
-    // keeping this column means undoing that step no longer brings the two
-    // lines back. ⛔ Table T-027 rules on the POSITION (UN-12) and nowhere on
-    // the clearing, and UN-13's own note sweeps every multi-valued row of table
-    // T-202 -- S-65 among them -- INSIDE the history, which UN-12 contradicts
-    // by name. The row that names this column is UN-12, so the column is kept.
-    // Reported.
+    // UN-12 -- written by `setDualCursor` (CM-60) and `clearDualCursor` (CM-61),
+    // both leaving no step (see `isUndoable`).
+    // ⚠️ UN-13's note sweeps every multi-valued row of table T-202, S-65 among
+    // them, inside the history, which UN-12 contradicts by name. UN-12 names this
+    // column, so it is kept. Reported.
     dualCursor: current.dualCursor,
   }
 }
 
 /**
- * `restored` with every column of `columnsOutsideHistory` taken from the
- * document being left behind, so that one press of undo or redo gives back the
- * schedule and not the reader's view of it.
+ * `restored` with the `columnsOutsideHistory` taken from the document being left,
+ * so undo and redo give back the schedule and not the reader's view.
  *
- * ⚠️ THE HISTORY IS NOT TOUCHED. Only the document a restore lands on is, and
- * the entry the walk moved across already carries the document being left
- * behind (UndoEdit / RedoEdit both put it there), so the next press keeps these
- * columns from whatever is current THEN.
+ * The history is not touched: the entry walked across already holds the
+ * document being left (UndoEdit / RedoEdit put it there).
  *
  * @purity pure
  */
@@ -322,18 +231,10 @@ function keepingColumnsOutsideHistory(restored: HeldDocument, leaving: Document)
 }
 
 /**
- * What one held step costs, for the total S-95 bounds.
+ * UTF-8 byte length, the measure FR-031 gives S-95.
  *
- * ✅ FR-031 now states the measure (CR-182): the stored form, encoded as UTF-8,
- * in bytes. ⛔ This used to count CHARACTERS and said so as a decision of its
- * own -- and S-95 is written in megabytes, so on Japanese text, where one
- * character is three bytes, the bound was running about three times loose.
- *
- * ⛔ `TextEncoder` is NOT used, and the attempt to is worth recording: LR-6
- * compiles UseCase without the DOM library, so `tsc` refused it outright. The
- * rule held where a comment claiming the API was "not really DOM" would have
- * slipped past a reader. The bytes are counted from the code points instead --
- * eight lines, pure, and testable without a runtime global.
+ * ⛔ Not `TextEncoder`: LR-6 compiles UseCase without the DOM library, so `tsc`
+ * refuses it.
  *
  * @purity pure
  */
@@ -350,13 +251,10 @@ function utf8Length(text: string): number {
 }
 
 /**
- * The size one held step is pushed with. FR-031 (MUST) fixes the measure and
- * this applies it to the whole document a step holds: the packed `GRS JSON`
- * form -- no indent, no line breaks -- encoded as UTF-8, counted in bytes.
+ * The size one held step is pushed with (FR-031): the packed `GRS JSON` form.
  *
- * ⚠️ The packed form is built to be COUNTED and is stored nowhere; FR-024
- * writes the indented one. So `JSON.stringify` is called with no spacing
- * argument, which is that form exactly.
+ * The packed form is only counted, never stored (FR-024 writes the indented
+ * one), so `JSON.stringify` takes no spacing argument.
  *
  * @purity pure
  */
@@ -369,77 +267,50 @@ function stepSizeBytes(document: Document): number {
 // ---------------------------------------------------------------------------
 
 /**
- * The name the row of the invariant takes.
+ * The name the invariant's row takes, read from the dictionary (table T-050,
+ * Chapter 6.2), never typed.
  *
- * ⭐ READ, NEVER TYPED. Table T-050 (MUST) says the name is 「`FR-038` の辞書の
- * `defaultNames` の `row` の語」 and (MUST NOT) forbids minting a second word,
- * so the word is taken from the ONE destination Chapter 6.2 gives the words.
+ * `edit-task-group.ts` does the same lookup; that repeats the lookup, not the
+ * word. A shared constant would be a crossing table T-064 does not publish, or a
+ * unit table T-075 does not list.
  *
- * ⚠️ THE SAME READ IS WRITTEN IN `edit-task-group.ts`, AND THAT IS NOT A COPY
- * OF THE WORD -- both read the one dictionary, and neither spells it. A shared
- * constant is what a reader would reach for, and it cannot be had: a name that
- * left EditDocument's folder for this one would be a crossing table T-064 does
- * not publish, and a file of its own would be a unit table T-075 does not list.
- * ⛔ So the duplication is the LOOKUP and never the word. If the dictionary
- * moves the word, both sites move with it, which is what the MUST NOT is for.
- *
- * ⚠️ The English cell, for the reason `edit-task-group.ts` gives at length:
- * FR-038 (MUST NOT) keeps the display language out of the document, and what is
- * written here is a `TaskGroup.label` that the file carries to an exchange
- * partner -- not a printed word. Table T-050 settles the reading anyway
- * (利用者の裁定 2026-09-01): the word is spelled the same in Japanese.
+ * The English cell: the label is document data carried to an exchange partner,
+ * not a printed word, so the display language may not choose it (FR-038).
  */
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 
 /**
- * The identifier the row of the invariant takes.
+ * The identifier the invariant's row takes.
  *
- * ⛔ NO ROW OF THE SPECIFICATION SAYS WHERE IT COMES FROM, and this file is not
- * inventing one -- it is picking the only value that cannot be wrong. Every
- * OTHER row is created by CM-26, whose identifier arrives as a value because
- * `TaskGroup.id` is a UUID (AT-51) and LY-5 leaves the outside to the Framework
- * (`InputContext.newGroupId`). This row is created by an invariant that no
- * caller asked for, so there is no caller to bring one, and WS-1 to WS-5 are
- * `pure`: nothing here may reach a generator.
+ * ⛔ No row of the specification says where it comes from. Other rows get a UUID
+ * from their caller (CM-26, AT-51, `InputContext.newGroupId`), but no caller asks
+ * for this one, and WS-1 to WS-5 are `pure`, so nothing here may generate one.
  *
- * ⭐ A CONSTANT IS SAFE HERE, and provably, which is why it is a constant
- * rather than a derivation: the invariant fires only when the document holds
- * ZERO rows, so IV-1 (the identifiers are unique across the array) is satisfied
- * by ANY value, and two rows carrying this one can never stand side by side.
- * A merge that meets it on both sides (FR-023) already folds equal identifiers
- * together, so no dangling `TaskGroupMember` is left either.
- * ⚠️ IT IS STILL A VALUE NOBODY RULED ON. Overturning it costs this constant
- * and the cases that name it; nothing is stored anywhere that reads it back.
+ * A constant is safe: the invariant fires only at zero rows, so IV-1 holds for
+ * any value, and a merge folds equal identifiers (FR-023).
+ * ⚠️ Still a value nobody ruled on; overturning it costs this constant and the
+ * cases that name it.
  */
 const EMPTY_DOCUMENT_TASK_GROUP_ID = '00000000-0000-4000-8000-000000000001'
 
 /**
- * The document, holding the `TaskGroup` table T-050 requires it to have.
+ * The document, holding the `TaskGroup` table T-050 requires.
  *
- * ⭐⭐ THE INVARIANT, AND IT IS WRITTEN HERE ONCE BECAUSE THIS FILE IS WHERE
- * EVERY ROAD MEETS. Table T-050 (MUST NOT) forbids transcribing it per road --
- * 「経路ごとに書き写してはならない」 -- and names four that can take the count
- * to zero: a delete (FR-032), an import (FR-023), OP-3's replace, and a redo.
- * All four arrive at WS-3 of table T-067, and the two roads through WS-3 are
- * `planDocumentChange` and `planDocumentReplacement`, both below.
+ * Written once here because table T-050 (MUST NOT) forbids a copy per road, and
+ * every road that can empty the document (FR-032, FR-023, OP-3, redo) meets at
+ * WS-3 in `planDocumentChange` or `planDocumentReplacement`.
  *
- * ⭐ THE ROW STANDS AT `L1` BY DERIVATION, not by assignment: FR-004 derives the
- * depth from the parent, so a row with `parentId: null` cannot stand anywhere
- * else. `order` is 0 because there is no other row to stand after.
- * ⭐ The four remaining columns start absent, exactly as CM-26 leaves them.
- * `label` is filled and `derivedFromTaskUid` is not, which is the pairing AT-54
- * and FR-058 require of every row.
+ * `parentId: null` places the row at `L1` (FR-004). The optional columns start
+ * absent as CM-26 leaves them; `label` without `derivedFromTaskUid` is the
+ * pairing AT-54 and FR-058 require.
  *
- * ⛔ NOTHING IS REFUSED HERE. Table T-050 (MUST NOT): 「最後の 1 行の削除を拒ん
- * ではならない」 -- the delete lands, and being empty afterwards is what this
- * answers. And the count FR-032 asks about is settled before the write reaches
- * WS-3, so the row this makes is not added to it (MUST NOT).
+ * ⛔ Nothing is refused (table T-050, MUST NOT), and FR-032's count is settled
+ * before WS-3, so this row is not counted.
  *
- * ⚠️ THE SAME REFERENCE COMES BACK when the document already holds a row, and
- * that is a MUST rather than a nicety: WS-6 replaces ONE reference, and RD-1's
- * `undone: false` hands the very pair it was given straight back.
+ * ⚠️ A non-empty document comes back as the same reference: WS-6 replaces ONE
+ * reference, and RD-1's `undone: false` returns the very pair it was given.
  *
  * @purity pure
  */
@@ -460,19 +331,10 @@ function documentHoldingOneRow(document: Document): Document {
 }
 
 /**
- * Whether a write moved the schedule-data group -- WS-5's own question.
+ * Whether a write moved the schedule-data group -- WS-5's question (FR-063).
  *
- * FR-063: `scheduleUpdatedUtc` moves for a write that changed the SCHEDULE
- * group, and MUST NOT move for one that changed the presentation group alone.
- * The other instant and the writer move either way.
- *
- * ⚠️ Read from what actually moved, not from table T-108's group column. Every
- * aggregate rebuilds the schedule only when it touches it, so the reference
- * answers exactly, and no command has to be listed anywhere for it to answer.
- * ⭐ Since FR-031 split the fit press in two, the two halves land on opposite
- * answers by themselves: CM-71 writes `documentSettings` alone and moves no
- * schedule instant, and CM-72 clears `isCollapsed`, a TaskGroup column, and
- * moves it -- which is why table T-108 files CM-72 under `TaskGroup`.
+ * Read from reference identity, not table T-108's group column: every aggregate
+ * rebuilds the schedule only when it touches it, so no command list is needed.
  *
  * @purity pure
  */
@@ -483,18 +345,14 @@ function hasMovedScheduleGroup(before: Document, after: Document): boolean {
 /**
  * WS-1 of table T-067, for both roads.
  *
- * AG-2 compares all three fields and refuses on one difference (MUST): the
- * schedule instant alone cannot see a write that touched the presentation
- * group only, because FR-063 does not move it for one.
+ * AG-2 compares all three stamp fields: the schedule instant alone misses a
+ * presentation-only write, which FR-063 does not move it for.
  *
- * ⛔ `declared` is what the WRITER SAYS IT READ, and `current` is the stamp the
- * document holds NOW. Table T-230 forbids matching against the stamp of a
- * document coming IN (MUST NOT) -- by definition that one differs from the
- * current one, so matching it would refuse every replacement there is.
- * ⛔ `null` is a caller that declared nothing, and that is NOT a refusal on its
- * own -- table T-230 forbids refusing for the absence alone (MUST NOT). AG-2's
- * declaration is a capability, not a duty. Only the command road types it out
- * of existence, by asking for a stamp rather than for a stamp or nothing.
+ * ⛔ `declared` is what the writer says it read; `current` is the held stamp.
+ * Never match the incoming document's stamp (table T-230, MUST NOT) -- it would
+ * refuse every replacement.
+ * ⛔ `null` declares nothing and is not a refusal on its own (table T-230,
+ * MUST NOT); only the command road requires a stamp, by type.
  *
  * @purity pure
  */
@@ -504,9 +362,8 @@ function refusalOfStamp(declared: DocumentStamp | null, current: DocumentStamp):
 }
 
 /**
- * WS-2 of table T-067, for both roads: AG-9's two, and the re-entry Chapter 5.5
- * refuses. ⚠️ Refusing rather than queueing, because FR-028 requires the answer
- * to say then and there whether the write was taken.
+ * WS-2 of table T-067, for both roads: AG-9's two, and Chapter 5.5's re-entry.
+ * Refused rather than queued, because FR-028 wants the answer at once.
  *
  * @purity pure
  */
@@ -534,11 +391,8 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   // ---- WS-3: validate and build, all or nothing ---------------------------
   let held = input.document
   const refusals: Refusal[] = []
-  // FR-012's recount rides out of the aggregate on `EditReport`, and a bundle
-  // may hold more than one command that fills one in. ⭐ THE UIDS ARE UNIONED
-  // AND NOT THE COUNTS ADDED: two calendar commands in one bundle can move the
-  // same `Task` twice, and NT-3 of table T-037 asks how many things the result
-  // REACHES -- adding lengths would report one task as two.
+  // FR-012's recount: the UIDs are unioned, not the counts added, because two
+  // commands can move the same `Task` and NT-3 counts what the result reaches.
   const recountedTaskUids = new Set<number>()
   for (const command of input.commands) {
     const result = editDocument(held, command, input.settingsLimits)
@@ -555,32 +409,18 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }
 
-  // ⭐ The invariant of table T-050, as PART OF THIS WRITE. It stands here and
-  // not in the aggregate that emptied the document because the MUST NOT under
-  // that table forbids one copy per road -- and it stands BEFORE WS-4 and WS-5
-  // because both are answers about the document this write settles on: the
-  // step WS-4 pushes holds the document as it stood BEFORE the write either
-  // way, which is what makes ONE press of undo give the deleted rows back.
+  // Table T-050's invariant, as part of this write: before WS-4 and WS-5, which
+  // both answer about the settled document. The step still holds the document
+  // from before the write, so one undo gives the deleted rows back.
   const settled = documentHoldingOneRow(held)
 
   // ---- WS-4: one step of history --------------------------------------
-  // AG-10: a call table T-027 excludes runs and is simply not recorded. A
-  // bundle earns a step when ANY of its commands does.
-  // ⛔⛔ A WRITE THAT MOVED NOTHING LEAVES NO STEP. FR-031 (MUST, the user's
-  // ruling of 2026-09-08): 「書き込みが文書の値を 1 つも変えなかったときは、
-  // 取り消しの段を残さないこと（MUST）」 -- a step IS the document to go back
-  // to, and a document that did not move has no back to go to.
-  // ⭐ THE KIND STILL DECIDES WHETHER A STEP IS POSSIBLE and `isUndoable` still
-  // answers that from table T-027; this test decides whether one is actually
-  // pushed. The same requirement says so: 「種類が「段を積みうるか」を決め、
-  // 値が動いたかが「実際に積むか」を決める」.
-  // ⭐ IDENTITY, NOT A VALUE COMPARISON, for the same reason WS-5 below can use
-  // it: every arm of `edit-document/` answers the document it was handed when
-  // its own fields did not move, so `settled === input.document` IS "nothing
-  // moved". ⛔ A deep comparison would put that cost on the write road.
-  // ⚠️ THE ORDER IS UNCHANGED. This decides WHETHER a step is pushed, never
-  // WHEN -- the CM-71 / CM-72 warning above still governs, and the step still
-  // carries the document as it stood before the write.
+  // AG-10: a bundle earns a step when ANY command is undoable (table T-027).
+  // ⛔ A write that moved nothing leaves no step (FR-031): the kind decides whether
+  // a step is possible, this test whether one is pushed.
+  // Identity suffices because every arm of `edit-document/` returns the document
+  // it was handed when nothing moved; ⛔ a deep comparison would cost the write road.
+  // The order is unchanged -- see the CM-71 / CM-72 note in `isUndoable`.
   const recorded = input.commands.filter(isUndoable)
   const history =
     recorded.length === 0 || settled === input.document
@@ -593,30 +433,12 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
         )
 
   // ---- WS-5: advance the stamp -------------------------------------------
-  // ⭐ On this road WS-5 is also the ONE place the judgement is made. AG-6
-  // names WS-5 as the step that makes it, so it leaves on the answer below
-  // rather than being worked out again from the stamp by whoever notifies
-  // (R2.7). ⚠️ The replacement road has rows where WS-5 makes no judgement at
-  // all, which is why table T-230 gives WS-7 its own way to reach the flag.
-  // ⚠️ Judged on the SETTLED document, so that a write which ends by making the
-  // row moves the schedule instant: a `TaskGroup` is schedule-group data, and
-  // FR-063 moves that instant for a write that touched the group.
+  // AG-6 names WS-5 as where the judgement is made, so it leaves on the answer
+  // (R2.7). Judged on the SETTLED document: making the invariant's row moves the
+  // schedule instant (FR-063).
   const hasMovedSchedule = hasMovedScheduleGroup(input.document, settled)
-  // ⛔⛔ A WRITE THAT MOVED NOTHING DOES NOT ADVANCE THE STAMP. FR-020 (MUST NOT)
-  // says it in as many words -- 「拒まれた書き込みや、何も変えなかった書き込みでは
-  // 打ち直さない」 -- and until 2026-09-08 this line advanced it for every
-  // accepted write, which made the watermark move on a press that changed no
-  // value (ledger DFC-378; measured on the shipped build, 8 seconds forward for
-  // writing the title the document already held).
-  // ⭐ THE TEST IS IDENTITY AND NOT A VALUE COMPARISON, and that is what makes it
-  // affordable here: every arm of `edit-document/` now answers the document it
-  // was handed when its own fields did not move, so `settled === input.document`
-  // is exactly "nothing moved" and costs one reference check on a road AG-3
-  // already runs once per bundle. ⛔ A deep comparison would put that cost on
-  // the write road for no further truth.
-  // ⚠️ FR-063 IS NOT CONTRADICTED: it moves the schedule instant 「文書が更新された
-  // とき」 and speaks of the instant that 動いた; a write that updated nothing is
-  // not one of those.
+  // ⛔ A write that moved nothing does not advance the stamp (FR-020, MUST NOT);
+  // same identity test as WS-4.
   if (settled === input.document) {
     return {
       ok: true,
@@ -643,20 +465,16 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
 }
 
 // ---------------------------------------------------------------------------
-// The whole-document road -- table T-230. Its six rows are the whole set of
-// callers, and they differ in three things only: the history, the stamp, and
-// whether one undo step is pushed. Everything else is the same WS-1 to WS-7.
+// The whole-document road -- table T-230. Its rows differ in the history, the
+// stamp, and whether one undo step is pushed; the rest is the same WS-1 to WS-7.
 // ---------------------------------------------------------------------------
 
 /**
- * What a caller of `importDocument` (PI-10) brings, minus the two fields this
- * road fills in for it.
+ * What a caller of `importDocument` (PI-10) brings, minus two fields.
  *
- * ⭐ `current` is not the caller's to bring: CS-3 of table T-066 has the pair
- * read ONCE, and that one read is the current document.
- * ⭐ `choice` is fixed by the row -- RD-3 covers `'merge'` and `'baseline'`,
- * RD-4 is OP-3's `'replace'` -- so no caller can name one row and be handed the
- * other row's treatment of its history.
+ * `current` is the one read of CS-3 of table T-066, not the caller's. `choice`
+ * is fixed by the row (RD-3 or RD-4), so no caller gets another row's history
+ * treatment.
  */
 export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
   ImportRequest,
@@ -664,15 +482,11 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
 > & { readonly choice: TChoice }
 
 /**
- * The six callers of table T-230, each carrying only what its own row needs.
+ * The callers of table T-230, each carrying only what its row needs.
  *
- * ⚠️ THE TABLE'S FIFTH SEAT IS BURNT, which is why the six run RD-1 to RD-4
- * and then RD-6, RD-7.
- *
- * ⛔ THE ROW IS AN ARGUMENT, NEVER A GUESS. T-230 requires a caller to name its
- * own row (MUST) and forbids accepting a replacement that names none (MUST
- * NOT): if keeping or dropping the history were the caller's own habit, nobody
- * on the path would be checking the MUST that OP-4 puts on it.
+ * ⛔ The row is an argument, never a guess: table T-230 requires a caller to name
+ * it (MUST) and refuses one that names none (MUST NOT), so OP-4's MUST on the
+ * history is always checked on the path.
  */
 export type ReplacementCall =
   /** RD-1 -- undo. WS-3 is UndoEdit (PI-11). */
@@ -687,7 +501,7 @@ export type ReplacementCall =
       readonly historyLimits: HistoryLimits
       /** WS-5's stamp fields. RD-3 is the one row whose stamp advances. */
       readonly editedBy: string
-      /** FR-063 spells it ISO 8601, UTC, to the second. */
+      /** The instant of this write (FR-063). */
       readonly updatedUtc: string
     }
   /** RD-4 -- OP-3's `'replace'`. WS-3 is ImportDocument (PI-10). */
@@ -695,13 +509,10 @@ export type ReplacementCall =
   /** RD-6 -- the document at startup (FR-062, table T-034). The caller brings it. */
   | { readonly row: 'RD-6'; readonly document: Document }
   /**
-   * RD-7 -- FR-095's 初期化. The caller brings 「表 T-034 の `BT-4` の同梱の雛形」.
+   * RD-7 -- FR-095's reset; the caller brings BT-4's bundled template.
    *
-   * ⭐ A ROW OF ITS OWN AND NOT RD-6 REUSED, because the two differ in a column
-   * the path acts on: table T-230 gives RD-6 「空にする」 and RD-7 「捨てる」, and
-   * gives RD-7 the pair 「`FR-095` ／ `OP-4`」 for its 正. ⚠️ Naming RD-6 for an
-   * initialise would put OP-4's MUST on the history where nobody on the path
-   * checks it -- which is the very habit the table's MUST forbids.
+   * Its own row, not RD-6 reused: table T-230 gives the two different history
+   * columns, and naming RD-6 would leave OP-4's MUST unchecked.
    */
   | { readonly row: 'RD-7'; readonly document: Document }
 
@@ -724,7 +535,7 @@ export type ReplacementRefusal =
   | {
       readonly step: 'WS-3'
       readonly reason: 'importRefused'
-      /** ⚠️ Four of these are questions to put to a person, not GRS refusing. */
+      /** ⚠️ Some of these are questions to put to a person, not GRS refusing. */
       readonly refusal: ImportRefusal
     }
 
@@ -739,18 +550,12 @@ export type ReplacementPlan =
     }
 
 /**
- * The flag WS-7 is handed on this road, derived from the outgoing and the
- * incoming `scheduleUpdatedUtc` (MUST).
+ * The flag WS-7 is handed on this road, from the outgoing and incoming
+ * `scheduleUpdatedUtc` (table T-230): most rows leave WS-5 nothing to judge.
  *
- * ⭐ Table T-230 gives WS-7 its own way to reach it because five of the six
- * rows leave WS-5 with no judgement to make: an undo restores an earlier stamp
- * (FR-031), and a document out of a file, an autosave or a startup template
- * keeps the stamp it was written with (FR-062).
- * ⛔ AN EQUALITY, NEVER AN ORDER (FR-063, MUST NOT). A stamp answers which
- * document this is, not which of two is the newer -- and the restored document
- * of an undo is precisely the one an order would call "not newer" and drop.
- * ⚠️ Two writes inside one second therefore read as "did not move" here, which
- * is the same second-resolution wrinkle FR-063 already carries.
+ * ⛔ An equality, never an order (FR-063, MUST NOT): an undo restores an older
+ * stamp, which an order would call "not newer" and drop. Two writes in one
+ * second read as "did not move", FR-063's own resolution.
  *
  * @purity pure
  */
@@ -759,14 +564,11 @@ function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolea
 }
 
 /**
- * ⭐ THE ONE GATE OF THE WHOLE-DOCUMENT ROAD, which is why the invariant of
- * table T-050 is applied here: all five rows of table T-230 leave through this
- * function, so the rule is read once for an undo, a redo, both imports and the
- * document a startup brings.
+ * The one exit of the whole-document road, so table T-050's invariant is applied
+ * here for every row of table T-230.
  *
- * ⚠️ `next` COMES BACK UNTOUCHED when it already holds a row, references and
- * all -- RD-1 and RD-2 hand the very pair they were given back when nothing
- * moved, and WS-6 replaces ONE reference (MUST).
+ * ⚠️ `next` comes back untouched when it already holds a row: RD-1 and RD-2 hand
+ * back the very pair when nothing moved, and WS-6 replaces ONE reference.
  *
  * @purity pure
  */
@@ -783,12 +585,10 @@ function importRefused(refusal: ImportRefusal): ReplacementPlan {
 }
 
 /**
- * Runs WS-1 to WS-5 for a whole-document replacement and answers what the other
- * half should commit. The row of table T-230 decides the last three of them.
+ * Runs WS-1 to WS-5 for a whole-document replacement; the row of table T-230
+ * decides the last three.
  *
- * ⛔ THE DOCUMENT COMING IN IS NOT VALIDATED AGAIN (T-230, MUST NOT): OP-5 and
- * FR-023 already carry that, and the documents an undo history holds were never
- * theirs to carry in the first place.
+ * ⛔ The incoming document is not validated again (table T-230, MUST NOT).
  *
  * @purity pure
  */
@@ -804,26 +604,16 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
   if (untimely !== null) return { ok: false, refusal: untimely }
 
   // ---- WS-3, WS-4 and WS-5, by the row ------------------------------------
-  // ⚠️ One switch and not three: table T-230 is read by row and not by column,
-  // so a caller that named RD-1 cannot pick up RD-3's stamp on the way past.
+  // One switch, because table T-230 is read by row: a caller naming RD-1 cannot
+  // pick up RD-3's stamp on the way past.
   switch (call.row) {
-    // RD-1 -- the history is the one the asked side answered, the stamp comes
-    // through as it came in, and no step is pushed. All three are `next`
-    // verbatim, so WS-4 and WS-5 have nothing left to do on this row.
-    // ⚠️ Committed whether or not a step actually moved: `undone: false` hands
-    // back the very pair it was given (FR-031 calls that an answer, not an
-    // error), so one commit is right either way.
-    // ⚠️ THE DOCUMENT IS NOT COMMITTED VERBATIM, and only here: the columns
-    // table T-027 keeps outside the history are taken from the document being
-    // left behind (see `columnsOutsideHistory`). The three columns T-230 gives
-    // this row are untouched by that -- the history is still the answered one,
-    // the stamp is still the restored one, and still no step is pushed.
+    // RD-1 -- history as UndoEdit answered, stamp as restored, no step pushed.
+    // Only the columns table T-027 keeps outside the history are taken from the
+    // document being left (see `columnsOutsideHistory`).
     case 'RD-1': {
       const outcome = undoEdit(held)
-      // ⛔ NOTHING MOVED, SO NOTHING IS BUILT. `undone: false` hands the very
-      // pair back, and WS-6 replaces ONE reference (MUST) -- a document that
-      // did not move has to stay the same value, which a fresh object built
-      // out of the columns of itself would not be.
+      // ⛔ Nothing moved, so nothing is built: WS-6 replaces ONE reference, and a
+      // fresh object would not be the same value.
       if (!outcome.undone) return replacementSettled(held, outcome.next)
       return replacementSettled(
         held,
@@ -831,9 +621,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       )
     }
 
-    // RD-2 -- the same three columns, walking the other way. ⚠️ And the same
-    // keeping: a redo replays a write, which is no more a reason to move the
-    // panel width or the zoom than an undo is.
+    // RD-2 -- the same, walking the other way, with the same keeping.
     case 'RD-2': {
       const outcome = redoEdit(held)
       // The same short circuit, for the same MUST.
@@ -844,34 +632,28 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       )
     }
 
-    // RD-3 -- the row that carries the current history forward, and the only
-    // one of the six whose stamp advances and whose WS-4 can owe a step.
+    // RD-3 -- carries the current history forward; the only row whose stamp
+    // advances and whose WS-4 can owe a step.
     case 'RD-3': {
       const outcome = importDocument({ ...call.importing, current: held.document })
       if (!outcome.ok) return importRefused(outcome.refusal)
-      // WS-4 -- T-230 hands the question to table T-027, and `importDocument`
-      // has already read that table for this import: `report.undo` IS T-027's
-      // answer, so nothing here reads it a second time (R2.7).
-      // ⛔ STOP -- `'notDecided'` IS A HOLE IN TABLE T-027, NOT A CHOICE MADE
-      // HERE: import-document.ts records that T-027 has no row for the overlay
-      // at all. Nothing is pushed while that stays true, and whether to push is
-      // exactly what is undecided.
+      // WS-4 -- `report.undo` IS table T-027's answer, already read by
+      // `importDocument`, so it is not read again (R2.7).
+      // ⛔ STOP -- `'notDecided'` is a hole in table T-027 (no row for the overlay;
+      // recorded in import-document.ts), not a choice made here. Nothing is pushed.
       const history =
         outcome.report.undo === 'oneStep'
           ? historyWithStep(
               held.history,
-              // The step holds the document going out, as WS-4 always does.
-              // ⚠️ The command list is EMPTY because the field holds rows of
-              // table T-108 and that table has no import command -- empty by
-              // what the field is, not by an omission here.
+              // The step holds the outgoing document, as WS-4 always does. The
+              // command list is empty because table T-108 has no import command.
               { document: held.document, commands: [] },
               stepSizeBytes(held.document),
               call.historyLimits,
             )
           : held.history
-      // WS-5 -- this row advances the stamp and no other row does. The merge
-      // builds its result out of the current document, so leaving the stamp
-      // alone here would break FR-063, AG-2 and AG-6 at once.
+      // WS-5 -- the merge builds from the current document, so leaving the stamp
+      // alone would break FR-063, AG-2 and AG-6.
       const document: Document = {
         ...outcome.document,
         documentStamp: advancedStamp(
@@ -884,36 +666,24 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       return replacementSettled(held, { document, history })
     }
 
-    // RD-4 -- OP-3's replace. The history is dropped (OP-4, and UN-6 says in as
-    // many words that a replace cannot be undone), the stamp comes through as
-    // the file wrote it, and no step is pushed.
+    // RD-4 -- OP-3's replace: history dropped (OP-4, UN-6), stamp as the file
+    // wrote it, no step.
     case 'RD-4': {
       const outcome = importDocument({ ...call.importing, current: held.document })
       if (!outcome.ok) return importRefused(outcome.refusal)
       return replacementSettled(held, { document: outcome.document, history: emptyHistory() })
     }
 
-    // RD-6 -- the caller brings the document, so the document it brought IS
-    // WS-3's answer (T-230), and its 「空にする」 is an empty history because
-    // a startup document has none to begin with (table T-034).
-    // ⭐ The stamp comes through untouched. A stamp minted here would leave
-    // FR-063's equality with nothing of the writing to compare against.
+    // RD-6 -- the caller's document is WS-3's answer (table T-230); a startup
+    // document has no history (table T-034). The stamp comes through untouched,
+    // or FR-063's equality would have nothing to compare.
     case 'RD-6':
       return replacementSettled(held, { document: call.document, history: emptyHistory() })
 
-    // RD-7 -- FR-095's 初期化. The caller brings the bundled template of BT-4,
-    // so the document it brought IS WS-3's answer, by the same sentence that
-    // settles RD-6: 「「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま
-    // `WS-3` の答えである。」
-    // ⭐ THE OTHER THREE COLUMNS ARE RD-4's, not RD-6's -- 「扱いは `RD-4` と同じ
-    // であり、選んだのではなく導いた」. The history is 捨てる (OP-4: 「取り消しの
-    // 履歴は引き継がない」), the stamp comes through 入ってきたまま, and no step is
-    // pushed. ⚠️ 捨てる and RD-6's 空にする land on the same value here and are
-    // NOT the same cell: RD-6 empties a history that had nothing in it, and this
-    // row throws away one that did.
-    // ⛔ THE TEMPLATE IS NOT VALIDATED AGAIN (T-230, MUST NOT), and the OP-4
-    // confirmation that has to come first is the CALLER's -- FR-095 puts it
-    // 「捨てる前に」, which is before this road is entered at all.
+    // RD-7 -- FR-095's reset: the caller's template is WS-3's answer, and the other
+    // columns are RD-4's (table T-230). Same value as RD-6 here, but a different
+    // cell: this discards a history that had entries (OP-4). The OP-4
+    // confirmation is the caller's, before this road is entered.
     case 'RD-7':
       return replacementSettled(held, { document: call.document, history: emptyHistory() })
   }

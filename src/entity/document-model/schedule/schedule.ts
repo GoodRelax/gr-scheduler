@@ -4,23 +4,11 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-1
-//
-// Generated as an empty unit by tools/generate_unit_tree.py. Fill it in; the
-// generator never rewrites a file that exists.
-//
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
 
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
-
-// The presentation group through ITS public entry, the only route Chapter 5.3
-// leaves open. `scheduleViolations` needs it: five rows of table T-220 are
-// judged partly by a settings row, and IV-16 needs the bounds roster itself,
-// so a value crosses here as well as a type. ⚠️ Not a cycle inside the layer
-// (LR-3 of table T-061): document-settings.ts imports nothing at all.
+// `scheduleViolations` judges some rows of table T-220 by settings, so a value
+// (`SETTINGS_BOUNDS`) crosses from the presentation group as well as a type. No
+// cycle inside the layer (LR-3 of table T-061): document-settings.ts imports
+// nothing.
 import {
   SETTINGS_BOUNDS,
   type DocumentSettings,
@@ -762,9 +750,8 @@ export const DEFAULT_CALENDAR_VALUES: {
 // </generated>
 
 /**
- * The five states of table T-019a. The spellings are this file's own: the
- * state is derived, never stored and never exchanged, so no table names it.
- * Each is tied to the row it comes from so a failing test can name one line.
+ * The states of table T-019a. The spellings are this file's: the state is
+ * derived, never stored or exchanged, so no table names it.
  */
 export type PlanActualState =
   /** PS-1 */ | 'notStarted'
@@ -774,10 +761,7 @@ export type PlanActualState =
   /** PS-5 */ | 'inProgress'
 
 /**
- * Which of the five a task is in. Table T-019a is a decision list read in the
- * order of its rank column, and it is total: PS-5 catches whatever the first
- * four did not, which is what made the table replace a set of conditions that
- * left a real task -- one suspended and then finished -- matching no row.
+ * Which state a task is in: table T-019a read in rank order, PS-5 catching the rest.
  *
  * @purity pure
  */
@@ -789,26 +773,16 @@ export function planActualState(task: Task): PlanActualState {
   return 'inProgress'                                           // PS-5
 }
 
-/** Look one task up by its UID. FR-022 matches on it. @purity pure */
+/** FR-022 matches on the UID. @purity pure */
 export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
 }
 
-// `scheduleViolations` is at the FOOT of this file, under "document
-// invariants". It is last because it is the one member that reads every other
-// one -- the days, the calendar and the resolution FR-054 states -- and putting
-// it there keeps the roster it walks next to nothing it has to be read against.
-
 // ---------------------------------------------------------------- dates ----
 //
-// GRS does not handle time: the smallest unit is the day (FR-054). A date
-// column keeps the exchange partner's own text -- every one of them is `Own`,
-// so EX-2 and FR-021 require the untouched value to go back unchanged -- and
-// the day is derived from it here, in one place, rather than parsed wherever
-// somebody happens to need it.
-//
-// The day is the LEXICAL date part. No time zone is converted (FR-054): doing
-// so would move the day by one on some machines and not others.
+// A date column keeps the exchange partner's own text (EX-2, FR-021), and the
+// day is derived from it here, in one place. The day is the LEXICAL date part:
+// converting a time zone would move it by one on some machines (FR-054).
 
 /** A day on the calendar. No time, no zone -- FR-054. */
 export interface CalendarDay {
@@ -855,14 +829,9 @@ export function compareDays(a: CalendarDay, b: CalendarDay): number {
 }
 
 /**
- * ⚠️ `Date.UTC` maps a year of 0 .. 99 onto 1900 .. 1999, so a day whose year
- * is below 100 lands on the wrong serial. `dayOf` admits one -- its regular
- * expression takes any four digits -- and table T-214 forbids one from ever
- * being stored (`FR-023`), but `ValidateImportedDocument` (`PI-13`) is still an
- * empty unit, so nothing enforces that yet. Left as it is on purpose: the same
- * mapping sits in `dayOf`'s round-trip check, so the fix moves both together
- * and changes what they answer for years 1 .. 99. It is not part of this change
- * and it is reported.
+ * `Date.UTC` maps years 0 .. 99 onto 1900 .. 1999, so such a day lands on the
+ * wrong serial. `dayOf`'s round-trip check shares the mapping, so a fix must move
+ * both.
  *
  * @purity pure
  */
@@ -871,14 +840,11 @@ function serial(day: CalendarDay): number {
 }
 
 /**
- * The span between two days in CALENDAR days, half-open the way
- * `workingDaysBetween` is -- so a plan that starts and finishes on one day
- * spans 0, and the two counts can be compared against the same figure.
+ * The span between two days in CALENDAR days, half-open like
+ * `workingDaysBetween`, so a one-day plan spans 0.
  *
- * ⭐ FD-6 of table T-012a fixes this as the unit a fade is measured in
- * (本表の「期間」は暦日で数えること（MUST）), and the same row binds IV-12 of
- * table T-220 to it. ⛔ It is NOT FR-012's span, which is worked days and
- * answers a different requirement.
+ * FD-6 of table T-012a (fades, and IV-12 of table T-220). Not FR-012's span,
+ * which counts worked days.
  *
  * @purity pure
  */
@@ -899,11 +865,7 @@ export interface WorkingCalendar {
   readonly exceptions: readonly Exception[]
 }
 
-/**
- * One `Exception`'s days, as serials. Both ends are INCLUSIVE -- AT-79 and
- * AT-80 name the first and the last day the exception covers -- which is why
- * the field says so (`R3.4`: a closed interval is shown by its name).
- */
+/** One `Exception`'s days as serials; both ends inclusive (AT-79, AT-80). */
 interface ExceptionSpan {
   readonly from: number
   readonly toInclusive: number
@@ -923,20 +885,12 @@ interface CalendarIndex {
 }
 
 /**
- * Read the calendar once, so that a walk does not read it once per day.
+ * Read the calendar once, so a walk does not read it once per day.
  *
- * ⭐ Both walks below call this BEFORE their loop, never inside it (`R5`, code
- * level -- loop-invariant work does not belong in the loop): `dayOf` runs a
- * regular expression and builds a `Date` for every exception, and
- * `layoutFromSchedule` reaches `dateFromWorkingDays` once per `Task` per frame,
- * where `NFR-002` fixes the budget.
- *
- * ⚠️ The index is built per call, never held between calls. Holding one would
- * be a cache, and `R2.20` requires Chapter 5.6 to record what is cached, what
- * invalidates it, and what staleness is allowed. Chapter 5.6 records none of
- * that for this, so this file does not invent it -- a short walk therefore
- * still pays one pass over the exceptions, the same pass its first day used to
- * pay on its own.
+ * Called before each loop, never inside it: `layoutFromSchedule` reaches
+ * `dateFromWorkingDays` once per `Task` per frame (NFR-002). Built per call, not
+ * held: a cache would need Chapter 5.6 to record its invalidation (R2.20), and it
+ * records none.
  *
  * @purity pure
  */
@@ -958,8 +912,7 @@ function indexOfCalendar(within: WorkingCalendar): CalendarIndex {
   for (const weekDay of within.weekDays) {
     const dayType = weekDay.dayType
     if (dayType === null || dayType < 1 || dayType > 7) continue
-    // The FIRST row for a day type decides it, which is what the `find` this
-    // replaced did. A weekday with no row at all is not worked.
+    // The FIRST row for a day type decides it; a weekday with no row is not worked.
     if (worksWeekday[dayType] === undefined) worksWeekday[dayType] = weekDay.dayWorking === true
   }
 
@@ -982,18 +935,9 @@ function isWorkingDayAt(index: CalendarIndex, atSerial: number): boolean {
 }
 
 /**
- * Whether a day is worked. WeekDay.dayType is 1..7 with 1 = Sunday, the coding
- * of the exchange partner (AT-73); an exception that covers the day wins over
- * the weekly pattern, which is what recurrenceKind exists to bound. Only the
- * exceptions this software interprets are considered -- a recurring one it did
- * not interpret stays in carry and is not read here.
- *
- * One day at a time. A walk over many asks `isWorkingDayAt` against an index it
- * built once, so the answer is the same and the calendar is read once.
- *
- * ⚠️ The whole `WorkingCalendar` is the argument, not its three fields spread
- * out. Every caller held one anyway and had to reach through it (`R2.12`), and
- * the `calendar` field was accepted only to be discarded (`R2.9`).
+ * Whether a day is worked. `dayType` is 1..7 with 1 = Sunday (AT-73); an
+ * exception covering the day beats the weekly pattern. A recurring exception
+ * this software does not interpret stays in carry and is not read.
  *
  * @purity pure
  */
@@ -1002,20 +946,14 @@ export function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean
 }
 
 /**
- * Table T-209's default: Monday to Friday worked, no exception days.
- *
- * ⚠️ This calendar is NOT in the document. It is built to count by when the
- * document names none, so its `uid` stands for nothing and is never written --
- * FR-054 requires an unimported document to have a calendar all the same.
+ * Table T-209's default week. Not in the document: built for counting when the
+ * document names no calendar (FR-054), so its `uid` stands for nothing and is
+ * never written.
  */
 const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
   ordinal,
   dayType,
-  // ⭐ S-106 itself, in the dayType numbering AT-73 states, generated from the
-  // manuscript. This line used to read `dayType >= 2 && dayType <= 6` with a
-  // comment explaining the mapping -- and that comment was the ONLY place the
-  // mapping was written down anywhere: the specification did not state it
-  // until CR-180. Changing 表 T-209 now changes this (CR-180).
+  // S-106 in AT-73's dayType numbering, generated from the manuscript.
   dayWorking: DEFAULT_CALENDAR_VALUES['S-106'].includes(dayType),
   carry: {},
   carryElements: [],
@@ -1034,21 +972,12 @@ const DEFAULT_CALENDAR: Calendar = {
 }
 
 /**
- * The one calendar the document counts working days by.
+ * The one calendar the document counts working days by, in FR-054's order.
  *
- * FR-054 says "文書が持つ暦" and then "同じ暦", singular both times, and fixes
- * the order: what `Project.calendarUid` names, else the lowest-ordinal base
- * calendar, else table T-209's default.
- *
- * ⚠️ `Task.calendarUid` and `Resource.calendarUid` are NOT read here (MUST
- * NOT). They are held to send the exchange partner's value back. Counting two
- * Tasks of one row by different calendars would leave the progress line's
- * vertices (table T-022) and the days late (FR-047) incomparable inside that
- * row, which is the one comparison UC-006 exists to make.
- *
- * ⚠️ `Calendar.baseCalendarUid` is NOT walked -- resolving that inheritance is
- * the import's job (FR-023), and doing it here would rebuild the same answer
- * every frame.
+ * `Task.calendarUid` and `Resource.calendarUid` are not read (FR-054): they are
+ * held for the round trip only. `Calendar.baseCalendarUid` is not walked:
+ * resolving inheritance is the import's job (FR-023), and doing it here would
+ * repeat it every frame.
  *
  * @purity pure
  */
@@ -1066,29 +995,18 @@ export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
 }
 
 /**
- * The two ends of table T-214, as rows S-119 and S-120 write them.
- *
- * ⚠️ These are the DEFAULT values of two settings, not constants of the domain:
- * `DocumentSettings` publishes `importMinDate` (S-119) and `importMaxDate`
- * (S-120) per document, and both rows carry 🔎 -- the values may yet be
- * re-chosen. Reading them from the settings was the alternative and was not
- * taken: this file is handed the schedule group (DR-2 of table T-052) and never
- * the presentation group (DR-3), so the settings would have to be added to the
- * two signatures below and threaded through five call sites in three
- * components -- to size a safety valve, not to decide an answer. If the two
- * rows move, move these two with them.
+ * The DEFAULT values of S-119 and S-120 (table T-214), used only to size the
+ * walks' safety valve. The per-document settings are not read because this file
+ * is handed the schedule group (DR-2 of table T-052), not the presentation group.
+ * If the two rows move, move these with them.
  */
 const IMPORT_MIN_DAY: CalendarDay = { year: 1970, month: 1, day: 1 }
 const IMPORT_MAX_DAY: CalendarDay = { year: 2200, month: 12, day: 31 }
 
 /**
- * The most days a walk can cross and still be inside the range table T-214
- * accepts. A walk that passes this has left the range no input may hold, which
- * is what a calendar working none of its days does -- and the alternative is a
- * loop that never ends.
- *
- * ⚠️ Derived from the two rows above, not chosen. It was written as the bare
- * literal 85000, which is this span plus 630 days that no row asks for.
+ * The most days a walk can cross and stay inside table T-214's range. Passing it
+ * means a calendar that works none of its days; the alternative is a loop that
+ * never ends. Derived from the two rows above, not chosen.
  */
 const ACCEPTED_DAY_SPAN = serial(IMPORT_MAX_DAY) - serial(IMPORT_MIN_DAY)
 
@@ -1102,16 +1020,9 @@ export class NoWorkingDayReached extends Error {
 }
 
 /**
- * ST-7's shape again, for the counting walk. What that walk needs a valve for
- * is cost rather than a spin -- it always ends -- and the cost is not bounded
- * by anything else: `dayOf` admits any four-digit year, `FR-023` is the MUST
- * NOT that keeps a date outside table T-214 out of the document, and
- * `ValidateImportedDocument` (`PI-13`) is the unit that enforces it and is
- * still empty. Until it is written a document can hold 0001-01-01 and ask for
- * millions of steps on one command.
- *
- * ⚠️ A separate class from `NoWorkingDayReached` on purpose: there the calendar
- * is what is wrong, here the two ends are, and one message cannot say both.
+ * ST-7's shape for the counting walk, which always ends but whose cost is
+ * unbounded: `dayOf` admits any four-digit year. A separate class because here
+ * the two ends are wrong, not the calendar.
  */
 export class DaySpanTooWide extends Error {
   /** @purity pure */
@@ -1135,10 +1046,8 @@ export function workingDaysBetween(within: WorkingCalendar, from: CalendarDay,
                                    to: CalendarDay): number {
   const start = serial(from)
   const stop = serial(to)
-  // The same bound `dateFromWorkingDays` walks under, for the same reason:
-  // table T-214 bounds every date an input may hold, so a wider span is
-  // counting days no document may name. Here the number of steps is known
-  // before the walk, so the valve costs one subtraction instead of a counter.
+  // The same bound as `dateFromWorkingDays`; here the step count is known before
+  // the walk, so one subtraction replaces a counter.
   if (Math.abs(stop - start) > ACCEPTED_DAY_SPAN) throw new DaySpanTooWide(from, to)
   const index = indexOfCalendar(within)
   const step = stop < start ? -1 : 1
@@ -1152,12 +1061,10 @@ export function workingDaysBetween(within: WorkingCalendar, from: CalendarDay,
 /**
  * The EARLIEST day X for which `workingDaysBetween(from, X)` is `workingDays`.
  *
- * Both of these count a half-open span, and that is what makes them a pair: a
- * task that starts on a Monday with an actualDuration of one worked day covers
- * the Monday alone (S-129, and the ruling of version 0.38), so the end it
- * reaches is the Tuesday. The end is a bound, not the last day worked -- more
- * than one day satisfies the count when a weekend follows, and taking the
- * earliest is what makes the answer single.
+ * Both count a half-open span: a task starting on a Monday with one worked day
+ * covers the Monday alone (S-129), so the bound reached is the Tuesday. More
+ * than one day satisfies the count when a weekend follows; the earliest makes
+ * the answer single.
  *
  * @purity pure
  */
@@ -1169,11 +1076,8 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
   let at = serial(from)
   let walked = 0
   while (remaining > 0) {
-    // A calendar that works none of its days would spin here forever, and
-    // nothing in the specification forbids one arriving. Table T-214 bounds
-    // every date an input may hold, so a walk past that span cannot be real.
-    // Unlike the count above, how far a day of work lies is not known before
-    // the walk -- it depends on the calendar -- so this valve has to count.
+    // A calendar working none of its days would spin forever; unlike the count
+    // above, the distance is not known before the walk, so this valve counts.
     if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
     const covered = step > 0 ? at : at - 1
     at += step
@@ -1183,18 +1087,11 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
 }
 
 /**
- * The first working day strictly after `from`.
+ * The first working day strictly after `from` (FR-043, by FR-054's calendar).
  *
- * ⭐ FR-043 (MUST) puts the actual-start dummy on 「予定の開始日の翌稼働日」, and
- * FR-054 makes that reading the calendar's. ⛔ NOT `dateFromWorkingDays(from,
- * 1)`: that answers a half-open END BOUND -- the day a one-day span reaches --
- * so for a Friday start it lands on the Saturday, which is a day nobody works
- * and which FR-043 refuses to put a handle on.
- *
- * ⚠️ `from` ITSELF IS NEVER THE ANSWER, whether or not it is worked. The two
- * handles either side of it are what the rule exists for (GR-3 to the left,
- * GR-9 to the right), so an answer equal to `from` would put them back on one
- * another.
+ * Not `dateFromWorkingDays(from, 1)`: that answers a half-open end bound, which
+ * for a Friday start is the Saturday. `from` itself is never the answer, or GR-3
+ * and GR-9 would sit on one another.
  *
  * @purity pure
  */
@@ -1203,9 +1100,7 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
   let at = serial(from) + 1
   let walked = 0
   while (!isWorkingDayAt(index, at)) {
-    // The same valve `dateFromWorkingDays` carries, for the same reason: a
-    // calendar that works none of its days would spin here forever, and table
-    // T-214 bounds every date an input may hold.
+    // The same valve as `dateFromWorkingDays`.
     if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
     at += 1
   }
@@ -1213,9 +1108,7 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
 }
 
 /**
- * Whether a task is behind, and by how much. Table T-021b holds all three
- * cases, and each names the start it counts from; the end is always the status
- * date. A task in none of the three is not behind.
+ * Whether a task is behind, and from which start: table T-021b.
  *
  * @purity pure
  */
@@ -1243,12 +1136,8 @@ export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
 }
 
 /**
- * The delay in worked days, counted from the day table T-021b names to the
- * status date. Zero when the task is not behind.
- *
- * ⚠️ Raises `DaySpanTooWide` when the two ends are further apart than table
- * T-214 accepts. It counts dates the document already holds, and nothing has
- * range-checked them yet (`FR-023` / `PI-13`), so the valve is reachable here.
+ * The delay in worked days from table T-021b's day to the status date; zero when
+ * the task is not behind. Raises `DaySpanTooWide` for ends wider than table T-214.
  *
  * @purity pure
  */
@@ -1262,38 +1151,13 @@ export function delayWorkingDays(within: WorkingCalendar, task: Task,
 
 // ------------------------------------------------- document invariants ----
 //
-// Table T-220 is the whole census of the document's invariants, and Chapter 6.1
-// requires `scheduleViolations` to be DRIVEN by that table (MUST) rather than to
-// write its rows out one condition at a time (MUST NOT). So the table is
-// transcribed below as fixed data -- one entry per row, carrying that row's ID
-// and its kind column -- and `scheduleViolations` is a single walk over the
-// roster. 1.9 asks for the same shape of a test that verifies a requirement
-// pointing at a table: one walk over every row, never one branch per row.
-//
-// ⚠️ The table holds only the conditions the generated schema CANNOT hold.
-// Chapter 6.1 keeps every single-column condition out of it -- type,
-// nullability, string length, numeric range and a spelled enumeration are
-// already forced by `_source/grs-document.schema.json` -- so none is repeated
-// here either.
-//
-// ⭐ Every row of the table is answered. IV-1, IV-2 and IV-16 used to answer
-// nothing because the columns they are judged against reached no generated
-// artifact; `ENTITY_ROWS` and `SETTINGS_BOUNDS` are now those rosters, so the
-// three are driven the same way IV-14 is driven by `DATE_COLUMNS`.
-//
-// ⛔ Where a row is answered only in part, its own entry says so. `ENTITY_ROWS`
-// is the only census of them, and a row that reaches past it -- IV-16's bounds
-// over a value the presentation group does not hold -- is listed there, not
-// guessed at here.
+// Chapter 6.1 requires `scheduleViolations` to be driven by table T-220, so the
+// table is fixed data -- one entry per row with its ID and kind -- and the
+// function is one walk over it. Single-column conditions are the generated
+// schema's (`_source/grs-document.schema.json`) and are not repeated.
+// A row answered only in part says so in its entry.
 
-/**
- * The kind column of table T-220, romanised.
- *
- * ⚠️ The table spells these five in Japanese and code is ASCII (rule 03
- * section 5), so the spellings below are this file's. The table stays the
- * source: every entry of the roster names its row ID beside its kind, so the
- * two can be lined up without reading any of the code between them.
- */
+/** The kind column of table T-220, romanised (code is ASCII, rule 03 section 5). */
 export type InvariantKind =
   | 'unique'
   | 'reference'
@@ -1302,13 +1166,9 @@ export type InvariantKind =
   | 'range'
 
 /**
- * One place a document breaks one invariant.
- *
- * ⚠️ The same three fields `DocumentViolation` (PI-34) carries, plus the kind,
- * so that a caller holding both lists reads them the same way. `at` points into
- * the DOCUMENT and not into either group: IV-3, IV-13 and IV-14 can all break
- * inside `/documentSettings`, which a pointer rooted at the schedule could not
- * say.
+ * One place a document breaks one invariant: `DocumentViolation`'s (PI-34) three
+ * fields plus the kind. `at` points into the DOCUMENT, since IV-3, IV-13 and
+ * IV-14 can break inside `/documentSettings`.
  */
 export interface ScheduleViolation {
   /** The row of table T-220 that is broken, e.g. `IV-1`. */
@@ -1321,15 +1181,9 @@ export interface ScheduleViolation {
 }
 
 /**
- * What every invariant is judged against.
- *
- * ⚠️ The two groups arrive separately rather than as one `Document`. DR-1 of
- * table T-052 binds the three groups and `Document` (PI-34) is what holds them
- * -- but that component already reaches THIS one, so taking a `Document` here
- * would close a cycle inside the layer, which LR-3 of table T-061 forbids.
- *
- * ⚠️ The presentation group is needed all the same: IV-3, IV-5, IV-13, IV-14
- * and IV-16 each state a settings row among what they are judged by.
+ * What every invariant is judged against. Two groups, not a `Document`: that
+ * component (PI-34) already imports this one, so taking it would close a cycle
+ * inside the layer (LR-3 of table T-061).
  */
 interface DocumentUnderTest {
   readonly schedule: Schedule
@@ -1337,11 +1191,8 @@ interface DocumentUnderTest {
 }
 
 /**
- * Where one invariant is broken, before the row it belongs to is stamped on.
- *
- * ⚠️ A finder does NOT name its own row. The roster entry already carries it
- * and the walk copies it onto every breach, so an entry cannot disagree with
- * itself about which row of table T-220 it is answering for.
+ * Where one invariant is broken. A finder does not name its row: the walk stamps
+ * the roster entry's, so an entry cannot disagree with itself.
  */
 interface Breach {
   readonly at: string
@@ -1381,23 +1232,15 @@ interface Nesting<TKey> {
 }
 
 /**
- * The depth of every row under its own parent column, and the rings that stop a
- * depth being settled. Both come out of one climb because neither can be had
- * without the other: a walk that did not watch for a ring would never return.
+ * The depth of every row under its parent column, and the rings that stop a
+ * depth being settled -- one climb, since a walk that did not watch for rings
+ * would never return.
  *
- * ⚠️ Written once over any key type because IV-4, IV-5 and IV-18 climb the same
- * shape -- `Task` by `wbsParentUid`, `TaskGroup` by `parentId` -- and S-115 and
- * S-125 both start their count at 1 for a row whose parent is absent. Two
- * copies of this walk would be two chances to count the root differently, and
- * two answers to what a ring is.
- *
- * ⭐ Indexed once with a `Map` (R5 / NFR-013). A search inside the climb would
- * make this quadratic over an array S-114 still lets reach six figures. Each row
- * is climbed past once and answered from the memo after that.
- *
- * ⚠️ A parent naming no row ends the climb as though the row were a root. That
- * dangling reference is IV-2's to report, and inventing a second answer for it
- * here would put one rule in two places.
+ * Shared by IV-4, IV-5 and IV-18 so the root is counted one way (S-115 and S-125
+ * start at 1) and a ring means one thing. Indexed with a `Map` (R5 / NFR-013): a
+ * search inside the climb would be quadratic over arrays S-114 lets reach six
+ * figures. A parent naming no row ends the climb as a root; that dangling
+ * reference is IV-2's to report.
  *
  * @purity pure
  */
@@ -1470,21 +1313,13 @@ function nestingOf<TKey, TRow>(
 }
 
 /**
- * The place every row takes in the document's own order, top to bottom: a
- * preorder walk of `parentId`, siblings by AT-55's `order`.
+ * Each row's rank in the document's own order: preorder over `parentId`,
+ * siblings by AT-55's `order`. This is what "lower" means to IV-19.
  *
- * ⭐ WHAT 「下」 MEANS TO IV-19, AND THE ONLY THING THIS ANSWERS. It is a rank
- * and not a `y`: a document at rest has no picture, and the row an invariant
- * calls lower is the one that stands later in this walk.
- * ⛔ NOT LC-1's WALK, WHICH ORDERS A DIFFERENT SET. That one puts the rows the
- * picture DREW in order and drops what HR-6 hid or HR-1a folded away; a row
- * left out of the picture still holds its place between its siblings in the
- * document, so an invariant measured on the drawn set would answer differently
- * on two screens showing the same file.
- * ⚠️ A row whose parent is missing is a root here, and a row a `parentId` ring
- * makes unreachable is appended rather than dropped -- IV-2 and IV-18 are the
- * rows that report those two, and this walk is not a second place they are
- * judged. Every row therefore has a rank, so IV-19 never has to say 「no order」.
+ * Not LC-1's walk, which orders only the rows the picture drew: a hidden or
+ * folded row keeps its place in the document, and an invariant must not depend
+ * on the screen. A row with a missing parent is a root, and one a ring makes
+ * unreachable is appended, so every row has a rank (IV-2 and IV-18 report those).
  *
  * @purity pure
  */
@@ -1513,14 +1348,9 @@ function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, nu
 }
 
 /**
- * Every date column of one row that IV-14 turns down.
- *
- * ⚠️ It ANSWERS with the breaches rather than writing into an array it was
- * handed. Rewriting an argument is an effect, so a helper that did it could not
- * call itself pure below and be telling the truth -- and the tag has to be
- * true, not merely present. The array is built only once there is something to
- * put in it, so a row entirely inside the range costs nothing over the walk it
- * already needs.
+ * Every date column of one row that IV-14 turns down. Returns its breaches
+ * rather than writing into a passed array, which would be an effect; the array
+ * is allocated only once something is found.
  *
  * @purity pure
  */
@@ -1538,9 +1368,7 @@ function dateBreaches<TRow extends object>(
     if (typeof value !== 'string') continue
     const day = dayOf(value)
     if (day === null) {
-      // ⚠️ The empty string is HERE and not waved through as absence. IV-14's
-      // own remark puts it on the unreadable side, because a column that admits
-      // absence spells it `null`.
+      // The empty string is unreadable, not absence: absence is spelled `null` (IV-14).
       found ??= []
       found.push({ at: `${at}/${column}`, what: `${JSON.stringify(value)} names no day` })
       continue
@@ -1599,10 +1427,7 @@ function rowOf(held: unknown): Readonly<Record<string, unknown>> | null {
 
 /**
  * The rows one array of the document holds, or `null` when it holds no array.
- *
- * ⚠️ A member that is not a row is skipped rather than reported. Shape is what
- * the generated schema forces, and Chapter 6.1 keeps every condition one column
- * settles on its own out of table T-220.
+ * A member that is not a row is skipped: shape is the generated schema's.
  *
  * @purity pure
  */
@@ -1617,18 +1442,12 @@ function rowsIn(held: unknown, entity: string, at: string): readonly DocumentRow
 }
 
 /**
- * Every row the schedule group holds, walked through `ENTITY_ROWS`.
+ * Every row the schedule group holds, nested rows included, walked through
+ * `ENTITY_ROWS` so a new key or nesting is reached without editing this.
  *
- * ⭐ Driven by the roster, not by the keys of `Schedule` written out here: a
- * key added to DR-2 of table T-052, or a column that starts holding rows of
- * another entity, is walked without anybody remembering to add it. IV-1 and
- * IV-2 both reach every row of the document this way, nested rows included.
- *
- * ⚠️ The walk is a growing list read with a cursor, not a recursion. A row
- * appended below is reached in its turn, so a `CarryElement` tree as deep as
- * S-133 allows costs no stack -- and pushing one row at a time rather than
- * spreading an array keeps an array as long as S-114 allows from blowing the
- * argument limit.
+ * A growing list read with a cursor, not recursion: a deep `CarryElement` tree
+ * (S-133) costs no stack, and pushing one row at a time keeps a long array
+ * (S-114) from exceeding the argument limit.
  *
  * @purity pure
  */
@@ -1666,12 +1485,9 @@ function documentRowsOf(schedule: Schedule): DocumentRows {
 }
 
 /**
- * One value of a settings key, as the number IV-16 weighs.
- *
- * ⚠️ A list is read as HOW MANY it holds. S-126 is the one bounded key that
- * holds a list, its ceiling names S-127, and its floor is written as a count --
- * so the count is what its bound bounds. The same reading is taken where the
- * startup document is written (tools/generate_startup_template.py).
+ * One settings value as the number IV-16 weighs. A list counts as its length:
+ * S-126 is the bounded key holding a list, and its bound is a count (read the
+ * same way in tools/generate_startup_template.py).
  *
  * @purity pure
  */
@@ -1724,30 +1540,16 @@ function boundValueOf(
   return answer === undefined || !Number.isFinite(answer) ? null : answer
 }
 
-/**
- * Table T-220, as fixed data. One entry per row, in the order the table prints
- * them -- which is why IV-17 stands between IV-7 and IV-8 and IV-18 last.
- */
+/** Table T-220 as fixed data, one entry per row. */
 const INVARIANTS: readonly Invariant[] = [
   {
     row: 'IV-1',
     kind: 'unique',
     /**
-     * ⭐ Driven by `ENTITY_ROWS`, which carries the columns the key column of
-     * table T-058 marks a primary key. The row reaches them by pointing at that
-     * column instead of naming them, and the closing remark of table T-220
-     * refuses to list them for the same reason -- so this reaches them the same
-     * way, and a column the manuscript marks tomorrow is judged without anybody
-     * remembering it here.
-     *
-     * ⚠️ The span is ONE ARRAY, which the row says: a value has to be unique
-     * where it is listed, not across the document. Two `WeekDay` rows in two
-     * different calendars may hold the same ordinal.
-     *
-     * ⚠️ The whole tuple is compared, not a single column, because the key
-     * column of table T-058 may mark more than one column of one entity. The
-     * roster carries however many there are, so nothing here has to change if
-     * a second one appears.
+     * Keys from `ENTITY_ROWS` (the key column of table T-058). Unique within ONE
+     * array, not the document: two calendars may each hold `WeekDay` ordinal 1.
+     * The whole key tuple is compared, since an entity may mark more than one
+     * key column.
      *
      * @purity pure
      */
@@ -1758,9 +1560,7 @@ const INVARIANTS: readonly Invariant[] = [
         if (columns.length === 0) continue
         const seen = new Set<string>()
         for (const row of array.rows) {
-          // ⚠️ Stamped rather than compared row by row (R5 / NFR-013). A search
-          // inside the loop would be quadratic over an array S-114 still lets
-          // reach six figures.
+          // Stamped into a set, not compared pairwise (R5 / NFR-013).
           const stamp = JSON.stringify(columns.map((column) => row.held[column] ?? null))
           if (seen.has(stamp)) {
             found.push({
@@ -1778,21 +1578,14 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-2',
     kind: 'reference',
     /**
-     * ⭐ Driven by `ENTITY_ROWS` as well: the key column of table T-058 says
-     * which columns hold a reference and the relations of table T-057 say where
-     * each lands, and the generator refuses to emit one without the other. So
-     * neither the column nor its target is read off a spelling here.
-     *
-     * ⚠️ Only a non-`null` reference is judged, which the row says. A column the
-     * document does not carry at all is passed over too -- a missing column is
-     * what the generated schema refuses, not this.
+     * Columns and targets from `ENTITY_ROWS` (tables T-058 and T-057). Only a
+     * non-`null` reference is judged; a missing column is the schema's to refuse.
      *
      * @purity pure
      */
     find: ({ schedule }) => {
       const rows = documentRowsOf(schedule)
-      // ⭐ Indexed once (R5 / NFR-013): a search per reference would be
-      // quadratic over arrays S-114 still lets reach six figures.
+      // Indexed once (R5 / NFR-013).
       /** The columns of one entity that some reference lands on. */
       const landedOn = new Map<string, string[]>()
       /** Every value held there, by `entity/column`. */
@@ -1831,8 +1624,7 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-3',
     kind: 'reference',
     /**
-     * ⚠️ Only that the pinned row EXISTS. Where a pinned row is drawn is
-     * OP-10's, which the row says in as many words.
+     * Existence only; where a pinned row is drawn is OP-10's.
      *
      * @purity pure
      */
@@ -1870,12 +1662,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-5',
     kind: 'structure',
     /**
-     * ⚠️ The WBS is outside this one, which the row says: its depth has no
-     * bound at all, and S-115 bounds it only at the moment an import is judged.
-     *
-     * ⚠️ A row sitting ON a ring in `parentId` has no settled depth, so it is
-     * not reported here: this row states a depth and not a shape. IV-18 is the
-     * row that covers that ring, and it does.
+     * A row on a `parentId` ring has no settled depth and is not reported here;
+     * IV-18 covers the ring.
      *
      * @purity pure
      */
@@ -1903,10 +1691,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-6',
     kind: 'structure',
     /**
-     * ⚠️ Both ways of missing "exactly one" are reported, and the count is said
-     * out loud. Two rows naming the same `Task` is IV-1's business as well --
-     * the key column makes `TaskGroupMember.taskUid` a primary key -- but one
-     * cannot stand in for the other while IV-1 answers nothing.
+     * Zero and several are both reported. A duplicate is IV-1's too
+     * (`TaskGroupMember.taskUid` is a key), but neither row stands in for the other.
      *
      * @purity pure
      */
@@ -1941,12 +1727,7 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-20',
     kind: 'structure',
     /**
-     * ⚠️ The rule itself is not written in table T-220 -- it sits under table
-     * T-050, and T-220 is the seat that ENUMERATES the invariants so that
-     * something can walk them. The row was added on 2026-09-12 (DFC-487): the
-     * table called itself the whole set for months while the twin of IV-7 --
-     * the same "one or more" shape, for rows instead of calendars -- had no
-     * row at all.
+     * The rule sits under table T-050; table T-220 enumerates it so it can be walked.
      *
      * @purity pure
      */
@@ -1959,10 +1740,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-17',
     kind: 'structure',
     /**
-     * ⚠️ Only the calendar FR-054 resolves, which the row says: a calendar the
-     * document carries but never counts by may work no day at all.
-     * `workingCalendarOf` IS that resolution, so asking it is what keeps this
-     * row and FR-054 from disagreeing about which calendar is meant.
+     * Only the calendar FR-054 resolves; asking `workingCalendarOf` keeps this row
+     * and FR-054 agreeing on which calendar is meant.
      *
      * @purity pure
      */
@@ -1996,9 +1775,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-9',
     kind: 'combination',
     /**
-     * ⚠️ `null` is not transparent. P-19 keeps the two apart -- one is a chosen
-     * value, the other is nothing chosen -- so a row holding `null` in both
-     * columns does not break this.
+     * `null` is not transparent (P-19): a row with `null` in both columns does
+     * not break this.
      *
      * @purity pure
      */
@@ -2019,9 +1797,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-10',
     kind: 'combination',
     /**
-     * ⚠️ Both ends have to be readable days before there is an order to check.
-     * A column holding a string that names no day is IV-14's, and a `Task`
-     * missing one end is FR-012's at the moment an input is judged.
+     * Both ends must be readable days: an unreadable one is IV-14's, a missing one
+     * FR-012's.
      *
      * @purity pure
      */
@@ -2045,9 +1822,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-11',
     kind: 'combination',
     /**
-     * ⚠️ Either column is enough to require the third. AT-40 and AT-41 keep
-     * `null` and `0` apart, so a fade of zero days is still a fade somebody put
-     * there, and it still needs an end to be measured from.
+     * Either column requires the finish: `null` and `0` are distinct (AT-40,
+     * AT-41), so a zero-day fade still needs an end to be measured from.
      *
      * @purity pure
      */
@@ -2069,20 +1845,10 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-12',
     kind: 'combination',
     /**
-     * ⚠️ The span is the DIFFERENCE between the two days, never the count of
-     * days with both ends included. FR-012 states which of the two it is and
-     * what breaks when they are swapped, so a `Task` whose start and finish name
-     * the same day has a span of zero and may carry no fade at all.
-     *
-     * ⚠️ A missing or unreadable end is passed over rather than counted as a
-     * span of zero. IV-11 and IV-14 report those, and reading an absent end as
-     * zero would report one document twice under a row that is about the sum,
-     * not about the ends.
-     *
-     * ⚠️ A `Task` carrying NEITHER column is passed over as well, and not read
-     * as a sum of zero. A span can come out negative -- that is IV-10's to
-     * report -- and a sum of zero is over a negative span, so counting one here
-     * would put every task IV-10 already names under this row too.
+     * The span is the DIFFERENCE of the two days (FR-012), so a same-day `Task`
+     * may carry no fade. A missing or unreadable end is skipped (IV-11 and IV-14
+     * report it), and so is a `Task` with neither fade column: a negative span is
+     * IV-10's, and a sum of zero over it would report that task twice.
      *
      * @purity pure
      */
@@ -2109,16 +1875,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-13',
     kind: 'combination',
     /**
-     * S-65 spells the two columns the dual cursor holds.
-     *
-     * ⭐ READ THROUGH THE TYPE. ⛔ The note that stood here said the generated
-     * `DocumentSettings.dualCursor` was `object | null` and narrowed through
-     * `unknown` to get at the members; both members are in the type now, so the
-     * narrowing is gone with the note that explained it.
-     *
-     * ⚠️ THE CHECK IS NOT THEREBY EMPTY. The type says a document built inside
-     * `src/` cannot breach IV-13; this judges a document that arrived from
-     * OUTSIDE, where a key may be absent or null however the type reads.
+     * S-65's two columns. The type says a document built in `src/` cannot breach
+     * this; the check is for a document from OUTSIDE, where a key may be missing.
      *
      * @purity pure
      */
@@ -2142,19 +1900,9 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-14',
     kind: 'range',
     /**
-     * ⭐ Driven by `DATE_COLUMNS`, which is generated from the same marks in the
-     * manuscript that print the type column. The row reaches its columns by
-     * pointing at that column instead of naming them, and this reaches them the
-     * same way -- so a column added to the manuscript is judged here without
-     * anybody remembering to add it.
-     *
-     * ⚠️ What is walked below is the ENTITIES, not their columns. The six arrays
-     * are where the document puts its rows; which of their columns hold a day is
-     * `DATE_COLUMNS`'s answer, not this file's.
-     *
-     * ⚠️ The two ends come from the settings in force, never from a constant
-     * here. They are per-document values (S-119, S-120), and judging by a copy
-     * would let this row and the import disagree about one range.
+     * Columns from `DATE_COLUMNS`, generated from the marks that print table
+     * T-058's type column. The ends come from the settings in force (S-119,
+     * S-120), not a constant, so this row and the import agree on one range.
      *
      * @purity pure
      */
@@ -2236,22 +1984,10 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-16',
     kind: 'range',
     /**
-     * ⭐ Driven by `SETTINGS_BOUNDS` (PI-2), which now carries a bound stated
-     * over other keys as its expression. Only those are judged, which the row
-     * says: a bound that is a number of its own settles on one column, and the
-     * preamble of table T-220 keeps those out of the table entirely because the
-     * generated schema already forces them.
-     *
-     * ⚠️ What is outside this row is decided in the roster, not here. A field
-     * pointing at a screen dimension is prose in the manuscript and reaches no
-     * expression at all, and a field naming a key the presentation group does
-     * not hold is left out and listed with its reason beside the roster -- a
-     * document at rest carries neither operand. So this file states no
-     * exclusion of its own and cannot come to hold a second list of them.
-     *
-     * ⚠️ Sitting exactly ON the bound is not a breach. The field states a floor
-     * or a ceiling, and the two keys of a pair name each other, so a document
-     * that sets them equal satisfies both.
+     * Bounds from `SETTINGS_BOUNDS` (PI-2). Only those stated over other keys are
+     * judged: a plain number bound is the schema's. What lies outside the row is
+     * decided in the roster, so this file holds no exclusion list. Sitting
+     * exactly on the bound is not a breach.
      *
      * @purity pure
      */
@@ -2281,26 +2017,10 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-19',
     kind: 'combination',
     /**
-     * ⭐ IV-10's SHAPE OVER FOUR COLUMNS, which is what the row says of itself:
-     * 「`IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める」.
-     * Both ends of each pair have to be readable before there is an order to
-     * check, so a box holding `null` -- or a day IV-14 already reports -- is not
-     * this row's.
-     *
-     * ⛔ A DRAGGED BOX CANNOT REACH HERE AND THE ROW SAYS SO: 「ドラッグから来た
-     * 値は本行の対象ではない —— `FR-019` が離した時点で正規化すると定めており、
-     * 正規化された値は本行を必ず満たす」. What this row is for is the other two
-     * roads -- 「打ち込みと取り込みから来た値には効かせること（MUST）」 -- and
-     * those carry no direction to normalise.
-     *
-     * ⭐ 「下」 IS THE ORDER THE ROWS STAND IN, which is the document's own tree
-     * and not the picture's: a row hidden by HR-6 or dropped by FR-018 still
-     * holds a place between its siblings, and an invariant of a document at rest
-     * cannot be measured against a screen. `taskGroupRankById` is that walk.
-     * ⚠️ A pair naming a row the document does not hold is IV-2's (the foreign
-     * key) and is left alone here: an order cannot be read off a row that is not
-     * there, and reporting it twice would put every dangling identifier under
-     * this row too.
+     * IV-10's shape over the box's dates and rows. A dragged box cannot breach it
+     * (FR-019 normalizes on release); typed and imported values can. "Lower" is
+     * the document's own order (`taskGroupRankById`), not the picture's. A pair
+     * naming a missing row is IV-2's and is left alone.
      *
      * @purity pure
      */
@@ -2327,10 +2047,8 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-18',
     kind: 'structure',
     /**
-     * ⚠️ The second tree, and only it. IV-4 climbs `Task.wbsParentUid`; this
-     * one climbs `TaskGroup.parentId`, and the row says why neither HM-4 nor
-     * FR-023 already catches it. `nestingOf` is the one climb both use, so the
-     * two rows cannot come to disagree about what a ring is.
+     * `TaskGroup.parentId`'s rings; IV-4 climbs `Task.wbsParentUid`. Both use
+     * `nestingOf`, so they agree on what a ring is.
      *
      * @purity pure
      */
@@ -2349,22 +2067,12 @@ const INVARIANTS: readonly Invariant[] = [
 ]
 
 /**
- * Every place the document breaks an invariant of table T-220, in the order the
- * table lists its rows.
+ * Every place the document breaks an invariant of table T-220.
  *
- * ⚠️ It ANSWERS, and refuses nothing: a violation is a value, never a throw
- * (AG-8 of table T-035, R7.10). Whether one stops a load, a save or an edit is
- * the caller's to decide, and the three moments decide it differently.
- *
- * ⚠️ It is NOT the import check. `validateImportedDocument` (PI-13) judges
- * untrusted input while the current document is still standing (OP-5), and
- * three of its refusals restate a condition this holds too. The rule is one;
- * the moment is two.
- *
- * ⚠️ An empty answer means every row of table T-220 was asked and none of them
- * answered -- not that nothing about the document could be wrong. What one row
- * leaves outside itself, it says so above; the generated rosters list what the
- * manuscript does not reach.
+ * A violation is a value, never a throw (AG-8 of table T-035, R7.10); whether it
+ * stops a load, a save or an edit is the caller's. Not the import check:
+ * `validateImportedDocument` (PI-13) judges untrusted input before it replaces
+ * the current document (OP-5) -- one rule, two moments.
  *
  * @purity pure
  */

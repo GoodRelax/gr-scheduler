@@ -5,15 +5,9 @@
 // @purity    n/a
 // @seam      ScreenSurface, implemented in another layer (LR-5)
 //
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
-//
-// ⚠️ This file imports a type from the public entry, which imports this file
-// back. Both edges are `import type`, so nothing survives into the built module
-// graph and there is no cycle at run time. ⭐ No third file could hold
-// `ScreenView` instead: table T-075 fixes this folder at eleven units, and the
-// one that binds the nine descriptions together is UF-60.
+// This file and the public entry import types from each other; both edges are
+// `import type`, so no cycle survives into the built module graph. `ScreenView`
+// cannot move to a third file: table T-075 fixes this folder's units.
 
 import type {
   ExportFormatId,
@@ -27,286 +21,146 @@ import type {
 /**
  * What this surface has drawn at one point on the screen.
  *
- * ⭐ WHY THE SURFACE IS ASKED AND NOT MEASURED FROM OUTSIDE. Chapter 5.3 states
- * it under table T-065 (MUST): the side that DREW an entry is the side that
- * answers where it is, and no one else may compute the same rectangle. Two
- * computations of one rectangle disagree the moment the drawing changes, and
- * nothing in `ScreenView` carries a rectangle for an entry -- the nine units
- * that build it have no way to measure one (LR-6 keeps the browser out of them).
+ * The side that drew an entry answers where it is (Chapter 5.3, under table
+ * T-065): nothing in `ScreenView` carries an entry's rectangle, and LR-6 keeps
+ * the browser out of the units that build it.
  *
- * ⚠️ ONE ANSWER AND NOT ONE CALL PER MEMBER. Everything below is read at the
- * same instant because the screen can move between two calls (R7.4: the reading
- * is finished before the deciding starts).
+ * One answer rather than one call per member, because the screen can move
+ * between two calls (R7.4).
  */
 export interface ScreenPart {
   /**
-   * The UI part the point is on -- table T-103's settled name, spelled as that
-   * table spells it, or the member name `ScreenView` publishes for the two
-   * parts table T-103 has no row for (`notices`, `tooltips`).
+   * The UI part the point is on, spelled as table T-103 spells it, or the
+   * `ScreenView` member name for the two parts that table has no row for
+   * (`notices`, `tooltips`).
    *
-   * ⭐ THE OUTERMOST NAMED PART, not the innermost. Table T-109's surface column
-   * is what an entry is joined to that table by, and it names the containing
-   * surface (`App Header`, `Command Palette`, `Resource Roster`) rather than the
-   * grouping inside it (`Header Commands`, `Palette Commands`, U-34 / U-35).
-   * ⚠️ `Row Title Tree` (U-23) is answered as `Row Title Panel` (U-22): U-23
-   * requires (MUST) an entrance for an operation to be named by the panel, and
-   * table T-109 puts IC-58 .. IC-60 on the panel.
+   * The outermost named part: table T-109's surface column names the containing
+   * surface, not the grouping inside it. `Row Title Tree` (U-23) is answered as
+   * `Row Title Panel` (U-22), where table T-109 puts IC-58 .. IC-60.
    */
   readonly part: string
   /**
-   * The entry the point is on -- a row of table T-109, e.g. `IC-7` -- or `null`
-   * where the point is on the part but on none of its entries.
+   * The entry the point is on -- a row of table T-109 -- or `null` where the
+   * point is on the part but on none of its entries.
    *
-   * ⛔ THE THIRD ANSWER IS THE POINT OF IT. Table T-023a applies its decision
-   * order to the schedule's drawing area ALONE (MUST), and the palette, the open
-   * surface, the notices and the dialogue field are drawn OVER that area while
-   * `ScreenRegions` (PI-35) holds a rectangle for none of them. So "on a part,
-   * on no entry" is what stops a press on one of them from being read as a
-   * marquee on the schedule underneath.
+   * "On a part, on no entry" stops a press on the palette, an open surface, the
+   * notices or the dialogue field from being read as a marquee on the schedule
+   * underneath: table T-023a applies to the drawing area alone, and
+   * `ScreenRegions` (PI-35) holds no rectangle for those.
    *
-   * ⚠️ IC-53 IS ANSWERED HERE TOO, ALTHOUGH TABLE T-109 CALLS IT NO BUTTON. This
-   * member is the row of that table the point is ON, which is not the same
-   * question as which entry can be pressed: GR-19 of table T-023d gives the
-   * palette's grab band a claim on a point ahead of everything under it, and the
-   * band carries no name of its own to be answered by -- IC-53 is what table
-   * T-109 gives it. `CommandPalette.grabBandHeight` is the band this answer
-   * belongs to. ⛔ It is still not a `CommandItem`: UF-65 keeps the row out of
-   * `groups`, so a reader may not take this answer as an entry that was pressed
-   * -- what a press on the band does is FR-053's drag, and the corner it moves is
-   * `ScreenSession.commandPaletteAt`, which is the shell's.
+   * IC-53 is answered here although table T-109 makes it no button: it is the
+   * only name the palette's grab band (GR-19 of table T-023d) has. It is not a
+   * `CommandItem` (UF-65 keeps it out of `groups`); a press on it is FR-053's
+   * drag of `ScreenSession.commandPaletteAt`.
    */
   readonly entry: IconId | null
   /**
-   * The export format the point is on -- a row of table T-024, e.g. `IO-2` --
-   * or `null` where the point is on none.
+   * The export format the point is on -- a row of table T-024 -- or `null`.
    *
-   * ⛔ A SECOND MEMBER AND NOT A SECOND SPELLING OF `entry`. FR-096 (MUST) makes
-   * the chooser offer every format table T-024 gives an out direction, and
-   * FR-029 (MUST) makes table T-109 the whole of the icons -- which places
-   * nothing but IC-52 on U-54, because FR-096 (MUST NOT) forbids an entrance per
-   * format. So what a person presses there is a row of table T-024 and `entry`
-   * cannot report it: that member is a row of table T-109, the two tables number
-   * their rows independently, and one member carrying both would leave the
-   * reading side unable to say which table it had been handed.
+   * Not folded into `entry`: FR-096 puts every format behind the one entrance
+   * IC-52, so a press on U-54 names a row of table T-024, and one member holding
+   * rows of two independently numbered tables could not say which it holds.
    *
-   * ⚠️ `null` ON EVERY OTHER PART, including while a format is on screen but the
-   * point is elsewhere on the chooser. ⛔ It does not stand in for "no format
-   * exists": `ExportChooser.formats` is where that is answered.
+   * `null` on every other part and elsewhere on the chooser; whether any format
+   * exists is `ExportChooser.formats`'s answer.
    *
-   * ⛔ HOW THE DRAWING SIDE MARKS A FORMAT IS NOT IN THE SPECIFICATION. Table
-   * T-006a fixes `data-role` (W-4 / W-6) and the surface writes `data-icon` for
-   * an entry, and neither row reaches a format. Searched: tables T-006a, T-024,
-   * T-065, T-103 and T-109, and FR-029 / FR-096. The seam is declared all the
-   * same, because the alternative is a press FR-096 requires that has no way to
-   * arrive at all.
+   * How the drawing side marks a format is not in the specification: table
+   * T-006a's `data-role` reaches no format. Searched: tables T-006a, T-024,
+   * T-065, T-103 and T-109, and FR-029 / FR-096.
    */
   readonly format: ExportFormatId | null
   /**
-   * The row the point is on -- `TaskGroup.id` (AT-51) -- or `null` where the
-   * point is on no row.
+   * The row the point is on -- `TaskGroup.id` (AT-51) -- or `null`.
    *
-   * ⛔ WITHOUT IT, THREE ENTRANCES ARE DRAWN AND NONE OF THEM CAN ACT. Table
-   * T-109 puts IC-58, IC-59 and IC-60 on the `Row Title Panel`, and HF-1 of
-   * table T-051 (with FR-098 for the pin) draws them ONCE PER ROW -- so
-   * `entry` alone says which KIND of control was pressed and never WHICH row's.
-   * The commands they plan are keyed by the row (`setTaskGroupCollapsed`,
-   * `pinTaskGroup`, `unpinTaskGroup`), so a press without this member cannot be
-   * turned into one at all: FR-004's folding and FR-098's pinning were
-   * unreachable by pointer while it was absent.
+   * IC-58, IC-59 and IC-60 are drawn once per row (HF-1 of table T-051, FR-098),
+   * so `entry` says which control and only this says whose; the commands they
+   * plan are keyed by the row. Separate from `entry` for the reason `format`
+   * gives.
    *
-   * ⛔ A THIRD MEMBER AND NOT A SPELLING OF `entry`, for the reason `format`
-   * gives above: these are two different questions about one point, and one
-   * member carrying both would leave the reading side unable to say which it
-   * had been handed. ⚠️ Here the two are not even the same KIND of answer --
-   * `entry` names a row of a table in the specification, this names a row of
-   * the person's own document.
-   *
-   * ⚠️ `null` WHEREVER THE POINT IS NOT ON A ROW, including on an entrance of
-   * the header or the palette. It does not stand in for "this document has no
-   * rows".
+   * `null` wherever the point is not on a row, the header's and the palette's
+   * entrances included.
    */
   readonly rowGroupId: string | null
   /**
-   * The resource the point is on -- `Resource.uid` (AT-85) -- or `null` where
-   * the point is on no resource.
+   * The resource the point is on -- `Resource.uid` (AT-85) -- or `null`.
    *
-   * ⛔ THE SAME ABSENCE AS `rowGroupId`, one surface further out: table T-109
-   * puts IC-67 and IC-68 on the `Resource Roster` (U-49) and FR-099 draws them
-   * against a named person, so a press has to say WHICH.
-   *
-   * ⚠️ IT IS NOT NEEDED BY ALL SIX OF THAT SURFACE'S ROWS, and the count was
-   * measured rather than assumed: IC-63, IC-64, IC-65 and IC-66 are drawn ONCE
-   * in the roster's header, not once per person, so `entry` alone answers them.
-   * Only IC-67 and IC-68 are per-person. ⛔ An earlier note claimed all six
-   * needed a key; it was wrong.
+   * Needed for IC-67 and IC-68, drawn per person on the `Resource Roster` (U-49,
+   * FR-099). IC-63 .. IC-66 are drawn once in the roster's header, so `entry`
+   * alone answers them.
    */
   readonly resourceUid: number | null
   /**
    * Which panel a press on a `Panel Divider` would resize (FR-052), or `null`.
    *
-   * ⛔ WITHOUT IT, FR-052's DRAG HAS NO ROAD IN. The note under table T-023a
-   * hands the boundary between the row title panel and the canvas to FR-052 and
-   * keeps its own decision order off it (MUST), so no row of that table ever
-   * names a press on the band -- the press reaches the reading side only
-   * because this surface DREW the band and answers for the point. ⚠️ U-24 is
-   * not in table T-109 either, so the band carries no `IconId` and `entry` is
-   * `null` on it: with nothing else to go on, a press on the band fell through
-   * as "on a part, on no entry" and the widths were never written.
+   * The only road in for FR-052's drag: the note under table T-023a keeps that
+   * table's order off the boundary, and U-24 has no row of table T-109, so
+   * `entry` is `null` on the band. Which band, not merely that one, because
+   * `setPanelWidths` (CM-67) takes both widths at once.
    *
-   * ⛔ A MEMBER OF ITS OWN, for the reason `format` and `rowGroupId` give above:
-   * these are different questions about one point, and one member carrying two
-   * of them leaves the reading side unable to say which it was handed. ⚠️ WHICH
-   * band is what has to be answered rather than merely THAT one was pressed --
-   * `setPanelWidths` (CM-67) takes both widths at once, so the reading side
-   * cannot leave the other panel where it was without knowing which panel the
-   * hand is on.
-   *
-   * ⭐ DERIVED FROM `PanelDivider['panel']`, NOT SPELLED AGAIN. That member is
-   * where the two panels are named, and a second union written here would be a
-   * second place the same pair is decided (rule 03 section 1).
-   *
-   * ⚠️ `null` WHEREVER THE POINT IS NOT ON A BAND, the panels' own bodies
-   * included -- the band is only S-134 wide and FR-051 (MUST NOT) keeps it from
-   * taking any of the `Row Area`. ⛔ It does not stand in for "this screen has
-   * no dividers": `ScreenFrame.dividers` describes both boundaries every frame,
-   * the properties panel's while that panel is closed.
+   * `null` wherever the point is not on a band, the panels' bodies included; it
+   * does not mean "no dividers" (`ScreenFrame.dividers` answers that).
    */
   readonly dividerPanel: PanelDivider['panel'] | null
   /**
    * Whether the point is on the grab strip GR-20 of table T-023d lays along a
-   * row's left edge -- the strip HF-15's drag is taken on.
+   * row's left edge, where HF-15's drag is taken.
    *
-   * ⛔ WITHOUT IT, HF-15's DRAG HAS NO ROAD IN, which is exactly the absence
-   * `dividerPanel` above records for FR-052. GR-20 has no row of table T-109 --
-   * that table holds no entrance for a grab strip -- so `entry` is `null` on it,
-   * and a press on the strip would otherwise fall through as "on a row, on no
-   * entry", which is FR-085's choosing of that row. ⇒ The row would be selected
-   * and never moved.
+   * GR-20 has no row of table T-109, so without this a press on the strip falls
+   * through as FR-085's choosing of the row and the row is never moved. A truth
+   * value, not a key: `rowGroupId` already says which row.
    *
-   * ⭐ A MEMBER OF ITS OWN AND NOT A SPELLING OF `entry`, for the reason
-   * `format`, `rowGroupId` and `dividerPanel` all give: these are different
-   * questions about one point, and one member carrying two of them leaves the
-   * reading side unable to say which it was handed.
+   * `false` on a pinned row (GR-20, MUST NOT): only the side that drew the panel
+   * knows the row was lifted (FR-098), so it draws no strip there.
    *
-   * ⭐ A TRUTH VALUE AND NOT A KEY, WHICH IS WHERE IT PARTS FROM `dividerPanel`.
-   * That member has to say WHICH band because `setPanelWidths` takes both widths
-   * at once; this one has nothing left to say -- `rowGroupId` already answers
-   * WHICH row the strip belongs to, and a copy of the key here would state one
-   * row's key in two places.
-   *
-   * ⛔ `false` ON A PINNED ROW, AND THAT IS A MUST NOT RATHER THAN AN OMISSION.
-   * GR-20: 「ピン止めしている行は掴めないこと（MUST NOT）」 -- FR-098 lifts a
-   * pinned row to the head of the panel, so 「上げられた位置で掴むと、木の順では
-   * なく描く順を触ることになる」. The side that DREW the panel is the side that
-   * knows a row was lifted, so it draws no strip there and this answers `false`.
-   *
-   * ⚠️ `false` WHEREVER THE POINT IS NOT ON A STRIP, the row's own name and its
-   * controls included. It does not stand in for "this panel draws no rows".
-   *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS `false`. It is declared optional so that
-   * the `ScreenPart` literals already written go on compiling; a description
-   * that does not carry it comes from a side that has not been taught to answer
-   * yet, and the reading side treats that as "not on a strip". ⭐ THAT IS THE
-   * SAFE DIRECTION and not merely the convenient one: a missing answer costs a
-   * drag HF-15 would have allowed, and the press still chooses the row (FR-085),
-   * where a wrongly TRUE answer would move a row nobody grabbed.
+   * Optional, and absent reads as `false`, so `ScreenPart` literals written
+   * before this member still compile. That is the safe direction: a missing
+   * answer costs a drag, where a wrongly true one would move a row nobody
+   * grabbed.
    */
   readonly isRowGrabStrip?: boolean
   /**
-   * The telling a press would put away -- `Notice.dismissKey` -- or `null`
-   * where the point is on no such entrance.
+   * The telling a press would put away -- `Notice.dismissKey` -- or `null`.
    *
-   * ⛔ A SIXTH MEMBER AND NOT A SPELLING OF `entry`, for the reason `format`
-   * and `rowGroupId` both give: these are different questions about one point,
-   * and one member carrying both would leave the reading side unable to say
-   * which it had been handed. ⚠️ Here the difference is sharper still --
-   * `entry` names a row of table T-109, and NT-8 of table T-037 deliberately
-   * has NO row there: its entrance is a WORD, the way NT-7's two answers are,
-   * so answering it as an `IconId` would name a row that does not exist.
-   *
-   * ⚠️ `null` ON EVERY OTHER PART, a confirmation included -- NT-8 (MUST NOT)
-   * keeps the way out off `NT-7`, whose two answers travel on the member below.
+   * Not an `IconId`: NT-8 of table T-037 has no row in table T-109 (its entrance
+   * is a word), so answering it as `entry` would name a row that does not exist.
+   * `null` on every other part, a confirmation included (NT-8).
    */
   readonly noticeDismissKey: string | null
   /**
-   * Which of NT-7's two answers a press would give --
-   * `ConfirmationAnswer.answer` -- and absent where the point is on neither.
+   * Which of NT-7's two answers a press would give -- `ConfirmationAnswer.answer`
+   * -- and absent where the point is on neither.
    *
-   * ⛔ A MEMBER OF ITS OWN AND NOT A SPELLING OF `entry`, for the reason
-   * `noticeDismissKey` above gives and with the same requirement behind it:
-   * NT-7 (MUST NOT) refuses these two answers a row of table T-109, so
-   * answering one as an `IconId` would name a row that does not exist.
-   *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS 「on neither answer」, the same bargain
-   * `isRowGrabStrip` above keeps and for the same reason: a `ScreenPart` literal
-   * written before this member existed goes on compiling, and a description that
-   * does not carry it comes from a side that has not been taught to answer yet.
-   * ⭐ THAT IS THE SAFE DIRECTION and not merely the convenient one -- a missing
-   * answer costs a press the person has to make again, where a wrongly filled
-   * one would settle a question nobody answered.
+   * Not an `IconId`, for the reason `noticeDismissKey` gives (NT-7). Optional on
+   * the terms `isRowGrabStrip` keeps: a missing answer costs a repeated press,
+   * where a wrongly filled one would settle a question nobody answered.
    */
   readonly confirmationAnswer?: string
   /**
-   * Whether the point is on U-62 `Import Report`'s one entrance -- table
-   * T-103's 「入口は `OK` の 1 つだけである」, whose word is NT-8 of table T-037.
+   * Whether the point is on U-62 `Import Report`'s one entrance (table T-103;
+   * its word is NT-8 of table T-037).
    *
-   * ⛔ A SEVENTH MEMBER AND NOT A SPELLING OF `entry`, `noticeDismissKey` or
-   * `confirmationAnswer`, for the reason each of those gives in turn: FR-029
-   * (MUST) makes table T-109 the whole of the icons and no row of it names
-   * U-62, so `entry` cannot carry this press without minting a row RC-13 of
-   * table T-026 refuses this side; `noticeDismissKey` names a telling of
-   * `ScreenSession.notices`, which U-62 is not; and `confirmationAnswer` is one
-   * of NT-7's two answers, which U-62's own row says it never asks for.
+   * None of `entry`, `noticeDismissKey` or `confirmationAnswer` fits: no row of
+   * table T-109 names U-62 (FR-029, RC-13 of table T-026), U-62 is not a notice,
+   * and it asks no NT-7 question. `part` alone would close the surface on a press
+   * anywhere on it, its list's scrollbar included (FR-023).
    *
-   * ⚠️ `part` ALONE WILL NOT DO: that member says only that the press landed on
-   * U-62 somewhere, and acting on it would close the surface on a press
-   * anywhere on it -- on a dropped name, or on the scrollbar of the list
-   * FR-023 (MUST NOT) forbids shortening -- which is an entrance the
-   * specification did not give.
-   *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS `false`, the same bargain `isRowGrabStrip`
-   * and `confirmationAnswer` above keep: a `ScreenPart` literal written before
-   * this member existed goes on compiling, and a description that does not
-   * carry it comes from a side that has not been taught to answer yet.
+   * Optional on the terms `isRowGrabStrip` keeps.
    */
   readonly isImportReportDismiss?: boolean
   /**
    * Which of the two `Scrollbars` (U-21) the point is on, and absent where it is
    * on neither.
    *
-   * ⛔ WITHOUT IT, GR-21's GRAB HAS NO ROAD IN, which is exactly the absence
-   * `dividerPanel` records for FR-052 and `isRowGrabStrip` for HF-15. GR-21 of
-   * table T-023d gives the grip a grab region, and FR-051 (MUST) has 「スクロー
-   * ルバーの操作でも表示位置を変えられるようにすること」 -- but U-21 has no row
-   * in table T-109, so `entry` is `null` on a lane, and the note under table
-   * T-023a keeps that table's decision order off everything this surface drew.
-   * ⇒ Without this member a press on a lane falls through as "on a part, on no
-   * entry and on no row" and writes nothing, which is what was measured
-   * (DFC-298, 2026-09-07: a press on the vertical lane's centre and 120px of
-   * travel moved neither the picture nor one byte of the document).
+   * The only road in for GR-21's grab (FR-051): U-21 has no row of table T-109,
+   * so `entry` is `null` on a lane, and the note under table T-023a keeps that
+   * table's order off everything this surface drew. The axis rather than a truth
+   * value, because the two lanes move different halves of the display position.
    *
-   * ⭐ THE AXIS AND NOT A TRUTH VALUE, which is where it parts from
-   * `isRowGrabStrip` and joins `dividerPanel`: the two lanes move different
-   * halves of the display position (S-77 with S-177, S-78 with S-176), so a
-   * reader that knew only THAT a lane was pressed could not say which half to
-   * move. ⚠️ `Scrollbar['axis']` is where that pair is named, and a union
-   * written again here would be a second place the same pair is decided
-   * (rule 03 section 1).
+   * One answer for the lane and its grip: what a press outside the grip owes is
+   * undecided (GR-21), and `input-command-translator.ts` carries that STOP.
    *
-   * ⛔ ONE ANSWER FOR THE LANE AND ITS GRIP ALIKE. GR-21 is the GRIP, and 表
-   * T-023d says in as many words 「つまみの外の帯を押したときの振る舞いは、本行は
-   * 定めない（未決）」 -- so this member says where the point is and nothing about
-   * what is owed; `input-command-translator.ts` carries the STOP that records
-   * what the manuscript leaves open there.
-   *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS "on neither lane", the same bargain
-   * `isRowGrabStrip`, `confirmationAnswer` and `isImportReportDismiss` keep and
-   * for the same reason: a `ScreenPart` literal written before this member
-   * existed goes on compiling, and a description that does not carry it comes
-   * from a side that has not been taught to answer yet. ⭐ THAT IS THE SAFE
-   * DIRECTION -- a missing answer costs a scroll the person has to make with
-   * the wheel instead, where a wrongly filled one would move the picture under
-   * a press that was on something else.
+   * Optional on the terms `isRowGrabStrip` keeps: a missing answer costs a scroll
+   * by wheel, where a wrongly filled one would move the picture.
    */
   readonly scrollbarAxis?: Scrollbar['axis']
 }
@@ -314,16 +168,12 @@ export interface ScreenPart {
 /**
  * What stands in the `Dialogue Field` (U-44), as the surface read it.
  *
- * ⚠️ `author` and `settledAt` are VALUES, not something read on this side. Who
- * is speaking and what the clock says belong to the Framework (LY-5 of table
- * T-060, and CS-1 of table T-066 keeps the clock out of the inner layers), which
- * is the layer that implements this seam. AG-6 of table T-035 selects on the
- * writers other than the watcher itself, so `author` is the name it compares
- * against its own.
+ * `author` and `settledAt` are values handed in: the speaker and the clock
+ * belong to the Framework (LY-5 of table T-060, CS-1 of table T-066), which
+ * implements this seam.
  *
- * ⛔ The sequence is NOT here. AG-11 makes the log count in an order of its own,
- * and `logWithMessage` (PI-33) is what assigns it -- two callers choosing a
- * number would lose a message from AG-6's selection.
+ * No sequence here: `logWithMessage` (PI-33) assigns it, and two callers
+ * choosing a number would lose a message from AG-6's selection.
  */
 export interface DialogueInput {
   /** What the person has typed. */
@@ -331,13 +181,11 @@ export interface DialogueInput {
   /**
    * Whether the person settled it.
    *
-   * ⛔ AG-11 forbids anything to read the half-typed line as an utterance, which
-   * is why the flag travels with the text instead of the surface deciding alone:
-   * `dialogueMessageFromInput` (PI-37) is the one place that turns the pair into
-   * an utterance, and it refuses this one while the flag is false.
+   * The flag travels with the text (AG-11) because `dialogueMessageFromInput`
+   * (PI-37) is the one place that turns the pair into an utterance.
    */
   readonly isSettled: boolean
-  /** AG-6 selects on "settled by someone other than me". */
+  /** Compared by AG-6 against the watcher's own name. */
   readonly author: string
   /** ISO 8601, UTC, to the second -- the spelling AT-129 uses for the stamp. */
   readonly settledAt: string
@@ -345,59 +193,39 @@ export interface DialogueInput {
 
 /**
  * A value a person settled in one editable field, as the surface read it.
- * IF-9's 「編集できる欄で確定した値を、その欄が名乗る行 ID とともに返し」.
+ * The row ID is a row of table T-016, or U-27 of table T-103 for the header's
+ * document name field (IF-9).
  *
- * ⭐⭐ 「編集できる欄」 AND NO LONGER 「プロパティパネルの欄」 (利用者の裁定
- * 2026-09-06, CR-361). That cell now carries 「⭐ 行 ID は 表 T-016 の行に限らな
- * い。ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る」, which is FR-035's
- * 「その場で編集できるようにすること」 arriving on the seam it was always going
- * to arrive on. ⛔ NOTHING ELSE OF THAT CELL MOVED, and one thing in particular
- * did not: 「確定していない文字入力の有無は真偽 1 つとし、どの欄が保持している
- * かを返してはならない（MUST NOT）」 -- see `hasUnsettledTextEntry`.
+ * Settled, not typed: FR-031 (with UN-3 of table T-027) makes one property
+ * change one undo step, so a value per keystroke would be taken back a letter at
+ * a time.
  *
- * ⭐ SETTLED, NOT TYPED. The reading side turns this into a row of table T-108
- * and FR-031 (with UN-3 of table T-027) makes one property change ONE step of
- * the undo history -- so a value that arrived per keystroke would put a step on
- * that history for every letter, and taking the name back would take back one
- * letter of it.
- *
- * ⛔ THE ROW ID IS NOT ENOUGH BY ITSELF, which is why `key` stands beside it:
- * `PR-3` names the pair `start` / `finish` without saying which of the two was
- * settled, and no row id says WHOSE. `PropertyFieldKey` carries both, and it is
- * the very value the drawing side was handed on `PropertyControl`.
+ * `key` stands beside the row ID because `PR-3` names the pair `start` /
+ * `finish` without saying which was settled, and no row ID says whose.
  */
 export interface FieldCommit {
-  /** IF-9's 行 ID: `PropertyField.row`, carried back untouched. */
+  /** IF-9's row ID: `PropertyField.row`, carried back untouched. */
   readonly row: string
   /** Which control of that row, and what it is about. */
   readonly key: PropertyFieldKey
   /**
    * What stands in the control now.
    *
-   * ⚠️ ALWAYS A STRING, whatever the control's kind. A truth value arrives as
-   * the spelling `textOfValue` writes it in and a number as its digits, because
-   * the side that turns this into a command is the side that knows the column's
-   * type (`COLUMN_SHAPES`) -- a value already narrowed here would be narrowed
-   * by the layer LR-6 keeps the rules out of.
+   * Always a string: the side that turns it into a command knows the column's
+   * type (`COLUMN_SHAPES`), and LR-6 keeps that rule out of this layer.
    */
   readonly text: string
 }
 
-// The members are not in the specification: table T-065 names the
-// interface and what it supplies, nothing more. They are decided here,
-// by the component that declares the seam.
 export interface ScreenSurface {
   /**
-   * Put the description on the screen. The first half of IF-9.
+   * Put the description on the screen (IF-9).
    *
-   * ⭐ A value, not a node tree, for the reason SvgSurface takes a string:
-   * ScreenRenderer is `pure` (table T-075 UF-60), so what crosses this seam has
-   * to be a value, and building nodes needs the browser that LR-6 keeps out and
-   * that 5.3 puts on the far side of this declaration.
+   * A value, not a node tree: ScreenRenderer is `pure` (table T-075 UF-60), and
+   * building nodes needs the browser LR-6 keeps out.
    *
-   * ⚠️ The whole description each time, not a patch. Table T-078 already limits
-   * how often a frame runs, and a patch protocol would put the diffing rule --
-   * which no requirement states -- inside a seam.
+   * The whole description each time, not a patch: a patch protocol would put a
+   * diffing rule no requirement states inside the seam.
    *
    * @purity non-pure
    */
@@ -405,16 +233,10 @@ export interface ScreenSurface {
 
   /**
    * What stands in the dialogue field, or `null` while the person has entered
-   * nothing. The second half of what IF-9 says this seam supplies.
+   * nothing (IF-9).
    *
-   * ⭐ Pulled, not pushed. A push would mean this side holding a listener, and
-   * UF-60 is `pure`: it can neither register one nor remember one. The shell
-   * asks, hands the answer to `dialogueMessageFromInput`, and passes what comes
-   * back to `postDialogueMessage` -- which is the edge
-   * `_source/components.json` draws from ScreenRenderer to PostDialogueMessage.
-   *
-   * ⚠️ Reads the field as it stands now, so it is not deterministic: two calls
-   * one keystroke apart answer differently.
+   * Pulled, not pushed: UF-60 is `pure` and can neither register a listener nor
+   * remember one.
    *
    * @purity semi-pure-b
    */
@@ -422,26 +244,13 @@ export interface ScreenSurface {
 
   /**
    * The value a person has settled in an editable field since this was last
-   * asked, or `null` while none has been. The third of what IF-9 says this seam
-   * supplies, and the only one that carries a value BACK.
+   * asked, or `null` (IF-9). `FieldCommit.row` says which field.
    *
-   * ⚠️ THE FIELDS ARE NOT ALL ON ONE PANEL SINCE 2026-09-06 (CR-361): the row
-   * id a commit carries may be a row of table T-016 or the `U-27` of table
-   * T-103 the header's document name field names. ⛔ Which of them it is does
-   * not change what this member does, and no second member is added for the
-   * second field -- `FieldCommit` carries the row.
+   * Pulled, for `readDialogueInput`'s reason; the shell asks once a frame and
+   * hands the answer to `commandFromFieldCommit` (PI-18).
    *
-   * ⭐ Pulled, like the two around it and for the same reason: UF-60 is `pure`
-   * (table T-075), so it can neither register a listener nor remember one. The
-   * shell asks once a frame, hands the answer to `commandFromFieldCommit`
-   * (PI-18) and writes what comes back -- the same road a press takes.
-   *
-   * ⛔ READING IT TAKES IT. A commit answered twice would be written twice, and
-   * FR-031 (with UN-3) makes one property change one undo step: the second
-   * write would put a second step on the history for an edit nobody made.
-   * ⚠️ So this is not a question about the state of the screen the way
-   * `readScreenPartAt` is -- it is the one happening this seam holds until it
-   * is collected.
+   * Reading it takes it: a commit answered twice would be written twice, putting
+   * a second undo step on the history (FR-031, UN-3).
    *
    * @purity semi-pure-b
    */
@@ -449,21 +258,14 @@ export interface ScreenSurface {
 
   /**
    * What this surface has drawn at (x, y), or `null` where it has drawn nothing
-   * there and the schedule below is exposed. The fourth of what IF-9 says this
-   * seam supplies.
+   * there and the schedule below is exposed (IF-9).
    *
-   * ⭐ Pulled, like `readDialogueInput` and for the same reason: UF-60 is
-   * `pure`, so it can neither hold a listener nor remember one. The shell asks
-   * at the moment of a press and carries the answer into `InputContext`, which
-   * is where CS-2 of table T-066 wants it -- a gesture is about what was under
-   * the pointer when the button went down, not one frame later.
+   * Pulled at the moment of a press and carried into `InputContext`, because a
+   * gesture is about what was under the pointer when the button went down (CS-2
+   * of table T-066).
    *
-   * ⚠️ The window's own coordinates, the frame of reference `ScreenRegions`
-   * (PI-35) and `PointerInput` already speak in. ⛔ No conversion happens on
-   * either side of this seam.
-   *
-   * ⚠️ Reads the page as it stands now, so it is not deterministic: the same
-   * point answers differently after a redraw.
+   * Window coordinates, as `ScreenRegions` (PI-35) and `PointerInput` use; no
+   * conversion on either side of this seam.
    *
    * @purity semi-pure-b
    */
@@ -471,43 +273,18 @@ export interface ScreenSurface {
 
   /**
    * Whether text stands in one of this surface's fields that the person has not
-   * settled. The fifth of what IF-9 says this seam supplies --
-   * 「まだ確定していない文字入力があるかを答え」.
+   * settled (IF-9). One truth value; which field holds it is not answered (MUST
+   * NOT, under table T-065).
    *
-   * ⛔ ONE TRUTH VALUE, AND WHICH FIELD HOLDS IT IS NOT ANSWERED (MUST NOT,
-   * under table T-065, 利用者の裁定 2026-08-27). The three rules that ask read
-   * nothing but 「入力中か」 -- IN-4's first level, IN-5a of table T-028, and
-   * WS-2 of table T-067 taking AG-9 of table T-035 -- and naming the field is
-   * what would let a reader start using it and thicken the seam.
-   *
-   * ⭐ WHY THE SURFACE IS ASKED. It is the same bargain `readScreenPartAt`
-   * rests on and Chapter 5.3 states under table T-065: the side that DREW the
-   * fields is the side that answers about them. Nothing outside this seam can
-   * see which control the person has hold of -- LR-6 keeps the browser out of
-   * the inner layers -- and the shell had no value to answer with at all, which
-   * is why it pinned `false` and all four rules stood inert.
-   *
-   * ⭐ Pulled, like the three above and for the same reason: UF-60 is `pure`
-   * (table T-075), so it can neither register a listener nor remember one.
-   *
-   * ⚠️ Reads the screen as it stands now, so it is not deterministic: two calls
-   * one focus change apart answer differently. ⛔ Asking it does not TAKE it,
-   * unlike `readFieldCommit` -- it is a question about the state of the screen,
-   * which the shell asks once per happening.
+   * Only the side that drew the fields can see which control the person holds
+   * (LR-6). Pulled, for `readDialogueInput`'s reason. Asking does not take it,
+   * unlike `readFieldCommit`.
    *
    * @purity semi-pure-b
    */
   hasUnsettledTextEntry(): boolean
 
-  // ⛔⛔ NO SIXTH MEMBER, AND MK-13's SECOND HALF IS WHERE THAT WAS MEASURED.
-  // That row (MUST, CR-304) has a double click on a `Task` 「名称の欄（表 T-016
-  // の `PR-1`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態に
-  // する」, which only the side that DREW the field can carry out -- and every
-  // member above is a QUESTION, so nothing here can ask for it. ⭐ IT IS NOT
-  // ADDED HERE ALL THE SAME: the IF-9 cell of table T-065 names five supplies,
-  // and a member that serves none of them is this seam claiming a duty the
-  // specification did not give it. ⚠️ The same bargain FR-051's measured height
-  // already takes -- it travels on the WIRING (`ScreenSurfaceWiring`), which is
-  // the Framework's own arrangement between the shell and the surface it built,
-  // and `holdFocusPropertyField` is where MK-13's half now travels too.
+  // No member asks the surface to focus a field for MK-13's double click: every
+  // member answers a supply IF-9 names, and focusing is none of them. That half
+  // travels on `ScreenSurfaceWiring` as `holdFocusPropertyField`.
 }

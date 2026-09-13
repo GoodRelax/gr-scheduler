@@ -16,13 +16,9 @@
 // block into the middle of it. The marker must occur exactly once per file.
 //
 // Editing by aggregate: validate, return a new Document, settle nothing
-// (CP-9). Table T-063's UT-2 splits the eight aggregate files apart NOT by
-// purity -- all nine are pure -- but because the reason each changes is
-// different: a rule about Tasks moving does not move the rules about
-// calendars.
+// (CP-9). UT-2 of table T-063 splits the aggregates by their reason to change.
 //
-// ⭐ The eight files are exactly table T-108's groups, folded onto the
-// aggregates that own them:
+// Table T-108's groups, folded onto the aggregates that own them:
 //
 //     edit-task.ts               `Task` + `TaskVisual`
 //     edit-task-group.ts         `TaskGroup`
@@ -33,39 +29,17 @@
 //     edit-project.ts            `Project`
 //     edit-document-settings.ts  見せ方の群
 //
-// ⚠️ `DocumentCommand` is declared HERE and re-exported by
-// ApplyDocumentChange, not the other way round. Table T-064 lists the type
-// under PI-8, and Chapter 5.3 lets a public entry re-export what it received
-// -- but declaring it there would make EditDocument import
-// ApplyDocumentChange while ApplyDocumentChange already imports EditDocument
-// for WS-3, and LR-3 forbids a cycle inside a layer.
+// ⚠️ `DocumentCommand` is declared HERE and re-exported by ApplyDocumentChange
+// (PI-8 of table T-064): declared there, EditDocument would import
+// ApplyDocumentChange, which already imports EditDocument for WS-3 -- a cycle
+// LR-3 forbids.
 //
-// ✅ COMPLETE: all eight aggregates are written, and `DocumentCommand` is the
-// full set of table T-108's rows.
-// ⛔ NOT A COUNT, and not one kept here. Table T-108 counts itself -- a group
-// gains and loses rows on its own schedule (CM-70 retired 2026-09-06, CM-57
-// retired 2026-09-07, both without touching this file) -- so a total copied
-// into prose is a total that goes stale the next time a row does. The
-// completeness this file owes is checked structurally instead: `ROUTE_TABLE`
-// below is annotated `Record<DocumentCommand['kind'], AggregateEdit>`, so a row
-// of table T-108 that no aggregate lists is a missing property the compiler
-// NAMES, and a listed kind that belongs to no command is rejected by the
-// `satisfies` on the list that holds it. Neither can pass review by being
-// overlooked.
+// Completeness is held by the compiler, not by a written count: `ROUTE_TABLE`
+// is typed `Record<DocumentCommand['kind'], AggregateEdit>`, and each kind list
+// `satisfies` its own aggregate's kinds.
 //
-// ⛔ One aggregate still reports a gap of its own, and it is a gap INSIDE a
-// command rather than a command left out: edit-calendar.ts declares CM-39
-// without a field for FR-088's exception days (例外日（休業日）), because
-// `Exception.recurrenceKind` (AT-82) has no coded value standing for "does not
-// recur" and nothing says what becomes of the exception rows already held.
-// The other seven declare every row of their groups; the ⛔ marks inside them
-// are points the specification leaves undecided WITHIN a command -- where a
-// created row lands among its siblings, what ST-7's cap counts -- not commands
-// that are absent.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// ⛔ edit-calendar.ts declares CM-39 without FR-088's exception days; see the
+// note there.
 
 import type { Document } from '../../entity/document-model/document/document'
 
@@ -102,16 +76,11 @@ import {
 } from './edit-document-settings'
 
 /**
- * HF-14 of table T-051 (MUST, 利用者の裁定 2026-09-04): 「押された瞬間に、既定の
- * 名前で行を立てること」, and 「既定の名前は表示語として持つこと（MUST）。仕様書に
- * 綴りを刷ってはならない（MUST NOT）」.
- *
- * ⭐ RE-EXPORTED AND NOT RE-SPELLED. Chapter 6.2 (MUST) gives the words exactly
- * one destination in `src/`, `edit-task-group.ts` reads it from there, and the
- * party that PLANS CM-26 for IC-91 / IC-93 lives outside this folder -- so the
- * public entry has to carry the one value across, the same way it carries the
- * eight aggregates. ⛔ A second `displayWords.defaultNames.find(...)` on the
- * planning side is what that MUST forbids.
+ * HF-14 of table T-051. Re-exported, not re-spelled: Chapter 6.2 gives the
+ * words one destination in `src/`, and the party that plans CM-26 for IC-91 /
+ * IC-93 lives outside this folder. ⛔ A second
+ * `displayWords.defaultNames.find(...)` on the planning side is what Chapter
+ * 6.2 forbids.
  */
 export { DEFAULT_ROW_NAME }
 
@@ -140,25 +109,16 @@ export interface Refusal {
   /** The requirement, table row or settings row doing the refusing. */
   readonly rule: string
   /**
-   * 「理由の区分」 (AG-9a of table T-035), for a rule that refuses for more than
-   * one reason and gives none of them a row ID of its own.
+   * AG-9a's reason category (table T-035), for a rule that refuses for more
+   * than one reason without a row id for each.
    *
-   * ⭐ WHY IT EXISTS, AND IT IS THE CLOSING PARAGRAPH OF TABLE T-037 (MUST):
-   * 「本表に行を足す者は、その行へ振り分ける道が在ることまで確かめること」, beside
-   * ⛔ 「拒否の理由を 1 つの行へ潰してはならない（MUST NOT）」. The shell picks a
-   * row of table T-233 out of a refused bundle by `command` and `rule`, and
-   * FR-009 forbids THREE dependencies in ONE sentence -- so those two fields
-   * cannot tell 「両端が同じ」 (`RS-56`) from the other two, and a road keyed on
-   * them alone would hand `RS-56`'s words to refusals that do not mean it.
-   * ⛔ OPTIONAL, AND EVERY OTHER REFUSAL LEAVES IT OUT. A rule that refuses for
-   * one reason is already told apart by `rule`; adding a category there would be
-   * a second name for a thing that already has one (rule 03 section 1).
-   * ⛔ NOT A ROW OF TABLE T-233. The rows are the SCREEN's words and this layer
-   * knows nothing of the screen (LY-4 of table T-061); the join from a category
-   * to a row is the shell's table, and it reads this string.
-   * ⚠️ THE SPELLINGS ARE THIS LAYER'S OWN. The specification names no
-   * categories -- AG-9a asks for 「区分」 and enumerates none -- so rule 03
-   * section 2 governs the name and nothing is copied from a table.
+   * FR-009 forbids several dependencies under one rule, so `command` and `rule`
+   * cannot tell "both ends are one task" (RS-56) from the rest, and the shell
+   * would give RS-56's words to refusals that do not mean it (table T-037).
+   * Optional: a single-reason rule is already told apart by `rule`.
+   * Not a row of table T-233 -- this layer knows nothing of the screen (LY-4 of
+   * table T-060), so the shell joins category to row. The spellings are this
+   * layer's own (rule 03 section 2); AG-9a names none.
    */
   readonly reasonCategory?: 'bothEndsAreOneTask'
   readonly what: string
@@ -167,9 +127,7 @@ export interface Refusal {
 /**
  * What an aggregate answers.
  *
- * ⚠️ A refusal is a VALUE, not an exception. FR-028 requires the caller to be
- * told whether the change was accepted, and AG-8 has failures come back as
- * values so the Agent API can report them.
+ * ⚠️ A refusal is a value, not an exception (FR-028, R7.10).
  */
 export type EditResult =
   | { readonly ok: true; readonly document: Document; readonly report: EditReport }
@@ -178,22 +136,18 @@ export type EditResult =
 /**
  * What an accepted edit leaves for the caller to TELL, beside the document.
  *
- * ⚠️ Not every edit has something. The empty report below is the answer for
- * seven of the eight aggregates and for most of the eighth's commands, which is
- * why `acceptedEdit` fills it in.
+ * Most edits have nothing to tell, which is why `acceptedEdit` defaults to the
+ * empty report.
  */
 export interface EditReport {
   /**
-   * FR-012 (MUST) asks two things of a calendar edit -- 「格納済みの完了率を
-   * 数え直すこと（MUST）」 and 「数え直したことを、値が変わった `Task` の
-   * 件数を添えて告げること（MUST）」 -- these are those `Task`s, by uid.
+   * The `Task`s whose stored percent complete a calendar edit recounted, by
+   * uid (FR-012).
    *
-   * ⭐ A LIST AND NOT A LENGTH, for the same reason `ImportReport` keeps lists:
-   * a bundle may hold more than one calendar command, and a uid counted twice
-   * would be one `Task` reported as two. The count NT-3 of table T-037 asks for
-   * is this list's length, taken where the notice is raised.
-   * ⚠️ The reason that count rides on is `RS-52` of table T-233, and the
-   * manner is `NT-3`. ⛔ No word of either is composed here (FR-038, MUST NOT).
+   * A list, not a length: a bundle may hold several calendar commands, and a
+   * uid counted twice would be one `Task` reported as two. NT-3's count is the
+   * length, taken where the notice (RS-52 of table T-233) is raised; no word is
+   * composed here (FR-038).
    */
   readonly recountedTaskUids: readonly number[]
 }
@@ -201,21 +155,17 @@ export interface EditReport {
 /**
  * The report of an edit that left nothing to tell.
  *
- * ⚠️ One frozen value rather than a fresh `{ recountedTaskUids: [] }` per
- * accepted edit: every command of table T-108 builds one of these, and an
- * empty report carries no identity for anyone to compare.
+ * One shared value rather than a fresh one per accepted edit: an empty report
+ * carries no identity for anyone to compare.
  */
 const NOTHING_TO_TELL: EditReport = { recountedTaskUids: [] }
 
 /**
  * The accepted edit: the document an aggregate answers with.
  *
- * ⚠️ A noun phrase, not `edited`. R2.1's parts-of-speech table keeps the past
- * tense for events -- notice of something already done, which a receiver may
- * not refuse -- and reads a noun phrase as a pure query. These two build the
- * VALUE an aggregate returns, and that value IS refusable: WS-3 throws a whole
- * bundle away when one command comes back refused. The participle still reads
- * once a noun follows it, as it does in `advancedStamp` and `clampedSettings`.
+ * A noun phrase, not `edited`: R2.1 keeps the past tense for events a receiver
+ * may not refuse, and this value IS refusable (WS-3 drops a whole bundle when
+ * one command is refused).
  *
  * @purity pure
  */
@@ -232,11 +182,9 @@ export function refusedEdit(refusals: readonly Refusal[]): EditResult {
   return { ok: false, refusals }
 }
 
-// ⛔ MIGRATION SHIM -- delete these two aliases once the eight aggregate files
-// call the names above. `edited` / `refused` are the past-tense shape R2.1
-// reserves for events, so they are a defect wherever they appear; they survive
-// here only because every call site is in the other eight files of this
-// folder, which this pass is not permitted to touch. Nothing new may use them.
+// ⛔ MIGRATION SHIM -- delete these aliases once the aggregate files call the
+// names above. `edited` / `refused` are the past-tense shape R2.1 reserves for
+// events; nothing new may use them.
 export { acceptedEdit as edited, refusedEdit as refused }
 
 /** Every command table T-108 admits. Dispatch is by `kind`. */
@@ -253,9 +201,8 @@ export type DocumentCommand =
 /**
  * One aggregate's edit function, with `limits` folded in.
  *
- * ⚠️ Only the presentation aggregate reads `limits`; the other seven declare
- * two parameters and ignore the third, which is what makes one shape enough
- * for all eight.
+ * Only the presentation aggregate reads `limits`; the others ignore it, so one
+ * shape serves every aggregate.
  */
 type AggregateEdit = (
   document: Document,
@@ -266,10 +213,8 @@ type AggregateEdit = (
 /**
  * Spreads one aggregate's edit function across the kinds it owns.
  *
- * ⚠️ The cast is the one place the discriminant is lost. It is sound because
- * the key IS `command.kind` and the list handed in is checked against that
- * aggregate's own command type -- a kind that is not the aggregate's cannot be
- * in the list at all.
+ * ⚠️ The cast loses the discriminant, soundly: the key IS `command.kind`, and
+ * each list handed in `satisfies` its aggregate's own command type.
  *
  * @purity pure
  */
@@ -286,11 +231,9 @@ function routes<K extends readonly string[]>(
 
 // ---- One list per aggregate ------------------------------------------------
 //
-// ⚠️ Each list is `satisfies` its own aggregate's `kind`, so a name that is not
-// a command of that aggregate is a compile error naming the string. Together
-// with `ROUTE_TABLE`'s annotation this pins the routing from both sides: no
-// stray kinds, and no command left unrouted. An eight-way `if`/`else` could do
-// neither -- the last branch would swallow whatever the earlier ones missed.
+// Each list `satisfies` its aggregate's `kind`, so a stray name is a compile
+// error; with `ROUTE_TABLE`'s annotation no command is left unrouted either.
+// An `if`/`else` chain could do neither -- its last branch swallows the misses.
 
 /** CM-6 to CM-25. */
 const TASK_KINDS = [
@@ -376,22 +319,10 @@ const PROJECT_KINDS = [
 ] as const satisfies readonly ProjectCommand['kind'][]
 
 /**
- * The 見せ方の群 of table T-108 -- the whole of it, and nothing else.
+ * The 見せ方の群 of table T-108.
  *
- * ⛔ NAMED AS A SET AND NOT AS A SPAN, which is the same discipline the head of
- * this file takes for the total. What stood here read 「CM-56 to CM-71」 and so
- * claimed sixteen rows: CM-57 and CM-70 were retired (2026-09-06 and
- * 2026-09-07) and the span went on printing them, while the list below has
- * fourteen names and always did. ⚠️ A SPAN IS A COUNT IN DISGUISE -- it is read
- * by subtracting its ends -- so it rots the very next time a row is retired or
- * added at either end, and nothing in the build can notice.
- *
- * ⭐ THE SET IS `DocumentSettingsCommand['kind']`, and the two annotations are
- * what hold this list to it from both sides: the `satisfies` below refuses a
- * name that is not one of that group's commands, and `ROUTE_TABLE`'s
- * `Record<DocumentCommand['kind'], AggregateEdit>` refuses one left out. ⇒ The
- * membership is checked by the compiler on every build, which is what no
- * written span or total can be.
+ * ⚠️ Named as a group, not as a CM span: the group has retired rows inside its
+ * span, which a span would still count.
  */
 const SETTINGS_KINDS = [
   'setStackDirection',
@@ -413,11 +344,8 @@ const SETTINGS_KINDS = [
 /**
  * Which aggregate owns a command, resolved from `kind` alone.
  *
- * ⭐ The annotation is the census. `Record<DocumentCommand['kind'], ...>`
- * demands a property for every one of table T-108's rows, so an aggregate
- * whose list forgets one of its own commands does not build, and the compiler
- * says which name is missing. That is the whole reason the routing is a table
- * derived from eight lists rather than a chain of branches.
+ * The annotation demands a property for every row of table T-108, so a kind a
+ * list forgets does not build, and the compiler names it.
  */
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
   ...routes(TASK_KINDS, (document, command) => editTask(document, command as TaskCommand)),
@@ -445,24 +373,21 @@ const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
 /**
  * The same table, keyed by any string.
  *
- * ⚠️ `ROUTE_TABLE` is typed by all of `DocumentCommand['kind']`, so reading it
- * never admits a miss. A command can still arrive from outside TypeScript --
- * AG-8's Agent API hands one over as data -- and that miss must be VISIBLE.
- * The map answers `undefined`, which the dispatch below turns into a refusal.
+ * ⚠️ A command can still arrive from outside TypeScript (the Agent API hands
+ * one over as data), so a miss must be visible: the map answers `undefined`,
+ * which the dispatch below turns into a refusal.
  */
 const ROUTES: ReadonlyMap<string, AggregateEdit> = new Map(Object.entries(ROUTE_TABLE))
 
 /**
  * Runs one command against the document, whichever aggregate owns it.
  *
- * `limits` carries what the document does NOT hold: table T-206 keeps
- * `zoomMin` / `zoomMax` out of it on purpose, and the Row Area test FR-052
- * states needs the screen. Only the presentation aggregate reads them.
+ * `limits` carries what the document does not hold (table T-206's `zoomMin` /
+ * `zoomMax`, and what FR-052's Row Area test needs from the screen).
  *
- * ⚠️ A kind no aggregate owns comes back as a refusal, not as a throw (AG-8)
- * and not as a silent no-op -- returning the document untouched would tell the
- * caller the change was applied. `Refusal.command` carries the kind itself
- * here, because a kind reaching this branch names no row of table T-108.
+ * ⚠️ An unowned kind is refused, not thrown (R7.10) and not a silent no-op,
+ * which would report the change as applied. `Refusal.command` then carries the
+ * kind itself, since it names no row of table T-108.
  *
  * @purity pure
  */

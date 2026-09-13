@@ -4,124 +4,42 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
-// UF-65 fills exactly one member of `ScreenView` -- `commandPalette` -- and
-// reads none of the others. It is the U-26 `Command Palette` of table T-103,
-// with U-34's `Palette Groups` and `Palette Commands` inside it. The signature
-// is the one the "nine unit contracts" section of `screen-renderer.ts` fixes;
-// this file does not own it.
+// Fills `ScreenView.commandPalette` only: the U-26 `Command Palette` of table
+// T-103, with U-34's groups and commands. The signature is fixed by the "nine
+// unit contracts" section of `screen-renderer.ts`.
 //
-// ⭐ WHY THE PLACE ARRIVES INSTEAD OF BEING MEASURED. FR-053 has the person
-// drag the palette, so where it floats is not one of ScreenRegions' rectangles.
-// It comes in `ScreenSession.commandPaletteAt`, whose note records that nothing
-// keeps it -- neither table T-206 nor table T-203 has a row for it.
+// The place arrives as `ScreenSession.commandPaletteAt` (FR-053: the person
+// drags it). No extent leaves here: the size follows the contents (FR-053) and
+// is known only past IF-9. `grabBandHeight` (GR-19, S-135a) is how far the band
+// reaches below that corner, not a size.
 //
-// ⭐ WHY A CORNER AND NO EXTENT LEAVES HERE. FR-053 (MUST) has the palette's
-// size follow its contents and (MUST NOT) forbids the settings from holding
-// one, so there is no extent for this unit to carry and none to look for: how
-// wide the entries came out is known only where they were laid out, which is
-// past IF-9. ⚠️ This unit never judged a size and still does not; what changed
-// is that `CommandPalette` stopped declaring a member for one.
+// Faintness is not answered here: FR-053 judges it by which part the pointer is
+// on, which only the side that drew the parts knows (Chapter 5.3, IF-9). So
+// `session.pointer` is not read.
 //
-// ⭐ WHY A BAND HEIGHT LEAVES BESIDE THE CORNER AND IS NOT AN EXTENT EITHER.
-// GR-19 of table T-023d -- the FIRST row of that table, which its preamble
-// (MUST) makes the highest priority -- lays a grab band along the palette's top
-// edge, and S-135a states its height and nothing else. A height is not a size:
-// it says how far down the band reaches from the corner that already arrives,
-// and says nothing about how wide the palette came out. ⭐ The value arrives
-// generated from S-135a, the way rule 03 section 1 requires.
+// Entries and groups are read from the generated `icon-roster.json` (table
+// T-109, FR-029) in the table's print order, never re-sorted (rule 03 section
+// 4): the table returns to earlier groups, so another order would move entries
+// out of their group.
 //
-// ⭐ WHY FAINTNESS IS NOT ANSWERED HERE. FR-053 (MUST) judges 「薄く透明に描く」
-// by which PART the pointer is on, and the side that drew the parts is the only
-// side that can say (Chapter 5.3, MUST, under table T-065; IF-9's third
-// member). ⚠️ FR-053 also warns, in as many words, against writing the
-// condition as a selection: SL-1 of table T-023c does not admit the palette, so
-// such a condition would have no state that ever clears it. Neither reading is
-// available to a `pure` unit that is handed a point and no rectangles, which is
-// why `session.pointer` is not read below.
+// The group caption is not printed (FR-053), but its word is still resolved for
+// the help (FR-036) and the group column still decides the order. The boundary
+// rule between groups (S-143) is drawn by the surface: nothing points at it, so
+// it carries no word, row or shape, and `groups` is already the boundary list.
 //
-// ⭐ WHY THE ENTRIES ARE READ FROM THE GENERATED ROSTER RATHER THAN LISTED.
-// FR-029 makes the roster of icons AND where each one is placed follow table
-// T-109 (MUST), and that table's surface column IS the placement.
-// `icon-roster.json` is that table generated into `src/`, so the rows are read
-// from where they live instead of being re-typed here -- rule 03 section 1 of
-// docs/development-rules, and exactly the drift `screen-renderer.ts` warns
-// about on `AppHeaderItems.commands`.
+// Milestone shapes past the first S-216 are offered only while the list is open
+// (FR-053, S-142); folding changes which entries a group holds, never the groups.
 //
-// ⭐ WHY THE GROUPS ARE NOT ENUMERATED EITHER. FR-029's RATIONALE is the reason
-// the palette is grouped at all -- the number of choices sets the time to
-// decide -- and the group column of table T-109 is that grouping. Both the
-// order of the groups and the order inside one are the table's own print order,
-// kept rather than re-sorted (rule 03 section 4). ⚠️ That is not cosmetic here:
-// the table returns to an earlier group three times near its end, so sorting by
-// anything else would move entries out of the group FR-029 puts them in.
+// IC-53 and IC-54 are not entries (table T-109): they reach the screen as the
+// grab band and as `armedText`.
 //
-// ⛔ THE GROUP'S CAPTION IS NOT PRINTED ON THE PALETTE (FR-053, MUST NOT), AND
-// THE BOUNDARY IS A RULE INSTEAD (MUST). ⚠️ WHAT STOPS IS THE PRINTING AND
-// NOTHING ELSE: table T-109's group column still decides the ORDER above, the
-// dictionary still holds the words because the help (FR-036) lists the
-// entrances by word, and `PaletteGroup.name` is still filled below.
+// The armed entrance is marked by `isArmed`, never `isPressed` (FR-053). Table
+// T-109's arm column names a KIND of arm (table T-023b) standing on several rows,
+// so the roster's `armsShape` completes a 1-to-1 join. Not read from
+// `input-command-translator.ts`'s own map: that is another component's internal
+// unit (Chapter 5.3, LR-3 of table T-061).
 //
-// ⭐ THE RULE IS DRAWN BY THE SURFACE, NOT DESCRIBED HERE, and that is the
-// judgement this unit made rather than a rule it was handed. S-143 of table
-// T-206 states the rule's thickness and its side gaps, and its own note says
-// the rule is 「線であって文字ではない」 and 「図形でもない」 -- so it carries no
-// word to translate, no row of table T-109 and no shape of figure F-019.
-// Nothing can rest on it, be armed by it or be reported for it, which is what
-// parts it from `grabBandHeight`: GR-19's band is described here because a
-// press and a tooltip land ON it (`ScreenPart.entry`), and a decoration that
-// nothing points at is the drawing side's alone (Chapter 5.3, under table
-// T-065). ⭐ The surface needs nothing new from this unit to place it: `groups`
-// below already IS the boundary list, one element per group.
-// ⚠️ WHAT USED TO STAND HERE NAMED TWO THINGS THE MUST NOT WAS SAID TO BE
-// WAITING ON, AND BOTH WERE MEASURED FALSE ON 2026-08-27. `dom-screen-surface.ts`
-// had already stopped printing `PaletteGroup.name` -- the caption node went on
-// 2026-08-25 and the word that stands on the palette is the arm's, not a
-// group's. And S-143 did reach `src/`: it stood in the generated block at the
-// foot of THIS file, beside S-135a, where nothing read it because the rule is
-// the drawing side's. ⭐ It is now routed to that side instead, so
-// the boundary FR-053 (MUST) asks for is drawn and no row of table T-206
-// arrives here that this unit does not use.
-//
-// ⛔ THE MILESTONE SHAPES PAST THE FIRST S-216 ARE NOT OFFERED UNTIL THE LIST
-// IS OPEN (FR-053, MUST). `ScreenSession.isMilestoneListOpen` is that state,
-// which S-142 of table T-206 records the document does not keep and the shell
-// holds. ⚠️ WHAT USED TO STAND HERE SAID ALL EIGHT WAITED FOR IT, and the user
-// ruled otherwise on 2026-09-01: the ones SH-5 of table T-012 prints first in
-// its area order stand whatever the list is doing, and S-216 of table T-206 is
-// how many. ⚠️ Folding them changes WHICH ENTRIES a group holds and never which
-// groups there are or what a group is called -- see `paletteGroups`.
-//
-// ⛔ TWO OF ITS `Command Palette` ROWS ARE NOT ENTRIES. Table T-109 says so in
-// its own entry column -- one row shows that the palette can be dragged
-// (IC-53), the other shows what is armed (IC-54) -- and `screen-renderer.ts`
-// names the same rows for the same reason on `CommandItem`. Both reach the
-// screen as something other than a button: the first as the grab band GR-19
-// puts along the top edge -- `grabBandHeight`, with `at` for the corner a drag
-// moves -- and the second as `armedText`.
-// ⚠️ WHAT USED TO STAND HERE CALLED IC-54 「the keystroke that places what is
-// armed」, which table T-109 does not say and table T-036 refutes: SK-1 states
-// in as many words that there is no keyboard path to placing a shape.
-// The STOP note by `NOT_BUTTON_ROWS` says what the roster cannot carry.
-//
-// ⭐ IC-54 IS NOT THE WHOLE OF WHAT FR-053 ASKS FOR, and the other half is on
-// the ENTRIES. That requirement (MUST) also has the armed entrance told apart
-// from the ones that are not, and says which entrance is which arm is held by
-// table T-109's 構え column -- `arms` in the generated roster. `isArmed` below
-// is that join. ⛔ Not `isPressed`: the same requirement (MUST NOT) refuses to
-// have it drawn as a pressed button, on the ground that IC-54 says it is none.
-// ⛔ THAT COLUMN IS HALF THE JOIN AND NOT THE WHOLE OF IT. It names a KIND of
-// arm (table T-023b), so AR-2 stands on four rows and AR-3 on eight, and a
-// comparison on it alone marks four entrances -- or eight -- where the
-// requirement asks for THE armed one. ⭐ The other half is `armsShape`, which
-// the roster derives from table T-012 and `_source/erd.json` the way the arm
-// column itself is derived from table T-109; `armedEntry` below carries the
-// pair. ⚠️ It could not be read from `input-command-translator.ts`, which holds
-// the same map by hand: that file is another component's internal unit, and
-// Chapter 5.3 (MUST NOT) with LR-3 of table T-061 is what sent the fact through
-// the roster in the first place.
-//
-// ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
-// MUST FR-085 puts on whichever side does judge one does not reach this file.
+// Nothing here judges a width, so FR-093's estimate is not called.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
@@ -141,172 +59,83 @@ import displayWords from './display-words.json'
 /** One row of the generated roster, so its shape is never written out here. */
 type IconRosterRow = (typeof iconRoster.icons)[number]
 
-/**
- * U-26 of table T-103, spelled the way table T-109's surface column spells it.
- *
- * ⭐ A settled name copied spelling and all (rule 03 section 1), not a name
- * invented here. It is the needle the roster is read with.
- */
+/** U-26 of table T-103, as table T-109's surface column spells it (rule 03 section 1). */
 const COMMAND_PALETTE = 'Command Palette'
 
 /**
- * `FR-034`, as the authority column of table T-109 writes it.
- *
- * ⭐ THE JOIN IS THAT COLUMN, not the two row ids that carry the requirement
- * today. The column is the table's own statement of which requirement owns an
- * entry, so an entry added to the alignment later is refused by the same test
- * without this file being touched. ⛔ A pair of row ids would go stale in
- * silence, which is what rule 03 section 1 exists to stop.
+ * `FR-034` as table T-109's authority column writes it. Joined on that column,
+ * not on row ids, so an alignment entry added later is covered without an edit.
  */
 const ALIGN_REQUIREMENT = 'FR-034'
 
-// STOP -- ⛔ NOT CARRIED BY THE GENERATED ROSTER: which rows of table T-109 are
-// buttons. The table states it, but as prose inside the entry column rather
-// than as a column of its own, so `icon-roster.json` has no field for it and
-// the fact cannot be read the way the surface and the group are. Searched:
-// table T-109 and the preamble of section 8 of `_assets/tbl-glossary.md`,
-// FR-029, the note under figure F-019, `tools/generate_icon_roster.py` and
-// `icon-roster.json` itself.
-// ⭐ Smallest thing that cannot be wrong: name the two rows by their row id --
-// the only join table T-109 admits, and the same join `screen-renderer.ts` uses
-// where it names the rows that are not `CommandItem`s.
-// ⚠️ This is the one place a change to that table does not reach on its own: a
-// palette row marked the same way in future has to be added here by hand until
-// the roster carries the fact as a field.
+// STOP -- not carried by the generated roster: which rows of table T-109 are
+// buttons. The table says it as prose in the entry column, so `icon-roster.json`
+// has no field for it. Searched: table T-109 and the preamble of section 8 of
+// `_assets/tbl-glossary.md`, FR-029, the note under figure F-019,
+// `tools/generate_icon_roster.py` and `icon-roster.json`.
+// Named by row id, the only join table T-109 admits; a future row of this kind
+// has to be added here by hand.
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 
 /**
- * IC-75 of table T-109 -- the minimise toggle FR-053 (MUST) puts on the grab
- * band, to the right of IC-53.
- *
- * ⛔ NOT IN `NOT_BUTTON_ROWS`: it IS a button, and a press on it turns S-200.
- * What keeps it out of `groups` is the 群 column -- table T-109 gives it none,
- * and `paletteGroups` drops a palette row with no group rather than inventing
- * one. ⭐ So the two facts are carried by two different columns of the same
- * table, and neither is guessed here.
+ * IC-75 of table T-109, the minimise toggle on the grab band (FR-053). It is a
+ * button, so it is not in `NOT_BUTTON_ROWS`; it stays out of `groups` because
+ * table T-109 gives it no group.
  */
 const MINIMISE_ROW: IconId = 'IC-75'
 
 /**
- * IC-76 of table T-109 -- FR-102's record of the happenings and the frames,
- * started and stopped by one entrance.
- *
- * ⭐ THE ONE ROW THIS UNIT CAN ANSWER `isPressed` FOR, and the reason is that
- * FR-102 (MUST NOT) keeps its state OUT of the document: S-206 rides on
- * `ScreenSession`, which this unit is handed, while the toggles named in
- * `commandItemFor`'s note read `DocumentSettings`, which it is not.
- * ⛔ Named by row id because that is the only join table T-109 admits -- the
- * table states 「同じ入口で止める」 as prose in its entry column, the same shape
- * of gap `MINIMISE_ROW` and `NOT_BUTTON_ROWS` stand on.
+ * IC-76 of table T-109 (FR-102): its state S-206 rides on `ScreenSession`,
+ * because FR-102 keeps it out of the document. Named by row id for the reason
+ * `NOT_BUTTON_ROWS` gives.
  */
 const INTERACTION_RECORD_ROW: IconId = 'IC-76'
 
 /**
- * `FR-078`, as the authority column of table T-109 writes it -- the requirement
- * that owns the milestone glyph entrances FR-053 folds away.
- *
- * ⭐ THE JOIN IS THAT COLUMN, for the reason `ALIGN_REQUIREMENT` gives: it is
- * the table's own statement of which requirement owns an entry, so a shape
- * added to SH-5 of table T-012 and to table T-109 arrives with the rest without
- * this file being touched -- at the END of the order, which is where a folded
- * one belongs. ⛔ Row ids typed here would go stale in silence, and
- * `input-command-translator.ts` already carries a list of them for a purpose
- * this unit does not share (what each one arms).
- * ⚠️ THE COUNT USED TO BE EIGHT AND IS FIFTEEN. Seven marks joined SH-5 on
- * 2026-08-29, and the seven have no area order (FR-078), so they cannot be
- * among the ones the fold spares.
+ * `FR-078` as table T-109's authority column writes it: the owner of the
+ * milestone glyph entrances FR-053 folds. Joined on the column for the reason
+ * `ALIGN_REQUIREMENT` gives; a new glyph arrives at the end of the order, which
+ * is where a folded one belongs.
  */
 const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 
-// STOP -- ⛔ NOT CARRIED BY THE GENERATED ROSTER: which row of table T-109 works
-// the list rather than sits in it. The table states it in the entry column as
-// prose (「マイルストーンの図形の一覧を、同じ入口で開閉する」) rather than as a
-// column of its own, so `icon-roster.json` has no field for it -- the same shape
-// of gap as `NOT_BUTTON_ROWS`, and searched in the same places: table T-109,
-// FR-053, FR-078, `tools/generate_icon_roster.py` and `icon-roster.json`.
-// ⚠️ The authority column cannot tell it from the glyphs: table T-109 gives
-// IC-50 `FR-078` too, so the join above reaches all nine rows.
-// ⭐ Smallest thing that cannot be wrong: name it by row id -- the only join
-// that table admits.
-//
-// ⭐ ONE ROW SINCE CR-273, AND THE TABLE IS WHAT CHOSE. This list once held a
-// SECOND entrance beside IC-50, an opener and a folder both offered on every
-// frame -- and what that cost was measured: the shapes figure F-019
-// drew for the two were IDENTICAL, element for element and attribute for
-// attribute (compared in `icon-glyphs.json`, not read off the drawing), so the
-// palette offered two entrances nobody could tell apart, one of which did
-// nothing in each state. ⛔ It was not choosable HERE -- which shape the pair
-// took was table T-109's -- and the table now says 「同じ入口で開閉する」, with
-// FR-053 (MUST NOT) forbidding a second entrance. IC-11 and IC-60 were the
-// precedent it followed.
+// STOP -- not carried by the generated roster: which row of table T-109 works
+// the milestone list rather than sits in it (prose in the entry column). The
+// authority column cannot tell it apart, since IC-50 carries `FR-078` too.
+// Searched: table T-109, FR-053, FR-078, `tools/generate_icon_roster.py` and
+// `icon-roster.json`. Named by row id, the only join that table admits.
 const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
 
 /**
- * What an entry says while the dictionary holds no word for its row.
- *
- * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
- * has been SETTLED for that row yet, and this is exactly what UF-65
- * printed before the dictionary was wired.
+ * What an entry says while the dictionary holds no word for its row. An empty
+ * cell means "not settled", not "print nothing".
  */
 const NO_WORDS = ''
 
-// ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
-// as one dictionary per language, and Chapter 6.2 fixes its manuscript as
-// `_source/display-words.json`; `display-words.json` beside this file is that
-// manuscript generated into `src/`. ⛔ Its entries are keyed by the row of the
-// table that names them -- table T-109 for the entries and the groups, table
-// T-023b for the arms -- which is the only join those tables admit, since they
-// deliberately have no English column. So nothing here is minted and nothing is
-// read off another column.
-// ⚠️ WHAT USED TO STAND HERE SAID ALL 176 CELLS WERE STILL EMPTY. That claim
-// has gone stale: the manuscript now
-// holds a word in both languages for every row these three lookups ask for, so
-// the stand-ins beside them are reached only by a generated file edited by
-// hand. ⛔ No count is written here, for the reason the same row gives -- a
-// number copied out of the generator goes stale in silence. Reading
-// `displayWords` no more makes this unit `semi-pure-a` than reading `iconRoster`
-// does: both are module constants compiled into the program, not state read
-// while running. Table T-075 fixes UF-65 as `pure`.
+// Words come from `display-words.json`, generated from `_source/display-words.json`
+// (FR-038, Chapter 6.2), keyed by row: table T-109 for entries and groups, table
+// T-023b for arms, since neither table has an English column. The stand-ins
+// below are reached only through a hand-edited generated file. Like `iconRoster`
+// it is a compiled module constant, so UF-65 stays `pure`.
 
 /**
- * The words of table T-109's rows, keyed by the row id, and the group names,
- * keyed by the FIRST row of the table that sits in the group.
- *
- * ⭐ `Map`s rather than a scan per entry: a description is built for every
- * frame, and rule 05 of docs/development-rules forbids a linear search on that
- * path (NFR-013).
+ * Table T-109's words by row id, and group names by the first table T-109 row
+ * in the group. `Map`s because a description is built every frame (NFR-013,
+ * rule 05).
  */
 const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const GROUP_NAMES_BY_FIRST_ROW = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
 
-/**
- * The words of table T-023b's rows, keyed by the row id.
- *
- * ⭐ THE ROW ID IS THE JOIN HERE TOO, and the table says so itself: its closing
- * rule holds the arm's word the way table T-233's closing rule holds a reason's
- * -- the dictionary keeps it and it is looked up by row. ⛔ So the words of the
- * six arms are not repeated in this file.
- *
- * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
- * description is built for every frame and rule 05 of docs/development-rules
- * forbids a linear search on that path (NFR-013).
- */
+/** Table T-023b's words by row id, which that table's closing rule keeps in the dictionary. */
 const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, entry]))
 
 /**
- * The accessible name of one entry, in the display language (FR-038).
+ * The accessible name of one entry (FR-038).
  *
- * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
- * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing: an empty cell is UNSETTLED, not
- * an instruction to print nothing. The day a word is written this line stops
- * standing in without being edited.
- * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
- * answered separately, although with the same stand-in. It cannot happen while
- * `npm run gen:check` passes -- the generator builds its roster from table T-109
- * every run -- so what is guarded is a generated file edited by hand.
+ * `=== ''`, never `||` or `??`: an empty cell is unsettled, not a word. A row
+ * missing from the dictionary altogether means a hand-edited generated file.
  *
  * @purity pure
  */
@@ -317,33 +146,17 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
 }
 
 /**
- * The name of one group of the palette, in the display language (FR-038).
+ * The name of one palette group (FR-038).
  *
- * ⛔ THE STAND-IN IS NOT THE EMPTY STRING HERE, which is where this member parts
- * company with `CommandItem.label`: table T-109's group column DOES hold a word,
- * and the empty string would throw away the one word there is. So an unwritten
- * cell falls back to that column as the roster carries it -- what UF-65 printed
- * before the dictionary was wired. ⚠️ For a reader on `en` it is the Japanese
- * cell, which is an accepted gap and not a translation claimed here.
+ * The stand-in is table T-109's group cell, not the empty string, since that
+ * cell does hold a word (for `en` it is the Japanese cell, an accepted gap).
+ * The caption is not printed (FR-053), but `PaletteGroup.name` still carries
+ * the word the help lists entrances by (FR-036).
  *
- * ⚠️ WHY A WORD IS STILL RESOLVED FOR A CAPTION NOBODY PRINTS. What used to
- * stand here said that falling back to nothing would HIDE a group that has a
- * name; FR-053 (MUST NOT) stopped the palette printing the caption at all on
- * 2026-08-25, so that reason is gone and the note was the false kind. ⛔ The
- * word itself is not: FR-053 says in as many words that the group's word stays,
- * because the help (FR-036) lists the entrances by word, and `PaletteGroup.name`
- * is the member that carries it. ⚠️ Nothing in `src/` reads it for the help
- * yet -- `HelpModal.entries` records that gap on its own side.
- *
- * ⛔ THE KEY IS DERIVED, NEVER WRITTEN DOWN. The specification gives a group no
- * id of its own, so the dictionary keys one by the first row of table T-109 that
- * sits in it -- and the caller finds that row by WALKING the roster in the
- * table's own order, so a re-ordering moves the key on both sides at once. A
- * roster of row ids typed here would be the copy rule 03 section 1 forbids.
- * ⚠️ One key of the dictionary is never asked for: the only palette row of its
- * group is one of the two `NOT_BUTTON_ROWS`, so no group is opened for it here.
- * That is the roster carrying a fact this file cannot read (see the STOP note on
- * those rows), not a lookup gone missing.
+ * The key is the first table T-109 row in the group, found by walking the
+ * roster in order, so a reorder moves the key on both sides at once; the
+ * specification gives a group no id. The dictionary key whose group's only
+ * palette row is in `NOT_BUTTON_ROWS` is never asked for.
  *
  * @purity pure
  */
@@ -354,47 +167,19 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
 }
 
 /**
- * Whether an entry can be used. FR-029 (MUST) draws faint the one that cannot.
+ * Whether an entry can be used; FR-029 draws faint the one that cannot.
  *
- * ⭐ ONLY THE ALIGNMENT ENTRIES CAN BE REFUSED FROM HERE, and that is why this
- * unit is handed a `Selection` at all: SL-7b of table T-023c (MUST NOT) forbids
- * alignment on a selection that carries no order, and FR-034 lines the others
- * up against the last task that was picked -- so an ordered selection holding
- * at least TWO tasks is what both of them need.
+ * Only the alignment entries can be refused here: SL-7b of table T-023c needs an
+ * ordered selection, and FR-034 lines tasks up against the last one picked, so
+ * at least TWO tasks are needed (one alone is its own anchor; RS-34 of table
+ * T-233). `input-command-translator.ts` makes the same reading, so the faint
+ * entrance is the one that tells why. Every other entry stays usable.
  *
- * ⛔⛔ TWO AND NOT ONE, SINCE 2026-08-30. A single task IS the last one picked,
- * so it is its own anchor and there is nothing to line up: 表 T-233's `RS-34`
- * names that 場面 in as many words -- 「揃える相手の `Task` が選ばれていない」.
- * ⚠️ Measured with `some`: the entrance was drawn dark, the press was taken, and
- * neither the document nor a notice moved -- which FR-029 (MUST) forbids either
- * way round. ⭐ THE SAME READING IS MADE IN `input-command-translator.ts`, and
- * it has to be: the entrance a person sees faint must be the entrance that
- * tells them why.
- * ⚠️ Every other entry stays usable. FR-083's SP-1 to SP-4 give the shape
- * entries a meaning with a selection and without one, and what the remaining
- * entries turn on and off lives in `DocumentSettings`, which the fixed
- * signature does not carry.
- *
- * ⭐⭐ THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (DFC-281). FR-029
- * (MUST) says 「その対象を、画面に描かれている側で数えること」 and (MUST NOT)
- * 「描かれていないものの上に残る状態を数えてはならない」; `Selection` is not cut
- * when a fold, a hiding or FR-018's depth limit takes a Task out of the picture
- * -- nothing in `selection.ts` prunes it -- so counting `selection.items` alone
- * kept this entrance dark over a picture holding none of them. ⚠️ Measured
- * 2026-09-05 on the shipped build: two Tasks chosen, then IC-78 (HR-2) folded
- * every row away, and IC-37 stayed at `rgb(22, 24, 29)` over a picture with 0
- * rows and 0 polygons, answering the press with neither a moved bar nor a
- * telling -- which FR-029 (MUST) forbids either way round.
- * ⭐ `drawnTaskUids` is that reading, and it is the same one `row-title-panel.ts`
- * already makes for HF-13's arming: a row is drawn exactly when the shell
- * measured a box for it this frame.
- * ⛔ `null` IS "THE PICTURE WAS NOT HANDED OVER" AND NEVER "NOTHING IS DRAWN".
- * A caller that passes no `Schedule` gets the reading this member made before
- * DFC-281 -- every chosen Task counted -- because a false faint tells the reader
- * an entrance is broken, which is the very reading FR-029 exists to prevent
- * (the same discipline `app-header-items.ts` states for its own STOP notes).
- * ⚠️ An EMPTY set is a different answer and is honoured: it says the picture
- * was handed over and holds none of them.
+ * Counted on the drawn side (FR-029): `Selection` is not pruned when a fold, a
+ * hiding or FR-018's depth limit takes a Task out of the picture. A `null`
+ * `drawnTasks` means the picture was not handed over, and every chosen Task
+ * counts, since a false faint tells the reader an entrance is broken; an empty
+ * set means none of them is drawn.
  *
  * @purity pure
  */
@@ -415,20 +200,11 @@ function isEntryUsable(
 /**
  * The `Task.uid` of every Task the picture holds this frame.
  *
- * ⭐ TWO FACTS MEET HERE AND NEITHER IS THIS UNIT'S OWN. `ScreenSession.rowBoxes`
- * is the set of rows the shell actually DREW -- `ScheduleLayout.rows` cut to the
- * `Row Area`, so a fold (HR-1a), a hiding (HR-6) and FR-018's depth limit have
- * all already been applied to it -- and `Schedule.taskGroupMembers` (ET-5 of
- * table T-056) is which row each Task sits in. A Task reaches the picture only
- * through a member row of a drawn group, which is the very walk
- * `schedule-layout.ts` makes, so the join is exact rather than an estimate.
- * ⛔ A TASK WITH NO MEMBER ROW IS NOT DRAWN AND IS NOT COUNTED: nothing places
- * it, so there is no box for it to be lined up against.
- *
- * ⭐ BUILT ONCE PER FRAME AND NEVER PER ENTRY. NFR-013 (MUST NOT) forbids an
- * `O(n^2)` walk on the drawing path, and asking each entry to scan the members
- * would be one -- the same reason `schedule-layout.ts` builds its four indexes
- * before its row loop opens.
+ * `ScreenSession.rowBoxes` is the rows the shell drew (folds, hiding and
+ * FR-018's depth limit already applied), and `Schedule.taskGroupMembers` (ET-5)
+ * says which row each Task sits in, the walk `schedule-layout.ts` makes. A Task
+ * with no member row is not drawn and not counted.
+ * Built once per frame, not per entry (NFR-013).
  *
  * @purity pure
  */
@@ -446,28 +222,16 @@ function drawnTaskUids(
 }
 
 /**
- * The seven `Command Palette` rows FR-049 (MUST) turns into toggles over a
- * boolean row of table T-202, keyed by row id and pointing at the
- * `DocumentSettings` member table T-202 names for that row.
+ * The palette rows FR-049 turns into toggles over a boolean row of table T-202,
+ * mapped to the `DocumentSettings` member that row names.
  *
- * ⛔ THIS JOIN ALREADY EXISTS ONCE, in `input-command-translator.ts` as
- * `VISIBLE_ELEMENT_BY_ENTRY` -- same row ids, same settings keys, built for the
- * opposite direction (a press turning a setting, where this one is a setting
- * painting a press). ⛔ IT CANNOT BE SHARED. That map is an internal unit of a
- * different Adapter component (InputCommandTranslator), and Chapter 5.3 with
- * LR-2/LR-3 of table T-061 forbids reaching into another component's internals
- * -- `input-command-translator.ts` itself records being refused by check 26b
- * for importing the settings type this same join needs, which is exactly the
- * fence that also blocks importing the map. ⚠️ SO THE DUPLICATION IS REAL AND
- * NOT AN OVERSIGHT: a row added to, removed from, or re-spelled in one map has
- * to be carried BY HAND into the other, and nothing here checks that it was.
- * ⛔ IC-4 -> `baselineVisible` is NOT repeated here: that entry lives on the App
- * Header (UF-62), not the Command Palette, and is answered there already.
- * ⛔ IC-45, IC-47 and IC-48 are NOT among FR-049's toggles and are not in this
- * map either -- FR-049 (MUST NOT) refuses to treat a many-valued row as one,
- * and S-65 / S-66 are those.
- * ⭐ Those three each answer to a SECOND press on themselves
- * (FR-048, MUST), which is a different thing from FR-049's booleans.
+ * The same join exists as `VISIBLE_ELEMENT_BY_ENTRY` in
+ * `input-command-translator.ts`, in the opposite direction, and cannot be shared:
+ * it is another component's internal unit (Chapter 5.3, LR-2 / LR-3 of table
+ * T-061, check 26b). A row changed in one map must be carried to the other by
+ * hand, and nothing checks that it was.
+ * IC-4 is the App Header's (UF-62). IC-45, IC-47 and IC-48 are many-valued
+ * (S-65 / S-66), not FR-049 toggles.
  */
 const SETTINGS_KEY_BY_ROW: Readonly<Record<string, keyof DocumentSettings>> = {
   'IC-39': 'progressLineVisible',
@@ -494,28 +258,13 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
 /**
  * One row of table T-109 as it stands in the palette.
  *
- * ⭐ `isPressed` NOW READS TWO SOURCES, JOINED BY THE ROW. Table T-237's `EN-2`
- * says an entrance is filled when its own toggle is ON, and FR-049 makes the
- * seven rows of `SETTINGS_KEY_BY_ROW` exactly those toggles -- so this member
- * reads `DocumentSettings` for those seven and `ScreenSession` for IC-76, and
- * neither reading masks the other because no row is named by both.
- * ⛔ IC-45, IC-47 and IC-48 are counted with neither: FR-049 (MUST NOT) refuses
- * to treat a many-valued row (S-65 / S-66) as a toggle, so both readings answer
- * `false` for them and this member does not either.
+ * `isPressed` reads `DocumentSettings` for the rows of `SETTINGS_KEY_BY_ROW`
+ * (EN-2 of table T-237, FR-049) and `ScreenSession` for IC-76; no row is named by
+ * both. IC-45, IC-47 and IC-48 read `false` (FR-049).
  * @provisional PND-417 -- an exclusive choice does NOT draw its own entrance
  * on here, because table T-237 holds no row meaning "this is the one now
  * chosen" and FR-029 (MUST) binds every fill to that table.
- * ⭐ THIS COULD NOT BE ANSWERED BEFORE 2026-08-31 BECAUSE THE ARGUMENT DID NOT
- * ARRIVE. The "nine unit contracts" section of `screen-renderer.ts` fixed
- * UF-65 at three arguments and none of them reached `DocumentSettings` -- the
- * user's ruling of 2026-08-31 (「提案通り」) is what widened that contract to
- * four and let this unit read table T-202 at all.
- * ⚠️ WHAT USED TO STAND HERE PUT THE ARMING ENTRIES IN THE SAME SENTENCE, and
- * that half went false on 2026-08-26: table T-109 grew a 構え column, so the
- * entry no longer has to be recognised by its row id, and `isArmed` below is
- * where the join lands. ⛔ `isPressed` did NOT become the place for it --
- * FR-053 (MUST NOT) forbids the armed entrance to be drawn as pressed, which
- * is why arming is never folded into this member.
+ * Arming is never folded into `isPressed` (FR-053); it is `isArmed`.
  *
  * @purity pure
  */
@@ -531,49 +280,23 @@ function commandItemFor(
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection, drawnTasks),
-    // FR-102 (MUST): whether the record is running has to be readable, and
-    // IC-76 is the entrance that turns it -- so the entrance is what says so.
-    // ⛔ ONE ROW AND NOT A LOOKUP: S-206 is the only state of table T-206
-    // this unit is handed, so a table keyed by row id would hold one entry.
-    // FR-049 / T-237 EN-2 (MUST): the seven toggles of `SETTINGS_KEY_BY_ROW`
-    // are filled when their own setting is ON -- the two conditions never
-    // overlap, since IC-76 is not a key of that map.
+    // FR-102: IC-76 says whether the record runs. FR-049 / EN-2 of table T-237:
+    // the `SETTINGS_KEY_BY_ROW` toggles are filled while their setting is ON.
     isPressed:
       (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isSettingsToggleOn(row, settings),
-    // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」,
-    // and (MUST) the armed entrance is told apart from the ones that are not.
-    // ⛔ THE COLUMN ALONE IS NOT THAT JOIN, which is why the second half is
-    // here. It names a KIND of arm: AR-2 stands on four rows and AR-3 on
-    // eight, so arming one task shape used to mark four entrances and one
-    // milestone glyph eight. `armsShape` of the roster is which shape of the
-    // kind, and the pair is 1-to-1.
-    // ⛔ Never `row.arms === null` folded in as a third condition: `armedEntry`
-    // answers AR-1 while nothing is armed, and no row of the roster carries
-    // that -- so the two comparisons are already the whole rule.
-    // ⚠️ An arm carrying a spelling no entrance arms marks nothing, and that is
-    // the right answer rather than a hole: `Armed` types the shape as a bare
-    // string, so 'milestone' can reach here through AR-2 while table T-109
-    // gives that shape no palette row of its own -- FR-078's eight glyphs are
-    // where a milestone is armed from (AR-3).
+    // FR-053: the arm column names a KIND, so `armsShape` completes the join.
+    // No third condition on `row.arms === null`: `armedEntry` answers AR-1 while
+    // nothing is armed, and no roster row carries AR-1. An arm whose shape no
+    // entrance arms marks nothing.
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     label: entryLabel(row.rowId, language),
   }
 }
 
 /**
- * One of the milestone shapes FR-078 owns -- IC-27 to IC-34 and IC-83 to IC-89
- * as table T-109 stands, reached by the requirement that owns them rather than
- * by their row ids.
- *
- * ⚠️ The row that WORKS the list carries the same requirement and is not a
- * shape, which is the whole of what `MILESTONE_LIST_CONTROL_ROWS` subtracts.
- *
- * ⚠️ WHAT USED TO STAND HERE SAID FR-053 KEPT ALL OF THEM OFF THE PALETTE UNTIL
- * THE LIST WAS OPEN, AND SAID EIGHT. Both halves went false on 2026-09-01: the
- * table carries fifteen, and the requirement now keeps only the ones past the
- * first S-216 of them off (the user's ruling 「マイルストーンは ○〜☆ までを
- * デフォルトでコマンドパレットに表示せよ」). `isFoldedMilestoneGlyph` is where
- * that boundary is read; this member only says which rows it applies to.
+ * One of the milestone shape entrances FR-078 owns, found by requirement rather
+ * than row id, less the list control (`MILESTONE_LIST_CONTROL_ROWS`). Which of
+ * them fold is `isFoldedMilestoneGlyph`'s.
  *
  * @purity pure
  */
@@ -583,28 +306,16 @@ function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
 }
 
 /**
- * Whether the milestone glyph entrance met `met`th folds away while the list is
- * closed -- FR-053 (MUST) keeps the first S-216 of them on the palette always
- * and puts the rest behind the one entrance that opens the list.
+ * Whether the `met`th milestone glyph entrance folds away while the list is
+ * closed: FR-053 keeps the first S-216 on the palette.
  *
- * ⭐ COUNTED RATHER THAN NAMED, AND THE COUNT IS THE SPECIFICATION'S. S-216 of
- * table T-206 states how many stay, and the requirement says which they are by
- * pointing at the order SH-5 of table T-012 prints them in -- 「面積順に並べる
- * はじめから」. So neither a row id nor a glyph spelling is written here: this
- * unit walks the roster in table T-109's own order, the way `paletteGroups`
- * already walks it for the groups, and takes the first S-216 glyph entrances it
- * meets.
- * ⛔ THE ONE THING THAT COULD GO WRONG IN SILENCE IS THAT THE TWO ORDERS PART.
- * Table T-109 prints its glyph rows in SH-5's order today and no sentence of
- * the specification requires it to -- 表 T-012's own note (MUST NOT) warns
- * against leaning on two lists being printed alike. ⭐ So it is a test that
- * holds them together, reading both manuscripts, rather than a comparison here:
- * a join written here would have to name the six glyphs, which is the copy
- * rule 03 section 1 forbids and which the requirement (MUST NOT) refuses too.
+ * Counted in table T-109's order rather than named, since FR-053 points at
+ * SH-5's area order. That the two orders agree is left to a test reading both
+ * manuscripts, because a join here would have to name the glyphs (rule 03
+ * section 1).
  *
- * ⭐ Read where the generated block stands, at the foot of this file, rather
- * than into a module constant above it -- that would read it before it is
- * assigned, the reason `grabBandHeight` gives.
+ * Read from the generated block at the foot of the file, not a module constant
+ * above it, which would read it before it is assigned.
  *
  * @purity pure
  */
@@ -613,37 +324,16 @@ function isFoldedMilestoneGlyph(met: number): boolean {
 }
 
 /**
- * The groups table T-109 places on the palette, in that table's own order.
+ * The groups table T-109 places on the palette, in that table's order: a group
+ * opens where its cell is first met and is appended to afterwards.
  *
- * ⭐ A group is opened where its name is first met and appended to afterwards,
- * so the groups come out in the order the table first names them and the
- * entries inside one come out in the order the table prints them -- without
- * this file knowing what either order is.
+ * A folded row still opens its group, because the group's dictionary key is the
+ * first palette row in it (`groupName`); opening only on surviving rows would
+ * move the key between the two fold states. Groups left empty are dropped,
+ * since the surface draws a rule per boundary (S-143).
  *
- * ⛔ A GROUP IS OPENED BY A ROW THAT IS FOLDED AWAY, AND THAT IS DELIBERATE. The
- * key a group's word is held under is the FIRST palette row of table T-109 that
- * sits in it (`groupName`), and that row is the table's fact -- not the drawing's
- * -- so opening the group only on rows that survive the fold would move the key
- * whenever a milestone shape happened to stand first, and the lookup would miss
- * in one of the two states and not the other.
- * ⚠️ Which is why a group can now come out empty where it never could before,
- * and empty groups are dropped at the end: an empty one is a boundary with
- * nothing on one side of it, and the surface draws a rule per boundary (S-143).
- * ⭐ Unreachable while the group the shapes sit in also holds IC-23 -- a guard
- * against a hole this walk opened, not a case the table produces today.
- *
- * ⛔ THE GROUPS ARE GATHERED ON THE TABLE'S OWN CELL AND NAMED ONLY AT THE END.
- * The cell is what says two entries are in one group; the word printed for it is
- * looked up per language, and two languages could spell two groups alike -- so
- * gathering on the printed word would fold two groups into one, or split one in
- * a language where the dictionary is only half filled in.
- * ⭐ The lookup key is the FIRST row of table T-109 that opened the group, which
- * is exactly the row this walk is standing on when it opens one. `groupName`
- * says why that is the key and why it may not be written down.
- *
- * ⚠️ Reading `iconRoster` does not make this `semi-pure-a`: it is a module
- * constant compiled into the program, not state read while running. Table T-075
- * fixes UF-65 as `pure`.
+ * Groups are gathered on the table's cell and named only at the end, because
+ * two languages could spell two groups alike.
  *
  * @purity pure
  */
@@ -662,23 +352,17 @@ function paletteGroups(
     readonly commands: CommandItem[]
   }[] = []
 
-  // How many milestone glyph entrances the walk has met, which is the whole of
-  // what `isFoldedMilestoneGlyph` is asked about. ⭐ Counted over the roster in
-  // table T-109's own order and never over the entries that survive the fold:
-  // the boundary FR-053 states is a place in that order, so it has to be
-  // counted where the order is, not after some of it has been dropped.
+  // Glyph entrances met so far, counted over the roster in table T-109's order
+  // and never over survivors: FR-053's boundary is a place in that order.
   let milestoneGlyphsMet = 0
 
   for (const row of iconRoster.icons) {
     if (!row.surfaces.includes(COMMAND_PALETTE)) continue
     if (NOT_BUTTON_ROWS.includes(row.rowId)) continue
 
-    // ⛔ A PALETTE ROW WITH NO 群 IS DROPPED, AND SINCE CR-273 THAT REACHES A
-    // REAL ROW. IC-75 is a button table T-109 gives no group, because FR-053
-    // (MUST) puts it on the grab band rather than in the list -- `minimise` in
-    // `commandPaletteFromScreenState` is where it goes instead. ⚠️ Giving it a
-    // group name here would mint one of the very names section 8 of
-    // `_assets/tbl-glossary.md` refuses.
+    // A palette row with no group is dropped: IC-75 has none because FR-053 puts
+    // it on the grab band (`minimise`). Minting a group here would coin a name
+    // section 8 of `_assets/tbl-glossary.md` refuses.
     const cell = row.group
     if (cell === null) continue
 
@@ -686,12 +370,10 @@ function paletteGroups(
     const group = opened ?? { cell, firstRow: row.rowId, commands: [] }
     if (opened === undefined) groups.push(group)
 
-    // FR-053 (MUST) since 2026-09-01: the first S-216 glyph entrances stand
-    // whatever the list is doing, and only the ones past them wait for it.
-    // ⛔ THE COUNT MOVES ON EVERY GLYPH ROW, INCLUDING THE FOLDED ONES AND
-    // INCLUDING WHILE THE LIST IS OPEN. It is a position in table T-109's order,
-    // not a tally of what was drawn -- counting only the drawn ones would let
-    // the sixth entrance fold once the list had been opened and closed.
+    // FR-053: glyph entrances past the first S-216 wait for the list. The count
+    // moves on every glyph row, folded or not and whether or not the list is
+    // open; counting only drawn ones would fold an entrance once the list had
+    // been opened and closed.
     if (isMilestoneGlyphEntry(row)) {
       milestoneGlyphsMet += 1
       if (isFoldedMilestoneGlyph(milestoneGlyphsMet) && !isMilestoneListOpen) continue
@@ -710,17 +392,9 @@ function paletteGroups(
 }
 
 /**
- * What the palette has armed, as the roster spells it: the row of table T-023b,
- * and -- where that row stands against more than one entrance -- which shape or
- * glyph of it.
- *
- * ⭐ TWO MEMBERS BECAUSE THE ARM COLUMN NAMES A KIND. Table T-109's 構え column
- * gives AR-2 to four rows and AR-3 to eight, so the row alone cannot say WHICH
- * entrance is armed; `armsShape` of the generated roster is the other half, and
- * the two together are a 1-to-1 join. ⛔ `shape` is `null` for the arms that
- * stand against one entrance each (AR-4 / AR-5 / AR-6) and for AR-1, which
- * stands against none -- so the roster's own `null` matches them and no second
- * condition is needed.
+ * What the palette has armed, as the roster spells it: the table T-023b row, and
+ * the shape or glyph where that row stands against several entrances. `shape`
+ * is `null` for AR-1 and AR-4 to AR-6, matching the roster's own `null`.
  */
 interface ArmedEntry {
   /** A row of table T-023b, AR-1 to AR-6. */
@@ -730,26 +404,12 @@ interface ArmedEntry {
 }
 
 /**
- * The row of table T-023b the palette has armed, with the shape inside it --
- * the KEY the word is looked up by, and never itself a thing the screen prints.
+ * The table T-023b row the palette has armed, with the shape inside it: the key
+ * `armedWord` looks words up by, never itself printed (table T-023b).
  *
- * ⭐ WHY A ROW ID AT ALL. The closing rule of table T-023b holds the arm's word
- * the way table T-233's closing rule holds a reason's: the dictionary keeps it
- * and it is drawn out by row. So the row is what this unit resolves, and
- * `armedWord` below turns it into words -- ⛔ the row id itself must not reach
- * the screen (table T-023b, MUST NOT), which is what UF-65 printed until the
- * manuscript grew a section for these six rows.
- * ⭐ WHY A SWITCH AND NOT A TABLE. An arm added to table T-023b reaches
- * `ScreenState.armed`, and an exhaustive switch stops compiling when it does --
- * whereas a lookup keyed on `kind` would go on answering for five of six.
- * ⚠️ WHAT USED TO STAND HERE SAID THE SHAPE COULD NOT BE APPENDED, on the
- * ground that the spellings `Armed` carries for a shape and a glyph were
- * unsettled (CR-172). ⛔ MEASURED FALSE 2026-08-27: `_source/erd.json` settles
- * all thirteen -- five for `TaskVisual.shapeKind` and eight for
- * `TaskVisual.milestoneGlyph` -- and the roster now carries which of them each
- * entrance arms. ⭐ The row and the shape are two members and never one string:
- * a join written as one key would have to invent a separator, and the two come
- * from two columns of two tables.
+ * A switch, not a lookup, so an arm added to `ScreenState.armed` stops it
+ * compiling. Row and shape stay two members because they come from two columns
+ * of two tables, and one key would need an invented separator.
  *
  * @purity pure
  */
@@ -771,28 +431,13 @@ function armedEntry(armed: ScreenState['armed']): ArmedEntry {
 }
 
 /**
- * What the palette has armed, in words, in the display language (FR-038).
- * FR-053 (MUST) requires this to be readable on the screen.
+ * What the palette has armed, in words (FR-038, FR-053).
  *
- * ⛔ THE ROW ID IS NOT THE FALL-BACK, which is where this member parts company
- * with `assignmentText` in `tooltips.ts`: table T-023 lets its row id stand in
- * for an assignment, and the closing rule of table T-023b forbids the row id to
- * be printed at all (MUST NOT). So the key cannot double as the stand-in here
- * the way it does there.
- * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
- * for the reason `entryLabel` gives above: a row the dictionary does not hold
- * at all and a cell it holds empty are different things.
- * ⚠️ Neither can happen while `npm run gen:check` passes -- the generator builds
- * its roster from table T-023b every run and every cell of it is written -- so
- * what both branches guard is a generated file edited by hand.
- * ⛔ NO FALL-BACK ROW EXISTS TO GO TO. Table T-233 gives an unanswerable reason
- * RS-15 and table T-234 gives a question QN-8; table T-023b gives an arm
- * nothing of the kind, and inventing a seventh row here would be the mint rule
- * 03 section 1 forbids.
- * ⛔ SO WHAT AN ARM WITH NO WORD SAYS IS NOT SETTLED. FR-053 (MUST) wants
- * words, table T-023b (MUST NOT) refuses the row id, and no third string is
- * named anywhere -- the empty string stands in as the one thing neither rule
- * forbids, and it is the same stand-in `entryLabel` makes.
+ * The row id is not the fall-back (table T-023b forbids printing it), and table
+ * T-023b has no fall-back row (unlike RS-15 or QN-8). `=== ''` for the reason
+ * `entryLabel` gives. What an arm with no word says is not settled, so the empty
+ * string stands in as the one thing neither rule forbids; both branches are
+ * reachable only through a hand-edited generated file.
  *
  * @provisional PND-221
  * @purity pure
@@ -804,13 +449,9 @@ function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): stri
 }
 
 /**
- * The roster's own row for IC-75.
- *
- * ⛔ READ OUT OF THE ROSTER AND NEVER BUILT HERE. `commandItemFor` answers from
- * the row's `arms` / `armsShape` and from the dictionary keyed by its id, so a
- * hand-made row would be this file holding a copy of table T-109. ⚠️ It throws
- * rather than falling back: the row is a MUST of FR-053, and a palette drawn
- * without its minimise toggle would be that requirement broken in silence.
+ * The roster's own row for IC-75, never built here (that would copy table
+ * T-109). Throws rather than falling back: a palette without its minimise toggle
+ * would break FR-053 silently.
  *
  * @purity pure
  */
@@ -823,12 +464,8 @@ function minimiseRow(): IconRosterRow {
 }
 
 /**
- * S-206 of table T-206, as `ScreenSession` reports it.
- *
- * ⛔ THE ONE PLACE THE ABSENT MEMBER IS READ, and the reading is the one
- * `ScreenSession.isRecordingInteractions` states: absent means not recording.
- * ⚠️ Written out rather than left as `?? false` at each call so that a
- * second call cannot read it the other way round.
+ * S-206 of table T-206 as `ScreenSession` reports it; absent means not
+ * recording. One function, so no second call reads it the other way round.
  *
  * @purity pure
  */
@@ -837,21 +474,11 @@ function isRecordingInteractions(session: ScreenSession): boolean {
 }
 
 /**
- * The floating palette as it stands this frame, or `null` while S-99e says it
- * is hidden.
+ * The floating palette this frame, or `null` while S-99e says it is hidden.
  *
- * ⛔ `null` is the ONLY way this unit says "hidden". S-99e's default is showing
- * and nothing else stands for the other state, so an empty palette is never
- * used as a second spelling of it -- two spellings of absent need a rule for
- * which one wins, and no requirement states one. EP-11 of table T-076 reads the
- * closed palette the same way when the picture is exported.
- *
- * ⭐ `settings` ARRIVES AS OF THE USER'S RULING OF 2026-08-31 (「提案通り」),
- * WIDENING THE CONTRACT `screen-renderer.ts` FIXES FROM THREE ARGUMENTS TO
- * FOUR. Table T-237's `EN-2` has an entrance filled when its own toggle of
- * table T-202 is ON, and `commandItemFor` is where that reading is made --
- * this unit only has to forward the value it is now handed, the way UF-62 to
- * UF-64 already do for their own settings-reading members.
+ * `null` is the only spelling of hidden; an empty palette is never a second one
+ * (EP-11 of table T-076 reads the closed palette the same way). `settings` is
+ * forwarded so `commandItemFor` can read EN-2 of table T-237.
  *
  * @purity pure
  */
@@ -864,68 +491,36 @@ export function commandPaletteFromScreenState(
 ): CommandPalette | null {
   if (!state.paletteShown) return null
 
-  // FR-029 (MUST): 「その対象を、画面に描かれている側で数えること」. ⭐ Worked
-  // out ONCE for the whole palette, before any entry is described, for the
-  // reason `drawnTaskUids` gives -- and read by `isEntryUsable` alone, which is
-  // the only member of an entry any requirement counts a target for.
+  // FR-029: counted on the drawn side, once for the whole palette, and read by
+  // `isEntryUsable` alone.
   const drawnTasks = drawnTaskUids(schedule, session)
 
-  // ⭐ THE CORNER IS THE WHOLE OF THE PLACE, AND THAT IS SETTLED RATHER THAN
-  // MISSING. What used to stand here was a STOP note looking for the palette's
-  // size in tables T-202 / T-203 / T-206 and finding no row: FR-053 now says
-  // (MUST) that the size follows the contents and (MUST NOT) that no table may
-  // hold one, so there is nothing left to look for. ⚠️ The corner itself is
-  // still unheld -- `ScreenSession.commandPaletteAt` records that absence -- and
-  // it is passed through untouched, so nothing about the place is decided here.
-  // ⭐ THE BAND IS DESCRIBED WHENEVER THE PALETTE IS. GR-19 puts no condition on
-  // it -- it is the palette's top edge, not a state -- so it leaves here on the
-  // same frames the palette does and disappears with it. ⚠️ What stood here said
-  // its height was the one thing still missing and named a `GRAB_BAND_HEIGHT`
-  // that this file has never held: S-135a arrives generated at the foot of the
-  // file and is read two lines below.
+  // The corner is passed through untouched and no size is carried (FR-053).
+  // The grab band is described whenever the palette is: GR-19 has no condition.
   return {
     at: session.commandPaletteAt,
-    // GR-19 of table T-023d, whose height S-135a states. ⭐ Read where the
-    // generated block stands, at the foot of this file, rather than into a
-    // module constant above it -- that would read it before it is assigned.
+    // GR-19 of table T-023d, height S-135a, read from the generated block at the
+    // foot of the file (a module constant above it would read it unassigned).
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
-    // FR-053 (MUST): the milestone shapes past the first S-216 stay out until
-    // the list is open. S-142 of table T-206 is the state, and the shell holds
-    // it. ⚠️ Not all of them since 2026-09-01 -- `isFoldedMilestoneGlyph`.
-    // ⭐ The armed ROW AND SHAPE go down with them, not the words: FR-053
-    // (MUST) also has the armed ENTRANCE told apart from the others, and the
-    // roster's `arms` and `armsShape` fields are what each entry is compared
-    // against (`isArmed`).
-    // FR-053 (MUST): the minimise toggle rides on the band, in both states.
+    // FR-053: glyphs past the first S-216 wait for the list (S-142, held by the
+    // shell); the armed row and shape go down for `isArmed`, not the words.
+    // FR-053: the minimise toggle rides on the band, in both states.
     minimise: commandItemFor(
       minimiseRow(),
       selection,
-      // IC-75 carries no `FR-034` in its authority column, so `isEntryUsable`
-      // answers `true` for it whatever this set holds -- passed through for the
-      // same reason the two arguments below are: one place names the row.
+      // IC-75 is no FR-034 row, so `isEntryUsable` answers true; passed so that
+      // one place names the row.
       drawnTasks,
       session.language,
       armedEntry(state.armed),
-      // ⛔ NEVER THE ONE THIS ARGUMENT IS ABOUT: IC-75 is not IC-76, so the
-      // answer is false whatever the record is doing. It is written as the
-      // session's own value rather than as `false` so that the two calls read
-      // the same, and `commandItemFor` is the one place that names the row.
+      // IC-75 is not IC-76, so this reads false; passed for the same reason.
       isRecordingInteractions(session),
-      // IC-75 is not a key of `SETTINGS_KEY_BY_ROW` either, so this reads as
-      // false whatever `settings` holds -- passed through for the same reason
-      // the line above is: one place names the row, not two readings of it.
+      // IC-75 is not a `SETTINGS_KEY_BY_ROW` key either; same reason.
       settings,
     ),
     isMinimised: session.isPaletteMinimised,
-    // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND THE ARMED READING. FR-053 (MUST)
-    // keeps the grab band through it -- without it the palette could never be
-    // moved again (GR-19) -- and that requirement now says (MUST) that the band
-    // is ALL a minimised palette shows: the user's 2026-09-01 ruling
-    // 「コマンドパレットを最小化した時は、コマンドパレットの掴みどころ `::` と
-    // `-` の部分 だけを表示しろ」 overrode the 2026-08-28 one that had kept the
-    // armed reading here as well. ⚠️ An empty list is not how this side says
-    // "hidden": `null` is (see this function's own note), and minimised is a
-    // shape of being shown.
+    // FR-053: minimised shows the grab band alone, so the entries and the armed
+    // reading are withdrawn. An empty list is not how hidden is said (`null` is).
     groups: session.isPaletteMinimised
       ? []
       : paletteGroups(
@@ -937,12 +532,9 @@ export function commandPaletteFromScreenState(
           isRecordingInteractions(session),
           settings,
         ),
-    // FR-053 (MUST): what is armed has to be readable. The words come from
-    // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
-    // id, which that table's closing rule forbids the screen to carry.
-    // ⛔ EXCEPT WHILE MINIMISED, which is the one exception that requirement
-    // names (user's ruling 2026-09-01). `null` rather than an empty word: the
-    // drawing side must lay nothing out there at all.
+    // FR-053: the armed words from FR-038's dictionary, keyed by the table T-023b
+    // row, never the row id. `null` while minimised, so the drawing side lays
+    // nothing out.
     armedText: session.isPaletteMinimised
       ? null
       : armedWord(state.armed, session.language),

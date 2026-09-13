@@ -5,99 +5,33 @@
 // @purity    pure
 //
 // The explanations shown against the parts the other eight units described.
+// Built last in `screenViewFromRegions`, so it reads their descriptions instead
+// of describing the same parts a second time.
 //
-// ⭐ WHY THIS ONE IS HANDED THE OTHER EIGHT. What a tooltip explains is always
-// a part somebody else already described -- an icon standing in the header, the
-// palette or an open surface, a scrollbar lane. Reading those descriptions is
-// cheaper and safer than describing the same things a second time, and it is
-// why `screenViewFromRegions` builds this member last.
+// Dismissal (IN-3 / IN-4 of table T-028) is split three ways: `escapeTarget`
+// (screen-state.ts) answers the rung, `frame-loop.ts` holds
+// `ScreenSession.isTooltipDismissed` (LY-5 of table T-060), and this unit only
+// answers with no explanation while it stands -- otherwise the next frame raises
+// the same explanation again from the unchanged rest and place. The member
+// rides on the session because table T-075 fixes this unit's signature.
 //
-// ⭐⭐ IN-3's 「消せること」 IS GRANTED, AND NOT BY ANYTHING IN THIS FILE. The
-// note that stood here for three rounds said 「WHY NOTHING HERE SAYS 'CAN BE
-// DISMISSED': IN-3 of table T-028 grants that to every tooltip」 -- but IN-3
-// grants nothing; it REQUIRES (MUST) that an explanation can be put away
-// 「ポインタもフォーカスも動かさずに」, and IN-4 of the same table names the ONE
-// means: its last rung, 出ている説明. Measured 2026-09-05 on the shipped build:
-// with an explanation standing over IC-7, `Esc` left it standing, twice (DFC-307).
+// Places: a scrollbar's is tested here because `Scrollbar.track` is a
+// rectangle. An icon's (`iconUnderPointer`, PND-141) and a task's
+// (`taskUnderPointer`) are READ from the session: no entry carries a rectangle,
+// and the one walk of table T-023d is `itemAtPointer` (PI-7) over a geometry
+// this component is not handed.
 //
-// ⭐ THE THREE PARTS THAT CLOSE IT, AND WHY ONLY THE LAST IS HERE:
-//   the rung      `escapeTarget` (screen-state.ts) answers `'tooltip'` as
-//                 IN-4's last level, below the Dual Cursor mode and above null
-//                 -- so IN-4a still hands the key to the browser when no
-//                 explanation stands.
-//   the holder    `frame-loop.ts` is the one side that can see whether one
-//                 stands, and it raises `ScreenSession.isTooltipDismissed` when
-//                 the rung is spent, clearing it on the next pointer move.
-//                 ⛔ LY-5 of table T-060 leaves that current value there, not
-//                 here.
-//   this unit     answers with NO explanation while that member stands. ⛔ AND
-//                 THAT IS THE WHOLE OF WHAT THIS FILE DOES ABOUT IT: EZ-2 and
-//                 EZ-6 of table T-040 raise an explanation purely from the rest
-//                 (`pointerRestedMs`) and the place (`iconUnderPointer`,
-//                 `taskUnderPointer`), so without this reading the very next
-//                 frame would raise the same explanation from the same two
-//                 unchanged answers and the rung would spend nothing.
-// ⛔ NOT INVENTED HERE. Table T-075 fixes this unit's signature, so the member
-// arrives on the session it is already handed rather than as a new argument.
-// ⚠️ IN-3's THIRD CONDITION IS NOT "NEVER GOES AWAY BY ITSELF". IN-3 holds a
-// tooltip until the pointer or the focus leaves what it explains, the person
-// dismisses it, or its content stops being valid -- so a trigger that has left
-// may take the tooltip with it. Nothing needs doing about that here: this unit
-// describes ONE frame from the session, so a trigger that has left is simply an
-// explanation the next frame does not carry.
+// The explanation is keyed by the row of table T-109 rather than found by
+// walking `ScreenView`'s rosters: rows on the Row Title Panel, the Resource
+// Roster and the Properties Panel carry no `CommandItem` and would stay silent.
 //
-// ⭐ WHY BOTH ANCHORS ARE ANSWERED AGAINST THE POINTER, AND WHY NOT IN THE SAME
-// WAY. The two do not share a trigger, and the difference is the
-// specification's rather than a simplification made here:
-//   scrollbar  FR-037 states the pointer condition in as many words and adds a
-//              MUST NOT against showing it all the time, and `Scrollbar.track`
-//              is a rectangle -- so the test is made in this file.
-//   icon       EZ-2 of table T-040 states a TIME condition and a PLACE
-//              condition, and the session answers both: `pointerRestedMs` for
-//              the wait, `iconUnderPointer` (PND-141) for which entry is under
-//              the pointer. ⚠️ The place is READ and not measured -- no entry
-//              carries a rectangle, so the side that drew them answers.
-//   task       EZ-6 of table T-040 states the SAME two conditions and (MUST)
-//              the same wait as EZ-2 -- 「別の待ち時間を持ってはならない
-//              （MUST NOT）」 -- so the time half is the one binding below.
-//              ⛔ ITS PLACE HALF IS TABLE T-023d's ORDER, and EZ-6 (MUST NOT)
-//              forbids raising a second hit test for it, so the place is READ
-//              from `ScreenSession.taskUnderPointer` for the same reason the
-//              icon's is: the one walk of that table is `itemAtPointer` (PI-7)
-//              over a geometry this component is not handed.
+// Nothing raises `TooltipAnchor`'s `rowTitle` case (FR-085); the case stays
+// because screen-renderer.ts owns that union. Whether a pointer move asks for a
+// frame (FR-048) is not decided here.
 //
-// ⭐ EZ-2 REACHES EVERY ROW OF TABLE T-109, WHICHEVER SURFACE IT STANDS ON
-// (MUST), and 「載る面によって説明を出さない行があってはならない（MUST NOT）」.
-// ⛔ THIS FILE USED TO WALK THE THREE ROSTERS `ScreenView` carries entries in --
-// the `App Header`, the `Command Palette` and the open surface -- and explain
-// only an entry it found there. Measured: the dictionary holds a `hint` for all
-// 78 rows, and 19 of them stand on the `Row Title Panel`, the `Resource Roster`
-// and the `Properties Panel`, which carry no `CommandItem` -- so those 19 were
-// silent whatever the pointer did. The explanation is keyed by the ROW, so the
-// row the pointer rests on is looked up directly and no roster is walked.
-//
-// ⛔ NOTHING RAISES `TooltipAnchor`'s `rowTitle` CASE ANY MORE. FR-085 (MUST
-// NOT) forbids explaining a cut row name at all: UF-63 ends the cut in an
-// ellipsis (U+2026), and a reader who wants the rest widens the panel (FR-052).
-// IN-3 of table T-028 no longer names FR-085 among the triggers it governs
-// either (CR-257).
-// ⚠️ THIS FILE HELD A THIRD ANCHOR UNTIL THEN, and the pointer condition it was
-// tested against was one day old -- CR-252 added it, on a measurement of six
-// explanations standing over an untouched screen. The panel replaced it whole.
-// ⛔ The `rowTitle` case itself is not removed: screen-renderer.ts spells
-// `TooltipAnchor`, and Chapter 5.3 fixes that contract outside this folder.
-//
-// ⭐ FR-048'S ROSTER OF WHAT COUNTS AS "THE DRAWN CONTENT CHANGED" ON A POINTER
-// MOVE NAMES BOTH TRIGGERS ABOVE. It did not name FR-037's until CR-254: that
-// hint is raised and dropped purely by where the pointer is, so while it was
-// off that roster a frame need never have been asked for on a move and the hint
-// could stand after its trigger had left.
-// ⚠️ Nothing is done about it here all the same: this unit describes ONE frame
-// and does not decide when a frame is asked for.
-//
-// ⛔ FR-029 ALSO PUTS A TOOLTIP ON AN ENDPOINT THAT CANNOT BE GRABBED. That
-// endpoint lives inside the `Row Area`, which this component does not describe,
-// and `TooltipAnchor` carries no case for it. Nothing is invented for it here.
+// FR-029's tooltip on an endpoint that cannot be grabbed is not raised here:
+// that endpoint is in the `Row Area`, which this component does not describe,
+// and `TooltipAnchor` has no case for it.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
@@ -116,24 +50,17 @@ import type {
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 
-// ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
-// as one dictionary per language, and Chapter 6.2 fixes its manuscript as
-// `_source/display-words.json`; `display-words.json` beside this file is that
-// manuscript generated into `src/`. This unit reads two of its sections: the
-// `hint` of a row of table T-109 -- the explanation EZ-2 of table T-040 shows --
-// and the assignments of table T-023, which is what FR-037 puts on a scrollbar.
-// ⚠️ Every one of the 176 cells is still empty, so what reaches the
-// screen today is the stand-in beside each lookup. Reading `displayWords` does
-// not make this unit `semi-pure-a`: it is a module constant compiled into the
-// program, not state read while running. Table T-075 fixes UF-69 as `pure`.
+// `display-words.json` is FR-038's dictionary, generated from
+// `_source/display-words.json` (Chapter 6.2). An empty cell falls back to the
+// stand-in beside each lookup. It is a module constant compiled into the
+// program, so reading it keeps this unit `pure`.
 
 /**
  * The hints of table T-109's rows, keyed by the row id, and the words of table
  * T-023's assignments, keyed by theirs.
  *
- * ⭐ `Map`s rather than a scan per tooltip: a description is built for every
- * frame, and rule 05 of docs/development-rules forbids a linear search on that
- * path (NFR-013).
+ * `Map`s rather than a scan per tooltip: a description is built every frame
+ * (R5 of docs/development-rules/07-review-standards.md, NFR-013).
  */
 const HINTS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entry.rowId, entry]))
@@ -141,10 +68,9 @@ const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entr
 /**
  * Which row of table T-023 assigns the faster way of scrolling that axis.
  *
- * ⭐ The row id is the join the specification itself prescribes, it cannot go
- * stale when the assignment changes, and ⛔ it cannot be mistaken for a settled
- * English name the glossary has not settled -- which is why it is also the key
- * the dictionary holds the words under, and the stand-in while it holds none.
+ * By row id: it survives a change of assignment and is the key the dictionary
+ * holds the words under, so it is also the stand-in while no word exists --
+ * unlike an English name, it cannot pass for a word the glossary has settled.
  */
 const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', string>> = {
   horizontal: 'MK-5',
@@ -152,42 +78,13 @@ const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', 
 }
 
 /**
- * The explanation EZ-2 of table T-040 shows against one entry, in the display
- * language (FR-038).
- *
- * ⛔ THE STAND-IN IS THE ENTRY'S OWN LABEL AND NOT THE EMPTY STRING. FR-029
- * (MUST) makes an entry that cannot be used give its REASON here rather than
- * going quiet, and an empty tooltip is exactly the silence that requirement
- * exists to prevent -- so while the dictionary holds no hint, the label stands
- * in, which is what this file printed before the dictionary was wired.
- * ⚠️ `hint` is a SECOND word and not a spelling of `label`: `CommandItem.label`
- * says so in as many words, and UF-62 / UF-65 / UF-66 fill the label without
- * ever reading this one.
- *
- * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
- * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing: an empty cell is UNSETTLED, not
- * an instruction to print nothing. The day a word is written this line stops
- * standing in without being edited.
- * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
- * separately although with the same stand-in; it cannot happen while
- * `npm run gen:check` passes.
- *
- * @purity pure
- */
-/**
  * What one entry of table T-109 is assigned, or `null` where nothing is.
  *
- * ⭐ THE JOIN IS THE SPECIFICATION'S NOW. CR-285 gave table T-036 and table
- * T-023 an 入口 column naming, by row id, the entrance each assignment
- * drives; `help-roster.json` carries it as `drives` and this map turns it
- * round. ⛔ THE TURNING IS DONE ONCE, HERE, and not by a table written
- * twice: the same fact read from the other end would be the duplication
- * R3.4 refuses.
- * ⚠️ ONE ENTRANCE MAY BE DRIVEN BY TWO ROWS -- IC-13 by SK-16 (a key) and
- * by MK-3 (the wheel). The roster is in the order FR-036 lists the tables,
- * so table T-023 lands first and the pointer's own gesture is what a person
- * resting a pointer is told about.
+ * Turned round once from the 入口 column of tables T-036 / T-023 (`drives` in
+ * `help-roster.json`) rather than kept as a second hand-written table.
+ * ⚠️ One entrance may be driven by two rows (IC-13 by SK-16 and by MK-3). The
+ * roster lists table T-023 first (FR-036), and `reverse` makes that row win, so
+ * the pointer's own gesture is what is shown.
  */
 const ASSIGNMENT_BY_ICON = new Map(
   helpRoster.entries
@@ -210,8 +107,8 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
   const found = ASSIGNMENT_BY_ICON.get(icon)
   if (found === undefined) return null
   if (found.keys !== null) return found.keys
-  // ⛔ THE MOUSE OPERATION IS A WORD (FR-036, MUST) and the key is not, so
-  // this half comes from the dictionary and the `操作` column is never read.
+  // A mouse operation is a word (FR-036) and a key is not, so this half comes
+  // from the dictionary and never from the `操作` column.
   const press = PRESS_BY_ROW.get(found.row)?.press[language]
   return press === undefined || press === '' ? null : press
 }
@@ -220,22 +117,15 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
  * The explanation EZ-2 shows for one row of table T-109, in the display
  * language.
  *
- * ⛔ THE STAND-IN IS THE ROW'S OWN LABEL AND THEN THE ROW ID, and neither is
- * the empty string: FR-029 (MUST) makes an entry that cannot be used give its
- * REASON here rather than going quiet, and an empty tooltip is the silence that
- * requirement exists to prevent. ⚠️ The label comes from the dictionary and no
- * longer from a `CommandItem`: EZ-2 (MUST) reaches every row of table T-109,
- * and 19 of them stand where no `CommandItem` is drawn at all.
- * ⚠️ `hint` is a SECOND word and not a spelling of `label` -- `CommandItem.label`
- * says so in as many words.
+ * The stand-in is the row's label, then the row id -- never the empty string,
+ * which would raise an empty tooltip. The label is read from the dictionary,
+ * not a `CommandItem`, because some rows are drawn where no `CommandItem` is.
+ * `hint` is a second word, not a spelling of `label` (see `CommandItem.label`).
  *
- * ⛔ THE FALLBACKS ARE WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
- * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing: an empty cell is UNSETTLED, not
- * an instruction to print nothing.
- * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
- * with the row id -- the stand-in `assignmentText` gives its reason for. It
- * cannot happen while `npm run gen:check` passes.
+ * `=== ''` rather than `||` / `??`: an empty cell means "no word settled yet",
+ * so a word written later takes over without this line being edited.
+ * A row missing from the dictionary cannot happen while `npm run gen:check`
+ * passes.
  *
  * @purity pure
  */
@@ -247,22 +137,18 @@ function iconHint(icon: IconId, language: DisplayLanguage): string {
 }
 
 /**
- * ⚠️ `textOfDay` writes the exchange partner's own type -- a day and a time
- * joined by this letter (EX-7 of table T-033) -- and EZ-6 (MUST) asks for the
- * day alone. Cutting there is how the panel spells a date column as well, so
+ * `textOfDay` joins a day and a time with this letter (EX-7 of table T-033) and
+ * EZ-6 wants the day alone. The panel cuts a date column the same way, so
  * neither file mints a date format.
  */
 const DAY_TIME_SEPARATOR = 'T'
 
 /**
- * One of EZ-6's two dates, as that row (MUST) spells it: `YYYY-MM-DD`, never a
- * month written as a word.
+ * One of EZ-6's two dates.
  *
- * ⭐ `dayOf` is the one place the reading of a stored date column lives and
- * `textOfDay` the one place its spelling does (FR-054, MUST / MUST NOT: the
- * lexical date part, no zone converted), so this file mints nothing.
- * ⚠️ A column that holds no date leaves the EMPTY STRING, which is EZ-6's
- * 「値を持たない項目は、その場所を空けること（MUST）」.
+ * `dayOf` and `textOfDay` own reading and spelling a stored date (FR-054).
+ * A column with no date gives the empty string, so its place stays empty
+ * (EZ-6).
  *
  * @purity pure
  */
@@ -273,23 +159,13 @@ function dateText(stored: string | null): string {
 }
 
 /**
- * What EZ-6 of table T-040 (MUST) shows over a `Task`: its name, then `start`
- * and `finish` in that order.
+ * What EZ-6 of table T-040 shows over a `Task`.
  *
- * ⛔ THE NAME IS NOT CUT (MUST). FR-002 cuts the label drawn on the bar and
- * says in as many words that this explanation is the only way the whole of it
- * can be read -- so nothing here shortens it.
- * ⭐ THE DATES ARE JOINED BY `/`, which is the row's own separator
- * (「開始・終了の順に `/` で並べること（MUST）」), and neither the mark nor a
- * digit is a word, so FR-038's dictionary holds none of this (the row says so).
- *
- * ⚠️ THE NAME IS JOINED TO THEM BY A SPACE, AND THAT IS NOT STATED. EZ-6 fixes
- * the separator BETWEEN THE TWO DATES and no other. A space is what this build
- * already puts between the two halves of an icon's explanation, on the ground
- * that 「a separator with meaning would be a word」 -- so the same nothing is
- * used here rather than a second mark. ⛔ Nothing is trimmed away: EZ-6 (MUST)
- * has an item with no value leave its place empty, and collapsing the joins
- * would move the dates into the name's place.
+ * The name is never cut: FR-002 makes this the one place it can be read whole.
+ * The space between name and dates is not stated; it is what already separates
+ * an icon's explanation from its assignment, since a separator with meaning
+ * would be a word. Nothing is trimmed, or an empty value would move the dates
+ * into the name's place (EZ-6).
  *
  * @provisional PND-390
  * @purity pure
@@ -303,11 +179,9 @@ function taskHint(task: Task): string {
  * What FR-037 puts on a scrollbar: the faster way of doing the same thing, in
  * the display language (FR-038).
  *
- * ⛔ THE STAND-IN IS THE ROW ID, for the reason
- * `FASTER_SCROLL_ASSIGNMENT_ROWS` gives -- it is what this file printed before
- * the dictionary was wired, and ⚠️ rule 03 section 1 forbids re-typing what
- * table T-023's assignment column says as firmly as it forbids inventing a word
- * for it. The fallback is written as `=== ''` for the reason `iconHint` gives.
+ * The stand-in is the row id, for the reason `FASTER_SCROLL_ASSIGNMENT_ROWS`
+ * gives; re-typing table T-023's words here is what rule 03 section 1 forbids.
+ * `=== ''` for the reason `iconHint` gives.
  *
  * @purity pure
  */
@@ -318,13 +192,10 @@ function assignmentText(row: string, language: DisplayLanguage): string {
 }
 
 /**
- * Half-open on both axes, as R3.4 asks: a point on the right or bottom edge
- * belongs to whatever comes next, so two lanes never both claim it.
+ * Half-open on both axes (R3.4), so two lanes never both claim an edge point.
  *
- * ⚠️ `screen-regions.ts` holds the same three lines and keeps them private --
- * PI-35 declares four members and this is not one of them, and Chapter 5.3 lets
- * nothing outside a folder read past its public entry. The copy is forced, not
- * chosen; R3.4 is what keeps the two from drifting apart in meaning.
+ * ⚠️ A copy of a private helper in `screen-regions.ts`: PI-35 does not publish
+ * it and Chapter 5.3 bars reading past a folder's entry. Keep the two alike.
  *
  * @purity pure
  */
@@ -335,10 +206,8 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
 /**
  * The explanations to show against this frame's parts.
  *
- * ⭐ The order is `TooltipAnchor`'s own: icons, then tasks, then scrollbars.
- * Rule 03 keeps a printed order rather than re-sorting it. ⚠️ The `rowTitle`
- * case stands among them in that union and is skipped rather than re-ordered
- * around -- see the head of this file for why nothing raises it.
+ * In `TooltipAnchor`'s own order (rule 03 section 4); `rowTitle` is skipped --
+ * see the head of this file.
  *
  * @purity pure
  */
@@ -347,121 +216,65 @@ export function tooltipsFromScreenView(
   settings: DocumentSettings,
   session: ScreenSession,
 ): readonly Tooltip[] {
-  // IN-3 of table T-028 (MUST) -- 「消せること」, spent through IN-4's last rung
-  // (出ている説明) by the side that holds the session. ⛔ BEFORE EVERY RAISER
-  // AND NOT INSIDE ONE: the row asks that a standing explanation can be put
-  // away, and both raisers below would otherwise put the same one straight back
-  // from the rest and the place, which have not changed. ⚠️ FR-037's scrollbar
-  // hint is under it too -- IN-3 speaks of ツールチップ without dividing them,
-  // and the rung it names is one rung for whatever stands.
+  // IN-3 / IN-4. Before every raiser, not inside one: each would otherwise put
+  // the dismissed explanation straight back. Covers FR-037's scrollbar hint
+  // too -- IN-4's rung is one for whatever stands.
   if (session.isTooltipDismissed === true) return []
 
   const pointer = session.pointer
 
-  // STOP -- ⚠️ NOT STATED: whether resting for exactly `iconHintDelayMs` is
+  // STOP -- NOT STATED: whether resting for exactly `iconHintDelayMs` is
   // already "after" it. S-124 gives the wait and EZ-2 gives no boundary.
   // Searched: FR-092 (table T-040), `_assets/tbl-settings.md`, table T-206.
-  // ⭐ The endpoint is included, which is what rule 03's min/max convention
-  // means and is the shorter of the two waits a reader could be asked for.
-  // ⭐ ONE BINDING FOR BOTH RAISERS. EZ-6 (MUST) takes the same wait as EZ-2
-  // and (MUST NOT) forbids one of its own, on the ground that 「同じ『止めて
-  // 待つ』が場所によって違う速さになると、効いていないと読まれる」.
+  // The endpoint is included, per rule 03's min/max convention.
+  // One binding for both raisers: EZ-6 takes EZ-2's wait.
   const isHintDue = pointer !== null && session.pointerRestedMs >= settings.iconHintDelayMs
 
   const tooltips: Tooltip[] = []
 
-  // ⭐ EZ-2'S PLACE CONDITION IS ANSWERED OFF-SEAM, NOT MEASURED HERE. Which
-  // entry the pointer rests on arrives as `ScreenSession.iconUnderPointer`
-  // (PND-141): no `CommandItem` carries a rectangle and `ScreenRegions` is not an
-  // argument of this unit, so the side that DREW the entries (PI-38) is the one
-  // side that can say, and it hands the answer over in the session. ⛔ Guessing
-  // a rectangle here would be an invented layout, which is what that member
-  // exists to prevent.
-  // ⚠️ WHILE NO ANSWER WAS CARRIED, this file offered EVERY entry whose wait had
-  // come due and left the surface to pick -- one explanation per entry per
-  // frame, for a MUST that EZ-2 puts on ONE entry.
+  // EZ-2's place arrives as `ScreenSession.iconUnderPointer` (PND-141): only
+  // the side that drew the entries (PI-38) can say which one is under the
+  // pointer, and a rectangle guessed here would be an invented layout.
   //
-  // ⛔ `isEnabled` IS NOT A CONDITION HERE, AND THE REQUIREMENT NOW SAYS SO.
-  // FR-029 (MUST NOT): 「ポインタが乗っただけで理由を出してはならない」 -- the
-  // reason an entrance cannot be used is told 「押されたときに限り」, as a telling
-  // (table T-233's RS-27, in the manner NT-1), and 「乗せて出るのは EZ-2 の説明で
-  // あり、あちらはその入口が何をするものかを述べるもの」. So an entry that cannot
-  // be used is explained under EZ-2's two conditions exactly like a usable one,
-  // and making it a condition here would be the very thing that MUST NOT
-  // forbids. ⚠️ An exemption that put every spent entry up every frame, pointed
-  // at or not, was invented here and is what the person using it reported.
+  // `isEnabled` is not a condition: FR-029 tells the reason on the press
+  // (RS-27 of table T-233), never under the pointer, so a spent entry is
+  // explained like a usable one. Whether its hint should also say it cannot be
+  // done now is not decided by the spec.
   //
-  // ⭐ THE STOP THAT STOOD HERE IS CLOSED BY THAT SAME PARAGRAPH. It read 「STILL
-  // NOT CARRIED: the REASON FR-029 wants on an entry that cannot be used」, and
-  // the answer is that this file is not what carries it: the telling is, and it
-  // is raised on the press. ⛔ So no second word is added to the dictionary and
-  // none is composed here.
-  //
-  // ⚠️ WHAT THE HINT SAYS ON A SPENT ENTRY IS NOT RULED ON. Measured on
-  // 2026-08-30, an IC-58 with nothing to open still explains itself as 「この行の
-  // 配下をすべて開く」. CR-306 records the recommendation to leave it exactly so
-  // -- EZ-2's explanation states the entrance's OFFICE, which is HF-2's whether
-  // it can be exercised now, and RS-27's telling is what carries the other fact
-  // -- and marks the question open. ⛔ Nothing is appended to the word here: a
-  // hint that read 「いまは行えません」 would put a reason under the pointer,
-  // which is the MUST NOT above.
-  //
-  // the open question CR-306 section 6 (a) records, now
-  // held by a row of its own. ⚠️ The user's ruling of 2026-08-30 said only that
-  // the reason travels on the PRESS; it said nothing about what the hint reads
-  // on an entry that cannot act. What stands here is that row's recommendation:
-  // leave it, because EZ-2's hint says what the entry is FOR, and letting it
-  // also carry the reason would say the same thing in two places.
-  //
-  // ⭐ Both of EZ-2's conditions belong to the session rather than to any one
-  // entry, so they are met once and what is left is to look the row up.
-  //
-  // ⛔ NO ROSTER IS WALKED, WHICH IS THE WHOLE OF EZ-2's SECOND MUST NOT.
-  // 「対象は…表 T-109 の全行とすること（MUST）。載る面によって説明を出さない行が
-  // あってはならない（MUST NOT）」. The row the pointer rests on already IS a row
-  // of that table -- `readScreenPartAt` reads it off the entry that was drawn --
-  // so an entry that carries it need not be found a second time. ⚠️ That the
-  // row is ON THE SCREEN follows from the pointer resting on it, not from a
-  // roster: nothing that was not drawn can be rested on.
+  // No roster is walked (EZ-2 reaches every row of table T-109): the row under
+  // the pointer is already a row of that table, and only a drawn entry can be
+  // rested on.
   const iconWithHintDue = isHintDue ? session.iconUnderPointer : null
   if (iconWithHintDue !== null) {
     tooltips.push({
       anchor: { kind: 'icon', icon: iconWithHintDue },
       text: iconHint(iconWithHintDue, session.language),
-      // EZ-2 (MUST): 「説明の後ろに、その行の割当も出すこと」.
+      // EZ-2.
       assignment: entryAssignment(iconWithHintDue, session.language),
     })
   }
 
   if (pointer === null) return tooltips
 
-  // EZ-6 of table T-040 (MUST): the Task the pointer has rested on says its
-  // name and its two dates, and 「ポインタが動いたら消すこと（MUST）」 -- which
-  // is the wait beginning again, so it is the same one condition read once.
-  //
-  // ⛔ WHICH Task IS NOT DECIDED HERE (MUST NOT): the row sends that to table
-  // T-023d's order and forbids a second hit test, so `taskUnderPointer` is the
-  // answer of the one side that walks it.
-  // ⚠️ A DESCRIPTION THAT DOES NOT CARRY THE MEMBER reads as a pointer on no
-  // Task -- see its declaration.
+  // EZ-6: a pointer move restarts the wait, so "gone when the pointer moves" is
+  // the same condition. Which Task is `taskUnderPointer`, answered by the one
+  // side that walks table T-023d (EZ-6 forbids a second hit test); a session
+  // without the member reads as no Task.
   const task = isHintDue ? (session.taskUnderPointer ?? null) : null
   if (task !== null) {
     tooltips.push({
       anchor: { kind: 'task', taskUid: task.uid },
       text: taskHint(task),
-      // ⚠️ EZ-6 asks for a name and two dates and for nothing else. The
-      // assignment is EZ-2's own MUST, and table T-023's rows assign gestures
-      // rather than rows of table T-109, so there is nothing to put here.
+      // EZ-6 asks for a name and two dates only; the assignment is EZ-2's.
       assignment: null,
       // @provisional PND-391 -- see `Tooltip.at`.
       at: pointer,
     })
   }
 
-  // ⚠️ Every lane the pointer is in answers, and no priority is invented for the
-  // corner where two lanes could meet: MK-9a demands a priority for grab targets
-  // that overlap, but table T-023a limits that whole scheme to the schedule's
-  // drawing area and lists the scrollbar as a surface FR-037 governs instead.
+  // Every lane the pointer is in answers; no priority is invented for a corner
+  // where two meet, since table T-023a limits MK-9a's priority to the schedule's
+  // drawing area.
   for (const scrollbar of shown.frame.scrollbars) {
     if (!rectHoldsPoint(scrollbar.track, pointer.x, pointer.y)) continue
     tooltips.push({

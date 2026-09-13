@@ -5,70 +5,47 @@
 // @purity    n/a
 // @seam      FileStore, implemented in another layer (LR-5)
 //
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
+// IF-3's note puts the HANDLE in the implementation (CP-28, FR-060), and that
+// shapes every member: this side can say "the file already open" without ever
+// holding, passing or comparing what names it. So:
 //
-// ---- the one thing the specification DOES fix about these members ----------
+//   * no member hands a handle out or takes one back, and there is no opaque
+//     token -- a token is a handle by another type, and holding one would let
+//     this side hold two and own which is current.
+//   * "write to the file we opened" is its own member, not `write(handle, bytes)`.
+//   * whether a file is open and still writable is ASKED of the store, never
+//     cached: the answer lives on the far side and changes without this side
+//     being told.
 //
-// IF-3 carries a note of its own: the HANDLE is held by the implementation
-// (CP-28), under FR-060. Every member below is shaped by that single sentence.
-// This side must be able to say "the file that is already open" while never
-// holding, passing, comparing or outliving the thing that names it, so:
+// LY-5 of table T-060 gives the same shape: a handle is a current value, which
+// only the Framework holds.
 //
-//   * no member hands a handle out and none takes one back. There is no opaque
-//     token either -- a token would be a handle wearing a different type, and
-//     the moment this side could hold one it could also hold two, and would
-//     then own the question of which is current.
-//   * "write to the file we opened" is therefore its OWN member rather than
-//     `write(handle, bytes)`.
-//   * whether a file is open at all, and whether it can still be written, is a
-//     QUESTION asked of the store rather than a field read off it. The answer
-//     lives on the far side and changes without anyone here being told: FR-060
-//     says permission to the previously opened file can be gone by the next
-//     run, and puts a MUST on offering to win it back at startup. A cached
-//     answer here would be stale exactly when that MUST fires.
+// One interface despite R2.5 (ISP): there is exactly one implementation (CP-28).
 //
-// LY-3 of table T-060 backs the same shape from the other direction: holding a
-// current value is the Framework's job alone, and the inner three layers take
-// what they need as arguments. A handle is a current value.
-//
-// ⚠️ Five members on one interface, and R2.5 (ISP) is answered the way Chapter
-// 5.1 answers it for the Agent API: there is exactly one implementation
-// (CP-28), so nobody is made to implement a member it has no use for.
-//
-// ⛔ No member takes or returns a browser type. LR-6 bars those from Entity and
-// UseCase rather than from here, but a seam whose values are plain data is one
-// a test can stand in for, and CP-28 is the only place that should need to know
-// what a `File` or a `FileSystemFileHandle` is.
+// No member carries a browser type, so a test can stand in for the seam and
+// only CP-28 needs to know `File` or `FileSystemFileHandle`.
 
 /**
- * The two routes OP-2 of table T-024a admits, and no third.
+ * How a file is opened: OP-2 of table T-024a's chooser and drop, and OP-13's
+ * re-read of the file already open.
  *
- * ⭐ A parameter rather than a member each, because OP-2's rule is that there
- * is ONE entry (MUST NOT: no separate one for import) and the two routes differ
- * only in how the person points at the file. Making the route a value keeps
- * that "one entry" visible in the type: a second entry would have to be a
- * second member, and there is nowhere to put one.
+ * A parameter rather than a member each: OP-2 allows ONE entry (no separate one
+ * for import), and a second entry would need a second member.
  *
- * ⚠️ `BT-2` of table T-034 -- a document handed to the app as it starts -- is
- * not a third route. Table T-034 sends it to CHN-1 of table T-008, the same file
- * route these two use, and hands what happens next to FR-087.
+ * ⚠️ BT-2 of table T-034 (a document handed over at start) is not another
+ * route: table T-034 sends it to CHN-1 of table T-008 and to FR-087.
  */
 export type OpenRoute = 'chooser' | 'drop' | 'reopen'
 
 /**
  * Why the store could not do what was asked.
  *
- * ⛔ The four are told apart by what the person can do NEXT, because that is
- * what NT-3a of table T-037 makes mandatory in a failure notice: a notice that
- * only says something failed is forbidden (MUST NOT). The wording of the
- * notice is not built here -- `notices.ts` (UF-67) is `pure` and owns FR-076's
- * manners -- but only this side can know WHICH of the four happened.
+ * Told apart by what the person can do next, which NT-3a of table T-037 has a
+ * failure notice carry. The wording is `notices.ts` (UF-67)'s; only this side
+ * knows which case happened.
  *
- * ⚠️ `cancelled` is in the list precisely so that it can be told apart from the
- * other three and left un-notified. The person stopping a file chooser has not
- * been failed and has no next step owed to them.
+ * ⚠️ `cancelled` is listed so it can be left un-notified: a dismissed chooser
+ * is not a failure.
  */
 export type FileStoreFaultReason =
   /** The person dismissed the chooser, or dropped nothing. Not a failure. */
@@ -77,20 +54,14 @@ export type FileStoreFaultReason =
   | 'permissionLost'
   /** Nothing has been opened, so there is no file to overwrite. */
   | 'noOpenedFile'
-  /**
-   * The store tried and could not. ⚠️ `LM-14` lands here -- opened straight off
-   * the disk, overwrite-saving is one of the things that may simply not work.
-   */
+  /** The store tried and could not (LM-14 lands here). */
   | 'unavailable'
 
 /**
  * One reason, and the detail behind it.
  *
- * ⚠️ Shaped like `JsonFault` and `Refusal` rather than like an exception:
- * FR-028 forbids throwing (MUST NOT) and AG-8 of table T-035 has failures come
- * back as values. Nothing in this component throws, and nothing in it catches
- * a throw from the store either -- a store that throws has broken the contract
- * this file states.
+ * ⚠️ A value, not an exception (FR-028, R7.10). A store that
+ * throws breaks this contract.
  */
 export interface FileStoreFault {
   readonly reason: FileStoreFaultReason
@@ -101,11 +72,8 @@ export interface FileStoreFault {
 /** One file exactly as it sat on disk. Nothing has been decoded. */
 export interface OpenedFileContent {
   /**
-   * ⭐ Bytes, not text. The encoding rule (CN-5 of table T-003) belongs to one
-   * place, and that place is on the near side of this seam -- see
-   * `file-gateway.ts`. It also keeps S-113's ceiling measurable: the size
-   * `ValidateImportedDocument` is told is `bytes.byteLength`, the count the
-   * file actually occupied, not the length of a string decoded from it.
+   * Bytes, not text: the encoding rule (CN-5 of table T-003) lives on the near
+   * side (`file-gateway.ts`), and S-113 is judged on `bytes.byteLength`.
    */
   readonly bytes: Uint8Array
   /** For the notice and the header. ⚠️ Not a path -- the store keeps that. */
@@ -115,12 +83,8 @@ export interface OpenedFileContent {
 /**
  * What the store says about the file FR-060 would overwrite.
  *
- * ⭐ Three states rather than a name plus a boolean: the startup offer FR-060
- * requires exists only for the middle case, and a `null` name with a `true`
- * flag is a state that cannot happen but that every reader has to rule out.
- * `NT-4` of table T-037 gathers that offer onto one startup panel with the
- * other pending business, so the shell asks this question once and shows or
- * omits the offer.
+ * Three states rather than a name plus a boolean, so a `null` name with a
+ * `true` flag cannot be written.
  */
 export type OpenedFileState =
   | { readonly kind: 'none' }
@@ -133,16 +97,11 @@ export type FileReading =
       readonly ok: true
       readonly file: OpenedFileContent
       /**
-       * OP-11 of table T-024a: how many of the files handed over in the same
-       * act were NOT accepted. The row keeps the first one and puts a MUST on
-       * saying that the rest were left, and only the side that saw the whole
-       * hand-over can count them.
+       * OP-11 of table T-024a: how many files handed over in the same act were
+       * not accepted; only the side that saw the whole hand-over can count.
        *
-       * ⚠️ Absent means none were left. It is optional rather than always
-       * stated because a route that can only ever carry one file has nothing
-       * to count, and a store that says nothing is asserting exactly that.
-       * ⛔ A store that DOES drop files must state the number: leaving it out
-       * there turns OP-11's MUST into silence, which its MUST NOT forbids.
+       * ⚠️ Absent means none. ⛔ A store that does drop files must state the
+       * number, or OP-11's report becomes silence.
        */
       readonly ignoredFileCount?: number
     }
@@ -151,10 +110,8 @@ export type FileReading =
 /**
  * Yes-or-no about one write.
  *
- * ⭐ A success reports the resulting state instead of leaving the caller to ask
- * for it. R7.4 forbids a new external read part-way through handling a result,
- * and the header that shows the file name would otherwise need one right after
- * every save.
+ * A success reports the resulting state: R7.4 forbids a new external read
+ * part-way through, and the header would otherwise need one after every save.
  */
 export type FileWriting =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
@@ -163,40 +120,23 @@ export type FileWriting =
 /**
  * What already sits where a chosen write would land.
  *
- * ⭐ Two states rather than a nullable byte string, because table T-227 turns
- * on what is standing at the destination and DI-1 has a file name to compare
- * only where something is. A boolean beside the bytes would leave "nothing is
- * there" and "something is there holding nothing" spelled the same way.
+ * Two states rather than nullable bytes: table T-227 turns on whether
+ * something stands there, and DI-1 compares a file name only then.
  *
- * ⭐ DI-6 OF TABLE T-227 (MUST) DECIDES IT, and it is the row a note here once
- * waited for: a destination holding no bytes is not one that was already
- * there, and nothing is asked about it. The row states its own precedence over
- * DI-3 and gives FR-031 (MUST NOT) as the ground -- the class FR-031 admits a
- * question in is losing something undo cannot give back, and a destination with
- * nothing in it has nothing to lose.
- *
- * ⚠️ SO NO STORE IS ASKED TO TELL THE TWO APART. A save chooser creates the
- * file it names, and DI-6's own note is that such a file and one that was
- * standing empty cannot be told apart; the row answers both the same way, so
- * which arm a store reports for a destination with no bytes changes nothing.
- * `file-gateway.ts` measures what came back and reads DI-6 before any other
- * row of the table -- that side owns the table, not this seam.
+ * ⚠️ No store is asked to tell "nothing there" apart from an empty file: DI-6 of
+ * table T-227 answers both the same way, and `file-gateway.ts` measures the
+ * bytes and reads DI-6 first.
  */
 export type ChosenWriteDestination =
-  /**
-   * Nothing for table T-227 to ask about. ⭐ By DI-6, a destination that IS
-   * there but holds no bytes belongs here too -- see the note above.
-   */
+  /** Nothing for table T-227 to ask about (by DI-6, an empty file too). */
   | { readonly kind: 'empty' }
   | {
       readonly kind: 'occupied'
       /** The name the person actually chose, which DI-1 compares. */
       readonly fileName: string
       /**
-       * ⭐ Bytes, for the same reason `OpenedFileContent` carries bytes.
-       * ⚠️ A store that reports this arm carrying none of them is not wrong:
-       * DI-6 is judged on the near side by measuring, exactly so that no store
-       * is made to answer a row of a table it does not judge.
+       * Bytes, as in `OpenedFileContent`. ⚠️ This arm carrying none is not
+       * wrong: DI-6 is judged on the near side.
        */
       readonly bytes: Uint8Array
     }
@@ -209,54 +149,32 @@ export interface ChosenFileWrite {
   /**
    * The extension table T-024 gives the row being written, dot and all.
    *
-   * ⭐⭐ CARRIED BESIDE THE NAME AND NOT CUT OUT OF IT. FR-096 (MUST) has the
-   * written file's name END in the chosen row's extension and (MUST) has the
-   * host told that the file is of that kind where there is a way to tell it --
-   * and the second of those is not a question about a name at all. ⛔ The store
-   * may not recover it by splitting the suggestion at its last dot: a document
-   * named 「v1.2 計画」 has a dot of its own, and a form the roster has lost the
-   * row for suggests a bare name, where the split would answer with the whole
-   * of it.
+   * Carried beside the name, not cut out of it: FR-096 also has the host told
+   * the file's kind, which is no question about a name, and a name such as
+   * 「v1.2 計画」 has a dot of its own.
    *
-   * ⛔ THE VALUE IS NOT MADE HERE AND NOT MADE IN THE STORE EITHER. Table T-024
-   * is the extension's one place (FR-096, MUST NOT); `frame-loop.ts` reads it
-   * out of the generated roster and hands it down this seam.
-   * ⚠️ An empty string is admitted and means the roster no longer carries the
-   * row -- the same answer `suggestedFileName` degrades to, and the store then
-   * opens a chooser with no kind rather than inventing one.
-   *
-   * ⚠️ WHAT THE HOST DOES WITH IT is the store's business and stays there:
-   * FR-096 forbids the media type that telling needs from appearing in any
-   * table of the specification (MUST NOT) and puts it in the Framework layer,
-   * so no name of one may cross this seam.
+   * Made on neither side of this seam: table T-024 is its one place (FR-096),
+   * and `frame-loop.ts` reads it from the generated roster.
+   * ⚠️ An empty string means the roster lost the row; the store then opens a
+   * chooser with no kind rather than inventing one. The media type stays in
+   * the Framework (FR-096) and never crosses this seam.
    */
   readonly extension: string
   /**
-   * Whether the file just written becomes the one FR-060 overwrites from now
-   * on. ⛔ The store does not work this out: which of table T-024's forms can
-   * stand in that position is the near side's business, and `file-gateway.ts`
-   * decides it there.
+   * Whether the file just written becomes FR-060's overwrite target; which
+   * forms can is decided in `file-gateway.ts`, not by the store.
    */
   readonly shouldBecomeOpenedFile: boolean
   /**
-   * DI-4 of table T-227 (MUST): asked once, after the person has pointed at a
-   * file and BEFORE anything is written. `false` means write nothing.
-   * ⚠️ `non-pure` where it is implemented, which is the near side of this seam.
+   * DI-4 of table T-227: asked once, after the person has pointed at a file
+   * and BEFORE anything is written. `false` means write nothing.
+   * `non-pure`, implemented on the near side (`file-gateway.ts`), which also
+   * judges DI-1 .. DI-3; the store only gives it the moment to answer.
    *
-   * ⛔ THE STORE DOES NOT JUDGE. Whether the destination holds this same
-   * document is DI-1 .. DI-3, and those are the near side's -- `file-gateway.ts`
-   * answers this. All the store owes is the chance to answer, at the one moment
-   * when both the destination and the unwritten bytes exist.
+   * A call rather than a value: the file written over is known only once the
+   * chooser closes, and asking afterwards would ask about a destroyed file.
    *
-   * ⭐ Why a call rather than a value on the request: the file being written
-   * over is not known until the chooser closes, and asking afterwards would
-   * mean asking about a file that has already been destroyed. Handing the
-   * question DOWN keeps FR-096's one entry to one round trip -- see
-   * `writeChosenFile` for the consistency unit R7.4 asks to be stated.
-   *
-   * ⚠️ A `false` answer is `cancelled`, not a failure: the person called the
-   * write off, exactly as they may call the chooser off, and IF-3 keeps
-   * `cancelled` apart so that nothing is told to somebody who is owed nothing.
+   * ⚠️ `false` is `cancelled`, not a failure: nobody is owed a notice.
    */
   askToWriteOver(destination: ChosenWriteDestination): Promise<boolean>
 }
@@ -265,29 +183,21 @@ export interface FileStore {
   /**
    * The file the person designated, read whole. `semi-pure-b`.
    *
-   * ⭐ The store remembers where it came from, so that FR-060's overwrite has
-   * somewhere to go. ⚠️ That is why the `drop` route goes through the store at
-   * all instead of the shell simply handing over the bytes it already has: a
-   * dropped file that never passed the store leaves nothing to overwrite, and
-   * the person would find the same save icon working after one route and not
-   * after the other.
+   * The store remembers where it came from so FR-060's overwrite has a target;
+   * that is why `drop` goes through the store too -- otherwise save would work
+   * after one route and not the other.
    *
-   * ⛔ One file per call. OP-3 of table T-024a asks the person one question
-   * about one read content, and OP-8 forbids a second open while one is
-   * running, so there is no case here that wants a list.
-   *
-   * ⚠️ OP-11 is the case where several arrive together, and it does NOT want a
-   * list either: the row keeps the FIRST one and has the rest merely reported
-   * as left behind (MUST), because one file is open and the act must not read
-   * as refused (MUST NOT). That report is `ignoredFileCount` on the answer.
+   * One file per call: OP-3 of table T-024a asks about one content, and OP-8
+   * forbids a second open meanwhile. When several arrive (OP-11), the first is
+   * kept and the rest are reported through `ignoredFileCount`.
    */
   readFileToOpen(route: OpenRoute): Promise<FileReading>
 
   /**
    * What may be overwritten right now. `semi-pure-b`.
    *
-   * ⚠️ Asked, never remembered. FR-060 has permission going missing between
-   * runs, so an answer kept from a moment ago is worth nothing.
+   * ⚠️ Asked, never remembered: permission can change without this side being
+   * told.
    */
   readOpenedFileState(): Promise<OpenedFileState>
 
@@ -295,19 +205,10 @@ export interface FileStore {
    * Ask for the lost permission back, and answer with what came of it.
    * `non-pure`.
    *
-   * ⭐ ABOUT A FILE OPENED DURING THIS RUN, AND NEVER ABOUT A REMEMBERED ONE.
-   * FR-060 (MUST NOT, 利用者の裁定 2026-09-07): 「前回開いていたファイルを覚えては
-   * ならない（MUST NOT）。⇒ 起動時に権限の復帰を申し出てもならない（MUST NOT）——
-   * 覚えていないので、申し出る相手が存在しない」, and 「起動した直後の最初の保存で、
-   * 人がファイルを選び直すのが本仕様である（MUST）—— 上書きが成り立つのは、同じ起動
-   * のうちに一度保存先を決めたあとである」.
-   *
-   * ⛔ SO IT IS NEVER CALLED AT STARTUP, and having no caller at all is the
-   * correct state of this build rather than a hole: a startup offer is what the
-   * requirement now forbids. ⚠️ Until 2026-09-07 the requirement read 「権限が
-   * 失われているときは、起動時にその復帰を申し出ること（MUST）」 and this comment
-   * called the member that MUST -- ⛔ do not read the absence of a caller as
-   * that MUST going unkept and "fix" it back into a violation.
+   * Only for a file opened during this run: FR-060 forbids remembering the
+   * previous run's file, so there is nothing to offer at startup.
+   * ⛔ Never called at startup. Having no startup caller is correct -- do not
+   * "fix" it into a startup offer.
    */
   restoreOpenedFilePermission(): Promise<OpenedFileState>
 
@@ -317,14 +218,12 @@ export interface FileStore {
   /**
    * Write to a file the person points at. `non-pure`.
    *
-   * ⭐ THE ORDER IS FIXED, because table T-227 has no meaning in any other:
-   * point at the destination, read what is already there, ask
-   * `ChosenFileWrite.askToWriteOver`, and write only on a `true`.
+   * ⛔ The order is fixed, as table T-227 means nothing in another: point at
+   * the destination, read what is there, ask `ChosenFileWrite.askToWriteOver`,
+   * and write only on `true`.
    *
-   * ⚠️ R7.4's consistency unit is this ONE call. The destination is read once,
-   * inside it, and the answer to the question is about that reading -- the near
-   * side performs no external read of its own part-way through, and a caller
-   * never sees a half-finished write.
+   * ⚠️ The consistency unit is this one call (R7.4): the destination is read
+   * once, inside it, and no caller sees a half-finished write.
    */
   writeChosenFile(write: ChosenFileWrite): Promise<FileWriting>
 }

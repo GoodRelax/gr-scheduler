@@ -1,20 +1,13 @@
-// EditDocument -- the presentation-group aggregate.
+// EditDocument -- the presentation-group aggregate: CM-56 to CM-71 of table T-108.
 //
 // @unit      UF-18  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The sixteen commands table T-108 puts in 見せ方の群: CM-56 to CM-71.
-//
-// ⚠️ ALL SIXTEEN change the presentation group alone, so FR-063 forbids every
-// one of them moving the schedule instant -- CM-71 included. Fit used to open
-// the collapsed rows here too, and `isCollapsed` is a TaskGroup column, which
-// made this file the one exception; FR-031 has since split the press into two
-// writes and CM-72 (`expandAllTaskGroups`, in edit-task-group.ts) carries that
-// half. ⚠️ The plan still reads WHAT CHANGED rather than the group column --
-// nothing here relies on the two agreeing.
-//
-// ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
+// Every command here writes the presentation group alone (FR-063). Fit's
+// row-opening half is CM-72 (`expandAllTaskGroups`, in edit-task-group.ts); the
+// plan reads what changed rather than the group column, so nothing here relies
+// on the two agreeing.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -26,70 +19,39 @@ import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
 /**
- * What the document does not hold, and so must arrive from outside.
+ * What the document does not hold, and so must arrive from outside (table T-206
+ * keeps S-97 / S-98 out of it; FR-016, FR-052).
  *
- * ⚠️ Table T-206 keeps `zoomMin` (S-97) and `zoomMax` (S-98) out of the
- * document on purpose -- they are "操作の速さであって結果ではない" -- yet
- * FR-016 still requires the zoom to be held inside them (MUST). The Row Area's
- * width is the same kind of value: FR-052 makes "the Row Area is wider than
- * zero" the test for a pair of panel widths, and the screen it is measured on
- * cannot be seen from the document alone.
- *
- * ⚠️ The clamp lives HERE rather than in the translator that reads the wheel,
- * because FR-028 requires the Agent API to be able to do what the screen can.
- * A clamp on the pointer path only would leave the other entrance unbounded.
+ * The clamp lives here rather than in the wheel translator so the Agent API
+ * entrance is bounded too (FR-028).
  */
 export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
   /**
-   * What the Row Area's width would be with both panel widths at zero.
+   * What the Row Area's width would be with both panel widths at zero:
+   * `regions.rowArea.width + rowTitlePanelWidth + propertyPanelWidth`, so this
+   * file subtracts only the pair it is judging.
    *
-   * ⭐ FR-052's arithmetic is NOT written here. Its one implementation is
-   * `regionsFromScreen` (PI-35 of ScreenRegions): the Schedule Canvas width,
-   * less `canvasPadding` (S-56), less the two panel widths, less the vertical
-   * scrollbar that the rule after table T-031 gives width to. The caller
-   * already holds that frame's regions -- CS-1 gathers the screen's dimensions
-   * once at the head of the frame -- so it hands back the sum
-   *
-   *     regions.rowArea.width + rowTitlePanelWidth + propertyPanelWidth
-   *
-   * and this file subtracts only the pair it is judging.
-   *
-   * ⛔ Do not rebuild it from a window width here. The copy that did dropped
-   * the scrollbar term, and FR-052 counts it -- two copies, one wrong. The
-   * import direction would allow reading ScreenRegions instead (LR-1 lets
-   * UseCase reach inward to layoutEngine), but Chapter 5.2 keeps the
-   * component-to-component edges in figures F-013 to F-017, and the only edge
-   * they give EditDocument into that layer is `EditDocument -> ScheduleLayout`.
-   * Adding a second one is a change request, not an implementation choice.
+   * ⛔ Do not rebuild it from a window width here: the arithmetic belongs to
+   * `regionsFromScreen` (PI-35), and a copy that dropped the scrollbar term was
+   * wrong. Reading ScreenRegions directly would add an edge figures F-013 to
+   * F-017 do not draw (EditDocument's only edge there is to ScheduleLayout).
    */
   readonly rowAreaWidthWithoutPanels: number
 }
 
 /**
- * The EIGHT boolean rows of table T-202 -- the ones FR-049 calls toggles.
+ * The boolean rows of table T-202 that FR-049 calls toggles.
  *
- * ⛔ NO GENERATOR BRINGS THE NAMES: `tools/generate_entity_types.py` does not
- * list this file among its targets, so the union is written by hand here and
- * only a hand keeps it level with the table.
+ * ⛔ Written by hand: `tools/generate_entity_types.py` does not target this file.
  *
- * ⛔⛔ `watermarkVisible` (`S-144`) IS NOT ONE OF THEM AND MAY NOT BE PUT BACK.
- * The row joined table T-202 on 2026-08-25 and LEFT it for table T-206 on
- * 2026-09-02 (利用者の裁定, CR-335), because FR-020's STATEMENT has always read
- * 「透かしの設定を文書に保存してはならない（MUST NOT）」. ⚠️ Every member of
- * this union is written into `DocumentSettings` by CM-58, so a member for a row
- * table T-202 no longer holds would be that MUST NOT itself -- and the key is
- * not in the generated `DocumentSettings` any more, so the write would put a
- * column the schema does not have into the saved group.
- * ⭐ WHERE THE ROW WENT INSTEAD: `ScreenState.watermarkVisible`, beside S-99e,
- * which is the value the screen uses and the document does not keep.
+ * ⛔ `watermarkVisible` (S-144) may not be added: CM-58 writes every member into
+ * `DocumentSettings`, and that row is table T-206's (FR-020, MUST NOT). The
+ * screen's copy is `ScreenState.watermarkVisible`.
  */
 export type VisibleElement =
-  // S-227 / S-228 -- the plan half and the actual half. ⭐ They joined this
-  // union on 2026-09-07, when FR-049 split them out of one three-valued row
-  // into two independent booleans (the user's ruling). ⛔ Nothing here reads
-  // one to decide the other; that is what 'independent' means.
+  // S-227 / S-228: independent (FR-049); nothing here reads one to decide the other.
   | 'planVisible'
   | 'actualVisible'
   | 'assigneeVisible'
@@ -120,15 +82,8 @@ export type DocumentSettingsCommand =
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
       /**
-       * S-176 / S-177: how far into the anchor row and the anchor day the top
-       * left corner of the view sits, each as a fraction of that anchor's OWN
-       * extent.
-       *
-       * ⭐ CARRIED WITH THE ANCHORS AND NEVER APART FROM THEM. A position is
-       * the pair, and a command that moved one without the other would name a
-       * place nobody asked for -- which is why they join this command rather
-       * than getting one of their own. ⛔ NOT px: FR-080 (MUST NOT) forbids
-       * that, because zoom and window width would make a pixel point elsewhere.
+       * S-176 / S-177: fractions of the anchor's own extent, not px (FR-080).
+       * They travel with the anchors because a position is the pair.
        */
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
@@ -143,12 +98,8 @@ export type DocumentSettingsCommand =
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
       /**
-       * The same pair CM-66 carries, for the same reason.
-       *
-       * ⛔ WITHOUT THEM THE FIT DOES NOT FIT. FR-055 works out an anchor that
-       * puts the whole schedule on screen, and a fraction left in force from
-       * the pan before it would slide that answer by up to one row and one day
-       * -- so the two would have to be written to be believed.
+       * The same pair CM-66 carries. ⛔ Without them a fraction left over from
+       * the previous pan would slide FR-055's anchor by up to one row and one day.
        */
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
@@ -175,41 +126,18 @@ export function editDocumentSettings(
   limits: SettingsLimits,
 ): EditResult {
   const settings = document.documentSettings
-  // ⭐ THE ONE-FIELD TEST, KEPT ONCE FOR SIXTEEN ARMS. FR-020 (MUST) forbids
-  // re-stamping the trail for a write that changed nothing, and `frame-loop.ts`
-  // reads that off the DOCUMENT reference -- so an arm that rebuilds the
-  // presentation group for a value already held moves the trail with nothing
-  // behind it (ledger row DFC-378, measured on the shipped build 2026-09-08).
-  //
-  // ⚠️ BY VALUE, AND ONLY THE KEYS THE ARM IS WRITING. `part` carries between
-  // one and six of them, so this is the per-field comparison each arm would
-  // otherwise write out; nothing walks the document, which is what NFR-013
-  // governs on the every-frame road the reference test protects.
-  // ⛔ A KEY WHOSE VALUE IS AN OBJECT IS COMPARED BY REFERENCE, exactly as
-  // `sameRow` in `edit-task.ts` compares its own. That is exact for every key
-  // written here but one: CM-60 builds a fresh `dualCursor`, so that arm makes
-  // the test on the two dates itself before it reaches this.
+  // Compares only the keys the arm writes, by value: rebuilding the group for a
+  // value already held would give frame-loop.ts a new document reference and
+  // re-stamp the trail for nothing (FR-020).
+  // ⛔ Object-valued keys compare by reference, so CM-60 (a fresh `dualCursor`)
+  // makes its own test before reaching this.
   const put = (part: Partial<DocumentSettings>): EditResult => {
     const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
     if (keys.every((key) => settings[key] === part[key])) return edited(document)
     return edited(withSettings(document, { ...settings, ...part }))
   }
-  // FR-016: hold the zoom inside what S-75 and S-76 allow (MUST). This is a
-  // CLAMP, not a refusal -- the requirement says 収める, and a wheel notch past
-  // the end is an ordinary thing to do, not an error.
-  //
-  // ⭐ IT STANDS BESIDE `put` BECAUSE TWO ARMS WRITE A ZOOM, NOT ONE. CM-65 is
-  // the wheel and the buttons; CM-71 is the whole-view fit, and FR-016 names
-  // the QUANTITY rather than an entrance, so the fit is inside the same MUST --
-  // SK-18 of table T-036 puts the fit on a shortcut and IC-10 of table T-109
-  // gives it a control, and both are assignments that sentence governs.
-  // ⛔ Do not write a second copy of this expression in either arm. One reading
-  // of S-75 / S-76 per file, or a later change to the bound moves only half of
-  // them.
-  //
-  // ⚠️ The pair is not the document's to give: S-97 and S-98 of table T-206
-  // keep `zoomMin` / `zoomMax` out of it, which is why they arrive through
-  // `SettingsLimits` instead of off `settings`.
+  // FR-016: a clamp, not a refusal -- a wheel notch past the end is ordinary.
+  // Shared by CM-65 and CM-71 so a change to the bound cannot move only one arm.
   const clamp = (value: number): number =>
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
 
@@ -221,50 +149,20 @@ export function editDocumentSettings(
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
 
     case 'setGuideCursorMode': // CM-59
-      // ⚠️ DC-4 forbids this taking the Dual Cursor down with it (MUST NOT):
-      // FR-048 keeps the three kinds independent, so one entrance may not
-      // switch off two. Nothing here touches `dualCursor`.
+      // ⛔ Does not touch `dualCursor` (DC-4, MUST NOT; FR-048). Leaving the Dual
+      // Cursor mode emits CM-61 from `input-command-translator.ts` instead.
       //
-      // ⛔⛔ AND IT STILL DOES NOT, AFTER 利用者の裁定 2026-09-06 (CR-364, B-2).
-      // The ruling 「デュアルカーソルモードを Disable にするか、別のカーソルモード
-      // にしたら Dual Cursor が消えるべきだろ？」 was read in §0 of that CR as
-      // 「`double-vertical` を離れることが「消す」ことである」 -- i.e. as a rule
-      // for THIS case. ⭐ THAT READING IS REFUSED HERE, on a sentence the
-      // ruling never touched: DC-4 (MUST NOT) says the guide cursor's 「なし」
-      // may not clear the measuring pair, 「3 種は独立に出し分ける（`FR-048`）
-      // ので、1 つの入口が 2 つを同時に消してはならない」, and FR-048 repeats it
-      // in its own words. ⭐ `guideCursorMode` (S-66) IS CU-3 AND HOLDS NO
-      // DATES; the pair is CU-2 and lives in `dualCursor` (S-65). Clearing one
-      // from the other would need the manuscript to fuse them first.
-      // ⚠️ WHAT THE RULING DOES REACH is DC-4's own way out, and
-      // `input-command-translator.ts` carries it there -- leaving the mode now
-      // emits CM-61.
-      //
-      // ⭐⭐ AND THE OTHER READING CANNOT EVEN BE SPELLED SINCE 2026-09-06:
-      // 'double-vertical' left S-66 that day (利用者の裁定 -- 縦 2 本の入口は
-      // いらない), so the mode this case writes is one of the three CU-3 now
-      // names. ⛔ NO CONDITION RESCUES A DOCUMENT THAT CARRIES THE RETIRED
-      // VALUE -- Chapter 6 admits only the per-key type and the enumeration the
-      // manuscript spells for this group, so such a document is refused where
-      // every other out-of-enumeration value is, and 「外すだけ。古い文書は拒む」
-      // is the ruling that says so.
-      //
-      // ⚠️ A PRESS NEVER ARRIVES HERE ASKING FOR THE MODE THAT ALREADY STANDS.
-      // FR-048 (MUST) 「それを出した入口をもう一度押せば消えること」 makes the
-      // re-press mean `'none'`, and the translator -- which is the side that
-      // reads what stands (`commandFromGuideCursorEntry`) -- decides that. This
-      // case still puts whatever it is given: CM-59 is one road into S-66 and
-      // may not hold a second copy of the rule (R2.7).
+      // A re-press meaning `'none'` (FR-048) is decided by the translator
+      // (`commandFromGuideCursorEntry`), which reads what stands; this case puts
+      // whatever it is given (R2.7).
       return put({ guideCursorMode: command.mode })
 
     case 'setDualCursor': { // CM-60
-      // IV-13: while `dualCursor` is not null, BOTH dates are not null.
+      // IV-13
       if (dayOf(command.date1) === null || dayOf(command.date2) === null) {
         return refused([reject('CM-60', 'IV-13', 'both cursor dates must be dates')])
       }
-      // ⭐ THE ONE ARM THAT MAKES THE TEST ITSELF, and `put`'s own note says
-      // why: the value written is a fresh object, so the reference comparison
-      // there cannot see that the pair already stands where it is being put.
+      // `put` compares by reference, and the value written here is a fresh object.
       const held = settings.dualCursor
       if (held !== null && held.date1 === command.date1 && held.date2 === command.date2) {
         return edited(document)
@@ -273,37 +171,13 @@ export function editDocumentSettings(
     }
 
     case 'clearDualCursor': // CM-61
-      // DC-7: the one way the two lines go away, and EP-6 of table T-076 is
-      // why one is owed at all -- the export draws the pair, so with no road
-      // to null it would draw it for ever.
-      //
-      // ⭐⭐ WHAT REACHES IT CHANGED ON 利用者の裁定 2026-09-06 (CR-364, B-2):
-      // 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
-      // Dual Cursor が消えるべきだろ？」. Leaving the mode now carries this
-      // command, so the clearing rides DC-4's way out instead of waiting for
-      // an entrance of its own. ⛔ NO ENTRANCE WAS ADDED, and the ruling is
-      // why: it says the act of stepping off the mode IS the clearing, so a
-      // 75th row of table T-109 would be a second way to do one thing
-      // (FR-029, MUST NOT).
-      // ⚠️ DC-7 STILL READS THE OLD WAY in the manuscript -- 「置いた 2 本を消す
-      // 入口を、モードを出る入口とは別に置くこと（MUST）。モードを出ただけで消して
-      // はならない（MUST NOT）」. §1 of CR-364 names DC-7 as the row to edit and
-      // the edit has not landed; this case is written to the ruling, not to
-      // the unedited row.
+      // DC-7: reached by leaving the Dual Cursor mode.
       return put({ dualCursor: null })
 
     case 'setFontScale': { // CM-62
-      // ⭐ S-2 and S-3 follow `fontScale` (FR-039), so the ruler's type and
-      // band are recomputed here rather than stored independently: keeping
-      // them as separate keys is what lets them drift -- FR-039 requires both
-      // halves: they follow (MUST) and they stay separate keys (MUST).
-      //
-      // ⭐ The band height is NOT arithmetic this file owns. S-2 states it as
-      // a rule over other keys, and CR-200 gave that rule a printed carrier
-      // (SETTINGS_DERIVED), so the numbers live in the manuscript alone.
-      // ⚠️ Before that, this line read `rulerFont * 3 + 6` -- and the 6 has
-      // since become a row of its own (S-136), which a copy here could not
-      // have followed.
+      // FR-039: S-2 and S-3 follow `fontScale` yet stay separate keys, so they are
+      // recomputed here. The band height comes from SETTINGS_DERIVED (the rule
+      // S-2 states), not from arithmetic written in this file.
       const rulerFont = settings.fontScaleSizes[command.scale]
       const band = SETTINGS_DERIVED.rulerHeight
       const padded = { ...settings, rulerFont }
@@ -324,9 +198,8 @@ export function editDocumentSettings(
       return put({ themeMonochrome: command.monochrome })
 
     case 'setZoom': { // CM-65
-      // FR-016. ⚠️ A value that is not a number is REFUSED and not clamped:
-      // NaN answers false to both comparisons, so a clamp alone would let it
-      // through and S-75 / S-76 would then hold something outside themselves.
+      // FR-016. ⚠️ Refused, not clamped: NaN fails both comparisons, so the clamp
+      // alone would store it.
       if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
         return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
       }
@@ -346,29 +219,18 @@ export function editDocumentSettings(
     }
 
     case 'setPanelWidths': { // CM-67
-      // FR-052 states the test between the two: the Row Area has to stay
-      // wider than zero. It cannot be applied to either width on its own,
-      // which is why clampedSettings deliberately leaves this pair alone.
+      // FR-052's test is on the pair, which is why clampedSettings leaves both
+      // widths alone. The Row Area arithmetic stays in regionsFromScreen; see
+      // `rowAreaWidthWithoutPanels`.
       //
-      // ⭐ The arithmetic that gets to a Row Area width is regionsFromScreen's
-      // and stays there; `rowAreaWidthWithoutPanels` arrives already carrying
-      // the padding and the scrollbar, and this branch subtracts only the pair
-      // it is judging. See the field for why it is not read from layoutEngine.
-      //
-      // ⚠️ Each test below is the NEGATION of the rule's own wording rather
-      // than its opposite (`!(w > 0)`, not `w <= 0`), because AG-8 hands a
-      // command over as data: a width that is not a number answers false to
-      // BOTH comparisons and would otherwise slip through the MUST NOT.
+      // ⚠️ Each test is written `!(w > 0)`, not `w <= 0`: AG-8 hands commands over
+      // as data, and a NaN width fails both comparisons.
       if (!(command.rowTitlePanelWidth > 0)) {
-        // FR-052 (MUST NOT): the row title panel may not be taken to zero --
-        // SC-3 of table T-031 keeps it showing at every zoom, and a width of
-        // zero breaks that. S-80 puts no such floor under the other panel.
+        // FR-052 (MUST NOT); S-80 puts no such floor under the other panel.
         //
-        // ⚠️ S-79 states a tighter floor -- `rowTitleIndent` * `maxGroupDepth`,
-        // the width the deepest indent needs -- and this does NOT apply it:
-        // that is a bound written as a formula over other keys, the same kind
-        // SETTINGS_BOUNDS leaves out, so applying it here would own a second
-        // copy of the row. It belongs in the same change request as S-2.
+        // ⚠️ S-79's formula floor (`rowTitleIndent` * `maxGroupDepth`) is not
+        // applied: SETTINGS_BOUNDS leaves out bounds written over other keys, and
+        // applying it here would own a second copy of the row.
         return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
       }
       if (!(command.propertyPanelWidth >= 0)) {
@@ -391,10 +253,8 @@ export function editDocumentSettings(
     case 'pinTaskGroup': { // CM-68
       const held = settings.pinnedGroupIds
       if (held.includes(command.groupId)) return edited(document)
-      // FR-098: at the cap, refuse and say so. Dropping the oldest pin is
-      // forbidden (MUST NOT) -- a row someone fixed in place must not drift
-      // away unannounced. Unlike ST-7's safety valve this is a limit people
-      // reach in ordinary use, so it does not stop the run.
+      // FR-098: refuse at the cap, never drop the oldest pin. A refusal, not a
+      // stop: unlike ST-7, this limit is reached in ordinary use.
       if (held.length >= settings.pinnedRowMax) {
         return refused([
           reject('CM-68', 'FR-098', `already holding ${settings.pinnedRowMax} pinned rows`),
@@ -410,30 +270,13 @@ export function editDocumentSettings(
     }
 
     case 'fitScheduleToScreen': { // CM-71
-      // ⭐ HALF OF ONE PRESS, AND THE FIRST HALF. FR-031 (MUST) splits the fit
-      // into two writes whose order MUST NOT be swapped: ① this one puts the
-      // zoom and the place, ② CM-72 opens the collapsed rows. This half touches
-      // the presentation group only, so UN-8 keeps it out of the history and
-      // FR-063 leaves the schedule instant alone.
+      // The first of FR-031's two writes; CM-72 opens the collapsed rows second.
+      // ⛔ Do not fold the two into one write or one bundle (AG-3): WS-4 pushes the
+      // document from before a write, so only this order lets an undo restore the
+      // collapses without rewinding the zoom (UN-8, UN-17).
       //
-      // ⭐ WHY THE ORDER IS THE RULE AND NOT A HABIT: WS-4 of table T-067
-      // pushes THE DOCUMENT AS IT STOOD BEFORE THAT WRITE. Because ② runs
-      // second, the one step it pushes already holds the NEW zoom, so an undo
-      // gives back the new zoom with the old collapses -- exactly what UN-17
-      // promises. ⛔ Folding the two into one write makes that step carry the
-      // OLD zoom, and the undo then rewinds the zoom too, against UN-8.
-      // ⛔ Two commands in ONE bundle is the same defect: AG-3 makes a bundle
-      // one write, and WS-4 pushes one step from the document before it.
-      //
-      // ⚠️ The zoom itself arrives as a value. FR-055's two passes need the
-      // laid-out extent, which belongs to layoutEngine and to the frame that
-      // ran it -- recomputing it here would put a second copy of table T-068
-      // in the UseCase layer. ⭐ THAT IS ABOUT THE EXTENT, NOT ABOUT THE RANGE:
-      // the extent is layoutEngine's to measure, the range is FR-016's, and
-      // this arm owes the second. A measured zoom is still a zoom S-75 / S-76
-      // hold, so it is clamped here exactly as CM-65's is -- see `clamp`.
-      // ⚠️ Where the clamp bites, FR-055 leaves that axis to scroll; it does
-      // not promise every document fits.
+      // The zoom arrives measured, because FR-055's extent is layoutEngine's
+      // (table T-068); the range is FR-016's, so it is clamped like CM-65's.
       if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
         return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
       }

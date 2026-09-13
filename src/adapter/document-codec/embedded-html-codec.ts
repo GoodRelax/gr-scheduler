@@ -4,95 +4,50 @@
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    semi-pure-b
 //
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
+// Puts the application and one document into a single file (FR-067). UT-5 of
+// table T-063 splits it from the other formats: it alone calls `AppShellSource`.
 //
-// Puts the application and one document into a single file (FR-067). Table
-// T-063 UT-5 splits this off from the other two formats for two reasons at
-// once: it is the only unit that calls `AppShellSource`, and it answers to
-// FR-067 while GRS JSON answers to FR-024 and MSPDI to the exchange partner's
-// schema.
+// ---- what this file does NOT do -------------------------------------------
 //
-// ---- ⛔ what this file does NOT do -----------------------------------------
+// It does not READ a single .html: IO-7 is export only. Startup reads it (BT-1
+// of table T-034, via `documentFromJson`) and obeys FR-067's rule on an
+// unreadable or not-exactly-one entry; this file owes it exactly one entry.
 //
-// It does not READ a single .html. IO-7's direction column says export only,
-// and T-075 gives UF-37 "writing the single .html" and nothing else. The other
-// end is startup: BT-1 of table T-034 is the shell taking the text out of its
-// own container and handing it to `documentFromJson`. FR-067's MUST on that
-// end -- an unreadable document, or an entry that is not exactly one, is told
-// about rather than dropped, and startup then descends to the next rank of
-// table T-034 -- is the reader's to obey. What this file owes the reader is
-// that a file it wrote never puts it in that position: exactly one entry,
-// always.
+// It does not judge the document: what arrives is already a `Document` whose
+// lawfulness was settled earlier (`json-codec.ts` draws the same line). This
+// file decides only where the bytes go and how they survive.
 //
-// It does not judge the document either, and that is the same line
-// `json-codec.ts` draws for its half. There, the question is "is this text a
-// GRS JSON document at all", while FR-023's ceilings, dates and counts belong
-// to ValidateImportedDocument (CP-13). Here, on the writing side, there is no
-// question left of either kind: what arrives is already a `Document`, and
-// whether it was lawful was settled before it reached this component. This
-// file decides one thing only -- where the bytes go and how they survive.
+// ---- why the payload is GRS JSON ------------------------------------------
 //
-// ---- ⭐ why the payload is GRS JSON ----------------------------------------
+// BT-1 hands what it finds to the application's own intake, and FR-024 owns
+// what a written document contains, which `jsonFromDocument` already obeys.
+// ⛔ Do not serialize the document here: a second writer would drift from FR-024.
+// FR-073's version rides inside the document (DR-4's `schemaVersion`), so the
+// container carries no version attribute -- one fact, one copy.
 //
-// FR-067 says "the application and the document", not which form the document
-// takes, and the choice is forced rather than free: BT-1 hands what it finds
-// to the application's own intake, IO-2 is the tool's main data form, and
-// FR-024 owns what a written document has to contain -- every presentation
-// value even at its default, every null column with its key still on it, and
-// the format version FR-073 compares. `jsonFromDocument` already obeys all of
-// that. ⛔ Do not serialize the document here: a second writer would be a
-// second authority over FR-024, and the two would drift.
+// ---- how the bytes stay safe ----------------------------------------------
 //
-// FR-073's version rides along inside the document (DR-4's `schemaVersion`),
-// which is why nothing here puts a version attribute on the container. Two
-// copies of one fact is the failure FR-073's rationale is about -- a build
-// that cannot tell a broken document from an old one.
+// The container is a `<script>` of a non-JavaScript type: its content is script
+// data -- not decoded, executed or rendered (FR-067). The three ways bytes could
+// still be lost are each closed:
 //
-// ---- ⚠️ how the bytes stay safe --------------------------------------------
+//   1. ⛔ An end to the element inside the payload. `</script` closes script
+//      data, and after `<!--` a `</script>` no longer does, so `embeddedJson`
+//      escapes every `<` as `\u003c`. JSON holds `<` only inside strings, so
+//      the escape is legal and `JSON.parse` returns the same value. `&` needs
+//      no escape: script data decodes no character references.
+//   2. ⛔ A control character in the artifact: the browser rewrites it and the
+//      artifact's hash stops matching (rule 04 section 3). `JSON.stringify`
+//      escapes every C0 character, and `isUsableElementId` refuses them in the
+//      id.
+//   3. ⛔ A hash that no longer matches CN-8's content security policy. This
+//      file edits no existing script and adds a non-executable one, so no hash
+//      changes. ⛔ Never give the container a JavaScript type.
 //
-// The container is a `<script>` element whose type is not a JavaScript one, so
-// its content is script data: the HTML parser does no character-reference
-// decoding inside it, the browser does not execute it, and nothing in it is
-// rendered -- which is FR-067's "the embedded content must not leak into the
-// body". The three ways bytes could still be lost are each closed:
-//
-//   1. ⛔ An END TO THE ELEMENT INSIDE THE PAYLOAD. `</script` closes script
-//      data, and `<!--` opens the escaped state where a later `</script>` no
-//      longer closes it. `embeddedJson` escapes every `<` as the six
-//      characters `\u003c`, so neither sequence can occur. `<` reaches
-//      JSON only inside a string literal (the structural characters are
-//      braces, brackets, comma and colon), so the escape is always legal
-//      there and `JSON.parse` gives back the identical value. `&` needs no
-//      escape either: script data has no character references to decode it
-//      into something else.
-//   2. ⛔ A CONTROL CHARACTER IN THE ARTIFACT.
-//      docs/development-rules/04-verification.md section 3 records this
-//      failing for real -- one control character in a string key, the browser
-//      rewrites it, the artifact's hash stops matching and the whole
-//      application stops loading. `JSON.stringify` escapes every C0 character,
-//      NUL included, as a six-character `\u00XX`, so no raw control character
-//      can reach the file through the document. The one other thing written
-//      here is the element id. `isUsableElementId` refuses every character
-//      that would break the start tag -- whitespace, quotes, `<`, `>`, `&` --
-//      which covers the whitespace controls; the rest of C0 is kept out by
-//      the shell, which supplies one fixed constant for this id and no other
-//      (`app-shell-source.ts`).
-//   3. ⛔ A HASH THAT NO LONGER MATCHES. CN-8 gives the artifact a content
-//      security policy, and a policy that names script hashes is invalidated
-//      by any edit to a script it covers. This file edits no existing script:
-//      it writes a NEW element, and one that is not executable, so it needs no
-//      hash of its own and changes none. ⛔ Never give the container a
-//      JavaScript type -- that alone would turn every export into a policy
-//      violation.
-//
-// ⚠️ Placement is the end of the body, and the reason is not taste: a payload
-// put at the top of `<head>` pushes `<meta charset>` past the first 1024 bytes
-// a browser reads, and the UTF-8 that CN-5 fixes stops taking effect for the
-// whole file. ⚠️ It also means the container is parsed after the application's
-// own script tag, so a boot that reads BT-1 must run after parsing -- which is
-// what Chapter 1.4's build (Vite, whose output is a module script) does.
+// ⚠️ Placed at the end of the body: at the top of `<head>` it would push
+// `<meta charset>` past the first 1024 bytes a browser reads, and CN-5's UTF-8
+// would stop taking effect. So a boot reading BT-1 must run after parsing,
+// which Vite's module script does (Chapter 1.4).
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { AppShellSource } from './app-shell-source'
@@ -100,10 +55,7 @@ import { jsonFromDocument } from './json-codec'
 
 /** Why a single .html could not be assembled. */
 export type EmbeddedHtmlFaultReason =
-  /**
-   * The application could not read its own HTML. ⚠️ LM-14's neighbourhood:
-   * opened straight off the disk, a file cannot always be read back.
-   */
+  /** The application could not read its own HTML (compare LM-14). */
   | 'appShellUnavailable'
   /**
    * The shell named its container with something that cannot be written into a
@@ -114,15 +66,9 @@ export type EmbeddedHtmlFaultReason =
   /**
    * The application's own HTML already carries more than one container.
    *
-   * ⛔ Refused rather than tidied. FR-067 has the reader complain when the
-   * entry is not exactly one, and this side cannot know which of two the
-   * reader will take, so writing into either would be picking a winner on the
-   * reader's behalf. ⚠️ This build cannot produce such a file; one means the
-   * HTML was assembled by something else.
-   *
- * ⭐ SETTLED (CR-353). This refusal is the boundary of what the writer
-   * accepts, not a value that can be tuned later: it is the half of FR-067 the
-   * writing side keeps.
+   * ⛔ Refused rather than tidied: FR-067 has the reader complain unless there
+   * is exactly one entry, and this side cannot know which of two the reader
+   * would take.
    */
   | 'moreThanOneEntry'
 
@@ -139,49 +85,30 @@ export type EmbeddedHtmlExport =
 /**
  * The container's type attribute.
  *
- * ⛔ Not in docs/spec, and not free either: it has to be a type no browser
- * treats as a script, or point 3 of the header comment stops holding.
- *
- * ⭐ SETTLED (CR-353). This value is written into every single .html the
- * tool exports, so it is part of the exchanged file rather than an internal
- * choice, and it is kept as it stands.
+ * Not in docs/spec: it must be a type no browser runs as script, or point 3 of
+ * the header fails. ⚠️ Every exported file carries it, so changing it changes
+ * the exchanged file.
  */
 const CONTAINER_TYPE = 'application/json'
 
 /**
  * The characters an element id may NOT contain.
  *
- * ⭐ SETTLED (CR-353). The rule is stated as what is REFUSED, because
- * the reason is refusal: each of these would break the start tag this file
- * writes, `<script type="..." id="${elementId}">`, or the string scan that
- * finds it again.
+ * Stated as what is refused, since each would break the start tag this file
+ * writes, `<script type="..." id="${elementId}">`, or the scan that finds it:
  *
- *   - whitespace (every class of it) would begin a second attribute;
- *   - `"` would close the attribute value, `'` would do the same for HTML
- *     written with single quotes, which `idOfStartTag` also reads;
- *   - `<` and `>` would end or reopen the tag -- `containerSpans` reads a start
- *     tag as far as its first `>`;
- *   - `&` would be decoded as a character reference, so the id read back would
- *     not be the id written.
+ *   - whitespace would begin a second attribute;
+ *   - `"` or `'` would close the value (`idOfStartTag` reads both quotings);
+ *   - `<` or `>` would end or reopen the tag (`containerSpans` stops at `>`);
+ *   - `&` would be decoded as a character reference;
+ *   - a C0 control or `\x7f` would be rewritten by the browser (point 2 of the
+ *     header). An acceptance boundary is loosened only later, never
+ *     tightened (rule 06 class F).
  *
  * ⛔ An empty id is refused too: it names no element.
- *
- * ⛔ Every C0 control character (`\x00`-`\x1f`, plus `\x7f`) is refused too,
- * NUL included, even though none of them is whitespace or one of the four
- * listed above. Rule 04 section 3 has the measured incident: one control
- * character inside a string key was rewritten by the browser, the exported
- * artifact's hash stopped matching, and the whole application stopped. The
- * acceptance boundary is rule 06 clause F: it is loosened only in the
- * direction that costs nothing to undo, since a document already accepted
- * cannot be un-accepted later.
- *
- * ⭐ EVERYTHING ELSE IS ACCEPTED, a leading digit included. `.` and `:` are
- * accepted as well. Nothing here owes the CSS grammar anything: the ONE
- * consumer that builds a selector out of this id -- the startup count in
- * `single-html-shell.ts` -- puts it through `CSS.escape()`, so the reader's
- * side takes care of what CSS cannot spell bare. Point 2 of the header comment
- * (no control character reaches the artifact) still holds, because every
- * character listed above is refused and `JSON.stringify` covers the payload.
+ * Everything else is accepted, a leading digit, `.` and `:` included: the one
+ * selector built from this id (`single-html-shell.ts`) goes through
+ * `CSS.escape()`.
  */
 const BREAKING_ELEMENT_ID_CHARACTER = /[\s"'<>&\x00-\x1f\x7f]/
 
@@ -204,8 +131,8 @@ function isUsableElementId(elementId: string): boolean {
 /**
  * The document, as the bytes that go inside the container.
  *
- * ⭐ `jsonFromDocument` writes it, so FR-024 has exactly one implementation.
- * The escape is point 1 of the header comment.
+ * `jsonFromDocument` writes it, so FR-024 has one implementation. The escape is
+ * point 1 of the header.
  *
  * @purity pure
  */
@@ -216,10 +143,9 @@ function embeddedJson(document: Document): string {
 /**
  * One container, complete.
  *
- * ⚠️ The whole element, start tag included. This component owns the markup and
- * the shell owns only the id (see `app-shell-source.ts`), so a container found
- * in the HTML is replaced entire rather than filled in: a start tag written by
- * an older build is not one this build can vouch for.
+ * ⚠️ The whole element: a container found in the HTML is replaced entire, since
+ * a start tag an older build wrote is not one this build can vouch for. The
+ * shell owns only the id (`app-shell-source.ts`).
  *
  * @purity pure
  */
@@ -257,17 +183,12 @@ function indexOfScriptStart(lowerHtml: string, from: number): number {
 /**
  * Every `<script>` element carrying that id.
  *
- * ⭐ Walks element by element and steps over each one's content, so the text
- * inside a script -- which is where a bundle keeps strings that can look like
- * markup -- is never mistaken for a tag.
+ * Steps over each element's content, so markup-like strings inside a bundle's
+ * script are never taken for tags. An unterminated script runs to the end of
+ * the file, as in a browser.
  *
- * ⚠️ An unterminated script is taken to run to the end of the file, which is
- * what a browser does with one too.
- *
- * ⛔ A start tag is read as far as its first `>`, so an attribute value
- * holding one would cut it short. The container this file writes never has
- * such a value -- `isUsableElementId` is what makes that true of the only
- * attribute this side supplies.
+ * ⛔ A start tag is read to its first `>`; `isUsableElementId` keeps that
+ * character out of the one attribute this side writes.
  *
  * @purity pure
  */
@@ -294,12 +215,8 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
 /**
  * Where a container goes when the HTML has none yet.
  *
- * ⚠️ The end of the body, for the charset reason in the header comment. A
- * fragment with neither `</body>` nor `</html>` takes it at the end, which is
- * the same position by another route.
- *
- * ⭐ SETTLED (CR-353). The position is written into the exported file
- * and the charset reason is what fixes it, so it is not a value to revisit.
+ * ⚠️ The end of the body, for the charset reason in the header. Without
+ * `</body>` or `</html>`, the end of the text.
  *
  * @purity pure
  */
@@ -315,10 +232,8 @@ function indexOfInsertion(html: string): number {
 /**
  * The application's HTML with exactly one container in it, holding that JSON.
  *
- * ⭐ The whole placement rule, in one pure function: replace the one that is
- * there, add one where there is none, refuse where there are two. That is what
- * makes "exactly one entry" true of every file this component writes, which is
- * the half of FR-067 the writing side can keep.
+ * Replace the one that is there, add one where there is none, refuse where
+ * there are two -- the half of FR-067 the writing side can keep.
  *
  * @purity pure
  */
@@ -340,7 +255,7 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
     const foundAt = indexOfInsertion(html)
     return { ok: true, html: `${html.slice(0, foundAt)}${container}\n${html.slice(foundAt)}` }
   }
-  // ⚠️ The element is replaced, the newline around it is not, so re-exporting
+  // ⚠️ Only the element is replaced, not the newline around it, so re-exporting
   // an export neither grows the file nor moves the container.
   return { ok: true, html: `${html.slice(0, only.begin)}${container}${html.slice(only.end)}` }
 }
@@ -352,20 +267,14 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
 /**
  * The application and one document, as a single .html (table T-024 IO-7).
  *
- * ⭐ Returns the file as a value. AM-15 of table T-107 says so for the Agent
- * API's side of it, and AG-7 of table T-035 forbids an export that can only
- * arrive through a download dialogue. Who writes it to disk is FileGateway's
- * business (`singleHtml` is one of its forms), and FR-096 keeps the one entry
- * that chooses between the forms outside this component.
+ * Returns the file as a value (AM-15 of table T-107, AG-7 of table T-035);
+ * writing it to disk is FileGateway's (`singleHtml` form, FR-096).
  *
- * ⭐ The one external read happens first and nothing external is read after
- * it (R7.3, R7.4). Everything from there on is the pure assembly above, which
- * is what lets the interesting half be tested without a browser.
+ * The one external read comes first and nothing external is read after it
+ * (R7.3, R7.4), so the assembly can be tested without a browser.
  *
- * ⚠️ Failures come back as values: FR-028 forbids throwing across this
- * boundary (MUST NOT) and AG-8 has the caller receive a failure as a value.
- * Every reason names what can be done next, which NT-3a of table T-037
- * requires of the notice that follows.
+ * ⚠️ Failures come back as values (FR-028, R7.10); each reason names what can
+ * be done next (NT-3a of table T-037).
  *
  * @purity semi-pure-b
  */

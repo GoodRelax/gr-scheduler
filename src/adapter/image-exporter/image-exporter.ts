@@ -5,111 +5,40 @@
 // @purity    semi-pure-b
 // @publishes table T-064 row PI-21
 //
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
+// CP-21: assemble the parts table T-076 draws around the received picture,
+// shrink it by one ratio (FR-080), refuse the whole picture when it will not fit
+// (FR-025), and declare `Rasterizer`.
 //
-// ⭐ WHAT THE COMPONENT IS FOR. CP-21 in one line: assemble the UI parts table
-// T-076 says to draw, refuse the whole picture when it will not fit down the
-// page, and declare `Rasterizer`. FR-080 fixes the picture -- the whole screen
-// GRS occupies, shrunk by `exportCanvas`'s width divided by the screen's
-// width, the SAME ratio on both axes (MUST NOT: two ratios) -- and FR-025
-// fixes what becomes of what will not fit: nothing is drawn at all (CR-337,
-// 2026-09-02), where until then the `TaskGroup`s that did not fit were dropped
-// down the page.
+// Every route that sends the screen out is assembled here and nowhere else: WY-2
+// of table T-041 and FR-025 treat the SVG, the PNG and the clipboard as one
+// drawing, so a second assembly would be a second answer. What still stands
+// between AM-13 of table T-107 and `exportSvg` is recorded in `agent-api-members.ts`.
 //
-// ⭐ EVERY ROUTE THAT SENDS THE SCREEN OUT IS ASSEMBLED HERE, AND NOWHERE
-// ELSE. WY-2 of table T-041 judges the SVG and the PNG of one state to be the
-// same drawing once the watermark layer is set aside, and FR-025 (:3136) says
-// the clipboard route differs from the download only in the dialogue it skips
-// -- so a second assembly anywhere is a second answer to a question the
-// specification says has one. `_source/components.json` draws the picture edge
-// of ClipboardGateway (IO-6) to this component rather than to SvgRenderer for
-// that reason, and AM-13 of table T-107 is to answer with what `exportSvg`
-// returns. ⚠️ What still stands between AM-13 and that call is recorded at the
-// member itself, in `agent-api-members.ts`.
+// The picture is supplied, not called for: `svgFromSchedule` needs a schedule,
+// layout, geometry, selection and regions this component has no edge to, and
+// ADR-001 has the shell compute the frame once so the export cannot drift from
+// the screen. `colourOf` is the one call. The theme hue is handed in with the
+// request (`ExportScene.themeHue`), since no edge here reaches `Project`.
 //
-// ⭐ WHAT ARRIVES, AND WHY NOTHING IS CALLED FOR IT. `_source/components.json`
-// draws this component exactly two outgoing edges: to SvgRenderer ("takes the
-// SVG string, and asks the same renderer for every colour it paints, AT THE
-// DOCUMENT'S HUE") and to ScreenRenderer ("takes the parts table T-076 lets
-// into the export (EP-1 / EP-3)"). ⛔ Only the second is an edge of SUPPLY
-// alone; the colour half of the first IS a call, and `colourOf` is the one
-// name it reaches. ⚠️ THE HUE IS NOT ON EITHER EDGE. It is `Project.themeHue`
-// (AT-19), and the three components that ask for a picture -- SingleHtmlShell,
-// ClipboardGateway and AgentApiEndpoint -- each hand it over WITH the request
-// (their own edges say so since 2026-09-07), which is why it is a member of
-// `ExportScene` rather than something read here.
-// ⛔ THE PICTURE ITSELF IS STILL SUPPLY AND NOT A CALL.
-// `svgFromSchedule` could not be called from here even though 5.3 would allow
-// the import: it takes a `Schedule`, a layout, a geometry, a selection and the
-// regions, and this component has an edge to none of those. ⚠️ ADR-001 has the
-// shell compute the frame once and hand it to everyone who needs it, so asking
-// again would repeat the work AND let the exported picture drift from the one
-// on the screen -- and sameness is the whole of FR-080.
+// The received picture already carries EP-2, EP-5, EP-6 and EP-7 (the watermark,
+// laid by `watermarkSvg` in `svg-renderer.ts`); this component could not draw the
+// watermark anyway -- it has no schedule, reader's name or clock.
 //
-// ⭐ WHAT THE RECEIVED PICTURE ALREADY CARRIES, so that nothing here draws it a
-// second time: EP-2 the `Time Ruler`, EP-5 the `Row Area`'s contents, EP-6's
-// `Status Line` and `Dual Cursor`. Those three are drawn by SvgRenderer from
-// what ScheduleGeometry (CP-6) measured.
+// ⛔ What table T-076 excludes and reaches this file in `ScreenView` is left out
+// below. ⚠️ What SvgRenderer already drew into the opaque SVG cannot be removed,
+// so the caller must render it for the export: FR-080's base environment, no
+// pointer (CU-3 of table T-029), and SvgRenderer told it is making an export
+// (EP-12, EP-14). Not checkable here.
 //
-// ⭐ EP-7 THE `Watermark` IS AMONG THEM SINCE DFC-195 WAS CLOSED, and this file
-// still adds nothing: `watermarkSvg` in `svg-renderer.ts` lays the layer inside
-// the `Row Area`, and the shell hands the same name and the same UTC stamp to
-// the exported picture that it hands the screen. ⛔ IT COULD NOT BE ADDED HERE
-// IN ANY CASE -- this component has no edge to a `Schedule`, no reader's name
-// and no clock -- which is why the drawing had to arrive on that side.
-// ⚠️ THE RATIO REACHES IT LIKE EVERYTHING ELSE. FR-080 scales the whole
-// received picture, so a mark drawn at S-221 of the SCREEN's width lands at
-// S-221 of `S-81`'s width here, which is what that row states.
-// ⚠️ Whether FR-020's question about the watermark was put to the person cannot
-// be seen from here; it belongs where the picture is made.
+// ⚠️ Two imports have no edge in the manuscript: `ScreenRegions` (PI-35) for the
+// EP-1 / EP-3 rectangles and `DocumentSettings` (PI-2) for S-81. Both are frame
+// values ADR-001 hands out, adding no source of truth. Reported.
 //
-// ⛔ WHAT THE EXPORT MUST NOT CONTAIN -- and the half of it this component
-// cannot enforce. Table T-076 keeps out the row controls (EP-4), the
-// `Properties Panel` (EP-8), the `Scrollbars` (EP-10), the overlaid surfaces
-// (EP-11), the pointer, the armed shape, the selection and the marquee (EP-12),
-// the dummies (EP-14) and the `Guide Cursor` (EP-6). ⭐ Every one of those that
-// reaches this file inside `ScreenView` is left out below -- that IS the
-// assembly. ⚠️ But the received SVG is one opaque string: what SvgRenderer
-// already drew into it cannot be taken out again. ⭐ EP-12's own marks are no
-// longer among the things that could arrive: told which picture it is making,
-// that file now refuses both the selection outline (FR-030) and DC-8's mark
-// for the side of the `Dual Cursor` that is following, whatever it is handed
-// (DFC-52). ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a gain
-// rather than a loss: EP-6 (MUST) wants them IN the export. CU-3's guide
-// cursor is still not carried at all.
-// ⛔ So the picture handed to an export MUST STILL be one rendered for the
-// export: the base environment FR-080 defines (table T-025's MC-6 with the
-// properties panel and the command palette closed), no pointer -- CU-3 of
-// table T-029 has the `Guide Cursor` follow the pointer, and an export has
-// none -- and SvgRenderer told which picture it is making, since EP-14's
-// dummies hang on the Task being unstarted and no other argument can suppress
-// them. That is a fact about the caller. It is reported, not checked here,
-// because nothing in a finished string says how it was made.
+// Notices and tooltips have no row in table T-076 or table T-103; they are not
+// drawn, by EP-11's reason (a tool's own surfaces are not the schedule).
 //
-// ⚠️ TWO IMPORTS THE MANUSCRIPT DRAWS NO EDGE FOR: `ScreenRegions` (PI-35) and
-// `DocumentSettings` (PI-2). EP-1 needs the `App Header` band's rectangle and
-// EP-3 needs the `Row Title Panel`'s, and `ScreenView` carries neither on
-// purpose -- "the rectangles of the parts themselves are ScreenRegions' and are
-// NOT repeated here" -- while S-81 is the export's own size and lives in the
-// presentation group. ⛔ Neither import adds a source of truth:
-// both are the frame values ADR-001 already has the shell compute once and hand
-// out, and SvgRenderer and ScreenRenderer each hold both edges. The edge list
-// is short by two; that is reported rather than edited from here.
-//
-// ⚠️ NOTICES AND TOOLTIPS have no row in table T-076 and no row in table T-103
-// either, so the table cannot name them. They are not drawn: EP-11's reason --
-// a tool's own surfaces are not the schedule -- reaches them, and nothing
-// admits them. Recorded because it is a reading, not a quotation.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
-//
-// The seam declared in this folder is re-exported here because
-// the layer that implements it may not reach past this file
-// (Chapter 5.3, MUST).
+// The seam declared in this folder is re-exported here because the layer that
+// implements it may not reach past this file (Chapter 5.3, MUST).
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -126,31 +55,20 @@ export type {
 } from './rasterizer'
 
 /**
- * Everything one export is made from.
- *
- * ⭐ Four values, one per thing the export needs to exist: the picture, the
- * rectangles the screen was carved into, the parts drawn around that picture,
- * and the presentation group that sizes the output. ⛔ There is no "which
- * format" and no "which size" among them -- FR-025 forbids asking a person for
- * the size at each export (MUST NOT) and fixes it at S-81.
+ * Everything one export is made from. No format or size among them: FR-025 fixes
+ * the size at S-81 and forbids asking for it (MUST NOT).
  */
 export interface ExportScene {
   /**
    * The screen's picture, exactly as SvgRenderer made it (PI-19).
    *
-   * ⛔ Not re-rendered and not read into: 5.3 forbids reaching inside another
-   * component, and FR-080 wants the same picture rather than a second one.
-   * ⚠️ Nothing here judges the string. FR-023's untrusted intakes are files,
-   * the clipboard and the recovered snapshot; a sibling component's return
-   * value is none of them, and inventing a boundary between accepting and
-   * refusing it would settle a question no requirement asks.
+   * ⛔ Not re-rendered or read into (5.3, FR-080). Not judged either: a sibling
+   * component's return value is not one of FR-023's untrusted intakes.
    */
   readonly svg: string
   /**
-   * The rectangles the screen is carved into (PI-35), for the export's base
-   * environment: FR-080 (MUST) writes the properties panel and the command
-   * palette as CLOSED and gives their room to the schedule, so the regions
-   * handed in are the ones that hold with them closed.
+   * The screen's rectangles (PI-35), as they hold with the properties panel and
+   * command palette closed (FR-080).
    */
   readonly regions: ScreenRegions
   /** The parts outside the schedule (PI-37). Table T-076 decides which survive. */
@@ -158,78 +76,45 @@ export interface ExportScene {
   /** The presentation group: `exportCanvas` (S-81) and the row-name values FR-085 uses. */
   readonly settings: DocumentSettings
   /**
-   * The document's theme hue (`Project.themeHue`, AT-19) -- the number table
-   * T-236 writes `H` for (DFC-277).
+   * The document's theme hue (`Project.themeHue`, AT-19), table T-236's `H`.
    *
-   * ⛔ HANDED IN, BECAUSE IT CANNOT BE READ HERE AND MUST NOT BE GUESSED.
-   * DR-5 of table T-052 keeps the hue at `Project`, so it is in neither
-   * `DocumentSettings` (which holds `themePreference`, S-72) nor `ScreenView`;
-   * `_source/components.json` has SingleHtmlShell, ClipboardGateway and
-   * AgentApiEndpoint each hand it over WITH the request, and this member is
-   * that hand-over. ⚠️ Until 2026-09-07 a literal 0 stood in for it inside
-   * `dividerLinesSvg`, and the export drew the `Panel Divider` at
-   * `hsl(0 14% 87%)` where the screen paints `hsl(214 14% 87%)` -- WY-2 of
-   * table T-041 and FR-080 both require the two to be one drawing.
-   *
-   * ⛔ NO DEFAULT. A member with a fallback is a second answer to the question
-   * table T-236 already answers once, and the fallback is exactly the hue 0
-   * this row exists to retire.
+   * ⛔ Handed in because it cannot be read here: DR-5 of table T-052 keeps it at
+   * `Project`, outside `DocumentSettings` and `ScreenView`. ⛔ No default -- a
+   * fallback would be a second answer to table T-236.
    */
   readonly themeHue: number
 }
 
 /**
- * Why `exportSvg` (and therefore `exportPng`) answers with no picture at all.
+ * Why `exportSvg` (and so `exportPng`) answers with no picture: FR-025 admits
+ * only one reason.
  *
- * ⭐ ONE REASON, BECAUSE FR-025 NOW ADMITS ONLY ONE. Grown to `S-81`'s width and
- * however tall the screen wants, the picture either fits inside `S-217`'s
- * ceiling or it does not; there is no second way this component refuses one
- * (CR-337, the reader's ruling of 2026-09-02 「1600x4096 のサイズに収まらなかっ
- * たエラーにして、png, svg の出力を止めろ」). ⚠️ The row of table T-233 this
- * reads as is `RS-43` -- `frame-loop.ts` is where that mapping is made, not
- * here: this folder answers in a classification (AG-8's own shape), never in
- * the words NT-1 and NT-3a compose.
+ * `frame-loop.ts` maps it to `RS-43` of table T-233; this folder answers in a
+ * classification (AG-8), never in words.
  */
 export interface ImageExportFault {
   readonly reason: 'tooTall'
 }
 
 /**
- * The picture itself, once FR-025 has decided one may be drawn.
- *
- * ⭐ Two fields rather than one string, because `exportPng` paints from the
- * height this settled on (see `heightPx`) and a second arithmetic on the far
- * side is how the raster and the picture would come to be different sizes.
+ * The picture itself, once FR-025 allows one.
  */
 interface SvgPicture {
   /** IO-3's output: `exportCanvas` wide, and as tall as `heightPx`. */
   readonly svg: string
   /**
-   * The height FR-025 grew the picture to.
+   * The height FR-025 grew the picture to: S-81's height at least, S-217 at most.
+   * The width is always S-81's, so only the height is carried.
    *
-   * ⭐ `S-81`'s height at the least and `S-217`'s ceiling at the most. FR-025
-   * (MUST) fixes the WIDTH at `S-81`'s and lets the height grow until the
-   * picture fits, so the width is still the settings' own value and needs no
-   * member -- this is the one of the two that varies (the reader's ruling of
-   * 2026-09-02, 「収まらない場合は縦の 900 を延ばせ」).
-   * ⛔ Published rather than worked out again by the caller: `exportPng` paints
-   * at exactly this height, and a second arithmetic is how the raster and the
-   * picture would come to be different sizes.
+   * ⛔ Published so `exportPng` paints at exactly this height; a second
+   * arithmetic would let the raster and the picture differ in size.
    */
   readonly heightPx: number
 }
 
 /**
- * What `exportSvg` answers with: the picture FR-080 shrinks and table T-076
- * assembles, or the one reason CR-337 lets it refuse to draw at all.
- *
- * ⭐ A DISCRIMINATED UNION, AND NOT A THIRD "PARTIAL" SHAPE. FR-025 (MUST NOT)
- * forbids drawing part of a picture, so there is no member here for a dropped
- * row or a cut height any more -- either the whole screen is in the picture, or
- * there is no picture. ⛔ Until CR-337 this carried `droppedGroupIds`, the rows
- * FR-025 cut from the bottom; that rule is gone (2026-09-02) and so is the
- * field it existed for. DFC-201 ("落とした件数を 2 つ運べない") closes for the
- * same reason: nothing is dropped, so there is no count left to carry.
+ * What `exportSvg` answers with: the whole picture or none. No partial shape --
+ * FR-025 (MUST NOT) forbids drawing part of a picture.
  */
 export type SvgExport =
   | ({ readonly ok: true } & SvgPicture)
@@ -238,38 +123,21 @@ export type SvgExport =
 /**
  * What one export produced.
  *
- * ⭐ The SVG and the PNG fail differently, and this type keeps the two apart.
- * `ok: false` at the top is FR-025's own refusal (CR-337): the picture does not
- * fit `S-217` and neither IO-3 nor IO-4 has anything to show, so the rasterizer
- * is never even asked. ⚠️ `ok: true` with `png.ok: false` is the OTHER failure,
- * `RasterFault` (IF-6): the picture exists and only painting it did not
- * succeed -- AG-8 of table T-035 is the next step NT-3a owes a person then,
- * with IO-3 (`svg`) left as the way out.
+ * Two failures kept apart: `ok: false` is FR-025's refusal, and the rasterizer is
+ * never asked; `ok: true` with `png.ok: false` is `RasterFault` (IF-6) -- the
+ * picture exists, and AG-8 of table T-035 leaves IO-3 (`svg`) as the way out.
  *
- * ⭐ The success branch carries `SvgPicture` rather than restating it, so that
- * the string a caller of `exportSvg` receives and the one the rasterizer is
- * handed cannot become two different shapes -- WY-2 of table T-041 compares
- * exactly those two against each other.
+ * The success branch reuses `SvgPicture` so the string `exportSvg` returns and
+ * the one rasterized cannot diverge (WY-2 of table T-041).
  */
 export type ImageExport =
   | ({ readonly ok: true } & SvgPicture & { readonly png: Rastering })
   | { readonly ok: false; readonly fault: ImageExportFault }
 
 /**
- * The ground and the ink the export paints EP-1's band, EP-3's panel and their
- * text with.
+ * The ground and ink of EP-1's band, EP-3's panel and their text.
  *
- * ⛔ NOT IN THE SPECIFICATION. The screen's own colours for these are the
- * surface's (CP-38) and reach it through a stylesheet, not through a settings
- * key; `_assets/tbl-settings.md` holds no colour for either part, and table
- * T-076 fixes only THAT they are drawn. ⭐ Class C of
- * docs/development-rules/06-pending-decisions.md: display only, no trace in the
- * saved form, and the cost of overturning it is these two lines -- WY-3
- * compares rectangles, and WY-2 compares one export against another, so no
- * judgeable rule reads a colour.
- *
- * ⚠️ The ground is opaque on purpose. The panel is drawn over the received
- * picture, so a bar scrolled past the `Row Area`'s left edge cannot show
+ * ⚠️ The ground is opaque so a bar the `Row Area` did not clip cannot show
  * through the row names.
  *
  * @provisional PND-50
@@ -281,14 +149,9 @@ const CHROME_INK = '#111111'
 const FIT_CLIP_ID = 'grs-export-fit'
 
 /**
- * Two places, the rule `svg-renderer.ts` states for the same reason: WY-3
- * (MUST) compares the screen and the export only after ONE rounding rule has
- * been applied to both sides, so the two halves of one picture may not round
- * differently.
- *
- * The grid is NS-3 of table T-231. ⚠️ It is stated in both places rather than
- * shared: `svg-renderer` and `image-exporter` are separate components of table
- * T-062, and folding them together would be an edge neither declares.
+ * Two places, the rule `svg-renderer.ts` uses: WY-3 compares screen and export
+ * after one rounding rule (NS-3 of table T-231). Stated in both files because
+ * they are separate components of table T-062 with no edge between them.
  *
  * @purity pure
  */
@@ -297,9 +160,8 @@ function rounded(value: number): string {
 }
 
 /**
- * ⚠️ A ratio is NOT rounded by the rule above. A coordinate moved by 0.005 has
- * moved by 0.005; a ratio moved by 0.005 moves everything at the far edge of a
- * wide screen by several pixels, which is exactly the difference WY-3 measures.
+ * ⚠️ A ratio is not rounded: 0.005 on a ratio moves the far edge of a wide screen
+ * by several pixels, which is what WY-3 measures.
  *
  * @purity pure
  */
@@ -319,10 +181,8 @@ function escaped(text: string): string {
 /**
  * The same rectangle in the export's coordinates.
  *
- * ⭐ The ratio is multiplied into what this component draws rather than left to
- * a `transform`, so that the numbers in the finished picture are the ones WY-3
- * compares: "the bounding rectangle on the screen times the ratio". ⚠️ The
- * received picture cannot be treated that way -- see `exportSvg`.
+ * Multiplied in rather than left to a `transform`, so the numbers in the picture
+ * are the ones WY-3 compares. The received picture cannot be -- see `exportSvg`.
  *
  * @purity pure
  */
@@ -352,14 +212,9 @@ function textSvg(x: number, y: number, fontSizePx: number, text: string): string
 }
 
 /**
- * EP-1: the band and the `Document Title`, and nothing else of the header.
- *
- * ⛔ `Branding`, `Header Commands` (U-35), `Opened File Name` (U-58) and
- * `File Saved At` (U-59) are not drawn -- an image has no hands to press them,
- * and where the picture came from is not part of the picture.
- * ⭐ The band keeps the height it has on the screen (MUST) because the
- * rectangle is the screen's own: everything below it would rise if this drew a
- * shorter one.
+ * EP-1: the band and the `Document Title` only; the header's controls and file
+ * name are not drawn. The band is the screen's own rectangle, so everything
+ * below stays where the screen has it.
  *
  * @purity pure
  */
@@ -373,40 +228,21 @@ function appHeaderSvg(
   // FR-035 fixes a substitute for the BROWSER TAB and says nothing about a
   // header with no title, so a document without one shows none.
   if (documentTitle === null || documentTitle === '') return ground
-  // ⭐ DFC-276: THE SIZE AND THE INSET ARE THE SCREEN'S OWN ROWS, S-225 and
-  // S-226 of table T-206 (the reader's ruling of 2026-09-07). EP-1 of table
-  // T-076 (MUST) has the screen and the export read one row for each and
-  // (MUST NOT) lets the export hold a value of its own. ⛔ Until this, two
-  // fractions of the BAND's height stood here (0.4 and 0.5): measured
-  // on the shipped build at 1920x1080, they drew the title at 14.8px and
-  // 18.5px from the left where the screen draws it at 16px and 12px -- 7.5%
-  // smaller and 6.5px to the right, against a row that forbids moving it.
-  // ⛔ The band's height may NOT come back into either number: FR-051 measures
-  // that height and S-226's own note says it does not decide where the title
-  // stands.
-  // ⭐ Both are multiplied by the ratio and by nothing else, which is what
-  // WY-3 compares -- "the bounding rectangle on the screen times the ratio".
+  // Size and inset are the screen's rows S-225 / S-226 (EP-1 of table T-076),
+  // multiplied by the ratio only (WY-3). ⛔ The band's height must not enter
+  // either number (FR-051; S-226's note).
   const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * ratio
   const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
-  // S-33's baseline correction, taken against the BAND. ⚠️ No longer the way
-  // `svg-renderer.ts` anchors a name label: table T-012's closing paragraph
-  // calls S-33 「字形の中でのずれ」, so that file now multiplies the FONT by it
-  // and measures from the middle of a box one line high. ⛔ The same reading
-  // is not carried over here on its own, because no requirement says where in
-  // this band the title stands -- the case that measures it asserts only that
-  // it is inside the band, and says in as many words that the specification
-  // fixes no offset. Changing it would be a value invented here. Reported.
+  // S-33's correction taken against the BAND, unlike `svg-renderer.ts`, which
+  // applies it to the font: no requirement fixes where in the band the title
+  // stands, so changing it would invent a value. Reported.
   const y = (band.y + band.height * settings.labelBaseline) * ratio
   return ground + textSvg(x, y, fontSizePx, documentTitle)
 }
 
 /**
- * S-36 is the size a row's name is drawn at, and S-38 enlarges it for a root
- * row (K-38 of table T-104 settles that key as the depth-1 row name's scale).
- *
- * ⚠️ The same rule stands in `row-title-panel.ts`, which cuts the name to the
- * width this size implies (FR-085). Both read S-36 and S-38 from the generated
- * settings; neither holds a number.
+ * S-36 enlarged by S-38 for a root row (K-38 of table T-104). The same rule is in
+ * `row-title-panel.ts`, which cuts the name to this size (FR-085).
  *
  * @purity pure
  */
@@ -417,19 +253,12 @@ function rowTitleFontPx(depth: number, settings: DocumentSettings): number {
 /**
  * EP-3: one name of the `Row Title Tree`.
  *
- * ⛔ The name is NOT cut again here. It arrives already cut by FR-085's rule,
- * and FR-085 (MUST NOT) forbids the room kept for the controls to change with
- * whether they are drawn precisely so that the export and the screen cut in the
- * same place -- cutting twice is how they would stop doing so.
+ * ⛔ Not cut again: it arrives cut by FR-085, and cutting twice would make export
+ * and screen cut in different places.
  *
- * ⭐ The vertical numbers are the row's and the horizontal ones are the panel's.
- * SC-1 of table T-031 slaves the panel to the body vertically, which is why
- * `box` holds the row's band; the indent is the panel's own (S-37), taken as
- * the depth's whole multiple the way FR-085 subtracts it.
- *
- * ⭐ The name is anchored to the top of the band rather than centred in it:
- * LF-2 of table T-221 grows a band downward as lanes are added, so a centred
- * name would move whenever a `Task` joined the row.
+ * Vertical numbers are the row's (SC-1 of table T-031), horizontal the panel's.
+ * Anchored to the band's top because LF-2 of table T-221 grows a band downward,
+ * so a centred name would move when a `Task` joined the row.
  *
  * @purity pure
  */
@@ -441,41 +270,20 @@ function rowTitleSvg(
 ): string {
   if (title.label === null || title.label === '') return ''
   const fontSizePx = rowTitleFontPx(title.depth, settings)
-  // ⭐ THE INDENT `RowTitle` CARRIES, not the product worked out again here.
-  // It is the same number FR-085 subtracted before cutting the name, and it
-  // is what the screen draws (CR-290) -- the three used to be three sums.
+  // The indent `RowTitle` carries -- the number FR-085 subtracted and the screen
+  // draws -- not a product worked out again here.
   const x = (panel.x + title.indentPx) * ratio
   const y = (title.box.y + fontSizePx) * ratio
   return textSvg(x, y, fontSizePx * ratio, title.label)
 }
 
 /**
- * EP-9: the boundary line of each `Panel Divider`, and none of the band a hand
- * grabs.
+ * EP-9: each `Panel Divider`'s boundary line, not its grab band. Which dividers
+ * exist is the handed-in frame's (FR-080).
  *
- * ⚠️ Which dividers there are is settled by the frame handed in, not here:
- * FR-080 (MUST) writes the properties panel as closed and gives its room to the
- * schedule, so an export's frame is the one that holds with it closed.
- *
- * ⭐ DFC-277: THE COLOUR IS S-149, table T-236's rule colour (「区切りの線」) --
- * `dom-screen-surface.ts` paints this same `Panel Divider` with `PAINT.rule`
- * (S-149, FR-029), so the export reads the identical row rather than a second
- * number of its own. ⛔ NOT S-165 -- that row is `Group Grid Lines`' own
- * colour (a horizontal line inside the schedule, drawn by `SvgRenderer`), a
- * different line from the vertical `Panel Divider` this function draws.
- *
- * ⭐⭐ THE HUE IS THE DOCUMENT'S, AND ARRIVES WITH THE REQUEST (DFC-277 closed
- * 2026-09-07). ⛔ A literal 0 stood here until then, on the ground that
- * `_source/components.json` drew this component no edge that reaches
- * `Project.themeHue` (AT-19) -- and the ground was measured false in the
- * picture: the screen paints this same line `rgb(217,221,226)` =
- * `hsl(214 14% 87%)` and the export wrote `hsl(0 14% 87%)`. S-149's low
- * saturation made the two close, not equal, and FR-080 with WY-2 of table
- * T-041 asks for one drawing rather than a near one. ⭐ The manuscript now
- * says so on all four edges: this component "asks the same renderer for every
- * colour it paints, AT THE DOCUMENT'S HUE", and SingleHtmlShell,
- * ClipboardGateway and AgentApiEndpoint each "hand over the document's theme
- * hue with the request". `ExportScene.themeHue` is that hand-over.
+ * Coloured S-149 of table T-236 at the document's hue, as `dom-screen-surface.ts`
+ * paints the same divider (`PAINT.rule`). ⛔ Not S-165, which is `Group Grid
+ * Lines`' colour.
  *
  * @purity pure
  */
@@ -493,59 +301,23 @@ function dividerLinesSvg(
 }
 
 /**
- * The whole picture: FR-080's shrunken screen with table T-076's parts on it,
- * or no picture at all once FR-025's ceiling is passed (CR-337).
+ * The whole picture: FR-080's shrunken screen with table T-076's parts on it, or
+ * none once FR-025's ceiling is passed.
  *
- * ⭐ THE ONE PLACE A PICTURE THAT GOES OUT IS ASSEMBLED, and the reason it is
- * published rather than kept inside `exportPng`: WY-2 of table T-041 judges the
- * SVG and the PNG of one state to be the same drawing once the watermark layer
- * is set aside, and two assemblies are how they would come to differ. FR-025
- * (:3136) says the same of the clipboard route -- only the download dialogue is
- * missing from it, not any part of the picture. Every route that sends the
- * screen out therefore ends here: AM-13 of table T-107, IO-6 of table T-024
- * through CP-24, and IO-3 through the shell -- and the refusal below reaches
- * all three the same way, by reaching every one of them.
+ * Published rather than kept inside `exportPng` so that every route (AM-13 of
+ * table T-107, IO-6 of table T-024 through CP-24, IO-3 through the shell) uses one
+ * assembly (WY-2 of table T-041). The name is table T-064's and table T-107's,
+ * so rule 03 section 1 lets it override the noun-phrase naming rule.
  *
- * ⚠️ The name is table T-064's (PI-21) and table T-107's (AM-13), so the
- * parts-of-speech rule that would make a `pure` query a noun phrase does not
- * get to rename it; rule 03 section 1 has the specification's spelling win.
+ * The ratio is S-81's width over the screen's width, on both axes (FR-080); the
+ * width is measured as `svg-renderer.ts` sizes its picture. The height is not in
+ * the ratio, so a tall screen overflows and FR-025 decides.
  *
- * ⭐ THE RATIO. `exportCanvas`'s width over the screen's width, multiplied into
- * both axes (FR-080, MUST; MUST NOT: one ratio per axis). The width is read
- * with the same expression `svg-renderer.ts` sizes its own picture with, so the
- * frame drawn around that picture cannot disagree with it about how wide the
- * screen was. ⚠️ The screen's HEIGHT is not part of the ratio: FR-080 divides
- * by the width alone, which is why an environment taller than S-81's aspect
- * overflows and FR-025 -- not a second ratio -- decides what happens then.
- * ⛔ Nothing narrower is cut out (MUST NOT) and no margin is added at the edge
- * (MUST NOT) -- either one would take the ratio away from S-81's width over the
- * screen's.
+ * The height grows from S-81's height up to S-217 (FR-025); a shorter picture
+ * leaves the rest blank. Past S-217 nothing is drawn (FR-025, MUST NOT).
  *
- * ⭐⭐ THE HEIGHT GROWS DOWNWARD TO A CEILING (CR-333, the reader's ruling of
- * 2026-09-02 「収まらない場合は縦の 900 を延ばせ」). FR-025 (MUST) fixes the
- * WIDTH at S-81's and has the height grow until the picture fits -- S-81's
- * height is the floor rather than the ceiling -- and lets it grow no further
- * than S-217 (`exportCanvasHeightCap`, MUST). ⚠️ A picture shorter than S-81's
- * height still leaves the rest blank (MUST) and no row is added to fill it
- * (MUST NOT), which is why the floor is a floor and not simply the fit.
- * ⚠️ The ceiling is not a taste: the picture grows with the screen, and a
- * screen tall enough to reach 28,000px is where a machine stops painting.
- *
- * ⭐⭐ PAST THE CEILING, NOTHING IS DRAWN AT ALL (CR-337, the reader's ruling of
- * 2026-09-02 「1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力
- * を止めろ」). ⛔ UNTIL 2026-09-02 THE PICTURE WAS STILL DRAWN, cut down the page
- * by dropping, from the bottom, the `TaskGroup` that straddled the lower edge
- * and every `TaskGroup` below it -- FR-025 now forbids drawing any part of a
- * picture that does not fit (MUST NOT), so that rule and the row it needed
- * (`SvgExport.droppedGroupIds`) are both gone: there is nothing left to cut a
- * clip around, because there is no picture. ⚠️ A `TaskGroup` already cut off at
- * the TOP of the screen still stays cut as the screen has it (MUST) -- that is
- * the screen's own doing, not a fit this function judges.
- *
- * ⚠️ The received picture is the one thing NOT multiplied through: it is an
- * opaque string, so it goes inside a scaling group. Its own root carries the
- * screen's width and height, which makes it a nested viewport of exactly the
- * area being shrunk.
+ * ⚠️ The received picture is an opaque string, so it is scaled by a group; its
+ * own root carries the screen's size, making it a nested viewport of that area.
  *
  * @purity pure
  */
@@ -553,13 +325,12 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
   const screenWidth = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const ratio = settings.exportCanvas.width / screenWidth
-  // ⭐ The whole screen, measured the way the width above is measured, so the
-  // two axes cannot disagree about where the screen ends.
+  // Measured like the width, so the two axes agree where the screen ends.
   const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
   // FR-025 (MUST): S-81's height is the floor and the shrunken screen is what
   // the picture wants to grow to.
   const wantedHeight = Math.max(settings.exportCanvas.height, screenHeight * ratio)
-  // FR-025 (MUST, CR-337): past S-217 there is no picture, not a shorter one.
+  // FR-025 (MUST): past S-217 there is no picture, not a shorter one.
   if (wantedHeight > settings.exportCanvasHeightCap) {
     return { ok: false, fault: { reason: 'tooTall' } }
   }
@@ -567,12 +338,10 @@ export function exportSvg(scene: ExportScene): SvgExport {
 
   const titles = screenView.rowTitlePanel.titles
   const panel = regions.rowTitlePanel
-  // ⚠️ FR-098 lifts the pinned rows out of the scrolling list and holds them at
-  // the top; both groups are drawn in full now that nothing is dropped.
+  // FR-098 holds the pinned rows at the top; both groups are drawn in full.
   const pinned = screenView.rowTitlePanel.pinnedTitles
-  // ⭐ Painted over the received picture, in this order: the band and the panel
-  // cover what the `Row Area` did not clip, and the divider line closes the
-  // boundary between them.
+  // Painted over the received picture in this order: band and panel cover what
+  // the `Row Area` did not clip, and the divider closes their boundary.
   const drawnHere =
     appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, ratio) +
     rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
@@ -581,11 +350,8 @@ export function exportSvg(scene: ExportScene): SvgExport {
     dividerLinesSvg(screenView, settings, scene.themeHue, ratio)
 
   const width = settings.exportCanvas.width
-  // ⭐ THE CLIP STAYS, although nothing is dropped any more: it bounds the
-  // received picture (an opaque string this function does not measure) to the
-  // canvas FR-080 fixed, which is what keeps a screen shorter than the ratio
-  // implies from ever painting past `height`. ⚠️ NOT FR-025's cut -- that rule
-  // is gone (CR-337) -- this is the ordinary edge of the canvas itself.
+  // The clip bounds the unmeasured received picture to the canvas, so it never
+  // paints past `height`.
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}">` +
@@ -601,32 +367,18 @@ export function exportSvg(scene: ExportScene): SvgExport {
 }
 
 /**
- * Export the screen as an image (FR-025, and the picture FR-080 defines).
+ * Export the screen as an image (FR-025, FR-080).
  *
- * ⭐ Why the failure is a value and not a throw: FR-028 forbids the exception
- * (MUST NOT) and AG-8 of table T-035 requires a caller to receive a failed
- * image AS a value. This is the last place inside the app that can turn a
- * rejected promise back into one, so it does, and every caller may rely on it.
- * ⚠️ Trusting the seam's own promise instead would leave a requirement's
- * guarantee in a file this component does not own.
+ * Failure is a value (FR-028, AG-8 of table T-035), and this is the last place
+ * that can turn a rejected promise back into one, so callers may rely on it.
  *
- * ⭐ THE FIRST FAILURE IS `exportSvg`'s OWN (CR-337). When the picture does not
- * fit `S-217`, there is nothing to paint and no seam is asked at all -- IO-4 is
- * refused on exactly the geometry that would have refused IO-3, without ever
- * reaching `Rasterizer`. ⚠️ The SECOND failure is `RasterFault` (IF-6): the
- * picture exists and only painting it did not succeed.
+ * Two failures: `exportSvg`'s refusal, before `Rasterizer` is asked; then
+ * `RasterFault` (IF-6).
  *
- * ⭐ The pixel size IS the picture's own size, and there is no multiplier.
- * FR-025 (MUST NOT) forbids the export holding a scale at all (the reader's
- * ruling 「PNGはいつも原則1600x900のままとする」); whoever needs finer output is
- * handed an exchange format instead (IO-2 / IO-7 / IO-1 / IO-3 of table T-024).
- * The width is S-81's and the height is the one `exportSvg` grew to within S-217
- * (CR-333). Both come from the document, so the same JSON in the same screen
- * gives the same output -- which is the reason FR-025's RATIONALE gives for
- * saving the size at all.
+ * The pixel size is the picture's own -- S-81's width and `heightPx` -- with no
+ * multiplier (FR-025, MUST NOT).
  *
- * ⚠️ The seam comes first because it is what the shell supplies once at wiring
- * time, while the scene is what differs from call to call.
+ * The seam comes first because the shell supplies it once at wiring time.
  *
  * @purity semi-pure-b
  */
@@ -636,10 +388,8 @@ export async function exportPng(
 ): Promise<ImageExport> {
   const picture = exportSvg(scene)
   if (!picture.ok) return picture
-  // ⭐ THE PICTURE'S OWN HEIGHT, NOT S-81's. FR-025 (MUST) grows the height to
-  // fit and stops at S-217, so the raster is painted at what `exportSvg`
-  // actually drew -- reading the setting again here would paint a 900-unit
-  // window onto a picture that is taller than that (CR-333).
+  // ⛔ The picture's own height, not S-81's: reading the setting would paint a
+  // shorter window onto a taller picture.
   const sizePx = {
     widthPx: scene.settings.exportCanvas.width,
     heightPx: picture.heightPx,

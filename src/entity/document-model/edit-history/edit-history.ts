@@ -5,30 +5,21 @@
 // @purity    pure
 // @publishes table T-064 row PI-4
 //
+// FR-031.
+//
 // ⚠️ PART of this file is generated. The marked region at the bottom -- search
 // for NOT_STORED_LIMITS -- comes from docs/spec/_source/settings.json (table
 // T-206) and is overwritten by `npm run gen`; `npm run gen:check` fails if it
 // has drifted. Everything above the marker is hand written. Do not edit by hand
 // inside that region: edit the manuscript instead.
-// ⛔ This note does NOT quote the marker itself -- writing it here made the
-// generator treat this comment as the region and inject the block into the
-// middle of it. The marker must occur exactly once per file.
+// ⛔ Do not spell the marker in a comment: the generator takes the first one as
+// the region.
 //
-// FR-031 holds the rule: undo the previous edit, redo what was undone, and
-// keep a bound on both the number of steps and the total memory, dropping the
-// oldest step once either is passed.
-//
-// Two things this unit deliberately does not decide:
-//
-//   - What a step IS. Table T-027 says which operations make one; what the
-//     step carries is the business of whoever records it. So the type is
-//     generic, and the history stays a value with no knowledge of documents.
-//   - The bounds. S-94 and S-95 sit in table T-206, the values that are NOT
-//     saved in the document -- they belong to the machine that is running, so
-//     they arrive as an argument and are never read from here.
-//
-// Measuring the memory a step occupies is not something a pure function can do,
-// so the caller states the size of the step it is adding.
+// The step type is generic: table T-027 says which operations make a step, and
+// what a step carries is the recorder's business.
+// The bounds (S-94, S-95 of table T-206) arrive as an argument: they belong to
+// the running machine, not the document.
+// A pure function cannot measure memory, so the caller states each step's size.
 
 export interface HistoryLimits {
   /** S-94 of table T-206: how many steps may be kept. */
@@ -43,7 +34,7 @@ interface HeldStep<TStep> {
 }
 
 export interface EditHistory<TStep> {
-  /** Oldest first. Everything before `position` can be undone. */
+  /** Oldest first; undo takes from the end. */
   readonly done: readonly HeldStep<TStep>[]
   /** Most recently undone first: what redo will replay. */
   readonly undone: readonly HeldStep<TStep>[]
@@ -67,9 +58,8 @@ function totalSize<TStep>(held: readonly HeldStep<TStep>[]): number {
 }
 
 /**
- * Push one step. A new edit makes redo unreachable -- what was undone can no
- * longer be replayed on top of a different history -- so `undone` is dropped.
- * Then the oldest steps go until both bounds hold again (FR-031).
+ * A new edit drops `undone`: what was undone cannot be replayed on top of a
+ * different history. Then the oldest steps go until both bounds hold (FR-031).
  *
  * @purity pure
  */
@@ -92,8 +82,7 @@ export interface HistoryMove<TStep> {
 }
 
 /**
- * Take one step off the undo side. The caller applies the step it is handed;
- * this unit only moves it across.
+ * The caller applies the step it is handed; this unit only moves it across.
  *
  * @purity pure
  */

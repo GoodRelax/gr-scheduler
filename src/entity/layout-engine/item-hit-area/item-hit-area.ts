@@ -13,79 +13,26 @@
 // ⛔ This note does NOT quote the marker itself. Writing the opening marker
 // here made the generator treat this comment as the region and inject the
 // block into the middle of it -- the same class of failure as putting a path
-// in the marker (CR-175). The marker must occur exactly once per file.
+// in the marker. The marker must occur exactly once per file.
 //
-// What the pointer is on (CP-7). Two tables rule this file, and it holds no
-// rule of its own:
+// What the pointer is on (CP-7). Table T-023c's SL-1 fixes what can be hit (a
+// row is not among them; FR-085 selects rows), and table T-023d fixes where and
+// in which order, top row first.
 //
-//   - table T-023c's SL-1 fixes WHAT can be hit: Task, dependency line,
-//     highlight box, comment box and the status line. A row is NOT among them
-//     -- FR-085 owns selecting rows, and says in as many words that it is a
-//     different set.
-//   - table T-023d fixes WHERE and IN WHICH ORDER, top row first (MUST), and
-//     its closing rule keeps a row whose only operation is a double click out
-//     of the plain press (MUST NOT). That is `PointerResolution` below, and
-//     which rows it removes is stated on the rows.
+// The order is the table's printed order, not the numeric order of its row IDs
+// (GR-17 sits above GR-9, GR-15 and GR-18 above GR-12); sorting by ID reverses it.
+// The rows are one list because GR-13 and GR-14 are printed between GR-18 and
+// GR-3: asking every Task row before the lines would put GR-12 above GR-13.
 //
-// ⚠️ The order is the table's PRINTED order, which is not the numeric order of
-// its row IDs: GR-17 sits ABOVE GR-9 (the user's ruling of 2026-09-08 -- the
-// finish wins where the two dummies overlap), and GR-15 and GR-18 sit above
-// GR-12. Sorting by number would quietly reverse the table's own decisions,
-// that one among them.
+// The order is global: rows are the outer loop and Tasks the inner one. Walking
+// Task by Task makes the winner depend on stacking order, which MK-9a forbids.
 //
-// ⚠️⚠️ THE PRINTED ORDER MOVED ON 2026-09-10 and this file follows it rather
-// than reasoning about it. The two big moves: the ACTUAL's ends (GR-5 / GR-6)
-// and the dummies (GR-17 / GR-9) now stand ABOVE the PLAN's ends (GR-3 / GR-4)
-// -- 「⭐ 重なったら実績が勝つ —— 本表で `GR-5` / `GR-6` が `GR-3` / `GR-4` より
-// 上に在る」 -- and the dependency line (GR-13) stands above the plan bar's body
-// (GR-12), 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置くこと（MUST）。
-// ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」
-// (利用者の裁定 2026-09-09). ⛔ The status line (GR-16) did NOT move:
-// 「⛔ 基準日線（`GR-16`）を同じように上げてはならない（MUST NOT）—— 行の全高を
-// 占めるので、上げるとすべてのタスクから縦の帯を奪う」.
+// Only what the frame drew can be hit (FR-016, table T-023a), and the geometry
+// handed in already lacks what was dropped, hidden or collapsed.
 //
-// ⭐⭐ WHICH IS WHY THE ROWS ARE ONE LIST AND NOT A TASK LOOP FOLLOWED BY THE
-// REST. GR-13 and GR-14 are printed BETWEEN GR-18 and GR-3, so a walk that
-// asked every Task row first and the lines afterwards would put GR-12 above
-// GR-13 -- the very order the ruling reversed. The list below is the table,
-// straight down.
-//
-// ⚠️ The order is global, not per Task. One Task's GR-12 must not beat
-// another's GR-3, so the rows are the outer loop and the Tasks the inner one.
-// Walking Task by Task instead makes the winner depend on stacking order,
-// which is exactly the "same place, different thing each time" MK-9a forbids.
-//
-// ⚠️ Only what the frame drew can be hit (FR-016 / table T-023a). This file is
-// handed the geometry, so a Task the level of detail dropped, a hidden row's
-// contents and a collapsed row's annotations are already absent -- there is
-// nothing here to filter out again.
-//
-// ⭐ EVERY row of table T-023d that names a Task now has a target. GR-11 (the
-// assignee label, OC-2 of table T-038) was the last one without: ScheduleGeometry
-// now places it, and AS-2 of table T-225 (MUST NOT) is what keeps the figure
-// standing on a Task nobody is on -- 「何も描かないと `GR-11` に当たる図形が
-// そのタスクだけ存在せず、担当者がまだ 1 人も就いていないタスクにだけ `AS-1` の
-// 経路が無い」. ⚠️ GR-19 is not a Task row at all: the palette's band is the
-// shell's, and this file is handed the schedule's geometry alone.
-//
-// ⛔ GR-14 answers with the BODY of either annotation and with nothing else.
-// The row reads 本体・アンカー・四隅, and neither the anchor nor the corners has
-// a figure or a grab allowance in any table -- so 「大きさを変える」 has no
-// target for the comment box OR for the highlight box. That stood before the
-// comment box arrived and it stands after it.
-//
-// ⛔ One value this file needs has no row anywhere: how near the pointer counts
-// as on a LINE (GR-13's dependency line, GR-16's status line). Table T-023d
-// sends every 掴み代 and 当たり判定 to table T-206, and table T-206 records
-// S-90 to S-92 and nothing for a line. `PointerSlop.line` carries the mark.
-//
-// The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// GR-14 answers with an annotation's body only: neither the anchor nor the
+// corners has a figure or a grab allowance in any table, so resizing has no
+// target.
 
 import type {
   BarGeometry,
@@ -119,61 +66,35 @@ export interface Hit {
 /**
  * Which reading of the pointer the caller is resolving.
  *
- * ⛔ Table T-023d's closing rule (MUST NOT) refuses a row whose only operation
- * is a double click to the plain press. ⚠️ Its own ⚠️ keeps the DOUBLE CLICK on
- * the table's order unchanged, so the two readings walk the same rows in the
- * same order and differ only in which are asked at all.
- *
- * ⚠️ NOT A SECOND TABLE. The rows themselves carry which reading reaches them
- * (`TaskRow.reach`), so nothing here restates the list the table prints.
+ * Table T-023d's closing rule (MUST NOT) keeps a double-click-only row off the
+ * plain press; both readings walk the same rows in the same order. The rows
+ * carry which reading reaches them (`HitRow.reach`).
  */
 export type PointerResolution = 'press' | 'doubleClick'
 
 /**
  * How far past the drawn edge a grab still counts.
  *
- * ⚠️ The values table T-206 DOES record -- S-90 to S-92 -- it keeps out of the
- * document on purpose: "掴み領域は読む人のアクセシビリティに属する。手が震える
- * 人には大きな掴み代が要る。文書が強制してよい値ではない". So they arrive as an
- * argument, exactly the way S-94 and S-95 reach EditHistory's `HistoryLimits`,
- * and this file ships NO defaults. A default here would be this file quietly
- * standing in for a table that refused to hold the number, and it would let a
- * caller forget to ask the environment it is running on.
+ * Table T-206 keeps these values out of the document, so they arrive as an
+ * argument (as S-94 and S-95 reach `HistoryLimits`) and this file ships no
+ * defaults: a default would stand in for a table that refused to hold the number.
  *
- * ⭐ EVERY field below now names a row. CR-208 closed the two that did not:
- * S-91 held prose where the others held a figure, and how near a pointer counts
- * as ON a line had no row anywhere. ⚠️ Both figures are marked 🔎 in the
- * manuscript -- they are recommendations with no measured basis, and the
- * pending-decision rows say what falls over if they are re-chosen.
- *
- * ⛔ These comments name the ROW, never the number. They used to say "6px",
- * "15 x 15" and "30 x 20", and changing S-90 in the manuscript left all three
- * saying the old figure -- a copy of a value nothing checks is the defect
- * CR-174 spent a session chasing. `NOT_STORED_SIZES` below carries the figures.
+ * These comments name the row, never the figure; `NOT_STORED_SIZES` carries the
+ * figures.
  */
 export interface PointerSlop {
   /**
-   * S-90: past the plan bar, and this reach OUTSIDE an end -- never inside it.
-   *
-   * ⭐⭐ THE SIDEWAYS HALF IS ONE-SIDED SINCE 2026-09-09, and the row itself
-   * says so: 「届くのはバーの端の外側だけである」, and 「端の内側は実績の端点
-   * （`S-91`）が持つ」. ⛔ 「2026-09-09 まで端点の左右へ同じだけ届いており、`S-49`
-   * の下限がその横の広がりを前提にしていた」. `isOnPlanEnd` is where the one
-   * hand is spent.
+   * S-90: past the plan bar, and this reach outside an end, never inside it.
+   * `isOnPlanEnd` spends the one-sided hand.
    */
   readonly planEndpoint: number
   /**
-   * S-91: the actual bar's own band vertically, and this reach INSIDE an end --
-   * never outside it, and never past the bar's own half.
+   * S-91: the actual bar's own band vertically, and this reach inside an end,
+   * never outside it and never past the bar's own half.
    *
-   * ⚠️ The band and the side reach are two directions of one row. The band is
-   * the actual bar's own height (the vertical chain S-5 governs); only the
-   * sideways figure is a number, and it is 🔎 -- nothing measured it.
-   *
-   * ⭐⭐ THE SIDEWAYS HALF IS ONE-SIDED SINCE 2026-09-09 TOO, in the other
-   * direction: 「⭐⭐ 横が届くのは端の内側だけであり、実績バーの半分を超えない」,
-   * ⭐ 「掴み代がバーの外へ 1px も出ないので、担当ラベル（表 T-023d の `GR-11`）の
-   * 端に乗ることがない」. `isOnActualEnd` spends it and applies the half.
+   * The band is the actual bar's own height (the vertical chain S-5 governs);
+   * only the sideways figure is a number. `isOnActualEnd` spends it and applies
+   * the half.
    *
    * @provisional PND-167
    */
@@ -182,19 +103,13 @@ export interface PointerSlop {
   readonly fadeHandle: number
   /**
    * S-137: how near a line counts as on it -- GR-13's dependency line and
-   * GR-16's status line.
+   * GR-16's status line. A line has no width, so without a reach neither row
+   * could be hit.
    *
-   * ⭐ 「線の上」 is a set with no width, so without a reach neither row could
-   * ever be hit.
-   *
-   * ⛔⛔ BOUNDED FROM ABOVE SINCE 2026-09-09, and the bound is a MUST on the
-   * VALUE rather than a test written here: GR-13 was lifted over GR-12 「ただし
-   * 線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」 --
-   * 「狭くなければ、線が実績の帯を丸ごと奪う」. ⭐ 「既定値は既にこの条件を満たして
-   * いるので、値は動かしていない」 (6px either way is 12px against S-6's 16px).
-   * ⚠️ An environment that hands in a larger figure breaks that MUST, and NO
-   * ROW ANYWHERE says where such a value is to be caught or what is to happen
-   * then -- so nothing is invented here to catch it.
+   * Bounded from above by the condition table T-023d puts on GR-13 against S-6
+   * (MUST), a condition on the value rather than a test here. No row says where
+   * a larger figure from the environment is to be caught, so nothing here
+   * catches it.
    *
    * @provisional PND-168
    */
@@ -204,13 +119,9 @@ export interface PointerSlop {
 // ------------------------------------------------------------ geometry ----
 
 /**
- * Both axes CLOSED: a point on the right or bottom edge is inside. A click on a
- * bar's exact right edge has to hit the bar, or the last pixel of every shape
- * would be dead. ⚠️ The sibling test in this layer -- the one screen-regions.ts
- * applies to the regions of table T-103 -- is HALF-open instead, because
- * abutting regions must not both claim their shared edge. Two conventions live
- * side by side on purpose, so R3.4 asks the closed one to say so in its name:
- * that is the whole of why this is not called `isInsideBox`.
+ * Both axes closed, so a click on a bar's exact right or bottom edge hits it.
+ * `screen-regions.ts` uses a half-open test, because abutting regions must not
+ * both claim their shared edge; R3.4 has the closed one say so in its name.
  *
  * @purity pure
  */
@@ -284,13 +195,9 @@ function isOnPolyline(x: number, y: number, points: Path, slop: number): boolean
 /**
  * One Task with its two bounding boxes already built.
  *
- * ⚠️ The boxes are loop-invariant and belong outside the row walk. Six of the
- * rows below want the plan's box or the actual's -- GR-3, GR-4 and GR-12 the
- * plan, GR-5, GR-6 and GR-15 the actual -- and `boxOfBar` allocates two arrays
- * and spreads them into Math.min / Math.max every time it is asked. Rebuilt per
- * row, a pointer resting over empty canvas paid for six of them per Task per
- * move. Hit testing while the pointer is down carries a gate of its own (table
- * T-043 row PG-9, NFR-002), so the arithmetic is not free.
+ * The boxes are loop-invariant and built once per call, which runs on every pointer move: several rows want them
+ * and `boxOfBar` allocates each time, and hit testing while the pointer is down
+ * carries a gate of its own (PG-9 of table T-043, NFR-002).
  */
 type BoxedTask = {
   readonly task: TaskGeometry
@@ -307,17 +214,12 @@ function boxedTasksOf(geometry: ScheduleGeometry): readonly BoxedTask[] {
   }))
 }
 
-// ------------------------------------------------------- the eighteen rows ----
+// ------------------------------------------------------------- the rows ----
 
 /**
- * Which readings of the pointer reach a row -- the row's operation column, read
- * as table T-023d's closing rule (MUST NOT) reads it.
- *
- * ⭐ `doubleClickOnly` is the fact the closing rule turns on, and it is stated
- * ON THE ROW so that the rule stays one field per row instead of a second copy
- * of the table's membership. ⛔ A list of row IDs written beside the loop would
- * be exactly that copy, and nothing would keep it in step when a row's
- * operation column changes.
+ * Which readings of the pointer reach a row: the row's operation column, read as
+ * table T-023d's closing rule (MUST NOT) reads it. Stated on the row, because a
+ * list of row IDs beside the loop is a copy nothing keeps in step.
  */
 type RowReach = 'anyPress' | 'doubleClickOnly'
 
@@ -331,9 +233,8 @@ type Scene = {
 type HitRow = {
   readonly grab: GrabArea
   /**
-   * REQUIRED, and not an optional flag defaulting to `anyPress`: a row added
-   * below has to say which reading reaches it, and a double-click-only row
-   * that forgot to would silently take the plain press back off `GR-12`.
+   * Required, not an optional flag defaulting to `anyPress`: a double-click-only
+   * row added without it would silently take the plain press off `GR-12`.
    */
   readonly reach: RowReach
   /** @purity pure */
@@ -341,8 +242,8 @@ type HitRow = {
 }
 
 /**
- * A row that is asked of every Task -- ROWS OUTER, TASKS INNER, which is the
- * global order MK-9a requires and the file's own head explains.
+ * A row that is asked of every Task. Rows outer, Tasks inner (MK-9a; see the
+ * file head).
  *
  * @purity pure
  */
@@ -367,36 +268,24 @@ function taskRow(
 }
 
 /**
- * Table T-023d, top row first. Read it as the table reads: the first row that
- * claims the point wins, and no row below it is asked.
+ * Table T-023d, top row first: the first row that claims the point wins, and no
+ * row below it is asked.
  *
- * ⭐ GR-11 stands where the table prints it, and it is the OTHER row the
- * closing rule names -- so it carries `reach: 'doubleClickOnly'` for the same
- * reason GR-10 does.
- *
- * ⚠️ Three rows of the table are NOT here, and each is somebody else's: GR-19
- * is the Command Palette's band (the shell's), GR-20 the row heading panel's
- * (`ScreenRegions`), GR-21 the scrollbars' thumb. This file is handed the
- * schedule's geometry alone.
+ * GR-19 (the Command Palette's band, the shell's), GR-20 (`ScreenRegions`) and
+ * GR-21 (the scrollbars' thumb) are not here: this file is handed the schedule's
+ * geometry alone.
  */
 const TABLE_T_023D: readonly HitRow[] = [
   // GR-1 / GR-2 -- the fade handles, at the plan bar's top-left and
-  // bottom-right corners. FD-5 gives them to the two shapes with thickness.
+  // bottom-right corners (FD-5).
   //
-  // ⚠️ THE SELECTION IS NOT TESTED HERE, and must not be: FR-075's MUST is
-  // already spent where `fadeHandles` is built, so an unselected Task arrives
-  // with an empty list and these two rows pass it by. ⛔ Repeating the test
-  // here would need this file to be handed a `Selection` it has no other use
-  // for, and would put the condition of S-111 in two places -- the second of
-  // which nothing would keep honest. ⭐ The rule this file does keep is the
-  // one table T-023d states: GR-1 and GR-2 are asked of EVERY Task before
-  // GR-3 is asked of any, so the picture is what has to be narrow.
+  // The selection is not tested here: FR-075 is applied where `fadeHandles` is
+  // built, so an unselected Task arrives with none. Testing it again would need
+  // a `Selection` and put S-111's condition in a second place.
   //
-  // ⚠️ THE TWO ARE NOT MADE ONE-SIDED. The ruling of 2026-09-09 names 「予定の
-  // 端点（`GR-3` / `GR-4`）」 and 「実績の端点（`GR-5` / `GR-6`）」 and no other
-  // row; A-13 of table T-011 keeps the fade's handles a different thing from an
-  // 端点 in as many words. What still binds them is the fence below, which the
-  // closing rule of 2026-09-08 states about all four plan-side rows.
+  // Not made one-sided: that rule names the plan's and the actual's ends only,
+  // and A-13 of table T-011 keeps the fade's handles distinct from an end. The
+  // fence below still binds them.
   taskRow('GR-1', 'anyPress', (boxed, x, y, slop) => {
     if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
     const corner = boxed.task.fadeHandles[0]
@@ -407,127 +296,57 @@ const TABLE_T_023D: readonly HitRow[] = [
     const corner = boxed.task.fadeHandles[1]
     return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
   }),
-  // GR-5 / GR-6 -- the actual's two ends, INSIDE its own band (S-91).
-  //
-  // ⭐⭐ THEY NOW STAND ABOVE THE PLAN'S ENDS (2026-09-10), which the closing
-  // rule states as the answer to the overlap it also removes: 「⭐ 重なったら
-  // 実績が勝つ —— 本表で `GR-5` / `GR-6` が `GR-3` / `GR-4` より上に在る」,
-  // 「⭐ 予定と実績の見分けは縦幅が担う」.
+  // GR-5 / GR-6 -- the actual's two ends, inside its own band (S-91). Above the
+  // plan's ends: where the two overlap, the actual wins (table T-023d).
   taskRow('GR-5', 'anyPress',
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left')),
   taskRow('GR-6', 'anyPress',
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right')),
-  // GR-17, then GR-9 -- ⭐ SWAPPED ON 2026-09-08 BY THE USER'S RULING. Table
-  // T-023d's closing note carries it and the reason: zoomed out the two
-  // dummies stand only S-129 apart and fall on the same pixel, and the finish
-  // is the one to hand back. ⛔ Until that day GR-17's row placed itself BELOW
-  // GR-9 and the start won instead; the row now says the opposite.
-  // ⭐ EITHER STILL ENTERS AN ACTUAL (FR-043): GR-9 sets the start day and the
-  // duration, GR-17 sets the duration with the start pinned at GR-9's day, so
-  // preferring the finish never leaves the person unable to record one.
+  // GR-17, then GR-9 -- where the two dummies overlap, the finish wins (table
+  // T-023d's closing note). Either still enters an actual (FR-043).
   //
-  // ⭐⭐ AND THE DRAWN MARK IS NOW SPLIT DOWN THE MIDDLE (MUST, 利用者の裁定
-  // 2026-09-09): 「⭐⭐ 1 つのダミーの印は、その横幅の中央で左右に割ること
-  // （MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）と
-  // すること（MUST）」. ⛔⛔ UNTIL THAT DAY EVERY PIXEL OF THE MARK WAS GR-17's -- 「その
-  // 1 つの印のどの画素を押しても `GR-17` を掴むこと」 -- and the same day's later
-  // ruling overturned it (逐語「ダミーの印を左右に割れ」). `isOnTheDrawnMarkHalf`
-  // is where the middle is read.
-  // ⭐⭐ AND THE MARK IS ALL THERE IS, AS OF 2026-09-10 (MUST): 「`GR-9` /
-  // `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること
-  // （MUST）。印の外へ広げてはならない（MUST NOT）」.
-  // ⛔⛔ S-93's BOX IS GONE FROM THESE TWO ROWS. The closing rule read 「`GR-9` /
-  // `GR-17` / `GR-18` の当たり判定は、その日の列の左端を起点に、右へ
-  // `_assets/tbl-settings.md` の `S-93` の幅で取ること（MUST）」 until that day, and
-  // 「その規則は同じ裁定と衝突しており、2026-09-10 の裁定が前者を取り下げた」.
-  // ⚠️ 「実測（2026-09-10、出荷ビルド）: `S-93` の 30px は既定の倍率で 5 日ぶんあ
-  // り、3 日のタスクでは予定の終了点（`GR-4`）を丸ごと飲んでいた」 -- which is the
-  // ledger row this closes.
+  // The drawn mark is split down its middle, left half GR-9 and right half
+  // GR-17, and the mark is the whole hit area (closing rule).
+  // `isOnTheDrawnMarkHalf` is where the middle is read.
   taskRow('GR-17', 'anyPress', ({ task }, x, y) =>
     isOnTheDrawnMarkHalf(task, x, y, 'right')),
   taskRow('GR-9', 'anyPress', ({ task }, x, y) =>
     isOnTheDrawnMarkHalf(task, x, y, 'left')),
   // GR-10 -- the name label, wherever LC-6 put it.
   //
-  // ⛔ `doubleClickOnly`, because the row's operation column now holds a double
-  // click and nothing else: it forbids moving the label by a grab (MUST NOT),
-  // and sends the one route that moves it to PR-13 of table T-016.
-  // ⚠️ THIS IS WHY THE ROW MAY STAY
-  // WHERE THE TABLE PRINTS IT. NL-1 of table T-013 draws the label INSIDE the
-  // shape, so a press that this row claimed would leave no Task with a name
-  // reachable at GR-12 or GR-18 below -- the same accident GR-9's own ⚠️
-  // records. ⭐ The double-click reading still asks this row here, in the
-  // table's order, which is what the closing rule's ⚠️ requires.
+  // `doubleClickOnly`: the row's operation column holds a double click only, and
+  // PR-13 of table T-016 is the route that moves the label. That is why the row
+  // may stay where the table prints it: NL-1 of table T-013 draws the label
+  // inside the shape, so a press claimed here would leave GR-12 and GR-18
+  // unreachable.
   taskRow('GR-10', 'doubleClickOnly',
     ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label)),
-  // GR-11 -- the assignee label, at 「バーの外側へ張り出した位置」.
+  // GR-11 -- the assignee label, outside the bar.
   //
-  // ⛔ `doubleClickOnly`: the row's operation column holds a double click and
-  // nothing else, and the closing rule under table T-023d names it beside
-  // GR-10 (MUST NOT). ⚠️ Unlike GR-10 the label does NOT sit over the bar, so
-  // a plain press here would not swallow GR-12 -- the rule is obeyed because
-  // the table states it, not because this row would otherwise do damage.
+  // `doubleClickOnly`, named beside GR-10 by the closing rule. Unlike GR-10 the
+  // label is off the bar, so the rule, not damage to GR-12, is the reason.
   //
-  // ⛔ NO GRAB ALLOWANCE. Table T-023d sends every 掴み代 to table T-206, and
-  // that table records S-90 to S-92 and nothing for a label -- GR-10 above is
-  // read the same way. The box is the drawn label's own.
-  //
-  // ⭐⭐ THE ROWS ABOVE NO LONGER REACH ACROSS IT, and that is S-91 becoming
-  // one-sided: its own note now records the gain -- 「⭐ 掴み代がバーの外へ 1px も
-  // 出ないので、担当ラベル（表 T-023d の `GR-11`）の端に乗ることがない」. ⛔ Until
-  // 2026-09-09 GR-5 and GR-6 carried that reach OUTWARDS as well, which is
-  // wider than the `labelGap` (S-32), so this label's own right edge lay under
-  // the actual start's allowance.
+  // No grab allowance: table T-206 records none for a label (GR-10 is read the
+  // same way), so the box is the drawn label's own.
   taskRow('GR-11', 'doubleClickOnly', ({ task }, x, y) =>
     task.assigneeLabel !== null && isInsideBoxInclusive(x, y, task.assigneeLabel)),
   // GR-8 -- the resume icon, further out again.
   //
-  // ⭐⭐ S-22's BOX, CENTRED ON THE ICON, and NOT the drawn outline: the row
-  // says 「当たり判定は `_assets/tbl-settings.md` の 表 T-201 の `S-22` の大きさ
-  // とすること（MUST）。図形の素の輪郭を当たり判定にしてはならない（MUST NOT）」,
-  // and 「起点はアイコンの中心とすること（MUST）」. ⚠️ The row's own measurement
-  // is why the outline may not serve: the bent arrow's raw path box is about
-  // 9.4 x 4.9px at the default settings, so 「掴めないのではなく狙えない」.
+  // S-22's box centred on the icon, not the drawn outline (the row): the bent
+  // arrow's own path box is too small to aim at. The size travels on
+  // `ResumeGeometry.hitHalf`, because S-22 is a stored setting and `PointerSlop`
+  // carries only what table T-206 keeps out.
   //
-  // ⛔⛔ IT READ S-93 UNTIL 2026-09-09 and the user's ruling shrank it to the
-  // progress marker's own size -- 「⭐ 新しい設定値を立てない —— 進捗マーカー
-  // （`GR-7`）と同じ寸法をそのまま使う」. ⚠️ S-93's row is itself gone as of
-  // 2026-09-10 -- 「その `S-93` は 2026-09-10 に廃した」 -- so there is no
-  // longer a second size for this icon to be confused with.
-  // ⭐ The size travels on `ResumeGeometry.hitHalf`, because S-22 is a stored
-  // setting and `PointerSlop` carries only what table T-206 keeps out.
+  // The centre is the drawn icon's own: the row rules out the day column's left
+  // edge and names no other point.
   //
-  // ⛔ THE CENTRE IS THE DRAWN ICON'S OWN, i.e. the middle of the box the arm
-  // and the head occupy. The row rules out the day column's left edge that
-  // GR-9 / GR-17 / GR-18 anchor on -- 「アイコンは日の列に揃わず、マーカーの
-  // 外側に置かれるからである」 -- and names no other point, so the figure the
-  // renderer draws is what the centre is taken from.
+  // Not on a milestone (MUST NOT). Kept although `schedule-geometry.ts` already
+  // places no icon on one (LF-11 of table T-221): each table's MUST NOT is
+  // answered on its own side, and a hit test leaning on the drawing side's null
+  // would go quiet the day that side changed.
   //
-  // ⛔⛔ AND NOT ON A MILESTONE (MUST NOT, 利用者の裁定 2026-09-09): 「⭐⭐
-  // マイルストーンに再開アイコン（`GR-8`）を当ててはならない（MUST NOT）—— 点は
-  // 期間を持たないので、中断も再開も無い」. ⚠️ KEPT THOUGH THE FIGURE IS NOW GONE
-  // TOO: `schedule-geometry.ts` refuses to PLACE the icon on a milestone, which
-  // is LF-11 of table T-221 -- 「⛔ **`resume` を持つマイルストーンでも描かない
-  // （MUST NOT）**」 -- so `task.resume` is already null here. ⭐ The line stays
-  // because the two MUST NOTs are written in two tables and each side answers
-  // its own: this row is 当たり判定 in table T-023d, and a hit test that leaned
-  // on the drawing side's null would go quiet the day that side changed.
-  // ⛔⛔ THE NOTE THAT STOOD HERE UNTIL 2026-09-10 SAID THE OPPOSITE AND WAS
-  // FALSE: it read 「LF-13 of table T-221 carries no milestone exception for the
-  // figure -- so a milestone that names a `resume` day still shows the icon and
-  // nothing grabs it」 and called that 「the safe direction」. LF-13 indeed carries
-  // none; LF-11 does, and had since 2026-09-09. ⚠️ Measured on the shipped build
-  // 2026-09-10: task 9, a milestone, drew `task-9-resume` at (1538, 388) and its
-  // own middle answered `grab=-`.
-  //
-  // ⚠️ GR-7 STANDS ABOVE THIS ROW AND STILL DOES. The table's order is what
-  // settles the ground the two share: the marker answers there, the icon
-  // answers past it. That is the same reading GR-7's own 「マーカーのさらに外側」
-  // already carried. ⛔ NOR IS THIS ROW MOVED FOR GR-7's SAKE: on 2026-09-10
-  // GR-7 dropped BELOW it, and the priority of the icon over the plan bar
-  // (GR-12) is a MUST of its own -- 「⭐⭐ 再開アイコン（`GR-8`）は、予定バー本体
-  // （`GR-12`）に優先すること（MUST）……奪う量に上限を設けてはならない
-  // （MUST NOT）」.
+  // GR-7 stands below this row; the icon's priority over the plan bar (GR-12)
+  // is a MUST of its own, so the row is not moved for GR-7.
   taskRow('GR-8', 'anyPress', ({ task }, x, y) => {
     if (task.shapeKind === 'milestone') return false
     if (task.resume === null) return false
@@ -540,31 +359,14 @@ const TABLE_T_023D: readonly HitRow[] = [
   // landing on its own plan day can still be picked up.
   taskRow('GR-15', 'anyPress', ({ task, actual }, x, y) =>
     task.shapeKind === 'milestone' && actual !== null && isInsideBoxInclusive(x, y, actual)),
-  // GR-18 -- the dummy on a milestone not started.
-  //
-  // ⛔⛔ ONE PLACE, NEVER SPLIT (MUST NOT, 利用者の裁定 2026-09-09): 「⭐ `GR-18`
-  // は 1 か所とすること（MUST）。開始側と終了側に分けてはならない（MUST NOT）——
-  // 終了が無いのだから割る先も無い」, ⇒ 「⛔ 下の段の「印を左右に割る」は、
-  // マイルストーンのダミーには当てないこと（MUST NOT）」. ⭐ Which is why this row
-  // asks for the WHOLE mark while GR-9 and GR-17 above ask its halves:
-  // `isOnTheDrawnMark` answers only for a Task that carries the row it is asked
-  // about, and a milestone carries GR-18 alone.
+  // GR-18 -- the dummy on a milestone not started. One place, never split
+  // (closing rule), so this row asks for the whole mark while GR-9 and GR-17 ask
+  // its halves; a milestone carries GR-18 alone.
   taskRow('GR-18', 'anyPress',
     ({ task }, x, y) => isOnTheDrawnMark(task, x, y)),
-  // GR-13 -- a dependency line.
-  //
-  // ⭐⭐ LIFTED ABOVE THE PLAN BAR'S BODY ON 2026-09-09 (MUST): 「依存線（`GR-13`）
-  // を予定バー本体（`GR-12`）より上に置くこと（MUST）。ただし線の掴み代の縦幅
-  // が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」, 「狭くなければ、線が
-  // 実績の帯を丸ごと奪う」. ⛔ Until that day it stood below every Task row, and
-  // MK-9a's own note recorded the consequence: to select a line, grab the
-  // stretch not lying over a bar.
-  // ⭐ The condition rides on the VALUE, and `PointerSlop.line`'s note carries
-  // it -- 「⭐ 既定値は既にこの条件を満たしているので、値は動かしていない」.
-  // ⛔ THE STATUS LINE IS NOT LIFTED WITH IT (MUST NOT), which is the same
-  // clause: 「⛔ 基準日線（`GR-16`）を同じように上げてはならない（MUST NOT）——
-  // 行の全高を占めるので、上げるとすべてのタスクから縦の帯を奪う」. GR-16 is the
-  // last row of this list for that reason.
+  // GR-13 -- a dependency line, above the plan bar's body (closing rule), on the
+  // condition `PointerSlop.line` carries. The status line is not lifted with it
+  // (MUST NOT), which is why GR-16 is the last row of this list.
   {
     grab: 'GR-13',
     reach: 'anyPress',
@@ -585,17 +387,12 @@ const TABLE_T_023D: readonly HitRow[] = [
       return null
     },
   },
-  // GR-14 -- the annotations. ⭐ The comment box is asked FIRST: it can sit
-  // inside a highlight box's range, and if the enclosing box won, the inner one
-  // could never be grabbed -- the very trap GR-19's own remark spells out
-  // (「掴めない位置へ置けてしまうと二度と動かせなくなる」). Table T-023d gives
-  // both kinds one row and states no order between them. @provisional PND-235
+  // GR-14 -- the annotations. The comment box is asked first: it can sit inside
+  // a highlight box's range, and if the enclosing box won, the inner one could
+  // never be grabbed. Table T-023d gives both kinds one row and states no order
+  // between them. @provisional PND-235
   //
-  // ⭐ THIS ROW MOVED UP WITH GR-13 (2026-09-10). The table prints the two
-  // together, above GR-3, and this list is the table straight down -- so the
-  // annotations rose over the plan's ends and body along with the line. ⚠️ No
-  // clause of the closing notes speaks of GR-14; the printed order is the whole
-  // of the authority, and 「上の行ほど優先すること（MUST）」 is what it says.
+  // Its place above GR-3 is the table's printed order alone.
   {
     grab: 'GR-14',
     reach: 'anyPress',
@@ -614,53 +411,32 @@ const TABLE_T_023D: readonly HitRow[] = [
       return null
     },
   },
-  // GR-3 / GR-4 -- the plan's two ends, OUTSIDE the bar and nowhere else.
-  // GR-15's row records why a milestone has neither: a point has no duration to
-  // resize.
+  // GR-3 / GR-4 -- the plan's two ends, outside the bar and nowhere else. A
+  // milestone has neither: a point has no duration to resize.
   //
-  // ⭐⭐ THEY DROPPED BELOW THE ACTUAL'S ENDS AND THE DUMMIES ON 2026-09-10,
-  // and the closing rule states the whole design in one line: 「⭐⭐ 境目はバーの
-  // 端であること（MUST）。端の外は予定、端の内は実績とすること（MUST）」. ⭐ 「⭐⭐
-  // 1 つ上の段が実測した飲み込み（`GR-4` の掴み代が、描かれているダミーの印を丸ごと
-  // 飲む）は、これで構造から消える —— 予定の端点はバーの外へしか届かないから
-  // である」.
-  //
-  // ⚠️ The two ends do NOT reach alike: `isOnPlanEnd` below carries both the
-  // outward-only hand and the boundary the ruling of 2026-09-08 put at the plan
-  // start. ⭐ BOTH ends stand down where a dummy stands right of that boundary
-  // -- `standsOnADummyRightOfThePlanStart` is where the closing rule that names
-  // all four plan-side rows is answered.
-  // ⭐ NEITHER PAIR IS REORDERED for the ruling of 2026-09-08 that has the
-  // finish win where the two ends coincide: the START is what carries the
-  // condition -- `TaskGeometry.planEndsStandOnOneDay` for the plan's pair,
-  // `actualEndsStandOnOneDay` for the actual's -- and the latter's own note
-  // says why moving the row would be wrong.
+  // Below the actual's ends and the dummies: outside an end is the plan, inside
+  // it the actual (closing rule). `isOnPlanEnd` carries the outward-only hands
+  // and the plan-start boundary; `standsOnADummyRightOfThePlanStart` is where
+  // the plan-side rows yield. Same-day ends reorder nothing: the start carries
+  // the condition (`planEndsStandOnOneDay`, `actualEndsStandOnOneDay`).
   taskRow('GR-3', 'anyPress',
     (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left')),
   taskRow('GR-4', 'anyPress',
     (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right')),
-  // GR-7 -- the progress marker, outside the bar FR-013 names.
-  //
-  // ⚠️ IT DROPPED BELOW THE PLAN'S ENDS ON 2026-09-10 and nothing here relies
-  // on where it stood: the marker is placed past the end point's grab allowance
-  // (S-23's own definition), so the ground it holds is ground GR-3 and GR-4 no
-  // longer reach into.
+  // GR-7 -- the progress marker, outside the bar FR-013 names. Its place below
+  // the plan's ends costs nothing: the marker sits past the end point's grab
+  // allowance (S-23).
   taskRow('GR-7', 'anyPress', ({ task }, x, y) =>
     task.marker !== null &&
     isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius)),
   // GR-12 -- the plan bar's middle, the ends having taken their share.
   //
-  // ⚠️ The actual bar's BODY is deliberately NOT a grab area (MUST NOT): the
-  // plan is the taller of the two, so where they overlap the plan is what is
-  // picked up, and the only way to move an actual is by its ends.
+  // The actual bar's body is not a grab area (MUST NOT): the plan is the taller
+  // of the two, so where they overlap the plan is picked up, and an actual moves
+  // by its ends only.
   taskRow('GR-12', 'anyPress', ({ plan }, x, y, slop) =>
     plan !== null && isInsideBoxInclusive(x, y, grown(plan, slop.planEndpoint))),
-  // GR-16 -- the status line, and the LAST row this file holds.
-  //
-  // ⛔ IT DID NOT RISE WITH GR-13 (MUST NOT) -- the reason is on GR-13 above.
-  // ⚠️ GR-20 (the row heading panel's grab band) is printed between GR-12 and
-  // this row and GR-21 (the scrollbars' thumb) after it; neither is the
-  // schedule's geometry, so neither is here.
+  // GR-16 -- the status line, last (see GR-13).
   {
     grab: 'GR-16',
     reach: 'anyPress',
@@ -675,71 +451,25 @@ const TABLE_T_023D: readonly HitRow[] = [
 ]
 
 /**
- * GR-3 and GR-4, with the plan start's own x standing as the boundary between
- * the plan side and the actual side -- the user's ruling of 2026-09-08, carried
- * by the closing notes under table T-023d.
+ * GR-3 and GR-4. The plan start's x is the boundary between the plan side and
+ * the actual side (closing notes under table T-023d).
  *
- * ⭐⭐ GR-3 REACHES LEFTWARDS ONLY, and that clamp is this whole change. The row
- * requires a press AT or LEFT of the plan start to be the plan's, and a press
- * RIGHT of it to fall through to the actual dummies (MUST). S-90's own reach is
- * still spent, but on the left hand alone.
+ * GR-3 reaches leftwards only, so a press right of the plan start falls through
+ * to the dummies. The clamp is here, not on the dummy side: a dummy stands on a
+ * later day, so its ink already begins right of the boundary, and GR-3 is the
+ * row that spread S-90 across it while standing above the dummies. Without the
+ * clamp the actual side vanishes once a day is narrower than S-90.
  *
- * ⛔ THE CLAMP IS HERE AND NOT ON THE DUMMY SIDE, and the geometry is why. A
- * dummy stands on a day AFTER the plan's start (GR-9's row, GR-18's row), and
- * `xFromDay` rises with the day, so the ink already begins at or right of the
- * boundary at every zoom -- there is nothing on that side to clamp. The one
- * member that crossed the boundary was this one: GR-3 spread S-90 to BOTH sides
- * of the plan start and stands above the dummies, so it swallowed the first
- * S-90 of their reach. ⚠️ One clamp only: the ruling's own note calls the two
- * rules two faces of one answer, and writing it on both sides would be the
- * copy nothing keeps honest.
+ * GR-4 is fenced, not clamped: refusing it every pixel right of the boundary
+ * would take the finish off every plan longer than zero days. It gives up the
+ * dummy's box only, in `standsOnADummyRightOfThePlanStart`, which answers for
+ * GR-1, GR-2 and GR-4.
  *
- * ⛔ WITHOUT IT THE ACTUAL SIDE GOES AWAY AS THE ZOOM FALLS. Measured on the
- * shipped build, on a Task not started, 1920x1080 over file://: at 1.5px a day
- * the next working day's column is 1.5px right of the plan start, so a press 2px
- * to its right was answered by GR-3 and only a press 8px out reached the dummy.
- * Once a day is narrower than S-90 there is no reachable ground left between
- * them at all.
+ * Both ends also reach outwards only, which widens the boundary rule rather
+ * than replacing it. Two ends on one day are another closing rule, answered
+ * from `TaskGeometry.planEndsStandOnOneDay` (see `actualEndsStandOnOneDay`).
  *
- * ⭐⭐ GR-4 IS FENCED TOO, AND BY THE OTHER HALF OF THE SAME RULING. The note
- * that stood here said the ruling named the plan start and nothing else, and
- * the manuscript deleted the note it was reading on 2026-09-08 -- 「⚠️⚠️ 2026-
- * 09-08 まで、ここに「`GR-4` は 2026-09-08 の掴み分けの裁定では触れていない」と
- * いう注が在った …… ⇒ 注を消し、境目は上の規則のとおり `GR-4` にも効く」. The
- * closing rule now binds all four plan-side rows: 「⛔ 予定側の点の掴み代
- * （`GR-1` / `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ
- * 伸ばしてはならない（MUST NOT）」. `standsOnADummyRightOfThePlanStart` below
- * is where GR-1, GR-2 and GR-4 answer it, and this function is where GR-3 does.
- *
- * ⛔ GR-4 IS NOT CLAMPED THE WAY GR-3 IS, and the difference is the ruling's
- * own: 「その位置より左を押したときは予定の開始点（`GR-3`）を掴み」 names the
- * START alone as the row that keeps only its left hand. Refusing GR-4 every
- * pixel right of the boundary would take the plan's finish off EVERY plan of
- * more than zero days, since that end always stands right of its own start.
- * What GR-4 gives up is the dummy's own box and nothing else.
- *
- * ⭐⭐ AND SINCE 2026-09-09 BOTH ENDS REACH OUTWARDS ONLY, which is a second
- * rule on top of the boundary and not a restatement of it: 「境目はバーの端で
- * あること（MUST）。端の外は予定、端の内は実績とすること（MUST）」, 「予定の
- * 端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取ること（MUST）」, ⛔ 「予定の端点を
- * 端の内側へ伸ばしてはならない（MUST NOT）」. ⭐ The manuscript says in as many
- * words that this WIDENS the 2026-09-08 boundary rather than replacing it:
- * 「⭐⭐ 本規則は 1 つ上の段（予定の開始日の位置が境目）を、予定の 2 端と
- * マイルストーンへ広げたものであって、覆してはいない」 -- so the clamp above and
- * the fence below both stand, and this adds the finish's outward-only hand.
- * ⇒ GR-3 already reached leftwards only, so what changed here is GR-4.
- *
- * ⚠️ The SECOND closing rule under table T-023d names GR-4 as well -- 「予定の
- * 2 端（`GR-3` と `GR-4`）にも、実績の 2 端（`GR-5` と `GR-6`）にも、ダミーの 2 端
- * （`GR-9` と `GR-17`）にも、同じように当てはまる（MUST）」 -- and that one is a
- * different case: two ends on ONE DAY. The plan's half of it is answered THREE
- * LINES BELOW, off `TaskGeometry.planEndsStandOnOneDay`; the actual's half is
- * `actualEndsStandOnOneDay`, whose note holds the reasoning for both and
- * records what the geometry still cannot tell.
- *
- * ⚠️ NEITHER END EXISTS ON A MILESTONE (GR-15's row), so the clamp never
- * reaches GR-18: the dummy on a milestone has no GR-3 above it to be clamped,
- * and no row above GR-18 claims the pixel right of its day.
+ * Neither end exists on a milestone, so the clamp never reaches GR-18.
  *
  * @purity pure
  */
@@ -749,71 +479,33 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   const box = boxed.plan
   if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
   if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
-  // ⭐⭐ OUTWARDS ONLY, BOTH HANDS. The finish claims from its own edge
-  // RIGHTWARDS and the start from its own edge LEFTWARDS -- 「端の外は予定」 --
-  // so the two ends turn their backs on each other and the bar's whole inside
-  // is left to the actual's ends and to GR-12. ⛔ `Math.abs` is what this may
-  // not be: it is the reach 「端点の左右」 that the ruling took away.
+  // Outwards only, both hands: the ends turn their backs on each other and the
+  // bar's inside is left to the actual's ends and GR-12. Not `Math.abs`: that
+  // is the two-sided reach the rule removed.
   const rightEdge = box.x + box.width
   if (which === 'right') return x >= rightEdge && x - rightEdge <= slop.planEndpoint
-  // ⭐⭐ THE DAY, AND NOT THE DRAWN WIDTH. `planEndsStandOnOneDay` is carried on
-  // the geometry because S-49's floor makes the plan's box unable to answer --
-  // see `actualEndsStandOnOneDay` below, whose note holds the whole reasoning
-  // for both halves of the clause.
+  // The day, not the drawn width: S-49's floor hides a same-day plan (see
+  // `actualEndsStandOnOneDay`).
   if (boxed.task.planEndsStandOnOneDay) return false
   return x <= box.x && box.x - x <= slop.planEndpoint
 }
 
 /**
- * Table T-023d's closing rule of 2026-09-08, the half that binds the PLAN side:
- * 「⭐⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側の
- * どの行よりも先に成立させること（MUST）」, and ⛔ 「予定側の点の掴み代（`GR-1` /
- * `GR-2` / `GR-3` / `GR-4`）を、境目より右のダミーの当たり判定の中へ伸ばしては
- * ならない（MUST NOT）」.
+ * Whether the point is on a Task's own dummy mark right of its plan start, where
+ * table T-023d's closing rule has the dummies win over every plan-side row
+ * (GR-1 .. GR-4 may not reach into it, MUST NOT).
  *
- * ⭐⭐ THIS IS WHAT THE PURPOSE NEEDS, AND CLAMPING GR-3 ALONE WAS NOT. The
- * rule states the purpose in the user's words -- 「Zoom Out して 1 日の表示が
- * 潰れても、ダミーの実績を入力できることである」 -- and then says in as many
- * words that the fence is not enough on its own: 「⛔ 低倍率でダミーが掴めなく
- * なってはならない（MUST NOT）—— 境目を動かさないだけでは足りない。境目より右を
- * 予定側の掴み代で埋めても、同じことが起きる」.
+ * Clamping GR-3 alone was not enough: at low zoom GR-4's S-90 and a selected
+ * Task's GR-1 swallowed the whole mark, and both stand above the dummies. The
+ * printed order is not rewritten; the four rows stand down over the dummy's ink
+ * only and keep every other pixel.
  *
- * ⚠️⚠️ AND THAT IS EXACTLY WHAT WAS MEASURED. The manuscript records it --
- * 「低倍率で 1 〜 8 日の予定では、`GR-4` の `S-90`（端点の左右へ 6px）と、選ばれて
- * いるあいだ現れる `GR-1` の `S-92` の半分（7.5px）が、描かれているダミーの印を
- * 丸ごと飲んでいた」 -- and both rows sit ABOVE the dummies in the printed order,
- * so neither was reachable however the fence at GR-3 was drawn.
+ * The ground is `isOnTheDrawnMark`, not a second copy of the mark's
+ * arithmetic. One Task's dummies against that Task's plan start; rows stay the
+ * outer loop of `itemAtPointer` (MK-9a).
  *
- * ⛔ THE TABLE'S PRINTED ORDER IS NOT REWRITTEN, and the rule says why it must
- * not be: 「本表の順は、離れているものどうしの優先を決めるものである —— 境目の右
- * で重なったときは本規則が勝つ（MUST）」. So the four rows stand down HERE, over
- * the dummy's own box, and keep every other pixel the order gives them.
- *
- * ⭐ THE GROUND IS THE DUMMY'S OWN INK, asked of `isOnTheDrawnMark` rather than
- * restated. A second copy of the mark's arithmetic is the thing that goes out
- * of step, and the rule the two share -- 「ダミーの当たり判定は、境目の右側でだけ
- * 使うこと（MUST）」 -- is one answer with two faces, as the manuscript itself
- * says. ⛔⛔ IT READ 「`S-93` の幅は、境目の右側でだけ使うこと（MUST）」 UNTIL
- * 2026-09-10, when the hold became the ink and that row was retired.
- *
- * ⚠️ ONE TASK'S OWN DUMMIES, AND ITS OWN PLAN START. The boundary the rule
- * names is 「予定の開始日の位置」 -- a Task's own -- so a Task's plan rows yield
- * to that Task's dummies. Rows remain the outer loop of `itemAtPointer`, which
- * is MK-9a's global order, and this changes none of it.
- *
- * ⚠️ THE x TEST IS NOT REDUNDANT WITH THE BOX. A dummy stands on a day AFTER
- * the plan start, so its box already begins right of the boundary at every
- * zoom; the comparison is written anyway because the rule is stated about the
- * boundary and a reader must be able to see the boundary in the code.
- *
- * ⭐ THE DRAWN MARK IS THE WHOLE OF IT. Its pixels belong to the dummy side
- * whichever half of it is pressed -- 「予定側のどの行よりも先に成立させること
- * （MUST）」 is about the dummies and not about which of them -- so the whole ink
- * is asked here and the middle is nobody's business at this point.
- * ⛔⛔ AND THERE IS NOTHING ELSE TO ASK AS OF 2026-09-10 (MUST): 「`GR-9` /
- * `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること
- * （MUST）。印の外へ広げてはならない（MUST NOT）」. Until that day this member
- * also asked S-93's box for each of the three rows.
+ * The x test is redundant with where a dummy stands, and is kept so the boundary
+ * the rule names is visible in the code.
  *
  * @purity pure
  */
@@ -824,34 +516,16 @@ function standsOnADummyRightOfThePlanStart(boxed: BoxedTask, x: number, y: numbe
 }
 
 /**
- * GR-5 and GR-6, INSIDE the actual bar's own two edges and never outside them
- * -- the user's ruling of 2026-09-09, carried by the closing notes under table
- * T-023d: 「境目はバーの端であること（MUST）。端の外は予定、端の内は
- * 実績とすること（MUST）」, 「実績の端点（`GR-5` / `GR-6`）の掴み代は端の
- * 内側だけに取ること（MUST）」, ⛔ 「実績の端点を端の外側へ伸ばしてはならない（MUST NOT）」.
+ * GR-5 and GR-6, inside the actual bar's own edges only (closing notes under
+ * table T-023d).
  *
- * ⭐ THE INSIDE WAS ALREADY THE WHOLE OF IT HERE, and that is why this half of
- * the ruling adds no test: the containment on the first line has always kept
- * every answer within the drawn bar, so S-91 never reached outside it. What the
- * ruling changes on this side is S-91's own row, which now SAYS so -- 「⛔ 2026-
- * 09-09 まで端点の左右へ届いており」 was true of the figure, not of this code.
+ * The containment test already keeps every answer within the bar, so the
+ * inside-only rule adds no test. What it adds is the half: each hand stops at
+ * the bar's half, so the two ends never contend for a pixel.
  *
- * ⭐⭐ WHAT IS NEW IS THE HALF (MUST): 「⭐ 実績の端点の掴み代は、実績バーの半分を
- * 超えないこと（MUST）—— 超えると実績の 2 端が同じ画素を争う」. ⛔ Until then a
- * bar narrower than twice S-91 had both bands over the whole of it, which is
- * the arithmetic `actualEndsStandOnOneDay`'s own note measured and recorded as
- * an open debt: on an `actualDuration` of 1 at 6px a day, every pixel of the
- * drawn bar answered GR-5 and GR-6 answered none. ⇒ The clamp closes it from
- * the specification's side rather than by a guess about which end yields.
- *
- * ⚠️ THE ONE SHARED PIXEL IS THE TABLE'S TO SETTLE, not this function's. Both
- * hands are closed intervals, so on an even width they meet on the middle
- * pixel; GR-5 is printed above GR-6, and 「上の行ほど優先すること（MUST）」 is
- * the whole of the rule that decides it. ⛔ NO PREFERENCE FOR THE FINISH IS
- * INVENTED HERE: the closing rule that prefers it (「実績の開始と終了のどちらを
- * 掴んだか決められないときは、終了を優先すること」) states its reason, its
- * mechanism and its consolation about the two DUMMIES, and no row says which of
- * GR-5 / GR-6 yields.
+ * On an even width both closed hands meet on the middle pixel, and the table's
+ * order (GR-5 above GR-6) settles it. No preference for the finish is invented:
+ * the closing rule that prefers it is about the two dummies.
  *
  * @purity pure
  */
@@ -867,82 +541,27 @@ function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop
 }
 
 /**
- * Table T-023d's closing rule of 2026-09-08: 「2 つの端点が同じ日に立つときは、
- * 終了側を掴むこと（MUST）」 -- 「予定の 2 端（`GR-3` と `GR-4`）にも、実績の 2 端
- * （`GR-5` と `GR-6`）にも、ダミーの 2 端（`GR-9` と `GR-17`）にも、同じように
- * 当てはまる（MUST）」. ⛔ 「開始側が本表で上に在ることを理由に、開始側を掴ませて
- * はならない（MUST NOT）」.
+ * Whether the actual's two ends stand on one day, where table T-023d's closing
+ * rule has the finish grabbed (MUST), so the start stands down.
  *
- * ⭐ WHY THE CONDITION HANGS ON THE START AND NOT ON THE FINISH: the ruling's
- * own reason is 「重なった 2 点のうち、開始を掴んでも長さは伸びない。終了を掴め
- * ば、そこから引いて長さを与えられる」, and its purpose is 「同じ日に潰れた予定や
- * 実績を、もう一度引き伸ばせること」. So the start is the end that gives nothing
- * back, and it is the one that stands down.
+ * The start carries the condition because grabbing it gives no length back.
+ * GR-4 / GR-6 are not lifted above GR-3 / GR-5: the printed order decides ends
+ * that stand apart (same rule).
  *
- * ⛔⛔ NOT DONE BY LIFTING GR-4 ABOVE GR-3 (or GR-6 above GR-5), and the same
- * closing rule is what forbids it: 「本表の順は、離れている端点どうしの優先を決め
- * るものである」. The order stays printed; the START alone carries a condition,
- * and the condition is the DAY, not the pixel.
- * ⚠️ THE PIXELS THE TWO ONCE SHARED ARE GONE (2026-09-09). Measured on this
- * file's own arithmetic before that day: neither test was grown outside the
- * bar, so on any actual NARROWER THAN TWICE S-91 the two bands covered the
- * whole of it. 「⭐ 実績の端点の掴み代は、実績バーの半分を超えないこと（MUST）」
- * now takes each hand to the bar's own half, and `isOnActualEnd` applies it.
+ * On the actual, one day means zero width: RV-1 of table T-069 and
+ * `actualSpanOf` in `schedule-layout.ts` build the width from the day difference
+ * and nothing floors it. No tolerance: a same-day bar is exactly 0 at every
+ * zoom, and slack would catch a real one-day span at low zoom. A one-day
+ * `actualDuration` is not this case (RV-1, PV-2 of table T-021a).
  *
- * ⭐ ON THE ACTUAL, THE TWO ENDS STAND ON ONE DAY EXACTLY WHEN THE BAR MEASURES
- * NOTHING ACROSS. RV-1 of table T-069 fixes the bar's right end at 「`actualStart`
- * に `actualDuration` を稼働日で加えた日」, `actualSpanOf` in
- * `schedule-layout.ts` builds the width from that very difference, and NOTHING
- * FLOORS IT -- so a width of zero IS the two days being one. ⛔ NO TOLERANCE IS
- * TAKEN: the width is a serial-day difference multiplied by the scale, so a
- * same-day bar is exactly 0 at every zoom, and a comparison with slack would
- * catch a real one-day span wherever the zoom fell below it.
+ * The plan's half cannot use a box: S-49 floors the plan's width in
+ * `schedule-layout.ts`, and no pixel figure may stand in for a date (same
+ * table, MUST NOT). `TaskGeometry.planEndsStandOnOneDay` carries the day
+ * instead, which is why this function takes a box and the plan's half does not.
  *
- * ⛔⛔ A ONE-DAY ACTUAL IS NOT THIS CASE, and the arithmetic that says so is the
- * specification's own. RV-1 puts a `actualDuration` of 1 a working day PAST the
- * start, and PV-2 of table T-021a writes `actualFinish` 「＝ 実績バーの右端」 --
- * so 実績開始日 and 実績終了日 coincide when the duration is ZERO and not when
- * it is one. ⚠️ Measured on the shipped build (2026-09-08, 6px a day): on a
- * `actualDuration` of 1 every pixel of the drawn bar answered `GR-5` and `GR-6`
- * answered none, and that was the OTHER debt -- 「実績の開始と終了のどちらを掴んだ
- * か決められないときは、終了を優先すること（MUST）」 is written about the two
- * DUMMIES, and no row said which of `GR-5` / `GR-6` yields where their two
- * allowances crossed on a short bar. ⛔ It was NOT closed by inventing one.
- * ⭐⭐ THE RULING OF 2026-09-09 CLOSED IT FROM THE OTHER SIDE: 「⭐ 実績の端点の
- * 掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の 2 端が同じ画素を
- * 争う」. ⇒ The two allowances no longer cross, so there is nothing left to
- * prefer, and the finish's preference stays where the manuscript writes it --
- * about the dummies. ⚠️ That reading was re-checked for ledger row DFC-416 and
- * held: the clause's own reason (「`GR-9` と `GR-17` は `S-129` ぶんしか離れて
- * いない」), its own mechanism (「`GR-17` を `GR-9` より上に置いた」) and its own
- * consolation (「どちらを掴んでも実績は立つ」, which is FR-043 about the dummies
- * and is false of `GR-5`) all name the dummies.
- *
- * ⭐⭐ THE PLAN'S HALF IS CLOSED BY A CARRIED FACT, NOT BY THIS BOX. S-49
- * (`minShapeWidth`) is applied in `schedule-layout.ts` before the geometry
- * reaches this file -- 「a Task of zero duration is still a Task, drawn at S-49」
- * -- so a plan bar whose start and finish are one day arrives at `minShapeWidth`
- * and is indistinguishable here from a plan that really spans it. ⛔ THE CURE IS
- * NOT A WIDTH COMPARED AGAINST S-90, S-49 OR ONE DAY'S PIXELS: none of those is
- * a day, and the same table's 「倍率によってこの境目を動かしてはならない」 (MUST
- * NOT) rules out any figure in pixels standing in for a date. So
- * `TaskGeometry.planEndsStandOnOneDay` carries the DAY, decided where the days
- * are, and `isOnPlanEnd` reads that instead. ⚠️ Which is why this function takes
- * a box and the plan's half does not: the two halves are answered in different
- * units on purpose, and the names say which.
- *
- * ⚠️ THE DUMMIES ARE ALREADY ANSWERED, AND NOT BY THIS GATE. GR-9 and GR-17
- * stand S-129 apart in WORKING DAYS by construction (GR-17's row), so their two
- * days can never be one and this condition is vacuous on them. What overlaps
- * there is the PIXEL, which is the OTHER closing rule -- 「実績の開始と終了の
- * どちらを掴んだか決められないときは、終了を優先する」 -- and that one is answered
- * by GR-17 standing above GR-9 in `TASK_ROWS`.
- *
- * ⚠️ MILESTONES ARE UNTOUCHED. Both callers refuse a milestone before they ask
- * this (GR-15's row: 「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
- * `GR-17` に当たらない」), so the shape whose start and finish are always one day
- * never reaches the gate -- which is what keeps GR-15, GR-18 and GR-12 saying
- * on it exactly what they said before.
+ * The dummies stand S-129 working days apart, so this is vacuous on them; their
+ * pixel overlap is answered by GR-17 standing above GR-9 in `TABLE_T_023D`.
+ * Both callers refuse a milestone first.
  *
  * @purity pure
  */
@@ -952,14 +571,12 @@ function actualEndsStandOnOneDay(box: ScreenRect): boolean {
 
 
 /**
- * The ONE mark FR-043 draws on a Task not started, whole -- what the fence
- * hands to the dummy side, whichever half of it the pointer is on.
+ * The one mark FR-043 draws on a Task not started, whole: what the fence hands
+ * to the dummy side, whichever half the pointer is on.
  *
- * ⚠️ THE RECTANGLE IS READ, NEVER REBUILT. `DummyGeometry.ink` is the very one
- * the renderer draws, and its note says why both sides must read the one
- * record. ⭐ Every dummy of a Task carries the same rectangle, so the first is
- * as good as any, and a milestone's lone GR-18 answers here too -- the fence
- * names 「`GR-17` / `GR-9` / `GR-18`」 without distinguishing them.
+ * `DummyGeometry.ink` is the renderer's own rectangle, read and never rebuilt.
+ * Every dummy of a Task carries the same one, so the first serves, a
+ * milestone's GR-18 included.
  *
  * @purity pure
  */
@@ -969,52 +586,14 @@ function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
 }
 
 /**
- * HALF of that one mark, which is what GR-9 and GR-17 each claim (MUST, 利用者
- * の裁定 2026-09-09). Table T-023d's closing rule: 「⭐⭐ 1 つのダミーの印は、
- * その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側（`GR-9`）、右半分を
- * 実績の終了側（`GR-17`）とすること（MUST）」, and FR-043 says the same from its
- * own side -- 「⇒ 人が印を押したときに掴むのは、印の左半分なら開始側（表 T-023d の
- * `GR-9`）、右半分なら終了側（同表の `GR-17`）とすること（MUST）」.
+ * Half of that mark: the left half is GR-9, the right half GR-17 (closing rule
+ * of table T-023d, FR-043).
  *
- * ⛔⛔ THIS OVERTURNED THE RULING OF THE DAY BEFORE, and the manuscript records
- * both: until 2026-09-09 it read 「その 1 つの印のどの画素を押しても `GR-17` を
- * 掴むこと（MUST）。印の一部を `GR-9` に割り当てて掴み分けてはならない（MUST
- * NOT）」, and the same day's later ruling replaced it (逐語「ダミーの印を左右に
- * 割れ」). ⭐ The reason the manuscript gives for the change is what this
- * function is for: 「1 つの印の裏に見えない箱が 2 つ在り、どちらが返るのかを画素の
- * 位置で覚えるしかなかったのが、割る位置を印の中央と決めたことで、押した側から
- * 読めるようになった」.
+ * A milestone is not split (MUST NOT): the row is looked up rather than a shape
+ * tested, and a milestone carries GR-18 alone, so neither half is found on one.
  *
- * ⭐⭐ AND IT IS WHAT CLOSED DFC-415. The hit band used to be a box of S-93's own
- * width, anchored on each dummy's OWN day, while the mark was drawn on GR-9's
- * day (== GR-18's) at 「1 日ぶんと `S-180` の小さい方」. The two were different
- * widths on different days, which is why GR-17 answered no pixel of the mark at
- * all -- measured on the shipped build 2026-09-09, 0 of 6 ink pixels at 6px a
- * day, 0 of 12 at 12.9 and at 27.6. ⚠️ The manuscript carries that measurement
- * too. ⭐⭐ THE TWO BECAME ONE ON 2026-09-10: 「掴みシロが印そのものになった以上、
- * 2 つは同じ 1 つの幅であり、区別は消えた」, so the state DFC-415 named can no
- * longer be reached at all.
- *
- * ⛔⛔ A MILESTONE IS NOT SPLIT (MUST NOT, same ruling): 「⭐ `GR-18` は 1 か所と
- * すること（MUST）。開始側と終了側に分けてはならない（MUST NOT）—— 終了が無いの
- * だから割る先も無い」, ⇒ 「⛔ 下の段の「印を左右に割る」は、マイルストーンの
- * ダミーには当てないこと（MUST NOT）」. ⭐ The row is LOOKED UP rather than
- * tested for a shape: a milestone carries GR-18 and no GR-9 or GR-17, so
- * neither half is ever found on one, and the rule is obeyed by the geometry
- * rather than by a condition that could drift from it.
- *
- * ⚠️ THE MIDDLE ITSELF IS NOT DECIDED HERE. Both halves are closed at the
- * centre, so the middle pixel is claimed by both rows and TABLE T-023d's OWN
- * ORDER settles it -- GR-17 is printed above GR-9, and 「上の行ほど優先すること
- * （MUST）」. ⛔ Splitting the interval one way or the other would be this file
- * writing a rule the manuscript does not state.
- *
- * ⛔⛔ AND THERE IS NOTHING OUTSIDE THE INK TO ASSIGN. This note used to end
- * 「⭐ 印より右に残る当たり判定は終了側とすること（MUST）」, because S-93's band
- * ran on past the mark. ⭐ The manuscript retired that clause on 2026-09-10 with
- * its own reason -- 「割り当てる相手が消えた」 -- and 「印の外へ広げてはならない
- * （MUST NOT）」 is what stands in its place. ⇒ The two halves are the whole of
- * both rows, which is why neither is reduced by saying so.
+ * Both halves are closed at the centre; the middle pixel goes to GR-17 by the
+ * table's order, not by this function. Nothing outside the ink is assigned.
  *
  * @purity pure
  */
@@ -1029,30 +608,16 @@ function isOnTheDrawnMarkHalf(task: TaskGeometry, x: number, y: number,
 /**
  * What the pointer is on, or null when it is on nothing.
  *
- * ⚠️ `slop` is required and has no default. Table T-206 keeps those numbers out
- * of the document because they belong to the reader's environment; a default
- * here would put them back by another door (the same reason `HistoryLimits`
- * ships none for S-94 and S-95).
+ * `slop` has no default, for `PointerSlop`'s reason.
  *
- * ⚠️ The caller applies table T-023a FIRST. PTD-1 makes a `Ctrl` drag a pan
- * whatever lies under it, PTD-2 turns hit testing off entirely while the dual
- * cursor is up, and PTD-3 replaces this whole table with a left-half /
- * right-half answer while a dependency is armed (FR-009). None of those three
- * is decided here.
+ * The caller applies table T-023a first: PTD-1 (a `Ctrl` drag pans), PTD-2 (no
+ * hit testing while the dual cursor is up) and PTD-3 (an armed dependency
+ * replaces this table, FR-009) are not decided here. The arming never reaches
+ * this function (FR-009, MUST NOT); the half is `dependencyEndAtPointer`.
  *
- * ⛔⛔ AND THE ARMING NEVER REACHES THIS FUNCTION. FR-009 (MUST NOT):
- * 「表 T-023c の `SL-1` を答える公開名（表 T-064 の `PI-7`）に構えを渡してはならない
- * …構えによって答えが変わると、それに対して書かれたすべての呼び手と試験が構えを
- * 意識することになる」. The half is `dependencyEndAtPointer` below, which is a
- * name of its own and is called only while AR-4 is armed.
- *
- * ⚠️ `resolving` DEFAULTS TO THE PRESS, which is the reading every caller
- * before table T-023d's closing rule was asking for, and the safe one: a caller
- * that forgets it gets the narrower answer rather than a grab the rule forbids.
- * ⭐ Table T-064 is not disturbed by the added parameter: its own preamble says
- * the table holds the member's NAME and what it is for, and leaves arguments
- * and return values to this file, because `src/` is where a signature has a
- * type check on it. PI-7's entry still names `itemAtPointer` and nothing else.
+ * `resolving` defaults to the press, the narrower answer, so a caller that
+ * forgets it gets no grab the closing rule forbids. Table T-064's preamble
+ * leaves arguments to `src/`, so the added parameter does not disturb PI-7.
  *
  * @purity pure
  */
@@ -1065,9 +630,8 @@ export function itemAtPointer(
 ): Hit | null {
   const scene: Scene = { geometry, boxed: boxedTasksOf(geometry) }
   for (const row of TABLE_T_023D) {
-    // Table T-023d's closing rule (MUST NOT). ⭐ The row is SKIPPED rather than
-    // moved: the table's printed order is the same for both readings, and a
-    // second ordering would be a second table.
+    // Table T-023d's closing rule (MUST NOT). Skipped, not moved: one printed
+    // order serves both readings.
     if (resolving === 'press' && row.reach === 'doubleClickOnly') continue
     const hit = row.claim(scene, x, y, slop)
     if (hit !== null) return hit
@@ -1080,64 +644,43 @@ export function itemAtPointer(
 /**
  * Which end of a dependency a point names, and on which Task.
  *
- * ⚠️ NOT AN `Item` AND NOT A `Hit`. Table T-023c's SL-1 says what can be hit
- * and table T-023d says which grab claims it; neither has a half. This is the
- * answer to a DIFFERENT question, which is why it has a type of its own.
+ * Not an `Item` or a `Hit`: SL-1 and table T-023d have no half, so this answers
+ * a different question.
  */
 export interface DependencyEnd {
   readonly taskUid: number
   /**
-   * FR-009, in as many words: 「左半分が開始側、右半分が終了側である」.
+   * FR-009's two halves.
    *
-   * ⚠️ NOT DECLARED AS A NAMED UNION HERE. `DependencyEdge` is spelled once, on
-   * `createDependency` in the use-case layer, and Chapter 5.3 forbids this layer
-   * from importing that one. The two literals are written out instead, and the
+   * Not a named union: `DependencyEdge` is spelled on `createDependency` in the
+   * use-case layer, which Chapter 5.3 keeps this layer from importing. The
    * assignment in `input-command-translator.ts` is where the compiler checks
-   * that they still agree.
+   * that the literals still agree.
    */
   readonly edge: 'start' | 'finish'
 }
 
 /**
- * FR-009's MUST, asked from the outside: which half of a Task's bar a point
- * fell in, while a dependency is armed.
+ * Which half of a Task's bar a point fell in, while a dependency is armed.
  *
- * ⛔⛔ A NAME OF ITS OWN, AND THAT IS THE REQUIREMENT ITSELF. FR-009:
- * 「⛔ 表 T-023c の `SL-1` を答える公開名（表 T-064 の `PI-7`）に構えを渡してはならない
- * （MUST NOT）…⭐ 半分を答える名は別に置くこと（MUST）。構えが依存線のときだけ
- * 呼ぶ」. So `itemAtPointer` is untouched -- it neither takes the arming nor
- * answers the half -- and a caller that has read AR-4's arming asks this
- * instead. ⚠️ Table T-023a's PTD-3 says the same from the other side: 「構えが
- * 依存線のときは表 T-023d を適用せず」, and this function applies no row of it.
+ * A name of its own, as FR-009 requires: `itemAtPointer` neither takes the
+ * arming nor answers the half, and this applies no row of table T-023d (table
+ * T-023a's PTD-3).
  *
- * ⛔⛔ THE BAR'S OWN MIDDLE, WHICH IS THE 2026-09-06 RULING WRITTEN INTO FR-009:
- * 「割る点は、そのタスクのバー自身の中点とすること（MUST）。表 T-038 が定める
- * 占有幅で割ってはならない（MUST NOT）—— 占有幅にはバーの外に出るラベルと印が
- * 入るので、中点が絵の上のバーの中央からずれる」. ⇒ `boxOfBar` of the drawn bar,
- * never the placement's occupied width and never `merged` with anything.
+ * The split is the bar's own middle, never the placement's occupied width
+ * (FR-009), so `boxOfBar` of the drawn bar and never `merged`. The plan's bar;
+ * the actual's only where no plan is drawn (FR-009).
  *
- * ⭐ THE PLAN'S BAR, THE ACTUAL'S ONLY WHERE NO PLAN IS DRAWN, which is the same
- * requirement's 「依存線は予定の幾何に付くこと（MUST）。予定を表示していないとき
- * に限り、実績の幾何に付ける」.
+ * The middle itself is the right half, hence `<` and not `<=`, which also keeps
+ * a zero-width bar answering one side. No slop is taken (FR-009, MUST NOT).
  *
- * ⚠️ THE MIDDLE ITSELF IS THE RIGHT HALF: 「中点ちょうどに当たったときは右半分と
- * すること（MUST）」, so the comparison is `x < middle ? 'start' : 'finish'` and
- * not `<=`. That also keeps the two halves exhaustive on a bar of zero width,
- * which is the case the MUST NOT above -- 「端点の掴み代で判定してはならない」 --
- * exists for: 「どれだけ細くても必ずどちらかに落ちる」. ⛔ NO SLOP IS TAKEN, and
- * this function has no `PointerSlop` parameter for that reason.
+ * `onTaskUid` says which of FR-009's two readings is asked:
  *
- * `onTaskUid` says which of FR-009's two readings is being asked:
- *
- *   - a UID -- the press, whose Task MK-9a has already settled (`Hit.item`).
- *     ⭐ NO CONTAINMENT IS TESTED, because 「どれだけ細くても必ずどちらかに落ちる」
- *     promises a hit Task always yields an end: a press that reached the Task
- *     through ink drawn outside its bar (GR-7's marker, GR-11's assignee label,
- *     GR-1 / GR-2's fade handles) still falls on the side of the middle it is on.
- *   - `null` -- the release, which no `Hit` precedes, so the bar's own
- *     silhouette says which Task the point is on. ⚠️ THE FIRST BAR IT FALLS IN:
- *     MK-9a's priority order is table T-023d's and PTD-3 withholds that table, so
- *     no order of its own is invented and the geometry's own order is taken.
+ *   - a UID -- the press, whose Task MK-9a has already settled (`Hit.item`). No
+ *     containment is tested, so a press that reached the Task through ink drawn
+ *     outside its bar (GR-7, GR-11, GR-1 / GR-2) still falls on one side.
+ *   - `null` -- the release, which no `Hit` precedes: the first bar the point
+ *     falls in, in the geometry's own order, since PTD-3 withholds table T-023d.
  *
  * @purity pure
  */
@@ -1158,12 +701,9 @@ export function dependencyEndAtPointer(
 }
 
 /**
- * Both bounds CLOSED: a box flush with the marquee's own edge is still wholly
- * enclosed. SL-3 asks whether the rectangle contains the shape, and a shape
- * drawn exactly to the edge is contained. ⚠️ The half-open test in this layer
- * is the region test of screen-regions.ts, which needs the other convention
- * because adjoining regions share edges. R3.4 asks the closed one to say so in
- * its name.
+ * Both bounds closed: a shape drawn exactly to the marquee's edge is contained
+ * (SL-3). The half-open convention is `screen-regions.ts`'s; R3.4 has the
+ * closed one say so in its name.
  *
  * @purity pure
  */
@@ -1180,16 +720,9 @@ function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boole
 /**
  * SL-3: what a dragged rectangle takes.
  *
- * **Wholly enclosed only (MUST). Touching is not enough (MUST NOT)** -- a
- * schedule is a field of long horizontal bars, so taking what the rectangle
- * merely touches sweeps in bars that run clear off the screen.
- *
- * ⚠️ The status line is left out on purpose. SL-1 puts it outside SL-3 and
- * SL-7 in as many words: there is only one of it, and letting a marquee catch
- * it would move the status date every time a group of Tasks was dragged.
- *
- * ⚠️ The order this returns carries no meaning. SL-7b says a marquee makes no
- * order, which is why FR-034 refuses to align from one.
+ * Wholly enclosed only: a schedule is a field of long horizontal bars, so taking
+ * what the rectangle touches sweeps in bars that run off the screen. The status
+ * line is left out (SL-1). The order carries no meaning (SL-7b).
  *
  * @purity pure
  */
@@ -1209,9 +742,8 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
       })
     }
   }
-  // ⭐ Same order as `itemAtPointer`'s GR-14, though SL-7b says a marquee makes
-  // no order at all: two loops over the same two kinds are easier to read as
-  // one rule when they are written the same way (rule 03).
+  // Same order as `itemAtPointer`'s GR-14, although SL-7b gives a marquee no
+  // order: the two loops then read as one rule.
   for (const box of geometry.commentBoxes) {
     if (isEnclosedInclusive(box.body, marquee)) out.push({ kind: 'commentBox', id: box.id })
   }

@@ -4,22 +4,16 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The twenty commands table T-108 puts in the `Task` group (CM-6 to CM-19) and
-// in the `TaskVisual` group (CM-20 to CM-25). Table T-063's UT-2 splits the
-// aggregates apart by the reason they change, and these two groups change for
-// one reason: a `TaskVisual` row exists only for a `Task` and is keyed by it
-// (AT-97 is its primary key and its foreign key at once).
+// CM-6 to CM-25 of table T-108. The `Task` and `TaskVisual` groups share one
+// aggregate because a `TaskVisual` row exists only for its `Task` (AT-97 is its
+// key and foreign key at once; UT-2 of table T-063).
 //
-// ⚠️ This file VALIDATES and returns a new Document. It settles nothing (CP-9),
-// and a refusal is a VALUE, never a thrown error (AG-8).
+// Validates and returns a new Document; settles nothing (CP-9), and a refusal
+// is a value, never a thrown error (AG-8).
 //
-// ⚠️ Every command here reaches schedule-group data, so every one that really
-// changes something rebuilds `document.schedule` -- and every one that changes
-// nothing returns the SAME document. document-change-plan.ts decides whether
-// FR-063 moves the schedule instant by comparing the schedule reference, so a
-// rebuild on a no-op would move that instant with nothing behind it.
-//
-// ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
+// A command that changes nothing returns the SAME document:
+// `document-change-plan.ts` moves FR-063's schedule instant by comparing the
+// schedule reference.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -45,38 +39,30 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
-// FR-032 (MUST) settles a derived row's name before its source Task goes, and
-// the WORD is FR-038's dictionary's -- never one typed here. The read itself,
-// and why the English cell is the one taken, is documented where the constant
-// is raised.
-// HM-9 (MUST) has ONE rule for the three commands that disturb the row tree --
-// CM-35 and CM-73 in that file, and CM-19 here -- so the walk is imported rather
-// than written a second time. Its own note says why it is exported.
+// FR-032's default row name is the dictionary's (FR-038), read in
+// `edit-task-group.ts`. HM-9 has one row-tree walk for CM-19 here and CM-35 /
+// CM-73 there, so it is imported rather than written twice.
 import { DEFAULT_ROW_NAME, tasksRankedByTheRowTree } from './edit-task-group'
 
 /** The five shapes of table T-012 (AT-100). */
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
-/** The eight figures table T-012's SH-5 names, in the area order S-48 fixes (AT-101, CR-172). */
+/** The figures table T-012's SH-5 names, in the area order S-48 fixes (AT-101). */
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
-/** The three weights of table T-017's CL-2 (AT-104, CR-172). */
+/** The three weights of table T-017's CL-2 (AT-104). */
 export type TaskLineWeight = NonNullable<TaskVisual['lineWeight']>
 
-/** The three alignments FR-002 names (AT-99, CR-172). */
+/** The three alignments FR-002 names (AT-99). */
 export type TaskNameAlign = NonNullable<TaskVisual['nameAlign']>
 
 /**
- * The five rows of table T-019, each carrying the values that row calls あり.
+ * The five rows of table T-019, each carrying the values that row places.
  *
- * ⭐ The row id IS the discriminant, because table T-019 is "`GRS` がその状態に
- * するときに置く値" -- the command names a row and the row names the columns.
- * Reading the state back is a different table (T-019a) and a different member
- * (`planActualState`), which is why this type does not reuse `PlanActualState`.
- *
- * ⚠️ `PA-1` carries nothing: its four columns are 空 and its `resumeValid` cell
- * is `—`, which is not the same as 空 -- the table puts NO value there, so
- * CM-13 leaves that column as it found it.
+ * The row id is the discriminant because table T-019 holds the values GRS
+ * places; reading a state back is table T-019a and `planActualState`, hence no
+ * reuse of `PlanActualState`. PA-1's `resumeValid` cell is a dash, not empty,
+ * so CM-13 leaves that column as it found it.
  */
 export type PlanActualPlacement =
   | { readonly row: 'PA-1' }
@@ -96,26 +82,13 @@ export type PlanActualPlacement =
     }
 
 /**
- * Which of the three faint dummies of table T-023d the hand grabbed (FR-043).
+ * Which faint dummy handle of table T-023d the hand grabbed (FR-043).
  *
- * ⭐ THE ROW ID IS THE VALUE, exactly as `PlanActualPlacement` carries table
- * T-019's: the two rows write DIFFERENT columns -- GR-9 「掴めば `actualStart`
- * と `actualDuration` を置く（値は `FR-043`）」 and GR-17 「掴めば
- * `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）」 --
- * so which one was grabbed is part of what the press said, not something the
- * columns written can be read back to.
- *
- * ⛔ IT CANNOT BE DERIVED FROM ANYTHING ELSE IN THE COMMAND. Both handles stand
- * on ONE drawn mark -- FR-043 (MUST) 「ダミーの印は 1 つだけ描くこと」 -- and
- * table T-023d's closing rule splits that one mark down its middle: 「1 つの
- * ダミーの印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側
- * （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」（利用者の裁定
- * 2026-09-09）. Which half was pressed is a fact of the POINTER, and the hit
- * test is the only thing that holds it.
- *
- * ⚠️ GR-18 IS ONE PLACE AND NOT TWO (table T-023d, MUST NOT): 「本行は 1 か所で
- * ある。開始側と終了側に分けてはならない（MUST NOT）」 -- so a milestone names
- * this row and takes the start handle's answer.
+ * The row id is the value because GR-9 and GR-17 write different columns, and
+ * it cannot be derived from the rest of the command: both handles stand on one
+ * drawn mark, split down its middle by table T-023d's closing rule, so only the
+ * hit test knows which half was pressed. GR-18 is one place (table T-023d), so a
+ * milestone takes the start handle's answer.
  */
 export type ActualGrabHold = 'GR-9' | 'GR-17' | 'GR-18'
 
@@ -129,10 +102,9 @@ export type TaskCommand =
       readonly start: string
       readonly finish: string
       /**
-       * The row the drag's vertical position points at (FR-001). When the
-       * document holds no row with this id, FR-001 requires one to be created,
-       * and this is its identifier -- AT-51 is a UUID and minting one is not a
-       * pure act, so it arrives as a value the way CM-3's date does.
+       * The row the drag's vertical position points at (FR-001), and the id of
+       * the row FR-001 creates when the document has none: AT-51 is a UUID and
+       * minting one is not pure, so it arrives as a value like CM-3's date.
        */
       readonly groupId: string
     }
@@ -156,27 +128,15 @@ export type TaskCommand =
       readonly kind: 'beginTaskActual'
       readonly uid: number
       /**
-       * Which grab-hold the hand took (FR-043 shows 掴みシロを 2 つ, and table
-       * T-023d gives the two rows different columns to write).
-       *
-       * ⭐ CARRIED RATHER THAN GUESSED. `input-command-translator.ts` reads it
-       * off the hit the press landed on; nothing downstream of that press can
-       * recover it, because both handles stand on one drawn mark.
+       * Which handle the hand took (table T-023d). Carried, not guessed:
+       * `input-command-translator.ts` reads it off the hit, and nothing later can
+       * recover it.
        */
       readonly grabbed: ActualGrabHold
       /**
-       * FR-043's 掴みシロを離した日 (MUST, 利用者の裁定 2026-09-02): the day the
-       * hand let the grab-hold go on, which is what the actual starts on.
-       *
-       * ⛔ NOT MOVED TO A WORKING DAY. The closing rule of table T-023d forbids
-       * it outright (MUST NOT) -- people work on days off, and moving it would
-       * store a day other than the one the hand chose.
-       *
-       * ⛔ AND NOT THE DAY THE DUMMY IS DRAWN ON. FR-043 (MUST NOT) forbids
-       * reading its two rules as one: 予定の開始日の翌稼働日 says where the
-       * dummy STANDS before it is grabbed, not what is written when it is let
-       * go. Reading them as one is what made a drop of +3 and a drop of +8
-       * write the same day (ledger DFC-182).
+       * The day the hand let the handle go on (FR-043). Not moved to a working
+       * day (table T-023d's closing rule), and not the day the dummy is drawn
+       * on, which FR-043 keeps as a separate rule.
        */
       readonly droppedDay: string
     }
@@ -226,15 +186,11 @@ function withSchedule(document: Document, schedule: Schedule): Document {
 }
 
 /**
- * Whether two rows of the same entity carry the same values.
+ * Whether two rows of the same entity carry the same values, so a command that
+ * changed nothing does not move the schedule instant (FR-063).
  *
- * ⚠️ This is what keeps a command that changed nothing from moving the
- * schedule instant. document-change-plan.ts reads `schedule !== schedule` to
- * apply FR-063, so rebuilding the group for a value that did not move would
- * move that instant with nothing behind it. Columns that hold a list or a map are
- * compared by reference, which is exact here: every arm below builds its next
- * row by spreading the held one, so those columns keep the same object unless
- * the arm replaced them on purpose.
+ * List and map columns compare by reference, which is exact here: every arm
+ * builds its next row by spreading the held one.
  *
  * @purity pure
  */
@@ -257,9 +213,8 @@ function withTask(document: Document, next: Task): Document {
 function withVisual(document: Document, next: TaskVisual): Document {
   const held = document.schedule.taskVisuals
   const foundAt = held.findIndex((one) => one.taskUid === next.taskUid)
-  // A task with no row and a task with an all-null row are the same task, so
-  // the absent row is compared as the blank one -- otherwise a command that
-  // chose nothing would append a row full of nulls and move the schedule instant.
+  // No row and an all-null row are the same task, so an absent row compares as
+  // blank; otherwise a no-op would append a null row and move the instant.
   const standing = foundAt < 0 ? blankVisual(next.taskUid) : held[foundAt]
   if (standing !== undefined && sameRow(standing, next)) return document
   const taskVisuals = foundAt < 0 ? [...held, next] : held.map((one, index) => (index === foundAt ? next : one))
@@ -267,11 +222,8 @@ function withVisual(document: Document, next: TaskVisual): Document {
 }
 
 /**
- * The row that stands for "nothing chosen".
- *
- * Every column of ET-11 but the key is nullable, and AT-100 through AT-104 read
- * `null` as "not specified" -- so a task with no row and a task with an all-null
- * row are drawn alike.
+ * The row that stands for "nothing chosen": every ET-11 column but the key is
+ * nullable, and AT-100 to AT-104 read `null` as not specified.
  *
  * @purity pure
  */
@@ -299,12 +251,8 @@ function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
 }
 
 /**
- * Whether a task is drawn as a milestone.
- *
- * AT-100 states the resolution in as many words: `null` = `Task.milestone` から
- * 解く. The two can never disagree -- FR-001 sets `milestone` from the shape it
- * creates with and forbids an entrance that flips the boolean alone, and FR-083
- * forbids crossing between SH-1..SH-4 and SH-5.
+ * Whether a task is drawn as a milestone: a null `shapeKind` resolves from
+ * `Task.milestone` (AT-100), and the two cannot disagree (FR-001, FR-083).
  *
  * @purity pure
  */
@@ -318,12 +266,8 @@ type DayCheck =
   | { readonly ok: false; readonly what: string }
 
 /**
- * Whether a date this aggregate is about to store may be stored.
- *
- * Two things are checked. The text has to name a day at all, and IV-14 requires
- * every date column of the document to sit inside the range table T-214 accepts
- * -- S-119 and S-120 are held in the presentation group, so a pure function can
- * read them from the document it was handed.
+ * Whether a date about to be stored may be: it must name a day and sit inside
+ * table T-214's accepted range (IV-14), whose S-119 / S-120 the document holds.
  *
  * @purity pure
  */
@@ -342,10 +286,8 @@ function checkDay(settings: DocumentSettings, text: string): DayCheck {
 }
 
 /**
- * The planned span in worked days, or null when the task does not name both
- * ends. FR-012 fixes the unit -- 稼働日 -- and forbids counting the days
- * inclusively, "含めると期間 0 が存在しなくなり、この規定が空振りする".
- * `workingDaysBetween` counts the half-open span, which is that same count.
+ * The planned span in worked days (FR-012), half-open as `workingDaysBetween`
+ * counts it, or null when either end is missing.
  *
  * @purity pure
  */
@@ -357,16 +299,9 @@ function planSpanOf(within: WorkingCalendar, task: Task): number | null {
 }
 
 /**
- * The planned span in CALENDAR days, which is the unit a fade is measured in.
- *
- * ⛔ NOT `planSpanOf`. FD-6 of table T-012a says 本表の「期間」は暦日で数える
- * こと（MUST）。稼働日で数えてはならない（MUST NOT）, and IV-12 was told to
- * follow the same counting -- 一方が暦日、他方が稼働日だと、`FR-016` の掴み点
- * が許した日数を不変条件が拒む. FR-012's span is a different quantity for a
- * different requirement and stays where it is.
- *
- * ⚠️ Half-open, like `workingDaysBetween`, so a one-day plan spans 0 -- FD-7
- * rejects rather than rounds, and a fade of 0 has to remain expressible.
+ * The planned span in CALENDAR days, the unit of a fade (FD-6 of table T-012a,
+ * IV-12); counting worked days would refuse fades FR-016's handle allowed.
+ * Half-open, so a one-day plan spans 0 and a fade of 0 stays expressible (FD-7).
  *
  * @purity pure
  */
@@ -378,46 +313,27 @@ function fadeSpanOf(task: Task): number | null {
 }
 
 /**
- * FR-012's formula, and the only copy of it.
+ * FR-012's formula, kept in this one place (FR-012); every command that moves
+ * one of its inputs calls here.
  *
- * ⭐ The requirement asks for exactly this: "この式を 1 か所に閉じ込め、呼ぶ側が
- * 式の中身に依存しない形にすること" (MUST), because whether an exchange partner
- * reads the exported figure the same way is untested (LM-7) and the formula may
- * yet be changed. Every command below that moves one of its inputs calls here
- * rather than doing arithmetic of its own.
- *
- * ⚠️ No clamp to 0..100 (MUST NOT): 予定 100 日のタスクを 80 日で終えれば 80、
- * 120 日かかれば 120. Whether a task is finished is `actualFinish`, not 100.
- *
- * ⚠️ A zero-length plan is not divided by (MUST NOT). 100 when `actualFinish`
- * is there, 0 when it is not -- and that covers more than milestones, since
- * UC-001 拡張 2a makes tasks whose start and finish are the same day.
- *
- * ⚠️ A task missing `start` or `finish` keeps whatever it holds. FR-012 forbids
- * showing such a task at all, but EX-5's 中身のない行 is excepted from that
- * (MUST) and none of the three computations run for it.
+ * No clamp to 0..100, and no division by a zero-length plan: 100 when
+ * `actualFinish` is set, else 0, which covers same-day tasks too (UC-001 2a).
+ * A task missing `start` or `finish` keeps what it holds (EX-5).
  *
  * @purity pure
  */
 function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
   const span = planSpanOf(within, task)
   if (span === null) return task.percentComplete
-  // FR-090 settles the not-started case from the other side: it forbids drawing
-  // the label there because 完了率は 0 -- so the missing `actualDuration` counts
-  // as no work done, not as no answer.
+  // A missing `actualDuration` counts as no work done: FR-090 reads a
+  // not-started task's figure as 0.
   if (span === 0) return task.actualFinish !== null ? 100 : 0
   return Math.round(((task.actualDuration ?? 0) / span) * 100)
 }
 
 /**
  * A task with FR-012's stored figure brought back in step with its inputs.
- *
- * ⭐ EXPORTED SO THAT THE CALENDAR AGGREGATE COUNTS BY THE SAME FORMULA.
- * FR-012 (MUST) says of its own arithmetic "この式を 1 か所に閉じ込め、呼ぶ側が
- * 式の中身に依存しない形にすること", and the same requirement now also asks
- * for a recount "稼働日の暦を編集したときも" -- so `edit-calendar.ts` asks HERE
- * rather than keeping a second copy of the division.
- * ⚠️ Folder-internal (Chapter 5.3): nothing outside `edit-document/` may import it.
+ * Exported so `edit-calendar.ts` recounts by this same formula (FR-012).
  *
  * @purity pure
  */
@@ -426,42 +342,22 @@ export function repriced(within: WorkingCalendar, task: Task): Task {
 }
 
 /**
- * The element name the note under table T-019 calls 「最終列」, kept as a
- * constant so the two sides of the Carry read the same string.
- *
- * ⚠️ THE EXCHANGE PARTNER'S OWN ELEMENT NAME AND NOT A COLUMN OF `Task`.
- * `Stop` has no row of table T-056 -- G-13 of table T-005 puts it among the
- * items 「算出で置き換えうるが原値を保つ項目」, so it arrives as a scalar leaf and
- * lives in `Task.carry` under the name MSPDI spells it with.
+ * The exchange partner's element the note under table T-019 calls the last
+ * column. Not a `Task` column: G-13 of table T-005 keeps it as an original value
+ * in `Task.carry`, under MSPDI's spelling.
  */
 const CARRIED_STOP = 'Stop'
 
 /**
- * The task with the imported `Stop` let go of, because a person has just edited
- * that task's actuals.
+ * The task with its imported `Stop` dropped, because a person edited its actuals
+ * (the note under table T-019).
  *
- * ⭐⭐ THE SECOND HALF OF THE NOTE UNDER TABLE T-019, WHICH USED TO BE MISSING.
- * That note reads 「最終列は算出して書くときの値である。取り込んだ原値があり、その
- * タスクの実績を人が編集していないあいだは、最終列によらず原値をそのまま書き戻す
- * こと（MUST）」 and closes with 「人がそのタスクの実績を編集したときに限り、最終列の
- * 値へ置き換える —— `FR-012` の完了率と同じ規則である」. The FIRST half is already
- * kept, and by the exporter: `writtenStop` in `mspdi-codec.ts` writes nothing of
- * its own while `carry['Stop']` holds a value. ⛔ SO THE ORIGINAL WON FOREVER --
- * a person could suspend, resume and re-suspend a task and the file would still
- * go back out carrying the day the import brought, which is the very 「編集して
- * いないタスクの値を書き換える」 test (EX-2 of table T-033) read backwards.
- *
- * ⭐ THIS UNIT IS WHERE 「人が … 編集した」 IS KNOWN. No column records it (and
- * none is invented here), and the exporter cannot tell an edited task from an
- * untouched one -- so the fact is spent at the moment it is true, by dropping
- * the carried value, and the exporter's existing fall-through computes the
- * replacement table T-019's last column names.
- *
- * ⛔ ONLY THE THREE COMMANDS THAT EDIT THE ACTUALS CALL THIS. The note says
- * 「そのタスクの実績」 and nothing wider: a plan date (CM-11), a deadline, a name
- * or a fade is not an actual, and dropping the carried value for one of those
- * would move a day in a file 表 T-033 requires to come back unchanged. ⚠️ It is
- * the same rule FR-012's 完了率 keeps, which the note names as the precedent.
+ * The exporter (`writtenStop` in `mspdi-codec.ts`) writes the carried value
+ * while it exists and computes one otherwise. Only this unit knows a person
+ * edited the task, and no column records it, so the fact is spent here.
+ * Only the commands that edit actuals call this: dropping `Stop` for a plan
+ * date, deadline, name or fade would change a file table T-033 requires back
+ * unchanged.
  *
  * @purity pure
  */
@@ -504,41 +400,25 @@ function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> {
 export function editTask(document: Document, command: TaskCommand): EditResult {
   const schedule = document.schedule
   const settings = document.documentSettings
-  // FR-054 keeps ONE calendar per document and design 5.4 requires everyone who
-  // counts worked days to call the same member: "数え方を 3 か所に書いてはなら
-  // ない（MUST NOT）", naming this aggregate as one of the three callers.
+  // One calendar per document, counted through the one member (FR-054, design 5.4).
   const within = workingCalendarOf(schedule)
 
-  // Eighteen of the twenty commands name a task that has to be there already.
-  // CM-6 is the one that makes one, and CM-7 is exempted just below. IV-2 is
-  // the row refused, because every one of those eighteen would otherwise write
-  // a key pointing at nothing.
+  // Every command but CM-6 and CM-7 names a task that must already exist (IV-2).
   const named =
     command.kind === 'createTask'
       ? null
       : taskByUid(schedule, command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid)
-  // ⭐ CM-7 IS EXEMPT, AND ONLY CM-7. IV-2 is a FOREIGN-KEY invariant (table
-  // T-220, of kind 'reference'): it asks that a non-null key point at a row of
-  // the same document. Deleting a Task that is not there writes no key at all,
-  // so it cannot break IV-2 -- the state CM-7 asks for already holds, which
-  // makes the missing target a no-op rather than a refusal.
-  // ⚠️ WHY IT HAD TO BE: FR-032 deletes every selected Task, and select-all
-  // then delete plans one CM-7 per selected Task in ONE bundle. CD-1 of table
-  // T-050 has the first of them carry off the whole WBS subtree of its target,
-  // so every later command in the same bundle names a Task the cascade has
-  // already removed. Refusing one throws the entire bundle away (AG-3), and
-  // nothing at all is deleted. Measured on `startup-template.json`: 993 of its
-  // 1000 tasks hang off a `wbsParentUid`, so all but a handful of the commands
-  // in that bundle were being refused.
+  // CM-7 is exempt: IV-2 is a foreign-key invariant, and deleting a missing Task
+  // writes no key. It has to be: FR-032's select-all delete plans one CM-7 per
+  // task in ONE bundle, CD-1 of table T-050 lets an earlier one carry off whole
+  // WBS subtrees, and refusing a later one would throw the bundle away (AG-3).
   const missingTargetIsRefused = command.kind !== 'createTask' && command.kind !== 'deleteTask'
   if (missingTargetIsRefused && named === null) {
     const uid = command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid
     return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${uid}`)])
   }
-  // Looked up once so the arms below do not each repeat the guard. The cast is
-  // sound for the eighteen the branch above guards; `createTask` reads nothing
-  // from here, and `deleteTask` reads `command.uid` rather than this row --
-  // which is what lets its arm fall through to a no-op when the row is gone.
+  // Looked up once. The cast is sound for the guarded commands; `createTask`
+  // reads nothing from it, and `deleteTask` reads `command.uid` instead.
   const task = named as Task
 
   switch (command.kind) {
@@ -551,24 +431,18 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         if (!finish.ok) faults.push(reject('CM-6', 'IV-14', `finish ${finish.what}`))
         return refused(faults)
       }
-      // FR-012: `finish` が `start` より前の入力を受け付けてはならない（MUST
-      // NOT）, and 丸めて `finish` = `start` にしてはならない（MUST NOT）.
-      // ⚠️ The equal-day case is NOT an error: FR-001 requires a click, and a
-      // drag shorter than a day, to make a task whose two dates are the same.
-      // Collapsing a short drag happens before this, where pixels are still
-      // pixels -- this aggregate only ever sees days.
+      // FR-012 refuses finish before start. Equal days are not an error (FR-001's
+      // click makes such a task); a short drag is collapsed earlier, in pixels.
       if (compareDays(finish.day, start.day) < 0) {
         return refused([reject('CM-6', 'FR-012', 'finish is before start')])
       }
 
-      // FR-001: 新しい `Task` の `UID` は `Project.uidHighWaterMark` に従って採る
-      // こと（MUST）。実在する `UID` の最大値から採ってはならない（MUST NOT）
-      // -- taking the live maximum would re-issue a uid that undo had freed.
+      // FR-001: the uid follows `uidHighWaterMark`, so a uid freed by undo is
+      // never issued again.
       const uid = schedule.project.uidHighWaterMark + 1
       const created: Task = {
         uid,
-        // FR-001: 作ったタスクに WBS の親を与えないこと（MUST）. The row and the
-        // WBS are different axes (HM-3), and CM-18 is the entrance to the other.
+        // FR-001: no WBS parent; the row and the WBS are different axes (HM-3).
         wbsParentUid: null,
         wbsOrder: null,
         // FR-091 gives the name its own entrance, taken right after this one.
@@ -599,27 +473,21 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // tell SH-1 from SH-2, so the shape the palette held is written down.
       const taskVisuals = [...schedule.taskVisuals, { ...visualOf(schedule, uid), shapeKind: command.shapeKind }]
 
-      // FR-001: 作ったタスクは、ドラッグを始めた縦位置が指す `TaskGroup` に載せる
-      // こと（MUST）。指す `TaskGroup` が無いときは行を 1 つ作ってそこへ載せる
-      // こと（MUST）. IV-6 wants exactly one member per task, so the member is
-      // made here whichever branch runs.
+      // FR-001: the task goes on the row the drag started on, or on a new row;
+      // IV-6 wants exactly one member per task, so the member is made either way.
       const held = schedule.taskGroups.find((one) => one.id === command.groupId)
       let taskGroups = schedule.taskGroups
       if (held === undefined) {
-        // ⛔ MISSING: nothing decides where the row FR-001 creates goes. AT-55
-        // `order` is not nullable and AT-52 `parentId` is, so a value has to be
-        // put in both, and FR-001, FR-085 and FR-058 all stay silent. Appended
-        // after the last top-level row, which is the placement that disturbs no
-        // existing row's order. This line is a decision of this file.
+        // Where FR-001's new row goes is not stated (AT-55 `order` is required;
+        // FR-001, FR-085 and FR-058 are silent). Appended after the last top-level
+        // row, which disturbs no existing order; a decision of this file.
         const order = schedule.taskGroups
           .filter((one) => one.parentId === null)
           .reduce((best, one) => Math.max(best, one.order), -1) + 1
         const made: TaskGroup = {
           id: command.groupId,
           parentId: null,
-          // FR-001: その場で作った行は名前の指定を持たないので、載せたタスクを
-          // その行の名前の導出元とすること（MUST）. IV-8 forbids leaving both
-          // `label` and `derivedFromTaskUid` empty, and FR-058 says the same.
+          // FR-001 / FR-058: the new row takes its name from this task (IV-8).
           label: null,
           derivedFromTaskUid: uid,
           order,
@@ -630,8 +498,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         }
         taskGroups = [...schedule.taskGroups, made]
       }
-      // ST-6: 積み順は自動割当のみとし、人が段を手で指定する手段を設けない
-      // （MUST NOT）-- AT-62's null is that automatic assignment.
+      // ST-6: the stack order is assigned automatically (AT-62 null).
       const taskGroupMembers = [
         ...schedule.taskGroupMembers,
         { taskUid: uid, groupId: command.groupId, stackOrder: null },
@@ -649,39 +516,22 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'deleteTask': { // CM-7
-      // ⚠️ `named` MAY BE null HERE, and that is the whole point: the guard
-      // above exempts CM-7 so that deleting a Task another command's CD-1
-      // cascade already took is a no-op. Nothing below reads `named`; the sweep
-      // starts from `command.uid`, finds no row and no descendant of one, and
-      // every filter keeps what it was given.
-      // CD-1 of table T-050 names what goes with a `Task`: その `Task` の WBS の
-      // 子孫、`TaskVisual`、`TaskOrigin`、`TaskGroupMember`、その `Task` を端点と
-      // する依存、その `Task` を指す割当.
+      // `named` may be null here (see the CM-7 exemption above); nothing below
+      // reads it. CD-1 of table T-050 names what goes with a `Task`.
       const doomed = wbsSubtreeOf(schedule, command.uid)
 
-      // FR-032: `Task` を消す前に、その `Task` を名前の導出元にしている行の名前を
-      // 確定させ、`derivedFromTaskUid` を空にすること（MUST）。名前も導出元も無い
-      // 行を残してはならない（MUST NOT）. The row itself survives -- HM-6 keeps
-      // its name, colour, height and collapse.
+      // FR-032: settle each row's name before its source Task goes; HM-6 keeps
+      // the row itself.
       const taskGroups: TaskGroup[] = []
       for (const group of schedule.taskGroups) {
         if (group.derivedFromTaskUid === null || !doomed.has(group.derivedFromTaskUid)) {
           taskGroups.push(group)
           continue
         }
-        // FR-058: 器の名前を指定しなかった行は、その行の導出元となったタスクの
-        // 名前を表示すること（MUST）-- so the name to settle is `label` when the
-        // row has one and the source task's name when it does not.
-        // ⭐ AND THE DEFAULT NAME WHEN NEITHER IS THERE. FR-032 (MUST):
-        // 「導出元の `Task` が名前を持たないときは、行の名前を既定の名前に確定
-        // させること」, and (MUST NOT): 「名前が無いことを理由に削除を拒んでは
-        // ならない」. ⛔ THIS BRANCH USED TO REFUSE ON `IV-8`, and that refusal
-        // is the whole of DFC-171: FR-001 draws a nameless Task on empty space and
-        // makes the new row derive its name from it, so EVERY task drawn that
-        // way walked into the refusal, WS-3 of table T-067 threw the bundle away,
-        // and no drawn task could be deleted at all. ⚠️ The row still comes out
-        // whole -- a real `label` and a null `derivedFromTaskUid` -- which is
-        // what IV-8 and AT-54 ask for.
+        // The name is `label`, else the source task's name (FR-058), else the
+        // default name (FR-032). Refusing here instead would make every task
+        // drawn on empty space undeletable. The row comes out with a real
+        // `label` and a null `derivedFromTaskUid` (IV-8, AT-54).
         const source = taskByUid(schedule, group.derivedFromTaskUid)
         const settled = group.label ?? source?.name ?? DEFAULT_ROW_NAME
         taskGroups.push({ ...group, label: settled, derivedFromTaskUid: null })
@@ -714,23 +564,17 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'pasteTaskSubtree': { // CM-8 ⭐
-      // DU-1 of table T-223 names what comes along: その `Task` の WBS の子孫、
-      // `TaskVisual`、`TaskGroupMember`、部分木の内側で閉じた依存、その `Task` を
-      // 指す割当。⛔ `TaskOrigin` は複製してはならない（MUST NOT）-- a copy did
-      // not come from the exchange partner, so it is not matched on merge.
+      // DU-1 of table T-223 names what is copied; `TaskOrigin` is not, since a
+      // copy did not come from the exchange partner.
       //
-      // ⛔ MISSING: FR-033 requires the paste to be refused when the stack has
-      // reached ST-7's safety valve (`stackSafetyCap`, S-89), and that count
-      // cannot be taken here: ST-1 counts overlap by 描画上の占有幅 and table
-      // T-038 states 日付の範囲だけで数えてはならない（MUST NOT）, which puts
-      // the number in the layout, not in a document-only function. Neither this
-      // signature nor the specification says who passes it in. The check is
-      // absent, not silently answered.
+      // STOP -- FR-033's refusal at ST-7's stack cap (S-89) is not checked: ST-1
+      // counts overlap by drawn width (table T-038), which puts the number in
+      // the layout, and neither this signature nor the specification says who
+      // passes it in.
       const subtree = wbsSubtreeOf(schedule, command.sourceUid)
 
-      // AT-20: 発番済みの `uid` の最大値。複製（`FR-033`）の採番はここに従う. The
-      // walk is in the document's own order, so which copy gets which uid is a
-      // function of the document rather than of how the subtree was collected.
+      // AT-20: copies take uids under the water mark in document order, so the
+      // numbering depends on the document, not on how the subtree was collected.
       let mark = schedule.project.uidHighWaterMark
       const remap = new Map<number, number>()
       for (const one of schedule.tasks) if (subtree.has(one.uid)) remap.set(one.uid, ++mark)
@@ -740,20 +584,15 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         .map((one) => ({
           ...one,
           uid: remap.get(one.uid) as number,
-          // ⛔ MISSING: FR-033 fixes the ROW of a copied task (複製した `Task` は、
-          // 複製元と同じ行に載せること（MUST）) but names no attachment point in
-          // the WBS for a Task paste -- its 貼り付け先は、選んでいる行の子とする
-          // こと（MUST） speaks of 行 and 最上位, which is DU-2's TaskGroup paste.
-          // The subtree's root is kept beside its original, so the copy is a WBS
-          // sibling; every inner link is remapped so the copy is a subtree and
-          // not a fan of roots. The root's placement is a decision of this file.
+          // STOP -- FR-033 fixes a copied task's ROW but names no WBS attachment
+          // for a Task paste (its "child of the selected row" is DU-2's TaskGroup
+          // paste). The root stays beside its original as a WBS sibling and inner
+          // links are remapped; a decision of this file.
           wbsParentUid:
             one.uid === command.sourceUid
               ? one.wbsParentUid
               : (remap.get(one.wbsParentUid as number) as number),
-          // FR-033: 複製した部分木の内側で閉じている依存だけを複製すること
-          // （MUST）。部分木の外へ出る依存を複製してはならない（MUST NOT）--
-          // otherwise every paste hangs one more line off the same predecessor.
+          // FR-033: only dependencies closed inside the subtree are copied.
           dependencies: one.dependencies
             .filter((link) => subtree.has(link.predecessorUid))
             .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
@@ -765,9 +604,8 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const memberCopies = schedule.taskGroupMembers
         .filter((one) => subtree.has(one.taskUid))
         .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
-      // FR-008 puts new `Assignment` uids under the same water mark (MUST), and
-      // its ban on two assignments of the same Task-and-Resource pair cannot
-      // bite here, because every copy points at a task that did not exist yet.
+      // FR-008: new assignment uids under the same water mark; its duplicate-pair
+      // ban cannot bite, since every copy points at a new task.
       const assignmentCopies: Assignment[] = schedule.assignments
         .filter((one) => one.taskUid !== null && subtree.has(one.taskUid))
         .map((one) => ({ ...one, uid: ++mark, taskUid: remap.get(one.taskUid as number) as number }))
@@ -785,10 +623,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'setTaskName': // CM-9
-      // FR-091 gives the value an entrance and nothing more: 名称ラベルをどこへ
-      // 描くかは `FR-002` が定める。本要求は値を入れる手段だけを定める. AT-27 is
-      // nullable and no rule bars an empty name here -- FR-035's ban on the empty
-      // string is about the document title (CM-1) alone.
+      // FR-091. AT-27 is nullable; FR-035's empty-string ban is the title's (CM-1).
       return edited(withTask(document, { ...task, name: command.name }))
 
     case 'setTaskNotes': // CM-10
@@ -796,9 +631,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       return edited(withTask(document, { ...task, notes: command.notes }))
 
     case 'setTaskPlanDates': { // CM-11 ⭐
-      // ⭐ The two dates are one command because FR-012's MUST NOT reads them
-      // together -- `finish` が `start` より前の入力を受け付けてはならない -- and
-      // a per-column entrance could not state it.
+      // One command for both dates because FR-012's ordering rule spans them.
       const start = checkDay(settings, command.start)
       const finish = checkDay(settings, command.finish)
       if (!start.ok || !finish.ok) {
@@ -807,19 +640,14 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         if (!finish.ok) faults.push(reject('CM-11', 'IV-14', `finish ${finish.what}`))
         return refused(faults)
       }
-      // FR-012 (MUST NOT), and IV-10 holds the same thing as an invariant.
-      // ⚠️ Not rounded to `finish` = `start`: 丸めて `finish` = `start` にして
-      // はならない（MUST NOT）-- that would change data without saying so.
+      // FR-012 and IV-10: refused, never rounded to `finish` = `start`.
       if (compareDays(finish.day, start.day) < 0) {
         return refused([reject('CM-11', 'FR-012', 'finish is before start')])
       }
-      // IV-12: `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えない
-      // こと. Shortening the plan is the other way to break it, so the pair is
-      // measured against the span this command is about to write.
+      // IV-12: shortening the plan can break the fade sum, so it is measured
+      // against the span about to be written.
       const fade = (task.fadeInDays ?? 0) + (task.fadeOutDays ?? 0)
-      // ⛔ CALENDAR days, per FD-6 of table T-012a and the sentence IV-12 now
-      // carries. Counting these in worked days refused fades that FR-016's
-      // grab handle had just allowed, on every plan crossing a non-working day.
+      // Calendar days (FD-6 of table T-012a, IV-12); see `fadeSpanOf`.
       const span = calendarDaysBetween(start.day, finish.day)
       if (fade > span) {
         return refused([
@@ -827,15 +655,12 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         ])
       }
       const moved = { ...task, start: command.start, finish: command.finish }
-      // FR-012: 日付を編集したときは再計算すること. The denominator moved.
-      // ⚠️ The command carries no completion figure: 人に直接入力させないこと
-      // （MUST NOT）, and PR-9 marks the column 読み取り専用.
+      // FR-012: the denominator moved. No completion figure is carried (PR-9).
       return edited(withTask(document, repriced(within, moved)))
     }
 
     case 'setTaskDeadline': { // CM-12
-      // PR-10 of table T-016. FR-045 keeps it a mark of its own -- 期限の超過を
-      // 遅れの判定に含めない -- so nothing else moves when it is placed.
+      // PR-10 of table T-016; FR-045 keeps it apart from lateness, so nothing else moves.
       if (command.deadline !== null) {
         const checked = checkDay(settings, command.deadline)
         if (!checked.ok) return refused([reject('CM-12', 'IV-14', `deadline ${checked.what}`)])
@@ -844,14 +669,9 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'setTaskPlanActualState': { // CM-13 ⭐
-      // ⭐ Five columns, one command, because table T-019 states them as a row:
-      // a per-column entrance would let a person build a state no row holds.
-      //
-      // ⚠️ This PLACES table T-019's values. It must never become a filter over
-      // what the document may hold: 「表 T-019 の 5 つから外れる入力を受け付け
-      // ない」という形にしてはならない（MUST NOT）-- an exchange partner leaves
-      // `Stop` / `Resume` / `ResumeValid` on a task that was suspended and then
-      // finished, and that shape matches no row of this table.
+      // One command for five columns because table T-019 states them as a row.
+      // It places values and must never filter what a document may hold (table
+      // T-019): an exchange partner leaves shapes that match no row.
       const place = command.place
       const faults: Refusal[] = []
       const dates: readonly (readonly [string, string])[] =
@@ -866,47 +686,18 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         const checked = checkDay(settings, text)
         if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
       }
-      // ⭐⭐ THE ONE GATE ON A BACKWARDS ACTUAL, AND IT STANDS HERE BECAUSE THIS
-      // IS THE ONLY COMMAND THAT TAKES `actualDuration` FROM OUTSIDE. CM-14
-      // writes S-129 or S-130, whose 下限 in table T-206 is 0; CM-15's PV-1
-      // writes the PLAN span, which CM-11's own FR-012 gate already keeps at or
-      // above zero. So one refusal here covers every road -- GR-5 dragged past
-      // the actual's right end, GR-6 dragged past its left end, and the Agent
-      // API and the property panel, which reach the same command.
+      // The one gate on a backwards actual: only this command takes
+      // `actualDuration` from outside (CM-14 writes S-129 / S-130, and CM-15's
+      // PV-1 a span CM-11 keeps non-negative), so it covers GR-5, GR-6, the Agent
+      // API and the property panel.
+      // Refused because AT-39 types `percentComplete` as 0 or more and FR-012's
+      // formula would make it negative; FR-012 forbids clamping and table T-023d
+      // forbids moving the drop day. A refusal leaves no undo step (FR-031).
       //
-      // ⛔ THE ROW THIS ENFORCES IS THE COLUMN'S OWN TYPE, NOT AN INVENTED ONE.
-      // AT-39 of `_assets/fig-erd-detail.md` types `percentComplete` 「整数
-      // （0 以上）」, and the generated `grs-document.schema.json` carries it as
-      // `minimum: 0` -- `COLUMN_SHAPES.Task.percentComplete.min` in
-      // `schedule.ts` is the same figure reaching src/. FR-012 fixes the only
-      // arithmetic that may produce that column: `round(actualDuration ÷
-      // (finish − start) × 100)`, over a denominator this file has already
-      // proved positive. A negative `actualDuration` therefore CANNOT be stored
-      // and leave AT-39 standing.
-      //
-      // ⛔ AND THE OTHER TWO TREATMENTS ARE BARRED IN AS MANY WORDS. FR-012
-      // forbids folding the figure into a range -- 「0 〜 100 に丸めてはならない
-      // （MUST NOT）」 -- so the count may not be clipped at 0; and the closing
-      // rule of table T-023d forbids moving the day the hand let go on --
-      // 「掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）」 -- so
-      // the drop may not be pulled back to the other end. Refusing is what is
-      // left, and it is what the neighbouring pair already does: CM-11 above
-      // refuses 「`finish` が `start` より前の入力」 on FR-012's word 「丸めて
-      // `finish` = `start` にしてはならない（MUST NOT）—— データを黙って変える
-      // ことになる」.
-      //
-      // ⚠️ NO UNDO STEP IS LEFT BEHIND (FR-031, MUST). A refusal answers
-      // `ok: false` and carries no document, so the caller writes nothing --
-      // and nothing is what FR-031 asks a write that moved no value to leave.
-      //
-      // ⛔⛔ WHAT NO ROW OF docs/spec SAYS, AND IS NOT DECIDED HERE: what the
-      // ACTUAL pair should do when one end crosses the other. Table T-220 has
-      // no invariant over `actualStart` and `actualDuration` the way IV-10
-      // covers `start` and `finish`, table T-023d's GR-5 and GR-6 name only the
-      // columns they move, and 版 0.81 of the appendix records that a negative
-      // length is 「未確認であり、CR-203 が開いたまま」. This gate keeps AT-39
-      // rather than answering that question: a CR still owes the actual pair the
-      // row its plan twin has.
+      // STOP -- what the actual pair should do when one end crosses the other is
+      // not stated: table T-220 has no invariant over `actualStart` and
+      // `actualDuration` as IV-10 has for the plan, and GR-5 / GR-6 of table
+      // T-023d name only the columns they move.
       const laid = place.row === 'PA-1' ? null : place.actualDuration
       if (laid !== null && laid < 0) {
         faults.push(
@@ -915,30 +706,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       }
       if (faults.length > 0) return refused(faults)
 
-      // ⭐⭐ AND THE FLOOR UNDER A STARTED ACTUAL STANDS HERE FOR THE SAME REASON
-      // (MUST, FR-011): 「着手しているタスクの `actualDuration` は、
-      // `_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと
-      // （MUST）。掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）」
-      // (利用者の裁定 2026-09-10). ⚠️ ⚠️ The verbatim complaint it answers is
-      // 「実績を 0 日にしたら実績の変更ができなくなる」, and the reason it can
-      // is the closing rule of table T-023d: the hold IS the ink now, so ink of
-      // zero width is a hold of zero width.
-      //
-      // ⛔ THE COUNT IS IN WORKED DAYS AND NOT IN PIXELS, which is what makes
-      // 「未着手のダミー ＝ 着手済の最小の実績」 hold at every zoom -- `S-129`
-      // is the same figure CM-14 places when a hand grabs the dummy.
-      //
-      // ⛔ A MILESTONE IS NOT FLOORED AT `S-129`. Table T-023d's GR-15 gives it
-      // no actual bar and 表 T-012 の `SH-5` makes it a point, so the length it
-      // carries is `S-130` ＝ 0. ⭐ Reading the pair the way FR-043 reads it --
-      // and not inventing a second reading here -- is what PV-1 of table T-021a
-      // demands in as many words: 「ここで別の選び方をしてはならない（MUST NOT）」.
-      //
-      // ⛔ `S-49` IS NOT USED (MUST NOT, FR-011) -- that is the PLAN shape's
-      // floor, and FR-094 already bars a second floor over the actual.
-      //
-      // ⚠️ `PA-1` KEEPS ITS `null`: 未着手 is not a started task, and FR-011
-      // says the road that empties the actual is not the one it closes.
+      // FR-011: a started actual is floored at S-129, in worked days so the dummy
+      // and the smallest actual match at every zoom; a milestone at S-130, read
+      // as FR-043 reads it (PV-1 of table T-021a). Not S-49, the plan's floor
+      // (FR-011, FR-094). PA-1 keeps its null.
       const floorOfActual = isMilestone(task, visualOf(schedule, task.uid))
         ? settings.milestoneActualDuration
         : settings.actualInitialDuration
@@ -947,8 +718,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       let placed: Task
       switch (place.row) {
         case 'PA-1': // 未着手 -- four columns 空.
-          // ⚠️ `resumeValid` is left alone: the cell is `—`, not 空. PS-1 tests
-          // `actualStart` only, so the state is reached whatever it holds.
+          // `resumeValid` is left alone: the cell is a dash, not empty.
           placed = { ...task, actualStart: null, actualDuration: null, actualFinish: null, resume: null }
           break
         case 'PA-2': // 進行中
@@ -962,9 +732,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           }
           break
         case 'PA-3': // 中断・再開予定あり
-          // FR-044 states the same pairing from the other side: 再開予定日を置いた
-          // とき、`resumeValid` を `true` にすること（MUST）-- without it PS-3
-          // catches the task first and the date changes nothing.
+          // FR-044: a resume date sets `resumeValid` true, or PS-3 catches the task first.
           placed = {
             ...task,
             actualStart: place.actualStart,
@@ -995,92 +763,41 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           }
           break
       }
-      // ⭐ THE CARRIED `Stop` IS LET GO OF HERE. The note under table T-019
-      // replaces it with the last column's value 人がそのタスクの実績を編集した
-      // ときに限り, and this command is exactly that moment -- see
-      // `actualsEdited`, which also says why the drop lives in this unit.
+      // The carried `Stop` is dropped: this is an edit of the actuals (`actualsEdited`).
       return edited(withTask(document, repriced(within, actualsEdited(placed))))
     }
 
     case 'beginTaskActual': { // CM-14 ⭐
-      // FR-043 opens this entrance only while the task is 未着手: `Task` が未着手
-      // であるあいだ、... 掴みシロを 2 つ ... 示すこと.
+      // FR-043: only while the task is not started.
       if (planActualState(task) !== 'notStarted') {
         return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
       }
-      // ⭐ THREE COLUMNS AT ONCE, WHICHEVER HANDLE WAS GRABBED: 「どちらが掴ま
-      // れたときも実績開始日と実績期間（`actualDuration`）と `resumeValid`
-      // （`true`）を置くこと（MUST）」（FR-043）. ⛔ THE THREE ARE THE SAME
-      // COLUMNS AND NOT THE SAME VALUES: 「開始点を掴んだときは終了点をその既定
-      // の位置で、終了点を掴んだときは開始点を予定の開始日の翌稼働日で確定させる
-      // こと（MUST）」 -- neither end is left undecided, and WHICH end the day
-      // the hand chose lands on is what `command.grabbed` carries.
+      // FR-043: whichever handle, the same three columns (`actualStart`,
+      // `actualDuration`, `resumeValid`) with different values; `command.grabbed`
+      // says which end the dropped day lands on.
       const visual = visualOf(schedule, task.uid)
       const isDrawnAsMilestone = isMilestone(task, visual)
-      // S-129 by default; S-130 for a milestone, which 実績バーを持たない (点なの
-      // で長さを持たない) and so takes a duration of zero.
+      // S-129, or S-130 for a milestone, which has no actual bar.
       const duration = isDrawnAsMilestone
         ? settings.milestoneActualDuration
         : settings.actualInitialDuration
-      // ⭐ THE DAY THE HAND LET GO ON, AND NOTHING DERIVED FROM THE PLAN
-      // (FR-043 MUST, 利用者の裁定 2026-09-02): 実績開始日 ＝ 掴みシロを離した日.
-      // ⛔ IT IS NOT MOVED TO A WORKING DAY -- table T-023d's closing rule
-      // (MUST NOT) -- and it is NOT 予定の開始日の翌稼働日, which the same
-      // requirement now states as the rule for WHERE THE DUMMY IS DRAWN and
-      // forbids being read as one rule with this one (MUST NOT). Reading them
-      // as one is what wrote the same day for a drop 3 days along and 8 days
-      // along (ledger DFC-182, measured on the shipped build 2026-09-02).
-      // ⚠️ IV-14 still bounds it, the way every other stored date is bounded.
+      // The dropped day, not derived from the plan (FR-043), not moved to a
+      // working day (table T-023d), and bounded by IV-14 like every stored date.
       const dropped = checkDay(settings, command.droppedDay)
       if (!dropped.ok) {
         return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
       }
+      // The shape does not change the day (FR-043); only the span differs (S-130).
       //
-      // ⛔ THE SHAPE DOES NOT CHANGE THE DAY (FR-043 MUST NOT, 利用者の裁定
-      // 2026-09-02): 「ダミーは形状を問わず予定の開始日の翌稼働日に立ち、離した日
-      // が実績開始になる」. ⚠️ A milestone used to keep the plan day here, and the
-      // ground for it was that GR-18 stood 「未着手のマイルストーンの図形の上」 --
-      // ON the figure, where there is no GR-3 to be told apart from. GR-18 has
-      // since been moved to GR-9's own place, so the ground is gone and the
-      // milestone writes what the hand chose like every other shape.
-      // ⭐ WHAT STAYS AN EXCEPTION IS THE SPAN ALONE (`duration` above, S-130),
-      // and the ONE point FR-043 draws in place of a pair -- neither of which
-      // is a day.
-      //
-      // ⭐⭐ THE FINISH HANDLE'S OWN COLUMNS. Table T-023d's GR-17 row: 「掴めば
-      // `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）」,
-      // and FR-043 asks the same from the other side (MUST): 「終了点を掴んだと
-      // きは開始点を予定の開始日の翌稼働日で確定させること」.
-      //
-      // ⛔⛔ THIS ARM CARRIED A STOP UNTIL 2026-09-09, and what the STOP said was
-      // that the pinning collides head-on with FR-043's own value clause (MUST,
-      // 利用者の裁定 2026-09-02): 「掴んで置く値は、実績開始日 ＝ 掴みシロを離した
-      // 日」. Pinning the start at GR-9's day meant no grab could place a start.
-      //
-      // ⭐⭐ WHAT DISSOLVED IT, VERBATIM. The ruling of 2026-09-09 cut the one
-      // drawn mark in half -- table T-023d's closing rule (MUST): 「1 つのダミー
-      // の印は、その横幅の中央で左右に割ること（MUST）。左半分を実績の開始側
-      // （`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）」 -- and
-      // FR-043 carries that split into the value clause: 「人が印を押したときに
-      // 掴むのは、印の左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側
-      // （同表の `GR-17`）とすること（MUST）」.
-      // ⇒ THE TWO MUSTs STOPPED COLLIDING, and the specification says so in its
-      // own words: 「左半分を掴めば `GR-9` が答え、離した日が実績開始日になるから
-      // である」（表 T-023d の結び）. A road to place a start by grabbing remains,
-      // so pinning the finish handle's start takes nothing away.
-      // ⛔ THE MEASUREMENT THE STOP LEANED ON MEASURED THE RULE THAT WAS
-      // OVERTURNED: swept around the mark on 2026-09-09, GR-9 answered 0 of 67
-      // pixels, because every pixel of the mark was GR-17's. Which pixel answers
-      // which row is `item-hit-area.ts`'s to decide and never this unit's; both
-      // rows are answered here whatever it returns.
+      // GR-17, the finish handle, pins the start at GR-9's day (table T-023d,
+      // FR-043). A start can still be placed by grabbing: the mark is split down
+      // its middle and its left half answers GR-9. Which pixel answers which row
+      // is `item-hit-area.ts`'s to decide.
       if (command.grabbed === 'GR-17') {
-        // ⭐ GR-9's OWN DAY, read from the plan exactly as the drawing side reads
-        // it -- FR-043 (MUST): 「ダミーを描く位置は、予定の開始日の翌稼働日とする
-        // こと（MUST）」, 「翌稼働日は暦に従う」（FR-054）.
-        // ⛔ `nextWorkingDay` AND NOT `dateFromWorkingDays(planStart, 1)`: the
-        // second answers a half-open END BOUND, which for a Friday start lands on
-        // the Saturday. `schedule-layout.ts` stands the dummy with this same
-        // member, so the pinned day and the drawn mark cannot drift apart.
+        // GR-9's day, read as the drawing side reads it (FR-043, FR-054).
+        // `nextWorkingDay`, not `dateFromWorkingDays(planStart, 1)`: the latter is
+        // a half-open end bound and lands a Friday start on the Saturday.
+        // `schedule-layout.ts` uses the same member, so mark and day cannot drift.
         const planStart = dayOf(task.start)
         if (planStart === null) {
           return refused([
@@ -1088,17 +805,9 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           ])
         }
         const pinned = nextWorkingDay(within, planStart)
-        // ⭐ THE LENGTH IS WHAT THE DRAG SAID, counted from the pinned start to
-        // the day the hand let go on. ⛔ THE DAY IS STILL NOT MOVED TO A WORKING
-        // ONE (table T-023d's closing rule, MUST NOT): `workingDaysBetween`
-        // COUNTS the worked days of a half-open span and rounds neither end, so
-        // a release on a Saturday answers the same count its Friday does.
-        // ⚠️ LET GO WHERE THE HANDLE ALREADY STANDS AND THE COUNT IS S-129 --
-        // table T-023d puts GR-17 「`GR-9` の日から `S-129` ぶん進んだ稼働日」, so
-        // a drag of nothing writes the length the mark was drawn at.
-        // ⚠️ NOTHING IS CLAMPED AT EITHER END. 「終了点を開始点の位置まで動かして
-        // 長さを 0 にすることは受け入れる」（FR-043）, and no row of docs/spec
-        // gives this arm a floor; GR-6 counts the same way for the same reason.
+        // The length is what the drag said, counted from the pinned start to the
+        // dropped day without moving either end (table T-023d); a drag of nothing
+        // gives S-129. Not clamped (FR-043).
         const pulled: Task = {
           ...task,
           actualStart: textOfDay(pinned),
@@ -1108,49 +817,28 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         // ⭐ The carried `Stop` is let go of here too -- see CM-13.
         return edited(withTask(document, repriced(within, actualsEdited(pulled))))
       }
-      // ⭐ GR-9 AND GR-18: the day the hand let go on IS the actual start, and
-      // the finish takes 「その既定の位置」 -- `duration` above, which is S-129
-      // (S-130 for a milestone) and is where table T-023d draws GR-17.
-      // ⚠️ GR-18 COMES HERE BECAUSE ITS ROW IS ONE PLACE (MUST NOT): 「本行は 1 か
-      // 所である。開始側と終了側に分けてはならない」, and its own cell writes the
-      // start -- 「掴めば `actualStart` を置く。`actualDuration` は `S-130`」.
-      // ⭐ THIS ARM IS WHAT KEEPS LEDGER DFC-182 CLOSED: the system case at
-      // tests/system/open-defect-pins.test.ts drops the hold 3 steps and 8 steps
-      // along and requires two different days, and it presses the middle of the
-      // mark, which the split above gives to GR-9.
+      // GR-9 and GR-18: the dropped day is the actual start and the finish takes
+      // the default length (`duration`). GR-18 comes here because its row is one
+      // place (table T-023d). `tests/system/open-defect-pins.test.ts` drops the
+      // hold at two distances and requires two different days.
       const begun: Task = {
         ...task,
         actualStart: textOfDay(dropped.day),
         actualDuration: duration,
         resumeValid: true,
       }
-      // ⭐ The carried `Stop` is let go of -- see CM-13 and `actualsEdited`.
-      // ⚠️ Starting a task IS editing its actuals: three of the five columns
-      // table T-019 names are written just above.
+      // The carried `Stop` is dropped: starting a task writes its actuals.
       return edited(withTask(document, repriced(within, actualsEdited(begun))))
     }
 
     case 'cycleTaskPlanActualState': { // CM-15 ⭐
-      // Table T-021a: 印を押して状態を確定したときに置く値. Four rows, and the
-      // state read by table T-019a picks which one runs.
+      // Table T-021a: the state read by table T-019a picks the row that runs.
       const state = planActualState(task)
       let turned: Task
       switch (state) {
         case 'notStarted': { // PV-1: 未着手 → 完了
-          // 「`actualStart` ＝ `start`、⭐⭐ `actualDuration` ＝
-          // `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を
-          // 置いてはならない（MUST NOT）」 (利用者の裁定 2026-09-10),
-          // 「マイルストーンは同表の `S-130`」.
-          // ⛔⛔ IT WROTE THE PLAN'S SPAN UNTIL 2026-09-10, and 「押しただけで実績
-          // が予定の全長まで伸びると、人はそれを「意図せず実績が延びる」と読む」
-          // is the ledger row that closed (利用者の申し立て 2026-09-10).
-          // ⭐ FR-013 STILL GETS ITS ONE PRESS: 「未着手のタスクを 1 押しで完了に
-          // できること（MUST）」 is untouched -- only the LENGTH the press places
-          // changed, and the requirement's own reason 「1 日で終わる作業は日程表で
-          // 頻出する」 is what says one day is the right length.
-          // ⛔ THE SELECTION IS NOT INVENTED HERE: 「`FR-043` がダミーを掴んだとき
-          // と同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT）」, so
-          // it is spelled exactly as CM-14 spells it.
+          // PV-1 of table T-021a: `actualStart` = `start` and `actualDuration` =
+          // S-129 (S-130 for a milestone), chosen exactly as CM-14 chooses it.
           const from = dayOf(task.start)
           if (from === null) {
             return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
@@ -1159,10 +847,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           const duration = isMilestone(task, visual)
             ? settings.milestoneActualDuration
             : settings.actualInitialDuration
-          // ⚠️ THE RIGHT END IS READ THE WAY PV-2 READS IT, and by the same
-          // expression -- the row says 「`actualFinish` ＝ `PV-2` と同じ読み
-          // （`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた
-          // 日）」, ⛔ 「本行が独自の読み方を持ってはならない（MUST NOT）」.
+          // `actualFinish` is read exactly as PV-2 reads it (table T-021a).
           turned = {
             ...task,
             actualStart: task.start,
@@ -1173,9 +858,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           break
         }
         case 'inProgress': { // PV-2: 進行中 → 完了
-          // `actualFinish` ＝ 実績バーの右端、`resumeValid` ＝ `false`。左端も右端
-          // も動かさない. RV-1 of table T-069 states the right end: `actualStart`
-          // に `actualDuration` を稼働日で加えた日.
+          // PV-2: RV-1 of table T-069 gives the right end.
           const from = dayOf(task.actualStart)
           if (from === null || task.actualDuration === null) {
             return refused([reject('CM-15', 'FR-011', 'the actual bar has no right end to read')])
@@ -1190,23 +873,18 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           break
         }
         case 'finished': // PV-3: 完了 → 中断（再開日未定）
-          // `actualFinish` と `resume` を空にし、`resumeValid` を `false` にする。
-          // ⚠️ `resume` を空にするのは、取り込んだ完了タスクが過去の再開日を持ち
-          // うるためである -- leaving it would land on PS-4 with a date in the past.
+          // PV-3: `resume` is cleared because an imported finished task can hold a
+          // past resume date, which would land on PS-4.
           turned = { ...task, actualFinish: null, resume: null, resumeValid: false }
           break
         case 'suspendedResumeUnknown':
         case 'suspendedResumePlanned': // PV-4: 中断 → 進行中
-          // `resume` を空にし、`resumeValid` を `true` にする。実績は `FR-011` の
-          // とおり動かさない。⚠️ 未着手へ戻してはならない（MUST NOT）-- PA-1 holds
-          // no actuals at all, so going back there would erase what a person put
-          // in. Erasing actuals belongs to undo (FR-031) and to PR-4..PR-8.
+          // PV-4: back to in progress, never to PA-1, which would erase the
+          // actuals (erasing is undo's, FR-031, and PR-4 .. PR-8's).
           turned = { ...task, resume: null, resumeValid: true }
           break
       }
-      // ⭐ The carried `Stop` is let go of -- see CM-13 and `actualsEdited`.
-      // ⚠️ Every one of table T-021a's four rows writes an actual column, so the
-      // press is an edit of the actuals whichever row it ran.
+      // The carried `Stop` is dropped: every row of table T-021a writes an actual.
       return edited(withTask(document, repriced(within, actualsEdited(turned))))
     }
 
@@ -1215,10 +893,8 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const row = command.kind === 'setTaskFadeInDays' ? 'CM-16' : 'CM-17'
       const days = command.days
       if (days !== null) {
-        // FD-7 of table T-012a names the three conditions a fade has to meet and
-        // says 丸めずに拒否する: いずれも 0 以上, フェードを持つタスクは終了日を
-        // 持つこと, and `fadeIn` + `fadeOut` が期間を超えないこと. IV-11 and IV-12
-        // hold the last two as document invariants, on every path.
+        // FD-7 of table T-012a: refused, never rounded; IV-11 and IV-12 hold two
+        // of its conditions on every path.
         if (!Number.isInteger(days) || days < 0) {
           return refused([reject(row, 'FD-7', `fade days must be a whole number of days, not ${days}`)])
         }
@@ -1228,18 +904,15 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         // ⛔ `fadeSpanOf`, not `planSpanOf`: FD-6 counts this one in calendar days.
         const span = fadeSpanOf(task)
         const other = command.kind === 'setTaskFadeInDays' ? task.fadeOutDays : task.fadeInDays
-        // ⚠️ When `start` is missing the span cannot be measured, so IV-12 is not
-        // judged rather than judged on a guess. IV-11 has already refused the
-        // case the requirement actually names.
+        // Without `start` the span is unknown, so IV-12 is not judged on a guess.
         if (span !== null && days + (other ?? 0) > span) {
           return refused([
             reject(row, 'IV-12', `fade of ${days + (other ?? 0)} days does not fit a plan of ${span}`),
           ])
         }
       }
-      // FR-075: 既定値は `null` とし、`0` と区別すること（MUST）-- `null` は元の
-      // ファイルに無い, `0` は明示的なゼロ, and the export writes the extended
-      // attribute for one and not for the other.
+      // FR-075: `null` (absent from the file) is distinct from `0`, and the
+      // export writes the extended attribute for one and not the other.
       const faded =
         command.kind === 'setTaskFadeInDays'
           ? { ...task, fadeInDays: days }
@@ -1248,20 +921,14 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'setTaskWbsParent': { // CM-18
-      // HM-1 of table T-015a: 階層の変更を WBS へ反映する. HM-2 keeps the uid,
-      // which is why this writes `wbsParentUid` and nothing else.
-      //
-      // ⚠️ No depth cap is applied. HM-3a bounds the depth by FR-004's limit,
-      // and S-125 is `TaskGroup` の深さ。WBS の深さではない -- FR-004 states
-      // WBS の深さをクランプしてはならない（MUST NOT） and FR-033 repeats it as
-      // WBS の深さには上限が無い.
+      // HM-1 of table T-015a; HM-2 keeps the uid, so only `wbsParentUid` changes.
+      // No depth cap: S-125 bounds `TaskGroup` depth, not WBS depth (FR-004).
       if (command.parentUid !== null) {
         if (taskByUid(schedule, command.parentUid) === null) {
           return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentUid}`)])
         }
-        // HM-4: 自分の子孫を親にする移動を受け付けてはならない（MUST NOT）--
-        // 循環になる. IV-4 forbids the resulting loop. The self case is the
-        // subtree's own root, so one test covers both.
+        // HM-4 / IV-4: a descendant may not become the parent; the subtree
+        // includes its root, so one test covers the self case.
         if (wbsSubtreeOf(schedule, command.uid).has(command.parentUid)) {
           return refused([
             reject('CM-18', 'HM-4', `uid ${command.parentUid} is inside the subtree of ${command.uid}`),
@@ -1272,17 +939,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'moveTaskToTaskGroup': { // CM-19
-      // HM-3: タスクバーを別の行へ移す操作では WBS の「親」を変えてはならない
-      // （MUST NOT）-- 行の移動と階層の移動は別の操作である. ⭐ THE BAN IS ON THE
-      // PARENT LINK AND ON NOTHING ELSE (利用者の裁定 2026-09-05, which narrowed
-      // this row from the older 「WBS を変えてはならない」): `wbsParentUid`
-      // (AT-25) is what may not move here, and HM-3 itself sends the ORDER on to
-      // HM-9 -- 「同じ親の下での順序は `HM-9` に従い、行の位置で決まる」.
-      // HM-10 is the other consequence of the narrowed ban: 移るのは掴んだ
-      // `Task` だけであり, its WBS children keep the row they were already on,
-      // because each of them has a `TaskGroupMember` of its own.
-      // ⇒ Exactly one membership is rewritten, no `wbsParentUid` is touched, and
-      // `wbsOrder` (AT-26) is rebuilt from the row tree below.
+      // HM-3: moving a bar to another row never changes its WBS parent (AT-25);
+      // the order among siblings follows the row tree (HM-9), and WBS children
+      // keep their own rows (HM-10). So one membership is rewritten and
+      // `wbsOrder` (AT-26) is rebuilt below.
       if (!schedule.taskGroups.some((one) => one.id === command.groupId)) {
         return refused([reject('CM-19', 'IV-2', `no TaskGroup with id ${command.groupId}`)])
       }
@@ -1295,61 +955,36 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const taskGroupMembers = schedule.taskGroupMembers.map((one) =>
         one.taskUid === command.uid ? { ...one, groupId: command.groupId } : one,
       )
-      // HM-9 (MUST): 並べ替えた順序も WBS へ伝わること. The bar now hangs off a
-      // different row, so its rank among the siblings sharing its WBS parent is
-      // decided by where that NEW row sits in the row tree. ⭐ THE SAME WALK THE
-      // OTHER TWO ROADS TAKE -- CM-35 and CM-73 in edit-task-group.ts call this
-      // very function, and HM-9 has one rule for all three. ⛔ The moved bar is
-      // not told apart from the bars that were already there (同裁定「移した後の
-      // 行のバーだろ？ もともとあったバーとは区別すべきでないのでは？」).
+      // HM-9: the moved bar's rank among its WBS siblings follows its new row's
+      // place in the row tree, by the walk CM-35 and CM-73 also take; it is not
+      // told apart from the bars already there.
       const moved: Schedule = { ...schedule, taskGroupMembers }
       return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheRowTree(moved) }))
     }
 
     case 'setTaskVisualShapeKind': { // CM-20
       const visual = visualOf(schedule, command.uid)
-      // FR-083: 表 T-012 の `SH-1` 〜 `SH-4` と `SH-5`（マイルストーン）の間で
-      // 変えてはならない（MUST NOT）-- 点と期間で持つデータが違う, so a task with
-      // a duration has nowhere to put its finish and a point has no duration.
+      // FR-083: no change between SH-1 .. SH-4 and SH-5, because a point and a
+      // span hold different data.
       const wanted = command.shapeKind === 'milestone'
       if (isMilestone(task, visual) !== wanted) {
         return refused([
           reject('CM-20', 'FR-083', 'a milestone and a task with a duration are not interchangeable'),
         ])
       }
-      // ⚠️ `Task.milestone` is NOT written. AT-100 says the visual 描画の形だけを
-      // 決める。`Task.milestone` を変えない, and FR-001 forbids an entrance that
-      // changes the boolean alone (MUST NOT).
+      // `Task.milestone` is not written (AT-100, FR-001).
       return edited(withVisual(document, { ...visual, shapeKind: command.shapeKind }))
     }
 
     case 'setTaskVisualMilestoneGlyph': { // CM-21
-      // FR-078: 表 T-012 の `SH-5` が挙げる図形から選べるようにすること -- eight
-      // of them, and AT-101 counts eight.
+      // FR-078: one of the figures table T-012's SH-5 names (AT-101).
       //
-      // CR-172 spelled them in the order SH-5 prints them, which S-48 fixes as
-      // the order of their areas.
-      //
-      // ⛔⛔ THE WORD IS JUDGED HERE AND NOT LEFT TO `TaskMilestoneGlyph`
-      // (DFC-418, measured 2026-09-08: `'NOT-A-GLYPH'` came back
-      // `accepted: true`). A type is gone at run time, and AM-7 of table T-107
-      // hands this path commands a caller wrote -- so AG-5 of table T-108
-      // (MUST), 「UI と同じ検証・同じ制限を通ること」, went unmet: the pointer's
-      // own road (`commandFromVisualColumn`) drops a word that is not one of
-      // SH-5's, and the Agent API's did not. ⭐ Judging it on THIS side is what
-      // makes the two roads one validation rather than two.
-      //
-      // ⛔ THE ROSTER IS NOT WRITTEN OUT. `COLUMN_SHAPES` is the schema's own
-      // enumeration, generated from `erd.json`, and table T-016's closing
-      // paragraph (MUST NOT) forbids the choices being stated a second time --
-      // so a figure SH-5 gains is admitted here without anyone editing a list.
-      //
-      // ⚠️ `null` IS NOT AN UNKNOWN WORD. AT-101 makes the column nullable, and
-      // FR-078's 「置いた後も変えられる」 undone is what clearing it means.
-      //
-      // ⚠️ Not refused for a task that is not a milestone: AT-101 says the column
-      // is only READ while `shapeKind` is `'milestone'`, which is not a bar on
-      // holding a value.
+      // Judged here, not left to `TaskMilestoneGlyph`: a type is gone at run
+      // time, and the Agent API (AM-7 of table T-107) must pass the same
+      // validation as the pointer's road (AG-5 of table T-108). The choices come
+      // from the generated `COLUMN_SHAPES`, never a list written here (table T-016).
+      // `null` clears the column, and a task that is not a milestone may hold a
+      // value: AT-101 only limits when it is read.
       if (
         command.glyph !== null
         && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.glyph)
@@ -1363,16 +998,13 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'setTaskVisualColors': { // CM-22 ⭐
-      // ⭐ The two colours are one command because the MUST NOT spans them:
-      // 塗りと輪郭を同時に透明にすることを許してはならない, held as IV-9. Two
-      // separate entrances could not state it -- either one alone is legal.
+      // One command for both colours because IV-9 spans them.
       if (command.fillColor === TRANSPARENT && command.strokeColor === TRANSPARENT) {
         return refused([reject('CM-22', 'IV-9', 'the fill and the stroke may not both be transparent')])
       }
-      // ⛔ MISSING: FR-007 has the colour picked 表 T-017 のパレット色から, and
-      // CL-1 lists eleven of them in words (白 / 黒 / 濃い灰色 / ... / 透明). Only
-      // 透明 has a spelling (P-19); AT-102 and AT-103 are plain strings. The
-      // palette membership cannot be tested here, so it is not tested.
+      // STOP -- FR-007's palette membership (CL-1 of table T-017) cannot be
+      // tested: only transparent has a spelling (P-19), and AT-102 / AT-103 are
+      // plain strings.
       const visual = visualOf(schedule, command.uid)
       return edited(
         withVisual(document, {
@@ -1384,51 +1016,23 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'resetTaskVisualColors': { // CM-23 ⭐
-      // FR-007: 指定した色をテーマ追随へ戻せること（MUST）。戻す入口が無いと色は
-      // 片道になり、一度でも触った要素はテーマを変えても永久に取り残される.
-      // ⭐ Both colours together, because the state being restored is "nothing
-      // chosen" and AT-102 / AT-103 spell that `null` = テーマから解く.
-      // ⚠️ This is why 透明 cannot serve: 「透明」は選んだ値であって「指定して
-      // いない」とは別物なので、透明を選ぶことは戻すことにならない.
+      // FR-007: both colours back to theme-following (`null`, AT-102 / AT-103).
+      // Transparent cannot serve: it is a chosen value, not "not specified".
       const visual = visualOf(schedule, command.uid)
       return edited(withVisual(document, { ...visual, fillColor: null, strokeColor: null }))
     }
 
     case 'setTaskVisualLineWeight': { // CM-24
-      // FR-007: 線の太さは色に頼らない識別手段として必須である. CL-2 of table
-      // T-017 names three -- 細 / 中 / 太 -- and CR-172 spelled them thin /
-      // medium / thick, at the same time narrowing AT-104's type column to
-      // 列挙（3 値）: the older wording, 列挙（`'thin'` ほか 3 値）, could be read
-      // as four. `TaskLineWeight` carries membership.
+      // FR-007, CL-2 of table T-017 (AT-104); `TaskLineWeight` carries membership.
       const visual = visualOf(schedule, command.uid)
       return edited(withVisual(document, { ...visual, lineWeight: command.lineWeight }))
     }
 
     case 'setTaskVisualNamePlacement': { // CM-25 ⭐
-      // ⭐ The anchor and the alignment are one command because FR-002 states
-      // them as one 指定: 位置の指定は 9 点アンカーと左詰め / 中央 / 右詰めで持つ
-      // こと（MUST）, and its automatic placement is off as soon as a person has
-      // moved the label (既定は自動配置とし、人が動かしたときだけ指定が残る).
-      // ⚠️ Not pixels: ピクセル座標で持ってはならない（MUST NOT）-- 縦横独立ズーム
-      // でずれる. That is why AT-98 is an index and not a coordinate.
-      //
-      // The alignment is settled: CR-172 read AT-99's 列挙（`'left'` ほか 3 値）
-      // as three in all -- FR-002's prose names three placements and no fourth
-      // appears anywhere in docs/spec -- spelled them left / center / right, and
-      // narrowed the type column to 列挙（3 値）. `TaskNameAlign` carries
-      // membership. ⚠️ Automatic placement is NOT a fourth member; the column
-      // being nullable is what holds it.
-      //
-      // ✅ CR-181 closed the hole this used to carry: AT-98 fixed the range
-      // 0..8 while NO table said which index was which of the nine points, so
-      // the number was stored unmapped and nothing could tell 0 from 8. AT-98
-      // now numbers the nine points of the bounding box in reading order,
-      // 0 top-left to 8 bottom-right.
-      //
-      // ⚠️ This entry still checks the RANGE and nothing else, which is all it
-      // can: every index in it is a legal place to put a label, so there is no
-      // further rule to apply here. Table T-013 remains a different question --
-      // it decides where the label goes when nobody chose an anchor.
+      // One command because FR-002 states anchor and alignment as one choice; not
+      // pixels (FR-002), hence AT-98 is an index. Automatic placement is the null
+      // column, not a fourth alignment. Only the range is checked: every index
+      // 0 to 8 is a legal place (AT-98), and table T-013 is the automatic case.
       if (
         command.nameAnchor !== null &&
         (!Number.isInteger(command.nameAnchor) || command.nameAnchor < 0 || command.nameAnchor > 8)

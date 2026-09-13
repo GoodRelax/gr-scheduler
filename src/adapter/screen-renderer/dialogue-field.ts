@@ -4,70 +4,33 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
-// UF-68 fills exactly one member of `ScreenView` -- `dialogueField`, which is
-// the U-44 `Dialogue Field` of table T-103 -- and reads none of the others. The
-// signature is the one the "nine unit contracts" section of `screen-renderer.ts`
-// fixes; this file does not own it.
+// Fills `ScreenView.dialogueField` (U-44 of table T-103) only; the signature is
+// fixed in the unit contracts section of `screen-renderer.ts`.
 //
-// ⭐ WHY THE WHOLE FIELD CAN BE ABSENT. FR-066 puts the field up only while the
-// `Agent API` is on, so `null` is the entire answer while it is off -- not an
-// empty list, which would draw an empty conversation over a closed API. ⚠️ The
-// flag is not in the document: FR-065 remembers the choice per BROWSER ORIGIN
-// (「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」, the user's ruling
-// of 2026-09-05), and S-99b of table T-206 keeps that record in the
-// environment, so it reaches this unit as `ScreenSession.isAgentApiEnabled`
-// rather than through `Schedule`.
-// ⛔ WHAT STOOD HERE SAID "per document" AND WAS FALSE (DFC-280): that was the
-// requirement's own wording until 2026-09-05, and it was withdrawn because
-// nothing in the specification points at one document.
-// ⭐⭐ A SECOND FLAG SINCE 2026-08-31 (DFC-149). FR-066 also has a MUST of its own
-// -- the reader may put the field away with IC-18 while the API stays on -- and
-// S-99i of table T-206 (MUST NOT) keeps that choice out of `isAgentApiEnabled`,
-// because one is a capability and the other is what is shown. It reaches this
-// unit the same way, as `ScreenSession.isDialogueFieldVisible`, and both must
-// hold for the field to be drawn.
+// `null`, not an empty list, while the field is not shown: an empty list would
+// draw an empty conversation over a closed API (FR-066). Both flags arrive in
+// `ScreenSession`, not `Schedule`: they are kept outside the document (FR-065,
+// S-99b and S-99i of table T-206).
 //
-// ⭐ WHY THE ORDER IS MADE HERE rather than taken as the array came. AG-11 of
-// table T-035 makes the log count in an order of its own, and FR-063 is the
-// reason: an utterance is not schedule data, so it does not move the schedule
-// instant, and the stamp therefore cannot tell one utterance from the next.
-// `DialogueLog` (PI-33) publishes that counter as `DialogueMessage.sequence`,
-// but it declares no order for its `messages` array -- so trusting the array
-// order would be leaning on an invariant the entity never stated.
-// ⛔ Neither of the other two candidates may stand in for the sequence:
-//   - the stamp, for the reason above (FR-063), and because FR-063 forbids
-//     reading it as an order at all (MUST NOT);
-//   - `settledAt`, which is a clock reading from whatever machine settled the
-//     utterance. AM-18 of table T-107 has the AI post one while a person posts
-//     another, so two disagreeing clocks would reorder a conversation, and the
-//     stamp is only to the second (AT-129), which makes a tie ordinary.
+// Ordered here by `DialogueMessage.sequence` (AG-11), because `DialogueLog`
+// declares no order for `messages`. Not by the stamp, which FR-063 forbids
+// reading as an order, nor by `settledAt`, which comes from different machines'
+// clocks (AM-18 of table T-107) and ties at one second (AT-129).
 //
-// ⛔ NOT AG-6's SELECTION, although it reads the same log. `messagesSince`
-// (PI-33) drops what the watcher itself wrote, because AG-6 of table T-035 wakes
-// a watcher only for the writers other than itself. That rule governs the
-// `Agent API`'s watch, not this field: a person reading the conversation has to
-// see their own utterances, and a field built from AG-6's selection would show
-// one side of a dialogue. So this unit selects on nothing, and carries `author`
-// through for the surface to attribute with.
+// Not AG-6's selection: `messagesSince` drops the watcher's own writes, but a
+// person reading the conversation must see both sides, so nothing is dropped and
+// `author` is carried through.
 //
-// ⛔ THE HALF-TYPED LINE CANNOT ARRIVE HERE, which is why nothing filters for
-// it. AG-11 forbids reading what has not been settled (MUST NOT), and the live
-// contents of the entry travel a different path entirely --
-// `ScreenSurface.readDialogueInput` hands them to `dialogueMessageFromInput`
-// (PI-37), which refuses them until they are settled. What reaches `DialogueLog`
-// is settled by construction, so a check here would guard nothing.
+// No filter for a half-typed line: that travels through
+// `ScreenSurface.readDialogueInput` to `dialogueMessageFromInput` (PI-37), which
+// refuses it until settled (AG-11).
 
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DialogueField, ScreenSession } from './screen-renderer'
 
 /**
- * The `Dialogue Field` (U-44) for this frame, or `null` while the `Agent API`
- * is off, or while the reader has put the field away with IC-18 (FR-066,
- * S-99i).
- *
- * The settled utterances are carried oldest first, ordered by
- * `DialogueMessage.sequence` (AG-11). Every one the log holds goes across --
- * see the STOP note for what the specification leaves unbounded.
+ * `null` while the `Agent API` is off or the field is put away with IC-18
+ * (FR-066, S-99i). Oldest first; see the STOP note for the missing bound.
  *
  * @purity pure
  */
@@ -75,30 +38,18 @@ export function dialogueFieldFromLog(
   log: DialogueLog,
   session: ScreenSession,
 ): DialogueField | null {
-  // FR-066 (⭐ MUST since 2026-08-31): the field is up while the `Agent API` is
-  // on AND the reader has not put it away with IC-18. ⛔ TWO CONDITIONS AND NOT
-  // ONE: S-99i of table T-206 (MUST NOT) forbids folding them into a single
-  // value, because one is a capability and the other is what the reader chose
-  // to see -- `session.isDialogueFieldVisible` carries the second half, and
-  // `app-header-items.ts` reads the same pair for IC-18's own drawn state.
+  // FR-066; S-99i keeps the two apart. `app-header-items.ts` reads the same
+  // pair for IC-18's drawn state.
   if (!session.isAgentApiEnabled || !session.isDialogueFieldVisible) return null
 
-  // STOP -- ⚠️ NOT DECIDED BY THE SPECIFICATION: how many utterances the field
-  // shows at once. FR-066 states only that the field is put up, AG-11 states
-  // only the order to count them in, AM-6 of table T-107 reads them without a
-  // count, and `_assets/tbl-settings.md` holds no dialogue row at all -- neither
-  // among the saved groups nor among table T-206's not-stored ones. So there is
-  // no bound to read from `DocumentSettings`, none in the generated constants,
-  // and none to receive as an argument. All of them are carried: dropping any
-  // would hide an utterance a person settled, and that is the one outcome which
-  // cannot be right. If a bound is wanted, its value belongs in
-  // `_assets/tbl-settings.md` first, and this unit then reads it from the
-  // constant generated out of that manuscript.
+  // STOP -- not decided by the specification: how many utterances the field
+  // shows. Looked in FR-066, AG-11, AM-6 of table T-107 and
+  // `_assets/tbl-settings.md` (saved groups and table T-206): no row bounds the
+  // count. All are carried, since dropping one would hide a settled utterance;
+  // a bound belongs in `_assets/tbl-settings.md` first.
 
-  // Copied before sorting because `sort` writes in place, and the log is another
-  // component's value (LY-1 holds it as an immutable value that is replaced
-  // whole). A `pure` unit that reordered its caller's array would be a side
-  // effect (R7.1).
+  // Copied: `sort` writes in place, and the log is another component's
+  // immutable value (LY-1, R7.1).
   const oldestFirst = [...log.messages].sort(
     (earlier, later) => earlier.sequence - later.sequence,
   )

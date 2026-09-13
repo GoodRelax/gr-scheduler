@@ -4,24 +4,17 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The ten commands table T-108 puts in the two annotation groups: `CommentBox`
-// CM-46 to CM-51 and `HighlightBox` CM-52 to CM-55. `Annotations` (U-15a of
-// table T-103) is the word for the two together. U-14 forbids shortening a
-// comment box to "the comment" (MUST NOT) -- the text it holds is the comment
-// box's 本文 -- and U-15 forbids calling a highlight box a 囲み枠 (MUST NOT).
+// Table T-108's two annotation groups, `CommentBox` and `HighlightBox`
+// (`Annotations`, U-15a of table T-103; U-14 / U-15 for their names).
 //
-// ⚠️ Both arrays are SCHEDULE-group data: DR-2 of table T-052 lists
-// `commentBoxes` and `highlightBoxes` among its twelve keys. So every command
-// here that actually moves something moves the schedule instant (FR-063), which is
-// the opposite of edit-document-settings.ts. A command that changes nothing
-// must therefore leave `document.schedule` alone BY REFERENCE --
-// document-change-plan.ts reads exactly that reference to decide, so an
-// unconditional rebuild would move that instant for a no-op.
+// ⚠️ Both arrays are schedule-group data (DR-2 of table T-052), so a command
+// that moves something moves the schedule instant (FR-063). A command that
+// changes nothing must leave `document.schedule` alone BY REFERENCE:
+// document-change-plan.ts decides by that reference, so a rebuild would move
+// the instant for a no-op.
 //
-// ⚠️ This file VALIDATES and returns a new Document. It settles nothing
-// (CP-9); WS-6 of table T-067 owns replacing the current value.
-//
-// ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
+// Validates and returns a new Document; settles nothing (CP-9, WS-6 of table
+// T-067).
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
@@ -32,15 +25,12 @@ import { refused, edited } from './edit-document'
 /**
  * Where a comment box is pinned: a day, and the IDENTIFIER of a row.
  *
- * ⚠️ FR-019 requires the position to be held as a date and a row identifier,
- * and forbids referring to a row by its place in the order (MUST NOT) --
- * "順番で持つと並べ替えで別の行を指す". `groupId` is `TaskGroup.id` (AT-51),
- * never an index into `schedule.taskGroups`, which is why no member of this
- * file takes a number for a row.
+ * ⚠️ FR-019 forbids referring to a row by its place in the order, so `groupId`
+ * is `TaskGroup.id` (AT-51), never an index; no member here takes a number for
+ * a row.
  *
- * ⚠️ The anchored target is NOT named. AR-5 of table T-023b says as much: the
- * comment box has no route that makes the thing under the pointer its subject,
- * because a date and a row identifier already say where it points.
+ * The anchored target is not named: the date and row id already say where it
+ * points (AR-5 of table T-023b).
  */
 export interface AnnotationAnchor {
   readonly date: string
@@ -50,8 +40,7 @@ export interface AnnotationAnchor {
 /**
  * What a highlight box surrounds: a span of days and a span of rows.
  *
- * UC-008 step 4 -- "範囲を日付の範囲と行の範囲で持ち". The two rows are
- * identifiers for the same reason the anchor is (FR-019's MUST NOT).
+ * UC-008 step 4. The rows are identifiers for the anchor's reason (FR-019).
  */
 export interface HighlightRange {
   readonly startDate: string
@@ -60,18 +49,16 @@ export interface HighlightRange {
   readonly bottomGroupId: string
 }
 
+/** The leader shapes AT-111 spells. */
+export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']>
+
 /**
  * CM-46 to CM-55 of table T-108.
  *
- * ⚠️ The `id` of a box being CREATED arrives as a value. AT-110 and AT-116
- * make it a UUID, which a `pure` unit cannot mint -- LY-5 of table T-060 leaves
- * the outside to the Framework, and FR-001's `uidHighWaterMark` covers the
- * integer `uid` columns only, not the UUID keys. The command carries the id so
- * that the same call gives the same document twice.
+ * ⚠️ A created box's `id` arrives as a value: AT-110 / AT-116 make it a UUID,
+ * which a `pure` unit cannot mint (LY-5 of table T-060; `uidHighWaterMark`
+ * covers integer uids only), so the same call gives the same document twice.
  */
-/** The two leader shapes FR-019 requires a choice between (AT-111, CR-172). */
-export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']>
-
 export type AnnotationCommand =
   | { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor }
   | { readonly kind: 'deleteCommentBox'; readonly id: string }
@@ -135,12 +122,9 @@ function hasGroup(document: Document, groupId: string): boolean {
 /**
  * What is wrong with a comment box anchor, if anything.
  *
- * The day is checked for BEING a day (AT-113 types the column 日時) and the row
- * for BEING THERE (IV-2: a non-null foreign key points at a row of the same
- * document; table T-057's RL-18 is the pointer for `anchorGroupId`).
- *
- * ⚠️ Whether the day lies inside the accepted span is IV-14's, and table T-220
- * is driven by `scheduleViolations` (PI-1) rather than repeated here.
+ * The day must be a day (AT-113) and the row must exist (IV-2; RL-18 of table
+ * T-057). Whether the day lies in the accepted span is IV-14's, answered by
+ * `scheduleViolations` (PI-1) rather than repeated here.
  *
  * @purity pure
  */
@@ -170,22 +154,14 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
   if (!hasGroup(document, range.bottomGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no row with id ${range.bottomGroupId} (RL-20)`))
   }
-  // ⛔⛔ THE DIRECTION IS NOT REFUSED HERE, AND THAT IS NOW SETTLED (FR-019,
-  // MUST NOT, 利用者の裁定 2026-09-02): 「引いた向きは、離した時点で正規化する
-  // こと」 and 「拒んではならない —— ドラッグに向きは無く、人は右上から左下へも
-  // 引く」. AR-6's road normalises the four columns before CM-52 is ever asked
-  // for -- `commandFromArmed` in `input-command-translator.ts` is where that
-  // happens -- so a backwards range never arrives from the screen at all.
+  // ⛔ A backwards range is not refused (FR-019): AR-6's road normalises it
+  // before CM-52 (`commandFromArmed` in `input-command-translator.ts`).
   //
-  // ⛔ WHAT IS STILL MISSING, AND IT IS REPORTED RATHER THAN GUESSED: the same
-  // clause sends the OTHER roads elsewhere -- 「打ち込みや取り込みから来た値は本
-  // 段の対象ではない —— そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ
-  // 扱いで拒む」 -- and 表 T-220 carries no row for a highlight box's span. IV-10
-  // is stated for a `Task`'s `start` / `finish` alone, and that table is driven
-  // by `scheduleViolations` (PI-1) rather than by this member. So there is
-  // nothing to refuse AGAINST here without writing an invariant the table does
-  // not hold. ⚠️ Nor does any road into CM-52 / CM-54 exist today other than
-  // AR-6's: no importer and no field writes a highlight range.
+  // STOP -- FR-019 has typed or imported ranges refused as IV-10 refuses a
+  // Task's dates, but table T-220 has no row for a highlight box's span and is
+  // driven by `scheduleViolations` (PI-1), so nothing is refused here without
+  // inventing an invariant. ⚠️ No road into CM-52 / CM-54 other than AR-6's
+  // exists today.
   // Searched: FR-019, table T-220 (05-07-design.md), table T-108 CM-52 / CM-54,
   // `_assets/fig-erd-detail.md` AT-116..AT-122.
   return found
@@ -194,10 +170,9 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
 /**
  * Runs one annotation command against the document.
  *
- * ⚠️ Every entrance that names a box the document does not hold is REFUSED
- * rather than passed over: FR-028 requires the caller to be told whether the
- * write was taken, and AG-9a requires the refusal to name what was refused. A
- * silent no-op would report success for a write that reached nothing.
+ * ⚠️ A command naming a box the document does not hold is refused, not passed
+ * over: a silent no-op would report success for a write that reached nothing
+ * (FR-028, AG-9a).
  *
  * @purity pure
  */
@@ -215,18 +190,15 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (refusals.length > 0) return refused(refusals)
       const box: CommentBox = {
         id: command.id,
-        // ⛔ NOT DECIDED: which of the two leader shapes a new box starts
-        // with, and what either of them is called -- see CM-49 below. AT-111
-        // admits null, so the box is created naming neither.
+        // ⛔ NOT DECIDED: which leader shape a new box starts with -- see CM-49
+        // below. AT-111 admits null, so the box names none.
         leaderShapeKind: null,
-        // The body text has its own entrance (CM-48 / FR-097). A box placed by
-        // AR-5 is placed by a drag alone, so it carries none yet.
+        // CM-48 / FR-097 writes the text; AR-5 places a box by a drag alone.
         text: null,
         anchorDate: command.anchor.date,
         anchorGroupId: command.anchor.groupId,
-        // FR-019 holds the offset from the anchored point to the body, and
-        // CM-51 is what moves it. A box that was only just placed has not been
-        // dragged away from its own anchor.
+        // CM-51 moves the offset; a box just placed has not been dragged off
+        // its anchor.
         bodyOffsetPx: null,
       }
       return edited(withSchedule(document, { commentBoxes: [...schedule.commentBoxes, box] }))
@@ -237,9 +209,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-47', 'AT-110', `no comment box with id ${command.id}`)])
       }
-      // CD-4 of table T-050: deleting an annotation takes nothing with it. The
-      // other direction is CD-2's -- deleting a ROW deletes the annotations
-      // that point at it -- and that belongs to the TaskGroup aggregate.
+      // CD-4 of table T-050: nothing goes with it. Deleting a row takes its
+      // annotations (CD-2), which is the TaskGroup aggregate's.
       return edited(
         withSchedule(document, { commentBoxes: schedule.commentBoxes.filter((one) => one !== box) }),
       )
@@ -250,10 +221,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-48', 'AT-110', `no comment box with id ${command.id}`)])
       }
-      // FR-097 holds the text and draws it inside the box. Its entrance is
-      // MK-13 of table T-023 (double click), which is the screen's business;
-      // nothing about the value itself is bounded -- AT-112 admits null and the
-      // generated schema puts no length on it -- so nothing here refuses one.
+      // FR-097. Nothing bounds the value (AT-112 admits null and the schema
+      // sets no length), so nothing is refused.
       if (box.text === command.text) return edited(document)
       return edited(putCommentBox(document, { ...box, text: command.text }))
     }
@@ -263,32 +232,19 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-49', 'AT-110', `no comment box with id ${command.id}`)])
       }
-      // ⛔⛔ FR-019 NO LONGER ASKS FOR A CHOICE (利用者の裁定 2026-09-07):
-      // 「⛔⛔ **コメントボックスの引出しは折れ線 1 種とすること（MUST）。2 種から
-      // 選ばせてはならない（MUST NOT）**」. ⚠️ Until that day the requirement read
-      // 「引出し四角と折れ線の 2 種から選べること（MUST）」 and this arm was the
-      // entrance that kept it; that sentence is gone from docs/spec.
+      // FR-019 allows one leader shape, but retiring `leaderShapeKind` is left
+      // to a separate change (FR-019), so CM-49 of table T-108 stays a command,
+      // AT-111 still admits both spellings, and this arm stores what it is
+      // handed. ⛔ Nothing here may refuse either; the drawing obeys the one
+      // shape (`svg-renderer.ts` reads no kind).
       //
-      // ⭐ THE COLUMN AND THE ENUM STAY, AND THE REQUIREMENT SAYS SO ITSELF:
-      // 「⚠️ **`leaderShapeKind` の列と列挙を退役させることは、本段では行わない**
-      // —— **同じ名を持つファイルが 21 ある（実測 2026-09-08、`src` 3 ／ `tests`
-      // 14 ／ `docs/spec` 4）ので、1 度に動かす別の段が要る。**」 ⇒ CM-48 of table
-      // T-108 is still a command, AT-111 still admits both spellings, and this
-      // arm still stores what it is handed. ⛔ NOTHING HERE MAY REFUSE ONE OF
-      // THE TWO on the strength of the new MUST -- the retirement is another
-      // round's, and the drawing is where 「1 種」 is now obeyed
-      // (`svg-renderer.ts` draws the one 折れ線 and reads no kind).
+      // ⚠️ The payload is not nullable though AT-111 admits null: no requirement
+      // gives a way back to naming none, and inventing one would decide what
+      // CM-46's ⛔ above is waiting on.
       //
-      // ⚠️ The payload is NOT nullable, though AT-111 admits null. No
-      // requirement gives a way back to naming neither -- inventing one here
-      // would decide what CM-46's ⛔ above is still waiting on. A box created by
-      // AR-5 keeps null until this is called.
-      //
-      // ⭐ The same one-field test the other nine arms of this file keep, and
-      // the one arm that was missing it (ledger row DFC-378). FR-020 (MUST)
-      // forbids re-stamping the trail for a write that changed nothing, and
-      // FR-063 moves the schedule instant only for a write that moved that
-      // group -- both are read off the reference this line refuses to rebuild.
+      // No-op test: FR-020 forbids re-stamping the trail for a write that
+      // changed nothing, and FR-063 moves the instant only on a real change --
+      // both read the reference this line keeps.
       if (box.leaderShapeKind === command.leaderShapeKind) return edited(document)
       return edited(putCommentBox(document, { ...box, leaderShapeKind: command.leaderShapeKind }))
     }
@@ -300,10 +256,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = anchorRefusals('CM-50', document, command.anchor)
       if (refusals.length > 0) return refused(refusals)
-      // ⚠️ The pair is set together and never cleared: FR-019 requires the
-      // position to BE a date and a row identifier, and table T-108 carries no
-      // command that unpins a comment box, so this entrance never writes null
-      // into either column.
+      // ⚠️ Set together and never cleared: FR-019 makes the position a date and
+      // a row id, and table T-108 has no command that unpins a comment box.
       if (box.anchorDate === command.anchor.date && box.anchorGroupId === command.anchor.groupId) {
         return edited(document)
       }
@@ -321,10 +275,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-51', 'AT-110', `no comment box with id ${command.id}`)])
       }
-      // FR-019: this one distance is held in SCREEN pixels -- "吹き出しのずれ
-      // だけは画面上の距離で持ち、ズームしても見た目の距離が変わらないように
-      // する". So it is NOT converted through the zoom on the way in; the value
-      // arrives as what it will be drawn as.
+      // FR-019 holds this offset in SCREEN pixels, so it is not converted
+      // through the zoom.
       if (!Number.isFinite(command.dx) || !Number.isFinite(command.dy)) {
         return refused([reject('CM-51', 'AT-115', 'the offset must be two finite numbers')])
       }
@@ -348,16 +300,11 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         endDate: command.range.endDate,
         topGroupId: command.range.topGroupId,
         bottomGroupId: command.range.bottomGroupId,
-        // FR-019: the outline colour may be given, and where it is not given
-        // the box is drawn in the fixed annotation colour (MUST). The absence
-        // is `null`, which P-19 keeps apart from a chosen value -- and AR-6
-        // creates by dragging a range alone, so nothing was chosen. CM-55 is
-        // the entrance that chooses.
+        // `null` is "not chosen" (P-19), drawn in the fixed annotation colour
+        // (FR-019); AR-6 creates by a drag alone, and CM-55 chooses.
         //
-        // ⛔ NOT DECIDED, though not needed here: the fixed annotation colour
-        // itself has no row. Table T-217 holds S-132 and nothing else, so
-        // whoever draws an unspecified outline cannot read the colour off the
-        // specification. Writing a guess into the column would hide that.
+        // ⛔ NOT DECIDED: the fixed annotation colour has no row (table T-217
+        // holds only S-132); a guess written into the column would hide that.
         strokeColor: null,
         cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
       }
@@ -384,9 +331,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = rangeRefusals('CM-54', document, command.range)
       if (refusals.length > 0) return refused(refusals)
-      // ⚠️ The four columns move together. UC-008 step 4 has the range held as
-      // a span of days AND a span of rows, so a change that set only one edge
-      // would leave the box describing a rectangle nobody dragged.
+      // ⚠️ The four columns move together (UC-008 step 4): setting one edge
+      // would describe a rectangle nobody dragged.
       const { startDate, endDate, topGroupId, bottomGroupId } = command.range
       if (
         box.startDate === startDate &&
@@ -404,22 +350,17 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-55', 'AT-116', `no highlight box with id ${command.id}`)])
       }
-      // FR-019: "ハイライトボックスに透明を選ばせてはならない（MUST NOT）" --
-      // the outline is the whole of the box, so a transparent one would leave
-      // nothing on the screen at all. P-19 spells the value being refused.
+      // FR-019 (P-19 spells the value).
       if (command.strokeColor === TRANSPARENT) {
         return refused([reject('CM-55', 'FR-019', 'a highlight box outline may not be transparent')])
       }
-      // ⚠️ `null` is not a colour and is not the same refusal: P-19 keeps
-      // 「選んでいない」 apart from a chosen value, and FR-019 draws an
-      // unspecified outline in the fixed annotation colour. So null is how a
-      // person takes a chosen colour back off -- there is no separate reset
-      // command for annotations, and FR-041 keeps them off the theme anyway.
+      // ⚠️ `null` is not refused: it is "not chosen" (P-19), drawn in the fixed
+      // annotation colour, and the only way to take a colour back off, since
+      // annotations have no reset command.
       //
-      // ⛔ NOT DECIDED: which colours ARE admissible here. Table T-017's
-      // palette (CL-1) names its colours in Japanese only, and P-19 is the one
-      // value the specification spells, so no membership test can be written
-      // without inventing ten names.
+      // ⛔ NOT DECIDED: which colours are admissible. Table T-017's palette
+      // (CL-1) names its colours in Japanese only, so a membership test would
+      // have to invent names.
       if (box.strokeColor === command.strokeColor) return edited(document)
       return edited(putHighlightBox(document, { ...box, strokeColor: command.strokeColor }))
     }

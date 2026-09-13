@@ -4,32 +4,16 @@
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
 //
-// Converts between `GRS JSON` and the document (FR-024). Table T-063 UT-5
-// splits the three formats apart because each answers to a different authority:
-// this one to FR-024, MSPDI to the exchange partner's schema, and the single
-// .html to FR-067.
+// Converts between `GRS JSON` and the document (FR-024).
 //
-// ⛔ What this file does NOT do: judge the content. FR-023 puts the rules --
-// the ceilings, the dates, the counts -- in ValidateImportedDocument (CP-13),
-// which the three intake paths share so that one of them cannot be laxer than
-// another. This file answers one narrower question: is the text a GRS JSON
-// document at all. A caller runs both, in that order, because the validator
-// takes a `Document` and cannot be handed a shape that is not one.
-// ⭐ One of FR-023's own MUSTs lands HERE rather than there, for the reason
-// `mspdi-codec.ts` gives about the same one: a leading byte order mark is
-// accepted and dropped before the text is parsed, which nothing downstream of
-// the parser could still do.
+// Judging the content is ValidateImportedDocument's (CP-13). This file answers
+// only whether the text is a GRS JSON document at all, which has to come first
+// because the validator takes a `Document`. The leading byte order mark is
+// dropped here (FR-023), because nothing past the parser could still do it.
 //
-// ⭐ THE GENERATED SCHEMA RUNS HERE, and this is the only place it runs. The
-// preamble of table T-220 (Chapter 6.1) excuses that table from every condition
-// a single column decides, on the ground that `grs-document.schema.json`
-// already enforces them, and then states the MUST that makes the ground true:
-// the schema is to be run on the road that reads `GRS JSON`, by the side that
-// assembles the document -- `CP-20`, which is this component. ⚠️ It is NOT run
-// on the MSPDI road: that codec builds the document itself, so a check there
-// would only be inspecting its own output.
-// ⛔ The `documentSettings` group is deliberately NOT held to `required` or to
-// a closed key set -- see the note on the generated region below.
+// The generated schema runs here and only here, on the road that reads
+// `GRS JSON` (table T-220's preamble). It is not run on the MSPDI road, where
+// the codec builds the document itself and would only inspect its own output.
 
 import type { Document } from '../../entity/document-model/document/document'
 import { clampedSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -37,72 +21,31 @@ import { withoutLeadingByteOrderMark } from './mspdi-codec'
 
 /** Why a text could not be read as a document. */
 export interface JsonFault {
-  /**
-   * Where, as a JSON pointer. `''` is the text as a whole -- NT-1 of table
-   * T-037 requires a notice to say WHICH item is wrong, so a fault that cannot
-   * name one says so by naming the whole.
-   */
+  /** Where, as a JSON pointer; `''` names the whole text when no item can be named (NT-1). */
   readonly at: string
   readonly what: string
 }
 
 /**
- * The row of table T-233 a refusal from here carries.
+ * The row of table T-233 a refusal from here carries, named here so the shell
+ * does not guess. It rides on the decoding rather than on each `JsonFault`,
+ * which would repeat one row per item.
  *
- * ⭐ THE ROW ID IS THE KEY, the move the shell's `NoticeReason` already makes:
- * FR-076 has a telling carry a row of that table as its reason and forbids
- * carrying one the table does not hold (MUST NOT), and RS-25 -- 「読んだ
- * `GRS JSON` の列が、決められた形に合わない」, manner `NT-1` -- is the row that
- * table gained for exactly this refusal. Naming it here rather than in the
- * shell keeps the codec from making the shell guess.
- *
- * ⭐ Why a union of one, and why the reason rides on the DECODING rather than
- * on each `JsonFault`: `JsonFault` already answers NT-1's own MUST -- which
- * item, and why, in words -- one item at a time, and a telling shows one
- * reason over the list of items it found. Widening `JsonFault` would have made
- * every entry repeat the same row id. A union of one is where a second row
- * lands if table T-233 ever splits this refusal.
- *
- * ⛔ A text that is not JSON at all comes back under RS-25 too, and that is a
- * stretch worth naming: table T-233 holds no row for "unparseable", and
- * RS-11 / RS-12 / RS-13 belong to OP-12's dispatch, which has already chosen
- * this codec by the time the text arrives here. ⛔ Inventing a row is not this
- * file's to do.
+ * A text that is not JSON at all carries RS-25 too: table T-233 has no row for
+ * it, RS-11 .. RS-13 belong to OP-12's dispatch, and inventing a row is not
+ * this file's.
  */
 export type JsonRefusalReason = 'RS-25'
 
 /**
  * FR-073's judgement about the format version of the text that was read.
  *
- * ⭐ FR-073 (MUST): 「判別は文字列の大小で行うこと」 and 「この `GRS` が知っている
- * 最大の版より新しい版を読めない版とすること」. The format is a date spelled
- * `YYYY-MM-DD` (or `YYYY-MM-DDTHH:MM` for a second turn on the same day), whose
- * dictionary order IS its time order, so `>` on the two strings is the whole
- * comparison and no comparator is owed.
+ * `newerThanKnown` is not a refusal and must never become one (FR-073): the
+ * decoding stays `ok: true`, and the telling (RS-48) is the caller's.
  *
- * ⛔ `newerThanKnown` IS NOT A REFUSAL, and must never be turned into one. The
- * reader's ruling of 2026-09-05 put three sentences on this case at once:
- * 「受けて開くこと（MUST）」, 「拒んではならない（MUST NOT）」 and 「黙って開いても
- * ならない（MUST NOT）」. So the decoding stays `ok: true` and what is owed is a
- * TELLING -- the columns that could not be read shown on `U-61`
- * (`Difference Review`, table T-103) carrying `RS-48` of table T-233, and the
- * person asked whether to go on.
- * ⭐ THE COLUMNS ARE COUNTED NOW (DFC-357): `unreadColumns` on the decoding below
- * is the list, and this reading is what turns it on. ⚠️ An earlier note here
- * said no member counted them; it was true when it was written and is not now.
- * STOP -- ⛔ THAT TELLING IS STILL NOT DRAWN, and it is not this unit's to
- * draw: this file is pure, and the surface that would lay the list out is
- * `U-61`, which exists but carries only FR-022's merge candidates. ⛔ Nothing
- * here may stand in for it by refusing -- that would meet the first MUST by
- * breaking the MUST NOT beside it.
- *
- * ⛔ `notCompared` IS A HOLE AND SAYS SO. It is what comes back when the caller
- * handed no version to compare against, and it is deliberately NOT spelled as
- * `known`: a document that was never compared must not be reported as one that
- * was found to be readable, or 「黙って開いてもならない」 is broken in silence by
- * the very value that was supposed to answer for it. ⚠️ Nothing in `docs/spec`
- * makes this state legal -- OP-7 of table T-024a sends EVERY open to FR-073 --
- * so a caller that leaves it here owes the version, not a reading of this value.
+ * `notCompared` comes back when no version was handed in. It is not spelled
+ * `known`, so an uncompared document is never reported as readable; OP-7 sends
+ * every open to FR-073, so a caller that gets it owes the version.
  */
 export type FormatVersionReading = 'notCompared' | 'known' | 'newerThanKnown'
 
@@ -111,59 +54,26 @@ export type JsonDecoding =
       readonly ok: true
       readonly document: Document
       /**
-       * How many settings keys `clampedSettings` had to move to bring them
-       * inside the bounds their own rows state -- `0` when nothing moved.
-       *
-       * ⭐ A COUNT AND NOT A LIST, which is the whole of what the person is
-       * owed: the manner is `NT-5` (accepted, with a caution), and no surface
-       * of the specification shows WHICH keys were moved. ⛔ So nothing here
-       * hands the key names on -- a list nobody may draw is a list that would
-       * only invite a face the specification does not hold.
-       * ⚠️ The raiser is the caller's, not this file's: this unit is pure and
-       * `raiseNotice` lives with the loop. Every read road gets the number and
-       * decides whether it has anybody to tell.
+       * How many settings keys `clampedSettings` moved; `0` when none. A count
+       * and not a list, because no surface shows which keys moved (NT-5).
+       * Raising the notice is the caller's.
        */
       readonly clampedCount: number
       /**
-       * OP-7 of table T-024a: 「形式の版は `FR-073` に従って判別する」.
-       *
-       * ⭐ ON THE DECODING AND NOT ON A SEPARATE CALL, for the reason the body
-       * of `documentFromJson` already gives about `clampedSettings`: every road
-       * that turns `GRS JSON` into a document comes through this one function,
-       * so one judgement here is what keeps BT-1, BT-4 and OP-12's import from
-       * drifting apart.
-       * ⚠️ The raiser is the caller's, exactly as `clampedCount`'s is.
+       * OP-7 of table T-024a. On the decoding rather than a separate call, so
+       * every road that reads `GRS JSON` gets the same judgement.
        */
       readonly formatVersion: FormatVersionReading
       /**
-       * FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを
-       * 問うこと」 -- the columns, so that the surface that asks has something
-       * to lay out.
+       * The unread columns FR-073 has shown, by distinct name in the order the
+       * document first carries each. Empty unless `formatVersion` is
+       * `newerThanKnown`: in a known version an unknown key is RS-25's refusal.
+       * Names rather than places, because a column stands on every row that
+       * carries it. The keys themselves stay on the returned document, which is
+       * what carries them back out.
        *
-       * ⭐ ALWAYS EMPTY UNLESS `formatVersion` IS `newerThanKnown`, and that is
-       * the requirement rather than a convenience: FR-073 defines 「読めない版」
-       * as strictly newer than the greatest version this build knows, and a key
-       * this build does not know in a document of a version it DOES know is a
-       * writer inventing a column -- RS-25's refusal, which is left exactly as
-       * it was.
-       *
-       * ⭐ NAMES, NOT PLACES, and 「列」 is why: a column of a newer version
-       * stands on every row that carries it, so a list of occurrences would
-       * name one column nine hundred times over and be unreadable as the
-       * 「具体的に並べて見せ」 the requirement asks for. Distinct, in the order
-       * the document first carries each.
-       * ⛔ NOTHING IS LOST BY LISTING THE NAME ONLY. 「読めなかった列は、解釈
-       * せずに持ち回ること（MUST）。落としてはならない（MUST NOT）」 is kept by
-       * the DOCUMENT and not by this list: the value handed back below is the
-       * parsed root with every unknown key still on it, so a write of it
-       * carries them all back out untouched. This list is what the telling
-       * reads; the carrying is the document's own.
-       *
-       * ⛔ NO ROW SPELLS THIS LIST. FR-073 names what has to be shown and table
-       * T-103's `U-61` names where, and neither settles a shape for it; the
-       * name alone is the narrowest thing that says which column went unread.
-       * Searched: FR-073, FR-022, table T-103, table T-233, table T-064.
-       * Reported.
+       * No row spells this list's shape (searched FR-073, FR-022, tables T-103,
+       * T-233, T-064).
        */
       readonly unreadColumns: readonly string[]
     }
@@ -1350,14 +1260,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
 
 // </generated>
 
-/**
- * What a fault says when the only thing wrong with a key is that this build
- * does not know it.
- *
- * ⭐ NAMED RATHER THAN SPELLED TWICE. `documentFromJson` has to tell this one
- * finding apart from every other in order to keep FR-073's 「受けて開くこと
- * （MUST）」, and two copies of a sentence are two things to keep in step.
- */
+/** Named once because `documentFromJson` must tell this finding apart (FR-073). */
 const NOT_A_KEY_THIS_SHAPE_CARRIES = 'is not a key this shape carries'
 
 /** @purity pure */
@@ -1366,7 +1269,7 @@ function fault(at: string, what: string): JsonFault {
 }
 
 /**
- * Whether a fault is only 「this build does not know this key」.
+ * Whether a fault is only that this build does not know the key.
  *
  * @purity pure
  */
@@ -1396,11 +1299,9 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * One step down a JSON pointer (RFC 6901).
- *
- * ⚠️ The two escapes are not decoration: the `carry` maps of table T-058 take
- * whatever key the exchange partner wrote, and a `/` left unescaped would name
- * a place that is not the one that is wrong.
+ * One step down a JSON pointer (RFC 6901). The escapes matter: the `carry` maps
+ * take any key the exchange partner wrote, and an unescaped `/` would point at
+ * the wrong place.
  *
  * @purity pure
  */
@@ -1409,11 +1310,8 @@ function pointer(at: string, key: string): string {
 }
 
 /**
- * Whether a value is of one of the schema's kinds.
- *
- * ⛔ The `never` floor is the point of the switch: `JsonSchemaKind` is measured
- * from the manuscript by the generator, so a kind the manuscript grows fails to
- * compile HERE instead of being quietly skipped at run time.
+ * Whether a value is of one of the schema's kinds. The `never` floor makes a
+ * kind the manuscript grows a compile error here rather than a skipped rule.
  *
  * @purity pure
  */
@@ -1457,13 +1355,11 @@ function jsonTypeOf(value: unknown): string {
 }
 
 /**
- * Walks one value against one node of the generated schema, collecting faults.
+ * Walks one value against one node of the generated schema, collecting every
+ * fault rather than stopping at the first (NT-1).
  *
- * ⭐ It COLLECTS rather than stops at the first: NT-1 asks which item is wrong,
- * and a reader handed one fault at a time would have to fix and re-read once
- * per column.
- * ⚠️ Recursion is bounded by the schema, not by the data -- the manuscript's
- * `$defs` do not refer to themselves -- so a hostile document cannot deepen it.
+ * `CarryElement` refers to itself, so on `carryElements` the recursion depth
+ * follows the data.
  *
  * @purity pure
  */
@@ -1481,9 +1377,7 @@ function collectFaults(
 
   const kinds = node.type
   if (kinds !== undefined && !kinds.some((kind) => jsonTypeHolds(value, kind))) {
-    // ⭐ Stops here for this node: the keys and items below it are judged
-    // against a shape this value does not have, so they would each report a
-    // second time on the one thing that is wrong.
+    // Stops here: the children would each report again on the one wrong type.
     out.push(fault(at, `expected ${kinds.join(' or ')}, was ${jsonTypeOf(value)}`))
     return
   }
@@ -1533,19 +1427,8 @@ function collectFaults(
 }
 
 /**
- * FR-073's comparison, in one expression.
- *
- * ⭐ 「判別は文字列の大小で行うこと（MUST）」 -- so `>` and not a parsed date.
- * FR-073 gives the reason in as many words: the spelling makes dictionary order
- * the time order, and a shorter string sorts before a longer one that starts
- * the same way, so `YYYY-MM-DD` and `YYYY-MM-DDTHH:MM` may be mixed without
- * breaking the order.
- *
- * ⛔ EQUAL AND OLDER ARE THE SAME ANSWER HERE. FR-073 defines 「読めない版」 as
- * strictly newer than the greatest known one, and (MUST NOT) forbids the
- * version carrying whether a change breaks anything -- so an OLDER version is
- * not a finding this unit may report, and inventing a third outcome for it
- * would give the date the second meaning that sentence refuses.
+ * FR-073's comparison: `>` on the strings, not a parsed date. Equal and older
+ * are one answer, because FR-073 treats only strictly newer as unreadable.
  *
  * @purity pure
  */
@@ -1560,34 +1443,19 @@ function formatVersionReading(
 /**
  * Reads one `GRS JSON` text.
  *
- * ⭐ Pure, and it takes the TEXT rather than a parsed value: parsing is where a
- * malformed input announces itself, and a caller that had already parsed would
- * have swallowed that. FR-023 calls every intake untrusted.
+ * It takes the text rather than a parsed value, because parsing is where a
+ * malformed input announces itself.
  *
- * ⛔ The leading byte order mark goes before `JSON.parse` sees the text. FR-023
- * states it as a MUST ("accept it and drop it") and a MUST NOT ("never refuse a
- * file for having one"), and RFC 8259 does not admit one, so a BOM left in
- * front comes back as "not JSON" -- a spreadsheet tool's export refused for the
- * one reason FR-023 forbids refusing it for. ⚠️ The drop is `mspdi-codec.ts`'s
- * one helper rather than a copy: two intake paths that each carry their own
- * would eventually disagree about a rule that is stated once.
+ * The BOM is dropped before `JSON.parse`, which would otherwise refuse the file
+ * for the one reason FR-023 forbids. The drop is `mspdi-codec.ts`'s helper, so
+ * the two intake paths cannot disagree.
  *
- * ⭐ The shape is judged by the GENERATED schema and by nothing hand-written.
- * The five root keys of table T-052, the twelve of DR-2, the type of every
- * column of table T-058 and the range of every setting are all values the
- * manuscript already holds; a second copy typed out here would go stale the
- * day one of them moved, and nothing would say so.
+ * The shape is judged by the generated schema alone, so no value the manuscript
+ * holds is copied here.
  *
- * ⚠️ The shape is checked, not the content. See the block at the top.
- *
- * ⭐ `greatestKnownSchemaVersion` IS OP-7's SECOND SIDE, and it has to arrive
- * as an argument. FR-073 compares the document's version against the greatest
- * version this build knows of, and that version is not this unit's to hold: it is the
- * one the build's own generator wrote into the bundled startup template, so
- * naming it here would be a second copy of a generated value (rule 03) and
- * reading it here would be an Adapter reaching into the Framework (`LR-6`).
- * ⛔ Leaving it out leaves FR-073 unanswered on that road, which is what
- * `formatVersion` reports as `notCompared` rather than hiding.
+ * `greatestKnownSchemaVersion` arrives as an argument: it is the version the
+ * generator wrote into the bundled template, and holding it here would be a
+ * second copy of a generated value. Leaving it out yields `notCompared`.
  *
  * @purity pure
  */
@@ -1604,15 +1472,9 @@ export function documentFromJson(
     ])
   }
 
-  // ⭐⭐ FR-073 / OP-7 IS JUDGED BEFORE THE FAULTS ARE, AND THAT ORDER IS THE
-  // REQUIREMENT (DFC-357). A document of a version this build does not know is
-  // one 「受けて開くこと（MUST）」 and 「拒んではならない（MUST NOT）」, so the
-  // reading has to be in hand at the moment the faults are weighed -- weighing
-  // them first is what refused every newer document outright.
-  // ⚠️ Read off the parsed value rather than off `read` below, because `read`
-  // is only assumed to be a document AFTER the faults have been weighed. A text
-  // carrying no `schemaVersion` at all reads as `''`, which orders before every
-  // version and so is never 「newer」.
+  // Judged before the faults are weighed, because a newer document must still
+  // open (FR-073). Read off the parsed value, since `read` is only assumed to be
+  // a document afterwards; a missing `schemaVersion` reads as `''`, never newer.
   const declared = isObject(parsed) ? parsed['schemaVersion'] : undefined
   const formatVersion = formatVersionReading(
     typeof declared === 'string' ? declared : '',
@@ -1621,13 +1483,8 @@ export function documentFromJson(
 
   const faults: JsonFault[] = []
   collectFaults(parsed, GRS_DOCUMENT_SCHEMA, '', faults)
-  // ⭐ THE ONE FINDING A NEWER VERSION IS FORGIVEN, AND ONLY THAT ONE. FR-073
-  // (MUST) has the columns this build could not read laid out and carried, so
-  // an unknown KEY in a newer document is the finding rather than a fault; a
-  // wrong type, a missing column or an out-of-range value is not excused by the
-  // version and still refuses. ⛔ In a document of a version this build knows,
-  // an unknown key stays RS-25's refusal exactly as before -- there the writer
-  // invented a column, which is what that row is for.
+  // In a newer document only an unknown key is forgiven, as FR-073's finding;
+  // every other fault still refuses. In a known version it stays RS-25's.
   const isNewer = formatVersion === 'newerThanKnown'
   const refusing = isNewer ? faults.filter((one) => !isUnknownKeyFault(one)) : faults
   if (refusing.length > 0) return refusal(refusing)
@@ -1635,42 +1492,19 @@ export function documentFromJson(
     ? [...new Set(faults.filter(isUnknownKeyFault).map((one) => columnOf(one.at)))]
     : []
 
-  // ⛔ THE ASSERTION OVER-CLAIMS IN ONE PLACE, and it has to. `Document` gives
-  // the presentation group every key, while the schema run above deliberately
-  // does not require them: OP-6 of table T-024a has the reading side fill a
-  // missing setting with its default and keep a key it does not know, and the
-  // preamble of table T-220 forbids this codec from refusing either (MUST NOT).
-  // ⭐ The filling belongs to ImportDocument (CP-10), which FR-087 hangs from
-  // and which every intake reaches; what this unit owes is to let it through.
+  // The assertion over-claims: `Document` gives the presentation group every
+  // key, but filling a missing setting is ImportDocument's (OP-6), and table
+  // T-220's preamble forbids refusing one here.
   const read = parsed as unknown as Document
 
-  // ⭐⭐ `clampedSettings` (PI-2 of table T-064) RUNS HERE, AND THIS IS THE ONE
-  // PLACE IT RUNS. The note on `GRS_DOCUMENT_SCHEMA` above states the standing
-  // rule it answers: the preamble of table T-220 forbids this codec to refuse a
-  // display setting for being out of bounds (MUST NOT), because the range is
-  // that function's work -- it moves the value into range rather than shutting a
-  // whole document out over one display key. Until now nothing called it, so an
-  // out-of-bounds setting was neither refused nor clamped.
-  // ⭐ WHY THE READ ROAD AND NOT EACH CALLER. Every road that turns `GRS JSON`
-  // into a document comes through here -- BT-1's embedded container, BT-4's
-  // bundled template, and OP-12's import -- so one call is what keeps the three
-  // from drifting apart, and a fourth road gets it for free.
-  // ⛔ NOT ON THE MERGE ROAD. `OP-6` of table T-024a keeps a merged document's
-  // presentation group out of the restore altogether, so a merge that took this
-  // road's clamping would be moving values the row says are not restored at all;
-  // FR-056's merge builds its document from the current one and never through
-  // this function.
-  // ⭐ FR-073 / OP-7's reading was taken above, before the faults were weighed.
-  // ⛔ It does NOT gate the return: 「受けて開くこと（MUST）」「拒んではならない
-  // （MUST NOT）」 leave the reading as a value the caller acts on.
+  // `clampedSettings` (PI-2) runs on the read road rather than in each caller, so
+  // every road that turns `GRS JSON` into a document gets it once.
 
   const clamp = clampedSettings(read.documentSettings)
   if (clamp.clamped.length === 0) {
     return { ok: true, document: read, clampedCount: 0, formatVersion, unreadColumns }
   }
-  // ⚠️ A NEW ROOT AND NOT A WRITE. `clampedSettings` is pure and hands a fresh
-  // settings group back, keys it knows nothing about included (OP-6 MUST), so
-  // the document is rebuilt around it rather than the parsed value being edited.
+  // A new root: `clampedSettings` returns a fresh group, unknown keys included.
   return {
     ok: true,
     document: { ...read, documentSettings: clamp.settings },
@@ -1683,13 +1517,10 @@ export function documentFromJson(
 /**
  * Writes one `GRS JSON` text.
  *
- * ⛔ Writes every key of the presentation group even when it equals the
- * default, and every `null` column of the schedule-data group with its key
- * still there -- FR-024 states both as MUST. ⭐ Which is what `JSON.stringify`
- * of the document already does: the document type has no optional key, so
- * there is nothing here to leave out. ⚠️ Do not "tidy" this by dropping
- * defaults; the requirement's reason is that changing a default later must not
- * move the picture of a document written today.
+ * Every settings key and every `null` column is written (FR-024), which
+ * `JSON.stringify` already does because the document type has no optional key.
+ * Do not drop defaults: a later default change must not move the picture of a
+ * document written today.
  *
  * @purity pure
  */

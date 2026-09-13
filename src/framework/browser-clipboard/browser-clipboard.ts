@@ -5,76 +5,41 @@
 // @purity    non-pure
 // @publishes table T-064 row PI-30
 //
-// The implementation of Clipboard (table T-065 IF-5). ClipboardGateway, one
-// layer in, declares the seam; this layer holds the browser. That direction is
-// LR-5 of table T-061 (MUST), and it is why the inner layers never learn that
-// a clipboard is a browser thing at all.
+// The implementation of Clipboard (table T-065 IF-5), declared one layer in by
+// ClipboardGateway (LR-5).
 //
-// ⭐ WHY THIS UNIT EXISTS. Everything that could be decided is decided before
-// the content gets here: the picture is the one SvgRenderer made and the text
-// is the one DocumentCodec made. What is left is the single call the browser
-// offers and the ways it can end -- and every one of them has to come back as
-// a value, because FR-028 forbids the throw (MUST NOT). All four ends:
+// What is left here is the single browser call and its ends, each returned as a
+// value (FR-028, MUST NOT):
 //
 //     no clipboard object on the navigator     unsupported
 //     refused, named NotAllowedError           notPermitted
 //     any other throw or rejection             writeFailed
 //     resolved                                 { ok: true }
 //
-// ⚠️ `writeClipboard` in the declaring folder catches anyway, saying it will
-// not put FR-028's guarantee in a file it does not own. That is not a reason
-// for this side to be careless -- it is the reason nothing here rejects.
+// `writeClipboard` in the declaring folder catches too; that is no reason for
+// this side to reject.
 //
-// ⛔ WHAT WAS HARD (1): IO-6 OF TABLE T-024 SAYS "AS AN IMAGE", AND THE
-// PICTURE LEAVES HERE AS TEXT. IO-6 has the clipboard carry the current screen
-// to another app as an image, for pasting into a document. The seam hands a
-// picture over as an SVG string (`ClipboardContent`), and no browser this
-// specification is written for takes SVG as a clipboard image: CN-2 of table
-// T-003 baselines Chromium, keeps Firefox to a check, and puts Safari out of
-// scope. The one image type those take on a write is PNG, and this component
-// cannot make one -- `_source/components.json` draws it no edge to
-// CanvasRasterizer, and `clipboard.ts` forbids a second rendering here because
-// FR-025 says what goes out this way is the same picture. So the markup goes
-// out as characters. ⭐ What that buys: a drawing tool takes SVG source pasted
-// as text and turns it back into the picture, which is the pasting FR-092's
-// EZ-4 says to stay close to. ⚠️ What it costs: an app that only understands
-// images gets markup and shows it as such. ⛔ Closing the gap means a new
-// variant on `ClipboardContent` and a new component edge -- the declaring
-// side's decision, not this one's; nothing is implemented on it here.
+// ⛔ IO-6 of table T-024 says "as an image", but the picture leaves as SVG text:
+// the browsers CN-2 of table T-003 targets take only PNG as a clipboard image on
+// write, and this component has no edge to CanvasRasterizer and may not render
+// again (FR-025). A drawing tool turns pasted SVG source back into the picture
+// (EZ-4 of FR-092); an image-only app shows markup. Closing the gap is a new
+// `ClipboardContent` variant and component edge, the declaring side's decision.
 //
-// ⛔ WHAT WAS HARD (2): THE PERMISSION AND THE GESTURE ARE THE CALLER'S. The
-// browser settles both after the call is made and reports a denied permission,
-// a write outside a person's gesture, and an unfocused page as one refusal --
-// which is exactly why `ClipboardFault` has one value for them and not three.
-// ⚠️ So this unit does not ask `navigator.permissions` first: the answer
-// cannot change what it does, it would be a second reach into the browser
-// against R7.4, and the refusal is already a value whose next step (NT-3a of
-// table T-037, MUST) is to ask for it again directly.
+// ⚠️ `navigator.permissions` is not asked first: the answer cannot change what
+// this does, it would be a second reach into the browser (R7.4), and the refusal
+// already has its next step (NT-3a).
 //
-// ⛔ WHAT WAS HARD (3): THE OLDER MECHANISM IS NOT USED AS A FALLBACK.
-// `document.execCommand('copy')` would work where the async API is absent, and
-// it is refused here for two reasons. It needs a live document and a
-// selection: a second browser object, and a write into a page this component
-// does not own (the host element belongs to DomSvgSurface). And it refuses
-// with a bare `false` that carries no name, so all three of `ClipboardFault`'s
-// values would collapse into `writeFailed` and NT-3a would have nothing left
-// to tell a person to do next. ⭐ `unsupported` is the truthful answer for a
-// browser with no clipboard to write to, and it is one of the three.
+// ⛔ `document.execCommand('copy')` is not a fallback: it needs a live document
+// and a selection in a page DomSvgSurface owns, and its bare `false` would
+// collapse every fault into `writeFailed`.
 //
-// ⛔ NOT CHECKABLE HERE, and stated so it is not looked for: FR-025 puts
-// FR-020's watermark choice on this route as well (LM-8 reaches an outbound
-// route, and table T-008's CHN-9 is one). It is applied where the picture is
-// made. `clipboard.ts` says this on the declaring side and it stays true on
-// this one -- a picture that arrives already made cannot be inspected for it.
+// ⛔ NOT CHECKABLE HERE: FR-020's watermark choice on this route (FR-025, LM-8) is
+// applied where the picture is made; see `clipboard.ts`.
 //
-// ⛔ Nothing here validates the string. Table T-008's CHN-9 is send-only and its
-// own remark says it is not subject to the checking -- FR-023's intakes are
-// the other direction. A length or emptiness rule invented here would be a
-// boundary the specification did not draw.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// ⛔ Nothing validates the string: CHN-9 is send-only and outside FR-023's checks,
+// so a length or emptiness rule here would be a boundary the specification did
+// not draw.
 
 import type {
   Clipboard,
@@ -83,11 +48,8 @@ import type {
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
 
 /**
- * The characters that go on the clipboard.
- *
- * ⭐ Both variants of `ClipboardContent` already carry a string, so the choice
- * is which one and not how to encode it. For a picture that string is the SVG
- * markup -- see the first hard part above for why it leaves as characters.
+ * The characters that go on the clipboard; for a picture, the SVG markup (see
+ * the header).
  *
  * @purity pure
  */
@@ -96,21 +58,12 @@ function textFromContent(content: ClipboardContent): string {
 }
 
 /**
- * Which of `ClipboardFault`'s three the browser's refusal was.
+ * Which of `ClipboardFault`'s values the browser's refusal was.
  *
- * ⭐ `name` is not the message FR-028's rationale bans the reading of. That ban
- * is on making the kind of a failure depend on wording an implementation is
- * free to change; `name` is one of a fixed set the platform defines, and the
- * classification it feeds stops inside this file -- what leaves is one of the
- * seam's own three values.
- *
- * ⚠️ Deliberately not `instanceof DOMException`: that would tie the unit to a
- * global a host need not have, and the seam asks what kind of failure it was,
- * not what class the browser used to say so.
- *
- * ⛔ Only one name is claimed. Everything else takes the value that claims
- * least, which is the reading `writeClipboard` already applies to a seam that
- * breaks its promise.
+ * `name` is one of a fixed set the platform defines, not message wording, so
+ * FR-028's ban does not reach it. Not `instanceof DOMException`: a host need not
+ * have that global. ⛔ Only one name is claimed; everything else takes the value
+ * that claims least, as `writeClipboard` does.
  *
  * @provisional PND-121
  * @purity pure
@@ -127,25 +80,18 @@ function faultFromThrown(thrown: unknown): ClipboardFault {
 /**
  * IF-5 over the browser's own clipboard.
  *
- * ⭐ The clipboard ARRIVES rather than being reached for. LY-5 of table T-060
- * makes this the layer that holds such things, and R7.3 asks for the injection
- * by name; the effect is that the unit can be exercised with an object that
- * has one method and no browser behind it.
+ * The clipboard arrives as an argument (LY-5, R7.3), so the unit runs against any
+ * object with one method.
  *
- * ⚠️ Pass `navigator.clipboard`, which is absent -- not empty -- where the
- * browser offers no clipboard to write to, so the parameter takes `undefined`
- * and answers `unsupported` for it. ⛔ A page opened straight from a file is
- * the case to keep in mind: CN-1 of table T-003 and FR-067 mean the app is
- * used that way, and LM-14 already records that opening it so costs some
- * abilities. Whether this is one of them is the browser's answer, not an
- * assumption made here -- which is what the value is for.
+ * ⚠️ Pass `navigator.clipboard`, which is absent where the browser offers no
+ * clipboard, so `undefined` answers `unsupported` -- possibly including a page
+ * opened straight from a file (CN-1, FR-067, LM-14).
  *
- * ⛔ Call it inside the event the person started. The browsers want a gesture,
- * and one made outside it comes back as `notPermitted`.
+ * ⛔ Call it inside the event the person started, or the write comes back as
+ * `notPermitted`.
  *
- * ⭐ Tagged `pure` although the unit is not: this only binds the clipboard
- * into the shape IF-5 asks for and holds no state of its own. The effect is in
- * the member, and that is where the non-pure tag sits.
+ * Tagged `pure`: this only binds the clipboard into IF-5's shape; the effect and
+ * its non-pure tag are on the member.
  *
  * @purity pure
  */

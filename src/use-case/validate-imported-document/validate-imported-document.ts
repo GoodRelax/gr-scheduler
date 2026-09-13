@@ -5,102 +5,40 @@
 // @purity    pure
 // @publishes table T-064 row PI-13
 //
-// FR-023 / NFR-009: the strict check of untrusted input, and the one place the
-// three import routes share (CP-13). Table T-008 marks CHN-1 (a file), CHN-3 (what
-// came back out of Web Storage) and CHN-5 (the Agent API) untrusted, and OP-5 of
-// table T-024a sends every one of them through this BEFORE OP-3 asks the person
-// what to do with the document they already have -- asking first would throw
-// that document away for an input that is then refused, which is the partial
-// application FR-023 forbids.
+// FR-023 / NFR-009: the one strict check the untrusted routes share (CP-13;
+// CHN-1, CHN-3 and CHN-5 of table T-008). OP-5 runs it BEFORE OP-3 asks what to
+// do with the current document -- asking first would discard that document for
+// an input that is then refused.
 //
-// ⭐ ALL OR NOTHING. FR-023: "超えた入力は取り込まずに通知すること（MUST）。部分的
-// に適用してはならない（MUST NOT）". This unit only ever answers yes or no about
-// the WHOLE candidate. It never edits, drops or clamps a row to make one fit,
-// and it returns nothing that could be mistaken for a repaired document.
-// ⚠️ A refusal is a VALUE, never a throw (AG-8 of table T-035, R7.10).
+// All or nothing: a yes or no about the whole candidate, never a mended row,
+// and a refusal is a value, not a throw (R7.10).
 //
-// ---- what it refuses -------------------------------------------------------
-//
-//   rule           what                                        also stated as
-//   S-113  T-211   the source is bigger than importMaxBytes         --
-//   S-114  T-211   more `Task` rows than importMaxItems             --
-//   S-115  T-211   the WBS nests deeper than importMaxDepth         --
-//   FR-023         `Task.wbsParentUid` closes a ring              IV-4
-//   S-119/S-120    a date column outside table T-214              IV-14
-//   FR-012         a `Task` with no `start` or no `finish`          --
-//   FR-012         `finish` before `start`                        IV-10
-//
-// The three rows in the last column are conditions table T-220 also states as
-// document invariants, and `scheduleViolations` (PI-1) answers those for a
-// document already in hand. They are checked HERE as well because the moment is
-// different, not because the rule is: T-220 asks "is this document sound", and
-// FR-023 asks "may this untrusted thing become the document at all", which has
-// to be answered while the current document is still standing (OP-5). FR-023
-// names the ring and the date range in as many words, and FR-012 sends both of
-// its own rules here ("取り込む入力は `FR-023` の検証で弾く"). The ring is not
-// optional either way: the depth walk cannot terminate on a ring, which is why
-// FR-023 records that the depth bound "循環では…検出できない".
+// The ring (IV-4), the date range (IV-14) and finish-before-start (IV-10) are
+// also invariants `scheduleViolations` (PI-1) answers. They are checked here too
+// because this asks whether untrusted input may become the document at all,
+// while the current one still stands. The ring check is not optional: the depth
+// walk cannot end on a ring.
 //
 // ---- what it does NOT check ------------------------------------------------
 //
-//   - The other fourteen invariants of table T-220 (IV-1 to IV-3, IV-5 to IV-9,
-//     IV-11 to IV-13, IV-15 to IV-17). `scheduleViolations` (PI-1) owns them and
-//     Chapter 6.1 requires it to be driven by the table rather than written out
-//     row by row (MUST). ⭐ It IS written, and the import road runs it beside
-//     this call: `frame-loop.ts` asks it of the arriving document right after
-//     this verdict and turns the open away on IV-17, which is the one row a
-//     requirement (FR-088) says refuses an input. ⛔ THE OTHER SEVENTEEN STILL
-//     STOP NOBODY on that road, and the reason is not that they go unasked --
-//     it is that table T-233 gives them no row to be told on, which that table
-//     states on purpose (the rows of table T-220 already carry ids of their
-//     own). ⚠️ Folding the call into this unit would still be a change to
-//     CP-13's scope, not an implementation choice.
-//   - `TaskGroup` depth (S-125 / IV-5). FR-058: "取り込みでは `TaskGroup` の深さ
-//     上限で受け付けを拒んではならない（MUST NOT）". S-115 bounds the WBS depth
-//     and S-125 is a different value for a different tree.
-//   - Per-column type, nullability, string length, numeric range and spelled
-//     enumerations. The generated schema (`_assets/grs-document.schema.json`)
-//     already forces those, which is why Chapter 6.1 keeps single-column
-//     conditions out of table T-220. The candidate arrives typed as `Document`
-//     for the same reason: whoever built it (DocumentCodec, PI-20) is the only
-//     place that can turn a parsed value that is NOT one into a refusal.
+//   - The rest of table T-220: `scheduleViolations` (PI-1) owns it, and
+//     `frame-loop.ts` runs it on the arriving document right after this
+//     verdict. Folding it in here would change CP-13's scope.
+//   - `TaskGroup` depth (S-125): FR-058 forbids refusing an import on it.
+//   - Single-column type, nullability, length, range and enumerations: the
+//     generated schema forces those (Chapter 6.1), and only DocumentCodec
+//     (PI-20) can refuse a parsed value that is not a `Document`.
 //     ⛔ docs/spec does not say where that schema check runs. Reported.
-//   - FR-023's other two MUSTs -- disabling XML external entities and never
-//     assigning to `innerHTML`. A pure unit holds neither a parser nor a DOM;
-//     they belong to DocumentCodec (PI-20) and to the renderers.
-//   - The document format version. OP-7 sends that to FR-073.
-//   - How deeply `CarryElement.children` (AT-126) nests. ⛔ It is the second
-//     unbounded nesting an untrusted file can carry, and no row bounds it:
-//     S-115 says WBS in as many words, and FR-023 lists "ネストの深さ" once.
-//     Not guessed at here. Reported.
-//   - Whether the bounds themselves are sane. `clampedSettings` (PI-2) holds
-//     every settings row to its own limits.
+//   - FR-023's XML-entity and `innerHTML` rules: DocumentCodec (PI-20) and the
+//     renderers hold the parser and the DOM.
+//   - The document format version: OP-7 sends that to FR-073.
+//   - How deeply `CarryElement.children` (AT-126) nests. ⚠️ S-133
+//     (`carryMaxDepth`) bounds it, and `ImportBounds` does not carry it yet.
+//     Reported.
+//   - Whether the bounds themselves are sane: `clampedSettings` (PI-2).
 //
-// ---- the two numbers this file reads, and where the specification states
-// ---- how to read them (CR-173) ----------------------------------------------
-//
-// The megabyte. S-113 is named `importMaxBytes` but holds a COUNT OF MEGABYTES
-// -- its value column reads "`32` MB" and its bounds (1 and 256) are megabytes
-// too -- so the byte count has to be converted. The row states the factor:
-// 1 MB = 1024 * 1024 bytes. A file of 32,000,001 bytes is accepted; one of
-// 33,554,433 bytes is refused.
-//
-// Where depth starts counting. S-115 gives the WBS a maximum depth of 64 and
-// states that a root row -- a `Task` whose `wbsParentUid` is `null` -- is at
-// depth 1. That agrees with FR-004, where a depth of 3 is the three levels a
-// person would have called 大 / 中 / 小.
-//
-// ✅ STOP 3 is closed (CR-179). A date column naming no day used to pass
-// THROUGH here, because table T-214 bounded the range and nobody had said what
-// an unreadable value was. FR-023 now names both as one thing -- "文書が使えな
-// い日付" -- and refuses to take either in silence. ⚠️ The remedy is not this
-// file's to apply: it reports, and FR-023 makes whoever called it offer the
-// person two choices (drop those rows per CD-1, or stop the load). ⭐ The empty
-// string is refused too: a column that allows absence spells it `null`.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// A date column naming no day is refused like one out of range (FR-023); the
+// caller, not this unit, offers to drop those rows (CD-1) or stop the load.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -113,18 +51,12 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 
 /**
- * The five rows of tables T-211 and T-214 this unit judges by.
+ * The rows of tables T-211 and T-214 this unit judges by, picked from
+ * `DocumentSettings` so a renamed key breaks the build.
  *
- * ⚠️ They are TAKEN FROM the settings, never re-typed: `DocumentSettings`
- * publishes all five, and `Pick` keeps this list tied to that type so a renamed
- * key breaks the build instead of quietly widening a bound.
- *
- * ⛔ They must be the RECEIVING document's settings -- the ones in force before
- * the import -- and never the arriving input's own. OP-5 puts this check before
- * OP-3 is even asked, and OP-6 restores an arriving `documentSettings` only
- * after 置き換え has been chosen, so at this moment the settings in force are
- * necessarily the current document's. Reading the input's own bounds would let
- * an untrusted file raise its own ceiling, which empties NFR-009.
+ * ⛔ The RECEIVING document's settings, never the input's own -- or an untrusted
+ * file could raise its own ceiling (NFR-009). OP-6 restores an arriving
+ * `documentSettings` only after OP-3, so at OP-5 these are the current ones.
  */
 export type ImportBounds = Pick<
   DocumentSettings,
@@ -133,34 +65,23 @@ export type ImportBounds = Pick<
 
 /** What is being judged: the parsed input, plus the two things it cannot hold. */
 export interface ImportCandidate {
-  /**
-   * The document the input parsed to. Nothing has been adopted yet -- OP-5 is
-   * reached before OP-3 chooses 置き換え / 合流 / 重ねる.
-   */
+  /** The document the input parsed to; nothing is adopted yet (OP-5). */
   readonly document: Document
   /**
-   * How many BYTES the source occupied as it arrived: the file's size (CHN-1 of
-   * table T-008), the length of the stored text (CHN-3), or of the call's payload
-   * (CHN-5). A pure function cannot measure it, so the caller states it, the way
-   * `historyWithStep` is told the size of a step.
+   * How many BYTES the source occupied as it arrived (CHN-1 / CHN-3 / CHN-5 of
+   * table T-008). A pure function cannot measure it, so the caller states it.
    *
-   * ⚠️ Bytes. S-113 states its limit in megabytes, and states the factor that
-   * converts it: 1 MB = 1024 * 1024 bytes (CR-173).
+   * ⚠️ Bytes, although S-113 (`importMaxBytes`) is stated in megabytes.
    */
   readonly byteLength: number
   /**
-   * The `Task` rows that are EX-5's 中身のない行 -- rows the exchange partner
-   * carries that are not tasks, kept so that export can put them back "元の位置
-   * と形のまま". FR-012 puts them outside its own start/finish rule (MUST) and
-   * forbids one of them failing the whole file (MUST NOT), which would take
-   * FR-021's lossless round trip down with it.
+   * The `Task` rows that are EX-5's empty rows, which FR-012 exempts from its
+   * start/finish rule.
    *
-   * ⛔ Whoever parsed the input is the only one that can know, so it is told
-   * here: docs/spec neither says how an empty row is recognised nor where it is
-   * held. (The previous project's answer, kept as a reference and not as a
-   * decision: MSPDI `Task/IsNull = 1`, the element carried whole in Carry with
-   * no native row -- on which reading this list is simply always empty.)
-   * Reported.
+   * ⛔ Only the parser can know them: docs/spec says neither how an empty row
+   * is recognised nor where it is held. Reported. (On the previous project's
+   * reading -- MSPDI `Task/IsNull = 1`, carried whole in Carry -- this list is
+   * always empty.)
    */
   readonly emptyRowTaskUids: readonly number[]
 }
@@ -168,9 +89,8 @@ export interface ImportCandidate {
 /**
  * One reason the input was refused.
  *
- * ⚠️ It names the item and the rule rather than describing the failure in
- * prose alone, because NT-1 of table T-037 requires the notice to say "どの項目
- * が、なぜ誤りか" (MUST).
+ * Names the item and the rule, not prose alone: NT-1 of table T-037 has the
+ * notice say which item is wrong and why.
  */
 export interface ImportRefusal {
   /** The requirement, table row or settings row doing the refusing, e.g. `S-113`. */
@@ -179,29 +99,23 @@ export interface ImportRefusal {
   readonly at: string
   readonly what: string
   /**
-   * Which row of table T-037 the notice follows. The three resource bounds of
-   * table T-211 are NT-6 ("資源の上限に達したとき"); everything else is NT-1
-   * ("入力を受け付けないとき"). The wording is the shell's, but only this file
-   * knows which of the two a refusal is.
+   * Which row of table T-037 the notice follows: table T-211's resource bounds
+   * are NT-6, everything else NT-1. Only this file knows which a refusal is.
    */
   readonly notice: 'NT-1' | 'NT-6'
 }
 
 /**
- * Yes or no about the whole candidate. There is no third answer, and this file
- * never hands back a mended document.
+ * Yes or no about the whole candidate, never a mended document.
  *
- * ⚠️ FR-023 does let a PERSON choose to drop the rows a date refusal names and
- * take the rest (the other choice being to stop the load). That choice is not
- * made here: a refusal carries the row and the column in `at`, which is what
- * the caller needs to offer it and to count what would go. ⛔ Mending here
- * would put the choice in a pure function that cannot ask anyone.
+ * FR-023 lets a PERSON drop the rows a date refusal names; the caller offers
+ * that from `at`, since a pure function cannot ask anyone.
  */
 export type ImportVerdict =
   | { readonly ok: true }
   | { readonly ok: false; readonly refusals: readonly ImportRefusal[] }
 
-/** The factor S-113's remark states: 1 MB = 1024 * 1024 bytes (CR-173). */
+/** S-113 is stated in megabytes. */
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
 /** @purity pure */
@@ -211,21 +125,12 @@ function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'
 
 // ---- table T-058's date columns --------------------------------------------
 //
-// IV-14 points at "表 T-058 の型の欄が日付または日時とする列" rather than naming
-// them, so that adding a column does not have to be remembered in two places.
+// IV-14 names table T-058's date-typed columns by type, not by name, so
+// `DATE_COLUMNS` is generated from erd.json's marks rather than listed here.
 //
-// ⭐ CR-175 made that reachable: erd.json marks each such column, and
-// `DATE_COLUMNS` is generated from those marks. Before it, six lists here were
-// a COPY of the ERD -- `satisfies` caught a misspelling but nothing caught a
-// column that had been added and never listed.
-//
-// ⚠️ The stamp's two instants (`documentStamp.scheduleUpdatedUtc` and
-// `settingsUpdatedUtc`) and `changeLog.changedUtc` are NOT in it: AT-127,
-// AT-129 and AT-133 give their type as 文字列, so table T-058 does not call
-// them dates and IV-14 does not reach them. ⚠️ They are instants and not days
-// on purpose (FR-063), so table T-214's two ends would not be the right bound
-// for them either. Neither does `scrollDate` or the dual cursor --
-// they are in the presentation group, which table T-058 does not describe.
+// ⚠️ Not in it: the stamp's instants and `changeLog.changedUtc` (AT-127, AT-129,
+// AT-133 are typed 文字列 and are instants, FR-063), nor `scrollDate` or the
+// dual cursor (presentation group, outside table T-058).
 
 /** The two ends of table T-214, once each string has been read as a day. */
 interface AcceptedDays {
@@ -239,19 +144,11 @@ interface AcceptedDays {
 const NO_REFUSALS: readonly ImportRefusal[] = []
 
 /**
- * Every date column of one row that falls outside table T-214.
+ * Every date column of one row that names no day or falls outside table T-214.
  *
- * ⚠️ A column holding a string that names no day is passed over, not refused --
- * STOP 3 in the header says why, and says that the choice is not this file's to
- * make silently.
- *
- * ⚠️ It ANSWERS with the refusals rather than writing into an array handed to
- * it. Rewriting an argument is one of the six effects R7's table names, so a
- * helper that did it could not carry `@purity pure` truthfully -- and the tag
- * has to be true, not merely present. `anchorRefusals` in `edit-annotation.ts`
- * is shaped this way for the same reason. The array is built only once there is
- * something to put in it, so a row that is entirely inside the range costs
- * nothing over the walk it already needs.
+ * Returns the refusals instead of pushing into an array it is handed: rewriting
+ * an argument is an effect R7 names, and `@purity pure` would then be false.
+ * The array is built only once something goes into it.
  *
  * @purity pure
  */
@@ -264,15 +161,11 @@ function sweepDateColumns<TRow extends object>(
   let found: ImportRefusal[] | null = null
   for (const column of columns) {
     const value: unknown = row[column]
-    // `null` is every one of these columns' own value for "absent" and carries
-    // no date to judge.
+    // `null` is absence and carries no date to judge.
     if (typeof value !== 'string') continue
     const day = dayOf(value)
-    // A string that names no day. FR-023 puts it in the same class as a date
-    // outside table T-214 -- both are "a date the document cannot use" -- and
-    // refuses to take either in silence. ⚠️ The empty string is HERE, not
-    // waved through as "absent": a column that allows absence spells it `null`
-    // (FR-024's contract), so an empty string is already outside the contract.
+    // A string naming no day is refused like a date out of range (FR-023).
+    // ⚠️ The empty string too: absence is spelled `null` (FR-024).
     if (day === null) {
       found ??= []
       found.push(refusal('IV-14', `${at}/${column}`,
@@ -300,18 +193,14 @@ interface WbsShape {
 
 /**
  * The depth of every `Task` in the WBS, and the rings that stop one being
- * decided. Both come out of the same climb because FR-023 says they must: "循環
- * では深さが確定しないので、ネストの深さの上限でも検出できない" -- a walk that did
- * not watch for the ring would never come back.
+ * decided. One climb finds both: a walk that did not watch for a ring would
+ * never return (FR-023).
  *
- * ⭐ Indexed once with a `Map` (R5 / NFR-013). A `find` inside the climb would
- * make this O(n^2) over an array the bound above still lets reach 200,000 rows.
- * Each `Task` is climbed past once and then answered from the memo, so the whole
- * pass is O(n).
+ * Indexed once with a `Map` and memoised rather than a `find` per step
+ * (R5 / NFR-013).
  *
- * ⚠️ A `wbsParentUid` naming no `Task` ends the climb as if the row were a root.
- * That dangling reference is IV-2's business and `scheduleViolations` reports it;
- * inventing a second answer here would put the same rule in two places.
+ * ⚠️ A `wbsParentUid` naming no `Task` ends the climb as a root: that dangling
+ * reference is IV-2's, reported by `scheduleViolations`, not answered twice.
  *
  * @purity pure
  */
@@ -380,9 +269,8 @@ function wbsShapeOf(tasks: readonly Task[]): WbsShape {
 /**
  * The deepest row the WBS holds, or null when there are no rows to measure.
  *
- * ⚠️ One refusal names the deepest row rather than one per row past the bound:
- * S-115 is a resource ceiling reported under NT-6, and HM-3a measures a subtree
- * the same way -- "部分木は移動後の最深部で測る".
+ * One refusal names the deepest row rather than one per row past the bound:
+ * S-115 is a resource ceiling (NT-6), measured at the deepest point as HM-3a does.
  *
  * @purity pure
  */
@@ -398,14 +286,10 @@ function deepestOf(depthByUid: ReadonlyMap<number, number>):
 /**
  * Whether this untrusted input may become the document, all of it or none.
  *
- * `bounds` carries what the candidate must NOT be allowed to state about
- * itself; the caller takes all five from the settings of the document it is
- * holding now (see `ImportBounds`). `candidate` carries the two things a parsed
- * document cannot know about its own arrival: how many bytes it took up, and
- * which of its rows are EX-5's empty rows.
+ * `bounds` come from the document held now (see `ImportBounds`); `candidate`
+ * adds what a parsed document cannot know about its own arrival.
  *
- * ⚠️ Refusals are collected rather than thrown, and the answer is about the
- * whole input: a caller that sees `ok: false` must adopt nothing.
+ * ⚠️ A caller that sees `ok: false` must adopt nothing.
  *
  * @purity pure
  */
@@ -414,9 +298,8 @@ export function validateImportedDocument(
   bounds: ImportBounds,
 ): ImportVerdict {
   // ---- table T-211, and before anything walks the rows ---------------------
-  // ⭐ These two return early on purpose. They are the ceilings that exist so
-  // that a huge input is turned away BEFORE work proportional to its size is
-  // done, and every sweep below is bounded by the count this one lets through.
+  // These two return early, so a huge input is turned away before work in
+  // proportion to its size; every sweep below is bounded by the count let through.
   if (candidate.byteLength > bounds.importMaxBytes * BYTES_PER_MEGABYTE) {
     return {
       ok: false,
@@ -433,11 +316,8 @@ export function validateImportedDocument(
 
   const schedule = candidate.document.schedule
   const tasks = schedule.tasks
-  // ⚠️ The array as it stands, EX-5's empty rows included if the parser put any
-  // there. S-114 bounds "取り込む `Task` の件数" so that the import stops before
-  // resources run out, and a row costs what it costs whether or not it is shown
-  // as a task. On the reference reading of EX-5 the question does not arise --
-  // an empty row never reaches `tasks` at all.
+  // ⚠️ Counts EX-5's empty rows too, if the parser put any in `tasks`: S-114
+  // bounds resources, and a row costs the same whether or not it is shown.
   if (tasks.length > bounds.importMaxItems) {
     return {
       ok: false,
@@ -452,11 +332,8 @@ export function validateImportedDocument(
     }
   }
 
-  // ⚠️ Everything from here is collected, not returned one at a time. The whole
-  // input is refused whatever the count, and NT-1 asks the notice to say WHICH
-  // item is wrong -- so every offending row is named. Nothing caps the list:
-  // the count above already bounds it, and a cap would be a number docs/spec
-  // does not state.
+  // Collected from here on, since NT-1 asks the notice to name every wrong item.
+  // No cap: the count above bounds the list, and docs/spec states no cap.
   const found: ImportRefusal[] = []
 
   // ---- table T-211: the ring, then the depth -------------------------------
@@ -488,8 +365,8 @@ export function validateImportedDocument(
   const min = dayOf(bounds.importMinDate)
   const max = dayOf(bounds.importMaxDate)
   if (min === null) {
-    // Refused rather than skipped: an input whose range cannot be applied has
-    // not been shown to sit inside it, and FR-023 lets nothing in unshown.
+    // Refused rather than skipped: an input the range cannot be applied to has
+    // not been shown to sit inside it.
     found.push(refusal('S-119', '', `importMinDate names no day: ${bounds.importMinDate}`, 'NT-1'))
   }
   if (max === null) {
@@ -497,7 +374,7 @@ export function validateImportedDocument(
   }
   const accepted: AcceptedDays | null = min !== null && max !== null ? { min, max } : null
 
-  // EX-5's rows, indexed once so the sweep below stays O(n) (R5 / NFR-013).
+  // EX-5's rows, indexed once (R5 / NFR-013).
   const emptyRowUids = new Set(candidate.emptyRowTaskUids)
 
   if (accepted !== null) {
@@ -512,23 +389,14 @@ export function validateImportedDocument(
       found.push(...sweepDateColumns(task, DATE_COLUMNS.Task, foundAt, accepted))
     }
 
-    // FR-012: "`start` または `finish` を持たない `Task` を、画面に出す `Task` と
-    // して受け付けてはならない（MUST NOT）…取り込む入力は `FR-023` の検証で弾く".
-    // The stacking order, the days late and the percent complete all assume both
-    // are there.
-    // ⚠️ EX-5's empty rows are outside this (MUST). They are not shown as tasks,
-    // so none of those three ever runs for one, and refusing a file because it
-    // holds one is forbidden in as many words (MUST NOT).
+    // FR-012. ⚠️ EX-5's empty rows are exempt: they are never shown as tasks.
     if (!emptyRowUids.has(task.uid) && (task.start === null || task.finish === null)) {
       found.push(
         refusal('FR-012', foundAt, `Task uid ${task.uid} has no start or no finish`, 'NT-1'),
       )
     }
 
-    // FR-012 again: "`finish` が `start` より前の入力を受け付けてはならない（MUST
-    // NOT）…外から来た入力は `FR-023` の検証で弾く". Refused, never mended --
-    // rounding finish up to start is forbidden (MUST NOT), because it would
-    // change the data without saying so.
+    // FR-012: refused, never mended by rounding finish up to start.
     const start = dayOf(task.start)
     const finish = dayOf(task.finish)
     if (start !== null && finish !== null && compareDays(finish, start) < 0) {

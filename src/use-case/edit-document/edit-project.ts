@@ -4,30 +4,16 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The five commands table T-108 puts in the `Project` group: CM-1 to CM-5.
+// Validates and returns a new Document; settling it is not this file's (CP-9,
+// WS-6 of table T-067).
 //
-// ⚠️ This file VALIDATES and returns a new Document. It does not settle
-// anything: CP-9 says the aggregates "検証して新しい文書を返すだけで、確定させ
-// ない", and WS-6 of table T-067 makes replacing the current value the sole
-// business of ApplyDocumentChange.
+// A command that writes the value already held returns the same Document:
+// `document-change-plan.ts` reads FR-020's re-stamp and FR-063's schedule
+// instant off the reference, so a rebuilt no-op would move both.
+// Compared by value, one field at a time, never by walking the document: a deep
+// comparison would undo the reference test NFR-013's every-frame road relies on.
 //
-// ⭐ EVERY COMMAND THAT WRITES THE VALUE ALREADY HELD RETURNS THE SAME
-// DOCUMENT. FR-020 (MUST) forbids re-stamping the trail for a write that
-// changed nothing, and FR-063 moves the schedule instant only for a write that
-// moved the schedule group -- `document-change-plan.ts` reads both off the
-// REFERENCE, so a rebuild on a no-op moves them with nothing behind it.
-// ⚠️ Compared BY VALUE and one field at a time. The arm knows which column it
-// is about, so nothing here walks the document: NFR-013 governs the every-frame
-// road that the reference test protects, and a deep comparison would undo it.
-// ⛔ Ledger row DFC-378: measured on the shipped build 2026-09-08 -- CM-1 with
-// the title the document already held moved the watermark eight seconds and
-// answered `hasMovedSchedule: true`. `withProject` was the one `with...` helper
-// of this folder with no such test (`withTask` and `withVisual` have carried
-// one all along), so the five arms below carry it themselves.
-//
-// ⚠️ It is not the public entry of its component. Nothing outside
-// `edit-document/` may import it (Chapter 5.3, MUST NOT) -- `edit-document.ts`
-// re-exports what leaves.
+// Not the component's public entry; `edit-document.ts` re-exports what leaves.
 
 import { dayOf } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
@@ -35,12 +21,9 @@ import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
 /**
- * The eight columns table T-224 marks editable, and no others.
- *
- * ⛔ `created` and `lastSaved` are shown but NOT editable (PF-9 / PF-10): both
- * carry the exchange partner's value straight back, so letting a person
- * rewrite them would empty FR-021's round trip of meaning. `title` is absent
- * because FR-074 excludes it in as many words -- CM-1 is its one entry.
+ * The columns table T-224 marks editable, and no others: `created` and
+ * `lastSaved` carry the exchange partner's value back (PF-9 / PF-10, FR-021),
+ * and `title` has CM-1 as its one entry (FR-074).
  */
 export interface ProjectProfileFields {
   readonly name?: string | null
@@ -78,25 +61,18 @@ function withProject(document: Document, project: Document['schedule']['project'
   return { ...document, schedule: { ...document.schedule, project } }
 }
 
-/**
- * Runs one Project command against the document.
- *
- * @purity pure
- */
+/** @purity pure */
 export function editProject(document: Document, command: ProjectCommand): EditResult {
   const project = document.schedule.project
 
   switch (command.kind) {
     case 'setProjectTitle': {
-      // FR-035: "`title` に空文字を受け付けてはならない（MUST NOT）" -- holding
-      // both an empty string and a null would mean two kinds of "absent", and
-      // every round trip and merge would need a rule for which one wins.
+      // FR-035 (MUST NOT)
       if (command.title === '') {
         return refused([reject('CM-1', 'FR-035', 'the document name may not be an empty string')])
       }
-      // ⚠️ AFTER the refusal, never before: a refused write and a write that
-      // changed nothing are two different answers, and FR-028 has the caller
-      // told which one it got.
+      // After the refusal, never before: a refused write and a no-op are
+      // different answers, and FR-028 has the caller told which it got.
       if (project.title === command.title) return edited(document)
       return edited(withProject(document, { ...project, title: command.title }))
     }
@@ -108,14 +84,8 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
         refusals.push(reject('CM-2', 'PF-8', `startDate is not a date: ${startDate}`))
       }
       if (refusals.length > 0) return refused(refusals)
-      // Only the keys table T-224 admits are spread, and the type admits no
-      // others -- `title` is absent from ProjectProfileFields, so CM-2 cannot
-      // reach the document name even by mistake (FR-074's MUST NOT).
-      //
-      // ⭐ A COLUMN IS SPREAD ONLY WHERE IT MOVES, so a bundle of eight fields
-      // that all say what the row already says leaves `held` as the very object
-      // it started from. That is this arm's answer to the same rule the other
-      // four keep with one comparison: the sweep IS the per-field test.
+      // A column is spread only where it moves, so a bundle that changes
+      // nothing leaves `held` the same object: the sweep is the per-field test.
       let held = project
       for (const key of PROFILE_KEYS) {
         const value = command.fields[key]
@@ -126,9 +96,8 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
     }
 
     case 'setStatusDate': {
-      // FR-046 makes putting the line down "write today into statusDate", but
-      // the day arrives as a value: CS-1 forbids reading the clock here, and
-      // LY-5 leaves the outside to the Framework.
+      // FR-046's "today" arrives as a value: LY-5 leaves the outside to the
+      // Framework.
       if (dayOf(command.date) === null) {
         return refused([reject('CM-3', 'FR-046', `not a date: ${command.date}`)])
       }
@@ -137,16 +106,13 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
     }
 
     case 'clearStatusDate':
-      // FR-046: erasing the line IS setting statusDate to null. There is no
-      // separate visibility flag to clear (the requirement forbids one).
-      // ⚠️ Erasing a line that is not there changes nothing, so the same
-      // document goes back. It is NOT refused: the document already stands as
-      // the command asks, which is the answer CM-37 gives for the same shape.
+      // FR-046. Erasing a line that is not there is not refused: the document
+      // already stands as asked, the answer CM-37 gives for the same shape.
       if (project.statusDate === null) return edited(document)
       return edited(withProject(document, { ...project, statusDate: null }))
 
     case 'setThemeHue': {
-      // S-73 of table T-216: 0 to 359, an integer.
+      // S-73 of table T-216
       if (!Number.isInteger(command.hue) || command.hue < 0 || command.hue > 359) {
         return refused([reject('CM-5', 'S-73', `hue outside 0..359: ${command.hue}`)])
       }

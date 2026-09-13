@@ -4,38 +4,21 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The twelve commands table T-108 puts in the `TaskGroup` group: CM-26 to
-// CM-35, CM-72, and CM-73.
+// The commands table T-108 puts in the `TaskGroup` group: CM-26 to CM-35,
+// CM-72 and CM-73.
 //
-// ⚠️ All twelve write a `TaskGroup` column, which is schedule-group data, so each
-// of them rebuilds `document.schedule` and FR-063 moves the schedule instant for it.
-// A command that asks for the value already held rebuilds NOTHING and returns
-// the document untouched -- document-change-plan.ts reads the schedule
-// REFERENCE, so a rebuild that changed no value would move that instant for a
-// write that changed nothing.
+// A command that asks for the value already held returns the document
+// untouched, because document-change-plan.ts tells a schedule-group write by the
+// `schedule` reference (FR-063).
 //
-// ⚠️ Identity arrives as a value. `TaskGroup.id` is a UUID (AT-51) and a pure
-// function cannot mint one; LY-5 leaves the outside to the Framework, the same
-// reason CM-3 takes its day as an argument. `Task` and `Assignment` uids are
-// the opposite case -- FR-001 and FR-008 make `Project.uidHighWaterMark` the
-// source of both (MUST), and that is inside the document, so CM-28 counts them
+// Identity arrives as a value: `TaskGroup.id` is a UUID (AT-51), which a pure
+// function cannot mint (LY-5). `Task` and `Assignment` uids are the opposite
+// case: `Project.uidHighWaterMark` is inside the document, so CM-28 counts them
 // out here.
 //
-// ⚠️ Confirming a delete (FR-032) and telling people what went (FR-076) are
-// not this file's business: it validates and returns a new Document, and CP-9
-// settles nothing.
-//
-// ⚠️ Table T-015's HR-1 to HR-5 (collapse all, expand the children of a row,
-// ...) have no rows of their own in table T-108, which is the full census of
-// commands. They are BUNDLES of CM-33 over the rows they name, and AG-3 of
-// table T-035 already applies a bundle atomically.
-//
-// ⭐ HF-8 of table T-051 is the one that is NOT a bundle: CM-72 gives it a row
-// of its own because FR-031 makes one press of the fit ONE undo step, and a
-// bundle of CM-33 would make the step count depend on how many rows the
-// document holds.
-//
-// ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
+// Table T-015's HR rows have no rows of their own in table T-108: the caller
+// sends them as bundles of this file's commands, which AG-3 of table T-035
+// applies atomically.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type {
@@ -52,40 +35,20 @@ import { refused, edited } from './edit-document'
 import displayWords from '../../adapter/screen-renderer/display-words.json'
 
 /**
- * The name a row settles on when it has none of its own (FR-032, MUST).
+ * The name a row settles on when it has none of its own (FR-032).
  *
- * ⭐ WHERE THE WORD COMES FROM. FR-032 (MUST) settles the name of a row whose
- * derivation source is about to be deleted, and (MUST NOT) forbids refusing the
- * deletion because that source never carried one -- 「語は `FR-038` の辞書が持ち、
- * ここに綴らない」. So the word is READ and never typed here: Chapter 6.2 (MUST)
- * gives the words exactly ONE destination in `src/`, and `display-words.json`
- * beside `screen-renderer.ts` is it -- `_source/display-words.json` generated in.
- * ⛔ A second copy of the word, in this file or in any table, is what that MUST
- * forbids, so this is a read of the one destination rather than a constant of
- * this layer's own.
+ * Read from `display-words.json`, the one destination Chapter 6.2 gives the
+ * words in `src/`, rather than typed here. A JSON import is data, not a reach
+ * into a component: `check_layer_rules.py` reads a `.json` specifier as data.
  *
- * ⚠️ A JSON IMPORT IS DATA AND NOT A REACH INTO A COMPONENT. LR-1 of table
- * T-061 orders the layers by the UNITS they hold, and `check_layer_rules.py`
- * reads a `.json` specifier as data rather than as a unit ("Chapter 5.3 does
- * not govern those"). Nothing is called across this edge and no type of the
- * outer layer is named by it.
+ * The English cell is a decision: the display language is not in the document
+ * (FR-038), and what is written is a `TaskGroup.label` the exchange partner
+ * receives -- the same answer `startupDisplayLanguage` gives a host FR-038 does
+ * not admit. The reader's language could only arrive as a command field, which
+ * is a change request.
  *
- * ⛔ THE ENGLISH CELL, AND THAT IS A DECISION RATHER THAN AN OVERSIGHT. FR-038
- * (MUST NOT) keeps the display language out of the document -- 「表示言語は文書に
- * 保存しない」 -- so this aggregate has no reader's language to read, and what it
- * writes is not a printed word but a `TaskGroup.label`, which the file carries
- * and the exchange partner receives long after that screen is gone.
- * `startupDisplayLanguage` in the shell answers `en` for a host that is neither
- * of the two FR-038 admits; this is the same question with the same answer.
- * ⚠️ The Japanese cell of that entry is written and unread HERE. If the reader's
- * language is ever to reach this settle, it has to arrive as a VALUE -- the way
- * `rulerWeekdayWords` reaches the picture, asked for where the language is held
- * -- which is a command field, and therefore a change request rather than an
- * implementation choice.
- *
- * ⚠️ The empty stand-in cannot be reached while `npm run gen:check` passes: the
- * generator builds its roster every run and refuses to write on a mismatch. It
- * guards the run where someone edited the generated file by hand.
+ * The empty stand-in is unreachable while `npm run gen:check` passes; it guards
+ * a hand-edited generated file.
  */
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 export const DEFAULT_ROW_NAME: string =
@@ -103,13 +66,9 @@ export type TaskGroupCommand =
       /** FR-058: the row shows this Task's name when `label` is null. */
       readonly derivedFromTaskUid: number | null
       /**
-       * AT-55, the place among the siblings.
-       *
-       * ⛔ WHERE a new row lands among its siblings is not decided anywhere:
-       * FR-085 settles the parent ("既存のどの `TaskGroup` の子にもでき、どこ
-       * にも属さない最上位にもできる") and says nothing about the order, and
-       * table T-015a covers moving rows, not making them. This file will not
-       * decide it either, so the caller passes the value in.
+       * AT-55, the place among the siblings. Not decided anywhere (FR-085 settles
+       * only the parent; table T-015a covers moving rows, not making them), so
+       * the caller passes it in.
        */
       readonly order: number
     }
@@ -139,18 +98,10 @@ export type TaskGroupCommand =
   /**
    * CM-73 -- where HF-15's drag lands a row.
    *
-   * ⭐ ONE COMMAND FOR BOTH AXES, and that is why it is 組 ⭐ in table T-108:
-   * HF-15 fixes the axis for the length of one grab, but a single drag writes
-   * `parentId` and `order` together whichever axis it took -- an up-or-down
-   * step crosses into another parent 「ある群の末子の次は次の群の長子の位置で
-   * あり、親をまたぐ」, and a left-or-right step lands the row among new
-   * siblings. ⛔ TWO COMMANDS WOULD BE TWO UNDO STEPS for one gesture, which
-   * FR-031 (MUST) forbids.
-   *
-   * ⛔ NOT `reorderTaskGroupSiblings` WIDENED. That command's own refusal says
-   * a list bringing in a row from another parent 「does not describe an order
-   * of this parent's children」, and its authority HM-8 is about siblings; one
-   * row of table T-108 meaning two things is what R3.4 refuses.
+   * One command for both axes: a single drag can write `parentId` and `order`
+   * together, and two commands would be two undo steps for one gesture (FR-031).
+   * Not `reorderTaskGroupSiblings` widened: that one is HM-8's siblings only, and
+   * one row of table T-108 meaning two things is what R3.4 refuses.
    */
   | {
       readonly kind: 'moveTaskGroup'
@@ -161,11 +112,8 @@ export type TaskGroupCommand =
       readonly order: number
     }
   /**
-   * CM-72 -- HF-8's half of one fit press.
-   *
-   * ⚠️ It carries no field. Every collapsed row is the target, so there is no
-   * row to name; the second half of the press, CM-71, carries the zoom and the
-   * place and lives in the presentation aggregate.
+   * CM-72. No field: every collapsed row is the target. The zoom and place of a
+   * fit press are CM-71, in the presentation aggregate.
    */
   | { readonly kind: 'expandAllTaskGroups' }
 
@@ -187,8 +135,7 @@ function withRow(document: Document, row: TaskGroup): Document {
 }
 
 /**
- * How deep a row sits, counting the top level as 1 -- the count IV-5 measures
- * against `S-125`, and the one `drawnGroups` walks in schedule-layout.ts.
+ * How deep a row sits, counting the top level as 1 (IV-5, `S-125`).
  *
  * @purity pure
  */
@@ -235,12 +182,8 @@ function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree | null
 }
 
 /**
- * The seeds plus every WBS descendant of them, which is what CD-1 of table
- * T-050 reaches from each `Task` and what DU-1 of table T-223 copies.
- *
- * ⚠️ A WBS descendant may sit on a DIFFERENT row -- HM-10 leaves the children
- * behind when a bar is moved -- and FR-032 says so in as many words when it
- * asks the confirmation to mark those Tasks.
+ * The seeds plus every WBS descendant of them (CD-1 of table T-050, DU-1 of
+ * table T-223). A descendant may sit on a different row (HM-10).
  *
  * @purity pure
  */
@@ -260,21 +203,13 @@ function withWbsDescendants(tasks: readonly Task[], seeds: Iterable<number>): Re
 }
 
 /**
- * Every row's place in the ROW TREE, top to bottom: a preorder walk of AT-52's
- * `parentId` taking siblings in AT-55's `order`.
+ * Every row's place in the row tree (HM-9): a preorder walk of AT-52's
+ * `parentId` taking siblings in AT-55's `order`. A rank, not a `y`, so pinned,
+ * folded and hidden rows keep their place.
  *
- * ⭐ WHAT `HM-9` MEANS BY 「行の木における位置」, and the only thing this
- * answers. It is a rank and not a `y`: a row `FR-098` pinned, a row `HR-1a`
- * folded away and a row `HR-6` hid all keep their place between their siblings,
- * which is the whole point of that row's MUST NOT.
- *
- * ⚠️⚠️ THIS IS A THIRD COPY OF ONE WALK, AND IT IS REPORTED RATHER THAN HIDDEN.
- * `schedule.ts` holds it for `IV-19` and `input-command-translator.ts` holds it
- * for `FR-019`; the entity's copy is file-local and table T-064 publishes no
- * entry for it, so neither of the other two may import it, and LR-1 of table
- * T-061 forbids this layer reaching out to the Adapter for the translator's.
- * ⇒ Rule 03's DRY points at exporting the entity's one and deleting the other
- * two; until it is exported, all three must be changed together.
+ * Written here because the same walk in `schedule.ts` is file-local (table T-064
+ * publishes no entry for it) and the translator's is in an outer layer (LR-1);
+ * change the copies together.
  *
  * @purity pure
  */
@@ -305,14 +240,8 @@ function rowTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, numb
 }
 
 /**
- * `ST-2` of table T-014 -- 「`start` 昇順 → `finish` 降順 → `uid` 昇順」, which
- * `HM-9` (MUST) sends the tie to 「同じ行に兄弟が複数いるときは 表 T-014 の
- * `ST-2` の順とすること」.
- *
- * ⚠️ A COLUMN THAT IS ABSENT SORTS AS THE EMPTY TEXT, so a Task carrying no
- * `start` stands before every dated one and the answer stays TOTAL -- which is
- * `ST-2`'s own reason for existing (「決定的でないと再描画のたびに段が入れ替わ
- * る」). `uid` closes every remaining tie, and AT-24 makes it unique.
+ * `ST-2` of table T-014, the tie order `HM-9` uses. An absent column sorts as the
+ * empty text, so the order stays total; `uid` (unique, AT-24) closes every tie.
  *
  * @purity pure
  */
@@ -327,38 +256,17 @@ function compareByStackOrder(left: Task, right: Task): number {
 }
 
 /**
- * `AT-26` rebuilt from the row tree -- `HM-9` of table T-015a (MUST), 「並べ替え
- * た順序も WBS へ伝わること」.
+ * `AT-26` rebuilt from the row tree (`HM-9` of table T-015a).
  *
- * 「各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている
- * 行の、行の木における位置で決めること（MUST）」, and (MUST NOT) 「画面に描かれ
- * た位置で決めてはならない」 -- so the rank comes from `rowTreeRankById` above
- * and never from a drawn `y`.
+ * The row is the one that DRAWS the Task, read off `Schedule.taskGroupMembers`
+ * (ET-5); `TaskGroup.derivedFromTaskUid` is not consulted. Only `AT-26` (a
+ * `Consume` column) is rebuilt; `wbsParentUid` is not touched (HM-3).
  *
- * ⭐ THE ROW THAT DRAWS IT, AND NOT THE ROW IT WAS DERIVED FROM. The same row
- * settles that in as many words (利用者の裁定 2026-09-05「移した後の行のバーだ
- * ろ？ もともとあったバーとは区別すべきでないのでは？」), so the row is read off
- * `Schedule.taskGroupMembers` -- ET-5, the one place that says which row draws a
- * `Task` -- and `TaskGroup.derivedFromTaskUid` is not consulted at all.
- * ⛔ REBUILDING THE COLUMN IS ALLOWED AND NOTHING ELSE IS. AT-26's origin is
- * `Consume`, which Chapter 5.7 defines as 「取り込んで解釈し、書き出すときに作り
- * 直すもの」; `wbsParentUid` (AT-25) is not touched here, which is `HM-3`'s MUST
- * NOT 「WBS の親を変えてはならない」 read at its narrowed width (同裁定).
+ * A Task on no row is ranked after every ranked one rather than dropped: that is
+ * a broken document (IV-6) kept deterministic.
  *
- * ⚠️ A Task on no row at all is ranked after every ranked one rather than
- * dropped: IV-6 has each Task on exactly one row, so that is a broken document
- * being kept deterministic rather than a case with a rule of its own.
- *
- * ⭐ EXPORTED FOR THE THIRD ROAD INTO `HM-9`, and for that alone. `HM-9` is
- * reached by three commands, not two: CM-35 reorders siblings and CM-73 moves a
- * row, both of which live in this file, and CM-19 moves a BAR to another row,
- * which lives in edit-task.ts. The membership CM-19 rewrites is exactly the
- * `Schedule.taskGroupMembers` entry this function reads, so the same rank has to
- * be rebuilt after it. ⛔ A FOURTH WALK IN THAT FILE IS WHAT THIS EXPORT AVOIDS
- * -- the note above already counts three copies of the row-tree walk as debt.
- * ⚠️ It is not a public entry of the component (Chapter 5.3, MUST NOT): the two
- * files are one unit's two aggregates, and edit-task.ts already reaches here for
- * `DEFAULT_ROW_NAME`.
+ * Exported for CM-19 in edit-task.ts, which rewrites the membership this reads,
+ * so it does not need another walk of its own.
  *
  * @purity pure
  */
@@ -385,9 +293,7 @@ export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
     })
     ordered.forEach((task, at) => placeOf.set(task.uid, at))
   }
-  // ⚠️ A Task whose column already holds its rank comes through UNTOUCHED, the
-  // same care every branch of this file takes: rebuilding it would rebuild the
-  // schedule, and move FR-063's instant, for a write that changed nothing.
+  // A Task already holding its rank comes through untouched (FR-063, see the header).
   return schedule.tasks.map((task) => {
     const at = placeOf.get(task.uid)
     return at === undefined || task.wbsOrder === at ? task : { ...task, wbsOrder: at }
@@ -395,8 +301,7 @@ export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
 }
 
 /**
- * A document whose rows have just moved, with `AT-26` brought back into step
- * with them -- `HM-9` (MUST).
+ * A document whose rows have just moved, with `AT-26` back in step (`HM-9`).
  *
  * @purity pure
  */
@@ -419,17 +324,14 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
   switch (command.kind) {
     case 'createTaskGroup': {
       const refusals: Refusal[] = []
-      // IV-1 is the one condition the generated schema cannot see: the shape of
-      // the id is a single column and the schema types it (AT-51, format uuid),
-      // but uniqueness spans the whole array.
+      // IV-1: uniqueness spans the array, which the generated schema cannot see.
       if (byId.has(command.id)) {
         refusals.push(reject('CM-26', 'IV-1', `a row already holds the id ${command.id}`))
       }
       if (!Number.isInteger(command.order)) {
         refusals.push(reject('CM-26', 'AT-55', `order is not an integer: ${command.order}`))
       }
-      // FR-058: "指定も導出元も無い行を作ってはならない（MUST NOT）". AT-54 says
-      // the same from the column's side, and IV-8 is what tests it.
+      // FR-058 / AT-54
       if (command.label === null && command.derivedFromTaskUid === null) {
         refusals.push(
           reject('CM-26', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
@@ -448,8 +350,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         if (parent === undefined) {
           refusals.push(reject('CM-26', 'FR-085', `no such parent row: ${command.parentId}`))
         } else if (depthOf(byId, parent) >= settings.maxGroupDepth) {
-          // FR-085: "上限に達している親の下に作らせてはならない（MUST NOT）".
-          // The value is S-125; the rule and the reason are FR-004's.
+          // FR-085; the value is S-125.
           refusals.push(
             reject(
               'CM-26',
@@ -461,10 +362,8 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       }
       if (refusals.length > 0) return refused(refusals)
 
-      // The four remaining columns start absent, and FR-042 gives both of the
-      // meaningful ones their meaning when absent: no `color` follows the theme
-      // through the depth and the row's place, no `height` is decided by the
-      // stack count (ST-9). A new row is neither collapsed nor hidden.
+      // The remaining columns start absent, which FR-042 gives a meaning: no
+      // `color` follows the theme, no `height` follows the stack count (ST-9).
       const row: TaskGroup = {
         id: command.id,
         parentId: command.parentId,
@@ -484,31 +383,19 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (doomed === null) {
         return refused([reject('CM-27', 'FR-032', `no such row: ${command.groupId}`)])
       }
-      // CD-2 of table T-050: the rows below go with it, and so does every Task
-      // on any of them, each of those cascading CD-1.
+      // CD-2 of table T-050.
       //
-      // ⛔ NOTHING HERE KEEPS THE LAST ROW ALIVE, and that is now a MUST NOT of
-      // its own: the invariant printed under table T-050 (利用者の指示
-      // 2026-09-01) says 「最後の 1 行の削除を拒んではならない」 -- refusing
-      // would take away the only way to delete the Tasks that row carries.
-      // ⭐ The document not being EMPTY afterwards is a different rule, and it
-      // does not live here. Table T-050 (MUST NOT) 「経路ごとに書き写しては
-      // ならない」 -- a delete, an import, OP-3's replace and a redo can all
-      // take the count to zero, so the rule sits where all four meet, which is
-      // `document-change-plan.ts` (WS-3 of table T-067).
-      // ⚠️ FR-001 still reads 「`FR-032` は行を 1 つも無い状態にできる」, which
-      // the invariant has made stale. That sentence is the manuscript's to
-      // move; it is reported, not edited from here.
+      // The last row is not kept alive (table T-050's invariant). The document
+      // not being empty afterwards is enforced where every road that can empty it
+      // meets, `document-change-plan.ts` (WS-3 of table T-067), not per road.
       const doomedRows = new Set(doomed.rows.map((one) => one.id))
       const seeds = schedule.taskGroupMembers
         .filter((member) => doomedRows.has(member.groupId))
         .map((member) => member.taskUid)
       const doomedTasks = withWbsDescendants(schedule.tasks, seeds)
 
-      // FR-032: "`Task` を消す前に、その `Task` を名前の導出元にしている行の名前
-      // を確定させ、`derivedFromTaskUid` を空にすること（MUST）". Only rows that
-      // SURVIVE need it -- and they exist, because CD-1 reaches Tasks that sit
-      // on other rows.
+      // FR-032: only surviving rows need their name settled, and they exist
+      // because CD-1 reaches Tasks on other rows.
       const kept: TaskGroup[] = []
       for (const row of groups) {
         if (doomedRows.has(row.id)) continue
@@ -516,15 +403,9 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
           kept.push(row)
           continue
         }
-        // FR-058 shows the derived name only when none was given, so a row that
-        // already carries a `label` settles on the one it is showing.
-        // ⭐ AND THE DEFAULT NAME WHEN NEITHER IS THERE. FR-032 (MUST) settles
-        // it 「既定の名前」 when the derivation source has no name of its own,
-        // and (MUST NOT) forbids refusing the deletion for want of one. ⛔ THIS
-        // BRANCH USED TO REFUSE, and that refusal is the whole of DFC-171: a row
-        // FR-001 raised on empty space derives from a Task FR-001 left nameless,
-        // so the ordinary case walked straight into it, WS-3 of table T-067
-        // threw the bundle away, and nothing the author drew could be deleted.
+        // A row already carrying a `label` settles on the one it shows (FR-058);
+        // with neither, the default name (FR-032). Refusing here instead would
+        // block deleting any Task FR-001 raised nameless.
         const settled =
           row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? DEFAULT_ROW_NAME
         kept.push({ ...row, label: settled, derivedFromTaskUid: null })
@@ -533,18 +414,14 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       const survivors = schedule.tasks
         .filter((task) => !doomedTasks.has(task.uid))
         .map((task) => {
-          // CD-1 takes "その `Task` を端点とする依存". DF-4 nests a dependency
-          // under its SUCCESSOR, so the successor's own array goes with it and
-          // what is left to sweep is the predecessor side.
+          // CD-1: DF-4 nests a dependency under its successor, so only the
+          // predecessor side is left to sweep.
           const held = task.dependencies.filter((one) => !doomedTasks.has(one.predecessorUid))
           return held.length === task.dependencies.length ? task : { ...task, dependencies: held }
         })
 
-      // CD-2 sends the pins after the row (S-126) and returns the display
-      // position to null (S-78) rather than dropping it: null is "the person
-      // has not chosen a place yet", which OP-10 of table T-024a knows how to
-      // read. The presentation group moves with the schedule here, and FR-063
-      // still moves the schedule instant because the schedule moved.
+      // CD-2: pins go (S-126) and the display position returns to null (S-78),
+      // which OP-10 of table T-024a knows how to read.
       const pinned = settings.pinnedGroupIds.filter((one) => !doomedRows.has(one))
       const scrollGroupId =
         settings.scrollGroupId !== null && doomedRows.has(settings.scrollGroupId)
@@ -555,11 +432,8 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
           ? { ...settings, pinnedGroupIds: pinned, scrollGroupId }
           : settings
 
-      // ⚠️ `baselineTasks` is NOT swept. CD-1 does not list it, and the ERD
-      // makes the baseline a match on `uid` rather than a reference, so no
-      // dangling pointer is left behind (FR-015).
-      // ⚠️ `resources` is NOT swept either: CD-5 is a row of its own, and
-      // FR-008 keeps a resource alive after its assignment is gone.
+      // `baselineTasks` is not swept: the baseline matches on `uid` rather than
+      // referencing (FR-015). `resources` neither: FR-008 keeps them.
       return edited({
         ...document,
         schedule: {
@@ -600,10 +474,8 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       }
       const refusals: Refusal[] = []
 
-      // FR-033: "貼り付け後の `TaskGroup` の深さが `FR-004` の上限を超える複製を
-      // 受け付けてはならない（MUST NOT）。部分木は貼り付け後の最深部で測る".
-      // The target's own depth plus the subtree's height IS that deepest point,
-      // because the copied root becomes the target's child.
+      // FR-033: the target's depth plus the subtree's height is the deepest
+      // point after the paste, because the copied root becomes its child.
       const under = target === undefined || target === null ? 0 : depthOf(byId, target)
       if (under + copied.height > settings.maxGroupDepth) {
         refusals.push(
@@ -642,13 +514,10 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         return row === undefined || !copiedRows.has(row)
       })
       if (homeless.length > 0) {
-        // ⛔ GAP. DU-2 says "複製した `Task` は複製した行に載せる", and the note
-        // under table T-223 takes the other rule ("複製元と同じ行に載せる") away
-        // by declaring it the rule for copying a Task ALONE. A WBS descendant
-        // that HM-10 left on a row outside the copy therefore has no row named
-        // for it: its source row was not copied. Refusing is the only move that
-        // decides nothing -- leaving the copy off a row breaks IV-6, and putting
-        // it on one picks a row the table never named.
+        // GAP: DU-2 puts copies on the copied rows, and the note under table
+        // T-223 limits the same-row rule to copying a Task alone, so a WBS
+        // descendant HM-10 left outside the copy has no row named for it.
+        // Refusing decides nothing; any row would be one the table never named.
         refusals.push(
           reject(
             'CM-28',
@@ -659,31 +528,17 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       }
       if (refusals.length > 0) return refused(refusals)
 
-      // ⚠️ ST-7's safety valve (FR-033: "段が表 T-014 の `ST-7` の安全弁に達した
-      // ときは、貼り付けを受け付けずに通知すること") cannot be reached by THIS
-      // command, so nothing counts stacks here -- which matters, because the
-      // count is made of drawn occupancy (table T-038) and belongs to the
-      // layout. That MUST sits in the paragraph about a copied Task landing on
-      // its source's own row, where the count does grow. DU-2 puts every copy
-      // on the COPIED row instead: no existing row gains a Task, and each new
-      // row carries the same Tasks as the row it copies, so its stack count is
-      // the one that row already has.
+      // FR-033's ST-7 safety valve is not reached by this command, so no stacks
+      // are counted here: DU-2 puts every copy on a copied row, which carries the
+      // same Tasks and so the same stack count as the row it copies.
       //
-      // ⚠️ A copied column keeps its value unless identity forces otherwise.
-      // Only the id, the uid, the copied root's `parentId` (FR-033 puts it
-      // under the selected row) and references INTO the copied set move. In
-      // particular `order` is carried over -- where a copy lands among its new
-      // siblings is not stated anywhere, and a copy keeping the column it
-      // copied is what duplicating is; writing some other number there would be
-      // this file deciding. The same goes for a `wbsParentUid` that points
-      // OUTSIDE the copy: carrying it over keeps IV-2 and IV-4 sound, where
-      // emptying it would be a decision nobody made.
+      // A copied column keeps its value unless identity forces otherwise: only
+      // the id, the uid, the copied root's `parentId` and references into the
+      // copied set move. `order` and an outside `wbsParentUid` are carried over,
+      // because nothing states otherwise.
       let mark = schedule.project.uidHighWaterMark
       const uidOf = new Map<number, number>()
-      // FR-001: "新しい `Task` の `UID` は `Project.uidHighWaterMark` に従って
-      // 採ること（MUST）。実在する `UID` の最大値から採ってはならない（MUST
-      // NOT）". FR-008 puts `Assignment` on the same counter. Sorted, so the
-      // same paste on the same document yields the same document.
+      // FR-001 / FR-008. Sorted, so the same paste yields the same document.
       for (const uid of [...copiedTasks].sort((a, b) => a - b)) uidOf.set(uid, ++mark)
 
       const newRows: TaskGroup[] = []
@@ -710,8 +565,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
             task.wbsParentUid === null
               ? null
               : (uidOf.get(task.wbsParentUid) ?? task.wbsParentUid),
-          // FR-033: "複製した部分木の内側で閉じている依存だけを複製すること
-          // （MUST）。部分木の外へ出る依存を複製してはならない（MUST NOT）".
+          // FR-033
           dependencies: task.dependencies
             .filter((one) => uidOf.has(one.predecessorUid))
             .map((one) => ({
@@ -743,11 +597,8 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         newAssignments.push({ ...assignment, uid: ++mark, taskUid: fresh })
       }
 
-      // ⛔ Nothing is added to `taskOrigins`: DU-1 forbids it (MUST NOT), so
-      // the copies are not offered to the merge. Nothing is added to the
-      // annotations or to `pinnedGroupIds` either -- DU-2 forbids both, and the
-      // reasons are under table T-223 (a doubled note on the same day, and a
-      // silently filled S-127).
+      // Nothing is added to `taskOrigins` (DU-1), the annotations or
+      // `pinnedGroupIds` (DU-2).
       return edited(
         withSchedule(document, {
           project: { ...schedule.project, uidHighWaterMark: mark },
@@ -765,17 +616,15 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-29', 'FR-085', `no such row: ${command.groupId}`)])
       }
-      // FR-058's MUST NOT again, from the other direction: taking the name away
-      // from a row that has no derivation source leaves AT-54 unsatisfiable.
+      // FR-058 / AT-54
       if (command.label === null && row.derivedFromTaskUid === null) {
         return refused([
           reject('CM-29', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
         ])
       }
       if (row.label === command.label) return edited(document)
-      // ⚠️ `derivedFromTaskUid` is left alone. FR-058 makes the derived name
-      // what a row shows when none was given, so naming a row does not have to
-      // forget where the fallback came from, and nothing asks for that.
+      // `derivedFromTaskUid` is left alone: it is the fallback when the name is
+      // taken away again (FR-058).
       return edited(withRow(document, { ...row, label: command.label }))
     }
 
@@ -784,17 +633,12 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
       }
-      // ⛔ GAP: the value is NOT checked against the palette. FR-007 requires
-      // the choice to come from table T-017's CL-1 (MUST) and FR-028 puts the
-      // Agent API on the same footing as the screen, so the check belongs here
-      // -- but CL-1 names its eleven colours in Japanese prose and only the
-      // eleventh has a settled spelling (`'transparent'`, P-19 of the
-      // glossary). The generated schema types the column as a plain string.
-      // There is nothing to compare against, so nothing is compared.
+      // GAP: not checked against CL-1 of table T-017 (FR-007), because CL-1
+      // names its colours in Japanese prose and only `'transparent'` (P-19) has
+      // a settled spelling; the schema types the column as a plain string.
       //
-      // ⚠️ A colour and no colour are different states, which is why CM-31 is a
-      // row of its own: FR-007 says "透明を選ぶことは戻すことにならない", so
-      // this command never writes null.
+      // This command never writes null: resetting is CM-31, and transparent is
+      // not a reset (FR-007).
       if (row.color === command.color) return edited(document)
       return edited(withRow(document, { ...row, color: command.color }))
     }
@@ -804,9 +648,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-31', 'FR-007', `no such row: ${command.groupId}`)])
       }
-      // FR-007: "指定した色をテーマ追随へ戻せること（MUST）。`Task` の線色・塗り
-      // 色と行の色のいずれもである" -- without this entrance a row that was once
-      // coloured would never follow `themeHue` again.
+      // FR-007
       if (row.color === null) return edited(document)
       return edited(withRow(document, { ...row, color: null }))
     }
@@ -819,19 +661,11 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (command.height !== null && !Number.isInteger(command.height)) {
         return refused([reject('CM-32', 'AT-59', `height is not an integer: ${command.height}`)])
       }
-      // ⚠️ A height BELOW what the stacks need is accepted as it stands, and
-      // that is FR-042's own decision: "指定した高さは下限として扱うこと
-      // （MUST）。段数がそれより高い帯を要するときは、指定を超えて広げること
-      // （MUST）。段を落として指定に収めてはならない（MUST NOT）". The widening
-      // happens where the band is measured, not here -- and the requirement
-      // gives the reason for putting the floor there rather than refusing:
-      // stacks grow when Tasks are added, so a height that was legal when it
-      // was saved would otherwise turn illegal by itself.
+      // A height below what the stacks need is accepted: FR-042 makes it a floor
+      // widened where the band is measured, not refused here.
       //
-      // ⚠️ null goes back to the automatic height (FR-042: "高さの指定が無い行
-      // は、段数から自動で決めること"). It arrives through this command because
-      // table T-108 holds no reset row for the height, the way CM-31 is one for
-      // the colour.
+      // null returns to the automatic height (FR-042) through this command,
+      // because table T-108 has no reset row for the height.
       if (row.height === command.height) return edited(document)
       return edited(withRow(document, { ...row, height: command.height }))
     }
@@ -841,10 +675,8 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-33', 'FR-004', `no such row: ${command.groupId}`)])
       }
-      // ⚠️ Only the column moves. What a collapsed row hides -- the rows below
-      // it and the Tasks on them -- is HR-1a's rule for whoever draws, and it
-      // forbids moving those Tasks onto the parent row (MUST NOT), so nothing
-      // here touches `taskGroupMembers`.
+      // Only the column moves; what a collapsed row hides is HR-1a's, for
+      // whoever draws, so `taskGroupMembers` is not touched.
       if (row.isCollapsed === command.collapsed) return edited(document)
       return edited(withRow(document, { ...row, isCollapsed: command.collapsed }))
     }
@@ -854,10 +686,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-34', 'FR-004', `no such row: ${command.groupId}`)])
       }
-      // HR-6 keeps the hidden state in the document (MUST) -- without it a
-      // round trip would bring the hidden rows back and WY-1 would fail. Same
-      // as HR-1a, the rows below and their Tasks are not re-parented (MUST
-      // NOT).
+      // HR-6; as with HR-1a, nothing is re-parented.
       if (row.isHidden === command.hidden) return edited(document)
       return edited(withRow(document, { ...row, isHidden: command.hidden }))
     }
@@ -872,10 +701,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (asked.size !== command.orderedIds.length) {
         refusals.push(reject('CM-35', 'HM-8', 'the same row is named twice'))
       }
-      // HM-8 reorders SIBLINGS: a list that leaves one out, or brings in a row
-      // from another parent, does not describe an order of this parent's
-      // children, and moving a row to another parent is CM-18's and HM-3a's
-      // business, not this command's.
+      // HM-8 reorders siblings; moving a row to another parent is CM-73's.
       if (asked.size !== siblings.length || !siblings.every((one) => asked.has(one.id))) {
         refusals.push(
           reject('CM-35', 'HM-8', 'the list must name every child of that parent, and no other row'),
@@ -883,24 +709,15 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       }
       if (refusals.length > 0) return refused(refusals)
 
-      // The column only has to yield the sequence asked for (AT-55, "同じ親の下
-      // での並び"); its numbers carry nothing else, so the rank in the list is
-      // the value written.
+      // AT-55's numbers carry only the sequence, so the rank in the list is written.
       const rank = new Map(command.orderedIds.map((id, at) => [id, at]))
       const ordered = groups.map((one) => {
         const place = rank.get(one.id)
         return place === undefined || place === one.order ? one : { ...one, order: place }
       })
       if (ordered.every((one, at) => one === groups[at])) return edited(document)
-      // ⭐ HM-9 (MUST) RIDES ON THIS WRITE: 「並べ替えた順序も WBS へ伝わること」.
-      // The user's ruling of 2026-09-05 gave the mapping this branch used to say
-      // it did not have -- each Task ranks among its WBS siblings by where the
-      // row that DRAWS it stands in the row tree -- so `AT-26` is rebuilt from
-      // the rows this command just renumbered.
-      // ⛔ THE TWO AXES STAY INDEPENDENT. `wbsParentUid` (AT-25) is not written
-      // here and a row still holds Tasks from anywhere in the WBS (HM-10); what
-      // the row tree settles is the ORDER under one parent and nothing else,
-      // which is HM-3 read at the width its own ruling narrowed it to.
+      // HM-9: `AT-26` is rebuilt from the renumbered rows; `wbsParentUid` is not
+      // written (HM-3).
       return edited(withWbsOrderFollowingTheRows(document, ordered))
     }
 
@@ -914,23 +731,20 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (command.parentId !== null && parent === undefined) {
         refusals.push(reject('CM-73', 'FR-005', `no such parent row: ${command.parentId}`))
       }
-      // ⭐ THE SUBTREE IS READ ONCE and answers both HM-4 and HM-3a: it holds
-      // the rows that may not be the new parent, and the height that decides
-      // whether the move fits under `S-125`.
+      // Read once for both HM-4 (rows that may not be the parent) and HM-3a
+      // (the height against `S-125`).
       const carried = subtreeOf(groups, command.groupId)
       if (carried === null) {
         return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
       }
-      // HM-4 (MUST NOT): a row may not be moved under itself or its own
-      // descendant -- 「循環になる」.
+      // HM-4
       if (command.parentId !== null && carried.rows.some((one) => one.id === command.parentId)) {
         refusals.push(
           reject('CM-73', 'HM-4', 'a row may not be moved under itself or its own descendant'),
         )
       }
-      // HM-3a (MUST NOT): the subtree is measured AT ITS DEEPEST POINT AFTER
-      // the move -- 「部分木は移動後の最深部で測る」. A move to the top level
-      // puts the row at depth 1, so the parent's depth is 0 there.
+      // HM-3a: a move to the top level puts the row at depth 1, so the parent's
+      // depth counts as 0.
       const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
       if (under + carried.height > settings.maxGroupDepth) {
         refusals.push(
@@ -944,23 +758,16 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       }
       if (refusals.length > 0) return refused(refusals)
 
-      // ⛔ THE ROW IS NOT REBUILT. HM-5 (MUST NOT) -- 「行の器を作り直しては
-      // ならない。更新するのは親だけとする」 -- so the only columns written
-      // are `parentId` and `order`, and the label, colour, height, collapse,
-      // hidden state and pin all come through untouched.
-      // ⭐ THE SUBTREE COMES ALONG FOR FREE. HF-15 (MUST) has the row move
-      // 「その行の配下ごと」, and every descendant names its own parent, so
-      // nothing below the moved row is written at all.
+      // HM-5: only `parentId` and `order` are written. The subtree follows
+      // (HF-15) without a write, because every descendant names its own parent.
       const landing = Math.max(0, Math.trunc(command.order))
       const stays = groups.filter(
         (one) => one.id !== command.groupId && one.parentId === command.parentId,
       )
       const placed = [...stays.slice(0, landing), moved, ...stays.slice(landing)]
       const rank = new Map(placed.map((one, at) => [one.id, at]))
-      // ⚠️ THE ROW IT LEFT IS RENUMBERED TOO. AT-55 is 「同じ親の下での並び」,
-      // and a gap left behind would leave two parents' children numbered by
-      // different rules -- the same reason the reorder above writes the rank
-      // rather than the old value.
+      // The siblings it left are renumbered too, so no parent's children keep a
+      // gap (AT-55), as the reorder above writes the rank.
       const left = groups.filter(
         (one) => one.id !== command.groupId && one.parentId === moved.parentId,
       )
@@ -976,30 +783,18 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         return place === undefined || place === one.order ? one : { ...one, order: place }
       })
       if (next.every((one, at) => one === groups[at])) return edited(document)
-      // ⭐ HM-9 (MUST) AGAIN, for the same reason the reorder above carries it:
-      // a row that changed parent or place changed its rank in the row tree, and
-      // every Task that row DRAWS ranks among its WBS siblings by that rank.
+      // HM-9, as in the reorder above.
       return edited(withWbsOrderFollowingTheRows(document, next))
     }
 
     case 'expandAllTaskGroups': {
-      // HF-8: one press of the fit throws away every collapse a person made,
-      // and it is the only operation that does. ⚠️ The hidden state STAYS --
-      // HF-8 discards the collapse alone, and HR-6 keeps `isHidden` in the
-      // document so a round trip brings it back (WY-1).
+      // `isHidden` stays: only the collapse is discarded (HF-8, HR-6).
       //
-      // ⭐ ONE command, never a loop of CM-33. FR-031 makes one press one undo
-      // step (UN-17), and pushing one step per row would make the step count
-      // depend on how many rows the document holds.
+      // One command rather than a loop of CM-33, so one press is one undo step
+      // (UN-17) whatever the row count.
       //
-      // ⭐ NOTHING IS REFUSED and no row is named: a document with no collapse
-      // in it comes back untouched, so FR-063 leaves the schedule instant where
-      // it stood (the file note above says why the reference is what answers).
-      //
-      // ⚠️ `null` is not a collapse. AT-56 lets the column be absent, and a row
-      // that never held one is left exactly as it is rather than written to
-      // `false` -- writing it would rebuild the schedule, and move the instant,
-      // for a document nobody had collapsed.
+      // `null` is not a collapse (AT-56): a row that never held one is left as
+      // it is, so a document nobody collapsed comes back untouched.
       const opened = groups.map((one) =>
         one.isCollapsed === true ? { ...one, isCollapsed: false } : one,
       )

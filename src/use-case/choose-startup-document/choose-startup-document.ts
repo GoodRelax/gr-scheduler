@@ -5,77 +5,38 @@
 // @purity    pure
 // @publishes table T-064 row PI-14
 //
-// Step BO-2 of table T-077 -- "表 T-034 の順で最初に開く文書を決める" -- and
-// nothing else. The order is table T-034 itself:
+// Step BO-2 of table T-077: the first document to open, in the order of table
+// T-034, whose row IDs keep the seat of a retired row, so the rows run BT-1,
+// BT-2, BT-4.
 //
-//     BT-1  the document embedded in the file        (FR-067)
-//     BT-2  the document handed at startup           (path CHN-1 of table T-008)
-//     BT-4  the template for the first screen        (FR-027)
+// Every candidate arrives as a value, already decoded, because LY-5 leaves every
+// outside value to the Framework.
 //
-// ⚠️ THE TABLE'S THIRD SEAT IS BURNT -- no rank stands between BT-2 and BT-4.
-// The rows below run BT-1, BT-2, BT-4 for that reason, and the order is still
-// the table's. FR-062 states the order and nothing else: what becomes of a
-// rank that lost belongs to that rank's own requirement.
+// The figure source (docs/spec/_source/components.json) draws an edge
+// ChooseStartupDocument -> ValidateImportedDocument, but that call is not made
+// here: the candidate shapes already carry the check's outcome, so the check
+// belongs to the caller that decodes a candidate, and moving it inside later
+// changes this file only. This is a decision of this file, not of the
+// specification. The caller owes it: see the STOP note on BT-1 in
+// `single-html-shell.ts`, which holds FR-088's gate but not FR-023's validation.
 //
-// ⚠️ Nothing here reads a file, storage, the clock or the DOM. LY-5 leaves every
-// outside value to the Framework, so all three candidates ARRIVE AS VALUES,
-// already decoded and already through FR-023's validation (table T-008 marks
-// CHN-1 untrusted, and BT-1 rides in on the file itself). A candidate that
-// could not be read arrives as `unreadable` / `entryCountNotOne`, never as
-// `read`.
-//
-// ⚠️ The figure source (docs/spec/_source/components.json) draws an edge
-// ChooseStartupDocument -> ValidateImportedDocument, "checks each candidate".
-// That call is NOT made here, although `validateImportedDocument` (PI-13,
-// UF-22) is written now and its signature could be reached: the candidate
-// shapes below already carry the outcome that check produces, so the caller
-// that decodes a candidate is where the check belongs, and moving it inside
-// later changes this file only. ⚠️ It is a decision of this file, not of the
-// specification. ⛔ THE CALLER OWES IT TODAY: `single-html-shell.ts` hands
-// `none` for the three untrusted ranks, and its own STOP note records what
-// each of them needs -- this check and FR-088's IV-17 gate -- before it may
-// hand over anything else.
-//
-// ⚠️ Failure is a value. This function never throws: AG-8 wants the caller told,
-// and R7.10 wants it told by the return value. Everything FR-067 and FR-062
-// require to be TOLD leaves in `notices`; who gathers those onto the one
-// startup screen NT-4 demands is the ScreenRenderer's business (UF-67), not this
-// unit's.
-//
-// Nothing outside this folder may import any other file in it
-// (Chapter 5.3, MUST NOT), so every name the component publishes
-// leaves through here.
+// Failure is a value (R7.10): this function never throws, and everything to be
+// told leaves in `notices`; gathering them onto one screen (NT-4) is UF-67's.
 
 import type { Document } from '../../entity/document-model/document/document'
 
 /** The three rows of table T-034, in the order the table lists them. */
 export type StartupRow = 'BT-1' | 'BT-2' | 'BT-4'
 
-/**
- * BT-1 -- the document embedded in the single `.html` (FR-067).
- *
- * FR-067 names two ways this row can fail and treats them alike: the embedded
- * document cannot be read, or the file does not hold exactly one embedding slot
- * ("入れ口が 1 つでない"). Both must be told and both descend to the next rank.
- */
+/** BT-1 -- the document embedded in the single `.html` (FR-067). */
 export type EmbeddedCandidate =
   | { readonly kind: 'none' }
   | { readonly kind: 'read'; readonly document: Document }
   | { readonly kind: 'unreadable' }
-  /** ⚠️ `entryCount` is 0 or 2 and above; exactly one is the `read` case. */
+  /** `entryCount` is 0 or 2 and above; exactly one is the `read` case. */
   | { readonly kind: 'entryCountNotOne'; readonly entryCount: number }
 
-/**
- * BT-2 -- the document handed at startup. The path is CHN-1 of table T-008 and
- * what happens to it after it is opened is FR-087's.
- *
- * ⚠️ `unreadable` descends to BT-4 and raises a notice, the same way BT-1 does.
- * That is a reading, not a quotation: FR-067 spells the descent out for BT-1,
- * but BT-2 has no sentence of its own. Table T-034 is an ORDER, so a rank that
- * yields no document is passed
- * over, and NT-1 of table T-037 makes telling the person a MUST wherever input
- * is turned away. ⚠️ It is a decision of this file, not of the specification.
- */
+/** BT-2 -- the document handed at startup; `unreadable` is OP-14 of table T-024a. */
 export type HandedCandidate =
   | { readonly kind: 'none' }
   | { readonly kind: 'read'; readonly document: Document }
@@ -84,14 +45,8 @@ export type HandedCandidate =
 /**
  * The three candidates of table T-034, as SingleHtmlShell hands them over.
  *
- * ⚠️ `template` is not optional. The order has to end somewhere, and FR-067 says
- * in as many words that a lost BT-1 descends rather than starting empty ("空で
- * 起動するのではない"). FR-027 keeps exactly one template and FR-095 returns to
- * this same state, so BT-4 always yields a document.
- *
- * ⚠️ What is IN that template is FR-027's (newly written, and neutral as to
- * industry and product down to the identifier values) and not this unit's -- it
- * arrives as a value like the other three.
+ * `template` is not optional so that the order always ends in a document
+ * (FR-067, OP-14 of table T-024a).
  */
 export interface StartupCandidates {
   readonly embedded: EmbeddedCandidate
@@ -99,7 +54,7 @@ export interface StartupCandidates {
   readonly template: Document
 }
 
-/** One thing the startup MUST tell the person about (FR-076, table T-037). */
+/** FR-076, table T-037. */
 export type StartupNoticeCode =
   | 'embeddedUnreadable'
   | 'embeddedEntryCountNotOne'
@@ -130,8 +85,7 @@ export interface StartupChoice {
 function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNotice[] {
   const notices: StartupNotice[] = []
 
-  // FR-067: "埋め込まれた文書が読み取れないとき、または入れ口が 1 つでないときは、
-  // 黙って捨てずに通知すること（MUST）."
+  // FR-067
   if (candidates.embedded.kind === 'unreadable') {
     notices.push({ row: 'BT-1', rule: 'FR-067', code: 'embeddedUnreadable' })
   }
@@ -139,7 +93,7 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
     notices.push({ row: 'BT-1', rule: 'FR-067', code: 'embeddedEntryCountNotOne' })
   }
 
-  // NT-1 of table T-037: input that is turned away is named and explained.
+  // OP-14 of table T-024a
   if (candidates.handed.kind === 'unreadable') {
     notices.push({ row: 'BT-2', rule: 'FR-076', code: 'handedUnreadable' })
   }
@@ -154,9 +108,8 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
  * @purity pure
  */
 export function chooseStartupDocument(candidates: StartupCandidates): StartupChoice {
-  // Table T-034 IS this array -- the three rows in the table's order, each paired
-  // with the document it yields or `null` when it yields none. Written as the
-  // table rather than as three nested branches, so the order can be read off it.
+  // Written as the table rather than as nested branches, so the order of table
+  // T-034 reads off it; `null` is a row that yields no document.
   const order: readonly (readonly [StartupRow, Document | null])[] = [
     ['BT-1', candidates.embedded.kind === 'read' ? candidates.embedded.document : null],
     ['BT-2', candidates.handed.kind === 'read' ? candidates.handed.document : null],

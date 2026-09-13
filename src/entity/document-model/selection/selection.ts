@@ -5,16 +5,11 @@
 // @purity    pure
 // @publishes table T-064 row PI-32
 //
-// What may be selected is SL-1 of table T-023c. The order a selection carries
-// is SL-7b: picking one at a time makes an order, a marquee (SL-3) and select
-// all (SL-5) do not, and FR-034 may only line tasks up against an order that
-// exists. That is why `ordered` is part of the value and not something a
-// caller is trusted to remember.
-//
-// A selection is not part of the document (table T-027 UN-9), which is why it
-// lives here as a value the Framework holds rather than as a saved column.
+// `ordered` is part of the value rather than left to a caller to remember,
+// because FR-034 may only line tasks up against an order that exists (SL-7b of
+// table T-023c). Not saved in the document (LY-1 of table T-060).
 
-/** The kinds SL-1 of table T-023c admits. Rows are deliberately not among them. */
+/** SL-1 of table T-023c. */
 export type SelectableKind =
   | 'task'
   | 'dependency'
@@ -33,10 +28,7 @@ export type ItemRef =
 export interface Selection {
   /** In the order they were picked, oldest first. */
   readonly items: readonly ItemRef[]
-  /**
-   * Whether `items` carries an order a caller may rely on (SL-7b). False for a
-   * marquee or a select-all, which pick everything at once.
-   */
+  /** Whether `items` carries an order a caller may rely on (SL-7b). */
   readonly ordered: boolean
 }
 
@@ -71,9 +63,8 @@ export function isSelected(selection: Selection, item: ItemRef): boolean {
 }
 
 /**
- * Add one thing to a selection, keeping the order it was picked in (SL-7b).
  * Adding something already held leaves the selection alone, so the first pick
- * is the one the order remembers.
+ * is the one the order remembers (SL-7b).
  *
  * @purity pure
  */
@@ -83,8 +74,7 @@ export function selectionWith(selection: Selection, item: ItemRef): Selection {
 }
 
 /**
- * Replace a selection with everything picked at once -- a marquee (SL-3) or a
- * select-all (SL-5). The result carries no order, so FR-034 must refuse it.
+ * A marquee (SL-3) or select-all (SL-5): no order, so FR-034 must refuse it.
  *
  * @purity pure
  */
@@ -100,8 +90,8 @@ export function selectionWithout(selection: Selection, item: ItemRef): Selection
 }
 
 /**
- * The one picked last, which FR-034 lines the others up against. Absent when
- * the selection carries no order, so a caller cannot reach past SL-7b.
+ * The one FR-034 lines the others up against; null without an order, so a
+ * caller cannot reach past SL-7b.
  *
  * @purity pure
  */
