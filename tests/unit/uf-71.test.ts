@@ -1902,23 +1902,18 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     expect(surface.readDialogueInput()).toBeNull()
   })
 
-  it('⛔ reports a half-typed line as unsettled, with no moment to name (PND-156)', () => {
+  it('IF-9 of 表 T-065 対話欄で確定した発話を返し -- a half-typed line is no utterance', () => {
     const { surface } = typed('half a thou')
 
-    const read = surface.readDialogueInput()
-
-    expect(read).not.toBeNull()
-    expect(read?.text).toBe('half a thou')
-    expect(read?.isSettled).toBe(false)
-    expect(read?.settledAt).toBe('')
+    expect(surface.readDialogueInput()).toBeNull()
   })
 
-  it('dialogueMessageFromInput (PI-37) refuses the half-typed line', () => {
+  it('dialogueMessageFromInput (PI-37) is handed nothing for the half-typed line', () => {
     const { surface } = typed('half a thou')
 
     const read = surface.readDialogueInput()
 
-    expect(read).not.toBeNull()
+    expect(read).toBeNull()
     expect(read === null ? null : dialogueMessageFromInput(read)).toBeNull()
   })
 
@@ -1946,7 +1941,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
 
     keyPress(entry, 'Enter', { isComposing: true })
 
-    expect(surface.readDialogueInput()?.isSettled).toBe(false)
+    expect(surface.readDialogueInput()).toBeNull()
   })
 
   it('PND-150: an Enter with a modifier settles nothing', () => {
@@ -1955,7 +1950,7 @@ describe('AG-11 of 表 T-035 (MUST NOT) -- an unsettled line is not an utterance
     keyPress(entry, 'Enter', { shiftKey: true })
     keyPress(entry, 'Enter', { ctrlKey: true })
 
-    expect(surface.readDialogueInput()?.isSettled).toBe(false)
+    expect(surface.readDialogueInput()).toBeNull()
   })
 
   it('reads the author each time rather than taking it once at wiring', () => {

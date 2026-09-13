@@ -2246,17 +2246,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     settled = null
   }
 
+  // see IF-9, AG-11
   /** @purity semi-pure-b */
   function readDialogueInput(): DialogueInput | null {
     if (!isFieldUp) return null
     const held = settled
-    if (held !== null) {
-      return { text: held.text, isSettled: true, author: readAuthor(), settledAt: held.settledAt }
-    }
-    const typed = dialogueEntry.value
-    if (typed === '') return null
-    // DEVIATION: spec says only settled utterances return (IF-9); here a half-typed line does too (DFC-571)
-    return { text: typed, isSettled: false, author: readAuthor(), settledAt: '' }
+    if (held === null) return null
+    return { text: held.text, isSettled: true, author: readAuthor(), settledAt: held.settledAt }
   }
 
   /** @purity pure */
