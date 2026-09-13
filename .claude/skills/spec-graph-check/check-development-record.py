@@ -99,10 +99,13 @@ def main():
         # src/, keyed by file path rather than by a folder of units.
         # src-comment-cleanup-report-2026-09-13.md is the ninth: a dated status
         # report of the src/ comment cleanup, keyed by its date.
+        # refactor-plan-report-2026-09-13.md is the tenth: the refactor plan,
+        # keyed by stage rather than by a folder of units.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
-            'src-comment-cleanup-report-2026-09-13.md'
+            'src-comment-cleanup-report-2026-09-13.md',
+            'refactor-plan-report-2026-09-13.md'
         ):
             continue
         path = os.path.join(RECORDS, name)
