@@ -344,8 +344,8 @@ echo ""
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the thirteen below plus those five are the eighteen `gen:check` runs.
-section "27  the thirteen other generated artifacts still match their manuscripts"
+# -- so the fourteen below plus those five are the nineteen `gen:check` runs.
+section "27  the fourteen other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
@@ -359,6 +359,7 @@ PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/build.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_comment_rules_card.py --check || failed
 
 echo ""
 section "28  the ledger against what has been SEEN in the app"
@@ -499,12 +500,17 @@ section "54  docs/spec holds its reasons, not its history"
 # no exclusions.
 PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || failed
 
-section "55  src/ comments hold to ruling 17: ASCII, 10%, the allowed forms"
-# Held against comment-rules-baseline.txt, a ratchet: line 1 is the sum of the
-# non-ASCII comment lines, the lines in no form the ruling allows, and the
-# lines past the 10% allowance per file and for the tree. Red when the sum
-# rises; lower line 1 in the commit that lowers it. `--list` names the files,
-# `--file <path>` the lines.
+section "55  src/ and tests/ comments hold to ruling 17 and JDG-62: ASCII, the allowed forms, the amount"
+# src/ is held against comment-rules-baseline.txt, a ratchet: line 1 is the sum
+# of the non-ASCII comment lines, the lines in no form the ruling allows, and
+# the lines past the 10% allowance per file and for the tree. tests/ is held
+# against comment-rules-tests-baseline.txt, per file (non-ASCII + form, with
+# `// STEP:` allowed, 3 per test) and for the tree density; no 10% cap yet.
+# Red when a number rises; lower the line in the commit that lowers it.
+# `--list [tests]` names the files, `--file <path>` the lines.
+# The self-test runs first: it breaks a test file held in memory on purpose
+# and is red unless every break goes red and the clean file stays green.
+PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" || failed
 
 

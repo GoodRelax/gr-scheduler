@@ -38,6 +38,8 @@ ARTIFACTS = [
     ('docs/spec/_assets/fig-erd-overview.md', 'erd.json'),
     ('docs/spec/_source/grs-document.schema.json', 'erd.json'),
     ('docs/review/components/components.md', 'components.json'),
+    # The comment rules card (JDG-59), pasted into briefs instead of the rules.
+    ('docs/review/comment-rules-card.md', 'comment-rules-src.md'),
     ('src/entity/document-model/schedule/schedule.ts', 'erd.json'),
     ('src/entity/document-model/document-stamp/document-stamp.ts', 'erd.json'),
     ('src/entity/document-model/document-settings/document-settings.ts',

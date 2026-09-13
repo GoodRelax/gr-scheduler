@@ -1020,9 +1020,7 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     expect(task.actualStart).toBe(jan(5))
     expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.actualInitialDuration)
     expect(task.actualDuration).toBe(1)
-    // PV-2's reading, which this row is told to share: the actual FINISH day
-    // (FR-011), one worked day before the right end. One worked day from
-    // Monday jan(5) finishes on jan(5) itself; jan(6) is the right end.
+    // PV-2's reading: the finish day, one worked day before the right end.
     expect(task.actualFinish).toBe(jan(5))
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('finished')
@@ -1043,10 +1041,8 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
   })
 
   it('PV-2 finishes a task in progress without moving either end of the actual bar', () => {
-    // The actual bar's right end is `actualStart` plus `actualDuration` worked
-    // days (FR-011): Monday plus three is Thursday jan(8). PV-2 writes the
-    // finish DAY, one worked day before it: Wednesday jan(7). MUST NOT move
-    // either end.
+    // The actual bar's right end (FR-011) is not what PV-2 writes; it writes
+    // the finish day, one worked day before that end. MUST NOT move either end.
     const task = cycled(at({ actualStart: jan(5), actualDuration: 3, resumeValid: true }))
     expect(task.actualFinish).toBe(jan(7))
     expect(task.actualStart).toBe(jan(5))

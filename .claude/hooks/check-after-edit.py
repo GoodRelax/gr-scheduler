@@ -145,7 +145,7 @@ def check_comments(root, rel):
     if len(lines) < 2:
         return could_not_run('%s printed no row for %s' % (COMMENT_TOOL, rel))
     held = first_int(lines[1])
-    if not held and len(lines) == 2:
+    if not held:
         return 0
     return tell(['Comment rules (ruling 17, docs/review/comment-rules-src.md) '
                  'in %s just written: %s finding(s). Fix the comments; '

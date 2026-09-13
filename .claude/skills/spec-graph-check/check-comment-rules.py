@@ -104,6 +104,52 @@ THE NUMBER HELD (line 1 of comment-rules-baseline.txt)
   count rising above line 1 FAILS; the count falling prints OK and asks for
   line 1 to be lowered in the same commit.
 
+TESTS/ (JDG-62, record 15 of refactor-plan-report-2026-09-13.md)
+
+  Every `.ts` file under tests/ is measured by the same lexer and the same
+  form rules, with two differences the ruling makes:
+
+    - one more form, `// STEP: ...`: 1 line per step, and no more than 3 STEP
+      lines inside one test -- the parenthesised call of `it(...)` or
+      `test(...)` (with `.each(...)`, `.skip`, `.only` and the like), taken
+      innermost when calls nest. A STEP line past the 3rd in one test is a
+      violating line, and so is a STEP line in no test body at all (the
+      ruling gives the budget per test and says nothing else, so the
+      stricter reading is held until it does). "No wording of a clause" is
+      held only as far as the character rule holds it: ASCII cannot carry a
+      Japanese clause. Nothing more is read.
+    - no 10% cap. The ruling holds the density against its present value and
+      leaves the cap to stage 8, so C and D above do not apply.
+
+  Test titles and data strings are never counted: the lexer finds comments
+  only, and the first argument of `it` / `describe` is a string.
+
+  THE NUMBERS HELD (comment-rules-tests-baseline.txt)
+
+    per file   non-ASCII comment lines + form-violating lines, as A + B above
+    tree       comment lines * 10000 // (code lines + comment lines), the
+               density in basis points, floored
+
+  A file rising above its line FAILS, and so does a file missing from the
+  baseline with any count above 0 (a new or renamed test starts clean), and
+  so does the tree density rising above its line. A fall prints OK and names
+  the lines to lower in the same commit -- the shape of every other ratchet
+  here (checks 28, 29, 31, 39, 40, 42, 44, 45, 46 and the src/ half above):
+  a fall that failed would redden every parallel body that fixes a comment
+  before the front session re-counts at the merge, and the ground is still
+  held because the next rise is measured against the lowered line.
+
+BROKEN ON PURPOSE (`--self-test`, measured 2026-09-14)
+
+  `--self-test` measures a small test file held in memory, through the same
+  measure_text() and the same tests verdict the gate uses, never writing to
+  tests/. A clean file with 3 STEP lines inside one `it` is green. Adding one
+  Japanese comment line makes it red with 2 counted lines (non-ASCII and in
+  no form) and a density rise; a 4th STEP line in the same `it` makes it red
+  with 1; one STEP line above the `it` makes it red with 1; putting the clean
+  file back is green again. check.sh runs it before the gate, so a gate that
+  can no longer go red goes red itself.
+
 WHAT THIS DOES NOT SEE
 
   - Placement. A `see` line belongs directly above a definition and a TRAP
@@ -118,18 +164,27 @@ WHAT THIS DOES NOT SEE
     not close the form's text is not a link.
   - Whether a ledger row's class is the right one. The class cell is taken as
     written, as check 25 takes it.
-  - Every tree but src/. tests/ and tools/ are not read.
+  - Every tree but src/ and tests/. tools/ is not read, nor any file but `.ts`.
+  - In tests/, what a STEP says, and whether a test body is really a test: a
+    call spelled `it(` or `test(` is taken as one.
 
 Usage:
 
     python .claude/skills/spec-graph-check/check-comment-rules.py
-    python .claude/skills/spec-graph-check/check-comment-rules.py --list
+    python .claude/skills/spec-graph-check/check-comment-rules.py --list [tests]
     python .claude/skills/spec-graph-check/check-comment-rules.py --file <path>
+    python .claude/skills/spec-graph-check/check-comment-rules.py --self-test
+    python .claude/skills/spec-graph-check/check-comment-rules.py --write-tests-baseline
 
-`--list` prints every file's measures and marks the files over 10%. `--file`
-prints one file's measures and each finding by line. Both exit 0.
+`--list` prints every src/ file's measures and marks the files over 10%;
+`--list tests` does the same for tests/. `--file` reads only the one file
+named, under src/ or tests/, and prints its measures and each finding by line
+(and, under tests/, its baseline line). Both exit 0. `--write-tests-baseline`
+rewrites comment-rules-tests-baseline.txt from the tree as it stands -- only
+at a merge re-count or on purpose, said in the commit.
 Exit 0 green, 1 red.
 """
+import bisect
 import io
 import os
 import re
@@ -138,8 +193,14 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 SRC = os.path.join(ROOT, 'src')
+TESTS = os.path.join(ROOT, 'tests')
 BASELINE = os.path.join(HERE, 'comment-rules-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/comment-rules-baseline.txt'
+TESTS_BASELINE = os.path.join(HERE, 'comment-rules-tests-baseline.txt')
+REL_TESTS_BASELINE = ('.claude/skills/spec-graph-check/'
+                      'comment-rules-tests-baseline.txt')
+TESTS_RULING = 'JDG-62 (refactor-plan-report-2026-09-13.md, record 15)'
+DENSITY_KEY = 'tree-density-basis-points'
 RULING = 'docs/review/comment-rules-src.md'
 LEDGER = os.path.join(ROOT, 'docs', 'development-records',
                       'pending-decisions.md')
@@ -159,6 +220,12 @@ PROVENANCE_EXTRA = 4
 BUDGET = {'see': 1, 'TRAP': 2, 'WHY': 2, 'STOP': 3, 'DEVIATION': 2}
 HEADS = (('TRAP:', 'TRAP'), ('WHY:', 'WHY'), ('STOP:', 'STOP'),
          ('DEVIATION:', 'DEVIATION'))
+
+# tests/ only (JDG-62): the STEP form, 1 line, at most STEP_PER_TEST per test.
+TESTS_BUDGET = dict(BUDGET, STEP=1)
+TESTS_HEADS = HEADS + (('STEP:', 'STEP'),)
+STEP_PER_TEST = 3
+RULES = {'src': (BUDGET, HEADS), 'tests': (TESTS_BUDGET, TESTS_HEADS)}
 
 # JavaScript's \s, which is also the set String.prototype.trim removes. The
 # density must agree with the Node measurement, so Python's own idea of
@@ -188,6 +255,11 @@ TAG_ANYWHERE = re.compile(u'@provisional' + WS + u'+PND-[0-9]+|@seam' + WS +
 TAG_HEADER = re.compile(u'@(?:unit|component|publishes|seam)' + WS +
                         u'+\\S.*|@provisional' + WS + u'+PND-[0-9]+|@purity' +
                         WS + u'+[a-z/-]+')
+
+# A test: `it(` / `test(`, optionally through `.each(...)`, `.skip` and the
+# like, matched on the lexed code so a title or a regex cannot open one.
+TEST_CALL = re.compile(u'(?<![A-Za-z0-9_$.])(?:it|test)((?:' + WS +
+                       u'*\\.' + WS + u'*[A-Za-z]+)*)' + WS + u'*\\(')
 
 # Ruling 18: how a STOP names its pending-decision row.
 PROVISIONAL = re.compile(u'@provisional' + WS + u'+(PND-[0-9]+)')
@@ -423,8 +495,8 @@ def body_of(text):
     return s.strip(JS_SPACE)
 
 
-def classify(body, line_comment):
-    """'blank', 'tag', a key of BUDGET, or None for a line in no form."""
+def classify(body, line_comment, heads=HEADS):
+    """'blank', 'tag', a key of the tree's budget, or None for a line in no form."""
     if body == u'':
         return 'blank'
     if TAG_ANYWHERE.fullmatch(body):
@@ -432,42 +504,46 @@ def classify(body, line_comment):
     if line_comment:
         if SEE.fullmatch(body):
             return 'see'
-        for head, name in HEADS:
+        for head, name in heads:
             if body.startswith(head):
                 return name
     return None
 
 
-def judge_block(rows, line_comment, found, stops):
+def judge_block(rows, line_comment, found, stops, tree='src', steps=None):
     """Violating lines of one block that is not the file header.
 
-    Each STOP form met is appended to `stops` as its (number, body) rows.
+    Each STOP form met is appended to `stops` as its (number, body) rows, and
+    under tests/ each STEP head line to `steps`.
     """
+    budget, heads = RULES[tree]
     head = None
     used = 0
     form = None
     for number, body in rows:
-        kind = classify(body, line_comment)
+        kind = classify(body, line_comment, heads)
         if kind == 'blank':
             found.append((number, 'empty or delimiter-only comment line'))
             head = None
             form = None
             continue
-        if kind in BUDGET:
+        if kind in budget:
             head = kind
             used = 1
             form = None
             if kind == 'STOP':
                 form = [(number, body)]
                 stops.append(form)
+            if kind == 'STEP' and steps is not None:
+                steps.append(number)
             continue
-        if head in BUDGET:
+        if head in budget:
             used += 1
             if form is not None:
                 form.append((number, body))
-            if used > BUDGET[head]:
+            if used > budget[head]:
                 found.append((number, '%s form longer than %d line(s)'
-                               % (head, BUDGET[head])))
+                               % (head, budget[head])))
             continue
         if kind == 'tag':
             head = 'tag'
@@ -476,8 +552,9 @@ def judge_block(rows, line_comment, found, stops):
         head = None
 
 
-def judge_stop(form, by_line, ledger, found):
+def judge_stop(form, by_line, ledger, found, tree='src'):
     """One STOP form against its pending-decision row (ruling 18)."""
+    budget, heads = RULES[tree]
     number = form[0][0]
     marks = []
     for _number, body in form:
@@ -488,7 +565,7 @@ def judge_stop(form, by_line, ledger, found):
             text = by_line.get(after)
             if text is None:
                 continue
-            if classify(body_of(text), True) in BUDGET:
+            if classify(body_of(text), True, heads) in budget:
                 break
             marks.extend(PROVISIONAL.findall(text))
 
@@ -573,10 +650,73 @@ def judge_header(rows, has_generated, found):
         found.append((number, 'header longer than %d lines' % budget))
 
 
-def measure(path, ledger):
+def close_paren(code, at):
+    """Index of the `)` matching the `(` at `at`, or the last index."""
+    depth = 0
+    for k in range(at, len(code)):
+        c = code[k]
+        if c == u'(':
+            depth += 1
+        elif c == u')':
+            depth -= 1
+            if depth == 0:
+                return k
+    return len(code) - 1
+
+
+def test_bodies(code):
+    """(first line, last line) of every `it(...)` / `test(...)` call."""
+    starts = [0]
+    for k, c in enumerate(code):
+        if c == u'\n':
+            starts.append(k + 1)
+
+    def line_of(offset):
+        return bisect.bisect_right(starts, offset)
+
+    spans = []
+    for match in TEST_CALL.finditer(code):
+        opening = match.end() - 1
+        end = close_paren(code, opening)
+        if u'each' in match.group(1):
+            k = end + 1
+            while k < len(code) and code[k] in SPACE_SET:
+                k += 1
+            if code[k:k + 1] == u'(':
+                end = close_paren(code, k)
+        spans.append((line_of(match.start()), line_of(end)))
+    return spans
+
+
+def judge_steps(steps, code, found):
+    """STEP lines past STEP_PER_TEST in one test, or in no test at all."""
+    spans = test_bodies(code)
+    per_test = {}
+    for number in steps:
+        inside = [s for s in spans if s[0] <= number <= s[1]]
+        if not inside:
+            found.append((number, 'STEP outside the body of an it/test'))
+            continue
+        span = min(inside, key=lambda s: s[1] - s[0])
+        per_test.setdefault(span, []).append(number)
+    for numbers in per_test.values():
+        for number in sorted(numbers)[STEP_PER_TEST:]:
+            found.append((number, 'more than %d STEP lines in one test'
+                          % STEP_PER_TEST))
+
+
+def measure(path, ledger, tree='src'):
     """Every measure of one file; `ledger` is read_ledger()'s map."""
     with io.open(path, encoding='utf-8', errors='replace', newline='') as handle:
-        src = handle.read().replace(u'\r\n', u'\n')
+        src = handle.read()
+    rel = os.path.relpath(path, ROOT).replace(os.sep, '/')
+    return measure_text(src, rel, ledger, tree)
+
+
+def measure_text(src, rel, ledger, tree='src'):
+    """Every measure of one source text, judged by the rules of `tree`."""
+    budget, heads = RULES[tree]
+    src = src.replace(u'\r\n', u'\n')
     lines = src.split(u'\n')
     generated = generated_lines(lines)
     code, comments = lex(src)
@@ -643,6 +783,7 @@ def measure(path, ledger):
 
     findings = []
     stops = []
+    steps = [] if tree == 'tests' else None
     for index, block in enumerate(blocks):
         rows = block['rows']
         if not rows:
@@ -652,38 +793,45 @@ def measure(path, ledger):
             judge_header(rows, bool(generated), findings)
         elif block['inline'] and block['kind'] == 'line':
             number, body = rows[0]
-            kind = classify(body, True)
-            if kind not in BUDGET and kind != 'tag':
+            kind = classify(body, True, heads)
+            if kind not in budget and kind != 'tag':
                 findings.append((number, 'trailing comment without an '
                                          'allowed head'))
             if kind == 'STOP':
                 stops.append([(number, body)])
+            if kind == 'STEP' and steps is not None:
+                steps.append(number)
         else:
-            judge_block(rows, block['kind'] == 'run', findings, stops)
+            judge_block(rows, block['kind'] == 'run', findings, stops, tree,
+                        steps)
     for form in stops:
-        judge_stop(form, by_line, ledger, findings)
+        judge_stop(form, by_line, ledger, findings, tree)
+    if steps:
+        judge_steps(steps, code, findings)
 
     form = {}
     for number, why in findings:
         form.setdefault(number, why)
 
+    capped = tree == 'src'
     excess = 0
-    if code_n >= FILE_FLOOR:
+    if capped and code_n >= FILE_FLOOR:
         excess = max(0, len(counted) - code_n // RATIO)
     return {
-        'rel': os.path.relpath(path, ROOT).replace(os.sep, '/'),
+        'rel': rel,
         'code': code_n,
         'comment': len(counted),
         'non_ascii': sorted(non_ascii),
         'form': form,
         'excess': excess,
-        'over': code_n >= FILE_FLOOR and len(counted) * RATIO > code_n,
+        'over': (capped and code_n >= FILE_FLOOR
+                 and len(counted) * RATIO > code_n),
         'text': by_line,
     }
 
 
-def source_files():
-    for base, dirs, names in os.walk(SRC):
+def source_files(top=SRC):
+    for base, dirs, names in os.walk(top):
         dirs[:] = sorted(d for d in dirs if d != 'node_modules')
         for name in sorted(names):
             if name.endswith('.ts'):
@@ -752,19 +900,26 @@ def show_list(results, s):
     return 0
 
 
-def show_file(results, wanted):
+def show_file(ledger, wanted):
+    """One file only: the hook calls this per edit, so nothing else is read."""
     key = wanted.replace('\\', '/')
     if os.path.isabs(key):
         key = os.path.relpath(key, ROOT).replace(os.sep, '/')
     key = key[2:] if key.startswith('./') else key
-    for r in results:
-        if r['rel'] == key:
-            break
-    else:
-        say('PROBLEM  %s is not a .ts file under src/' % wanted)
+    tree = key.split('/', 1)[0]
+    path = os.path.join(ROOT, *key.split('/'))
+    if (tree not in RULES or not key.endswith('.ts')
+            or not os.path.isfile(path)):
+        say('PROBLEM  %s is not a .ts file under src/ or tests/' % wanted)
         return 1
+    r = measure(path, ledger, tree)
     say(HEADING)
     say(row_of(r))
+    if tree == 'tests':
+        base = read_tests_baseline()
+        was = None if base is None else base['files'].get(key, 0)
+        say('         tests/ baseline for this file: %s; held now %d'
+            % ('none written' if was is None else was, held_of(r)))
     findings = {}
     for number in r['non_ascii']:
         findings.setdefault(number, []).append('non-ASCII')
@@ -787,28 +942,264 @@ def read_baseline():
         return None
 
 
+TESTS_BASELINE_HEAD = u'''\
+# Check 55, tests/ half -- the comments of tests/ against JDG-62
+# (docs/development-records/refactor-plan-report-2026-09-13.md, record 15):
+# the character and the forms of src/ (docs/review/comment-rules-src.md), plus
+# `// STEP:` -- 1 line, at most 3 in one it/test body. Held by
+# check-comment-rules.py; `--list tests` prints it file by file and
+# `--file <path>` line by line.
+#
+# WHY A BASELINE AND NOT A CAP. The ruling holds the amount against its value
+# on the day it was made, forbids a rise, and leaves the cap to stage 8 of the
+# refactor plan. Applying the src/ rules at once would delete tens of
+# thousands of lines in one sweep, which the ruling rules out: files are
+# brought to the rules when a refactor rewrites them or when they are touched.
+#
+# HOW IT IS MEASURED. Every .ts file under tests/, through the src/ check's
+# lexer (strings, `${}` templates, regex literals and comments), so test
+# titles and data strings are never counted.
+#   <file> <n>   n = comment lines holding a character outside printable ASCII
+#                + comment lines in no allowed form or past a form's budget,
+#                a STEP past the 3rd in one test, or a STEP in no test.
+#                A line breaking both rules counts under each.
+#   %s <n>
+#                n = tree comment lines * 10000 // (code + comment lines).
+#
+# THE RATCHET. A file rising above its line FAILS; a file not listed holds 0,
+# so a new or renamed test file starts clean. The density rising FAILS. A
+# fall is OK and the run names the lines to lower in that same commit -- the
+# shape of every other ratchet here. Raise a line only on purpose, and say why
+# in the commit. `--write-tests-baseline` rewrites this file; the front
+# session re-counts with it at a merge.
+''' % DENSITY_KEY
+
+
+def basis_points(comment, code):
+    total = code + comment
+    return comment * 10000 // total if total else 0
+
+
+def read_tests_baseline():
+    """{'files': {rel: n}, 'density': bp or None}, or None when absent."""
+    if not os.path.exists(TESTS_BASELINE):
+        return None
+    files = {}
+    density_bp = None
+    try:
+        with io.open(TESTS_BASELINE, encoding='utf-8') as handle:
+            for row in handle:
+                row = row.strip()
+                if not row or row.startswith('#'):
+                    continue
+                name, count = row.rsplit(None, 1)
+                if name == DENSITY_KEY:
+                    density_bp = int(count)
+                else:
+                    files[name] = int(count)
+    except (OSError, ValueError):
+        return None
+    return {'files': files, 'density': density_bp}
+
+
+def write_tests_baseline(results):
+    s = summarise(results)
+    with io.open(TESTS_BASELINE, 'w', encoding='utf-8', newline='\n') as out:
+        out.write(TESTS_BASELINE_HEAD)
+        out.write(u'%s %d\n' % (DENSITY_KEY, basis_points(s['comment'],
+                                                          s['code'])))
+        for r in sorted(results, key=lambda r: r['rel']):
+            out.write(u'%s %d\n' % (r['rel'], held_of(r)))
+    say('WROTE    %s: %d file(s), %d held line(s) = %d non-ASCII + %d form; '
+        'density %d bp' % (REL_TESTS_BASELINE, len(results),
+                            s['a'] + s['b'], s['a'], s['b'],
+                            basis_points(s['comment'], s['code'])))
+    return 0
+
+
+def tests_verdict(results, base):
+    """(red, lines to print) for tests/ against a read_tests_baseline() map."""
+    s = summarise(results)
+    now_bp = basis_points(s['comment'], s['code'])
+    out = []
+    worse = []
+    better = []
+    seen = set()
+    for r in results:
+        seen.add(r['rel'])
+        now = held_of(r)
+        was = base['files'].get(r['rel'], 0)
+        if now > was:
+            worse.append((r['rel'], was, now))
+        elif now < was:
+            better.append((r['rel'], was, now))
+    gone = sorted(rel for rel in base['files'] if rel not in seen)
+    density_up = base['density'] is None or now_bp > base['density']
+    total = s['a'] + s['b']
+    if worse or density_up:
+        for rel, was, now in worse:
+            out.append('FAIL     %s: %d comment line(s) against %s, up from %d'
+                       % (rel, now, TESTS_RULING, was))
+        if density_up:
+            out.append('FAIL     tests/ comment density %d bp, above the %s '
+                       'line of %s' % (now_bp, 'missing' if base['density']
+                                       is None else base['density'],
+                                       REL_TESTS_BASELINE))
+        out.append('         A comment in tests/ is printable ASCII and one of '
+                   'the src/ forms or `// STEP:` (1 line, 3 per test). Fix '
+                   'the comment -- `--file <path>` names the lines; raise a '
+                   'line of %s only on purpose, and say why in the commit.'
+                   % REL_TESTS_BASELINE)
+        return True, out
+    if better or gone:
+        out.append('OK       tests/ comments against %s: %d = %d non-ASCII + '
+                   '%d form over %d file(s), density %d bp -- lower these '
+                   'lines of %s in this commit to hold the ground:'
+                   % (TESTS_RULING, total, s['a'], s['b'], len(results),
+                      now_bp, REL_TESTS_BASELINE))
+        for rel, was, now in better:
+            out.append('           %s %d  (was %d)' % (rel, now, was))
+        for rel in gone:
+            out.append('           %s  (no such file now; drop the line)' % rel)
+        if now_bp < base['density']:
+            out.append('           %s %d  (was %d)'
+                       % (DENSITY_KEY, now_bp, base['density']))
+        return False, out
+    note = ''
+    if now_bp < base['density']:
+        note = ' (density was %d bp; lower it in this commit)' % base['density']
+    out.append('OK       tests/ comments against %s: %d = %d non-ASCII + %d '
+               'form over %d file(s), density %d bp, which is the baseline%s'
+               % (TESTS_RULING, total, s['a'], s['b'], len(results), now_bp,
+                  note))
+    return False, out
+
+
+def tests_gate(ledger):
+    results = [measure(p, ledger, 'tests') for p in source_files(TESTS)]
+    if not results:
+        say('PROBLEM  no .ts file under tests/ -- nothing was measured, and a '
+            'count of 0 would read as a clean tree')
+        return 1
+    base = read_tests_baseline()
+    if base is None:
+        s = summarise(results)
+        say('PROBLEM  %s has not been written yet; measured %d = %d non-ASCII '
+            '+ %d form -- run --write-tests-baseline on purpose'
+            % (REL_TESTS_BASELINE, s['a'] + s['b'], s['a'], s['b']))
+        return 1
+    red, lines = tests_verdict(results, base)
+    for line in lines:
+        say(line)
+    return 1 if red else 0
+
+
+SELF_TEST_REL = 'tests/unit/self-test-of-check-55.test.ts'
+SELF_TEST_CLEAN = u'''\
+// The file check 55 breaks on purpose.
+import { describe, expect, it } from 'vitest';
+
+describe('a title with \u65e5\u672c\u8a9e is a string, not a comment', () => {
+  it('drags the bar', () => {
+    const data = '\u30c7\u30fc\u30bf';
+    // see FR-013
+    // STEP: press the bar
+    // STEP: drag it one day right
+    // STEP: release it
+    expect(data).toBe(data);
+  });
+});
+'''
+SELF_TEST_BREAKS = (
+    ('one Japanese comment line',
+     (u'    // STEP: release it\n',
+      u'    // STEP: release it\n    // \u6761\u6587\u306e\u5199\u3057\n'),
+     2),
+    ('a 4th STEP line in the same it',
+     (u'    // STEP: release it\n',
+      u'    // STEP: release it\n    // STEP: read the bar back\n'),
+     1),
+    ('a STEP line above the it',
+     (u"  it('drags the bar'", u"  // STEP: open the file\n  it('drags the bar'"),
+     1),
+)
+
+
+def self_test():
+    """Break a held-in-memory test file on purpose; red each time, then green."""
+    ledger = {}
+    clean = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests')
+    s = summarise([clean])
+    base = {'files': {SELF_TEST_REL: held_of(clean)},
+            'density': basis_points(s['comment'], s['code'])}
+    failures = []
+    red, _lines = tests_verdict([clean], base)
+    if held_of(clean) != 0 or red:
+        failures.append('the clean file is not green at 0 (held %d)'
+                        % held_of(clean))
+    for name, (old, new), rise in SELF_TEST_BREAKS:
+        if old not in SELF_TEST_CLEAN:
+            failures.append('%s: the text to break is not in the file' % name)
+            continue
+        broken = measure_text(SELF_TEST_CLEAN.replace(old, new, 1),
+                              SELF_TEST_REL, ledger, 'tests')
+        red, _lines = tests_verdict([broken], base)
+        say('         broken on purpose -- %s: held %d, %s'
+            % (name, held_of(broken), 'RED' if red else 'green'))
+        if not red or held_of(broken) != rise:
+            failures.append('%s: expected red with %d, got %s with %d'
+                            % (name, rise, 'red' if red else 'green',
+                               held_of(broken)))
+    back = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests')
+    red, _lines = tests_verdict([back], base)
+    say('         put back: held %d, %s' % (held_of(back),
+                                             'RED' if red else 'green'))
+    if red:
+        failures.append('the file put back is not green')
+    for failure in failures:
+        say('FAIL     check 55 self-test: %s' % failure)
+    if failures:
+        return 1
+    say('OK       check 55 self-test: %d break(s) went red and the clean file '
+        'is green' % len(SELF_TEST_BREAKS))
+    return 0
+
+
 def main(argv):
+    if '--self-test' in argv:
+        return self_test()
     ledger = read_ledger()
     if ledger is None:
         say('PROBLEM  %s is missing -- every STOP names a row in it, so none '
             'could be judged' % REL_LEDGER)
         return 1
-    results = [measure(path, ledger) for path in source_files()]
-    if not results:
-        say('PROBLEM  no .ts file under src/ -- nothing was measured, and a '
-            'count of 0 would read as a clean tree')
-        return 1
-    s = summarise(results)
 
     if '--file' in argv:
         at = argv.index('--file')
         if at + 1 >= len(argv):
             say('PROBLEM  --file needs a path')
             return 1
-        return show_file(results, argv[at + 1])
+        return show_file(ledger, argv[at + 1])
+    if '--write-tests-baseline' in argv:
+        return write_tests_baseline(
+            [measure(p, ledger, 'tests') for p in source_files(TESTS)])
+    if '--list' in argv and 'tests' in argv:
+        results = [measure(p, ledger, 'tests') for p in source_files(TESTS)]
+        return show_list(results, summarise(results))
+
+    results = [measure(path, ledger) for path in source_files()]
+    if not results:
+        say('PROBLEM  no .ts file under src/ -- nothing was measured, and a '
+            'count of 0 would read as a clean tree')
+        return 1
+    s = summarise(results)
     if '--list' in argv:
         return show_list(results, s)
 
+    return max(src_gate(results, s), tests_gate(ledger))
+
+
+def src_gate(results, s):
     held = read_baseline()
     if held is None:
         say('PROBLEM  %s has not been written yet; measured %d = %s'

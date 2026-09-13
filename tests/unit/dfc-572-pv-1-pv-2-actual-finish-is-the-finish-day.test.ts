@@ -1,26 +1,4 @@
-// DFC-572 -- table T-021a PV-1 and PV-2 write `actualFinish` as the actual
-// FINISH DAY (FR-011), one worked day before the right end of the actual bar,
-// and never the right end itself. A milestone's finish day is its actualStart.
-//
-// Where table T-218 puts this file: TS-6, tests/unit/.
-//
-// Written from docs/spec only. What was read of src/: the exported types and
-// the public entry `editTask` of edit-document.ts, and the fixture shapes of
-// tests/unit/edit-task.test.ts. No function body set an expected value.
-//
-// Every day below is counted by this file's own arithmetic over the default
-// calendar (table T-209 S-106 Monday to Friday, S-107 no exceptions), not by
-// the calendar members of src/, so a unit that walks the calendar wrongly
-// cannot agree with itself here.
-//
-// January 2026: the 5th is a Monday, the 9th a Friday, the 12th a Monday.
-//
-// Entry points that write actualFinish on a finish (counted for the report):
-//   1. the status mark press -> cycleTaskPlanActualState (PV-1 / PV-2)
-//   2. the Agent API applyCommands -> the same DocumentCommand
-//   3. a grab of the actual end (GO-3 / GO-4) -> setTaskPlanActualState
-// This file drives entry 1's command through `editTask`, which entry 2 also
-// reaches. Entry 3 is DFC-507's and is not covered here.
+// DFC-572: PV-1 and PV-2 write actualFinish as the finish day, not the right end (FR-011).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -41,10 +19,6 @@ import {
 } from '../../src/entity/document-model/schedule/schedule'
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
-
-// ---------------------------------------------------------------------------
-// The clauses, held verbatim, each on one unbroken line
-// ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -78,10 +52,6 @@ const cellOfRow = (rowId: string): string => {
   return cell
 }
 
-// ---------------------------------------------------------------------------
-// The calendar, counted here (T-209 S-106 / S-107)
-// ---------------------------------------------------------------------------
-
 const S_106 = specTable('T-209').rows.find((one) => one.id === 'S-106')
 const S_107 = specTable('T-209').rows.find((one) => one.id === 'S-107')
 
@@ -96,7 +66,7 @@ const dayAfter = (iso: string): string => {
   return next.toISOString().slice(0, 10)
 }
 
-/** `count` worked days on from `iso`. */
+// see T-209
 const workedDaysAfter = (iso: string, count: number): string => {
   let at = iso
   for (let left = count; left > 0; left -= 1) {
@@ -107,10 +77,10 @@ const workedDaysAfter = (iso: string, count: number): string => {
   return at
 }
 
-/** FR-011: the right end is actualStart plus actualDuration worked days (a position). */
+// see FR-011
 const rightEndOf = (start: string, duration: number): string => workedDaysAfter(start, duration)
 
-/** FR-011: the finish day is one worked day before the right end; same day for 1. */
+// see FR-011
 const finishDayOf = (start: string, duration: number): string => {
   if (duration < 1) throw new Error('finishDayOf is the bar reading; a milestone uses actualStart')
   return workedDaysAfter(start, duration - 1)
@@ -118,12 +88,8 @@ const finishDayOf = (start: string, duration: number): string => {
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
 
-/** EX-7: a day GRS decided itself is written at midnight. */
+// see EX-7
 const stored = (iso: string): string => `${iso}T00:00:00`
-
-// ---------------------------------------------------------------------------
-// Fixtures
-// ---------------------------------------------------------------------------
 
 const settingsOf = (): DocumentSettings => {
   const out: Record<string, unknown> = {}
@@ -248,13 +214,8 @@ const numberSetting = (key: string): number => {
   return value
 }
 
-/** S-129 and S-130. */
 const ACTUAL_INITIAL_DURATION = numberSetting('actualInitialDuration')
 const MILESTONE_ACTUAL_DURATION = numberSetting('milestoneActualDuration')
-
-// ---------------------------------------------------------------------------
-// Premises
-// ---------------------------------------------------------------------------
 
 describe('DFC-572 premises: the clauses and the calendar still read this way', () => {
   it('FR-011 still holds the finish-day reading and the milestone exception verbatim', () => {
@@ -280,10 +241,6 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
     expect(isWorkedDay(ymd(10))).toBe(false)
   })
 })
-
-// ---------------------------------------------------------------------------
-// PV-1: not started -> finished
-// ---------------------------------------------------------------------------
 
 describe('DFC-572 table T-021a PV-1: not started -> finished writes the finish day', () => {
   it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes actualFinish = actualStart', () => {
@@ -315,10 +272,6 @@ describe('DFC-572 table T-021a PV-1: not started -> finished writes the finish d
     expect(planActualState(task)).toBe('finished')
   })
 })
-
-// ---------------------------------------------------------------------------
-// PV-2: in progress -> finished
-// ---------------------------------------------------------------------------
 
 describe('DFC-572 table T-021a PV-2: in progress -> finished writes the finish day', () => {
   const inProgress = (start: string, duration: number): Document =>

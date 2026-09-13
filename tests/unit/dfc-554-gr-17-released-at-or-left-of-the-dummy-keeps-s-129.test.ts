@@ -1,33 +1,4 @@
-// DFC-554 -- table T-023d GR-17 (the finish half of a not-started task's
-// actual dummy) released on the dummy's own day, or left of it, must not
-// write an actualDuration below S-129 (FR-011).
-//
-// Where table T-218 puts this file: TS-6, tests/unit/.
-//
-// Written from docs/spec only. What was read of src/: the exported types and
-// the public entry `editTask` of edit-document.ts, and the fixture shapes of
-// tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts. No function
-// body set an expected value.
-//
-// What the specification decides, and what it does not:
-//   - Released ON the dummy's day (GR-9's day): FR-043 accepts moving the end
-//     point to the start point's position, and says that zero is a position;
-//     an actual whose start and finish are the same day is one day (FR-011).
-//     So the write is accepted with actualStart on GR-9's day and
-//     actualDuration of one worked day, which is not below S-129.
-//   - Released LEFT of the dummy's day (the ends cross): no clause says
-//     whether to refuse the write or to lift it to the floor. Only the FR-011
-//     floor is decided, so the case below asserts the floor alone: either
-//     nothing is written, or what is written is not below S-129. Which of
-//     the two is NOT asserted.
-//
-// Entry points that deliver this command (counted for the report):
-//   1. a pointer drag released from GR-17 -> beginTaskActual { grabbed: GR-17 }
-//   2. the Agent API applyCommands -> the same DocumentCommand
-// Both reach `editTask`, which this file drives directly.
-//
-// January 2026: the 9th is a Friday, so GR-9's day (the plan start's next
-// worked day, DM-1, following the calendar) is Monday the 12th.
+// DFC-554: GR-17 released at or left of the dummy day keeps S-129 (FR-011).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -47,10 +18,6 @@ import type {
 } from '../../src/entity/document-model/schedule/schedule'
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
-
-// ---------------------------------------------------------------------------
-// The clauses, held verbatim, each on one unbroken line
-// ---------------------------------------------------------------------------
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -85,10 +52,6 @@ const cellOf = (tableId: string, rowId: string, heading: string): string => {
   return cell
 }
 
-// ---------------------------------------------------------------------------
-// The calendar, counted here (T-209 S-106 / S-107)
-// ---------------------------------------------------------------------------
-
 const isWorkedDay = (iso: string): boolean => {
   const weekday = new Date(`${iso}T00:00:00Z`).getUTCDay()
   return weekday !== 0 && weekday !== 6
@@ -101,10 +64,6 @@ const stored = (iso: string): string => `${iso}T00:00:00`
 const PLAN_START = ymd(9)
 const PLAN_FINISH = ymd(23)
 const DUMMY_DAY = ymd(12)
-
-// ---------------------------------------------------------------------------
-// Fixtures
-// ---------------------------------------------------------------------------
 
 const settingsOf = (): DocumentSettings => {
   const out: Record<string, unknown> = {}
@@ -221,12 +180,7 @@ const numberSetting = (key: string): number => {
   return value
 }
 
-/** S-129. */
 const ACTUAL_INITIAL_DURATION = numberSetting('actualInitialDuration')
-
-// ---------------------------------------------------------------------------
-// Premises
-// ---------------------------------------------------------------------------
 
 describe('DFC-554 premises: the clauses and the fixture still read this way', () => {
   it('FR-011, FR-043, T-023d GR-17, DM-1 and AT-39 still hold the clauses verbatim', () => {
@@ -249,10 +203,6 @@ describe('DFC-554 premises: the clauses and the fixture still read this way', ()
   })
 })
 
-// ---------------------------------------------------------------------------
-// Released on the dummy's own day
-// ---------------------------------------------------------------------------
-
 describe('DFC-554 table T-023d GR-17: released on the dummy day', () => {
   it('⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。 -- GR-17 released on GR-9 day is accepted as a one-day actual', () => {
     const result = releasedFromGr17(DUMMY_DAY)
@@ -269,13 +219,7 @@ describe('DFC-554 table T-023d GR-17: released on the dummy day', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Released left of the dummy's day -- the floor only
-// ---------------------------------------------------------------------------
-
 describe('DFC-554 table T-023d GR-17: released left of the dummy day', () => {
-  // Left of GR-9 day: the two weekend days, the plan start (Friday), and a
-  // worked day two before it. Whether to refuse or to lift is not decided.
   for (const dropped of [ymd(11), ymd(10), PLAN_START, ymd(7)]) {
     it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GR-17 released on ${dropped} writes nothing, or nothing below S-129`, () => {
       const result = releasedFromGr17(dropped)

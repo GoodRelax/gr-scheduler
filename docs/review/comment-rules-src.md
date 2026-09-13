@@ -35,6 +35,7 @@ status: ruled
 | `// STOP: spec does not decide <何を>. Looked in <ID, ...>` ＋ `// @provisional PND-n` | 該当する行の直上 | 3 行 | 仕様の穴を推奨値で埋めていて、台帳の行の分類が `A`〜`C` である（規則 06） |
 | `// STOP: spec does not decide <何を>. Looked in <ID, ...> (PND-n)` | 該当する行の直上 | 3 行 | 仕様の穴について、規則 06 が実装を禁じる `D`〜`H` の行なのに、コードが既に何かを選んでいる。`@provisional` は付けない |
 | `// DEVIATION: spec says <...>; here <...> (DFC-n)` | 該当する行の直上 | 2 行 | 仕様からわざと外れていて、台帳に行がある |
+| `// STEP: <1 つの手順>` | `tests/` に限る。`it`／`test` の本体の中 | 1 行（1 つの試験に 3 行まで） | 押し方の順が自明でない。条文の文言を書かない（JDG-62） |
 | `/** @purity pure */` | 関数の直上 | 1 行 | 裁定 4 |
 | ファイル頭: 役割 1 行 ＋ `@unit` ／ `@component` ／ `@publishes` | ファイルの先頭 | 5 行 | 各ファイル 1 か所 |
 | 生成領域の出どころの見出し | ファイルの先頭 | 検査 21 が求める最小 | 生成領域を持つファイル |

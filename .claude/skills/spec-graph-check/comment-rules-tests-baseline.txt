@@ -1,0 +1,257 @@
+# Check 55, tests/ half -- the comments of tests/ against JDG-62
+# (docs/development-records/refactor-plan-report-2026-09-13.md, record 15):
+# the character and the forms of src/ (docs/review/comment-rules-src.md), plus
+# `// STEP:` -- 1 line, at most 3 in one it/test body. Held by
+# check-comment-rules.py; `--list tests` prints it file by file and
+# `--file <path>` line by line.
+#
+# WHY A BASELINE AND NOT A CAP. The ruling holds the amount against its value
+# on the day it was made, forbids a rise, and leaves the cap to stage 8 of the
+# refactor plan. Applying the src/ rules at once would delete tens of
+# thousands of lines in one sweep, which the ruling rules out: files are
+# brought to the rules when a refactor rewrites them or when they are touched.
+#
+# HOW IT IS MEASURED. Every .ts file under tests/, through the src/ check's
+# lexer (strings, `${}` templates, regex literals and comments), so test
+# titles and data strings are never counted.
+#   <file> <n>   n = comment lines holding a character outside printable ASCII
+#                + comment lines in no allowed form or past a form's budget,
+#                a STEP past the 3rd in one test, or a STEP in no test.
+#                A line breaking both rules counts under each.
+#   tree-density-basis-points <n>
+#                n = tree comment lines * 10000 // (code + comment lines).
+#
+# THE RATCHET. A file rising above its line FAILS; a file not listed holds 0,
+# so a new or renamed test file starts clean. The density rising FAILS. A
+# fall is OK and the run names the lines to lower in that same commit -- the
+# shape of every other ratchet here. Raise a line only on purpose, and say why
+# in the commit. `--write-tests-baseline` rewrites this file; the front
+# session re-counts with it at a merge.
+tree-density-basis-points 3444
+tests/contract/display-words.contract.test.ts 1282
+tests/contract/document-invariants.contract.test.ts 366
+tests/contract/erd-seats-are-never-reissued.contract.test.ts 184
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts 168
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts 320
+tests/contract/grs-document.contract.test.ts 46
+tests/contract/if-1-svg-surface.test.ts 86
+tests/contract/if-3-file-store.test.ts 273
+tests/contract/if-7-snapshot-source.test.ts 181
+tests/contract/seams.contract.test.ts 77
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts 67
+tests/contract/spec-table.ts 199
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts 565
+tests/contract/units.contract.test.ts 44
+tests/fixtures/fake-browser.ts 77
+tests/fixtures/grs-document.ts 28
+tests/integration/schedule-drawing.sws.test.ts 589
+tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts 488
+tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts 757
+tests/nfr/nfr-004-single-file.test.ts 126
+tests/system/display-words-reasons-and-watermark.test.ts 282
+tests/system/divider-colour-corner-and-sticky-field.test.ts 339
+tests/system/drawn-svg-normalization.sws.test.ts 145
+tests/system/duplicate-paste-and-dual-cursor.test.ts 295
+tests/system/first-frame-is-the-settled-frame.test.ts 191
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts 315
+tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 349
+tests/system/live-app.ts 114
+tests/system/measured-sweep.test.ts 1642
+tests/system/mspdi-normalization.sws.test.ts 317
+tests/system/nfr-004-file-scheme-sweep.sws.test.ts 675
+tests/system/open-defect-pins.test.ts 625
+tests/system/pinned-band-and-the-empty-document.test.ts 265
+tests/system/rows-fixed-with-nothing-holding-them.test.ts 358
+tests/system/single-html-policy.sws.test.ts 137
+tests/system/step-safety-valve-and-its-telling.test.ts 307
+tests/system/sws-case.ts 55
+tests/system/three-rows-read-from-the-spec-alone.test.ts 355
+tests/system/user-reported-fixes.test.ts 954
+tests/unit/ar-05-a-comment-box-is-placed.test.ts 316
+tests/unit/dfc-102-un-14-pinning-is-inside-the-history.test.ts 300
+tests/unit/dfc-130-pr-1-pr-2-reach-the-document.test.ts 240
+tests/unit/dfc-152-in-6-the-same-value-writes-nothing.test.ts 225
+tests/unit/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts 289
+tests/unit/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts 327
+tests/unit/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts 273
+tests/unit/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts 244
+tests/unit/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts 299
+tests/unit/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts 247
+tests/unit/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts 155
+tests/unit/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts 366
+tests/unit/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts 200
+tests/unit/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts 256
+tests/unit/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts 257
+tests/unit/dfc-355-the-four-rulings-of-2026-09-07.test.ts 246
+tests/unit/dfc-357-fr-073-a-newer-version-is-opened-not-refused.test.ts 86
+tests/unit/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts 267
+tests/unit/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts 132
+tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts 126
+tests/unit/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts 184
+tests/unit/dfc-407-417-418-the-three-fixes-of-2026-09-09.test.ts 82
+tests/unit/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts 185
+tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts 248
+tests/unit/dfc-97-sk-11-overwrites-the-open-file.test.ts 183
+tests/unit/document-model.test.ts 100
+tests/unit/edit-annotation.test.ts 211
+tests/unit/edit-calendar.test.ts 302
+tests/unit/edit-dependency.test.ts 133
+tests/unit/edit-resource.test.ts 113
+tests/unit/edit-task-group.test.ts 216
+tests/unit/edit-task.test.ts 422
+tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
+tests/unit/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
+tests/unit/fr-006-panel-close-entrance.test.ts 321
+tests/unit/fr-006-panel-fields-drawn.test.ts 519
+tests/unit/fr-006-panel-typography.test.ts 460
+tests/unit/fr-009-ptd-3-the-two-halves-of-a-bar.test.ts 255
+tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts 77
+tests/unit/fr-013-pointer-on-the-figure.test.ts 500
+tests/unit/fr-016-zoom-bounds.test.ts 129
+tests/unit/fr-017-ruler-height-constant.test.ts 477
+tests/unit/fr-019-no-row-for-the-annotation.test.ts 118
+tests/unit/fr-020-both-ways-ic-41.test.ts 120
+tests/unit/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts 147
+tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts 133
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts 201
+tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts 117
+tests/unit/fr-023-import-report-ok-closes-the-surface.test.ts 96
+tests/unit/fr-025-no-png-scale-and-retained-key.test.ts 105
+tests/unit/fr-027-startup-shows-its-depth.test.ts 324
+tests/unit/fr-029-en-2-a-palette-toggle-that-is-on.test.ts 355
+tests/unit/fr-029-glyph-box-grew-and-the-entrance-did-not.test.ts 184
+tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts 333
+tests/unit/fr-029-palette-grab-marker.test.ts 294
+tests/unit/fr-029-the-reason-a-press-carries.test.ts 464
+tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts 260
+tests/unit/fr-032-a-nameless-task-can-be-deleted.test.ts 272
+tests/unit/fr-033-the-copy-store-is-inside-the-app.test.ts 124
+tests/unit/fr-034-align-to-the-last-picked.test.ts 301
+tests/unit/fr-036-assignment-of-an-entrance.test.ts 183
+tests/unit/fr-036-help-item-order-and-size.test.ts 320
+tests/unit/fr-038-panel-date-language.test.ts 256
+tests/unit/fr-043-a-the-dummy-sits-in-the-actual-band.test.ts 68
+tests/unit/fr-043-b-a-milestone-dummy-box-is-square.test.ts 67
+tests/unit/fr-043-dummy-drawn.test.ts 883
+tests/unit/fr-052-t-023d-picture-while-held.test.ts 507
+tests/unit/fr-053-minimised-shows-the-band-alone.test.ts 137
+tests/unit/fr-053-one-armed-entrance.test.ts 246
+tests/unit/fr-053-one-palette-toggle.test.ts 270
+tests/unit/fr-053-palette-group-boundary.test.ts 257
+tests/unit/fr-053-palette-group-rule-isotropic-gap.test.ts 297
+tests/unit/fr-053-re-showing-clears-the-minimise.test.ts 134
+tests/unit/fr-053-the-glyphs-that-do-not-fold.test.ts 154
+tests/unit/fr-053-the-row-the-three-entrances-moved-to.test.ts 137
+tests/unit/fr-053-where-the-band-carries-its-two-marks.test.ts 301
+tests/unit/fr-055-fit-discards-the-collapse.test.ts 200
+tests/unit/fr-055-fit-reaches-deep-tiers.test.ts 431
+tests/unit/fr-055-vertical-fit.test.ts 148
+tests/unit/fr-055-vertical-lod-fit.test.ts 390
+tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts 597
+tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 416
+tests/unit/fr-085-double-click-a-row-name.test.ts 179
+tests/unit/fr-085-room-for-the-name.test.ts 242
+tests/unit/fr-092-ez-2-tooltip-text-size.test.ts 249
+tests/unit/fr-097-comment-box-drawn.test.ts 411
+tests/unit/fr-098-nothing-scrolling-under-the-band.test.ts 510
+tests/unit/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts 90
+tests/unit/fr-098-the-band-does-not-scroll.test.ts 401
+tests/unit/fr-098-the-pinned-band.test.ts 260
+tests/unit/fr-100-op-13-the-unsaved-edit-gate.test.ts 210
+tests/unit/fr-101-the-name-stands-above-the-time.test.ts 208
+tests/unit/fr-101-the-time-is-local-and-its-own-size.test.ts 189
+tests/unit/gd-6-the-arrowhead-does-not-depend-on-pinning.test.ts 156
+tests/unit/in-2-a-the-dummies-say-slide.test.ts 104
+tests/unit/in-2-pointer-shape.test.ts 504
+tests/unit/in-4-escape-closes-the-panel.test.ts 474
+tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts 132
+tests/unit/jdg-28-the-resume-icon-beats-the-plan-bar.test.ts 369
+tests/unit/layout-engine.test.ts 838
+tests/unit/lf-11-a-milestone-gets-no-resume-icon.test.ts 106
+tests/unit/lf-3-hf-19-a-row-is-never-shorter-than-its-controls.test.ts 204
+tests/unit/mk-13-the-name-field-is-armed.test.ts 344
+tests/unit/mk-wheel-scrolling.test.ts 262
+tests/unit/nt-8-enter-keeps-the-telling-its-own-settling-raised.test.ts 129
+tests/unit/settings-defaults-follow-the-manuscript.test.ts 145
+tests/unit/sk-19-a-enter-lets-the-selection-go.test.ts 86
+tests/unit/st-7-rs-24-the-stack-safety-valve-returns-a-value.test.ts 170
+tests/unit/t-012-name-label-vertical.test.ts 152
+tests/unit/t-012-sh-5-fifteen-figures.test.ts 288
+tests/unit/t-012-sh-5-glyph-binding.test.ts 204
+tests/unit/t-013-label-clears-the-fade.test.ts 142
+tests/unit/t-015-t-051-the-four-folding-controls.test.ts 489
+tests/unit/t-016-choosing-the-wbs-parent.test.ts 383
+tests/unit/t-023-wheel-goes-to-the-browser.test.ts 354
+tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts 383
+tests/unit/t-023c-selected-line-width.test.ts 302
+tests/unit/t-023c-selection-points-at-what-exists.test.ts 293
+tests/unit/t-023c-sl-3-marquee-drawn-while-held.test.ts 356
+tests/unit/t-023d-a-double-click-reaches-only-mk-13.test.ts 136
+tests/unit/t-023d-double-click-only-rows.test.ts 417
+tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts 792
+tests/unit/t-023d-follows-the-pointer.test.ts 753
+tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts 344
+tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts 298
+tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts 962
+tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts 309
+tests/unit/t-024a-op-10-first-day-covered.test.ts 378
+tests/unit/t-024a-op-14-a-handed-document-that-cannot-be-read.test.ts 130
+tests/unit/t-027-outside-the-history.test.ts 597
+tests/unit/t-038-oc-2-labels-in-the-occupied-width.test.ts 574
+tests/unit/t-050-a-document-always-holds-one-row.test.ts 116
+tests/unit/t-051-hf-14-a-raised-row-is-visible.test.ts 337
+tests/unit/t-051-hf-14-the-depth-cap-refuses-a-row.test.ts 264
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts 591
+tests/unit/t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts 250
+tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts 113
+tests/unit/t-051-hf-18-hf-15-the-marks-on-a-row.test.ts 394
+tests/unit/t-051-hf-6-ground-under-the-row-controls.test.ts 440
+tests/unit/t-051-hf-6-the-pinned-rows-pin-is-filled.test.ts 204
+tests/unit/t-068-lc-9-tree-order.test.ts 105
+tests/unit/t-076-ep-12-export-drops-the-selection.test.ts 142
+tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts 376
+tests/unit/t-225-choosing-who-is-on-a-task.test.ts 667
+tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts 142
+tests/unit/uf-19.test.ts 288
+tests/unit/uf-20-21.test.ts 134
+tests/unit/uf-22.test.ts 235
+tests/unit/uf-23.test.ts 69
+tests/unit/uf-24-25.test.ts 234
+tests/unit/uf-26.test.ts 85
+tests/unit/uf-27-28-29.test.ts 362
+tests/unit/uf-30-31.test.ts 1180
+tests/unit/uf-32-ruler-band.test.ts 838
+tests/unit/uf-32.test.ts 791
+tests/unit/uf-34-35.test.ts 280
+tests/unit/uf-34-format-from-file.test.ts 231
+tests/unit/uf-36.test.ts 504
+tests/unit/uf-37-38.test.ts 263
+tests/unit/uf-39-40.test.ts 809
+tests/unit/uf-41-42.test.ts 325
+tests/unit/uf-45-46.test.ts 289
+tests/unit/uf-47-48-choosers.test.ts 1421
+tests/unit/uf-47-48-history-bytes.test.ts 504
+tests/unit/uf-47-48.test.ts 815
+tests/unit/uf-48-input.test.ts 561
+tests/unit/uf-48-undo-through-the-one-path.test.ts 384
+tests/unit/uf-48-write-moment.test.ts 821
+tests/unit/uf-50.test.ts 331
+tests/unit/uf-51.test.ts 477
+tests/unit/uf-53.test.ts 281
+tests/unit/uf-54.test.ts 296
+tests/unit/uf-60.test.ts 444
+tests/unit/uf-61.test.ts 230
+tests/unit/uf-62.test.ts 376
+tests/unit/uf-63.test.ts 909
+tests/unit/uf-64.test.ts 712
+tests/unit/uf-65.test.ts 555
+tests/unit/uf-66.test.ts 225
+tests/unit/uf-67.test.ts 990
+tests/unit/uf-68.test.ts 132
+tests/unit/uf-69.test.ts 409
+tests/unit/uf-71-confirmation.test.ts 706
+tests/unit/uf-71.test.ts 1430
+tests/unit/uf-72-screen-part.test.ts 2546
+tests/unit/uf-8-9-history-depth.test.ts 336
+tests/unit/uf-8-9-replace-document.test.ts 540
+tests/unit/use-case.test.ts 230
