@@ -1,4 +1,4 @@
-611
+479
 #
 # Check 42 -- 「…」 quotations inside comments of src/ and tests/ that no
 # manuscript under docs/spec contains. Held by check-quoted-source.py; line 1
