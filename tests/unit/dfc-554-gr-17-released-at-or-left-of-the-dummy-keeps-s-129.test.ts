@@ -44,6 +44,9 @@ const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日
 
 const AT_39_NOT_NEGATIVE = '| `Task` | `percentComplete` | 整数（0 以上） |'
 
+const IV_21_NOT_BELOW_ZERO =
+  '`actualStart` と `actualDuration` がともに非 `null` の `Task` で、`actualDuration` が 0 を下回らないこと。'
+
 const cellOf = (tableId: string, rowId: string, heading: string): string => {
   const row = specTable(tableId).rows.find((one) => one.id === rowId)
   if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
@@ -183,12 +186,13 @@ const numberSetting = (key: string): number => {
 const ACTUAL_INITIAL_DURATION = numberSetting('actualInitialDuration')
 
 describe('DFC-554 premises: the clauses and the fixture still read this way', () => {
-  it('FR-011, FR-043, T-023d GR-17, DM-1 and AT-39 still hold the clauses verbatim', () => {
+  it('FR-011, FR-043, T-023d GR-17, IV-21, DM-1 and AT-39 still hold the clauses verbatim', () => {
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_NOT_TO_ZERO)
     expect(REQUIREMENTS).toContain(FR_043_ZERO_ACCEPTED)
     expect(REQUIREMENTS).toContain(FR_043_ZERO_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
+    expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
     expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_NEXT_WORKED_DAY)
     expect(ERD_DETAIL).toContain(AT_39_NOT_NEGATIVE)
   })
@@ -219,21 +223,26 @@ describe('DFC-554 table T-023d GR-17: released on the dummy day', () => {
   })
 })
 
-describe('DFC-554 table T-023d GR-17: released left of the dummy day', () => {
-  for (const dropped of [ymd(11), ymd(10), PLAN_START, ymd(7)]) {
-    it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GR-17 released on ${dropped} writes nothing, or nothing below S-129`, () => {
+describe('DFC-554 table T-023d GR-17: released left of the dummy day, zero by the FR-011 count', () => {
+  for (const dropped of [ymd(11), ymd(10), PLAN_START]) {
+    it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GR-17 released on ${dropped} keeps S-129`, () => {
       const result = releasedFromGr17(dropped)
-      if (!result.ok) {
-        expect(result.refusals.length, 'a refusal names at least one rule').toBeGreaterThan(0)
-        return
-      }
+      expect(result.ok, 'FR-011 (MUST): not below S-129').toBe(true)
+      if (!result.ok) return
       const task = taskOf(result.document)
-      if (task.actualStart === null) return
-      expect(task.actualDuration, 'FR-011 (MUST): not below S-129').not.toBeNull()
-      expect(task.actualDuration!, 'FR-011 (MUST): not below S-129').toBeGreaterThanOrEqual(ACTUAL_INITIAL_DURATION)
+      expect(task.actualDuration, 'FR-011 (MUST): not below S-129').toBe(ACTUAL_INITIAL_DURATION)
       if (task.percentComplete !== null) {
         expect(task.percentComplete, 'AT-39: integer, 0 or more').toBeGreaterThanOrEqual(0)
       }
     })
   }
+})
+
+describe('DFC-554 table T-023d GR-17: released left of the dummy day, negative by the FR-011 count', () => {
+  it(`IV-21 -- GR-17 released on ${ymd(7)} is refused and writes nothing`, () => {
+    const result = releasedFromGr17(ymd(7))
+    expect(result.ok, IV_21_NOT_BELOW_ZERO).toBe(false)
+    if (result.ok) return
+    expect(result.refusals[0]?.rule, IV_21_NOT_BELOW_ZERO).toBe('IV-21')
+  })
 })

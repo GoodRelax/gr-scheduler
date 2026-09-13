@@ -43,6 +43,9 @@ const FR_011_FLOOR =
 const GR_17_PINS_THE_START =
   '掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。'
 
+const IV_21_NOT_BELOW_ZERO =
+  '`actualStart` と `actualDuration` がともに非 `null` の `Task` で、`actualDuration` が 0 を下回らないこと。'
+
 const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）。**'
 
 const S_106_WORKED_WEEKDAYS = '| S-106 | 稼働する曜日 | 月・火・水・木・金 🔎 |'
@@ -217,13 +220,14 @@ const taskOf = (document: Document): Task => {
 const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
 
 describe('GR-17 premises: the clauses and the calendar still read this way', () => {
-  it('FR-043, FR-011, T-023d GR-17, DM-1, S-106 and S-107 still hold the clauses verbatim', () => {
+  it('FR-043, FR-011, T-023d GR-17, IV-21, DM-1, S-106 and S-107 still hold the clauses verbatim', () => {
     expect(REQUIREMENTS).toContain(FR_043_RELEASED_DAY_IS_THE_FINISH_DATE)
     expect(REQUIREMENTS).toContain(FR_043_SAME_DAY_AND_THE_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_SAME_DAY_IS_ONE)
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
+    expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
     expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_NEXT_WORKED_DAY)
     expect(SETTINGS_TABLES).toContain(S_106_WORKED_WEEKDAYS)
     expect(SETTINGS_TABLES).toContain(S_107_NO_EXCEPTIONS)
@@ -271,16 +275,11 @@ describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor', 
     expect(task.actualDuration, FR_011_FLOOR).toBe(S_129)
   })
 
-  it('released two worked days left: negative, so it writes nothing or nothing below S-129', () => {
+  it('released two worked days left: negative, so IV-21 refuses it and writes nothing', () => {
     const dropped = workedDaysFrom(MONDAY_DUMMY_DAY, -2)
     const result = releasedFromGr17(FRIDAY_PLAN_START, dropped)
-    if (!result.ok) {
-      expect(result.refusals.length, 'a refusal names at least one rule').toBeGreaterThan(0)
-      return
-    }
-    const task = taskOf(result.document)
-    if (task.actualStart === null) return
-    expect(task.actualDuration, FR_011_FLOOR).not.toBeNull()
-    expect(task.actualDuration!, FR_011_FLOOR).toBeGreaterThanOrEqual(S_129)
+    expect(result.ok, IV_21_NOT_BELOW_ZERO).toBe(false)
+    if (result.ok) return
+    expect(result.refusals[0]?.rule, IV_21_NOT_BELOW_ZERO).toBe('IV-21')
   })
 })
