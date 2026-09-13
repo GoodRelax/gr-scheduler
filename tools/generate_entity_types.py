@@ -944,7 +944,7 @@ def default_calendar_block():
 # is a fact about the code's shape, and the manuscript describes values.
 #
 # ⛔ ONE CONSTANT PER CONSUMING UNIT, never a shared one. S-134 is a 掴み帯 the
-# same way S-90 to S-93 are, but its consumer is screen-frame.ts in the Adapter
+# same way S-90 to S-92 are, but its consumer is screen-frame.ts in the Adapter
 # layer while NOT_STORED_SIZES is generated into item-hit-area.ts in the Entity
 # layer. Adding the row to that constant would hand one unit a value belonging
 # to another, which is the duplication rule 03 section 1 forbids -- and the
@@ -2267,8 +2267,9 @@ TARGETS = [
     # keeps a Framework file out of the Entity layer's reach anyway -- what
     # crosses is the number, generated twice from the one manuscript, which is
     # the same bargain S-218 already stands on in two units.
-    # ⭐⭐ S-93 STANDS HERE AS WELL AS IN `item-hit-area.ts`, on the bargain the
-    # note above states: table T-038's closing rule (MUST) counts
+    # ⭐⭐ NOT_STORED_SIZES (the grab margins S-90 .. S-92) STANDS HERE AS WELL AS
+    # IN `item-hit-area.ts`, on the bargain the note above states: table T-038's
+    # closing rule (MUST) counts
     # 「掴みシロを持つものについてはその掴みシロの幅」, and
     # this is the unit that measures that order -- but `item-hit-area.ts`
     # imports ScheduleGeometry, which imports this file, so reading the constant
@@ -2377,7 +2378,7 @@ TARGETS = [
     # ⭐ The dummy's drawn width joins them, in its own constant: FR-043's three
     # grab handles are drawn by this unit and by no other, and S-180 is the only
     # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
-    # S-131 is the faintness, and S-93 is the reader's hit area).
+    # and S-131 is the faintness).
     # ⚠️ S-180 LANDS IN `schedule-geometry.ts` AS WELL, for the reason that
     # entry states: table T-023d's closing rule made the drawn rectangle a fact
     # the hit test needs, so the geometry solves it once and this unit reads the

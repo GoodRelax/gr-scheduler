@@ -5,7 +5,10 @@ description: Mechanical checks and graph-based impact analysis for the gr-schedu
 
 # Specification checks and impact analysis
 
-Sixteen mechanical checks plus a dependency-graph toolkit for `docs/spec`.
+Mechanical checks plus a dependency-graph toolkit for `docs/spec`. The count
+of numbered checks is on line 2 of `check.sh`, and what every tool turns red
+and cannot see is in `docs/development-rules/09-tools.md` -- this file keeps
+no copy of either.
 
 **Green proves references resolve. It does not prove the specification agrees
 with itself.** Across eight review rounds, every Critical defect appeared
@@ -18,8 +21,10 @@ graph to decide *how* to edit; neither replaces reading.
 bash .claude/skills/spec-graph-check/check.sh
 ```
 
-Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15–20 are
-gates; 13 and 14 are advisory counts that should trend down.
+Output goes to `scratch/spec-check/` (gitignored). Checks 13 and 14 are
+advisory counts that should trend down, and checks 1 and 4 print without
+gating; every other numbered check is a gate. The end of the run names the
+checks that went red, and `scratch/spec-check/last-run.txt` keeps that line.
 
 **Check 16 guards the generated documents.** `docs/spec/_assets/fig-erd-*.md`
 are written by `docs/spec/_source/erd_json_to_md.py` from `erd.json`;
@@ -245,7 +250,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
   a table T-064 row and ending it `…）|` instead of `…） |` made
   `audit-ch5.py` read the row as declaring no members at all, so
   `DocumentSettings` became an "edge target with no declared member".
-  **All 26 checks stayed green** — only the Chapter 5 self-audit saw it, and
+  **Every check stayed green** — only the Chapter 5 self-audit saw it, and
   only because it parses the published-entries cell. Run `audit-ch5.py` after
   touching any cell of T-064, T-065 or T-075.
 - When resolving a contradiction, the reflex is to write the same explanation
@@ -286,7 +291,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 | file | role |
 | --- | --- |
-| `check.sh` | all 20 checks |
+| `check.sh` | every numbered check (the count is on its line 2) |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |

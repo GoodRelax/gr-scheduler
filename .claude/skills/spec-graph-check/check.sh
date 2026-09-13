@@ -6,7 +6,7 @@
 # that adds a check, and BEFORE the heading goes in: a check added without a
 # recount leaves this line wrong for every later reader. To recount:
 #
-#   grep -o '^echo "=====[^"]*' check.sh
+#   grep -o '^section "[^"]*' check.sh
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
@@ -89,7 +89,8 @@
 #   27     the generated artifacts `npm run gen:check` holds -- the GRS JSON
 #          validator, the startup template, the icon roster, the icon glyphs,
 #          the display words, the MSPDI custom fields, the exchange formats,
-#          the property items and the row-ID prefix table.
+#          the property items, the row-ID prefix table, and the component
+#          overview and table build.py writes (not its figures).
 #          ⛔ A suite quoted as the word on the tree has to run everything that
 #          holds the tree to its manuscript, so none of these is left to
 #          `gen:check` alone
@@ -191,6 +192,19 @@ OUT="$REPO/scratch/spec-check"          # gitignored (see .gitignore "scratch/")
 SD="$OUT/sd-out"
 J="$SD/json/index.json"
 fail=0
+FAILED=""
+SECTION=""
+# ⭐ Every check announces itself through `section` and every failure goes
+# through `failed`, so the end names the checks that went red instead of
+# leaving only a line to scroll back from, and last-run.txt keeps it.
+section() { SECTION="${1%% *}"; echo "===== $1 ====="; }
+failed() {
+    fail=1
+    case " $FAILED " in
+        *" $SECTION "*) ;;
+        *) FAILED="${FAILED:+$FAILED }$SECTION" ;;
+    esac
+}
 
 mkdir -p "$OUT"
 cd "$REPO" || exit 2
@@ -203,27 +217,27 @@ cd "$REPO" || exit 2
 #
 # ⛔ The one-liners are READ from the index, never copied here. Two copies of
 # the same sentence part company, which is the failure R4 is about.
-echo "===== 0  the rules ====="
+section "0  the rules"
 echo "   docs/development-rules/ is the authority on HOW this product is built."
 echo "   Read ALL of them through before touching anything -- a rule you did"
 echo "   not read is one you cannot notice yourself breaking."
 echo "   The front session ORCHESTRATES: subagents implement and test (05.6)."
 echo ""
 # The index is Japanese; a cp932 console would mangle it.
-PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || failed
 
 echo ""
-echo "===== 41  the traps that are cheaper to catch before the edit ====="
+section "41  the traps that are cheaper to catch before the edit"
 # ⛔ `npm run precheck` is called here because there is no git hook: a guard
 # that no gate calls runs only when somebody remembers. It was green (exit 0)
 # before it was wired, because a gate that is born red teaches people to
 # ignore gates. ⚠️ With no arguments it reads what git reports as changed, so
 # on a clean tree it passes having examined nothing. That is correct: it is
 # the early guard, not the authority. check.sh below stays the authority.
-PYTHONIOENCODING=utf-8 python tools/precheck.py || fail=1
+PYTHONIOENCODING=utf-8 python tools/precheck.py || failed
 
 echo ""
-echo "===== 1-4  StrictDoc export ====="
+section "1-4  StrictDoc export"
 # The export writes INTO $SD and never clears it, so a run leaves its own
 # 9MB beside every earlier run's. Clearing it first costs nothing --
 # every check below reads only what this run writes.
@@ -245,7 +259,7 @@ out=$(jq -r '.DOCUMENTS[] | recurse(.NODES[]?)
   | select(.UID? and ._NODE_TYPE!="DOCUMENT" and ._NODE_TYPE!="GOAL")
   | select(((.RELATIONS // []) | map(select(.TYPE=="Parent")) | length) == 0)
   | "PARENTLESS " + .UID' "$J")
-[ -n "$out" ] && { echo "$out"; fail=1; } || echo "   none"
+[ -n "$out" ] && { echo "$out"; failed; } || echo "   none"
 
 echo "-- 3. ORIGIN vs Relations mismatch (expect none)"
 out=$(jq -r '.DOCUMENTS[] | recurse(.NODES[]?)
@@ -254,7 +268,7 @@ out=$(jq -r '.DOCUMENTS[] | recurse(.NODES[]?)
   | [($n.RELATIONS // [])[] | select(.TYPE=="Parent") | .VALUE] | unique as $r
   | (($o - $r) + ($r - $o)) as $m
   | select(($m|length)>0) | "ORIGIN-MISMATCH " + $n.UID' "$J")
-[ -n "$out" ] && { echo "$out"; fail=1; } || echo "   none"
+[ -n "$out" ] && { echo "$out"; failed; } || echo "   none"
 
 echo "-- 4. UID gaps (FR-50 is retired on purpose; every other gap is a defect)"
 jq -r '([.DOCUMENTS[] | recurse(.NODES[]?)
@@ -266,159 +280,160 @@ jq -r '([.DOCUMENTS[] | recurse(.NODES[]?)
     + (if ($gap|length)==0 then "none" else ($gap|map(tostring)|join(",")) end)' "$J"
 
 echo ""
-echo "===== 5-10, 15, 48  Markdown source ====="
-python "$HERE/md-checks.py" "$REPO" || fail=1
+section "5-10, 15, 48  Markdown source"
+python "$HERE/md-checks.py" "$REPO" || failed
 
 echo ""
-echo "===== 12-14, 32  recurring defect types ====="
+section "12-14, 32  recurring defect types"
 # ⚠️ utf-8, like every other check that prints Japanese: check 32 names the
 # forbidden word in its own finding, and a cp932 console mangles it.
-PYTHONIOENCODING=utf-8 python "$HERE/style-checks.py" "$REPO" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/style-checks.py" "$REPO" || failed
 
 echo ""
-echo "===== 11  duplication detector ====="
+section "11  duplication detector"
 python docs/review/dup-check.py 0.45 "$OUT/dup-report.txt" \
-    docs/review/duplication-baseline.txt || fail=1
+    docs/review/duplication-baseline.txt || failed
 echo "   report: $OUT/dup-report.txt"
 
 echo ""
-echo "===== 16  generated documents still match their source ====="
-python docs/spec/_source/erd_json_to_md.py --check || fail=1
-PYTHONIOENCODING=utf-8 python docs/spec/_source/settings_json_to_md.py --check || fail=1
+section "16  generated documents still match their source"
+python docs/spec/_source/erd_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python docs/spec/_source/settings_json_to_md.py --check || failed
 
 echo ""
-echo "===== 21  every generated artifact names its manuscript ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-provenance.py || fail=1
+section "21  every generated artifact names its manuscript"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-provenance.py || failed
 
 echo ""
-echo "===== 22  each change request answers standing rules 1, 2 and 8 ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py || fail=1
+section "22  each change request answers standing rules 1, 2 and 8"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py || failed
 
 echo ""
-echo "===== 23  a manuscript holds its printed prose per language ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dictionary.py || fail=1
+section "23  a manuscript holds its printed prose per language"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dictionary.py || failed
 
 echo ""
-echo "===== 24  the development record still matches the tree ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-development-record.py || fail=1
+section "24  the development record still matches the tree"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-development-record.py || failed
 # The ledger prints its own counts at its head; a count written by hand goes
 # stale, so it is generated and held here.
-PYTHONIOENCODING=utf-8 python tools/ledger_metrics.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/ledger_metrics.py --check || failed
 
 echo ""
-echo "===== 25  provisional marks match the pending-decision list ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-pending-decisions.py || fail=1
+section "25  provisional marks match the pending-decision list"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-pending-decisions.py || failed
 
 echo ""
-echo "===== 17  the GRS JSON schema still matches its two sources ====="
-PYTHONIOENCODING=utf-8 python docs/spec/_source/erd_json_to_schema.py --check || fail=1
+section "17  the GRS JSON schema still matches its two sources"
+PYTHONIOENCODING=utf-8 python docs/spec/_source/erd_json_to_schema.py --check || failed
 
 echo ""
-echo "===== 18  src/ still holds exactly the units of table T-075 ====="
-PYTHONIOENCODING=utf-8 python tools/generate_unit_tree.py --check || fail=1
+section "18  src/ still holds exactly the units of table T-075"
+PYTHONIOENCODING=utf-8 python tools/generate_unit_tree.py --check || failed
 
 echo ""
-echo "===== 19  src/ obeys the dependency rules of table T-061 ====="
-PYTHONIOENCODING=utf-8 python tools/check_layer_rules.py || fail=1
+section "19  src/ obeys the dependency rules of table T-061"
+PYTHONIOENCODING=utf-8 python tools/check_layer_rules.py || failed
 
 echo ""
-echo "===== 20  the generated entity types still match erd.json ====="
-PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
+section "20  the generated entity types still match erd.json"
+PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || failed
 
 echo ""
 # ⭐ Every target of `npm run gen:check` is a gate here: a generator whose
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the twelve below plus those five are the seventeen `gen:check` runs.
-echo "===== 27  the twelve other generated artifacts still match their manuscripts ====="
-PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_display_words.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_mspdi_custom_fields.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || fail=1
-PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || fail=1
-PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || fail=1
-PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || fail=1
+# -- so the thirteen below plus those five are the eighteen `gen:check` runs.
+section "27  the thirteen other generated artifacts still match their manuscripts"
+PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_display_words.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_mspdi_custom_fields.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || failed
+PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python docs/spec/_source/build.py --check || failed
 
 echo ""
-echo "===== 28  the ledger against what has been SEEN in the app ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-live-verification.py || fail=1
+section "28  the ledger against what has been SEEN in the app"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-live-verification.py || failed
 
 echo ""
-echo "===== 29  the ledger against WHERE THE SPECIFICATION SAYS IT ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-decided-spec.py || fail=1
+section "29  the ledger against WHERE THE SPECIFICATION SAYS IT"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-decided-spec.py || failed
 
 echo ""
-echo "===== 26b table T-064 and src/ hold each other, both directions ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || fail=1
+section "26b table T-064 and src/ hold each other, both directions"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || failed
 
 echo ""
-echo "===== 30  the generated constants against the list that names them ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py || fail=1
+section "30  the generated constants against the list that names them"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py || failed
 
 echo ""
-echo "===== 33  Chapter 5 answers to itself ====="
+section "33  Chapter 5 answers to itself"
 # ⛔ utf-8: the audit prints Japanese table names, and a cp932 console
 # mangles them into the mojibake that hid its own failures before.
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || fail=1
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py || failed
 
 echo ""
-echo "===== 31  a row that still reads blocked while the row says it is settled ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || fail=1
+section "31  a row that still reads blocked while the row says it is settled"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-stale-blocked.py || failed
 
 echo ""
-echo "===== 40  a row still un-ruled while its pending decision is 裁定済 ====="
+section "40  a row still un-ruled while its pending decision is 裁定済"
 # ⛔ utf-8: it prints the two books' Japanese state words, and telling 未検討
 # from 裁定済 is the whole point of the line.
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruled-elsewhere.py || fail=1
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruled-elsewhere.py || failed
 
 echo ""
-echo "===== 42  a comment quoting a sentence docs/spec does not contain ====="
+section "42  a comment quoting a sentence docs/spec does not contain"
 # ⛔ utf-8: the quotations it prints are Japanese, and a mangled one cannot
 # be looked up in the manuscript it is supposed to have come from.
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-quoted-source.py || fail=1
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-quoted-source.py || failed
 
 echo ""
-echo "===== 43  a ruling the book calls applied whose words nothing holds ====="
+section "43  a ruling the book calls applied whose words nothing holds"
 # ⛔ utf-8: it prints the user's own Japanese sentences, and a ruling that
 # arrives mangled cannot be looked up in the manuscript that should hold it.
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruling-landed.py || fail=1
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-ruling-landed.py || failed
 
 echo ""
-echo "===== 37  a table's row and its display word were read together ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-dictionary-table-covariance.py || fail=1
+section "37  a table's row and its display word were read together"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-dictionary-table-covariance.py || failed
 
 echo ""
-echo "===== 38  revision history version numbers are unique ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-changelog-versions.py || fail=1
+section "38  revision history version numbers are unique"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-changelog-versions.py || failed
 
 echo ""
-echo "===== 39  MUST / MUST NOT clauses held verbatim by a test ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-coverage.py || fail=1
+section "39  MUST / MUST NOT clauses held verbatim by a test"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-coverage.py || failed
 
 echo ""
-echo "===== 44  src/ and tests/ against a burnt or unknown specification ID ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-spec-id-references.py || fail=1
+section "44  src/ and tests/ against a burnt or unknown specification ID"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-spec-id-references.py || failed
 
 echo ""
-echo "===== 45  one expression written in two or more places in src/ ====="
-PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-repeated-expressions.py || fail=1
+section "45  one expression written in two or more places in src/"
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-repeated-expressions.py || failed
 
 echo ""
-echo "===== 46  every sentence ends a line ====="
-PYTHONIOENCODING=utf-8 python "$HERE/check-line-breaks.py" || fail=1
+section "46  every sentence ends a line"
+PYTHONIOENCODING=utf-8 python "$HERE/check-line-breaks.py" || failed
 
 echo ""
-echo "===== 47  the marks are used once, and bold marks a phrase ====="
-PYTHONIOENCODING=utf-8 python "$HERE/check-marks.py" || fail=1
+section "47  the marks are used once, and bold marks a phrase"
+PYTHONIOENCODING=utf-8 python "$HERE/check-marks.py" || failed
 
 echo ""
-echo "===== 49  the published HTML: bold and captions actually arrived ====="
+section "49  the published HTML: bold and captions actually arrived"
 # ⛔ check-render.py is the ONLY check that opens the page a reader sees;
 # every other one reads the manuscript or the JSON export. It was green BEFORE
 # being wired -- 0 literal `**` across all four documents, 0 missing captions
@@ -438,11 +453,11 @@ strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
     echo "HTML EXPORT FAILED -- rerun for the reason:"
     strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
         --no-parallelization 2>&1 | grep -iE 'error' | head -3
-    fail=1
+    failed
 }
-PYTHONIOENCODING=utf-8 python "$HERE/check-render.py" scratch/spec-html-probe || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-render.py" scratch/spec-html-probe || failed
 
-echo "===== 50  表 T-023a and the PressRow type name the same rows ====="
+section "50  表 T-023a and the PressRow type name the same rows"
 # ⛔ Green before the rename it guards, not after. The press table's rows ARE
 # the values of a TypeScript type, and before this check `grep -rn PressRow
 # tools/ .claude/` returned NOTHING -- the manuscript could be renamed and the
@@ -450,24 +465,24 @@ echo "===== 50  表 T-023a and the PressRow type name the same rows ====="
 # the build cannot show a drift either. ⭐ A check added AFTER a rename would
 # be born guarding something already broken, which is why this one goes in
 # first.
-PYTHONIOENCODING=utf-8 python "$HERE/check-press-row-ids.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-press-row-ids.py" || failed
 
-echo "===== 51  the PD- prefix, followed by a number, is gone ====="
+section "51  the PD- prefix, followed by a number, is gone"
 # ⛔ It prints its exclusions ON EVERY RUN, each with the reason
 # it is excluded, because the thing that would quietly rot here is not the
 # count -- it is an exclusion nobody reads. ⚠️ Check 50's own docstring is on
 # the list, by name.
-PYTHONIOENCODING=utf-8 python "$HERE/check-pd-prefix-gone.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-pd-prefix-gone.py" || failed
 
-echo "===== 52  表 T-007 / T-008 and the row ids the tests hold as values ====="
+section "52  表 T-007 / T-008 and the row ids the tests hold as values"
 # ⛔ Green before the rename it guards, for the same reason as check 50.
 # Two tests transcribe 表 T-008 into a fixture and a third reads the manuscript
 # at run time and matches on the id, so a one-sided rename either reddens them
 # or, worse, leaves `find` returning undefined. ⭐ Measured: putting one
 # fixture's id to `CHN-9` turns it red and names both halves.
-PYTHONIOENCODING=utf-8 python "$HERE/check-device-route-row-ids.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-device-route-row-ids.py" || failed
 
-echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
+section "53  the D- and R- prefixes, followed by a number, are gone"
 # ⛔ In place since the CR that abolished both. ⭐ It prints its
 # exclusions ON EVERY RUN, each with the reason: two trees, six files, the
 # twenty-four LOCAL series a document numbers for itself, and eleven lines.
@@ -476,25 +491,25 @@ echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
 # document that starts numbering `D-1`, which is what the ruling asked to stop.
 # ⚠️ Its first run found 25 test FILE NAMES the inventory never saw, because
 # the inventory scanned upper case only and the names are `d-102-...`.
-PYTHONIOENCODING=utf-8 python "$HERE/check-dr-prefix-gone.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-dr-prefix-gone.py" || failed
 
-echo "===== 54  docs/spec holds its reasons, not its history ====="
+section "54  docs/spec holds its reasons, not its history"
 # ⛔ Green on arrival. It gates the two shapes that measured as unambiguous --
 # 利用者の裁定 with a date, and a date followed by まで -- with no baseline and
 # no exclusions.
-PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || fail=1
+PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || failed
 
 
 echo ""
-echo "===== NOT COVERED  what this run did not look at ====="
+section "NOT COVERED  what this run did not look at"
 # ⛔ Printed on every run, green or red. A suite that names only what it
 # checked gets read as having checked everything, so a gate that sees only
 # part of the import edges still reads as "OK".
-echo "   docs/spec/_source/build.py writes 11 artifacts -- fig-components and"
-echo "   the four views, each a .drawio and an .svg, plus"
-echo "   docs/review/components/components.md -- and has no --check. It drives"
-echo "   draw.io through an installed executable, so nothing here can rebuild"
-echo "   them to compare. ⛔ A stale component figure passes this whole suite."
+echo "   docs/spec/_source/build.py --check (check 27) compares overview.json and"
+echo "   docs/review/components/components.md only. The five figures --"
+echo "   fig-components and the four views, each a .drawio (Graphviz) and an"
+echo "   .svg (draw.io) -- are never rebuilt here to compare."
+echo "   ⛔ A stale component figure passes this whole suite."
 echo "   Provenance only (check 21) says where they came from, never that they"
 echo "   are current."
 echo ""
@@ -530,6 +545,10 @@ if [ "$fail" -eq 0 ]; then
     echo "specification agrees with itself, and not that anything under"
     echo "NOT COVERED above is current."
 else
-    echo "FAILURES ABOVE"
+    echo "FAILURES ABOVE -- red: $FAILED"
 fi
+{
+    echo "exit $fail"
+    echo "red: ${FAILED:-none}"
+} > "$OUT/last-run.txt"
 exit "$fail"

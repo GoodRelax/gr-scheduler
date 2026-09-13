@@ -58,10 +58,10 @@
 | dependency | AgentApiEndpoint | NotifyChangeWatchers | watch / unwatch | starts and stops watching |  |
 | dependency | AgentApiEndpoint | PostDialogueMessage | utterance | hands over an utterance |  |
 | dependency | FileGateway | ApplyDocumentChange | intake | asks for an intake |  |
-| dependency | ImageExporter | SvgRenderer | SVG string | takes the SVG string |  |
+| dependency | ImageExporter | SvgRenderer | SVG string and every colour | takes the SVG string, and asks the same renderer for every colour it paints, AT THE DOCUMENT'S HUE -- EP-9 forbids a new settings key for it and table T-236's S-149 already holds the line colour, so it is asked rather than written as a literal; and without the hue the answer comes back at hue 0 |  |
 | dependency | FileGateway | DocumentCodec | format | gets the exchange format |  |
 | dependency | ClipboardGateway | DocumentCodec | text out | gets the text to send out |  |
-| dependency | ClipboardGateway | ImageExporter | image out | gets the raster image to send out |  |
+| dependency | ClipboardGateway | ImageExporter | image out | gets the raster image to send out, handing over the document's theme hue with the request |  |
 | dependency | InputCommandTranslator | ItemHitArea | item under pointer | asks which item is under the pointer |  |
 | dependency | SvgRenderer | ScheduleGeometry | geometry | reads geometry only, never the write path |  |
 | dependency | SvgRenderer | ScheduleLayout | ruler and rows | reads the ruler and the row placement |  |
@@ -91,7 +91,7 @@
 | dependency | AgentApiEndpoint | DialogueLog | confirmed utterances | reads the utterances for readDialogueMessages |  |
 | dependency | AgentApiEndpoint | DocumentCodec | exchange formats | gets JSON, MSPDI and the single .html |  |
 | dependency | AgentApiEndpoint | SvgRenderer | picture arguments | names what the frame hands over, through PI-19's own signature (AG-4) |  |
-| dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image |  |
+| dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image, handing over the document's theme hue with the request |  |
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
 | dependency | SvgRenderer | Schedule | colours + theme hue | reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries |  |
@@ -107,7 +107,7 @@
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
 | dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |
 | dependency | SingleHtmlShell | FileGateway | open / save | opens and saves the document file for a person |  |
-| dependency | SingleHtmlShell | ImageExporter | image out | writes the image out for a person |  |
+| dependency | SingleHtmlShell | ImageExporter | image out | writes the image out for a person, and hands over the document's theme hue (Project.themeHue, AT-19) with the request |  |
 | dependency | SingleHtmlShell | ClipboardGateway | clipboard out | sends the document or the picture to the clipboard for a person |  |
 | dependency | DocumentCodec | Document | whole document | reads and writes the document root as a whole (FR-024) |  |
 | dependency | AgentApiEndpoint | Document | frozen snapshot | AM-3 readDocument returns a frozen copy of the whole root (AG-4) |  |

@@ -13,7 +13,17 @@ Cluster-level edges are deliberately kept OUT of components.json: a view keeps
 every edge whose endpoints survive, so a cluster edge would leak into every
 view that spans those layers and collide with the node-level labels.
 
-Usage:  python docs/spec/_source/build.py
+Usage:  python docs/spec/_source/build.py               everything
+        python docs/spec/_source/build.py --no-figures  overview.json and
+                                                        components.md only
+        python docs/spec/_source/build.py --check       exit 1 if either differs
+
+--check rebuilds, in memory, only what needs no external renderer:
+overview.json always, and components.md when table.py (the drawio-uml skill)
+is installed -- where it is not, the check says NOT CHECKED rather than
+passing in silence. The five figures are never rebuilt by --check: a .drawio
+needs Graphviz and an .svg needs draw.io, so a stale figure still passes, and
+the check prints that on every run.
 """
 
 import json
@@ -23,6 +33,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL = os.path.join(HERE, "components.json")
@@ -163,7 +174,7 @@ def collapse(model):
     return backing
 
 
-def build_overview(model, backing):
+def build_overview(model, backing, write=True):
     unlabelled = sorted(backing.keys() - CLUSTER_EDGE_LABELS.keys())
     unbacked = sorted(CLUSTER_EDGE_LABELS.keys() - backing.keys())
     if unlabelled:
@@ -183,10 +194,11 @@ def build_overview(model, backing):
                 "nodes": model["nodes"],
                 "edges": edges,
                 "layout": model["layout"]}
-    with open(OVERVIEW, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(overview, handle, ensure_ascii=False, indent=1)
-        handle.write("\n")
-    return edges
+    text = json.dumps(overview, ensure_ascii=False, indent=1) + "\n"
+    if write:
+        with open(OVERVIEW, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
+    return edges, text
 
 
 
@@ -368,7 +380,50 @@ def draw(model_path, out_stem, view=None):
                 assert_drawn("%s.%s" % (where, fmt))
 
 
+def read_text(path):
+    with open(path, encoding="utf-8") as handle:
+        return handle.read().replace("\r\n", "\n")
+
+
+def rel(path):
+    return os.path.relpath(path, os.path.join(HERE, "..", "..", "..")).replace("\\", "/")
+
+
+def check_outputs(model, backing):
+    """--check: rebuild what needs no external renderer and compare."""
+    drift = []
+    _, text = build_overview(model, backing, write=False)
+    if read_text(OVERVIEW) != text:
+        drift.append(OVERVIEW)
+    else:
+        print("OK       %s matches components.json" % rel(OVERVIEW))
+    script = os.path.join(SKILL, "table.py")
+    if not os.path.exists(script):
+        print("NOT CHECKED %s -- table.py (the drawio-uml skill) is not installed"
+              % rel(TABLE))
+    else:
+        with tempfile.TemporaryDirectory() as scratch:
+            built = os.path.join(scratch, "components.md")
+            result = subprocess.run([sys.executable, script, MODEL, built],
+                                    capture_output=True, text=True)
+            if result.returncode:
+                sys.exit((result.stderr or result.stdout).strip())
+            stamp(built)
+            if read_text(built) != read_text(TABLE):
+                drift.append(TABLE)
+            else:
+                print("OK       %s matches components.json" % rel(TABLE))
+    print("NOT CHECKED fig-components and the view-* figures: a .drawio needs "
+          "Graphviz and an .svg needs draw.io, so a stale figure passes this check")
+    for path in drift:
+        print("DRIFTED  %s no longer matches components.json -- run: "
+              "python docs/spec/_source/build.py --no-figures" % rel(path))
+    return 1 if drift else 0
+
+
 def main():
+    check = "--check" in sys.argv[1:]
+    no_figures = "--no-figures" in sys.argv[1:]
     with open(MODEL, encoding="utf-8") as handle:
         model = json.load(handle)
 
@@ -380,15 +435,20 @@ def main():
                  % len(stray))
 
     backing = collapse(model)
-    edges = build_overview(model, backing)
+    if check:
+        return check_outputs(model, backing)
+    edges, _ = build_overview(model, backing)
     print("overview: %d cluster edges, each backed by component edges" % len(edges))
     for src, dst in sorted(backing):
         print("  %-14s -> %-14s  %d" % (src, dst, len(backing[(src, dst)])))
 
-    print("figures:")
-    draw(OVERVIEW, os.path.join(HERE, "fig-components"))
-    for key in model.get("views", {}):
-        draw(MODEL, os.path.join(HERE, "view-" + key), view=key)
+    if no_figures:
+        print("figures: skipped (--no-figures)")
+    else:
+        print("figures:")
+        draw(OVERVIEW, os.path.join(HERE, "fig-components"))
+        for key in model.get("views", {}):
+            draw(MODEL, os.path.join(HERE, "view-" + key), view=key)
 
     print("table:")
     print("    " + run([sys.executable, os.path.join(SKILL, "table.py"),
@@ -397,7 +457,8 @@ def main():
     # project, so the back-pointer is stamped here. A generated artifact that
     # does not say where it came from gets edited by hand sooner or later.
     stamp(TABLE)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

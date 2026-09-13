@@ -146,7 +146,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 27 | `generate_startup_template.py` | PHASES等の内蔵定数、src/entity/document-model配下から読むsettings既定値・カレンダー既定値、docs/spec/_source/settings.json（S-73のthemeHue）、docs/spec/_source/grs-document.schema.jsonを読み、多数のcheck_*関数（check_invariants/check_neutrality/check_schema等）で検証した3年分のサンプルGRS JSON文書をsrc/framework/single-html-shell/startup-template.jsonへ書き出す。--checkはディスク上のファイルとビルド結果をバイト比較する。 | check_neutralityは『生成器自身が書いたと自覚している語彙』に含まれるかどうかしか照合しない禁止語リストではなく既知語リストとの照合なので、その語彙表自体に業界特有語や不適切な単語が紛れ込んでいても、登録さえされていれば通ってしまう。 | `npm run startup`／`check.sh` |
 | 27 | `property_items_json_to_md.py` | docs/spec/_source/property-items.jsonを読み、docs/spec/_assets/tbl-property-items.md（表T-016）を書く。--checkはディスク上のファイルとビルド結果を比較する。 | 各行のnote/mspdiセルの文分割（broken関数）は『。』の位置で機械的に改行するだけで、意味的に正しい文分割になっているか、日本語として自然かは一切検査しない。 | `npm run gen:items`／`check.sh` |
 | 27 | `row_id_prefixes_json_to_md.py` | docs/spec/_source/row-id-prefixes.json（接頭辞の意味）を読み、docs/spec・docs/development-records・docs/development-rules の 3 つの木で表の行の最初のセルとその表題を毎回歩いて、接頭辞ごとの定義場所と行数を組み合わせ、docs/spec/_assets/tbl-row-id-prefixes.md を書く。登録の無い接頭辞・どの木も使わない登録・届け出の無い衝突・写しと称しながら持ち主の定義しない ID を持つ接頭辞は、どれも exit 1。--check は書き出し先を作り直して比べる。 | docs/spec/output/ は歩かない。行 ID と認めるのは表の行の最初のセルだけなので、散文や表の途中のセルで名乗られた ID は数えない。接頭辞の意味が正しいかは読まない —— JSON の `means` をそのまま刷る。 | `npm run gen:prefixes`／`npm run gen:check`／`check.sh` |
-| — | `build.py` | docs/spec/_source/components.jsonを読み、各ノード間のエッジをラベル付きクラスタへ集約してoverview.jsonを作り、draw.io（外部実行ファイル）経由でfig-components.svg・4つのview-*.svg/.drawio、およびdocs/review/components/components.mdを書き出す。--checkは存在しない。 | check.sh自身がNOT COVEREDとして明記する通り、この生成物を再構築して比較する仕組みが無いため、fig-componentsや4つのviewの図が古くなっていてもcheck.sh全体は緑のままになる。 | ⛔ 誰も |
+| 27 | `build.py` | docs/spec/_source/components.json を読み、辺をラベル付きのクラスタへ畳んで overview.json と docs/review/components/components.md（外部の drawio-uml スキルの table.py で）を書き、Graphviz と draw.io で fig-components と 4 つの view-* の図（.drawio と .svg）を書く。`--no-figures` は図を飛ばす。`--check` は overview.json と、table.py が在れば components.md を作り直して比べ、食い違えば exit 1。 | `--check` は図（.drawio 5 本と .svg 5 本）を作り直さないので、古い図は緑のまま通る —— 実行のたびに NOT CHECKED と刷る。components.md は利用者の環境に在る table.py が作るので、それが無い計算機では NOT CHECKED になり比べない。 | `npm run gen:components`／`npm run gen:components:check`／`check.sh` |
 
 ---
 
@@ -182,7 +182,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `list-inverted-authority.py` | docs/spec の 1 文が、原稿の他の場所に 1 度も出てこない src/ の識別子に権威を委ねている箇所（「`groupDepthThresholdOf` の注が自ら禁じている」の形）を挙げる。 | 委譲の動詞の手前 60 文字にバッククォート付きの識別子が要るので、行をまたぐ委譲も、動詞が識別子より先に来る文も、6 文字未満の識別子も全部落ちる。識別子が原稿の他行に 1 回でも出れば無条件に除外するので、ERD や設定値表が定める名に権威を委ねた逆転は原理的に見えない。 | `npm run guard:cleanup` |
 | `list-lying-edges.py` | 「…」で引いて「と定めている」と現在形で言い、その文が名指した席（行 ID・表・UID）の本文には入っていない引用を挙げる（検査 42 が構造上通してしまう形）。 | 引用の直前 60 文字に席が綴られていないと拾わず、SAYS は現在形 9 語の閉じた一覧なので「〜としている」「〜が示す」は落ちる。席の本文は specindex が知る範囲＝docs/spec と _assets の 2 階層だけで、src/ や台帳を名指した引用は席が None になって黙って飛ばされる。引用の前 120 文字に D- / CR- / PND- / 台帳 等が在るとその 1 件を丸ごと除外する。 | `npm run guard:cleanup` |
 | `list-prose-tallies.py` | 散文が自分で数を抱えている完全性の主張（「拡張領域を使う 2 つはこれだけである」）を挙げ、表を名指しているものは specindex の行数と突き合わせて一致するかを併記する。 | 完全性の語は「全数／これだけである／これで全部／他に無い／他にない／以外に無い／以外にない」の閉じた一覧で、言い換えた完全性の主張は 1 件も出ない。走査の単位は 。｜改行 で切った断片なので、数と主張が別の文に分かれていると「数を持っていない」と判定する。「本表／同表／本節／同節」を含むと表との突き合わせを自分で止める（数だけ出して比べない）。 | `npm run guard:cleanup` |
-| `list-withdrawn-cited.py` | 撤回記録（「X」と定めていた）から撤回済みの文を収穫し、それを docs/spec・src/・tests/ のどこかが履歴の印なしに引いている箇所を挙げる。 | 収穫できるのは括弧で包まれた 10 文字以上の文＋過去形 6 動詞（定めて／書いて／述べて／求めて／言って／呼んでいた）の形だけなので、言い換えて撤回された規則（DFC-452・DFC-460）は原理的に見えない。除外の判定は前 500 文字・後 200 文字の窓に until / was / reads / stale 等が在るかだけなので、同じコメント塊に無関係な was が 1 つ在れば本物の嘘も「履歴」として黙る。 | `npm run guard:cleanup` |
+| `list-withdrawn-cited.py` | 撤回記録（「X」と定めていた）から撤回済みの文を収穫し、それを docs/spec・src/・tests/ のどこかが履歴の印なしに引いている箇所を挙げる。⚠️ **CR-375 で仕様書から撤回記録が消えたので、いまは 0 件を返す。**撤回記録が仕様書へ戻ったときにだけ意味を持つ。 | 収穫元は docs/spec だけである。change-request/ や docs/development-records/ では「…と定めていた」が「既にそう定まっていた」の意味でも使われるので、そこへ向けても撤回と確認を区別できない。言い換えて撤回された規則は、原理的に見えない。 | `npm run guard:cleanup` |
 | `sample-and-app.mjs` | サンプル HTML と dist/index.html を 1400x2000 の Playwright ページで開き、両側に同じ形の読み(rows / counts / faint / pinned)と押し(pressRow / pressHead)を生やして人と check.mjs に渡す —— 併せてサンプルの act と表 T-109 の入口の対応表 SAME_ENTRANCE、サンプルの木 SAMPLE_TREE、FR-085 で切られた名前を FR-052 のドラッグで広げて全文にする showWholeNames を持つ。 | 両側の DOM の約束(サンプルの `.row` / `.nm` / `.cnt` / `.pinnedTop` と GRS の `data-depth` / `data-icon` / `data-pinned` / `data-truncated` / `data-role`)を直に綴っているので、どちらかのマークアップが変われば例外ではなく空配列を返し、盤が一致しないという別の顔で出る。読むのは常に `file://` の dist/index.html で、dev サーバの木は測れない。 | `npm run parity`／ほかの道具が import |
 | `cycle15.mjs` | 図形の入口 15 個（`IC-27`〜`IC-34`、`IC-83`〜`IC-89`）を順に押し、画布に描かれた図形の輪郭（多角形の頂点数・パスの部分路数）を読んで人に見せる。 | 期待値を持たない。読むのは押した位置から 30px 以内で幅 20px を超える最初の図形だけなので、重なった図形や小さい図形は取り違える。 ⚠️ 測る相手は `harness.mjs` が `file://` で開く dist/index.html であり、`npm run build` をしていなければ古い成果物を測る。 | 人が手で |
 | `frame-attribution.mjs` | 1 フレームのミリ秒が、スタイル再計算・レイアウト・描画・HTML の解析・スクリプトのどの段へ行ったかを、アプリの自己申告ではなくブラウザ自身の計器（CDP）で人に見せる。 | 合否を持たない（表 T-043 の門は別）。数は測る機械とその時の負荷に左右され、基準機の条件はこの道具では揃えない。 ⚠️ 測る相手は `harness.mjs` が `file://` で開く dist/index.html であり、`npm run build` をしていなければ古い成果物を測る。 | 人が手で |
@@ -200,7 +200,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 道具 | 何を提供するか | ⛔ 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
-| `check.sh` | 番号付き検査 51 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 落ちた検査の名前が終わりに残らない —— 終端は `FAILURES ABOVE` の 1 行だけで、どれが赤かは見出しまで遡らないと分からず、走行そのものの記録もファイルに残らない(stdout だけ。残るのは scratch/spec-check/dup-report.txt と sd-out の export 木)。番号付き 51 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
+| `check.sh` | 番号付き検査 51 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 終端に赤くなった検査の番号を刷り、`scratch/spec-check/last-run.txt` に終了符号とその番号を残すが、各検査の出力そのものは残さない（stdout だけ。ほかに残るのは scratch/spec-check/dup-report.txt と sd-out の export 木）。番号付き 51 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
 | `ledger_quotes.py` | 台帳の 1 セルから引用（「」『』とコードスパン）と「⚠️ 実測（日付）…」で始まる記録の文を取り除き、そのセルが今日について自分の声で言っていることだけを返す（outside_quotation / outside_record / spoken_now / asserts_any）。 | 引用かどうかの判断は区切り記号だけなので、括弧を閉じ忘れたセルは丸ごと素通りし、括弧を使わない引用は引用と見なされない。記録の印は「⚠️ 実測（YYYY-MM-DD」という 1 つの綴りに固定で、全角括弧の無い「実測 2026-09-07」も、⭐ や ⛔ で始まる記録も記録として扱わない。文の切れ目は 。と ⭐ ⛔ ⇒ ⚠️ の 4 つだけなので、1 文の中に記録と現在の主張が混ざっているとどちらか一方しか正しく扱えない。 | 2 本が import |
 | `retired.py` | 意図して退役させた仕様 ID の集合 RETIRED（1 つの set リテラル）と、各エントリの「何が・いつ・誰の裁定で抜け、どの文書がまだ名指しているか」の理由を提供する。 | ただの set リテラルなので、中の ID が本当に退役済みかを検証するものは何も無い —— 席を 1 つ足せば、その ID への参照は検査 7 でも list-asserted-claims でも永久に黙る。表を booking しても表の中の行は booking しない（T-006 は在るが E-1..E-6 は意図的に不在）ので、退役した表の行への参照は「未定義」として出続ける。「まだ何かが名指している ID」だけを持つ設計なので、退役の全数ではない。 | 4 本が import |
 | `spec_tables.py` | docs/spec下のMarkdown表を、キャプション（**表 T-nnn —**）から次のキャプション・章見出し・ファイル末尾までの範囲として解析し、行を見出し名でセルアクセスできるRow/Tableオブジェクトとして返す共有リーダーを提供する。generate_display_words.py・generate_exchange_formats.py・generate_help_roster.py・generate_icon_glyphs.py・generate_icon_roster.py・generate_unit_tree.pyの6本がimportしている。 | 見出し形状が最初のpipeブロックと異なる2番目以降のブロックは『aside』として数えるだけで、本来ロスターに含まれるべき行がasideに誤分類されても、このリーダー自身は『本当はロスターの一部だったのに漏れている』ことまでは判定しない（コード自身が『counted, not dropped in silence』とだけ述べ、正誤の判定はしないと認めている）。 | 6 本が import |
@@ -208,29 +208,24 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 9. ⛔ 目録の残る欠け（3 件）
+## 9. ⛔ 目録の残る欠け（1 件）
 
 | | 何が欠けているか | どこで確かめたか |
 |---|---|---|
-| 1 | ⚠️ **`SKILL.md` の数が古い。**「Sixteen mechanical checks」「all 20 checks」と書いている | `SKILL.md` 8 行目ほか |
-| 2 | ⛔ **`build.py` には `--check` が無い。** 部品図が古くなっても、検査は全部緑のままである | `check.sh` の NOT COVERED 節が自分で名指ししている |
-| 3 | ⚠️ **落ちた検査の名前は、走行のあとに残らない。** `check.sh` の終端は `FAILURES ABOVE` の 1 行で、走行記録はファイルに残らない | `check.sh` の終端 |
+| 1 | ⛔ **部品図（fig-components と view-* の .drawio と .svg）を比べる検査が無い。** `build.py --check` は overview.json と components.md だけを比べるので、図が古くなっても検査は全部緑のままである | `build.py --check` が実行のたびに NOT CHECKED と刷る |
 
-⛔ **どれも直していない** —— **`SKILL.md` は本書と重なる範囲をどう切るかが先に要り、`build.py` は draw.io の実行ファイルに依存し、
-走行の記録を残すのは `check.sh` の作りを変える話である。**
+⛔ **直していない** —— `.drawio` は Graphviz、`.svg` は draw.io の実行ファイルが要り、どちらも検査を走らせる計算機に在るとは限らない。
 
 ---
 
-## 10. ⚠️ 呼ばれ方の弱い道具（3 本）
+## 10. ⚠️ 呼ばれ方の弱い道具（2 本）
 
 ⭐ **退役させない。** ⛔ **代わりに役目を書く。それが本書である。**
 
-⛔ **`build.py` は誰も呼ばず、`impact.py` と `induced.py` は
-`02-changing-the-spec.md` が手順として名指すだけである** —— ⚠️ **それが「人が手で」の意味である。**
+⛔ **`impact.py` と `induced.py` は `02-changing-the-spec.md` が手順として名指すだけである** —— ⚠️ **それが「人が手で」の意味である。**
 
 | 道具 | 置き場 | 役目 | ⛔ いま誰が走らせるか |
 |---|---|---|---|
-| `build.py` | `docs/spec/_source` | docs/spec/_source/components.jsonを読み、各ノード間のエッジをラベル付きクラスタへ集約してoverview.jsonを作り、draw.io（外部実行ファイル）経由でfig-components.svg・4つのview-*.svg/.drawio、およびdocs/review/components/components.mdを書き出す。--checkは存在しない。 | ⛔ 誰も。check.sh自身がNOT COVEREDとして明記する通り、この生成物を再構築して比較する仕組みが無いため、fig-componentsや4つのviewの図が古くなっていてもcheck.sh全体は緑のままになる。 |
 | `impact.py` | `.claude/skills/spec-graph-check` | 表番号・行 ID・UID を 1 つ与えると、それを指している要求の一覧と、その要求を指す 2 次の要求と、CLUSTERS の 6 塊のどれに属するかを Markdown で人に見せる。 | 人が手で。report_node は specindex.RETIRED を読むが、その名は specindex が retired.py から import したもので、specindex.py 自身はもう集合を持たない。 |
 | `induced.py` | `.claude/skills/spec-graph-check` | これから触る対象を全部並べると、その誘導部分グラフの中の閉路（＝1 つの計画・1 パスで書かねばならない組）を人に見せる。 | 人が手で。SKILL.md は「編集の前に必ず走らせる、走らせないのがこの道具を作った原因の失敗」と書くが、check.sh は呼ばない —— 走らせ忘れても赤にならない。種が 1 つも解決しないときは 2 を返して拒む（空グラフの閉路 0 件を合格に見せないため）。 |
 

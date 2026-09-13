@@ -2,6 +2,14 @@
 """List a WITHDRAWN sentence that something still cites in the present tense.
 
 ⛔⛔ NOT A GATE. Measure its precision before anyone adds it to check.sh.
+
+⛔ SINCE CR-375 IT HARVESTS NOTHING, AND EVERY RUN REPORTS 0. CR-375 removed
+every retraction record from docs/spec, and the rule it wrote keeps them out.
+The tool is kept, not retired: it means something again only if retraction
+records return to docs/spec. ⚠️ Pointing it at change-request/ or
+docs/development-records/ does not work as it stands -- there 「…と定めていた」
+also says "this was already the rule", so the harvest would read a
+confirmation as a withdrawal.
 `list-asserted-claims.py` is the precedent for a detector kept out (63% on a
 30-line sample); check 45 is the precedent for one let in (9/10).
 
@@ -13,7 +21,8 @@ can see what changed:
 
     ...2026-09-02 まで「超えた分を下端側から落とす」と定めていた
 
-⇒ ⛔⛔ THE WITHDRAWN SENTENCE IS THEREFORE IN docs/spec, FOREVER, BY DESIGN.
+⇒ ⛔⛔ WHILE RETRACTION RECORDS ARE KEPT, THE WITHDRAWN SENTENCE IS IN docs/spec
+BY DESIGN.
 Check 42's haystack is the whole manuscript, so every citation of a withdrawn
 rule passes check 42 BY CONSTRUCTION. The hole is not an oversight in check
 42; it is the price of keeping retraction records, a price paid on purpose.

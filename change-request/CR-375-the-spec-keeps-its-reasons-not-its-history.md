@@ -226,10 +226,17 @@ MUST / MUST NOT の文とその場の理由は残す。
 
 **門**: `check.sh` はすべて緑。試験は 47 件の赤のまま（増えていない）。
 
-⚠️ **この巡で直していないもの**（履歴ではなく、道具が今のコードと食い違っている）:
+⭐ **同じセッションで直した道具の欠け**（利用者の問い「ツールの不備はこのセッションで直せないか？」）:
 
-- `tools/generate_entity_types.py` のコメントが、退役した `S-93` をまだ「ここに在る」と書いている
-- `list-withdrawn-cited.py` の docstring が、仕様書に撤回記録が残っている前提で書かれている
+- `tools/generate_entity_types.py` のコメント 3 か所が、退役した `S-93` を名指していた。いまの定数（`S-90`〜`S-92` と `S-137`）に合わせた
+- `SKILL.md` の検査の本数（「Sixteen」「all 20」「All 26」）が古かった。数を持つのをやめ、`check.sh` の 2 行目と `09-tools.md` を指す形にした
+- `check.sh` の終端が、どの検査が赤かを言わなかった。終端に赤の検査番号を刷り、`scratch/spec-check/last-run.txt` に残すようにした。
+  ⭐ 緑の走行（`red: none`）と、検査 42 の基準線をわざと下げた走行（`red: 42`）の両方で確かめ、基準線は HEAD と同じに戻した
+- `build.py` に `--check` が無かった。`overview.json` と `components.md` を作り直して比べる `--check` と、図を飛ばす `--no-figures` を足し、`npm run gen:components:check` として `gen:check` と検査 27 に載せた。
+  ⛔ **載せる前に測ると `components.md` が古かった** —— `components.json` の辺の説明 4 つ（色相の受け渡し）が書き換わったまま再生成されていなかった。再生成してから載せた
+- `list-withdrawn-cited.py` は、CR-375 の前は撤回済みの文を 37 収穫していたが、いまは 0 である。利用者の判断で退役させず、docstring と目録に「いまは 0 件を返す」ことと、読む先を変えても撤回と確認を区別できないことを書いた
+
+⚠️ **残る欠け**: 部品図（`.drawio` 5 本と `.svg` 5 本）を比べる検査は無い。Graphviz と draw.io の実行ファイルが要るからである。`build.py --check` がそれを実行のたびに刷る。
 
 ## 4. ⛔ この変更でやらないこと
 
