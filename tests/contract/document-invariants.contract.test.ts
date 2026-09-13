@@ -723,6 +723,23 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       taskOrigins: [],
       assignments: [],
     }),
+
+  'IV-21': () =>
+    withSchedule({
+      tasks: [{ ...TASK_A, actualStart: TASK_A.start, actualDuration: -1 }, TASK_B],
+    }),
+}
+
+const IV_21_OUTSIDE: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'actualDuration of 0': () =>
+    withSchedule({
+      tasks: [{ ...TASK_A, actualStart: TASK_A.start, actualDuration: 0 }, TASK_B],
+    }),
+
+  'actualStart of null': () =>
+    withSchedule({
+      tasks: [{ ...TASK_A, actualStart: null, actualDuration: -1 }, TASK_B],
+    }),
 }
 
 /** The case filed under one row of table T-220. @purity pure */
@@ -1015,5 +1032,12 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
       `${row} was not reported for ${member}; the answer held ${listed(found)}`,
     ).toBeGreaterThan(0)
     for (const one of mine) expect(one.kind).toBe(KIND_BY_ROW[row])
+  })
+
+  it.each(Object.entries(IV_21_OUTSIDE))('IV-21 is not reported for %s', (_label, document) => {
+    const broken = document()
+    const found = scheduleViolations(broken.schedule, broken.settings)
+
+    expect(found.filter((one) => one.row === 'IV-21'), listed(found)).toEqual([])
   })
 })

@@ -1660,6 +1660,24 @@ const INVARIANTS: readonly Invariant[] = [
       }))
     },
   },
+  {
+    row: 'IV-21',
+    kind: 'combination',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, task] of schedule.tasks.entries()) {
+        if (task.actualStart === null || task.actualDuration === null) continue
+        if (task.actualDuration < 0) {
+          found.push({
+            at: `/schedule/tasks/${index}`,
+            what: `Task uid ${task.uid} has an actual of ${task.actualDuration} worked days, ending before it starts`,
+          })
+        }
+      }
+      return found
+    },
+  },
 ]
 
 // see T-220

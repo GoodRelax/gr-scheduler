@@ -529,11 +529,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         const checked = checkDay(settings, text)
         if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
       }
-      // STOP: spec does not decide refusing or flooring an actual whose ends cross. Looked in T-220, GR-5, FR-011 (PND-493)
       const laid = place.row === 'PA-1' ? null : place.actualDuration
       if (laid !== null && laid < 0) {
         faults.push(
-          reject('CM-13', 'AT-39', `an actual of ${laid} worked days ends before it starts`),
+          reject('CM-13', 'IV-21', `an actual of ${laid} worked days ends before it starts`),
         )
       }
       if (faults.length > 0) return refused(faults)
@@ -627,10 +626,9 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         }
         const pinned = nextWorkingDay(within, planStart)
         const laid = actualDurationEndingOn(within, pinned, dropped.day)
-        // STOP: spec does not decide refusing or flooring an actual whose ends cross. Looked in T-220, GR-17, FR-011, FR-043 (PND-493)
         if (laid < 0) {
           return refused([
-            reject('CM-14', 'AT-39', `an actual of ${laid} worked days ends before it starts`),
+            reject('CM-14', 'IV-21', `an actual of ${laid} worked days ends before it starts`),
           ])
         }
         const pulled: Task = {
