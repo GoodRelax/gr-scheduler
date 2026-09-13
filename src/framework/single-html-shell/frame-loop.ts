@@ -676,6 +676,10 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
 // the same; a misspelling raises a surface nothing describes.
 const OPEN_CHOOSER_SURFACE = 'Open Chooser'
 
+// TRAP: dom-screen-surface.ts's ROLE.dialogueField must spell it the same; a mismatch
+// silently leaves the Dialogue Field's press stopped like any other rowArea press.
+const DIALOGUE_FIELD_SURFACE = 'Dialogue Field'
+
 const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
   'IC-71': 'replace',
   'IC-72': 'merge',
@@ -3584,6 +3588,15 @@ export function frameLoop(
       )
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
       if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
+      // TRAP: rowArea's rectangle also covers the floating Dialogue Field; without this escape,
+      // its own press reads as rowArea and preventDefault blocks native focus (DFC-578, FR-066).
+      if (
+        input.kind === 'pointer' &&
+        input.phase === 'down' &&
+        screen?.surface.readScreenPartAt(input.x, input.y)?.part === DIALOGUE_FIELD_SURFACE
+      ) {
+        return false
+      }
       return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,
