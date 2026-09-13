@@ -1000,10 +1000,10 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     // else.
     // ⚠️ Every clause of it is one this file drives: the length placed
     // (`S-129`, and `S-130` on a milestone), the ban on the plan's own span,
-    // the ban on choosing that length a second way, and the right end being
-    // read the way PV-2 reads it.
+    // the ban on choosing that length a second way, and actualFinish being
+    // read the way PV-2 reads it (the actual finish day, not the right end).
     const PV_1 =
-      '`actualStart` ＝ `start`、⭐ `actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の右端。`actualStart` に `actualDuration` を稼働日で加えた日）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
+      '`actualStart` ＝ `start`、⭐ `actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の実績の終了日。実績バーの右端そのものではない）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
     expect(REQUIREMENTS).toContain(PV_1)
   })
 
@@ -1020,8 +1020,10 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     expect(task.actualStart).toBe(jan(5))
     expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.actualInitialDuration)
     expect(task.actualDuration).toBe(1)
-    // PV-2's reading of the right end, which this row is told to share.
-    expect(task.actualFinish).toBe(jan(6))
+    // PV-2's reading, which this row is told to share: the actual FINISH day
+    // (FR-011), one worked day before the right end. One worked day from
+    // Monday jan(5) finishes on jan(5) itself; jan(6) is the right end.
+    expect(task.actualFinish).toBe(jan(5))
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('finished')
   })
@@ -1042,9 +1044,11 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
 
   it('PV-2 finishes a task in progress without moving either end of the actual bar', () => {
     // The actual bar's right end is `actualStart` plus `actualDuration` worked
-    // days (FR-011): Monday plus three is Thursday. MUST NOT move either end.
+    // days (FR-011): Monday plus three is Thursday jan(8). PV-2 writes the
+    // finish DAY, one worked day before it: Wednesday jan(7). MUST NOT move
+    // either end.
     const task = cycled(at({ actualStart: jan(5), actualDuration: 3, resumeValid: true }))
-    expect(task.actualFinish).toBe(jan(8))
+    expect(task.actualFinish).toBe(jan(7))
     expect(task.actualStart).toBe(jan(5))
     expect(task.actualDuration).toBe(3)
     expect(task.resumeValid).toBe(false)

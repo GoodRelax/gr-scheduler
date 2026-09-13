@@ -2610,7 +2610,7 @@ function commandFromGrab(
         hit.grab === 'GR-3'
           ? { start: day, finish }
           : { start, finish: day }
-      // WHY: an end dragged past the other is not clamped; IV-2 is `editTask`'s, so every caller gets one answer.
+      // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
       return changed([
         {
           kind: 'setTaskPlanDates',

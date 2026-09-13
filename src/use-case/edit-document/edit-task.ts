@@ -239,6 +239,16 @@ export function repriced(within: WorkingCalendar, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(within, task) }
 }
 
+// see FR-011, PV-2
+/** @purity pure */
+function actualFinishDayOf(within: WorkingCalendar, from: CalendarDay, duration: number,
+                           milestone: boolean): string {
+  if (milestone) return textOfDay(from)
+  const rightEnd = dateFromWorkingDays(within, from, duration)
+  // WHY: step back from the right end, not dateFromWorkingDays(from, duration - 1), which lands past a Friday.
+  return textOfDay(dateFromWorkingDays(within, rightEnd, -1))
+}
+
 const CARRIED_STOP = 'Stop'
 
 // see T-019
@@ -514,7 +524,8 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       }
       if (faults.length > 0) return refused(faults)
 
-      const floorOfActual = isMilestone(task, visualOf(schedule, task.uid))
+      const milestone = isMilestone(task, visualOf(schedule, task.uid))
+      const floorOfActual = milestone
         ? settings.milestoneActualDuration
         : settings.actualInitialDuration
       const heldDuration = laid === null ? null : Math.max(laid, floorOfActual)
@@ -555,16 +566,25 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
             resumeValid: false,
           }
           break
-        case 'PA-5':
+        case 'PA-5': {
+          const from = dayOf(place.actualStart)
+          const carried = place.actualFinish === task.actualFinish
+          const moved = place.actualStart !== task.actualStart || heldDuration !== task.actualDuration
+          // WHY: a finish equal to the stored one was only carried along, so it follows the moved ends;
+          // a different one was typed, and overwriting it would discard what the author entered.
+          const actualFinish = carried && moved && from !== null && heldDuration !== null
+            ? actualFinishDayOf(within, from, heldDuration, milestone)
+            : place.actualFinish
           placed = {
             ...task,
             actualStart: place.actualStart,
             actualDuration: heldDuration,
-            actualFinish: place.actualFinish,
+            actualFinish,
             resume: null,
             resumeValid: false,
           }
           break
+        }
       }
       return edited(withTask(document, repriced(within, actualsEdited(placed))))
     }
@@ -592,10 +612,17 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           ])
         }
         const pinned = nextWorkingDay(within, planStart)
+        const laid = workingDaysBetween(within, pinned, dropped.day)
+        // STOP: spec does not decide refusing or flooring an actual whose ends cross. Looked in T-220, GR-17, FR-011, FR-043 (PND-493)
+        if (laid < 0) {
+          return refused([
+            reject('CM-14', 'AT-39', `an actual of ${laid} worked days ends before it starts`),
+          ])
+        }
         const pulled: Task = {
           ...task,
           actualStart: textOfDay(pinned),
-          actualDuration: workingDaysBetween(within, pinned, dropped.day),
+          actualDuration: Math.max(laid, duration),
           resumeValid: true,
         }
         return edited(withTask(document, repriced(within, actualsEdited(pulled))))
@@ -618,14 +645,14 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           if (from === null) {
             return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
           }
-          const visual = visualOf(schedule, task.uid)
-          const duration = isMilestone(task, visual)
+          const milestone = isMilestone(task, visualOf(schedule, task.uid))
+          const duration = milestone
             ? settings.milestoneActualDuration
             : settings.actualInitialDuration
           turned = {
             ...task,
             actualStart: task.start,
-            actualFinish: textOfDay(dateFromWorkingDays(within, from, duration)),
+            actualFinish: actualFinishDayOf(within, from, duration, milestone),
             actualDuration: duration,
             resumeValid: false,
           }
@@ -636,9 +663,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           if (from === null || task.actualDuration === null) {
             return refused([reject('CM-15', 'FR-011', 'the actual bar has no right end to read')])
           }
+          const milestone = isMilestone(task, visualOf(schedule, task.uid))
           turned = {
             ...task,
-            actualFinish: textOfDay(dateFromWorkingDays(within, from, task.actualDuration)),
+            actualFinish: actualFinishDayOf(within, from, task.actualDuration, milestone),
             resumeValid: false,
           }
           break
