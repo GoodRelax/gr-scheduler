@@ -387,6 +387,14 @@
    }
   },
   {
+   "prefix": "HB",
+   "words": "Highlight box",
+   "owner": "spec",
+   "means": {
+    "ja": "ハイライトボックスの本体と四隅を離したときに置く値の行"
+   }
+  },
+  {
    "prefix": "HF",
    "words": "",
    "owner": "spec",
