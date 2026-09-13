@@ -77,7 +77,7 @@
       "type": "boolean"
      },
      "appliesTo": {
-      "description": "Which selection this row belongs to. FR-006 (MUST) makes the panel print only the rows whose appliesTo matches what is selected, and forbids printing the others -- without it a TaskGroup's height would be drawn on a Task's panel, because the array's order IS the print order and every row in it would be printed. Absent means Task, which is what every row of table T-016 was until 2026-09-02. CommentBox joined on 2026-09-06, when FR-097's entrance was ruled to be the panel and not a new organ.",
+      "description": "Which selection this row belongs to. FR-006 (MUST) makes the panel print only the rows whose appliesTo matches what is selected, and forbids printing the others -- without it a TaskGroup's height would be drawn on a Task's panel, because the array's order IS the print order and every row in it would be printed. Absent means Task. A CommentBox row is one whose entrance is the panel (FR-097).",
       "type": "string",
       "enum": [
        "Task",

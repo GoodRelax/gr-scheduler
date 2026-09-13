@@ -1,4 +1,16 @@
-1347
+1348
+#
+# RAISED 1347 -> 1348 ON 2026-09-13, deliberately, by CR-375 -- the user's
+# ruling, raise and commit. ⭐ One clause lost its verbatim tie: the test's
+# pinned window had been cut wide enough to include an attribution that
+# CR-375 removed from the same sentence. The clause is unchanged; the test is
+# red and booked in defects.md (DFC-510 onward, 試験待ち).
+# ⚠️ The same round first read 1354. SIX of those seven were not lost ties but
+# MUST NOT clauses the cleanup had wrongly written into tbl-settings.md while
+# turning history into reasons -- check 12 forbids a rule in a value table.
+# They were rewritten as reasons and the count fell to 1348 before commit.
+# ⇒ PAID BACK when that window is re-cut in the test cleaning that follows.
+# ⛔ Do not raise this again before that round.
 #
 # LOWERED 1349 -> 1347 ON 2026-09-12, applying the user's rulings of that day,
 # and neither clause got covered: both stopped existing. 05-07-design.md said

@@ -1,4 +1,15 @@
-411
+605
+#
+# RAISED 411 -> 605 ON 2026-09-13, deliberately, by CR-375 -- the user's
+# ruling, and the user chose to raise this line and commit rather than hold the
+# specification back. ⛔ NOT ONE COMMENT CHANGED. The specification changed:
+# CR-375 removed from docs/spec every attribution, dated quote and overturned
+# paragraph (1,261 occurrences), and 194 comments in src/ and tests/ were
+# quoting exactly those words. ⭐ The rules the comments meant are still in the
+# specification; what is gone is the history they quoted with it.
+# ⇒ PAID BACK BY THE CODE-COMMENT AND TEST CLEANING that follows the
+# specification's -- the user ordered src/ and tests/ fixed together, after.
+# ⛔ Do not raise this again for anything else before that round lowers it.
 #
 # LOWERED 412 -> 411 ON 2026-09-13, by the CR that abolished `D-` and `R-`.
 # ⛔ NOT A TIDY-UP, AND NOT A CONSEQUENCE OF THE RENAME EITHER. The rename

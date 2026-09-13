@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Check 43 -- a ruling the book calls applied whose words nothing holds.
+"""Check 43 -- a ruling the book calls applied whose landing nothing shows.
+
+⭐⭐ THE RULE CHANGED WITH CR-375 (2026-09-13, the user's ruling). The
+specification now holds the RULE and its reason, never the user's words:
+attributions, verbatim quotes and overturned history were removed from
+docs/spec, so a 適用済 row can no longer be proven by finding its 逐語 there.
+⇒ A 適用済 row is proven by what its 着地先 NAMES: at least one ID that is
+defined in docs/spec (a requirement UID, a table row, a table or figure
+caption, or a JSON "id"), or at least one file that exists. The 逐語 stays in
+this book, which is where it belongs. ⚠️ A cell that names neither an ID nor a
+file (`JDG-02`「本書 ＋ 検査 43」) still falls back to the verbatim search
+described below. ⛔ A cell whose only IDs are retired (e.g. `S-93` alone)
+proves nothing and stays red.
 
 ⛔ WHY THIS EXISTS. The user's instruction of 2026-09-08, verbatim:
 「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」 -- the
@@ -135,6 +147,14 @@ PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml)')
 
 HELD_LINE = re.compile(u'^HELD\\s+(JDG-\\d+)\\s*(.*)$')
 
+# ⭐ CR-375: an ID written in a 着地先 cell, and the four shapes in which
+# docs/spec DEFINES one. A cell naming a defined ID proves the landing.
+NAMED_ID = re.compile(r'(?<![A-Za-z0-9-])[A-Z]{1,4}-\d+[a-z]?(?![A-Za-z0-9-])')
+DEF_UID = re.compile(r'^\*\*UID\*\*:\s*([A-Z]+-\d+[a-z]?)', re.M)
+DEF_ROW = re.compile(r'^\|\s*([A-Z]{1,4}-\d+[a-z]?)\s*\|', re.M)
+DEF_CAPTION = re.compile(u'\\*\\*[表図]\\s*([TF]-\\d+[a-z]?)')
+DEF_JSON = re.compile(r'"id"\s*:\s*"([A-Z]{1,4}-\d+[a-z]?)"')
+
 
 def say(message):
     """The cp932 guard every check in this tree carries."""
@@ -199,6 +219,33 @@ def named_places(cell, book_path, own_line):
     return places
 
 
+def defined_ids():
+    """Every ID docs/spec defines: UIDs, table rows, captions, JSON ids."""
+    ids = set()
+    for base, dirs, names in os.walk(SPEC):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for name in names:
+            text = read(os.path.join(base, name))
+            if name.endswith('.md'):
+                ids.update(DEF_UID.findall(text))
+                ids.update(DEF_ROW.findall(text))
+                ids.update(DEF_CAPTION.findall(text))
+            elif name.endswith('.json'):
+                ids.update(DEF_JSON.findall(text))
+    return ids
+
+
+def named_files(cell):
+    """Paths the cell names that exist, from the root or from docs/spec."""
+    found = []
+    for candidate in PATH_IN_CELL.findall(cell):
+        local = candidate.replace('/', os.sep)
+        if (os.path.isfile(os.path.join(ROOT, local))
+                or os.path.isfile(os.path.join(SPEC, local))):
+            found.append(candidate)
+    return found
+
+
 def rows(path):
     """Every ruling row of the book.
 
@@ -237,6 +284,7 @@ def judge(path):
               words are in neither docs/spec nor the place it names.
     """
     spec = manuscripts()
+    defined = defined_ids()
     applied = []
     unlanded = []
     empty = []
@@ -260,6 +308,14 @@ def judge(path):
         if APPLIED not in flat_state:
             continue
         applied.append(row_id)
+        # ⭐ CR-375: what the 着地先 names is the proof.
+        ids = set(NAMED_ID.findall(where))
+        if ids or PATH_IN_CELL.findall(where):
+            if (ids & defined) or named_files(where):
+                continue
+            misses.append((row_id, number, quote))
+            continue
+        # A cell naming neither an ID nor a file: the verbatim search below.
         needle = bare(quote)
         if not needle:
             misses.append((row_id, number, quote))
@@ -340,15 +396,14 @@ def main():
     unheld = [m for m in misses if m[0] not in held]
     stale = sorted(set(held) - set(m[0] for m in misses))
     if unheld:
-        say('FAIL     %s: %d row(s) say 適用済 while neither docs/spec nor '
-            'the place their own 着地先 names holds their 逐語. ⛔ The row is '
-            'claiming a landing nothing in the tree can show. Either write '
-            'the ruling into the specification, or correct the 着地先, or -- '
-            'if the words are ones no document can carry (a chosen option, a '
-            'clause quoted back in the user\'s own spacing) -- add a HELD '
-            'line for the row to %s and say why there. ⛔ Do NOT reword the '
-            '逐語: rule 2 of the book forbids it.' % (REL, len(unheld),
-                                                      REL_BASELINE))
+        say('FAIL     %s: %d row(s) say 適用済 while their 着地先 names no '
+            'ID defined in docs/spec and no file that exists (a cell naming '
+            'neither is searched for its 逐語 instead). ⛔ The row is claiming '
+            'a landing nothing in the tree can show. Correct the 着地先 so it '
+            'names the requirement UID or table row that now carries the '
+            'rule, or add a HELD line for the row to %s and say why there. '
+            '⛔ Do NOT reword the 逐語: rule 2 of the book forbids it.'
+            % (REL, len(unheld), REL_BASELINE))
         for row_id, number, quote in unheld[:6]:
             say(u'         %s (line %d) %s' % (row_id, number, quote[:70]))
         fail = 1
@@ -381,7 +436,7 @@ def main():
         say(u'         %s' % listing_text)
 
     if not fail:
-        say('OK       %s: %d row(s) read, %d 適用済 with their 逐語 found '
+        say('OK       %s: %d row(s) read, %d 適用済 with their landing shown '
             '(%d held), 0 with an empty 着地先'
             % (REL, read_rows, len(applied) - len(misses), len(held)))
     return fail

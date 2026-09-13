@@ -30,4 +30,4 @@
 
 **Type**: SECTION
 
-変更履歴は `docs/development-records/changelog.md` へ移した（2026-09-11、削除ではなく移設）。
+変更履歴は `docs/development-records/changelog.md` が持つ。

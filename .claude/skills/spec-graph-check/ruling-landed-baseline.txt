@@ -168,20 +168,9 @@
 # exemption cannot rot into one. The shape is check 26b's
 # (published-members-baseline.txt).
 #
-# ⭐ Both of these were measured on 2026-09-09, and both are the same class:
-# the user ruled correctly, the ruling landed correctly, and the words they
-# spoke are not words a manuscript could contain.
-
-HELD JDG-06  The user quoted FR-055's own clause BACK, in their own spacing --
-#          「表示位置を scrollDate（null なら実行日）に合わせること（MUST）」
-#          where docs/spec/01-04-requirements.md:2766 says 「表示位置を
-#          `scrollDate` に合わせること（MUST）。`scrollDate` が `null` の
-#          ときは実行日に合わせてよい（MAY）」. ⭐ The ruling was that
-#          FR-055 does not change, so there is nothing for it to land AS.
-
-HELD JDG-08  The user chose an option by its letter: 「A：場所を常に空ける」.
-#          ⭐ The ruling DID land -- 表 T-038 excludes OC-3 and OC-4 from the
-#          occupied width, and its closing says why in the ruling's own
-#          terms: 「表示を切り替えてもタスクの位置が動かないようにするため」.
-#          ⛔ But no manuscript can hold the word "A", so no verbatim search
-#          will ever find this row. It is exempt by shape, not by debt.
+# ⭐ STRUCK ON 2026-09-13 (CR-375). This file held JDG-06 and JDG-08 because
+# their 逐語 could never be found in a manuscript -- one quoted FR-055 back in
+# the user's own spacing, the other chose an option by its letter. Check 43
+# now proves a 適用済 row by what its 着地先 names (FR-055; 表 T-038), not by
+# finding the user's words in docs/spec, so neither row is a miss any more and
+# both held lines were removed. ⇒ No row is held.

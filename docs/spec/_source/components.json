@@ -316,7 +316,7 @@
    "target": "SvgRenderer",
    "arrow": "dependency",
    "label": "SVG string and every colour",
-   "description": "takes the SVG string, and asks the same renderer for every colour it paints, AT THE DOCUMENT'S HUE -- PND-51 (2026-09-06) forbids a literal here, and without the hue the answer comes back at hue 0"
+   "description": "takes the SVG string, and asks the same renderer for every colour it paints, AT THE DOCUMENT'S HUE -- PND-51 forbids a literal here, and without the hue the answer comes back at hue 0"
   },
   {
    "source": "FileGateway",

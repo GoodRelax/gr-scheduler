@@ -29,3 +29,9 @@ tbl-glossary.md/T:T-109 IC-71 + tbl-glossary.md/T:T-109 IC-72
 01-04-requirements.md/FR-024 + 01-04-requirements.md/UC-011
 01-04-requirements.md/FR-083 SP-2 + 01-04-requirements.md/FR-083 SP-3
 tbl-settings.md/T:T-206 S-204 + tbl-settings.md/T:T-206 S-210
+01-04-requirements.md/FR-043 + 01-04-requirements.md/T:T-023d + 01-04-requirements.md/T:T-023d GR-18
+01-04-requirements.md/NFR-002 + 01-04-requirements.md/NFR-003
+01-04-requirements.md/T:T-026 RC-5 + tbl-settings.md/T:T-202 S-67
+01-04-requirements.md/FR-085 + 01-04-requirements.md/T:T-023 MK-13
+01-04-requirements.md/T:T-051 HF-2 + 01-04-requirements.md/T:T-051 HF-3
+01-04-requirements.md/T:T-051 HF-16 + 01-04-requirements.md/T:T-051 HF-17

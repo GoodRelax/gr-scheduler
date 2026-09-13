@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 50 mechanical checks for the gr-scheduler specification.
+# All 51 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). It said 28 until 2026-09-05,
@@ -38,6 +38,8 @@
 # order the failures above kept getting wrong.
 # ⭐ Recounted 2026-09-13 a third time when check 53 was added: 49 -> 50.
 # The ranges are 1 + 4 + 8 + 4 + 33. ⚠️ Counted before the heading went in.
+# ⭐ Recounted 2026-09-13 a fourth time when check 54 was added: 50 -> 51.
+# The ranges are 1 + 4 + 8 + 4 + 34. ⚠️ Counted before the heading went in.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -228,16 +230,14 @@
 #          -- the same question was put to them more than twice, because a
 #          ruling had no single place to live and nothing could say out loud
 #          "this is already decided". rulings.md is that place; this is what
-#          stops it decaying into a book nobody updates. Verbatim comparison
-#          strikes emphasis, backticks, every kind of whitespace INCLUDING
-#          NEWLINES (four of eleven fabricated citations in the 2026-09-08
-#          hunt were invisible to grep because the sentence wrapped) and the
-#          decorative marks -- and relaxes nothing else. Held against
-#          ruling-landed-baseline.txt: line 1 is the 未着地 count (5), and
-#          each `HELD R-nn` line exempts one 適用済 row whose words no
-#          document could carry -- an option chosen by its letter, a clause
-#          quoted back in the user's own spacing. ⭐ Held in BOTH directions
-#          like check 26b: a HELD row that stops being a miss is red too
+#          stops it decaying into a book nobody updates. ⭐ Since CR-375 the
+#          specification holds rules, not the user's words, so a 適用済 row is
+#          proven by its 着地先 naming an ID defined in docs/spec or a file
+#          that exists; only a cell naming neither is searched for its 逐語.
+#          Held against ruling-landed-baseline.txt: line 1 is the 未着地
+#          count, and each `HELD JDG-nn` line exempts one 適用済 row.
+#          ⭐ Held in BOTH directions like check 26b: a HELD row that stops
+#          being a miss is red too
 #   41     tools/precheck.py : the six traps that otherwise cost a round trip
 #          -- a bare change-request number, personal information or an
 #          absolute path, a hand edit to a generated file, and the rest. ⛔ It
@@ -555,6 +555,13 @@ echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
 # ⚠️ Its first run found 25 test FILE NAMES the inventory never saw, because
 # the inventory scanned upper case only and the names are `d-102-...`.
 PYTHONIOENCODING=utf-8 python "$HERE/check-dr-prefix-gone.py" || fail=1
+
+echo "===== 54  docs/spec holds its reasons, not its history ====="
+# ⛔ Wired in 2026-09-13, after CR-375 removed 1,261 attributions, dated
+# quotes and overturned paragraphs from the manuscripts, and green on arrival.
+# It gates the two shapes that measured as unambiguous -- 利用者の裁定 with a
+# date, and a date followed by まで -- with no baseline and no exclusions.
+PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || fail=1
 
 
 echo ""

@@ -5,8 +5,8 @@
   "Generated FROM this file: _assets/tbl-row-id-prefixes.md (row_id_prefixes_json_to_md.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "THIS FILE HOLDS NO ROSTER. Which prefixes exist, where each is defined and how many rows it has are read on every run from THREE trees -- docs/spec, docs/development-records and docs/development-rules -- as every `| XX-n |` row of their Markdown and the table caption it sits under. Do NOT write an owning table or a row count here: the join between this file and that walk IS the check, and a copy of either side would be the thing that drifts. A prefix a tree uses and this file does not carry fails the run (unregistered); a prefix this file carries and no tree uses fails it too (dead registration). There is no separate checker.",
-  "THE WALK COVERS ALL THREE TREES BECAUSE THE DEFECT IT EXISTS FOR SPANS THEM. `PD-` named a row of table T-023a and an un-ruled decision of the ledger, and a register that walked only docs/spec could not see the second one -- it would have gone green on the very collision that cost the round of 2026-09-12. Measured that day: docs/spec 124 prefixes / 1,891 rows, docs/development-records 12 / 856, docs/development-rules 1 / 2.",
-  "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the eight real mirrors from the prefixes that mean two different things. MEASURED 2026-09-12 there were three -- D, PD and R, whose ledger rows were 494, 208 and 44 ids the specification never defined. THERE ARE TWO SINCE 2026-09-13: CR-371 pulled PD's two meanings apart into PTD (spec, table T-023a, 6 rows) and PND (records, 212 rows), so no spelling of it stands in two trees and neither half is foreign to the other. The 208 was those 212 minus the 4 that stood in both trees -- the ledger's four lowest-numbered rows, which the press table numbered too -- and it reproduces from the renamed rosters. D and R were the two that remained, and the CR that renames them struck both in its wave 1 -- the moment the specification side became `DEV-` and `CHN-`, neither prefix stood in two trees any more. `collisions_suppressed` is empty for the first time.",
+  "THE WALK COVERS ALL THREE TREES BECAUSE THE DEFECT IT EXISTS FOR SPANS THEM. One prefix can name a row of the specification and a row of the ledger, and a register that walked only docs/spec could not see the second one.",
+  "`mirrored_in` IS A CLAIM THE GENERATOR TESTS, not a way to silence it. A mirror is a tree that records work about rows the owner defines (the ledger's UF-32 is the specification's UF-32), so the generator holds every id in the mirroring tree against the ids the owner defines and fails on the first one the owner never wrote. That test is what separates the real mirrors from the prefixes that mean two different things. `collisions_suppressed` is empty: no prefix stands in two trees with two meanings.",
   "`collisions_suppressed` IS A DEBT, NOT A PERMISSION. Each entry names the prefix, the trees it is used in, the day the suppression was written, why, and what removes it. The printed table shows every one of them, so the count cannot grow in silence, and the generator fails on an entry whose prefix no longer collides -- a suppression cannot outlive its reason.",
   "`words` MAY BE EMPTY, and an empty one is not a gap to be filled by guessing. It says the letters' origin could not be read out of the documents themselves. The defect CR-371 exists to remove is a spelling that two readers expand two ways, so an invented expansion here would be that same defect with a registry around it. Write `means` and leave `words` empty.",
   "`pending: true` SUPPRESSES THE DEAD-REGISTRATION ERROR, and only that. It is for a prefix registered ahead of the wave that writes its rows; the printed table shows such an entry as a registration with no rows yet, so a reader can see what is suppressed and count it. The generator faults a pending prefix that HAS rows, so the flag cannot outlive its reason. No entry carries it: PTD and PND both carried it until CR-371 wrote their rows, in waves 1 and 2.",
@@ -119,7 +119,7 @@
    "words": "Channel",
    "owner": "spec",
    "means": {
-    "ja": "機器と機器のあいだのデータの経路と、その信頼境界（CR の巡 1 で `R-` から改めた。⛔ `RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった）"
+    "ja": "機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった）"
    }
   },
   {
@@ -199,7 +199,7 @@
    "words": "Device",
    "owner": "spec",
    "means": {
-    "ja": "配置図に載る機器（CR の巡 1 で `D-` から改めた綴りである。`words` は登録簿が `D` について既に持っていた語であり、発明ではない）"
+    "ja": "配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。`words` は発明した語ではない）"
    }
   },
   {
@@ -215,7 +215,7 @@
    "words": "Defect",
    "owner": "records",
    "means": {
-    "ja": "台帳に載る欠陥（CR の巡 2 で `D-` から改めた綴りである）"
+    "ja": "台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない）"
    }
   },
   {
@@ -461,7 +461,7 @@
    "words": "Judgement",
    "owner": "records",
    "means": {
-    "ja": "利用者の裁定（CR の巡 2 で `R-` から改めた。⛔ `RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
+    "ja": "利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
    }
   },
   {
@@ -721,7 +721,7 @@
    "words": "Pending Decision",
    "owner": "records",
    "means": {
-    "ja": "まだ裁定されていない決めごと（CR-371 の巡 2 で改めた綴りである）"
+    "ja": "まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない）"
    }
   },
   {
@@ -753,7 +753,7 @@
    "words": "Pointer Down",
    "owner": "spec",
    "means": {
-    "ja": "ポインタを押したときの判定順序の段（CR-371 の巡 1 で PD から改めた綴りである）"
+    "ja": "ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない）"
    }
   },
   {
