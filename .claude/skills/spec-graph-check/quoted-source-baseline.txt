@@ -1,4 +1,11 @@
-605
+611
+#
+# RAISED 605 -> 611 ON 2026-09-13, the same day and the same reason, by
+# CR-375's second pass: the residual history the first pass had kept (a dated
+# measurement, "覆してはいない", "それは別の裁定である", a code-file count of
+# "21 ある", a past observation of HF-11 / HF-13) was rewritten as reasons,
+# and six comments in src/ and tests/ quote the old wording. ⛔ No comment
+# changed. Paid back by the same code-comment cleaning as the 194 below.
 #
 # RAISED 411 -> 605 ON 2026-09-13, deliberately, by CR-375 -- the user's
 # ruling, and the user chose to raise this line and commit rather than hold the
