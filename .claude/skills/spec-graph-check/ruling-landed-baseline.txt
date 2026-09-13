@@ -1,4 +1,15 @@
-3
+2
+#
+# LOWERED 3 -> 2 on 2026-09-14, for JDG-71: the ruling landed in 01fc9b0 at
+# table T-246's HB-4 (horizontal, the nearest day boundary), with HB-5 and
+# HB-6 derived from its reason (docs/spec/01-04-requirements.md), and
+# rulings.md's JDG-71 row already reads 適用済 -- but this number was left at
+# 3 in that commit, and check 43 counted 2 against it. Remaining at 2: JDG-67
+# and JDG-69, held below for their own reasons. JDG-72 (the comment-box
+# anchor is read by where it is released, and drawn at the centre of its day
+# column and row band) was appended in this same change already landed
+# (GR-14's paragraph and FR-019 in 01-04-requirements.md, table T-221's LF-15
+# in 05-07-design.md), so it does not count.
 #
 # RAISED 2 -> 3 on 2026-09-14, deliberately, for JDG-71 (DFC-568's corner
 # grab: which day boundary a released corner snaps to horizontally). The
