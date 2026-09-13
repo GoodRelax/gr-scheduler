@@ -77,7 +77,9 @@ const SWEEP_MS = 2_400_000
  * than row IDs. `specTable` reads on to the next `**表 ` heading and so takes
  * both, which is why the shape of a row ID is what selects here.
  */
-const ROW_ID = /^[A-Z]{2}-\d+[a-z]?$/
+// WHY: not fixed at 2 letters -- prefixes run 1-3 letters (tbl-row-id-prefixes.md);
+// PTD (DFC-468 rename) needs 3, and a 2-letter-only pattern missed T-023a's rows.
+const ROW_ID = /^[A-Z]{1,3}-\d+[a-z]?$/
 
 function rowsOf(tableId: string): readonly string[] {
   const rows = specTable(tableId).rows.map((row) => row.id).filter((id) => ROW_ID.test(id))
