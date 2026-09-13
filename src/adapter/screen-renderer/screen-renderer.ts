@@ -271,7 +271,7 @@ export interface RowTitle {
   readonly canAddChildRow?: boolean
   /**
    * HF-18 of table T-051: rows this one holds folded away (above zero marks the
-   * row, S-153). Rows hidden by HR-6 are not counted.
+   * row, S-153). Rows hidden by HR-6 are counted too.
    */
   readonly foldedRowCount?: number
   /**
