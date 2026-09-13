@@ -6,8 +6,7 @@
 // @publishes table T-064 row PI-18
 //
 // The signature of what this file publishes is owned here, not in the
-// specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
-// member obeys stays with the requirement that states it.
+// specification. Chapter 6.1 owns the boundary values.
 //
 // ⚠️ PART of this file is generated. The marked region at the bottom -- search
 // for NOT_STORED_ZOOM_STEP -- comes from docs/spec/_source/settings.json
@@ -19,56 +18,28 @@
 // comment makes the generator treat the comment as the region and inject the
 // block into the middle of it. The marker must occur exactly once per file.
 //
-// ⭐ WHY THIS COMPONENT EXISTS. CP-18 of table T-062 gives it one job, and
-// names FR-016 and FR-070 as the requirements it answers. Table T-023 and table
-// T-036 are the two assignment tables, and this file is where they are read.
+// Three pure functions, not a listener: UF-30 is `pure` (table T-075) and LY-5
+// of table T-060 leaves current values with the Framework, so everything that
+// must survive from a press to its release arrives in `InputContext`.
 //
-// ⭐ THREE PURE FUNCTIONS, NOT A LISTENER. UF-30 is `pure` in table T-075, so
-// none of the three may remember anything between two happenings. Every value
-// that has to survive from a press to its release -- the press itself, whether
-// text is being typed, which side of the Dual Cursor is following -- reaches
-// them as an argument, because LY-5 of table T-060 leaves the Framework as the
-// only layer that may hold a current value. `InputContext` is that argument.
-//
-// ⭐ WHAT "NOTHING" IS, per member, since a gesture that means nothing has to
-// produce nothing (MK-12 says so of an unassigned combination, and IN-4a says
-// so of `Esc` with nothing to consume):
+// What "nothing" is, per member (MK-12, IN-4a):
 //
 //     commandFromInput      `action: null`. Not an empty command list: an empty
-//                           write would still be a write, and WS-4 would push a
-//                           step onto the undo history for a gesture that
-//                           changed nothing.
-//     selectionFromInput    the SAME selection value it was handed. UN-9 keeps
-//                           selection out of the undo record, so there is no
-//                           "no change" answer to invent -- the caller compares
-//                           by identity and sees that nothing moved.
-//     screenStateFromInput  the SAME state value. LY-1 has this held as one
-//                           immutable value and replaced whole, so an unchanged
-//                           screen is the value that came in.
+//                           write would still push an undo step (WS-4).
+//     selectionFromInput    the SAME selection value, compared by identity
+//                           (UN-9 keeps selection out of the undo record).
+//     screenStateFromInput  the SAME state value (LY-1 replaces it whole).
 //
-// ⭐ THE HARD DECISIONS, and why they went this way:
+// Design choices whose reasons live on the declarations:
 //
-//   1. `commandFromInput` answers a RECORD, not a command. MK-10 is a MUST
-//      about the browser's own behaviour -- stop it for what this tool
-//      assigned and not for what it did not -- and only this component knows
-//      which is which, so the answer travels beside the action. It is keyed on
-//      ASSIGNMENT and not on whether an action came out; see `TranslatedInput`.
-//   2. `InputAction` is wider than `DocumentCommand`, and a `changeDocument`
-//      action carries a LIST. `InputAction` states both reasons on itself.
-//   3. The press arrives in the context -- its hit, what the screen surface had
-//      drawn there, and the row of table T-023a it began. `PointerPress` states
-//      on each member why the CALLER resolves it and why it rides on the press.
-//      ⭐ AG-9 of table T-035 refuses an Agent API write while a gesture is in
-//      flight, but spares the two gestures table T-027 keeps out of the undo
-//      history -- the pan (UN-8, which is PTD-1) and the range selection (UN-9,
-//      which is PTD-5).
+//   1. `commandFromInput` answers a record, not a command, because MK-10's
+//      browser-default decision is keyed on assignment -- see `TranslatedInput`.
+//   2. `InputAction` is wider than `DocumentCommand`, and `changeDocument`
+//      carries a list -- see `InputAction`.
+//   3. The press, with its hit, surface part and table T-023a row, arrives in
+//      the context -- see `PointerPress`.
 //
-// ⛔ WHAT THIS FILE MAY NOT DO. It never invents a value the specification
-// owns: where a row is missing, a STOP note names the row that is missing and
-// the member stays unwritten.
-//
-// Chapter 5.3 (MUST / MUST NOT): every name this component publishes, and the
-// seam declared in this folder, leaves through this file and no other.
+// Where a row is missing, a STOP note names it and the member stays unwritten.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -130,12 +101,8 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
-// ⚠️ A VALUE AND NOT ONLY A TYPE, which HF-14 (MUST NOT) forces: the
-// specification may not print the default name as a rule, and Chapter 6.2 gives
-// the words ONE destination in `src/`. Reading the word here is the alternative
-// to spelling it, which is the thing forbidden.
-// ⚠️ THE PROHIBITION IS ABOUT A RULE, not about every appearance of the
-// spelling -- HF-14's own note says so.
+// A value import, not only a type: HF-14 (MUST NOT) keeps the default row name
+// out of the specification, so it is read from its one home rather than spelled.
 import { DEFAULT_ROW_NAME } from '../../use-case/edit-document/edit-document'
 import type {
   DocumentCommand,
@@ -165,164 +132,95 @@ export type {
 // ---------------------------------------------------------------- context ---
 
 /**
- * The row of table T-023a a press falls on -- PTD-1 the pan, PTD-2 the Dual
- * Cursor's click, PTD-3 the grab, PTD-4 and PTD-4a the armed press, PTD-5 the
- * range selection.
+ * The row of table T-023a a press falls on.
  *
- * ⭐ A ROW ID AND NOTHING ELSE. Table T-023a has no English column, so the row
- * id is the only join to it, the way `ENTRY` below joins table T-109.
+ * A row id only: table T-023a has no English column, so the id is the one join.
  */
 export type PressRow = 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
 /**
- * Which of the two `Scrollbars` (U-21) a gesture is on -- GR-21 of table T-023d.
+ * Which `Scrollbars` (U-21) axis a gesture is on -- GR-21 of table T-023d.
  *
- * ⛔ NOT A UNION WRITTEN AGAIN. `ScreenPart.scrollbarAxis` is where the pair is
- * named on the seam and `Scrollbar['axis']` where it is named in the
- * description; a third spelling here would be a third place the same pair is
- * decided (rule 03 section 1). This is only the name to call it by.
+ * Derived from `ScreenPart.scrollbarAxis` so the pair is not decided in a third
+ * place (rule 03 section 1).
  */
 type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
 /**
- * Which of the two things a held row is doing -- HF-15 of table T-051 (MUST).
+ * Which of HF-15's two moves a held row is making (table T-051).
  *
- * ⭐ TWO NAMES AND NOT `x` / `y`, because the row names the two by what they
- * CHANGE and not by which way the hand went; a pair of axis names would leave
- * the reader to remember which way round that is.
+ * Named by what they change rather than `x` / `y`, so no one has to remember
+ * which hand direction maps to which.
  */
 export type RowGrabAxis = 'position' | 'depth'
 
 /**
  * The press a gesture began with, as the Framework recorded it.
  *
- * ⭐ EVERY MEMBER BUT THE LAST IS THE MOMENT OF THE PRESS. IN-1 settles the
- * operation on release, so the release has to be read against something, and
- * CS-2 makes that something the state at the press. ⚠️ `followedTo` is the one
- * exception and says so itself: it is how far the picture has been carried
- * since, which is a thing that can only move while the press is held.
+ * Every member but the last two is the moment of the press: IN-1 settles on
+ * release, and CS-2 reads the release against the state at the press.
  */
 export interface PointerPress {
   /** The `down` happening, unchanged. */
   readonly at: PointerInput
   /**
-   * What lay under it, or null when nothing did -- `itemAtPointer` (PI-7)
-   * answered with table T-023d's priority at the moment of the press.
+   * What `itemAtPointer` (PI-7) answered at the press, or null.
    *
-   * ⚠️ Resolved by the CALLER, not here. The reason is the one `item-hit-area`
-   * gives on that member: table T-023a is applied first, and PTD-1 and PTD-2 mean
-   * the hit is not always asked for at all. The shell already holds the
-   * geometry for the frame (ADR-001), so it is the party that can answer at the
-   * moment the press happens rather than one frame later.
-   *
-   * ⛔ THE CALLER ALSO OWES THE READING. Table T-023d's closing rule (MUST NOT)
-   * keeps the double-click-only rows out of a plain press, and `at.clickCount`
-   * -- which the Framework counts, since telling a double click from two single
-   * ones is a question about elapsed time -- is what says which reading this
-   * press is. A shell that asked for the press reading on the second click
-   * would put the name label out of reach of MK-13.
+   * Resolved by the caller: table T-023a decides first, so PTD-1 and PTD-2 never
+   * ask for a hit, and the shell already holds the frame's geometry (ADR-001).
+   * ⛔ The caller must also pick the reading by `at.clickCount`: asking the
+   * plain-press reading on a second click puts the name label out of MK-13's
+   * reach (table T-023d closing rule).
    */
   readonly hit: Hit | null
   /**
-   * What the screen surface had drawn where the press landed -- the UI part and
-   * the entry within it -- or `null` where it had drawn nothing there and the
-   * schedule below was exposed.
+   * What the screen surface had drawn where the press landed, or `null` where
+   * the schedule was exposed.
    *
-   * ⭐ ASKED OF THE SIDE THAT DREW IT. `ScreenSurface.readScreenPartAt` (IF-9)
-   * answers it, and Chapter 5.3 states under table T-065 that no one else may
-   * compute the same rectangle (MUST NOT). ⚠️ Resolved by the CALLER at the
-   * moment of the press, for the same reason `hit` is: CS-2 of table T-066
-   * freezes a gesture's screen at the press, so a palette dragged away since
-   * must not change what this gesture was about.
-   *
-   * ⛔ `null` IS WHAT ADMITS TABLE T-023a. Its own note limits the decision
-   * order to the schedule's drawing area (MUST), and the floating palette, the
-   * open surface, the notices and the dialogue field are all drawn OVER that
-   * area while `ScreenRegions` (PI-35) holds a rectangle for none of them -- so
-   * `regionAtPointer` alone answers `rowArea` for a point on any of them.
+   * Asked of `ScreenSurface.readScreenPartAt` (IF-9), since only the drawing
+   * side may compute that rectangle (Chapter 5.3, under table T-065); resolved at
+   * the press for CS-2's reason, so a palette dragged away since does not change
+   * the gesture.
+   * ⛔ `null` is what admits table T-023a: the palette, surfaces, notices and
+   * dialogue field float over the drawing area with no rectangle in
+   * `ScreenRegions` (PI-35), so `regionAtPointer` alone would answer `rowArea`.
    */
   readonly on: ScreenPart | null
   /**
-   * Which row of table T-023a this press began -- the gesture it is, named by
-   * the only join that table admits.
+   * Which row of table T-023a this press began, from `pressRowOf` at the press.
    *
-   * ⚠️ Resolved by the CALLER at the moment of the press, for the same reason
-   * `hit` and `on` are, and with `pressRowOf` below rather than by any reading
-   * of its own. CS-2 of table T-066 makes one gesture the unit of consistency
-   * and the press its moment, so the row's life is exactly this value's life;
-   * deciding it on the release would decide it against a screen that has moved
-   * and an arming that may have changed since.
-   *
-   * ⭐ WHY THE PRESS CARRIES IT. AG-9 of table T-035 refuses an Agent API write
-   * while a gesture is in flight, and spares the two gestures table T-027 keeps
-   * out of the undo history because they change no document -- the pan (UN-8,
-   * which is PTD-1) and the range selection (UN-9, which is PTD-5). The party
-   * that answers AG-9 holds the press and nothing else, so with no row on it
-   * the only thing it can do is refuse all six. ⛔ It may NOT read table T-023a
-   * for itself: that is the duplication R2.7 refuses, and the note under the
-   * table binds the decision order to the schedule's drawing area (MUST).
-   *
-   * ⚠️ READ `on` FIRST, AND THE ROW ONLY AFTER IT IS NULL. The same note keeps
-   * table T-023a off everything the screen surface drew, so a press the surface
-   * answered for is none of the six gestures whatever this row says -- it is a
-   * press on an entry, and `commandFromEntry` may well change the document.
-   * `commandFromInput` takes that branch before it looks at the row; anyone
-   * asking about AG-9 has to take it too.
+   * Carried because AG-9 of table T-035 spares the pan (PTD-1) and the range
+   * selection (PTD-5), and the party answering AG-9 holds only the press; it may
+   * not read table T-023a itself (R2.7).
+   * ⚠️ Read `on` first: a press the surface answered for is none of the six
+   * gestures whatever this row says, and may change the document through
+   * `commandFromEntry`. `commandFromInput` takes that branch first; AG-9 must too.
    */
   readonly pressRow: PressRow
   /**
-   * Where the pointer stood when the caller last APPLIED a
-   * `moveCommandPalette` this file answered for THIS gesture -- the following
-   * FR-053 asks for, measured so far.
+   * Where the pointer stood when the caller last applied a `moveCommandPalette`
+   * for this gesture (FR-053's following).
    *
-   * ⭐ WHY A TRAVEL NEEDS A SECOND POINT AT ALL. FR-053 (MUST) has the palette
-   * follow the pointer while GR-19's band is held, and `moveCommandPalette`
-   * answers with a DISTANCE rather than a corner, so a report on every move
-   * has to be the distance since the report before it -- add up distances all
-   * measured from the press instead and the palette runs away by the sum.
-   * ⛔ It cannot be worked out here: UF-30 is `pure` in table T-075 and LY-5 of
-   * table T-060 leaves a current value with the Framework, so the party that
-   * applied the travel is the party that knows where the pointer was.
-   *
-   * ⚠️ ABSENT MEANS THE CALLER DOES NOT FOLLOW, and the answer changes with
-   * it: with nothing here a move reports NOTHING and the release reports the
-   * whole travel from the press, which is what a caller that only settles on
-   * the release wants (IN-1). A caller that fills it -- with the press's own
-   * point until it has applied one, and with the pointer of each travel it
-   * applies after that -- gets the picture following, and the same total,
-   * because the parts telescope.
-   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS: `collectPress` puts the press's
-   * own point here, and the travel each applied `moveCommandPalette` carries
-   * advances it.
-   * ⛔ STILL OPTIONAL because presses built outside the shell do not carry the
-   * member yet. Until they do, absent means the meaning above -- never a silent
-   * zero.
+   * Needed because `moveCommandPalette` answers a distance: each move must be
+   * the travel since the last applied one, or the palette runs away by the sum.
+   * A pure function cannot remember it (UF-30, LY-5).
+   * ⚠️ Absent means the caller does not follow: moves report nothing and the
+   * release reports the whole travel (IN-1). Never read absent as zero.
+   * `frame-loop.ts` fills it on every press (`collectPress`); optional because
+   * presses built outside the shell do not carry it.
    */
   readonly followedTo?: { readonly x: number; readonly y: number }
   /**
-   * Which axis GR-20's grab settled on, or `null` while it has settled on none.
+   * Which axis GR-20's grab settled on, or `null` while none.
    *
-   * ⭐ WHY IT CANNOT BE WORKED OUT HERE, WHICH IS THE WHOLE REASON THE MEMBER
-   * EXISTS. HF-15 (MUST) settles the axis at 「最初に閾値を超えた向き」 -- the
-   * FIRST travel past `S-208` -- and holds it 「離すまで」. UF-30 is `pure` in
-   * table T-075, so these functions see the press and the happening now in hand
-   * and nothing between them: a drag that went 10px right and then 100px down
-   * is the depth axis by that rule and the position axis by its total, and no
-   * reading of two points can tell the two apart. LY-5 of table T-060 leaves a
-   * current value with the Framework, so the party that APPLIED the follow is
-   * the party that remembers.
-   * ⭐ It is the same bargain `followedTo` above strikes, and it is kept the
-   * same way: `rowGrabFollow` answers the axis it settled, and the caller that
-   * applies that answer writes it back here.
-   *
-   * ⚠️ ABSENT MEANS THE CALLER DOES NOT FOLLOW, exactly as it does one member
-   * up: nothing is reported on a move, and the release reads the axis off the
-   * whole travel from the press. ⛔ Never a silent `'position'` -- a caller that
-   * forgot the member would then move rows on the one axis this build cannot
-   * draw.
-   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS, with `null`, because the member
-   * is a statement about the CALLER rather than about the gesture -- the reading
-   * `followedTo` records for itself.
+   * HF-15 fixes the axis at the first travel past `S-208` until release; two
+   * points cannot recover that (10px right then 100px down is depth by the rule,
+   * position by the total), so the caller that applied `rowGrabFollow` writes it
+   * back here, as with `followedTo`.
+   * ⚠️ Absent means the caller does not follow: nothing on a move, and the
+   * release reads the axis off the whole travel. ⛔ Never default to
+   * `'position'` -- a forgetful caller would move rows on the axis this build
+   * cannot draw. `frame-loop.ts` fills it with `null` on every press.
    */
   readonly rowGrabAxis?: RowGrabAxis | null
 }
@@ -330,11 +228,8 @@ export interface PointerPress {
 /**
  * Everything the three functions read that is not the happening itself.
  *
- * ⭐ Why any of this is an argument: LY-5 of table T-060 leaves the Framework
- * as the only layer that may hold a current value, and UF-30 is `pure`. Each
- * member below is either a value table T-206 keeps out of the document, a
- * measurement only the shell can make, or a frame value ADR-001 has the shell
- * compute once and hand out.
+ * An argument because UF-30 is `pure` and LY-5 of table T-060 leaves current
+ * values with the Framework.
  */
 export interface InputContext {
   /** The frozen copy CS-1 collects at the head of the frame. */
@@ -348,279 +243,148 @@ export interface InputContext {
   /** UN-9 keeps this out of the document, so it travels beside it. */
   readonly selection: Selection
   /**
-   * S-53. ⛔ NOT a number written here: table T-201 holds it, `_source` prints
-   * it, and no generator has brought it into `src/` -- so it arrives as a value
-   * the same way `PointerSlop` does, rather than being re-typed (rule 03
-   * section 1).
+   * S-53. Handed in rather than typed: no generator brings it into `src/`
+   * (rule 03 section 1).
    */
   readonly zoomStep: number
   /**
-   * S-54 and S-55, reaching here through S-97 and S-98. ⛔ NOT numbers written
-   * here, for the reason `zoomStep` above gives: table T-206 keeps all three
-   * out of the document on purpose, so they travel as values.
+   * S-54 and S-55 (through S-97 / S-98), handed in for `zoomStep`'s reason.
    *
-   * ⚠️ Needed because FR-055's fit measures the horizontal at the zoom it is
-   * about to answer, and CM-71 clamps what it writes -- so the fit has to see
-   * FR-016's range or it draws a picture it never measured.
+   * FR-055's fit must see FR-016's range, since CM-71 clamps what it writes and
+   * the fit would otherwise draw a picture it never measured.
    */
   readonly zoomMin: number
   readonly zoomMax: number
   /**
-   * Whether the picture in front of the person stands at the document's own
-   * zoom (`S-73` / `S-74`) rather than at FR-055's fit -- OP-10 of table
-   * T-024a, answered by the side that DREW it.
+   * Whether the picture stands at the document's own zoom (`S-73` / `S-74`)
+   * rather than at FR-055's fit -- OP-10 of table T-024a, answered by the side
+   * that drew it.
    *
-   * ⛔⛔ IT CANNOT BE WORKED OUT HERE, WHICH IS THE WHOLE REASON THE MEMBER
-   * EXISTS. OP-10's second branch turns on where the document CAME FROM -- a
-   * `BT-4` startup template is excepted (MUST NOT) -- and no value reachable
-   * from here records that. ⛔ The condition must not be written a second time
-   * to reach it: a copy that misses the exception makes a first press of IC-12
-   * answer a zoom IN that comes out several times smaller than where it started.
-   *
-   * ⚠️ ABSENT READS AS 「nobody said」, and then the base half of the condition
-   * is read here as it always was -- a document that names a place is at its
-   * own zoom, and one that does not is at the fit. ⭐ That is the answer for
-   * every document except the bundled template, so a caller that leaves it out
-   * is right everywhere it used to be right and wrong only where it was wrong
-   * before. ⛔ It is NOT a default anyone may lean on: `collectInputContext`
-   * fills it on every frame, and only the tests written from the specification
-   * watch that it does.
+   * ⛔ Not derivable here: OP-10 excepts a `BT-4` startup template, and nothing
+   * reachable records where the document came from. A copied condition that
+   * misses the exception makes the first IC-12 press zoom in to something smaller.
+   * ⚠️ Absent falls back to "a document naming a place is at its own zoom",
+   * wrong only for the template. `collectInputContext` fills it every frame.
    */
   readonly isPictureAtStoredZoom?: boolean
   /**
-   * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height HF-1's
-   * lattice of row controls takes, which that row makes a floor under a row's
-   * band.
+   * The height of HF-1's lattice of row controls, which LF-3 of table T-221
+   * makes a floor under a row's band.
    *
-   * ⛔ NOT A NUMBER WRITTEN HERE, for the reason `zoomStep` above gives and one
-   * of its own: 表 T-051 の `HF-19` and 表 T-221 の `LF-3` both keep the number
-   * out of the manuscript -- the lattice is two ranks of a box whose size 表
-   * T-206 の `S-138` and `S-141` hold, and neither row may copy those -- so it
-   * is measured where the lattice is drawn and travels as a value.
-   * ⛔⛔ THE FLOOR DOES NOT FOLLOW THE READER'S FONT SIZE. `S-138`, `HF-19` and
-   * `LF-3` all say so, and `HF-19` adds that `FR-039` moves the size of a row's
-   * NAME but not the size of a control (表 T-051 の `HF-5`).
-   * ⚠️ Wanted by FR-055's fit alone, which measures the bands the frame is about
-   * to draw; absent reads as no floor, which is what a caller drawing no row
-   * control has.
+   * Measured where the lattice is drawn: HF-19 and LF-3 keep the number out of
+   * the manuscript. It does not follow the reader's font size (HF-19).
+   * ⚠️ Used by FR-055's fit only; absent reads as no floor.
    */
   readonly rowControlsHeightPx?: number
   /**
    * The gesture in flight, or null while none is.
    *
-   * ⚠️ ON A `down` HAPPENING THIS IS THAT PRESS. The caller records the press --
-   * with its hit, with what the surface had drawn there, and with the row of
-   * table T-023a it began -- before it asks any of the three members, because
-   * IN-1 settles nothing on the press and the only thing this file answers for
-   * a `down` is whether the tool has taken the gesture (MK-10). ⛔ A caller that
-   * leaves it null on the press leaves every entry it drew unassigned.
+   * ⚠️ On a `down` this IS that press: the caller records it before asking any
+   * member, because the only answer for a `down` is whether the tool took the
+   * gesture (MK-10). ⛔ Left null on the press, every drawn entry reads as
+   * unassigned.
    */
   readonly pressed: PointerPress | null
   /**
-   * IN-5a: a name, an assignee, a row name or the document title is being typed
-   * and has not been settled. AG-9 of table T-035 calls the same state
-   * 「編集入力の確定前」 and `WriteMoment.editingInPlace` is where it reaches
-   * the write path.
+   * IN-5a: text is being typed and has not been settled -- the state AG-9 of
+   * table T-035 names, reaching the write path as `WriteMoment.editingInPlace`.
    */
   readonly isTextEntryUnsettled: boolean
   /**
-   * table T-023's closing rule -- whether a surface stands over the schedule:
-   * `Confirmation` (U-55), or whichever surface `ScreenState` is holding.
+   * Table T-023's closing rule -- whether a surface stands over the schedule.
    *
-   * ⭐ HANDED IN, LIKE `isTextEntryUnsettled` BESIDE IT, and for the same
-   * reason: half of the answer is `screenState.surface`, which this side can
-   * read, and half is the question the shell holds -- LY-5 of table T-060
-   * leaves a current value there and NT-7's question is one. ⛔ A reader here
-   * cannot see it at all, which is why that rule was inert until this member
-   * existed.
-   * ⚠️ ONE TRUTH VALUE AND NOT WHICH SURFACE. The rule names no surface in
-   * particular -- it asks only whether one stands -- and naming them here
-   * would be a second census against table T-103's.
-   * ⛔ IT IS A CLOSING RULE AND NOT A ROW: table T-023 holds no `MK-14`, and
-   * the manuscript says why -- that table's rows are printed into FR-036's help
-   * as things a person can DO, and this is not an operation.
+   * Handed in because half the answer is the question NT-7 holds in the shell
+   * (LY-5), which this side cannot see. One truth value, not which surface: the
+   * rule names none, and naming them would duplicate table T-103.
    */
   readonly isSurfaceStanding: boolean
   /**
-   * Table T-029a's Dual Cursor mode: WHICH of the two dates is following the
-   * pointer, or `null` while the mode is not up.
+   * Table T-029a's Dual Cursor mode: which date follows the pointer, or `null`
+   * while the mode is not up.
    *
-   * ⭐ ONE FIELD, NOT TWO. `null` IS "not in the mode" -- a boolean beside a
-   * side could say the mode is up with no side following, and DC-1 (which puts
-   * a side on the pointer the moment the mode is entered) and DC-2 (which
-   * always hands the following to the other side) leave no such state to
-   * describe. PTD-2 turns hit testing off while this is non-null, and IN-4 gives
-   * the mode the last level of `Esc`.
-   *
-   * ⛔ NOT IN `documentSettings`, and that is the user's ruling of 2026-08-26:
-   * `dualCursor` (S-65) holds the two DATES, and which one is following is
-   * operation state -- DC-8 (MUST NOT) even keeps the mark for it out of an
-   * export, so it could not be a saved key without going on the round trip.
-   *
-   * ⚠️ NOT A THING `EscapeContext` HAS SETTLED. That value asks a narrower
-   * question (whether the mode is up at all) and `escapeContextOf` answers it
-   * from this one.
+   * One field, not a boolean beside a side: DC-1 and DC-2 admit no "up with no
+   * side following" state.
+   * Not in `documentSettings`: S-65 holds the dates, and DC-8 (MUST NOT) keeps
+   * the following mark out of an export. PTD-2 turns hit testing off while this
+   * is non-null.
    */
   readonly dualCursorFollowing: DualCursorSide | null
   /**
    * Today, spelled as a date column is (`textOfDay`).
    *
-   * ⛔ The clock is NOT read here and cannot be: CS-1 keeps it out of the frame
-   * and LY-5 leaves it to the Framework, which is the same route
-   * `PlanInput.updatedUtc` takes. FR-046 is the one operation that needs it --
-   * SK-20 puts today into `statusDate` when the line is shown.
+   * ⛔ The clock is not read here (CS-1, LY-5); FR-046's SK-20 needs it.
    */
   readonly today: string
   /**
-   * The identifier to give a row that FR-001 has to create because the drag
-   * pointed at no existing one.
+   * The id for the row FR-001 creates when a drag points at no row.
    *
-   * ⛔ Minting it is not a pure act -- AT-51 is a UUID -- which is the same
-   * reason `createTask` declares `groupId` as a value it is handed rather than
-   * one it makes.
+   * Minted outside because AT-51 is a UUID, as with `createTask`'s `groupId`.
    */
   readonly newGroupId: string
   /**
-   * The identifier to give the `CommentBox` that AR-5 of table T-023b places.
+   * The id for the `CommentBox` AR-5 of table T-023b places (AT-110 is a UUID).
    *
-   * ⛔ Minted outside for the same reason `newGroupId` is: AT-110 is a UUID, so
-   * naming one is not a pure act, and `createCommentBox` (CM-46) declares its
-   * `id` as a value it is handed rather than one it makes.
-   * ⛔ NOT OPTIONAL, and that is deliberate. `isPropertiesPanelShowing` below is
-   * optional and says what that costs -- a caller which forgets it is never
-   * told. Forgetting THIS one costs more: a placement that reaches the document
-   * with no identifier reaches it not at all, and it fails silently.
+   * ⛔ Not optional: a placement with no id never reaches the document, and
+   * fails silently.
    */
   readonly newCommentBoxId: string
   /**
-   * The identifier to give the `HighlightBox` that AR-6 of table T-023b places.
-   *
-   * ⛔ Minted outside for the same reason `newCommentBoxId` is: AT-116 is a
-   * UUID, so naming one is not a pure act, and `createHighlightBox` (CM-52)
-   * declares its `id` as a value it is handed rather than one it makes.
-   * ⛔ NOT OPTIONAL, and for the reason the line above states: a placement that
-   * reaches the document with no identifier reaches it not at all.
+   * The id for the `HighlightBox` AR-6 of table T-023b places (AT-116 is a
+   * UUID). Not optional, for the same reason.
    */
   readonly newHighlightBoxId: string
   /**
    * S-99h of table T-206, or `undefined` where the caller carried no answer.
    *
-   * ⭐ WHAT IT IS FOR, AND IT IS ONE ROW ONLY. SK-19's second stage (MUST) puts
-   * the `Properties Panel` away on a plain `Enter` when no in-place edit is
-   * unsettled -- focus outside the name field included -- so the press has to be
-   * ASSIGNED with no field held, and until this row
-   * crossed, `commandFromKey` had nothing to tell that press apart from every
-   * other `Enter` a person may have tabbed onto an entry to raise. ⛔ Assigning
-   * every plain `Enter` was the alternative and is refused: MK-10 would then
-   * stop the browser's default on all of them, which takes keyboard activation
-   * away from every entry.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT. It is
-   * declared optional so that the callers already holding an `InputContext`
-   * literal go on compiling; the cost is that a caller which never sets it gets
-   * `undefined`, which reads here as 「出していない」 and simply leaves the
-   * second stage unraised -- no compiler and no reader will say so. ⚠️ A CALLER
-   * THAT HOLDS THE PANEL MUST PASS IT. `frame-loop.ts` is the one that does, out
-   * of `propertiesShowingNow()`. ⭐ The tests written from the specification are
-   * what watch this, since the type no longer can.
-   *
-   * ⚠️ LY-5 of table T-060 is why it arrives rather than being worked out here:
-   * table T-206 keeps S-99h out of the document, so the Framework holds it and
-   * this component is handed the answer, exactly as `dualCursorFollowing` is.
+   * Lets `commandFromKey` assign SK-19's second-stage plain `Enter` only while
+   * the panel shows; assigning every plain `Enter` would make MK-10 stop the
+   * browser default and take keyboard activation away from every entry.
+   * ⛔ Optional so existing `InputContext` literals keep compiling, and
+   * forgetting it is silent: `undefined` leaves the second stage unraised. A caller that holds the panel must pass it (`frame-loop.ts`
+   * does, from `propertiesShowingNow()`).
    */
   readonly isPropertiesPanelShowing?: boolean
   /**
-   * Whether anything raised by FR-076 is still standing on the screen, or
-   * `undefined` where the caller carried no answer.
+   * Whether anything FR-076 raised still stands, or `undefined`.
    *
-   * ⭐ WHAT IT IS FOR, AND IT IS TWO ROWS AT ONCE. NT-8 of table T-037 (MUST)
-   * has `Enter` and `Esc` both put one telling away, and (MUST) puts that
-   * ahead of every level of both ladders -- SK-19's first stage and IN-4's
-   * first level. Both are decided in this file, so both need the answer.
-   * ⛔ THE TELLINGS THEMSELVES DO NOT COME. Which one is the newest is the
-   * holder's to say: the list is a current value LY-5 of table T-060 leaves with
-   * the Framework, and a copy carried here would be a second roster.
-   *
-   * ⛔⛔ OPTIONAL, AND ABSENT READS AS NOT STANDING, for the reason
-   * `isPropertiesPanelShowing` above gives. ⭐ THAT IS THE DIRECTION NT-8 (MUST
-   * NOT) REQUIRES: with nothing to dismiss, this rung may not consume the press,
-   * so a forgotten answer costs a dismissal and never takes a press away from
-   * the rung below.
+   * Both `Enter` (SK-19) and `Esc` (IN-4) put a telling away first (NT-8 of
+   * table T-037), and both ladders are decided here. The tellings themselves
+   * stay with the Framework (LY-5).
+   * ⛔ Optional; absent reads as not standing, which is the safe direction NT-8
+   * (MUST NOT) needs: a forgotten answer never takes a press from the rung below.
    */
   readonly isNoticeStanding?: boolean
   /**
-   * The `TaskGroup.id` of every row the last frame actually DREW -- the same
-   * set `ScreenSession.rowBoxes` carries, which is `ScheduleLayout.rows` cut to
-   * the `Row Area` with the rows the cut empties dropped.
+   * The `TaskGroup.id` of every row the last frame drew -- the set
+   * `ScreenSession.rowBoxes` carries.
    *
-   * ⭐⭐ WHY THE PRESS SIDE NEEDS THE PICTURE AT ALL. FR-029 (MUST) draws an
-   * entrance faint when pressing it would change nothing, and counts the target
-   * on the side that is DRAWN; the second MUST of the same requirement then has
-   * THAT press tell its reason. The two are one reading, so an entrance the panel
-   * drew faint must answer the press with a row of 表 T-233 and never with a
-   * silent write. ⛔ JUDGING OFF THE DOCUMENT'S WHOLE ROSTER INSTEAD disagrees
-   * with the picture exactly where HR-1a and HR-6 keep a fold out of it: a
-   * control drawn faint writes the document and tells nobody.
-   *
-   * ⛔ THE SET IS NOT REBUILT HERE FROM `layout` AND `regions`, though both are
-   * in hand. The cut that makes it lives in the shell beside the one place the
-   * panel is handed it, and a second cut written here would be the same rule in
-   * two places (rule 03 section 1) -- the two would part company the first time
-   * the clip moved.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, for the reason
-   * `isPropertiesPanelShowing` above gives: the `InputContext` literals already
-   * written go on compiling. ⚠️ WHERE IT IS ABSENT THIS FILE FALLS BACK TO THE
-   * DOCUMENT'S OWN ROSTER, which is what it read before -- so a caller that
-   * forgets it gets the old, wider arming rather than an exception, and no
-   * compiler will say so. ⭐ `frame-loop.ts` is the caller that fills it, from
-   * the very array it hands the renderer.
+   * FR-029 draws an entrance faint by what is drawn, and its press must tell
+   * the reason; judging off the whole roster disagrees where HR-1a / HR-6 hide a
+   * fold, so a faint control would write silently.
+   * ⛔ Not rebuilt from `layout` and `regions`: the cut lives in the shell, and a
+   * second copy would drift when the clip moves (rule 03 section 1).
+   * ⛔ Optional and silent: absent falls back to the document's roster.
    */
   readonly drawnRowGroupIds?: readonly string[]
   /**
-   * The same rows, with the boxes the panel draws them in -- what HF-15's up
-   * and down walk needs and the ids alone cannot carry.
+   * The same rows with their drawn boxes, for HF-15's up-and-down walk.
    *
-   * ⭐⭐ WHY A BOX AND NOT A DISTANCE. HF-15 (MUST) walks up and down the PLACES
-   * a row can sit in, in drawing order -- a rule about their ORDER, not about how
-   * far a hand travels for one. ⛔ A 刻み would be the wrong shape as well as an
-   * invention: FR-042 lets every row carry its own height, so one distance would
-   * drift against the drawn rows after two or three places. ⇒ Which place the
-   * hand stands at is read off the boxes, and no constant is needed.
-   *
-   * ⛔ THE ARRAY IS NOT REBUILT HERE, which is the rule `drawnRowGroupIds`
-   * above states for itself: the cut lives in the shell beside the one place
-   * the panel is handed it, and `frame-loop.ts` fills both members from ONE
-   * call of `drawnRowBoxesOf` -- the same call that fills
-   * `ScreenSession.rowBoxes`, which is where `RowTitle.box` comes from. ⇒ The
-   * boxes read here are the boxes the person is looking at.
-   * ⚠️ SO THE TWO MEMBERS ARE ONE ARRAY, and `drawnRowGroupIds` is its ids. It
-   * is kept because the readers that only want membership already read it, and
-   * narrowing this member to them would make every one of them carry a `map`.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, exactly as the member above
-   * is: a caller that does not hand the picture over gets no up-and-down move
-   * at all -- `rowGrabPlacesInDrawingOrder` answers an empty walk, the release
-   * writes nothing, and no compiler will say so. ⭐ The tests written from the
-   * specification are what watch it.
+   * Boxes, not a step distance: HF-15 walks places in drawing order and FR-042
+   * lets rows differ in height, so one distance drifts after a few places.
+   * `frame-loop.ts` fills this and `drawnRowGroupIds` from one `drawnRowBoxesOf`
+   * call; the ids member stays for readers that only need membership.
+   * ⛔ Optional and silent: absent gives an empty walk and a release that
+   * writes nothing.
    */
   readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
   /**
-   * S-211 of table T-206: whether 段 0, the head of the row title panel, is
+   * S-211 of table T-206: whether 段 0 (the head of the row title panel) is
    * folded.
    *
-   * ⭐ WHY THIS SIDE NEEDS IT. HR-2 of table T-015 (MUST) folds 段 0 with
-   * everything else, so IC-78 is spent exactly where the head is already folded
-   * and IC-74 has work whenever it is -- neither of which the document says. ⛔
-   * NOT DERIVABLE FROM `drawnRowGroupIds`: a panel drawing no row may be a
-   * folded head or a document with no rows, and the two owe different answers.
-   *
-   * ⛔ NOT A DOCUMENT SETTING AND IT MAY NOT BECOME ONE. That row keeps it out
-   * of the saved document, on `S-99g`'s footing, and HR-2 (MUST NOT) refuses to
-   * move AT-56 or AT-57 for it, so the shell holds it and hands it here.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, for the reason the two members
-   * above give: absent reads as NOT folded, which is S-211's own default.
+   * IC-78 and IC-74 turn on it (HR-2 of table T-015). ⛔ Not derivable from
+   * `drawnRowGroupIds`: no drawn row is either a folded head or an empty
+   * document, which owe different answers.
+   * ⛔ Optional and silent: absent reads as not folded, S-211's default.
    */
   readonly isLevelZeroFolded?: boolean
 }
@@ -628,154 +392,85 @@ export interface InputContext {
 // ----------------------------------------------------------------- answer ---
 
 /**
- * WHAT is to be edited and from which row. MK-13 and SK-9 are the two
- * entrances.
+ * What is to be edited, from MK-13 or SK-9.
  *
- * ⚠️ NOT ALL THREE OPEN IN THE SAME PLACE. MK-13's Task entry opens in the
- * `Properties Panel`'s name field (表 T-016 の `PR-1`) while the other two open
- * where the value is drawn; the shell decides that, because where a field is
- * drawn is not this side's to know.
+ * Where each opens (panel field or in place) is the shell's to decide, since
+ * where a field is drawn is not this side's to know.
  */
 export type InPlaceTarget =
   /** SK-9 (`F2`), whose one entrance is FR-035. */
   | { readonly kind: 'documentTitle' }
   /**
-   * MK-13's Task entry -- the name label OR the body, both editing the name --
-   * and MK-13's 実績 entry with it, which that row (MUST) sends to the same
-   * destination. ⇒ reached through GR-10 and GR-12 of table T-023d, and through
-   * the actual's own regions (GR-5, GR-6, GR-15, GR-9, GR-17, GR-18).
+   * MK-13's Task entry (name label or body) and its 実績 entry, reached through
+   * GR-10 / GR-12 and GR-5, GR-6, GR-15, GR-9, GR-17, GR-18 of table T-023d.
    *
-   * ⭐ STILL ONE KIND FOR EVERY ONE OF THOSE PLACES, because MK-13 names one
-   * destination for all of them. Which grab it came in by is not carried:
-   * nothing downstream could use it without the same operation meaning two
-   * things.
-   *
-   * ⚠️ THE DESTINATION IS THE PANEL'S NAME FIELD, and the uid
-   * is carried all the same -- MK-13 says which Task was double clicked and the
-   * selection is not the place to read that back from.
+   * One kind for all: which grab it came by is not carried, since nothing
+   * downstream could use it without one operation meaning two things. The uid is
+   * carried because the selection is not where to read back which Task it was.
    */
   | { readonly kind: 'taskName'; readonly uid: number }
   /**
-   * MK-13's 担当ラベル entry, reached through GR-11 of table T-023d. That entry
-   * carries no destination of its own, and (MUST NOT) may not copy one: it points
-   * at 表 T-225 の `AS-1`, which is where the destination is stated.
+   * MK-13's 担当ラベル entry (GR-11), whose destination is 表 T-225 の `AS-1`.
    *
-   * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 sends 担当ラベル to AS-1's
-   * destination, the panel's 担当者 field (表 T-016 の `PR-16`), where it sends
-   * タスク（名称ラベルと本体のどちらでも） to the 名称 field (表 T-016 の `PR-1`);
-   * folding the two would put one operation where the row prints two.
-   *
-   * ⚠️ THE TASK IS WHAT IS CARRIED, not an assignment or a resource. AS-3 and
-   * AS-7 of table T-225 turn what was settled into CM-44 / CM-45, both of which
-   * name a Task and a Resource -- and which Resource is what the edit is FOR,
-   * so it cannot be known before the edit is over. ⛔ The name spelled here is
-   * this file's, as CR-146 leaves it: no row of the specification settles one.
+   * ⛔ Its own kind, not `taskName`: MK-13 sends the two to different fields
+   * (表 T-016 の `PR-16` and `PR-1`).
+   * The Task is carried, not a resource: which Resource is what the edit decides
+   * (AS-3 / AS-7).
    */
   | { readonly kind: 'assignee'; readonly uid: number }
-  // ⛔⛔ NO `newRowName` KIND, AND HF-14 OF TABLE T-051 IS WHY. A pressed
-  // entrance stands the row up under the default name (MUST) and names it in the
-  // properties panel, with no road separate from renaming (MUST NOT). ⇒ IC-91
-  // and IC-93 plan CM-26 and carry the row out as `CreatedSubject`; the naming
-  // is `rowName`'s road, one entry below, which is the sameness that MUST NOT
-  // demands.
+  // No `newRowName` kind: HF-14 of table T-051 names a new row through the same
+  // road as renaming (`rowName`, below), so IC-91 / IC-93 plan CM-26 and carry
+  // the row out as `CreatedSubject`.
   /**
-   * MK-13's 行見出し entry -- a double click on a row's NAME in the
-   * `Row Title Panel`, which FR-085 (MUST) makes the one path to renaming a row
-   * that already stands.
+   * MK-13's 行見出し entry -- FR-085's one path to renaming a standing row.
    *
-   * ⭐ THE SAME SHAPE AS `taskName`, WHICH IS THE RULING'S OWN WORD FOR IT.
-   * The destination is the panel's name
-   * field again; only the row of that panel differs, AT-53 against PR-1, and
-   * which row a field is is the shell's join to make.
-   *
-   * ⛔ THE ROW IS CARRIED AND NOT READ BACK OFF THE SELECTION. The first click
-   * of the double click chose the row, but FR-085 lets several be chosen at
-   * once -- so which one was double clicked is a fact only this press holds.
+   * Carried, not read off the selection: FR-085 lets several rows be chosen, so
+   * which one was double clicked only this press knows.
    */
   | { readonly kind: 'rowName'; readonly groupId: string }
   /**
-   * MK-13's コメントボックス entry: that row (MUST) sends it to the panel's
-   * 本文 field (表 T-016 の `PR-21`) and (MUST NOT) forbids an editor on the
-   * figure itself. FR-097 (MUST) sends its entrance here and nowhere else.
+   * MK-13's コメントボックス entry, sent to the panel's 本文 field (表 T-016 の
+   * `PR-21`); FR-097.
    *
-   * ⭐ THE SAME SHAPE AS `taskName` AND `rowName`, WHICH IS WHAT THAT MUST NOT
-   * SETTLED. All three end in the `Properties Panel`'s own field; only the row
-   * differs -- `PR-21` against `PR-1` and `AT-53` -- and which row a field is is
-   * the shell's join to make.
-   *
-   * ⛔ NO 全選択 IS ASKED FOR, AND THAT IS THE ROW'S OWN SILENCE. `MK-13` asks
-   * for it (MUST) on its Task and 行見出し entries and NOWHERE on the comment box
-   * -- so nothing is carried here for it.
-   *
-   * ⛔ THE BOX IS CARRIED AND NOT READ BACK OFF THE SELECTION, for the reason
-   * `rowName` gives: the first click of the double click chose it, and several
-   * boxes can stand chosen at once (SL-3 of table T-023c).
+   * Carried, not read off the selection, for `rowName`'s reason (SL-3 of table
+   * T-023c lets several boxes stand chosen).
    */
   | { readonly kind: 'commentBoxText'; readonly id: string }
 
-// ⭐ 行見出し AND 担当ラベル ARE BOTH REACHABLE. A press the SURFACE claimed
-// arrives with `ScreenPart.rowGroupId`, which is the road `commandFromEntry`
-// already takes to FR-085's choosing of a row; and `item-hit-area.ts` gives
-// GR-11 its row, so a `Hit` can name the assignee label for AS-1.
-//
-// ⛔ NO CM-48 IS PLANNED WHERE `commentBoxText` IS RAISED (the branch of
-// `commandFromGrab` beside GR-14's move). MK-13 sends the comment box to the
-// panel's 本文 field (表 T-016 の `PR-21`) and forbids an in-place editor
-// (MUST NOT), so the value is written by that field's own commit through
-// `commandFromFieldCommit` -- exactly as `taskName` and `rowName` write nothing
-// on the press. CM-48 (`setCommentBoxText`) is standing in `edit-annotation.ts`
-// for that commit.
-// STOP -- ⛔ THE COMMIT CANNOT REACH IT YET, AND NOT FROM THIS FILE. A commit is
-// named by `PropertyFieldKey` (`screen-renderer.ts`), whose five arms name a
-// task, a task visual, a row, a dependency and the project, and none of which
-// can name a box; `properties-panel.ts` records the same gap from the drawing
-// side, together with `COLUMN_SHAPES` having no `CommentBox`. ⇒ Until an arm is
-// added there, `commandFromFieldCommit` below has no case to gain.
-//
-// ⛔⛔ MAKING A ROW AND NAMING IT ARE ONE ROAD, AND THAT IS A MUST NOT. HF-14
-// of table T-051 and FR-091 both send the entrance down the road FR-085 defines
-// for renaming, and both forbid a second one. ⭐ So a press that MAKES a row
-// plans CM-26 and carries the row out as `CreatedSubject`; what happens next is
-// `rowName`'s road and no other.
+// No CM-48 is planned where `commentBoxText` is raised: MK-13 forbids an
+// in-place editor, so the value is written by the panel field's own commit
+// through `commandFromFieldCommit`, as `taskName` and `rowName` write nothing on
+// the press.
+// STOP -- the commit cannot reach CM-48 yet. `PropertyFieldKey`
+// (`screen-renderer.ts`) has no arm that names a comment box, and
+// `properties-panel.ts` records the same gap (with `COLUMN_SHAPES` having no
+// `CommentBox`). Until an arm exists, `commandFromFieldCommit` has no case to gain.
 
 /**
- * CM-60, which is the one road into `dualCursor` (S-65).
+ * CM-60, the one road into `dualCursor` (S-65).
  *
- * ⭐ NAMED OFF `DocumentCommand` RATHER THAN RESTATED. The two dates and their
- * spellings are that command's, `edit-document-settings.ts` is where IV-13 is
- * judged, and a pair of fields written out here would be a second declaration
- * of the same thing for the compiler to fail to keep in step.
+ * Derived from `DocumentCommand` so the fields are not declared twice; IV-13 is
+ * judged in `edit-document-settings.ts`.
  */
 type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 
 /**
- * CM-61, which is the one road that puts `dualCursor` (S-65) back to `null`.
+ * CM-61, which puts `dualCursor` (S-65) back to `null`.
  *
- * ⭐ NAMED OFF `DocumentCommand` FOR THE REASON ABOVE, and it travels the same
- * way: as the `placed` half of `setDualCursorFollowing`, so that leaving the
- * mode and clearing the pair are ONE press and one write.
+ * Travels as the `placed` half of `setDualCursorFollowing`, so leaving the mode
+ * and clearing the pair are one press and one write.
  */
 type ClearDualCursor = Extract<DocumentCommand, { readonly kind: 'clearDualCursor' }>
 
 /**
- * Which 場面 a pressed entrance was spent in -- FR-029's own word for it.
+ * Which 場面 a pressed entrance was spent in (FR-029).
  *
- * ⭐⭐ A SITUATION AND NOT A ROW OF 表 T-233, WHICH IS THE WHOLE POINT OF THE
- * TYPE. FR-029 (MUST) has the telling carry the row of that table the pressed
- * entrance's situation falls under, and (MUST NOT) lets the fallback be carried
- * where one fits; but 表 T-233 is spelled in exactly one file of `src/`
- * (`frame-loop.ts`, which keeps `NoticeReason` and the manner census), and rule
- * 03 section 1 of docs/development-rules forbids one concept two homes. So this
- * layer names the situation it MEASURED and the shell maps it to the row --
- * the same shape `DocumentFileFaultReason` already takes across the same seam.
- *
- * ⭐ ONE MEMBER PER SITUATION AND NOT PER ENTRANCE, because 表 T-233's heading
- * is 場面: `IC-8` and `IC-9` share one (each is the half that cannot be hidden
- * because the other one already is), and so do `IC-37` and `IC-38` (neither has
- * a `Task` to line up against).
- *
- * ⛔ NOT A CENSUS OF THE ENTRANCES THAT CAN BE SPENT. `IC-18`'s situation is
- * absent because this layer cannot measure it -- see `tellEntryHasNothingToDo`.
+ * A situation, not a row id of 表 T-233: that table is spelled only in
+ * `frame-loop.ts` (rule 03 section 1), which maps these to rows -- the same shape
+ * `DocumentFileFaultReason` takes across this seam.
+ * One member per situation, not per entrance (IC-8 / IC-9 share one, as do
+ * IC-37 / IC-38). IC-18's situation is absent because this layer cannot measure
+ * it -- see `tellEntryHasNothingToDo`.
  */
 export type SpentEntranceSituation =
   /** HF-2 of table T-051 (IC-58): nothing under this row is left folded. */
@@ -783,13 +478,8 @@ export type SpentEntranceSituation =
   /** HF-11 (IC-77): nothing under this row is left unfolded. */
   | 'noUnfoldedRowBelow'
   /**
-   * HF-13 (IC-90): no DIRECT child of this row is out of the picture, so
-   * opening one level puts nothing into it.
-   *
-   * ⭐ RS-30 OF TABLE T-233 IS THE ROW, with 表 T-051 の `HF-13` for its 正,
-   * and HF-13 (MUST) words the spent side the same way.
-   * ⚠️ THE NAME DOES NOT MATCH THE ROW IT CARRIES. What maps it to RS-30 is the
-   * roster in `frame-loop.ts` and not the spelling, so the spelling stands.
+   * HF-13 (IC-90): no direct child of this row is out of the picture. RS-30 of
+   * 表 T-233; `frame-loop.ts` maps it by roster, not by spelling.
    */
   | 'rowIsOpenWithNoHiddenChild'
   /** HF-10 (IC-74): no row anywhere is folded. */
@@ -800,86 +490,48 @@ export type SpentEntranceSituation =
   | 'onlyOneOfPlanAndActualShown'
   /** FR-034 (IC-37 / IC-38): no `Task` is chosen to line the others up with. */
   | 'noTaskChosenToAlignWith'
-  /**
-   * HF-15 (GR-20): the held row has no sibling immediately above it, so there
-   * is no row for it to become the last child of.
-   *
-   * ⭐ THE ROW'S OWN CONSEQUENCE. HF-15 (MUST) makes one step right the last
-   * child of the sibling immediately above, so a row with none cannot go right.
-   */
+  /** HF-15 (GR-20): the held row has no sibling immediately above to nest under. */
   | 'noSiblingAboveToNestUnder'
   /** HF-15: the held row is already at the shallowest level, so it cannot go left. */
   | 'rowIsAtTheShallowestLevel'
   /**
-   * HF-15: a step to the right would carry the row's subtree past the depth cap.
+   * HF-15: a step right would carry the subtree past FR-085's depth cap.
    *
-   * ⛔ THE CAP IS `FR-085`'s AND IS NOT RESTATED -- HF-15 (MUST NOT) says so.
-   * What this side owes is the ROW OF TABLE T-233 the press is told with, which
-   * CM-73's own refusal cannot carry: that command answers a `Refusal` naming
-   * HM-3a, and FR-029 (MUST NOT) forbids the fallback where a row fits.
+   * Needed because CM-73's own refusal names HM-3a, and FR-029 (MUST NOT)
+   * forbids the fallback where a row of table T-233 fits.
    */
   | 'groupDepthLimitReached'
   /**
-   * HF-15 (GR-20): the held row already stands at the end of the walk of places
-   * at its own depth, in the direction the hand went.
-   *
-   * ⛔ THE ENDS OF THE WALK AND NEVER A SHORT DRAG. A hand that has not
-   * travelled as far as the next place has not run out of places -- see
-   * `rowGrabPositionOf`.
+   * HF-15 (GR-20): the held row stands at the end of its walk of places in the
+   * direction the hand went. ⛔ Never a short drag -- see `rowGrabPositionOf`.
    */
   | 'noPlaceLeftInThatDirection'
   /**
-   * FR-019 (AR-5 / AR-6): the vertical position an annotation was to be placed
-   * at points at no `TaskGroup`, so there is no row identifier to hold its
-   * position by.
+   * FR-019 (AR-5 / AR-6): the annotation's vertical position points at no
+   * `TaskGroup` -- RS-44's 場面.
    *
-   * ⭐ THE NAME IS RS-44's OWN 場面, whose 正 is FR-019.
-   * ⛔ NOT AN ENTRANCE OF TABLE T-109, AND THAT IS THE ROW'S
-   * DOING. FR-029 is the 作法 FR-019 names, and 表 T-233 is keyed on 場面 rather
-   * than on entrances -- so a press on the schedule with a palette arm standing
-   * owes the same telling a pressed entrance does.
+   * Not a table T-109 entrance: 表 T-233 is keyed on 場面, so a press on the
+   * schedule with an arm standing owes the same telling.
    */
   | 'noRowToPutTheAnnotationOn'
   /**
-   * HF-14 (IC-91): this row already stands at FR-085's depth cap, so no child
-   * row can be added under it.
-   *
-   * ⭐ THE NAME IS RS-46's OWN 場面, whose 正 is FR-085, and it reads as the
-   * mirror of `rowIsAtTheShallowestLevel` above.
-   * ⛔ NOT `groupDepthLimitReached`: that situation is HF-15's MOVE and its row
-   * is `RS-38`. Two 場面 that both end at the cap are still two 場面.
+   * HF-14 (IC-91): this row already stands at FR-085's depth cap -- RS-46's 場面.
+   * ⛔ Not `groupDepthLimitReached`, which is HF-15's move (RS-38).
    */
   | 'rowIsAtTheDeepestLevel'
   /**
-   * FR-001 (MUST NOT): a bar shape (SH-1 .. SH-4 of table T-012) was armed and
-   * the press was released without travelling past `S-208`, so there is no span
-   * to make a task out of.
-   *
-   * ⭐ THE NAME IS RS-53's OWN 場面, whose 正 is FR-001.
-   * ⛔ NOT THE FALLBACK `RS-27`: that row cannot say what to do instead, and the
-   * census beside `NOTICE_REASON_OF_SPENT_ENTRANCE` forbids reaching for the
-   * fallback where a row of one's own exists.
-   * ⛔ NOT AN ENTRANCE OF TABLE T-109, for the same reason
-   * `noRowToPutTheAnnotationOn` above is not: 表 T-233 is keyed on 場面, and a
-   * press on the schedule with an arm standing owes the same telling.
-   * ⚠️ A MILESTONE NEVER RAISES IT -- RS-53's own note says a point is placed by
-   * exactly this gesture, and FR-001 (MUST NOT) forbids refusing one for having
-   * been dragged either.
+   * FR-001: a bar shape (SH-1 .. SH-4 of table T-012) was armed and released
+   * without travelling past `S-208` -- RS-53's 場面, not the fallback RS-27.
+   * A milestone never raises it (RS-53's note).
    */
   | 'barShapeReleasedWithoutADrag'
 
 /**
- * The one thing a write brought into being, for the two requirements that leave
- * the person standing on what they just made.
+ * The one thing a write brought into being, for FR-001 and HF-14, which leave
+ * the person standing on it.
  *
- * ⭐ TWO MEMBERS BECAUSE TWO REQUIREMENTS ASK: FR-001 (MUST) makes a drawn
- * `Task` the selection, and HF-14 (MUST) stands a row up and has it named. Both
- * roads end at FR-085's, which FR-091 (MUST) says outright and (MUST NOT)
- * forbids copying here -- so this carries WHAT was made and nothing else.
- *
- * ⛔ NOT `Selection`. A row is not a member of SL-1 of table T-023c -- that row
- * puts 行 outside the drawing area's selection on purpose -- so the two are
- * different sets and one value may not stand for both.
+ * ⛔ Not `Selection`: SL-1 of table T-023c keeps rows out of the drawing area's
+ * selection, so the two are different sets.
  */
 export type CreatedSubject =
   /** FR-001: the `Task` a drag or a click on empty ground just drew (AT-19). */
@@ -890,77 +542,41 @@ export type CreatedSubject =
 /**
  * What one happening is assigned to.
  *
- * ⭐ Wider than `DocumentCommand` because table T-036 is wider: opening a file,
- * saving, copying, undoing and redoing are none of them edits, and CP-18 says
- * this component turns input into 操作. Each row below names the row of table
- * T-023 or table T-036 that assigns it.
- *
- * ⚠️ Selection and screen state are NOT here. They are the other two members'
- * answers, and a kind for them would be a second place the same rule is
- * written. `isBrowserDefaultStopped` still speaks for those inputs.
+ * Wider than `DocumentCommand` because table T-036 assigns non-edits too
+ * (CP-18). Each member names the row of table T-023 or T-036 that assigns it.
+ * Selection and screen state are not here: they are the other two members'
+ * answers, and a kind for them would write the rule twice.
  */
 export type InputAction =
   /**
    * The writes one input asks for, in the order they must land.
    *
-   * ⭐ Each member is ONE write. FR-031 (MUST) makes a document-changing drag
-   * one undo step, so the rows of table T-108 a single gesture asks for travel
-   * together inside one member and reach `applyDocumentChange` as one
-   * `PlanInput.commands`.
-   *
-   * ⛔ The list exists because ONE input can owe TWO writes: FR-031 requires
-   * the fit press to place CM-71 and then CM-72 separately, and forbids
-   * swapping them. Folding both into one member would be the very defect that
-   * rule exists to stop -- WS-4 pushes the step from the document BEFORE the
-   * write, so a merged write's step carries the old zoom and undo rewinds it,
-   * breaking UN-8.
-   *
-   * ⚠️ Not an optional second field: a caller can silently drop one of those,
-   * and a dropped second write is exactly the same defect wearing a hat.
+   * Each member is one write and one undo step (FR-031). A list because one
+   * input can owe two: the fit places CM-71 then CM-72, and merged, WS-4 would
+   * push a step holding the old zoom and break UN-8.
+   * ⚠️ Not an optional second field: a dropped second write is the same defect.
    */
   | {
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       /**
-       * What the writes above BRING INTO BEING, when a requirement says the
-       * person is to be left standing on it. Absent for every write that makes
-       * nothing, which is nearly all of them.
+       * What the writes bring into being, when FR-001 / HF-14 leave the person
+       * standing on it. Absent for writes that make nothing.
        *
-       * ⭐⭐ WHY THE ACTION CARRIES IT AND THE SHELL DOES NOT WORK IT OUT.
-       * FR-001 (MUST) and HF-14 of table T-051 (MUST) both leave the person
-       * standing on what the press just made. Neither identity can be read back
-       * off the pointer
-       * -- `selectionFromInput` answers what was UNDER the press, and empty
-       * ground is under a drawn Task -- so the party that PLANNED the creation
-       * is the only one that knows what was made.
-       *
-       * ⛔ NOT A SECOND ACTION KIND. One happening carries one action, and the
-       * write and the standing-on-it are one press; a kind of its own could be
-       * planned without the write, or the write without it.
-       *
-       * ⚠️ A PLAN AND NOT A PROMISE. A refused write makes nothing, so the
-       * holder tests the document before it stands anybody on this.
+       * Carried because only the planner knows it; the pointer is over empty
+       * ground. Not a second action kind, which could travel without its write.
+       * ⚠️ A plan, not a promise: the holder tests the document first, since a
+       * refused write makes nothing.
        */
       readonly created?: CreatedSubject
     }
   /**
-   * S-211 of table T-206 moves, and the writes that go with the same press.
+   * S-211 of table T-206 moves, with the writes of the same press.
    *
-   * ⭐⭐ WHY ONE ACTION CARRIES BOTH. HR-2 of table T-015 (MUST) has 「すべて
-   * 畳む」 fold every `TaskGroup` AND 段 0, and the two live in different places
-   * -- AT-56 is the document's and S-211 is the screen's, which that row (MUST
-   * NOT) refuses to change by adding a column. So one press owes one write and
-   * one screen change, and splitting it in two would let a frame stand with the
-   * rows folded and the head open, or the other way about. ⚠️ The precedent is
-   * `setDualCursor`, which carries a following side and an optional write for
-   * exactly the same reason.
-   *
-   * ⭐ THREE ENTRANCES REACH IT: IC-78 folds the head (HF-12), IC-74 opens it
-   * with everything else (HF-10), and IC-92 opens the head alone (HF-16) --
-   * S-211's own note names the last two as the two roads back.
-   * ⚠️ `writes` MAY BE EMPTY, and then the press changes the screen alone: the
-   * head's fold takes no row of the document with it when every row is already
-   * folded.
+   * One action because HR-2 of table T-015 folds rows (AT-56, document) and 段 0
+   * (S-211, screen) in one press; split, a frame could stand half-folded.
+   * Reached by IC-78 (HF-12), IC-74 (HF-10) and IC-92 (HF-16).
+   * ⚠️ `writes` may be empty when every row is already folded.
    */
   | {
       readonly kind: 'setLevelZeroFolded'
@@ -979,76 +595,36 @@ export type InputAction =
   | { readonly kind: 'openDocumentFile' }
   /** SK-11. */
   | { readonly kind: 'saveDocumentFile' }
-  /** SK-21. OP-13 of table T-024a -- no chooser, and always a replace. */
+  /** SK-21. OP-13 of table T-024a. */
   | { readonly kind: 'reopenDocumentFile' }
   /** IC-3. FR-025 sends IO-6 of table T-024 with no surface in between. */
   | { readonly kind: 'copyPictureToClipboard' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
   /**
-   * SK-19's FIRST stage and IN-4's FIRST level, which are one row: NT-8 of
-   * table T-037 (MUST) has `Enter` and `Esc` both put away one standing telling
-   * (利用者の指示 2026-08-31).
+   * NT-8 of table T-037: SK-19's first stage and IN-4's first level.
    *
-   * ⭐ THE KEY IS NOT CARRIED, AND NEITHER IS WHICH TELLING. NT-8 fixes both
-   * without asking: either key does it, and the one put away is 「いちばん新しい
-   * もの」. So this kind holds nothing -- what is left to decide is which entry
-   * of the list is the newest, and that list is a current value the Framework
-   * holds (LY-5 of table T-060), which is also why the tellings are not in the
-   * document and cannot be a `changeDocument`.
-   *
-   * ⛔ RAISED FOR `Enter` ALONE, AND THAT IS NOT AN OMISSION. `Esc` reaches the
-   * same act through `escapeTarget`'s `'notice'` rung, which the shell spends
-   * beside the other levels it holds -- one act, two triggers, and never two
-   * acts: an `Esc` that answered BOTH would take two tellings off for one press.
+   * Carries nothing: which telling is newest is a current value the Framework
+   * holds (LY-5).
+   * ⛔ Raised for `Enter` only. `Esc` reaches the same act through
+   * `escapeTarget`'s `'notice'` rung; answering both would dismiss two tellings
+   * for one press.
    */
   | { readonly kind: 'dismissNotice' }
   /**
-   * FR-029 (MUST): the entrance that was pressed has nothing it can do now, so
-   * the reason is told, in 表 T-037's manner `NT-1`.
+   * FR-029: the pressed entrance has nothing it can do now, told in NT-1.
    *
-   * ⭐ RAISED ONLY ON THE PRESS, which is that requirement's own limit. ⛔ A
-   * pointer merely resting on such an
-   * entrance raises nothing at all: what comes up then is EZ-2's explanation of
-   * what the entrance is FOR, and FR-029 (MUST NOT) refuses to put the reason
-   * under the pointer.
-   *
-   * ⭐⭐ THE SITUATION TRAVELS, AND IT MUST. FR-029 (MUST) has the telling carry
-   * the row of 表 T-233 the pressed entrance's situation falls under, and (MUST
-   * NOT) forbids carrying the fallback where a row of that table fits.
-   * ⛔ A SITUATION AND NEVER A ROW ID. `frame-loop.ts` stays the one place in
-   * `src/` where a row of 表 T-233 is spelled: it keeps `NoticeReason`, the
-   * manner census and the map from these situations to those rows, exactly as
-   * it already does for `DocumentFileFaultReason`. ⚠️ `null` is the fallback,
-   * `RS-27`, which FR-029 keeps for an entrance no row of that table fits.
-   * ⛔ AND NO WORDS. FR-038's one dictionary is what turns the row into the
-   * sentence NT-1 asks for; a message composed here would be the second store
-   * of translated strings that requirement forbids (MUST NOT).
-   *
-   * ⚠️ IT IS AN ACTION AND NOT A REFUSAL TO ACT. The press IS assigned -- MK-10
-   * keeps the browser out from under an entrance this tool drew -- and what it
-   * is assigned to is the telling.
-   *
-   * ⛔⛔ IT IS NOT ANSWERED FOR EVERY PRESS THAT WRITES NOTHING, and that is the
-   * whole of the care this kind needs. Many entrances answer `CONSUMED_ELSEWHERE`
-   * here while another member of PI-18 spends them -- every arming entrance
-   * (`commandFromArmingEntry`), and every entrance whose whole effect is a
-   * change of `ScreenState` (the palette, the help, the export chooser, full
-   * screen, IN-4's close). Those DO change the screen, so telling a reason for
-   * them would tell a person that a working entrance is dead. ⇒ This kind is
-   * raised only where the drawing side is ALSO drawing the entrance faint, and
-   * every such entrance this file can reach is answered here: IC-8 /
-   * IC-9 (S-227 / S-228, `commandStateOf`), IC-58 / IC-59 / IC-77
-   * (`expanderOf`), IC-74 / IC-78 (`rowTitlePanelFromSchedule`) and IC-37 /
-   * IC-38 (`isEntryUsable` of UF-65).
-   *
-   * ⚠️ IC-18 IS NOT ANSWERED HERE. FR-066 draws the dialogue field only while
-   * the `Agent API` is on, and whether it is on is a current value LY-5 of table
-   * T-060 leaves with the Framework -- no member of `InputContext` carries it.
-   * `frame-loop.ts` tells that one in `answerSettledEntry`, beside the other
-   * entries it spends for itself. ⛔ So the two halves of one entrance stay
-   * split across the same seam `isAgentApiEnabled` already splits IC-20 and
-   * IC-17 across.
+   * Carries a situation, never a row id or words: `frame-loop.ts` maps it to 表
+   * T-233 and FR-038's dictionary supplies the sentence. `null` is the fallback
+   * RS-27.
+   * ⛔ Not for every press that writes nothing. Entrances answered
+   * `CONSUMED_ELSEWHERE` (arming, and every pure `ScreenState` change) do work;
+   * a reason told for them would call a working entrance dead. Raise this only
+   * where the drawing side also draws the entrance faint: IC-8 / IC-9
+   * (`commandStateOf`), IC-58 / IC-59 / IC-77 (`expanderOf`), IC-74 / IC-78
+   * (`rowTitlePanelFromSchedule`), IC-37 / IC-38 (`isEntryUsable`).
+   * ⚠️ IC-18 is told by `frame-loop.ts` in `answerSettledEntry`: whether the
+   * `Agent API` is on is not in `InputContext`.
    */
   | {
       readonly kind: 'tellEntryHasNothingToDo'
@@ -1056,70 +632,34 @@ export type InputAction =
     }
   /** SK-9 and MK-13. */
   | { readonly kind: 'editInPlace'; readonly target: InPlaceTarget }
-  // ⛔ NO `openPropertiesPanel` MEMBER, THOUGH MK-13 (MUST) NOW REQUIRES THAT
-  // ROUTE FOR A TASK. Its destination is the one `editInPlace` with a `taskName`
-  // target already names; what MK-13 moved is where that edit opens, and where
-  // it opens is the shell's to know. ⛔ A second member for the same operation
-  // would put one row of table T-023 in two places in this vocabulary.
+  // No `openPropertiesPanel` member: MK-13's panel route for a Task is the
+  // `editInPlace` `taskName` target, and where it opens is the shell's; a second
+  // member would put one row of table T-023 in two places.
   /**
-   * GR-19 of table T-023d -- the band on top of the `Command Palette` was
-   * dragged, so FR-053's palette moves by what the pointer travelled.
+   * GR-19 of table T-023d -- FR-053's palette moves by what the pointer
+   * travelled.
    *
-   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE. FR-053 (MUST) has
-   * the palette follow the pointer while the band is held and says why -- a
-   * palette that does not move is indistinguishable from one not caught. Each
-   * answer is the travel SINCE THE ONE BEFORE IT (`PointerPress.followedTo`),
-   * so a caller that keeps applying them ends where a caller that only read
-   * the release would have put it. ⚠️ THE PICTURE, NOT THE MOMENT THE VALUE IS
-   * SETTLED: FR-053 names IN-1 of table T-028 in the same breath, so an
-   * interrupted drag still owes the corner it started from, and the party that
-   * APPLIES these is the party that can keep it -- `frame-loop.ts` takes the
-   * corner on the press and puts it back on an `Esc` or a lost pointer.
-   *
-   * ⭐ A DISTANCE AND NOT A PLACE. Where the palette stands is
-   * `ScreenSession.commandPaletteAt`, which the shell holds because no row of
-   * table T-203 or table T-206 keeps it -- so this file has no corner to add
-   * to, and answering with the travel alone leaves the one holder holding it.
-   *
-   * ⚠️ THE SHAPE IS MK-7's PAN AND THE ROAD IS NOT. That row makes a pan 等倍
-   * (MUST), which is why nothing is scaled here
-   * either. ⛔ But `scrolledAnchor` is not reused: it answers a day and a row
-   * with a fraction of each, because S-77 / S-78 / S-176 / S-177 hold the
-   * schedule's place as an anchor in the document, and the palette's place is
-   * a pair of screen numbers that no document row holds at all.
-   *
-   * ⛔ NOT A DOCUMENT CHANGE, which is why it is a kind of its own rather
-   * than a `DocumentCommand`: table T-108 has no row for it and table T-203
-   * no key, so `applyDocumentChange` (PI-8) has nothing to plan.
+   * Answered on every move with the travel since `PointerPress.followedTo`, so
+   * applied answers sum to the release's total. IN-1 still owes the start
+   * corner on interruption; `frame-loop.ts` keeps it and restores it on `Esc` or
+   * a lost pointer.
+   * A distance, not a place: `ScreenSession.commandPaletteAt` is the one holder.
+   * Not `scrolledAnchor`: that answers a document anchor, and the palette's
+   * place is screen numbers no document row holds.
+   * Not a document change: table T-108 has no row and T-203 no key.
    */
   | {
       readonly kind: 'moveCommandPalette'
       readonly by: { readonly dx: number; readonly dy: number }
     }
   /**
-   * GR-20 of table T-023d -- the strip on a row's left edge is being held, so
-   * HF-15's row follows the pointer and the axis it settled on is reported.
+   * GR-20 of table T-023d -- HF-15's held row follows the pointer.
    *
-   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE, because HF-15 (MUST)
-   * makes the follow a PICTURE -- reported per move the way FR-053's palette is
-   * -- and fixes the axis until the release, which no pure function can promise
-   * on its own (see `PointerPress.rowGrabAxis`).
-   *
-   * ⛔⛔ NOT A DOCUMENT CHANGE, AND THAT IS TABLE T-023d's MUST NOT: the follow
-   * is a picture and not an edit. The write is CM-73 and it is planned on the
-   * RELEASE, in `commandFromRowGrab`.
-   *
-   * ⚠️ A DEPTH AND NOT A TRAVEL, which is where it parts from
-   * `moveCommandPalette`. That one answers a distance because the corner it
-   * moves is a pair of screen numbers nobody else holds; a row's place on this
-   * axis is its DEPTH, and the pixels it is drawn in are `RowTitle.indentPx`,
-   * which HF-15 (MUST) ties to `S-37`. ⛔⛔ Answering pixels here would be the
-   * second holder of that step, which the same row forbids (MUST NOT) -- and a
-   * second holder drifts, so the row lands short of the hand.
-   *
-   * ⚠️ THE DEPTH IS THE ROW'S OWN WHILE THE AXIS IS `position`, so a caller
-   * that draws by it draws no sideways movement on that axis -- which is the
-   * MUST NOT HF-15 puts on the up-and-down axis.
+   * Answered on every move; the axis is fixed until release by
+   * `PointerPress.rowGrabAxis`. Not a document change -- CM-73 is planned on
+   * release in `commandFromRowGrab`.
+   * A depth, not pixels: the indent step is `S-37` via `RowTitle.indentPx`, and a
+   * second holder of that step would drift and land the row short of the hand.
    */
   | {
       readonly kind: 'followRowGrab'
@@ -1130,56 +670,25 @@ export type InputAction =
       /** The depth the row is to be DRAWN at while held. Depth 1 is a root row. */
       readonly atDepth: number
       /**
-       * Where the row is to be DRAWN while held on the position axis -- the
-       * boundary of the place the hand stands at -- or `null` on the depth
-       * axis, where the row keeps the y the picture gave it.
-       *
-       * ⭐ A PLACE'S BOUNDARY AND NOT THE POINTER'S y. HF-15 (MUST) has up and
-       * down walk the PLACES a row can sit in, in drawing order, so what the row
-       * follows the hand ONTO is a place; drawn at the place's own edge, the
-       * picture says where the row lands rather than where the finger is.
-       * ⛔ `null` IS NOT ZERO. Zero is the top of the `Row Area`; `null` is "this
-       * axis does not move the row vertically", which is the MUST NOT on the
-       * other axis read the other way round.
+       * On the position axis, the boundary of the place the hand stands at, so
+       * the picture shows where the row lands; `null` on the depth axis.
+       * ⛔ `null` is not zero: zero is the top of the `Row Area`.
        */
       readonly atY: number | null
       /**
-       * How far the row still follows the hand on the axis that was REFUSED, in
-       * pixels, signed the way the hand went.
-       *
-       * ⭐ HF-15 (MUST) stops the follow part way on the axis it refused, and
-       * (MUST NOT) forbids both refusing the move and letting the row trail the
-       * pointer anyway. So the answer is neither 0 nor the whole travel: it is the
-       * travel held to `S-212` of ONE STEP of that axis -- `S-37` sideways, and
-       * the row's own 送り vertically.
+       * How far the row still follows on the refused axis, signed: the travel
+       * held to `S-212` of one step of that axis (`S-37` sideways, the row's own
+       * pitch vertically).
        */
       readonly resistedPx: number
     }
   /**
-   * FR-085 (MUST): a row was chosen in the `Row Title Panel`, so
-   * `ScreenSession.selectedGroupIds` moves.
+   * FR-085: a row was chosen in the `Row Title Panel`.
    *
-   * ⭐ THE ROW AND THE MODIFIER, NOT THE RESULTING SET. What is chosen now is
-   * the shell's (LY-5 of table T-060) and no member of `InputContext` carries
-   * it, so the set cannot be worked out here -- this says which row the press
-   * was on and whether it was an extending one, and the holder answers. It is
-   * the same division `moveCommandPalette` makes with a travel rather than a
-   * corner.
-   *
-   * ⛔ NOT THE SELECTION TABLE T-023c GOVERNS. SL-1 leaves rows out of the
-   * drawing area's selection in as many words and FR-085 says the two are
-   * separate sets, so `selectionFromInput` may not answer this and `Selection`
-   * may not hold it.
-   *
-   * ⚠️ `isExtending` IS `Shift`, WHICH FR-085 LEAVES OPEN AND SL-4 ALREADY
-   * SPELLS. That requirement asks for several rows at once and for letting one
-   * go (MUST) and states that the order and the range are the implementation's
-   * (実装の裁量); the modifier is not named anywhere. SL-4 of table T-023c is
-   * the product's own convention for 広げる -- a click adds or removes one -- so
-   * it is followed rather than a second convention invented, which is
-   * what R4's POLA asks for. ⛔ SL-3's range is NOT answered: FR-085 leaves the
-   * range undefined, and a drag across the panel is not one of table T-023a's
-   * six gestures either.
+   * The row and the modifier, not the resulting set: the set is the shell's
+   * (LY-5). Not table T-023c's selection (SL-1).
+   * `isExtending` is `Shift`, following SL-4's convention because FR-085 names
+   * no modifier. SL-3's range is not answered: FR-085 leaves it undefined.
    *
    * @provisional PND-142
    */
@@ -1189,147 +698,73 @@ export type InputAction =
       readonly isExtending: boolean
     }
   /**
-   * IC-63 / IC-64 / IC-65 -- who is chosen in the `Resource Roster` is REPLACED
-   * by these, so `ScreenSession.selectedResourceUids` becomes exactly `uids`.
+   * IC-63 / IC-64 / IC-65 -- `ScreenSession.selectedResourceUids` is replaced by
+   * `uids`.
    *
-   * ⭐ REPLACED AND NEVER ADDED TO, and IC-65 is what settles that. FR-099 (MUST)
-   * has 「まとめて消す」 reached by choosing the unreferenced and then deleting
-   * what is chosen; if this entrance added to a standing choice, that second
-   * move would delete people the person never picked out.
-   * ⭐ THE LIST IS COMPUTED HERE because all three read the DOCUMENT and nothing
-   * else -- every resource, none, or the ones no `Assignment` refers to -- and
-   * `InputContext.document` is the copy CS-1 froze at the head of this frame.
-   *
-   * ⛔ BY `uid` (AT-85) AND NEVER BY NAME. AS-6 of table T-225 (MUST) makes the
-   * name what a person is shown and the `uid` what the document writes, and AS-8
-   * (MUST NOT) forbids two same-named resources being made one -- so a list of
-   * names could not tell a referenced person from an unreferenced twin.
+   * Replaced, never added to: FR-099 deletes what is chosen, so adding would
+   * delete people never picked out. Computed here because all three read only
+   * the document.
+   * By `uid` (AT-85), never name: AS-8 of table T-225 allows same-named resources.
    *
    * @provisional PND-143
    */
   | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
   /**
-   * IC-67 / IC-68 -- one person in the `Resource Roster` was pressed, so that
-   * person joins or leaves `ScreenSession.selectedResourceUids`.
-   *
-   * ⭐ WHICH WAY ROUND IS THE HOLDER'S, not this file's and not the drawn
-   * entry's. See the two rows in `ENTRY` for why the picture may not be read.
+   * IC-67 / IC-68 -- one person joins or leaves
+   * `ScreenSession.selectedResourceUids`. Which way is the holder's; see `ENTRY`.
    *
    * @provisional PND-143
    */
   | { readonly kind: 'toggleChosenResource'; readonly uid: number }
   /**
-   * IC-17 -- FR-072's settings entrance, so `ScreenSession.propertiesShowing`
-   * moves between the document's drawing settings and the last chosen subject.
+   * IC-17 -- FR-072's settings entrance.
    *
-   * ⛔ NOT AN OPENING AND NOT A CLOSING. FR-072 has this same entrance bring the
-   * panel back to 「直前の選択物」 on a second press, so which way this one goes
-   * depends on what the panel is showing NOW -- a current value LY-5 of table
-   * T-060 leaves with the Framework, which is why this says only that the
-   * entrance was pressed.
+   * Neither open nor close: which way it goes depends on what the panel shows
+   * now, which the Framework holds (LY-5).
    *
    * @provisional PND-144
    */
   | { readonly kind: 'toggleDocumentSettingsProperties' }
-  /**
-   * IC-20 -- FR-065, so `ScreenSession.isAgentApiEnabled` turns round.
-   *
-   * ⛔ NOT A DOCUMENT CHANGE. S-99b of table T-206 keeps the record OUT of the
-   * document, so table T-108 has no row for it and there is nothing to plan.
-   */
+  /** IC-20 -- FR-065. Not a document change (S-99b of table T-206). */
   | { readonly kind: 'toggleAgentApi' }
   /**
-   * IC-18 -- FR-066 / S-99i, so `ScreenSession.isDialogueFieldVisible` turns
-   * round.
-   *
-   * ⭐ S-99i of table T-206 gives the field its own switch, so this is that
-   * switch turning and nothing else's: IC-20 turns `isAgentApiEnabled` alone, on
-   * the entry above.
-   *
-   * ⛔ NOT A DOCUMENT CHANGE, for the same reason `toggleAgentApi` above is
-   * not: S-99i keeps the record OUT of the document (「見え方」 is the reader's,
-   * not the schedule's), so table T-108 has no row for it either.
+   * IC-18 -- FR-066: `ScreenSession.isDialogueFieldVisible` turns, and nothing
+   * else (S-99i). Not a document change.
    */
   | { readonly kind: 'toggleDialogueFieldVisible' }
   /**
-   * IC-50 -- FR-053 (MUST) keeps the milestone glyph entrances off the palette
-   * until the list is opened, so `ScreenSession.isMilestoneListOpen` moves.
+   * IC-50 -- FR-053's milestone list, `ScreenSession.isMilestoneListOpen`.
    *
-   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE. Table T-109's IC-50 opens
-   * and closes by the SAME entrance, and FR-053 (MUST NOT) forbids a second
-   * entrance -- the shape IC-11 and IC-67 / IC-68 have. ⛔ WHICH IS WHY NO
-   * `isOpen` IS SENT: the value that stands is `ScreenSession`'s, which lives
-   * past this seam, so naming a direction here would need this file to hold a
-   * copy of it. The shell turns it.
-   *
-   * ⛔ NOT A DOCUMENT CHANGE. S-142 of table T-206 keeps the state out of the
-   * document -- that row is where the specification says so -- and table T-108
-   * has no row, so `applyDocumentChange` (PI-8) has nothing to plan.
-   * ⛔ AND NOT A SURFACE. FR-053 (MUST NOT) refuses to let `Esc` close it, and
-   * nothing here has to enforce that: `screenStateFromInput` can only reach
-   * what `ScreenState` holds, and S-99g's `surface` is not this.
+   * Carries no value: the standing value lives past this seam, so naming a
+   * direction would need a copy of it here. Not a document change (S-142) and
+   * not a surface, so `Esc` cannot reach it.
    */
   | { readonly kind: 'toggleMilestoneList' }
   /**
-   * IC-75 -- FR-053 (MUST) lets the palette be minimised and restored by one
-   * entrance on the grab band, so `ScreenSession.isPaletteMinimised` moves.
+   * IC-75 -- FR-053's minimise, `ScreenSession.isPaletteMinimised`.
    *
-   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE, for the reason
-   * `toggleMilestoneList` gives: the value that stands is `ScreenSession`'s and
-   * lives past this seam.
-   * ⛔ NOT `S-99e`. That row is whether the palette is SHOWN, and FR-053 (MUST)
-   * puts its entrance OUTSIDE the palette -- this one rides on the band, which
-   * a palette that is not shown does not draw.
-   * ⛔ NOT A DOCUMENT CHANGE and NOT A SURFACE, both for the reasons the row
-   * above gives: table T-206 keeps S-200 out of the document, and FR-053
-   * (MUST NOT) refuses `Esc`.
+   * Carries no value, for `toggleMilestoneList`'s reason. Not `S-99e` (whether
+   * the palette is shown). Not a document change (S-200) and not a surface.
    */
   | { readonly kind: 'togglePaletteMinimised' }
   /**
-   * IC-76 -- FR-102 (MUST) lets a person start a record of the happenings and
-   * the frames and stop it by the same entrance, so `S-206` of table T-206
-   * moves. The shell is what keeps the record.
+   * IC-76 -- FR-102's record, `S-206` of table T-206; the shell keeps it.
    *
-   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE, for the reason the two
-   * rows above give: the value that stands is the shell's and lives past this
-   * seam. ⛔ AND THE RECORD ITSELF CANNOT BE MADE HERE -- what FR-102 records
-   * is the happenings this seam is handed one at a time and the frames drawn
-   * after them, and a pure translator sees neither the run of them nor the
-   * clock.
-   * ⛔ NOT A DOCUMENT CHANGE. FR-102 (MUST NOT) keeps the record out of the
-   * document and table T-206 holds both its rows, so table T-108 has none and
-   * `applyDocumentChange` (PI-8) has nothing to plan.
-   * ⛔ AND NOT A SURFACE. Nothing is drawn over anything, so S-99g is not
-   * this and `Esc` gains no level of IN-4 (table T-028).
+   * Carries no value, and the record cannot be made here: a pure translator
+   * sees neither the run of happenings nor the clock. Not a document change and
+   * not a surface.
    */
   | { readonly kind: 'toggleInteractionRecord' }
   /**
-   * Table T-029a: the Dual Cursor mode was entered (DC-1), the following was
-   * handed to the other side (DC-2), or the mode was left (DC-4).
+   * Table T-029a: the Dual Cursor mode was entered (DC-1), handed over (DC-2),
+   * or left (DC-4).
    *
-   * ⛔ THE ONE ACTION THAT CARRIES A SESSION VALUE AND A WRITE AT ONCE, and the
-   * requirement is what forces it. DC-1 (MUST) has entering the mode BOTH start
-   * a side following AND put the two dates down; DC-2 (MUST) has one click BOTH
-   * fix the following side AND hand the following over. Two actions could not
-   * express one press, and either half alone is a state the table does not
-   * admit -- a mode with nothing to measure, or a pair nobody is moving.
-   *
-   * ⭐ `following` IS THE WHOLE OF THE MODE. `null` leaves it; a side enters it
-   * or turns it over. See `InputContext.dualCursorFollowing`.
-   *
-   * ⛔ `placed` IS NULL FAR MORE OFTEN THAN NOT. DC-1 (MUST NOT) forbids
-   * re-placing a pair that already stands when the mode is re-entered -- so a
-   * write happens on the entry that has no pair yet, on the click that fixes a
-   * side, and on the way out.
-   * ⚠️ Typed as CM-60 and CM-61 themselves rather than as two dates or a flag,
-   * so that this may not become a second road into `dualCursor`:
-   * `edit-document-settings.ts` is where IV-13 is judged, and the commands are
-   * what it judges.
-   *
-   * ⭐⭐ THE WAY OUT CARRIES CM-61, which is the 利用者の裁定 CR-364 records:
-   * leaving the mode clears the pair. ⛔ DC-7 still reads the other way in the
-   * manuscript -- leaving may not clear it (MUST NOT) -- and that sentence is the
-   * one the ruling overturns. See `commandFromDualCursorEntry`.
+   * One action with a session value and a write because DC-1 and DC-2 each
+   * change both in one press.
+   * `following` is the whole mode; see `InputContext.dualCursorFollowing`.
+   * `placed` is usually null: DC-1 (MUST NOT) forbids re-placing a standing
+   * pair. Typed as CM-60 / CM-61 so this is no second road into `dualCursor`.
+   * Leaving the mode carries CM-61 (DC-7). See `commandFromDualCursorEntry`.
    */
   | {
       readonly kind: 'setDualCursorFollowing'
@@ -1342,16 +777,12 @@ export interface TranslatedInput {
   /** Null when this tool assigns the happening to nothing (MK-12). */
   readonly action: InputAction | null
   /**
-   * MK-10: stop the browser's own behaviour for an input this tool assigned
-   * (MUST), and do NOT stop one it did not (MUST NOT).
+   * MK-10: whether to stop the browser's own behaviour.
    *
-   * ⚠️ True says ASSIGNED, not "something happened". `Ctrl+A` answers true with
-   * a null action because its whole effect is the selection SK-2 asks for, and
-   * a wheel turn during a drag answers true with a null action because MK-2 has
-   * assigned it and the rule under table T-023d refuses it just this once.
-   * ⛔ False for `Esc` with nothing to consume: IN-4a makes reaching the
-   * browser a MUST, because leaving full screen is the browser's own behaviour
-   * (FR-071) and is otherwise unreachable.
+   * ⚠️ True means assigned, not "something happened": `Ctrl+A` (SK-2) and a
+   * wheel turn during a drag both answer true with a null action.
+   * ⛔ False for `Esc` with nothing to consume (IN-4a): leaving full screen is
+   * the browser's own behaviour (FR-071).
    */
   readonly isBrowserDefaultStopped: boolean
 }
@@ -1363,26 +794,19 @@ const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: fal
 const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
 /**
- * The rows of table T-023d that MK-13 of table T-023 gives a double click a
- * destination for AND that also carry a plain-press operation.
+ * The rows of table T-023d that MK-13 gives a double-click destination AND that
+ * also carry a plain-press operation.
  *
- * ⭐ READ OFF MK-13's OWN 対象 LIST, one row of table T-023d each:
+ * Read off MK-13's 対象 list:
  *   本体                            -> GR-12
  *   実績（実績バー）                 -> GR-5 / GR-6, and GR-15 for a milestone
  *   実績（未着手のダミー）           -> GR-9 / GR-17 / GR-18
  *   コメントボックス                 -> GR-14
- * ⛔ GR-10（名称ラベル）AND GR-11（担当ラベル）ARE DELIBERATELY ABSENT. MK-13
- * names them too, but table T-023d's closing rule (MUST NOT) already keeps a
- * double-click-only row out of a plain press -- `item-hit-area.ts` never
- * answers them for one -- so a row here would be a condition that can never be
- * true. ⛔ 行見出し IS ABSENT FOR THE OTHER REASON: its press answers
- * `chooseRow` and writes nothing to the document, so there is nothing for this
- * set to hold back.
- *
- * ⚠️ A SET AND NOT A SECOND COPY OF `isNameEntrance`. That list is 「which rows
- * reach the TASK's name field」 and holds GR-10; this one is 「which rows must
- * not act on a press that never travelled」 and holds GR-14, which is not a
- * Task at all. The two overlap and are not the same question.
+ * GR-10 and GR-11 are absent: `item-hit-area.ts` never answers them for a plain
+ * press (table T-023d closing rule). 行見出し is absent: its press writes nothing.
+ * ⚠️ Not a copy of `isNameEntrance`: that asks which rows reach the Task's name
+ * field (holds GR-10); this asks which must not act on an untravelled press
+ * (holds GR-14).
  */
 const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
   'GR-5', 'GR-6', 'GR-9', 'GR-12', 'GR-14', 'GR-15', 'GR-17', 'GR-18',
@@ -1405,14 +829,9 @@ function changed(commands: readonly DocumentCommand[]): TranslatedInput {
 /**
  * A write that brings one thing into being, and the thing it brings.
  *
- * ⭐ FR-001 (MUST) and HF-14 (MUST) both end a creating press standing on what
- * was created; `CreatedSubject` says why the planner is the only party that can
- * name it. ⛔ NOT FOLDED INTO `changed`: every other caller of that member
- * creates nothing, and an optional argument there would read as though they
- * might.
- *
- * ⚠️ `writes` MAY BE MORE THAN ONE, for the reason `changedInOrder` gives -- a
- * press that opens FR-018's tier before it stands the row up owes two.
+ * Not folded into `changed` as an optional argument, which would read as though
+ * every caller might create something. `writes` may be more than one: a press
+ * that opens FR-018's tier before standing a row up owes two.
  *
  * @purity pure
  */
@@ -1427,21 +846,13 @@ function changedAndCreated(
 }
 
 /**
- * FR-029's telling: the entrance that was pressed has nothing it can do now.
+ * FR-029's telling: the pressed entrance has nothing it can do now.
  *
- * ⭐ `acted` AND NOT `CONSUMED_ELSEWHERE`, which is the difference this member
- * exists to make. Both keep the browser out from under the press (MK-10); only
- * this one carries the reason on to the party that can tell it.
- * ⚠️ EVERY CALLER IS AN ENTRANCE THAT THE DRAWING SIDE ALSO DRAWS FAINT. The
- * condition is the same one, read on the two sides of the frame from the same
- * document -- `expanderOf` (UF-63) for the three drawn per row,
- * `rowTitlePanelFromSchedule` for the two the panel draws for itself,
- * `commandStateOf` (UF-62) for S-227 / S-228 and `isEntryUsable` (UF-65) for
- * FR-034's two.
- * ⭐ THE SITUATION IS THE CALLER'S TO NAME, and every caller has one: FR-029
- * (MUST NOT) forbids carrying the fallback where a row of 表 T-233 fits, so a
- * `null` here would have to mean this file measured a spent entrance whose
- * situation that table does not hold.
+ * `acted` rather than `CONSUMED_ELSEWHERE`: both stop the browser (MK-10), only
+ * this carries the reason on.
+ * ⚠️ Every caller must be an entrance the drawing side also draws faint, from
+ * the same condition (`expanderOf`, `rowTitlePanelFromSchedule`,
+ * `commandStateOf`, `isEntryUsable`).
  *
  * @purity pure
  */
@@ -1453,20 +864,11 @@ function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput 
  * A fold or an open that reaches some rows, or FR-029's telling where it reaches
  * none.
  *
- * ⭐ ONE PLACE FOR THE FIVE ENTRANCES OF TABLE T-015 THAT WORK ON A SET OF ROWS
- * -- IC-58, IC-77 and IC-90 per row, IC-74 and IC-78 for the panel. Each of them
- * is drawn faint on exactly the reading that this set came out empty, so the
- * test is written once rather than five times (R2.7).
- * ⚠️ THE SITUATION STILL COMES FROM THE CALLER, because the five are five rows
- * of 表 T-233 and not one: an empty open is not an empty fold.
- * ⛔ AND ONE OF THE FIVE HAS NO ROW OF THAT TABLE AT ALL, which is why `null` is
- * admitted here as well as by `nothingToDo`: HF-13's situation is not among
- * 表 T-233's rows, and RS-28 (HF-2's) would be untrue on a row whose
- * grandchild is folded.
- * ⛔ NOT FOLDED INTO `changed`. That member answers `CONSUMED_ELSEWHERE` for an
- * empty bundle and has callers that are not entrances at all -- a key press
- * that deletes nothing is not an entrance with nothing to do, and FR-029 speaks
- * of 表 T-109's rows.
+ * One place for table T-015's five set-of-rows entrances (IC-58, IC-77, IC-90,
+ * IC-74, IC-78), each drawn faint exactly when this set is empty (R2.7). The
+ * situation still comes from the caller: the five are different 場面.
+ * Not folded into `changed`, whose empty answer is `CONSUMED_ELSEWHERE` and whose
+ * callers include non-entrances.
  *
  * @purity pure
  */
@@ -1478,11 +880,8 @@ function foldsOrNothing(
 }
 
 /**
- * An input that owes more than one write, in the order FR-031 fixes.
- *
- * ⛔ The only caller is the fit (SK-18 / IC-10): FR-031 (MUST) makes that press
- * two writes and (MUST NOT) forbids swapping them. Every other input is one
- * write and goes through `changed`.
+ * An input that owes more than one write, in FR-031's order. The only caller is
+ * the fit (SK-18 / IC-10).
  *
  * @purity pure
  */
@@ -1497,9 +896,8 @@ function changedInOrder(writes: readonly (readonly DocumentCommand[])[]): Transl
  * ① CM-71 places the zoom and the viewport and pushes no step (UN-8).
  * ② CM-72 opens every collapsed row and pushes the one step (UN-17, HF-8).
  *
- * ⭐ Because WS-4 pushes the document as it stood BEFORE its write, ②'s step
- * already holds the NEW zoom -- so one undo brings the collapse back and leaves
- * the zoom where the fit put it, which is what UN-17 promises.
+ * WS-4 pushes the document as it stood before its write, so ②'s step already
+ * holds the new zoom and one undo restores the collapse without the zoom.
  *
  * @purity pure
  */
@@ -1510,11 +908,8 @@ function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])
 /**
  * The same action, with the browser left holding its own behaviour.
  *
- * ⭐ MK-12's shape, and the reason the two halves of `TranslatedInput` are not
- * one flag: the row says the combination gets no assignment of this tool's AND
- * that table T-023a still decides what happens, so an action and a browser left
- * alone travel together. ⛔ MK-12 forbids answering "nothing happens" in as
- * many words (MUST NOT), because that would collide with PTD-3.
+ * MK-12's shape: no assignment of this tool's, yet table T-023a still decides
+ * what happens -- which is why `TranslatedInput` has two halves, not one flag.
  *
  * @purity pure
  */
@@ -1527,14 +922,10 @@ function browserKept(answer: TranslatedInput): TranslatedInput {
 /**
  * Whether the `Ctrl` of table T-023 and table T-036 is down.
  *
- * ⛔ NOT DECIDED BY THE SPECIFICATION for most rows. MK-2 is the only one that
- * spells the pair 「Ctrl（Cmd）」; MK-5, MK-7, MK-10 and every `Ctrl` row of
- * table T-036 name `Ctrl` alone. Reading `Cmd` as the same key throughout is
- * the recommendation: a machine whose shortcut key is `Cmd` would otherwise be
- * able to zoom (MK-2) and unable to save (SK-11), which no requirement asks
- * for, and MK-2 shows the tables mean the same key by two names.
+ * `Cmd` is read as `Ctrl` for every row alike, so a machine whose shortcut key
+ * is `Cmd` does not get some `Ctrl` rows and miss others.
  * Searched: table T-023, table T-023a, table T-036, FR-016, FR-070, table
- * T-028, `_assets/tbl-settings.md`. Nothing else names `Cmd`.
+ * T-028, `_assets/tbl-settings.md`. None names `Cmd`.
  *
  * @provisional PND-10
  * @purity pure
@@ -1546,10 +937,8 @@ function isCtrlHeld(modifiers: InputModifiers): boolean {
 /**
  * Whether exactly this combination is held.
  *
- * ⚠️ The unit is the COMBINATION, not the modifier -- MK-10 and MK-12 both say
- * so in as many words, and MK-4 against MK-5 is the proof. So every one of the
- * three is compared, and a key held that the row does not name makes the row
- * not match.
+ * ⚠️ The unit is the combination (MK-10, MK-12; MK-4 against MK-5), so a held
+ * key the row does not name makes the row not match.
  *
  * @purity pure
  */
@@ -1563,16 +952,12 @@ function isCombo(
 }
 
 /**
- * Whether table T-023 gives a POINTER happening with these modifiers an
- * assignment of its own -- which is what MK-10 keys the browser on.
+ * Whether table T-023 gives a pointer happening with these modifiers an
+ * assignment -- what MK-10 keys the browser on.
  *
- * ⭐ Three combinations carry one: nothing held (MK-6, MK-8, MK-11, MK-13),
- * `Ctrl` alone (MK-7), and `Shift` alone (SL-4 of table T-023c, which PTD-5
- * names again for a marquee). MK-12 is every other combination, and it names
- * two of them.
- * ⚠️ THE UNIT IS THE COMBINATION, not the modifier: the same `Alt` that carries
- * no assignment here has MK-4 on a wheel, and `Ctrl` + `Shift` has MK-5, so
- * `commandFromWheel` asks a different question of the same keys.
+ * Nothing held (MK-6, MK-8, MK-11, MK-13), `Ctrl` alone (MK-7), `Shift` alone
+ * (SL-4 of table T-023c, PTD-5); MK-12 is the rest.
+ * ⚠️ `commandFromWheel` asks a different question of the same keys (MK-4, MK-5).
  *
  * @purity pure
  */
@@ -1587,10 +972,8 @@ function isAssignedPointerCombo(modifiers: InputModifiers): boolean {
 /**
  * The combination one gesture is being read with.
  *
- * ⭐ MK-12 speaks of a DRAG rather than of a single happening, so the press is
- * what names the combination for every later phase -- the same end `pressRowOf`
- * reads, and for CS-2's reason: the gesture is about the moment it began. A
- * press names itself, because it IS that moment.
+ * MK-12 speaks of a drag, so the press names the combination for every later
+ * phase (CS-2), as `pressRowOf` does.
  *
  * @purity pure
  */
@@ -1602,10 +985,7 @@ function gestureModifiers(input: PointerInput, context: InputContext): InputModi
 /**
  * The keys table T-036 assigns, spelled as its assignment column spells them.
  *
- * ⭐ One place rather than one literal per branch, so that the seam's contract
- * (`KeyInput.key`) and the rows that read it cannot drift apart. ⚠️ These are
- * the table's own spellings copied, not names chosen here -- the same standing
- * `open-modals.ts` gives `Help Modal`.
+ * One place, so `KeyInput.key` and the rows that read it cannot drift apart.
  */
 const KEY = {
   /** SK-19 */ enter: 'Enter',
@@ -1636,58 +1016,42 @@ const KEY = {
 const HELP_MODAL = 'Help Modal'
 
 /**
- * The other three surfaces table T-103 has settled a name for -- U-30's other
- * half (FR-068), U-49 (FR-099) and U-54 (FR-096).
+ * Surface names table T-103 settles -- U-30's other half (FR-068), U-49
+ * (FR-099), U-54 (FR-096) -- as `ScreenState.surface` (S-99g) carries them.
  *
- * ⭐ Copied spelling and all, which is what `open-modals.ts` keys its rules on
- * and what `ScreenState.surface` (S-99g) carries. ⛔ No name is minted here for
- * the surfaces FR-074 and FR-088 open -- table T-103 has none, and
- * `open-modals.ts` records the same hole.
+ * ⛔ No name is minted for the surfaces FR-074 and FR-088 open: table T-103 has
+ * none (`open-modals.ts` records the same hole).
  */
 const AI_EXPORT_MODAL = 'AI Export Modal'
 const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
 /**
- * U-60 of table T-103 -- the surface FR-020 (MUST) raises before the watermark
- * may be hidden (利用者の裁定 2026-08-31).
+ * U-60 of table T-103 -- the surface FR-020 raises before the watermark may be
+ * hidden; S-99g, so it sits on IN-4's surface rung.
  *
- * ⭐ Copied spelling and all, the same join the four above take: it is what
- * `ScreenState.surface` (S-99g) carries and what `open-modals.ts` keys its own
- * branch on. ⚠️ FR-020 (MUST) names S-99g for it in as many words, which is what
- * puts it on IN-4's surface rung -- and ⛔ (MUST NOT) closing it there may not
- * hide the watermark, which is kept by this side leaving S-144 alone.
- * ⛔ RAISED ON ONE OF IC-41's TWO DIRECTIONS ONLY, which is FR-020's gate
- * standing on the hiding side alone: `screenStateFromEntry` reads S-144 first
- * and puts the watermark back without this surface when it is already hidden.
+ * ⛔ Closing it must not hide the watermark (FR-020), which holds because this
+ * side leaves S-144 alone. Raised on the hiding direction of IC-41 only:
+ * `screenStateFromEntry` reads S-144 first.
  */
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
 /**
- * U-25 of table T-103 -- the surface `ScreenState` does NOT hold.
+ * U-25 of table T-103 -- a surface `ScreenState` does not hold.
  *
- * ⛔ NOT A SIXTH NAME FOR `ScreenState.surface`, and it must never be put
- * there: S-99g holds ONE name and the drawing side turns whatever stands there
- * into a modal, so a panel named there would be drawn over the schedule instead
- * of beside it. It is spelled here for the one place that has to tell this
- * surface from those five -- the closing entry table T-109 stands on all six.
+ * ⛔ Never put it in `ScreenState.surface`: the drawing side turns that name
+ * into a modal, so the panel would be drawn over the schedule. Spelled here only
+ * for the closing entry of table T-109, which must tell it from the modals.
  */
 const PROPERTIES_PANEL = 'Properties Panel'
 
 /**
- * Whether this is one of IN-5's 「単文字キー」.
+ * Whether this is one of IN-5's single-character keys.
  *
- * ⭐ Measured on the spelling rather than listed, because IN-5a's rule is about
- * the SHAPE of the key ("one character") and not about which ones table T-036
- * happens to assign today.
- *
- * ⚠️ IN-5 asks a single-character shortcut to satisfy ONE of three properties,
- * and the one this build meets is the third: valid only while the host has
- * focus.
- * It is met OUTSIDE this file: a happening only arrives through `InputSource`,
- * and CP-27 registers with the host that has the focus. ⛔ Neither of the other
- * two is met: nothing anywhere lets a reader switch a shortcut off or move it,
- * and table T-206 has no key that would remember either.
+ * Measured on the spelling rather than listed, because IN-5a is about the shape
+ * of the key, not today's assignments.
+ * IN-5 is met by its third option (focus only) outside this file: happenings
+ * arrive only through `InputSource`, which CP-27 registers with the focused host.
  *
  * @purity pure
  */
@@ -1700,12 +1064,10 @@ function isSingleCharacterKey(key: string): boolean {
 const MS_PER_DAY = 86400000
 
 /**
- * A day as a count of days.
+ * A day as a count of calendar days.
  *
- * ⚠️ NOT THE COUNTING FR-054 FORBIDS DUPLICATING: that MUST is about 稼働日
- * (worked days), which only `workingDaysBetween` may count, and this is the
- * plain calendar. ⛔ What is missing is a published member that adds calendar
- * days to a day -- PI-1 publishes none that can move a date by a drag's worth.
+ * Not FR-054's working-day counting (only `workingDaysBetween` does that); PI-1
+ * publishes no member that moves a date by calendar days.
  *
  * @purity pure
  */
@@ -1725,17 +1087,10 @@ function dayShifted(day: CalendarDay, days: number): CalendarDay {
 }
 
 /**
- * FR-001 / FR-019 (MUST): whether the hand DRAGGED -- `S-208` is the distance
- * that divides a drag from a click.
+ * FR-001 / FR-019: whether the hand dragged past `S-208`.
  *
- * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE: it stands in the generated
- * block at the foot of this file, and it is the same row `rowGrabAxisAt` reads
- * for HF-15's grab, so a second constant here would be exactly the drift the
- * row's own note forbids.
- *
- * ⚠️ READ PER AXIS, the way `rowGrabAxisAt` reads it, and not as a diagonal
- * distance: the row is one distance, and measuring it two ways in one file gives
- * the same hand two answers depending on which entrance it reached.
+ * Read from the generated block and per axis, exactly as `rowGrabAxisAt` reads
+ * it; a diagonal here would give the same hand two answers.
  *
  * @purity pure
  */
@@ -1747,10 +1102,8 @@ function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; 
 /**
  * The day drawn at an x, or null while the axis has no origin.
  *
- * ⭐ Straight through to `dateAtX` (PI-5), which is the one member that owns
- * the mapping. ⚠️ Nothing here re-derives it from `pxPerDay`: that file warns
- * that a caller who rebuilds the origin from its own `ScreenRegions` can land
- * on a different day without saying so.
+ * ⚠️ Straight through to `dateAtX` (PI-5): an origin rebuilt from `pxPerDay` and
+ * this side's `ScreenRegions` can land on a different day silently.
  *
  * @purity pure
  */
@@ -1761,11 +1114,8 @@ function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
 /**
  * The rows that flow -- everything FR-098 did not lift into the pinned band.
  *
- * ⭐ ASKED OF THE LAYOUT AND NOT OF `pinnedGroupIds`. A pin naming a row HR-1a
- * or HR-6 keeps out of the picture lifts nothing, so which rows actually
- * reached the band is `ScheduleLayout`'s answer and not the setting's. ⚠️ The
- * member is optional, and a layout that carries none says every row flows --
- * which is what every one of them did before a band existed.
+ * Asked of the layout, not `pinnedGroupIds`: a pin on a row HR-1a or HR-6 hides
+ * lifts nothing. A layout without the member means every row flows.
  *
  * @purity pure
  */
@@ -1774,8 +1124,8 @@ function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
 }
 
 /**
- * The top edge S-78 and S-176 point at (FR-098, MUST): the scrolling
- * remainder's, which is the `Row Area`'s own while nothing is pinned.
+ * The top edge S-78 and S-176 point at (FR-098): the scrolling remainder's,
+ * which is the `Row Area`'s own while nothing is pinned.
  *
  * @purity pure
  */
@@ -1786,12 +1136,8 @@ function scrollAreaTopOf(context: InputContext): number {
 /**
  * The row drawn at a y, or null when none is.
  *
- * ⚠️ Bands are half-open at the bottom, which is R3.4's rule and the one
- * `screen-regions.ts` follows: a point on the boundary belongs to the row
- * below, so two rows never both claim it.
- * ⚠️ EVERY DRAWN ROW, THE BANDED ONES INCLUDED. A pinned row is drawn where the
- * band put it, so a point over it hits that row -- FR-098 lifts the row, it
- * does not stop it being a target.
+ * ⚠️ Bands are half-open at the bottom (R3.4), so two rows never claim one
+ * point. Pinned rows are included: FR-098 lifts a row, it stays a target.
  *
  * @purity pure
  */
@@ -1803,29 +1149,14 @@ function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
 }
 
 /**
- * The row the top edge of the Row Area stands in, or null when it stands
- * outside the drawn rows altogether.
+ * The ordinal of the row whose slab the top edge stands in, or null outside
+ * the drawn rows.
  *
- * ⛔ A DIFFERENT QUESTION FROM `rowAtY`, which is why this is a second member
- * rather than a change to that one. `rowAtY` answers which row is DRAWN at a
- * point, and `rowGap` is drawn by no row -- LF-3 of table T-221 adds it BETWEEN
- * two bands -- so a point in the gap belongs to nothing, and FR-001 needs
- * exactly that null to know when a creation drag has to make a row.
- * ⭐ S-78 is not a point on a drawing, it is where the top EDGE stands, and an
- * edge always stands somewhere in the sequence of rows. So the axis is read as
- * slabs `[row.y, nextRow.y)` instead: half-open, which is R3.4's default and
- * the convention `screen-regions.ts` states for its own rectangles, so the gap
- * goes to the row above it and no two rows ever claim the same edge. ⚠️ The
- * horizontal half of the same anchor reads its axis the same way -- `dateAtX`
- * floors, so a point inside a day belongs to the day that began before it.
- * ⚠️ The LAST row's slab ends at its own band, because `schedule-layout.ts`
- * takes the trailing `rowGap` back off the content height: past that there is
- * no row to name, which is the null `scrolledAnchor` reads as "ran off the end".
- *
- * ⚠️ The ORDINAL is what this answers, because the callers want different
- * halves of it: `rowAnchorAt` wants the row AND the one below it (S-176 cannot
- * spell a top edge standing in the gap), and `rowTurnedTo` wants the place in
- * the stack, so that it can name the row one step along.
+ * ⛔ Not `rowAtY`: a point in `rowGap` (LF-3 of table T-221) is on no band, and
+ * FR-001 needs that null; but an edge always stands in some row's slab
+ * `[row.y, nextRow.y)`, half-open (R3.4), so the gap belongs to the row above.
+ * ⚠️ The last row's slab ends at its own band (`schedule-layout.ts` removes the
+ * trailing gap); past it is the null `scrolledAnchor` reads as "ran off the end".
  *
  * @purity pure
  */
@@ -1841,12 +1172,8 @@ function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | n
 }
 
 /**
- * A display position: the two anchors of S-77 / S-78 and the two fractions of
- * S-176 / S-177 that say where inside each anchor the edge stands.
- *
- * ⭐ FOUR VALUES AND NOT TWO. The anchors alone can only name the start of a
- * day and the top of a band, so a movement shorter than either had nowhere to
- * be written at all.
+ * A display position: the anchors S-77 / S-78 and the fractions S-176 / S-177
+ * of how far into each anchor the edge stands.
  */
 interface ScrollAnchor {
   /** S-77. */
@@ -1860,13 +1187,11 @@ interface ScrollAnchor {
 }
 
 /**
- * OP-10a's range, [0, 1), reached the way that row reaches it: drop the whole
- * part rather than refuse the value (MUST NOT refuse).
+ * OP-10a's range, [0, 1), by dropping the whole part rather than refusing.
  *
- * ⚠️ Callers hand this a value already known to be in range; the guard is for
- * the rounding of the division that produced it, so that a distance a hair
- * short of the anchor's own extent cannot divide to exactly 1 and spell one
- * position two ways -- which is what NS-4's round-trip comparison would catch.
+ * ⚠️ Callers pass values already in range; the guard stops rounding from
+ * producing exactly 1, which would spell one position two ways and fail NS-4's
+ * round trip.
  *
  * @purity pure
  */
@@ -1879,11 +1204,8 @@ function unitFraction(value: number): number {
 /**
  * S-77 with S-177: the day the left edge lands in, and how far into that day.
  *
- * ⭐ The axis is read through the two published converters, one each way, so
- * `x -> day` and `day -> x` cannot drift apart -- which is the same reason
- * `schedule-layout.ts` gives for keeping one formula.
- * ⚠️ `dateAtX` floors, so the distance measured back from the day it names is
- * always at least zero and shorter than one day's width. That IS the fraction.
+ * Read through the two published converters so `x -> day` and `day -> x` cannot
+ * drift. `dateAtX` floors, so the distance back to its day is the fraction.
  *
  * @purity pure
  */
@@ -1894,9 +1216,9 @@ function dayAnchorAt(
   const settings = context.document.documentSettings
   const layout = context.layout
   const day = dayAtX(layout, x)
-  // A null is passed on as the value already in force rather than as "no
-  // chosen place": OP-10 of table T-024a reads a null `scrollDate` as
-  // 「人がまだ場所を決めていない」, and a scroll has not un-decided anything.
+  // A null keeps the value in force rather than writing "no chosen place":
+  // OP-10 of table T-024a reads a null `scrollDate` as undecided, and a scroll
+  // un-decides nothing.
   if (day === null || !(layout.pxPerDay > 0)) {
     return { scrollDate: settings.scrollDate, scrollDayOffset: settings.scrollDayOffset }
   }
@@ -1909,18 +1231,8 @@ function dayAnchorAt(
 /**
  * S-78 with S-176: the row the top edge lands in, and how far into that row.
  *
- * ⛔ Asks `rowIndexAtTopEdge` and NOT `rowAtY`: a landing point in the `rowGap`
- * is on no row's band, and reading that as "the axis cannot say" left the
- * anchor where it was -- so a scroll was refused for every distance that
- * happened to end in a gap, however many rows long it was.
- * ⚠️ THE GAP HAS NO SPELLING OF ITS OWN. The slab that member reads runs to the
- * next band, so it takes in the `rowGap` LF-3 of table T-221 draws between two
- * bands, while S-176 is a fraction of the row's own HEIGHT -- a top edge
- * standing in the gap would need a fraction of 1 or more, which S-176's range
- * excludes. The nearest place that can be written is the top of the row below,
- * and it is at most one `rowGap` away.
- * ⚠️ A null is passed on as the value in force, for the reason `dayAnchorAt`
- * gives.
+ * ⛔ Uses `rowIndexAtTopEdge`, not `rowAtY`, or a scroll ending in a `rowGap`
+ * would be refused. A null keeps the value in force, as in `dayAnchorAt`.
  *
  * @purity pure
  */
@@ -1929,10 +1241,8 @@ function rowAnchorAt(
   y: number,
 ): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
   const settings = context.document.documentSettings
-  // ⛔ THE SCROLLING ROWS ALONE (FR-098, MUST NOT): a row lifted into the pinned
-  // band does not flow, so an anchor naming one would fix the display position
-  // where it could never move again -- which is the very reason that
-  // requirement points S-78 and S-176 at the remainder's top edge.
+  // ⛔ Scrolling rows only (FR-098): an anchor naming a pinned row would fix the
+  // display position where it could never move.
   return rowAnchorIn(scrollingRowsOf(context.layout), y, {
     scrollGroupId: settings.scrollGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
@@ -1940,14 +1250,11 @@ function rowAnchorAt(
 }
 
 /**
- * The same pair, made against a chain of rows handed in rather than the frame's
- * own -- which is what lets FR-016's row anchor name a place in the picture the
- * zoom is ABOUT to draw (`rowPlacesAtZoomY`).
+ * The same pair against a chain of rows handed in, so FR-016's zoom can anchor
+ * in the picture it is about to draw (`rowPlacesAtZoomY`).
  *
- * ⛔ ONE SPELLING AND NOT TWO. The slab, the half-open boundary and the fall
- * back to the value in force were all written for the frame in hand; a second
- * copy of them for the candidate frame would be two bijections against one
- * `scrollOffsetOf`, and the picture would land somewhere neither named.
+ * One spelling for both frames: two copies would be two bijections against one
+ * `scrollOffsetOf`, and the picture would land where neither named.
  *
  * @purity pure
  */
@@ -1960,21 +1267,11 @@ function rowAnchorIn(
   if (at === null) return held
   const row = rows[at]
   const below = rows[at + 1]
-  // ⭐⭐ THE SLAB AND NOT THE BAND, and table T-023d is what requires it: ⛔
-  // 「錠の上にしか着地できない形にしてはならない（MUST NOT）」. Two bands do not
-  // touch -- measured 2026-08-29 on the shipped template, every pitch is the
-  // band's height plus 8px -- so a fraction of the BAND cannot name a top edge
-  // standing in that 8px, and every such edge was snapped forward to the next
-  // row. ⛔ MEASURED: a Ctrl drag swept 2px at a time moved the picture
-  // one-for-one until a boundary and then jumped 8px extra in one step, which
-  // is 「パンは等倍とすること（MUST）」 broken by exactly the gap.
-  // ⚠️ THE LAST ROW'S SLAB IS ITS OWN BAND, because there is nothing below for
-  // it to reach to -- the stack ends there, and so does what a fraction of it
-  // could mean.
-  // ⛔ THE READING SIDE MUST USE THE SAME LENGTH. `scrollOffsetOf` in
-  // `schedule-layout.ts` turns this pair back into pixels; the two are one
-  // bijection and a denominator written differently in one of them would put
-  // the picture somewhere this never named.
+  // The fraction is of the slab, not the band: a band fraction cannot name an
+  // edge inside `rowGap`, so a pan would snap by the gap at every boundary and
+  // break table T-023d's 等倍 rule. The last row's slab is its own band.
+  // ⛔ `scrollOffsetOf` in `schedule-layout.ts` inverts this pair and must use
+  // the same denominator.
   if (row === undefined) return held
   const slab = below === undefined ? row.height : below.y - row.y
   if (slab <= 0) return held
@@ -1986,42 +1283,11 @@ function rowAnchorIn(
 }
 
 /**
- * Where the display position lands when the schedule is moved by this many
- * pixels.
- *
- * ⭐ S-77 pins the LEFT edge of the Row Area to a day and S-78 pins the top of
- * it to a row, so a scroll is expressed by naming what stands at those two
- * edges afterwards -- and since CR-260, by how far INTO each of them the edge
- * stands (S-176 / S-177). ⛔ Those two fractions are what make 表 T-023d's
- * 「パンは等倍とすること（MUST）」 reachable at all: without them the smallest
- * movement that could be written was a whole row, so a pan either did nothing
- * or jumped further than the pointer went.
- * ⚠️ Neither fraction is a px count. FR-080 forbids holding a scroll position
- * in px (MUST NOT) because a zoom or a window width then makes the same number
- * point somewhere else, and a fraction of the anchor's OWN extent does not.
- *
- * ⚠️ The distances are measured against `context.layout`, which was built with
- * the position already in force applied, so passing zero on an axis answers
- * exactly the values that axis already holds. That is what lets MK-5 take the
- * vertical half from here unchanged.
- *
- * @purity pure
- */
-/**
  * PTD-1's write: the display position moved by this many pixels.
  *
- * ⭐ ONE PLACE FOR THE FOUR MEMBERS, because two roads reach them now -- the
- * move that follows the pointer and the release that finishes the gesture --
- * and R2.7 is about a second reading as much as a second call.
- *
- * ⭐ ALL FOUR COME FROM THE ONE READING, and that is what makes 等倍 exact.
- * S-176 and S-177 hold the part of a row and the part of a day the anchors
- * cannot name, so a movement of any distance -- shorter than a row, shorter
- * than a day -- is written as the distance it was.
- * ⛔ NO FLOOR IS TAKEN. `rowTurnedTo`'s one-row floor used to answer the
- * vertical half, and it made the picture jump a whole row for a drag of a few
- * px, which is the very thing 「倍率を掛けない」 forbids. ⚠️ MK-1 keeps it --
- * see `rowTurnedTo` for why the wheel and the hand are held to different rules.
+ * One place for the four members, reached by both the following move and the
+ * release (R2.7). No floor is taken: S-176 / S-177 let any distance be written,
+ * and table T-023d's pan is 等倍. MK-1 keeps a floor -- see `rowTurnedTo`.
  *
  * @purity pure
  */
@@ -2038,6 +1304,18 @@ function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
   ])
 }
 
+/**
+ * Where the display position lands when the schedule is moved by this many
+ * pixels, named by what stands at the left and top edges afterwards.
+ *
+ * ⚠️ Fractions of the anchor's own extent, not px: FR-080 (MUST NOT) forbids a
+ * px scroll position.
+ * ⚠️ Measured against `context.layout`, which already has the position in force
+ * applied, so zero on an axis answers that axis's current values -- which is
+ * what lets MK-5 take the vertical half unchanged.
+ *
+ * @purity pure
+ */
 function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
   const area = context.regions.rowArea
   return {
@@ -2047,58 +1325,31 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
 }
 
 /**
- * Where MK-1's turn leaves the row at the top edge. ⭐ THE WHEEL ONLY.
+ * Where MK-1's wheel turn leaves the row at the top edge. The wheel only.
  *
- * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF MK-1, and the difference is not an
- * error in its arithmetic: it answers the place the moved top edge LANDS IN,
- * which for a distance shorter than the row standing there is a place inside
- * that same row. Measured on the template FR-027 starts a reader with, most of
- * the bands drawn are TALLER than the distance a common wheel reports for one
- * detent, so before CR-260 turn after turn moved nothing at all and MK-1's
- * 「**縦スクロール**」 did not scroll.
- *
- * ⚠️ WHY THE FLOOR STAYS HERE AND WAS TAKEN OFF PTD-1. The two are held to
- * different rules. 表 T-023d states 「パンは等倍とすること（MUST）」 of the pan
- * and of nothing else, so PTD-1 must move the picture exactly as far as the
- * pointer went -- which S-176 and S-177 now let it write, so the floor there
- * was a defect the moment those two rows existed. MK-1 carries no such MUST:
- * table T-023 gives it 「縦スクロール（ズームではない）」 and no distance at
- * all, and a wheel is a detent rather than a hand.
- * ⛔ BUT THE FLOOR IS NO LONGER FORCED, AND SAYING OTHERWISE WOULD BE FALSE.
- * PND-176 was decided on the ground that ZERO is the one answer 「縦スクロール」
- * rules out and one row was the smallest movement S-78 could express. ⚠️ The
- * second half of that ground is now gone: S-176 can express any part of a row,
- * so scrolling the wheel by the distance the device reported is open too, and
- * the user's ruling behind CR-260 -- 「飛び飛びだと UI 上気持ち悪くて『ぬるサク』
- * を達成できない」 -- speaks against a detent as much as against a jump. The
- * floor is kept because it is what the record holds and no row forbids it;
- * ⛔ it is a choice awaiting adjudication, not a forced answer.
+ * ⚠️ A one-row floor is taken: a detent shorter than the standing row would
+ * otherwise land inside it and not scroll. Table T-023d's 等倍 rule binds the
+ * pan only, and MK-1 gives no distance.
+ * ⛔ The floor is not forced now that S-176 can express part of a row; it is
+ * an open choice (PND-176).
  * Searched: table T-023 MK-1, MK-5 and MK-7, table T-023a and its note and
  * PTD-1, the paragraph under table T-023d, S-4, S-12, S-77, S-78, S-96, S-176,
  * S-177, FR-016, FR-051, FR-017, FR-080, OP-10 and OP-10a of table T-024a.
- * ⚠️ This invents no rows-per-notch and no rows-per-pixel figure -- it is a
- * floor under a distance that still comes from the device, and every turn long
- * enough to reach a further row still reaches it.
+ * No rows-per-notch figure is invented: the distance still comes from the device.
+ *
+ * ⚠️ The two ends differ. Above the first row there is provably nothing, so
+ * running off the top answers the first row (else the top is unreachable). Past
+ * the last row, whether anything remains depends on how much the Row Area
+ * shows, which no row settles, so the value in force is kept.
  *
  * @provisional PND-176
  * @provisional PND-177
- *
- * ⚠️ THE TWO ENDS ARE NOT ALIKE, and the difference is what each one can be
- * known to mean. Above the first row there is provably nothing -- S-78 anchors
- * the edge to a row and the first one is the top of the stack -- so a movement
- * that runs off that end is answered by the first row, without which the top of a
- * schedule cannot be reached again at all. Past the LAST row, whether there is
- * anywhere left to go depends on how much of the stack the Row Area already
- * shows, which no row settles; so that end keeps the value in force, which is
- * what this file already did.
  *
  * @purity pure
  */
 function rowTurnedTo(context: InputContext, dy: number): string | null {
   const settings = context.document.documentSettings
-  // ⛔ THE SCROLLING ROWS AND THE REMAINDER'S TOP EDGE, for the reason
-  // `rowAnchorAt` above gives: FR-098 (MUST) makes S-78 point there and (MUST
-  // NOT) forbids the band's own top.
+  // ⛔ Scrolling rows and the remainder's top edge, as in `rowAnchorAt` (FR-098).
   const rows = scrollingRowsOf(context.layout)
   const areaTop = scrollAreaTopOf(context)
   const standing = rowIndexAtTopEdge(rows, areaTop)
@@ -2106,8 +1357,6 @@ function rowTurnedTo(context: InputContext, dy: number): string | null {
   const landed = rowIndexAtTopEdge(rows, areaTop + dy)
   // Ran off the top: the first row is the whole of what was asked for.
   if (landed === null) return dy < 0 ? (rows[0]?.groupId ?? null) : settings.scrollGroupId
-  // ⚠️ `rows[0]` above cannot be missing -- an empty stack left through the
-  // guard -- and the `null` is the type's, not a case.
   // Landed back inside the row it began on, so the turn moved nothing yet.
   const at = landed === standing ? standing + (dy > 0 ? 1 : -1) : landed
   const held = Math.min(rows.length - 1, Math.max(0, at))
@@ -2122,12 +1371,10 @@ function isOnRowArea(context: InputContext, x: number, y: number): boolean {
 /**
  * Whether a wheel turn over this point is this tool's to read.
  *
- * ⛔ NOT SETTLED BY THE SPECIFICATION. Table T-023 scopes the PRESS order to
- * 「日程の描画領域」 (the note under table T-023a) and scopes MK-1 to MK-5 to
- * nothing at all. The recommendation is the whole `Schedule Canvas` (U-32): the
- * ruler, the Row Title Panel and the Row Area all scroll together (SC-1 to
- * SC-4), so a wheel over any of them is asking the same thing, while the `App
- * Header` is not part of the schedule.
+ * Table T-023 scopes the press order to the drawing area (note under table
+ * T-023a) and scopes MK-1 to MK-5 to nothing. Taken as the whole `Schedule
+ * Canvas` (U-32), since its parts scroll together (SC-1 to SC-4); the `App
+ * Header` is not the schedule.
  * Searched: table T-023, table T-023a and its 面 table, FR-016, FR-051, table
  * T-103.
  *
@@ -2135,19 +1382,11 @@ function isOnRowArea(context: InputContext, x: number, y: number): boolean {
  * @purity pure
  */
 function isWheelHere(context: InputContext, x: number, y: number): boolean {
-  // table T-023's closing rule (MUST): 「面が立っているあいだ、ホイールの割当を当てず、
-  // ブラウザの既定動作へ渡すこと」 (the user's ruling of 2026-08-29).
-  //
-  // ⛔⛔ WHY IT IS HERE AND NOT IN `regionAtPointer`. That function answers for
-  // the parts `ScreenRegions` (PI-35) holds a rectangle for, and a surface
-  // floating over the drawing area is not one of them -- so a point on a
-  // `Confirmation` came back as `rowArea` and the wheel was stopped on it.
-  // ⚠️ Measured 2026-08-29 in the shipped page: deleting a row whose names run
-  // to 9,341 characters gives the question a box 6,986px tall in a window
-  // 928px high, and forty wheel notches over it left `scrollTop` at 0.
-  // ⛔ `MK-10` NEVER REACHED THIS. Its subject is 「本ツールが割り当てた修飾キー
-  // の付いた入力」 in both halves, and a bare wheel carries no modifier -- the
-  // stopping was this function's answer, not that row's.
+  // Table T-023's closing rule: while a surface stands, the wheel goes to the
+  // browser.
+  // ⛔ Tested here, not in `regionAtPointer`: floating surfaces have no rectangle
+  // in `ScreenRegions` (PI-35), so a point on a `Confirmation` answers `rowArea`
+  // and a tall question could not be scrolled.
   if (context.isSurfaceStanding) return false
   const region = regionAtPointer(context.regions, x, y)
   return region !== null && region !== 'appHeader'
@@ -2158,12 +1397,9 @@ function isWheelHere(context: InputContext, x: number, y: number): boolean {
 /**
  * The same thing, named the way a selection names it.
  *
- * ⛔ THE TWO COMPONENTS DO NOT AGREE, and neither of them may be edited from
- * here. `Item` (PI-7) names a dependency by its two endpoints, because that is
- * what the geometry drew; `ItemRef` (PI-32) names it by its successor and its
- * ordinal, because table T-053 nests a dependency under the successor. So the
- * ordinal is looked up, and a dependency the successor does not carry has no
- * name in a selection -- it answers null rather than being given a made-up one.
+ * `Item` (PI-7) names a dependency by its endpoints; `ItemRef` (PI-32) by its
+ * successor and ordinal (table T-053). A dependency the successor does not carry
+ * answers null rather than a made-up name.
  *
  * @purity pure
  */
@@ -2191,16 +1427,9 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
 /**
  * Everything SL-1 admits that this frame drew, for SK-2's select-all (SL-5).
  *
- * ⚠️ Built from the geometry rather than from the document, because only what
- * was drawn can be selected -- the same rule table T-023a states for hit
- * testing, and the reason `itemsInMarquee` reads the geometry too.
- * ⚠️ The status line IS included here though `itemsInMarquee` leaves it out.
- * SL-1's exclusion names SL-3 and SL-7 and no other row, and the reason it
- * gives -- a marquee dragging the status date about -- does not apply to a key
- * that asks for everything.
- * ⚠️ A comment box the geometry dropped -- its row collapsed or hidden, or its
- * anchor naming neither -- is absent for the same reason a Task the zoom did
- * not draw is: only what was drawn can be taken.
+ * ⚠️ Built from the geometry, since only what was drawn can be selected.
+ * ⚠️ The status line is included although `itemsInMarquee` leaves it out: SL-1
+ * excludes it only from SL-3 and SL-7.
  *
  * @purity pure
  */
@@ -2230,11 +1459,8 @@ function everythingSelectable(context: InputContext): readonly ItemRef[] {
 }
 
 /**
- * The rectangle a press and a release span, in either order.
- *
- * ⭐ Normalised so that dragging up-left encloses the same things as dragging
- * down-right: SL-3 speaks of 「矩形に完全に囲まれた対象」 and says nothing
- * about which corner came first.
+ * The rectangle a press and a release span, normalised so the drag direction
+ * does not matter (SL-3).
  *
  * @purity pure
  */
@@ -2249,29 +1475,17 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
 
 // ------------------------------------------------------- table T-023a ------
 
-// ⭐ `PressRow` itself is declared with `PointerPress` at the head of this file,
-// because the press now CARRIES the answer (see decision 5 of the overview).
+// `PressRow` is declared with `PointerPress` near the top of this file, because
+// the press carries the answer.
 
 /**
- * Which row of table T-023a decides this press.
+ * Which row of table T-023a decides this press, evaluated in the table's order.
  *
- * ⛔ Evaluated from the top and settled by the first row that holds (MUST). The
- * order is the table's own and is not rearranged: 「第 1 の分岐は「当たったか」
- * であり、「構えているか」は当たらなかったときにだけ効く」.
- *
- * ⭐ PUBLISHED SO THE PRESS CAN CARRY THE ANSWER -- not so the row can be asked
- * for later. `PointerPress.pressRow` is filled with what this returns at the
- * moment the press is recorded, the way `itemAtPointer` (PI-7) fills `hit`.
- * Asking again at the write would be a second moment, and CS-2 of table T-066
- * wants the moment of the press; reading table T-023a on the other side would
- * be the duplication R2.7 refuses.
- *
- * ⚠️ IT TAKES LESS THAN A WHOLE PRESS AND LESS THAN A WHOLE CONTEXT, ON PURPOSE.
- * The row is one of the press's own members, so no whole `PointerPress` can
- * exist until this has answered -- and the caller records the press before it
- * builds the context that would hold it. What the decision reads is only the
- * button and the modifiers of the `down`, the hit the caller resolved, and the
- * two current values PTD-2 and PTD-4 / PTD-4a turn on.
+ * Published so the caller fills `PointerPress.pressRow` at the press (CS-2);
+ * asking again later would be a second moment, and reading the table elsewhere
+ * the duplication R2.7 refuses.
+ * ⚠️ Takes less than a whole press and context on purpose: the press cannot
+ * exist until this has answered.
  *
  * @purity pure
  */
@@ -2280,8 +1494,7 @@ export function pressRowOf(
   context: Pick<InputContext, 'screenState' | 'dualCursorFollowing'>,
 ): PressRow {
   const modifiers = press.at.modifiers
-  // PTD-1: the middle button, or a left drag with Ctrl and nothing else. Beats
-  // both the arming and the hit, whatever lies under the pointer.
+  // PTD-1 beats both the arming and the hit, whatever lies under the pointer.
   if (press.at.button === 'middle') return 'PTD-1'
   if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PTD-1'
   if (context.dualCursorFollowing !== null) return 'PTD-2'
@@ -2295,15 +1508,11 @@ export function pressRowOf(
 // --------------------------------------------------------------- shapes ----
 
 /**
- * The five spellings table T-012 gives a shape, as a census the compiler keeps.
+ * The spellings table T-012 gives a shape, as a census the compiler keeps.
  *
- * ⭐ `Record<TaskShapeKind, true>` is the device `edit-document.ts` uses on the
- * 71 rows of table T-108: the spellings are written once, and a spelling that
- * the generated column no longer admits -- or one it admits that is missing
- * here -- is a compile error naming the word. ⛔ It is here at all because
- * `ScreenState.armed` carries the armed shape as a bare string while
- * `createTask` demands the generated union, and neither of those two files may
- * be edited from this one.
+ * `Record<TaskShapeKind, true>` makes a spelling missing here, or no longer
+ * admitted, a compile error. Needed because `ScreenState.armed` carries the
+ * shape as a bare string while `createTask` demands the generated union.
  */
 const TASK_SHAPE_KINDS: Readonly<Record<TaskShapeKind, true>> = {
   rectangle: true,
@@ -2321,11 +1530,9 @@ function taskShapeKindOf(name: string): TaskShapeKind | null {
 }
 
 /**
- * The eight spellings table T-012's SH-5 gives a milestone's figure, kept the
- * same way and for the same reason as the five above.
+ * The milestone figures of table T-012's SH-5, kept the same way as above.
  *
- * ⚠️ The ORDER matters and is SH-5's own: S-48 fixes it as the order of their
- * areas, and table T-109 places IC-27 .. IC-34 in it.
+ * ⚠️ The order is SH-5's; table T-109 places the glyph entrances in it.
  */
 const TASK_MILESTONE_GLYPHS: Readonly<Record<TaskMilestoneGlyph, true>> = {
   circle: true,
@@ -2336,9 +1543,7 @@ const TASK_MILESTONE_GLYPHS: Readonly<Record<TaskMilestoneGlyph, true>> = {
   star: true,
   triangleUp: true,
   triangleDown: true,
-  // ⭐ The seven SH-5 gained on 2026-08-29. ⚠️ They are NOT in area order and
-  // FR-078 now says so: the first eight are, and these seven follow the order
-  // the user named them in.
+  // ⚠️ From here on the figures are not in area order (FR-078).
   file: true,
   box: true,
   floppyDisk: true,
@@ -2356,24 +1561,14 @@ function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
 }
 
 /**
- * The uid the write side is about to issue to the next row it creates.
+ * The uid the write side will issue to the next row it creates.
  *
- * ⭐ WHY A PLANNER MAY READ THIS AT ALL. A bundle is planned before any of it
- * runs, so a command that names a row an EARLIER command in the same bundle
- * makes has to name it by a uid nobody has issued yet. FR-001 (for `Task`) and
- * FR-008 (for `Resource`) both say the number comes from
- * `Project.uidHighWaterMark` (MUST) and NOT from the largest live uid (MUST
- * NOT) -- so it is a pure function of the document, and this reads it the same
- * way the write side reads it rather than inventing one.
- *
- * ⛔ NOT the road `groupId` takes. AT-51 is a UUID, minting one is not a pure
- * act, and that is why `createTask` is HANDED its `groupId` as a value. AT-19 is
- * not a UUID, so the same treatment would only move a pure computation one layer
- * out and give it a second chance to disagree with the write side.
- *
- * ⚠️ ONE bundle, ONE creation. WS-3 threads each command's document into the
- * next, so a second `createTask` in the same bundle would take mark + 2 -- and
- * this answers mark + 1 whoever asks. Both callers plan exactly one creation.
+ * A bundle is planned before it runs, so a command naming a row an earlier
+ * command creates needs a uid not yet issued. FR-001 / FR-008 take it from
+ * `Project.uidHighWaterMark`, so it is a pure function of the document.
+ * Not `groupId`'s road: AT-51 is a UUID and minting is impure, but AT-19 is not.
+ * ⚠️ One creation per bundle: WS-3 threads documents, so a second `createTask`
+ * would take mark + 2 while this still answers mark + 1.
  *
  * @purity pure
  */
@@ -2383,31 +1578,23 @@ function nextIssuedUid(schedule: Schedule): number {
 
 // --------------------------------------------------------------- entries ----
 //
-// ⭐ THE ROWS OF TABLE T-109 THIS FILE ANSWERS FOR, by the row id that is the
-// only join that table admits (it has no English column, and says why). This is
-// the same move the keyboard already makes: `KEY` spells table T-036's
-// assignment column and the rows below are matched one by one.
+// The rows of table T-109 this file answers for, by row id -- the only join
+// that table admits, as `KEY` joins table T-036.
 //
-// ⛔ NOT A ROSTER, and not a count. Table T-109 counts itself (FR-029 forbids
-// the requirement to state the number) and the rest of its rows are absent here
-// on purpose -- the STOP note at the foot of this file says what each of them is
-// missing, and holds the ONE count, because a number written twice is a number
-// that goes stale in one of the two places (it had, by eight).
-// ⚠️ `screen-renderer.ts` reads the generated `icon-roster.json`;
-// this component has no edge to that file and must not grow one, so what
-// crosses is the row id alone.
+// Not a roster and not a count: the other rows are absent on purpose, and the
+// STOP note at the foot of this file says what each is missing.
+// ⚠️ `screen-renderer.ts` reads the generated `icon-roster.json`; this component
+// has no edge to that file and must not grow one, so only the row id crosses.
 
 /** The entries this file assigns, spelled as table T-109 spells its row ids. */
 const ENTRY = {
   /** IC-1 -- FR-087 (OP-2 of table T-024a). Same operation as SK-10. */
   openDocument: 'IC-1',
   /**
-   * IC-2 -- FR-096, which SK-12 begins with the choice of a format.
+   * IC-2 -- FR-096, the export chooser.
    *
-   * ⚠️ IT WAS FR-060's SILENT OVERWRITE until CR-280 / CR-281 (the user's
-   * ruling, 2026-08-29). That road is still there and is now the key's
-   * alone: SK-11 writes `GRS JSON` to the opened file without asking, which
-   * is what DI-5 of table T-227 exempts.
+   * ⚠️ Not SK-11's road: the key writes `GRS JSON` to the opened file without
+   * asking (DI-5 of table T-227).
    */
   exportChooser: 'IC-2',
   /** IC-3 -- FR-025, the clipboard row IO-6 of table T-024. */
@@ -2420,13 +1607,8 @@ const ENTRY = {
   /** IC-7 -- FR-053, S-99e. SK-14. */
   palette: 'IC-7',
   /**
-   * IC-8 / IC-9 -- the plan half (S-227) and the actual half (S-228).
-   *
-   * ⭐ TWO ENTRIES OVER TWO INDEPENDENT BOOLEANS (FR-049, the user's ruling
-   * 2026-09-07). A press flips the half it names and leaves the other half
-   * exactly as it stands. ⛔ Hiding both is allowed: the MUST NOT that once
-   * forbade it was struck as wrong, and the three-valued enumeration that stood
-   * in its place went with it.
+   * IC-8 / IC-9 -- the plan half (S-227) and the actual half (S-228), two
+   * independent booleans (FR-049): a press flips its own half only.
    */
   planDisplay: 'IC-8',
   actualDisplay: 'IC-9',
@@ -2440,43 +1622,25 @@ const ENTRY = {
   zoomRowOut: 'IC-14',
   zoomRowIn: 'IC-15',
   /**
-   * IC-16 -- S-72, the light/dark theme FR-039 lets the reader choose.
-   *
-   * ⭐ ONE ENTRANCE OVER TWO VALUES, so a press moves to the other one. S-72
-   * holds exactly two, and FR-029 (MUST NOT) forbids a second entrance for the
-   * same function -- so an entry per value is not open here. ⚠️ THE EXAMPLE
-   * THIS NOTE USED TO GIVE IS GONE: IC-46 .. IC-49 were four such entries, and
-   * since 2026-09-06 the guide cursor has two rows that toggle (see
-   * `guideCursorCrosshair` below), which is this row's own shape.
+   * IC-16 -- S-72, the light/dark theme (FR-039). One entrance over two values,
+   * so a press moves to the other (FR-029 forbids an entry per value).
    */
   themePreference: 'IC-16',
   /**
-   * IC-17 -- FR-072, the settings entrance that requirement names beside the
-   * selection.
+   * IC-17 -- FR-072's settings entrance.
    *
-   * ⚠️ NOT AN OPEN-AND-CLOSE. Table T-109 words it 「文書の描画設定をプロパティ
-   * パネルに出す」 and FR-072 has a second press on the SAME entrance go back to
-   * the last chosen subject, not shut the panel -- so what moves is which of the
-   * two the panel is showing.
+   * ⚠️ Not open-and-close: a second press returns the panel to the last chosen
+   * subject, so what moves is which of the two it shows.
    */
   documentSettingsProperties: 'IC-17',
-  /**
-   * IC-20 -- FR-065, S-99b.
-   *
-   * ⭐ ONE ENTRANCE FOR BOTH DIRECTIONS, which is that row's own wording
-   * 「有効にする・無効にする」 and what FR-029 (MUST NOT) leaves as the only shape.
-   */
+  /** IC-20 -- FR-065, S-99b. One entrance for both directions (FR-029). */
   agentApi: 'IC-20',
   /**
-   * IC-18 -- FR-066, S-99i of table T-206.
+   * IC-18 -- FR-066, S-99i of table T-206: turns
+   * `ScreenSession.isDialogueFieldVisible`, not `isAgentApiEnabled` (IC-20's).
    *
-   * ⭐ WRITABLE SINCE 2026-08-31 (DFC-149): S-99i gave the field its own switch,
-   * `ScreenSession.isDialogueFieldVisible`, so this entrance now turns THAT
-   * value and not `isAgentApiEnabled` (which stays IC-20's alone, above).
-   * ⚠️ The faint-and-tell half of this entrance -- FR-029's reason while the
-   * `Agent API` is off -- is still `frame-loop.ts`'s: `isAgentApiEnabled` is
-   * not a member of `InputContext`, so this file cannot judge whether the
-   * entry was drawn faint when the press arrives.
+   * ⚠️ FR-029's faint-and-tell half is `frame-loop.ts`'s: `isAgentApiEnabled`
+   * is not in `InputContext`, so this file cannot tell whether it was faint.
    */
   dialogueFieldVisible: 'IC-18',
   /** IC-19 -- FR-068. U-30 `AI Export Modal` of table T-103. */
@@ -2484,15 +1648,8 @@ const ENTRY = {
   /** IC-22 -- FR-036. SK-13. */
   help: 'IC-22',
   /**
-   * IC-39 / IC-40 / IC-42 / IC-43 / IC-79 / IC-80 / IC-81 -- the seven toggles
-   * the palette carries. S-64, S-63, S-67, S-68, S-60, S-61 and S-62, all of
-   * them boolean rows of table T-202.
-   *
-   * ⭐ THE LAST THREE ARRIVED WITH THE RULING OF 2026-08-30 (CR-294). Until
-   * then table T-109 placed no entrance on them at all, so FR-049's 「それぞれ
-   * 切り替えられるようにすること」 was unmet for three of the eight -- and the
-   * assignee and percent labels, whose defaults are both `false`, could not be
-   * reached from the shipped build by any means.
+   * IC-39 / IC-40 / IC-42 / IC-43 / IC-79 / IC-80 / IC-81 -- palette toggles
+   * over S-64, S-63, S-67, S-68, S-60, S-61 and S-62, boolean rows of table T-202.
    */
   progressLineVisible: 'IC-39',
   progressMarkerVisible: 'IC-40',
@@ -2502,55 +1659,31 @@ const ENTRY = {
   percentCompleteVisible: 'IC-80',
   dependencyVisible: 'IC-81',
   /**
-   * IC-99 / IC-100 / IC-101 -- the three entrances the ruling of 2026-09-09
-   * (逐語「一旦提案通りでやれ。」) put on the palette. S-70, S-74 and S-58, and
-   * the commands they write are CM-62, CM-64 and CM-56.
+   * IC-99 / IC-100 / IC-101 -- S-70, S-74 and S-58 (CM-62, CM-64, CM-56).
    *
-   * ⭐ NONE OF THE THREE IS ONE OF FR-049's TOGGLES, and not one of them may be
-   * put into `VISIBLE_ELEMENT_BY_ENTRY`. That requirement takes the BOOLEAN rows
-   * of table T-202: `fontScale` and `stackDirection` stand in that table and are
-   * not boolean, and `themeMonochrome` is not in that table at all (S-74 is a
-   * row of table T-203). ⚠️ The same reading is what keeps IC-41 out of that map.
-   *
-   * ⭐ EACH ONE'S OWN ROW OF TABLE T-109 NAMES THE SETTING AND HOW A PRESS MOVES
-   * IT, which is rule ③ of the STOP note at the foot of this file -- so nothing
-   * here is a decision this file made up.
+   * ⛔ None belongs in `VISIBLE_ELEMENT_BY_ENTRY`: FR-049 takes only the boolean
+   * rows of table T-202, and `fontScale` / `stackDirection` are not boolean while
+   * `themeMonochrome` is table T-203's. Each row of table T-109 names its setting
+   * and how a press moves it (rule ③ of the STOP note at the foot).
    */
   fontScale: 'IC-99',
   themeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
   /**
-   * IC-41 -- FR-020's ONE entrance to the watermark, which since 2026-09-02
-   * (利用者の裁定, CR-335) carries both directions: showing, a press raises
-   * U-60 `Watermark Unlock`; hidden, a press puts the watermark back and asks
-   * nothing.
+   * IC-41 -- FR-020's one watermark entrance: while showing, a press raises
+   * U-60 `Watermark Unlock`; while hidden, it puts the watermark back unasked.
    *
-   * ⛔⛔ NOT ONE OF FR-049's TOGGLES, AND NOT BECAUSE OF THE DIRECTIONS. FR-049
-   * takes the boolean rows of table T-202 and `watermarkVisible` (S-144) is not
-   * one of them any more -- the row moved to table T-206 that same day -- so it
-   * is absent from `VISIBLE_ELEMENT_BY_ENTRY` by the table it stands in, and
-   * that map's own note says so.
-   * ⛔ 「対称な切り替えにしてはならない（MUST NOT）」 IS STILL THE ROW, AND THIS
-   * KEEPS IT. What FR-020 forbids is treating the two directions ALIKE, which a
-   * toggle does -- 「切り替えは 2 つの向きを見分けられないので、消す側の門をすり
-   * 抜ける」. Here the gate stands on the hiding side alone and the way back is
-   * ungated, so the two directions are told apart. ⭐ One entrance doing both is
-   * required by the same requirement (MUST), because FR-029 (MUST NOT) forbids
-   * a second entrance for one function -- IC-75's minimise-and-restore is the
-   * precedent the row names.
-   * ⭐ THE PRESS WRITES NO DOCUMENT COMMAND EITHER WAY. Both directions are
-   * `screenStateFromEntry`'s answer, so this entry falls through
-   * `commandFromEntry` to `commandFromArmingEntry`, which answers
-   * `CONSUMED_ELSEWHERE`: still this tool's press (MK-10), and no edit.
-   * ⛔ ONLY THE HIDING DIRECTION IS WRITTEN TODAY. The STOP at
-   * `screenStateFromEntry`'s arm for this entry names the row that is missing.
+   * ⛔ Not one of FR-049's toggles: `watermarkVisible` (S-144) is in table T-206,
+   * not T-202, and FR-020 (MUST NOT) forbids a symmetric toggle, which could not
+   * tell the gated direction from the ungated one.
+   * The press writes no document command either way: `screenStateFromEntry`
+   * answers it, so `commandFromArmingEntry` gives `CONSUMED_ELSEWHERE`.
+   * ⛔ Only the hiding direction is written; the STOP at `screenStateFromEntry`'s
+   * arm for this entry names the missing row.
    *
-   * @provisional PND-418 -- ⛔ THE HALF THAT RULING DID NOT REACH. CR-329 settled
-   * what a PRESS on this row does; PND-418 also asks whether EN-2 of table T-237
-   * (「機能が ON なら塗る」) paints this entrance while the watermark is showing.
-   * ⭐ Nothing here paints anything -- the pressed state is UF-65's -- and no
-   * reading of EN-2 is taken: the row stays open, and the entrance is drawn as
-   * the palette drew it before.
+   * @provisional PND-418 -- whether EN-2 of table T-237 paints this entrance
+   * while the watermark shows. Nothing here paints (UF-65 does), and no reading
+   * of EN-2 is taken.
    */
   watermark: 'IC-41',
   /** IC-44 -- FR-046. SK-20. */
@@ -2558,48 +1691,25 @@ const ENTRY = {
   /**
    * IC-37 / IC-38 -- FR-034's alignment, on the `Command Palette`.
    *
-   * ⛔⛔ NEITHER IS AN OPERATION THIS FILE CAN PLAN, AND THAT HAS NOT CHANGED:
-   * table T-108 holds no command for the alignment at all, so the STOP at the
-   * foot of this file still stands and a press that CAN be carried out is
-   * answered with nothing. ⭐ WHAT THEY ARE HERE FOR IS THE OTHER HALF OF
-   * FR-029 -- `isEntryUsable` (UF-65) draws both faint while no `Task` is
-   * chosen to line the rest up with, and (MUST) that press be told why. Before
-   * 2026-08-30 they fell through to `commandFromArmingEntry` and said nothing.
-   * ⚠️ ONE SITUATION FOR THE TWO, because 表 T-233's `RS-34` is one 場面: which
-   * end the rows would be lined up by does not enter into why neither can be.
+   * ⛔ Not plannable: table T-108 has no alignment command (see the STOP at the
+   * foot). Here for FR-029's other half: `isEntryUsable` (UF-65) draws both faint
+   * while no `Task` is chosen, and that press must be told why -- one 場面
+   * (RS-34) for both.
    */
   alignStart: 'IC-37',
   alignFinish: 'IC-38',
   /**
-   * IC-45 -- the Dual Cursor's own entrance (S-65), and BOTH ways through
-   * table T-029a's mode: DC-1 enters it and DC-4 words the way out as
-   * 「同じ入口の再押下」, so one entry answers for both and FR-029 (MUST NOT) is
-   * not brushed.
-   *
-   * ⭐ AND IT IS ALSO THE WAY THE TWO LINES ARE CLEARED, SINCE 2026-09-06.
-   * DC-7 (MUST) now reads 「モードを出たら、置いた 2 本を消すこと」 and its own
-   * ⚠️ withdraws the entrance it used to require -- 「出ることが消すことなので、
-   * 別の入口は要らない」. ⛔ WHAT STOOD HERE SAID THE OPPOSITE (that DC-7 put
-   * the clearing on an entrance of its own and forbade leaving the mode from
-   * doing it); it is corrected rather than deleted because table T-109 is no
-   * longer owed a row for it.
+   * IC-45 -- the Dual Cursor entrance (S-65), both ways through table T-029a:
+   * DC-1 enters, DC-4 leaves by the same entrance, and leaving clears the two
+   * lines (DC-7), so there is no separate clearing entrance.
    */
   dualCursor: 'IC-45',
   /**
-   * IC-47 and IC-48 -- one entry for each value of S-66 A READER MAY ASK FOR.
+   * IC-47 and IC-48 -- one entry for each value of S-66 a reader may ask for.
    *
-   * ⭐ TWO ROWS, NOT FOUR, SINCE 2026-09-06. IC-49 went with the value it wrote
-   * -- CU-3 (MUST NOT) 「「縦 2 本」を持ってはならない」, 「測るための 2 本
-   * （`CU-2`）と見分けが付かない」 -- and IC-46 went because 'none' stopped
-   * having an entrance: FR-048 (MUST NOT) 「消すための別の入口を置いてはならない」
-   * and ⭐ 「`'none'` は値として残るが自分の入口を持たない」. ⛔ Neither seat is
-   * filled by another row: table T-109 leaves both empty (a row ID is a seat
-   * number), so no name here may be re-pointed at IC-46 or IC-49.
-   *
-   * ⭐ EACH IS NOW A TOGGLE, AND STILL NOT A CYCLE. A press names its own value
-   * outright unless that value already stands, and then FR-048 (MUST) 「それを
-   * 出した入口をもう一度押せば消えること」 makes it mean 'none' --
-   * `commandFromGuideCursorEntry` is where that one comparison is made.
+   * Each is a toggle, not a cycle: a press names its value unless that value
+   * already stands, and then it means 'none' (FR-048) --
+   * `commandFromGuideCursorEntry` makes that comparison.
    */
   guideCursorCrosshair: 'IC-47',
   guideCursorSingleVertical: 'IC-48',
@@ -2614,13 +1724,10 @@ const ENTRY = {
    */
   paletteMinimise: 'IC-75',
   /**
-   * IC-76 -- FR-102's record of the happenings and the frames, started and
-   * stopped by one entrance. The state is `S-206` of table T-206 and the cap
-   * on what it holds is `S-207`; the shell holds both.
+   * IC-76 -- FR-102's record, started and stopped by one entrance; `S-206` and
+   * its cap `S-207` of table T-206 are held by the shell.
    *
-   * ⭐ AN ORDINARY PALETTE ENTRANCE, unlike the row above: table T-109 gives
-   * it the 表示 group, so `command-palette.ts` prints it among the entries
-   * rather than on the grab band.
+   * An ordinary palette entrance (table T-109's 表示 group), not on the grab band.
    */
   interactionRecord: 'IC-76',
   /** IC-52 -- the first level of IN-4 (table T-028). */
@@ -2628,247 +1735,139 @@ const ENTRY = {
   /**
    * IC-53 -- GR-19 of table T-023d, the band FR-053's drag is taken on.
    *
-   * ⚠️ THE ONE ROW HERE THAT IS NOT A BUTTON. Table T-109 says so in its
-   * own entry column, and `command-palette.ts` keeps it out of what it
-   * publishes as entries for that reason. It is in this map because a press
-   * still LANDS on it -- what it is assigned to is a drag, not a press.
+   * ⚠️ Not a button (table T-109's entry column), so `command-palette.ts` keeps
+   * it out of its entries; it is here because a press still lands on it.
    */
   paletteGrabBand: 'IC-53',
   /**
-   * IC-58 / IC-59 -- the two halves of U-47 `Row Expander`, spelled from the
-   * name table T-103 settles for it.
+   * IC-58 / IC-59 -- the open and close halves of U-47 `Row Expander`.
    *
-   * ⛔ TWO CONTROLS, NOT ONE CONTROL IN TWO STATES. HF-1 of table T-051 puts one
-   * of each on every row, and the two are not inverses: HF-2 opens everything
-   * BELOW the row (HR-3 of table T-015) while HF-3 folds the row ITSELF (HR-5).
-   * Reading them as one toggle would lose that difference, and the difference is
-   * the whole of how a folded row is reopened -- HF-3 says so: the open control
-   * of the row one above is what opens it.
-   * ⚠️ THE TWO USED TO MEAN THE OTHER THING, and this is not a re-reading: HF-2
-   * records that it once opened one level and HF-3 that it once closed the
-   * subtree, and both rows carry the ruling that changed them (2026-08-25),
-   * because the pair left no way to reopen what had been folded.
+   * ⛔ Two controls, not one toggle: HF-2 opens everything below the row (HR-3)
+   * while HF-3 folds the row itself (HR-5), and that difference is how a folded
+   * row is reopened (from the row above).
    */
   rowExpanderOpen: 'IC-58',
   rowExpanderClose: 'IC-59',
   /**
-   * IC-77 -- HF-11 of table T-051, which is HR-4 of table T-015: everything
-   * BELOW the row folds, and the row itself does not.
+   * IC-77 -- HF-11 of table T-051 (HR-4): everything below the row folds, not
+   * the row itself.
    *
-   * ⭐ THE THIRD HALF OF U-47, added by the ruling of 2026-08-30. HF-1 counts
-   * three controls per row now, and this is the one HF-2 is the inverse of --
-   * HF-3 folds the row ITSELF and reaches nothing under it.
-   * ⛔ NOT WIDENED TO INCLUDE THE ROW. HF-11 (MUST NOT) forbids it in as many
-   * words, and the reason is FR-029's: HF-3 already has that operation, so a
-   * control doing both would be the second entrance to one of them.
+   * ⛔ Not widened to include the row (HF-11, MUST NOT): HF-3 already does that,
+   * and FR-029 forbids a second entrance.
    */
   rowExpanderCloseBelow: 'IC-77',
   /**
-   * IC-90 -- HF-13 of table T-051, which is HR-7 of table T-015: the row's
-   * DIRECT children open, and 「孫より下は畳んだまま」.
+   * IC-90 -- HF-13 of table T-051 (HR-7): the row's direct children open.
    *
-   * ⛔⛔ A SEPARATE ENTRANCE FROM IC-58 AND NOT A SECOND READING OF IT. HF-13
-   * (MUST) says so and (MUST NOT) forbids one control being both: 「押すたびに
-   * 違う量が開く入口は、何が起きるかを押す前に読めない」. ⚠️ THE OPERATION WAS
-   * REJECTED ONCE, on 2026-08-25, and HF-2 keeps that history: the reason then
-   * was that nothing paired with the closing control, and HR-3 is that pair now
-   * -- so the ruling of 2026-08-30 restored it.
+   * ⛔ A separate entrance from IC-58, not a second reading of it (HF-13).
    */
   rowExpanderOpenOneLevel: 'IC-90',
   /**
-   * IC-91 -- HF-14 of table T-051, which is HR-8 of table T-015: one row is
-   * added UNDER the row this control was drawn on.
+   * IC-91 -- HF-14 of table T-051 (HR-8): one row is added under this row.
    *
-   * ⭐ UNDER AND NOT BESIDE (MUST): 「足す先は配下とすること」, and 「同じ段へ
-   * 置きたいときは、足したあと動かす」 (HF-15). ⛔ NOT `rowDelete` WEARING A
-   * PLUS: the shape is a framed `＋` precisely so that it is not IC-74's bare
-   * one, and the two entrances write two different rows of table T-108.
-   * ⚠️ THE PRESS WRITES NOTHING BY ITSELF -- see `commandFromRowEntry`, which
-   * answers it with an in-place edit rather than a command, because HF-14
-   * (MUST NOT) forbids a default name and CM-26 refuses a row that has neither
-   * a name nor a derivation source.
+   * The press stands the row up with the default name and names it through
+   * FR-085's road -- see `commandFromRowEntry`.
    */
   rowAddChild: 'IC-91',
   /**
-   * IC-74 -- HF-10 of table T-051, which is HR-1 of table T-015: every row in
-   * the document opens.
+   * IC-74 -- HF-10 of table T-051 (HR-1): every row opens.
    *
-   * ⛔ NOT ONE OF THE THREE DRAWN PER ROW, although it sits on the same panel.
-   * HF-10 (MUST) puts ONE of it at the top of the `Row Title Panel`, so no row
-   * of the panel is its subject and `ScreenPart.rowGroupId` is null under it --
-   * which is why it is answered beside `commandFromRowEntry` and not inside it.
-   * ⭐ IT IS WHAT SAVES A TOP-LEVEL ROW: HF-3 lets such a row fold itself, and
-   * HF-3's own note records that there is then no row above to open it.
+   * ⛔ Not drawn per row: HF-10 puts one at the top of the panel, so
+   * `ScreenPart.rowGroupId` is null under it, and it is answered beside
+   * `commandFromRowEntry`, not inside it.
    */
   rowExpanderOpenAll: 'IC-74',
   /**
-   * IC-78 -- HF-12 of table T-051, which is HR-2 of table T-015: every row in
-   * the document folds.
-   *
-   * ⭐ HF-12 PLACES IT BESIDE IC-74 and takes that row's placement, so what is
-   * said of `rowExpanderOpenAll` above holds of this one word for word: no row
-   * of the panel is its subject, and `ScreenPart.rowGroupId` is null under it.
-   * ⛔ IT IS NOT HF-8. That row DISCARDS the folds a person made, as part of
-   * the whole-view; this one makes them.
+   * IC-78 -- HF-12 of table T-051 (HR-2): every row folds. Placed beside IC-74,
+   * so `ScreenPart.rowGroupId` is null under it too.
+   * ⛔ Not HF-8, which discards folds rather than making them.
    */
   rowExpanderCloseAll: 'IC-78',
   /**
-   * IC-92 -- HF-16 of table T-051, which is HR-7 of table T-015 pressed at
-   * 段 0: 「最も浅い段を 1 階層だけ開く」.
-   *
-   * ⭐ TWO ROWS NAME IT AS THE WAY BACK. HR-2 (MUST) folds 段 0 itself and says
-   * 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」; HR-6 (MUST) sends
-   * a hidden row with no parent here -- 「親を持たない最上位の行は、段 0 の同じ
-   * 操作子で戻せること」.
-   * ⛔ NOT IC-74 UNDER A SECOND NAME (HF-16, MUST NOT): 「`HF-10`（すべて開く）に
-   * 兼ねさせてはならない」, for HF-13's reason -- an entrance that opens a
-   * different amount each press cannot be read before it is pressed.
+   * IC-92 -- HF-16 of table T-051, HR-7 pressed at 段 0; the way back for HR-2
+   * and HR-6. ⛔ Not IC-74 under a second name (HF-16).
    */
   rowExpanderOpenLevelZero: 'IC-92',
   /**
-   * IC-93 -- HF-17 of table T-051, which is HR-8 of table T-015 pressed at
-   * 段 0: 「最も浅い段へ行を 1 つ足す」.
-   *
-   * ⭐⭐ WITHOUT IT THE SHALLOWEST LEVEL CANNOT BE MADE AT ALL, which is that
-   * row's own reason: HR-8 adds 「配下に」 and 「行が 1 つも無い文書では押す相手が
-   * 存在しない」, while FR-085 requires a top-level row to be creatable.
-   * ⚠️ THE NAME IS TYPED IN PLACE, exactly as HF-14 has it for a row -- HF-17
-   * says so: 「名前の扱いは `HF-14` に従う」.
+   * IC-93 -- HF-17 of table T-051, HR-8 pressed at 段 0; without it the
+   * shallowest level cannot be created in an empty document. Naming follows
+   * HF-14.
    */
   rowAddTopRow: 'IC-93',
   /**
-   * IC-60 -- FR-098. U-48 `Row Pin` of table T-103.
-   *
-   * ⭐ ONE ENTRANCE FOR BOTH DIRECTIONS. FR-098 (MUST) has this same control
-   * take the pin off again and gives the reason -- one per row is settled, so a
-   * second entrance for the undoing would be the duplication FR-029 refuses.
+   * IC-60 -- FR-098. U-48 `Row Pin` of table T-103. One entrance for both
+   * directions (FR-098, FR-029).
    */
   rowPin: 'IC-60',
   /**
-   * IC-82 -- FR-032's deletion of a row, drawn once per row like the three
-   * above and the pin.
+   * IC-82 -- FR-032's deletion of the row the control was drawn on.
    *
-   * ⭐ ONE ROW GOES, AND IT IS THE ROW THE CONTROL WAS DRAWN ON. FR-085 (MUST)
-   * has rows chosen in the panel and names FR-032 among the requirements that
-   * read that set, but nothing STORES it (PND-142) and no row settles what a
-   * press on one row means while another row is chosen -- so this entrance
-   * names its own row, which is the shape IC-60 already takes.
-   * ⛔ NO CHAIN IS WORKED OUT HERE. CD-2 of table T-050 holds what goes with a
-   * row and `deleteTaskGroup` (CM-27) carries it out; a second reading of that
-   * chain on this side would be the same rule in two places (R2.7).
-   * ⛔ AND NO QUESTION IS BUILT HERE EITHER. FR-032 (MUST) asks before a row is
-   * deleted and table T-234's QN-1 is the sentence; `frame-loop.ts` raises it
-   * off the very command this returns, so this side owes only the command.
+   * The control's own row, not the chosen rows: nothing stores the chosen set
+   * (PND-142) and no row says what a press means while another row is chosen.
+   * ⛔ No chain here (CD-2 of table T-050, carried out by `deleteTaskGroup`,
+   * R2.7) and no question (`frame-loop.ts` raises QN-1 off the returned command).
    */
   rowDelete: 'IC-82',
   /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
   resourceRoster: 'IC-62',
   /**
-   * IC-63 / IC-64 / IC-65 -- the three entrances table T-109 draws ONCE in the
-   * roster's header, each of which REPLACES who is chosen there.
+   * IC-63 / IC-64 / IC-65 -- the roster header's entrances, each replacing who
+   * is chosen.
    *
-   * ⭐ THE NAMES ARE THE TABLE'S SENSE AND NOT ITS WORDS. IC-63 is 「一覧のすべて
-   * を選ぶ」 and IC-64 「一覧の選択をすべて解く」, which FR-099 (MUST) requires the
-   * choosing surface to carry. ⛔ IC-65 SELECTS and does not delete, although
-   * table T-109 names CM-43 beside it: FR-099's ⭐ paragraph settles that
-   * 「まとめて消す」 is done in TWO moves -- choose them all, then delete what is
-   * chosen -- so that the deleting entrance is exactly one (FR-029).
+   * ⛔ IC-65 selects and does not delete, although table T-109 names CM-43
+   * beside it: FR-099 deletes in two moves, so the deleting entrance stays one
+   * (FR-029).
    */
   rosterChooseAll: 'IC-63',
   rosterClearChosen: 'IC-64',
   rosterChooseUnreferenced: 'IC-65',
   /**
-   * IC-67 / IC-68 -- the entrance FR-099 draws against ONE person, in the two
-   * states table T-109 gives it: IC-67 says this person is chosen and lets go by
-   * the same entrance, IC-68 says this person is not and takes them by it.
+   * IC-67 / IC-68 -- one control in two states against one person; a press on
+   * either turns that person's membership round.
    *
-   * ⭐ ONE CONTROL IN TWO STATES, which is the opposite of what IC-58 / IC-59
-   * are, and the table says so itself in both rows -- 「同じ入口で解く」 and
-   * 「同じ入口で選ぶ」. So a press on either means the same thing: turn this
-   * person's membership round.
-   * ⚠️ WHICH WAY ROUND IS NOT READ OFF THE DRAWN ENTRY, for the reason
-   * `commandFromRowEntry` gives at the pin -- a drawn screen is as old as the
-   * last paint and FR-048 lets a paint be skipped. The set itself is
-   * `ScreenSession.selectedResourceUids`, which the shell holds, so the shell is
-   * the side that can answer which way this press goes.
+   * ⚠️ Which way is not read off the drawn entry: a drawn screen can be a paint
+   * behind (FR-048), and the set is `ScreenSession.selectedResourceUids`, which
+   * the shell holds.
    */
   rosterChosen: 'IC-67',
   rosterUnchosen: 'IC-68',
 } as const
 
-// ⭐ IC-53's ROAD IS COMPLETE, AND IT RUNS THROUGH THREE UNITS. A STOP note
-// stood here while it did not, naming what each side owed; all of it has since
-// been written, so what is left is the map:
+// IC-53's drag runs through three units:
 //
-//   1. `dom-screen-surface.ts` (PI-38) lays the band across the palette's TOP
-//      EDGE and marks it with `data-icon`, so `readScreenPartAt` (IF-9)
-//      answers `{ part: 'Command Palette', entry: 'IC-53' }` for a point on it
-//      and the assignment above is reached. ⭐ IT IS THE ONLY UNIT THAT CAN:
-//      the band is as wide as the palette, and FR-053 (MUST) makes the size
-//      follow the contents while (MUST NOT) forbidding any table to hold one,
-//      so the side that laid the entries out is the only side that knows the
-//      width -- the rule Chapter 5.3 states under table T-065.
-//   2. The band's HEIGHT is `S-135a` of table T-206, and it reaches `src/` as
-//      a generated `NOT_STORED_` block in `command-palette.ts` rather than as
-//      a number typed anywhere (rule 03 section 1).
+//   1. `dom-screen-surface.ts` (PI-38) lays the band across the palette's top
+//      edge with `data-icon`, so `readScreenPartAt` (IF-9) answers
+//      `{ part: 'Command Palette', entry: 'IC-53' }`. Only it knows the width,
+//      since FR-053 sizes the palette by its contents (Chapter 5.3, table T-065).
+//   2. The band's height is `S-135a` of table T-206, generated into
+//      `command-palette.ts`.
 //   3. `frame-loop.ts` records the press, fills `PointerPress.followedTo` so
-//      that `paletteFollow` below reports FR-053's following, holds
-//      `ScreenSession.commandPaletteAt` and moves it by each travel.
-//   4. That same file keeps the corner the drag BEGAN at, because FR-053 names
-//      IN-1 of table T-028 in the same breath and owes the original corner
-//      back on an interruption -- `Esc`, or IN-1a's lost pointer.
+//      `paletteFollow` reports the following, holds
+//      `ScreenSession.commandPaletteAt`, and keeps the start corner for IN-1's
+//      interruption (`Esc`, IN-1a's lost pointer).
 //
-// ⚠️ THE BAND MUST STAY LAID OVER WHAT IT COVERS. GR-19 stands first in table
-// T-023d and that table's preamble makes the first row win (MUST), and
-// `press.on` is the drawing side's own answer -- so the priority is kept by
-// what is DRAWN over what, and nothing here enforces it.
-// Searched: FR-053, table T-028 (IN-1 / IN-1a / IN-4), table T-023d GR-19,
-// table T-109, table T-203, table T-206.
+// ⚠️ The band must stay drawn over what it covers: GR-19 wins table T-023d by
+// being first, and `press.on` is the drawing side's answer, so nothing here
+// enforces the priority.
 
 /**
- * The entries that flip ONE boolean row of table T-202, and which row each one
- * flips.
+ * What FR-049's toggles name, derived from the command.
  *
- * ⭐ THE SET IS FR-049's, NARROWED TWICE. FR-049 (MUST) limits the toggles to
- * the rows of table T-202 whose type is boolean and (MUST NOT) forbids
- * treating every row of that table as one; `VisibleElement` is what those rows are called, and
- * table T-109 draws an entrance for only some of them. ⛔ NO COUNT IS WRITTEN
- * HERE: FR-049 states none, table T-202 has gained and lost a boolean row since
- * this note first named a number, and the number went stale in the same breath.
- * The rows with no entrance are left alone rather than given one, the way
- * `commandFromRowEntry` leaves table T-015's entrance-less operations alone.
- *
- * ⛔⛔ IC-41 IS OUT OF THIS MAP, AND SINCE 2026-09-02 THE PLAINEST REASON IS
- * THAT ITS ROW LEFT TABLE T-202 (利用者の裁定, CR-335): `S-144` stands in table
- * T-206 now, so FR-049 -- which reads that FIRST table -- cannot reach it at
- * all. ⭐ The older reason still holds and is the one that matters if the row
- * ever moves back: FR-020 (MUST NOT) refuses it the symmetric reading outright
- * -- 「対称な切り替えにしてはならない …… 切り替えは 2 つの向きを見分けられない
- * ので、消す側の門をすり抜ける」 -- because a toggle cannot tell the gated
- * direction from the ungated one. ⇒ The row is not a toggle and may not become
- * one; `ENTRY.watermark` carries the whole of what it is.
- *
- * ⚠️ IC-4 IS ON THE HEADER AND THE REST ON THE PALETTE, which is why they are
- * one map and not two: what a press does is the same rule for all of them, and
- * the surface an entry is drawn on is table T-109's business rather than this
- * file's.
- */
-/**
- * What FR-049's toggles name, taken off the command rather than imported.
- *
- * ⛔ IT WAS IMPORTED, AND CHECK 26b REFUSED IT. `VisibleElement` is published by
- * `EditDocument`, and table T-064 -- which calls itself the full count of what
- * may be reached across a component folder -- does not name it. Naming it there
- * would widen LR-2's fence by one for a type this file never needs by NAME: it
- * only ever names the `element` member of one `DocumentCommand` variant, and
- * that command already crosses as `PI-8`.
- *
- * ⭐ So it is derived, the way `GuideCursorMode` and `PlanActualDisplay` below
- * are. Deriving cannot drift: rename or re-spell a member over in
- * `edit-document-settings.ts` and this stops compiling.
+ * Not imported: table T-064 does not name `VisibleElement`, and check 26b
+ * refuses the import (LR-2). Derived like `GuideCursorMode` and `FontScale`
+ * below, so a renamed member stops this compiling.
  */
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
 
+/**
+ * The entries that flip one boolean row of table T-202, and which row.
+ *
+ * FR-049's boolean rows, narrowed to those table T-109 gives an entrance.
+ * ⛔ IC-41 is out: `S-144` is in table T-206, and FR-020 (MUST NOT) forbids a
+ * symmetric toggle even if the row moved back; `ENTRY.watermark` carries it.
+ * IC-4 sits on the header and the rest on the palette; one map, because the
+ * press rule is the same.
+ */
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
   'IC-4': 'baselineVisible',
   'IC-8': 'planVisible',
@@ -2893,19 +1892,11 @@ function visibleElementOfEntry(entry: string): VisibleElement | null {
 type GuideCursorMode = Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode']
 
 /**
- * The value each of IC-47 and IC-48 puts into S-66.
+ * The value each of IC-47 and IC-48 puts into S-66, as table T-109 and S-66
+ * spell them.
  *
- * ⭐ THE SPELLINGS ARE COPIED, THE SET IS NOT INVENTED. Table T-109 prints
- * these two values verbatim in these two rows and S-66 holds them, so this is
- * the join between a row id and a value both documents already spell (rule 03
- * section 1). The type above is the compiler's check that no other spelling can
- * be written here.
- *
- * ⛔ 'none' IS NOT IN THIS MAP AND MAY NOT BE PUT BACK. It is still one of the
- * three values S-66 admits, but FR-048 (MUST NOT) 「消すための別の入口を置いて
- * はならない」 and ⭐ 「`'none'` は値として残るが自分の入口を持たない」 -- it is
- * reached only by pressing again the entry that is standing.
- * ⛔ 'double-vertical' IS NOT A VALUE AT ALL SINCE 2026-09-06 (CU-3, MUST NOT).
+ * ⛔ 'none' is not in this map and may not be put back: FR-048 gives it no
+ * entrance; it is reached by pressing the standing entry again.
  */
 const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, GuideCursorMode>> = {
   'IC-47': 'crosshair',
@@ -2923,28 +1914,18 @@ function guideCursorModeOfEntry(entry: string): GuideCursorMode | null {
 type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['scale']
 
 /**
- * The steps of S-70, in the order table T-215 prints them.
+ * The steps of S-70, in the order table T-215 prints them (ascending by size),
+ * which is the order IC-99 steps through.
  *
- * ⭐ THE SPELLINGS ARE COPIED AND THE SET IS NOT INVENTED, the same move
- * `GUIDE_CURSOR_MODE_BY_ENTRY` above makes: S-70 prints these three verbatim and
- * the type over it is the compiler's check that no fourth can be written here.
- * ⭐ THE ORDER IS TABLE T-215's AND NOT THIS FILE'S. That table prints S, M then
- * L, and its own bounds (S-121 .. S-123) keep them in that order by size, so
- * stepping along it is stepping up in px -- which is what IC-99's own row of
- * table T-109 says a press does, and what the dictionary word beside it says.
- * ⛔ NO px IS WRITTEN HERE. What each step measures is `fontScaleSizes`, which
- * table T-215 holds and `edit-document-settings.ts` reads on the write side.
+ * ⛔ No px here: `fontScaleSizes` is table T-215's, read on the write side.
  */
 const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
 
 /**
- * The step a press on IC-99 moves to, wrapping past the last one.
+ * The step a press on IC-99 moves to, wrapping past the last one (IC-99's row).
  *
- * ⭐ WRAPPING IS NOT A CHOICE MADE HERE EITHER. FR-029 (MUST NOT) forbids a
- * second entrance for one function, so IC-99 is the only way to S-70 -- and one
- * entrance reaches all three steps only by going round. IC-99's row states it.
- * ⚠️ A value outside the three answers the first step, so a document that
- * arrives holding something S-70 does not admit still moves rather than sticking.
+ * ⚠️ A value outside the three answers the first step, so a document holding
+ * something S-70 does not admit still moves rather than sticking.
  *
  * @purity pure
  */
@@ -2954,18 +1935,13 @@ function nextFontScale(current: FontScale): FontScale {
 }
 
 /**
- * The palette entries that arm, and what each one arms -- table T-023b through
+ * The palette entries that arm, and what each arms -- table T-023b through
  * table T-109's `Command Palette` rows.
  *
- * ⭐ THE SPELLINGS ARE NOT INVENTED HERE. The four task shapes are
- * `TaskShapeKind`'s, which the generator writes from table T-012's SH-1 .. SH-4;
- * the eight glyphs are `TaskMilestoneGlyph`'s, in the order SH-5 prints them,
- * which is the order table T-109 places IC-27 .. IC-34 in and the order S-48
- * fixes as the order of their areas.
- * ⚠️ `Armed` types both as bare strings (`screen-state.ts` says the
- * specification has not settled them as names), so nothing here is checked by
- * the compiler against those unions -- which is why the two orders are stated
- * above and are the thing to re-read if a row moves.
+ * Task shapes are `TaskShapeKind`'s (SH-1 .. SH-4); glyphs are
+ * `TaskMilestoneGlyph`'s, in SH-5's order, which table T-109 follows.
+ * ⚠️ `Armed` types both as bare strings, so the compiler does not check these
+ * against the unions -- re-read the orders if a row moves.
  */
 const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-23': { kind: 'taskShape', shapeKind: 'rectangle' },
@@ -2980,11 +1956,8 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-32': { kind: 'milestoneShape', glyph: 'star' },
   'IC-33': { kind: 'milestoneShape', glyph: 'triangleUp' },
   'IC-34': { kind: 'milestoneShape', glyph: 'triangleDown' },
-  // ⭐ The seven SH-5 gained on 2026-08-29. ⛔ WITHOUT THESE THE ENTRIES ARE
-  // DRAWN AND INERT: the roster carries their `armsShape`, the figure carries
-  // their glyph and the enum admits their spelling, and a press on one of them
-  // still armed nothing -- measured in the shipped page, where setting IC-88 on
-  // a selected milestone left a ◇ while IC-32 turned it into a ☆.
+  // ⛔ Without these rows the entries are drawn but arm nothing: the roster,
+  // figure and enum all admit them, and nothing else fails.
   'IC-83': { kind: 'milestoneShape', glyph: 'file' },
   'IC-84': { kind: 'milestoneShape', glyph: 'box' },
   'IC-85': { kind: 'milestoneShape', glyph: 'floppyDisk' },
@@ -3010,10 +1983,9 @@ function armedByEntry(entry: string): Armed | null {
 /**
  * Whether two arms are the same one, which is what SP-4 turns on.
  *
- * ⚠️ The shape and the glyph are compared as well as the kind: SP-4 says 「構え
- * ている入口を再び押した」, and IC-30 and IC-31 are different ENTRIES although
- * both are `milestoneShape`. Comparing the kind alone would let a press on the
- * square disarm the diamond.
+ * ⚠️ Shape and glyph are compared too: IC-30 and IC-31 are different entries of
+ * the same kind, and comparing kinds alone would let the square disarm the
+ * diamond.
  *
  * @purity pure
  */
@@ -3034,8 +2006,7 @@ function isSameArm(held: Armed, pressed: Armed): boolean {
  * What one happening is assigned to, and whether the browser must be silenced.
  *
  * The assignments are table T-023 and table T-036 (PI-18). Table T-023a decides
- * a press before either of them is read, and its own note limits that decision
- * order to the schedule's drawing area.
+ * a press first, within the schedule's drawing area only.
  *
  * @purity pure
  */
@@ -3052,36 +2023,23 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
 
 // ------------------------------------------- PI-18: a settled field value ---
 //
-// ⭐ WHAT THIS MEMBER IS FOR. Table T-064 gives PI-18 a member that turns a
-// value settled in the `Properties Panel` into a row of table T-108, and IF-9
-// is the seam it arrives over. FR-006 (with the paragraph under table T-016)
-// makes every item but the read-only one editable, FR-042 adds a picked row's
-// colour and height, and FR-009 adds the dependency line's lag.
+// PI-18's member (table T-064) turning a value settled in the `Properties
+// Panel` (IF-9) into rows of table T-108.
 //
-// ⭐ ONE COMMAND, ONE UNDO STEP. FR-031 (MUST) makes one document-changing
-// operation one step of the undo history and UN-3 of table T-027 names the
-// change of a Task property as one -- so the answer is a LIST that the caller
-// writes as one bundle, exactly as `PlanInput.commands` carries a drag's
-// several rows. ⛔ An empty list is what "this settled value changes nothing"
-// looks like, and it must not be written: an empty write is still a write, and
-// WS-4 would push a step for an edit nobody made.
+// The answer is a list the caller writes as one bundle, so one settled value is
+// one undo step (FR-031). An empty list must not be written: WS-4 would push a
+// step for an edit nobody made.
 //
-// ⛔ NO SUBJECT IS WORKED OUT HERE. `FieldCommit.key` says which column of
-// which thing the panel drew the control for, because the panel had already
-// applied FR-072's and table T-023c's rule about which of several picked things
-// it describes -- reading that rule again on this side would be the same
-// arithmetic in two places (rule 03 section 4), and the two readings would
-// disagree the moment a selection changed between the frame that drew the field
-// and the frame that collects the commit.
+// No subject is worked out here: `FieldCommit.key` already names the column the
+// panel drew (FR-072, table T-023c). Re-reading that rule on this side would
+// disagree with the panel whenever the selection changed between drawing and
+// commit.
 
 /**
- * What a settled text means for a column that may be empty.
+ * What a settled text means for a nullable column.
  *
- * ⚠️ THE EMPTY STRING IS `null` AND NOT A REFUSAL. Every column table T-016
- * offers is nullable in `_source/grs-document.schema.json`, and FR-007 turns on
- * the difference between a value a person chose and one that was never set --
- * so clearing a field is how a person says the second, and it has to reach the
- * document.
+ * The empty string is `null`, not a refusal: clearing a field is how a person
+ * says "never set", which FR-007 tells apart from a chosen value.
  *
  * @purity pure
  */
@@ -3091,15 +2049,11 @@ function settledText(text: string): string | null {
 }
 
 /**
- * The same for a column that holds a number.
+ * The same for a number column.
  *
- * ⛔ `undefined` IS A REFUSAL AND `null` IS AN EMPTY COLUMN, and the two are
- * held apart on purpose: a host that hands back something that is not a number
- * has not been settled on anything, and writing 0 in its place would put a
- * value in the document that nobody typed. ⚠️ The bounds are NOT checked here:
- * `_source/grs-document.schema.json` states them, the controls carry them
- * (`PropertyControl.min` / `max`), and the write path judges them -- a third
- * reading would be a third place the same rule lives.
+ * `undefined` is a refusal and `null` an empty column: writing 0 for a
+ * non-number would put a value nobody typed into the document. Bounds are not
+ * checked here; the write path judges them.
  *
  * @purity pure
  */
@@ -3111,12 +2065,9 @@ function settledNumber(text: string): number | null | undefined {
 }
 
 /**
- * The same for a date column, in the spelling the document keeps.
+ * The same for a date column, spelled the way the document keeps dates.
  *
- * ⭐ FR-054 (MUST) takes the lexical date part and converts no zone, and
- * `dayOf` / `textOfDay` are the one place that reading and that writing live --
- * so a day the host handed back as `YYYY-MM-DD` leaves here spelled the way
- * every other date the tool decided is (EX-7 of table T-033).
+ * `dayOf` / `textOfDay` are the one place FR-054's reading and writing live.
  *
  * @purity pure
  */
@@ -3132,25 +2083,20 @@ function settledTruth(text: string): boolean {
   return text.trim() === String(true)
 }
 
-/** One drawn column whose values are an enumeration. */
 type VisualColumn = keyof Schedule['taskVisuals'][number]
 
-// ⭐ DERIVED FROM THE COLUMN AND NOT IMPORTED UNDER A NAME OF ITS OWN, the way
-// `PlacedPlanActual` below is: table T-064 is the whole count of what may cross
-// a component folder, and neither of these two is on it.
+// Derived from the column rather than imported: table T-064 limits what may
+// cross a component folder, and neither type is on it.
 type TaskLineWeight = NonNullable<Schedule['taskVisuals'][number]['lineWeight']>
 type TaskNameAlign = NonNullable<Schedule['taskVisuals'][number]['nameAlign']>
 
 /**
  * Whether a settled word is one of the values a drawn column admits.
  *
- * ⛔ THE ROSTER IS NOT WRITTEN OUT. `COLUMN_SHAPES` is the schema's own
- * enumeration generated into src/, and the paragraph under table T-016 (MUST
- * NOT) forbids the choices to be stated a second time -- so a value the
- * manuscript adds is admitted here without anyone editing a list. ⚠️ Where the
- * enumeration reaches a `DocumentCommand`, the cast is what says the two
- * rosters are the same one: both are generated from `erd.json`, and a value
- * that stopped being in the schema would stop compiling on the command's side.
+ * The roster is `COLUMN_SHAPES` (generated from the schema), never written out
+ * here (the paragraph under table T-016, MUST NOT). Where the value reaches a
+ * `DocumentCommand`, the cast relies on both rosters being generated from
+ * `erd.json`.
  *
  * @purity pure
  */
@@ -3159,33 +2105,21 @@ function isVisualChoice(column: VisualColumn, value: string): boolean {
 }
 
 /**
- * The five columns of table T-019, with the one a person just settled replaced.
+ * The five columns of table T-019 with the one a person settled replaced, as the
+ * row CM-13 places.
  *
- * ⛔ NO STATE IS CHOSEN HERE EITHER, for the reason `actualEndPlacement` gives:
- * CM-13 places a WHOLE row of table T-019 while a field carries one column, so
- * the row is read off the columns as they will stand with `planActualState`
- * (table T-019a) and written back with the values table T-019 gives that row.
- * ⚠️ The join between the two tables is the STATE both of them print and not
- * their numbering.
+ * CM-13 places a whole row while a field carries one column, so the row is read
+ * off the resulting columns with `planActualState` (table T-019a); the two tables
+ * join on the state, not on their numbering.
  *
- * ⚠️ `null` WHERE THE ROW CANNOT BE WRITTEN. Four of the five rows of table
- * T-019 require `actualStart` AND `actualDuration`, so settling a resume date
- * on a task that has no actual yet names a row that cannot be filled; nothing
- * is written rather than a duration invented here.
- *
- * ⚠️ ONE COLUMN IS SETTLED IN PAIRS AND THAT IS NOT A STATE BEING CHOSEN.
- * FR-044 (MUST) binds `resume` and `resumeValid` in BOTH directions -- placing a
- * resume date turns `resumeValid` on, clearing one turns it off -- so a settling
- * that touches the date writes the pair before the row is read off below. The
- * branch says why the second half is not left to `planActualState`.
+ * `null` where the row cannot be written: four of the five rows need
+ * `actualStart` and `actualDuration`, and no duration is invented here.
  *
  * @purity pure
  */
 function planActualWithColumn(task: Task, column: keyof Task, text: string): PlacedPlanActual | null {
   const next: Task = { ...task }
-  // ⚠️ The one column a person settled is written by NAME, because a field
-  // carries one column and CM-13 takes all five: spelling five arms instead
-  // would repeat the classification below five times.
+  // Written by name: five arms would repeat the classification below five times.
   const written = next as unknown as { [key: string]: unknown }
   if (column === 'resumeValid') {
     written[column] = settledTruth(text)
@@ -3197,32 +2131,12 @@ function planActualWithColumn(task: Task, column: keyof Task, text: string): Pla
     const day = settledDay(text)
     if (day === undefined) return null
     written[column] = day
-    // ⭐ FR-044's CLOSING MUST, WHICH IS PA-3's PAIRING READ THE OTHER WAY
-    // ROUND: 「置いた再開日を消したときは、`resumeValid` を `false` に戻すこと
-    // （MUST）—— 戻さないと表 T-019a の `PS-5` に落ち、日付を消しただけで中断が
-    // 黙って解ける」. ⛔ WITHOUT THIS LINE THE REQUIREMENT'S OWN WARNING IS THE
-    // BEHAVIOUR: `resumeValid` stays `true`, `planActualState` below falls past
-    // PS-3 and PS-4 to PS-5, and the row that leaves here is PA-2 (進行中) --
-    // so `edit-task.ts` writes `resumeValid: true` back into a document column
-    // 表 T-058 requires, and the suspension is gone with nothing said.
-    // ⛔ ONLY WHERE A DATE ACTUALLY STOOD THERE. The requirement speaks of
-    // 「置いた再開日を消したとき」, and `false` for a column that was already
-    // empty would take a task PS-5 holds (進行中) into PS-3's 中断・再開日未定 --
-    // a suspension nobody asked for. ⚠️ The pair is written HERE and not judged
-    // in `edit-task.ts`: table T-019 is 「`GRS` が置く値」 and CM-13 places a
-    // whole row of it, so the row this settling names is the thing to get
-    // right -- a second reading on the write side would be the same rule in
-    // two places (rule 03 section 4).
-    // ⭐⭐ THE OTHER HALF OF THE SAME REQUIREMENT, and it was still broken when
-    // the erase half above landed: 「再開予定日を置いたとき、`resumeValid` を
-    // `true` にすること（MUST）」. FR-044 names the failure beside the clause --
-    // 「置かないと表 T-019a の `PS-3` が先に当たり、日付を置いても状態が変わら
-    // ない」 -- and that is exactly what a spec-only body measured on 2026-09-06:
-    // a task on `PA-4` (中断・再開日未定, so `resumeValid` false) took a resume
-    // date and stayed on `PA-4`, the date discarded. ⛔ `PA-4` is the ONE state
-    // from which putting a date is a new act, because FR-044 also allows
-    // 「再開日を未定のままにもできること」, so this was the whole point of the
-    // column.
+    // FR-044 binds `resumeValid` to `resume` both ways, written before the row
+    // is read. Without `true` a date put on PA-4 is discarded and the state
+    // stays; without `false` a cleared date falls to PS-5 and the suspension
+    // silently ends. `false` only where a date stood: on an empty column it
+    // would suspend a task PS-5 holds. Judged here, not in `edit-task.ts`,
+    // because CM-13 places the whole row this settling names.
     if (column === 'resume' && day !== null) {
       written['resumeValid'] = true
     }
@@ -3264,21 +2178,13 @@ const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
 ]
 
 /**
- * A value settled on a column of `Task` -- table T-016's rows that hold one.
+ * A value settled on a column of `Task` (table T-016).
  *
- * ⚠️ `PR-3` IS THE ONE ROW THAT NEEDS ITS SIBLING. CM-11 places the plan's two
- * dates together, so the column a person did NOT settle is carried from the
- * task as it stands -- which is also what keeps FR-006's 「片方だけが動く状態を
- * 作らない」.
+ * PR-3 carries its sibling: CM-11 places both plan dates, so the unsettled one is
+ * taken from the task as it stands (FR-006).
  *
- * ⭐ EVERY ITEM OF TABLE T-016 THAT IS A COLUMN OF `Task` NOW HAS A ROW OF
- * TABLE T-108 TO BECOME. ⚠️ The milestone truth value was the last one that did
- * not, and CR-271 took its item off that table on the ground FR-029 states: an
- * entrance that writes nothing. The column itself stays (AT-30 of the ERD, for
- * the exchange partner), and nothing here writes it.
- * ⚠️ `PR-16` (the assignee) is not dispatched here at all: it is CM-40 / CM-44 /
- * CM-45, and `commandsFromAssignee` below is where it goes -- that item is not a
- * column of `Task`, so it is dispatched on its row id instead.
+ * PR-16 (the assignee) is not a `Task` column; `commandsFromAssignee` takes it by
+ * row id.
  *
  * @purity pure
  */
@@ -3302,9 +2208,8 @@ function commandFromTaskColumn(
     case 'start':
     case 'finish': {
       const settled = settledDay(text)
-      // ⛔ CM-11 takes both dates and neither is nullable, so a cleared field
-      // names no command: emptying one end of a plan is not a change table
-      // T-108 has a row for.
+      // CM-11 takes both dates and neither is nullable, so a cleared field
+      // names no command.
       if (settled === undefined || settled === null) return []
       const start = column === 'start' ? settled : task.start
       const finish = column === 'finish' ? settled : task.finish
@@ -3333,26 +2238,14 @@ function commandFromTaskColumn(
 }
 
 /**
- * A value settled on a column of `TaskVisual` -- FR-007's colours and weight,
- * FR-078's glyph and FR-002's name placement.
+ * A value settled on a column of `TaskVisual` (FR-007's colours and weight,
+ * FR-078's glyph, FR-002's name placement).
  *
- * ⛔ NO ARM FOR THE SHAPE, and its absence is the rule rather than a gap.
- * CR-271 took the shape item off table T-016 because FR-083 leaves the shape to
- * the palette, and FR-029's note names that as the reason the item has no
- * surface left that edits it as a value -- so a settled value can no longer
- * reach this function naming that column, and an arm for it here would be an
- * entrance no table opens.
+ * No arm for the shape: FR-083 leaves it to the palette and table T-016 has no
+ * item for it, so an arm here would be an entrance no table opens.
  *
- * ⭐ CM-22 AND CM-23 ARE ONE ITEM WITH TWO ROWS. That pair places both colours
- * at once and resetting them to the theme is its own command, so a colour
- * cleared to nothing is CM-23 and a colour chosen is CM-22 with the OTHER
- * colour carried -- writing `null` through CM-22 would say "this one colour was
- * chosen to be nothing", which is not a state FR-007 has.
- *
- * ⚠️ A choice is passed through as the text the control held. The candidates
- * came from `COLUMN_SHAPES`, which is the schema's own enumeration, so a value
- * that is not one of them cannot have been chosen -- and the write path judges
- * it besides.
+ * Both colours empty is CM-23 (back to the theme); anything else is CM-22 with
+ * the other colour carried.
  *
  * @purity pure
  */
@@ -3368,9 +2261,8 @@ function commandFromVisualColumn(
     case 'milestoneGlyph': {
       const held = settledText(text)
       const glyph = held === null ? null : milestoneGlyphOf(held)
-      // ⚠️ An unknown word is not the same as a cleared field: the first is a
-      // value nobody could have chosen, the second is FR-078's 「置いた後も
-      // 変えられる」 being undone.
+      // An unknown word is a value nobody could have chosen; a cleared field
+      // takes the glyph off (FR-078).
       if (held !== null && glyph === null) return []
       return [{ kind: 'setTaskVisualMilestoneGlyph', uid, glyph }]
     }
@@ -3405,11 +2297,10 @@ function commandFromVisualColumn(
 }
 
 /**
- * A value settled on the row FR-042 (MUST) puts on this same panel.
+ * A value settled on the row FR-042 puts on this panel.
  *
- * ⭐ CM-30 AND CM-31 ARE THE SAME PAIR CM-22 AND CM-23 ARE, for the same
- * reason: a row whose colour is cleared follows the theme again (AT-58), which
- * is its own command, and CM-30 takes a colour that is not nullable.
+ * CM-30 / CM-31 pair like CM-22 / CM-23: a cleared colour follows the theme again
+ * (AT-58) through its own command, and CM-30's colour is not nullable.
  *
  * @purity pure
  */
@@ -3420,14 +2311,9 @@ function commandFromGroupColumn(
 ): readonly DocumentCommand[] {
   switch (column) {
     case 'label': {
-      // AT-53, the row's name, which FR-042 (MUST) puts on the panel since the
-      // user's ruling of 2026-09-01 and FR-085 makes MK-13's double click open.
-      // ⭐ CM-34's own command, not a new one: `setTaskGroupLabel` is the write
-      // FR-085 already had for renaming a row that stands.
-      // ⚠️ AN EMPTIED FIELD IS `null` AND NOT `''`, which is the spelling AT-53
-      // gives 「名前が無い」 -- and the use case refuses it for a row that has no
-      // derivation source either (AT-54, FR-058's MUST NOT), so a name cleared
-      // off a row that needs one is turned back there rather than here.
+      // AT-53 (FR-042, FR-085), written with CM-29. An emptied field is `null`,
+      // AT-53's "no name"; a row that needs a name (AT-54, FR-058) is refused by
+      // the use case, not here.
       return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
     }
     case 'color': {
@@ -3448,16 +2334,13 @@ function commandFromGroupColumn(
 /**
  * A value settled on the dependency line FR-009 puts on the panel.
  *
- * STOP -- ⛔ ONLY ONE OF THE THREE COLUMNS HAS A ROW OF TABLE T-108. FR-009
- * (MUST) has the panel show the kind, the lag and both ends, and CM-38 writes
- * the lag; the roster holds no command that changes `linkType` and none that
- * moves a dependency from one predecessor to another (CM-36 draws one and CM-37
- * deletes it). Looked in table T-108, FR-009, table T-058 (AT-45 / AT-46) and
- * table T-018. Nothing is written for the other two rather than a command
- * minted here.
+ * STOP -- only the lag has a row of table T-108 (CM-38); no command changes
+ * `linkType` or moves a dependency to another predecessor (CM-36 draws one,
+ * CM-37 deletes one). Looked in table T-108, FR-009, table T-058 (AT-45 / AT-46)
+ * and table T-018. Nothing is written for the other two columns.
  *
- * ⚠️ CM-38's lag is NOT nullable, and `edit-dependency.ts` records why: S-117
- * gives 0 the meaning 「間を空けない」, so a cleared field names no command.
+ * CM-38's lag is not nullable (see `edit-dependency.ts`), so a cleared field
+ * names no command.
  *
  * @purity pure
  */
@@ -3474,23 +2357,14 @@ function commandFromDependencyColumn(
 }
 
 /**
- * The document's own columns, of which exactly one is settled in a field: the
- * name, in the header (`U-27` of table T-103).
+ * The document's own columns; only the name (`U-27` of table T-103) is settled
+ * in a field.
  *
- * ⭐ CM-1 OF TABLE T-108 IS THE WHOLE ANSWER, and FR-035 is the one entrance to
- * it (FR-029): 「作成者が文書名を選んだとき、`GRS` は、その場で編集できるように
- * すること」. ⛔ NOTHING IS WRITTEN FOR ANY OTHER COLUMN OF `Project`, and that
- * is not a gap: 文書の基本情報 is FR-074's surface and CM-2 is its command, and
- * that requirement (MUST NOT) keeps the name out of it -- so no other column of
- * this holder is drawn as a field for a person to settle.
+ * CM-1 is the whole answer (FR-035). No other `Project` column is drawn as a
+ * field: FR-074's surface writes CM-2 and keeps the name out (MUST NOT).
  *
- * ⛔ THE EMPTY STRING IS NOT REFUSED HERE, AND THAT IS DELIBERATE. FR-035's
- * 「`title` に空文字を受け付けてはならない（MUST NOT）」 is CM-1's own rule and
- * `edit-project.ts` keeps it, where a refusal can be TOLD (FR-076); a second
- * reading written here would be a second place for one rule to live (rule 03
- * section 4). ⚠️ The field itself does not settle an empty value either -- 利用
- * 者の裁定 2026-09-06 has it put the value back instead -- so this arrives only
- * from a producer that is not that field.
+ * The empty title is not refused here: CM-1's rule lives in `edit-project.ts`,
+ * where the refusal can be told (FR-076).
  *
  * @purity pure
  */
@@ -3502,30 +2376,21 @@ function commandFromProjectColumn(column: string, text: string): readonly Docume
 /**
  * The row of table T-016 the assignee stands on.
  *
- * ⭐ THE ONE ITEM DISPATCHED BY ROW ID RATHER THAN BY COLUMN, and it has to be:
- * PR-16's own cell says the item is not a column of `Task`, so no arm of
- * `PropertyFieldKey` can name it, while IF-9 (「その欄が名乗る行 ID とともに
- * 返し」) fixes the row id as what comes back beside the key.
- * `properties-panel.ts` records the same join where it draws the control.
+ * Dispatched by row id, not column: PR-16 is not a `Task` column, so no arm of
+ * `PropertyFieldKey` names it, while IF-9 returns the row id beside the key.
  */
 const ASSIGNEE_ROW = 'PR-16'
 
 /**
- * AS-3's signal: 「`-` を確定した」 unassigns.
- *
- * ⚠️ A SPELLING THE SPECIFICATION FIXES, not a token minted here: AS-2 (MUST)
- * puts this one character where a name would stand, AS-3 (MUST) makes settling
- * it 解除, and AS-4 (MUST NOT) forbids a `Resource` ever to be made of it -- so
- * it can never collide with somebody's name.
+ * AS-3's unassign signal. The spelling is the specification's (AS-2), and AS-4
+ * forbids a `Resource` of it, so it never collides with a name.
  */
 const UNASSIGN_TOKEN = '-'
 
 /**
- * Every resource of the roster that carries one name, smallest uid first.
+ * The smallest uid carrying this name (AS-8).
  *
- * ⭐ AS-8 (MUST) settles what a name means when several people carry it: the
- * smaller uid, and (MUST NOT) no merging. ⚠️ The roster is scanned rather than
- * indexed because this runs once for one settled value, not once a frame.
+ * Scanned rather than indexed: this runs once per settled value, not per frame.
  *
  * @purity pure
  */
@@ -3539,21 +2404,13 @@ function resourceUidOfName(schedule: Schedule, name: string): number | null {
 }
 
 /**
- * The `uid` a candidate of PR-16's chooser carries, where the settled value is
- * one the roster still holds.
+ * The `uid` a candidate of PR-16's chooser carries, when the roster still holds
+ * it (AS-9).
  *
- * ⭐ AS-9 (MUST) IS WHY THIS EXISTS: 「プロパティパネルで `uid` を選んだ」
- * assigns to THAT `uid`, and the panel commits a candidate's value rather than
- * the word it showed (`PropertyControl.choiceValues`). ⚠️ A `uid` the roster no
- * longer holds answers `null` so that the settled value is read as a name
- * instead -- the document may have lost the person between the frame that drew
- * the chooser and the frame that collected the commit.
- *
- * ⚠️ ASKED BEFORE THE NAME IS, which is the order AS-9 forces: the chooser is
- * the only surface that settles this item, and everything it commits is a uid.
- * ⛔ It is asked of the ROSTER and not of the spelling alone, so a person whose
- * NAME is a row of digits is still reachable through AS-7 / AS-8 unless somebody
- * on the roster is numbered that.
+ * A `uid` no longer on the roster answers `null` so the text is read as a name:
+ * the person may have gone between drawing the chooser and the commit. Asked of
+ * the roster, not the spelling alone, so a name made of digits still reaches
+ * AS-7 / AS-8 unless someone is numbered that.
  *
  * @purity pure
  */
@@ -3564,25 +2421,15 @@ function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
 }
 
 /**
- * AS-3's 解除, for the one assignment it can name.
+ * AS-3's unassign, for the one assignment it can name. AS-7's release uses the
+ * same function.
  *
- * ⛔ SEVERAL ASSIGNEES ARE LEFT ALONE, AND THAT IS A GAP RATHER THAN A RULING.
- * AS-3 (MUST) unassigns 「その割当」-- one of them -- and the one-character
- * signal it travels by names no person, so a task carrying several says nothing
- * about WHICH. Looked in table T-225 (AS-3 / AS-5 / AS-6 / AS-9), FR-008 and
- * table T-016. Nothing is written where the task holds more than one, rather
- * than taking off a person the settler did not name.
+ * STOP -- a task with several assignees is left alone: which one to take off is
+ * not specified. Looked in table T-225 (AS-3 / AS-5 / AS-6 / AS-7 / AS-9),
+ * FR-008 and table T-016.
  *
- * ⭐ AS-7 BORROWS THIS SHAPE RATHER THAN GROWING A SECOND ONE. That row's own
- * 解除 是 「そのタスクに担当者が 1 人だけ就いていたときは、その割当を解くこと
- * （MUST）」, which is 表 T-108's `CM-45` under the same condition and the same
- * gap -- AS-7 says in as many words 「2 人以上が就いているタスクでどれを解くか
- * は、本表のどの行も定めていない」. One reading, one place.
- *
- * ⚠️ AN ASSIGNMENT WITH NO `Resource` IS NOT A SEATED PERSON. `Assignment`'s
- * resource key is nullable (AT-93/AT-94 are the FK columns IV-2 guards), and
- * `CM-45` names a Task-and-Resource PAIR -- so a null-resourced row can neither
- * be released nor stand for somebody who was there.
+ * An assignment with no `Resource` is skipped: CM-45 names a Task-and-Resource
+ * pair.
  *
  * @purity pure
  */
@@ -3599,40 +2446,16 @@ function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly Doc
 }
 
 /**
- * A `uid` or a name settled on PR-16, as the rows of table T-108 that put it in
- * the document.
+ * A `uid` or a name settled on PR-16, as rows of table T-108.
  *
- * ⭐ TWO SPELLINGS REACH HERE AND BOTH ARE THE SPECIFICATION'S. AS-9 (MUST)
- * has the chooser commit the `uid` of the person it named, while AS-7 / AS-8 /
- * AS-10 are all written about a NAME being received -- table T-225 keeps both
- * doors, and AS-10 names 「受け取った名前または `uid`」 in as many words. The
- * `uid` is asked first because the chooser is the only surface that settles this
- * item today and it commits nothing else.
+ * The `uid` is asked first because the chooser commits it (AS-9); a name is
+ * AS-7 / AS-8 / AS-10. Only AS-7 (a name not on the roster) also releases a sole
+ * assignee; AS-8 / AS-9 / AS-10 seat without taking anyone off. Nothing here is a
+ * rename (AS-7, MUST NOT).
  *
- * ⭐ WHAT EITHER MEANS IS 割り当てる, AND FOR AS-7 A 差し替え ON TOP OF IT.
- * AS-7 (MUST) makes a `Resource` of a name the roster does not hold 「から割り
- * 当てること」 and then (MUST) 「そのタスクに担当者が 1 人だけ就いていたときは、
- * その割当を解くこと」 -- 利用者の裁定 2026-09-08, 逐語 「差し替えでOK」.
- * ⛔ THAT RELEASE IS AS-7's ALONE AND REACHES NO FURTHER. A name or `uid` the
- * roster ALREADY holds travels by AS-8 / AS-9 / AS-10, and none of those rows
- * carries the 解除 clause -- the ruling's own next breath names the chooser as
- * the road for changing who is seated -- so the branch above seats and takes
- * nobody off. ⛔ Nor does it reach a task carrying two: AS-7 says 「2 人以上が
- * 就いているタスクでどれを解くかは、本表のどの行も定めていない」.
- * ⛔ AND NOTHING HERE IS A RENAME: AS-7 (MUST NOT) 「就いている担当者の改名と
- * して扱ってはならない」.
- *
- * ⭐ AS-7 (MUST) ASKS FOR THOSE COMMANDS IN ONE CALL AND THIS IS WHERE IT APPLIES:
- * 「別々に走らせると、担当者だけができて割当ができていない状態が履歴に残る」.
- * The answer is a LIST the caller writes as one bundle, AG-3 of table T-035
- * makes that bundle atomic, and FR-031 makes it one undo step -- which UN-15 of
- * table T-027 names for the assignee.
- * ⚠️ THE MADE RESOURCE'S UID IS THE ONE FR-008 (MUST) MAKES IT. That requirement
- * numbers a new `Resource` from `Project.uidHighWaterMark`, and the bundle runs
- * in order against the document each command leaves behind -- so the resource
- * CM-40 makes is the mark plus one, which is what CM-44 is then handed. ⛔ Not a
- * number invented here: it is read from the document the same way the write side
- * reads it.
+ * The commands are one list so they land as one bundle and one undo step (AS-7,
+ * AG-3 of table T-035, FR-031). The made resource's uid is the high-water mark
+ * plus one (FR-008), read the same way the write side reads it.
  *
  * @purity pure
  */
@@ -3642,17 +2465,15 @@ function commandsFromAssignee(
   text: string,
 ): readonly DocumentCommand[] {
   const settled = settledText(text)
-  // ⚠️ A cleared field is not 解除 here. AS-3 names ONE signal for that and it
-  // is the `-`; an empty chooser is a person who settled on nobody, and FR-008
-  // (MUST) keeps an assignment until somebody says to take it off.
+  // A cleared field is not AS-3's unassign, whose one signal is `-`; FR-008
+  // keeps an assignment until someone takes it off.
   if (settled === null) return []
   if (settled === UNASSIGN_TOKEN) return commandsFromUnassign(schedule, taskUid)
 
   const held = resourceUidOfChoice(schedule, settled) ?? resourceUidOfName(schedule, settled)
   if (held !== null) {
-    // AS-10 (MUST): a person already on this task adds nothing, whether they
-    // were named by uid or by name. Writing it anyway would be refused by CM-44
-    // on FR-008's ban and throw the whole bundle away.
+    // AS-10: a person already on this task adds nothing. CM-44 would refuse it
+    // (FR-008) and throw the whole bundle away.
     const already = schedule.assignments.some(
       (one) => one.taskUid === taskUid && one.resourceUid === held,
     )
@@ -3666,26 +2487,18 @@ function commandsFromAssignee(
       taskUid,
       resourceUid: nextIssuedUid(schedule),
     },
-    // ⭐ AS-7's THIRD COMMAND, AND IT IS APPENDED BECAUSE THE ROW APPENDS IT.
-    // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を
-    // 解くこと（MUST）」, and the paragraph under table T-225 counts the bundle
-    // the same way -- 「誰も就いていないタスクでは `CM-40` と `CM-44` の 2 つ、
-    // 1 人が就いていたタスクではそれに `CM-45` が加わって 3 つである」. 加わって:
-    // CM-45 joins the pair, it does not open the list.
-    // ⛔ THE UID CM-44 NAMES IS NOT DISTURBED BY PUTTING IT LAST EITHER: CM-45
-    // takes nothing away from `Project.uidHighWaterMark` (it only drops
-    // assignments), so the mark plus one still belongs to CM-40's resource
-    // whichever end this sits at.
+    // AS-7's release, appended after CM-40 / CM-44 as the paragraph under table
+    // T-225 orders the bundle. CM-45 does not touch the high-water mark, so the
+    // uid handed to CM-44 is unaffected by its position.
     ...commandsFromUnassign(schedule, taskUid),
   ]
 }
 
 /**
- * PI-18's fourth member: the value a person settled in one field of the
- * `Properties Panel`, as the rows of table T-108 that put it in the document.
+ * PI-18's member: the value settled in one field of the `Properties Panel`, as
+ * rows of table T-108.
  *
- * ⚠️ An empty answer is what a settled value that names no command looks like,
- * and every place that returns one says which row of which table is missing.
+ * An empty answer means the settled value names no command.
  *
  * @purity pure
  */
@@ -3696,11 +2509,8 @@ export function commandFromFieldCommit(
   const schedule = context.document.schedule
   const key = commit.key
 
-  // ⭐ THE ROW IS READ BEFORE THE HOLDER, FOR THE ONE ITEM THAT IS NOT A COLUMN.
-  // PR-16's cell of table T-016 says the assignee's substance is `Assignment`,
-  // so the key can only carry WHOSE panel this is; the row id says WHAT.
-  // ⚠️ The task the field was drawn for may have gone between the frame that
-  // drew it and the frame that collects this, as it may for every other item.
+  // Row before holder for the assignee: PR-16's substance is `Assignment`, so
+  // the key only says whose panel this is and the row id says what.
   if (commit.row === ASSIGNEE_ROW && key.holder === 'task') {
     return taskByUid(schedule, key.uid) === null
       ? []
@@ -3710,9 +2520,8 @@ export function commandFromFieldCommit(
   switch (key.holder) {
     case 'task': {
       const task = taskByUid(schedule, key.uid)
-      // ⚠️ The task the field was drawn for may have gone between the frame
-      // that drew it and the frame that collects this. Nothing is written for a
-      // subject the document no longer holds.
+      // The subject may have gone between the frame that drew the field and
+      // this commit; nothing is written for it. The arms below check the same.
       return task === null ? [] : commandFromTaskColumn(task, key.column, commit.text)
     }
     case 'taskVisual':
@@ -3724,18 +2533,8 @@ export function commandFromFieldCommit(
         ? commandFromGroupColumn(key.groupId, key.column, commit.text)
         : []
     case 'commentBox':
-      // PR-21 of table T-016, whose 対象 is `CommentBox` and whose 入力の型 is
-      // 複数行. ⭐ MK-13 (MUST) sends the double click here since 2026-09-06:
-      // 「コメントボックス ＝ プロパティパネルを出し、本文の欄（表 T-016 の
-      // `PR-21`）を編集できる状態にして焦点を置くこと」, and the same row
-      // (MUST NOT) forbids an editor drawn over the chart instead.
-      // ⚠️ AN EMPTIED FIELD IS `null` AND NOT `''` -- AT-112 spells the body a
-      // nullable string, and FR-024 (MUST) keeps a null column written rather
-      // than dropped, so an empty box and a box that never had a body are the
-      // same document either way.
-      // ⛔ THE BOX IS CHECKED FIRST for the reason every arm above checks: a
-      // field can settle after the thing it named has gone, and CM-48 would
-      // refuse the write rather than let this build a command nobody can apply.
+      // PR-21 of table T-016, reached by MK-13's double click. An emptied field
+      // is `null` (AT-112).
       return schedule.commentBoxes.some((held) => held.id === key.id)
         ? [{ kind: 'setCommentBoxText', id: key.id, text: settledText(commit.text) }]
         : []
@@ -3750,10 +2549,7 @@ export function commandFromFieldCommit(
         commit.text,
       )
     }
-    // ⚠️ NO EXISTENCE CHECK, WHERE THE FOUR ABOVE ALL HAVE ONE. Those name a
-    // task, a group or a dependency the document may have lost between the
-    // frame that drew the field and the frame that collects this; a document
-    // always holds exactly one `Project`, so there is nothing to have gone.
+    // No existence check: a document always holds exactly one `Project`.
     case 'project':
       return commandFromProjectColumn(key.column, commit.text)
   }
@@ -3762,9 +2558,9 @@ export function commandFromFieldCommit(
 /**
  * Table T-036, row by row, in that table's printed order.
  *
- * ⚠️ IN-5a is read FIRST and not folded into the rows, because it turns three
- * different rows off at once and puts two of them back into the browser's
- * hands. Written per row, the exception would be three chances to forget it.
+ * IN-5a is read first rather than per row: it turns three rows off at once and
+ * hands two back to the browser, and written per row it would be three chances
+ * to forget it.
  *
  * @purity pure
  */
@@ -3778,82 +2574,35 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   const altOnly = isCombo(modifiers, false, false, true)
 
   if (context.isTextEntryUnsettled) {
-    // IN-5a: while the characters are being typed, a single-character key and
-    // `Delete` / `Backspace` MUST NOT act, because SK-3 and 「1 文字消す」 are
-    // the same key. ⭐ They are not merely ignored -- they are left to the
-    // browser, which is what puts the character in and takes it out.
+    // IN-5a: single-character keys and `Delete` / `Backspace` are left to the
+    // browser, which puts the characters in and takes them out.
     if (plain && isSingleCharacterKey(key)) return UNASSIGNED
     if (plain && (key === KEY.del || key === KEY.backspace)) return UNASSIGNED
-    // ⛔ The one exception table T-023's MK-10 names: `Ctrl+C` / `Ctrl+V` go to
-    // the browser now (MUST), or the text being typed can be neither copied
-    // nor pasted.
+    // MK-10's exception: `Ctrl+C` / `Ctrl+V` go to the browser.
     if (ctrl && (key === KEY.c || key === KEY.v)) return UNASSIGNED
-    // ⚠️ `Esc` is NOT let through here, and this file does not cancel the
-    // typing either -- but NOT because the ladder has no rung for it. It has:
-    // IN-4's SECOND level is 確定していないその場の編集 and `escapeTarget`
-    // answers `'textEntry'` for it (the note that stood here said the opposite,
-    // and was left behind by 利用者の裁定 2026-08-27). ⛔ THE RUNG IS SPENT
-    // WHERE THE CHARACTERS ARE, which is not here: this unit is pure and holds
-    // no field, so it REPORTS the level below and the side that drew the
-    // control puts the value back. `escapeTarget` owns the order either way.
+    // `Esc` is not let through: IN-4's second level is the unsettled edit
+    // (`escapeTarget` answers `'textEntry'`), but this pure unit holds no field,
+    // so the side that drew the control puts the value back.
   }
 
-  // SK-19 -- settles the in-place edit, so it is assigned only while one is
-  // open. With nothing being typed, `Enter` is this tool's to leave alone.
-  //
-  // ⭐ THE STOP THAT STOOD HERE IS CLOSED, AND BY THE MEMBER IT ASKED FOR. It
-  // read 「S-99h ... is held by no type this side is handed」; `InputContext`
-  // carries it now (`isPropertiesPanelShowing`), so BOTH of SK-19's stages are
-  // assigned from here:
-  //   ① a field is held -- 「その場の編集を確定する」. The settling itself is
-  //      the surface's (IF-9 holds the field), and what this answer carries is
-  //      MK-10's half: the browser must not act on the key as well.
-  //   ② no field is held and the panel is up -- 「確定していないその場の編集が
-  //      1 つも無いときは、プロパティパネルを出しているならば出すのをやめること
-  //      （MUST）」, which the row extends with 「焦点が名称の欄の外にあるときも
-  //      同じである」. ⛔ So the focus is NOT asked about: the row says in as
-  //      many words that it does not matter.
-  // ⛔ STILL NOT EVERY PLAIN `Enter`. With the panel down this stays unassigned,
-  // because MK-10 would otherwise stop the browser's default on every one of
-  // them and take keyboard activation away from every entry a person has
-  // tabbed to.
-  // ⚠️ ONE KIND FOR BOTH STAGES, AND NOT TWO. `frame-loop.ts` is the one party
-  // that can tell them apart -- it knows whether the commit it spent at the head
-  // of this happening settled anything (`didSettleFieldEntry`) -- so a second
-  // kind here would be this unit answering a question it cannot see.
+  // SK-19, in its stages: a standing notice is dismissed first (NT-8), then a
+  // held field is settled, then a showing `Properties Panel` is put away (the
+  // focus is not asked about), then a selection is let go. With none of those
+  // `Enter` stays unassigned: MK-10 would otherwise take keyboard activation
+  // from every control a person has tabbed to.
+  // One kind for the settle and panel stages: only `frame-loop.ts` knows whether
+  // its commit settled anything (`didSettleFieldEntry`).
   if (plain && key === KEY.enter) {
-    // ⭐⭐ SK-19's FIRST STAGE, WHICH IS NEW AT THE HEAD OF THE ROW
-    // (利用者の指示 2026-08-31): 「出ている通知があるときは、それを 1 つ消すこと
-    // （MUST）」, and the manner is NT-8 of table T-037.
-    // ⛔ BEFORE THE SETTLING AND BEFORE THE PANEL, WHICH IS THE WHOLE POINT.
-    // NT-8 (MUST) puts this ahead of every level of both ladders, so a press
-    // that finds a telling standing does not also settle the field under it --
-    // that would be two stages for one press.
-    // ⛔ AND ONLY WHILE ONE STANDS (MUST NOT): with nothing to put away the
-    // press falls through to the two stages below, or `Enter` could never
-    // settle a name again.
     if (context.isNoticeStanding === true) return acted({ kind: 'dismissNotice' })
     if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
     if (context.isPropertiesPanelShowing === true) return acted({ kind: 'settleTextEntry' })
-    // ⭐⭐ SK-19's LAST STAGE, NEW AT THE FOOT OF THE ROW (利用者の裁定
-    // 2026-09-10): 「プロパティパネルも出していないときは、選ばれているものがあ
-    // ればその選択を解くこと（MUST）」.
-    // ⛔ CONSUMED_ELSEWHERE AND NOT A KIND OF ITS OWN, exactly the way the Esc
-    // ladder's 選択 rung is: UN-9 keeps the selection out of the undo record, so
-    // letting it go is a `Selection` value and never a `DocumentCommand`.
-    // `selectionFromInput` is the member that answers it, and this answer
-    // carries the other half -- MK-10's, that the browser must not act on the
-    // key as well.
-    // ⛔ AND ONLY WHILE SOMETHING IS SELECTED (MUST NOT): the row says 「選ばれ
-    // ているものが 1 つも無いときは、この段も無い」 and gives MK-10's reason,
-    // 「割り当てていない組合せを止めてはならない（MUST NOT）」 -- stopping every
-    // bare `Enter` would take keyboard activation away from every control a
-    // person has tabbed to.
+    // Letting go of the selection is a `Selection` value (UN-9) that
+    // `selectionFromInput` answers; this answer carries MK-10's half.
     return context.selection.items.length > 0 ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
 
   // SK-8 -- the rule is IN-4, and the consuming is `screenStateFromInput`'s.
-  // ⛔ IN-4a: with nothing to consume the key MUST reach the browser.
+  // IN-4a: with nothing to consume the key reaches the browser.
   if (plain && key === KEY.escape) {
     return escapeTarget(context.screenState, escapeContextOf(context)) === null
       ? UNASSIGNED
@@ -3872,7 +2621,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   if (ctrl && key === KEY.c) return acted({ kind: 'copySelection' }) // SK-4
   if (ctrl && key === KEY.v) return acted({ kind: 'pasteClipboard' }) // SK-5
   if (ctrl && key === KEY.z) return acted({ kind: 'undoEdit' }) // SK-6
-  // SK-7 -- two combinations for one operation, which is the row's own wording.
+  // SK-7
   if (ctrl && key === KEY.y) return acted({ kind: 'redoEdit' })
   if (ctrlShift && key === KEY.z) return acted({ kind: 'redoEdit' })
   // SK-9 -- FR-035 is the one entrance to the document's name (FR-029).
@@ -3883,10 +2632,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   if (ctrl && key === KEY.s) return acted({ kind: 'saveDocumentFile' }) // SK-11
   if (ctrl && key === KEY.r) return acted({ kind: 'reopenDocumentFile' }) // SK-21
 
-  // SK-12 / SK-13 / SK-14 / SK-15 -- all four land in `ScreenState`.
-  // ⭐ SK-12 joined them when table T-103 settled `Export Chooser` (U-54): the
-  // surface FR-096 opens now has a name S-99g can hold, so opening it IS a
-  // change of screen state and IN-4's first level can close it again.
+  // SK-12 / SK-13 / SK-14 / SK-15 -- these land in `ScreenState`.
   if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
   if (plain && (key === KEY.f1 || key === KEY.p || key === KEY.f11)) return CONSUMED_ELSEWHERE
 
@@ -3900,10 +2646,8 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
   }
 
-  // SK-17 -- 等倍. ⚠️ The 1 is the multiplicative identity, which is what 倍率
-  // means, NOT S-75's stored default: reading the default would send this key
-  // somewhere else the day that default moved, and S-76's own note fixes 等倍
-  // as the baseline `basePlanHeight` is defined against.
+  // SK-17. The 1 is the multiplicative identity, not S-75's stored default:
+  // reading the default would move this key the day the default moved (S-76).
   if (ctrl && key === KEY.zero) {
     return changed(zoomWrites(context, 1, 1, null, null))
   }
@@ -3912,8 +2656,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   // the place the fit worked out is written down with it (see `fitCommand`).
   if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
 
-  // SK-20 -- FR-046: showing the line puts today into `statusDate`, hiding it
-  // puts null there. The clock is the shell's (LY-5), so today arrives as a
+  // SK-20 -- FR-046. The clock is the shell's (LY-5), so today arrives as a
   // value.
   if (ctrlShift && key === KEY.d) {
     return changed([
@@ -3923,20 +2666,16 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     ])
   }
 
-  // SK-1 / SK-1a record that no keyboard route to placing a figure exists
-  // (RC-10 of table T-026), so there is nothing to match. Everything else is a
-  // combination this tool has not assigned, and MK-10 forbids taking it.
+  // SK-1 / SK-1a have no keyboard route (RC-10 of table T-026). Everything else
+  // is unassigned, and MK-10 forbids taking it.
   return UNASSIGNED
 }
 
 /**
  * MK-1 to MK-5.
  *
- * ⛔ The rule after table T-023d: while a drag is under way the wheel MUST NOT
- * zoom or scroll -- a drag holds the day under the pointer still while a zoom
- * moves it, and both cannot be satisfied at once. The turn stays ASSIGNED
- * though, so MK-10 still silences the browser: letting the page scroll under a
- * drag is the very thing being refused.
+ * During a drag the wheel does not zoom or scroll (the rule after table T-023d),
+ * but the turn stays assigned so MK-10 still stops the page scrolling under it.
  *
  * @provisional PND-13
  * @purity pure
@@ -3954,21 +2693,12 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   if (!isWheelHere(context, input.x, input.y)) return UNASSIGNED
   if (context.pressed !== null) return CONSUMED_ELSEWHERE
 
-  // ⭐ Turning the wheel AWAY from the person (a negative count, by the seam's
-  // own convention) reads further up a document and makes the schedule larger.
-  // ⛔ Which way a wheel zooms is settled by no row: table T-023 gives MK-2 a
-  // direction only through 「ズーム」. The recommendation is that away-from-the
-  // -person magnifies, which is what every notch-per-step figure in table T-201
-  // is written for (S-53 is a multiplier above 1) and what the same wheel does
-  // when it scrolls.
+  // A negative count (away from the person) magnifies. No row settles the
+  // direction; S-53 being a multiplier above 1 is written for this reading.
   const factor = Math.pow(context.zoomStep, -input.notches)
 
-  // ⭐ THE THREE WHEEL ZOOMS ARE THE ONLY ROUTES THAT CARRY A POINTER, so they
-  // are the only ones that hand `zoomWrites` an x. MK-2's own cell says it in
-  // as many words -- 「両軸ズーム（ポインタ中心）」 -- and FR-016 (MUST) states it
-  // for all three: 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かな
-  // いこと」. ⚠️ MK-3 and MK-4 have no cell of their own about the centre and
-  // need none: the requirement's sentence is about ズーム and not about an axis.
+  // Only the wheel zooms carry a pointer, so only they hand `zoomWrites` an x
+  // (MK-2, FR-016).
   if (ctrl) {
     return changed(
       zoomWrites(
@@ -3985,32 +2715,17 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   }
   if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), input.x, input.y))
 
-  // MK-1 / MK-5 -- the wheel's own distance, because no row says how far one
-  // detent scrolls and S-96 says the device is what knows.
+  // MK-1 / MK-5 -- the device's own distance (S-96).
   //
-  // ⛔ MK-5's DISTANCE IS NOT ALWAYS ON THE HORIZONTAL AXIS. A person has one
-  // wheel and turns it; the host reports that turn on the VERTICAL axis however
-  // many modifiers are held, and leaves the horizontal one at zero. Read off
-  // the horizontal axis alone, MK-5's 「横スクロール」 therefore measured zero
-  // and the schedule never moved. ⚠️ The seam keeps the two axes literal on
-  // purpose, so the join is made HERE, where the combination is what says the
-  // movement is sideways -- the same fallback `wheelTurn` (PI-27) already makes
-  // for the detent count, and for the same reason. ⭐ A device that really does
-  // report a sideways turn -- a tilt wheel, a trackpad -- is believed first.
-  // ⛔ MK-1 gets NO such fallback: a plain sideways turn is a combination table
-  // T-023 has no row for, and reading it as MK-1 would assign it here.
+  // MK-5 falls back to the vertical distance: a wheel turn is reported on the
+  // vertical axis whatever modifiers are held, so the horizontal axis alone
+  // measured zero. A real sideways report (tilt wheel, trackpad) is believed
+  // first; `wheelTurn` (PI-27) makes the same fallback for the detent count.
   const sideways = input.scrollPx.x !== 0 ? input.scrollPx.x : input.scrollPx.y
-  // ⛔⛔ A PLAIN SIDEWAYS TURN IS NEITHER MK-1 NOR MK-5, and the ⛔ note just
-  // above says so in as many words: table T-023 gives 「修飾なし」 only
-  // 「縦スクロール」, so a turn with no vertical distance is a combination the
-  // table has no row for. ⚠️ WITHOUT THIS THE BRANCH BELOW WROTE THE POSITION
-  // ALREADY IN FORCE BACK OVER ITSELF, once per detent, and zeroed S-176 with
-  // it -- a fraction no detent had moved. MEASURED 2026-09-05 on the shipped
-  // build, 1920x1080: forty sideways turns raised forty frames, wrote no
-  // markup and changed no pixel of the drawn picture (DFC-329).
-  // ⚠️ UNASSIGNED AND NOT CONSUMED, because MK-10's subject is 「本ツールが割り
-  // 当てた修飾キーの付いた入力」 and a bare wheel carries no modifier -- the same
-  // reading `isWheelHere` already writes down.
+  // A plain turn with no vertical distance is neither MK-1 nor MK-5 (table T-023
+  // has no row for it); without this the branch below rewrote the position in
+  // force and zeroed S-176. Unassigned, not consumed: MK-10 covers modified input
+  // only, as `isWheelHere` reads it.
   if (plain && input.scrollPx.y === 0) return UNASSIGNED
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
@@ -4018,38 +2733,26 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   const to = {
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,
-    // ⭐ MK-5's sideways turn is continuous: the device reports a distance in
-    // px and S-177 can hold any part of a day, so the schedule moves by the
-    // distance turned rather than by whole days. ⚠️ MK-1 passes zero on this
-    // axis, so both members answer the values already in force.
+    // MK-5 moves by the distance turned (S-177 holds any part of a day); MK-1
+    // passes zero on this axis.
     scrollDayOffset: moved.scrollDayOffset,
-    // MK-1 -- see `rowTurnedTo`, which is `scrolledAnchor`'s vertical half
-    // with a one-row floor under it. ⚠️ MK-5 keeps the plain answer: it
-    // decides no vertical place, and the place standing at the top edge is
-    // the one already in force.
+    // MK-1 -- `rowTurnedTo` (a one-row floor). MK-5 decides no vertical place.
     scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
-    // ⭐ A detent lands ON a row, so the fraction it leaves behind is zero.
-    // ⛔ Writing `moved.scrollGroupOffset` beside a floored id would spell a
-    // place neither the floor nor the distance asked for.
+    // A detent lands on a row; `moved.scrollGroupOffset` beside a floored id
+    // would spell a place nobody asked for.
     scrollGroupOffset: plain ? 0 : moved.scrollGroupOffset,
   } as const
-  // ⭐ THE TURN HAD NOWHERE TO GO. `rowTurnedTo` answers the value in force at
-  // both ends of the stack and `scrolledAnchor` answers it for a distance of
-  // zero, so a turn against the end of the schedule spells the position it
-  // already had. ⛔ Writing it is not free: WS-4 pushes a step for every write
-  // and the shell owes a frame for the document it is handed back.
-  // ⚠️ ASSIGNED, so MK-2's 「面が立っていない」 turn is still this tool's and the
-  // browser does not scroll the page under a schedule that cannot move.
+  // A turn against the end of the schedule spells the position in force; writing
+  // it would make WS-4 push a step and cost a frame. Still assigned, so the
+  // browser does not scroll the page under it.
   return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])
 }
 
 /**
  * Whether this position is the one the document already holds.
  *
- * ⭐ COMPARED, NOT ASSUMED, and by value because all four members are a string
- * or a number. ⛔ The four are S-77, S-78, S-176 and S-177, which is the whole
- * of what CM-66 writes -- a member left out here would make a real movement
- * read as none.
+ * The four members are all of what CM-66 writes (S-77, S-78, S-176, S-177); one
+ * left out would make a real movement read as none.
  *
  * @purity pure
  */
@@ -4066,38 +2769,17 @@ function isScrollPositionInForce(
   )
 }
 
-// ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED (2026-09-07, the ledger's `DFC-366`),
-// AND WHAT CLOSED IT WAS A RULING RATHER THAN A DISCOVERY. FR-016 (MUST):
-// 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」, and
-// 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
-// `Row Area` の中心をズームの中心とすること（MUST）」. The day half landed on
-// 2026-09-06 (`dayHeldStill`); the row half is `rowHeldStill`, beside it.
-// ⛔ THE OBSTACLE THE STOP NAMED WAS REAL AND IS STILL REAL: holding the row
-// under the pointer needs the y each row lands at AFTER the zoom, and FR-016
-// says in as many words that 「行の軸は `zoomY` に対して線形ではない」 --
-// `planHeightOf` takes a `Math.max` against FR-094's floor, LF-3 puts a second
-// floor under the band, the stack count decides the band's height (ST-2 / ST-3
-// of table T-014), and `groupDepthLimit` changes WHICH rows are drawn at all.
-// ⇒ The only exact answer is to run table T-068 again at the zoom about to be
-// written. ⭐ WHAT CHANGED IS WHO MAY RUN IT: the requirement now asks for the
-// member (「その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと
-// （MUST）」) and the rule after table T-068 admits the second run, on the
-// condition that neither run leaves the layout engine -- 「どちらも
-// `layoutEngine`（`CP-5`）の中でのみ走らせること（MUST）」. ⛔ So this file still
-// lays nothing out, which is what MN-6 of table T-070 refuses; it asks
-// `rowPlacesAtZoomY` where the rows will be and does arithmetic on the answer.
-// ⚠️ THE DAY HALF NEEDS NO SUCH RUN, which is why the two are written apart:
-// the time axis IS linear in `zoomX` (`pxPerDay = pxPerDayAt1x * zoomX`), so
-// the new left edge can be named in the frame already in hand.
+// FR-016's zoom centre: `dayHeldStill` holds the day and `rowHeldStill` the row.
+// The row half asks `rowPlacesAtZoomY` (PI-5) because the row axis is not linear
+// in `zoomY` and this file lays nothing out (MN-6 of table T-070); the day half
+// needs no second layout because `pxPerDay` is linear in `zoomX`.
 
 /**
  * A press, a move, a release or a lost pointer.
  *
- * ⛔ MK-12 (MUST NOT) is applied HERE and not inside the decision order: a
- * combination this tool has not assigned keeps the browser's own behaviour,
- * while table T-023a goes on deciding what the gesture does. Reading it any
- * earlier would make the gesture inert, which that row forbids outright, and
- * reading it per branch would be one chance to forget it per row.
+ * MK-12 is applied here, after table T-023a has decided the gesture: read earlier
+ * it would make the gesture inert, and read per branch it would be one chance to
+ * forget it per row.
  *
  * @purity pure
  */
@@ -4111,144 +2793,79 @@ function commandFromPointer(input: PointerInput, context: InputContext): Transla
 /**
  * What table T-023a assigns this happening to, before MK-10 is read.
  *
- * ⭐ IN-1: nothing settles on the press. So `down` never carries an action --
- * it only says that this tool has taken the gesture, which MK-10 needs so that
- * the browser does not start a text selection under the drag.
+ * IN-1: nothing settles on the press. `down` only says this tool has taken the
+ * gesture, so that MK-10 keeps the browser from starting a text selection.
  *
  * @purity pure
  */
 function pointerAssignment(input: PointerInput, context: InputContext): TranslatedInput {
   if (input.phase === 'down') {
-    // ⚠️ The right button has no row in table T-023, so it stays the browser's
-    // (MK-10, MUST NOT). Everything else inside the drawing area is this
-    // tool's, by one row of table T-023a or another.
+    // The right button has no row in table T-023, so it stays the browser's
+    // (MK-10).
     if (input.button === 'right') return UNASSIGNED
-    // A press on something this tool drew is this tool's, wherever it landed:
-    // the browser must not start a text selection under a palette that FR-053
-    // has the person drag, nor under an entry.
+    // A press on something this tool drew is this tool's, so no text selection
+    // starts under a dragged palette (FR-053) or an entry.
     const press = context.pressed
     if (press !== null && press.on !== null) return CONSUMED_ELSEWHERE
     return isOnRowArea(context, input.x, input.y) ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
-  // ⚠️ A move carries no action either, with ONE exception below. What a drag
-  // will do is decided once, on release, from the press -- and the picture
-  // drawn WHILE dragging is the renderer's, not a change to the document.
-  //
-  // ⭐ THE EXCEPTION IS FR-053's FOLLOWING PALETTE (MUST), and it is an
-  // exception to the sentence above rather than to IN-1: the palette is not
-  // drawn from the document, so what a move reports for it settles no value of
-  // the schedule and pushes no undo step. Every other gesture's picture is the
-  // renderer's to draw from the press it can see.
-  // ⭐ TWO GESTURES ANSWER A MOVE NOW. PTD-1's pan is asked first because it is
-  // the row table T-023a puts first -- 「構えと当たりによらず優先する」 -- and
-  // the two cannot both answer anyway: a pan's press is on nothing the surface
-  // drew and the palette's is on its own band.
+  // A move carries no action, except for the gestures whose picture follows the
+  // pointer and settles nothing undoable: PTD-1's pan, GR-21's lane, FR-053's
+  // palette and HF-15's row. Their presses cannot overlap; the pan is asked first
+  // because table T-023a puts it first.
   if (input.phase === 'move') {
-    // ⭐ THREE GESTURES FOLLOW NOW. None of the three can answer for another:
-    // PTD-1's pan is a press on nothing the surface drew, FR-053's palette is a
-    // press on its own band, and HF-15's row is a press on GR-20's strip.
     const panning = panFollow(input, context)
     if (panning !== UNASSIGNED) return panning
-    // GR-21 of table T-023d, the fourth: a press on one of the two lanes, which
-    // none of the other three can be -- PTD-1's is on nothing the surface drew,
-    // FR-053's is on the palette's band and HF-15's is on a row's strip.
     const scrolling = scrollbarFollow(input, context)
     if (scrolling !== UNASSIGNED) return scrolling
     const palette = paletteFollow(input, context)
     return palette === UNASSIGNED ? rowGrabFollow(input, context) : palette
   }
-  // IN-1a: the pointer was lost outside the window, so the drag ends as an
-  // abort (MUST) -- nothing is written. ⭐ Saying so is what keeps AG-9 from
-  // refusing every later write: the shell drops the press it is holding.
+  // IN-1a: a lost pointer aborts the drag and writes nothing. Saying so lets the
+  // shell drop the press, or AG-9 would refuse every later write.
   if (input.phase === 'lost') return CONSUMED_ELSEWHERE
 
   const press = context.pressed
   if (press === null) return UNASSIGNED
-  // ⭐ FIRST, because table T-023a's own note limits its decision order to the
-  // schedule's drawing area (MUST): a press the surface answered for was not on
-  // the schedule at all, whatever `regionAtPointer` says about the point.
+  // First: table T-023a's decision order is limited to the schedule's drawing
+  // area, and a press the surface answered for was not on the schedule.
   if (press.on !== null) return commandFromEntry(input, press, context)
-  // ⭐ A HIT IS ITSELF THE ANSWER TO 「日程の描画領域か」, so the region is asked
-  // only of a press that carries none. `itemAtPointer` walks the schedule's own
-  // geometry and the caller asks it only inside the `Row Area` -- the shell's
-  // `collectPress` states that in as many words -- so a press holding a `Hit`
-  // was on the schedule, whatever its two numbers say. ⛔ WITHOUT THIS,
-  // 「担当ラベルをダブルクリックした」 (AS-1 of table T-225, MUST) was answered
-  // by the coordinates rather than by the row that was grabbed, and a caller
-  // that hands the row in -- which is what the row IS -- got nothing.
-  // ⚠️ The press with no hit still has to be placed: PTD-4 creates a Task where
-  // nothing was struck and PTD-5 opens a marquee, and neither may begin on the
-  // ruler or in the Row Title Panel (the note under table T-023a, MUST).
+  // A hit already answers "on the schedule" (`itemAtPointer` is asked only in the
+  // `Row Area`), so the region is checked only for a press with none; otherwise
+  // AS-1's double click on an assignee label was judged by its coordinates.
+  // PTD-4 and PTD-5 may not begin on the ruler or the Row Title Panel (the note
+  // under table T-023a).
   if (press.hit === null && !isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
-  // ⭐ ASKED HERE RATHER THAN READ OFF `press.pressRow`, AND IT IS THE SAME
-  // ANSWER. The member is what this very function returned at the press, so
-  // there is one reading of table T-023a either way (R2.7 is about a second
-  // READING, not a second call). ⚠️ And the answer cannot have drifted since:
-  // the button, the modifiers and the hit are frozen on the press, while the
-  // two current values PTD-2 and PTD-4 / PTD-4a turn on hold still for as long as
-  // a press does -- arming moves only on a press of a palette entry, which
-  // REPLACES the press, or on `Esc`, which IN-4 spends at the gesture level
-  // above `armed` while a gesture is in flight and the caller answers by
-  // dropping the press.
+  // Asked again rather than read off `press.pressRow`, with the same answer: its
+  // inputs are frozen on the press, and arming changes only by a palette press
+  // (which replaces the press) or `Esc` (which drops it).
   switch (pressRowOf(press, context)) {
     case 'PTD-1': {
-      // Pan. ⭐ 「パンは等倍とすること（MUST）」 -- the schedule moves exactly
-      // as far as the pointer did, so the display position moves the opposite
-      // way by the same number of pixels.
-      //
-      // ⭐ ALL FOUR MEMBERS COME FROM THE ONE READING, and that is what makes
-      // 等倍 exact. S-176 and S-177 hold the part of a row and the part of a
-      // day the anchors cannot name, so a movement of any distance -- shorter
-      // than a row, shorter than a day -- is written as the distance it was.
-      // ⛔ NO FLOOR IS TAKEN HERE ANY MORE. `rowTurnedTo`'s one-row floor used
-      // to answer the vertical half, and it made the picture jump a whole row
-      // for a drag of a few px, which is the very thing that paragraph forbids
-      // (「倍率を掛けない」). The floor existed only because nothing finer could
-      // be expressed; S-176 expresses it, so the floor is a defect rather than
-      // a choice. ⚠️ MK-1 keeps it -- see `rowTurnedTo` for why the wheel and
-      // the hand are held to different rules.
-      // ⭐ THE TRAVEL SINCE THE LAST PIECE, not since the press, and the sum
-      // over one gesture is the same either way -- `followingTravel` falls back
-      // to the press for a caller that followed nothing, which is what a caller
-      // with no `followedTo` gets. ⛔ MEASURED FROM THE PRESS IT DOUBLES: the
-      // moves have already been applied and `scrolledAnchor` reads the layout
-      // they produced.
+      // Pan at 1:1 (MUST): the display position moves opposite to the pointer by
+      // the same pixels. S-176 / S-177 carry the part of a row and of a day, so
+      // no row floor is taken (the wheel's floor is MK-1's, see `rowTurnedTo`).
+      // The travel is since the last followed point (`followingTravel`);
+      // measured from the press it would double the moves already applied.
       const by = followingTravel(input, press)
       return panTo(context, -by.dx, -by.dy)
     }
     case 'PTD-2':
       // DC-2 of table T-029a: the click fixes the following side and hands the
-      // following to the other.
-      //
-      // ⛔ THE NOTE THAT STOOD HERE WAS WRONG, AND SO WAS THE LEDGER. It said
-      // CM-60 demanding BOTH dates at once (IV-13) left a first click nowhere
-      // to be remembered. DC-1 refutes it: entering the mode puts `date1` on
-      // the pointer AND `date2` at the middle of the `Row Area`, so both dates
-      // stand from the first frame and a half-placed pair never occurs. IV-13
-      // was never the obstacle -- the missing thing was one bit, which side is
-      // following, and it is `InputContext.dualCursorFollowing`.
+      // following to the other. DC-1 places both dates on entry, so the only
+      // extra state is which side follows (`InputContext.dualCursorFollowing`).
       return commandFromDualCursorPress(press, context)
     case 'PTD-3':
-      // ⭐⭐ THE ARMING SPLITS THIS ROW IN TWO, AND THE ROW ITSELF SAYS SO.
-      // PTD-3 of table T-023a: 「構えが依存線のときは表 T-023d を適用せず、当たった
-      // タスクの左半分 / 右半分で依存の端点を決める（規則と理由は `FR-009`）」.
-      // ⛔ ASKED HERE AND NOT INSIDE `commandFromGrab`, because what that member
-      // IS is table T-023d -- every branch of it is one of that table's rows,
-      // and the sentence above withholds the whole table rather than one row.
-      // ⚠️ READ ON THE RELEASE AND STILL CS-2's MOMENT: the arming cannot have
-      // drifted since the press, for the reason `pressRowOf` is called again
-      // above gives -- it moves only on a press of a palette entry, which
-      // REPLACES the press, or on `Esc`, which drops it.
+      // With a dependency armed PTD-3 withholds table T-023d and places the ends
+      // by FR-009; decided here because `commandFromGrab` is table T-023d.
       return context.screenState.armed.kind === 'dependency'
         ? commandFromDependencyDrag(input, press, context)
         : commandFromGrab(input, press, context)
     case 'PTD-4':
       return commandFromArmed(input, press, context)
     case 'PTD-4a':
-      // 「何もしない。引きかけの矢印があれば捨てる。構えは解かない」 -- the
-      // half-drawn arrow is the renderer's and the arming is untouched, so
-      // there is nothing to write.
+      // The half-drawn arrow is the renderer's and the arming stays: nothing to
+      // write.
       return CONSUMED_ELSEWHERE
     case 'PTD-5':
       // Marquee, or a click on nothing. Either way it is the selection's
@@ -4258,19 +2875,11 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
 }
 
 /**
- * How far a following gesture still owes, for the happening now in hand -- the
- * pointer against the last point the caller followed it to, or against the
- * press while it has followed it nowhere.
+ * How far a following gesture still owes: the pointer against the last point the
+ * caller followed it to, or against the press if none.
  *
- * ⭐ ONE READING FOR THE MOVE AND THE RELEASE. Both owe the same distance and
- * the sum of every answer over one gesture is `release - press`, whichever way
- * the caller reports: written twice, the two would drift apart the first time
- * `followedTo` changed meaning.
- *
- * ⭐ TWO GESTURES FOLLOW NOW, not one: FR-053's palette (GR-19) and PTD-1's pan.
- * ⛔ The reading is shared rather than copied because the trap is the same for
- * both -- a piece measured from the PRESS is right only for the first piece and
- * overshoots by more the more pieces one drag is reported in.
+ * Shared by the move and the release and by every following gesture: a piece
+ * measured from the press is right only for the first piece and overshoots after.
  *
  * @purity pure
  */
@@ -4283,50 +2892,33 @@ function followingTravel(
 }
 
 /**
- * PTD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」
- * (the user's ruling of 2026-08-29).
+ * PTD-1: the pan follows the pointer while held.
  *
- * ⭐ A WRITE PER MOVE IS ALLOWED HERE, which IN-1 would otherwise forbid: UN-8
- * of table T-027 puts 「ズーム・スクロール・パン」 outside the history, so a
- * display position written on every move pushes no step and nothing settles
- * that a release could still take back. ⛔ The alternative -- drawing a
- * preview and writing once on the release -- was tried and measured wrong:
- * `scrolledAnchor` reads the layout the preview produced, so each frame applied
- * the whole travel again (a -240 drag left the leftmost bar at -790).
- *
- * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, for the
- * reason `paletteFollow` gives.
+ * A write per move is allowed despite IN-1 because UN-8 keeps the display
+ * position out of the history. A preview written once on release does not work:
+ * `scrolledAnchor` reads the layout the preview produced and reapplies the whole
+ * travel each frame.
  *
  * @purity pure
  */
 function panFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
   if (press === null) return UNASSIGNED
-  // ⛔ `on` FIRST, the order `isDocumentChangingPress` keeps: the note under
-  // table T-023a limits that table to the schedule's drawing area (MUST), so a
-  // press the screen surface answered for carries no row of it -- and PTD-1's
-  // own row is what this reads.
+  // `on` first, as `isDocumentChangingPress` does: a press the screen surface
+  // answered for carries no row of table T-023a.
   if (press.on !== null) return UNASSIGNED
   if (press.pressRow !== 'PTD-1') return UNASSIGNED
-  // ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, the same
-  // refusal `paletteFollow` makes and for the same reason: a caller that does
-  // not record what it applied would add up travels all measured from the press
-  // and send the schedule running. ⭐ The release still pans in full, because
-  // `followingTravel` falls back to the press when nothing was followed.
+  // Nothing is reported without `followedTo`: a caller that does not record what
+  // it applied would add up travels measured from the press. The release still
+  // pans in full, since `followingTravel` falls back to the press.
   if (press.followedTo === undefined) return UNASSIGNED
   const by = followingTravel(input, press)
-  // ⭐ THE SAME ARITHMETIC THE RELEASE USES, from the same helper: the display
-  // position moves the opposite way by the same number of pixels, which is
-  // 「パンは等倍とすること（MUST）」.
   return panTo(context, -by.dx, -by.dy)
 }
 
 /**
- * FR-053 (MUST): while GR-19's band is held, the palette follows the pointer.
- *
- * ⛔ GR-19 IS NO LONGER THE ONLY GESTURE THAT REPORTS ON A MOVE -- PTD-1's pan
- * does too, and `panFollow` above is asked first. The two cannot both answer:
- * this one wants a press ON the band and that one a press on nothing at all.
+ * FR-053: while GR-19's band is held, the palette follows the pointer.
+ * `followedTo` is required for `panFollow`'s reason.
  *
  * @purity pure
  */
@@ -4339,46 +2931,26 @@ function paletteFollow(input: PointerInput, context: InputContext): TranslatedIn
 }
 
 /**
- * How far the display position moves for one pixel the grip of GR-21 is dragged.
+ * How far the display position moves per pixel GR-21's grip is dragged.
  *
- * ⭐⭐ DERIVED FROM THE TWO RULES AND INVENTED NOWHERE. GR-21 of table T-023d
- * (MUST) makes the grip's length 「帯の長さに対する『見えている範囲 ÷ 全体』の
- * 割合」, and the closing rule under that table (MUST) has the grip follow the
- * pointer while it is held. Those two together FIX this number: a grip that is
- * `lane * visible / whole` long and follows the pointer one-for-one runs the
- * length of its lane exactly while the picture runs the length of the whole, so
- * one pixel of pointer is `whole / lane` pixels of picture. ⛔ No settings row
- * is minted for it, which is what GR-21 says in as many words --
- * 「新しい設定値を立てない（割合は既にある値から導ける）」.
+ * `whole / lane`, derived rather than a setting (GR-21): a grip `lane * visible /
+ * whole` long that follows the pointer 1:1 (the rule under table T-023d) runs its
+ * lane while the picture runs the whole.
  *
- * ⭐ THE LANE'S LENGTH IS THE `Row Area`'s, and that is not a second reading of
- * `ScreenFrame`: `screenFrameFromRegions` (UF-61) lays the horizontal lane
- * along the `Row Area`'s width and the vertical one along its height, out of
- * the same rectangle this reads. ⛔ `ScreenFrame` itself is not on
- * `InputContext` at all, so the rectangle is where the two sides meet.
+ * The lane's length is the `Row Area`'s, the rectangle `screenFrameFromRegions`
+ * (UF-61) lays the lanes along; `ScreenFrame` itself is not on `InputContext`.
  *
- * ⭐ ZERO WHERE THERE IS NOTHING TO SCROLL. SC-4 of table T-031 (MUST) keeps
- * both bars drawn 「収まっていても」, and a grip that fills its lane has nowhere
- * to be dragged to -- so a drag on it moves the picture by nothing, rather than
- * by a distance the geometry cannot justify.
- * ⚠️ THE VERTICAL LANE IS THE `Row Area`'s WHOLE HEIGHT AND THE ROWS THAT SCROLL
- * ARE FEWER, wherever FR-098 has lifted pins into a band (`ScheduleLayout`'s
- * `pinnedBandHeight` and `scrollAreaY`). That difference reaches this GUARD and
- * nothing else -- the gearing itself is `whole / lane` whatever the visible
- * extent is, because the grip is drawn along the LANE -- so the most it costs is
- * a zero for a document with a pinned band and a hair more content than room.
- * ⛔ No second length is read for it: UF-61 draws the lane against the `Row
- * Area`, and a length measured differently here would part from the lane the
- * person is actually dragging.
+ * Zero where there is nothing to scroll: a grip filling its lane (SC-4 keeps it
+ * drawn) has nowhere to go. With FR-098's pinned band the scrolling rows are
+ * fewer than the lane, which can only zero this guard for a nearly-fitting
+ * document; the gearing follows the lane the person drags.
  *
  * @purity pure
  */
 function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
   const area = context.regions.rowArea
   const lane = axis === 'horizontal' ? area.width : area.height
-  // 「全体」 -- what table T-038's occupancy measures, which is the same extent
-  // FR-055's fit is taken against (`ScheduleLayout.contentWidth` states it of
-  // itself). ⚠️ The `Row Area` is 「見えている範囲」 for the same axis.
+  // The whole is table T-038's occupancy, the extent FR-055's fit uses.
   const whole = axis === 'horizontal' ? context.layout.contentWidth : context.layout.contentHeight
   if (!(lane > 0) || !(whole > lane)) return 0
   return whole / lane
@@ -4391,31 +2963,18 @@ function scrollbarTravel(
   by: { readonly dx: number; readonly dy: number },
 ): { readonly dx: number; readonly dy: number } {
   const gearing = scrollGearing(context, axis)
-  // ⛔ ONE AXIS EACH, AND THE OTHER IS PASSED ZERO RATHER THAN LEFT OUT.
-  // `scrolledAnchor` answers the value already in force for a distance of zero,
-  // so a horizontal lane decides nothing about S-78 and a vertical one nothing
-  // about S-77 -- which is what a bar for ONE direction means.
+  // The other axis is passed zero: `scrolledAnchor` then keeps its value in force.
   return axis === 'horizontal'
     ? { dx: by.dx * gearing, dy: 0 }
     : { dx: 0, dy: by.dy * gearing }
 }
 
 /**
- * FR-051 (MUST): 「スクロールバーの操作でも表示位置を変えられるようにすること」,
- * while GR-21's grip is held.
+ * FR-051: while GR-21's grip is held, the display position follows it.
  *
- * ⭐ THE SAME SHAPE AS `panFollow`, AND FOR THE SAME REASON. The closing rule
- * under table T-023d (MUST) names GR-21 among the grabs whose picture follows
- * the pointer while held, and UN-8 of table T-027 puts 「ズーム・スクロール・
- * パン」 outside the history -- so a display position written on every move
- * pushes no step and settles nothing a release could take back.
- * ⛔ THE PICTURE MOVES THE SAME WAY THE POINTER DOES, which is where this parts
- * from PTD-1's pan: a hand on the SCHEDULE drags the paper and the display
- * position moves the opposite way, while a hand on the GRIP drags the marker
- * and the display position follows it.
- *
- * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, the refusal
- * `panFollow` and `paletteFollow` both make and for the reason they give.
+ * Same shape and reason as `panFollow` (the closing rule under table T-023d,
+ * UN-8), but the position moves with the pointer: a hand on the grip drags the
+ * marker, while a hand on the schedule drags the paper.
  *
  * @purity pure
  */
@@ -4431,23 +2990,16 @@ function scrollbarFollow(input: PointerInput, context: InputContext): Translated
 /**
  * What a press on one of the entries this tool drew is assigned to.
  *
- * ⭐ IN-1: settled on the RELEASE, and read against the PRESS -- which is why
- * `PointerPress.on` is what is looked at rather than where the pointer ended up.
- * ⚠️ No row below invents anything for an entry. Each is either an operation
- * this file already answers for a row of table T-036, or a surface whose name
- * table T-103 has settled, or a row whose own text names the value the press
- * writes and the setting it writes it into. The STOP note at the foot of this
- * file states the rule in full and says what every unanswered row is missing.
+ * IN-1: settled on the release and read against the press (`PointerPress.on`).
+ * The STOP note at the foot of this file says what every unanswered row is
+ * missing.
  *
- * ⛔ THE ARMING ENTRIES ANSWER NOTHING HERE except SP-2 and SP-3's shape change.
- * What is armed lives in `ScreenState` (UN-11 keeps it out of the undo record),
- * so `screenStateFromInput` is the member that answers SP-1 and SP-4.
+ * Arming entries are answered by `screenStateFromInput` (UN-11), except SP-2 and
+ * SP-3's shape change.
  *
- * ⭐ ONE PRESS ANSWERED HERE IS ON NO ENTRY AT ALL -- FR-085's choosing of a row
- * in the `Row Title Panel`. It is answered in this function because this is
- * where a press the SURFACE claimed arrives: the note under table T-023a keeps
- * that table's decision order off the panel, so there is no other road, and
- * `ScreenPart.rowGroupId` is what says which row.
+ * FR-085's choosing of a row in the `Row Title Panel` is answered here too: the
+ * note under table T-023a keeps that table off the panel, so a press the surface
+ * claimed is the only road, and `ScreenPart.rowGroupId` says which row.
  *
  * @purity pure
  */
@@ -4458,90 +3010,46 @@ function commandFromEntry(
 ): TranslatedInput {
   const on = press.on
   if (on === null) return CONSUMED_ELSEWHERE
-  // ⭐ BEFORE THE ENTRY IS READ, because a `Panel Divider` carries none: U-24
-  // has no row in table T-109, so `entry` is null on the band and the press
-  // would otherwise fall through as "on a part, on no entry" and write nothing.
+  // Before the entry: U-24 has no row in table T-109, so `entry` is null on the
+  // band and the press would write nothing.
   if (on.dividerPanel !== null) return commandFromPanelDivider(on.dividerPanel, release, press, context)
-  // ⭐ BEFORE THE ENTRY IS READ, AND FOR THE REASON THE BAND ABOVE IS. U-21
-  // `Scrollbars` has no row in table T-109 either, so `entry` is null on a lane
-  // and the press would otherwise fall through as "on a part, on no entry" and
-  // write nothing -- which is what DFC-298 measured.
+  // The same for U-21 `Scrollbars`.
   if (on.scrollbarAxis !== undefined) {
     return commandFromScrollbar(on.scrollbarAxis, release, press, context)
   }
-  // ⭐ BEFORE THE ROW ITSELF, AND FOR THE REASON THE BAND ABOVE IS. GR-20's
-  // strip carries no row of table T-109 -- that table holds no entrance for a
-  // grab strip -- so `entry` is null on it and the press would otherwise fall
-  // through to FR-085's choosing of the row it lies on. ⇒ The row would be
-  // chosen and never moved, which is HF-15's whole MUST.
-  // ⚠️ A press that never settled an axis still ends in that choosing;
-  // `commandFromRowGrab` is where the two are parted.
+  // The same for GR-20's strip, which would otherwise fall to FR-085's choosing
+  // and never move the row (HF-15). `commandFromRowGrab` parts a press that
+  // settled no axis.
   const grabbed = grabbedRowGroupId(press)
   if (grabbed !== null) return commandFromRowGrab(release, press, context, grabbed)
   if (on.entry === null) {
-    // FR-085 (MUST): the row itself was pressed rather than one of the three
-    // controls table T-051 and FR-098 draw on it.
-    //
-    // ⭐ THIS IS THE ROAD THE NOTE UNDER TABLE T-023a LEAVES OPEN. That note
-    // limits its decision order to the schedule's drawing area (MUST), so no
-    // row of that table ever names a press on the panel -- and `ScreenPart`
-    // answers for the panel because the surface DREW it, which is how the
-    // press arrives here at all. ⚠️ `rowGroupId` is set by nothing else: the
-    // surface writes the key on a row of the `Row Title Panel` and on a roster
-    // line, and a roster line carries `entry` as well.
+    // FR-085: the row itself was pressed, not one of its controls (table T-051,
+    // FR-098). `rowGroupId` is set only on panel rows and roster lines, and a
+    // roster line carries `entry` as well.
     if (on.rowGroupId !== null) {
-      // MK-13's 行見出し entry (MUST), as FR-085 states it since the user's
-      // ruling of 2026-09-01: a DOUBLE click on the row's name opens the
-      // `Properties Panel` at the name field (AT-53), focused, with the text
-      // already there all selected.
-      // ⛔ NOTHING IS CHOSEN HERE, and for the same reason `taskName` chooses
-      // nothing: the FIRST click of the double click already ran the branch
-      // below and moved the chosen rows, so the panel turns to what was
-      // pressed. ⚠️ `clickCount` is the framework's count -- telling a double
-      // click from two single ones is a question about elapsed time that LY-5
-      // of table T-060 leaves the outermost layer.
+      // MK-13 / FR-085: a double click opens the name field (AT-53). Nothing is
+      // chosen, because the first click already ran the branch below.
+      // `clickCount` is the framework's: timing belongs to the outermost layer
+      // (LY-5 of table T-060).
       if (press.at.clickCount >= 2) {
         return acted({ kind: 'editInPlace', target: { kind: 'rowName', groupId: on.rowGroupId } })
       }
       return acted({
         kind: 'chooseRow',
         groupId: on.rowGroupId,
-        // ⚠️ THE PRESS'S KEYS AND NOT THE RELEASE'S, which is CS-2 of table
-        // T-066 -- the gesture is about the moment it began, and the same rule
-        // `gestureModifiers` states for every other pointer row.
+        // The press's keys, not the release's (CS-2 of table T-066).
         isExtending: press.at.modifiers.shift,
       })
     }
-    // On the part but on no entry and on no row -- the palette's own body, a
-    // surface's background, a notice, the panel's empty tail below the last
-    // row, the band the header's name stands in.
+    // On the part but on no entry and no row: the palette's body, a surface's
+    // background, a notice, the panel's empty tail, the header's name band.
     //
-    // ⛔⛔ THE BROWSER KEEPS THIS RELEASE, AND MK-10 OF TABLE T-023 IS WHY:
-    // 「割り当てていない組合せを止めてはならない（MUST NOT）」. Nothing has been
-    // assigned to it -- this branch is the one that writes nothing at all -- so
-    // stopping it takes a behaviour away from the person and puts none back.
-    // ⛔⛔ WHAT STOOD HERE ANSWERED `CONSUMED_ELSEWHERE` AND WAS MEASURED WRONG
-    // (DFC-338, on the shipped build 2026-09-07). The `App Header` is a face this
-    // surface draws, so EVERY release over it took this road, FR-035's standing
-    // name field included -- and a click inside that field left the caret where
-    // it was: four presses at 20%, 40%, 60% and 80% of the text all read back
-    // the same selection (0..23, the select-all SK-9 opens with), where the
-    // same four with the release left alone read 5, 5 and 22, 22. ⚠️ MEASURED
-    // WHICH HAPPENING, not guessed: `pointerdown`, `mousedown`, `pointerup`,
-    // `mouseup` and `click` all reach the field and `pointerup` is the only one
-    // this tool prevented -- the host settles a click inside an already
-    // selected field on the RELEASE, so that a drag can extend it instead.
-    // ⛔ THE PRESS WAS ALREADY THE BROWSER'S, which is what makes the old
-    // reason "the browser must not start a text selection under a palette" not
-    // hold: a selection starts on the DOWN, `pointerAssignment` leaves the down
-    // alone everywhere outside the `Row Area`, and no `preventDefault` at all
-    // was recorded for one in the same measurement. ⇒ Stopping the release
-    // bought nothing and cost the caret.
+    // Left to the browser (MK-10, MUST NOT), since nothing is assigned. Consuming
+    // it broke caret placement in FR-035's name field, which the host settles on
+    // `pointerup`; the down is already the browser's outside the `Row Area`.
     //
-    // ⛔ THE EMPTY TAIL DOES NOT LET GO OF THE CHOSEN ROWS. MK-11 of table
-    // T-023 does that for the drawing area, and the note under table T-023a
-    // keeps that table off this panel; FR-085 states no such rule of its own,
-    // and letting go is reached by pressing a chosen row again with `Shift`.
+    // The empty tail does not let go of the chosen rows: MK-11 covers the drawing
+    // area only and FR-085 has no such rule; `Shift` on a chosen row does it.
     return UNASSIGNED
   }
   const entry = on.entry
@@ -4557,26 +3065,11 @@ function commandFromEntry(
       return acted({ kind: 'redoEdit' })
     case ENTRY.fitToScreen:
       return changedInOrder(fitWrites(context))
-    // ⭐ THESE FOUR ARE ASKED AGAIN WHILE THE BUTTON IS STILL DOWN. FR-018
-    // (MUST) has a held IC-12 .. IC-15 go on stepping after the wait S-172
-    // states, at the interval S-173 states, and the shell raises each of those
-    // continuations by handing this member the SAME press a second time and a
-    // third (`frame-loop.ts`, `repeatHeldEntry`). ⛔ SO NOTHING IN THESE FOUR
-    // BRANCHES MAY READ THE RELEASE. They are decided from `press` and
-    // `context` alone today, which is CS-2 of table T-066 in any case, and a
-    // branch that started reading `release` would answer one thing on the
-    // release and another on every repeat.
-    // ⛔ AND THE STEP STAYS S-53 THROUGHOUT, which is the same requirement's
-    // own MUST -- 「刻む幅は `S-53` のままとする」, because 「連続のあいだだけ別の
-    // 幅にすると、同じ入口が 2 つの意味を持つ」. ⚠️ A repeat that felt too slow is
-    // S-173's to answer and never `keyZoomFactor`'s.
-    // ⭐ WHAT COMPOUNDS IS THE READING, NOT THE STEP. `zoomTimes` multiplies
-    // the zoom now in force, so a fresh context each time is what makes a hold
-    // travel; the factor it is multiplied by is the same one every time.
-    // ⛔ IC-10 AND IC-11 ARE NOT IN THAT SET and must not be added to it: the
-    // requirement limits the repeat to these four (MUST) and gives its reason
-    // where it stands -- the fit and the full screen 「繰り返しても同じ結果にしか
-    // ならない」.
+    // IC-12 .. IC-15 are asked again while held (FR-018, S-172 / S-173): the
+    // shell hands the same press again (`repeatHeldEntry` in `frame-loop.ts`), so
+    // these branches must not read the release. The step stays S-53 (FR-018); a
+    // hold travels because `zoomTimes` multiplies the zoom in force. IC-10 and
+    // IC-11 are not repeated (FR-018).
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
@@ -4598,30 +3091,18 @@ function commandFromEntry(
       return commandFromVisibleElementEntry(entry, context)
     case ENTRY.planDisplay:
     case ENTRY.actualDisplay:
-      // ⭐ S-227 / S-228 GO THE ORDINARY ROAD (CM-58). FR-049 (the ruling of
-      // 2026-09-07) made them two independent booleans of table T-202, which is
-      // exactly what `commandFromVisibleElementEntry` answers for.
-      // ⛔ CM-57 retired with the three-valued row it existed to write.
+      // S-227 / S-228 are two booleans of table T-202 (FR-049), so CM-58.
       return commandFromVisibleElementEntry(entry, context)
     case ENTRY.themePreference: {
-      // CM-63 -- FR-039's light/dark, which S-72 holds two values for. ⚠️ The
-      // saved value is a STARTING value and not a binding one (FR-039, MUST
-      // NOT), and this press is how the reader moves off it -- FR-039's own
-      // RATIONALE calls the result an edit of the document, which is why it is
-      // a `DocumentCommand` and not the shell's.
+      // CM-63 (FR-039, S-72). A `DocumentCommand`, not the shell's: the saved
+      // value is only a starting value and this press is an edit (FR-039).
       const isDarkNow = context.document.documentSettings.themePreference === 'dark'
       return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
     }
     case ENTRY.fontScale:
-      // CM-62 -- FR-039's font size, which S-70 holds three steps for and table
-      // T-215 measures. ⭐ The step that follows is `nextFontScale`'s, and the
-      // ruler's own type and band follow it on the write side (FR-039, MUST) --
-      // ⛔ nothing here writes `rulerFont` or `rulerHeight`, or the two readings
-      // of S-2 / S-3 would have to agree forever.
-      // ⚠️ Like IC-16 below it, the saved value is a STARTING value and not a
-      // binding one (FR-039, MUST NOT), and this press is how a reader moves off
-      // it -- which that requirement's RATIONALE calls an edit of the document,
-      // so it is a `DocumentCommand` and not the shell's.
+      // CM-62 (FR-039, S-70), a `DocumentCommand` for the reason above. The
+      // ruler's type and band follow on the write side; writing `rulerFont` or
+      // `rulerHeight` here would be a second reading of S-2 / S-3.
       return changed([
         {
           kind: 'setFontScale',
@@ -4629,10 +3110,8 @@ function commandFromEntry(
         },
       ])
     case ENTRY.themeMonochrome:
-      // CM-64 -- FR-041's monochrome, S-74. ⭐ ONE ENTRANCE OVER TWO VALUES, so
-      // a press moves to the other one, the same shape as IC-16.
-      // ⛔ NOT `setElementVisible`: S-74 is a row of table T-203, and FR-049's
-      // toggles are the boolean rows of table T-202 -- IC-100's own row says so.
+      // CM-64 (FR-041, S-74). Not `setElementVisible`: S-74 is a row of table
+      // T-203, not one of FR-049's booleans of table T-202 (IC-100).
       return changed([
         {
           kind: 'setThemeMonochrome',
@@ -4640,16 +3119,12 @@ function commandFromEntry(
         },
       ])
     case ENTRY.stackDirection: {
-      // CM-56 -- FR-003's stacking direction, S-58, which holds exactly two
-      // values. ⭐ Same shape as IC-16 again: one entrance, so a press moves to
-      // the other value.
+      // CM-56 (FR-003, S-58).
       const isUpNow = context.document.documentSettings.stackDirection === 'up'
       return changed([{ kind: 'setStackDirection', direction: isUpNow ? 'down' : 'up' }])
     }
     case ENTRY.statusLine:
-      // FR-046, as SK-20 states it: showing the line puts today into
-      // `statusDate` and hiding it puts null there. ⚠️ Table T-109 also says
-      // 「動かす」, which is GR-16's drag and not this entry.
+      // FR-046, as SK-20. Moving the line is GR-16's drag, not this entry.
       return changed([
         context.document.schedule.project.statusDate === null
           ? { kind: 'setStatusDate', date: context.today }
@@ -4661,41 +3136,21 @@ function commandFromEntry(
     case ENTRY.guideCursorSingleVertical:
       return commandFromGuideCursorEntry(entry, context)
     case ENTRY.paletteMinimise:
-      // FR-053 -- S-200, which the shell holds. Same shape as the row below.
+      // FR-053 -- S-200, which the shell holds.
       return acted({ kind: 'togglePaletteMinimised' })
     case ENTRY.interactionRecord:
-      // FR-102 -- S-206, which the shell holds, the same shape as the two rows
-      // beside it: table T-109's IC-76 says 「同じ入口で止める」, so the press
-      // reverses whatever stands and the value that stands is the shell's.
-      // ⛔ The clipboard FR-102 (MUST) hands the record to on the stop is the
-      // shell's too: a pure member cannot reach IF-5.
+      // FR-102 -- S-206, which the shell holds and IC-76 toggles. The clipboard
+      // hand-off on the stop is the shell's too: a pure member cannot reach IF-5.
       return acted({ kind: 'toggleInteractionRecord' })
     case ENTRY.milestoneList:
-      // FR-053 -- S-142, which the shell holds. ⭐ Since CR-273 the row reads
-      // 「同じ入口で開閉する」, so which way it goes depends on what stands, and
-      // what stands is the shell's: this reports the press and the shell turns
-      // the value.
+      // FR-053 -- S-142, which the shell holds and turns.
       return acted({ kind: 'toggleMilestoneList' })
     case ENTRY.paletteGrabBand:
-      // GR-19 of table T-023d -- FR-053's drag, settled on the release like
-      // every other one here (IN-1 of table T-028).
-      //
-      // ⭐ NOTHING HAS TO ENFORCE THE PRIORITY. GR-19 is the FIRST row of that
-      // table and its preamble reads 「上の行ほど優先すること（MUST）」, so a press
-      // that lands on the band is the band's whatever is drawn under it --
-      // and `press.on` is the drawing side's own answer, taken once at the
-      // moment of the press (CS-2 of table T-066). ⛔ That only holds while
-      // the band is laid OVER what it covers; the note by `ENTRY` says so to
-      // the side that lays it.
-      //
-      // ⚠️ The pointer's travel and not its place: a press may begin anywhere
-      // on the band, so the corner has to move by the difference rather than
-      // jump to where the finger let go.
-      //
-      // ⭐ WHAT IS LEFT OF IT, WHICH IS THE WHOLE TRAVEL WHEN NOTHING FOLLOWED.
-      // FR-053 (MUST) has the palette follow while the band is held, so the
-      // moves before this one may already have been reported and applied;
-      // `followingTravel` is where the two readings are settled, once.
+      // GR-19 (FR-053), settled on the release (IN-1 of table T-028). Priority
+      // needs no enforcing: GR-19 is table T-023d's first row and `press.on` was
+      // taken at the press (CS-2 of table T-066) -- which holds only while the
+      // band is laid over what it covers (see `ENTRY`). What is left of the
+      // travel moves the corner, since a press may begin anywhere on the band.
       return acted({ kind: 'moveCommandPalette', by: followingTravel(release, press) })
     case ENTRY.rowExpanderOpen:
     case ENTRY.rowExpanderClose:
@@ -4706,45 +3161,20 @@ function commandFromEntry(
     case ENTRY.rowDelete:
       return commandFromRowEntry(entry, on.rowGroupId, context)
     case ENTRY.rowExpanderOpenAll:
-      // HF-10 of table T-051, which is HR-1 of table T-015.
+      // HF-10, which is HR-1 of table T-015, written as CM-72 (a command is not
+      // narrowed to the requirement that raised it). Neither zoom nor viewport
+      // moves (HF-10), so `fitWrites` is not reached.
       //
-      // ⭐ CM-72 IS ALREADY THAT OPERATION. Its row in table T-108 asks for
-      // every folded row to open, which is HR-1 exactly; that row's authority
-      // column names FR-055 because that is the requirement the command was
-      // raised for, and a command is not narrowed to the one that raised it.
-      // ⚠️ `edit-task-group.ts` still calls the fit the only operation that
-      // opens them all -- see the report for this unit.
-      // ⛔ No loop of CM-33 is built instead: FR-031 (MUST) makes one press one
-      // undo step, and a step per row would count the document's rows.
-      // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES. HF-10 says so, and that is
-      // the whole of what separates this press from the fit (FR-055), which
-      // owes CM-71 first -- so `fitWrites` is not reached and this is one write.
-      //
-      // ⛔ WITH NOTHING FOLDED THERE IS NOTHING TO OPEN, and FR-029 (MUST) has
-      // the reason told rather than the press swallowed. ⚠️ The test is made
-      // HERE and not left to CM-72: that command puts whatever it is given, so
-      // an empty document-wide open still pushed a step onto the undo history
-      // for a press that moved nothing (FR-031 with UN-8) -- `changed` records
-      // the same reason for an empty bundle.
-      // ⭐ THE SAME READING `RowTitlePanel.canOpenEveryRow` IS DRAWN FROM, so
-      // the entrance a person sees faint is the entrance that tells them why.
-      // ⛔⛔ AND THE COUNT IS THE PICTURE'S (CR-309): a drawn folded row with
-      // nothing left to reveal opens onto the same frame, so it is no target.
-      // ⚠️ The roster test is kept as the fallback for a caller that carried no
-      // picture -- see `InputContext.drawnRowGroupIds`.
-      // ⭐⭐ AND 段 0's OWN FOLD IS ONE OF THE THINGS IT OPENS. S-211 of table
-      // T-206 names 「戻す道は 2 つある —— 表 T-051 の `HF-16`（段 0 を 1 階層
-      // 開く）と `HF-10`（すべて開く）」, so this press clears the head as well
-      // as every row -- and with the head folded it is never spent, whatever
-      // the rows say, because clearing it alone brings the picture back.
+      // With nothing to open the reason is told (FR-029); tested here because
+      // CM-72 would push an undo step for an empty open. The same reading as
+      // `RowTitlePanel.canOpenEveryRow`: the count is the picture's
+      // (`InputContext.drawnRowGroupIds`), with the roster as the fallback for a
+      // caller that carried none. 段 0's fold (S-211) is opened as well.
       if (
         !(
           context.isLevelZeroFolded === true ||
           (wouldMoveARow(context, null, 'open') ??
-            // ⛔ THE FALLBACK COUNTS A HIDDEN ROW TOO, and until 2026-08-31 it
-            // did not. HR-1 (MUST) brings back what HR-6 hid, so a document
-            // whose only closed rows are hidden ones has work for this press --
-            // and a caller that carried no picture was told there was none.
+            // The fallback counts hidden rows too: HR-1 brings back what HR-6 hid.
             context.document.schedule.taskGroups.some(
               (row) => row.isCollapsed === true || row.isHidden === true,
             ))
@@ -4752,15 +3182,8 @@ function commandFromEntry(
       ) {
         return nothingToDo('noFoldedRowAtAll')
       }
-      // ⭐⭐ AND IT UNDOES THE HIDING TOO, AT EVERY DEPTH. HR-1 (MUST) since
-      // 2026-08-31: 「`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと —— 本行
-      // は `HR-3` の段 0 である」.
-      // ⛔ CM-72 CANNOT ANSWER IT. Its row in table T-108 opens folded rows and
-      // says nothing about `isHidden`; the unhiding is a bundle of CM-34 beside
-      // it, and one bundle is one undo step (FR-031).
-      // ⛔⛔ WITHOUT THIS A TOP-LEVEL ROW COULD BE HIDDEN AND NEVER BROUGHT
-      // BACK. HR-6 names 段 0's control as the ONLY way back for a row with no
-      // parent, so the entrance that owes it was the one entrance not doing it.
+      // HR-1 also unhides every row, which CM-72 does not: a bundle of CM-34
+      // beside it, one undo step (FR-031).
       return acted({
         kind: 'setLevelZeroFolded',
         isFolded: false,
@@ -4768,91 +3191,32 @@ function commandFromEntry(
       })
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
-      // FR-034, drawn faint by `isEntryUsable` (UF-65) 「揃える相手の `Task` が
-      // 選ばれていない」 -- and FR-029 (MUST) has that press told why.
+      // FR-034. `isEntryUsable` (UF-65) draws it faint with the same reading, so
+      // the faint entrance and the told reason (FR-029, RS-34) agree.
       //
-      // ⭐ THE SAME READING THE PALETTE DREW, and it has to be: that unit asks
-      // for an ORDERED selection carrying at least one `Task`, because FR-034
-      // lines the rest up with the one the order names. A second reading here
-      // would let the entrance say it is spent when it is not, or the other way
-      // about.
-      // ⛔ READ OFF `Selection` AND NOT OFF THE DRAWN PALETTE, the discipline
-      // every branch above keeps: a drawn screen is as old as the last paint
-      // (FR-048 lets one be skipped) and `context` is the copy CS-1 of table
-      // T-066 froze at the head of this frame.
-      // ⭐⭐ THE USABLE CASE IS NOW WRITTEN, AS A BUNDLE OF CM-11. Table T-108
-      // holds no command called "align", and none is minted: `GR-12` below
-      // already moves a whole selection by emitting one `setTaskPlanDates` per
-      // Task, and CR-294 recorded the same reading for the folds 「表 T-108 は
-      // 動かしていない —— 全畳みも配下の全畳みも `CM-33` の束で書ける（1 つの
-      // 束は取り消しの 1 段である）」. ⛔ A command of its own would write with a
-      // second name what CM-11 already writes, which R3.4 refuses.
-      // ⚠️ Until 2026-08-30 this branch answered the usable press with
-      // `CONSUMED_ELSEWHERE` and the entrance moved no bar by 1px (台帳 DFC-146).
+      // Written as a bundle of CM-11: table T-108 has no align command, and one
+      // would write under a second name what CM-11 writes (R3.4).
       //
-      // ⭐ THE ANCHOR IS THE LAST TASK PICKED. FR-034 (MUST) lines the rest up
-      // 「最後に選んだタスクの日付へ」, and SL-7b keeps `items` in the order they
-      // were picked, oldest first -- so the anchor is the LAST `task` of that
-      // list and is never written itself.
-      // ⛔ READ OFF `Selection` AND NOT OFF THE DRAWN PALETTE, for the reason
-      // the faint reading above already gives.
-      //
-      // ⛔⛔ TWO TASKS AND NOT ONE. A single chosen Task IS the last one picked,
-      // so it is its own anchor and there is nothing to line up -- and 表 T-233's
-      // `RS-34` names that 場面 in as many words, 「揃える相手の `Task` が選ばれて
-      // いない」. ⚠️ Measured on 2026-08-30 with `some` in place of this count:
-      // the press answered with neither a write nor a reason, which FR-029
-      // (MUST) forbids either way round. ⭐ `isEntryUsable` (UF-65) counts the
-      // same two.
-      //
-      // ⭐⭐ AND THE TWO ARE COUNTED ON THE DRAWN SIDE SINCE 2026-09-05 (DFC-265),
-      // which is the sentence above kept rather than a new rule: FR-029 (MUST)
-      // counts an entrance's targets 「画面に描かれている側で」 and (MUST NOT)
-      // 「描かれていないものの上に残る状態を数えてはならない」. ⛔ `Selection` IS
-      // NOT CUT WHEN A TASK LEAVES THE PICTURE -- a fold (HR-1a), a hiding
-      // (HR-6) and FR-018's depth limit all take a row out without touching it
-      // -- so counting `selection.items` alone answered a press over a picture
-      // holding none of the chosen Tasks with a silent write. ⚠️ Measured
-      // 2026-09-05: two Tasks chosen, IC-78 folded every row away, IC-37 drawn
-      // faint by `command-palette.ts` -- and this branch still wrote.
-      // ⭐ THE SAME READING THE PALETTE DREW, made from the same two facts:
-      // which rows the frame drew (`drawnRowGroupIds`) joined through
-      // `Schedule.taskGroupMembers` (ET-5 of table T-056) to the Tasks they
-      // carry. ⛔ A second, wider reading here is exactly what the faint side
-      // must not disagree with.
+      // The anchor is the last Task picked (FR-034; SL-7b keeps pick order), so
+      // at least two chosen Tasks are needed. They are counted among the drawn
+      // rows (FR-029; `drawnRowGroupIds` joined through `taskGroupMembers`, ET-5
+      // of table T-056): a fold, a hiding or a depth limit takes a Task out of
+      // the picture without changing `Selection`. `Selection` is read rather than
+      // the drawn palette, which may be as old as a skipped paint (FR-048).
       if (context.selection.ordered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')
     case ENTRY.rowExpanderCloseAll:
-      // HF-12 of table T-051, which is HR-2 of table T-015.
+      // HF-12, which is HR-2 of table T-015, written as a bundle of CM-33
+      // (`foldsEveryRow`): table T-108 has no fold-all row and one would duplicate
+      // CM-33 (R3.4); CM-72 exists only because FR-055's fit needs one row.
+      // Neither zoom nor viewport moves.
       //
-      // ⛔ NO COMMAND OF ITS OWN IS MINTED FOR IT, and that is not the shape
-      // IC-74 takes above. CM-72 exists because FR-055's fit needs the whole
-      // opening as ONE row of table T-108; table T-108 has no row that folds
-      // them all, and adding one would write with a second command what CM-33
-      // already writes -- which R3.4 refuses. ⭐ `foldsEveryRow` builds the
-      // bundle, and a bundle IS one undo step (FR-031): `commandFromRowEntry`
-      // has opened a whole subtree that way since IC-58 was wired.
-      // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES, for HF-10's reason, which
-      // HF-12 takes with the placement.
-      //
-      // ⛔ AN EMPTY BUNDLE IS A PRESS WITH NOTHING TO DO, and FR-029 (MUST) has
-      // the reason told -- the same reading `RowTitlePanel.canCloseEveryRow` is
-      // drawn from, so the faint entrance and the telling agree.
-      // ⛔⛔ AND THE COUNT IS THE PICTURE'S (CR-309), the same as IC-77's: a
-      // drawn unfolded row with no drawn child hides nothing when it folds.
-      // ⭐⭐ AND IT FOLDS 段 0 ITSELF (HR-2, MUST): 「最も浅い段の行も畳むこと」,
-      // 「パネルの頭は最も浅い段のさらに上、すなわち段 0 として扱う」 -- 「押すと
-      // 行が 1 つも描かれない状態になりうる」. ⛔ The rows' own folds cannot carry
-      // that, and HR-2 says why: 「行の畳みが隠すのはその配下であり、最も浅い段の
-      // 行は親を持たないので誰にも隠されない」. ⇒ S-211 moves with the bundle.
-      // ⛔ SO IT IS SPENT WHERE THE HEAD IS ALREADY FOLDED, AND WHERE THE
-      // SHALLOWEST LEVEL HOLDS NO DRAWN ROW. 段 0 answers exactly as a row does
-      // (HR-2: 「頭に置いた入口が各行の入口と同じ論理で働くこと」), so this is
-      // HR-4's own reading -- folding a row whose children are all out of the
-      // picture takes no row out of it (the closing rule under table T-051).
-      // ⭐ `RowTitlePanel.canCloseEveryRow` is drawn from the same two.
+      // It also folds 段 0 (HR-2, S-211 moving with the bundle), since the
+      // shallowest rows have no parent to hide them. Spent where 段 0 is already
+      // folded or no shallowest row is drawn -- HR-4's reading, and the same two
+      // facts `RowTitlePanel.canCloseEveryRow` is drawn from (FR-029).
       if (
         context.isLevelZeroFolded === true ||
         isARowOfTheShallowestLevelDrawn(context) === false
@@ -4865,65 +3229,36 @@ function commandFromEntry(
         writes: foldsEveryRow(context.document.schedule),
       })
     case ENTRY.rowExpanderOpenLevelZero: {
-      // IC-92 -- HF-16 of table T-051 (MUST), which is HR-7 of table T-015
-      // pressed at 段 0: 「最も浅い段を 1 階層だけ開く」.
-      //
-      // ⭐ TWO THINGS, AND BOTH ARE NAMED BY THE ROWS THAT SEND WORK HERE.
-      // HR-2 (MUST): 「`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る」 --
-      // so S-211 comes off. HR-6 (MUST): 「親を持たない最上位の行は、段 0 の同じ
-      // 操作子で戻せること」 -- so the hidden rows of that level come back too,
-      // which is the very thing `opensRowAndUnhidesItsChildren` does for a row.
-      // ⛔ THE SHALLOWEST ROWS ARE NOT UNFOLDED BY IT. HR-2 has them come back
-      // 「畳まれた」 -- 「最も浅い段が戻る」 is one level and no more, which is what
-      // parts HF-16 from HF-10 (MUST NOT: 「兼ねさせてはならない」).
-      // ⛔ AND THE FOLD IS NOT WRITTEN ON ANY ROW. 段 0 is not a `TaskGroup`;
-      // HR-2 (MUST NOT) refuses to move AT-56 or AT-57 for it.
+      // IC-92 -- HF-16, which is HR-7 pressed at 段 0: S-211 comes off (HR-2) and
+      // the hidden shallowest rows come back (HR-6). The shallowest rows' own
+      // folds stay (HR-2; HF-16 must not double as HF-10), and no `TaskGroup`
+      // column is written for 段 0 (HR-2, MUST NOT).
       const unhidden = opensLevelZeroHiddenRows(context.document.schedule)
       if (context.isLevelZeroFolded !== true && unhidden.length === 0) {
-        // ⛔ THE SITUATION IS `null` FOR THE REASON IC-90's BRANCH GIVES: 表
-        // T-233's RS-28 is HF-2's 「配下に、開ける行が 1 つも無い」 and would be
-        // untrue here, and no other row of that table fits 段 0 at all.
+        // `null`: RS-28 is HF-2's situation, and no row of table T-233 fits 段 0.
         return nothingToDo(null)
       }
       return acted({ kind: 'setLevelZeroFolded', isFolded: false, writes: unhidden })
     }
     case ENTRY.rowAddTopRow:
-      // IC-93 -- HF-17 of table T-051 (MUST), which is HR-8 pressed at 段 0:
-      // 「最も浅い段へ行を 1 つ足す」.
+      // IC-93 -- HF-17, which is HR-8 pressed at 段 0: a row as the last child of
+      // no parent (`orderPastLastChild`), named as HF-14 names. Never spent:
+      // FR-085 allows depth 1, and this is the one road to a first row. Depth 1 is
+      // never an LOD tier (FR-018), so `rowStoodUp` plans no CM-65 for it.
       //
-      // ⭐ THE SAME NAMING AS IC-91, which HF-17 asks for in as many words:
-      // 「名前の扱いは `HF-14` に従う」 -- so since 2026-09-04 the row is stood up
-      // on the press with the default name and named in the `Properties Panel`.
-      // ⭐ `parentGroupId: null` IS 段 0, and HF-17 (MUST) makes the new row
-      // 「最も浅い段の末子」 -- which is `orderPastLastChild` over the rows that
-      // have no parent.
-      // ⛔ NEVER SPENT. FR-085 allows a row at the shallowest level, so the
-      // depth cap (S-125) cannot refuse depth 1 -- and this entrance is the one
-      // road to a first row in a document that has none.
-      // ⭐ AND FR-018's TIER IS NEVER OPENED FOR IT EITHER: 「深さ 1 を LOD の
-      // 対象にしてはならない（MUST NOT）」, so a row of the shallowest level is
-      // drawn at every zoom and `rowStoodUp` plans no CM-65 for it.
-      //
-      // STOP -- ⛔⛔ THE THIRD THING THAT HIDES THE ROW IS NOT ANSWERED HERE:
-      // 段 0's own fold (S-211). `context.isLevelZeroFolded` is in hand, but the
-      // opening cannot travel with this press. See `parentFoldTakenOff` for the
-      // whole of it -- what table T-051 says, what the fabricated citation used
-      // to say instead, and why `InputAction` cannot carry both halves.
+      // STOP -- 段 0's own fold (S-211) is not taken off by this press; see
+      // `parentFoldTakenOff`.
       return rowStoodUp(context, null, 1)
     case ENTRY.documentSettingsProperties:
-      // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
-      // the action's own note.
+      // FR-072. Which way this press goes is the holder's; see the action.
       return acted({ kind: 'toggleDocumentSettingsProperties' })
     case ENTRY.agentApi:
-      // FR-065 -- S-99b keeps the record out of the document, so this changes
-      // nothing the document holds.
+      // FR-065 -- S-99b keeps the record out of the document.
       return acted({ kind: 'toggleAgentApi' })
     case ENTRY.dialogueFieldVisible:
-      // FR-066 / S-99i -- S-99i keeps the record out of the document, the same
-      // as S-99b just above, so this changes nothing the document holds either.
-      // ⛔ REACHED WHILE THE `Agent API` IS ON ONLY: `frame-loop.ts`'s
-      // `answerSettledEntry` spends the press itself (with RS-35's reason)
-      // while the API is off, before `carryOutAction` ever reads this action.
+      // FR-066 / S-99i, out of the document like S-99b. Reached only while the
+      // `Agent API` is on: otherwise `answerSettledEntry` in `frame-loop.ts`
+      // spends the press (RS-35) before `carryOutAction` reads this action.
       return acted({ kind: 'toggleDialogueFieldVisible' })
     case ENTRY.rosterChooseAll:
     case ENTRY.rosterClearChosen:
@@ -4934,9 +3269,8 @@ function commandFromEntry(
       })
     case ENTRY.rosterChosen:
     case ENTRY.rosterUnchosen: {
-      // ⚠️ A roster entry drawn with no person on it cannot be acted on: AS-6
-      // of table T-225 (MUST) writes the `uid`, and there is none to write.
-      // ⛔ Still this tool's press (MK-10).
+      // A roster line with no person cannot be acted on (AS-6 writes the `uid`);
+      // it is still this tool's press (MK-10).
       if (on.resourceUid === null) return CONSUMED_ELSEWHERE
       return acted({ kind: 'toggleChosenResource', uid: on.resourceUid })
     }
@@ -4948,46 +3282,18 @@ function commandFromEntry(
 /**
  * IC-45 -- DC-1's way into table T-029a's mode, and DC-4's way out of it.
  *
- * ⭐ THE MODE IS THE FOLLOWING SIDE. Entering hands it to `date1`, which is
- * DC-1's own default; leaving sets it to null. There is no second flag to keep
- * in step, which is why the mode cannot be up with nobody following.
+ * The mode is the following side: entering hands it to `date1` and leaving sets
+ * it to null, so there is no second flag to keep in step. Leaving also clears the
+ * pair with CM-61 (DC-7).
  *
- * ⭐⭐ LEAVING CLEARS THE PAIR -- 利用者の裁定 2026-09-06, recorded as B-2 of
- * CR-364: 「デュアルカーソルモードを Disable にするか、別のカーソルモードにしたら
- * Dual Cursor が消えるべきだろ？」. The way out is therefore CM-61 and not an
- * empty write, and the clearing needs no entrance of its own.
+ * A guide-cursor change does not clear it: CU-2 and CU-3 are different things
+ * (table T-029's closing paragraph), and DC-4 forbids one entrance clearing both.
  *
- * ⭐⭐ AND THE MANUSCRIPT NOW SAYS THE SAME, so nothing here is ahead of it.
- * §1 of CR-364 named DC-7 as the row to edit and the edit has landed: that row
- * reads 「モードを出たら、置いた 2 本を消すこと（MUST）」 with the ruling quoted
- * beside it. ⚠️ WHAT STOOD HERE UNTIL 2026-09-06 SAID THE OPPOSITE -- that DC-7
- * 「still reads」 its pre-CR-364 sentence 「置いた 2 本を消す入口を、モードを出る
- * 入口とは別に置くこと（MUST）。モードを出ただけで消してはならない（MUST NOT）」 and
- * that the edit had not landed. ⛔ It is corrected rather than deleted because
- * the withdrawn pair is what DC-1's own ⛔⛔ note is about: that row's MUST NOT
- * used to reason from 「モードを出ても 2 本を残す」, and a reader meeting the
- * surviving prohibition needs to know its ground moved.
+ * A pair already standing is not put down again (DC-1): a document can open with
+ * one saved (S-65).
  *
- * ⛔ AND NOT ON A GUIDE-CURSOR CHANGE, which is the OTHER reading of the same
- * ruling and is refused here. `S-66`'s 「縦 2 本」 is CU-3 of table T-029; the
- * placed pair is CU-2; and table T-029's closing paragraph (MUST) says in as
- * many words that 「`CU-2` と `CU-3` の「縦 2 本」は別のものである」. DC-4 adds the
- * consequence (MUST NOT): the guide cursor's 「なし」 may not take this mode down
- * with it, 「3 種は独立に出し分ける（`FR-048`）ので、1 つの入口が 2 つを同時に
- * 消してはならない」. ⚠️ The ruling did not address either sentence, so clearing
- * from `setGuideCursorMode` would be a rule no sentence states. See the CM-59
- * case of `edit-document-settings.ts`.
- *
- * ⛔ A PAIR ALREADY STANDING IS NOT PUT DOWN AGAIN (DC-1, MUST NOT), and that
- * row OUTLIVES its stated reason. It reasons from DC-7 keeping the pair after
- * the mode is left, which is no longer so; but a pair can still stand with
- * nobody following, because `dualCursor` is SAVED (S-65) and a document may be
- * opened with one in it. ⚠️ So the branch below is reached from a load and no
- * longer from a re-entry -- it is not dead, and its rule is unchanged.
- *
- * ⚠️ 「画面の中央」 IS THE `Row Area`'S HORIZONTAL MIDPOINT, which DC-1 now says
- * in as many words. ⛔ Not the window's: the two lines run down the `Row Area`
- * and a midpoint outside it could name a day the picture never drew.
+ * The centre is the `Row Area`'s horizontal midpoint (DC-1), not the window's,
+ * which could name a day the picture never drew.
  *
  * @purity pure
  */
@@ -4995,15 +3301,9 @@ function commandFromDualCursorEntry(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  // DC-4: 「同じ入口の再押下」, and the ruling above makes it clear the pair in
-  // the same press -- the side stops following and `dualCursor` goes to null
-  // together, which is what the one action carrying both halves is for.
-  // ⚠️ THE OTHER WAY OUT IS NOT HERE. DC-4 also gives 「`Esc`」, and that road
-  // never reaches this file: `escapeTarget` names that level for a holder the
-  // Framework keeps (LY-5 of table T-060), so `frame-loop.ts` drops the mode
-  // itself at `escapeLevel === 'dualCursorMode'`. ⭐ IT MAKES THIS SAME WRITE
-  // THERE (DFC-301) -- one command for DC-4's two ways out, so neither can drift
-  // from DC-7.
+  // DC-4's re-press: stop following and clear the pair in one action. DC-4's
+  // other way out, `Esc`, is handled in `frame-loop.ts` (`escapeLevel ===
+  // 'dualCursorMode'`) with this same write, so neither drifts from DC-7.
   if (context.dualCursorFollowing !== null) {
     return acted({
       kind: 'setDualCursorFollowing',
@@ -5018,11 +3318,9 @@ function commandFromDualCursorEntry(
   const rowArea = context.regions.rowArea
   const onPointer = dayAtX(context.layout, press.at.x)
   const atCentre = dayAtX(context.layout, rowArea.x + rowArea.width / 2)
-  // ⛔ THE MODE IS NOT ENTERED WITH NOTHING TO MEASURE. DC-1 (MUST) puts BOTH
-  // dates down on the way in and IV-13 admits no half-placed pair, so an axis
-  // that can name neither day leaves the press taken and the mode down rather
-  // than up over an empty setting. ⚠️ It happens only before the axis has an
-  // origin, which BO-1 of table T-077 already forbids drawing in.
+  // Not entered with nothing to measure: DC-1 places both dates and IV-13 admits
+  // no half-placed pair. This happens only before the axis has an origin, which
+  // BO-1 of table T-077 already forbids drawing in.
   // @provisional PND-313
   if (onPointer === null || atCentre === null) return CONSUMED_ELSEWHERE
   return acted({
@@ -5037,18 +3335,11 @@ function commandFromDualCursorEntry(
 }
 
 /**
- * PTD-2 of table T-023a, which is DC-2: 「追従している側をクリックするとその位置で
- * 固定し、もう一方が追従に切り替わること」.
+ * PTD-2 of table T-023a, which is DC-2.
  *
- * ⭐ WHAT IS FIXED IS THE DAY UNDER THE POINTER, which is the same reading the
- * renderer draws the following line at -- so the line lands where it was seen.
- *
- * ⛔ THE OTHER SIDE IS WRITTEN BACK UNCHANGED, not left out. CM-60 takes both
- * dates at once (IV-13), so the standing one has to travel with the fixed one;
- * reading it from the frozen document is what makes this one press one write.
- *
- * ⭐ THE PRESS AND NOT THE RELEASE, which is CS-2 of table T-066 -- the same
- * rule every other row of table T-023a is settled by.
+ * The fixed day is the one under the pointer, the reading the renderer draws the
+ * following line at. The other date is written back unchanged because CM-60
+ * takes both (IV-13). Read at the press (CS-2 of table T-066).
  *
  * @purity pure
  */
@@ -5059,10 +3350,8 @@ function commandFromDualCursorPress(
   const following = context.dualCursorFollowing
   const standing = context.document.documentSettings.dualCursor
   const day = dayAtX(context.layout, press.at.x)
-  // ⛔ ALL THREE ARE UNREACHABLE TOGETHER TODAY, and none is guessed at. PTD-2
-  // is only reached while a side is following, and DC-1 leaves a pair standing
-  // whenever one is. ⚠️ The press is still taken -- the mode is up, so the
-  // browser must not act under it (MK-10).
+  // PTD-2 needs a following side and DC-1 then leaves a pair standing, so this
+  // is not expected; the press is still taken (MK-10).
   // @provisional PND-314
   if (following === null || standing === null || day === null) return CONSUMED_ELSEWHERE
   const fixed = textOfDay(day)
@@ -5081,24 +3370,13 @@ function commandFromDualCursorPress(
 /**
  * FR-052: a drag on a `Panel Divider` (U-24) becomes the pair of panel widths.
  *
- * ⭐ THE TRAVEL AND NOT THE PLACE. A press may begin anywhere across the band's
- * S-134 width, so the boundary moves by the difference between the two points;
- * jumping the boundary to where the finger let go would shift it by however far
- * off centre the press had landed.
+ * The travel, not the place: a press may land anywhere across S-134's width.
+ * The bands face opposite ways (`screenFrameFromRegions`, UF-61), so rightward
+ * travel widens the row title panel and narrows the properties panel.
  *
- * ⚠️ THE TWO BANDS FACE OPPOSITE WAYS, which is why one width grows where the
- * other shrinks. `screenFrameFromRegions` (UF-61) lays the row title panel's
- * band on that panel's RIGHT edge and the properties panel's on its LEFT, so
- * the same rightward travel widens the first and narrows the second.
- *
- * ⭐ CM-67 TAKES BOTH WIDTHS AT ONCE and this changes only the one the band
- * names -- FR-052 (MUST NOT) forbids judging either width on its own, so the
- * command is stated as a pair and the other half of the pair is the value in
- * force. ⛔ The judging itself is NOT repeated here: FR-052's test is that the
- * `Row Area` stays wider than zero, `edit-document-settings.ts` holds it because
- * that is where the width the pair is measured against arrives, and a translator
- * that clamped as well would give one drag two answers depending on who ran it
- * -- the same reason GR-3 and GR-4 leave IV-2 to the aggregate.
+ * CM-67 takes both widths; the other one is the value in force. No clamping
+ * here: `edit-document-settings.ts` holds FR-052's test, and a second clamp would
+ * give one drag two answers.
  *
  * @purity pure
  */
@@ -5126,31 +3404,16 @@ function commandFromPanelDivider(
 }
 
 /**
- * FR-051 (MUST): 「スクロールバーの操作でも表示位置を変えられるようにすること」,
- * settled on the release.
+ * FR-051: GR-21's drag, settled on the release, by the travel `followingTravel`
+ * answers.
  *
- * ⭐ THE TRAVEL SINCE THE LAST PIECE, not since the press, which is what
- * `followingTravel` answers -- a caller that followed the drag has already
- * applied the earlier pieces and `scrolledAnchor` reads the layout they made,
- * so a travel measured from the press would apply the whole distance twice.
- * ⚠️ A caller that follows nothing gets the whole travel here, because that
- * helper falls back to the press; the sum over one gesture is the same either
- * way.
- *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what a press on the LANE OUTSIDE
- * the grip does. Table T-023d's GR-21 says it of itself -- 「つまみの外の帯を押
- * したときの振る舞いは、本行は定めない（未決）」 -- and nothing else settles it:
- * FR-051 states only that working the bar changes the display position, SC-4 of
- * table T-031 keeps both bars drawn and says nothing of a press, and table
- * T-203's S-77 / S-78 hold the position and not how it is reached. ⛔ The usual
- * answers -- a page of travel, or a jump to the place pressed -- are each a
- * distance no row gives, so neither is chosen here. Chose the same drag GR-21's
- * grip gets: it is the one reading that needs no number the manuscript does not
- * hold, and while the grip fills its lane (see `scrollbarIn` in
- * `screen-frame.ts`) there is no outside for a person to press.
+ * STOP -- a press on the lane outside the grip is not specified (GR-21 leaves it
+ * open). A page of travel or a jump to the point pressed would each need a
+ * distance no row gives, so the grip's drag is used; while the grip fills its
+ * lane (`scrollbarIn` in `screen-frame.ts`) there is no outside to press.
  * Searched: table T-023d GR-21 and its closing rules, FR-051, FR-052, FR-037,
- * SC-4 of table T-031, table T-203 (S-77 / S-78 / S-176 / S-177) and table
- * T-206 (S-205 is the lane's thickness floor and settles nothing about a press).
+ * SC-4 of table T-031, table T-203 (S-77 / S-78 / S-176 / S-177) and table T-206
+ * (S-205 is the lane's thickness floor and settles nothing about a press).
  *
  * @purity pure
  */
@@ -5167,20 +3430,15 @@ function commandFromScrollbar(
 /**
  * One press on one of FR-049's toggles (CM-58).
  *
- * ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ENTRY, for the reason
- * `commandFromRowEntry` gives at the pin: a drawn screen is as old as the last
- * paint and FR-048 lets a paint be skipped altogether, so a press read against
- * the picture could write the value that is already there. ⚠️ CM-58 does not
- * catch that -- it puts whatever it is given -- so the toggle would simply
- * refuse to move, the way a pin read against a stale picture refuses to come
- * off. ⭐ No undo step is at stake here: UN-7 keeps the toggles out of the
- * history altogether, which is why `isUndoable` names CM-58.
+ * Read from the document, not the drawn entry: a drawn screen can be as old as a
+ * skipped paint (FR-048), and CM-58 puts whatever it is given, so a stale reading
+ * would leave the toggle refusing to move.
  *
  * @purity pure
  */
 function commandFromVisibleElementEntry(entry: string, context: InputContext): TranslatedInput {
   const element = visibleElementOfEntry(entry)
-  // Not a toggle's entrance. ⛔ Still this tool's press (MK-10).
+  // Not a toggle's entrance. Still this tool's press (MK-10).
   if (element === null) return CONSUMED_ELSEWHERE
   const isVisibleNow = context.document.documentSettings[element]
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
@@ -5189,29 +3447,9 @@ function commandFromVisibleElementEntry(entry: string, context: InputContext): T
 /**
  * One press on one of the guide cursor's two entrances (CM-59).
  *
- * ⭐⭐ THE SECOND PRESS ON THE STANDING ENTRY MEANS 'none' -- FR-048 (MUST):
- * 「カーソル 3 種は、それを出した入口をもう一度押せば消えること」, with (MUST NOT)
- * 「消すための別の入口を置いてはならない」 and ⭐ 「`CU-3` ではこれが `'none'` への
- * 道であり、`'none'` は値として残るが自分の入口を持たない」 beside it. So the value
- * a press writes is the row's own EXCEPT when that value already stands.
- * ⛔ WHAT STOOD HERE READ NOTHING FROM THE DOCUMENT and said in as many words
- * that 「no row makes a second press on the same entry mean "switch the cursor
- * off" -- IC-46 is the entrance table T-109 places for that」. ⚠️ IC-46 IS GONE
- * (2026-09-06) and FR-048 now states the rule that note said no row stated.
- *
- * ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ENTRY, for the reason
- * `commandFromVisibleElementEntry` gives: a drawn screen is as old as the last
- * paint and FR-048 itself lets a paint be skipped, so a press read against the
- * picture could take the wrong branch and leave the cursor refusing to go.
- * ⭐ `context.document` is the copy CS-1 froze at the head of THIS frame.
- *
- * ⛔ THE DUAL CURSOR IS NOT TOUCHED HERE (FR-048, MUST NOT: 「1 つの入口が 2 つを
- * 同時に消してはならない」; DC-4 says the same of the guide cursor's 「なし」).
- * The one command this returns names S-66 and nothing else.
- *
- * ⭐ ONE FUNCTION IS STILL ONE ENTRANCE (FR-029, MUST NOT): both directions of
- * ONE mode sit on that mode's own row, which is the shape IC-75 has for the
- * palette's minimise (「同じ入口で戻す」) and IC-41 for the watermark.
+ * A second press on the standing entry writes `'none'` (FR-048). Read from the
+ * document for `commandFromVisibleElementEntry`'s reason. The dual cursor is not
+ * touched (FR-048, DC-4).
  *
  * @purity pure
  */
@@ -5219,37 +3457,18 @@ function commandFromGuideCursorEntry(entry: string, context: InputContext): Tran
   const mode = guideCursorModeOfEntry(entry)
   if (mode === null) return CONSUMED_ELSEWHERE
   const standing = context.document.documentSettings.guideCursorMode
-  // ⚠️ ONE PRESS IS STILL ONE UNDO STEP EITHER WAY -- UN-13 keeps S-66 in the
-  // history and this branch changes which value is written, not whether one is.
   return changed([{ kind: 'setGuideCursorMode', mode: standing === mode ? 'none' : mode }])
 }
 
 /**
- * The seven entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
- * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`, and IC-82, IC-90 and IC-91,
- * which table T-103 names no part for at all (see `ENTRY.rowDelete`).
- * ⚠️ THE COUNT ROSE BY TWO ON 2026-08-30: HF-13 gave HR-7 an entrance of its
- * own (IC-90) and HF-14 gave HR-8 one (IC-91).
+ * The entrances table T-109 draws once per row: IC-58, IC-59 and IC-77 on U-47
+ * `Row Expander`, IC-60 on U-48 `Row Pin`, and IC-82, IC-90 and IC-91, which
+ * table T-103 names no part for (see `ENTRY.rowDelete`). HF-10 and HF-12 are
+ * drawn once at the top of the panel and answered in `commandFromEntry`.
  *
- * ⭐ WHICH ROW IS `ScreenPart.rowGroupId`, AND IT COULD COME FROM NOWHERE ELSE.
- * HF-1 of table T-051 and FR-098 (MUST) each draw their control once per row,
- * so the entry says which KIND of control was pressed and never whose row --
- * and the side that DREW the row is the only one that may answer where it
- * stands, which is Chapter 5.3's rule under table T-065 (MUST NOT). ⚠️ It is
- * read off the PRESS for the reason `PointerPress.on` gives: CS-2 of table
- * T-066 freezes the gesture's screen at the press, so a panel scrolled since
- * must not move the answer to another row.
- *
- * ⛔ SEVEN OF TABLE T-015's EIGHT OPERATIONS HAVE AN ENTRANCE, AND TWO OF THE
- * SEVEN ARE NOT HERE. HF-2 is HR-3, HF-3 is HR-5, HF-11 is HR-4, HF-13 is HR-7
- * and HF-14 is HR-8, all five drawn per row; HF-10 is HR-1 and HF-12 is HR-2,
- * each drawn ONCE at the top of the panel, so `commandFromEntry` answers those
- * two directly.
- * ⛔ HR-6 (hiding a row) STILL HAS NO ENTRANCE, and this file may not invent
- * one: that row requires in the same breath that a hidden row be brought back
- * through the parent's `Hidden Group Tab` (U-29, MUST), and nothing in `src/`
- * draws one -- an entrance without it would hide a row for good. ⚠️ CR-294
- * records that as the reason the sixth was left out.
+ * Which row is `ScreenPart.rowGroupId`: only the side that drew the row may say
+ * where it stands (Chapter 5.3, under table T-065, MUST NOT), and it is read off
+ * the press because CS-2 of table T-066 freezes the gesture's screen.
  *
  * @purity pure
  */
@@ -5258,27 +3477,15 @@ function commandFromRowEntry(
   rowGroupId: string | null,
   context: InputContext,
 ): TranslatedInput {
-  // The point was on the `Row Title Panel` but on no row of it -- the panel's
-  // empty tail below the last row. The press is still this tool's (MK-10 keeps
-  // the browser out from under what this tool drew) and writes nothing.
+  // The panel's empty tail below the last row: still this tool's press (MK-10),
+  // and it writes nothing.
   if (rowGroupId === null) return CONSUMED_ELSEWHERE
 
   if (entry === ENTRY.rowPin) {
-    // FR-098: the same control pins and unpins, so which of CM-68 and CM-69 a
-    // press means is decided by whether the row is pinned NOW.
-    //
-    // ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ROW. S-126 keeps the pins
-    // in the presentation group (`pinnedGroupIds`), and `context.document` is
-    // the copy CS-1 froze at the head of THIS frame -- while a drawn row is as
-    // old as the last paint, and FR-048 lets a paint be skipped altogether. A
-    // press read against a stale picture would plan CM-68 for a row that is
-    // already pinned, which CM-68 answers by doing nothing, so the pin would
-    // simply refuse to come off.
-    //
-    // ⚠️ THE CAP IS NOT TESTED HERE. FR-098 (MUST) refuses a pin past `S-127`
-    // and requires a notice; `editDocumentSettings` is where CM-68 answers that
-    // and where the refusal is worded, and a second test here would be the same
-    // rule in two places (R2.7).
+    // FR-098: one control pins and unpins, decided by the document (S-126)
+    // rather than the drawn row, which may be as old as a skipped paint
+    // (FR-048); against a stale picture CM-68 does nothing and the pin would
+    // refuse to come off. The cap (`S-127`) is judged in `editDocumentSettings`.
     const isPinned = context.document.documentSettings.pinnedGroupIds.includes(rowGroupId)
     return changed([
       isPinned
@@ -5288,46 +3495,19 @@ function commandFromRowEntry(
   }
 
   if (entry === ENTRY.rowDelete) {
-    // IC-82 -- FR-032 (MUST): the row goes, and CD-2 of table T-050 takes with
-    // it the rows below, every `Task` they carry (each cascading CD-1), the
-    // annotations that point at the row and the pin that holds it.
-    //
-    // ⛔ NOTHING IS TESTED FIRST. CM-27 refuses a row that is not there on its
-    // own account, and a row with nothing on it is still a row a person may
-    // want gone -- so an empty bundle here would be this side inventing a
-    // condition FR-032 does not state.
-    // ⚠️ THE QUESTION IS NOT ASKED HERE. FR-032 (MUST) asks before a row is
-    // deleted, and the shell puts that question in front of the WHOLE write
-    // (`confirmationOwedBy`, table T-234's QN-1) -- so this returns the write
-    // and the answer decides whether it lands.
+    // IC-82 -- FR-032, with CD-2 of table T-050's cascade. Nothing is tested
+    // first: CM-27 refuses a missing row itself. The confirmation (QN-1 of table
+    // T-234) is put before the whole write by `confirmationOwedBy`.
     return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId }])
   }
 
   if (entry === ENTRY.rowExpanderCloseBelow) {
-    // IC-77 -- HF-11 (MUST), which names HR-4 of table T-015: THIS ROW folds,
-    // and HR-1a folds everything below it with it.
-    //
-    // ⭐⭐ THE ROW ITSELF IS THE ONE THING THAT MOVES THE PICTURE. HR-4 since
-    // 2026-08-31 (利用者の指示「サンプルと同じ動作にしろ」): 「選択した
-    // `TaskGroup` を畳むこと（MUST）」 ⇒ 「その直下の子から下が描かれなくなる」.
-    // ⛔ IT FOLDED ONLY THE SUBTREE UNTIL THEN, and the user measured the
-    // result: the DIRECT children stayed drawn where the sample left the row
-    // alone -- one level shallower than the sample, which is what PND-413
-    // recorded.
-    // ⛔ THE ROW IS NOT HIDDEN (HR-4, MUST NOT): 「その行自身を隠してはならない
-    // —— 隠すのは `HR-6` である」, whose entrance is IC-59.
-    // ⭐ THE SUBTREE IS STILL WRITTEN, because HR-1a (MUST) refuses to remember
-    // the shape a fold covered: 「畳んだ行の配下は、それ自身も畳まれた状態とする
-    // こと」. ⚠️ ONE BUNDLE, for the reason IC-58's branch gives.
-    // ⛔ A ROW WITH NO DRAWN CHILD IS A PRESS WITH NOTHING TO DO, and FR-029
-    // (MUST) has the reason told -- RS-29 of table T-233, 「配下に、畳める行が
-    // 1 つも無い」. ⭐ `RowExpander.canCloseBelow` is the same reading, so the
-    // entrance drawn faint is the entrance that explains itself when pressed.
-    // ⛔⛔ AND THE READING IS THE PICTURE'S (CR-309): the closing rule under
-    // table T-051 (MUST) counts 「その操作の前後で描かれる行の差」, and folding a
-    // row whose children are all out of the picture takes no row out of it.
-    // ⚠️ `null` is a caller that carried no picture; the bundle is then all
-    // this side has to judge by.
+    // IC-77 -- HF-11, which is HR-4 of table T-015: this row folds and is not
+    // hidden, and its subtree is written folded too (HR-1a), in one bundle.
+    // With no drawn child the reason is told (FR-029, RS-29); the count is the
+    // picture's (the closing rule under table T-051), as in
+    // `RowExpander.canCloseBelow`. `null` means no picture was carried, and the
+    // bundle decides.
     if (wouldMoveARow(context, rowGroupId, 'fold') === false) {
       return nothingToDo('noUnfoldedRowBelow')
     }
@@ -5338,47 +3518,14 @@ function commandFromRowEntry(
   }
 
   if (entry === ENTRY.rowExpanderOpenOneLevel) {
-    // IC-90 -- HF-13 (MUST), which names HR-7 of table T-015: 「選択した
-    // `TaskGroup` の畳みだけを解くこと（MUST）」 ⇒ 「直下の子が描かれ、孫より下は
-    // 畳まれたままになる」.
-    //
-    // ⭐⭐ THE ROW'S OWN FOLD IS WHAT COMES OFF, AND NOTHING ELSE'S. HR-7 since
-    // 2026-08-31 (利用者の指示「サンプルと同じ動作にしろ」) (MUST NOT): 「孫より下
-    // の畳みに触れてはならない —— 触れると本行と `HR-3` の違いが消える」, and
-    // HR-1a has already left every descendant folded, so taking this row's fold
-    // off reveals exactly one level.
-    // ⛔ IT WROTE THE DIRECT CHILDREN'S FOLDS UNTIL THEN, which opened the
-    // GRANDchildren -- one level too deep, measured 2026-08-31 and recorded in
-    // the closing paragraphs under table T-051.
-    // ⛔ ONE HOP, WHICH IS THE WHOLE OF WHY THIS IS NOT IC-58. HF-13 (MUST NOT)
-    // refuses to let one entrance be both: 「押すたびに違う量が開く入口は、何が
-    // 起きるかを押す前に読めない」 -- IC-58 opens every level at once (HR-3).
-    // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so the fold
-    // and the unhidings below travel in the same write.
-    // ⛔⛔ THE PICTURE DECIDES WHETHER IT IS SPENT, in the words the closing rule
-    // under table T-051 uses for HF-13 by name: a folded child with nothing to
-    // reveal opens onto the same frame, so it is 「対象が 1 つも無い」.
-    // ⚠️ `RowExpander` CARRIES NO FLAG FOR THIS ONE -- `RowTitle.canOpenOneLevel`
-    // does, because HF-13 draws its control on every row and HF-1's three are
-    // drawn only where something stands below.
-    // ⭐⭐ AND SINCE 2026-08-30 IT IS ALSO HR-6's WAY BACK. That row (MUST):
-    // 「隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること —— 表 T-051 の
-    // `HF-13` である」, and (MUST NOT) 「戻すための専用の面や札を設けてはならない」
-    // -- 「隠すことは親へ 1 歩畳み込むことであり、戻すのは親を 1 階層開くこと
-    // である」. ⇒ The bundle below carries the unhiding as well as the opening,
-    // in ONE write, because FR-031 (MUST) makes one gesture one undo step.
-    // ⚠️ 2026-08-30 まで the way back was 非表示グループタブ (U-29), 「そのタブは
-    // 実装に 1 つも無く、入口の無い戻り道であった」; U-29 is gone from the
-    // manuscript with that ruling and nothing in `src/` may bring it back.
+    // IC-90 -- HF-13, which is HR-7 of table T-015: only this row's fold comes
+    // off; HR-1a left the descendants folded, so exactly one level shows. It is
+    // also HR-6's way back, so hidden direct children are unhidden in the same
+    // bundle (FR-031). Not IC-58: HF-13 must not open a varying amount.
+    // Spent when the picture would not change (the closing rule under table
+    // T-051); `RowTitle.canOpenOneLevel` carries the flag, not `RowExpander`.
     if (wouldMoveARow(context, rowGroupId, 'openOneLevel') === false) {
-      // ⭐⭐ RS-30 OF TABLE T-233 IS THIS 場面, WORD FOR WORD: 「直下に、画面へ戻せ
-      // る子が 1 つも無い」, with 表 T-051 の `HF-13` for its 正 -- which is the
-      // very question `wouldMoveARow` asks of the picture above.
-      // ⛔ THE SITUATION WAS `null` UNTIL THEN, and the note that stood here said
-      // why, quoting the retired 台帳 DFC-339 wording in order to deny it:
-      // RS-30 read 「その行は既に畳まれている」, RS-28 belongs to HF-2 and
-      // would tell the reader something untrue, and the fallback RS-27 was all
-      // that fitted. ⚠️ The manuscript closed that gap; PND-411 goes with it.
+      // RS-30 of table T-233.
       return nothingToDo('rowIsOpenWithNoHiddenChild')
     }
     return foldsOrNothing(
@@ -5388,72 +3535,25 @@ function commandFromRowEntry(
   }
 
   if (entry === ENTRY.rowAddChild) {
-    // IC-91 -- HF-14 (MUST), which names HR-8 of table T-015: one row is added
-    // UNDER this one, as its LAST child.
-    //
-    // ⭐⭐ THE ROW IS STOOD UP ON THE PRESS, WITH THE DEFAULT NAME (MUST, 利用者
-    // の裁定 2026-09-04): 「押された瞬間に、既定の名前で行を立てること。その行の
-    // プロパティパネルを出し、名前の欄で名づけさせること」, 「改名と別の道を作って
-    // はならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じものと
-    // すること（MUST）」. ⛔ 「その作法をここに書き写してはならない（MUST NOT）」 --
-    // so what is planned here is CM-26 and the fact that a row was made; WHAT
-    // the panel then does about it is FR-085's, on the holder's side.
-    // ⚠️⚠️ WHAT THIS REPLACES: until 2026-09-04 this press planned NO command
-    // and asked for an in-place field instead, because HF-14 then read 「名前は
-    // 空で立て、その場で打たせること」, 「既定の名を与えてはならない（MUST NOT）」
-    // and 「名前が空のまま確定されたときは、その行を立てないこと（MUST）」. All
-    // three were withdrawn in that ruling -- 「その禁止の理由は『改名の入口が 1 つ
-    // も無い』であり、`FR-085` が 2026-09-01 に改名の道を得た時点で失われていた」 --
-    // and `InPlaceTarget` no longer carries a `newRowName` kind at all.
-    // ⭐ THE NAME IS READ AND NOT SPELLED. HF-14 (MUST NOT): 「仕様書に綴りを刷っ
-    // てはならない」, 置き場は FR-038 の辞書 -- `DEFAULT_ROW_NAME` is that word,
-    // read out of `display-words.json` by the aggregate that owns CM-26.
-    // ⛔⛔ THE FAINT ENTRANCE IS TOLD ITS REASON AND STANDS NO ROW UP, WHICH
-    // HF-14 STATES SINCE 2026-09-04 (MUST): 「薄いまま押されたときは、行を立てずに
-    // 理由を告げること。理由は 表 T-233 の `RS-46` とすること」 -- ⛔ 「行を立てて
-    // からパネルを開き、そこで拒んではならない（MUST NOT）」, 「押した人には、名づ
-    // けを求められたうえで捨てられたようにしか見えない」.
-    // ⚠️ THE NOTE THAT STOOD HERE SAID THE CAP WAS NOT TESTED ON THIS SIDE, on
-    // HR-8's 「深さの上限の扱いは `FR-085` が持つ」. That still holds of the WRITE
-    // -- `createTaskGroup` refuses the parent on its own account and no rule is
-    // restated here -- but the PRESS now owes a telling, and FR-029 (MUST) puts
-    // that telling on the side that measured the 場面.
-    // ⭐ THE SAME COMPARISON THE DRAWING SIDE MAKES, so the faint entrance and
-    // the refused press cannot come apart: `RowTitle.canAddChildRow` reads
-    // 「depth < maxGroupDepth」 off FR-085's own value, and this reads the depth
-    // of the same row out of the document.
-    // ⛔ MEASURED ON THE DOCUMENT AND NOT ON `context.layout.rows`, for the
-    // reason `rowDepthOfGroup` gives: a row's depth is a fact of the tree, and
-    // the picture holds only the rows it drew.
+    // IC-91 -- HF-14, which is HR-8 of table T-015: one row as this row's last
+    // child, stood up on the press with the default name (`DEFAULT_ROW_NAME`,
+    // FR-038's dictionary) and named through FR-085's road, which is the
+    // holder's. At the deepest level the press is told RS-46 and stands no row
+    // (HF-14); the comparison is `RowTitle.canAddChildRow`'s, so the faint
+    // entrance and the refusal agree. Depth is read from the document, not
+    // `context.layout.rows` (see `rowDepthOfGroup`).
     const parentDepth = rowDepthOfGroup(context, rowGroupId)
     if (parentDepth >= context.document.documentSettings.maxGroupDepth) {
       return nothingToDo('rowIsAtTheDeepestLevel')
     }
-    // FR-004 derives a row's depth from its parent, so the row this press makes
-    // stands one below the row it was pressed on.
+    // FR-004: the new row stands one below the row it was pressed on.
     return rowStoodUp(context, rowGroupId, parentDepth + 1)
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
-    // IC-58 -- HF-2 (MUST), which names HR-3 of table T-015: 「選択した
-    // `TaskGroup` と、その配下のすべてから、畳みと隠しを取り除くこと（MUST）」.
-    //
-    // ⭐⭐ THE ROW ITSELF IS OPENED TOO, since 2026-08-31 (利用者の指示「サンプル
-    // と同じ動作にしろ」): 「その行自身の畳みも解くこと（MUST）—— `HR-4` が畳むの
-    // はその行自身なので、解く側が同じ行を解かなければ対にならない」. ⛔ THE NOTE
-    // THAT STOOD HERE ARGUED THE OPPOSITE, on the reading that a row folded
-    // itself and was opened from the row above; HR-4 and HR-7 both write the
-    // pressed row now, so this one has to as well or the pair does not close.
-    // ⭐ AND THE HIDING GOES WITH IT, WHEREVER IT STANDS BELOW (HR-3, MUST NOT):
-    // 「畳みだけを解いて隠しを残してはならない」.
-    // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every
-    // row that opens opens in the same write.
-    // ⛔ NOTHING FOLDED OR HIDDEN AT OR UNDER THIS ROW IS A PRESS WITH NOTHING
-    // TO DO (FR-029, MUST), and `RowExpander.canOpen` is the same reading -- HF-2
-    // (MUST) ties the two together: 「その行が抱えている畳み込みが 0 のときは …
-    // 薄く描くこと ... 示す数と構えの条件は同じ 1 つである」.
-    // ⛔⛔ THE PICTURE DECIDES IT, for the reason IC-77's branch above gives: a
-    // folded row with nothing to reveal opens onto the same frame (CR-309).
+    // IC-58 -- HF-2, which is HR-3 of table T-015: this row and its whole subtree
+    // lose their folds and hidings, in one bundle (FR-031). Spent when the
+    // picture would not change, the same reading as `RowExpander.canOpen` (HF-2).
     if (wouldMoveARow(context, rowGroupId, 'open') === false) {
       return nothingToDo('noFoldedRowBelow')
     }
@@ -5463,90 +3563,17 @@ function commandFromRowEntry(
     )
   }
 
-  // IC-59 -- HF-3 (MUST), which names HR-6 of table T-015 since the ruling of
-  // 2026-08-30: THIS row is HIDDEN, and nothing below it is written.
-  //
-  // ⛔⛔ IT WAS HR-5 (「自分を畳む」) UNTIL THAT RULING. HF-3 records the change
-  // itself -- 「本行は 2026-08-30 まで `HR-5` であった —— 利用者の裁定で `HR-6` が
-  // 受け取った」 -- and HF-1 records why HR-5 keeps no entrance now: 「`HR-4` を
-  // 1 度押せば同じ絵になることを実測しており（版 1.67）」.
-  // ⭐ THE WAY BACK IS THE PARENT'S IC-90 (HR-6, MUST): 「隠した行は、親の行の
-  // 「配下を 1 階層開く」操作子で戻せること」, and 「親を持たない最上位の行は、
-  // 段 0 の同じ操作子で戻せること」 -- IC-92. ⛔ So this is no longer a one-way
-  // door, which is why CR-294 had left the sixth operation without an entrance.
-  // ⛔⛔ NOTHING BELOW IS WRITTEN, AND HR-6 IS THE WHOLE OF WHY. The closing
-  // paragraph under table T-051 names the three rows that DO reach below the
-  // pressed row -- 「`HR-1a` は畳む操作に配下ごとの書き換えを求め、`HR-3` は配下
-  // から畳みと隠しを取り除き、`HR-7` は直下の子の隠しを解く」 -- and HR-6 is not
-  // among them. ⭐ Its own reach below is a rule about what is DRAWN: 「隠した行
-  // の配下の行 … を描いてはならない（MUST NOT）」, which the two states of that
-  // paragraph already give -- a row is out of the picture when its own AT-57
-  // says so, and its descendants with it.
-  // ⛔ HR-1a's SUBTREE WRITE IS NOT BORROWED HERE. That row governs 畳む操作
-  // (HR-2 / HR-4), and HR-6 keeps itself off that ground: 「畳みと違い、グループ
-  // LOD と同じ絵になることを求めない」.
-  // ⭐⭐ AND THE ROW AND ITS SUBTREE ARE FOLDED WITH IT, WHICH HR-6 (MUST)
-  // STATES SINCE 2026-08-31: 「あわせて、その行と、その配下を畳んだ状態にすること
-  // （MUST）」, and ⛔⛔ 「配下だけを畳んで、その行自身を畳まずに隠してはならない
-  // （MUST NOT）」.
-  // ⛔⛔ THIS QUOTATION READ 「あわせて、その行の配下を…」 UNTIL 2026-09-06 -- the
-  // wording the row itself carried for part of 2026-08-31 and no longer does
-  // (台帳 DFC-339). ⭐ It is the very reading the foot of this member records as
-  // broken, and quoting it HERE said the pressed row's own fold was out of
-  // scope while the code twelve lines down writes it. The code was right and
-  // this sentence was the stale one.
-  // ⭐ THE REASON IS THE WAY BACK. HR-6 has the row return through the parent's
-  // IC-90, and HR-7 (MUST NOT) has that press touch no fold below the direct
-  // children -- so what comes back is THIS ROW ALONE, which is what the sample
-  // does. ⛔ Without the fold the whole subtree returns at once, which is the
-  // 「畳む前の形を覚えて戻す」 that HR-1a threw out.
-  // ⚠️ THE FOLD OUTLIVES THE HIDING, and that is intended rather than overlooked
-  // -- the row comes back folded and its own IC-90 opens it.
-  // ⭐ THIS ROW'S OWN FOLD IS WRITTEN WITH THE REST, and `foldsRowAndBelow`
-  // below is what writes it -- see the MUST NOT quoted at the head of this
-  // member. ⛔ The sentence that stood here said the opposite ("HR-6 asks for
-  // the CONFIGURATION of its 配下, and a row that is not drawn has no fold to
-  // read") and was written against the wording the row carried for part of
-  // 2026-08-31 (台帳 DFC-339).
+  // IC-59 -- HF-3, which is HR-6 of table T-015: this row is hidden, and it and
+  // its subtree are folded. Its way back is the parent's IC-90 (IC-92 at the
+  // top), which touches no fold below the direct children (HR-7), so only this
+  // row returns; without its own fold its children would return with it.
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-  // ⚠️ Gone, or already hidden: no write. `changed` says why an empty bundle is
-  // not one -- WS-4 would push an undo step for a press that moved nothing.
-  // ⭐ AND FR-029 (MUST) HAS THE REASON TOLD instead of the press being
-  // swallowed. ⚠️ NEITHER CASE CAN BE PRESSED IN PRACTICE: HR-6 (MUST NOT) draws
-  // no hidden row, so no control of one is reachable -- the test is what keeps a
-  // stale picture from writing a row that has gone.
-  // ⛔ THE SITUATION IS `null`: 表 T-233's RS-30 is HF-13's 場面 (「直下に、画面
-  // へ戻せる子が 1 つも無い」) and no row of that table names a row that is
-  // already hidden, so FR-029 leaves this to the fallback RS-27.
+  // Gone or already hidden: nothing to write, and no row of table T-233 names
+  // the situation, so FR-029 leaves it to the fallback. A hidden row is not
+  // drawn, so this only stops a stale picture from writing.
   if (row === undefined || row.isHidden === true) return nothingToDo(null)
-  // ⭐⭐ AND SO IS THE OTHER HALF OF `RowExpander.canClose`, WHICH THIS SIDE
-  // COULD NOT SEE UNTIL `drawnRowGroupIds` ARRIVED. A row whose every child is
-  // out of the picture -- HR-6 hid them, or the display amount dropped them --
-  // hides nothing when it folds, and the closing rule under table T-051 (MUST)
-  // counts that as no target. ⛔ THE NOTE THAT STOOD HERE REFUSED THE NARROWING
-  // on the ground that reading HR-6 again would be the same rule twice; the
-  // picture is not a second reading of HR-6, it is the one answer the drawing
-  // side already reached.
-  // ⚠️ A ROW WITH NO CHILD AT ALL REACHES HERE AND IS STILL HIDDEN: HF-1 places
-  // the four controls on 各行, and this one takes the pressed row itself out of
-  // the picture whatever stands under it.
-  // ⭐⭐ AND IT IS ALWAYS ARMED ON A DRAWN ROW. HF-3 (MUST): 「描かれている行は
-  // いつでも隠せるので、本操作子を薄く描く場面は無い」 -- what this control takes
-  // out of the picture is THIS row and everything under it (HR-6, MUST NOT), so
-  // the closing rule under table T-051 always counts at least one.
-  // ⭐ `RowExpander.canClose` reads the same one line on the drawing side.
-  // ⭐ THE HIDING FIRST, THEN THE FOLD OF WHAT IT TOOK AWAY (HR-6, MUST):
-  // 「あわせて、その行と、その配下を畳んだ状態にすること」.
-  // ⛔⛔ THE PRESSED ROW IS FOLDED TOO, AND THAT IS THE WHOLE POINT. HR-6 states
-  // the consequence in the next breath -- 「戻るのはこの行だけになる」 -- and it
-  // only follows if this row's own fold is written: the way back is the parent's
-  // IC-90, which clears this row's hiding and, by HR-7 (MUST NOT), touches no
-  // fold below the direct children. With only the DESCENDANTS folded the row
-  // returns un-folded and its children come with it, which is two rows.
-  // ⚠️ Measured on the sample: hide 「Phone App」, open the parent one level, and
-  // Phone App comes back alone with its two children still away.
-  // ⛔ THE ROW READ 「その行の配下を」 FOR PART OF 2026-08-31 and its two sentences
-  // could not both hold; a body reading only the manuscript found it.
+  // Always armed on a drawn row, even one with no child (HF-3), as
+  // `RowExpander.canClose` reads it.
   return changed([
     { kind: 'setTaskGroupHidden', groupId: rowGroupId, hidden: true },
     ...foldsRowAndBelow(context.document.schedule, rowGroupId),
@@ -5554,28 +3581,19 @@ function commandFromRowEntry(
 }
 
 /**
- * Who the three header entrances of the `Resource Roster` leave chosen -- every
- * resource (IC-63), none (IC-64), or the ones no `Assignment` refers to
- * (IC-65).
+ * Who the `Resource Roster`'s header entrances leave chosen: every resource
+ * (IC-63), none (IC-64), or those no `Assignment` refers to (IC-65).
  *
- * ⭐ READ FROM THE DOCUMENT AND NOT FROM THE DRAWN ROSTER, the same discipline
- * `commandFromRowEntry` keeps at the pin: a drawn screen is as old as the last
- * paint and FR-048 lets a paint be skipped altogether, while `document` is the
- * copy CS-1 of table T-066 froze at the head of this frame. ⚠️ It answers a
- * CHOICE and not a deletion -- FR-099 (MUST) has 「まとめて消す」 done in two
- * moves so that the deleting entrance stays exactly one (FR-029).
+ * Read from the document for `commandFromRowEntry`'s reason. A choice, not a
+ * deletion: FR-099 deletes in two moves so the deleting entrance stays one
+ * (FR-029).
  *
- * ⛔ REFERRED-TO MEANS AN `Assignment` NAMES THE `uid`, whether or not that
- * assignment reaches a task. It refers to the person, which is the whole of what
- * 「どの割当からも参照されていない」 asks -- the same reading `open-modals.ts`
- * makes on the drawing side, and AT-94 is nullable, so an assignment naming
- * nobody marks nobody.
- * ⚠️ SAME-NAMED RESOURCES STAY TWO PEOPLE. AS-8 of table T-225 (MUST NOT)
- * forbids making them one, so the join is `uid` (AT-85) throughout and a
- * referenced person cannot hide an unreferenced twin from IC-65.
+ * Referred-to means an `Assignment` names the `uid`, as `open-modals.ts` reads it
+ * on the drawing side. Same-named resources stay two people (AS-8), so the join
+ * is `uid` and a referenced person cannot hide an unreferenced twin.
  *
- * ⭐ ONE PASS AND A `Set`: NFR-013 forbids a linear search per resource on a
- * path a person waits on, and a roster is as long as the document's people.
+ * One pass and a `Set`: NFR-013 forbids a linear search per resource on a path a
+ * person waits on.
  *
  * @purity pure
  */
@@ -5590,23 +3608,15 @@ function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number
 }
 
 /**
- * One `setTaskGroupCollapsed` and one `setTaskGroupHidden` per row of
- * `rowId`'s subtree, THE ROW ITSELF INCLUDED, that carries a fold or a hiding
- * -- HR-3 of table T-015, which HF-2 names.
+ * One `setTaskGroupCollapsed` and one `setTaskGroupHidden` per row of `rowId`'s
+ * subtree, the row itself included, that carries a fold or a hiding (HR-3, which
+ * HF-2 names).
  *
- * ⭐⭐ THE PRESSED ROW IS PART OF THE RANGE SINCE 2026-08-31. HR-3 (MUST):
- * 「選択した `TaskGroup` と、その配下のすべてから、畳みと隠しを取り除くこと」 and
- * 「その行自身の畳みも解くこと —— `HR-4` が畳むのはその行自身なので、解く側が同じ
- * 行を解かなければ対にならない」.
+ * Rows already open are left out: CM-33 returns an unchanged fold untouched, so
+ * writing them would cost an undo step for nothing.
  *
- * ⚠️ The rows that are already open are left out rather than written again:
- * CM-33 answers an unchanged fold by returning the document untouched, so
- * writing them would cost an undo step for a subtree that is already open.
- *
- * ⛔ NOT WHAT THE WHOLE-DOCUMENT CONTROL DOES. IC-74 is HR-1 and reaches rows
- * that are under no ancestor at all, so it answers with CM-72 rather than with
- * this -- and a version of this taking `null` for "everywhere" would be the
- * same operation written twice (R2.7).
+ * Not IC-74: HR-1 reaches rows under no ancestor and answers with CM-72; a
+ * `null`-for-everywhere variant here would be the same operation twice (R2.7).
  *
  * @purity pure
  */
@@ -5615,15 +3625,6 @@ function opensRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
   const commands: DocumentCommand[] = []
   for (const row of schedule.taskGroups) {
     if (row.id !== rowId && !isRowUnder(parentOf, row.parentId, rowId)) continue
-    // ⭐⭐ HR-6's WAY BACK AT THIS RANGE TOO (MUST). HR-3 since 2026-08-31:
-    // 「`HR-6` が隠した行も、配下のどこにあろうともすべて戻すこと（MUST）」, and
-    // (MUST NOT) 「畳みだけを解いて隠しを残してはならない」.
-    // ⛔ IT UNDID ONLY THE FOLD UNTIL THEN, and the user measured the result:
-    // a row hidden with the single up chevron came back through the parent's
-    // ONE-level open and did NOT come back through the parent's ALL-below open
-    // -- the wider range restoring less than the narrower one.
-    // ⭐ THE TWO ARE ONE OPERATION AT TWO RANGES, which is what the family says:
-    // one bar is the direct children, two bars is everything below.
     if (row.isHidden === true) {
       commands.push({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false })
     }
@@ -5634,32 +3635,15 @@ function opensRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
 }
 
 /**
- * The pressed row's own fold taken off, and the hiding taken off its DIRECT
- * children -- HR-7 of table T-015, which HF-13 names.
+ * The pressed row's own fold taken off, and the hiding taken off its direct
+ * children (HR-7, which HF-13 names).
  *
- * ⭐⭐ THE ROW'S OWN AT-56 IS THE WHOLE OF THE OPENING SINCE 2026-08-31. HR-7
- * (MUST): 「選択した `TaskGroup` の畳みだけを解くこと」 ⇒ 「直下の子が描かれ、孫
- * より下は畳まれたままになる」, and (MUST NOT) 「孫より下の畳みに触れてはならない」.
- * ⛔ IT WROTE THE CHILDREN'S FOLDS UNTIL THEN, which opened one level too deep:
- * HR-1a leaves every descendant folded, so unfolding the children reveals the
- * GRANDchildren. The closing paragraph under table T-051 records the
- * measurement -- 「`HF-11` は直下の子を残し、`HF-13` は孫を開いた」.
- * ⭐ THE DIRECT CHILDREN'S HIDING IS STILL TAKEN OFF (HR-7, MUST): 「直下の子が
- * `HR-6` で隠されているときは、その隠しも解くこと」, which is HR-6's one road back
- * for a hidden row -- 「戻すための専用の面や札を設けてはならない（MUST NOT）」.
- * ⛔ AND THE HIDING IS TAKEN OFF THE CHILD AND NOT OFF ITS SUBTREE: HR-6 hides a
- * row 「配下の行」 and all, so the descendants carry no `isHidden` of their own to
- * undo -- and one that DOES was hidden by its own press.
+ * The children's folds are not written: HR-1a leaves them folded, so unfolding
+ * them would open one level too deep. Only a child's own hiding is undone, since
+ * HR-6 hides a row together with its subtree.
  *
- * ⛔ ONE HOP AND NOT A SUBTREE, WHICH IS THE WHOLE DIFFERENCE FROM
- * `opensRowAndBelow`. A row belongs to the unhiding exactly when its own
- * `parentId` (AT-52) is the row that was pressed. ⭐ That is also why no ring
- * guard is needed, unlike `isRowUnder` -- there is no climb to spin in.
- *
- * ⚠️ The rows that already stand as asked are left out rather than written
- * again, the same bargain `opensRowAndBelow` keeps: CM-33 answers an unchanged
- * fold by returning the document untouched, so writing them would cost an undo
- * step for a row that is already open.
+ * One hop, which is the difference from `opensRowAndBelow` and why no ring guard
+ * like `isRowUnder`'s is needed. Rows already as asked are left out, as there.
  *
  * @purity pure
  */
@@ -5681,14 +3665,8 @@ function opensRowAndUnhidesItsChildren(
 }
 
 /**
- * One `setTaskGroupHidden` per row of the shallowest level that HR-6 hid --
- * the half of HF-16's press that brings such a row back.
- *
- * ⭐ HR-6 (MUST): 「親を持たない最上位の行は、段 0 の同じ操作子で戻せること」.
- * A row with no parent has no parent's IC-90 to open it, and that row (MUST
- * NOT) refuses a surface of its own for the undoing -- so this is the one road.
- * ⚠️ THE ROWS' OWN FOLDS ARE NOT TOUCHED, which parts HF-16 from HF-10: HR-2
- * has 「最も浅い段が戻る」 and no more.
+ * One `setTaskGroupHidden` per shallowest-level row HR-6 hid: the half of HF-16's
+ * press that brings such rows back (HR-6). Their folds are not touched (HR-2).
  *
  * @purity pure
  */
@@ -5699,23 +3677,12 @@ function opensLevelZeroHiddenRows(schedule: Schedule): readonly DocumentCommand[
 }
 
 /**
- * The place a new row takes among `parentGroupId`'s children -- one past the
- * last of them, which is HF-14's 末子 (MUST).
+ * The place a new row takes among `parentGroupId`'s children: one past the last
+ * (HF-14).
  *
- * ⭐ WHY THE LAST AND NOT THE FIRST, in the row's own words: 「長子にすると既存の
- * 並びが押し下がる」, and 「位置は足したあとに動かせる（`HF-15`）ので、並びを毎回
- * ずらす害のほうが大きい」.
- *
- * ⛔ ONE PAST THE LARGEST `order` AND NOT THE COUNT OF THE CHILDREN. AT-55 is a
- * place among the siblings and nothing promises that a parent's children hold
- * 0, 1, 2 ... without a gap -- a row deleted out of the middle leaves one -- so
- * counting them would hand the new row a place a sibling already holds.
- * ⚠️ A parent with no children at all starts at 0, which is the first place.
- *
- * ⛔ CM-26 IS STILL THE ONE THAT DECIDES NOTHING HERE. Its own declaration
- * records that where a new row lands among its siblings is not settled anywhere
- * and that the caller passes the value in; HF-14 is the row that settles it, so
- * this is that row carried out on the side that plans the write.
+ * One past the largest `order`, not the child count: AT-55 promises no gapless
+ * sequence, so a count could hand out a place a sibling already holds. CM-26
+ * takes the value from its caller.
  *
  * @purity pure
  */
@@ -5730,61 +3697,34 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): n
 
 // ------------------------------------------ GR-20 / HF-15: a row is grabbed ---
 //
-// ⭐ WHAT TRAVELS THIS ROAD, END TO END. GR-20 of table T-023d lays a strip
-// `S-138` wide along each row's left edge and says grabbing it moves the row
-// (表 T-051 の `HF-15`); `dom-screen-surface.ts` draws that strip and answers
-// `ScreenPart.isRowGrabStrip` for a point on it; the press arrives here with
-// that member and with `rowGroupId`; the axis is settled once and remembered on
-// the press; and the release plans CM-73, which is the one row of table T-108
-// that changes a row's parent and its place among its new siblings.
+// The road: GR-20 of table T-023d lays the strip (S-138), `dom-screen-surface.ts`
+// answers `ScreenPart.isRowGrabStrip` for a point on it, the press arrives with
+// that and `rowGroupId`, the axis is settled once and remembered on the press,
+// and the release plans CM-73.
 //
-// ⛔ NOTHING IS WRITTEN WHILE THE STRIP IS HELD (MUST NOT). Table T-023d:
-// 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵であって編集ではない」.
-// `rowGrabFollow` answers a picture and `commandFromRowGrab` answers the write.
+// ⛔ Nothing is written while the strip is held (table T-023d): `rowGrabFollow`
+// answers a picture and `commandFromRowGrab` answers the write.
 //
-// ⛔⛔ THE PINNED ROW IS REFUSED ON THE DRAWING SIDE AND NOT HERE, and that is
-// not an omission. GR-20 (MUST NOT): 「ピン止めしている行は掴めないこと」, and
-// the pin is `ScreenSession`'s -- S-126 of table T-203 keeps it out of the
-// document, so no member of `InputContext` carries it and this file could not
-// test it if it wanted to. The surface draws no strip on a pinned row, so
-// `isRowGrabStrip` is never true for one and this road is never entered.
+// ⛔ The pinned row is refused on the drawing side (GR-20), not here: the pin is
+// `ScreenSession`'s (S-126 of table T-203), no member of `InputContext` carries
+// it, and the surface draws no strip on a pinned row.
 //
-// ⭐⭐ THE TWO AXES ARE MEASURED IN DIFFERENT KINDS OF THING, AND HF-15 SAYS SO
-// ITSELF. The depth axis has a 刻み -- 「段送りの刻みは 表 T-201 の `S-37` と同じ
-// とすること（MUST）」 -- because a level IS a fixed indent. The position axis
-// has none, and needs none: 「上下は位置を変え、段を変えてはならない（MUST NOT）
-// —— その段に置ける場所を描く順にたどること（MUST）」 is a rule about the ORDER
-// OF THE PLACES. ⛔ A distance would in fact be the WRONG shape here, and the
-// reason is FR-042: every row carries its own height (64, 96, 101, 108 and 148px
-// stand on one measured screen), so a single 刻み would drift against the drawn
-// rows after two or three places -- which is the harm the note beside the 段送り
-// clause records for the other axis. ⇒ Which place the hand stands at is read
-// off `InputContext.drawnRowBoxes`, the very array the panel drew from, and no
-// constant is invented.
+// The position axis has no step distance, unlike depth (S-37): every row carries
+// its own height (FR-042), so a fixed step would drift against the drawn rows.
+// Places are read off `InputContext.drawnRowBoxes` instead, and no constant is
+// invented.
 
 /**
- * A row's children in the order the picture draws them -- AT-55 (「同じ親の下で
- * の並び」), which `inTreeOrder` in schedule-layout.ts sorts a drawn row's
- * siblings by.
+ * A row's siblings sorted by AT-55, the held row left out.
  *
- * ⚠️ THE HELD ROW IS LEFT OUT, because every question asked of this list is
- * asked about where that row would GO: 「すぐ上の兄弟」 is a row it is not, and
- * `CM-73`'s `order` is a place among the rows that STAY (its own implementation
- * takes the siblings less the moved row and inserts at that index).
- *
- * ⚠️ THE TREE'S ORDER AND NOT THE PICTURE'S. GR-20 names the difference itself
- * -- a grab at a lifted position would touch 「木の順ではなく描く順」 -- so a
- * sibling HR-6 hid, or one the display amount dropped, is still the sibling
- * immediately above.
- *
- * ⚠️ SORTED BY AT-55, WHICH IS WHAT `inTreeOrder` DRAWS BY -- and CM-73 reads
- * the index back off the siblings in the order the DOCUMENT prints them. The
- * two agree on every document `edit-task-group.ts` has written, because each of
- * its writes renumbers the whole sibling list from that same printed order; they
- * would part on a document whose `order` column disagrees with its own row
- * order, and this side follows the PICTURE, because 「すぐ上の兄弟」 is what a
- * person can see. ⛔ Not fixed from here: how CM-73 reads its own argument is
- * that command's business.
+ * ⚠️ The held row is left out because CM-73's `order` is an index among the
+ * siblings that stay.
+ * ⚠️ Tree order, not drawn order (GR-20): a sibling HR-6 hid, or one the display
+ * amount dropped, is still the sibling immediately above.
+ * ⚠️ CM-73 reads the index in the document's printed order. The two agree while
+ * `order` matches row order, which every `edit-task-group.ts` write keeps; how
+ * CM-73 reads its argument is that command's business. Where they differ this
+ * side follows the picture: HF-15's sibling just above is what a person sees.
  *
  * @purity pure
  */
@@ -5799,16 +3739,11 @@ function rowGrabSiblings(
 }
 
 /**
- * How deep a row sits, counting a root row as 1 -- the count `S-125` bounds and
- * the one `RowPlacement.depth` carries for a DRAWN row.
+ * How deep a row sits, a root row counting as 1 -- the count S-125 bounds.
  *
- * ⚠️ WALKED HERE RATHER THAN READ OFF THE LAYOUT, and the reason is the same one
- * `rowGrabSiblings` gives: `context.layout.rows` holds the rows the picture
- * drew, and the sibling a step to the right nests under may be hidden (HR-6) or
- * dropped by the display amount (FR-018) while still being that sibling.
- * ⚠️ A `parentId` cycle already breaks IV-5; the step count stops the walk
- * rather than letting a pure function hang on a broken document -- the same
- * guard `depthOf` keeps in `edit-task-group.ts`.
+ * Walked on the document rather than read off the layout, which holds only the
+ * drawn rows (HR-6, FR-018). ⚠️ The step guard stops a `parentId` cycle (IV-5)
+ * from hanging the walk, as `depthOf` in `edit-task-group.ts` does.
  *
  * @purity pure
  */
@@ -5825,15 +3760,11 @@ function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): n
 }
 
 /**
- * How many levels a row and everything under it take -- 1 for a row with no
- * child, which is the height HM-3a measures 「移動後の最深部で」.
+ * How many levels a row and its subtree take (1 for a childless row) -- the
+ * height HM-3a measures.
  *
- * ⭐ WHY THIS SIDE MEASURES IT AT ALL, when CM-73 measures it again before it
- * writes. FR-029 (MUST) has a press told 「押された入口の場面に当たる 表 T-233 の
- * 行」 and (MUST NOT) forbids the fallback where a row fits; `RS-38` is that row
- * for the cap, and a refused CM-73 carries a `Refusal` naming HM-3a instead. So
- * what is decided here is which of the two answers the press gets, and the
- * write is still checked on the far side.
+ * Measured here although CM-73 measures it again: FR-029 owes the press RS-38,
+ * where a refused CM-73 would carry a `Refusal` naming HM-3a instead.
  *
  * @purity pure
  */
@@ -5864,10 +3795,8 @@ interface RowGrabLanding {
 /**
  * Where a grab of `steps` levels lands, and the reason it stopped short.
  *
- * ⭐ THE LANDING IS ALWAYS ANSWERED, refusal or not, because two different
- * things need it: the write wants the steps that WERE legal, and the picture
- * wants the depth the row is to be drawn at -- 「動かせないときは、行を動かさず
- * に理由を告げること（MUST）」 has the picture stop where the row stops.
+ * The landing is answered even on refusal: the write takes the steps that were
+ * legal, and the picture stops where the row stops (HF-15).
  */
 interface RowGrabStep {
   readonly landing: RowGrabLanding
@@ -5876,24 +3805,18 @@ interface RowGrabStep {
 }
 
 /**
- * HF-15's two sideways rules, applied one level at a time: 「右へ 1 歩はすぐ上の
- * 兄弟の末子になること、左へ 1 歩は親の次の兄弟になること（MUST）」.
+ * HF-15's two sideways rules, applied one level at a time.
  *
- * ⭐ ONE LEVEL AT A TIME AND NOT A JUMP OF `steps`, because each level is a
- * different question of a different tree: the second step to the right nests
- * under the last child of the row the first step nested under. ⛔ A single
- * arithmetic on the depth would answer neither rule.
+ * One level at a time because each step asks a different tree: the second step
+ * right nests under the last child of the row the first step nested under.
+ * ⛔ Arithmetic on the depth would answer neither rule.
  *
- * ⚠️ THE SIBLINGS THAT STOOD BEHIND IT ARE LEFT WHERE THEY WERE, which HF-15
- * (MUST) asks for in as many words -- 「左へ出たとき、後ろに居た兄弟は元の親に
- * 残すこと」 -- and nothing here has to do anything to keep it: only the held
- * row's `parentId` is answered, every other row names its own parent, and CM-73
- * (HM-5, MUST NOT) writes nothing but the parent and the order.
- * ⭐ THE ROW'S OWN SUBTREE COMES WITH IT for the same reason, which HF-15 also
- * requires (MUST): its descendants name IT as their parent and are not written.
+ * Only the held row's `parentId` is answered, so the siblings behind it stay
+ * with the old parent and its subtree comes along (HF-15; CM-73 writes only the
+ * parent and the order, HM-5).
  *
- * ⛔ `null` WHERE THE DOCUMENT HOLDS NO SUCH ROW. Nothing is invented for a
- * grab whose row has gone; the caller falls back on FR-085's choosing.
+ * ⛔ `null` where the document holds no such row; the caller falls back on
+ * FR-085's choosing.
  *
  * @purity pure
  */
@@ -5912,9 +3835,8 @@ function rowGrabLandingOf(
   const startSiblings = rows
     .filter((one) => one.parentId === held.parentId)
     .sort((a, b) => a.order - b.order)
-  // ⚠️ THE PLACE AMONG THE SIBLINGS AND NOT THE `order` COLUMN. CM-73 reads its
-  // `order` as an index into the siblings that stay, so a document whose rows
-  // are numbered 0, 2, 7 must still answer 0, 1, 2 here.
+  // ⚠️ The place among the siblings, not the `order` column: CM-73 reads an
+  // index, so rows numbered 0, 2, 7 must still answer 0, 1, 2 here.
   const startOrder = Math.max(
     0,
     startSiblings.findIndex((one) => one.id === heldGroupId),
@@ -5930,26 +3852,24 @@ function rowGrabLandingOf(
   for (let step = 0; step < taken; step++) {
     if (deeper) {
       const siblings = rowGrabSiblings(rows, landing.parentId, heldGroupId)
-      // 「すぐ上の兄弟」 -- the row standing one place before this one. ⇒ HF-15's
-      // own consequence: 「すぐ上に兄弟が無い行は右へ動かせない」.
+      // The sibling immediately above; a row with none cannot move right (HF-15).
       const above = siblings[landing.order - 1]
       if (above === undefined) return { landing, situation: 'noSiblingAboveToNestUnder' }
-      // FR-085's cap, measured HM-3a's way -- at the subtree's deepest point
-      // AFTER the move. The row would sit one below `above`, and its own deepest
-      // descendant `height - 1` below that.
+      // FR-085's cap, measured HM-3a's way at the subtree's deepest point after
+      // the move: one below `above`, and its deepest descendant `height - 1` below.
       if (rowGrabDepthOf(byId, above) + height > cap) {
         return { landing, situation: 'groupDepthLimitReached' }
       }
       landing = {
         parentId: above.id,
-        // 「末子」 -- one past the last child that stays. ⚠️ The COUNT and not
+        // One past the last child that stays. ⚠️ The count and not
         // `orderPastLastChild`'s largest-plus-one: CM-73 reads an index.
         order: rowGrabSiblings(rows, above.id, heldGroupId).length,
         depth: landing.depth + 1,
       }
       continue
     }
-    // 「左へ 1 歩は親の次の兄弟になること」.
+    // A step left: the parent's next sibling (HF-15).
     if (landing.parentId === null) return { landing, situation: 'rowIsAtTheShallowestLevel' }
     const parent = byId.get(landing.parentId)
     // A parent the document does not hold breaks IV-5; the walk stops rather
@@ -5966,20 +3886,17 @@ function rowGrabLandingOf(
 }
 
 /**
- * One place HF-15's up-and-down walk may put the held row at -- 「その段に置ける
- * 場所」, which is a parent and a rank among the rows that stay.
+ * One place HF-15's up-and-down walk may put the held row at: a parent and a
+ * rank among the rows that stay.
  */
 interface RowGrabPlace {
   readonly parentId: string | null
   /** AT-55's rank among the siblings that stay -- the index CM-73 reads. */
   readonly order: number
   /**
-   * Where the boundary this place IS stands in the picture now drawn.
-   *
-   * ⭐ A BOUNDARY AND NOT A ROW: the top edge of the row this place would put
-   * the held row in front of, or the bottom edge of the last row it would put
-   * it after. ⛔ Never a distance from anywhere -- see the paragraph at the
-   * head of this section for why the position axis has no 刻み.
+   * The boundary this place is, in the picture now drawn: the top edge of the
+   * row it would put the held row in front of, or the bottom edge of the last
+   * row it would put it after. ⛔ Never a distance (see the section head).
    */
   readonly atY: number
   /** Whether this is the place the row already holds. */
@@ -5987,39 +3904,25 @@ interface RowGrabPlace {
 }
 
 /**
- * Every place at the held row's own depth, in the order the picture draws them
- * -- HF-15 (MUST): 「その段に置ける場所を描く順にたどること」.
+ * Every place at the held row's own depth, in drawing order (HF-15), crossing
+ * parents -- one pass over the drawn rows yields each group's places where the
+ * group is drawn.
  *
- * ⭐ THE WALK CROSSES PARENTS, which the row states as its own consequence:
- * 「ある群の末子の次は次の群の長子の位置であり、親をまたぐ」. That is exactly what
- * one pass over the drawn rows produces -- each group's places come out where
- * the group is drawn, and the next group's follow.
+ * ⛔ A place inside a folded group is not among them (HF-15, MUST NOT). Mostly
+ * the picture does it: a folded group's children are not in `drawnRowBoxes`.
+ * ⚠️ A folded group with no drawn child would still be offered as an empty
+ * parent, so `isCollapsed` is read for that one bucket.
  *
- * ⛔⛔ A PLACE INSIDE A FOLDED GROUP IS NOT AMONG THEM (MUST NOT): 「畳まれた群の
- * 中の場所を選んではならない —— 動かした行が消えることになり、効かない操作子と
- * 見分けがつかない」. ⭐ MOST OF THAT FALLS OUT OF THE PICTURE ITSELF: a folded
- * group's children are not drawn, so they are not among `drawnRowBoxes` and no
- * place before or after one can be raised. ⚠️ ONE CASE DOES NOT, and is tested
- * for: a folded group with no drawn child would otherwise be offered as an
- * empty parent, so `isCollapsed` is read for that one bucket.
+ * ⚠️ The held row's own place is in the walk: both ends are read against it,
+ * and RS-39 against its rank. Its descendants need no exclusion -- they are
+ * deeper than the depth this walk reads.
  *
- * ⚠️ THE HELD ROW'S OWN PLACE IS IN THE WALK, and it has to be: it is the place
- * the row is at, and both ends of the walk are read against it -- the row a
- * person has dragged nowhere has moved to it, and `RS-39` is told against its
- * rank rather than against a distance.
- * ⛔ THE HELD ROW'S DESCENDANTS ARE NOT, and nothing has to exclude them: they
- * are deeper than the held row by definition, and this walk reads the rows at
- * ITS depth and the parents one above.
+ * ⚠️ Two consecutive places with the same landing are one place, or a person
+ * could drag between them and never move. The first anchor is kept, which
+ * leaves an undragged row at its own place.
  *
- * ⚠️ TWO CONSECUTIVE PLACES THAT ARE THE SAME LANDING ARE ONE PLACE. With the
- * held row taken out of its parent, the place before the row that followed it
- * IS where it already stands, so the pair would otherwise be two places a
- * person can drag between and never move. ⭐ The FIRST anchor is the one kept,
- * which is what leaves a row nobody has dragged sitting at its own place.
- *
- * ⚠️ AN EMPTY WALK IS WHAT A CALLER THAT HANDED NO PICTURE GETS -- see
- * `InputContext.drawnRowBoxes`. Nothing is guessed from the document instead:
- * 「描く順」 is a fact about a picture, and the roster does not hold one.
+ * ⚠️ With no picture handed in the walk is empty; drawing order is not guessed
+ * from the document (see `InputContext.drawnRowBoxes`).
  *
  * @purity pure
  */
@@ -6034,18 +3937,17 @@ function rowGrabPlacesInDrawingOrder(
   const held = byId.get(heldGroupId)
   if (held === undefined) return []
   const depth = rowGrabDepthOf(byId, held)
-  // Which rows have a child in the picture -- what parts a group whose places
-  // the walk below raises from one that owes an empty parent's single place.
+  // Rows with a child in the picture; a row absent here owes an empty parent's
+  // single place.
   const parentsWithADrawnChild = new Set<string>()
   for (const entry of drawn) {
     const parentId = byId.get(entry.groupId)?.parentId
     if (parentId !== undefined && parentId !== null) parentsWithADrawnChild.add(parentId)
   }
 
-  // AT-55's rank among the siblings that STAY -- what CM-73 reads, and what the
-  // held row's own place is too. ⚠️ Counted rather than looked up, because the
-  // held row is not among the rows that stay and a lookup would answer -1 for
-  // the one row this walk cannot do without.
+  // AT-55's rank among the siblings that stay. ⚠️ Counted rather than looked
+  // up: the held row is not among the rows that stay, and a lookup would answer
+  // -1 for the one row this walk cannot do without.
   const placeOrderOf = (row: TaskGroup): number => {
     const among = rows
       .filter((one) => one.parentId === row.parentId)
@@ -6056,8 +3958,6 @@ function rowGrabPlacesInDrawingOrder(
   }
 
   const places: RowGrabPlace[] = []
-  // ⚠️ Two consecutive places that are the same landing are one place; this is
-  // where that is kept, and the FIRST anchor is the one that survives.
   const put = (place: RowGrabPlace): void => {
     const last = places[places.length - 1]
     if (last !== undefined && last.parentId === place.parentId && last.order === place.order) return
@@ -6065,7 +3965,7 @@ function rowGrabPlacesInDrawingOrder(
   }
 
   // The group whose children the walk is inside, and where its last drawn child
-  // ended -- 「その群の末子の次」, which is a place of its own.
+  // ended -- the place after that child is a place of its own.
   let runParentId: string | null | undefined = undefined
   let runOrderAfter = 0
   let runBottom = 0
@@ -6083,30 +3983,26 @@ function rowGrabPlacesInDrawingOrder(
     // neither opens nor closes a group at this depth.
     if (rowDepth > depth) continue
     if (rowDepth === depth) {
-      // 「親をまたぐ」 -- the previous group's last place is raised before the
-      // next group's first one.
+      // Crossing parents: the previous group's last place comes before the next
+      // group's first.
       if (runParentId !== undefined && runParentId !== row.parentId) closeRun()
       const order = placeOrderOf(row)
       const isOwn = row.id === heldGroupId
       put({ parentId: row.parentId, order, atY: entry.box.y, isOwn })
       runParentId = row.parentId
-      // ⛔ ONE PAST THIS ROW, EXCEPT WHERE THIS ROW IS THE HELD ONE. With the
-      // held row taken out of its parent, 「after it」 and 「before it」 are the
-      // same insertion point, so counting past it would raise a second place a
-      // person could drag to and never move -- and, at the foot of the walk,
-      // would hide the end that `RS-39` is told against.
+      // ⛔ One past this row, except the held one: with it taken out, after it
+      // and before it are the same insertion point, so counting past it would
+      // raise a place that never moves the row and, at the foot of the walk,
+      // hide the end RS-39 is told against.
       runOrderAfter = isOwn ? order : order + 1
       runBottom = entry.box.y + entry.box.height
       continue
     }
     // Shallower: the walk has left the group it was inside.
     closeRun()
-    // ⛔ A GROUP WITH NO DRAWN CHILD STILL HAS ONE PLACE -- its first child's --
-    // and it is raised where the group is drawn, which is what 「描く順」 asks.
-    // ⛔⛔ NOT WHEN IT IS FOLDED (MUST NOT): a row dropped into a folded group
-    // 「消えることになり、効かない操作子と見分けがつかない」. ⚠️ This is the one
-    // bucket where that has to be tested -- everywhere else the picture has
-    // already left the folded group's children out.
+    // ⛔ A group with no drawn child still has one place -- its first child's --
+    // raised where the group is drawn. ⛔ Not when it is folded (HF-15, MUST
+    // NOT); this is the one bucket where the fold has to be tested.
     if (
       depth > 1 &&
       rowDepth === depth - 1 &&
@@ -6124,23 +4020,16 @@ function rowGrabPlacesInDrawingOrder(
  * Which place the hand stands at, and the reason there is none in that
  * direction.
  *
- * ⭐ THE ROW'S OWN TOP, CARRIED BY THE TRAVEL. The place chosen is the one whose
- * boundary the row's top edge has been carried nearest to -- 「握っているあいだ、
- * 行をポインタに追従させること（MUST）」 read on this axis. ⛔ NOT the pointer's
- * bare y: a person grabs a row somewhere inside it, and reading the raw point
- * would jump the row to another place the instant it was touched.
- *
- * ⭐ NEAREST, AND ON A TIE THE ROW'S OWN. The boundaries come out of the walk in
- * increasing y, so nearest is a rise and fall the hand can feel; the tie is
- * settled for the row's own place so that a hand that has moved nothing moves
+ * The place whose boundary the row's own top edge, carried by the travel, is
+ * nearest to (HF-15's follow on this axis). ⛔ Not the pointer's bare y: a row
+ * is grabbed somewhere inside it, and the raw point would jump the row to
+ * another place the instant it was touched.
+ * A tie goes to the row's own place, so a hand that has moved nothing moves
  * nothing.
  *
- * ⛔ `RS-39` IS TOLD AGAINST THE ENDS OF THE WALK AND NEVER AGAINST A DISTANCE:
- * 「その向きに置ける場所が無いので、これ以上動かせない」 is true when the row
- * already holds the first place and the hand went up, or the last and it went
- * down. ⚠️ A hand that simply has not travelled far enough is NOT that: it is a
- * gesture that moved nothing, and telling it a reason would say a working
- * gesture is dead.
+ * ⛔ RS-39 is told against the ends of the walk, never against a distance. ⚠️ A
+ * hand that has not travelled far enough made a gesture that moved nothing, and
+ * telling it a reason would call a working gesture dead.
  *
  * @purity pure
  */
@@ -6158,9 +4047,8 @@ function rowGrabPositionOf(
   if (ownAt < 0) return null
   const own = places[ownAt]
   if (own === undefined) return null
-  // ⛔ THE END OF THE WALK IN THE DIRECTION THE HAND WENT. ⚠️ A walk of ONE place
-  // is both ends at once, which is a document whose row has nowhere at its depth
-  // to go -- and that is exactly what RS-39 says.
+  // ⛔ The end of the walk in the direction the hand went. ⚠️ A walk of one
+  // place is both ends at once, and that is exactly what RS-39 says.
   if (travelY < 0 && ownAt === 0) return { place: own, situation: 'noPlaceLeftInThatDirection' }
   if (travelY > 0 && ownAt === places.length - 1) {
     return { place: own, situation: 'noPlaceLeftInThatDirection' }
@@ -6176,24 +4064,17 @@ function rowGrabPositionOf(
 }
 
 /**
- * How many levels the hand has asked for -- the travel across, cut into steps
- * of `rowTitleIndent`.
+ * How many levels the hand has asked for -- the travel across, in steps of
+ * `rowTitleIndent`.
  *
- * ⭐⭐ `S-37` AND NOTHING ELSE, WHICH IS THE HEART OF HF-15's SECOND MUST:
- * 「段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）」, and 「刻みを
- * 別に持ってはならない（MUST NOT）」 with the measurement that settled it --
- * 「刻み 26px・段送り 16px のときポインタ 64px に対し行は 22px しか動かず、
- * 1 段ごとに離れていった。揃えるとずれは 0px である」. ⛔ So the number is read
- * off `DocumentSettings.rowTitleIndent`, which is the very value the panel
- * indents by and FR-085 cuts a name against -- there is no second copy to drift.
+ * The step is S-37 and nothing else (HF-15, MUST / MUST NOT), read off
+ * `DocumentSettings.rowTitleIndent` -- the value the panel indents by and
+ * FR-085 cuts a name against -- so there is no second copy to drift.
  *
- * ⛔ CUT TOWARDS ZERO AND NOT ROUNDED. A full step of travel is what buys a
- * step of depth, so the row stands still until the hand has moved as far as the
- * row is about to; rounding would move the row half a step before the hand.
- *
- * ⚠️ AN INDENT OF ZERO BUYS NO STEPS. Table T-201 lets `S-37` be 0, and a
- * document that sets it there has no width for a step to be measured in -- the
- * grab then moves nothing rather than every row at once.
+ * ⛔ Truncated towards zero, not rounded: rounding would move the row half a
+ * step before the hand.
+ * ⚠️ An indent of 0 (table T-201 allows it) buys no steps, so the grab moves
+ * nothing rather than every row at once.
  *
  * @purity pure
  */
@@ -6205,22 +4086,17 @@ function rowGrabDepthSteps(context: InputContext, at: PointerInput, press: Point
 
 /**
  * Which axis this grab has settled on, or `null` while it has settled on none
- * -- HF-15 (MUST): 「掴んでから最初に閾値を超えた向きで軸が決まり、離すまで
- * 変わらないこと」.
+ * (HF-15).
  *
- * ⭐ WHAT STANDS WINS. Once the caller has written an axis back onto the press,
- * this answers that and never looks at the pointer again -- which is the whole
- * of 「離すまで変わらない」.
+ * An axis the caller wrote back onto the press wins and the pointer is not read
+ * again -- that is what holds the axis until the release.
  *
- * ⛔ THE THRESHOLD IS `S-208` AND IS NOT TYPED HERE: it stands in the generated
- * block at the foot of this file, because rule 03 section 1 forbids a value of
- * the manuscript being written into `src/` by hand. Its own note says why it may
- * not be 0 -- 「1 画素の震えで軸が決まってしまう」.
+ * ⛔ The threshold is S-208 from the generated block at the foot of this file:
+ * rule 03 section 1 forbids typing a manuscript value into `src/`.
  *
- * ⚠️ A TRAVEL EQUAL ON BOTH AXES SETTLES NOTHING, and that is measured rather
- * than chosen: the row names 「最初に閾値を超えた向き」, and a hand that passed
- * the distance on both axes in one move passed it on neither first. Nothing here
- * invents a winner; the next move that is not exactly diagonal settles it.
+ * ⚠️ Equal travel on both axes settles nothing: HF-15 names the direction that
+ * passed the threshold first, and a move past it on both passed neither first.
+ * The next move that is not exactly diagonal settles it.
  *
  * @purity pure
  */
@@ -6236,12 +4112,11 @@ function rowGrabAxisAt(at: PointerInput, press: PointerPress): RowGrabAxis | nul
 }
 
 /**
- * Whether this press was taken on GR-20's strip -- the one road HF-15's drag
- * has in.
+ * The row whose GR-20 strip this press was taken on -- the one road HF-15's
+ * drag has in.
  *
- * ⚠️ BOTH MEMBERS OR NEITHER. The strip carries no key of its own (the row it
- * sits in does), so a press that says it is on a strip and names no row is a
- * press this side cannot act on -- and `chooseRow` cannot act on it either.
+ * ⚠️ The strip carries no key of its own (the row it sits in does), so a press
+ * on a strip that names no row cannot be acted on here, nor by `chooseRow`.
  *
  * @purity pure
  */
@@ -6252,16 +4127,14 @@ function grabbedRowGroupId(press: PointerPress): string | null {
 }
 
 /**
- * HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」.
+ * HF-15's follow while the row is held.
  *
- * ⛔ A PICTURE AND NOT AN EDIT, which table T-023d states of every row of it
- * (MUST NOT): 「掴んでいるあいだ値を文書へ書いてはならない」. What the caller
- * does with this is draw; the write waits for the release (IN-1 of table T-028).
+ * ⛔ A picture and not an edit (table T-023d, MUST NOT): the caller draws, and
+ * the write waits for the release (IN-1 of table T-028).
  *
- * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `rowGrabAxis`, the same
- * refusal `paletteFollow` and `panFollow` both make: a caller that does not
- * record the axis it was handed cannot keep 「離すまで変わらない」, and this side
- * would settle the axis afresh on every move.
+ * ⚠️ Nothing is reported while the caller carries no `rowGrabAxis`, the refusal
+ * `paletteFollow` and `panFollow` make too: a caller that does not record the
+ * axis cannot hold it, and it would be settled afresh on every move.
  *
  * @purity pure
  */
@@ -6273,19 +4146,17 @@ function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedIn
   if (press.rowGrabAxis === undefined) return UNASSIGNED
   const axis = rowGrabAxisAt(input, press)
   if (axis === null) return UNASSIGNED
-  // ⚠️ ONE AXIS MOVES THE PICTURE AND THE OTHER LEAVES IT WHERE IT IS, which is
-  // 「軸を 1 本に固定すること（MUST）」 drawn: 「上下は位置を変え、段を変えては
-  // ならない（MUST NOT）」 and 「左右は段を変えること（MUST）」.
+  // One axis moves the picture and the other leaves it where it is (HF-15).
   if (axis === 'position') {
     const found = rowGrabPositionOf(context, groupId, input.y - press.at.y)
-    // ⚠️ NOTHING IS DRAWN DIFFERENTLY WHERE THE CALLER HANDED NO PICTURE. The
-    // walk is a fact about the drawn rows, and there is no second source for it.
+    // ⚠️ With no picture handed in nothing is drawn differently: the walk has no
+    // second source.
     if (found === null) return UNASSIGNED
     return acted({
       kind: 'followRowGrab',
       groupId,
       axis,
-      // 「段を変えてはならない」 -- the row is drawn at the depth it already has.
+      // The position axis does not change the depth (HF-15).
       atDepth: rowDepthOfGroup(context, groupId),
       atY: found.place.atY,
       // The refused axis on this grab is sideways, and one step of it is S-37.
@@ -6297,32 +4168,26 @@ function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedIn
   }
   const step = rowGrabLandingOf(context, groupId, rowGrabDepthSteps(context, input, press))
   if (step === null) return UNASSIGNED
-  // 「上下は ... 段を変えてはならない」 read the other way round: a grab on the
-  // depth axis is drawn where the row already stands vertically.
+  // The depth axis is drawn where the row already stands vertically.
   return acted({
     kind: 'followRowGrab',
     groupId,
     axis,
     atDepth: step.landing.depth,
     atY: null,
-    // The refused axis on this grab is up and down, and one step of it is
-    // 「その行が占める送り」 -- the height the picture gave this row.
+    // The refused axis on this grab is up and down, and one step of it is the
+    // height the picture gave this row.
     resistedPx: rowGrabResistedPx(input.y - press.at.y, rowGrabRowHeightOf(context, groupId)),
   })
 }
 
 /**
- * HF-15's resistance (MUST): 「拒まれた向きへの追従は途中で止めること —— 止める
- * 割合は ... `S-212`」.
+ * HF-15's resistance: the follow on a refused axis stops at S-212 of one step.
  *
- * ⭐ THE HAND IS ANSWERED AND THEN STOPPED. A refusal that moved the row not at
- * all would leave 「掴めていないのか拒まれているのか」 unreadable (S-212's own
- * note), and one that let it follow all the way is the MUST NOT beside it --
- * 「木から離れて滑っていくだけに見える」. ⇒ The travel, held to S-212 of one step.
- * ⛔ THE RATIO IS NOT TYPED HERE: it stands in the generated block at the foot
- * of this file, because rule 03 section 1 forbids a value of the manuscript
- * being written into `src/` by hand.
- * ⚠️ THE SIGN IS THE HAND'S, so the row leans the way the person is pulling.
+ * Not zero, or a refused grab reads like one that did not take (S-212's note);
+ * not the full travel, which HF-15 forbids. ⛔ S-212 comes from the generated
+ * block at the foot of this file (rule 03 section 1).
+ * ⚠️ The sign is the hand's, so the row leans the way the person is pulling.
  *
  * @purity pure
  */
@@ -6332,14 +4197,12 @@ function rowGrabResistedPx(travelPx: number, stepPx: number): number {
 }
 
 /**
- * 「その行が占める送り」 -- the height the picture gave the held row, which is one
- * step of the axis a depth grab refuses.
+ * The height the picture gave the held row -- one step of the axis a depth
+ * grab refuses.
  *
- * ⛔ READ OFF THE DRAWN BOXES AND NOT FROM A SETTING. FR-042 lets every row
- * carry its own height (AT-59), so there is no one number to read -- the same
- * reason `InputContext.drawnRowBoxes` exists at all.
- * ⚠️ ZERO WHERE THE CALLER HANDED NO PICTURE, which stops the row leaning at
- * all rather than leaning by an invented amount.
+ * ⛔ Read off the drawn boxes, not a setting: every row carries its own height
+ * (FR-042, AT-59). ⚠️ Zero with no picture, so the row does not lean by an
+ * invented amount.
  *
  * @purity pure
  */
@@ -6349,16 +4212,13 @@ function rowGrabRowHeightOf(context: InputContext, heldGroupId: string): number 
 }
 
 /**
- * How deep one row of the document sits, counting a root row as 1.
+ * How deep one row of the document sits, a root row counting as 1.
  *
- * ⭐ TWO READERS, WHICH IS WHY IT IS NOT NAMED AFTER EITHER: HF-15's grab draws
- * the held row at the depth that axis may not change, and HF-14's press asks
- * whether the row already stands at FR-085's cap.
- * ⛔ THE DOCUMENT AND NOT `context.layout.rows`, the same answer `rowGrabDepthOf`
- * gives: the picture holds only the rows it drew, and a row hidden by HR-6 or
- * dropped by FR-018 has the depth it always had.
- * ⚠️ A row the document does not hold reads as a root, so a press on an entrance
- * whose row has gone is not refused for a depth nobody can see.
+ * Two readers, so it is named after neither: HF-15's grab draws the held row at
+ * this depth, and HF-14's press asks whether the row stands at FR-085's cap.
+ * ⛔ The document and not `context.layout.rows`, for `rowGrabDepthOf`'s reason.
+ * ⚠️ A row the document does not hold reads as a root, so a press whose row has
+ * gone is not refused for a depth nobody can see.
  *
  * @purity pure
  */
@@ -6370,45 +4230,19 @@ function rowDepthOfGroup(context: InputContext, groupId: string): number {
 }
 
 /**
- * The fold the PERSON put on the row this press was made on, taken off -- and
- * nothing else's.
+ * The fold the person put on the parent this press was made on, taken off --
+ * and nothing else's (HF-14, MUST / MUST NOT).
  *
- * ⛔⛔ HF-14 (MUST, 利用者の裁定 2026-09-04): 「立てた行が、人が畳んだ親の下に入る
- * ときは、その親を開くこと」, ⛔ 「開いてよいのは押した親 1 つだけである。その先祖
- * まで開いてはならない（MUST NOT）」. ⭐ It is the same promise as the tier above
- * it -- 「立てた行は見える」 -- read against the other thing that hides a row.
- * ⚠️ 「`HF-7` の畳みは人が自分でしたことなので、製品が動かすのはこの 1 つの場合に
- * 限る」: nothing else in this file may take a fold off unasked.
+ * One row and not a walk up the tree. ⚠️ An ancestor cannot be folded while
+ * this press is possible (LC-1 drops its descendants, so no IC-91 is drawn),
+ * but the MUST NOT is kept by asking about `parentGroupId` alone rather than by
+ * relying on that.
  *
- * ⭐ ONE ROW AND NOT A WALK UP THE TREE, which is the MUST NOT read literally.
- * ⚠️ An ancestor cannot be folded anyway while this press is possible -- LC-1
- * drops every descendant of a folded row, so a row whose ancestor is folded is
- * not drawn and carries no IC-91 to press. The MUST NOT is honoured by asking
- * about `parentGroupId` alone rather than by relying on that.
+ * ⚠️ `null` is 段 0, whose fold is S-211 of table T-206 -- a screen value no
+ * `DocumentCommand` writes. The shell opens it for a created root row
+ * (`frame-loop.ts`, HF-17).
  *
- * ⛔⛔ `null` IS 段 0 AND THIS MEMBER CANNOT ANSWER FOR IT, WHICH IS A DEFECT
- * AND NOT A READING (台帳 DFC-318). The sentence that stood here -- 「`HF-17`
- * （段 0 へ足す）には親が無いので当たらない」, quoted as though it were a row of
- * table T-051 -- is in no manuscript under `docs/spec/`; it was a paraphrase
- * written in `defects.md`, and citing it as a rule is what closed this question
- * without anyone deciding it (台帳 DFC-339).
- * ⭐ WHAT THE TABLE ACTUALLY SAYS POINTS THE OTHER WAY. The footnote under table
- * T-051: 「`HF-17` は `HF-14` を ... 段 0 に対して行うものである」, so 段 0 IS the
- * parent HF-14's MUST is about; and 「パネルの頭は段 0 であり、行ではない」, so
- * what stands in for AT-56 there is S-211 of table T-206 -- a value of the
- * SCREEN, which this member has no command to write and `DocumentCommand` holds
- * no row for.
- * ⇒ ⛔ THE PRESS IS LEFT UNANSWERED HERE ON PURPOSE, and the answer is owed by
- * the party that holds S-211. The obstacle is one this file cannot lift:
- * `InputAction`'s `setLevelZeroFolded` moves S-211 but carries no
- * `CreatedSubject`, and `changeDocument` carries one but moves no screen value,
- * so a press that both opens the head and stands the person on the new row owes
- * a member the shell reads -- and IC-93 must do both, because HF-14 also
- * requires 「その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）」.
- * ⚠️ MEASURED (2026-09-05, shipped build): IC-78 then IC-93 leaves `taskGroups`
- * 100 -> 101 with 0 rows drawn and 0 tellings raised.
- *
- * ⚠️ ONLY THE FOLD (AT-56). HR-6's hiding (AT-57) is not this row's subject,
+ * ⚠️ Only the fold (AT-56). HR-6's hiding (AT-57) is not this row's subject,
  * and a hidden parent is not drawn, so no press reaches one.
  *
  * @purity pure
@@ -6420,49 +4254,34 @@ function parentFoldTakenOff(
   if (parentGroupId === null) return []
   const parent = schedule.taskGroups.find((one) => one.id === parentGroupId)
   if (parent?.isCollapsed !== true) return []
-  // CM-33. ⚠️ Written only when it changes something: an unfolded parent would
-  // cost an undo step for a write that moves nothing (the reason
-  // `foldsRowAndBelow` leaves the rows already folded out of its bundle).
+  // CM-33, written only when it changes something: an unfolded parent would
+  // cost an undo step for a write that moves nothing (as `foldsRowAndBelow`
+  // leaves already-folded rows out).
   return [{ kind: 'setTaskGroupCollapsed', groupId: parentGroupId, collapsed: false }]
 }
 
 /**
- * HF-14's press, whole: the row is stood up with the default name, FR-018's
- * tier is opened far enough to draw it, the fold the person put on the parent
- * is taken off, and the row is carried out so that the `Properties Panel` can
- * be turned to it.
+ * HF-14's press: the row stood up with the default name, FR-018's tier opened
+ * far enough to draw it, the parent's fold taken off, and the row carried out
+ * so that the `Properties Panel` can be turned to it. One member for IC-91 and
+ * IC-93 (HF-17); a `null` parent is 段 0.
  *
- * ⭐ ONE MEMBER FOR IC-91 AND IC-93, which HF-17 asks for by name: 「名前の扱いは
- * `HF-14` に従う」. The two differ only in the parent (`null` is 段 0) and in the
- * depth that follows from it.
+ * The tier is opened, not merely scrolled to (HF-14): FR-018's group half is a
+ * function of `zoomY` alone (`groupDepthLimit`), so opening it is writing the
+ * smallest `zoomY` that draws this depth (CM-65).
+ * ⛔ That value comes from `groupDepthThresholdOf` only: the fit lands the zoom
+ * on a threshold and reads it back through `groupDepthLimit`, so a value from
+ * another route can differ by one ulp.
+ * ⚠️ `zoomX` is carried through unchanged; FR-018's group half reads only the
+ * vertical.
  *
- * ⭐⭐ WHY THE TIER IS OPENED HERE (MUST, 2026-09-04): 「立てた行が、現に描かれて
- * いる詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれるまで詳しさ
- * の段を開くこと」, ⛔ 「表示位置を送るだけで済ませてはならない（MUST NOT）」 --
- * 「送っても、詳しさが落とした行は現れない」. FR-018's group half is a function of
- * `zoomY` alone (`groupDepthLimit`), so opening the tier IS putting `zoomY` at
- * the smallest value that draws this depth, and CM-65 is the row of table T-108
- * that writes it.
- * ⛔ THE EXPRESSION IS NOT TYPED HERE. `groupDepthThresholdOf` is the one place
- * it lives, and its own note says why a second copy is forbidden: the fit lands
- * the zoom ON a threshold and reads it back through `groupDepthLimit`, so a
- * value computed by any other route can differ by one ulp.
- * ⚠️ `zoomX` IS CARRIED THROUGH UNCHANGED. CM-65 writes both S-75 and S-76, and
- * FR-018's group half reads only the vertical -- nothing here is about the
- * horizontal, so it is handed back what it already holds.
- *
- * ⛔⛔ TWO WRITES AND NOT ONE BUNDLE, which is the trap `isUndoable` spells out.
- * UN-8 of table T-027 keeps CM-65 out of the undo history; WS-4 of table T-067
- * pushes the document as it stood BEFORE a write. Folded together, the one step
- * CM-26 pushes would carry the OLD zoom and an undo would rewind it -- exactly
- * what FR-031 orders CM-71 before CM-72 to avoid. Zoom first, row second: the
- * step already holds the new zoom, so undo takes the row away and leaves the
- * tier where the press opened it.
- * ⭐ THE FOLD RIDES WITH THE ROW AND NOT WITH THE ZOOM, which is the same rule
- * read the other way: CM-33 is undoable (no row of table T-027 excludes it), so
- * a bundle of its own would earn a SECOND step and one undo would take the row
- * away and leave the parent open. In CM-26's bundle the two are one step, and
- * one undo gives back both the row and the fold the person had put there.
+ * ⛔ Two writes and not one bundle, zoom first -- the trap `isUndoable` spells
+ * out. UN-8 of table T-027 keeps CM-65 out of the history and WS-4 of table
+ * T-067 pushes the document as it stood before a write, so a single bundle
+ * would let undo rewind the zoom (FR-031 orders CM-71 before CM-72 for the same
+ * reason).
+ * The fold rides with the row: CM-33 is undoable, so a bundle of its own would
+ * make one undo take the row and leave the parent open.
  *
  * @purity pure
  */
@@ -6488,15 +4307,14 @@ function rowStoodUp(
       [
         ...parentFoldTakenOff(context.document.schedule, parentGroupId),
         {
-          // CM-26. ⭐ `derivedFromTaskUid` is null because this row is nobody's
-          // derivation: FR-058 lends a `Task`'s name to a row that has none of
-          // its own, and HF-14 now gives this one a name of its own.
+          // CM-26. `derivedFromTaskUid` is null: HF-14 gives this row a name of
+          // its own, so FR-058 lends it no Task's name.
           kind: 'createTaskGroup',
           id: newGroupId,
           parentId: parentGroupId,
           label: DEFAULT_ROW_NAME,
           derivedFromTaskUid: null,
-          // AT-55, one past the last sibling -- HF-14's 末子 (MUST).
+          // AT-55, one past the last sibling (HF-14).
           order: orderPastLastChild(context.document.schedule, parentGroupId),
         } as const,
       ],
@@ -6507,22 +4325,15 @@ function rowStoodUp(
 
 /**
  * What a release on GR-20's strip is assigned to -- HF-15's move, or the reason
- * it could not be made.
+ * it could not be made. Settled on the release (IN-1 of table T-028).
  *
- * ⭐ SETTLED ON THE RELEASE, which is IN-1 of table T-028 and the rule table
- * T-023d states for the whole of itself.
- *
- * ⭐ A PRESS THAT NEVER SETTLED AN AXIS IS FR-085's CHOOSING. The strip lies
- * over the row's own left edge, and a hand that pressed and let go without
- * travelling `S-208` has made no grab at all -- HF-15 speaks only of a held row.
- * ⛔ The alternative, swallowing it, would leave a strip-wide stripe down the
+ * A press that never settled an axis is FR-085's choosing: HF-15 speaks only of
+ * a held row, and swallowing the press would leave a strip-wide stripe down the
  * panel where a row cannot be chosen.
  *
- * ⚠️ THE LEGAL STEPS ARE WRITTEN AND THE REFUSAL IS NOT ALSO TOLD. A drag that
- * asked for three steps to the right and could take one has moved: 「動かせない
- * ときは、行を動かさずに理由を告げること（MUST）」 is about a row that could not
- * move, and this one did. ⛔ One happening carries one answer in any case --
- * `InputAction` is a single kind -- so a telling here would cost the move.
+ * ⚠️ The legal steps are written and the refusal is not also told: the row did
+ * move, and one happening carries one `InputAction` kind, so a telling would
+ * cost the move.
  *
  * @purity pure
  */
@@ -6543,15 +4354,12 @@ function commandFromRowGrab(
   }
   const held = context.document.schedule.taskGroups.find((one) => one.id === heldGroupId)
   if (axis === 'position') {
-    // 「上下は位置を変え、段を変えてはならない（MUST NOT）—— その段に置ける場所を
-    // 描く順にたどること（MUST）」.
     const found = rowGrabPositionOf(context, heldGroupId, release.y - press.at.y)
     if (found === null) return CONSUMED_ELSEWHERE
     if (found.situation !== null) return nothingToDo(found.situation)
-    // The hand did not reach the next place, so nothing moved -- and nothing is
-    // told, because a place in that direction does exist. ⚠️ `changed` says why
-    // an unmoved write is not one: WS-4 would push an undo step for a gesture
-    // that moved nothing.
+    // The hand did not reach the next place: nothing moved, and nothing is told
+    // because a place in that direction exists. ⚠️ An unmoved write would still
+    // push an undo step (WS-4; see `changed`).
     if (found.place.isOwn) return CONSUMED_ELSEWHERE
     return changed([
       {
@@ -6568,21 +4376,14 @@ function commandFromRowGrab(
   if (step === null) return CONSUMED_ELSEWHERE
   const landing = step.landing
   if (held !== undefined && held.parentId === landing.parentId) {
-    // Every step was refused, so the row stands where it stood and FR-029
-    // (MUST) has the reason told -- the manner is table T-037's NT-1 and the
-    // row is table T-233's. ⚠️ Answered by the PARENT and not by the step
-    // count: a landing that is the row's own place is a write CM-73 would
-    // answer with the document unchanged, and WS-4 would still push an undo
-    // step for a gesture that moved nothing.
-    // ⛔ Every step of this axis changes the parent -- a step right takes the
-    // sibling above and a step left takes the grandparent -- so an unchanged
-    // parent is exactly "nothing was taken".
+    // Every step was refused, so FR-029 has the reason told (NT-1 of table
+    // T-037, the row of table T-233). ⚠️ Judged by the parent, not the step
+    // count: every step on this axis changes the parent, and a CM-73 to the
+    // row's own place would still push an undo step (WS-4).
     return step.situation === null ? CONSUMED_ELSEWHERE : nothingToDo(step.situation)
   }
-  // CM-73 -- the one row of table T-108 that changes a row's parent, and the
-  // one HF-15's drag was raised for. ⛔ NOT `reorderTaskGroupSiblings` (CM-35):
-  // that command refuses a list that brings in a row from another parent, and
-  // its own declaration says so.
+  // CM-73, the one row of table T-108 that changes a row's parent. ⛔ Not
+  // `reorderTaskGroupSiblings` (CM-35), which refuses a row from another parent.
   return changed([
     {
       kind: 'moveTaskGroup',
@@ -6594,35 +4395,22 @@ function commandFromRowGrab(
 }
 
 /**
- * One `setTaskGroupCollapsed` per row of `rowId`'s subtree, THE ROW ITSELF
- * INCLUDED, that is not already folded, in the order the document prints them
- * -- HR-4 of table T-015, which HF-11 names.
+ * One `setTaskGroupCollapsed` per row of `rowId`'s subtree, the row itself
+ * included, that is not already folded, in document order -- HR-4 of table
+ * T-015 (HF-11).
  *
- * ⭐⭐ THE ROW ITSELF IS WHAT MOVES THE PICTURE, since 2026-08-31: HR-4 (MUST)
- * 「選択した `TaskGroup` を畳むこと」 ⇒ 「その直下の子から下が描かれなくなる」.
- * ⛔ IT WROTE THE SUBTREE ALONE UNTIL THEN and left the direct children drawn,
- * which PND-413 recorded as one level shallower than the sample; HR-2 (「本行と
- * `HR-4` は同じ動作の範囲違い」) and HF-1 (「`HR-4` を 1 度押せば同じ絵になる」)
- * are true for the first time with the row included.
- * ⛔ NOTHING IS HIDDEN HERE (HR-4, MUST NOT): 「その行自身を隠してはならない」.
+ * The row itself is what moves the picture (HR-4); ⛔ it is never hidden (HR-4,
+ * MUST NOT). The subtree is folded as well (HR-1a).
+ * ⚠️ IC-59 (HR-6) does not reach the subtree: the closing paragraph under table
+ * T-051 lists HR-1a, HR-3 and HR-7 as the rows that write below the pressed row.
  *
- * ⭐ THE SUBTREE IS HR-1a's (MUST): 「畳んだ行の配下は、それ自身も畳まれた状態と
- * すること。畳む前の形を覚えて、開いたときに戻してはならない（MUST NOT）」.
- * ⚠️ IC-59 (HR-6) DOES NOT REACH IT. The closing paragraph under table T-051
- * lists the rows that write below the pressed row -- HR-1a, HR-3 and HR-7 --
- * and HR-6 is not one of them, so the hiding writes AT-57 on the pressed row
- * and nothing else.
+ * ⚠️ The mirror of `opensRowAndBelow`: rows already folded are left out, since
+ * CM-33 returns an unchanged document untouched and writing them would cost an
+ * undo step.
  *
- * ⚠️ The mirror of `opensRowAndBelow` and built the same way, down to leaving
- * the rows that already stand as asked out of the bundle: CM-33 answers an
- * unchanged fold by returning the document untouched, so writing them would
- * cost an undo step for a subtree that is already folded.
- *
- * ⛔ THE ROWS UNDER A FOLDED ROW ARE STILL WRITTEN. HR-1a stops them being
- * DRAWN, so folding them changes no pixel today -- but the fold is a column of
- * the document (AT-56), and a row left open under a folded one springs open the
- * moment the fold above it comes off. ⚠️ HR-1a says 「畳む操作は必ず配下ごと状態
- * を書き換えること（MUST）」 and names no exception.
+ * ⛔ Rows under an already-folded row are still written. The fold is a column
+ * of the document (AT-56), and a row left open under a folded one would spring
+ * open the moment the fold above it comes off; HR-1a names no exception.
  *
  * @purity pure
  */
@@ -6641,49 +4429,26 @@ function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentC
  * Whether the fold family's press on `ancestorId` still has a target. `null`
  * where the caller carried no picture at all (`InputContext.drawnRowGroupIds`).
  *
- * ⭐⭐ THE THREE REACHES ARE THE THREE OPERATIONS, AND EACH ONE NOW WRITES THE
- * PRESSED ROW. The closing paragraph under table T-051 (MUST) since 2026-08-31:
- * 「折り畳みの 4 つの操作子は、どれも押した行そのものの状態を書き換える」, and
- * (MUST NOT) 「押した行の状態を書き換えずに、その配下の状態だけを書き換えては
- * ならない」.
- * ⇒ `fold` is HR-4 (this row folds, so its DRAWN children leave the picture),
- * `openOneLevel` is HR-7 (this row's fold comes off and its direct children are
- * unhidden), and `open` is HR-3 (this row and its whole subtree lose both).
+ * Each operation writes the pressed row (closing paragraph under table T-051):
+ * `fold` is HR-4, `openOneLevel` is HR-7 and `open` is HR-3. A press that would
+ * add or remove no drawn row has no target (same paragraph).
  *
- * ⭐ THE CLOSING RULE UNDER TABLE T-051 (MUST), WORD FOR WORD: 「その操作で、
- * 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」,
- * and 「数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である」.
- * ⭐⭐ `openOneLevel` OBEYS IT BY ASKING THE PICTURE, which is the one reading
- * HF-13 (MUST) gives the spent side: 「開ける直下の子が 1 つも無いときは、
- * `FR-029` に従って薄く描くこと」. ⇒ Armed exactly where a DIRECT child of the
- * pressed row is out of the picture -- HR-1a's fold, HR-6's hiding and FR-018's
- * drop are all already settled in it, and any one of them is a row this press
- * puts back.
- * ⛔⛔ IT READ `isCollapsed || 隠れている子` UNTIL 2026-09-08 (台帳 DFC-385), which
- * armed a FOLDED row with no child at all: the drawing side drew that entrance
- * faint and the press still wrote a fold, so an `aria-disabled` control acted.
- * ⚠️ THE REASON THE OLD NOTE GAVE WAS A FABRICATED CITATION (台帳 DFC-339): it
- * put 「その行は畳まれておらず、隠れている子も無い」 into `RS-30` of table T-233,
- * which reads 「直下に、画面へ戻せる子が 1 つも無い」 and names no fold at all.
- * ⇒ The telling is true of a folded childless row, so nothing was holding the
- * wider arm up.
+ * `openOneLevel` asks the picture (HF-13, FR-029): it is armed exactly where a
+ * direct child of the pressed row is out of the picture, whatever put it out.
+ * That is the same set `row-title-panel.ts` builds for `canOpenOneLevel`
+ * (`groupIdsWithAChildOutOfThePicture`), off the same `rowBoxes`.
+ * ⛔ Not "folded, or a hidden child": that armed a folded childless row whose
+ * entrance the drawing side draws faint (RS-30).
  *
- * ⭐ `ancestorId` OF `null` MEANS THE WHOLE DOCUMENT, which is what HR-1 reaches
- * (IC-74); there is no pressed row then, so nothing is added for one.
+ * `ancestorId` of `null` is the whole document (HR-1, IC-74); there is no
+ * pressed row then.
  *
- * ⛔ THE `open` WALK READS HR-6 AND NOT FR-018. A hidden row stays hidden
- * however the folds above it move (MUST NOT), so it can never be the row an
- * open reveals; whether the group level of detail would keep a revealed row is
- * ScheduleLayout's judgement and no argument there carries it.
- * ⭐⭐ `openOneLevel` IS THE ONE THAT ASKS NEITHER, because it asks the picture,
- * where both have already been settled together -- and that is what FR-029
- * (MUST) means by 「その対象を、画面に描かれている側で数えること」. ⇒ It is the
- * SAME set `row-title-panel.ts` builds for `canOpenOneLevel`
- * (`groupIdsWithAChildOutOfThePicture`), off the same `rowBoxes`, which is what
- * FR-029 requires of the pair.
+ * ⛔ The `open` walk reads HR-6 and not FR-018: a hidden row stays hidden however
+ * the folds above it move, and whether the level of detail keeps a revealed row
+ * is `ScheduleLayout`'s judgement.
  *
- * ⚠️ ONE PASS AND TWO SETS. NFR-013 (MUST NOT) refuses an O(n^2) algorithm, and
- * asking each row for its own children would be one.
+ * ⚠️ The sets are built in one pass: NFR-013 (MUST NOT) refuses an O(n^2)
+ * algorithm, which asking each row for its children would be.
  *
  * @purity pure
  */
@@ -6700,8 +4465,6 @@ function wouldMoveARow(
 
   const withDrawnChild = new Set<string>()
   const withUnhiddenChild = new Set<string>()
-  // ⭐ HF-13's WHOLE ARMING TEST, and the same one `row-title-panel.ts` builds:
-  // a direct child the picture does not hold is a row this press puts back.
   const withAChildOutOfThePicture = new Set<string>()
   for (const row of schedule.taskGroups) {
     if (row.parentId === null) continue
@@ -6714,18 +4477,16 @@ function wouldMoveARow(
       ? undefined
       : schedule.taskGroups.find((one) => one.id === ancestorId)
 
-  // ⛔ A ROW THE PICTURE DOES NOT HOLD CARRIES NO PRESS AT ALL: HR-1a and HR-6
-  // both refuse to draw a subtree, so a control reached from a stale frame
-  // would write rows no reader can see move.
+  // ⛔ A row the picture does not hold carries no press: a control reached from
+  // a stale frame would write rows no reader can see move.
   if (ancestorId !== null && (pressedRow === undefined || !drawn.has(ancestorId))) return false
 
   // HR-4 (HF-11): this row folds, so the press is spent exactly where the
   // picture holds no child of it to take away.
   if (operation === 'fold') return ancestorId !== null && withDrawnChild.has(ancestorId)
 
-  // HR-7 (HF-13): this row's own fold comes off and its direct children are
-  // unhidden -- and RS-30 counts what that puts back, 「直下に、画面へ戻せる子
-  // が 1 つも無い」.
+  // HR-7 (HF-13): this row's fold comes off and its direct children are
+  // unhidden; RS-30 counts what that puts back.
   if (operation === 'openOneLevel') {
     if (ancestorId === null) return false
     return withAChildOutOfThePicture.has(ancestorId)
@@ -6742,14 +4503,10 @@ function wouldMoveARow(
   }
   for (const row of schedule.taskGroups) {
     if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
-    // ⭐⭐ A HIDDEN ROW COUNTS FOR AN OPENING, AND IT CANNOT BE ASKED OF THE
-    // PICTURE. HR-3 (MUST) since 2026-08-31 has 「配下をすべて開く」 bring back
-    // 「`HR-6` が隠した行も、配下のどこにあろうとも」 -- and HR-6 (MUST NOT) is
-    // exactly what keeps such a row out of the picture, so the `drawn` test
-    // below would refuse every one of them.
-    // ⛔ MEASURED BEFORE THIS: a row hidden with the single up chevron came back
-    // through the parent's ONE-level open and not through the parent's
-    // ALL-below open -- the wider range doing less than the narrower one.
+    // ⛔ A hidden row counts for an opening and cannot be asked of the picture:
+    // HR-3 brings back rows HR-6 hid, and HR-6 keeps them out of `drawn`, so
+    // testing `drawn` first would make the all-below open do less than the
+    // one-level open.
     if (row.isHidden === true) return true
     if (!drawn.has(row.id)) continue
     if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
@@ -6761,12 +4518,10 @@ function wouldMoveARow(
  * Whether the picture holds a row of the shallowest level -- what 段 0's own
  * folding entrance (IC-78, HF-12) would take out of it.
  *
- * ⭐ 段 0 IS A ROW'S REACH ONE LEVEL UP. HR-2 (MUST): 「パネルの頭は最も浅い段の
- * さらに上、すなわち段 0 として扱う」 and 「その入口は各行の入口と同じ論理で働く
- * こと」 -- so this is `withDrawnChild` asked of the head, whose children are the
- * rows with no parent (AT-52).
- * ⚠️ TRUE WHERE THE CALLER CARRIED NO PICTURE, falling back to the document:
- * a caller that measured nothing must not silence an entrance that has work.
+ * 段 0 is a row one level up (HR-2), so this is `withDrawnChild` asked of the
+ * head, whose children are the rows with no parent (AT-52).
+ * ⚠️ With no picture it falls back to the document: a caller that measured
+ * nothing must not silence an entrance that has work.
  *
  * @purity pure
  */
@@ -6779,14 +4534,13 @@ function isARowOfTheShallowestLevelDrawn(context: InputContext): boolean {
 }
 
 /**
- * One `setTaskGroupHidden` per row of the document that HR-6 hid -- the half of
- * HF-10's press that HR-1 (MUST) added on 2026-08-31.
+ * One `setTaskGroupHidden` per row HR-6 hid -- the unhiding half of HF-10's
+ * press (HR-1).
  *
- * ⭐ EVERY DEPTH AND NOT ONLY THE SHALLOWEST, which is what parts this from
- * `opensLevelZeroHiddenRows`: that member serves HF-16, whose range is 「最も浅い段
- * が戻る」 (HR-2), and this one serves HR-1, whose range is every row.
- * ⚠️ A ROW THAT IS NOT HIDDEN IS NOT WRITTEN, so a document with none adds
- * nothing to the bundle and the press stays the one write CM-72 already was.
+ * Every depth, unlike `opensLevelZeroHiddenRows`, which serves HF-16's
+ * shallowest level (HR-2).
+ * ⚠️ A row that is not hidden is not written, so with none the press stays the
+ * one write CM-72 already was.
  *
  * @purity pure
  */
@@ -6797,16 +4551,12 @@ function unhidesEveryRow(schedule: Schedule): readonly DocumentCommand[] {
 }
 
 /**
- * One `setTaskGroupCollapsed` per row of the document that is not folded --
- * HR-2 of table T-015, which HF-12 names.
+ * One `setTaskGroupCollapsed` per row that is not folded -- HR-2 of table
+ * T-015 (HF-12).
  *
- * ⛔ EVERY ROW AND NOT ONLY THE ONES WITH SOMETHING UNDER THEM. HR-2 says
- * 「すべての `TaskGroup` を閉じる」 and names no exception, and CM-72 (the
- * opening) is written the same way -- so a row that grows a child later is
- * already folded, exactly as one folded by hand would be.
- * ⚠️ A HIDDEN ROW IS WRITTEN TOO. HR-6 keeps such a row out of the picture and
- * HR-2 does not except it; leaving it open would make 「すべて」 depend on what
- * happens to be visible.
+ * ⛔ Every row, childless and hidden ones too: HR-2 names no exception and
+ * CM-72 is written the same way, so a row that grows a child later is already
+ * folded, and 「すべて」 does not depend on what is visible.
  *
  * @purity pure
  */
@@ -6820,14 +4570,9 @@ function foldsEveryRow(schedule: Schedule): readonly DocumentCommand[] {
  * Whether a row whose parent is `parentId` sits anywhere under `ancestorId`,
  * climbing `TaskGroup.parentId` (AT-52).
  *
- * ⚠️ The map carries the parent alone rather than the whole row, so that this
- * file reaches for no name beyond `Schedule` -- which is the one PI-1 of table
- * T-064 publishes, and the row's own type is not on that list.
- *
- * ⛔ THE CLIMB GUARDS AGAINST A RING, and that is not caution for its own sake:
- * `schedule.ts` REPORTS a ring in `parentId` as a violation rather than refusing
- * the document, and this member is handed whatever the frame froze. Without the
- * guard a ringed document would spin here for ever, inside a frame.
+ * ⛔ The climb guards against a ring: `schedule.ts` reports a `parentId` ring as
+ * a violation rather than refusing the document, so without the guard a ringed
+ * document would spin here for ever, inside a frame.
  *
  * @purity pure
  */
@@ -6848,20 +4593,15 @@ function isRowUnder(
 
 /**
  * SP-2 and SP-3 of FR-083 -- a palette shape pressed while something is
- * selected changes what is selected. ⭐ The arming half of the same press is
- * `screenStateFromInput`'s and happens too (since 2026-09-07 the two rows end
- * 「あわせてその形状を構える」); this member answers only the document side.
+ * selected changes the selected shapes. The arming half of the same press is
+ * `screenStateFromInput`'s; this member answers only the document side.
  *
- * ⛔ A MIXED SELECTION IS NOT FILTERED HERE, AND THAT IS NOT AN OVERSIGHT.
- * FR-083 states SP-3 (change ALL of what is selected) and, in the same
- * requirement, that a shape MUST NOT cross between table T-012's SH-1 .. SH-4
- * and SH-5 -- and no row says which of the two wins when the selection holds
- * both kinds. The whole bundle is planned, `editTask` refuses the crossing one
- * (CM-20 against FR-083), and AG-3 makes the bundle atomic, so the gesture
- * changes nothing and NT-1 tells the person why. ⭐ That is the reading that
- * writes nothing it was not asked to; filtering here would settle the question
- * instead. Searched: FR-083, table T-012, table T-108 CM-20 / CM-21, table
- * T-035 AG-3, `edit-task.ts`.
+ * ⛔ A mixed selection is not filtered: no row says whether SP-3 or FR-083's ban
+ * on crossing between table T-012's SH-1 .. SH-4 and SH-5 wins. The whole
+ * bundle is planned, `editTask` refuses the crossing one (CM-20), and AG-3
+ * makes the bundle atomic, so nothing changes and NT-1 tells the person why;
+ * filtering here would settle the question instead. Searched: FR-083, table
+ * T-012, table T-108 CM-20 / CM-21, table T-035 AG-3, `edit-task.ts`.
  *
  * @purity pure
  */
@@ -6887,65 +4627,36 @@ function commandFromArmingEntry(entry: string, context: InputContext): Translate
       // ⚠️ An armed figure whose spelling AT-101 does not admit changes nothing.
       // `Armed` types it as a bare string, so a caller CAN hold one.
       if (glyph === null) continue
-      // ⚠️ Two commands, because FR-078's eight figures are a column of their
-      // own (AT-101) while the SHAPE that makes a task a milestone is SH-5.
+      // ⚠️ Two commands, because FR-078's figures are a column of their own
+      // (AT-101) while the SHAPE that makes a task a milestone is SH-5.
       // CM-20 is what refuses the crossing; CM-21 only chooses the figure.
       commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
       commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, glyph })
       continue
     }
-    // AR-4 / AR-5 / AR-6 are not 形状. SP-1 to SP-3 speak of 「パレットの形状」
-    // only, so a dependency or an annotation entry changes nothing selected --
-    // it arms, which is `screenStateFromInput`'s answer.
+    // AR-4 / AR-5 / AR-6 are not palette shapes (SP-1 .. SP-3), so they change
+    // nothing selected; they only arm.
   }
   return changed(commands)
 }
 
 /**
- * The end the pointer names -- which Task, and which half of its bar.
+ * PTD-3 while AR-4 is armed: UC-004's step 2, one drag -- the press draws out
+ * of the predecessor and the release draws into the successor.
  *
- * ⭐⭐ NOT COMPUTED HERE ANY MORE. FR-009 (MUST, 利用者の裁定 2026-09-06):
- * 「どちらの半分かを、公開された名前から問えるようにすること（MUST）…半分を答える
- * 名は別に置くこと（MUST）。構えが依存線のときだけ呼ぶ」. ⛔ A copy of the rule in
- * this file could not be asked from outside, so the rule now lives at
- * `dependencyEndAtPointer` (layoutEngine, the layer the bar's geometry is in)
- * and this file only calls it. The three private readings that used to stand
- * here -- the bar's extent, the middle, and the walk over the Tasks -- were
- * that copy.
+ * ⛔ No `linkType` is chosen here: FR-009 maps the pair of edges one-to-one to
+ * the type, so the edges leave here and `edit-dependency.ts` looks up table
+ * T-018. A type written on this side would be the separate entrance FR-009
+ * refuses.
  *
- * ⭐ TABLE T-023d IS STILL NOT APPLIED, WHICH IS PTD-3's OWN SENTENCE: 「構えが
- * 依存線のときは表 T-023d を適用せず」. `itemAtPointer` (PI-7) IS that table;
- * the name called here is a different one and takes no `PointerSlop`.
- */
-
-/**
- * PTD-3 while AR-4 is armed: UC-004's step 2, whole.
+ * The predecessor is the press's `Hit` (MK-9a's order, already resolved); table
+ * T-023d is not applied (PTD-3), so `hit.grab` is dropped and `hit.item` kept.
+ * The half of the bar comes from `dependencyEndAtPointer`.
  *
- * ⭐ THE GESTURE IS ONE DRAG, which is what UC-004 describes: 「作成者が先行タスク
- * の左右どちらかの辺から矢印を引き出し、後続タスクの左右どちらかの辺へ引き入れる」.
- * The press is the drawing OUT and the release is the drawing IN, so the press's
- * Task is the predecessor and the release's is the successor.
- *
- * ⛔ NO `linkType` IS CHOSEN HERE, AND NONE MAY BE. FR-009 (MUST): 「引き出した辺
- * と引き入れた辺の組合せは、4 つの種別と 1 対 1 に対応する」, 「したがって種別を選ぶ
- * 入口を別に設けない」 -- so the pair of edges leaves here and `edit-dependency.ts`
- * is where table T-018's row is looked up. A `linkType` written on this side
- * would BE the entrance that sentence refuses.
- *
- * ⭐ THE PREDECESSOR IS NAMED BY THE PRESS'S `Hit` AND THE HALF BY THE BAR.
- * PTD-3's CONDITION is 「何かに当たった（判定の順と優先は MK-9a）」, and MK-9a's
- * order is the one the shell already resolved into `press.hit`; what the row
- * withholds is the RESULT column, which is where table T-023d's operations live.
- * ⛔ So `hit.grab` is dropped and `hit.item` is kept.
- *
- * ⚠️ AN END THAT IS NOT A TASK ENDS THE GESTURE IN SILENCE, and that is PTD-4a's
- * shape rather than an invention: 「何もしない。引きかけの矢印があれば捨てる。構えは
- * 解かない」 -- the half-drawn arrow is the renderer's and the arming is untouched,
- * so there is nothing to write. ⛔ NO TELLING IS COMPOSED HERE. FR-009's three
- * refusals (MUST NOT) are named by UID and `edit-dependency.ts` judges all three,
- * so a release ON a Task travels there and is refused with the reason table T-233
- * gives a refused write; a release on empty canvas has no UID to send and no row
- * of that table describes it.
+ * ⚠️ An end that is not a Task ends the gesture silently, PTD-4a's shape: the
+ * half-drawn arrow is the renderer's and the arming is untouched. ⛔ No telling
+ * is composed: a release on a Task goes to `edit-dependency.ts`, which judges
+ * FR-009's three refusals, and a release on empty canvas has no UID to send.
  *
  * @purity pure
  */
@@ -6979,8 +4690,7 @@ function commandFromDependencyDrag(
  * PTD-3 -- what was grabbed, by the row of table T-023d that claimed it.
  *
  * ⚠️ MK-13 is read before the grab, because a double click means something
- * different from a drag on the same place: the row names the target, and two of
- * its five targets can be reached (see `InPlaceTarget`).
+ * different from a drag on the same place (see `InPlaceTarget`).
  *
  * @purity pure
  */
@@ -6994,39 +4704,16 @@ function commandFromGrab(
   const item = hit.item
 
   if (release.clickCount >= 2 && item.kind === 'task') {
-    // MK-13's Task entry -- the name label or the body, one destination for
-    // both. ⭐ THAT IS THE ROW ITSELF and not a shortcut taken here: the two
-    // were folded into a single entry because NL-1 of table T-013 draws the
-    // label inside the shape, so answering them separately would put one
-    // operation in two places.
-    // ⚠️ THE BODY IS GR-12 FOR EVERY SHAPE, and a milestone's actual figure
-    // (GR-15) stands over it in table T-023d -- so a double click on a milestone
-    // that has an actual would otherwise reach nothing at all.
-    //
-    // ⭐⭐ THE ACTUAL IS ON THIS LIST SINCE 2026-09-08 (利用者の裁定, DFC-399).
-    // MK-13 gained an entry for it -- 「実績（実績バー、および未着手のダミー） ＝
-    // **タスクの項と同じとすること（MUST）**」 -- and gives the reason itself:
-    // 「実績はタスクの一部であり、自分の面を持たない。」 ⇒ the six grab regions
-    // table T-023d gives the actual (GR-5 / GR-6 its ends, GR-15 the milestone's
-    // figure, GR-9 / GR-17 / GR-18 the 未着手 dummies) all reach the Task's own
-    // name field, exactly as GR-10 and GR-12 do.
-    // ⛔ THE PRIORITY ORDER IS NOT WHAT DECIDES A DOUBLE CLICK, and table
-    // T-023d's closing rule says so as a MUST: 「ダブルクリックの宛先は 表 T-023
-    // の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」, with 「本表の順で
-    // ダブルクリックの宛先を決めてはならない（MUST NOT）。」 beside it. ⚠️ THE ROW
-    // RECORDS THE MEASUREMENT THIS REPAIRS: 「実績の端（`GR-5` / `GR-6`）は
-    // `GR-12` より上に在るので、実績の端をダブルクリックしても `MK-13` の宛先へ
-    // 届かず、同じ日を書き直す空振りになっていた」 -- the `GR-5` / `GR-6` arm of
-    // the switch below wrote `setTaskPlanActualState` for the day already there.
-    // ⭐ READ BEFORE THAT SWITCH AND NOT INSIDE IT, which is what 「先に読む」
-    // asks; the switch keeps every one of those rows for the plain press, and
-    // 「素の押下の順は 1 文字も変わらない」.
-    // ⛔ GR-3 AND GR-4 ARE NOT ON THIS LIST. They are the PLAN bar's ends, and
-    // MK-13 names 名称ラベル, 本体, 担当ラベル, 実績, コメントボックス and 行見出し
-    // and no end of the plan -- so that double click still falls to the grab.
-    // ⛔ NOR ARE GR-7 AND GR-8: the progress marker and the resume icon stand
-    // OUTSIDE the actual bar in table T-023d, and neither is 実績バー nor a
-    // 未着手のダミー.
+    // MK-13's Task entry: the name label, the body and the actual all reach the
+    // Task's name field. One destination for label and body because NL-1 of
+    // table T-013 draws the label inside the shape. The actual's grab regions
+    // (GR-5 / GR-6, GR-15, and the GR-9 / GR-17 / GR-18 dummies) are included
+    // because MK-13 gives the actual no surface of its own.
+    // ⛔ Read before the switch, not by table T-023d's priority order (its
+    // closing rule): GR-5 / GR-6 stand above GR-12, so the switch would rewrite
+    // the same day.
+    // ⛔ Not GR-3 / GR-4 (the plan's ends) nor GR-7 / GR-8 (outside the actual
+    // bar): MK-13 names neither, so their double click falls to the grab.
     const isNameEntrance =
       hit.grab === 'GR-10' ||
       hit.grab === 'GR-12' ||
@@ -7039,11 +4726,9 @@ function commandFromGrab(
     if (isNameEntrance) {
       return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
     }
-    // MK-13's 担当ラベル entry, which that row (MUST) sends to 表 T-225 の `AS-1`
-    // -- 「担当ラベル ＝ **表 T-225 の `AS-1` の宛先とすること（MUST）**」 -- and
-    // table T-023d gives it GR-11. ⛔ A SEPARATE ANSWER and not another arm of
-    // `isNameEntrance`: the two destinations are printed apart in MK-13 (PR-16
-    // against PR-1), so they leave here apart.
+    // MK-13's assignee label entry goes to AS-1 of table T-225 (GR-11). ⛔ Apart
+    // from `isNameEntrance`: MK-13 prints the two destinations apart (PR-16
+    // against PR-1).
     if (hit.grab === 'GR-11') {
       return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
     }
@@ -7056,76 +4741,40 @@ function commandFromGrab(
   }
 
   if (release.clickCount >= 2 && item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    // MK-13's コメントボックス entry (MUST, 利用者の裁定 2026-09-06): 「プロパティ
-    // パネルを出し、本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置く
-    // こと」. FR-097 (MUST) sends its entrance here.
-    // ⛔ READ BEFORE THE MOVE, WHICH IS THIS FUNCTION'S OWN RULE: a double click
-    // means something different from a drag on the same place, and GR-14's move
-    // stands directly below. Without this the two presses would be one.
-    // ⛔ NOTHING IS WRITTEN AND NOTHING IS CHOSEN HERE, as for `taskName` and
-    // `rowName`: the first click of the double click already moved the selection
-    // (SL-2 of table T-023c), and the body is written by the panel field's own
-    // commit.
+    // MK-13's comment box entry: the body field (PR-21 of table T-016); FR-097
+    // sends its entrance here.
+    // ⛔ Read before GR-14's move below, or a double click and a drag on the same
+    // place would be one press.
+    // ⛔ Nothing is written or chosen: the first click already moved the
+    // selection (SL-2 of table T-023c), and the panel field commits the body.
     return acted({ kind: 'editInPlace', target: { kind: 'commentBoxText', id: item.id } })
   }
 
-  // ⛔⛔ THE OTHER HALF OF THAT SAME MUST, AND THE HALF THAT WAS MISSING.
-  // Table T-023d's closing rule (MUST, 利用者の裁定 2026-09-08):
-  // 「⚠️⚠️ **ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）**（利用者の裁定 2026-09-08）—— ⛔ **本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。**」
-  // ⭐ A DOUBLE CLICK IS TWO RELEASES, NOT ONE, and the branch above only ever
-  // sees the second: `clickCount` is 1 on the first release and 2 on the
-  // second, so the first release fell straight through to the switch below and
-  // the table's order decided a destination for it after all.
-  // ⚠️⚠️ MEASURED ON THE SHIPPED BUILD 2026-09-10, with FR-102's record (IC-76)
-  // reading the `done` line after each `in.pointer down`. One double click on
-  // the mark of an unstarted Task, at the point the app itself answered
-  // `grab=GR-17` for:
-  //     up   clicks=1  ->  act=changeDocument  doc=changed
-  //     up   clicks=2  ->  act=editInPlace     doc=same
-  // The dummy count went 1 -> 0 and an actual bar 0px wide was written where
-  // the mark had stood -- GR-17's arm counting a length from a drag of nothing.
-  // ⇒ The gesture reached TWO destinations, one of them chosen by this table's
-  // order, which is what the MUST NOT forbids.
-  //
-  // ⭐ WHAT SEPARATES THE FIRST HALF OF A DOUBLE CLICK FROM A DRAG: the travel.
-  // FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02) 「`S-208` を超えて動いたときを
-  // ドラッグとし、超えないときをクリックとすること」, and its own note says the
-  // value is one for the whole tool -- 「同じ手の動きに同じ値を使い、行の掴みと
-  // 別に持たない」 -- so `hasDraggedPastThreshold` is asked here rather than a
-  // second distance minted. ⛔ NOTHING IS GUESSED ABOUT THE FUTURE: a release
-  // cannot know whether a second click is coming, and it does not need to --
-  // every half of every double click is a press that did not travel.
-  //
-  // ⭐ ONLY THE ROWS MK-13 NAMES. The rule is about the double click's
-  // destination, and a row MK-13 gives no destination to keeps the table's
-  // order for both its clicks: that is why GR-3 / GR-4 (the plan's ends), GR-7
-  // (the marker's cycle, which FR-013 makes one step per release whatever the
-  // distance), GR-8, GR-13, GR-16 and GR-21 are absent here exactly as they are
-  // absent from `isNameEntrance` above. ⛔ GR-10 and GR-11 need no arm: table
-  // T-023d's closing rule already keeps them out of a plain press entirely.
-  //
-  // ⭐ `CONSUMED_ELSEWHERE` AND NOT AN EMPTY BUNDLE: the press stays this
-  // tool's (MK-10, MUST NOT -- the browser must not get it back mid-gesture)
-  // and no `DocumentCommand` leaves. ⛔ THE SELECTION IS NOT TOUCHED HERE and
-  // must not be: `selectionFromInput` is the side that answers SL-2 of table
-  // T-023c, so the first click still chooses what it pressed and MK-13's panel
-  // opens on it.
+  // ⛔ The first release of a double click. MK-13 decides a double click's
+  // destination, not table T-023d's order (the table's closing rule), but
+  // `clickCount` is 1 on the first release, so without this arm that release
+  // falls to the switch below and reaches a second destination -- for GR-17, an
+  // actual 0px wide written from a drag of nothing.
+  // What separates it from a drag is travel past S-208
+  // (`hasDraggedPastThreshold`, the one value FR-001 / FR-019 use for the whole
+  // tool); every half of a double click is a press that did not travel.
+  // Only the rows MK-13 names (`MK_13_GRAB_ROWS`): other rows keep the table's
+  // order for both clicks. GR-10 and GR-11 need no arm, since the closing rule
+  // keeps them out of a plain press.
+  // `CONSUMED_ELSEWHERE`, not an empty bundle: the press stays this tool's
+  // (MK-10). ⛔ The selection is not touched: `selectionFromInput` answers SL-2,
+  // so the first click still chooses what it pressed and MK-13's panel opens
+  // on it.
   if (MK_13_GRAB_ROWS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
     return CONSUMED_ELSEWHERE
   }
 
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    // Table T-023d GR-14, the MOVE half of its operation. ⭐ THE TRAVEL IS
-    // ADDED AS IT STANDS AND NOT THROUGH THE DAY AXIS: FR-019 holds this one
-    // distance in SCREEN pixels so that a zoom does not change how far the body
-    // sits from what it is pinned to, and CM-51 says the same from the other
-    // side -- the value arrives as what it will be drawn as.
-    // ⭐ THE ANCHOR IS LEFT ALONE. GR-14's row moves the box, and FR-019 gives
-    // the offset the whole of that distance; writing the anchor as well would
-    // move the same picture twice.
-    // ⭐ FOUND WITH A LOOKUP HERE RATHER THAN THROUGH A NEW MEMBER of
-    // `schedule.ts`: PI-1 of table T-064 is the full count of what that unit
-    // publishes, and one read this file needs once does not earn a row on it.
+    // GR-14's move. The travel is added in screen pixels, not through the day
+    // axis: FR-019 holds this distance in screen pixels so a zoom does not change
+    // it (CM-51). The anchor is left alone, or the same picture would move twice.
+    // A lookup rather than a new member of `schedule.ts`: PI-1 of table T-064 is
+    // the full list of what that unit publishes.
     // @provisional PND-316
     const box = context.document.schedule.commentBoxes.find((one) => one.id === item.id)
     // ⚠️ The box is gone from under the press. ⛔ Still this tool's press: MK-10
@@ -7152,38 +4801,17 @@ function commandFromGrab(
       return changed([{ kind: 'cycleTaskPlanActualState', uid }])
     case 'GR-1':
     case 'GR-2': {
-      // Table T-023d, the closing rule three paragraphs under the table (MUST):
-      // the days of GR-1 and GR-2 are taken FROM THE POINTER'S POSITION --
-      // GR-1 the days from `start`, GR-2 the days back from the plan's end --
-      // 「いずれも 1 日単位に四捨五入する」, and the result cut down by FD-6 of
-      // table T-012a (MUST).
-      //
-      // ⭐⭐ THE POSITION AND NOT THE DAY IT STANDS IN. The rule said 「ポインタ
-      // の下の日から求めること」 until version 1.68, and that reading floored:
-      // the count between two whole days is already whole, so 四捨五入 had
-      // nothing left to round and the sentence decided nothing. ⛔ A clause that
-      // decides nothing is not how the rest of the manuscript is written, so the
-      // ruling of 2026-08-30 kept the arithmetic and moved the day to a
-      // position. ⚠️ Measured before the change: a sliver short of a boundary
-      // settled a whole day earlier than a sliver past it.
-      //
-      // ⭐ THE FRACTION IS READ THE ONE WAY THIS FILE ALREADY READS IT.
-      // `dayAnchorAt` above measures how far into a day an x stands as
-      // `unitFraction((x - xFromDay(layout, day)) / pxPerDay)`, off the same two
-      // published converters, so `x -> day` and `day -> x` cannot drift apart.
-      // ⛔ NO SECOND ROAD IS OPENED: the whole part still comes from `dayAtX`,
-      // which is the road GR-3 / GR-4 below and GR-5 / GR-6 after them take.
-      //
-      // ⚠️ STILL NO THRESHOLD. The closing rule forbids one (MUST NOT), and
-      // nothing here has one: the position is read on the release, whatever
-      // distance the pointer covered.
-      //
-      // ⚠️ SL-7a (MUST) as for GR-3 / GR-4: a corner drag is about the one Task
-      // grabbed, whatever else is selected.
-      // ⚠️ Neither FD-5's two shapes nor FR-075's MUST (handles only on the
-      // selected Task) is judged here: `item-hit-area.ts` spends both where the
-      // fade handles are built, and a Task that has none never arrives as GR-1
-      // or GR-2 at all.
+      // Table T-023d's closing rule: the days come from the pointer's POSITION
+      // (GR-1 counted from `start`, GR-2 back from the plan's end), rounded to a
+      // day, then cut down by FD-6 of table T-012a. The position and not the day
+      // it stands in: between two whole days there is nothing left to round.
+      // The fraction is read the way `dayAnchorAt` reads it, off the same two
+      // converters, so `x -> day` and `day -> x` cannot drift apart; the whole
+      // part still comes from `dayAtX`. ⚠️ No threshold (MUST NOT): the position
+      // is read on the release.
+      // ⚠️ SL-7a: one Task, whatever else is selected. FD-5 and FR-075 are spent
+      // in `item-hit-area.ts`, so a Task with no handles never arrives as GR-1 or
+      // GR-2.
       const task = taskByUid(context.document.schedule, uid)
       const start = dayOf(task === null ? null : task.start)
       const finish = dayOf(task === null ? null : task.finish)
@@ -7236,16 +4864,9 @@ function commandFromGrab(
     case 'GR-5':
     case 'GR-15':
     case 'GR-6': {
-      // Table T-023d: GR-5 changes `actualStart`, GR-6 changes
-      // `actualDuration`. Like GR-3 and GR-4 this narrows to the one Task
-      // grabbed (SL-7a, MUST) -- stretching several actuals at once has no
-      // meaning either.
-      // ⭐ GR-15 RIDES WITH GR-5 rather than taking an arm of its own: its row
-      // moves the same column, and `actualEndPlacement` says why the two are
-      // one answer. ⛔ It used to fall to the `default:` below, whose census
-      // called it a row with no target to grab -- which was never true, since
-      // `item-hit-area.ts` claims the milestone's actual figure and the
-      // geometry builds it. Only the write was missing.
+      // Table T-023d: GR-5 changes `actualStart`, GR-6 `actualDuration`; one Task
+      // only (SL-7a). GR-15 rides with GR-5 because its row moves the same column
+      // (see `actualEndPlacement`).
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
@@ -7259,55 +4880,31 @@ function commandFromGrab(
     case 'GR-9':
     case 'GR-17':
     case 'GR-18': {
-      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND TWO THINGS IN
-      // IT: the DAY the hand let go on, and WHICH HANDLE it had hold of.
-      // ⛔⛔ THE HANDLE HAS TO TRAVEL, AND UNTIL 2026-09-09 IT DID NOT. FR-043
-      // (MUST) writes the same three columns whichever handle was grabbed --
-      // 「どちらが掴まれたときも実績開始日と実績期間（`actualDuration`）と
-      // `resumeValid`（`true`）を置くこと（MUST）」 -- but table T-023d gives the
-      // two rows different VALUES for them: GR-9 「掴めば `actualStart` と
-      // `actualDuration` を置く」 puts the day let go on into the start, while
-      // GR-17 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
-      // 確定。`FR-043`）」 pins the start and reads the day as a length.
-      // ⭐ NOTHING DOWNSTREAM CAN RECOVER IT. The two handles share one drawn
-      // mark (FR-043, MUST: 「ダミーの印は 1 つだけ描くこと（MUST）」) split down
-      // its middle by table T-023d's closing rule, so which half was pressed is
-      // a fact of the POINTER and `hit.grab` is the only thing holding it.
-      // ⚠️ The three arms answer one command kind all the same: CM-14 reads the
-      // shape for itself to choose between S-129 and S-130.
+      // FR-043's dummies: one command for all three, carrying the DAY let go on
+      // and WHICH handle was held. Table T-023d gives GR-9 and GR-17 different
+      // values for the same columns (GR-9 takes the day as the start, GR-17 as a
+      // length from GR-9's start), and the two share one drawn mark split down
+      // its middle, so `hit.grab` is the only record of which half was pressed.
+      // ⚠️ CM-14 reads the shape itself to choose between S-129 and S-130.
       //
-      // ⭐ THE RELEASE IS THE ONLY PHASE THAT REACHES THIS FUNCTION, which is
-      // what table T-023d's grab means: the table's closing rule sends the
-      // moment of decision to table T-028's IN-1, and `pointerAssignment`
-      // above answers `down`, `move` and `lost` without ever calling here.
-      // ⭐ IN-1a follows from the same shape -- a pointer lost mid-gesture
-      // writes nothing, which is the abort that row demands.
+      // Only the release reaches this function (IN-1 of table T-028, which the
+      // table's closing rule names), so a pointer lost mid-gesture writes
+      // nothing (IN-1a).
       //
-      // ⚠️ GR-9's MUST NOT (no state cycled by a press) is kept by the hit
-      // test, not here: a point GR-9 claims never arrives as GR-7, so the
-      // cycle above is unreachable from a dummy. ⚠️ The row was narrowed to
-      // that wording by CR-198; it does not refuse the press itself.
+      // ⚠️ GR-9's MUST NOT (no state cycled by a press) is kept by the hit test:
+      // a point GR-9 claims never arrives as GR-7.
       //
-      // ⛔ STILL MISSING AND NOT THIS UNIT'S: table T-023d also requires the
-      // actual about to be placed to be DRAWN while one of the three is held
-      // (MUST). That picture is the renderer's, from the press it can see --
-      // IN-1 keeps a move from carrying an action.
+      // ⛔ Not this unit's: table T-023d also requires the actual about to be
+      // placed to be DRAWN while held. That picture is the renderer's -- IN-1
+      // keeps a move from carrying an action.
       //
-      // ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE, the same reading the
-      // GR-8 arm below takes of the same sentence: table T-023d's closing rule
-      // forbids it outright (MUST NOT), and its own note says that FR-043's
-      // 稼働日 is 「描く位置の話であり、落とす先の話ではない」.
+      // ⛔ The dropped day is not moved to a working one (table T-023d's closing
+      // rule, as in the GR-8 arm), and it is not the day the dummy stands on
+      // (FR-043, MUST NOT): reading the placement as the value made every drop
+      // write the same day.
       //
-      // ⛔⛔ AND IT IS NOT THE DAY THE DUMMY STANDS ON. FR-043 (MUST NOT) now
-      // forbids its two rules being read as one: 予定の開始日の翌稼働日 places
-      // the dummy BEFORE it is grabbed, and reading that as the value made
-      // every drop write the same day. ⚠️ Measured on the shipped build
-      // 2026-09-02, ledger DFC-182: the hold carried 3 steps and 8 steps wrote
-      // the actual at the same x both times, because no day left this arm.
-      //
-      // ⚠️ `null` where the pointer came down on no day at all -- the same arm
-      // the GR-5 / GR-6 / GR-8 releases take. ⛔ Still this tool's press: MK-10
-      // keeps the browser out from under a grab it took.
+      // ⚠️ `null` where the pointer came down on no day at all. ⛔ Still this
+      // tool's press: MK-10 keeps the browser out from under a grab it took.
       const dropped = dayAtX(context.layout, release.x)
       if (dropped === null) return CONSUMED_ELSEWHERE
       return changed([
@@ -7317,9 +4914,8 @@ function commandFromGrab(
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days
       // and, when it went up or down, changes the row it is drawn on.
-      // ⭐ SL-7 (MUST): a body drag moves EVERYTHING in the selection, so the
-      // same shift is applied to each selected Task -- and to the grabbed one
-      // alone when it is not in the selection.
+      // SL-7 (MUST): the same shift is applied to every selected Task, or to the
+      // grabbed one alone when it is not in the selection.
       const shift = dayShift(context, press.at.x, release.x)
       const row = rowAtY(context.layout, release.y)
       const movedRow = row === null ? null : row.groupId
@@ -7348,25 +4944,16 @@ function commandFromGrab(
       return changed(commands)
     }
     case 'GR-8': {
-      // Table T-023d GR-8 gives this grab `resume` and sends the rule to
-      // FR-044, whose STATEMENT has the author place the resume date on the
-      // screen and move it after it has been placed.
+      // Table T-023d GR-8 gives this grab `resume` (FR-044).
       //
-      // ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE. The rule under table
-      // T-023d forbids it outright (MUST NOT) -- people work on days off, and
-      // moving it would store a day other than the one the hand chose. This is
-      // the same reading `actualEndPlacement` takes of that rule.
+      // ⛔ The dropped day is not moved to a working one (the rule under table
+      // T-023d, MUST NOT), the same reading `actualEndPlacement` takes.
       //
-      // ⭐ NOTHING ABOUT `resumeValid` IS DECIDED HERE. FR-044 (MUST) pairs a
-      // placed resume date with `resumeValid` true, and PA-3 of table T-019 is
-      // the row that holds exactly that pair -- `edit-task.ts` writes it. A
-      // second answer here would be the same rule in two places.
+      // `resumeValid` is not decided here: PA-3 of table T-019 carries the pair
+      // FR-044 requires and `edit-task.ts` writes it.
       //
-      // ⚠️ THE OTHER COLUMNS ARE CARRIED, NOT RECOMPUTED, for the reason
-      // `actualEndPlacement` gives on GR-6's `actualFinish`: CM-13 places a
-      // whole row of table T-019 while this row of table T-023d moves one
-      // column, so taking any other value from the drag would be a second
-      // entrance to a column no row gives this grab.
+      // ⚠️ The other columns are carried, not recomputed, for the reason
+      // `actualEndPlacement` gives on GR-6's `actualFinish`.
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
@@ -7391,56 +4978,16 @@ function commandFromGrab(
     default:
       // STOP -- ⛔ THE REMAINING ROWS OF TABLE T-023d ARE NOT WRITTEN, and each
       // is missing something different rather than being an oversight:
-      //   GR-11        the assignee label is not drawn, so no press can arrive
-      //                as this row: `item-hit-area.ts` records the gap where
-      //                table T-023d prints the row, and says the row comes in
-      //                double-click-only when the label does.
+      //   GR-10 / GR-11  double-click only (table T-023d's closing rule,
+      //                `item-hit-area.ts`), so a plain press never arrives as
+      //                either; their double click is answered before the switch.
       //   GR-13        a dependency is SELECTED by a press rather than changed
       //                by one, which is the whole of its operation column.
-      //   GR-10        cannot arrive by a plain press at all: table T-023d's
-      //                closing rule (MUST NOT) takes it out of that reading, so
-      //                `item-hit-area.ts` never answers it here. Its double
-      //                click is answered before the switch.
       //   GR-14        the HIGHLIGHT BOX half only. Its comment box is written
       //                above the switch; the resize half of GR-14's operation
       //                names the body, the anchor and the four corners, and no
       //                table gives the anchor or a corner a size -- so nothing
       //                here can tell which of the three a press took.
-      // ⚠️ GR-1 AND GR-2 WERE ON THIS LIST AND ARE NOT ANY MORE, and nothing in
-      // the specification moved -- the note said the geometry of a pulled corner
-      // was in no table of the specification, while table T-023d's closing rule
-      // states the derivation in as many words, three paragraphs under the very
-      // table the note named among what it had searched: the days come from the
-      // day under the pointer (MUST), GR-1 counting from `start` and GR-2 back
-      // from the plan's end, and FD-6
-      // of table T-012a cuts them down (MUST). CM-16 and CM-17 were already
-      // published by `edit-task.ts` to carry them. See the case above.
-      // ⚠️ GR-9 / GR-17 / GR-18 WERE ON THIS LIST AND ARE NOT ANY MORE, and
-      // nothing in the specification moved -- the note misread it twice. It
-      // said the phase was unstated, but table T-023d's closing rule already
-      // sends these three to table T-028's IN-1; and it quoted a GR-9 clause
-      // that CR-198 had already narrowed to forbidding a CYCLE rather than the
-      // press. FR-043's MUST leaves neither END a parameter, so one CM-14
-      // answers all three -- and since 利用者の裁定 2026-09-02 that one command
-      // carries the DAY the hold was let go on. See the case above.
-      // ⚠️ GR-5 AND GR-6 WERE ON THIS LIST AND ARE NOT ANY MORE. What held them
-      // was named as the counting and a ruling about a drop onto a non-working
-      // day; `workingDaysBetween` and `workingCalendarOf` are published by
-      // `schedule.ts` (PI-1) and the rule under table T-023d now forbids the
-      // dropped day to be moved to a working one at all (MUST NOT), so neither
-      // is missing. See `actualEndPlacement`.
-      // ⚠️ GR-8 WAS ON THIS LIST AND IS NOT ANY MORE, and nothing in the
-      // specification moved -- the note was FALSE where it stood. It said no
-      // row states which of the valid / invalid pair a drag produces, and
-      // FR-044 states it in as many words (MUST): placing a resume date sets
-      // `resumeValid` true. PA-3 of table T-019 is the row that carries the
-      // pair and `edit-task.ts` already writes it. See the case above.
-      // ⚠️ THE COMMENT BOX HALF OF GR-14 WAS ON THIS LIST AND IS NOT ANY MORE,
-      // and nothing in the specification moved -- that note was FALSE too. It
-      // said `item-hit-area.ts` records the comment box as undrawn, and that
-      // file answers GR-14 on one: the geometry builds the body, the hit test
-      // claims it, and CM-51 was already published to carry the distance. Only
-      // the write was missing. See the branch above the switch.
       // Searched: table T-023d, FR-011, FR-013, FR-019, FR-043, FR-044, FR-045, FR-046,
       // table T-206, `edit-task.ts`, `edit-annotation.ts`.
       return CONSUMED_ELSEWHERE
@@ -7448,55 +4995,23 @@ function commandFromGrab(
 }
 
 /**
- * FR-034's alignment, as a bundle of CM-11.
+ * How many of the chosen Tasks the picture actually holds -- FR-029's count for
+ * FR-034's two entrances.
  *
- * ⭐ 「作成者が整列を求めたとき、`GRS` は、選ばれたタスクの開始日または終了日を、
- * **最後に選んだタスクの日付へ**揃えること」 -- so the anchor is the LAST `task`
- * of `Selection.items`, which SL-7b keeps in the order they were picked, oldest
- * first. ⛔ The anchor is never written: it is already where it is being lined
- * up with, and a write for it would be an undo step that moved nothing.
+ * The join the palette makes, out of two facts neither invented here:
+ * `InputContext.drawnRowGroupIds` (the rows the last frame drew, with folds,
+ * hiding and FR-018's depth limit already applied) and
+ * `Schedule.taskGroupMembers` (ET-5 of table T-056). ⛔ A Task with no member row
+ * is not drawn and is not counted.
  *
- * ⭐⭐ THE WHOLE TASK MOVES, KEEPING ITS DURATION. `FR-034` names ONE end and
- * says nothing about the other, and CM-11 refuses a finish before its start
- * (IV-10, `edit-task.ts`), so a rule that wrote one end alone would refuse
- * whenever the anchor's day crossed the other end. ⚠️ A shift can never be
- * refused on that ground, and it is the same arithmetic `GR-12` already uses to
- * carry a whole selection. ⛔ THE SPECIFICATION DOES NOT DECIDE THIS -- no row
- * of `FR-034` or of table T-108 says whether the other end follows or holds
- * still.
- * @provisional PND-406
+ * ⛔ Absent means no picture was handed over, never nothing drawn: the wider count
+ * is kept, because a false faint says a working entrance is broken (FR-029).
+ * ⚠️ An EMPTY array is a different answer and is honoured.
  *
- * ⚠️ A Task with no `start` or no `finish` is passed over rather than half
- * written: CM-11 puts both, and FR-012 has no meaning for one alone.
+ * ⛔ It counts and does not narrow the write: FR-034 lines up the selected Tasks,
+ * so `alignWrites` still reads the selection.
  *
- * @purity pure
- */
-/**
- * How many of the chosen Tasks the picture actually HOLDS -- FR-029's 「画面に
- * 描かれている側で数えること」 for FR-034's two entrances.
- *
- * ⭐⭐ THE SAME JOIN THE PALETTE MAKES, out of the same two facts and neither of
- * them invented here: `InputContext.drawnRowGroupIds` is the set of rows the
- * last frame drew (the shell's one cut, which a fold, a hiding and FR-018's
- * depth limit have all already been applied to), and `Schedule.taskGroupMembers`
- * (ET-5 of table T-056) is which row each Task sits in. A Task reaches the
- * picture only through a member row of a drawn group. ⛔ A Task with no member
- * row is not drawn and is not counted: nothing places it, so there is no bar to
- * line up.
- *
- * ⛔ ABSENT MEANS "NO PICTURE WAS HANDED OVER" AND NEVER "NOTHING IS DRAWN",
- * which is the reading `drawnRowGroupIds` fixes for itself: a caller that
- * carries none gets the wider count this branch made before DFC-265, because a
- * false faint tells the reader an entrance is broken -- the very reading FR-029
- * exists to prevent. ⚠️ An EMPTY array is a different answer and is honoured.
- *
- * ⛔ IT COUNTS AND DOES NOT NARROW THE WRITE. FR-034 lines up 「選ばれたタスク」
- * and no row of it or of table T-108 cuts that set down to the picture, so
- * `alignWrites` still reads the selection -- what is decided here is only
- * whether the entrance has anything to do, which is the whole of FR-029.
- *
- * ⚠️ ONE PASS OVER THE MEMBERS. NFR-013 (MUST NOT) refuses an O(n^2) walk, and
- * asking each chosen Task for its row would be one.
+ * ⚠️ One pass over the members: NFR-013 (MUST NOT) refuses an O(n^2) walk.
  *
  * @purity pure
  */
@@ -7512,6 +5027,25 @@ function chosenDrawnTaskCount(context: InputContext): number {
   return chosen.filter((one) => one.kind === 'task' && drawnTaskUids.has(one.uid)).length
 }
 
+/**
+ * FR-034's alignment, as a bundle of CM-11.
+ *
+ * The anchor is the LAST `task` of `Selection.items` (SL-7b keeps pick order).
+ * ⛔ The anchor is never written: it is already where the others line up, and a
+ * write for it would be an undo step that moved nothing.
+ *
+ * The whole Task moves, keeping its duration: CM-11 refuses a finish before its
+ * start (IV-10, `edit-task.ts`), so writing one end alone would be refused
+ * whenever the anchor's day crossed the other end; a shift never can be, and
+ * GR-12 uses the same arithmetic. ⛔ The specification does not decide whether
+ * the other end follows or holds still.
+ * @provisional PND-406
+ *
+ * ⚠️ A Task with no `start` or no `finish` is passed over rather than half
+ * written: CM-11 puts both.
+ *
+ * @purity pure
+ */
 function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
   const anchorRef = chosen[chosen.length - 1]
@@ -7544,31 +5078,15 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
  * FD-6 of table T-012a, in days: `fadeIn` is cut down to [0, the plan's span]
  * and `fadeOut` to [0, the span less the `fadeIn` that stands] -- `fadeIn` wins.
  *
- * ⭐ THE SPAN IS THE ONE THE AXIS DRAWS, which is what makes this the same rule
- * `schedule-geometry.ts` already applies in pixels: that file hands its own FD-6
- * the bar's drawn width, and `schedule-layout.ts` builds that width as the days
- * between `start` and `finish` times `pxPerDay`. Table T-012a spells its four
- * points as days on the horizontal axis (`start + fadeIn`, `end - fadeOut`), so
- * a day counted any other way would draw the corner somewhere other than under
- * the hand that let go of it.
+ * The span is the one the axis draws: `schedule-geometry.ts` applies FD-6 in
+ * pixels to a width `schedule-layout.ts` builds from calendar days, so a day
+ * counted any other way would put the corner somewhere other than under the
+ * hand. FD-6 and IV-12 both count calendar days, so a pair FD-6 allows IV-12
+ * allows.
  *
- * ⛔ ONE ROW'S DAYS AND NOT THE PAIR. The closing rule under table T-023d cuts
+ * ⛔ One row's days and not the pair: the closing rule under table T-023d cuts
  * down the days THIS grab obtained, so the other column is read and never
- * written -- a second write would be an entrance no row gives this grab, which
- * is the reading GR-6 takes of `actualFinish` as well.
- *
- * ⭐⭐ BOTH TABLES COUNT A FADE DAY THE SAME WAY, and both say so. FD-6
- * (MUST) counts the span in calendar days and forbids working days; IV-12
- * (MUST) was brought to calendar days by the ruling of 2026-09-03, which its
- * own row records. So a pair FD-6 allows is a pair IV-12 allows, and nothing
- * here has to pick a counting for either of them.
- *
- * ⚠️⚠️ THIS NOTE SAID THE OPPOSITE UNTIL 2026-09-05. It claimed IV-12 measured
- * the span in worked days and that neither table said which counting applied.
- * Both were true when written and both stopped being true the same day, when
- * IV-12 was corrected to agree with FD-6. ⛔ Nothing in this file behaved on
- * either claim -- it was a note about somewhere else, which is the kind this
- * codebase is not supposed to carry.
+ * written (the reading GR-6 takes of `actualFinish`).
  *
  * @purity pure
  */
@@ -7581,54 +5099,35 @@ function clampedFadeDays(task: Task, grab: 'GR-1' | 'GR-2', pulled: number, span
 }
 
 /**
- * The whole of what CM-13 is handed, taken from the command rather than
- * imported by name.
- *
- * ⭐ A DERIVATION AND NOT A CROSSING. Table T-064 is the full count of what
- * may cross a component folder and `PlanActualPlacement` is not on it, so the
- * shape is read off `DocumentCommand`, which this file already carries
- * (check 26b).
+ * What CM-13 is handed, read off `DocumentCommand` rather than imported:
+ * `PlanActualPlacement` is not on table T-064, so it may not cross a component
+ * folder by name (check 26b).
  */
 type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
 
 /**
- * Where GR-5 or GR-6 leaves the actual, stated as the row of table T-019 the
- * Task ALREADY stands at.
+ * Where GR-5, GR-6 or GR-15 leaves the actual, stated as the row of table T-019
+ * the Task ALREADY stands at.
  *
- * ⛔ NO STATE IS CHOSEN HERE. CM-13 places a whole row of table T-019 while
- * table T-023d gives these two grabs one column each -- `actualStart` and
- * `actualDuration` -- so the row is read back with `planActualState` (table
- * T-019a) and written again with the one value the grab moves. Choosing a row
- * instead would let a drag on an end silently suspend or finish a Task. ⚠️ The
- * join between the two tables is the STATE both of them print and not their
- * numbering: PS-1 and PA-1 are both 未着手, PS-5 and PA-2 both 進行中.
+ * ⛔ No state is chosen here. CM-13 places a whole row of table T-019 while table
+ * T-023d gives these grabs one column each, so the row is read back with
+ * `planActualState` (table T-019a) and written again with the one moved value;
+ * choosing a row would let a drag on an end suspend or finish a Task. ⚠️ The two
+ * tables join on the state they print, not their numbering.
  *
- * ⭐ GR-6's COUNT IS THE INVERSE OF FR-011's PICTURE. That requirement (MUST)
- * puts the actual bar's right end at 「`actualStart` に `actualDuration` を稼働日
- * で加えた日」, which is `dateFromWorkingDays`; so the duration that a day
- * dropped on asks for is `workingDaysBetween` from the actual's start to that
- * day. Both count a half-open span, which is what makes them a pair.
+ * GR-6's count is the inverse of FR-011's picture: the end is
+ * `dateFromWorkingDays` from `actualStart`, so the duration is
+ * `workingDaysBetween` over the same half-open span.
+ * GR-5 keeps the actual's finish and lays the duration down again (GR-5 forbids
+ * sliding the bar; FR-011 moves no end the hand did not place).
+ * ⚠️ GR-15 carries the duration: a milestone holds no actual bar, and its
+ * duration is FR-043's S-130, which no row asks this drag to move.
  *
- * ⭐⭐ GR-5 LAYS THE DURATION DOWN AGAIN, WHICH IS THE SAME PAIR READ FROM THE
- * OTHER END. Its row says so since the ruling of 2026-08-29 -- 「実績の終了日は
- * 据え置き、`actualDuration` を置き直すこと（MUST）。実績バーを平行移動させて
- * はならない（MUST NOT）」 -- so the finish is worked out from what the Task
- * held, and the duration counted from the day dropped on to that finish.
- * ⛔ CARRYING THE DURATION SLID THE WHOLE BAR, and FR-011 is what that broke:
- * that requirement (MUST NOT) moves neither end unless a person placed it, and
- * the hand placed the left one. Measured 2026-08-29, before this: dragging the
- * left end 72px left moved the left edge 500 -> 572 and the right 2204 -> 2282.
- * ⚠️ GR-15 GOES ON CARRYING IT, and its own row is why: a milestone holds no
- * actual BAR, so there is no finish standing still to count to -- FR-043's
- * S-130 is its duration and no row of table T-023d asks this drag to move it.
+ * ⛔ The dropped day is not moved to a working one (the rule under table
+ * T-023d). ⚠️ Nothing is clamped either: an end past the other is the
+ * aggregate's to judge, as GR-3 and GR-4 read IV-2.
  *
- * ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE. The rule under table T-023d
- * forbids it outright (MUST NOT) -- people work on days off, and moving it would
- * store a day other than the one the hand chose. ⚠️ Nothing is clamped either:
- * an end dragged past the other one is the aggregate's to judge, which is the
- * same reading GR-3 and GR-4 take of IV-2.
- *
- * ⚠️ `null` WHERE THERE IS NOTHING TO MOVE, OR NOTHING TO WRITE THE ROW WITH.
+ * ⚠️ `null` where there is nothing to move, or nothing to write the row with.
  *
  * @purity pure
  */
@@ -7640,16 +5139,9 @@ function actualEndPlacement(
 ): PlacedPlanActual | null {
   const held = dayOf(task.actualStart)
   if (held === null) return null
-  // ⭐ GR-15 IS GR-5, AND ITS OWN ROW SAYS SO. Table T-023d gives GR-15
-  // 「`actualStart` を動かす」 and adds that a milestone holds no actual BAR, so
-  // GR-5 / GR-6 / GR-17 cannot reach it -- the figure is the whole of what
-  // there is to grab. ⛔ So the column it moves is the one GR-5 moves, and the
-  // duration is carried rather than measured: a milestone's is FR-043's S-130
-  // and no row of table T-023d asks this drag to change it.
   const calendar = workingCalendarOf(schedule)
-  // ⭐ WHERE THE ACTUAL ENDS AS THE TASK STANDS, which is FR-011's own picture
-  // read forwards. ⛔ `null` where the Task carries no duration to end after --
-  // the guard below is what answers that, and this stays out of its way.
+  // Where the actual ends as the Task stands (FR-011's picture read forwards).
+  // `null` with no duration; the guard below answers that.
   const heldFinish =
     task.actualDuration === null ? null : dateFromWorkingDays(calendar, held, task.actualDuration)
   const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
@@ -7681,9 +5173,9 @@ function actualEndPlacement(
     case 'suspendedResumeUnknown':
       return { row: 'PA-4', actualStart, actualDuration }
     case 'finished':
-      // ⚠️ `actualFinish` IS CARRIED, NOT RECOMPUTED. Table T-023d gives GR-6
-      // the duration alone; taking the finish day from the day dropped on as
-      // well would be a second entrance to a column no row gives this grab.
+      // ⚠️ `actualFinish` is carried, not recomputed: table T-023d gives GR-6
+      // the duration alone, and a finish taken from the drop would be a second
+      // entrance to a column no row gives this grab.
       return task.actualFinish === null
         ? null
         : { row: 'PA-5', actualStart, actualDuration, actualFinish: task.actualFinish }
@@ -7693,10 +5185,8 @@ function actualEndPlacement(
 /**
  * PTD-4 -- nothing was hit and a figure is armed, so the drag makes one.
  *
- * ⭐ WHICH END OF THE DRAG NAMES THE ROW is FR-001's, in its STATEMENT: the
- * `TaskGroup` the vertical position the drag BEGAN at points at (MUST), and a
- * new row when it points at none (MUST). So the press is read, not the release
- * -- which is also the end table T-023a reads to decide what the gesture is.
+ * The press names the row (FR-001), which is also the end table T-023a reads to
+ * decide what the gesture is.
  *
  * @purity pure
  */
@@ -7710,14 +5200,11 @@ function commandFromArmed(
   const to = dayAtX(context.layout, release.x)
   const row = rowAtY(context.layout, press.at.y)
   if (from === null || to === null) return CONSUMED_ELSEWHERE
-  // FR-001 (MUST): the row the position the drag BEGAN at points at, and a new
-  // row when it points at none.
   const groupId = row === null ? context.newGroupId : row.groupId
   const early = compareDay(from, to) <= 0 ? from : to
   const late = compareDay(from, to) <= 0 ? to : from
-  // FR-001 / FR-019 (MUST, 利用者の裁定 2026-09-02): 「`S-208` を超えて動いたとき
-  // をドラッグとし、超えないときをクリックとすること」. One reading for all three
-  // armings below, so the boundary cannot sit in two places.
+  // The click / drag boundary is S-208 (FR-001 / FR-019). One reading for all
+  // three armings below, so the boundary cannot sit in two places.
   const dragged = hasDraggedPastThreshold(press, release)
 
   if (armed.kind === 'taskShape' || armed.kind === 'milestoneShape') {
@@ -7728,46 +5215,16 @@ function commandFromArmed(
     // one; writing it into the document would put a value the column refuses
     // where the schema expects one of five.
     if (shapeKind === null) return CONSUMED_ELSEWHERE
-    // ⭐ THE TWO ROADS FR-001 NOW HAS, and each names both of its dates here
-    // rather than one branch patching another's answer.
-    //
-    // ⛔⛔ A MILESTONE IS PLACED BY THE PRESS ALONE (MUST, 利用者の裁定
-    // 2026-09-02): 「マイルストーンは押すだけで置くこと。引いても、押した点に置く
-    // こと」 -- 「マイルストーンは長さを持たないので、引いた長さに意味が無い」.
-    // ⛔ AND A DRAG IS NOT A REASON TO REFUSE (MUST NOT): 「引いたことを理由に
-    // 拒んではならない —— バーの癖でつい引く」. So `dragged` is not consulted on
-    // this road at all; both dates are the pressed day, exactly as table T-012's
-    // SH-5 (a point) wants.
-    //
-    // ⭐ A BAR DRAGGED MAKES THE SPAN THAT WAS DRAWN (MUST): 「バーの形状（表
-    // T-012 の `SH-1` 〜 `SH-4`）を構えてドラッグしたときは、引いた期間のタスクを
-    // 作ること」.
-    //
-    // ⛔⛔ AND A BAR CLICKED MAKES NOTHING (MUST NOT, 利用者の裁定 2026-09-07,
-    // 逐語「タスクはドラッグ必須」): FR-001 「クリックでは、バーの形状のタスクを
-    // 作らないこと」 -- 「タスクは期間を持つものであり、引いていない押下はその期間
-    // を言っていない」. FR-083's RATIONALE carries the same MUST NOT.
-    // ⭐ AND IT IS TOLD (MUST): 「作らなかったことを告げること（MUST）」, whose
-    // manner that same clause hands to FR-029 -- 「押しても何も起きない入口と見分
-    // けがつかなくなる」.
-    // ⭐⭐ THE TELLING IS 表 T-037's `NT-1` AND `raiseNotice` IN `frame-loop.ts`
-    // RAISES IT, off the `tellEntryHasNothingToDo` action `nothingToDo` builds
-    // -- the same one member every other refusal on this road already reaches
-    // (FR-019's own, one branch below, is the nearest neighbour).
-    // ⭐⭐ THE REASON IS `RS-53`, WHICH THE MANUSCRIPT GRANTED ON 2026-09-07 FOR
-    // THIS PRESS AND NO OTHER: 「バーの形状を構えたまま、引かずに離した」, whose
-    // 正 is FR-001 itself. ⛔ NOT THE FALLBACK `RS-27`: the row is written with
-    // the reason it exists -- 「`RS-27`（押した入口が、いま行えることを持たない）
-    // では、何をすればよいかが読めない。」 -- and the census beside
-    // `NOTICE_REASON_OF_SPENT_ENTRANCE` states the same rule from the far side
-    // (reaching for the fallback where a row of one's own exists is the MUST
-    // NOT). The words themselves are the dictionary's and are not spelled here
-    // (FR-038, MUST NOT).
-    // ⚠️ ⛔ `CONSUMED_ELSEWHERE` WOULD BE THE DEFECT THE CLAUSE NAMES: it keeps
-    // the browser off the press (MK-10) and carries no reason to anyone, which
-    // is 「押しても何も起きない入口」 word for word.
-    // ⭐ A MILESTONE NEVER REACHES THIS LINE, and RS-53's own note says why: a
-    // point IS placed by a press that did not travel.
+    // A milestone is placed by the press alone, and a drag neither lengthens nor
+    // refuses it (FR-001): both dates are the pressed day, as SH-5 is a point.
+    // A bar dragged makes the span drawn; a bar clicked makes nothing and is told
+    // (FR-001; FR-083 carries the same MUST NOT), with RS-53 -- the fallback RS-27
+    // would not say what to do instead.
+    // The telling is NT-1 of table T-037, raised by `raiseNotice` in
+    // `frame-loop.ts` off the action `nothingToDo` builds; the words are the
+    // dictionary's (FR-038).
+    // ⛔ Not `CONSUMED_ELSEWHERE`: that carries no reason, which is the silent
+    // entrance FR-029 forbids.
     const isMilestone = shapeKind === 'milestone'
     if (!isMilestone && !dragged) return nothingToDo('barShapeReleasedWithoutADrag')
     const start = isMilestone ? from : early
@@ -7781,35 +5238,21 @@ function commandFromArmed(
         groupId,
       },
     ]
-    // ⭐ AR-3's GLYPH IS SET HERE, on the Task the line above is about to make.
-    // FR-001's RATIONALE (MUST NOT): 「作るものはコマンドパレットで構えているもの
-    // が決める。`GRS` が形状を勝手に読み替えてはならない」, and FR-078 reserves
-    // AT-101's default for 「選ばれていないとき」 -- which this is not, because a
-    // figure was armed and then placed. Without the second command the armed
-    // figure was dropped on the way to the document and every placement came out
-    // as AT-101's default (ledger DFC-140).
-    //
-    // ⛔ WHY THE UID CAN BE NAMED BEFORE THE COMMAND RUNS, and why this is not
-    // the `groupId` line above wearing another hat. `groupId` is handed in as a
-    // value because AT-51 is a UUID and minting one is NOT a pure act. `Task.uid`
-    // is the opposite: FR-001 (MUST) takes it from `Project.uidHighWaterMark`
-    // and (MUST NOT) from the largest live uid, so the number the write side is
-    // going to issue is a pure function of the document this component was
-    // handed -- it is READ the same way the write side reads it, not invented.
-    // ⭐ THE SAME BUNDLE ALREADY EXISTS IN THIS FILE: `commandsFromAssignee`
-    // plans CM-40 and then CM-44 against the uid FR-008 is about to issue, for
-    // the same reason and by the same reading (`nextIssuedUid`).
-    // ⚠️ WS-3 of `document-change-plan.ts` runs a bundle IN ORDER against the
-    // document each command leaves behind, and AG-3 makes it atomic, so CM-21
-    // finds the Task CM-6 made or neither of them happens. FR-031 keeps the two
-    // as one undo step.
+    // AR-3's glyph is set on the Task this bundle makes: the armed figure
+    // decides (FR-001), and AT-101's default is only for none chosen (FR-078).
+    // The uid can be named before CM-6 runs: FR-001 issues it from
+    // `Project.uidHighWaterMark` and not from the largest live uid, so
+    // `nextIssuedUid` is a pure reading of this document -- unlike `groupId`, a
+    // UUID that is minted outside. `commandsFromAssignee` relies on the same
+    // reading.
+    // ⚠️ WS-3 of `document-change-plan.ts` runs a bundle in order and AG-3 makes
+    // it atomic, so CM-21 finds the Task CM-6 made or neither happens; FR-031
+    // keeps the two as one undo step.
     if (armed.kind === 'milestoneShape') {
       const glyph = milestoneGlyphOf(armed.glyph)
-      // ⚠️ An armed figure whose spelling AT-101 does not admit chooses nothing,
-      // the same way an unknown shape creates nothing above. `Armed` types it as
-      // a bare string, so a caller CAN hold one. The Task is still made: FR-001
-      // owns the placement and AT-101's default then stands, which is exactly
-      // 「選ばれていないとき」.
+      // ⚠️ An armed figure whose spelling AT-101 does not admit chooses nothing
+      // (`Armed` types it as a bare string). The Task is still made, and
+      // AT-101's default then stands.
       if (glyph !== null) {
         commands.push({
           kind: 'setTaskVisualMilestoneGlyph',
@@ -7822,19 +5265,10 @@ function commandFromArmed(
     // `TaskVisual` CM-6 makes; nothing else the palette can hold needs a second
     // command on the new Task.
     //
-    // ⭐⭐ THE NEW TASK IS CARRIED OUT WITH THE WRITE (MUST, 利用者の裁定
-    // 2026-09-03): FR-001's 「作ったタスクを選択にすること」 and its MUST NOT --
-    // 「選択にしないと `FR-091`（作った直後に入力できること）が果たせない」, 「名前
-    // を出す道は、何かが選ばれているときにしか進まないからである」.
-    // ⛔ THE HOLDER CANNOT WORK THE UID OUT. `selectionFromInput` answers what
-    // was UNDER the pointer, and PTD-4 is the row where nothing was; the Task
-    // does not exist until CM-6 has run, and by then the press is over.
-    // ⭐ THE NUMBER IS READ AND NOT INVENTED, by the very reading the glyph
-    // command above already rests on: FR-001 (MUST) takes `Task.uid` from
-    // `Project.uidHighWaterMark` and (MUST NOT) from the largest live uid, so
-    // `nextIssuedUid` is a pure function of the document this component holds.
-    // ⚠️ ONE bundle, ONE creation -- the note on that member states the bargain,
-    // and CM-21 above names the same number for the same Task.
+    // The new Task is carried out with the write (FR-001, FR-091). ⛔ The holder
+    // cannot work the uid out: PTD-4 is the row where nothing was hit, and the
+    // Task exists only after CM-6 has run -- so it is read by `nextIssuedUid`,
+    // the same number CM-21 names above.
     return changedAndCreated([commands], {
       kind: 'task',
       uid: nextIssuedUid(context.document.schedule),
@@ -7842,33 +5276,12 @@ function commandFromArmed(
   }
 
   if (armed.kind === 'commentBox') {
-    // AR-5 of table T-023b -- 「その位置にコメントボックスを置く」, and FR-019
-    // holds that position 「日付と行の識別子で」.
-    //
-    // ⭐ WHICH POSITION 「その位置」 IS: the PRESS. Table T-023a is titled 「ポイ
-    // ンタを押したときの判定順序」 and PTD-4 is a row of it, so the point that
-    // decided a placement was owed is the point the placement stands at. ⛔ Not
-    // the release, and a comment box has no second end for one to name: FR-097
-    // sizes the body from its own text, so the length of the drag says nothing.
-    // ⭐ The same end FR-001 reads for its row, one branch above.
-    //
-    // ⛔⛔ NO ROW UNDER THE PRESS: REFUSED, AND TOLD WHY (FR-019, MUST, 利用者の
-    // 裁定 2026-09-02). 「指す `TaskGroup` が無い縦位置で注記を置こうとしたとき
-    // は、作らずに理由を告げること」, 「作法は `FR-029` に従い、理由は 表 T-233 の
-    // `RS-44` とする」.
-    // ⛔ SILENCE IS THE OTHER MUST NOT: 「黙って作らずに済ませてはならない」 --
-    // FR-029 requires the reason 「押されたときに限り」, and a press that does
-    // nothing and says nothing cannot be told from a broken entrance. ⚠️ That is
-    // what stood here until this ruling: `CONSUMED_ELSEWHERE`, which keeps the
-    // browser out from under the press and carries no reason to anyone.
-    // ⛔⛔ MINTING A ROW IS FORBIDDEN BY NAME: 「行を 1 つ作って載せてはならない」.
-    // FR-001's own answer to this situation (「指す `TaskGroup` が無いときは行を
-    // 1 つ作って」) may NOT be borrowed -- that MUST is stated for the `Task` it
-    // also places, and it goes on to make that Task the new row's 導出元; a row
-    // minted for an annotation would carry neither a name nor a 導出元, which
-    // AT-54 of `_assets/fig-erd-detail.md` and FR-058 forbid outright.
-    // ⭐ WHY THE TWO DIFFER IS THE REQUIREMENT'S OWN WORDS: 「`Task` は自分が新し
-    // い行の導出元になれるが、注記はなれない」.
+    // AR-5 of table T-023b; FR-019 holds the position by date and row.
+    // The position is the PRESS: table T-023a decides on the press, and FR-097
+    // sizes the body from its own text, so the drag length says nothing.
+    // ⛔ No row under the press: refused with RS-44 and told (FR-019, FR-029),
+    // never silently, and never by minting a row. FR-001's new row is for a Task,
+    // which becomes the row's 導出元; an annotation cannot be one (AT-54, FR-058).
     if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
     return changed([
       {
@@ -7880,56 +5293,32 @@ function commandFromArmed(
   }
 
   if (armed.kind === 'highlightBox') {
-    // ⛔⛔ DRAG ONLY (FR-019, MUST / MUST NOT, 利用者の裁定 2026-09-02):
-    // 「ハイライトボックスはクリックで置かない。ドラッグのみ」 -- 「押した 1 点は
-    // その範囲を言えない」. ⭐ The boundary is `S-208`, which the requirement
-    // names as 「`FR-001` が図形を置くときに使うのと同じ値」.
-    // ⛔ AND THE CLICK IS NOT TOLD A REASON. FR-029 puts a reason on a PRESS,
-    // and this is a click -- a press AND a release -- which cannot be told from
-    // a drag begun and given up. ⚠️ `CONSUMED_ELSEWHERE` and not `UNASSIGNED`:
-    // the press was on the Row Area with AR-6 armed, so the browser's own
-    // default stays off it (MK-10) even though nothing is written.
+    // ⛔ Drag only (FR-019): one pressed point cannot say a range. The boundary
+    // is S-208, the value FR-001 uses.
+    // ⛔ The click is not told a reason: FR-029 tells a PRESS, and a click
+    // cannot be told from a drag begun and given up. ⚠️ `CONSUMED_ELSEWHERE`,
+    // not `UNASSIGNED`: MK-10 keeps the browser's default off a press on the Row
+    // Area with AR-6 armed.
     if (!dragged) return CONSUMED_ELSEWHERE
 
-    // ⭐ THE HALF FR-019's RULING DID CLOSE, and it closes for AR-6 exactly as
-    // it does for AR-5 one branch above: that requirement speaks of 「コメント
-    // ボックスまたはハイライトボックス」 and its 2026-09-02 clause of 「注記」,
-    // so a press whose row is missing is refused with RS-44 here too rather
-    // than passing in silence (FR-029, MUST).
-    // ⚠️ BOTH ENDS ARE ASKED, because a range names TWO rows: AT-119 and AT-120
-    // are the 上端 and 下端, and 「指す `TaskGroup` が無い縦位置で置こうとしたとき」
-    // is true of either end standing below the last drawn row. ⛔ Minting a row
-    // for the missing end is forbidden by name in the same clause (「行を 1 つ
-    // 作って載せてはならない」), so the refusal is the only answer left.
+    // A missing row is refused with RS-44 as for AR-5 (FR-019 speaks of both
+    // boxes). ⚠️ Both ends are asked, because a range names two rows (AT-119 /
+    // AT-120); ⛔ minting a row for the missing end is forbidden.
     const releaseRow = rowAtY(context.layout, release.y)
     if (row === null || releaseRow === null) return nothingToDo('noRowToPutTheAnnotationOn')
 
-    // ⭐⭐ THE DIRECTION IS NORMALISED ON THE RELEASE (MUST, 同裁定): 「引いた向き
-    // は、離した時点で正規化すること —— `startDate` が `endDate` より後のとき、
-    // および `topGroupId` が `bottomGroupId` より下のときは、入れ替えて持つこと」.
-    // ⛔ 「拒んではならない」 —— 「ドラッグに向きは無く、人は右上から左下へも引く」.
-    // ⚠️ SO THE SWAP LIVES HERE AND NOT IN `edit-annotation.ts`: the same clause
-    // sends values 「打ち込みや取り込みから来た」 to IV-10's treatment instead, and
-    // those roads carry no direction to normalise.
-    // ⭐ `early` / `late` above are that swap for the two days, read the same way
-    // FR-001's own drag reads them one branch up.
-    // ⭐⭐ WHICH ROW IS 上 IS THE PLACE IN THE ROW TREE (MUST, 利用者の裁定
-    // 2026-09-05), 「その『下』は、行の木における順位で判ずること」.
-    // ⛔ AND NOT THE PLACE ON THE SCREEN (MUST NOT), 「画面に描かれた位置で判じて
-    // はならない」. `RowPlacement.y` is where the row was DRAWN, and FR-098 lifts
-    // a pinned row out of the tree's order, so `row.y <= releaseRow.y` -- which
-    // stood here until this ruling -- wrote a pair IV-19 turns down. Measured
-    // 2026-09-05 on the shipped build: pin the row of rank 5, drag from it to the
-    // row of rank 0, and `topGroupId` came out as the rank-5 row.
-    // ⚠️ THE DRAWN SIDE IS THE OPPOSITE AND STAYS SO: the same clause has the
-    // picture 「画面に出ている 2 つの行を囲んで描くこと」, which `schedule-geometry.ts`
-    // already does by taking the min and max of the two DRAWN bands. The two are
-    // not in conflict -- the value stored is the tree's order, the frame drawn is
-    // the screen's -- so neither may be made to follow the other.
+    // The direction is normalised on the release, never refused (FR-019). The
+    // swap lives here and not in `edit-annotation.ts`: typed or imported values
+    // carry no direction and go to IV-10's treatment. `early` / `late` above are
+    // the swap for the days.
+    // Which row is the top is the rank in the row tree, ⛔ not the screen
+    // position (FR-019, MUST NOT): FR-098 lifts a pinned row out of the tree's
+    // order, so comparing `RowPlacement.y` wrote pairs IV-19 turns down.
+    // ⚠️ The frame DRAWN stays the screen's (`schedule-geometry.ts` takes the min
+    // and max of the drawn bands); neither may be made to follow the other.
     const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-    // ⚠️ Every row the walk was handed has a rank, and `rowAtY` only ever answers
-    // with a row the layout drew from this same document -- so the fallback is
-    // unreachable and exists to keep the comparison total.
+    // ⚠️ `rowAtY` only answers rows laid out from this same document, so the
+    // fallback is unreachable and keeps the comparison total.
     const pressRank = rankById.get(row.groupId) ?? 0
     const releaseRank = rankById.get(releaseRow.groupId) ?? 0
     const isPressAbove = pressRank <= releaseRank
@@ -7953,23 +5342,17 @@ function commandFromArmed(
 }
 
 /**
- * The place every row takes in the DOCUMENT's own order, top to bottom: a
- * preorder walk of AT-52's `parentId`, siblings by AT-55's `order`.
+ * Every row's place in the DOCUMENT's own order, top to bottom: a preorder walk
+ * of AT-52's `parentId`, siblings by AT-55's `order` -- what IV-19 means by
+ * below.
  *
- * ⭐ WHAT 「下」 MEANS TO IV-19, and the only thing this answers. It is a rank
- * and not a `y`: a row FR-098 pinned, a row HR-1a folded away and a row HR-6
- * hid all keep their place between their siblings, so the order a value is
- * STORED in cannot be read off the picture.
- * ⛔ NOT `ScheduleLayout.rows`, which is the drawn set in the drawn order --
- * that is the set the FRAME is measured against, one branch above, and reading
- * it here is the very defect this walk replaces.
+ * A rank and not a `y`: rows FR-098 pinned, HR-1a folded away or HR-6 hid all
+ * keep their place, so stored order cannot be read off the picture. ⛔ Not
+ * `ScheduleLayout.rows`, which is the drawn set in drawn order.
  *
- * ⚠️ THIS IS A SECOND COPY, AND IT IS REPORTED. `schedule.ts` holds the same
- * walk for IV-19 under the name `taskGroupRankById`, and that copy is the one
- * the invariant is judged by -- but it is a file-local function there and
- * table T-064 publishes no entry for it, so this side cannot import it. Rule
- * 03's DRY points at exporting that one and deleting this; until it is
- * exported the two must be changed together.
+ * ⚠️ A second copy: `schedule.ts` holds the same walk under the same name, and
+ * IV-19 is judged by that one, but it is file-local and table T-064 publishes no
+ * entry for it. Until it is exported (rule 03's DRY), change both together.
  *
  * @purity pure
  */
@@ -8002,9 +5385,8 @@ function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, nu
 /**
  * Every Task a body drag carries (SL-7).
  *
- * ⚠️ Only Tasks. SL-7 says 「選択されている全部を動かす」 and a dependency has
- * no dates of its own to move, while SL-1 excludes the status line from being
- * carried along at all.
+ * ⚠️ Only Tasks: a dependency has no dates of its own to move, and SL-1 excludes
+ * the status line from being carried along.
  *
  * @purity pure
  */
@@ -8019,15 +5401,12 @@ function movedTaskUids(context: InputContext, grabbed: number): readonly number[
 }
 
 /**
- * Which row the DOCUMENT has a Task on.
+ * Which row the DOCUMENT has a Task on -- its `TaskGroupMember` (IV-6 makes it
+ * exactly one), which is what HM-3 of table T-015a moves.
  *
- * ⛔ NOT `ScheduleLayout.placements`, which is what this read before and is a
- * picture rather than a fact: while a body drag is in flight the layout already
- * draws the Task on the row under the pointer (that is what the drag SHOWS), so
- * on the release the drawn row and the dropped row agree and GR-12's guard
- * below cancelled the very move it was guarding -- the bar sprang back to the
- * row it started on. `TaskGroupMember` is the row a Task is on (IV-6 makes it
- * exactly one), and HM-3 of table T-015a is about moving THAT.
+ * ⛔ Not `ScheduleLayout.placements`: during a body drag the layout already draws
+ * the Task on the row under the pointer, so on the release GR-12's guard below
+ * would cancel the move and the bar would spring back.
  *
  * @purity pure
  */
@@ -8052,11 +5431,9 @@ function compareDay(a: CalendarDay, b: CalendarDay): number {
 /**
  * What one press of SK-16 or SK-16a multiplies a zoom by.
  *
- * ⛔ NOT SETTLED FOR THE KEYBOARD. S-53 is stated for the wheel (S-96 calls it
- * 「1 ノッチで何倍動くか」) and SK-16 / SK-16a say only 拡大 / 縮小. The
- * recommendation is the same step, so that the two routes to the same operation
- * do not disagree -- FR-029's reason for having one entrance per operation
- * applies to the size of the step as much as to the entrance.
+ * ⛔ Not settled for the keyboard: S-53 is stated for the wheel, and SK-16 /
+ * SK-16a say only zoom in / out. The same step is used so the two routes to one
+ * operation do not disagree.
  * Searched: table T-036 SK-16 / SK-16a, table T-201 S-53, table T-203 S-75 /
  * S-76, FR-016.
  *
@@ -8069,36 +5446,22 @@ function keyZoomFactor(context: InputContext, isIn: boolean): number {
 }
 
 /**
- * FR-016's ceiling for the day axis (MUST): 「日付の軸（`zoomX`）の上限は、見えて
- * いる範囲が `_assets/tbl-settings.md` の 表 T-206 の `S-229` 日を下回らない倍率
- * とすること（MUST）」 —— 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）
- * である。」
+ * FR-016's ceiling for the day axis: the zoom at which the `Row Area` still shows
+ * S-229 days of table T-206.
  *
- * ⭐⭐ NOT A MAGNIFICATION AND NOT A SETTING, WHICH IS THE WHOLE POINT. The same
- * requirement (MUST NOT): 「固定の倍率で止めてはならない（MUST NOT）」 ——
- * 「画面の広さも行の中身も環境で変わるので、倍率の直値はそのどちらにも合わない。」
- * So the ceiling is
- * worked out from the region in front of the person on the frame it is asked
- * about, and a wider window raises it by itself.
- * ⛔ THE DAY COUNT IS NOT TYPED HERE, which S-229's own note states as a
- * MUST NOT (「`src/` に 10 を打ち込んではならない」): it arrives through the
- * generated `NOT_STORED_VISIBLE_DAY_FLOOR` block at the foot of this file,
- * whose single source of truth is `docs/spec/_source/settings.json`.
+ * Derived from the region on the frame asked about, never a fixed magnification
+ * (FR-016, MUST NOT), so a wider window raises it by itself.
+ * ⛔ The day count is not typed here (S-229's own note forbids it): it arrives
+ * through the generated `NOT_STORED_VISIBLE_DAY_FLOOR` block at the foot of this
+ * file, sourced from `docs/spec/_source/settings.json`.
  *
- * ⭐ THE WIDTH OF ONE DAY AT 等倍 IS READ BACK OFF THE FRAME rather than
- * recomputed: the time axis is linear in the zoom -- `pxPerDay = pxPerDayAt1x *
- * zoomX`, the identity `placeHeldStill` already leans on -- so the frame's own
- * `pxPerDay` over the zoom it was DRAWN at is that width exactly. ⛔ Laying the
- * schedule out a second time to get it is what MN-6 of table T-070 refuses.
- * ⚠️ `zoomOnScreen` AND NOT THE STORED `S-75`, for the reason that member
- * gives: while no place is named the picture stands at FR-055's fit, and
- * dividing the drawn `pxPerDay` by a zoom nobody is looking at would answer a
- * width no day has.
+ * One day's width at 1x is read back off the frame: `pxPerDay = pxPerDayAt1x *
+ * zoomX` (the identity `placeHeldStill` leans on). ⛔ Laying the schedule out
+ * again is what MN-6 of table T-070 refuses. ⚠️ `zoomOnScreen` and not the
+ * stored S-75: under FR-055's fit the stored zoom is not what was drawn.
  *
- * ⚠️ ANSWERS `null` WHERE THERE IS NO SUCH QUOTIENT -- an empty document with
- * no time axis, a region with no width, a zoom of zero. A picture with no day
- * in it has no 「見えている範囲」 for the row to keep, and the range S-75 holds
- * is then the only bound, which is where this file stood before.
+ * ⚠️ `null` where there is no such quotient (no time axis, no width, a zero
+ * zoom); the range S-75 holds is then the only bound.
  *
  * @purity pure
  */
@@ -8112,13 +5475,12 @@ function zoomXCeiling(context: InputContext): number | null {
 }
 
 /**
- * The band of the tallest row this frame drew -- 「いちばん高い行の帯」 of
- * FR-016's ceiling for the row axis.
+ * The band of the tallest row this frame laid out -- for FR-016's row-axis
+ * ceiling.
  *
- * ⛔ EVERY LAID-OUT ROW AND NOT THE VISIBLE ONES. `ScheduleLayout.rows` carries
- * the whole chain with the vertical scroll already applied, so the tallest row
- * is found whether or not it is on the screen at this moment. A ceiling that
- * moved when the person scrolled would be a ceiling nobody could predict.
+ * ⛔ Every laid-out row, not the visible ones: `ScheduleLayout.rows` carries the
+ * whole chain, and a ceiling that moved when the person scrolled could not be
+ * predicted.
  *
  * @purity pure
  */
@@ -8134,30 +5496,21 @@ function tallestBandOf(rows: readonly RowPlacement[]): RowPlacement | null {
  * How the tallest row's band splits into the part that grows with the zoom and
  * the part that does not -- `height = grows x (the plan scale ratio) + fixed`.
  *
- * ⭐⭐ READ OFF THE FRAME, NOT RE-DERIVED. `TaskPlacement` carries the height
- * one figure reserved (`height`) and the plan bar inside it (`planHeight`), both
- * measured by `schedule-layout.ts` at the zoom this frame was drawn at. LF-2 of
- * table T-221 gives a lane the tallest of its figures and puts one `stackGap`
- * between two lanes, so the band is a sum over lanes -- and the only term in
- * that sum which does NOT scale with the plan bar is the `actualGap` a figure
- * whose actual sits below reserves (table T-012's SH-3 / SH-4, which is what
- * `actualPlacement` answers). ⛔ NO SHAPE RATIO AND NO FLOOR IS SPELLED HERE:
- * every one of them is already inside the numbers the frame handed over, and a
- * second spelling of `reservedHeight` in this file is the copy rule 03 forbids.
+ * Read off the frame, not re-derived. LF-2 of table T-221 gives a lane the
+ * tallest of its figures and puts one `stackGap` between lanes, and the only
+ * term inside a figure that does not scale with the plan bar is the `actualGap`
+ * of an actual below (table T-012's SH-3 / SH-4, `actualPlacement`).
+ * ⛔ No shape ratio and no floor is spelled here: a second spelling of
+ * `reservedHeight` in this file is the copy rule 03 forbids.
  *
- * ⚠️ THE TALLEST FIGURE OF A LANE IS TAKEN AS THE LANE'S, AT EVERY ZOOM. Above
- * FR-094's floor every figure of a lane grows by the same ratio, so the one that
- * is tallest now stays tallest -- except across the narrow span where two shapes
- * whose `actualGap` differs swap places, and there the two answers differ by one
- * `actualGap`. ⛔ NO ROW COVERS THAT SPAN and none is invented for it.
+ * ⚠️ The tallest figure of a lane now is taken as the lane's at every zoom. Across
+ * the narrow span where two shapes with different `actualGap` swap places, the
+ * answer is off by one `actualGap`; ⛔ no row covers that span and none is
+ * invented for it.
  *
- * ⭐ A ROW WITH NO FIGURE TAKES ONE RECTANGLE'S BAND, which is the reading
- * `layoutFromSchedule` itself takes of LF-2 of table T-221 -- that row states
- * the empty LANE's height (「`Task` を 1 つも持たない段は、矩形が縦に取る高さと
- * する」) and the same height is what a row holding no lane at all comes out at.
- * ⚠️ SO IT IS POINTED AT AND NOT QUOTED FOR THE ROW: no sentence of docs/spec
- * says what an empty ROW's band is, and `rectangleHeight` is what the layout
- * publishes that height as. The whole of such a band grows with the zoom.
+ * A row with no figure takes one rectangle's band (`rectangleHeight`), the
+ * reading `layoutFromSchedule` takes of LF-2's empty lane. ⚠️ No sentence of
+ * docs/spec states an empty ROW's band, so it is pointed at and not quoted.
  *
  * @purity pure
  */
@@ -8184,46 +5537,28 @@ function bandGrowthOf(
 }
 
 /**
- * FR-016's ceiling for the row axis (MUST): 「行の軸（`zoomY`）の上限は、いちばん
- * 高い行の帯が `Row Area` の高さに達する倍率とすること（MUST）」 —— 「1 つの行が
- * 画面をちょうど埋めた先には、見せられるものが残っていない。」
+ * FR-016's ceiling for the row axis: the zoom at which the tallest row's band
+ * reaches the `Row Area`'s height.
  *
- * ⭐⭐ IT IS DERIVED FROM THE SCREEN, WHICH THE SAME REQUIREMENT DEMANDS TWICE.
- * 「固定の倍率で止めてはならない（MUST NOT）」 —— 「画面の広さも行の中身も環境で
- * 変わるので、倍率の直値はそのどちらにも合わない」, and for this axis in
- * particular: ⛔ 「このために新しい設定値の行を立ててはならない（MUST NOT）」 ——
- * 「画面の高さから導く。」 So the only two things this reads are the `Row Area`
- * the person is looking at and the bands the frame in front of them drew.
+ * Derived from the screen, with no fixed magnification and no new setting row
+ * (FR-016, MUST NOT): only the `Row Area` and the drawn bands are read.
+ * ⛔ Not the cut-name mark, and not a comparison of two font sizes (FR-016, MUST
+ * NOT): row title truncation never reads `zoomY`, and a compared size would move
+ * the ceiling whenever either moved.
  *
- * ⛔⛔ THE CUT-NAME MARK IS NOT THE SIGNAL, AND MAY NOT BECOME ONE. FR-016
- * (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」,
- * and the requirement carries the measurement that overturned it -- a sweep of
- * 80 steps in which no observed row ever stopped being cut, because the row
- * title's truncation reads width and depth and never `zoomY`.
- * ⚠️ NOR ARE TWO FONT SIZES COMPARED: 「字の大きさを 2 つ比べて決めてはならない
- * （MUST NOT）」 —— 「どちらかが動くたびに上限も動く。」 Nothing below reads a
- * font size at all.
+ * A band is affine in the plan scale (`bandGrowthOf`), and above FR-094's floor
+ * the scale is `basePlanHeight x zoomY`, so the zoom is `(height - fixed) /
+ * grows` times the drawn scale over `basePlanHeight`. The drawn scale is read
+ * back as `rectangleHeight` over table T-206's rectangle ratio, so no floor is
+ * spelled a second time.
  *
- * ⭐ THE ARITHMETIC. A band is affine in the plan scale (see `bandGrowthOf`),
- * and the plan scale above FR-094's floor is `basePlanHeight x zoomY` -- so the
- * scale the tallest band needs in order to reach the `Row Area`'s height is
- * `(height - fixed) / grows` times the scale this frame was drawn at, and that
- * scale over `basePlanHeight` is the zoom. ⭐ THE DRAWN SCALE IS READ BACK OFF
- * THE FRAME rather than recomputed from FR-094's floor: `rectangleHeight` is
- * the plan bar of a rectangle, which is the scale times table T-206's ratio for
- * that shape, so dividing one by the other answers the scale exactly and no
- * floor is spelled here a second time.
+ * ⚠️ Re-derived on every notch: FR-018 draws deeper rows as `zoomY` rises, so a
+ * taller row can appear above this ceiling, and the next notch meets the lower
+ * ceiling it sets. ⛔ Running table T-068 again to look ahead is reserved to
+ * FR-055's fit and to `rowPlacesAtZoomY`.
  *
- * ⚠️ IT IS RE-DERIVED ON EVERY NOTCH, AND THAT IS THE ANSWER TO THE ONE THING
- * THE ARITHMETIC CANNOT SEE. FR-018 draws deeper rows as `zoomY` rises, so a row
- * taller than today's tallest can appear above this ceiling; because each press
- * measures the frame in front of it, the following notch simply meets the lower
- * ceiling the new row sets. ⛔ Running table T-068 again to look ahead is
- * reserved to FR-055's fit and to `rowPlacesAtZoomY`, and this is neither.
- *
- * ⚠️ ANSWERS `null` WHERE THERE IS NO SUCH ZOOM -- a document with no row, a
- * region with no height, a band that does not grow at all. The range S-75 /
- * S-76 holds is then the only bound, which is where this file stood before.
+ * ⚠️ `null` where there is no such zoom (no row, no height, a band that does not
+ * grow); the range S-75 / S-76 holds is then the only bound.
  *
  * @purity pure
  */
@@ -8245,40 +5580,23 @@ function zoomYCeiling(context: InputContext): number | null {
  * The zoom now in force, stepped once, with FR-016's ceiling for that axis
  * applied.
  *
- * ⛔ NOTHING IS ROUNDED HERE AND NOTHING MAY BE. FR-018 (MUST NOT) names the
- * three places a zoom is stepped -- the wheel, the button and the rounding of a
- * saved value -- and forbids all three from rounding towards the side that
- * crosses a level-of-detail threshold, because 「1 刻みで表示量が跳ねる」. Two of
- * the three come through here. ⚠️ A tidying `Math.round` would be that
- * MUST NOT broken silently: the requirement measured one notch taking the rows
- * from 9 to 21.
+ * ⛔ Nothing is rounded here: FR-018 (MUST NOT) forbids a stepped zoom rounding
+ * towards the side that crosses a level-of-detail threshold, and a tidying
+ * `Math.round` would break that silently.
  *
- * ⭐⭐ THE CEILING IS APPLIED HERE AND IN ONE PLACE, so that both things a
- * stepped zoom feeds see the same number: `placeHeldStill`, which measures the
- * day it must hold against the zoom that will really be in force, and
- * `zoomCommand`, which writes it. ⛔ Applied on only one of the two, a notch
- * past the ceiling would move the anchor for a scaling that never happened and
- * the date under the pointer would drift once per notch at the end of the
- * range -- which is the very defect `zoomWithinBounds` records for S-75 / S-76.
- * ⚠️ IT IS NOT THE CLAMP TO S-75 / S-76 AND DOES NOT REPLACE IT. That range is
- * the edit path's (CM-71) and stays there; this is the second, derived bound
- * FR-016 adds on the magnifying side alone -- 「拡大の側には、軸ごとに導かれる
- * 上限を置くこと（MUST）」. ⭐ A zoom OUT is never held back BY it: a step that
- * lands under the ceiling is written as it stands, and a document that opens
- * ABOVE the ceiling is only ever carried towards it, never away.
- * ⚠️ WHAT THIS FILE STILL OWES IS THE TELLING, NOT THE BOUND. FR-016 (MUST
- * NOT): 「上限に達したことを、押しても何も起きない入口で示してはならない（MUST
- * NOT）」 —— 「作法は `FR-029` に従う。」 The entrance an `IC-13` press stands in is drawn by
- * `src/adapter/screen-renderer`. The same is already true of S-75 / S-76's own
- * ends, so this adds no new silence -- it makes the existing one reachable one
- * notch sooner on the day axis.
- * ⭐⭐ BOTH AXES ARE HELD BACK HERE SINCE 2026-09-07, WHICH IS WHAT FR-016 ASKS
- * FOR: 「拡大の側には、軸ごとに導かれる上限を置くこと（MUST）」 -- 「どちらの軸も、
- * これ以上拡げても得るものが無いところで止まる。」 ⚠️ The two ceilings are
- * derived from different things and share nothing but this line: the day axis
- * counts days across the `Row Area`'s width, the row axis measures the tallest
- * band against its height. ⛔ Until that date only the day half stood, and the
- * ledger's `DFC-374` recorded the row half as owed.
+ * ⛔ The ceiling is applied here and nowhere else, so `placeHeldStill` (which
+ * holds a day against the zoom that will be in force) and `zoomCommand` (which
+ * writes it) see one number; capped in only one of them, the date under the
+ * pointer would drift once per notch at the end of the range (the defect
+ * `zoomWithinBounds` records for S-75 / S-76).
+ * ⚠️ Not the clamp to S-75 / S-76, which stays CM-71's: this is FR-016's derived
+ * bound on the magnifying side alone. A zoom out is never held back by it, and a
+ * document that opens above it is only carried towards it.
+ * ⚠️ Still owed here: the telling at the ceiling (FR-016, FR-029). The `IC-13`
+ * entrance is drawn by `src/adapter/screen-renderer`, and S-75 / S-76's own ends
+ * share the same silence.
+ * The two ceilings share nothing but this line: days across the `Row Area`'s
+ * width, and the tallest band against its height.
  *
  * @purity pure
  */
@@ -8293,11 +5611,10 @@ function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): numb
  * One `setZoom`, with the axis that did not move left where it was.
  *
  * ⚠️ Both axes always travel, because CM-65 carries both. A null here means
- * "this axis did not change" and is filled from the document, not from a
- * default -- MK-3 and MK-4 each move ONE axis and must leave the other alone.
- * ⭐ The clamp to S-75 / S-76 is deliberately NOT applied here: `editDocument`
- * does it, and FR-016 asks for 収める rather than a refusal, so a notch past the
- * end is ordinary rather than an error to be caught early.
+ * "this axis did not change" and is filled, not defaulted -- MK-3 and MK-4 each
+ * move ONE axis and must leave the other alone.
+ * The clamp to S-75 / S-76 is deliberately NOT applied here: `editDocument` does
+ * it, and FR-016 asks for fitting within the range rather than a refusal.
  *
  * @purity pure
  */
@@ -8306,10 +5623,8 @@ function zoomCommand(
   zoomX: number | null,
   zoomY: number | null,
 ): DocumentCommand {
-  // ⭐ The axis that did not move is filled from the PICTURE, for the reason
-  // `zoomOnScreen` gives: while no place is named the stored pair is not what
-  // anyone is looking at, and carrying it over would move the other axis on a
-  // press that never asked to.
+  // The axis that did not move is filled from the PICTURE (`zoomOnScreen`):
+  // while no place is named the stored pair is not what anyone is looking at.
   const on = zoomOnScreen(context)
   return {
     kind: 'setZoom',
@@ -8320,25 +5635,16 @@ function zoomCommand(
 
 /**
  * Whether this document already names a display position -- OP-10 of table
- * T-024a's own condition, read on the side that WRITES rather than the side
- * that draws.
+ * T-024a's condition, read on the side that WRITES.
  *
- * ⛔ THE BASE HALF OF THE CONDITION IS WRITTEN TWICE, once here and once in
- * `viewSettings` (`src/framework/single-html-shell/frame-loop.ts`), which is
- * the same bargain `collapsesDiscarded` keeps with CM-72: that side decides
- * what to DRAW while no place is named, this side decides whether a press
- * still has one to name. If OP-10's condition is ever re-ruled, both move.
- * ⛔⛔ AND THE BT-4 EXCEPTION IS WRITTEN ONCE, on that side alone (DFC-358).
- * 「表 T-034 の `BT-4` から開いた文書には働かせてはならない（MUST NOT）」 turns
- * on where the document came from, which nothing reachable from here records --
- * so a second copy could only be a guess. ⚠️ THIS MEMBER IS THEREFORE NOT THE
- * ONE TO ASK WHAT IS DRAWN: `zoomOnScreen` reads
- * `InputContext.isPictureAtStoredZoom` for that, and asking here instead is
- * exactly the defect DFC-358 recorded.
- * ⚠️ BOTH HALVES, because the row states both -- 「表示位置が `null`、または指す
- * 行が存在しないとき」. A `scrollGroupId` still pointing at a row CD-2 of table
- * T-050 has deleted is as unplaced as a `null`, so a test on the day alone
- * would leave the fit running on it.
+ * ⛔ The base half is written twice, here and in `viewSettings`
+ * (`src/framework/single-html-shell/frame-loop.ts`), as `collapsesDiscarded` is
+ * with CM-72: if OP-10's condition is re-ruled, both move.
+ * ⛔ The BT-4 exception is written only on that side: where a document came from
+ * is not reachable from here. ⚠️ So do not ask this member what is drawn --
+ * `zoomOnScreen` reads `InputContext.isPictureAtStoredZoom` for that.
+ * ⚠️ Both halves: a `scrollGroupId` naming a row CD-2 of table T-050 has deleted
+ * is as unplaced as a `null`.
  *
  * @purity pure
  */
@@ -8352,36 +5658,22 @@ function namesAPlace(
 }
 
 /**
- * 「人の拡大の押下は表示位置を据えるものとする」 (利用者の裁定 2026-09-06) --
- * the write that seats the place a zoom press was asked about, or nothing at
- * all when the document already names one.
+ * The write that seats the place a zoom press was asked about, or nothing when
+ * the document already names one.
  *
- * ⭐⭐ WHY A ZOOM OWES A PLACE. OP-10 states a RESULT -- while the stored place
- * is 「人がまだ場所を決めていない」 the picture is the one FR-055's fit chooses
- * -- and the reading side honours it by choosing again on every frame. So a
- * `setZoom` written under that condition was overwritten before anyone saw it,
- * and IC-10 / IC-12 / IC-13 / IC-15 moved the picture not once (measured
- * 2026-09-05, and again here: `pxPerDay` stood at 1.5310100413467218 through
- * four presses on a 1920x1080 screen). ⭐ Once the press has said where it is
- * looking, the person HAS decided a place, OP-10's condition no longer holds,
- * and the zoom they asked for is the zoom they get.
+ * A zoom owes a place: while none is named OP-10 fits again on every frame, so a
+ * `setZoom` alone is overwritten before anyone sees it. Seating the place ends
+ * OP-10's condition, and the zoom asked for is the zoom drawn.
  *
- * ⭐ THE PLACE IS THE ONE ON SCREEN, read the way a pan reads it: the top left
- * corner of the `Row Area` measured against the layout this frame was drawn
- * from, which is `scrolledAnchor` with both distances at zero. ⛔ NOT a second
- * copy of the fit's anchor arithmetic -- the frame in hand was ALREADY laid out
- * at whatever OP-10 chose, so the corner of it is that choice, written down.
+ * The place is the one on screen: the `Row Area`'s top-left corner in this frame
+ * (`scrolledAnchor` at zero). ⛔ No fit arithmetic is copied -- the frame is
+ * already laid out at OP-10's choice.
  *
- * ⛔ NOTHING IS WRITTEN WHERE A PLACE ALREADY STANDS, and that is not a saving
- * -- it is the one thing that keeps a held press honest. FR-018 (MUST) has
- * IC-12 .. IC-15 go on stepping while they are held, so this member is reached
- * dozens of times in one press; re-writing an anchor that is already seated
- * would put the day and the row through `dayAtX` / `rowIndexAtTopEdge` once per
- * step, and S-176 / S-177 would drift by the rounding each time.
- * ⛔ AND NOTHING IS WRITTEN WHERE THE SEAT WOULD NOT SEAT. A document whose
- * layout names no row -- one with no `TaskGroup` at all -- has no S-78 to give,
- * and a `setScrollPosition` carrying the null it already holds would be a write
- * that changed nothing and pushed the schedule instant along (FR-063).
+ * ⛔ Nothing is written where a place stands: a held IC-12 .. IC-15 reaches this
+ * dozens of times (FR-018), and re-seating through `dayAtX` /
+ * `rowIndexAtTopEdge` would drift S-176 / S-177 by the rounding each step.
+ * ⛔ Nor where the seat names no row: a `setScrollPosition` carrying the null it
+ * already holds would push the schedule instant along (FR-063).
  *
  * @purity pure
  */
@@ -8403,17 +5695,12 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
 }
 
 /**
- * The x FR-016 (MUST) holds still through a zoom: the pointer, or the middle of
- * the `Row Area` where the route carries no pointer.
+ * The x FR-016 holds still through a zoom: the pointer, or the middle of the
+ * `Row Area` where the route carries no pointer (FR-016's own rule for
+ * pointerless routes).
  *
- * ⭐ THE SECOND HALF IS A ROW OF ITS OWN AND NOT A FALLBACK INVENTED HERE:
- * 「ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、
- * `Row Area` の中心をズームの中心とすること（MUST）」 -- 「上の規則が守っている
- * のは『見ているものが動かない』ことであり、ポインタはその代理である。代理が無い
- * ときは画面の中心を代理とする」.
- * ⚠️ THE `Row Area` AND NOT THE WINDOW. The requirement names that region, and
- * it is the one the day axis is laid against (`layoutFromSchedule` puts the
- * anchor day at `regions.rowArea.x`).
+ * ⚠️ The `Row Area` and not the window: the day axis is laid against
+ * `regions.rowArea.x` (`layoutFromSchedule`).
  *
  * @purity pure
  */
@@ -8423,13 +5710,9 @@ function zoomCentreX(context: InputContext, pointerX: number | null): number {
 }
 
 /**
- * The y FR-016 (MUST) holds still through a zoom -- the same two rows read on
- * the other axis, because neither of them is written about an axis.
- *
- * ⭐ 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと」 names
- * the ROW beside the date, and the pointerless rule 「ポインタを伴わない経路
- * （画面上のボタン・ショートカット・`Agent API`）では、`Row Area` の中心をズーム
- * の中心とすること（MUST）」 says 「中心」 of that region and not of its width.
+ * The y FR-016 holds still through a zoom -- the same two rules on the other
+ * axis: FR-016 names the row beside the date, and the centre of the region
+ * rather than of its width.
  *
  * @purity pure
  */
@@ -8441,12 +5724,12 @@ function zoomCentreY(context: InputContext, pointerY: number | null): number {
 /**
  * The screen y one display-position pair points at inside a chain of rows.
  *
- * ⛔ THE SAME SLAB `rowAnchorIn` AND `scrollOffsetOf` USE, for the reason both
- * of them give: the three are one bijection, and a length written differently
- * in any of them puts the picture somewhere the others never named.
- * ⚠️ A pair naming a row this chain does not hold answers `null`. FR-018 can
- * drop a row between two zooms, and a caller that fell back to the first row
- * there would move the picture to the top on a press that asked to hold it.
+ * ⛔ The same slab `rowAnchorIn` and `scrollOffsetOf` use: the three are one
+ * bijection, and a length written differently in any of them puts the picture
+ * somewhere the others never named.
+ * ⚠️ A pair naming a row this chain does not hold answers `null`: FR-018 can
+ * drop a row between two zooms, and falling back to the first row would move
+ * the picture to the top on a press that asked to hold it.
  *
  * @purity pure
  */
@@ -8466,12 +5749,8 @@ function rowPointIn(
 
 /**
  * Where the top edge of the scrolling remainder falls in a chain laid out with
- * this pair in force.
- *
- * ⭐ IT IS `scrollOffsetOf`'s OWN TWO ARMS, READ FORWARDS. That member slides the
- * chain so the row the pair names stands at the remainder's top edge, and slides
- * it by nothing at all when the pair names no row it holds -- so the edge is the
- * point the pair marks, or the first row's own top.
+ * this pair in force: `scrollOffsetOf`'s two arms read forwards -- the point the
+ * pair marks, or the first row's own top when the pair names no row it holds.
  *
  * @purity pure
  */
@@ -8489,12 +5768,10 @@ function topEdgeIn(
  * S-75 / S-76 read on this side, so that the day held still is measured against
  * the zoom that will actually be in force.
  *
- * ⛔ NOT A SECOND OWNER OF THE BOUND. `editDocumentSettings` applies it to what
- * CM-65 writes and stays the only place that DOES; this reads the same pair off
- * `InputContext` -- where FR-055's fit already needs it -- to know how far the
- * picture will really scale. ⚠️ Without it a notch past the end would move the
- * anchor for a scaling the clamp then refuses, and the day under the pointer
- * would drift once per notch at the end of the range.
+ * ⛔ Not a second owner of the bound: `editDocumentSettings` applies it to what
+ * CM-65 writes. ⚠️ Without this a notch past the end would move the anchor for a
+ * scaling the clamp then refuses, and the day under the pointer would drift once
+ * per notch at the end of the range.
  *
  * @purity pure
  */
@@ -8503,23 +5780,16 @@ function zoomWithinBounds(context: InputContext, value: number): number {
 }
 
 /**
- * FR-016's zoom centre, day half (MUST): 「ズームはポインタ位置を中心とし、カーソル
- * 下の日付 ... が動かないこと」.
+ * FR-016's zoom centre, day half.
  *
- * ⭐⭐ WHY NO SECOND LAYOUT IS NEEDED, which is the whole reason this half could
- * be written while the row half could not. The time axis is linear in the zoom
- * -- `pxPerDay = pxPerDayAt1x * zoomX` -- so 「the day coordinate the left edge
- * will stand at」 has an exact spelling in the frame ALREADY laid out: scaling
- * the axis by `factor` about the point `centreX` puts the left edge where
- * `centreX - (centreX - area.x) / factor` stands today. `dayAnchorAt` then reads
- * that x back as S-77 with S-177, which is the pair CM-66 writes.
- * ⚠️ DERIVED AND NOT COPIED: the identity holds because both layouts put the
- * anchor day's own left edge at `regions.rowArea.x`, so the only thing that
- * differs between them is the scale.
+ * No second layout is needed: the time axis is linear in the zoom, so scaling it
+ * by `factor` about `centreX` puts the left edge where
+ * `centreX - (centreX - area.x) / factor` stands today, and `dayAnchorAt` reads
+ * that x back as S-77 with S-177 (the pair CM-66 writes). ⚠️ This holds because
+ * both layouts put the anchor day's left edge at `regions.rowArea.x`.
  *
- * ⚠️ MK-4 / SK-16a / IC-14 / IC-15 move the row axis alone, so no day moves and
- * this half has nothing to hold: it answers `null` and the row half carries the
- * press by itself.
+ * ⚠️ MK-4 / SK-16a / IC-14 / IC-15 move the row axis alone: this answers `null`
+ * and the row half carries the press.
  *
  * @purity pure
  */
@@ -8538,35 +5808,22 @@ function dayHeldStill(
 }
 
 /**
- * FR-016's zoom centre, ROW half (MUST): 「ズームはポインタ位置を中心とし、カーソル
- * 下の日付と行が動かないこと」 -- the half that stood unwritten until 2026-09-07
- * and was the ledger's `DFC-366`.
+ * FR-016's zoom centre, row half.
  *
- * ⭐⭐ WHY IT NEEDS A SECOND LAYOUT WHERE THE DAY HALF NEEDED NONE. FR-016
- * (MUST NOT): 「行の軸は `zoomY` に対して線形ではない」 ... 「倍率から位置を算で
- * 求めてはならない（MUST NOT）」 -- so the y a row lands at cannot be scaled out
- * of the frame in hand the way the left edge can. ⭐ The requirement names the
- * way through in the same breath: 「その倍率での行の位置を答えるメンバを、表 T-064
- * の `PI-5` に置くこと（MUST）」, which is `rowPlacesAtZoomY`, and the rule after
- * table T-068 now allows exactly that second run -- ⭐ inside the layout engine
- * and never here: 「どちらも `layoutEngine`（`CP-5`）の中でのみ走らせること
- * （MUST）」. ⛔ 「Adapter に自前の割付けをさせてはならない（MUST NOT）」 -- nothing
- * below lays anything out; it reads places back and does arithmetic on them.
+ * It needs a second layout where the day half needs none: the row axis is not
+ * linear in `zoomY`, and FR-016 forbids computing a position from the zoom. So
+ * row places come from `rowPlacesAtZoomY` (PI-5 of table T-064), run inside the
+ * layout engine as the rule after table T-068 allows; ⛔ nothing below lays
+ * anything out (FR-016 forbids the Adapter its own layout).
  *
- * ⭐⭐ THE ARITHMETIC IS A DRIFT AND NOT A PLACEMENT. The candidate chain is laid
- * out with the display position the frame in hand is ALREADY at, so the row the
- * person is looking at lands somewhere in it; the distance from where they are
- * looking to where it landed is exactly how far the picture has to be pushed
- * back, and pushing the picture back is moving the top edge by that distance.
- * ⭐ THE SEAT IS READ OFF THE FRAME AND NOT OUT OF THE DOCUMENT, which is what
- * makes this right under OP-10 of table T-024a as well: while no place is named
- * the picture stands at FR-055's fit, and the corner of the frame is that fit
- * written down (`placeSeated` gives the same reason for the same reading).
+ * The arithmetic is a drift: the candidate chain is laid out at the place the
+ * frame is already at, and the distance from the centre to where the held row
+ * landed is how far the top edge moves back. The seat is read off the frame,
+ * which is right under OP-10 of table T-024a too (`placeSeated`'s reason).
  *
- * ⚠️ ANSWERS `null` WHERE THERE IS NOTHING TO HOLD -- no row under the centre,
- * a row FR-018 stops drawing at the candidate zoom, an empty chain, or a
- * candidate zoom the range has already refused. The anchor then stays where it
- * is, which is where this file stood before.
+ * ⚠️ `null` where there is nothing to hold -- no row under the centre, a row
+ * FR-018 stops drawing at the candidate zoom, an empty chain, or a zoom the
+ * range refuses; the anchor then stays where it is.
  *
  * @purity pure
  */
@@ -8582,11 +5839,10 @@ function rowHeldStill(
   if (!(willBe > 0) || willBe === on.y) return null
   const seat = scrolledAnchor(context, 0, 0)
   const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
-  // ⛔ BOTH AXES AS THEY WILL STAND. The lane a Task is given is settled by the
-  // HORIZONTAL overlap (ST-2 / ST-3 of table T-014), so a candidate laid out at
-  // the old `zoomX` would count lanes -- and so band heights -- the frame is
-  // about to stop drawing. ⚠️ `zoomOnScreen` and not the stored pair, for the
-  // reason that member gives.
+  // ⛔ Both axes as they will stand: a Task's lane follows the horizontal overlap
+  // (ST-2 / ST-3 of table T-014), so a candidate at the old `zoomX` would count
+  // band heights the frame is about to stop drawing. ⚠️ `zoomOnScreen`, not the
+  // stored pair.
   const after = rowPlacesAtZoomY(
     context.document.schedule,
     {
@@ -8605,24 +5861,18 @@ function rowHeldStill(
   const landed = rowPointIn(after, held)
   const topEdge = topEdgeIn(after, seat)
   if (landed === null || topEdge === null) return null
-  // ⭐ A zoom already at the axis's ceiling holds every row still by doing
-  // nothing, and this is where that comes out: the drift is zero, the pair
-  // answers the values in force, and no write is made.
+  // A zoom already at the axis's ceiling holds every row still by doing nothing:
+  // the drift is zero, the pair answers the values in force, and no write is made.
   return rowAnchorIn(after, topEdge + (landed - centreY), seat)
 }
 
 /**
- * The display position one zoom owes: the day held still around FR-016's
- * centre, the row held still around the same point, and nothing written at all
- * where neither can be held.
+ * The display position one zoom owes: the day and the row held still around
+ * FR-016's centre, and nothing written where neither can be held.
  *
- * ⭐ THIS IS ALSO `placeSeated`'s WORK, DONE ONCE. OP-10 of table T-024a has the
- * reader fit again on every frame while no place is named, so a zoom written
- * under that condition is overwritten before anyone sees it (利用者の裁定
- * 2026-09-06, 「人の拡大の押下は表示位置を据えるものとする」). The position written
- * here names a place, so the condition stops holding -- one write does both.
- * ⚠️ WHICH IS WHY `placeSeated` IS STILL THE FALLBACK rather than being deleted:
- * every route that cannot name a held day still owes the seating.
+ * This also does `placeSeated`'s work in the same write: a position that names a
+ * place ends OP-10's re-fit (table T-024a). ⚠️ `placeSeated` stays the fallback
+ * for every route that cannot name a held day.
  *
  * @purity pure
  */
@@ -8636,9 +5886,9 @@ function placeHeldStill(
   const day = dayHeldStill(context, zoomX, centreX)
   const row = rowHeldStill(context, zoomX, zoomY, centreY)
   if (day === null && row === null) return placeSeated(context)
-  // ⚠️ THE AXIS THAT COULD NOT BE HELD KEEPS THE VALUE THE FRAME IS AT, which
-  // is the corner `placeSeated` would have written -- not the document's own
-  // pair, which under OP-10 is a place nobody is looking at.
+  // ⚠️ The axis that could not be held keeps the value the frame is at --
+  // `placeSeated`'s corner, not the document's pair, which under OP-10 is a place
+  // nobody is looking at.
   const seat = scrolledAnchor(context, 0, 0)
   const heldDay = day ?? seat
   const heldRow = row ?? seat
@@ -8649,35 +5899,28 @@ function placeHeldStill(
     scrollGroupId: heldRow.scrollGroupId,
     scrollGroupOffset: heldRow.scrollGroupOffset,
   } as const
-  // ⛔ A POSITION THAT NAMES NO PLACE IS NOT WRITTEN, for the two reasons
+  // ⛔ A position that names no place is not written, for the two reasons
   // `placeSeated` gives: OP-10 would go on fitting over it, and FR-063 would be
   // moved by a write that changed nothing.
   if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollGroupId)) {
     return placeSeated(context)
   }
-  // ⭐ A zoom already at S-75 / S-76's end holds every day still by doing
-  // nothing, and this is where that comes out: the four members answer the
-  // values in force, so no write is made and WS-4 pushes no frame.
+  // A zoom already at S-75 / S-76's end holds every day still by doing nothing:
+  // the four members answer the values in force, so no write is made and WS-4
+  // pushes no frame.
   return isScrollPositionInForce(context, to) ? [] : [to]
 }
 
 /**
- * The writes one zoom the person asked for owes: the place it was asked about,
- * held still around the point FR-016 names, and then the zoom itself.
+ * The writes one zoom the person asked for owes: the place held still around the
+ * point FR-016 names, then the zoom itself.
  *
- * ⭐ ONE BUNDLE AND NOT TWO, which is the difference from `fitWrites`. FR-031
- * (MUST) splits the FIT into two writes because CM-72 has to push the step
- * UN-17 asks for; a zoom pushes no step at all -- UN-8 of table T-027 keeps
- * both `setZoom` (CM-65) and `setScrollPosition` (CM-66) out of the history --
- * so there is no order for a history to see and nothing to keep apart.
- * ⛔ THE PLACE GOES FIRST ANYWAY, so that a reader of the bundle meets it in
- * the order it is meant: this is where the person was looking, and this is what
- * they asked to do to it.
- * ⚠️ `pointerX` AND `pointerY` ARE `null` FOR EVERY ROUTE THAT HAS NO POINTER --
- * see `zoomCentreX` and `zoomCentreY`, which is where the row of FR-016 that
- * covers those is read. ⛔ THE TWO TRAVEL TOGETHER: a route either carries a
- * pointer or does not, and one of the pair filled from a press while the other
- * fell back on the middle would centre the two axes on different points.
+ * One bundle, unlike `fitWrites`: UN-8 of table T-027 keeps both CM-65 and CM-66
+ * out of the history, so there is no order for a history to see. The place goes
+ * first only so a reader meets it in the intended order.
+ * ⛔ `pointerX` and `pointerY` travel together (both `null` for a route with no
+ * pointer; see `zoomCentreX` / `zoomCentreY`), or the two axes would centre on
+ * different points.
  *
  * @purity pure
  */
@@ -8701,17 +5944,15 @@ function zoomWrites(
 }
 
 /**
- * The schedule as FR-055 has to measure it: every collapse thrown away.
+ * The schedule as FR-055 has to measure it: every collapse thrown away -- the
+ * measurement half of HF-8 of table T-051.
  *
- * ⭐ HF-8 of table T-051 (MUST) is the rule, and this is only its MEASUREMENT
- * half. The WRITER of the same rule is CM-72 (`expandAllTaskGroups`, in
- * `src/use-case/edit-document/edit-task-group.ts`), which FR-031 makes the
- * second of the press's two writes. ⚠️ SO THE PREDICATE IS WRITTEN TWICE, once
- * there and once here; if what a discard covers is ever re-ruled, both move.
- * ⛔ `isHidden` is deliberately left standing -- HF-8 discards the collapse
- * ONLY, and HR-6 has the hidden state saved so WY-1 can give it back.
- * ⛔ Nothing is written from here: the copy is thrown away with the frame, and
- * only CM-72 opens a row in the document.
+ * ⚠️ The writer of the same rule is CM-72 (`expandAllTaskGroups`, in
+ * `src/use-case/edit-document/edit-task-group.ts`), so the predicate is written
+ * twice; if what a discard covers is re-ruled, both move.
+ * ⛔ `isHidden` is left standing: HF-8 discards the collapse only, and HR-6 has
+ * the hidden state saved so WY-1 can give it back. ⛔ Nothing is written from
+ * here: the copy is thrown away with the frame.
  *
  * @purity pure
  */
@@ -8727,55 +5968,31 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
 /**
  * SK-18 -- FR-055's fit.
  *
- * ⭐⭐ THE PLACE THE FIT WORKED OUT IS WRITTEN DOWN, and until 2026-09-06 it was
- * handed back as a pair of nulls instead. The reasoning behind that was that
- * OP-10 of table T-024a reads a null `scrollDate` as 「人がまだ場所を決めていな
- * い」 and has the reader show what FR-055 would choose -- which is what this
- * press asks for -- so the nulls said it once in the place the rule already
- * lives. ⛔ THAT WAS THE DEFECT. OP-10 states a RESULT and the reading side
- * honours it by choosing AGAIN ON EVERY FRAME, so a press that answered with
- * nulls left the picture exactly as it found it and every zoom written after it
- * was overwritten before anyone saw it. ⭐ 「人の拡大の押下は表示位置を据えるもの
- * とする」 (利用者の裁定 2026-09-06): the press decides a place, so the place it
- * decided is what the document holds -- and `fitZoom` has already answered it
- * (`FitToScreen.scrollDate` / `.scrollGroupId`), so nothing is computed twice
- * and no anchor arithmetic is copied out of `frame-loop.ts`.
- * ⚠️ A DOCUMENT WITH NOTHING DRAWN STILL ANSWERS NULL, because that is what the
- * fit answers for it -- `fitZoom` hands back the settings' own place when the
- * layout has no row -- and there is no place in such a document to name.
+ * The place the fit worked out is written down, not handed back as nulls: OP-10
+ * of table T-024a fits again on every frame while no place is named, so nulls
+ * would leave the picture as it was and overwrite every zoom written after.
+ * `fitZoom` already answers the place (`FitToScreen.scrollDate` /
+ * `.scrollGroupId`), so nothing is computed twice. ⚠️ A document with nothing
+ * drawn still answers null, because the fit does.
  *
- * ⭐ BOTH PASSES OF THE RULE PRINTED AFTER TABLE T-068 ARE RUN INSIDE
- * `fitZoom`, AND NEITHER IS READ OFF THE FRAME. ⛔ The frame's own layout
- * cannot serve for two reasons. LC-1 drops every descendant of a collapsed row,
- * so measuring it divides by the FOLDED picture and answers a zoom for a
- * document nobody asked to fit -- FR-055's RATIONALE names that harm outright,
- * what "the whole" means would move with what the reader had folded. And the
- * frame is laid out at the zoom IN FORCE, which is the value the fit is about
- * to overwrite; a fit that read it would be a recurrence rather than an answer.
- * ⚠️ THIS IS A MEASUREMENT AND NOT A WRITE. FR-031's MUST NOT on the order of
- * the two writes is untouched: the copy measured here never leaves this
- * function, and CM-72 is still the only thing that opens a row.
+ * Both passes of the rule after table T-068 run inside `fitZoom`, ⛔ not off the
+ * frame: LC-1 drops every descendant of a collapsed row, so the frame would fit
+ * the folded picture (the harm FR-055's RATIONALE names), and it is laid out at
+ * the zoom the fit is about to overwrite. ⚠️ A measurement, not a write: CM-72
+ * is still the only thing that opens a row (FR-031).
  *
- * ⛔ THE DISCARD MUST NOT BE MOVED INTO `fitZoom`. `viewSettings` in
- * `src/framework/single-html-shell/frame-loop.ts` shares that member for OP-10
- * of table T-024a, and HF-8 forbids the discard at startup (MUST NOT) -- OP-10
- * gives the reason in its own words: doing it there would throw away, on every
- * open, the state HR-6 has the document save so WY-1 can return it. ⭐ THAT is
- * the whole of what this file still owes the fit; the depth sweep and the two
- * passes are the layout engine's (CP-5).
+ * ⛔ The discard must not move into `fitZoom`: `viewSettings` in
+ * `src/framework/single-html-shell/frame-loop.ts` shares it for OP-10, and HF-8
+ * forbids the discard at startup, where it would throw away the state HR-6 saves
+ * for WY-1.
  *
- * ⚠️ COST: MN-6 of Chapter 5.6 exists to stop table T-068 being run again, and
- * this runs it several times -- once per group depth the document holds, plus
- * the horizontal run and at most one second pass. It is authorised: the rule
- * after that table lets the fit, and only the fit, take further runs, and it
- * counts PASSES rather than runs (pass 1 is 「その文書が持つすべての深さを通し
- * て」 in as many words). S-125 caps the sweep, so NFR-013's growth is unchanged
- * and this happens once per PRESS rather than once per frame.
+ * ⚠️ Cost: table T-068 runs once per group depth the document holds, plus the
+ * horizontal run and at most one second pass. The rule after that table allows
+ * this for the fit alone (MN-6), S-125 caps the sweep, and it runs once per
+ * press rather than per frame.
  *
- * ⚠️ The return type is INFERRED rather than written. `FitToScreen` is the
- * layout engine's own name and table T-064 does not publish it -- check 26b
- * counts a name that leaves its folder, and this wrapper needs the VALUE, not
- * the name.
+ * ⚠️ The return type is inferred: `FitToScreen` is not published by table T-064
+ * (check 26b), and this wrapper needs the value, not the name.
  *
  * @purity pure
  */
@@ -8794,27 +6011,25 @@ function fittedNow(context: InputContext) {
 /**
  * The zoom the picture in front of the person is drawn at.
  *
- * ⭐ NOT ALWAYS THE STORED PAIR. While no place is named, OP-10 of table
- * T-024a draws FR-055's fit instead of `S-73`/`S-74`, so the stored pair is a
- * number nobody has seen. A step taken from it moves the picture to somewhere
- * the person did not ask for -- measured on the fixture of
- * `tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts`: a press of
- * IC-13 (zoom IN) took `pxPerDay` from 18.68 to 6.6, which is SMALLER.
- * ⛔ Reading `ScheduleLayout` instead would not do: it carries no zoom, and
- * `zoomY` cannot be recovered from a band already sitting on LF-3's floor.
- * ⭐ Running the fit again is exact, because the fit is what drew the frame.
+ * Not always the stored pair: while no place is named OP-10 of table T-024a draws
+ * FR-055's fit instead of S-73 / S-74, so a step taken from the stored pair lands
+ * somewhere the person did not ask for (fixture:
+ * `tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts`).
+ * ⛔ Not `ScheduleLayout`: it carries no zoom, and `zoomY` cannot be recovered
+ * from a band already on LF-3's floor. Running the fit again is exact, because
+ * the fit is what drew the frame.
  *
- * ⛔⛔ WHICH BRANCH OF OP-10 DREW THE FRAME IS ASKED OF THE DRAWING SIDE AND
- * NOT DECIDED HERE (DFC-358) -- see `InputContext.isPictureAtStoredZoom`, which
- * carries the BT-4 exception this side has no way to see.
+ * ⛔ Which branch of OP-10 drew the frame is asked of the drawing side --
+ * `InputContext.isPictureAtStoredZoom` carries the BT-4 exception this side
+ * cannot see.
  *
  * @purity pure
  */
 function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } {
   const settings = context.document.documentSettings
-  // ⚠️ `??` AND NOT `===  true`: absent is 「nobody said」 and falls back to the
-  // base half of OP-10's condition, which is the reading this line held before
-  // the member existed. `false` from a caller that DID say is an answer.
+  // ⚠️ `??` and not `=== true`: absent means nobody said, and falls back to the
+  // base half of OP-10's condition; `false` from a caller that did say is an
+  // answer.
   const atStoredZoom =
     context.isPictureAtStoredZoom ??
     namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
@@ -8822,11 +6037,9 @@ function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: 
     return { x: settings.zoomX, y: settings.zoomY }
   }
   const fitted = fittedNow(context)
-  // ⛔ THE ROW AXIS IS CLAMPED UP TO THE FLOOR, the time axis is not. At or
-  // below `floorZoomY` no band, label font or milestone figure moves however
-  // small the number gets, so the floor IS what the person is looking at --
-  // and a step taken from a smaller number lands under the floor as well and
-  // moves nothing, which is exactly the entrance FR-029 calls broken.
+  // ⛔ The row axis is clamped up to the floor, the time axis is not: at or below
+  // `floorZoomY` nothing moves however small the number, so a step from a smaller
+  // number would move nothing -- the entrance FR-029 calls broken.
   return { x: fitted.zoomX, y: Math.max(fitted.zoomY, fitted.floorZoomY) }
 }
 
@@ -8834,17 +6047,13 @@ function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: 
 function fitCommand(context: InputContext): DocumentCommand {
   const schedule = context.document.schedule
   const fitted = fittedNow(context)
-  // FR-055 has the fit set the place as well as the zoom, and OP-10 (MUST)
-  // makes a fit the person PRESSED a place they chose. ⛔ `fitZoom` answers
-  // `null` where the run it settled on has no dated content to measure a left
-  // edge from -- a document with rows and no dated task -- and a null left
-  // standing would keep OP-10's condition true, so the next frame would fit
-  // again and the press would have decided nothing.
-  // ⭐ The fallback is the corner ON SCREEN, which is the same answer
-  // `placeSeated` gives every other zoom, so the two entrances cannot disagree.
-  // ⚠️ A document that names no place at all (no `TaskGroup`) keeps the
-  // nulls: there is no place to write, and OP-10 goes on fitting it, which is
-  // what that row asks for.
+  // FR-055 has the fit set the place as well as the zoom, and OP-10 makes a
+  // pressed fit a chosen place. ⛔ `fitZoom` answers `null` for a run with no
+  // dated content, and a null left standing would keep OP-10 fitting, so the
+  // press would decide nothing; the fallback is the corner on screen, the answer
+  // `placeSeated` gives every other zoom.
+  // ⚠️ A document with no `TaskGroup` keeps the nulls: there is no place to write,
+  // and OP-10 goes on fitting it.
   const at = scrolledAnchor(context, 0, 0)
   const place = namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId)
     ? { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
@@ -8857,12 +6066,9 @@ function fitCommand(context: InputContext): DocumentCommand {
     zoomY: fitted.zoomY,
     scrollDate: place.scrollDate,
     scrollGroupId: place.scrollGroupId,
-    // ⭐ ZEROED WITH THE ANCHORS THEY BELONG TO, which is the answer `FitToScreen`
-    // says it does not carry a member for: the fit puts the corner of the content
-    // on the corner of the `Row Area`, so both fractions are zero -- and a
-    // fraction left standing from the pan before would slide FR-055's fitted
-    // answer by up to one row and one day, which is the one thing a fit must not
-    // do.
+    // Zeroed with their anchors: the fit puts the content's corner on the `Row
+    // Area`'s corner, and a fraction left from an earlier pan would slide the
+    // fitted answer by up to one row and one day.
     scrollDayOffset: 0,
     scrollGroupOffset: 0,
   }
@@ -8872,17 +6078,12 @@ function fitCommand(context: InputContext): DocumentCommand {
  * SK-3 -- one delete per selected thing, in the order they were picked.
  *
  * ⚠️ The chain each one drags with it is table T-050's and is applied by the
- * aggregate, not here: CD-1 alone reaches six other rows.
- * ⛔ THE BUNDLE IS PLANNED UNASKED, AND FR-032's CONFIRMATION IS SOMEONE ELSE'S.
- * That requirement (MUST) has a `Task` with WBS descendants confirmed before it
- * is deleted, with the names of what will vanish shown -- and the question IS
- * raised: `confirmationOwedBy` in `frame-loop.ts` reads this very bundle before
- * it is written, fills `ScreenSession.confirmation`, and holds the writes until
- * one of NT-7's two word buttons answers. ⭐ WHY THE TEST IS THERE AND NOT HERE: NT-7 asks about
- * what is going to happen, so it has to be asked of the WHOLE action -- a
- * gesture can owe two writes (`InputAction.writes`) and a person answering once
- * per bundle is not what 「続けるか取りやめるかを選ばせること」 means. ⚠️ So a
- * caller that runs what this member plans without asking breaks that MUST.
+ * aggregate, not here.
+ * ⛔ FR-032's confirmation is someone else's: `confirmationOwedBy` in
+ * `frame-loop.ts` reads this bundle before it is written and holds the writes
+ * until NT-7 is answered. It is asked there because NT-7 is about the whole
+ * action, and a gesture can owe two writes (`InputAction.writes`).
+ * ⚠️ So a caller that runs what this member plans without asking breaks FR-032.
  * Searched: table T-064 (PI-8, PI-9, PI-18, PI-37), table T-037, table T-109,
  * `frame-loop.ts`, `apply-document-change.ts`.
  *
@@ -8917,8 +6118,8 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
         commands.push({ kind: 'deleteCommentBox', id: one.id })
         break
       case 'statusLine':
-        // SL-1 sends the status line's deletion to FR-046's 「消す」, and CM-4
-        // is that operation.
+        // SL-1 sends the status line's deletion to FR-046's clearing, which is
+        // CM-4.
         commands.push({ kind: 'clearStatusDate' })
         break
     }
@@ -8929,12 +6130,10 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
 /**
  * The next selection, by the rules of table T-023c.
  *
- * ⛔ This is the schedule's selection and NOT the rows'. SL-1 leaves
- * `TaskGroup` out and FR-085 says in as many words that the Row Title Panel's
- * selected rows are a different set -- which is why nothing below ever answers
- * with a row.
+ * ⛔ The schedule's selection and NOT the rows': SL-1 leaves `TaskGroup` out and
+ * FR-085 keeps the Row Title Panel's selected rows a different set.
  * ⚠️ Outside the undo record (UN-9), so a change here is never a
- * `DocumentCommand` and never reaches `applyDocumentChange`.
+ * `DocumentCommand`.
  *
  * @purity pure
  */
@@ -8947,21 +6146,12 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     if (isSelectAll && !context.isTextEntryUnsettled) {
       return selectionOfAll(everythingSelectable(context))
     }
-    // IN-4's SIXTH level, spent (利用者の裁定 2026-09-08). ⭐ SPENT HERE BECAUSE
-    // THIS IS THE MEMBER THAT ANSWERS THE SELECTION: `escapeTarget` (PI-36)
-    // names the rung and nothing here reads the ladder a second time.
-    // ⛔ THE ROW IS WHAT SAYS THE RUNG WAS MISSING RATHER THAN OPTIONAL: 「タスク
-    // を選ぶと `FR-006` によりパネルが立つので、1 度目の `Esc` はパネルの段が
-    // 食い、2 度目は消費する対象が無いものとして `IN-4a` によりブラウザへ落ちて
-    // いた。」 ⇒ 「選択を解く手立てが `Esc` に 1 つも無かった。」 (DFC-398).
-    // ⚠️ ONE PRESS, ONE RUNG: `escapeContextOf` reports the panel, so the press
-    // that puts the panel away answers `'propertiesPanel'` here and leaves the
-    // selection exactly as it was -- which is FR-072's 「パネルを出すのをやめて
-    // も、選択を解いてはならない（MUST NOT）」. ⛔ IN-4 says the two do not
-    // collide: 「あちらはパネルを閉じる操作の話であり、本行は `Esc` の段の話で
-    // ある。」
-    // ⛔ NOT A `DocumentCommand`: UN-9 keeps the selection out of the undo
-    // record, so clearing it is this value and never `applyDocumentChange`.
+    // IN-4's selection level, spent here because this member answers the
+    // selection; `escapeTarget` (PI-36) names the level.
+    // ⚠️ One press, one level: `escapeContextOf` reports the panel, so the press
+    // that puts the panel away answers `'propertiesPanel'` and leaves the
+    // selection as it was (FR-072, MUST NOT).
+    // ⛔ Not a `DocumentCommand`: UN-9 keeps the selection out of the undo record.
     if (
       isCombo(input.modifiers, false, false, false) &&
       input.key === KEY.escape &&
@@ -8969,16 +6159,11 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     ) {
       return emptySelection()
     }
-    // SK-19's LAST STAGE (MUST, 利用者の裁定 2026-09-10). ⭐ SPENT HERE FOR THE
-    // REASON THE Esc RUNG ABOVE IS: this is the member that answers the
-    // selection, and UN-9 keeps it out of the undo record.
-    // ⛔ THE THREE STAGES ABOVE IT COME FIRST, and the row is what orders them:
-    // a standing telling, then 確定していないその場の編集, then 「プロパティパ
-    // ネルを出しているならば出すのをやめること（MUST）」. This arm asks for all
-    // three to be absent, so ONE press spends ONE stage.
-    // ⭐ WHICH IS ALSO FR-072's 「パネルを出すのをやめても、選択を解いてはならな
-    // い（MUST NOT）」: the press that puts the panel away finds
-    // `isPropertiesPanelShowing` true and never reaches here.
+    // SK-19's last stage, spent here for the same reason.
+    // ⛔ The three earlier stages come first (a standing telling, an unsettled
+    // edit, the `Properties Panel`): this arm requires all three absent, so one
+    // press spends one stage, and the press that puts the panel away never
+    // reaches here (FR-072).
     if (
       isCombo(input.modifiers, false, false, false) &&
       input.key === KEY.enter &&
@@ -8995,18 +6180,16 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
   const press = context.pressed
   if (press === null) return held
   // ⛔ A press on something the screen surface drew is not a press on the
-  // schedule, whatever `regionAtPointer` answers for the point: the note under
-  // table T-023a limits its decision order to the drawing area (MUST), and
-  // SL-3's marquee is one of the rows of that order. ⚠️ FR-083's SP-2 and SP-3
-  // change what is selected without changing WHICH things are selected.
+  // schedule: the note under table T-023a limits its decision order to the
+  // drawing area, and SL-3's marquee is one of its rows. ⚠️ FR-083's SP-2 and
+  // SP-3 change the shape of what is selected, not which things are selected.
   if (press.on !== null) return held
   if (!isOnRowArea(context, press.at.x, press.at.y)) return held
 
   const isAdding = press.at.modifiers.shift // SL-4
 
-  // ⭐ The same answer `press.pressRow` carries, for the reason spelled out at
-  // the other of these two switches: one reading of table T-023a, and nothing
-  // it reads can move while the press is in flight.
+  // The same answer `press.pressRow` carries: nothing table T-023a reads can
+  // move while the press is in flight.
   switch (pressRowOf(press, context)) {
     case 'PTD-3': {
       const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)
@@ -9039,9 +6222,9 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     }
     default:
       // PTD-1's pan, PTD-2's fixed cursor and PTD-4's creation leave the selection
-      // alone. ⚠️ FR-083's note records that a Task just drawn stays selected,
-      // which is the aggregate's doing rather than this member's -- nothing
-      // here can name a Task that does not exist yet.
+      // alone. ⚠️ A Task just drawn becomes selected in the shell, from the
+      // `created` the write carries (`frame-loop.ts`); nothing here can name a
+      // Task that does not exist yet.
       return held
   }
 }
@@ -9049,64 +6232,44 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
 /**
  * What Esc consumes, in the levels IN-4 fixes.
  *
- * ⭐ The order is NOT re-implemented: `escapeTarget` (PI-36) owns it, and this
- * only supplies what that member cannot see -- a telling still standing, a
- * gesture in flight, the Dual Cursor mode, the selection and the
- * `Properties Panel` -- every one of which is a current value the shell holds
- * (LY-5) that reached this side on `InputContext`.
+ * The order is `escapeTarget`'s (PI-36); this supplies what that member cannot
+ * see -- current values the shell holds (LY-5) that reached `InputContext`.
  *
- * ⛔ ONE OF `EscapeContext`'s LEVELS IS LEFT UNSET, and that is the value's own
- * rule rather than an omission: a standing `Confirmation` is a current value
- * this pure member holds nothing of, and it may be reckoned by ONE caller or
- * IN-4's 1 階層 per press is spent twice.
- * ⚠️ SO A CALLER THAT HOLDS IT MUST NOT ASK THE MEMBERS THIS FEEDS about a
- * press at that level. `frame-loop.ts` is where the rule is kept.
- * ⭐⭐ THE PANEL IS NO LONGER AMONG THE UNSET ONES, and DFC-398 is why it may not
- * be. IN-4 gained its 選択 rung (利用者の裁定 2026-09-08) and `selectionFromInput`
- * is the one member that can spend it, so this side now answers a press below
- * the panel's rung -- and with the panel left unset the very press that put the
- * panel away would read as 「not open」, fall to 選択 and clear the selection,
- * which FR-072 (MUST NOT) forbids: 「パネルを出すのをやめても、選択を解いては
- * ならない（MUST NOT）」. ⚠️ Reporting it spends nothing: `screenStateFromInput`
- * answers `'propertiesPanel'` with the state untouched, exactly as it does for
- * the telling, and the shell is still the one party that can put the panel away.
- * ⛔ `isPropertiesPanelShowing` IS OPTIONAL AND FORGETTING IT IS SILENT (利用者の
- * 裁定 2026-08-30) -- its own row says so -- so a caller that does not set it
- * gets the pre-D-398 fault back and only the tests written from the
- * specification will say so.
+ * ⛔ `isConfirmationStanding` is left unset: this pure member holds nothing of a
+ * standing `Confirmation`, and it may be reckoned by ONE caller or IN-4's one
+ * level per press is spent twice. ⚠️ So a caller that holds one must not ask the
+ * members this feeds about such a press; `frame-loop.ts` keeps that rule.
+ * ⚠️ The panel is reported: the selection level sits below it, so an unreported
+ * panel would let the press that puts the panel away also clear the selection
+ * (FR-072, MUST NOT). Reporting spends nothing -- `screenStateFromInput` answers
+ * `'propertiesPanel'` with the state untouched, and the shell puts the panel away.
+ * ⛔ `isPropertiesPanelShowing` is optional and forgetting it is silent (its own
+ * row says so), so only the tests written from the specification catch a caller
+ * that omits it.
  *
  * @purity pure
  */
 function escapeContextOf(context: InputContext): EscapeContext {
   return {
-    // IN-4's first level (利用者の指示 2026-08-31). ⭐ THIS CALLER CAN SEE IT,
-    // the same way it sees the level below: `InputContext` carries the question
-    // because SK-19's first stage already needed it, so the level is REPORTED
-    // rather than left for the holder to reckon. ⚠️ Reporting it does not spend
-    // it -- `screenStateFromInput` answers 'notice' with the state untouched,
-    // exactly as it does for the gesture and the Dual Cursor mode, and the
-    // shell is the one party that can take a telling off the list (LY-5).
+    // IN-4's first level, reported because `InputContext` carries it (SK-19's
+    // first stage needs it). ⚠️ Reporting does not spend it: `screenStateFromInput`
+    // answers 'notice' with the state untouched, and the shell takes the telling
+    // off the list (LY-5).
     isNoticeStanding: context.isNoticeStanding === true,
-    // IN-4's second level (利用者の裁定 2026-08-27). ⭐ THIS CALLER CAN SEE IT,
-    // unlike `isConfirmationStanding` -- the state is a member of `InputContext`
-    // because IN-5a already needed it, so the level is reported rather than left
-    // for the holder to reckon.
+    // IN-4's second level, reported because IN-5a already put it on
+    // `InputContext`.
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
-    // S-99h of table T-206, read off the context the shell filled from
-    // `isPropertiesPanelOnScreen()`. ⛔ REPORTED AND NOT LEFT UNSET SINCE DFC-398,
-    // for the reason stated above: the 選択 rung sits BELOW the panel's, so an
-    // unset panel would let the press that closed it clear the selection too.
+    // S-99h of table T-206, filled by the shell from `isPropertiesPanelOnScreen()`;
+    // reported for the reason stated above.
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
-    // IN-4's SIXTH level (利用者の裁定 2026-09-08): 選択. ⭐ THIS CALLER CAN SEE
-    // IT -- `InputContext.selection` carries it because table T-023c's rules are
-    // decided in this file -- so the level is REPORTED rather than left for a
-    // holder to reckon, and `selectionFromInput` is where it is spent.
-    // ⚠️ A COUNT AND NEVER THE ITEMS: IN-4 spends its rung on 選択 as a whole.
+    // IN-4's selection level, reported because table T-023c's rules are decided
+    // in this file; `selectionFromInput` spends it. ⚠️ A count and never the
+    // items: IN-4 spends its level on the selection as a whole.
     isSelectionStanding: context.selection.items.length > 0,
-    // ⭐ A SIDE STANDING IS THE MODE BEING UP. IN-4 spends a press on the MODE
-    // and DC-4 takes the whole of it, so the narrower question is the one that
-    // travels and the side itself stays here.
+    // A side standing is the mode being up: IN-4 spends a press on the mode and
+    // DC-4 takes the whole of it, so the narrower question is the one that
+    // travels.
     dualCursorMode: context.dualCursorFollowing !== null,
   }
 }
@@ -9114,25 +6277,14 @@ function escapeContextOf(context: InputContext): EscapeContext {
 /**
  * The next screen state after a press on one of the entries this tool drew.
  *
- * ⭐ FR-083's SP-1 .. SP-4 are the whole reason this exists: a palette entry
- * pressed arms what it stands for (SP-1), and the same entry pressed again
- * disarms it (SP-4).
- * ⭐⭐ THE SELECTION DOES NOT ENTER INTO EITHER. FR-083 (MUST) since the user's
- * 2026-09-07 instruction 「アイコンを押すと必ずその構えに入る」: 「どの行でも、
- * 押した入口の形状を構えること」, with a MUST NOT against refusing to arm
- * because something is selected; and (MUST, 利用者の裁定 2026-09-07 「トグルに
- * せよ」) 「`SP-4` は選択の有無で変わらないこと」. ⛔ THE NOTE THAT STOOD HERE
- * SAID THE OPPOSITE -- 「with something selected the arming is left exactly as
- * it is」 -- which was SP-2 and SP-3 as they read before that day.
- * ⭐ SP-2 and SP-3's OTHER half, changing the shape of what IS selected, is
- * `commandFromArmingEntry`'s; the two are two results of one press.
+ * FR-083's SP-1 .. SP-4: an entry pressed arms what it stands for (SP-1), and
+ * pressed again disarms it (SP-4). ⛔ The selection enters into neither (FR-083,
+ * MUST / MUST NOT). Changing the shape of what IS selected (SP-2 / SP-3) is
+ * `commandFromArmingEntry`'s result of the same press.
  *
- * ⛔ AR-4, AR-5 AND AR-6 ARM WHATEVER IS SELECTED. FR-083's four rows speak of
- * 「パレットの形状」 only, and a dependency (AR-4) and the two annotations
- * (AR-5 / AR-6) are not shapes -- table T-023b's note gives them no meaning
- * against a selection either. So the only meaning their entry has is the arming
- * table T-023b gives it, and refusing it while something was selected would
- * leave an entry that does nothing -- the fault FR-029's RATIONALE names.
+ * ⛔ AR-4, AR-5 and AR-6 arm whatever is selected: FR-083's rows speak of palette
+ * shapes only, and table T-023b's note gives these no meaning against a
+ * selection, so refusing would leave an entry that does nothing (FR-029).
  * Searched: FR-083, FR-053, table T-023b and its note, table T-109.
  *
  * @purity pure
@@ -9145,7 +6297,7 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     // palette so that hiding it does not take away the way back.
     case ENTRY.palette:
       return screenStateWithPalette(state, !state.paletteShown)
-    // FR-071: 「同じ入口で解除できること」, so this one entry does both ways.
+    // FR-071: one entry for both directions.
     // ⚠️ The flag is this tool's record of the state and not the act -- asking
     // the browser is the shell's, which is the layer that may touch it (LY-5).
     case ENTRY.fullScreen:
@@ -9156,27 +6308,18 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
       return screenStateWithSurface(state, AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return screenStateWithSurface(state, RESOURCE_ROSTER)
-    // IC-45 -- table T-023b's closing paragraph (MUST): 「`Dual Cursor` モード
-    // （表 T-029a）に入るときも構えを外すこと（MUST）」, with its own reason
-    // beside it -- 「同モードは作成・移動・編集を受け付けないので、構えたまま
-    // 入れると何も起きない構えが残る」 (DC-5, which is PTD-2 of table T-023a).
+    // IC-45 -- entering the `Dual Cursor` mode disarms (table T-023b's closing
+    // paragraph): the mode accepts no creation (DC-5, PTD-2 of table T-023a), so
+    // an arm kept would do nothing.
     //
-    // ⛔ THE WAY IN ONLY, WHICH IS WHY THIS IS NOT AN UNCONDITIONAL DISARM.
-    // The same entry is DC-4's way OUT (`commandFromDualCursorEntry` reads the
-    // very same value to tell the two apart), and the clause says 「入るとき」
-    // -- disarming on the way out would take an arm the reader picked up while
-    // the mode stood, which no row asks for.
+    // ⛔ The way in only: the same entry is DC-4's way out
+    // (`commandFromDualCursorEntry` tells the two apart by the same value), and
+    // disarming on the way out would drop an arm picked up while the mode stood.
+    // `dualCursorFollowing === null` is the way in. ⚠️ The mode itself is written
+    // by `commandFromDualCursorEntry` (`setDualCursorFollowing`; LY-5 of table
+    // T-060); this member owns `armed` only.
     //
-    // ⭐ THE MODE IS THE FOLLOWING SIDE, so `dualCursorFollowing === null`
-    // is 「入る」 and nothing else has to be kept in step. ⚠️ The mode itself
-    // is NOT written here: it is a current value the Framework holds (LY-5 of
-    // table T-060), which `commandFromDualCursorEntry` answers with
-    // `setDualCursorFollowing`. This member owns `armed` and only that.
-    //
-    // ⚠️ 台帳 DFC-295 WAS THIS CASE BEING ABSENT: `IC-45` has no key in
-    // `ARMED_BY_ENTRY` either, so the press fell past the switch, `armedByEntry`
-    // answered null, and the state came back untouched with the arm still held.
-    // ⚠️ ONE CORNER IS DELIBERATELY NOT MIRRORED: PND-313 lets
+    // ⚠️ One corner is deliberately not mirrored: PND-313 lets
     // `commandFromDualCursorEntry` take the press WITHOUT raising the mode when
     // the axis can name no day, and the arm is dropped here all the same.
     // Re-reading `dayAtX` here would put PND-313's rule in a second place, and
@@ -9185,59 +6328,35 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
       return context.dualCursorFollowing === null
         ? screenStateWithArmed(state, { kind: 'none' })
         : state
-    // IC-41 -- FR-020 (MUST): 「透かしを消す入口（表 T-109 の `IC-41`）が押された
-    // とき、透かし解除の面（…… 表 T-103 の `U-60`）を立てること」, and (MUST)
-    // 「同じ入口が両方向を担うこと …… 出ているときは押すと面が立ち、消えていると
-    // きは押すと問わずに戻す」 (利用者の裁定 2026-09-02, CR-335).
+    // IC-41 -- FR-020: with the watermark shown the press raises U-60 of table
+    // T-103; with it hidden the press shows it again without asking.
     //
-    // ⛔ THE GATE STANDS ON THE HIDING SIDE ALONE, WHICH IS WHY THE TWO ARMS
-    // ARE NOT ONE. 「透かしを出し直す側は問わないこと（MUST）」 -- so the way
-    // back is to write S-144 and ask nothing, while the way out writes nothing
-    // and only raises the surface. ⚠️ THAT IS NOT THE SYMMETRIC TOGGLE FR-020
-    // (MUST NOT) forbids: what that row refuses is treating both directions
-    // ALIKE, 「切り替えは 2 つの向きを見分けられないので、消す側の門をすり抜け
-    // る」, and telling the direction apart before acting is what it asks for.
+    // ⛔ The gate stands on the hiding side alone, so the two directions differ.
+    // ⚠️ That is what FR-020 asks, not the symmetric toggle it forbids: it
+    // refuses treating both directions alike.
     //
-    // ⛔⛔ THE HIDING HALF IS NOT COMPLETED HERE, AND THAT IS THE REQUIREMENT
-    // AND NOT A SHORTCUT. The same requirement (MUST) turns the watermark off
-    // 「合ったときにだけ」 -- only on a match -- and the match is a SHA-256
-    // comparison against something a person typed, which no pure member can
-    // either read or compute (LR-6, and CS-1 of table T-066). ⇒ That write
-    // belongs to the side that asked, and `frame-loop.ts` carries it.
-    // ⚠️ 台帳 DFC-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
-    // arrived, `on.entry` said `IC-41`, and every member answered with the
-    // state untouched -- so the DOM did not change by one byte and FR-029
-    // (MUST) went unkept as well, for want of anything to say.
+    // ⛔ The hiding is not completed here: FR-020 hides the watermark only on a
+    // SHA-256 match against what a person typed, which no pure member can read or
+    // compute (LR-6, CS-1 of table T-066), so `frame-loop.ts` does that write.
     //
-    // ⭐⭐ BOTH DIRECTIONS ARE TOLD APART HERE, AND HERE ONLY. `PI-36` of table
-    // T-064 publishes `screenStateWithWatermark` (S-144) since 2026-09-02 --
-    // added for exactly this, because the row moved from table T-202 to table
-    // T-206 and the screen's own value has to be writable from the side that
-    // reads the press. ⚠️ 台帳 DFC-204 was this split standing in `frame-loop.ts`
-    // instead: the shell put the watermark back in the same happening this
-    // member raised the surface in, so two members had to move together for one
-    // direction to change.
-    // ⚠️ 台帳 DFC-147 WAS THIS ROW HAVING NO KEY IN THIS MAP AT ALL: the press
-    // arrived, `on.entry` said `IC-41`, and every member answered with the
-    // state untouched -- so the DOM did not change by one byte and FR-029
-    // (MUST) went unkept as well, for want of anything to say.
+    // The two directions are told apart here and only here, with
+    // `screenStateWithWatermark` (S-144, published by PI-36 of table T-064), so
+    // one member moves for one direction.
     case ENTRY.watermark:
       return state.watermarkVisible
         ? screenStateWithSurface(state, WATERMARK_UNLOCK)
         : screenStateWithWatermark(state, true)
     // IC-2 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
     // and U-54 is the name table T-103 settled for what it opens.
-    // ⚠️ IC-3 is NOT this any more: FR-025 gives the clipboard its own
-    // entrance, which opens no surface at all.
+    // ⚠️ Not IC-3: FR-025 gives the clipboard its own entrance, which opens no
+    // surface at all.
     case ENTRY.exportChooser:
       return screenStateWithSurface(state, EXPORT_CHOOSER)
     // IC-52 is the same level of IN-4 that Esc's first press consumes.
-    // ⛔ THE ROW STANDS ON SIX SURFACES AND THIS VALUE HOLDS FIVE OF THEM. Table
-    // T-109 places it on the `Properties Panel` as well, and S-99g does not hold
-    // that panel -- so a press drawn THERE closes the panel and nothing else,
-    // and the shell is the side that spends it (LY-5 of table T-060 leaves it
-    // the panel's contents). ⚠️ Without this the one press would take the panel
-    // AND whatever surface stood behind it, which is two things for one press.
+    // ⛔ Table T-109 also places it on the `Properties Panel`, which S-99g does
+    // not hold, so a press drawn there closes the panel and nothing else, and the
+    // shell spends it (LY-5 of table T-060). ⚠️ Otherwise one press would close
+    // the panel and the surface behind it.
     case ENTRY.closeSurface:
       return context.pressed?.on?.part === PROPERTIES_PANEL
         ? state
@@ -9248,17 +6367,9 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
 
   const armed = armedByEntry(entry)
   if (armed === null) return state
-  // SP-1 .. SP-4 of FR-083, and NOT ONE OF THEM READS THE SELECTION.
-  // ⭐ SP-1 .. SP-3 all end 「あわせてその形状を構える」 since the user's
-  // 2026-09-07 instruction 「アイコンを押すと必ずその構えに入る」, and the
-  // requirement carries a MUST NOT against refusing to arm because something is
-  // selected. ⭐ SP-4 lost its 「何も選んでいない」 on the same day (the user's
-  // ruling 「トグルにせよ。 ユーザーに選択肢がある」), with its own MUST NOT
-  // against letting the selection change what a re-press means.
-  // ⛔ SO THE SELECTION IS NOT CONSULTED HERE AT ALL: the entry already armed
-  // disarms, any other entry arms. The other half of SP-2 / SP-3 -- changing
-  // the shape of what IS selected -- is `commandFromArmingEntry`'s, and the two
-  // are two results of one press rather than a choice between them.
+  // SP-1 .. SP-4 of FR-083, without reading the selection: the entry already
+  // armed disarms, and any other entry arms. The shape change of SP-2 / SP-3 is
+  // `commandFromArmingEntry`'s result of the same press.
   return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
 }
 
@@ -9266,7 +6377,7 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
  * The next screen state (CP-36): what is armed, the palette, full screen and
  * the surface that is open.
  *
- * ⭐ Esc's levels are IN-4's and are consumed one per press.
+ * Esc's levels are IN-4's and are consumed one per press.
  *
  * @purity pure
  */
@@ -9277,29 +6388,23 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   if (input.kind === 'pointer') {
     if (input.phase !== 'up') return state
     const on = context.pressed === null ? null : context.pressed.on
-    // U-62 `Import Report`'s one entrance (NT-8 of table T-037): FR-023 (MUST)
-    // raises that surface after an import dropped rows, and table T-103 gives
-    // it 「入口は `OK` の 1 つだけである」. A press there closes S-99g's surface.
-    // ⛔ READ OFF `isImportReportDismiss` AND NOT `entry`, `noticeDismissKey` OR
-    // `confirmationAnswer`: no row of table T-109 names U-62 (FR-029, MUST),
-    // minting one is RC-13 of table T-026's decision to make and not this
-    // member's, `noticeDismissKey` names a telling of `ScreenSession.notices`
-    // which U-62 is not, and `confirmationAnswer` is one of NT-7's two answers
-    // which U-62's own row says it never asks for.
-    // ⚠️ AND NOT `on.part` ALONE: that answers only that the press landed on
-    // U-62 somewhere, and acting on it would close the surface on a press
-    // anywhere -- on a dropped name, or on the scrollbar of the list FR-023
-    // (MUST NOT) forbids shortening.
+    // U-62 `Import Report`'s one entrance (NT-8 of table T-037; FR-023, table
+    // T-103) closes S-99g's surface.
+    // ⛔ Read off `isImportReportDismiss`, not `entry`, `noticeDismissKey` or
+    // `confirmationAnswer`: no row of table T-109 names U-62 (minting one is RC-13
+    // of table T-026's decision), `noticeDismissKey` names a telling of
+    // `ScreenSession.notices` which U-62 is not, and `confirmationAnswer` is one
+    // of NT-7's answers, which U-62 never asks for.
+    // ⚠️ And not `on.part` alone: that would close the surface on a press anywhere
+    // on U-62, including the list FR-023 (MUST NOT) forbids shortening.
     if (on?.isImportReportDismiss === true) return screenStateWithSurface(state, null)
     return on === null || on.entry === null ? state : screenStateFromEntry(on.entry, context)
   }
   if (input.kind !== 'key') return state
   // SK-12 -- FR-096's one way out, and the only row of table T-036 that lands
-  // here while holding a modifier. ⭐ It joined SK-13 .. SK-15 when table T-103
-  // settled `Export Chooser` (U-54): the surface FR-096 opens now has a name
-  // S-99g can hold, so opening it IS a change of screen state and IN-4's first
-  // level closes it again. ⚠️ Read before the plain-key gate below, which every
-  // other row here passes through.
+  // here while holding a modifier. It opens U-54 `Export Chooser`, which S-99g
+  // can hold, so IN-4's first level closes it again. ⚠️ Read before the
+  // plain-key gate below, which every other row here passes through.
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
     return screenStateWithSurface(state, EXPORT_CHOOSER)
   }
@@ -9328,59 +6433,29 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
       case 'selection':
       case null:
       default:
-        // ⛔ NONE OF THOSE LEVELS IS IN THIS VALUE. A standing telling, a
-        // gesture in flight,
-        // the Dual Cursor mode, a standing `Confirmation`, the
-        // `Properties Panel` and the selection are all values held outside
-        // `ScreenState`,
-        // which is why `EscapeContext` exists at all -- the shell drops the
-        // press, leaves the mode, settles the question or puts the panel away,
-        // when `escapeTarget` names its level.
-        // ⚠️ `'selection'` IS SPENT IN THIS FILE ALL THE SAME, by
-        // `selectionFromInput` -- table T-023c's rules are decided here and
-        // UN-9 keeps the selection out of the document. It is listed here for
-        // the reason the two below are: it is one of the values the type admits,
-        // and answering it with the state untouched is what keeps IN-4 at
-        // 1 階層 per press.
-        // Answering with the state unchanged is not "nothing happened": the
-        // level WAS consumed, by a holder this function cannot reach.
-        //
-        // ⚠️ `'notice'` DOES ARRIVE HERE, unlike the two below it:
-        // `escapeContextOf` reports that level because `InputContext` carries
-        // the question. ⛔ AND THE ANSWER IS STILL THE STATE UNTOUCHED, which is
-        // what keeps IN-4 at 1 階層 per press -- taking the telling off is the
-        // shell's (LY-5), and disarming here as well would spend a second level
-        // on the press that put a telling away.
-        //
-        // ⚠️ `'confirmation'` CANNOT ARRIVE HERE TODAY, and it is listed rather
-        // than left to `default:` because it is one of the values the type
-        // admits. `escapeContextOf` leaves `isConfirmationStanding` unset on
-        // purpose: this member is pure and cannot see the question, and
-        // `EscapeContext` (MUST) has a press at that level reckoned by ONE
-        // caller, or IN-4's 1 階層 per press would be spent twice.
-        // ⛔ WHICH IS WHY THE CALLER MUST NOT ASK THIS MEMBER AT ALL for such a
-        // press: unset reads as 「not standing」, so this member would answer for
-        // the NEXT level down and close the surface behind the question.
-        // `frame-loop.ts` states the same rule where it skips the call.
-        // ⭐⭐ `'propertiesPanel'` DOES ARRIVE HERE SINCE DFC-398, and that is a
-        // repair rather than a widening: `escapeContextOf` now reports the panel
-        // off `InputContext.isPropertiesPanelShowing`, so the press that puts
-        // the panel away answers `'propertiesPanel'` on this road too and leaves
-        // the state untouched -- where before it read as 「not open」 and this
-        // member disarmed on the press that closed the panel. ⚠️ The shell's
-        // skip of this call for that press is now belt and braces rather than
-        // the only guard.
+        // ⛔ None of these levels is in `ScreenState`, which is why
+        // `EscapeContext` exists: the shell drops the press, leaves the mode,
+        // settles the question or puts the panel away when `escapeTarget` names
+        // its level. Answering with the state unchanged still consumes the level,
+        // keeping IN-4 at one level per press.
+        // ⚠️ `'selection'` is spent in this file by `selectionFromInput` (UN-9
+        // keeps the selection out of the document). `'notice'` and
+        // `'propertiesPanel'` arrive because `escapeContextOf` reports them;
+        // ⛔ disarming here as well would spend a second level on that press.
+        // ⚠️ `'confirmation'` cannot arrive: `escapeContextOf` leaves it unset.
+        // ⛔ So the caller must not ask this member at all for such a press --
+        // unset reads as not standing, and this member would answer for the next
+        // level down and close the surface behind the question. `frame-loop.ts`
+        // skips the call.
         return state
     }
   }
 
-  // SK-13 -- FR-036's help. ⭐ `Help Modal` is U-30 of table T-103, a settled
-  // name copied spelling and all, which is the same name `open-modals.ts` keys
-  // its one rule on.
-  // ⚠️ It OPENS and does not toggle. SK-13 says 「ヘルプを開く」 while SK-14 and
-  // SK-15 say 「切り替える」, and the difference is not an accident: IN-4 gives
-  // Esc's first level to closing the open surface, so a second way to close it
-  // would be the extra entrance FR-029 forbids.
+  // SK-13 -- FR-036's help, U-30 `Help Modal` of table T-103 (the name
+  // `open-modals.ts` keys its rule on).
+  // ⚠️ It opens and does not toggle, unlike SK-14 and SK-15: IN-4 gives Esc's
+  // first level to closing the open surface, so a second way to close it would
+  // be the extra entrance FR-029 forbids.
   if (input.key === KEY.f1) return screenStateWithSurface(state, HELP_MODAL)
   // SK-14 -- S-99e.
   if (input.key === KEY.p) return screenStateWithPalette(state, !state.paletteShown)
@@ -9393,195 +6468,54 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 }
 
 // STOP -- ⛔ SOME ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⭐ WHICH ONES IS A SET AND NOT A COUNT: it is the rows
-// of table T-109 less the keys of `ENTRY` and `ARMED_BY_ENTRY` below (the two
-// are disjoint), and the two groups that follow name every member of it. So the
-// note goes stale only when a ROW ID here stops being one of them -- which is
-// what the groups themselves record, one entry at a time.
-// ⛔⛔ NO FIGURE IS WRITTEN HERE, AND THAT IS THE WHOLE OF WHAT DFC-365 CHANGED.
-// This headline carried five numbers and every one of them rotted, twice: it
-// read 「15 ... 74 ... 44 and 15 ... 6 + 9」 until 2026-09-06 and 「10 ... 89 ...
-// 57 ... 22 ... 79 ... 4 + 6」 until 2026-09-07, and the last of those was the
-// one the note itself could not keep -- the second figure of the pair counted
-// BULLETS while the two group headings counted ROWS, so 「4 + 6」 and 「8 ... 2」
-// stood four lines apart and disagreed. ⚠️ Rule 03 section 3 (MUST NOT) forbids
-// copying a value into a comment for exactly this reason: a figure nothing
-// checks goes on stating the old one.
-// ⭐ HOW TO RE-MEASURE, when a number is genuinely wanted: the rows are `^| IC-`
-// in `docs/spec/_assets/tbl-glossary.md`, and this file's share is the `'IC-nn'`
+// ANSWERS NONE OF THEM: the rows of table T-109 less the keys of `ENTRY` and
+// `ARMED_BY_ENTRY` (the two are disjoint). The groups below name them by row ID.
+// ⛔ No figure is written here: a count nothing checks goes stale (rule 03
+// section 3). To measure one, the rows are `^| IC-` in
+// `docs/spec/_assets/tbl-glossary.md`, and this file's share is the `'IC-nn'`
 // keys of `ENTRY` and `ARMED_BY_ENTRY` with the comments stripped.
-// ⛔ Do not count the entries listed in the two groups by hand -- that is how
-// the drift began, and how the last pair came apart.
-// ⭐ IC-45 LEFT THE SECOND GROUP THIS ROUND. It stood there on the ground that
-// CM-60 demands both dates at once, and DC-1 refutes that ground: entering the
-// mode places both, so the entry writes the pair it needs and nothing is
-// half-placed. What it wanted all along was the following side, which is now
-// `InputContext.dualCursorFollowing`.
-// ⭐ The entries that ARE answered were chosen by a rule rather than one at a
-// time. An entry is answered when
-//   ① this file already answers the same operation for a row of table T-036, or
-//   ② it opens a surface whose name table T-103 has settled, or
-//   ③ its own row names the value the press writes and the setting it goes into
-//      -- FR-049's five toggles and its plan/actual pair (S-227 / S-228),
-//      FR-039's two-valued theme, and FR-048's four exclusive modes, none of
-//      which needs a decision this file would have to make up
-// -- plus FR-083's arming, which is the whole point of the seam member that
-// brought the press here, and plus the three entrances table T-109 draws once
-// per ROW, which `ScreenPart.rowGroupId` made reachable.
-// ⭐ ④ WAS ADDED WHEN THE SHELL BEGAN TO HOLD WHAT THEY MOVE: an entry is
-// answered when its whole effect is one value of `ScreenSession` that no table
-// keeps -- IC-17's panel subject, IC-20's `Agent API` record, IC-18's dialogue
-// field visibility (S-99i, since 2026-08-31), and the five of
-// U-49 that move who is chosen there. Each answers with an `InputAction` of its
-// own kind rather than a `DocumentCommand`, which is the shape `moveCommandPalette`
-// already had and for the same reason: table T-108 has no row, so
-// `applyDocumentChange` (PI-8) has nothing to plan, and LY-5 of table T-060
-// leaves a current value with the Framework.
-// ⭐ ④ IS WHAT LET IC-50 OUT OF THE LIST BELOW, where it stood as
-// undecidable: S-142 of table T-206 and `ScreenSession.isMilestoneListOpen`
-// have given the palette's own folding somewhere to be held.
+// An entry is answered here when
+//   1. this file already answers the same operation for a row of table T-036, or
+//   2. it opens a surface whose name table T-103 has settled, or
+//   3. its own row names the value the press writes and the setting it goes into
+//      (FR-049's toggles and its plan/actual pair S-227 / S-228, FR-039's theme,
+//      FR-048's exclusive modes), or
+//   4. its whole effect is one value of `ScreenSession` that no table keeps
+//      (IC-17, IC-18 / S-99i, IC-20, IC-50 / S-142, and the U-49 choosers),
+//      answered with an `InputAction` of its own kind: table T-108 has no row, so
+//      `applyDocumentChange` (PI-8) has nothing to plan, and LY-5 of table T-060
+//      leaves a current value with the Framework
+// -- plus FR-083's arming, and the entrances table T-109 draws once per row,
+// which `ScreenPart.rowGroupId` reaches.
 //
-// ⚠️ THIS NOTE HAS BEEN WRONG THREE TIMES, WHICH IS WHY IT NOW NAMES ROWS AND
-// NOT FIGURES. Once its headline number disagreed
-// with its own groups, and it called three rows a missing route that another
-// unit had already written end to end. Then its closing paragraph called twelve
-// rows undecidable and named CM-61 and CM-66 as the commands they wanted --
-// neither of which has anything to do with a display setting (they clear the
-// Dual Cursor and move the scroll position). The twelve wanted CM-58, CM-59,
-// CM-63 and CM-57; the first three are written above, and the fourth has since
-// retired with the three-valued row it existed to write -- the `planDisplay`
-// case above records what took its place.
+// GROUP ONE -- answered in `frame-loop.ts` (`answerSettledEntry`), because each
+// needs a value of `ScreenSession`, a surface or a question, and LY-5 of table
+// T-060 leaves a current value with the Framework:
 //
-// ⭐ GROUP ONE -- ANSWERED, AND DELIBERATELY NOT HERE. What each of these
-// presses needs is a value of `ScreenSession`, a surface, or a question, and
-// LY-5 of table T-060 leaves a current value with the Framework, so
-// `frame-loop.ts` spends them in `answerSettledEntry`:
-// ⚠️ IC-69 AND IC-70 STOOD HERE UNTIL 2026-09-02, as NT-7's two answers. CR-327
-// made them word buttons and (MUST NOT) took their rows out of table T-109, so
-// they are no longer rows of it to be answered for at all.
-//
-//   IC-21        FR-038's display language (S-99). ⚠️ It looks like one of ④'s
-//                rows and differs in ONE way, which is why it is spent there
-//                rather than answered here: S-99 is written back to
-//                `localStorage`, so the press is an ACT and not only a value,
+//   IC-21        FR-038's display language (S-99). S-99 is written back to
+//                `localStorage`, so the press is an act and not only a value,
 //                and LR-6 keeps the browser out of this layer.
-//   IC-66        FR-099's 「選んだ担当者を消す」, on U-49 `Resource Roster`.
-//                ⭐ IT STOOD IN THE SECOND GROUP UNTIL 2026-09-06 on the ground
-//                that FR-099 (MUST) requires the names of the tasks the
-//                deletion would unassign to be shown and confirmed first and
-//                that 「no road in this build raises that question」 -- 台帳
-//                DFC-288 / DFC-289 built that road, and `frame-loop.ts` now raises
-//                QN-3 of table T-234 there and writes CM-42 on the answer.
-//                ⛔ STILL NOT THIS FILE'S: the write waits on a question, and a
-//                pure member can neither ask one nor hold the answer.
-//   IC-71 .. IC-73  OP-3's three answers, on U-56 `Open Chooser`.
-//                `OPEN_CHOICE_OF_ENTRY` in the same file maps each row to its
-//                `OpenChoice` and closes the surface with the answer.
-//                ⛔ NOTHING OPENS U-56 BY ENTRY, and no entrance is owed: OP-3
-//                has the READ raise the choice, so an entry that opened it
-//                would be one the specification does not place.
+//   IC-66        FR-099's delete on U-49 `Resource Roster`. The write (CM-42)
+//                waits on QN-3 of table T-234, and a pure member can neither ask
+//                a question nor hold the answer.
+//   IC-71 .. IC-73  OP-3's three answers, on U-56 `Open Chooser`
+//                (`OPEN_CHOICE_OF_ENTRY`). Nothing opens U-56 by entry: OP-3 has
+//                the read raise the choice.
 //   IC-95 .. IC-97  MM-1 / MM-2 / MM-4 of table T-032a, on U-53 `Difference
-//                Review` (FR-022). `MERGE_CHOICE_OF_ENTRY` in the same file
-//                maps each row to its answer, and it is the same shape as
-//                IC-71 .. IC-73: the choice belongs to a surface the READ
-//                raised, not to a press this file could plan.
+//                Review` (FR-022), mapped by `MERGE_MAPPING_OF_ENTRY` -- the same
+//                shape as IC-71 .. IC-73.
+//   IC-98        FR-095's new document, on the `App Header`
+//                (`NEW_DOCUMENT_ENTRY`): returning to BT-4 is a startup state
+//                LY-5 leaves with the Framework, and FR-095 puts a confirmation
+//                in front of it.
 //
-// ⛔ GROUP TWO -- CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⭐ IT HAS
-// ONLY EVER SHRUNK, and each departure is kept in place below with the date and
-// the reason: IC-37 / IC-38 (2026-08-30), IC-18 (2026-08-31), IC-41
-// (2026-09-02) and IC-66 (2026-09-06) each left because the obstacle named here
-// was measured to be gone, not because a way round it was found.
+// GROUP TWO -- not an entry at all:
 //
-//   [WRITTEN 2026-08-31, DFC-149 of the defect ledger] IC-18 stood here and no
-//                longer does. ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED
-//                AROUND. It said NOTHING HELD THE FIELD'S OWN SWITCH, so an
-//                entry answered here would be a SECOND way to take the SAME
-//                field away (`isAgentApiEnabled`) -- which FR-029 (MUST NOT)
-//                forbids. S-99i of table T-206 now gives the field its own
-//                switch, `ScreenSession.isDialogueFieldVisible`, so this entry
-//                turns THAT one and IC-20 still turns `isAgentApiEnabled`
-//                alone -- two switches, not one taken twice. ⭐ IC-17 and IC-20
-//                already stood in ④'s list above for the same shape; IC-18
-//                now stands there with them. ⚠️ THE FAINT-AND-TELL HALF STAYS
-//                WHERE IT WAS: `frame-loop.ts`'s `answerSettledEntry` still
-//                answers the press with RS-35's reason while the `Agent API`
-//                is off, for the reason `commandFromEntry`'s own case says --
-//                `isAgentApiEnabled` is not a member of `InputContext`.
-//   [WRITTEN 2026-08-30, 台帳 DFC-146] IC-37 / IC-38 stood here and no longer do.
-//                ⛔⛔ THE SECOND HALF OF THE OLD NOTE WAS FALSE. It read 「table
-//                T-108 holds NO command for it, so there is nothing to plan even
-//                with the press in hand」; the first half is true and the second
-//                does not follow. `GR-12` in this very file already carries a
-//                whole selection by emitting one CM-11 per Task, and CR-294
-//                recorded the same reading for the folds. ⚠️ Measured before the
-//                fix: two Tasks chosen, `IC-37` armed, and not one bar moved by
-//                1px. ⭐ `alignWrites` now plans the bundle.
-//   [WRITTEN 2026-09-02, 台帳 DFC-147] IC-41 stood here and no longer does.
-//                ⛔⛔ THE OLD NOTE'S REASON IS GONE, NOT WORKED AROUND. It said
-//                nothing carries a password back from a person -- table T-037
-//                has no row for asking for one, and `ScreenPart` (IF-9) reports
-//                an entry and never what was typed into one. ⭐ FR-020 (MUST)
-//                now raises U-60 `Watermark Unlock` of table T-103 instead
-//                (利用者の裁定 2026-08-31, CR-329), whose question is QN-9 of
-//                table T-234 and whose two answers are NT-7's word buttons --
-//                so the asking is a SURFACE, which S-99g holds and
-//                `screenStateFromEntry` raises. ⛔ AND STILL NOT A TOGGLE: the
-//                same requirement (MUST NOT) refuses the symmetric reading in
-//                as many words, because the gate stands on the hiding side
-//                alone. ⚠️ WHAT THIS FILE ANSWERS IS THE PRESS AND NOTHING
-//                MORE. The SHA-256 comparison and the write that follows a
-//                match are `frame-loop.ts`'s: a pure member can neither read a
-//                field nor hash one (LR-6, and CS-1 of table T-066).
-//   [ANSWERED 2026-09-06, 台帳 DFC-288 / DFC-289] IC-66 stood here and no longer
-//                does -- it is in the first group above now.
-//   IC-54        ⛔ NOT AN ENTRY. Table T-109 says so in its own column: the row
-//                shows the figure the palette is holding (table T-023b) and
-//                ends 「ボタンではない」. ⚠️ IC-55 .. IC-57 stood beside it as the
-//                autosave state until they left table T-109; naming rows the
-//                table no longer holds is what made this note's own count wrong
-//                (measured 2026-09-06). ⚠️ IC-53 stood here until GR-19 of table
-//                T-023d gave the band it marks a gesture. It is still not a
-//                button -- what answers it is a drag, settled on the release.
-//   IC-98        ⛔⛔ AN ENTRY NOTHING IN `src/` ANSWERS AT ALL -- not this file,
-//                not `answerSettledEntry`, not `screenStateFromEntry` (measured
-//                2026-09-06: the row id occurs only in `icon-roster.json`,
-//                `icon-glyphs.json` and `display-words.json`, so it is DRAWN and
-//                its press falls through). Table T-109: `App Header`, 群 文書,
-//                「文書を新しく始める（開いている文書を捨て、表 T-034 の `BT-4` と
-//                同じ状態へ戻す）」. ⛔ NOT THIS FILE'S EITHER WAY: throwing the
-//                open document away and returning to BT-4 is a startup state,
-//                which LY-5 leaves with the Framework, and FR-095 puts a
-//                confirmation in front of it -- the same shape as IC-66 above.
-//                ⛔⛔ AND IT IS BLOCKED ON A ROW OF THE SPECIFICATION rather
-//                than on work (台帳 DFC-364, blocked on 台帳 DFC-284): table T-230
-//                closes with 「本表の 5 つが、まるごと差し替える呼び手の全数で
-//                ある。呼び手は、自分がどの行かを名乗ること（MUST）」 and none of
-//                the five names `FR-095`. ⭐ `frame-loop.ts` carries the whole
-//                measurement beside `ROSTER_DELETE_ENTRY`.
+//   IC-54        Table T-109's own column says the row shows the figure the
+//                palette is holding (table T-023b) and is not a button.
 //
-// ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
-// far side of this file rather than one of the 10 above:
-//
-//   [ANSWERED 2026-09-06, PND-345] DC-7's clear stood here and no longer does.
-//                ⛔⛔ THE OLD NOTE ASKED FOR THE WRONG THING. It read: 「置いた
-//                2 本を消す入口を、モードを出る入口とは別に置くこと (MUST)」 ...
-//                what is missing is the ENTRANCE -- and went looking for a
-//                75th row of table T-109 and a 75th glyph in figure F-019,
-//                which RC-13 of table T-026 reserves to the user. ⭐ 利用者の
-//                裁定 2026-09-06 (CR-364, B-2) refused the new entrance and
-//                gave the clearing to the way OUT instead: 「デュアルカーソル
-//                モードを Disable にするか、別のカーソルモードにしたら Dual
-//                Cursor が消えるべきだろ？」. `commandFromDualCursorEntry` now
-//                emits CM-61 on DC-4's re-press, so no row, glyph or keystroke
-//                is owed and EP-6 of table T-076 has its way to stop drawing
-//                the pair. ⭐ NOTHING IS OPEN HERE ANY LONGER: DC-7's own text
-//                HAS since been edited to match (it now reads 「モードを出たら、
-//                置いた 2 本を消すこと（MUST）」), and DC-4's OTHER way out
-//                -- 「`Esc`」 -- writes the same CM-61 as of DFC-301, in
-//                `frame-loop.ts`, which is where that way out lives: the level
-//                belongs to a holder this file cannot reach, so no action ever
-//                comes back for it. ⭐ DC-3's day count is untouched beside it
-//                as PND-344.
+// DC-7's clearing needs no row of table T-109: DC-4's way out writes CM-61
+// (`commandFromDualCursorEntry`; Esc does the same in `frame-loop.ts`). PND-345
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
 // table T-203, table T-206, table T-234, table T-037, table T-026, table

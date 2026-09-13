@@ -4,81 +4,17 @@
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 //
-// Holds the current values, watches what table T-078 says may wake a frame,
-// and computes table T-068 once at the head of each one before handing the
-// result to everyone who draws (ADR-001).
+// Holds the current values (LY-5 of table T-060), wakes a frame on what table
+// T-078 lists, and computes table T-068 once per frame for everything that
+// draws (ADR-001). Kept apart from single-html-shell.ts by UT-6 of table T-063.
 //
-// ⭐ Why this is not in single-html-shell.ts: table T-063 UT-6. Booting is what
-// FR-067 and FR-065 constrain; running frames is what LY-5 and ADR-001
-// constrain. Two reasons to change, so two files.
+// ⚠️ One happening builds the input context twice: `isBrowserDefaultStopped`
+// (MK-10) is asked before the watcher hears it and must change nothing, while
+// `receiveInput` runs after it and, on a `down`, also sees the recorded press.
 //
-// ⛔ This is the ONLY layer allowed to hold a current value (table T-060
-// LY-5). Everything inward takes what it needs as an argument.
-//
-// ⭐ TWO SURFACES, ONE FRAME. `SvgSurface` (IF-1) takes the schedule and
-// `ScreenSurface` (IF-9) takes every UI part outside it, and both are filled
-// from the SAME `ScreenRegions` / `ScheduleLayout` / `ScheduleGeometry` that
-// ADR-001 has this file compute once at the head of the frame. ⛔ Drawing one
-// of them on values from a different frame is what CA-4 forbids.
-//
-// ⭐ FT-1 OF TABLE T-078 IS WIRED HERE, and it belongs here rather than in the
-// boot file for the reason LY-5 of table T-060 gives: the three members of
-// PI-18 that read a happening are `pure`, so the press, the selection, the
-// screen state and this frame's values all have to be HANDED to them, and this
-// is the file that holds every one of those. `DomInputSource` (PI-27) supplies
-// the happening over IF-2, and `single-html-shell.ts` starts it.
-//
-// ⭐ ONE THIRD OF FT-4 IS WIRED HERE TOO, and this is the layer that row of
-// table T-078 names: 「時間が来たこと」 is the shell's to MEASURE. Of the three
-// waits it counts, only EZ-2's -- the rest before an icon's explanation -- is
-// measured in this build, by `beginPointerRest` and the two current values
-// beside it. ⛔ NT-2's deadline is still uncounted, and keeps its note where it
-// is answered.
-//
-// ⚠️ ONE HAPPENING BUILDS THE CONTEXT TWICE, and the two cannot be shared.
-// MK-10 is asked BEFORE the watcher hears the happening
-// (`isBrowserDefaultStopped`, which PI-27 takes as a factory argument) and the
-// rest is decided after it (`receiveInput`), so the two calls arrive at
-// different moments -- and on a `down` the second one sees a press the first
-// one could not: recording the press is a change, and MK-10's question must
-// change nothing.
-//
-// ⭐ CS-4 OF TABLE T-066 LIVES HERE TOO, and it is the one unit of consistency
-// that is not nested inside a frame. `saveHeldDocumentToFile` and
-// `openDocumentIntoHold` are its whole shape: what the operation needs from the
-// current values is taken before the first `await`, nothing reads them again
-// while the person is answering (MUST NOT), and frames keep running throughout
-// -- FT-3 in particular, which NFR-011 will not let stop. ⛔ Nothing is drawn
-// to say that a wait is on: CS-4 forbids it (MUST NOT) and table T-078 has no
-// trigger for it.
-//
-// ⭐ IF-7 OF TABLE T-065 IS IMPLEMENTED HERE, which table T-075 gives UF-48 and
-// which is why the `Agent API` reaches a document at all: an `AgentSnapshot` is
-// made of values LY-5 leaves with this layer and of the frame ADR-001 has this
-// file compute, so nowhere else could answer it. ⛔ NOTHING IS EXPOSED FROM
-// HERE. Placing the public point is UF-47's, and this file only hands over the
-// seams and reports when a person turns FR-065's enabling -- `agentApiSeams`
-// and `watchAgentApiEnabling` are the whole of that.
-//
-// ⭐ THE FRAME THAT PAINTS A QUESTION RAISED AFTER A WAIT IS FT-1's, and the
-// table says so itself: FT-1 now covers the continuation of one input across a
-// wait, and its own note leaves raising that continuation to the shell while
-// keeping IF-2's supply as narrow as it was. So `askHowToOpen` and the two
-// confirmations ask for a frame without any trigger of their own being minted
-// (NFR-010, MUST NOT).
-//
-// ⭐ FR-018's REPEAT IS THE SAME ROW READ THE SAME WAY. A held entrance that
-// goes on stepping after S-172 is 「その入力の、待ちをまたいだ続き」 and nothing
-// else: one human input, still in flight, whose continuation the shell raises
-// itself. `beginEntryRepeat` and the two members beside it are the whole of it.
-// ⚠️ THE PARENTHESIS IN THAT ROW NAMES ONE WAIT AND NOT THIS ONE. FT-1 spells
-// the wait it covers as 「表 T-066 の `CS-4`」, which is the file operation that
-// waits on a person, while this wait is S-172; and FT-4's own note says in as
-// many words that it counts 3 things, none of them a repeat. ⛔ CR-255 put the
-// repeat into FR-018 as a MUST and left table T-078 untouched, so the trigger
-// this needs is covered by FT-1's opening clause 「人の入力（ポインタとキー）」 and
-// by neither row's later wording. ⚠️ Reported rather than settled here: which
-// of the two rows should say so is the specification's to decide.
+// ⚠️ FR-018's repeat is covered only by FT-1's opening clause (human input):
+// FT-1's wait is CS-4, and FT-4 does not name a repeat. Which row should say so
+// is the specification's to decide.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -152,23 +88,17 @@ import {
   type ReplacementRefusal,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
-// ⭐ `editDocument` IS PI-9 OF TABLE T-064 AND IS REACHED FOR THE PICTURE ALONE.
-// The drag preview below folds a release's writes onto a COPY of the held
-// document with it, and PI-9 is pure -- so no stamp is advanced (`advancedStamp`
-// is called nowhere in this component's folder), no undo step is pushed (WS-4
-// pushes on `applyDocumentChange`'s road only) and nothing is autosaved. FR-031's
-// bound on one gesture therefore survives a mid-drag picture by construction.
+// `editDocument` (PI-9) is reached only for the drag preview: it is pure, so
+// folding a release onto a copy advances no stamp, pushes no undo step and
+// autosaves nothing -- FR-031's per-gesture bound survives a mid-drag picture.
 import {
   editDocument,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
-// ⭐ THE ENTRY ITSELF AND NOT ONLY ITS TYPES, which LR-2 admits because this
-// lands on PI-10's own declaring file. ⛔ It is reached for ONE thing -- the
-// `ImportReport` -- and the reason is on the overlay road below: `ReplaceOutcome`
-// (PI-8) carries the document and nothing of what the import had to say, so the
-// road that lands the document cannot also hand back what FR-015 (MUST) has to
-// be told from.
+// The entry itself, not only its types (LR-2 admits PI-10's own file). It is
+// reached for the `ImportReport` alone: `ReplaceOutcome` (PI-8) carries no
+// report, so the landing road cannot hand back what FR-015 is told from.
 import {
   importDocument,
   type OpenChoice,
@@ -178,22 +108,13 @@ import {
   validateImportedDocument,
   type ImportBounds,
 } from '../../use-case/validate-imported-document/validate-imported-document'
-// ⭐ THE ENTRY, FOR ITS SIGNATURE ALONE. `installAgentApi` is the one name
-// PI-17 of table T-064 publishes beside the seam, and every type this file
-// needs from that component -- IF-7's implementation and the four seams PI-8
-// and PI-16 declare for it -- is reachable through it. ⛔ Reached this way
-// rather than by importing those types one at a time: `AgentApiWiring`,
-// `DialogueLogHolder` and `DialogueAudience` are names no row of table T-064
-// carries, and a name that crosses a component folder without a row is what the
-// reverse walk of check 26b refuses.
-// ⛔ NOTHING IS INSTALLED HERE. Placing the public point is UF-47's (table
-// T-075), and `single-html-shell.ts` does it; this file supplies the values.
+// Imported for its signature alone: every type this file needs from that
+// component is reachable through `installAgentApi` (PI-17), and importing the
+// unlisted names one by one is a crossing check 26b's reverse walk refuses.
+// Nothing is installed here; placing the public point is UF-47's.
 import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
-// ⭐ `exportEmbeddedHtml` AND `AppShellSource` JOIN THE FIVE. IO-7 of table
-// T-024 is a file, so the road to it is this loop's for the reason IO-4's is
-// (see `exportPng` below), and UT-5 of table T-063 keeps the single .html in a
-// codec of its own -- so this file supplies the seam and calls the writer, and
-// assembles nothing itself.
+// `exportEmbeddedHtml`: IO-7 is a file, so the road to it is this loop's (as
+// for IO-4 below); UT-5 of table T-063 keeps the assembly in the codec.
 import {
   documentFromJson,
   documentFromMspdi,
@@ -205,14 +126,9 @@ import {
   type ExchangeFormat,
   type FormatMismatch,
 } from '../../adapter/document-codec/document-codec'
-// ⭐ TABLE T-024's EXTENSION COLUMN, AND NOTHING ELSE, reached the way
-// `dom-screen-surface.ts` reaches `icon-glyphs.json`: a generated roster is
-// data compiled into the program, not a reach into the component whose folder
-// it sits in, which is the reading `tools/check_layer_rules.py` states in as
-// many words. ⛔ It is read here because PI-20 of table T-064 -- the whole of
-// what DocumentCodec may be asked for -- publishes no name that answers which
-// extension table T-024 gives a form, and FR-096 (MUST NOT) forbids the value
-// being written anywhere but that table.
+// Table T-024's extension column, read as generated data (the reading
+// `tools/check_layer_rules.py` states): PI-20 publishes no name that answers a
+// form's extension, and FR-096 allows no other source for the value.
 import exchangeFormats from '../../adapter/document-codec/exchange-formats.json'
 import {
   openDocumentFile,
@@ -226,14 +142,10 @@ import {
   type ProjectIdentity,
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
-// ⭐ `exportPng` AND the types. What an export IS belongs to PI-21 (CP-21), and
-// this file hands that component the four values it says a scene is made of --
-// ADR-001 has the side that computes a frame do the computing, and none of the
-// four can be measured from inside an Adapter.
-// ⭐ THE FUNCTION IS CALLED FROM HERE BECAUSE IO-4 OF TABLE T-024 IS A FILE,
-// and the road to a file is this loop's: `exportHeldDocumentToFile` already
-// walks it for the two text forms, and FR-096 (MUST NOT) forbids a second
-// entrance being built for the picture.
+// `exportPng` is called from here because IO-4 is a file and the road to a
+// file is this loop's (`exportHeldDocumentToFile`); FR-096 forbids a second
+// entrance for the picture. The scene's values are computed here (ADR-001):
+// none of them can be measured inside an Adapter.
 import {
   exportPng,
   exportSvg,
@@ -275,35 +187,23 @@ import {
   writeClipboard,
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
-// ⭐ READ, NEVER TYPED OUT. `tools/generate_startup_template.py` prints its own
-// `SCHEMA_VERSION` into this file, so the version this build knows is a value
-// the build already holds -- and rule 03 section 1 forbids a second copy of a
-// generated value, which would go on saying the old date after the generator
-// moved. ⚠️ The whole template is imported for one key, which costs nothing:
-// `single-html-shell.ts` imports the same module for BT-4.
+// Read, never typed: the generator prints `SCHEMA_VERSION` into this file, and
+// a typed copy would drift when the generator moves (rule 03 section 1).
 import startupTemplate from './startup-template.json'
 
 /**
- * FR-073's greatest `GRS JSON` format version this build knows, which every
- * read of a document is judged against (OP-7 of table T-024a).
+ * FR-073's greatest known `GRS JSON` format version (OP-7 of table T-024a).
  *
- * ⛔ IT HAS TO TRAVEL AS AN ARGUMENT. `documentFromJson` takes it and says why
- * in as many words: the version is not DocumentCodec's to hold -- an Adapter
- * reaching for the Framework's bundled template would be `LR-6` broken -- so a
- * caller that leaves it out gets `notCompared`, which is FR-073's comparison
- * not running at all.
- *
- * ⭐ EXPORTED FOR `single-html-shell.ts`, which reads BT-1 and BT-4 and needs
- * the same number. ⛔ It cannot live there instead: that file already imports
- * this one, and the other direction would close a cycle. ⚠️ The name does not
- * leave this folder, so check 26b's reverse walk has nothing to say about it.
+ * ⚠️ Must be passed to `documentFromJson`: an Adapter may not reach the bundled
+ * template (LR-6), and a caller that omits it gets `notCompared`.
+ * Exported for `single-html-shell.ts`; it cannot live there, because that file
+ * imports this one and the reverse would close a cycle.
  */
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
 /**
- * What the shell measured about the window this frame. `regionsFromScreen`
- * takes it as an argument because FR-051 forbids a setting to hold the last
- * two -- they differ from one machine to the next.
+ * What the shell measured about the window this frame. The last two are
+ * measured rather than set because they differ per machine (FR-051).
  */
 export interface FrameEnvironment {
   readonly width: number
@@ -311,25 +211,14 @@ export interface FrameEnvironment {
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
   /**
-   * LF-3 of table T-221 (MUST, 利用者の裁定 2026-09-03): the height HF-1's
-   * lattice of row controls takes, which that row makes a floor under every
-   * row's band.
+   * LF-3 of table T-221: the height of HF-1's row-control lattice, a floor
+   * under every row's band.
    *
-   * ⛔ MEASURED LIKE THE HEADER'S HEIGHT AND FOR THE SAME KIND OF REASON: HF-19
-   * of table T-051 keeps the NUMBER out of the manuscript -- it leaves the
-   * arithmetic to LF-3 and (MUST NOT) forbids copying the values S-138 and
-   * S-141 hold -- so the side that drew the lattice answers it and the layout is
-   * handed the answer.
-   * ⛔⛔ THIS FLOOR DOES NOT FOLLOW THE READER'S TEXT SIZE. HF-19 forbids it
-   * (MUST NOT) and LF-3 says the same, and FR-039 moves the size of a row's NAME
-   * and not of the controls (HF-5) -- so measuring here is right, and a "fix"
-   * that made the floor follow the text size would break HF-19.
-   * ⚠️ It is NOT part of `ScreenEnvironment`: `regionsFromScreen` cuts
-   * rectangles out of the window and this settles no rectangle.
-   * ⚠️ ABSENT UNTIL THE FIRST PANEL HAS BEEN DRAWN -- there is no lattice to
-   * measure before that -- and absent is the floor every band had before the
-   * ruling, which is why the member is optional rather than a 0 anyone has to
-   * type.
+   * Measured by the side that drew the lattice, because HF-19 of table T-051
+   * keeps the number out of the manuscript.
+   * ⚠️ Does not follow the text size (HF-19, HF-5); making it follow breaks
+   * HF-19. Not part of `ScreenEnvironment`: it settles no rectangle.
+   * Absent until the first panel is drawn, which leaves the bands unfloored.
    */
   readonly rowControlsHeightPx?: number
 }
@@ -340,66 +229,46 @@ export interface FrameValues {
   readonly layout: ScheduleLayout
   readonly geometry: ScheduleGeometry
   /**
-   * The settings the three above were measured with -- the document this frame
-   * DREW, under `withPropertiesPanelShown`.
+   * The settings the three above were measured with -- those of the document
+   * this frame drew, under `withPropertiesPanelShown`.
    *
-   * ⛔ NOT ALWAYS THE HELD DOCUMENT'S. FR-052 has the divider's picture follow
-   * the pointer while it is held, and that picture is drawn from a preview whose
-   * two panel widths are not the stored ones -- so `settingsLimitsOf` adding the
-   * HELD widths back to a `Row Area` cut with the PREVIEW's would report a sum
-   * that drifts by exactly the travel, and FR-052's own test is judged on that
-   * sum. ⭐ Carried beside the three rather than read again for the same reason
-   * `readSnapshot` reads `values` into a local: the frame the picture came from
-   * and the frame the bounds are measured against have to be one frame.
+   * ⚠️ Not always the held document's: while FR-052's divider is held the
+   * picture uses preview panel widths, and `settingsLimitsOf` adding the held
+   * widths to a preview-cut `Row Area` would drift by the travel. Carried so
+   * the picture and the bounds come from one frame.
    * @provisional PND-254
    */
   readonly settingsMeasuredWith: DocumentSettings
   /**
-   * Whether the picture this frame drew stands at the document's own zoom
-   * (`S-73` / `S-74`) rather than at FR-055's fit -- OP-10 of table T-024a,
-   * decided once in `viewSettings` and carried rather than asked again.
+   * Whether this frame's picture stands at the document's stored zoom (`S-75` /
+   * `S-76`) rather than at FR-055's fit -- OP-10 of table T-024a, decided once
+   * in `viewSettings`.
    *
-   * ⛔ THE PRESS SIDE CANNOT WORK IT OUT. Two of OP-10's three branches
-   * draw the stored pair -- a document that names a place, and the BT-4
-   * exception for the bundled template (MUST NOT) -- and only this side knows
-   * the second, because only this side is told the document came from BT-4.
-   * ⭐ `collectInputContext` hands it on as `InputContext.isPictureAtStoredZoom`.
+   * Carried because the press side cannot derive it: only this side knows the
+   * document came from BT-4. Handed on as `InputContext.isPictureAtStoredZoom`.
    */
   readonly isPictureAtStoredZoom: boolean
 }
 
 /**
- * The one row of table T-230 a caller outside this loop may stand in: RD-6, the
- * startup document, whose `WS-3` column says the caller brings the document
- * itself.
+ * The one row of table T-230 a caller outside this loop may use: RD-6, the
+ * startup document, which the caller brings itself.
  *
- * ⛔ NARROWED OUT OF `ReplacementCall`, NEVER WRITTEN AGAIN. What each row
- * carries is PI-8's to say (rule 03 section 1), and the other five rows are not
- * this member's to offer: all five are reached from inside this file -- RD-1
- * and RD-2 from the undo entries, RD-3 and RD-4 from the read OP-2 begins, and
- * an outside caller has no `ImportDocument` call to bring.
- * ⚠️ RD-7 IS AMONG THE FIVE THOUGH ITS `WS-3` COLUMN READS LIKE RD-6's. FR-095
- * (MUST) has the press ask 表 T-024a の `OP-4` の確認 first, and the asking is
- * this loop's (`asking`) -- so the row cannot be handed in from outside without
- * the question being raised outside too.
+ * Narrowed out of `ReplacementCall` so the row's shape stays PI-8's. The other
+ * rows are reached from inside this file -- RD-7 too, because FR-095 has this
+ * loop ask OP-4's confirmation before landing it.
  */
 export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }>
 
-/** PI-17's argument list, which is the one route to the five types below. */
+/** PI-17's argument list, the one route to the seam types below. */
 type AgentApiWiring = Parameters<typeof installAgentApi>[0]
 
 /**
- * A document handed straight in, with no file behind it -- AM-8's road.
+ * A document handed straight in with no file behind it -- AM-8's road.
  *
- * ⭐ WHAT THE MACHINE MAY SAY AND WHAT IT MAY NOT. FR-022 (MUST NOT) refuses a
- * call of the `Agent API` that is handed the choices in advance, so table
- * T-032a's mapping is NOT here -- it is answered on U-61 by a person. What IS
- * here is what a file would otherwise have carried: the document, which row of
- * table T-024 it came in as, and how big it was, because OP-5's judgement is
- * measured in bytes (S-113).
- * ⭐ `choice` IS OP-3's, NOT TABLE T-032a's. It says what the ENTRANCE means --
- * AM-8 of table T-107 is 「取り込み・合流」 -- and FR-022 begins 「合流が選ばれ
- * （`FR-087` の `OP-3`）」, so the merge road is the one this entrance walks.
+ * Table T-032a's mapping is absent: FR-022 refuses a call handed the choices in
+ * advance, so a person answers it on U-61. The byte length is carried because
+ * OP-5 measures in bytes (S-113). `choice` is OP-3's, the entrance's meaning.
  */
 interface HandedImport {
   readonly incoming: Document
@@ -407,53 +276,33 @@ interface HandedImport {
   readonly byteLength: number
   readonly choice: OpenChoice
   /**
-   * FR-073 (MUST): the columns of the handed value this build could not read,
-   * because it declares a format version newer than the greatest one known.
+   * FR-073: the columns this build could not read because the value declares a
+   * newer format version.
    *
-   * ⭐ MEASURED ON THIS SIDE OF THE SEAM AND CARRIED, rather than worked out
-   * where the intake road runs. `takeInDocument` (PI-17) takes a `Document`,
-   * which is this build's own shape -- a key it does not know is not on that
-   * type and cannot be found by looking at the value once it has been asserted
-   * into it. The one place the names still exist is the `GRS JSON` text the
-   * entrance writes for S-113's byte length, so the reading is taken there.
-   * ⛔ AND THE ENTRANCE IS NOT WIDENED FOR IT. AM-8 of table T-107 goes on
-   * taking a document and answering a boolean; this member is inside the shell.
+   * Measured on this side of the seam: once asserted into `Document` the
+   * unknown keys are gone, and only the `GRS JSON` text written for S-113's
+   * byte length still has them. AM-8 is not widened for it.
    */
   readonly unreadColumns: readonly string[]
 }
 
 /**
- * The members of PI-17's wiring that are current values LY-5 of table T-060
- * leaves with this layer, gathered so that the file which PLACES the public
- * point can hand them over without holding any of them itself.
+ * The members of PI-17's wiring that are current values (LY-5 of table T-060),
+ * gathered so the file that places the public point holds none of them.
  *
- * ⛔ THE TWO THAT ARE MISSING ARE MISSING BECAUSE THIS FILE CANNOT ANSWER THEM.
- * `writerName` is ED-2 of table T-229 -- 「呼び手が申告した名」 -- and
- * `schemaVersion` is AM-2, which the startup template carries; both belong to
- * the side that installs, and its own notes say what each is settled from.
- * ⚠️ Derived from the wiring rather than listed member by member, so a member
- * added on that side lands here as a type error instead of being forgotten.
+ * `writerName` (ED-2 of table T-229) and `schemaVersion` (AM-2) belong to the
+ * installing side. Derived with `Omit` so a member added there is a type error
+ * here instead of being forgotten.
  */
 export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
 
 /**
  * The rows of table T-233 BO-2 of table T-077 can be told on.
  *
- * ⭐ WHY BO-2 NEEDS A ROAD OF ITS OWN. FR-067 (MUST) and FR-062 (MUST NOT) both
- * have a startup candidate that could not be taken TOLD rather than dropped,
- * and `chooseStartupDocument` (PI-14) answers with what has to be told -- but
- * BO-2 runs before this loop exists, so the raiser it needs cannot be reached
- * at the moment it decides. ⛔ Nothing is queued here instead: the caller keeps
- * what it has to say until it has a loop, which is the only order table T-077
- * admits.
- * ⚠️ `RS-15` IS AMONG THEM, and this is one of the four places in this file
- * that raise it -- see `NoticeReason` for what that row is, which four reach
- * it, and why a fifth may not.
- * ⭐ `RS-48` IS AMONG THEM BECAUSE BT-1 IS A READ. FR-073 (MUST) has a document
- * of a newer format version told about wherever it was read, and table T-034's
- * first rank reads one -- a single `.html` carries whatever version the build
- * that wrote it knew. ⛔ ONLY THE TELLING REACHES THIS ROAD; what FR-073 also
- * asks for is recorded at the raiser in `single-html-shell.ts`.
+ * BO-2 decides before this loop exists, so the caller keeps what it has to say
+ * until it has a loop (the only order table T-077 admits); nothing is queued
+ * here. Only the telling of `RS-48` reaches this road; the rest of FR-073 is
+ * at the raiser in `single-html-shell.ts`.
  */
 export type StartupNoticeReason = Extract<
   NoticeReason,
@@ -461,55 +310,34 @@ export type StartupNoticeReason = Extract<
 >
 
 export interface FrameLoop {
-  /**
-   * FR-100 -- whether leaving the page now would lose work. The host asks it
-   * as it is about to leave, and raises its own warning when the answer is
-   * yes; the words of that warning are the host's (MUST NOT).
-   */
+  /** FR-100: whether leaving the page now would lose work. */
   hasUnsavedEdits(): boolean
   /**
    * FT-2: the current value was replaced, so a frame is owed.
    *
-   * ⭐ THE CALLER NAMES ITS ROW OF TABLE T-230 AND BRINGS NOTHING ELSE. That
-   * table requires it (MUST) and forbids a replacement that names none (MUST
-   * NOT), so the history, the stamp and the undo step are settled by the row on
-   * the `replaceDocument` road (PI-8) -- the same road RD-1 and RD-2 take -- and
-   * not by any habit of this file's.
-   * ⚠️ The name is not `replaceDocument` because R2.1 asks it to say the role:
-   * `hold` is LY-5's own word for the one thing this layer does that no other
-   * may, and the pair this loop keeps is already `held` (`HeldDocument`).
-   * ⚠️ Nothing in `src/` calls it today.
+   * The caller names its row of table T-230 and brings nothing else; history,
+   * stamp and undo step are settled by that row on the `replaceDocument` road.
+   * Named `hold` for the role (R2.1). ⚠️ Nothing in `src/` calls it today.
    */
   holdDocument(call: HeldDocumentCall): void
   /** FT-3: the window changed size. */
   resize(env: FrameEnvironment): void
   /**
-   * BO-1's measurements as BO-5's OWN FRAME settled them, and the one road that
-   * runs the frame they change without asking for one.
+   * BO-1's measurements as BO-5's own frame settled them, running the frame
+   * they change without asking for one.
    *
-   * ⛔ NOT FT-3, WHICH IS WHY IT IS NOT `resize`. Table T-078's FT-3 is 「画面の
-   * 寸法が変わったこと」 -- something that HAPPENS to a screen already up -- and
-   * this is table T-077 still running: the `App Header`'s height (FR-051, MUST)
-   * cannot be measured until the header has been DRAWN, so the first frame is
-   * what settles it and the caller has one number before that frame and another
-   * after it. ⚠️ Measured on the shipped build: 13px before, 37px after.
-   * ⛔ THE FRAME IS RUN IN THE CALLER'S OWN TASK AND NOT ASKED FOR, which is the
-   * whole difference from `resize`. BO-1 (NFR-011, MUST) forbids a frame before
-   * the dimensions have settled, and a frame ASKED for lands in a later task --
-   * measured 44ms to 1614ms later -- with the picture drawn against the
-   * unsettled numbers standing in the page until it does.
-   * ⭐ Answers with nothing and changes nothing when no measurement moved, so a
-   * caller that hands over what is already in force costs one comparison.
+   * Not `resize` (FT-3 is a change to a screen already up): the `App Header`'s
+   * height cannot be measured until the first frame has drawn it. The frame runs
+   * in the caller's task because an asked-for frame lands in a later task and
+   * leaves a picture drawn against unsettled numbers on the page (BO-1).
+   * Changes nothing when no measurement moved.
    */
   settleFirstFrameEnvironment(env: FrameEnvironment): void
   /**
-   * MK-10's answer for one happening: `TranslatedInput.isBrowserDefaultStopped`
-   * and nothing else.
+   * MK-10's answer for one happening (`TranslatedInput.isBrowserDefaultStopped`).
    *
-   * ⛔ Asked BEFORE the watcher hears the happening, which is what PI-27's
-   * factory argument is for, so it must change nothing -- the answer decides
-   * whether `preventDefault` is called, and IN-4a would read a screen that had
-   * already moved on.
+   * ⛔ Asked before the watcher hears the happening, so it must change nothing:
+   * IN-4a would otherwise read a screen that had already moved on.
    *
    * @purity non-pure
    */
@@ -524,67 +352,45 @@ export interface FrameLoop {
   current(): FrameValues | null
   document(): Document
   /**
-   * What one export is assembled from (PI-21), for the base environment FR-080
-   * names -- or `null` while BO-1 has settled no size.
+   * What one export is assembled from (PI-21), for FR-080's base environment,
+   * or `null` while BO-1 has settled no size.
    *
-   * ⭐ THE ONE PLACE THE PANELS ARE CLOSED. FR-080's environment is not the one
-   * a person is looking at, and the difference is a whole run of table T-068,
-   * so this is the loop's to answer and nobody else's (LY-5 of table T-060,
-   * ADR-001). ⛔ It is NOT run at the head of a frame -- see the member.
-   * ⚠️ This is what an implementor of IF-7 puts in `AgentSnapshot.exportScene`,
-   * and it is also the road IO-3 of table T-024 takes for a person.
+   * The one place the panels are closed: that environment is a separate run of
+   * table T-068, so it is the loop's (LY-5, ADR-001) and is not run at a
+   * frame's head. Also what IF-7 puts in `AgentSnapshot.exportScene`, and IO-3's
+   * road.
    *
    * @purity semi-pure-b
    */
   exportScene(): ExportScene | null
   /**
-   * The seams `installAgentApi` (PI-17) is wired from, all of them values this
-   * layer alone may hold (LY-5 of table T-060).
+   * The seams `installAgentApi` (PI-17) is wired from (LY-5 of table T-060).
    *
-   * ⭐ ANSWERED WHOLE AND ONCE. The five are built with the loop and never
-   * replaced, so a caller that installed twice would install against the same
-   * seams -- which is what FR-065's third MUST already says of a reference
-   * handed out: it goes on working.
+   * Built with the loop and never replaced, so installing twice uses the same
+   * seams and a handed-out reference keeps working (FR-065).
    *
    * @purity semi-pure-b
    */
   agentApiSeams(): AgentApiSeams
   /**
-   * Hear FR-065's enabling turn, so that the side which places the public point
-   * can put it there and take it away again.
+   * Hear FR-065's enabling turn, so the side that places the public point
+   * (UF-47) can place and remove it; only this loop holds IC-20's value.
    *
-   * ⛔ WHY THIS EXISTS AT ALL. FR-028 (MUST) keeps the `Agent API` unexposed by
-   * default and FR-065 (MUST) lets a person turn it on, and IC-20 of table
-   * T-109 lands on a current value this loop holds -- so the only party that
-   * can see it turn is this one, while the only party that may place a public
-   * name is UF-47 of table T-075.
-   * ⚠️ ONE WATCHER, REPLACED BY THE NEXT. Nothing in table T-078 makes this a
-   * trigger and no requirement asks for more than one listener; a second caller
-   * would be a second holder of the public point.
-   * ⭐⭐ TOLD AT ONCE WHEN THE VALUE IS ALREADY ON, and that is a MUST rather
-   * than a convenience. FR-065 (MUST) has the enabling remembered per browser
-   * origin, so a page opened at an origin where the
-   * person turned it on starts ON -- and a watcher that only heard TURNS would
-   * never place the public point, which is the remembering not being kept at
-   * all. ⛔ NOTHING IS SAID WHEN IT IS OFF: FR-028 (MUST) keeps it unexposed by
-   * default, and taking away a name nobody has placed is not a state to report.
+   * ⚠️ One watcher, replaced by the next: a second would be a second holder of
+   * the public point.
+   * ⛔ Told at once when already on: the enabling is remembered per origin, so a
+   * watcher that only heard turns would never place the point. Nothing is said
+   * when it is off.
    *
    * @purity non-pure
    */
   watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void
   /**
-   * FR-076 (MUST): raise what BO-2 of table T-077 had to tell but had no loop
-   * to tell it on.
+   * FR-076: raise what BO-2 of table T-077 had to tell but had no loop to tell
+   * it on, onto `ScreenSession.notices` like every other reason.
    *
-   * ⚠️ RAISED AND NOT TOLD, exactly as every other reason this loop raises is:
-   * the row goes onto `ScreenSession.notices` and the words are the dictionary's
-   * (FR-038, MUST NOT). ⭐ NT-4 of table T-037 is kept by that list being one list.
-   *
-   * ⭐ `affectedCount` IS THE RAISER'S MEASUREMENT OR `null`, exactly as it is
-   * on the loop's own `raiseNotice`: `RS-51` is told with the number of settings
-   * keys the read road had to move, and every other startup row carries none.
-   * ⛔ No count is invented on this side (FR-038, MUST NOT covers the words and
-   * NT-3 covers the number).
+   * `affectedCount` is the raiser's measurement or `null` (only `RS-51` carries
+   * one); no count is invented here.
    *
    * @purity non-pure
    */
@@ -592,161 +398,89 @@ export interface FrameLoop {
 }
 
 /**
- * The far side of IF-9, and the one thing about this reading session that only
- * the host can answer.
- *
- * ⭐ OPTIONAL ON PURPOSE. Table T-077's boot order and table T-078's triggers
- * govern the schedule as much as the parts around it, so the loop runs whether
- * or not the caller had a browser to build a `ScreenSurface` on.
+ * The far side of IF-9, and what only the host can answer about this session.
+ * Optional: the loop runs whether or not the caller had a browser to draw on.
  */
 export interface ScreenWiring {
   /** IF-9's implementation -- the one unit that turns a `ScreenView` into nodes. */
   readonly surface: ScreenSurface
-  /**
-   * FR-038's answer for this session. ⛔ Settled by the shell and never by the
-   * document: FR-038 keeps the chosen language out of it (MUST NOT).
-   */
+  /** FR-038's language for this session, settled by the shell, never the document. */
   readonly language: DisplayLanguage
   /**
-   * MK-13's second half -- a way to put the person into the field the surface
-   * drew for one row, with everything already in it selected.
+   * MK-13's second half: put the person into the field the surface drew for one
+   * row, with its content selected.
    *
-   * ⭐ THE ROW IS NOT ALWAYS ONE OF TABLE T-016. IF-9 admits a row ID that is
-   * not of that table -- the header's document-name field names `U-27` of table
-   * T-103 -- and SK-9 asks for that one, which FR-035 (MUST) has editable where
-   * it stands. ⛔ WHICH
-   * FIELD A ROW NAMES IS THE DRAWING SIDE'S ANSWER AND NOT THIS ONE'S (LR-6,
-   * and Chapter 5.3 under table T-065): the caller names the row, and the side
-   * that drew it decides whether that means focusing a control it has already
-   * drawn or making the name it drew editable where it stands.
-   *
-   * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT. The IF-9 cell of table T-065 names
-   * five supplies and every one of them is a question; the surface hands this
-   * over on its own wiring instead (`ScreenSurfaceWiring.holdFocusPropertyField`),
-   * and `screen-surface.ts` records why the seam does not take it.
-   * ⚠️ ASKED ONLY AFTER A DESCRIPTION HAS BEEN DRAWN -- see `showFrame`.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30): the
-   * `ScreenWiring` literals already written go on compiling, and a caller that
-   * never fills it leaves MK-13 half done with nothing to say so. ⭐ The tests
-   * written from the specification are what watch it.
+   * The row may be outside table T-016 (SK-9 names `U-27`); which control a row
+   * means is the drawing side's answer (LR-6). Beside the surface rather than
+   * on it: the IF-9 cell of table T-065 does not list it
+   * (`ScreenSurfaceWiring.holdFocusPropertyField`). Asked only after the
+   * description has been drawn -- see `runFrame`.
+   * ⚠️ Optional, so forgetting it is silent: MK-13 stays half done with nothing
+   * to say so. The tests written from the specification watch it.
    */
   readonly focusPropertyField?: (row: string) => void
   /**
-   * FR-020 (MUST) -- a way to read what stands in the masked field U-60
-   * `Watermark Unlock` draws, at the moment one of that surface's two answers
+   * FR-020: read what stands in U-60's masked field when one of its two answers
    * is given.
    *
-   * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT, exactly as the three members above
-   * are and for the reason `screen-surface.ts` records: the IF-9 cell of table
-   * T-065 names five supplies. ⚠️ `readFieldCommit` is not the road either --
-   * that member carries a value settled in the `Properties Panel`, keyed by a
-   * row of table T-016, and this answer settles no column at all.
-   *
-   * ⛔ ASKED ONCE, WHEN AN ANSWER ARRIVES, AND NEVER HELD. FR-020 (MUST NOT)
-   * keeps the raw password out of code, out of the model and out of what goes
-   * out, so this loop hashes what comes back and lets it go.
-   *
-   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30), the
-   * same bargain the three above take. ⭐ The cost falls on the safe side of
-   * FR-020's gate: a caller that never fills it can never match a password, so
-   * the watermark is never hidden -- and that requirement's gate stands on the
-   * hiding side alone.
+   * Beside the surface for the reason above; not `readFieldCommit`, which
+   * carries a table T-016 row's value. Asked once and never held: FR-020 keeps
+   * the raw password out of the model, so it is hashed and let go.
+   * ⚠️ Optional and silent when missing, but on the safe side: no password can
+   * match, so the watermark is never hidden.
    */
   readonly readWatermarkUnlockAnswer?: () => string
 }
 
 /**
- * IN-2 of table T-028 -- the five meanings that row gives a place, spelled the
- * way the host spells them.
+ * IN-2 of table T-028's shapes, spelled as the host's standard keywords.
  *
- * ⭐ THE SPELLING IS THE HOST'S AND THE MEANING IS THE ROW'S, which is what
- * IN-2's own ⚠️ says in as many words. So the five names below are
- * standard keywords of the viewing environment, chosen against their own
- * published meanings, and no sixth is minted.
- *
- * ⚠️ TWO OF THE FIVE ARE A JUDGEMENT AND NOT A READING, because the environment
- * has no keyword that means 「作図」. `default` is the environment's own shape
- * over content a person selects by dragging across it, so it takes IN-2's
- * 範囲選択; `copy` is published as "a new thing will be made here", which is the
- * nearest published meaning to arming a figure and placing it. ⛔ A ruling that
- * disagrees moves these two names and nothing else.
- * ⚠️ THE FIRST OF THE TWO HAS ALREADY BEEN MOVED ONCE, by exactly such a ruling.
- * ⛔ THE REQUIREMENT DID NOT MOVE WITH IT -- 何にも当たらない場所 is still IN-2's
- * place and still carries 範囲選択の合図; only the host's word for that meaning
- * changed, which is the one thing IN-2 leaves to this side.
+ * ⚠️ `default` (range selection) and `copy` (arming a figure) are judgements:
+ * the host has no keyword for drawing, so these are the nearest published
+ * meanings, and a ruling that disagrees moves only these two names.
  * @provisional PND-337
- * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
- * as "the thing under the pointer can be moved", which is 「掴めることの合図」
- * word for word. ⚠️ It is the RESTING shape and not `grabbing`, which IN-2
- * already spends on PTD-1's pan; the two are the environment's own pair.
+ * `grab` is the resting shape; `grabbing` is already spent on PTD-1's pan.
  */
 export type PointerShape =
-  /** 何にも当たらない場所 -- PTD-5 of table T-023a. */
+  /** PTD-5 of table T-023a. */
   | 'default'
-  /** 構えているとき -- PTD-4 of table T-023a. */
+  /** PTD-4 of table T-023a. */
   | 'copy'
-  /** `Ctrl` 併用と中ボタンのパン中 -- PTD-1 of table T-023a. */
+  /** PTD-1 of table T-023a. */
   | 'grabbing'
-  /** 予定バーと実績バーの端点の上 -- GR-3 .. GR-6 of table T-023d. */
+  /** GR-3 .. GR-6 of table T-023d. */
   | 'ew-resize'
-  /** タスクの本体とマイルストーンの図形の上 -- GR-12 / GR-15 of table T-023d. */
+  /** GR-12 / GR-15 of table T-023d. */
   | 'grab'
 
 /**
- * Where IN-2's shape is put, or nothing when the caller drew no schedule to
- * put it on.
+ * Where IN-2's shape is put, or nothing when the caller drew no schedule.
  *
- * ⭐ A FUNCTION AND NOT A MEMBER OF A PUBLISHED INTERFACE. The element that IS
- * the `Schedule Canvas` is made by `single-html-shell.ts`, which is the same
- * component as this file (CP-25), so the two halves reach each other without
- * touching table T-065 -- `SvgSurface` (IF-1) carries the picture and nothing
- * else, and widening it would change a contract this round is not about.
- * ⛔ `null` means "leave the pointer alone", which is what IN-2 leaves a place
- * it does not name.
+ * A function rather than a member of `SvgSurface` (IF-1): the canvas element is
+ * made in this same component (CP-25), so table T-065 need not be widened.
+ * `null` leaves the pointer alone.
  */
 export type ShowPointerShape = (shape: PointerShape | null) => void
 
 /**
  * What `itemAtPointer` (PI-7) answers where a row of table T-023d claims the
- * point.
- *
- * ⭐ DERIVED FROM WHAT THAT FUNCTION ANSWERS, not imported by name. Table T-064
- * is the full count of what may cross a component folder, and neither the
- * answer's type nor its `grab` is on it -- a derivation states the same types
- * without minting a crossing the table does not hold (check 26b).
+ * point. Derived, not imported: table T-064 lists neither the type nor its
+ * `grab`, and a named import is a crossing check 26b refuses.
  */
 type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
 
 /**
- * EVERY row of table T-023d that `itemAtPointer` can answer, and not a chosen
- * few of them: the union is that answer's own `grab`, so it widens by itself
- * when the table gains a row.
- *
- * ⭐ THIS IS WHAT MAKES THE TWO CENSUSES BELOW COMPILE-CHECKED -- a `Record`
- * keyed on this union cannot be written with a row left out.
+ * Every row of table T-023d `itemAtPointer` can answer. It widens with the
+ * table, so a `Record` keyed on it cannot leave a row out.
  */
 type GrabbedArea = Grabbed['grab']
 
 /**
- * Which shape IN-2 of table T-028 gives each row of table T-023d, or `null`
- * for a row it names no shape for.
- *
- * ⭐ A CENSUS THE COMPILER KEEPS, for the reason `PREVIEWED_GRABS` gives below:
- * `Record<GrabbedArea, ...>` makes a row added to table T-023d a compile error
- * that names itself, where the `ReadonlySet` this replaced let a new row
- * default silently into 「no shape」.
- * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names the two
- * bars' ends, the task body together with a milestone's figure, and the three
- * actual dummies. The fade handles, the progress marker, the resume icon, the
- * labels, a dependency line, the boxes, the status line and the palette band are
- * all pressable too and IN-2 gives none of them a shape. ⚠️ A shape invented
- * for one of THOSE would be this build writing a requirement.
- *
+ * Which IN-2 shape each row of table T-023d gets, or `null` where IN-2 names
+ * none. The nulls are IN-2's silence; a shape invented for one of them would be
+ * this build writing a requirement.
  */
 const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
-  // IN-2 gives the two bars' endpoints and the actual dummies one meaning --
-  // the sign of horizontal resizing.
   'GR-3': 'ew-resize',
   'GR-4': 'ew-resize',
   'GR-5': 'ew-resize',
@@ -754,9 +488,8 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-9': 'ew-resize',
   'GR-17': 'ew-resize',
   'GR-18': 'ew-resize',
-  // IN-2 gives the task body and a milestone's figure the sign of a thing that
-  // can be grabbed. ⚠️ GR-12 IS ALSO A MILESTONE'S PLAN FIGURE, because a
-  // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
+  // GR-12 also covers a milestone's plan figure (a milestone has no plan ends
+  // for GR-3 / GR-4); GR-15 is its actual.
   'GR-12': 'grab',
   'GR-15': 'grab',
   'GR-1': null,
@@ -764,9 +497,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-7': null,
   'GR-8': null,
   'GR-10': null,
-  // ⚠️ IN-2 NAMES NO SHAPE FOR A LABEL, and GR-11 is one -- the note above
-  // already counts 「the labels」 among the pressable things it gives none to.
-  // A shape invented here would be this build writing a requirement.
   'GR-11': null,
   'GR-13': null,
   'GR-14': null,
@@ -774,25 +504,12 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
 }
 
 /**
- * Which rows of table T-023d draw, while held, the thing they would write on
- * the release.
+ * Which rows of table T-023d draw, while held, what they would write on
+ * release.
  *
- * ⭐ WHAT THE TABLE ITSELF ASKS FOR, ROW BY ROW. THREE of its closing rules are
- * MUSTs about the picture during the drag: one gives it to `GR-9` / `GR-17` /
- * `GR-18`, one to `GR-1` / `GR-2`, and one -- added 2026-08-27 on the user's
- * ruling -- to `GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` / `GR-12` / `GR-14` /
- * `GR-15` / `GR-16`. All three add that 確定 still follows IN-1 of table T-028,
- * so a `true` here settles nothing and only draws.
- *
- * ⛔ THE REST ARE FALSE BECAUSE NO CLOSING RULE ASKS: `GR-7` is a press that
- * cycles rather than a drag, `GR-10` cannot arrive by a plain press at all, and
- * `GR-13` selects. Turning one on would be this file inventing a requirement
- * (rule 03 section 1).
- *
- * ⭐ A CENSUS THE COMPILER KEEPS, the bargain `PRESS_CHANGES_DOCUMENT` strikes:
- * `Record<GrabbedArea, boolean>` makes a row added to table T-023d a compile
- * error here that names itself, where the `ReadonlySet` above would let it
- * default silently into 「no picture」.
+ * `true` follows table T-023d's closing rules on the picture during a drag;
+ * the commit still follows IN-1 of table T-028, so `true` only draws. The rest
+ * are `false` because no closing rule asks.
  * @provisional PND-250
  */
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
@@ -806,15 +523,11 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-8': true,
   'GR-9': true,
   'GR-10': false,
-  // GR-11 is the other row that cannot arrive by a plain press at all, and the
-  // closing rule that lists the exemptions names it beside GR-10. No drag
-  // begins here, so none is drawn.
   'GR-11': false,
   'GR-12': true,
   'GR-13': false,
-  // ⭐ EXACT IN PIXELS AND NOT QUANTISED TO THE DAY, alone among these: FR-019
-  // holds the comment box's body offset as a screen distance, so the fold moves
-  // the drawn body by the travel itself.
+  // Exact in pixels, not whole days: FR-019 holds the comment box's body offset
+  // as a screen distance.
   'GR-14': true,
   'GR-15': true,
   'GR-16': true,
@@ -825,17 +538,10 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
 /**
  * The rectangle a range selection is taking, or `null` while none is.
  *
- * ⭐ PTD-5 IS READ OFF THE PRESS AND NOT WORKED OUT AGAIN. `pressRowOf` answered
- * table T-023a once, at the moment the button went down, and `PointerPress`
- * carries that answer -- asking a second time would be a second reading of a
- * table whose inputs (the button, the modifiers, the hit) are frozen anyway.
- * ⛔ `on` IS ASKED FIRST, the order every reader of a press keeps: the note
- * under table T-023a limits that table to the schedule's drawing area (MUST),
- * so a press the screen surface answered for is on no row of it.
- *
- * ⚠️ A PRESS THAT HAS NOT MOVED TAKES NOTHING, and answering `null` for it is
- * what keeps a plain click from painting a dot: SL-3 draws 「取ろうとしている
- * 矩形」, and a rectangle with no extent is not one.
+ * PTD-5 is read off the press (`pressRowOf` answered at button-down) rather
+ * than worked out again. `on` is asked first: table T-023a covers only the
+ * schedule's drawing area. A press that has not moved takes nothing, so a
+ * plain click paints no dot.
  *
  * @purity pure
  */
@@ -854,13 +560,9 @@ function marqueeRect(
 /**
  * Whether the document still holds what this reference names.
  *
- * ⭐ SL-1 of table T-023c IS THE CENSUS, and every kind it admits is answered
- * here -- a `switch` on the union rather than a list of the interesting ones,
- * so a kind added to that row is a compile error naming itself.
- * ⚠️ THE STATUS LINE IS A DOCUMENT VALUE TOO. FR-046 lets a person put it,
- * move it and take it away, and `Project.statusDate` is where it stands; a
- * selection holding it after it has been taken away is the same defect as one
- * holding a deleted `Task`.
+ * A `switch` over every kind SL-1 of table T-023c admits, so a new kind is a
+ * compile error. The status line counts: once `Project.statusDate` is cleared,
+ * a selection holding it is as stale as one holding a deleted `Task`.
  *
  * @purity pure
  */
@@ -869,10 +571,8 @@ function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
     case 'task':
       return taskByUid(schedule, item.uid) !== null
     case 'dependency': {
-      // ⚠️ THE ORDINAL IS PART OF THE NAME, which is what PI-32 says of this
-      // kind: table T-053 nests a dependency under its successor, so a
-      // predecessor removed from the middle renames the ones after it. A
-      // reference past the end no longer names anything.
+      // The ordinal is part of the name (PI-32): removing a predecessor from the
+      // middle renames the ones after it.
       const successor = taskByUid(schedule, item.successorUid)
       return successor !== null && item.ordinal < successor.dependencies.length
     }
@@ -886,16 +586,11 @@ function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
 }
 
 /**
- * Table T-023c's closing rule (MUST / MUST NOT), applied to one selection.
+ * Table T-023c's closing rule, applied to one selection.
  *
- * ⭐ THE ORDER IS KEPT AND SO IS `ordered`. SL-7b makes the order part of the
- * value and FR-034 lines things up against it, so dropping what is gone must
- * not turn an ordered selection into an unordered one -- `selectionOfAll` is
- * not what this returns unless the selection was already unordered.
- * ⛔ THE SAME VALUE IS ANSWERED WHEN NOTHING WENT, and that matters: the shell
- * compares selections by identity to decide whether an operation moved one
- * (FR-072), so a fresh object every write would open the `Properties Panel` on
- * every keystroke of an unrelated edit.
+ * Keeps the order and `ordered` (SL-7b, FR-034). ⛔ Returns the same object
+ * when nothing went: the shell compares selections by identity (FR-072), and a
+ * fresh object would reopen the `Properties Panel` on every unrelated edit.
  *
  * @purity pure
  */
@@ -908,44 +603,22 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
 /**
  * Whether a press in flight owes a picture of what it would write.
  *
- * ⛔ `on` IS THE FIRST QUESTION, exactly as it is in `isDocumentChangingPress`
- * and for the same reason: the note under table T-023a limits that table to the
- * schedule's drawing area (MUST), so a press the screen surface answered for
- * carries no row of table T-023d at all. FR-052's `Panel Divider` is one of
- * those -- U-24 has no entry in table T-109, which is why `commandFromEntry`
- * tests `dividerPanel` before it reads `entry`.
+ * `on` is asked first, as in `isDocumentChangingPress`: a press on the screen
+ * surface carries no row of table T-023d. FR-052's divider is one (U-24 has no
+ * table T-109 entry, so `commandFromEntry` tests `dividerPanel` first).
  *
- * ⛔ PTD-1 IS NOT HERE, AND ITS OWN RULE LOOKS LIKE IT ASKS TO BE. Answering
- * `true` for a pan compounds: `scrolledAnchor` measures its travel against
- * `context.layout`, which is built from the picture this fold produced, so every
- * frame applies the whole travel again to a layout that already carries it, and
- * the picture runs away by a multiple of the drag.
- * ⭐ A PAN THEREFORE REPORTS ON THE MOVE, the way FR-053's palette does, and for
- * the reason UN-8 of table T-027 gives: a pan is outside the history, so a write
- * per move pushes no step. `panFollow` is that road, and
- * `PointerPress.followedTo` is what keeps the pieces from adding up.
+ * ⛔ PTD-1 is not here: previewing a pan compounds, because `scrolledAnchor`
+ * measures the travel against a layout built from the previewed picture, and
+ * the picture runs away. A pan reports on the move instead (`panFollow`,
+ * `PointerPress.followedTo`), which pushes no step (UN-8 of table T-027).
  *
- * ⭐⭐ PTD-4 IS HERE, AND IT IS NOT A GRAB. Table T-023a's PTD-4 asks for the
- * picture in its own words, and says why it has to state it for itself rather
- * than lean on table T-023d's closing rules: those govern a GRAB, and PTD-4 is
- * not holding anything. ⛔ THE ROW IS READ OFF THE PRESS AND NOT WORKED OUT
- * AGAIN: `PointerPress.pressRow` is what `pressRowOf` answered at the moment of
- * the press, and CS-2 of table T-066 wants that moment.
- * ⭐⭐ AND THE SHAPE IS NOT DECIDED HERE, WHICH IS THE HALF THAT MATTERS. PTD-4
- * (MUST NOT) forbids the shape being held in two places and (MUST) has the side
- * that draws and the side that places read one table. `previewOfHeldPress` folds
- * THE RELEASE'S OWN WRITES onto a copy, so the drawn figure is table T-012's row
- * `commandFromArmed` chose, reached by the one road; nothing in this file names
- * a shape.
- * ⛔ NOTHING REACHES THE DOCUMENT, which PTD-4 (MUST NOT) says in its own words
- * and the note on `previewDocument` states from the far side: following is a
- * picture and not an edit.
- * ⚠️ A BAR THAT HAS NOT TRAVELLED DRAWS NOTHING, AND NO LINE HERE SAYS SO.
- * FR-001 (MUST NOT) refuses a bar-shaped task made by a click, so
- * `commandFromArmed` answers with FR-029's telling rather than a write and the
- * fold below finds no `changeDocument` -- the draft appears on the very travel
- * that would make one. ⭐ A milestone is placed by the press alone, so its draft
- * stands from the press, which is what that road already writes.
+ * PTD-4 is here although it is not a grab; its row is read off the press
+ * (`PointerPress.pressRow`, CS-2 of table T-066). No shape is named in this
+ * file: `previewOfHeldPress` folds the release's own writes onto a copy, so the
+ * draft is what `commandFromArmed` would write, and nothing reaches the
+ * document.
+ * ⚠️ A bar that has not travelled draws nothing: `commandFromArmed` answers
+ * FR-001's refusal instead of a write. A milestone stands from the press.
  *
  * @purity pure
  */
@@ -957,17 +630,12 @@ function isPreviewedPress(press: PointerPress | null): boolean {
 }
 
 /**
- * The reach table T-023d's rows are grabbed by (`itemAtPointer`, PI-7).
+ * The reach table T-023d's rows are grabbed by (`itemAtPointer`, PI-7), all
+ * read from `NOT_STORED_SIZES` (rule 03 section 1).
  *
- * ⛔ Not one figure is typed here: every value arrives from `NOT_STORED_SIZES`,
- * which `tools/generate_entity_types.py` prints from the manuscript, so a
- * change to table T-206 reaches this file rather than being silently ignored
- * (rule 03 section 1).
- * ⚠️ `S-92` is stated as a width and a height while `PointerSlop.fadeHandle` is
- * documented as a HALF-width, which is why S-92's width is halved here.
- * ⛔⛔ `S-93` IS NOT HERE: table T-023d's closing rule (MUST) makes the dummies'
- * hit area the mark FR-043 drew, so they read the rectangle `dummiesOf` solved
- * and this side hands them no width at all.
+ * `S-92` is a width and height while `PointerSlop.fadeHandle` is a half-width,
+ * hence the halving. ⛔ `S-93` is not here: the dummies' hit area is the mark
+ * `dummiesOf` solved (table T-023d's closing rule).
  */
 const POINTER_SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
@@ -976,27 +644,16 @@ const POINTER_SLOP: PointerSlop = {
   line: NOT_STORED_SIZES['S-137'],
 }
 
-/** The factor S-95's remark states: 1 MB = 1024 * 1024 bytes (same as S-113). */
+/** The megabyte factor S-95's remark states. */
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
 /**
- * FR-031's two bounds on the undo history, by the rows table T-206 states them
- * at.
+ * FR-031's two bounds on the undo history, from table T-206's rows.
  *
- * ⭐ S-95 IS PRINTED IN MEGABYTES and FR-031 measures a step in BYTES, so the
- * two halves have to be brought into one unit before `historyWithStep` compares
- * them. ⛔ The factor is not chosen here: S-95's own remark states it, and
- * `validate-imported-document.ts` puts the same one beside S-113's bound.
- * ⚠️ Left unconverted the bound is 64 BYTES, which is smaller than any
- * document, so every write collapses the history to a single step and S-94's
- * fifty become unreachable.
- * ⛔ FR-031 also forbids measuring a step in CHARACTERS (MUST NOT), because a
- * Japanese character is three bytes and a character count loosens the bound
- * threefold -- which is why the length is taken in UTF-8 bytes and not in
- * `String.length`.
- * ⛔ The generated constant carries the number and the unit exactly as the
- * published cell prints them, so the conversion belongs in the unit that
- * applies the bound and nowhere upstream.
+ * ⚠️ S-95 is printed in megabytes and FR-031 measures bytes, so it is converted
+ * here where the bound is applied; read as bytes it is smaller than any
+ * document and every write collapses the history to one step. A step is
+ * measured in UTF-8 bytes, not `String.length` (FR-031).
  */
 const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
@@ -1004,117 +661,57 @@ const HISTORY_LIMITS: HistoryLimits = {
 }
 
 /**
- * SK-8 of table T-036, spelled as that table's assignment column spells it.
+ * SK-8 of table T-036, spelled as that table spells it.
  *
- * ⛔ THE SEAM DOES NOT PUBLISH THE SPELLING. `KeyInput.key` is a plain string,
- * so the name has to be written wherever a row of table T-036 is recognised:
- * `dom-input-source.ts` normalises the host's `Escape` to it, and
- * `input-command-translator.ts` keys its own rows on it. ⚠️ Publishing one
- * spelling takes a change request, not a choice here.
+ * `KeyInput.key` is a plain string, so the spelling is repeated wherever a row
+ * of table T-036 is recognised (`dom-input-source.ts` normalises `Escape` to
+ * it).
  */
 const ESCAPE_KEY = 'Esc'
 
 /**
  * CU-3 of table T-029 -- the guide cursor drawn for nobody. The key that holds
  * it is `S-66` of table T-202.
- *
- * ⭐ The manuscript's own spelling, and the compiler checks it: the member is a
- * literal union, so a value renamed in the manuscript fails type checking here
- * rather than quietly comparing false.
  */
 const GUIDE_CURSOR_NONE = 'none'
 
 /**
- * ED-1 of table T-229 -- the word a write made from the screen names itself by.
- *
- * ⭐ The specification's word, not this file's: table T-229 reserves it for
- * 「画面を操作する人」, and AG-6 of table T-035 tells one writer from another by
- * this string alone, so a different spelling here would make this side's writes
- * look like somebody else's.
- * ⚠️ NOTHING GENERATES IT. No target of `tools/generate_entity_types.py` carries
- * table T-229, so a change to that row has to be brought here by hand.
+ * ED-1 of table T-229 -- the writer name a write from the screen carries.
+ * AG-6 of table T-035 tells writers apart by this string alone.
+ * ⚠️ Not generated: a change to table T-229 has to be brought here by hand.
  */
 const EDITED_BY_SCREEN = 'user'
 
 /**
- * The rows of table T-109 that only THIS layer can answer.
- *
- * ⭐ WHY THE SHELL AND NOT THE TRANSLATOR. `input-command-translator.ts` lists
- * them among the rows it answers with nothing, and gives one reason for each:
- * what a press on them writes is a current value, and LY-5 of table T-060
- * leaves those with the Framework alone. IC-21 chooses the display language
- * (S-99); IC-50 opens and folds FR-053's milestone glyph list (S-142);
- * IC-71 .. IC-73 are OP-3's
- * three, and what each of them settles is a whole-document replacement the
- * Framework is the only layer that may hold. ⚠️ NT-7's two answers are not in
- * this list: they are word buttons with no row of table T-109 at all, so they
- * are spent by the two constants further down rather than by a row id.
- * ⛔ None of them is a
- * `DocumentCommand`, so there is no road through table T-108 for any of them.
- * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
+ * The rows of table T-109 only this layer can answer: a press on them writes a
+ * current value (LY-5 of table T-060), and none is a `DocumentCommand`.
+ * IC-21 chooses the display language (S-99). NT-7's two word buttons have no
+ * table T-109 row and are spent by the constants further down.
  */
 const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
 /**
- * The entry that turns S-142 of table T-206.
- *
- * ⭐ ONE ENTRY IN TWO STATES, which is what table T-109 draws: IC-50 opens and
- * folds at the same entrance and FR-053 (MUST NOT) forbids a second one.
- * ⚠️ It is the same shape as the `Resource Roster`'s IC-67 / IC-68 and as
- * IC-11, which is why it is read off what is HELD rather than off the entry.
+ * The entry that turns S-142 of table T-206. One entry opens and folds
+ * (FR-053), so the state is read off what is held rather than off the entry.
  */
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
-/**
- * The entry that turns S-200 of table T-206 -- FR-053's minimise toggle, which
- * table T-109 places on the grab band beside IC-53.
- *
- * ⭐ HERE FOR THE SAME REASON THE ROW ABOVE IS: what a press on it writes is a
- * current value, which LY-5 of table T-060 leaves with the Framework, so
- * `input-command-translator.ts` answers it with an action carrying no value and
- * this layer decides which way it goes.
- */
+/** The entry that turns S-200 of table T-206 -- FR-053's minimise toggle. */
 const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
 /**
- * The entry that turns S-206 of table T-206 -- FR-102's record of the
- * happenings and the frames, started and stopped by one entrance.
- *
- * ⭐ HERE FOR THE SAME REASON THE TWO ROWS ABOVE ARE: what a press on it
- * writes is a current value, which LY-5 of table T-060 leaves with the
- * Framework -- and the record itself is made of what THIS loop receives over
- * IF-2 and draws in `runFrame`, so nowhere else is in a position to keep it.
+ * The entry that turns S-206 of table T-206 -- FR-102's record, made of what
+ * this loop receives over IF-2 and draws in `runFrame`.
  */
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
 /**
- * NT-7's answer that goes on, spelled the way the `confirmation` section of
- * FR-038's dictionary spells it.
- *
- * ⭐ A KEY OF THE MANUSCRIPT AND NOT A ROW OF A TABLE. NT-7 (MUST) makes the two
- * answers word buttons and (MUST NOT) refuses them a row of table T-109, so what
- * crosses IF-9 for them is `ScreenPart.confirmationAnswer` -- the same shape
- * NT-8's `noticeDismissKey` already had, and for the same reason.
- * ⛔ THE WORD IS NOT WHAT IS COMPARED. `Yes` and `No` are what the person reads
- * (FR-038), and a comparison against them here would put a second copy of the
- * dictionary in this file; the key is the join, which is what it is for.
- * ⚠️ Only one of the two is spelled: an answer that is not this one is the
- * other, and NT-7 (MUST) makes the choice between the two the whole of the
- * surface -- a third spelling here would be a third answer.
+ * NT-7's go-on answer, as a key of the `confirmation` section of FR-038's
+ * dictionary. The key is compared, not the word, so the dictionary is not
+ * copied here; any other answer is the cancel one.
  */
 const CONFIRMATION_PROCEED_ANSWER = 'proceed'
 
 /**
- * NT-7 (MUST) has the two answers given by the `y` and `n` keys -- spelled the
- * way `keyOf` in `dom-input-source.ts` reports a single character (upper case,
- * the spelling table T-036 prints).
- *
- * ⭐⭐ AND THEY ARE THE HEADS OF THE TWO WORDS, WHICH IS THE WHOLE POINT. NT-7
- * has the first letter of each answer drawn bold so that the button names the
- * key itself, and (MUST NOT) forbids translating `Yes` / `No` because the head
- * would stop pointing at the key -- so the bold head and the key are one fact
- * stated twice by the row itself, not two facts this file joined.
- * ⚠️ WRITTEN HERE RATHER THAN DERIVED FROM THE WORD, because the word is
- * FR-038's and this layer may not read the dictionary (the words live in
- * `ScreenRenderer`): what this file copies is NT-7's own row, which is what
- * every other key in this build is copied from (table T-036, `KEY` in
- * `input-command-translator.ts`).
+ * NT-7's two answer keys, spelled as `keyOf` in `dom-input-source.ts` reports
+ * a single character. Written here rather than derived from the words, which
+ * this layer may not read (they live in `ScreenRenderer`).
  */
 const CONFIRMATION_PROCEED_KEY = 'Y'
 const CONFIRMATION_CANCEL_KEY = 'N'
@@ -1122,10 +719,8 @@ const CONFIRMATION_CANCEL_KEY = 'N'
 /**
  * Whether this key is one of NT-7's two answers.
  *
- * ⛔ ASKED IN ONE PLACE so that the two readers cannot disagree: `receiveInput`
- * spends the press, and `isBrowserDefaultStopped` has to answer MK-10 for the
- * same press BEFORE the watcher hears it. ⚠️ A key the tool takes and leaves the
- * browser its default for is exactly what that row (MUST NOT) forbids.
+ * ⛔ Asked in one place so `receiveInput` and `isBrowserDefaultStopped` (MK-10,
+ * asked before the watcher hears the press) cannot disagree.
  *
  * @purity pure
  */
@@ -1135,95 +730,52 @@ function isConfirmationAnswerKey(key: string): boolean {
 /**
  * IC-18 -- FR-066's dialogue field.
  *
- * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT AND NOT FOR THE OTHER. What a press
- * on it DOES while the `Agent API` is on is answered by
- * `input-command-translator.ts`, because `ScreenSession.isDialogueFieldVisible`
- * (S-99i) gives the field its own switch and that action reaches `carryOutAction`
- * as `toggleDialogueFieldVisible`. ⭐ WHAT STAYS HERE is the half that
- * cannot move: `commandStateOf` (UF-62) draws this entrance faint while the
- * API is off, and FR-029 (MUST) has a press on a faint entrance told why.
- * ⚠️ THAT SWITCH IS THIS FILE'S: `isAgentApiEnabled` is a current value LY-5 of
- * table T-060 leaves with the Framework, which is why the telling could not be
- * raised from the translator with the other nine -- `InputContext` carries no
- * member for it.
+ * What a press does while the `Agent API` is on is the translator's
+ * (`toggleDialogueFieldVisible`). Kept here is the faint-entrance telling
+ * (FR-029): whether the API is on is this layer's value (`isAgentApiEnabled`),
+ * and `InputContext` carries no member for it.
  */
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 
 /**
- * IC-66 -- FR-099's 「選んだ担当者を消す」, on U-49 `Resource Roster`.
+ * IC-66 -- FR-099's deletion of the chosen assignees, on U-49.
  *
- * ⛔⛔ HERE FOR A REASON NONE OF THE ROWS ABOVE HAVE, and the difference
- * matters. Every other entry in this block is here because a press on it is NOT
- * a `DocumentCommand`; this one IS -- CM-42 of table T-108, which table T-109
- * names in the row itself. What keeps it out of `input-command-translator.ts`
- * is the ARGUMENT and not the road: CM-42 is handed the `uid`s the choice
- * holds, that choice is `ScreenSession.selectedResourceUids` (PND-143) which
- * LY-5 of table T-060 leaves with the Framework, and `InputContext` carries no
- * member for it. ⚠️ THE SAME SHAPE `DIALOGUE_FIELD_ENTRY` ABOVE HAS, whose own
- * note ends on the same sentence.
- *
- * ⚠️ ITS FIVE NEIGHBOURS ON THAT SURFACE ARE ANSWERED OVER THERE, and this
- * branch cannot join them: IC-63 / IC-64 / IC-65 arrive as `chooseResources`
- * and IC-67 / IC-68 as `toggleChosenResource`, and both actions MOVE the set
- * this one READS -- so the translator can plan them without holding it.
- *
- * ⛔ NO SURFACE IS ASKED FOR BESIDE IT, unlike `CLOSE_SURFACE_ENTRY`: table
- * T-109 stands this row on U-49 alone, so the entry is the whole of the join.
+ * Unlike the rows above this is a `DocumentCommand` (CM-42), but its argument
+ * is the choice `ScreenSession.selectedResourceUids` (PND-143) holds, which
+ * only this layer has. Its neighbours (IC-63 .. IC-65, IC-67 / IC-68) move that
+ * set and so stay with the translator. No surface is asked beside it: the row
+ * stands on U-49 alone.
  */
 const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 
 /**
- * IC-98 of table T-109 -- FR-095's 「文書を新しく始める」, on the `App Header`.
+ * IC-98 -- FR-095's new document, on the `App Header`: asks `DISCARD_QUESTION`
+ * (QN-5, per table T-234's closing note) and lands table T-230's `RD-7`.
  *
- * ⭐ FR-095 IS THE WHOLE OF WHAT THE PRESS OWES: the open document is discarded
- * back to BT-4's state, and the unsaved edits are asked about first with the
- * same confirmation OP-4 of table T-024a asks. So the question is
- * `DISCARD_QUESTION` (QN-5) and the landing is table T-230's `RD-7`.
- * ⭐ THE QUESTION IS QN-5 AND NOT A ROW OF ITS OWN, which table T-234's closing
- * note settles in as many words: FR-095 sends the asking to OP-4 itself, so one
- * question does not get a second key.
- *
- * ⛔⛔ HERE FOR THE REASON `ROSTER_DELETE_ENTRY` IS AND NOT FOR THE ONE THE
- * ENTRIES ABOVE IT HAVE. This press does reach a write, but the write is
- * `replaceDocument` (PI-8) and not a `DocumentCommand`: table T-108 has no row
- * for it, so `input-command-translator.ts` has nothing to plan and no `ENTRY`
- * row is owed there. ⚠️ Measured rather than assumed -- `answerSettledEntry`
- * runs off `entrySettledOnRelease`, which reads the press's own `ScreenPart`
- * over IF-9, so the translator is not in this road at all.
- *
- * ⛔ AND THE QUESTION MAY NOT BE RAISED WITHOUT THE LANDING. A branch that put
- * QN-5 up and discarded nothing on the "go on" answer is the lying confirmation
- * 規則 04 section 3.6 records from a real press.
+ * Here because the write is `replaceDocument` (PI-8), not a table T-108
+ * command; `answerSettledEntry` reads the press's `ScreenPart`, so the
+ * translator is not on this road.
+ * ⛔ Never raise the question without the landing: a "go on" that discards
+ * nothing is the lying confirmation rule 04 section 3.6 records.
  */
 const NEW_DOCUMENT_ENTRY: IconId = 'IC-98'
 
 /**
- * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
+ * GR-19 of table T-023d -- the band FR-053's palette is dragged by (IC-53,
+ * which is not a button).
  *
- * ⛔ NOT ONE OF THE ROWS ABOVE, and it is here for the opposite reason: table
- * T-109 states in IC-53's own row that it is not a button, so nothing is ever
- * SETTLED on it. ⚠️ `answerSettledEntry` IS STILL ASKED ABOUT IT, because
- * `entrySettledOnRelease` reports whatever entry the press landed on -- it
- * answers `false`, which is what leaves the release's own travel to
- * `carryOutAction`. A row answered there would swallow the last piece of the
- * drag. What this file needs the id for is the other half of IN-1 -- knowing
- * that the press in flight is the palette's drag, so that an interruption
- * beside it can put the corner back, whether that is `Esc` (IN-1) or IN-1a's
- * lost pointer.
- * ⚠️ Read off the press's own `ScreenPart` and not off the action, because an
- * interrupted drag produces no action at all.
+ * `answerSettledEntry` answers `false` for it, leaving the release's travel to
+ * `carryOutAction`; answering there would swallow the drag's last piece. The
+ * id lets an interruption (`Esc` under IN-1, or IN-1a's lost pointer) put the
+ * corner back. Read off the press's `ScreenPart`: an interrupted drag produces
+ * no action.
  */
 const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
 
 /**
- * The one entry table T-109 stands on the `Properties Panel` -- its closing
- * entry, on the authority of IN-4 of table T-028.
- *
- * ⚠️ THE SAME ROW STANDS ON FIVE OTHER SURFACES, which is why the surface has
- * to be asked for beside it: on any of those five the press closes what S-99g
- * holds, and `input-command-translator.ts` answers it there. FR-029 (MUST NOT)
- * still holds -- one operation, one entrance -- because it is one entry doing
- * one thing on whichever surface it was drawn on.
+ * IC-52 on the `Properties Panel` (IN-4 of table T-028). The same row stands on
+ * other surfaces, where the translator answers it by closing S-99g's surface,
+ * so the surface is asked for beside it.
  */
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
@@ -1231,57 +783,29 @@ const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
 /**
- * The `AI Export Modal` half of U-30 of table T-103, spelled as that table
- * spells it -- the surface FR-068 opens.
- *
- * ⭐ ASKED TWICE BY THIS LOOP, for the two halves of that requirement:
- * `sessionOf` is told whether it stands, so the document can be put on it, and
- * `answerSettledEntry` is told, so a press of IC-52 drawn there copies before
- * it closes. ⚠️ Spelled here as `PROPERTIES_PANEL_SURFACE` above is spelled --
- * a value of the glossary, named by each unit that does work on it.
+ * The `AI Export Modal` half of U-30 of table T-103 (FR-068). Read by
+ * `sessionOf` to put the document on it, and by `answerSettledEntry` so that
+ * IC-52 there copies before it closes.
  */
 const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
 /**
- * U-60 of table T-103, spelled as that table spells it -- the surface FR-020
- * (MUST) raises before the watermark may be hidden.
- *
- * ⭐ THE NAME IS THE JOIN AND IT IS THE ONE S-99g CARRIES, which is why this
- * loop can tell one of NT-7's two word buttons pressed HERE from the same two
- * pressed on U-55: `ScreenState.surface` says which surface stands, and the two
- * cannot stand at once -- S-99g holds exactly one name.
- * ⚠️ SPELLED IN THREE UNITS AND THAT IS NOT A COPY OF A RULE: it is a value of
- * the specification's own glossary, and `input-command-translator.ts` (which
- * raises it) and `open-modals.ts` (which describes it) each name it for the
- * work they do. ⛔ None of the three may spell it differently -- and none can,
- * because a mis-spelling raises a surface nothing describes.
+ * U-60 of table T-103 (FR-020). S-99g holds one surface name, which is how
+ * NT-7's word buttons pressed here are told from the same buttons on U-55.
+ * Also spelled in `input-command-translator.ts` and `open-modals.ts`; a
+ * misspelling raises a surface nothing describes.
  */
 const WATERMARK_UNLOCK_SURFACE = 'Watermark Unlock'
 
 /**
- * The row of table T-233 carried when the watermark unlock password does not
- * match (FR-020, MUST).
- *
- * ⛔ NOT `RS-15`. That row is FR-076's landing place for a reason the table has
- * none for, and carrying it while a row exists is what that requirement forbids
- * (MUST NOT) -- its next step would also be untrue in every case but this one.
- * ⭐ HERE THAT STEP IS TRUE, WHICH IS WHY THE ROW EXISTS: FR-020 (MUST NOT) puts
- * no cap on the tries, so trying again is exactly what a person can do next.
+ * The row of table T-233 a watermark password mismatch is told on (FR-020).
+ * Not `RS-15`, which FR-076 reserves for reasons with no row.
  */
 const WATERMARK_UNLOCK_MISMATCH_REASON: NoticeReason = 'RS-41'
 
 /**
- * The entrances a held press repeats on -- FR-018 (MUST).
- *
- * ⛔ FOUR AND NOT SIX, WHICH IS THE REQUIREMENT'S OWN LIMIT (MUST): it names
- * `IC-12` .. `IC-15` and no others. It gives its reason for keeping IC-10 and
- * IC-11 out where they stand -- repeating either answers the same picture -- so
- * a repeat on the fit or the full screen would be presses spent for nothing.
- * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else
- * in this file; `PALETTE_GRAB_BAND_ENTRY` above names its row the same way.
- * ⛔ NOT A SECOND ROSTER OF WHAT THE PRESSES DO. What each of the four writes
- * is `commandFromEntry`'s (PI-18), and the repeat asks that same member again
- * rather than working the zoom out here.
+ * The entrances a held press repeats on (FR-018). What each press writes stays
+ * `commandFromEntry`'s; the repeat asks that member again.
  */
 const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
 
@@ -1289,139 +813,64 @@ const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15'
 const CONFIRMATION_MANNER = 'NT-7'
 
 /**
- * The row of table T-016 MK-13 names as the field a double click on a `Task`
- * puts the person into -- 「名称の欄（表 T-016 の `PR-1`）」.
- *
- * ⛔ SPELLED HERE BECAUSE THE ROW ID IS THE JOIN, exactly as `NoticeReason`
- * spells table T-233's. `PropertiesPanel` is not a value this loop reads apart
- * to look a name up in, and `ScreenSurface.focusPropertyField` takes a row of
- * that table by design -- so what crosses is the specification's own name for
- * the field and nothing about the control that was drawn for it.
+ * The row of table T-016 MK-13 names for a double click on a `Task`. The row id
+ * is the join: `ScreenSurface.focusPropertyField` takes a row id.
  */
 const TASK_NAME_FIELD_ROW = 'PR-1'
 
-/**
- * The row MK-13's 行見出し entry names as the field a double click on a row's
- * name puts the person into -- `AT-53`, `TaskGroup.label`, which FR-042 (MUST)
- * puts on the panel since the user's ruling of 2026-09-01.
- *
- * ⛔ SPELLED HERE FOR THE REASON THE ROW ABOVE IS: the row id is the join, and
- * `ScreenSurface.focusPropertyField` takes one by design.
- */
+/** MK-13's row-name field: `AT-53`, `TaskGroup.label` (FR-042). */
 const ROW_NAME_FIELD_ROW = 'AT-53'
 
 /**
- * The row `AS-1` of table T-225 names as the field a double click on an
- * assignee label puts the person into -- 「担当者の欄（表 T-016 の `PR-16`）」,
- * which MK-13 sends 担当ラベル to (利用者の裁定 2026-09-08).
- *
- * ⛔ SPELLED HERE FOR THE REASON THE TWO ROWS ABOVE ARE: the row id is the join,
- * and `ScreenSurface.focusPropertyField` takes one by design. ⚠️ WHICH CONTROL
- * OF THAT ROW A PERSON LANDS IN IS THE DRAWING SIDE'S ANSWER -- AS-5 (MUST)
- * hangs a chooser AND a search box off `PR-16`, and this side says the row.
+ * The field `AS-1` of table T-225 names for a double click on an assignee
+ * label. Which control of that row is focused is the drawing side's (AS-5).
  */
 const ASSIGNEE_FIELD_ROW = 'PR-16'
 
-/**
- * The row MK-13's コメントボックス entry names as the field a double click on a
- * comment box puts the person into -- 「本文の欄（表 T-016 の `PR-21`）」
- * (利用者の裁定 2026-09-06), which FR-097 (MUST) sends its one entrance to.
- *
- * ⛔ SPELLED HERE FOR THE REASON THE ROWS ABOVE ARE.
- */
+/** MK-13's comment-box body field (FR-097). */
 const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
 
 /**
- * The row SK-9 names as the field `F2` puts the person into -- `U-27` of table
- * T-103, the `Document Title` the `App Header` draws.
+ * The field SK-9 names for `F2`: `U-27` of table T-103, the `Document Title`.
  *
- * ⭐⭐ NOT A ROW OF TABLE T-016. IF-9 has an editable field answer with the row
- * ID it names itself, and that ID is not held to table T-016 -- the header's
- * document-name field names `U-27` of table T-103. So the two constants above
- * are property rows and this one is a UI part, and the road they travel is the
- * same road.
- * ⛔ NO ROW IS ADDED TO THE PROPERTY TABLE FOR IT. FR-074 (MUST NOT) keeps the
- * document name out of 文書の基本情報 and names FR-035 as its one entrance, and
- * FR-035 asks for the name to be edited where it stands -- so the panel is not
- * where this field is drawn and the panel's rows are not what it can name it by.
+ * Not a table T-016 row: IF-9 lets an editable field answer with a UI part id.
+ * No property row is added: FR-074 keeps the name out of the panel, and FR-035
+ * has it edited where it stands.
  */
 const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
 
 /**
- * The rows of table T-234 this file can ask on, spelled as that table spells
- * them.
+ * The rows of table T-234 this file can ask on. The dictionary (FR-038) turns
+ * the row into NT-7's sentence, so nothing here composes one; a row is added
+ * only when a road asks it.
  *
- * ⭐ THE ROW ID IS THE KEY, the move `NoticeReason` already makes with table
- * T-233. FR-076 (MUST) has a question show a row of table T-234 and forbids
- * showing one it does not hold (MUST NOT), and FR-038's one dictionary is what
- * turns the row into the sentence NT-7 asks for. ⛔ So nothing here composes
- * one: a raiser that supplied a sentence would be the second store of
- * translated strings FR-038 forbids (MUST NOT).
- *
- * ⛔ NO CALLER IS INVENTED FOR A ROW. A row of table T-234 is seated here when
- * a road exists to ask it, never so that the union looks complete.
- *
- * ⚠️ `QN-9` IS NOT HERE AND IS NOT MISSING. FR-020's question is drawn on U-60
- * `Watermark Unlock`, which is a name S-99g holds and `open-modals.ts` reads
- * the row for -- so it never travels as a `ScreenSession.confirmation`, and
- * `answerWatermarkUnlock` is what spends its two answers.
- *
- * ⚠️ `QN-8` IS DELIBERATELY ABSENT, exactly as `RS-15` is absent from
- * `NoticeReason`: it is where the DICTIONARY lands when it is asked for a key
- * it does not hold, and every question this file asks is a row of its own --
- * handing that row over would say something untrue about the question at hand.
+ * `QN-9` is absent: FR-020's question is drawn on U-60 and spent by
+ * `answerWatermarkUnlock`. `QN-8` is absent: it is the dictionary's landing
+ * for a missing key.
  */
 type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
 
-/**
- * The row of table T-234 DI-4's overwrite question shows.
- *
- * ⚠️ THE ONE ROW OF THE FOUR THAT NAMES NOTHING, and the table says why in its
- * own 名前を挙げるか column: 「正の行が自らそう定めている」 -- DI-4 of table
- * T-227 states that the naming clause does not reach it.
- */
+/** The row of table T-234 DI-4's overwrite question shows (DI-4 of table T-227). */
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
 /** The row of table T-234 OP-4's replace question shows. */
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 
 /**
- * The row of table T-234 FR-099's deletion of the chosen assignees shows.
- *
- * ⚠️ ITS 場面 IS A CONDITION AND NOT AN OPERATION -- 「担当者を消すことで解かれ
- * る割当があるとき」 -- so a deletion that frees no assignment shows no question
- * at all. ⛔ Asking anyway would be a place FR-031 (MUST NOT) forbids adding,
- * and NT-7 states the same limit from table T-037's side: 「問うてよいのは、要求
- * が確認を求めると定めた場面だけとすること（MUST）」.
+ * The row of table T-234 FR-099's deletion of chosen assignees shows. ⚠️ Only
+ * when the deletion frees an assignment; asking otherwise adds a question NT-7
+ * forbids.
  */
 const UNASSIGNMENT_QUESTION: ConfirmationQuestion = 'QN-3'
 
 /**
- * The rows of table T-233 this file can raise, spelled as that table spells
- * them.
+ * The rows of table T-233 this file can raise. The dictionary (FR-038) turns
+ * the row into words, so nothing here composes a sentence.
  *
- * ⭐ THE ROW ID IS THE KEY, the move `Notice.manner` already makes with table
- * T-037. FR-076 (MUST) has a telling carry a row of that table as its reason and
- * forbids carrying any reason it does not hold (MUST NOT), and FR-038's one
- * dictionary is what turns the row into the words NT-1 asks for and the next
- * step NT-3a asks for. ⛔ So nothing here composes a sentence: a raiser that
- * supplied one would be the second store of translated strings FR-038 forbids
- * (MUST NOT).
- *
- * ⚠️ `RS-15` IS HERE FOR THE REASONS THE TABLE HOLDS NO ROW FOR, AND FOR NO
- * OTHER. FR-076 says in as many words that it is 「行の無い理由に落ち先を与え
- * る」 row. ⛔ Every other reason below is a row of its own, and handing RS-15
- * over for one of those would say something untrue about the reason at hand;
- * it is also where the DICTIONARY lands when it is asked for a key it does not
- * hold, which is why a raiser may not reach for it out of convenience.
- * ⚠️ TWO RAISERS REACH IT, and each one names the row that is owed in its
- * place: BT-1's second failure (FR-067's 「入れ口が 1 つでない」) and a clipboard
- * write that would not go through. ⛔ A third raiser is a third reason to write
- * those rows, not a third use of this one.
- * ⚠️ NOTHING GENERATES THIS UNION, so a row retired from table T-233 has to
- * be struck here by hand -- the same standing cost `NOTICE_MANNER_OF_REASON`
- * records just below. ⛔ A seat left standing for a retired row would let a
- * telling carry a reason FR-076 (MUST NOT) forbids.
+ * ⚠️ `RS-15` is only for reasons the table holds no row for (FR-076); reaching
+ * for it where a row exists says something untrue.
+ * ⚠️ Not generated: a row retired from table T-233 has to be struck here by
+ * hand, or a telling could carry a reason FR-076 forbids.
  */
 type NoticeReason =
   | 'RS-1'
@@ -1464,71 +913,28 @@ type NoticeReason =
   | 'RS-42'
   | 'RS-43'
   | 'RS-44'
-  // ⛔ `RS-45` IS NOT HERE: table T-233 holds no such row, and a seat for one it
-  // does not hold would let a telling carry a reason FR-076 (MUST NOT) forbids.
   | 'RS-46'
-  // ⭐ THE ROW A DOCUMENT OF A NEWER FORMAT VERSION IS TOLD ON (`RS-48`).
-  // FR-073 (MUST) has the unreadable columns laid out one by one and the reader
-  // asked whether to go on, on `U-61` of table T-103 and with this row for its
-  // reason. So the row is named here and the columns travel to `U-61` beside it;
-  // ⛔ neither half is a substitute for the other.
-  // ⚠️ ITS COUNT IS `null` AND NOT THE NUMBER OF COLUMNS: that requirement asks
-  // for the columns themselves, and `affectedCount` can only ever carry a tally.
+  // `RS-48`: the unreadable columns travel to `U-61` beside it (FR-073). Its
+  // count is `null`: FR-073 asks for the columns, not a tally.
   | 'RS-48'
-  // ⭐ THE ROW THE READ ROAD'S CLAMP RAISES (`RS-51`). A setting outside its own
-  // bounds is brought INSIDE on the road that reads the document and the person
-  // is told how many keys moved, so the telling is `NT-5`'s "accepted, with a
-  // caution" rather than a refusal.
-  // ⚠️ THE SEATS BETWEEN `RS-46` AND THIS ONE ARE NOT ALL THIS FILE'S. `RS-47`,
-  // `RS-49` and `RS-50` are rows of table T-233 no raiser here reaches, and a
-  // seat offered for a reason nothing raises is a seat this union may not hold.
   | 'RS-51'
-  // ⭐ THE ROW A CALENDAR EDIT'S RECOUNT IS TOLD ON (`RS-52`). The recount itself
-  // happens inside the write (`EditReport.recountedTaskUids`), and this seat is
-  // what lets `writeDocument` say it happened.
-  // ⚠️ THE SEATS BETWEEN `RS-51` AND THIS ONE ARE STILL NOT THIS FILE'S, on the
-  // terms the note above `RS-51` states.
   | 'RS-52'
   | 'RS-53'
-  // ⭐ THE ROW A SHAPE THAT COULD NOT BE APPLIED IS TOLD ON (`RS-54`). Its 正 is
-  // FR-083, which holds that a refused shape change still arms the figure, and
-  // the table's own row forbids `RS-10` being used instead (MUST NOT) -- so this
-  // seat is not a nicety but the one way that MUST NOT can be kept.
-  // ⚠️ IT IS REACHED BY READING THE REFUSALS, not by a reason of its own: the
-  // road that raises it is WS-3's `refused`, the same road `RS-10` rides, and
-  // `reasonOfWriteRefusal` below is where the two are told apart.
+  // `RS-54` rides WS-3's `refused` road like `RS-10`; `reasonOfWriteRefusal`
+  // tells the two apart.
   | 'RS-54'
-  // ⭐ THE THREE ROWS A WS-3 BUNDLE CAN ALSO BE TOLD ON (`RS-55`, `RS-57`,
-  // `RS-58`). Each stands here for the same reason `RS-54` does: table T-233
-  // holds the row, and the closing paragraph of FR-076's table T-037 (MUST) says
-  // holding it is not enough -- whoever adds a row must check that a road sorts
-  // into it, and (MUST NOT) that no two refusals are flattened onto one row.
-  // `REFUSAL_SITUATIONS` below is that road; ⚠️ each row's 正 is what the road
-  // is keyed on, so a refusal is matched by the rule that refused it.
   | 'RS-55'
-  // ⭐ `RS-56` IS THE ROW FOR A DEPENDENCY WHOSE TWO ENDS ARE ONE `Task`.
-  // ⚠️ IT WAS LEFT OUT WHEN THE OTHER THREE WERE SEATED, and the
-  // reason was measured rather than guessed: its 正 is FR-009, which forbids
-  // THREE dependencies in one sentence, so `command` and `rule` alone could not
-  // tell this one from the other two. ⭐ `Refusal.reasonCategory` (AG-9a of
-  // table T-035) is what tells them apart now, and `REFUSAL_SITUATIONS` below
-  // reads it.
   | 'RS-56'
   | 'RS-57'
   | 'RS-58'
 
 /**
- * Which row of table T-037 each of those rows is written against.
+ * Which row of table T-037 each reason is written against, read out of table
+ * T-233's manner column. A `Record` so a new reason is a compile error.
  *
- * ⭐ A CENSUS THE COMPILER KEEPS, the move `PRESS_CHANGES_DOCUMENT` makes for
- * table T-023a: a row added to `NoticeReason` is a compile error here, naming
- * the reason whose manner has to be read out of table T-233.
- * ⛔ CARRIED RATHER THAN WORKED OUT ON THE FAR SIDE. `RaisedNotice.manner` says
- * why: NT-5 (MUST) makes an accepted-with-a-caution telling have to look unlike
- * NT-1's refusal, and only the raiser knows which of the two happened.
- * ⚠️ NOTHING GENERATES THE PAIR. No target of `tools/generate_entity_types.py`
- * carries table T-233, so a manner moved in that table has to be brought here by
- * hand -- the same standing cost `EDITED_BY_SCREEN` records for table T-229.
+ * Carried rather than derived on the far side: only the raiser knows whether
+ * the input was refused or accepted with a caution (NT-5, `RaisedNotice.manner`).
+ * ⚠️ Not generated: a manner moved in table T-233 has to be brought here by hand.
  */
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-1': 'NT-3a',
@@ -1550,9 +956,6 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-20': 'NT-5',
   'RS-21': 'NT-1',
   'RS-23': 'NT-3a',
-  // ⭐ `NT-3a` IS TABLE T-233's OWN MANNER COLUMN for this row, and its 正 is
-  // ST-7 of table T-014 -- something of OURS stopped (the layout stopped
-  // stacking), so the telling owes the next step the dictionary already holds.
   'RS-24': 'NT-3a',
   'RS-25': 'NT-1',
   'RS-26': 'NT-1',
@@ -1573,40 +976,15 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-41': 'NT-3a',
   'RS-42': 'NT-3a',
   'RS-43': 'NT-3a',
-  // ⛔ `NT-1` AND NOT `NT-3a`, WHICH IS CR-334's OWN READING OF TABLE T-233:
-  // the person's input was not accepted, and nothing of ours failed -- 「置ける
-  // 所ではなかった」. ⚠️ The three rows above it are `NT-3a` because a raster or
-  // a record DID fail, which is the line the two manners are drawn along.
   'RS-44': 'NT-1',
-  // `RS-46` is FR-085's cap, `NT-3a` in the table's own manner column, which the
-  // table settles as a telling rather than a refusal of an input.
   'RS-46': 'NT-3a',
-  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR THIS ROW, not a reading
-  // taken here. ⚠️ It reads oddly beside `RS-51`, which is `NT-5` for a
-  // document that WAS opened -- and FR-073 has this one opened too (「そのとき
-  // は、受けて開くこと（MUST）」). The table says `NT-1` all the same, and the
-  // table is the answer; the manner is not re-derived here from what happened.
+  // Table T-233 gives NT-1 here although FR-073 has the document opened; the
+  // table is followed, not re-derived from what happened.
   'RS-48': 'NT-1',
-  // ⛔ `NT-5` AND NOT `NT-1`, which is what choice ⓑ decided: the document WAS
-  // accepted and opened, and only the out-of-bounds keys were moved -- so the
-  // telling has to look unlike a refusal, which is the whole of the line NT-5
-  // and NT-1 are drawn along. ⚠️ Nor `NT-3a`: nothing of ours failed.
   'RS-51': 'NT-5',
-  // ⛔ `NT-3` AND NOT `NT-5`, AND IT IS TABLE T-233's OWN MANNER COLUMN FOR THIS
-  // ROW rather than a reading taken here. FR-012 (MUST) names the manner in the
-  // same breath as the duty -- 「作法は 表 T-037 の `NT-3`」 -- and NT-3 is the
-  // row that asks for 「対象の**件数**」, naming 「暦の変更（`FR-088`）」 among
-  // its own examples. ⚠️ It is therefore the one raiser here whose count is
-  // never `null`: the count IS what that manner is for.
   'RS-52': 'NT-3',
   'RS-53': 'NT-1',
-  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR THIS ROW, not a reading
-  // taken here: the person's input was not accepted, and nothing of ours
-  // failed -- which is the line `NT-1` and `NT-3a` are drawn along.
   'RS-54': 'NT-1',
-  // ⛔ `NT-1` IS TABLE T-233's OWN MANNER COLUMN FOR ALL FOUR, not a reading
-  // taken here: the four name an input that was not accepted, and nothing of
-  // ours failed.
   'RS-55': 'NT-1',
   'RS-56': 'NT-1',
   'RS-57': 'NT-1',
@@ -1614,15 +992,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
 }
 
 /**
- * Which row of table T-233 each reason a file operation can fault with is, or
- * `null` for the one reason that is owed nothing.
- *
- * ⛔ `cancelled` HAS NO ROW AND IS OWED NONE. IF-3 keeps it apart from the
- * failures precisely so that it is not reported -- the person called the write
- * off -- so it is the raiser's not to raise, and table T-233 gives it nothing to
- * raise it with.
- * ⭐ A census the compiler keeps: a reason added to `DocumentFileFaultReason` is
- * a compile error here rather than a fault that quietly reaches nobody.
+ * Which row of table T-233 each file-operation fault is, or `null` for
+ * `cancelled`, which IF-3 keeps apart so that it is not reported.
  */
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
   Record<DocumentFileFaultReason, NoticeReason | null>
@@ -1636,19 +1007,12 @@ const NOTICE_REASON_OF_FILE_FAULT: Readonly<
 }
 
 /**
- * Which row of table T-233 each refusal of table T-067 is, or `null` where that
+ * Which row of table T-233 each refusal of table T-067 is, or `null` where the
  * table names none.
  *
- * ⭐ KEYED ON THE REASON ALONE, AND THAT IS ENOUGH: the two roads' refusals
- * spell six reasons between them and no two of them are the same word, so the
- * step rides on the reason and a census on it stays a census. A row added to
- * either union is a compile error here.
- * ⛔ `importRefused` HAS NO ROW. Table T-233's `WS-3` row is written for a
- * bundle of commands dropped, and `WS-3` on the replacement road is
- * ImportDocument's -- whose refusal is, in four of its shapes, a question to put
- * to a person rather than GRS turning the write away. Telling one as the other
- * would say which item is wrong and be wrong about it, which is the half of NT-1
- * (MUST) that matters. ⚠️ A row of table T-233 for it is what is owed.
+ * Keyed on the reason alone: the two roads' reasons are all distinct words.
+ * ⛔ `importRefused` has no row: that refusal is often a question for a person,
+ * and telling it as a dropped bundle would misstate NT-1. A row is owed.
  */
 const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   Record<PlanRefusal['reason'] | ReplacementRefusal['reason'], NoticeReason | null>
@@ -1662,47 +1026,18 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
 }
 
 /**
- * One situation table T-233 gives a WS-3 refusal a row of its own for, and what
- * a single `Refusal` has to look like to be it.
+ * One situation table T-233 gives a WS-3 refusal its own row for, and what a
+ * `Refusal` must look like to be it.
  *
- * ⭐ WHY THE REASON ALONE IS NOT ENOUGH HERE, WHICH IS THE WHOLE OF DFC-402.
- * `NOTICE_REASON_OF_WRITE_REFUSAL` above rides on `PlanRefusal['reason']`, and
- * WS-3 spells every refusal of every command `refused` -- so a shape pressed on
- * a selection it cannot be given landed on `RS-10` along with everything else
- * the bundle could refuse. ⛔ Table T-233's `RS-54` row forbids that in as many
- * words: 「`RS-10` を当ててはならない（MUST NOT）」, and its reason is that the
- * other row's next step is 「拒まれた変更を取り除いて、もう一度」 -- a step this
- * road has nothing to offer, because the person pressed one entry and there is
- * no item to take out of it.
- * ⛔⛔ AND THE CLOSING PARAGRAPH OF TABLE T-037 MAKES IT GENERAL, which is why
- * this is a table and no longer one pair: 「拒否の理由を 1 つの行へ潰してはなら
- * ない（MUST NOT）」 and 「本表に行を足す者は、その行へ振り分ける道が在ることまで
- * 確かめること（MUST）」. This IS that road, and a row of table T-233 added
- * without a row here is the potholing that paragraph names.
+ * The reason alone is not enough: WS-3 spells every command refusal `refused`,
+ * so without this a situation with its own row would land on `RS-10`, which
+ * table T-037's closing paragraph forbids. A row added to table T-233 without
+ * an entry here is the flattening that paragraph names.
  *
- * ⭐ KEYED ON THE 正 COLUMN OF TABLE T-233 AND NOT ON A GUESS. Each entry's
- * `rule` is the very requirement, table row or settings row that reason's 正
- * names, which is also what `Refusal.rule` carries across the seam.
- * ⛔ `command` NARROWS IT WHERE THE RULE REFUSES FOR MORE THAN ONE SITUATION,
- * and is `null` where the rule is the whole answer. Reading a rule that refuses
- * for two reasons without narrowing would say which item is wrong and be wrong
- * about it, which is the half of NT-1 (MUST) that matters.
- * ⚠️ NOT `TABLE_T108_ROWS` OF `edit-task.ts` REACHED FOR: the row ID is what
- * crosses the seam on `Refusal.command`, and this side compares the string it
- * is handed.
- *
- * ⭐⭐ AND `reasonCategory` NARROWS IT WHERE THE PAIR ITSELF REFUSES FOR MORE
- * THAN ONE SITUATION, which is what `RS-56` needed (2026-09-09). That row is
- * 「同じ `Task` を、依存の先行と後続の両方にしようとした」 and its 正 is FR-009 --
- * but FR-009 forbids THREE dependencies in ONE sentence and gives none of the
- * three a row ID, so `edit-dependency.ts` spells all four of its refusals
- * `CM-36` against `FR-009` (three of them there, plus `CM-38`'s missing
- * dependency). ⛔ Command and rule together therefore cannot tell 「両端が同じ」
- * from 「同じ対の重複」 or 「端点がタスクでない」, and an entry keyed on the pair
- * alone would hand `RS-56`'s words to the other two. ⭐ `Refusal.reasonCategory`
- * is AG-9a's 「理由の区分」, written by the side that knows which prohibition it
- * refused, and read here; the SPELLING is the use-case layer's own, because the
- * specification names no categories.
+ * `rule` is the item that row cites (also `Refusal.rule`). `command` narrows
+ * where the rule refuses for several situations, else `null`; `reasonCategory`
+ * narrows where command and rule together still do (FR-009 with DN-1 .. DN-3
+ * of table T-018b).
  */
 interface RefusalSituation {
   /** The row of table T-233 this situation is told on. */
@@ -1712,55 +1047,25 @@ interface RefusalSituation {
   /** The requirement, table row or settings row named in that reason's 正. */
   readonly rule: string
   /**
-   * AG-9a's 「理由の区分」, or absent where command and rule already settle it.
-   *
-   * ⛔ A SITUATION THAT NAMES ONE MATCHES ONLY A REFUSAL CARRYING THE SAME ONE.
-   * The four entries that name none are unaffected: no rule appears in both
-   * halves of this table, so nothing here reads a refusal two ways.
+   * AG-9a's reason category, or absent where command and rule settle it. A
+   * situation naming one matches only a refusal carrying the same one.
    */
   readonly reasonCategory?: Refusal['reasonCategory']
 }
 
 const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
-  // `RS-54`, 正 `FR-083` -- the shape the selection cannot take (DFC-402).
-  // ⛔ CM-20 refuses for one rule only today, but a second rule added to it
-  // later would be a second reason, and a row for it is table T-233's to give
-  // rather than this file's to guess (the standing cost `NOTICE_MANNER_OF_REASON`
-  // records) -- so the command is named beside the rule.
+  // The command is named beside the rule so that a later second rule on CM-20
+  // is not silently told as `RS-54`.
   { reason: 'RS-54', command: 'CM-20', rule: 'FR-083' },
-  // `RS-55`, 正 表 T-015a の `HM-4` -- 「動かす先が、その行自身か、その行の子孫で
-  // ある」. ⭐ NO COMMAND IS NAMED, AND THAT IS THE ROW'S OWN INSTRUCTION: it
-  // reads 「行の入れ子と WBS の親の両方に当たる —— どちらも同じ 1 つの禁止から
-  // 来ており、理由も 1 つ」, and HM-4 is that one prohibition. Both roads spell it
-  // (`CM-73` for the row tree, `CM-18` for the WBS parent) and both are this row.
+  // No command: HM-4 is one prohibition, reached by `CM-73` and `CM-18` alike.
   { reason: 'RS-55', command: null, rule: 'HM-4' },
-  // `RS-56`, 正 `FR-009` -- 「同じ `Task` を、依存の先行と後続の両方にしようとし
-  // た」. ⛔ THE ONLY ENTRY OF THIS TABLE THAT NAMES A CATEGORY, and the reason
-  // is FR-009's own shape: 「表 T-018b が並べる依存を作ってはならない（MUST NOT）」
-  // forbids three, and table T-018b now gives them row IDs -- `DN-1` 自己参照,
-  // `DN-2` the duplicate pair, `DN-3` an end that is neither task nor milestone
-  // -- and table T-233 gives a row to `DN-1` alone.
-  // ⭐ The other two keep `RS-10` 「命令が拒否されたので、束ごと落とした」,
-  // whose next step 「拒まれた変更を取り除いて、もう一度」 is true of them, and a
-  // row of table T-233 for either is the specification's to give rather than
-  // this file's to guess.
+  // The one entry with a category: FR-009's refusals share command and rule,
+  // and only DN-1 has a row in table T-233; DN-2 / DN-3 stay on `RS-10`.
   { reason: 'RS-56', command: 'CM-36', rule: 'FR-009', reasonCategory: 'bothEndsAreOneTask' },
-  // `RS-57`, 正 Chapter 6.1 の 表 T-220 の `IV-1` -- 「同じ id を持つものが、この
-  // 文書に既に在る」. ⭐ NO COMMAND EITHER: IV-1 is a uniqueness invariant over a
-  // primary key, so every refusal that names it is the same reason whichever
-  // array the key stands in (a row, a pasted row, a comment box, a highlight
-  // box). ⚠️ Table T-233's closing line keeps the IMPORT's IV-1 out of this
-  // table -- 「取り込みの検証（`FR-023`）の拒否は本表に入れない」 -- and it stays
-  // out by construction: that road refuses as `importRefused`, which the census
-  // above owes nothing.
+  // No command: IV-1 is one uniqueness invariant whatever array the key is in.
+  // The import's IV-1 refusal arrives as `importRefused` and never matches.
   { reason: 'RS-57', command: null, rule: 'IV-1' },
-  // `RS-58`, 正 Chapter 6.1 の 表 T-220 の `IV-10` -- 「終了が開始より前である」.
-  // ⛔ THE COMMAND IS NAMED HERE AND THE RULE IS NOT ENOUGH. The two aggregates
-  // that hold the pair of plan dates refuse on `FR-012`, which is the
-  // requirement that states the prohibition IV-10 holds as an invariant --
-  // 「`finish` が `start` より前の入力を受け付けてはならない（MUST NOT）」 -- but
-  // `CM-15` also refuses on `FR-012` for something else entirely (a task that
-  // names no plan dates to turn into an actual), and that one is not this row.
+  // Commands named: `CM-15` also refuses on `FR-012`, for a different reason.
   { reason: 'RS-58', command: 'CM-6', rule: 'FR-012' },
   { reason: 'RS-58', command: 'CM-11', rule: 'FR-012' },
 ]
@@ -1775,9 +1080,7 @@ function situationReasonOf(one: Refusal): NoticeReason | null {
   for (const situation of REFUSAL_SITUATIONS) {
     if (situation.rule !== one.rule) continue
     if (situation.command !== null && situation.command !== one.command) continue
-    // ⛔ AN EXACT MATCH AND NOT A FALLBACK. A situation that names a category
-    // refuses a refusal that carries a different one -- or none at all -- which
-    // is what keeps `RS-56`'s words off FR-009's other two prohibitions.
+    // An exact match, not a fallback: keeps `RS-56` off FR-009's other refusals.
     if (situation.reasonCategory !== undefined && situation.reasonCategory !== one.reasonCategory) {
       continue
     }
@@ -1789,16 +1092,9 @@ function situationReasonOf(one: Refusal): NoticeReason | null {
 /**
  * Which row of table T-233 one refused write is told on.
  *
- * ⛔ EVERY REFUSAL THE TABLE ABOVE DOES NOT NAME KEEPS THE ROW THE CENSUS GIVES
- * IT, and that is a refusal to invent rather than an omission: table T-233 holds
- * one row for a bundle dropped (`WS-3`) and one row per situation it has decided
- * on, and a refusal it names no row for is owed a row rather than a guess.
- *
- * ⭐ ALL OF THEM AND THE SAME ONE. A bundle whose refusals are every one of them
- * the same situation is the press table T-233 wrote that row for; a bundle
- * holding even one other refusal -- or two situations at once -- was dropped for
- * more than that one thing, and `RS-10` is then the true word for it.
- *
+ * A situation's row only when every refusal in the bundle is that same
+ * situation; otherwise the census row. A refusal no situation names keeps the
+ * census row rather than a guessed one.
  *
  * @purity pure
  */
@@ -1812,13 +1108,10 @@ function reasonOfWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): Notice
 }
 
 /**
- * Which row of table T-233 each answer OP-12 can give is.
+ * Which row of table T-233 each OP-12 answer is.
  *
- * ⚠️ `both` IS ONE VALUE FOR TWO SITUATIONS -- `FormatMismatch` says which two
- * -- and table T-233 has a row for one of them. The other is two rows at once,
- * and `RaisedNotice.reason` carries one; nothing on `FormatReading` tells the
- * two apart without reading table T-024's roster a second time, which is the
- * duplication R2.7 refuses.
+ * ⚠️ `both` covers two situations (`FormatMismatch`) and the table has a row
+ * for one; telling them apart would read table T-024's roster twice (R2.7).
  */
 const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeReason>> = {
   extension: 'RS-11',
@@ -1830,89 +1123,45 @@ const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeRe
 const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
 
 /**
- * The row of table T-233 the read road's clamp carries -- a document was opened
- * and some of its settings had to be moved back inside their own bounds.
- *
- * ⭐ SPELLED HERE BECAUSE THE ROW ID IS THE JOIN, the move `NoticeReason` itself
- * makes: the codec MEASURES the number (`JsonDecoding.clampedCount`) and names
- * no row, and this file names the row and writes no words.
+ * The row of table T-233 the read road's settings clamp carries. The codec
+ * measures the count (`JsonDecoding.clampedCount`); this file names the row.
  */
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
 
 /**
- * The row of table T-233 a calendar edit's recount carries -- FR-012 (MUST):
- * 「稼働日の暦を編集したときも、格納済みの完了率を数え直すこと」 and 「数え直した
- * ことを、値が変わった `Task` の件数を添えて告げること」.
+ * The row of table T-233 a calendar edit's recount carries (FR-012).
  *
- * ⭐ SPELLED HERE FOR THE REASON `SETTINGS_CLAMPED_REASON` IS: the write
- * MEASURES the number (`EditReport.recountedTaskUids`) and names no row, and
- * this file names the row and writes no words (FR-038, MUST NOT).
- * ⛔ NOT RAISED BESIDE THE COMMAND THAT ASKED FOR IT, and there is no other
- * place it could be: MS-1 of table T-042 leaves one write entrance, so
- * `writeDocument` is the only site that ever holds the count. ⚠️ The count is
- * what SELECTS the telling too -- FR-012 asks for it 「値が変わった `Task`」, so
- * a write that moved none has nothing to say and says nothing.
+ * The write measures the count (`EditReport.recountedTaskUids`), and
+ * `writeDocument`, the one write entrance (MS-1 of table T-042), raises it. A
+ * write that moved no task says nothing.
  */
 const RECOUNTED_PERCENT_COMPLETE_REASON: NoticeReason = 'RS-52'
 
-/**
- * The row of table T-233 FR-015's caution carries -- the overlay's own tasks
- * that matched no current task and are therefore not drawn.
- *
- * ⚠️ ITS MANNER IS `NT-5` AND NOT `NT-1`, which is the whole shape of this
- * telling: the open was ACCEPTED and the caution rides along with it, so nothing
- * on this road turns the read away. The census above is where that pairing is
- * read out of table T-233, not here.
- */
+/** The row of table T-233 FR-015's caution carries: overlay tasks that matched nothing. */
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
 /**
- * The row of table T-233 FR-025 raises when the picture will not fit S-217's
- * ceiling even grown to it (FR-025).
+ * The row of table T-233 told when the picture will not fit S-217's ceiling
+ * (FR-025), for IO-3, IO-4 and IO-6 alike.
  *
- * ⭐ ONE ROW FOR BOTH SIDES OF THE SAME REFUSAL. `ImageExporter.exportSvg` and
- * `exportPng` answer `{ ok: false, fault: { reason: 'tooTall' } }` before
- * either the picture is drawn or the rasterizer is asked, and this is the row
- * that answer is told with -- the same one `NOTICE_REASON_OF_RASTER_FAULT`
- * gives `tooLarge` below, because both are 「伸ばしても描ける大きさを超えた」
- * from where a person reads it: geometry refused it here, or the machine
- * refused it there, and either way the next step is the same (fold rows, or
- * narrow the period).
- * ⚠️ IT REACHES IO-3, IO-4 AND IO-6 ALIKE (FR-025, MUST), because all three
- * are `ImageExporter`'s one assembly (PI-21): `exportPictureContent` raises it
- * for IO-3 and IO-4, and `copyPictureToClipboard`'s handler raises it for IO-6.
- * ⛔ NOTHING IS WRITTEN WHEN IT IS RAISED (MUST NOT): the callers below return
- * before any file content is produced and before the clipboard is touched.
+ * Also `NOTICE_REASON_OF_RASTER_FAULT.tooLarge`: geometry or the machine may
+ * refuse, and the next step is the same. The callers return before any file
+ * content is produced or the clipboard is touched.
  */
 const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 
 /**
- * ⚠️ `RS-40` HAS NO RAISER IN THIS BUILD, AND THAT IS THE ROW DOING ITS JOB:
- * table T-233 keeps it as the landing place for the NEXT form of table T-024
- * offered before this build can write it.
+ * `RS-40` has no raiser in this build: table T-233 keeps it for the next form
+ * of table T-024 offered before this build can write it.
  */
 
 /**
- * The row of table T-233 each way a rastering can fail carries.
+ * The row of table T-233 each rastering failure carries.
  *
- * ⭐ A census the compiler keeps: a reason added to `RasterFaultReason` is a
- * compile error here rather than a picture that fails and tells nobody.
- *
- * ⭐⭐ TWO ROWS FOR THREE REASONS, AND THE SPLIT IS THE READER'S OWN: a failure
- * a person cannot name is told as one, and the next step is the recording FR-102
- * already has (`IC-76`). `RS-42` is that row and `unsupported` and `rasterFailed`
- * are both it: neither has a next step of its own that a reader could take, and
- * offering one that does not exist is what NT-3a forbids.
- * ⛔ `tooLarge` IS NOT ONE OF THEM. Its cause IS known -- FR-025 grew the
- * picture to S-217 and the machine still would not paint it -- so `RS-43`
- * (「伸ばしても描ける大きさを超えた」) carries it, and its next step is the one
- * the reader can act on: fold rows, or narrow the period.
- * ⭐ `RS-43` HAS A SECOND RAISER BESIDE THIS CENSUS:
- * `HEIGHT_CEILING_REASON` above, for the picture that never reached a
- * rasterizer at all because `exportSvg` itself refused it. Both name the same
- * row on purpose -- table T-233 gives the reader one sentence for "too many
- * rows to draw at this size", however the refusal was reached.
+ * `unsupported` and `rasterFailed` share `RS-42`: neither has a next step of
+ * its own (NT-3a). `tooLarge` has a known cause, so it takes `RS-43`, the row
+ * `HEIGHT_CEILING_REASON` also uses.
  */
 const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
@@ -1921,14 +1170,8 @@ const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeRe
 }
 
 /**
- * Why a single .html could not be assembled, read off the one member table
- * T-064's PI-20 publishes for it.
- *
- * ⚠️ THE NAME IS DERIVED RATHER THAN IMPORTED. That row is the full count of
- * what DocumentCodec may be asked for and it names `exportEmbeddedHtml` but not
- * `EmbeddedHtmlFaultReason`, so importing the name would be a crossing the table
- * does not admit (check 26b). ⭐ Nothing is weakened by it: a reason added to
- * that union is still a compile error in the census below.
+ * Why a single .html could not be assembled. Derived rather than imported:
+ * PI-20 of table T-064 names `exportEmbeddedHtml` but not this type (check 26b).
  */
 type EmbeddedHtmlFaultReason = Exclude<
   Awaited<ReturnType<typeof exportEmbeddedHtml>>,
@@ -1936,23 +1179,12 @@ type EmbeddedHtmlFaultReason = Exclude<
 >['fault']['reason']
 
 /**
- * The row of table T-233 each way a single .html can fail to be assembled
- * carries.
+ * The row of table T-233 each single .html assembly fault carries.
  *
- * ⭐ A census the compiler keeps, on the same terms as the rastering above: a
- * reason added to `EmbeddedHtmlFaultReason` is a compile error here.
- * ⛔ `appShellUnavailable` FALLS TO `RS-15`: table T-233 names no row for it, on
- * the same terms `single-html-shell.ts`'s `STARTUP_NOTICE_REASON` already uses
- * for `embeddedEntryCountNotOne` -- a row for it is owed and not yet written.
- * ⛔ THE OTHER TWO STAY ON `RS-42`, unchanged by this. Neither has a cause the
- * reader can be told nor a different step to take -- the source read carries a
- * container this build cannot aim at -- so 「原因の分からない失敗」 is what the
- * situation IS from the side that is told about it.
- * ⚠️ `app-shell-source.ts` reaches the same place from the other side, and for
- * the same reason: one next step, whatever went wrong.
- * ⛔ NOT `RS-40`. That row says this build cannot write the form, and since
- * CR-333's round it can -- saying so would be untrue of every host where the
- * write works.
+ * `appShellUnavailable` falls to `RS-15` because table T-233 has no row for it
+ * (as `STARTUP_NOTICE_REASON` does for `embeddedEntryCountNotOne`); a row is
+ * owed. The other two are `RS-42`: there is no cause or different step to tell.
+ * Not `RS-40`: this build can write the form.
  */
 const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
   Record<EmbeddedHtmlFaultReason, NoticeReason>
@@ -1963,116 +1195,59 @@ const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
 }
 
 /**
- * The row of table T-233 carried when a chosen form needs a seam this host
- * handed `single-html-shell.ts` nothing for -- `.png` with no `rasterizer`
- * (IF-6) and the single `.html` with no `AppShellSource` (IF-8). Node is one
- * such host, and so is any browser without a canvas to paint from.
+ * The row of table T-233 told when a chosen form needs a seam this host did not
+ * hand `single-html-shell.ts` -- `.png` with no `rasterizer` (IF-6), the single
+ * `.html` with no `AppShellSource` (IF-8).
  *
- * ⭐ `RS-3` AND NOT A NEW ROW, BECAUSE THIS IS LM-14's SITUATION AGAIN: table
- * T-004's `LM-14` already names "an attempted write this environment cannot
- * perform" and table T-233 already carries that as `RS-3` (its 正 is `NT-3a`)
- * for `NOTICE_REASON_OF_FILE_FAULT.unavailable` above. A missing seam is that
- * same absence one step earlier -- the write never gets bytes to write -- so it
- * is told with the words already in the dictionary rather than a new sentence
- * composed here (FR-038, MUST NOT).
- * ⚠️ NOT ONE OF THE TWO CENSUSES ABOVE. Those name a seam that tried and
- * failed; this is no seam being offered to try at all, which is a different
- * situation from every one of them.
- * ⭐ ONE CONSTANT FOR BOTH SEAMS, NOT TWO WITH ONE VALUE (R2.7): the fact
- * stated here is 「this host cannot perform the write at all」, and which seam
- * was missing is not something the reader is told.
+ * `RS-3` rather than a new row: it is LM-14's write this environment cannot
+ * perform, one step earlier. One constant for both seams, because the reader
+ * is not told which seam was missing.
  */
 const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 
 /**
- * The row of table T-233 FR-088's refusal carries -- a calendar that works no
- * weekday cannot become the document's.
- *
- * ⭐ THE CONDITION IS NOT REPEATED HERE. FR-088 sends it to IV-17 of table
- * T-220 in as many words, and `scheduleViolations` (PI-1) is what answers that
- * table -- so this side asks the invariant and carries the row, and neither the
- * rule nor its wording is written twice.
- * ⚠️ ITS MANNER IS `NT-1`, which FR-088 states itself (「受け付けずに通知する
- * こと（MUST）…作法は `FR-076` の `NT-1`」). The census above is where that
- * pairing is read out of table T-233.
- * ⚠️ NARROWED TO THE ONE ROW rather than typed as the whole union, because BO-2
- * of table T-077 raises it as well and `StartupNoticeReason` admits only the
- * three rows that road can carry.
+ * The row of table T-233 FR-088's refusal carries. The condition is IV-17,
+ * asked through `scheduleViolations` and not repeated here. Narrowed to one row
+ * because BO-2 raises it too and `StartupNoticeReason` must admit it.
  */
 const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
 
 /**
- * The row of table T-233 a change watcher that did not answer is told on.
- *
- * ⚠️ ITS MANNER IS `NT-3a`, so the telling owes a next step -- which is the
- * whole reason the outcome of `notifyChangeWatchers` may not be dropped: AG-6
- * of table T-035 is the row table T-233 names as its 正, and a delivery that
- * failed in silence leaves nobody able to act on it.
+ * The row of table T-233 a change watcher that did not answer is told on. Its
+ * manner owes a next step, so `notifyChangeWatchers`'s outcome may not be
+ * dropped.
  */
 const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
 
 /**
- * The row of table T-233 ST-7's safety valve is told on -- 「1 つの `TaskGroup`
- * の段数が安全弁に達したので、これ以上積めない」.
+ * The row of table T-233 ST-7's stacking safety valve is told on (ST-7 of
+ * table T-014).
  *
- * ⭐⭐ ST-7 OF TABLE T-014 (MUST) IS WHY IT IS RAISED AT ALL: 「達したらそこで
- * 処理を止め、達したことを判別できる値で返して人に通知すること（MUST）」, and the
- * same row forbids the two silences either side of it (MUST NOT) -- 「黙って切り
- * 捨てても、重ねて押し込んでもならない」. `ScheduleLayout.stackSafetyCapReached`
- * is 「判別できる値」; this constant is 「人に通知する」.
- * ⛔ NOT RAISED WHERE THE VALVE IS MEASURED. `schedule-layout.ts` is `pure` and
- * LY-5 of table T-060 leaves the current value to the Framework, so the layout
- * carries the stop back and the shell is what tells.
- * ⚠️ ST-7 ARGUES AGAINST CATCHING A THROW IN AS MANY WORDS -- 「投げると捕まえる
- * 者が要り、`FR-028` が `Agent API` に課した禁止と同じ安全弁が 2 つの機構を持つ
- * ことになる」 -- so nothing here is wrapped in a `try`.
+ * Raised here, not where the valve is measured: `schedule-layout.ts` is pure,
+ * so it returns `ScheduleLayout.stackSafetyCapReached` and the shell tells.
+ * Nothing is wrapped in a `try`: ST-7 returns a value rather than throwing.
  */
 const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
 
 /**
- * The row of table T-233 FR-065's third MUST is kept with -- 「無効にしても、
- * 既に渡した参照は取り消せないことを利用者に示すこと」.
- *
- * ⭐ RAISED ON THE TURN TO OFF, which is the moment that sentence is about: a
- * person who has just disabled the `Agent API` is the person who might read the
- * disabling as taking a reference back. ⚠️ ITS MANNER IS `NT-5`, and NT-5's own
- * roster in table T-037 names 「`FR-065` の渡した参照」 among what it covers --
- * the disabling was ACCEPTED and the caution rides along with it, so nothing
- * about the press is turned away.
- * ⛔ IT IS NOT A GUESS ABOUT WHETHER A REFERENCE WAS EVER TAKEN. `installAgentApi`
- * answers with a value the caller keeps, and no member of table T-107 reports
- * that one was handed on -- so the telling is owed whenever the API was on.
+ * The row of table T-233 for FR-065's handed-reference caution, raised on the
+ * turn to off -- whenever the API was on, because no member of table T-107
+ * reports whether a reference was handed on.
  */
 const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
 
 /**
- * The row of table T-233 an entrance with nothing to do is told with when no
- * other row of that table fits -- FR-029's 「どの入口にも当たる行が無いときの
- * 落ち先が `RS-27` である」.
- *
- * ⛔ THE FALLBACK AND NOT THE ANSWER. FR-029 (MUST NOT) forbids carrying this
- * row where a row of table T-233 fits the situation. ⚠️ It is kept for the
- * same reason `RS-15` is kept: the next entrance to be drawn faint needs
- * something to say before its own row exists, and NT-1 (MUST) has a press told
- * in words either way.
+ * The fallback row of table T-233 for an entrance with nothing to do (FR-029),
+ * used only where no other row fits.
  */
 const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 
 /**
- * Which row of table T-233 each situation the translator can measure is
- * (FR-029).
+ * Which row of table T-233 each situation the translator measures is (FR-029).
  *
- * ⭐⭐ THE JOIN LIVES HERE AND NOWHERE ELSE, which is why the seam carries a
- * situation rather than a row id: `NoticeReason` and the manner census are this
- * file's, and rule 03 section 1 of docs/development-rules forbids table T-233
- * a second home in `src/`. ⚠️ It is the same shape `NOTICE_REASON_OF_FILE_FAULT`
- * takes over the same seam, and for the same reason.
- * ⭐ A CENSUS THE COMPILER KEEPS: a situation added to `SpentEntranceSituation`
- * is a compile error here, naming the entrance whose row has to be read out of
- * table T-233.
- * ⛔ `RS-27` IS NOT AMONG THE VALUES, and must not be: every situation here has
- * a row of its own, and reaching for the fallback from one of them is exactly
- * the MUST NOT.
+ * The seam carries a situation, not a row id, so table T-233's join stays in
+ * this file (rule 03 section 1). `RS-27` is never a value here: each situation
+ * has its own row.
  */
 const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   Record<SpentEntranceSituation, NoticeReason>
@@ -2084,70 +1259,39 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   noUnfoldedRowAtAll: 'RS-32',
   onlyOneOfPlanAndActualShown: 'RS-33',
   noTaskChosenToAlignWith: 'RS-34',
-  // HF-15 of table T-051, whose four refusals table T-233 gained on 2026-08-30.
-  // ⭐ The first three are the depth axis's and the fourth is the position
-  // axis's -- the ends of the walk of places 「その段に置ける場所を描く順に」.
+  // HF-15 of table T-051.
   noSiblingAboveToNestUnder: 'RS-36',
   rowIsAtTheShallowestLevel: 'RS-37',
   groupDepthLimitReached: 'RS-38',
   noPlaceLeftInThatDirection: 'RS-39',
-  // FR-019's refusal, whose row table T-233 gained on 2026-09-02 (CR-334).
-  // ⭐ THE ONE SITUATION HERE THAT IS NOT A PRESSED ENTRANCE, and the situation
-  // union says why: 表 T-233 is keyed on 場面, so a press on the schedule with
-  // AR-5 or AR-6 armed owes the same telling a spent entrance does.
-  // ⛔ UNTIL THIS LINE THE LOOKUP ANSWERED `undefined` AND THE READER WAS TOLD
-  // `RS-15`, which is a lie about a press that CAN never act there -- and the
-  // `RS-15` note above forbids reaching for that row where a row of its own
-  // exists.
+  // FR-019's refusal: a press on the schedule with AR-5 / AR-6 armed, not a
+  // pressed entrance (table T-233 is keyed on the situation).
   noRowToPutTheAnnotationOn: 'RS-44',
-  // HF-14's refusal, whose row table T-233 gained on 2026-09-03 (CR-340).
-  // ⛔ NOT `RS-38` BESIDE IT, WHICH THE RULING SEPARATES BY NAME: 「あちらは
-  // `HF-15` の移動のためであり、足す押しには真でない」.
+  // HF-14's refusal; not `RS-38`, which is HF-15's move.
   rowIsAtTheDeepestLevel: 'RS-46',
-  // FR-001's refusal. ⭐ Like `noRowToPutTheAnnotationOn` above, the 場面 is a
-  // press on the schedule rather than a pressed entrance -- 表 T-233 is keyed on
-  // the situation, not on the entrance.
+  // FR-001's refusal, also a press on the schedule.
   barShapeReleasedWithoutADrag: 'RS-53',
 }
 
 /**
- * The row FR-066's dialogue field is told with -- 表 T-233's `RS-35`.
- *
- * ⭐ TOLD FROM THIS FILE AND NOT FROM THE TRANSLATOR, which is the one thing
- * that parts IC-18 from the nine entrances beside it: what draws it faint is
- * whether the `Agent API` is on, that is a current value LY-5 of table T-060
- * leaves with this layer, and no member of `InputContext` carries it.
+ * The row FR-066's dialogue field is told with. Told from this file: whether
+ * the `Agent API` is on is this layer's value and not in `InputContext`.
  */
 const DIALOGUE_FIELD_UNAVAILABLE_REASON: NoticeReason = 'RS-35'
 
 /**
- * The row of table T-220 FR-088 refuses on.
- *
- * ⭐ A ROW ID AS A VALUE, the way a reason is one: FR-088 points at this row
- * and `ScheduleViolation.row` carries it, so the id is the join and none of the
- * row's prose is repeated here (rule 03 section 1).
- * ⛔ ONLY THIS ROW STOPS AN OPEN. `scheduleViolations` answers eighteen rows and
- * refuses nothing itself -- 「Whether one stops a load, a save or an edit is the
- * caller's to decide」 -- and FR-088 is the one requirement that says a row of
- * that table turns an input away. The other seventeen have no row of table
- * T-233 to be told on, which is the same gap the OP-5 verdict already records.
+ * The row of table T-220 FR-088 refuses on; `ScheduleViolation.row` carries it.
+ * Only this row stops an open: `scheduleViolations` refuses nothing itself, and
+ * no other of its rows has a row of table T-233 to be told on.
  */
 const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
 
 /**
- * FR-088's gate, asked of one document: the row it has to be turned away on, or
- * `null` when it passes.
+ * FR-088's gate for one document: the row to refuse it on, or `null`.
  *
- * ⭐ WHY IT IS A FUNCTION OF THIS FILE AND NOT OF THE BOOT FILE. The row id
- * above and the reason below are the join between table T-220 and table T-233,
- * and rule 03 section 3 forbids a second copy of either; BO-2 of table T-077
- * needs the same gate for BT-1 of table T-034, so the two roads ask one
- * question rather than spelling two ids twice.
- * ⛔ WHY BT-1 NEEDS IT AT ALL. A calendar that works no weekday leaves every
- * count of working days with no day to reach, and `schedule.ts` throws rather
- * than answer -- so a document carrying one has to be refused BEFORE it becomes
- * the current document, and after BO-2 there is no road left that does not end
- * in the drawing.
+ * Here so that BO-2 (for BT-1) and the open road ask one question (rule 03
+ * section 1). ⚠️ BT-1 needs it: `schedule.ts` throws on a calendar with no
+ * working weekday, so such a document must be refused before it is current.
  *
  * @purity pure
  */
@@ -2159,30 +1303,16 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
 }
 
 /**
- * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
- * its three-way question on.
- *
- * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), because three
- * sides have to agree on it: `ScreenState.surface` (S-99g) carries it,
- * `icon-roster.json` places IC-71 .. IC-73 on it out of table T-109's own
- * surface column, and `readScreenPartAt` answers with it. ⛔ Not minted here --
- * U-56 is what made this question askable at all.
- * ⚠️ NOT `Confirmation` (U-55): that surface is NT-7's two answers and holds no
- * third entry, which is what U-56's own remark says it is not.
+ * U-56 `Open Chooser` of table T-103 -- the surface of OP-3's three-way
+ * question. `ScreenState.surface` (S-99g), `icon-roster.json` and
+ * `readScreenPartAt` must agree on the spelling. Not U-55, which holds only
+ * NT-7's two answers.
  */
 const OPEN_CHOOSER_SURFACE = 'Open Chooser'
 
 /**
- * The three entries table T-109 places on that surface, each bound to the
- * answer `OpenChoice` (PI-10) spells for it.
- *
- * ⭐ A JOIN, NOT A TRANSLATION. Table T-109 has no English column on purpose,
- * so a row id is the only handle it admits; the three spellings on the right
- * are `import-document.ts`'s, and this states which row means which. ⛔ Nothing
- * of either side's wording is copied.
- * ⚠️ OP-9 is why the third one is not an entry of its own kind: that row says
- * the way to the overlay IS OP-3's third choice, and IC-4 of table T-109 warns
- * in as many words that its own entry is not a way of reading a file.
+ * The three entries table T-109 places on U-56, each bound to its `OpenChoice`
+ * (PI-10). Joined by row id, since table T-109 has no English column.
  */
 const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
   'IC-71': 'replace',
@@ -2191,30 +1321,16 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
 }
 
 /**
- * U-61 `Difference Review` of table T-103 -- the surface FR-022 (MUST) puts the
- * merge's question on.
- *
- * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), for the reason
- * `OPEN_CHOOSER_SURFACE` above is copied: `ScreenState.surface` (S-99g) carries
- * it, `icon-roster.json` places IC-95 .. IC-97 on it out of table T-109's own
- * surface column, and `open-modals.ts` discriminates the candidate list on it.
- * ⛔ THIS SURFACE HAS NO ENTRANCE THAT OPENS IT (FR-022): 「この面は開く道
- * （`FR-087` の `OP-3`）から立つ。独立したアイコンの入口は持たない」. So it is
- * raised from the open road below and from nowhere else -- IC-94 stood for such
- * an entrance until 2026-09-05 and was withdrawn from table T-109 for it.
+ * U-61 `Difference Review` of table T-103 -- the merge's question (FR-022).
+ * Spelled for `ScreenState.surface`, `icon-roster.json` and `open-modals.ts`.
+ * It has no entrance of its own and is raised from the open road only.
  */
 const DIFFERENCE_REVIEW_SURFACE = 'Difference Review'
 
 /**
- * U-62 `Import Report` of table T-103 -- the surface FR-023 (MUST) puts the
- * names of the `Task` rows an import dropped on.
- *
- * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), the same as
- * the line above: `ScreenState.surface` (S-99g) carries it and
- * `open-modals.ts` discriminates the list of names on it.
- * ⛔ IT HAS NO ENTRANCE THAT OPENS IT EITHER, and no row of table T-109 at
- * all: U-62 rises from the open road when something was dropped, and its one
- * way out is the word NT-8 holds.
+ * U-62 `Import Report` of table T-103 (FR-023), spelled as for the surfaces
+ * above. No entrance opens it; it rises from the open road when rows were
+ * dropped.
  */
 const IMPORT_REPORT_SURFACE = 'Import Report'
 
@@ -2225,20 +1341,9 @@ const IMPORT_REPORT_SURFACE = 'Import Report'
 const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
 
 /**
- * The three entries table T-109 places on that surface, each bound to the row of
- * table T-032a it answers.
- *
- * ⭐ A JOIN, NOT A TRANSLATION -- the same shape `OPEN_CHOICE_OF_ENTRY` above
- * has, and for the same reason: table T-109 has no English column on purpose, so
- * a row id is the only handle it admits, and the spellings on the right are
- * `import-document.ts`'s.
- * ⚠️ `MM-3`（1 件ずつ決める）IS DELIBERATELY ABSENT, and it is the user's ruling
- * of 2026-09-06 that leaves it out -- 「重複している予定や実績をどちらのファイル
- * から取り込むかだけを選択させる。複雑なことは要らない」. FR-022 records the
- * ruling beside table T-032a, and the row itself is not retired: `MG-9` still
- * gives it meaning for a caller that answers through the `Agent API` (AM-8).
- * ⛔ So nothing here decides it -- table T-109 places three entries and this
- * states which row each of the three means.
+ * The three entries table T-109 places on U-61, each bound to its row of table
+ * T-032a, joined by row id as `OPEN_CHOICE_OF_ENTRY` is. `MM-3` is absent on
+ * purpose (FR-022); it stays reachable through the `Agent API` (MG-9, AM-8).
  */
 const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-95': { kind: 'allSame' },
@@ -2247,14 +1352,12 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
 }
 
 /**
- * OP-2 of table T-024a -- which of its two routes this loop takes.
+ * OP-2 of table T-024a -- the route this loop takes.
  *
- * STOP -- ⛔ THE OTHER ROUTE HAS NO TRIGGER. A drop is watched by the store
- * itself (PI-28 says why: the handle does not survive the event), so
- * `readFileToOpen('drop')` reads what it already took -- and table T-078 names
- * no happening for a file arriving that way, which NFR-010 (MUST NOT) forbids
- * this file from adding. ⚠️ The store therefore holds dropped files that
- * nothing asks it for.
+ * STOP -- the drop route has no trigger: the store watches drops itself
+ * (PI-28), but table T-078 names no happening for a dropped file and NFR-010
+ * forbids this file adding one. ⚠️ The store holds dropped files nothing asks
+ * for.
  */
 const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
@@ -2262,48 +1365,23 @@ const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
 
 /**
- * OP-13 of table T-024a (MUST) -- the one of OP-3's three a re-read is settled
- * as: 「`OP-3` の 3 択は問わず、置き換えに定めること（MUST）—— 読み直しは同じ文書
- * の読み直しであって、合流でも重ねでもない」.
- *
- * ⛔ Named rather than asked, which is the other half of the same row: 「選ばせる
- * 面を開かずに、同じファイルをもう一度読むこと（MUST）」. So this constant is what
- * stands in `askHowToOpen`'s place on that road, and U-56 never opens.
- * ⚠️ It is the same value IC-71 of table T-109 carries, and the entry roster is
- * still what maps that entry -- this is OP-13's own answer, not a second copy of
- * the mapping.
+ * OP-13 of table T-024a: a re-read is settled as a replacement without opening
+ * U-56, so this stands in `askHowToOpen`'s place on that road.
  */
 const OPEN_CHOICE_OF_REOPEN: OpenChoice = 'replace'
 
 /**
- * What SK-11 of table T-036 writes, whatever the document was opened from.
- *
- * ⭐ FR-096 (MUST) settles it and leaves the caller no choice, and carries a
- * MUST NOT against this route writing an MSPDI-opened document back as MSPDI.
- * ⛔ So the form is a constant of the SAVE path rather than something read off
- * the file that was opened -- reading it there is what that MUST NOT forbids,
- * and it is also why nothing here asks the store what it is holding.
- * ⚠️ The spelling is `SaveFileForm`'s, which `file-gateway.ts` owns (CR-146),
- * so a renamed member fails type checking here rather than comparing false.
+ * What SK-11 of table T-036 writes, whatever the document was opened from. A
+ * constant of the save path: reading the form off the opened file is what
+ * FR-096 forbids.
  */
 const SAVE_FORM: SaveFileForm = 'grsJson'
 
 /**
- * The row of table T-024 each form of a written file stands at, which is the
- * join that table admits and the only one it has.
- *
- * ⭐ ONE FACT STATED ONCE PER ROW: the form `file-gateway.ts` spells and the row
- * the manuscript prints it at are the same format, and the pairs stand here so
- * that the extension below is looked up rather than typed. Table T-024 carries
- * no English column, so nothing else could join the two.
- * ⭐ A CENSUS THE COMPILER KEEPS: a form added to `SaveFileForm` is a compile
- * error here, naming the row of table T-024 that has to be found for it. That
- * matters now that FR-096's chooser reaches every one of them -- a form with no
- * row would suggest a name with no extension and nothing would say so.
- * ⚠️ `document-codec.ts` binds two of these rows to the same spellings for its
- * own `ExchangeFormat`. That map is private to that component and answers a
- * different question -- which decoder a file goes to (OP-12) -- so it cannot be
- * asked from here (LR-2).
+ * The row of table T-024 each written form stands at, so the extension is
+ * looked up rather than typed.
+ * ⚠️ `document-codec.ts` has a similar private map for decoding (OP-12); it
+ * cannot be asked from here (LR-2).
  */
 const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
   mspdi: 'IO-1',
@@ -2314,13 +1392,9 @@ const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
 }
 
 /**
- * The extension table T-024 gives the row one form stands at.
- *
- * ⛔ READ, NEVER TYPED. FR-096 (MUST NOT) fixes the extension's one source as
- * table T-024, and `tools/generate_exchange_formats.py` is how that column
- * reaches `src/`; `npm run gen:check` is what fails when the two drift apart.
- * ⚠️ An empty answer means the roster no longer carries the row, and empty is
- * then the whole of what is known -- nothing is invented in its place.
+ * The extension table T-024 gives one form, read from the generated roster
+ * (FR-096; `npm run gen:check` catches drift). Empty when the roster lacks the
+ * row; nothing is invented.
  *
  * @purity pure
  */
@@ -2330,16 +1404,9 @@ function extensionOfForm(form: SaveFileForm): string {
 }
 
 /**
- * Which form of a written file one row of table T-024 is, or `null` where that
- * row is not a file at all.
- *
- * ⭐ THE CENSUS READ BACKWARDS rather than a second list that would go stale
- * against it (R4): `SaveFileForm` is FileGateway's own roster of the rows whose
- * output is a file, so a row it does not name is a row nothing can be written
- * to.
- * ⛔ IO-6 IS THE ROW THAT LANDS HERE, and table T-024 gives it no extension for
- * the same reason: the clipboard is not a file. No clipboard seam is wired in
- * this build either -- `carryOutAction` records that absence for SK-4 and SK-5.
+ * Which written form one row of table T-024 is, or `null` where the row is not
+ * a file (IO-6, the clipboard). The census read backwards, not a second list
+ * (R4).
  *
  * @purity pure
  */
@@ -2351,35 +1418,21 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
 }
 
 /**
- * The rows table T-206 keeps outside the document, in `localStorage`.
+ * The prefix every key this page keeps in `localStorage` stands under; LM-6's
+ * store is shared by every local page on the machine.
  *
- * ⭐ THE SET IS THE SPECIFICATION'S AND IS NOT CHOSEN HERE. LM-14 defines it
- * literally -- the rows of table T-206 marked as kept in `localStorage` -- and
- * it is exactly these four. ⛔ S-99e / S-99f / S-99g are NOT among them: those
- * are the screen's own state and `ScreenState` (PI-36) already owns them, which
- * is why they arrive here through `screenState` rather than through a key.
- *
- * ⚠️ THE PREFIX IS SHARED, NOT COPIED. LM-6 is why every key this tool writes
- * carries one: the store is shared by every local page on the machine. ⛔ So
- * the prefix is declared ONCE, immediately below, and every key here is built
- * from that one constant rather than typed a second time (R4).
- *
- * ⛔ THE KEY SPELLINGS AFTER THE PREFIX ARE NOT IN THE SPECIFICATION. It names
- * the rows and the store and stops there, so these are this file's, chosen to
- * read as the row does. A change request would be needed to publish them.
- */
-/**
- * The prefix every key this page keeps in `localStorage` stands under.
- *
- *
- * ⛔ THE SPELLING IS NOT THE SPECIFICATION'S. It is the fragment the previous
- * project settled (previous-project-result/09-architecture/
- * architecture-entry-ja.md section 3).
+ * ⛔ The spelling is not the specification's
+ * (previous-project-result/09-architecture/architecture-entry-ja.md section 3).
  *
  * @provisional PND-110
  */
 const WEB_STORAGE_KEY_PREFIX = 'grsched.'
 
+/**
+ * The keys of LM-14's `localStorage` rows. The spellings after the prefix are
+ * this file's; the specification names only the rows. S-99e / S-99f / S-99g
+ * are `ScreenState`'s (PI-36), not keys.
+ */
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
   'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
   'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
@@ -2388,25 +1441,13 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
 }
 
 /**
- * The four rows of table T-206 LM-14 counts, as a census the compiler keeps.
+ * LM-14's `localStorage` rows of table T-206.
  *
- * STOP -- ⛔ NOT EVERY ROW HERE HAS A PRODUCER IN THIS BUILD. The rest are named
- * so the set is visible and so the next owner has one place to add to, and
- * nothing WRITES them: S-99c is the unlock password's digest, which nothing asks
- * a person for -- `input-command-translator.ts` records that table T-037 has no
- * row for asking.
- * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
- * ⭐ S-99a IS READ AND STILL NOT WRITTEN: FR-020's
- * watermark lays the name over the Row Area every frame, so `watermarkOpenedBy`
- * below asks the store for it and falls back to the row's own default. ⛔ THE
- * PRODUCER IS STILL MISSING and is FR-086's, not this loop's -- that
- * requirement (MUST) has a person enter the name and (MUST NOT) lets the
- * schedule be drawn before they have. ⚠️ So every reader is drawn under the
- * SAME name until it lands, which is a weaker trail than GL-007 asks for and
- * is recorded here rather than papered over.
- * ⭐ S-99b IS READ AND WRITTEN. FR-065 (MUST) has the enabling remembered per
- * browser origin, so one key with no second half is the whole of it:
- * `startupAgentApiEnabled` reads it and `setAgentApiEnabled` writes it.
+ * STOP -- not every row has a producer in this build. S-99c (the unlock
+ * password digest) is never written: nothing asks a person for it. S-99a is
+ * read (`watermarkOpenedBy`) but not written; its producer is FR-086's, so
+ * every reader is drawn under the default name until it lands. S-99b is read
+ * (`startupAgentApiEnabled`) and written (`setAgentApiEnabled`).
  */
 type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
@@ -2414,18 +1455,11 @@ type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
 
 /**
- * OP-6 of table T-024a asks for the defaults, and this is them: the value the
- * settings manuscript states for every key of the presentation group.
+ * OP-6 of table T-024a's defaults: every presentation-group key at its
+ * manuscript value, re-nested from `SETTINGS_DEFAULTS`' dotted keys.
  *
- * ⛔ NOT ONE VALUE IS TYPED HERE. `SETTINGS_DEFAULTS` (PI-2 of table T-064) is
- * what `tools/generate_entity_types.py` prints out of that manuscript, keyed by
- * the dotted key the published table prints; all this does is put the dots back
- * into objects so that the shape is the one `DocumentSettings` declares.
- * ⚠️ THE CAST IS WHERE TWO GENERATED SHAPES MEET, and it is the same move
- * `documentFromJson` makes for the same reason. Both the record and the type
- * come out of ONE generator run, so a key in one and not the other is a
- * generator that has drifted from itself -- `npm run gen:check` is what says so,
- * and the only thing this function could do instead is invent a value.
+ * ⚠️ The cast joins two outputs of one generator run; a key in one and not the
+ * other is generator drift, which `npm run gen:check` reports.
  *
  * @purity pure
  */
@@ -2450,32 +1484,15 @@ function defaultDocumentSettings(): DocumentSettings {
   return built as unknown as DocumentSettings
 }
 
-/**
- * ⭐ Built once. It never changes, and OP-6 asks the same question of every
- * import.
- */
+/** Built once; OP-6 asks the same of every import. */
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 
 /**
- * FR-096 (MUST): what the chooser is offered as a name -- the document name
- * with the extension table T-024 gives, and the extension alone where the
- * document carries no name.
+ * FR-096: the name the chooser is offered -- the document name (AT-3, read off
+ * the document, not the file) plus the chosen form's extension.
  *
- * ⭐ AT-3 IS THE DOCUMENT NAME. That column and U-27 of table T-103 are the
- * same value, and FR-074 states in as many words that `title` is the one
- * FR-035 owns -- so the name is read off the DOCUMENT and never off the file it
- * may happen to stand in.
- * ⚠️ `null` and an empty string reach the same answer, which is the case FR-096
- * writes out: FR-035 (MUST NOT) keeps `title` from ever holding an empty string,
- * so `null` is the only spelling of "no name" a document this build wrote can
- * carry -- and one that arrived carrying the other still suggests the extension
- * by itself rather than a name that begins with a dot.
- * ⚠️ A SUGGESTION AND NOT A DECISION, which FR-096 says and
- * `ChosenFileWrite.suggestedFileName` repeats from the store's side.
- * ⭐ THE FORM IS AN ARGUMENT because FR-096's chooser now reaches every row of
- * table T-024 that goes out as a file, so which extension is suggested follows
- * the row that was CHOSEN. ⛔ Not a constant of this file and not spelled here
- * -- that requirement fixes table T-024 as the extension's one place (MUST NOT).
+ * `null` and an empty title both give the extension alone, so a name never
+ * starts with a dot. A suggestion only (`ChosenFileWrite.suggestedFileName`).
  *
  * @purity pure
  */
@@ -2484,30 +1501,14 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
 }
 
 /**
- * FR-096: the document written in the convention of the chosen form, or `null`
- * where this build can write no file of it.
+ * FR-096: the document written in the chosen form's convention, or `null`
+ * where the form cannot be made from the document alone.
  *
- * ⭐ A CENSUS THE COMPILER KEEPS, spelled as a `switch` over `SaveFileForm`: a
- * form added to that union is a compile error here, naming the row of table
- * T-024 whose convention has to be written.
- *
- * ⛔ THE MSPDI WRITER'S OWN NOTICES ARE DROPPED, and that is an absence rather
- * than a decision. `mspdiFromDocument` answers with notices beside the text --
- * EX-3 and EX-6 of table T-033 each require the person to be told at the moment
- * of writing -- and table T-233 holds no row for either, which FR-076 (MUST NOT)
- * makes the whole of what a telling may carry. ⚠️ A row for them is what is
- * owed; nothing here may compose the sentence in its place (FR-038, MUST NOT).
- *
- * ⛔ THREE OF THE FIVE FORMS ARE NOT ANSWERED HERE, and the reason is the same
- * for all three: none of them can be made out of the document alone.
- * `exportPictureContent` below is what each of them reaches, and all three are
- * written there now:
- *   `png` -- the road ends in bytes rather than characters, which is the whole
- *     reason this function cannot answer for it.
- *   `svg` -- the picture is `exportSvg`'s (PI-21) and needs the frame, which
- *     this function is not handed.
- *   `singleHtml` -- the file is `exportEmbeddedHtml`'s (PI-20) and needs the
- *     application's own HTML, which only the shell can read (IF-8).
+ * ⛔ The MSPDI writer's notices (EX-3, EX-6 of table T-033) are dropped: table
+ * T-233 has no row for them, and nothing here may compose the sentence. A row
+ * is owed.
+ * `png`, `svg` and `singleHtml` need bytes, the frame, or the application's own
+ * HTML (IF-8); `exportPictureContent` writes them.
  *
  * @purity pure
  */
@@ -2525,60 +1526,30 @@ function exportedText(form: SaveFileForm, document: Document): string | null {
 }
 
 /**
- * What one decoded intake carries: the document, and how many settings keys the
- * read road had to bring back inside their bounds (`RS-51`).
- *
- * ⭐ THE COUNT TRAVELS BESIDE THE DOCUMENT RATHER THAN BEING RE-MEASURED. The
- * codec is where `clampedSettings` runs, and a second measurement taken after
- * the clamp would answer zero -- the values are already in range by then.
+ * One decoded intake: the document, and how many settings keys the read road
+ * clamped (`RS-51`). The count is carried because a re-measure after the clamp
+ * answers zero.
  */
 interface DecodedIntake {
   readonly document: Document
   readonly clampedCount: number
   /**
-   * FR-073 (MUST): the columns this build could not read, because the document
-   * declares a format version newer than the greatest one it knows.
-   *
-   * ⭐ CARRIED RATHER THAN RE-MEASURED, the same move `clampedCount` above
-   * makes and for a stronger reason: the names are only knowable while the
-   * text's own keys are in hand, and the `Document` handed back has been
-   * asserted into this build's shape by then -- a walk over it afterwards
-   * would have nothing left to find.
-   * ⭐ EMPTY IS THE ORDINARY ANSWER. A version this build knows lists none, and
-   * `documentFromJson` states that as its own rule.
+   * FR-073: the columns this build could not read (newer format version).
+   * Carried because the returned `Document` has lost the unknown keys. Empty
+   * for any known version.
    */
   readonly unreadColumns: readonly string[]
 }
 
 /**
  * OP-12's answer turned into a document, or `null` where the decoder refused.
+ * UT-5 of table T-063 keeps one codec per format; `current` supplies what MSPDI
+ * does not carry (see `documentFromMspdi`).
  *
- * ⭐ UT-5 of table T-063 KEEPS EACH FORMAT IN A CODEC OF ITS OWN, so the answer
- * OP-12 gave is what picks one; nothing here reads the text a second time to
- * guess.
- * ⭐ `current` IS WHAT MSPDI DOES NOT CARRY. `documentFromMspdi` names the parts
- * it takes from there -- the presentation group, the stamp, the change log, the
- * format version -- and states that nothing of that document's SCHEDULE is
- * merged in, which is FR-056's business inside ImportDocument.
- *
- * STOP -- ⛔ THE FAULTS ARE DROPPED HERE, and the absence has MOVED rather than
- * closed: FR-076 (MUST) now has a telling carry a row of table T-233 as its
- * reason and forbids carrying one that table does not hold (MUST NOT), and that
- * table holds no row for a codec's fault -- `JsonFault` and `MspdiFault` each
- * name the place and the reason, and neither is one of its fifteen.
- * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason, which
- * `exportedText` above records from the writing side.
- *
- * ⭐⭐ FR-073's TELLING IS NOW MADE, AND THE STOP THAT STOOD HERE IS CLOSED
- * (DFC-357). Both halves it named as missing exist: `JsonDecoding.formatVersion`
- * is OP-7's reading (DFC-282) and `unreadColumns` is the list, so this function
- * carries the list out and `openDocumentIntoHold` raises `RS-48` of table T-233
- * and lays the columns on `U-61` -- 「読めなかった列を具体的に並べて見せ、続けて
- * よいかを問うこと（MUST）」.
- * ⛔ `formatVersion` ITSELF IS STILL NOT CARRIED OUT OF HERE, and that is not a
- * gap: `unreadColumns` is empty for every reading but `newerThanKnown` (the
- * codec states that as its own rule), so the list IS the reading as far as this
- * road can act on it, and a second member saying the same thing is R4's DRY.
+ * STOP -- codec faults (`JsonFault`, `MspdiFault`) and the MSPDI notices (EX-3,
+ * EX-6) are dropped: table T-233 holds no row for them (FR-076).
+ * `formatVersion` is not carried out: `unreadColumns` is empty for every
+ * reading but `newerThanKnown`, so the list is already what this road acts on.
  *
  * @purity pure
  */
@@ -2588,8 +1559,7 @@ function decodedDocument(
   current: Document,
 ): DecodedIntake | null {
   if (format === 'grsJson') {
-    // ⭐ FR-073's comparison, given the number it is against (DFC-282). Without
-    // this argument OP-7 answered `notCompared` for every file a person opened.
+    // Without this argument OP-7 answers `notCompared` (FR-073).
     const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
     return read.ok
       ? {
@@ -2600,43 +1570,22 @@ function decodedDocument(
       : null
   }
   const read = documentFromMspdi(text, current)
-  // ⛔ ZERO AND NOT A MEASUREMENT ON THE MSPDI ROAD. That codec builds the
-  // presentation group out of the CURRENT document rather than out of the file
-  // -- its own note says so -- so there is no incoming setting there to be out
-  // of bounds, and a count taken here would be counting this build's own values.
-  // ⛔ AND NO UNREAD COLUMN ON THAT ROAD EITHER, for a reason of its own:
-  // FR-073's 「形式の版」 is `GRS JSON`'s own `schemaVersion`, and MSPDI carries
-  // no such field -- so `newerThanKnown` cannot arise there and there is nothing
-  // for this list to hold. ⛔ Inventing one out of MSPDI's unknown elements would
-  // be answering a different question than the one FR-073 asks.
+  // Zero clamps and no unread columns on the MSPDI road: that codec builds the
+  // presentation group from the current document, and MSPDI has no
+  // `schemaVersion` for `newerThanKnown` to arise from.
   return read.ok ? { document: read.document, clampedCount: 0, unreadColumns: [] } : null
 }
 
 /**
  * Where the `Command Palette` floats -- `ScreenSession.commandPaletteAt`.
  *
- * ⭐ THE PLACE IS NOT REMEMBERED, AND THAT IS SETTLED RATHER THAN MISSING.
- * FR-053 has the person drag the palette, and neither table T-203 nor table
- * T-206 has a row for where it ends up: the ruling `CR-236` records is that
- * the place is not kept. So it is a current value, which LY-5 of table T-060
- * leaves with this layer alone, and it is lost with the page. ⛔ Nothing is
- * to be stored for it -- not a key in either table, not a browser record.
- *
- * ⛔ NO ROW STATES A STARTING CORNER, so `null` -- nobody has dragged it yet
- * -- is answered with the `Row Area`'s own corner rather than with a pair of
- * numbers written here: U-50 is a rectangle the specification does hold, and
- * SC-6 keeps the palette off the schedule's scrolling anyway. ⚠️ Which is
- * also why the default is resolved every frame instead of being frozen at
- * startup: until it has been dragged, the palette follows the `Row Area`
- * through a resize.
- *
- * ⛔ NOTHING CLAMPS IT TO THE WINDOW, because no row states a bound to clamp
- * it by. ⚠️ GR-19 of table T-023d names the harm in as many words --
- * 「掴めない位置へ置けてしまうと二度と動かせなくなる」 -- and answers it by giving
- * the band priority over what is under it, not by bounding the corner. So a
- * drag that ends past the edge of the window leaves it past the edge.
- * Searched: FR-053, table T-023a, table T-023d, table T-203, table T-206 and
- * `_assets/tbl-settings.md`.
+ * Not remembered: no row of table T-203 or T-206 keeps it, so it is a current
+ * value lost with the page. `null` falls to the `Row Area`'s corner (no row
+ * states a starting corner; U-50 is a rectangle the spec holds), resolved every
+ * frame so that an undragged palette follows a resize.
+ * Not clamped to the window: no row states a bound (GR-19 answers the harm with
+ * the band's priority instead). Searched: FR-053, table T-023a, table T-023d,
+ * table T-203, table T-206 and `_assets/tbl-settings.md`.
  *
  * @purity pure
  */
@@ -2648,38 +1597,23 @@ function paletteCornerOf(
 }
 
 /**
- * Which of FR-072's two the properties panel is showing, and what it was last
- * shown about.
- *
- * ⛔ DERIVED FROM `ScreenSession` AND NEVER DECLARED A SECOND TIME. What these
- * mean is ScreenRenderer's to say (CR-146), table T-064 already carries PI-37
- * across, and a fresh name for either would be a second declaration of one
- * shape -- which is R4's DRY and the fence LR-2 draws.
+ * Which of FR-072's two the properties panel shows, and about what. Derived
+ * from `ScreenSession` rather than declared again (R4, LR-2).
  */
 type PropertiesShowing = ScreenSession['propertiesShowing']
 type PropertiesSubject = NonNullable<ScreenSession['propertiesSubject']>
 
 /**
- * One pair U-61 `Difference Review` lays out (FR-022, MUST), and what the three
- * answers of table T-032a mean to PI-10.
- *
- * ⛔ DERIVED, NEVER DECLARED A SECOND TIME -- the same move `PropertiesShowing`
- * above makes and for the reason stated there. What a candidate line is is
- * ScreenRenderer's to say and what an answer is is ImportDocument's, table T-064
- * carries neither name across, and a fresh declaration here would be a second
- * shape for one thing (R4's DRY, and the fence LR-2 draws).
+ * One pair U-61 lays out (FR-022), and table T-032a's answers as PI-10 takes
+ * them. Derived, not declared again, as `PropertiesShowing` is.
  */
 type MergeCandidateLine = NonNullable<ScreenSession['mergeCandidates']>[number]
 type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']>
 type MergeMapping = NonNullable<MergeChoices['mapping']>
 
 /**
- * What this loop holds for the reading session, as `sessionOf` is handed it.
- *
- * ⭐ ONE ARGUMENT AND NOT TWELVE. Every member is a current value LY-5 of table
- * T-060 leaves with this layer, so they travel together and the call site reads
- * as a list of names rather than as a row of positions nobody can check
- * (rule 03 section 4).
+ * What this loop holds for the reading session, as `sessionOf` is handed it --
+ * one named argument rather than many positional ones (rule 03 section 4).
  */
 interface SessionHeld {
   /** S-99. */
@@ -2695,13 +1629,9 @@ interface SessionHeld {
   /** FR-066 / S-99i of table T-206 -- IC-18's own switch, apart from the one above. */
   readonly isDialogueFieldVisible: boolean
   /**
-   * FR-068 -- whether the `AI Export Modal` (U-30) is the surface standing.
-   *
-   * ⭐ A GATE AND NOT THE TEXT. `sessionOf` is handed the whole `Document`
-   * already, so the document that goes on the surface is written there; what
-   * only the caller knows is whether anybody is looking at it. ⛔ Writing it
-   * every frame would run `jsonFromDocument` over the whole schedule sixty
-   * times a second for a surface that is closed almost always.
+   * FR-068 -- whether the `AI Export Modal` (U-30) is standing. ⛔ A gate:
+   * writing the document every frame would run `jsonFromDocument` over the
+   * whole schedule for a surface that is almost always closed.
    */
   readonly isAiExportSurfaceOpen: boolean
   /** U-42 `Pointer`, or `null` while it is outside the window. */
@@ -2733,11 +1663,7 @@ interface SessionHeld {
     readonly resistedPx: number
     readonly atY: number | null
   } | null
-  /**
-   * S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」, which
-   * HR-2 of table T-015 (MUST) makes 「押すと行が 1 つも描かれない状態」 possible.
-   * ⛔ Not saved (that row: 「`S-99g` と同じ立場」), so it is lost with the page.
-   */
+  /** S-211 of table T-206 -- whether level 0 is folded (HR-2 of table T-015); not saved. */
   readonly isLevelZeroFolded: boolean
   /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
   readonly isMilestoneListOpen: boolean
@@ -2747,8 +1673,7 @@ interface SessionHeld {
   readonly isRecordingInteractions: boolean
   /**
    * Table T-029a -- which of `dualCursor`'s two dates (S-65) follows the
-   * pointer, or `null` while the mode is not up. The user's ruling of
-   * 2026-08-26 puts it on `ScreenSession`; see the member there.
+   * pointer, or `null` while the mode is not up. See `ScreenSession`.
    */
   readonly dualCursorFollowing: DualCursorSide | null
   /** FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by AT-51. */
@@ -2779,21 +1704,11 @@ interface SessionHeld {
   /** FR-076 (MUST) -- what has been raised to tell. */
   readonly notices: readonly RaisedNotice[]
   /**
-   * FR-031's two questions, as `ScreenSession.canUndo` / `canRedo` ask them --
-   * whether the history holds a step back and one forward (RD-1 / RD-2 of table
-   * T-230).
+   * FR-031's two questions (`ScreenSession.canUndo` / `canRedo`): whether the
+   * history holds a step back and one forward (RD-1 / RD-2 of table T-230).
    *
-   * ⭐ THE SHELL IS WHERE THEY CAN BE ANSWERED AT ALL: LY-5 of table T-060
-   * leaves the current value with this layer, and `held.history` is one. FR-029
-   * (MUST) then draws IC-5 and IC-6 faint on those answers, which is what
-   * `app-header-items.ts` reads them for.
-   * ⛔ NOT A COUNT. The member on the far side takes the two questions and no
-   * depth, and nothing on the screen prints how deep the history is.
-   *
-   * ⚠️ OPTIONAL, AND ABSENT MEANS NOT KNOWN -- an entrance whose answer is not
-   * known stays usable, which is the reading the far side fixes. ⛔ It is not
-   * "nothing to undo": a false faint tells the reader an entrance is broken,
-   * the very reading FR-029 exists to prevent.
+   * ⚠️ Optional; absent means not known, and the entrance stays usable. It is
+   * not "nothing to undo": a false faint tells the reader an entrance is broken.
    */
   readonly canUndo?: boolean
   readonly canRedo?: boolean
@@ -2802,27 +1717,10 @@ interface SessionHeld {
 /**
  * What the shell answers about this reading session (`ScreenSession`, PI-37).
  *
- * ⭐ Every member is either a measurement only this layer can make or a value
- * table T-206 keeps out of the document, which is why LY-5 of table T-060
- * leaves them here.
- *
- * ⭐ TWO OF THEM ARE FT-4's, AND BOTH ARE NOW HANDED IN. That row of table
- * T-078 -- 「時間が来たこと」 -- has the shell measure the time ITSELF, so the loop
- * counts the rest against a monotonic clock (R3.6) and asks IF-9 which entry
- * the pointer is on; this function decides neither.
- * ⚠️ ONLY THE FIRST OF FT-4's TWO COUNTS IS WIRED -- the wait EZ-2 of table
- * T-040 puts before an icon's explanation. NT-2's deadline still has none and
- * keeps its own note where it is answered (`raisedNotices`).
- * ⚠️ `pointer` waits on nothing either -- FT-1 is wired, and the caller hands in
- * the place the last pointer happening was reported from.
- *
- * ⭐ NOTHING IS DECIDED HERE ANY MORE except the palette's corner, which
- * `paletteCornerOf` answers because its default is a rectangle of THIS frame.
- * The five members that used to be frozen at empty -- `isAgentApiEnabled`,
- * `selectedGroupIds` (PND-142), `selectedResourceUids` (PND-143),
- * `propertiesShowing` and `propertiesSubject` (PND-144) -- are values the loop
- * moves as presses arrive, so they are handed in like the notices and the
- * question beside them.
+ * Every member is a current value or a measurement this layer holds (LY-5 of
+ * table T-060) and is handed in; only the palette's corner is decided here,
+ * because its default is a rectangle of this frame.
+ * ⚠️ NT-2's deadline is not yet counted (see `raisedNotices`).
  *
  * @purity pure
  */
@@ -2865,203 +1763,90 @@ function sessionOf(
   } = session
   return {
     language,
-    // FR-101. ⛔ BOTH ARE `null` UNTIL A WRITE HAS HAPPENED THROUGH THIS PAGE.
-    // The name and the instant are the shell's to hold (LY-5) and only a write
-    // can set them: a file that was OPENED has a name, but FR-101 asks when it
-    // was last WRITTEN, and opening answers neither.
+    // FR-101: both `null` until a write happens through this page; opening a
+    // file answers neither.
     openedFileName,
     fileSavedAt,
-    // FR-065: the person turned the `Agent API` on or off with IC-20, and this
-    // is what they left it at.
-    // ⭐ REMEMBERED, AND PER ORIGIN (台帳 DFC-280). FR-065 (MUST): 「有効化はブラウザ
-    // （オリジン）ごとに記憶すること」, and S-99b of table T-206 puts that record
-    // in `localStorage` 「オリジンごとに 1 つ」 -- `startupAgentApiEnabled` reads
-    // it and `setAgentApiEnabled` writes it, and neither needs a key for the
-    // document. ⛔ NOTHING PUTS IT BACK ON A NEW DOCUMENT any more: the MUST NOT
-    // that asked for that was struck on 2026-09-05, and the requirement now
-    // states the price of the wider scope itself.
+    // FR-065: remembered per origin in S-99b (`startupAgentApiEnabled` /
+    // `setAgentApiEnabled`); nothing resets it on a new document.
     isAgentApiEnabled,
-    // FR-066 / S-99i: IC-18's own switch, apart from the one above (DFC-149).
-    // ⛔ NOT REMEMBERED, AND NOT FOR THE REASON THE ROW ABOVE ONCE GAVE. The
-    // note here read 「S-99i names an identifier the same way S-99b does」 until
-    // DFC-280 closed, and that was measured false: S-99i names no identifier at
-    // all -- it is one value with one default (「表示」) and no key column, so
-    // `BrowserStoredRow` has no row for it and nothing is written.
-    // ⚠️ LEFT WHERE IT STANDS RATHER THAN GIVEN FR-065's ANSWER: PND-419 is
-    // 未裁定 and asks what S-99i does when the capability goes down and comes
-    // back, and borrowing the row above's scope would decide that here.
+    // FR-066 / S-99i: IC-18's own switch. Not remembered: S-99i is not one of
+    // LM-14's `localStorage` rows. Left as is while PND-419 is open, since
+    // borrowing S-99b's scope would decide it here.
     isDialogueFieldVisible,
-    // FR-068 (MUST): 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること
-    // （MUST）」, and the clause after it forbids a new exchange format for this
-    // face (MUST NOT) -- ⚠️ pointed at rather than quoted, because that sentence
-    // carries a broken character in the manuscript (see `ScreenSession`).
-    // `jsonFromDocument` is DocumentCodec's IO-2 writer and the
-    // one already used by the save road and by AM-3, so nothing is minted here.
-    //
-    // ⭐ THE WHOLE `Document` AND NOT `document.schedule`: FR-024 makes the
-    // presentation group part of what a GRS JSON carries, and the codec writes
-    // the value it is handed.
-    // ⛔ ONLY WHILE THE SURFACE STANDS -- see `isAiExportSurfaceOpen`. An
-    // ABSENT member here is 「nobody is reading it」 and not 「the document is
-    // empty」, which is the distinction `openModalFromScreenState` turns on.
-    // ⚠️ SPREAD RATHER THAN SET TO `undefined`: `exactOptionalPropertyTypes`
-    // makes those two different things, and the absence is the one meant.
+    // FR-068: the whole `Document` as IO-2's `GRS JSON`, only while the surface
+    // stands. Spread, not set to `undefined`: `exactOptionalPropertyTypes`
+    // tells them apart, and absence means nobody is reading it
+    // (`openModalFromScreenState`).
     ...(isAiExportSurfaceOpen ? { aiExportDocument: jsonFromDocument(held) } : {}),
     pointer,
-    // EZ-2 of table T-040 -- the two halves of its condition, both measured by
-    // the loop and neither of them decidable here.
-    // ⭐ THE PLACE IS IF-9's OWN ANSWER, not a rectangle worked out a second
-    // time: the rule Chapter 5.3 states under table T-065 is that the side
-    // which DREW an entry is the side that answers where it is, and PND-141
-    // recommends exactly this road. ⚠️ So it carries whatever
-    // `readScreenPartAt` reports, IC-53 included -- `ScreenPart.entry` says why
-    // that row is answered although table T-109 calls it no button, and no
-    // requirement takes it back out again.
+    // EZ-2 of table T-040: both halves measured by the loop. The place is
+    // IF-9's own answer (`readScreenPartAt`; Chapter 5.3 under table T-065,
+    // PND-141), IC-53 included -- see `ScreenPart.entry`.
     pointerRestedMs,
     iconUnderPointer,
-    // EZ-6 of table T-040 -- the same two halves, and the place half is table
-    // T-023d's own order rather than a second hit test (MUST NOT): it is what
-    // `itemAtPointer` (PI-7) answered for this very point, handed on rather
-    // than asked for again (R7.4).
+    // EZ-6 of table T-040: the place half is what `itemAtPointer` (PI-7)
+    // answered for this point, handed on rather than hit-tested again (R7.4).
     taskUnderPointer,
-    // IN-3 of table T-028 (MUST) -- 「消せること」, which IN-4's last rung
-    // (出ている説明) is the one means of. ⭐ Handed on rather than decided here,
-    // for the reason the two above are: only the loop can see whether an
-    // explanation stands, and LY-5 of table T-060 leaves that current value
-    // with it.
+    // IN-3 of table T-028: only the loop sees whether an explanation stands.
     isTooltipDismissed,
-    // FR-053: where the drag left it, or the `Row Area`'s corner while nobody
-    // has dragged it. ⭐ Handed in rather than decided here -- it is a current
-    // value and LY-5 of table T-060 leaves those with the loop, which is the
-    // same reason `notices` and `confirmation` below are handed in.
-    // ⛔ `paletteCornerOf` carries what is missing and what is settled.
+    // FR-053: see `paletteCornerOf`.
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
-    // HF-15 (MUST): 「握っているあいだ、行をポインタに追従させること」. ⭐ Handed
-    // on rather than decided here, for the reason the corner above is: it is a
-    // current value and LY-5 of table T-060 leaves those with the loop.
+    // HF-15 of table T-051.
     rowGrabbedAt,
-    // S-211 of table T-206 -- 段 0's own fold, handed on for the reason above:
-    // that row keeps it out of the saved document and LY-5 leaves it here.
+    // S-211 of table T-206: not saved, so held by the loop.
     isLevelZeroFolded,
-    // FR-041 (MUST): the theme has to CROSS to the side that paints. S-72 is
-    // the reader's light/dark and S-73 is the document's hue -- the number
-    // table T-236 writes as `H` wherever a colour follows the theme.
-    // ⛔ Neither crossed until 2026-08-25, which is exactly why choosing dark
-    // left the screen light: every piece of chrome fell back to the
-    // environment's own system colours, and those follow the OPERATING SYSTEM.
+    // FR-041: S-72 (light/dark) and S-73 (hue) must cross to the side that
+    // paints; without them chrome falls back to system colours, which follow
+    // the operating system.
     themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
-    // S-142 of table T-206: whether FR-053's milestone glyph list is open.
-    // ⭐ Handed in for the reason the corner above is -- table T-206 is where
-    // the specification records that the document does not keep it, so it is a
-    // current value and LY-5 of table T-060 leaves those with the loop.
+    // S-142 of table T-206: not kept by the document, so held by the loop.
     isMilestoneListOpen,
-    // S-200 of table T-206: whether the palette stands minimised. ⛔ A DIFFERENT
-    // STATE FROM S-99e, which says whether it is shown at all -- FR-053 keeps
-    // that one's entrance outside the palette and this one's on it (IC-75).
+    // S-200: not S-99e, which says whether the palette is shown at all.
     isPaletteMinimised,
-    // S-206 of table T-206: whether FR-102's record is running. ⭐ Handed
-    // over for the reason the two above are -- the record is a current value
-    // that FR-102 (MUST NOT) keeps out of the document, and FR-102 (MUST) has
-    // the state readable on the screen, which is what IC-76's pressed shape
-    // answers.
+    // S-206: FR-102 keeps the record out of the document.
     isRecordingInteractions,
-    // Table T-029a: which of the two dates is following the pointer, `null`
-    // while the mode is not up. ⭐ THE USER'S RULING OF 2026-08-26 NAMES THIS
-    // TYPE, and it is handed over for the reason the two above are -- the mode
-    // is a current value of one reading, so LY-5 of table T-060 leaves it with
-    // the loop and this is how the loop hands it on. ⛔ NOT A KEY OF
-    // `documentSettings`: the same ruling forbids a third one there, because
-    // FR-021 round-trips those and DC-8 (MUST NOT) keeps the following side out
-    // of an export altogether.
+    // Table T-029a: a current value of one reading, so held by the loop. Not a
+    // `documentSettings` key: FR-021 round-trips those, and DC-8 keeps the
+    // following side out of an export.
     dualCursorFollowing,
-    // FR-085 (MUST) and FR-099 (MUST): the two sets of chosen things that are
-    // NOT the drawing area's selection -- SL-1 of table T-023c leaves rows out
-    // of that one and admits no resource at all, so `Selection` (PI-32) can hold
-    // neither. ⭐ Both are moved by presses `commandFromEntry` answers with an
-    // `InputAction` of its own kind; `carryOutAction` is where they land.
+    // FR-085 / FR-099: chosen rows and resources are not `Selection` (SL-1 of
+    // table T-023c admits neither); `carryOutAction` moves them.
     // @provisional PND-142
     selectedGroupIds,
     // @provisional PND-143
     selectedResourceUids,
-    // FR-072: which of the two the LAST operation chose, and what it chose.
-    // ⭐ THE SUBJECT AND NOT THE DRAWN FIELDS, which is the whole of PND-144:
-    // that requirement has a second press of IC-17 return the panel to
-    // 「直前の選択物」, so what has to be kept is what was chosen -- keeping the
-    // fields would go on showing values an edit has already made untrue.
+    // FR-072: the subject, not the drawn fields -- a second IC-17 press returns
+    // to the last chosen thing, and kept fields would show values an edit has
+    // made untrue.
     // @provisional PND-144
     propertiesShowing,
     // @provisional PND-144
     propertiesSubject,
-    // FR-076 (MUST): what has been raised to tell, each carrying a row of table
-    // T-233 and no words at all.
-    // ⭐ Held by the loop, not built here -- the same reason the question below
-    // is handed in: LY-5 of table T-060 leaves a current value with this layer,
-    // and this function is handed it.
+    // FR-076: rows of table T-233 only, no words.
     notices,
-    // FR-022 (MUST): what U-61 lays out before its three answers are offered.
-    // ⭐ Held by the loop for the same reason `confirmation` below is.
     mergeCandidates,
-    // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ」 -- the other half of
-    // what U-61 lays out, held by the loop for the reason the line above is.
-    // ⛔ Never a count: the requirement asks for the columns themselves.
+    // FR-073: the columns themselves, never a count.
     unreadColumns,
-    // FR-023 (MUST): the names U-62 `Import Report` lays out. ⭐ Held by the
-    // loop for the same reason the line above is, and ⛔ never counted -- that
-    // requirement (MUST NOT) refuses a bare tally.
+    // FR-023: the names themselves; that requirement refuses a bare tally.
     droppedTaskNames,
-    // FR-032 (MUST): the question standing in front of a delete, or none.
-    // ⭐ Held by the loop, not built here -- LY-5 of table T-060 leaves a
-    // current value with this layer and this function is handed it.
+    // FR-032: the question standing in front of a delete, or none.
     confirmation,
-    // SC-1 (MUST): the row titles keep step with the body vertically and do not
-    // move sideways, so each row's band is this frame's own `RowPlacement`
-    // taken across the width `regionsFromScreen` gave the panel. ⛔ Not
-    // measured a second time -- ADR-001 has the layout computed once, and SC-1
-    // means the panel has to use those very numbers.
-    // ⛔ CLIPPED TO THE `Row Area`, AND A ROW THE CLIP EMPTIES IS DROPPED --
-    // this is what makes the two sides hold the SAME rows, which is the whole
-    // of what SC-1 asks. `svg-renderer.ts` cuts every band against that same
-    // rectangle and skips the row when nothing is left, so a panel that took
-    // `row.y` and `row.height` whole disagreed with the bands by exactly that
-    // cut. ⚠️ It agreed only while the stack sat at the top, because the first
-    // row's `y` IS `rowArea.y` there: the moment S-78 slid the stack, every row
-    // above the anchor had `row.y < rowArea.y`, its band was gone, and its
-    // title was still painted -- up in the Time Ruler and over the corner
-    // HF-10's control needs.
-    // ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow
-    // the body sideways, so `x` and `width` stay the panel's own.
+    // SC-1: row titles use this frame's `RowPlacement` (ADR-001), clipped to the
+    // `Row Area` with emptied rows dropped, as `svg-renderer.ts` cuts its bands;
+    // unclipped titles paint above the Time Ruler once S-78 slides the stack.
+    // Only the vertical pair is clipped: `x` and `width` stay the panel's own.
     rowBoxes: drawnRowBoxesOf(layout, regions),
-    // GR-21 of table T-023d (MUST): the scrollbar grip's length is 「帯の長さに
-    // 対する『見えている範囲 ÷ 全体』の割合」, and 「全体」 is this layout's.
-    // ⭐ READ OFF THE LAYOUT THIS FRAME ALREADY BUILT, never measured again --
-    // ADR-001 runs table T-068 once a frame and hands the answer on, which is
-    // the same bargain `rowBoxes` above is carried by. UF-61 divides; nothing
-    // is decided here.
-    // ⚠️ THE HEIGHT IS THE SCROLLING REMAINDER'S, not the `Row Area`'s.
-    // `layout.contentHeight` measures the rows that FLOW (FR-098 lifts the
-    // pinned ones into a band that does not, and LF-14 of table T-221 leaves
-    // the rest to the remainder), so the height it is seen through has to be
-    // that same remainder -- ⛔ the `Row Area`'s own height would overstate it
-    // by exactly the band, and the grip would grow as rows were pinned.
-    // ⭐ THE SAME TWO EDGES `drawnRowBoxesOf` CUTS AGAINST, read the same way:
-    // `scrollAreaY` is undefined until a pin reaches the band, and reads as the
-    // `Row Area`'s own top.
-    // ⭐⭐ AND WHERE THAT RANGE STANDS IN THE WHOLE (DFC-298). GR-21 calls the grip
-    // 「帯の中の、いま見えている範囲を表す区間」, so UF-61 is owed a start as well
-    // as a length -- and neither number can be recovered on that side, because
-    // `rows` and `placements` reach it already slid while the extents beside
-    // them are measured before the slide.
-    // ⭐ BOTH ARE A DIFFERENCE BETWEEN TWO NUMBERS THE LAYOUT PUBLISHES, taken
-    // here rather than measured: sideways, `contentX0` is the content's left
-    // edge in the very coordinates the figures are drawn in, so what stands
-    // left of the `Row Area` is how far in the view begins; downwards, the
-    // scrolling rows START at the remainder's top edge before the slide (LF-14
-    // of table T-221), so the first one's drawn `y` is that edge less the
-    // distance scrolled.
-    // ⛔ PINNED ROWS ARE PASSED OVER, and FR-098 is why: 「縦にスクロールしたこと
-    // は理由にならない」 -- a row in the band does not slide, so its `y` says
-    // nothing about how far the rest has.
+    // GR-21 of table T-023d: the grip's length and start come from this frame's
+    // layout (ADR-001); UF-61 divides.
+    // ⚠️ `visibleHeight` is the scrolling remainder's, not the `Row Area`'s:
+    // `contentHeight` excludes rows pinned into FR-098's band, so the `Row Area`
+    // height would grow the grip as rows were pinned. `scrollAreaY` is undefined
+    // until a pin exists and then reads as the `Row Area`'s top.
+    // The offsets are taken here because `rows` and `placements` reach UF-61
+    // already slid while the extents are measured before the slide; pinned rows
+    // do not slide and are passed over (FR-098).
     scrollExtent: {
       contentWidth: layout.contentWidth,
       contentHeight: layout.contentHeight,
@@ -3072,43 +1857,25 @@ function sessionOf(
       offsetX: Math.max(0, regions.rowArea.x - (layout.contentX0 ?? regions.rowArea.x)),
       offsetY: scrolledPastOf(layout, regions),
     },
-    // FR-029 (MUST) with RD-1 and RD-2 of table T-230 -- the two questions
-    // IC-5 and IC-6 are drawn faint on. ⭐ Carried through as they were handed
-    // in: the history is the loop's to hold (LY-5 of table T-060) and this
-    // function decides nothing about it, exactly as it carries `notices` and
-    // `confirmation` through.
-    // ⚠️ SPREAD AND NOT ASSIGNED, because `exactOptionalPropertyTypes` is on
-    // and the two members are optional: an absent answer has to be an ABSENT
-    // KEY rather than a key holding `undefined`, which is also the honest
-    // shape -- the export path (EP-12) hands neither over.
+    // FR-029 with RD-1 / RD-2 of table T-230: carried as handed in. Spread, not
+    // assigned: under `exactOptionalPropertyTypes` an unknown answer must be an
+    // absent key (the export path, EP-12, hands neither).
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
   }
 }
 
 /**
- * The rows this frame DRAWS, each with the band the `Row Title Panel` gives it.
+ * The rows this frame draws, each with the band the `Row Title Panel` gives it.
  *
- * ⭐⭐ THE ONE PLACE THE CUT IS MADE, AND IT ANSWERS TWO PARTIES. The renderer
- * is handed it as `ScreenSession.rowBoxes` (which rows carry a title, and where
- * each stands), and `collectInputContext` is handed the same rows' ids as
- * `InputContext.drawnRowGroupIds` -- because FR-029 (MUST) has an entrance
- * drawn faint 「画面に描かれている側で」 and (MUST) has that same press tell its
- * reason, so the two sides have to count ONE picture. ⛔ A second cut written
- * on the press side would be the same rule in two places (rule 03 section 1),
- * and the entrance would go back to writing the document in silence.
+ * The one place the cut is made: the renderer gets it as `ScreenSession.rowBoxes`
+ * and `collectInputContext` as `InputContext.drawnRowGroupIds`, so both sides of
+ * FR-029 count one picture. A second cut on the press side would drift from this one.
  *
- * ⛔ CLIPPED TO THE `Row Area`, AND A ROW THE CLIP EMPTIES IS DROPPED -- this
- * is what makes the two sides hold the SAME rows, which is the whole of what
- * SC-1 asks. `svg-renderer.ts` cuts every band against that same rectangle and
- * skips the row when nothing is left, so a panel that took `row.y` and
- * `row.height` whole disagreed with the bands by exactly that cut. ⚠️ It agreed
- * only while the stack sat at the top, because the first row's `y` IS
- * `rowArea.y` there: the moment S-78 slid the stack, every row above the anchor
- * had `row.y < rowArea.y`, its band was gone, and its title was still painted
- * -- up in the Time Ruler and over the corner HF-10's control needs.
- * ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow the
- * body sideways, so `x` and `width` stay the panel's own.
+ * Clipped to the `Row Area`, and a row the clip empties is dropped, because
+ * `svg-renderer.ts` cuts its bands the same way (SC-1). Taking `row.y` and
+ * `row.height` whole painted titles above the Row Area once S-78 slid the stack.
+ * Only the vertical pair is clipped; `x` and `width` stay the panel's own (SC-1).
  *
  * @purity pure
  */
@@ -3116,10 +1883,8 @@ function drawnRowBoxesOf(
   layout: ScheduleLayout,
   regions: ScreenRegions,
 ): readonly { readonly groupId: string; readonly box: ScreenRect }[] {
-  // ⛔ A ROW THAT FLOWS IS CUT AT THE SCROLLING REMAINDER'S TOP, a banded one at
-  // the `Row Area`'s (FR-098, MUST NOT: 「スクロールする行を帯の下へ潜らせては
-  // ならない」). `svg-renderer.ts` cuts the bands against the same two ceilings,
-  // which is what keeps the panel and the schedule holding the same rows.
+  // A flowing row is cut at the scrolling remainder's top, a banded one at the
+  // `Row Area`'s (FR-098); `svg-renderer.ts` uses the same two ceilings.
   const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
   return layout.rows.flatMap((row) => {
     const top = Math.max(row.y, row.isPinned === true ? regions.rowArea.y : scrollTop)
@@ -3140,22 +1905,16 @@ function drawnRowBoxesOf(
 }
 
 /**
- * How far down the scrolling rows have been carried, for GR-21's start (DFC-298).
+ * How far down the scrolling rows have been carried, for GR-21's start.
  *
- * ⭐ READ BACK OFF THE LAYOUT RATHER THAN MEASURED AGAIN. Before the slide the
- * scrolling rows begin at the remainder's top edge -- LF-14 of table T-221
- * leaves them 「`Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残り」 --
- * so the first one's DRAWN `y` is that edge less the distance scrolled, and the
- * difference is the distance. ⛔ Nothing is laid out here: ADR-001 runs table
- * T-068 once a frame, and this is arithmetic on two numbers that run already
- * published.
+ * Read back off the layout rather than laid out again (ADR-001): before the
+ * slide the first flowing row starts at the remainder's top edge (LF-14 of
+ * table T-221), so that edge less its drawn `y` is the distance.
  *
- * ⛔ THE FIRST ROW THAT FLOWS, NEVER THE FIRST ROW. FR-098 (MUST NOT) keeps a
- * pinned row still -- 「縦にスクロールしたことは理由にならない」 -- so a banded row
- * stands at the `Row Area`'s top whatever the rest has done, and reading its `y`
- * would answer zero for every scrolled document that has a pin.
- * ⚠️ NEVER NEGATIVE. `scrollOffsetOf` answers 0 where the anchor names no row it
- * placed, and a document resting at its top gives the two edges the same value.
+ * The first row that flows, never the first row: a pinned row stays put
+ * (FR-098), so reading its `y` would answer zero for every scrolled document
+ * with a pin. Clamped at zero because `scrollOffsetOf` answers 0 for an
+ * anchor naming no placed row.
  *
  * @purity pure
  */
@@ -3169,18 +1928,11 @@ function scrolledPastOf(layout: ScheduleLayout, regions: ScreenRegions): number 
  * What one reading of OP-10 answered: the settings the picture is drawn from,
  * and whether that picture stands at the document's own zoom.
  *
- * ⭐⭐ THE SECOND MEMBER EXISTS BECAUSE ONLY THIS SIDE CAN ANSWER IT, and
- * `input-command-translator.ts` has to know it: a zoom press steps from the
- * zoom the person is LOOKING at, and OP-10 has three branches -- a stored
- * place, the BT-4 exception, and the fit -- of which the first two draw
- * `S-73`/`S-74` and only the third draws FR-055's. ⛔ THE CONDITION IS NOT
- * WRITTEN A SECOND TIME FOR IT (DFC-358): the press side used to ask only
- * whether a place was named, missed the BT-4 exception that side had, and so
- * stepped the bundled template's zoom from the fit -- measured on the shipped
- * build at 1920x1080, one press of IC-12 took `zoomX` from 1 to 0.2285 and a
- * press of IC-13 (zoom IN) then answered 0.2765, which is 3.6 times SMALLER
- * than where it started. ⭐ The answer travels instead, as
- * `InputContext.isPictureAtStoredZoom`.
+ * The second member exists because only this side can answer it, and a zoom
+ * press in `input-command-translator.ts` must step from the zoom on screen:
+ * OP-10's stored-place and BT-4 branches draw `S-75`/`S-76`, the fit does not.
+ * It travels as `InputContext.isPictureAtStoredZoom` so the condition is not
+ * written twice; a press-side copy missed the BT-4 branch and stepped from the fit.
  */
 interface ViewSettings {
   readonly settings: DocumentSettings
@@ -3191,25 +1943,13 @@ interface ViewSettings {
  * OP-10 of table T-024a -- what to draw when the stored place is `null` or
  * points at a row that is gone.
  *
- * ⛔ `null` is not a missing value, it is "the person has not chosen a place
- * yet", and the row says to show what FR-055's fit-to-screen would choose
- * (MUST). ⚠️ It also forbids HF-8 here (MUST NOT), so the collapse state
- * FR-004 saved is left exactly as it is -- this only decides the view.
+ * The document is not edited: OP-10 is a reading rule, so the stored settings
+ * keep `null` and every frame decides again. A person's zoom press seats a
+ * place on the writing side (`placeSeated` / `fitCommand` in
+ * `input-command-translator.ts`), which is what ends the re-deciding.
  *
- * ⭐ The document is NOT edited. OP-10 sits on the reading side ("読む側の規則
- * は表 T-024a の `OP-10` が持つ", FR-051), so the stored settings keep saying
- * `null` and every frame decides again.
- * ⚠️ WHICH IS WHY A ZOOM PRESS NOW SEATS THE PLACE ON THE WRITING SIDE.
- * 「人の拡大の押下は表示位置を据えるものとする」 (利用者の裁定 2026-09-06):
- * IC-10 / IC-12 .. IC-15 write a place of their own (`placeSeated` and
- * `fitCommand` in `input-command-translator.ts`), so this answer stops being
- * re-decided the moment a person has decided one -- and the zoom they asked
- * for is no longer overwritten by the next frame. ⛔ Nothing here moved for it:
- * this member still answers the same picture for the same stored values.
- *
- * ⚠️ Runs the two passes the rule after table T-068 allows, and runs them
- * inside `fitZoom` (PI-5) rather than here. ⛔ A third pass is forbidden -- the
- * level of detail can oscillate and the loop would not be guaranteed to end.
+ * Both passes the rule after table T-068 allows run inside `fitZoom` (PI-5);
+ * a third would let the level of detail oscillate without end.
  *
  * @purity pure
  */
@@ -3225,91 +1965,47 @@ function viewSettings(
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
   if (placed) return { settings: stored, isAtStoredZoom: true }
 
-  // ⭐ THE POSITION IS NO LONGER DECIDED HERE. OP-10 sends the zoom AND the
-  // position to FR-055, and `fitZoom` (PI-5) now answers all four, so the two
-  // values below are scaffolding rather than an answer: S-77 pins the time axis
-  // and a layout cannot be measured until it is pinned to SOME day. Which day
-  // does not matter -- the extent is a difference of two edges, so it comes out
-  // the same wherever the axis starts, and the fit reads the real place off it.
-  // ⛔ IT CANNOT BE DROPPED. `dateAtX` answers null while no origin day is set,
-  // and the fit then has no day to name and hands back the null it was given --
-  // so OP-10's condition would still hold on the next frame and the fit would
-  // be asked again for ever.
+  // The two values below are scaffolding, not the answer: `fitZoom` decides the
+  // position, but S-77 pins the time axis and a layout cannot be measured until
+  // it is pinned to some day. Which day does not matter, since the extent is a
+  // difference of two edges. It cannot be null: `dateAtX` answers null without
+  // an origin day, the fit would hand the null back, and OP-10 would ask again
+  // forever.
   //
-  // ⭐⭐ WHAT 「その文書が覆う最初の日」 COUNTS IS NOW SETTLED, and it is both
-  // dates of a `Task` and neither of anything else: 「その文書の `Task` が持つ
-  // `start` と `actualStart` のうち最も早い日」 (OP-10, MUST -- the user's
-  // ruling of 2026-08-29).
-  // ⛔ THE PLANNED START ALONE WAS THE DEFECT, and the note that stood here
-  // named it without the code answering it: the earliest planned start is NOT
-  // the earliest day anything is drawn on -- OC-5 of table T-038 counts an
-  // `actualStart` that precedes it -- so the overhang was left behind the Row
-  // Title panel, where no scroll position can reach it.
-  // ⛔ THE ANNOTATIONS AND THE CALENDAR ARE NOT COUNTED (MUST NOT), and the
-  // same row says why: `HighlightBox` and `CommentBox` are never exported, so
-  // counting them would move the opening view of a schedule merely
-  // round-tripped through MSPDI, and `Exception.fromDate` is 「繰り返しの起点
-  // であって実日付の範囲ではない」.
-  // ⚠️ ISO DAYS SORT AS TEXT, which is why nothing is parsed here.
+  // The first covered day counts `Task.start` and `Task.actualStart` and nothing
+  // else (OP-10). `actualStart` is included because OC-5 of table T-038 draws an
+  // actual that precedes the plan, which would otherwise sit behind the Row
+  // Title panel out of reach.
+  // ISO days sort as text, so nothing is parsed.
   const covered = held.schedule.tasks
     .flatMap((one) => [one.start, one.actualStart])
     .filter((one): one is string => one !== null)
     .sort()
   const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
-  // ⭐⭐ WHERE A DOCUMENT WITH NOTHING DRAWN OPENS IS FR-055's OWN SENTENCE, and
-  // it names two days and no third: 「描くものが 1 つも無い文書では、倍率を等倍に
-  // 戻し、表示位置を `scrollDate` に合わせること（MUST）。`scrollDate` が `null`
-  // のときは実行日に合わせてよい（MAY）」.
-  // ⛔ `Project.startDate` (AT-12) STOOD HERE AND IS NOT ONE OF THEM. No row of
-  // FR-055 names that column and table T-038 draws nothing from it, so moving a
-  // document's start date moved the first frame of a document it draws nothing
-  // in -- found by the body that only reads the specification, which left its
-  // case red rather than writing the tree's answer down as the expectation.
-  // ⚠️ THE RUN DAY IS ALLOWED HERE AND NOWHERE ELSE, which that sentence says
-  // in as many words -- 「実行日を使うのはこの場合だけであり、`WY-2` の判定はその
-  // 文書を対象にしない」 -- because otherwise one JSON would draw a different
-  // picture on every day it was opened.
-  // ⛔ IT STILL CANNOT BE NULL. S-77 pins the time axis and a layout cannot be
-  // measured until it is pinned to some day; `dateAtX` answers null while none
-  // is set, and the fit would then hand back the null it was given for ever.
+  // A document with nothing drawn falls back to `scrollDate`, then the run day
+  // (FR-055); `Project.startDate` is not one of them. Still never null, for the
+  // reason given above.
   const pinned: DocumentSettings = {
     ...stored,
     scrollDate: covered[0] ?? stored.scrollDate ?? runDay,
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
   }
 
-  // ⛔⛔ OP-10 (MUST NOT) DOES NOT REACH THE SHIPPED TEMPLATE, and `pinned`
-  // above is already the whole of what that row asks for instead: the first
-  // day the document draws on and the head of its row forest, both DERIVED
-  // (MUST NOT: neither may be stored). The zoom is the document's own.
-  // ⭐ WHY THE ROW HAS THAT EXCEPTION: the bundled template has never been
-  // opened by anyone, so it necessarily carries no place, so this function
-  // necessarily fell to the fit -- and at that size the fit can seat one
-  // level. A document five levels deep opened every time as a flat list,
-  // which is what the person using it reported (DFC-77).
-  // ⚠️ THE OFFSETS ARE CLEARED FOR THE REASON THE FIT CLEARS THEM: the
-  // corner of the content is on the corner of the Row Area, so a fraction
-  // left over from nothing would slide the first frame by a row and a day.
-  // ⚠️ AND ONLY WHILE THERE IS A DAY TO COVER. OP-10 of table T-024a (MUST)
-  // withholds the BT-4 exclusion from a document that holds no `Task` at all --
-  // the row is POINTED AT rather than quoted, because the sentence that stood
-  // here was a paraphrase carrying a （MUST） it had not earned (台帳 DFC-339), and
-  // because that row itself warns against saying 「この除外」 twice for two
-  // different exclusions. ⇒ There is nothing to count, no day is invented in its
-  // place, and such a document falls to the fit below like any other.
+  // OP-10's exception for the shipped template: `pinned` is already what that
+  // row asks for, at the document's own zoom. Offsets are cleared for the
+  // reason the fit clears them (see below).
+  // Only while there is a day to cover: OP-10 of table T-024a withholds the
+  // BT-4 exception from a document with no `Task`, which then falls to the fit.
   if (fromTemplate && covered.length > 0) {
-    // ⭐ 「倍率は文書が持つものをそのまま使う」 -- OP-10's own sentence for this
-    // branch, which is why it answers `true` beside the fit's `false`.
+    // OP-10 keeps the document's zoom on this branch, hence `true`.
     return {
       settings: { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 },
       isAtStoredZoom: true,
     }
   }
 
-  // ⛔ `held.schedule` AND NOT A COPY WITH THE COLLAPSES DISCARDED. OP-10
-  // forbids HF-8 here in as many words (MUST NOT), because throwing the
-  // collapses away on every open would lose the state HR-6 has the document
-  // save for WY-1. ⭐ The press path does discard them, in `fitCommand`.
+  // `held.schedule`, not a copy with the collapses discarded: OP-10 forbids
+  // HF-8 here. The press path does discard them, in `fitCommand`.
   const fitted = fitZoom(
     held.schedule,
     pinned,
@@ -3319,9 +2015,8 @@ function viewSettings(
       min: NOT_STORED_ZOOM_BOUNDS['S-97'],
       max: NOT_STORED_ZOOM_BOUNDS['S-98'],
     },
-    // ⛔ THE FIT MEASURES THE BANDS THE FRAME WILL DRAW. LF-3's row-control floor
-    // makes a row taller, so a fit run without it seats a depth that does not
-    // fit once the floor is applied.
+    // The fit must measure with LF-3's row-control floor, or it seats a depth
+    // that no longer fits once the floor is applied.
     rowControlsHeightPx,
   )
   return {
@@ -3331,16 +2026,14 @@ function viewSettings(
       zoomY: fitted.zoomY,
       scrollDate: fitted.scrollDate,
       scrollGroupId: fitted.scrollGroupId,
-      // ⛔ CLEARED WITH THE ANCHORS THEY BELONG TO, exactly as `fitCommand`
-      // clears them for the press. The fit puts the content's top left corner on
-      // the Row Area's corner, so S-176 and S-177 are both zero here; a fraction
-      // left standing from an earlier pan slid FR-055's answer by up to one row
-      // and one day, which is the one thing a fit must not do.
+      // Cleared with their anchors, as `fitCommand` does: the fit puts the
+      // content's corner on the Row Area's corner, and a leftover fraction from
+      // an earlier pan would shift FR-055's answer by up to a row and a day.
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },
-    // ⛔ THE ONE BRANCH THAT DOES NOT DRAW `S-73`/`S-74`. A press stepped from
-    // the stored pair here would move the picture to a zoom nobody has seen.
+    // The one branch that does not draw `S-75`/`S-76`; a press stepped from the
+    // stored pair would jump to a zoom nobody has seen.
     isAtStoredZoom: false,
   }
 }
@@ -3348,9 +2041,8 @@ function viewSettings(
 /**
  * Whether this happening left no gesture in flight.
  *
- * ⭐ IN-1 settles a pointer operation on the RELEASE and IN-1a ends a lost one
- * as an abort (MUST), so those two are the ends. A `move` keeps the press: CS-2
- * of table T-066 makes the whole gesture about the moment it began.
+ * Release (IN-1) and lost pointer (IN-1a) end one; a `move` keeps the press
+ * (CS-2 of table T-066).
  *
  * @purity pure
  */
@@ -3362,24 +2054,13 @@ function hasEndedGesture(input: HumanInput): boolean {
  * IN-4 of table T-028 -- which level this `Esc` consumes, or null for a
  * happening that is not one and for one with nothing left to consume (IN-4a).
  *
- * ⛔ ASKED AGAINST THE STATE THE THREE MEMBERS WERE HANDED, never against what
- * they answered. `screenStateFromInput` consumes the two levels that are ITS to
- * consume -- the open surface and what is armed -- so a reckoning off the state
- * it returned would take two levels for one press, and IN-4 allows 1 階層
- * (MUST). ⚠️ The caller reads this BEFORE that member runs, because the level
- * this answers may be one the caller consumes itself, and then that member must
- * not be asked to move the state at all.
- * ⭐ THE OTHER FIVE LEVELS ARE THE SHELL'S, because all five are current values
- * the Framework holds (LY-5 of table T-060): the tellings this file raises
- * (FR-076), the press in flight, the Dual
- * Cursor mode, the `Confirmation` (U-55) this file raises, and the
- * `Properties Panel` whose contents this file decides (FR-072).
- * `screen-state.ts` says so where `EscapeContext` is declared, and that is the
- * whole reason the seam takes one.
- * ⛔ BOTH ARE HANDED IN RATHER THAN READ OFF `InputContext`: that value is
- * PI-18's and carries only what the pure members may see, and neither the
- * question nor the panel is among them. So the caller -- which holds both --
- * states them.
+ * Asked against the state the three members were handed, never what they
+ * returned: `screenStateFromInput` consumes its own two levels, so asking its
+ * result would take two levels for one press. The caller reads this before
+ * that member runs, because the level may be one the caller consumes itself.
+ * The remaining levels are current values the Framework holds (LY-5 of table
+ * T-060), which is why the seam takes an `EscapeContext`. The confirmation and
+ * the panel are passed in because `InputContext` (PI-18) does not carry them.
  *
  * @purity pure
  */
@@ -3392,23 +2073,18 @@ function escapeLevelOf(
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
-    // IN-4's first level (利用者の指示 2026-08-31). ⚠️ Read off the context and
-    // not off `raisedNotices` directly: `collectInputContext` already put the
-    // answer there for SK-19's first stage, and one reading is what both rows
-    // are owed (R7.4).
+    // Read off the context, not `raisedNotices`: `collectInputContext` already
+    // settled it for SK-19, and both rows get one reading (R7.4).
     isNoticeStanding: context.isNoticeStanding === true,
-    // IN-4's second level (利用者の裁定 2026-08-27). ⚠️ The same value IN-5a
-    // already reads off this context -- one question, not a second reckoning.
+    // The same value IN-5a reads off this context.
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
     dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
     isPropertiesPanelOpen,
-    // IN-4's LAST level, and the one this side alone can report: what a frame
-    // put up is `ScreenView.tooltips`, built afresh per frame by UF-69, and
-    // LY-5 of table T-060 leaves that current value here. ⛔ Reporting it is
-    // not spending it -- the caller does that, by raising the dismissal the
-    // next frame reads.
+    // Only this side knows it: `ScreenView.tooltips` is built per frame (UF-69)
+    // and held here (LY-5 of table T-060). Reporting is not spending -- the
+    // caller raises the dismissal the next frame reads.
     isTooltipStanding,
   })
 }
@@ -3416,9 +2092,8 @@ function escapeLevelOf(
 /**
  * Whether two answers of `readScreenPartAt` name the same place.
  *
- * ⭐ Compared by value and not by identity: IF-9 builds its answer at the
- * moment it is asked, so two reads taken over one unmoved pointer are two
- * objects that mean the same thing.
+ * Compared by value: IF-9 builds a fresh object per read, so two reads over
+ * one unmoved pointer are different objects.
  *
  * @purity pure
  */
@@ -3430,14 +2105,10 @@ function isSameScreenPart(a: ScreenPart | null, b: ScreenPart | null): boolean {
 /**
  * Whether two answers of `itemAtPointer` name the same grab on the same thing.
  *
- * ⭐ Compared by value and not by identity, for the reason `isSameScreenPart`
- * gives: PI-7 builds its answer at the moment it is asked as well.
- *
- * ⭐ THE THING IS COMPARED AS WELL AS THE ROW. Table T-023d's rows repeat on
- * every drawn `Task`, so a pointer that crossed from one bar's end to the next
- * is answered the same row about a different `Task` -- and what FR-048's roster
- * of pointer-answering parts names is drawn ON the thing, so the picture is a
- * different one.
+ * Compared by value, as in `isSameScreenPart` (PI-7 builds fresh answers too).
+ * The item is compared as well as the row: table T-023d's rows repeat on every
+ * drawn `Task`, so crossing from one bar's end to the next keeps the row but
+ * changes what FR-048's hover picture is drawn on.
  *
  * @purity pure
  */
@@ -3449,11 +2120,8 @@ function isSameGrab(a: Grabbed | null, b: Grabbed | null): boolean {
 /**
  * Whether two targets of table T-023c's SL-1 are the same one.
  *
- * ⭐ A CENSUS THE COMPILER KEEPS, the same bargain `PRESS_CHANGES_DOCUMENT`
- * strikes below: with every branch returning, a target added to that table is a
- * missing return here and names itself. ⛔ A default arm would let a new kind
- * compare equal to every other of its own kind, which is a frame never asked
- * for and nothing to show for it.
+ * Exhaustive with no default arm, so a target added to that table is a compile
+ * error here; a default would make a new kind compare equal to its own kind.
  *
  * @purity pure
  */
@@ -3471,8 +2139,7 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
       return b.kind === 'highlightBox' && a.id === b.id
     case 'commentBox':
       return b.kind === 'commentBox' && a.id === b.id
-    // ⭐ NOTHING TELLS TWO APART, because there are never two: FR-046 gives the
-    // document one `statusDate`, so the kind IS the identity.
+    // The kind is the identity: a document has one `statusDate` (FR-046).
     case 'statusLine':
       return b.kind === 'statusLine'
   }
@@ -3481,91 +2148,52 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
 /**
  * Whether a press of each row of table T-023a changes the document as it runs.
  *
- * ⭐ WHY EXACTLY TWO ARE FALSE. Table T-027 keeps exactly two gestures outside
- * the undo history -- UN-8 the pan and UN-9 the range selection -- and keeps
- * them out because neither changes the document. AG-9's refusal is about
- * writing into a HALF-FINISHED document change, so a gesture with no such state
- * to be half-way through is one it spares.
+ * The `false` rows are the gestures table T-027 keeps out of the undo history
+ * (UN-8, UN-9), which AG-9 therefore spares.
  *
- * ⭐ A CENSUS THE COMPILER KEEPS, spelled the way `input-command-translator.ts`
- * spells its own: `Record<PressRow, boolean>` makes a row added to table T-023a
- * a compile error here, naming the row that has to be judged. ⛔ A bare `string`
- * key would let a new row default silently into 「spared」 or 「refused」 by
- * nothing but the shape of this lookup.
+ * `Record<PressRow, boolean>` makes a row added to table T-023a a compile error
+ * here; a `string` key would let a new row default silently.
  */
 const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
-  // UN-8 -- the pan moves the viewport and no row of the file.
+  // UN-8
   'PTD-1': false,
   'PTD-2': true,
   'PTD-3': true,
   'PTD-4': true,
   'PTD-4a': true,
-  // UN-9 -- the range selection moves what is chosen, not what is written.
+  // UN-9
   'PTD-5': false,
 }
 
 /**
  * Whether a press in flight is one AG-9 of table T-035 refuses a write during.
  *
- * ⛔ `on` IS THE FIRST QUESTION AND THE ROW IS THE SECOND. The note under table
- * T-023a binds that table's decision order to the schedule's drawing area
- * (MUST), so the row a press on a drawn entry carries says nothing about what
- * the press is: `commandFromInput` branches to `commandFromEntry` before it
- * ever looks at the row, and that road CAN change the document. A press the
- * screen surface answered for is therefore in flight whatever its row is.
- * ⚠️ A press falling on an entry lands on PTD-5 for want of a hit, which is
- * precisely the row that would otherwise be spared -- so reading the row first
- * would take AG-9 off every palette press there is.
+ * `on` is asked before the row: table T-023a's decision order is bound to the
+ * drawing area, and `commandFromInput` branches to `commandFromEntry` before it
+ * reads the row, so a press on a drawn entry can change the document whatever
+ * its row. Such a press lands on PTD-5 for want of a hit, so reading the row
+ * first would take AG-9 off every palette press.
  *
- * ⭐ THE FOUR ZOOM ENTRANCES ARE SPARED, AND AG-9's OWN SENTENCE IS WHY:
- * 「パンと範囲選択は文書を変えないので拒否しない —— 対象は表 T-027 の取り消し
- * 対象行と一致させる」. The only thing `commandFromEntry` writes for IC-12 ..
- * IC-15 is the zoom, and UN-8 of table T-027 puts 「ズーム・スクロール・パン」
- * outside the history -- so a press held on one of them changes no row AG-9
- * names, exactly as the pan (PTD-1) and the marquee (PTD-5) change none.
- * ⛔ WITHOUT THIS, FR-018's REPEAT CANNOT LAND. That MUST has a held entrance
- * go on stepping while the button is DOWN, and the press is only dropped on
- * the release -- so every tick `repeatHeldEntry` raised was refused at WS-2 of
- * table T-067 and the hold moved nothing until the button came up. ⚠️ The
- * release itself was never refused, which is why the defect read as 「押し
- * 続けても 1 度しか刻まない」 rather than as a zoom that does nothing at all.
- * ⚠️ THE ROSTER IS FR-018's AND NOT A SECOND ONE: `REPEATING_ENTRIES` is the
- * four the requirement limits the repeat to, and it is the same four whose
- * writes UN-8 exempts.
+ * The zoom entrances IC-12 .. IC-15 are spared: their only write is the zoom, which is
+ * outside the history (UN-8 of table T-027), and AG-9 matches that table.
+ * Without this, FR-018's repeat is refused at WS-2 of table T-067 on every tick
+ * while the button is held. `REPEATING_ENTRIES` is FR-018's roster, and the
+ * same four are the ones UN-8 exempts.
  *
  * @purity pure
  */
 function isDocumentChangingPress(press: PointerPress | null): boolean {
   if (press === null) return false
   if (press.on !== null) {
-    // ⭐⭐ GR-21's GRIP IS SPARED, ON AG-9's OWN SENTENCE (DFC-420, measured
-    // 2026-09-08 on the shipped build). That row spares what table T-027 leaves
-    // out of the history -- 「パンと範囲選択は文書を変えないので拒否しない ——
-    // 対象は表 T-027 の取り消し対象行と一致させる」 -- and UN-8 of that table
-    // reads 「ズーム・スクロール・パン」. A drag on a lane writes the display
-    // position and nothing else (`commandFromScrollbar` plans one
-    // `setScrollPosition`), so it is UN-8's スクロール and not a half-finished
-    // document change.
-    // ⛔ WITHOUT THIS THE PICTURE COULD NOT FOLLOW. The closing rule of table
-    // T-023d (MUST) names GR-21 among the grabs whose picture follows the
-    // pointer while held, and `scrollbarFollow` plans that follow on every
-    // move -- but WS-2 of table T-067 refused every one of those writes and
-    // raised a telling instead, so the schedule stood still through the drag
-    // and jumped at the release. ⚠️ MEASURED: three moves at 40px each answered
-    // `act=changeDocument doc=same notices=1`, and the release `doc=changed`.
-    // ⛔ THE `Panel Divider` IS NOT SPARED BESIDE IT, however alike the two
-    // look. FR-052 (MUST NOT) forbids that drag to write at all while it is
-    // held -- 「掴んでいるあいだ、その幅を文書へ書いてはならない」 -- so its
-    // picture is drawn without a write and it has nothing to be spared for.
-    // ⚠️ AND TABLE T-023d's OWN 「掴んでいるあいだ値を文書へ書いてはならない」 IS
-    // NOT BROKEN BY THIS, which is the one place the two readings could meet.
-    // That MUST NOT gives its own reason -- 「追従は絵であって編集ではない」 --
-    // and for GR-21 the picture IS the display position: FR-051 (MUST) then
-    // requires 「表示位置が変わったときは ... `S-77` と `S-78` が新しい表示位置を
-    // 指すようにすること」, so a followed picture that left those two behind
-    // would break a MUST rather than keep one. ⭐ PTD-1's pan already stands on
-    // exactly this reading (`panFollow`), and UN-8 is why neither leaves a step
-    // behind for a release to take back.
+    // GR-21's grip is spared: its drag writes only the display position
+    // (`commandFromScrollbar` plans one `setScrollPosition`), which is UN-8's
+    // scroll, and AG-9 matches table T-027. Without this WS-2 refuses every
+    // `scrollbarFollow` write and the picture jumps only on release.
+    // The `Panel Divider` is not spared: FR-052 forbids its drag to write at all
+    // while held, so there is nothing to spare.
+    // Table T-023d's no-write-while-held rule is not broken: for GR-21 the
+    // followed picture is the display position, which FR-051 requires S-77 and
+    // S-78 to track. PTD-1's `panFollow` rests on the same reading.
     if (press.on.scrollbarAxis !== undefined) return false
     const entry = press.on.entry
     return entry === null || !REPEATING_ENTRIES.includes(entry)
@@ -3577,13 +2205,9 @@ function isDocumentChangingPress(press: PointerPress | null): boolean {
  * Which entry of table T-109 this happening settled on, or null for one that
  * settled on none.
  *
- * ⭐ THE RELEASE, AND FROM THE PRESS. IN-1 settles a pointer operation on the
- * release (MUST) and CS-2 of table T-066 makes the press its moment, which is
- * exactly the pair `commandFromEntry` is asked with -- so the shell's own three
- * entries are read the same way rather than on a rule of this file's.
- * ⛔ Read off the CONTEXT's press and not the loop's: the loop drops its press
- * before the action is carried out, and the context is the value the three
- * members of PI-18 were handed for this same happening.
+ * On release, from the press (IN-1, CS-2 of table T-066) -- the same pair
+ * `commandFromEntry` is asked with. Read off the context's press, not the
+ * loop's: the loop drops its press before the action is carried out.
  *
  * @purity pure
  */
@@ -3598,13 +2222,9 @@ function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId
  * Which of NT-7's two answers this happening settled on, or null for one that
  * settled on neither.
  *
- * ⭐ THE RELEASE, AND FROM THE PRESS, read exactly as `entrySettledOnRelease`
- * above reads its own member and for the same reasons: IN-1 of table T-028
- * settles a pointer operation on the release (MUST) and CS-2 of table T-066
- * makes the press its moment.
- * ⚠️ `undefined` AND `null` ARE ONE ANSWER HERE. `ScreenPart` declares the
- * member optional so that a description written before it existed goes on
- * compiling, and its own declaration fixes absent as 「on neither answer」.
+ * Read as `entrySettledOnRelease` reads its member. `undefined` and `null` are
+ * one answer: `ScreenPart` declares the member optional and fixes absent as
+ * "on neither answer".
  *
  * @purity pure
  */
@@ -3616,17 +2236,12 @@ function answerSettledOnRelease(input: HumanInput, context: InputContext): strin
 }
 
 /**
- * Which part of the screen this happening settled ON, or null for one that
+ * Which part of the screen this happening settled on, or null for one that
  * settled on none.
  *
- * ⭐ THE FIRST MEMBER OF `ScreenPart` BESIDE THE SECOND, and it is needed for
- * exactly one row: table T-109 stands IC-52 on six surfaces, and what that one
- * press closes is the surface it was drawn on. ⛔ The entry alone cannot say
- * which -- that is what makes this a second reading of the same answer rather
- * than a second question.
- * ⚠️ Read exactly as `entrySettledOnRelease` reads its own member, and for the
- * same reasons: IN-1 settles on the release and CS-2 of table T-066 makes the
- * press its moment.
+ * Needed for IC-52, which table T-109 stands on several surfaces: what the
+ * press closes is the surface it was drawn on, and the entry alone cannot say
+ * which. Read as `entrySettledOnRelease` reads its member.
  *
  * @purity pure
  */
@@ -3641,14 +2256,9 @@ function surfaceSettledOnRelease(input: HumanInput, context: InputContext): stri
  * Which row of table T-024 this happening settled on, or null for one that
  * settled on none.
  *
- * ⭐ THE SECOND MEMBER OF `ScreenPart` AND NOT THE FIRST. FR-096 (MUST NOT)
- * forbids an entrance per format, so table T-109 places nothing but IC-52 on
- * U-54 and what a person presses there is a row of table T-024 -- which `entry`
- * cannot report, because the two tables number their rows independently.
- * `screen-surface.ts` states the same division from the seam's side.
- * ⚠️ Read exactly as `entrySettledOnRelease` reads its own member, and for the
- * same reasons: IN-1 settles on the release and CS-2 of table T-066 makes the
- * press its moment.
+ * Not `entry`: on U-54 a person presses a row of table T-024 (FR-096), and
+ * tables T-024 and T-109 number their rows independently. Read as
+ * `entrySettledOnRelease` reads its member.
  *
  * @purity pure
  */
@@ -3666,17 +2276,12 @@ function formatSettledOnRelease(
  * The rows CD-2 of table T-050 takes with one row -- it and everything below
  * it.
  *
- * ⛔ A SECOND READING OF TABLE T-050, AND IT IS ONE THIS FILE WOULD RATHER NOT
- * MAKE. FR-032 (MUST) requires the confirmation to name the `Task`s that would
- * go, so whoever raises the question has to know the chain -- and NOTHING
- * published answers 「what would this command take away」: `editTaskGroup`
- * computes the same set on the far side of a write that has already happened,
- * and `applyDocumentChange` (PI-8) publishes no way to ask without landing.
- * ⚠️ What would close it is a query on PI-8 that plans a command and answers
- * what it would remove; until then this is the duplication R2.7 warns about,
- * written here because the alternative is not asking at all.
- * ⚠️ `seen` is what stops a broken `parentId` (IV-5) from looping, the same
- * guard the aggregate's own walk keeps.
+ * A second reading of table T-050, kept because FR-032 must name what would go
+ * before anything is written: `editTaskGroup` computes this set only after the
+ * write, and `applyDocumentChange` (PI-8) has no way to ask without landing.
+ * A PI-8 query that plans and answers what it would remove would retire this
+ * duplication (R2.7).
+ * `seen` stops a broken `parentId` (IV-5) from looping.
  *
  * @purity pure
  */
@@ -3700,7 +2305,7 @@ function rowsLostWith(groups: readonly TaskGroup[], rootId: string): ReadonlySet
  * The seeds and every WBS descendant of them -- what CD-1 of table T-050
  * reaches from each `Task`.
  *
- * ⛔ The second reading `rowsLostWith` records; the same note covers this one.
+ * The same second reading as `rowsLostWith`, for the same reason.
  *
  * @purity pure
  */
@@ -3720,15 +2325,11 @@ function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): Readonl
 }
 
 /**
- * The rules a refusal names when what it refused is 「文書が使えない日付」.
+ * The rules a refusal names when what it refused is an unusable date (FR-023):
+ * IV-14 of table T-220, and S-119 / S-120 of table T-214.
  *
- * ⭐⭐ FR-023 SPELLS THE CLASS OUT AND THIS IS THAT SPELLING, ROW BY ROW: 「日と
- * して読めない値（空文字を含む）」 is IV-14 of table T-220, and 「表 T-214 の範囲の
- * 外にある値」 is that table's two rows, S-119 and S-120.
- * ⛔ NOTHING ELSE IS DROPPABLE. FR-023 (MUST NOT) puts the resource ceilings
- * outside this rule in as many words -- 「上限を超えたときに落とすべき行を名指し
- * できないからである」 -- and every other invariant of table T-220 refuses the
- * WHOLE input rather than a row of it.
+ * Nothing else is droppable: FR-023 excludes the resource ceilings, and every
+ * other invariant of table T-220 refuses the whole input.
  */
 const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
 
@@ -3739,13 +2340,10 @@ const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
  * Which `Task` of the arriving schedule a refusal is about, or `null` where it
  * is about something that is not one.
  *
- * ⭐ THE POINTER IS THE ONLY JOIN THERE IS, and it is one the validator writes
- * on purpose: `ImportVerdict`'s own note says a refusal carries the row and the
- * column in `at` 「which is what the caller needs to offer it and to count what
- * would go」.
- * ⛔ A POINTER WITH NO COLUMN IS NOT ONE OF THESE. `sweepDateColumns` always
- * writes `.../{index}/{column}`, so a refusal naming the row alone came from
- * another rule and is not this function's to claim.
+ * The pointer is the only join: the validator puts row and column in `at` (see
+ * `ImportVerdict`). A pointer with no column is not this function's to claim --
+ * `sweepDateColumns` always writes `.../{index}/{column}`, so a row-only
+ * pointer came from another rule.
  *
  * @purity pure
  */
@@ -3759,12 +2357,11 @@ function taskIndexOfRefusal(at: string): number | null {
 }
 
 /**
- * The `Task` rows FR-023 (MUST) drops out of an arriving document -- the ones
- * whose date columns the validator refused -- as the uids to delete.
+ * The `Task` rows FR-023 drops out of an arriving document -- the ones whose
+ * date columns the validator refused -- as the uids to delete.
  *
- * ⛔ SEEDS ONLY, AND THE CASCADE IS NOT DONE HERE. CD-1 of table T-050 is what
- * a dropped `Task` takes with it, and FR-023 sends the dropping to that row
- * rather than to a second sweep -- 「取り除く連鎖を 2 通り持たない」.
+ * Seeds only: the cascade is CD-1 of table T-050's, to which FR-023 sends it,
+ * so there is no second sweep here.
  *
  * @purity pure
  */
@@ -3778,9 +2375,7 @@ function taskUidsWithAnUnusableDate(
     const index = taskIndexOfRefusal(refusal.at)
     if (index === null) continue
     const task = tasks[index]
-    // ⚠️ An index the schedule does not hold names no row to drop. It cannot
-    // happen while the verdict is the one this very document was judged by, and
-    // saying so out loud costs nothing.
+    // Unreachable while the verdict belongs to this very document; guarded anyway.
     if (task === undefined) continue
     seeds.add(task.uid)
   }
@@ -3790,30 +2385,18 @@ function taskUidsWithAnUnusableDate(
 /**
  * The question FR-032 owes for one write, or null where it owes none.
  *
- * ⭐ THE TWO PLACES AND NO OTHERS. FR-032 (MUST) asks for a confirmation when a
- * ROW is deleted and when a `Task` WITH WBS DESCENDANTS is deleted, and FR-031
- * forbids adding a third place (MUST NOT) -- 「問うてよいのは、要求が確認を
- * 求めると定めた場面だけ」 is NT-7's own limit. ⛔ So the two `kind`s below are
- * the whole test: a delete of a `Task` that leads nothing is written straight
- * through, and undo is the only thing standing behind it, which is what
- * FR-031's RATIONALE intends.
+ * Only the two places FR-032 names (FR-031 forbids a third): a row deletion,
+ * and a deletion of a `Task` with WBS descendants. A `Task` that leads nothing
+ * is deleted straight through, with undo behind it.
  *
- * ⭐ THE SENTENCE IS A ROW OF TABLE T-234 AND NOT A STRING. FR-076 (MUST) makes
- * what a question shows a row of that table and (MUST NOT) bars one from
- * outside it, and FR-038's one dictionary is what turns the row into words --
- * so this side names the SITUATION and nothing else, the way `raiseNotice`
- * names a reason.
+ * The question is a row of table T-234, not a string (FR-076); the words come
+ * from FR-038's dictionary.
  *
- * ⛔ WHICH OF THE TWO ROWS ONE WRITE SHOWS, when the write does both. Table
- * T-234's 場面 column tells QN-1 (「行を削除する前」) from QN-2 (「WBS の子孫を
- * 持つ `Task` を削除する前」), and one `RaisedConfirmation` shows ONE sentence --
- * but a bundle of commands may carry a row deletion and a leading `Task`'s
- * deletion at once, and nothing in table T-234, FR-032 or FR-031 says which
- * sentence such a write shows. Chosen: the row's, whenever a row is going.
- * ⚠️ Defensible from the table itself -- CD-2 seeds CD-1 with every `Task` the
- * going rows carry, so the row deletion is the wider scene and the tasks named
- * below are already gathered under it -- and the narrower reading would tell a
- * person their row survives. ⛔ Not settled by the specification all the same.
+ * Not settled by the specification: when one write deletes both a row and a
+ * leading `Task`, table T-234, FR-032 and FR-031 do not say whether QN-1 or
+ * QN-2 is shown. Chosen:
+ * QN-1 whenever a row is going, since CD-2 seeds CD-1 with the row's tasks
+ * (the wider scene), and QN-2 would suggest the row survives.
  *
  * @purity pure
  */
@@ -3828,16 +2411,14 @@ function confirmationOwedBy(
   for (const command of commands) {
     if (command.kind === 'deleteTaskGroup') {
       const rows = rowsLostWith(schedule.taskGroups, command.groupId)
-      // ⚠️ A row that is not there takes nothing with it, and CM-27 refuses the
-      // command on its own account -- so there is nothing to ask about.
+      // A missing row takes nothing, and CM-27 refuses the command itself.
       if (rows === null) continue
       for (const id of rows) lostRows.add(id)
       owed = true
       continue
     }
     if (command.kind !== 'deleteTask') continue
-    // FR-032 asks about a `Task` only where it LEADS something. A direct child
-    // is what makes it so: descendants are reached through the same column.
+    // One direct child is enough to make it a leading `Task`.
     if (!schedule.tasks.some((one) => one.wbsParentUid === command.uid)) continue
     seeds.add(command.uid)
     owed = true
@@ -3855,15 +2436,12 @@ function confirmationOwedBy(
     const drawnOn = rowOfTask.get(task.uid)
     items.push({
       name: task.name,
-      // FR-032 (MUST): a `Task` that goes with a row but is DRAWN elsewhere is
-      // shown as such, because it is not visible on the row being deleted --
-      // HM-10 of table T-015a leaves the WBS children behind when a bar moves.
-      // ⚠️ False where no row is going at all: 「another row」 means nothing when
-      // FR-032's row half is not the one asking.
+      // FR-032; HM-10 of table T-015a is how a WBS child ends up drawn on
+      // another row. False when no row is going at all.
       isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
     })
   }
-  // See the head note on which row a write that does both shows.
+  // See the head note on a write that does both.
   const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
   return { manner: CONFIRMATION_MANNER, question, items }
 }
@@ -3872,40 +2450,18 @@ function confirmationOwedBy(
  * The question FR-099 owes before the chosen assignees are deleted, or null
  * where it owes none.
  *
- * ⭐ THE SCENE IS THE RELEASED ASSIGNMENT AND NOT THE DELETION. QN-3 of table
- * T-234 words its 場面 「担当者を消すことで解かれる割当があるとき」, and FR-099
- * says the same from its own side (MUST): 「消すことで解かれる割当があるときは、
- * そのタスクの名前を示して確認を求めること」. ⛔ So a deletion that frees no
- * assignment is written straight through, and undo is what stands behind it --
- * the same reading `confirmationOwedBy` above makes for a `Task` that leads
- * nothing, and for the same reason (FR-031, MUST NOT).
+ * The scene is a released assignment, not the deletion (QN-3 of table T-234),
+ * so a deletion that frees none goes straight through, as in
+ * `confirmationOwedBy` (FR-031). The names are the tasks', never the
+ * assignees' (CD-5 of table T-050).
  *
- * ⛔ THE NAMES ARE THE TASKS' AND NEVER THE ASSIGNEES'. That row asks for
- * 「解かれる割当のタスクの名前」 and points at CD-5 of table T-050 for the
- * chain, and CD-5 takes 「その担当者を指す割当」 while leaving every `Task`
- * where it stood -- 「タスクは消えない —— 担当が外れるだけである」.
- *
- * ⚠️ ONE ITEM PER TASK. Two chosen assignees standing on one `Task` free two
- * assignments and reach ONE task; NT-7 asks for what the deletion reaches, and
- * a name printed twice tells a reader nothing the first printing did not.
- * ⚠️ ORDER IS THE ASSIGNMENTS' OWN and no sort is invented (rule 03 section 4).
- * `unassignedTaskNamesOf` in `open-modals.ts` builds FR-099's other list of the
- * same tasks the same way, and the two are read on the same surface.
- * ⚠️ A `taskUid` no `Task` answers to is left OUT, while a `Task` carrying no
- * name of its own is carried as `null` -- the two rules that sibling states,
- * for the reasons it gives: `null` already means 「a task with no name」, so
- * spelling an absent task the same way would leave the two unreadable apart.
- * ⚠️ AN ASSIGNMENT WITH NO `taskUid` STILL OWES THE QUESTION and adds no name.
- * It is an assignment the deletion frees, which is the whole of the 場面, and
- * it reaches no task to name -- the same reading `unassignedTaskNamesOf` writes
- * for the roster's own list.
- *
- * ⚠️ `isShownOnAnotherRow` IS FALSE THROUGHOUT. `ConfirmationItem` says so on
- * the member itself -- 「`false` wherever FR-032 is not the one asking」 -- and
- * rows have nothing to do with the tasks an unassignment reaches.
- *
- * ⭐ ONE PASS AND A `Map` rather than a scan per task, the shape
- * `tasksReachedByEachResource` keeps for the same list (NFR-013).
+ * One item per task: two chosen assignees on one `Task` reach one task.
+ * Order is the assignments' own (rule 03 section 4), and absent tasks and
+ * `null` names are treated as in `unassignedTaskNamesOf` in `open-modals.ts`,
+ * which builds FR-099's other list of the same tasks. An assignment with no
+ * `taskUid` still owes the question and adds no name.
+ * `isShownOnAnotherRow` is false throughout (see `ConfirmationItem`).
+ * One pass and a `Map`, not a scan per task (NFR-013).
  *
  * @purity pure
  */
@@ -3941,9 +2497,8 @@ function confirmationOwedByResourceDeletion(
 /**
  * Whether a string is one of the two languages FR-038 admits.
  *
- * ⭐ A STORED VALUE IS UNTRUSTED INTAKE. FR-023 calls every intake untrusted,
- * and `localStorage` is shared by every local page on the machine (LM-6), so
- * what comes back is a string and nothing more until this has said otherwise.
+ * A stored value is untrusted intake (FR-023): `localStorage` is shared by
+ * every local page on the machine (LM-6).
  *
  * @purity pure
  */
@@ -3955,31 +2510,19 @@ function isDisplayLanguage(value: string): value is DisplayLanguage {
  * DI-3 of table T-227, as `ChosenFileSaveRequest` asks for it: who owns the
  * characters already standing where a chosen write would land.
  *
- * ⭐ THE CODEC IS WIRED HERE BECAUSE ONLY THE CALLER MAY WIRE IT. FileGateway
- * (PI-22) takes this as a function and says why in as many words -- UT-5 of
- * table T-063 keeps each format in a codec of its own, and a gateway that
- * parsed `GRS JSON` would hold an authority FR-024 already owns.
+ * The codec is wired by the caller because FileGateway (PI-22) must not parse
+ * `GRS JSON` itself (UT-5 of table T-063, FR-024).
  *
- * ⛔ `null` FOR EVERY WAY OF NOT KNOWING, which is the whole of DI-3 (MUST
- * NOT): characters that are not `GRS JSON` name no owner, and an unreadable
- * destination may not be called this same document. ⚠️ A destination that
- * decodes is NOT thereby accepted as intake -- nothing here is opened, and
- * FR-023's validation is not this act's.
- *
- * ⚠️ Only the two columns DI-1 compares leave this function. The document that
- * was decoded is dropped: it is somebody else's file, and nothing in this build
- * may show it or write from it.
+ * `null` for every way of not knowing (DI-3). Decoding here is not intake:
+ * nothing is opened and FR-023's validation does not apply. Only the two
+ * columns DI-1 compares leave; the rest of somebody else's file is dropped.
  *
  * @purity pure
  */
 function projectIdentityFromText(text: string): ProjectIdentity | null {
-  // ⭐ THE VERSION TRAVELS HERE TOO (DFC-282), and the reading is dropped with
-  // the document. ⛔ Not because the comparison does not matter but because
-  // this act is not a LOAD: FR-073 answers 「文書を読み込んだとき」 and this
-  // road opens nothing -- DI-3 (MUST NOT) reads somebody else's file for two
-  // columns alone. ⚠️ Handed over all the same, so that no road of this build
-  // is one where `documentFromJson` is asked without the number: a caller that
-  // omits it gets `notCompared` and nothing says so.
+  // The version is passed although this is not a load (FR-073 does not apply),
+  // so that no road calls `documentFromJson` without it: omitting it yields
+  // `notCompared` silently.
   const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) return null
   const project = read.document.schedule.project
@@ -3991,13 +2534,9 @@ function projectIdentityFromText(text: string): ProjectIdentity | null {
 /**
  * Today, spelled as a date column is (`textOfDay`).
  *
- * ⭐ FR-046 (MUST): 「読む人の機のローカルの暦の日とすること（MUST）。UTC の暦
- * の日を用いてはならない（MUST NOT）」. ⛔ So the day is built from the LOCAL
- * getters and never from `toISOString`, whose day is UTC's: SK-20 writes this
- * into `statusDate`, a column that carries no zone, and taking UTC would stand
- * the line a day early or a day late by exactly the offset.
- * ⚠️ The `+ 1` is the host's own numbering (`getMonth` counts from zero), not a
- * figure of the specification's.
+ * Built from the local getters, never `toISOString` (FR-046): SK-20 writes this
+ * into the zoneless `statusDate`, and UTC would move the line by the offset.
+ * The `+ 1` is `getMonth` counting from zero.
  *
  * @purity semi-pure-b
  */
@@ -4014,18 +2553,13 @@ function readToday(): string {
 /**
  * The instant of one write, as FR-063 spells it: ISO 8601, UTC, to the second.
  *
- * ⚠️ THE WALL CLOCK, and rightly so: this is a MOMENT and not an elapsed time,
- * and R3.6 sends only elapsed time to a monotonic clock.
- * ⛔ `toISOString` carries milliseconds, which 「秒まで」 does not admit, so
- * they are cut rather than the text being assembled by hand -- nothing here can
- * then disagree with the spelling the document model already uses.
+ * The wall clock, because this is a moment, not an elapsed time (R3.6).
+ * Milliseconds are cut from `toISOString` rather than the text being assembled
+ * by hand, so the spelling cannot drift from the document model's.
  *
- * ⭐ FR-020's STAMP IS READ FROM HERE TOO, AND THE NAME IS THE ONLY THING THAT
- * DOES NOT FIT. That requirement (MUST) asks for exactly this spelling --
- * 「`ISO 8601`（`RFC 3339` の書式。`YYYY-MM-DDThh:mm:ssZ`）で秒まで」 -- and
- * a second speller would be a second answer for one moment. ⛔ MSPDI's own
- * dates are NOT this: FR-020 (MUST NOT) forbids confusing them, and they are
- * zoneless local time settled elsewhere.
+ * FR-020's stamp reads this too, since it asks for the same spelling; a second
+ * speller would be a second answer for one moment. MSPDI dates are not this
+ * (FR-020).
  *
  * @purity semi-pure-b
  */
@@ -4037,12 +2571,9 @@ function readInstantOfWrite(): string {
  * The monotonic clock, in ms, for the one elapsed time FT-4 of table T-078 has
  * this build measure -- the rest EZ-2 of table T-040 waits out.
  *
- * ⚠️ NOT THE WALL CLOCK, and for the reason `readInstantOfWrite` above states
- * from the other side: R3.6 (MUST) sends an elapsed time to a monotonic clock
- * because a wall clock steps backwards over an NTP correction or a DST change,
- * and a rest that had already come due would then read as one that never began.
- * ⛔ THE NUMBER MEANS NOTHING ON ITS OWN -- the host picks what it counts from
- * -- so only a difference of two readings may ever be used.
+ * Not the wall clock (R3.6): a wall clock steps backwards over an NTP or DST
+ * change. The value has no fixed origin, so only a difference of two readings
+ * may be used.
  *
  * @purity semi-pure-b
  */
@@ -4052,9 +2583,6 @@ function readMonotonicMs(): number {
 
 /**
  * The two lengths FR-018 measures a held entrance with.
- *
- * ⚠️ Named in the shape rule 03 asks for -- the unit is in the name, because
- * both are times and neither carries one anywhere else.
  */
 interface RepeatTimes {
   /** S-172 -- the wait a press serves before it begins to repeat. */
@@ -4066,17 +2594,10 @@ interface RepeatTimes {
 /**
  * What table T-206 states for the two, under the names FR-018 uses them by.
  *
- * ⭐ THE ROW IDS BECOME NAMES HERE AND NOWHERE ELSE, so the repeat below reads
- * `delayMs` and `intervalMs` and no call site has to remember which of the two
- * rows is the wait and which the gap.
- * ⛔ THE TWO FIGURES ARE NOT WRITTEN HERE. Both are carried in by the generated
- * constant, because a value the specification holds is generated and never
- * copied (rule 03 section 1) -- typed out, this line would go on saying the old
- * thing after a manuscript edit and nothing would fail.
- * ⚠️ THAT THE WAIT IS THE LONGER OF THE TWO IS NOT CHECKED HERE. FR-018 (MUST)
- * asks it of the rows, not of this: it is a fact about what table T-206 states,
- * and a guard here would answer a manuscript defect by silently doing something
- * FR-018 does not describe either.
+ * The row ids become names here only, so no call site has to remember which
+ * row is the wait. The figures come from the generated constant (rule 03
+ * section 1). That the wait is the longer is a property of table T-206's rows
+ * (FR-018) and is not guarded here.
  *
  * @purity pure
  */
@@ -4091,15 +2612,10 @@ function repeatTimesOfHeldEntry(): RepeatTimes {
  * One row of table T-206's `localStorage` set, as the store has it, or null
  * where it has none and where the store cannot be reached at all.
  *
- * ⛔ EVERY READ SURVIVES A STORE THAT REFUSES. LM-14 says so in as many words:
- * a page opened over `file://` may have the store refused outright, and it is
- * for that case that FR-038 (MUST) carries a second half -- 「それを読み出せない
- * ときはブラウザの言語設定に従う」. ⚠️ A host refuses by THROWING on the
- * property itself, not by answering null, so the access is inside the guard and
- * not only the call.
- * ⚠️ NULL IS ONE ANSWER FOR TWO THINGS -- nothing stored, and no store -- and
- * that is enough: FR-038 gives both the same fallback, and no requirement tells
- * them apart.
+ * Every read survives a refusing store (LM-14, FR-038's fallback). A host
+ * refuses by throwing on the property itself, so the access is inside the
+ * guard, not only the call. Null covers both "nothing stored" and "no store",
+ * which FR-038 treats alike.
  *
  * @purity semi-pure-b
  */
@@ -4114,14 +2630,8 @@ function readBrowserStored(row: BrowserStoredRow): string | null {
 /**
  * Put one row of that set back, or let it go where the store refuses.
  *
- * ⚠️ A REFUSAL IS NOT A FAULT TO REPORT. LM-14 already places these rows outside
- * what NFR-004 counts as 「全機能が動く」 for a page opened over `file://`, so a
- * store that will not take them is a known environment and not a failure of
- * this tool. ⛔ Nothing is told, and now for a narrower reason than before: table
- * T-233 holds no row for a store that would not take a row of table T-206, and
- * FR-076 (MUST NOT) makes that table the whole of what a telling may carry.
- * ⚠️ No row is owed either, on LM-14's own ground -- a known environment is not
- * a failure of this tool.
+ * A refusal is a known environment (LM-14), not a fault, so nothing is told:
+ * table T-233 has no reason for it, and FR-076 limits tellings to that table.
  *
  * @purity non-pure
  */
@@ -4136,8 +2646,8 @@ function writeBrowserStored(row: BrowserStoredRow, value: string): void {
 /**
  * How many bits one hexadecimal digit spells, and the mask that takes them.
  *
- * ⛔ NOT A VALUE OF THE SPECIFICATION AND NOT ONE THIS FILE CHOSE. They are what
- * "hexadecimal" means, and S-101 states the digest in it.
+ * What "hexadecimal" means, not a value of the specification; S-101 is
+ * stated in it.
  */
 const HEX_DIGIT_BITS = 4
 const HEX_DIGIT_MASK = 0xf
@@ -4147,14 +2657,10 @@ const HEX_DIGITS = '0123456789abcdef'
 /**
  * One byte as the two hexadecimal digits S-101 is spelled in.
  *
- * ⛔ NOT `toString(16).padStart(2, '0')`. That reads a base out of a number and
- * a width out of a second one, and the two have to agree; this spells the two
- * digits the row itself is written in and cannot disagree with anything.
- * ⚠️ LOWER CASE, WHICH IS HOW TABLE T-207 PRINTS S-101 -- and the comparison is
- * exact, so a digest written the other way would never match.
- * ⚠️ A BYTE IS ALWAYS IN RANGE HERE: the only caller walks a `Uint8Array`, so
- * both lookups land, and the empty string a lookup outside the alphabet would
- * give is unreachable rather than guarded against.
+ * Not `toString(16).padStart(2, '0')`, whose base and width must be kept in
+ * agreement. Lower case matches table T-207 exactly, and the comparison is
+ * exact. The only caller walks a `Uint8Array`, so the `?? ''` fallbacks are
+ * unreachable.
  *
  * @purity pure
  */
@@ -4168,22 +2674,12 @@ function hexOfByte(value: number): string {
  * The SHA-256 of what a person typed, spelled the way table T-207 spells S-101
  * -- or `null` where this environment offers no such digest.
  *
- * ⭐ THE ENVIRONMENT'S OWN DIGEST AND NOT ONE WRITTEN HERE. FR-020 (MUST) makes
- * the matching a SHA-256 comparison, and a hash written in this file would be a
- * second implementation of a published algorithm with nothing holding it to the
- * published one. ⚠️ It is reached only from this layer: LR-6 keeps the browser
- * out of every other, which is why the comparing lives in the shell at all.
- * ⭐ IT WORKS OVER `file://`, WHICH WAS MEASURED AND NOT ASSUMED (2026-09-02):
- * `crypto.subtle` needs a secure context, and CN-1 (a single `.html`, no server)
- * means the page is usually opened as a file -- Chromium reports such a page
- * secure, and the digest of S-100 came back equal to S-101.
+ * The environment's digest, not one written here (FR-020), reached only from
+ * this layer because LR-6 keeps the browser out of the others. `crypto.subtle`
+ * needs a secure context; Chromium treats a `file://` page (CN-1) as secure.
  *
- * ⛔ `null` RATHER THAN A THROW, WHICH IS FR-028 (MUST NOT): an environment
- * without the digest is one where the watermark cannot be hidden, and the caller
- * tells the person why instead of the page stopping.
- * ⛔ NOTHING OF THE ANSWER IS KEPT. The text is hashed and let go -- FR-020
- * (MUST NOT) keeps the raw password out of code, out of the model and out of
- * what goes out.
+ * `null` rather than a throw (FR-028): the caller tells the person why the
+ * watermark cannot be hidden. Nothing is kept (FR-020).
  *
  * @purity semi-pure-b
  */
@@ -4205,14 +2701,10 @@ async function sha256HexOf(text: string): Promise<string | null> {
  * of table T-206) where there is one, and otherwise the default table T-207
  * states (S-101).
  *
- * ⭐ THE ORDER IS S-99c's OWN: 「設定されていなければ表 T-207 の既定値を使う」.
- * ⛔ NEITHER VALUE IS TYPED HERE. S-101 arrives as `WATERMARK_UNLOCK_DIGEST`,
- * generated from the manuscript by `tools/generate_entity_types.py`, and S-99c
- * is read out of the store LM-14 puts it in -- so a digest moved in the
- * specification moves here without a hand.
- * ⚠️ A STORED ROW OF NOTHING IS NO ROW. A store that answers with the empty
- * string has nothing set, and reading it as a digest would make the empty
- * password the one that opens the gate.
+ * The order is S-99c's. S-101 is generated (`WATERMARK_UNLOCK_DIGEST`) and
+ * S-99c is read from the store (LM-14), so neither is typed here.
+ * An empty stored string counts as unset; otherwise the empty password would
+ * open the gate.
  *
  * @purity semi-pure-b
  */
@@ -4222,22 +2714,15 @@ function watermarkUnlockDigest(): string {
 }
 
 /**
- * FR-038 (MUST): 「起動したときは前回選ばれた言語で開き、それを読み出せないとき
- * はブラウザの言語設定に従うこと」 -- both halves, in that order.
+ * FR-038's startup language: the stored choice (S-99) first, the host's
+ * setting second.
  *
- * ⭐ S-99 FIRST AND THE HOST SECOND. The stored choice is the person's own and
- * the host's setting is only what to do without one, so a store that answers
- * is never overridden by the environment.
- * ⚠️ A stored value that is neither spelling is treated as no value: FR-023
- * calls every intake untrusted, and the fallback is already the rule for having
- * nothing to read.
- * ⚠️ A host set to neither language is answered `en`: FR-038 admits exactly
- * two, so the one that is not `ja` is the only other.
+ * A stored value that is neither spelling counts as none (FR-023). A host set
+ * to neither language gets `en`, the only other one FR-038 admits.
  *
- * ⭐ PUBLISHED FOR THE BOOT FILE. 「起動したとき」 is table T-077's business and
- * `single-html-shell.ts` is the file that runs it, while the key and the store
- * belong with the current value this loop holds -- so the answer is computed
- * here and asked for there, rather than the keys being typed twice (R4).
+ * Exported for `single-html-shell.ts`, which runs startup (table T-077), while
+ * the key and store stay with the loop's current value so the keys are not
+ * typed twice (R4).
  *
  * @purity semi-pure-b
  */
@@ -4248,25 +2733,15 @@ export function startupDisplayLanguage(): DisplayLanguage {
 }
 
 /**
- * FR-065 (MUST): 「有効化はブラウザ（オリジン）ごとに記憶すること」 -- what this
- * origin was left at, or off where it has never been turned on here.
+ * FR-065's per-origin record (S-99b) -- what this origin was left at, or off
+ * where it has never been turned on here.
  *
- * ⭐ ONE KEY AND NO SECOND HALF, which is S-99b's own shape: that row puts the
- * record in `localStorage` 「オリジンごとに 1 つ」. ⚠️ The requirement records
- * what this widening costs, in its own words -- 「1 つの文書で開いたことが、同じ
- * ブラウザで開いた別の文書にも効く」 -- and answers it with the sentence above
- * it, which this build keeps: 「有効であるあいだ、そのことを画面上に示すこと」.
- * ⛔ SO NOTHING PUTS IT BACK TO FALSE ON A NEW DOCUMENT. The MUST NOT that once
- * asked for that was struck on 2026-09-05 (台帳 DFC-280).
+ * One key per origin, so nothing resets it on a new document; FR-065 accepts
+ * that widening and answers it by showing the enabled state on screen.
+ * Anything but the one spelling is off: the default is not to expose (FR-065),
+ * and stored values are untrusted (FR-023).
  *
- * ⚠️ ANYTHING BUT THE ONE SPELLING IS OFF, which is FR-065's own default rather
- * than a guess: 「既定で公開しない」 is that requirement's RATIONALE, and FR-023
- * calls every intake untrusted -- so a store that answers nothing, refuses
- * outright, or answers something else all reach the same place.
- *
- * ⭐ PUBLISHED FOR THE SAME REASON `startupDisplayLanguage` IS: 「起動したとき」
- * is table T-077's business, and the key and the store belong with the current
- * value this loop holds.
+ * Exported for the same reason as `startupDisplayLanguage`.
  *
  * @purity semi-pure-b
  */
@@ -4276,39 +2751,21 @@ export function startupAgentApiEnabled(): boolean {
 
 /**
  * ADR-001 -- the screen rectangles, the layout and the geometry are computed
- * ONCE at the head of a frame and handed out.
+ * once at the head of a frame and handed out.
  *
- * ⚠️ Four paths need the layout, and MN-6 measured what happens without this:
- * table T-068's eleven stages run four times for one pointer move, which does
- * not fit the budget NFR-002 and NFR-003 set.
+ * Several paths need the layout; without this, table T-068's stages would run
+ * once per path for a single pointer move (MN-6), past NFR-002 / NFR-003's budget.
  *
- * ⭐ `startedFromTemplate` IS WHICH ROW OF TABLE T-034 WON, narrowed to the
- * one bit OP-10 asks about. ⚠️ Only the shell can know it: BO-2 decides it
- * and nothing of the answer survives into the document.
- * ⭐ `clipboard` IS IF-5's IMPLEMENTATION (CP-30), on the same terms as
- * `files` below and optional for the same reason: the loop runs for the paths
- * that touch no clipboard, and IC-3 answers with nothing when there is none.
- * ⭐ `files` IS IF-3's IMPLEMENTATION (PI-28), HANDED IN AND NOT REACHED FOR,
- * for the reason `screen` is: the loop is what holds the current values SK-11
- * writes out, and R7.3 wants the browser side injected so a test can stand in
- * for it. ⚠️ Optional on the same terms as `screen` -- the loop runs for the
- * paths that touch no file, and the entries that would touch one answer with
- * nothing when there is none.
- * ⭐ `rasterizer` IS IF-6's IMPLEMENTATION (CP-31) and `appShell` IS IF-8's
- * (UF-47), on the same terms as the two above. ⛔ LAST OF THE LIST AND NOT
- * BESIDE `clipboard`, WHICH IS WHERE THEY BELONG BY KIND: every position before
- * them is one a test already passes by order, and moving one would change what
- * those calls mean without changing a line of them. ⚠️ A named bag for the nine
- * is what is owed here, and each one added makes it owed more.
- * ⭐ `startupTemplate` IS BT-4 OF TABLE T-034 ITSELF, and it is what FR-095's
- * press puts up: 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻す
- * こと」. ⛔ NOT READ HERE. `single-html-shell.ts` already turns the bundled
- * `GRS JSON` into a `Document` for BO-2, and reading it a second time in this
- * file would be the same rule written twice (rule 03 section 1) -- FR-027 keeps
- * 「1 つ」 of that template, so one reader is all there may be.
- * ⚠️ OPTIONAL ON THE SAME TERMS AS `screen` AND `files`: the loop runs for
- * paths that never press IC-98, and the entry answers with a telling when there
- * is no template rather than with a question it could not honour.
+ * `startedFromTemplate` is which row of table T-034 won, narrowed to the bit
+ * OP-10 asks about; only the shell knows it (BO-2), the document does not.
+ * `clipboard` (IF-5, CP-30), `files` (IF-3, PI-28), `rasterizer` (IF-6, CP-31)
+ * and `appShell` (IF-8, UF-47) are injected so a test can stand in (R7.3), and
+ * optional because the loop also runs for paths that touch none of them.
+ * `rasterizer` and `appShell` come last rather than beside `clipboard` because
+ * existing callers pass arguments by position; a named bag would fix that.
+ * `startupTemplate` is BT-4 of table T-034, which FR-095's press restores. It is
+ * not read here: `single-html-shell.ts` already parses the one template (FR-027)
+ * for BO-2. Without it, IC-98 answers with a telling.
  *
  * @purity non-pure
  */
@@ -4325,40 +2782,25 @@ export function frameLoop(
   appShell?: AppShellSource,
   startupTemplate?: Document,
 ): FrameLoop {
-  // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
-  // reference assignment (MUST), and `HeldDocument` says why: a document paired
-  // with the previous history is exactly the mixture AG-4 forbids.
-  // ⚠️ The history starts empty -- a document that has just been opened has
-  // nothing to undo, and FR-031 counts steps from the first write.
+  // One pair, not a document beside a history: WS-6 of table T-067 swaps one
+  // reference, and a mismatched pair is what AG-4 forbids (see `HeldDocument`).
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
   let selection: Selection = emptySelection()
-  // ⭐ Held rather than rebuilt each frame so that one frame draws ONE
-  // session's state. `screenStateFromInput` (PI-18) is what moves it, and FT-1
-  // now reaches it.
+  // Held rather than rebuilt each frame so one frame draws one session's state;
+  // `screenStateFromInput` (PI-18) moves it.
   let screenState: ScreenState = emptyScreenState()
   /**
-   * FR-020's trail, settled ONCE for this run and handed to every picture.
+   * FR-020's trail, stamped at open and again in `holder.replace` when the
+   * document changes -- `replace` is the one door every write goes through.
    *
-   * ⭐ TWO MOMENTS, AND FR-020 (MUST) NAMES BOTH: when the document is opened,
-   * and again when the document CHANGES. The mark answers 「誰がいつこの内容
-   * を画面に出していたか」, so an answer about content that has since
-   * moved is the wrong answer. The opening read is here; the second is in
-   * `holder.replace`, which is the ONE door every write goes through.
-   * ⛔ NOT PER FRAME (MUST NOT). A clock read inside the loop would move the
-   * drawing every second, which makes every frame owe a repaint and puts a
-   * different string into FR-102's record for two frames that drew the same
-   * schedule.
-   * ⭐ WY-2 OF TABLE T-041 STILL SETS THE LAYER ASIDE from the determinism
-   * comparison, and for the reason it states: the two halves change
-   * 「実行のたび・機ごとに」, which a per-write stamp does not weaken --
-   * it only makes the string move MORE often within one run, never less.
+   * Not per frame (FR-020): a clock read in the loop would change the drawing
+   * every second, owing repaints and making FR-102's record differ for
+   * identical frames. WY-2 of table T-041 still excludes the layer from the
+   * determinism comparison.
    *
-   * ⭐ THE NAME FALLS BACK THE WAY THE DIGEST DOES. An empty stored value and
-   * no stored value are one answer -- FR-086 (MUST NOT) forbids a road that
-   * leaves the name empty, so an empty one is a store that holds nothing --
-   * and the fallback is table T-206's own default for the row. ⛔ The word is
-   * not typed here: `NOT_STORED_WATERMARK_NAME` carries it.
+   * An empty stored name counts as none (FR-086), falling back to table
+   * T-206's default via `NOT_STORED_WATERMARK_NAME`.
    */
   let watermarkStampedAt = readInstantOfWrite()
   const watermarkStoredName = readBrowserStored('S-99a')
@@ -4370,23 +2812,14 @@ export function frameLoop(
    * FR-020's layer for the picture being drawn now, or `null` where S-144 of
    * table T-206 has been turned off.
    *
-   * ⭐ ONE PLACE FOR BOTH PICTURES, which is FR-020's 「画面から透かしを消した
-   * ときは、書き出す絵からも消すこと（MUST）」 kept where it cannot be kept
-   * twice. ⚠️ `screenState` IS READ AT THE CALL and not captured: the export
-   * road builds a fresh `ScreenState` for its own reasons (EP-11 closes the
-   * palette), and S-144 is the one row of this session that must NOT be reset
-   * for it.
-   * ⚠️ WHICH IS WHY IT IS `semi-pure-b` AND NOT `-a`: the two halves of the
-   * mark are settled once and never move, but S-144 is the session's and does.
+   * One place for screen and export, so hiding the watermark hides it in both
+   * (FR-020). `screenState` is read at the call, not captured: the export road
+   * builds a fresh `ScreenState` (EP-11), and S-144 must survive that.
+   * Hence `semi-pure-b`: S-144 belongs to the session and moves.
    *
-   * ⛔ `Watermark` IS WRITTEN OUT RATHER THAN IMPORTED, which is the same move
-   * `'screen'` and the `Dual Cursor`'s following side already make at the call
-   * below -- and for a reason of the specification's rather than of taste:
-   * table T-064 calls itself the full count of the names callable from outside
-   * a component, and it does not name this one. Importing it would put a name
-   * across a folder boundary that no row publishes. ⚠️ The compiler still holds
-   * the two together -- the object is checked against the parameter where it is
-   * handed over, so a shape that drifted would be an error at that line.
+   * The shape is written out, not imported as `Watermark`: table T-064 does
+   * not publish that name across the folder boundary. The parameter it is
+   * handed to still type-checks the shape.
    *
    * @purity semi-pure-b
    */
@@ -4403,54 +2836,29 @@ export function frameLoop(
   // The picture a held press owes -- FR-052's two widths and the fade table
   // T-023d's closing rule asks for -- and `null` whenever no press owes one.
   //
-  // ⛔ THE PICTURE, NEVER THE VALUE. Every write this loop makes is measured
-  // against `held.document`, and nothing ever folds this back onto it: IN-1 of
-  // table T-028 settles a pointer operation on the release, and both closing
-  // rules say the following is 「絵の話であって、値が決まる時点を早めるものではない」.
-  // ⚠️ NOR IS IT EVER FOLDED ONTO ITSELF. `previewOfHeldPress` starts every
-  // fold at `held.document`, so this is a pure function of (held document,
-  // press, pointer now) -- the trap `PointerPress.followedTo` had to be written
-  // around, where a travel applied to what a travel already moved compounds.
+  // The picture, never the value: writes are measured against `held.document`
+  // and nothing folds this back (IN-1 of table T-028). Nor is it folded onto
+  // itself -- `previewOfHeldPress` starts every fold at `held.document`, so a
+  // travel is never applied twice.
   let previewDocument: Document | null = null
   // FR-053 -- where GR-19's drag has left the `Command Palette`, and `null`
-  // while nobody has dragged it. ⛔ Held and nothing more: see
-  // `paletteCornerOf` for why no table keeps it and why it starts at no
-  // corner of its own.
+  // while nobody has dragged it. See `paletteCornerOf` for why no table keeps it.
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   // FR-053 -- where the palette's corner stood when the band was pressed, and
   // `null` while no band drag is in flight.
   //
-  // ⭐ WHAT FR-053's LAST SENTENCE ON THE DRAG NEEDS AND NOTHING MORE -- that
-  // an interrupted one (IN-1 of table T-028) puts the corner back.
-  // The palette is moved by a travel (`moveCommandPalette`), so once a travel
-  // has been added the corner it was added to is gone -- and an interrupted
-  // drag has to be put back rather than left where the finger reached.
-  // ⛔ IT IS WHAT THE FOLLOWING COSTS, AND IT USED TO COST NOTHING. While the
-  // travel arrived only on the release there was never anything to put back,
-  // because nothing had moved yet -- so the requirement's last sentence was
-  // met by an accident of WHEN the travel came. Now that every move applies
-  // one, an interrupted drag would otherwise be left wherever the finger
-  // reached.
-  // ⚠️ THE ONLY ROAD TO THE PICTURE RUNS THROUGH THE CORNER: the palette is
-  // drawn at `ScreenSession.commandPaletteAt` and at nothing else, so a follow
-  // that did not move the corner would not be a follow at all.
-  // ⛔ NOT A MEMBER OF ANYTHING PUBLISHED, and it must not become one from here:
-  // no row of table T-203 or table T-206 holds the corner itself
-  // (`paletteCornerOf` says so), let alone where a drag began.
+  // Every move applies a travel (`moveCommandPalette`) to the corner, which is
+  // the only road to the picture (`ScreenSession.commandPaletteAt`), so an
+  // interrupted drag (IN-1 of table T-028) needs this to put the corner back.
+  // Not part of anything published: no row of table T-203 or T-206 holds it.
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   // HF-15 of table T-051 -- the row GR-20's strip is being held by, and the
   // depth the picture draws it at, or `null` while no row is held.
   //
-  // ⭐ THE PICTURE AND NOTHING ELSE. That row (MUST) has the held row follow the
-  // pointer, and table T-023d (MUST NOT) forbids the document to be written
-  // while it is held -- 「追従は絵であって編集ではない」 -- so this is a value the
-  // frame is DRAWN with and `writeDocument` never sees it. The write is CM-73
-  // and it is planned on the release (IN-1 of table T-028).
-  // ⛔ NOT A MEMBER OF ANYTHING SAVED, and it must not become one: no row of
-  // table T-203 or table T-206 holds it, and a grab does not outlive the hand.
-  // ⚠️ Dropped on the same three happenings a press is -- the release, IN-1a's
-  // lost pointer and IN-1's `Esc` -- because a picture kept past the gesture
-  // would draw a row at a depth nobody is holding it at.
+  // Picture only: table T-023d forbids writing while held, so `writeDocument`
+  // never sees it; CM-73 is planned on release (IN-1 of table T-028). Not saved.
+  // Dropped on release, lost pointer (IN-1a) and `Esc` (IN-1), or a row would be
+  // drawn at a depth nobody holds.
   let rowGrabbedAt: {
     readonly groupId: string
     readonly depth: number
@@ -4458,503 +2866,320 @@ export function frameLoop(
     readonly resistedPx: number
     readonly atY: number | null
   } | null = null
-  // S-211 of table T-206 -- 「段 0（行見出しパネルの頭）が畳まれているか」.
+  // S-211 of table T-206 -- whether 段 0 is folded (HR-2 of table T-015).
   //
-  // ⭐⭐ WHY IT IS HELD HERE. HR-2 of table T-015 (MUST) folds 「最も浅い段の行」
-  // as well as every `TaskGroup`, and says why no column of a row can carry it:
-  // 「行の畳みが隠すのはその配下であり、最も浅い段の行は親を持たないので誰にも
-  // 隠されない」 -- and (MUST NOT) refuses to move AT-56 or AT-57 for it, because
-  // a column either way changes the shape of the saved document.
-  // ⛔ STARTS OPEN, which is S-211's own default (「畳まれていない」), and is NOT
-  // written to `localStorage`: that row puts it beside S-99g, 「画面の状態であって
-  // 日程の内容ではない」.
-  // ⭐ TWO ROADS BACK, both of which `carryOutAction` takes: HF-16's IC-92 and
-  // HF-10's IC-74.
+  // Held here because no column of a row can carry it (HR-2). Starts open and
+  // is not saved (S-211). The roads back are listed on S-211; `carryOutAction`
+  // takes them.
   let isLevelZeroFolded = false
   // S-142 of table T-206 -- whether FR-053's milestone glyph list is open.
+  // Starts closed (S-142).
   //
-  // ⛔ STARTS CLOSED, which is that row's own default: FR-053 keeps the eight
-  // milestone shapes out of the palette until a person asks for them, so that
-  // the entrances they rarely use do not hide the schedule (GL-002).
-  // ⛔ `Esc` MUST NOT CLOSE IT (FR-053, and S-142 says the same). Nothing here
-  // is reached by the ladder: IN-4 of table T-028 spends its first level on the
-  // surface `ScreenState.surface` holds (S-99g), and S-142's own row says this
-  // is not one of those -- the palette's own list simply grows.
-  // ⚠️ Which is why it is held HERE rather than on
-  // `ScreenState`: a member of that value would be inside `escapeTarget`'s
-  // reach.
-  // ⚠️ Lost with the page, the same as the corner above and for the same
-  // reason: table T-206 is where the specification records that the document
-  // does not keep it.
+  // `Esc` must not close it (FR-053, S-142), so it is held here: a member of
+  // `ScreenState` would be inside `escapeTarget`'s reach. Lost with the page
+  // (table T-206).
   let isMilestoneListOpen = false
   // S-200 of table T-206 -- whether FR-053's palette stands minimised. Default
   // `false`, and lost with the page for the same reason as the line above.
   let isPaletteMinimised = false
   // S-206 of table T-206 -- whether FR-102's record is running. Default
   // `false`, and lost with the page for the same reason as the line above.
-  // ⛔ THE RECORD ITSELF IS LOST WITH IT TOO, and FR-102 (MUST NOT) is why:
-  // it may not be kept in the document, and nothing else outlives the page.
+  // The record itself is lost too: FR-102 keeps it out of the document.
   let isRecordingInteractions = false
-  // The lines of the record, oldest first (FR-102). ⛔ NEVER LONGER THAN
-  // S-207: the requirement (MUST) drops from the oldest end at the cap.
+  // The lines of the record, oldest first, capped at S-207 (FR-102).
   const interactionRecord: string[] = []
-  // How many lines were dropped off that end. ⭐ FR-102 (MUST) has this
-  // written at the head of what is handed over, because a record cut in
-  // silence is read as the whole of what happened.
+  // How many lines were dropped off that end, written at the head of the
+  // handed-over record (FR-102).
   let interactionRecordDropped = 0
   // The reading of FT-4's clock the record's own times are counted from, so
   // that what is pasted starts at 0 rather than at the host's own epoch.
   let interactionRecordBeganAt = 0
-  // How many lines have been offered since the record began, the dropped ones
-  // included. ⭐ IT IS THE SEQUENCE NUMBER, AND IT IS WHY A GAP CAN BE SEEN:
-  // with the count of what was dropped at the head and the first surviving
-  // line still numbered where it stood, a reader can tell that the record does
-  // not begin at the beginning.
+  // How many lines have been offered since the record began, dropped ones
+  // included -- the sequence number, so a reader can see the record does not
+  // start at the beginning.
   let interactionRecordOffered = 0
-  // FR-101 (MUST) -- the file the document is open from, and the instant it
-  // was last written to. ⛔ BOTH ARE SET BY A WRITE AND BY NOTHING ELSE:
-  // FR-101 asks when the file was last WRITTEN, and opening one answers
-  // neither. ⚠️ Lost with the page, like the two above -- table T-206 has no
-  // row for either, so nothing carries them across a reload.
-  // OP-10 of table T-024a (MUST NOT): whether the document standing now is
-  // the one BT-4 of table T-034 put up. ⚠️ HELD RATHER THAN ASKED OF THE
-  // DOCUMENT. Table T-229's ED-3 does name the template in a value -- the
-  // stamp says `template` -- but WS-5 turns that into `user` on the first
-  // write, and the view would jump to the fit as a punishment for typing.
-  // ⭐ Cleared where table T-230 says the document became a different one.
+  // FR-101 -- the file the document is open from, and the instant it was last
+  // written to. Set by a write only: FR-101 asks when the file was last
+  // written, and opening answers neither. Lost with the page.
+  // OP-10 of table T-024a: whether the document standing now is the one BT-4
+  // of table T-034 put up. Held rather than read off ED-3's `template` stamp
+  // (table T-229), which WS-5 turns into `user` on the first write -- the view
+  // would jump to the fit on typing.
+  // Cleared where table T-230 says the document became a different one.
   let fromStartupTemplate = startedFromTemplate === true
   let openedFileName: string | null = null
   let fileSavedAt: string | null = null
-  // FR-100 -- whether edits stand that no file has been told about. ⛔ THE
-  // GUARD IS ONLY AS GOOD AS THIS FLAG: FR-100 (MUST NOT) forbids warning
-  // when there are none, because a warning that comes every time stops
-  // being read. ⚠️ It starts `false` -- BT-4's template is not an edit, and
-  // neither is a document that arrived in the file (BT-1) or was handed in
-  // (BT-2).
+  // FR-100 -- whether edits stand that no file has been told about. FR-100
+  // forbids warning when there are none, so this flag must be exact. Starts
+  // `false`: BT-4's template, BT-1 and BT-2 are not edits.
   let hasUnsavedEdits = false
-  // FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
-  // (AT-51). ⛔ A SECOND SET AND NOT THE SELECTION: SL-1 of table T-023c leaves
-  // rows out of the drawing area's selection in as many words, and FR-085 says
-  // the two are separate, so `selection` above may not carry them.
-  // ⚠️ Lost with the page, because nothing keeps it: table T-203 has no key and
-  // table T-206 no row, which is what leaves it a current value LY-5 of table
-  // T-060 puts here.
+  // FR-085 -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
+  // (AT-51). A separate set from `selection`: SL-1 of table T-023c leaves rows
+  // out of the drawing area's selection. Lost with the page (LY-5 of table T-060).
   // @provisional PND-142
   let selectedGroupIds: readonly string[] = []
   /**
-   * FR-033's 「複製に使う置き場」 -- SK-4 put something here and SK-5 takes it.
+   * FR-033's copy buffer -- SK-4 puts something here and SK-5 takes it.
    *
-   * ⭐⭐ IN THE APP AND NOT THE OS's, WHICH IS FR-033's OWN SENTENCE (MUST /
-   * MUST NOT): 「複製に使う置き場はアプリの中に持つこと（MUST）。OS のクリップ
-   * ボードから読み込んではならない（MUST NOT）」. ⭐ CHN-9 of table T-008 marks the
-   * clipboard route 「送信のみ・読まない」, so `ClipboardGateway` (PI-24) -- which
-   * IS built and IS handed to this loop -- publishes `writeClipboard` and nothing
-   * that reads. ⇒ SK-4 and SK-5 never belonged to it; they want this binding.
+   * In the app, not the OS clipboard (FR-033): CHN-9 of table T-008 is
+   * send-only, so `ClipboardGateway` (PI-24) publishes no read.
    *
-   * ⭐ IDENTIFIERS AND NEVER CONTENT. `pasteTaskSubtree` (CM-8) takes a
-   * `sourceUid` and `pasteTaskGroupSubtree` takes a `sourceGroupId`, and both
-   * read the subtree out of the document AT PASTE TIME -- so a copy that kept
-   * rows would paste what the document no longer holds.
-   * ⚠️ THE SOURCE CAN BE GONE by the time SK-5 arrives, and that is told rather
-   * than guessed at: see the paste's own note.
+   * Identifiers, never content: `pasteTaskSubtree` (CM-8) and
+   * `pasteTaskGroupSubtree` read the subtree at paste time, so kept rows would
+   * paste what the document no longer holds. The source can be gone by SK-5;
+   * see the paste's own note.
    *
-   * ⚠️ Lost with the page. Table T-203 has no key for it and table T-206 no row,
-   * which is what leaves it a current value LY-5 of table T-060 puts here --
-   * the same standing as `selectedGroupIds` above.
+   * Lost with the page, like `selectedGroupIds`.
    */
   let copiedForPaste:
     | { readonly kind: 'task'; readonly uid: number }
     | { readonly kind: 'row'; readonly groupId: string }
     | null = null
-  // FR-099 (MUST) -- who is chosen in the `Resource Roster` (U-49), by
-  // `Resource.uid` (AT-85), which AS-6 of table T-225 makes the key a document
-  // writes while a person is shown the name. ⛔ SL-1 admits no resource either.
+  // FR-099 -- who is chosen in the `Resource Roster` (U-49), by `Resource.uid`
+  // (AT-85, AS-6 of table T-225). SL-1 admits no resource either.
   // @provisional PND-143
   let selectedResourceUids: readonly number[] = []
   // FR-072 -- which of the two the last operation chose, and what it chose.
   //
-  // ⭐ `null` IS "NO OPERATION HAS CHOSEN YET" and not a fourth state: FR-072
-  // decides the panel's contents by 「最後に行われた操作」, and before the first
-  // one there is no last. ⚠️ Nothing else moves it back to `null` -- that
-  // requirement (MUST) keeps the previous contents standing when a selection
-  // goes away, and says the heading is what tells the person so.
+  // `null` means no operation has chosen yet, not a fourth state. Nothing moves
+  // it back to `null`: FR-072 keeps the previous contents when a selection goes.
   // @provisional PND-144
   let propertiesShowing: PropertiesShowing = null
   let propertiesSubject: PropertiesSubject | null = null
   // Whether the reader has put the `Properties Panel` (U-25) away.
   //
-  // ⭐ A SECOND FACT AND NOT A SECOND SPELLING OF THE ONE ABOVE. That value is
-  // 「which of the two the LAST OPERATION chose」 (FR-072), and putting the panel
-  // away chooses neither -- writing `null` there would say an operation had
-  // happened that did not. What a reader put away is asked here instead, and
-  // `propertiesShowingNow` is the one place the two are read together.
-  // ⛔ IT IS NOT S-80. That row is the width the DOCUMENT keeps, and the note
-  // A-appendix records for S-171 forbids making the opening width one of those
-  // (「文書が保つ値にはしない」) -- so the closing is not written back either, and
-  // a width a person dragged is still there when the panel comes back.
-  // ⚠️ Lost with the page, the same as the two above and for the same reason:
-  // table T-203 has no key and table T-206 no row.
-  // ⛔ NOTHING SETS IT AT STARTUP. A fresh document opens with S-80 at `0`,
-  // which that row spells as 「閉じている」 all by itself, and this value is
-  // about a panel a reader TOOK AWAY -- IN-4's level and IC-52's press are its
-  // only two writers.
+  // A separate fact from `propertiesShowing`: putting the panel away is not an
+  // operation choosing (FR-072), so writing `null` there would be false.
+  // `propertiesShowingNow` reads the two together.
+  // Not S-80: that is the width the document keeps (see S-171), so closing is
+  // not written back and a dragged width is still there when the panel returns.
+  // Nothing sets it at startup; IN-4's level and IC-52's press are its writers.
   // @provisional PND-338
   let isPropertiesPanelPutAway = false
-  // FR-065 -- whether the person has turned the `Agent API` on at this origin.
-  // ⭐ SEEDED FROM S-99b, exactly as `language` two declarations down is seeded
-  // from S-99: FR-065 (MUST) 「有効化はブラウザ（オリジン）ごとに記憶すること」,
-  // and a value that started `false` every time would be that MUST unkept.
-  // ⛔ NOT PER DOCUMENT. That form was struck on 2026-09-05 and FR-065 records
-  // why in its own words -- 「文書を一意に指す手立てが仕様のどこにも無い」.
-  // ⚠️ Off where the store has nothing or refuses, which is FR-028's default
-  // and the judgement FR-065's RATIONALE calls 「既定で公開しない」.
+  // FR-065 -- whether the person has turned the `Agent API` on at this origin,
+  // seeded from S-99b as `language` is from S-99; not per document (FR-065).
+  // Off where the store has nothing or refuses (FR-028, FR-065).
   let isAgentApiEnabled = startupAgentApiEnabled()
-  // Who to tell when that turns, or `null` while nobody has asked.
-  // ⛔ NOT A LIST. FR-065's public point is one name in one place, so one
-  // listener is all there is to be; `watchAgentApiEnabling` says the same from
-  // the far side.
+  // Who to tell when that turns, or `null` while nobody has asked. One
+  // listener, not a list (see `watchAgentApiEnabling`).
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
-  // FR-066 -- S-99i of table T-206, IC-18's own switch (DFC-149). ⭐ STARTS
-  // `true`, which is that row's own default (「表示」). ⛔ A SEPARATE VALUE FROM
-  // `isAgentApiEnabled` JUST ABOVE, and S-99i (MUST NOT) says so in as many
-  // words: one is the capability, this is what the reader chose to see. ⛔ AND
-  // NO LONGER CARRIED THE SAME WAY. The one above is seeded from S-99b and
-  // written back; this one is not, because PND-419 (未裁定) asks what S-99i does
-  // across the capability going down and coming back, and `BrowserStoredRow`
-  // holds no row for it -- see `sessionOf` for the false claim that stood here.
+  // FR-066 -- S-99i of table T-206, IC-18's own switch. Starts `true` (S-99i).
+  // A separate value from `isAgentApiEnabled` (S-99i). Not seeded or written
+  // back like that one: PND-419 (未裁定) asks what S-99i does when the
+  // capability goes down and comes back, and `BrowserStoredRow` has no row for
+  // it -- see `sessionOf`.
   let isDialogueFieldVisible = true
-  // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
-  // what startup settled on -- S-99 if the store had it, the host otherwise --
-  // and this carries what the person has chosen since.
-  // ⛔ Never the document's: FR-038 keeps the choice out of it (MUST NOT).
-  // ⚠️ `screen` is optional -- the loop runs without a `ScreenWiring` for the
-  // paths that need no screen -- so FR-038's own rule answers when there is
-  // none, rather than a second default being written here.
+  // FR-038 -- one language for the whole screen. `ScreenWiring` carries what
+  // startup settled on; this carries what the person has chosen since, never
+  // the document's (FR-038). Without a `ScreenWiring`, FR-038's own startup
+  // rule answers rather than a second default.
   let language: DisplayLanguage = screen?.language ?? startupDisplayLanguage()
-  // FR-076 (MUST) -- what has been raised to tell, in the order it was raised.
+  // FR-076 -- what has been raised to tell, in the order it was raised.
   //
-  // ⭐ HELD BY THIS LAYER AND BY NO OTHER. LY-5 of table T-060 leaves the
-  // Framework as the only layer that may hold a current value, and FR-028 (MUST
-  // NOT) makes a refusal a value the caller RECEIVES rather than something
-  // thrown -- so the side that received it is the side that holds it until it
-  // has been told. `ScreenSession.notices` says the same from the far side.
-  // ⛔ THE RAISED HALF ONLY. Each entry carries a row of table T-037 and a row of
-  // table T-233 and not one word: FR-038 (MUST) keeps every word the screen
-  // prints in the one generated dictionary, which ScreenRenderer holds and this
-  // file does not.
+  // Held by this layer alone (LY-5 of table T-060): a refusal is a value the
+  // caller receives (FR-028), so the receiver holds it until told. Each entry
+  // carries rows of tables T-037 and T-233 and no words; the words live in
+  // ScreenRenderer's dictionary (FR-038).
   //
-  // ⭐ THREE THINGS TAKE ONE OFF AGAIN, AND ALL THREE ARE NT-8's (MUST): a press
-  // on the entrance that row requires, an `Enter` (SK-19's first stage) and an
-  // `Esc` (IN-4's first level). `dismissNewestNotice` and `noticesWithout` are
-  // the whole of the shortening. ⛔ THE STOP THAT STOOD HERE SAID NOTHING DID,
-  // and it is recorded as superseded rather than deleted: it was written before
-  // NT-8 had an entrance, and it named 表 T-109 for the entrance -- which is
-  // still right, because NT-8's way out is a WORD and has no row of that table.
+  // NT-8 takes one off on its entrance, `Enter` (SK-19) and `Esc` (IN-4);
+  // `dismissNewestNotice` and `noticesWithout` do the shortening.
   //
-  // STOP -- ⛔ NO DEADLINE IS COUNTED HERE. NT-2 governs a telling that goes away
+  // STOP -- no deadline is counted here. NT-2 governs a telling that goes away
   // with time, and the clock it would need is FT-4 of table T-078 -- which this
-  // build reads for the icon hint alone (`beginPointerRest`) and for neither of
-  // that row's other two counts. ⚠️ So a telling nobody puts away stands for the
-  // rest of the session, which is the half of NT-2 that is kept -- it does not
-  // go before it has been read.
+  // build reads for the icon hint alone (`beginPointerRest`). So a telling
+  // nobody puts away stands for the rest of the session, which keeps NT-2's
+  // "not before it has been read" half.
   let raisedNotices: readonly RaisedNotice[] = []
   /**
-   * Whether the frame DRAWN BEFORE THIS ONE stopped on ST-7's safety valve --
-   * the one piece of state `STACK_SAFETY_CAP_REASON` needs to be told once
-   * rather than sixty times a second.
+   * The `TaskGroup` on which the last drawn frame stopped at ST-7's safety
+   * valve, so `STACK_SAFETY_CAP_REASON` is told once, not every frame.
    *
-   * ⚠️⚠️ THIS IS THE WHOLE OF THE DESIGN, AND IT IS LOAD-BEARING. `raiseNotice`
-   * adds to `affectedCount` on EVERY call (NT-3 of table T-037, MUST:
-   * 「新しく積まずに、その 1 枚の件数を増やすこと」), so a raise on every frame
-   * would leave one telling whose count climbs by 60 each second -- a number
-   * about the frame rate and not about the document. ⭐ RAISED ON THE TURN FROM
-   * `null` TO A STOP, which is the moment ST-7 is about: 「達したらそこで処理を
-   * 止め」 happens once, however long the picture stays that way.
+   * `raiseNotice` increments `affectedCount` on every call (NT-3 of table
+   * T-037), so raising per frame would count frames. It is raised on the turn
+   * from `null` to a stop. Holding the `groupId` lets a valve that moves to a
+   * different `TaskGroup` be told again.
+   * Not settled by the specification whether a second group owes a second
+   * telling; ST-7 counts per `TaskGroup`, which is the reading followed.
    *
-   * ⭐ HOLDING THE `groupId` AND NOT A `boolean` costs nothing and says which row
-   * the standing telling is about, so a valve that moves to a DIFFERENT
-   * `TaskGroup` without passing through `null` is a new stop and is told again.
-   * ⛔ UNRULED, AND MINE (2026-09-06): no clause settles whether the second group
-   * owes a second telling. ST-7 counts 「その `TaskGroup` の行に載っている `Task`
-   * が同時に重なる段数」 -- per group -- which is the reading this follows.
-   *
-   * ⚠️ A TELLING PUT AWAY IS NOT RAISED AGAIN while the same stop stands. NT-8
-   * (MUST) lets a person dismiss a telling, and re-raising it on the next frame
-   * would make this one impossible to dismiss.
+   * A dismissed telling is not re-raised while the same stop stands, or NT-8's
+   * dismissal would be impossible.
    */
   let stackSafetyCapToldFor: string | null = null
   /**
-   * The `TaskGroup` the LAST `exportScene` stopped on, or `null` where that
+   * The `TaskGroup` the last `exportScene` stopped on, or `null` where that
    * layout did not reach ST-7's valve.
    *
-   * ⭐⭐ ST-7 OF TABLE T-014 (MUST NOT, 利用者の裁定 2026-09-06): 「通知先を画面を
-   * 描く経路に限ってはならない」 —— 「絵を書き出す経路（`FR-080`）で達したときも、
-   * 書き出しを終えたあとで同じ通知を画面に上げること（MUST）」. That row says why
-   * the frame's own telling cannot stand in for this one: 「書き出しは画面と別に
-   * 配置を組むので、「画面で既に告げた」は成り立たない」.
-   * ⛔ NOT RAISED WHERE IT IS MEASURED. `exportScene` also answers IF-7's
-   * snapshot (R7.4), and a picture merely LOOKED AT is not 「書き出す」 -- so the
-   * value is left here and the two roads that actually write a picture raise it
-   * once their write is done.
-   * ⚠️ WRITTEN BY EVERY CALL, which is why each of those roads takes its own
-   * copy at the call and never reads this again across an await.
+   * ST-7 of table T-014 requires the same telling after a picture export
+   * (FR-080), since the export lays out separately from the screen.
+   * Not raised where measured: `exportScene` also answers IF-7's snapshot
+   * (R7.4), which is not an export, so the two writing roads raise it after
+   * their write. Every call overwrites it, so each road copies it at the call
+   * and never reads it again across an await.
    */
   let stackSafetyCapOfLastExportScene: string | null = null
   /**
    * The copy of the line above that IO-3 / IO-4's road is holding, from the
    * moment its picture was built until its file has been written.
    *
-   * ⛔ A SECOND VARIABLE AND NOT A SECOND READ. `exportHeldDocumentToFile`
-   * awaits a file store between the picture and the write, and an `Agent API`
-   * snapshot taken in that gap would rewrite the line above -- so the value is
-   * lifted out of it while the two are still one statement apart.
+   * `exportHeldDocumentToFile` awaits the file store between picture and
+   * write, and an `Agent API` snapshot in that gap would overwrite the line
+   * above, so the value is lifted out right away.
    */
   let stackSafetyCapOwedByPictureExport: string | null = null
-  // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
+  // FR-032 -- the question NT-7 puts, and the writes it stands in front
   // of, until one of that row's two word buttons answers it.
   //
-  // ⭐ CS-4's DISCIPLINE, NOT ITS LANDING. Table T-066 wrote that row for a
-  // file operation and its landing clause names `replaceDocument`, which is
-  // wrong for a delete -- a delete lands through `applyDocumentChange`. What
-  // carries over is the part that matters: nothing is read again while the
-  // answer is awaited, so the writes below are the ones the question was asked
-  // about and not a later document's.
-  // ⭐ `Esc` REACHES IT, AND NOT BY WAY OF S-99g. U-55 of table T-103 settles
-  // the name of this surface, so S-99g's own definition of a surface -- what
-  // the first level of IN-4 (table T-028) closes -- covers it. ⚠️ Table T-109
-  // used to print that name in its surface column as well, and since CR-327 it
-  // does not: NT-7 (MUST NOT) refuses the two answers a row there. ⛔ THAT DOES
-  // NOT MOVE THE LADDER -- what IN-4 closes is the SURFACE, which table T-103
-  // names, and NT-7's own row still puts its two keys 「表 T-028 の `IN-4` と
-  // 表 T-036 の `SK-19` の階層より先」, which says in as many words that the
-  // question stands inside those ladders. `escapeTarget` spends that level on
-  // the question because `escapeLevelOf` tells it one stands: the ladder lives
-  // in `screen-state.ts` and the question lives here, which is the same split
-  // the press in flight and the Dual Cursor mode already take.
-  // ⛔ NOT MOVED INTO `ScreenState.surface`, AND THE REASON IS MEASURED RATHER
-  // THAN DEFERRED. `openModalFromScreenState` (UF-66) turns ANY name standing
-  // in S-99g into a modal -- so a name there would raise a SECOND dialog over
-  // the one `confirmationFromSession` already draws from
-  // `ScreenSession.confirmation`, and that second one would carry neither of
-  // NT-7's two answers, because those are word buttons this surface draws and
-  // not entries table T-109 places.
-  // ⚠️ `display-words.json` holds a heading for five surfaces and not for this
-  // one, so that second dialog would also be headless.
+  // CS-4's discipline, not its landing (a delete lands through
+  // `applyDocumentChange`, not `replaceDocument`): nothing is read again while
+  // the answer is awaited, so the writes are the ones asked about.
+  // `Esc` reaches it as a surface named by U-55 of table T-103; NT-7 places its
+  // keys ahead of IN-4 and SK-19. `escapeTarget` spends that level because
+  // `escapeLevelOf` reports it: the ladder is in `screen-state.ts`, the
+  // question here.
+  // Not moved into `ScreenState.surface`: `openModalFromScreenState` (UF-66)
+  // turns any S-99g name into a modal, which would stack a second dialog over
+  // `confirmationFromSession`'s without NT-7's two answers.
   //
-  // ⭐ WHAT THE ANSWER DOES IS CARRIED WITH THE QUESTION, and is not a second
-  // field the answering side has to know how to read. Three requirements raise
-  // one now -- FR-032's delete, DI-4 of table T-227 and OP-4 of table T-024a --
-  // and NT-7 gives all three the same two answers, so `receiveInput` spends the
-  // word button and this settles what the answer meant. ⛔ A union of payloads would put the deciding in the answering side,
-  // and FR-031 (MUST NOT) keeps the places that may ask from growing: each
-  // raiser stating its own landing is what makes a new one impossible to add by
-  // accident.
+  // The answer's effect travels with the question: FR-032's delete, DI-4 of
+  // table T-227 and OP-4 of table T-024a all raise one, `receiveInput` spends
+  // the word button, and `settle` decides what it meant. A union of payloads
+  // would move the deciding to the answering side, where FR-031's limit on
+  // places that may ask is easier to break by accident.
   let asking: {
     readonly question: RaisedConfirmation
     /** @purity non-pure */
     settle(isProceeding: boolean, frame: FrameValues): void
   } | null = null
-  // OP-3 of table T-024a (MUST) -- the road back to the read that put the
+  // OP-3 of table T-024a -- the road back to the read that put the
   // `Open Chooser` (U-56) up, until one of IC-71 .. IC-73 answers it.
   //
-  // ⛔ HELD BESIDE `asking` AND NOT INSIDE IT. NT-7 of table T-037 is a
-  // two-answer manner and `ScreenSession.confirmation` carries exactly that;
-  // U-56 says of itself that it is not `Confirmation` because OP-3 has three.
-  // So the two cannot share a holder, and the surface is not the same surface.
-  // ⚠️ THE DIFFERENCE IS THE ROAD `Esc` TAKES, NOT WHETHER IT ARRIVES: this
-  // question lives in `ScreenState.surface` (S-99g), so IN-4 of table T-028
-  // spends its first level on it without this file saying anything, while the
-  // `Confirmation` is spent from the flag `escapeLevelOf` sets. ⛔ Both are the
-  // FIRST level and only one may go per press, which is why nothing here reads
-  // `escapeTarget` a second time.
-  // ⛔ NOTHING IS CHOSEN WHILE IT STANDS. OP-3 (MUST NOT) forbids GRS settling
-  // the three-way question by itself, so a surface that goes away unanswered
-  // abandons the open -- `null` is what the waiter is handed then, and an
-  // abandoned open changes no document.
+  // Beside `asking`, not inside it: NT-7 has two answers and OP-3 three, so
+  // U-56 is not a `Confirmation`. This one lives in `ScreenState.surface`
+  // (S-99g), so IN-4 spends its first level on it directly; the `Confirmation`
+  // is reached through `escapeLevelOf`. Only one first level goes per press, so
+  // `escapeTarget` is not read twice.
+  // OP-3 forbids choosing for the person, so a surface closed unanswered hands
+  // the waiter `null` and the open changes no document.
   let openChoosing: {
     /** @purity non-pure */
     settle(choice: OpenChoice | null): void
   } | null = null
-  // FR-022 (MUST) -- the road back to the merge that put U-61 `Difference
+  // FR-022 -- the road back to the merge that put U-61 `Difference
   // Review` up, until one of IC-95 .. IC-97 answers it.
   //
-  // ⛔ HELD BESIDE `openChoosing` AND NOT INSIDE IT, although the two roads run
-  // one after the other on the same open: OP-3's question is answered BEFORE
-  // OP-5's landing is attempted, and this one is asked only once PI-10 has said
-  // there are candidates to ask about -- so the two stand at different moments
-  // and a shared holder would settle whichever was waiting.
-  // ⛔ NOTHING IS CHOSEN WHILE IT STANDS. FR-022 (MUST NOT) forbids GRS settling
-  // 「同じか別か」 by itself, so a surface that goes away unanswered abandons the
-  // merge -- `null` is what the waiter is handed, and nothing has been written by
-  // then, which is what MG-6 asks of a merge that did not happen.
+  // Beside `openChoosing`, not inside it: OP-3's question is answered before
+  // OP-5's landing, and this one only once PI-10 has candidates, so a shared
+  // holder would settle whichever was waiting.
+  // FR-022 forbids choosing for the person, so a surface closed unanswered
+  // hands the waiter `null`; nothing has been written by then (MG-6).
   let mergeChoosing: {
     /** @purity non-pure */
     settle(mapping: MergeMapping | null): void
   } | null = null
-  // FR-022 (MUST) -- what U-61 lays out while it stands: the tasks that could
+  // FR-022 -- what U-61 lays out while it stands: the tasks that could
   // correspond, gathered by `UID`. Empty while no merge is being asked about.
-  //
-  // ⚠️ HELD RATHER THAN RE-DERIVED because PI-10 is what gathered them, and
-  // R2.7 refuses this file making that pairing judgement a second time.
+  // Held, not re-derived: PI-10 made the pairing and R2.7 forbids repeating it.
   let mergeCandidates: readonly MergeCandidateLine[] = []
-  // FR-073 (MUST) -- 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」.
-  // The columns the last intake could not read, laid out on U-61 beside the
-  // pairing above. Empty while no such document is being asked about.
+  // FR-073 -- the columns the last intake could not read, laid out on U-61
+  // beside the pairing above. Empty while no such document is being asked about.
   //
-  // ⚠️ HELD BESIDE `mergeCandidates` AND NOT INSIDE IT, and the two are not the
-  // same list: a candidate is a pair of tasks and a column is a name, and an
-  // intake can have either without the other. ⛔ They go away together all the
-  // same, because both belong to the one surface that laid them out.
-  // ⚠️ NAMES AS THE CODEC READ THEM (PI-20's `unreadColumns`), untranslated --
-  // FR-038 (MUST NOT) leaves a document's own words alone, and a column this
-  // build has never heard of has no row in any dictionary to be looked up in.
+  // Not inside `mergeCandidates` (an intake can have either without the
+  // other), but cleared with it, as both belong to the one surface.
+  // Names as PI-20's `unreadColumns` read them, untranslated (FR-038).
   let unreadColumns: readonly string[] = []
-  // FR-023 (MUST) -- what U-62 `Import Report` lays out while it stands: the
+  // FR-023 -- what U-62 `Import Report` lays out while it stands: the
   // names of the `Task` rows the last import dropped, in the order the file
   // carried them. Empty while that surface is not up.
   //
-  // ⛔ NAMES AND NOT A COUNT (FR-023, MUST NOT), and ⛔ not uids either: the
-  // rows are gone, so a uid would name nothing a person could look up in the
-  // file they have to mend.
-  // ⚠️ HELD RATHER THAN RE-DERIVED, the same as the line above: the rows are
-  // not in any document once the import has landed, so nothing can answer for
-  // them a second time.
+  // Names, not a count (FR-023), and not uids, which name nothing a person can
+  // find in the file they must fix. Held because the rows are no longer in any
+  // document.
   let droppedTaskNames: readonly (string | null)[] = []
   // Whether a file operation that waits for the person is running (CS-4 of
   // table T-066).
   //
-  // ⭐ IT NOW ANSWERS OP-8 OF TABLE T-024a AS WELL, and the two reasons are
-  // different. The shell's own: `ScreenSession.confirmation` and
-  // `ScreenState.surface` each hold ONE, so a second operation that raised a
-  // question would leave the first waiting on an answer nobody can give any
-  // more. OP-8's (MUST NOT): while one open is running, a second one may not be
-  // taken at all -- which is why the open path refuses at the entrance rather
-  // than declaring the row true to `importDocument` and being refused there,
-  // where nothing carries the refusal to anyone.
-  // ⚠️ The store keeps a guard of its own for the first shape of reason, and
-  // refuses with a fault; this one stops the operation before it can take the
-  // question away.
+  // Two reasons: `ScreenSession.confirmation` and `ScreenState.surface` each
+  // hold one question, so a second operation would orphan the first; and OP-8
+  // of table T-024a refuses a second open, which is why the open path refuses
+  // at the entrance -- `importDocument`'s refusal would reach nobody.
+  // The store's own guard refuses with a fault; this one stops the operation
+  // before it can take the question away.
   let isFileOperationWaiting = false
   // U-42 `Pointer` -- where one was last reported from.
-  // ⛔ NEVER null again once one happening has arrived. IF-2 supplies 「ポインタ
-  // とキーの出来事」 and has no happening for the pointer LEAVING the window,
-  // and the note under table T-078 forbids widening that supply, so `null` here
-  // means only that none has been reported yet.
+  // `null` only until the first happening: IF-2 has no pointer-leave happening
+  // and table T-078's note forbids widening that supply.
   let pointerAt: { readonly x: number; readonly y: number } | null = null
-  // What IF-9 answered where the pointer last was.
-  // ⭐ Held because FR-048's exemption is about a CHANGE: a move that stays on
-  // the same part draws the same picture, and only the previous answer can say
-  // whether this one is a different one.
+  // What IF-9 answered where the pointer last was. Held because FR-048's
+  // exemption is about a change, which only the previous answer can reveal.
   let partUnderPointer: ScreenPart | null = null
   // What table T-023d answered where the pointer last was, or `null` where no
   // row of it claimed the point.
-  // ⭐ HELD BESIDE `partUnderPointer` AND FOR THE SAME REASON, because the two
-  // together are the whole of where the pointer stood: IF-9 answers for the
-  // parts drawn OVER the schedule and this one for the schedule itself, and
-  // FR-048's exemption is about a CHANGE in either.
-  // ⛔ NOT A SECOND HIT TEST. `grabAtPointer` is asked once per happening and
-  // its one answer is what both IN-2's shape and FR-048's judgement read.
+  // Held for the same reason as `partUnderPointer`: IF-9 answers for parts over
+  // the schedule and this for the schedule itself. `grabAtPointer` is asked once
+  // per happening, and both IN-2's shape and FR-048 read that one answer.
   let grabUnderPointer: Grabbed | null = null
   // Whether the frame last painted put an explanation up (U-53).
   //
-  // ⭐ WHY THE LOOP HAS TO REMEMBER IT. EZ-6 of table T-040 (MUST) takes the
-  // explanation over a Task away 「ポインタが動いたら」, and a move that stays
-  // on the same entry and the same row of table T-023d changes neither of the
-  // two answers FR-048's exemption compares -- so nothing owed a frame and the
-  // explanation stood on. ⛔ The wait beginning again is not enough by itself:
-  // it is read INSIDE a frame, and no frame was being asked for.
-  // ⚠️ WHAT WAS DRAWN AND NOT WHAT IS DUE. It says only that the last painted
-  // frame carried one, which is exactly what a move might now have to erase.
+  // EZ-6 of table T-040 removes the explanation when the pointer moves, but a
+  // move on the same entry and T-023d row changes neither FR-048 answer, so no
+  // frame would be owed. Restarting the wait is not enough: it is read inside a
+  // frame. This records what was drawn, not what is due.
   let isTooltipStanding = false
-  // Whether the reader has put that explanation away -- IN-3 of table T-028's
-  // 「消せること」, spent through the last rung of IN-4's ladder (出ている説明).
+  // Whether the reader has put that explanation away (IN-3 of table T-028,
+  // through IN-4's last rung).
   //
-  // ⛔ WHY A SECOND BINDING AND NOT THE ONE ABOVE TURNED OFF. `isTooltipStanding`
-  // is a RECORD of what the last painted frame carried, rewritten from
-  // `screenView.tooltips` on every paint -- so a dismissal written into it would
-  // be overwritten by the next frame, which is the frame that has to honour it.
-  // This one is a DECISION the reader made, and it outlives frames until the
-  // pointer moves.
+  // A separate binding: `isTooltipStanding` is rewritten from
+  // `screenView.tooltips` on every paint and would overwrite the dismissal.
   //
-  // ⭐ CLEARED WHERE `beginPointerRest` IS CALLED, which is IN-3's own 「引き金が
-  // 外れるまで」 read forwards: a move starts EZ-2's wait over, so the next
-  // explanation is raised on its own terms rather than held down by a dismissal
-  // that belonged to the place the pointer has left. ⚠️ Not on a key: IN-3 asks
-  // that the putting-away happen 「ポインタもフォーカスも動かさずに」, so a
-  // dismissal that any keystroke undid would put the explanation back under the
-  // hand that had just taken it away.
+  // Cleared where `beginPointerRest` is called, since a move starts EZ-2's wait
+  // over. Not cleared on a key: IN-3 asks for dismissal without moving pointer
+  // or focus, so a keystroke must not bring the explanation back.
   let isTooltipDismissed = false
   // FT-4 of table T-078 -- when the rest EZ-2 of table T-040 waits on began,
   // read off the monotonic clock R3.6 requires for an elapsed time, or `null`
   // while the pointer has never yet been reported to stand anywhere.
-  // ⛔ MOVING IS THE ONLY THING THAT ENDS A REST. A frame that redraws leaves
-  // the pointer where it was, and EZ-2 asks only that it be ON the icon.
+  // Only a move ends a rest: a redraw leaves the pointer where it was.
   let pointerRestingSince: number | null = null
   // How to call off the frame FT-4 owes at the end of that rest, or `null`
   // while none is standing.
-  // ⚠️ THE WAY TO CANCEL IT RATHER THAN THE HOST'S HANDLE: a browser answers
-  // with a number and a host outside one answers with an object, and nothing
-  // here has any reason to know which it was given.
-  // ⚠️ R5.3 -- exactly one stands at a time, because the one below is called
-  // off before the next is set, and the loop lives as long as the page.
+  // A cancel function rather than the host's handle, which is a number in a
+  // browser and an object elsewhere. One at a time (R5.3): the old one is called
+  // off before the next is set.
   let callOffIconHintWait: (() => void) | null = null
   // How to call off whichever half of FR-018's repeat is standing -- the wait
   // S-172 serves first, or the ticking S-173 keeps up after it -- or `null`
   // while the press in flight is on none of `REPEATING_ENTRIES` and while no
   // press is in flight at all.
-  // ⚠️ ONE HANDLE OVER BOTH HALVES, because they are never both standing: the
-  // wait replaces itself with the ticking, and `endEntryRepeat` is the one way
-  // out of either. ⚠️ The way to cancel rather than the host's handle, which is
-  // the reason `callOffIconHintWait` above gives -- a browser answers with a
-  // number and a host outside one answers with an object.
+  // One handle for both halves, which never stand together: the wait replaces
+  // itself with the ticking, and `endEntryRepeat` ends either. A cancel
+  // function for the reason given at `callOffIconHintWait`.
   let callOffEntryRepeat: (() => void) | null = null
   // Table T-029a's Dual Cursor mode: which of `dualCursor`'s two dates (S-65)
   // is following the pointer, or `null` while the mode is not up.
   //
-  // ⭐ THE MODE IS THIS ONE VALUE, and that is the user's ruling of 2026-08-26
-  // -- the following side belongs to the session and not to the document. ⛔ A
-  // boolean beside a side could say the mode is up with nobody following, and
-  // DC-1 (which starts a side following the moment the mode is entered) and
-  // DC-2 (which always hands the following over) leave no such state to be in.
-  // ⚠️ THE NOTE THAT STOOD HERE SAID NOTHING COULD TURN IT ON, on the ground
-  // that IC-45 could not be written because IV-13 demands both dates at once.
-  // DC-1 refutes that ground: entering places BOTH dates, so IC-45 writes the
-  // pair it needs. `commandFromDualCursorEntry` is where that press is answered
-  // and `carryOutAction` below is what moves this.
+  // One value, not a boolean beside a side: DC-1 and DC-2 leave no state where
+  // the mode is up with nobody following. `commandFromDualCursorEntry` answers
+  // IC-45 and `carryOutAction` moves this.
   //
-  // ⭐ IT IS A MEMBER OF `ScreenSession` NOW, which is where the ruling puts it.
-  // ⚠️ WHAT STOOD HERE DECLINED TO PUT IT THERE, on the ground that no unit of
-  // ScreenRenderer could read it -- that component has no edge to
-  // ScheduleGeometry and draws neither line, since the two lines and DC-8's
-  // mark are SvgRenderer's (EP-6, DC-8), reached through `svgFromSchedule`'s own
-  // `follow` parameter. ⛔ THE GROUND WAS TRUE AND THE CONCLUSION WAS NOT: UF-65
-  // is handed the whole of `ScreenSession` already, so the fact ARRIVES where a
-  // row of the specification could use it, and a ruling about where a value
-  // LIVES is not answered by counting today's readers. This `let` is the store
-  // the loop writes into, exactly as `isMilestoneListOpen` and the rest are, and
-  // `sessionOf` is what hands it on.
+  // A member of `ScreenSession`, handed on by `sessionOf`; UF-65 receives the
+  // whole session, so it arrives where a row could use it.
   let dualCursorFollowing: DualCursorSide | null = null
-  // FR-066 -- the conversation, which is NOT in the document (that MUST NOT)
-  // and is therefore a current value LY-5 of table T-060 leaves here.
+  // FR-066 -- the conversation, which is not in the document (FR-066) and is
+  // therefore a current value LY-5 of table T-060 leaves here.
   //
-  // ⭐ IT MOVES IN THIS BUILD, WHICH IT DID NOT BEFORE. `postDialogueMessage`
-  // (PI-16) is what appends, and AM-18 of table T-107 reaches it now that the
-  // `Agent API` is installed -- `agentApiSeams` below hands over the two seams
-  // that road needs, and `dialogueSeams` is where the replacing and FT-5's
-  // frame happen.
-  // STOP -- ⛔ THE PERSON'S OWN SIDE IS STILL NOT WIRED, and it is a different
-  // seam from this one. `ScreenSurface.readDialogueInput` (IF-9) and
-  // `dialogueMessageFromInput` (PI-37) both exist and `screen-surface.ts`
-  // states the caller's half of that contract -- read the settled line BEFORE
-  // the draw that takes it away -- but nothing in `src/` asks for it, so every
-  // message in this log arrives from the API's end today.
+  // `postDialogueMessage` (PI-16) appends through AM-18 of table T-107;
+  // `agentApiSeams` hands over the seams and `dialogueSeams` does the replacing
+  // and FT-5's frame.
+  // STOP -- the person's own side is not wired. `ScreenSurface.readDialogueInput`
+  // (IF-9) and `dialogueMessageFromInput` (PI-37) exist, and `screen-surface.ts`
+  // states the caller's half (read the settled line before the draw that clears
+  // it), but nothing in `src/` calls them, so every message arrives from the API.
   let dialogueLog: DialogueLog = emptyDialogueLog()
 
   /**
    * What table T-060's LY-5 lets `applyDocumentChange` replace.
    *
-   * ⚠️ Two members and not four: the pair is read ONCE per write (CS-3 of table
-   * T-066) and swapped as ONE reference (WS-6, MUST).
+   * Read once per write (CS-3 of table T-066) and swapped as one reference (WS-6).
    */
   const holder: DocumentHolder = {
     /** @purity semi-pure-b */
@@ -4963,61 +3188,32 @@ export function frameLoop(
     },
     /** @purity non-pure */
     replace(next: HeldDocument): void {
-      // FR-020 (MUST): the trail is stamped when the document is opened and
-      // again when it CHANGES. This is the second of those two moments, and it
-      // is here for the same reason the selection is pruned here -- `replace`
-      // is the single door an edit, an undo, a redo, a merge and a whole other
-      // document all pass through.
-      // ⚠️ THE REFERENCE, NOT THE CONTENT. FR-020 says a write that changed
-      // nothing does not re-stamp, and a command that decides it has nothing to
-      // do returns the document it was handed (`edited(document)`), so an
-      // unmoved document arrives here as the very object already held.
-      // ⛔ BEFORE THE SWAP, because the comparison is against what stood until
-      // now -- after `held = next` there would be nothing left to compare to.
+      // FR-020's re-stamp on change, here because `replace` is the single door
+      // for edit, undo, redo, merge and a whole other document.
+      // By reference: a command with nothing to do returns the document it was
+      // handed, and FR-020 does not re-stamp an unchanged document.
+      // Before the swap, or there is nothing left to compare against.
       if (next.document !== held.document) {
         watermarkStampedAt = readInstantOfWrite()
       }
       held = next
-      // Table T-023c's closing rule (MUST NOT), and this is the one place it
-      // can be kept: `replace` is the single door every write goes through --
-      // an edit, an undo, a redo, a merge, and a whole other document opened.
-      //
-      // ⭐⭐ WHY IT IS NOT AT THE DELETION. The rule itself says not to put it
-      // there: 「落とす場所を、消える入口ごとに定めてはならない」. Measured
-      // 2026-08-30 before this line existed -- `Ctrl`+`A`, `Delete`, then a
-      // press on a palette shape built CM-20 for a `uid` that was gone,
-      // `edit-task.ts` refused it on IV-2, and AG-3 dropped the whole bundle
-      // with RS-10 on screen. SK-3 is only one of the doors that leaves a dead
-      // reference behind; `replaceHeldDocument` is another and is not a
-      // deletion at all.
-      // ⚠️ AFTER THE SWAP, never before: what a reference is judged against is
-      // the document that now stands, and judging against the old one would
-      // keep exactly what the write removed.
+      // Table T-023c's closing rule forbids dropping dead references per
+      // deleting entrance, and this single door is where it can be kept:
+      // `replaceHeldDocument` leaves dead references too without deleting.
+      // After the swap: judging against the old document would keep what the
+      // write removed.
       const chosenBeforeTheWrite = selection
       selection = selectionWithinSchedule(selection, held.document.schedule)
-      // FR-091's 「作った直後の場面」 ends where the selection does -- an undo that
-      // takes the new Task away is one of the two doors that can move it.
+      // FR-091's just-created scene ends where the selection moves; an undo of
+      // the new Task is one of the doors that moves it.
       endCreatedNamingIfChosenMoved(chosenBeforeTheWrite)
-      // ⭐⭐ FT-2 OF TABLE T-078 -- 「現在値の差し替え（表 T-067 の `WS-6`）」 --
-      // AND THIS LINE IS WS-6 ITSELF, which is why the frame is asked for here
-      // rather than on each of the roads that reach it.
-      // ⛔ 台帳 DFC-387 WAS THE FRAME BEING ASKED FOR ON THE ROADS INSTEAD:
-      // `receiveInput` asks for its own at the foot (FT-1) and
-      // `replaceHeldDocument` asks for one for table T-230's six rows -- so a
-      // person saw every write, while the `Agent API`, which reaches this
-      // holder through `agentApiSeams` and takes neither of those two roads,
-      // moved the document and left the picture standing. ⚠️ MEASURED
-      // 2026-09-08 on the shipped build, 1400x900: `applyCommands` changed the
-      // title and the `Document Title` still read the old one 1500ms later,
-      // until the pointer was moved.
-      // ⭐ THE SHAPE IS FT-5's OWN (`dialogueSeams.dialogueAudience.deliver`)
-      // and is not invented here. `settled` is what keeps NFR-011's MUST --
-      // BO-1 of table T-077 forbids a frame before the dimensions have settled
-      // -- and `ask` coalesces, so a write made on a happening still paints
-      // once with FT-1's rather than twice.
-      // ⛔ NOT A COMPARISON OF THE DOCUMENT PER FRAME. The note under table
-      // T-078 forbids waking a frame on a trigger the table does not list (MUST
-      // NOT); this wires the row that was already there and mints nothing.
+      // FT-2 of table T-078 is WS-6 itself, so the frame is asked for here
+      // rather than on each road -- the `Agent API` reaches this holder through
+      // `agentApiSeams` and takes neither `receiveInput` nor
+      // `replaceHeldDocument`, so it would otherwise leave the picture stale.
+      // The shape is FT-5's (`dialogueSeams.dialogueAudience.deliver`):
+      // `settled` keeps BO-1 of table T-077, and `ask` coalesces with FT-1's.
+      // Not a per-frame document comparison, which table T-078's note forbids.
       if (settled(environment)) ask()
     },
   }
@@ -5029,44 +3225,24 @@ export function frameLoop(
    * (`replaceHeldDocument`), so an undo and an ordinary edit reach the watchers
    * the same way an `Agent API` write does.
    *
-   * ⭐ THE SHAPE IS PI-15's AND IS NOT INVENTED HERE. `NotifyChangeWatchers`
-   * names its callers itself and states what the Framework hands over: the
-   * confirmed document, the judgement that travelled with it, and the dialogue
-   * log beside it -- the log because FR-066 keeps it out of the document (MUST
-   * NOT) and LY-5 of table T-060 leaves current values with this layer alone.
-   * ⛔ INSIDE THE LOOP, because `dialogueLog` is. A shared one at module scope
-   * would have no log to hand over and no session to belong to.
-   * ⛔ NOTHING IS DECIDED HERE. `hasMovedSchedule` is WS-5's judgement on the
-   * command road and table T-230's equality of the two `scheduleUpdatedUtc` on
-   * the replacement road; AG-6 of table T-035 requires it to be CARRIED, and
-   * UT-3 of table T-063 puts the choosing in the pure half (UF-25 of table
-   * T-075). This side neither derives it nor filters on it.
-   * ⚠️ THE SCREEN'S OWN WRITES GO THROUGH IT TOO, and AG-6's MUST NOT about a
-   * writer woken by its own write is still kept: this side signs with
-   * `EDITED_BY_SCREEN`, the word table T-229 reserves at ED-1, so a subscriber
-   * of that name is passed over by the selection rather than by a guard here.
+   * The shape is PI-15's (`NotifyChangeWatchers`): the document, the judgement
+   * that travelled with it, and the dialogue log (FR-066, LY-5 of table T-060).
+   * Inside the loop because `dialogueLog` is.
+   * Nothing is decided here: `hasMovedSchedule` is carried (AG-6 of table T-035),
+   * chosen in the pure half (UT-3 of table T-063, UF-25 of table T-075).
+   * The screen's own writes pass through too; AG-6's self-wake rule is kept by
+   * signing with `EDITED_BY_SCREEN` (ED-1 of table T-229), not by a guard here.
    */
   const audience: ChangeAudience = {
     /** @purity non-pure */
     deliver(document: Document, hasMovedSchedule: boolean): void {
       const outcome = notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
-      // ⭐ THE ANSWER IS READ, AND IT IS THIS SIDE'S TO READ. `NotifyOutcome`
-      // says why in as many words: PI-15 hands the failures back BECAUSE
-      // swallowing them was the one thing it could not do, and this is the only
-      // caller. RS-23 of table T-233 is the row they are carried on, and its
-      // manner NT-3a (MUST) is what a delivery that failed silently could never
-      // keep -- there would be no next step for a person who never heard.
-      // ⚠️ WHAT FAILED IS NOT NAMED. `DeliveryFailure` carries the watcher's
-      // name and what it threw, and neither is a word of the screen -- FR-038
-      // (MUST NOT) forbids a second store of translated strings, and NT-1's
-      // 「どの項目か」 is what the row of table T-233 says.
-      // ⚠️ NO COUNT. `affectedCount` is NT-3's, which table T-037 asks of a
-      // DESTRUCTIVE result; nothing was destroyed here, the write already
-      // landed, and how many subscribers went unanswered is not that number.
+      // This is the only caller, and PI-15 hands failures back for it to tell
+      // (see `NotifyOutcome`): RS-23 of table T-233, manner NT-3a.
+      // The watcher is not named: its name and error are not screen words
+      // (FR-038). No count: NT-3's count is for destructive results.
       if (outcome.failures.length > 0) raiseNotice(WATCHER_SILENT_REASON, null)
-      // ⛔ `outcome.notified` IS NOT READ, and nothing is owed for it: table
-      // T-233 has no row for a delivery that worked, and NT-1 .. NT-7 have no
-      // manner for telling a person that nothing went wrong.
+      // `outcome.notified` is not read: table T-233 has no row for success.
     },
   }
 
@@ -5074,13 +3250,10 @@ export function frameLoop(
    * FR-072's answer for THIS frame: which of the two the panel is showing, or
    * `null` while it is not on the screen at all.
    *
-   * ⭐ THE ONE PLACE THE TWO HELD VALUES ARE READ TOGETHER. ⛔ WHAT IS DESCRIBED
-   * TO THE SURFACE READS THIS AND NEVER `propertiesShowing` DIRECTLY -- a caller
-   * that read the raw value would go on describing a panel the reader has taken
-   * away. ⚠️ Two callers read something else, each for a reason it states:
-   * `withPropertiesPanelShown` reads the putting-away alone, because it has to
-   * tell it from 「no operation has chosen yet」, and the `Esc` ladder asks
-   * `isPropertiesPanelOnScreen` below, which adds the wiring.
+   * The one place both held values are read together; what is described to the
+   * surface reads this, never `propertiesShowing`, or a put-away panel would
+   * still be described. Exceptions: `withPropertiesPanelShown` reads the
+   * put-away flag alone, and the `Esc` ladder asks `isPropertiesPanelOnScreen`.
    *
    * @purity semi-pure-b
    */
@@ -5092,13 +3265,8 @@ export function frameLoop(
    * Whether the `Properties Panel` (U-25) is on the screen at this moment --
    * the question IN-4 asks before it spends a level on it.
    *
-   * ⛔ THE WIRING IS HALF THE ANSWER, and leaving it out would be a level spent
-   * on a surface nobody can see. `ScreenWiring` is optional: without it this
-   * loop draws the schedule through `SvgSurface` (IF-1) and describes no
-   * `ScreenView` at all, so there is no panel, no modal and no entry -- the same
-   * reading `owesFrame` already takes, where a missing wiring makes both screen
-   * parts null. ⚠️ A caller with no wiring is a caller whose `Esc` must reach
-   * the browser (IN-4a, MUST) for want of anything to close.
+   * Without a `ScreenWiring` no `ScreenView` is described, so there is no panel
+   * (as in `owesFrame`), and `Esc` must reach the browser (IN-4a).
    *
    * @purity semi-pure-b
    */
@@ -5111,38 +3279,25 @@ export function frameLoop(
    * been put away, S-80 as the document keeps it, or S-171 of table T-206 while
    * FR-072 has the panel showing and the document keeps no width of its own.
    *
-   * ⭐ THE MIRROR OF `exportScene`'s `withPanelsClosed`, and it is laid over the
-   * settings handed to `regionsFromScreen` for the same reason that one is: a
-   * panel's rectangle is cut from that single width, so the width is the only
-   * thing that can say whether the panel is there at all. S-80's own row says
-   * `0` IS 「閉じている」, which is why a showing panel with nothing stored was
-   * placed at the window's right edge with no width to draw into.
-   * ⛔ LAID OVER A COPY AND NEVER WRITTEN BACK. S-171 is not a document setting
-   * (table T-206 holds what the document does not keep), and a stored `S-80`
-   * above zero is what a person left behind after dragging the boundary --
-   * FR-052 makes that width win, so it is tested first.
+   * The mirror of `exportScene`'s `withPanelsClosed`: the panel's rectangle is
+   * cut from this one width, and S-80 of `0` means not yet widened, so a showing
+   * panel with no stored width would get no room.
+   * Laid over a copy, never written back (S-171 is not a document setting); a
+   * stored S-80 above zero is a dragged width and wins (FR-052).
    *
    * @purity semi-pure-b
    */
   function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
-    // ⭐ A PANEL PUT AWAY TAKES NO WIDTH, which is S-80's own spelling of
-    // 「閉じている」 and the only thing that gives its place back to the
-    // `Row Area` (FR-052). ⛔ AHEAD OF THE STORED WIDTH, and that is the whole
-    // difference between this branch and the one below it: a document that
-    // carries a width a person dragged still reads back as open, so a closing
-    // that let that width win would take the panel off the screen and leave its
-    // strip standing at the window's right edge with nothing drawn into it --
-    // the very state version 1.08 of the specification records being measured.
-    // ⚠️ LAID OVER A COPY AND NEVER WRITTEN BACK, exactly as S-171 is: the
-    // stored width is what the panel comes back to.
+    // A put-away panel takes no width, handing its place to the `Row Area`
+    // (FR-052). Checked before the stored width, or a dragged width would leave
+    // an empty strip at the right edge.
     if (isPropertiesPanelPutAway) {
       if (stored.propertyPanelWidth === 0) return stored
       return { ...stored, propertyPanelWidth: 0 }
     }
-    // ⛔ THE RAW VALUE HERE AND NOT `propertiesShowingNow`, which would make the
-    // branch above unreachable: this line is 「no operation has chosen yet」, and
-    // the stored width has to stand for it or FR-052's boundary could never be
-    // dragged open from a closed panel.
+    // The raw value, not `propertiesShowingNow`, which would make the branch
+    // above unreachable; the stored width must stand here or FR-052's boundary
+    // could never be dragged open from a closed panel.
     if (propertiesShowing === null) return stored
     if (stored.propertyPanelWidth > 0) return stored
     return {
@@ -5152,22 +3307,16 @@ export function frameLoop(
   }
 
   // CA-2: invalidation happens at the head of a frame, and nothing is rebuilt
-  // again for the rest of it. NFR-010 means a frame with no trigger never runs
-  // at all, so there is no idle path to guard against.
+  // again for the rest of it (NFR-010: no trigger, no frame).
   //
   // @purity non-pure
   /**
    * One line of FR-102's record, if the record is running.
    *
-   * ⭐ THE GUARD IS HERE AND NOT AT EVERY CALL, so that a caller cannot
-   * forget it and so that nothing whatever is measured, formatted or kept
-   * while S-206 is off -- GL-003 is the goal this record serves, and a record
-   * that cost a frame would be working against it.
-   * ⛔ THE CAP IS S-207's AND THE DROP IS FROM THE OLDEST END, which FR-102
-   * (MUST) states; `interactionRecordDropped` is what its other MUST has
-   * written at the head of what is handed over.
-   * ⚠️ The sequence number counts what was OFFERED and not what is held, so
-   * a reader can see where the dropped lines stood.
+   * The guard is here, not at every call, so no caller can forget it and
+   * nothing is measured or formatted while S-206 is off (GL-003).
+   * The cap is S-207, dropping from the oldest end (FR-102).
+   * The sequence number counts offered lines, so dropped ones stay visible.
    *
    * @purity non-pure
    */
@@ -5199,19 +3348,12 @@ export function frameLoop(
   /**
    * One key, as the record may spell it.
    *
-   * ⛔⛔ A KEY OF ONE CHARACTER IS MASKED, AND FR-102 (MUST NOT) IS WHY.
-   * `KeyInput.key` carries what the host reported, and `dom-input-source.ts`
-   * upper-cases every single-character key and hands it on -- so a person
-   * typing a task name into a property field sends those characters through
-   * here one at a time. Writing them down would put the contents of the
-   * document into a record made to be pasted into a report.
-   * ⭐ THE RULE IS DERIVED AND NOT A LIST. Every assignment of table T-036
-   * that is a NAME is more than one character long (`Esc`, `Enter`, `Delete`,
-   * `F1`, `F11`), and every one that is a character is exactly one -- so the
-   * length is the whole test, and a key added to that table is covered without
-   * this function being touched. ⚠️ The modifiers stay beside the mask:
-   * `Ctrl`+`Shift`+`E` (SK-12) reads as `key=# mods=CS`, which names the
-   * shortcut without naming the letter.
+   * A one-character key is masked (FR-102): `dom-input-source.ts` hands on
+   * every typed character, so typing a task name would put document contents
+   * into the record.
+   * Length is the whole test: every named key of table T-036 is longer than
+   * one character, so new keys need no change here. The modifiers stay, so
+   * SK-12 still reads as `key=# mods=CS`.
    *
    * @purity pure
    */
@@ -5220,16 +3362,13 @@ export function frameLoop(
   }
 
   /**
-   * FR-102: one happening, written down as it ARRIVES -- before anything has
+   * FR-102: one happening, written down as it arrives -- before anything has
    * been decided about it and before any way out of `receiveInput`.
    *
-   * ⛔⛔ THE POINT OF WRITING IT HERE IS THE HAPPENING THAT IS DROPPED. A
-   * report that an entrance does nothing cannot be told from one whose press
-   * never arrived unless the arrival itself is on the record -- and this loop
-   * does drop happenings: the one that comes before any frame has run is
-   * dropped by rule (NFR-011).
-   * ⚠️ Nothing of the DOCUMENT is written: a pointer carries a place and a
-   * key carries a masked spelling, and neither is a name.
+   * Written this early so a dropped happening is still on the record (one that
+   * arrives before any frame is dropped, NFR-011); otherwise an entrance that
+   * does nothing cannot be told apart from a press that never arrived.
+   * Nothing of the document is written: a place and a masked key only.
    *
    * @purity non-pure
    */
@@ -5257,18 +3396,11 @@ export function frameLoop(
   /**
    * FR-102: what this frame DREW, counted rather than copied.
    *
-   * ⭐⭐ THE SHAPE OF THE PICTURE AND NOT THE PICTURE. FR-102 (MUST)
-   * allows the shape of what was drawn and (MUST NOT) refuses the contents of
-   * the document, so what is written is HOW MANY of each kind of shape went
-   * out and none of what any of them says. A `<text>` element is counted; the
-   * words inside it are a task's name and are not.
-   * ⛔ COUNTED OFF THE STRING THAT IS ACTUALLY HANDED TO THE SURFACE, which
-   * is the whole reason it can settle an argument: a census taken anywhere
-   * else would be a second opinion about what was drawn.
-   * ⭐ The state that decides what was drawn goes on the same line, because
-   * the two are only worth anything together -- a picture with no cursor lines
-   * in it means one thing while table T-029a's mode is up and another while it
-   * is not.
+   * Counts of each element kind, never their text, which would be document
+   * contents (FR-102). Counted off the exact string handed to the surface, so
+   * the record is not a second opinion about what was drawn.
+   * The deciding state goes on the same line: a picture without cursor lines
+   * means different things with table T-029a's mode up or down.
    *
    * @purity non-pure
    */
@@ -5294,14 +3426,10 @@ export function frameLoop(
   }
 
   /**
-   * What is handed to the clipboard when the record is stopped (FR-102, MUST).
+   * What is handed to the clipboard when the record is stopped (FR-102).
    *
-   * ⛔ THE COUNT OF WHAT WAS DROPPED STANDS AT THE HEAD, which that
-   * requirement (MUST) asks for in as many words -- a record cut in silence is
-   * read as the whole of what happened.
-   * ⭐ Tab-separated, because a person pastes this into a report and a
-   * table is what a reader can scan. ⚠️ The columns are named on the third
-   * line rather than left to be guessed at.
+   * The dropped count is at the head (FR-102). Tab-separated so a pasted report
+   * scans as a table, with the columns named on the third line.
    *
    * @purity semi-pure-b
    */
@@ -5320,18 +3448,13 @@ export function frameLoop(
    * IC-76 of table T-109 -- FR-102's one entrance, which both starts the
    * record and stops it.
    *
-   * ⭐ STOPPING HANDS THE RECORD OVER (FR-102, MUST), and the route is the
-   * one table T-008's CHN-9 already carries: `writeClipboard` over IF-5, the
-   * same seam IC-3 sends the picture out through. ⛔ A route of its own
-   * would be the second way to one place that rule 03 forbids.
-   * ⚠️ STARTING CLEARS WHAT STOOD, so that one record is one sitting: a
-   * second start that appended would hand over two runs joined at a seam the
-   * reader cannot see.
-   * ⛔ NOTHING IS TOLD ON A CLIPBOARD THAT REFUSED. NT-3a of table T-037
-   * wants a next step with any telling and no row of table T-233 carries a
-   * reason for this one -- the entrance's own pressed state going off is what
-   * says the record stopped, and a reason invented here is the mint rule 03
-   * section 1 forbids.
+   * Stopping hands the record over (FR-102) through CHN-9 of table T-008
+   * (`writeClipboard` over IF-5), the route IC-3 already uses; a separate route
+   * would break rule 03. Starting clears what stood, so one record is one
+   * sitting rather than two runs joined invisibly.
+   * A refusing clipboard is not told: table T-233 has no reason for it (NT-3a
+   * needs a next step), and the entrance's pressed state going off already says
+   * the record stopped.
    *
    * @purity non-pure
    */
@@ -5342,27 +3465,23 @@ export function frameLoop(
       interactionRecordOffered = 0
       interactionRecordBeganAt = readMonotonicMs()
       isRecordingInteractions = true
-      // ⛔ THE FIRST AND LAST LINES ARE WRITTEN BY THIS FUNCTION AND NOT LEFT
-      // TO BE INFERRED. The press that turns the record is spent halfway
-      // through `receiveInput`, so one of its two lines always falls outside
-      // the record -- and a missing line is exactly what this record is meant
-      // to make readable. Saying so outright is cheaper than a rule about it.
+      // Written here explicitly: the turning press is spent midway through
+      // `receiveInput`, so one of its two happening lines always falls outside
+      // the record.
       recordLine('record', 'started entrance=IC-76')
       return
     }
     recordLine('record', 'stopped entrance=IC-76')
-    // ⛔ READ BEFORE THE FLAG GOES OFF, because `recordLine` answers nothing
-    // once it has -- and taken here rather than inside the promise for the
-    // reason CS-4 gives: the answer lands on the operation that began.
+    // Read before the flag goes off, since `recordLine` answers nothing after;
+    // taken here, not in the promise, so the answer lands on the operation that
+    // began (CS-4).
     const text = interactionRecordText()
     isRecordingInteractions = false
     interactionRecord.length = 0
     interactionRecordDropped = 0
     interactionRecordOffered = 0
     const seam = clipboard
-    // ⛔ NOTHING IS WRITTEN WHERE NO CLIPBOARD WAS HANDED IN, the same
-    // answer `copyPictureToClipboard` makes: the seam is optional at wiring
-    // time (CP-30), and a build without one has nowhere to put this.
+    // No clipboard was wired (CP-30), as in `copyPictureToClipboard`.
     if (seam === undefined) return
     void writeClipboard(seam, { kind: 'record', text })
   }
@@ -5371,24 +3490,17 @@ export function frameLoop(
     owed = false
     // CS-1 of table T-066: the frozen copy this frame is drawn from, taken
     // once at its head.
-    // ⭐ ONE DOCUMENT PER FRAME STILL, WHICH IS THE WHOLE OF CS-1: a held press
-    // that owes a picture substitutes the copy at this one line, and everything
-    // below -- regions, settings, layout, geometry, both surfaces -- reads that
-    // one binding. ⛔ `exportScene` keeps `held.document` unchanged: EP-12 of
-    // table T-076 keeps this session's state out of an export, and a drag in
-    // flight is as much this session's as the selection is.
+    // A held press's preview substitutes here, and everything below reads this
+    // one binding. `exportScene` keeps `held.document`: EP-12 of table T-076
+    // keeps session state, a drag included, out of an export.
     const document = previewDocument ?? held.document
-    // FT-4 of table T-078 -- how long the pointer has rested, in ms, read ONCE
-    // and here so that everything this frame draws is about one instant.
-    // ⚠️ BESIDE THE FROZEN COPY AND NOT INSIDE IT: the note under table T-078
-    // keeps the clock out of what CS-1 collects, and warns in as many words
-    // against confusing it with the status date.
+    // FT-4 of table T-078 -- how long the pointer has rested, read once so the
+    // whole frame is about one instant. Outside the frozen copy: table T-078's
+    // note keeps the clock out of what CS-1 collects.
     const pointerRestedMs =
       pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
-    // ⚠️ NOT `documentSettings` ITSELF, and the name says so: FR-072's panel
-    // takes S-171's width while it is showing, and the width is the only thing
-    // that can say it is there. `withPropertiesPanelShown` holds the whole rule
-    // -- this is the mirror of `exportScene`'s `withPanelsClosed`.
+    // Not `documentSettings` itself: FR-072's panel may take S-171's width (see
+    // `withPropertiesPanelShown`).
     const withPanelShown = withPropertiesPanelShown(document.documentSettings)
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
@@ -5396,62 +3508,46 @@ export function frameLoop(
       appHeaderHeight: environment.appHeaderHeight,
       scrollbarThickness: environment.scrollbarThickness,
     }
-    // BO-1, then BO-3, then BO-4, in the order table T-077 fixes (MUST).
+    // BO-1, then BO-3, then BO-4, in the order table T-077 fixes.
     const regions = regionsFromScreen(environmentForRegions, withPanelShown)
-    // ⛔ `held.document` AND NOT THE PREVIEW, ALONE AMONG THE FIVE READINGS
-    // AROUND IT. While no place is stored, OP-10 of table T-024a has this
-    // answer re-run FR-055's fit every frame, and the fit sizes the time axis
-    // from the widest content -- so a preview that lengthens a bar would shrink
-    // the axis under the hand that is dragging it, and table T-023d's closing
-    // rule (MUST) has the picture follow the POINTER. A picture whose axis
-    // moves with it cannot. ⭐ The layout below still reads the preview: the
-    // layout IS the picture, and the axis is what it is drawn against.
+    // `held.document`, not the preview: with no stored place OP-10 re-runs
+    // FR-055's fit every frame, and a preview that lengthens a bar would shrink
+    // the axis under the dragging pointer (table T-023d's closing rule). The
+    // layout below still reads the preview.
     const view = viewSettings(held.document, withPanelShown, regions,
                               fromStartupTemplate, readToday(),
                               environment.rowControlsHeightPx)
     const settings = view.settings
-    // ⭐ S-211 REACHES THE LAYOUT AND NOT ONLY THE PANEL. HR-2 of table T-015
-    // (MUST) has a folded 段 0 draw no row at all, and which rows are drawn is
-    // LC-1's answer -- so the fold is handed to the layout, and the panel, the
-    // geometry and `drawnRowBoxes` all follow the one picture.
-    // ⛔ NOT `undefined` FOR THE CAP: that argument is FR-055's alone (see
-    // `layoutFromSchedule`), and only the fit may pass one.
+    // S-211's fold is handed to the layout, since HR-2 of table T-015 has a
+    // folded 段 0 draw no row and which rows are drawn is LC-1's answer.
+    // `undefined` for the cap: that argument is FR-055's fit's alone (see
+    // `layoutFromSchedule`).
     const layout = layoutFromSchedule(
       document.schedule,
       settings,
       regions,
       undefined,
       isLevelZeroFolded,
-      // LF-3's second floor (MUST): 「その行の操作子（表 T-051 の `HF-1` の格子）
-      // が縦に取る高さも下回らない」, measured by the surface that drew it.
+      // LF-3's second floor, measured by the surface that drew the controls.
       environment.rowControlsHeightPx,
     )
-    // ⭐⭐ ST-7 OF TABLE T-014 (MUST) LANDS HERE: 「達したらそこで処理を止め、達した
-    // ことを判別できる値で返して人に通知すること」 -- the layout returned the value,
-    // and this is 「人に通知する」. ⛔ Without these four lines the picture simply
-    // comes back with rows missing and says nothing, which is that row's own
-    // 「黙って切り捨て」 (MUST NOT).
-    // ⚠️ ON THE TURN ALONE, never every frame -- see `stackSafetyCapToldFor`.
+    // ST-7 of table T-014: the layout returned the stop, and this tells the
+    // person; without it rows would vanish silently. Told on the turn only --
+    // see `stackSafetyCapToldFor`.
     const capStop = layout.stackSafetyCapReached
     if (capStop !== null && stackSafetyCapToldFor !== capStop.groupId) {
       stackSafetyCapToldFor = capStop.groupId
-      // ⛔ `null` FOR THE COUNT AND NOT `capStop.cap`. `RaisedNotice.affectedCount`
-      // counts how many things a telling is about (NT-3), and `cap` is `S-89` --
-      // a setting, not a tally. ⚠️ `RS-24`'s words in `display-words.json` take no
-      // number, so nothing here would print it either.
+      // `null` for the count, not `capStop.cap`: `affectedCount` counts things
+      // (NT-3) and `cap` is the setting S-89. RS-24's words take no number.
       raiseNotice(STACK_SAFETY_CAP_REASON, null)
     } else if (capStop === null) {
-      // ⭐ THE VALVE LET GO, so the next time it closes is a new stop and is told
-      // again. Edits that move Tasks off the row are exactly what `RS-24`'s next
-      // step asks the person to do 「重なっているタスクを別の行へ移すか…」, and a
-      // person who did it and then hit the valve once more must hear about it.
+      // The valve let go, so the next stop is told again -- moving Tasks off the
+      // row is exactly RS-24's next step.
       stackSafetyCapToldFor = null
     }
-    // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
-    // same requirement: FR-075 (MUST) puts the fade grab points on the selected
-    // Task alone, and `itemAtPointer` can only be as narrow as the geometry it
-    // reads. Two different answers here would put a grab where no point is
-    // drawn (PND-191).
+    // The same `selection` the renderer gets: FR-075 puts fade grab points on
+    // the selected Task only, and `itemAtPointer` can be no narrower than the
+    // geometry it reads.
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = {
       regions,
@@ -5460,26 +3556,15 @@ export function frameLoop(
       settingsMeasuredWith: withPanelShown,
       isPictureAtStoredZoom: view.isAtStoredZoom,
     }
-    // ⛔ HF-17 OF TABLE T-051 (MUST): 「足した行が描かれていないときは、その行が
-    // 見える位置まで表示位置を送ること。打ち込み口だけを送ってはならない」 ——
-    // 「口だけ送ると、確定したあとに行がどこへ行ったか読めない」. ⭐ The same row
-    // puts HF-14 under it, so both entrances are answered here and not twice.
-    // ⭐ ASKED OF THE PICTURE THIS PASS WORKED OUT, which is what 「描かれていない」
-    // is a question about -- and asked THROUGH `drawnRowBoxesOf`, which is the
-    // one place the cut is made (see its own note). ⛔ NOT of `ScheduleLayout.rows`:
-    // that list holds every row the level of detail and the folds left standing,
-    // ⚠️ including the ones below the `Row Area`'s bottom edge -- measured
-    // 2026-09-03, 1920×1080, 69 rows in it against 8 the panel drew.
-    // ⭐ SENT BY WRITING THE ANCHOR, which is 「送り方は `HF-9` に従う」 read through
-    // S-78 and S-176: the row becomes the top of the scrolling remainder and is
-    // therefore drawn. ⛔ NOT by scrolling a host element -- a position the
-    // document never heard of is undone by the next frame.
-    // ⚠️ THE DAY IS CARRIED AS THIS FRAME RESOLVED IT AND NOT AS THE DOCUMENT
-    // STORES IT. OP-10 of table T-024a leaves `scrollDate` null until a place is
-    // stored and re-fits every frame while it is; writing that null back would
-    // leave the fit answering for the vertical again and undo this very write.
-    // ⛔ NO STEP OF THE UNDO HISTORY IS PUSHED: `isUndoable` keeps CM-66 out of
-    // it, which is UN-8 of table T-027.
+    // HF-17 of table T-051 (and HF-14 under it): an added row that is not drawn
+    // is scrolled into view, not just its entry field.
+    // Asked through `drawnRowBoxesOf`, the one place the cut is made; not
+    // `ScheduleLayout.rows`, which includes rows below the `Row Area`.
+    // Sent by writing the anchor (HF-9, S-78, S-176), not by scrolling a host
+    // element, which the next frame would undo.
+    // The day is this frame's resolved one, not the stored `null`: writing null
+    // back would let OP-10's fit re-answer the vertical and undo this write.
+    // No undo step: `isUndoable` keeps CM-66 out (UN-8 of table T-027).
     if (addedRowOwedSight !== null) {
       const owedSight = addedRowOwedSight
       addedRowOwedSight = null
@@ -5497,26 +3582,18 @@ export function frameLoop(
           values,
         )
         // FT-2 of table T-078 -- the current value moved, so a frame is owed.
-        // ⛔ ASKED HERE BECAUSE THIS WRITE IS NOT ON A HAPPENING'S ROAD: the ones
-        // `receiveInput` makes are followed by that function's own ask.
-        // ⚠️ THIS PASS DRAWS NOTHING FURTHER: what it worked out is about the
-        // place the view has just left, and one more frame is what BO-1 already
-        // costs a first paint.
+        // Asked here because this write is not on a happening's road.
+        // Nothing more is drawn: this pass is about the place just left.
         ask()
         return
       }
     }
-    // @STAR HELD IN A BINDING SO THAT FR-102's RECORD COUNTS THE VERY STRING
-    // THAT WENT OUT. A census taken from a second call to `svgFromSchedule`
-    // would be a second opinion about what was drawn, which is the one thing
-    // this record must never be.
+    // Held in a binding so FR-102's record counts the very string that went out.
     const drawnSvg =
-      // 'screen' is the picture a person is looking at, so table T-076's
-      // omissions do not apply: FR-043's dummies are drawn here and only here.
-      // ⭐ AND THE ONE THING TABLE T-076 KEEPS OUT while the screen shows it:
-      // DC-8's mark for the following side of the `Dual Cursor` (EP-12 bars
-      // operation state). `exportScene` says nothing here, so it gets the two
-      // lines EP-6 asks for and no mark.
+      // 'screen' is what a person looks at, so table T-076's omissions do not
+      // apply: FR-043's dummies are drawn here only. The one thing table T-076
+      // keeps out -- DC-8's following-side mark (EP-12) -- is drawn here too;
+      // `exportScene` gets EP-6's two lines and no mark.
       svgFromSchedule(
         document.schedule,
         settings,
@@ -5528,49 +3605,30 @@ export function frameLoop(
         dualCursorFollowing === null
           ? null
           : { side: dualCursorFollowing, x: pointerAt === null ? null : pointerAt.x },
-        // FR-017 (MUST): the fourth tier prints a weekday, and FR-038 (MUST)
-        // keeps every printed word in one dictionary -- so the words are asked
-        // for HERE, where the reader's language is held, rather than reached
-        // for inside the picture.
+        // FR-017's weekday words come from FR-038's dictionary, asked for here
+        // where the reader's language is held.
         rulerWeekdayWords(language),
-        // ⭐ CU-3's guide cursor 「ポインタに追従する」, and this is the pointer
-        // it follows -- the same `pointerAt` `owesFrame` already names as one
-        // of the two things that make a bare move owe a frame. ⛔ Handed on
-        // every frame and not only while the mode is up: the renderer reads
-        // S-66 itself, and a second reading of the same setting here is the
-        // drift that would let the two disagree.
+        // CU-3's guide cursor follows this pointer. Passed every frame, not only
+        // while the mode is up: the renderer reads S-66 itself, and a second
+        // reading here could disagree.
         pointerAt,
-        // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は
-        // 薄く描き、ポインタが乗っているあいだだけ濃くすること」.
-        // ⭐ THE ANSWER THIS LOOP ALREADY HAS, handed on rather than asked for
-        // again (R7.4). `grabAtPointer` walks table T-023d once per happening
-        // for IN-2's pointer shape and for FR-048's judgement, and this is that
-        // same reading -- the renderer holds no `PointerSlop` and must not, so
-        // 「乗っている」 could not be settled on its side in any case.
-        // ⛔ NOT `pressed`: FR-048's own exemption names the hover, and CS-2 of
-        // table T-066 freezes a press at the point it began -- a mark darkened
-        // off a press would stay dark wherever the hand went next.
+        // FR-013's hover darkening, from the answer this loop already has (R7.4):
+        // the renderer holds no `PointerSlop`, so it could not settle hovering.
+        // Not `pressed`: CS-2 freezes a press where it began, so the mark would
+        // stay dark wherever the hand went.
         grabUnderPointer,
-        // ZO-6 of table T-020 and SL-3 (MUST) -- the rectangle a range
-        // selection is taking, while one is being taken.
-        // ⭐ THE SAME TWO VALUES `previewOfHeldPress` READS, and for the same
-        // reason: a picture drawn while a gesture is in flight is the
-        // renderer's, and IN-1 settles nothing until the release.
-        // ⛔ NOT HANDED TO THE EXPORT CALL BELOW, which is EP-12 of table
-        // T-076 -- an export carries no sign of what a person is doing.
+        // ZO-6 of table T-020 and SL-3 -- the rectangle a range selection is
+        // taking, from the same two values `previewOfHeldPress` reads.
+        // Not handed to the export call (EP-12 of table T-076).
         marqueeRect(pressed, pointerAt),
-        // FR-020 (MUST) -- the opener's name and the run's UTC stamp, laid
-        // over the `Row Area`. ⭐ THE SAME CALL THE EXPORT MAKES, which is
-        // that requirement's 「画面から透かしを消したときは、書き出す絵からも
-        // 消すこと」 kept in one place rather than two.
+        // FR-020's watermark, via the same call the export makes.
         watermarkNow(),
       )
     surface.showSvg(drawnSvg)
     recordFrame(drawnSvg, layout)
     if (screen === undefined) return
-    // ⛔ AFTER the schedule, because the parts outside it are drawn OVER the
-    // drawing area -- the note under table T-023a limits that table's decision
-    // order to the schedule for exactly this reason.
+    // After the schedule: the outside parts are drawn over the drawing area,
+    // which is why table T-023a's note limits its order to the schedule.
     const screenView =
       screenViewFromRegions(
         regions,
@@ -5585,25 +3643,17 @@ export function frameLoop(
           fileSavedAt,
           isAgentApiEnabled,
           isDialogueFieldVisible,
-          // FR-068: the surface the document is read on. ⭐ Asked of the very
-          // `ScreenState` this frame is drawn from, so the document on the
-          // surface and the surface itself are one moment.
+          // FR-068, read off this frame's `ScreenState`, so document and
+          // surface are one moment.
           isAiExportSurfaceOpen: screenState.surface === AI_EXPORT_MODAL_SURFACE,
           pointer: pointerAt,
           pointerRestedMs,
-          // ⭐ THE ANSWER THE SURFACE ALREADY GAVE, taken from where
-          // `receiveInput` put it rather than asked for again: IF-9 reads the
-          // page as it stands (`readScreenPartAt` says so), and a second read
-          // inside the frame would be a second moment for one drawing.
+          // Taken from where `receiveInput` put IF-9's answer; a second read in
+          // the frame would be a second moment for one drawing.
           iconUnderPointer: partUnderPointer?.entry ?? null,
-          // ⭐ EZ-6's PLACE CONDITION, AND THE SAME ANSWER `grabUnderPointer`
-          // ALREADY IS. That row (MUST) sends 「どのタスクの上か」 to table
-          // T-023d's order of priority and (MUST NOT) forbids raising another
-          // hit test for it -- and `grabAtPointer` is where that table is
-          // walked, once per happening (R7.4). ⛔ A reading of its own here
-          // would be the second answer that MUST NOT names.
-          // ⚠️ `held.document` AND NOT THE PREVIEW: a drag in flight has no
-          // pointer at rest, and the frozen copy is what CS-1 draws from.
+          // EZ-6's place condition, from `grabUnderPointer`: EZ-6 forbids a
+          // second hit test, and `grabAtPointer` walks table T-023d once per
+          // happening (R7.4).
           taskUnderPointer:
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
@@ -5617,103 +3667,58 @@ export function frameLoop(
           isMilestoneListOpen,
           isPaletteMinimised,
           isRecordingInteractions,
-          // Table T-029a's mode, as it stands this frame -- the same value the
-          // `follow` argument below is built from, read from the one place that
-          // holds it.
+          // Table T-029a's mode, the same value the `follow` argument above is
+          // built from.
           dualCursorFollowing,
           selectedGroupIds,
           selectedResourceUids,
-          // ⭐ FR-072's answer AS THIS FRAME STANDS, which is what that member's
-          // own declaration asks for: 「or `null` while the properties panel is
-          // closed」. A panel IN-4 took is closed, whatever the last operation
-          // had chosen.
+          // FR-072's answer as this frame stands: a panel IN-4 took is closed
+          // whatever the last operation chose.
           propertiesShowing: propertiesShowingNow(),
           propertiesSubject,
           confirmation: asking?.question ?? null,
-          // FR-022 (MUST): what U-61 lays out while it stands. Empty while no
-          // merge is being asked about, which is every frame but those.
+          // FR-022: what U-61 lays out while it stands; otherwise empty.
           mergeCandidates,
-          // FR-073 (MUST): the columns that intake could not read, laid out on
-          // the same surface. Empty on every frame but those.
+          // FR-073: the unread columns on the same surface; otherwise empty.
           unreadColumns,
-          // FR-023 (MUST): what U-62 lays out while it stands. Empty on every
-          // frame but those, for the same reason the line above is.
+          // FR-023: what U-62 lays out while it stands; otherwise empty.
           droppedTaskNames,
           notices: raisedNotices,
-          // FR-029 (MUST) with RD-1 and RD-2 of table T-230, read off the ONE
-          // history this loop holds -- the same value `undoEdit` and `redoEdit`
-          // are asked with, so the faint entrance and the press agree.
-          // ⭐ BOTH SIDES READ THE PUBLISHED TYPE, and neither reaches for a
-          // function. `EditHistory` is what PI-4 of table T-064 publishes, so
-          // `done` and `undone` are the names this layer may cross for. The
-          // counting function beside them is not on that row, and the crossing
-          // check says so out loud -- it returns `history.done.length` and
-          // nothing else, so reading the field is the same answer without the
-          // crossing.
-          // ⛔ NOT `previousStep` / `nextStep`, which BUILD A NEW HISTORY to
-          // answer a question -- this is asked once per frame and moves
-          // nothing.
-          // ⚠️ `held` AND NOT THE PREVIEW: a preview is a picture folded onto
-          // the held document and has no history of its own.
+          // FR-029 with RD-1 and RD-2 of table T-230, off the one history
+          // `undoEdit` and `redoEdit` use, so the faint entrance and the press
+          // agree. The published `EditHistory` fields (PI-4 of table T-064) are
+          // read directly; the counting function beside them is not published.
+          // Not `previousStep` / `nextStep`, which build a new history.
+          // `held`, not the preview: a preview has no history of its own.
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
         }),
       )
-    // ⭐ READ OFF THE VERY DESCRIPTION THAT WENT OUT, for the reason `drawnSvg`
-    // is held in a binding above: a second opinion about what was drawn is the
-    // one thing this record must never be.
+    // Read off the description that went out, for the reason `drawnSvg` is.
     isTooltipStanding = screenView.tooltips.length > 0
     screen.surface.showScreenView(screenView)
-    // ⭐ MK-13's SECOND HALF -- AND SK-9's WHOLE -- SPENT HERE AND NOWHERE
-    // ELSE. The press that asks for it runs while this frame is still being
-    // decided, and the field it names does not exist until the description above
-    // has been drawn -- so the ask is left standing by `carryOutAction` and
-    // collected on the far side of the one line that draws it.
-    // ⚠️ SK-9's FIELD IS MADE BY THE ASK RATHER THAN MERELY FOCUSED BY IT
-    // (FR-035, 「その場で編集できるようにすること」), which changes nothing here:
-    // the header it is made in is drawn by that same line.
-    // ⛔ SPENT WHETHER OR NOT THE SURFACE ANSWERS. The seam member is OPTIONAL
-    // (利用者の裁定 2026-08-30), so a surface that does not carry it leaves
-    // MK-13 half done in silence -- and holding the ask back for a later frame
-    // would only put the focus into a panel the person had since moved on from.
-    // ⚠️ THIS IS ONE OF THE TWO PLACES A DROPPED HAND-OFF PASSES QUIETLY: no
-    // compiler will say that this line went missing, or that the surface has no
-    // such member. ⭐ The tests written from the specification are what watch it.
+    // MK-13's second half and SK-9 are spent here: the field they name does not
+    // exist until the description above is drawn, so `carryOutAction` leaves
+    // the ask standing and it is collected after the draw. SK-9's field is
+    // created by the ask (FR-035) in the header drawn by the same line.
+    // Spent whether or not the surface answers: the seam member is optional,
+    // and holding the ask would focus a panel the person has left.
+    // No compiler catches this line going missing; the spec-driven tests do.
     if (nameFieldWantedRow !== null) {
       const wanted = nameFieldWantedRow
       nameFieldWantedRow = null
       screen.focusPropertyField?.(wanted)
     }
-    // ⛔⛔ HF-14's OWN HALF STOOD HERE AND IS GONE (利用者の裁定 2026-09-04).
-    // It opened an empty field under the row IC-91 was pressed on, which the row
-    // asked for while it read 「名前は空で立て、その場で打たせること」. The
-    // row now stands up on the press and is named in the `Properties Panel`
-    // (「改名と別の道を作ってはならない（MUST NOT）」), so the ask above -- MK-13's,
-    // at `AT-53` -- is the one this press leaves standing, and there is no
-    // second field to place against the rows this frame drew.
   }
 
   /**
    * The far side of a wait CS-4 of table T-066 governs -- the guard comes off
    * and the frame FT-1 of table T-078 owes is asked for.
    *
-   * ⭐⭐ THE FRAME IS UNCONDITIONAL, AND THAT IS THE ROW READ AS IT IS WRITTEN.
-   * FT-1 covers 「人の入力（ポインタとキー）。その入力の、待ち（表 T-066 の
-   * `CS-4`）をまたいだ続きを含む」 with no condition attached, and its own note
-   * says 「待ちをまたいだ続きを起こすのはシェル自身である」 -- so every
-   * operation that spans the wait owes a frame on the way back, whether or not
-   * it ends with a question.
-   * ⛔ 台帳 DFC-218 WAS THE FRAME BEING ASKED FOR ONLY WHEN A QUESTION WENT UP:
-   * `raiseNotice` and the three `ask` functions each asked for their own, and a
-   * save that SUCCEEDED asked for none -- so SK-11 of table T-036 wrote the
-   * file and set `openedFileName` and `fileSavedAt` (FR-101), and not one pixel
-   * changed until the person's next input. ⚠️ That is FR-101's RATIONALE
-   * verbatim -- 「画素が 1 つも変わらない」 -- read back as a defect.
-   * ⚠️ THE PROSE UNDER TABLE T-066 IS NOT THE ROW. `05-07-design.md` explains
-   * FT-1 with the case where a question goes up; the row itself is unconditional
-   * and an example does not narrow what it illustrates.
-   * ⭐ `ask` COALESCES, so a road that already raised a telling still paints
-   * once.
+   * Asked unconditionally, not only when a question went up: FT-1 covers every
+   * continuation across the wait, and a save that succeeded otherwise paints
+   * nothing until the next input (FR-101). `ask` coalesces, so a road that
+   * already raised a telling still paints once.
    *
    * @purity non-pure
    */
@@ -5726,7 +3731,7 @@ export function frameLoop(
   function ask(): void {
     if (owed) return
     owed = true
-    // ⚠️ A frame is asked for, never run inline: two triggers landing in one
+    // A frame is asked for, never run inline: two triggers landing in one
     // task would otherwise run table T-068 twice for one painted frame.
     const raf = globalThis.requestAnimationFrame
     if (typeof raf === 'function') raf(() => runFrame())
@@ -5737,24 +3742,13 @@ export function frameLoop(
    * FT-4 of table T-078 -- the pointer has moved, so the rest EZ-2 of table
    * T-040 waits out begins again from here.
    *
-   * ⭐ WHY A WAKE IS SET AND NOT ONLY A NUMBER. Every other trigger that table
-   * lists is something that HAPPENS, and a person who has stopped moving makes
-   * nothing happen -- so with no wake the wait would pass unwitnessed and the
-   * explanation could never be drawn at all. FT-4 has the shell measure the
-   * time ITSELF, which is the whole of what this is, so nothing is minted that
-   * NFR-010 forbids (MUST NOT).
-   * ⛔ THIS IS THE ONLY THING IN THIS BUILD THAT COUNTS FT-4. The other two
-   * waits that row names keep their own notes where they are answered.
-   *
-   * ⭐ THE WAIT IS S-124's, read off the document held at this moment
-   * (`iconHintDelayMs`) rather than out of a number written here (rule 03).
-   * ⚠️ A wake already standing keeps the length it was set with: no row says
-   * what a wait in flight does when the setting is edited under it, and the
-   * frame decides on the elapsed time in any case.
-   *
-   * ⛔ NOTHING IS WOKEN WHERE NO EXPLANATION COULD BE DRAWN. EZ-2's tooltip
-   * (U-53) is one of the parts `ScreenSurface` draws, so with no `ScreenWiring`
-   * the frame would redraw the identical schedule for nothing.
+   * A wake is set because a person who stops moving makes nothing happen, so
+   * without one the wait would pass unwitnessed and the explanation never be
+   * drawn; the shell measuring the time itself mints no trigger (NFR-010).
+   * The length is S-124 read off the held document; a wake already standing
+   * keeps the length it was set with, since the frame decides on elapsed time.
+   * Nothing is woken without a `ScreenWiring`: EZ-2's tooltip is drawn by
+   * `ScreenSurface`, so the frame would redraw the same schedule for nothing.
    *
    * @purity non-pure
    */
@@ -5771,15 +3765,13 @@ export function frameLoop(
   }
 
   /**
-   * The press in flight when it stands on one of the four entrances FR-018
-   * lets a hold repeat, or null when it stands anywhere else and when no press
-   * is in flight at all.
+   * The press in flight when it stands on an entrance FR-018 lets a hold
+   * repeat, or null otherwise.
    *
-   * ⭐ ASKED OF THE PRESS AND NEVER OF WHERE THE POINTER IS NOW. CS-2 of table
-   * T-066 freezes a gesture's screen at the press, and `commandFromEntry`
-   * settles the release from `press.on` alone -- so a repeat judged on the
-   * pointer would stop the moment the hand drifted a pixel off the entrance
-   * while the same press was still deciding the same thing.
+   * Asked of the press, never of where the pointer is now: CS-2 of table T-066
+   * freezes the gesture at the press and the release is settled from
+   * `press.on`, so a repeat judged on the pointer would stop when the hand
+   * drifted a pixel off the entrance.
    *
    * @purity semi-pure-b
    */
@@ -5791,28 +3783,17 @@ export function frameLoop(
   }
 
   /**
-   * Ask `commandFromEntry` for the held entrance once more -- one tick of
-   * FR-018's repeat.
+   * One tick of FR-018's repeat: ask `commandFromEntry` for the held entrance
+   * once more.
    *
-   * ⭐ THE SAME PRESS AND THE SAME MEMBER, WHICH IS WHY THE STEP CANNOT DRIFT.
-   * FR-018 (MUST) keeps the step at S-53 through a repeat -- 「連続のあいだだけ
-   * 別の幅にすると、同じ入口が 2 つの意味を持つ」 -- and the surest way to obey
-   * that is to work nothing out here: `commandFromInput` (PI-18) is handed the
-   * press this gesture began with and answers exactly what the release would.
-   * ⚠️ It compounds rather than repeating one answer, and that is the rule
-   * rather than a side effect: the context is collected afresh, so each tick
-   * multiplies the zoom now in force by the same S-53.
-   * ⛔ THE HAPPENING IS SPELLED, NOT INVENTED. FT-1 of table T-078 covers 「その
-   * 入力の、待ちをまたいだ続き」 and its own note leaves raising that continuation
-   * to the shell while keeping IF-2's supply as narrow as it was -- so the
-   * continuation is spelled in IF-2's existing vocabulary, out of the `down`
-   * this gesture began with, and no member is added to that seam.
-   * ⚠️ NOT PUT THROUGH `receiveInput`. That would drop the press (IN-1 settles
-   * on the release and this is not one), move the selection and spend a level
-   * of `Esc` -- a repeat is one entrance answering again, not a release.
-   * ⭐ NO UNDO STEP IS PUSHED, AND NONE IS SUPPRESSED HERE EITHER. All four of
-   * these write `setZoom`, which UN-8 of table T-027 keeps out of the history
-   * outright, so a hold of any length leaves the history where it was.
+   * Nothing is worked out here, so the step cannot drift from S-53:
+   * `commandFromInput` (PI-18) is handed the press this gesture began with and
+   * answers what the release would. The zoom compounds because the context is
+   * collected afresh each tick. The continuation is spelled in IF-2's existing
+   * vocabulary (FT-1 of table T-078), so nothing is added to that seam.
+   * Not put through `receiveInput`: that would drop the press, move the
+   * selection and spend a level of `Esc`. No undo step is pushed: these entries
+   * write `setZoom`, which UN-8 of table T-027 keeps out of the history.
    *
    * @purity non-pure
    */
@@ -5823,10 +3804,9 @@ export function frameLoop(
       endEntryRepeat()
       return
     }
-    // ⚠️ THE PRESS ITSELF WITH ONE MEMBER MOVED, so the point, the button and
-    // the modifiers are the ones CS-2 froze -- the same values the release will
-    // be read with. ⛔ `phase` has to move: `pointerAssignment` answers a `down`
-    // with nothing but MK-10's question, and IN-1 is the reason it does.
+    // The press itself with only `phase` moved, so point, button and modifiers
+    // are the ones CS-2 froze. `phase` must move: `pointerAssignment` answers a
+    // `down` with nothing but MK-10's question (IN-1).
     const continuation: PointerInput = { ...press.at, phase: 'up' }
     const context = collectInputContext(frame)
     carryOutAction(commandFromInput(continuation, context).action, frame)
@@ -5834,22 +3814,12 @@ export function frameLoop(
   }
 
   /**
-   * FR-018 (MUST) -- 「入口を押し続けたときは、... `S-172` が定める待ち時間の
-   * のち、同表の `S-173` が定める間隔で倍率を刻み続けること」.
+   * FR-018 -- the hold repeat: the first tick after S-172, the rest every S-173.
    *
-   * ⭐ WHY A WAKE AND NOT A COUNT, which is `beginPointerRest`'s reason word for
-   * word: a person who goes on holding a button makes nothing happen, so with
-   * no wake the wait would pass unwitnessed and the second step could never be
-   * taken at all.
-   * ⛔ THE FIRST TICK LANDS AT S-172 AND THE REST AT S-173. The requirement puts
-   * the wait BEFORE the stepping (「待ち時間ののち ... 刻み続ける」), and it asks
-   * for the wait to be the longer of the two (MUST) so that the first of the
-   * run is not mistaken for part of it.
-   * ⚠️ THE ORDINARY RELEASE IS UNTOUCHED. IN-1 of table T-028 (MUST) settles a
-   * pointer operation on the release, so a tap still steps once when the button
-   * comes up and a hold steps once more on top of what it repeated. ⛔ Nothing
-   * says a repeat spends the release, and reading it that way would break the
-   * MUST that is written.
+   * A wake and not a count, for `beginPointerRest`'s reason: holding a button
+   * makes nothing happen. The ordinary release is untouched (IN-1 of table
+   * T-028), so a hold still steps once more when the button comes up; reading
+   * the repeat as spending the release would break that MUST.
    *
    * @purity non-pure
    */
@@ -5857,16 +3827,13 @@ export function frameLoop(
     endEntryRepeat()
     if (pressHeldOnRepeatingEntry() === null) return
     const times = repeatTimesOfHeldEntry()
-    // ⚠️ ONE WAKE CHAINED AFTER THE LAST, RATHER THAN A REPEATING TIMER. It is
-    // the shape `beginPointerRest` above already has, so both waits this loop
-    // measures are called off the same way; and a tick that ran late cannot
-    // pile the next one on top of itself.
+    // One wake chained after the last rather than a repeating timer, so a tick
+    // that ran late cannot pile the next one on top of itself.
     const tickAfter = (afterMs: number): void => {
       const wake = setTimeout(() => {
         callOffEntryRepeat = null
-        // ⛔ THE HOLD IS ASKED ABOUT AGAIN AT EVERY TICK. The three ends below
-        // all call this off, but a host may still run a wake that was already
-        // in flight when the button came up.
+        // Asked again at every tick: a host may still run a wake that was
+        // already in flight when the button came up.
         if (pressHeldOnRepeatingEntry() === null) return
         repeatHeldEntry()
         tickAfter(times.intervalMs)
@@ -5879,14 +3846,10 @@ export function frameLoop(
   /**
    * Stop repeating, whichever half was standing.
    *
-   * ⭐ THE THREE ENDS ARE TABLE T-028's OWN. IN-1 settles the operation on the
-   * release and gives `Esc` as the way to interrupt one; IN-1a (MUST) ends a
-   * drag whose pointer was lost outside the window. ⛔ Leaving the entrance --
-   * or the drawing area -- is NOT one of them: IN-1 forbids reading that as an
-   * interruption (MUST NOT), and `pressHeldOnRepeatingEntry` says the same from
-   * the other side by asking the press rather than the pointer.
-   * ⚠️ A repeat still ticking after the pointer was lost would be the defect
-   * IN-1a exists to prevent, one frame per S-173 for as long as the page lives.
+   * Called from table T-028's own ends: the release and `Esc` (IN-1) and a lost
+   * pointer (IN-1a). Leaving the entrance is not one (IN-1, MUST NOT). A repeat
+   * left ticking after a lost pointer would paint once per S-173 for as long as
+   * the page lives.
    *
    * @purity non-pure
    */
@@ -5896,10 +3859,9 @@ export function frameLoop(
   }
 
   /**
-   * BO-1 -- 「寸法が確定するまで 1 枚も描かない」. ⛔ NFR-011 makes it a MUST,
-   * and a host really can hand over a 0 x 0 window: a preview pane that has
-   * not been laid out yet does exactly that, and the frame drawn then is a
-   * picture of nothing that the person sees before the real one.
+   * BO-1 (NFR-011). A host really can hand over a 0 x 0 window -- a preview
+   * pane not yet laid out does -- and a frame drawn then is a picture of
+   * nothing shown before the real one.
    *
    * @purity pure
    */
@@ -5910,12 +3872,10 @@ export function frameLoop(
   /**
    * Whether two sets of BO-1's measurements say the same thing.
    *
-   * ⭐ ONE PLACE FOR THE COMPARISON, because two roads make it: FT-3's `resize`
-   * and BO-1's own `settleFirstFrameEnvironment`. ⛔ A second copy would part
-   * company from this one the first time a measurement was added, and the road
-   * that kept the old list would wake no frame for it.
-   * ⚠️ THE ROW-CONTROL FLOOR COUNTS AS A SIZE. LF-3 of table T-221 moves every
-   * row's band, so a frame that kept the old one draws a different picture.
+   * One place for the comparison because FT-3's `resize` and
+   * `settleFirstFrameEnvironment` both make it: a copy that missed a newly added
+   * measurement would wake no frame for it. The row-control floor counts as a
+   * size because LF-3 of table T-221 moves every row's band.
    *
    * @purity pure
    */
@@ -5934,39 +3894,21 @@ export function frameLoop(
   /**
    * Put one thing on `ScreenSession.notices` (FR-076).
    *
-   * ⭐ THE MANNER IS READ OFF THE REASON, because table T-233 pairs them: every
-   * raiser below names the situation it is in and the row of table T-037 comes
-   * with it, so no caller of this can put a telling into the wrong manner.
-   * ⛔ NO WORDS, AND NO COUNT INVENTED. `affectedCount` is what the raiser
-   * MEASURED or `null`, and the words are read on the far side out of the one
-   * dictionary FR-038 names.
-   *
-   * ⭐ WHICH TRIGGER PAINTS IT IS FT-1 OF TABLE T-078, the road
-   * `askToWriteOverDestination` takes and for the same reason: that row covers
-   * the continuation of one input across the wait CS-4 of table T-066 governs,
-   * and its note leaves raising the continuation to the shell. So nothing here
-   * mints a trigger (NFR-010, MUST NOT). ⚠️ `ask` coalesces, so a telling raised
-   * inside a frame's own handling still paints once.
+   * The manner is read off the reason (table T-233), so no caller can put a
+   * telling into the wrong manner. `affectedCount` is what the raiser measured
+   * or `null`; the words are read on the far side (FR-038).
+   * The frame is FT-1's continuation across the wait (NFR-010); `ask`
+   * coalesces, so a telling raised inside a frame's own handling paints once.
    *
    * @purity non-pure
    */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
-    // ⛔⛔ NT-3 OF TABLE T-037 (MUST): 「同じ理由の通知が既に立っているときは、新し
-    // く積まずに、その 1 枚の件数を増やすこと」 -- 実測 2026-09-03 で同じ文が 13 枚
-    // 積まれ、1080 の画面の 63% を覆った (DFC-236).
-    // ⭐ THE REASON IS THE WHOLE OF THE IDENTITY, which is what that row says and
-    // no more: `manner` is read off the reason (`NOTICE_MANNER_OF_REASON`), so
-    // two tellings of one reason cannot differ in manner either.
-    // ⭐ THE GATHERED ONE GOES TO THE END, which NT-3 requires outright: 「`NT-8`
-    // とはそのまま両立する —— まとめた 1 枚がいちばん新しいものになる」. ⛔ Leaving
-    // it where it stood would put NT-8's 「いちばん新しいものから消す」 on a
-    // different telling than the one this raise touched.
-    // ⚠️ A COUNT OF `null` COUNTS AS ONE. NT-3 asks for 「その 1 枚の件数」 and the
-    // measured case is a refusal that carries no count of its own, so gathering
-    // two of those has to answer 2 -- ⛔ not `null`, which would say the screen
-    // gathered nothing.
-    // ⛔ NO CEILING IS PUT ON THE COUNT OR ON THE LIST (NT-3, MUST NOT):
-    // 「枚数に上限を置いてはならない」.
+    // NT-3 of table T-037. The reason is the whole identity: `manner` is read
+    // off it, so two tellings of one reason cannot differ.
+    // The gathered one moves to the end, so NT-8's newest-first dismissal lands
+    // on the telling this raise touched.
+    // A `null` count counts as one: gathering two count-less refusals must
+    // answer 2, not `null`, which would say nothing was gathered.
     const standing = raisedNotices.find((one) => one.reason === reason)
     if (standing !== undefined) {
       raisedNotices = [
@@ -5986,19 +3928,11 @@ export function frameLoop(
   }
 
   /**
-   * Put away the telling one entrance or one key names -- NT-8 of table T-037
-   * (MUST), and the ONE place a telling ever leaves `raisedNotices`.
+   * Put away the telling one entrance or one key names (NT-8 of table T-037) --
+   * the one place a telling leaves `raisedNotices`, whichever trigger arrived.
    *
-   * ⭐ ONE ACT, THREE TRIGGERS. The entrance NT-8 draws is pressed (IN-1, on the
-   * release), an `Enter` arrives on SK-19's first stage, or an `Esc` arrives on
-   * IN-4's first level. ⛔ A second filter written beside any of them would be
-   * the same rule in two places (rule 03 section 1), and the three would part
-   * company the first time the key's shape moved.
-   *
-   * ⚠️ THE KEY AND NOT AN INDEX. `Notice.dismissKey` names the telling by its
-   * manner and its reason, so a list that has grown or shrunk between the frame
-   * drawn and the press cannot put away a different telling than the one that
-   * was named.
+   * By key and not by index: a list that grew or shrank between the frame drawn
+   * and the press cannot lose a different telling than the one named.
    *
    * @purity pure
    */
@@ -6007,65 +3941,40 @@ export function frameLoop(
   }
 
   /**
-   * NT-8 (MUST): 「通知が 2 つ以上立っているときは、いちばん新しいものから消す
-   * こと」 -- the answer for a key, which names no telling of its own.
+   * NT-8 -- the answer for a key, which names no telling of its own.
    *
-   * ⭐ THE LAST IS THE NEWEST, because `raiseNotice` appends and
-   * `noticesFromSession` (UF-67) shows them 「in the order they were raised」.
-   * ⛔ NO CLOCK IS READ AND NO NUMBER IS MINTED: the order of the list IS the
-   * order they arrived in, which is the same fact `dismissKeyOf` refuses to
-   * replace with an index.
-   *
-   * ⛔ NOTHING IS PUT AWAY WHEN NOTHING STOOD ON ARRIVAL, which NT-8 (MUST NOT)
-   * requires: the caller has already read `isNoticeStanding`, which is now the
-   * same moment this reads, and answering here as well is what keeps a press
-   * that reached this line by any other road from shortening the list.
+   * The last is the newest because `raiseNotice` appends, so the list order is
+   * the arrival order and no clock is read. Nothing is put away when nothing
+   * stood on arrival; answering here as well keeps a press that reached this
+   * line by another road from shortening the list.
    *
    * @purity non-pure
    */
   function dismissNewestNotice(): void {
-    // ⛔⛔ THE NEWEST OF THE TELLINGS THAT WERE STANDING WHEN THE KEY ARRIVED,
-    // and not the newest of the list as it stands now. SK-19 gives this stage
-    // 「出ている通知があるとき」 and NT-8 explains 「いちばん新しいもの」 as 「いま
-    // 行った操作への答え」 -- so it is an answer the person has already been shown
-    // and is now putting away, never the answer this very press just raised.
-    // ⚠️ Measured 2026-09-09: with `spendFieldCommit` raising at the head of the
-    // happening, the list's own end was the telling the press had just made, and
-    // an `Enter` on a refused settling left ZERO tellings on the description.
+    // The newest of the tellings standing when the key ARRIVED, not the newest
+    // now (SK-19, NT-8): `spendFieldCommit` may raise at the head of the
+    // happening, and taking the list's end would put away the answer this very
+    // press just raised.
     const standing = raisedNotices.filter((one) => noticeReasonsOnArrival.has(one.reason))
     const newest = standing[standing.length - 1]
     if (newest === undefined) return
-    // ⛔⛔ ONE TELLING, NOT EVERY TELLING THAT SHARES ITS KEY. `dismissKeyOf`
-    // names a telling by its manner and its reason, so two failures of the same
-    // kind carry the same key -- and filtering by it put BOTH away on one press.
-    // ⚠️ Measured 2026-08-31: two tellings raised by the same entrance, one
-    // `Esc`, zero left. NT-8 (MUST) asks for 「いちばん新しいものから消すこと」,
-    // which is one.
-    // ⭐ THE KEY IS STILL RIGHT FOR THE POINTER PATH: a press names the telling
-    // it was drawn under, and that name has to survive the frames between the
-    // draw and the release. A key press names none, so the list's own end is
-    // what 「いちばん新しい」 means and no name is needed.
+    // One telling, not every telling sharing its key: `dismissKeyOf` gives two
+    // failures of one kind the same key, so filtering by it removes both.
+    // The key stays right for the pointer path, where a press names the telling
+    // it was drawn under across frames; a key press names none.
     raisedNotices = raisedNotices.filter((one) => one !== newest)
     ask()
   }
 
   /**
-   * NT-7 of table T-037 (MUST): 「続けるか取りやめるかを選ばせること」 -- the
-   * standing question, ANSWERED, and the ONE place an answer ever settles the
-   * raiser's promise. Returns whether there was a question to answer.
+   * NT-7 of table T-037 -- the standing question, answered; the one place an
+   * answer settles the raiser's promise. Returns whether there was a question.
    *
-   * ⭐ ONE ACT, TWO TRIGGERS, the shape `dismissNewestNotice` above already has:
-   * one of the two word buttons is pressed (IN-1, on the release), or `y` / `n`
-   * arrives. ⛔ A second settling written beside either would be the same rule in
-   * two places (rule 03 section 1), and the two would part company the first
-   * time what an answer DOES moved.
-   * ⚠️ `Esc` IS NOT A THIRD TRIGGER FROM HERE. IN-4 of table T-028 spends its
-   * own level on the question and settles it there, because that road also has a
-   * level to account for; see the `escapeLevel === 'confirmation'` line.
-   *
-   * ⛔ THE QUESTION IS CLEARED BEFORE THE ANSWER IS CARRIED OUT, not after:
-   * `carryOutAction` refuses to start anything while a question stands, and what
-   * follows is the answer to this one rather than a new request.
+   * Reached from a word button and from `y` / `n`, so the settling lives once.
+   * `Esc` settles it on its own level (IN-4 of table T-028, see the
+   * `escapeLevel === 'confirmation'` line). The question is cleared before the
+   * answer is carried out: `carryOutAction` refuses to start anything while a
+   * question stands.
    *
    * @purity non-pure
    */
@@ -6078,28 +3987,17 @@ export function frameLoop(
   }
 
   /**
-   * FR-020 (MUST): the answer given on U-60 `Watermark Unlock`, spent. Returns
+   * FR-020 -- the answer given on U-60 `Watermark Unlock`, spent. Returns
    * whether that surface was standing to answer.
    *
-   * ⭐ BESIDE `answerConfirmation` AND NOT INSIDE IT, and the reason is the
-   * requirement's. Both surfaces carry NT-7's two word buttons -- FR-020 sends
-   * U-60's manner to 「表 T-037 の `NT-7` が語のボタンについて定めるもの」 -- so
-   * the two answers arrive on the same member of `ScreenPart`, and what parts
-   * them is WHICH surface stands. ⛔ They cannot both stand: S-99g holds one
-   * name, and `ScreenSession.confirmation` is raised OVER whatever that name is.
-   * ⚠️ ASKED FIRST FOR THAT REASON, in `receiveInput`: a question raised while
-   * this surface was up would be answered by the press meant for the surface.
-   *
-   * ⛔ THE CANCELLING ANSWER HIDES NOTHING (FR-020, MUST NOT): 「閉じたときに
-   * 透かしを消してはならない —— 答えないことは「消さない」である」. So it closes
-   * the surface and writes not one command, which is what the first level of
-   * `Esc` does on the same surface by another road.
-   *
-   * ⭐ THE PROCEEDING ANSWER SETTLES NOTHING BY ITSELF. FR-020 (MUST) turns
-   * `watermarkVisible` false 「合ったときにだけ」, and whether it matched is a
-   * SHA-256 comparison the environment answers asynchronously -- so the surface
-   * stays up until the digest comes back, and `matchWatermarkUnlock` is what
-   * lands either outcome.
+   * Beside `answerConfirmation` and not inside it: both surfaces carry NT-7's
+   * word buttons, so the answers arrive on the same `ScreenPart` member and only
+   * which surface stands parts them. Asked first in `receiveInput`, since a
+   * question raised while this surface is up would otherwise be answered by the
+   * press meant for the surface.
+   * Cancelling closes the surface and writes nothing (FR-020). Proceeding
+   * settles nothing by itself: the digest comparison is asynchronous, and
+   * `matchWatermarkUnlock` lands either outcome.
    *
    * @purity non-pure
    */
@@ -6110,52 +4008,26 @@ export function frameLoop(
       ask()
       return true
     }
-    // ⛔ READ HERE AND HANDED STRAIGHT ON. FR-020 (MUST NOT) keeps the raw
-    // password out of code, model and output, so nothing in this loop holds it:
-    // it is read at the moment of the press and hashed in the call below.
-    // ⚠️ The empty string is what a wiring that never carried the reader
-    // answers, and what an empty field answers; neither can match a SHA-256.
+    // Read at the press and hashed in the call below, so nothing in this loop
+    // holds the raw password (FR-020). An empty string (no reader wired, or an
+    // empty field) cannot match a SHA-256.
     const answer = screen?.readWatermarkUnlockAnswer?.() ?? ''
-    // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the file
-    // paths take, and for the reason CS-4 of table T-066 gives: the operation
-    // spans frames. ⛔ NO GUARD LIKE `isFileOperationWaiting` IS KEPT: FR-020
-    // (MUST NOT) puts no cap on the tries, and a second press while the first
-    // digest is still running is a person trying again -- the two land the same
-    // way, and the second cannot take a question away from the first because
-    // this surface asks none.
+    // Not awaited (CS-4). No `isFileOperationWaiting`-like guard: FR-020 caps no
+    // tries, and a second press while a digest runs is a person trying again.
     void matchWatermarkUnlock(answer)
     return true
   }
 
   /**
-   * FR-020 (MUST): the answer, matched against the digest, and whichever of the
-   * two things that requirement asks for.
+   * FR-020 -- the answer matched against the digest.
    *
-   * ⛔ ON A MATCH ONLY (MUST): 「合ったときにだけ ...  `watermarkVisible` を偽に
-   * すること」. ⭐ And the surface goes with it -- it has been answered, which is
-   * the same reading `answerSettledFormat` takes for U-54.
-   * ⛔⛔ WRITTEN INTO `ScreenState` AND NOT INTO THE DOCUMENT (MUST NOT), which
-   * is CR-335's whole point: S-144 left table T-202 for table T-206 on
-   * 2026-09-02, and FR-020 forbids saving it in as many words -- 「保存すると、
-   * パスワードを知る 1 人が、下流の全員ぶんの証跡を恒久的に外せる」. ⚠️ So this
-   * hiding does not enter the undo history either, and that is right rather
-   * than a loss: UN-9 keeps screen state out of it, and a hiding an `undo`
-   * could rewind would be the gate FR-020 stands on the hiding side being
-   * stepped around backwards.
-   * ⭐ `screenStateWithWatermark` IS THE ONE WRITER (PI-36 of table T-064, named
-   * there 2026-09-02); an object literal spread here would be a second writer of
-   * the same value in a second component (rule 03 section 1).
-   * ⛔ ON A MISMATCH THE SURFACE STAYS UP (MUST): 「合わなかったときは、面を閉じず
-   * に理由を告げること」 -- the reason being RS-41 of table T-233. ⚠️ WHAT WAS
-   * TYPED IS LEFT WHERE IT IS, which is the other half of the same paragraph:
-   * (MUST NOT) 「試せる回数に上限を置いてはならない」, so the person corrects what
-   * they typed rather than starting again.
-   *
-   * ⚠️ AN ENVIRONMENT WITH NO DIGEST FALLS TO THE MISMATCH, and that is the safe
-   * direction rather than a reading of any row: FR-020's gate stands on the
-   * hiding side alone, so an environment that cannot match leaves the watermark
-   * where it is and says why. ⛔ Table T-233 holds no row for 「この環境は
-   * SHA-256 を持たない」, and one invented here is what FR-076 (MUST NOT) bars.
+   * On a match the watermark and the surface both go, written into
+   * `ScreenState` through `screenStateWithWatermark` (PI-36 of table T-064) and
+   * never into the document (FR-020, S-144), so the hiding stays out of the undo
+   * history too (UN-9) -- an `undo` must not step around the gate.
+   * On a mismatch the surface stays up with what was typed and RS-41 of table
+   * T-233 is raised. An environment with no digest falls to the mismatch: the
+   * safe direction, and table T-233 holds no row for a missing SHA-256 (FR-076).
    *
    * @purity non-pure
    */
@@ -6165,25 +4037,16 @@ export function frameLoop(
       raiseNotice(WATERMARK_UNLOCK_MISMATCH_REASON, null)
       return
     }
-    // ⚠️ NO FRAME IS READ FOR THIS, WHICH IS WHAT THE MOVE OUT OF THE DOCUMENT
-    // TOOK AWAY. A document write is measured against the limits in force when
-    // it lands, and the digest spans frames -- so this used to need the newest
-    // frame's values. S-144 is screen state, `writeDocument` is not on this
-    // road any more, and there is nothing left for a frame to be read for.
     screenState = screenStateWithWatermark(screenStateWithSurface(screenState, null), false)
     ask()
   }
 
   /**
-   * One file operation's fault, RAISED (FR-076), or let go where table T-233
-   * owes it nothing. ⚠️ Raised and not told: telling is UF-67's half of the seam,
-   * and this side hands over a row.
+   * One file operation's fault raised (FR-076), or let go where table T-233
+   * owes it nothing.
    *
-   * ⚠️ `fault.what` IS DROPPED, and it has nowhere to go: `RaisedNotice` carries
-   * a row and a count, and a detail string put on the screen beside them would be
-   * a word this side wrote -- the second store of translated strings FR-038
-   * forbids (MUST NOT). ⛔ Which item is wrong is what NT-1 (MUST) asks for, and
-   * the row of table T-233 is what says it.
+   * `fault.what` is dropped: a detail string beside the row would be a word
+   * this side wrote (FR-038); the row of table T-233 says which item is wrong.
    *
    * @purity non-pure
    */
@@ -6195,19 +4058,14 @@ export function frameLoop(
   }
 
   /**
-   * One refused write, raised (FR-076), for both roads of PI-8.
-   *
-   * ⚠️ NO COUNT. Every row table T-233 gives a refusal follows NT-1, and that
-   * row asks for words rather than for the number NT-3 asks a destructive result
-   * for.
+   * One refused write raised (FR-076), for both roads of PI-8. No count: the
+   * refusal rows of table T-233 follow NT-1, not NT-3.
    *
    * @purity non-pure
    */
   function raiseWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): void {
-    // ⛔ NOT THE CENSUS READ DIRECTLY. `reasonOfWriteRefusal` is where DFC-402's
-    // one line was split: WS-3 spells every command's refusal `refused`, so the
-    // census keyed on the reason alone told a shape the selection cannot take
-    // with `RS-10`'s words -- which table T-233's `RS-54` row forbids (MUST NOT).
+    // Not the census read directly: WS-3 spells every command's refusal
+    // `refused`, and `reasonOfWriteRefusal` narrows it (RS-54 of table T-233).
     const reason = reasonOfWriteRefusal(refusal)
     // See the census: the replacement road's WS-3 is the one refusal table T-233
     // names no row for.
@@ -6218,37 +4076,26 @@ export function frameLoop(
   // ---- The export's own environment ---------------------------------------
 
   /**
-   * The scene PI-21 assembles an export from, for the base environment FR-080
-   * names -- or `null` while BO-1 has settled no size to shrink from.
+   * The scene PI-21 assembles an export from, for FR-080's base environment,
+   * or `null` while BO-1 has settled no size to shrink from.
    *
-   * ⭐ WHY IT IS A SECOND RUN OF TABLE T-068 AND NOT THE FRAME ON THE SCREEN.
-   * FR-080's base environment closes two of the parts a person may have open,
-   * and closing them gives their room to the schedule -- so the rectangles
-   * change, and everything measured from them changes with. ⛔ Reusing the
-   * frame the person is looking at would answer with a different picture from
-   * the one that requirement defines, which is the very drift WY-2 and WY-3 of
-   * table T-041 are there to catch.
-   *
-   * ⛔ NOT AT THE HEAD OF A FRAME. `runFrame` does not call this and must not:
-   * MN-6 of table T-070 chose to run table T-068 once per frame and hand the
-   * result round, and it chose that against NFR-002 and NFR-003. A second pass
-   * on every frame is exactly the cost that decision refused. ⭐ This runs when
-   * somebody asks for a picture, which is as often as an export is made.
-   *
-   * ⚠️ WHAT AN IF-7 IMPLEMENTOR DOES WITH IT. `AgentSnapshot.exportScene` is
-   * where the answer goes, collected with the rest of the snapshot before the
-   * Agent API member starts its work (R7.4, MUST). ⛔ Not handed over as
-   * something for that member to call afterwards -- CS-3 of table T-066 makes
-   * the whole call one consistency unit.
+   * A second run of table T-068, not the frame on screen: the base environment
+   * closes parts and gives their room to the schedule, so the rectangles differ
+   * (the drift WY-2 and WY-3 of table T-041 catch). Never at the head of a
+   * frame: MN-6 of table T-070 runs table T-068 once per frame for NFR-002 and
+   * NFR-003, and this runs only when a picture is asked for.
+   * Collected into `AgentSnapshot.exportScene` with the rest of the snapshot
+   * (R7.4), not handed over to call later: CS-3 of table T-066 makes the call
+   * one consistency unit.
    *
    * @purity semi-pure-b
    */
   function exportScene(): ExportScene | null {
     if (!settled(environment)) return null
     const document = held.document
-    // ⚠️ The width a closed panel takes is nothing, and taking nothing is the
+    // The width a closed panel takes is nothing, and taking nothing is the
     // only way PI-35 can be told a panel is not there: its rectangle is cut
-    // from the stored width alone. ⛔ If the specification ever spells "closed"
+    // from the stored width alone. If the specification ever spells "closed"
     // some other way, this line is the one place that has to learn it.
     const withPanelsClosed: DocumentSettings = {
       ...document.documentSettings,
@@ -6262,25 +4109,13 @@ export function frameLoop(
     }
     // The same three stages, in the same order table T-077 fixes for a frame.
     const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
-    // ⛔⛔ THE EXPORT TAKES OP-10's EXCEPTION WHEN THE SCREEN DOES, AND THE
-    // NOTE THAT STOOD HERE SAID THE OPPOSITE (DFC-229). It read "a picture
-    // written out is not a first screen", and no row of the specification
-    // scopes the exception that way: OP-10 (MUST NOT) excludes a DOCUMENT --
-    // the one opened from BT-4 of table T-034 -- and says the exclusion is
-    // lifted by opening another document, not by the frame moving on. ⇒ While
-    // no place is stored, the screen kept the template's own zoom and this
-    // second run of table T-068 fell to FR-055's fit instead, which seats one
-    // level: measured on the shipped build at 1920x1080, the screen drew 8 rows
-    // over 3 tiers and the .svg carried 7 tier-1 titles.
-    // ⛔ FR-080 (MUST) is what that breaks -- its sentence on the zoom step and
-    // the level of detail reaching the export.
-    // ⚠️ WY-2 AND WY-3 ARE UNTOUCHED BY THIS. Both judge a JSON that has been
-    // OPENED (so BT-4's exclusion does not hold for it) and both run FR-055's
-    // fit themselves before comparing, so this argument is `false` on their
-    // road whatever it is here.
-    // ⚠️ ONLY THE SETTINGS ARE OWED HERE. `ViewSettings`'s second member is for
-    // the press side (see `FrameValues.isPictureAtStoredZoom`), and an export
-    // has no press.
+    // OP-10's exception applies to the export exactly when it applies to the
+    // screen: it excludes a document opened from BT-4 of table T-034 until
+    // another document is opened, not until the frame moves on. Passing `false`
+    // here made the export fall to FR-055's fit and seat a different level than
+    // the screen, which FR-080 forbids. WY-2 and WY-3 open a JSON and fit it
+    // themselves, so they are unaffected.
+    // Only `.settings` is needed: the second member is for the press side.
     const settings = viewSettings(
       document,
       withPanelsClosed,
@@ -6289,22 +4124,13 @@ export function frameLoop(
       readToday(),
       environment.rowControlsHeightPx,
     ).settings
-    // ⭐ LF-3's ROW-CONTROL FLOOR IS CARRIED INTO THE EXPORT TOO, though EP-4 of
-    // table T-076 draws no row control in one. The floor is a rule of the BAND
-    // (表 T-221) and not of the drawing, and a picture written out with shorter
-    // bands than the screen shows would part the two -- which is the very thing
-    // S-140's own note keeps true of FR-085's cut.
-    // ⭐⭐ S-211 REACHES THE PICTURE, for the reason it reaches the frame: HR-2
-    // of table T-015 (MUST) folds 段 0 itself, HR-1a then draws none of its
-    // descendants, and which rows are drawn is LC-1's answer -- so a picture
-    // written with the head open while the screen has it folded is two
-    // pictures, which FR-080 (MUST) forbids.
-    // ⛔ EP-12 OF TABLE T-076 DOES NOT REACH IT, and the note that used to
-    // stand at `isLevelZeroFolded: false` below claimed it did (DFC-229). That
-    // row's roster is `Pointer` / `ArmedShape` / `Selection` / `Marquee` /
-    // `Grab Region`・`Grab Point` -- where the hand points and how it is
-    // poised, and a fold is neither. ⚠️ Measured on the shipped build: with
-    // the head folded the screen drew 0 rows and the .svg carried 7.
+    // LF-3's row-control floor is carried too, though EP-4 of table T-076 draws
+    // no row control: the floor is a rule of the band (table T-221), and shorter
+    // bands than the screen's would part the two pictures.
+    // S-211 reaches the picture as it reaches the frame (HR-2, HR-1a, LC-1): a
+    // head open in the export but folded on screen is two pictures (FR-080).
+    // EP-12 of table T-076 does not keep it out -- a fold is not the pointer or
+    // the poise that row lists.
     const layout = layoutFromSchedule(
       document.schedule,
       settings,
@@ -6313,36 +4139,18 @@ export function frameLoop(
       isLevelZeroFolded,
       environment.rowControlsHeightPx,
     )
-    // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED, AND THE RULING IS ST-7's OWN
-    // (DFC-271, 利用者の裁定 2026-09-06). That row now reads 「通知先を画面を描く経路
-    // に限ってはならない（MUST NOT）」 —— 「絵を書き出す経路（`FR-080`）で達したとき
-    // も、書き出しを終えたあとで同じ通知を画面に上げること（MUST）」, so the value
-    // this layout carries is kept rather than dropped.
-    // ⛔ STILL NOT RAISED HERE, and for the reason the old note gave: this
-    // function also answers IF-7's snapshot (R7.4), and a reader who merely
-    // LOOKED at the picture wrote nothing. ⭐ 「書き出しを終えたあとで」 puts the
-    // telling on the two roads that write one -- see
-    // `stackSafetyCapOfLastExportScene`.
-    // ⛔ AND THE WRITE IS NOT REFUSED. ST-7 asks for a telling and nothing more;
-    // refusing would be FR-080's 「2 つの絵」 read backwards.
+    // ST-7's telling is not raised here: this function also answers IF-7's
+    // snapshot (R7.4), where nothing was written. The two roads that write raise
+    // it after the write (see `stackSafetyCapOfLastExportScene`); the write itself
+    // is not refused (FR-080).
     stackSafetyCapOfLastExportScene = layout.stackSafetyCapReached?.groupId ?? null
-    // EP-12 of table T-076 keeps what is selected and what is armed out of an
-    // export, and CU-3 of table T-029 has the guide cursor follow a pointer
-    // that an export does not have -- so the picture is rendered with none of
-    // the three rather than having them removed from a finished string.
-    // ⭐ THE GEOMETRY IS BUILT FROM IT TOO, not only the rendering: FR-075's
-    // fade grab points are vertices, so an export told nothing about the
-    // selection is the only way EP-12 keeps them out of the picture.
-    //
-    // ⛔ EP-14 CANNOT BE REACHED THAT WAY, and its route is the 'export'
-    // argument below rather than anything done to the geometry. FR-043's
-    // dummies hang on the Task being unstarted, which is a property of the
-    // DOCUMENT and identical on both paths, so no value this function is free
-    // to choose can suppress them. ⛔ AND THE GEOMETRY MUST NOT BE STRIPPED
-    // INSTEAD: GR-7 hangs the not-started progress marker off GR-17, so a
-    // geometry with its dummies emptied answers with no anchor at all and the
-    // marker EP-5 requires vanishes from the export -- which WY-3 of table
-    // T-041 measures against the screen's own picture.
+    // EP-12 of table T-076 and CU-3 of table T-029: the picture is built with no
+    // selection, armed shape or guide cursor rather than stripped afterwards --
+    // the geometry too, since FR-075's fade grab points are vertices.
+    // EP-14 is reached by the 'export' argument below, not through the geometry:
+    // FR-043's dummies hang on the document, and stripping them from the geometry
+    // would lose GR-17's anchor for the not-started marker EP-5 requires (WY-3 of
+    // table T-041).
     const nothingSelected = emptySelection()
     const geometry = geometryFromLayout(
       document.schedule,
@@ -6351,9 +4159,8 @@ export function frameLoop(
       regions,
       nothingSelected,
     )
-    // S-99e says the palette shows by default; the export's environment is the
-    // one where it does not. ⚠️ Started from an empty state rather than from
-    // the session's, so nothing a person left open (S-99g) reaches the picture.
+    // Started from an empty state rather than the session's, so the palette is
+    // closed (EP-11) and nothing a person left open (S-99g) reaches the picture.
     const stateForExport = screenStateWithPalette(emptyScreenState(), false)
     return {
       svg: svgFromSchedule(
@@ -6364,25 +4171,18 @@ export function frameLoop(
         regions,
         nothingSelected,
         'export',
-        // ⛔ NO FOLLOW IN AN EXPORT (EP-12), and the words still go in: FR-038's
-        // rationale now says the fourth tier's weekday is the ONE thing in an
-        // exported picture that depends on the language, and it is drawn in
-        // whichever the person exporting was reading.
+        // No follow in an export (EP-12); the weekday words still go in, in the
+        // language of the person exporting (FR-038).
         null,
         rulerWeekdayWords(language),
-        // ⛔ NO POINTER, NO HOVER AND NO MARQUEE, spelled out because the
-        // watermark stands behind them and the list is positional: EP-12 of
-        // table T-076 keeps 操作の状態 out of a picture, and CU-3's guide
-        // cursor follows a pointer an export does not have.
+        // No pointer, hover or marquee (EP-12, CU-3), spelled out because the
+        // list is positional and the watermark stands behind them.
         null,
         null,
         null,
-        // ⭐ EP-7 OF TABLE T-076: 「`Row Area` の中だけ描く」 -- the export
-        // carries the layer, and carries it from the same reading of S-144 the
-        // screen was drawn from. ⛔ NOT `stateForExport`: that one is built
-        // fresh so EP-11 can close the palette, and a fresh `ScreenState`
-        // answers S-144's default -- which would put the watermark back into a
-        // picture the person had taken it off the screen of.
+        // EP-7 of table T-076, from the same S-144 the screen was drawn from.
+        // Not `stateForExport`: a fresh `ScreenState` answers S-144's default and
+        // would put back a watermark the person had taken off the screen.
         watermarkNow(),
       ),
       regions,
@@ -6393,134 +4193,72 @@ export function frameLoop(
         nothingSelected,
         stateForExport,
         dialogueLog,
-        // ⛔ No pointer, no question and nothing raised to tell: an export has no
-        // hand over it, FR-032's question stands in front of a write rather than
-        // a picture, and EP-11's reason -- a tool's own surfaces are not the
-        // schedule -- reaches the tellings, which `image-exporter.ts` records
-        // from its own side.
-        // ⚠️ No dragged corner either, for the reason `nothingSelected` and
-        // `stateForExport` above are built fresh: EP-12 of table T-076 keeps this
-        // session's state out of the picture, and the palette is closed in this
-        // environment, so no corner is drawn from it.
-        // ⚠️ NO REST AND NO ICON UNDER IT, which follows from the same absence:
-        // EZ-2 of table T-040 waits on a pointer resting on an entry, and an
-        // export has neither the pointer nor the moment.
-        // ⛔ NOTHING CHOSEN AND NOTHING SHOWN IN THE PROPERTIES PANEL EITHER,
-        // for the reason `nothingSelected` above is built fresh: EP-12 of table
-        // T-076 keeps this session's state out of the picture, and FR-085's
-        // chosen rows, FR-099's chosen people and FR-072's panel are as much
-        // this session's as the selection is. ⚠️ The `Agent API` is off here for
-        // the same reason and not because of FR-065: nothing of the reader's is
-        // in an exported picture.
+        // Nothing of this session reaches the picture (EP-11, EP-12 of table
+        // T-076): no pointer, question, telling, dragged corner, rest or icon,
+        // chosen rows or people, or properties panel. `image-exporter.ts` records
+        // the tellings from its own side. The `Agent API` is off for the same
+        // reason, not because of FR-065.
         sessionOf(document, regions, layout, {
           language,
-          // ⚠️ EP-1 of table T-076 draws neither of FR-101's two cues, and
-          // both are this session's rather than the document's -- the same
-          // ground the `Agent API` is off on just below.
+          // EP-1 of table T-076 draws neither of FR-101's cues; both are this
+          // session's.
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
-          // ⚠️ NO SURFACE IS OPEN IN AN EXPORTED PICTURE. EP-11 of table T-076
-          // keeps a tool's own surfaces out of it, and `stateForExport` is built
-          // with none standing -- so the document that FR-068 shows has nobody
-          // reading it here.
+          // No surface is open in an exported picture (EP-11).
           isAiExportSurfaceOpen: false,
-          // ⚠️ Fresh for the same reason `isAgentApiEnabled` just above is:
-          // EP-12 of table T-076 keeps this session's state out of the picture,
-          // and with the API answered off here the field is absent regardless
-          // (`dialogue-field.ts` requires both), so this value cannot show.
+          // This session's (EP-12); with the API off the field is absent anyway
+          // (`dialogue-field.ts` requires both).
           isDialogueFieldVisible: false,
           pointer: null,
           pointerRestedMs: 0,
           iconUnderPointer: null,
-          // ⚠️ AND NO TASK UNDER IT, for the same reason: EZ-6 of table T-040
-          // waits on a pointer resting over a bar, and an export has neither
-          // the pointer nor the moment. EP-15 of table T-076 keeps the
-          // explanation out of the picture in as many words.
+          // EZ-6 of table T-040 needs a resting pointer (EP-15).
           taskUnderPointer: null,
-          // ⚠️ NOTHING TO PUT AWAY IN A PICTURE THAT IS BEING WRITTEN OUT, for
-          // the same reason the two above are empty: EP-15 of table T-076 keeps
-          // the explanation out of it, so no dismissal of one can show either.
-          // ⛔ `false` and not `true`: this says nobody dismissed anything, which
-          // is what happened -- the picture simply carries no explanation.
+          // `false`: nobody dismissed anything; the picture carries no
+          // explanation (EP-15).
           isTooltipDismissed: false,
           commandPaletteDraggedTo: null,
-          // ⛔ NO ROW IS BEING HELD IN A PICTURE THAT IS BEING WRITTEN OUT, on
-          // the same ground the corner above is at none: EP-12 of table T-076
-          // keeps this session's state out of it, and a hand on GR-20's strip is
-          // as much this session's as a dragged palette is. ⚠️ EP-3 draws the
-          // panel of a DOCUMENT, so the row is written out at the depth
-          // `TaskGroup.parentId` puts it -- which is what it is, the follow
-          // being a picture and never a write (table T-023d, MUST NOT).
+          // No row is held (EP-12). EP-3 writes the row at the depth
+          // `TaskGroup.parentId` gives: the follow is a picture, never a write
+          // (table T-023d).
           rowGrabbedAt: null,
-          // ⛔⛔ 段 0 IS FOLDED IN THE PICTURE WHEN IT IS FOLDED ON THE SCREEN,
-          // and `false` stood here (DFC-229). EP-12 of table T-076 was the ground
-          // given, and that row's roster does not name S-211: it names
-          // `Pointer` / `ArmedShape` / `Selection` / `Marquee` / `Grab Region`・
-          // `Grab Point`, and its reason is where the hand points and how it is
-          // poised. A fold is neither, and FR-080 (MUST) has an export
-          // reproduce what a display switch left on the screen.
-          // ⭐ THE SAME VALUE THE LAYOUT WAS BUILT WITH, and it has to be: EP-3
-          // draws the `Row Title Tree` off this session while the schedule side
-          // is drawn off the layout, so two answers here would fold one half of
-          // one picture.
+          // Folded when the screen is (FR-080; EP-12 does not name S-211), and
+          // with the value the layout was built with: EP-3 draws the
+          // `Row Title Tree` off this session and the schedule off the layout, so
+          // two answers would fold half of one picture.
           isLevelZeroFolded,
-          // ⚠️ Closed here whatever the reader left it at, for the reason the
-          // corner above is at none: EP-12 of table T-076 keeps this session's
-          // state out of the picture, and S-142 is as much this session's as the
-          // corner is.
+          // S-142 is this session's (EP-12).
           isMilestoneListOpen: false,
-          // ⚠️ Not minimised in the picture, for the reason the line above is
-          // not open: EP-12 of table T-076 keeps this session's state out of
-          // it, and a minimised palette is this session's doing.
+          // This session's (EP-12).
           isPaletteMinimised: false,
-          // ⚠️ Not recording in the picture, for the reason the line above is
-          // not minimised: EP-12 of table T-076 keeps this session's state out
-          // of an export, and whether a record is running is as much this
-          // session's as the minimising is.
+          // This session's (EP-12).
           isRecordingInteractions: false,
-          // ⛔ NOBODY IS FOLLOWING IN A PICTURE THAT IS BEING WRITTEN OUT, and
-          // DC-8 states that in as many words: 「この印を書き出しに出しては
-          // ならない（MUST NOT）」, on EP-12's ground that which side follows is
-          // operation state. ⭐ EP-6 still draws the two lines themselves --
-          // they come from `dualCursor` (S-65), which the document holds.
+          // Nobody follows in an export (DC-8, EP-12); EP-6 still draws the two
+          // lines from the document's `dualCursor` (S-65).
           dualCursorFollowing: null,
           selectedGroupIds: [],
           selectedResourceUids: [],
           propertiesShowing: null,
           propertiesSubject: null,
           confirmation: null,
-          // ⛔ NO QUESTION STANDS IN A PICTURE THAT IS BEING WRITTEN OUT, so
-          // U-61 has nothing to lay out either -- the same reading `confirmation`
-          // above takes, on EP-12's ground that this session's state stays out of
-          // an export.
+          // No question stands in an export, so U-61 lays out nothing (EP-12).
           mergeCandidates: [],
-          // ⛔ AND NOTHING FR-073 COULD NOT READ EITHER, on the same ground:
-          // the columns belong to the intake U-61 is asking about, and no
-          // question stands in a picture that is being written out.
+          // The unread columns belong to U-61's intake (FR-073); none stands here.
           unreadColumns: [],
-          // ⛔ AND NEITHER DOES U-62, on the same ground: EP-12 of table T-076
-          // keeps this session's state out of a written picture, and what an
-          // import dropped is as much this session's as the selection is.
+          // What an import dropped is this session's (EP-12).
           droppedTaskNames: [],
           notices: [],
-          // ⛔ THE TWO HISTORY QUESTIONS ARE LEFT UNANSWERED HERE, AND THAT IS
-          // THE ANSWER. EP-12 of table T-076 keeps this session's state out of
-          // the picture, and how deep the reader's history stands is as much
-          // this session's as the selection is -- a faint IC-5 in a written
-          // picture would carry it out. ⚠️ Absent reads as NOT KNOWN on the far
-          // side, which draws the entrance as it always was; ⛔ `false` would
-          // say 「nothing to undo」 about a picture nobody can press.
+          // The two history members are left absent (EP-12): absent reads as not
+          // known and draws the entrance as usual, while `false` would put a
+          // faint IC-5 into a picture nobody can press.
         }),
       ),
       settings,
-      // ⛔ THE DOCUMENT'S HUE, HANDED OVER WITH THE REQUEST (DFC-277). DR-5 of
-      // table T-052 keeps `themeHue` at `Project`, so neither `settings`
-      // (which carries S-72's preference) nor the `ScreenView` above can
-      // answer it, and `_source/components.json` has SingleHtmlShell hand it
-      // to ImageExporter rather than let that side read a document. ⭐ The
-      // same expression the frame crosses the theme with, for the reason
-      // FR-080 (MUST) gives: one drawing, not two.
+      // DR-5 of table T-052 keeps `themeHue` on `Project`, so neither `settings`
+      // nor the `ScreenView` carries it, and SingleHtmlShell hands it to
+      // ImageExporter (`_source/components.json`). The same expression the frame
+      // uses, so the two stay one drawing (FR-080).
       themeHue: document.schedule.project.themeHue,
     }
   }
@@ -6529,34 +4267,23 @@ export function frameLoop(
 
   /**
    * The bounds a settings write is judged against that the document does not
-   * keep: the zoom's two (S-97 / S-98) and the width FR-052 measures a panel
-   * against.
+   * keep: the zoom's two (S-97 / S-98) and the width FR-052 measures against.
    *
-   * ⭐ ONE PLACE FOR THE SUM FR-052 IS MEASURED AGAINST, because two roads need
-   * it now: the screen's own writes and the snapshot an `Agent API` call is
-   * answered from. `SettingsLimits` states the sum itself and forbids rebuilding
-   * it from a window width -- the copy that did dropped the scrollbar term.
-   *
-   * ⛔ WITH NO FRAME THERE IS NO WIDTH, AND `0` IS WHAT THAT SAYS. BO-1 of table
-   * T-077 (NFR-011, MUST) forbids a frame before the dimensions have settled, so
-   * before the first one there is no `Row Area` to measure and nothing here may
-   * invent one. ⚠️ Reachable only from the snapshot, and only in a state the
-   * `Agent API` cannot be installed in -- IC-20 of table T-109 is a press on a
-   * header that has been drawn.
+   * One place for FR-052's sum, shared by the screen's writes and the
+   * `Agent API` snapshot; `SettingsLimits` forbids rebuilding it from a window
+   * width. The widths come from `frame.settingsMeasuredWith`, not
+   * `held.document`: the Row Area was cut with FR-072's panel overlay, so a
+   * stored S-80 of `0` would leave the sum short by S-171. With no frame the width is `0` (BO-1 of table T-077): reachable only
+   * from a snapshot before the first frame, when the `Agent API` cannot yet be
+   * installed (IC-20 of table T-109).
    *
    * @purity semi-pure-b
    */
   function settingsLimitsOf(frame: FrameValues | null): SettingsLimits {
-    // ⛔ THE SAME OVERLAY THE FRAME WAS MEASURED WITH, or the sum below is
-    // short by exactly S-171: `frame.regions.rowArea` was cut with the panel
-    // showing, and adding a stored `0` back would not return the width the
-    // panel is occupying. FR-052 is judged against this sum.
-    // ⛔ CARRIED BY THE FRAME AND NO LONGER READ OFF `held.document`. While
-    // FR-052's divider is held the frame is measured from a preview whose two
-    // widths are not the stored ones, and the held widths added back to a
-    // `Row Area` cut with the preview's would make this sum drift by exactly
-    // the travel -- so the width the release is judged against would depend on
-    // how far the finger had already gone. See `FrameValues`.
+    // The widths the frame was measured with, not `held.document`'s: while
+    // FR-052's divider is held the `Row Area` was cut from a preview, and adding
+    // the stored widths back would drift the sum by the travel (S-171 included).
+    // See `FrameValues`.
     return {
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
@@ -6573,30 +4300,15 @@ export function frameLoop(
    * The document a held press would leave behind if the button came up now, or
    * `null` where nothing is held that owes a picture.
    *
-   * ⭐ NOTHING NEW IS WORKED OUT HERE, WHICH IS THE POINT. FR-052's two widths
-   * and table T-023d's fade days are decided in exactly one place -- the
-   * release road of `commandFromInput` (PI-18) -- so the picture asks that same
-   * member with a release shaped from where the pointer stands now, and folds
-   * what it answers onto a COPY with `editDocument` (PI-9). ⛔ A second reading
-   * of either rule here would be a picture that could disagree with the write it
-   * is a picture OF, which is the whole defect this closes.
-   *
-   * ⭐ THE SYNTHETIC RELEASE IS HONEST. `gestureModifiers` reads the PRESS's
-   * modifiers for every phase but `down`, and CS-2 of table T-066 freezes the
-   * button, the hit and the part on the press as well -- so the only thing this
-   * supplies is the point, which is what the person is choosing.
-   *
-   * ⛔ AND IT SETTLES NOTHING. `applyDocumentChange` (PI-8) is not on this road,
-   * so WS-4 pushes no undo step, `advancedStamp` moves no stamp, no watcher is
-   * notified and nothing is autosaved. FR-031's 「身振り 1 つ ＝ 取り消し 1 段」
-   * therefore survives however many frames a drag lasts.
-   *
-   * ⛔ A REFUSED WRITE DRAWS THE HELD DOCUMENT. WS-3 of table T-067 throws a
-   * whole bundle away when one command comes back refused, so a release from
-   * here would write nothing at all -- and the picture that matches THAT is the
-   * unchanged one. ⚠️ Keeping the last accepted preview instead would break the
-   * property the note on `previewDocument` leans on and would show a width the
-   * release will not produce.
+   * Nothing new is worked out: the release road of `commandFromInput` (PI-18)
+   * is asked with a release at the current point, and its answer is folded onto
+   * a copy with `editDocument` (PI-9), so the picture cannot disagree with the
+   * write. Only the point is synthetic; CS-2 of table T-066 froze the rest.
+   * It settles nothing: `applyDocumentChange` (PI-8) is not on this road, so no
+   * undo step, stamp, watcher or autosave (FR-031).
+   * A refused write draws the held document, since WS-3 of table T-067 would
+   * write nothing on release; keeping the last accepted preview would show a
+   * width the release will not produce.
    * @provisional PND-253
    *
    * @purity semi-pure-b
@@ -6612,7 +4324,7 @@ export function frameLoop(
     const action = commandFromInput(release, context).action
     if (action === null || action.kind !== 'changeDocument') return null
     const limits = settingsLimitsOf(frame)
-    // ⭐ THE FOLD STARTS AT THE HELD DOCUMENT AND NEVER AT THE LAST PICTURE.
+    // Starts at the held document, never at the last picture.
     let drawn = held.document
     for (const commands of action.writes) {
       for (const command of commands) {
@@ -6625,23 +4337,13 @@ export function frameLoop(
   }
 
   /**
-   * FR-065 -- the enabling moved, so whoever places the public point is told.
+   * FR-065 -- the enabling moved, so whoever places the public point is told,
+   * and S-99b of table T-206 is written.
    *
-   * ⭐ ONE DOOR, so the party that has to install or uninstall hears every turn.
-   * ⛔ Nothing is told when it did not move: FR-028's exposure is a state,
-   * not an event, and telling twice would have the installer place the name over
-   * a reference it had already handed out.
-   *
-   * ⭐⭐ AND ONE DOOR IS WHERE S-99b IS WRITTEN. FR-065 (MUST): 「有効化はブラウザ
-   * （オリジン）ごとに記憶すること」, and S-99b of table T-206 puts that record in
-   * `localStorage`, 「オリジンごとに 1 つ」 -- so the key has no second half and
-   * every turn of this value is the whole of what there is to remember.
-   * ⛔ THE SPELLING OF THE TWO STATES IS NOT A VALUE OF THE SPECIFICATION AND
-   * NOT ONE THIS FILE CHOSE. S-99b states THAT the enabling is remembered and
-   * states no spelling for it, so the language's own words for a boolean are
-   * used and are asked for rather than typed -- `startupAgentApiEnabled` reads
-   * the same `String(true)` back, and nothing outside this file ever sees the
-   * string.
+   * Nothing is told when it did not move: telling twice would have the
+   * installer place the name over a reference it had already handed out.
+   * The stored spelling is the language's own boolean text, which
+   * `startupAgentApiEnabled` reads back; S-99b fixes no spelling.
    *
    * @purity non-pure
    */
@@ -6653,68 +4355,48 @@ export function frameLoop(
   }
 
   /**
-   * IF-7 of table T-065, which UF-48 of table T-075 gives this file.
+   * IF-7 of table T-065 (UF-48 of table T-075).
    *
-   * ⭐ EVERYTHING AT ONCE, which is the whole of what that seam asks for: CS-3 of
-   * table T-066 makes one `Agent API` call one consistency unit, and AG-4 of
-   * table T-035 forbids a caller to be handed a document from before a release
-   * beside a selection from after it. Every member below is read from what this
-   * loop holds at this instant and nothing is computed twice.
-   *
-   * ⚠️ THE FREEZING IS NOT DONE HERE. `snapshot-source.ts` says so from the far
-   * side: the copy AG-4 asks for is made by the component that answers a caller,
-   * and freezing the values where they are held would freeze the ones this loop
-   * is about to replace.
+   * Everything is read at one instant from what this loop holds: CS-3 of table
+   * T-066 makes an `Agent API` call one consistency unit (AG-4 of table T-035).
+   * Freezing is `snapshot-source.ts`'s: freezing values here would freeze the
+   * ones this loop is about to replace.
    */
   const snapshotSource: AgentApiSeams['source'] = {
     /** @purity semi-pure-b */
     readSnapshot() {
-      // ⭐ READ ONCE INTO A LOCAL so that the frame the picture came from and
-      // the frame the bounds were measured against are the same frame.
+      // Read once, so the picture and the bounds come from the same frame.
       const frame = values
       return {
         document: held.document,
         selection,
         dialogue: dialogueLog,
-        // `FrameSnapshot` is the three members of `FrameValues` a caller may
-        // read; ADR-001 computed them at the head of this frame and this hands
-        // them on rather than running table T-068 again for one call.
-        // ⚠️ THE FOURTH IS NOT ON PI-19 AND IS NOT MEANT TO BE. What a frame was
-        // measured WITH is this loop's own bookkeeping for `settingsLimitsOf`,
-        // and the settings a caller wants are the document's, which AM-3 already
-        // answers with.
+        // Computed at the head of this frame (ADR-001), not run again per call.
+        // What a frame was measured with is this loop's bookkeeping, not PI-19's.
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isDocumentChangingPress(pressed),
-        // AG-9's second half (MUST) -- 「人が編集入力を確定していない間（プロパ
-        // ティパネルで入力中など）も同じく拒否すること」 -- answered from IF-9
-        // now that the seam carries it. ⭐ THIS IS THE ROAD THAT REFUSES: what
-        // this member supplies becomes `WriteMoment.editingInPlace` on the
-        // `Agent API`'s write (`writeThroughTheOnePath`) and the gate on AM-13's
-        // picture, which is exactly what table T-035 is about.
+        // AG-9's second half, answered from IF-9. It becomes
+        // `WriteMoment.editingInPlace` on the `Agent API`'s write
+        // (`writeThroughTheOnePath`) and the gate on AM-13's picture.
         isEditingInPlace: hasUnsettledTextEntry(),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
-        // ⚠️ The wall clock, and rightly so: AT-129 spells a MOMENT, and R3.6
-        // sends only an elapsed time to a monotonic one.
+        // The wall clock: AT-129 is a moment, and R3.6 sends only elapsed time to
+        // a monotonic clock.
         readAt: readInstantOfWrite(),
       }
     },
   }
 
   /**
-   * PI-16's two seams, which `postDialogueMessage` needs and which LY-5 of table
-   * T-060 leaves with this layer because FR-066 (MUST NOT) keeps the log out of
-   * the document.
+   * PI-16's two seams for `postDialogueMessage`; LY-5 of table T-060 leaves the
+   * log with this layer (FR-066).
    *
-   * ⭐ FT-5 OF TABLE T-078 IS THE FRAME THIS ASKS FOR, and it is that row and
-   * not a trigger minted here: 「日程データの群の刻を動かさずに届いた発話」 is
-   * delivered by CP-16, which reaches this side through `deliver`.
-   * ⛔ THE WATCHERS ARE WOKEN THROUGH THE ONE AUDIENCE THIS LOOP ALREADY HAS.
-   * `notifyChangeWatchers` (PI-15) takes the document, the judgement and the log
-   * together, and AG-11 of table T-035 counts an utterance in an order of its
-   * own -- so the schedule is declared unmoved and the log it carries is the one
-   * the append just left behind.
+   * The frame asked for is FT-5 of table T-078, delivered by CP-16 through
+   * `deliver`. Watchers are woken through this loop's one audience
+   * (`notifyChangeWatchers`, PI-15) with the schedule declared unmoved, since
+   * AG-11 of table T-035 counts an utterance in its own order.
    */
   const dialogueSeams: Pick<AgentApiSeams, 'dialogueHolder' | 'dialogueAudience'> = {
     dialogueHolder: {
@@ -6728,10 +4410,8 @@ export function frameLoop(
     dialogueAudience: {
       /** @purity non-pure */
       deliver(): void {
-        // ⚠️ THE ARGUMENT IS NOT READ, and it is the same log: the holder above
-        // was replaced before this ran (CP-16 fixes that word order), so the
-        // audience below takes what this loop now holds and the two cannot
-        // disagree.
+        // The argument is not read: the holder was replaced first (CP-16), so
+        // what this loop holds is the same log.
         audience.deliver(held.document, false)
         if (settled(environment)) ask()
       },
@@ -6743,74 +4423,36 @@ export function frameLoop(
   /**
    * CS-2 of table T-066 -- what the gesture is about, frozen at the press.
    *
-   * ⭐ `on` IS HANDED IN rather than read here, which is what keeps ONE reading
-   * of IF-9 per happening (R7.4): `receiveInput` asks the surface once, and both
-   * this and FR-048's judgement are settled from that single answer. ⚠️ Asking
-   * again here would be a second moment, and CS-2 wants the moment of the press.
-   *
-   * ⚠️ `semi-pure-b` AND NOT `pure`, because `pressRow` below reads the two
-   * current values this loop holds (R7.1). They are read HERE rather than taken
-   * as arguments so that all three members of the press are frozen at the one
-   * moment CS-2 names; `collectInputContext` reads the same two right after and
-   * carries the same tag for the same reason.
+   * `on` is handed in so IF-9 is read once per happening (R7.4); asking again
+   * here would be a second moment. `semi-pure-b` because `pressRow` reads two
+   * current values of this loop (R7.1), read here so every member of the press
+   * is frozen at the one moment CS-2 names.
    *
    * @purity semi-pure-b
    */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
-    // ⭐ NO HIT WHEN THE SURFACE ANSWERED. The note under table T-023a limits
-    // that table's decision order to the schedule's drawing area (MUST), and
-    // the parts drawn over it hold no rectangle in `ScreenRegions` -- so a
-    // press the surface claimed was not a press on the schedule at all.
-    // ⛔ WHICH READING OF TABLE T-023d THIS PRESS IS. Its closing rule (MUST
-    // NOT) keeps a double-click-only row -- GR-10 today -- out of the plain
-    // press, so a name label no longer swallows the press that GR-12 needs;
-    // but the same rule leaves the DOUBLE CLICK on the table's order unchanged,
-    // so the second click must ask for the other reading or MK-13 loses the
-    // label it is meant to open.
-    // ⭐ THE COUNT IS THE FRAMEWORK'S, which is why the answer is settled here:
-    // `clickCount` is meaningful on `down`, and telling a double click from two
-    // single ones is a question about elapsed time that LY-5 leaves this layer.
+    // The plain press must not see table T-023d's double-click-only rows (GR-10),
+    // or a name label swallows the press GR-12 needs; a second click asks for
+    // the double-click reading, or MK-13 loses the label it opens. The click
+    // count is the framework's to read (LY-5 of table T-060).
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
-    // ⛔ AND NOT OUTSIDE THE `Row Area` EITHER, which is the reading
-    // `grabAtPointer` has always taken for the hover: every target of table
-    // T-023d is drawn inside it, the `Schedule Canvas` is wider, and the
-    // closing MUST under table T-023a limits the hit test to 「そのフレームで
-    // 描いた編集対象の要素」 -- the Row Area's paint is CLIPPED to itself, so a
-    // bar whose days lie left of `scrollDate` is not drawn under the Row Title
-    // Panel however far the geometry runs. ⚠️ Until this round the press asked
-    // the hit test anywhere the surface had not answered, and only the
-    // translator's own region test kept the answer from being used; the two
-    // sides now agree, and a `Hit` is once again proof that the press was on
-    // the schedule.
+    // No hit when the surface answered or outside the `Row Area`: the note under
+    // table T-023a limits the decision order to the drawing area, and the Row
+    // Area's paint is clipped, so a bar left of `scrollDate` is not drawn under
+    // the Row Title Panel however far the geometry runs.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving)
         : null
-    // ⭐ ASKED OF THE SIDE THAT OWNS TABLE T-023a, AND CARRIED FROM HERE ON.
-    // `collectWriteMoment` needs to know a pan (PTD-1) from a marquee (PTD-5) to
-    // keep AG-9's exemption, and R2.7 forbids it to read that table a second
-    // time -- so the answer rides on the press, exactly as `hit` does.
-    // ⚠️ NARROWED ARGUMENTS ON PURPOSE: this runs BEFORE `collectInputContext`,
-    // and no whole `PointerPress` can exist until this call has answered,
-    // because the row is one of the press's own members.
+    // Asked of the side that owns table T-023a and carried on the press:
+    // `collectWriteMoment` tells a pan (PTD-1) from a marquee (PTD-5), and R2.7
+    // forbids reading that table twice. Narrowed arguments, because no whole
+    // `PointerPress` exists until this answers.
     const pressRow = pressRowOf({ at, hit }, { screenState, dualCursorFollowing })
-    // FR-053 (MUST) -- this shell FOLLOWS, so the member that says so starts at
-    // the press's own point. ⭐ Its own note gives the rule: a travel is
-    // measured from here and never from the press once one has been applied, so
-    // the parts telescope and the sum over a drag is still `release - press`.
-    // ⛔ FILLED FOR EVERY PRESS AND NOT ONLY THE BAND'S, because the member is
-    // a statement about the CALLER rather than about the gesture: a shell that
-    // filled it only sometimes would be a shell that follows only sometimes,
-    // and `paletteFollow` is the only member that reads it.
-    // ⚠️ THE ONE PART OF THE PRESS CS-2 DOES NOT FREEZE, and that member says
-    // why -- the other four are the moment of the press, this one is how far
-    // the picture has been carried since.
-    // HF-15 (MUST) -- this shell REMEMBERS the axis, so the member that says so
-    // starts at 「まだ決まっていない」. ⭐ Its own note gives the rule: the axis
-    // is settled at the first travel past `S-208` and 「離すまで変わらない」, and
-    // no pure function reading two points could keep that promise.
-    // ⛔ FILLED FOR EVERY PRESS AND NOT ONLY THE STRIP'S, the reading
-    // `followedTo` above records: the member is a statement about the CALLER.
+    // FR-053 and HF-15: this shell follows and remembers the axis, so
+    // `followedTo` starts at the press point and `rowGrabAxis` undecided (see
+    // those members). Filled for every press, since the members describe the
+    // caller, not the gesture; `followedTo` is the one member CS-2 does not freeze.
     return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y }, rowGrabAxis: null }
   }
 
@@ -6818,20 +4460,10 @@ export function frameLoop(
    * What table T-023d claims where the pointer now stands (`itemAtPointer`,
    * PI-7), or `null` where no row of it does.
    *
-   * ⭐ ASKED ONCE PER HAPPENING AND READ BY BOTH SIDES (R7.4). IN-2's shape and
-   * FR-048's judgement are two questions about ONE answer, and asking twice
-   * would be a second moment as well as a second walk of the geometry.
-   *
-   * ⚠️ THIS IS THE ONLY PLACE THE HIT TEST IS ASKED WITHOUT A PRESS, and the
-   * cost is why the cheap refusals stand in front of it. `itemAtPointer` is a
-   * LINEAR SCAN: it builds one bounding-box pair per drawn `Task` and then
-   * walks table T-023d's rows as the outer loop over those, so a pointer
-   * resting on empty canvas pays O(n) per move at MC-7's 1000 `Task`.
-   * ⭐ NFR-013 IS KEPT -- that requirement bounds hit testing at `O(n log n)`
-   * and forbids `O(n²)`, and linear is inside it -- but it is not free, so
-   * `regionAtPointer` turns away every point outside the `Row Area` and the
-   * surface's own answer turns away every point on a drawn entry. Both are
-   * constant time.
+   * Asked once per happening and read by both IN-2's shape and FR-048's
+   * judgement (R7.4). It is the one hit test asked without a press, so on every
+   * move: the constant-time refusals below keep the scan off points outside the
+   * `Row Area` and on drawn entries (NFR-013).
    *
    * @purity semi-pure-b
    */
@@ -6841,41 +4473,28 @@ export function frameLoop(
     y: number,
     on: ScreenPart | null,
   ): Grabbed | null {
-    // ⛔ The note under table T-023a binds that table's decision order to the
-    // schedule's drawing area (MUST), and a point the screen surface answered
-    // for is on a part drawn OVER it.
+    // The note under table T-023a limits the decision order to the drawing
+    // area, and a point the screen surface answered is on a part drawn over it.
     if (on !== null) return null
-    // ⛔ The `Schedule Canvas` is wider than the `Row Area`, and every target
+    // The `Schedule Canvas` is wider than the `Row Area`, and every target
     // of table T-023d is drawn inside the latter.
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    // ⛔ PTD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
+    // PTD-2 turns hit testing off while the `Dual Cursor` is up, so the table
     // is not asked at all rather than asked and its answer thrown away.
     if (dualCursorFollowing !== null) return null
-    // ⭐ THE PRESS READING, by the default, and that is the right one: IN-2's
-    // shape has to say what a PRESS here would do, and table T-023d's closing
-    // rule says a double-click-only row does not answer one. A shape read off
-    // the other reading would put a grab cursor on a name label that cannot be
-    // grabbed.
+    // The press reading (the default): IN-2's shape says what a press would do,
+    // and a double-click-only row does not answer one (table T-023d).
     return itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
   }
 
   /**
-   * IN-2 of table T-028 -- what the pointer can do where it now stands, as a
-   * shape, or `null` for a place that row does not name.
+   * IN-2 of table T-028 -- the pointer's shape where it now stands, or `null`
+   * for a place that row does not name.
    *
-   * ⭐ THE ORDER IS TABLE T-023a's OWN, top row first, because IN-2 is a
-   * statement ABOUT that table's answer: the shape has to say what a press
-   * here would do, and that is decided nowhere else. ⛔ Rearranging it would
-   * make the shape promise one thing and the press do another.
-   *
-   * ⚠️ THE LAST THREE REFUSALS BELOW ARE `grabAtPointer`'s AS WELL, and they
-   * are restated rather than left to it: that function answers `null` for a
-   * point it turned away, and `null` is also its answer for empty canvas, where
-   * PTD-5 gives a shape. ⛔ A shape read off the hit alone would put PTD-5's own
-   * shape on the time ruler.
-   * ⚠️ NO FRAME IS ASKED FOR HERE. The shape is not drawn content -- the host
-   * paints the pointer -- so it is written straight out rather than through
-   * `ScreenSession`.
+   * In table T-023a's order, top row first, so the shape promises what a press
+   * would do. `grabAtPointer`'s refusals are restated because its `null` also
+   * means empty canvas, where PTD-5 gives a shape. No frame is asked: the host
+   * paints the pointer, so the shape is written straight out.
    *
    * @purity semi-pure-b
    */
@@ -6886,34 +4505,27 @@ export function frameLoop(
     on: ScreenPart | null,
     hit: Grabbed | null,
   ): PointerShape | null {
-    // PTD-1, and IN-2 asks for it 「パン中」 -- so the press in flight is what is
-    // read, not the modifiers of a move that presses nothing.
+    // PTD-1: IN-2 names the shape while panning, so the press in flight is read,
+    // not the modifiers of a move that presses nothing.
     if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
-    // STOP -- ⛔ IN-2 NAMES NO SHAPE FOR AN ENTRY. The note under table T-023a
-    // binds that table to the schedule's drawing area (MUST), and a point the
-    // screen surface answered for is on a part drawn OVER it.
+    // STOP -- IN-2 names no shape for an entry, a part drawn over the drawing
+    // area (the note under table T-023a).
     if (on !== null) return null
-    // STOP -- ⛔ AND NONE FOR THE RULER, THE PANELS OR THE PADDING either. The
-    // `Schedule Canvas` is wider than the `Row Area`, and every place IN-2
-    // names is inside the latter.
+    // STOP -- nor for the ruler, the panels or the padding: every place IN-2
+    // names is inside the `Row Area`.
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    // STOP -- ⛔ PTD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
-    // `Dual Cursor` mode, so nothing is invented for it.
+    // STOP -- PTD-2 turns hit testing off, and IN-2 names no shape for the
+    // `Dual Cursor` mode.
     if (dualCursorFollowing !== null) return null
-    // PTD-3. ⭐ WHICH SHAPE IS THE TABLE'S ABOVE, not a test written here: IN-2
-    // now names the bar's middle and a milestone's figure as well as the two
-    // bars' ends, and the rows it still names nothing for answer `null` there.
+    // PTD-3. The shape per grab is the table above; rows IN-2 names nothing for
+    // answer `null` there.
     if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
-    // PTD-5 -- nothing hit and nothing armed. ⚠️ THE SHAPE HERE IS THE HOST'S
-    // ORDINARY ONE AND THE PLACE IS STILL IN-2's: the row names 何にも当たらない
-    // 場所 and gives it 範囲選択の合図, and `PointerShape` says which word this
-    // side spells that meaning with. ⛔ Answering `null` instead would say IN-2
-    // names no shape here, which is false.
+    // PTD-5 -- nothing hit and nothing armed. IN-2 gives this place a shape, and
+    // `'default'` is how `PointerShape` spells it; `null` would say it has none.
     if (armed.kind === 'none') return 'default'
-    // STOP -- ⛔ PTD-4a DOES NOTHING HERE, so 「作図の合図」 would be a lie. An
-    // armed dependency on empty canvas draws nothing and does not even disarm,
-    // and IN-2 names no shape for that.
+    // STOP -- PTD-4a does nothing on empty canvas (it does not even disarm), and
+    // IN-2 names no shape for that.
     if (armed.kind === 'dependency') return null
     // PTD-4 -- a figure or an annotation is armed, and a press would make it.
     return 'copy'
@@ -6922,14 +4534,9 @@ export function frameLoop(
   /**
    * IF-9's fifth answer, or `false` where no screen surface was wired.
    *
-   * ⛔ ASKED AND NEVER HELD. The focus moves without a happening of table T-078
-   * arriving at all -- a person clicks from one field to the next, or the host
-   * moves it -- so a value cached on this side would be stale the moment it
-   * mattered. ⚠️ Three callers ask it, and every one of them asks it fresh.
-   *
-   * ⭐ `false` WITHOUT A SURFACE IS THE ABSENCE AND NOT A GUESS: a build with no
-   * screen surface has drawn no field, so there is nothing anyone could be
-   * typing into.
+   * Asked, never held: focus moves without any happening of table T-078, so a
+   * cached value would be stale when it mattered. Without a surface no field
+   * was drawn, so `false` is the absence rather than a guess.
    *
    * @purity semi-pure-b
    */
@@ -6938,34 +4545,23 @@ export function frameLoop(
   }
 
   /**
-   * Whether the write being made right now IS the settling of a property field.
+   * Whether the write being made right now is the settling of a property field.
    *
-   * ⛔ HELD FOR ONE CALL AND NO LONGER. `collectWriteMoment` reads it to keep
-   * WS-2 of table T-067 from refusing the one write that is not made
-   * 「編集入力の確定前」 -- see the note there for why the field is still held
-   * at that instant. ⚠️ A flag and not an argument, because `writeDocument` is
-   * the one write path MS-1 of table T-042 allows and a second parameter on it
-   * would be a second thing every other caller has to say something about.
+   * Held for one call: `collectWriteMoment` reads it (see the note there). A
+   * flag rather than an argument because `writeDocument` is the one write path
+   * (MS-1 of table T-042), and a parameter would burden every other caller.
    */
   let isSettlingFieldCommit = false
 
   /**
-   * WHICH name field MK-13 has asked for -- a row of the panel -- or `null`
-   * while nothing is waiting.
+   * Which field a press has asked to put the caret in (MK-13 among them), as a
+   * row id, or `null` while nothing is waiting.
    *
-   * ⭐ A REQUEST HELD ACROSS ONE FRAME, and it has to be: the press is answered
-   * while this frame is still being decided, and the control MK-13 names does
-   * not exist until the description has gone out over IF-9. `showFrame` spends
-   * it on the far side of that one line.
-   * ⛔ NOT A QUEUE. A second double click before the paint asks for one field,
-   * and the later ask replaces the earlier one.
-   * ⚠️ A ROW AND NO LONGER A FLAG. MK-13 has TWO destinations since the user's
-   * ruling of 2026-09-01 -- PR-1 for a task's name and AT-53 for a row's -- and
-   * a boolean could only ever spend the one that was written at the paint.
-   * ⭐ THREE SINCE 2026-09-06 (CR-361), AND THE THIRD IS NOT A PROPERTY ROW:
-   * SK-9 asks for `U-27` of table T-103, the name the header draws. IF-9's own
-   * widening is what lets one holder carry all three -- 「行 ID は 表 T-016 の行
-   * に限らない」 -- so nothing about this binding changed to take it.
+   * Held across one frame: the control does not exist until the description
+   * has gone out over IF-9, and `runFrame` spends it after that. Not a queue:
+   * a later ask replaces an earlier one. A row id and not a flag because
+   * several fields are asked for this way; IF-9's row id is not limited to
+   * table T-016's rows.
    */
   let nameFieldWantedRow: string | null = null
 
@@ -6973,36 +4569,21 @@ export function frameLoop(
    * The Task FR-091's one-press clause is about -- the one this loop has just
    * made and put a name field on -- and `null` at every other instant.
    *
-   * ⭐⭐ WHY A BINDING IS OWED AT ALL. FR-091 (MUST, the user's instruction of
-   * 2026-09-07, 逐語「`Enter` で閉じて選択が外れ」): 「作った直後の名称を `Enter`
-   * で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと
-   * （MUST）」, with 「2 度押させてはならない（MUST NOT）」 beside it -- and the
-   * next line limits it: 「これは作った直後の場面に限る（MUST）」, because FR-072's
-   * 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 (the user's
-   * ruling of 2026-08-30) still stands for a rename made later. ⇒ The two rulings
-   * are told apart by ONE fact -- whether the tool raised this selection itself
-   * -- and no value in this loop carried it.
-   * ⭐ THE REQUIREMENT SAYS WHY IT MAY BE CLEARED: 「選択を解くのは、この選択が
-   * そもそも名前の欄を運ぶために立っているからである …… 名前が着地した時点で、その
-   * 選択は役目を終える」.
-   * ⛔ A TASK AND NOT A ROW. FR-091 is 「タスクの名称を入力し、変更する」 and its
-   * clause is written about 「作ったタスク」; HF-14 of table T-051 names a row and
-   * asks for nothing of the kind, so `standOnWhatWasCreated`'s other branch does
-   * not set this.
-   * ⛔ NOR IS THE ARMING TOUCHED (MUST NOT): 「構えはこの押下で解けない」 --
-   * 「構えの持続は 表 T-023b が定めており、解除は `Esc` と同じ入口の再押下だけ」.
+   * The clause is limited to the Task just created, while FR-072 still keeps
+   * the selection on a later rename; this uid is the one fact that tells the
+   * two apart. A Task and not a row: HF-14 of table T-051 asks for nothing like
+   * it, so `standOnWhatWasCreated`'s other branch does not set it. The arming
+   * is not touched (FR-091, table T-023b).
    */
   let namingCreatedTaskUid: number | null = null
 
   /**
-   * The one rule that ends FR-091's 「作った直後の場面」: the instant the selection
-   * becomes anything other than what this loop just made, the clause is about
-   * nothing and the panel goes back to FR-072's rule.
+   * Ends FR-091's just-created scene the moment the selection becomes anything
+   * other than what this loop just made.
    *
-   * ⛔ WRITTEN ONCE AND CALLED FROM BOTH DOORS THAT REPLACE THE SELECTION --
-   * `selectionFromInput` on every happening, and table T-023c's closing rule
-   * inside `replaceHeldDocument` (an undo that takes the new Task away is that
-   * second door). A second reading of 「作った直後」 is what would drift.
+   * Written once and called from both places that replace the selection:
+   * `selectionFromInput` on every happening, and where the holder swaps the
+   * document (table T-023c's closing rule; an undo that removes the new Task).
    *
    * @purity non-pure
    */
@@ -7010,54 +4591,26 @@ export function frameLoop(
     if (selection !== was) namingCreatedTaskUid = null
   }
 
-  // ⛔⛔ `namingNewRow` AND `newRowNameFieldWantedUnder` STOOD HERE AND ARE GONE
-  // (利用者の裁定 2026-09-04). They held one half of a row across the wait for a
-  // name typed in place, which is what HF-14 of table T-051 asked for until that
-  // ruling: 「名前は空で立て、その場で打たせること」. The row now reads 「押された
-  // 瞬間に、既定の名前で行を立てること（MUST）」, so nothing is held across
-  // anything: the press plans CM-26 and carries the row out as `CreatedSubject`,
-  // and the naming is FR-085's road — `nameFieldWantedRow` above, at `AT-53`.
-
   /**
-   * The row HF-17 has just stood up and owes a look at -- `null` where none is
-   * owed.
+   * The row HF-17 has just stood up and owes a look at, or `null`.
    *
-   * ⭐ HELD ACROSS ONE FRAME, for the reason `nameFieldWantedRow` gives: 「足した
-   * 行が描かれていないとき」 is a question about the picture, and the picture that
-   * holds the new row is the one the frame after the write draws. Asking while
-   * the write is still being made would be asking about the frame before.
-   * ⛔ THE ROW AND NOT A FLAG. The answer is 「その行が見える位置」, so the row has
-   * to be named for the anchor to be written.
+   * Held across one frame: whether the row is drawn is a question about the
+   * frame after the write. A row id and not a flag, since the anchor has to
+   * name the row.
    */
   let addedRowOwedSight: string | null = null
 
   /**
-   * The reasons a telling was standing on when the happening being carried out
-   * now ARRIVED -- before `spendFieldCommit` settled anything.
+   * The reasons of the tellings standing when the happening being carried out
+   * now arrived, before `spendFieldCommit` settled anything.
    *
-   * ⭐⭐ SK-19 ASKS ABOUT THE MOMENT OF THE PRESS, in as many words: 「出ている
-   * 通知があるときは、それを 1 つ消すこと（MUST）... ほかに何も出ていないときは、
-   * その場の編集を確定する」. ⛔ 出ている is a question about the instant the key
-   * arrived, and `raisedNotices` by the time either ladder is read may hold a
-   * telling THIS press raised -- `spendFieldCommit` runs at the head of every
-   * happening and a refused settling raises one there.
-   * ⛔⛔ THE MEASURED DEFECT (2026-09-09, before this was held): settling a
-   * refused value with `Enter` left ZERO tellings on the description, while the
-   * same value spent on a pointer move left the one raised. The press raised the
-   * answer to its own operation and then put it away again, so nobody could read
-   * it. ⚠️ NT-8's closing MUST NOT is the same reading from the other side --
-   * 「消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならな
-   * い」 -- and at the instant that key arrived there was nothing to put away.
-   * ⛔ HELD FOR ONE HAPPENING, written at the head of every one that arrives over
-   * IF-2 and read within it, exactly like `didSettleFieldEntry` below and for the
-   * same reason.
-   * ⭐ REASONS AND NOT THE TELLINGS THEMSELVES: `raiseNotice` gathers a repeat of
-   * one reason into a NEW object (NT-3 of table T-037), so an identity taken at
-   * arrival would stop naming the telling it was taken from. The reason is the
-   * whole of a telling's identity -- that member's own note says why.
-   * ⚠️ TYPED AS `string` AND NOT AS `NoticeReason`, because that is what
-   * `RaisedNotice.reason` is on the seam this reads from (PI-33) -- narrowing it
-   * here would be this file asserting a shape the value does not carry.
+   * SK-19 and NT-8 ask about the instant the key arrived; by the time either
+   * ladder is read, `raisedNotices` may hold a telling this press raised (a
+   * refused settling), and an `Enter` would put its own answer away unread.
+   * Held for one happening, like `didSettleFieldEntry`. Reasons rather than the
+   * tellings: `raiseNotice` gathers a repeat into a new object (NT-3), so an
+   * identity taken at arrival would stop matching. Typed `string` because that
+   * is what `RaisedNotice.reason` is on the seam (PI-33).
    */
   let noticeReasonsOnArrival: ReadonlySet<string> = new Set<string>()
 
@@ -7065,17 +4618,11 @@ export function frameLoop(
    * Whether the happening being carried out now arrived with an in-place edit
    * standing, which `spendFieldCommit` settled at its head.
    *
-   * ⭐ SK-19's SECOND STAGE IS THE ONE READER, and it is the only thing that has
-   * to know: 「確定していないその場の編集が 1 つも無いときは」 is a question about
-   * the moment the `Enter` ARRIVED, and by the time the action reaches
-   * `carryOutAction` the edit has already been settled -- asking the surface
-   * then answers about the moment AFTER, which is a different question.
-   * ⛔ HELD FOR ONE HAPPENING, written at the head of every one that arrives
-   * over IF-2 and read within it, like `isSettlingFieldCommit` above.
-   * ⚠️ `repeatHeldEntry` reaches `carryOutAction` WITHOUT passing that head, so
-   * it leaves this standing at whatever the last happening wrote. ⭐ It cannot
-   * be read there: that path answers a held POINTER and `settleTextEntry` is
-   * SK-19's, which only a key can be.
+   * Read only by SK-19's second stage, which asks about the moment the `Enter`
+   * arrived; asking the surface in `carryOutAction` would answer about the
+   * moment after. Held for one happening. `repeatHeldEntry` reaches
+   * `carryOutAction` without passing that head, but it answers a held pointer
+   * and `settleTextEntry` is reached only by a key.
    */
   let didSettleFieldEntry = false
 
@@ -7086,23 +4633,16 @@ export function frameLoop(
    */
   function collectInputContext(
     frame: FrameValues,
-    // ⭐ STATED BY THE CALLER THAT KNOWS THE MOMENT, and defaulted to the list as
-    // it stands for the two callers that are asked BEFORE anything of the
-    // happening has run -- `isBrowserDefaultStopped` (which the watcher asks
-    // ahead of `receiveInput`) and `spendFieldCommit` (which raises nothing
-    // before it asks). ⛔ `receiveInput` states it instead, because by the time
-    // it builds this context `spendFieldCommit` may have raised a telling of its
-    // own -- see `noticeReasonsOnArrival`.
+    // Stated by `receiveInput`, where `spendFieldCommit` may already have raised
+    // a telling (see `noticeReasonsOnArrival`); the default serves the callers
+    // asked before anything of the happening ran.
     isNoticeStanding: boolean = raisedNotices.length > 0,
   ): InputContext {
-    // ⭐ THE CUT, MADE ONCE. Two members of the context are this array and its
-    // ids, and `ScreenSession.rowBoxes` is the same call again a few lines
-    // away -- CS-1 of table T-066 froze the frame, so one reading is what both
-    // members are owed (R7.4).
+    // Cut once: `ScreenSession.rowBoxes` makes the same call, and CS-1 of table
+    // T-066 froze the frame, so both members are owed one reading (R7.4).
     const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
     return {
-      // ADR-001's three, computed once at the head of this frame and handed
-      // out rather than measured again.
+      // ADR-001's three, computed once at the head of this frame.
       document: held.document,
       layout: frame.layout,
       geometry: frame.geometry,
@@ -7112,144 +4652,73 @@ export function frameLoop(
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-      // ⛔ OP-10 OF TABLE T-024a, ANSWERED BY THE SIDE THAT DREW THE PICTURE
-      // (DFC-358). The press side steps from the zoom in front of the person,
-      // and the BT-4 exception (MUST NOT) is invisible from there.
+      // OP-10 of table T-024a, answered by the side that drew the picture: the
+      // BT-4 exception is invisible from the zoom the press side steps from.
       isPictureAtStoredZoom: frame.isPictureAtStoredZoom,
-      // LF-3's row-control floor (MUST), measured by the surface that drew the
-      // lattice -- FR-055's fit runs the layout again and has to run it with the
-      // same floor the frame was drawn with.
-      // ⚠️ SPREAD RATHER THAN WRITTEN AS `undefined`: both members are optional
-      // and `exactOptionalPropertyTypes` parts 「absent」 from 「present and
-      // undefined」, which is the same care `confirmationAnswer` takes.
+      // LF-3's floor as the surface measured it: FR-055's fit reruns the layout
+      // and must use the frame's floor. Spread rather than `undefined` because
+      // of `exactOptionalPropertyTypes`.
       ...(environment.rowControlsHeightPx === undefined
         ? {}
         : { rowControlsHeightPx: environment.rowControlsHeightPx }),
       pressed,
-      // ⭐ ASKED OF THE SIDE THAT DREW THE FIELDS, which is what IF-9 of table
-      // T-065 was widened for (利用者の裁定 2026-08-30). It stood pinned at
-      // `false` while the seam had no member to answer with, and four rules
-      // were inert for as long as it did: IN-5a's swallowing of a single
-      // character key and of `Delete`, IN-5a's OTHER half -- 「`SK-4` / `SK-5`
-      // （`Ctrl+C` / `Ctrl+V`）も同様に効かせず、文字への操作としてブラウザへ
-      // 渡すこと（MUST）」, which is table T-023's MK-10's one exception and
-      // which is why nothing could be copied out of a property field -- IN-4's
-      // first level, and WS-2 of table T-067 taking AG-9 of table T-035.
-      // ⚠️ ONE TRUTH VALUE AND NOT THE FIELD (MUST NOT, under table T-065): all
-      // four read nothing but 「入力中か」.
+      // Asked of the side that drew the fields (IF-9 of table T-065). Read by
+      // IN-5a, IN-4's first level and WS-2 of table T-067 (AG-9); one truth value
+      // and not the field (under table T-065).
       isTextEntryUnsettled: hasUnsettledTextEntry(),
-      // ⭐ S-99h of table T-206, which SK-19's SECOND stage turns on: with no
-      // field held, an `Enter` is that row's only where the panel is up. LY-5
-      // of table T-060 leaves the row with this layer, so this is the one
-      // party that can answer it.
-      // ⛔⛔ THE MEMBER IS OPTIONAL AND FORGETTING IT IS SILENT (利用者の裁定
-      // 2026-08-30): it was declared optional so that the `InputContext`
-      // literals already written go on compiling, so nothing here would fail
-      // if this line were dropped -- the second stage would simply never be
-      // raised again. ⭐ The tests written from the specification are what
-      // watch this line; the compiler no longer can.
+      // S-99h of table T-206, which SK-19's second stage reads (LY-5).
+      // The member is optional, so dropping this line compiles and silently
+      // disables that stage; only the spec-driven tests watch it.
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
-      // ⭐ NT-8 of table T-037 (MUST), which SK-19's FIRST stage and IN-4's
-      // FIRST level both read: 「出ている通知があるときは、それを 1 つ消すこと」.
-      // ⛔ ASKED OF `raisedNotices` AND NOT OF THE DRAWN SCREEN. This list IS
-      // what a telling stands on (LY-5 of table T-060 leaves it here), and the
-      // description the renderer builds from it is rebuilt every frame -- so
-      // the holder is the one party that can answer whether anything is left.
-      // ⚠️ A COUNT AND NEVER THE LIST: `InputContext.isNoticeStanding` says why
-      // -- which telling is the newest is answered where it is put away.
-      // ⛔ ASKED OF THE MOMENT THE HAPPENING ARRIVED, which the parameter above
-      // says: 出ている is a question about the instant the key was pressed.
+      // NT-8 of table T-037, read by SK-19's and IN-4's first stage. Asked of
+      // `raisedNotices`, the holder (LY-5), not the drawn screen, and as of the
+      // moment the happening arrived (see the parameter).
       isNoticeStanding,
-      // ⭐⭐ THE PICTURE, off the very cut the renderer is handed. FR-029 (MUST)
-      // counts a spent entrance's targets 「画面に描かれている側で」 and (MUST)
-      // has that press tell its reason, so the side that DRAWS an entrance
-      // faint and the side that ANSWERS the press have to count one set of
-      // rows. ⛔ Until this line, the press side judged off the document's whole
-      // roster: a control drawn faint over a fold HR-1a or HR-6 keeps out of
-      // the picture wrote the document and told nobody (CR-307, CR-309).
-      // ⛔⛔ THE MEMBER IS OPTIONAL AND FORGETTING IT IS SILENT, exactly as
-      // `isPropertiesPanelShowing` above is -- the press side then falls back on
-      // the roster, which is the wider arming it had before. ⭐ Only the tests
-      // written from the specification watch this line.
-      // ⭐ ONE CALL FOR BOTH MEMBERS, AND IT IS THE CALL THAT DREW THEM. Line
-      // for line the same expression fills `ScreenSession.rowBoxes`, which is
-      // where `RowTitle.box` comes from -- so the boxes HF-15's walk compares
-      // the pointer against are the boxes the person is looking at. ⛔ Asked
-      // twice, the two answers would be about two frames.
+      // FR-029: off the same cut the renderer draws, so the side that draws an
+      // entrance faint and the side that answers its press count one set of
+      // rows, and HF-15 compares the pointer with the boxes the person sees.
+      // Optional and silently forgettable, like `isPropertiesPanelShowing`:
+      // without it the press side falls back on the whole roster.
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
-      // ⭐⭐ THE PICTURE'S GEOMETRY, which HF-15's up-and-down walk (MUST) needs
-      // and the ids alone cannot carry: 「その段に置ける場所を描く順にたどる」 is
-      // a rule about the ORDER of the places, and which place a hand stands at
-      // is read off these boxes rather than off any 刻み. ⛔ Optional and
-      // silently forgettable, the same bargain the line above keeps.
+      // HF-15's up-and-down walk reads the order of places off these boxes,
+      // which the ids alone cannot carry. Optional and silently forgettable.
       drawnRowBoxes,
-      // S-211 of table T-206. ⭐ THE PRESS SIDE NEEDS IT BECAUSE THE PICTURE
-      // CANNOT SAY IT: a panel drawing no row is a folded head (HR-2) or a
-      // document with no rows, and IC-74 / IC-78 owe different answers to the
-      // two. ⛔ Optional and silently forgettable, the same bargain the two
-      // lines above keep -- absent reads as NOT folded, S-211's own default.
+      // S-211 of table T-206. The picture cannot say it: an empty panel is a
+      // folded head (HR-2) or a document with no rows, and IC-74 / IC-78 answer
+      // the two differently. Optional; absent reads as not folded.
       isLevelZeroFolded,
-      // table T-023's closing rule -- whether a surface stands over the schedule.
-      // ⭐ BOTH HALVES, and the shell is the only place that can see both:
-      // `ScreenState.surface` is the open surface and `asking` is NT-7's
-      // question, which LY-5 of table T-060 leaves with this layer.
+      // Table T-023's closing rule: both halves, since only the shell sees the
+      // open surface and NT-7's `asking` (LY-5).
       isSurfaceStanding: screenState.surface !== null || asking !== null,
       dualCursorFollowing,
       today: readToday(),
-      // AT-51 is a UUID, and minting one is not a pure act -- which is why the
-      // translator is handed the identifier instead of making it. ⚠️ One is
-      // minted per context and therefore twice per happening; it is read only
-      // where FR-001 has to make a row, so an unused one costs nothing.
+      // AT-51 is a UUID and minting one is not pure, so the translator is handed
+      // it. Minted per context; an unused one costs nothing.
       newGroupId: crypto.randomUUID(),
-      // AT-110 is a UUID as well, and AR-5 of table T-023b is what spends it.
-      // ⚠️ Minted per context beside the row's, and read only where a comment
-      // box is actually placed, so an unused one costs nothing -- the same
-      // bargain the line above states.
+      // AT-110 (AR-5 of table T-023b), minted the same way.
       newCommentBoxId: crypto.randomUUID(),
-      // AT-116 is a UUID as well, and AR-6 of table T-023b is what spends it.
-      // Same bargain again: minted per context, read only where a highlight
-      // box is actually placed.
+      // AT-116 (AR-6 of table T-023b), minted the same way.
       newHighlightBoxId: crypto.randomUUID(),
     }
   }
 
   /**
-   * WS-2's three questions, answered from what this loop is holding at the
-   * moment the write is asked for.
+   * WS-2's three questions, answered from what this loop holds at the moment
+   * the write is asked for.
    *
-   * ⛔ NOT A CONSTANT, AND THIS IS WHY. AG-9 of table T-035 makes refusing
-   * mid-gesture a MUST, and the press that answers it is a value this loop
-   * MOVES: `receiveInput` drops it on the release and on IN-1's abort, so a key
-   * happening arriving mid-drag finds it still set. Frozen at false, SK-3 wrote
-   * through the middle of a drag -- `commandFromInput` puts no guard of its own
-   * on that row, because WS-2 is where the guard belongs.
-   * ⭐ NARROWED TO WHAT AG-9 ACTUALLY ASKS. AG-9 refuses a write during a drag
-   * that CHANGES THE DOCUMENT, and spares the two gestures table T-027 puts
-   * outside the undo history because they change none of it -- the pan (UN-8)
-   * and the range selection (UN-9). Those are rows PTD-1 and PTD-5 of table
-   * T-023a, and the press now CARRIES which row it began (`pressRow`), so the
-   * exemption is kept without reading that table a second time (R2.7).
-   * ⛔ `on` IS READ FIRST, AND THE ROW ONLY WHERE IT IS NULL. The note under
-   * table T-023a binds its decision order to the schedule's drawing area
-   * (MUST), so a press the screen surface answered for is not one of the six
-   * gestures at all -- it is a press on an entry, and `commandFromEntry` may
-   * well change the document. Reading the row first would hand every palette
-   * press PTD-5's exemption and take AG-9's MUST off all of them.
-   * ⭐ `editingInPlace` IS IF-9's FIFTH ANSWER, WITH ONE EXEMPTION MEASURED
-   * RATHER THAN ASSUMED. WS-2 refuses a write made 「編集入力の確定前」 -- and a
-   * write that IS the settling is not one of those. `spendFieldCommit` runs on
-   * the happening that carried the commit here, and a person who settles with
-   * Enter still has hold of the control at that moment, so answering `true`
-   * there would refuse the very edit FR-031 exists to write and take the value
-   * with it (`readFieldCommit` TAKES the commit). ⛔ THIS IS THE SAME SHAPE THE
-   * GESTURE ALREADY HAS, four paragraphs up: the press is dropped BEFORE the
-   * write because the gesture has in fact ended, and here the entry has in fact
-   * been settled. ⚠️ It exempts that ONE write and nothing else -- every other
-   * road through this member, the `Agent API`'s and table T-230's included,
-   * meets AG-9's MUST with the field still held.
-   * ⚠️ `deliveringNotices` is NOT this side's to answer. WS-7's own window is
-   * owned by `apply-document-change.ts`, which ORs its flag with this one --
-   * answering it here as well would count the same window twice.
+   * Not a constant: `receiveInput` drops the press only on the release or IN-1's
+   * abort, so a key happening mid-drag finds it set, and WS-2 is where AG-9's
+   * guard lives (`commandFromInput` puts none on SK-3).
+   * Only document-changing presses count: AG-9 spares the pan (PTD-1) and the
+   * range selection (PTD-5), which the press carries as `pressRow` (R2.7).
+   * `on` is read before the row: a press on an entry is not one of table
+   * T-023a's gestures and may change the document, so reading the row first
+   * would hand every palette press PTD-5's exemption.
+   * `editingInPlace` exempts the one write that is the settling: with Enter the
+   * control is still held, and refusing would lose the edit (`readFieldCommit`
+   * takes the commit). Every other road still meets AG-9 with the field held.
+   * `deliveringNotices` is `apply-document-change.ts`'s to answer; answering it
+   * here too would count WS-7's window twice.
    *
    * @purity semi-pure-b
    */
@@ -7262,24 +4731,19 @@ export function frameLoop(
   }
 
   /**
-   * WS-6 and WS-7, through the one write path CP-8 allows. ⛔ MS-1 of table
-   * T-042 forbids a second entrance -- with two, one of them ends up with
-   * validation or history the other does not have.
+   * WS-6 and WS-7, through the one write path CP-8 allows (MS-1 of table T-042):
+   * with two entrances, one ends up with validation or history the other lacks.
    *
    * @purity non-pure
    */
   function writeDocument(commands: readonly DocumentCommand[], frame: FrameValues): void {
-    // ⭐ The sum `edit-document-settings.ts` spells on that member, worked out
-    // in the one place that works it out (`settingsLimitsOf`) -- this frame's
-    // own `Row Area` with the two panel widths added back on.
+    // FR-052's sum, from the one place that works it out.
     const settingsLimits = settingsLimitsOf(frame)
     const outcome = applyDocumentChange(
       {
         commands,
-        // WS-1 matches this against the stamp the document carries now. It is
-        // the one just read, so it matches -- and it is passed rather than
-        // skipped because AG-2 gives the `Agent API` the same gate through the
-        // same argument, and one path may not have a weaker one.
+        // WS-1 matches the stamp just read, so it matches; passed rather than
+        // skipped so this path has the same gate AG-2 gives the `Agent API`.
         readStamp: held.document.documentStamp,
         moment: collectWriteMoment(),
         historyLimits: HISTORY_LIMITS,
@@ -7291,33 +4755,18 @@ export function frameLoop(
       audience,
     )
     if (outcome.accepted) {
-      // FR-100 -- a write that landed is an edit no file has been told about.
-      // ⚠️ A REFUSED write is not: nothing moved, so nothing is unsaved.
+      // FR-100. A refused write moved nothing, so nothing is unsaved.
       hasUnsavedEdits = true
-      // FR-012 (MUST): 「数え直したことを、値が変わった `Task` の件数を添えて告げ
-      // ること」. CM-39 of table T-108 (`setCalendar`) is the only command that
-      // fills this member -- every other edit answers with the one frozen empty
-      // report -- so the count both names the occasion and is the occasion.
-      //
-      // ⛔ TOLD AFTER THE WRITE LANDED AND NOT BESIDE THE COMMAND. FR-012 (MUST
-      // NOT) forbids splitting the recount off into a second write -- 「暦の変更
-      // と同じ書き込みの中で行うこと」 -- and the recount is already inside
-      // `outcome.document`; this is the TELLING, which is the one half table
-      // T-233 leaves to a raiser.
-      // ⛔ NOTHING IS COMPOSED HERE: the row goes over and FR-038's dictionary
-      // holds the words (MUST NOT), exactly as `raiseWriteRefusal` below.
-      // ⚠️ ZERO SAYS NOTHING. FR-012 counts 「値が変わった `Task`」, and a
-      // calendar whose new working days moved no stored 完了率 has none -- a
-      // telling raised for it would report a change that did not happen.
+      // FR-012: only CM-39 (`setCalendar`) fills this member, so the count both
+      // names the occasion and is the occasion. The recount is already inside
+      // the same write; this is only the telling (table T-233). Zero raises
+      // nothing -- it would report a change that did not happen.
       const recounted = outcome.report.recountedTaskUids.length
       if (recounted > 0) raiseNotice(RECOUNTED_PERCENT_COMPLETE_REASON, recounted)
       return
     }
-    // FR-076 (MUST): the refusal is raised. It was never thrown nor swallowed --
-    // FR-028 makes it a VALUE, and `outcome.refusal` names the step of table
-    // T-067 that turned the write away, which is what table T-233 gives a row
-    // per reason for. ⛔ Nothing is composed here: the row goes over and the
-    // words are the dictionary's (FR-038, MUST NOT).
+    // FR-076: the refusal is a value (FR-028) naming the step of table T-067;
+    // the row goes over, never words (FR-038).
     raiseWriteRefusal(outcome.refusal)
   }
 
@@ -7325,28 +4774,19 @@ export function frameLoop(
    * One row of table T-230, taken through the same write path (`replaceDocument`
    * of PI-8) as any other write.
    *
-   * ⭐ The shell names the row and brings nothing else. RD-1 and RD-2 ask
-   * UndoEdit and RedoEdit at WS-3, and the history, the stamp and the undo step
-   * are that road's business -- this side is left holding neither a rule of
-   * table T-027 nor a stamp to mint.
-   *
-   * ⭐ ANSWERS WHETHER THE ROW LANDED, because one caller has something to do
-   * AFTER it did: FR-015's caution belongs to an overlay that was accepted, and a
-   * row that was refused has already had its own telling raised below. ⛔ The
-   * answer is the acceptance and nothing more -- what the write did is table
-   * T-230's to say, and reading it back off the holder is what CS-3 governs.
+   * The shell names the row and brings nothing else: history, stamp and undo
+   * step are the road RD-1 and RD-2 ask at WS-3. Answers whether the row
+   * landed, for the caller with work after acceptance (FR-015's caution); a
+   * refused row has already had its telling raised here.
    *
    * @purity non-pure
    */
   function replaceHeldDocument(call: ReplacementCall): boolean {
     const outcome = replaceDocument(
       {
-        // WS-1 matches this against the stamp the document carries now, exactly
-        // as `writeDocument` does and for the same reason: the declaration is
-        // AG-2's gate, and this path may not have a weaker one than the
-        // `Agent API`'s. ⛔ NOT the stamp of the document coming in -- table
-        // T-230 forbids that comparison (MUST NOT) and it would refuse every
-        // replacement there is.
+        // The stamp the document carries now, as in `writeDocument` (AG-2). Not
+        // the incoming document's stamp: table T-230 forbids that comparison,
+        // and it would refuse every replacement.
         readStamp: held.document.documentStamp,
         moment: collectWriteMoment(),
         call,
@@ -7354,84 +4794,45 @@ export function frameLoop(
       holder,
       audience,
     )
-    // FT-2 of table T-078: the current value was replaced, so a frame is owed.
-    // ⚠️ `ask` coalesces with FT-1's, so the press still paints once.
+    // FT-2 of table T-078; `ask` coalesces with FT-1's, so the press paints once.
     if (outcome.accepted) {
-      // ⛔ THE PICTURE IS ABOUT THE DOCUMENT IT WAS FOLDED ONTO, and that
-      // document has just been replaced. This road is the one that reaches here
-      // from OUTSIDE a happening -- IF-7's `holdDocument` and OP-2's read -- so
-      // the frame asked for below would otherwise paint a preview of a document
-      // that is gone. ⚠️ A replacement that arrived on a happening (SK-6's undo)
-      // has the preview worked out again at the end of `receiveInput`, from the
-      // document this call just put in place.
+      // The preview was folded onto the document just replaced. This road is
+      // also reached outside a happening (IF-7's `holdDocument`, OP-2's read),
+      // where nothing else clears it; a replacement on a happening (SK-6's undo)
+      // has the preview worked out again at the end of `receiveInput`.
       previewDocument = null
-      // ⛔⛔ NOTHING TURNS THE `Agent API` OFF HERE ANY MORE (台帳 DFC-280). A
-      // `setAgentApiEnabled(false)` stood on RD-4 and RD-6 under a quotation of
-      // FR-065 -- 「1 つの文書で開いたことが、別の文書を開いたときにも効いていては
-      // ならない」 -- and that MUST NOT was struck on 2026-09-05. The requirement
-      // now reads 「有効化はブラウザ（オリジン）ごとに記憶すること（MUST）」 and
-      // names the price in the same breath: 「1 つの文書で開いたことが、同じ
-      // ブラウザで開いた別の文書にも効く」. ⇒ Putting it back on a replacement is
-      // a violation of the rule as it stands, not the keeping of one.
-      // FR-100 -- what the leave guard is asked about. ⭐ THE SAME COLUMN
-      // ANSWERS IT: the three rows that say 「捨てる」 or 「空にする」 put a
-      // document up that came from a file or from the template, so nothing
-      // is unsaved the moment they land; the other three (undo, redo,
-      // merge) leave edits the file has never been told about.
-      // ⚠️ RD-7 IS AMONG THE THREE AND NOT AMONG THE OTHERS: FR-095 puts the
-      // BUNDLED template up, which no file is behind and no edit has touched.
+      // The `Agent API` stays on across a replacement: FR-065 remembers the
+      // enabling per origin, not per document.
+      // FR-100: RD-4, RD-6 and RD-7 put up a document from a file or the bundled
+      // template (FR-095), so nothing is unsaved; undo, redo and merge leave
+      // edits no file has been told about.
       hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6' && call.row !== 'RD-7'
-      // OP-10 (MUST): the exception is lifted the moment ANOTHER document is
-      // opened. ⚠️ Undo, redo and a merge do not lift it -- they leave the
-      // same document standing, which is what the 履歴 column of table T-230
-      // already answers and what FR-065's turn-off reads too.
+      // OP-10: opening another document lifts the exception; undo, redo and a
+      // merge leave the same document standing (the history column of table
+      // T-230).
       if (call.row === 'RD-4') fromStartupTemplate = false
-      // OP-10 (MUST NOT) again, in the other direction: 「表 T-034 の `BT-4`
-      // （起動テンプレート）から開いた文書には働かせてはならない」. FR-095 says
-      // the state it returns to IS 「表 T-034 の `BT-4` と同じ状態」, so the
-      // document this row puts up is that template and the exception is back on.
-      // ⛔ NOT LEFT AT WHATEVER THE BOOT DECIDED. A person who opened a file and
-      // then pressed IC-98 would otherwise have OP-10 re-run FR-055's fit on the
-      // bundled template -- which is the very scene that MUST NOT names, and
-      // which its own note says lands 「階層を持つ文書が「階層の無い文書」として
-      // 初回に現れる」.
+      // RD-7 puts up the BT-4 template (FR-095), so OP-10's exception is back on;
+      // left at the boot's value, a person who opened a file and then pressed
+      // IC-98 would get FR-055's fit on the bundled template.
       if (call.row === 'RD-7') fromStartupTemplate = true
       if (settled(environment)) ask()
       return true
     }
-    // FR-076 (MUST): the same road `writeDocument` takes one over.
-    // STOP -- ⛔ ONE OF THE SIX REASONS STILL REACHES NOBODY, and it is this
-    // road's own: `NOTICE_REASON_OF_WRITE_REFUSAL` records that table T-233 gives
-    // WS-3 a row written for a bundle of commands dropped, while WS-3 here is
-    // ImportDocument's refusal. ⚠️ The four rows WS-1 and WS-2 carry do travel.
+    // FR-076, as in `writeDocument`.
+    // STOP -- `importRefused` reaches nobody: table T-233's WS-3 row is written
+    // for a dropped bundle of commands (see `NOTICE_REASON_OF_WRITE_REFUSAL`).
     raiseWriteRefusal(outcome.refusal)
     return false
   }
 
   /**
-   * DI-4 of table T-227 (MUST): the overwrite question, put up and waited on.
+   * DI-4 of table T-227: the overwrite question, put up and waited on.
    *
-   * ⭐ NT-7's TWO ANSWERS AND NOTHING ELSE: `Confirmation` (U-55 of table
-   * T-103) carries that row's two word buttons and no third answer, which is
-   * exactly what this row needs and exactly what OP-3 could not use -- OP-3's
-   * three have a surface of their own now (U-56).
-   *
-   * ⭐ THE LIST OF WHAT WOULD GO IS EMPTY, AND THAT IS AN ANSWER. DI-4 states
-   * in as many words that the duty to name what disappears is not on this row,
-   * and `RaisedConfirmation.items` records the same ruling from the other side.
-   *
-   * ⭐ THE SENTENCE IS QN-4 OF TABLE T-234, named and not written, for the
-   * reason `confirmationOwedBy` gives: FR-038 (MUST) keeps every word the
-   * screen prints in the one generated dictionary, and FR-076 (MUST) makes the
-   * row the whole of what this side hands over. ⚠️ That row and DI-4 agree
-   * about the empty list above -- 「挙げない —— 正の行が自らそう定めている」.
-   *
-   * ⭐ WHICH TRIGGER PAINTS IT IS FT-1 OF TABLE T-078, and that row says so
-   * itself: it covers the continuation of one input across the wait CS-4 of
-   * table T-066 governs, and its note leaves raising that continuation to the
-   * shell. So the frame asked for below is the deferred rest of the press that
-   * began the save, and NFR-010's MUST NOT is kept without a trigger of this
-   * file's being minted.
+   * `Confirmation` (U-55 of table T-103) with NT-7's two answers; OP-3's three
+   * have U-56. The item list is empty because DI-4 does not ask for one (see
+   * `RaisedConfirmation.items`). The sentence is QN-4 of table T-234, named
+   * rather than written (FR-038, FR-076). The frame is FT-1's continuation of
+   * the press that began the save (NFR-010).
    *
    * @purity non-pure
    */
@@ -7449,22 +4850,14 @@ export function frameLoop(
   }
 
   /**
-   * OP-3 of table T-024a (MUST): put the three-way question up and wait for one
-   * of the three to be taken.
+   * OP-3 of table T-024a: put the three-way question up and wait for one of the
+   * three to be taken.
    *
-   * ⭐ THE SURFACE IS U-56 AND THE THREE ANSWERS ARE THE ROSTER'S. This side
-   * names the surface and nothing else: table T-109's own surface column is
-   * what places IC-71 .. IC-73 on it, `icon-roster.json` is that column
-   * generated into `src/`, and UF-66 reads the placement off it -- so the three
-   * entries appear without this file listing one.
-   * ⛔ NO WORDS ARE WRITTEN HERE. FR-038 (MUST) keeps every word the screen
-   * prints in the one generated dictionary; the heading and the three labels
-   * are its rows and are written there, so a word typed here would be the
-   * second dictionary that requirement forbids.
-   * ⚠️ S-99g HOLDS ONE SURFACE, so whatever stood open gives way to this one.
-   * That is the value's own rule and not a choice made here.
-   * ⭐ The frame is FT-1's continuation across the wait, the same road
-   * `askToWriteOverDestination` takes.
+   * This side names the surface (U-56) and nothing else: table T-109's surface
+   * column, generated into `icon-roster.json`, places IC-71 .. IC-73 and UF-66
+   * reads it. No words are written here (FR-038). S-99g holds one surface, so
+   * whatever stood open gives way. The frame is FT-1's continuation, as in
+   * `askToWriteOverDestination`.
    *
    * @purity non-pure
    */
@@ -7482,22 +4875,14 @@ export function frameLoop(
   }
 
   /**
-   * FR-022 (MUST): lay out the tasks that could correspond, then wait for one of
-   * table T-032a's answers to be taken on U-61 `Difference Review`.
+   * FR-022: lay out the tasks that could correspond, then wait for one of table
+   * T-032a's answers on U-61 `Difference Review`.
    *
-   * ⭐ THE SURFACE IS U-61 AND THE ANSWERS ARE THE ROSTER'S -- the same division
-   * `askHowToOpen` above stands on. This side names the surface and hands over
-   * the pairing; table T-109's own surface column places IC-95 .. IC-97, and
-   * `MERGE_MAPPING_OF_ENTRY` states which row of table T-032a each one means.
-   * ⛔ NO WORDS ARE WRITTEN HERE (FR-038, MUST NOT). The three labels are the
-   * dictionary's rows; the names in the list are the two documents' own values,
-   * which that requirement leaves untranslated.
-   * ⛔ THE CANDIDATES ARE PI-10's AND NOT WORKED OUT HERE. FR-022 gathers them by
-   * `UID` (MUST) and `importDocument` is what does it -- deciding again on this
-   * side is what R2.7 refuses, and the two answers could then differ.
-   * ⚠️ S-99g HOLDS ONE SURFACE, so whatever stood open gives way to this one --
-   * the `Open Chooser` that asked OP-3 a moment ago has already answered and been
-   * closed by the entry that answered it.
+   * Divided as in `askHowToOpen`: table T-109 places IC-95 .. IC-97 and
+   * `MERGE_MAPPING_OF_ENTRY` maps them to table T-032a. No words here (FR-038);
+   * the listed names are the documents' own values. The candidates are PI-10's
+   * (`importDocument`); pairing again here is what R2.7 refuses. S-99g holds one
+   * surface; the `Open Chooser` was already closed by the entry that answered it.
    *
    * @purity non-pure
    */
@@ -7518,21 +4903,13 @@ export function frameLoop(
   }
 
   /**
-   * OP-4 of table T-024a (MUST): the confirmation owed before a replace throws
-   * the current document away.
+   * OP-4 of table T-024a: the confirmation owed before a replace throws the
+   * current document away.
    *
-   * ⭐ NT-7's MANNER, AND THE ONE THING THAT GOES IS NAMED. That row asks for
-   * the names of what disappears where there is something that disappears, and
-   * here there is exactly one: the document standing now. Its name is its own
-   * value (AT-3) rather than a word of the screen's, which is why it can be
-   * carried at all -- FR-038 leaves a document's values untranslated.
-   * ⚠️ `isShownOnAnotherRow` is false because FR-032's row half is not what is
-   * asking; the member says the same from `ConfirmationItem`'s side.
-   * ⭐ THE SENTENCE IS QN-5 OF TABLE T-234, whose 場面 is 「未保存の編集を捨てて
-   * 置き換えるとき」 and whose 正 is OP-4 itself -- so naming the row is naming
-   * this moment, and no word of it is written here (FR-038, MUST NOT).
-   * ⚠️ ASKED ABOUT THE DOCUMENT CS-4 COLLECTED, not about whatever the wait left
-   * behind -- which is why the document is an argument rather than read here.
+   * NT-7's manner, naming the one thing that goes: the current document, by its
+   * own value (AT-3), which FR-038 leaves untranslated. The sentence is QN-5 of
+   * table T-234 (FR-038). The document is an argument because the question is
+   * about what CS-4 collected, not what the wait left behind.
    *
    * @purity non-pure
    */
@@ -7554,93 +4931,32 @@ export function frameLoop(
   }
 
   /**
-   * FR-095 -- 「開いている文書を捨てて表 T-034 の `BT-4` と同じ状態に戻すこと。
-   * 捨てる前に、未保存の編集について表 T-024a の `OP-4` と同じ確認を行うこと
-   * （MUST）」, in that order.
+   * FR-095 -- confirm as OP-4 does, then return to BT-4's state.
    *
-   * ⭐ THE SAME `askToDiscardCurrentDocument` OP-2's REPLACE USES, and that is
-   * the requirement's own instruction rather than a saving of lines: 「`OP-4` と
-   * 同じ確認」 is one question, and table T-234 refuses FR-095 a row of its own
-   * so that the two cannot drift apart.
-   *
-   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE, the same shape `readOneFile` keeps:
-   * what the operation needs is taken BEFORE the wait -- the document whose name
-   * QN-5 prints, and the template that will stand in its place -- and nothing
-   * after the wait reads `held` again. ⛔ The landing is `replaceHeldDocument`,
-   * which reads the holder once inside the write (CS-3).
-   *
-   * ⚠️ 「取りやめる」 LEAVES EVERYTHING WHERE IT WAS. Nothing was written before
-   * the question, so there is nothing to undo -- the shape FR-099's deletion
-   * keeps two members up.
+   * The same `askToDiscardCurrentDocument` as OP-2's replace: table T-234 gives
+   * FR-095 no row of its own, so the two cannot drift. CS-4's shape: the
+   * document and the template are taken before the wait, and the landing is
+   * `replaceHeldDocument` (CS-3). Cancelling leaves everything, since nothing
+   * was written before the question.
    *
    * @purity non-pure
    */
   async function startNewDocument(template: Document): Promise<void> {
     if (!(await askToDiscardCurrentDocument(held.document))) return
-    // RD-7 of table T-230, named because that table (MUST) requires a caller to
-    // name its own row and (MUST NOT) refuses a replacement that names none.
-    // ⛔ NOT RD-6: its 履歴 cell says 「空にする」 where RD-7's says 「捨てる」,
-    // and OP-4 (MUST) is what settles the history for this road.
+    // RD-7 of table T-230 (a caller names its own row). Not RD-6: the two rows'
+    // history cells differ, and OP-4 settles the history for this road.
     replaceHeldDocument({ row: 'RD-7', document: template })
   }
 
   /**
-   * OP-2 of table T-024a -- one file, taken along the road that table lays out:
-   * OP-12 picks the decoder, OP-5 validates, OP-3 asks, OP-4 confirms a
-   * replace, and table T-230 lands the answer.
+   * FR-023: after an import, list the dropped `Task` names on U-62
+   * `Import Report` of table T-103.
    *
-   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION, the same shape
-   * `saveHeldDocumentToFile` has: what the operation needs from the current
-   * values is taken before the first `await`, and nothing after it reads `held`
-   * again while the person is answering (MUST NOT). The bounds OP-5 judges
-   * against and the document MSPDI borrows its presentation group from are
-   * therefore the ones in force when the person asked to open, and not
-   * whichever ones the two waits left behind.
-   * ⛔ THE LANDING READS THE PAIR AGAIN, AND THAT IS CS-3 RATHER THAN A BREACH
-   * OF CS-4: table T-230 puts `current` in `replaceDocument`'s hands, which
-   * reads the holder ONCE inside the write -- a merge built on a document read
-   * before the question would silently drop whatever was edited while it stood.
-   *
-   * ⭐ EVERY STEP THAT CANNOT GO ON RETURNS WITHOUT TOUCHING THE DOCUMENT, which
-   * OP-5 requires in as many words: an input that is turned away must not have
-   * been applied even in part, and the reading side is where that is cheapest to
-   * keep -- nothing has been adopted until the last line.
-   *
-   * ⚠️ Nothing is caught. FR-028 (MUST NOT) forbids throwing, and IF-3 states
-   * that a store which throws has broken its contract.
-   *
-   * @purity non-pure
-   */
-  /**
-   * FR-023 (MUST): 「取り込んだあとで、落とした `Task` の名前を並べて告げる
-   * こと」, on U-62 `Import Report` of table T-103.
-   *
-   * ⭐⭐ A SURFACE AND NOT A TELLING, AND U-62's OWN ROW IS WHY: 「`Notification
-   * Area`（`U-57`）でもない —— 表 T-037 の `NT-9` が通知を 1 行に限っており、
-   * 落とした名前の列挙が入らない」. ⚠️ Measured on this build: `RaisedNotice`
-   * has three members -- `manner`, `reason`, `affectedCount` -- and not one of
-   * them can carry a `Task` name, so `raiseNotice` could only ever say the
-   * count FR-023 (MUST NOT) refuses.
-   * ⛔ AND NOT A `Confirmation` (U-55): U-62 asks nothing (「答えを求めない。
-   * 入口は `OK` の 1 つだけである」), and a question with one answer is not
-   * one of NT-7's two.
-   *
-   * ⛔ NOTHING IS RAISED WHEN NOTHING WAS DROPPED. FR-023 tells about
-   * 「落としたもの」, and a surface over an empty list would stand in front of a
-   * clean import with nothing to say.
-   *
-   * ⚠️ WHERE THE STATE GOES: the names beside `mergeCandidates`, and the name
-   * of the surface in S-99g -- so IN-4 of table T-028 reaches it at the surface
-   * rung without this file writing a way out. ⭐ That is also the way out U-60
-   * has, and for the same reason.
-   *
-   * STOP -- ⛔ THE `OK` CANNOT BE PRESSED YET, AND THAT IS TWO ABSENCES OUTSIDE
-   * THIS FILE. (1) `dom-screen-surface.ts` draws a modal's body from the members
-   * it recognises and has no branch for `droppedTaskNames`, so the list and the
-   * word are described and not yet painted; (2) `input-command-translator.ts`
-   * is what turns a press on a word button into an action, and U-62's entrance
-   * has no row of table T-109 to be recognised by. ⚠️ Both files were owned by
-   * other hands this round. Until they learn it, `Esc` is the way out.
+   * A surface, not a telling: NT-9 of table T-037 limits a telling to one line,
+   * and `RaisedNotice` has no member for a name. Not a `Confirmation` (U-55):
+   * U-62 asks nothing. Nothing is raised when nothing was dropped.
+   * The names sit beside `mergeCandidates` and the surface in S-99g, so IN-4 of
+   * table T-028 reaches it without a way out written here.
    *
    * @purity non-pure
    */
@@ -7650,6 +4966,22 @@ export function frameLoop(
     screenState = screenStateWithSurface(screenState, IMPORT_REPORT_SURFACE)
   }
 
+  /**
+   * OP-2 of table T-024a -- one file, taken along that table's road: OP-12 picks
+   * the decoder, OP-5 validates, OP-3 asks, OP-4 confirms a replace, and table
+   * T-230 lands the answer.
+   *
+   * CS-4's shape, as in `saveHeldDocumentToFile`: what the operation needs from
+   * the current values is taken before the first `await`, so OP-5's bounds and
+   * MSPDI's presentation group are those in force when the person asked. The
+   * landing reads the holder again inside `replaceDocument` (CS-3): a merge on a
+   * document read before the question would drop edits made while it stood.
+   * Every step that cannot go on returns before the document is touched (OP-5).
+   * Nothing is caught: FR-028 forbids throwing, and a store that throws has
+   * broken IF-3's contract.
+   *
+   * @purity non-pure
+   */
   async function openDocumentIntoHold(
     store: FileStore | null,
     route: OpenRoute,
@@ -7657,40 +4989,26 @@ export function frameLoop(
   ): Promise<boolean> {
     // CS-4: collected at the moment the operation begins, and not read again.
     const current = held.document
-    // ⛔ THE BOUNDS ARE THE ONES IN FORCE, NEVER THE ARRIVING FILE'S.
-    // `ImportBounds` states the rule and the reason: OP-5 runs before OP-3, and
-    // OP-6 restores an arriving presentation group only after a replace has
-    // been chosen, so the settings in force are necessarily this document's --
-    // and reading the input's own would let an untrusted file raise its own
-    // ceiling, which empties NFR-009.
+    // The bounds in force, never the arriving file's (`ImportBounds`): OP-5 runs
+    // before OP-3, and a file's own would let it raise its own ceiling (NFR-009).
     const bounds: ImportBounds = current.documentSettings
 
-    // ⭐⭐ THE READING SIDE IS THE ONLY HALF THAT DIFFERS BETWEEN THE TWO
-    // ENTRANCES (DFC-357). A person's press arrives with a `FileStore` and no
-    // document; AM-8 of table T-107 arrives with the document and no store.
-    // Everything after this branch -- OP-5's judgement, FR-023's drop, FR-088's
-    // calendar, OP-3's choice, OP-4's confirmation, FR-022's question on U-61
-    // and the write itself -- is ONE road walked by both, which is what FR-028
-    // asks for in as many words: the two entrances are equals.
-    // ⛔ SO NOTHING IS RE-IMPLEMENTED FOR THE MACHINE. A second copy of this
-    // road is exactly how the two entrances would drift apart.
+    // Only the reading side differs between a person's press (a `FileStore`) and
+    // AM-8 of table T-107 (a handed document). Everything after this branch is
+    // one road for both (FR-028); a copy for the machine would drift.
     let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
     let incoming: Document
-    // FR-073 (MUST) -- what this intake could not read, gathered on whichever of
-    // the two reading sides ran. ⭐ Weighed once, below the branch, so that the
-    // two entrances are told alike (the paragraph above says why they must be).
+    // FR-073: what this intake could not read, from whichever reading side ran;
+    // weighed once below the branch.
     let couldNotBeRead: readonly string[] = []
     if (handed !== null) {
-      // ⛔ NO OP-12 CHECK ON THIS ROAD, AND NOT BY OVERSIGHT. That row (MUST)
-      // compares a file's EXTENSION with its first non-blank character, and a
-      // caller of AM-8 hands a value rather than a file -- there is no extension
-      // to disagree with anything. ⚠️ What the value has to BE is checked on the
-      // other side of the seam, where the shape is still a caller's.
+      // No OP-12 check: AM-8 hands a value, which has no extension. What the
+      // value must be is checked on the other side of the seam.
       handedIn = { format: handed.format, byteLength: handed.byteLength }
       incoming = handed.incoming
       couldNotBeRead = handed.unreadColumns
     } else if (store === null) {
-      // ⛔ Neither a store nor a handed document is nothing to open.
+      // Neither a store nor a handed document is nothing to open.
       return false
     } else {
       const opening = await openDocumentFile(store, route)
@@ -7699,45 +5017,31 @@ export function frameLoop(
         raiseFileFault(opening.fault)
         return false
       }
-      // OP-11 (MUST): the rest were left behind and the person is told so, in
-      // the manner NT-5 that table T-233 pairs with this row -- which is why the
-      // open goes on below rather than reading as refused (MUST NOT).
-      // ⚠️ THE NUMBER RIDES ON `affectedCount`. That member is documented against
-      // NT-3 and this row follows NT-5, and it is the one place on `RaisedNotice`
-      // a number can travel -- so the count is carried rather than dropped, and
-      // no word of it is written here (FR-038, MUST NOT).
+      // OP-11: a caution (NT-5, table T-233), so the open goes on. The count
+      // rides on `affectedCount`, the one member of `RaisedNotice` a number can
+      // travel on, though it is documented against NT-3.
       if (opening.ignoredFileCount > 0) {
         raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
       }
       const file = opening.file
 
-      // OP-12 (MUST): both the extension and the first non-blank character have
-      // to name the same row of table T-024, and a file where either disagrees
-      // is not read at all (MUST NOT).
+      // OP-12: extension and first non-blank character must name the same row
+      // of table T-024.
       const reading = formatFromFile(file.fileName, file.text)
       if (!reading.ok) {
-        // FR-076 (MUST): which side disagreed is told. `reading.mismatch` is
-        // carried precisely so NT-1 can say WHICH item is wrong, and table T-233
-        // gives OP-12 a row per answer.
+        // FR-076: `reading.mismatch` says which side disagreed (NT-1).
         raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
         return false
       }
       const decoded = decodedDocument(reading.format, file.text, current)
-      // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above
-      // records why: table T-233 holds no row for one, and FR-076 (MUST NOT)
-      // makes that table the whole of what a telling may carry.
+      // STOP -- a codec's fault reaches nobody: table T-233 holds no row for one
+      // (FR-076); see `decodedDocument`.
       if (decoded === null) return false
       handedIn = { format: reading.format, byteLength: file.byteLength }
       incoming = decoded.document
-      // `RS-51` (MUST): a setting the file carried outside its own bounds was
-      // brought inside on the read road, and the person is told HOW MANY moved.
-      // ⛔ THE OPEN GOES ON, which is what choice ⓑ decided and what the manner
-      // `NT-5` says out loud: the document was accepted, so this is a caution
-      // beside it and never a refusal (MUST NOT).
-      // ⚠️ THE NUMBER RIDES ON `affectedCount`, the one place on `RaisedNotice`
-      // a number travels -- the same road `IGNORED_FILES_REASON` takes above.
-      // ⛔ NOT THE KEYS THEMSELVES. No surface of the specification shows which
-      // ones moved, and building one here would be inventing a face.
+      // RS-51: settings clamped on the read road; the open goes on (NT-5) and the
+      // count rides on `affectedCount`, as `IGNORED_FILES_REASON` above does.
+      // Not the keys: no surface of the specification shows which ones moved.
       if (decoded.clampedCount > 0) {
         raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
       }
@@ -7745,108 +5049,61 @@ export function frameLoop(
     }
     const readIn = handedIn
 
-    // FR-073 (MUST): 「読めなかった列を具体的に並べて見せ、続けてよいかを問うこと」
-    // -- 「面は 表 T-103 の `U-61`、運ぶ理由は 表 T-233 の `RS-48`」.
+    // FR-073 -- the surface is U-61 and `RS-48` the reason it carries, as U-62
+    // carries `RS-50`. Not the `Notification Area`: a telling raised while U-61
+    // stands is drawn over IC-95, which then cannot be pressed.
+    // The list selects the telling, not the version reading: the codec answers
+    // an empty list for every reading but `newerThanKnown`. The open goes on.
     //
-    // ⭐⭐ ONE TELLING AND NOT TWO: the surface is U-61 and `RS-48` is the reason
-    // IT carries, which is the shape U-62 `Import Report` already has for
-    // `RS-50` -- the row's words are written on the surface that lays the list
-    // out, not in the `Notification Area` beside it. ⛔ AND THE NOTIFICATION AREA
-    // IS NOT WHERE THIS MAY GO, which was MEASURED rather than reasoned
-    // (2026-09-09, `scratch/fr073-press.mjs` on the shipped build): a telling
-    // raised while U-61 stands is drawn across the top of the window at
-    // y=37..89, and IC-95 -- the entrance FR-022 (MUST) needs answered -- sits
-    // at y=60. `elementFromPoint` at its centre came back as the notice, and
-    // `AM-8` never settled because the answer could not be pressed at all.
-    //
-    // ⭐ THE LIST IS WHAT SELECTS THE TELLING, not the version reading. `RS-48`'s
-    // own 場面 is 「…より新しく、読めなかった項目がある」 -- both halves -- and the
-    // codec answers an empty list for every reading but `newerThanKnown`, so a
-    // newer document this build happened to understand in full says nothing.
-    // ⛔ AND THE OPEN GOES ON. 「そのときは、受けて開くこと（MUST）」 and 「拒んで
-    // はならない（MUST NOT）」, so nothing here returns early.
-    //
-    // STOP -- ⛔ AN INTAKE THAT RAISES NO U-61 IS STILL NOT TOLD, and the gap is
-    // the specification's rather than this file's. FR-073 sends both the list
-    // and the question to `U-61` (MUST), and every entrance table T-109 puts on
-    // that surface -- IC-95, IC-96, IC-97 -- is an answer to 「同じか別か」 out
-    // of table T-032a. So a MERGE that has candidates is asked properly, and a
-    // REPLACE, an OVERLAY, or a merge PI-10 found nothing to pair has no surface
-    // to be told on and no row saying what its two answers would be. ⛔ Nothing
-    // is invented for it. Searched: FR-073, FR-022, table T-103 `U-61`,
-    // table T-109, table T-032a, table T-024a `OP-3`. Reported.
+    // STOP -- an intake that raises no U-61 (a replace, an overlay, or a merge
+    // PI-10 found nothing to pair) is still not told: U-61's row gives FR-073 a
+    // continue / stop choice, but table T-109 places only IC-95 .. IC-97 on that
+    // surface. Nothing is invented. Searched: FR-073, FR-022, table T-103 `U-61`,
+    // table T-109, table T-032a, table T-024a `OP-3`.
     if (couldNotBeRead.length > 0) unreadColumns = couldNotBeRead
 
-    // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
-    // is asked -- the row states the reason itself, that asking first would
-    // have the current document thrown away for an input that is then refused.
+    // OP-5: FR-023's validation, whatever the route and before OP-3.
     const verdict = validateImportedDocument(
       {
         document: incoming,
-        // S-113 is stated in megabytes and measured in bytes, which is why the
-        // gateway carries the file's byte length beside the decoded text.
+        // S-113 is in megabytes and measured in bytes, hence the byte length.
         byteLength: readIn.byteLength,
-        // STOP -- ⛔ NO CODEC ANSWERS THIS. `ImportCandidate.emptyRowTaskUids`
+        // STOP -- no codec answers this: `ImportCandidate.emptyRowTaskUids`
         // records that docs/spec says neither how such a row is recognised nor
-        // where it is held, and PI-20 of table T-064 publishes nothing that
-        // reports one -- so this build knows of none, which is a fact about the
-        // build rather than a value guessed at here.
+        // where it is held, and PI-20 of table T-064 publishes nothing reporting one.
         emptyRowTaskUids: [],
       },
       bounds,
     )
-    // ⛔ THE `Task` ROWS FR-023 (MUST) DROPS, WORKED OUT BEFORE ANYTHING IS
-    // DELETED, so that the names told at the end are the names of the rows that
-    // stood in the FILE -- once they are gone nothing can answer for them.
-    // ⭐⭐ THE RULING OF 2026-09-06 IS WHAT MAKES THIS A DROP RATHER THAN A
-    // REFUSAL (台帳 DFC-275): 「その行を落として残りを取り込むこと（MUST）。人に
-    // 選ばせてはならない（MUST NOT）」, and FR-023 gives its own ground --
-    // 取り消し（`FR-031`）で取り込み前へ戻せるのだから、選ばせても失われるものが
-    // 無い.
-    // ⛔ NO SURFACE IS RAISED HERE TO ASK ANYTHING. That same MUST NOT is why:
-    // the only surface FR-023 asks for is the one that TELLS, at the end.
+    // FR-023's dropped rows, worked out before anything is deleted so the names
+    // told at the end are the file's. Nothing is asked here (FR-023).
     const droppedSeeds = verdict.ok
       ? NO_DROPPED_SEEDS
       : taskUidsWithAnUnusableDate(verdict.refusals, incoming.schedule.tasks)
-    // FR-023 (MUST): 「落としたものは 表 T-050 の `CD-1` に従うこと」, and the
-    // row's cascade is asked for rather than restated -- ⭐ `deleteTask` is the
-    // one command that carries it, so the WBS descendants, the visual, the
-    // origin, the row membership, the dependencies and the assignments all go
-    // the way they go for a deletion made on the screen.
-    // ⚠️ THE NAMES ARE READ OFF THE CASCADE AND NOT OFF THE SEEDS: a descendant
-    // dropped with its parent is a `Task` that was dropped, and FR-023 asks for
-    // 「落とした `Task` の名前」 without narrowing it to the ones a date refused.
-    // ⭐ WALKED IN THE FILE'S OWN ORDER AND INDEXED ONCE (R5 / NFR-013): the
-    // input may carry two hundred thousand rows, and a `find` per dropped row
-    // would make this O(n²) over exactly that.
+    // FR-023: dropped rows follow CD-1 of table T-050, which `deleteTask`
+    // carries. Names are read off the cascade, not the seeds, since a dropped
+    // descendant is a dropped `Task`. Walked in file order against one index
+    // (NFR-013): a `find` per dropped row would be O(n^2) on a large input.
     const droppedNames: (string | null)[] = []
     const lost = tasksLostWith(incoming.schedule.tasks, droppedSeeds)
     for (const task of incoming.schedule.tasks) {
       if (lost.has(task.uid)) droppedNames.push(task.name)
     }
     for (const uid of droppedSeeds) {
-      // ⚠️ A SEED THE PREVIOUS DELETION ALREADY TOOK IS SKIPPED. CD-1 reaches
-      // WBS descendants, so two refused rows on one branch leave the second
-      // naming a `Task` that is no longer there, and CM-7 would refuse it.
+      // A seed an earlier deletion already took is skipped: CD-1 reaches WBS
+      // descendants, and CM-7 would refuse the missing `Task`.
       if (!incoming.schedule.tasks.some((one) => one.uid === uid)) continue
-      // ⛔ `settingsLimitsOf(null)` AND NOT A FRAME'S: the two values that
-      // function measures are the zoom bounds and the `Row Area` width, and
-      // neither is read by a deletion. ⚠️ A picture is not necessarily drawn
-      // yet at this point in the open, which is the other reason.
+      // `settingsLimitsOf(null)`: a deletion reads neither the zoom bounds nor
+      // the `Row Area` width, and no picture need be drawn yet.
       const result = editDocument(incoming, { kind: 'deleteTask', uid }, settingsLimitsOf(null))
-      // ⛔ A REFUSED DELETION LEAVES THE INPUT AS IT WAS, and the re-judgement
-      // below is what then turns the open away -- nothing is half-applied, which
-      // OP-5 (MUST NOT) requires in as many words.
+      // A refused deletion leaves the input as it was; the re-judgement below
+      // then turns the open away (OP-5).
       if (!result.ok) continue
       incoming = result.document
     }
-    // OP-5 (MUST): the mended input is judged again, and by the same rules --
-    // ⭐ a file that carried an unusable date somewhere a `Task` row cannot be
-    // named for (the project's own columns, an assignment, a comment box) is
-    // still refused, because dropping 「その行」 has no meaning there.
-    // ⛔ THE VERDICT IS NOT ASSUMED TO HAVE CHANGED. Re-running the whole
-    // validation is what keeps FR-023's other refusals -- the rings, the depth
-    // cap, the resource ceilings -- exactly as strict as they were.
+    // OP-5: the mended input is judged again by the same rules, so an unusable
+    // date outside a `Task` row (project, assignment, comment box) and FR-023's
+    // other refusals stay exactly as strict.
     const afterDropping =
       droppedNames.length === 0
         ? verdict
@@ -7855,220 +5112,105 @@ export function frameLoop(
             bounds,
           )
     if (!afterDropping.ok) {
-      // STOP -- ⛔ THESE REFUSALS REACH NOBODY, and the reason is not that
-      // nothing holds a telling: it is that none of them can be KEYED. Each
-      // names the rule, the place and whether NT-1 or NT-6 is its manner, and
-      // table T-233 says in as many words that FR-023's refusals are not among
-      // its rows because the rows of table T-220 already carry ids of their own
-      // -- while `display-words.json` has no section keyed on those, so there is
-      // nothing for the words to be read out of.
-      // ⭐ FR-023's DATE HALF IS NO LONGER PART OF THIS GAP (台帳 DFC-275): those
-      // rows are dropped above and told on `RS-50`, which the dictionary holds.
-      // What is left here is every OTHER row of table T-220 and a date refusal
-      // naming something that is not a `Task` row.
-      //
-      // ⛔⛔ STILL NOT RAISABLE FROM HERE, WHICH IS FOUR ABSENCES AND NOT ONE
-      // (measured 2026-09-06). ⚠️ None of them is this file's to fill:
-      //   1. docs/spec names no section of FR-038's dictionary for table
-      //      T-220's rows, and says nothing about how 「どの行のどの列が使えない
-      //      か」 reaches the words -- ⛔ every row of table T-233 is a FIXED
-      //      sentence, and nothing in the dictionary carries a place for a row
-      //      or a column to be put into.
-      //   2. `tools/generate_display_words.py` builds each section's roster from
-      //      a table and refuses a section it does not know outright, so the
-      //      words cannot be written into the manuscript until it learns one.
-      //   3. `notices.ts` reads a reason out of `displayWords.reasons` alone,
-      //      which is table T-233's rows and nothing else; anything outside it
-      //      falls to `RS-15`.
-      //   4. `RaisedNotice` carries `manner`, `reason` and `affectedCount` --
-      //      ⛔ there is no member a row or a column can travel on, and NT-3's
-      //      count cannot stand in for a name FR-023 asks for BY NAME.
-      // ⚠️ `raiseNotice` IS NOT WIDENED TO CARRY `IV-14` INSTEAD. FR-076 (MUST
-      // NOT) bars a telling from carrying a reason table T-233 does not hold,
-      // and that table's closing puts FR-023's refusals outside it on purpose --
-      // 「⛔ 同じものに 2 つ目の鍵を作らない」.
+      // STOP -- these refusals reach nobody because none can be keyed. Table
+      // T-233 leaves FR-023's refusals to table T-220's own ids, and:
+      //   1. docs/spec names no section of FR-038's dictionary for table T-220's
+      //      rows, nor how a row and a column reach the words;
+      //   2. `tools/generate_display_words.py` refuses a table it does not know;
+      //   3. `notices.ts` reads reasons from `displayWords.reasons` alone and
+      //      falls back to `RS-15`;
+      //   4. `RaisedNotice` has no member a row or a column can travel on.
+      // FR-023's date refusals on `Task` rows are not in this gap: they are
+      // dropped above and told on `RS-50`. `raiseNotice` is not widened to carry
+      // `IV-14`: FR-076 bars a reason table T-233 does not hold.
       return false
     }
 
-    // FR-088 (MUST NOT / MUST): 「稼働する曜日を 1 つも持たない暦を、文書の暦
-    // （`FR-054`）にしてはならない…受け付けずに通知すること」. IV-17 of table
-    // T-220 is the condition and `scheduleViolations` (PI-1) is what answers
-    // that table, so the rule is asked for rather than restated here.
-    //
-    // ⭐ WHY THE ANSWER HAS TO BE ASKED FOR AT ALL, and why an open is where.
-    // Every count of working days climbs the calendar FR-054 resolves, and a
-    // calendar that works no weekday leaves that climb with no day to reach --
-    // `schedule.ts` throws `NoWorkingDayReached` rather than answer, and this
-    // loop draws from a document it has already taken. So an input carrying
-    // one has to be turned away BEFORE it becomes the current document; after
-    // that there is no road left that does not end in the drawing.
-    //
-    // ⭐ BEFORE OP-3 IS ASKED, for the reason OP-5 states in as many words: a
-    // question put first would have the current document thrown away for an
-    // input that is then refused.
-    //
-    // ⚠️ ASKED OF THE ARRIVING DOCUMENT AND ITS OWN SETTINGS. IV-17 reads only
-    // the schedule -- the row is about the calendar FR-054 resolves -- and
-    // `scheduleViolations` takes the pair because other rows of table T-220 are
-    // judged against the presentation group. ⛔ NOT `bounds`: those are the
-    // ceilings in force, which OP-5 is judged against and this row is not.
-    //
-    // ⚠️ ONLY THIS ONE ROW TURNS THE OPEN AWAY. See the note on
-    // `NO_WORKING_WEEKDAY_INVARIANT`: FR-088 is the requirement that says so,
-    // and the other rows of table T-220 have no row of table T-233 to be told
-    // on -- the same gap the OP-5 verdict above records.
-    //
-    // ⚠️ THE ARRIVING DOCUMENT IS JUDGED ON ALL THREE OF OP-3's ANSWERS, and on
-    // the two that do not replace this is the stricter reading: which calendar
-    // a merge lands is PI-10's, so an input refused here might have landed
-    // sound. ⛔ Narrowing it would need the landed document judged INSTEAD, and
-    // the landing is the write -- there is no moment after it at which FR-088's
-    // 「受け付けず」 is still available. Chosen the reading that cannot let a
-    // calendar with no working weekday become the document's.
+    // FR-088: IV-17 of table T-220, asked of `scheduleViolations` (PI-1).
+    // Refused before the input becomes current: `schedule.ts` throws
+    // `NoWorkingDayReached` on such a calendar, and this loop draws from the
+    // document it holds. Before OP-3 for OP-5's reason. Judged on the arriving
+    // document and its own settings, not `bounds` (the ceilings in force).
+    // Only this row refuses (see `NO_WORKING_WEEKDAY_INVARIANT`). Judged on all
+    // three of OP-3's answers although a merge lands a calendar PI-10 picks:
+    // after the write there is no moment left to refuse, so the stricter
+    // reading is taken.
     const noWorkingWeekday = noWorkingWeekdayReason(incoming)
     if (noWorkingWeekday !== null) {
       raiseNotice(noWorkingWeekday, null)
       return false
     }
 
-    // ⭐ OP-13 of table T-024a (MUST): 「選ばせる面を開かずに、同じファイルをもう
-    // 一度読むこと」 and 「`OP-3` の 3 択は問わず、置き換えに定めること」. The route
-    // is the whole of what tells this read apart, and it is an argument to this
-    // function -- so the answer is settled HERE rather than asked, and U-56
-    // never goes up. ⛔ The row gives its own reason for the MUST: a surface on
-    // every re-read would make `Ctrl` + `R` the same thing as 「開く」.
-    // ⚠️ OP-4 BELOW STILL RUNS. That row is not skipped with the question --
-    // OP-13 says in as many words 「`OP-4` の確認は掛かること（MUST）」, and a
-    // settled `'replace'` reaches it exactly as a chosen one does.
-    // ⭐⭐ AM-8 SETTLES IT TOO, AND FOR A REASON OF ITS OWN (DFC-357). FR-022
-    // (MUST) has `AM-8` raise U-61 when the intake IS a merge, and ⛔ forbids
-    // handing the caller the choices (MUST NOT) -- so the caller names neither
-    // the mapping nor OP-3's three. `HandedImport.choice` carries what the
-    // entrance means, and the surface below is still where a person answers.
+    // OP-13: a re-read settles the replace without U-56, so `Ctrl` + `R` is not
+    // the same as opening; OP-4 below still runs. AM-8 settles the choice too:
+    // FR-022 keeps the choices away from the caller, so `HandedImport.choice`
+    // carries what the entrance means and U-61 is still where a person answers.
     const choice =
       handed !== null
         ? handed.choice
         : route === OPEN_ROUTE_REOPEN
           ? OPEN_CHOICE_OF_REOPEN
           : await askHowToOpen()
-    // ⛔ OP-3 (MUST NOT): nothing is chosen here. A question that went away
-    // unanswered leaves the read where it was, and an abandoned open changes
-    // no document -- which is the only outcome that does not decide for the
-    // person.
+    // OP-3: an unanswered question leaves the document unchanged.
     if (choice === null) return false
 
-    // OP-4 (MUST): the replace is the one choice that throws the current
-    // document away, so it is the one choice that asks first. That row exempts
-    // the other two in as many words, because neither discards anything.
-    // ⛔ ASKED ON EVERY REPLACE, BECAUSE NOTHING SAYS WHEN AN EDIT IS UNSAVED.
-    // OP-4's rule sentence carries no condition, and no row anywhere says when
-    // a document counts as holding one -- there is no saved-state value to
-    // read, and the undo history counts steps since this document became
-    // current, which a save does not clear.
-    // ⚠️ So the question stands even where nothing could be lost, which keeps
-    // that row's MUST NOT and costs a press. ⛔ Skipping it would also make
-    // PI-10's `unsavedEditsDiscardConfirmed` say a person confirmed who was
-    // never asked. Narrowing it needs the manuscript, not this file.
+    // OP-4: only the replace asks, and it asks on every replace, since the row's
+    // rule carries no condition. Skipping it would also make PI-10's
+    // `unsavedEditsDiscardConfirmed` claim a confirmation nobody gave.
     const isDiscardConfirmed =
       choice === 'replace' ? await askToDiscardCurrentDocument(current) : false
     if (choice === 'replace' && !isDiscardConfirmed) return false
 
-    // ⭐ WHAT PI-10 IS BROUGHT, minus the two fields table T-230 fills in for
-    // this side: `current` is CS-3's one read, and the row fixes the choice.
+    // What PI-10 is brought, minus what table T-230 fills in: `current` (CS-3's
+    // one read) and the choice.
     const importing = {
       incoming,
       format: readIn.format,
       // OP-5 passed above, and this side never claims it did not run.
       validationPassed: true,
-      // OP-8 (MUST NOT) is kept at the ENTRANCE, where a second open is refused
-      // before it can begin, so by construction none is running but this one.
-      // ⛔ Declaring the flag true here would refuse this very open.
+      // OP-8 is kept at the entrance, so none is running but this one; `true`
+      // would refuse this very open.
       anotherOpenInProgress: false,
       unsavedEditsDiscardConfirmed: isDiscardConfirmed,
-      // ⭐ FR-022's QUESTION IS NOW PUT, AND `null` IS STILL WHAT LEAVES HERE.
-      // `MergeChoices` declares `null` as "not answered", and the merge road
-      // below asks PI-10 with exactly this value in order to LEARN whether there
-      // is anything to ask about -- the refusal it answers with is what carries
-      // the candidates FR-022 (MUST) lays out. The answer then replaces this
-      // member on the way to the write.
+      // `null` ("not answered"): the merge road asks PI-10 with it to learn
+      // whether FR-022 has candidates to lay out; the answer replaces it later.
       //
-      // STOP -- ⛔ MG-4's AND MG-12's QUESTIONS ARE STILL UNPUT. The project
-      // profile's three answers and the presentation group's three are a
-      // different question from table T-032a's, MG-9 forbids asking them per key
-      // (MUST NOT) but not per subject, and ⛔ table T-109 places no entry for
-      // either on U-61 -- so a merge whose profile or whose `documentSettings`
-      // conflict is still refused by PI-10 with nobody able to answer.
-      // ⛔ AND THE REFUSAL STILL REACHES NOBODY, measured on the shipped build
-      // (2026-09-06): `replaceHeldDocument` turns it into `importRefused`, and
-      // `NOTICE_REASON_OF_WRITE_REFUSAL` maps that to `null` because table T-233
-      // holds no row for it -- the note on that map says so itself. ⚠️ A row of
-      // table T-233 is what is owed, and it is a MUST this round did not write.
+      // STOP -- MG-4's and MG-12's questions are unput: MG-9 forbids asking them
+      // per key but not per subject, and table T-109 places no entry for either
+      // on U-61, so a merge with a profile or `documentSettings` conflict is
+      // refused by PI-10 and the refusal reaches nobody (`importRefused`, see
+      // `NOTICE_REASON_OF_WRITE_REFUSAL`). A row of table T-233 is what is owed.
       merge: null,
       defaultSettings: DEFAULT_DOCUMENT_SETTINGS,
-      // AT-109 -- one per import, and minting one is not a pure act, which is
-      // why PI-10 takes it rather than making it. ⚠️ The same member the
-      // context mints `newGroupId` with, for the same reason.
+      // AT-109, one per import; minting one is not pure, so PI-10 takes it.
       importSessionId: crypto.randomUUID(),
     }
 
-    // RD-4 of table T-230 -- OP-3's replace. The history is dropped and the
-    // stamp comes through as the file wrote it, and both are that row's to say.
+    // RD-4 of table T-230 -- OP-3's replace; history and stamp are that row's.
     if (choice === 'replace') {
       const replaced = replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-      // FR-023 (MUST): 「取り込んだあとで、落とした `Task` の名前を並べて
-      // 告げること」. ⛔ AFTER, AND ONLY WHERE THE WRITE WENT THROUGH: a
-      // refused replace dropped nothing, so there is nothing to name.
+      // FR-023: told only when the write went through.
       if (replaced) tellWhatTheImportDropped(droppedNames)
       return replaced
     }
-    // RD-3 -- the merge and the overlay. It is the one row of table T-230 whose
-    // stamp advances and whose WS-4 can owe a step, so it is the one row that
-    // needs the two bounds and the two stamp fields.
-    // STOP -- ⛔ OP-9's MUST DOES NOT ARRIVE FOR EVERY FILE ON THIS ROW. That
-    // row has what was read put into the frame kept for the overlay, and
-    // `baselinedDocument` (PI-10) keeps only the tasks whose `UID` a current
-    // task carries -- so a file that shares no `UID` with the document lands an
-    // empty frame and OP-9 is not kept. ⚠️ Nothing this side passes changes
-    // that: `current` is CS-3's one read and PI-10 fills it. Which of OP-9's
-    // frame and FR-015's pairing is the narrower is not this file's to settle.
+    // RD-3 -- the merge and the overlay: the one row whose stamp advances and
+    // whose WS-4 can owe a step, hence the bounds and stamp fields.
+    // STOP -- OP-9 is not kept for every file: `baselinedDocument` (PI-10) keeps
+    // only tasks whose `UID` a current task carries, so a file sharing none
+    // lands an empty frame. Which of OP-9's frame and FR-015's pairing is the
+    // narrower is not this file's to settle.
     //
-    // ⛔ THE DOCUMENT RD-3 IMPORTS AGAINST, TAKEN HERE SO THAT THE TELLING BELOW
-    // IS ABOUT THE SAME IMPORT. `replaceDocument` reads the holder once inside
-    // the write (CS-3), and no `await` stands between this line and that read,
-    // so the two are necessarily the same document. ⚠️ NOT `current`: that one
-    // is CS-4's read from before the two waits, and an edit made while the
-    // question stood would leave it naming a different set of matches.
-    // FR-022 (MUST): 「合流が選ばれ…読んだファイルのタスクが現在の文書のタスクに
-    // 対応するかもしれないとき…表 T-032a の選択肢から選ばせること」, on U-61
-    // (MUST) and with the candidates laid out first (MUST).
-    //
-    // ⭐ PI-10 IS ASKED WHETHER THERE IS ANYTHING TO ASK ABOUT, rather than this
-    // file working the pairing out. `importDocument` is pure, so running it with
-    // `merge: null` costs a judgement and changes nothing, and the refusal it
-    // answers with is FR-022's question in value form -- it carries the very
-    // candidates the requirement (MUST) has laid out. ⛔ Gathering them here
-    // would be this file making PI-10's pairing judgement a second time, which
-    // R2.7 refuses; the overlay road below already pays the same cost for the
-    // same reason.
-    // ⛔ NOTHING IS ASKED WHEN THERE IS NOTHING TO ASK. MG-2 asks only when there
-    // are candidates, and a merge that has none goes straight to the write --
-    // raising U-61 over an empty list would be a surface that cannot be answered
-    // usefully.
-    // ⚠️ THE OTHER REFUSALS ARE LEFT WHERE THEY WERE. Only `mappingNotChosen` is
-    // FR-022's; MG-4's and MG-12's have no entry on this surface (the STOP above),
-    // and every other reason is a refusal `replaceHeldDocument` tells.
-    // ⛔ THE OVERLAY IS NOT ASKED. OP-9 of table T-024a says in as many words
-    // that the third choice is not a merge, and FR-015's own note repeats it --
-    // 「`FR-022` の…は合流についての規則であり、重ねには掛からない」. So the
-    // question is put on the merge alone.
+    // FR-022: PI-10 is asked whether there is anything to ask (pure, so a run
+    // with `merge: null` changes nothing); its `mappingNotChosen` refusal carries
+    // the candidates, and pairing here would repeat PI-10's judgement (R2.7).
+    // MG-2 asks only when there are candidates. Other refusals are left to
+    // `replaceHeldDocument`. The overlay is not asked (OP-9, FR-015).
     let mergeAnswers: MergeChoices | null = null
     const asked =
       choice === 'merge' ? importDocument({ ...importing, choice, current: held.document }) : null
     if (asked !== null && !asked.ok && asked.refusal.reason === 'mappingNotChosen') {
       const mapping = await askWhichFileToTakeFrom(
-        // ⛔ CARRIED, NEVER RE-DERIVED, and the pairing is PI-10's own: `UID` is
-        // what gathers a candidate (FR-022, MUST) and both sides' uids cross
-        // because MG-1 decides whether unmatched ones may join them.
+        // Carried, never re-derived: the pairing is PI-10's (FR-022, MG-1).
         asked.refusal.candidates.map((candidate) => ({
           currentUid: candidate.currentTaskUid,
           incomingUid: candidate.incomingTaskUid,
@@ -8076,31 +5218,21 @@ export function frameLoop(
           incomingName: candidate.incomingTaskName,
         })),
       )
-      // FR-022 (MUST NOT): 「同じか別かを `GRS` が自動で確定してはならない」. A
-      // surface that went away unanswered settles nothing, and MG-6 is kept by
-      // construction -- no write has happened yet, so the document is exactly as
-      // it was.
+      // FR-022: an unanswered surface settles nothing; no write has happened, so
+      // MG-6 holds.
       if (mapping === null) return false
-      // MM-4 of table T-032a -- 「取込をやめる」, which MG-6 (MUST) settles as the
-      // document being exactly as it was before the import.
-      //
-      // ⭐ ANSWERED HERE AND NOT HANDED ON, AND THE PRECEDENT IS `cancelled` OF
-      // `NOTICE_REASON_OF_FILE_FAULT`: a person who called the operation off is
-      // owed no telling, and table T-233 gives one nothing to be told with.
-      // ⛔ MEASURED RATHER THAN ASSUMED (2026-09-06, `scratch/probe-answer.mjs`
-      // on the shipped build): handing MM-4 to PI-10 comes back as
-      // `importCancelled`, `replaceHeldDocument` turns it into `importRefused`,
-      // and `NOTICE_REASON_OF_WRITE_REFUSAL` maps that to `null` -- so the
-      // refusal is dropped and the road is silent EITHER WAY. Stopping here says
-      // the same thing in one line and does not write a value nobody reads.
-      // ⚠️ MG-6 IS KEPT BY CONSTRUCTION: no write has happened at this point, so
-      // there is nothing to put back.
+      // MM-4 of table T-032a: stopped here, as `cancelled` is in
+      // `NOTICE_REASON_OF_FILE_FAULT`, since no telling is owed. Handed to PI-10
+      // it would end silent anyway (`importCancelled`, then `importRefused`,
+      // then `null`). No write has happened, so MG-6 holds.
       if (mapping.kind === 'cancelImport') return false
-      // ⚠️ MG-4 AND MG-12 STAY UNANSWERED: this is table T-032a's answer alone,
-      // and `MergeChoices` declares `null` as "not answered" for the other two.
+      // MG-4 and MG-12 stay unanswered (`null` in `MergeChoices`).
       mergeAnswers = { mapping, profileConflict: null, settingsConflict: null }
     }
 
+    // Taken here so the overlay telling below is about the same import:
+    // `replaceDocument` reads the holder with no `await` in between (CS-3).
+    // Not `current`, which is CS-4's read from before the waits.
     const importedAgainst = held.document
     const landed = replaceHeldDocument({
       row: 'RD-3',
@@ -8110,31 +5242,19 @@ export function frameLoop(
       updatedUtc: readInstantOfWrite(),
     })
 
-    // FR-023 (MUST): the same telling the replace above makes, on the road that
-    // merges or overlays -- ⚠️ the rows were dropped from the ARRIVING document
-    // before either choice was put, so both roads owe it.
+    // FR-023, on the merge / overlay road: the rows were dropped from the
+    // arriving document before either choice was put.
     if (landed) tellWhatTheImportDropped(droppedNames)
 
-    // FR-015 (MUST): 「対応するタスクが無い重ねる側のタスクは、描かずに通知する
-    // こと」, and OP-9 of table T-024a points at this same requirement for the
-    // telling. RS-16 of table T-233 is the row it is carried on, and FR-076
-    // (MUST NOT) is what makes that row the whole of what may be carried.
-    //
-    // ⛔ ONLY THE OVERLAY, AND ONLY ONCE IT LANDED. RD-3 also carries OP-3's
-    // merge, and `ImportReport.baselineTaskUidsNotDrawn` is the overlay side's
-    // member; a refused row is told by `replaceHeldDocument` itself and has
-    // nothing left undrawn to caution about.
+    // FR-015 / OP-9: the overlay's undrawn tasks are told on RS-16 of table T-233
+    // (FR-076), and only once the overlay landed: `baselineTaskUidsNotDrawn` is
+    // the overlay's member, and a refused row was told by `replaceHeldDocument`.
     if (!landed || choice !== 'baseline') return landed
 
-    // ⚠️ PI-10 IS ASKED A SECOND TIME, AND THAT IS A COST RATHER THAN A CHOICE:
-    // `ReplaceOutcome` (PI-8) answers with the document and WS-5's judgement and
-    // carries no `ImportReport`, so the road that lands the overlay cannot hand
-    // back the tasks it could not pair. ⛔ The alternative is worse -- counting
-    // the frame against the read file HERE would be this file making PI-10's
-    // pairing judgement a second time, which R2.7 refuses. `importDocument` is
-    // pure and the request is the very one RD-3 was given, so the two runs
-    // answer alike.
-    // ⚠️ A member on `ReplaceOutcome` for the report is what is owed.
+    // PI-10 is asked a second time because `ReplaceOutcome` (PI-8) carries no
+    // `ImportReport`; counting here would repeat PI-10's pairing (R2.7). It is
+    // pure and given RD-3's request, so both runs answer alike.
+    // A member on `ReplaceOutcome` for the report is what is owed.
     const overlaid = importDocument({
       ...importing,
       choice,
@@ -8145,36 +5265,22 @@ export function frameLoop(
     // disagreeing, and there is nothing about THIS requirement to tell then.
     if (!overlaid.ok) return landed
 
-    // ⚠️ THE NUMBER RIDES ON `affectedCount`, exactly as OP-11's caution above
-    // has it: that member is documented against NT-3 and this row follows NT-5,
-    // and it is the one place on `RaisedNotice` a number can travel.
-    // ⛔ NOTHING IS WRITTEN HERE. The row id and the count go over and the words
-    // are the dictionary's (FR-038, MUST NOT) -- a sentence composed on this side
-    // would be the second store of translated strings that requirement forbids.
-    // ⛔ NOTHING IS RAISED WHEN EVERY TASK MATCHED: NT-5 is 「受け付けたうえで
-    // 注意を伝えるとき」, and with nothing left undrawn there is no caution.
+    // The count rides on `affectedCount`, as OP-11's caution does; the row goes
+    // over, never words (FR-038). Nothing is raised when every task matched.
     const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
     if (notDrawn > 0) raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
     return landed
   }
 
   /**
-   * OP-13 of table T-024a (MUST) -- SK-21's road, and the one clause of that row
-   * which has to be settled BEFORE the file is read.
+   * OP-13 of table T-024a -- SK-21's road, and the clause settled before the
+   * file is read: with no opened file, nothing is done.
    *
-   * ⭐ 「開いているファイルが無いときは何もしないこと（MUST）—— 読み直す相手が無
-   * い」. IF-3's `readOpenedFileState` is the only thing that answers whether
-   * there IS one; the seam documents itself as 「asked, never remembered」
-   * because FR-060 has the permission going missing between runs, so the answer
-   * is taken here at the moment of the press rather than kept.
-   * ⚠️ `permissionLost` is NOT 「無い」. That file is still the file the document
-   * is open from -- it has a name and FR-060 keeps it as the overwrite target --
-   * so it goes down the read road, exactly as `saveHeldDocumentToFile` sends it
-   * down the overwrite road, and the store is what asks for the permission back.
-   * ⛔ NOTHING IS TOLD WHEN THERE IS NOTHING TO RE-READ. The row says 「何もしな
-   * いこと」, and a telling is not nothing -- so this road stops without raising
-   * one, which is the difference between it and letting the store answer
-   * `noOpenedFile`.
+   * IF-3's `readOpenedFileState` is asked at the press, since FR-060's
+   * permission can go missing between runs. `permissionLost` still names the
+   * file, so it goes down the read road and the store asks for the permission
+   * back. No telling is raised when there is nothing to re-read, which is why
+   * the store is not left to answer `noOpenedFile`.
    *
    * @purity non-pure
    */
@@ -8185,73 +5291,39 @@ export function frameLoop(
   }
 
   /**
-   * AM-8 of table T-107, from this side of the seam (台帳 DFC-357).
+   * AM-8 of table T-107, from this side of the seam (FR-022).
    *
-   * ⭐⭐ FR-022 (MUST), the ruling of 2026-09-07: 「呼ぶ側が機械であっても、選ぶ
-   * のは人であること（MUST）」 and 「`AM-8`（`importDocument`）が合流にあたるとき
-   * は、`U-61` を立て、人が答えるまで待つこと（MUST）」 —— ⛔ 「合流を拒んでは
-   * ならない（MUST NOT）」.
-   *
-   * ⭐ SO THIS IS A WAIT AND NOT A COMPUTATION. It walks the very road a person's
-   * press walks -- `openDocumentIntoHold` with the document handed in instead of
-   * read from a file -- and that road already raises U-61 through
-   * `askWhichFileToTakeFrom` and does not resolve until an answer arrives.
-   * ⛔ NOTHING ABOUT THE MERGE IS SETTLED HERE: the same requirement's MUST NOT
-   * keeps the choices away from the caller, and the surface is where they land.
-   *
-   * ⚠️ THE COST THE RULING NAMES: 「エージェントが「取り込んで」と言ってから、
-   * 人が画面で答えるまで止まる。無人運転はできない」. The promise this answers
-   * with is that wait, and a caller that never shows the page never sees it end.
-   *
-   * ⛔ OP-8 (MUST NOT) STILL HOLDS ACROSS THE TWO ENTRANCES. One file operation
-   * at a time, and a machine's call that arrives while a person's question
-   * stands is refused rather than allowed to take the one surface away.
-   * ⚠️ ANSWERED `false` FOR THAT, which the caller's side turns into a refusal;
-   * no notice is raised on this road, because the party that would read it is
-   * the machine and it is told in its own answer.
-   *
-   * ⭐ THE ROUTE IS UNREAD ON THIS ROAD. `OpenRoute` (IF-3's) tells the file
-   * gateway which gesture asked for a FILE, and no file is read here -- the
-   * argument travels only so far as the branch that skips the read.
+   * A wait, not a computation: it walks the press's road
+   * (`openDocumentIntoHold` with the document handed in), which raises U-61 and
+   * waits for a person's answer; a caller that never shows the page never sees
+   * it end. Nothing about the merge is settled here (FR-022).
+   * OP-8 holds across both entrances: a call arriving while a person's question
+   * stands answers `false`, which the caller's side turns into a refusal.
+   * The route is unread here; it travels only as far as the branch that skips
+   * the read.
    *
    * @purity non-pure
    */
   async function takeInHandedDocument(incoming: Document): Promise<boolean> {
-    // OP-8 (MUST NOT) and CS-4's one-at-a-time -- the same guard the person's
-    // own entrances keep, and the reason is the same: a second read begun
-    // mid-wait would take away the one question the screen can hold.
+    // OP-8 and CS-4: the same one-at-a-time guard as the person's entrances.
     if (isFileOperationWaiting || asking !== null || openChoosing !== null) return false
     isFileOperationWaiting = true
     try {
-      // S-113 is stated in megabytes and measured in bytes, and OP-5 judges
-      // against it -- so the value is measured the same way a file's is, through
-      // the same writer table T-024 names for IO-2.
-      // ⭐⭐ AND THE SAME TEXT IS READ BACK, WHICH IS FR-073's ONE FOOTHOLD ON
-      // THIS ROAD. A caller of AM-8 hands a VALUE, so the columns this build
-      // cannot read are keys sitting on a plain object that `Document` does not
-      // declare -- invisible to the type and to anything that walks it as one.
-      // Written out as IO-2's text they are ordinary JSON keys again, and PI-20
-      // -- the one reader every other intake takes -- names them. ⛔ So this is
-      // not a second parser (chapter 5.3): it is the same one, on the same text
-      // this line already had to write.
-      // ⚠️ THE READING IS TAKEN AND THE VALUE IS NOT REPLACED. What the handed
-      // value has to BE is OP-5's judgement further down the one road, and a
-      // refusal here would be a second, weaker copy of it standing in front --
-      // exactly what `handedDocument` on the far side of the seam refuses to do.
-      // ⛔ SO A TEXT PI-20 TURNS AWAY LISTS NO COLUMN AND STOPS NOTHING.
+      // S-113 is measured in bytes as a file's is, through IO-2's writer.
+      // The same text is read back for FR-073: unread columns of a handed value
+      // are keys `Document` does not declare, and PI-20 names them on the text --
+      // the one reader, not a second parser. A text PI-20 turns away lists no
+      // column and stops nothing: OP-5 judges the value further down the road.
       const handedText = jsonFromDocument(incoming)
       const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
       return await openDocumentIntoHold(null, OPEN_ROUTE_FROM_CHOOSER, {
         incoming,
-        // IO-2 of table T-024 -- the machine-facing row, which is what a value
-        // handed straight in is. ⛔ Not asked of `formatFromFile`: OP-12 reads
-        // an extension and a first character, and there is neither here.
+        // IO-2 of table T-024, the machine-facing row. Not `formatFromFile`:
+        // OP-12 reads an extension and a first character, and there is neither.
         format: 'grsJson',
         byteLength: new TextEncoder().encode(handedText).length,
         unreadColumns: reread.ok ? reread.unreadColumns : [],
-        // FR-022 begins 「合流が選ばれ（`FR-087` の `OP-3`）」, and AM-8 of table
-        // T-107 is 「取り込み・合流」 -- so this entrance means the merge, and
-        // OP-3's three-way question is not put to a machine.
+        // AM-8 means the merge (FR-022); OP-3's question is not put to a machine.
         choice: 'merge',
       })
     } finally {
@@ -8260,35 +5332,17 @@ export function frameLoop(
   }
 
   /**
-   * SK-11 of table T-036 and IC-2 of table T-109 -- write the document that is
-   * held out to a file.
+   * SK-11 of table T-036 and IC-2 of table T-109 -- write the held document out
+   * to a file.
    *
-   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION. Everything the
-   * operation needs from the current values is taken before the first `await`,
-   * and nothing after it reads `held` a second time (MUST NOT), so
-   * what lands in the file is the document the person asked to save and not
-   * whichever one the wait left behind.
-   *
-   * ⭐ WHICH OF THE TWO DESTINATIONS IS SETTLED BY THE STORE, NOT CHOSEN HERE.
-   * FR-060 is the overwrite, and the same requirement's note on SK-11 in FR-096
-   * says a document with no overwrite target is asked for a destination instead
-   * -- so the state is asked for once and the road follows the answer. ⛔ This
-   * is not the fallback `saveDocumentFile` refuses to make: that one would turn
-   * a FAILED overwrite into a chooser, and this asks BEFORE anything starts.
-   * ⚠️ `permissionLost` goes to the overwrite road on purpose -- FR-060's file
-   * is still that file, and asking for the permission back is what
-   * `overwriteOpenedFile` does.
-   *
-   * ⭐ DI-5 of table T-227 (MUST) is why only one road carries an identity: the
-   * opened file is by definition this document's own, and nothing is asked.
-   *
-   * ⚠️ NOTHING LANDS IN THE DOCUMENT, so CS-4's landing clause has nothing to
-   * do here: a save writes a file and leaves the current value alone. ⛔ Not an
-   * omission -- no requirement makes SK-11 change the document it wrote.
-   *
-   * ⚠️ Nothing is caught. FR-028 (MUST NOT) forbids throwing and IF-3 states
-   * that a store which throws has broken its contract, so a rejection here is a
-   * broken store rather than a case to handle.
+   * CS-4's shape: everything is taken before the first `await`, so the file
+   * holds the document the person asked to save.
+   * The store's state picks the destination before anything starts (FR-060,
+   * FR-096) -- not the fallback `saveDocumentFile` refuses, which would turn a
+   * failed overwrite into a chooser. `permissionLost` goes to the overwrite
+   * road, where `overwriteOpenedFile` asks for the permission back. DI-5 of
+   * table T-227 is why that road asks nothing about identity.
+   * Nothing lands in the document, and nothing is caught (FR-028, IF-3).
    *
    * @purity non-pure
    */
@@ -8309,51 +5363,29 @@ export function frameLoop(
           })
 
     if (saving.ok) {
-      // FR-101 (MUST): what the header shows is set HERE and only here.
-      // ⭐ THE NAME COMES BACK FROM THE STORE, never from the document: a
-      // "save as" writes a file the document has never heard of, and
-      // `DocumentFileSaving.openedFile` is the one value that knows which
-      // file the bytes actually landed in.
-      // ⛔ THIS IS WHAT DFC-66 WAS: the answer used to be dropped on this line,
-      // so a second save succeeded without a pixel changing and read to the
-      // person as a failure.
+      // FR-101: set here only. The name comes back from the store, not the
+      // document: a "save as" writes a file the document has never heard of.
       if (saving.openedFile.kind !== 'none') {
         openedFileName = saving.openedFile.fileName
       }
       fileSavedAt = readInstantOfWrite()
-      // FR-100: the file now holds what is on the screen, so leaving costs
-      // nothing and the guard must NOT be raised (MUST NOT).
+      // FR-100: the file now holds what is on the screen.
       hasUnsavedEdits = false
       return
     }
-    // FR-076 (MUST): the fault is raised, carrying the row of table T-233 its
-    // reason is and the manner that table pairs with the row.
-    // ⚠️ `cancelled` is let go inside `raiseFileFault`, which is where IF-3's
-    // reason for keeping it apart is recorded.
+    // FR-076. `cancelled` is let go inside `raiseFileFault`.
     raiseFileFault(saving.fault)
   }
 
   /**
-   * FR-096 and SK-12 of table T-036 -- write the document that is held out in
-   * the format chosen on the `Export Chooser` (U-54).
+   * FR-096 and SK-12 of table T-036 -- write the held document in the format
+   * chosen on the `Export Chooser` (U-54).
    *
-   * ⭐ THE ROAD SK-11 ALREADY TAKES, and only its chosen-destination half.
-   * FR-096 (MUST) has the chooser suggest a name, which is a question only the
-   * chosen-file arm of `DocumentFileSaveRequest` asks; DI-5 of table T-227
-   * exempts FR-060's overwrite alone, and this is not that route. ⛔ So an export
-   * never lands on the opened file, whatever form it is in -- which is also the
-   * reason `notAnOverwriteTarget` cannot arise on this road.
-   *
-   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION, the same shape
-   * `saveHeldDocumentToFile` has: the document is taken before the first
-   * `await`, and nothing after it reads `held` again while the person is
-   * pointing at a destination or answering DI-4's question (MUST NOT).
-   *
-   * ⚠️ Nothing lands in the document, so CS-4's landing clause has nothing to do
-   * here -- an export writes a file and leaves the current value alone.
-   * ⚠️ Nothing is caught, for the reason `saveHeldDocumentToFile` gives: FR-028
-   * (MUST NOT) forbids throwing and IF-3 states that a store which throws has
-   * broken its contract.
+   * SK-11's chosen-destination half only: DI-5 of table T-227 exempts FR-060's
+   * overwrite alone, so an export never lands on the opened file and
+   * `notAnOverwriteTarget` cannot arise. CS-4's shape, as in
+   * `saveHeldDocumentToFile`; nothing lands in the document and nothing is
+   * caught.
    *
    * @purity non-pure
    */
@@ -8361,29 +5393,19 @@ export function frameLoop(
     store: FileStore,
     format: ExportFormatId,
   ): Promise<void> {
-    // ⛔ A ROW THAT IS NOT A FILE WRITES NOTHING. `saveFormOfExportFormat` says
-    // which row lands here and why; doing nothing then is the absence of the
-    // behaviour and not the behaviour.
+    // A row that is not a file writes nothing (see `saveFormOfExportFormat`).
     const form = saveFormOfExportFormat(format)
     if (form === null) return
-    // ST-7 (MUST): this road may owe a telling once its file is written. The
-    // slate is wiped at the head so that a form which builds no picture cannot
-    // inherit the stop of an export made earlier in the session.
+    // ST-7: wiped at the head, so a form that builds no picture cannot inherit
+    // the stop of an earlier export.
     stackSafetyCapOwedByPictureExport = null
     // CS-4: collected at the moment the operation begins, and not read again.
     const written = held.document
-    // ⭐ TWO ROADS TO ONE WRITE, TOLD APART BY WHETHER THE FORM IS TEXT. The
-    // two that are answer here; the three that are not go to
-    // `exportPictureContent`, which either paints the picture or says why it
-    // could not (FR-029, MUST).
-    // ⚠️ CS-4 IS KEPT ACROSS THE SECOND ROAD: `exportPictureContent` reads the
-    // held document -- through `exportScene` -- before ITS first await, so the
-    // picture and the bytes below are of the same document `written` is.
+    // Text forms answer here; picture forms go to `exportPictureContent`, which
+    // reads the held document before its first await, so both are `written`.
     const text = exportedText(form, written)
     const content = text === null ? await exportPictureContent(form, written) : { text }
-    // ⛔ A `null` HAS ALREADY BEEN TOLD, or is one of the two absences that
-    // reach nobody -- see `exportPictureContent`. Nothing is raised a second
-    // time here.
+    // A `null` has already been told, or is an absence that reaches nobody.
     if (content === null) return
 
     const saving = await saveDocumentFile(
@@ -8391,15 +5413,10 @@ export function frameLoop(
       chosenFileSave(content, written.schedule.project, form),
     )
     if (saving.ok) {
-      // ⭐⭐ ST-7 OF TABLE T-014 (MUST): 「書き出しを終えたあとで同じ通知を画面に
-      // 上げること」 -- IO-3 and IO-4 are 「書き出す」, and this is the moment the
-      // writing ended. ⛔ NOT BEFORE THE WRITE: the sentence puts it after, so a
-      // save that failed says why it failed and nothing else.
-      // ⭐ THE SAME REASON THE SCREEN RAISES (`RS-24`) AND THE SAME `null` COUNT
-      // -- 「同じ通知」 in as many words, and `RS-24`'s words take no number.
-      // ⛔ `stackSafetyCapToldFor` IS NOT TOUCHED. That guard belongs to the
-      // frame, which lays the picture out separately (ST-7's own ⭐), so moving
-      // it here would silence the screen's telling for a stop it never told.
+      // ST-7 of table T-014: raised after the writing ended, with the screen's
+      // reason and a `null` count. `stackSafetyCapToldFor` belongs to the frame,
+      // which lays its picture out separately; touching it would silence the
+      // screen's own telling.
       if (stackSafetyCapOwedByPictureExport !== null) {
         stackSafetyCapOwedByPictureExport = null
         raiseNotice(STACK_SAFETY_CAP_REASON, null)
@@ -8411,53 +5428,20 @@ export function frameLoop(
   }
 
   /**
-   * The content of one of the three forms `exportedText` cannot answer for, or
-   * `null` where there is none to write.
+   * The content of a form `exportedText` cannot answer for, or `null` where
+   * there is none to write: IO-3 is `exportSvg`'s picture (PI-21), IO-4 the
+   * bytes `Rasterizer` (IF-6) paints from it, IO-7 the file `exportEmbeddedHtml`
+   * (PI-20) makes from the application's HTML (IF-8).
    *
-   * ⭐⭐ ALL THREE ARE WRITTEN HERE SINCE CR-333's ROUND, AND THAT IS THE WHOLE
-   * OF DFC-173. Measured 2026-09-01: `svg`, `png` and `singleHtml` were all
-   * offered on FR-096's chooser and all three returned without writing and
-   * without telling. `png` was wired that day; the reader's ruling for the
-   * other two was 「次回ですべて作る。並行で実装できるだろ？」, and this is
-   * where the three roads meet: IO-3 goes out as the picture `exportSvg`
-   * (PI-21) assembles, IO-4 as the bytes `Rasterizer` (IF-6) paints from that
-   * same picture, and IO-7 as the file `exportEmbeddedHtml` (PI-20) makes from
-   * the application's own HTML (IF-8).
-   *
-   * ⛔ THE DOCUMENT IS HANDED IN RATHER THAN READ AGAIN, which is CS-4 of table
-   * T-066 reaching across two functions: the caller took it before its first
-   * await, and a second read here would write a document the person has since
-   * changed. ⚠️ `exportScene` reads the held document too, and it is called
-   * before this function's first await for the same reason -- reading it after
-   * a rastering had begun would paint one document and write another.
-   *
-   * ⚠️ ONE ABSENCE REACHES NOBODY, and that is the shape the roads beside this
-   * one already take rather than a choice made here. `scene === null` is the
-   * same case as no store and no clipboard -- 「doing nothing then is the
-   * absence of the behaviour and not the behaviour」. An unsettled environment
-   * is BO-1 not having measured a size yet, and there is no picture to paint
-   * before there is a screen to paint it from.
-   * ⛔ A MISSING SEAM DOES NOT REACH NOBODY. `single-html-shell.ts` hands both
-   * seams in at wiring time, but a host with no canvas and no source of its own
-   * HTML -- Node among them -- hands neither, and a press that returned `null`
-   * in silence is exactly FR-029's (MUST) forbidden shape. `SEAM_ABSENT_REASON`
-   * (`RS-3`) is raised before each of those early returns.
-   *
-   * ⚠️ THE ANSWER IS SPELLED `ChosenFileSaveRequest['content']` AND NOT
-   * `SaveFileContent`. Table T-064 is the full count of what FileGateway
-   * publishes and it names no row for the second spelling, so importing that
-   * name would be a name crossing a folder the table does not admit -- the
-   * request type it belongs to IS published, and reading the member off it says
-   * the same thing without adding a crossing.
-   *
-   * ⭐ FR-025's TELLING IS NOW MADE, AND DFC-201 IS WHY IT NEEDED NO SECOND
-   * NUMBER (CR-337, closing the STOP this comment used to carry). `RS-22`
-   * ("落とした件数を 2 つ運べない") is retired rather than answered: FR-025 no
-   * longer drops a `TaskGroup` at all, so there is no count left for
-   * `RaisedNotice.affectedCount` to carry and no picture cut down the page.
-   * Past `S-217` there is no picture, and `HEIGHT_CEILING_REASON` (`RS-43`) is
-   * the one row that tells a person so -- raised below for `svg` and inside
-   * `rasteredContent` for `png`.
+   * The document is handed in (CS-4 of table T-066), and `exportScene` is called
+   * before the first await for the same reason.
+   * `scene === null` reaches nobody: before BO-1 has a size there is no picture.
+   * A missing seam does not: a host with no canvas or no HTML source (Node)
+   * would otherwise return in silence, which FR-029 forbids, so
+   * `SEAM_ABSENT_REASON` is raised. Past `S-217` there is no picture, and
+   * `HEIGHT_CEILING_REASON` tells so (FR-025).
+   * The answer is `ChosenFileSaveRequest['content']`, not `SaveFileContent`:
+   * table T-064 publishes no row for the second name.
    *
    * @purity non-pure
    */
@@ -8468,7 +5452,7 @@ export function frameLoop(
     switch (form) {
       case 'grsJson':
       case 'mspdi':
-        // ⛔ Not reachable: `exportedText` answers for both, and this function
+        // Not reachable: `exportedText` answers for both, and this function
         // is called only where it answered `null`. Named rather than left to a
         // default so that a form added to `SaveFileForm` is a compile error.
         return null
@@ -8477,18 +5461,15 @@ export function frameLoop(
       case 'svg':
       case 'png': {
         const scene = exportScene()
-        // ST-7 (MUST): the stop this picture was laid out with, lifted out of
-        // `exportScene`'s answer while the two are still one statement apart --
-        // the raise itself waits for the write (`exportHeldDocumentToFile`).
+        // ST-7: lifted while still one statement from `exportScene`; raised
+        // after the write.
         stackSafetyCapOwedByPictureExport = stackSafetyCapOfLastExportScene
         if (scene === null) return null
-        // IO-3 is the picture itself, and it is the same picture IO-4 is
-        // painted from -- WY-2 of table T-041 judges the two to be one drawing,
-        // and a second assembly is how they would come to differ.
+        // One assembly for IO-3 and IO-4 (WY-2 of table T-041).
         if (form === 'svg') {
           const picture = exportSvg(scene)
           if (!picture.ok) {
-            // FR-025 (MUST), CR-337: refused before anything was drawn.
+            // FR-025: refused before anything was drawn.
             raiseNotice(HEIGHT_CEILING_REASON, null)
             return null
           }
@@ -8515,8 +5496,7 @@ export function frameLoop(
     }
     const painted = await exportPng(seam, scene)
     if (!painted.ok) {
-      // FR-025 (MUST), CR-337: the picture itself did not fit S-217's ceiling,
-      // so the rasterizer was never asked.
+      // FR-025: the picture did not fit S-217, so the rasterizer was never asked.
       raiseNotice(HEIGHT_CEILING_REASON, null)
       return null
     }
@@ -8530,11 +5510,8 @@ export function frameLoop(
 
   /**
    * IO-7 of table T-024 -- the application and this document as one file, or
-   * `null` once the reason has been told.
-   *
-   * ⛔ THE ASSEMBLY IS NOT DONE HERE. UT-5 of table T-063 keeps the single
-   * .html in a codec of its own, and FR-067's 「入れ口が 1 つ」 rule lives with
-   * that codec; all this does is hand it the seam and the document.
+   * `null` once the reason has been told. The assembly lives in the codec (UT-5
+   * of table T-063).
    *
    * @purity non-pure
    */
@@ -8556,19 +5533,13 @@ export function frameLoop(
   }
 
   /**
-   * FR-096's road: the file the person is about to point at.
+   * FR-096's road: the file the person is about to point at, reached from SK-11
+   * (no opened file) and from the export.
    *
-   * ⭐ DI-1's three columns, gathered where the document is. ⚠️ TWO ROADS REACH
-   * THIS NOW: SK-11's, which is taken only when the store holds no opened file,
-   * and FR-096's export, which is taken whether one is held or not.
-   * ⚠️ The file name is `null` on both, and that is a choice rather than a fact
-   * on the second: the name of the opened file is the store's to answer, and
-   * asking it here would be a second external read inside the one consistency
-   * unit R7.4 keeps whole. By DI-1 and DI-2 a `null` name matches no
-   * destination, so DI-4's question is owed for every existing file -- which is
-   * the direction table T-227 chooses throughout, an extra question against a
-   * file that cannot be got back. ⛔ It can only ask MORE often than DI-1 would,
-   * never overwrite one in silence.
+   * DI-1's three columns. The file name is `null`: asking the store would be a
+   * second external read inside R7.4's one unit. A `null` name matches no
+   * destination, so DI-4 asks for every existing file -- more questions, never
+   * a silent overwrite.
    *
    * @purity pure
    */
@@ -8582,13 +5553,9 @@ export function frameLoop(
       content,
       form,
       suggestedFileName: suggestedFileNameOf(project, form),
-      // ⭐⭐ THE SECOND HALF OF FR-096's MUST, and the whole of DFC-172.
-      // Measured 2026-09-01: the name above already arrived at the chooser with
-      // its extension on it, and the file still landed without one -- a chooser
-      // told no KIND enforces nothing. ⛔ The same value the name ends in, sent
-      // apart from it: what the far side does with it is the Framework layer's,
-      // which that requirement fixes, and nothing on this road may name a media
-      // type.
+      // FR-096: the extension is sent apart from the suggested name, since a
+      // chooser told no kind enforces nothing. No media type is named on this
+      // road; that is the Framework layer's.
       extension: extensionOfForm(form),
       identity: { fileName: null, projectName: project.name, projectId: project.id },
       projectIdentityFromText,
@@ -8606,23 +5573,11 @@ export function frameLoop(
    * The entries of table T-109 this loop answers for, on the release that
    * settled on one. Returns whether the entry was spent here.
    *
-   * ⭐ THE SHELL'S OWN, BECAUSE NONE OF THEM IS A `DocumentCommand`. IC-21
-   * chooses the display language (S-99) and IC-71 .. IC-73 are OP-3's three;
-   * table T-108 has no row for any of them, and LY-5 of table T-060 leaves a
-   * current value with this layer.
-   *
-   * ⚠️ NT-7's TWO ANSWERS WERE AMONG THEM UNTIL 2026-09-02 (CR-327). They are
-   * word buttons now and (MUST NOT) have no row of table T-109, so they are
-   * spent in `receiveInput` off `ScreenPart.confirmationAnswer` -- and CS-4's
-   * discipline still holds there: the answer lands on the operation that was
-   * begun, not on what the document says now.
-   *
-   * ⚠️⚠️ ONE OF THEM IS A `DocumentCommand` SINCE 2026-09-06, so the head note
-   * above no longer covers every branch: IC-66 writes CM-42 of table T-108 and
-   * is here for its ARGUMENT rather than for want of a row -- `ROSTER_DELETE_ENTRY`
-   * carries the whole reason. ⭐ THAT IS WHY THE FRAME IS AN ARGUMENT NOW:
-   * `writeDocument` is handed the frame the press was decided against (WS-6),
-   * and every other branch here writes nothing at all.
+   * Mostly not `DocumentCommand`s (IC-21 is S-99, IC-71 .. IC-73 are OP-3's), and
+   * LY-5 of table T-060 leaves current values with this layer. NT-7's word
+   * buttons are spent in `receiveInput` off `ScreenPart.confirmationAnswer`.
+   * IC-66 writes CM-42 of table T-108 and is here for its argument
+   * (`ROSTER_DELETE_ENTRY`), which is why the frame is passed (WS-6).
    *
    * @purity non-pure
    */
@@ -8632,214 +5587,121 @@ export function frameLoop(
     frame: FrameValues,
   ): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
-      // DFC-61 of the defect ledger (利用者の指摘 2026-08-27): 「`[x]` と `[ESC]`
-      // のどちらでも非表示にできるべき」. This is the `[x]` half; IN-4's level
-      // above is the other.
-      // ⭐ ANSWERED HERE AND NOT BY THE TRANSLATOR, for the reason the five
-      // entries beside it are: what this press changes is a current value, and
-      // LY-5 of table T-060 leaves those with this layer. Table T-108 has no
-      // command for it, so `applyDocumentChange` (PI-8) would have nothing to
-      // plan.
-      // ⛔ SPENT WHETHER OR NOT THE PANEL WAS UP. The entry is drawn on the
-      // panel and nowhere else on this surface, so a press that reached it
-      // reached a panel that was there to press -- and answering `false` would
-      // hand the press to `carryOutAction` as an edit of the schedule beneath.
+      // The `[x]` half of putting the panel away; IN-4's level is the other.
+      // A current value (LY-5) with no command in table T-108. Spent whether or
+      // not the panel was up: `false` would hand the press to `carryOutAction`
+      // as an edit of the schedule beneath.
       isPropertiesPanelPutAway = true
       return true
     }
     if (entry === CLOSE_SURFACE_ENTRY && surface === AI_EXPORT_MODAL_SURFACE) {
-      // FR-068 (MUST): 「複写の入口は 表 T-109 の `IC-52` とすること（MUST）。
-      // 新しい行を足してはならない（MUST NOT）」 —— 「その行は既にこの面に在る」.
-      //
-      // ⭐⭐ SO THE COPY RIDES ON THE ROW THAT WAS ALREADY THERE, and this is
-      // the whole of why it is done in this layer: CHN-9 of table T-008 puts the
-      // clipboard outside the components that draw, `ClipboardContent` already
-      // carries a `document` variant named for FR-068, and no row of table
-      // T-108 makes this a `DocumentCommand` -- nothing is written to the
-      // document at all.
-      // ⛔ NOT SPENT: this answers `false` so that the press goes on to close
-      // the surface the way it closes every other one (IN-4 of table T-028,
-      // spent by `input-command-translator.ts`). Returning `true` would make
-      // FR-068's copy entrance a control that no longer closes, which is the
-      // second entrance FR-029 forbids wearing the first one's shape.
-      // ⚠️ THE DOCUMENT IS READ HERE AND NOT INSIDE THE PROMISE, which is CS-4
-      // of table T-066 and the same shape the record's copy keeps: what goes on
-      // the clipboard is what the person was reading when they pressed.
+      // FR-068: the copy rides on IC-52, which already stands on this surface.
+      // Done in this layer because CHN-9 of table T-008 keeps the clipboard out
+      // of the drawing components, and nothing is written to the document.
+      // Answers `false` so the press still closes the surface (IN-4); `true`
+      // would leave a copy entrance that no longer closes (FR-029).
+      // The document is read at the press (CS-4).
       const seam = clipboard
-      // ⛔ NOTHING IS WRITTEN WHERE NO CLIPBOARD WAS HANDED IN -- the answer
-      // `copyPictureToClipboard` and the record's copy both make (CP-30).
+      // Nothing is written without a clipboard (CP-30).
       if (seam !== undefined) {
-        // ⭐ THE SAME WRITER `sessionOf` PUT ON THE SURFACE (FR-068, MUST):
-        // 「渡す文書は、表 T-024 の `GRS JSON` そのものとすること（MUST）」, so
-        // the text copied and the text read are one call and cannot part.
+        // The same writer `sessionOf` put on the surface (FR-068), so the text
+        // copied and the text shown cannot part.
         const text = jsonFromDocument(held.document)
         void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
-          // FR-076 (MUST): a failure is told. ⛔ STOP -- table T-233 has no row
-          // for a clipboard write that would not go through, so the reason has
-          // nowhere to point and RS-15 is what it falls to, exactly as the
-          // picture's own write records. ⚠️ A row of its own is what is owed.
+          // FR-076. STOP -- table T-233 has no row for a failed clipboard write,
+          // so it falls to RS-15. A row of its own is what is owed.
           if (!writing.ok) raiseNotice('RS-15', null)
         })
       }
       return false
     }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
-      // FR-038 (MUST): exactly two languages, so one entry that shows the
-      // current one is the whole switch (the header's half of the two entrances
-      // the same requirement asks for).
+      // FR-038: two languages, so one entry is the header's whole switch.
       language = language === 'ja' ? 'en' : 'ja'
       writeBrowserStored('S-99', language)
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
-      // S-200 of table T-206, turned the way S-142 is: table T-109's IC-75 says
-      // 「同じ入口で戻す」, so the press reverses whatever stands, and LY-5 of
-      // table T-060 leaves a current value with this layer.
-      // ⛔ NOT S-99e. That row is whether the palette is SHOWN, whose entrance
-      // FR-053 (MUST) keeps outside the palette -- this one rides on the band,
-      // and a palette that is not shown has no band to press.
+      // S-200 of table T-206, reversed by the same entrance (IC-75). Not S-99e:
+      // that is whether the palette is shown, whose entrance FR-053 keeps
+      // outside the palette.
       isPaletteMinimised = !isPaletteMinimised
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
-      // S-206 of table T-206, turned the way S-200 and S-142 are: table T-109's
-      // IC-76 says the same entrance stops it, so the press reverses whatever
-      // stands, and LY-5 of table T-060 leaves a current value with this layer.
-      // ⛔ THE STOP IS NOT ONLY A FLAG GOING OFF: FR-102 (MUST) hands the
-      // record to the clipboard on the way out, and `turnInteractionRecord` is
-      // where both halves of one press live so that neither can happen alone.
+      // S-206 of table T-206, reversed by the same entrance (IC-76). Stopping
+      // also hands the record to the clipboard (FR-102), so both halves live in
+      // `turnInteractionRecord`.
       turnInteractionRecord()
       return true
     }
     if (entry === DIALOGUE_FIELD_ENTRY) {
-      // FR-029 (MUST): the entrance `commandStateOf` drew faint answers the
-      // press with the reason, and 表 T-233's `RS-35` is the 場面 it falls
-      // under -- 「`Agent API` が入っていないので、対話欄を出せない」.
-      //
-      // ⭐ THE SAME READING THE HEADER WAS DRAWN FROM, which is the only reason
-      // this may be judged here: `screenSession` is handed the very
-      // `isAgentApiEnabled` below, so the entrance a person sees faint is the
-      // entrance that explains itself.
-      // ⛔ NOT SPENT WHILE THE API IS ON. There is nothing to tell then, and
-      // answering `true` would swallow the press: `false` here lets it fall
-      // through to `carryOutAction`, which now has `toggleDialogueFieldVisible`
-      // (S-99i, DFC-149) to spend it on instead.
+      // FR-029: the faint entrance answers the press with `RS-35`, judged from
+      // the same `isAgentApiEnabled` the header was drawn from. While the API is
+      // on, `false` lets the press reach `carryOutAction`'s
+      // `toggleDialogueFieldVisible` (S-99i).
       if (isAgentApiEnabled) return false
       raiseNotice(DIALOGUE_FIELD_UNAVAILABLE_REASON, null)
       return true
     }
     if (entry === MILESTONE_LIST_ENTRY) {
-      // S-142 of table T-206, turned the way the language above is: the press
-      // writes a current value LY-5 of table T-060 leaves with this layer, and
-      // `input-command-translator.ts` answers the row with nothing.
-      // ⭐ READ OFF WHAT IS HELD, the way `chooseRow` and `toggleChosenResource`
-      // are: table T-109's IC-50 says 「同じ入口で開閉する」, so the press
-      // reverses whatever stands. ⛔ It was written from the ENTRY while there
-      // were two rows, each saying which way it went.
+      // S-142 of table T-206, a current value (LY-5); the translator answers the
+      // row with nothing. Reversed off what is held (IC-50).
       isMilestoneListOpen = !isMilestoneListOpen
       return true
     }
     if (entry === NEW_DOCUMENT_ENTRY) {
-      // IC-98 of table T-109 -- FR-095's 「文書を新しく始める」. Why it is
-      // answered HERE rather than by the translator is the entry constant's own
-      // note.
-      //
-      // ⭐ WHILE A QUESTION STANDS, THIS PRESS IS TOLD AND NOT SPENT IN SILENCE
-      // -- the guard `ROSTER_DELETE_ENTRY` carries, for the reason it gives:
-      // FR-029 (MUST) 「押されたときに限り、行えない理由を通知すること」, table
-      // T-233 holds no row for 「a question is already up」, and `RS-27` is that
-      // requirement's own fallback (DFC-337). ⚠️ The guard itself is needed here
-      // too -- `askToDiscardCurrentDocument` writes `asking`, so a second press
-      // would replace the question the first one is still waiting on and leave
-      // that wait unsettled for ever.
+      // IC-98 of table T-109 (FR-095); why it is answered here is the entry
+      // constant's note. While a question stands the press is told with `RS-27`
+      // (FR-029), as for `ROSTER_DELETE_ENTRY`: `askToDiscardCurrentDocument`
+      // writes `asking`, so a second press would orphan the first wait.
       if (asking !== null) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
-      // ⛔ TOLD RATHER THAN ASKED WHEN THERE IS NO TEMPLATE. FR-095's RATIONALE
-      // says 「出すものは `FR-027` のテンプレートであり、本要求は別のテンプレート
-      // を持たない」, so a loop that was handed none has nothing to put up -- and
-      // raising QN-5 to then discard nothing is the defect 規則 04 section 3.6
-      // records, 「消す確認が嘘をつく」.
-      // ⭐ `RS-27` AND NOT `RS-3`, and the line between them is what each row
-      // says: RS-3 is a write this environment could not perform, and no write
-      // is attempted here. Table T-233 names no row for a loop built without its
-      // template, which is the scene FR-029's fallback is for -- the same
-      // reading the guard above takes, and the same one `carryOutAction` takes
-      // for a press with nothing to act on (DFC-337).
+      // No template: told rather than asked, since raising QN-5 to discard
+      // nothing would be a lying confirmation (rule 04 section 3.6). `RS-27`, not
+      // `RS-3`: no write is attempted here (FR-029's fallback).
       const template = startupTemplate
       if (template === undefined) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
-      // ⛔ THE PRESS IS SPENT NOW AND THE WORK FINISHES LATER, which is the shape
-      // `matchWatermarkUnlock` keeps: the question has to be answered before
-      // anything is discarded (FR-095, MUST), and this member answers a press.
+      // Spent now, finished later (as in `answerWatermarkUnlock`): the question
+      // must be answered before anything is discarded (FR-095).
       void startNewDocument(template)
       return true
     }
     if (entry === ROSTER_DELETE_ENTRY) {
-      // IC-66 of table T-109 -- FR-099's 「選んだ担当者を消す」, and the last of
-      // the `Resource Roster`'s six entrances to be answered (台帳 DFC-288). Why
-      // it is answered HERE rather than by the translator is the entry
-      // constant's own note.
+      // IC-66 of table T-109 (FR-099); why it is answered here is the entry
+      // constant's note. The press and the question are one piece: FR-099
+      // requires the tasks it would unassign to be named and confirmed first.
       //
-      // ⛔⛔ THE PRESS AND THE QUESTION LANDED IN ONE PIECE (台帳 DFC-289), and
-      // neither half is worth anything alone. FR-099 (MUST) requires the names
-      // of the tasks this would unassign to be shown and confirmed first, so a
-      // press answered with the write alone would destroy assignments unasked
-      // -- which is the very MUST that half of the requirement is.
-      //
-      // ⭐ WHILE A QUESTION STANDS, THIS PRESS IS TOLD AND NOT SPENT IN
-      // SILENCE. FR-029 (MUST): 「押されたときに限り、行えない理由を通知する
-      // こと」, and table T-233 holds no row for 「a question is already up」 --
-      // so `RS-27` is that requirement's own fallback, exactly as the open and
-      // reopen roads carry it under the same guard (DFC-337). ⛔ NOT
-      // `carryOutAction`'s silent return: that branch predates DFC-337, and the
-      // user's ruling of 2026-08-30 is that a press with nothing to do says
-      // why.
-      // ⚠️ THE GUARD ITSELF IS THAT BRANCH'S REASON THOUGH -- a second write
-      // started now would land on a document the standing question never saw.
+      // While a question stands the press is told with `RS-27` (FR-029), as the
+      // open and reopen roads do; a second write now would land on a document
+      // the standing question never saw.
       if (asking !== null) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
-      // FR-029 (MUST) again, and the plainest reading of it: 「選んだ担当者を
-      // 消す」 has no subject when nobody is chosen, so the entrance holds
-      // nothing it can do. ⛔ NOT RS-34 -- that row is 「揃える相手の `Task` が
-      // 選ばれていない」, which is FR-034's align and a different 正; no row of
-      // table T-233 names this scene, which is what `RS-27` is the fallback
-      // for.
-      // ⛔ AND NOT WRITTEN THROUGH AS AN EMPTY BUNDLE. CM-42 answers an empty
-      // `uids` with the document unchanged, so the press would be an ACCEPTED
-      // write: it would mark the document as holding unsaved edits (FR-100)
-      // and say nothing to the person who pressed.
+      // FR-029: nobody chosen, nothing to do, so `RS-27` (not RS-34, which is
+      // FR-034's). Not written as an empty bundle: CM-42 would accept it, mark
+      // the document unsaved (FR-100) and say nothing.
       const chosen = selectedResourceUids
       if (chosen.length === 0) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
-      // CM-42 of table T-108, handed the `uid`s the choice holds -- which is
-      // what table T-109 names in IC-66's own row.
-      // ⭐ THE SET IS TAKEN NOW AND CARRIED WITH THE QUESTION, which is CS-4 of
-      // table T-066 and the shape `carryOutAction` keeps for FR-032's writes:
-      // the answer lands on the operation that was BEGUN, not on whichever
-      // people the roster holds chosen by the time it arrives.
-      // ⚠️ NOTHING PRUNES THAT SET AFTERWARDS, and that is the shell's standing
-      // shape rather than a decision taken here: `selectedGroupIds` is not
-      // pruned by a row deletion either. ⛔ The consequence is measurable --
-      // press this twice and the second press names `uid`s the document no
-      // longer holds, which CM-42 refuses and `writeDocument` tells with the
-      // refusal's own reason. ⚠️ Told rather than silent, so no MUST of FR-029
-      // is broken; whether the set should be cleared is PND-143's, which is
-      // 未裁定 and says nothing about a deletion.
+      // CM-42 of table T-108 with the chosen `uid`s (IC-66), taken now and
+      // carried with the question (CS-4). Nothing prunes the set afterwards, as
+      // with `selectedGroupIds`: a second press names gone `uid`s, which CM-42
+      // refuses and `writeDocument` tells. PND-143 covers the set but not its
+      // pruning.
       const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
       const owedQuestion = confirmationOwedByResourceDeletion(chosen, held.document)
       if (owedQuestion === null) {
-        // QN-3's 場面 is not met -- this deletion frees no assignment -- and
-        // FR-031 (MUST NOT) keeps the places that may ask from growing. Undo is
-        // what stands behind it (UN-15 names FR-099's deletion), which is what
-        // that requirement's RATIONALE intends.
+        // QN-3's scene is not met (no assignment is freed); FR-031 keeps the
+        // places that ask from growing, and undo stands behind it (UN-15).
         writeDocument(writes, frame)
         return true
       }
@@ -8847,8 +5709,7 @@ export function frameLoop(
         question: owedQuestion,
         /** @purity non-pure */
         settle(isProceeding, answeringFrame) {
-          // FR-099 (MUST) -- 「取りやめる」 leaves the document untouched.
-          // Nothing was written, so there is nothing to undo either.
+          // FR-099: cancelling leaves the document untouched.
           if (!isProceeding) return
           writeDocument(writes, answeringFrame)
         },
@@ -8858,41 +5719,27 @@ export function frameLoop(
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
     if (openChoice !== undefined) {
       const choosing = openChoosing
-      // ⚠️ Not spent when nothing is waiting: the three entries exist only while
-      // the surface holding them is up, and a press that reached one with no
-      // read behind it is a press this loop has no answer for.
+      // Not spent when nothing is waiting: these entries exist only while their
+      // surface is up.
       if (choosing === null) return false
       openChoosing = null
-      // S-99g: the surface has answered its question, so it is no longer open.
-      // ⛔ Closed HERE and not by `screenStateFromEntry`, even though table
-      // T-109 now places IC-52 on this surface too: that entry is IN-4's way
-      // OFF a surface without answering it, which OP-3 (MUST NOT) makes an
-      // abandoned read and not one of the three. These three ARE the answer, so
-      // the closing belongs beside the answering -- leaving it to the
-      // translator would leave the surface standing over the document with its
-      // question already settled.
+      // S-99g: closed here beside the answer, not by `screenStateFromEntry`:
+      // IC-52 on this surface is IN-4's way off without answering (an abandoned
+      // read, OP-3), whereas these three are the answer.
       screenState = screenStateWithSurface(screenState, null)
       choosing.settle(openChoice)
       return true
     }
-    // FR-022 (MUST) -- one of table T-032a's three, taken on U-61.
-    //
-    // ⭐ THE SAME SHAPE THE THREE ABOVE HAVE, deliberately: the entries exist
-    // only while the surface holding them is up, the surface is closed HERE
-    // rather than by `screenStateFromEntry` because these three ARE the answer,
-    // and a press that reached one with no merge waiting is a press this loop has
-    // no answer for.
-    // ⛔ THE LIST IS DROPPED WITH THE ANSWER. What U-61 laid out belongs to the
-    // merge being asked about, and leaving it behind would have the next surface
-    // show a pairing that is no longer being asked.
+    // FR-022 -- one of table T-032a's three, taken on U-61, in the same shape as
+    // the three above. The candidate list goes with the answer, or the next
+    // surface would show a pairing no longer being asked.
     const mergeMapping = MERGE_MAPPING_OF_ENTRY[entry]
     if (mergeMapping !== undefined) {
       const choosing = mergeChoosing
       if (choosing === null) return false
       mergeChoosing = null
       mergeCandidates = []
-      // FR-073's list goes with it, on the same terms as the pairing above:
-      // the columns belong to the intake that was being asked about.
+      // FR-073's list goes with it, on the same terms.
       unreadColumns = []
       screenState = screenStateWithSurface(screenState, null)
       choosing.settle(mergeMapping)
@@ -8905,121 +5752,69 @@ export function frameLoop(
    * FR-096 and SK-12: the format chosen on U-54, spent. Returns whether it was
    * spent here.
    *
-   * ⭐ THE SHELL'S OWN, for the reason the six entries beside it are: writing a
-   * file is FileGateway's (IF-3) and the document written is a current value,
-   * which LY-5 of table T-060 leaves with this layer. Table T-108 has no command
-   * for it, and `input-command-translator.ts` reads no format at all.
+   * Held by the shell because writing a file is FileGateway's (IF-3) and the
+   * document written is a current value (LY-5 of table T-060); table T-108 has
+   * no command for it.
    *
-   * ⛔ NOT DECIDED BY THE SPECIFICATION: whether U-54 stays up once a format has
-   * been taken. Looked in FR-096 (one entry, one chooser, and nothing about what
-   * becomes of the surface), in table T-024a, in table T-103's U-54 and in IN-4
-   * of table T-028, which settles only how a surface is CLOSED and not when one
-   * closes itself. ⭐ Chose to close it, the same choice `answerSettledEntry`
-   * makes for U-56 and for the same reason: this press IS the surface's answer,
-   * and leaving it standing would leave a surface over the document with its
-   * question already settled. ⚠️ Recoverable in one line if the manuscript says
-   * otherwise -- IC-52 and `Esc` both still close it either way.
+   * STOP: whether U-54 stays up once a format is taken is not decided. Looked in
+   * FR-096, table T-024a, table T-103's U-54 and IN-4 of table T-028 (which says
+   * how a surface is closed, not when it closes itself). Closed here, as
+   * `answerSettledEntry` does for U-56: this press is the surface's answer.
    *
    * @purity non-pure
    */
   function answerSettledFormat(format: ExportFormatId): boolean {
     // S-99g: the surface has answered its question, so it is no longer open.
-    // ⛔⛔ AND THAT IS WHY BOTH GATES BELOW NOW TELL. The surface is taken down
-    // on the line above, BEFORE either of them is read -- so an early return in
-    // silence is the chooser closing with nothing written and nothing said,
-    // which is FR-029's (MUST) forbidden shape stated in its own first
-    // sentence: a press that changes nothing and says nothing cannot be told
-    // from a broken one.
-    // ⭐ MEASURED 2026-09-05 on the shipped build at 1920x1080 (`file://`, the
-    // host save dialogue replaced so that the reading is of what happens once a
-    // handle has been asked for): with SK-11's save still standing in that
-    // dialogue, `Ctrl`+`Shift`+`E` and a press on `IO-3` closed U-54, wrote 0
-    // bytes and raised 0 notices. With the same build and nothing in flight the
-    // same press wrote 395,400 bytes. ⚠️ That is the SHAPE the ledger's DFC-320
-    // reported and not its case: every one of table T-024's five file rows
-    // writes from this surface at this commit, which the same probe measured.
+    // Trap: it is taken down before either gate below, so each gate must raise
+    // a notice -- a silent return would close the chooser with nothing written
+    // and nothing said (FR-029).
     screenState = screenStateWithSurface(screenState, null)
-    // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to.
-    // ⚠️ NOT "the absence of the behaviour", which is what this line used to
-    // answer. `exportPictureContent` already settled the same question the
-    // other way one screen below -- "A MISSING SEAM DOES NOT REACH NOBODY ... a
-    // press that returned `null` in silence is exactly FR-029's (MUST)
-    // forbidden shape" -- and a missing FileStore is that argument's own case:
-    // the chooser is only on the screen because IC-2 was pressed.
-    // ⭐ `RS-3` and not `RS-40`: table T-233 gives RS-3 「書き込みを試みたが、
-    // この環境では行えなかった」 against LM-14 of table T-004, which is a host
-    // that cannot write rather than a form this build cannot make. Every one of
-    // the five rows CAN be made here, so RS-40 would be a wrong reason wearing
-    // a right shape.
+    // No store handed in. Told rather than silent: the chooser is up only
+    // because IC-2 was pressed (FR-029). RS-3 and not RS-40: every row of table
+    // T-024 can be made in this build, so the refusal is the host's (LM-14).
     const store = files
     if (store === undefined) {
       raiseNotice(SEAM_ABSENT_REASON, null)
       return true
     }
-    // ⛔ ONE AT A TIME, the same guard the save and the open paths keep: CS-4 of
-    // table T-066 collects at the moment the operation begins, and a second one
-    // begun mid-wait would take the one question the screen can hold away from
-    // the first.
-    // ⭐ `RS-27` IS THE FALLBACK DOING ITS JOB, not a row reached for over one
-    // that fits: this press could not be performed because another file
-    // operation holds the one question the screen can carry, and no row of
-    // table T-233 names that situation. `NOTHING_TO_DO_REASON` records the rule
-    // -- FR-029's 「どの入口にも当たる行が無いときの落ち先」 -- and DFC-265 of the
-    // defect ledger closed the same shape on IC-5 / IC-6 with the same row.
-    // ⛔ NOT `RS-7` OR `RS-9`. Those are WS-2's mid-gesture and mid-notify
-    // refusals of a WRITE by the `Agent API`, and neither is a person's press
-    // arriving while a file question stands.
+    // One file operation at a time (CS-4 of table T-066): a second begun
+    // mid-wait would take the screen's one question away from the first.
+    // RS-27 is FR-029's fallback: no row of table T-233 names another file
+    // operation holding the question. Not RS-7 / RS-9, which are WS-2's refusals
+    // of an `Agent API` write.
     if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
       raiseNotice(NOTHING_TO_DO_REASON, null)
       return true
     }
     isFileOperationWaiting = true
-    // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the save path
-    // has, and for the reason CS-4 gives: the operation spans frames, and the
-    // flag above is what keeps the next press from starting a second one.
-    // ⛔ WAITING ON PND-187, and so are the other two of this shape below. That
-    // record states the gap exactly: `.finally` does not consume a rejection,
-    // and all three of these declare a rejection to be a breach of IF-3's
-    // contract -- so a rejected one is neither swallowed on purpose nor told.
-    // ⛔ NOT SETTLED HERE. The three answers PND-187 weighs (swallow it, leave
-    // it, give it a row of table T-233) are a ruling, and a row invented in
-    // this file would be the reason FR-076 (MUST NOT) bars from outside that
-    // table. ⚠️ Not the same question as LM-14 of table T-004, which is a write
-    // the environment could not perform and already has RS-3.
+    // Not awaited: the operation spans frames (CS-4) and the flag above keeps a
+    // second one from starting.
+    // PND-187 (open): `.finally` does not consume a rejection, so a rejected
+    // write is neither swallowed on purpose nor told; the open and save paths
+    // below have the same shape. A row invented here would break FR-076.
     void exportHeldDocumentToFile(store, format).finally(endFileOperationWait)
     return true
   }
 
   /**
-   * SK-4 of table T-036 -- 「コピーする」, whose 正 is FR-033.
+   * SK-4 of table T-036 (FR-033).
    *
-   * ⭐⭐ AN IDENTIFIER IS WHAT IS KEPT, and that is the specification's shape and
-   * not a saving: `pasteTaskSubtree` (CM-8) takes a `sourceUid`, and
-   * `pasteTaskGroupSubtree` takes a `sourceGroupId`; both read table T-223's
-   * cascade out of the document when the paste lands. ⇒ A store holding ROWS
-   * would paste a document that has since been edited away.
-   * ⛔ NOTHING IS SENT TO THE OS. FR-033 (MUST NOT) forbids READING the OS
-   * clipboard, and CHN-9 of table T-008 leaves the write route to FR-025's picture
-   * -- neither says a Task copy goes out, so it does not.
+   * An identifier is kept, not rows: `pasteTaskSubtree` (CM-8) and
+   * `pasteTaskGroupSubtree` read table T-223's cascade when the paste lands, so
+   * stored rows would paste a document since edited away.
+   * Nothing is sent to the OS clipboard (FR-033).
    *
-   * ⭐ FR-033 NAMES TWO SUBJECTS and this reads both: 「選ばれた `Task` とその WBS
-   * の子孫を部分木ごと」 for the chart, 「行見出しパネルでは、選ばれた `TaskGroup`
-   * を部分木ごと」 for the panel.
-   * ⛔ UNRULED, AND MINE (2026-09-06): WHICH OF THE TWO WINS when a row and a
-   * Task are both chosen. FR-033 states the row clause unconditionally, and DU-2
-   * cascades DU-1 over every `Task` on the copied rows -- so the row is the
-   * SUPERSET of the Task standing on it, and taking it can lose nothing the
-   * person had picked. Overturn it by naming the axis in FR-033.
-   * ⛔ UNRULED, AND MINE: MORE THAN ONE. FR-033 says 「選ばれた `Task`」 and
-   * 「選ばれた `TaskGroup`」 in the singular and both commands carry ONE source,
-   * so two cannot be expressed; `RS-27` is FR-029's 「どの入口にも当たる行が無い
-   * とき」 doing its job rather than a row reached past. ⚠️ A copy of several is
-   * a change to table T-223 and to both command shapes, not to this function.
+   * Not decided by the spec (reasoned from FR-033 and DU-2):
+   * - a row and a Task both chosen: the row wins, since DU-2 cascades DU-1 over
+   *   every Task on it, so it is the superset of the Task standing on it;
+   * - more than one: both commands carry one source, so this refuses with RS-27
+   *   (FR-029's fallback). Copying several changes table T-223 and both command
+   *   shapes, not this function.
    *
    * @purity non-pure
    */
   function copyForPaste(): void {
-    // ⭐ THE PANEL'S AXIS FIRST -- see the note above on which wins.
+    // The row wins -- see the note above.
     if (selectedGroupIds.length === 1) {
       copiedForPaste = { kind: 'row', groupId: selectedGroupIds[0] as string }
       return
@@ -9031,41 +5826,28 @@ export function frameLoop(
       copiedForPaste = { kind: 'task', uid: chosenTaskUids[0] as number }
       return
     }
-    // ⛔ FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」. A press
-    // that changes no picture and says nothing is 「故障した入口と見分けられない」.
-    // ⛔ THE STORE IS LEFT AS IT STOOD. A refused copy is not an emptying -- what
-    // was copied before is still what SK-5 would paste, and clearing it here
-    // would spend a person's earlier copy on a press that did nothing.
+    // FR-029. The store is left as it stood: a refused copy must not spend the
+    // person's earlier copy.
     raiseNotice(NOTHING_TO_DO_REASON, null)
   }
 
   /**
-   * SK-5 of table T-036 -- 「貼り付ける」, FR-033's landing.
+   * SK-5 of table T-036 (FR-033).
    *
-   * ⭐ THE ONE PLACE ST-7's VALVE IS ANSWERED FOR A PASTE. FR-033 (MUST):
-   * 「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知
-   * すること」 -- 「貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効か
-   * なかったりする」. ⛔ `edit-task.ts` RECORDS AT CM-8 THAT IT CANNOT ANSWER IT,
-   * and it is right: ST-1 counts 描画上の占有幅 and table T-038 forbids counting
-   * by dates alone (MUST NOT), so the number lives in the LAYOUT. ⭐ This side
-   * has one, so the paste is folded onto a copy and the copy is laid out.
-   * ⚠️ THE FOLD IS PI-9 AND SETTLES NOTHING -- `editDocument` is pure, pushes no
-   * undo step, moves no stamp and notifies nobody; it is the same road the drag
-   * preview takes (`previewOfHeldPress`).
-   * ⚠️ LAID OUT WITH THIS FRAME'S OWN SETTINGS, REGIONS AND FOLD, because ST-7
-   * counts what is DRAWN: HR-1a of table T-015 draws no descendant of a folded
-   * row, and its own note says in as many words 「畳みで段数が増えることはない」.
+   * FR-033's ST-7 valve is answered here, not in `edit-task.ts` (see CM-8
+   * there): ST-1 counts drawn stacking and table T-038 forbids counting by
+   * dates, so the count needs a layout. The paste is folded onto a copy
+   * (`editDocument`, PI-9: no undo step, no stamp, no notify -- the road
+   * `previewOfHeldPress` takes) and laid out with this frame's settings, regions
+   * and fold, because a folded row's descendants are not drawn (HR-1a of table
+   * T-015).
    *
-   * ⛔ THE OTHER TWO REFUSALS ARE NOT RE-STATED HERE, which is rule 03 section 1.
-   * FR-004's depth (MUST NOT) is refused inside `editTaskGroup` at CM-28, and a
-   * missing id likewise -- so a fold that comes back refused is handed to
-   * `writeDocument` unchanged, and the row of table T-233 that fits is raised by
-   * `raiseWriteRefusal` rather than chosen here.
+   * FR-004's depth and a missing id are refused inside `editTaskGroup` (CM-28);
+   * a refused fold goes to `writeDocument` unchanged and `raiseWriteRefusal`
+   * picks the row (rule 03 section 1).
    *
-   * ⛔ UNRULED, AND MINE (2026-09-06): AN EMPTY STORE AND A SOURCE THAT HAS BEEN
-   * DELETED. No row of table T-233 names either, so both fall to `RS-27`, which
-   * FR-029 appoints for 「どの入口にも当たる行が無いとき」. ⚠️ A row of its own for
-   * 「貼るものがありません」 would read better and is a change to table T-233.
+   * Not decided by the spec: an empty store and a deleted source. No row of
+   * table T-233 names either, so both fall to RS-27 (FR-029's fallback).
    *
    * @purity non-pure
    */
@@ -9081,7 +5863,7 @@ export function frameLoop(
       raiseNotice(NOTHING_TO_DO_REASON, null)
       return
     }
-    // ⭐ FR-033's VALVE, MEASURED ON THE DOCUMENT THIS PASTE WOULD MAKE.
+    // FR-033's valve, measured on the document this paste would make.
     const folded = editDocument(held.document, command, settingsLimitsOf(frame))
     if (folded.ok) {
       const wouldDraw = layoutFromSchedule(
@@ -9093,15 +5875,13 @@ export function frameLoop(
         environment.rowControlsHeightPx,
       )
       if (wouldDraw.stackSafetyCapReached !== null) {
-        // ⛔ NOT WRITTEN, WHICH IS 「貼り付けを受け付けず」. ⭐ `RS-24` is the row
-        // table T-233 gives ST-7, and its next step -- 「重なっているタスクを別の
-        // 行へ移すか、日付をずらしてください」 -- is what this person has to do.
+        // FR-033: refused and told, not written.
         raiseNotice(STACK_SAFETY_CAP_REASON, null)
         return
       }
     }
-    // ⭐ ONE COMMAND, ONE BUNDLE, ONE STEP -- FR-031's 「身振り 1 つ ＝ 取り消し
-    // 1 段」. A refusal from here is raised by `writeDocument` itself.
+    // One command, one bundle, one undo step (FR-031). A refusal from here is
+    // raised by `writeDocument` itself.
     writeDocument([command], frame)
   }
 
@@ -9109,20 +5889,14 @@ export function frameLoop(
    * What `copiedForPaste` becomes on the write path, or `null` when the thing it
    * names is no longer in the document.
    *
-   * ⭐ FR-033 (MUST) SETTLES WHERE A ROW LANDS: 「貼り付け先は、選んでいる行の子と
-   * すること（MUST）。何も選んでいないときは最上位に置くこと（MUST）」 -- so one
-   * chosen row is the parent and none is the top level.
-   * ⛔ UNRULED, AND MINE (2026-09-06): MORE THAN ONE ROW CHOSEN. 「選んでいる行」 is
-   * singular and names no answer for two, so this refuses rather than picking one
-   * of them -- picking would be this file deciding where a person's work lands.
+   * Where a row lands is FR-033's: one chosen row is the parent, none is the top
+   * level. Not decided by the spec: more than one row chosen -- refused rather
+   * than this file picking where a person's work lands.
    *
-   * ⚠️ THE SUBTREE IS WALKED ON THIS SIDE BECAUSE THE COMMAND'S SHAPE DEMANDS IT.
-   * `pasteTaskGroupSubtree` takes `newGroupIds` keyed by every copied row, and a
-   * pure function may not mint one (`crypto.randomUUID` is not pure) -- the same
-   * reason `importSessionId` and `newGroupId` are minted out here. ⛔ THE RULE IS
-   * STILL `edit-task-group.ts`'s: that unit re-derives DU-2's subtree itself and
-   * refuses any row this side failed to give an id for, so the two cannot part
-   * company in silence.
+   * The subtree is walked here because `pasteTaskGroupSubtree` needs a new id
+   * per copied row and a pure unit may not mint one (`crypto.randomUUID`).
+   * `edit-task-group.ts` re-derives DU-2's subtree and refuses a row given no id,
+   * so the two cannot part in silence.
    *
    * @purity non-pure
    */
@@ -9131,9 +5905,8 @@ export function frameLoop(
     schedule: Schedule,
   ): DocumentCommand | null {
     if (copied.kind === 'task') {
-      // ⚠️ GONE SINCE IT WAS COPIED. CM-8 would refuse it, but the refusal it
-      // raises is about a command nobody could have meant -- this is the person's
-      // own copy having been deleted, which the caller tells with `RS-27`.
+      // Deleted since it was copied: the caller tells RS-27 rather than letting
+      // CM-8 refuse a command nobody could have meant.
       return taskByUid(schedule, copied.uid) === null
         ? null
         : { kind: 'pasteTaskSubtree', sourceUid: copied.uid }
@@ -9144,7 +5917,7 @@ export function frameLoop(
     }
     if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
     if (selectedGroupIds.length > 1) return null
-    // DU-2: 「配下の行」 come with the row that was copied.
+    // DU-2: the rows under the copied row come with it.
     const newGroupIds: Record<string, string> = {}
     const walking = [copied.groupId]
     while (walking.length > 0) {
@@ -9162,17 +5935,13 @@ export function frameLoop(
   }
 
   function carryOutAction(action: InputAction | null, frame: FrameValues): void {
-    // MK-12: a combination this tool assigns nothing to produces nothing.
+    // MK-12.
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument': {
-        // FR-032 (MUST): a row deletion, and a `Task` deletion that leads WBS
-        // descendants, are asked about before they land. ⛔ The question is put
-        // in front of the WHOLE action and not each bundle: NT-7 asks once
-        // about what is going to happen, and a person answering twice for one
-        // press is not what 「続けるか取りやめるかを選ばせること」 means.
-        // ⚠️ While one question stands, a second write is not started -- the
-        // answer would otherwise land on a document the question never saw.
+        // FR-032: asked once for the whole action, not per bundle (NT-7 asks
+        // once per press). While a question stands no second write starts -- its
+        // answer would land on a document the question never saw.
         if (asking !== null) return
         const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
         if (owedQuestion !== null) {
@@ -9182,56 +5951,33 @@ export function frameLoop(
             question: owedQuestion,
             /** @purity non-pure */
             settle(isProceeding, answeringFrame) {
-              // FR-032 (MUST) -- 「取りやめる」 leaves the document untouched.
-              // Nothing was written, so there is nothing to undo either.
+              // FR-032.
               if (!isProceeding) return
               for (const bundle of owedWrites) writeDocument(bundle, answeringFrame)
-              // ⭐ THE SAME TWO MUSTs ON THE FAR SIDE OF NT-7's QUESTION. A
-              // creating press that owed one would otherwise write the thing
-              // and leave nobody standing on it.
+              // FR-001 / HF-14 hold past NT-7's question too, or a creating
+              // press would write and leave nobody standing on it.
               if (owedCreation !== undefined) standOnWhatWasCreated(owedCreation)
             },
           }
           return
         }
-        // ⭐ ONE PRESS MAY OWE MORE THAN ONE WRITE, AND THE ORDER IS THE
-        // RULE. FR-031 (MUST) splits one fit press into two writes and forbids
-        // swapping them (MUST NOT): CM-71 puts the zoom and the place and
-        // pushes no step (UN-8), then CM-72 opens the collapsed rows and pushes
-        // the one step UN-17 asks for.
-        // ⛔ NOT FLATTENED INTO ONE CALL. WS-4 of table T-067 pushes the
-        // document as it stood BEFORE the write, so a single bundle would push
-        // a step carrying the OLD zoom -- and undoing it would rewind the zoom
-        // that UN-8 keeps out of the history. Two calls leave the second step
-        // already holding the new zoom, so undo brings the collapse back and
-        // leaves the zoom where the fit put it.
-        // ⛔ THIS DOES NOT WEAKEN AG-3's atomicity. Each write below is still
-        // one bundle and one reference swap (WS-6, MUST); what FR-031 permits
-        // is one GESTURE writing twice, not one write landing in halves.
+        // FR-031: one press may owe several writes, in order (CM-71, then CM-72).
+        // Not flattened into one bundle: WS-4 pushes the document as it stood
+        // before the write, so one bundle would push a step carrying the old zoom
+        // and undo would rewind the zoom UN-8 keeps out of history. Each write is
+        // still one bundle (WS-6), so AG-3's atomicity holds.
         for (const bundle of action.writes) writeDocument(bundle, frame)
-        // FR-001 (MUST) and HF-14 (MUST): a press that MAKES something leaves
-        // the person standing on it. ⚠️ AFTER the writes and never before --
-        // a refused bundle makes nothing, and `standOnWhatWasCreated` tests the
-        // document rather than the plan.
+        // FR-001 / HF-14. After the writes: a refused bundle makes nothing, and
+        // `standOnWhatWasCreated` tests the document rather than the plan.
         if (action.created !== undefined) standOnWhatWasCreated(action.created)
         return
       }
-      // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
-      // RedoEdit itself: the pair is replaced by the ONE write path, which is
-      // what MS-1 of table T-042 is about.
-      // ⭐⭐ AND AN EMPTY HISTORY IS TOLD RATHER THAN WRITTEN (DFC-265, FR-029
-      // MUST): 「押されたときに限り、行えない理由を通知すること」. The pair is
-      // drawn faint on the very questions `sessionOf` is handed above, so the
-      // press has to answer with a row of table T-233 and never in silence.
-      // ⛔ `replaceHeldDocument` CANNOT ANSWER IT. RD-1 and RD-2 commit whether
-      // or not a step moved -- `undoEdit` calls `undone: false` an answer and
-      // hands the very pair back (document-change-plan.ts says so in as many
-      // words) -- so the replacement is ACCEPTED, `hasUnsavedEdits` is set for
-      // an edit nobody made, and nothing is raised. ⇒ The guard belongs on this
-      // side, where the history is held.
-      // ⚠️ TABLE T-233 HAS NO ROW FOR 「nothing to undo」, so `RS-27` is what
-      // FR-029 names for 「どの入口にも当たる行が無いとき」 -- the fallback and
-      // not a row reached past.
+      // RD-1 and RD-2 of table T-230, through the one write path (MS-1 of table
+      // T-042).
+      // An empty history is told (FR-029), and the guard lives here because
+      // `replaceHeldDocument` cannot see it: RD-1 / RD-2 commit even when no step
+      // moved (`undone: false`), which would set `hasUnsavedEdits` for an edit
+      // nobody made. RS-27 is FR-029's fallback; table T-233 has no row for it.
       case 'undoEdit':
         if (held.history.done.length === 0) {
           raiseNotice(NOTHING_TO_DO_REASON, null)
@@ -9246,9 +5992,8 @@ export function frameLoop(
         }
         replaceHeldDocument({ row: 'RD-2' })
         return
-      // SK-4 and SK-5 of table T-036, which FR-033 is the 正 of. The store the
-      // two share is `copiedForPaste`; these two lines are its entrance and its
-      // exit, and everything either of them decides is stated on the helper.
+      // SK-4 and SK-5 of table T-036 (FR-033). The store is `copiedForPaste`;
+      // the decisions are on the helpers.
       case 'copySelection':
         copyForPaste()
         return
@@ -9256,287 +6001,152 @@ export function frameLoop(
         pasteWhatWasCopied(frame)
         return
       case 'openDocumentFile': {
-        // SK-10 of table T-036 and IC-1 of table T-109 -- OP-2's one entry,
-        // which that row forbids import having a door beside (MUST NOT).
-        // ⛔ NO STORE WAS HANDED IN, so there is no file to read. Doing nothing
-        // then is the absence of the behaviour and not the behaviour.
+        // SK-10 of table T-036 and IC-1 of table T-109 (OP-2).
+        // No store handed in, so there is no file to read.
         const store = files
         if (store === undefined) return
-        // OP-8 (MUST NOT) and CS-4's one-at-a-time, which is the same guard the
-        // save path keeps: a second read begun mid-wait would take away the one
-        // question the screen can hold, and OP-8 refuses it on its own account.
-        // ⛔⛔ AND IT TELLS NOW, WHICH IT DID NOT UNTIL 台帳 DFC-337. Turning this
-        // gate back in silence is FR-029's (MUST) forbidden shape stated in its
-        // own words -- 「押しても絵が動かない入口は、故障した入口と見分けられな
-        // い」 -- and pressing `Ctrl`+`O` a second time mid-wait was measured
-        // raising 0 notices on 2026-09-06.
-        // ⭐ `RS-27`, THE SAME ROW THE EXPORT GATE RAISES. `answerSettledFormat`
-        // closed this identical shape for IC-2 (DFC-334), and DFC-265 closed it for
-        // IC-5 / IC-6 before that: no row of table T-233 names 「another file
-        // operation holds the one question the screen can carry」, so RS-27 is
-        // FR-029's 「どの入口にも当たる行が無いときの落ち先」 doing its job and
-        // not a row reached for over one that fits.
-        // ⛔ NOT `RS-3`. That row is LM-14's host that cannot write at all, and
-        // the store above is present -- this press is refused by the timing of
-        // another operation, never by the environment.
-        // ⛔ NOT `RS-7` OR `RS-9`, for the reason the export gate records: those
-        // are WS-2's refusals of a WRITE by the `Agent API`, and neither is a
-        // person's press arriving while a file question stands.
+        // OP-8 and CS-4's one-at-a-time, as the save path. Told with RS-27 as the
+        // export gate is (FR-029). Not RS-3: the store is present and the refusal
+        // is timing, not the host. Not RS-7 / RS-9: see the export gate.
         if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
           raiseNotice(NOTHING_TO_DO_REASON, null)
           return
         }
         isFileOperationWaiting = true
-        // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the same shape the
-        // save path has, and for the same reason CS-4 gives: the operation
-        // spans frames, and the flag above is what keeps the next press from
-        // starting a second one.
-        // ⛔ WAITING ON PND-187, the second of the three: see the note on the
-        // export path above for what is undecided.
+        // Not awaited, as the export path. PND-187 (open): see the export path.
         void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(endFileOperationWait)
         return
       }
       case 'copyPictureToClipboard': {
-        // IC-3 and FR-025 (MUST): IO-6 of table T-024, sent with no surface
-        // in between. ⛔ NO CLIPBOARD WAS HANDED IN, so there is nothing to
-        // write to; doing nothing then is the absence of the behaviour.
+        // IC-3 and FR-025: IO-6 of table T-024, with no surface in between.
+        // No clipboard handed in, so there is nothing to write to.
         const seam = clipboard
         if (seam === undefined) return
-        // ⭐ THE SAME PICTURE AN EXPORT WRITES, and not a second rendering:
-        // FR-025 says what goes out this way is the same picture, which is
-        // what `ClipboardContent.picture` states in as many words.
-        // ⛔ DFC-208: WHAT IS SENT IS `exportSvg`'s ANSWER AND NOT `scene.svg`.
-        // The scene carries SvgRenderer's raw picture; table T-076's assembly
-        // (EP-1 / EP-3 and every row the export leaves out) happens inside
-        // ImageExporter, so sending the scene sent the screen's own drawing
-        // down a route FR-025 (:3268) says differs from the download only in
-        // the dialogue it skips -- 「出る絵は同じである（`FR-080`）」.
+        // What is sent is `exportSvg`'s answer, not `scene.svg`: table T-076's
+        // assembly happens inside ImageExporter, and FR-025 requires the same
+        // picture as the download (FR-080).
         const scene = exportScene()
-        // ST-7 (MUST): the stop this picture was laid out with, taken here
-        // rather than read after the write for the reason
+        // ST-7: taken here rather than after the write, for the reason
         // `stackSafetyCapOfLastExportScene` gives.
         const capStopInPicture = stackSafetyCapOfLastExportScene
         if (scene === null) return
-        // FR-025 (MUST), CR-337: IO-6 is one of the three routes the ceiling
-        // reaches (IO-3, IO-4, IO-6) -- `exportSvg` is asked here for the same
-        // geometry an IO-3/IO-4 export would refuse on, and refused before the
-        // clipboard is ever written to.
+        // FR-025: IO-6 is under the same height ceiling as IO-3 / IO-4, refused
+        // before the clipboard is written.
         const picture = exportSvg(scene)
         if (!picture.ok) {
           raiseNotice(HEIGHT_CEILING_REASON, null)
           return
         }
-        // ⚠️ NOT AWAITED, for the reason the file roads give: CS-4 of table
-        // T-066 collected the document before the first await, and the rest
-        // of this happening is settled before the write returns.
+        // Not awaited, as the file roads: CS-4 of table T-066 collected the
+        // document before the first await.
         void writeClipboard(seam, { kind: 'picture', svg: picture.svg }).then(
           (writing) => {
-            // FR-076 (MUST): a failure is told. ⛔ STOP -- table T-233 has no
-            // row for a clipboard write that would not go through, so the
-            // reason has nowhere to point and RS-15 is what it falls to.
-            // ⚠️ A row of its own is what is owed.
+            // FR-076. STOP: table T-233 has no row for a clipboard write that
+            // fails, so this falls to RS-15.
             if (!writing.ok) {
               raiseNotice('RS-15', null)
               return
             }
-            // ⭐⭐ ST-7 OF TABLE T-014 (MUST): 「書き出しを終えたあとで同じ通知を
-            // 画面に上げること」. IO-6 writes a picture out of the app exactly as
-            // IO-3 and IO-4 do -- FR-025 says the two differ only in the
-            // dialogue -- so a stop reached laying it out is told here, on the
-            // write that went through.
-            // ⛔ NOT ON A FAILED WRITE: nothing left the app, and the line
-            // above already told why.
+            // ST-7 of table T-014: the stop is told after the export, as for
+            // IO-3 / IO-4. Not on a failed write -- nothing left the app.
             if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
           },
         )
         return
       }
       case 'reopenDocumentFile': {
-        // SK-21 of table T-036 and OP-13 of table T-024a -- the same open
-        // road, with the route that reads the handle already held.
-        // ⛔ NO STORE WAS HANDED IN, so there is no file to read.
+        // SK-21 of table T-036 and OP-13 of table T-024a: the open road with the
+        // handle already held.
+        // No store handed in, so there is no file to read.
         const store = files
         if (store === undefined) return
-        // OP-8 (MUST NOT) and CS-4's one-at-a-time, the same guard the two
-        // roads beside this one keep.
-        // ⭐ AND IT TELLS, for the reason the open path above records (DFC-337):
-        // `RS-27` is FR-029's fallback, and this road was measured silent on
-        // the same day by the same probe.
+        // OP-8 and CS-4's one-at-a-time; told with RS-27 as the open path.
         if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
           raiseNotice(NOTHING_TO_DO_REASON, null)
           return
         }
         isFileOperationWaiting = true
-        // ⚠️ NOT AWAITED, for the reason the open path above records.
-        // ⭐ OP-4 (MUST) IS KEPT BY GOING DOWN THIS ROAD AND NO OTHER: the
-        // confirmation before unsaved edits are thrown away belongs to the
-        // open, and OP-13 says the reload is a replace like any other.
+        // Not awaited, as the open path. OP-4's confirmation is kept by taking
+        // this road: OP-13 makes the reload a replace like any other.
         void reopenDocumentIntoHold(store).finally(endFileOperationWait)
         return
       }
       case 'saveDocumentFile': {
-        // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to. Doing
-        // nothing then is the absence of the behaviour and not the behaviour.
+        // No store handed in, so there is nothing to write to.
         const store = files
         if (store === undefined) return
-        // ⛔ ONE AT A TIME. CS-4 of table T-066 collects at the moment the
-        // operation begins, and a second one begun mid-wait would take the one
-        // question the screen can hold away from the first.
-        // ⭐ AND IT TELLS, for the reason the open path above records (DFC-337).
-        // ⚠️ ONE KEYSTROKE REACHES THIS CASE AND NOT TWO. DFC-337 named it 「`SK-11`
-        // 保存・`SK-11a` 別名保存」, but `Ctrl`+`Shift`+`S` is bound to nothing in
-        // this build and `SK-11a` appears nowhere in `src/`: the translator has
-        // `ctrl && KEY.s` alone (SK-11), and whether a handle is asked for is
-        // `saveHeldDocumentToFile`'s decision further down the road.
+        // One at a time (CS-4 of table T-066); told with RS-27 as the open path.
         if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
           raiseNotice(NOTHING_TO_DO_REASON, null)
           return
         }
         isFileOperationWaiting = true
-        // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS. The rest of this
-        // happening is settled before the chooser has even opened -- CS-4 says
-        // in as many words that the operation spans frames -- and the flag
-        // above is what keeps the next press from starting a second one.
-        // ⛔ WAITING ON PND-187, the third of the three: see the note on the
-        // export path above for what is undecided.
+        // Not awaited: the operation spans frames (CS-4) and the flag keeps a
+        // second from starting. PND-187 (open): see the export path.
         void saveHeldDocumentToFile(store).finally(endFileOperationWait)
         return
       }
       case 'dismissNotice':
-        // SK-19's FIRST STAGE (利用者の指示 2026-08-31), whose manner is NT-8 of
-        // table T-037 (MUST): 「出ている通知があるときは、それを 1 つ消すこと」.
-        //
-        // ⭐ THE SAME ACT AN `Esc` AND A PRESS ON THE ENTRANCE REACH, and it is
-        // written once -- `dismissNewestNotice` is the one place a telling
-        // leaves `raisedNotices`, which LY-5 of table T-060 leaves with this
-        // layer alone.
-        // ⛔ NOTHING ELSE IS SPENT ON THIS PRESS. NT-8 (MUST) puts this ahead of
-        // every level of both ladders, and the translator kept the two stages
-        // below it off the press by answering this kind instead of
-        // `settleTextEntry` -- so the field under the telling is untouched.
+        // SK-19's first stage, whose manner is NT-8 of table T-037.
+        // `dismissNewestNotice` is the one place a telling leaves
+        // `raisedNotices` (LY-5 of table T-060). Nothing else is spent on this
+        // press: NT-8 ranks ahead of both ladders, and the translator answered
+        // this kind instead of `settleTextEntry`, so the field under the telling
+        // is untouched.
         dismissNewestNotice()
         return
       case 'settleTextEntry': {
-        // ⛔ SK-19's FIRST STAGE IS NOT OWED HERE, AND THAT IS NOT A STOP.
-        // 「その場の編集を確定する」 has ALREADY HAPPENED by the time this runs:
-        // the field belongs to `DomScreenSurface`, its own `keydown` listener on
-        // the panel runs before `DomInputSource`'s on the window, and
-        // `spendFieldCommit` at the head of this very happening has taken the
-        // commit and written it.
-        // ⚠️ What this case still carries is MK-10's half -- `acted` marks the
-        // press as the tool's, so the browser does not act on the `Enter` as
-        // well.
-        // ⛔ A SECOND SETTLE MUST NOT BE RAISED HERE. The shell holds no field
-        // (LR-6), and FR-031 with UN-3 of table T-027 makes one property change
-        // one step of the undo history.
+        // SK-19's first stage has already happened: the surface's own `keydown`
+        // listener runs before `DomInputSource`'s on the window, and
+        // `spendFieldCommit` at the head of this happening wrote the commit.
+        // This case carries MK-10's half (the press is the tool's). A second
+        // settle must not be raised here: the shell holds no field (LR-6), and
+        // one property change is one undo step (FR-031, UN-3 of table T-027).
         //
-        // ⭐ THE SECOND STAGE IS THIS LAYER'S, and SK-19 words it outright
-        // (利用者の指示 2026-08-30): 「確定していないその場の編集が 1 つも無いとき
-        // は、プロパティパネルを出しているならば出すのをやめること（MUST）」.
-        // ⚠️ WHERE THE FOCUS STANDS IS NOT ASKED, which the same row says in as
-        // many words: 「焦点が名称の欄の外にあるときも同じである」.
-        // ⛔ NOT WHILE A SURFACE STANDS (MUST NOT), the closing rule under table
-        // T-036 (利用者の裁定 2026-08-30): 「`Confirmation`（`U-55`）または
-        // `ScreenState` が持つ面（`S-99g`）が立っているあいだ、`SK-19` の 2 段目
-        // を当ててはならない」. ⚠️ BOTH HALVES, and the shell is the only place
-        // that can see both -- U-55 is `asking` and is not one of S-99g's, the
-        // same pair `isSurfaceStanding` joins for table T-023's closing rule.
-        // ⭐ The first stage is untouched by this: it happened in the surface
-        // before this case ran, which is 「1 段目は当てたままである」.
-        // the row says 「焦点が名称の欄の外にあるときも同じ
-        // である」 with no exception, so an `Enter` raised with the focus in the
-        // Dialogue Field (FR-065) closes the panel too. ⚠️ THE USER DID NOT RULE
-        // ON THAT CORNER; the closing rule excludes only a standing 面, and a
-        // field is not one. What stands here is the row read literally.
-        //
-        // and a double click followed by an `Enter` with
-        // nothing typed puts the panel away on that FIRST press, because a field
-        // merely focused is not 「確定していない編集」 by either fact below.
-        // ⚠️ The user's flow was 「編集が終わったら Enter」, so this is the row
-        // read literally as well -- but nobody ruled on the untouched field.
+        // SK-19's second stage is this layer's; where the focus stands is not
+        // asked (SK-19). Not while a surface stands (the closing rule under
+        // table T-036): U-55 is `asking` and not one of S-99g's, so only the
+        // shell sees both -- the pair `InputContext.isSurfaceStanding` joins.
+        // Not decided by the spec: an `Enter` with the focus in the Dialogue
+        // Field (FR-065), and an `Enter` on a field merely focused after a double
+        // click, both close the panel -- SK-19 read literally.
         if (screenState.surface !== null || asking !== null) return
-        // ⭐⭐ FR-091's ONE PRESS (MUST, the user's instruction of 2026-09-07,
-        // 逐語「`Enter` で閉じて選択が外れ」): 「作った直後の名称を `Enter` で確定
-        // したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと」,
-        // with 「2 度押させてはならない（MUST NOT）」.
-        // ⛔ AHEAD OF THE GUARD BELOW, AND THAT IS THE WHOLE OF THE FIX. This IS
-        // the press that settled the name -- the surface's own `Enter` listener
-        // settles before the window hears it -- so `didSettleFieldEntry` stands
-        // and the guard below returned, leaving the panel up. ⚠️ MEASURED
-        // 2026-09-08 on the shipped build, 1920x1080: a rectangle drawn, a name
-        // typed, `Enter` -- the panel was still 279px wide and it took a further
-        // `Esc` to close it (the ledger's DFC-372 ③, whose 2026-09-07 reading of the
-        // interaction record says the same).
-        // ⛔ NOT GUARDED ON `didSettleFieldEntry`: an `Enter` on a name nobody
-        // changed writes nothing (IN-6, 「始めた値と同じ値を書いてはならない」), and
-        // the person still settled the name -- one press either way.
-        // ⛔ FR-072's MUST NOT IS NOT BROKEN, and FR-091 says so itself: 「2 つの
-        // 裁定は衝突していない —— あちらは人が選んだ選択を守り、こちらは道具が立てた
-        // 選択を片づける」. `namingCreatedTaskUid` is the only thing that tells the
-        // two apart, and it stands for the created Task alone.
-        // ⛔ THE ARMING IS NOT TOUCHED (MUST NOT): 「構えはこの押下で解けない」 --
-        // `screenState` is not written here, so the next shape can be drawn
-        // straight away, which is the 4 つ FR-091's own ⚠️ ties together.
+        // FR-091: settling a just-created name closes the panel and clears the
+        // selection on the same press. Ahead of the guard below, because this
+        // press settled the name, so `didSettleFieldEntry` stands and the guard
+        // would return with the panel up. Not guarded on `didSettleFieldEntry`:
+        // an unchanged name writes nothing (IN-6) but was still settled.
+        // FR-072's MUST NOT is not broken (FR-091 says why), and the arming is
+        // not touched: `screenState` is not written, so the next shape can be
+        // drawn straight away.
         if (namingCreatedTaskUid !== null) {
           namingCreatedTaskUid = null
           isPropertiesPanelPutAway = true
           selection = emptySelection()
           return
         }
-        // ⭐ TWO FACTS MAKE ONE QUESTION, because the settling happens BEFORE
-        // this case runs: `didSettleFieldEntry` says an edit stood when the
-        // `Enter` arrived, and the seam says whether one stands now. Either of
-        // them is 「確定していないその場の編集」, so neither may be dropped -- and
-        // the second `Enter` of MK-13's flow is the press where both are false.
-        // ⭐⭐ BOTH OF THE THINGS THAT STOOD IN THE WAY ARE GONE, and both were
-        // closed where they belonged rather than worked around here. The note
-        // that stood in this place recorded them: (a) `hasUnsettledTextEntry`
-        // answered from the control being HELD and the surface's `Enter`
-        // listener never let it go, so a person who settled a name and kept the
-        // field went on answering 「あり」; (b) that same listener built a commit
-        // even where the text said again what was already settled, so
-        // `didSettleFieldEntry` stood on the second `Enter` too -- a second
-        // `setTaskName` on the undo history for an edit nobody made (FR-031 with
-        // UN-3 of table T-027, and IN-6's 「始めた値と同じ値を書いてはならない」
-        // from the other side). ⭐ That listener now LETS THE CONTROL GO and
-        // writes nothing where the value did not move, which is the side that
-        // owns the field answering for it (table T-065). ⚠️ The guard below is
-        // still written the safe way round -- it never puts the panel away on a
-        // press that settled something.
-        // ⚠️ AND THE PRESS REACHES THIS CASE AT ALL ONLY BECAUSE S-99h DOES:
-        // with no field held, `commandFromKey` tells this `Enter` from every
-        // other one by `InputContext.isPropertiesPanelShowing`, which
-        // `collectInputContext` fills. ⛔ That member is optional, so dropping
-        // it there is silent -- see the note on the line that fills it.
+        // Two facts make one question because settling happens before this case:
+        // `didSettleFieldEntry` says an edit stood when `Enter` arrived, the seam
+        // says whether one stands now. Either is an unsettled edit, so neither
+        // may be dropped; MK-13's second `Enter` is the press where both are
+        // false.
+        // Reached at all only because S-99h is: `commandFromKey` tells this
+        // `Enter` apart by `InputContext.isPropertiesPanelShowing`, which is
+        // optional, so dropping it in `collectInputContext` is silent.
         if (didSettleFieldEntry || hasUnsettledTextEntry()) return
-        // ⛔ THE SELECTION IS NOT TOUCHED (MUST NOT, FR-072, 利用者の裁定
-        // 2026-08-30): 「パネルを出すのをやめても、選択を解いてはならない」. ⭐ So
-        // this writes the one flag IC-52's entry and IN-4's rung write, and
-        // nothing beside it -- `selection` and `propertiesSubject` stand.
+        // FR-072: putting the panel away does not clear the selection;
+        // `selection` and `propertiesSubject` stand.
         isPropertiesPanelPutAway = true
         return
       }
       case 'tellEntryHasNothingToDo':
-        // FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」, and
-        // since 2026-08-30 「運ぶ理由は、押された入口の場面に当たる 表 T-233 の
-        // 行とすること（MUST）。当たる行があるのに落ち先を運んではならない（MUST
-        // NOT）」. The manner is table T-037's NT-1 for every one of them.
-        //
-        // ⭐ THE SITUATION TRAVELS AND THE ROW IS READ HERE. The translator
-        // measured which 場面 the press landed in; this file is the one place
-        // in `src/` that spells a row of table T-233, so the map is here.
-        // ⚠️ `null` IS THE FALLBACK AND NOT AN OMISSION -- see
-        // `NOTHING_TO_DO_REASON` for the one thing it now means.
-        //
-        // ⭐ NO WORDS AND NO COUNT. `raiseNotice` carries the ROW, FR-038's one
-        // dictionary turns it into the sentence NT-1 asks for, and there is
-        // nothing here to count -- NT-3's 件数 belongs to a destructive result
-        // and this press had no result at all.
-        // ⛔ NOT DRAWN FAINT FROM HERE, and the two are not one act. The faint
-        // is the drawing side's, off `RowExpander` and `RowTitlePanel` and
-        // `CommandItem.isEnabled`; this is the telling FR-029 (MUST) has only on
-        // the press, and (MUST NOT) forbids raising on a pointer merely resting
-        // there.
+        // FR-029; manner NT-1 of table T-037.
+        // The translator measured the situation; the row of table T-233 is read
+        // here. `null` is the fallback -- see `NOTHING_TO_DO_REASON`.
+        // No words and no count: the dictionary (FR-038) makes the sentence, and
+        // NT-3's count belongs to a destructive result. Not drawn faint from
+        // here: the faint is the drawing side's, and FR-029 tells only on the
+        // press.
         raiseNotice(
           action.situation === null
             ? NOTHING_TO_DO_REASON
@@ -9545,198 +6155,85 @@ export function frameLoop(
         )
         return
       case 'editInPlace':
-        // ⛔⛔ THE `newRowName` BRANCH STOOD HERE AND IS GONE. `InPlaceTarget`
-        // no longer carries that kind: HF-14 (MUST, 利用者の裁定 2026-09-04)
-        // stands the row up on the press instead, and IC-91 / IC-93 now arrive
-        // as a `changeDocument` carrying `created` -- see the case above.
         if (action.target.kind === 'taskName') {
-          // MK-13's Task entry (MUST), as that row reads since 2026-08-30
-          // (利用者の指示と裁定, CR-304): 「タスク（名称ラベルと本体のどちらでも）
-          // ＝ プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集できる
-          // 状態にして焦点を置き、既にある文字をすべて選んだ状態にすること」.
-          // ⭐ ONE OF FR-072's TWO ENTRANCES, which is why this branch may put
-          // the panel up at all: 「出す入口は 表 T-023 の `MK-13` と `IC-17` の
-          // 2 つである」. ⛔ NO THIRD ONE IS MADE HERE (FR-029, MUST NOT) -- the
-          // selection comparison at the foot of `receiveInput` was the other
-          // road and it now only follows a panel that already stands.
-          // ⛔ NOTHING IS CHOSEN HERE. The first click of the double click has
-          // already moved the selection (SL-2 of table T-023c), so what the
-          // panel turns to is what the person pressed.
+          // MK-13's Task entry. One of FR-072's two entrances, so this branch
+          // may put the panel up; no third is made (FR-029). Nothing is chosen
+          // here: the first click already moved the selection (SL-2 of table
+          // T-023c).
           showPropertiesOfChoice()
-          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED, AND BY WIDENING THE SEAM.
-          // It read 「IF-9 ... has five members and every one of them is a
-          // QUESTION」, which was true and is the whole reason MK-13's second
-          // half stood: 「名称の欄（表 T-016 の `PR-1`）を編集できる状態にして
-          // 焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）」 cannot
-          // be carried out by anyone but the side that drew the field (LR-6),
-          // and nothing could tell it to. `ScreenSurface.focusPropertyField` is
-          // that member now.
-          // ⛔ NOT ASKED HERE, AND THAT IS NOT A DETOUR: the control does not
-          // exist until the description this press asks for has been DRAWN, and
-          // the drawing is the frame's, not this happening's. So the request is
-          // left standing and spent at the paint -- see `nameFieldWanted`.
+          // The field is focused by the side that drew it (LR-6), through
+          // `ScreenSurface.focusPropertyField`, which cannot be asked now: the
+          // control does not exist until the frame draws it, so the request is
+          // spent at the paint -- see `nameFieldWanted`.
           nameFieldWantedRow = TASK_NAME_FIELD_ROW
           return
         }
         if (action.target.kind === 'rowName') {
-          // MK-13's 行見出し entry (MUST), as FR-085 states it since the user's
-          // ruling of 2026-09-01: 「行の名前を変える経路は、行見出しパネルでその
-          // 名前をダブルクリックすること（表 T-023 の `MK-13`）とし、`GRS` はプロ
-          // パティパネルを出し、名前の欄（`AT-53`）を編集できる状態にして焦点を
-          // 置き、既にある文字をすべて選んだ状態にすること」.
-          // ⭐ THE SAME TWO LINES AS THE TASK ABOVE, which is the ruling's own
-          // word for it -- 「(タスク名編集モードと同様の動作)」. ⛔ The panel goes
-          // up through the one function that is FR-072's entrance, so no third
-          // entrance is made (FR-029, MUST NOT).
-          // ⛔ NOTHING IS WRITTEN AND NOTHING IS CHOSEN HERE. The first click of
-          // the double click already chose the row (FR-085), and the name is
-          // written by the field's own commit, not by this press.
-          // ⚠️ THE `Enter` THAT CLOSES THE PANEL IS NOT HERE EITHER: SK-19 of
-          // table T-036 already puts the panel away on an `Enter` raised with no
-          // unsettled edit standing, and FR-085 (MUST NOT) forbids restating it.
+          // MK-13's 行見出し entry (FR-085), the same two lines as the Task
+          // entry. Nothing is written or chosen here: the first click chose the
+          // row, and the field's commit writes the name. The closing `Enter` is
+          // SK-19's (FR-085 forbids restating it).
           showPropertiesOfChoice()
           nameFieldWantedRow = ROW_NAME_FIELD_ROW
           return
         }
         if (action.target.kind === 'documentTitle') {
-          // SK-9's one entrance to FR-035 (MUST): 「作成者が文書名を選んだとき、
-          // `GRS` は、その場で編集できるようにすること」.
-          //
-          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED BY THE SECOND OF THE TWO
-          // ROADS IT MEASURED, and the ruling of 2026-09-06 (CR-361) is which:
-          // 「ヘッダに出ている文書名を、その場で編集できる欄にする。プロパティ
-          // パネルへ回さない」. ⛔ THE PANEL ROAD STAYS SHUT for the reason that
-          // STOP recorded and which has not changed -- `PropertiesSubject` holds
-          // a table T-023c selection and FR-085's rows and no subject for the
-          // document, and table T-016 has no row for the name -- so nothing here
-          // raises the panel, and this is the one branch of the three that does
-          // not call `showPropertiesOfChoice`.
-          //
-          // ⭐ THE SAME ROAD ALL THE SAME, WHICH IS WHY NO SEAM WAS WIDENED FOR
-          // IT: what the two branches above ask for is 「put the person into the
-          // field that names this row」, and IF-9 now says the row id 「は 表
-          // T-016 の行に限らない」 and names `U-27` for this one. So the ask is
-          // left standing exactly as theirs is and spent at the paint -- see
-          // `nameFieldWanted` -- and the field the surface opens for it is the
-          // header's own.
-          // ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE. The name is
-          // written by the field's own commit (CM-1, through
-          // `commandFromFieldCommit`), and FR-072's selection is untouched: a
-          // document is not a row of table T-023c.
+          // SK-9's entrance to FR-035. The header's own field, not the panel:
+          // `PropertiesSubject` has no subject for the document and table T-016
+          // no row for its name, so this branch does not call
+          // `showPropertiesOfChoice`. The ask is spent at the paint like the
+          // others (IF-9 names U-27 for it -- see `nameFieldWanted`).
+          // Nothing is chosen or written here: CM-1, through
+          // `commandFromFieldCommit`, writes the name, and a document is not a
+          // row of table T-023c.
           nameFieldWantedRow = DOCUMENT_TITLE_FIELD_ROW
           return
         }
         if (action.target.kind === 'assignee') {
-          // MK-13's 担当ラベル entry, whose destination is `AS-1` of table T-225
-          // (MUST, 利用者の裁定 2026-09-08): 「プロパティパネルを出し、担当者の
-          // 欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」, with
-          // 「その場で打ち換える器を置いてはならない（MUST NOT）」 beside it.
-          //
-          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED BY THE RULING AND NOT BY A NEW
-          // ORGAN. It read 「NO IN-PLACE EDITOR EXISTS ... and nothing in this build
-          // draws one」, which was true of the row as it stood until 2026-09-08 --
-          // 「その場で担当者名を編集させること（MUST）」. ⚠⚠ The row itself records
-          // why it moved: 「その場の編集器は殻に 1 つも無く、条項と造りが食い違った
-          // ままであった」. ⇒ The destination is now the panel, which the two
-          // branches above already reach, so nothing is built for this one.
-          //
-          // ⭐ THE SAME TWO LINES AS `taskName` AND `rowName`, which is the ruling's
-          // own reading: 「表 T-023 の `MK-13` が挙げるほかの対象はすべてパネルへ行って
-          // おり」. ⛔ NO THIRD ENTRANCE IS MADE (FR-029, MUST NOT): the panel goes
-          // up through the one function FR-072 names as an entrance.
-          // ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE. The first click of the
-          // double click already moved the selection (SL-2 of table T-023c), and the
-          // assignment is written by the field's own commit -- which of table T-225's
-          // rows that commit becomes is `commandFromFieldCommit`'s, not this press's.
-          // ⛔ AND `FR-091`'s 「同じ 1 回の押下でパネルを閉じ、その選択を解く」 IS NOT
-          // COPIED HERE (MUST NOT), which `AS-1` states in as many words: that clause
-          // is written about a name given to a thing just made, and editing an
-          // assignee makes nothing.
-          // ⚠ NO 全選択 IS ASKED FOR EITHER -- `MK-13` says 「既にある文字をすべて選ん
-          // だ状態にすること」 of its Task entry and of its 行見出し entry, and
-          // `AS-1` says it nowhere.
+          // MK-13's 担当ラベル entry, whose destination is AS-1 of table T-225.
+          // The same two lines as the Task entry. Nothing is chosen or written
+          // here; which row of table T-225 the commit becomes is
+          // `commandFromFieldCommit`'s. FR-091's close-and-deselect is not copied
+          // here (AS-1), and no select-all is asked: MK-13 asks it of the Task
+          // and 行見出し entries only.
           showPropertiesOfChoice()
           nameFieldWantedRow = ASSIGNEE_FIELD_ROW
           return
         }
         if (action.target.kind === 'commentBoxText') {
-          // MK-13's コメントボックス entry (MUST, 利用者の裁定 2026-09-06):
-          // 「プロパティパネルを出し、本文の欄（表 T-016 の `PR-21`）を編集できる状態
-          // にして焦点を置くこと」, with 「図の上で打ち換える器を置いてはならない
-          // （MUST NOT）」 beside it. `FR-097` (MUST) sends its one entrance here.
-          //
-          // ⛔⛔ THE ROAD WAS DECLARED OPEN BEFORE IT WAS BUILT. The note under
-          // `InPlaceTarget` closed the ledger's DFC-283 on the ground that `PR-21`
-          // had arrived and the panel's road was 「open」 -- and it was open on the
-          // TRANSLATOR's side only: every `commentBoxText` reached this case and
-          // fell through the STOP below it, so a double click on a comment box put
-          // no panel up and settled no focus (measured on the shipped build,
-          // 2026-09-08). ⭐ THE TWO SIDES OF ONE ROAD ARE COUNTED APART FROM NOW ON.
-          //
-          // ⭐ THE SAME TWO LINES AS THE THREE ENTRIES ABOVE, which is what that
-          // MUST NOT settles -- only the row differs, `PR-21` against `PR-1`,
-          // `AT-53` and `PR-16`. ⛔ NOTHING IS CHOSEN AND NOTHING IS WRITTEN HERE:
-          // the first click of the double click already chose the box (SL-3 of
-          // table T-023c) and the body is written by the field's own commit.
-          // ⚠ NO 全選択, AND THAT IS THE ROW'S OWN SILENCE -- `MK-13` asks for it
-          // of its Task entry and of its 行見出し entry and of the comment box
-          // nowhere.
+          // MK-13's コメントボックス entry (FR-097). The same two lines; only the
+          // row differs. Nothing is chosen or written here: the first click chose
+          // the box (SL-3 of table T-023c) and the field's commit writes the
+          // body. No select-all: MK-13 does not ask it of the comment box.
           showPropertiesOfChoice()
           nameFieldWantedRow = COMMENT_BOX_TEXT_FIELD_ROW
           return
         }
-        // ⛔ EVERY KIND OF `InPlaceTarget` HAS A BRANCH ABOVE, and this is where
-        // the compiler says so: a member added to that union arrives here as
-        // something other than `never` and the assignment stops compiling.
-        // ⭐ WHICH IS WHY NO STOP STANDS HERE ANY MORE. The one that did named
-        // 担当ラベル and rested on a row that has since been rewritten; the telling
-        // an assignee's RENAME would owe (`RS-49`, `CM-41`) is a different act
-        // with no entrance in the specification, and `edit-resource.ts` holds
-        // that reading -- ⛔ nothing here raises it.
+        // Every kind of `InPlaceTarget` has a branch above; a member added to
+        // that union arrives here as something other than `never` and stops
+        // compiling.
         {
           const unreached: never = action.target
           void unreached
         }
         return
       case 'moveCommandPalette': {
-        // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
-        // moves by the travel the translator measured.
-        // ⭐ WRITTEN HERE AND NOWHERE ELSE, because it is a current value and
-        // LY-5 of table T-060 leaves those with this layer: table T-108 has no
-        // command for it, so `writeDocument` is not the road and no step of the
-        // undo history is pushed.
-        // ⚠️ Added to where the palette actually STOOD, which is the same
-        // resolution the frame drew with -- so a first drag moves it from the
-        // `Row Area`'s corner and not from the window's origin.
-        //
-        // ⛔ ONE TRAVEL PER MOVE AND ONE MORE ON THE RELEASE, WHICH IS WHAT
-        // FR-053's MUST COSTS. That requirement makes the palette FOLLOW the
-        // pointer while the band is held and then says of that very same drag
-        // that the corner is decided at the moment it is let go -- 「追従は絵の
-        // 話であって、値が決まる時点を早めるものではない」. ⭐ THE TWO ARE NOT IN
-        // CONFLICT HERE, and the reason is what table T-206 does NOT hold: no
-        // row of it or of table T-203 keeps this corner, so there is no saved
-        // form for a travel to reach and nothing settles when one arrives --
-        // `paletteCornerOf` records that ruling. What IN-1 protects is the
-        // moment a value is DECIDED, and a value the document never keeps is
-        // decided nowhere; what moves here is the picture FR-053 asks for.
-        // ⚠️ EACH TRAVEL IS AN INCREMENT AND NEVER A TOTAL, because each is
-        // added to the corner the previous one left: a travel measured from the
-        // PRESS would be right only for the first piece and would then overshoot
-        // by more the more pieces one drag was reported in. ⛔ Nothing here can
-        // tell the two apart -- a travel is a pair of numbers either way -- so
-        // the increment is kept by advancing the point the emitting side
-        // measures from, below.
+        // GR-19 of table T-023d: FR-053's palette moves by the measured travel.
+        // Written here: a current value (LY-5 of table T-060) with no command in
+        // table T-108, so no undo step. Added to where the palette stood as the
+        // frame resolved it, so a first drag starts from the `Row Area`'s corner.
+        // Following on every move does not conflict with FR-053's release rule:
+        // no row of table T-203 or T-206 keeps this corner (see
+        // `paletteCornerOf`), so a travel decides nothing.
+        // Each travel is an increment, added to the corner the previous one left;
+        // a travel measured from the press would overshoot. A travel carries no
+        // marker to tell the two apart, so the emitting side's origin is advanced
+        // below.
         const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
         commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
-        // ⭐ WHAT MAKES THE PARTS TELESCOPE. `PointerPress.followedTo` is where
-        // the emitting side measures the NEXT travel from, and this is the one
-        // place that knows a travel was in fact applied.
-        // ⛔ ADVANCED BY THE TRAVEL RATHER THAN SET TO THE POINTER, which is the
-        // same point and one fewer reading of the outside (R7.4): the travel is
-        // the pointer less this member, so adding it back lands exactly on the
-        // pointer that produced it -- while reading `pointerAt` here would be a
-        // second moment, and a release has already dropped the press.
+        // `followedTo` is where the emitting side measures the next travel from.
+        // Advanced by the travel rather than set to the pointer: the same point
+        // without a second reading of the outside (R7.4).
         if (pressed !== null && pressed.followedTo !== undefined) {
           const followed = pressed.followedTo
           pressed = {
@@ -9747,30 +6244,19 @@ export function frameLoop(
         return
       }
       case 'followRowGrab': {
-        // HF-15 of table T-051 (MUST): 「握っているあいだ、行をポインタに追従
-        // させること」, and 「軸を 1 本に固定すること ... 離すまで変わらないこと」.
-        //
-        // ⭐⭐ TWO THINGS ARE KEPT HERE AND NEITHER COULD BE KEPT ANYWHERE ELSE.
-        // The AXIS goes back onto the press, because UF-30 is `pure` and cannot
-        // remember which way the hand first went past `S-208` -- the party that
-        // APPLIED the answer is the party that knows, which is the same bargain
-        // `followedTo` strikes one case up. The DEPTH is held for the frame,
-        // because the panel draws a row at `depth x rowTitleIndent` and the
-        // follow is that product with a different depth in it.
-        // ⛔ NOTHING IS WRITTEN TO THE DOCUMENT, which table T-023d states as a
-        // MUST NOT: 「掴んでいるあいだ値を文書へ書いてはならない ... 追従は絵で
-        // あって編集ではない」. `writeDocument` is not on this road at all, so no
-        // step of the undo history is pushed for a row that has not landed.
-        // ⚠️ THE AXIS IS WRITTEN EVERY TIME AND NOT ONLY THE FIRST, and that
-        // costs nothing: `rowGrabAxisAt` answers what already stands the moment
-        // it stands, so every answer after the first is the same value.
+        // HF-15 of table T-051.
+        // The axis goes back onto the press because UF-30 is pure and cannot
+        // remember which way the hand first passed S-208; the depth is held for
+        // the frame because the panel draws at `depth x rowTitleIndent`.
+        // Nothing is written to the document (table T-023d), so no undo step.
+        // Writing the axis on every move costs nothing: `rowGrabAxisAt` answers
+        // the same value once it stands.
         if (pressed !== null) pressed = { ...pressed, rowGrabAxis: action.axis }
         rowGrabbedAt = {
           groupId: action.groupId,
           depth: action.atDepth,
-          // HF-15 (MUST): 「いまどちらの軸が生きているかを、掴んでいる行に描く
-          // こと」, and 「拒まれた向きへの追従は途中で止めること」 -- both are
-          // pictures, so both travel to the panel and neither is written.
+          // HF-15: the live axis and the resisted stop are pictures, so they
+          // travel to the panel and are not written.
           axis: action.axis,
           resistedPx: action.resistedPx,
           atY: action.atY,
@@ -9778,46 +6264,36 @@ export function frameLoop(
         return
       }
       case 'chooseRow': {
-        // FR-085 (MUST): a row of the `Row Title Panel` was chosen. ⭐ WRITTEN
-        // HERE AND NOWHERE ELSE, the same road `moveCommandPalette` takes and
-        // for the same reason -- table T-108 has no command, no undo step is
-        // pushed, and LY-5 of table T-060 leaves a current value with this
-        // layer.
-        // ⚠️ WHICH WAY AN EXTENDING PRESS GOES IS READ OFF WHAT IS HELD, never
-        // off the drawn row: FR-048 lets a paint be skipped, so a picture is as
-        // old as the last one drawn while this value is now.
+        // FR-085. Written here like `moveCommandPalette`: no command in table
+        // T-108, no undo step (LY-5 of table T-060).
+        // An extending press reads what is held, not the drawn row: FR-048 lets
+        // a paint be skipped, so a picture may be older than this value.
         const chosen = selectedGroupIds
         if (!action.isExtending) {
-          // The plain press, which replaces what was chosen -- SL-2's shape.
+          // SL-2.
           selectedGroupIds = [action.groupId]
         } else if (chosen.includes(action.groupId)) {
-          // SL-4's 「1 つずつ増減し」, the letting-go half FR-085 asks for.
+          // SL-4.
           selectedGroupIds = chosen.filter((one) => one !== action.groupId)
         } else {
           selectedGroupIds = [...chosen, action.groupId]
         }
-        // FR-042 (MUST) reads this same set -- the band colour (AT-58) and
-        // height (AT-59) it puts up are the chosen row's -- and FR-072 decides
-        // the panel by the last operation, which this is.
+        // FR-042 reads this same set, and FR-072 turns the panel to the last
+        // operation.
         // @provisional PND-142
         showPropertiesOfChoice()
         return
       }
       case 'chooseResources':
-        // IC-63 / IC-64 / IC-65 of table T-109. ⭐ REPLACED WHOLE, which is what
-        // 「一覧のすべてを選ぶ」 and 「一覧の選択をすべて解く」 are and what makes
-        // FR-099's two-move deletion mean what it says.
-        // ⛔ NOT SHOWN IN THE PROPERTIES PANEL: FR-072 speaks of 「選択」, and
-        // SL-1 of table T-023c does not admit a resource -- so a roster press is
-        // not one of the operations that requirement decides the panel by.
+        // IC-63 / IC-64 / IC-65 of table T-109; replaced whole (FR-099).
+        // Not shown in the properties panel: SL-1 of table T-023c does not admit
+        // a resource, so this is not one of FR-072's operations.
         // @provisional PND-143
         selectedResourceUids = action.uids
         return
       case 'toggleChosenResource': {
-        // IC-67 / IC-68 -- one control in two states, which those two rows say
-        // themselves (「同じ入口で解く」 / 「同じ入口で選ぶ」). ⚠️ Which way it
-        // goes is decided from what is HELD and never from the entry that was
-        // drawn, for the reason `chooseRow` gives above.
+        // IC-67 / IC-68: one control in two states. The direction is read from
+        // what is held, for the reason `chooseRow` gives.
         // @provisional PND-143
         const chosen = selectedResourceUids
         selectedResourceUids = chosen.includes(action.uid)
@@ -9826,180 +6302,100 @@ export function frameLoop(
         return
       }
       case 'toggleDocumentSettingsProperties':
-        // FR-072: the settings entrance. ⭐ 「もう一度同じ入口を押したら直前の
-        // 選択物へ戻す」 is the whole of this branch -- pressed while the settings
-        // are up it goes back to the subject, and pressed at any other time it
-        // brings the settings up.
-        // ⛔ THE SUBJECT IS NOT CLEARED ON THE WAY: that requirement (MUST) says
-        // 「設定を開いても選択を解除せず」, and `selection` is not touched here
-        // either.
-        // ⭐ IT ALSO BRINGS A PANEL THAT WAS PUT AWAY BACK. IC-17 is an entrance
-        // to the panel's contents, and a press on it with the panel gone would
-        // otherwise turn a surface nobody can see.
-        // ⛔ WHICH WAY IT THEN GOES IS UNCHANGED, and that is deliberate: the
-        // turn below reads what is HELD, so a reader who put the settings away
-        // and pressed here gets the panel back on 「直前の選択物」 -- which is
-        // the sentence FR-072 writes for a second press of this same entrance.
-        // ⚠️ NOT SETTLED BY ANY ROW. FR-072 words the turn for a panel that is
-        // UP, and no row says what this entrance means to a panel that is not.
-        // The turn is left alone rather than given a second rule.
+        // FR-072's settings entrance (IC-17): a second press goes back to the
+        // subject, and the selection is not cleared.
+        // It also brings a put-away panel back, so the press does not turn a
+        // surface nobody can see. Not decided by the spec: FR-072 words the turn
+        // for a panel that is up; the turn is left unchanged rather than given a
+        // second rule.
         isPropertiesPanelPutAway = false
         // @provisional PND-144
         propertiesShowing =
           propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
         return
       case 'setDualCursorFollowing':
-        // Table T-029a -- DC-1's entry, DC-2's click, DC-4's way out.
-        //
-        // ⭐ THE SIDE MOVES FIRST AND THE WRITE FOLLOWS. Both halves are the
-        // same press, and the order is the one every other branch here keeps:
-        // the session's own value is put in force, then the document is
-        // written from the frame this press was decided against.
-        // ⛔ NOT `changeDocument`'S ROAD, and the question is why: that branch
-        // asks FR-032's confirmation of what it is about to write, and no row
-        // of table T-234 asks anything of a measuring line. ⚠️ `writeDocument`
-        // is still the ONE write path (WS-6), so atomicity is untouched.
-        // ⚠️ UN-12 keeps this out of the undo record -- `document-change-plan.ts`
-        // is where `setDualCursor` is marked not undoable, and DC-6 is the row
-        // it answers to.
+        // Table T-029a: DC-1's entry, DC-2's click, DC-4's way out.
+        // The session value first, then the write, as elsewhere here. Not
+        // `changeDocument`'s road: that asks FR-032's confirmation, and no row of
+        // table T-234 asks anything of a measuring line. UN-12 keeps it out of
+        // undo (`document-change-plan.ts`, DC-6).
         dualCursorFollowing = action.following
         if (action.placed !== null) writeDocument([action.placed], frame)
         return
       case 'setLevelZeroFolded':
-        // HR-2 of table T-015 (MUST) at the head of the panel: 段 0's own fold
-        // moves, and the rows that go with the same press are written.
-        //
-        // ⭐ THE SCREEN FIRST AND THE DOCUMENT AFTER, and the order does not
-        // matter to either: S-211 is not in the document (that row: 「保存し
-        // ない」), so no undo step carries it and no write can disagree with it.
-        // ⛔ ONE BUNDLE FOR THE WRITES (FR-031, MUST): one gesture is one undo
-        // step, and `writeDocument` refuses an empty one on its own account --
-        // a press that only moves the head writes nothing at all.
-        // ⚠️ NO QUESTION IS OWED. `confirmationOwedBy` asks about deletions
-        // (FR-032) and nothing here deletes.
+        // HR-2 of table T-015 at the head of the panel.
+        // The order does not matter: S-211 is not in the document. One bundle
+        // for the writes (FR-031); a press that only moves the head writes
+        // nothing. No question is owed: nothing here deletes (FR-032).
         isLevelZeroFolded = action.isFolded
         if (action.writes.length > 0) writeDocument(action.writes, frame)
         return
       case 'toggleAgentApi':
-        // IC-20 -- FR-065. ⭐ ONE ENTRANCE BOTH WAYS, which that row words
-        // itself. ⚠️ What is shown while it is on is FR-065's other MUST and is
-        // the renderer's; this side holds the fact.
-        // ⛔ NOT WRITTEN TO `localStorage`: see `sessionOf` for the identifier
-        // that is missing and why no key is invented for it.
-        // ⭐ THE PUBLIC POINT FOLLOWS THIS, and not the other way round: the
-        // watcher `setAgentApiEnabled` wakes is what places the name and takes
-        // it away again, which is how FR-028's 「既定では公開しない」 stays true
-        // from the second press on.
+        // IC-20 (FR-065): one entrance both ways. What is shown while it is on is
+        // the renderer's. Not written to `localStorage` -- see `sessionOf`.
+        // The public point follows through the watcher `setAgentApiEnabled`
+        // wakes (FR-028).
         setAgentApiEnabled(!isAgentApiEnabled)
-        // FR-065 (MUST): 「無効にしても、既に渡した参照は取り消せないことを利用者
-        // に示すこと」. ⛔ Raised on the way OFF only -- that sentence is about
-        // what disabling does not do, and NT-5 keeps the press itself accepted.
+        // FR-065: raised on the way off only; NT-5 keeps the press accepted.
         if (!isAgentApiEnabled) raiseNotice(HANDED_REFERENCE_STANDS_REASON, null)
         return
       case 'toggleDialogueFieldVisible':
-        // IC-18 -- FR-066 / S-99i (DFC-149). ⭐ ONE ENTRANCE BOTH WAYS, the same
-        // shape `toggleAgentApi` just above has and for the same reason: table
-        // T-109 words IC-18 「表示する・非表示にする」 on the one entrance.
-        // @provisional PND-419 -- turning the API off does NOT put S-99i back
-        // to its default; what the reader chose to see is remembered, so
-        // enabling the API again restores it. Table T-206 states the default
-        // and says nothing about a capability going away and coming back. ⛔ REACHED ONLY
-        // WHILE THE API IS ON: `answerSettledEntry` spends the press itself
-        // with RS-35's reason while it is off, before this is ever asked.
-        // ⛔ NOTHING ELSE FOLLOWS. Unlike `toggleAgentApi`, FR-065's 「既に渡した
-        // 参照」 note is about the `Agent API` itself and has no counterpart for
-        // a field the reader merely put out of sight.
+        // IC-18 (FR-066, S-99i): one entrance both ways, as `toggleAgentApi`.
+        // @provisional PND-419 -- turning the API off does not reset S-99i, so
+        // enabling it again restores what the reader chose.
+        // Reached only while the API is on: `answerSettledEntry` spends the press
+        // with RS-35's reason otherwise.
         isDialogueFieldVisible = !isDialogueFieldVisible
         return
     }
   }
 
   /**
-   * FR-072: the properties panel turns to what is chosen and remembers what it
-   * was about.
+   * FR-072: the properties panel turns to what is chosen and remembers it.
    *
-   * ⛔ NOT AN ENTRANCE IN ITSELF. FR-072 (MUST NOT) names two entrances and a
-   * moved selection is not one of them, so a caller that is not `MK-13` or
-   * `IC-17` may reach this only while the panel is already standing.
+   * Not an entrance in itself (FR-072 names MK-13 and IC-17), so other callers
+   * reach this only while the panel stands.
    *
-   * ⭐ THE SUBJECT AND NOT THE FIELDS (PND-144). FR-072 (MUST) keeps the previous
-   * contents standing when the selection goes away and has a second press of
-   * IC-17 return to 「直前の選択物」, so what is kept is WHAT was chosen -- kept
-   * fields would go on showing values an edit had already made untrue, and
-   * `PropertyField` carries no way to say a value has stopped being current.
-   *
-   * ⛔ AN EMPTYING CHANGES NEITHER MEMBER, and that is FR-072's own sentence
-   * rather than a shortcut: 「選択が解除されたときは、直前に出していた中身を残す
-   * こと（MUST）」. It follows from leaving them alone -- the subject standing
-   * here IS the 「直前」 that MUST names.
-   * ⛔⛔ THIS QUOTATION READ 「…中身を残し、見出しで『選択なし』と示すこと（MUST）」
-   * UNTIL 2026-09-06 AND NO SUCH SENTENCE IS IN `docs/spec` (台帳 DFC-339). It was
-   * FR-072's wording before CR-272 (2026-08-28), which struck the heading
-   * because the requirement asked for the same thing twice, and the requirement
-   * now says the opposite in as many words: ⛔ 「パネルの先頭に見出しの行を置いて
-   * はならない（MUST NOT）」（利用者の指示 2026-08-27）. ⭐ What carries 「いま何を
-   * 出しているか」 is the entrance's pressed state alone (FR-029's EN-4 of table
-   * T-237), and FR-072's RATIONALE records the price: an emptied selection
-   * leaves the panel showing the previous contents without saying so.
-   * ⚠️ WHICH ALSO KEEPS THE MUST NOT BESIDE IT. 「選択を解除しても設定へは移らな
-   * いこと（MUST NOT）」: with the settings up, an emptying leaves them up, and
-   * nothing here can move to them either.
+   * The subject is kept, not the fields (PND-144): kept fields would show values
+   * an edit had made untrue, and `PropertyField` cannot mark a value stale.
+   * An emptied selection changes neither member, so the subject standing is the
+   * previous contents FR-072 keeps, and nothing moves to the settings.
    *
    * @provisional PND-144
    * @purity non-pure
    */
   function showPropertiesOfChoice(): void {
     if (selection.items.length === 0 && selectedGroupIds.length === 0) return
-    // ⭐ WHICH OPERATION IS AN ENTRANCE IS NOW SETTLED (CR-304, 利用者の指示と
-    // 裁定 2026-08-30), and the two rows say it outright rather than leaving it
-    // to be read: FR-072 (MUST NOT) 「表 T-023c の選択が動いたことだけを理由に、
-    // パネルを出し始めてはならない ... 出す入口は 表 T-023 の `MK-13` と `IC-17`
-    // の 2 つである」, and FR-006 now begins 「プロパティパネルが選択を出している
-    // とき」 rather than naming the choosing.
-    // ⛔ SO THE PUTTING-AWAY IS UNDONE BY THE CALLERS THAT ARE ENTRANCES AND BY
-    // NO OTHER. Three call this: MK-13's double click and FR-042's press in the
-    // `Row Title Panel` are entrances and want the panel back; the selection
-    // comparison at the foot of `receiveInput` is NOT one, and it asks only
-    // while the panel already stands -- see the guard written there.
+    // FR-072 and FR-006: only callers that are entrances may undo the
+    // putting-away; the selection comparison at the foot of `receiveInput` asks
+    // only while the panel stands -- see the guard there.
     isPropertiesPanelPutAway = false
     propertiesShowing = 'selection'
     propertiesSubject = { selection, groupIds: selectedGroupIds }
   }
 
   /**
-   * What a creating press owes once its write has landed: the thing that was
-   * made is what is chosen, and the name field is opened on it.
+   * What a creating press owes once its write has landed: the thing made is
+   * chosen and its name field opened.
    *
-   * ⭐⭐ TWO REQUIREMENTS, ONE ROAD, AND THE ROAD IS FR-085's. FR-091 (MUST):
-   * 「作った直後に入力できること」 and 「入口の道は `FR-085`（行の名前）と同じもの
-   * とすること（MUST）」; HF-14 of table T-051 (MUST): 「その行のプロパティパネル
-   * を出し、名前の欄で名づけさせること（MUST）」 and 「改名と別の道を作っては
-   * ならない（MUST NOT）」. ⛔ Neither requirement's own wording is copied into
-   * this file: what FR-085 asks for -- the panel, the name field, focused, all
-   * of the existing text selected -- is the pair of lines the double-click
-   * branch of `carryOutAction` already writes, and this writes the same pair.
+   * FR-091 and HF-14 of table T-051 route this through FR-085's road, so this
+   * writes the same pair of lines as the double-click branches of
+   * `carryOutAction`.
    *
-   * ⛔ THE DOCUMENT IS ASKED, NOT THE PLAN. `writeDocument` answers nothing and
-   * a refusal raises its own telling, so a `created` whose write was refused
-   * would otherwise put the panel up over something that does not exist.
+   * The document is asked, not the plan: `writeDocument` answers nothing, and a
+   * refused write would otherwise put the panel up over nothing.
    *
-   * ⚠️ FR-001 (MUST) IS THE TASK HALF: 「作ったタスクを選択にすること」, with the
-   * MUST NOT that says why -- 「選択にしないと `FR-091` が果たせない」. SL-2's
-   * shape is taken: the new Task REPLACES what was chosen, because a drag on
-   * empty ground is one press choosing one thing.
+   * FR-001 is the Task half; the new Task replaces the selection (SL-2), since a
+   * drag on empty ground chooses one thing.
    *
-   * ⛔ A ROW IS NOT A MEMBER OF `Selection`. SL-1 of table T-023c leaves 行 out
-   * of the drawing area's selection on purpose, so a made row goes into
-   * `selectedGroupIds` -- FR-085's set, the same one `chooseRow` writes.
+   * A row is not a member of `Selection` (SL-1 of table T-023c), so a made row
+   * goes into `selectedGroupIds`, the set `chooseRow` writes.
    *
    * @purity non-pure
    */
-  // ⛔ REACHED THROUGH `InputAction` AND NOT BY NAMING `CreatedSubject`. Table
-  // T-064 is 「名簿であり全数」 for what crosses a component folder and PI-18 does
-  // not list that type, so importing it would be a name crossing a boundary the
-  // roster does not admit (check 26b measures exactly this). ⭐ `InputAction` is
-  // already one of the names this file takes, and this is a member of it -- the
-  // same road the retired `namingNewRow` took to `InPlaceTarget`.
+  // Reached through `InputAction` rather than importing `CreatedSubject`: PI-18
+  // does not list that type, so the import would cross a component boundary
+  // table T-064 does not admit (check 26b).
   function standOnWhatWasCreated(
     created: NonNullable<Extract<InputAction, { kind: 'changeDocument' }>['created']>,
   ): void {
@@ -10008,64 +6404,41 @@ export function frameLoop(
       selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
       showPropertiesOfChoice()
       nameFieldWantedRow = TASK_NAME_FIELD_ROW
-      // FR-091's 「作った直後の場面」 begins here and nowhere else -- see
-      // `namingCreatedTaskUid`. ⚠️ AFTER the three lines above, so that the one
-      // door that ends it (`endCreatedNamingIfChosenMoved`) cannot be reading a
-      // selection this very call is about to replace.
+      // FR-091's just-created scene begins here -- see `namingCreatedTaskUid`.
+      // After the three lines above, so `endCreatedNamingIfChosenMoved` cannot
+      // read a selection this call is about to replace.
       namingCreatedTaskUid = created.uid
       return
     }
     const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
     if (madeRow === undefined) return
-    // HF-17 of table T-051 (MUST, 利用者の裁定 2026-09-06): 「本行で行を足すとき、
-    // 段 0 が畳まれていれば（`S-211`）1 階層だけ開くこと（MUST）。すべて開いては
-    // ならない（MUST NOT）」, and that row states its own ground: 「開かなければ、
-    // 本行の MUST NOT（打ち込み口だけを送ってはならない）が破れる」.
-    // ⭐ WHY `parentId === null` IS HF-17's ROW AND NOT HF-14's. HF-17 adds to
-    // 「最も浅い段」 and HF-14 adds 「配下に」, so a made row with no parent is the
-    // one this clause speaks of; nothing else here can tell the two entrances
-    // apart, and no value is invented to.
-    // ⛔ ONLY THE HEAD IS OPENED. S-211 is one boolean, so clearing it opens 段 0
-    // and nothing under it -- which is the 1 階層 the clause allows and not
-    // HF-10's 「すべて開く」 (IC-74), whose act would throw away folds the person
-    // made themselves.
-    // ⛔ HF-16's ACT IS NOT COPIED, and that is deliberate: IC-92 also carries
-    // the document writes that bring HR-6's hidden rows back (AT-57), and this
-    // clause asks for none of that -- HF-14's rule is 「その親を開くこと」 and
-    // 「その先祖まで開いてはならない」, which is about folds alone.
-    // ⚠️ NOT A WRITE. S-211 is not in the document (table T-206: 「保存しない」),
-    // so this carries no undo step and cannot disagree with the write above.
+    // HF-17 of table T-051: adding a row with 段 0 folded (S-211) opens one
+    // level. `parentId === null` is HF-17's case (the shallowest tier), not
+    // HF-14's (under a parent); nothing else tells the two entrances apart.
+    // Only the head opens: S-211 is one boolean, so this is not HF-10's open-all
+    // (IC-74), which would discard the person's own folds. HF-16's act is not
+    // copied: IC-92 also brings HR-6's hidden rows back, which this does not ask.
+    // Not a write: S-211 is not in the document (table T-206), so no undo step.
     if (madeRow.parentId === null && isLevelZeroFolded) isLevelZeroFolded = false
     selectedGroupIds = [created.groupId]
     showPropertiesOfChoice()
     nameFieldWantedRow = ROW_NAME_FIELD_ROW
-    // HF-17 (MUST): 「足した行が描かれていないときは、その行が見える位置まで
-    // 表示位置を送ること」, and its last sentence puts HF-14 under the same
-    // rule. The look is owed by the frame that will draw the row -- see
-    // `addedRowOwedSight`.
-    // ⛔ THE SCROLL IS NOT THE WHOLE ANSWER AND HF-14 SAYS SO (MUST NOT):
-    // 「表示位置を送るだけで済ませてはならない」. FR-018's tier is opened by the
-    // write itself -- the translator plans CM-65 ahead of CM-26 where the new
-    // depth would be dropped -- so by the time this runs the row is drawable
-    // and the anchor below is about WHERE it is, not WHETHER it is.
+    // HF-17: an undrawn added row is brought into sight by the frame that draws
+    // it -- see `addedRowOwedSight`. Scrolling alone is not the answer (HF-14):
+    // the write already opened FR-018's tier (the translator plans CM-65 ahead
+    // of CM-26), so the anchor is about where the row is, not whether.
     addedRowOwedSight = created.groupId
   }
 
   /**
    * Whether this happening owes a frame.
    *
-   * ⭐ FR-048 (MUST NOT): 「ポインタに追従する線が 1 本も無く、ほかに描く内容も
-   * 変わらないとき、ポインタの移動で描き直してはならない」. ⛔ The judgement below is
-   * written on WHAT IS DRAWN and never on whether the pointer moved, which that
-   * requirement demands in as many words -- 「判定はポインタではなく描く内容に
-   * 置くこと」 -- because a pan and a drag move the pointer AND change the
-   * picture, and a test phrased on the pointer would forbid those too.
-   * ⚠️ THE EXCEPTION IS A BARE MOVE AND NOTHING ELSE. Every other happening FT-1
-   * names still owes a frame unconditionally; NFR-010 forbids widening the
-   * triggers, and this narrows one rather than adding any.
-   * ⚠️ NOT DRAWING IS NOT THE SAME AS NOT KNOWING: every move is still heard and
-   * `pointerAt` still follows it, and so does the rest FT-4's icon hint waits
-   * out -- `beginPointerRest` runs on the move whether or not this owes a frame.
+   * FR-048: judged on what is drawn, never on whether the pointer moved -- a pan
+   * or a drag moves the pointer and changes the picture. Only a bare move and a
+   * wheel that moved nothing are narrowed; every other FT-1 happening still owes
+   * a frame, so NFR-010's triggers are not widened.
+   * Not drawing is not not knowing: `pointerAt` and `beginPointerRest` still
+   * follow every move.
    *
    * @purity semi-pure-b
    */
@@ -10076,158 +6449,97 @@ export function frameLoop(
     grabBefore: Grabbed | null,
     noticesBefore: readonly RaisedNotice[],
   ): boolean {
-    // ⭐⭐ A WHEEL THAT MOVED NOTHING IS THE SAME QUESTION, ON THE SAME AXIS.
-    // FR-048's own ⚠️ states it: 「判定はポインタではなく描く内容に置くこと
-    // （`NFR-010` と同じ軸）」, and NFR-010 is 「操作していない間は描き直さない」
-    // read through 「描く内容が変わる」 -- a turn against the end of the schedule
-    // is an operation whose whole effect is nothing.
-    // ⛔ NOT A WIDENING OF TABLE T-078. FT-1 still raises the happening and the
-    // shell still hears it; this narrows what a frame is owed FOR, exactly as
-    // the move below narrows one, and adds no trigger.
-    // ⚠️ MEASURED 2026-09-05, shipped build, 1920x1080: forty sideways turns
-    // over the schedule raised forty frames at a median of 13.3ms of work each,
-    // wrote no markup and changed no pixel -- half a second thrown away for one
-    // gesture (DFC-329). The translator now plans nothing for those turns, which
-    // is what makes the comparison below able to answer false.
-    // ⛔ EVERY BINDING THE PICTURE IS DRAWN FROM IS COMPARED, and a turn that
-    // scrolled, zoomed, refused into a telling or took a surface down still
-    // paints. The four are the three `receiveInput` itself compares at its foot
-    // plus the tellings, which are the one thing a REFUSED write changes.
+    // A wheel that moved nothing is the same question on the same axis (FR-048,
+    // NFR-010); table T-078's trigger is not widened. The translator plans
+    // nothing for such turns, which lets the comparison below answer false.
+    // Every binding the picture is drawn from is compared: the three
+    // `receiveInput` compares at its foot plus the tellings, which are what a
+    // refused write changes.
     if (input.kind === 'wheel') {
-      // A gesture in flight. MK-2's turn mid-drag is the one happening that can
-      // both leave a press held and move the axis under it, and
-      // `previewOfHeldPress` works that picture out again for every happening.
+      // A gesture in flight: MK-2's turn mid-drag moves the axis under a held
+      // press, and `previewOfHeldPress` works that picture out again.
       if (pressed !== null) return true
       if (held.document !== before.document) return true
       if (screenState !== before.screenState) return true
       if (selection !== before.selection) return true
       if (raisedNotices !== noticesBefore) return true
-      // ⛔ THE STANDING EXPLANATION IS NOT ASKED FOR HERE, and the move's own
-      // reading is why: a move repaints because a move TAKES THE EXPLANATION
-      // DOWN -- EZ-6 of table T-040 (MUST) has it go away 「ポインタが動いたら」.
-      // A wheel moves no pointer; `beginPointerRest` is not called for one, and
-      // the three things EZ-2 and EZ-6 are drawn from -- the point, the layout
-      // and the rest -- are the same on both sides of a turn that moved
-      // nothing. ⚠️ MEASURED: asking for it here cost 40 frames of the 40 at a
-      // point where an explanation stood, and 0 at a point where none did.
+      // The standing explanation is not asked here: a move repaints because it
+      // takes the explanation down (EZ-6 of table T-040), and a wheel moves no
+      // pointer, so what EZ-2 / EZ-6 draw from is unchanged. Asking here would
+      // repaint every turn over a standing explanation.
       return false
     }
     if (input.kind !== 'pointer' || input.phase !== 'move') return true
-    // 1. A gesture in flight. The drag, the pan and the marquee all draw
-    //    something that follows the pointer, which is why FR-048's own ⚠️ warns
-    //    against reading them as the thing it forbids.
+    // 1. A gesture in flight: the drag, the pan and the marquee draw something
+    //    that follows the pointer.
     if (pressed !== null) return true
-    // 2. Something follows the pointer. FR-048 names the whole set: the guide
-    //    cursor (`S-66` of table T-202) and the side of the `Dual Cursor` that
-    //    DC-1 of table T-029a has following it -- and while that mode is up,
-    //    one side always is.
-    // ⭐ 縦 2 本 IS NOT A MODE AT ALL SINCE 2026-09-06, so no exclusion is owed
-    //    for it either way. CU-3 of table T-029 (MUST NOT) 「「縦 2 本」を持って
-    //    はならない」 and S-66 now holds three values; 「なし」 is the only one of
-    //    the three that follows nothing, which is exactly what this test reads.
-    //    ⚠️ WHAT STOOD HERE reasoned from S-209 stating the gap between that
-    //    mode's two lines -- that row went with the mode.
+    // 2. Something follows the pointer (FR-048): the guide cursor (S-66 of table
+    //    T-202) unless it is none, and the following side of the Dual Cursor
+    //    (DC-1 of table T-029a).
     const guideMode = before.document.documentSettings.guideCursorMode
     if (guideMode !== GUIDE_CURSOR_NONE) return true
     if (dualCursorFollowing !== null) return true
-    // 3. What this happening actually changed, compared and not assumed.
-    //    ⭐ The context IS the snapshot of what was held before the three
-    //    members ran, so it is the thing they are compared against.
+    // 3. What this happening changed, compared against the context, which is the
+    //    snapshot taken before the three members ran.
     if (selection !== before.selection) return true
     if (screenState !== before.screenState) return true
     if (held.document !== before.document) return true
-    // 4. FR-048's ⚠️ exemption, which is not a hole in the MUST NOT but a list
-    //    of things that DO change what is drawn: HF-6's row controls, FR-053's
-    //    palette, FR-043's grab slop and the marker FR-013 gives it, EZ-2's
-    //    icon hint and FR-037's scrollbar hint all answer to the pointer.
-    //    ⭐ Which part it is on may be asked only of the side that drew it
-    //    (Chapter 5.3, under table T-065). ⚠️ With no `ScreenWiring` there are
-    //    no parts at all, so both sides are null and this one is false.
+    // 4. FR-048's exemption: the entry under the pointer changed. Asked only of
+    //    the side that drew it (Chapter 5.3, under table T-065). With no
+    //    `ScreenWiring` both sides are null.
     if (!isSameScreenPart(partUnderPointer, partBefore)) return true
-    // 4a. ⭐ AND AN EXPLANATION THAT IS STANDING, which is the other half of
-    //    the same exemption. EZ-6 of table T-040 (MUST) has the explanation
-    //    over a Task go away 「ポインタが動いたら」, and EZ-2's goes with its
-    //    trigger by IN-3 of table T-028 -- so a move while one is up CHANGES
-    //    what is drawn, and asking for a frame is not what FR-048 forbids.
-    //    ⛔ Without this the wait simply began again and nothing repainted: the
-    //    explanation stayed on the screen until some other happening came, and
-    //    a person moving inside one bar was told it had not gone away.
-    //    ⚠️ ASKED OF THE LAST FRAME AND NOT OF THE WAIT. `pointerRestedMs` is
-    //    read inside `runFrame`; what is owed here is a repaint of what the
-    //    LAST one put up, and that is the only thing this flag records. ⭐ It
-    //    settles false on that repaint, so a move over an empty screen goes on
-    //    owing nothing.
+    // 4a. A standing explanation goes away on a move (EZ-6 of table T-040; EZ-2
+    //    by IN-3 of table T-028), so the move changes what is drawn; without
+    //    this it stays up until another happening. The flag records what the
+    //    last frame put up, and settles false on the repaint.
     if (isTooltipStanding) return true
-    // 5. ⭐ AND THE SAME QUESTION ASKED OF THE SCHEDULE ITSELF, which is where
-    //    FR-043's grab slop and FR-013's marker are drawn -- two of that same
-    //    list. ⛔ IF-9 CANNOT ANSWER FOR THEM: the schedule goes up whole over
-    //    IF-1 and nothing in it is an entry the other surface drew, so
-    //    `readScreenPartAt` answers `null` at every point of the drawing area
-    //    and the comparison above sees no difference anywhere across it.
-    //    Table T-023d is the side that can tell one place from another there,
-    //    and `grabAtPointer` is where it is asked.
-    //    ⛔ NOT A WIDENING OF THE ROSTER. A move that stays on one row of that
-    //    table still owes nothing, which is FR-048's MUST NOT; it is the move
-    //    that ENTERS a different one that changes what is drawn.
+    // 5. The same question asked of the schedule, where FR-043's grab slop and
+    //    FR-013's marker are drawn. IF-9 cannot answer there: the schedule goes
+    //    up whole over IF-1, so `readScreenPartAt` is `null` across the drawing
+    //    area; table T-023d tells places apart, through `grabAtPointer`. A move
+    //    within one row of that table still owes nothing (FR-048).
     return !isSameGrab(grabUnderPointer, grabBefore)
   }
 
   /**
    * IF-9's return direction, spent before the happening that carried it here.
    *
-   * ⭐ WHY IT IS COLLECTED ON AN INPUT AND NOT AT THE HEAD OF A FRAME. A person
-   * settles a property field by leaving it or by pressing Enter, and both of
-   * those ARE happenings that arrive over IF-2 -- so NFR-010's 「起きたときだけ
-   * 走る」 is kept: nothing is polled.
+   * Collected on an input, not polled: settling a field (leaving it or `Enter`)
+   * is itself a happening over IF-2 (NFR-010).
    *
-   * ⛔⛔ THE COMMIT IS NOT ALWAYS STANDING WHEN THIS RUNS, and the note that
-   * used to say it was had it backwards. MEASURED: only SK-19's `Enter` is
-   * settled by the surface's own listener, which the panel hears BEFORE the
-   * window does -- so that press writes on itself. Every other way of settling
-   * is the HOST's `change`, and the host raises that in the DEFAULT ACTION of
-   * the press, which runs after this whole function has returned. ⇒ a value
-   * settled by leaving the field rides the NEXT happening into the document.
-   * ⚠️ THAT IS NOT A DELAY THAT MAY BE CLOSED HERE: table T-078 holds the whole
-   * roster of what may start a frame and 「本表に無い契機でフレームを起こしては
-   * ならない（MUST NOT）」 -- a `change` is not one of the five, so a commit
-   * cannot raise a frame of its own. ⭐ Pointer gestures carry their own next
-   * happening (a release, then a move), so leaving a field with the pointer
-   * lands within the gesture; a `Tab` does not, because table T-036 assigns
-   * nothing to a release and the seam reports no `keyup`.
+   * The commit is not always standing when this runs. Only SK-19's `Enter` is
+   * settled by the surface's own listener, which hears it before the window;
+   * every other settling is the host's `change`, raised in the press's default
+   * action after this function returns, so it rides the next happening. That
+   * delay may not be closed here: `change` is not a trigger in table T-078. A
+   * pointer gesture brings its own next happening; a `Tab` does not, since
+   * table T-036 assigns nothing to a release and the seam reports no `keyup`.
    *
-   * ⛔ BEFORE THE THREE MEMBERS OF PI-18 READ THE DOCUMENT, so that the value a
-   * person just settled is in the document the press is then translated
-   * against. ⚠️ A context of its own is built for it, which is not the second
-   * read the note in `receiveInput` warns about: that one forbids the THREE
-   * members to be answered about different moments, and this is a different
-   * question -- about a field, settled before this happening began.
+   * Before PI-18's three members read the document, so the settled value is in
+   * the document the press is translated against. Its own context is not the
+   * second read `receiveInput` warns about: that forbids the three members
+   * answering about different moments.
    *
-   * ⛔ AN EMPTY ANSWER IS NOT WRITTEN. `commandFromFieldCommit` answers with
-   * nothing where the settled value names no row of table T-108, and an empty
-   * write would still push a step onto the undo history (WS-4) for an edit
-   * nobody made.
+   * An empty answer is not written: it would still push an undo step (WS-4).
    *
    * @purity non-pure
    */
   function spendFieldCommit(frame: FrameValues): void {
-    // ⛔ CLEARED FIRST AND ON EVERY HAPPENING, so that the answer SK-19's second
-    // stage reads belongs to the happening in hand and not to an earlier one.
+    // Cleared first on every happening, so SK-19's second stage reads this
+    // happening's answer.
     didSettleFieldEntry = false
     if (screen === undefined) return
     const commit = screen.surface.readFieldCommit()
     if (commit === null) return
-    // ⭐ WRITTEN ON THE COMMIT AND NOT ON THE COMMANDS. A value that names no row
-    // of table T-108 is still an edit the person settled, and SK-19's second
-    // stage asks whether one stood -- not whether the document moved.
+    // Set on the commit, not the commands: a value naming no row of table T-108
+    // is still a settled edit, which is what SK-19's second stage asks.
     didSettleFieldEntry = true
     const commands = commandFromFieldCommit(commit, collectInputContext(frame))
     if (commands.length === 0) return
-    // FR-031 (MUST) with UN-3 of table T-027: one property change is ONE step
-    // of the undo history, so the whole answer goes over as one bundle.
-    // ⭐ DECLARED AS THE SETTLING WHILE IT RUNS: WS-2 refuses a write made
-    // before the entry was settled, and this write is the settling itself.
-    // ⛔ Put back in a `finally`, because a refusal below raises a telling and
-    // a flag left standing would exempt every write after it.
+    // One property change is one undo step (FR-031, UN-3 of table T-027).
+    // Declared as the settling: WS-2 refuses a write made before the entry was
+    // settled, and this write is the settling. Reset in `finally`: a refusal
+    // raises a telling, and a flag left standing would exempt later writes.
     isSettlingFieldCommit = true
     try {
       writeDocument(commands, frame)
@@ -10242,128 +6554,82 @@ export function frameLoop(
    * @purity non-pure
    */
   function receiveInput(input: HumanInput): void {
-    // FR-102: the arrival, written down before anything is decided and before
-    // any way out below. ⛔⛔ THE FIRST LINE OF THE FUNCTION, AND THAT IS
-    // THE POINT -- the record is worth having only if it can show a happening
-    // that arrived and was then dropped.
+    // FR-102: recorded before anything is decided and before any early return,
+    // so a dropped happening still shows.
     recordHappening(input)
     const frame = values
-    // ⛔ DROPPED WHILE NO FRAME HAS RUN. BO-1 has not settled the size, so
-    // there is no frame of reference to read a coordinate against -- and
-    // NFR-011 is what holds the first frame back until there is one.
+    // Dropped while no frame has run: BO-1 has not settled the size (NFR-011),
+    // so there is no frame to read a coordinate against.
     if (frame === null) {
       recordLine('dropped', 'reason=noFrameHasRunYet')
       return
     }
 
-    // ⛔ BEFORE `spendFieldCommit`, AND THAT ORDER IS THE WHOLE POINT. SK-19's
-    // first stage and IN-4's first level both ask 「出ている通知があるとき」, which
-    // is a question about the instant this key arrived -- and the settling below
-    // can raise a telling of its own. `noticeReasonsOnArrival` says what was
-    // measured when it was read after.
+    // Before `spendFieldCommit`: SK-19's first stage and IN-4's first level ask
+    // about the notices when this key arrived, and the settling below can raise
+    // one. See `noticeReasonsOnArrival`.
     noticeReasonsOnArrival = new Set(raisedNotices.map((one) => one.reason))
 
     spendFieldCommit(frame)
 
-    // ⭐ THE OUTSIDE IS READ ONCE, HERE, BEFORE ANYTHING IS DECIDED (R7.4). Two
-    // rules want IF-9's answer for this happening -- CS-2 freezes it onto the
-    // press, and FR-048 asks whether the pointer entered a different part -- and
-    // a second read further down would be a second moment.
+    // The outside is read once, before anything is decided (R7.4): CS-2 freezes
+    // IF-9's answer onto the press, and FR-048 compares it.
     const partBefore = partUnderPointer
-    // ⭐ AND WHERE THE POINTER STOOD ON THE SCHEDULE, taken at the same moment
-    // and for the same one reader: FR-048 asks whether the pointer entered a
-    // different row of table T-023d as well.
+    // Where the pointer stood on the schedule, at the same moment, for FR-048's
+    // comparison against table T-023d.
     const grabBefore = grabUnderPointer
-    // ⭐ AND THE TELLINGS, at the same one moment and for `owesFrame`: a write
-    // that was REFUSED leaves the document exactly as it was and puts a row on
-    // `ScreenSession.notices` instead, so the document comparison alone cannot
-    // see that the picture changed.
+    // The tellings, for `owesFrame`: a refused write leaves the document
+    // unchanged but adds a notice.
     const noticesBefore = raisedNotices
     if (input.kind === 'pointer') {
-      // FR-018's repeat ends where table T-028 ends the gesture: IN-1 on the
-      // release, IN-1a on the pointer lost outside the window.
-      // ⛔ FIRST IN THIS BLOCK, AND BEFORE ANY WAY OUT OF IT. NT-8's dismissal
-      // below returns early on a release that landed on a telling, and a repeat
-      // called off after that line would go on ticking for ever when the hand
-      // drifted onto one while the button was still down.
-      // ⚠️ The `Esc` of IN-1 is a key happening and cannot arrive here; it is
-      // called off beside the press it interrupts, further down.
+      // FR-018's repeat ends where table T-028 ends the gesture (IN-1 release,
+      // IN-1a lost pointer). First in this block: NT-8's dismissal below returns
+      // early, and a repeat not stopped before it would tick for ever. IN-1's
+      // `Esc` is a key and is handled further down.
       if (input.phase === 'up' || input.phase === 'lost') endEntryRepeat()
-      // FT-4 of table T-078 -- the rest starts over wherever the pointer has
-      // MOVED to.
-      // ⛔ JUDGED ON THE POINT AND NOT ON THE KIND OF HAPPENING: EZ-2 of table
-      // T-040 asks only that the pointer be ON the icon for the wait, so a
-      // press or a release that leaves it exactly where it stood has not
-      // interrupted anything. ⚠️ A host reports a `move` for a pointer that has
-      // not left its pixel, and reading every one of those as a move would hold
-      // the wait open for ever.
+      // FT-4 of table T-078: the rest restarts where the pointer moved to.
+      // Judged on the point, not the kind of happening (EZ-2 of table T-040): a
+      // host reports `move` for a pointer that has not left its pixel, and
+      // counting those would hold the wait open for ever.
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
-      // IN-3 of table T-028 -- 「引き金が外れるまで」 read forwards. ⛔ THE
-      // DISMISSAL BELONGS TO WHERE THE POINTER STOOD, not to the session: the
-      // line above starts EZ-2's wait over, so leaving this standing would make
-      // one `Esc` silence every explanation the reader ever moved onto after it.
-      // ⚠️ ON THE SAME TEST AS THE REST, and deliberately so -- a host reports a
-      // `move` for a pointer that has not left its pixel, and clearing on those
-      // would undo the dismissal under a hand that is holding still.
+      // IN-3 of table T-028: the dismissal belongs to where the pointer stood,
+      // not to the session, else one `Esc` would silence every later
+      // explanation. The same pixel test as the rest, so a still hand keeps it.
       if (hasMoved) isTooltipDismissed = false
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
-      // ⭐ RECORDED BEFORE ANY OF THE THREE MEMBERS IS ASKED. IN-1 settles
-      // nothing on the press, so the only thing `commandFromInput` answers for
-      // a `down` is whether the tool took the gesture (MK-10) -- and
-      // `InputContext.pressed` says in as many words that a caller which
-      // leaves it null on the press leaves every entry the surface drew
-      // unassigned.
+      // Recorded before the three members are asked: IN-1 settles nothing on the
+      // press, and `InputContext.pressed` left null on the press leaves every
+      // drawn entry unassigned (MK-10).
       if (input.phase === 'down') {
         pressed = collectPress(input, frame, partUnderPointer)
-        // FR-053: a press on GR-19's band begins a drag, so the corner the
-        // palette stands at now is the one an interruption (IN-1) has to put
-        // back.
-        // ⛔ TAKEN ON THE PRESS AND NOWHERE ELSE. `paletteCornerOf` resolves the
-        // default off THIS frame's `Row Area`, so a corner read after the window
-        // has moved under an undragged palette would restore a place it never
-        // stood at.
+        // FR-053: the corner an interruption (IN-1) puts back. Taken on the
+        // press only: `paletteCornerOf` resolves the default from this frame's
+        // `Row Area`, so a later read after the window moved would restore a
+        // place the palette never stood at.
         commandPaletteCornerAtPress =
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
-        // FR-052 (MUST): 「境界を掴んでいるあいだ、その時点のポインタ位置が決める
-        // 2 つの幅で画面を描いて示すこと」 -- so a hand on THIS panel's boundary
-        // is asking for the panel, and the width it is making has to be drawn.
-        // ⛔ ON THE PRESS AND NOT ON THE RELEASE, which that MUST is the reason
-        // for: a putting-away left standing would hold the width at 0 for the
-        // whole drag, and the band would be a control that does nothing --
-        // `ScreenFrame.dividers` describes this boundary while the panel is
-        // closed, so the band is there to be grabbed.
-        // ⚠️ NOT SETTLED BY ANY ROW: no requirement says what a boundary drag
-        // means to a panel a reader put away. This is FR-052's own sentence
-        // applied to it, and nothing further is read into the press -- it does
-        // not choose a subject and does not move `propertiesShowing`.
+        // FR-052: a press on this panel's boundary must draw the width being
+        // made, so a put-away panel comes back on the press, not the release --
+        // otherwise its width stays 0 through the drag. Not decided by the spec:
+        // what a boundary drag means to a put-away panel; nothing else is read
+        // into the press (no subject, no `propertiesShowing`).
         if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
           isPropertiesPanelPutAway = false
         }
-        // FR-018 (MUST): the hold begins to be measured from the press.
-        // ⛔ AFTER `collectPress`, because the entrance this asks about is the
-        // one that press recorded -- `pressHeldOnRepeatingEntry` reads no
-        // pointer position of its own (CS-2 of table T-066).
-        // ⚠️ ASKED FOR EVERY PRESS AND NOT ONLY FOR THE FOUR: the member
-        // answers null for every other entrance, so there is one place that
-        // knows which four repeat rather than a test spelled here as well.
+        // FR-018: the hold is measured from the press. After `collectPress`,
+        // because `pressHeldOnRepeatingEntry` reads the entrance that press
+        // recorded (CS-2 of table T-066). Asked for every press: that member
+        // knows which entrances repeat.
         beginEntryRepeat()
       }
-      // NT-8 of table T-037 (MUST): 「告げた通知を、人がその場で消せること」.
-      //
-      // ⭐ ANSWERED HERE AND NOT BY THE TRANSLATOR. What a press on this
-      // entrance changes is `raisedNotices`, which LY-5 of table T-060 leaves
-      // to the shell alone: it is neither a document command nor a screen
-      // state the translator holds, and `UF-67` raises into this very list.
-      // ⛔ ON THE RELEASE, WHICH IS IN-1 OF TABLE T-028 -- a pointer operation
-      // is settled when the button comes up, never when it goes down.
-      // ⚠️ THE KEY AND NOT AN INDEX -- `noticesWithout` says why, and it is the
-      // one place a telling leaves the list, shared with the two keys NT-8
-      // (MUST) gives the same power to.
+      // NT-8 of table T-037, answered here: `raisedNotices` is the shell's (LY-5
+      // of table T-060), and `UF-67` raises into it. On the release (IN-1 of
+      // table T-028). By key, not index -- see `noticesWithout`.
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
         raisedNotices = noticesWithout(partUnderPointer.noticeDismissKey)
         ask()
@@ -10372,28 +6638,13 @@ export function frameLoop(
       }
     }
 
-    // NT-7 of table T-037 (MUST, 利用者の指示 2026-09-01): 「`y` と `n` の打鍵で
-    // も答えられること」, and 「問いが立っているあいだ、この 2 つのキーをほかの
-    // 何にも渡してはならないこと（MUST NOT）」.
-    //
-    // ⭐⭐ WHERE IT STANDS IS THE ROW'S OWN ORDERING, and that is the whole reason
-    // it is written here rather than beside the other keys: 「順位は `NT-8` の
-    // 消去の次、表 T-028 の `IN-4` と 表 T-036 の `SK-19` の階層より先とする
-    // （MUST）」. NT-8's dismissal is above (the release just spent, and the two
-    // keys that reach it further down); `escapeLevelOf` reads IN-4's ladder and
-    // `commandFromInput` reads table T-036's, and BOTH are below this line.
-    // ⛔ NOT A SECOND KEY-DISPATCH PATH. The three members run once, on the line
-    // below, and this returns before them rather than beside them -- the shape
-    // NT-8's own pointer road already has.
-    //
-    // ⛔⛔ THE MODIFIERS ARE NOT READ, AND THAT IS THE MUST NOT. The row bars
-    // 「この 2 つのキー」 from reaching anything else while a question stands, and
-    // it says KEYS rather than combinations -- so a `Ctrl` + `Y` raised over a
-    // standing question answers it instead of redoing an edit (SK-7 of table
-    // T-036). ⚠️ THAT IS A PRICE AND IT IS THE ROW'S: leaving the combination to
-    // SK-7 would hand one of the two keys to something else, which is the one
-    // thing the MUST NOT names. ⭐ Nothing outside a standing question moves --
-    // the guard is `asking !== null`.
+    // NT-7 of table T-037: `y` / `n` answer a standing question.
+    // Placed here by NT-7's own ordering: after NT-8's dismissal, before IN-4
+    // (`escapeLevelOf`) and table T-036 (`commandFromInput`), both below. Not a
+    // second dispatch path: this returns before the three members run.
+    // Modifiers are not read: NT-7 bars the keys, not combinations, so
+    // `Ctrl`+`Y` over a question answers it instead of redoing (SK-7 of table
+    // T-036).
     if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) {
       answerConfirmation(input.key === CONFIRMATION_PROCEED_KEY, frame)
       ask()
@@ -10401,19 +6652,13 @@ export function frameLoop(
       return
     }
 
-    // ⭐ R7.4: collected first, then processed. ONE context is built and the
-    // same value goes to all three members -- rebuilding it between them would
-    // read the clock again (`semi-pure-b`), and the three would then be
-    // answering about different moments.
+    // R7.4: one context, the same value to all three members -- rebuilding it
+    // would read the clock again (`semi-pure-b`), and they would answer about
+    // different moments.
     const context = collectInputContext(frame, noticeReasonsOnArrival.size > 0)
-    // IN-4 of table T-028 -- the four levels of the `Esc` ladder that are the
-    // shell's, because LY-5 of table T-060 leaves it holding all four: the
-    // press in flight, the Dual Cursor mode, the question below, and the
-    // `Properties Panel` this loop decides the contents of (FR-072).
-    // ⛔ ASKED OFF `context` AND BEFORE THE THREE MEMBERS RUN. The other two
-    // levels are `screenStateFromInput`'s, so asking after it had moved the
-    // state would reckon against a state that has just lost a level and spend
-    // two on one press -- and IN-4 allows 1 階層 (MUST).
+    // IN-4 of table T-028: the levels the shell holds (LY-5 of table T-060).
+    // Asked off `context` before the three members run: asked after
+    // `screenStateFromInput` moved the state, one press would spend two levels.
     const escapeLevel = escapeLevelOf(
       input,
       context,
@@ -10421,231 +6666,117 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    // IN-3 of table T-028 (MUST): 「消せること —— ポインタもフォーカスも動かさず
-    // に消す手立てがあること」, and IN-4 (MUST) names the ONE means -- its last
-    // rung, 出ている説明. ⛔ SPENT HERE BECAUSE ONLY THIS SIDE CAN SPEND IT: the
-    // explanation is raised afresh every frame by UF-69 out of the rest and the
-    // place, so the putting-away has to be a value the NEXT frame reads, and
-    // `ScreenSession.isTooltipDismissed` is that value.
-    // ⚠️ NOT ADDED TO `isEscapeSpentHere` BELOW. Those two levels are spent here
-    // INSTEAD of by `screenStateFromInput`; this one is spent here as well as by
-    // it, and costs nothing there -- `'tooltip'` is not one of the two levels
-    // that member consumes, so it answers with the state untouched and IN-4's
-    // 1 階層 per press (MUST) is kept.
+    // IN-3 / IN-4 of table T-028: the explanation rung. Spent here because UF-69
+    // raises the explanation afresh every frame, so the putting-away must be a
+    // value the next frame reads (`ScreenSession.isTooltipDismissed`).
+    // Not in `isEscapeSpentHere`: `screenStateFromInput` consumes no 'tooltip'
+    // level, so it leaves the state untouched and one level is spent (IN-4).
     if (escapeLevel === 'tooltip') isTooltipDismissed = true
     const chosenBeforeThisHappening = selection
     selection = selectionFromInput(input, context)
-    // FR-091's 「作った直後の場面」 ends where the selection does -- the other of
-    // the two doors. ⚠️ THE `Enter` THAT SPENDS THE CLAUSE PASSES THIS LINE
-    // UNTOUCHED: SK-19 moves no selection, so the flag still stands when
-    // `carryOutAction` reads it a few lines below.
+    // FR-091's just-created scene ends where the selection moves. SK-19's
+    // `Enter` moves no selection, so the flag still stands for `carryOutAction`.
     endCreatedNamingIfChosenMoved(chosenBeforeThisHappening)
-    // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
-    // person then takes on it is a row of table T-024, which this member does
-    // not read -- `answerSettledFormat` below is where the choice is spent.
-    // ⛔ NOT ASKED AT ALL WHEN THIS PRESS TOOK ONE OF THE TWO LEVELS THIS FILE
-    // HOLDS. That member can see neither the question nor the panel --
-    // `EscapeContext` says why both flags are optional -- so it would answer for
-    // the NEXT level down and disarm, or close the surface behind the question,
-    // on the same press that dismissed it or put the panel away.
-    // ⚠️ ONE LINE FOR BOTH, because the reason is one reason: IN-4 allows 1 階層
-    // per press (MUST), and a level spent here may not be spent again there.
+    // SK-12 opens U-54 here; the chosen format is spent in `answerSettledFormat`.
+    // Not asked when this press took one of the two levels this file holds: that
+    // member cannot see the question or the panel (see `EscapeContext`), so it
+    // would spend the next level down on the same press (IN-4).
     const isEscapeSpentHere = escapeLevel === 'confirmation' || escapeLevel === 'propertiesPanel'
     const wasPaletteShown = screenState.paletteShown
     screenState = isEscapeSpentHere ? screenState : screenStateFromInput(input, context)
-    // FR-053 (MUST, 利用者の裁定 2026-09-01「ヘッダーでコマンドパレットを再表示
-    // した時、コマンドパレットは標準サイズで表示しろ」): when S-99e goes from
-    // hidden to shown, S-200 goes back to not minimised.
-    //
-    // ⭐ READ AS A CHANGE OF S-99e AND NOT AS A PRESS ON ONE ENTRANCE. The
-    // requirement says 「`S-99e` が非表示から表示へ変わったとき」, and two
-    // entrances move that row -- IC-7 of table T-109 and SK-14 of table T-036 --
-    // so answering the press would need the two written twice and could answer
-    // them differently. ⛔ NOT IN `answerSettledEntry` for the same reason: the
-    // key never reaches it.
-    // ⭐ WHY HERE AND NOT IN THE TRANSLATOR. S-99e rides on `ScreenState`, which
-    // that side owns, and S-200 is a current value LY-5 of table T-060 leaves
-    // with this layer -- this line is the one place both are in reach.
-    // ⛔ ONE DIRECTION ONLY. Hiding the palette leaves S-200 alone: FR-053 keeps
-    // the two states apart in as many words (「非表示（`S-99e`）とは別の状態で
-    // ある」), and clearing it on the way out would be a second rule nobody
-    // stated.
+    // FR-053: when S-99e goes from hidden to shown, S-200 is cleared.
+    // Read as a change of S-99e, not a press: IC-7 of table T-109 and SK-14 of
+    // table T-036 both move it. Here because S-99e rides on `ScreenState` and
+    // S-200 is this layer's (LY-5 of table T-060). One direction only: hiding
+    // leaves S-200 alone (FR-053 keeps the two states apart).
     if (!wasPaletteShown && screenState.paletteShown) isPaletteMinimised = false
     const translated = commandFromInput(input, context)
 
-    // IN-4's FIRST level, spent on the telling NT-8 of table T-037 puts away
-    // (利用者の指示 2026-08-31).
-    //
-    // ⭐ SPENT HERE BECAUSE `raisedNotices` IS HELD HERE, the same division the
-    // question and the panel below already stand in: `escapeTarget` (PI-36)
-    // names the level and this side carries it out (LY-5 of table T-060).
-    // ⛔ AHEAD OF THE FOUR SPENDS BELOW, which is the row's own ordering -- and
-    // it costs nothing that they are written in the same block, because
-    // `escapeLevel` is ONE value: a press that is 'notice' is not also
-    // 'confirmation'.
-    // ⚠️ `screenStateFromInput` WAS STILL ASKED FOR THIS PRESS and answered with
-    // the state untouched, which is why no level is spent twice -- that member
-    // lists 'notice' among the levels it leaves alone.
+    // IN-4's first level: the telling NT-8 of table T-037 puts away. Spent here
+    // because `raisedNotices` is held here (`escapeTarget`, PI-36, names the
+    // level). `escapeLevel` is one value, so no press is two levels, and
+    // `screenStateFromInput` leaves 'notice' alone.
     if (escapeLevel === 'notice') dismissNewestNotice()
-    // IN-4's level for the surface U-55 names, spent.
-    //
-    // ⭐ WHAT AN ABANDONED QUESTION DOES TO THE WRITE IS NOT INVENTED HERE, IT
-    // IS WHAT IS LEFT once NT-7 of table T-037 has been read: that row gives
-    // the person 「続けるか取りやめるかを選ばせること」 (MUST), so 続ける is
-    // something a person CHOOSES, and a press that chose neither cannot be read
-    // as having chosen it. ⛔ The write therefore does not land, which is the
-    // landing the cancelling answer already produces -- and the alternative would be a delete
-    // carried out on a press that asked for the question to go away.
-    // ⚠️ NO ROW SAYS 「`Esc` は取りやめると同じ」 IN AS MANY WORDS. It is the one
-    // of NT-7's two answers this press can be, and nothing further is read into
-    // it; a ruling that says otherwise moves the `false` below and no more.
-    // ⛔ Cleared BEFORE the landing runs, the same order `answerSettledEntry`
-    // keeps and for the same reason.
+    // IN-4's level for U-55. An abandoned question does not write: NT-7 makes
+    // proceeding a choice, and this press chose neither. Not decided by the
+    // spec: no row equates `Esc` with cancelling; a ruling moves the `false`.
+    // Cleared before the landing runs, as `answerSettledEntry` does.
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
-    // IN-4's rung for the surface U-25 names, spent.
-    //
-    // ⭐ THAT THE PANEL IS ON THIS LADDER IS THE MANUSCRIPT'S OWN JOIN: table
-    // T-109 stands its closing entry on `Properties Panel` among that entry's
-    // six surfaces, and that entry's 正 column names IN-4. ⛔ WHICH RUNG it
-    // takes is not, and `escapeTarget` is where that is chosen and reasoned --
-    // nothing here reads the ladder a second time.
-    // ⚠️ WHAT IS WRITTEN IS THE PUTTING AWAY AND NOT THE WIDTH. S-80 is the
-    // document's, and the A-appendix note for S-171 keeps the opening width out
-    // of the document -- so the width a person dragged is still there when the
-    // panel comes back, and UN-16 of table T-027 (パネル幅は対象外) is untouched
-    // because no width was written at all.
+    // IN-4's rung for U-25: table T-109's closing entry lists the
+    // `Properties Panel`, and `escapeTarget` chooses the rung.
+    // Writes the putting-away, not the width: S-171 keeps the opening width out
+    // of the document, so a dragged width survives and UN-16 of table T-027 is
+    // untouched.
     if (escapeLevel === 'propertiesPanel') isPropertiesPanelPutAway = true
-    // DC-4: `Esc` is one of the two ways out of the mode, and DC-7 (MUST) has
-    // leaving it take the two lines down with it.
-    //
-    // ⭐⭐ THE PAIR GOES WITH THE MODE -- 「モードを出たら、置いた 2 本を消すこと
-    // （MUST）」 with 「消したときは `dualCursor` を `null` へ戻すこと（MUST）」
-    // (DC-7, 利用者の裁定 2026-09-06, carried in by CR-364 / CR-369). ⛔ THE
-    // NOTE THAT STOOD HERE READ THE ROW BACKWARDS (DFC-301): it cited DC-7 as
-    // FORBIDDING the clear, which is that row's PRE-CR-364 sentence -- so this
-    // road dropped the following side and left the lines drawn, and a person
-    // pressing `Esc` saw nothing change at all.
-    // ⭐ THE SAME WRITE THE RE-PRESS ROAD MAKES, which is what keeps DC-4's two
-    // ways out from meaning two different things: `commandFromDualCursorEntry`
-    // (`input-command-translator.ts`) answers its own way out with CM-61, and
-    // this is that same command on the road the translator cannot reach --
-    // `escapeTarget` names this level for a holder that lives here (LY-5 of
-    // table T-060), so no action ever comes back for it.
-    // ⚠️ THE LEVEL IMPLIES THE MODE IS UP, so no press writes into a document
-    // with nothing placed: `escapeContextOf`'s `dualCursorMode` IS
-    // `dualCursorFollowing !== null`, and DC-1 (MUST) puts both dates down on
-    // the way in. ⛔ It also implies no gesture is in flight -- `escapeTarget`
-    // ranks 'gesture' above this rung -- so WS-2 cannot refuse the write.
+    // DC-4 / DC-7: `Esc` leaves the mode and clears the two lines.
+    // The same CM-61 write `commandFromDualCursorEntry` makes on the re-press
+    // road, on the road the translator cannot reach (the holder lives here,
+    // LY-5 of table T-060).
+    // The level implies the mode is up (`escapeContextOf` reads
+    // `dualCursorFollowing !== null`) and no gesture in flight (`escapeTarget`
+    // ranks 'gesture' higher), so WS-2 cannot refuse the write.
     if (escapeLevel === 'dualCursorMode') {
       dualCursorFollowing = null
       writeDocument([{ kind: 'clearDualCursor' }], frame)
     }
 
-    // ⛔ THE ORDER IS LOAD-BEARING. The press is dropped AFTER the translator
-    // has read it -- a release is decided entirely from the press (CS-2) --
-    // and BEFORE the write below, because WS-2 refuses a write while a gesture
-    // is in flight (AG-9 of table T-035) and the gesture has in fact ended.
-    // ⭐ IN-1's 「中断は `Esc` で行い」 ends one the same way. Without this the
-    // press outlives the interruption, the release is still settled from it and
-    // the drag is WRITTEN -- and `escapeTarget` would answer 'gesture' for ever
-    // after, so IN-4a's MUST could never hand `Esc` back to the browser and
-    // FR-071's way out of full screen would be unreachable.
+    // Order matters: the press is dropped after the translator read it (a
+    // release is decided from the press, CS-2) and before the write below,
+    // because WS-2 refuses a write during a gesture (AG-9 of table T-035).
+    // IN-1's `Esc` ends one the same way; otherwise the drag would still be
+    // written on release and `escapeTarget` would answer 'gesture' for ever, so
+    // IN-4a could never hand `Esc` to the browser (FR-071).
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
-    // IN-1's 「中断は `Esc` で行い」 -- the third of the three ends FR-018's
-    // repeat has, and the only one that arrives on a key rather than a pointer.
-    // ⛔ AFTER the press is dropped and not before: `endEntryRepeat` is written
-    // to be safe either way, but a repeat outliving the press it is about is
-    // the one state this must never be left in.
+    // IN-1's `Esc`: the only end of FR-018's repeat that arrives on a key. After
+    // the press is dropped; a repeat must never outlive its press.
     if (escapeLevel === 'gesture') endEntryRepeat()
 
-    // FR-053's last sentence on the drag -- an interrupted one (IN-1 of table
-    // T-028) puts the palette back where the drag began.
-    // ⭐ WRITTEN RATHER THAN LEFT TO THE LINE ABOVE. Dropping the press ends the
-    // gesture and nothing more: the travels already applied stand, and the
-    // palette would keep the place the finger reached. ⛔ The requirement is
-    // about the CORNER, so the corner is stated here.
-    // ⭐ TWO HAPPENINGS ARE THE ONE INTERRUPTION, and table T-028 names both:
-    // IN-1 gives `Esc` and (MUST NOT) refuses to read leaving the drawing area
-    // as one, and IN-1a (MUST) ends a drag whose pointer was lost outside the
-    // window AS an interruption -- 「中断として終わらせること」. ⛔ A release is
-    // neither: `up` is the moment IN-1 settles the drag ON.
-    // ⚠️ BEFORE `carryOutAction`, WHICH COSTS NOTHING: `escapeLevelOf` answers
-    // for a key happening alone, and `commandFromInput` answers a lost pointer
-    // with no action at all -- so no travel can arrive on either happening.
+    // FR-053: an interrupted drag (IN-1 `Esc`, IN-1a lost pointer) puts the
+    // palette back where it began; dropping the press alone would leave it where
+    // the finger reached. A release is not an interruption. Before
+    // `carryOutAction` at no cost: neither happening carries a travel.
     const isDragInterrupted =
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
     if (isDragInterrupted && commandPaletteCornerAtPress !== null) {
       commandPaletteDraggedTo = commandPaletteCornerAtPress
     }
-    // ⚠️ Cleared on the same two happenings the press is, and never on its own:
-    // a corner kept past the gesture would be spent by the NEXT `Esc`, which is
-    // a level IN-4 of table T-028 does not give it.
+    // Cleared with the press only: a corner kept past the gesture would be spent
+    // by the next `Esc`, a level IN-4 of table T-028 does not give it.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') commandPaletteCornerAtPress = null
-    // HF-15's picture, dropped with the press it belongs to. ⭐ NOTHING IS PUT
-    // BACK, which is where it parts from the palette's corner above: the grab
-    // never wrote anything (table T-023d, MUST NOT), so an interrupted one has
-    // only a picture to drop and the row is already drawn where it stands.
+    // HF-15's picture goes with the press. Nothing is put back: the grab wrote
+    // nothing (table T-023d).
     if (hasEndedGesture(input) || escapeLevel === 'gesture') rowGrabbedAt = null
 
-    // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself, and
-    // FR-096's format beside them, both read off the press this release settled
-    // from (CS-2 of table T-066).
-    // ⛔ BEFORE `carryOutAction`: a press spent here is not also an edit, and
-    // asking the other way round would let one press do both.
-    // ⚠️ NEVER BOTH. A press lands on a row of table T-109 or on a row of table
-    // T-024 and not on one of each -- FR-096 (MUST NOT) keeps U-54 free of an
-    // entry per format, which is why `ScreenPart` reports the two separately.
+    // FR-032 / FR-038 / OP-3: the entries this loop answers itself, and FR-096's
+    // format, read off the press this release settled from (CS-2 of table
+    // T-066). Before `carryOutAction`, so one press is not also an edit.
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
-    // NT-7 of table T-037 (MUST): 「続けるか取りやめるかを選ばせること」,
-    // answered on one of that row's two word buttons.
-    //
-    // ⭐ BESIDE THE ENTRY AND THE FORMAT, because it is the same kind of answer:
-    // a press this loop spends itself rather than an edit. ⛔ It is no longer
-    // `answerSettledEntry`'s, and the move is the requirement's -- NT-7
-    // (MUST NOT) refuses these two a row of table T-109, so there is no entry
-    // for that member to be asked about and `ScreenPart.confirmationAnswer` is
-    // what crosses IF-9 instead.
-    // ⚠️ NEVER MORE THAN ONE OF THE THREE. A press lands on a row of table
-    // T-109, on a row of table T-024, or on one of NT-7's two answers -- the
-    // surface draws each in a place of its own, which is why `ScreenPart`
-    // reports the three separately.
+    // NT-7 of table T-037: one of the two word buttons. A press lands on at most
+    // one of a table T-109 row, a table T-024 row or an NT-7 answer, which is
+    // why `ScreenPart` reports them separately; NT-7 gives the answers no row of
+    // table T-109.
     const settledAnswer = answerSettledOnRelease(input, context)
     const spent =
       (settledEntry !== null &&
         answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
       (settledFormat !== null && answerSettledFormat(settledFormat)) ||
-      // FR-020 (MUST): U-60 `Watermark Unlock` carries NT-7's two word buttons
-      // too, so an answer has to be offered to that surface FIRST -- it answers
-      // `false` unless it is the surface standing, and a question raised over it
-      // would otherwise take the press meant for it.
+      // FR-020: U-60 also carries NT-7's buttons, so it is offered the answer
+      // first; it answers false unless it is the surface standing.
       (settledAnswer !== null &&
         answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)
 
-    // PTD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」.
-    //
-    // ⭐ THE SAME TELESCOPING THE PALETTE USES, and it is here rather than in
-    // `carryOutAction` because a pan's action is a `changeDocument` like any
-    // other -- nothing inside it says a travel was applied. ⛔ Without this the
-    // pieces of one drag are all measured from the press, and a pan reported in
-    // six moves would travel six times as far.
-    // ⚠️ SET TO THE POINTER RATHER THAN ADVANCED BY A TRAVEL, which the palette
-    // cannot do and this can: the happening in hand IS the pointer this write
-    // was worked out from, so there is no second reading and no second moment.
-    // ⛔ Only when the write actually went: a move the shell spent elsewhere
-    // moved nothing, and advancing here would lose that piece of the travel.
-    // ⭐⭐ AND GR-21's GRIP TELESCOPES ON THE SAME LINE (DFC-420). The closing rule
-    // of table T-023d (MUST) names it among the grabs whose picture follows the
-    // pointer while held, and `scrollbarFollow` plans that follow the same way
-    // the pan does -- so it owes the same record of what was applied. ⛔ Without
-    // it every piece of one drag is measured from the press against a layout the
-    // earlier pieces already moved, which is the runaway `panFollow`'s own note
-    // records (a -240 drag left the leftmost bar at -790).
-    // ⚠️ TOLD APART BY THE PART AND NOT BY THE ROW: a lane is a press the
-    // surface answered for, so it carries no row of table T-023a at all.
+    // PTD-1 of table T-023a: the pan telescopes like the palette, here because a
+    // pan's action is an ordinary `changeDocument`. Without it every piece of a
+    // drag is measured from the press and the pan runs away. Set to the pointer,
+    // since this happening is the pointer the write came from. Only when the
+    // write went: a move spent elsewhere moved nothing.
+    // GR-21's scrollbar grip telescopes on the same line (closing rule of table
+    // T-023d; `scrollbarFollow` plans like `panFollow`). Told apart by the part,
+    // not the row: a lane carries no row of table T-023a.
     if (
       !spent &&
       input.kind === 'pointer' &&
@@ -10659,51 +6790,29 @@ export function frameLoop(
       pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
     }
 
-    // FR-072: 「出しているあいだは、選択が動けば中身がそれに移る -- 上の「最後に
-    // 行われた操作」がそのまま当たる」. A press that moved the drawing area's
-    // selection IS one of those operations, and it is the commonest -- SL-2
-    // replaces the selection with one thing and SL-3 takes a rectangle of them,
-    // and neither asks for an action of its own, so `carryOutAction` above never
-    // hears about them.
-    // ⛔⛔ ONLY WHILE THE PANEL ALREADY STANDS (MUST NOT, FR-072, 利用者の指示
-    // 2026-08-30): 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めて
-    // はならない」. ⭐ THIS GUARD IS THE WHOLE OF DFC-143 -- the ledger's own words
-    // for the defect were 「タスクを 1 回押しただけでプロパティパネルが開く」, and
-    // this line is where the press opened it. ⚠️ `propertiesShowingNow` and not
-    // `propertiesShowing`, because a panel that was put away is not standing --
-    // reading the raw value would let the next press bring back a panel the
-    // person closed, which is exactly the answer PND-339 settled against.
-    // ⛔ COMPARED BY IDENTITY, which is the comparison PI-18 declares for this
-    // member: `selectionFromInput` answers the SAME value it was handed when
-    // nothing moved, so a press that changed nothing does not count as an
-    // operation here. ⚠️ `context.selection` is what was held before the three
-    // members ran, and `owesFrame` compares the same pair for the same reason.
+    // FR-072: while the panel stands, a moved selection moves its contents;
+    // SL-2 / SL-3 presses have no action, so `carryOutAction` never hears them.
+    // Only while the panel already stands (FR-072). `propertiesShowingNow` and
+    // not `propertiesShowing`: a put-away panel is not standing.
+    // Compared by identity (PI-18): `selectionFromInput` returns the same value
+    // when nothing moved.
     // @provisional PND-144
     if (selection !== context.selection && propertiesShowingNow() !== null) {
       showPropertiesOfChoice()
     }
 
-    // OP-3 (MUST NOT): the `Open Chooser` went away without one of its three
-    // being taken, so the choice was never made and the read is abandoned.
-    // ⛔ THIS IS THE ONLY WAY THE WAIT CAN END WITH NO ANSWER, and it exists
-    // because the question stands in S-99g: that row holds one open surface and
-    // IN-4 of table T-028 spends the first level of `Esc` on whatever it is
-    // holding, so `screenStateFromInput` can close this one without asking.
-    // ⚠️ Read AFTER the entry above, which clears both together on a real
-    // answer.
+    // OP-3: the `Open Chooser` went away without an answer, so the read is
+    // abandoned. The only way the wait ends unanswered: the question stands in
+    // S-99g, which IN-4 of table T-028 can close without asking. Read after the
+    // entry above, which clears both on a real answer.
     if (openChoosing !== null && screenState.surface !== OPEN_CHOOSER_SURFACE) {
       const abandoned = openChoosing
       openChoosing = null
       abandoned.settle(null)
     }
 
-    // FR-022 (MUST NOT): U-61 went away without one of table T-032a's being
-    // taken, so 「同じか別か」 was never settled and the merge is abandoned.
-    // ⛔ THE SAME ONE WAY OUT THE `Open Chooser` HAS, and for the same reason:
-    // this question also stands in S-99g, so IN-4 of table T-028 spends the first
-    // level of `Esc` on it without this file saying anything.
-    // ⚠️ MG-6 is kept by construction -- nothing has been written when the
-    // surface stands, so an abandoned merge leaves the document as it was.
+    // FR-022: U-61 went away without an answer, so the merge is abandoned, as
+    // the `Open Chooser` above. MG-6 holds: nothing is written while it stands.
     if (mergeChoosing !== null && screenState.surface !== DIFFERENCE_REVIEW_SURFACE) {
       const abandoned = mergeChoosing
       mergeChoosing = null
@@ -10712,31 +6821,17 @@ export function frameLoop(
       abandoned.settle(null)
     }
 
-    // FR-023: U-62 went away, so the names it laid out are dropped with it --
-    // the same housekeeping the merge above does, and for the same reason: what
-    // a surface lays out belongs to the surface.
-    // ⛔ NOTHING IS SETTLED BY ITS GOING. U-62 asks nothing, so a way out that
-    // is `Esc` rather than the `OK` decides exactly as much: nothing.
+    // FR-023: U-62 went away, so the names it laid out go with it. It asks
+    // nothing, so `Esc` and `OK` decide the same.
     if (droppedTaskNames.length > 0 && screenState.surface !== IMPORT_REPORT_SURFACE) {
       droppedTaskNames = []
     }
 
-    // IN-2 of table T-028 -- the shape the pointer now stands on.
-    //
-    // ⭐ LAST, AND AFTER THE PRESS HAS BEEN DROPPED, because IN-2 asks for the
-    // hand 「パン中」 and a release has ended the pan: read any earlier, the
-    // release would still find PTD-1 in flight and leave the hand behind.
-    // ⭐ ASKED FOR EVERY HAPPENING AND NOT ONLY FOR A MOVE -- 「構えているとき」
-    // is a state a key press moves (SK-1 of table T-036) while the pointer
-    // stands still, and a shape that only followed moves would go on promising
-    // the range selection until the person twitched.
-    // ⛔ Nothing is asked while no pointer has been heard of: `pointerAt` is
-    // null until the first pointer happening, and there is no place to answer
-    // about.
-    // ⭐ THE HIT TEST IS ASKED HERE, AT THE SAME LATE MOMENT AND FOR THE SAME
-    // REASON: the two readers below want the answer for the schedule as it
-    // stands once this happening has been spent, and one ask is what R7.4
-    // allows them.
+    // IN-2 of table T-028: the pointer shape. Last, after the press is dropped,
+    // so a release no longer finds PTD-1 in flight. Asked on every happening: a
+    // key can change the arming (SK-1 of table T-036) while the pointer stands
+    // still. The hit test is asked here too, once (R7.4), against the schedule
+    // as this happening left it.
     if (pointerAt !== null) {
       grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
       showPointerShape?.(
@@ -10744,42 +6839,22 @@ export function frameLoop(
       )
     }
 
-    // FR-052 (MUST) and table T-023d's closing rule for GR-1 / GR-2 -- the
-    // picture the held press owes, worked out once this happening has been
-    // spent.
-    //
-    // ⭐ ONE ASSIGNMENT SETS IT AND CLEARS IT, and `pressed` is what decides
-    // which: the press has already been dropped above on IN-1's release, on
-    // IN-1a's lost pointer and on IN-4's `Esc`, so an interrupted drag loses its
-    // picture on the very happening it loses its gesture, and a release loses it
-    // on the happening that writes the value for real. ⛔ A second place to
-    // clear this would be a second rule about when a gesture ends.
-    // ⚠️ FROM `pointerAt` AND NOT FROM `input`: a key happening arriving
-    // mid-drag would otherwise blank the picture and put the bar back where the
-    // pointer no longer is.
-    // ⭐ AFTER `carryOutAction` for the same reason it is after the drop -- the
-    // release's write has landed, so the fold below starts at what it wrote.
-    // ⚠️ `context` AND `frame` ARE AS OLD AS THIS HAPPENING'S START, the same
-    // age `grabAtPointer` above reads them at. One happening can both write and
-    // leave a press held -- a wheel zoom mid-drag is the only one that does --
-    // and the day this then names is read off the layout from before that zoom.
-    // ⭐ It costs one frame and cannot reach the document: the release asks
-    // `commandFromInput` again against the context of its own moment.
+    // FR-052 and table T-023d's closing rule for GR-1 / GR-2: the held press's
+    // preview. One assignment sets and clears it: the press was already dropped
+    // above on release, lost pointer and `Esc`, and a second place to clear it
+    // would be a second rule for when a gesture ends. From `pointerAt`, not
+    // `input`, so a key mid-drag does not blank it. After `carryOutAction`, so
+    // the fold starts from what the release wrote.
+    // Trap: `context` and `frame` are from this happening's start, so a wheel
+    // zoom mid-drag previews against the pre-zoom layout for one frame; the
+    // release translates again against its own moment, so the document is safe.
     previewDocument = previewOfHeldPress(pressed, pointerAt, context, frame)
 
-    // FT-1 owes a frame for every happening the row names, save the one FR-048
-    // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint
-    // once.
+    // FT-1 owes a frame except where FR-048 takes it back. `ask` coalesces.
     const owesAFrame = owesFrame(input, context, partBefore, grabBefore, noticesBefore)
-    // FR-102: what became of the happening the line above was written for.
-    // ⭐⭐ THIS IS THE HALF THAT SETTLES AN ARGUMENT ABOUT AN ENTRANCE.
-    // `on` is the row of table T-109 the pointer stood on and `grab` the row of
-    // table T-023d, both read off the side that DREW them; `doc` says whether
-    // the document this loop holds was replaced by the happening, which is the
-    // difference between an entrance that did nothing and one whose effect was
-    // not the one expected. ⛔ Not one name, date or number of the document
-    // is on the line: FR-102 (MUST NOT) forbids it and identity is all that is
-    // compared here.
+    // FR-102: what became of the happening. `on` and `grab` are read off the
+    // side that drew them; `doc` tells an entrance that did nothing from one
+    // with an unexpected effect. No document name, date or number (FR-102).
     recordLine(
       'done',
       `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
@@ -10792,28 +6867,14 @@ export function frameLoop(
     if (owesAFrame) ask()
   }
 
-  // ⛔⛔ `settleNewRowName` STOOD HERE AND IS GONE, AND SO HAS THE SEAM IT WAS
-  // HANDED OVER ON (利用者の裁定 2026-09-04). It wrote CM-26 once a name typed in
-  // place had been settled, and refused to stand the row up when that name came
-  // back empty -- HF-14's 「名前が空のまま確定されたときは、その行を立てない
-  // こと（MUST）」. That MUST was withdrawn with the two beside it, and the row
-  // now stands up on the press with the default name. ⭐ The write is planned by
-  // the translator and lands on the one road every other press takes, and the
-  // sight HF-17 owes is written where that write is carried out -- `standOnWhat
-  // WasCreated`.
-
-  // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
-  // ⚠️ Held back while BO-1 is unsettled; the first resize that settles the
-  // size runs it.
+  // BO-5: the first frame (table T-078's note excludes it from FT-1), held back
+  // while BO-1 is unsettled; the first resize that settles the size runs it.
   if (settled(environment)) runFrame()
 
   return {
     /**
-     * FR-100 -- whether leaving the page now would lose work.
-     *
-     * ⭐ ASKED RATHER THAN PUSHED, because the answer is only ever wanted at
-     * the instant the host is about to leave, and the loop's own state is
-     * where it is already kept.
+     * FR-100: whether leaving the page now would lose work. Asked rather than
+     * pushed: it is wanted only as the host is about to leave.
      *
      * @purity semi-pure-b
      */
@@ -10822,33 +6883,25 @@ export function frameLoop(
     },
     /** @purity non-pure */
     holdDocument(call: HeldDocumentCall): void {
-      // ⭐ Straight onto the one road, carrying the caller's row and nothing
-      // else: FT-2's frame is asked for there, along with WS-1 and WS-2.
+      // The one road, carrying the caller's row (FT-2, WS-1, WS-2).
       replaceHeldDocument(call)
     },
     /**
-     * ⛔ CHANGES NOTHING, which PI-27's factory argument requires: this is
-     * asked before the watcher hears the happening. ⚠️ It is therefore the
-     * second build of the context for one happening -- see the note at the
-     * head of this file for why the two cannot be shared.
+     * Changes nothing (PI-27): this is asked before the watcher hears the
+     * happening. So it is the second build of the context for one happening --
+     * see the note at the head of this file for why the two cannot be shared.
      *
      * @purity non-pure
      */
     isBrowserDefaultStopped(input: HumanInput): boolean {
       const frame = values
-      // ⛔ Nothing is this tool's before its first frame: MK-10 forbids
-      // stopping the browser for a happening the tool did not assign (MUST
-      // NOT), and with no frame of reference nothing can be assigned.
+      // Nothing is assigned before the first frame (MK-10).
       if (frame === null) return false
       const context = collectInputContext(frame)
-      // ⛔ ASKED SEPARATELY BECAUSE `commandFromInput` CAN SEE NEITHER OF THE
-      // TWO, and both presses ARE assigned: `receiveInput` dismisses the
-      // `Confirmation` with one and puts the `Properties Panel` away with the
-      // other.
-      // ⚠️ Without this the tool would take the press AND leave the browser its
-      // default, so an `Esc` that declined a question -- or closed the panel --
-      // would ALSO leave full screen. IN-4a hands the key on only when NOTHING
-      // is consumed (MUST), and FR-071's way out is the browser's own behaviour.
+      // Asked separately: `commandFromInput` sees neither the question, the panel
+      // nor the explanation, yet `receiveInput` spends each of those presses.
+      // Otherwise an `Esc` that did so would also leave full screen: IN-4a hands
+      // the key on only when nothing is consumed (FR-071).
       const level = escapeLevelOf(
         input,
         context,
@@ -10856,34 +6909,22 @@ export function frameLoop(
         isPropertiesPanelOnScreen(),
         isTooltipStanding,
       )
-      // ⭐ `'tooltip'` JOINS THE TWO FOR THE SAME REASON THEY ARE HERE:
-      // `commandFromInput` can see none of the three, and all three presses ARE
-      // assigned -- `receiveInput` raises the dismissal above. ⛔ Without this
-      // the tool would take the press AND leave the browser its default, so an
-      // `Esc` that put an explanation away would ALSO leave full screen.
-      // IN-4a hands the key on only when NOTHING is consumed (MUST).
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
-      // NT-7 of table T-037 (MUST NOT): 「問いが立っているあいだ、この 2 つの
-      // キーをほかの何にも渡してはならない」 -- the browser included, which is
-      // what MK-10 of table T-023 asks this member. ⛔ `commandFromInput` below
-      // cannot see the question (`InputContext` carries no member for it), so
-      // this is asked separately for the same reason the two levels above are.
+      // NT-7: `y` / `n` go to nothing else while a question stands, the browser
+      // included (MK-10). `InputContext` carries no question.
       if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,
     /** @purity non-pure */
     resize(next: FrameEnvironment): void {
-      // ⛔ FT-3 is 「画面の寸法が変わったこと」. A resize event that carries the
-      // size already in force did not change it, and NFR-010 forbids waking a
-      // frame on anything table T-078 does not list (MUST NOT). ⚠️ A browser
-      // fires resize for things that leave the window alone.
+      // FT-3: a resize carrying the size in force changed nothing, and NFR-010
+      // forbids waking a frame for it; browsers fire resize for other reasons.
       if (isSameEnvironment(next, environment)) return
       const wasSettled = settled(environment)
       environment = next
       if (!settled(next)) return
-      // The first settled size is BO-5's frame, not FT-3's: table T-077 runs
-      // once, and until now it had not.
+      // The first settled size is BO-5's frame (table T-077), not FT-3's.
       if (!wasSettled) runFrame()
       else ask()
     },
@@ -10891,17 +6932,14 @@ export function frameLoop(
     settleFirstFrameEnvironment(next: FrameEnvironment): void {
       if (isSameEnvironment(next, environment)) return
       environment = next
-      // ⛔ BO-1 IS STILL UNSETTLED IF THE SIZE IS, and NFR-011 (MUST) forbids
-      // the frame -- the same refusal `resize` makes one line above, and for
-      // the same reason: a host that hands over a 0 x 0 window has settled
-      // nothing to draw against.
+      // NFR-011: no frame while BO-1's size is unsettled, as in `resize`.
       if (!settled(next)) return
-      // ⛔ RUN AND NOT ASKED FOR. See this member's declaration: a frame asked
-      // for lands in a later task, and until it does the page holds a picture
-      // drawn against measurements table T-077 had not settled.
+      // Run, not asked for: an asked frame lands in a later task, leaving a
+      // picture drawn against unsettled measurements -- see this member's
+      // declaration.
       runFrame()
     },
-    // ⚠️ Both read a value this loop holds and is free to replace, so neither is
+    // Both read a value this loop holds and is free to replace, so neither is
     // deterministic: two calls a frame apart answer differently.
     /** @purity semi-pure-b */
     current: () => values,
@@ -10913,27 +6951,20 @@ export function frameLoop(
       source: snapshotSource,
       holder,
       audience,
-      // ⭐ IF-6 AND IF-8, HANDED ON RATHER THAN BUILT A SECOND TIME (台帳 DFC-356).
-      // Both arrived as arguments of this loop -- `canvasRasterizer` (CP-31) and
-      // `appShellSource` -- and AM-14 and AM-15 paint IO-4 and assemble IO-7
-      // from exactly the two the person's own road uses, which is what makes the
-      // two entrances equals (FR-028).
-      // ⚠️ `undefined` TRAVELS TOO, and the members answer `notAvailable` for it:
-      // a loop running where nothing can paint is handed neither.
+      // IF-6 and IF-8, handed on rather than built again: AM-14 and AM-15 use the
+      // same two the person's road uses (FR-028). `undefined` travels too, and
+      // the members answer `notAvailable` for it.
       rasterizer,
       appShell,
-      // ⭐ FR-022's WAIT (DFC-357). AM-8 walks the person's own import road and
-      // stops on U-61 until somebody answers -- `takeInHandedDocument` carries
-      // the requirement and the cost.
+      // FR-022's wait (AM-8) -- see `takeInHandedDocument`.
       takeInDocument: takeInHandedDocument,
       ...dialogueSeams,
     }),
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {
       agentApiEnablingWatch = watch
-      // See the declaration: S-99b may have started this page ON, and a watcher
-      // told only about TURNS would leave FR-065's remembered enabling with no
-      // public point behind it.
+      // S-99b may start the page on; a watcher told only about turns would leave
+      // FR-065's enabling with no public point behind it.
       if (isAgentApiEnabled) watch(true)
     },
     /** @purity non-pure */
