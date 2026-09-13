@@ -1,4 +1,12 @@
-3
+2
+#
+# LOWERED 3 -> 2 on 2026-09-14, for JDG-70: the user's ruling landed at table
+# T-246's HB-3 (docs/spec/01-04-requirements.md) -- the top and bottom of a
+# highlight box body drag now shift by the same count of on-screen rows,
+# rejecting the drag when there is no row to land on. rulings.md's JDG-70 row
+# was updated to 適用済 in the same commit. Remaining at 2: JDG-67 and JDG-69,
+# both still held below for their own reasons -- the storage-shape decision
+# they need goes to a change request after stage 0, not into this commit.
 #
 # RAISED 2 -> 3 on 2026-09-14, deliberately, for JDG-70 (DFC-568's highlight
 # box body drag: the top and bottom shift by the same count of on-screen
